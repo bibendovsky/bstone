@@ -9559,7 +9559,17 @@ void vid_hw_on_wall_switch_update(
 
 	if (wall_it == ::hw_3d_xy_wall_map_.cend())
 	{
-		::Quit("Expected wall at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+		const auto& assets_info = AssetsInfo{};
+
+		if (assets_info.is_aog())
+		{
+			::Quit("Expected wall at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+		}
+		else
+		{
+			// Operable non-directly.
+			return;
+		}
 	}
 
 	const auto tile_wall = ::tilemap[x][y] & ::tilemap_wall_mask;
