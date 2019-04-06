@@ -1,434 +1,89 @@
-BStone
-======
-
-A source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike.
-
-
-Contents
-========
-
-1. Disclaimer
-2. Overview
-   1. Overview (PS Vita)
-3. Required assets
-4. Profile
-5. Compiling
-6. Command-line options
-7. Cheat key
-8. Debug keys
-9. Third party use
-10. Credits
-11. Links  
-    1. General
-    2. Add-ons for Aliens Of Gold (full)
-    3. Add-ons for Planet Strike
-
-
-1 - Disclaimer
-==============
-
-Copyright (c) 1992-2013 Apogee Entertainment, LLC  
-Copyright (c) 2013-2019 Boris I. Bendovsky (<bibendovsky@hotmail.com>)
-
-This program is free software; you can redistribute it and/or  
-modify it under the terms of the GNU General Public License  
-as published by the Free Software Foundation; either version 2  
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,  
-but WITHOUT ANY WARRANTY; without even the implied warranty of  
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the  
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License  
-along with this program; if not, write to the Free Software  
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
-For a copy of the GNU General Public License see file LICENSE.  
-For an original source code license see file "Blake Stone source code license.doc".
-
-
-2 - Overview
-============
-
-BStone is a source port of Blake Stone game series: Aliens of Gold and Planet Strike.
-
-Features:
-* High resolution rendering of world (extended vanilla engine)
-* Modern and vanilla controls
-* Allows to customize control bindings
-* Separate volume control of sound effects and music
-
-Supported games:
-* Aliens of Gold (v1.0/v2.0/v2.1/v3.0) full or shareware
-* Planet Strike (v1.0/v1.1)
-
-
-2.1 - Overview (PS Vita)
-========================
-See README-PSVITA.md for details about the source port on PS Vita.
-
-
-3 - Required assets
-===================
-
-Since all titles are not free (except shareware) you have to own a copy of the game(s) in order to play.
-
-Required files for each game:
-
-|    AoG SW    |      AoG     |      PS      |
-|--------------|--------------|--------------|
-| AUDIOHED.BS1 | AUDIOHED.BS6 | AUDIOHED.VSI |
-| AUDIOT.BS1   | AUDIOT.BS6   | AUDIOT.VSI   |
-|              | EANIM.BS6    | EANIM.VSI    |
-|              | GANIM.BS6    |              |
-| IANIM.BS1    | IANIM.BS6    | IANIM.VSI    |
-| MAPHEAD.BS1  | MAPHEAD.BS6  | MAPHEAD.VSI  |
-| MAPTEMP.BS1  | MAPTEMP.BS6  | MAPTEMP.VSI  |
-| SANIM.BS1    | SANIM.BS6    |              |
-| VGADICT.BS1  | VGADICT.BS6  | VGADICT.VSI  |
-| VGAGRAPH.BS1 | VGAGRAPH.BS6 | VGAGRAPH.VSI |
-| VGAHEAD.BS1  | VGAHEAD.BS6  | VGAHEAD.VSI  |
-| VSWAP.BS1    | VSWAP.BS6    | VSWAP.VSI    |
-
-Legend:
-* AoG SW - Aliens of Gold (shareware)
-* AoG - Aliens of Gold (full)
-* PS - Planet Strike
-
-
-4 - Profile
+bstone-vita
 ===========
 
-Configuration file, saved game files, etc. are stored in user's profile.  
-The path to those files depends on platform.  
-To override the path use --profile_dir option.
+Vita port of BStone. Allowing you to play Blake Stone games natively on that handheld.
 
-On Windows, the path might look like:  
-"C:\\Users\\john\\AppData\\Roaming\\bibendovsky\\bstone\\"
+Installing and Running
+======================
 
-On Linux, the path might look like:  
-"/home/john/.local/share/bibendovsky/bstone/"
+Install the `.vpk`.
+Then, in the root of `ux0:/data/bstone/`, place the game assets, which consist, depending on the intended version, of the following files:
 
-On Mac OS X, the path might look like:  
-"/Users/john/Library/Application Support/bibendovsky/bstone/"
+| Shareware    | Registered   | Planet Strike |
+|--------------|--------------|---------------|
+| AUDIOHED.BS1 | AUDIOHED.BS6 | AUDIOHED.VSI  |
+| AUDIOT.BS1   | AUDIOT.BS6   | AUDIOT.VSI    | 
+|              | EANIM.BS6    | EANIM.VSI     |
+|              | GANIM.BS6    |               |
+| IANIM.BS1    | IANIM.BS6    | IANIM.VSI     |
+| MAPHEAD.BS1  | MAPHEAD.BS6  | MAPHEAD.VSI   |
+| MAPTEMP.BS1  | MAPTEMP.BS6  | MAPTEMP.VSI   |
+| SANIM.BS1    | SANIM.BS6    |               |
+| VGADICT.BS1  | VGADICT.BS6  | VGADICT.VSI   |
+| VGAGRAPH.BS1 | VGAGRAPH.BS6 | VGAGRAPH.VSI  |
+| VGAHEAD.BS1  | VGAHEAD.BS6  | VGAHEAD.VSI   |
+| VSWAP.BS1    | VSWAP.BS6    | VSWAP.VSI     |
 
-Configuration file name: bstone_config  
-Log file name: bstone_log.txt  
-High scores file name: bstone_game_high_scores  
-Saved game file name: bstone_game_saved_game
+The full versions of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike each can currently be obatined from the 3D Realms website, and additionally from Steam and GOG.
 
-Where "game" is:  
-* aog_sw - Aliens of Gold (shareware)  
-* aog_full - Aliens of Gold (full)  
-* ps - Planet Strike
+Any combination of these three may coexist in the directory. Press the main "start" region to launch the game. Game version will be chosen in the following order of preference: Registered, Shareware, Planet Strike. Press the "Planet Strike" region to start Planet Strike regardless of the presence of other versions.
 
+## Important note
+As of version 0.2, leaving music enabled may lead to intermittent crashing while playing. Set the "Background Music" option in the "Game Settings" menu to "None" in order to prevent this. As with other homebrew on the Vita, pressing the home button or going into sleep mode can lead to unwanted behavior upon returning to the still-running game.
 
-5 - Compiling
-=============
+Playing the Game
+================
 
-Minimum requirements:
-* C++14 compatible compiler.
+## Controls
 
-* CMake 3.1.3  
-  (<http://cmake.org/>)
+L - use/open
 
-* SDL v2.0.4  
-  (<http://www.libsdl.org/>)
+R - fire/accept
 
-CMake variables:
-* CMAKE_BUILD_TYPE  
-  Selects which build(s) to compile.  
-  Use semicolon to separate entries. 
-  Usually it's Debug or Release.  
-  For other values see CMake documentation.
-
-* CMAKE_INSTALL_PREFIX  
-  Selects location where install files to.
-
-* BSTONE_PANDORA  
-  Enables build for Open Pandora.
+× - about face
 
-* BSTONE_USE_PCH  
-  If enabled utilizes precompiled headers to speed up compilation.  
-  Note: Visual C++ only
+○ - map or status window toggle
 
-* BSTONE_USE_STATIC_LINKING  
-  If enabled links modules statically to avoid dependency on  
-  system and custom libraries at run-time.
-
-* BSTONE_USE_MULTI_PROCESS_COMPILATION  
-  Enables multi-process compilation if supported.
+△ - fire/accept
 
-* SDL2W_SDL2_DIR  
-  Defines directory with SDL2 CMake configuration file or with official SDL2 development Windows build.
+□ - use/open
 
+↑ - move forward
 
-Notes:
-* Use ON value to enable option and value OFF to disable option.
-
+↓ - move backward
 
-6 - Command-line options
-========================
+← - turn left
 
-* --version  
-  Outputs the port's version to standard output and  
-  into message box.
+→ - turn right
 
-* --aog_sw  
-  Switches the port to Blake Stone: Aliens of Gold (shareware) mode.  
-  If appropriate data files will not be found the port will fail.  
-  Default switch strategy: AoG -> PS -> AoG (SW)
+left stick - straight ahead and side-to-side motion
 
-* --aog  
-  Switches the port to Blake Stone: Aliens of Gold mode.  
-  If appropriate data files will not be found the port will fail.  
-  Default switch strategy: AoG -> PS -> AoG (SW)
-  
-* --ps  
-  Switches the port to Blake Stone: Planet Strike mode.  
-  If appropriate data files will not be found the port will fail.  
-  Default switch strategy: AoG -> PS -> AoG (SW)
+right stick - turn
 
-* --no_screens  
-  Skips start-up screens and the ending promo pages (AoG SW).
+Select - map or status window toggle
 
-* --cheats  
-  Enables so called "debug mode" without much fuss.
+Start - Menu/back
 
-* --data_dir path_to_data  
-  Specifies location to the game's data files.  
-  Default: current working directory.
+Number keys are hard mapped to a column on the right side of the front touchscreen corresponding to the locations of the elevator buttons on the AOG level select screen. Useful for weapon selection in addition to operating the elevator. The left and right halves of the region occupied by the bottom HUD bar are mapped to "-", and "=", repectively, for controlling the map zoom level in Planet Strike.
 
-* --mod_dir path_to_data  
-  Specifies location to the mod's data files.  
-  Default: undefined.
+Compiling
+=========
 
-* --profile_dir path  
-  Overrides default location of the game's profile files.  
+Install vitasdk and cmake, enter into the `vita/` subdirectory, and type
 
-* --vid_renderer [d3d|ogl|ogles|ogles2|soft]  
-  Forces to use a specified SDL renderer.  
-  "d3d" selects a Direct3D renderer.  
-  "ogl" selects an OpenGL renderer.  
-  "ogles" selects an OpenGL ES renderer.  
-  "ogles2" selects an OpenGL ES 2.0 renderer.  
-  "soft" selects a software renderer.  
-  Fallback renderer: soft.  
-  Default order without this option: d3d, ogl, ogles, ogles2, soft.
+```
+cmake . && cmake --build .
+```
 
-* --vid_windowed  
-  Runs the game in windowed mode.  
-  Default video mode: 640x480
+Credits
+=======
 
-* --vid_mode width height  
-  Selects the specified resolution for windowed mode.  
-  Without this option the game will use desktop's resolution.  
-  Minimum width: 640  
-  Minimum height: 480
+Boris Bendovsky for BStone
 
-* --vid_no_vsync  
-  Disables vertical synchronization.
+JAM Productions, id Software, and Apogee for Blake Stone
 
-* --vid_scale factor  
-  Refinement factor. The higher a value the greater internal resolution  
-  mode will be used to render a scene. The dimensions of the resolution mode  
-  are proportional to the original one (320x200) by 'factor' value.  
-  This option can greatly affect the performance of a renderer (especially a  
-  software one).  
-  Minimum factor: 1 (identical to the original game)  
-  Default factor: depends on the game's resolution mode.
+The control functions were based on those written by fgsfdsfgs for the vita port of Chocolate Doom
 
-* --vid_window_x offset  
-  Sets a horizontal offset from the left side of the desktop screen.  
-  Applicable for windowed mode only.
+Rinnegatamante for help with Live Area code
 
-* --vid_window_y offset  
-  Sets a vertical offset from the top side of the desktop screen.  
-  Applicable for windowed mode only.
-
-* --snd_rate sampling_rate  
-  Specifies sampling rate of mixer in hertz.  
-  Default: 44100 Hz  
-  Minimum: 11025 Hz
-
-* --snd_mix_size duration  
-  Specifies mix data size in milliseconds.  
-  Default: 40 ms  
-  Minimum: 20 ms
-
-
-7 - Cheat key
-=============
-
-[J] [A] [M] [Enter]  
-Press specified keys sequentially.  
-Shows message "NOW you're jammin'!!", and gives to you all keys,  
-all weapons and restores health to 100% but zeroes score points.  
-Not available in shareware version.
-
-
-8 - Debug keys
-==============
-
-Add option "--cheats" to enable these keys.
-
-* [Backspace]+[A]  
-  Toggles visibility of actors on auto-map.
-
-* [Backspace]+[C]  
-  Shows counts of total static objects, in use static objects,  
-  doors, total actors, active actors.
-
-* [Backspace]+[D]  
-  Toggles player's invisibility.
-
-* [Backspace]+[E]  
-  Win mission instantly.
-
-* [Backspace]+[F]  
-  Shows player's coordinates and direction.
-
-* [Backspace]+[G]  
-  Toggles god mode.
-
-* [Backspace]+[H]  
-  Hurt yourself by 1%.
-
-* [Backspace]+[I]  
-  Each usage adds 99% health, 5 tokens, 50 ammo, one new weapon.
-
-* [Backspace]+[K]  
-  Shows total counts of enemies, points and informants on the map.
-
-* [Backspace]+[M]  
-  Memory information.
-
-* [Backspace]+[O]  
-  Shows push walls on auto-map.
-
-* [Backspace]+[Q]  
-  Instant quit.
-
-* [Backspace]+[R]  
-  Shows full map.
-
-* [Backspace]+[S]  
-  Slow motion.
-
-* [Backspace]+[U]  
-  Unlocks all maps.
-
-* [Backspace]+[W]  
-  Warps to specified map.
-
-* [Backspace]+[Shift/Caps Lock]+[W]  
-  Warps to specified map but loads it from scratch  
-  rather from a saved game file/memory.
-
-* [Backspace]+[Home]  
-  Selects previous ceiling texture.
-
-* [Backspace]+[Page Up]  
-  Selects next ceiling texture.
-
-* [Backspace]+[End]  
-  Selects previous flooring texture.
-
-* [Backspace]+[Page Down]  
-  Selects next flooring texture.
-
-* [Backspace]+[-]  
-  Decreases shading depth.
-
-* [Backspace]+[=]  
-  Increases shading depth.
-
-* [Backspace]+['[']  
-  Decreases shading drop off.
-
-* [Backspace]+[']']  
-  Increases shading drop off.
-
-
-9 - Third party use
-===================
-
-* Simple DirectMedia Library  
-  <http://libsdl.org/>  
-  See file COPYING-SDL2.txt for a license information.
-
-* DOSBox  
-  <http://www.dosbox.com/>  
-  See file dosbox/COPYING for a license information.  
-  Note: The source port uses only an OPL emulation code.
-
-
-10 - Credits
-===========
-
-* id Software  
-  Developing Wolfenstein 3D engine.  
-  <http://www.idsoftware.com/>
-
-* JAM Productions  
-  Developing the game.
-
-* Apogee Entertainment, LLC  
-  Publishing the game and releasing a source code.  
-  <http://www.apogeesoftware.com/>
-
-* Scott Smith  
-  Adaptation to Pandora console, various fixes.
-
-* Filipe Tolhuizen  
-  Testing the port.
-
-
-11 - Links
-==========
-
-11.1 - General
-==============
-
-* Home page:  
-  <http://bibendovsky.github.io/bstone/>
-
-* Blake Stone: Aliens of Gold official site:  
-  <http://legacy.3drealms.com/blake/index.html>
-
-* Blake Stone: Planet Strike official site:  
-  <http://legacy.3drealms.com/planet/index.html>
-
-* Apogee's article about releasing of an original source code:  
-  <http://www.apogeesoftware.com/uncategorized/apogee-releases-blake-stone-source-code>
-
-* Original source code:  
-  <http://bibendovsky.github.io/bstone/files/official/Blake%20Stone%20Planet%20Strike%20Source%20Code.rar>
-
-* Repacked shareware Blake Stone: Aliens Of Gold (v3.0):  
-  <http://bibendovsky.github.io/bstone/files/official/repack/bs_aog_v3_0_sw.zip>
-
-11.2 - Add-ons for Aliens Of Gold (full)
-========================================
-
-* Add-on "BSE90" by ack  
-  <http://bibendovsky.github.io/bstone/files/community/aog/bse90.zip>
-
-* Add-on "GUYSTONE" by Guy Brys  
-  <http://bibendovsky.github.io/bstone/files/community/aog/guystone.zip>
-
-* Ling's Blake Stone Levels by Ling Yan Li  
-  <http://bibendovsky.github.io/bstone/files/community/aog/lingstone.zip>
-
-11.3 - Add-ons for Planet Strike
-================================
-
-* Add-on "BSE24" by ack  
-  <http://bibendovsky.github.io/bstone/files/community/ps/bse24.zip>
-
-* Add-on "GUYSTRIKE" by Guy Brys  
-  <http://bibendovsky.github.io/bstone/files/community/ps/guystrike.zip>
-
-* Ling's Planet Strike Levels by Ling Yan Li  
-  <http://bibendovsky.github.io/bstone/files/community/ps/lingstrike.zip>
+The makers of vitasdk & Henkaku for making this possible in the first place

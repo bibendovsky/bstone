@@ -51,8 +51,7 @@ Free Software Foundation, Inc.,
 #include "bstone_text_writer.h"
 
 #ifdef __vita__
-#include <psp2/kernel/processmgr.h>
-#include <psp2/power.h>
+#include <vitasdk.h>
 #endif
 
 
@@ -207,7 +206,7 @@ std::int16_t dirangle[9] = {
 }; // dirangle
 
 //
-// proejection variables
+// projection variables
 //
 fixed focallength;
 int screenofs;
@@ -9800,9 +9799,33 @@ int main(
 	scePowerSetBusClockFrequency(222);
 	scePowerSetGpuClockFrequency(222);
 	scePowerSetGpuXbarClockFrequency(166);
-#endif
+    sceAppUtilInit(&(SceAppUtilInitParam){}, &(SceAppUtilBootParam){});
+    SceAppUtilAppEventParam eventParam;
+    memset(&eventParam, 0, sizeof(SceAppUtilAppEventParam));
+    sceAppUtilReceiveAppEvent(&eventParam);
 
-	::g_args.initialize(argc, argv);
+    if (eventParam.type == 0x05){
+        argc++;
+        const char* pargv[argc];
+        for (int i = 0; i< argc - 1; i++)
+        {
+            pargv[i] = argv[i];
+        }
+#ifdef VITATEST
+        const char* newarg = "--cheats";
+#else
+        const char* newarg = "--ps";
+#endif
+        pargv[argc-1] = newarg;
+        ::g_args.initialize(argc, pargv);
+    }
+    else
+    {
+        ::g_args.initialize(argc, argv);
+    }
+#else
+    ::g_args.initialize(argc, argv);
+#endif
 
 	bstone::Log::initialize();
 
@@ -10422,12 +10445,7 @@ void gametype::restore_local_barriers()
 void sys_sleep_for(
 	const int milliseconds)
 {
-#ifdef __vita__
-	sceKernelDelayThread(milliseconds);
-	//    SDL_Delay(milliseconds); // todo: investigate this as alternative
-#else
 	::SDL_Delay(milliseconds);
-#endif
 }
 
 void sys_default_sleep_for()
@@ -10437,8 +10455,12 @@ void sys_default_sleep_for()
 
 const std::string& get_version_string()
 {
-	static const std::string version = "1.1.12";
-	return version;
+#ifdef __vita__
+    static const std::string version = "0.3";
+#else
+    static const std::string version = "1.1.12";
+#endif
+    return version;
 }
 
 const std::string& get_profile_dir()
