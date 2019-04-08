@@ -254,6 +254,8 @@ private:
 
 		RendererColor32CPtr rgba_pixels_;
 
+		RendererTexture2dSamplerState sampler_state_;
+
 		GLuint ogl_id_;
 
 
@@ -282,6 +284,20 @@ private:
 			const RendererColor32CPtr src_pixels);
 
 		void update_mipmaps();
+
+
+		void set_mag_filter();
+
+		void set_min_filter();
+
+		void set_u_is_repeated();
+
+		void set_v_is_repeated();
+
+		void update_sampler_state(
+			const RendererTexture2dSamplerState& new_sampler_state);
+
+		void set_sampler_state_defaults();
 	}; // Texture2d
 
 	using Texture2dPtr = Texture2d*;
@@ -467,6 +483,9 @@ private:
 
 	void command_execute_enable_blending(
 		const RendererCommand::BlendingEnable& command);
+
+	void command_execute_texture_set_sampler(
+		const RendererCommand::TextureSetSampler& command);
 
 	void command_execute_draw_quads(
 		const RendererCommand::DrawQuads& command);

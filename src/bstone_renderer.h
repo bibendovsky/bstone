@@ -82,6 +82,8 @@ enum class RendererCommandId
 	matrix_set_model_view,
 	matrix_set_projection,
 
+	texture_set_sampler,
+
 	draw_quads,
 }; // RendererCommandId
 
@@ -269,6 +271,17 @@ using RendererVertexBufferPtr = RendererVertexBuffer*;
 // RendererTexture2d
 //
 
+struct RendererTexture2dSamplerState
+{
+	bool is_mag_filter_linear_;
+	bool is_min_filter_linear_;
+	bool is_min_filter_mipmapped_;
+	bool is_min_mipmap_filter_linear;
+
+	bool is_u_repeated_;
+	bool is_v_repeated_;
+}; // RendererTexture2dSamplerState
+
 struct RendererTexture2dCreateParam
 {
 	bool has_rgba_alpha_;
@@ -410,6 +423,11 @@ struct RendererCommand
 		glm::mat4 projection_;
 	}; // MatrixSetProjection
 
+	struct TextureSetSampler
+	{
+		RendererTexture2dSamplerState state_;
+	}; // TextureSetSampler
+
 	struct DrawQuads
 	{
 		int count_;
@@ -444,6 +462,8 @@ struct RendererCommand
 		MatrixSetView matrix_set_view_;
 		MatrixSetModelView matrix_set_model_view_;
 		MatrixSetProjection matrix_set_projection_;
+
+		TextureSetSampler texture_set_sampler_;
 
 		DrawQuads draw_quads_;
 	}; // union

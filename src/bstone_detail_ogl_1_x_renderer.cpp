@@ -199,6 +199,7 @@ Ogl1XRenderer::Texture2d::Texture2d(
 	indexed_alphas_{},
 	indexed_sprite_{},
 	rgba_pixels_{},
+	sampler_state_{},
 	ogl_id_{}
 {
 	assert(renderer_);
@@ -336,17 +337,7 @@ bool Ogl1XRenderer::Texture2d::initialize(
 	::glBindTexture(GL_TEXTURE_2D, ogl_id_);
 	assert(!OglRendererUtils::was_errors());
 
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
-	assert(!OglRendererUtils::was_errors());
-
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
-	assert(!OglRendererUtils::was_errors());
-
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	assert(!OglRendererUtils::was_errors());
-
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	assert(!OglRendererUtils::was_errors());
+	set_sampler_state_defaults();
 
 	auto mipmap_width = actual_width_;
 	auto mipmap_height = actual_height_;
@@ -523,6 +514,178 @@ void Ogl1XRenderer::Texture2d::update_mipmaps()
 
 		upload_mipmap(i_mipmap, mipmap_width, mipmap_height, texture_subbuffer_0);
 	}
+}
+
+void Ogl1XRenderer::Texture2d::set_mag_filter()
+{
+	const auto mag_filter = (sampler_state_.is_mag_filter_linear_ ? GL_LINEAR : GL_NEAREST);
+
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
+	assert(!OglRendererUtils::was_errors());
+}
+
+void Ogl1XRenderer::Texture2d::set_min_filter()
+{
+	auto min_filter = GLenum{};
+
+	if (sampler_state_.is_min_filter_mipmapped_)
+	{
+		if (sampler_state_.is_min_filter_linear_)
+		{
+			if (sampler_state_.is_min_mipmap_filter_linear)
+			{
+				min_filter = GL_LINEAR_MIPMAP_LINEAR;
+			}
+			else
+			{
+				min_filter = GL_LINEAR_MIPMAP_NEAREST;
+			}
+		}
+		else
+		{
+			if (sampler_state_.is_min_mipmap_filter_linear)
+			{
+				min_filter = GL_NEAREST_MIPMAP_LINEAR;
+			}
+			else
+			{
+				min_filter = GL_NEAREST_MIPMAP_NEAREST;
+			}
+		}
+	}
+	else
+	{
+		if (sampler_state_.is_min_filter_linear_)
+		{
+			min_filter = GL_LINEAR;
+		}
+		else
+		{
+			min_filter = GL_NEAREST;
+		}
+	}
+
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
+	assert(!OglRendererUtils::was_errors());
+}
+
+void Ogl1XRenderer::Texture2d::set_u_is_repeated()
+{
+	const auto u_mode = (sampler_state_.is_u_repeated_ ? GL_REPEAT : GL_CLAMP);
+
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, u_mode);
+	assert(!OglRendererUtils::was_errors());
+}
+
+void Ogl1XRenderer::Texture2d::set_v_is_repeated()
+{
+	const auto v_mode = (sampler_state_.is_v_repeated_ ? GL_REPEAT : GL_CLAMP);
+
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, v_mode);
+	assert(!OglRendererUtils::was_errors());
+}
+
+void Ogl1XRenderer::Texture2d::update_sampler_state(
+	const RendererTexture2dSamplerState& new_sampler_state)
+{
+	auto is_modified = false;
+
+	// Magnification filter.
+	//
+	auto is_mag_filter_modified = false;
+
+	if (sampler_state_.is_mag_filter_linear_ != new_sampler_state.is_mag_filter_linear_)
+	{
+		is_modified = true;
+		is_mag_filter_modified = true;
+
+		sampler_state_.is_mag_filter_linear_ = new_sampler_state.is_mag_filter_linear_;
+	}
+
+	// Minification filter.
+	//
+	auto is_min_filter_modified = false;
+
+	if (sampler_state_.is_min_filter_linear_ != new_sampler_state.is_min_filter_linear_ ||
+		sampler_state_.is_min_filter_mipmapped_ != new_sampler_state.is_min_filter_mipmapped_ ||
+		sampler_state_.is_min_mipmap_filter_linear != new_sampler_state.is_min_mipmap_filter_linear)
+	{
+		is_modified = true;
+		is_min_filter_modified = true;
+
+		sampler_state_.is_min_filter_linear_ = new_sampler_state.is_min_filter_linear_;
+		sampler_state_.is_min_filter_mipmapped_ = new_sampler_state.is_min_filter_mipmapped_;
+		sampler_state_.is_min_mipmap_filter_linear = new_sampler_state.is_min_mipmap_filter_linear;
+	}
+
+	// U-axis wrapping mode.
+	//
+	auto is_u_repeated_modified = false;
+
+	if (sampler_state_.is_u_repeated_ != new_sampler_state.is_u_repeated_)
+	{
+		is_modified = true;
+		is_u_repeated_modified = true;
+
+		sampler_state_.is_u_repeated_ = new_sampler_state.is_u_repeated_;
+	}
+
+	// V-axis wrapping mode.
+	//
+	auto is_v_repeated_modified = false;
+
+	if (sampler_state_.is_v_repeated_ != new_sampler_state.is_v_repeated_)
+	{
+		is_modified = true;
+		is_v_repeated_modified = true;
+
+		sampler_state_.is_v_repeated_ = new_sampler_state.is_v_repeated_;
+	}
+
+	// Modify.
+	//
+	if (is_modified)
+	{
+		::glBindTexture(GL_TEXTURE_2D, ogl_id_);
+		assert(!OglRendererUtils::was_errors());
+
+		if (is_mag_filter_modified)
+		{
+			set_mag_filter();
+		}
+
+		if (is_min_filter_modified)
+		{
+			set_min_filter();
+		}
+
+		if (is_u_repeated_modified)
+		{
+			set_u_is_repeated();
+		}
+
+		if (is_v_repeated_modified)
+		{
+			set_v_is_repeated();
+		}
+	}
+}
+
+void Ogl1XRenderer::Texture2d::set_sampler_state_defaults()
+{
+	sampler_state_.is_mag_filter_linear_ = {};
+	set_mag_filter();
+
+	sampler_state_.is_min_filter_linear_ = {};
+	sampler_state_.is_min_filter_mipmapped_ = {};
+	sampler_state_.is_min_mipmap_filter_linear = {};
+	set_min_filter();
+
+	sampler_state_.is_u_repeated_ = {};
+	set_u_is_repeated();
+
+	sampler_state_.is_v_repeated_ = {};
+	set_v_is_repeated();
 }
 
 //
@@ -877,6 +1040,10 @@ void Ogl1XRenderer::execute_command_sets(
 
 			case RendererCommandId::blending_enable:
 				command_execute_enable_blending(command.blending_enable_);
+				break;
+
+			case RendererCommandId::texture_set_sampler:
+				command_execute_texture_set_sampler(command.texture_set_sampler_);
 				break;
 
 			case RendererCommandId::draw_quads:
@@ -1621,6 +1788,15 @@ void Ogl1XRenderer::command_execute_enable_blending(
 		blending_is_enabled_ = command.is_enabled_;
 
 		blending_set_is_enable();
+	}
+}
+
+void Ogl1XRenderer::command_execute_texture_set_sampler(
+	const RendererCommand::TextureSetSampler& command)
+{
+	for (auto& texture_2d : textures_2d_)
+	{
+		texture_2d->update_sampler_state(command.state_);
 	}
 }
 
