@@ -3003,6 +3003,16 @@ bool hw_initialize_pushwalls_ib()
 {
 	const auto index_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_indices_per_wall_side;
 
+	::hw_3d_pushwall_sides_ib_buffer_.clear();
+	::hw_3d_pushwall_sides_ib_buffer_.resize(index_count);
+
+	return true;
+}
+
+bool hw_initialize_pushwalls_ibo()
+{
+	const auto index_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_indices_per_wall_side;
+
 	auto param = bstone::RendererIndexBufferCreateParam{};
 	param.index_count_ = index_count;
 
@@ -3013,24 +3023,24 @@ bool hw_initialize_pushwalls_ib()
 		return false;
 	}
 
-	::hw_3d_pushwall_sides_ib_buffer_.clear();
-	::hw_3d_pushwall_sides_ib_buffer_.resize(index_count);
-
 	return true;
 }
 
 void hw_3d_uninitialize_pushwalls_ib()
+{
+	::hw_3d_pushwall_sides_ib_buffer_.clear();
+}
+
+void hw_3d_uninitialize_pushwalls_ibo()
 {
 	if (::hw_3d_pushwall_sides_ib_)
 	{
 		::hw_renderer_->index_buffer_destroy(::hw_3d_pushwall_sides_ib_);
 		::hw_3d_pushwall_sides_ib_ = nullptr;
 	}
-
-	::hw_3d_pushwall_sides_ib_buffer_.clear();
 }
 
-bool hw_initialize_pushwalls_vb()
+bool hw_initialize_pushwalls_vbo()
 {
 	auto param = bstone::RendererVertexBufferCreateParam{};
 	param.vertex_count_ = ::hw_3d_pushwall_side_count_ * ::hw_3d_vertices_per_wall_side;
@@ -3045,7 +3055,7 @@ bool hw_initialize_pushwalls_vb()
 	return true;
 }
 
-void hw_3d_uninitialize_pushwalls_vb()
+void hw_3d_uninitialize_pushwalls_vbo()
 {
 	if (::hw_3d_pushwall_sides_vb_)
 	{
@@ -3067,7 +3077,12 @@ bool hw_3d_initialize_pushwalls()
 		return false;
 	}
 
-	if (!::hw_initialize_pushwalls_vb())
+	if (!::hw_initialize_pushwalls_ibo())
+	{
+		return false;
+	}
+
+	if (!::hw_initialize_pushwalls_vbo())
 	{
 		return false;
 	}
@@ -3085,7 +3100,10 @@ void hw_3d_uninitialize_pushwalls()
 	::hw_3d_pushwall_side_draw_items_.clear();
 
 	::hw_3d_uninitialize_pushwalls_ib();
-	::hw_3d_uninitialize_pushwalls_vb();
+	::hw_3d_uninitialize_pushwalls_ibo();
+
+	::hw_3d_uninitialize_pushwalls_vbo();
+	::hw_3d_uninitialize_pushwalls_vbo();
 }
 
 bool hw_initialize_door_sides_ib()
@@ -4194,6 +4212,11 @@ void hw_3d_dbg_draw_all_solid_walls(
 void hw_3d_dbg_draw_all_pushwalls(
 	int& command_index)
 {
+	if (::hw_3d_pushwall_count_ == 0)
+	{
+		return;
+	}
+
 	// Build draw list.
 	//
 	auto draw_side_index = 0;
@@ -4373,6 +4396,11 @@ bool hw_3d_dbg_is_door_visible(
 void hw_3d_dbg_draw_all_doors(
 	int& command_index)
 {
+	if (::hw_3d_door_count_ == 0)
+	{
+		return;
+	}
+
 	// Build draw list.
 	//
 	auto draw_side_index = 0;
@@ -5867,6 +5895,11 @@ void hw_3d_build_pushwalls()
 		::Quit("Too many indices.");
 	}
 
+	if (::hw_3d_pushwall_count_ == 0)
+	{
+		return;
+	}
+
 	// Create index an vertex buffers.
 	//
 	if (!::hw_3d_initialize_pushwalls())
@@ -6128,6 +6161,11 @@ void hw_3d_map_xy_to_door(
 void hw_3d_build_doors()
 {
 	::hw_3d_uninitialize_door_sides();
+
+	if (::hw_3d_door_count_ == 0)
+	{
+		return;
+	}
 
 	// Create index an vertex buffers.
 	//
