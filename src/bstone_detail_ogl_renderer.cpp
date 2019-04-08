@@ -299,6 +299,31 @@ void OglRenderer::texture_2d_destroy(
 	renderer_->texture_2d_destroy(texture_2d);
 }
 
+RendererSamplerPtr OglRenderer::sampler_create(
+	const RendererSamplerCreateParam& param)
+{
+	assert(is_initialized_);
+	assert(renderer_);
+
+	auto sampler = renderer_->sampler_create(param);
+
+	if (!sampler)
+	{
+		error_message_ = renderer_->get_error_message();
+	}
+
+	return sampler;
+}
+
+void OglRenderer::sampler_destroy(
+	RendererSamplerPtr sampler)
+{
+	assert(is_initialized_);
+	assert(renderer_);
+
+	renderer_->sampler_destroy(sampler);
+}
+
 void OglRenderer::execute_command_sets(
 	const RendererCommandSets& command_sets)
 {

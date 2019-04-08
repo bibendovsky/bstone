@@ -586,7 +586,7 @@ void Ogl1XRenderer::Texture2d::set_v_is_repeated()
 }
 
 void Ogl1XRenderer::Texture2d::update_sampler_state(
-	const RendererTexture2dSamplerState& new_sampler_state)
+	const RendererSamplerState& new_sampler_state)
 {
 	auto is_modified = false;
 
@@ -693,6 +693,54 @@ void Ogl1XRenderer::Texture2d::set_sampler_state_defaults()
 // ==========================================================================
 
 
+// =========================================================================
+// Ogl1XRenderer::Sampler
+//
+
+Ogl1XRenderer::Sampler::Sampler(
+	Ogl1XRendererPtr renderer)
+	:
+	renderer_{renderer},
+	state_{}
+{
+	assert(renderer_);
+}
+
+Ogl1XRenderer::Sampler::~Sampler()
+{
+}
+
+void Ogl1XRenderer::Sampler::update(
+	const RendererSamplerUpdateParam& param)
+{
+	if (state_.is_mag_filter_linear_ != param.state_.is_mag_filter_linear_ ||
+		state_.is_min_filter_linear_ != param.state_.is_min_filter_linear_ ||
+		state_.is_min_filter_mipmapped_ != param.state_.is_min_filter_mipmapped_ ||
+		state_.is_min_mipmap_filter_linear != param.state_.is_min_mipmap_filter_linear ||
+		state_.is_u_repeated_ != param.state_.is_u_repeated_ ||
+		state_.is_v_repeated_ != param.state_.is_v_repeated_)
+	{
+		state_ = param.state_;
+
+		if (renderer_->sampler_current_ == this)
+		{
+		}
+	}
+}
+
+bool Ogl1XRenderer::Sampler::initialize(
+	const RendererSamplerCreateParam& param)
+{
+	state_ = param.state_;
+
+	return true;
+}
+
+//
+// Ogl1XRenderer::Sampler
+// =========================================================================
+
+
 // ==========================================================================
 // Ogl1XRenderer
 //
@@ -737,7 +785,10 @@ Ogl1XRenderer::Ogl1XRenderer()
 	index_buffers_{},
 	vertex_buffers_{},
 	texture_buffer_{},
-	textures_2d_{}
+	textures_2d_{},
+	samplers_{},
+	sampler_current_{},
+	sampler_default_{}
 {
 }
 
@@ -782,7 +833,10 @@ Ogl1XRenderer::Ogl1XRenderer(
 	index_buffers_{std::move(rhs.index_buffers_)},
 	vertex_buffers_{std::move(rhs.vertex_buffers_)},
 	texture_buffer_{std::move(rhs.texture_buffer_)},
-	textures_2d_{std::move(rhs.textures_2d_)}
+	textures_2d_{std::move(rhs.textures_2d_)},
+	samplers_{std::move(rhs.samplers_)},
+	sampler_current_{std::move(rhs.sampler_current_)},
+	sampler_default_{std::move(rhs.sampler_default_)}
 {
 	rhs.is_initialized_ = false;
 	rhs.sdl_window_ = nullptr;
@@ -1043,7 +1097,7 @@ void Ogl1XRenderer::execute_command_sets(
 				break;
 
 			case RendererCommandId::texture_set_sampler:
-				command_execute_texture_set_sampler(command.texture_set_sampler_);
+				command_execute_texture_set_sampler(command.sampler_set_);
 				break;
 
 			case RendererCommandId::draw_quads:
@@ -1130,6 +1184,14 @@ bool Ogl1XRenderer::probe_or_initialize(
 		}
 	}
 
+	if (is_succeed)
+	{
+		if (!create_default_sampler())
+		{
+			is_succeed = false;
+		}
+	}
+
 	if (!is_succeed)
 	{
 		ogl_renderer_utils.destroy_window_and_context(sdl_window, sdl_gl_context);
@@ -1196,6 +1258,65 @@ void Ogl1XRenderer::texture_2d_destroy(
 	);
 }
 
+RendererSamplerPtr Ogl1XRenderer::sampler_create(
+	const RendererSamplerCreateParam& param)
+{
+	auto sampler = SamplerUPtr{new Sampler{this}};
+
+	if (!sampler->initialize(param))
+	{
+		error_message_ = "Failed to initialize a sampler.";
+
+		return nullptr;
+	}
+
+	samplers_.push_back(std::move(sampler));
+
+	return samplers_.back().get();
+}
+
+void Ogl1XRenderer::sampler_destroy(
+	RendererSamplerPtr sampler)
+{
+	assert(sampler);
+
+	auto is_update = false;
+
+	if (sampler == sampler_current_)
+	{
+		is_update = true;
+
+		sampler_current_ = sampler_default_.get();
+
+		set_sampler();
+	}
+
+	samplers_.remove_if(
+		[=](const auto& item)
+		{
+			return item.get() == sampler;
+		}
+	);
+}
+
+bool Ogl1XRenderer::create_default_sampler()
+{
+	sampler_default_ = SamplerUPtr{new Sampler{this}};
+
+	auto param = RendererSamplerCreateParam{};
+
+	if (!sampler_default_->initialize(param))
+	{
+		error_message_ = "Failed to initialize default sampler.";
+
+		return false;
+	}
+
+	sampler_current_ = sampler_default_.get();
+
+	return true;
+}
+
 void Ogl1XRenderer::uninitialize_internal(
 	const bool is_dtor)
 {
@@ -1243,11 +1364,14 @@ void Ogl1XRenderer::uninitialize_internal(
 		index_buffers_.clear();
 		vertex_buffers_.clear();
 		texture_buffer_.clear();
+		sampler_current_ = {};
 	}
 
 	index_buffers_.clear();
 	vertex_buffers_.clear();
 	textures_2d_.clear();
+	samplers_.clear();
+	sampler_default_ = {};
 }
 
 void Ogl1XRenderer::scissor_enable()
@@ -1572,6 +1696,16 @@ void Ogl1XRenderer::matrix_set_defaults()
 	matrix_set_texture();
 }
 
+void Ogl1XRenderer::set_sampler()
+{
+	assert(sampler_current_);
+
+	for (auto& texture_2d : textures_2d_)
+	{
+		texture_2d->update_sampler_state(sampler_default_->state_);
+	}
+}
+
 void Ogl1XRenderer::command_execute_culling_enable(
 	const RendererCommand::CullingEnabled& command)
 {
@@ -1792,11 +1926,14 @@ void Ogl1XRenderer::command_execute_enable_blending(
 }
 
 void Ogl1XRenderer::command_execute_texture_set_sampler(
-	const RendererCommand::TextureSetSampler& command)
+	const RendererCommand::SamplerSet& command)
 {
+	auto sampler = static_cast<SamplerPtr>(command.sampler_);
+	const auto& sampler_state = sampler->state_;
+
 	for (auto& texture_2d : textures_2d_)
 	{
-		texture_2d->update_sampler_state(command.state_);
+		texture_2d->update_sampler_state(sampler_state);
 	}
 }
 

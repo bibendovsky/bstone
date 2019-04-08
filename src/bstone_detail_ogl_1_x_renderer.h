@@ -126,6 +126,13 @@ public:
 		RendererTexture2dPtr texture_2d) override;
 
 
+	RendererSamplerPtr sampler_create(
+		const RendererSamplerCreateParam& param) override;
+
+	void sampler_destroy(
+		RendererSamplerPtr sampler) override;
+
+
 	void execute_command_sets(
 		const RendererCommandSets& command_sets) override;
 
@@ -254,7 +261,7 @@ private:
 
 		RendererColor32CPtr rgba_pixels_;
 
-		RendererTexture2dSamplerState sampler_state_;
+		RendererSamplerState sampler_state_;
 
 		GLuint ogl_id_;
 
@@ -295,7 +302,7 @@ private:
 		void set_v_is_repeated();
 
 		void update_sampler_state(
-			const RendererTexture2dSamplerState& new_sampler_state);
+			const RendererSamplerState& new_sampler_state);
 
 		void set_sampler_state_defaults();
 	}; // Texture2d
@@ -307,6 +314,45 @@ private:
 
 	//
 	// Texture2d
+	// =========================================================================
+
+	// =========================================================================
+	// Sampler
+	//
+
+	class Sampler final :
+		public RendererSampler
+	{
+	public:
+		Ogl1XRendererPtr renderer_;
+
+		RendererSamplerState state_;
+
+
+		Sampler(
+			Ogl1XRendererPtr renderer);
+
+		Sampler(
+			const Sampler& rhs) = delete;
+
+		~Sampler() override;
+
+
+		void update(
+			const RendererSamplerUpdateParam& param) override;
+
+
+		bool initialize(
+			const RendererSamplerCreateParam& param);
+	}; // Sampler
+
+	using SamplerPtr = Sampler*;
+	using SamplerUPtr = std::unique_ptr<Sampler>;
+
+	using Samplers = std::list<SamplerUPtr>;
+
+	//
+	// Sampler
 	// =========================================================================
 
 
@@ -366,11 +412,17 @@ private:
 
 	Textures2d textures_2d_;
 
+	Samplers samplers_;
+	SamplerPtr sampler_current_;
+	SamplerUPtr sampler_default_;
+
 
 	bool probe_or_initialize(
 		const bool is_probe,
 		const RendererPath probe_renderer_path,
 		const RendererInitializeParam& param);
+
+	bool create_default_sampler();
 
 	void uninitialize_internal(
 		const bool is_dtor = false);
@@ -442,6 +494,9 @@ private:
 	void matrix_set_defaults();
 
 
+	void set_sampler();
+
+
 	void command_execute_culling_enable(
 		const RendererCommand::CullingEnabled& command);
 
@@ -485,7 +540,7 @@ private:
 		const RendererCommand::BlendingEnable& command);
 
 	void command_execute_texture_set_sampler(
-		const RendererCommand::TextureSetSampler& command);
+		const RendererCommand::SamplerSet& command);
 
 	void command_execute_draw_quads(
 		const RendererCommand::DrawQuads& command);

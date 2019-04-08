@@ -126,6 +126,13 @@ public:
 		RendererTexture2dPtr texture_2d) override;
 
 
+	RendererSamplerPtr sampler_create(
+		const RendererSamplerCreateParam& param) override;
+
+	void sampler_destroy(
+		RendererSamplerPtr sampler) override;
+
+
 	void execute_command_sets(
 		const RendererCommandSets& command_sets) override;
 

@@ -271,7 +271,7 @@ using RendererVertexBufferPtr = RendererVertexBuffer*;
 // RendererTexture2d
 //
 
-struct RendererTexture2dSamplerState
+struct RendererSamplerState
 {
 	bool is_mag_filter_linear_;
 	bool is_min_filter_linear_;
@@ -280,7 +280,7 @@ struct RendererTexture2dSamplerState
 
 	bool is_u_repeated_;
 	bool is_v_repeated_;
-}; // RendererTexture2dSamplerState
+}; // RendererSamplerState
 
 struct RendererTexture2dCreateParam
 {
@@ -325,6 +325,32 @@ public:
 }; // RendererTexture2d
 
 using RendererTexture2dPtr = RendererTexture2d*;
+
+
+struct RendererSamplerCreateParam
+{
+	RendererSamplerState state_;
+}; // RendererSamplerCreateParam
+
+struct RendererSamplerUpdateParam
+{
+	RendererSamplerState state_;
+}; // RendererSamplerUpdateParam
+
+class RendererSampler
+{
+protected:
+	RendererSampler() = default;
+
+	virtual ~RendererSampler() = default;
+
+
+public:
+	virtual void update(
+		const RendererSamplerUpdateParam& param) = 0;
+}; // RendererSampler
+
+using RendererSamplerPtr = RendererSampler*;
 
 //
 // RendererTexture2d
@@ -423,10 +449,10 @@ struct RendererCommand
 		glm::mat4 projection_;
 	}; // MatrixSetProjection
 
-	struct TextureSetSampler
+	struct SamplerSet
 	{
-		RendererTexture2dSamplerState state_;
-	}; // TextureSetSampler
+		RendererSamplerPtr sampler_;
+	}; // SamplerSet
 
 	struct DrawQuads
 	{
@@ -463,7 +489,7 @@ struct RendererCommand
 		MatrixSetModelView matrix_set_model_view_;
 		MatrixSetProjection matrix_set_projection_;
 
-		TextureSetSampler texture_set_sampler_;
+		SamplerSet sampler_set_;
 
 		DrawQuads draw_quads_;
 	}; // union
@@ -556,6 +582,13 @@ public:
 
 	virtual void texture_2d_destroy(
 		RendererTexture2dPtr texture_2d) = 0;
+
+
+	virtual RendererSamplerPtr sampler_create(
+		const RendererSamplerCreateParam& param) = 0;
+
+	virtual void sampler_destroy(
+		RendererSamplerPtr sampler) = 0;
 
 
 	virtual void execute_command_sets(
