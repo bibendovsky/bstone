@@ -297,9 +297,12 @@ private:
 
 		void set_min_filter();
 
-		void set_u_is_repeated();
+		void set_address_mode(
+			const RendererAddressMode address_mode);
 
-		void set_v_is_repeated();
+		void set_address_mode_u();
+
+		void set_address_mode_v();
 
 		void update_sampler_state(
 			const RendererSamplerState& new_sampler_state);
@@ -494,7 +497,7 @@ private:
 	void matrix_set_defaults();
 
 
-	void set_sampler();
+	void sampler_set();
 
 
 	void command_execute_culling_enable(
@@ -539,7 +542,7 @@ private:
 	void command_execute_enable_blending(
 		const RendererCommand::BlendingEnable& command);
 
-	void command_execute_texture_set_sampler(
+	void command_execute_sampler_set(
 		const RendererCommand::SamplerSet& command);
 
 	void command_execute_draw_quads(

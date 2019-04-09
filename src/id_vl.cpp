@@ -1599,6 +1599,10 @@ float hw_3d_camera_fovy_deg = 45.0F;
 float hw_3d_camera_near_distance = 0.05F;
 float hw_3d_camera_far_distance = (std::sqrt(2.0F) * ::hw_3d_map_dimension_f) + 0.5F;
 
+bstone::RendererSamplerPtr hw_2d_so_;
+bstone::RendererSamplerPtr hw_3d_wall_so_;
+bstone::RendererSamplerPtr hw_3d_sprite_so_;
+
 
 Hw2dVertices hw_2d_vertices_;
 
@@ -3557,6 +3561,102 @@ void hw_matrices_build()
 	::hw_3d_matrices_build();
 }
 
+void hw_2d_sampler_uninitialize()
+{
+	if (::hw_2d_so_)
+	{
+		::hw_renderer_->sampler_destroy(::hw_2d_so_);
+		::hw_2d_so_ = nullptr;
+	}
+}
+
+bool hw_2d_sampler_initialize()
+{
+	auto param = bstone::RendererSamplerCreateParam{};
+	param.state_.min_filter_ = bstone::RendererFilterKind::nearest;
+	param.state_.mag_filter_ = bstone::RendererFilterKind::nearest;
+	param.state_.mipmap_mode_ = bstone::RendererMipmapMode::none;
+	param.state_.address_mode_u_ = bstone::RendererAddressMode::clamp;
+	param.state_.address_mode_v_ = bstone::RendererAddressMode::clamp;
+
+	::hw_2d_so_ = ::hw_renderer_->sampler_create(param);
+
+	return true;
+}
+
+void hw_3d_sampler_uninitialize_sprite()
+{
+	if (::hw_3d_sprite_so_)
+	{
+		::hw_renderer_->sampler_destroy(::hw_3d_sprite_so_);
+		::hw_3d_sprite_so_ = nullptr;
+	}
+}
+
+bool hw_3d_sampler_initialize_sprite()
+{
+	auto param = bstone::RendererSamplerCreateParam{};
+	param.state_.min_filter_ = bstone::RendererFilterKind::nearest;
+	param.state_.mag_filter_ = bstone::RendererFilterKind::nearest;
+	param.state_.mipmap_mode_ = bstone::RendererMipmapMode::nearest;
+	param.state_.address_mode_u_ = bstone::RendererAddressMode::clamp;
+	param.state_.address_mode_v_ = bstone::RendererAddressMode::clamp;
+
+	::hw_3d_sprite_so_ = ::hw_renderer_->sampler_create(param);
+
+	return true;
+}
+
+void hw_3d_sampler_uninitialize_wall()
+{
+	if (::hw_3d_wall_so_)
+	{
+		::hw_renderer_->sampler_destroy(::hw_3d_wall_so_);
+		::hw_3d_wall_so_ = nullptr;
+	}
+}
+
+bool hw_3d_sampler_initialize_wall()
+{
+	auto param = bstone::RendererSamplerCreateParam{};
+	param.state_.min_filter_ = bstone::RendererFilterKind::nearest;
+	param.state_.mag_filter_ = bstone::RendererFilterKind::nearest;
+	param.state_.mipmap_mode_ = bstone::RendererMipmapMode::nearest;
+	param.state_.address_mode_u_ = bstone::RendererAddressMode::repeat;
+	param.state_.address_mode_v_ = bstone::RendererAddressMode::repeat;
+
+	::hw_3d_wall_so_ = ::hw_renderer_->sampler_create(param);
+
+	return true;
+}
+
+void hw_samplers_uninitialize()
+{
+	::hw_2d_sampler_uninitialize();
+	::hw_3d_sampler_uninitialize_sprite();
+	::hw_3d_sampler_uninitialize_wall();
+}
+
+bool hw_samplers_initialize()
+{
+	if (!::hw_2d_sampler_initialize())
+	{
+		return false;
+	}
+
+	if (!::hw_3d_sampler_initialize_sprite())
+	{
+		return false;
+	}
+
+	if (!::hw_3d_sampler_initialize_wall())
+	{
+		return false;
+	}
+
+	return true;
+}
+
 bool hw_initialize_video()
 {
 	::vid_is_hw_ = false;
@@ -3759,6 +3859,14 @@ bool hw_initialize_video()
 
 	if (is_succeed)
 	{
+		if (!::hw_samplers_initialize())
+		{
+			is_succeed = false;
+		}
+	}
+
+	if (is_succeed)
+	{
 		::vid_is_hw_ = true;
 
 		hw_renderer_->color_buffer_set_clear_color(bstone::RendererColor32{});
@@ -3889,6 +3997,14 @@ void hw_refresh_screen_2d()
 		auto& command = commands[command_index++];
 		command.id_ = bstone::RendererCommandId::depth_set_test;
 		command.depth_set_test_.is_enabled_ = false;
+	}
+
+	// Set sampler.
+	//
+	{
+		auto& command = commands[command_index++];
+		command.id_ = bstone::RendererCommandId::sampler_set;
+		command.sampler_set_.sampler_ = ::hw_2d_so_;
 	}
 
 	// Set model-view matrix.
@@ -4792,6 +4908,14 @@ void hw_refresh_screen_3d()
 		command.matrix_set_projection_.projection_ = ::hw_3d_matrix_projection_;
 	}
 
+	// Set sampler.
+	//
+	{
+		auto& command = commands[command_index++];
+		command.id_ = bstone::RendererCommandId::sampler_set;
+		command.sampler_set_.sampler_ = ::hw_3d_wall_so_;
+	}
+
 	// Draw solid walls.
 	//
 	::hw_3d_dbg_draw_all_solid_walls(command_index);
@@ -4800,9 +4924,25 @@ void hw_refresh_screen_3d()
 	//
 	::hw_3d_dbg_draw_all_pushwalls(command_index);
 
+	// Set sampler.
+	//
+	{
+		auto& command = commands[command_index++];
+		command.id_ = bstone::RendererCommandId::sampler_set;
+		command.sampler_set_.sampler_ = ::hw_3d_sprite_so_;
+	}
+
 	// Draw doors.
 	//
 	::hw_3d_dbg_draw_all_doors(command_index);
+
+	// Set sampler.
+	//
+	{
+		auto& command = commands[command_index++];
+		command.id_ = bstone::RendererCommandId::sampler_set;
+		command.sampler_set_.sampler_ = ::hw_3d_wall_so_;
+	}
 
 	// Draw flooring.
 	//
@@ -4846,7 +4986,15 @@ void hw_refresh_screen_3d()
 		draw_quads.texture_2d_ = texture_2d;
 	}
 
-	// Draw statics.
+	// Set sampler.
+	//
+	{
+		auto& command = commands[command_index++];
+		command.id_ = bstone::RendererCommandId::sampler_set;
+		command.sampler_set_.sampler_ = ::hw_3d_sprite_so_;
+	}
+
+	// Draw statics and actors.
 	//
 	::hw_3d_dbg_draw_all_sprites(command_index);
 
@@ -6864,14 +7012,19 @@ void hw_precache_explosion()
 // Clip Explosion.
 void hw_precache_clip_explosion()
 {
-	::hw_cache_sprite(::SPR_CLIP_EXP1);
-	::hw_cache_sprite(::SPR_CLIP_EXP2);
-	::hw_cache_sprite(::SPR_CLIP_EXP3);
-	::hw_cache_sprite(::SPR_CLIP_EXP4);
-	::hw_cache_sprite(::SPR_CLIP_EXP5);
-	::hw_cache_sprite(::SPR_CLIP_EXP6);
-	::hw_cache_sprite(::SPR_CLIP_EXP7);
-	::hw_cache_sprite(::SPR_CLIP_EXP8);
+	const auto& assets_info = AssetsInfo{};
+
+	if (assets_info.is_ps())
+	{
+		::hw_cache_sprite(::SPR_CLIP_EXP1);
+		::hw_cache_sprite(::SPR_CLIP_EXP2);
+		::hw_cache_sprite(::SPR_CLIP_EXP3);
+		::hw_cache_sprite(::SPR_CLIP_EXP4);
+		::hw_cache_sprite(::SPR_CLIP_EXP5);
+		::hw_cache_sprite(::SPR_CLIP_EXP6);
+		::hw_cache_sprite(::SPR_CLIP_EXP7);
+		::hw_cache_sprite(::SPR_CLIP_EXP8);
+	}
 }
 
 // Grenade explosion.
@@ -6928,7 +7081,12 @@ void hw_precache_bfg_shot()
 // A rubble.
 void hw_precache_rubble()
 {
-	::hw_cache_sprite(::SPR_RUBBLE);
+	const auto& assets_info = AssetsInfo{};
+
+	if (assets_info.is_ps())
+	{
+		::hw_cache_sprite(::SPR_RUBBLE);
+	}
 }
 
 // Toxic waste (green #1).
@@ -8843,6 +9001,8 @@ void hw_uninitialize_video()
 {
 	::hw_command_sets_ .clear();
 	::hw_2d_command_set_ = nullptr;
+
+	::hw_samplers_uninitialize();
 
 	::hw_3d_uninitialize_solid_walls();
 	::hw_3d_uninitialize_pushwalls();

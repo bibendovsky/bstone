@@ -317,19 +317,6 @@ bool Ogl1XRenderer::Texture2d::initialize(
 		internal_format = GL_RGBA8;
 	}
 
-	auto min_filter = GLenum{};
-
-	if (is_generate_mipmaps_)
-	{
-		min_filter = GL_NEAREST_MIPMAP_NEAREST;
-	}
-	else
-	{
-		min_filter = GL_NEAREST;
-	}
-
-	auto mag_filter = GL_NEAREST;
-
 	::glGenTextures(1, &ogl_id_);
 	assert(!OglRendererUtils::was_errors());
 	assert(ogl_id_ != 0);
@@ -518,71 +505,128 @@ void Ogl1XRenderer::Texture2d::update_mipmaps()
 
 void Ogl1XRenderer::Texture2d::set_mag_filter()
 {
-	const auto mag_filter = (sampler_state_.is_mag_filter_linear_ ? GL_LINEAR : GL_NEAREST);
+	auto ogl_mag_filter = GLenum{};
 
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
+	switch (sampler_state_.mag_filter_)
+	{
+	case RendererFilterKind::nearest:
+		ogl_mag_filter = GL_NEAREST;
+		break;
+
+	case RendererFilterKind::linear:
+		ogl_mag_filter = GL_LINEAR;
+		break;
+
+	default:
+		assert(!"Invalid magnification filter.");
+		break;
+	}
+
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, ogl_mag_filter);
 	assert(!OglRendererUtils::was_errors());
 }
 
 void Ogl1XRenderer::Texture2d::set_min_filter()
 {
-	auto min_filter = GLenum{};
+	auto ogl_min_filter = GLenum{};
 
-	if (sampler_state_.is_min_filter_mipmapped_)
+	switch (sampler_state_.mipmap_mode_)
 	{
-		if (sampler_state_.is_min_filter_linear_)
+	case RendererMipmapMode::none:
+		switch (sampler_state_.min_filter_)
 		{
-			if (sampler_state_.is_min_mipmap_filter_linear)
-			{
-				min_filter = GL_LINEAR_MIPMAP_LINEAR;
-			}
-			else
-			{
-				min_filter = GL_LINEAR_MIPMAP_NEAREST;
-			}
+		case RendererFilterKind::nearest:
+			ogl_min_filter = GL_NEAREST;
+			break;
+
+		case RendererFilterKind::linear:
+			ogl_min_filter = GL_LINEAR;
+			break;
+
+		default:
+			assert(!"Invalid minification filter.");
+			break;
 		}
-		else
+
+		break;
+
+	case RendererMipmapMode::nearest:
+		switch (sampler_state_.min_filter_)
 		{
-			if (sampler_state_.is_min_mipmap_filter_linear)
-			{
-				min_filter = GL_NEAREST_MIPMAP_LINEAR;
-			}
-			else
-			{
-				min_filter = GL_NEAREST_MIPMAP_NEAREST;
-			}
+		case RendererFilterKind::nearest:
+			ogl_min_filter = GL_NEAREST_MIPMAP_NEAREST;
+			break;
+
+		case RendererFilterKind::linear:
+			ogl_min_filter = GL_LINEAR_MIPMAP_NEAREST;
+			break;
+
+		default:
+			assert(!"Invalid minification mipmap filter.");
+			break;
 		}
-	}
-	else
-	{
-		if (sampler_state_.is_min_filter_linear_)
+
+		break;
+
+	case RendererMipmapMode::linear:
+		switch (sampler_state_.min_filter_)
 		{
-			min_filter = GL_LINEAR;
+		case RendererFilterKind::nearest:
+			ogl_min_filter = GL_NEAREST_MIPMAP_LINEAR;
+			break;
+
+		case RendererFilterKind::linear:
+			ogl_min_filter = GL_LINEAR_MIPMAP_LINEAR;
+			break;
+
+		default:
+			assert(!"Invalid minification mipmap filter.");
+			break;
 		}
-		else
-		{
-			min_filter = GL_NEAREST;
-		}
+
+		break;
+
+	default:
+		assert(!"Invalid mipmap mode.");
+		break;
 	}
 
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, ogl_min_filter);
 	assert(!OglRendererUtils::was_errors());
 }
 
-void Ogl1XRenderer::Texture2d::set_u_is_repeated()
+void Ogl1XRenderer::Texture2d::set_address_mode(
+	const RendererAddressMode address_mode)
 {
-	const auto u_mode = (sampler_state_.is_u_repeated_ ? GL_REPEAT : GL_CLAMP);
+	auto ogl_address_mode = GLenum{};
 
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, u_mode);
+	switch (address_mode)
+	{
+	case RendererAddressMode::clamp:
+		ogl_address_mode = GL_CLAMP;
+		break;
+
+	case RendererAddressMode::repeat:
+		ogl_address_mode = GL_REPEAT;
+		break;
+
+	default:
+		assert(!"Invalid address mode.");
+		break;
+	}
+
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, ogl_address_mode);
 	assert(!OglRendererUtils::was_errors());
 }
 
-void Ogl1XRenderer::Texture2d::set_v_is_repeated()
+void Ogl1XRenderer::Texture2d::set_address_mode_u()
 {
-	const auto v_mode = (sampler_state_.is_v_repeated_ ? GL_REPEAT : GL_CLAMP);
+	set_address_mode(sampler_state_.address_mode_u_);
+}
 
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, v_mode);
-	assert(!OglRendererUtils::was_errors());
+void Ogl1XRenderer::Texture2d::set_address_mode_v()
+{
+	set_address_mode(sampler_state_.address_mode_v_);
 }
 
 void Ogl1XRenderer::Texture2d::update_sampler_state(
@@ -594,52 +638,50 @@ void Ogl1XRenderer::Texture2d::update_sampler_state(
 	//
 	auto is_mag_filter_modified = false;
 
-	if (sampler_state_.is_mag_filter_linear_ != new_sampler_state.is_mag_filter_linear_)
+	if (sampler_state_.mag_filter_ != new_sampler_state.mag_filter_)
 	{
 		is_modified = true;
 		is_mag_filter_modified = true;
 
-		sampler_state_.is_mag_filter_linear_ = new_sampler_state.is_mag_filter_linear_;
+		sampler_state_.mag_filter_ = new_sampler_state.mag_filter_;
 	}
 
 	// Minification filter.
 	//
 	auto is_min_filter_modified = false;
 
-	if (sampler_state_.is_min_filter_linear_ != new_sampler_state.is_min_filter_linear_ ||
-		sampler_state_.is_min_filter_mipmapped_ != new_sampler_state.is_min_filter_mipmapped_ ||
-		sampler_state_.is_min_mipmap_filter_linear != new_sampler_state.is_min_mipmap_filter_linear)
+	if (sampler_state_.min_filter_ != new_sampler_state.min_filter_ ||
+		sampler_state_.mipmap_mode_ != new_sampler_state.mipmap_mode_)
 	{
 		is_modified = true;
 		is_min_filter_modified = true;
 
-		sampler_state_.is_min_filter_linear_ = new_sampler_state.is_min_filter_linear_;
-		sampler_state_.is_min_filter_mipmapped_ = new_sampler_state.is_min_filter_mipmapped_;
-		sampler_state_.is_min_mipmap_filter_linear = new_sampler_state.is_min_mipmap_filter_linear;
+		sampler_state_.min_filter_ = new_sampler_state.min_filter_;
+		sampler_state_.mipmap_mode_ = new_sampler_state.mipmap_mode_;
 	}
 
-	// U-axis wrapping mode.
+	// U-axis address mode.
 	//
-	auto is_u_repeated_modified = false;
+	auto is_address_mode_u = false;
 
-	if (sampler_state_.is_u_repeated_ != new_sampler_state.is_u_repeated_)
+	if (sampler_state_.address_mode_u_ != new_sampler_state.address_mode_u_)
 	{
 		is_modified = true;
-		is_u_repeated_modified = true;
+		is_address_mode_u = true;
 
-		sampler_state_.is_u_repeated_ = new_sampler_state.is_u_repeated_;
+		sampler_state_.address_mode_u_ = new_sampler_state.address_mode_u_;
 	}
 
-	// V-axis wrapping mode.
+	// V-axis address mode.
 	//
-	auto is_v_repeated_modified = false;
+	auto is_address_mode_v = false;
 
-	if (sampler_state_.is_v_repeated_ != new_sampler_state.is_v_repeated_)
+	if (sampler_state_.address_mode_v_ != new_sampler_state.address_mode_v_)
 	{
 		is_modified = true;
-		is_v_repeated_modified = true;
+		is_address_mode_v = true;
 
-		sampler_state_.is_v_repeated_ = new_sampler_state.is_v_repeated_;
+		sampler_state_.address_mode_v_ = new_sampler_state.address_mode_v_;
 	}
 
 	// Modify.
@@ -659,33 +701,32 @@ void Ogl1XRenderer::Texture2d::update_sampler_state(
 			set_min_filter();
 		}
 
-		if (is_u_repeated_modified)
+		if (is_address_mode_u)
 		{
-			set_u_is_repeated();
+			set_address_mode_u();
 		}
 
-		if (is_v_repeated_modified)
+		if (is_address_mode_v)
 		{
-			set_v_is_repeated();
+			set_address_mode_v();
 		}
 	}
 }
 
 void Ogl1XRenderer::Texture2d::set_sampler_state_defaults()
 {
-	sampler_state_.is_mag_filter_linear_ = {};
+	sampler_state_.mag_filter_ = RendererFilterKind::nearest;
 	set_mag_filter();
 
-	sampler_state_.is_min_filter_linear_ = {};
-	sampler_state_.is_min_filter_mipmapped_ = {};
-	sampler_state_.is_min_mipmap_filter_linear = {};
+	sampler_state_.min_filter_ = RendererFilterKind::nearest;
+	sampler_state_.mipmap_mode_ = RendererMipmapMode::none;
 	set_min_filter();
 
-	sampler_state_.is_u_repeated_ = {};
-	set_u_is_repeated();
+	sampler_state_.address_mode_u_ = RendererAddressMode::clamp;
+	set_address_mode_u();
 
-	sampler_state_.is_v_repeated_ = {};
-	set_v_is_repeated();
+	sampler_state_.address_mode_v_ = RendererAddressMode::clamp;
+	set_address_mode_v();
 }
 
 //
@@ -713,18 +754,13 @@ Ogl1XRenderer::Sampler::~Sampler()
 void Ogl1XRenderer::Sampler::update(
 	const RendererSamplerUpdateParam& param)
 {
-	if (state_.is_mag_filter_linear_ != param.state_.is_mag_filter_linear_ ||
-		state_.is_min_filter_linear_ != param.state_.is_min_filter_linear_ ||
-		state_.is_min_filter_mipmapped_ != param.state_.is_min_filter_mipmapped_ ||
-		state_.is_min_mipmap_filter_linear != param.state_.is_min_mipmap_filter_linear ||
-		state_.is_u_repeated_ != param.state_.is_u_repeated_ ||
-		state_.is_v_repeated_ != param.state_.is_v_repeated_)
+	if (state_.mag_filter_ != param.state_.mag_filter_ ||
+		state_.min_filter_ != param.state_.min_filter_ ||
+		state_.mipmap_mode_ != param.state_.mipmap_mode_ ||
+		state_.address_mode_u_ != param.state_.address_mode_u_ ||
+		state_.address_mode_v_ != param.state_.address_mode_v_)
 	{
 		state_ = param.state_;
-
-		if (renderer_->sampler_current_ == this)
-		{
-		}
 	}
 }
 
@@ -1096,8 +1132,8 @@ void Ogl1XRenderer::execute_command_sets(
 				command_execute_enable_blending(command.blending_enable_);
 				break;
 
-			case RendererCommandId::texture_set_sampler:
-				command_execute_texture_set_sampler(command.sampler_set_);
+			case RendererCommandId::sampler_set:
+				command_execute_sampler_set(command.sampler_set_);
 				break;
 
 			case RendererCommandId::draw_quads:
@@ -1288,7 +1324,7 @@ void Ogl1XRenderer::sampler_destroy(
 
 		sampler_current_ = sampler_default_.get();
 
-		set_sampler();
+		sampler_set();
 	}
 
 	samplers_.remove_if(
@@ -1696,7 +1732,7 @@ void Ogl1XRenderer::matrix_set_defaults()
 	matrix_set_texture();
 }
 
-void Ogl1XRenderer::set_sampler()
+void Ogl1XRenderer::sampler_set()
 {
 	assert(sampler_current_);
 
@@ -1925,16 +1961,19 @@ void Ogl1XRenderer::command_execute_enable_blending(
 	}
 }
 
-void Ogl1XRenderer::command_execute_texture_set_sampler(
+void Ogl1XRenderer::command_execute_sampler_set(
 	const RendererCommand::SamplerSet& command)
 {
-	auto sampler = static_cast<SamplerPtr>(command.sampler_);
-	const auto& sampler_state = sampler->state_;
+	assert(command.sampler_);
 
-	for (auto& texture_2d : textures_2d_)
+	auto sampler = static_cast<SamplerPtr>(command.sampler_);
+
+	if (!sampler)
 	{
-		texture_2d->update_sampler_state(sampler_state);
+		return;
 	}
+
+	sampler_current_ = sampler;
 }
 
 void Ogl1XRenderer::command_execute_draw_quads(
@@ -1966,6 +2005,8 @@ void Ogl1XRenderer::command_execute_draw_quads(
 
 	::glBindTexture(GL_TEXTURE_2D, texture_2d.ogl_id_);
 	assert(!OglRendererUtils::was_errors());
+
+	texture_2d.update_sampler_state(sampler_current_->state_);
 
 	// Diffuse.
 	//

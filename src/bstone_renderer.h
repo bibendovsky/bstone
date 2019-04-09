@@ -82,7 +82,7 @@ enum class RendererCommandId
 	matrix_set_model_view,
 	matrix_set_projection,
 
-	texture_set_sampler,
+	sampler_set,
 
 	draw_quads,
 }; // RendererCommandId
@@ -271,15 +271,34 @@ using RendererVertexBufferPtr = RendererVertexBuffer*;
 // RendererTexture2d
 //
 
+enum class RendererFilterKind
+{
+	nearest,
+	linear,
+}; // RendererFilterKind
+
+enum class RendererMipmapMode
+{
+	none,
+	nearest,
+	linear,
+}; // RendererMipmapMode
+
+enum class RendererAddressMode
+{
+	clamp,
+	repeat,
+}; // RendererAddressMode
+
 struct RendererSamplerState
 {
-	bool is_mag_filter_linear_;
-	bool is_min_filter_linear_;
-	bool is_min_filter_mipmapped_;
-	bool is_min_mipmap_filter_linear;
+	RendererFilterKind mag_filter_;
+	RendererFilterKind min_filter_;
 
-	bool is_u_repeated_;
-	bool is_v_repeated_;
+	RendererMipmapMode mipmap_mode_;
+
+	RendererAddressMode address_mode_u_;
+	RendererAddressMode address_mode_v_;
 }; // RendererSamplerState
 
 struct RendererTexture2dCreateParam
