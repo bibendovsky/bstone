@@ -105,13 +105,10 @@ int RendererUtils::calculate_mipmap_count(
 	return result;
 }
 
-bool RendererUtils::create_window(
-	const RendererUtilsCreateWindowParam& param,
-	SdlWindowPtr& sdl_window)
+SdlWindowUPtr RendererUtils::create_window(
+	const RendererUtilsCreateWindowParam& param)
 {
 	const auto error_message_prefix = "Failed to create a window. ";
-
-	sdl_window = nullptr;
 
 	if (!create_window_validate_param(param))
 	{
@@ -143,24 +140,22 @@ bool RendererUtils::create_window(
 			SDL_WINDOWPOS_CENTERED
 	);
 
-	sdl_window = ::SDL_CreateWindow(
+	auto sdl_window = SdlWindowUPtr{::SDL_CreateWindow(
 		param.window_.title_utf8_.c_str(),
 		x,
 		y,
 		param.window_.width_,
 		param.window_.height_,
 		sdl_flags
-	);
+	)};
 
 	if (!sdl_window)
 	{
 		error_message_ = error_message_prefix;
 		error_message_ += ::SDL_GetError();
-
-		return false;
 	}
 
-	return true;
+	return sdl_window;
 }
 
 bool RendererUtils::show_window(

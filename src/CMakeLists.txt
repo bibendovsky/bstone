@@ -239,6 +239,7 @@ target_sources(
 		bstone_renderer_manager.h
 		bstone_renderer_texture_manager.h
 		bstone_scope_guard.h
+		bstone_sdl_types.h
 		bstone_sha1.h
 		bstone_sprite.h
 		bstone_sprite_cache.h

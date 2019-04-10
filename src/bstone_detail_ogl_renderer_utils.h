@@ -36,9 +36,7 @@ Free Software Foundation, Inc.,
 #include <vector>
 #include "glm/glm.hpp"
 #include "bstone_detail_renderer_utils.h"
-
-
-using SdlGlContext = void*;
+#include "bstone_sdl_types.h"
 
 
 namespace bstone
@@ -58,30 +56,27 @@ public:
 	static void unload_library();
 
 
-	bool create_context(
-		SdlWindowPtr sdl_window,
-		SdlGlContext& sdl_gl_context);
+	SdlGlContextUPtr create_context(
+		SdlWindowPtr sdl_window);
+
 
 	bool make_context_current(
 		SdlWindowPtr sdl_window,
-		SdlGlContext sdl_gl_context);
+		SdlGlContextPtr sdl_gl_context);
 
 
 	bool create_window_and_context(
 		const RendererUtilsCreateWindowParam& param,
-		SdlWindowPtr& sdl_window,
-		SdlGlContext& sdl_gl_context);
+		SdlWindowUPtr& sdl_window,
+		SdlGlContextUPtr& sdl_gl_context);
 
 	bool create_probe_window_and_context(
-		SdlWindowPtr& sdl_window,
-		SdlGlContext& sdl_gl_context);
+		SdlWindowUPtr& sdl_window,
+		SdlGlContextUPtr& sdl_gl_context);
 
-	void destroy_window_and_context(
-		SdlWindowPtr& sdl_window,
-		SdlGlContext& sdl_gl_context);
 
 	bool window_get_drawable_size(
-		SdlWindowPtr& sdl_window,
+		SdlWindowPtr sdl_window,
 		int& width,
 		int& height);
 

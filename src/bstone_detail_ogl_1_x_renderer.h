@@ -364,8 +364,8 @@ private:
 
 	RendererPath probe_renderer_path_;
 
-	SdlWindowPtr sdl_window_;
-	SdlGlContext sdl_gl_context_;
+	SdlWindowUPtr sdl_window_;
+	SdlGlContextUPtr sdl_gl_context_;
 
 	int screen_width_;
 	int screen_height_;

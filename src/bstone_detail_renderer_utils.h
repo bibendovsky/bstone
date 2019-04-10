@@ -35,11 +35,8 @@ Free Software Foundation, Inc.,
 
 #include <string>
 #include "bstone_renderer.h"
+#include "bstone_sdl_types.h"
 #include "bstone_sprite.h"
-
-
-struct SDL_Window;
-using SdlWindowPtr = SDL_Window*;
 
 
 namespace bstone
@@ -83,9 +80,8 @@ public:
 		const int width,
 		const int height);
 
-	bool create_window(
-		const RendererUtilsCreateWindowParam& param,
-		SdlWindowPtr& sdl_window);
+	SdlWindowUPtr create_window(
+		const RendererUtilsCreateWindowParam& param);
 
 	bool show_window(
 		SdlWindowPtr sdl_window,

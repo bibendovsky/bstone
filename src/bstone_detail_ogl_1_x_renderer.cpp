@@ -954,7 +954,7 @@ void Ogl1XRenderer::window_show(
 
 	auto renderer_utils = RendererUtils{};
 
-	static_cast<void>(renderer_utils.show_window(sdl_window_, is_visible));
+	static_cast<void>(renderer_utils.show_window(sdl_window_.get(), is_visible));
 }
 
 void Ogl1XRenderer::color_buffer_set_clear_color(
@@ -976,7 +976,7 @@ void Ogl1XRenderer::present()
 {
 	assert(is_initialized_);
 
-	OglRendererUtils::swap_window(sdl_window_);
+	OglRendererUtils::swap_window(sdl_window_.get());
 }
 
 void Ogl1XRenderer::palette_update(
@@ -1163,8 +1163,8 @@ bool Ogl1XRenderer::probe_or_initialize(
 	}
 
 	auto is_succeed = true;
-	auto sdl_window = SdlWindowPtr{};
-	auto sdl_gl_context = SdlGlContext{};
+	auto sdl_window = SdlWindowUPtr{};
+	auto sdl_gl_context = SdlGlContextUPtr{};
 	int screen_width = 0;
 	int screen_height = 0;
 
@@ -1199,7 +1199,7 @@ bool Ogl1XRenderer::probe_or_initialize(
 	if (is_succeed)
 	{
 		if (!ogl_renderer_utils.window_get_drawable_size(
-			sdl_window,
+			sdl_window.get(),
 			screen_width,
 			screen_height))
 		{
@@ -1230,14 +1230,12 @@ bool Ogl1XRenderer::probe_or_initialize(
 
 	if (!is_succeed)
 	{
-		ogl_renderer_utils.destroy_window_and_context(sdl_window, sdl_gl_context);
-
 		return false;
 	}
 
 	is_initialized_ = true;
-	sdl_window_ = sdl_window;
-	sdl_gl_context_ = sdl_gl_context;
+	sdl_window_ = std::move(sdl_window);
+	sdl_gl_context_ = std::move(sdl_gl_context);
 	screen_width_ = screen_width;
 	screen_height_ = screen_height;
 
@@ -1258,7 +1256,7 @@ bool Ogl1XRenderer::probe_or_initialize(
 		// Present.
 		//
 		OglRendererUtils::clear_buffers();
-		OglRendererUtils::swap_window(sdl_window);
+		OglRendererUtils::swap_window(sdl_window_.get());
 	}
 
 	return true;
@@ -1360,10 +1358,11 @@ void Ogl1XRenderer::uninitialize_internal(
 
 	if (sdl_gl_context_)
 	{
-		static_cast<void>(ogl_renderer_utils.make_context_current(sdl_window_, nullptr));
+		static_cast<void>(ogl_renderer_utils.make_context_current(sdl_window_.get(), nullptr));
 	}
 
-	ogl_renderer_utils.destroy_window_and_context(sdl_window_, sdl_gl_context_);
+	sdl_window_ = {};
+	sdl_gl_context_ = {};
 
 	if (!is_dtor)
 	{

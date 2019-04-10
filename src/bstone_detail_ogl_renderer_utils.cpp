@@ -75,38 +75,33 @@ void OglRendererUtils::unload_library()
 	::SDL_GL_UnloadLibrary();
 }
 
-bool OglRendererUtils::create_context(
-	SdlWindowPtr sdl_window,
-	SdlGlContext& sdl_gl_context)
+SdlGlContextUPtr OglRendererUtils::create_context(
+	SdlWindowPtr sdl_window)
 {
 	const auto error_message_prefix = "Failed to create OpenGL context. ";
-
-	sdl_gl_context = nullptr;
 
 	if (!sdl_window)
 	{
 		error_message_ = error_message_prefix;
 		error_message_ += "Null SDL window.";
 
-		return false;
+		return nullptr;
 	}
 
-	sdl_gl_context = ::SDL_GL_CreateContext(sdl_window);
+	auto sdl_gl_context = SdlGlContextUPtr{::SDL_GL_CreateContext(sdl_window)};
 
 	if (!sdl_gl_context)
 	{
 		error_message_ = error_message_prefix;
 		error_message_ += ::SDL_GetError();
-
-		return false;
 	}
 
-	return true;
+	return sdl_gl_context;
 }
 
 bool OglRendererUtils::make_context_current(
 	SdlWindowPtr sdl_window,
-	SdlGlContext sdl_gl_context)
+	SdlGlContextPtr sdl_gl_context)
 {
 	const auto error_message_prefix = "Failed to make a context current. ";
 
@@ -133,45 +128,39 @@ bool OglRendererUtils::make_context_current(
 
 bool OglRendererUtils::create_window_and_context(
 	const RendererUtilsCreateWindowParam& param,
-	SdlWindowPtr& sdl_window,
-	SdlGlContext& sdl_gl_context)
+	SdlWindowUPtr& sdl_window,
+	SdlGlContextUPtr& sdl_gl_context)
 {
 	auto is_succeed = true;
 	auto renderer_utils = RendererUtils{};
 
-	if (is_succeed)
+	auto sdl_window_result = renderer_utils.create_window(param);
+
+	if (!sdl_window_result)
 	{
-		if (!renderer_utils.create_window(param, sdl_window))
-		{
-			is_succeed = false;
-
-			error_message_ = renderer_utils.get_error_message();
-		}
-	}
-
-	if (is_succeed)
-	{
-		if (!create_context(sdl_window, sdl_gl_context))
-		{
-			is_succeed = false;
-
-			error_message_ = renderer_utils.get_error_message();
-		}
-	}
-
-	if (!is_succeed)
-	{
-		destroy_window_and_context(sdl_window, sdl_gl_context);
+		error_message_ = renderer_utils.get_error_message();
 
 		return false;
 	}
+
+	auto sdl_gl_context_result = create_context(sdl_window_result.get());
+
+	if (!sdl_gl_context_result)
+	{
+		error_message_ = renderer_utils.get_error_message();
+
+		return false;
+	}
+
+	sdl_window = std::move(sdl_window_result);
+	sdl_gl_context = std::move(sdl_gl_context_result);
 
 	return true;
 }
 
 bool OglRendererUtils::create_probe_window_and_context(
-	SdlWindowPtr& sdl_window,
-	SdlGlContext& sdl_gl_context)
+	SdlWindowUPtr& sdl_window,
+	SdlGlContextUPtr& sdl_gl_context)
 {
 	auto param = RendererUtilsCreateWindowParam{};
 	param.is_opengl_ = true;
@@ -181,27 +170,8 @@ bool OglRendererUtils::create_probe_window_and_context(
 	return create_window_and_context(param, sdl_window, sdl_gl_context);
 }
 
-void OglRendererUtils::destroy_window_and_context(
-	SdlWindowPtr& sdl_window,
-	SdlGlContext& sdl_gl_context)
-{
-	if (sdl_gl_context)
-	{
-		::SDL_GL_DeleteContext(sdl_gl_context);
-
-		sdl_gl_context = nullptr;
-	}
-
-	if (sdl_window)
-	{
-		::SDL_DestroyWindow(sdl_window);
-
-		sdl_window = nullptr;
-	}
-}
-
 bool OglRendererUtils::window_get_drawable_size(
-	SdlWindowPtr& sdl_window,
+	SdlWindowPtr sdl_window,
 	int& width,
 	int& height)
 {
