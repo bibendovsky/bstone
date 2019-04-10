@@ -27,11 +27,13 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_SDL2_TYPES_INCLUDED
-#define BSTONE_SDL2_TYPES_INCLUDED
+#ifndef BSTONE_SDL_TYPES_INCLUDED
+#define BSTONE_SDL_TYPES_INCLUDED
 
 
 #include <memory>
+#include "SDL_render.h"
+#include "SDL_surface.h"
 #include "SDL_video.h"
 
 
@@ -59,8 +61,20 @@ using SdlWindowUPtr = SdlUPtr<SDL_Window, ::SDL_DestroyWindow>;
 using SdlGlContextPtr = SDL_GLContext;
 using SdlGlContextUPtr = SdlUPtr<void, ::SDL_GL_DeleteContext>;
 
+using SdlSurfacePtr = SDL_Surface*;
+using SdlSurfaceUPtr = SdlUPtr<SDL_Surface, ::SDL_FreeSurface>;
+
+using SdlPixelFormatPtr = SDL_PixelFormat*;
+using SdlPixelFormatUPtr = SdlUPtr<SDL_PixelFormat, ::SDL_FreeFormat>;
+
+using SdlTexturePtr = SDL_Texture*;
+using SdlTextureUPtr = SdlUPtr<SDL_Texture, ::SDL_DestroyTexture>;
+
+using SdlRendererPtr = SDL_Renderer*;
+using SdlRendererUPtr = SdlUPtr<SDL_Renderer, ::SDL_DestroyRenderer>;
+
 
 } //  bstone
 
 
-#endif // BSTONE_SDL2_TYPES_INCLUDED
+#endif // BSTONE_SDL_TYPES_INCLUDED

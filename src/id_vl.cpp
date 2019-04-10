@@ -28,7 +28,6 @@ Free Software Foundation, Inc.,
 #include <cassert>
 #include <chrono>
 #include "SDL_hints.h"
-#include "SDL_render.h"
 #include "glm/gtc/matrix_transform.hpp"
 #include "id_heads.h"
 #include "id_ca.h"
@@ -37,6 +36,7 @@ Free Software Foundation, Inc.,
 #include "id_vl.h"
 #include "bstone_fixed_point.h"
 #include "bstone_log.h"
+#include "bstone_sdl_types.h"
 #include "bstone_sprite.h"
 #include "bstone_sprite_cache.h"
 #include "bstone_string_helper.h"
@@ -132,11 +132,11 @@ int vid_window_y = 0;
 
 SDL_DisplayMode display_mode;
 bool vid_is_windowed = false;
-SDL_Window* sw_window = nullptr;
-SDL_Renderer* sw_renderer = nullptr;
-SDL_PixelFormat* sw_texture_pixel_format = nullptr;
-SDL_Texture* sw_screen_texture = nullptr;
-SDL_Texture* sw_ui_texture = nullptr;
+bstone::SdlWindowUPtr sw_window = nullptr;
+bstone::SdlRendererUPtr sw_renderer = nullptr;
+bstone::SdlPixelFormatUPtr sw_texture_pixel_format = nullptr;
+bstone::SdlTextureUPtr sw_screen_texture = nullptr;
+bstone::SdlTextureUPtr sw_ui_texture = nullptr;
 SdlPalette sw_palette;
 SDL_Rect sw_ui_whole_src_rect;
 SDL_Rect sw_ui_whole_dst_rect;
@@ -276,13 +276,14 @@ bool sw_initialize_window()
 		title += ": Planet Strike";
 	}
 
-	::sw_window = ::SDL_CreateWindow(
+	::sw_window = bstone::SdlWindowUPtr{::SDL_CreateWindow(
 		title.c_str(),
 		::vid_window_x,
 		::vid_window_y,
 		::window_width,
 		::window_height,
-		window_flags);
+		window_flags
+	)};
 
 	if (!::sw_window)
 	{
@@ -417,10 +418,11 @@ bool sw_initialize_renderer()
 		bstone::Log::write(
 			"VID: Creating a renderer...");
 
-		::sw_renderer = ::SDL_CreateRenderer(
-			::sw_window,
+		::sw_renderer = bstone::SdlRendererUPtr{::SDL_CreateRenderer(
+			::sw_window.get(),
 			-1,
-			renderer_flags);
+			renderer_flags
+		)};
 
 		if (!::sw_renderer)
 		{
@@ -443,7 +445,7 @@ bool sw_initialize_renderer()
 			"VID: Quering renderer for info...");
 
 		auto sdl_result = ::SDL_GetRendererInfo(
-			::sw_renderer,
+			::sw_renderer.get(),
 			&renderer_info);
 
 		if (sdl_result != 0)
@@ -512,8 +514,9 @@ bool sw_initialize_renderer()
 		bstone::Log::write(
 			"VID: Allocating a texture pixel format...");
 
-		::sw_texture_pixel_format = ::SDL_AllocFormat(
-			pixel_format);
+		::sw_texture_pixel_format = bstone::SdlPixelFormatUPtr{::SDL_AllocFormat(
+			pixel_format
+		)};
 
 		if (!::sw_texture_pixel_format)
 		{
@@ -535,12 +538,13 @@ bool sw_initialize_screen_texture()
 	bstone::Log::write(
 		"VID: Creating a screen texture...");
 
-	::sw_screen_texture = ::SDL_CreateTexture(
-		::sw_renderer,
+	::sw_screen_texture = bstone::SdlTextureUPtr{::SDL_CreateTexture(
+		::sw_renderer.get(),
 		::sw_texture_pixel_format->format,
 		SDL_TEXTUREACCESS_STREAMING,
 		::vga_width,
-		::vga_height);
+		::vga_height
+	)};
 
 	if (!::sw_screen_texture)
 	{
@@ -561,12 +565,13 @@ bool sw_initialize_ui_texture()
 	bstone::Log::write(
 		"VID: Creating an UI texture...");
 
-	::sw_ui_texture = ::SDL_CreateTexture(
-		::sw_renderer,
+	::sw_ui_texture = bstone::SdlTextureUPtr{::SDL_CreateTexture(
+		::sw_renderer.get(),
 		::sw_texture_pixel_format->format,
 		SDL_TEXTUREACCESS_STREAMING,
 		::vga_ref_width,
-		::vga_ref_height);
+		::vga_ref_height
+	)};
 
 	if (!::sw_ui_texture)
 	{
@@ -614,7 +619,7 @@ void sw_update_palette(
 		auto& sdl_color = ::sw_palette[color_index];
 
 		sdl_color = ::SDL_MapRGB(
-			::sw_texture_pixel_format,
+			::sw_texture_pixel_format.get(),
 			(255 * vga_color.r) / 63,
 			(255 * vga_color.g) / 63,
 			(255 * vga_color.b) / 63);
@@ -624,7 +629,7 @@ void sw_update_palette(
 void sw_update_viewport()
 {
 	auto sdl_result = ::SDL_RenderSetLogicalSize(
-		::sw_renderer,
+		::sw_renderer.get(),
 		::screen_width,
 		::screen_height);
 
@@ -969,7 +974,7 @@ void sw_initialize_video()
 	if (is_succeed)
 	{
 		::SDL_ShowWindow(
-			::sw_window);
+			::sw_window.get());
 
 		::in_grab_mouse(
 			true);
@@ -983,24 +988,12 @@ void sw_initialize_video()
 
 void sw_uninitialize_screen_texture()
 {
-	if (::sw_screen_texture)
-	{
-		::SDL_DestroyTexture(
-			::sw_screen_texture);
-
-		::sw_screen_texture = nullptr;
-	}
+	::sw_screen_texture = nullptr;
 }
 
 void sw_uninitialize_ui_texture()
 {
-	if (::sw_ui_texture)
-	{
-		::SDL_DestroyTexture(
-			::sw_ui_texture);
-
-		::sw_ui_texture = nullptr;
-	}
+	::sw_ui_texture = nullptr;
 }
 
 void sw_uninitialize_vga_buffer()
@@ -1013,32 +1006,11 @@ void sw_uninitialize_vga_buffer()
 
 void sw_uninitialize_video()
 {
-	if (::sw_texture_pixel_format)
-	{
-		::SDL_FreeFormat(
-			::sw_texture_pixel_format);
-
-		::sw_texture_pixel_format = nullptr;
-	}
-
+	::sw_texture_pixel_format = nullptr;
 	::sw_uninitialize_screen_texture();
 	::sw_uninitialize_ui_texture();
-
-	if (::sw_renderer)
-	{
-		::SDL_DestroyRenderer(
-			::sw_renderer);
-
-		::sw_renderer = nullptr;
-	}
-
-	if (::sw_window)
-	{
-		::SDL_DestroyWindow(
-			::sw_window);
-
-		::sw_window = nullptr;
-	}
+	::sw_renderer = nullptr;
+	::sw_window = nullptr;
 
 	::sw_uninitialize_vga_buffer();
 }
@@ -1058,7 +1030,7 @@ void sw_refresh_screen()
 		int dst_pitch = 0;
 
 		sdl_result = ::SDL_LockTexture(
-			::sw_screen_texture,
+			::sw_screen_texture.get(),
 			nullptr,
 			&dst_raw_pixels,
 			&dst_pitch);
@@ -1083,7 +1055,7 @@ void sw_refresh_screen()
 		}
 
 		::SDL_UnlockTexture(
-			::sw_screen_texture);
+			::sw_screen_texture.get());
 	}
 
 
@@ -1094,7 +1066,7 @@ void sw_refresh_screen()
 		int dst_pitch = 0;
 
 		sdl_result = ::SDL_LockTexture(
-			::sw_ui_texture,
+			::sw_ui_texture.get(),
 			nullptr,
 			&dst_raw_pixels,
 			&dst_pitch);
@@ -1131,14 +1103,14 @@ void sw_refresh_screen()
 		}
 
 		::SDL_UnlockTexture(
-			::sw_ui_texture);
+			::sw_ui_texture.get());
 	}
 
 
 	// Clear all
 	//
 	sdl_result = ::SDL_RenderClear(
-		sw_renderer);
+		sw_renderer.get());
 
 	if (sdl_result != 0)
 	{
@@ -1151,8 +1123,8 @@ void sw_refresh_screen()
 	if (::vid_is_hud)
 	{
 		sdl_result = ::SDL_RenderCopy(
-			sw_renderer,
-			sw_screen_texture,
+			sw_renderer.get(),
+			sw_screen_texture.get(),
 			nullptr,
 			nullptr);
 
@@ -1177,7 +1149,7 @@ void sw_refresh_screen()
 		}
 
 		::SDL_SetRenderDrawColor(
-			sw_renderer,
+			sw_renderer.get(),
 			fill_color.r,
 			fill_color.g,
 			fill_color.b,
@@ -1185,11 +1157,11 @@ void sw_refresh_screen()
 
 		if (is_hud)
 		{
-			::SDL_RenderFillRects(sw_renderer, ::sw_filler_hud_rects.data(), 4);
+			::SDL_RenderFillRects(sw_renderer.get(), ::sw_filler_hud_rects.data(), 4);
 		}
 		else
 		{
-			::SDL_RenderFillRects(sw_renderer, ::sw_filler_ui_rects.data(), 2);
+			::SDL_RenderFillRects(sw_renderer.get(), ::sw_filler_ui_rects.data(), 2);
 		}
 	}
 
@@ -1199,7 +1171,7 @@ void sw_refresh_screen()
 	if (::vid_is_hud)
 	{
 		sdl_result = ::SDL_SetTextureBlendMode(
-			::sw_ui_texture,
+			::sw_ui_texture.get(),
 			SDL_BLENDMODE_BLEND);
 
 		if (sdl_result != 0)
@@ -1215,8 +1187,8 @@ void sw_refresh_screen()
 			if (sdl_result == 0)
 			{
 				sdl_result = ::SDL_RenderCopy(
-					::sw_renderer,
-					::sw_ui_texture,
+					::sw_renderer.get(),
+					::sw_ui_texture.get(),
 					&::sw_ui_top_src_rect,
 					&::sw_ui_top_dst_rect);
 			}
@@ -1224,8 +1196,8 @@ void sw_refresh_screen()
 			if (sdl_result == 0)
 			{
 				sdl_result = ::SDL_RenderCopy(
-					::sw_renderer,
-					::sw_ui_texture,
+					::sw_renderer.get(),
+					::sw_ui_texture.get(),
 					&::sw_ui_wide_middle_src_rect,
 					&::sw_ui_wide_middle_dst_rect);
 			}
@@ -1233,8 +1205,8 @@ void sw_refresh_screen()
 			if (sdl_result == 0)
 			{
 				sdl_result = ::SDL_RenderCopy(
-					::sw_renderer,
-					::sw_ui_texture,
+					::sw_renderer.get(),
+					::sw_ui_texture.get(),
 					&::sw_ui_bottom_src_rect,
 					&::sw_ui_bottom_dst_rect);
 			}
@@ -1242,8 +1214,8 @@ void sw_refresh_screen()
 		else
 		{
 			sdl_result = ::SDL_RenderCopy(
-				::sw_renderer,
-				::sw_ui_texture,
+				::sw_renderer.get(),
+				::sw_ui_texture.get(),
 				nullptr,
 				&::sw_ui_whole_dst_rect);
 		}
@@ -1251,8 +1223,8 @@ void sw_refresh_screen()
 	else
 	{
 		sdl_result = ::SDL_RenderCopy(
-			::sw_renderer,
-			::sw_ui_texture,
+			::sw_renderer.get(),
+			::sw_ui_texture.get(),
 			nullptr,
 			nullptr);
 	}
@@ -1265,7 +1237,7 @@ void sw_refresh_screen()
 	if (::vid_is_hud)
 	{
 		sdl_result = ::SDL_SetTextureBlendMode(
-			::sw_ui_texture,
+			::sw_ui_texture.get(),
 			SDL_BLENDMODE_NONE);
 
 		if (sdl_result != 0)
@@ -1278,7 +1250,7 @@ void sw_refresh_screen()
 	// Present
 	//
 	::SDL_RenderPresent(
-		sw_renderer);
+		sw_renderer.get());
 
 	if (sdl_result != 0)
 	{
@@ -9765,12 +9737,12 @@ void vl_minimize_fullscreen_window(
 	if (value)
 	{
 		::SDL_MinimizeWindow(
-			::sw_window);
+			::sw_window.get());
 	}
 	else
 	{
 		::SDL_RestoreWindow(
-			::sw_window);
+			::sw_window.get());
 	}
 }
 

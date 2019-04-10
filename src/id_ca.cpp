@@ -39,7 +39,6 @@ loaded into the data segment
 #include <algorithm>
 #include <memory>
 #include "SDL_endian.h"
-#include "SDL_video.h"
 #include "id_ca.h"
 #include "audio.h"
 #include "id_heads.h"
@@ -50,6 +49,7 @@ loaded into the data segment
 #include "gfxv.h"
 #include "bstone_endian.h"
 #include "bstone_log.h"
+#include "bstone_sdl_types.h"
 #include "bstone_sha1.h"
 #include "bstone_sprite_cache.h"
 #include "bstone_string_helper.h"
@@ -1995,31 +1995,13 @@ private:
 	static constexpr auto palette_color_count = 256;
 
 
-	using SdlSurfacePtr = SDL_Surface*;
 	using Palette = std::vector<SDL_Color>;
-
-
-	struct SdlSurfaceDeleter
-	{
-		void operator()(
-			SdlSurfacePtr ptr)
-		{
-			if (!ptr)
-			{
-				return;
-			}
-
-			::SDL_FreeSurface(ptr);
-		}
-	}; // SdlSurfaceDeleter
-
-	using SdlSurfaceUPtr = std::unique_ptr<SDL_Surface, SdlSurfaceDeleter>;
 
 
 	bool is_initialized_;
 	int sprite_count_;
-	SdlSurfaceUPtr sdl_surface_64x64x8_;
-	SdlSurfaceUPtr sdl_surface_64x64x32_;
+	bstone::SdlSurfaceUPtr sdl_surface_64x64x8_;
+	bstone::SdlSurfaceUPtr sdl_surface_64x64x32_;
 	std::string destination_dir_;
 	std::string destination_path_;
 	bstone::SpriteCache sprite_cache_;
@@ -2027,11 +2009,11 @@ private:
 
 
 	void set_palette(
-		SdlSurfacePtr sdl_surface,
+		bstone::SdlSurfacePtr sdl_surface,
 		const std::uint8_t* const vga_palette);
 
 	void set_palette(
-		SdlSurfacePtr sdl_surface,
+		bstone::SdlSurfacePtr sdl_surface,
 		const Palette& palette);
 
 	void normalize_destination_dir();
@@ -2057,7 +2039,7 @@ private:
 	bool save_image(
 		const std::string& name_prefix,
 		const int image_index,
-		SdlSurfacePtr sdl_surface);
+		bstone::SdlSurfacePtr sdl_surface);
 
 	bool dump_wall(
 		const int wall_index);
@@ -2164,7 +2146,7 @@ void ImagesDumper::dump_sprites(
 }
 
 void ImagesDumper::set_palette(
-	SdlSurfacePtr sdl_surface,
+	bstone::SdlSurfacePtr sdl_surface,
 	const std::uint8_t* const vga_palette)
 {
 	assert(sdl_surface);
@@ -2188,7 +2170,7 @@ void ImagesDumper::set_palette(
 }
 
 void ImagesDumper::set_palette(
-	SdlSurfacePtr sdl_surface,
+	bstone::SdlSurfacePtr sdl_surface,
 	const Palette& palette)
 {
 	assert(sdl_surface);
@@ -2273,7 +2255,7 @@ bool ImagesDumper::initialize_surface_64x64x8()
 		return false;
 	}
 
-	sdl_surface_64x64x8_ = SdlSurfaceUPtr{sdl_surface};
+	sdl_surface_64x64x8_ = bstone::SdlSurfaceUPtr{sdl_surface};
 
 	return true;
 }
@@ -2307,7 +2289,7 @@ bool ImagesDumper::initialize_surface_64x64x32()
 		return false;
 	}
 
-	sdl_surface_64x64x32_ = SdlSurfaceUPtr{sdl_surface};
+	sdl_surface_64x64x32_ = bstone::SdlSurfaceUPtr{sdl_surface};
 
 	return true;
 }
@@ -2381,7 +2363,7 @@ void ImagesDumper::convert_sprite_page_into_surface(
 bool ImagesDumper::save_image(
 	const std::string& name_prefix,
 	const int image_index,
-	SdlSurfacePtr sdl_surface)
+	bstone::SdlSurfacePtr sdl_surface)
 {
 	const auto image_index_digits = 8;
 
