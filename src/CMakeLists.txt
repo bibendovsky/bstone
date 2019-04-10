@@ -232,6 +232,7 @@ target_sources(
 		bstone_opl2.h
 		bstone_ref_values.h
 		bstone_renderer.h
+		bstone_renderer_color_32.h
 		bstone_pcm_decoder.h
 		bstone_precompiled.h
 		bstone_ps_fizzle_fx.h

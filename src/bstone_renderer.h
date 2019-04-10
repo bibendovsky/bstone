@@ -34,7 +34,7 @@ Free Software Foundation, Inc.,
 #include <array>
 #include <string>
 #include <vector>
-#include "glm/glm.hpp"
+#include "bstone_renderer_color_32.h"
 #include "bstone_sprite.h"
 
 
@@ -125,64 +125,6 @@ public:
 	RendererInitializeWindowParam window_;
 }; // RendererInitializeParam
 
-
-class RendererColor32
-{
-public:
-	std::uint8_t r_;
-	std::uint8_t g_;
-	std::uint8_t b_;
-	std::uint8_t a_;
-
-
-	constexpr RendererColor32()
-		:
-		r_{},
-		g_{},
-		b_{},
-		a_{}
-	{
-	}
-
-	constexpr RendererColor32(
-		const std::uint8_t r,
-		const std::uint8_t g,
-		const std::uint8_t b,
-		const std::uint8_t a)
-		:
-		r_{r},
-		g_{g},
-		b_{b},
-		a_{a}
-	{
-	}
-
-
-	std::uint8_t* get_data()
-	{
-		return reinterpret_cast<std::uint8_t*>(this);
-	}
-
-	const std::uint8_t* get_data() const
-	{
-		return reinterpret_cast<const std::uint8_t*>(this);
-	}
-
-
-	constexpr std::uint32_t to_u32() const
-	{
-		return (r_ << 24) | (g_ << 16) | (b_ << 8) | a_;
-	}
-
-	constexpr bool operator==(
-		const RendererColor32& rhs) const
-	{
-		return r_ == rhs.r_ && g_ == rhs.g_ && b_ == rhs.b_ && a_ == rhs.a_;
-	}
-}; // RendererColor32
-
-using RendererColor32Ptr = RendererColor32*;
-using RendererColor32CPtr = const RendererColor32*;
 
 using RendererPalette = std::array<RendererColor32, 256>;
 

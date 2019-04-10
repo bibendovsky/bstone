@@ -9190,7 +9190,7 @@ void vl_hw_fade_out(
 		{
 			const auto new_alpha = (i * alpha) / step_count;
 
-			::hw_2d_fade_color_.a_ = static_cast<std::uint8_t>(new_alpha);
+			::hw_2d_fade_color_.a = static_cast<std::uint8_t>(new_alpha);
 
 			::VL_RefreshScreen();
 
@@ -9204,7 +9204,7 @@ void vl_hw_fade_out(
 	//
 	// final color
 	//
-	::hw_2d_fade_color_.a_ = 0xFF;
+	::hw_2d_fade_color_.a = 0xFF;
 
 	::VL_FillPalette(
 		static_cast<std::uint8_t>(red),
@@ -9325,7 +9325,7 @@ void vl_hw_fade_in(
 
 	::VL_SetPalette(0, 256, palette);
 
-	::hw_2d_fade_color_.a_ = 0xFF;
+	::hw_2d_fade_color_.a = 0xFF;
 
 	if (!::g_no_fade_in_or_out)
 	{
@@ -9335,7 +9335,7 @@ void vl_hw_fade_in(
 		{
 			const auto new_alpha = ((step_count - 1 - i) * alpha) / step_count;
 
-			::hw_2d_fade_color_.a_ = static_cast<std::uint8_t>(new_alpha);
+			::hw_2d_fade_color_.a = static_cast<std::uint8_t>(new_alpha);
 
 			::VL_RefreshScreen();
 
@@ -9346,7 +9346,7 @@ void vl_hw_fade_in(
 		}
 	}
 
-	::hw_2d_fade_color_.a_ = 0x00;
+	::hw_2d_fade_color_.a = 0x00;
 
 	::VL_RefreshScreen();
 

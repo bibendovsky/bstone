@@ -477,7 +477,7 @@ void RendererUtils::indexed_pot_to_rgba_pot(
 
 				if (is_transparent)
 				{
-					dst_pixel.a_ = 0x00;
+					dst_pixel.a = 0x00;
 				}
 			}
 
@@ -544,7 +544,7 @@ void RendererUtils::indexed_npot_to_rgba_pot(
 
 				if (is_transparent)
 				{
-					dst_pixel.a_ = 0x00;
+					dst_pixel.a = 0x00;
 				}
 			}
 
@@ -745,17 +745,17 @@ void RendererUtils::build_mipmap(
 			const auto& src_color_3 = src_colors[(src_v2 * previous_width) + src_u1];
 			const auto& src_color_4 = src_colors[(src_v2 * previous_width) + src_u2];
 
-			const auto red = (src_color_1.r_ + src_color_2.r_ + src_color_3.r_ + src_color_4.r_) / 4;
-			const auto green = (src_color_1.g_ + src_color_2.g_ + src_color_3.g_ + src_color_4.g_) / 4;
-			const auto blue = (src_color_1.b_ + src_color_2.b_ + src_color_3.b_ + src_color_4.b_) / 4;
-			const auto alpha = (src_color_1.a_ + src_color_2.a_ + src_color_3.a_ + src_color_4.a_) / 4;;
+			const auto red = (src_color_1.r + src_color_2.r + src_color_3.r + src_color_4.r) / 4;
+			const auto green = (src_color_1.g + src_color_2.g + src_color_3.g + src_color_4.g) / 4;
+			const auto blue = (src_color_1.b + src_color_2.b + src_color_3.b + src_color_4.b) / 4;
+			const auto alpha = (src_color_1.a + src_color_2.a + src_color_3.a + src_color_4.a) / 4;;
 
 			auto& dst_color = dst_colors[dst_index];
 
-			dst_color.r_ = red;
-			dst_color.g_ = green;
-			dst_color.b_ = blue;
-			dst_color.a_ = alpha;
+			dst_color.r = red;
+			dst_color.g = green;
+			dst_color.b = blue;
+			dst_color.a = alpha;
 
 			dst_u += src_du;
 

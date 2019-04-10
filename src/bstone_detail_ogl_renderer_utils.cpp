@@ -289,10 +289,10 @@ void OglRendererUtils::set_color_buffer_clear_color(
 	const auto reciprocal_255 = 1.0F / 255.0F;
 
 	::glClearColor(
-		static_cast<float>(color.r_) * reciprocal_255,
-		static_cast<float>(color.g_) * reciprocal_255,
-		static_cast<float>(color.b_) * reciprocal_255,
-		static_cast<float>(color.a_) * reciprocal_255
+		static_cast<float>(color.r) * reciprocal_255,
+		static_cast<float>(color.g) * reciprocal_255,
+		static_cast<float>(color.b) * reciprocal_255,
+		static_cast<float>(color.a) * reciprocal_255
 	);
 
 	assert(!OglRendererUtils::was_errors());
