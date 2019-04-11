@@ -39,6 +39,7 @@ Free Software Foundation, Inc.,
 #include "bstone_detail_ogl_renderer.h"
 #include "bstone_detail_ogl_renderer_utils.h"
 #include "bstone_ogl.h"
+#include "bstone_renderer_sw_index_buffer.h"
 #include "bstone_renderer_sw_vertex_buffer.h"
 
 
@@ -139,51 +140,8 @@ public:
 
 
 private:
+	using IndexBuffers = std::list<RendererSwIndexBufferUPtr>;
 	using VertexBuffers = std::list<RendererSwVertexBufferUPtr>;
-
-
-	// =========================================================================
-	// IndexBuffer
-	//
-
-	class IndexBuffer :
-		public RendererIndexBuffer
-	{
-	public:
-		using Data = std::vector<std::uint8_t>;
-
-
-		std::string error_message_;
-
-		int byte_depth_;
-		int count_;
-		Data data_;
-
-
-		IndexBuffer() = default;
-
-		IndexBuffer(
-			const IndexBuffer& rhs) = delete;
-
-		~IndexBuffer() override = default;
-
-
-		void update(
-			const RendererIndexBufferUpdateParam& param) override;
-
-
-		bool initialize(
-			const RendererIndexBufferCreateParam& param);
-	}; // IndexBuffer
-
-	using IndexBufferPtr = IndexBuffer*;
-	using IndexBufferUPtr = std::unique_ptr<IndexBuffer>;
-
-	using IndexBuffers = std::list<IndexBufferUPtr>;
-
-	//
-	// IndexBuffer
-	// =========================================================================
 
 
 	// =========================================================================

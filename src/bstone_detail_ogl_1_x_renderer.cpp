@@ -45,79 +45,6 @@ namespace detail
 
 
 // ==========================================================================
-// Ogl1XRenderer::IndexBuffer
-//
-
-void Ogl1XRenderer::IndexBuffer::update(
-	const RendererIndexBufferUpdateParam& param)
-{
-	auto renderer_utils = RendererUtils{};
-
-	if (!renderer_utils.validate_index_buffer_update_param(param))
-	{
-		error_message_ = renderer_utils.get_error_message();
-
-		return;
-	}
-
-	if (param.offset_ >= count_)
-	{
-		error_message_ = "Offset out of range.";
-
-		return;
-	}
-
-	if (param.count_ > count_)
-	{
-		error_message_ = "Count out of range.";
-
-		return;
-	}
-
-	if ((param.offset_ + param.count_) > count_)
-	{
-		error_message_ = "Block out of range.";
-
-		return;
-	}
-
-	const auto size = byte_depth_ * param.count_;
-	const auto offset = byte_depth_ * param.offset_;
-
-	std::uninitialized_copy_n(
-		static_cast<const std::uint8_t*>(param.indices_),
-		size,
-		data_.begin() + offset
-	);
-}
-
-bool Ogl1XRenderer::IndexBuffer::initialize(
-	const RendererIndexBufferCreateParam& param)
-{
-	auto renderer_utils = RendererUtils{};
-
-	if (!renderer_utils.validate_index_buffer_create_param(param))
-	{
-		error_message_ = renderer_utils.get_error_message();
-
-		return false;
-	}
-
-	const auto size = param.byte_depth_ * param.index_count_;
-
-	byte_depth_ = param.byte_depth_;
-	count_ = param.index_count_;
-	data_.resize(size);
-
-	return true;
-}
-
-//
-// Ogl1XRenderer::IndexBuffer
-// ==========================================================================
-
-
-// ==========================================================================
 // Ogl1XRenderer::Texture2d
 //
 
@@ -949,11 +876,11 @@ RendererIndexBufferPtr Ogl1XRenderer::index_buffer_create(
 {
 	assert(is_initialized_);
 
-	auto index_buffer = IndexBufferUPtr{new IndexBuffer{}};
+	auto index_buffer = RendererSwIndexBufferUPtr{new RendererSwIndexBuffer{}};
 
 	if (!index_buffer->initialize(param))
 	{
-		error_message_ = index_buffer->error_message_;
+		error_message_ = index_buffer->get_error_message();
 
 		return nullptr;
 	}
@@ -1935,12 +1862,12 @@ void Ogl1XRenderer::command_execute_draw_quads(
 	const auto index_count = indices_per_quad * command.count_;
 
 	auto& texture_2d = *reinterpret_cast<Texture2d*>(command.texture_2d_);
-	auto& index_buffer = *reinterpret_cast<IndexBuffer*>(command.index_buffer_);
+	auto& index_buffer = *reinterpret_cast<RendererSwIndexBuffer*>(command.index_buffer_);
 	auto& vertex_buffer = *reinterpret_cast<RendererSwVertexBuffer*>(command.vertex_buffer_);
 
-	assert(command.index_offset_ < index_buffer.count_);
-	assert(command.count_ <= index_buffer.count_);
-	assert((command.index_offset_ + command.count_) <= index_buffer.count_);
+	assert(command.index_offset_ < index_buffer.get_count());
+	assert(command.count_ <= index_buffer.get_count());
+	assert((command.index_offset_ + command.count_) <= index_buffer.get_count());
 
 	const auto stride = static_cast<GLsizei>(sizeof(RendererVertex));
 	const auto vertex_buffer_data = reinterpret_cast<const std::uint8_t*>(vertex_buffer.get_data());
@@ -1995,11 +1922,11 @@ void Ogl1XRenderer::command_execute_draw_quads(
 	// Draw the quads.
 	//
 
-	const auto index_buffer_offset = index_buffer.byte_depth_ * command.index_offset_;
-	const auto index_buffer_data = &index_buffer.data_[index_buffer_offset];
+	const auto index_buffer_offset = index_buffer.get_byte_depth() * command.index_offset_;
+	const auto index_buffer_data = static_cast<const std::uint8_t*>(index_buffer.get_data()) + index_buffer_offset;
 
 	const auto ogl_element_type = OglRendererUtils::index_buffer_get_element_type_by_byte_depth(
-		index_buffer.byte_depth_);
+		index_buffer.get_byte_depth());
 
 	::glDrawElements(
 		GL_TRIANGLES, // mode
