@@ -167,14 +167,14 @@ using RendererIbTypeT = std::conditional_t<
 struct RendererIndexBufferCreateParam
 {
 	int byte_depth_;
-	int index_count_;
+	int size_;
 }; // RendererIndexBufferCreateParam
 
 struct RendererIndexBufferUpdateParam
 {
 	int offset_;
-	int count_;
-	const void* indices_;
+	int size_;
+	const void* data_;
 }; // RendererIndexBufferUpdateParam
 
 class RendererIndexBuffer

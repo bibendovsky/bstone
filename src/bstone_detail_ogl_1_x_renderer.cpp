@@ -1865,9 +1865,12 @@ void Ogl1XRenderer::command_execute_draw_quads(
 	auto& index_buffer = *reinterpret_cast<RendererSwIndexBuffer*>(command.index_buffer_);
 	auto& vertex_buffer = *reinterpret_cast<RendererSwVertexBuffer*>(command.vertex_buffer_);
 
-	assert(command.index_offset_ < index_buffer.get_count());
-	assert(command.count_ <= index_buffer.get_count());
-	assert((command.index_offset_ + command.count_) <= index_buffer.get_count());
+	const auto index_byte_depth = index_buffer.get_byte_depth();
+	const auto max_index_count = index_buffer.get_size() / index_byte_depth;
+	const auto index_byte_offset = command.index_offset_ * index_byte_depth;
+	assert(command.index_offset_ < max_index_count);
+	assert(command.count_ <= max_index_count);
+	assert((command.index_offset_ + command.count_) <= max_index_count);
 
 	const auto stride = static_cast<GLsizei>(sizeof(RendererVertex));
 	const auto vertex_buffer_data = reinterpret_cast<const std::uint8_t*>(vertex_buffer.get_data());
@@ -1922,8 +1925,7 @@ void Ogl1XRenderer::command_execute_draw_quads(
 	// Draw the quads.
 	//
 
-	const auto index_buffer_offset = index_buffer.get_byte_depth() * command.index_offset_;
-	const auto index_buffer_data = static_cast<const std::uint8_t*>(index_buffer.get_data()) + index_buffer_offset;
+	const auto index_buffer_data = static_cast<const std::uint8_t*>(index_buffer.get_data()) + index_byte_offset;
 
 	const auto ogl_element_type = OglRendererUtils::index_buffer_get_element_type_by_byte_depth(
 		index_buffer.get_byte_depth());

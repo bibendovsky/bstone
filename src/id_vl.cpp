@@ -1756,6 +1756,38 @@ bstone::RendererColor32 hw_vga_color_to_color_32(
 	};
 }
 
+bstone::RendererIndexBufferPtr hw_index_buffer_create(
+	const int byte_depth,
+	const int index_count)
+{
+	const auto index_buffer_size = index_count * byte_depth;
+
+	auto param = bstone::RendererIndexBufferCreateParam{};
+	param.byte_depth_ = byte_depth;
+	param.size_ = index_buffer_size;
+
+	return ::hw_renderer_->index_buffer_create(param);
+}
+
+template<typename TIndex>
+void hw_index_buffer_update(
+	bstone::RendererIndexBufferPtr index_buffer,
+	const int index_offset,
+	const int index_count,
+	const TIndex* const indices)
+{
+	const auto byte_depth = static_cast<int>(sizeof(TIndex));
+	const auto offset = index_offset * byte_depth;
+	const auto size = index_count * byte_depth;
+
+	auto param = bstone::RendererIndexBufferUpdateParam{};
+	param.offset_ = offset;
+	param.size_ = size;
+	param.data_ = indices;
+
+	index_buffer->update(param);
+}
+
 bstone::RendererVertexBufferPtr hw_vertex_buffer_create(
 	const int vertex_count)
 {
@@ -1941,11 +1973,7 @@ bool hw_initialize_renderer()
 
 bool hw_2d_create_ib()
 {
-	auto ib_create_param = bstone::RendererIndexBufferCreateParam{};
-	ib_create_param.byte_depth_ = 2;
-	ib_create_param.index_count_ = ::hw_2d_index_count_;
-
-	::hw_2d_ib_ = ::hw_renderer_->index_buffer_create(ib_create_param);
+	::hw_2d_ib_ = ::hw_index_buffer_create(2, ::hw_2d_index_count_);
 
 	if (!::hw_2d_ib_)
 	{
@@ -1968,12 +1996,11 @@ bool hw_2d_create_ib()
 		(4 * 1) + 0, (4 * 1) + 2, (4 * 1) + 3,
 	};
 
-	auto ib_update_param = bstone::RendererIndexBufferUpdateParam{};
-	ib_update_param.offset_ = 0;
-	ib_update_param.count_ = ::hw_2d_index_count_;
-	ib_update_param.indices_ = indices.data();
-
-	::hw_2d_ib_->update(ib_update_param);
+	::hw_index_buffer_update(
+		::hw_2d_ib_,
+		0,
+		::hw_2d_index_count_,
+		indices.data());
 
 	return true;
 }
@@ -2064,11 +2091,7 @@ bool hw_2d_create_vb()
 
 bool hw_2d_fillers_create_ib()
 {
-	auto ib_create_param = bstone::RendererIndexBufferCreateParam{};
-	ib_create_param.byte_depth_ = 2;
-	ib_create_param.index_count_ = ::hw_2d_fillers_index_count_;
-
-	::hw_2d_fillers_ib_ = ::hw_renderer_->index_buffer_create(ib_create_param);
+	::hw_2d_fillers_ib_ = ::hw_index_buffer_create(2, ::hw_2d_fillers_index_count_);
 
 	if (!::hw_2d_fillers_ib_)
 	{
@@ -2110,12 +2133,11 @@ bool hw_2d_fillers_create_ib()
 		(4 * 5) + 0, (4 * 5) + 2, (4 * 5) + 3,
 	};
 
-	auto ib_update_param = bstone::RendererIndexBufferUpdateParam{};
-	ib_update_param.offset_ = 0;
-	ib_update_param.count_ = ::hw_2d_fillers_index_count_;
-	ib_update_param.indices_ = indices.data();
-
-	::hw_2d_fillers_ib_->update(ib_update_param);
+	::hw_index_buffer_update(
+		::hw_2d_fillers_ib_,
+		0,
+		::hw_2d_fillers_index_count_,
+		indices.data());
 
 	return true;
 }
@@ -2605,11 +2627,7 @@ bool hw_3d_initialize_flooring_ib()
 	const auto index_count = 6;
 
 	{
-		auto param = bstone::RendererIndexBufferCreateParam{};
-		param.byte_depth_ = 2;
-		param.index_count_ = index_count;
-
-		::hw_3d_flooring_ib_ = ::hw_renderer_->index_buffer_create(param);
+		::hw_3d_flooring_ib_ = ::hw_index_buffer_create(2, index_count);
 
 		if (!::hw_3d_flooring_ib_)
 		{
@@ -2626,12 +2644,12 @@ bool hw_3d_initialize_flooring_ib()
 			0, 2, 3,
 		};
 
-		auto param = bstone::RendererIndexBufferUpdateParam{};
-		param.count_ = index_count;
-		param.offset_ = 0;
-		param.indices_ = indices.data();
-
-		::hw_3d_flooring_ib_->update(param);
+		::hw_index_buffer_update(
+			::hw_3d_flooring_ib_,
+			0,
+			index_count,
+			indices.data()
+		);
 	}
 
 	return true;
@@ -2759,11 +2777,7 @@ bool hw_3d_initialize_ceiling_ib()
 	const auto index_count = 6;
 
 	{
-		auto param = bstone::RendererIndexBufferCreateParam{};
-		param.byte_depth_ = 2;
-		param.index_count_ = index_count;
-
-		::hw_3d_ceiling_ib_ = ::hw_renderer_->index_buffer_create(param);
+		::hw_3d_ceiling_ib_ = ::hw_index_buffer_create(2, index_count);
 
 		if (!::hw_3d_ceiling_ib_)
 		{
@@ -2780,12 +2794,12 @@ bool hw_3d_initialize_ceiling_ib()
 			0, 3, 2,
 		};
 
-		auto param = bstone::RendererIndexBufferUpdateParam{};
-		param.count_ = index_count;
-		param.offset_ = 0;
-		param.indices_ = indices.data();
-
-		::hw_3d_ceiling_ib_->update(param);
+		::hw_index_buffer_update(
+			::hw_3d_ceiling_ib_,
+			0,
+			index_count,
+			indices.data()
+		);
 	}
 
 	return true;
@@ -2910,11 +2924,7 @@ bool hw_initialize_solid_walls_ib()
 {
 	const auto index_count = ::hw_3d_wall_side_count_ * ::hw_3d_indices_per_wall_side;
 
-	auto param = bstone::RendererIndexBufferCreateParam{};
-	param.byte_depth_ = 2;
-	param.index_count_ = index_count;
-
-	::hw_3d_wall_sides_ib_ = ::hw_renderer_->index_buffer_create(param);
+	::hw_3d_wall_sides_ib_ = ::hw_index_buffer_create(2, index_count);
 
 	if (!::hw_3d_wall_sides_ib_)
 	{
@@ -3009,11 +3019,7 @@ bool hw_initialize_pushwalls_ibo()
 {
 	const auto index_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_indices_per_wall_side;
 
-	auto param = bstone::RendererIndexBufferCreateParam{};
-	param.byte_depth_ = 2;
-	param.index_count_ = index_count;
-
-	::hw_3d_pushwall_sides_ib_ = ::hw_renderer_->index_buffer_create(param);
+	::hw_3d_pushwall_sides_ib_ = ::hw_index_buffer_create(2, index_count);
 
 	if (!::hw_3d_pushwall_sides_ib_)
 	{
@@ -3116,11 +3122,7 @@ bool hw_initialize_door_sides_ibo()
 {
 	const auto index_count = ::hw_3d_door_count_ * ::hw_3d_indices_per_door_side;
 
-	auto param = bstone::RendererIndexBufferCreateParam{};
-	param.byte_depth_ = 2;
-	param.index_count_ = index_count;
-
-	::hw_3d_door_sides_ibo_ = ::hw_renderer_->index_buffer_create(param);
+	::hw_3d_door_sides_ibo_ = ::hw_index_buffer_create(2, index_count);
 
 	if (!::hw_3d_door_sides_ibo_)
 	{
@@ -4258,12 +4260,12 @@ void hw_3d_dbg_draw_all_solid_walls(
 			ib_buffer[ib_index++] = static_cast<std::uint16_t>(wall_side.vertex_index_ + 3);
 		}
 
-		auto param = bstone::RendererIndexBufferUpdateParam{};
-		param.offset_ = 0;
-		param.count_ = ib_index;
-		param.indices_ = ib_buffer.data();
-
-		::hw_3d_wall_sides_ib_->update(param);
+		::hw_index_buffer_update(
+			::hw_3d_wall_sides_ib_,
+			0,
+			ib_index,
+			ib_buffer.data()
+		);
 	}
 
 	// Add render commands.
@@ -4378,12 +4380,12 @@ void hw_3d_dbg_draw_all_pushwalls(
 			ib_buffer[ib_index++] = static_cast<std::uint16_t>(wall_side.vertex_index_ + 3);
 		}
 
-		auto param = bstone::RendererIndexBufferUpdateParam{};
-		param.offset_ = 0;
-		param.count_ = ib_index;
-		param.indices_ = ib_buffer.data();
-
-		::hw_3d_pushwall_sides_ib_->update(param);
+		::hw_index_buffer_update(
+			::hw_3d_pushwall_sides_ib_,
+			0,
+			ib_index,
+			ib_buffer.data()
+		);
 	}
 
 	// Add render commands.
@@ -4600,12 +4602,12 @@ void hw_3d_dbg_draw_all_doors(
 			}
 		}
 
-		auto param = bstone::RendererIndexBufferUpdateParam{};
-		param.offset_ = 0;
-		param.count_ = ib_index;
-		param.indices_ = ib_buffer.data();
-
-		::hw_3d_door_sides_ibo_->update(param);
+		::hw_index_buffer_update(
+			::hw_3d_door_sides_ibo_,
+			0,
+			ib_index,
+			ib_buffer.data()
+		);
 	}
 
 	// Add render commands.
@@ -4736,12 +4738,12 @@ void hw_3d_dbg_draw_all_sprites(
 			ib_buffer[ib_index++] = static_cast<std::uint16_t>(sprite.vertex_index_ + 3);
 		}
 
-		auto param = bstone::RendererIndexBufferUpdateParam{};
-		param.offset_ = 0;
-		param.count_ = ib_index;
-		param.indices_ = ib_buffer.data();
-
-		::hw_3d_sprites_ib_->update(param);
+		::hw_index_buffer_update(
+			::hw_3d_sprites_ib_,
+			0,
+			ib_index,
+			ib_buffer.data()
+		);
 	}
 
 	// Add render commands.
@@ -6348,11 +6350,7 @@ bool hw_initialize_sprites_ib()
 {
 	const auto index_count = ::hw_3d_max_sprites_indices;
 
-	auto param = bstone::RendererIndexBufferCreateParam{};
-	param.byte_depth_ = 2;
-	param.index_count_ = index_count;
-
-	::hw_3d_sprites_ib_ = ::hw_renderer_->index_buffer_create(param);
+	::hw_3d_sprites_ib_ = ::hw_index_buffer_create(2, index_count);
 
 	if (!::hw_3d_sprites_ib_)
 	{

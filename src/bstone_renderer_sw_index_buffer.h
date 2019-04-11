@@ -65,7 +65,7 @@ public:
 
 	int get_byte_depth() const;
 
-	int get_count() const;
+	int get_size() const;
 
 	const void* get_data() const;
 
@@ -77,7 +77,7 @@ private:
 	std::string error_message_;
 
 	int byte_depth_;
-	int count_;
+	int size_;
 	Data data_;
 }; // RendererSwIndexBuffer
 

@@ -52,34 +52,31 @@ void RendererSwIndexBuffer::update(
 		return;
 	}
 
-	if (param.offset_ >= count_)
+	if (param.offset_ >= size_)
 	{
 		error_message_ = "Offset out of range.";
 
 		return;
 	}
 
-	if (param.count_ > count_)
+	if (param.size_ > size_)
 	{
-		error_message_ = "Count out of range.";
+		error_message_ = "Size out of range.";
 
 		return;
 	}
 
-	if ((param.offset_ + param.count_) > count_)
+	if ((param.offset_ + param.size_) > size_)
 	{
 		error_message_ = "Block out of range.";
 
 		return;
 	}
 
-	const auto size = byte_depth_ * param.count_;
-	const auto offset = byte_depth_ * param.offset_;
-
 	std::uninitialized_copy_n(
-		static_cast<const std::uint8_t*>(param.indices_),
-		size,
-		data_.begin() + offset
+		static_cast<const std::uint8_t*>(param.data_),
+		param.size_,
+		data_.begin() + param.offset_
 	);
 }
 
@@ -100,11 +97,9 @@ bool RendererSwIndexBuffer::initialize(
 		return false;
 	}
 
-	const auto size = param.byte_depth_ * param.index_count_;
-
 	byte_depth_ = param.byte_depth_;
-	count_ = param.index_count_;
-	data_.resize(size);
+	size_ = param.size_;
+	data_.resize(size_);
 
 	return true;
 }
@@ -114,9 +109,9 @@ int RendererSwIndexBuffer::get_byte_depth() const
 	return byte_depth_;
 }
 
-int RendererSwIndexBuffer::get_count() const
+int RendererSwIndexBuffer::get_size() const
 {
-	return count_;
+	return size_;
 }
 
 const void* RendererSwIndexBuffer::get_data() const

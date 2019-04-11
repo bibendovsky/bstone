@@ -225,9 +225,9 @@ bool RendererUtils::validate_index_buffer_create_param(
 		return false;
 	}
 
-	if (param.index_count_ <= 0)
+	if (param.size_ <= 0)
 	{
-		error_message_ = "Invalid index count.";
+		error_message_ = "Invalid size.";
 
 		return false;
 	}
@@ -245,14 +245,14 @@ bool RendererUtils::validate_index_buffer_update_param(
 		return false;
 	}
 
-	if (param.count_ <= 0)
+	if (param.size_ <= 0)
 	{
 		error_message_ = "Invalid count.";
 
 		return false;
 	}
 
-	if (!param.indices_)
+	if (!param.data_)
 	{
 		error_message_ = "Null indices.";
 
