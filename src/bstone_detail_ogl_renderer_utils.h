@@ -115,28 +115,6 @@ public:
 		const float min_depth,
 		const float max_depth);
 
-	static glm::mat4 build_3d_model_matrix();
-
-	static glm::mat4 build_3d_view_matrix(
-		const int angle_deg,
-		const glm::vec3& position);
-
-	static glm::mat4 build_3d_frustum(
-		const float l,
-		const float r,
-		const float b,
-		const float t,
-		const float n,
-		const float f);
-
-	static glm::mat4 build_3d_projection_matrix(
-		const int viewport_width,
-		const int viewport_height,
-		const int vfov_deg,
-		const float near_distance,
-		const float far_distance);
-
-
 	static GLenum index_buffer_get_element_type_by_byte_depth(
 		const int byte_depth);
 
