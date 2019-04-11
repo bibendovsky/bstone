@@ -213,11 +213,20 @@ bool RendererUtils::validate_initialize_param(
 bool RendererUtils::validate_index_buffer_create_param(
 	const RendererIndexBufferCreateParam& param)
 {
+	auto max_index_count = std::uint32_t{};
+
 	switch (param.byte_depth_)
 	{
 	case 1:
+		max_index_count = 0xFF;
+		break;
+
 	case 2:
+		max_index_count = 0xFFFF;
+		break;
+
 	case 4:
+		max_index_count = 0xFFFFFFFF;
 		break;
 
 	default:
@@ -227,7 +236,14 @@ bool RendererUtils::validate_index_buffer_create_param(
 
 	if (param.index_count_ <= 0)
 	{
-		error_message_ = "Invalid vertex count.";
+		error_message_ = "Invalid index count.";
+
+		return false;
+	}
+
+	if (static_cast<unsigned int>(param.index_count_) > max_index_count)
+	{
+		error_message_ = "Too many indices.";
 
 		return false;
 	}
