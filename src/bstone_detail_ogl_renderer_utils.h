@@ -36,6 +36,7 @@ Free Software Foundation, Inc.,
 #include <vector>
 #include "glm/glm.hpp"
 #include "bstone_detail_renderer_utils.h"
+#include "bstone_ogl.h"
 #include "bstone_sdl_types.h"
 
 
@@ -134,6 +135,10 @@ public:
 		const int vfov_deg,
 		const float near_distance,
 		const float far_distance);
+
+
+	static GLenum index_buffer_get_element_type_by_byte_depth(
+		const int byte_depth);
 
 
 private:

@@ -81,9 +81,12 @@ void Ogl1XRenderer::IndexBuffer::update(
 		return;
 	}
 
+	const auto size = byte_depth_ * param.count_;
+	const auto offset = byte_depth_ * param.offset_;
+
 	std::uninitialized_copy_n(
-		param.indices_,
-		param.count_,
+		static_cast<const std::uint8_t*>(param.indices_),
+		size,
 		data_.begin() + param.offset_
 	);
 }
@@ -100,8 +103,11 @@ bool Ogl1XRenderer::IndexBuffer::initialize(
 		return false;
 	}
 
+	const auto size = param.byte_depth_ * param.index_count_;
+
+	byte_depth_ = param.byte_depth_;
 	count_ = param.index_count_;
-	data_.resize(count_);
+	data_.resize(size);
 
 	return true;
 }
@@ -1991,10 +1997,13 @@ void Ogl1XRenderer::command_execute_draw_quads(
 
 	const auto index_buffer_data = &index_buffer.data_[command.index_offset_];
 
+	const auto ogl_element_type = OglRendererUtils::index_buffer_get_element_type_by_byte_depth(
+		index_buffer.byte_depth_);
+
 	::glDrawElements(
 		GL_TRIANGLES, // mode
 		index_count, // count
-		GL_UNSIGNED_SHORT, // type
+		ogl_element_type, // type
 		index_buffer_data // indices
 	);
 

@@ -1942,6 +1942,7 @@ bool hw_initialize_renderer()
 bool hw_2d_create_ib()
 {
 	auto ib_create_param = bstone::RendererIndexBufferCreateParam{};
+	ib_create_param.byte_depth_ = 2;
 	ib_create_param.index_count_ = ::hw_2d_index_count_;
 
 	::hw_2d_ib_ = ::hw_renderer_->index_buffer_create(ib_create_param);
@@ -2064,6 +2065,7 @@ bool hw_2d_create_vb()
 bool hw_2d_fillers_create_ib()
 {
 	auto ib_create_param = bstone::RendererIndexBufferCreateParam{};
+	ib_create_param.byte_depth_ = 2;
 	ib_create_param.index_count_ = ::hw_2d_fillers_index_count_;
 
 	::hw_2d_fillers_ib_ = ::hw_renderer_->index_buffer_create(ib_create_param);
@@ -2604,6 +2606,7 @@ bool hw_3d_initialize_flooring_ib()
 
 	{
 		auto param = bstone::RendererIndexBufferCreateParam{};
+		param.byte_depth_ = 2;
 		param.index_count_ = index_count;
 
 		::hw_3d_flooring_ib_ = ::hw_renderer_->index_buffer_create(param);
@@ -2757,6 +2760,7 @@ bool hw_3d_initialize_ceiling_ib()
 
 	{
 		auto param = bstone::RendererIndexBufferCreateParam{};
+		param.byte_depth_ = 2;
 		param.index_count_ = index_count;
 
 		::hw_3d_ceiling_ib_ = ::hw_renderer_->index_buffer_create(param);
@@ -2907,6 +2911,7 @@ bool hw_initialize_solid_walls_ib()
 	const auto index_count = ::hw_3d_wall_side_count_ * ::hw_3d_indices_per_wall_side;
 
 	auto param = bstone::RendererIndexBufferCreateParam{};
+	param.byte_depth_ = 2;
 	param.index_count_ = index_count;
 
 	::hw_3d_wall_sides_ib_ = ::hw_renderer_->index_buffer_create(param);
@@ -3005,6 +3010,7 @@ bool hw_initialize_pushwalls_ibo()
 	const auto index_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_indices_per_wall_side;
 
 	auto param = bstone::RendererIndexBufferCreateParam{};
+	param.byte_depth_ = 2;
 	param.index_count_ = index_count;
 
 	::hw_3d_pushwall_sides_ib_ = ::hw_renderer_->index_buffer_create(param);
@@ -3111,6 +3117,7 @@ bool hw_initialize_door_sides_ibo()
 	const auto index_count = ::hw_3d_door_count_ * ::hw_3d_indices_per_door_side;
 
 	auto param = bstone::RendererIndexBufferCreateParam{};
+	param.byte_depth_ = 2;
 	param.index_count_ = index_count;
 
 	::hw_3d_door_sides_ibo_ = ::hw_renderer_->index_buffer_create(param);
@@ -6342,6 +6349,7 @@ bool hw_initialize_sprites_ib()
 	const auto index_count = ::hw_3d_max_sprites_indices;
 
 	auto param = bstone::RendererIndexBufferCreateParam{};
+	param.byte_depth_ = 2;
 	param.index_count_ = index_count;
 
 	::hw_3d_sprites_ib_ = ::hw_renderer_->index_buffer_create(param);

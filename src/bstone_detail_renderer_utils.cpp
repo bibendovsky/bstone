@@ -213,6 +213,18 @@ bool RendererUtils::validate_initialize_param(
 bool RendererUtils::validate_index_buffer_create_param(
 	const RendererIndexBufferCreateParam& param)
 {
+	switch (param.byte_depth_)
+	{
+	case 1:
+	case 2:
+	case 4:
+		break;
+
+	default:
+		error_message_ = "Invalid byte depth.";
+		return false;
+	}
+
 	if (param.index_count_ <= 0)
 	{
 		error_message_ = "Invalid vertex count.";

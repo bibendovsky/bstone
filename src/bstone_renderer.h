@@ -141,8 +141,32 @@ public:
 // RendererIndexBuffer
 //
 
+enum class RendererIbElementTypeId
+{
+	none,
+	uint8,
+	uint16,
+	uint32,
+}; // RendererIbElementTypeId
+
+template<RendererIbElementTypeId TTypeId>
+using RendererIbTypeT = std::conditional_t<
+	TTypeId == RendererIbElementTypeId::uint8,
+	std::uint8_t,
+	std::conditional_t<
+		TTypeId == RendererIbElementTypeId::uint16,
+		std::uint16_t,
+		std::conditional_t<
+			TTypeId == RendererIbElementTypeId::uint32,
+			std::uint32_t,
+			void
+		>
+	>
+>;
+
 struct RendererIndexBufferCreateParam
 {
+	int byte_depth_;
 	int index_count_;
 }; // RendererIndexBufferCreateParam
 
@@ -150,7 +174,7 @@ struct RendererIndexBufferUpdateParam
 {
 	int offset_;
 	int count_;
-	const std::uint16_t* indices_;
+	const void* indices_;
 }; // RendererIndexBufferUpdateParam
 
 class RendererIndexBuffer

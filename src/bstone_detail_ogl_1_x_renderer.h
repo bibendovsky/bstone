@@ -150,11 +150,12 @@ private:
 		public RendererIndexBuffer
 	{
 	public:
-		using Data = std::vector<std::uint16_t>;
+		using Data = std::vector<std::uint8_t>;
 
 
 		std::string error_message_;
 
+		int byte_depth_;
 		int count_;
 		Data data_;
 

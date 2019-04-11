@@ -416,6 +416,26 @@ glm::mat4 OglRendererUtils::build_3d_projection_matrix(
 	);
 }
 
+GLenum OglRendererUtils::index_buffer_get_element_type_by_byte_depth(
+	const int byte_depth)
+{
+	switch (byte_depth)
+	{
+	case 1:
+		return GL_UNSIGNED_BYTE;
+
+	case 2:
+		return GL_UNSIGNED_SHORT;
+
+	case 4:
+		return GL_UNSIGNED_INT;
+
+	default:
+		assert(!"Invalid byte depth.");
+		return {};
+	}
+}
+
 void* OglRendererUtils::resolve_symbol(
 	const char* const symbol)
 {
