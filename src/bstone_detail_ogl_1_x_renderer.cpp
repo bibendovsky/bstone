@@ -87,7 +87,7 @@ void Ogl1XRenderer::IndexBuffer::update(
 	std::uninitialized_copy_n(
 		static_cast<const std::uint8_t*>(param.indices_),
 		size,
-		data_.begin() + param.offset_
+		data_.begin() + offset
 	);
 }
 
@@ -1995,7 +1995,8 @@ void Ogl1XRenderer::command_execute_draw_quads(
 	// Draw the quads.
 	//
 
-	const auto index_buffer_data = &index_buffer.data_[command.index_offset_];
+	const auto index_buffer_offset = index_buffer.byte_depth_ * command.index_offset_;
+	const auto index_buffer_data = &index_buffer.data_[index_buffer_offset];
 
 	const auto ogl_element_type = OglRendererUtils::index_buffer_get_element_type_by_byte_depth(
 		index_buffer.byte_depth_);
