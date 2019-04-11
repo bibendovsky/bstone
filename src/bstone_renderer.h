@@ -179,14 +179,14 @@ using RendererIndexBufferPtr = RendererIndexBuffer*;
 
 struct RendererVertexBufferCreateParam
 {
-	int vertex_count_;
+	int size_;
 }; // RendererVertexBufferCreateParam
 
 struct RendererVertexBufferUpdateParam
 {
 	int offset_;
-	int count_;
-	const RendererVertex* vertices_;
+	int size_;
+	const void* data_;
 }; // RendererVertexBufferUpdateParam
 
 class RendererVertexBuffer

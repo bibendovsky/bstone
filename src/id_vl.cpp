@@ -1756,6 +1756,34 @@ bstone::RendererColor32 hw_vga_color_to_color_32(
 	};
 }
 
+bstone::RendererVertexBufferPtr hw_vertex_buffer_create(
+	const int vertex_count)
+{
+	const auto vertex_buffer_size = static_cast<int>(vertex_count * sizeof(bstone::RendererVertex));
+
+	auto param = bstone::RendererVertexBufferCreateParam{};
+	param.size_ = vertex_buffer_size;
+
+	return ::hw_renderer_->vertex_buffer_create(param);
+}
+
+void hw_vertex_buffer_update(
+	bstone::RendererVertexBufferPtr vertex_buffer,
+	const int vertex_offset,
+	const int vertex_count,
+	const bstone::RendererVertex* const vertices)
+{
+	const auto offset = static_cast<int>(vertex_offset * sizeof(bstone::RendererVertex));
+	const auto size = static_cast<int>(vertex_count * sizeof(bstone::RendererVertex));
+
+	auto param = bstone::RendererVertexBufferUpdateParam{};
+	param.offset_ = offset;
+	param.size_ = size;
+	param.data_ = vertices;
+
+	vertex_buffer->update(param);
+}
+
 void hw_3d_update_player_direction()
 {
 	const auto direction_angle = (::player->angle * m_pi()) / 180.0;
@@ -2013,10 +2041,7 @@ void hw_2d_fill_non_stretched_vb()
 
 bool hw_2d_create_vb()
 {
-	auto vb_create_param = bstone::RendererVertexBufferCreateParam{};
-	vb_create_param.vertex_count_ = ::hw_2d_vertex_count_;
-
-	::hw_2d_vb_ = ::hw_renderer_->vertex_buffer_create(vb_create_param);
+	::hw_2d_vb_ = ::hw_vertex_buffer_create(::hw_2d_vertex_count_);
 
 	if (!::hw_2d_vb_)
 	{
@@ -2026,12 +2051,12 @@ bool hw_2d_create_vb()
 	hw_2d_fill_stretched_vb();
 	hw_2d_fill_non_stretched_vb();
 
-	auto vb_update_param = bstone::RendererVertexBufferUpdateParam{};
-	vb_update_param.offset_ = 0;
-	vb_update_param.count_ = ::hw_2d_vertex_count_;
-	vb_update_param.vertices_ = ::hw_2d_vertices_.data();
-
-	::hw_2d_vb_->update(vb_update_param);
+	::hw_vertex_buffer_update(
+		::hw_2d_vb_,
+		0,
+		::hw_2d_vertex_count_,
+		::hw_2d_vertices_.data()
+	);
 
 	return true;
 }
@@ -2095,10 +2120,7 @@ bool hw_2d_fillers_create_ib()
 
 bool hw_2d_fillers_create_vb()
 {
-	auto vb_create_param = bstone::RendererVertexBufferCreateParam{};
-	vb_create_param.vertex_count_ = ::hw_2d_fillers_vertex_count_;
-
-	::hw_2d_fillers_vb_ = ::hw_renderer_->vertex_buffer_create(vb_create_param);
+	::hw_2d_fillers_vb_ = ::hw_vertex_buffer_create(::hw_2d_fillers_vertex_count_);
 
 	if (!::hw_2d_fillers_vb_)
 	{
@@ -2436,12 +2458,12 @@ bool hw_2d_fillers_create_vb()
 	// ======================================================================
 
 
-	auto vb_update_param = bstone::RendererVertexBufferUpdateParam{};
-	vb_update_param.offset_ = 0;
-	vb_update_param.count_ = ::hw_2d_fillers_vertex_count_;
-	vb_update_param.vertices_ = vertices.data();
-
-	::hw_2d_fillers_vb_->update(vb_update_param);
+	::hw_vertex_buffer_update(
+		::hw_2d_fillers_vb_,
+		0,
+		::hw_2d_fillers_vertex_count_,
+		vertices.data()
+	);
 
 	return true;
 }
@@ -2617,10 +2639,7 @@ bool hw_3d_initialize_flooring_vb()
 	const auto vertex_count = 4;
 
 	{
-		auto param = bstone::RendererVertexBufferCreateParam{};
-		param.vertex_count_ = vertex_count;
-
-		::hw_3d_flooring_vb_ = ::hw_renderer_->vertex_buffer_create(param);
+		::hw_3d_flooring_vb_ = ::hw_vertex_buffer_create(vertex_count);
 
 		if (!::hw_3d_flooring_vb_)
 		{
@@ -2669,12 +2688,12 @@ bool hw_3d_initialize_flooring_vb()
 			vertex.uv_ = glm::vec2{0.0F, map_dimension_f};
 		}
 
-		auto param = bstone::RendererVertexBufferUpdateParam{};
-		param.count_ = vertex_count;
-		param.offset_ = 0;
-		param.vertices_ = vertices.data();
-
-		::hw_3d_flooring_vb_->update(param);
+		::hw_vertex_buffer_update(
+			::hw_3d_flooring_vb_,
+			0,
+			vertex_count,
+			vertices.data()
+		);
 	}
 
 	return true;
@@ -2773,10 +2792,7 @@ bool hw_3d_initialize_ceiling_vb()
 	const auto vertex_count = 4;
 
 	{
-		auto param = bstone::RendererVertexBufferCreateParam{};
-		param.vertex_count_ = vertex_count;
-
-		::hw_3d_ceiling_vb_ = ::hw_renderer_->vertex_buffer_create(param);
+		::hw_3d_ceiling_vb_ = ::hw_vertex_buffer_create(vertex_count);
 
 		if (!::hw_3d_ceiling_vb_)
 		{
@@ -2823,12 +2839,12 @@ bool hw_3d_initialize_ceiling_vb()
 			vertex.uv_ = glm::vec2{0.0F, ::hw_3d_map_dimension_f};
 		}
 
-		auto param = bstone::RendererVertexBufferUpdateParam{};
-		param.count_ = vertex_count;
-		param.offset_ = 0;
-		param.vertices_ = vertices.data();
-
-		::hw_3d_ceiling_vb_->update(param);
+		::hw_vertex_buffer_update(
+			::hw_3d_ceiling_vb_,
+			0,
+			vertex_count,
+			vertices.data()
+		);
 	}
 
 	return true;
@@ -2919,10 +2935,9 @@ void hw_3d_uninitialize_walls_ib()
 
 bool hw_initialize_solid_walls_vb()
 {
-	auto param = bstone::RendererVertexBufferCreateParam{};
-	param.vertex_count_ = ::hw_3d_wall_side_count_ * ::hw_3d_vertices_per_wall_side;
+	const auto vertex_count = ::hw_3d_wall_side_count_ * ::hw_3d_vertices_per_wall_side;
 
-	::hw_3d_wall_sides_vb_ = ::hw_renderer_->vertex_buffer_create(param);
+	::hw_3d_wall_sides_vb_ = ::hw_vertex_buffer_create(vertex_count);
 
 	if (!::hw_3d_wall_sides_vb_)
 	{
@@ -3018,10 +3033,9 @@ void hw_3d_uninitialize_pushwalls_ibo()
 
 bool hw_initialize_pushwalls_vbo()
 {
-	auto param = bstone::RendererVertexBufferCreateParam{};
-	param.vertex_count_ = ::hw_3d_pushwall_side_count_ * ::hw_3d_vertices_per_wall_side;
+	const auto vertex_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_vertices_per_wall_side;
 
-	::hw_3d_pushwall_sides_vb_ = ::hw_renderer_->vertex_buffer_create(param);
+	::hw_3d_pushwall_sides_vb_ = ::hw_vertex_buffer_create(vertex_count);
 
 	if (!::hw_3d_pushwall_sides_vb_)
 	{
@@ -3127,10 +3141,9 @@ void hw_3d_uninitialize_door_sides_ibo()
 
 bool hw_initialize_door_sides_vbo()
 {
-	auto param = bstone::RendererVertexBufferCreateParam{};
-	param.vertex_count_ = ::hw_3d_door_count_ * ::hw_3d_indices_per_door_side;
+	const auto vertex_count = ::hw_3d_door_count_ * ::hw_3d_indices_per_door_side;
 
-	::hw_3d_door_sides_vbo_ = ::hw_renderer_->vertex_buffer_create(param);
+	::hw_3d_door_sides_vbo_ = ::hw_vertex_buffer_create(vertex_count);
 
 	if (!::hw_3d_door_sides_vbo_)
 	{
@@ -5761,12 +5774,12 @@ void hw_3d_build_solid_walls()
 
 	// Update vertex buffer.
 	//
-	auto param = bstone::RendererVertexBufferUpdateParam{};
-	param.offset_ = 0;
-	param.count_ = vertex_count;
-	param.vertices_ = vb_buffer.data();
-
-	::hw_3d_wall_sides_vb_->update(param);
+	::hw_vertex_buffer_update(
+		::hw_3d_wall_sides_vb_,
+		0,
+		vertex_count,
+		vb_buffer.data()
+	);
 }
 
 void hw_3d_translate_pushwall_side(
@@ -5950,12 +5963,12 @@ void hw_3d_translate_pushwall()
 
 	const auto vertex_count = vertex_index - first_vertex_index;
 
-	auto param = bstone::RendererVertexBufferUpdateParam{};
-	param.offset_ = first_vertex_index;
-	param.count_ = vertex_count;
-	param.vertices_ = ::hw_3d_pushwalls_vb_buffer_.data() + first_vertex_index;
-
-	::hw_3d_pushwall_sides_vb_->update(param);
+	::hw_vertex_buffer_update(
+		::hw_3d_pushwall_sides_vb_,
+		first_vertex_index,
+		vertex_count,
+		&::hw_3d_pushwalls_vb_buffer_[first_vertex_index]
+	);
 }
 
 void hw_3d_step_pushwall(
@@ -6060,12 +6073,12 @@ void hw_3d_build_pushwalls()
 
 	// Update vertex buffer.
 	//
-	auto param = bstone::RendererVertexBufferUpdateParam{};
-	param.offset_ = 0;
-	param.count_ = vertex_count;
-	param.vertices_ = ::hw_3d_pushwalls_vb_buffer_.data();
-
-	::hw_3d_pushwall_sides_vb_->update(param);
+	::hw_vertex_buffer_update(
+		::hw_3d_pushwall_sides_vb_,
+		0,
+		vertex_count,
+		::hw_3d_pushwalls_vb_buffer_.data()
+	);
 }
 
 void hw_3d_update_quad_vertices(
@@ -6316,12 +6329,12 @@ void hw_3d_build_doors()
 
 	// Update vertex buffer.
 	//
-	auto param = bstone::RendererVertexBufferUpdateParam{};
-	param.offset_ = 0;
-	param.count_ = vertex_count;
-	param.vertices_ = ::hw_3d_doors_vb_.data();
-
-	::hw_3d_door_sides_vbo_->update(param);
+	::hw_vertex_buffer_update(
+		::hw_3d_door_sides_vbo_,
+		0,
+		vertex_count,
+		::hw_3d_doors_vb_.data()
+	);
 }
 
 bool hw_initialize_sprites_ib()
@@ -6359,10 +6372,7 @@ bool hw_initialize_sprites_vb()
 {
 	const auto vertex_count = ::hw_3d_max_sprites_vertices;
 
-	auto param = bstone::RendererVertexBufferCreateParam{};
-	param.vertex_count_ = vertex_count;
-
-	::hw_3d_sprites_vb_ = ::hw_renderer_->vertex_buffer_create(param);
+	::hw_3d_sprites_vb_ = ::hw_vertex_buffer_create(vertex_count);
 
 	if (!::hw_3d_sprites_vb_)
 	{
@@ -6749,12 +6759,12 @@ void hw_dbg_3d_orient_all_sprites()
 		::hw_3d_orient_sprite(sprite);
 	}
 
-	auto param = bstone::RendererVertexBufferUpdateParam{};
-	param.offset_ = 0;
-	param.count_ = ::hw_3d_max_sprites_vertices;
-	param.vertices_ = ::hw_3d_sprites_vb_buffer_.data();
-
-	::hw_3d_sprites_vb_->update(param);
+	::hw_vertex_buffer_update(
+		::hw_3d_sprites_vb_,
+		0,
+		::hw_3d_max_sprites_vertices,
+		::hw_3d_sprites_vb_buffer_.data()
+	);
 }
 
 void hw_3d_map_sprite(
@@ -10019,12 +10029,12 @@ void vid_hw_on_door_move(
 
 	::hw_3d_map_door_side(hw_door.sides_.front(), vertex_index, ::hw_3d_doors_vb_);
 
-	auto param = bstone::RendererVertexBufferUpdateParam{};
-	param.offset_ = old_vertex_index;
-	param.count_ = ::hw_3d_vertices_per_door;
-	param.vertices_ = &::hw_3d_doors_vb_[old_vertex_index];
-
-	::hw_3d_door_sides_vbo_->update(param);
+	::hw_vertex_buffer_update(
+		::hw_3d_door_sides_vbo_,
+		old_vertex_index,
+		::hw_3d_vertices_per_door,
+		&::hw_3d_doors_vb_[old_vertex_index]
+	);
 }
 
 void vid_hw_on_door_lock_update(

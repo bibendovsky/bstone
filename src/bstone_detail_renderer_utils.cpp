@@ -253,9 +253,9 @@ bool RendererUtils::validate_index_buffer_update_param(
 bool RendererUtils::validate_vertex_buffer_create_param(
 	const RendererVertexBufferCreateParam& param)
 {
-	if (param.vertex_count_ <= 0)
+	if (param.size_ <= 0)
 	{
-		error_message_ = "Invalid vertex count.";
+		error_message_ = "Invalid size.";
 
 		return false;
 	}
@@ -273,16 +273,16 @@ bool RendererUtils::validate_vertex_buffer_update_param(
 		return false;
 	}
 
-	if (param.count_ <= 0)
+	if (param.size_ <= 0)
 	{
-		error_message_ = "Invalid count.";
+		error_message_ = "Invalid size.";
 
 		return false;
 	}
 
-	if (!param.vertices_)
+	if (!param.data_)
 	{
-		error_message_ = "Null vertices.";
+		error_message_ = "Null data.";
 
 		return false;
 	}

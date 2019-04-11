@@ -189,12 +189,12 @@ private:
 		public RendererVertexBuffer
 	{
 	public:
-		using Data = std::vector<RendererVertex>;
+		using Data = std::vector<std::uint8_t>;
 
 
 		std::string error_message_;
 
-		int count_;
+		int size_;
 		Data data_;
 
 

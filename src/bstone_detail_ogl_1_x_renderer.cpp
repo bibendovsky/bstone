@@ -127,28 +127,32 @@ void Ogl1XRenderer::VertexBuffer::update(
 		return;
 	}
 
-	if (param.offset_ >= count_)
+	if (param.offset_ >= size_)
 	{
 		error_message_ = "Offset out of range.";
 
 		return;
 	}
 
-	if (param.count_ > count_)
+	if (param.size_ > size_)
 	{
-		error_message_ = "Count out of range.";
+		error_message_ = "Size out of range.";
 
 		return;
 	}
 
-	if ((param.offset_ + param.count_) > count_)
+	if ((param.offset_ + param.size_) > size_)
 	{
 		error_message_ = "Block out of range.";
 
 		return;
 	}
 
-	std::uninitialized_copy_n(param.vertices_, param.count_, data_.begin() + param.offset_);
+	std::uninitialized_copy_n(
+		static_cast<const std::uint8_t*>(param.data_),
+		param.size_,
+		data_.begin() + param.offset_
+	);
 }
 
 bool Ogl1XRenderer::VertexBuffer::initialize(
@@ -163,8 +167,8 @@ bool Ogl1XRenderer::VertexBuffer::initialize(
 		return false;
 	}
 
-	count_ = param.vertex_count_;
-	data_.resize(param.vertex_count_);
+	size_ = param.size_;
+	data_.resize(param.size_);
 
 	return true;
 }
