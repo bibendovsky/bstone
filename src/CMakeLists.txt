@@ -237,6 +237,7 @@ target_sources(
 		bstone_precompiled.h
 		bstone_ps_fizzle_fx.h
 		bstone_renderer_manager.h
+		bstone_renderer_sw_vertex_buffer.h
 		bstone_renderer_texture_manager.h
 		bstone_scope_guard.h
 		bstone_sdl_types.h
@@ -314,6 +315,7 @@ target_sources(
 		bstone_precompiled.cpp
 		bstone_ps_fizzle_fx.cpp
 		bstone_renderer_manager_impl.cpp
+		bstone_renderer_sw_vertex_buffer.cpp
 		bstone_renderer_texture_manager_impl.cpp
 		bstone_sha1.cpp
 		bstone_sprite.cpp

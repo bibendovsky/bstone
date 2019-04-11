@@ -112,73 +112,6 @@ bool Ogl1XRenderer::IndexBuffer::initialize(
 
 
 // ==========================================================================
-// Ogl1XRenderer::VertexBuffer
-//
-
-void Ogl1XRenderer::VertexBuffer::update(
-	const RendererVertexBufferUpdateParam& param)
-{
-	auto renderer_utils = RendererUtils{};
-
-	if (!renderer_utils.validate_vertex_buffer_update_param(param))
-	{
-		error_message_ = renderer_utils.get_error_message();
-
-		return;
-	}
-
-	if (param.offset_ >= size_)
-	{
-		error_message_ = "Offset out of range.";
-
-		return;
-	}
-
-	if (param.size_ > size_)
-	{
-		error_message_ = "Size out of range.";
-
-		return;
-	}
-
-	if ((param.offset_ + param.size_) > size_)
-	{
-		error_message_ = "Block out of range.";
-
-		return;
-	}
-
-	std::uninitialized_copy_n(
-		static_cast<const std::uint8_t*>(param.data_),
-		param.size_,
-		data_.begin() + param.offset_
-	);
-}
-
-bool Ogl1XRenderer::VertexBuffer::initialize(
-	const RendererVertexBufferCreateParam& param)
-{
-	auto renderer_utils = RendererUtils{};
-
-	if (!renderer_utils.validate_vertex_buffer_create_param(param))
-	{
-		error_message_ = renderer_utils.get_error_message();
-
-		return false;
-	}
-
-	size_ = param.size_;
-	data_.resize(param.size_);
-
-	return true;
-}
-
-//
-// Ogl1XRenderer::VertexBuffer
-// ==========================================================================
-
-
-// ==========================================================================
 // Ogl1XRenderer::Texture2d
 //
 
@@ -1040,11 +973,11 @@ void Ogl1XRenderer::index_buffer_destroy(
 RendererVertexBufferPtr Ogl1XRenderer::vertex_buffer_create(
 	const RendererVertexBufferCreateParam& param)
 {
-	auto vertex_buffer = VertexBufferUPtr{new VertexBuffer{}};
+	auto vertex_buffer = RendererSwVertexBufferUPtr{new RendererSwVertexBuffer{}};
 
 	if (!vertex_buffer->initialize(param))
 	{
-		error_message_ = vertex_buffer->error_message_;
+		error_message_ = vertex_buffer->get_error_message();
 
 		return nullptr;
 	}
@@ -1997,14 +1930,14 @@ void Ogl1XRenderer::command_execute_draw_quads(
 
 	auto& texture_2d = *reinterpret_cast<Texture2d*>(command.texture_2d_);
 	auto& index_buffer = *reinterpret_cast<IndexBuffer*>(command.index_buffer_);
-	auto& vertex_buffer = *reinterpret_cast<VertexBuffer*>(command.vertex_buffer_);
+	auto& vertex_buffer = *reinterpret_cast<RendererSwVertexBuffer*>(command.vertex_buffer_);
 
 	assert(command.index_offset_ < index_buffer.count_);
 	assert(command.count_ <= index_buffer.count_);
 	assert((command.index_offset_ + command.count_) <= index_buffer.count_);
 
 	const auto stride = static_cast<GLsizei>(sizeof(RendererVertex));
-	const auto vertex_buffer_data = reinterpret_cast<const std::uint8_t*>(vertex_buffer.data_.data());
+	const auto vertex_buffer_data = reinterpret_cast<const std::uint8_t*>(vertex_buffer.get_data());
 
 	::glBindTexture(GL_TEXTURE_2D, texture_2d.ogl_id_);
 	assert(!OglRendererUtils::was_errors());
