@@ -334,6 +334,7 @@ private:
 	RendererUtils::TextureBuffer texture_buffer_;
 
 	Textures2d textures_2d_;
+	Texture2dPtr texture_2d_current_;
 
 	Samplers samplers_;
 	SamplerPtr sampler_current_;
@@ -388,7 +389,12 @@ private:
 	void blending_set_defaults();
 
 
-	void texture_2d_set();
+	void texture_2d_enable();
+
+	void texture_set();
+
+	void texture_set(
+		Texture2dPtr new_texture_2d);
 
 	void texture_2d_set_defaults();
 
@@ -461,6 +467,9 @@ private:
 
 	void command_execute_enable_blending(
 		const RendererCommand::BlendingEnable& command);
+
+	void command_execute_texture_set(
+		const RendererCommand::TextureSet& command);
 
 	void command_execute_sampler_set(
 		const RendererCommand::SamplerSet& command);

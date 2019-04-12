@@ -324,6 +324,13 @@ void OglRendererUtils::viewport_set_depth_range(
 	assert(!OglRendererUtils::was_errors());
 }
 
+void OglRendererUtils::texture_2d_set(
+	const GLuint ogl_texture_name)
+{
+	::glBindTexture(GL_TEXTURE_2D, ogl_texture_name);
+	assert(!OglRendererUtils::was_errors());
+}
+
 GLenum OglRendererUtils::index_buffer_get_element_type_by_byte_depth(
 	const int byte_depth)
 {

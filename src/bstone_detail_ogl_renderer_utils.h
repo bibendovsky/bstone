@@ -115,6 +115,9 @@ public:
 		const float min_depth,
 		const float max_depth);
 
+	static void texture_2d_set(
+		const GLuint ogl_texture_name);
+
 	static GLenum index_buffer_get_element_type_by_byte_depth(
 		const int byte_depth);
 

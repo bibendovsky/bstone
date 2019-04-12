@@ -558,8 +558,7 @@ void Ogl1XRenderer::Texture2d::update_sampler_state(
 	//
 	if (is_modified)
 	{
-		::glBindTexture(GL_TEXTURE_2D, ogl_id_);
-		assert(!OglRendererUtils::was_errors());
+		renderer_->texture_set(this);
 
 		if (is_mag_filter_modified)
 		{
@@ -692,6 +691,7 @@ Ogl1XRenderer::Ogl1XRenderer()
 	vertex_buffers_{},
 	texture_buffer_{},
 	textures_2d_{},
+	texture_2d_current_{},
 	samplers_{},
 	sampler_current_{},
 	sampler_default_{}
@@ -740,6 +740,7 @@ Ogl1XRenderer::Ogl1XRenderer(
 	vertex_buffers_{std::move(rhs.vertex_buffers_)},
 	texture_buffer_{std::move(rhs.texture_buffer_)},
 	textures_2d_{std::move(rhs.textures_2d_)},
+	texture_2d_current_{std::move(rhs.texture_2d_current_)},
 	samplers_{std::move(rhs.samplers_)},
 	sampler_current_{std::move(rhs.sampler_current_)},
 	sampler_default_{std::move(rhs.sampler_default_)}
@@ -1000,6 +1001,10 @@ void Ogl1XRenderer::execute_command_sets(
 
 			case RendererCommandId::blending_enable:
 				command_execute_enable_blending(command.blending_enable_);
+				break;
+
+			case RendererCommandId::texture_set:
+				command_execute_texture_set(command.texture_set_);
 				break;
 
 			case RendererCommandId::sampler_set:
@@ -1269,6 +1274,7 @@ void Ogl1XRenderer::uninitialize_internal(
 		index_buffers_.clear();
 		vertex_buffers_.clear();
 		texture_buffer_.clear();
+		texture_2d_current_ = {};
 		sampler_current_ = {};
 	}
 
@@ -1477,17 +1483,42 @@ void Ogl1XRenderer::blending_set_defaults()
 	blending_set_function();
 }
 
-void Ogl1XRenderer::texture_2d_set()
+void Ogl1XRenderer::texture_2d_enable()
 {
 	::glEnable(GL_TEXTURE_2D);
 	assert(!OglRendererUtils::was_errors());
 }
 
+void Ogl1XRenderer::texture_set()
+{
+	auto ogl_texture_name = GLuint{};
+
+	if (texture_2d_current_)
+	{
+		ogl_texture_name = texture_2d_current_->ogl_id_;
+	}
+
+	OglRendererUtils::texture_2d_set(ogl_texture_name);
+}
+
+void Ogl1XRenderer::texture_set(
+	Texture2dPtr new_texture_2d)
+{
+	if (texture_2d_current_ != new_texture_2d)
+	{
+		texture_2d_current_ = new_texture_2d;
+
+		texture_set();
+	}
+}
+
 void Ogl1XRenderer::texture_2d_set_defaults()
 {
 	texture_2d_is_enabled_ = true;
+	texture_2d_enable();
 
-	texture_2d_set();
+	texture_2d_current_ = nullptr;
+	texture_set();
 }
 
 void Ogl1XRenderer::fog_set_is_enabled()
@@ -1830,6 +1861,12 @@ void Ogl1XRenderer::command_execute_enable_blending(
 	}
 }
 
+void Ogl1XRenderer::command_execute_texture_set(
+	const RendererCommand::TextureSet& command)
+{
+	texture_set(static_cast<Texture2dPtr>(command.texture_2d_));
+}
+
 void Ogl1XRenderer::command_execute_sampler_set(
 	const RendererCommand::SamplerSet& command)
 {
@@ -1850,7 +1887,6 @@ void Ogl1XRenderer::command_execute_draw_quads(
 {
 	assert(command.count_ > 0);
 	assert(command.index_offset_ >= 0);
-	assert(command.texture_2d_);
 	assert(command.index_buffer_);
 	assert(command.vertex_buffer_);
 
@@ -1861,7 +1897,6 @@ void Ogl1XRenderer::command_execute_draw_quads(
 	const auto indices_per_quad = triangles_per_quad * indices_per_triangle;
 	const auto index_count = indices_per_quad * command.count_;
 
-	auto& texture_2d = *reinterpret_cast<Texture2d*>(command.texture_2d_);
 	auto& index_buffer = *reinterpret_cast<RendererSwIndexBuffer*>(command.index_buffer_);
 	auto& vertex_buffer = *reinterpret_cast<RendererSwVertexBuffer*>(command.vertex_buffer_);
 
@@ -1875,10 +1910,12 @@ void Ogl1XRenderer::command_execute_draw_quads(
 	const auto stride = static_cast<GLsizei>(sizeof(RendererVertex));
 	const auto vertex_buffer_data = reinterpret_cast<const std::uint8_t*>(vertex_buffer.get_data());
 
-	::glBindTexture(GL_TEXTURE_2D, texture_2d.ogl_id_);
-	assert(!OglRendererUtils::was_errors());
-
-	texture_2d.update_sampler_state(sampler_current_->state_);
+	// Sampler state.
+	//
+	if (texture_2d_current_)
+	{
+		texture_2d_current_->update_sampler_state(sampler_current_->state_);
+	}
 
 	// Diffuse.
 	//

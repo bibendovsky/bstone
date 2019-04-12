@@ -82,6 +82,7 @@ enum class RendererCommandId
 	matrix_set_model_view,
 	matrix_set_projection,
 
+	texture_set,
 	sampler_set,
 
 	draw_quads,
@@ -434,6 +435,11 @@ struct RendererCommand
 		glm::mat4 projection_;
 	}; // MatrixSetProjection
 
+	struct TextureSet
+	{
+		RendererTexture2dPtr texture_2d_;
+	}; // TextureSet
+
 	struct SamplerSet
 	{
 		RendererSamplerPtr sampler_;
@@ -443,7 +449,6 @@ struct RendererCommand
 	{
 		int count_;
 		int index_offset_;
-		RendererTexture2dPtr texture_2d_;
 		RendererIndexBufferPtr index_buffer_;
 		RendererVertexBufferPtr vertex_buffer_;
 	}; // DrawQuads
@@ -474,6 +479,7 @@ struct RendererCommand
 		MatrixSetModelView matrix_set_model_view_;
 		MatrixSetProjection matrix_set_projection_;
 
+		TextureSet texture_set_;
 		SamplerSet sampler_set_;
 
 		DrawQuads draw_quads_;

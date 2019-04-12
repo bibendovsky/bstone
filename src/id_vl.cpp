@@ -4022,39 +4022,37 @@ void hw_refresh_screen_2d()
 	//
 	if (!::vid_is_ui_stretched)
 	{
-		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::draw_quads;
-
-		auto count = 0;
-		auto index_offset = 0;
-		auto texture_2d = bstone::RendererTexture2dPtr{};
-
-		if (::vid_is_hud)
 		{
-			count = ::hw_2d_fillers_hud_quad_count;
-			index_offset = ::hw_2d_fillers_hud_index_offset_;
-		}
-		else
-		{
-			count = ::hw_2d_fillers_ui_quad_count;
-			index_offset = ::hw_2d_fillers_ui_index_offset_;
+			const auto texture_2d = (::vid_is_movie ? ::hw_2d_white_t2d_1x1_ : ::hw_2d_black_t2d_1x1_);
+			auto& command = commands[command_index++];
+			command.id_ = bstone::RendererCommandId::texture_set;
+			command.texture_set_.texture_2d_ = texture_2d;
 		}
 
-		if (::vid_is_movie)
 		{
-			texture_2d = ::hw_2d_white_t2d_1x1_;
-		}
-		else
-		{
-			texture_2d = ::hw_2d_black_t2d_1x1_;
-		}
+			auto& command = commands[command_index++];
+			command.id_ = bstone::RendererCommandId::draw_quads;
 
-		auto& draw_quads = command.draw_quads_;
-		draw_quads.count_ = count;
-		draw_quads.index_buffer_ = ::hw_2d_fillers_ib_;
-		draw_quads.index_offset_ = index_offset;
-		draw_quads.texture_2d_ = texture_2d;
-		draw_quads.vertex_buffer_ = ::hw_2d_fillers_vb_;
+			auto count = 0;
+			auto index_offset = 0;
+
+			if (::vid_is_hud)
+			{
+				count = ::hw_2d_fillers_hud_quad_count;
+				index_offset = ::hw_2d_fillers_hud_index_offset_;
+			}
+			else
+			{
+				count = ::hw_2d_fillers_ui_quad_count;
+				index_offset = ::hw_2d_fillers_ui_index_offset_;
+			}
+
+			auto& draw_quads = command.draw_quads_;
+			draw_quads.count_ = count;
+			draw_quads.index_buffer_ = ::hw_2d_fillers_ib_;
+			draw_quads.index_offset_ = index_offset;
+			draw_quads.vertex_buffer_ = ::hw_2d_fillers_vb_;
+		}
 	}
 
 	// Draw 2D (UI, menu, etc.).
@@ -4067,6 +4065,12 @@ void hw_refresh_screen_2d()
 
 			auto& blending_set = command.blending_enable_;
 			blending_set.is_enabled_ = true;
+		}
+
+		{
+			auto& command = commands[command_index++];
+			command.id_ = bstone::RendererCommandId::texture_set;
+			command.texture_set_.texture_2d_ = ::hw_2d_texture_;
 		}
 
 		{
@@ -4084,7 +4088,6 @@ void hw_refresh_screen_2d()
 			draw_quads.count_ = 1;
 			draw_quads.index_buffer_ = ::hw_2d_ib_;
 			draw_quads.index_offset_ = index_offset;
-			draw_quads.texture_2d_ = ::hw_2d_texture_;
 			draw_quads.vertex_buffer_ = ::hw_2d_vb_;
 		}
 
@@ -4112,6 +4115,14 @@ void hw_refresh_screen_2d()
 			blending_set.is_enabled_ = true;
 		}
 
+		// Set texture.
+		//
+		{
+			auto& command = commands[command_index++];
+			command.id_ = bstone::RendererCommandId::texture_set;
+			command.texture_set_.texture_2d_ = ::hw_2d_fade_t2d_;
+		}
+
 		// Draw the quad.
 		//
 		{
@@ -4129,7 +4140,6 @@ void hw_refresh_screen_2d()
 			draw_quads.count_ = 1;
 			draw_quads.index_buffer_ = ::hw_2d_ib_;
 			draw_quads.index_offset_ = index_offset;
-			draw_quads.texture_2d_ = ::hw_2d_fade_t2d_;
 			draw_quads.vertex_buffer_ = ::hw_2d_vb_;
 		}
 
@@ -4302,17 +4312,24 @@ void hw_3d_dbg_draw_all_solid_walls(
 
 		if (draw_quad_count > 0)
 		{
-			auto& command = ::hw_3d_command_set_->commands_[command_index++];
-			command.id_ = bstone::RendererCommandId::draw_quads;
+			{
+				auto& command = ::hw_3d_command_set_->commands_[command_index++];
+				command.id_ = bstone::RendererCommandId::texture_set;
+				command.texture_set_.texture_2d_ = last_texture;
+			}
 
-			auto& draw_quads = command.draw_quads_;
-			draw_quads.count_ = draw_quad_count;
-			draw_quads.index_offset_ = draw_index_offset_;
-			draw_quads.index_buffer_ = ::hw_3d_wall_sides_ib_;
-			draw_quads.vertex_buffer_ = ::hw_3d_wall_sides_vb_;
-			draw_quads.texture_2d_ = last_texture;
+			{
+				auto& command = ::hw_3d_command_set_->commands_[command_index++];
+				command.id_ = bstone::RendererCommandId::draw_quads;
 
-			draw_index_offset_ += ::hw_3d_indices_per_wall_side * draw_quad_count;
+				auto& draw_quads = command.draw_quads_;
+				draw_quads.count_ = draw_quad_count;
+				draw_quads.index_offset_ = draw_index_offset_;
+				draw_quads.index_buffer_ = ::hw_3d_wall_sides_ib_;
+				draw_quads.vertex_buffer_ = ::hw_3d_wall_sides_vb_;
+
+				draw_index_offset_ += ::hw_3d_indices_per_wall_side * draw_quad_count;
+			}
 		}
 	}
 
@@ -4422,17 +4439,24 @@ void hw_3d_dbg_draw_all_pushwalls(
 
 		if (draw_quad_count > 0)
 		{
-			auto& command = ::hw_3d_command_set_->commands_[command_index++];
-			command.id_ = bstone::RendererCommandId::draw_quads;
+			{
+				auto& command = ::hw_3d_command_set_->commands_[command_index++];
+				command.id_ = bstone::RendererCommandId::texture_set;
+				command.texture_set_.texture_2d_ = last_texture;
+			}
 
-			auto& draw_quads = command.draw_quads_;
-			draw_quads.count_ = draw_quad_count;
-			draw_quads.index_offset_ = draw_index_offset_;
-			draw_quads.index_buffer_ = ::hw_3d_pushwall_sides_ib_;
-			draw_quads.vertex_buffer_ = ::hw_3d_pushwall_sides_vb_;
-			draw_quads.texture_2d_ = last_texture;
+			{
+				auto& command = ::hw_3d_command_set_->commands_[command_index++];
+				command.id_ = bstone::RendererCommandId::draw_quads;
 
-			draw_index_offset_ += ::hw_3d_indices_per_wall_side * draw_quad_count;
+				auto& draw_quads = command.draw_quads_;
+				draw_quads.count_ = draw_quad_count;
+				draw_quads.index_offset_ = draw_index_offset_;
+				draw_quads.index_buffer_ = ::hw_3d_pushwall_sides_ib_;
+				draw_quads.vertex_buffer_ = ::hw_3d_pushwall_sides_vb_;
+
+				draw_index_offset_ += ::hw_3d_indices_per_wall_side * draw_quad_count;
+			}
 		}
 	}
 
@@ -4644,17 +4668,24 @@ void hw_3d_dbg_draw_all_doors(
 
 		if (draw_quad_count > 0)
 		{
-			auto& command = ::hw_3d_command_set_->commands_[command_index++];
-			command.id_ = bstone::RendererCommandId::draw_quads;
+			{
+				auto& command = ::hw_3d_command_set_->commands_[command_index++];
+				command.id_ = bstone::RendererCommandId::texture_set;
+				command.texture_set_.texture_2d_ = last_texture;
+			}
 
-			auto& draw_quads = command.draw_quads_;
-			draw_quads.count_ = draw_quad_count;
-			draw_quads.index_offset_ = draw_index_offset;
-			draw_quads.index_buffer_ = ::hw_3d_door_sides_ibo_;
-			draw_quads.vertex_buffer_ = ::hw_3d_door_sides_vbo_;
-			draw_quads.texture_2d_ = last_texture;
+			{
+				auto& command = ::hw_3d_command_set_->commands_[command_index++];
+				command.id_ = bstone::RendererCommandId::draw_quads;
 
-			draw_index_offset += 6 * draw_quad_count;
+				auto& draw_quads = command.draw_quads_;
+				draw_quads.count_ = draw_quad_count;
+				draw_quads.index_offset_ = draw_index_offset;
+				draw_quads.index_buffer_ = ::hw_3d_door_sides_ibo_;
+				draw_quads.vertex_buffer_ = ::hw_3d_door_sides_vbo_;
+
+				draw_index_offset += 6 * draw_quad_count;
+			}
 		}
 	}
 
@@ -4797,17 +4828,24 @@ void hw_3d_dbg_draw_all_sprites(
 
 		if (draw_quad_count > 0)
 		{
-			auto& command = ::hw_3d_command_set_->commands_[command_index++];
-			command.id_ = bstone::RendererCommandId::draw_quads;
+			{
+				auto& command = ::hw_3d_command_set_->commands_[command_index++];
+				command.id_ = bstone::RendererCommandId::texture_set;
+				command.texture_set_.texture_2d_ = last_texture;
+			}
 
-			auto& draw_quads = command.draw_quads_;
-			draw_quads.count_ = draw_quad_count;
-			draw_quads.index_offset_ = draw_index_offset_;
-			draw_quads.index_buffer_ = ::hw_3d_sprites_ib_;
-			draw_quads.vertex_buffer_ = ::hw_3d_sprites_vb_;
-			draw_quads.texture_2d_ = last_texture;
+			{
+				auto& command = ::hw_3d_command_set_->commands_[command_index++];
+				command.id_ = bstone::RendererCommandId::draw_quads;
 
-			draw_index_offset_ += ::hw_3d_indices_per_sprite * draw_quad_count;
+				auto& draw_quads = command.draw_quads_;
+				draw_quads.count_ = draw_quad_count;
+				draw_quads.index_offset_ = draw_index_offset_;
+				draw_quads.index_buffer_ = ::hw_3d_sprites_ib_;
+				draw_quads.vertex_buffer_ = ::hw_3d_sprites_vb_;
+
+				draw_index_offset_ += ::hw_3d_indices_per_sprite * draw_quad_count;
+			}
 		}
 	}
 
@@ -4948,15 +4986,22 @@ void hw_refresh_screen_3d()
 			::hw_3d_flooring_solid_t2d_
 		);
 
-		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::draw_quads;
+		{
+			auto& command = ::hw_3d_command_set_->commands_[command_index++];
+			command.id_ = bstone::RendererCommandId::texture_set;
+			command.texture_set_.texture_2d_ = texture_2d;
+		}
 
-		auto& draw_quads = command.draw_quads_;
-		draw_quads.count_ = 1;
-		draw_quads.index_offset_ = 0;
-		draw_quads.index_buffer_ = ::hw_3d_flooring_ib_;
-		draw_quads.vertex_buffer_ = ::hw_3d_flooring_vb_;
-		draw_quads.texture_2d_ = texture_2d;
+		{
+			auto& command = commands[command_index++];
+			command.id_ = bstone::RendererCommandId::draw_quads;
+
+			auto& draw_quads = command.draw_quads_;
+			draw_quads.count_ = 1;
+			draw_quads.index_offset_ = 0;
+			draw_quads.index_buffer_ = ::hw_3d_flooring_ib_;
+			draw_quads.vertex_buffer_ = ::hw_3d_flooring_vb_;
+		}
 	}
 
 	// Draw ceiling.
@@ -4969,15 +5014,22 @@ void hw_refresh_screen_3d()
 			::hw_3d_ceiling_solid_t2d_
 		);
 
-		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::draw_quads;
+		{
+			auto& command = ::hw_3d_command_set_->commands_[command_index++];
+			command.id_ = bstone::RendererCommandId::texture_set;
+			command.texture_set_.texture_2d_ = texture_2d;
+		}
 
-		auto& draw_quads = command.draw_quads_;
-		draw_quads.count_ = 1;
-		draw_quads.index_offset_ = 0;
-		draw_quads.index_buffer_ = ::hw_3d_ceiling_ib_;
-		draw_quads.vertex_buffer_ = ::hw_3d_ceiling_vb_;
-		draw_quads.texture_2d_ = texture_2d;
+		{
+			auto& command = commands[command_index++];
+			command.id_ = bstone::RendererCommandId::draw_quads;
+
+			auto& draw_quads = command.draw_quads_;
+			draw_quads.count_ = 1;
+			draw_quads.index_offset_ = 0;
+			draw_quads.index_buffer_ = ::hw_3d_ceiling_ib_;
+			draw_quads.vertex_buffer_ = ::hw_3d_ceiling_vb_;
+		}
 	}
 
 	// Set sampler.
