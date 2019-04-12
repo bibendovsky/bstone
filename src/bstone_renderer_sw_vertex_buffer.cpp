@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 //
-// Renderer interface.
+// Software vertex buffer.
 //
 
 
