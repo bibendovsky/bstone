@@ -63,6 +63,8 @@ public:
 
 	const std::string& get_error_message() const;
 
+	int get_size() const;
+
 	const void* get_data() const;
 
 
@@ -72,7 +74,6 @@ private:
 
 	std::string error_message_;
 
-	int size_;
 	Data data_;
 }; // VertexBuffer
 

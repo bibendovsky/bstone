@@ -52,21 +52,23 @@ void RendererSwVertexBuffer::update(
 		return;
 	}
 
-	if (param.offset_ >= size_)
+	const auto size = get_size();
+
+	if (param.offset_ >= size)
 	{
 		error_message_ = "Offset out of range.";
 
 		return;
 	}
 
-	if (param.size_ > size_)
+	if (param.size_ > size)
 	{
 		error_message_ = "Size out of range.";
 
 		return;
 	}
 
-	if ((param.offset_ + param.size_) > size_)
+	if ((param.offset_ + param.size_) > size)
 	{
 		error_message_ = "Block out of range.";
 
@@ -92,7 +94,6 @@ bool RendererSwVertexBuffer::initialize(
 		return false;
 	}
 
-	size_ = param.size_;
 	data_.resize(param.size_);
 
 	return true;
@@ -101,6 +102,11 @@ bool RendererSwVertexBuffer::initialize(
 const std::string& RendererSwVertexBuffer::get_error_message() const
 {
 	return error_message_;
+}
+
+int RendererSwVertexBuffer::get_size() const
+{
+	return static_cast<int>(data_.size());
 }
 
 const void* RendererSwVertexBuffer::get_data() const

@@ -52,21 +52,23 @@ void RendererSwIndexBuffer::update(
 		return;
 	}
 
-	if (param.offset_ >= size_)
+	const auto size = get_size();
+
+	if (param.offset_ >= size)
 	{
 		error_message_ = "Offset out of range.";
 
 		return;
 	}
 
-	if (param.size_ > size_)
+	if (param.size_ > size)
 	{
 		error_message_ = "Size out of range.";
 
 		return;
 	}
 
-	if ((param.offset_ + param.size_) > size_)
+	if ((param.offset_ + param.size_) > size)
 	{
 		error_message_ = "Block out of range.";
 
@@ -98,8 +100,7 @@ bool RendererSwIndexBuffer::initialize(
 	}
 
 	byte_depth_ = param.byte_depth_;
-	size_ = param.size_;
-	data_.resize(size_);
+	data_.resize(param.size_);
 
 	return true;
 }
@@ -111,7 +112,7 @@ int RendererSwIndexBuffer::get_byte_depth() const
 
 int RendererSwIndexBuffer::get_size() const
 {
-	return size_;
+	return static_cast<int>(data_.size());
 }
 
 const void* RendererSwIndexBuffer::get_data() const

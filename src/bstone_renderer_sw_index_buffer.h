@@ -77,7 +77,6 @@ private:
 	std::string error_message_;
 
 	int byte_depth_;
-	int size_;
 	Data data_;
 }; // RendererSwIndexBuffer
 
