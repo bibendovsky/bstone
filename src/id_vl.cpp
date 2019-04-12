@@ -1973,7 +1973,7 @@ bool hw_initialize_renderer()
 
 bool hw_2d_create_ib()
 {
-	::hw_2d_ib_ = ::hw_index_buffer_create(2, ::hw_2d_index_count_);
+	::hw_2d_ib_ = ::hw_index_buffer_create(1, ::hw_2d_index_count_);
 
 	if (!::hw_2d_ib_)
 	{
@@ -1981,7 +1981,7 @@ bool hw_2d_create_ib()
 	}
 
 
-	using Indices = std::array<std::uint16_t, ::hw_2d_index_count_>;
+	using Indices = std::array<std::uint8_t, ::hw_2d_index_count_>;
 
 	const auto indices = Indices
 	{
@@ -2091,14 +2091,14 @@ bool hw_2d_create_vb()
 
 bool hw_2d_fillers_create_ib()
 {
-	::hw_2d_fillers_ib_ = ::hw_index_buffer_create(2, ::hw_2d_fillers_index_count_);
+	::hw_2d_fillers_ib_ = ::hw_index_buffer_create(1, ::hw_2d_fillers_index_count_);
 
 	if (!::hw_2d_fillers_ib_)
 	{
 		return false;
 	}
 
-	using Indices = std::array<std::uint16_t, ::hw_2d_fillers_index_count_>;
+	using Indices = std::array<std::uint8_t, ::hw_2d_fillers_index_count_>;
 
 	const auto& indices = Indices
 	{
@@ -2627,7 +2627,7 @@ bool hw_3d_initialize_flooring_ib()
 	const auto index_count = 6;
 
 	{
-		::hw_3d_flooring_ib_ = ::hw_index_buffer_create(2, index_count);
+		::hw_3d_flooring_ib_ = ::hw_index_buffer_create(1, index_count);
 
 		if (!::hw_3d_flooring_ib_)
 		{
@@ -2636,7 +2636,7 @@ bool hw_3d_initialize_flooring_ib()
 	}
 
 	{
-		using Indices = std::array<std::uint16_t, index_count>;
+		using Indices = std::array<std::uint8_t, index_count>;
 
 		const auto& indices = Indices
 		{
@@ -2777,7 +2777,7 @@ bool hw_3d_initialize_ceiling_ib()
 	const auto index_count = 6;
 
 	{
-		::hw_3d_ceiling_ib_ = ::hw_index_buffer_create(2, index_count);
+		::hw_3d_ceiling_ib_ = ::hw_index_buffer_create(1, index_count);
 
 		if (!::hw_3d_ceiling_ib_)
 		{
@@ -2786,7 +2786,7 @@ bool hw_3d_initialize_ceiling_ib()
 	}
 
 	{
-		using Indices = std::array<std::uint16_t, index_count>;
+		using Indices = std::array<std::uint8_t, index_count>;
 
 		const auto& indices = Indices
 		{
