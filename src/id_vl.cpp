@@ -1361,13 +1361,18 @@ constexpr auto hw_min_2d_commands = 32;
 constexpr auto hw_min_3d_commands = 4096;
 
 
-class HwVertex
+struct HwVertex
 {
-public:
 	glm::vec3 xyz_;
 	bstone::RendererColor32 rgba_;
 	glm::vec2 uv_;
 }; // HwVertex
+
+struct HwVertexNoColor
+{
+	glm::vec3 xyz_;
+	glm::vec2 uv_;
+}; // HwVertexNoColor
 
 struct Hw3dQuadFlags
 {
@@ -1842,16 +1847,19 @@ void hw_vertex_input_destroy(
 	}
 }
 
-bool hw_vertex_input_create_xyz_rgba_uv(
+template<typename TVertex>
+bool hw_vertex_input_create(
 	bstone::RendererIndexBufferPtr index_buffer,
 	bstone::RendererVertexBufferPtr vertex_buffer,
 	bstone::RendererVertexInputPtr& vertex_input)
 {
+	constexpr auto attribute_count = (std::is_same<TVertex, HwVertexNoColor>::value ? 2 : 3);
+
 	auto param = bstone::RendererVertexInputCreateParam{};
 	param.index_buffer_ = index_buffer;
 
 	auto& descriptions = param.attribute_descriptions_;
-	descriptions.resize(3);
+	descriptions.resize(attribute_count);
 
 	auto description_index = 0;
 
@@ -1864,6 +1872,7 @@ bool hw_vertex_input_create_xyz_rgba_uv(
 		description.stride_ = static_cast<int>(sizeof(HwVertex));
 	}
 
+	if (attribute_count == 3)
 	{
 		auto& description = descriptions[description_index++];
 		description.location_ = bstone::RendererVertexAttributeLocation::color;
@@ -2088,7 +2097,7 @@ void hw_2d_vertex_input_destroy()
 
 bool hw_2d_create_vi()
 {
-	if (!::hw_vertex_input_create_xyz_rgba_uv(
+	if (!::hw_vertex_input_create<HwVertex>(
 		::hw_2d_ib_,
 		::hw_2d_vb_,
 		::hw_2d_vi_))
@@ -2593,7 +2602,7 @@ void hw_2d_fillers_destroy_vi()
 
 bool hw_2d_fillers_create_vi()
 {
-	return ::hw_vertex_input_create_xyz_rgba_uv(
+	return ::hw_vertex_input_create<HwVertex>(
 		::hw_2d_fillers_ib_,
 		::hw_2d_fillers_vb_,
 		::hw_2d_fillers_vi_
@@ -2839,7 +2848,7 @@ void hw_3d_destroy_flooring_vi()
 
 bool hw_3d_create_flooring_vi()
 {
-	if (!::hw_vertex_input_create_xyz_rgba_uv(
+	if (!::hw_vertex_input_create<HwVertex>(
 		::hw_3d_flooring_ib_,
 		::hw_3d_flooring_vb_,
 		::hw_3d_flooring_vi_))
@@ -3012,7 +3021,7 @@ void hw_3d_destroy_ceiling_vi()
 
 bool hw_3d_create_ceiling_vi()
 {
-	if (!::hw_vertex_input_create_xyz_rgba_uv(
+	if (!::hw_vertex_input_create<HwVertex>(
 		::hw_3d_ceiling_ib_,
 		::hw_3d_ceiling_vb_,
 		::hw_3d_ceiling_vi_))
@@ -3131,7 +3140,7 @@ void hw_3d_uninitialize_walls_vi()
 
 bool hw_initialize_walls_vi()
 {
-	if (!::hw_vertex_input_create_xyz_rgba_uv(
+	if (!::hw_vertex_input_create<HwVertex>(
 		::hw_3d_wall_sides_ib_,
 		::hw_3d_wall_sides_vb_,
 		::hw_3d_wall_sides_vi_))
@@ -3250,7 +3259,7 @@ void hw_3d_uninitialize_pushwalls_vi()
 
 bool hw_initialize_pushwalls_vi()
 {
-	if (!::hw_vertex_input_create_xyz_rgba_uv(
+	if (!::hw_vertex_input_create<HwVertex>(
 		::hw_3d_pushwall_sides_ib_,
 		::hw_3d_pushwall_sides_vb_,
 		::hw_3d_pushwall_sides_vi_))
@@ -3389,7 +3398,7 @@ void hw_3d_uninitialize_door_sides_vi()
 
 bool hw_3d_initialize_door_sides_vi()
 {
-	if (!::hw_vertex_input_create_xyz_rgba_uv(
+	if (!::hw_vertex_input_create<HwVertex>(
 		::hw_3d_door_sides_ibo_,
 		::hw_3d_door_sides_vbo_,
 		::hw_3d_door_sides_vi_))
@@ -6736,7 +6745,7 @@ void hw_3d_uninitialize_sprites_vi()
 
 bool hw_3d_initialize_sprites_vi()
 {
-	if (!::hw_vertex_input_create_xyz_rgba_uv(
+	if (!::hw_vertex_input_create<HwVertex>(
 		::hw_3d_sprites_ib_,
 		::hw_3d_sprites_vb_,
 		::hw_3d_sprites_vi_))
