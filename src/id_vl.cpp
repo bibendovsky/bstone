@@ -1446,20 +1446,22 @@ struct HwVertexAttributeTraits<
 }; // HwVertexAttributeTraits
 
 
-struct HwVertex
+struct HwVertexXyzUv
+{
+	glm::vec3 xyz_;
+	glm::vec2 uv_;
+}; // HwVertexXyzUv
+
+struct HwVertexXyzRgbaUv
 {
 	glm::vec3 xyz_;
 	bstone::RendererColor32 rgba_;
 	glm::vec2 uv_;
-}; // HwVertex
+}; // HwVertexXyzRgbaUv
 
 
-
-struct HwVertexNoColor
-{
-	glm::vec3 xyz_;
-	glm::vec2 uv_;
-}; // HwVertexNoColor
+struct HwVertex : HwVertexXyzRgbaUv {};
+struct HwWallVertex : HwVertexXyzUv {};
 
 
 struct Hw3dQuadFlags
@@ -1627,7 +1629,7 @@ template<typename TVertex>
 using HwVbBufferT = std::vector<TVertex>;
 
 using HwVbBuffer = HwVbBufferT<HwVertex>;
-using HwNoColorVbBuffer = HwVbBufferT<HwVertexNoColor>;
+using HwNoColorVbBuffer = HwVbBufferT<HwWallVertex>;
 
 
 glm::mat4 hw_2d_matrix_model_ = glm::mat4{};
@@ -3267,7 +3269,7 @@ bool hw_initialize_solid_walls_vb()
 {
 	const auto vertex_count = ::hw_3d_wall_side_count_ * ::hw_3d_vertices_per_wall_side;
 
-	::hw_3d_wall_sides_vb_ = ::hw_vertex_buffer_create<HwVertexNoColor>(vertex_count);
+	::hw_3d_wall_sides_vb_ = ::hw_vertex_buffer_create<HwWallVertex>(vertex_count);
 
 	if (!::hw_3d_wall_sides_vb_)
 	{
@@ -3284,7 +3286,7 @@ void hw_3d_uninitialize_walls_vi()
 
 bool hw_initialize_walls_vi()
 {
-	if (!::hw_vertex_input_create<HwVertexNoColor>(
+	if (!::hw_vertex_input_create<HwWallVertex>(
 		::hw_3d_wall_sides_ib_,
 		::hw_3d_wall_sides_vb_,
 		::hw_3d_wall_sides_vi_))
@@ -5931,13 +5933,13 @@ struct HwUpdateVertex<HwVertex>
 }; // HwUpdateVertex
 
 template<>
-struct HwUpdateVertex<HwVertexNoColor>
+struct HwUpdateVertex<HwWallVertex>
 {
 	void operator()(
 		const glm::vec3& position,
 		const bstone::RendererColor32& color,
 		const glm::vec2& texture_coordinates,
-		HwVertexNoColor& vertex)
+		HwWallVertex& vertex)
 	{
 		static_cast<void>(color);
 
