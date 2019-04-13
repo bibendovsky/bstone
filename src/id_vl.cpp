@@ -8388,6 +8388,7 @@ void hw_precache_perscan_drone()
 	::hw_cache_sprite(::SPR_FSCOUT_DIE5);
 	::hw_cache_sprite(::SPR_FSCOUT_DIE6);
 	::hw_cache_sprite(::SPR_FSCOUT_DIE7);
+	::hw_cache_sprite(::SPR_FSCOUT_DEAD);
 
 	//
 	::hw_precache_explosion();
