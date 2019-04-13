@@ -1463,9 +1463,9 @@ struct HwVertexXyzRgbaUv
 struct HwVertex : HwVertexXyzRgbaUv {};
 struct Hw3dWallVertex : HwVertexXyzUv {};
 struct Hw3dPushwallVertex : HwVertexXyzRgbaUv {};
-struct Hw3dFlooringVertex : HwVertexXyzRgbaUv {};
-struct Hw3dCeilingVertex : HwVertexXyzRgbaUv {};
-struct Hw3dDoorVertex : HwVertexXyzRgbaUv {};
+struct Hw3dFlooringVertex : HwVertexXyzUv {};
+struct Hw3dCeilingVertex : HwVertexXyzUv {};
+struct Hw3dDoorVertex : HwVertexXyzUv {};
 struct Hw3dSpriteVertex : HwVertexXyzRgbaUv {};
 
 
@@ -2946,7 +2946,6 @@ bool hw_3d_initialize_flooring_vb()
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = glm::vec3{0.0F, 0.0F, 0.0F};
-			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 			vertex.uv_ = glm::vec2{0.0F, 0.0F};
 		}
 
@@ -2954,7 +2953,6 @@ bool hw_3d_initialize_flooring_vb()
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = glm::vec3{0.0F, map_dimension_f, 0.0F};
-			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 			vertex.uv_ = glm::vec2{map_dimension_f, 0.0F};
 		}
 
@@ -2962,7 +2960,6 @@ bool hw_3d_initialize_flooring_vb()
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = glm::vec3{map_dimension_f, map_dimension_f, 0.0F};
-			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 			vertex.uv_ = glm::vec2{map_dimension_f, map_dimension_f};
 		}
 
@@ -2970,7 +2967,6 @@ bool hw_3d_initialize_flooring_vb()
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = glm::vec3{map_dimension_f, 0.0F, 0.0F};
-			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 			vertex.uv_ = glm::vec2{0.0F, map_dimension_f};
 		}
 
@@ -3119,7 +3115,6 @@ bool hw_3d_initialize_ceiling_vb()
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = glm::vec3{0.0F, 0.0F, ::hw_3d_map_height_f};
-			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 			vertex.uv_ = glm::vec2{0.0F, 0.0F};
 		}
 
@@ -3127,7 +3122,6 @@ bool hw_3d_initialize_ceiling_vb()
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = glm::vec3{0.0F, ::hw_3d_map_dimension_f, ::hw_3d_map_height_f};
-			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 			vertex.uv_ = glm::vec2{::hw_3d_map_dimension_f, 0.0F};
 		}
 
@@ -3135,7 +3129,6 @@ bool hw_3d_initialize_ceiling_vb()
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = glm::vec3{::hw_3d_map_dimension_f, ::hw_3d_map_dimension_f, ::hw_3d_map_height_f};
-			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 			vertex.uv_ = glm::vec2{::hw_3d_map_dimension_f, ::hw_3d_map_dimension_f};
 		}
 
@@ -3143,7 +3136,6 @@ bool hw_3d_initialize_ceiling_vb()
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = glm::vec3{::hw_3d_map_dimension_f, 0.0F, ::hw_3d_map_height_f};
-			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 			vertex.uv_ = glm::vec2{0.0F, ::hw_3d_map_dimension_f};
 		}
 
@@ -6838,25 +6830,21 @@ void hw_3d_map_xy_to_door(
 
 		{
 			auto& vertex = vb_buffer[vertex_index++];
-			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 			vertex.uv_ = glm::vec2{u_0, 0.0F};
 		}
 
 		{
 			auto& vertex = vb_buffer[vertex_index++];
-			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 			vertex.uv_ = glm::vec2{u_1, 0.0F};
 		}
 
 		{
 			auto& vertex = vb_buffer[vertex_index++];
-			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 			vertex.uv_ = glm::vec2{u_1, 1.0F};
 		}
 
 		{
 			auto& vertex = vb_buffer[vertex_index++];
-			vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
 			vertex.uv_ = glm::vec2{u_0, 1.0F};
 		}
 	}
