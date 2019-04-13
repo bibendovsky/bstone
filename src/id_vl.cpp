@@ -1461,7 +1461,12 @@ struct HwVertexXyzRgbaUv
 
 
 struct HwVertex : HwVertexXyzRgbaUv {};
-struct HwWallVertex : HwVertexXyzUv {};
+struct Hw3dWallVertex : HwVertexXyzUv {};
+struct Hw3dPushwallVertex : HwVertexXyzRgbaUv {};
+struct Hw3dFlooringVertex : HwVertexXyzRgbaUv {};
+struct Hw3dCeilingVertex : HwVertexXyzRgbaUv {};
+struct Hw3dDoorVertex : HwVertexXyzRgbaUv {};
+struct Hw3dSpriteVertex : HwVertexXyzRgbaUv {};
 
 
 struct Hw3dQuadFlags
@@ -1629,7 +1634,10 @@ template<typename TVertex>
 using HwVbBufferT = std::vector<TVertex>;
 
 using HwVbBuffer = HwVbBufferT<HwVertex>;
-using HwNoColorVbBuffer = HwVbBufferT<HwWallVertex>;
+using Hw3dWallsVbBuffer = HwVbBufferT<Hw3dWallVertex>;
+using Hw3dPushwallsVbBuffer = HwVbBufferT<Hw3dPushwallVertex>;
+using Hw3dDoorsVbBuffer = HwVbBufferT<Hw3dDoorVertex>;
+using Hw3dSpritesVbBuffer = HwVbBufferT<Hw3dSpriteVertex>;
 
 
 glm::mat4 hw_2d_matrix_model_ = glm::mat4{};
@@ -1766,7 +1774,7 @@ bstone::RendererVertexBufferPtr hw_3d_pushwall_sides_vb_ = nullptr;
 bstone::RendererVertexInputPtr hw_3d_pushwall_sides_vi_ = nullptr;
 
 Hw3dWallSideIndexBuffer hw_3d_pushwall_sides_ib_buffer_;
-HwVbBuffer hw_3d_pushwalls_vb_buffer_;
+Hw3dPushwallsVbBuffer hw_3d_pushwalls_vb_buffer_;
 
 
 int hw_3d_door_count_ = 0;
@@ -1781,10 +1789,13 @@ bstone::RendererVertexBufferPtr hw_3d_door_sides_vbo_ = nullptr;
 bstone::RendererVertexInputPtr hw_3d_door_sides_vi_ = nullptr;
 
 Hw3dDoorIndexBuffer hw_3d_door_sides_ib_;
-HwVbBuffer hw_3d_doors_vb_;
+Hw3dDoorsVbBuffer hw_3d_doors_vb_;
 
 
 Hw3dSprites hw_3d_statics_;
+
+using Hw3dActorsToReposition = std::vector<Hw3dSprite>;
+Hw3dSprites hw_3d_actors_;
 
 int hw_3d_sprites_draw_count_ = 0;
 Hw3dSpritesDrawList hw_3d_sprites_draw_list_;
@@ -1795,19 +1806,6 @@ bstone::RendererVertexInputPtr hw_3d_sprites_vi_ = nullptr;
 
 Hw3dSpritesIndexBuffer hw_3d_sprites_ib_buffer_;
 HwVbBuffer hw_3d_sprites_vb_buffer_;
-
-
-using Hw3dActorsToReposition = std::vector<Hw3dSprite>;
-
-Hw3dSprites hw_3d_actors_;
-
-int hw_3d_actors_draw_count_ = 0;
-
-bstone::RendererIndexBufferPtr hw_3d_actors_ib_ = nullptr;
-bstone::RendererVertexBufferPtr hw_3d_actors_vb_ = nullptr;
-
-Hw3dSpritesIndexBuffer hw_3d_actors_ib_buffer_;
-HwVbBuffer hw_3d_actors_vb_buffer_;
 
 
 void hw_dbg_3d_orient_all_sprites();
@@ -2927,7 +2925,7 @@ bool hw_3d_initialize_flooring_vb()
 	const auto vertex_count = 4;
 
 	{
-		::hw_3d_flooring_vb_ = ::hw_vertex_buffer_create<HwVertex>(vertex_count);
+		::hw_3d_flooring_vb_ = ::hw_vertex_buffer_create<Hw3dFlooringVertex>(vertex_count);
 
 		if (!::hw_3d_flooring_vb_)
 		{
@@ -2938,7 +2936,7 @@ bool hw_3d_initialize_flooring_vb()
 	{
 		const auto map_dimension_f = static_cast<float>(MAPSIZE);
 
-		using Vertices = std::array<HwVertex, vertex_count>;
+		using Vertices = std::array<Hw3dFlooringVertex, vertex_count>;
 
 		auto vertices = Vertices{};
 
@@ -2994,7 +2992,7 @@ void hw_3d_destroy_flooring_vi()
 
 bool hw_3d_create_flooring_vi()
 {
-	if (!::hw_vertex_input_create<HwVertex>(
+	if (!::hw_vertex_input_create<Hw3dFlooringVertex>(
 		::hw_3d_flooring_ib_,
 		::hw_3d_flooring_vb_,
 		::hw_3d_flooring_vi_))
@@ -3102,7 +3100,7 @@ bool hw_3d_initialize_ceiling_vb()
 	const auto vertex_count = 4;
 
 	{
-		::hw_3d_ceiling_vb_ = ::hw_vertex_buffer_create<HwVertex>(vertex_count);
+		::hw_3d_ceiling_vb_ = ::hw_vertex_buffer_create<Hw3dCeilingVertex>(vertex_count);
 
 		if (!::hw_3d_ceiling_vb_)
 		{
@@ -3111,7 +3109,7 @@ bool hw_3d_initialize_ceiling_vb()
 	}
 
 	{
-		using Vertices = std::array<HwVertex, vertex_count>;
+		using Vertices = std::array<Hw3dCeilingVertex, vertex_count>;
 
 		auto vertices = Vertices{};
 
@@ -3167,7 +3165,7 @@ void hw_3d_destroy_ceiling_vi()
 
 bool hw_3d_create_ceiling_vi()
 {
-	if (!::hw_vertex_input_create<HwVertex>(
+	if (!::hw_vertex_input_create<Hw3dCeilingVertex>(
 		::hw_3d_ceiling_ib_,
 		::hw_3d_ceiling_vb_,
 		::hw_3d_ceiling_vi_))
@@ -3269,7 +3267,7 @@ bool hw_initialize_solid_walls_vb()
 {
 	const auto vertex_count = ::hw_3d_wall_side_count_ * ::hw_3d_vertices_per_wall_side;
 
-	::hw_3d_wall_sides_vb_ = ::hw_vertex_buffer_create<HwWallVertex>(vertex_count);
+	::hw_3d_wall_sides_vb_ = ::hw_vertex_buffer_create<Hw3dWallVertex>(vertex_count);
 
 	if (!::hw_3d_wall_sides_vb_)
 	{
@@ -3286,7 +3284,7 @@ void hw_3d_uninitialize_walls_vi()
 
 bool hw_initialize_walls_vi()
 {
-	if (!::hw_vertex_input_create<HwWallVertex>(
+	if (!::hw_vertex_input_create<Hw3dWallVertex>(
 		::hw_3d_wall_sides_ib_,
 		::hw_3d_wall_sides_vb_,
 		::hw_3d_wall_sides_vi_))
@@ -3388,7 +3386,7 @@ bool hw_initialize_pushwalls_vbo()
 {
 	const auto vertex_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_vertices_per_wall_side;
 
-	::hw_3d_pushwall_sides_vb_ = ::hw_vertex_buffer_create<HwVertex>(vertex_count);
+	::hw_3d_pushwall_sides_vb_ = ::hw_vertex_buffer_create<Hw3dPushwallVertex>(vertex_count);
 
 	if (!::hw_3d_pushwall_sides_vb_)
 	{
@@ -3405,7 +3403,7 @@ void hw_3d_uninitialize_pushwalls_vi()
 
 bool hw_initialize_pushwalls_vi()
 {
-	if (!::hw_vertex_input_create<HwVertex>(
+	if (!::hw_vertex_input_create<Hw3dPushwallVertex>(
 		::hw_3d_pushwall_sides_ib_,
 		::hw_3d_pushwall_sides_vb_,
 		::hw_3d_pushwall_sides_vi_))
@@ -3518,7 +3516,7 @@ bool hw_initialize_door_sides_vbo()
 {
 	const auto vertex_count = ::hw_3d_door_count_ * ::hw_3d_indices_per_door_side;
 
-	::hw_3d_door_sides_vbo_ = ::hw_vertex_buffer_create<HwVertex>(vertex_count);
+	::hw_3d_door_sides_vbo_ = ::hw_vertex_buffer_create<Hw3dDoorVertex>(vertex_count);
 
 	if (!::hw_3d_door_sides_vbo_)
 	{
@@ -3544,7 +3542,7 @@ void hw_3d_uninitialize_door_sides_vi()
 
 bool hw_3d_initialize_door_sides_vi()
 {
-	if (!::hw_vertex_input_create<HwVertex>(
+	if (!::hw_vertex_input_create<Hw3dDoorVertex>(
 		::hw_3d_door_sides_ibo_,
 		::hw_3d_door_sides_vbo_,
 		::hw_3d_door_sides_vi_))
@@ -5914,39 +5912,101 @@ int hw_tile_get_door_track_wall_id(
 	return ::door_get_track_texture_id(door);
 }
 
+template<typename TVertex, bool TIsExists = false>
+struct HwUpdateVertexXyz
+{
+	void operator()(
+		TVertex& vertex,
+		const glm::vec3& xyz) const
+	{
+		static_cast<void>(xyz);
+	}
+}; // HwUpdateVertexXyz
+
 template<typename TVertex>
-struct HwUpdateVertex{};
-
-template<>
-struct HwUpdateVertex<HwVertex>
+struct HwUpdateVertexXyz<TVertex, true>
 {
 	void operator()(
-		const glm::vec3& position,
-		const bstone::RendererColor32& color,
-		const glm::vec2& texture_coordinates,
-		HwVertex& vertex) const
+		TVertex& vertex,
+		const glm::vec3& xyz) const
 	{
-		vertex.xyz_ = position;
-		vertex.rgba_ = color;
-		vertex.uv_ = texture_coordinates;
+		vertex.xyz_ = xyz;
 	}
-}; // HwUpdateVertex
+}; // HwUpdateVertexXyz
 
-template<>
-struct HwUpdateVertex<HwWallVertex>
+template<typename TVertex>
+void hw_update_vertex_xyz(
+	TVertex& vertex,
+	const glm::vec3& xyz)
+{
+	constexpr auto& traits = HwVertexAttributeTraits<TVertex, bstone::RendererVertexAttributeLocation::position>{};
+
+	HwUpdateVertexXyz<TVertex, traits.is_valid>{}(vertex, xyz);
+}
+
+template<typename TVertex, bool TIsExists = false>
+struct HwUpdateVertexRgba
 {
 	void operator()(
-		const glm::vec3& position,
-		const bstone::RendererColor32& color,
-		const glm::vec2& texture_coordinates,
-		HwWallVertex& vertex)
+		TVertex& vertex,
+		const bstone::RendererColor32& rgba) const
 	{
-		static_cast<void>(color);
-
-		vertex.xyz_ = position;
-		vertex.uv_ = texture_coordinates;
+		static_cast<void>(rgba);
 	}
-}; // HwUpdateVertex
+}; // HwUpdateVertexRgba
+
+template<typename TVertex>
+struct HwUpdateVertexRgba<TVertex, true>
+{
+	void operator()(
+		TVertex& vertex,
+		const bstone::RendererColor32& rgba) const
+	{
+		vertex.rgba_ = rgba;
+	}
+}; // HwUpdateVertexRgba
+
+template<typename TVertex>
+void hw_update_vertex_rgba(
+	TVertex& vertex,
+	const bstone::RendererColor32& rgba)
+{
+	constexpr auto& traits = HwVertexAttributeTraits<TVertex, bstone::RendererVertexAttributeLocation::color>{};
+
+	HwUpdateVertexRgba<TVertex, traits.is_valid>{}(vertex, rgba);
+}
+
+template<typename TVertex, bool TIsExists = false>
+struct HwUpdateVertexUv
+{
+	void operator()(
+		TVertex& vertex,
+		const glm::vec2& uv) const
+	{
+		static_cast<void>(uv);
+	}
+}; // HwUpdateVertexUv
+
+template<typename TVertex>
+struct HwUpdateVertexUv<TVertex, true>
+{
+	void operator()(
+		TVertex& vertex,
+		const glm::vec2& uv) const
+	{
+		vertex.uv_ = uv;
+	}
+}; // HwUpdateVertexUv
+
+template<typename TVertex>
+void hw_update_vertex_uv(
+	TVertex& vertex,
+	const glm::vec2& uv)
+{
+	constexpr auto& traits = HwVertexAttributeTraits<TVertex, bstone::RendererVertexAttributeLocation::texture_coordinates>{};
+
+	HwUpdateVertexUv<TVertex, traits.is_valid>{}(vertex, uv);
+}
 
 template<typename TVertex>
 void hw_3d_map_wall_side(
@@ -6031,7 +6091,9 @@ void hw_3d_map_wall_side(
 
 		const auto& uv = glm::vec2{0.0F, 0.0F};
 
-		HwUpdateVertex<TVertex>{}(xyz, rgba, uv, vertex);
+		::hw_update_vertex_xyz(vertex, xyz);
+		::hw_update_vertex_rgba(vertex, rgba);
+		::hw_update_vertex_uv(vertex, uv);
 	}
 
 	// Bottom-right (when looking at face side).
@@ -6047,7 +6109,9 @@ void hw_3d_map_wall_side(
 
 		const auto& uv = glm::vec2{1.0F, 0.0F};
 
-		HwUpdateVertex<TVertex>{}(xyz, rgba, uv, vertex);
+		::hw_update_vertex_xyz(vertex, xyz);
+		::hw_update_vertex_rgba(vertex, rgba);
+		::hw_update_vertex_uv(vertex, uv);
 	}
 
 	// Top-right (when looking at face side).
@@ -6063,7 +6127,9 @@ void hw_3d_map_wall_side(
 
 		const auto& uv = glm::vec2{1.0F, 1.0F};
 
-		HwUpdateVertex<TVertex>{}(xyz, rgba, uv, vertex);
+		::hw_update_vertex_xyz(vertex, xyz);
+		::hw_update_vertex_rgba(vertex, rgba);
+		::hw_update_vertex_uv(vertex, uv);
 	}
 
 	// Top-left (when looking at face side).
@@ -6079,7 +6145,9 @@ void hw_3d_map_wall_side(
 
 		const auto& uv = glm::vec2{0.0F, 1.0F};
 
-		HwUpdateVertex<TVertex>{}(xyz, rgba, uv, vertex);
+		::hw_update_vertex_xyz(vertex, xyz);
+		::hw_update_vertex_rgba(vertex, rgba);
+		::hw_update_vertex_uv(vertex, uv);
 	}
 }
 
@@ -6268,7 +6336,7 @@ void hw_3d_build_solid_walls()
 	//
 	const auto vertex_count = ::hw_3d_wall_side_count_ * ::hw_3d_vertices_per_wall_side;
 
-	auto vb_buffer = HwNoColorVbBuffer{};
+	auto vb_buffer = Hw3dWallsVbBuffer{};
 	vb_buffer.resize(vertex_count);
 
 	::hw_3d_xy_wall_map_.clear();
@@ -6318,7 +6386,7 @@ void hw_3d_translate_pushwall_side(
 	const controldir_t side_direction,
 	const Hw3dWall& wall,
 	int& vertex_index,
-	HwVbBuffer& vb_buffer)
+	Hw3dPushwallsVbBuffer& vb_buffer)
 {
 	static const float all_vertex_offsets[4][4] =
 	{
@@ -6405,7 +6473,7 @@ void hw_3d_translate_pushwall_side(
 void hw_3d_translate_pushwall(
 	const Hw3dWall& wall,
 	int& vertex_index,
-	HwVbBuffer& vb_buffer)
+	Hw3dPushwallsVbBuffer& vb_buffer)
 {
 	auto translate_distance = static_cast<float>(::pwallpos) / 63.0F;
 
@@ -6611,12 +6679,13 @@ void hw_3d_build_pushwalls()
 	);
 }
 
+template<typename TVertex>
 void hw_3d_update_quad_vertices(
 	const Hw3dQuadFlags flags,
 	const glm::vec3& origin,
 	const glm::vec2& size,
 	int& vertex_index,
-	HwVbBuffer& vb_buffer)
+	HwVbBufferT<TVertex>& vb_buffer)
 {
 	//
 	// Front face order:
@@ -6682,7 +6751,7 @@ void hw_3d_update_quad_vertices(
 void hw_3d_map_door_side(
 	Hw3dDoorSide& door_side,
 	int& vertex_index,
-	HwVbBuffer& vb_buffer)
+	Hw3dDoorsVbBuffer& vb_buffer)
 {
 	const auto& hw_door = *door_side.hw_door_;
 	const auto bs_door_index = hw_door.bs_door_index_;
@@ -6731,7 +6800,7 @@ void hw_3d_map_door_side(
 void hw_3d_map_xy_to_door(
 	const doorobj_t& bs_door,
 	int& vertex_index,
-	HwVbBuffer& vb_buffer)
+	Hw3dDoorsVbBuffer& vb_buffer)
 {
 	const auto xy = ::hw_encode_xy(bs_door.tilex, bs_door.tiley);
 
@@ -6899,7 +6968,7 @@ bool hw_initialize_sprites_vb()
 {
 	const auto vertex_count = ::hw_3d_max_sprites_vertices;
 
-	::hw_3d_sprites_vb_ = ::hw_vertex_buffer_create<HwVertex>(vertex_count);
+	::hw_3d_sprites_vb_ = ::hw_vertex_buffer_create<Hw3dSpriteVertex>(vertex_count);
 
 	if (!::hw_3d_sprites_vb_)
 	{
@@ -6929,7 +6998,7 @@ void hw_3d_uninitialize_sprites_vi()
 
 bool hw_3d_initialize_sprites_vi()
 {
-	if (!::hw_vertex_input_create<HwVertex>(
+	if (!::hw_vertex_input_create<Hw3dSpriteVertex>(
 		::hw_3d_sprites_ib_,
 		::hw_3d_sprites_vb_,
 		::hw_3d_sprites_vi_))
