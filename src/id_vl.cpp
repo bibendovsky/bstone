@@ -1357,7 +1357,7 @@ constexpr auto hw_3d_max_sprites_indices = ::hw_3d_max_statics_indices + ::hw_3d
 
 constexpr auto hw_3d_cloaked_actor_alpha_u8 = std::uint8_t{0x50};
 
-constexpr auto hw_min_2d_commands = 16;
+constexpr auto hw_min_2d_commands = 32;
 constexpr auto hw_min_3d_commands = 4096;
 
 
@@ -1592,12 +1592,14 @@ bstone::RendererCommandSet* hw_3d_command_set_;
 bstone::RendererTexture2dPtr hw_2d_texture_ = nullptr;
 bstone::RendererIndexBufferPtr hw_2d_ib_ = nullptr;
 bstone::RendererVertexBufferPtr hw_2d_vb_ = nullptr;
+bstone::RendererVertexInputPtr hw_2d_vi_ = nullptr;
 
 bstone::RendererTexture2dPtr hw_2d_black_t2d_1x1_ = nullptr;
 bstone::RendererTexture2dPtr hw_2d_white_t2d_1x1_ = nullptr;
 
 bstone::RendererIndexBufferPtr hw_2d_fillers_ib_ = nullptr;
 bstone::RendererVertexBufferPtr hw_2d_fillers_vb_ = nullptr;
+bstone::RendererVertexInputPtr hw_2d_fillers_vi_ = nullptr;
 
 bool hw_2d_fade_is_enabled_ = false;
 bstone::RendererColor32 hw_2d_fade_color_ = bstone::RendererColor32{};
@@ -1612,11 +1614,13 @@ auto hw_3d_matrix_projection_ = glm::mat4{};
 
 bstone::RendererIndexBufferPtr hw_3d_flooring_ib_ = nullptr;
 bstone::RendererVertexBufferPtr hw_3d_flooring_vb_ = nullptr;
+bstone::RendererVertexInputPtr hw_3d_flooring_vi_ = nullptr;
 bstone::RendererTexture2dPtr hw_3d_flooring_solid_t2d_ = nullptr;
 bstone::RendererTexture2dPtr hw_3d_flooring_textured_t2d_ = nullptr;
 
 bstone::RendererIndexBufferPtr hw_3d_ceiling_ib_ = nullptr;
 bstone::RendererVertexBufferPtr hw_3d_ceiling_vb_ = nullptr;
+bstone::RendererVertexInputPtr hw_3d_ceiling_vi_ = nullptr;
 bstone::RendererTexture2dPtr hw_3d_ceiling_solid_t2d_ = nullptr;
 bstone::RendererTexture2dPtr hw_3d_ceiling_textured_t2d_ = nullptr;
 
@@ -1638,6 +1642,7 @@ Hw3dWallSideDrawItems hw_3d_wall_side_draw_items_;
 
 bstone::RendererIndexBufferPtr hw_3d_wall_sides_ib_ = nullptr;
 bstone::RendererVertexBufferPtr hw_3d_wall_sides_vb_ = nullptr;
+bstone::RendererVertexInputPtr hw_3d_wall_sides_vi_ = nullptr;
 
 Hw3dWallSideIndexBuffer hw_3d_wall_sides_ib_buffer_;
 
@@ -1651,6 +1656,7 @@ Hw3dWallSideDrawItems hw_3d_pushwall_side_draw_items_;
 
 bstone::RendererIndexBufferPtr hw_3d_pushwall_sides_ib_ = nullptr;
 bstone::RendererVertexBufferPtr hw_3d_pushwall_sides_vb_ = nullptr;
+bstone::RendererVertexInputPtr hw_3d_pushwall_sides_vi_ = nullptr;
 
 Hw3dWallSideIndexBuffer hw_3d_pushwall_sides_ib_buffer_;
 HwVbBuffer hw_3d_pushwalls_vb_buffer_;
@@ -1665,6 +1671,7 @@ Hw3dDoorDrawItems hw_3d_door_draw_items_;
 
 bstone::RendererIndexBufferPtr hw_3d_door_sides_ibo_ = nullptr;
 bstone::RendererVertexBufferPtr hw_3d_door_sides_vbo_ = nullptr;
+bstone::RendererVertexInputPtr hw_3d_door_sides_vi_ = nullptr;
 
 Hw3dDoorIndexBuffer hw_3d_door_sides_ib_;
 HwVbBuffer hw_3d_doors_vb_;
@@ -1677,6 +1684,7 @@ Hw3dSpritesDrawList hw_3d_sprites_draw_list_;
 
 bstone::RendererIndexBufferPtr hw_3d_sprites_ib_ = nullptr;
 bstone::RendererVertexBufferPtr hw_3d_sprites_vb_ = nullptr;
+bstone::RendererVertexInputPtr hw_3d_sprites_vi_ = nullptr;
 
 Hw3dSpritesIndexBuffer hw_3d_sprites_ib_buffer_;
 HwVbBuffer hw_3d_sprites_vb_buffer_;
@@ -1814,6 +1822,66 @@ void hw_vertex_buffer_update(
 	param.data_ = vertices;
 
 	vertex_buffer->update(param);
+}
+
+void hw_vertex_input_destroy(
+	bstone::RendererVertexInputPtr& vertex_input)
+{
+	if (vertex_input)
+	{
+		::hw_renderer_->vertex_input_destroy(vertex_input);
+		vertex_input = nullptr;
+	}
+}
+
+bool hw_vertex_input_create_xyz_rgba_uv(
+	bstone::RendererIndexBufferPtr index_buffer,
+	bstone::RendererVertexBufferPtr vertex_buffer,
+	bstone::RendererVertexInputPtr& vertex_input)
+{
+	auto param = bstone::RendererVertexInputCreateParam{};
+	param.index_buffer_ = index_buffer;
+
+	auto& descriptions = param.attribute_descriptions_;
+	descriptions.resize(3);
+
+	auto description_index = 0;
+
+	{
+		auto& description = descriptions[description_index++];
+		description.location_ = bstone::RendererVertexAttributeLocation::position;
+		description.format_ = bstone::RendererVertexAttributeFormat::r32g32b32_float;
+		description.vertex_buffer_ = vertex_buffer;
+		description.offset_ = static_cast<int>(offsetof(bstone::RendererVertex, xyz_));
+		description.stride_ = static_cast<int>(sizeof(bstone::RendererVertex));
+	}
+
+	{
+		auto& description = descriptions[description_index++];
+		description.location_ = bstone::RendererVertexAttributeLocation::color;
+		description.format_ = bstone::RendererVertexAttributeFormat::r8g8b8a8_uint;
+		description.vertex_buffer_ = vertex_buffer;
+		description.offset_ = static_cast<int>(offsetof(bstone::RendererVertex, rgba_));
+		description.stride_ = static_cast<int>(sizeof(bstone::RendererVertex));
+	}
+
+	{
+		auto& description = descriptions[description_index++];
+		description.location_ = bstone::RendererVertexAttributeLocation::texture_coordinates;
+		description.format_ = bstone::RendererVertexAttributeFormat::r32g32_float;
+		description.vertex_buffer_ = vertex_buffer;
+		description.offset_ = static_cast<int>(offsetof(bstone::RendererVertex, uv_));
+		description.stride_ = static_cast<int>(sizeof(bstone::RendererVertex));
+	}
+
+	vertex_input = ::hw_renderer_->vertex_input_create(param);
+
+	if (!vertex_input)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 void hw_3d_update_player_direction()
@@ -2001,6 +2069,24 @@ bool hw_2d_create_ib()
 		0,
 		::hw_2d_index_count_,
 		indices.data());
+
+	return true;
+}
+
+void hw_2d_vertex_input_destroy()
+{
+	::hw_vertex_input_destroy(::hw_2d_vi_);
+}
+
+bool hw_2d_create_vi()
+{
+	if (!::hw_vertex_input_create_xyz_rgba_uv(
+		::hw_2d_ib_,
+		::hw_2d_vb_,
+		::hw_2d_vi_))
+	{
+		return false;
+	}
 
 	return true;
 }
@@ -2492,6 +2578,20 @@ bool hw_2d_fillers_create_vb()
 	return true;
 }
 
+void hw_2d_fillers_destroy_vi()
+{
+	::hw_vertex_input_destroy(::hw_2d_fillers_vi_);
+}
+
+bool hw_2d_fillers_create_vi()
+{
+	return ::hw_vertex_input_create_xyz_rgba_uv(
+		::hw_2d_fillers_ib_,
+		::hw_2d_fillers_vb_,
+		::hw_2d_fillers_vi_
+	);
+}
+
 bool hw_create_solid_texture_1x1(
 	const bstone::RendererColor32& color,
 	const bool has_alpha,
@@ -2553,9 +2653,17 @@ bool hw_2d_create_fade_texture_1x1()
 
 bool hw_initialize_ui_texture()
 {
-	// Index buffer.
-	//
 	if (!::hw_2d_create_ib())
+	{
+		return false;
+	}
+
+	if (!::hw_2d_create_vb())
+	{
+		return false;
+	}
+
+	if (!::hw_2d_create_vi())
 	{
 		return false;
 	}
@@ -2565,19 +2673,15 @@ bool hw_initialize_ui_texture()
 		return false;
 	}
 
-	
-	// Vertex buffers.
-	//
-	if (!::hw_2d_create_vb())
-	{
-		return false;
-	}
-
 	if (!::hw_2d_fillers_create_vb())
 	{
 		return false;
 	}
 
+	if (!::hw_2d_fillers_create_vi())
+	{
+		return false;
+	}
 
 	// Texture.
 	//
@@ -2720,6 +2824,24 @@ bool hw_3d_initialize_flooring_vb()
 	return true;
 }
 
+void hw_3d_destroy_flooring_vi()
+{
+	::hw_vertex_input_destroy(::hw_3d_flooring_vi_);
+}
+
+bool hw_3d_create_flooring_vi()
+{
+	if (!::hw_vertex_input_create_xyz_rgba_uv(
+		::hw_3d_flooring_ib_,
+		::hw_3d_flooring_vb_,
+		::hw_3d_flooring_vi_))
+	{
+		return false;
+	}
+
+	return true;
+}
+
 bool hw_3d_initialize_flooring_solid_texture_2d()
 {
 	return ::hw_create_solid_texture_1x1(
@@ -2741,6 +2863,11 @@ bool hw_3d_initialize_flooring()
 		return false;
 	}
 
+	if (!::hw_3d_create_flooring_vi())
+	{
+		return false;
+	}
+
 	if (!::hw_3d_initialize_flooring_solid_texture_2d())
 	{
 		return false;
@@ -2751,6 +2878,8 @@ bool hw_3d_initialize_flooring()
 
 void hw_uninitialize_flooring()
 {
+	::hw_3d_destroy_flooring_vi();
+
 	if (::hw_3d_flooring_ib_)
 	{
 		::hw_renderer_->index_buffer_destroy(::hw_3d_flooring_ib_);
@@ -2868,6 +2997,24 @@ bool hw_3d_initialize_ceiling_vb()
 	return true;
 }
 
+void hw_3d_destroy_ceiling_vi()
+{
+	::hw_vertex_input_destroy(::hw_3d_ceiling_vi_);
+}
+
+bool hw_3d_create_ceiling_vi()
+{
+	if (!::hw_vertex_input_create_xyz_rgba_uv(
+		::hw_3d_ceiling_ib_,
+		::hw_3d_ceiling_vb_,
+		::hw_3d_ceiling_vi_))
+	{
+		return false;
+	}
+
+	return true;
+}
+
 bool hw_3d_initialize_ceiling_solid_texture_2d()
 {
 	return ::hw_create_solid_texture_1x1(
@@ -2889,6 +3036,11 @@ bool hw_3d_initialize_ceiling()
 		return false;
 	}
 
+	if (!::hw_3d_create_ceiling_vi())
+	{
+		return false;
+	}
+
 	if (!::hw_3d_initialize_ceiling_solid_texture_2d())
 	{
 		return false;
@@ -2899,6 +3051,8 @@ bool hw_3d_initialize_ceiling()
 
 void hw_uninitialize_ceiling()
 {
+	::hw_3d_destroy_ceiling_vi();
+
 	if (::hw_3d_ceiling_ib_)
 	{
 		::hw_renderer_->index_buffer_destroy(::hw_3d_ceiling_ib_);
@@ -2962,6 +3116,24 @@ bool hw_initialize_solid_walls_vb()
 	return true;
 }
 
+void hw_3d_uninitialize_walls_vi()
+{
+	::hw_vertex_input_destroy(::hw_3d_wall_sides_vi_);
+}
+
+bool hw_initialize_walls_vi()
+{
+	if (!::hw_vertex_input_create_xyz_rgba_uv(
+		::hw_3d_wall_sides_ib_,
+		::hw_3d_wall_sides_vb_,
+		::hw_3d_wall_sides_vi_))
+	{
+		return false;
+	}
+
+	return true;
+}
+
 void hw_3d_uninitialize_walls_vb()
 {
 	if (::hw_3d_wall_sides_vb_)
@@ -2989,6 +3161,11 @@ bool hw_3d_initialize_solid_walls()
 		return false;
 	}
 
+	if (!::hw_initialize_walls_vi())
+	{
+		return false;
+	}
+
 	return true;
 }
 
@@ -3003,6 +3180,7 @@ void hw_3d_uninitialize_solid_walls()
 
 	::hw_3d_uninitialize_walls_ib();
 	::hw_3d_uninitialize_walls_vb();
+	::hw_3d_uninitialize_walls_vi();
 }
 
 bool hw_initialize_pushwalls_ib()
@@ -3057,6 +3235,24 @@ bool hw_initialize_pushwalls_vbo()
 	return true;
 }
 
+void hw_3d_uninitialize_pushwalls_vi()
+{
+	::hw_vertex_input_destroy(::hw_3d_pushwall_sides_vi_);
+}
+
+bool hw_initialize_pushwalls_vi()
+{
+	if (!::hw_vertex_input_create_xyz_rgba_uv(
+		::hw_3d_pushwall_sides_ib_,
+		::hw_3d_pushwall_sides_vb_,
+		::hw_3d_pushwall_sides_vi_))
+	{
+		return false;
+	}
+
+	return true;
+}
+
 void hw_3d_uninitialize_pushwalls_vbo()
 {
 	if (::hw_3d_pushwall_sides_vb_)
@@ -3089,6 +3285,11 @@ bool hw_3d_initialize_pushwalls()
 		return false;
 	}
 
+	if (!::hw_initialize_pushwalls_vi())
+	{
+		return false;
+	}
+
 	return true;
 }
 
@@ -3100,6 +3301,8 @@ void hw_3d_uninitialize_pushwalls()
 
 	::hw_3d_pushwall_side_draw_item_count_ = 0;
 	::hw_3d_pushwall_side_draw_items_.clear();
+
+	::hw_3d_uninitialize_pushwalls_vi();
 
 	::hw_3d_uninitialize_pushwalls_ib();
 	::hw_3d_uninitialize_pushwalls_ibo();
@@ -3171,6 +3374,24 @@ void hw_3d_uninitialize_door_sides_vbo()
 	}
 }
 
+void hw_3d_uninitialize_door_sides_vi()
+{
+	::hw_vertex_input_destroy(::hw_3d_door_sides_vi_);
+}
+
+bool hw_3d_initialize_door_sides_vi()
+{
+	if (!::hw_vertex_input_create_xyz_rgba_uv(
+		::hw_3d_door_sides_ibo_,
+		::hw_3d_door_sides_vbo_,
+		::hw_3d_door_sides_vi_))
+	{
+		return false;
+	}
+
+	return true;
+}
+
 bool hw_3d_initialize_door_sides()
 {
 	::hw_3d_xy_door_map_.reserve(::hw_3d_door_count_);
@@ -3196,6 +3417,11 @@ bool hw_3d_initialize_door_sides()
 		return false;
 	}
 
+	if (!::hw_3d_initialize_door_sides_vi())
+	{
+		return false;
+	}
+
 	return true;
 }
 
@@ -3205,6 +3431,8 @@ void hw_3d_uninitialize_door_sides()
 
 	::hw_3d_door_draw_item_count_ = 0;
 	::hw_3d_door_draw_items_.clear();
+
+	::hw_3d_uninitialize_door_sides_vi();
 
 	::hw_3d_uninitialize_door_sides_ib();
 	::hw_3d_uninitialize_door_sides_ibo();
@@ -3905,16 +4133,18 @@ void hw_uninitialize_ui_texture()
 		::hw_2d_ib_ = nullptr;
 	}
 
-	if (::hw_2d_fillers_ib_)
-	{
-		::hw_renderer_->index_buffer_destroy(::hw_2d_fillers_ib_);
-		::hw_2d_fillers_ib_ = nullptr;
-	}
-
 	if (::hw_2d_vb_)
 	{
 		::hw_renderer_->vertex_buffer_destroy(::hw_2d_vb_);
 		::hw_2d_vb_ = nullptr;
+	}
+
+	::hw_2d_fillers_destroy_vi();
+
+	if (::hw_2d_fillers_ib_)
+	{
+		::hw_renderer_->index_buffer_destroy(::hw_2d_fillers_ib_);
+		::hw_2d_fillers_ib_ = nullptr;
 	}
 
 	if (::hw_2d_fillers_vb_)
@@ -3922,6 +4152,8 @@ void hw_uninitialize_ui_texture()
 		::hw_renderer_->vertex_buffer_destroy(::hw_2d_fillers_vb_);
 		::hw_2d_fillers_vb_ = nullptr;
 	}
+
+	::hw_2d_fillers_destroy_vi();
 }
 
 void hw_uninitialize_vga_buffer()
@@ -4031,6 +4263,12 @@ void hw_refresh_screen_2d()
 
 		{
 			auto& command = commands[command_index++];
+			command.id_ = bstone::RendererCommandId::vertex_input_set;
+			command.vertex_input_set_.vertex_input_ = ::hw_2d_fillers_vi_;
+		}
+
+		{
+			auto& command = commands[command_index++];
 			command.id_ = bstone::RendererCommandId::draw_quads;
 
 			auto count = 0;
@@ -4049,9 +4287,7 @@ void hw_refresh_screen_2d()
 
 			auto& draw_quads = command.draw_quads_;
 			draw_quads.count_ = count;
-			draw_quads.index_buffer_ = ::hw_2d_fillers_ib_;
 			draw_quads.index_offset_ = index_offset;
-			draw_quads.vertex_buffer_ = ::hw_2d_fillers_vb_;
 		}
 	}
 
@@ -4075,6 +4311,12 @@ void hw_refresh_screen_2d()
 
 		{
 			auto& command = commands[command_index++];
+			command.id_ = bstone::RendererCommandId::vertex_input_set;
+			command.vertex_input_set_.vertex_input_ = ::hw_2d_vi_;
+		}
+
+		{
+			auto& command = commands[command_index++];
 			command.id_ = bstone::RendererCommandId::draw_quads;
 
 			const auto index_offset = (::vid_is_ui_stretched
@@ -4086,9 +4328,7 @@ void hw_refresh_screen_2d()
 
 			auto& draw_quads = command.draw_quads_;
 			draw_quads.count_ = 1;
-			draw_quads.index_buffer_ = ::hw_2d_ib_;
 			draw_quads.index_offset_ = index_offset;
-			draw_quads.vertex_buffer_ = ::hw_2d_vb_;
 		}
 
 		if (::vid_is_hud)
@@ -4127,6 +4367,12 @@ void hw_refresh_screen_2d()
 		//
 		{
 			auto& command = commands[command_index++];
+			command.id_ = bstone::RendererCommandId::vertex_input_set;
+			command.vertex_input_set_.vertex_input_ = ::hw_2d_vi_;
+		}
+
+		{
+			auto& command = commands[command_index++];
 			command.id_ = bstone::RendererCommandId::draw_quads;
 
 			const auto index_offset = (::vid_is_ui_stretched
@@ -4138,9 +4384,7 @@ void hw_refresh_screen_2d()
 
 			auto& draw_quads = command.draw_quads_;
 			draw_quads.count_ = 1;
-			draw_quads.index_buffer_ = ::hw_2d_ib_;
 			draw_quads.index_offset_ = index_offset;
-			draw_quads.vertex_buffer_ = ::hw_2d_vb_;
 		}
 
 		// Disable blending.
@@ -4320,13 +4564,17 @@ void hw_3d_dbg_draw_all_solid_walls(
 
 			{
 				auto& command = ::hw_3d_command_set_->commands_[command_index++];
+				command.id_ = bstone::RendererCommandId::vertex_input_set;
+				command.vertex_input_set_.vertex_input_ = ::hw_3d_wall_sides_vi_;
+			}
+
+			{
+				auto& command = ::hw_3d_command_set_->commands_[command_index++];
 				command.id_ = bstone::RendererCommandId::draw_quads;
 
 				auto& draw_quads = command.draw_quads_;
 				draw_quads.count_ = draw_quad_count;
 				draw_quads.index_offset_ = draw_index_offset_;
-				draw_quads.index_buffer_ = ::hw_3d_wall_sides_ib_;
-				draw_quads.vertex_buffer_ = ::hw_3d_wall_sides_vb_;
 
 				draw_index_offset_ += ::hw_3d_indices_per_wall_side * draw_quad_count;
 			}
@@ -4447,13 +4695,17 @@ void hw_3d_dbg_draw_all_pushwalls(
 
 			{
 				auto& command = ::hw_3d_command_set_->commands_[command_index++];
+				command.id_ = bstone::RendererCommandId::vertex_input_set;
+				command.vertex_input_set_.vertex_input_ = ::hw_3d_pushwall_sides_vi_;
+			}
+
+			{
+				auto& command = ::hw_3d_command_set_->commands_[command_index++];
 				command.id_ = bstone::RendererCommandId::draw_quads;
 
 				auto& draw_quads = command.draw_quads_;
 				draw_quads.count_ = draw_quad_count;
 				draw_quads.index_offset_ = draw_index_offset_;
-				draw_quads.index_buffer_ = ::hw_3d_pushwall_sides_ib_;
-				draw_quads.vertex_buffer_ = ::hw_3d_pushwall_sides_vb_;
 
 				draw_index_offset_ += ::hw_3d_indices_per_wall_side * draw_quad_count;
 			}
@@ -4676,13 +4928,17 @@ void hw_3d_dbg_draw_all_doors(
 
 			{
 				auto& command = ::hw_3d_command_set_->commands_[command_index++];
+				command.id_ = bstone::RendererCommandId::vertex_input_set;
+				command.vertex_input_set_.vertex_input_ = ::hw_3d_door_sides_vi_;
+			}
+
+			{
+				auto& command = ::hw_3d_command_set_->commands_[command_index++];
 				command.id_ = bstone::RendererCommandId::draw_quads;
 
 				auto& draw_quads = command.draw_quads_;
 				draw_quads.count_ = draw_quad_count;
 				draw_quads.index_offset_ = draw_index_offset;
-				draw_quads.index_buffer_ = ::hw_3d_door_sides_ibo_;
-				draw_quads.vertex_buffer_ = ::hw_3d_door_sides_vbo_;
 
 				draw_index_offset += 6 * draw_quad_count;
 			}
@@ -4836,13 +5092,17 @@ void hw_3d_dbg_draw_all_sprites(
 
 			{
 				auto& command = ::hw_3d_command_set_->commands_[command_index++];
+				command.id_ = bstone::RendererCommandId::vertex_input_set;
+				command.vertex_input_set_.vertex_input_ = ::hw_3d_sprites_vi_;
+			}
+
+			{
+				auto& command = ::hw_3d_command_set_->commands_[command_index++];
 				command.id_ = bstone::RendererCommandId::draw_quads;
 
 				auto& draw_quads = command.draw_quads_;
 				draw_quads.count_ = draw_quad_count;
 				draw_quads.index_offset_ = draw_index_offset_;
-				draw_quads.index_buffer_ = ::hw_3d_sprites_ib_;
-				draw_quads.vertex_buffer_ = ::hw_3d_sprites_vb_;
 
 				draw_index_offset_ += ::hw_3d_indices_per_sprite * draw_quad_count;
 			}
@@ -4993,14 +5253,18 @@ void hw_refresh_screen_3d()
 		}
 
 		{
+			auto& command = ::hw_3d_command_set_->commands_[command_index++];
+			command.id_ = bstone::RendererCommandId::vertex_input_set;
+			command.vertex_input_set_.vertex_input_ = ::hw_3d_flooring_vi_;
+		}
+
+		{
 			auto& command = commands[command_index++];
 			command.id_ = bstone::RendererCommandId::draw_quads;
 
 			auto& draw_quads = command.draw_quads_;
 			draw_quads.count_ = 1;
 			draw_quads.index_offset_ = 0;
-			draw_quads.index_buffer_ = ::hw_3d_flooring_ib_;
-			draw_quads.vertex_buffer_ = ::hw_3d_flooring_vb_;
 		}
 	}
 
@@ -5021,14 +5285,18 @@ void hw_refresh_screen_3d()
 		}
 
 		{
+			auto& command = ::hw_3d_command_set_->commands_[command_index++];
+			command.id_ = bstone::RendererCommandId::vertex_input_set;
+			command.vertex_input_set_.vertex_input_ = ::hw_3d_ceiling_vi_;
+		}
+
+		{
 			auto& command = commands[command_index++];
 			command.id_ = bstone::RendererCommandId::draw_quads;
 
 			auto& draw_quads = command.draw_quads_;
 			draw_quads.count_ = 1;
 			draw_quads.index_offset_ = 0;
-			draw_quads.index_buffer_ = ::hw_3d_ceiling_ib_;
-			draw_quads.vertex_buffer_ = ::hw_3d_ceiling_vb_;
 		}
 	}
 
@@ -6453,6 +6721,24 @@ void hw_3d_uninitialize_sprites_vb()
 	::hw_3d_sprites_vb_buffer_.clear();
 }
 
+void hw_3d_uninitialize_sprites_vi()
+{
+	::hw_vertex_input_destroy(::hw_3d_sprites_vi_);
+}
+
+bool hw_3d_initialize_sprites_vi()
+{
+	if (!::hw_vertex_input_create_xyz_rgba_uv(
+		::hw_3d_sprites_ib_,
+		::hw_3d_sprites_vb_,
+		::hw_3d_sprites_vi_))
+	{
+		return false;
+	}
+
+	return true;
+}
+
 bool hw_3d_initialize_statics()
 {
 	::hw_3d_statics_.resize(MAXSTATS);
@@ -6479,6 +6765,11 @@ bool hw_3d_initialize_sprites()
 	}
 
 	if (!::hw_initialize_sprites_vb())
+	{
+		return false;
+	}
+
+	if (!::hw_3d_initialize_sprites_vi())
 	{
 		return false;
 	}
@@ -6514,6 +6805,7 @@ void hw_3d_uninitialize_sprites()
 	::hw_3d_sprites_draw_count_ = 0;
 	::hw_3d_sprites_draw_list_.clear();
 
+	::hw_3d_uninitialize_sprites_vi();
 	::hw_3d_uninitialize_sprites_ib();
 	::hw_3d_uninitialize_sprites_vb();
 }

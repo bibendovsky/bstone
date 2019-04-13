@@ -424,6 +424,151 @@ bool RendererUtils::validate_texture_2d_update_param(
 	return true;
 }
 
+int RendererUtils::vertex_input_get_location_index(
+	const RendererVertexAttributeLocation location)
+{
+	switch (location)
+	{
+		case RendererVertexAttributeLocation::position:
+			return 0;
+
+		case RendererVertexAttributeLocation::color:
+			return 1;
+
+		case RendererVertexAttributeLocation::texture_coordinates:
+			return 2;
+
+		default:
+			assert(!"Invalid location.");
+			return -1;
+	}
+}
+
+bool RendererUtils::vertex_input_validate_format(
+	const RendererVertexAttributeFormat attribute_format)
+{
+	switch (attribute_format)
+	{
+		case RendererVertexAttributeFormat::r8g8b8a8_uint:
+		case RendererVertexAttributeFormat::r32g32_float:
+		case RendererVertexAttributeFormat::r32g32b32_float:
+			return true;
+
+		default:
+			return false;
+	}
+}
+
+bool RendererUtils::vertex_input_validate_param(
+	const RendererVertexInputCreateParam& param)
+{
+	if (!param.index_buffer_)
+	{
+		error_message_ = "Null index buffer.";
+
+		return false;
+	}
+
+	const auto& attribute_descriptions = param.attribute_descriptions_;
+
+	if (attribute_descriptions.empty())
+	{
+		error_message_ = "No descriptions.";
+
+		return false;
+	}
+
+	for (const auto& attribute_description : attribute_descriptions)
+	{
+		// Location.
+		//
+		auto has_position_location = false;
+		auto has_color_location = false;
+		auto has_texture_coordinates_location = false;
+
+		switch (attribute_description.location_)
+		{
+			case RendererVertexAttributeLocation::position:
+				if (has_position_location)
+				{
+					error_message_ = "Duplicate position location.";
+
+					return false;
+				}
+
+				has_position_location = true;
+
+				break;
+
+			case RendererVertexAttributeLocation::color:
+				if (has_color_location)
+				{
+					error_message_ = "Duplicate color location.";
+
+					return false;
+				}
+
+				has_color_location = true;
+
+				break;
+
+			case RendererVertexAttributeLocation::texture_coordinates:
+				if (has_texture_coordinates_location)
+				{
+					error_message_ = "Duplicate texture coordinates location.";
+
+					return false;
+				}
+
+				has_texture_coordinates_location = true;
+
+				break;
+		}
+
+
+		// Format.
+		//
+		if (!vertex_input_validate_format(attribute_description.format_))
+		{
+			error_message_ = "Invalid format.";
+
+			return false;
+		}
+
+
+		// Vertex buffer.
+		//
+		if (!attribute_description.vertex_buffer_)
+		{
+			error_message_ = "Null vertex buffer.";
+
+			return false;
+		}
+
+
+		// Offset.
+		//
+		if (attribute_description.offset_ < 0)
+		{
+			error_message_ = "Invalid offset.";
+
+			return false;
+		}
+
+
+		// Stride.
+		//
+		if (attribute_description.stride_ < 0)
+		{
+			error_message_ = "Invalid stride.";
+
+			return false;
+		}
+	}
+
+	return true;
+}
+
 bool RendererUtils::is_ogl_renderer_path(
 	const RendererPath renderer_path)
 {

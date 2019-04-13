@@ -85,6 +85,8 @@ enum class RendererCommandId
 	texture_set,
 	sampler_set,
 
+	vertex_input_set,
+
 	draw_quads,
 }; // RendererCommandId
 
@@ -231,6 +233,59 @@ using RendererVertexBufferPtr = RendererVertexBuffer*;
 
 //
 // RendererVertexBuffer
+// ==========================================================================
+
+
+// ==========================================================================
+// RendererVertexInput
+//
+
+enum class RendererVertexAttributeLocation
+{
+	none,
+	position,
+	color,
+	texture_coordinates,
+}; // RendererVertexAttributeLocation
+
+enum class RendererVertexAttributeFormat
+{
+	none,
+	r8g8b8a8_uint,
+	r32g32_float,
+	r32g32b32_float,
+}; // RendererVertexAttributeFormat
+
+struct RendererVertexAttributeDescription
+{
+	RendererVertexAttributeLocation location_;
+	RendererVertexAttributeFormat format_;
+	RendererVertexBufferPtr vertex_buffer_;
+	int offset_;
+	int stride_;
+}; // RendererVertexAttributeDescription
+
+using RendererVertexAttributeDescriptions = std::vector<RendererVertexAttributeDescription>;
+
+struct RendererVertexInputCreateParam
+{
+	RendererIndexBufferPtr index_buffer_;
+	RendererVertexAttributeDescriptions attribute_descriptions_;
+}; // RendererVertexInputCreateParam
+
+
+class RendererVertexInput
+{
+protected:
+	RendererVertexInput() = default;
+
+	virtual ~RendererVertexInput() = default;
+}; // RendererVertexInput
+
+using RendererVertexInputPtr = RendererVertexInput*;
+
+//
+// RendererVertexInput
 // ==========================================================================
 
 
@@ -445,12 +500,15 @@ struct RendererCommand
 		RendererSamplerPtr sampler_;
 	}; // SamplerSet
 
+	struct VertexInputSet
+	{
+		RendererVertexInputPtr vertex_input_;
+	}; // VertexInputSet
+
 	struct DrawQuads
 	{
 		int count_;
 		int index_offset_;
-		RendererIndexBufferPtr index_buffer_;
-		RendererVertexBufferPtr vertex_buffer_;
 	}; // DrawQuads
 
 
@@ -481,6 +539,8 @@ struct RendererCommand
 
 		TextureSet texture_set_;
 		SamplerSet sampler_set_;
+
+		VertexInputSet vertex_input_set_;
 
 		DrawQuads draw_quads_;
 	}; // union
@@ -580,6 +640,13 @@ public:
 
 	virtual void sampler_destroy(
 		RendererSamplerPtr sampler) = 0;
+
+
+	virtual RendererVertexInputPtr vertex_input_create(
+		const RendererVertexInputCreateParam& param) = 0;
+
+	virtual void vertex_input_destroy(
+		RendererVertexInputPtr vertex_input) = 0;
 
 
 	virtual void execute_command_sets(

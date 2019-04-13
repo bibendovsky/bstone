@@ -646,6 +646,46 @@ bool Ogl1XRenderer::Sampler::initialize(
 // =========================================================================
 
 
+// =========================================================================
+// Ogl1XRenderer::VertexInput
+//
+
+Ogl1XRenderer::VertexInput::VertexInput(
+	Ogl1XRendererPtr renderer)
+	:
+	renderer_{renderer},
+	error_message_{}
+{
+	assert(renderer_);
+}
+
+Ogl1XRenderer::VertexInput::~VertexInput()
+{
+}
+
+bool Ogl1XRenderer::VertexInput::initialize(
+	const RendererVertexInputCreateParam& param)
+{
+	auto renderer_utils = RendererUtils{};
+
+	if (!renderer_utils.vertex_input_validate_param(param))
+	{
+		error_message_ = renderer_utils.get_error_message();
+
+		return false;
+	}
+
+	index_buffer_ = param.index_buffer_;
+	attribute_descriptions_ = param.attribute_descriptions_;
+
+	return true;
+}
+
+//
+// Ogl1XRenderer::VertexInput
+// =========================================================================
+
+
 // ==========================================================================
 // Ogl1XRenderer
 //
@@ -694,7 +734,12 @@ Ogl1XRenderer::Ogl1XRenderer()
 	texture_2d_current_{},
 	samplers_{},
 	sampler_current_{},
-	sampler_default_{}
+	sampler_default_{},
+	vertex_inputs_{},
+	vertex_input_current_{},
+	vertex_input_is_position_enabled_{},
+	vertex_input_is_color_enabled_{},
+	vertex_input_is_texture_coordinates_enabled_{}
 {
 }
 
@@ -743,7 +788,12 @@ Ogl1XRenderer::Ogl1XRenderer(
 	texture_2d_current_{std::move(rhs.texture_2d_current_)},
 	samplers_{std::move(rhs.samplers_)},
 	sampler_current_{std::move(rhs.sampler_current_)},
-	sampler_default_{std::move(rhs.sampler_default_)}
+	sampler_default_{std::move(rhs.sampler_default_)},
+	vertex_inputs_{std::move(rhs.vertex_inputs_)},
+	vertex_input_current_{std::move(rhs.vertex_input_current_)},
+	vertex_input_is_position_enabled_{std::move(rhs.vertex_input_is_position_enabled_)},
+	vertex_input_is_color_enabled_{std::move(rhs.vertex_input_is_color_enabled_)},
+	vertex_input_is_texture_coordinates_enabled_{std::move(rhs.vertex_input_is_texture_coordinates_enabled_)}
 {
 	rhs.is_initialized_ = false;
 	rhs.sdl_window_ = nullptr;
@@ -934,6 +984,36 @@ void Ogl1XRenderer::vertex_buffer_destroy(
 	);
 }
 
+RendererVertexInputPtr Ogl1XRenderer::vertex_input_create(
+	const RendererVertexInputCreateParam& param)
+{
+	auto vertex_input = VertexInputUPtr{new VertexInput{this}};
+
+	if (!vertex_input->initialize(param))
+	{
+		error_message_ = vertex_input->error_message_;
+
+		return nullptr;
+	}
+
+	vertex_inputs_.push_back(std::move(vertex_input));
+
+	return vertex_inputs_.back().get();
+}
+
+void Ogl1XRenderer::vertex_input_destroy(
+	RendererVertexInputPtr vertex_input)
+{
+	assert(vertex_input);
+
+	vertex_inputs_.remove_if(
+		[=](const auto& item)
+		{
+			return item.get() == vertex_input;
+		}
+	);
+}
+
 void Ogl1XRenderer::execute_command_sets(
 	const RendererCommandSets& command_sets)
 {
@@ -1009,6 +1089,10 @@ void Ogl1XRenderer::execute_command_sets(
 
 			case RendererCommandId::sampler_set:
 				command_execute_sampler_set(command.sampler_set_);
+				break;
+
+			case RendererCommandId::vertex_input_set:
+				command_execute_vertex_input_set(command.vertex_input_set_);
 				break;
 
 			case RendererCommandId::draw_quads:
@@ -1126,6 +1210,7 @@ bool Ogl1XRenderer::probe_or_initialize(
 		texture_2d_set_defaults();
 		fog_set_defaults();
 		matrix_set_defaults();
+		vertex_input_defaults();
 
 
 		// Present.
@@ -1276,6 +1361,10 @@ void Ogl1XRenderer::uninitialize_internal(
 		texture_buffer_.clear();
 		texture_2d_current_ = {};
 		sampler_current_ = {};
+		vertex_input_current_ = {};
+		vertex_input_is_position_enabled_ = {};
+		vertex_input_is_color_enabled_ = {};
+		vertex_input_is_texture_coordinates_enabled_ = {};
 	}
 
 	index_buffers_.clear();
@@ -1283,6 +1372,7 @@ void Ogl1XRenderer::uninitialize_internal(
 	textures_2d_.clear();
 	samplers_.clear();
 	sampler_default_ = {};
+	vertex_inputs_.clear();
 }
 
 void Ogl1XRenderer::scissor_enable()
@@ -1642,6 +1732,177 @@ void Ogl1XRenderer::sampler_set()
 	}
 }
 
+void Ogl1XRenderer::vertex_input_enable_client_state(
+	const bool is_enabled,
+	const GLenum state)
+{
+	const auto ogl_function = (is_enabled ? ::glEnableClientState : ::glDisableClientState);
+
+	ogl_function(state);
+	assert(!OglRendererUtils::was_errors());
+}
+
+void Ogl1XRenderer::vertex_input_enable_position()
+{
+	vertex_input_enable_client_state(
+		vertex_input_is_position_enabled_,
+		GL_VERTEX_ARRAY
+	);
+}
+
+void Ogl1XRenderer::vertex_input_enable_color()
+{
+	vertex_input_enable_client_state(
+		vertex_input_is_color_enabled_,
+		GL_COLOR_ARRAY
+	);
+}
+
+void Ogl1XRenderer::vertex_input_enable_texture_coordinates()
+{
+	vertex_input_enable_client_state(
+		vertex_input_is_texture_coordinates_enabled_,
+		GL_TEXTURE_COORD_ARRAY
+	);
+}
+
+void Ogl1XRenderer::vertex_input_enable_position(
+	const bool is_enabled)
+{
+	if (vertex_input_is_position_enabled_ != is_enabled)
+	{
+		vertex_input_is_position_enabled_ = is_enabled;
+
+		vertex_input_enable_position();
+	}
+}
+
+void Ogl1XRenderer::vertex_input_enable_color(
+	const bool is_enabled)
+{
+	if (vertex_input_is_color_enabled_ != is_enabled)
+	{
+		vertex_input_is_color_enabled_ = is_enabled;
+
+		vertex_input_enable_color();
+	}
+}
+
+void Ogl1XRenderer::vertex_input_enable_texture_coordinates(
+	const bool is_enabled)
+{
+	if (vertex_input_is_texture_coordinates_enabled_ != is_enabled)
+	{
+		vertex_input_is_texture_coordinates_enabled_ = is_enabled;
+
+		vertex_input_enable_texture_coordinates();
+	}
+}
+
+void Ogl1XRenderer::vertex_input_assign()
+{
+	if (vertex_input_current_)
+	{
+		auto is_position_enabled = false;
+		auto is_color_enabled = false;
+		auto is_texture_coordinates_enabled = false;
+
+		for (const auto& attribute_description : vertex_input_current_->attribute_descriptions_)
+		{
+			using OglPointerFunction = void (APIENTRYP)(
+				const GLint size,
+				const GLenum type,
+				const GLsizei stride,
+				const void* const pointer);
+
+			auto ogl_pointer_function = OglPointerFunction{};
+
+			switch (attribute_description.location_)
+			{
+				case RendererVertexAttributeLocation::position:
+					is_position_enabled = true;
+					ogl_pointer_function = ::glVertexPointer;
+					break;
+
+				case RendererVertexAttributeLocation::color:
+					is_color_enabled = true;
+					ogl_pointer_function = ::glColorPointer;
+					break;
+
+				case RendererVertexAttributeLocation::texture_coordinates:
+					is_texture_coordinates_enabled = true;
+					ogl_pointer_function = ::glTexCoordPointer;
+					break;
+
+				default:
+					assert(!"Invalid location.");
+					break;
+			}
+
+			auto ogl_component_count = GLint{};
+			auto ogl_component_format = GLenum{};
+
+			switch (attribute_description.format_)
+			{
+				case RendererVertexAttributeFormat::r8g8b8a8_uint:
+					ogl_component_count = 4;
+					ogl_component_format = GL_UNSIGNED_BYTE;
+					break;
+
+				case RendererVertexAttributeFormat::r32g32_float:
+					ogl_component_count = 2;
+					ogl_component_format = GL_FLOAT;
+					break;
+
+				case RendererVertexAttributeFormat::r32g32b32_float:
+					ogl_component_count = 3;
+					ogl_component_format = GL_FLOAT;
+					break;
+
+				default:
+					assert(!"Invalid format.");
+					break;
+			}
+
+			auto& vertex_buffer = *reinterpret_cast<RendererSwVertexBuffer*>(attribute_description.vertex_buffer_);
+			const auto vertex_buffer_data = reinterpret_cast<const std::uint8_t*>(vertex_buffer.get_data());
+
+			ogl_pointer_function(
+				ogl_component_count,
+				ogl_component_format,
+				static_cast<GLsizei>(attribute_description.stride_),
+				vertex_buffer_data + attribute_description.offset_
+			);
+
+			assert(!OglRendererUtils::was_errors());
+		}
+
+		vertex_input_enable_position(is_position_enabled);
+		vertex_input_enable_color(is_color_enabled);
+		vertex_input_enable_texture_coordinates(is_texture_coordinates_enabled);
+	}
+	else
+	{
+		vertex_input_enable_position(false);
+		vertex_input_enable_color(false);
+		vertex_input_enable_texture_coordinates(false);
+	}
+}
+
+void Ogl1XRenderer::vertex_input_defaults()
+{
+	vertex_input_current_ = nullptr;
+
+	vertex_input_is_position_enabled_ = false;
+	vertex_input_enable_position();
+
+	vertex_input_is_color_enabled_ = false;
+	vertex_input_enable_color();
+
+	vertex_input_is_texture_coordinates_enabled_ = false;
+	vertex_input_enable_texture_coordinates();
+}
+
 void Ogl1XRenderer::command_execute_culling_enable(
 	const RendererCommand::CullingEnabled& command)
 {
@@ -1882,13 +2143,23 @@ void Ogl1XRenderer::command_execute_sampler_set(
 	sampler_current_ = sampler;
 }
 
+void Ogl1XRenderer::command_execute_vertex_input_set(
+	const RendererCommand::VertexInputSet& command)
+{
+	if (vertex_input_current_ != command.vertex_input_)
+	{
+		vertex_input_current_ = static_cast<VertexInputPtr>(command.vertex_input_);
+
+		vertex_input_assign();
+	}
+}
+
 void Ogl1XRenderer::command_execute_draw_quads(
 	const RendererCommand::DrawQuads& command)
 {
 	assert(command.count_ > 0);
 	assert(command.index_offset_ >= 0);
-	assert(command.index_buffer_);
-	assert(command.vertex_buffer_);
+	assert(vertex_input_current_);
 
 	const auto triangles_per_quad = 2;
 	const auto triangle_count = command.count_ * triangles_per_quad;
@@ -1897,8 +2168,7 @@ void Ogl1XRenderer::command_execute_draw_quads(
 	const auto indices_per_quad = triangles_per_quad * indices_per_triangle;
 	const auto index_count = indices_per_quad * command.count_;
 
-	auto& index_buffer = *reinterpret_cast<RendererSwIndexBuffer*>(command.index_buffer_);
-	auto& vertex_buffer = *reinterpret_cast<RendererSwVertexBuffer*>(command.vertex_buffer_);
+	auto& index_buffer = *reinterpret_cast<RendererSwIndexBuffer*>(vertex_input_current_->index_buffer_);
 
 	const auto index_byte_depth = index_buffer.get_byte_depth();
 	const auto max_index_count = index_buffer.get_size() / index_byte_depth;
@@ -1907,8 +2177,6 @@ void Ogl1XRenderer::command_execute_draw_quads(
 	assert(command.count_ <= max_index_count);
 	assert((command.index_offset_ + command.count_) <= max_index_count);
 
-	const auto stride = static_cast<GLsizei>(sizeof(RendererVertex));
-	const auto vertex_buffer_data = reinterpret_cast<const std::uint8_t*>(vertex_buffer.get_data());
 
 	// Sampler state.
 	//
@@ -1916,48 +2184,6 @@ void Ogl1XRenderer::command_execute_draw_quads(
 	{
 		texture_2d_current_->update_sampler_state(sampler_current_->state_);
 	}
-
-	// Diffuse.
-	//
-	::glEnableClientState(GL_COLOR_ARRAY);
-	assert(!OglRendererUtils::was_errors());
-
-	::glColorPointer(
-		4, // size
-		GL_UNSIGNED_BYTE, // type
-		stride, // stride
-		vertex_buffer_data + offsetof(RendererVertex, rgba_) // pointer
-	);
-
-	assert(!OglRendererUtils::was_errors());
-
-	// Texture coordinates.
-	//
-	::glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	assert(!OglRendererUtils::was_errors());
-
-	::glTexCoordPointer(
-		2, // size
-		GL_FLOAT, // type
-		stride, // stride
-		vertex_buffer_data + offsetof(RendererVertex, uv_) // pointer
-	);
-
-	assert(!OglRendererUtils::was_errors());
-
-	// Position.
-	//
-	::glEnableClientState(GL_VERTEX_ARRAY);
-	assert(!OglRendererUtils::was_errors());
-
-	::glVertexPointer(
-		3, // size
-		GL_FLOAT, // type
-		stride, // stride
-		vertex_buffer_data + offsetof(RendererVertex, xyz_) // pointer
-	);
-
-	assert(!OglRendererUtils::was_errors());
 
 	// Draw the quads.
 	//
@@ -1974,20 +2200,6 @@ void Ogl1XRenderer::command_execute_draw_quads(
 		index_buffer_data // indices
 	);
 
-	assert(!OglRendererUtils::was_errors());
-
-	// Disable the state.
-	//
-	::glBindTexture(GL_TEXTURE_2D, 0);
-	assert(!OglRendererUtils::was_errors());
-
-	::glDisableClientState(GL_VERTEX_ARRAY);
-	assert(!OglRendererUtils::was_errors());
-
-	::glDisableClientState(GL_COLOR_ARRAY);
-	assert(!OglRendererUtils::was_errors());
-
-	::glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	assert(!OglRendererUtils::was_errors());
 }
 

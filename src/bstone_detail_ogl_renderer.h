@@ -133,6 +133,13 @@ public:
 		RendererSamplerPtr sampler) override;
 
 
+	RendererVertexInputPtr vertex_input_create(
+		const RendererVertexInputCreateParam& param) override;
+
+	void vertex_input_destroy(
+		RendererVertexInputPtr vertex_input) override;
+
+
 	void execute_command_sets(
 		const RendererCommandSets& command_sets) override;
 

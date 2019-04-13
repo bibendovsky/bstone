@@ -111,6 +111,17 @@ public:
 	bool validate_texture_2d_update_param(
 		const RendererTexture2dUpdateParam& param);
 
+
+	static int vertex_input_get_location_index(
+		const RendererVertexAttributeLocation location);
+
+	static bool vertex_input_validate_format(
+		const RendererVertexAttributeFormat attribute_format);
+
+	bool vertex_input_validate_param(
+		const RendererVertexInputCreateParam& param);
+
+
 	static bool is_ogl_renderer_path(
 		const RendererPath renderer_path);
 

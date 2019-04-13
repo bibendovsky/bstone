@@ -135,6 +135,13 @@ public:
 		RendererSamplerPtr sampler) override;
 
 
+	RendererVertexInputPtr vertex_input_create(
+		const RendererVertexInputCreateParam& param) override;
+
+	void vertex_input_destroy(
+		RendererVertexInputPtr vertex_input) override;
+
+
 	void execute_command_sets(
 		const RendererCommandSets& command_sets) override;
 
@@ -278,6 +285,43 @@ private:
 	// Sampler
 	// =========================================================================
 
+	// =========================================================================
+	// VertexInput
+	//
+
+	class VertexInput final :
+		public RendererVertexInput
+	{
+	public:
+		Ogl1XRendererPtr renderer_;
+		std::string error_message_;
+
+		RendererIndexBufferPtr index_buffer_;
+		RendererVertexAttributeDescriptions attribute_descriptions_;
+
+
+		VertexInput(
+			Ogl1XRendererPtr renderer);
+
+		VertexInput(
+			const VertexInput& rhs) = delete;
+
+		~VertexInput() override;
+
+
+		bool initialize(
+			const RendererVertexInputCreateParam& param);
+	}; // VertexInput
+
+	using VertexInputPtr = VertexInput*;
+	using VertexInputUPtr = std::unique_ptr<VertexInput>;
+
+	using VertexInputs = std::list<VertexInputUPtr>;
+
+	//
+	// VertexInput
+	// =========================================================================
+
 
 	bool is_initialized_;
 	std::string error_message_;
@@ -339,6 +383,12 @@ private:
 	Samplers samplers_;
 	SamplerPtr sampler_current_;
 	SamplerUPtr sampler_default_;
+
+	VertexInputs vertex_inputs_;
+	VertexInputPtr vertex_input_current_;
+	bool vertex_input_is_position_enabled_;
+	bool vertex_input_is_color_enabled_;
+	bool vertex_input_is_texture_coordinates_enabled_;
 
 
 	bool probe_or_initialize(
@@ -426,6 +476,30 @@ private:
 	void sampler_set();
 
 
+	void vertex_input_enable_client_state(
+		const bool is_enabled,
+		const GLenum state);
+
+	void vertex_input_enable_position();
+
+	void vertex_input_enable_color();
+
+	void vertex_input_enable_texture_coordinates();
+
+	void vertex_input_enable_position(
+		const bool is_enabled);
+
+	void vertex_input_enable_color(
+		const bool is_enabled);
+
+	void vertex_input_enable_texture_coordinates(
+		const bool is_enabled);
+
+	void vertex_input_assign();
+
+	void vertex_input_defaults();
+
+
 	void command_execute_culling_enable(
 		const RendererCommand::CullingEnabled& command);
 
@@ -473,6 +547,9 @@ private:
 
 	void command_execute_sampler_set(
 		const RendererCommand::SamplerSet& command);
+
+	void command_execute_vertex_input_set(
+		const RendererCommand::VertexInputSet& command);
 
 	void command_execute_draw_quads(
 		const RendererCommand::DrawQuads& command);

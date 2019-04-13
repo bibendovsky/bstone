@@ -324,6 +324,31 @@ void OglRenderer::sampler_destroy(
 	renderer_->sampler_destroy(sampler);
 }
 
+RendererVertexInputPtr OglRenderer::vertex_input_create(
+	const RendererVertexInputCreateParam& param)
+{
+	assert(is_initialized_);
+	assert(renderer_);
+
+	auto vertex_input = renderer_->vertex_input_create(param);
+
+	if (!vertex_input)
+	{
+		error_message_ = renderer_->get_error_message();
+	}
+
+	return vertex_input;
+}
+
+void OglRenderer::vertex_input_destroy(
+	RendererVertexInputPtr vertex_input)
+{
+	assert(is_initialized_);
+	assert(renderer_);
+
+	renderer_->vertex_input_destroy(vertex_input);
+}
+
 void OglRenderer::execute_command_sets(
 	const RendererCommandSets& command_sets)
 {
