@@ -8899,6 +8899,11 @@ void hw_precache_special_stuff()
 			::hw_precache_dr_goldfire();
 		}
 	}
+
+	if (::GoldsternInfo.SpawnCnt > 0)
+	{
+		::hw_precache_dr_goldfire();
+	}
 }
 
 void hw_precache_access_cards()
