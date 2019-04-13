@@ -1361,6 +1361,14 @@ constexpr auto hw_min_2d_commands = 32;
 constexpr auto hw_min_3d_commands = 4096;
 
 
+class HwVertex
+{
+public:
+	glm::vec3 xyz_;
+	bstone::RendererColor32 rgba_;
+	glm::vec2 uv_;
+}; // HwVertex
+
 struct Hw3dQuadFlags
 {
 	using Value = unsigned char;
@@ -1522,7 +1530,7 @@ using Hw3dSpritesDrawList = std::vector<Hw3dSpriteDrawItem>;
 using Hw3dSpritesIndexBuffer = std::vector<std::uint16_t>;
 
 
-using HwVbBuffer = std::vector<bstone::RendererVertex>;
+using HwVbBuffer = std::vector<HwVertex>;
 
 
 glm::mat4 hw_2d_matrix_model_ = glm::mat4{};
@@ -1540,7 +1548,7 @@ constexpr auto hw_2d_vertex_count_ = hw_2d_quad_count * 4;
 constexpr auto hw_2d_stretched_vertex_offset_ = 0;
 constexpr auto hw_2d_non_stretched_vertex_offset_ = 4;
 
-using Hw2dVertices = std::array<bstone::RendererVertex, hw_2d_vertex_count_>;
+using Hw2dVertices = std::array<HwVertex, hw_2d_vertex_count_>;
 
 
 constexpr auto hw_2d_fillers_ui_quad_count = 2;
@@ -1799,7 +1807,7 @@ void hw_index_buffer_update(
 bstone::RendererVertexBufferPtr hw_vertex_buffer_create(
 	const int vertex_count)
 {
-	const auto vertex_buffer_size = static_cast<int>(vertex_count * sizeof(bstone::RendererVertex));
+	const auto vertex_buffer_size = static_cast<int>(vertex_count * sizeof(HwVertex));
 
 	auto param = bstone::RendererVertexBufferCreateParam{};
 	param.size_ = vertex_buffer_size;
@@ -1811,10 +1819,10 @@ void hw_vertex_buffer_update(
 	bstone::RendererVertexBufferPtr vertex_buffer,
 	const int vertex_offset,
 	const int vertex_count,
-	const bstone::RendererVertex* const vertices)
+	const HwVertex* const vertices)
 {
-	const auto offset = static_cast<int>(vertex_offset * sizeof(bstone::RendererVertex));
-	const auto size = static_cast<int>(vertex_count * sizeof(bstone::RendererVertex));
+	const auto offset = static_cast<int>(vertex_offset * sizeof(HwVertex));
+	const auto size = static_cast<int>(vertex_count * sizeof(HwVertex));
 
 	auto param = bstone::RendererVertexBufferUpdateParam{};
 	param.offset_ = offset;
@@ -1852,8 +1860,8 @@ bool hw_vertex_input_create_xyz_rgba_uv(
 		description.location_ = bstone::RendererVertexAttributeLocation::position;
 		description.format_ = bstone::RendererVertexAttributeFormat::r32g32b32_float;
 		description.vertex_buffer_ = vertex_buffer;
-		description.offset_ = static_cast<int>(offsetof(bstone::RendererVertex, xyz_));
-		description.stride_ = static_cast<int>(sizeof(bstone::RendererVertex));
+		description.offset_ = static_cast<int>(offsetof(HwVertex, xyz_));
+		description.stride_ = static_cast<int>(sizeof(HwVertex));
 	}
 
 	{
@@ -1861,8 +1869,8 @@ bool hw_vertex_input_create_xyz_rgba_uv(
 		description.location_ = bstone::RendererVertexAttributeLocation::color;
 		description.format_ = bstone::RendererVertexAttributeFormat::r8g8b8a8_uint;
 		description.vertex_buffer_ = vertex_buffer;
-		description.offset_ = static_cast<int>(offsetof(bstone::RendererVertex, rgba_));
-		description.stride_ = static_cast<int>(sizeof(bstone::RendererVertex));
+		description.offset_ = static_cast<int>(offsetof(HwVertex, rgba_));
+		description.stride_ = static_cast<int>(sizeof(HwVertex));
 	}
 
 	{
@@ -1870,8 +1878,8 @@ bool hw_vertex_input_create_xyz_rgba_uv(
 		description.location_ = bstone::RendererVertexAttributeLocation::texture_coordinates;
 		description.format_ = bstone::RendererVertexAttributeFormat::r32g32_float;
 		description.vertex_buffer_ = vertex_buffer;
-		description.offset_ = static_cast<int>(offsetof(bstone::RendererVertex, uv_));
-		description.stride_ = static_cast<int>(sizeof(bstone::RendererVertex));
+		description.offset_ = static_cast<int>(offsetof(HwVertex, uv_));
+		description.stride_ = static_cast<int>(sizeof(HwVertex));
 	}
 
 	vertex_input = ::hw_renderer_->vertex_input_create(param);
@@ -2257,7 +2265,7 @@ bool hw_2d_fillers_create_vb()
 
 	auto vertex_index = 0;
 
-	using Hw2dFillersVertices = std::array<bstone::RendererVertex, hw_2d_fillers_vertex_count_>;
+	using Hw2dFillersVertices = std::array<HwVertex, hw_2d_fillers_vertex_count_>;
 	auto vertices = Hw2dFillersVertices{};
 
 
@@ -2775,7 +2783,7 @@ bool hw_3d_initialize_flooring_vb()
 	{
 		const auto map_dimension_f = static_cast<float>(MAPSIZE);
 
-		using Vertices = std::array<bstone::RendererVertex, vertex_count>;
+		using Vertices = std::array<HwVertex, vertex_count>;
 
 		auto vertices = Vertices{};
 
@@ -2948,7 +2956,7 @@ bool hw_3d_initialize_ceiling_vb()
 	}
 
 	{
-		using Vertices = std::array<bstone::RendererVertex, vertex_count>;
+		using Vertices = std::array<HwVertex, vertex_count>;
 
 		auto vertices = Vertices{};
 

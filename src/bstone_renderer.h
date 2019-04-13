@@ -131,14 +131,6 @@ public:
 
 using RendererPalette = std::array<RendererColor32, 256>;
 
-class RendererVertex
-{
-public:
-	glm::vec3 xyz_;
-	RendererColor32 rgba_;
-	glm::vec2 uv_;
-}; // RendererVertex
-
 
 // ==========================================================================
 // RendererIndexBuffer
