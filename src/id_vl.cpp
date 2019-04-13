@@ -1361,6 +1361,91 @@ constexpr auto hw_min_2d_commands = 32;
 constexpr auto hw_min_3d_commands = 4096;
 
 
+template<
+	typename T,
+	bstone::RendererVertexAttributeLocation TLocation,
+	typename = int>
+struct HwVertexHasAttribute :
+	std::false_type
+{
+}; // HwVertexHasAttribute
+
+template<typename T>
+struct HwVertexHasAttribute<
+	T,
+	bstone::RendererVertexAttributeLocation::position,
+	decltype(static_cast<void>(T::xyz_), 0)>
+	:
+	std::true_type
+{
+}; // HwVertexHasAttribute
+
+template<typename T>
+struct HwVertexHasAttribute<
+	T,
+	bstone::RendererVertexAttributeLocation::color,
+	decltype(static_cast<void>(T::rgba_), 0)>
+	:
+	std::true_type
+{
+}; // HwVertexHasAttribute
+
+template<typename T>
+struct HwVertexHasAttribute<
+	T,
+	bstone::RendererVertexAttributeLocation::texture_coordinates,
+	decltype(static_cast<void>(T::uv_), 0)>
+	:
+	std::true_type
+{
+}; // HwVertexHasAttribute
+
+
+template<
+	typename T,
+	bstone::RendererVertexAttributeLocation TLocation,
+	typename = int>
+struct HwVertexAttributeTraits
+{
+	static constexpr auto is_valid = false;
+	static constexpr auto offset = -1;
+	static constexpr auto stride = -1;
+}; // HwVertexAttributeTraits
+
+template<typename T>
+struct HwVertexAttributeTraits<
+	T,
+	bstone::RendererVertexAttributeLocation::position,
+	decltype(static_cast<void>(T::xyz_), 0)>
+{
+	static constexpr auto is_valid = true;
+	static constexpr auto offset = static_cast<int>(offsetof(T, xyz_));
+	static constexpr auto stride = static_cast<int>(sizeof(T));
+}; // HwVertexAttributeTraits
+
+template<typename T>
+struct HwVertexAttributeTraits<
+	T,
+	bstone::RendererVertexAttributeLocation::color,
+	decltype(static_cast<void>(T::rgba_), 0)>
+{
+	static constexpr auto is_valid = true;
+	static constexpr auto offset = static_cast<int>(offsetof(T, rgba_));
+	static constexpr auto stride = static_cast<int>(sizeof(T));
+}; // HwVertexAttributeTraits
+
+template<typename T>
+struct HwVertexAttributeTraits<
+	T,
+	bstone::RendererVertexAttributeLocation::texture_coordinates,
+	decltype(static_cast<void>(T::uv_), 0)>
+{
+	static constexpr auto is_valid = true;
+	static constexpr auto offset = static_cast<int>(offsetof(T, uv_));
+	static constexpr auto stride = static_cast<int>(sizeof(T));
+}; // HwVertexAttributeTraits
+
+
 struct HwVertex
 {
 	glm::vec3 xyz_;
@@ -1368,11 +1453,14 @@ struct HwVertex
 	glm::vec2 uv_;
 }; // HwVertex
 
+
+
 struct HwVertexNoColor
 {
 	glm::vec3 xyz_;
 	glm::vec2 uv_;
 }; // HwVertexNoColor
+
 
 struct Hw3dQuadFlags
 {
@@ -1535,7 +1623,11 @@ using Hw3dSpritesDrawList = std::vector<Hw3dSpriteDrawItem>;
 using Hw3dSpritesIndexBuffer = std::vector<std::uint16_t>;
 
 
-using HwVbBuffer = std::vector<HwVertex>;
+template<typename TVertex>
+using HwVbBufferT = std::vector<TVertex>;
+
+using HwVbBuffer = HwVbBufferT<HwVertex>;
+using HwNoColorVbBuffer = HwVbBufferT<HwVertexNoColor>;
 
 
 glm::mat4 hw_2d_matrix_model_ = glm::mat4{};
@@ -1809,10 +1901,11 @@ void hw_index_buffer_update(
 	index_buffer->update(param);
 }
 
+template<typename TVertex>
 bstone::RendererVertexBufferPtr hw_vertex_buffer_create(
 	const int vertex_count)
 {
-	const auto vertex_buffer_size = static_cast<int>(vertex_count * sizeof(HwVertex));
+	const auto vertex_buffer_size = static_cast<int>(vertex_count * sizeof(TVertex));
 
 	auto param = bstone::RendererVertexBufferCreateParam{};
 	param.size_ = vertex_buffer_size;
@@ -1820,14 +1913,15 @@ bstone::RendererVertexBufferPtr hw_vertex_buffer_create(
 	return ::hw_renderer_->vertex_buffer_create(param);
 }
 
+template<typename TVertex>
 void hw_vertex_buffer_update(
 	bstone::RendererVertexBufferPtr vertex_buffer,
 	const int vertex_offset,
 	const int vertex_count,
-	const HwVertex* const vertices)
+	const TVertex* const vertices)
 {
-	const auto offset = static_cast<int>(vertex_offset * sizeof(HwVertex));
-	const auto size = static_cast<int>(vertex_count * sizeof(HwVertex));
+	const auto offset = static_cast<int>(vertex_offset * sizeof(TVertex));
+	const auto size = static_cast<int>(vertex_count * sizeof(TVertex));
 
 	auto param = bstone::RendererVertexBufferUpdateParam{};
 	param.offset_ = offset;
@@ -1847,49 +1941,99 @@ void hw_vertex_input_destroy(
 	}
 }
 
+
+template<
+	typename TVertex,
+	bstone::RendererVertexAttributeLocation TLocation,
+	bool TIsExist = false
+>
+struct HwVertexInputAddAttributeDescription
+{
+	void operator()(
+		const bstone::RendererVertexAttributeFormat format,
+		const int offset,
+		const int stride,
+		bstone::RendererVertexBufferPtr vertex_buffer,
+		bstone::RendererVertexAttributeDescriptions& attribute_descriptions) const
+	{
+		static_cast<void>(format);
+		static_cast<void>(offset);
+		static_cast<void>(stride);
+		static_cast<void>(vertex_buffer);
+		static_cast<void>(attribute_descriptions);
+	}
+}; // HwVertexInputAddAttributeDescription
+
+template<typename TVertex, bstone::RendererVertexAttributeLocation TLocation>
+struct HwVertexInputAddAttributeDescription<TVertex, TLocation, true>
+{
+	void operator()(
+		const bstone::RendererVertexAttributeFormat format,
+		const int offset,
+		const int stride,
+		bstone::RendererVertexBufferPtr vertex_buffer,
+		bstone::RendererVertexAttributeDescriptions& attribute_descriptions) const
+	{
+		attribute_descriptions.emplace_back();
+
+		auto& description = attribute_descriptions.back();
+		description.location_ = TLocation;
+		description.format_ = format;
+		description.vertex_buffer_ = vertex_buffer;
+		description.offset_ = offset;
+		description.stride_ = stride;
+	}
+}; // HwVertexInputAddAttributeDescription
+
+template<
+	typename TVertex,
+	bstone::RendererVertexAttributeLocation TLocation>
+void hw_vertex_input_add_attribute_description(
+	const bstone::RendererVertexAttributeFormat format,
+	bstone::RendererVertexBufferPtr vertex_buffer,
+	bstone::RendererVertexAttributeDescriptions& attribute_descriptions)
+{
+	constexpr auto& traits = HwVertexAttributeTraits<TVertex, TLocation>{};
+	constexpr auto& add_attribute = HwVertexInputAddAttributeDescription<TVertex, TLocation, traits.is_valid>{};
+
+	add_attribute(
+		format,
+		traits.offset,
+		traits.stride,
+		vertex_buffer,
+		attribute_descriptions
+	);
+}
+
 template<typename TVertex>
 bool hw_vertex_input_create(
 	bstone::RendererIndexBufferPtr index_buffer,
 	bstone::RendererVertexBufferPtr vertex_buffer,
 	bstone::RendererVertexInputPtr& vertex_input)
 {
-	constexpr auto attribute_count = (std::is_same<TVertex, HwVertexNoColor>::value ? 2 : 3);
-
 	auto param = bstone::RendererVertexInputCreateParam{};
 	param.index_buffer_ = index_buffer;
 
 	auto& descriptions = param.attribute_descriptions_;
-	descriptions.resize(attribute_count);
+	descriptions.reserve(3);
 
-	auto description_index = 0;
+	::hw_vertex_input_add_attribute_description<TVertex, bstone::RendererVertexAttributeLocation::position>(
+		bstone::RendererVertexAttributeFormat::r32g32b32_float,
+		vertex_buffer,
+		descriptions
+	);
 
-	{
-		auto& description = descriptions[description_index++];
-		description.location_ = bstone::RendererVertexAttributeLocation::position;
-		description.format_ = bstone::RendererVertexAttributeFormat::r32g32b32_float;
-		description.vertex_buffer_ = vertex_buffer;
-		description.offset_ = static_cast<int>(offsetof(HwVertex, xyz_));
-		description.stride_ = static_cast<int>(sizeof(HwVertex));
-	}
+	::hw_vertex_input_add_attribute_description<TVertex, bstone::RendererVertexAttributeLocation::color>(
+		bstone::RendererVertexAttributeFormat::r8g8b8a8_uint,
+		vertex_buffer,
+		descriptions
+	);
 
-	if (attribute_count == 3)
-	{
-		auto& description = descriptions[description_index++];
-		description.location_ = bstone::RendererVertexAttributeLocation::color;
-		description.format_ = bstone::RendererVertexAttributeFormat::r8g8b8a8_uint;
-		description.vertex_buffer_ = vertex_buffer;
-		description.offset_ = static_cast<int>(offsetof(HwVertex, rgba_));
-		description.stride_ = static_cast<int>(sizeof(HwVertex));
-	}
-
-	{
-		auto& description = descriptions[description_index++];
-		description.location_ = bstone::RendererVertexAttributeLocation::texture_coordinates;
-		description.format_ = bstone::RendererVertexAttributeFormat::r32g32_float;
-		description.vertex_buffer_ = vertex_buffer;
-		description.offset_ = static_cast<int>(offsetof(HwVertex, uv_));
-		description.stride_ = static_cast<int>(sizeof(HwVertex));
-	}
+	::hw_vertex_input_add_attribute_description<TVertex, bstone::RendererVertexAttributeLocation::texture_coordinates>(
+		bstone::RendererVertexAttributeFormat::r32g32_float,
+		vertex_buffer,
+		descriptions
+	);
 
 	vertex_input = ::hw_renderer_->vertex_input_create(param);
 
@@ -2172,7 +2316,7 @@ void hw_2d_fill_non_stretched_vb()
 
 bool hw_2d_create_vb()
 {
-	::hw_2d_vb_ = ::hw_vertex_buffer_create(::hw_2d_vertex_count_);
+	::hw_2d_vb_ = ::hw_vertex_buffer_create<HwVertex>(::hw_2d_vertex_count_);
 
 	if (!::hw_2d_vb_)
 	{
@@ -2247,7 +2391,7 @@ bool hw_2d_fillers_create_ib()
 
 bool hw_2d_fillers_create_vb()
 {
-	::hw_2d_fillers_vb_ = ::hw_vertex_buffer_create(::hw_2d_fillers_vertex_count_);
+	::hw_2d_fillers_vb_ = ::hw_vertex_buffer_create<HwVertex>(::hw_2d_fillers_vertex_count_);
 
 	if (!::hw_2d_fillers_vb_)
 	{
@@ -2781,7 +2925,7 @@ bool hw_3d_initialize_flooring_vb()
 	const auto vertex_count = 4;
 
 	{
-		::hw_3d_flooring_vb_ = ::hw_vertex_buffer_create(vertex_count);
+		::hw_3d_flooring_vb_ = ::hw_vertex_buffer_create<HwVertex>(vertex_count);
 
 		if (!::hw_3d_flooring_vb_)
 		{
@@ -2956,7 +3100,7 @@ bool hw_3d_initialize_ceiling_vb()
 	const auto vertex_count = 4;
 
 	{
-		::hw_3d_ceiling_vb_ = ::hw_vertex_buffer_create(vertex_count);
+		::hw_3d_ceiling_vb_ = ::hw_vertex_buffer_create<HwVertex>(vertex_count);
 
 		if (!::hw_3d_ceiling_vb_)
 		{
@@ -3123,7 +3267,7 @@ bool hw_initialize_solid_walls_vb()
 {
 	const auto vertex_count = ::hw_3d_wall_side_count_ * ::hw_3d_vertices_per_wall_side;
 
-	::hw_3d_wall_sides_vb_ = ::hw_vertex_buffer_create(vertex_count);
+	::hw_3d_wall_sides_vb_ = ::hw_vertex_buffer_create<HwVertexNoColor>(vertex_count);
 
 	if (!::hw_3d_wall_sides_vb_)
 	{
@@ -3140,7 +3284,7 @@ void hw_3d_uninitialize_walls_vi()
 
 bool hw_initialize_walls_vi()
 {
-	if (!::hw_vertex_input_create<HwVertex>(
+	if (!::hw_vertex_input_create<HwVertexNoColor>(
 		::hw_3d_wall_sides_ib_,
 		::hw_3d_wall_sides_vb_,
 		::hw_3d_wall_sides_vi_))
@@ -3242,7 +3386,7 @@ bool hw_initialize_pushwalls_vbo()
 {
 	const auto vertex_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_vertices_per_wall_side;
 
-	::hw_3d_pushwall_sides_vb_ = ::hw_vertex_buffer_create(vertex_count);
+	::hw_3d_pushwall_sides_vb_ = ::hw_vertex_buffer_create<HwVertex>(vertex_count);
 
 	if (!::hw_3d_pushwall_sides_vb_)
 	{
@@ -3372,7 +3516,7 @@ bool hw_initialize_door_sides_vbo()
 {
 	const auto vertex_count = ::hw_3d_door_count_ * ::hw_3d_indices_per_door_side;
 
-	::hw_3d_door_sides_vbo_ = ::hw_vertex_buffer_create(vertex_count);
+	::hw_3d_door_sides_vbo_ = ::hw_vertex_buffer_create<HwVertex>(vertex_count);
 
 	if (!::hw_3d_door_sides_vbo_)
 	{
@@ -5768,11 +5912,46 @@ int hw_tile_get_door_track_wall_id(
 	return ::door_get_track_texture_id(door);
 }
 
+template<typename TVertex>
+struct HwUpdateVertex{};
+
+template<>
+struct HwUpdateVertex<HwVertex>
+{
+	void operator()(
+		const glm::vec3& position,
+		const bstone::RendererColor32& color,
+		const glm::vec2& texture_coordinates,
+		HwVertex& vertex) const
+	{
+		vertex.xyz_ = position;
+		vertex.rgba_ = color;
+		vertex.uv_ = texture_coordinates;
+	}
+}; // HwUpdateVertex
+
+template<>
+struct HwUpdateVertex<HwVertexNoColor>
+{
+	void operator()(
+		const glm::vec3& position,
+		const bstone::RendererColor32& color,
+		const glm::vec2& texture_coordinates,
+		HwVertexNoColor& vertex)
+	{
+		static_cast<void>(color);
+
+		vertex.xyz_ = position;
+		vertex.uv_ = texture_coordinates;
+	}
+}; // HwUpdateVertex
+
+template<typename TVertex>
 void hw_3d_map_wall_side(
 	const controldir_t side_direction,
 	Hw3dWall& wall,
 	int& vertex_index,
-	HwVbBuffer& vb_buffer)
+	HwVbBufferT<TVertex>& vb_buffer)
 {
 	static const float all_vertex_offsets[4][4] =
 	{
@@ -5835,78 +6014,81 @@ void hw_3d_map_wall_side(
 	side.texture_2d_ = ::hw_texture_manager_->wall_get(wall_texture_id);
 	side.wall_ = &wall;
 
+	const auto& rgba = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+
 	// Bottom-left (when looking at face side).
 	{
 		auto& vertex = vb_buffer[vertex_index++];
 
-		vertex.xyz_ = glm::vec3
+		const auto& xyz = glm::vec3
 		{
 			static_cast<float>(x) + vertex_offsets[0],
 			static_cast<float>(y) + vertex_offsets[1],
 			0.0F,
 		};
 
-		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+		const auto& uv = glm::vec2{0.0F, 0.0F};
 
-		vertex.uv_ = glm::vec2{0.0F, 0.0F};
+		HwUpdateVertex<TVertex>{}(xyz, rgba, uv, vertex);
 	}
 
 	// Bottom-right (when looking at face side).
 	{
 		auto& vertex = vb_buffer[vertex_index++];
 
-		vertex.xyz_ = glm::vec3
+		const auto& xyz = glm::vec3
 		{
 			static_cast<float>(x) + vertex_offsets[2],
 			static_cast<float>(y) + vertex_offsets[3],
 			0.0F,
 		};
 
-		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+		const auto& uv = glm::vec2{1.0F, 0.0F};
 
-		vertex.uv_ = glm::vec2{1.0F, 0.0F};
+		HwUpdateVertex<TVertex>{}(xyz, rgba, uv, vertex);
 	}
 
 	// Top-right (when looking at face side).
 	{
 		auto& vertex = vb_buffer[vertex_index++];
 
-		vertex.xyz_ = glm::vec3
+		const auto& xyz = glm::vec3
 		{
 			static_cast<float>(x) + vertex_offsets[2],
 			static_cast<float>(y) + vertex_offsets[3],
 			::hw_3d_map_height_f,
 		};
 
-		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+		const auto& uv = glm::vec2{1.0F, 1.0F};
 
-		vertex.uv_ = glm::vec2{1.0F, 1.0F};
+		HwUpdateVertex<TVertex>{}(xyz, rgba, uv, vertex);
 	}
 
 	// Top-left (when looking at face side).
 	{
 		auto& vertex = vb_buffer[vertex_index++];
 
-		vertex.xyz_ = glm::vec3
+		const auto& xyz = glm::vec3
 		{
 			static_cast<float>(x) + vertex_offsets[0],
 			static_cast<float>(y) + vertex_offsets[1],
 			::hw_3d_map_height_f,
 		};
 
-		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+		const auto& uv = glm::vec2{0.0F, 1.0F};
 
-		vertex.uv_ = glm::vec2{0.0F, 1.0F};
+		HwUpdateVertex<TVertex>{}(xyz, rgba, uv, vertex);
 	}
 }
 
+template<typename TVertex>
 void hw_3d_map_xy_to_xwall(
 	const Hw3dXyWallKind wall_kind,
 	const int x,
 	const int y,
 	Hw3dXyWallMap& map,
 	int& vertex_index,
-	HwVbBuffer& vb_buffer)
+	HwVbBufferT<TVertex>& vb_buffer)
 {
 	switch (wall_kind)
 	{
@@ -6084,7 +6266,7 @@ void hw_3d_build_solid_walls()
 	//
 	const auto vertex_count = ::hw_3d_wall_side_count_ * ::hw_3d_vertices_per_wall_side;
 
-	auto vb_buffer = HwVbBuffer{};
+	auto vb_buffer = HwNoColorVbBuffer{};
 	vb_buffer.resize(vertex_count);
 
 	::hw_3d_xy_wall_map_.clear();
@@ -6715,7 +6897,7 @@ bool hw_initialize_sprites_vb()
 {
 	const auto vertex_count = ::hw_3d_max_sprites_vertices;
 
-	::hw_3d_sprites_vb_ = ::hw_vertex_buffer_create(vertex_count);
+	::hw_3d_sprites_vb_ = ::hw_vertex_buffer_create<HwVertex>(vertex_count);
 
 	if (!::hw_3d_sprites_vb_)
 	{
