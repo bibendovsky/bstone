@@ -5729,3 +5729,9 @@ void try_to_grab_bonus_items()
 
 
 }
+
+
+fixed player_get_weapon_bounce_offset()
+{
+	return ::bounceOffset;
+}

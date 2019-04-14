@@ -2307,3 +2307,15 @@ int actor_calculate_rotation(
 {
 	return ::CalcRotate(&actor);
 }
+
+int player_get_weapon_sprite_id()
+{
+	if (::playstate == ex_victorious || ::gamestate.weapon == -1)
+	{
+		return 0;
+	}
+
+	return
+		::weaponscale[static_cast<std::intptr_t>(::gamestate.weapon)] +
+		::gamestate.weaponframe;
+}

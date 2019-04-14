@@ -3995,6 +3995,10 @@ void door_get_page_numbers(
 
 int actor_calculate_rotation(
 	const objtype& actor);
+
+int player_get_weapon_sprite_id();
+
+fixed player_get_weapon_bounce_offset();
 // BBi
 
 

@@ -1471,6 +1471,7 @@ struct Hw3dFlooringVertex : HwVertexXyzUv {};
 struct Hw3dCeilingVertex : HwVertexXyzUv {};
 struct Hw3dDoorVertex : HwVertexXyzUv {};
 struct Hw3dSpriteVertex : HwVertexXyzRgbaUv {};
+struct Hw3dPlayerWeaponVertex : HwVertexXyzUv {};
 
 
 struct Hw3dQuadFlags
@@ -1642,6 +1643,7 @@ using Hw3dWallsVbBuffer = HwVbBufferT<Hw3dWallVertex>;
 using Hw3dPushwallsVbBuffer = HwVbBufferT<Hw3dPushwallVertex>;
 using Hw3dDoorsVbBuffer = HwVbBufferT<Hw3dDoorVertex>;
 using Hw3dSpritesVbBuffer = HwVbBufferT<Hw3dSpriteVertex>;
+using Hw3dPlayerWeaponVertices = HwVbBufferT<Hw3dPlayerWeaponVertex>;
 
 
 glm::mat4 hw_2d_matrix_model_ = glm::mat4{};
@@ -1693,6 +1695,7 @@ float hw_3d_camera_far_distance = (std::sqrt(2.0F) * ::hw_3d_map_dimension_f) + 
 bstone::RendererSamplerPtr hw_2d_so_;
 bstone::RendererSamplerPtr hw_3d_wall_so_;
 bstone::RendererSamplerPtr hw_3d_sprite_so_;
+bstone::RendererSamplerPtr hw_3d_player_weapon_so_;
 
 
 Hw2dVertices hw_2d_vertices_;
@@ -1812,7 +1815,18 @@ Hw3dSpritesIndexBuffer hw_3d_sprites_ib_buffer_;
 HwVbBuffer hw_3d_sprites_vb_buffer_;
 
 
+bstone::RendererIndexBufferPtr hw_3d_player_weapon_ib_ = nullptr;
+bstone::RendererVertexBufferPtr hw_3d_player_weapon_vb_ = nullptr;
+bstone::RendererVertexInputPtr hw_3d_player_weapon_vi_ = nullptr;
+glm::mat4 hw_3d_player_weapon_model_matrix_;
+glm::mat4 hw_3d_player_weapon_view_matrix_;
+glm::mat4 hw_3d_player_weapon_projection_matrix_;
+
+
 void hw_dbg_3d_orient_all_sprites();
+
+bool hw_3d_player_weapon_initialize();
+void hw_3d_player_weapon_update_model_matrix();
 
 
 int hw_get_static_index(
@@ -1873,6 +1887,16 @@ HwVertexColor hw_vga_color_to_color_32(
 	};
 }
 
+void hw_index_buffer_destroy(
+	bstone::RendererIndexBufferPtr& index_buffer)
+{
+	if (index_buffer)
+	{
+		::hw_renderer_->index_buffer_destroy(index_buffer);
+		index_buffer = nullptr;
+	}
+}
+
 bstone::RendererIndexBufferPtr hw_index_buffer_create(
 	const int byte_depth,
 	const int index_count)
@@ -1903,6 +1927,16 @@ void hw_index_buffer_update(
 	param.data_ = indices;
 
 	index_buffer->update(param);
+}
+
+void hw_vertex_buffer_destroy(
+	bstone::RendererVertexBufferPtr& vertex_buffer)
+{
+	if (vertex_buffer)
+	{
+		::hw_renderer_->vertex_buffer_destroy(vertex_buffer);
+		vertex_buffer = nullptr;
+	}
 }
 
 template<typename TVertex>
@@ -1944,7 +1978,6 @@ void hw_vertex_input_destroy(
 		vertex_input = nullptr;
 	}
 }
-
 
 template<
 	typename TVertex,
@@ -4217,6 +4250,11 @@ bool hw_initialize_video()
 
 	if (is_succeed)
 	{
+		is_succeed = ::hw_3d_player_weapon_initialize();
+	}
+
+	if (is_succeed)
+	{
 		::hw_matrices_build();
 
 		::hw_command_sets_.resize(2);
@@ -4323,6 +4361,8 @@ void hw_uninitialize_vga_buffer()
 
 void hw_refresh_screen_2d()
 {
+	const auto& assets_info = AssetsInfo{};
+
 	// Update 2D texture.
 	//
 	{
@@ -4351,21 +4391,6 @@ void hw_refresh_screen_2d()
 	auto& commands = ::hw_2d_command_set_->commands_;
 
 
-	// Set viewport.
-	//
-	{
-		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::viewport_set;
-
-		auto& viewport = command.viewport_set_;
-		viewport.x_ = 0;
-		viewport.y_ = 0;
-		viewport.width_ = ::window_width;
-		viewport.height_ = ::window_height;
-		viewport.min_depth_ = 0.0F;
-		viewport.max_depth_ = 0.0F;
-	}
-
 	// Disable back-face culling.
 	//
 	{
@@ -4380,6 +4405,104 @@ void hw_refresh_screen_2d()
 		auto& command = commands[command_index++];
 		command.id_ = bstone::RendererCommandId::depth_set_test;
 		command.depth_set_test_.is_enabled_ = false;
+	}
+
+	// Draw player's weapon.
+	//
+	if (::vid_is_hud)
+	{
+		const auto player_weapon_sprite_id = ::player_get_weapon_sprite_id();
+
+		if (player_weapon_sprite_id > 0)
+		{
+			const auto player_weapon_texture = ::hw_texture_manager_->sprite_get(player_weapon_sprite_id);
+
+			if (assets_info.is_ps())
+			{
+				::hw_3d_player_weapon_update_model_matrix();
+			}
+
+			// Set model-view matrix.
+			//
+			{
+				auto& command = commands[command_index++];
+				command.id_ = bstone::RendererCommandId::matrix_set_model_view;
+				command.matrix_set_model_view_.model_ = ::hw_3d_player_weapon_model_matrix_;
+				command.matrix_set_model_view_.view_ = ::hw_3d_player_weapon_view_matrix_;
+			}
+
+			// Set projection matrix.
+			//
+			{
+				auto& command = commands[command_index++];
+				command.id_ = bstone::RendererCommandId::matrix_set_projection;
+				command.matrix_set_projection_.projection_ = ::hw_3d_player_weapon_projection_matrix_;
+			}
+
+			// Set texture.
+			//
+			{
+				auto& command = commands[command_index++];
+				command.id_ = bstone::RendererCommandId::texture_set;
+				command.texture_set_.texture_2d_ = player_weapon_texture;
+			}
+
+			// Set sampler.
+			//
+			{
+				auto& command = commands[command_index++];
+				command.id_ = bstone::RendererCommandId::sampler_set;
+				command.sampler_set_.sampler_ = ::hw_3d_player_weapon_so_;
+			}
+
+			// Set vertex input.
+			//
+			{
+				auto& command = commands[command_index++];
+				command.id_ = bstone::RendererCommandId::vertex_input_set;
+				command.vertex_input_set_.vertex_input_ = ::hw_3d_player_weapon_vi_;
+			}
+
+			// Enable blending.
+			//
+			{
+				auto& command = commands[command_index++];
+				command.id_ = bstone::RendererCommandId::blending_enable;
+				command.blending_enable_.is_enabled_ = true;
+			}
+
+			// Draw the weapon.
+			//
+			{
+				auto& command = commands[command_index++];
+				command.id_ = bstone::RendererCommandId::draw_quads;
+				command.draw_quads_.index_offset_ = 0;
+				command.draw_quads_.count_ = 1;
+			}
+
+			// Disable blending.
+			//
+			{
+				auto& command = commands[command_index++];
+				command.id_ = bstone::RendererCommandId::blending_enable;
+				command.blending_enable_.is_enabled_ = false;
+			}
+		}
+	}
+
+	// Set viewport.
+	//
+	{
+		auto& command = commands[command_index++];
+		command.id_ = bstone::RendererCommandId::viewport_set;
+
+		auto& viewport = command.viewport_set_;
+		viewport.x_ = 0;
+		viewport.y_ = 0;
+		viewport.width_ = ::window_width;
+		viewport.height_ = ::window_height;
+		viewport.min_depth_ = 0.0F;
+		viewport.max_depth_ = 0.0F;
 	}
 
 	// Set sampler.
@@ -7640,7 +7763,7 @@ void hw_precache_flying_grenade()
 	::hw_cache_sprite(::SPR_GRENADE_FLY4);
 }
 
-void hw_precache_bfg_explosion()
+void hw_precache_anti_plasma_cannon_explosion()
 {
 	const auto& assets_info = AssetsInfo{};
 
@@ -7657,7 +7780,7 @@ void hw_precache_bfg_explosion()
 	}
 }
 
-void hw_precache_bfg_shot()
+void hw_precache_anti_plasma_cannon_shot()
 {
 	const auto& assets_info = AssetsInfo{};
 
@@ -7668,7 +7791,7 @@ void hw_precache_bfg_shot()
 		::hw_cache_sprite(::SPR_BFG_WEAPON_SHOT3);
 
 
-		::hw_precache_bfg_explosion();
+		::hw_precache_anti_plasma_cannon_explosion();
 	}
 }
 
@@ -8988,7 +9111,7 @@ void hw_precache_blake_stone()
 	::hw_cache_sprite(::SPR_BLAKE_W4);
 }
 
-void hw_precache_vend_and_dripping_blood()
+void hw_precache_vent_and_dripping_blood()
 {
 	::hw_cache_sprite(::SPR_BLOOD_DRIP1);
 	::hw_cache_sprite(::SPR_BLOOD_DRIP2);
@@ -8996,7 +9119,7 @@ void hw_precache_vend_and_dripping_blood()
 	::hw_cache_sprite(::SPR_BLOOD_DRIP4);
 }
 
-void hw_precache_vend_and_dripping_water()
+void hw_precache_vent_and_dripping_water()
 {
 	::hw_cache_sprite(::SPR_WATER_DRIP1);
 	::hw_cache_sprite(::SPR_WATER_DRIP2);
@@ -9177,17 +9300,87 @@ void hw_precache_access_cards()
 	::hw_precache_golden_access_card();
 }
 
-void hw_precache_weapon_shots()
+void hw_precache_player_weapon_auto_charge_pistol()
 {
+	::hw_cache_sprite(::SPR_KNIFEREADY);
+	::hw_cache_sprite(::SPR_KNIFEATK1);
+	::hw_cache_sprite(::SPR_KNIFEATK2);
+	::hw_cache_sprite(::SPR_KNIFEATK3);
+	::hw_cache_sprite(::SPR_KNIFEATK4);
+}
+
+void hw_precache_player_weapon_slow_fire_protector()
+{
+	::hw_cache_sprite(::SPR_PISTOLREADY);
+	::hw_cache_sprite(::SPR_PISTOLATK1);
+	::hw_cache_sprite(::SPR_PISTOLATK2);
+	::hw_cache_sprite(::SPR_PISTOLATK3);
+	::hw_cache_sprite(::SPR_PISTOLATK4);
+}
+
+void hw_precache_player_weapon_rapid_assault_weapon()
+{
+	::hw_cache_sprite(::SPR_MACHINEGUNREADY);
+	::hw_cache_sprite(::SPR_MACHINEGUNATK1);
+	::hw_cache_sprite(::SPR_MACHINEGUNATK2);
+	::hw_cache_sprite(::SPR_MACHINEGUNATK3);
+	::hw_cache_sprite(::SPR_MACHINEGUNATK4);
+}
+
+void hw_precache_player_weapon_dual_neutron_disruptor()
+{
+	::hw_cache_sprite(::SPR_CHAINREADY);
+	::hw_cache_sprite(::SPR_CHAINATK1);
+	::hw_cache_sprite(::SPR_CHAINATK2);
+	::hw_cache_sprite(::SPR_CHAINATK3);
+	::hw_cache_sprite(::SPR_CHAINATK4);
+}
+
+void hw_precache_player_weapon_plasma_discharge_unit()
+{
+	::hw_cache_sprite(::SPR_GRENADEREADY);
+	::hw_cache_sprite(::SPR_GRENADEATK1);
+	::hw_cache_sprite(::SPR_GRENADEATK2);
+	::hw_cache_sprite(::SPR_GRENADEATK3);
+	::hw_cache_sprite(::SPR_GRENADEATK4);
+
 	::hw_precache_flying_grenade();
 	::hw_precache_grenade_explosion();
+}
 
-	::hw_precache_bfg_shot();
-	::hw_precache_bfg_explosion();
+void hw_precache_player_weapon_anti_plasma_cannon()
+{
+	const auto& assets_info = AssetsInfo{};
+
+	if (!assets_info.is_ps())
+	{
+		return;
+	}
+
+	::hw_cache_sprite(::SPR_BFG_WEAPON1);
+	::hw_cache_sprite(::SPR_BFG_WEAPON1);
+	::hw_cache_sprite(::SPR_BFG_WEAPON2);
+	::hw_cache_sprite(::SPR_BFG_WEAPON3);
+	::hw_cache_sprite(::SPR_BFG_WEAPON4);
+	::hw_cache_sprite(::SPR_BFG_WEAPON5);
+
+	::hw_precache_anti_plasma_cannon_shot();
+	::hw_precache_anti_plasma_cannon_explosion();
+
 	::hw_precache_rubble();
 
 	::hw_precache_explosion();
 	::hw_precache_clip_explosion();
+}
+
+void hw_precache_player_weapons()
+{
+	::hw_precache_player_weapon_auto_charge_pistol();
+	::hw_precache_player_weapon_slow_fire_protector();
+	::hw_precache_player_weapon_rapid_assault_weapon();
+	::hw_precache_player_weapon_dual_neutron_disruptor();
+	::hw_precache_player_weapon_plasma_discharge_unit();
+	::hw_precache_player_weapon_anti_plasma_cannon();
 }
 
 void hw_precache_actors()
@@ -9445,8 +9638,8 @@ void hw_precache_actors()
 			break;
 
 		case ventdripobj:
-			::hw_precache_vend_and_dripping_blood();
-			::hw_precache_vend_and_dripping_water();
+			::hw_precache_vent_and_dripping_blood();
+			::hw_precache_vent_and_dripping_water();
 			break;
 
 		case playerspshotobj:
@@ -9467,11 +9660,11 @@ void hw_precache_actors()
 			break;
 
 		case bfg_shotobj:
-			::hw_precache_bfg_shot();
+			::hw_precache_anti_plasma_cannon_shot();
 			break;
 
 		case bfg_explosionobj:
-			::hw_precache_bfg_explosion();
+			::hw_precache_anti_plasma_cannon_explosion();
 			break;
 
 		case pd_explosionobj:
@@ -9527,7 +9720,7 @@ void hw_precache_actors()
 
 	::hw_precache_special_stuff();
 	::hw_precache_access_cards();
-	::hw_precache_weapon_shots();
+	::hw_precache_player_weapons();
 }
 
 void hw_precache_sprites()
@@ -9581,6 +9774,236 @@ void hw_3d_build_sprites()
 	::hw_3d_build_actors();
 }
 
+void hw_3d_player_weapon_update_vb()
+{
+	auto vertices = Hw3dPlayerWeaponVertices{};
+	vertices.resize(::hw_3d_vertices_per_sprite);
+
+	const auto dimension = static_cast<float>(bstone::Sprite::dimension);
+	const auto half_dimension = 0.5F * dimension;
+
+	auto vertex_index = 0;
+
+	// Bottom-left.
+	//
+	{
+		auto& vertex = vertices[vertex_index++];
+		vertex.xyz_ = HwVertexPosition{-half_dimension, 0.0F, 0.0F};
+		vertex.uv_ = HwVertexTextureCoordinates{0.0F, 0.0F};
+	}
+
+	// Bottom-right.
+	//
+	{
+		auto& vertex = vertices[vertex_index++];
+		vertex.xyz_ = HwVertexPosition{half_dimension, 0.0F, 0.0F};
+		vertex.uv_ = HwVertexTextureCoordinates{1.0F, 0.0F};
+	}
+
+	// Top-right.
+	//
+	{
+		auto& vertex = vertices[vertex_index++];
+		vertex.xyz_ = HwVertexPosition{half_dimension, dimension, 0.0F};
+		vertex.uv_ = HwVertexTextureCoordinates{1.0F, 1.0F};
+	}
+
+	// Top-left.
+	//
+	{
+		auto& vertex = vertices[vertex_index];
+		vertex.xyz_ = HwVertexPosition{-half_dimension, dimension, 0.0F};
+		vertex.uv_ = HwVertexTextureCoordinates{0.0F, 1.0F};
+	}
+
+	// Update vertex buffer.
+	//
+	::hw_vertex_buffer_update(
+		::hw_3d_player_weapon_vb_,
+		0,
+		::hw_3d_vertices_per_sprite,
+		vertices.data()
+	);
+}
+
+void hw_3d_player_weapon_destroy_ib()
+{
+	::hw_index_buffer_destroy(::hw_3d_player_weapon_ib_);
+}
+
+bool hw_3d_player_weapon_create_ib()
+{
+	::hw_3d_player_weapon_ib_ = ::hw_index_buffer_create(1, ::hw_3d_indices_per_sprite);
+
+	if (!::hw_3d_player_weapon_ib_)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void hw_3d_player_weapon_update_ib()
+{
+	using Indices = std::array<std::uint8_t, ::hw_3d_indices_per_sprite>;
+
+	auto indices = Indices
+	{
+		0, 1, 2,
+		0, 2, 3,
+	}; // indices
+
+	::hw_index_buffer_update(
+		::hw_3d_player_weapon_ib_,
+		0,
+		::hw_3d_indices_per_sprite,
+		indices.data()
+	);
+}
+
+void hw_3d_player_weapon_destroy_vb()
+{
+	::hw_vertex_buffer_destroy(::hw_3d_player_weapon_vb_);
+}
+
+bool hw_3d_player_weapon_create_vb()
+{
+	::hw_3d_player_weapon_vb_ = ::hw_vertex_buffer_create<Hw3dPlayerWeaponVertex>(::hw_3d_vertices_per_sprite);
+
+	if (!::hw_3d_player_weapon_vb_)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void hw_3d_player_weapon_destroy_vi()
+{
+	::hw_vertex_input_destroy(::hw_3d_player_weapon_vi_);
+}
+
+bool hw_3d_player_weapon_create_vi()
+{
+	if (!::hw_vertex_input_create<Hw3dPlayerWeaponVertex>(
+		::hw_3d_player_weapon_ib_,
+		::hw_3d_player_weapon_vb_,
+		::hw_3d_player_weapon_vi_))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void hw_3d_player_weapon_update_model_matrix()
+{
+	const auto& assets_info = AssetsInfo{};
+
+	const auto aog_scale = 25.0F / 9.0F;
+	const auto ps_scale = 91.0F / 45.0F;
+
+	const auto vga_scale = static_cast<float>(::vga_height_scale);
+	const auto game_scalar = (assets_info.is_ps() ? ps_scale : aog_scale);
+	const auto scalar = game_scalar * vga_scale;
+
+	const auto translate_x = 0.5F * static_cast<float>(::hw_3d_viewport_width_);
+
+	const auto bounce_offset = (assets_info.is_aog() ? 0 : ::player_get_weapon_bounce_offset());
+	const auto translate_y = vga_scale * bstone::FixedPoint{-bounce_offset}.to_float();
+
+	const auto& identity = glm::identity<glm::mat4>();
+	const auto& translate = glm::translate(identity, glm::vec3{translate_x, translate_y, 0.0F});
+	const auto& scale = glm::scale(identity, glm::vec3{scalar, scalar, 0.0F});
+
+	::hw_3d_player_weapon_model_matrix_ = translate * scale;
+}
+
+void hw_3d_player_weapon_update_view_matrix()
+{
+	::hw_3d_player_weapon_view_matrix_ = glm::identity<glm::mat4>();
+}
+
+void hw_3d_player_weapon_build_projection_matrix()
+{
+	::hw_3d_player_weapon_projection_matrix_ = glm::orthoRH_NO(
+		0.0F, // left
+		static_cast<float>(::hw_3d_viewport_width_), // right
+		0.0F, // bottom
+		static_cast<float>(::hw_3d_viewport_height_), // top
+		0.0F, // zNear
+		1.0F // zFar
+	);
+}
+
+void hw_3d_player_weapon_destroy_sampler()
+{
+	if (::hw_3d_player_weapon_so_)
+	{
+		::hw_renderer_->sampler_destroy(::hw_3d_player_weapon_so_);
+		::hw_3d_player_weapon_so_ = nullptr;
+	}
+}
+
+bool hw_3d_player_weapon_create_sampler()
+{
+	auto param = bstone::RendererSamplerCreateParam{};
+	param.state_.min_filter_ = bstone::RendererFilterKind::nearest;
+	param.state_.mag_filter_ = bstone::RendererFilterKind::nearest;
+	param.state_.mipmap_mode_ = bstone::RendererMipmapMode::none;
+	param.state_.address_mode_u_ = bstone::RendererAddressMode::clamp;
+	param.state_.address_mode_v_ = bstone::RendererAddressMode::clamp;
+
+	::hw_3d_player_weapon_so_ = ::hw_renderer_->sampler_create(param);
+
+	if (!::hw_3d_player_weapon_so_)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void hw_3d_player_weapon_uninitialize()
+{
+	::hw_3d_player_weapon_destroy_vi();
+	::hw_3d_player_weapon_destroy_ib();
+	::hw_3d_player_weapon_destroy_vb();
+	::hw_3d_player_weapon_destroy_sampler();
+}
+
+bool hw_3d_player_weapon_initialize()
+{
+	if (!::hw_3d_player_weapon_create_ib())
+	{
+		return false;
+	}
+
+	if (!::hw_3d_player_weapon_create_vb())
+	{
+		return false;
+	}
+
+	if (!::hw_3d_player_weapon_create_vi())
+	{
+		return false;
+	}
+
+	if (!::hw_3d_player_weapon_create_sampler())
+	{
+		return false;
+	}
+
+	::hw_3d_player_weapon_update_ib();
+	::hw_3d_player_weapon_update_vb();
+
+	::hw_3d_player_weapon_update_model_matrix();
+	::hw_3d_player_weapon_update_view_matrix();
+	::hw_3d_player_weapon_build_projection_matrix();
+
+	return true;
+}
+
 void hw_precache_resources()
 {
 	::hw_texture_manager_->cache_begin();
@@ -9612,6 +10035,7 @@ void hw_uninitialize_video()
 	::hw_uninitialize_flooring();
 	::hw_uninitialize_ceiling();
 
+	::hw_3d_player_weapon_initialize();
 	::hw_uninitialize_ui_texture();
 	::hw_uninitialize_vga_buffer();
 
