@@ -522,6 +522,12 @@ public:
 	virtual int get_command_count() const = 0;
 
 
+	virtual bool is_enabled() const = 0;
+
+	virtual void enable(
+		const bool is_enabled) = 0;
+
+
 	virtual void allocate_begin() = 0;
 
 	virtual void allocate_end() = 0;

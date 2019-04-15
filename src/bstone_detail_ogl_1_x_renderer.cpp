@@ -1023,6 +1023,11 @@ void Ogl1XRenderer::execute_commands(
 	{
 		auto command_buffer = command_manager->buffer_get(i);
 
+		if (!command_buffer->is_enabled())
+		{
+			continue;
+		}
+
 		const auto command_count = command_buffer->get_command_count();
 
 		command_buffer->read_begin();

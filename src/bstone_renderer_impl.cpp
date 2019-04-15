@@ -54,6 +54,12 @@ public:
 	int get_command_count() const override;
 
 
+	bool is_enabled() const override;
+
+	void enable(
+		const bool is_enabled) override;
+
+
 	void allocate_begin() override;
 
 	void allocate_end() override;
@@ -134,6 +140,7 @@ private:
 
 	using Data = std::vector<std::uint8_t>;
 
+	bool is_enabled_;
 	bool is_reading_;
 	bool is_allocating_;
 
@@ -268,6 +275,7 @@ using RendererCommandManagerImplUPtr = std::unique_ptr<RendererCommandManagerImp
 
 RendererCommandBufferImpl::RendererCommandBufferImpl()
 	:
+	is_enabled_{},
 	is_reading_{},
 	is_allocating_{},
 	size_{},
@@ -282,6 +290,7 @@ RendererCommandBufferImpl::RendererCommandBufferImpl()
 RendererCommandBufferImpl::RendererCommandBufferImpl(
 	RendererCommandBufferImpl&& rhs)
 	:
+	is_enabled_{std::move(rhs.is_enabled_)},
 	is_reading_{std::move(rhs.is_reading_)},
 	is_allocating_{std::move(rhs.is_allocating_)},
 	size_{std::move(rhs.size_)},
@@ -300,6 +309,17 @@ RendererCommandBufferImpl::~RendererCommandBufferImpl()
 int RendererCommandBufferImpl::get_command_count() const
 {
 	return command_count_;
+}
+
+bool RendererCommandBufferImpl::is_enabled() const
+{
+	return is_enabled_;
+}
+
+void RendererCommandBufferImpl::enable(
+	const bool is_enabled)
+{
+	is_enabled_ = is_enabled;
 }
 
 void RendererCommandBufferImpl::allocate_begin()

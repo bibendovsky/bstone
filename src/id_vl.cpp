@@ -4153,12 +4153,12 @@ bool hw_command_manager_initialize()
 		return false;
 	}
 
-	if (!::hw_command_buffer_2d_initialize())
+	if (!::hw_command_buffer_3d_initialize())
 	{
 		return false;
 	}
 
-	if (!::hw_command_buffer_3d_initialize())
+	if (!::hw_command_buffer_2d_initialize())
 	{
 		return false;
 	}
@@ -4472,6 +4472,8 @@ void hw_refresh_screen_2d()
 
 
 	auto command_buffer = ::hw_2d_command_buffer_;
+
+	command_buffer->enable(true);
 
 	command_buffer->allocate_begin();
 
@@ -5433,12 +5435,16 @@ void hw_3d_dbg_draw_all_sprites()
 
 void hw_refresh_screen_3d()
 {
+	auto command_buffer = ::hw_3d_command_buffer_;
+
+	command_buffer->enable(false);
+
 	if (!::vid_hw_is_draw_3d_)
 	{
 		return;
 	}
 
-	auto command_buffer = ::hw_3d_command_buffer_;
+	command_buffer->enable(true);
 
 	command_buffer->allocate_begin();
 
