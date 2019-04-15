@@ -60,37 +60,37 @@ public:
 		const bool is_enabled) override;
 
 
-	void allocate_begin() override;
+	void write_begin() override;
 
-	void allocate_end() override;
+	void write_end() override;
 
-	RendererCommandViewportSet* allocate_viewport_set() override;
+	RendererCommandViewportSet* write_viewport_set() override;
 
-	RendererCommandScissorEnable* allocate_scissor_enable() override;
-	RendererCommandScissorSetBox* allocate_scissor_set_box() override;
+	RendererCommandScissorEnable* write_scissor_enable() override;
+	RendererCommandScissorSetBox* write_scissor_set_box() override;
 
-	RendererCommandCullingEnabled* allocate_culling_enable() override;
+	RendererCommandCullingEnabled* write_culling_enable() override;
 
-	RendererCommandDepthSetTest* allocate_depth_set_test() override;
-	RendererCommandDepthSetWrite* allocate_depth_set_write() override;
+	RendererCommandDepthSetTest* write_depth_set_test() override;
+	RendererCommandDepthSetWrite* write_depth_set_write() override;
 
-	RendererCommandBlendingEnable* allocate_blending_enable() override;
+	RendererCommandBlendingEnable* write_blending_enable() override;
 
-	RendererCommandFogEnable* allocate_fog_enable() override;
-	RendererCommandFogSetColor* allocate_fog_set_color() override;
-	RendererCommandFogSetDistances* allocate_fog_set_distances() override;
+	RendererCommandFogEnable* write_fog_enable() override;
+	RendererCommandFogSetColor* write_fog_set_color() override;
+	RendererCommandFogSetDistances* write_fog_set_distances() override;
 
-	RendererCommandMatrixSetModel* allocate_matrix_set_model() override;
-	RendererCommandMatrixSetView* allocate_matrix_set_view() override;
-	RendererCommandMatrixSetModelView* allocate_matrix_set_model_view() override;
-	RendererCommandMatrixSetProjection* allocate_matrix_set_projection() override;
+	RendererCommandMatrixSetModel* write_matrix_set_model() override;
+	RendererCommandMatrixSetView* write_matrix_set_view() override;
+	RendererCommandMatrixSetModelView* write_matrix_set_model_view() override;
+	RendererCommandMatrixSetProjection* write_matrix_set_projection() override;
 
-	RendererCommandTextureSet* allocate_texture_set() override;
-	RendererCommandSamplerSet* allocate_sampler_set() override;
+	RendererCommandTextureSet* write_texture_set() override;
+	RendererCommandSamplerSet* write_sampler_set() override;
 
-	RendererCommandVertexInputSet* allocate_vertex_input_set() override;
+	RendererCommandVertexInputSet* write_vertex_input_set() override;
 
-	RendererCommandDrawQuads* allocate_draw_quads() override;
+	RendererCommandDrawQuads* write_draw_quads() override;
 
 
 	void read_begin() override;
@@ -142,10 +142,10 @@ private:
 
 	bool is_enabled_;
 	bool is_reading_;
-	bool is_allocating_;
+	bool is_writing_;
 
 	int size_;
-	int allocate_offset_;
+	int write_offset_;
 	int read_offset_;
 	int resize_delta_size_;
 	int command_count_;
@@ -157,10 +157,10 @@ private:
 		const int dst_delta_size);
 
 	template<typename T>
-	T* allocate(
+	T* write(
 		const RendererCommandId command_id)
 	{
-		if (is_reading_ || !is_allocating_)
+		if (is_reading_ || !is_writing_)
 		{
 			assert(!"Invalid state.");
 
@@ -180,10 +180,10 @@ private:
 
 		resize_if_necessary(block_size);
 
-		auto block = reinterpret_cast<RendererCommandId*>(&data_[allocate_offset_]);
+		auto block = reinterpret_cast<RendererCommandId*>(&data_[write_offset_]);
 		*block = command_id;
 
-		allocate_offset_ += block_size;
+		write_offset_ += block_size;
 		++command_count_;
 
 		return reinterpret_cast<T*>(block + 1);
@@ -192,7 +192,7 @@ private:
 	template<typename T>
 	const T* read()
 	{
-		if (!is_reading_ || is_allocating_)
+		if (!is_reading_ || is_writing_)
 		{
 			assert(!"Invalid state.");
 
@@ -277,9 +277,9 @@ RendererCommandBufferImpl::RendererCommandBufferImpl()
 	:
 	is_enabled_{},
 	is_reading_{},
-	is_allocating_{},
+	is_writing_{},
 	size_{},
-	allocate_offset_{},
+	write_offset_{},
 	read_offset_{},
 	resize_delta_size_{},
 	command_count_{},
@@ -292,9 +292,9 @@ RendererCommandBufferImpl::RendererCommandBufferImpl(
 	:
 	is_enabled_{std::move(rhs.is_enabled_)},
 	is_reading_{std::move(rhs.is_reading_)},
-	is_allocating_{std::move(rhs.is_allocating_)},
+	is_writing_{std::move(rhs.is_writing_)},
 	size_{std::move(rhs.size_)},
-	allocate_offset_{std::move(rhs.allocate_offset_)},
+	write_offset_{std::move(rhs.write_offset_)},
 	read_offset_{std::move(rhs.read_offset_)},
 	resize_delta_size_{std::move(rhs.resize_delta_size_)},
 	command_count_{std::move(rhs.command_count_)},
@@ -322,125 +322,125 @@ void RendererCommandBufferImpl::enable(
 	is_enabled_ = is_enabled;
 }
 
-void RendererCommandBufferImpl::allocate_begin()
+void RendererCommandBufferImpl::write_begin()
 {
-	if (is_reading_ || is_allocating_)
+	if (is_reading_ || is_writing_)
 	{
 		assert(!"Invalid state.");
 
 		return;
 	}
 
-	is_allocating_ = true;
-	allocate_offset_ = 0;
+	is_writing_ = true;
+	write_offset_ = 0;
 	command_count_ = 0;
 }
 
-void RendererCommandBufferImpl::allocate_end()
+void RendererCommandBufferImpl::write_end()
 {
-	if (is_reading_ || !is_allocating_)
+	if (is_reading_ || !is_writing_)
 	{
 		assert(!"Invalid state.");
 
 		return;
 	}
 
-	is_allocating_ = false;
+	is_writing_ = false;
 }
 
-RendererCommandViewportSet* RendererCommandBufferImpl::allocate_viewport_set()
+RendererCommandViewportSet* RendererCommandBufferImpl::write_viewport_set()
 {
-	return allocate<RendererCommandViewportSet>(RendererCommandId::viewport_set);
+	return write<RendererCommandViewportSet>(RendererCommandId::viewport_set);
 }
 
-RendererCommandScissorEnable* RendererCommandBufferImpl::allocate_scissor_enable()
+RendererCommandScissorEnable* RendererCommandBufferImpl::write_scissor_enable()
 {
-	return allocate<RendererCommandScissorEnable>(RendererCommandId::scissor_enable);
+	return write<RendererCommandScissorEnable>(RendererCommandId::scissor_enable);
 }
 
-RendererCommandScissorSetBox* RendererCommandBufferImpl::allocate_scissor_set_box()
+RendererCommandScissorSetBox* RendererCommandBufferImpl::write_scissor_set_box()
 {
-	return allocate<RendererCommandScissorSetBox>(RendererCommandId::scissor_set_box);
+	return write<RendererCommandScissorSetBox>(RendererCommandId::scissor_set_box);
 }
 
-RendererCommandCullingEnabled* RendererCommandBufferImpl::allocate_culling_enable()
+RendererCommandCullingEnabled* RendererCommandBufferImpl::write_culling_enable()
 {
-	return allocate<RendererCommandCullingEnabled>(RendererCommandId::culling_enable);
+	return write<RendererCommandCullingEnabled>(RendererCommandId::culling_enable);
 }
 
-RendererCommandDepthSetTest* RendererCommandBufferImpl::allocate_depth_set_test()
+RendererCommandDepthSetTest* RendererCommandBufferImpl::write_depth_set_test()
 {
-	return allocate<RendererCommandDepthSetTest>(RendererCommandId::depth_set_test);
+	return write<RendererCommandDepthSetTest>(RendererCommandId::depth_set_test);
 }
 
-RendererCommandDepthSetWrite* RendererCommandBufferImpl::allocate_depth_set_write()
+RendererCommandDepthSetWrite* RendererCommandBufferImpl::write_depth_set_write()
 {
-	return allocate<RendererCommandDepthSetWrite>(RendererCommandId::depth_set_write);
+	return write<RendererCommandDepthSetWrite>(RendererCommandId::depth_set_write);
 }
 
-RendererCommandBlendingEnable* RendererCommandBufferImpl::allocate_blending_enable()
+RendererCommandBlendingEnable* RendererCommandBufferImpl::write_blending_enable()
 {
-	return allocate<RendererCommandBlendingEnable>(RendererCommandId::blending_enable);
+	return write<RendererCommandBlendingEnable>(RendererCommandId::blending_enable);
 }
 
-RendererCommandFogEnable* RendererCommandBufferImpl::allocate_fog_enable()
+RendererCommandFogEnable* RendererCommandBufferImpl::write_fog_enable()
 {
-	return allocate<RendererCommandFogEnable>(RendererCommandId::fog_enable);
+	return write<RendererCommandFogEnable>(RendererCommandId::fog_enable);
 }
 
-RendererCommandFogSetColor* RendererCommandBufferImpl::allocate_fog_set_color()
+RendererCommandFogSetColor* RendererCommandBufferImpl::write_fog_set_color()
 {
-	return allocate<RendererCommandFogSetColor>(RendererCommandId::fog_set_color);
+	return write<RendererCommandFogSetColor>(RendererCommandId::fog_set_color);
 }
 
-RendererCommandFogSetDistances* RendererCommandBufferImpl::allocate_fog_set_distances()
+RendererCommandFogSetDistances* RendererCommandBufferImpl::write_fog_set_distances()
 {
-	return allocate<RendererCommandFogSetDistances>(RendererCommandId::fog_set_distances);
+	return write<RendererCommandFogSetDistances>(RendererCommandId::fog_set_distances);
 }
 
-RendererCommandMatrixSetModel* RendererCommandBufferImpl::allocate_matrix_set_model()
+RendererCommandMatrixSetModel* RendererCommandBufferImpl::write_matrix_set_model()
 {
-	return allocate<RendererCommandMatrixSetModel>(RendererCommandId::matrix_set_model);
+	return write<RendererCommandMatrixSetModel>(RendererCommandId::matrix_set_model);
 }
 
-RendererCommandMatrixSetView* RendererCommandBufferImpl::allocate_matrix_set_view()
+RendererCommandMatrixSetView* RendererCommandBufferImpl::write_matrix_set_view()
 {
-	return allocate<RendererCommandMatrixSetView>(RendererCommandId::matrix_set_view);
+	return write<RendererCommandMatrixSetView>(RendererCommandId::matrix_set_view);
 }
 
-RendererCommandMatrixSetModelView* RendererCommandBufferImpl::allocate_matrix_set_model_view()
+RendererCommandMatrixSetModelView* RendererCommandBufferImpl::write_matrix_set_model_view()
 {
-	return allocate<RendererCommandMatrixSetModelView>(RendererCommandId::matrix_set_model_view);
+	return write<RendererCommandMatrixSetModelView>(RendererCommandId::matrix_set_model_view);
 }
 
-RendererCommandMatrixSetProjection* RendererCommandBufferImpl::allocate_matrix_set_projection()
+RendererCommandMatrixSetProjection* RendererCommandBufferImpl::write_matrix_set_projection()
 {
-	return allocate<RendererCommandMatrixSetProjection>(RendererCommandId::matrix_set_projection);
+	return write<RendererCommandMatrixSetProjection>(RendererCommandId::matrix_set_projection);
 }
 
-RendererCommandTextureSet* RendererCommandBufferImpl::allocate_texture_set()
+RendererCommandTextureSet* RendererCommandBufferImpl::write_texture_set()
 {
-	return allocate<RendererCommandTextureSet>(RendererCommandId::texture_set);
+	return write<RendererCommandTextureSet>(RendererCommandId::texture_set);
 }
 
-RendererCommandSamplerSet* RendererCommandBufferImpl::allocate_sampler_set()
+RendererCommandSamplerSet* RendererCommandBufferImpl::write_sampler_set()
 {
-	return allocate<RendererCommandSamplerSet>(RendererCommandId::sampler_set);
+	return write<RendererCommandSamplerSet>(RendererCommandId::sampler_set);
 }
 
-RendererCommandVertexInputSet* RendererCommandBufferImpl::allocate_vertex_input_set()
+RendererCommandVertexInputSet* RendererCommandBufferImpl::write_vertex_input_set()
 {
-	return allocate<RendererCommandVertexInputSet>(RendererCommandId::vertex_input_set);
+	return write<RendererCommandVertexInputSet>(RendererCommandId::vertex_input_set);
 }
 
-RendererCommandDrawQuads* RendererCommandBufferImpl::allocate_draw_quads()
+RendererCommandDrawQuads* RendererCommandBufferImpl::write_draw_quads()
 {
-	return allocate<RendererCommandDrawQuads>(RendererCommandId::draw_quads);
+	return write<RendererCommandDrawQuads>(RendererCommandId::draw_quads);
 }
 
 void RendererCommandBufferImpl::read_begin()
 {
-	if (is_reading_ || is_allocating_)
+	if (is_reading_ || is_writing_)
 	{
 		assert(!"Invalid state.");
 
@@ -453,14 +453,14 @@ void RendererCommandBufferImpl::read_begin()
 
 void RendererCommandBufferImpl::read_end()
 {
-	if (!is_reading_ || is_allocating_)
+	if (!is_reading_ || is_writing_)
 	{
 		assert(!"Invalid state.");
 
 		return;
 	}
 
-	assert(allocate_offset_ == read_offset_);
+	assert(write_offset_ == read_offset_);
 
 	is_reading_ = false;
 }
@@ -571,10 +571,10 @@ void RendererCommandBufferImpl::initialize(
 	const RendererCommandManagerBufferAddParam& param)
 {
 	is_reading_ = false;
-	is_allocating_ = false;
+	is_writing_ = false;
 
 	size_ = std::max(param.initial_size_, min_initial_size);
-	allocate_offset_ = 0;
+	write_offset_ = 0;
 	read_offset_ = 0;
 	resize_delta_size_ = std::max(param.resize_delta_size_, min_resize_delta_size);
 
@@ -586,7 +586,7 @@ void RendererCommandBufferImpl::resize_if_necessary(
 {
 	assert(dst_delta_size > 0);
 
-	if ((size_ - allocate_offset_) >= dst_delta_size)
+	if ((size_ - write_offset_) >= dst_delta_size)
 	{
 		return;
 	}

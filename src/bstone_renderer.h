@@ -525,37 +525,37 @@ public:
 		const bool is_enabled) = 0;
 
 
-	virtual void allocate_begin() = 0;
+	virtual void write_begin() = 0;
 
-	virtual void allocate_end() = 0;
+	virtual void write_end() = 0;
 
-	virtual RendererCommandViewportSet* allocate_viewport_set() = 0;
+	virtual RendererCommandViewportSet* write_viewport_set() = 0;
 
-	virtual RendererCommandScissorEnable* allocate_scissor_enable() = 0;
-	virtual RendererCommandScissorSetBox* allocate_scissor_set_box() = 0;
+	virtual RendererCommandScissorEnable* write_scissor_enable() = 0;
+	virtual RendererCommandScissorSetBox* write_scissor_set_box() = 0;
 
-	virtual RendererCommandCullingEnabled* allocate_culling_enable() = 0;
+	virtual RendererCommandCullingEnabled* write_culling_enable() = 0;
 
-	virtual RendererCommandDepthSetTest* allocate_depth_set_test() = 0;
-	virtual RendererCommandDepthSetWrite* allocate_depth_set_write() = 0;
+	virtual RendererCommandDepthSetTest* write_depth_set_test() = 0;
+	virtual RendererCommandDepthSetWrite* write_depth_set_write() = 0;
 
-	virtual RendererCommandBlendingEnable* allocate_blending_enable() = 0;
+	virtual RendererCommandBlendingEnable* write_blending_enable() = 0;
 
-	virtual RendererCommandFogEnable* allocate_fog_enable() = 0;
-	virtual RendererCommandFogSetColor* allocate_fog_set_color() = 0;
-	virtual RendererCommandFogSetDistances* allocate_fog_set_distances() = 0;
+	virtual RendererCommandFogEnable* write_fog_enable() = 0;
+	virtual RendererCommandFogSetColor* write_fog_set_color() = 0;
+	virtual RendererCommandFogSetDistances* write_fog_set_distances() = 0;
 
-	virtual RendererCommandMatrixSetModel* allocate_matrix_set_model() = 0;
-	virtual RendererCommandMatrixSetView* allocate_matrix_set_view() = 0;
-	virtual RendererCommandMatrixSetModelView* allocate_matrix_set_model_view() = 0;
-	virtual RendererCommandMatrixSetProjection* allocate_matrix_set_projection() = 0;
+	virtual RendererCommandMatrixSetModel* write_matrix_set_model() = 0;
+	virtual RendererCommandMatrixSetView* write_matrix_set_view() = 0;
+	virtual RendererCommandMatrixSetModelView* write_matrix_set_model_view() = 0;
+	virtual RendererCommandMatrixSetProjection* write_matrix_set_projection() = 0;
 
-	virtual RendererCommandTextureSet* allocate_texture_set() = 0;
-	virtual RendererCommandSamplerSet* allocate_sampler_set() = 0;
+	virtual RendererCommandTextureSet* write_texture_set() = 0;
+	virtual RendererCommandSamplerSet* write_sampler_set() = 0;
 
-	virtual RendererCommandVertexInputSet* allocate_vertex_input_set() = 0;
+	virtual RendererCommandVertexInputSet* write_vertex_input_set() = 0;
 
-	virtual RendererCommandDrawQuads* allocate_draw_quads() = 0;
+	virtual RendererCommandDrawQuads* write_draw_quads() = 0;
 
 
 	virtual void read_begin() = 0;
