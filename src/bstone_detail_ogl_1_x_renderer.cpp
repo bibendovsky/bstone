@@ -1917,7 +1917,7 @@ void Ogl1XRenderer::vertex_input_defaults()
 }
 
 void Ogl1XRenderer::command_execute_culling_enable(
-	const RendererCommand::CullingEnabled& command)
+	const RendererCommandCullingEnabled& command)
 {
 	if (culling_is_enabled_ != command.is_enabled_)
 	{
@@ -1928,7 +1928,7 @@ void Ogl1XRenderer::command_execute_culling_enable(
 }
 
 void Ogl1XRenderer::command_execute_depth_set_test(
-	const RendererCommand::DepthSetTest& command)
+	const RendererCommandDepthSetTest& command)
 {
 	if (depth_is_test_enabled_ != command.is_enabled_)
 	{
@@ -1939,7 +1939,7 @@ void Ogl1XRenderer::command_execute_depth_set_test(
 }
 
 void Ogl1XRenderer::command_execute_depth_set_write(
-	const RendererCommand::DepthSetWrite& command)
+	const RendererCommandDepthSetWrite& command)
 {
 	if (depth_is_write_enabled_ != command.is_enabled_)
 	{
@@ -1950,7 +1950,7 @@ void Ogl1XRenderer::command_execute_depth_set_write(
 }
 
 void Ogl1XRenderer::command_execute_viewport_set(
-	const RendererCommand::ViewportSet& command)
+	const RendererCommandViewportSet& command)
 {
 	assert(command.x_ < screen_width_);
 	assert(command.y_ < screen_height_);
@@ -1983,7 +1983,7 @@ void Ogl1XRenderer::command_execute_viewport_set(
 }
 
 void Ogl1XRenderer::command_execute_scissor_enable(
-	const RendererCommand::ScissorEnable& command)
+	const RendererCommandScissorEnable& command)
 {
 	if (scissor_is_enabled_ != command.is_enabled_)
 	{
@@ -1994,7 +1994,7 @@ void Ogl1XRenderer::command_execute_scissor_enable(
 }
 
 void Ogl1XRenderer::command_execute_scissor_set_box(
-	const RendererCommand::ScissorSetBox& command)
+	const RendererCommandScissorSetBox& command)
 {
 	assert(command.x_ < screen_width_);
 	assert(command.y_ < screen_height_);
@@ -2018,7 +2018,7 @@ void Ogl1XRenderer::command_execute_scissor_set_box(
 }
 
 void Ogl1XRenderer::command_execute_fog_enable(
-	const RendererCommand::FogEnable& command)
+	const RendererCommandFogEnable& command)
 {
 	if (fog_is_enabled_ != command.is_enabled_)
 	{
@@ -2029,7 +2029,7 @@ void Ogl1XRenderer::command_execute_fog_enable(
 }
 
 void Ogl1XRenderer::command_execute_fog_set_color(
-	const RendererCommand::FogSetColor& command)
+	const RendererCommandFogSetColor& command)
 {
 	if (fog_color_ != command.color_)
 	{
@@ -2040,7 +2040,7 @@ void Ogl1XRenderer::command_execute_fog_set_color(
 }
 
 void Ogl1XRenderer::command_execute_fog_set_distances(
-	const RendererCommand::FogSetDistances& command)
+	const RendererCommandFogSetDistances& command)
 {
 	auto is_modified = false;
 
@@ -2065,7 +2065,7 @@ void Ogl1XRenderer::command_execute_fog_set_distances(
 }
 
 void Ogl1XRenderer::command_execute_matrix_set_model(
-	const RendererCommand::MatrixSetModel& command)
+	const RendererCommandMatrixSetModel& command)
 {
 	if (matrix_model_ != command.model_)
 	{
@@ -2076,7 +2076,7 @@ void Ogl1XRenderer::command_execute_matrix_set_model(
 }
 
 void Ogl1XRenderer::command_execute_matrix_set_view(
-	const RendererCommand::MatrixSetView& command)
+	const RendererCommandMatrixSetView& command)
 {
 	if (matrix_view_ != command.view_)
 	{
@@ -2087,7 +2087,7 @@ void Ogl1XRenderer::command_execute_matrix_set_view(
 }
 
 void Ogl1XRenderer::command_execute_matrix_set_model_view(
-	const RendererCommand::MatrixSetModelView& command)
+	const RendererCommandMatrixSetModelView& command)
 {
 	auto is_modified = false;
 
@@ -2114,7 +2114,7 @@ void Ogl1XRenderer::command_execute_matrix_set_model_view(
 }
 
 void Ogl1XRenderer::command_execute_matrix_set_projection(
-	const RendererCommand::MatrixSetProjection& command)
+	const RendererCommandMatrixSetProjection& command)
 {
 	if (matrix_projection_ != command.projection_)
 	{
@@ -2125,7 +2125,7 @@ void Ogl1XRenderer::command_execute_matrix_set_projection(
 }
 
 void Ogl1XRenderer::command_execute_enable_blending(
-	const RendererCommand::BlendingEnable& command)
+	const RendererCommandBlendingEnable& command)
 {
 	if (blending_is_enabled_ != command.is_enabled_)
 	{
@@ -2136,13 +2136,13 @@ void Ogl1XRenderer::command_execute_enable_blending(
 }
 
 void Ogl1XRenderer::command_execute_texture_set(
-	const RendererCommand::TextureSet& command)
+	const RendererCommandTextureSet& command)
 {
 	texture_set(static_cast<Texture2dPtr>(command.texture_2d_));
 }
 
 void Ogl1XRenderer::command_execute_sampler_set(
-	const RendererCommand::SamplerSet& command)
+	const RendererCommandSamplerSet& command)
 {
 	assert(command.sampler_);
 
@@ -2157,7 +2157,7 @@ void Ogl1XRenderer::command_execute_sampler_set(
 }
 
 void Ogl1XRenderer::command_execute_vertex_input_set(
-	const RendererCommand::VertexInputSet& command)
+	const RendererCommandVertexInputSet& command)
 {
 	if (vertex_input_current_ != command.vertex_input_)
 	{
@@ -2168,7 +2168,7 @@ void Ogl1XRenderer::command_execute_vertex_input_set(
 }
 
 void Ogl1XRenderer::command_execute_draw_quads(
-	const RendererCommand::DrawQuads& command)
+	const RendererCommandDrawQuads& command)
 {
 	assert(command.count_ > 0);
 	assert(command.index_offset_ >= 0);

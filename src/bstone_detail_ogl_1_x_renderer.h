@@ -501,58 +501,58 @@ private:
 
 
 	void command_execute_culling_enable(
-		const RendererCommand::CullingEnabled& command);
+		const RendererCommandCullingEnabled& command);
 
 	void command_execute_depth_set_test(
-		const RendererCommand::DepthSetTest& command);
+		const RendererCommandDepthSetTest& command);
 
 	void command_execute_depth_set_write(
-		const RendererCommand::DepthSetWrite& command);
+		const RendererCommandDepthSetWrite& command);
 
 	void command_execute_viewport_set(
-		const RendererCommand::ViewportSet& command);
+		const RendererCommandViewportSet& command);
 
 	void command_execute_scissor_enable(
-		const RendererCommand::ScissorEnable& command);
+		const RendererCommandScissorEnable& command);
 
 	void command_execute_scissor_set_box(
-		const RendererCommand::ScissorSetBox& command);
+		const RendererCommandScissorSetBox& command);
 
 	void command_execute_fog_enable(
-		const RendererCommand::FogEnable& command);
+		const RendererCommandFogEnable& command);
 
 	void command_execute_fog_set_color(
-		const RendererCommand::FogSetColor& command);
+		const RendererCommandFogSetColor& command);
 
 	void command_execute_fog_set_distances(
-		const RendererCommand::FogSetDistances& command);
+		const RendererCommandFogSetDistances& command);
 
 	void command_execute_matrix_set_model(
-		const RendererCommand::MatrixSetModel& command);
+		const RendererCommandMatrixSetModel& command);
 
 	void command_execute_matrix_set_view(
-		const RendererCommand::MatrixSetView& command);
+		const RendererCommandMatrixSetView& command);
 
 	void command_execute_matrix_set_model_view(
-		const RendererCommand::MatrixSetModelView& command);
+		const RendererCommandMatrixSetModelView& command);
 
 	void command_execute_matrix_set_projection(
-		const RendererCommand::MatrixSetProjection& command);
+		const RendererCommandMatrixSetProjection& command);
 
 	void command_execute_enable_blending(
-		const RendererCommand::BlendingEnable& command);
+		const RendererCommandBlendingEnable& command);
 
 	void command_execute_texture_set(
-		const RendererCommand::TextureSet& command);
+		const RendererCommandTextureSet& command);
 
 	void command_execute_sampler_set(
-		const RendererCommand::SamplerSet& command);
+		const RendererCommandSamplerSet& command);
 
 	void command_execute_vertex_input_set(
-		const RendererCommand::VertexInputSet& command);
+		const RendererCommandVertexInputSet& command);
 
 	void command_execute_draw_quads(
-		const RendererCommand::DrawQuads& command);
+		const RendererCommandDrawQuads& command);
 }; // OglRenderer
 
 
