@@ -1357,8 +1357,11 @@ constexpr auto hw_3d_max_sprites_indices = ::hw_3d_max_statics_indices + ::hw_3d
 
 constexpr auto hw_3d_cloaked_actor_alpha_u8 = std::uint8_t{0x50};
 
-constexpr auto hw_min_2d_commands = 32;
-constexpr auto hw_min_3d_commands = 4096;
+constexpr auto hw_2d_command_buffer_initial_size = 4096;
+constexpr auto hw_2d_command_buffer_resize_delta_size = 4096;
+
+constexpr auto hw_3d_command_buffer_initial_size = 4096;
+constexpr auto hw_3d_command_buffer_resize_delta_size = 4096;
 
 
 template<
@@ -1707,9 +1710,9 @@ bstone::RendererTextureManagerUPtr hw_texture_manager_ = nullptr;
 
 bstone::RendererPalette hw_palette_;
 
-bstone::RendererCommandSets hw_command_sets_;
-bstone::RendererCommandSet* hw_2d_command_set_;
-bstone::RendererCommandSet* hw_3d_command_set_;
+bstone::RendererCommandManagerUPtr hw_command_manager_;
+bstone::RendererCommandBufferPtr hw_2d_command_buffer_;
+bstone::RendererCommandBufferPtr hw_3d_command_buffer_;
 
 bstone::RendererTexture2dPtr hw_2d_texture_ = nullptr;
 bstone::RendererIndexBufferPtr hw_2d_ib_ = nullptr;
@@ -4069,6 +4072,100 @@ bool hw_samplers_initialize()
 	return true;
 }
 
+void hw_command_manager_destroy()
+{
+	::hw_command_manager_ = nullptr;
+}
+
+bool hw_command_manager_create()
+{
+	::hw_command_manager_ = bstone::RendererCommandManagerFactory::create();
+
+	if (!::hw_command_manager_)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void hw_command_buffer_2d_uninitialize()
+{
+	if (::hw_2d_command_buffer_)
+	{
+		::hw_command_manager_->buffer_remove(::hw_2d_command_buffer_);
+		::hw_2d_command_buffer_ = nullptr;
+	}
+}
+
+bool hw_command_buffer_2d_initialize()
+{
+	auto param = bstone::RendererCommandManagerBufferAddParam{};
+	param.initial_size_ = ::hw_2d_command_buffer_initial_size;
+	param.resize_delta_size_ = ::hw_2d_command_buffer_resize_delta_size;
+
+	::hw_2d_command_buffer_ = ::hw_command_manager_->buffer_add(param);
+
+	if (!::hw_2d_command_buffer_)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void hw_command_buffer_3d_uninitialize()
+{
+	if (::hw_3d_command_buffer_)
+	{
+		::hw_command_manager_->buffer_remove(::hw_3d_command_buffer_);
+		::hw_3d_command_buffer_ = nullptr;
+	}
+}
+
+bool hw_command_buffer_3d_initialize()
+{
+	auto param = bstone::RendererCommandManagerBufferAddParam{};
+	param.initial_size_ = ::hw_3d_command_buffer_initial_size;
+	param.resize_delta_size_ = ::hw_3d_command_buffer_resize_delta_size;
+
+	::hw_3d_command_buffer_ = ::hw_command_manager_->buffer_add(param);
+
+	if (!::hw_3d_command_buffer_)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void hw_command_manager_uninitialize()
+{
+	::hw_command_buffer_3d_uninitialize();
+	::hw_command_buffer_2d_uninitialize();
+	::hw_command_manager_destroy();
+}
+
+bool hw_command_manager_initialize()
+{
+	if (!::hw_command_manager_create())
+	{
+		return false;
+	}
+
+	if (!::hw_command_buffer_2d_initialize())
+	{
+		return false;
+	}
+
+	if (!::hw_command_buffer_3d_initialize())
+	{
+		return false;
+	}
+
+	return true;
+}
+
 bool hw_initialize_video()
 {
 	::vid_is_hw_ = false;
@@ -4255,23 +4352,12 @@ bool hw_initialize_video()
 
 	if (is_succeed)
 	{
+		is_succeed = ::hw_command_manager_initialize();
+	}
+
+	if (is_succeed)
+	{
 		::hw_matrices_build();
-
-		::hw_command_sets_.resize(2);
-
-		// 2D
-		//
-		::hw_2d_command_set_ = &::hw_command_sets_[1];
-
-		::hw_2d_command_set_->count_ = 0;
-		::hw_2d_command_set_->commands_.resize(::hw_min_2d_commands);
-
-		// 3D
-		//
-		::hw_3d_command_set_ = &::hw_command_sets_[0];
-
-		::hw_3d_command_set_->count_ = 0;
-		::hw_3d_command_set_->commands_.resize(::hw_min_3d_commands);
 	}
 
 	if (is_succeed)
@@ -4385,26 +4471,26 @@ void hw_refresh_screen_2d()
 	}
 
 
+	auto command_buffer = ::hw_2d_command_buffer_;
+
+	command_buffer->allocate_begin();
+
 	// Build commands.
 	//
-	auto command_index = 0;
-	auto& commands = ::hw_2d_command_set_->commands_;
 
 
 	// Disable back-face culling.
 	//
 	{
-		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::culling_enable;
-		command.culling_enabled.is_enabled_ = false;
+		auto& command = *command_buffer->allocate_culling_enable();
+		command.is_enabled_ = false;
 	}
 
 	// Disable depth test.
 	//
 	{
-		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::depth_set_test;
-		command.depth_set_test_.is_enabled_ = false;
+		auto& command = *command_buffer->allocate_depth_set_test();
+		command.is_enabled_ = false;
 	}
 
 	// Draw player's weapon.
@@ -4425,67 +4511,59 @@ void hw_refresh_screen_2d()
 			// Set model-view matrix.
 			//
 			{
-				auto& command = commands[command_index++];
-				command.id_ = bstone::RendererCommandId::matrix_set_model_view;
-				command.matrix_set_model_view_.model_ = ::hw_3d_player_weapon_model_matrix_;
-				command.matrix_set_model_view_.view_ = ::hw_3d_player_weapon_view_matrix_;
+				auto& command = *command_buffer->allocate_matrix_set_model_view();
+				command.model_ = ::hw_3d_player_weapon_model_matrix_;
+				command.view_ = ::hw_3d_player_weapon_view_matrix_;
 			}
 
 			// Set projection matrix.
 			//
 			{
-				auto& command = commands[command_index++];
-				command.id_ = bstone::RendererCommandId::matrix_set_projection;
-				command.matrix_set_projection_.projection_ = ::hw_3d_player_weapon_projection_matrix_;
+				auto& command = *command_buffer->allocate_matrix_set_projection();
+				command.projection_ = ::hw_3d_player_weapon_projection_matrix_;
 			}
 
 			// Set texture.
 			//
 			{
-				auto& command = commands[command_index++];
-				command.id_ = bstone::RendererCommandId::texture_set;
-				command.texture_set_.texture_2d_ = player_weapon_texture;
+				auto& command = *command_buffer->allocate_texture_set();
+				command.texture_2d_ = player_weapon_texture;
 			}
 
 			// Set sampler.
 			//
 			{
-				auto& command = commands[command_index++];
-				command.id_ = bstone::RendererCommandId::sampler_set;
-				command.sampler_set_.sampler_ = ::hw_3d_player_weapon_so_;
+				auto& command = *command_buffer->allocate_sampler_set();
+				command.sampler_ = ::hw_3d_player_weapon_so_;
 			}
 
 			// Set vertex input.
 			//
 			{
-				auto& command = commands[command_index++];
-				command.id_ = bstone::RendererCommandId::vertex_input_set;
-				command.vertex_input_set_.vertex_input_ = ::hw_3d_player_weapon_vi_;
+				auto& command = *command_buffer->allocate_vertex_input_set();
+				command.vertex_input_ = ::hw_3d_player_weapon_vi_;
 			}
 
 			// Enable blending.
 			//
 			{
-				auto& command = commands[command_index++];
-				command.id_ = bstone::RendererCommandId::blending_enable;
-				command.blending_enable_.is_enabled_ = true;
+				auto& command = *command_buffer->allocate_blending_enable();
+				command.is_enabled_ = true;
 			}
 
 			// Draw the weapon.
 			//
 			{
-				auto& command = commands[command_index++];
-				command.id_ = bstone::RendererCommandId::draw_quads;
-				command.draw_quads_.index_offset_ = 0;
-				command.draw_quads_.count_ = 1;
+				auto& command = *command_buffer->allocate_draw_quads();
+				command.index_offset_ = 0;
+				command.count_ = 1;
 			}
 
 			// Disable blending.
 			//
 			{
-				auto& command = commands[command_index++];
-				command.id_ = bstone::RendererCommandId::blending_enable;
-				command.blending_enable_.is_enabled_ = false;
+				auto& command = *command_buffer->allocate_blending_enable();
+				command.is_enabled_ = false;
 			}
 		}
 	}
@@ -4493,41 +4571,35 @@ void hw_refresh_screen_2d()
 	// Set viewport.
 	//
 	{
-		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::viewport_set;
-
-		auto& viewport = command.viewport_set_;
-		viewport.x_ = 0;
-		viewport.y_ = 0;
-		viewport.width_ = ::window_width;
-		viewport.height_ = ::window_height;
-		viewport.min_depth_ = 0.0F;
-		viewport.max_depth_ = 0.0F;
+		auto& command = *command_buffer->allocate_viewport_set();
+		command.x_ = 0;
+		command.y_ = 0;
+		command.width_ = ::window_width;
+		command.height_ = ::window_height;
+		command.min_depth_ = 0.0F;
+		command.max_depth_ = 0.0F;
 	}
 
 	// Set sampler.
 	//
 	{
-		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::sampler_set;
-		command.sampler_set_.sampler_ = ::hw_2d_so_;
+		auto& command = *command_buffer->allocate_sampler_set();
+		command.sampler_ = ::hw_2d_so_;
 	}
 
 	// Set model-view matrix.
 	//
 	{
-		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::matrix_set_model_view;
-		command.matrix_set_model_view_.model_ = ::hw_2d_matrix_model_;
-		command.matrix_set_model_view_.view_ = ::hw_2d_matrix_view_;
+		auto& command = *command_buffer->allocate_matrix_set_model_view();
+		command.model_ = ::hw_2d_matrix_model_;
+		command.view_ = ::hw_2d_matrix_view_;
 	}
 
 	// Set projection matrix.
 	//
 	{
-		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::matrix_set_projection;
-		command.matrix_set_projection_.projection_ = ::hw_2d_matrix_projection_;
+		auto& command = *command_buffer->allocate_matrix_set_projection();
+		command.projection_ = ::hw_2d_matrix_projection_;
 	}
 
 	// Fillers.
@@ -4536,21 +4608,16 @@ void hw_refresh_screen_2d()
 	{
 		{
 			const auto texture_2d = (::vid_is_movie ? ::hw_2d_white_t2d_1x1_ : ::hw_2d_black_t2d_1x1_);
-			auto& command = commands[command_index++];
-			command.id_ = bstone::RendererCommandId::texture_set;
-			command.texture_set_.texture_2d_ = texture_2d;
+			auto& command = *command_buffer->allocate_texture_set();
+			command.texture_2d_ = texture_2d;
 		}
 
 		{
-			auto& command = commands[command_index++];
-			command.id_ = bstone::RendererCommandId::vertex_input_set;
-			command.vertex_input_set_.vertex_input_ = ::hw_2d_fillers_vi_;
+			auto& command = *command_buffer->allocate_vertex_input_set();
+			command.vertex_input_ = ::hw_2d_fillers_vi_;
 		}
 
 		{
-			auto& command = commands[command_index++];
-			command.id_ = bstone::RendererCommandId::draw_quads;
-
 			auto count = 0;
 			auto index_offset = 0;
 
@@ -4565,9 +4632,9 @@ void hw_refresh_screen_2d()
 				index_offset = ::hw_2d_fillers_ui_index_offset_;
 			}
 
-			auto& draw_quads = command.draw_quads_;
-			draw_quads.count_ = count;
-			draw_quads.index_offset_ = index_offset;
+			auto& command = *command_buffer->allocate_draw_quads();
+			command.count_ = count;
+			command.index_offset_ = index_offset;
 		}
 	}
 
@@ -4576,29 +4643,21 @@ void hw_refresh_screen_2d()
 	{
 		if (::vid_is_hud)
 		{
-			auto& command = commands[command_index++];
-			command.id_ = bstone::RendererCommandId::blending_enable;
-
-			auto& blending_set = command.blending_enable_;
-			blending_set.is_enabled_ = true;
+			auto& command = *command_buffer->allocate_blending_enable();
+			command.is_enabled_ = true;
 		}
 
 		{
-			auto& command = commands[command_index++];
-			command.id_ = bstone::RendererCommandId::texture_set;
-			command.texture_set_.texture_2d_ = ::hw_2d_texture_;
+			auto& command = *command_buffer->allocate_texture_set();
+			command.texture_2d_ = ::hw_2d_texture_;
 		}
 
 		{
-			auto& command = commands[command_index++];
-			command.id_ = bstone::RendererCommandId::vertex_input_set;
-			command.vertex_input_set_.vertex_input_ = ::hw_2d_vi_;
+			auto& command = *command_buffer->allocate_vertex_input_set();
+			command.vertex_input_ = ::hw_2d_vi_;
 		}
 
 		{
-			auto& command = commands[command_index++];
-			command.id_ = bstone::RendererCommandId::draw_quads;
-
 			const auto index_offset = (::vid_is_ui_stretched
 				?
 				::hw_2d_stretched_index_offset_
@@ -4606,18 +4665,15 @@ void hw_refresh_screen_2d()
 				::hw_2d_non_stretched_index_offset_
 			);
 
-			auto& draw_quads = command.draw_quads_;
-			draw_quads.count_ = 1;
-			draw_quads.index_offset_ = index_offset;
+			auto& command = *command_buffer->allocate_draw_quads();
+			command.count_ = 1;
+			command.index_offset_ = index_offset;
 		}
 
 		if (::vid_is_hud)
 		{
-			auto& command = commands[command_index++];
-			command.id_ = bstone::RendererCommandId::blending_enable;
-
-			auto& blending_set = command.blending_enable_;
-			blending_set.is_enabled_ = false;
+			auto& command = *command_buffer->allocate_blending_enable();
+			command.is_enabled_ = false;
 		}
 	}
 
@@ -4628,33 +4684,27 @@ void hw_refresh_screen_2d()
 		// Enable blending.
 		//
 		{
-			auto& command = commands[command_index++];
-			command.id_ = bstone::RendererCommandId::blending_enable;
-
-			auto& blending_set = command.blending_enable_;
-			blending_set.is_enabled_ = true;
+			auto& command = *command_buffer->allocate_blending_enable();
+			command.is_enabled_ = true;
 		}
 
 		// Set texture.
 		//
 		{
-			auto& command = commands[command_index++];
-			command.id_ = bstone::RendererCommandId::texture_set;
-			command.texture_set_.texture_2d_ = ::hw_2d_fade_t2d_;
+			auto& command = *command_buffer->allocate_texture_set();
+			command.texture_2d_ = ::hw_2d_fade_t2d_;
+		}
+
+		// Set vertex input.
+		//
+		{
+			auto& command = *command_buffer->allocate_vertex_input_set();
+			command.vertex_input_ = ::hw_2d_vi_;
 		}
 
 		// Draw the quad.
 		//
 		{
-			auto& command = commands[command_index++];
-			command.id_ = bstone::RendererCommandId::vertex_input_set;
-			command.vertex_input_set_.vertex_input_ = ::hw_2d_vi_;
-		}
-
-		{
-			auto& command = commands[command_index++];
-			command.id_ = bstone::RendererCommandId::draw_quads;
-
 			const auto index_offset = (::vid_is_ui_stretched
 				?
 				::hw_2d_stretched_index_offset_
@@ -4662,25 +4712,22 @@ void hw_refresh_screen_2d()
 				::hw_2d_non_stretched_index_offset_
 			);
 
-			auto& draw_quads = command.draw_quads_;
-			draw_quads.count_ = 1;
-			draw_quads.index_offset_ = index_offset;
+			auto& command = *command_buffer->allocate_draw_quads();
+			command.count_ = 1;
+			command.index_offset_ = index_offset;
 		}
 
 		// Disable blending.
 		//
 		{
-			auto& command = commands[command_index++];
-			command.id_ = bstone::RendererCommandId::blending_enable;
-
-			auto& blending_set = command.blending_enable_;
-			blending_set.is_enabled_ = false;
+			auto& command = *command_buffer->allocate_blending_enable();
+			command.is_enabled_ = false;
 		}
 	}
 
-	// Commit commands.
+	// Finalize.
 	//
-	::hw_2d_command_set_->count_ = command_index;
+	command_buffer->allocate_end();
 }
 
 bool hw_3d_dbg_is_tile_vertex_visible(
@@ -4733,8 +4780,7 @@ bool hw_3d_dbg_is_tile_visible(
 	return false;
 }
 
-void hw_3d_dbg_draw_all_solid_walls(
-	int& command_index)
+void hw_3d_dbg_draw_all_solid_walls()
 {
 	// Build draw list.
 	//
@@ -4807,6 +4853,7 @@ void hw_3d_dbg_draw_all_solid_walls(
 	auto draw_index = 0;
 	auto draw_quad_count = 0;
 	auto draw_index_offset_ = 0;
+	auto command_buffer = ::hw_3d_command_buffer_;
 
 	while (draw_index < draw_side_index)
 	{
@@ -4837,24 +4884,19 @@ void hw_3d_dbg_draw_all_solid_walls(
 		if (draw_quad_count > 0)
 		{
 			{
-				auto& command = ::hw_3d_command_set_->commands_[command_index++];
-				command.id_ = bstone::RendererCommandId::texture_set;
-				command.texture_set_.texture_2d_ = last_texture;
+				auto& command = *command_buffer->allocate_texture_set();
+				command.texture_2d_ = last_texture;
 			}
 
 			{
-				auto& command = ::hw_3d_command_set_->commands_[command_index++];
-				command.id_ = bstone::RendererCommandId::vertex_input_set;
-				command.vertex_input_set_.vertex_input_ = ::hw_3d_wall_sides_vi_;
+				auto& command = *command_buffer->allocate_vertex_input_set();
+				command.vertex_input_ = ::hw_3d_wall_sides_vi_;
 			}
 
 			{
-				auto& command = ::hw_3d_command_set_->commands_[command_index++];
-				command.id_ = bstone::RendererCommandId::draw_quads;
-
-				auto& draw_quads = command.draw_quads_;
-				draw_quads.count_ = draw_quad_count;
-				draw_quads.index_offset_ = draw_index_offset_;
+				auto& command = *command_buffer->allocate_draw_quads();
+				command.count_ = draw_quad_count;
+				command.index_offset_ = draw_index_offset_;
 
 				draw_index_offset_ += ::hw_3d_indices_per_wall_side * draw_quad_count;
 			}
@@ -4864,8 +4906,7 @@ void hw_3d_dbg_draw_all_solid_walls(
 	::hw_3d_wall_side_draw_item_count_ = draw_side_index;
 }
 
-void hw_3d_dbg_draw_all_pushwalls(
-	int& command_index)
+void hw_3d_dbg_draw_all_pushwalls()
 {
 	if (::hw_3d_pushwall_count_ == 0)
 	{
@@ -4938,6 +4979,7 @@ void hw_3d_dbg_draw_all_pushwalls(
 	auto draw_index = 0;
 	auto draw_quad_count = 0;
 	auto draw_index_offset_ = 0;
+	auto command_buffer = ::hw_3d_command_buffer_;
 
 	while (draw_index < draw_side_index)
 	{
@@ -4968,24 +5010,19 @@ void hw_3d_dbg_draw_all_pushwalls(
 		if (draw_quad_count > 0)
 		{
 			{
-				auto& command = ::hw_3d_command_set_->commands_[command_index++];
-				command.id_ = bstone::RendererCommandId::texture_set;
-				command.texture_set_.texture_2d_ = last_texture;
+				auto& command = *command_buffer->allocate_texture_set();
+				command.texture_2d_ = last_texture;
 			}
 
 			{
-				auto& command = ::hw_3d_command_set_->commands_[command_index++];
-				command.id_ = bstone::RendererCommandId::vertex_input_set;
-				command.vertex_input_set_.vertex_input_ = ::hw_3d_pushwall_sides_vi_;
+				auto& command = *command_buffer->allocate_vertex_input_set();
+				command.vertex_input_ = ::hw_3d_pushwall_sides_vi_;
 			}
 
 			{
-				auto& command = ::hw_3d_command_set_->commands_[command_index++];
-				command.id_ = bstone::RendererCommandId::draw_quads;
-
-				auto& draw_quads = command.draw_quads_;
-				draw_quads.count_ = draw_quad_count;
-				draw_quads.index_offset_ = draw_index_offset_;
+				auto& command = *command_buffer->allocate_draw_quads();
+				command.count_ = draw_quad_count;
+				command.index_offset_ = draw_index_offset_;
 
 				draw_index_offset_ += ::hw_3d_indices_per_wall_side * draw_quad_count;
 			}
@@ -5059,8 +5096,7 @@ bool hw_3d_dbg_is_door_visible(
 	return false;
 }
 
-void hw_3d_dbg_draw_all_doors(
-	int& command_index)
+void hw_3d_dbg_draw_all_doors()
 {
 	if (::hw_3d_door_count_ == 0)
 	{
@@ -5171,6 +5207,7 @@ void hw_3d_dbg_draw_all_doors(
 	auto draw_index = 0;
 	auto draw_quad_count = 0;
 	auto draw_index_offset = 0;
+	auto command_buffer = ::hw_3d_command_buffer_;
 
 	while (draw_index < draw_side_index)
 	{
@@ -5201,24 +5238,19 @@ void hw_3d_dbg_draw_all_doors(
 		if (draw_quad_count > 0)
 		{
 			{
-				auto& command = ::hw_3d_command_set_->commands_[command_index++];
-				command.id_ = bstone::RendererCommandId::texture_set;
-				command.texture_set_.texture_2d_ = last_texture;
+				auto& command = *command_buffer->allocate_texture_set();
+				command.texture_2d_ = last_texture;
 			}
 
 			{
-				auto& command = ::hw_3d_command_set_->commands_[command_index++];
-				command.id_ = bstone::RendererCommandId::vertex_input_set;
-				command.vertex_input_set_.vertex_input_ = ::hw_3d_door_sides_vi_;
+				auto& command = *command_buffer->allocate_vertex_input_set();
+				command.vertex_input_ = ::hw_3d_door_sides_vi_;
 			}
 
 			{
-				auto& command = ::hw_3d_command_set_->commands_[command_index++];
-				command.id_ = bstone::RendererCommandId::draw_quads;
-
-				auto& draw_quads = command.draw_quads_;
-				draw_quads.count_ = draw_quad_count;
-				draw_quads.index_offset_ = draw_index_offset;
+				auto& command = *command_buffer->allocate_draw_quads();
+				command.count_ = draw_quad_count;
+				command.index_offset_ = draw_index_offset;
 
 				draw_index_offset += 6 * draw_quad_count;
 			}
@@ -5228,8 +5260,7 @@ void hw_3d_dbg_draw_all_doors(
 	::hw_3d_door_draw_item_count_ = draw_side_index;
 }
 
-void hw_3d_dbg_draw_all_sprites(
-	int& command_index)
+void hw_3d_dbg_draw_all_sprites()
 {
 	// Build draw list.
 	//
@@ -5315,21 +5346,20 @@ void hw_3d_dbg_draw_all_sprites(
 
 	// Add render commands.
 	//
+	auto command_buffer = ::hw_3d_command_buffer_;
 
 	// Disable depth write.
 	//
 	{
-		auto& command = ::hw_3d_command_set_->commands_[command_index++];
-		command.id_ = bstone::RendererCommandId::depth_set_write;
-		command.depth_set_write_.is_enabled_ = false;
+		auto& command = *command_buffer->allocate_depth_set_write();
+		command.is_enabled_ = false;
 	}
 
 	// Enable blending.
 	//
 	{
-		auto& command = ::hw_3d_command_set_->commands_[command_index++];
-		command.id_ = bstone::RendererCommandId::blending_enable;
-		command.blending_enable_.is_enabled_ = true;
+		auto& command = *command_buffer->allocate_blending_enable();
+		command.is_enabled_ = true;
 	}
 
 	auto draw_index = 0;
@@ -5365,24 +5395,19 @@ void hw_3d_dbg_draw_all_sprites(
 		if (draw_quad_count > 0)
 		{
 			{
-				auto& command = ::hw_3d_command_set_->commands_[command_index++];
-				command.id_ = bstone::RendererCommandId::texture_set;
-				command.texture_set_.texture_2d_ = last_texture;
+				auto& command = *command_buffer->allocate_texture_set();
+				command.texture_2d_ = last_texture;
 			}
 
 			{
-				auto& command = ::hw_3d_command_set_->commands_[command_index++];
-				command.id_ = bstone::RendererCommandId::vertex_input_set;
-				command.vertex_input_set_.vertex_input_ = ::hw_3d_sprites_vi_;
+				auto& command = *command_buffer->allocate_vertex_input_set();
+				command.vertex_input_ = ::hw_3d_sprites_vi_;
 			}
 
 			{
-				auto& command = ::hw_3d_command_set_->commands_[command_index++];
-				command.id_ = bstone::RendererCommandId::draw_quads;
-
-				auto& draw_quads = command.draw_quads_;
-				draw_quads.count_ = draw_quad_count;
-				draw_quads.index_offset_ = draw_index_offset_;
+				auto& command = *command_buffer->allocate_draw_quads();
+				command.count_ = draw_quad_count;
+				command.index_offset_ = draw_index_offset_;
 
 				draw_index_offset_ += ::hw_3d_indices_per_sprite * draw_quad_count;
 			}
@@ -5392,17 +5417,15 @@ void hw_3d_dbg_draw_all_sprites(
 	// Enable depth write.
 	//
 	{
-		auto& command = ::hw_3d_command_set_->commands_[command_index++];
-		command.id_ = bstone::RendererCommandId::depth_set_write;
-		command.depth_set_write_.is_enabled_ = true;
+		auto& command = *command_buffer->allocate_depth_set_write();
+		command.is_enabled_ = true;
 	}
 
 	// Disable blending.
 	//
 	{
-		auto& command = ::hw_3d_command_set_->commands_[command_index++];
-		command.id_ = bstone::RendererCommandId::blending_enable;
-		command.blending_enable_.is_enabled_ = false;
+		auto& command = *command_buffer->allocate_blending_enable();
+		command.is_enabled_ = false;
 	}
 
 	::hw_3d_sprites_draw_count_ = draw_sprite_index;
@@ -5410,110 +5433,94 @@ void hw_3d_dbg_draw_all_sprites(
 
 void hw_refresh_screen_3d()
 {
-	::hw_3d_command_set_->count_ = 0;
-
 	if (!::vid_hw_is_draw_3d_)
 	{
 		return;
 	}
 
+	auto command_buffer = ::hw_3d_command_buffer_;
 
-	// Build commands.
-	//
-	auto command_index = 0;
-	auto& commands = ::hw_3d_command_set_->commands_;
-
+	command_buffer->allocate_begin();
 
 	// Set viewport.
 	//
 	{
-		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::viewport_set;
-
-		auto& viewport = command.viewport_set_;
-		viewport.x_ = ::hw_3d_viewport_x_;
-		viewport.y_ = ::hw_3d_viewport_y_;
-		viewport.width_ = ::hw_3d_viewport_width_;
-		viewport.height_ = ::hw_3d_viewport_height_;
-		viewport.min_depth_ = 0.0F;
-		viewport.max_depth_ = 1.0F;
+		auto& command = *command_buffer->allocate_viewport_set();
+		command.x_ = ::hw_3d_viewport_x_;
+		command.y_ = ::hw_3d_viewport_y_;
+		command.width_ = ::hw_3d_viewport_width_;
+		command.height_ = ::hw_3d_viewport_height_;
+		command.min_depth_ = 0.0F;
+		command.max_depth_ = 1.0F;
 	}
 
 	// Enable back-face culling.
 	//
 	{
-		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::culling_enable;
-		command.culling_enabled.is_enabled_ = true;
+		auto& command = *command_buffer->allocate_culling_enable();
+		command.is_enabled_ = true;
 	}
 
 	// Enable depth test.
 	//
 	{
-		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::depth_set_test;
-		command.depth_set_test_.is_enabled_ = true;
+		auto& command = *command_buffer->allocate_depth_set_test();
+		command.is_enabled_ = true;
 	}
 
 	// Enable depth write.
 	//
 	{
-		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::depth_set_write;
-		command.depth_set_write_.is_enabled_ = true;
+		auto& command = *command_buffer->allocate_depth_set_write();
+		command.is_enabled_ = true;
 	}
 
 	// Set model-view matrix.
 	//
 	{
-		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::matrix_set_model_view;
-		command.matrix_set_model_view_.model_ = ::hw_3d_matrix_model_;
-		command.matrix_set_model_view_.view_ = ::hw_3d_matrix_view_;
+		auto& command = *command_buffer->allocate_matrix_set_model_view();
+		command.model_ = ::hw_3d_matrix_model_;
+		command.view_ = ::hw_3d_matrix_view_;
 	}
 
 	// Set projection matrix.
 	//
 	{
-		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::matrix_set_projection;
-		command.matrix_set_projection_.projection_ = ::hw_3d_matrix_projection_;
+		auto& command = *command_buffer->allocate_matrix_set_projection();
+		command.projection_ = ::hw_3d_matrix_projection_;
 	}
 
 	// Set sampler.
 	//
 	{
-		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::sampler_set;
-		command.sampler_set_.sampler_ = ::hw_3d_wall_so_;
+		auto& command = *command_buffer->allocate_sampler_set();
+		command.sampler_ = ::hw_3d_wall_so_;
 	}
 
 	// Draw solid walls.
 	//
-	::hw_3d_dbg_draw_all_solid_walls(command_index);
+	::hw_3d_dbg_draw_all_solid_walls();
 
 	// Draw pushwalls.
 	//
-	::hw_3d_dbg_draw_all_pushwalls(command_index);
+	::hw_3d_dbg_draw_all_pushwalls();
 
 	// Set sampler.
 	//
 	{
-		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::sampler_set;
-		command.sampler_set_.sampler_ = ::hw_3d_sprite_so_;
+		auto& command = *command_buffer->allocate_sampler_set();
+		command.sampler_ = ::hw_3d_sprite_so_;
 	}
 
 	// Draw doors.
 	//
-	::hw_3d_dbg_draw_all_doors(command_index);
+	::hw_3d_dbg_draw_all_doors();
 
 	// Set sampler.
 	//
 	{
-		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::sampler_set;
-		command.sampler_set_.sampler_ = ::hw_3d_wall_so_;
+		auto& command = *command_buffer->allocate_sampler_set();
+		command.sampler_ = ::hw_3d_wall_so_;
 	}
 
 	// Draw flooring.
@@ -5527,24 +5534,19 @@ void hw_refresh_screen_3d()
 		);
 
 		{
-			auto& command = ::hw_3d_command_set_->commands_[command_index++];
-			command.id_ = bstone::RendererCommandId::texture_set;
-			command.texture_set_.texture_2d_ = texture_2d;
+			auto& command = *command_buffer->allocate_texture_set();
+			command.texture_2d_ = texture_2d;
 		}
 
 		{
-			auto& command = ::hw_3d_command_set_->commands_[command_index++];
-			command.id_ = bstone::RendererCommandId::vertex_input_set;
-			command.vertex_input_set_.vertex_input_ = ::hw_3d_flooring_vi_;
+			auto& command = *command_buffer->allocate_vertex_input_set();
+			command.vertex_input_ = ::hw_3d_flooring_vi_;
 		}
 
 		{
-			auto& command = commands[command_index++];
-			command.id_ = bstone::RendererCommandId::draw_quads;
-
-			auto& draw_quads = command.draw_quads_;
-			draw_quads.count_ = 1;
-			draw_quads.index_offset_ = 0;
+			auto& command = *command_buffer->allocate_draw_quads();
+			command.count_ = 1;
+			command.index_offset_ = 0;
 		}
 	}
 
@@ -5559,42 +5561,36 @@ void hw_refresh_screen_3d()
 		);
 
 		{
-			auto& command = ::hw_3d_command_set_->commands_[command_index++];
-			command.id_ = bstone::RendererCommandId::texture_set;
-			command.texture_set_.texture_2d_ = texture_2d;
+			auto& command = *command_buffer->allocate_texture_set();
+			command.texture_2d_ = texture_2d;
 		}
 
 		{
-			auto& command = ::hw_3d_command_set_->commands_[command_index++];
-			command.id_ = bstone::RendererCommandId::vertex_input_set;
-			command.vertex_input_set_.vertex_input_ = ::hw_3d_ceiling_vi_;
+			auto& command = *command_buffer->allocate_vertex_input_set();
+			command.vertex_input_ = ::hw_3d_ceiling_vi_;
 		}
 
 		{
-			auto& command = commands[command_index++];
-			command.id_ = bstone::RendererCommandId::draw_quads;
-
-			auto& draw_quads = command.draw_quads_;
-			draw_quads.count_ = 1;
-			draw_quads.index_offset_ = 0;
+			auto& command = *command_buffer->allocate_draw_quads();
+			command.count_ = 1;
+			command.index_offset_ = 0;
 		}
 	}
 
 	// Set sampler.
 	//
 	{
-		auto& command = commands[command_index++];
-		command.id_ = bstone::RendererCommandId::sampler_set;
-		command.sampler_set_.sampler_ = ::hw_3d_sprite_so_;
+		auto& command = *command_buffer->allocate_sampler_set();
+		command.sampler_ = ::hw_3d_sprite_so_;
 	}
 
 	// Draw statics and actors.
 	//
-	::hw_3d_dbg_draw_all_sprites(command_index);
+	::hw_3d_dbg_draw_all_sprites();
 
-	// Commit commands.
+	// Finalize.
 	//
-	::hw_3d_command_set_->count_ = command_index;
+	command_buffer->allocate_end();
 }
 
 void hw_refresh_screen()
@@ -5618,7 +5614,7 @@ void hw_refresh_screen()
 	::hw_refresh_screen_3d();
 	::hw_refresh_screen_2d();
 
-	::hw_renderer_->execute_command_sets(::hw_command_sets_);
+	::hw_renderer_->execute_commands(::hw_command_manager_.get());
 	::hw_renderer_->present();
 
 	::vid_hw_is_draw_3d_ = false;
@@ -10022,8 +10018,7 @@ void hw_precache_resources()
 
 void hw_uninitialize_video()
 {
-	::hw_command_sets_ .clear();
-	::hw_2d_command_set_ = nullptr;
+	::hw_command_manager_uninitialize();
 
 	::hw_samplers_uninitialize();
 

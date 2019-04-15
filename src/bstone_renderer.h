@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 //
-// Renderer interface.
+// Renderer.
 //
 
 
@@ -57,7 +57,8 @@ enum class RendererPath
 	ogl_1_x,
 }; // RendererPath
 
-enum class RendererCommandId
+enum class RendererCommandId :
+	unsigned char
 {
 	none,
 
@@ -502,52 +503,152 @@ struct RendererCommand
 		int count_;
 		int index_offset_;
 	}; // DrawQuads
-
-
-	RendererCommandId id_;
-
-	union
-	{
-		ViewportSet viewport_set_;
-
-		ScissorEnable scissor_enable_;
-		ScissorSetBox scissor_set_box_;
-
-		CullingEnabled culling_enabled;
-
-		DepthSetTest depth_set_test_;
-		DepthSetWrite depth_set_write_;
-
-		BlendingEnable blending_enable_;
-
-		FogEnable fog_enable_;
-		FogSetColor fog_set_color_;
-		FogSetDistances fog_set_distances_;
-
-		MatrixSetModel matrix_set_model_;
-		MatrixSetView matrix_set_view_;
-		MatrixSetModelView matrix_set_model_view_;
-		MatrixSetProjection matrix_set_projection_;
-
-		TextureSet texture_set_;
-		SamplerSet sampler_set_;
-
-		VertexInputSet vertex_input_set_;
-
-		DrawQuads draw_quads_;
-	}; // union
 }; // RendererCommand
 
-struct RendererCommandSet
+
+// ==========================================================================
+// RendererCommandBuffer
+//
+
+class RendererCommandBuffer
 {
-	using Commands = std::vector<RendererCommand>;
+protected:
+	RendererCommandBuffer() = default;
+
+	virtual ~RendererCommandBuffer() = default;
 
 
-	int count_;
-	Commands commands_;
-}; // RendererCommandSet
+public:
+	virtual int get_command_count() const = 0;
 
-using RendererCommandSets = std::vector<RendererCommandSet>;
+
+	virtual void allocate_begin() = 0;
+
+	virtual void allocate_end() = 0;
+
+	virtual RendererCommand::ViewportSet* allocate_viewport_set() = 0;
+
+	virtual RendererCommand::ScissorEnable* allocate_scissor_enable() = 0;
+	virtual RendererCommand::ScissorSetBox* allocate_scissor_set_box() = 0;
+
+	virtual RendererCommand::CullingEnabled* allocate_culling_enable() = 0;
+
+	virtual RendererCommand::DepthSetTest* allocate_depth_set_test() = 0;
+	virtual RendererCommand::DepthSetWrite* allocate_depth_set_write() = 0;
+
+	virtual RendererCommand::BlendingEnable* allocate_blending_enable() = 0;
+
+	virtual RendererCommand::FogEnable* allocate_fog_enable() = 0;
+	virtual RendererCommand::FogSetColor* allocate_fog_set_color() = 0;
+	virtual RendererCommand::FogSetDistances* allocate_fog_set_distances() = 0;
+
+	virtual RendererCommand::MatrixSetModel* allocate_matrix_set_model() = 0;
+	virtual RendererCommand::MatrixSetView* allocate_matrix_set_view() = 0;
+	virtual RendererCommand::MatrixSetModelView* allocate_matrix_set_model_view() = 0;
+	virtual RendererCommand::MatrixSetProjection* allocate_matrix_set_projection() = 0;
+
+	virtual RendererCommand::TextureSet* allocate_texture_set() = 0;
+	virtual RendererCommand::SamplerSet* allocate_sampler_set() = 0;
+
+	virtual RendererCommand::VertexInputSet* allocate_vertex_input_set() = 0;
+
+	virtual RendererCommand::DrawQuads* allocate_draw_quads() = 0;
+
+
+	virtual void read_begin() = 0;
+
+	virtual void read_end() = 0;
+
+	virtual RendererCommandId read_command_id() = 0;
+
+	virtual const RendererCommand::ViewportSet* read_viewport_set() = 0;
+
+	virtual const RendererCommand::ScissorEnable* read_scissor_enable() = 0;
+	virtual const RendererCommand::ScissorSetBox* read_scissor_set_box() = 0;
+
+	virtual const RendererCommand::CullingEnabled* read_culling_enable() = 0;
+
+	virtual const RendererCommand::DepthSetTest* read_depth_set_test() = 0;
+	virtual const RendererCommand::DepthSetWrite* read_depth_set_write() = 0;
+
+	virtual const RendererCommand::BlendingEnable* read_blending_enable() = 0;
+
+	virtual const RendererCommand::FogEnable* read_fog_enable() = 0;
+	virtual const RendererCommand::FogSetColor* read_fog_set_color() = 0;
+	virtual const RendererCommand::FogSetDistances* read_fog_set_distances() = 0;
+
+	virtual const RendererCommand::MatrixSetModel* read_matrix_set_model() = 0;
+	virtual const RendererCommand::MatrixSetView* read_matrix_set_view() = 0;
+	virtual const RendererCommand::MatrixSetModelView* read_matrix_set_model_view() = 0;
+	virtual const RendererCommand::MatrixSetProjection* read_matrix_set_projection() = 0;
+
+	virtual const RendererCommand::TextureSet* read_texture_set() = 0;
+	virtual const RendererCommand::SamplerSet* read_sampler_set() = 0;
+
+	virtual const RendererCommand::VertexInputSet* read_vertex_input_set() = 0;
+
+	virtual const RendererCommand::DrawQuads* read_draw_quads() = 0;
+}; // RendererCommandBuffer
+
+using RendererCommandBufferPtr = RendererCommandBuffer*;
+
+//
+// RendererCommandBuffer
+// ==========================================================================
+
+
+// ==========================================================================
+// RendererCommandManager
+//
+
+struct RendererCommandManagerBufferAddParam
+{
+	int initial_size_;
+	int resize_delta_size_;
+}; // RendererCommandManagerBufferAddParam
+
+class RendererCommandManager
+{
+protected:
+	RendererCommandManager() = default;
+
+
+public:
+	virtual ~RendererCommandManager() = default;
+
+
+	virtual int buffer_get_count() const = 0;
+
+	virtual RendererCommandBufferPtr buffer_add(
+		const RendererCommandManagerBufferAddParam& param) = 0;
+
+	virtual void buffer_remove(
+		RendererCommandBufferPtr set) = 0;
+
+	virtual RendererCommandBufferPtr buffer_get(
+		const int index) = 0;
+}; // RendererCommandManager
+
+using RendererCommandManagerPtr = RendererCommandManager*;
+using RendererCommandManagerUPtr = std::unique_ptr<RendererCommandManager>;
+
+//
+// RendererCommandManager
+// ==========================================================================
+
+
+// ==========================================================================
+// RendererCommandManagerFactory
+//
+
+struct RendererCommandManagerFactory
+{
+	static RendererCommandManagerUPtr create();
+}; // RendererCommandManagerFactory
+
+//
+// RendererCommandManagerFactory
+// ==========================================================================
 
 
 class Renderer
@@ -641,8 +742,8 @@ public:
 		RendererVertexInputPtr vertex_input) = 0;
 
 
-	virtual void execute_command_sets(
-		const RendererCommandSets& command_sets) = 0;
+	virtual void execute_commands(
+		const RendererCommandManagerPtr command_manager) = 0;
 }; // Renderer
 
 using RendererPtr = Renderer*;

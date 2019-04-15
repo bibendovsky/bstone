@@ -315,6 +315,7 @@ target_sources(
 		bstone_pcm_decoder.cpp
 		bstone_precompiled.cpp
 		bstone_ps_fizzle_fx.cpp
+		bstone_renderer_impl.cpp
 		bstone_renderer_manager_impl.cpp
 		bstone_renderer_sw_index_buffer.cpp
 		bstone_renderer_sw_vertex_buffer.cpp

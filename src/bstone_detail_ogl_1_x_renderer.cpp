@@ -1014,89 +1014,95 @@ void Ogl1XRenderer::vertex_input_destroy(
 	);
 }
 
-void Ogl1XRenderer::execute_command_sets(
-	const RendererCommandSets& command_sets)
+void Ogl1XRenderer::execute_commands(
+	const RendererCommandManagerPtr command_manager)
 {
-	for (auto& command_set : command_sets)
+	const auto buffer_count = command_manager->buffer_get_count();
+
+	for (int i = 0; i < buffer_count; ++i)
 	{
-		const auto& commands = command_set.commands_;
+		auto command_buffer = command_manager->buffer_get(i);
 
-		for (int i = 0; i < command_set.count_; ++i)
+		const auto command_count = command_buffer->get_command_count();
+
+		command_buffer->read_begin();
+
+		for (int j = 0; j < command_count; ++j)
 		{
-			const auto& command = commands[i];
+			const auto command_id = command_buffer->read_command_id();
 
-			switch (command.id_)
+			switch (command_id)
 			{
 			case RendererCommandId::culling_enable:
-				command_execute_culling_enable(command.culling_enabled);
+				command_execute_culling_enable(*command_buffer->read_culling_enable());
 				break;
 
 			case RendererCommandId::depth_set_test:
-				command_execute_depth_set_test(command.depth_set_test_);
+				command_execute_depth_set_test(*command_buffer->read_depth_set_test());
 				break;
 
 			case RendererCommandId::depth_set_write:
-				command_execute_depth_set_write(command.depth_set_write_);
+				command_execute_depth_set_write(*command_buffer->read_depth_set_write());
 				break;
 
 			case RendererCommandId::viewport_set:
-				command_execute_viewport_set(command.viewport_set_);
+				command_execute_viewport_set(*command_buffer->read_viewport_set());
 				break;
 
 			case RendererCommandId::scissor_enable:
-				command_execute_scissor_enable(command.scissor_enable_);
+				command_execute_scissor_enable(*command_buffer->read_scissor_enable());
 				break;
 
 			case RendererCommandId::scissor_set_box:
-				command_execute_scissor_set_box(command.scissor_set_box_);
+				command_execute_scissor_set_box(*command_buffer->read_scissor_set_box());
 				break;
 
 			case RendererCommandId::fog_enable:
-				command_execute_fog_enable(command.fog_enable_);
+				command_execute_fog_enable(*command_buffer->read_fog_enable());
 				break;
 
 			case RendererCommandId::fog_set_color:
-				command_execute_fog_set_color(command.fog_set_color_);
+				command_execute_fog_set_color(*command_buffer->read_fog_set_color());
 				break;
 
 			case RendererCommandId::fog_set_distances:
-				command_execute_fog_set_distances(command.fog_set_distances_);
+				command_execute_fog_set_distances(*command_buffer->read_fog_set_distances());
 				break;
 
 			case RendererCommandId::matrix_set_model:
-				command_execute_matrix_set_model(command.matrix_set_model_);
+				command_execute_matrix_set_model(*command_buffer->read_matrix_set_model());
 				break;
 
 			case RendererCommandId::matrix_set_view:
-				command_execute_matrix_set_view(command.matrix_set_view_);
+				command_execute_matrix_set_view(*command_buffer->read_matrix_set_view());
 				break;
 
 			case RendererCommandId::matrix_set_model_view:
-				command_execute_matrix_set_model_view(command.matrix_set_model_view_);
+				command_execute_matrix_set_model_view(*command_buffer->read_matrix_set_model_view());
 				break;
 
 			case RendererCommandId::matrix_set_projection:
-				command_execute_matrix_set_projection(command.matrix_set_projection_);
+				command_execute_matrix_set_projection(*command_buffer->read_matrix_set_projection());
 				break;
 
 			case RendererCommandId::blending_enable:
-				command_execute_enable_blending(command.blending_enable_);
+				command_execute_enable_blending(*command_buffer->read_blending_enable());
 				break;
 
 			case RendererCommandId::texture_set:
-				command_execute_texture_set(command.texture_set_);
+				command_execute_texture_set(*command_buffer->read_texture_set());
 				break;
 
 			case RendererCommandId::sampler_set:
-				command_execute_sampler_set(command.sampler_set_);
+				command_execute_sampler_set(*command_buffer->read_sampler_set());
 				break;
 
 			case RendererCommandId::vertex_input_set:
-				command_execute_vertex_input_set(command.vertex_input_set_);
+				command_execute_vertex_input_set(*command_buffer->read_vertex_input_set());
 				break;
 
 			case RendererCommandId::draw_quads:
-				command_execute_draw_quads(command.draw_quads_);
+				command_execute_draw_quads(*command_buffer->read_draw_quads());
 				break;
 
 			default:
@@ -1104,6 +1110,8 @@ void Ogl1XRenderer::execute_command_sets(
 				break;
 			}
 		}
+
+		command_buffer->read_end();
 	}
 }
 

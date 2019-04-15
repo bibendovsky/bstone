@@ -142,8 +142,8 @@ public:
 		RendererVertexInputPtr vertex_input) override;
 
 
-	void execute_command_sets(
-		const RendererCommandSets& command_sets) override;
+	void execute_commands(
+		const RendererCommandManagerPtr command_manager) override;
 
 
 private:

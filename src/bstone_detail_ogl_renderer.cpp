@@ -349,13 +349,13 @@ void OglRenderer::vertex_input_destroy(
 	renderer_->vertex_input_destroy(vertex_input);
 }
 
-void OglRenderer::execute_command_sets(
-	const RendererCommandSets& command_sets)
+void OglRenderer::execute_commands(
+	const RendererCommandManagerPtr command_manager)
 {
 	assert(is_initialized_);
 	assert(renderer_);
 
-	renderer_->execute_command_sets(command_sets);
+	renderer_->execute_commands(command_manager);
 }
 
 void OglRenderer::uninitialize_internal(
