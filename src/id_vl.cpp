@@ -1357,11 +1357,11 @@ constexpr auto hw_3d_max_sprites_indices = ::hw_3d_max_statics_indices + ::hw_3d
 
 constexpr auto hw_3d_cloaked_actor_alpha_u8 = std::uint8_t{0x50};
 
-constexpr auto hw_2d_command_buffer_initial_size = 4096;
-constexpr auto hw_2d_command_buffer_resize_delta_size = 4096;
+constexpr auto hw_2d_command_buffer_initial_size = 4'096;
+constexpr auto hw_2d_command_buffer_resize_delta_size = 4'096;
 
-constexpr auto hw_3d_command_buffer_initial_size = 4096;
-constexpr auto hw_3d_command_buffer_resize_delta_size = 4096;
+constexpr auto hw_3d_command_buffer_initial_size = 16'384;
+constexpr auto hw_3d_command_buffer_resize_delta_size = 16'384;
 
 
 template<
