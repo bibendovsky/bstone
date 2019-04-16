@@ -1475,6 +1475,7 @@ struct Hw3dCeilingVertex : HwVertexXyzUv {};
 struct Hw3dDoorVertex : HwVertexXyzUv {};
 struct Hw3dSpriteVertex : HwVertexXyzRgbaUv {};
 struct Hw3dPlayerWeaponVertex : HwVertexXyzUv {};
+struct Hw3dFadeVertex : HwVertexXyzUv {};
 
 
 struct Hw3dQuadFlags
@@ -1647,6 +1648,7 @@ using Hw3dPushwallsVbBuffer = HwVbBufferT<Hw3dPushwallVertex>;
 using Hw3dDoorsVbBuffer = HwVbBufferT<Hw3dDoorVertex>;
 using Hw3dSpritesVbBuffer = HwVbBufferT<Hw3dSpriteVertex>;
 using Hw3dPlayerWeaponVertices = HwVbBufferT<Hw3dPlayerWeaponVertex>;
+using Hw3dFadeVertices = HwVbBufferT<Hw3dFadeVertex>;
 
 
 glm::mat4 hw_2d_matrix_model_ = glm::mat4{};
@@ -1824,6 +1826,13 @@ bstone::RendererVertexInputPtr hw_3d_player_weapon_vi_ = nullptr;
 glm::mat4 hw_3d_player_weapon_model_matrix_;
 glm::mat4 hw_3d_player_weapon_view_matrix_;
 glm::mat4 hw_3d_player_weapon_projection_matrix_;
+
+
+bool hw_3d_fade_is_enabled_ = false;
+bstone::RendererIndexBufferPtr hw_3d_fade_ib_ = nullptr;
+bstone::RendererVertexBufferPtr hw_3d_fade_vb_ = nullptr;
+bstone::RendererVertexInputPtr hw_3d_fade_vi_ = nullptr;
+bstone::RendererTexture2dPtr hw_3d_fade_t2d_ = nullptr;
 
 
 void hw_dbg_3d_orient_all_sprites();
@@ -4166,6 +4175,174 @@ bool hw_command_manager_initialize()
 	return true;
 }
 
+void hw_3d_fade_ib_destroy()
+{
+	::hw_index_buffer_destroy(::hw_3d_fade_ib_);
+}
+
+bool hw_3d_fade_ib_create()
+{
+	::hw_3d_fade_ib_ = ::hw_index_buffer_create(1, 6);
+
+	if (!::hw_3d_fade_ib_)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void hw_3d_fade_vb_destroy()
+{
+	::hw_vertex_buffer_destroy(::hw_3d_fade_vb_);
+}
+
+bool hw_3d_fade_vb_create()
+{
+	::hw_3d_fade_vb_ = ::hw_vertex_buffer_create<Hw3dFadeVertex>(4);
+
+	if (!::hw_3d_fade_vb_)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void hw_3d_fade_vi_destroy()
+{
+	::hw_vertex_input_destroy(::hw_3d_fade_vi_);
+}
+
+bool hw_3d_fade_vi_create()
+{
+	if (!::hw_vertex_input_create<Hw3dFadeVertex>(
+		::hw_3d_fade_ib_,
+		::hw_3d_fade_vb_,
+		::hw_3d_fade_vi_))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void hw_3d_fade_update_i()
+{
+	using Indices = std::array<std::uint8_t, 6>;
+
+	const auto& indices = Indices
+	{
+		0, 1, 2,
+		0, 2, 3,
+	}; // indices
+
+	::hw_index_buffer_update(
+		::hw_3d_fade_ib_,
+		0,
+		6,
+		indices.data()
+	);
+}
+
+void hw_3d_fade_update_v()
+{
+	auto vertices = Hw3dFadeVertices{};
+	vertices.resize(4);
+
+	auto vertex_index = 0;
+
+	const auto width_f = ::hw_3d_viewport_width_;
+	const auto height_f = ::hw_3d_viewport_height_;
+
+	// Bottom left.
+	{
+		auto& vertex = vertices[vertex_index++];
+		vertex.xyz_ = HwVertexPosition{0.0F, 0.0F, 0.0F};
+		vertex.uv_ = HwVertexTextureCoordinates{0.0F, 0.0F};
+	}
+
+	// Bottom right.
+	{
+		auto& vertex = vertices[vertex_index++];
+		vertex.xyz_ = HwVertexPosition{width_f, 0.0F, 0.0F};
+		vertex.uv_ = HwVertexTextureCoordinates{1.0F, 0.0F};
+	}
+
+	// Top right.
+	{
+		auto& vertex = vertices[vertex_index++];
+		vertex.xyz_ = HwVertexPosition{width_f, height_f, 0.0F};
+		vertex.uv_ = HwVertexTextureCoordinates{1.0F, 1.0F};
+	}
+
+	// Top left.
+	{
+		auto& vertex = vertices[vertex_index++];
+		vertex.xyz_ = HwVertexPosition{0.0F, height_f, 0.0F};
+		vertex.uv_ = HwVertexTextureCoordinates{0.0F, 1.0F};
+	}
+
+	::hw_vertex_buffer_update<Hw3dFadeVertex>(
+		::hw_3d_fade_vb_,
+		0,
+		4,
+		vertices.data()
+	);
+}
+
+void hw_3d_fade_texture_destroy()
+{
+	if (::hw_3d_fade_t2d_)
+	{
+		::hw_renderer_->texture_2d_destroy(::hw_3d_fade_t2d_);
+		::hw_3d_fade_t2d_ = nullptr;
+	}
+}
+
+bool hw_3d_fade_texture_create()
+{
+	const auto& color = bstone::RendererColor32{};
+
+	return ::hw_create_solid_texture_1x1(color, true, ::hw_3d_fade_t2d_);
+}
+
+void hw_3d_fade_uninitialize()
+{
+	::hw_3d_fade_vi_destroy();
+	::hw_3d_fade_vb_destroy();
+	::hw_3d_fade_ib_destroy();
+	::hw_3d_fade_texture_destroy();
+}
+
+bool hw_3d_fade_initialize()
+{
+	if (!::hw_3d_fade_ib_create())
+	{
+		return false;
+	}
+
+	if (!::hw_3d_fade_vb_create())
+	{
+		return false;
+	}
+
+	if (!::hw_3d_fade_vi_create())
+	{
+		return false;
+	}
+
+	if (!::hw_3d_fade_texture_create())
+	{
+		return false;
+	}
+
+	::hw_3d_fade_update_i();
+	::hw_3d_fade_update_v();
+
+	return true;
+}
+
 bool hw_initialize_video()
 {
 	::vid_is_hw_ = false;
@@ -4330,6 +4507,11 @@ bool hw_initialize_video()
 	if (is_succeed)
 	{
 		is_succeed = ::hw_3d_initialize_ceiling();
+	}
+
+	if (is_succeed)
+	{
+		is_succeed = ::hw_3d_fade_initialize();
 	}
 
 	if (is_succeed)
@@ -4501,6 +4683,16 @@ void hw_refresh_screen_2d()
 	{
 		const auto player_weapon_sprite_id = ::player_get_weapon_sprite_id();
 
+		if (player_weapon_sprite_id > 0 || ::hw_3d_fade_is_enabled_)
+		{
+			// Set projection matrix.
+			//
+			{
+				auto& command = *command_buffer->write_matrix_projection();
+				command.projection_ = ::hw_3d_player_weapon_projection_matrix_;
+			}
+		}
+
 		if (player_weapon_sprite_id > 0)
 		{
 			const auto player_weapon_texture = ::hw_texture_manager_->sprite_get(player_weapon_sprite_id);
@@ -4516,13 +4708,6 @@ void hw_refresh_screen_2d()
 				auto& command = *command_buffer->write_matrix_model_view();
 				command.model_ = ::hw_3d_player_weapon_model_matrix_;
 				command.view_ = ::hw_3d_player_weapon_view_matrix_;
-			}
-
-			// Set projection matrix.
-			//
-			{
-				auto& command = *command_buffer->write_matrix_projection();
-				command.projection_ = ::hw_3d_player_weapon_projection_matrix_;
 			}
 
 			// Set texture.
@@ -4553,12 +4738,78 @@ void hw_refresh_screen_2d()
 				command.is_enabled_ = true;
 			}
 
+			// Set blending function.
+			//
+			{
+				auto& command = *command_buffer->write_blending_function();
+				command.src_factor_ = bstone::RendererBlendingFactor::src_alpha;
+				command.dst_factor_ = bstone::RendererBlendingFactor::one_minus_src_alpha;
+			}
+
 			// Draw the weapon.
 			//
 			{
 				auto& command = *command_buffer->write_draw_quads();
 				command.index_offset_ = 0;
 				command.count_ = 1;
+			}
+
+			// Disable blending.
+			//
+			{
+				auto& command = *command_buffer->write_blending();
+				command.is_enabled_ = false;
+			}
+		}
+
+
+		// 3D fade (bonus, damage, death, etc).
+		//
+		if (::hw_3d_fade_is_enabled_)
+		{
+			// Set model-view matrix.
+			//
+			{
+				auto& command = *command_buffer->write_matrix_model_view();
+				command.model_ = glm::identity<glm::mat4>();
+				command.view_ = glm::identity<glm::mat4>();
+			}
+
+			// Enable blending.
+			//
+			{
+				auto& command = *command_buffer->write_blending();
+				command.is_enabled_ = true;
+			}
+
+			// Set blending function.
+			//
+			{
+				auto& command = *command_buffer->write_blending_function();
+				command.src_factor_ = bstone::RendererBlendingFactor::one;
+				command.dst_factor_ = bstone::RendererBlendingFactor::one;
+			}
+
+			// Set texture.
+			//
+			{
+				auto& command = *command_buffer->write_texture();
+				command.texture_2d_ = ::hw_3d_fade_t2d_;
+			}
+
+			// Set vertex input.
+			//
+			{
+				auto& command = *command_buffer->write_vertex_input();
+				command.vertex_input_ = ::hw_3d_fade_vi_;
+			}
+
+			// Draw the quad.
+			//
+			{
+				auto& command = *command_buffer->write_draw_quads();
+				command.count_ = 1;
+				command.index_offset_ = 0;
 			}
 
 			// Disable blending.
@@ -4645,8 +4896,18 @@ void hw_refresh_screen_2d()
 	{
 		if (::vid_is_hud)
 		{
-			auto& command = *command_buffer->write_blending();
-			command.is_enabled_ = true;
+			{
+				auto& command = *command_buffer->write_blending();
+				command.is_enabled_ = true;
+			}
+
+			// Set blending function.
+			//
+			{
+				auto& command = *command_buffer->write_blending_function();
+				command.src_factor_ = bstone::RendererBlendingFactor::src_alpha;
+				command.dst_factor_ = bstone::RendererBlendingFactor::one_minus_src_alpha;
+			}
 		}
 
 		{
@@ -4688,6 +4949,14 @@ void hw_refresh_screen_2d()
 		{
 			auto& command = *command_buffer->write_blending();
 			command.is_enabled_ = true;
+		}
+
+		// Set blending function.
+		//
+		{
+			auto& command = *command_buffer->write_blending_function();
+			command.src_factor_ = bstone::RendererBlendingFactor::src_alpha;
+			command.dst_factor_ = bstone::RendererBlendingFactor::one_minus_src_alpha;
 		}
 
 		// Set texture.
@@ -5433,6 +5702,53 @@ void hw_3d_dbg_draw_all_sprites()
 	::hw_3d_sprites_draw_count_ = draw_sprite_index;
 }
 
+void hw_3d_fade_update()
+{
+	::hw_3d_fade_is_enabled_ = false;
+
+	auto r_f = 1.0F;
+	auto g_f = 1.0F;
+	auto b_f = 1.0F;
+	auto a_f = 1.0F;
+
+	const auto& palette_shift_info = ::palette_shift_get_info();
+
+	if (palette_shift_info.is_bonus_shifted_ || palette_shift_info.is_damage_shifted_)
+	{
+		::hw_3d_fade_is_enabled_ = true;
+
+		if (palette_shift_info.is_bonus_shifted_)
+		{
+			r_f *= palette_shift_info.bonus_r_ / 255.0F;
+			g_f *= palette_shift_info.bonus_g_ / 255.0F;
+			b_f *= palette_shift_info.bonus_b_ / 255.0F;
+			a_f *= palette_shift_info.bonus_a_ / 255.0F;
+		}
+
+		if (palette_shift_info.is_damage_shifted_)
+		{
+			r_f *= palette_shift_info.damage_r_ / 255.0F;
+			g_f *= palette_shift_info.damage_g_ / 255.0F;
+			b_f *= palette_shift_info.damage_b_ / 255.0F;
+			a_f *= palette_shift_info.damage_a_ / 255.0F;
+		}
+	}
+
+	if (!::hw_3d_fade_is_enabled_)
+	{
+		return;
+	}
+
+	const auto r = static_cast<std::uint8_t>(r_f * 255.0F);
+	const auto g = static_cast<std::uint8_t>(g_f * 255.0F);
+	const auto b = static_cast<std::uint8_t>(b_f * 255.0F);
+	const auto a = static_cast<std::uint8_t>(a_f * 255.0F);
+
+	const auto rgba = bstone::RendererColor32{r, g, b, a};
+
+	static_cast<void>(::hw_update_solid_texture_1x1(rgba, ::hw_3d_fade_t2d_));
+}
+
 void hw_refresh_screen_3d()
 {
 	auto command_buffer = ::hw_3d_command_buffer_;
@@ -5443,6 +5759,8 @@ void hw_refresh_screen_3d()
 	{
 		return;
 	}
+
+	::hw_3d_fade_update();
 
 	command_buffer->enable(true);
 
@@ -10035,6 +10353,8 @@ void hw_uninitialize_video()
 
 	::hw_uninitialize_flooring();
 	::hw_uninitialize_ceiling();
+
+	::hw_3d_fade_uninitialize();
 
 	::hw_3d_player_weapon_initialize();
 	::hw_uninitialize_ui_texture();

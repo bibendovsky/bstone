@@ -3915,6 +3915,22 @@ constexpr int tilemap_door_flags = tilemap_door_track_flag | tilemap_door_flag;
 using Buffer = std::vector<unsigned char>;
 
 
+struct PaletteShiftInfo
+{
+	bool is_bonus_shifted_;
+	std::uint8_t bonus_r_;
+	std::uint8_t bonus_g_;
+	std::uint8_t bonus_b_;
+	std::uint8_t bonus_a_;
+
+	bool is_damage_shifted_;
+	std::uint8_t damage_r_;
+	std::uint8_t damage_g_;
+	std::uint8_t damage_b_;
+	std::uint8_t damage_a_;
+}; // PaletteShiftInfo
+
+
 objtype* ui16_to_actor(
 	std::uint16_t value);
 
@@ -3999,6 +4015,8 @@ int actor_calculate_rotation(
 int player_get_weapon_sprite_id();
 
 fixed player_get_weapon_bounce_offset();
+
+PaletteShiftInfo palette_shift_get_info();
 // BBi
 
 

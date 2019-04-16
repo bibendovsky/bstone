@@ -194,6 +194,27 @@ void PopupAutoMap(
 
 objtype dummyobj;
 
+// <<< BBi
+namespace
+{
+
+
+constexpr std::uint8_t bonus_color_r = 0xFF;
+constexpr std::uint8_t bonus_color_g = 0xFF;
+constexpr std::uint8_t bonus_color_b = 0xDA;
+
+constexpr std::uint8_t damage_color_r = 0xFF;
+constexpr std::uint8_t damage_color_g = 0x40;
+constexpr std::uint8_t damage_color_b = 0x40;
+
+
+PaletteShiftInfo palette_shift_info_;
+
+
+
+} // namespace
+// >>> BBi
+
 //
 // LIST OF SONGS FOR EACH LEVEL
 //
@@ -1699,6 +1720,11 @@ bool palshifted;
 
 void InitRedShifts()
 {
+	if (::vid_is_hw_)
+	{
+		return;
+	}
+
 	//
 	// fade through intermediate frames
 	//
@@ -1822,6 +1848,50 @@ void UpdatePaletteShifts()
 		red = 0;
 	}
 
+	if (::vid_is_hw_)
+	{
+		palette_shift_info_.is_bonus_shifted_ = false;
+
+		if (white > 0)
+		{
+			const auto max_shift_count = 3 * NUMWHITESHIFTS;
+
+			const auto r = static_cast<std::uint8_t>((bonus_color_r * white) / max_shift_count);
+			const auto g = static_cast<std::uint8_t>((bonus_color_g * white) / max_shift_count);
+			const auto b = static_cast<std::uint8_t>((bonus_color_b * white) / max_shift_count);
+
+			palette_shift_info_.is_bonus_shifted_ = true;
+
+			palette_shift_info_.bonus_r_ = r;
+			palette_shift_info_.bonus_g_ = g;
+			palette_shift_info_.bonus_b_ = b;
+			palette_shift_info_.bonus_a_ = 0xFF;
+		}
+
+
+		palette_shift_info_.is_damage_shifted_ = false;
+
+		if (red > 0)
+		{
+			const auto max_shift_count = 3 * NUMREDSHIFTS;
+
+			const auto r = static_cast<std::uint8_t>((damage_color_r * red) / max_shift_count);
+			const auto g = static_cast<std::uint8_t>((damage_color_g * red) / max_shift_count);
+			const auto b = static_cast<std::uint8_t>((damage_color_b * red) / max_shift_count);
+
+			palette_shift_info_.is_damage_shifted_ = true;
+
+			palette_shift_info_.damage_r_ = r;
+			palette_shift_info_.damage_g_ = g;
+			palette_shift_info_.damage_b_ = b;
+			palette_shift_info_.damage_a_ = 0xFF;
+		}
+
+		::palshifted = (palette_shift_info_.is_bonus_shifted_ || palette_shift_info_.is_damage_shifted_);
+
+		return;
+	}
+
 	if (red > 0)
 	{
 		// BBi
@@ -1853,9 +1923,21 @@ void UpdatePaletteShifts()
 
 void FinishPaletteShifts()
 {
+	if (::vid_is_hw_)
+	{
+		palette_shift_info_.is_bonus_shifted_ = false;
+		palette_shift_info_.is_damage_shifted_ = false;
+
+		return;
+	}
+
 	if (palshifted)
 	{
 		palshifted = false;
+
+		palette_shift_info_.is_bonus_shifted_ = false;
+		palette_shift_info_.is_damage_shifted_ = false;
+
 		// BBi
 #if 0
 		VW_WaitVBL(1);
@@ -2191,4 +2273,9 @@ void CleanDrawPlayBorder()
 	DrawPlayBorder();
 	ThreeDRefresh();
 	DrawPlayBorder();
+}
+
+PaletteShiftInfo palette_shift_get_info()
+{
+	return palette_shift_info_;
 }
