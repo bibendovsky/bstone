@@ -118,6 +118,10 @@ public:
 	static void texture_2d_set(
 		const GLuint ogl_texture_name);
 
+	static void blending_set_function(
+		const RendererBlendingFactor src_factor,
+		const RendererBlendingFactor dst_factor);
+
 	static GLenum index_buffer_get_element_type_by_byte_depth(
 		const int byte_depth);
 
@@ -125,6 +129,9 @@ public:
 private:
 	std::string error_message_;
 
+
+	static GLenum blending_get_factor(
+		const RendererBlendingFactor factor);
 
 	static void* resolve_symbol(
 		const char* const symbol);

@@ -75,6 +75,7 @@ public:
 	RendererCommandDepthWrite* write_depth_write() override;
 
 	RendererCommandBlending* write_blending() override;
+	RendererCommandBlendingFunction* write_blending_function() override;
 
 	RendererCommandFog* write_fog() override;
 	RendererCommandFogColor* write_fog_color() override;
@@ -110,6 +111,7 @@ public:
 	const RendererCommandDepthWrite* read_depth_write() override;
 
 	const RendererCommandBlending* read_blending() override;
+	const RendererCommandBlendingFunction* read_blending_function() override;
 
 	const RendererCommandFog* read_fog() override;
 	const RendererCommandFogColor* read_fog_color() override;
@@ -383,6 +385,11 @@ RendererCommandBlending* RendererCommandBufferImpl::write_blending()
 	return write<RendererCommandBlending>(RendererCommandId::blending_enable);
 }
 
+RendererCommandBlendingFunction* RendererCommandBufferImpl::write_blending_function()
+{
+	return write<RendererCommandBlendingFunction>(RendererCommandId::blending_function);
+}
+
 RendererCommandFog* RendererCommandBufferImpl::write_fog()
 {
 	return write<RendererCommandFog>(RendererCommandId::fog_enable);
@@ -510,6 +517,11 @@ const RendererCommandDepthWrite* RendererCommandBufferImpl::read_depth_write()
 const RendererCommandBlending* RendererCommandBufferImpl::read_blending()
 {
 	return read<RendererCommandBlending>();
+}
+
+const RendererCommandBlendingFunction* RendererCommandBufferImpl::read_blending_function()
+{
+	return read<RendererCommandBlendingFunction>();
 }
 
 const RendererCommandFog* RendererCommandBufferImpl::read_fog()

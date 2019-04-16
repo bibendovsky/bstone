@@ -717,6 +717,8 @@ Ogl1XRenderer::Ogl1XRenderer()
 	depth_is_test_enabled_{},
 	depth_is_write_enabled_{},
 	blending_is_enabled_{},
+	blending_src_factor_{},
+	blending_dst_factor_{},
 	texture_2d_is_enabled_{},
 	fog_is_enabled_{},
 	fog_color_{},
@@ -771,6 +773,8 @@ Ogl1XRenderer::Ogl1XRenderer(
 	depth_is_test_enabled_{std::move(rhs.depth_is_test_enabled_)},
 	depth_is_write_enabled_{std::move(rhs.depth_is_write_enabled_)},
 	blending_is_enabled_{std::move(rhs.blending_is_enabled_)},
+	blending_src_factor_{std::move(rhs.blending_src_factor_)},
+	blending_dst_factor_{std::move(rhs.blending_dst_factor_)},
 	texture_2d_is_enabled_{std::move(rhs.texture_2d_is_enabled_)},
 	fog_is_enabled_{std::move(rhs.fog_is_enabled_)},
 	fog_color_{std::move(rhs.fog_color_)},
@@ -1092,6 +1096,10 @@ void Ogl1XRenderer::execute_commands(
 
 			case RendererCommandId::blending_enable:
 				command_execute_blending(*command_buffer->read_blending());
+				break;
+
+			case RendererCommandId::blending_function:
+				command_execute_blending_function(*command_buffer->read_blending_function());
 				break;
 
 			case RendererCommandId::texture_set:
@@ -1574,8 +1582,7 @@ void Ogl1XRenderer::blending_enable()
 
 void Ogl1XRenderer::blending_set_function()
 {
-	::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	assert(!OglRendererUtils::was_errors());
+	OglRendererUtils::blending_set_function(blending_src_factor_, blending_dst_factor_);
 }
 
 void Ogl1XRenderer::blending_set_defaults()
@@ -1583,6 +1590,8 @@ void Ogl1XRenderer::blending_set_defaults()
 	blending_is_enabled_ = false;
 	blending_enable();
 
+	blending_src_factor_ = RendererBlendingFactor::src_alpha;
+	blending_dst_factor_ = RendererBlendingFactor::one_minus_src_alpha;
 	blending_set_function();
 }
 
@@ -1982,6 +1991,30 @@ void Ogl1XRenderer::command_execute_viewport(
 	}
 }
 
+void Ogl1XRenderer::command_execute_blending(
+	const RendererCommandBlending& command)
+{
+	if (blending_is_enabled_ != command.is_enabled_)
+	{
+		blending_is_enabled_ = command.is_enabled_;
+
+		blending_enable();
+	}
+}
+
+void Ogl1XRenderer::command_execute_blending_function(
+	const RendererCommandBlendingFunction& command)
+{
+	if (blending_src_factor_ != command.src_factor_ ||
+		blending_dst_factor_ != command.dst_factor_)
+	{
+		blending_src_factor_ = command.src_factor_;
+		blending_dst_factor_ = command.dst_factor_;
+
+		blending_set_function();
+	}
+}
+
 void Ogl1XRenderer::command_execute_scissor(
 	const RendererCommandScissor& command)
 {
@@ -2121,17 +2154,6 @@ void Ogl1XRenderer::command_execute_matrix_projection(
 		matrix_projection_ = command.projection_;
 
 		matrix_set_projection();
-	}
-}
-
-void Ogl1XRenderer::command_execute_blending(
-	const RendererCommandBlending& command)
-{
-	if (blending_is_enabled_ != command.is_enabled_)
-	{
-		blending_is_enabled_ = command.is_enabled_;
-
-		blending_enable();
 	}
 }
 

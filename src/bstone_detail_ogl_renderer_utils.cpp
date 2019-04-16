@@ -331,6 +331,17 @@ void OglRendererUtils::texture_2d_set(
 	assert(!OglRendererUtils::was_errors());
 }
 
+void OglRendererUtils::blending_set_function(
+	const RendererBlendingFactor src_factor,
+	const RendererBlendingFactor dst_factor)
+{
+	auto ogl_src_factor = blending_get_factor(src_factor);
+	auto ogl_dst_factor = blending_get_factor(dst_factor);
+
+	::glBlendFunc(ogl_src_factor, ogl_dst_factor);
+	assert(!OglRendererUtils::was_errors());
+}
+
 GLenum OglRendererUtils::index_buffer_get_element_type_by_byte_depth(
 	const int byte_depth)
 {
@@ -349,6 +360,31 @@ GLenum OglRendererUtils::index_buffer_get_element_type_by_byte_depth(
 		assert(!"Invalid byte depth.");
 
 		return {};
+	}
+}
+
+GLenum OglRendererUtils::blending_get_factor(
+	const RendererBlendingFactor factor)
+{
+	switch (factor)
+	{
+		case RendererBlendingFactor::zero:
+			return GL_ZERO;
+
+		case RendererBlendingFactor::one:
+			return GL_ONE;
+
+		case RendererBlendingFactor::src_color:
+			return GL_SRC_COLOR;
+
+		case RendererBlendingFactor::src_alpha:
+			return GL_SRC_ALPHA;
+
+		case RendererBlendingFactor::one_minus_src_alpha:
+			return GL_ONE_MINUS_SRC_ALPHA;
+
+		default:
+			return {};
 	}
 }
 

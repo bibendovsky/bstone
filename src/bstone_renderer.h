@@ -42,13 +42,15 @@ namespace bstone
 {
 
 
-enum class RendererKind
+enum class RendererKind :
+	unsigned char
 {
 	none,
 	opengl,
 }; // RendererKind
 
-enum class RendererPath
+enum class RendererPath :
+	unsigned char
 {
 	none,
 
@@ -73,6 +75,7 @@ enum class RendererCommandId :
 	depth_set_write,
 
 	blending_enable,
+	blending_function,
 
 	fog_enable,
 	fog_set_color,
@@ -91,18 +94,30 @@ enum class RendererCommandId :
 	draw_quads,
 }; // RendererCommandId
 
-enum class RendererCullingFace
+enum class RendererCullingFace :
+	unsigned char
 {
 	counter_clockwise,
 	clockwise,
 }; // RendererCullingFace
 
-enum class RendererCullingMode
+enum class RendererCullingMode :
+	unsigned char
 {
 	back,
 	front,
 	both,
 }; // RendererCullingMode
+
+enum class RendererBlendingFactor :
+	unsigned char
+{
+	zero,
+	one,
+	src_color,
+	src_alpha,
+	one_minus_src_alpha,
+}; // RendererBlendingFactor
 
 
 class RendererInitializeWindowParam
@@ -137,7 +152,8 @@ using RendererPalette = std::array<RendererColor32, 256>;
 // RendererIndexBuffer
 //
 
-enum class RendererIbElementTypeId
+enum class RendererIbElementTypeId :
+	unsigned char
 {
 	none,
 	uint8,
@@ -233,7 +249,8 @@ using RendererVertexBufferPtr = RendererVertexBuffer*;
 // RendererVertexInput
 //
 
-enum class RendererVertexAttributeLocation
+enum class RendererVertexAttributeLocation :
+	unsigned char
 {
 	none,
 	position,
@@ -241,7 +258,8 @@ enum class RendererVertexAttributeLocation
 	texture_coordinates,
 }; // RendererVertexAttributeLocation
 
-enum class RendererVertexAttributeFormat
+enum class RendererVertexAttributeFormat :
+	unsigned char
 {
 	none,
 	r8g8b8a8_uint,
@@ -286,20 +304,23 @@ using RendererVertexInputPtr = RendererVertexInput*;
 // RendererTexture2d
 //
 
-enum class RendererFilterKind
+enum class RendererFilterKind :
+	unsigned char
 {
 	nearest,
 	linear,
 }; // RendererFilterKind
 
-enum class RendererMipmapMode
+enum class RendererMipmapMode :
+	unsigned char
 {
 	none,
 	nearest,
 	linear,
 }; // RendererMipmapMode
 
-enum class RendererAddressMode
+enum class RendererAddressMode :
+	unsigned char
 {
 	clamp,
 	repeat,
@@ -425,6 +446,12 @@ struct RendererCommandBlending
 	bool is_enabled_;
 }; // EnableBlending
 
+struct RendererCommandBlendingFunction
+{
+	RendererBlendingFactor src_factor_;
+	RendererBlendingFactor dst_factor_;
+}; // RendererCommandBlendingFunction
+
 struct RendererCommandDepthTest
 {
 	bool is_enabled_;
@@ -531,6 +558,7 @@ public:
 	virtual RendererCommandDepthWrite* write_depth_write() = 0;
 
 	virtual RendererCommandBlending* write_blending() = 0;
+	virtual RendererCommandBlendingFunction* write_blending_function() = 0;
 
 	virtual RendererCommandFog* write_fog() = 0;
 	virtual RendererCommandFogColor* write_fog_color() = 0;
@@ -566,6 +594,7 @@ public:
 	virtual const RendererCommandDepthWrite* read_depth_write() = 0;
 
 	virtual const RendererCommandBlending* read_blending() = 0;
+	virtual const RendererCommandBlendingFunction* read_blending_function() = 0;
 
 	virtual const RendererCommandFog* read_fog() = 0;
 	virtual const RendererCommandFogColor* read_fog_color() = 0;

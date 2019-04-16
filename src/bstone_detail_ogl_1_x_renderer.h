@@ -357,6 +357,8 @@ private:
 	bool depth_is_write_enabled_;
 
 	bool blending_is_enabled_;
+	RendererBlendingFactor blending_src_factor_;
+	RendererBlendingFactor blending_dst_factor_;
 
 	bool texture_2d_is_enabled_;
 
@@ -509,6 +511,12 @@ private:
 	void command_execute_depth_write(
 		const RendererCommandDepthWrite& command);
 
+	void command_execute_blending(
+		const RendererCommandBlending& command);
+
+	void command_execute_blending_function(
+		const RendererCommandBlendingFunction& command);
+
 	void command_execute_viewport(
 		const RendererCommandViewport& command);
 
@@ -538,9 +546,6 @@ private:
 
 	void command_execute_matrix_projection(
 		const RendererCommandMatrixProjection& command);
-
-	void command_execute_blending(
-		const RendererCommandBlending& command);
 
 	void command_execute_texture(
 		const RendererCommandTexture& command);
