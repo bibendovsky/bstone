@@ -4484,14 +4484,14 @@ void hw_refresh_screen_2d()
 	// Disable back-face culling.
 	//
 	{
-		auto& command = *command_buffer->write_culling_enable();
+		auto& command = *command_buffer->write_culling();
 		command.is_enabled_ = false;
 	}
 
 	// Disable depth test.
 	//
 	{
-		auto& command = *command_buffer->write_depth_set_test();
+		auto& command = *command_buffer->write_depth_test();
 		command.is_enabled_ = false;
 	}
 
@@ -4513,7 +4513,7 @@ void hw_refresh_screen_2d()
 			// Set model-view matrix.
 			//
 			{
-				auto& command = *command_buffer->write_matrix_set_model_view();
+				auto& command = *command_buffer->write_matrix_model_view();
 				command.model_ = ::hw_3d_player_weapon_model_matrix_;
 				command.view_ = ::hw_3d_player_weapon_view_matrix_;
 			}
@@ -4521,35 +4521,35 @@ void hw_refresh_screen_2d()
 			// Set projection matrix.
 			//
 			{
-				auto& command = *command_buffer->write_matrix_set_projection();
+				auto& command = *command_buffer->write_matrix_projection();
 				command.projection_ = ::hw_3d_player_weapon_projection_matrix_;
 			}
 
 			// Set texture.
 			//
 			{
-				auto& command = *command_buffer->write_texture_set();
+				auto& command = *command_buffer->write_texture();
 				command.texture_2d_ = player_weapon_texture;
 			}
 
 			// Set sampler.
 			//
 			{
-				auto& command = *command_buffer->write_sampler_set();
+				auto& command = *command_buffer->write_sampler();
 				command.sampler_ = ::hw_3d_player_weapon_so_;
 			}
 
 			// Set vertex input.
 			//
 			{
-				auto& command = *command_buffer->write_vertex_input_set();
+				auto& command = *command_buffer->write_vertex_input();
 				command.vertex_input_ = ::hw_3d_player_weapon_vi_;
 			}
 
 			// Enable blending.
 			//
 			{
-				auto& command = *command_buffer->write_blending_enable();
+				auto& command = *command_buffer->write_blending();
 				command.is_enabled_ = true;
 			}
 
@@ -4564,7 +4564,7 @@ void hw_refresh_screen_2d()
 			// Disable blending.
 			//
 			{
-				auto& command = *command_buffer->write_blending_enable();
+				auto& command = *command_buffer->write_blending();
 				command.is_enabled_ = false;
 			}
 		}
@@ -4573,7 +4573,7 @@ void hw_refresh_screen_2d()
 	// Set viewport.
 	//
 	{
-		auto& command = *command_buffer->write_viewport_set();
+		auto& command = *command_buffer->write_viewport();
 		command.x_ = 0;
 		command.y_ = 0;
 		command.width_ = ::window_width;
@@ -4585,14 +4585,14 @@ void hw_refresh_screen_2d()
 	// Set sampler.
 	//
 	{
-		auto& command = *command_buffer->write_sampler_set();
+		auto& command = *command_buffer->write_sampler();
 		command.sampler_ = ::hw_2d_so_;
 	}
 
 	// Set model-view matrix.
 	//
 	{
-		auto& command = *command_buffer->write_matrix_set_model_view();
+		auto& command = *command_buffer->write_matrix_model_view();
 		command.model_ = ::hw_2d_matrix_model_;
 		command.view_ = ::hw_2d_matrix_view_;
 	}
@@ -4600,7 +4600,7 @@ void hw_refresh_screen_2d()
 	// Set projection matrix.
 	//
 	{
-		auto& command = *command_buffer->write_matrix_set_projection();
+		auto& command = *command_buffer->write_matrix_projection();
 		command.projection_ = ::hw_2d_matrix_projection_;
 	}
 
@@ -4610,12 +4610,12 @@ void hw_refresh_screen_2d()
 	{
 		{
 			const auto texture_2d = (::vid_is_movie ? ::hw_2d_white_t2d_1x1_ : ::hw_2d_black_t2d_1x1_);
-			auto& command = *command_buffer->write_texture_set();
+			auto& command = *command_buffer->write_texture();
 			command.texture_2d_ = texture_2d;
 		}
 
 		{
-			auto& command = *command_buffer->write_vertex_input_set();
+			auto& command = *command_buffer->write_vertex_input();
 			command.vertex_input_ = ::hw_2d_fillers_vi_;
 		}
 
@@ -4645,17 +4645,17 @@ void hw_refresh_screen_2d()
 	{
 		if (::vid_is_hud)
 		{
-			auto& command = *command_buffer->write_blending_enable();
+			auto& command = *command_buffer->write_blending();
 			command.is_enabled_ = true;
 		}
 
 		{
-			auto& command = *command_buffer->write_texture_set();
+			auto& command = *command_buffer->write_texture();
 			command.texture_2d_ = ::hw_2d_texture_;
 		}
 
 		{
-			auto& command = *command_buffer->write_vertex_input_set();
+			auto& command = *command_buffer->write_vertex_input();
 			command.vertex_input_ = ::hw_2d_vi_;
 		}
 
@@ -4674,7 +4674,7 @@ void hw_refresh_screen_2d()
 
 		if (::vid_is_hud)
 		{
-			auto& command = *command_buffer->write_blending_enable();
+			auto& command = *command_buffer->write_blending();
 			command.is_enabled_ = false;
 		}
 	}
@@ -4686,21 +4686,21 @@ void hw_refresh_screen_2d()
 		// Enable blending.
 		//
 		{
-			auto& command = *command_buffer->write_blending_enable();
+			auto& command = *command_buffer->write_blending();
 			command.is_enabled_ = true;
 		}
 
 		// Set texture.
 		//
 		{
-			auto& command = *command_buffer->write_texture_set();
+			auto& command = *command_buffer->write_texture();
 			command.texture_2d_ = ::hw_2d_fade_t2d_;
 		}
 
 		// Set vertex input.
 		//
 		{
-			auto& command = *command_buffer->write_vertex_input_set();
+			auto& command = *command_buffer->write_vertex_input();
 			command.vertex_input_ = ::hw_2d_vi_;
 		}
 
@@ -4722,7 +4722,7 @@ void hw_refresh_screen_2d()
 		// Disable blending.
 		//
 		{
-			auto& command = *command_buffer->write_blending_enable();
+			auto& command = *command_buffer->write_blending();
 			command.is_enabled_ = false;
 		}
 	}
@@ -4886,12 +4886,12 @@ void hw_3d_dbg_draw_all_solid_walls()
 		if (draw_quad_count > 0)
 		{
 			{
-				auto& command = *command_buffer->write_texture_set();
+				auto& command = *command_buffer->write_texture();
 				command.texture_2d_ = last_texture;
 			}
 
 			{
-				auto& command = *command_buffer->write_vertex_input_set();
+				auto& command = *command_buffer->write_vertex_input();
 				command.vertex_input_ = ::hw_3d_wall_sides_vi_;
 			}
 
@@ -5012,12 +5012,12 @@ void hw_3d_dbg_draw_all_pushwalls()
 		if (draw_quad_count > 0)
 		{
 			{
-				auto& command = *command_buffer->write_texture_set();
+				auto& command = *command_buffer->write_texture();
 				command.texture_2d_ = last_texture;
 			}
 
 			{
-				auto& command = *command_buffer->write_vertex_input_set();
+				auto& command = *command_buffer->write_vertex_input();
 				command.vertex_input_ = ::hw_3d_pushwall_sides_vi_;
 			}
 
@@ -5240,12 +5240,12 @@ void hw_3d_dbg_draw_all_doors()
 		if (draw_quad_count > 0)
 		{
 			{
-				auto& command = *command_buffer->write_texture_set();
+				auto& command = *command_buffer->write_texture();
 				command.texture_2d_ = last_texture;
 			}
 
 			{
-				auto& command = *command_buffer->write_vertex_input_set();
+				auto& command = *command_buffer->write_vertex_input();
 				command.vertex_input_ = ::hw_3d_door_sides_vi_;
 			}
 
@@ -5353,14 +5353,14 @@ void hw_3d_dbg_draw_all_sprites()
 	// Disable depth write.
 	//
 	{
-		auto& command = *command_buffer->write_depth_set_write();
+		auto& command = *command_buffer->write_depth_write();
 		command.is_enabled_ = false;
 	}
 
 	// Enable blending.
 	//
 	{
-		auto& command = *command_buffer->write_blending_enable();
+		auto& command = *command_buffer->write_blending();
 		command.is_enabled_ = true;
 	}
 
@@ -5397,12 +5397,12 @@ void hw_3d_dbg_draw_all_sprites()
 		if (draw_quad_count > 0)
 		{
 			{
-				auto& command = *command_buffer->write_texture_set();
+				auto& command = *command_buffer->write_texture();
 				command.texture_2d_ = last_texture;
 			}
 
 			{
-				auto& command = *command_buffer->write_vertex_input_set();
+				auto& command = *command_buffer->write_vertex_input();
 				command.vertex_input_ = ::hw_3d_sprites_vi_;
 			}
 
@@ -5419,14 +5419,14 @@ void hw_3d_dbg_draw_all_sprites()
 	// Enable depth write.
 	//
 	{
-		auto& command = *command_buffer->write_depth_set_write();
+		auto& command = *command_buffer->write_depth_write();
 		command.is_enabled_ = true;
 	}
 
 	// Disable blending.
 	//
 	{
-		auto& command = *command_buffer->write_blending_enable();
+		auto& command = *command_buffer->write_blending();
 		command.is_enabled_ = false;
 	}
 
@@ -5451,7 +5451,7 @@ void hw_refresh_screen_3d()
 	// Set viewport.
 	//
 	{
-		auto& command = *command_buffer->write_viewport_set();
+		auto& command = *command_buffer->write_viewport();
 		command.x_ = ::hw_3d_viewport_x_;
 		command.y_ = ::hw_3d_viewport_y_;
 		command.width_ = ::hw_3d_viewport_width_;
@@ -5463,28 +5463,28 @@ void hw_refresh_screen_3d()
 	// Enable back-face culling.
 	//
 	{
-		auto& command = *command_buffer->write_culling_enable();
+		auto& command = *command_buffer->write_culling();
 		command.is_enabled_ = true;
 	}
 
 	// Enable depth test.
 	//
 	{
-		auto& command = *command_buffer->write_depth_set_test();
+		auto& command = *command_buffer->write_depth_test();
 		command.is_enabled_ = true;
 	}
 
 	// Enable depth write.
 	//
 	{
-		auto& command = *command_buffer->write_depth_set_write();
+		auto& command = *command_buffer->write_depth_write();
 		command.is_enabled_ = true;
 	}
 
 	// Set model-view matrix.
 	//
 	{
-		auto& command = *command_buffer->write_matrix_set_model_view();
+		auto& command = *command_buffer->write_matrix_model_view();
 		command.model_ = ::hw_3d_matrix_model_;
 		command.view_ = ::hw_3d_matrix_view_;
 	}
@@ -5492,14 +5492,14 @@ void hw_refresh_screen_3d()
 	// Set projection matrix.
 	//
 	{
-		auto& command = *command_buffer->write_matrix_set_projection();
+		auto& command = *command_buffer->write_matrix_projection();
 		command.projection_ = ::hw_3d_matrix_projection_;
 	}
 
 	// Set sampler.
 	//
 	{
-		auto& command = *command_buffer->write_sampler_set();
+		auto& command = *command_buffer->write_sampler();
 		command.sampler_ = ::hw_3d_wall_so_;
 	}
 
@@ -5514,7 +5514,7 @@ void hw_refresh_screen_3d()
 	// Set sampler.
 	//
 	{
-		auto& command = *command_buffer->write_sampler_set();
+		auto& command = *command_buffer->write_sampler();
 		command.sampler_ = ::hw_3d_sprite_so_;
 	}
 
@@ -5525,7 +5525,7 @@ void hw_refresh_screen_3d()
 	// Set sampler.
 	//
 	{
-		auto& command = *command_buffer->write_sampler_set();
+		auto& command = *command_buffer->write_sampler();
 		command.sampler_ = ::hw_3d_wall_so_;
 	}
 
@@ -5540,12 +5540,12 @@ void hw_refresh_screen_3d()
 		);
 
 		{
-			auto& command = *command_buffer->write_texture_set();
+			auto& command = *command_buffer->write_texture();
 			command.texture_2d_ = texture_2d;
 		}
 
 		{
-			auto& command = *command_buffer->write_vertex_input_set();
+			auto& command = *command_buffer->write_vertex_input();
 			command.vertex_input_ = ::hw_3d_flooring_vi_;
 		}
 
@@ -5567,12 +5567,12 @@ void hw_refresh_screen_3d()
 		);
 
 		{
-			auto& command = *command_buffer->write_texture_set();
+			auto& command = *command_buffer->write_texture();
 			command.texture_2d_ = texture_2d;
 		}
 
 		{
-			auto& command = *command_buffer->write_vertex_input_set();
+			auto& command = *command_buffer->write_vertex_input();
 			command.vertex_input_ = ::hw_3d_ceiling_vi_;
 		}
 
@@ -5586,7 +5586,7 @@ void hw_refresh_screen_3d()
 	// Set sampler.
 	//
 	{
-		auto& command = *command_buffer->write_sampler_set();
+		auto& command = *command_buffer->write_sampler();
 		command.sampler_ = ::hw_3d_sprite_so_;
 	}
 

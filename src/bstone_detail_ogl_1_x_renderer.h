@@ -416,7 +416,7 @@ private:
 	void scissor_set_defaults();
 
 
-	void culling_set_is_enabled();
+	void culling_enabled();
 
 	void culling_set_face();
 
@@ -432,7 +432,7 @@ private:
 	void depth_set_defaults();
 
 
-	void blending_set_is_enable();
+	void blending_enable();
 
 	void blending_set_function();
 
@@ -449,7 +449,7 @@ private:
 	void texture_2d_set_defaults();
 
 
-	void fog_set_is_enabled();
+	void fog_enable();
 
 	void fog_set_mode();
 
@@ -500,56 +500,56 @@ private:
 	void vertex_input_defaults();
 
 
-	void command_execute_culling_enable(
-		const RendererCommandCullingEnabled& command);
+	void command_execute_culling(
+		const RendererCommandCulling& command);
 
-	void command_execute_depth_set_test(
-		const RendererCommandDepthSetTest& command);
+	void command_execute_depth_test(
+		const RendererCommandDepthTest& command);
 
-	void command_execute_depth_set_write(
-		const RendererCommandDepthSetWrite& command);
+	void command_execute_depth_write(
+		const RendererCommandDepthWrite& command);
 
-	void command_execute_viewport_set(
-		const RendererCommandViewportSet& command);
+	void command_execute_viewport(
+		const RendererCommandViewport& command);
 
-	void command_execute_scissor_enable(
-		const RendererCommandScissorEnable& command);
+	void command_execute_scissor(
+		const RendererCommandScissor& command);
 
-	void command_execute_scissor_set_box(
-		const RendererCommandScissorSetBox& command);
+	void command_execute_scissor_box(
+		const RendererCommandScissorBox& command);
 
-	void command_execute_fog_enable(
-		const RendererCommandFogEnable& command);
+	void command_execute_fog(
+		const RendererCommandFog& command);
 
-	void command_execute_fog_set_color(
-		const RendererCommandFogSetColor& command);
+	void command_execute_fog_color(
+		const RendererCommandFogColor& command);
 
-	void command_execute_fog_set_distances(
-		const RendererCommandFogSetDistances& command);
+	void command_execute_fog_distances(
+		const RendererCommandFogDistances& command);
 
-	void command_execute_matrix_set_model(
-		const RendererCommandMatrixSetModel& command);
+	void command_execute_matrix_model(
+		const RendererCommandMatrixModel& command);
 
-	void command_execute_matrix_set_view(
-		const RendererCommandMatrixSetView& command);
+	void command_execute_matrix_view(
+		const RendererCommandMatrixView& command);
 
-	void command_execute_matrix_set_model_view(
-		const RendererCommandMatrixSetModelView& command);
+	void command_execute_matrix_model_view(
+		const RendererCommandMatrixModelView& command);
 
-	void command_execute_matrix_set_projection(
-		const RendererCommandMatrixSetProjection& command);
+	void command_execute_matrix_projection(
+		const RendererCommandMatrixProjection& command);
 
-	void command_execute_enable_blending(
-		const RendererCommandBlendingEnable& command);
+	void command_execute_blending(
+		const RendererCommandBlending& command);
 
-	void command_execute_texture_set(
-		const RendererCommandTextureSet& command);
+	void command_execute_texture(
+		const RendererCommandTexture& command);
 
-	void command_execute_sampler_set(
-		const RendererCommandSamplerSet& command);
+	void command_execute_sampler(
+		const RendererCommandSampler& command);
 
-	void command_execute_vertex_input_set(
-		const RendererCommandVertexInputSet& command);
+	void command_execute_vertex_input(
+		const RendererCommandVertexInput& command);
 
 	void command_execute_draw_quads(
 		const RendererCommandDrawQuads& command);

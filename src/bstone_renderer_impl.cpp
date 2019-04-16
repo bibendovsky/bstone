@@ -64,31 +64,31 @@ public:
 
 	void write_end() override;
 
-	RendererCommandViewportSet* write_viewport_set() override;
+	RendererCommandViewport* write_viewport() override;
 
-	RendererCommandScissorEnable* write_scissor_enable() override;
-	RendererCommandScissorSetBox* write_scissor_set_box() override;
+	RendererCommandScissor* write_scissor() override;
+	RendererCommandScissorBox* write_scissor_box() override;
 
-	RendererCommandCullingEnabled* write_culling_enable() override;
+	RendererCommandCulling* write_culling() override;
 
-	RendererCommandDepthSetTest* write_depth_set_test() override;
-	RendererCommandDepthSetWrite* write_depth_set_write() override;
+	RendererCommandDepthTest* write_depth_test() override;
+	RendererCommandDepthWrite* write_depth_write() override;
 
-	RendererCommandBlendingEnable* write_blending_enable() override;
+	RendererCommandBlending* write_blending() override;
 
-	RendererCommandFogEnable* write_fog_enable() override;
-	RendererCommandFogSetColor* write_fog_set_color() override;
-	RendererCommandFogSetDistances* write_fog_set_distances() override;
+	RendererCommandFog* write_fog() override;
+	RendererCommandFogColor* write_fog_color() override;
+	RendererCommandFogDistances* write_fog_distances() override;
 
-	RendererCommandMatrixSetModel* write_matrix_set_model() override;
-	RendererCommandMatrixSetView* write_matrix_set_view() override;
-	RendererCommandMatrixSetModelView* write_matrix_set_model_view() override;
-	RendererCommandMatrixSetProjection* write_matrix_set_projection() override;
+	RendererCommandMatrixModel* write_matrix_model() override;
+	RendererCommandMatrixView* write_matrix_view() override;
+	RendererCommandMatrixModelView* write_matrix_model_view() override;
+	RendererCommandMatrixProjection* write_matrix_projection() override;
 
-	RendererCommandTextureSet* write_texture_set() override;
-	RendererCommandSamplerSet* write_sampler_set() override;
+	RendererCommandTexture* write_texture() override;
+	RendererCommandSampler* write_sampler() override;
 
-	RendererCommandVertexInputSet* write_vertex_input_set() override;
+	RendererCommandVertexInput* write_vertex_input() override;
 
 	RendererCommandDrawQuads* write_draw_quads() override;
 
@@ -99,31 +99,31 @@ public:
 
 	RendererCommandId read_command_id() override;
 
-	const RendererCommandViewportSet* read_viewport_set() override;
+	const RendererCommandViewport* read_viewport() override;
 
-	const RendererCommandScissorEnable* read_scissor_enable() override;
-	const RendererCommandScissorSetBox* read_scissor_set_box() override;
+	const RendererCommandScissor* read_scissor() override;
+	const RendererCommandScissorBox* read_scissor_box() override;
 
-	const RendererCommandCullingEnabled* read_culling_enable() override;
+	const RendererCommandCulling* read_culling() override;
 
-	const RendererCommandDepthSetTest* read_depth_set_test() override;
-	const RendererCommandDepthSetWrite* read_depth_set_write() override;
+	const RendererCommandDepthTest* read_depth_test() override;
+	const RendererCommandDepthWrite* read_depth_write() override;
 
-	const RendererCommandBlendingEnable* read_blending_enable() override;
+	const RendererCommandBlending* read_blending() override;
 
-	const RendererCommandFogEnable* read_fog_enable() override;
-	const RendererCommandFogSetColor* read_fog_set_color() override;
-	const RendererCommandFogSetDistances* read_fog_set_distances() override;
+	const RendererCommandFog* read_fog() override;
+	const RendererCommandFogColor* read_fog_color() override;
+	const RendererCommandFogDistances* read_fog_distances() override;
 
-	const RendererCommandMatrixSetModel* read_matrix_set_model() override;
-	const RendererCommandMatrixSetView* read_matrix_set_view() override;
-	const RendererCommandMatrixSetModelView* read_matrix_set_model_view() override;
-	const RendererCommandMatrixSetProjection* read_matrix_set_projection() override;
+	const RendererCommandMatrixModel* read_matrix_model() override;
+	const RendererCommandMatrixView* read_matrix_view() override;
+	const RendererCommandMatrixModelView* read_matrix_model_view() override;
+	const RendererCommandMatrixProjection* read_matrix_projection() override;
 
-	const RendererCommandTextureSet* read_texture_set() override;
-	const RendererCommandSamplerSet* read_sampler_set() override;
+	const RendererCommandTexture* read_texture() override;
+	const RendererCommandSampler* read_sampler() override;
 
-	const RendererCommandVertexInputSet* read_vertex_input_set() override;
+	const RendererCommandVertexInput* read_vertex_input() override;
 
 	const RendererCommandDrawQuads* read_draw_quads() override;
 
@@ -348,89 +348,89 @@ void RendererCommandBufferImpl::write_end()
 	is_writing_ = false;
 }
 
-RendererCommandViewportSet* RendererCommandBufferImpl::write_viewport_set()
+RendererCommandViewport* RendererCommandBufferImpl::write_viewport()
 {
-	return write<RendererCommandViewportSet>(RendererCommandId::viewport_set);
+	return write<RendererCommandViewport>(RendererCommandId::viewport_set);
 }
 
-RendererCommandScissorEnable* RendererCommandBufferImpl::write_scissor_enable()
+RendererCommandScissor* RendererCommandBufferImpl::write_scissor()
 {
-	return write<RendererCommandScissorEnable>(RendererCommandId::scissor_enable);
+	return write<RendererCommandScissor>(RendererCommandId::scissor_enable);
 }
 
-RendererCommandScissorSetBox* RendererCommandBufferImpl::write_scissor_set_box()
+RendererCommandScissorBox* RendererCommandBufferImpl::write_scissor_box()
 {
-	return write<RendererCommandScissorSetBox>(RendererCommandId::scissor_set_box);
+	return write<RendererCommandScissorBox>(RendererCommandId::scissor_set_box);
 }
 
-RendererCommandCullingEnabled* RendererCommandBufferImpl::write_culling_enable()
+RendererCommandCulling* RendererCommandBufferImpl::write_culling()
 {
-	return write<RendererCommandCullingEnabled>(RendererCommandId::culling_enable);
+	return write<RendererCommandCulling>(RendererCommandId::culling_enable);
 }
 
-RendererCommandDepthSetTest* RendererCommandBufferImpl::write_depth_set_test()
+RendererCommandDepthTest* RendererCommandBufferImpl::write_depth_test()
 {
-	return write<RendererCommandDepthSetTest>(RendererCommandId::depth_set_test);
+	return write<RendererCommandDepthTest>(RendererCommandId::depth_set_test);
 }
 
-RendererCommandDepthSetWrite* RendererCommandBufferImpl::write_depth_set_write()
+RendererCommandDepthWrite* RendererCommandBufferImpl::write_depth_write()
 {
-	return write<RendererCommandDepthSetWrite>(RendererCommandId::depth_set_write);
+	return write<RendererCommandDepthWrite>(RendererCommandId::depth_set_write);
 }
 
-RendererCommandBlendingEnable* RendererCommandBufferImpl::write_blending_enable()
+RendererCommandBlending* RendererCommandBufferImpl::write_blending()
 {
-	return write<RendererCommandBlendingEnable>(RendererCommandId::blending_enable);
+	return write<RendererCommandBlending>(RendererCommandId::blending_enable);
 }
 
-RendererCommandFogEnable* RendererCommandBufferImpl::write_fog_enable()
+RendererCommandFog* RendererCommandBufferImpl::write_fog()
 {
-	return write<RendererCommandFogEnable>(RendererCommandId::fog_enable);
+	return write<RendererCommandFog>(RendererCommandId::fog_enable);
 }
 
-RendererCommandFogSetColor* RendererCommandBufferImpl::write_fog_set_color()
+RendererCommandFogColor* RendererCommandBufferImpl::write_fog_color()
 {
-	return write<RendererCommandFogSetColor>(RendererCommandId::fog_set_color);
+	return write<RendererCommandFogColor>(RendererCommandId::fog_set_color);
 }
 
-RendererCommandFogSetDistances* RendererCommandBufferImpl::write_fog_set_distances()
+RendererCommandFogDistances* RendererCommandBufferImpl::write_fog_distances()
 {
-	return write<RendererCommandFogSetDistances>(RendererCommandId::fog_set_distances);
+	return write<RendererCommandFogDistances>(RendererCommandId::fog_set_distances);
 }
 
-RendererCommandMatrixSetModel* RendererCommandBufferImpl::write_matrix_set_model()
+RendererCommandMatrixModel* RendererCommandBufferImpl::write_matrix_model()
 {
-	return write<RendererCommandMatrixSetModel>(RendererCommandId::matrix_set_model);
+	return write<RendererCommandMatrixModel>(RendererCommandId::matrix_set_model);
 }
 
-RendererCommandMatrixSetView* RendererCommandBufferImpl::write_matrix_set_view()
+RendererCommandMatrixView* RendererCommandBufferImpl::write_matrix_view()
 {
-	return write<RendererCommandMatrixSetView>(RendererCommandId::matrix_set_view);
+	return write<RendererCommandMatrixView>(RendererCommandId::matrix_set_view);
 }
 
-RendererCommandMatrixSetModelView* RendererCommandBufferImpl::write_matrix_set_model_view()
+RendererCommandMatrixModelView* RendererCommandBufferImpl::write_matrix_model_view()
 {
-	return write<RendererCommandMatrixSetModelView>(RendererCommandId::matrix_set_model_view);
+	return write<RendererCommandMatrixModelView>(RendererCommandId::matrix_set_model_view);
 }
 
-RendererCommandMatrixSetProjection* RendererCommandBufferImpl::write_matrix_set_projection()
+RendererCommandMatrixProjection* RendererCommandBufferImpl::write_matrix_projection()
 {
-	return write<RendererCommandMatrixSetProjection>(RendererCommandId::matrix_set_projection);
+	return write<RendererCommandMatrixProjection>(RendererCommandId::matrix_set_projection);
 }
 
-RendererCommandTextureSet* RendererCommandBufferImpl::write_texture_set()
+RendererCommandTexture* RendererCommandBufferImpl::write_texture()
 {
-	return write<RendererCommandTextureSet>(RendererCommandId::texture_set);
+	return write<RendererCommandTexture>(RendererCommandId::texture_set);
 }
 
-RendererCommandSamplerSet* RendererCommandBufferImpl::write_sampler_set()
+RendererCommandSampler* RendererCommandBufferImpl::write_sampler()
 {
-	return write<RendererCommandSamplerSet>(RendererCommandId::sampler_set);
+	return write<RendererCommandSampler>(RendererCommandId::sampler_set);
 }
 
-RendererCommandVertexInputSet* RendererCommandBufferImpl::write_vertex_input_set()
+RendererCommandVertexInput* RendererCommandBufferImpl::write_vertex_input()
 {
-	return write<RendererCommandVertexInputSet>(RendererCommandId::vertex_input_set);
+	return write<RendererCommandVertexInput>(RendererCommandId::vertex_input_set);
 }
 
 RendererCommandDrawQuads* RendererCommandBufferImpl::write_draw_quads()
@@ -477,89 +477,89 @@ RendererCommandId RendererCommandBufferImpl::read_command_id()
 	return *command_id;
 }
 
-const RendererCommandViewportSet* RendererCommandBufferImpl::read_viewport_set()
+const RendererCommandViewport* RendererCommandBufferImpl::read_viewport()
 {
-	return read<RendererCommandViewportSet>();
+	return read<RendererCommandViewport>();
 }
 
-const RendererCommandScissorEnable* RendererCommandBufferImpl::read_scissor_enable()
+const RendererCommandScissor* RendererCommandBufferImpl::read_scissor()
 {
-	return read<RendererCommandScissorEnable>();
+	return read<RendererCommandScissor>();
 }
 
-const RendererCommandScissorSetBox* RendererCommandBufferImpl::read_scissor_set_box()
+const RendererCommandScissorBox* RendererCommandBufferImpl::read_scissor_box()
 {
-	return read<RendererCommandScissorSetBox>();
+	return read<RendererCommandScissorBox>();
 }
 
-const RendererCommandCullingEnabled* RendererCommandBufferImpl::read_culling_enable()
+const RendererCommandCulling* RendererCommandBufferImpl::read_culling()
 {
-	return read<RendererCommandCullingEnabled>();
+	return read<RendererCommandCulling>();
 }
 
-const RendererCommandDepthSetTest* RendererCommandBufferImpl::read_depth_set_test()
+const RendererCommandDepthTest* RendererCommandBufferImpl::read_depth_test()
 {
-	return read<RendererCommandDepthSetTest>();
+	return read<RendererCommandDepthTest>();
 }
 
-const RendererCommandDepthSetWrite* RendererCommandBufferImpl::read_depth_set_write()
+const RendererCommandDepthWrite* RendererCommandBufferImpl::read_depth_write()
 {
-	return read<RendererCommandDepthSetWrite>();
+	return read<RendererCommandDepthWrite>();
 }
 
-const RendererCommandBlendingEnable* RendererCommandBufferImpl::read_blending_enable()
+const RendererCommandBlending* RendererCommandBufferImpl::read_blending()
 {
-	return read<RendererCommandBlendingEnable>();
+	return read<RendererCommandBlending>();
 }
 
-const RendererCommandFogEnable* RendererCommandBufferImpl::read_fog_enable()
+const RendererCommandFog* RendererCommandBufferImpl::read_fog()
 {
-	return read<RendererCommandFogEnable>();
+	return read<RendererCommandFog>();
 }
 
-const RendererCommandFogSetColor* RendererCommandBufferImpl::read_fog_set_color()
+const RendererCommandFogColor* RendererCommandBufferImpl::read_fog_color()
 {
-	return read<RendererCommandFogSetColor>();
+	return read<RendererCommandFogColor>();
 }
 
-const RendererCommandFogSetDistances* RendererCommandBufferImpl::read_fog_set_distances()
+const RendererCommandFogDistances* RendererCommandBufferImpl::read_fog_distances()
 {
-	return read<RendererCommandFogSetDistances>();
+	return read<RendererCommandFogDistances>();
 }
 
-const RendererCommandMatrixSetModel* RendererCommandBufferImpl::read_matrix_set_model()
+const RendererCommandMatrixModel* RendererCommandBufferImpl::read_matrix_model()
 {
-	return read<RendererCommandMatrixSetModel>();
+	return read<RendererCommandMatrixModel>();
 }
 
-const RendererCommandMatrixSetView* RendererCommandBufferImpl::read_matrix_set_view()
+const RendererCommandMatrixView* RendererCommandBufferImpl::read_matrix_view()
 {
-	return read<RendererCommandMatrixSetView>();
+	return read<RendererCommandMatrixView>();
 }
 
-const RendererCommandMatrixSetModelView* RendererCommandBufferImpl::read_matrix_set_model_view()
+const RendererCommandMatrixModelView* RendererCommandBufferImpl::read_matrix_model_view()
 {
-	return read<RendererCommandMatrixSetModelView>();
+	return read<RendererCommandMatrixModelView>();
 }
 
-const RendererCommandMatrixSetProjection* RendererCommandBufferImpl::read_matrix_set_projection()
+const RendererCommandMatrixProjection* RendererCommandBufferImpl::read_matrix_projection()
 {
-	return read<RendererCommandMatrixSetProjection>();
+	return read<RendererCommandMatrixProjection>();
 }
 
-const RendererCommandTextureSet* RendererCommandBufferImpl::read_texture_set()
+const RendererCommandTexture* RendererCommandBufferImpl::read_texture()
 {
-	return read<RendererCommandTextureSet>();
+	return read<RendererCommandTexture>();
 }
 
-const RendererCommandSamplerSet* RendererCommandBufferImpl::read_sampler_set()
+const RendererCommandSampler* RendererCommandBufferImpl::read_sampler()
 {
-	return read<RendererCommandSamplerSet>();
+	return read<RendererCommandSampler>();
 }
 
-const RendererCommandVertexInputSet* RendererCommandBufferImpl::read_vertex_input_set()
+const RendererCommandVertexInput* RendererCommandBufferImpl::read_vertex_input()
 {
-	return read<RendererCommandVertexInputSet>();
+	return read<RendererCommandVertexInput>();
 }
 
 const RendererCommandDrawQuads* RendererCommandBufferImpl::read_draw_quads()

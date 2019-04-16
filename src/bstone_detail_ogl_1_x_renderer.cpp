@@ -1039,71 +1039,71 @@ void Ogl1XRenderer::execute_commands(
 			switch (command_id)
 			{
 			case RendererCommandId::culling_enable:
-				command_execute_culling_enable(*command_buffer->read_culling_enable());
+				command_execute_culling(*command_buffer->read_culling());
 				break;
 
 			case RendererCommandId::depth_set_test:
-				command_execute_depth_set_test(*command_buffer->read_depth_set_test());
+				command_execute_depth_test(*command_buffer->read_depth_test());
 				break;
 
 			case RendererCommandId::depth_set_write:
-				command_execute_depth_set_write(*command_buffer->read_depth_set_write());
+				command_execute_depth_write(*command_buffer->read_depth_write());
 				break;
 
 			case RendererCommandId::viewport_set:
-				command_execute_viewport_set(*command_buffer->read_viewport_set());
+				command_execute_viewport(*command_buffer->read_viewport());
 				break;
 
 			case RendererCommandId::scissor_enable:
-				command_execute_scissor_enable(*command_buffer->read_scissor_enable());
+				command_execute_scissor(*command_buffer->read_scissor());
 				break;
 
 			case RendererCommandId::scissor_set_box:
-				command_execute_scissor_set_box(*command_buffer->read_scissor_set_box());
+				command_execute_scissor_box(*command_buffer->read_scissor_box());
 				break;
 
 			case RendererCommandId::fog_enable:
-				command_execute_fog_enable(*command_buffer->read_fog_enable());
+				command_execute_fog(*command_buffer->read_fog());
 				break;
 
 			case RendererCommandId::fog_set_color:
-				command_execute_fog_set_color(*command_buffer->read_fog_set_color());
+				command_execute_fog_color(*command_buffer->read_fog_color());
 				break;
 
 			case RendererCommandId::fog_set_distances:
-				command_execute_fog_set_distances(*command_buffer->read_fog_set_distances());
+				command_execute_fog_distances(*command_buffer->read_fog_distances());
 				break;
 
 			case RendererCommandId::matrix_set_model:
-				command_execute_matrix_set_model(*command_buffer->read_matrix_set_model());
+				command_execute_matrix_model(*command_buffer->read_matrix_model());
 				break;
 
 			case RendererCommandId::matrix_set_view:
-				command_execute_matrix_set_view(*command_buffer->read_matrix_set_view());
+				command_execute_matrix_view(*command_buffer->read_matrix_view());
 				break;
 
 			case RendererCommandId::matrix_set_model_view:
-				command_execute_matrix_set_model_view(*command_buffer->read_matrix_set_model_view());
+				command_execute_matrix_model_view(*command_buffer->read_matrix_model_view());
 				break;
 
 			case RendererCommandId::matrix_set_projection:
-				command_execute_matrix_set_projection(*command_buffer->read_matrix_set_projection());
+				command_execute_matrix_projection(*command_buffer->read_matrix_projection());
 				break;
 
 			case RendererCommandId::blending_enable:
-				command_execute_enable_blending(*command_buffer->read_blending_enable());
+				command_execute_blending(*command_buffer->read_blending());
 				break;
 
 			case RendererCommandId::texture_set:
-				command_execute_texture_set(*command_buffer->read_texture_set());
+				command_execute_texture(*command_buffer->read_texture());
 				break;
 
 			case RendererCommandId::sampler_set:
-				command_execute_sampler_set(*command_buffer->read_sampler_set());
+				command_execute_sampler(*command_buffer->read_sampler());
 				break;
 
 			case RendererCommandId::vertex_input_set:
-				command_execute_vertex_input_set(*command_buffer->read_vertex_input_set());
+				command_execute_vertex_input(*command_buffer->read_vertex_input());
 				break;
 
 			case RendererCommandId::draw_quads:
@@ -1454,7 +1454,7 @@ void Ogl1XRenderer::viewport_set_defaults()
 	viewport_set_depth_range();
 }
 
-void Ogl1XRenderer::culling_set_is_enabled()
+void Ogl1XRenderer::culling_enabled()
 {
 	if (culling_is_enabled_)
 	{
@@ -1520,7 +1520,7 @@ void Ogl1XRenderer::culling_set_mode()
 void Ogl1XRenderer::culling_set_defaults()
 {
 	culling_is_enabled_ = false;
-	culling_set_is_enabled();
+	culling_enabled();
 
 	culling_face_ = RendererCullingFace::counter_clockwise;
 	culling_set_face();
@@ -1558,7 +1558,7 @@ void Ogl1XRenderer::depth_set_defaults()
 	depth_set_write();
 }
 
-void Ogl1XRenderer::blending_set_is_enable()
+void Ogl1XRenderer::blending_enable()
 {
 	if (blending_is_enabled_)
 	{
@@ -1581,7 +1581,7 @@ void Ogl1XRenderer::blending_set_function()
 void Ogl1XRenderer::blending_set_defaults()
 {
 	blending_is_enabled_ = false;
-	blending_set_is_enable();
+	blending_enable();
 
 	blending_set_function();
 }
@@ -1624,7 +1624,7 @@ void Ogl1XRenderer::texture_2d_set_defaults()
 	texture_set();
 }
 
-void Ogl1XRenderer::fog_set_is_enabled()
+void Ogl1XRenderer::fog_enable()
 {
 	if (fog_is_enabled_)
 	{
@@ -1662,7 +1662,7 @@ void Ogl1XRenderer::fog_set_distances()
 void Ogl1XRenderer::fog_set_defaults()
 {
 	fog_is_enabled_ = false;
-	fog_set_is_enabled();
+	fog_enable();
 
 	fog_set_mode();
 
@@ -1916,19 +1916,19 @@ void Ogl1XRenderer::vertex_input_defaults()
 	vertex_input_enable_texture_coordinates();
 }
 
-void Ogl1XRenderer::command_execute_culling_enable(
-	const RendererCommandCullingEnabled& command)
+void Ogl1XRenderer::command_execute_culling(
+	const RendererCommandCulling& command)
 {
 	if (culling_is_enabled_ != command.is_enabled_)
 	{
 		culling_is_enabled_ = command.is_enabled_;
 
-		culling_set_is_enabled();
+		culling_enabled();
 	}
 }
 
-void Ogl1XRenderer::command_execute_depth_set_test(
-	const RendererCommandDepthSetTest& command)
+void Ogl1XRenderer::command_execute_depth_test(
+	const RendererCommandDepthTest& command)
 {
 	if (depth_is_test_enabled_ != command.is_enabled_)
 	{
@@ -1938,8 +1938,8 @@ void Ogl1XRenderer::command_execute_depth_set_test(
 	}
 }
 
-void Ogl1XRenderer::command_execute_depth_set_write(
-	const RendererCommandDepthSetWrite& command)
+void Ogl1XRenderer::command_execute_depth_write(
+	const RendererCommandDepthWrite& command)
 {
 	if (depth_is_write_enabled_ != command.is_enabled_)
 	{
@@ -1949,8 +1949,8 @@ void Ogl1XRenderer::command_execute_depth_set_write(
 	}
 }
 
-void Ogl1XRenderer::command_execute_viewport_set(
-	const RendererCommandViewportSet& command)
+void Ogl1XRenderer::command_execute_viewport(
+	const RendererCommandViewport& command)
 {
 	assert(command.x_ < screen_width_);
 	assert(command.y_ < screen_height_);
@@ -1982,8 +1982,8 @@ void Ogl1XRenderer::command_execute_viewport_set(
 	}
 }
 
-void Ogl1XRenderer::command_execute_scissor_enable(
-	const RendererCommandScissorEnable& command)
+void Ogl1XRenderer::command_execute_scissor(
+	const RendererCommandScissor& command)
 {
 	if (scissor_is_enabled_ != command.is_enabled_)
 	{
@@ -1993,8 +1993,8 @@ void Ogl1XRenderer::command_execute_scissor_enable(
 	}
 }
 
-void Ogl1XRenderer::command_execute_scissor_set_box(
-	const RendererCommandScissorSetBox& command)
+void Ogl1XRenderer::command_execute_scissor_box(
+	const RendererCommandScissorBox& command)
 {
 	assert(command.x_ < screen_width_);
 	assert(command.y_ < screen_height_);
@@ -2017,19 +2017,19 @@ void Ogl1XRenderer::command_execute_scissor_set_box(
 	}
 }
 
-void Ogl1XRenderer::command_execute_fog_enable(
-	const RendererCommandFogEnable& command)
+void Ogl1XRenderer::command_execute_fog(
+	const RendererCommandFog& command)
 {
 	if (fog_is_enabled_ != command.is_enabled_)
 	{
 		fog_is_enabled_ = command.is_enabled_;
 
-		fog_set_is_enabled();
+		fog_enable();
 	}
 }
 
-void Ogl1XRenderer::command_execute_fog_set_color(
-	const RendererCommandFogSetColor& command)
+void Ogl1XRenderer::command_execute_fog_color(
+	const RendererCommandFogColor& command)
 {
 	if (fog_color_ != command.color_)
 	{
@@ -2039,8 +2039,8 @@ void Ogl1XRenderer::command_execute_fog_set_color(
 	}
 }
 
-void Ogl1XRenderer::command_execute_fog_set_distances(
-	const RendererCommandFogSetDistances& command)
+void Ogl1XRenderer::command_execute_fog_distances(
+	const RendererCommandFogDistances& command)
 {
 	auto is_modified = false;
 
@@ -2064,8 +2064,8 @@ void Ogl1XRenderer::command_execute_fog_set_distances(
 	}
 }
 
-void Ogl1XRenderer::command_execute_matrix_set_model(
-	const RendererCommandMatrixSetModel& command)
+void Ogl1XRenderer::command_execute_matrix_model(
+	const RendererCommandMatrixModel& command)
 {
 	if (matrix_model_ != command.model_)
 	{
@@ -2075,8 +2075,8 @@ void Ogl1XRenderer::command_execute_matrix_set_model(
 	}
 }
 
-void Ogl1XRenderer::command_execute_matrix_set_view(
-	const RendererCommandMatrixSetView& command)
+void Ogl1XRenderer::command_execute_matrix_view(
+	const RendererCommandMatrixView& command)
 {
 	if (matrix_view_ != command.view_)
 	{
@@ -2086,8 +2086,8 @@ void Ogl1XRenderer::command_execute_matrix_set_view(
 	}
 }
 
-void Ogl1XRenderer::command_execute_matrix_set_model_view(
-	const RendererCommandMatrixSetModelView& command)
+void Ogl1XRenderer::command_execute_matrix_model_view(
+	const RendererCommandMatrixModelView& command)
 {
 	auto is_modified = false;
 
@@ -2113,8 +2113,8 @@ void Ogl1XRenderer::command_execute_matrix_set_model_view(
 	}
 }
 
-void Ogl1XRenderer::command_execute_matrix_set_projection(
-	const RendererCommandMatrixSetProjection& command)
+void Ogl1XRenderer::command_execute_matrix_projection(
+	const RendererCommandMatrixProjection& command)
 {
 	if (matrix_projection_ != command.projection_)
 	{
@@ -2124,25 +2124,25 @@ void Ogl1XRenderer::command_execute_matrix_set_projection(
 	}
 }
 
-void Ogl1XRenderer::command_execute_enable_blending(
-	const RendererCommandBlendingEnable& command)
+void Ogl1XRenderer::command_execute_blending(
+	const RendererCommandBlending& command)
 {
 	if (blending_is_enabled_ != command.is_enabled_)
 	{
 		blending_is_enabled_ = command.is_enabled_;
 
-		blending_set_is_enable();
+		blending_enable();
 	}
 }
 
-void Ogl1XRenderer::command_execute_texture_set(
-	const RendererCommandTextureSet& command)
+void Ogl1XRenderer::command_execute_texture(
+	const RendererCommandTexture& command)
 {
 	texture_set(static_cast<Texture2dPtr>(command.texture_2d_));
 }
 
-void Ogl1XRenderer::command_execute_sampler_set(
-	const RendererCommandSamplerSet& command)
+void Ogl1XRenderer::command_execute_sampler(
+	const RendererCommandSampler& command)
 {
 	assert(command.sampler_);
 
@@ -2156,8 +2156,8 @@ void Ogl1XRenderer::command_execute_sampler_set(
 	sampler_current_ = sampler;
 }
 
-void Ogl1XRenderer::command_execute_vertex_input_set(
-	const RendererCommandVertexInputSet& command)
+void Ogl1XRenderer::command_execute_vertex_input(
+	const RendererCommandVertexInput& command)
 {
 	if (vertex_input_current_ != command.vertex_input_)
 	{

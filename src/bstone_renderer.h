@@ -391,16 +391,7 @@ using RendererSamplerPtr = RendererSampler*;
 // ==========================================================================
 
 
-struct RendererDepthStateFlags
-{
-	using Value = unsigned char;
-
-
-	Value is_enabled_ : 1;
-	Value is_writable_ : 1;
-}; // RendererDepthStateFlags
-
-struct RendererCommandViewportSet
+struct RendererCommandViewport
 {
 	int x_;
 	int y_;
@@ -411,12 +402,12 @@ struct RendererCommandViewportSet
 	float max_depth_;
 }; // ViewportSet
 
-struct RendererCommandScissorEnable
+struct RendererCommandScissor
 {
 	bool is_enabled_;
 }; // ScissorEnable
 
-struct RendererCommandScissorSetBox
+struct RendererCommandScissorBox
 {
 	int x_;
 	int y_;
@@ -424,74 +415,74 @@ struct RendererCommandScissorSetBox
 	int height_;
 }; // ScissorSetBox
 
-struct RendererCommandCullingEnabled
+struct RendererCommandCulling
 {
 	bool is_enabled_;
 }; // CullingEnabled
 
-struct RendererCommandBlendingEnable
+struct RendererCommandBlending
 {
 	bool is_enabled_;
 }; // EnableBlending
 
-struct RendererCommandDepthSetTest
+struct RendererCommandDepthTest
 {
 	bool is_enabled_;
 }; // DepthSetTest
 
-struct RendererCommandDepthSetWrite
+struct RendererCommandDepthWrite
 {
 	bool is_enabled_;
 }; // DepthSetWrite
 
-struct RendererCommandFogEnable
+struct RendererCommandFog
 {
 	bool is_enabled_;
 }; // FogEnable
 
-struct RendererCommandFogSetColor
+struct RendererCommandFogColor
 {
 	glm::vec4 color_;
 }; // FogSetColor
 
-struct RendererCommandFogSetDistances
+struct RendererCommandFogDistances
 {
 	float start_;
 	float end_;
 }; // FogSetDistances
 
-struct RendererCommandMatrixSetModel
+struct RendererCommandMatrixModel
 {
 	glm::mat4 model_;
 }; // MatrixSetModel
 
-struct RendererCommandMatrixSetView
+struct RendererCommandMatrixView
 {
 	glm::mat4 view_;
 }; // MatrixSetView
 
-struct RendererCommandMatrixSetModelView
+struct RendererCommandMatrixModelView
 {
 	glm::mat4 model_;
 	glm::mat4 view_;
 }; // MatrixSetModelView
 
-struct RendererCommandMatrixSetProjection
+struct RendererCommandMatrixProjection
 {
 	glm::mat4 projection_;
 }; // MatrixSetProjection
 
-struct RendererCommandTextureSet
+struct RendererCommandTexture
 {
 	RendererTexture2dPtr texture_2d_;
 }; // TextureSet
 
-struct RendererCommandSamplerSet
+struct RendererCommandSampler
 {
 	RendererSamplerPtr sampler_;
 }; // SamplerSet
 
-struct RendererCommandVertexInputSet
+struct RendererCommandVertexInput
 {
 	RendererVertexInputPtr vertex_input_;
 }; // VertexInputSet
@@ -529,31 +520,31 @@ public:
 
 	virtual void write_end() = 0;
 
-	virtual RendererCommandViewportSet* write_viewport_set() = 0;
+	virtual RendererCommandViewport* write_viewport() = 0;
 
-	virtual RendererCommandScissorEnable* write_scissor_enable() = 0;
-	virtual RendererCommandScissorSetBox* write_scissor_set_box() = 0;
+	virtual RendererCommandScissor* write_scissor() = 0;
+	virtual RendererCommandScissorBox* write_scissor_box() = 0;
 
-	virtual RendererCommandCullingEnabled* write_culling_enable() = 0;
+	virtual RendererCommandCulling* write_culling() = 0;
 
-	virtual RendererCommandDepthSetTest* write_depth_set_test() = 0;
-	virtual RendererCommandDepthSetWrite* write_depth_set_write() = 0;
+	virtual RendererCommandDepthTest* write_depth_test() = 0;
+	virtual RendererCommandDepthWrite* write_depth_write() = 0;
 
-	virtual RendererCommandBlendingEnable* write_blending_enable() = 0;
+	virtual RendererCommandBlending* write_blending() = 0;
 
-	virtual RendererCommandFogEnable* write_fog_enable() = 0;
-	virtual RendererCommandFogSetColor* write_fog_set_color() = 0;
-	virtual RendererCommandFogSetDistances* write_fog_set_distances() = 0;
+	virtual RendererCommandFog* write_fog() = 0;
+	virtual RendererCommandFogColor* write_fog_color() = 0;
+	virtual RendererCommandFogDistances* write_fog_distances() = 0;
 
-	virtual RendererCommandMatrixSetModel* write_matrix_set_model() = 0;
-	virtual RendererCommandMatrixSetView* write_matrix_set_view() = 0;
-	virtual RendererCommandMatrixSetModelView* write_matrix_set_model_view() = 0;
-	virtual RendererCommandMatrixSetProjection* write_matrix_set_projection() = 0;
+	virtual RendererCommandMatrixModel* write_matrix_model() = 0;
+	virtual RendererCommandMatrixView* write_matrix_view() = 0;
+	virtual RendererCommandMatrixModelView* write_matrix_model_view() = 0;
+	virtual RendererCommandMatrixProjection* write_matrix_projection() = 0;
 
-	virtual RendererCommandTextureSet* write_texture_set() = 0;
-	virtual RendererCommandSamplerSet* write_sampler_set() = 0;
+	virtual RendererCommandTexture* write_texture() = 0;
+	virtual RendererCommandSampler* write_sampler() = 0;
 
-	virtual RendererCommandVertexInputSet* write_vertex_input_set() = 0;
+	virtual RendererCommandVertexInput* write_vertex_input() = 0;
 
 	virtual RendererCommandDrawQuads* write_draw_quads() = 0;
 
@@ -564,31 +555,31 @@ public:
 
 	virtual RendererCommandId read_command_id() = 0;
 
-	virtual const RendererCommandViewportSet* read_viewport_set() = 0;
+	virtual const RendererCommandViewport* read_viewport() = 0;
 
-	virtual const RendererCommandScissorEnable* read_scissor_enable() = 0;
-	virtual const RendererCommandScissorSetBox* read_scissor_set_box() = 0;
+	virtual const RendererCommandScissor* read_scissor() = 0;
+	virtual const RendererCommandScissorBox* read_scissor_box() = 0;
 
-	virtual const RendererCommandCullingEnabled* read_culling_enable() = 0;
+	virtual const RendererCommandCulling* read_culling() = 0;
 
-	virtual const RendererCommandDepthSetTest* read_depth_set_test() = 0;
-	virtual const RendererCommandDepthSetWrite* read_depth_set_write() = 0;
+	virtual const RendererCommandDepthTest* read_depth_test() = 0;
+	virtual const RendererCommandDepthWrite* read_depth_write() = 0;
 
-	virtual const RendererCommandBlendingEnable* read_blending_enable() = 0;
+	virtual const RendererCommandBlending* read_blending() = 0;
 
-	virtual const RendererCommandFogEnable* read_fog_enable() = 0;
-	virtual const RendererCommandFogSetColor* read_fog_set_color() = 0;
-	virtual const RendererCommandFogSetDistances* read_fog_set_distances() = 0;
+	virtual const RendererCommandFog* read_fog() = 0;
+	virtual const RendererCommandFogColor* read_fog_color() = 0;
+	virtual const RendererCommandFogDistances* read_fog_distances() = 0;
 
-	virtual const RendererCommandMatrixSetModel* read_matrix_set_model() = 0;
-	virtual const RendererCommandMatrixSetView* read_matrix_set_view() = 0;
-	virtual const RendererCommandMatrixSetModelView* read_matrix_set_model_view() = 0;
-	virtual const RendererCommandMatrixSetProjection* read_matrix_set_projection() = 0;
+	virtual const RendererCommandMatrixModel* read_matrix_model() = 0;
+	virtual const RendererCommandMatrixView* read_matrix_view() = 0;
+	virtual const RendererCommandMatrixModelView* read_matrix_model_view() = 0;
+	virtual const RendererCommandMatrixProjection* read_matrix_projection() = 0;
 
-	virtual const RendererCommandTextureSet* read_texture_set() = 0;
-	virtual const RendererCommandSamplerSet* read_sampler_set() = 0;
+	virtual const RendererCommandTexture* read_texture() = 0;
+	virtual const RendererCommandSampler* read_sampler() = 0;
 
-	virtual const RendererCommandVertexInputSet* read_vertex_input_set() = 0;
+	virtual const RendererCommandVertexInput* read_vertex_input() = 0;
 
 	virtual const RendererCommandDrawQuads* read_draw_quads() = 0;
 }; // RendererCommandBuffer

@@ -347,6 +347,7 @@ GLenum OglRendererUtils::index_buffer_get_element_type_by_byte_depth(
 
 	default:
 		assert(!"Invalid byte depth.");
+
 		return {};
 	}
 }
