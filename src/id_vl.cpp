@@ -1834,6 +1834,11 @@ bstone::RendererVertexBufferPtr hw_3d_fade_vb_ = nullptr;
 bstone::RendererVertexInputPtr hw_3d_fade_vi_ = nullptr;
 bstone::RendererTexture2dPtr hw_3d_fade_t2d_ = nullptr;
 
+bool hw_3d_fizzle_fx_is_enabled_ = false;
+bool hw_3d_fizzle_fx_is_fading_ = false;
+int hw_3d_fizzle_fx_color_index_ = 0;
+float hw_3d_fizzle_fx_ratio_ = 0.0F;
+
 
 void hw_dbg_3d_orient_all_sprites();
 
@@ -4786,8 +4791,8 @@ void hw_refresh_screen_2d()
 			//
 			{
 				auto& command = *command_buffer->write_blending_function();
-				command.src_factor_ = bstone::RendererBlendingFactor::one;
-				command.dst_factor_ = bstone::RendererBlendingFactor::one;
+				command.src_factor_ = bstone::RendererBlendingFactor::src_alpha;
+				command.dst_factor_ = bstone::RendererBlendingFactor::one_minus_src_alpha;
 			}
 
 			// Set texture.
@@ -5713,7 +5718,26 @@ void hw_3d_fade_update()
 
 	const auto& palette_shift_info = ::palette_shift_get_info();
 
-	if (palette_shift_info.is_bonus_shifted_ || palette_shift_info.is_damage_shifted_)
+	if (::hw_3d_fizzle_fx_is_enabled_)
+	{
+		::hw_3d_fade_is_enabled_ = true;
+
+		auto ratio = ::hw_3d_fizzle_fx_ratio_;
+
+		if (!::hw_3d_fizzle_fx_is_fading_)
+		{
+			ratio = 1.0F - ratio;
+		}
+
+		const auto vga_color = ::vgapal + (3 * ::hw_3d_fizzle_fx_color_index_);
+		const auto& color_32 = ::hw_vga_color_to_color_32(vga_color[0], vga_color[1], vga_color[2]);
+
+		r_f = static_cast<float>(color_32.r) / 255.0F;
+		g_f = static_cast<float>(color_32.g) / 255.0F;
+		b_f = static_cast<float>(color_32.b) / 255.0F;
+		a_f = ratio;
+	}
+	else if (palette_shift_info.is_bonus_shifted_ || palette_shift_info.is_damage_shifted_)
 	{
 		::hw_3d_fade_is_enabled_ = true;
 
@@ -11467,5 +11491,29 @@ void vid_hw_on_actor_add(
 	}
 
 	::hw_3d_add_actor(bs_actor);
+}
+
+void vid_hw_fizzle_fx_set_is_enabled(
+	const bool is_enabled)
+{
+	::hw_3d_fizzle_fx_is_enabled_ = is_enabled;
+}
+
+void vid_hw_fizzle_fx_set_is_fading(
+	const bool is_fading)
+{
+	::hw_3d_fizzle_fx_is_fading_ = is_fading;
+}
+
+void vid_hw_fizzle_fx_set_color_index(
+	const int color_index)
+{
+	::hw_3d_fizzle_fx_color_index_ = color_index;
+}
+
+void vid_hw_fizzle_fx_set_ratio(
+	const float ratio)
+{
+	::hw_3d_fizzle_fx_ratio_ = ratio;
 }
 // BBi

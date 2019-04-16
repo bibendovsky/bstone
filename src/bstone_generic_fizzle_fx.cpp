@@ -82,6 +82,14 @@ GenericFizzleFX::~GenericFizzleFX()
 
 void GenericFizzleFX::initialize()
 {
+	if (::vid_is_hw_)
+	{
+		::vid_hw_fizzle_fx_set_color_index(impl_->plot_color_);
+		::vid_hw_fizzle_fx_set_is_fading(impl_->is_transparent_);
+
+		return;
+	}
+
 	impl_->y_offset_ = ::ref_view_top_y;
 	impl_->height_ = ::ref_view_height;
 
@@ -122,6 +130,11 @@ void GenericFizzleFX::plot(
 	const int x,
 	const int y)
 {
+	if (::vid_is_hw_)
+	{
+		return;
+	}
+
 	if (impl_->is_transparent_)
 	{
 		::VL_Plot(x, y, impl_->plot_color_, !impl_->is_transparent_);
@@ -136,6 +149,13 @@ void GenericFizzleFX::plot(
 
 void GenericFizzleFX::skip_to_the_end()
 {
+	if (::vid_is_hw_)
+	{
+		::vid_hw_fizzle_fx_set_ratio(1.0F);
+
+		return;
+	}
+
 	if (impl_->is_transparent_)
 	{
 		::VL_Bar(0, get_y(), ::vga_ref_width, get_height(), impl_->plot_color_, !impl_->is_transparent_);

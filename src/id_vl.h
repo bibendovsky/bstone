@@ -284,4 +284,17 @@ void vid_hw_on_actor_add(
 	const objtype& bs_actor);
 
 
+void vid_hw_fizzle_fx_set_is_enabled(
+	const bool is_enabled);
+
+void vid_hw_fizzle_fx_set_is_fading(
+	const bool is_fading);
+
+void vid_hw_fizzle_fx_set_color_index(
+	const int color_index);
+
+void vid_hw_fizzle_fx_set_ratio(
+	const float ratio);
+
+
 #endif // BSTONE_ID_VL_INCLUDED

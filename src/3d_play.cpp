@@ -1854,18 +1854,14 @@ void UpdatePaletteShifts()
 
 		if (white > 0)
 		{
-			const auto max_shift_count = 3 * NUMWHITESHIFTS;
-
-			const auto r = static_cast<std::uint8_t>((bonus_color_r * white) / max_shift_count);
-			const auto g = static_cast<std::uint8_t>((bonus_color_g * white) / max_shift_count);
-			const auto b = static_cast<std::uint8_t>((bonus_color_b * white) / max_shift_count);
+			const auto alpha = static_cast<std::uint8_t>((0x80 * white) / NUMWHITESHIFTS);
 
 			palette_shift_info_.is_bonus_shifted_ = true;
 
-			palette_shift_info_.bonus_r_ = r;
-			palette_shift_info_.bonus_g_ = g;
-			palette_shift_info_.bonus_b_ = b;
-			palette_shift_info_.bonus_a_ = 0xFF;
+			palette_shift_info_.bonus_r_ = bonus_color_r;
+			palette_shift_info_.bonus_g_ = bonus_color_g;
+			palette_shift_info_.bonus_b_ = bonus_color_b;
+			palette_shift_info_.bonus_a_ = alpha;
 		}
 
 
@@ -1873,18 +1869,14 @@ void UpdatePaletteShifts()
 
 		if (red > 0)
 		{
-			const auto max_shift_count = 3 * NUMREDSHIFTS;
-
-			const auto r = static_cast<std::uint8_t>((damage_color_r * red) / max_shift_count);
-			const auto g = static_cast<std::uint8_t>((damage_color_g * red) / max_shift_count);
-			const auto b = static_cast<std::uint8_t>((damage_color_b * red) / max_shift_count);
+			const auto alpha = static_cast<std::uint8_t>((0xFF * red) / NUMREDSHIFTS);
 
 			palette_shift_info_.is_damage_shifted_ = true;
 
-			palette_shift_info_.damage_r_ = r;
-			palette_shift_info_.damage_g_ = g;
-			palette_shift_info_.damage_b_ = b;
-			palette_shift_info_.damage_a_ = 0xFF;
+			palette_shift_info_.damage_r_ = damage_color_r;
+			palette_shift_info_.damage_g_ = damage_color_g;
+			palette_shift_info_.damage_b_ = damage_color_b;
+			palette_shift_info_.damage_a_ = alpha;
 		}
 
 		::palshifted = (palette_shift_info_.is_bonus_shifted_ || palette_shift_info_.is_damage_shifted_);

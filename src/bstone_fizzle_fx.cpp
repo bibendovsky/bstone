@@ -45,6 +45,12 @@ namespace bstone
 bool FizzleFX::present(
 	const bool trigger_fade)
 {
+	if (::vid_is_hw_)
+	{
+		::vid_hw_fizzle_fx_set_is_enabled(true);
+		::vid_hw_fizzle_fx_set_ratio(0.0F);
+	}
+
 	if (trigger_fade)
 	{
 		::vid_is_fizzle_fade = true;
@@ -84,30 +90,46 @@ bool FizzleFX::present(
 
 			remain_pixels = 0;
 
-			for (auto p = 0; p < pixel_count; ++p)
+			if (::vid_is_hw_)
 			{
-				auto x = (rndval >> 8) & 0xFFFF;
-				auto y = ((rndval & 0xFF) - 1) & 0xFF;
-
-				auto carry = ((rndval & 1) != 0);
-
-				rndval >>= 1;
-
-				if (carry)
-				{
-					rndval ^= 0x00012000;
-				}
-
-				if (x >= width || y >= height)
-				{
-					continue;
-				}
-
-				plot(x, y_offset + y);
-
-				if (rndval == 1)
+				if ((frame + 1) >= frame_count)
 				{
 					do_full_copy = true;
+				}
+				else
+				{
+					const auto ratio = static_cast<float>(frame) / static_cast<float>(frame_count);
+
+					::vid_hw_fizzle_fx_set_ratio(ratio);
+				}
+			}
+			else
+			{
+				for (auto p = 0; p < pixel_count; ++p)
+				{
+					auto x = (rndval >> 8) & 0xFFFF;
+					auto y = ((rndval & 0xFF) - 1) & 0xFF;
+
+					auto carry = ((rndval & 1) != 0);
+
+					rndval >>= 1;
+
+					if (carry)
+					{
+						rndval ^= 0x00012000;
+					}
+
+					if (x >= width || y >= height)
+					{
+						continue;
+					}
+
+					plot(x, y_offset + y);
+
+					if (rndval == 1)
+					{
+						do_full_copy = true;
+					}
 				}
 			}
 		}
@@ -128,6 +150,11 @@ bool FizzleFX::present(
 	if (trigger_fade)
 	{
 		::vid_is_fizzle_fade = false;
+	}
+
+	if (::vid_is_hw_)
+	{
+		::vid_hw_fizzle_fx_set_is_enabled(false);
 	}
 
 	return is_aborted;
