@@ -91,6 +91,11 @@ bool PsFizzleFX::is_abortable() const
 	return true;
 }
 
+bool PsFizzleFX::is_vanilla_only() const
+{
+	return true;
+}
+
 int PsFizzleFX::get_frame_count() const
 {
 	return 70;

@@ -68,6 +68,9 @@ protected:
 	// Returns true if the effect can be interrupted.
 	bool is_abortable() const override;
 
+	// Returns true if the effect for vanilla renderer only.
+	bool is_vanilla_only() const override;
+
 	// Returns total frame count.
 	int get_frame_count() const override;
 

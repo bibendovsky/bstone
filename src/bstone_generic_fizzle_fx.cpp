@@ -82,7 +82,7 @@ GenericFizzleFX::~GenericFizzleFX()
 
 void GenericFizzleFX::initialize()
 {
-	if (::vid_is_hw_)
+	if (::vid_is_hw_ && !is_vanilla_only())
 	{
 		::vid_hw_fizzle_fx_set_color_index(impl_->plot_color_);
 		::vid_hw_fizzle_fx_set_is_fading(impl_->is_transparent_);
@@ -111,6 +111,11 @@ bool GenericFizzleFX::is_abortable() const
 	return false;
 }
 
+bool GenericFizzleFX::is_vanilla_only() const
+{
+	return false;
+}
+
 int GenericFizzleFX::get_frame_count() const
 {
 	return 70;
@@ -130,7 +135,7 @@ void GenericFizzleFX::plot(
 	const int x,
 	const int y)
 {
-	if (::vid_is_hw_)
+	if (::vid_is_hw_ && !is_vanilla_only())
 	{
 		return;
 	}
@@ -149,7 +154,7 @@ void GenericFizzleFX::plot(
 
 void GenericFizzleFX::skip_to_the_end()
 {
-	if (::vid_is_hw_)
+	if (::vid_is_hw_ && !is_vanilla_only())
 	{
 		::vid_hw_fizzle_fx_set_ratio(1.0F);
 

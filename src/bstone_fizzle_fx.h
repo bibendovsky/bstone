@@ -69,6 +69,9 @@ protected:
 	// Returns true if the effect can be interrupted.
 	virtual bool is_abortable() const = 0;
 
+	// Returns true if the effect for vanilla renderer only.
+	virtual bool is_vanilla_only() const = 0;
+
 	// Returns total frame count.
 	virtual int get_frame_count() const = 0;
 
