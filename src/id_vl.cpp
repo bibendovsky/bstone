@@ -4682,150 +4682,6 @@ void hw_refresh_screen_2d()
 		command.is_enabled_ = false;
 	}
 
-	// Draw player's weapon.
-	//
-	if (::vid_is_hud)
-	{
-		const auto player_weapon_sprite_id = ::player_get_weapon_sprite_id();
-
-		if (player_weapon_sprite_id > 0 || ::hw_3d_fade_is_enabled_)
-		{
-			// Set projection matrix.
-			//
-			{
-				auto& command = *command_buffer->write_matrix_projection();
-				command.projection_ = ::hw_3d_player_weapon_projection_matrix_;
-			}
-		}
-
-		if (player_weapon_sprite_id > 0)
-		{
-			const auto player_weapon_texture = ::hw_texture_manager_->sprite_get(player_weapon_sprite_id);
-
-			if (assets_info.is_ps())
-			{
-				::hw_3d_player_weapon_update_model_matrix();
-			}
-
-			// Set model-view matrix.
-			//
-			{
-				auto& command = *command_buffer->write_matrix_model_view();
-				command.model_ = ::hw_3d_player_weapon_model_matrix_;
-				command.view_ = ::hw_3d_player_weapon_view_matrix_;
-			}
-
-			// Set texture.
-			//
-			{
-				auto& command = *command_buffer->write_texture();
-				command.texture_2d_ = player_weapon_texture;
-			}
-
-			// Set sampler.
-			//
-			{
-				auto& command = *command_buffer->write_sampler();
-				command.sampler_ = ::hw_3d_player_weapon_so_;
-			}
-
-			// Set vertex input.
-			//
-			{
-				auto& command = *command_buffer->write_vertex_input();
-				command.vertex_input_ = ::hw_3d_player_weapon_vi_;
-			}
-
-			// Enable blending.
-			//
-			{
-				auto& command = *command_buffer->write_blending();
-				command.is_enabled_ = true;
-			}
-
-			// Set blending function.
-			//
-			{
-				auto& command = *command_buffer->write_blending_function();
-				command.src_factor_ = bstone::RendererBlendingFactor::src_alpha;
-				command.dst_factor_ = bstone::RendererBlendingFactor::one_minus_src_alpha;
-			}
-
-			// Draw the weapon.
-			//
-			{
-				auto& command = *command_buffer->write_draw_quads();
-				command.index_offset_ = 0;
-				command.count_ = 1;
-			}
-
-			// Disable blending.
-			//
-			{
-				auto& command = *command_buffer->write_blending();
-				command.is_enabled_ = false;
-			}
-		}
-
-
-		// 3D fade (bonus, damage, death, etc).
-		//
-		if (::hw_3d_fade_is_enabled_)
-		{
-			// Set model-view matrix.
-			//
-			{
-				auto& command = *command_buffer->write_matrix_model_view();
-				command.model_ = glm::identity<glm::mat4>();
-				command.view_ = glm::identity<glm::mat4>();
-			}
-
-			// Enable blending.
-			//
-			{
-				auto& command = *command_buffer->write_blending();
-				command.is_enabled_ = true;
-			}
-
-			// Set blending function.
-			//
-			{
-				auto& command = *command_buffer->write_blending_function();
-				command.src_factor_ = bstone::RendererBlendingFactor::src_alpha;
-				command.dst_factor_ = bstone::RendererBlendingFactor::one_minus_src_alpha;
-			}
-
-			// Set texture.
-			//
-			{
-				auto& command = *command_buffer->write_texture();
-				command.texture_2d_ = ::hw_3d_fade_t2d_;
-			}
-
-			// Set vertex input.
-			//
-			{
-				auto& command = *command_buffer->write_vertex_input();
-				command.vertex_input_ = ::hw_3d_fade_vi_;
-			}
-
-			// Draw the quad.
-			//
-			{
-				auto& command = *command_buffer->write_draw_quads();
-				command.count_ = 1;
-				command.index_offset_ = 0;
-			}
-
-			// Disable blending.
-			//
-			{
-				auto& command = *command_buffer->write_blending();
-				command.is_enabled_ = false;
-			}
-		}
-	}
-
 	// Set viewport.
 	//
 	{
@@ -5784,6 +5640,8 @@ void hw_refresh_screen_3d()
 		return;
 	}
 
+	const auto& assets_info = AssetsInfo{};
+
 	::hw_3d_fade_update();
 
 	command_buffer->enable(true);
@@ -5935,6 +5793,165 @@ void hw_refresh_screen_3d()
 	// Draw statics and actors.
 	//
 	::hw_3d_dbg_draw_all_sprites();
+
+
+	// Disable back-face culling.
+	//
+	{
+		auto& command = *command_buffer->write_culling();
+		command.is_enabled_ = false;
+	}
+
+	// Disable depth test.
+	//
+	{
+		auto& command = *command_buffer->write_depth_test();
+		command.is_enabled_ = false;
+	}
+
+	// Draw player's weapon.
+	//
+	if (::vid_is_hud)
+	{
+		const auto player_weapon_sprite_id = ::player_get_weapon_sprite_id();
+
+		if (player_weapon_sprite_id > 0 || ::hw_3d_fade_is_enabled_)
+		{
+			// Set projection matrix.
+			//
+			{
+				auto& command = *command_buffer->write_matrix_projection();
+				command.projection_ = ::hw_3d_player_weapon_projection_matrix_;
+			}
+		}
+
+		if (player_weapon_sprite_id > 0)
+		{
+			const auto player_weapon_texture = ::hw_texture_manager_->sprite_get(player_weapon_sprite_id);
+
+			if (assets_info.is_ps())
+			{
+				::hw_3d_player_weapon_update_model_matrix();
+			}
+
+			// Set model-view matrix.
+			//
+			{
+				auto& command = *command_buffer->write_matrix_model_view();
+				command.model_ = ::hw_3d_player_weapon_model_matrix_;
+				command.view_ = ::hw_3d_player_weapon_view_matrix_;
+			}
+
+			// Set texture.
+			//
+			{
+				auto& command = *command_buffer->write_texture();
+				command.texture_2d_ = player_weapon_texture;
+			}
+
+			// Set sampler.
+			//
+			{
+				auto& command = *command_buffer->write_sampler();
+				command.sampler_ = ::hw_3d_player_weapon_so_;
+			}
+
+			// Set vertex input.
+			//
+			{
+				auto& command = *command_buffer->write_vertex_input();
+				command.vertex_input_ = ::hw_3d_player_weapon_vi_;
+			}
+
+			// Enable blending.
+			//
+			{
+				auto& command = *command_buffer->write_blending();
+				command.is_enabled_ = true;
+			}
+
+			// Set blending function.
+			//
+			{
+				auto& command = *command_buffer->write_blending_function();
+				command.src_factor_ = bstone::RendererBlendingFactor::src_alpha;
+				command.dst_factor_ = bstone::RendererBlendingFactor::one_minus_src_alpha;
+			}
+
+			// Draw the weapon.
+			//
+			{
+				auto& command = *command_buffer->write_draw_quads();
+				command.index_offset_ = 0;
+				command.count_ = 1;
+			}
+
+			// Disable blending.
+			//
+			{
+				auto& command = *command_buffer->write_blending();
+				command.is_enabled_ = false;
+			}
+		}
+
+
+		// 3D fade (bonus, damage, death, etc).
+		//
+		if (::hw_3d_fade_is_enabled_)
+		{
+			// Set model-view matrix.
+			//
+			{
+				auto& command = *command_buffer->write_matrix_model_view();
+				command.model_ = glm::identity<glm::mat4>();
+				command.view_ = glm::identity<glm::mat4>();
+			}
+
+			// Enable blending.
+			//
+			{
+				auto& command = *command_buffer->write_blending();
+				command.is_enabled_ = true;
+			}
+
+			// Set blending function.
+			//
+			{
+				auto& command = *command_buffer->write_blending_function();
+				command.src_factor_ = bstone::RendererBlendingFactor::src_alpha;
+				command.dst_factor_ = bstone::RendererBlendingFactor::one_minus_src_alpha;
+			}
+
+			// Set texture.
+			//
+			{
+				auto& command = *command_buffer->write_texture();
+				command.texture_2d_ = ::hw_3d_fade_t2d_;
+			}
+
+			// Set vertex input.
+			//
+			{
+				auto& command = *command_buffer->write_vertex_input();
+				command.vertex_input_ = ::hw_3d_fade_vi_;
+			}
+
+			// Draw the quad.
+			//
+			{
+				auto& command = *command_buffer->write_draw_quads();
+				command.count_ = 1;
+				command.index_offset_ = 0;
+			}
+
+			// Disable blending.
+			//
+			{
+				auto& command = *command_buffer->write_blending();
+				command.is_enabled_ = false;
+			}
+		}
+	}
 
 	// Finalize.
 	//
