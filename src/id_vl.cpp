@@ -1839,6 +1839,11 @@ bool hw_3d_fizzle_fx_is_fading_ = false;
 int hw_3d_fizzle_fx_color_index_ = 0;
 float hw_3d_fizzle_fx_ratio_ = 0.0F;
 
+bstone::RendererColor32 hw_3d_fog_color = bstone::RendererColor32{0x00, 0x00, 0x00, 0x20};
+bool hw_3d_fog_is_global_enabled = false;
+float hw_3d_fog_start_ = 0.0F;
+float hw_3d_fog_end_ = 1.0F;
+
 
 void hw_dbg_3d_orient_all_sprites();
 
@@ -5392,6 +5397,40 @@ void hw_3d_dbg_draw_all_doors()
 	::hw_3d_door_draw_item_count_ = draw_side_index;
 }
 
+bool hw_3d_fog_calculate(
+	const int sprite_lighting)
+{
+	if (sprite_lighting == NO_SHADING)
+	{
+		return false;
+	}
+
+	const auto shade_index = ::shade_max + sprite_lighting;
+
+	if (shade_index <= 0)
+	{
+		return false;
+	}
+
+	const auto start_wall_height = (::normalshade * shade_index) / 63.0;
+
+	if (start_wall_height <= 1.0)
+	{
+		return false;
+	}
+
+	const auto height_num = bstone::FixedPoint{::heightnumerator}.to_double();
+	const auto start_wall_distance = (32.0 * height_num) / start_wall_height;
+	const auto wall_height_step = ::normalshade / 8.0;
+	const auto extra_fog_factor = 0.75;
+	const auto fog_delta = static_cast<float>(wall_height_step * ::normalshade_div * extra_fog_factor);
+
+	::hw_3d_fog_start_ = static_cast<float>(start_wall_distance);
+	::hw_3d_fog_end_ = ::hw_3d_fog_start_ + fog_delta;
+
+	return true;
+}
+
 void hw_3d_dbg_draw_all_sprites()
 {
 	// Build draw list.
@@ -5502,18 +5541,51 @@ void hw_3d_dbg_draw_all_sprites()
 	{
 		auto is_first = true;
 		auto last_texture = bstone::RendererTexture2dPtr{};
+		auto last_lighting = 0;
 
 		draw_quad_count = 0;
 
 		while (draw_index < draw_sprite_index)
 		{
+			const auto& draw_item = draw_items[draw_index];
+
+			const auto texture = draw_item.texture_2d_;
+
+			auto lighting = 0;
+
+			if (::hw_3d_fog_is_global_enabled)
+			{
+				const auto& hw_sprite = *draw_item.sprite_;
+
+				switch (hw_sprite.kind_)
+				{
+					case Hw3dSpriteKind::actor:
+						lighting = hw_sprite.bs_object_.actor_->lighting;
+						break;
+
+					case Hw3dSpriteKind::stat:
+						lighting = hw_sprite.bs_object_.stat_->lighting;
+						break;
+
+					default:
+						assert(!"Invalid sprite kind.");
+						break;
+				}
+
+				if (lighting > 0)
+				{
+					lighting = 0;
+				}
+			}
+
 			if (is_first)
 			{
 				is_first = false;
 
-				last_texture = draw_items[draw_index].texture_2d_;
+				last_texture = texture;
+				last_lighting = lighting;
 			}
-			else if (last_texture == draw_items[draw_index].texture_2d_)
+			else if (last_texture == texture && last_lighting == lighting)
 			{
 				++draw_quad_count;
 				++draw_index;
@@ -5526,6 +5598,29 @@ void hw_3d_dbg_draw_all_sprites()
 
 		if (draw_quad_count > 0)
 		{
+			auto is_shading = false;
+
+			if (::hw_3d_fog_is_global_enabled && last_lighting <= 0)
+			{
+				const auto use_fog = ::hw_3d_fog_calculate(last_lighting);
+
+				if (use_fog)
+				{
+					is_shading = true;
+
+					{
+						auto& command = *command_buffer->write_fog();
+						command.is_enabled_ = true;
+					}
+
+					{
+						auto& command = *command_buffer->write_fog_distances();
+						command.start_ = ::hw_3d_fog_start_;
+						command.end_ = ::hw_3d_fog_end_;
+					}
+				}
+			}
+
 			{
 				auto& command = *command_buffer->write_texture();
 				command.texture_2d_ = last_texture;
@@ -5543,7 +5638,19 @@ void hw_3d_dbg_draw_all_sprites()
 
 				draw_index_offset_ += ::hw_3d_indices_per_sprite * draw_quad_count;
 			}
+
+			if (is_shading)
+			{
+				auto& command = *command_buffer->write_fog();
+				command.is_enabled_ = false;
+			}
 		}
+	}
+
+	if (::hw_3d_fog_is_global_enabled)
+	{
+		auto& command = *command_buffer->write_fog();
+		command.is_enabled_ = true;
 	}
 
 	// Enable depth write.
@@ -5640,6 +5747,8 @@ void hw_refresh_screen_3d()
 		return;
 	}
 
+	const auto is_shading = ((::gamestate.flags & GS_LIGHTING) != 0);
+
 	const auto& assets_info = AssetsInfo{};
 
 	::hw_3d_fade_update();
@@ -5701,6 +5810,32 @@ void hw_refresh_screen_3d()
 	{
 		auto& command = *command_buffer->write_sampler();
 		command.sampler_ = ::hw_3d_wall_so_;
+	}
+
+	if (is_shading)
+	{
+		::hw_3d_fog_is_global_enabled = ::hw_3d_fog_calculate(0);
+
+		if (::hw_3d_fog_is_global_enabled)
+		{
+			{
+				auto& command = *command_buffer->write_fog();
+				command.is_enabled_ = true;
+			}
+
+			{
+				// Note the alpha channel is ignored in fixed pipeline.
+				//
+				auto& command = *command_buffer->write_fog_color();
+				command.color_ = ::hw_3d_fog_color;
+			}
+
+			{
+				auto& command = *command_buffer->write_fog_distances();
+				command.start_ = ::hw_3d_fog_start_;
+				command.end_ = ::hw_3d_fog_end_;
+			}
+		}
 	}
 
 	// Draw solid walls.
@@ -5794,6 +5929,13 @@ void hw_refresh_screen_3d()
 	//
 	::hw_3d_dbg_draw_all_sprites();
 
+
+	// Disable the fog.
+	//
+	{
+		auto& command = *command_buffer->write_fog();
+		command.is_enabled_ = false;
+	}
 
 	// Disable back-face culling.
 	//
