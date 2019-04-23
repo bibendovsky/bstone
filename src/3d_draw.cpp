@@ -509,31 +509,24 @@ void TransformTile(
 =
 ====================
 */
-int CalcHeight()
+double CalcHeight()
 {
 	int gx = xintercept - viewx;
-	int gxt = FixedByFrac(gx, viewcos);
+	const auto gxt = static_cast<double>(::FixedByFrac(gx, ::viewcos));
 
 	int gy = yintercept - viewy;
-	int gyt = FixedByFrac(gy, viewsin);
-
-	int nx = gxt - gyt;
+	const auto gyt = static_cast<double>(::FixedByFrac(gy, ::viewsin));
 
 	//
 	// calculate perspective ratio (heightnumerator/(nx>>8))
 	//
 
-	if (nx < mindist)
-	{
-		nx = mindist; // don't let divide overflow
+	const auto min_nx = 0.00001;
+	const auto min_result = 8.0;
 
-	}
-	int result = heightnumerator / (nx / 256);
+	const auto nx = std::max(gxt - gyt, min_nx);
 
-	if (result < 8)
-	{
-		result = 8;
-	}
+	const auto result = std::max((256.0 * static_cast<double>(::heightnumerator)) / nx, min_result);
 
 	return result;
 }
@@ -545,13 +538,13 @@ int postx;
 // BBi
 int posty;
 
-int postheight;
+double postheight;
 const std::uint8_t* shadingtable;
 extern const std::uint8_t* lightsource;
 
 void ScalePost()
 {
-	const auto height = ::wallheight[postx] / 8;
+	const auto height = ::wallheight[postx] / 8.0;
 
 	::postheight = height;
 
@@ -559,16 +552,16 @@ void ScalePost()
 	{
 		auto i = ::shade_max - ((63 * height) / ::normalshade);
 
-		if (i < 0)
+		if (i < 0.0)
 		{
-			i = 0;
+			i = 0.0;
 		}
-		else if (i > 63)
+		else if (i > 63.0)
 		{
-			i = 63;
+			i = 63.0;
 		}
 
-		::shadingtable = ::lightsource + (i * 256);
+		::shadingtable = ::lightsource + (static_cast<std::ptrdiff_t>(i) * 256);
 
 		::DrawLSPost();
 	}

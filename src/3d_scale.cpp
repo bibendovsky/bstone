@@ -239,7 +239,7 @@ void generic_scale_shape(
 
 	for (int x = x1; x < x2; ++x)
 	{
-		if (!is_player_weapon && ::wallheight[x] > ref_height)
+		if (!is_player_weapon && ::wallheight[x] > static_cast<double>(ref_height))
 		{
 			tx_column += tx_delta;
 			continue;

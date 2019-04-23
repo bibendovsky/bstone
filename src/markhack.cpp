@@ -35,7 +35,7 @@ extern int viewwidth;
 extern int viewheight;
 extern int bufferofs;
 extern int centery;
-extern int postheight;
+extern double postheight;
 extern const std::uint8_t* shadingtable;
 
 
@@ -49,17 +49,17 @@ enum DrawMode
 static void generic_draw_post(
 	DrawMode draw_mode)
 {
-	if (postheight == 0)
+	if (::postheight <= 0.0)
 	{
 		return;
 	}
 
 	int y = ::posty;
 
-	int cur_step = (32L * 65536L) / postheight;
+	auto cur_step = 32.0 / ::postheight;
 
-	int step = cur_step;
-	cur_step /= 2;
+	auto step = cur_step;
+	cur_step /= 2.0;
 
 	int fraction = (::vid_is_3d ? ::vga_width : 1);
 
@@ -79,12 +79,7 @@ static void generic_draw_post(
 		y += max_height - 1;
 	}
 
-	int n = postheight;
-
-	if (n > max_height)
-	{
-		n = max_height;
-	}
+	const auto n = static_cast<int>(std::min(::postheight, static_cast<double>(max_height)));
 
 	for (int h = 0; h < n; ++h)
 	{
@@ -93,7 +88,7 @@ static void generic_draw_post(
 
 		// top half
 
-		pixel_index = postsource[31 - (cur_step >> 16)];
+		pixel_index = postsource[31 - static_cast<std::ptrdiff_t>(cur_step)];
 
 		if (draw_mode == DRAW_LIGHTED)
 		{
@@ -119,7 +114,7 @@ static void generic_draw_post(
 
 		// bottom half
 
-		pixel_index = postsource[32 + (cur_step >> 16)];
+		pixel_index = postsource[32 + static_cast<std::ptrdiff_t>(cur_step)];
 
 		if (draw_mode == DRAW_LIGHTED)
 		{

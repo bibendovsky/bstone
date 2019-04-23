@@ -183,59 +183,66 @@ void DrawPlanes()
 		::SetPlaneViewSize(); // screen size has changed
 	}
 
-	psin = viewsin;
+	::psin = ::viewsin;
 
-	if (psin < 0)
+	if (::psin < 0)
 	{
-		psin = -(psin & 0xFFFF);
+		::psin = -(::psin & 0xFFFF);
 	}
 
-	pcos = viewcos;
+	::pcos = ::viewcos;
 
-	if (pcos < 0)
+	if (::pcos < 0)
 	{
-		pcos = -(pcos & 0xFFFF);
+		::pcos = -(::pcos & 0xFFFF);
 	}
+
+	auto lastheight_d = static_cast<double>(::halfheight);
 
 	int x = 0;
-	int height = 0;
-	int lastheight = halfheight;
 
-	for (x = 0; x < ::viewwidth; ++x)
+	for ( ; x < ::viewwidth; ++x)
 	{
-		height = wallheight[x] / 8;
+		const auto height_d = ::wallheight[x] / 8.0;
 
-		if (height < lastheight)
-		{ // more starts
+		if (height_d < lastheight_d)
+		{
+			auto height = static_cast<int>(height_d);
+			auto lastheight = static_cast<int>(lastheight_d);
+
+			// more starts
 			do
 			{
-				spanstart[--lastheight] = x;
+				::spanstart[--lastheight] = x;
 			} while (lastheight > height);
-		}
-		else if (height > lastheight)
-		{ // draw spans
-			if (height > halfheight)
-			{
-				height = halfheight;
-			}
 
-			for (; lastheight < height; ++lastheight)
+			lastheight_d = static_cast<double>(lastheight);
+		}
+		else if (height_d > lastheight_d)
+		{
+			const auto height = static_cast<int>(std::min(height_d, static_cast<double>(::halfheight)));
+			auto lastheight = static_cast<int>(lastheight_d);
+
+			// draw spans
+			while (lastheight < height)
 			{
 				if (lastheight > 0)
 				{
-					DrawSpans(spanstart[lastheight], x - 1, lastheight);
+					::DrawSpans(::spanstart[lastheight], x - 1, lastheight);
 				}
+
+				++lastheight;
 			}
+
+			lastheight_d = static_cast<double>(lastheight);
 		}
 	}
 
-	height = halfheight;
-
-	for (; lastheight < height; ++lastheight)
+	for (auto lastheight = static_cast<int>(lastheight_d); lastheight < ::halfheight; ++lastheight)
 	{
 		if (lastheight > 0)
 		{
-			DrawSpans(spanstart[lastheight], x - 1, lastheight);
+			::DrawSpans(::spanstart[lastheight], x - 1, lastheight);
 		}
 	}
 }

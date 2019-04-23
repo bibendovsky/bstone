@@ -3197,7 +3197,7 @@ using StepScale = std::vector<int>;
 using BaseDist = std::vector<int>;
 using PlaneYLookup = std::vector<int>;
 using MirrorOfs = std::vector<int>;
-using WallHeight = std::vector<int>;
+using WallHeight = std::vector<double>;
 
 extern WallHeight wallheight;
 
