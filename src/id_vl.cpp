@@ -64,8 +64,9 @@ std::uint8_t palette2[palette_color_count][3];
 std::uint8_t* vga_memory = nullptr;
 
 int vga_scale = 0;
-float vga_height_scale = 0.0F;
-float vga_width_scale = 0.0F;
+double vga_height_scale = 0.0;
+double vga_width_scale = 0.0;
+double vga_wide_scale = 0.0;
 int vga_width = 0;
 int vga_height = 0;
 int vga_area = 0;
@@ -672,8 +673,12 @@ void sw_calculate_dimensions()
 	::vga_width /= alignment;
 	::vga_width *= alignment;
 
-	::vga_width_scale = static_cast<float>(::vga_width) / static_cast<float>(::vga_ref_width);
-	::vga_height_scale = static_cast<float>(::vga_height) / static_cast<float>(::vga_ref_height_4x3);
+	::vga_width_scale = static_cast<double>(::vga_width) / static_cast<double>(::vga_ref_width);
+	::vga_height_scale = static_cast<double>(::vga_height) / static_cast<double>(::vga_ref_height_4x3);
+
+	::vga_wide_scale =
+		static_cast<double>(::vga_ref_height * ::vga_width) /
+		static_cast<double>(::vga_ref_width * ::vga_height);
 
 	::vga_area = ::vga_width * ::vga_height;
 
@@ -3712,8 +3717,12 @@ void hw_calculate_dimensions()
 	::vga_width /= alignment;
 	::vga_width *= alignment;
 
-	::vga_width_scale = static_cast<float>(::vga_width) / static_cast<float>(::vga_ref_width);
-	::vga_height_scale = static_cast<float>(::vga_height) / static_cast<float>(::vga_ref_height_4x3);
+	::vga_width_scale = static_cast<double>(::vga_width) / static_cast<double>(::vga_ref_width);
+	::vga_height_scale = static_cast<double>(::vga_height) / static_cast<double>(::vga_ref_height_4x3);
+
+	::vga_wide_scale =
+		static_cast<double>(::vga_ref_height * ::vga_width) /
+		static_cast<double>(::vga_ref_width * ::vga_height);
 
 	::vga_area = ::vga_width * ::vga_height;
 
@@ -10403,20 +10412,27 @@ void hw_3d_player_weapon_update_model_matrix()
 {
 	const auto& assets_info = AssetsInfo{};
 
-	const auto aog_scale = 25.0F / 9.0F;
-	const auto ps_scale = 91.0F / 45.0F;
+	const auto aog_scale = 25.0 / 9.0;
+	const auto ps_scale = 91.0 / 45.0;
 
-	const auto vga_scale = static_cast<float>(::vga_height_scale);
 	const auto game_scalar = (assets_info.is_ps() ? ps_scale : aog_scale);
-	const auto scalar = game_scalar * vga_scale;
+	const auto scalar = game_scalar * ::vga_height_scale;
 
-	const auto translate_x = 0.5F * static_cast<float>(::hw_3d_viewport_width_);
+	const auto translate_x = 0.5 * static_cast<double>(::hw_3d_viewport_width_);
 
 	const auto bounce_offset = (assets_info.is_aog() ? 0 : ::player_get_weapon_bounce_offset());
-	const auto translate_y = vga_scale * bstone::FixedPoint{-bounce_offset}.to_float();
+	const auto translate_y = ::vga_height_scale * bstone::FixedPoint{-bounce_offset}.to_double();
+
+	const auto translate_v = glm::vec3
+	{
+		static_cast<float>(translate_x),
+		static_cast<float>(translate_y),
+		0.0
+	};
 
 	const auto& identity = glm::identity<glm::mat4>();
-	const auto& translate = glm::translate(identity, glm::vec3{translate_x, translate_y, 0.0F});
+	const auto& translate = glm::translate(identity, translate_v);
+
 	const auto& scale = glm::scale(identity, glm::vec3{scalar, scalar, 0.0F});
 
 	::hw_3d_player_weapon_model_matrix_ = translate * scale;

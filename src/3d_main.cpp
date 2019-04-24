@@ -9453,14 +9453,14 @@ void CalcProjection(
 	std::int32_t focal)
 {
 	::focallength = focal;
-	const double facedist = focal + MINDIST;
+	const auto facedist = static_cast<double>(focal + MINDIST);
 	const auto halfview = ::viewwidth / 2; // half view in pixels
 
 	//
 	// calculate scale value for vertical height calculations
 	// and sprite x calculations
 	//
-	::scale = static_cast<int>(halfview * facedist / (VIEWGLOBAL / 2));
+	::scale = static_cast<int>(halfview * facedist / (VIEWGLOBAL / 2) / ::vga_wide_scale);
 
 	//
 	// divide heightnumerator by a posts distance to get the posts height for
@@ -9476,12 +9476,13 @@ void CalcProjection(
 	::pixelangle.clear();
 	::pixelangle.resize(::vga_width);
 
-	for (int i = 0; i < halfview; i++)
+	for (int i = 0; i < halfview; ++i)
 	{
 		// start 1/2 pixel over, so viewangle bisects two middle pixels
-		const double tang = i * VIEWGLOBAL / ::viewwidth / facedist;
-		const auto angle = static_cast<float>(::atan(tang));
+		const auto tang = i * ::vga_wide_scale * VIEWGLOBAL / ::viewwidth / facedist;
+		const auto angle = std::atan(tang);
 		const auto intang = static_cast<int>(angle * radtoint);
+
 		::pixelangle[halfview - 1 - i] = intang;
 		::pixelangle[halfview + i] = -intang;
 	}
