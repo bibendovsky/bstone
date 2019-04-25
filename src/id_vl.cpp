@@ -1310,6 +1310,7 @@ void sw_update_widescreen()
 //
 
 const auto hw_3d_map_dimension_f = static_cast<float>(MAPSIZE);
+const auto hw_3d_map_dimension_d = static_cast<double>(MAPSIZE);
 const auto hw_3d_map_height_f = 1.0F;
 
 template<typename T>
@@ -1698,9 +1699,22 @@ int hw_3d_viewport_y_ = 0;
 int hw_3d_viewport_width_ = 0;
 int hw_3d_viewport_height_ = 0;
 
-float hw_3d_camera_fovy_deg = 39.0F;
-float hw_3d_camera_near_distance = 0.05F;
-float hw_3d_camera_far_distance = (std::sqrt(2.0F) * ::hw_3d_map_dimension_f) + 0.5F;
+
+// Reference horizontal FOV in degrees of the camera.
+const double hw_3d_ref_camera_hfov_deg = 49.0;
+
+// Vertical FOV in radians of the camera.
+double hw_3d_camera_vfov_rad = 0.0;
+
+// Vertical FOV in degrees of the camera.
+double hw_3d_camera_vfov_deg = 0.0;
+
+// Distance to the near plane of the camera.
+double hw_3d_camera_near_distance = 0.0;
+
+// Distance to the far plane of the camera.
+double hw_3d_camera_far_distance = 0.0;
+
 
 bstone::RendererSamplerPtr hw_2d_so_;
 bstone::RendererSamplerPtr hw_3d_wall_so_;
@@ -3914,6 +3928,36 @@ void hw_2d_matrices_build()
 	::hw_2d_matrix_build_projection();
 }
 
+void hw_3d_camera_calculate_parameters()
+{
+	// Vertical FOV.
+	//
+	// V = 2 * arctan(tan(H / 2) * (h / w))
+	//
+
+	const auto ref_r_ratio = static_cast<double>(::vga_ref_height_4x3) / static_cast<double>(::vga_ref_width);
+
+	const auto half_hfov_deg = ::hw_3d_ref_camera_hfov_deg / 2.0;
+	const auto half_hfov_rad = (::m_pi() / 180.0) * half_hfov_deg;
+	const auto tan_half_hfov_rad = std::tan(half_hfov_rad);
+	const auto half_vfov_rad = tan_half_hfov_rad * ref_r_ratio;
+
+	// Radians.
+	const auto vfov_rad = 2 * half_vfov_rad;
+	::hw_3d_camera_vfov_rad = vfov_rad;
+
+	// Degrees.
+	const auto half_vfov_deg = half_vfov_rad * (180.0 / ::m_pi());
+	const auto vfov_deg = 2 * half_vfov_deg;
+	::hw_3d_camera_vfov_deg = vfov_deg;
+
+
+	// Distances to the planes.
+	//
+	::hw_3d_camera_near_distance = 0.05;
+	::hw_3d_camera_far_distance = (std::sqrt(2.0) * ::hw_3d_map_dimension_d) + 0.5;
+}
+
 void hw_3d_matrix_build_bs_to_r()
 {
 	//
@@ -3991,12 +4035,10 @@ void hw_3d_matrix_build_view()
 
 void hw_3d_matrix_build_projection()
 {
-	const auto vfov_rad = static_cast<float>((::m_pi() * ::hw_3d_camera_fovy_deg) / 180.0);
-
-	::hw_3d_matrix_projection_ = glm::perspectiveFovRH_NO(
-		vfov_rad,
-		static_cast<float>(::hw_3d_viewport_width_),
-		static_cast<float>(::hw_3d_viewport_height_),
+	::hw_3d_matrix_projection_ = glm::perspectiveFovRH_NO<double>(
+		::hw_3d_camera_vfov_rad,
+		static_cast<double>(::hw_3d_viewport_width_),
+		static_cast<double>(::hw_3d_viewport_height_),
 		::hw_3d_camera_near_distance,
 		::hw_3d_camera_far_distance
 	);
@@ -4004,6 +4046,8 @@ void hw_3d_matrix_build_projection()
 
 void hw_3d_matrices_build()
 {
+	::hw_3d_camera_calculate_parameters();
+
 	::hw_3d_matrix_build_bs_to_r();
 	::hw_3d_matrix_build_model();
 	::hw_3d_matrix_build_view();
