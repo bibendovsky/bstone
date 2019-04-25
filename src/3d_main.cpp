@@ -9479,7 +9479,11 @@ void CalcProjection(
 	for (int i = 0; i < halfview; ++i)
 	{
 		// start 1/2 pixel over, so viewangle bisects two middle pixels
-		const auto tang = i * ::vga_wide_scale * VIEWGLOBAL / ::viewwidth / facedist;
+		const auto tang =
+			::vga_wide_scale *
+			(static_cast<double>(i) / static_cast<double>(::viewwidth)) *
+			(static_cast<double>(VIEWGLOBAL) / facedist);
+
 		const auto angle = std::atan(tang);
 		const auto intang = static_cast<int>(angle * radtoint);
 

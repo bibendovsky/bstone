@@ -1698,7 +1698,7 @@ int hw_3d_viewport_y_ = 0;
 int hw_3d_viewport_width_ = 0;
 int hw_3d_viewport_height_ = 0;
 
-float hw_3d_camera_fovy_deg = 45.0F;
+float hw_3d_camera_fovy_deg = 39.0F;
 float hw_3d_camera_near_distance = 0.05F;
 float hw_3d_camera_far_distance = (std::sqrt(2.0F) * ::hw_3d_map_dimension_f) + 0.5F;
 
@@ -3966,11 +3966,23 @@ void hw_3d_matrix_build_view()
 		return;
 	}
 
-	const auto player_x = bstone::FixedPoint{::player->x}.to_float();
-	const auto player_y = bstone::FixedPoint{::player->y}.to_float();
-	const auto view_position = glm::vec3{player_x, player_y, 0.5F};
-
 	const auto angle_rad = static_cast<float>((::m_pi() * ::player->angle) / 180.0);
+
+	const auto focal_length = bstone::FixedPoint{::focallength}.to_float();
+
+	const auto focal_delta = glm::vec2
+	{
+		std::cos(angle_rad) * focal_length,
+		-std::sin(angle_rad) * focal_length,
+	};
+
+	const auto player_position = glm::vec2
+	{
+		bstone::FixedPoint{::player->x}.to_float(),
+		bstone::FixedPoint{::player->y}.to_float(),
+	};
+
+	const auto view_position = glm::vec3{player_position - focal_delta, 0.5F};
 
 	::hw_3d_matrix_view_ = glm::rotate(::hw_3d_matrix_view_, angle_rad, glm::vec3{0.0F, 0.0F, 1.0F});
 	::hw_3d_matrix_view_ = glm::translate(::hw_3d_matrix_view_, -view_position);
