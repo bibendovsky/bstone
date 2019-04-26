@@ -30,6 +30,7 @@ Free Software Foundation, Inc.,
 
 
 #include "3d_def.h"
+#include "id_vl.h"
 
 
 static const int DEG90 = 900;
@@ -105,6 +106,9 @@ void AsmRefresh()
 	int yt; // temporary ytile
 	int yint; // temporary yintercept
 	int yint_h; // high part of temporary yintercept
+
+	::vid_hw_walls_clear_render_list();
+	::vid_hw_pushwalls_clear_render_list();
 
 	pixx = 0;
 

@@ -27,6 +27,7 @@ Free Software Foundation, Inc.,
 
 #include <cassert>
 #include <chrono>
+#include <unordered_set>
 #include "SDL_hints.h"
 #include "glm/gtc/matrix_transform.hpp"
 #include "id_heads.h"
@@ -90,6 +91,8 @@ bool vid_is_movie = false;
 bool vid_is_ui_stretched = false;
 
 bool vid_hw_is_draw_3d_ = false;
+
+bool vid_hw_dbg_draw_all_ = false;
 
 bstone::SpriteCache vid_sprite_cache;
 
@@ -1535,6 +1538,7 @@ struct Hw3dWall
 }; // Hw3dWall
 
 using Hw3dXyWallMap = std::unordered_map<int, Hw3dWall>;
+using Hw3dWallsToRenderList = std::unordered_set<int>;
 
 enum Hw3dXyWallKind
 {
@@ -1782,6 +1786,7 @@ int hw_3d_active_pushwall_next_y_ = 0;
 int hw_3d_wall_count_ = 0;
 int hw_3d_wall_side_count_ = 0;
 Hw3dXyWallMap hw_3d_xy_wall_map_;
+Hw3dWallsToRenderList hw_3d_walls_to_render_;
 
 int hw_3d_wall_side_draw_item_count_ = 0;
 Hw3dWallSideDrawItems hw_3d_wall_side_draw_items_;
@@ -1796,6 +1801,7 @@ Hw3dWallSideIndexBuffer hw_3d_wall_sides_ib_buffer_;
 int hw_3d_pushwall_count_ = 0;
 int hw_3d_pushwall_side_count_ = 0;
 Hw3dXyWallMap hw_3d_xy_pushwall_map_;
+Hw3dWallsToRenderList hw_3d_pushwalls_to_render_;
 
 int hw_3d_pushwall_side_draw_item_count_ = 0;
 Hw3dWallSideDrawItems hw_3d_pushwall_side_draw_items_;
@@ -3378,6 +3384,8 @@ bool hw_3d_initialize_solid_walls()
 {
 	::hw_3d_xy_wall_map_.reserve(::hw_3d_wall_count_);
 
+	::hw_3d_walls_to_render_.clear();
+
 	::hw_3d_wall_side_draw_item_count_ = 0;
 	::hw_3d_wall_side_draw_items_.clear();
 	::hw_3d_wall_side_draw_items_.resize(::hw_3d_wall_side_count_);
@@ -3496,6 +3504,8 @@ void hw_3d_uninitialize_pushwalls_vbo()
 bool hw_3d_initialize_pushwalls()
 {
 	::hw_3d_xy_pushwall_map_.reserve(::hw_3d_pushwall_count_);
+
+	::hw_3d_pushwalls_to_render_.clear();
 
 	::hw_3d_pushwall_side_draw_item_count_ = 0;
 	::hw_3d_pushwall_side_draw_items_.clear();
@@ -4531,6 +4541,10 @@ bool hw_initialize_video()
 		}
 	}
 
+	// Option "vid_hw_dbg_draw_all"
+	//
+	::vid_hw_dbg_draw_all_ = ::g_args.has_option("vid_hw_dbg_draw_all");
+
 
 	int sdl_result = 0;
 
@@ -4984,31 +4998,71 @@ bool hw_3d_dbg_is_tile_visible(
 
 void hw_3d_dbg_draw_all_solid_walls()
 {
+	if (::hw_3d_wall_count_ <= 0)
+	{
+		return;
+	}
+
 	// Build draw list.
 	//
 	auto draw_side_index = 0;
 	auto& draw_items = ::hw_3d_wall_side_draw_items_;
 
-	for (const auto& xy_wall_item : ::hw_3d_xy_wall_map_)
+	if (::vid_hw_dbg_draw_all_)
 	{
-		const auto& wall = xy_wall_item.second;
-
-		if (!::hw_3d_dbg_is_tile_visible(wall.x_, wall.y_))
+		for (const auto& xy_wall_item : ::hw_3d_xy_wall_map_)
 		{
-			continue;
-		}
+			const auto& wall = xy_wall_item.second;
 
-		for (const auto& side : wall.sides_)
-		{
-			if (!side.flags_.is_active_)
+			if (!::hw_3d_dbg_is_tile_visible(wall.x_, wall.y_))
 			{
 				continue;
 			}
 
-			auto& draw_item = draw_items[draw_side_index++];
+			for (const auto& side : wall.sides_)
+			{
+				if (!side.flags_.is_active_)
+				{
+					continue;
+				}
 
-			draw_item.texture_2d_ = side.texture_2d_;
-			draw_item.wall_side_ = &side;
+				auto& draw_item = draw_items[draw_side_index++];
+
+				draw_item.texture_2d_ = side.texture_2d_;
+				draw_item.wall_side_ = &side;
+			}
+		}
+	}
+	else
+	{
+		if (::hw_3d_walls_to_render_.empty())
+		{
+			return;
+		}
+
+		const auto wall_map_end_it = ::hw_3d_xy_wall_map_.cend();
+
+		for (const auto wall_xy : ::hw_3d_walls_to_render_)
+		{
+			const auto wall_map_it = ::hw_3d_xy_wall_map_.find(wall_xy);
+
+			if (wall_map_it == wall_map_end_it)
+			{
+				continue;
+			}
+
+			for (const auto& side : wall_map_it->second.sides_)
+			{
+				if (!side.flags_.is_active_)
+				{
+					continue;
+				}
+
+				auto& draw_item = draw_items[draw_side_index++];
+
+				draw_item.texture_2d_ = side.texture_2d_;
+				draw_item.wall_side_ = &side;
+			}
 		}
 	}
 
@@ -5110,7 +5164,7 @@ void hw_3d_dbg_draw_all_solid_walls()
 
 void hw_3d_dbg_draw_all_pushwalls()
 {
-	if (::hw_3d_pushwall_count_ == 0)
+	if (::hw_3d_pushwall_count_ <= 0)
 	{
 		return;
 	}
@@ -5120,21 +5174,56 @@ void hw_3d_dbg_draw_all_pushwalls()
 	auto draw_side_index = 0;
 	auto& draw_items = ::hw_3d_pushwall_side_draw_items_;
 
-	for (const auto& xy_pushwall_item : ::hw_3d_xy_pushwall_map_)
+	if (::vid_hw_dbg_draw_all_)
 	{
-		const auto& pushwall = xy_pushwall_item.second;
-
-		if (!::hw_3d_dbg_is_tile_visible(pushwall.x_, pushwall.y_))
+		for (const auto& xy_pushwall_item : ::hw_3d_xy_pushwall_map_)
 		{
-			continue;
+			const auto& pushwall = xy_pushwall_item.second;
+
+			if (!::hw_3d_dbg_is_tile_visible(pushwall.x_, pushwall.y_))
+			{
+				continue;
+			}
+
+			for (const auto& side : pushwall.sides_)
+			{
+				auto& draw_item = draw_items[draw_side_index++];
+
+				draw_item.texture_2d_ = side.texture_2d_;
+				draw_item.wall_side_ = &side;
+			}
+		}
+	}
+	else
+	{
+		if (::hw_3d_pushwalls_to_render_.empty())
+		{
+			return;
 		}
 
-		for (const auto& side : pushwall.sides_)
-		{
-			auto& draw_item = draw_items[draw_side_index++];
+		const auto pushwall_map_end_it = ::hw_3d_xy_pushwall_map_.cend();
 
-			draw_item.texture_2d_ = side.texture_2d_;
-			draw_item.wall_side_ = &side;
+		for (const auto pushwall_xy : ::hw_3d_pushwalls_to_render_)
+		{
+			const auto pushwall_map_it = ::hw_3d_xy_pushwall_map_.find(pushwall_xy);
+
+			if (pushwall_map_it == pushwall_map_end_it)
+			{
+				continue;
+			}
+
+			for (const auto& side : pushwall_map_it->second.sides_)
+			{
+				if (!side.flags_.is_active_)
+				{
+					continue;
+				}
+
+				auto& draw_item = draw_items[draw_side_index++];
+
+				draw_item.texture_2d_ = side.texture_2d_;
+				draw_item.wall_side_ = &side;
+			}
 		}
 	}
 
@@ -7065,6 +7154,8 @@ void hw_3d_build_solid_walls()
 		vertex_count,
 		vb_buffer.data()
 	);
+
+	::hw_3d_walls_to_render_.reserve(::hw_3d_wall_count_);
 }
 
 void hw_3d_translate_pushwall_side(
@@ -7364,6 +7455,9 @@ void hw_3d_build_pushwalls()
 		vertex_count,
 		::hw_3d_pushwalls_vb_buffer_.data()
 	);
+
+
+	::hw_3d_pushwalls_to_render_.reserve(::hw_3d_pushwall_count_);
 }
 
 template<typename TVertex>
@@ -11746,5 +11840,53 @@ void vid_hw_fizzle_fx_set_ratio(
 	const float ratio)
 {
 	::hw_3d_fizzle_fx_ratio_ = ratio;
+}
+
+void vid_hw_walls_clear_render_list()
+{
+	if (!::vid_is_hw_)
+	{
+		return;
+	}
+
+	::hw_3d_walls_to_render_.clear();
+}
+
+void vid_hw_walls_add_render_item(
+	const int tile_x,
+	const int tile_y)
+{
+	if (!::vid_is_hw_)
+	{
+		return;
+	}
+
+	const auto xy = ::hw_encode_xy(tile_x, tile_y);
+
+	::hw_3d_walls_to_render_.insert(xy);
+}
+
+void vid_hw_pushwalls_clear_render_list()
+{
+	if (!::vid_is_hw_)
+	{
+		return;
+	}
+
+	::hw_3d_pushwalls_to_render_.clear();
+}
+
+void vid_hw_pushwalls_add_render_item(
+	const int tile_x,
+	const int tile_y)
+{
+	if (!::vid_is_hw_)
+	{
+		return;
+	}
+
+	const auto xy = ::hw_encode_xy(tile_x, tile_y);
+
+	::hw_3d_pushwalls_to_render_.insert(xy);
 }
 // BBi

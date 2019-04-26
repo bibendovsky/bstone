@@ -298,4 +298,18 @@ void vid_hw_fizzle_fx_set_ratio(
 	const float ratio);
 
 
+void vid_hw_walls_clear_render_list();
+
+void vid_hw_walls_add_render_item(
+	const int tile_x,
+	const int tile_y);
+
+
+void vid_hw_pushwalls_clear_render_list();
+
+void vid_hw_pushwalls_add_render_item(
+	const int tile_x,
+	const int tile_y);
+
+
 #endif // BSTONE_ID_VL_INCLUDED
