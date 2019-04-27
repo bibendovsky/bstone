@@ -1266,6 +1266,131 @@ visobj_t* visstep;
 visobj_t* farthest;
 
 
+namespace
+{
+
+
+void hw_draw_sprites()
+{
+	//
+	// place static objects
+	//
+
+	::vid_hw_statics_clear_render_list();
+
+	for (auto statptr = ::statobjlist; statptr != ::laststatobj; ++statptr)
+	{
+		if (statptr->shapenum == -1)
+		{
+			continue; // object has been deleted
+		}
+
+		if (!(*statptr->visspot))
+		{
+			continue; // not visable
+		}
+
+		auto dispx = int16_t{};
+		auto dispheight = int16_t{};
+
+		::TransformTile(statptr->tilex, statptr->tiley, &dispx, &dispheight);
+
+		if (dispheight <= 0)
+		{
+			continue; // to close to the object
+		}
+
+		const auto bs_static_index = static_cast<int>(statptr - ::statobjlist);
+		::vid_hw_statics_add_render_item(bs_static_index);
+	}
+
+
+	//
+	// place active objects
+	//
+
+	::vid_hw_actors_clear_render_list();
+
+	const auto& assets_info = AssetsInfo{};
+
+	for (auto obj = ::player->next; obj; obj = obj->next)
+	{
+		if ((obj->flags & FL_OFFSET_STATES) != 0)
+		{
+			const auto shapenum = obj->temp1 + obj->state->shapenum;
+
+			if (shapenum == 0)
+			{
+				continue; // no shape
+			}
+		}
+		else
+		{
+			const auto shapenum = obj->state->shapenum;
+
+			if (shapenum == 0)
+			{
+				continue; // no shape
+			}
+		}
+
+		const auto spotloc = (obj->tilex << 6) + obj->tiley; // optimize: keep in struct?
+
+		// BBi Do not draw detonator if it's not visible.
+		if (spotloc == 0)
+		{
+			continue;
+		}
+
+		const auto visspot = &::spotvis[0][0] + spotloc;
+		const auto tilespot = &::tilemap[0][0] + spotloc;
+
+		//
+		// could be in any of the nine surrounding tiles
+		//
+
+		if (*visspot ||
+			(visspot[-1] && !tilespot[-1]) ||
+			(visspot[+1] && !tilespot[+1]) ||
+			(visspot[-65] && !tilespot[-65]) ||
+			(visspot[-64] && !tilespot[-64]) ||
+			(visspot[-63] && !tilespot[-63]) ||
+			(visspot[+65] && !tilespot[+65]) ||
+			(visspot[+64] && !tilespot[+64]) ||
+			(visspot[+63] && !tilespot[+63]))
+		{
+			obj->active = ac_yes;
+
+			::TransformActor(obj);
+
+			if (obj->viewheight == 0)
+			{
+				continue; // too close or far away
+			}
+
+			if (assets_info.is_ps() && (obj->flags & FL_DEADGUY) == 0)
+			{
+				obj->flags2 &= ~FL2_DAMAGE_CLOAK;
+			}
+
+			obj->flags |= FL_VISABLE;
+		}
+		else
+		{
+			obj->flags &= ~FL_VISABLE;
+		}
+
+		const auto bs_actor_index = static_cast<int>(obj - ::objlist);
+		::vid_hw_actors_add_render_item(bs_actor_index);
+	}
+
+	::cloaked_shape = false;
+}
+
+
+} // namespace
+
+
 /*
 =====================
 =
@@ -1277,6 +1402,13 @@ visobj_t* farthest;
 */
 void DrawScaleds()
 {
+	if (::vid_is_hw_)
+	{
+		::hw_draw_sprites();
+
+		return;
+	}
+
 	std::int16_t i;
 	std::int16_t least;
 	std::int16_t numvisable;

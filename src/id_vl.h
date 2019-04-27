@@ -325,4 +325,16 @@ void vid_hw_doors_add_render_item(
 	const int tile_y);
 
 
+void vid_hw_statics_clear_render_list();
+
+void vid_hw_statics_add_render_item(
+	const int bs_static_index);
+
+
+void vid_hw_actors_clear_render_list();
+
+void vid_hw_actors_add_render_item(
+	const int bs_actor_index);
+
+
 #endif // BSTONE_ID_VL_INCLUDED

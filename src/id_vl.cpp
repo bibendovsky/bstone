@@ -1644,6 +1644,8 @@ struct Hw3dSpriteDrawItem
 using Hw3dSprites = std::vector<Hw3dSprite>;
 using Hw3dSpritesPtr = Hw3dSprites*;
 
+using Hw3dStaticsToRenderList = std::unordered_set<int>;
+using Hw3dActorsToRenderList = std::unordered_set<int>;
 using Hw3dSpritesDrawList = std::vector<Hw3dSpriteDrawItem>;
 
 using Hw3dSpritesIndexBuffer = std::vector<std::uint16_t>;
@@ -1836,11 +1838,14 @@ Hw3dDoorsVbBuffer hw_3d_doors_vb_;
 
 
 Hw3dSprites hw_3d_statics_;
+Hw3dStaticsToRenderList hw_3d_statics_to_render_;
 
 using Hw3dActorsToReposition = std::vector<Hw3dSprite>;
+using Hw3dActorsToRenderList = std::unordered_set<int>;
 Hw3dSprites hw_3d_actors_;
 
 int hw_3d_sprites_draw_count_ = 0;
+Hw3dActorsToRenderList hw_3d_actors_to_render_;
 Hw3dSpritesDrawList hw_3d_sprites_draw_list_;
 
 bstone::RendererIndexBufferPtr hw_3d_sprites_ib_ = nullptr;
@@ -5624,6 +5629,279 @@ bool hw_3d_fog_calculate(
 	return true;
 }
 
+void hw_3d_actor_update_cloak(
+	const Hw3dSprite& sprite)
+{
+	if (!sprite.flags_.is_visible_)
+	{
+		return;
+	}
+
+	if (sprite.kind_ != Hw3dSpriteKind::actor)
+	{
+		return;
+	}
+
+	const auto& actor = *sprite.bs_object_.actor_;
+
+	const auto is_cloaked = ((actor.flags2 & (FL2_CLOAKED | FL2_DAMAGE_CLOAK)) == FL2_CLOAKED);
+
+	const auto vertex_color = (
+		is_cloaked
+		?
+		HwVertexColor{0x00, 0x00, 0x00, ::hw_3d_cloaked_actor_alpha_u8}
+		:
+		HwVertexColor{0xFF, 0xFF, 0xFF, 0xFF}
+	);
+
+
+	auto vertex_index = sprite.vertex_index_;
+
+	// Bottom-left.
+	{
+		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
+		vertex.rgba_ = vertex_color;
+	}
+
+	// Bottom-right.
+	{
+		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
+		vertex.rgba_ = vertex_color;
+	}
+
+	// Top-right.
+	{
+		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
+		vertex.rgba_ = vertex_color;
+	}
+
+	// Top-left.
+	{
+		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
+		vertex.rgba_ = vertex_color;
+	}
+}
+
+int hw_3d_calculate_actor_anim_rotation(
+	const objtype& bs_actor)
+{
+	auto dir = bs_actor.dir;
+
+	const auto view_dir_x = static_cast<double>(bs_actor.x - ::player->x);
+	const auto view_dir_y = static_cast<double>(-bs_actor.y + ::player->y);
+
+	const auto view_angle_rad = std::atan2(view_dir_y, view_dir_x);
+	const auto view_angle = static_cast<int>((180.0 * view_angle_rad) / m_pi());
+
+	if (dir == nodir)
+	{
+		dir = static_cast<dirtype>(bs_actor.trydir & 127);
+	}
+
+	auto target_angle = (view_angle - 180) - ::dirangle[dir];
+
+	target_angle += ANGLES / 16;
+
+	while (target_angle >= ANGLES)
+	{
+		target_angle -= ANGLES;
+	}
+
+	while (target_angle < 0)
+	{
+		target_angle += ANGLES;
+	}
+
+	if ((bs_actor.state->flags & SF_PAINFRAME) != 0)
+	{
+		// 2 rotation pain frame
+		return 4 * (target_angle / (ANGLES / 2)); // seperated by 3 (art layout...)
+
+	}
+
+	return target_angle / (ANGLES / 8);
+}
+
+int hw_3d_get_bs_actor_sprite_id(
+	const objtype& bs_actor)
+{
+	assert(bs_actor.state);
+
+	auto result = bs_actor.state->shapenum;
+
+	if ((bs_actor.flags & FL_OFFSET_STATES) != 0)
+	{
+		result += bs_actor.temp1;
+	}
+
+	if (result == -1)
+	{
+		result = bs_actor.temp1;
+	}
+
+	if ((bs_actor.state->flags & SF_ROTATE) != 0)
+	{
+		result += ::hw_3d_calculate_actor_anim_rotation(bs_actor);
+	}
+
+	return result;
+}
+
+void hw_actor_update(
+	const std::intptr_t bs_actor_index)
+{
+	auto& hw_actor = ::hw_3d_actors_[bs_actor_index];
+
+	const auto& bs_actor = ::objlist[bs_actor_index];
+	const auto new_bs_sprite_id = ::hw_3d_get_bs_actor_sprite_id(bs_actor);
+
+	if (hw_actor.bs_sprite_id_ != new_bs_sprite_id)
+	{
+		hw_actor.bs_sprite_id_ = new_bs_sprite_id;
+
+		if (hw_actor.bs_sprite_id_ > 0)
+		{
+			hw_actor.texture_2d_ = ::hw_texture_manager_->sprite_get(hw_actor.bs_sprite_id_);
+		}
+		else
+		{
+			hw_actor.texture_2d_ = nullptr;
+		}
+	}
+
+	if (hw_actor.x_ != bs_actor.x || hw_actor.y_ != bs_actor.y)
+	{
+		hw_actor.x_ = bs_actor.x;
+		hw_actor.y_ = bs_actor.y;
+	}
+}
+
+void hw_3d_orient_sprite(
+	Hw3dSprite& sprite)
+{
+	sprite.flags_.is_visible_ = false;
+
+	if (!sprite.texture_2d_)
+	{
+		return;
+	}
+
+	if (sprite.kind_ == Hw3dSpriteKind::actor)
+	{
+		if (sprite.bs_sprite_id_ <= 0)
+		{
+			return;
+		}
+
+		if (sprite.bs_object_.actor_->obclass == nothing)
+		{
+			return;
+		}
+	}
+
+	auto sprite_origin = glm::dvec2{};
+
+	if (sprite.kind_ == Hw3dSpriteKind::actor)
+	{
+		sprite_origin[0] = bstone::FixedPoint{sprite.x_}.to_double();
+		sprite_origin[1] = bstone::FixedPoint{sprite.y_}.to_double();
+	}
+	else
+	{
+		sprite_origin[0] = static_cast<double>(sprite.tile_x_) + 0.5;
+		sprite_origin[1] = static_cast<double>(sprite.tile_y_) + 0.5;
+	};
+
+	auto direction = ::hw_3d_player_position - sprite_origin;
+
+	const auto cosinus_between_directions = glm::dot(
+		::hw_3d_player_direction,
+		direction
+	);
+
+	if (::vid_hw_dbg_draw_all_ && cosinus_between_directions >= 0.0)
+	{
+		return;
+	}
+
+	sprite.flags_.is_visible_ = true;
+
+
+	auto bottom_left_vertex = sprite_origin;
+	auto bottom_right_vertex = sprite_origin;
+
+	const auto square_distance = glm::dot(direction, direction);
+
+	sprite.square_distance_ = square_distance;
+
+	// Orient the sprite along the player's line of sight (inverted).
+	//
+	direction[0] = -::hw_3d_player_direction[0];
+	direction[1] = -::hw_3d_player_direction[1];
+
+	const auto perpendicular_dx = ::hw_3d_tile_half_dimension_d * direction[1];
+	const auto perpendicular_dy = ::hw_3d_tile_half_dimension_d * direction[0];
+
+	bottom_left_vertex[0] += -perpendicular_dx;
+	bottom_left_vertex[1] += +perpendicular_dy;
+
+	bottom_right_vertex[0] += +perpendicular_dx;
+	bottom_right_vertex[1] += -perpendicular_dy;
+
+
+	auto vertex_index = sprite.vertex_index_;
+
+	// Bottom-left.
+	{
+		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
+
+		vertex.xyz_ = HwVertexPosition
+		{
+			static_cast<float>(bottom_left_vertex[0]),
+			static_cast<float>(bottom_left_vertex[1]),
+			0.0F
+		};
+	}
+
+	// Bottom-right.
+	{
+		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
+
+		vertex.xyz_ = HwVertexPosition
+		{
+			static_cast<float>(bottom_right_vertex[0]),
+			static_cast<float>(bottom_right_vertex[1]),
+			0.0F
+		};
+	}
+
+	// Top-right.
+	{
+		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
+
+		vertex.xyz_ = HwVertexPosition
+		{
+			static_cast<float>(bottom_right_vertex[0]),
+			static_cast<float>(bottom_right_vertex[1]),
+			::hw_3d_tile_dimension_f
+		};
+	}
+
+	// Top-left.
+	{
+		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
+
+		vertex.xyz_ = HwVertexPosition
+		{
+			static_cast<float>(bottom_left_vertex[0]),
+			static_cast<float>(bottom_left_vertex[1]),
+			::hw_3d_tile_dimension_f
+		};
+	}
+
+	::hw_3d_actor_update_cloak(sprite);
+}
+
 void hw_3d_sprites_render()
 {
 	// Build draw list.
@@ -5631,43 +5909,102 @@ void hw_3d_sprites_render()
 	auto draw_sprite_index = 0;
 	auto& draw_items = ::hw_3d_sprites_draw_list_;
 
-	for (auto bs_static = ::statobjlist; bs_static != ::laststatobj; ++bs_static)
+	if (::vid_hw_dbg_draw_all_)
 	{
-		if (bs_static->shapenum == -1)
+		for (auto bs_static = ::statobjlist; bs_static != ::laststatobj; ++bs_static)
 		{
-			continue;
+			if (bs_static->shapenum == -1)
+			{
+				continue;
+			}
+
+			const auto bs_static_index = bs_static - ::statobjlist;
+
+			const auto& hw_static = ::hw_3d_statics_[bs_static_index];
+
+			if (!hw_static.flags_.is_visible_)
+			{
+				continue;
+			}
+
+			auto& draw_item = draw_items[draw_sprite_index++];
+
+			draw_item.texture_2d_ = hw_static.texture_2d_;
+			draw_item.sprite_ = &hw_static;
 		}
 
-		const auto bs_static_index = bs_static - ::statobjlist;
-
-		const auto& hw_static = ::hw_3d_statics_[bs_static_index];
-
-		if (!hw_static.flags_.is_visible_)
+		for (auto bs_actor = ::player->next; bs_actor; bs_actor = bs_actor->next)
 		{
-			continue;
+			const auto bs_actor_index = bs_actor - ::objlist;
+
+			const auto& hw_actor = ::hw_3d_actors_[bs_actor_index];
+
+			if (!hw_actor.flags_.is_visible_)
+			{
+				continue;
+			}
+
+			auto& draw_item = draw_items[draw_sprite_index++];
+
+			draw_item.texture_2d_ = hw_actor.texture_2d_;
+			draw_item.sprite_ = &hw_actor;
 		}
 
-		auto& draw_item = draw_items[draw_sprite_index++];
-
-		draw_item.texture_2d_ = hw_static.texture_2d_;
-		draw_item.sprite_ = &hw_static;
+		if (draw_sprite_index == 0)
+		{
+			return;
+		}
 	}
-
-	for (auto bs_actor = ::player->next; bs_actor; bs_actor = bs_actor->next)
+	else
 	{
-		const auto bs_actor_index = bs_actor - ::objlist;
+		auto min_vertex_index = ::hw_3d_max_sprites_vertices;
+		auto max_vertex_index = 0;
 
-		const auto& hw_actor = ::hw_3d_actors_[bs_actor_index];
-
-		if (!hw_actor.flags_.is_visible_)
+		for (const auto bs_static_index : ::hw_3d_statics_to_render_)
 		{
-			continue;
+			auto& sprite = ::hw_3d_statics_[bs_static_index];
+			::hw_3d_orient_sprite(sprite);
+
+			const auto& hw_static = ::hw_3d_statics_[bs_static_index];
+
+			auto& draw_item = draw_items[draw_sprite_index++];
+			draw_item.texture_2d_ = hw_static.texture_2d_;
+			draw_item.sprite_ = &hw_static;
+
+			min_vertex_index = std::min(hw_static.vertex_index_, min_vertex_index);
+			max_vertex_index = std::max(hw_static.vertex_index_, max_vertex_index);
 		}
 
-		auto& draw_item = draw_items[draw_sprite_index++];
+		for (const auto bs_actor_index : ::hw_3d_actors_to_render_)
+		{
+			::hw_actor_update(bs_actor_index);
 
-		draw_item.texture_2d_ = hw_actor.texture_2d_;
-		draw_item.sprite_ = &hw_actor;
+			auto& sprite = ::hw_3d_actors_[bs_actor_index];
+			::hw_3d_orient_sprite(sprite);
+
+			const auto& hw_actor = ::hw_3d_actors_[bs_actor_index];
+
+			auto& draw_item = draw_items[draw_sprite_index++];
+			draw_item.texture_2d_ = hw_actor.texture_2d_;
+			draw_item.sprite_ = &hw_actor;
+
+			min_vertex_index = std::min(hw_actor.vertex_index_, min_vertex_index);
+			max_vertex_index = std::max(hw_actor.vertex_index_, max_vertex_index);
+		}
+
+		if (draw_sprite_index == 0)
+		{
+			return;
+		}
+
+		const auto vertex_count = max_vertex_index - min_vertex_index + ::hw_3d_vertices_per_sprite;
+
+		::hw_vertex_buffer_update(
+			::hw_3d_sprites_vb_,
+			min_vertex_index,
+			vertex_count,
+			&::hw_3d_sprites_vb_buffer_[min_vertex_index]
+		);
 	}
 
 	// Sort by distance (farthest -> nearest).
@@ -7755,6 +8092,8 @@ void hw_3d_build_doors()
 		vertex_count,
 		::hw_3d_doors_vb_.data()
 	);
+
+	::hw_3d_doors_to_render_.reserve(::hw_3d_door_count_);
 }
 
 bool hw_initialize_sprites_ib()
@@ -7833,6 +8172,7 @@ bool hw_3d_initialize_sprites_vi()
 bool hw_3d_initialize_statics()
 {
 	::hw_3d_statics_.resize(MAXSTATS);
+	::hw_3d_statics_to_render_.reserve(MAXSTATS);
 
 	return true;
 }
@@ -7840,6 +8180,7 @@ bool hw_3d_initialize_statics()
 bool hw_3d_initialize_actors()
 {
 	::hw_3d_actors_.resize(MAXACTORS);
+	::hw_3d_actors_to_render_.reserve(MAXACTORS);
 
 	return true;
 }
@@ -7901,285 +8242,23 @@ void hw_3d_uninitialize_sprites()
 	::hw_3d_uninitialize_sprites_vb();
 }
 
-void hw_3d_actor_update_cloak(
-	const Hw3dSprite& sprite)
-{
-	if (!sprite.flags_.is_visible_)
-	{
-		return;
-	}
-
-	if (sprite.kind_ != Hw3dSpriteKind::actor)
-	{
-		return;
-	}
-
-	const auto& actor = *sprite.bs_object_.actor_;
-
-	const auto is_cloaked = ((actor.flags2 & (FL2_CLOAKED | FL2_DAMAGE_CLOAK)) == FL2_CLOAKED);
-
-	const auto vertex_color = (
-		is_cloaked
-		?
-		HwVertexColor{0x00, 0x00, 0x00, ::hw_3d_cloaked_actor_alpha_u8}
-		:
-		HwVertexColor{0xFF, 0xFF, 0xFF, 0xFF}
-	);
-
-
-	auto vertex_index = sprite.vertex_index_;
-
-	// Bottom-left.
-	{
-		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
-		vertex.rgba_ = vertex_color;
-	}
-
-	// Bottom-right.
-	{
-		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
-		vertex.rgba_ = vertex_color;
-	}
-
-	// Top-right.
-	{
-		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
-		vertex.rgba_ = vertex_color;
-	}
-
-	// Top-left.
-	{
-		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
-		vertex.rgba_ = vertex_color;
-	}
-}
-
-void hw_3d_orient_sprite(
-	Hw3dSprite& sprite)
-{
-	sprite.flags_.is_visible_ = false;
-
-	if (!sprite.texture_2d_)
-	{
-		return;
-	}
-
-	if (sprite.kind_ == Hw3dSpriteKind::actor)
-	{
-		if (sprite.bs_sprite_id_ <= 0)
-		{
-			return;
-		}
-
-		if (sprite.bs_object_.actor_->obclass == nothing)
-		{
-			return;
-		}
-	}
-
-	auto sprite_origin = glm::dvec2{};
-
-	if (sprite.kind_ == Hw3dSpriteKind::actor)
-	{
-		sprite_origin[0] = bstone::FixedPoint{sprite.x_}.to_double();
-		sprite_origin[1] = bstone::FixedPoint{sprite.y_}.to_double();
-	}
-	else
-	{
-		sprite_origin[0] = static_cast<double>(sprite.tile_x_) + 0.5;
-		sprite_origin[1] = static_cast<double>(sprite.tile_y_) + 0.5;
-	};
-
-	auto direction = ::hw_3d_player_position - sprite_origin;
-
-	const auto cosinus_between_directions = glm::dot(
-		::hw_3d_player_direction,
-		direction
-	);
-
-	if (cosinus_between_directions >= 0.0)
-	{
-		return;
-	}
-
-	sprite.flags_.is_visible_ = true;
-
-
-	auto bottom_left_vertex = sprite_origin;
-	auto bottom_right_vertex = sprite_origin;
-
-	const auto square_distance = glm::dot(direction, direction);
-
-	sprite.square_distance_ = square_distance;
-
-	// Orient the sprite along the player's line of sight (inverted).
-	//
-	direction[0] = -::hw_3d_player_direction[0];
-	direction[1] = -::hw_3d_player_direction[1];
-
-	const auto perpendicular_dx = ::hw_3d_tile_half_dimension_d * direction[1];
-	const auto perpendicular_dy = ::hw_3d_tile_half_dimension_d * direction[0];
-
-	bottom_left_vertex[0] += -perpendicular_dx;
-	bottom_left_vertex[1] += +perpendicular_dy;
-
-	bottom_right_vertex[0] += +perpendicular_dx;
-	bottom_right_vertex[1] += -perpendicular_dy;
-
-
-	auto vertex_index = sprite.vertex_index_;
-
-	// Bottom-left.
-	{
-		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
-
-		vertex.xyz_ = HwVertexPosition
-		{
-			static_cast<float>(bottom_left_vertex[0]),
-			static_cast<float>(bottom_left_vertex[1]),
-			0.0F
-		};
-	}
-
-	// Bottom-right.
-	{
-		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
-
-		vertex.xyz_ = HwVertexPosition
-		{
-			static_cast<float>(bottom_right_vertex[0]),
-			static_cast<float>(bottom_right_vertex[1]),
-			0.0F
-		};
-	}
-
-	// Top-right.
-	{
-		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
-
-		vertex.xyz_ = HwVertexPosition
-		{
-			static_cast<float>(bottom_right_vertex[0]),
-			static_cast<float>(bottom_right_vertex[1]),
-			::hw_3d_tile_dimension_f
-		};
-	}
-
-	// Top-left.
-	{
-		auto& vertex = ::hw_3d_sprites_vb_buffer_[vertex_index++];
-
-		vertex.xyz_ = HwVertexPosition
-		{
-			static_cast<float>(bottom_left_vertex[0]),
-			static_cast<float>(bottom_left_vertex[1]),
-			::hw_3d_tile_dimension_f
-		};
-	}
-
-	::hw_3d_actor_update_cloak(sprite);
-}
-
-int hw_3d_calculate_actor_anim_rotation(
-	const objtype& bs_actor)
-{
-	auto dir = bs_actor.dir;
-
-	const auto view_dir_x = static_cast<double>(bs_actor.x - ::player->x);
-	const auto view_dir_y = static_cast<double>(-bs_actor.y + ::player->y);
-
-	const auto view_angle_rad = std::atan2(view_dir_y, view_dir_x);
-	const auto view_angle = static_cast<int>((180.0 * view_angle_rad) / m_pi());
-
-	if (dir == nodir)
-	{
-		dir = static_cast<dirtype>(bs_actor.trydir & 127);
-	}
-
-	auto target_angle = (view_angle - 180) - ::dirangle[dir];
-
-	target_angle += ANGLES / 16;
-
-	while (target_angle >= ANGLES)
-	{
-		target_angle -= ANGLES;
-	}
-
-	while (target_angle < 0)
-	{
-		target_angle += ANGLES;
-	}
-
-	if ((bs_actor.state->flags & SF_PAINFRAME) != 0)
-	{
-		// 2 rotation pain frame
-		return 4 * (target_angle / (ANGLES / 2)); // seperated by 3 (art layout...)
-
-	}
-
-	return target_angle / (ANGLES / 8);
-}
-
-int hw_3d_get_bs_actor_sprite_id(
-	const objtype& bs_actor)
-{
-	assert(bs_actor.state);
-
-	auto result = bs_actor.state->shapenum;
-
-	if ((bs_actor.flags & FL_OFFSET_STATES) != 0)
-	{
-		result += bs_actor.temp1;
-	}
-
-	if (result == -1)
-	{
-		result = bs_actor.temp1;
-	}
-
-	if ((bs_actor.state->flags & SF_ROTATE) != 0)
-	{
-		result += ::hw_3d_calculate_actor_anim_rotation(bs_actor);
-	}
-
-	return result;
-}
-
 void hw_dbg_3d_update_actors()
 {
-	auto count = 0;
-
 	for (auto bs_actor = ::player->next; bs_actor; bs_actor = bs_actor->next)
 	{
 		const auto bs_actor_index = bs_actor - ::objlist;
 
-		auto& hw_actor = ::hw_3d_actors_[bs_actor_index];
-		const auto new_bs_sprite_id = hw_3d_get_bs_actor_sprite_id(*bs_actor);
-
-		if (hw_actor.bs_sprite_id_ != new_bs_sprite_id)
-		{
-			hw_actor.bs_sprite_id_ = new_bs_sprite_id;
-
-			if (hw_actor.bs_sprite_id_ > 0)
-			{
-				hw_actor.texture_2d_ = ::hw_texture_manager_->sprite_get(hw_actor.bs_sprite_id_);
-			}
-			else
-			{
-				hw_actor.texture_2d_ = nullptr;
-			}
-		}
-
-		if (hw_actor.x_ != bs_actor->x || hw_actor.y_ != bs_actor->y)
-		{
-			hw_actor.x_ = bs_actor->x;
-			hw_actor.y_ = bs_actor->y;
-		}
+		::hw_actor_update(bs_actor_index);
 	}
 }
 
 void hw_dbg_3d_orient_all_sprites()
 {
+	if (!::vid_hw_dbg_draw_all_)
+	{
+		return;
+	}
+
 	for (auto bs_static = ::statobjlist; bs_static != ::laststatobj; ++bs_static)
 	{
 		const auto bs_static_index = bs_static - ::statobjlist;
@@ -12050,5 +12129,47 @@ void vid_hw_doors_add_render_item(
 	::hw_3d_door_last_xy_to_render_at_ = xy;
 
 	::hw_3d_doors_to_render_.insert(xy);
+}
+
+void vid_hw_statics_clear_render_list()
+{
+	if (!::vid_is_hw_)
+	{
+		return;
+	}
+
+	::hw_3d_statics_to_render_.clear();
+}
+
+void vid_hw_statics_add_render_item(
+	const int bs_static_index)
+{
+	if (!::vid_is_hw_)
+	{
+		return;
+	}
+
+	::hw_3d_statics_to_render_.insert(bs_static_index);
+}
+
+void vid_hw_actors_clear_render_list()
+{
+	if (!::vid_is_hw_)
+	{
+		return;
+	}
+
+	::hw_3d_actors_to_render_.clear();
+}
+
+void vid_hw_actors_add_render_item(
+	const int bs_actor_index)
+{
+	if (!::vid_is_hw_)
+	{
+		return;
+	}
+
+	::hw_3d_actors_to_render_.insert(bs_actor_index);
 }
 // BBi
