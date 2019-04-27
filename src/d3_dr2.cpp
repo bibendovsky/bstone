@@ -109,6 +109,7 @@ void AsmRefresh()
 
 	::vid_hw_walls_clear_render_list();
 	::vid_hw_pushwalls_clear_render_list();
+	::vid_hw_doors_clear_render_list();
 
 	pixx = 0;
 

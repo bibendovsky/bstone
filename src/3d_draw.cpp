@@ -896,6 +896,9 @@ void HitHorizDoor()
 		last_texture_offset = texture;
 		postsource = &last_texture_data[last_texture_offset];
 	}
+
+	const auto& bs_door = ::doorobjlist[door_index];
+	::vid_hw_doors_add_render_item(bs_door.tilex, bs_door.tiley);
 }
 
 void HitVertDoor()
@@ -1028,6 +1031,9 @@ void HitVertDoor()
 		last_texture_offset = texture;
 		postsource = &last_texture_data[last_texture_offset];
 	}
+
+	const auto& bs_door = ::doorobjlist[door_index];
+	::vid_hw_doors_add_render_item(bs_door.tilex, bs_door.tiley);
 }
 
 /*

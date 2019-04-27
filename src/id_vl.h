@@ -318,4 +318,11 @@ void vid_hw_pushwalls_add_render_item(
 	const int tile_y);
 
 
+void vid_hw_doors_clear_render_list();
+
+void vid_hw_doors_add_render_item(
+	const int tile_x,
+	const int tile_y);
+
+
 #endif // BSTONE_ID_VL_INCLUDED
