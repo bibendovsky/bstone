@@ -5003,7 +5003,7 @@ bool hw_3d_dbg_is_tile_visible(
 	return false;
 }
 
-void hw_3d_dbg_draw_all_solid_walls()
+void hw_3d_walls_render()
 {
 	if (::hw_3d_wall_count_ <= 0)
 	{
@@ -5169,7 +5169,7 @@ void hw_3d_dbg_draw_all_solid_walls()
 	::hw_3d_wall_side_draw_item_count_ = draw_side_index;
 }
 
-void hw_3d_dbg_draw_all_pushwalls()
+void hw_3d_pushwalls_render()
 {
 	if (::hw_3d_pushwall_count_ <= 0)
 	{
@@ -5394,7 +5394,7 @@ bool hw_3d_dbg_is_door_visible(
 	return false;
 }
 
-void hw_3d_dbg_draw_all_doors()
+void hw_3d_doors_render()
 {
 	if (::hw_3d_door_count_ == 0)
 	{
@@ -5592,7 +5592,7 @@ bool hw_3d_fog_calculate(
 	return true;
 }
 
-void hw_3d_dbg_draw_all_sprites()
+void hw_3d_sprites_render()
 {
 	// Build draw list.
 	//
@@ -6001,11 +6001,11 @@ void hw_refresh_screen_3d()
 
 	// Draw solid walls.
 	//
-	::hw_3d_dbg_draw_all_solid_walls();
+	::hw_3d_walls_render();
 
 	// Draw pushwalls.
 	//
-	::hw_3d_dbg_draw_all_pushwalls();
+	::hw_3d_pushwalls_render();
 
 	// Set sampler.
 	//
@@ -6016,7 +6016,7 @@ void hw_refresh_screen_3d()
 
 	// Draw doors.
 	//
-	::hw_3d_dbg_draw_all_doors();
+	::hw_3d_doors_render();
 
 	// Set sampler.
 	//
@@ -6088,7 +6088,7 @@ void hw_refresh_screen_3d()
 
 	// Draw statics and actors.
 	//
-	::hw_3d_dbg_draw_all_sprites();
+	::hw_3d_sprites_render();
 
 
 	// Disable the fog.
