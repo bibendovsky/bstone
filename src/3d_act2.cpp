@@ -5728,6 +5728,8 @@ void SpawnCusExplosion(
 	InitAnim(new_actor, StartFrame, 0, static_cast<std::uint8_t>(NumFrames), at_ONCE, ad_FWD, (US_RndT() & 0x7), Delay);
 	A_DeathScream(new_actor);
 	MakeAlertNoise(new_actor);
+
+	::vid_hw_on_actor_add(*new_actor);
 }
 
 void T_SpawnExplosion(

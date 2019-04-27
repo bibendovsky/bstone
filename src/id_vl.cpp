@@ -5979,10 +5979,8 @@ void hw_3d_sprites_render()
 		{
 			::hw_actor_update(bs_actor_index);
 
-			auto& sprite = ::hw_3d_actors_[bs_actor_index];
-			::hw_3d_orient_sprite(sprite);
-
-			const auto& hw_actor = ::hw_3d_actors_[bs_actor_index];
+			auto& hw_actor = ::hw_3d_actors_[bs_actor_index];
+			::hw_3d_orient_sprite(hw_actor);
 
 			auto& draw_item = draw_items[draw_sprite_index++];
 			draw_item.texture_2d_ = hw_actor.texture_2d_;
@@ -8172,6 +8170,8 @@ bool hw_3d_initialize_sprites_vi()
 bool hw_3d_initialize_statics()
 {
 	::hw_3d_statics_.resize(MAXSTATS);
+
+	::hw_3d_statics_to_render_.clear();
 	::hw_3d_statics_to_render_.reserve(MAXSTATS);
 
 	return true;
@@ -8180,6 +8180,8 @@ bool hw_3d_initialize_statics()
 bool hw_3d_initialize_actors()
 {
 	::hw_3d_actors_.resize(MAXACTORS);
+
+	::hw_3d_actors_to_render_.clear();
 	::hw_3d_actors_to_render_.reserve(MAXACTORS);
 
 	return true;
