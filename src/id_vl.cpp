@@ -1786,6 +1786,7 @@ int hw_3d_active_pushwall_next_y_ = 0;
 int hw_3d_wall_count_ = 0;
 int hw_3d_wall_side_count_ = 0;
 int hw_3d_wall_vertex_count_ = 0;
+int hw_3d_wall_last_xy_to_render_at_ = 0;
 Hw3dXyWallMap hw_3d_xy_wall_map_;
 Hw3dWallsToRenderList hw_3d_walls_to_render_;
 
@@ -1801,6 +1802,7 @@ Hw3dWallSideIndexBuffer hw_3d_wall_sides_ib_buffer_;
 
 int hw_3d_pushwall_count_ = 0;
 int hw_3d_pushwall_side_count_ = 0;
+int hw_3d_pushwall_last_xy_to_render_at_ = 0;
 Hw3dXyWallMap hw_3d_xy_pushwall_map_;
 Hw3dWallsVbBuffer hw_3d_pushwall_to_wall_v_;
 Hw3dWallsToRenderList hw_3d_pushwalls_to_render_;
@@ -11920,6 +11922,7 @@ void vid_hw_walls_clear_render_list()
 		return;
 	}
 
+	::hw_3d_wall_last_xy_to_render_at_ = -1;
 	::hw_3d_walls_to_render_.clear();
 }
 
@@ -11932,8 +11935,16 @@ void vid_hw_walls_add_render_item(
 		return;
 	}
 
-	const auto is_pushwall = ::hw_tile_is_pushwall(tile_x, tile_y);
 	const auto xy = ::hw_encode_xy(tile_x, tile_y);
+
+	if (::hw_3d_wall_last_xy_to_render_at_ == xy)
+	{
+		return;
+	}
+
+	::hw_3d_wall_last_xy_to_render_at_ = xy;
+
+	const auto is_pushwall = ::hw_tile_is_pushwall(tile_x, tile_y);
 
 	if (is_pushwall)
 	{
@@ -11952,6 +11963,7 @@ void vid_hw_pushwalls_clear_render_list()
 		return;
 	}
 
+	::hw_3d_pushwall_last_xy_to_render_at_ = -1;
 	::hw_3d_pushwalls_to_render_.clear();
 }
 
@@ -11966,13 +11978,13 @@ void vid_hw_pushwalls_add_render_item(
 
 	const auto xy = ::hw_encode_xy(tile_x, tile_y);
 
-	if (::hw_tile_is_solid_wall(tile_x, tile_y))
+	if (::hw_3d_pushwall_last_xy_to_render_at_ == xy)
 	{
-		::hw_3d_walls_to_render_.insert(xy);
+		return;
 	}
-	else
-	{
-		::hw_3d_pushwalls_to_render_.insert(xy);
-	}
+
+	::hw_3d_pushwall_last_xy_to_render_at_ = xy;
+
+	::hw_3d_pushwalls_to_render_.insert(xy);
 }
 // BBi
