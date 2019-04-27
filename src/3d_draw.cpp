@@ -684,7 +684,6 @@ void HitVertWall()
 	}
 
 	::vid_hw_walls_add_render_item(::xtile, ::ytile);
-	::vid_hw_pushwalls_add_render_item(::xtile, ::ytile);
 }
 
 /*
@@ -765,7 +764,6 @@ void HitHorizWall()
 	}
 
 	::vid_hw_walls_add_render_item(::xtile, ::ytile);
-	::vid_hw_pushwalls_add_render_item(::xtile, ::ytile);
 }
 
 void HitHorizDoor()
@@ -1087,7 +1085,7 @@ void HitHorizPWall()
 		postsource = &last_texture_data[last_texture_offset];
 	}
 
-	::vid_hw_pushwalls_add_render_item(::xtile, ::ytile);
+	::vid_hw_pushwalls_add_render_item(::pwallx, ::pwally);
 }
 
 /*
@@ -1145,7 +1143,7 @@ void HitVertPWall()
 		postsource = &last_texture_data[last_texture_offset];
 	}
 
-	::vid_hw_pushwalls_add_render_item(::xtile, ::ytile);
+	::vid_hw_pushwalls_add_render_item(::pwallx, ::pwally);
 }
 
 /*

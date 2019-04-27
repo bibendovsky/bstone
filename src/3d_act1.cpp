@@ -1749,6 +1749,32 @@ void MovePWalls()
 		const auto old_x = ::pwallx;
 		const auto old_y = ::pwally;
 
+		auto next_dx = 0;
+		auto next_dy = 0;
+
+		switch (::pwalldir)
+		{
+		case di_north:
+			next_dy = -1;
+			break;
+
+		case di_east:
+			next_dx = 1;
+			break;
+
+		case di_south:
+			next_dy = 1;
+			break;
+
+		case di_west:
+			next_dx = -1;
+			break;
+
+		default:
+			::Quit("Invalid pushwall direction.");
+			break;
+		}
+
 		if (::pwalldist == 0)
 		{
 			//
@@ -1759,36 +1785,17 @@ void MovePWalls()
 
 			::vid_hw_on_pushwall_step(old_x, old_y);
 
+			::vid_hw_on_pushwall_to_wall(
+				old_x,
+				old_y,
+				old_x + next_dx,
+				old_y + next_dy
+			);
+
 			return;
 		}
 		else
 		{
-			auto next_dx = 0;
-			auto next_dy = 0;
-
-			switch (::pwalldir)
-			{
-			case di_north:
-				next_dy = -1;
-				break;
-
-			case di_east:
-				next_dx = 1;
-				break;
-
-			case di_south:
-				next_dy = 1;
-				break;
-
-			case di_west:
-				next_dx = -1;
-				break;
-
-			default:
-				::Quit("Invalid pushwall direction.");
-				break;
-			}
-
 			::pwallx += next_dx;
 			::pwally += next_dy;
 
@@ -1805,6 +1812,13 @@ void MovePWalls()
 				::pwallpos = 63;
 
 				::vid_hw_on_pushwall_step(old_x, old_y);
+
+				::vid_hw_on_pushwall_to_wall(
+					old_x,
+					old_y,
+					next_x,
+					next_y
+				);
 
 				return;
 			}

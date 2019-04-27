@@ -1785,6 +1785,7 @@ int hw_3d_active_pushwall_next_y_ = 0;
 
 int hw_3d_wall_count_ = 0;
 int hw_3d_wall_side_count_ = 0;
+int hw_3d_wall_vertex_count_ = 0;
 Hw3dXyWallMap hw_3d_xy_wall_map_;
 Hw3dWallsToRenderList hw_3d_walls_to_render_;
 
@@ -1801,6 +1802,7 @@ Hw3dWallSideIndexBuffer hw_3d_wall_sides_ib_buffer_;
 int hw_3d_pushwall_count_ = 0;
 int hw_3d_pushwall_side_count_ = 0;
 Hw3dXyWallMap hw_3d_xy_pushwall_map_;
+Hw3dWallsVbBuffer hw_3d_pushwall_to_wall_v_;
 Hw3dWallsToRenderList hw_3d_pushwalls_to_render_;
 
 int hw_3d_pushwall_side_draw_item_count_ = 0;
@@ -3504,6 +3506,9 @@ void hw_3d_uninitialize_pushwalls_vbo()
 bool hw_3d_initialize_pushwalls()
 {
 	::hw_3d_xy_pushwall_map_.reserve(::hw_3d_pushwall_count_);
+
+	::hw_3d_pushwall_to_wall_v_.clear();
+	::hw_3d_pushwall_to_wall_v_.resize(::hw_3d_sides_per_wall * ::hw_3d_vertices_per_wall_side);
 
 	::hw_3d_pushwalls_to_render_.clear();
 
@@ -7094,6 +7099,9 @@ void hw_3d_build_solid_walls()
 
 	// Check for maximums.
 	//
+	::hw_3d_wall_count_ += ::hw_3d_pushwall_count_;
+	::hw_3d_wall_side_count_ += ::hw_3d_pushwall_count_ * ::hw_3d_sides_per_wall;
+
 	const auto index_count = ::hw_3d_wall_side_count_ * ::hw_3d_indices_per_wall_side;
 
 	if (index_count > ::hw_3d_max_wall_sides_indices)
@@ -7145,6 +7153,8 @@ void hw_3d_build_solid_walls()
 			);
 		}
 	}
+
+	::hw_3d_wall_vertex_count_ = vertex_index;
 
 	// Update vertex buffer.
 	//
@@ -11623,8 +11633,8 @@ void vid_hw_on_level_load()
 
 	::hw_precache_resources();
 
-	::hw_3d_build_solid_walls();
 	::hw_3d_build_pushwalls();
+	::hw_3d_build_solid_walls();
 	::hw_3d_build_doors();
 	::hw_3d_build_sprites();
 }
@@ -11713,6 +11723,67 @@ void vid_hw_on_pushwall_step(
 	}
 
 	::hw_3d_step_pushwall(old_x, old_y);
+}
+
+void vid_hw_on_pushwall_to_wall(
+	const int old_x,
+	const int old_y,
+	const int new_x,
+	const int new_y)
+{
+	if (!::vid_is_hw_)
+	{
+		return;
+	}
+
+	assert(old_x != new_x || old_y != new_y);
+
+	const auto old_xy = ::hw_encode_xy(old_x, old_y);
+	const auto old_pushwall_it = ::hw_3d_xy_pushwall_map_.find(old_xy);
+
+	if (old_pushwall_it == ::hw_3d_xy_pushwall_map_.cend())
+	{
+		::Quit("Pushwall not found.");
+
+		return;
+	}
+
+	::hw_3d_xy_pushwall_map_.erase(old_pushwall_it);
+
+	auto vertex_index = 0;
+
+	::hw_3d_map_xy_to_xwall(
+		Hw3dXyWallKind::solid,
+		new_x,
+		new_y,
+		::hw_3d_xy_wall_map_,
+		vertex_index,
+		::hw_3d_pushwall_to_wall_v_
+	);
+
+	// Adjust vertex indices.
+	//
+	const auto new_xy = ::hw_encode_xy(new_x, new_y);
+	auto& wall = ::hw_3d_xy_wall_map_[new_xy];
+
+	for (auto& wall_side : wall.sides_)
+	{
+		if (!wall_side.flags_.is_active_)
+		{
+			continue;
+		}
+
+		wall_side.vertex_index_ += ::hw_3d_wall_vertex_count_;
+	}
+
+	::hw_vertex_buffer_update(
+		::hw_3d_wall_sides_vb_,
+		::hw_3d_wall_vertex_count_,
+		vertex_index,
+		::hw_3d_pushwall_to_wall_v_.data()
+	);
+
+	::hw_3d_wall_vertex_count_ += vertex_index;
 }
 
 void vid_hw_on_door_move(
@@ -11861,9 +11932,17 @@ void vid_hw_walls_add_render_item(
 		return;
 	}
 
+	const auto is_pushwall = ::hw_tile_is_pushwall(tile_x, tile_y);
 	const auto xy = ::hw_encode_xy(tile_x, tile_y);
 
-	::hw_3d_walls_to_render_.insert(xy);
+	if (is_pushwall)
+	{
+		::hw_3d_pushwalls_to_render_.insert(xy);
+	}
+	else
+	{
+		::hw_3d_walls_to_render_.insert(xy);
+	}
 }
 
 void vid_hw_pushwalls_clear_render_list()
@@ -11887,6 +11966,13 @@ void vid_hw_pushwalls_add_render_item(
 
 	const auto xy = ::hw_encode_xy(tile_x, tile_y);
 
-	::hw_3d_pushwalls_to_render_.insert(xy);
+	if (::hw_tile_is_solid_wall(tile_x, tile_y))
+	{
+		::hw_3d_walls_to_render_.insert(xy);
+	}
+	else
+	{
+		::hw_3d_pushwalls_to_render_.insert(xy);
+	}
 }
 // BBi

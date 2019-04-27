@@ -269,6 +269,12 @@ void vid_hw_on_pushwall_step(
 	const int old_x,
 	const int old_y);
 
+void vid_hw_on_pushwall_to_wall(
+	const int old_x,
+	const int old_y,
+	const int new_x,
+	const int new_y);
+
 void vid_hw_on_door_move(
 	const int door_index);
 
