@@ -60,6 +60,11 @@ public:
 	static constexpr float pi = static_cast<float>(3.14159265358979323846);
 	static constexpr float pi_over_180 = static_cast<float>(0.0174532925199432957692);
 
+	static constexpr int absolute_min_texture_dimension = 1 << 6;
+	static constexpr int absolute_max_texture_dimension = 1 << 16;
+
+	static constexpr int absolute_max_viewport_dimension = 1 << 16;
+
 
 	using TextureBuffer = std::vector<RendererColor32>;
 

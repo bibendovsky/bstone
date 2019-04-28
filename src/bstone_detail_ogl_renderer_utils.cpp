@@ -363,6 +363,50 @@ GLenum OglRendererUtils::index_buffer_get_element_type_by_byte_depth(
 	}
 }
 
+bool OglRendererUtils::renderer_features_set(
+	RendererDeviceFeatures& device_features)
+{
+	// Max texture dimension.
+	//
+	auto ogl_texture_dimension = GLint{};
+
+	::glGetIntegerv(GL_MAX_TEXTURE_SIZE, &ogl_texture_dimension);
+
+	if (OglRendererUtils::was_errors() || ogl_texture_dimension == 0)
+	{
+		error_message_ = "Failed to get maximum texture dimension.";
+
+		return false;
+	}
+
+
+	// Max viewport dimensions.
+	//
+	using OglViewportDimensions = std::array<GLint, 2>;
+	auto ogl_viewport_dimensions = OglViewportDimensions{};
+
+	::glGetIntegerv(GL_MAX_VIEWPORT_DIMS, ogl_viewport_dimensions.data());
+
+	if (OglRendererUtils::was_errors() ||
+		ogl_viewport_dimensions[0] == 0 || ogl_viewport_dimensions[1] == 0)
+	{
+		error_message_ = "Failed to get viewport dimensions.";
+
+		return false;
+	}
+
+
+	// Set the values.
+	//
+	device_features.min_texture_dimension_ = RendererUtils::absolute_min_texture_dimension;
+	device_features.max_texture_dimension_ = ogl_texture_dimension;
+
+	device_features.max_viewport_width_ = ogl_viewport_dimensions[0];
+	device_features.max_viewport_height_ = ogl_viewport_dimensions[1];
+
+	return true;
+}
+
 GLenum OglRendererUtils::blending_get_factor(
 	const RendererBlendingFactor factor)
 {

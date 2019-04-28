@@ -674,6 +674,24 @@ struct RendererCommandManagerFactory
 // ==========================================================================
 
 
+// ==========================================================================
+// RendererDeviceFeatures
+//
+
+struct RendererDeviceFeatures
+{
+	int min_texture_dimension_;
+	int max_texture_dimension_;
+
+	int max_viewport_width_;
+	int max_viewport_height_;
+}; // RendererDeviceFeatures
+
+//
+// RendererDeviceFeatures
+// ==========================================================================
+
+
 class Renderer
 {
 protected:
@@ -712,6 +730,8 @@ public:
 
 
 	virtual RendererPath get_path() const = 0;
+
+	virtual const RendererDeviceFeatures& get_device_features() const = 0;
 
 
 	virtual void window_show(

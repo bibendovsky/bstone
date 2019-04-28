@@ -125,6 +125,9 @@ public:
 	static GLenum index_buffer_get_element_type_by_byte_depth(
 		const int byte_depth);
 
+	bool renderer_features_set(
+		RendererDeviceFeatures& device_features);
+
 
 private:
 	std::string error_message_;

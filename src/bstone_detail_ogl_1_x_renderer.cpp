@@ -149,8 +149,29 @@ bool Ogl1XRenderer::Texture2d::initialize(
 	width_ = param.width_;
 	height_ = param.height_;
 
+	const auto& device_features = renderer_->device_features_;
+
 	actual_width_ = RendererUtils::find_nearest_pot_value(param.width_);
+
+	if (actual_width_ < device_features.min_texture_dimension_)
+	{
+		actual_width_ = device_features.min_texture_dimension_;
+	}
+	else if (actual_width_ > device_features.max_texture_dimension_)
+	{
+		actual_width_ = device_features.max_texture_dimension_;
+	}
+
 	actual_height_ = RendererUtils::find_nearest_pot_value(param.height_);
+
+	if (actual_height_ < device_features.min_texture_dimension_)
+	{
+		actual_height_ = device_features.min_texture_dimension_;
+	}
+	else if (actual_height_ > device_features.max_texture_dimension_)
+	{
+		actual_height_ = device_features.max_texture_dimension_;
+	}
 
 	if (is_generate_mipmaps_)
 	{
@@ -697,6 +718,7 @@ Ogl1XRenderer::Ogl1XRenderer()
 	probe_renderer_path_{},
 	sdl_window_{},
 	sdl_gl_context_{},
+	device_features_{},
 	screen_width_{},
 	screen_height_{},
 	palette_{},
@@ -753,6 +775,7 @@ Ogl1XRenderer::Ogl1XRenderer(
 	probe_renderer_path_{std::move(rhs.probe_renderer_path_)},
 	sdl_window_{std::move(rhs.sdl_window_)},
 	sdl_gl_context_{std::move(rhs.sdl_gl_context_)},
+	device_features_{std::move(rhs.device_features_)},
 	screen_width_{std::move(rhs.screen_width_)},
 	screen_height_{std::move(rhs.screen_height_)},
 	palette_{std::move(rhs.palette_)},
@@ -870,6 +893,11 @@ RendererPath Ogl1XRenderer::get_path() const
 	}
 
 	return RendererPath::ogl_1_x;
+}
+
+const RendererDeviceFeatures& Ogl1XRenderer::get_device_features() const
+{
+	return device_features_;
 }
 
 void Ogl1XRenderer::window_show(
@@ -1202,6 +1230,16 @@ bool Ogl1XRenderer::probe_or_initialize(
 
 	if (is_succeed)
 	{
+		if (!ogl_renderer_utils.renderer_features_set(device_features_))
+		{
+			error_message_ = ogl_renderer_utils.get_error_message();
+
+			is_succeed = false;
+		}
+	}
+
+	if (is_succeed)
+	{
 		if (!create_default_sampler())
 		{
 			is_succeed = false;
@@ -1347,6 +1385,7 @@ void Ogl1XRenderer::uninitialize_internal(
 
 	if (!is_dtor)
 	{
+		device_features_ = {};
 		screen_width_ = {};
 		screen_height_ = {};
 		palette_ = {};
@@ -1967,6 +2006,14 @@ void Ogl1XRenderer::command_execute_viewport(
 	assert(command.height_ <= screen_height_);
 	assert((command.x_ + command.width_) <= screen_width_);
 	assert((command.y_ + command.height_) <= screen_height_);
+
+	if (viewport_width_ > device_features_.max_viewport_width_ ||
+		viewport_height_ > device_features_.max_viewport_height_)
+	{
+		assert(!"Viewport dimensions out of range.");
+
+		return;
+	}
 
 	if (viewport_x_ != command.x_ ||
 		viewport_y_ != command.y_ ||

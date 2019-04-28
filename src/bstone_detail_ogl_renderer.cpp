@@ -181,6 +181,14 @@ RendererPath OglRenderer::get_path() const
 	return renderer_path_;
 }
 
+const RendererDeviceFeatures& OglRenderer::get_device_features() const
+{
+	assert(is_initialized_);
+	assert(renderer_);
+
+	return renderer_->get_device_features();
+}
+
 void OglRenderer::window_show(
 	const bool is_visible)
 {

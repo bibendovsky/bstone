@@ -91,6 +91,8 @@ public:
 
 	RendererPath get_path() const override;
 
+	const RendererDeviceFeatures& get_device_features() const override;
+
 
 	void window_show(
 		const bool is_visible) override;
@@ -330,6 +332,8 @@ private:
 
 	SdlWindowUPtr sdl_window_;
 	SdlGlContextUPtr sdl_gl_context_;
+
+	RendererDeviceFeatures device_features_;
 
 	int screen_width_;
 	int screen_height_;
