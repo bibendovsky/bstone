@@ -84,6 +84,9 @@ public:
 
 	static bool resolve_symbols_1_1();
 
+	static RendererUtilsExtensions extensions_get(
+		const bool is_core_profile);
+
 
 	static void clear_buffers();
 
@@ -161,6 +164,11 @@ private:
 	static void clear_unique_symbols_1_1();
 
 	static bool resolve_unique_symbols_1_1();
+
+
+	static RendererUtilsExtensions extensions_get_core();
+
+	static RendererUtilsExtensions extensions_get_compatibility();
 }; // OglRendererUtils
 
 

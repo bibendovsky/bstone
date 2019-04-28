@@ -33,6 +33,7 @@ Free Software Foundation, Inc.,
 #include "bstone_detail_ogl_renderer_utils.h"
 #include <cassert>
 #include <limits>
+#include <sstream>
 #include "SDL_video.h"
 #include "glm/gtc/matrix_transform.hpp"
 #include "bstone_ogl.h"
@@ -210,6 +211,19 @@ bool OglRendererUtils::resolve_symbols_1_1()
 	}
 
 	return true;
+}
+
+RendererUtilsExtensions OglRendererUtils::extensions_get(
+	const bool is_core_profile)
+{
+	if (is_core_profile)
+	{
+		return extensions_get_core();
+	}
+	else
+	{
+		return extensions_get_compatibility();
+	}
 }
 
 void OglRendererUtils::clear_buffers()
@@ -1146,6 +1160,36 @@ bool OglRendererUtils::resolve_unique_symbols_1_1()
 	}
 
 	return true;
+}
+
+RendererUtilsExtensions OglRendererUtils::extensions_get_core()
+{
+	throw "Not implemented.";
+}
+
+RendererUtilsExtensions OglRendererUtils::extensions_get_compatibility()
+{
+	const auto ogl_extensions_string = ::glGetString(GL_EXTENSIONS);
+
+	if (was_errors())
+	{
+		assert(!"No context or core profile.");
+
+		return {};
+	}
+
+	if (!ogl_extensions_string)
+	{
+		return {};
+	}
+
+	auto iss = std::istringstream{reinterpret_cast<const char*>(ogl_extensions_string)};
+
+	return RendererUtilsExtensions
+	{
+		std::istream_iterator<std::string>{iss},
+		std::istream_iterator<std::string>{}
+	};
 }
 
 //
