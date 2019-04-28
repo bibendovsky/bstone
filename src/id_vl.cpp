@@ -5755,7 +5755,7 @@ void hw_actor_update(
 	const auto& bs_actor = ::objlist[bs_actor_index];
 	const auto new_bs_sprite_id = ::hw_3d_get_bs_actor_sprite_id(bs_actor);
 
-	if (hw_actor.bs_sprite_id_ != new_bs_sprite_id)
+	if (hw_actor.bs_sprite_id_ == 0 || hw_actor.bs_sprite_id_ != new_bs_sprite_id)
 	{
 		hw_actor.bs_sprite_id_ = new_bs_sprite_id;
 
