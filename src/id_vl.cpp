@@ -8548,6 +8548,28 @@ void hw_precache_flying_grenade()
 	::hw_cache_sprite(::SPR_GRENADE_FLY2);
 	::hw_cache_sprite(::SPR_GRENADE_FLY3);
 	::hw_cache_sprite(::SPR_GRENADE_FLY4);
+
+	::hw_precache_grenade_explosion();
+}
+
+void hw_precache_plasma_detonator_explosion()
+{
+	::hw_cache_sprite(::SPR_DETONATOR_EXP1);
+	::hw_cache_sprite(::SPR_DETONATOR_EXP2);
+	::hw_cache_sprite(::SPR_DETONATOR_EXP3);
+	::hw_cache_sprite(::SPR_DETONATOR_EXP4);
+	::hw_cache_sprite(::SPR_DETONATOR_EXP5);
+	::hw_cache_sprite(::SPR_DETONATOR_EXP6);
+	::hw_cache_sprite(::SPR_DETONATOR_EXP7);
+	::hw_cache_sprite(::SPR_DETONATOR_EXP8);
+}
+
+void hw_precache_plasma_detonator()
+{
+	::hw_cache_sprite(::SPR_DOORBOMB);
+	::hw_cache_sprite(::SPR_ALT_DOORBOMB);
+
+	::hw_precache_plasma_detonator_explosion();
 }
 
 void hw_precache_anti_plasma_cannon_explosion()
@@ -9921,18 +9943,6 @@ void hw_precache_flicker_light()
 	::hw_cache_sprite(::SPR_DECO_ARC_3);
 }
 
-void hw_precache_detonator_explosion()
-{
-	::hw_cache_sprite(::SPR_DETONATOR_EXP1);
-	::hw_cache_sprite(::SPR_DETONATOR_EXP2);
-	::hw_cache_sprite(::SPR_DETONATOR_EXP3);
-	::hw_cache_sprite(::SPR_DETONATOR_EXP4);
-	::hw_cache_sprite(::SPR_DETONATOR_EXP5);
-	::hw_cache_sprite(::SPR_DETONATOR_EXP6);
-	::hw_cache_sprite(::SPR_DETONATOR_EXP7);
-	::hw_cache_sprite(::SPR_DETONATOR_EXP8);
-}
-
 void hw_precache_crate_content()
 {
 	const auto& assets_info = AssetsInfo{};
@@ -10438,12 +10448,11 @@ void hw_precache_actors()
 
 		case plasma_detonatorobj:
 		case plasma_detonator_reserveobj:
-			::hw_precache_detonator_explosion();
+			::hw_precache_plasma_detonator();
 			break;
 
 		case grenadeobj:
 			::hw_precache_flying_grenade();
-			::hw_precache_grenade_explosion();
 			break;
 
 		case bfg_shotobj:
@@ -10455,7 +10464,7 @@ void hw_precache_actors()
 			break;
 
 		case pd_explosionobj:
-			::hw_precache_detonator_explosion();
+			::hw_precache_plasma_detonator_explosion();
 			break;
 
 		case spider_mutantshotobj:
