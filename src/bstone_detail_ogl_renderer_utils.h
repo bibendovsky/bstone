@@ -49,6 +49,26 @@ namespace detail
 struct OglRendererUtilsDeviceFeatures
 {
 	// ======================================================================
+	// Extension probe status.
+	//
+
+	// GL_ARB_framebuffer_object
+
+	bool extension_gl_arb_framebuffer_object_is_probed_;
+	bool extension_gl_arb_framebuffer_object_is_available_;
+
+
+	// GL_SGIS_generate_mipmap
+
+	bool extension_gl_sgis_generate_mipmap_is_probed_;
+	bool extension_gl_sgis_generate_mipmap_is_available_;
+
+	//
+	// Extension probe status.
+	// ======================================================================
+
+
+	// ======================================================================
 	// Anisotropy.
 	//
 
@@ -70,6 +90,18 @@ struct OglRendererUtilsDeviceFeatures
 	//
 	// Non-power-of-two textures.
 	// ======================================================================
+
+
+	// ======================================================================
+	// Mipmap generation.
+	//
+
+	bool mipmap_is_available_;
+
+	//
+	// Mipmap generation.
+	// ======================================================================
+
 }; // OglRendererUtilsDeviceFeatures
 
 
@@ -142,6 +174,27 @@ public:
 		const RendererUtilsExtensions& extensions,
 		RendererDeviceFeatures& device_features,
 		OglRendererUtilsDeviceFeatures& ogl_device_features);
+
+
+	// GL_ARB_framebuffer_object
+	static const std::string& extension_gl_arb_framebuffer_object_get_name();
+
+	static void extension_gl_arb_framebuffer_object_probe(
+		const RendererUtilsExtensions& extensions,
+		OglRendererUtilsDeviceFeatures& ogl_device_features);
+
+	// GL_SGIS_generate_mipmap
+	static const std::string& extension_gl_sgis_generate_mipmap_get_name();
+
+	static void extension_gl_sgis_generate_mipmap_probe(
+		const RendererUtilsExtensions& extensions,
+		OglRendererUtilsDeviceFeatures& ogl_device_features);
+
+	static void mipmap_probe(
+		const RendererUtilsExtensions& extensions,
+		RendererDeviceFeatures& device_features,
+		OglRendererUtilsDeviceFeatures& ogl_device_features);
+
 
 	static void clear_buffers();
 
@@ -219,6 +272,11 @@ private:
 	static void clear_unique_symbols_1_1();
 
 	static bool resolve_unique_symbols_1_1();
+
+
+	static bool extension_gl_arb_framebuffer_object_resolve_symbols();
+
+	static void extension_gl_arb_framebuffer_object_clear_symbols();
 
 
 	static RendererUtilsExtensions extensions_get_core();

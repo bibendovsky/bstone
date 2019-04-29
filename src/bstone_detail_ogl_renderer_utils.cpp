@@ -411,6 +411,91 @@ void OglRendererUtils::npot_probe(
 	}
 }
 
+const std::string& OglRendererUtils::extension_gl_arb_framebuffer_object_get_name()
+{
+	static const auto result = "GL_ARB_framebuffer_object"s;
+
+	return result;
+}
+
+void OglRendererUtils::extension_gl_arb_framebuffer_object_probe(
+	const RendererUtilsExtensions& extensions,
+	OglRendererUtilsDeviceFeatures& ogl_device_features)
+{
+	if (ogl_device_features.extension_gl_arb_framebuffer_object_is_probed_)
+	{
+		return;
+	}
+
+	ogl_device_features.extension_gl_arb_framebuffer_object_is_probed_ = true;
+	ogl_device_features.extension_gl_arb_framebuffer_object_is_available_ = false;
+
+	const auto has_extension_string = RendererUtils::extension_has(
+		extension_gl_arb_framebuffer_object_get_name(),
+		extensions
+	);
+
+	if (!has_extension_string)
+	{
+		return;
+	}
+
+	if (!extension_gl_arb_framebuffer_object_resolve_symbols())
+	{
+		return;
+	}
+
+	ogl_device_features.extension_gl_arb_framebuffer_object_is_available_ = true;
+}
+
+const std::string& OglRendererUtils::extension_gl_sgis_generate_mipmap_get_name()
+{
+	static const auto result = "GL_SGIS_generate_mipmap"s;
+
+	return result;
+}
+
+void OglRendererUtils::extension_gl_sgis_generate_mipmap_probe(
+	const RendererUtilsExtensions& extensions,
+	OglRendererUtilsDeviceFeatures& ogl_device_features)
+{
+	if (ogl_device_features.extension_gl_sgis_generate_mipmap_is_probed_)
+	{
+		return;
+	}
+
+	ogl_device_features.extension_gl_sgis_generate_mipmap_is_probed_ = true;
+	ogl_device_features.extension_gl_sgis_generate_mipmap_is_available_ = false;
+
+	const auto has_extension_string = RendererUtils::extension_has(
+		extension_gl_sgis_generate_mipmap_get_name(),
+		extensions
+	);
+
+	if (!has_extension_string)
+	{
+		return;
+	}
+
+	ogl_device_features.extension_gl_sgis_generate_mipmap_is_available_ = true;
+}
+
+void OglRendererUtils::mipmap_probe(
+	const RendererUtilsExtensions& extensions,
+	RendererDeviceFeatures& device_features,
+	OglRendererUtilsDeviceFeatures& ogl_device_features)
+{
+	extension_gl_arb_framebuffer_object_probe(extensions, ogl_device_features);
+	extension_gl_sgis_generate_mipmap_probe(extensions, ogl_device_features);
+
+	const auto is_mipmap_available =
+		ogl_device_features.extension_gl_arb_framebuffer_object_is_available_ ||
+		ogl_device_features.extension_gl_sgis_generate_mipmap_is_available_;
+
+	device_features.mipmap_is_available_ = is_mipmap_available;
+	ogl_device_features.mipmap_is_available_ = is_mipmap_available;
+}
+
 void OglRendererUtils::clear_buffers()
 {
 	assert(::glClear != nullptr);
@@ -1344,6 +1429,65 @@ bool OglRendererUtils::resolve_unique_symbols_1_1()
 	}
 
 	return true;
+}
+
+bool OglRendererUtils::extension_gl_arb_framebuffer_object_resolve_symbols()
+{
+	auto is_failed = false;
+
+	resolve_symbol("glIsRenderbuffer", ::glIsRenderbuffer, is_failed);
+	resolve_symbol("glBindRenderbuffer", ::glBindRenderbuffer, is_failed);
+	resolve_symbol("glDeleteRenderbuffers", ::glDeleteRenderbuffers, is_failed);
+	resolve_symbol("glGenRenderbuffers", ::glGenRenderbuffers, is_failed);
+	resolve_symbol("glRenderbufferStorage", ::glRenderbufferStorage, is_failed);
+	resolve_symbol("glGetRenderbufferParameteriv", ::glGetRenderbufferParameteriv, is_failed);
+	resolve_symbol("glIsFramebuffer", ::glIsFramebuffer, is_failed);
+	resolve_symbol("glBindFramebuffer", ::glBindFramebuffer, is_failed);
+	resolve_symbol("glDeleteFramebuffers", ::glDeleteFramebuffers, is_failed);
+	resolve_symbol("glGenFramebuffers", ::glGenFramebuffers, is_failed);
+	resolve_symbol("glCheckFramebufferStatus", ::glCheckFramebufferStatus, is_failed);
+	resolve_symbol("glFramebufferTexture1D", ::glFramebufferTexture1D, is_failed);
+	resolve_symbol("glFramebufferTexture2D", ::glFramebufferTexture2D, is_failed);
+	resolve_symbol("glFramebufferTexture3D", ::glFramebufferTexture3D, is_failed);
+	resolve_symbol("glFramebufferRenderbuffer", ::glFramebufferRenderbuffer, is_failed);
+	resolve_symbol("glGetFramebufferAttachmentParameteriv", ::glGetFramebufferAttachmentParameteriv, is_failed);
+	resolve_symbol("glGenerateMipmap", ::glGenerateMipmap, is_failed);
+	resolve_symbol("glBlitFramebuffer", ::glBlitFramebuffer, is_failed);
+	resolve_symbol("glRenderbufferStorageMultisample", ::glRenderbufferStorageMultisample, is_failed);
+	resolve_symbol("glFramebufferTextureLayer", ::glFramebufferTextureLayer, is_failed);
+
+	if (is_failed)
+	{
+		extension_gl_arb_framebuffer_object_clear_symbols();
+
+		return false;
+	}
+
+	return true;
+}
+
+void OglRendererUtils::extension_gl_arb_framebuffer_object_clear_symbols()
+{
+	::glIsRenderbuffer = nullptr;
+	::glBindRenderbuffer = nullptr;
+	::glDeleteRenderbuffers = nullptr;
+	::glGenRenderbuffers = nullptr;
+	::glRenderbufferStorage = nullptr;
+	::glGetRenderbufferParameteriv = nullptr;
+	::glIsFramebuffer = nullptr;
+	::glBindFramebuffer = nullptr;
+	::glDeleteFramebuffers = nullptr;
+	::glGenFramebuffers = nullptr;
+	::glCheckFramebufferStatus = nullptr;
+	::glFramebufferTexture1D = nullptr;
+	::glFramebufferTexture2D = nullptr;
+	::glFramebufferTexture3D = nullptr;
+	::glFramebufferRenderbuffer = nullptr;
+	::glGetFramebufferAttachmentParameteriv = nullptr;
+	::glGenerateMipmap = nullptr;
+	::glBlitFramebuffer = nullptr;
+	::glRenderbufferStorageMultisample = nullptr;
+	::glFramebufferTextureLayer = nullptr;
 }
 
 RendererUtilsExtensions OglRendererUtils::extensions_get_core()

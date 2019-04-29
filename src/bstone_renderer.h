@@ -695,6 +695,8 @@ struct RendererDeviceFeatures
 	int anisotropy_max_value_;
 
 	bool npot_is_available_;
+
+	bool mipmap_is_available_;
 }; // RendererDeviceFeatures
 
 //

@@ -455,6 +455,8 @@ private:
 	void texture_set(
 		Texture2dPtr new_texture_2d);
 
+	void texture_mipmap_generation_set_hint();
+
 	void texture_2d_set_defaults();
 
 

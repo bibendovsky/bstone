@@ -150,6 +150,7 @@ bool Ogl1XRenderer::Texture2d::initialize(
 	height_ = param.height_;
 
 	const auto& device_features = renderer_->device_features_;
+	const auto& ogl_device_features = renderer_->ogl_device_features_;
 
 	// Width.
 	//
@@ -230,7 +231,20 @@ bool Ogl1XRenderer::Texture2d::initialize(
 	auto mipmap_width = actual_width_;
 	auto mipmap_height = actual_height_;
 
-	for (int i_mipmap = 0; i_mipmap < mipmap_count_; ++i_mipmap)
+	auto mipmap_count = mipmap_count_;
+
+	if (is_generate_mipmaps_ && device_features.mipmap_is_available_)
+	{
+		mipmap_count = 1;
+
+		if (!ogl_device_features.extension_gl_arb_framebuffer_object_is_available_)
+		{
+			::glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+			assert(!OglRendererUtils::was_errors());
+		}
+	}
+
+	for (int i_mipmap = 0; i_mipmap < mipmap_count; ++i_mipmap)
 	{
 		::glTexImage2D(
 			GL_TEXTURE_2D, // target
@@ -297,13 +311,15 @@ void Ogl1XRenderer::Texture2d::upload_mipmap(
 void Ogl1XRenderer::Texture2d::update_mipmaps()
 {
 	const auto& device_features = renderer_->device_features_;
+	const auto& ogl_device_features = renderer_->ogl_device_features_;
+
 	const auto npot_is_available = device_features.npot_is_available_;
 
 	const auto max_subbuffer_size = actual_width_ * actual_height_;
 
 	auto max_buffer_size = max_subbuffer_size;
 
-	if (is_generate_mipmaps_)
+	if (is_generate_mipmaps_ && !device_features.mipmap_is_available_)
 	{
 		max_buffer_size *= 2;
 	}
@@ -316,7 +332,7 @@ void Ogl1XRenderer::Texture2d::update_mipmaps()
 	auto texture_subbuffer_0 = &renderer_->texture_buffer_[0];
 	auto texture_subbuffer_1 = RendererColor32Ptr{};
 
-	if (is_generate_mipmaps_)
+	if (is_generate_mipmaps_ && !device_features.mipmap_is_available_)
 	{
 		texture_subbuffer_1 = &renderer_->texture_buffer_[max_subbuffer_size];
 	}
@@ -373,7 +389,14 @@ void Ogl1XRenderer::Texture2d::update_mipmaps()
 	auto mipmap_width = actual_width_;
 	auto mipmap_height = actual_height_;
 
-	for (int i_mipmap = 0; i_mipmap < mipmap_count_; ++i_mipmap)
+	auto mipmap_count = mipmap_count_;
+
+	if (device_features.mipmap_is_available_)
+	{
+		mipmap_count = 1;
+	}
+
+	for (int i_mipmap = 0; i_mipmap < mipmap_count; ++i_mipmap)
 	{
 		if (i_mipmap > 0)
 		{
@@ -404,6 +427,13 @@ void Ogl1XRenderer::Texture2d::update_mipmaps()
 		}
 
 		upload_mipmap(i_mipmap, mipmap_width, mipmap_height, texture_subbuffer_0);
+	}
+
+	if (device_features.mipmap_is_available_ &&
+		ogl_device_features.extension_gl_arb_framebuffer_object_is_available_)
+	{
+		::glGenerateMipmap(GL_TEXTURE_2D);
+		assert(!OglRendererUtils::was_errors());
 	}
 }
 
@@ -1299,6 +1329,12 @@ bool Ogl1XRenderer::probe_or_initialize(
 			device_features_,
 			ogl_device_features_
 		);
+
+		OglRendererUtils::mipmap_probe(
+			extensions,
+			device_features_,
+			ogl_device_features_
+		);
 	}
 
 	if (is_succeed)
@@ -1727,6 +1763,18 @@ void Ogl1XRenderer::texture_set(
 	}
 }
 
+void Ogl1XRenderer::texture_mipmap_generation_set_hint()
+{
+	if (!ogl_device_features_.mipmap_is_available_ ||
+		ogl_device_features_.extension_gl_arb_framebuffer_object_is_available_)
+	{
+		return;
+	}
+
+	::glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
+	assert(!OglRendererUtils::was_errors());
+}
+
 void Ogl1XRenderer::texture_2d_set_defaults()
 {
 	texture_2d_is_enabled_ = true;
@@ -1734,6 +1782,8 @@ void Ogl1XRenderer::texture_2d_set_defaults()
 
 	texture_2d_current_ = nullptr;
 	texture_set();
+
+	texture_mipmap_generation_set_hint();
 }
 
 void Ogl1XRenderer::fog_enable()

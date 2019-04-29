@@ -339,7 +339,7 @@ PFNGLSCALEFPROC glScalef = nullptr;
 PFNGLTRANSLATEDPROC glTranslated = nullptr;
 PFNGLTRANSLATEFPROC glTranslatef = nullptr;
 
-#endif // !GL_VERSION_1_0
+#endif // GL_VERSION_1_0
 
 
 #ifdef GL_VERSION_1_1
@@ -375,4 +375,32 @@ PFNGLINDEXUBVPROC glIndexubv = nullptr;
 PFNGLPOPCLIENTATTRIBPROC glPopClientAttrib = nullptr;
 PFNGLPUSHCLIENTATTRIBPROC glPushClientAttrib = nullptr;
 
-#endif // !GL_VERSION_1_1
+#endif // GL_VERSION_1_1
+
+
+// GL_ARB_framebuffer_object
+
+#ifdef GL_ARB_framebuffer_object
+
+PFNGLISRENDERBUFFERPROC glIsRenderbuffer = nullptr;
+PFNGLBINDRENDERBUFFERPROC glBindRenderbuffer = nullptr;
+PFNGLDELETERENDERBUFFERSPROC glDeleteRenderbuffers = nullptr;
+PFNGLGENRENDERBUFFERSPROC glGenRenderbuffers = nullptr;
+PFNGLRENDERBUFFERSTORAGEPROC glRenderbufferStorage = nullptr;
+PFNGLGETRENDERBUFFERPARAMETERIVPROC glGetRenderbufferParameteriv = nullptr;
+PFNGLISFRAMEBUFFERPROC glIsFramebuffer = nullptr;
+PFNGLBINDFRAMEBUFFERPROC glBindFramebuffer = nullptr;
+PFNGLDELETEFRAMEBUFFERSPROC glDeleteFramebuffers = nullptr;
+PFNGLGENFRAMEBUFFERSPROC glGenFramebuffers = nullptr;
+PFNGLCHECKFRAMEBUFFERSTATUSPROC glCheckFramebufferStatus = nullptr;
+PFNGLFRAMEBUFFERTEXTURE1DPROC glFramebufferTexture1D = nullptr;
+PFNGLFRAMEBUFFERTEXTURE2DPROC glFramebufferTexture2D = nullptr;
+PFNGLFRAMEBUFFERTEXTURE3DPROC glFramebufferTexture3D = nullptr;
+PFNGLFRAMEBUFFERRENDERBUFFERPROC glFramebufferRenderbuffer = nullptr;
+PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC glGetFramebufferAttachmentParameteriv = nullptr;
+PFNGLGENERATEMIPMAPPROC glGenerateMipmap = nullptr;
+PFNGLBLITFRAMEBUFFERPROC glBlitFramebuffer = nullptr;
+PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC glRenderbufferStorageMultisample = nullptr;
+PFNGLFRAMEBUFFERTEXTURELAYERPROC glFramebufferTextureLayer = nullptr;
+
+#endif // GL_ARB_framebuffer_object
