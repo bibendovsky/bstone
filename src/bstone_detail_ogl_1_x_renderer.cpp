@@ -151,24 +151,34 @@ bool Ogl1XRenderer::Texture2d::initialize(
 
 	const auto& device_features = renderer_->device_features_;
 
-	actual_width_ = RendererUtils::find_nearest_pot_value(param.width_);
-
-	if (actual_width_ < device_features.min_texture_dimension_)
+	// Width.
+	//
+	if (device_features.npot_is_available_)
 	{
-		actual_width_ = device_features.min_texture_dimension_;
+		actual_width_ = param.width_;
 	}
-	else if (actual_width_ > device_features.max_texture_dimension_)
+	else
+	{
+		actual_width_ = RendererUtils::find_nearest_pot_value(param.width_);
+	}
+
+	if (actual_width_ > device_features.max_texture_dimension_)
 	{
 		actual_width_ = device_features.max_texture_dimension_;
 	}
 
-	actual_height_ = RendererUtils::find_nearest_pot_value(param.height_);
-
-	if (actual_height_ < device_features.min_texture_dimension_)
+	// Height.
+	//
+	if (device_features.npot_is_available_)
 	{
-		actual_height_ = device_features.min_texture_dimension_;
+		actual_height_ = param.height_;
 	}
-	else if (actual_height_ > device_features.max_texture_dimension_)
+	else
+	{
+		actual_height_ = RendererUtils::find_nearest_pot_value(param.height_);
+	}
+
+	if (actual_height_ > device_features.max_texture_dimension_)
 	{
 		actual_height_ = device_features.max_texture_dimension_;
 	}
@@ -286,6 +296,9 @@ void Ogl1XRenderer::Texture2d::upload_mipmap(
 
 void Ogl1XRenderer::Texture2d::update_mipmaps()
 {
+	const auto& device_features = renderer_->device_features_;
+	const auto npot_is_available = device_features.npot_is_available_;
+
 	const auto max_subbuffer_size = actual_width_ * actual_height_;
 
 	auto max_buffer_size = max_subbuffer_size;
@@ -312,7 +325,7 @@ void Ogl1XRenderer::Texture2d::update_mipmaps()
 
 	if (is_rgba_)
 	{
-		if (is_npot_)
+		if (is_npot_ && !npot_is_available)
 		{
 			RendererUtils::rgba_npot_to_rgba_pot(
 				width_,
@@ -1276,6 +1289,12 @@ bool Ogl1XRenderer::probe_or_initialize(
 		const auto& extensions = OglRendererUtils::extensions_get(false);
 
 		OglRendererUtils::anisotropy_probe(
+			extensions,
+			device_features_,
+			ogl_device_features_
+		);
+
+		OglRendererUtils::npot_probe(
 			extensions,
 			device_features_,
 			ogl_device_features_

@@ -374,6 +374,43 @@ void OglRendererUtils::anisotropy_probe(
 	}
 }
 
+// GL_ARB_texture_non_power_of_two
+const std::string& OglRendererUtils::extension_gl_arb_texture_non_power_of_two_get_name()
+{
+	static const auto result = "GL_ARB_texture_non_power_of_two"s;
+
+	return result;
+}
+
+void OglRendererUtils::npot_probe(
+	const RendererUtilsExtensions& extensions,
+	RendererDeviceFeatures& device_features,
+	OglRendererUtilsDeviceFeatures& ogl_device_features)
+{
+	auto dst_ogl_device_features = ogl_device_features;
+
+	if (!dst_ogl_device_features.npot_is_available_)
+	{
+		dst_ogl_device_features.npot_is_available_ = RendererUtils::extension_has(
+			extension_gl_arb_texture_non_power_of_two_get_name(),
+			extensions
+		);
+	}
+
+	if (dst_ogl_device_features.npot_is_available_)
+	{
+		device_features.npot_is_available_ = true;
+
+		ogl_device_features = dst_ogl_device_features;
+	}
+	else
+	{
+		device_features.npot_is_available_ = false;
+
+		ogl_device_features.npot_is_available_ = false;
+	}
+}
+
 void OglRendererUtils::clear_buffers()
 {
 	assert(::glClear != nullptr);
@@ -560,7 +597,6 @@ bool OglRendererUtils::renderer_features_set(
 
 	// Set the values.
 	//
-	device_features.min_texture_dimension_ = RendererUtils::absolute_min_texture_dimension;
 	device_features.max_texture_dimension_ = ogl_texture_dimension;
 
 	device_features.max_viewport_width_ = ogl_viewport_dimensions[0];

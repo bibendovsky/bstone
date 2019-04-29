@@ -685,7 +685,6 @@ struct RendererCommandManagerFactory
 
 struct RendererDeviceFeatures
 {
-	int min_texture_dimension_;
 	int max_texture_dimension_;
 
 	int max_viewport_width_;
@@ -694,6 +693,8 @@ struct RendererDeviceFeatures
 	bool anisotropy_is_available_;
 	int anisotropy_min_value_;
 	int anisotropy_max_value_;
+
+	bool npot_is_available_;
 }; // RendererDeviceFeatures
 
 //

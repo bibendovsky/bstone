@@ -59,6 +59,17 @@ struct OglRendererUtilsDeviceFeatures
 	//
 	// Anisotropy.
 	// ======================================================================
+
+
+	// ======================================================================
+	// Non-power-of-two textures.
+	//
+
+	bool npot_is_available_;
+
+	//
+	// Non-power-of-two textures.
+	// ======================================================================
 }; // OglRendererUtilsDeviceFeatures
 
 
@@ -123,6 +134,14 @@ public:
 		RendererDeviceFeatures& device_features,
 		OglRendererUtilsDeviceFeatures& ogl_device_features);
 
+
+	// GL_ARB_texture_non_power_of_two
+	static const std::string& extension_gl_arb_texture_non_power_of_two_get_name();
+
+	static void npot_probe(
+		const RendererUtilsExtensions& extensions,
+		RendererDeviceFeatures& device_features,
+		OglRendererUtilsDeviceFeatures& ogl_device_features);
 
 	static void clear_buffers();
 
