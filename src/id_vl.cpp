@@ -4101,6 +4101,7 @@ bool hw_2d_sampler_initialize()
 	param.state_.mipmap_mode_ = bstone::RendererMipmapMode::none;
 	param.state_.address_mode_u_ = bstone::RendererAddressMode::clamp;
 	param.state_.address_mode_v_ = bstone::RendererAddressMode::clamp;
+	param.state_.anisotropy_ = bstone::RendererSampler::anisotropy_min;
 
 	::hw_2d_so_ = ::hw_renderer_->sampler_create(param);
 
@@ -4124,6 +4125,7 @@ bool hw_3d_sampler_initialize_sprite()
 	param.state_.mipmap_mode_ = bstone::RendererMipmapMode::nearest;
 	param.state_.address_mode_u_ = bstone::RendererAddressMode::clamp;
 	param.state_.address_mode_v_ = bstone::RendererAddressMode::clamp;
+	param.state_.anisotropy_ = bstone::RendererSampler::anisotropy_min;
 
 	::hw_3d_sprite_so_ = ::hw_renderer_->sampler_create(param);
 
@@ -4147,6 +4149,7 @@ bool hw_3d_sampler_initialize_wall()
 	param.state_.mipmap_mode_ = bstone::RendererMipmapMode::nearest;
 	param.state_.address_mode_u_ = bstone::RendererAddressMode::repeat;
 	param.state_.address_mode_v_ = bstone::RendererAddressMode::repeat;
+	param.state_.anisotropy_ = bstone::RendererSampler::anisotropy_min;
 
 	::hw_3d_wall_so_ = ::hw_renderer_->sampler_create(param);
 
@@ -10756,6 +10759,7 @@ bool hw_3d_player_weapon_create_sampler()
 	param.state_.mipmap_mode_ = bstone::RendererMipmapMode::none;
 	param.state_.address_mode_u_ = bstone::RendererAddressMode::clamp;
 	param.state_.address_mode_v_ = bstone::RendererAddressMode::clamp;
+	param.state_.anisotropy_ = bstone::RendererSampler::anisotropy_min;
 
 	::hw_3d_player_weapon_so_ = ::hw_renderer_->sampler_create(param);
 

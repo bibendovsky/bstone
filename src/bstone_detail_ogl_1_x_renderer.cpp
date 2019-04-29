@@ -520,6 +520,17 @@ void Ogl1XRenderer::Texture2d::set_address_mode_v()
 	set_address_mode(sampler_state_.address_mode_v_);
 }
 
+void Ogl1XRenderer::Texture2d::set_anisotropy()
+{
+	const auto& ogl_device_features = renderer_->ogl_device_features_;
+
+	OglRendererUtils::anisotropy_set_value(
+		GL_TEXTURE_2D,
+		ogl_device_features,
+		sampler_state_.anisotropy_
+	);
+}
+
 void Ogl1XRenderer::Texture2d::update_sampler_state(
 	const RendererSamplerState& new_sampler_state)
 {
@@ -575,6 +586,19 @@ void Ogl1XRenderer::Texture2d::update_sampler_state(
 		sampler_state_.address_mode_v_ = new_sampler_state.address_mode_v_;
 	}
 
+	// Anisotropy.
+	//
+	auto is_anisotropy = false;
+
+	if (sampler_state_.anisotropy_ != new_sampler_state.anisotropy_)
+	{
+		is_modified = true;
+		is_anisotropy = true;
+
+		sampler_state_.anisotropy_ = new_sampler_state.anisotropy_;
+	}
+
+
 	// Modify.
 	//
 	if (is_modified)
@@ -600,6 +624,11 @@ void Ogl1XRenderer::Texture2d::update_sampler_state(
 		{
 			set_address_mode_v();
 		}
+
+		if (is_anisotropy)
+		{
+			set_anisotropy();
+		}
 	}
 }
 
@@ -617,6 +646,8 @@ void Ogl1XRenderer::Texture2d::set_sampler_state_defaults()
 
 	sampler_state_.address_mode_v_ = RendererAddressMode::clamp;
 	set_address_mode_v();
+
+	sampler_state_.anisotropy_ = RendererSampler::anisotropy_min;
 }
 
 //
@@ -719,6 +750,7 @@ Ogl1XRenderer::Ogl1XRenderer()
 	sdl_window_{},
 	sdl_gl_context_{},
 	device_features_{},
+	ogl_device_features_{},
 	screen_width_{},
 	screen_height_{},
 	palette_{},
@@ -776,6 +808,7 @@ Ogl1XRenderer::Ogl1XRenderer(
 	sdl_window_{std::move(rhs.sdl_window_)},
 	sdl_gl_context_{std::move(rhs.sdl_gl_context_)},
 	device_features_{std::move(rhs.device_features_)},
+	ogl_device_features_{std::move(rhs.ogl_device_features_)},
 	screen_width_{std::move(rhs.screen_width_)},
 	screen_height_{std::move(rhs.screen_height_)},
 	palette_{std::move(rhs.palette_)},
@@ -1240,6 +1273,17 @@ bool Ogl1XRenderer::probe_or_initialize(
 
 	if (is_succeed)
 	{
+		const auto& extensions = OglRendererUtils::extensions_get(false);
+
+		OglRendererUtils::anisotropy_probe(
+			extensions,
+			device_features_,
+			ogl_device_features_
+		);
+	}
+
+	if (is_succeed)
+	{
 		if (!create_default_sampler())
 		{
 			is_succeed = false;
@@ -1386,6 +1430,7 @@ void Ogl1XRenderer::uninitialize_internal(
 	if (!is_dtor)
 	{
 		device_features_ = {};
+		ogl_device_features_ = {};
 		screen_width_ = {};
 		screen_height_ = {};
 		palette_ = {};

@@ -39,6 +39,9 @@ Free Software Foundation, Inc.,
 #include "bstone_ogl.h"
 
 
+using namespace std::string_literals;
+
+
 namespace bstone
 {
 namespace detail
@@ -223,6 +226,151 @@ RendererUtilsExtensions OglRendererUtils::extensions_get(
 	else
 	{
 		return extensions_get_compatibility();
+	}
+}
+
+const std::string& OglRendererUtils::extension_gl_arb_texture_filter_anisotropic_get_name()
+{
+	static const auto result = "GL_ARB_texture_filter_anisotropic"s;
+
+	return result;
+}
+
+const std::string& OglRendererUtils::extension_gl_ext_texture_filter_anisotropic_get_name()
+{
+	static const auto result = "GL_EXT_texture_filter_anisotropic"s;
+
+	return result;
+}
+
+int OglRendererUtils::anisotropy_get_max_value(
+	const OglRendererUtilsDeviceFeatures& ogl_device_features)
+{
+	if (!ogl_device_features.anisotropy_is_available_)
+	{
+		return RendererSampler::anisotropy_min;
+	}
+
+	auto ogl_max_value_enum = GLenum{};
+	
+	if (ogl_device_features.anisotropy_is_ext_)
+	{
+		ogl_max_value_enum = GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT;
+	}
+	else
+	{
+		ogl_max_value_enum = GL_MAX_TEXTURE_MAX_ANISOTROPY;
+	}
+
+	auto ogl_max_value = GLfloat{};
+
+	::glGetFloatv(ogl_max_value_enum, &ogl_max_value);
+
+	assert(!OglRendererUtils::was_errors());
+
+	if (ogl_max_value == GLfloat{})
+	{
+		return RendererSampler::anisotropy_min;
+	}
+
+	return static_cast<int>(ogl_max_value);
+}
+
+void OglRendererUtils::anisotropy_set_value(
+	const GLenum ogl_target,
+	const OglRendererUtilsDeviceFeatures& ogl_device_features,
+	const int anisotropy_value)
+{
+	if (!ogl_device_features.anisotropy_is_available_)
+	{
+		return;
+	}
+
+	auto clamped_value = anisotropy_value;
+
+	if (clamped_value < RendererSampler::anisotropy_min)
+	{
+		clamped_value = RendererSampler::anisotropy_min;
+	}
+	else if (clamped_value > ogl_device_features.anisotropy_max_value_)
+	{
+		clamped_value = ogl_device_features.anisotropy_max_value_;
+	}
+
+	const auto ogl_value = static_cast<GLfloat>(clamped_value);
+
+	if (ogl_device_features.anisotropy_is_ext_)
+	{
+		::glTexParameterfv(ogl_target, GL_TEXTURE_MAX_ANISOTROPY_EXT, &ogl_value);
+	}
+	else
+	{
+		::glTexParameterfv(ogl_target, GL_TEXTURE_MAX_ANISOTROPY, &ogl_value);
+	}
+
+	assert(!OglRendererUtils::was_errors());
+}
+
+void OglRendererUtils::anisotropy_probe(
+	const RendererUtilsExtensions& extensions,
+	RendererDeviceFeatures& device_features,
+	OglRendererUtilsDeviceFeatures& ogl_device_features)
+{
+	auto dst_ogl_device_features = ogl_device_features;
+
+	if (!dst_ogl_device_features.anisotropy_is_available_)
+	{
+		dst_ogl_device_features.anisotropy_is_available_ = RendererUtils::extension_has(
+			extension_gl_arb_texture_filter_anisotropic_get_name(),
+			extensions
+		);
+
+		if (dst_ogl_device_features.anisotropy_is_available_)
+		{
+			dst_ogl_device_features.anisotropy_is_ext_ = false;
+		}
+	}
+
+	if (!dst_ogl_device_features.anisotropy_is_available_)
+	{
+		dst_ogl_device_features.anisotropy_is_available_ = RendererUtils::extension_has(
+			extension_gl_ext_texture_filter_anisotropic_get_name(),
+			extensions
+		);
+
+		if (dst_ogl_device_features.anisotropy_is_available_)
+		{
+			dst_ogl_device_features.anisotropy_is_ext_ = true;
+		}
+	}
+
+	if (dst_ogl_device_features.anisotropy_is_available_)
+	{
+		dst_ogl_device_features.anisotropy_max_value_ = anisotropy_get_max_value(dst_ogl_device_features);
+
+		if (dst_ogl_device_features.anisotropy_max_value_ <= RendererSampler::anisotropy_min)
+		{
+			dst_ogl_device_features.anisotropy_is_available_ = false;
+		}
+	}
+
+	if (dst_ogl_device_features.anisotropy_is_available_)
+	{
+		device_features.anisotropy_is_available_ = true;
+		device_features.anisotropy_min_value_ = RendererSampler::anisotropy_min;
+		device_features.anisotropy_max_value_ = dst_ogl_device_features.anisotropy_max_value_;
+
+		ogl_device_features = dst_ogl_device_features;
+	}
+	else
+	{
+		device_features.anisotropy_is_available_ = false;
+		device_features.anisotropy_min_value_ = RendererSampler::anisotropy_min;
+		device_features.anisotropy_max_value_ = RendererSampler::anisotropy_min;
+
+		ogl_device_features.anisotropy_is_available_ = false;
+		ogl_device_features.anisotropy_is_ext_ = false;
+		ogl_device_features.anisotropy_max_value_ = RendererSampler::anisotropy_min;
 	}
 }
 
@@ -1183,13 +1331,28 @@ RendererUtilsExtensions OglRendererUtils::extensions_get_compatibility()
 		return {};
 	}
 
-	auto iss = std::istringstream{reinterpret_cast<const char*>(ogl_extensions_string)};
-
-	return RendererUtilsExtensions
+	const auto& ogl_extensions_std_string = std::string
 	{
+		reinterpret_cast<const char*>(ogl_extensions_string)
+	};
+
+	const auto extension_count = 1 + static_cast<int>(std::count(
+		ogl_extensions_std_string.cbegin(),
+		ogl_extensions_std_string.cend(),
+		' '
+	));
+
+	auto iss = std::istringstream{ogl_extensions_std_string};
+
+	auto result = RendererUtilsExtensions{};
+	result.reserve(extension_count);
+
+	result.assign(
 		std::istream_iterator<std::string>{iss},
 		std::istream_iterator<std::string>{}
-	};
+	);
+
+	return result;
 }
 
 //

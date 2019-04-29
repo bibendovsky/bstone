@@ -46,6 +46,22 @@ namespace detail
 {
 
 
+struct OglRendererUtilsDeviceFeatures
+{
+	// ======================================================================
+	// Anisotropy.
+	//
+
+	bool anisotropy_is_available_;
+	bool anisotropy_is_ext_; // EXT (true) or ARB (false).
+	int anisotropy_max_value_;
+
+	//
+	// Anisotropy.
+	// ======================================================================
+}; // OglRendererUtilsDeviceFeatures
+
+
 class OglRendererUtils
 {
 public:
@@ -86,6 +102,26 @@ public:
 
 	static RendererUtilsExtensions extensions_get(
 		const bool is_core_profile);
+
+
+	// GL_ARB_texture_filter_anisotropic
+	static const std::string& extension_gl_arb_texture_filter_anisotropic_get_name();
+
+	// GL_EXT_texture_filter_anisotropic
+	static const std::string& extension_gl_ext_texture_filter_anisotropic_get_name();
+
+	static int anisotropy_get_max_value(
+		const OglRendererUtilsDeviceFeatures& ogl_device_features);
+
+	static void anisotropy_set_value(
+		const GLenum ogl_target,
+		const OglRendererUtilsDeviceFeatures& ogl_device_features,
+		const int anisotropy_value);
+
+	static void anisotropy_probe(
+		const RendererUtilsExtensions& extensions,
+		RendererDeviceFeatures& device_features,
+		OglRendererUtilsDeviceFeatures& ogl_device_features);
 
 
 	static void clear_buffers();

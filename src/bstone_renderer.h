@@ -335,6 +335,8 @@ struct RendererSamplerState
 
 	RendererAddressMode address_mode_u_;
 	RendererAddressMode address_mode_v_;
+
+	int anisotropy_;
 }; // RendererSamplerState
 
 struct RendererTexture2dCreateParam
@@ -401,6 +403,9 @@ protected:
 
 
 public:
+	static constexpr int anisotropy_min = 1;
+
+
 	virtual void update(
 		const RendererSamplerUpdateParam& param) = 0;
 }; // RendererSampler
@@ -685,6 +690,10 @@ struct RendererDeviceFeatures
 
 	int max_viewport_width_;
 	int max_viewport_height_;
+
+	bool anisotropy_is_available_;
+	int anisotropy_min_value_;
+	int anisotropy_max_value_;
 }; // RendererDeviceFeatures
 
 //

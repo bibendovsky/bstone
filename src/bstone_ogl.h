@@ -636,6 +636,18 @@ typedef void (APIENTRY *GLVULKANPROCNV)();
 #define GL_T4F_C4F_N3F_V4F 0x2A2D
 
 
+// GL_ARB_texture_filter_anisotropic
+
+#define GL_TEXTURE_MAX_ANISOTROPY 0x84FE
+#define GL_MAX_TEXTURE_MAX_ANISOTROPY 0x84FF
+
+
+// GL_EXT_texture_filter_anisotropic
+
+#define GL_TEXTURE_MAX_ANISOTROPY_EXT 0x84FE
+#define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
+
+
 #ifndef GL_VERSION_1_0
 #define GL_VERSION_1_0 1
 

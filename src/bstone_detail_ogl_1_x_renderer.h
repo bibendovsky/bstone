@@ -233,6 +233,8 @@ private:
 
 		void set_address_mode_v();
 
+		void set_anisotropy();
+
 		void update_sampler_state(
 			const RendererSamplerState& new_sampler_state);
 
@@ -334,6 +336,7 @@ private:
 	SdlGlContextUPtr sdl_gl_context_;
 
 	RendererDeviceFeatures device_features_;
+	detail::OglRendererUtilsDeviceFeatures ogl_device_features_;
 
 	int screen_width_;
 	int screen_height_;
