@@ -1313,11 +1313,7 @@ void CheckKeys()
 
 	if (in_is_binding_pressed(e_bi_flooring))
 	{
-		ThreeDRefresh();
-		ThreeDRefresh();
-
 		gamestate.flags ^= GS_DRAW_FLOOR;
-
 		in_reset_binding_state(e_bi_flooring);
 	}
 
