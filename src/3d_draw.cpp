@@ -544,6 +544,11 @@ extern const std::uint8_t* lightsource;
 
 void ScalePost()
 {
+	if (::vid_is_hw_)
+	{
+		return;
+	}
+
 	const auto height = ::wallheight[postx] / 8.0;
 
 	::postheight = height;
@@ -1204,6 +1209,11 @@ void vga_clear_screen(
 
 void VGAClearScreen()
 {
+	if (::vid_is_hw_)
+	{
+		return;
+	}
+
 	viewflags = gamestate.flags;
 
 	int half_height = viewheight / 2;
@@ -1635,6 +1645,11 @@ bool useBounceOffset = false;
 
 void DrawPlayerWeapon()
 {
+	if (::vid_is_hw_)
+	{
+		return;
+	}
+
 	if (::playstate == ex_victorious)
 	{
 		return;

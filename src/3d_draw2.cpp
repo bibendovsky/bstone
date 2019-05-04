@@ -178,6 +178,11 @@ void SetPlaneViewSize()
 
 void DrawPlanes()
 {
+	if (::vid_is_hw_)
+	{
+		return;
+	}
+
 	if ((::viewheight / 2) != ::halfheight)
 	{
 		::SetPlaneViewSize(); // screen size has changed

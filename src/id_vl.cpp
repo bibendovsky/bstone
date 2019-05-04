@@ -2162,7 +2162,6 @@ void hw_3d_update_player()
 
 void hw_initialize_vga_buffer()
 {
-	::sw_initialize_vga_buffer();
 }
 
 void hw_initialize_ui_buffer()
