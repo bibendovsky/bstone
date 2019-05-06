@@ -1821,6 +1821,12 @@ void Ogl1XRenderer::fog_set_distances()
 	assert(!OglRendererUtils::was_errors());
 }
 
+void Ogl1XRenderer::fog_set_hint()
+{
+	::glHint(GL_FOG_HINT, GL_NICEST);
+	assert(!OglRendererUtils::was_errors());
+}
+
 void Ogl1XRenderer::fog_set_defaults()
 {
 	fog_is_enabled_ = false;
@@ -1834,6 +1840,8 @@ void Ogl1XRenderer::fog_set_defaults()
 	fog_start_distance_ = 0.0F;
 	fog_end_distance_ = 1.0F;
 	fog_set_distances();
+
+	fog_set_hint();
 }
 
 void Ogl1XRenderer::matrix_set_model()

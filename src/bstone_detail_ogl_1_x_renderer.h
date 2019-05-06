@@ -468,6 +468,8 @@ private:
 
 	void fog_set_distances();
 
+	void fog_set_hint();
+
 	void fog_set_defaults();
 
 
