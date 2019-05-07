@@ -189,6 +189,30 @@ const RendererDeviceFeatures& OglRenderer::device_get_features() const
 	return renderer_->device_get_features();
 }
 
+bool OglRenderer::device_is_lost() const
+{
+	assert(is_initialized_);
+	assert(renderer_);
+
+	return renderer_->device_is_lost();
+}
+
+bool OglRenderer::device_is_ready_to_reset() const
+{
+	assert(is_initialized_);
+	assert(renderer_);
+
+	return renderer_->device_is_ready_to_reset();
+}
+
+void OglRenderer::device_reset()
+{
+	assert(is_initialized_);
+	assert(renderer_);
+
+	renderer_->device_reset();
+}
+
 void OglRenderer::window_show(
 	const bool is_visible)
 {

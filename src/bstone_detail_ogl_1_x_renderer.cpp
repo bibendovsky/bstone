@@ -976,6 +976,20 @@ const RendererDeviceFeatures& Ogl1XRenderer::device_get_features() const
 	return device_features_;
 }
 
+bool Ogl1XRenderer::device_is_lost() const
+{
+	return false;
+}
+
+bool Ogl1XRenderer::device_is_ready_to_reset() const
+{
+	return true;
+}
+
+void Ogl1XRenderer::device_reset()
+{
+}
+
 void Ogl1XRenderer::window_show(
 	const bool is_visible)
 {

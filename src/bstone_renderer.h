@@ -746,6 +746,12 @@ public:
 
 	virtual const RendererDeviceFeatures& device_get_features() const = 0;
 
+	virtual bool device_is_lost() const = 0;
+
+	virtual bool device_is_ready_to_reset() const = 0;
+
+	virtual void device_reset() = 0;
+
 
 	virtual void window_show(
 		const bool is_visible) = 0;

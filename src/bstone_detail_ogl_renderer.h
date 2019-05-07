@@ -89,7 +89,14 @@ public:
 
 	RendererPath get_path() const override;
 
+
 	const RendererDeviceFeatures& device_get_features() const override;
+
+	bool device_is_lost() const override;
+
+	bool device_is_ready_to_reset() const override;
+
+	void device_reset() override;
 
 
 	void window_show(
