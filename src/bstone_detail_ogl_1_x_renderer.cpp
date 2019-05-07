@@ -971,7 +971,7 @@ RendererPath Ogl1XRenderer::get_path() const
 	return RendererPath::ogl_1_x;
 }
 
-const RendererDeviceFeatures& Ogl1XRenderer::get_device_features() const
+const RendererDeviceFeatures& Ogl1XRenderer::device_get_features() const
 {
 	return device_features_;
 }

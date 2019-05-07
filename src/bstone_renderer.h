@@ -743,7 +743,8 @@ public:
 
 	virtual RendererPath get_path() const = 0;
 
-	virtual const RendererDeviceFeatures& get_device_features() const = 0;
+
+	virtual const RendererDeviceFeatures& device_get_features() const = 0;
 
 
 	virtual void window_show(
