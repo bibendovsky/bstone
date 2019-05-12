@@ -75,6 +75,9 @@ public:
 
 	virtual RendererTexture2dPtr sprite_get(
 		const int id) const = 0;
+
+
+	virtual bool device_on_reset() = 0;
 }; // RendererTextureManager
 
 using RendererTextureManagerPtr = RendererTextureManager*;

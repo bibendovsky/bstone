@@ -82,6 +82,9 @@ public:
 		const int id) const override;
 
 
+	bool device_on_reset() override;
+
+
 	void initialize(
 		RendererPtr renderer,
 		SpriteCachePtr sprite_cache);
@@ -146,6 +149,8 @@ public:
 	RendererTexture2dPtr sprite_get(
 		const int id) const;
 
+	bool device_on_reset();
+
 
 	void initialize(
 		RendererPtr renderer,
@@ -198,9 +203,22 @@ private:
 	RendererTexture2dPtr missing_wall_texture_2d_;
 
 
-	bool initialize_missing_sprite_texture();
+	void destroy_missing_sprite_texture();
 
-	bool initialize_missing_wall_texture();
+	bool create_missing_sprite_texture();
+
+
+	void destroy_missing_wall_texture();
+
+	bool create_missing_wall_texture();
+
+
+	RendererTexture2dPtr wall_create_texture(
+		const int wall_id);
+
+	RendererTexture2dPtr sprite_create_texture(
+		const int sprite_id);
+
 
 	bool initialize_internal(
 		RendererPtr renderer,
@@ -367,29 +385,10 @@ bool RendererTextureManagerImpl::Detail::wall_cache(
 		return true;
 	}
 
-	const auto indexed_pixels = static_cast<const std::uint8_t*>(::PM_GetPage(id));
+	auto texture_2d = wall_create_texture(id);
 
-	if (!indexed_pixels)
+	if (texture_2d == nullptr)
 	{
-		error_message_ = "Null data.";
-
-		return false;
-	}
-
-	auto param = RendererTexture2dCreateParam{};
-	param.is_generate_mipmaps_ = true;
-	param.indexed_is_column_major_ = true;
-	param.width_ = wall_dimension;
-	param.height_ = wall_dimension;
-	param.indexed_pixels_ = indexed_pixels;
-
-	auto texture_2d = renderer_->texture_2d_create(param);
-
-	if (!texture_2d)
-	{
-		error_message_ = "Failed to create a wall texture. ";
-		error_message_ += renderer_->get_error_message();
-
 		return false;
 	}
 
@@ -448,35 +447,10 @@ bool RendererTextureManagerImpl::Detail::sprite_cache(
 		return true;
 	}
 
-	auto sprite = sprite_cache_->cache(id);
+	auto texture_2d = sprite_create_texture(id);
 
-	if (!sprite)
+	if (texture_2d == nullptr)
 	{
-		error_message_ = "Failed to cache a sprite #" + std::to_string(id) + ".";
-
-		return false;
-	}
-
-	if (!sprite->is_initialized())
-	{
-		error_message_ = "Sprite #" + std::to_string(id) + " not initialized.";
-
-		return false;
-	}
-
-	auto param = RendererTexture2dCreateParam{};
-	param.is_generate_mipmaps_ = true;
-	param.width_ = Sprite::dimension;
-	param.height_ = Sprite::dimension;
-	param.indexed_sprite_ = sprite;
-
-	auto texture_2d = renderer_->texture_2d_create(param);
-
-	if (!texture_2d)
-	{
-		error_message_ = "Failed to create a sprite texture. ";
-		error_message_ += renderer_->get_error_message();
-
 		return false;
 	}
 
@@ -507,6 +481,76 @@ RendererTexture2dPtr RendererTextureManagerImpl::Detail::sprite_get(
 	}
 
 	return get_texture_2d(ImageKind::sprite, id, sprite_map_);
+}
+
+bool RendererTextureManagerImpl::Detail::device_on_reset()
+{
+	if (is_initialized_)
+	{
+		error_message_ = "Not initialized.";
+
+		return false;
+	}
+
+	// Missing sprite texture.
+	//
+	{
+		destroy_missing_sprite_texture();
+
+		if (!create_missing_sprite_texture())
+		{
+			return false;
+		}
+	}
+
+	// Missing wall texture.
+	//
+	{
+		destroy_missing_wall_texture();
+
+		if (!create_missing_wall_texture())
+		{
+			return false;
+		}
+	}
+
+	// Sprites.
+	//
+	for (auto& sprite_item : sprite_map_)
+	{
+		const auto sprite_id = sprite_item.first;
+		auto& texture_2d = sprite_item.second.texture_2d_;
+
+		renderer_->texture_2d_destroy(texture_2d);
+		texture_2d = nullptr;
+
+		texture_2d = sprite_create_texture(sprite_id);
+
+		if (texture_2d == nullptr)
+		{
+			return false;
+		}
+	}
+
+	// Walls.
+	//
+	for (auto& wall_item : wall_map_)
+	{
+		const auto wall_id = wall_item.first;
+		auto& texture_2d = wall_item.second.texture_2d_;
+
+		renderer_->texture_2d_destroy(texture_2d);
+		texture_2d = nullptr;
+
+		texture_2d = sprite_create_texture(wall_id);
+
+		if (texture_2d == nullptr)
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 void RendererTextureManagerImpl::Detail::initialize(
@@ -557,28 +601,28 @@ void RendererTextureManagerImpl::Detail::uninitialize_internal()
 
 	sprite_map_.clear();
 
-	// Missing sprite.
-	//
-	if (missing_sprite_texture_2d_)
-	{
-		renderer_->texture_2d_destroy(missing_sprite_texture_2d_);
-		missing_sprite_texture_2d_ = nullptr;
-	}
-
-	// Missing wall.
-	//
-	if (missing_wall_texture_2d_)
-	{
-		renderer_->texture_2d_destroy(missing_wall_texture_2d_);
-		missing_wall_texture_2d_ = nullptr;
-	}
+	destroy_missing_sprite_texture();
+	destroy_missing_wall_texture();
 
 	renderer_ = nullptr;
 	sprite_cache_ = nullptr;
 }
 
-bool RendererTextureManagerImpl::Detail::initialize_missing_sprite_texture()
+void RendererTextureManagerImpl::Detail::destroy_missing_sprite_texture()
 {
+	if (missing_sprite_texture_2d_ == nullptr)
+	{
+		return;
+	}
+
+	renderer_->texture_2d_destroy(missing_sprite_texture_2d_);
+	missing_sprite_texture_2d_ = nullptr;
+}
+
+bool RendererTextureManagerImpl::Detail::create_missing_sprite_texture()
+{
+	destroy_missing_sprite_texture();
+
 	const auto& raw_image = get_missing_sprite_image();
 	const auto rgba_image = reinterpret_cast<const RendererColor32*>(raw_image.data());
 
@@ -591,7 +635,7 @@ bool RendererTextureManagerImpl::Detail::initialize_missing_sprite_texture()
 
 	auto texture_2d = renderer_->texture_2d_create(param);
 
-	if (!texture_2d)
+	if (texture_2d == nullptr)
 	{
 		error_message_ = "Failed to create a missing sprite texture. ";
 		error_message_ += renderer_->get_error_message();
@@ -604,8 +648,21 @@ bool RendererTextureManagerImpl::Detail::initialize_missing_sprite_texture()
 	return true;
 }
 
-bool RendererTextureManagerImpl::Detail::initialize_missing_wall_texture()
+void RendererTextureManagerImpl::Detail::destroy_missing_wall_texture()
 {
+	if (missing_wall_texture_2d_ == nullptr)
+	{
+		return;
+	}
+
+	renderer_->texture_2d_destroy(missing_wall_texture_2d_);
+	missing_wall_texture_2d_ = nullptr;
+}
+
+bool RendererTextureManagerImpl::Detail::create_missing_wall_texture()
+{
+	destroy_missing_wall_texture();
+
 	const auto& raw_image = get_missing_wall_image();
 	const auto rgba_image = reinterpret_cast<const RendererColor32*>(raw_image.data());
 
@@ -617,7 +674,7 @@ bool RendererTextureManagerImpl::Detail::initialize_missing_wall_texture()
 
 	auto texture_2d = renderer_->texture_2d_create(param);
 
-	if (!texture_2d)
+	if (texture_2d == nullptr)
 	{
 		error_message_ = "Failed to create a missing wall texture. ";
 		error_message_ += renderer_->get_error_message();
@@ -630,18 +687,88 @@ bool RendererTextureManagerImpl::Detail::initialize_missing_wall_texture()
 	return true;
 }
 
+RendererTexture2dPtr RendererTextureManagerImpl::Detail::wall_create_texture(
+	const int wall_id)
+{
+	const auto indexed_pixels = static_cast<const std::uint8_t*>(::PM_GetPage(wall_id));
+
+	if (indexed_pixels == nullptr)
+	{
+		error_message_ = "Null data.";
+
+		return nullptr;
+	}
+
+	auto param = RendererTexture2dCreateParam{};
+	param.is_generate_mipmaps_ = true;
+	param.indexed_is_column_major_ = true;
+	param.width_ = wall_dimension;
+	param.height_ = wall_dimension;
+	param.indexed_pixels_ = indexed_pixels;
+
+	auto texture_2d = renderer_->texture_2d_create(param);
+
+	if (texture_2d == nullptr)
+	{
+		error_message_ = "Failed to create a wall texture. ";
+		error_message_ += renderer_->get_error_message();
+
+		return nullptr;
+	}
+
+	return texture_2d;
+}
+
+RendererTexture2dPtr RendererTextureManagerImpl::Detail::sprite_create_texture(
+	const int sprite_id)
+{
+	auto sprite = sprite_cache_->cache(sprite_id);
+
+	if (sprite == nullptr)
+	{
+		error_message_ = "Failed to cache a sprite #" + std::to_string(sprite_id) + ".";
+
+		return nullptr;
+	}
+
+	if (!sprite->is_initialized())
+	{
+		error_message_ = "Sprite #" + std::to_string(sprite_id) + " not initialized.";
+
+		return nullptr;
+	}
+
+	auto param = RendererTexture2dCreateParam{};
+	param.is_generate_mipmaps_ = true;
+	param.width_ = Sprite::dimension;
+	param.height_ = Sprite::dimension;
+	param.indexed_sprite_ = sprite;
+
+	auto texture_2d = renderer_->texture_2d_create(param);
+
+	if (texture_2d == nullptr)
+	{
+		error_message_ = "Failed to create a sprite texture. ";
+		error_message_ += renderer_->get_error_message();
+
+		return nullptr;
+	}
+
+	return texture_2d;
+}
+
 bool RendererTextureManagerImpl::Detail::initialize_internal(
 	RendererPtr renderer,
 	SpriteCachePtr sprite_cache)
 {
-	if (!renderer)
+	if (renderer == nullptr)
 	{
 		error_message_ = "Null renderer.";
 
 		return false;
 	}
 
-	if (!sprite_cache)
+	if (sprite_cache == nullptr)
 	{
 		error_message_ = "Null sprite cache.";
 
@@ -651,12 +778,12 @@ bool RendererTextureManagerImpl::Detail::initialize_internal(
 	renderer_ = renderer;
 	sprite_cache_ = sprite_cache;
 
-	if (!initialize_missing_sprite_texture())
+	if (!create_missing_sprite_texture())
 	{
 		return false;
 	}
 
-	if (!initialize_missing_wall_texture())
+	if (!create_missing_wall_texture())
 	{
 		return false;
 	}
@@ -798,6 +925,13 @@ RendererTexture2dPtr RendererTextureManagerImpl::sprite_get(
 	auto& instance = get_instance();
 
 	return instance.sprite_get(id);
+}
+
+bool RendererTextureManagerImpl::device_on_reset()
+{
+	auto& instance = get_instance();
+
+	return instance.device_on_reset();
 }
 
 void RendererTextureManagerImpl::initialize(
