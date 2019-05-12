@@ -26,6 +26,7 @@ Free Software Foundation, Inc.,
 
 
 #include <cassert>
+#include <algorithm>
 #include <chrono>
 #include <unordered_set>
 #include "SDL_hints.h"
@@ -2088,8 +2089,8 @@ void hw_vertex_input_add_attribute_description(
 	bstone::RendererVertexBufferPtr vertex_buffer,
 	bstone::RendererVertexAttributeDescriptions& attribute_descriptions)
 {
-	constexpr auto& traits = HwVertexAttributeTraits<TVertex, TLocation>{};
-	constexpr auto& add_attribute = HwVertexInputAddAttributeDescription<TVertex, TLocation, traits.is_valid>{};
+	const auto& traits = HwVertexAttributeTraits<TVertex, TLocation>{};
+	const auto& add_attribute = HwVertexInputAddAttributeDescription<TVertex, TLocation, traits.is_valid>{};
 
 	add_attribute(
 		format,
@@ -6743,25 +6744,25 @@ void hw_precache_ceiling()
 	}
 }
 
-constexpr bool hw_tile_is_activated_pushwall(
+bool hw_tile_is_activated_pushwall(
 	const int tile)
 {
 	return (tile & ::tilemap_door_flags) == ::tilemap_door_flags;
 }
 
-constexpr bool hw_tile_is_door(
+bool hw_tile_is_door(
 	const int tile)
 {
 	return (tile & ::tilemap_door_flags) == ::tilemap_door_flag;
 }
 
-constexpr bool hw_tile_is_door_track(
+bool hw_tile_is_door_track(
 	const int tile)
 {
 	return (tile & ::tilemap_door_flags) == ::tilemap_door_track_flag;
 }
 
-constexpr bool hw_tile_is_solid_wall(
+bool hw_tile_is_solid_wall(
 	const int tile)
 {
 	if (tile == 0)
@@ -6782,7 +6783,7 @@ constexpr bool hw_tile_is_solid_wall(
 	return true;
 }
 
-constexpr bool hw_tile_is_pushwall(
+bool hw_tile_is_pushwall(
 	const int x,
 	const int y)
 {
@@ -6813,7 +6814,7 @@ constexpr bool hw_tile_is_pushwall(
 	return false;
 }
 
-constexpr bool hw_tile_is_solid_wall(
+bool hw_tile_is_solid_wall(
 	const int x,
 	const int y)
 {
@@ -7091,7 +7092,7 @@ void hw_update_vertex_xyz(
 	TVertex& vertex,
 	const HwVertexPosition& xyz)
 {
-	constexpr auto& traits = HwVertexAttributeTraits<TVertex, bstone::RendererVertexAttributeLocation::position>{};
+	const auto& traits = HwVertexAttributeTraits<TVertex, bstone::RendererVertexAttributeLocation::position>{};
 
 	HwUpdateVertexXyz<TVertex, traits.is_valid>{}(vertex, xyz);
 }
@@ -7123,7 +7124,7 @@ void hw_update_vertex_rgba(
 	TVertex& vertex,
 	const HwVertexColor& rgba)
 {
-	constexpr auto& traits = HwVertexAttributeTraits<TVertex, bstone::RendererVertexAttributeLocation::color>{};
+	const auto& traits = HwVertexAttributeTraits<TVertex, bstone::RendererVertexAttributeLocation::color>{};
 
 	HwUpdateVertexRgba<TVertex, traits.is_valid>{}(vertex, rgba);
 }
@@ -7155,7 +7156,7 @@ void hw_update_vertex_uv(
 	TVertex& vertex,
 	const HwVertexTextureCoordinates& uv)
 {
-	constexpr auto& traits = HwVertexAttributeTraits<TVertex, bstone::RendererVertexAttributeLocation::texture_coordinates>{};
+	const auto& traits = HwVertexAttributeTraits<TVertex, bstone::RendererVertexAttributeLocation::texture_coordinates>{};
 
 	HwUpdateVertexUv<TVertex, traits.is_valid>{}(vertex, uv);
 }

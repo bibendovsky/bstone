@@ -2367,7 +2367,7 @@ bool ImagesDumper::save_image(
 {
 	const auto image_index_digits = 8;
 
-	auto& wall_index_string = std::to_string(image_index);
+	auto wall_index_string = std::to_string(image_index);
 	wall_index_string.reserve(image_index_digits);
 
 	const auto pad_count = image_index_digits - static_cast<int>(wall_index_string.size());
@@ -2383,7 +2383,7 @@ bool ImagesDumper::save_image(
 
 	if (sdl_result != 0)
 	{
-		auto& error_message = "Failed to save an image into \"" + file_name + "\". ";
+		auto error_message = "Failed to save an image into \"" + file_name + "\". ";
 		error_message += ::SDL_GetError();
 
 		bstone::Log::write_error(error_message);
@@ -2436,7 +2436,7 @@ bool ImagesDumper::dump_sprite(
 	}
 	catch (const std::runtime_error& ex)
 	{
-		auto& error_message = "Failed to cache a sprite #" + std::to_string(sprite_index) + ". ";
+		auto error_message = "Failed to cache a sprite #" + std::to_string(sprite_index) + ". ";
 		error_message += ex.what();
 
 		bstone::Log::write_error(error_message);

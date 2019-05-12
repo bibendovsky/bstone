@@ -29,6 +29,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_precompiled.h"
 #include "bstone_renderer.h"
+#include <algorithm>
 
 
 namespace bstone

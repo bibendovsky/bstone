@@ -114,14 +114,14 @@ SdlWindowUPtr RendererUtils::create_window(
 	{
 		error_message_ = error_message_prefix + error_message_;
 
-		return false;
+		return nullptr;
 	}
 
 	if (!create_window_set_ogl_attributes())
 	{
 		error_message_ = error_message_prefix + error_message_;
 
-		return false;
+		return nullptr;
 	}
 
 	const auto sdl_flags = create_window_sdl_flags(param);

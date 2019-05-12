@@ -32,6 +32,8 @@ Free Software Foundation, Inc.,
 #include "bstone_precompiled.h"
 #include "bstone_detail_ogl_renderer_utils.h"
 #include <cassert>
+#include <algorithm>
+#include <iterator>
 #include <limits>
 #include <sstream>
 #include "SDL_video.h"

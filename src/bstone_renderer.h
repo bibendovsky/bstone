@@ -32,6 +32,7 @@ Free Software Foundation, Inc.,
 
 
 #include <array>
+#include <memory>
 #include <string>
 #include <vector>
 #include "bstone_renderer_color_32.h"

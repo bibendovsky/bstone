@@ -416,7 +416,7 @@ RendererTexture2dPtr RendererTextureManagerImpl::Detail::wall_get(
 	{
 		error_message_ = "Id out of range.";
 
-		return false;
+		return nullptr;
 	}
 
 	return get_texture_2d(ImageKind::wall, id, wall_map_);
@@ -503,7 +503,7 @@ RendererTexture2dPtr RendererTextureManagerImpl::Detail::sprite_get(
 	{
 		error_message_ = "Id out of range.";
 
-		return false;
+		return nullptr;
 	}
 
 	return get_texture_2d(ImageKind::sprite, id, sprite_map_);
