@@ -162,16 +162,8 @@ target_include_directories(
 	${PROJECT_NAME}
 	PRIVATE
 		dosbox
-		libs/glm
+		lib/glm
 )
-
-if (NOT WIN32 OR MINGW)
-	target_include_directories(
-		${PROJECT_NAME}
-		PRIVATE
-			dosbox
-	)
-endif ()
 
 if (BSTONE_PANDORA)
 	target_include_directories(
