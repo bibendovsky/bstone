@@ -686,6 +686,8 @@ struct RendererCommandManagerFactory
 
 struct RendererDeviceFeatures
 {
+	bool is_losable_;
+
 	int max_texture_dimension_;
 
 	int max_viewport_width_;
