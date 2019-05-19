@@ -10404,6 +10404,11 @@ void hw_3d_statics_build()
 		::Quit("Failed to initialize statics.");
 	}
 
+	if (::statobjlist == nullptr || ::laststatobj == nullptr)
+	{
+		return;
+	}
+
 	for (auto bs_static = ::statobjlist; bs_static != ::laststatobj; ++bs_static)
 	{
 		if (bs_static->shapenum == -1 ||
@@ -10425,7 +10430,12 @@ void hw_3d_actors_build()
 		::Quit("Failed to initialize actors.");
 	}
 
-	for (auto bs_actor = ::player->next; bs_actor; bs_actor = bs_actor->next)
+	if (::player == nullptr)
+	{
+		return;
+	}
+
+	for (auto bs_actor = ::player->next; bs_actor != nullptr; bs_actor = bs_actor->next)
 	{
 		::hw_3d_actor_map(*bs_actor);
 	}
