@@ -45,9 +45,6 @@ namespace detail
 {
 
 
-using RendererUtilsExtensions = std::vector<std::string>;
-
-
 class RendererUtilsCreateWindowParam
 {
 public:
@@ -131,10 +128,6 @@ public:
 
 	static bool is_ogl_renderer_path(
 		const RendererPath renderer_path);
-
-	static bool extension_has(
-		const std::string& extension_name,
-		const RendererUtilsExtensions& extensions);
 
 
 	// Converts indexed, opaque or transparent, power-of-two pixels to RGBA ones.

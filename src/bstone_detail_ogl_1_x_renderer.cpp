@@ -36,6 +36,7 @@ Free Software Foundation, Inc.,
 #include "glm/gtc/type_ptr.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "bstone_detail_ogl_renderer_utils.h"
+#include "bstone_detail_ogl_extension_manager.h"
 
 
 namespace bstone
@@ -235,9 +236,11 @@ bool Ogl1XRenderer::Texture2d::initialize(
 
 	if (is_generate_mipmaps_ && device_features.mipmap_is_available_)
 	{
+		auto extension_manager = renderer_->extension_manager_.get();
+
 		mipmap_count = 1;
 
-		if (!ogl_device_features.extension_gl_arb_framebuffer_object_is_available_)
+		if (extension_manager->has_extension(OglExtensionId::sgis_generate_mipmap))
 		{
 			::glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
 			assert(!OglRendererUtils::was_errors());
@@ -429,11 +432,24 @@ void Ogl1XRenderer::Texture2d::update_mipmaps()
 		upload_mipmap(i_mipmap, mipmap_width, mipmap_height, texture_subbuffer_0);
 	}
 
-	if (device_features.mipmap_is_available_ &&
-		ogl_device_features.extension_gl_arb_framebuffer_object_is_available_)
+	if (device_features.mipmap_is_available_)
 	{
-		::glGenerateMipmap(GL_TEXTURE_2D);
-		assert(!OglRendererUtils::was_errors());
+		auto extension_manager = renderer_->extension_manager_.get();
+
+		if (extension_manager->has_extension(OglExtensionId::arb_framebuffer_object))
+		{
+			::glGenerateMipmap(GL_TEXTURE_2D);
+			assert(!OglRendererUtils::was_errors());
+		}
+		else if (extension_manager->has_extension(OglExtensionId::ext_framebuffer_object))
+		{
+			::glGenerateMipmapEXT(GL_TEXTURE_2D);
+			assert(!OglRendererUtils::was_errors());
+		}
+		else
+		{
+			assert(!"Mipmap generation ia available but not utilized.");
+		}
 	}
 }
 
@@ -792,6 +808,7 @@ Ogl1XRenderer::Ogl1XRenderer()
 	probe_renderer_path_{},
 	sdl_window_{},
 	sdl_gl_context_{},
+	extension_manager_{},
 	device_features_{},
 	ogl_device_features_{},
 	screen_width_{},
@@ -850,6 +867,7 @@ Ogl1XRenderer::Ogl1XRenderer(
 	probe_renderer_path_{std::move(rhs.probe_renderer_path_)},
 	sdl_window_{std::move(rhs.sdl_window_)},
 	sdl_gl_context_{std::move(rhs.sdl_gl_context_)},
+	extension_manager_{std::move(rhs.extension_manager_)},
 	device_features_{std::move(rhs.device_features_)},
 	ogl_device_features_{std::move(rhs.ogl_device_features_)},
 	screen_width_{std::move(rhs.screen_width_)},
@@ -1263,6 +1281,7 @@ bool Ogl1XRenderer::probe_or_initialize(
 	auto is_succeed = true;
 	auto sdl_window = SdlWindowUPtr{};
 	auto sdl_gl_context = SdlGlContextUPtr{};
+	auto extension_manager = OglExtensionManagerUPtr{};
 	int screen_width = 0;
 	int screen_height = 0;
 
@@ -1310,7 +1329,33 @@ bool Ogl1XRenderer::probe_or_initialize(
 
 	if (is_succeed)
 	{
-		if (!OglRendererUtils::resolve_symbols_1_1())
+		extension_manager = detail::OglExtensionManagerFactory::create();
+
+		if (extension_manager == nullptr)
+		{
+			error_message_ = "Failed to create an extension manager.";
+
+			is_succeed = false;
+		}
+	}
+
+	if (is_succeed)
+	{
+		extension_manager->probe_extension(OglExtensionId::v1_0);
+
+		if (!extension_manager->has_extension(OglExtensionId::v1_0))
+		{
+			error_message_ = "Failed to load OpenGL 1.0 symbols.";
+
+			is_succeed = false;
+		}
+	}
+
+	if (is_succeed)
+	{
+		extension_manager->probe_extension(OglExtensionId::v1_1);
+
+		if (!extension_manager->has_extension(OglExtensionId::v1_1))
 		{
 			error_message_ = "Failed to load OpenGL 1.1 symbols.";
 
@@ -1330,22 +1375,25 @@ bool Ogl1XRenderer::probe_or_initialize(
 
 	if (is_succeed)
 	{
-		const auto& extensions = OglRendererUtils::extensions_get(false);
+		ogl_device_features_.context_type_ = OglRendererUtils::context_get_type();
+	}
 
+	if (is_succeed)
+	{
 		OglRendererUtils::anisotropy_probe(
-			extensions,
+			extension_manager.get(),
 			device_features_,
 			ogl_device_features_
 		);
 
 		OglRendererUtils::npot_probe(
-			extensions,
+			extension_manager.get(),
 			device_features_,
 			ogl_device_features_
 		);
 
 		OglRendererUtils::mipmap_probe(
-			extensions,
+			extension_manager.get(),
 			device_features_,
 			ogl_device_features_
 		);
@@ -1367,6 +1415,7 @@ bool Ogl1XRenderer::probe_or_initialize(
 	is_initialized_ = true;
 	sdl_window_ = std::move(sdl_window);
 	sdl_gl_context_ = std::move(sdl_gl_context);
+	extension_manager_ = std::move(extension_manager);
 	screen_width_ = screen_width;
 	screen_height_ = screen_height;
 
@@ -1498,6 +1547,7 @@ void Ogl1XRenderer::uninitialize_internal(
 
 	if (!is_dtor)
 	{
+		extension_manager_ = {};
 		device_features_ = {};
 		ogl_device_features_ = {};
 		screen_width_ = {};
@@ -1779,14 +1829,27 @@ void Ogl1XRenderer::texture_set(
 
 void Ogl1XRenderer::texture_mipmap_generation_set_hint()
 {
-	if (!ogl_device_features_.mipmap_is_available_ ||
-		ogl_device_features_.extension_gl_arb_framebuffer_object_is_available_)
+	if (!ogl_device_features_.mipmap_is_available_)
 	{
 		return;
 	}
 
-	::glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
-	assert(!OglRendererUtils::was_errors());
+	if (ogl_device_features_.context_type_ == OglRendererUtilsContextType::core)
+	{
+		return;
+	}
+
+	if (extension_manager_->has_extension(OglExtensionId::arb_framebuffer_object) ||
+		extension_manager_->has_extension(OglExtensionId::ext_framebuffer_object))
+	{
+		::glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
+		assert(!OglRendererUtils::was_errors());
+	}
+	else if (extension_manager_->has_extension(OglExtensionId::sgis_generate_mipmap))
+	{
+		::glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
+		assert(!OglRendererUtils::was_errors());
+	}
 }
 
 void Ogl1XRenderer::texture_2d_set_defaults()

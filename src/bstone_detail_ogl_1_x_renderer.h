@@ -36,6 +36,7 @@ Free Software Foundation, Inc.,
 #include <array>
 #include <list>
 #include <vector>
+#include "bstone_detail_ogl_extension_manager.h"
 #include "bstone_detail_ogl_renderer.h"
 #include "bstone_detail_ogl_renderer_utils.h"
 #include "bstone_ogl.h"
@@ -341,6 +342,8 @@ private:
 
 	SdlWindowUPtr sdl_window_;
 	SdlGlContextUPtr sdl_gl_context_;
+
+	OglExtensionManagerUPtr extension_manager_;
 
 	RendererDeviceFeatures device_features_;
 	detail::OglRendererUtilsDeviceFeatures ogl_device_features_;

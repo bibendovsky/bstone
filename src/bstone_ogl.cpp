@@ -23,12 +23,16 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL.
+// OpenGL types, tokens, procedures and functions.
 //
 
 
 #include "bstone_ogl.h"
 
+
+// ==========================================================================
+// OpenGL 1.0
+//
 
 #ifdef GL_VERSION_1_0
 
@@ -341,6 +345,14 @@ PFNGLTRANSLATEFPROC glTranslatef = nullptr;
 
 #endif // GL_VERSION_1_0
 
+//
+// OpenGL 1.0
+// ==========================================================================
+
+
+// ==========================================================================
+// OpenGL 1.1
+//
 
 #ifdef GL_VERSION_1_1
 
@@ -377,8 +389,80 @@ PFNGLPUSHCLIENTATTRIBPROC glPushClientAttrib = nullptr;
 
 #endif // GL_VERSION_1_1
 
+//
+// OpenGL 1.1
+// ==========================================================================
 
-// GL_ARB_framebuffer_object
+
+// ==========================================================================
+// OpenGL 3.0
+//
+
+#ifdef GL_VERSION_3_0
+
+PFNGLCOLORMASKIPROC glColorMaski = nullptr;
+PFNGLGETBOOLEANI_VPROC glGetBooleani_v = nullptr;
+PFNGLGETINTEGERI_VPROC glGetIntegeri_v = nullptr;
+PFNGLENABLEIPROC glEnablei = nullptr;
+PFNGLDISABLEIPROC glDisablei = nullptr;
+PFNGLISENABLEDIPROC glIsEnabledi = nullptr;
+PFNGLBEGINTRANSFORMFEEDBACKPROC glBeginTransformFeedback = nullptr;
+PFNGLENDTRANSFORMFEEDBACKPROC glEndTransformFeedback = nullptr;
+PFNGLBINDBUFFERRANGEPROC glBindBufferRange = nullptr;
+PFNGLBINDBUFFERBASEPROC glBindBufferBase = nullptr;
+PFNGLTRANSFORMFEEDBACKVARYINGSPROC glTransformFeedbackVaryings = nullptr;
+PFNGLGETTRANSFORMFEEDBACKVARYINGPROC glGetTransformFeedbackVarying = nullptr;
+PFNGLCLAMPCOLORPROC glClampColor = nullptr;
+PFNGLBEGINCONDITIONALRENDERPROC glBeginConditionalRender = nullptr;
+PFNGLENDCONDITIONALRENDERPROC glEndConditionalRender = nullptr;
+PFNGLVERTEXATTRIBIPOINTERPROC glVertexAttribIPointer = nullptr;
+PFNGLGETVERTEXATTRIBIIVPROC glGetVertexAttribIiv = nullptr;
+PFNGLGETVERTEXATTRIBIUIVPROC glGetVertexAttribIuiv = nullptr;
+PFNGLVERTEXATTRIBI1IPROC glVertexAttribI1i = nullptr;
+PFNGLVERTEXATTRIBI2IPROC glVertexAttribI2i = nullptr;
+PFNGLVERTEXATTRIBI3IPROC glVertexAttribI3i = nullptr;
+PFNGLVERTEXATTRIBI4IPROC glVertexAttribI4i = nullptr;
+PFNGLVERTEXATTRIBI1UIPROC glVertexAttribI1ui = nullptr;
+PFNGLVERTEXATTRIBI2UIPROC glVertexAttribI2ui = nullptr;
+PFNGLVERTEXATTRIBI3UIPROC glVertexAttribI3ui = nullptr;
+PFNGLVERTEXATTRIBI4UIPROC glVertexAttribI4ui = nullptr;
+PFNGLVERTEXATTRIBI1IVPROC glVertexAttribI1iv = nullptr;
+PFNGLVERTEXATTRIBI2IVPROC glVertexAttribI2iv = nullptr;
+PFNGLVERTEXATTRIBI3IVPROC glVertexAttribI3iv = nullptr;
+PFNGLVERTEXATTRIBI4IVPROC glVertexAttribI4iv = nullptr;
+PFNGLVERTEXATTRIBI1UIVPROC glVertexAttribI1uiv = nullptr;
+PFNGLVERTEXATTRIBI2UIVPROC glVertexAttribI2uiv = nullptr;
+PFNGLVERTEXATTRIBI3UIVPROC glVertexAttribI3uiv = nullptr;
+PFNGLVERTEXATTRIBI4UIVPROC glVertexAttribI4uiv = nullptr;
+PFNGLVERTEXATTRIBI4BVPROC glVertexAttribI4bv = nullptr;
+PFNGLVERTEXATTRIBI4SVPROC glVertexAttribI4sv = nullptr;
+PFNGLVERTEXATTRIBI4UBVPROC glVertexAttribI4ubv = nullptr;
+PFNGLVERTEXATTRIBI4USVPROC glVertexAttribI4usv = nullptr;
+PFNGLGETUNIFORMUIVPROC glGetUniformuiv = nullptr;
+PFNGLBINDFRAGDATALOCATIONPROC glBindFragDataLocation = nullptr;
+PFNGLGETFRAGDATALOCATIONPROC glGetFragDataLocation = nullptr;
+PFNGLUNIFORM1UIPROC glUniform1ui = nullptr;
+PFNGLUNIFORM2UIPROC glUniform2ui = nullptr;
+PFNGLUNIFORM3UIPROC glUniform3ui = nullptr;
+PFNGLUNIFORM4UIPROC glUniform4ui = nullptr;
+PFNGLUNIFORM1UIVPROC glUniform1uiv = nullptr;
+PFNGLUNIFORM2UIVPROC glUniform2uiv = nullptr;
+PFNGLUNIFORM3UIVPROC glUniform3uiv = nullptr;
+PFNGLUNIFORM4UIVPROC glUniform4uiv = nullptr;
+PFNGLTEXPARAMETERIIVPROC glTexParameterIiv = nullptr;
+PFNGLTEXPARAMETERIUIVPROC glTexParameterIuiv = nullptr;
+PFNGLGETTEXPARAMETERIIVPROC glGetTexParameterIiv = nullptr;
+PFNGLGETTEXPARAMETERIUIVPROC glGetTexParameterIuiv = nullptr;
+PFNGLCLEARBUFFERIVPROC glClearBufferiv = nullptr;
+PFNGLCLEARBUFFERUIVPROC glClearBufferuiv = nullptr;
+PFNGLCLEARBUFFERFVPROC glClearBufferfv = nullptr;
+PFNGLCLEARBUFFERFIPROC glClearBufferfi = nullptr;
+PFNGLGETSTRINGIPROC glGetStringi = nullptr;
+
+
+#ifdef GL_ARB_depth_buffer_float
+#endif // GL_ARB_depth_buffer_float
+
 
 #ifdef GL_ARB_framebuffer_object
 
@@ -404,3 +488,121 @@ PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC glRenderbufferStorageMultisample = nullp
 PFNGLFRAMEBUFFERTEXTURELAYERPROC glFramebufferTextureLayer = nullptr;
 
 #endif // GL_ARB_framebuffer_object
+
+
+#ifdef GL_ARB_texture_float
+#endif // GL_ARB_texture_float
+
+
+#ifdef GL_ARB_framebuffer_sRGB
+#endif // GL_ARB_framebuffer_sRGB
+
+
+#ifdef GL_ARB_half_float_vertex
+#endif // GL_ARB_half_float_vertex
+
+
+#ifdef GL_ARB_map_buffer_range
+
+PFNGLMAPBUFFERRANGEPROC glMapBufferRange = nullptr;
+PFNGLFLUSHMAPPEDBUFFERRANGEPROC glFlushMappedBufferRange = nullptr;
+
+#endif // GL_ARB_map_buffer_range
+
+
+#ifdef GL_ARB_texture_compression_rgtc
+#endif // GL_ARB_texture_compression_rgtc
+
+
+#ifdef GL_ARB_texture_rg
+#endif // GL_ARB_texture_rg
+
+
+#ifdef GL_ARB_vertex_array_object
+
+PFNGLBINDVERTEXARRAYPROC glBindVertexArray = nullptr;
+PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays = nullptr;
+PFNGLGENVERTEXARRAYSPROC glGenVertexArrays = nullptr;
+PFNGLISVERTEXARRAYPROC glIsVertexArray = nullptr;
+
+#endif // GL_ARB_vertex_array_object
+
+
+#endif // GL_VERSION_3_0
+
+//
+// OpenGL 3.0
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_EXT_framebuffer_blit
+//
+
+#ifdef GL_EXT_framebuffer_blit
+
+PFNGLBLITFRAMEBUFFEREXTPROC glBlitFramebufferEXT = nullptr;
+
+#endif // GL_EXT_framebuffer_blit
+
+//
+// GL_EXT_framebuffer_blit
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_EXT_framebuffer_multisample
+//
+
+#ifdef GL_EXT_framebuffer_multisample
+
+PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC glRenderbufferStorageMultisampleEXT = nullptr;
+
+#endif // GL_EXT_framebuffer_multisample
+
+//
+// GL_EXT_framebuffer_multisample
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_EXT_framebuffer_object
+//
+
+#ifdef GL_EXT_framebuffer_object
+
+PFNGLISRENDERBUFFEREXTPROC glIsRenderbufferEXT = nullptr;
+PFNGLBINDRENDERBUFFEREXTPROC glBindRenderbufferEXT = nullptr;
+PFNGLDELETERENDERBUFFERSEXTPROC glDeleteRenderbuffersEXT = nullptr;
+PFNGLGENRENDERBUFFERSEXTPROC glGenRenderbuffersEXT = nullptr;
+PFNGLRENDERBUFFERSTORAGEEXTPROC glRenderbufferStorageEXT = nullptr;
+PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC glGetRenderbufferParameterivEXT = nullptr;
+PFNGLISFRAMEBUFFEREXTPROC glIsFramebufferEXT = nullptr;
+PFNGLBINDFRAMEBUFFEREXTPROC glBindFramebufferEXT = nullptr;
+PFNGLDELETEFRAMEBUFFERSEXTPROC glDeleteFramebuffersEXT = nullptr;
+PFNGLGENFRAMEBUFFERSEXTPROC glGenFramebuffersEXT = nullptr;
+PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC glCheckFramebufferStatusEXT = nullptr;
+PFNGLFRAMEBUFFERTEXTURE1DEXTPROC glFramebufferTexture1DEXT = nullptr;
+PFNGLFRAMEBUFFERTEXTURE2DEXTPROC glFramebufferTexture2DEXT = nullptr;
+PFNGLFRAMEBUFFERTEXTURE3DEXTPROC glFramebufferTexture3DEXT = nullptr;
+PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC glFramebufferRenderbufferEXT = nullptr;
+PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC glGetFramebufferAttachmentParameterivEXT = nullptr;
+PFNGLGENERATEMIPMAPEXTPROC glGenerateMipmapEXT = nullptr;
+
+#endif // GL_EXT_framebuffer_object
+
+//
+// GL_EXT_framebuffer_object
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_EXT_packed_depth_stencil
+//
+
+#ifdef GL_EXT_packed_depth_stencil
+#endif // GL_EXT_packed_depth_stencil
+
+//
+// GL_EXT_packed_depth_stencil
+// ==========================================================================

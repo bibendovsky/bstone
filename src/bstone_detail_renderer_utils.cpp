@@ -582,25 +582,6 @@ bool RendererUtils::is_ogl_renderer_path(
 	}
 }
 
-bool RendererUtils::extension_has(
-	const std::string& extension_name,
-	const RendererUtilsExtensions& extensions)
-{
-	if (extension_name.empty() || extensions.empty())
-	{
-		return false;
-	}
-
-	return std::any_of(
-		extensions.cbegin(),
-		extensions.cend(),
-		[&](const auto& item)
-		{
-			return item == extension_name;
-		}
-	);
-}
-
 void RendererUtils::indexed_pot_to_rgba_pot(
 	const int width,
 	const int height,
