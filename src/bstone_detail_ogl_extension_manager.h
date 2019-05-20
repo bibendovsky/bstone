@@ -48,11 +48,29 @@ enum class OglExtensionId
 	// Virtual extensions.
 	//
 
-	// OpenGL 1.0 specific symbols.
+	// OpenGL 1.0.
 	v1_0,
 
-	// OpenGL 1.1 specific symbols.
+	// OpenGL 1.1.
 	v1_1,
+
+	// OpenGL 1.2.
+	v1_2,
+
+	// OpenGL 1.3.
+	v1_3,
+
+	// OpenGL 1.4.
+	v1_4,
+
+	// OpenGL 1.5.
+	v1_5,
+
+	// OpenGL 2.0.
+	v2_0,
+
+	// OpenGL 2.1.
+	v2_1,
 
 
 	// Real extensions.
@@ -66,9 +84,14 @@ enum class OglExtensionId
 	ext_framebuffer_multisample,
 	ext_framebuffer_object,
 	ext_packed_depth_stencil,
+	ext_texture,
 	ext_texture_filter_anisotropic,
 
 	sgis_generate_mipmap,
+
+
+	// Item count.
+	count_,
 }; // OglExtensionId
 
 

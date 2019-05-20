@@ -395,6 +395,301 @@ PFNGLPUSHCLIENTATTRIBPROC glPushClientAttrib = nullptr;
 
 
 // ==========================================================================
+// OpenGL v1.2
+//
+
+#ifdef GL_VERSION_1_2
+
+PFNGLDRAWRANGEELEMENTSPROC glDrawRangeElements = nullptr;
+PFNGLTEXIMAGE3DPROC glTexImage3D = nullptr;
+PFNGLTEXSUBIMAGE3DPROC glTexSubImage3D = nullptr;
+PFNGLCOPYTEXSUBIMAGE3DPROC glCopyTexSubImage3D = nullptr;
+
+#endif // GL_VERSION_1_2
+
+//
+// OpenGL v1.2
+// ==========================================================================
+
+
+// ==========================================================================
+// OpenGL v1.3
+//
+
+#ifdef GL_VERSION_1_3
+
+PFNGLACTIVETEXTUREPROC glActiveTexture = nullptr;
+PFNGLSAMPLECOVERAGEPROC glSampleCoverage = nullptr;
+PFNGLCOMPRESSEDTEXIMAGE3DPROC glCompressedTexImage3D = nullptr;
+PFNGLCOMPRESSEDTEXIMAGE2DPROC glCompressedTexImage2D = nullptr;
+PFNGLCOMPRESSEDTEXIMAGE1DPROC glCompressedTexImage1D = nullptr;
+PFNGLCOMPRESSEDTEXSUBIMAGE3DPROC glCompressedTexSubImage3D = nullptr;
+PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC glCompressedTexSubImage2D = nullptr;
+PFNGLCOMPRESSEDTEXSUBIMAGE1DPROC glCompressedTexSubImage1D = nullptr;
+PFNGLGETCOMPRESSEDTEXIMAGEPROC glGetCompressedTexImage = nullptr;
+PFNGLCLIENTACTIVETEXTUREPROC glClientActiveTexture = nullptr;
+PFNGLMULTITEXCOORD1DPROC glMultiTexCoord1d = nullptr;
+PFNGLMULTITEXCOORD1DVPROC glMultiTexCoord1dv = nullptr;
+PFNGLMULTITEXCOORD1FPROC glMultiTexCoord1f = nullptr;
+PFNGLMULTITEXCOORD1FVPROC glMultiTexCoord1fv = nullptr;
+PFNGLMULTITEXCOORD1IPROC glMultiTexCoord1i = nullptr;
+PFNGLMULTITEXCOORD1IVPROC glMultiTexCoord1iv = nullptr;
+PFNGLMULTITEXCOORD1SPROC glMultiTexCoord1s = nullptr;
+PFNGLMULTITEXCOORD1SVPROC glMultiTexCoord1sv = nullptr;
+PFNGLMULTITEXCOORD2DPROC glMultiTexCoord2d = nullptr;
+PFNGLMULTITEXCOORD2DVPROC glMultiTexCoord2dv = nullptr;
+PFNGLMULTITEXCOORD2FPROC glMultiTexCoord2f = nullptr;
+PFNGLMULTITEXCOORD2FVPROC glMultiTexCoord2fv = nullptr;
+PFNGLMULTITEXCOORD2IPROC glMultiTexCoord2i = nullptr;
+PFNGLMULTITEXCOORD2IVPROC glMultiTexCoord2iv = nullptr;
+PFNGLMULTITEXCOORD2SPROC glMultiTexCoord2s = nullptr;
+PFNGLMULTITEXCOORD2SVPROC glMultiTexCoord2sv = nullptr;
+PFNGLMULTITEXCOORD3DPROC glMultiTexCoord3d = nullptr;
+PFNGLMULTITEXCOORD3DVPROC glMultiTexCoord3dv = nullptr;
+PFNGLMULTITEXCOORD3FPROC glMultiTexCoord3f = nullptr;
+PFNGLMULTITEXCOORD3FVPROC glMultiTexCoord3fv = nullptr;
+PFNGLMULTITEXCOORD3IPROC glMultiTexCoord3i = nullptr;
+PFNGLMULTITEXCOORD3IVPROC glMultiTexCoord3iv = nullptr;
+PFNGLMULTITEXCOORD3SPROC glMultiTexCoord3s = nullptr;
+PFNGLMULTITEXCOORD3SVPROC glMultiTexCoord3sv = nullptr;
+PFNGLMULTITEXCOORD4DPROC glMultiTexCoord4d = nullptr;
+PFNGLMULTITEXCOORD4DVPROC glMultiTexCoord4dv = nullptr;
+PFNGLMULTITEXCOORD4FPROC glMultiTexCoord4f = nullptr;
+PFNGLMULTITEXCOORD4FVPROC glMultiTexCoord4fv = nullptr;
+PFNGLMULTITEXCOORD4IPROC glMultiTexCoord4i = nullptr;
+PFNGLMULTITEXCOORD4IVPROC glMultiTexCoord4iv = nullptr;
+PFNGLMULTITEXCOORD4SPROC glMultiTexCoord4s = nullptr;
+PFNGLMULTITEXCOORD4SVPROC glMultiTexCoord4sv = nullptr;
+PFNGLLOADTRANSPOSEMATRIXFPROC glLoadTransposeMatrixf = nullptr;
+PFNGLLOADTRANSPOSEMATRIXDPROC glLoadTransposeMatrixd = nullptr;
+PFNGLMULTTRANSPOSEMATRIXFPROC glMultTransposeMatrixf = nullptr;
+PFNGLMULTTRANSPOSEMATRIXDPROC glMultTransposeMatrixd = nullptr;
+
+#endif // GL_VERSION_1_3
+
+//
+// OpenGL v1.3
+// ==========================================================================
+
+
+// ==========================================================================
+// OpenGL v1.4
+//
+
+#ifdef GL_VERSION_1_4
+
+PFNGLBLENDFUNCSEPARATEPROC glBlendFuncSeparate = nullptr;
+PFNGLMULTIDRAWARRAYSPROC glMultiDrawArrays = nullptr;
+PFNGLMULTIDRAWELEMENTSPROC glMultiDrawElements = nullptr;
+PFNGLPOINTPARAMETERFPROC glPointParameterf = nullptr;
+PFNGLPOINTPARAMETERFVPROC glPointParameterfv = nullptr;
+PFNGLPOINTPARAMETERIPROC glPointParameteri = nullptr;
+PFNGLPOINTPARAMETERIVPROC glPointParameteriv = nullptr;
+PFNGLFOGCOORDFPROC glFogCoordf = nullptr;
+PFNGLFOGCOORDFVPROC glFogCoordfv = nullptr;
+PFNGLFOGCOORDDPROC glFogCoordd = nullptr;
+PFNGLFOGCOORDDVPROC glFogCoorddv = nullptr;
+PFNGLFOGCOORDPOINTERPROC glFogCoordPointer = nullptr;
+PFNGLSECONDARYCOLOR3BPROC glSecondaryColor3b = nullptr;
+PFNGLSECONDARYCOLOR3BVPROC glSecondaryColor3bv = nullptr;
+PFNGLSECONDARYCOLOR3DPROC glSecondaryColor3d = nullptr;
+PFNGLSECONDARYCOLOR3DVPROC glSecondaryColor3dv = nullptr;
+PFNGLSECONDARYCOLOR3FPROC glSecondaryColor3f = nullptr;
+PFNGLSECONDARYCOLOR3FVPROC glSecondaryColor3fv = nullptr;
+PFNGLSECONDARYCOLOR3IPROC glSecondaryColor3i = nullptr;
+PFNGLSECONDARYCOLOR3IVPROC glSecondaryColor3iv = nullptr;
+PFNGLSECONDARYCOLOR3SPROC glSecondaryColor3s = nullptr;
+PFNGLSECONDARYCOLOR3SVPROC glSecondaryColor3sv = nullptr;
+PFNGLSECONDARYCOLOR3UBPROC glSecondaryColor3ub = nullptr;
+PFNGLSECONDARYCOLOR3UBVPROC glSecondaryColor3ubv = nullptr;
+PFNGLSECONDARYCOLOR3UIPROC glSecondaryColor3ui = nullptr;
+PFNGLSECONDARYCOLOR3UIVPROC glSecondaryColor3uiv = nullptr;
+PFNGLSECONDARYCOLOR3USPROC glSecondaryColor3us = nullptr;
+PFNGLSECONDARYCOLOR3USVPROC glSecondaryColor3usv = nullptr;
+PFNGLSECONDARYCOLORPOINTERPROC glSecondaryColorPointer = nullptr;
+PFNGLWINDOWPOS2DPROC glWindowPos2d = nullptr;
+PFNGLWINDOWPOS2DVPROC glWindowPos2dv = nullptr;
+PFNGLWINDOWPOS2FPROC glWindowPos2f = nullptr;
+PFNGLWINDOWPOS2FVPROC glWindowPos2fv = nullptr;
+PFNGLWINDOWPOS2IPROC glWindowPos2i = nullptr;
+PFNGLWINDOWPOS2IVPROC glWindowPos2iv = nullptr;
+PFNGLWINDOWPOS2SPROC glWindowPos2s = nullptr;
+PFNGLWINDOWPOS2SVPROC glWindowPos2sv = nullptr;
+PFNGLWINDOWPOS3DPROC glWindowPos3d = nullptr;
+PFNGLWINDOWPOS3DVPROC glWindowPos3dv = nullptr;
+PFNGLWINDOWPOS3FPROC glWindowPos3f = nullptr;
+PFNGLWINDOWPOS3FVPROC glWindowPos3fv = nullptr;
+PFNGLWINDOWPOS3IPROC glWindowPos3i = nullptr;
+PFNGLWINDOWPOS3IVPROC glWindowPos3iv = nullptr;
+PFNGLWINDOWPOS3SPROC glWindowPos3s = nullptr;
+PFNGLWINDOWPOS3SVPROC glWindowPos3sv = nullptr;
+PFNGLBLENDCOLORPROC glBlendColor = nullptr;
+PFNGLBLENDEQUATIONPROC glBlendEquation = nullptr;
+
+#endif // GL_VERSION_1_4
+
+//
+// OpenGL v1.4
+// ==========================================================================
+
+
+#ifdef GL_VERSION_1_5
+
+PFNGLGENQUERIESPROC glGenQueries = nullptr;
+PFNGLDELETEQUERIESPROC glDeleteQueries = nullptr;
+PFNGLISQUERYPROC glIsQuery = nullptr;
+PFNGLBEGINQUERYPROC glBeginQuery = nullptr;
+PFNGLENDQUERYPROC glEndQuery = nullptr;
+PFNGLGETQUERYIVPROC glGetQueryiv = nullptr;
+PFNGLGETQUERYOBJECTIVPROC glGetQueryObjectiv = nullptr;
+PFNGLGETQUERYOBJECTUIVPROC glGetQueryObjectuiv = nullptr;
+PFNGLBINDBUFFERPROC glBindBuffer = nullptr;
+PFNGLDELETEBUFFERSPROC glDeleteBuffers = nullptr;
+PFNGLGENBUFFERSPROC glGenBuffers = nullptr;
+PFNGLISBUFFERPROC glIsBuffer = nullptr;
+PFNGLBUFFERDATAPROC glBufferData = nullptr;
+PFNGLBUFFERSUBDATAPROC glBufferSubData = nullptr;
+PFNGLGETBUFFERSUBDATAPROC glGetBufferSubData = nullptr;
+PFNGLMAPBUFFERPROC glMapBuffer = nullptr;
+PFNGLUNMAPBUFFERPROC glUnmapBuffer = nullptr;
+PFNGLGETBUFFERPARAMETERIVPROC glGetBufferParameteriv = nullptr;
+PFNGLGETBUFFERPOINTERVPROC glGetBufferPointerv = nullptr;
+
+#endif // GL_VERSION_1_5
+
+//
+// OpenGL v1.5
+// ==========================================================================
+
+
+// ==========================================================================
+// OpenGL v2.0
+//
+
+#ifdef GL_VERSION_2_0
+
+PFNGLBLENDEQUATIONSEPARATEPROC glBlendEquationSeparate = nullptr;
+PFNGLDRAWBUFFERSPROC glDrawBuffers = nullptr;
+PFNGLSTENCILOPSEPARATEPROC glStencilOpSeparate = nullptr;
+PFNGLSTENCILFUNCSEPARATEPROC glStencilFuncSeparate = nullptr;
+PFNGLSTENCILMASKSEPARATEPROC glStencilMaskSeparate = nullptr;
+PFNGLATTACHSHADERPROC glAttachShader = nullptr;
+PFNGLBINDATTRIBLOCATIONPROC glBindAttribLocation = nullptr;
+PFNGLCOMPILESHADERPROC glCompileShader = nullptr;
+PFNGLCREATEPROGRAMPROC glCreateProgram = nullptr;
+PFNGLCREATESHADERPROC glCreateShader = nullptr;
+PFNGLDELETEPROGRAMPROC glDeleteProgram = nullptr;
+PFNGLDELETESHADERPROC glDeleteShader = nullptr;
+PFNGLDETACHSHADERPROC glDetachShader = nullptr;
+PFNGLDISABLEVERTEXATTRIBARRAYPROC glDisableVertexAttribArray = nullptr;
+PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray = nullptr;
+PFNGLGETACTIVEATTRIBPROC glGetActiveAttrib = nullptr;
+PFNGLGETACTIVEUNIFORMPROC glGetActiveUniform = nullptr;
+PFNGLGETATTACHEDSHADERSPROC glGetAttachedShaders = nullptr;
+PFNGLGETATTRIBLOCATIONPROC glGetAttribLocation = nullptr;
+PFNGLGETPROGRAMIVPROC glGetProgramiv = nullptr;
+PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog = nullptr;
+PFNGLGETSHADERIVPROC glGetShaderiv = nullptr;
+PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog = nullptr;
+PFNGLGETSHADERSOURCEPROC glGetShaderSource = nullptr;
+PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation = nullptr;
+PFNGLGETUNIFORMFVPROC glGetUniformfv = nullptr;
+PFNGLGETUNIFORMIVPROC glGetUniformiv = nullptr;
+PFNGLGETVERTEXATTRIBDVPROC glGetVertexAttribdv = nullptr;
+PFNGLGETVERTEXATTRIBFVPROC glGetVertexAttribfv = nullptr;
+PFNGLGETVERTEXATTRIBIVPROC glGetVertexAttribiv = nullptr;
+PFNGLGETVERTEXATTRIBPOINTERVPROC glGetVertexAttribPointerv = nullptr;
+PFNGLISPROGRAMPROC glIsProgram = nullptr;
+PFNGLISSHADERPROC glIsShader = nullptr;
+PFNGLLINKPROGRAMPROC glLinkProgram = nullptr;
+PFNGLSHADERSOURCEPROC glShaderSource = nullptr;
+PFNGLUSEPROGRAMPROC glUseProgram = nullptr;
+PFNGLUNIFORM1FPROC glUniform1f = nullptr;
+PFNGLUNIFORM2FPROC glUniform2f = nullptr;
+PFNGLUNIFORM3FPROC glUniform3f = nullptr;
+PFNGLUNIFORM4FPROC glUniform4f = nullptr;
+PFNGLUNIFORM1IPROC glUniform1i = nullptr;
+PFNGLUNIFORM2IPROC glUniform2i = nullptr;
+PFNGLUNIFORM3IPROC glUniform3i = nullptr;
+PFNGLUNIFORM4IPROC glUniform4i = nullptr;
+PFNGLUNIFORM1FVPROC glUniform1fv = nullptr;
+PFNGLUNIFORM2FVPROC glUniform2fv = nullptr;
+PFNGLUNIFORM3FVPROC glUniform3fv = nullptr;
+PFNGLUNIFORM4FVPROC glUniform4fv = nullptr;
+PFNGLUNIFORM1IVPROC glUniform1iv = nullptr;
+PFNGLUNIFORM2IVPROC glUniform2iv = nullptr;
+PFNGLUNIFORM3IVPROC glUniform3iv = nullptr;
+PFNGLUNIFORM4IVPROC glUniform4iv = nullptr;
+PFNGLUNIFORMMATRIX2FVPROC glUniformMatrix2fv = nullptr;
+PFNGLUNIFORMMATRIX3FVPROC glUniformMatrix3fv = nullptr;
+PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv = nullptr;
+PFNGLVALIDATEPROGRAMPROC glValidateProgram = nullptr;
+PFNGLVERTEXATTRIB1DPROC glVertexAttrib1d = nullptr;
+PFNGLVERTEXATTRIB1DVPROC glVertexAttrib1dv = nullptr;
+PFNGLVERTEXATTRIB1FPROC glVertexAttrib1f = nullptr;
+PFNGLVERTEXATTRIB1FVPROC glVertexAttrib1fv = nullptr;
+PFNGLVERTEXATTRIB1SPROC glVertexAttrib1s = nullptr;
+PFNGLVERTEXATTRIB1SVPROC glVertexAttrib1sv = nullptr;
+PFNGLVERTEXATTRIB2DPROC glVertexAttrib2d = nullptr;
+PFNGLVERTEXATTRIB2DVPROC glVertexAttrib2dv = nullptr;
+PFNGLVERTEXATTRIB2FPROC glVertexAttrib2f = nullptr;
+PFNGLVERTEXATTRIB2FVPROC glVertexAttrib2fv = nullptr;
+PFNGLVERTEXATTRIB2SPROC glVertexAttrib2s = nullptr;
+PFNGLVERTEXATTRIB2SVPROC glVertexAttrib2sv = nullptr;
+PFNGLVERTEXATTRIB3DPROC glVertexAttrib3d = nullptr;
+PFNGLVERTEXATTRIB3DVPROC glVertexAttrib3dv = nullptr;
+PFNGLVERTEXATTRIB3FPROC glVertexAttrib3f = nullptr;
+PFNGLVERTEXATTRIB3FVPROC glVertexAttrib3fv = nullptr;
+PFNGLVERTEXATTRIB3SPROC glVertexAttrib3s = nullptr;
+PFNGLVERTEXATTRIB3SVPROC glVertexAttrib3sv = nullptr;
+PFNGLVERTEXATTRIB4NBVPROC glVertexAttrib4Nbv = nullptr;
+PFNGLVERTEXATTRIB4NIVPROC glVertexAttrib4Niv = nullptr;
+PFNGLVERTEXATTRIB4NSVPROC glVertexAttrib4Nsv = nullptr;
+PFNGLVERTEXATTRIB4NUBPROC glVertexAttrib4Nub = nullptr;
+PFNGLVERTEXATTRIB4NUBVPROC glVertexAttrib4Nubv = nullptr;
+PFNGLVERTEXATTRIB4NUIVPROC glVertexAttrib4Nuiv = nullptr;
+PFNGLVERTEXATTRIB4NUSVPROC glVertexAttrib4Nusv = nullptr;
+PFNGLVERTEXATTRIB4BVPROC glVertexAttrib4bv = nullptr;
+PFNGLVERTEXATTRIB4DPROC glVertexAttrib4d = nullptr;
+PFNGLVERTEXATTRIB4DVPROC glVertexAttrib4dv = nullptr;
+PFNGLVERTEXATTRIB4FPROC glVertexAttrib4f = nullptr;
+PFNGLVERTEXATTRIB4FVPROC glVertexAttrib4fv = nullptr;
+PFNGLVERTEXATTRIB4IVPROC glVertexAttrib4iv = nullptr;
+PFNGLVERTEXATTRIB4SPROC glVertexAttrib4s = nullptr;
+PFNGLVERTEXATTRIB4SVPROC glVertexAttrib4sv = nullptr;
+PFNGLVERTEXATTRIB4UBVPROC glVertexAttrib4ubv = nullptr;
+PFNGLVERTEXATTRIB4UIVPROC glVertexAttrib4uiv = nullptr;
+PFNGLVERTEXATTRIB4USVPROC glVertexAttrib4usv = nullptr;
+PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer = nullptr;
+
+#endif // GL_VERSION_2_0
+
+//
+// OpenGL v2.0
+// ==========================================================================
+
+
+// ==========================================================================
+// OpenGL v2.1
+//
+
+#ifdef GL_VERSION_2_1
+
+PFNGLUNIFORMMATRIX2X3FVPROC glUniformMatrix2x3fv = nullptr;
+PFNGLUNIFORMMATRIX3X2FVPROC glUniformMatrix3x2fv = nullptr;
+PFNGLUNIFORMMATRIX2X4FVPROC glUniformMatrix2x4fv = nullptr;
+PFNGLUNIFORMMATRIX4X2FVPROC glUniformMatrix4x2fv = nullptr;
+PFNGLUNIFORMMATRIX3X4FVPROC glUniformMatrix3x4fv = nullptr;
+PFNGLUNIFORMMATRIX4X3FVPROC glUniformMatrix4x3fv = nullptr;
+
+#endif // GL_VERSION_2_1
+
+//
+// OpenGL v2.1
+// ==========================================================================
+
+
+// ==========================================================================
 // OpenGL 3.0
 //
 

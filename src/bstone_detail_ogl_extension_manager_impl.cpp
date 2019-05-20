@@ -32,7 +32,6 @@ Free Software Foundation, Inc.,
 #include "bstone_precompiled.h"
 #include "bstone_detail_ogl_extension_manager.h"
 #include <cassert>
-#include <bitset>
 #include <sstream>
 #include "bstone_detail_ogl_renderer_utils.h"
 #include "bstone_sdl_types.h"
@@ -84,26 +83,35 @@ public:
 
 
 private:
-	static constexpr auto max_extensions = 16;
-
-
 	using ExtensionNames = std::vector<std::string>;
-	using ProbedExtensions = std::bitset<max_extensions>;
-	using AvailableExtensions = std::bitset<max_extensions>;
+
+	using Dependencies = std::vector<OglExtensionId>;
 	using ResolveSymbolsFunction = bool (OglExtensionManagerImpl::*)();
 
 
+	struct RegistryItem
+	{
+		bool is_virtual_;
+		bool is_probed_;
+		bool is_available_;
+
+		std::string extension_name_;
+		ResolveSymbolsFunction resolve_symbols_function_;
+		Dependencies dependencies_;
+	}; // RegistryItem
+
+	using Registry = std::vector<RegistryItem>;
+
+
 	ExtensionNames extension_names_;
-	ProbedExtensions probed_extensions_;
-	AvailableExtensions available_extensions_;
+	Registry registry_;
 
 
 	static const std::string& get_empty_extension_name();
 
-	static int get_extension_index(
-		const OglExtensionId extension_id);
+	static int get_registered_extension_count();
 
-	static const char* get_extension_name(
+	static int get_extension_index(
 		const OglExtensionId extension_id);
 
 
@@ -121,6 +129,10 @@ private:
 		}
 	}
 
+
+	void initialize_registry();
+
+
 	void get_core_extension_names();
 
 	void get_compatibility_extension_names();
@@ -129,8 +141,7 @@ private:
 
 
 	void probe_generic(
-		const OglExtensionId extension_id,
-		ResolveSymbolsFunction resolve_symbols_function);
+		const OglExtensionId extension_id);
 
 
 	void clear_v1_0();
@@ -141,6 +152,36 @@ private:
 	void clear_v1_1();
 
 	bool resolve_v1_1();
+
+
+	void clear_v1_2();
+
+	bool resolve_v1_2();
+
+
+	void clear_v1_3();
+
+	bool resolve_v1_3();
+
+
+	void clear_v1_4();
+
+	bool resolve_v1_4();
+
+
+	void clear_v1_5();
+
+	bool resolve_v1_5();
+
+
+	void clear_v2_0();
+
+	bool resolve_v2_0();
+
+
+	void clear_v2_1();
+
+	bool resolve_v2_1();
 
 
 	void clear_arb_framebuffer_object();
@@ -171,8 +212,7 @@ using OglExtensionManagerImplUPtr = std::unique_ptr<OglExtensionManagerImpl>;
 OglExtensionManagerImpl::OglExtensionManagerImpl()
 	:
 	extension_names_{},
-	probed_extensions_{},
-	available_extensions_{}
+	registry_{}
 {
 }
 
@@ -180,8 +220,7 @@ OglExtensionManagerImpl::OglExtensionManagerImpl(
 	OglExtensionManagerImpl&& rhs)
 	:
 	extension_names_{std::move(rhs.extension_names_)},
-	probed_extensions_{std::move(rhs.probed_extensions_)},
-	available_extensions_{std::move(rhs.available_extensions_)}
+	registry_{std::move(rhs.registry_)}
 {
 }
 
@@ -199,6 +238,8 @@ bool OglExtensionManagerImpl::initialize()
 	}
 
 	get_extension_names();
+
+	initialize_registry();
 
 	return true;
 }
@@ -222,89 +263,14 @@ const std::string& OglExtensionManagerImpl::get_extension_name(
 void OglExtensionManagerImpl::probe_extension(
 	const OglExtensionId extension_id)
 {
-	switch (extension_id)
+	const auto extension_index = get_extension_index(extension_id);
+
+	if (extension_index < 0)
 	{
-		// ==================================================================
-		// Versions.
-		//
-
-		case OglExtensionId::v1_0:
-			probe_generic(extension_id, &OglExtensionManagerImpl::resolve_v1_0);
-			break;
-
-		case OglExtensionId::v1_1:
-			probe_generic(extension_id, &OglExtensionManagerImpl::resolve_v1_1);
-			break;
-
-		//
-		// Versions.
-		// ==================================================================
-
-
-		// ==================================================================
-		// ARB
-		//
-
-		case OglExtensionId::arb_framebuffer_object:
-			probe_generic(extension_id, &OglExtensionManagerImpl::resolve_arb_framebuffer_object);
-			break;
-
-		case OglExtensionId::arb_texture_filter_anisotropic:
-		case OglExtensionId::arb_texture_non_power_of_two:
-			probe_generic(extension_id, nullptr);
-			break;
-
-		//
-		// ARB
-		// ==================================================================
-
-
-		// ==================================================================
-		// EXT
-		//
-
-		case OglExtensionId::ext_framebuffer_blit:
-			probe_generic(extension_id, &OglExtensionManagerImpl::resolve_ext_framebuffer_blit);
-			break;
-
-		case OglExtensionId::ext_framebuffer_multisample:
-			probe_generic(extension_id, &OglExtensionManagerImpl::resolve_ext_framebuffer_multisample);
-			break;
-
-		case OglExtensionId::ext_framebuffer_object:
-			probe_generic(extension_id, &OglExtensionManagerImpl::resolve_ext_framebuffer_object);
-			break;
-
-		case OglExtensionId::ext_packed_depth_stencil:
-			probe_generic(extension_id, nullptr);
-			break;
-
-		case OglExtensionId::ext_texture_filter_anisotropic:
-			probe_generic(extension_id, nullptr);
-			break;
-
-		//
-		// EXT
-		// ==================================================================
-
-
-		// ==================================================================
-		// SGIS
-		//
-
-		case OglExtensionId::sgis_generate_mipmap:
-			probe_generic(extension_id, nullptr);
-			break;
-
-		//
-		// SGIS
-		// ==================================================================
-
-
-		default:
-			assert(!"Invalid extension id.");
-			break;
+		return;
 	}
+
+	probe_generic(extension_id);
 }
 
 bool OglExtensionManagerImpl::has_extension(
@@ -317,7 +283,7 @@ bool OglExtensionManagerImpl::has_extension(
 		return false;
 	}
 
-	return available_extensions_[extension_index];
+	return registry_[extension_index].is_available_;
 }
 
 bool OglExtensionManagerImpl::operator[](
@@ -333,69 +299,197 @@ const std::string& OglExtensionManagerImpl::get_empty_extension_name()
 	return result;
 }
 
+int OglExtensionManagerImpl::get_registered_extension_count()
+{
+	return static_cast<int>(OglExtensionId::count_);
+}
+
 int OglExtensionManagerImpl::get_extension_index(
 	const OglExtensionId extension_id)
 {
-	switch (extension_id)
+	const auto extension_index = static_cast<int>(extension_id);
+
+	if (extension_index < 0 || extension_index >= get_registered_extension_count())
 	{
-		case OglExtensionId::v1_0:
-		case OglExtensionId::v1_1:
-		case OglExtensionId::arb_framebuffer_object:
-		case OglExtensionId::arb_texture_filter_anisotropic:
-		case OglExtensionId::arb_texture_non_power_of_two:
-		case OglExtensionId::ext_framebuffer_blit:
-		case OglExtensionId::ext_framebuffer_multisample:
-		case OglExtensionId::ext_framebuffer_object:
-		case OglExtensionId::ext_packed_depth_stencil:
-		case OglExtensionId::ext_texture_filter_anisotropic:
-		case OglExtensionId::sgis_generate_mipmap:
-			return static_cast<int>(extension_id);
-
-
-		default:
-			return -1;
+		return -1;
 	}
+
+	return extension_index;
 }
 
-const char* OglExtensionManagerImpl::get_extension_name(
-	const OglExtensionId extension_id)
+void OglExtensionManagerImpl::initialize_registry()
 {
-	switch (extension_id)
+	registry_.clear();
+	registry_.resize(static_cast<int>(OglExtensionId::count_));
+
 	{
-		case OglExtensionId::v1_0:
-		case OglExtensionId::v1_1:
-			return "";
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::v1_0)];
+		registry_item.is_virtual_ = true;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.extension_name_ = "v1.0";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_v1_0;
+		registry_item.dependencies_ = {};
+	}
 
-		case OglExtensionId::arb_framebuffer_object:
-			return "GL_ARB_framebuffer_object";
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::v1_1)];
+		registry_item.is_virtual_ = true;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.extension_name_ = "v1.1";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_v1_1;
+		registry_item.dependencies_ = {OglExtensionId::v1_0};
+	}
 
-		case OglExtensionId::arb_texture_filter_anisotropic:
-			return "GL_ARB_texture_filter_anisotropic";
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::v1_2)];
+		registry_item.is_virtual_ = true;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.extension_name_ = "v1.2";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_v1_2;
+		registry_item.dependencies_ = {OglExtensionId::v1_1};
+	}
 
-		case OglExtensionId::arb_texture_non_power_of_two:
-			return "GL_ARB_texture_non_power_of_two";
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::v1_3)];
+		registry_item.is_virtual_ = true;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.extension_name_ = "v1.3";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_v1_3;
+		registry_item.dependencies_ = {OglExtensionId::v1_2};
+	}
 
-		case OglExtensionId::ext_framebuffer_blit:
-			return "GL_EXT_framebuffer_blit";
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::v1_4)];
+		registry_item.is_virtual_ = true;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.extension_name_ = "v1.4";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_v1_4;
+		registry_item.dependencies_ = {OglExtensionId::v1_3};
+	}
 
-		case OglExtensionId::ext_framebuffer_multisample:
-			return "GL_EXT_framebuffer_multisample";
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::v1_5)];
+		registry_item.is_virtual_ = true;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.extension_name_ = "v1.5";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_v1_5;
+		registry_item.dependencies_ = {OglExtensionId::v1_4};
+	}
 
-		case OglExtensionId::ext_framebuffer_object:
-			return "GL_EXT_framebuffer_object";
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::v2_0)];
+		registry_item.is_virtual_ = true;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.extension_name_ = "v2.0";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_v2_0;
+		registry_item.dependencies_ = {OglExtensionId::v1_5};
+	}
 
-		case OglExtensionId::ext_packed_depth_stencil:
-			return "GL_EXT_packed_depth_stencil";
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::v2_1)];
+		registry_item.is_virtual_ = true;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.extension_name_ = "v2.1";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_v2_1;
+		registry_item.dependencies_ = {OglExtensionId::v2_0};
+	}
 
-		case OglExtensionId::ext_texture_filter_anisotropic:
-			return "GL_EXT_texture_filter_anisotropic";
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::arb_framebuffer_object)];
+		registry_item.is_virtual_ = false;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.extension_name_ = "GL_ARB_framebuffer_object";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_arb_framebuffer_object;
+		registry_item.dependencies_ = {OglExtensionId::v1_1};
+	}
 
-		case OglExtensionId::sgis_generate_mipmap:
-			return "GL_SGIS_generate_mipmap";
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::arb_texture_filter_anisotropic)];
+		registry_item.is_virtual_ = false;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.extension_name_ = "GL_ARB_texture_filter_anisotropic";
+		registry_item.resolve_symbols_function_ = nullptr;
+		registry_item.dependencies_ = {OglExtensionId::v1_2};
+	}
 
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::arb_texture_non_power_of_two)];
+		registry_item.is_virtual_ = false;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.extension_name_ = "GL_ARB_texture_non_power_of_two";
+		registry_item.resolve_symbols_function_ = nullptr;
+		registry_item.dependencies_ = {};
+	}
 
-		default:
-			return nullptr;
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::ext_framebuffer_blit)];
+		registry_item.is_virtual_ = false;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.extension_name_ = "GL_EXT_framebuffer_blit";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_ext_framebuffer_blit;
+		registry_item.dependencies_ = {OglExtensionId::v1_1};
+	}
+
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::ext_framebuffer_multisample)];
+		registry_item.is_virtual_ = false;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.extension_name_ = "GL_EXT_framebuffer_multisample";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_ext_framebuffer_multisample;
+		registry_item.dependencies_ = {OglExtensionId::ext_framebuffer_blit, OglExtensionId::ext_framebuffer_object};
+	}
+
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::ext_packed_depth_stencil)];
+		registry_item.is_virtual_ = false;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.extension_name_ = "GL_EXT_packed_depth_stencil";
+		registry_item.resolve_symbols_function_ = nullptr;
+		registry_item.dependencies_ = {OglExtensionId::v1_1, OglExtensionId::ext_framebuffer_object};
+	}
+
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::ext_texture_filter_anisotropic)];
+		registry_item.is_virtual_ = false;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.extension_name_ = "GL_EXT_texture_filter_anisotropic";
+		registry_item.resolve_symbols_function_ = nullptr;
+		registry_item.dependencies_ = {};
+	}
+
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::ext_texture)];
+		registry_item.is_virtual_ = false;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.extension_name_ = "GL_EXT_texture";
+		registry_item.resolve_symbols_function_ = nullptr;
+		registry_item.dependencies_ = {};
+	}
+
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::sgis_generate_mipmap)];
+		registry_item.is_virtual_ = false;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.extension_name_ = "GL_SGIS_generate_mipmap";
+		registry_item.resolve_symbols_function_ = nullptr;
+		registry_item.dependencies_ = {OglExtensionId::ext_texture};
 	}
 }
 
@@ -524,8 +618,7 @@ void OglExtensionManagerImpl::get_extension_names()
 }
 
 void OglExtensionManagerImpl::probe_generic(
-	const OglExtensionId extension_id,
-	ResolveSymbolsFunction resolve_symbols_function)
+	const OglExtensionId extension_id)
 {
 	const auto extension_index = get_extension_index(extension_id);
 
@@ -536,39 +629,40 @@ void OglExtensionManagerImpl::probe_generic(
 		return;
 	}
 
-	if (probed_extensions_.test(extension_index))
+	auto& registry_item = registry_[extension_index];
+
+	if (registry_item.is_probed_)
 	{
 		return;
 	}
 
-	probed_extensions_.set(extension_index);
+	registry_item.is_probed_ = true;
 
-	const auto extension_name = get_extension_name(extension_id);
-
-	if (extension_name == nullptr)
-	{
-		assert("Null extension name.");
-
-		return;
-	}
-
-	const auto is_version = (*extension_name == '\0');
-
-	if (is_version && resolve_symbols_function == nullptr)
+	if (registry_item.is_virtual_ && registry_item.resolve_symbols_function_ == nullptr)
 	{
 		assert("Expected symbols loader for specific version.");
 
 		return;
 	}
 
-	if (!is_version)
+	for (const auto dependency_extension_id : registry_item.dependencies_)
+	{
+		probe_generic(dependency_extension_id);
+
+		if (!has_extension(dependency_extension_id))
+		{
+			return;
+		}
+	}
+
+	if (!registry_item.is_virtual_)
 	{
 		const auto has_extension_name = std::any_of(
 			extension_names_.cbegin(),
 			extension_names_.cend(),
-			[=](const auto& item)
+			[&](const auto& item)
 			{
-				return item == extension_name;
+				return item == registry_item.extension_name_;
 			}
 		);
 
@@ -578,15 +672,15 @@ void OglExtensionManagerImpl::probe_generic(
 		}
 	}
 
-	if (resolve_symbols_function != nullptr)
+	if (registry_item.resolve_symbols_function_ != nullptr)
 	{
-		if (!(this->*resolve_symbols_function)())
+		if (!(this->*registry_item.resolve_symbols_function_)())
 		{
 			return;
 		}
 	}
 
-	available_extensions_.set(extension_index);
+	registry_item.is_available_ = true;
 }
 
 void OglExtensionManagerImpl::clear_v1_0()
@@ -1292,6 +1386,550 @@ bool OglExtensionManagerImpl::resolve_v1_1()
 	if (is_failed)
 	{
 		clear_v1_1();
+
+		return false;
+	}
+
+	return true;
+}
+
+void OglExtensionManagerImpl::clear_v1_2()
+{
+	::glDrawRangeElements = nullptr;
+	::glTexImage3D = nullptr;
+	::glTexSubImage3D = nullptr;
+	::glCopyTexSubImage3D = nullptr;
+}
+
+bool OglExtensionManagerImpl::resolve_v1_2()
+{
+	auto is_failed = false;
+
+	resolve_symbol("glDrawRangeElements", ::glDrawRangeElements, is_failed);
+	resolve_symbol("glTexImage3D", ::glTexImage3D, is_failed);
+	resolve_symbol("glTexSubImage3D", ::glTexSubImage3D, is_failed);
+	resolve_symbol("glCopyTexSubImage3D", ::glCopyTexSubImage3D, is_failed);
+
+	if (is_failed)
+	{
+		clear_v1_2();
+
+		return false;
+	}
+
+	return true;
+}
+
+void OglExtensionManagerImpl::clear_v1_3()
+{
+	::glActiveTexture = nullptr;
+	::glSampleCoverage = nullptr;
+	::glCompressedTexImage3D = nullptr;
+	::glCompressedTexImage2D = nullptr;
+	::glCompressedTexImage1D = nullptr;
+	::glCompressedTexSubImage3D = nullptr;
+	::glCompressedTexSubImage2D = nullptr;
+	::glCompressedTexSubImage1D = nullptr;
+	::glGetCompressedTexImage = nullptr;
+	::glClientActiveTexture = nullptr;
+	::glMultiTexCoord1d = nullptr;
+	::glMultiTexCoord1dv = nullptr;
+	::glMultiTexCoord1f = nullptr;
+	::glMultiTexCoord1fv = nullptr;
+	::glMultiTexCoord1i = nullptr;
+	::glMultiTexCoord1iv = nullptr;
+	::glMultiTexCoord1s = nullptr;
+	::glMultiTexCoord1sv = nullptr;
+	::glMultiTexCoord2d = nullptr;
+	::glMultiTexCoord2dv = nullptr;
+	::glMultiTexCoord2f = nullptr;
+	::glMultiTexCoord2fv = nullptr;
+	::glMultiTexCoord2i = nullptr;
+	::glMultiTexCoord2iv = nullptr;
+	::glMultiTexCoord2s = nullptr;
+	::glMultiTexCoord2sv = nullptr;
+	::glMultiTexCoord3d = nullptr;
+	::glMultiTexCoord3dv = nullptr;
+	::glMultiTexCoord3f = nullptr;
+	::glMultiTexCoord3fv = nullptr;
+	::glMultiTexCoord3i = nullptr;
+	::glMultiTexCoord3iv = nullptr;
+	::glMultiTexCoord3s = nullptr;
+	::glMultiTexCoord3sv = nullptr;
+	::glMultiTexCoord4d = nullptr;
+	::glMultiTexCoord4dv = nullptr;
+	::glMultiTexCoord4f = nullptr;
+	::glMultiTexCoord4fv = nullptr;
+	::glMultiTexCoord4i = nullptr;
+	::glMultiTexCoord4iv = nullptr;
+	::glMultiTexCoord4s = nullptr;
+	::glMultiTexCoord4sv = nullptr;
+	::glLoadTransposeMatrixf = nullptr;
+	::glLoadTransposeMatrixd = nullptr;
+	::glMultTransposeMatrixf = nullptr;
+	::glMultTransposeMatrixd = nullptr;
+}
+
+bool OglExtensionManagerImpl::resolve_v1_3()
+{
+	auto is_failed = false;
+
+	resolve_symbol("glActiveTexture", ::glActiveTexture, is_failed);
+	resolve_symbol("glSampleCoverage", ::glSampleCoverage, is_failed);
+	resolve_symbol("glCompressedTexImage3D", ::glCompressedTexImage3D, is_failed);
+	resolve_symbol("glCompressedTexImage2D", ::glCompressedTexImage2D, is_failed);
+	resolve_symbol("glCompressedTexImage1D", ::glCompressedTexImage1D, is_failed);
+	resolve_symbol("glCompressedTexSubImage3D", ::glCompressedTexSubImage3D, is_failed);
+	resolve_symbol("glCompressedTexSubImage2D", ::glCompressedTexSubImage2D, is_failed);
+	resolve_symbol("glCompressedTexSubImage1D", ::glCompressedTexSubImage1D, is_failed);
+	resolve_symbol("glGetCompressedTexImage", ::glGetCompressedTexImage, is_failed);
+	resolve_symbol("glClientActiveTexture", ::glClientActiveTexture, is_failed);
+	resolve_symbol("glMultiTexCoord1d", ::glMultiTexCoord1d, is_failed);
+	resolve_symbol("glMultiTexCoord1dv", ::glMultiTexCoord1dv, is_failed);
+	resolve_symbol("glMultiTexCoord1f", ::glMultiTexCoord1f, is_failed);
+	resolve_symbol("glMultiTexCoord1fv", ::glMultiTexCoord1fv, is_failed);
+	resolve_symbol("glMultiTexCoord1i", ::glMultiTexCoord1i, is_failed);
+	resolve_symbol("glMultiTexCoord1iv", ::glMultiTexCoord1iv, is_failed);
+	resolve_symbol("glMultiTexCoord1s", ::glMultiTexCoord1s, is_failed);
+	resolve_symbol("glMultiTexCoord1sv", ::glMultiTexCoord1sv, is_failed);
+	resolve_symbol("glMultiTexCoord2d", ::glMultiTexCoord2d, is_failed);
+	resolve_symbol("glMultiTexCoord2dv", ::glMultiTexCoord2dv, is_failed);
+	resolve_symbol("glMultiTexCoord2f", ::glMultiTexCoord2f, is_failed);
+	resolve_symbol("glMultiTexCoord2fv", ::glMultiTexCoord2fv, is_failed);
+	resolve_symbol("glMultiTexCoord2i", ::glMultiTexCoord2i, is_failed);
+	resolve_symbol("glMultiTexCoord2iv", ::glMultiTexCoord2iv, is_failed);
+	resolve_symbol("glMultiTexCoord2s", ::glMultiTexCoord2s, is_failed);
+	resolve_symbol("glMultiTexCoord2sv", ::glMultiTexCoord2sv, is_failed);
+	resolve_symbol("glMultiTexCoord3d", ::glMultiTexCoord3d, is_failed);
+	resolve_symbol("glMultiTexCoord3dv", ::glMultiTexCoord3dv, is_failed);
+	resolve_symbol("glMultiTexCoord3f", ::glMultiTexCoord3f, is_failed);
+	resolve_symbol("glMultiTexCoord3fv", ::glMultiTexCoord3fv, is_failed);
+	resolve_symbol("glMultiTexCoord3i", ::glMultiTexCoord3i, is_failed);
+	resolve_symbol("glMultiTexCoord3iv", ::glMultiTexCoord3iv, is_failed);
+	resolve_symbol("glMultiTexCoord3s", ::glMultiTexCoord3s, is_failed);
+	resolve_symbol("glMultiTexCoord3sv", ::glMultiTexCoord3sv, is_failed);
+	resolve_symbol("glMultiTexCoord4d", ::glMultiTexCoord4d, is_failed);
+	resolve_symbol("glMultiTexCoord4dv", ::glMultiTexCoord4dv, is_failed);
+	resolve_symbol("glMultiTexCoord4f", ::glMultiTexCoord4f, is_failed);
+	resolve_symbol("glMultiTexCoord4fv", ::glMultiTexCoord4fv, is_failed);
+	resolve_symbol("glMultiTexCoord4i", ::glMultiTexCoord4i, is_failed);
+	resolve_symbol("glMultiTexCoord4iv", ::glMultiTexCoord4iv, is_failed);
+	resolve_symbol("glMultiTexCoord4s", ::glMultiTexCoord4s, is_failed);
+	resolve_symbol("glMultiTexCoord4sv", ::glMultiTexCoord4sv, is_failed);
+	resolve_symbol("glLoadTransposeMatrixf", ::glLoadTransposeMatrixf, is_failed);
+	resolve_symbol("glLoadTransposeMatrixd", ::glLoadTransposeMatrixd, is_failed);
+	resolve_symbol("glMultTransposeMatrixf", ::glMultTransposeMatrixf, is_failed);
+	resolve_symbol("glMultTransposeMatrixd", ::glMultTransposeMatrixd, is_failed);
+
+	if (is_failed)
+	{
+		clear_v1_3();
+
+		return false;
+	}
+
+	return true;
+}
+
+void OglExtensionManagerImpl::clear_v1_4()
+{
+	::glBlendFuncSeparate = nullptr;
+	::glMultiDrawArrays = nullptr;
+	::glMultiDrawElements = nullptr;
+	::glPointParameterf = nullptr;
+	::glPointParameterfv = nullptr;
+	::glPointParameteri = nullptr;
+	::glPointParameteriv = nullptr;
+	::glFogCoordf = nullptr;
+	::glFogCoordfv = nullptr;
+	::glFogCoordd = nullptr;
+	::glFogCoorddv = nullptr;
+	::glFogCoordPointer = nullptr;
+	::glSecondaryColor3b = nullptr;
+	::glSecondaryColor3bv = nullptr;
+	::glSecondaryColor3d = nullptr;
+	::glSecondaryColor3dv = nullptr;
+	::glSecondaryColor3f = nullptr;
+	::glSecondaryColor3fv = nullptr;
+	::glSecondaryColor3i = nullptr;
+	::glSecondaryColor3iv = nullptr;
+	::glSecondaryColor3s = nullptr;
+	::glSecondaryColor3sv = nullptr;
+	::glSecondaryColor3ub = nullptr;
+	::glSecondaryColor3ubv = nullptr;
+	::glSecondaryColor3ui = nullptr;
+	::glSecondaryColor3uiv = nullptr;
+	::glSecondaryColor3us = nullptr;
+	::glSecondaryColor3usv = nullptr;
+	::glSecondaryColorPointer = nullptr;
+	::glWindowPos2d = nullptr;
+	::glWindowPos2dv = nullptr;
+	::glWindowPos2f = nullptr;
+	::glWindowPos2fv = nullptr;
+	::glWindowPos2i = nullptr;
+	::glWindowPos2iv = nullptr;
+	::glWindowPos2s = nullptr;
+	::glWindowPos2sv = nullptr;
+	::glWindowPos3d = nullptr;
+	::glWindowPos3dv = nullptr;
+	::glWindowPos3f = nullptr;
+	::glWindowPos3fv = nullptr;
+	::glWindowPos3i = nullptr;
+	::glWindowPos3iv = nullptr;
+	::glWindowPos3s = nullptr;
+	::glWindowPos3sv = nullptr;
+	::glBlendColor = nullptr;
+	::glBlendEquation = nullptr;
+}
+
+bool OglExtensionManagerImpl::resolve_v1_4()
+{
+	auto is_failed = false;
+
+	resolve_symbol("glBlendFuncSeparate", ::glBlendFuncSeparate, is_failed);
+	resolve_symbol("glMultiDrawArrays", ::glMultiDrawArrays, is_failed);
+	resolve_symbol("glMultiDrawElements", ::glMultiDrawElements, is_failed);
+	resolve_symbol("glPointParameterf", ::glPointParameterf, is_failed);
+	resolve_symbol("glPointParameterfv", ::glPointParameterfv, is_failed);
+	resolve_symbol("glPointParameteri", ::glPointParameteri, is_failed);
+	resolve_symbol("glPointParameteriv", ::glPointParameteriv, is_failed);
+	resolve_symbol("glFogCoordf", ::glFogCoordf, is_failed);
+	resolve_symbol("glFogCoordfv", ::glFogCoordfv, is_failed);
+	resolve_symbol("glFogCoordd", ::glFogCoordd, is_failed);
+	resolve_symbol("glFogCoorddv", ::glFogCoorddv, is_failed);
+	resolve_symbol("glFogCoordPointer", ::glFogCoordPointer, is_failed);
+	resolve_symbol("glSecondaryColor3b", ::glSecondaryColor3b, is_failed);
+	resolve_symbol("glSecondaryColor3bv", ::glSecondaryColor3bv, is_failed);
+	resolve_symbol("glSecondaryColor3d", ::glSecondaryColor3d, is_failed);
+	resolve_symbol("glSecondaryColor3dv", ::glSecondaryColor3dv, is_failed);
+	resolve_symbol("glSecondaryColor3f", ::glSecondaryColor3f, is_failed);
+	resolve_symbol("glSecondaryColor3fv", ::glSecondaryColor3fv, is_failed);
+	resolve_symbol("glSecondaryColor3i", ::glSecondaryColor3i, is_failed);
+	resolve_symbol("glSecondaryColor3iv", ::glSecondaryColor3iv, is_failed);
+	resolve_symbol("glSecondaryColor3s", ::glSecondaryColor3s, is_failed);
+	resolve_symbol("glSecondaryColor3sv", ::glSecondaryColor3sv, is_failed);
+	resolve_symbol("glSecondaryColor3ub", ::glSecondaryColor3ub, is_failed);
+	resolve_symbol("glSecondaryColor3ubv", ::glSecondaryColor3ubv, is_failed);
+	resolve_symbol("glSecondaryColor3ui", ::glSecondaryColor3ui, is_failed);
+	resolve_symbol("glSecondaryColor3uiv", ::glSecondaryColor3uiv, is_failed);
+	resolve_symbol("glSecondaryColor3us", ::glSecondaryColor3us, is_failed);
+	resolve_symbol("glSecondaryColor3usv", ::glSecondaryColor3usv, is_failed);
+	resolve_symbol("glSecondaryColorPointer", ::glSecondaryColorPointer, is_failed);
+	resolve_symbol("glWindowPos2d", ::glWindowPos2d, is_failed);
+	resolve_symbol("glWindowPos2dv", ::glWindowPos2dv, is_failed);
+	resolve_symbol("glWindowPos2f", ::glWindowPos2f, is_failed);
+	resolve_symbol("glWindowPos2fv", ::glWindowPos2fv, is_failed);
+	resolve_symbol("glWindowPos2i", ::glWindowPos2i, is_failed);
+	resolve_symbol("glWindowPos2iv", ::glWindowPos2iv, is_failed);
+	resolve_symbol("glWindowPos2s", ::glWindowPos2s, is_failed);
+	resolve_symbol("glWindowPos2sv", ::glWindowPos2sv, is_failed);
+	resolve_symbol("glWindowPos3d", ::glWindowPos3d, is_failed);
+	resolve_symbol("glWindowPos3dv", ::glWindowPos3dv, is_failed);
+	resolve_symbol("glWindowPos3f", ::glWindowPos3f, is_failed);
+	resolve_symbol("glWindowPos3fv", ::glWindowPos3fv, is_failed);
+	resolve_symbol("glWindowPos3i", ::glWindowPos3i, is_failed);
+	resolve_symbol("glWindowPos3iv", ::glWindowPos3iv, is_failed);
+	resolve_symbol("glWindowPos3s", ::glWindowPos3s, is_failed);
+	resolve_symbol("glWindowPos3sv", ::glWindowPos3sv, is_failed);
+	resolve_symbol("glBlendColor", ::glBlendColor, is_failed);
+	resolve_symbol("glBlendEquation", ::glBlendEquation, is_failed);
+
+	if (is_failed)
+	{
+		clear_v1_4();
+
+		return false;
+	}
+
+	return true;
+}
+
+void OglExtensionManagerImpl::clear_v1_5()
+{
+	::glGenQueries = nullptr;
+	::glDeleteQueries = nullptr;
+	::glIsQuery = nullptr;
+	::glBeginQuery = nullptr;
+	::glEndQuery = nullptr;
+	::glGetQueryiv = nullptr;
+	::glGetQueryObjectiv = nullptr;
+	::glGetQueryObjectuiv = nullptr;
+	::glBindBuffer = nullptr;
+	::glDeleteBuffers = nullptr;
+	::glGenBuffers = nullptr;
+	::glIsBuffer = nullptr;
+	::glBufferData = nullptr;
+	::glBufferSubData = nullptr;
+	::glGetBufferSubData = nullptr;
+	::glMapBuffer = nullptr;
+	::glUnmapBuffer = nullptr;
+	::glGetBufferParameteriv = nullptr;
+	::glGetBufferPointerv = nullptr;
+}
+
+bool OglExtensionManagerImpl::resolve_v1_5()
+{
+	auto is_failed = false;
+
+	resolve_symbol("glGenQueries", ::glGenQueries, is_failed);
+	resolve_symbol("glDeleteQueries", ::glDeleteQueries, is_failed);
+	resolve_symbol("glIsQuery", ::glIsQuery, is_failed);
+	resolve_symbol("glBeginQuery", ::glBeginQuery, is_failed);
+	resolve_symbol("glEndQuery", ::glEndQuery, is_failed);
+	resolve_symbol("glGetQueryiv", ::glGetQueryiv, is_failed);
+	resolve_symbol("glGetQueryObjectiv", ::glGetQueryObjectiv, is_failed);
+	resolve_symbol("glGetQueryObjectuiv", ::glGetQueryObjectuiv, is_failed);
+	resolve_symbol("glBindBuffer", ::glBindBuffer, is_failed);
+	resolve_symbol("glDeleteBuffers", ::glDeleteBuffers, is_failed);
+	resolve_symbol("glGenBuffers", ::glGenBuffers, is_failed);
+	resolve_symbol("glIsBuffer", ::glIsBuffer, is_failed);
+	resolve_symbol("glBufferData", ::glBufferData, is_failed);
+	resolve_symbol("glBufferSubData", ::glBufferSubData, is_failed);
+	resolve_symbol("glGetBufferSubData", ::glGetBufferSubData, is_failed);
+	resolve_symbol("glMapBuffer", ::glMapBuffer, is_failed);
+	resolve_symbol("glUnmapBuffer", ::glUnmapBuffer, is_failed);
+	resolve_symbol("glGetBufferParameteriv", ::glGetBufferParameteriv, is_failed);
+	resolve_symbol("glGetBufferPointerv", ::glGetBufferPointerv, is_failed);
+
+	if (is_failed)
+	{
+		clear_v1_5();
+
+		return false;
+	}
+
+	return true;
+}
+
+void OglExtensionManagerImpl::clear_v2_0()
+{
+	::glBlendEquationSeparate = nullptr;
+	::glDrawBuffers = nullptr;
+	::glStencilOpSeparate = nullptr;
+	::glStencilFuncSeparate = nullptr;
+	::glStencilMaskSeparate = nullptr;
+	::glAttachShader = nullptr;
+	::glBindAttribLocation = nullptr;
+	::glCompileShader = nullptr;
+	::glCreateProgram = nullptr;
+	::glCreateShader = nullptr;
+	::glDeleteProgram = nullptr;
+	::glDeleteShader = nullptr;
+	::glDetachShader = nullptr;
+	::glDisableVertexAttribArray = nullptr;
+	::glEnableVertexAttribArray = nullptr;
+	::glGetActiveAttrib = nullptr;
+	::glGetActiveUniform = nullptr;
+	::glGetAttachedShaders = nullptr;
+	::glGetAttribLocation = nullptr;
+	::glGetProgramiv = nullptr;
+	::glGetProgramInfoLog = nullptr;
+	::glGetShaderiv = nullptr;
+	::glGetShaderInfoLog = nullptr;
+	::glGetShaderSource = nullptr;
+	::glGetUniformLocation = nullptr;
+	::glGetUniformfv = nullptr;
+	::glGetUniformiv = nullptr;
+	::glGetVertexAttribdv = nullptr;
+	::glGetVertexAttribfv = nullptr;
+	::glGetVertexAttribiv = nullptr;
+	::glGetVertexAttribPointerv = nullptr;
+	::glIsProgram = nullptr;
+	::glIsShader = nullptr;
+	::glLinkProgram = nullptr;
+	::glShaderSource = nullptr;
+	::glUseProgram = nullptr;
+	::glUniform1f = nullptr;
+	::glUniform2f = nullptr;
+	::glUniform3f = nullptr;
+	::glUniform4f = nullptr;
+	::glUniform1i = nullptr;
+	::glUniform2i = nullptr;
+	::glUniform3i = nullptr;
+	::glUniform4i = nullptr;
+	::glUniform1fv = nullptr;
+	::glUniform2fv = nullptr;
+	::glUniform3fv = nullptr;
+	::glUniform4fv = nullptr;
+	::glUniform1iv = nullptr;
+	::glUniform2iv = nullptr;
+	::glUniform3iv = nullptr;
+	::glUniform4iv = nullptr;
+	::glUniformMatrix2fv = nullptr;
+	::glUniformMatrix3fv = nullptr;
+	::glUniformMatrix4fv = nullptr;
+	::glValidateProgram = nullptr;
+	::glVertexAttrib1d = nullptr;
+	::glVertexAttrib1dv = nullptr;
+	::glVertexAttrib1f = nullptr;
+	::glVertexAttrib1fv = nullptr;
+	::glVertexAttrib1s = nullptr;
+	::glVertexAttrib1sv = nullptr;
+	::glVertexAttrib2d = nullptr;
+	::glVertexAttrib2dv = nullptr;
+	::glVertexAttrib2f = nullptr;
+	::glVertexAttrib2fv = nullptr;
+	::glVertexAttrib2s = nullptr;
+	::glVertexAttrib2sv = nullptr;
+	::glVertexAttrib3d = nullptr;
+	::glVertexAttrib3dv = nullptr;
+	::glVertexAttrib3f = nullptr;
+	::glVertexAttrib3fv = nullptr;
+	::glVertexAttrib3s = nullptr;
+	::glVertexAttrib3sv = nullptr;
+	::glVertexAttrib4Nbv = nullptr;
+	::glVertexAttrib4Niv = nullptr;
+	::glVertexAttrib4Nsv = nullptr;
+	::glVertexAttrib4Nub = nullptr;
+	::glVertexAttrib4Nubv = nullptr;
+	::glVertexAttrib4Nuiv = nullptr;
+	::glVertexAttrib4Nusv = nullptr;
+	::glVertexAttrib4bv = nullptr;
+	::glVertexAttrib4d = nullptr;
+	::glVertexAttrib4dv = nullptr;
+	::glVertexAttrib4f = nullptr;
+	::glVertexAttrib4fv = nullptr;
+	::glVertexAttrib4iv = nullptr;
+	::glVertexAttrib4s = nullptr;
+	::glVertexAttrib4sv = nullptr;
+	::glVertexAttrib4ubv = nullptr;
+	::glVertexAttrib4uiv = nullptr;
+	::glVertexAttrib4usv = nullptr;
+	::glVertexAttribPointer = nullptr;
+}
+
+bool OglExtensionManagerImpl::resolve_v2_0()
+{
+	auto is_failed = false;
+
+	resolve_symbol("glBlendEquationSeparate", ::glBlendEquationSeparate, is_failed);
+	resolve_symbol("glDrawBuffers", ::glDrawBuffers, is_failed);
+	resolve_symbol("glStencilOpSeparate", ::glStencilOpSeparate, is_failed);
+	resolve_symbol("glStencilFuncSeparate", ::glStencilFuncSeparate, is_failed);
+	resolve_symbol("glStencilMaskSeparate", ::glStencilMaskSeparate, is_failed);
+	resolve_symbol("glAttachShader", ::glAttachShader, is_failed);
+	resolve_symbol("glBindAttribLocation", ::glBindAttribLocation, is_failed);
+	resolve_symbol("glCompileShader", ::glCompileShader, is_failed);
+	resolve_symbol("glCreateProgram", ::glCreateProgram, is_failed);
+	resolve_symbol("glCreateShader", ::glCreateShader, is_failed);
+	resolve_symbol("glDeleteProgram", ::glDeleteProgram, is_failed);
+	resolve_symbol("glDeleteShader", ::glDeleteShader, is_failed);
+	resolve_symbol("glDetachShader", ::glDetachShader, is_failed);
+	resolve_symbol("glDisableVertexAttribArray", ::glDisableVertexAttribArray, is_failed);
+	resolve_symbol("glEnableVertexAttribArray", ::glEnableVertexAttribArray, is_failed);
+	resolve_symbol("glGetActiveAttrib", ::glGetActiveAttrib, is_failed);
+	resolve_symbol("glGetActiveUniform", ::glGetActiveUniform, is_failed);
+	resolve_symbol("glGetAttachedShaders", ::glGetAttachedShaders, is_failed);
+	resolve_symbol("glGetAttribLocation", ::glGetAttribLocation, is_failed);
+	resolve_symbol("glGetProgramiv", ::glGetProgramiv, is_failed);
+	resolve_symbol("glGetProgramInfoLog", ::glGetProgramInfoLog, is_failed);
+	resolve_symbol("glGetShaderiv", ::glGetShaderiv, is_failed);
+	resolve_symbol("glGetShaderInfoLog", ::glGetShaderInfoLog, is_failed);
+	resolve_symbol("glGetShaderSource", ::glGetShaderSource, is_failed);
+	resolve_symbol("glGetUniformLocation", ::glGetUniformLocation, is_failed);
+	resolve_symbol("glGetUniformfv", ::glGetUniformfv, is_failed);
+	resolve_symbol("glGetUniformiv", ::glGetUniformiv, is_failed);
+	resolve_symbol("glGetVertexAttribdv", ::glGetVertexAttribdv, is_failed);
+	resolve_symbol("glGetVertexAttribfv", ::glGetVertexAttribfv, is_failed);
+	resolve_symbol("glGetVertexAttribiv", ::glGetVertexAttribiv, is_failed);
+	resolve_symbol("glGetVertexAttribPointerv", ::glGetVertexAttribPointerv, is_failed);
+	resolve_symbol("glIsProgram", ::glIsProgram, is_failed);
+	resolve_symbol("glIsShader", ::glIsShader, is_failed);
+	resolve_symbol("glLinkProgram", ::glLinkProgram, is_failed);
+	resolve_symbol("glShaderSource", ::glShaderSource, is_failed);
+	resolve_symbol("glUseProgram", ::glUseProgram, is_failed);
+	resolve_symbol("glUniform1f", ::glUniform1f, is_failed);
+	resolve_symbol("glUniform2f", ::glUniform2f, is_failed);
+	resolve_symbol("glUniform3f", ::glUniform3f, is_failed);
+	resolve_symbol("glUniform4f", ::glUniform4f, is_failed);
+	resolve_symbol("glUniform1i", ::glUniform1i, is_failed);
+	resolve_symbol("glUniform2i", ::glUniform2i, is_failed);
+	resolve_symbol("glUniform3i", ::glUniform3i, is_failed);
+	resolve_symbol("glUniform4i", ::glUniform4i, is_failed);
+	resolve_symbol("glUniform1fv", ::glUniform1fv, is_failed);
+	resolve_symbol("glUniform2fv", ::glUniform2fv, is_failed);
+	resolve_symbol("glUniform3fv", ::glUniform3fv, is_failed);
+	resolve_symbol("glUniform4fv", ::glUniform4fv, is_failed);
+	resolve_symbol("glUniform1iv", ::glUniform1iv, is_failed);
+	resolve_symbol("glUniform2iv", ::glUniform2iv, is_failed);
+	resolve_symbol("glUniform3iv", ::glUniform3iv, is_failed);
+	resolve_symbol("glUniform4iv", ::glUniform4iv, is_failed);
+	resolve_symbol("glUniformMatrix2fv", ::glUniformMatrix2fv, is_failed);
+	resolve_symbol("glUniformMatrix3fv", ::glUniformMatrix3fv, is_failed);
+	resolve_symbol("glUniformMatrix4fv", ::glUniformMatrix4fv, is_failed);
+	resolve_symbol("glValidateProgram", ::glValidateProgram, is_failed);
+	resolve_symbol("glVertexAttrib1d", ::glVertexAttrib1d, is_failed);
+	resolve_symbol("glVertexAttrib1dv", ::glVertexAttrib1dv, is_failed);
+	resolve_symbol("glVertexAttrib1f", ::glVertexAttrib1f, is_failed);
+	resolve_symbol("glVertexAttrib1fv", ::glVertexAttrib1fv, is_failed);
+	resolve_symbol("glVertexAttrib1s", ::glVertexAttrib1s, is_failed);
+	resolve_symbol("glVertexAttrib1sv", ::glVertexAttrib1sv, is_failed);
+	resolve_symbol("glVertexAttrib2d", ::glVertexAttrib2d, is_failed);
+	resolve_symbol("glVertexAttrib2dv", ::glVertexAttrib2dv, is_failed);
+	resolve_symbol("glVertexAttrib2f", ::glVertexAttrib2f, is_failed);
+	resolve_symbol("glVertexAttrib2fv", ::glVertexAttrib2fv, is_failed);
+	resolve_symbol("glVertexAttrib2s", ::glVertexAttrib2s, is_failed);
+	resolve_symbol("glVertexAttrib2sv", ::glVertexAttrib2sv, is_failed);
+	resolve_symbol("glVertexAttrib3d", ::glVertexAttrib3d, is_failed);
+	resolve_symbol("glVertexAttrib3dv", ::glVertexAttrib3dv, is_failed);
+	resolve_symbol("glVertexAttrib3f", ::glVertexAttrib3f, is_failed);
+	resolve_symbol("glVertexAttrib3fv", ::glVertexAttrib3fv, is_failed);
+	resolve_symbol("glVertexAttrib3s", ::glVertexAttrib3s, is_failed);
+	resolve_symbol("glVertexAttrib3sv", ::glVertexAttrib3sv, is_failed);
+	resolve_symbol("glVertexAttrib4Nbv", ::glVertexAttrib4Nbv, is_failed);
+	resolve_symbol("glVertexAttrib4Niv", ::glVertexAttrib4Niv, is_failed);
+	resolve_symbol("glVertexAttrib4Nsv", ::glVertexAttrib4Nsv, is_failed);
+	resolve_symbol("glVertexAttrib4Nub", ::glVertexAttrib4Nub, is_failed);
+	resolve_symbol("glVertexAttrib4Nubv", ::glVertexAttrib4Nubv, is_failed);
+	resolve_symbol("glVertexAttrib4Nuiv", ::glVertexAttrib4Nuiv, is_failed);
+	resolve_symbol("glVertexAttrib4Nusv", ::glVertexAttrib4Nusv, is_failed);
+	resolve_symbol("glVertexAttrib4bv", ::glVertexAttrib4bv, is_failed);
+	resolve_symbol("glVertexAttrib4d", ::glVertexAttrib4d, is_failed);
+	resolve_symbol("glVertexAttrib4dv", ::glVertexAttrib4dv, is_failed);
+	resolve_symbol("glVertexAttrib4f", ::glVertexAttrib4f, is_failed);
+	resolve_symbol("glVertexAttrib4fv", ::glVertexAttrib4fv, is_failed);
+	resolve_symbol("glVertexAttrib4iv", ::glVertexAttrib4iv, is_failed);
+	resolve_symbol("glVertexAttrib4s", ::glVertexAttrib4s, is_failed);
+	resolve_symbol("glVertexAttrib4sv", ::glVertexAttrib4sv, is_failed);
+	resolve_symbol("glVertexAttrib4ubv", ::glVertexAttrib4ubv, is_failed);
+	resolve_symbol("glVertexAttrib4uiv", ::glVertexAttrib4uiv, is_failed);
+	resolve_symbol("glVertexAttrib4usv", ::glVertexAttrib4usv, is_failed);
+	resolve_symbol("glVertexAttribPointer", ::glVertexAttribPointer, is_failed);
+
+	if (is_failed)
+	{
+		clear_v2_0();
+
+		return false;
+	}
+
+	return true;
+}
+
+void OglExtensionManagerImpl::clear_v2_1()
+{
+	::glUniformMatrix2x3fv = nullptr;
+	::glUniformMatrix3x2fv = nullptr;
+	::glUniformMatrix2x4fv = nullptr;
+	::glUniformMatrix4x2fv = nullptr;
+	::glUniformMatrix3x4fv = nullptr;
+	::glUniformMatrix4x3fv = nullptr;
+}
+
+bool OglExtensionManagerImpl::resolve_v2_1()
+{
+	auto is_failed = false;
+
+	resolve_symbol("glUniformMatrix2x3fv", ::glUniformMatrix2x3fv, is_failed);
+	resolve_symbol("glUniformMatrix3x2fv", ::glUniformMatrix3x2fv, is_failed);
+	resolve_symbol("glUniformMatrix2x4fv", ::glUniformMatrix2x4fv, is_failed);
+	resolve_symbol("glUniformMatrix4x2fv", ::glUniformMatrix4x2fv, is_failed);
+	resolve_symbol("glUniformMatrix3x4fv", ::glUniformMatrix3x4fv, is_failed);
+	resolve_symbol("glUniformMatrix4x3fv", ::glUniformMatrix4x3fv, is_failed);
+
+	if (is_failed)
+	{
+		clear_v2_1();
 
 		return false;
 	}
