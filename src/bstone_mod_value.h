@@ -58,7 +58,7 @@ public:
 	ModValue& operator=(
 		const T& rhs)
 	{
-		is_modified_ = (value_ == rhs);
+		is_modified_ = (value_ != rhs);
 		value_ = rhs;
 
 		return *this;
