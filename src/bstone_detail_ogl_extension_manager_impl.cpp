@@ -94,6 +94,10 @@ private:
 		bool is_virtual_;
 		bool is_probed_;
 		bool is_available_;
+		bool is_gl_;
+		bool is_glcore_;
+		bool is_gles1_;
+		bool is_gles2_;
 
 		std::string extension_name_;
 		ResolveSymbolsFunction resolve_symbols_function_;
@@ -103,6 +107,9 @@ private:
 	using Registry = std::vector<RegistryItem>;
 
 
+	OglRendererUtilsContextType context_type_;
+	int context_major_version_;
+	int context_minor_version_;
 	ExtensionNames extension_names_;
 	Registry registry_;
 
@@ -133,11 +140,26 @@ private:
 	void initialize_registry();
 
 
+	bool get_context_attributes();
+
+
 	void get_core_extension_names();
 
 	void get_compatibility_extension_names();
 
 	void get_extension_names();
+
+
+	bool is_gl() const;
+
+	bool is_glcore() const;
+
+	bool is_gles1() const;
+
+	bool is_gles2() const;
+
+	bool is_extension_compatible(
+		const OglExtensionId extension_id) const;
 
 
 	void probe_generic(
@@ -211,6 +233,7 @@ using OglExtensionManagerImplUPtr = std::unique_ptr<OglExtensionManagerImpl>;
 
 OglExtensionManagerImpl::OglExtensionManagerImpl()
 	:
+	context_type_{},
 	extension_names_{},
 	registry_{}
 {
@@ -219,6 +242,7 @@ OglExtensionManagerImpl::OglExtensionManagerImpl()
 OglExtensionManagerImpl::OglExtensionManagerImpl(
 	OglExtensionManagerImpl&& rhs)
 	:
+	context_type_{std::move(rhs.context_type_)},
 	extension_names_{std::move(rhs.extension_names_)},
 	registry_{std::move(rhs.registry_)}
 {
@@ -230,10 +254,10 @@ OglExtensionManagerImpl::~OglExtensionManagerImpl()
 
 bool OglExtensionManagerImpl::initialize()
 {
-	const auto sdl_gl_context = ::SDL_GL_GetCurrentContext();
-
-	if (sdl_gl_context == nullptr)
+	if (!get_context_attributes())
 	{
+		assert(!"Failed to get context's attributes.");
+
 		return false;
 	}
 
@@ -263,13 +287,6 @@ const std::string& OglExtensionManagerImpl::get_extension_name(
 void OglExtensionManagerImpl::probe_extension(
 	const OglExtensionId extension_id)
 {
-	const auto extension_index = get_extension_index(extension_id);
-
-	if (extension_index < 0)
-	{
-		return;
-	}
-
 	probe_generic(extension_id);
 }
 
@@ -327,6 +344,10 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_virtual_ = true;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = false;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "v1.0";
 		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_v1_0;
 		registry_item.dependencies_ = {};
@@ -337,6 +358,10 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_virtual_ = true;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = false;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "v1.1";
 		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_v1_1;
 		registry_item.dependencies_ = {OglExtensionId::v1_0};
@@ -347,6 +372,10 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_virtual_ = true;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = false;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "v1.2";
 		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_v1_2;
 		registry_item.dependencies_ = {OglExtensionId::v1_1};
@@ -357,6 +386,10 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_virtual_ = true;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = false;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "v1.3";
 		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_v1_3;
 		registry_item.dependencies_ = {OglExtensionId::v1_2};
@@ -367,6 +400,10 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_virtual_ = true;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = false;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "v1.4";
 		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_v1_4;
 		registry_item.dependencies_ = {OglExtensionId::v1_3};
@@ -377,6 +414,10 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_virtual_ = true;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = false;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "v1.5";
 		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_v1_5;
 		registry_item.dependencies_ = {OglExtensionId::v1_4};
@@ -387,6 +428,10 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_virtual_ = true;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = false;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "v2.0";
 		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_v2_0;
 		registry_item.dependencies_ = {OglExtensionId::v1_5};
@@ -397,6 +442,10 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_virtual_ = true;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = false;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "v2.1";
 		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_v2_1;
 		registry_item.dependencies_ = {OglExtensionId::v2_0};
@@ -407,6 +456,10 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_virtual_ = false;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = true;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "GL_ARB_framebuffer_object";
 		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_arb_framebuffer_object;
 		registry_item.dependencies_ = {OglExtensionId::v1_1};
@@ -417,6 +470,10 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_virtual_ = false;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = true;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "GL_ARB_texture_filter_anisotropic";
 		registry_item.resolve_symbols_function_ = nullptr;
 		registry_item.dependencies_ = {OglExtensionId::v1_2};
@@ -427,6 +484,10 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_virtual_ = false;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = true;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "GL_ARB_texture_non_power_of_two";
 		registry_item.resolve_symbols_function_ = nullptr;
 		registry_item.dependencies_ = {};
@@ -437,6 +498,10 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_virtual_ = false;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = false;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "GL_EXT_framebuffer_blit";
 		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_ext_framebuffer_blit;
 		registry_item.dependencies_ = {OglExtensionId::v1_1};
@@ -447,6 +512,10 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_virtual_ = false;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = false;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "GL_EXT_framebuffer_multisample";
 		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_ext_framebuffer_multisample;
 		registry_item.dependencies_ = {OglExtensionId::ext_framebuffer_blit, OglExtensionId::ext_framebuffer_object};
@@ -457,6 +526,10 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_virtual_ = false;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = false;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "GL_EXT_packed_depth_stencil";
 		registry_item.resolve_symbols_function_ = nullptr;
 		registry_item.dependencies_ = {OglExtensionId::v1_1, OglExtensionId::ext_framebuffer_object};
@@ -467,6 +540,10 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_virtual_ = false;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = false;
+		registry_item.is_gles1_ = true;
+		registry_item.is_gles2_ = true;
 		registry_item.extension_name_ = "GL_EXT_texture_filter_anisotropic";
 		registry_item.resolve_symbols_function_ = nullptr;
 		registry_item.dependencies_ = {};
@@ -477,6 +554,10 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_virtual_ = false;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = false;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "GL_EXT_texture";
 		registry_item.resolve_symbols_function_ = nullptr;
 		registry_item.dependencies_ = {};
@@ -487,10 +568,43 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_virtual_ = false;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = false;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "GL_SGIS_generate_mipmap";
 		registry_item.resolve_symbols_function_ = nullptr;
 		registry_item.dependencies_ = {OglExtensionId::ext_texture};
 	}
+}
+
+bool OglExtensionManagerImpl::get_context_attributes()
+{
+	const auto context_type = OglRendererUtils::context_get_type();
+
+	if (context_type == OglRendererUtilsContextType::invalid)
+	{
+		return false;
+	}
+
+	if (!OglRendererUtils::context_get_version(context_major_version_, context_minor_version_))
+	{
+		return false;
+	}
+
+	int major_version = 0;
+	int minor_version = 0;
+
+	if (!OglRendererUtils::context_get_version(major_version, minor_version))
+	{
+		return false;
+	}
+
+	context_type_ = context_type;
+	context_major_version_ = major_version;
+	context_minor_version_ = minor_version;
+
+	return true;
 }
 
 void OglExtensionManagerImpl::get_core_extension_names()
@@ -504,6 +618,8 @@ void OglExtensionManagerImpl::get_core_extension_names()
 
 	if (is_failed)
 	{
+		assert(!"Failed to resolve essential symbols.");
+
 		return;
 	}
 
@@ -525,6 +641,8 @@ void OglExtensionManagerImpl::get_core_extension_names()
 
 		if (extension_name == nullptr)
 		{
+			assert(!"Null extension name.");
+
 			return;
 		}
 
@@ -543,6 +661,8 @@ void OglExtensionManagerImpl::get_compatibility_extension_names()
 
 	if (is_failed)
 	{
+		assert(!"Failed to resolve essential symbols.");
+
 		return;
 	}
 
@@ -550,6 +670,8 @@ void OglExtensionManagerImpl::get_compatibility_extension_names()
 
 	if (ogl_extensions_c_string == nullptr)
 	{
+		assert(!"Null extensions string.");
+
 		return;
 	}
 
@@ -576,31 +698,16 @@ void OglExtensionManagerImpl::get_compatibility_extension_names()
 
 void OglExtensionManagerImpl::get_extension_names()
 {
-	const auto context_type = OglRendererUtils::context_get_type();
-
-	if (context_type == OglRendererUtilsContextType::invalid)
-	{
-		return;
-	}
-
 	auto is_core = false;
 
-	if (context_type == OglRendererUtilsContextType::es)
+	if (context_type_ == OglRendererUtilsContextType::es)
 	{
-		int major_version = 0;
-		int minor_version = 0;
-
-		if (!OglRendererUtils::context_get_version(major_version, minor_version))
-		{
-			return;
-		}
-
-		if (major_version >= 3)
+		if (context_major_version_ >= 3)
 		{
 			is_core = true;
 		}
 	}
-	else if (context_type == OglRendererUtilsContextType::core)
+	else if (context_type_ == OglRendererUtilsContextType::core)
 	{
 		is_core = true;
 	}
@@ -617,6 +724,58 @@ void OglExtensionManagerImpl::get_extension_names()
 	std::sort(extension_names_.begin(), extension_names_.end());
 }
 
+bool OglExtensionManagerImpl::is_gl() const
+{
+	return
+		context_type_ == OglRendererUtilsContextType::none ||
+		context_type_ == OglRendererUtilsContextType::compatibility
+	;
+}
+
+bool OglExtensionManagerImpl::is_glcore() const
+{
+	return
+		context_type_ == OglRendererUtilsContextType::core
+	;
+
+}
+
+bool OglExtensionManagerImpl::is_gles1() const
+{
+	return
+		context_type_ == OglRendererUtilsContextType::es &&
+		context_major_version_ == 1
+	;
+}
+
+bool OglExtensionManagerImpl::is_gles2() const
+{
+	return
+		context_type_ == OglRendererUtilsContextType::es &&
+		context_major_version_ == 2
+	;
+}
+
+bool OglExtensionManagerImpl::is_extension_compatible(
+	const OglExtensionId extension_id) const
+{
+	const auto extension_index = get_extension_index(extension_id);
+
+	if (extension_index < 0)
+	{
+		return false;
+	}
+
+	const auto& registry_item = registry_[extension_index];
+
+	return
+		is_gl() == registry_item.is_gl_ ||
+		is_glcore() == registry_item.is_glcore_ ||
+		is_gles1() == registry_item.is_gles1_ ||
+		is_gles2() == registry_item.is_gles2_
+	;
+}
+
 void OglExtensionManagerImpl::probe_generic(
 	const OglExtensionId extension_id)
 {
@@ -624,7 +783,7 @@ void OglExtensionManagerImpl::probe_generic(
 
 	if (extension_index < 0)
 	{
-		assert("Invalid extension id.");
+		assert(!"Invalid extension id.");
 
 		return;
 	}
@@ -638,15 +797,25 @@ void OglExtensionManagerImpl::probe_generic(
 
 	registry_item.is_probed_ = true;
 
+	if (!is_extension_compatible(extension_id))
+	{
+		return;
+	}
+
 	if (registry_item.is_virtual_ && registry_item.resolve_symbols_function_ == nullptr)
 	{
-		assert("Expected symbols loader for specific version.");
+		assert(!"Expected symbols loader for specific version.");
 
 		return;
 	}
 
 	for (const auto dependency_extension_id : registry_item.dependencies_)
 	{
+		if (!is_extension_compatible(dependency_extension_id))
+		{
+			continue;
+		}
+
 		probe_generic(dependency_extension_id);
 
 		if (!has_extension(dependency_extension_id))
