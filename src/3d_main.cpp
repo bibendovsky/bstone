@@ -7293,8 +7293,6 @@ namespace
 {
 
 
-const auto vid_is_widescreen_name = "vid_is_widescreen";
-const auto vid_is_ui_stretched_name = "vid_is_ui_stretched";
 const auto snd_is_sfx_enabled_name = "snd_is_sfx_enabled";
 const auto snd_is_music_enabled_name = "snd_is_music_enabled";
 const auto snd_sfx_volume_name = "snd_sfx_volume";
@@ -7615,32 +7613,19 @@ void read_text_config()
 			{
 				const auto line = reader.read_line();
 
-				auto name = std::string{};
+				auto key_string = std::string{};
 				auto index0 = int{};
 				auto index1 = int{};
 				auto value_string = std::string{};
 
-				if (parse_config_line(line, name, index0, index1, value_string))
+				if (parse_config_line(line, key_string, index0, index1, value_string))
 				{
-					if (name == vid_is_widescreen_name)
+					if (key_string == ::vid_get_is_widescreen_key_name() ||
+						key_string == ::vid_get_is_ui_stretched_key_name())
 					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							::vid_widescreen = (value != 0);
-						}
+						::vid_read_configuration_key_value(key_string, value_string);
 					}
-					else if (name == vid_is_ui_stretched_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							::vid_is_ui_stretched = (value != 0);
-						}
-					}
-					else if (name == snd_is_sfx_enabled_name)
+					else if (key_string == snd_is_sfx_enabled_name)
 					{
 						int value;
 
@@ -7649,7 +7634,7 @@ void read_text_config()
 							is_sound_enabled = (value != 0);
 						}
 					}
-					else if (name == snd_is_music_enabled_name)
+					else if (key_string == snd_is_music_enabled_name)
 					{
 						int value;
 
@@ -7658,7 +7643,7 @@ void read_text_config()
 							is_music_enabled = (value != 0);
 						}
 					}
-					else if (name == snd_sfx_volume_name)
+					else if (key_string == snd_sfx_volume_name)
 					{
 						int value;
 
@@ -7677,7 +7662,7 @@ void read_text_config()
 							::sd_sfx_volume = ::sd_max_volume;
 						}
 					}
-					else if (name == snd_music_volume_name)
+					else if (key_string == snd_music_volume_name)
 					{
 						int value;
 
@@ -7696,7 +7681,7 @@ void read_text_config()
 							::sd_music_volume = ::sd_max_volume;
 						}
 					}
-					else if (name == in_use_modern_bindings_name)
+					else if (key_string == in_use_modern_bindings_name)
 					{
 						int value;
 
@@ -7705,7 +7690,7 @@ void read_text_config()
 							::in_use_modern_bindings = (value != 0);
 						}
 					}
-					else if (name == in_mouse_sensitivity_name)
+					else if (key_string == in_mouse_sensitivity_name)
 					{
 						int value;
 
@@ -7724,7 +7709,7 @@ void read_text_config()
 							::mouseadjustment = max_mouse_sensitivity;
 						}
 					}
-					else if (name == in_is_mouse_enabled_name)
+					else if (key_string == in_is_mouse_enabled_name)
 					{
 						int value;
 
@@ -7733,7 +7718,7 @@ void read_text_config()
 							::mouseenabled = (value != 0);
 						}
 					}
-					else if (name == in_is_joystick_enabled_name)
+					else if (key_string == in_is_joystick_enabled_name)
 					{
 						int value;
 
@@ -7742,7 +7727,7 @@ void read_text_config()
 							::joystickenabled = (value != 0);
 						}
 					}
-					else if (name == in_is_joystick_pad_enabled_name)
+					else if (key_string == in_is_joystick_pad_enabled_name)
 					{
 						int value;
 
@@ -7751,7 +7736,7 @@ void read_text_config()
 							::joypadenabled = (value != 0);
 						}
 					}
-					else if (name == in_is_joystick_progressive_name)
+					else if (key_string == in_is_joystick_progressive_name)
 					{
 						int value;
 
@@ -7760,7 +7745,7 @@ void read_text_config()
 							::joystickprogressive = (value != 0);
 						}
 					}
-					else if (name == in_joystick_port_name)
+					else if (key_string == in_joystick_port_name)
 					{
 						std::int16_t value;
 
@@ -7774,7 +7759,7 @@ void read_text_config()
 							::joystickport = 0;
 						}
 					}
-					else if (name == in_mouse_binding_name)
+					else if (key_string == in_mouse_binding_name)
 					{
 						if (index1 < 0)
 						{
@@ -7784,7 +7769,7 @@ void read_text_config()
 							}
 						}
 					}
-					else if (name == in_kb_binding_name)
+					else if (key_string == in_kb_binding_name)
 					{
 						if (index1 < 0)
 						{
@@ -7794,7 +7779,7 @@ void read_text_config()
 							}
 						}
 					}
-					else if (name == in_mouse_button_name)
+					else if (key_string == in_mouse_button_name)
 					{
 						if (index1 < 0)
 						{
@@ -7814,7 +7799,7 @@ void read_text_config()
 							}
 						}
 					}
-					else if (name == in_js_button_name)
+					else if (key_string == in_js_button_name)
 					{
 						if (index1 < 0)
 						{
@@ -7834,7 +7819,7 @@ void read_text_config()
 							}
 						}
 					}
-					else if (name == in_binding_name)
+					else if (key_string == in_binding_name)
 					{
 						static_assert(std::is_array<Bindings>::value, "Expected C-array type.");
 
@@ -7845,7 +7830,7 @@ void read_text_config()
 							::in_bindings[index0][index1] = get_scan_code_by_name(value_string);
 						}
 					}
-					else if (name == gp_flags_name)
+					else if (key_string == gp_flags_name)
 					{
 						std::uint16_t value;
 
@@ -7854,7 +7839,7 @@ void read_text_config()
 							game_state_flags = value;
 						}
 					}
-					else if (name == gp_no_wall_hit_sfx_name)
+					else if (key_string == gp_no_wall_hit_sfx_name)
 					{
 						int value;
 
@@ -7863,7 +7848,7 @@ void read_text_config()
 							::g_no_wall_hit_sound = (value != 0);
 						}
 					}
-					else if (name == gp_is_always_run_name)
+					else if (key_string == gp_is_always_run_name)
 					{
 						int value;
 
@@ -7872,7 +7857,7 @@ void read_text_config()
 							::g_always_run = (value != 0);
 						}
 					}
-					else if (name == gp_use_heart_beat_sfx_name)
+					else if (key_string == gp_use_heart_beat_sfx_name)
 					{
 						int value;
 
@@ -7881,7 +7866,7 @@ void read_text_config()
 							::g_heart_beat_sound = (value != 0);
 						}
 					}
-					else if (name == gp_quit_on_escape_name)
+					else if (key_string == gp_quit_on_escape_name)
 					{
 						int value;
 
@@ -7890,7 +7875,7 @@ void read_text_config()
 							::g_quit_on_escape = (value != 0);
 						}
 					}
-					else if (name == gp_no_intro_outro_name)
+					else if (key_string == gp_no_intro_outro_name)
 					{
 						int value;
 
@@ -7899,7 +7884,7 @@ void read_text_config()
 							::g_no_intro_outro = (value != 0);
 						}
 					}
-					else if (name == am_is_rotated_name)
+					else if (key_string == am_is_rotated_name)
 					{
 						int value;
 
@@ -7908,7 +7893,7 @@ void read_text_config()
 							::g_rotated_automap = (value != 0);
 						}
 					}
-					else if (name == ::gp_no_fade_in_or_out_name)
+					else if (key_string == ::gp_no_fade_in_or_out_name)
 					{
 						int value;
 
@@ -7945,6 +7930,20 @@ void ReadConfig()
 }
 
 
+void write_configuration_entry(
+	bstone::TextWriter& writer,
+	const std::string& key_string,
+	const std::string& value_string)
+{
+	const auto entry_string = key_string + " \"" + value_string + "\"\n";
+
+	if (!writer.write(entry_string))
+	{
+		bstone::Log::write_warning("Failed to write setting \"" + key_string + "\".");
+	}
+}
+
+
 namespace
 {
 
@@ -7952,17 +7951,10 @@ namespace
 template<typename T>
 void write_config_entry(
 	bstone::TextWriter& writer,
-	const std::string& name,
-	T&& value)
+	const std::string& key_string,
+	T&& value_string)
 {
-	auto&& value_string = std::to_string(value);
-
-	const auto string = name + " \"" + value_string + "\"\n";
-
-	if (!writer.write(string))
-	{
-		bstone::Log::write_warning("Failed to write setting \"" + name + "\".");
-	}
+	write_configuration_entry(writer, key_string, std::to_string(value_string));
 }
 
 const std::string& get_scan_code_name(
@@ -8062,9 +8054,7 @@ void write_text_config()
 	writer.write("// WARNING! This is auto-generated file.\n");
 	writer.write("\n");
 
-	writer.write("\n// Video\n");
-	write_config_entry(writer, vid_is_widescreen_name, ::vid_widescreen);
-	write_config_entry(writer, vid_is_ui_stretched_name, ::vid_is_ui_stretched);
+	::vid_write_configuration(writer);
 
 	writer.write("\n// Audio\n");
 	write_config_entry(writer, snd_is_sfx_enabled_name, ::sd_is_sound_enabled);

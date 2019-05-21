@@ -38,12 +38,13 @@ Free Software Foundation, Inc.,
 #include "id_vl.h"
 #include "bstone_fixed_point.h"
 #include "bstone_log.h"
+#include "bstone_renderer_manager.h"
+#include "bstone_renderer_texture_manager.h"
 #include "bstone_sdl_types.h"
 #include "bstone_sprite.h"
 #include "bstone_sprite_cache.h"
 #include "bstone_string_helper.h"
-#include "bstone_renderer_manager.h"
-#include "bstone_renderer_texture_manager.h"
+#include "bstone_text_writer.h"
 
 
 using namespace std::string_literals;
@@ -11863,6 +11864,82 @@ void vid_import_ui_mask(
 	const UiMaskBuffer& src_buffer)
 {
 	::vid_mask_buffer = src_buffer;
+}
+
+const std::string& vid_get_is_widescreen_key_name()
+{
+	static const auto& result = std::string{"vid_is_widescreen"};
+
+	return result;
+}
+
+const std::string& vid_get_is_ui_stretched_key_name()
+{
+	static const auto& result = std::string{"vid_is_ui_stretched"};
+
+	return result;
+}
+
+void vid_configuration_read_is_widescreen(
+	const std::string& value_string)
+{
+	int value = 0;
+
+	if (bstone::StringHelper::string_to_int(value_string, value))
+	{
+		::vid_widescreen = (value != 0);
+	}
+}
+
+void vid_configuration_read_is_ui_stretched(
+	const std::string& value_string)
+{
+	int value = 0;
+
+	if (bstone::StringHelper::string_to_int(value_string, value))
+	{
+		::vid_is_ui_stretched = (value != 0);
+	}
+}
+
+void vid_read_configuration_key_value(
+	const std::string& key_string,
+	const std::string& value_string)
+{
+	if (key_string == vid_get_is_widescreen_key_name())
+	{
+		::vid_configuration_read_is_widescreen(value_string);
+	}
+	else if (key_string == vid_get_is_ui_stretched_key_name())
+	{
+		::vid_configuration_read_is_ui_stretched(value_string);
+	}
+	else
+	{
+		assert(!"Invalid key name.");
+	}
+}
+
+void vid_write_configuration(
+	bstone::TextWriter& text_writer)
+{
+	text_writer.write("\n// Video\n");
+
+	// vid_is_widescreen_name
+	//
+	::write_configuration_entry(
+		text_writer,
+		::vid_get_is_widescreen_key_name(),
+		std::to_string(::vid_widescreen)
+	);
+
+	// vid_is_ui_stretched_name
+	//
+	::write_configuration_entry(
+		text_writer,
+		::vid_get_is_ui_stretched_key_name(),
+		std::to_string(::vid_is_ui_stretched)
+	);
 }
 
 void vid_draw_ui_sprite(

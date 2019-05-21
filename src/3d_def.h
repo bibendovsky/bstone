@@ -3906,6 +3906,16 @@ void CacheMessage(
 
 
 // BBi
+namespace bstone
+{
+
+
+class TextWriter;
+
+
+} // bstone
+
+
 constexpr int tilemap_wall_mask = 0B0011'1111;
 constexpr int tilemap_door_track_flag = 0B0100'0000;
 constexpr int tilemap_door_flag = 0B1000'0000;
@@ -4017,6 +4027,12 @@ int player_get_weapon_sprite_id();
 fixed player_get_weapon_bounce_offset();
 
 PaletteShiftInfo palette_shift_get_info();
+
+void write_configuration_entry(
+	bstone::TextWriter& writer,
+	const std::string& key_string,
+	const std::string& value_string);
+
 // BBi
 
 

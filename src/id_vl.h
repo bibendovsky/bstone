@@ -32,6 +32,16 @@ Free Software Foundation, Inc.,
 #include "bstone_ref_values.h"
 
 
+namespace bstone
+{
+
+
+class TextWriter;
+
+
+} // bstone
+
+
 struct statobj_t;
 struct objtype;
 
@@ -250,6 +260,18 @@ void vid_export_ui_mask(
 
 void vid_import_ui_mask(
 	const UiMaskBuffer& src_buffer);
+
+
+const std::string& vid_get_is_widescreen_key_name();
+
+const std::string& vid_get_is_ui_stretched_key_name();
+
+void vid_read_configuration_key_value(
+	const std::string& key_string,
+	const std::string& value_string);
+
+void vid_write_configuration(
+	bstone::TextWriter& text_writer);
 
 void vid_draw_ui_sprite(
 	const int sprite_id,
