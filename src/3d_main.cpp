@@ -7621,7 +7621,12 @@ void read_text_config()
 				if (parse_config_line(line, key_string, index0, index1, value_string))
 				{
 					if (key_string == ::vid_get_is_widescreen_key_name() ||
-						key_string == ::vid_get_is_ui_stretched_key_name())
+						key_string == ::vid_get_is_ui_stretched_key_name() ||
+						key_string == ::vid_get_hw_2d_texture_filter_key_name() ||
+						key_string == ::vid_get_hw_3d_texture_image_filter_key_name() ||
+						key_string == ::vid_get_hw_3d_texture_mipmap_filter_key_name() ||
+						key_string == ::vid_get_hw_3d_texture_anisotropy_key_name() ||
+						key_string == ::vid_get_hw_3d_texture_anisotropy_value_key_name())
 					{
 						::vid_read_configuration_key_value(key_string, value_string);
 					}
@@ -7927,6 +7932,7 @@ void read_text_config()
 void ReadConfig()
 {
 	read_text_config();
+	::vid_apply_configuration();
 }
 
 

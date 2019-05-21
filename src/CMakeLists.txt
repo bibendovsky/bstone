@@ -220,6 +220,7 @@ target_sources(
 		bstone_memory_stream.h
 		bstone_missing_sprite_64x64_image.h
 		bstone_missing_wall_64x64_image.h
+		bstone_mod_value.h
 		bstone_mt_queue_1r1w.h
 		bstone_ogl.h
 		bstone_opl2.h

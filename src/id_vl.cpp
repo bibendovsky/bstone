@@ -92,6 +92,8 @@ bool vid_is_fizzle_fade = false;
 bool vid_is_movie = false;
 bool vid_is_ui_stretched = false;
 
+VidConfiguration vid_configuration_;
+
 bool vid_hw_is_draw_3d_ = false;
 
 bool vid_hw_dbg_draw_all_ = false;
@@ -1725,10 +1727,17 @@ double hw_3d_camera_near_distance = 0.0;
 double hw_3d_camera_far_distance = 0.0;
 
 
+bstone::RendererSamplerState hw_2d_ui_s_state_;
 bstone::RendererSamplerPtr hw_2d_ui_s_;
+
+bstone::RendererSamplerState hw_3d_wall_s_state_;
 bstone::RendererSamplerPtr hw_3d_wall_s_;
+
+bstone::RendererSamplerState hw_3d_sprite_s_state_;
 bstone::RendererSamplerPtr hw_3d_sprite_s_;
-bstone::RendererSamplerPtr hw_3d_player_weapon_so_;
+
+bstone::RendererSamplerState hw_3d_player_weapon_s_state_;
+bstone::RendererSamplerPtr hw_3d_player_weapon_s_;
 
 
 Hw2dVbi hw_2d_vertices_;
@@ -1891,6 +1900,35 @@ void hw_dbg_3d_orient_all_sprites();
 bool hw_3d_player_weapon_initialize();
 void hw_3d_player_weapon_model_matrix_update();
 
+
+bstone::RendererMipmapMode hw_config_texture_mipmap_filter_to_renderer(
+	const bstone::RendererFilterKind filter_kind)
+{
+	switch (filter_kind)
+	{
+		case bstone::RendererFilterKind::nearest:
+			return bstone::RendererMipmapMode::nearest;
+
+		case bstone::RendererFilterKind::linear:
+			return bstone::RendererMipmapMode::linear;
+
+		default:
+			::Quit("Invalid mipmap mode.");
+			return bstone::RendererMipmapMode::none;
+	}
+}
+
+int hw_config_texture_anisotropy_to_renderer(
+	const bool is_enabled,
+	const int value)
+{
+	if (!is_enabled || value <= bstone::RendererSampler::anisotropy_min)
+	{
+		return bstone::RendererSampler::anisotropy_min;
+	}
+
+	return value;
+}
 
 int hw_get_static_index(
 	const statobj_t& bs_static)
@@ -4155,6 +4193,26 @@ void hw_matrices_build()
 	::hw_3d_matrices_build();
 }
 
+void hw_2d_sampler_ui_set_default_state()
+{
+	::hw_2d_ui_s_state_.min_filter_ = bstone::RendererFilterKind::nearest;
+	::hw_2d_ui_s_state_.mag_filter_ = bstone::RendererFilterKind::nearest;
+	::hw_2d_ui_s_state_.mipmap_mode_ = bstone::RendererMipmapMode::none;
+	::hw_2d_ui_s_state_.address_mode_u_ = bstone::RendererAddressMode::clamp;
+	::hw_2d_ui_s_state_.address_mode_v_ = bstone::RendererAddressMode::clamp;
+	::hw_2d_ui_s_state_.anisotropy_ = bstone::RendererSampler::anisotropy_min;
+}
+
+void hw_2d_sampler_ui_update()
+{
+	::hw_2d_ui_s_state_.min_filter_ = ::vid_configuration_.hw_2d_texture_filter_;
+	::hw_2d_ui_s_state_.mag_filter_ = ::vid_configuration_.hw_2d_texture_filter_;
+
+	auto param = bstone::RendererSamplerUpdateParam{};
+	param.state_ = ::hw_2d_ui_s_state_;
+	::hw_2d_ui_s_->update(param);
+}
+
 void hw_2d_sampler_ui_destroy()
 {
 	if (::hw_2d_ui_s_)
@@ -4167,12 +4225,7 @@ void hw_2d_sampler_ui_destroy()
 bool hw_2d_sampler_ui_create()
 {
 	auto param = bstone::RendererSamplerCreateParam{};
-	param.state_.min_filter_ = bstone::RendererFilterKind::nearest;
-	param.state_.mag_filter_ = bstone::RendererFilterKind::nearest;
-	param.state_.mipmap_mode_ = bstone::RendererMipmapMode::none;
-	param.state_.address_mode_u_ = bstone::RendererAddressMode::clamp;
-	param.state_.address_mode_v_ = bstone::RendererAddressMode::clamp;
-	param.state_.anisotropy_ = bstone::RendererSampler::anisotropy_min;
+	param.state_ = ::hw_2d_ui_s_state_;
 
 	::hw_2d_ui_s_ = ::hw_renderer_->sampler_create(param);
 
@@ -4182,6 +4235,34 @@ bool hw_2d_sampler_ui_create()
 	}
 
 	return true;
+}
+
+void hw_3d_sampler_sprite_set_default_state()
+{
+	::hw_3d_sprite_s_state_.min_filter_ = bstone::RendererFilterKind::nearest;
+	::hw_3d_sprite_s_state_.mag_filter_ = bstone::RendererFilterKind::nearest;
+	::hw_3d_sprite_s_state_.mipmap_mode_ = bstone::RendererMipmapMode::nearest;
+	::hw_3d_sprite_s_state_.address_mode_u_ = bstone::RendererAddressMode::clamp;
+	::hw_3d_sprite_s_state_.address_mode_v_ = bstone::RendererAddressMode::clamp;
+	::hw_3d_sprite_s_state_.anisotropy_ = bstone::RendererSampler::anisotropy_min;
+}
+
+void hw_3d_sampler_sprite_update()
+{
+	::hw_3d_sprite_s_state_.min_filter_ = ::vid_configuration_.hw_3d_texture_image_filter_;
+	::hw_3d_sprite_s_state_.mag_filter_ = ::vid_configuration_.hw_3d_texture_image_filter_;
+
+	::hw_3d_sprite_s_state_.mipmap_mode_ = ::hw_config_texture_mipmap_filter_to_renderer(
+		::vid_configuration_.hw_3d_texture_mipmap_filter_);
+
+	::hw_3d_sprite_s_state_.anisotropy_ = ::hw_config_texture_anisotropy_to_renderer(
+		::vid_configuration_.hw_3d_texture_anisotropy_,
+		::vid_configuration_.hw_3d_texture_anisotropy_value_
+	);
+
+	auto param = bstone::RendererSamplerUpdateParam{};
+	param.state_ = ::hw_3d_sprite_s_state_;
+	::hw_3d_sprite_s_->update(param);
 }
 
 void hw_3d_sampler_sprite_destroy()
@@ -4196,16 +4277,39 @@ void hw_3d_sampler_sprite_destroy()
 bool hw_3d_sampler_sprite_create()
 {
 	auto param = bstone::RendererSamplerCreateParam{};
-	param.state_.min_filter_ = bstone::RendererFilterKind::nearest;
-	param.state_.mag_filter_ = bstone::RendererFilterKind::nearest;
-	param.state_.mipmap_mode_ = bstone::RendererMipmapMode::nearest;
-	param.state_.address_mode_u_ = bstone::RendererAddressMode::clamp;
-	param.state_.address_mode_v_ = bstone::RendererAddressMode::clamp;
-	param.state_.anisotropy_ = bstone::RendererSampler::anisotropy_min;
+	param.state_ = ::hw_3d_sprite_s_state_;
 
 	::hw_3d_sprite_s_ = ::hw_renderer_->sampler_create(param);
 
 	return true;
+}
+
+void hw_3d_sampler_wall_set_default_state()
+{
+	::hw_3d_wall_s_state_.min_filter_ = bstone::RendererFilterKind::nearest;
+	::hw_3d_wall_s_state_.mag_filter_ = bstone::RendererFilterKind::nearest;
+	::hw_3d_wall_s_state_.mipmap_mode_ = bstone::RendererMipmapMode::nearest;
+	::hw_3d_wall_s_state_.address_mode_u_ = bstone::RendererAddressMode::repeat;
+	::hw_3d_wall_s_state_.address_mode_v_ = bstone::RendererAddressMode::repeat;
+	::hw_3d_wall_s_state_.anisotropy_ = bstone::RendererSampler::anisotropy_min;
+}
+
+void hw_3d_sampler_wall_update()
+{
+	::hw_3d_wall_s_state_.min_filter_ = ::vid_configuration_.hw_3d_texture_image_filter_;
+	::hw_3d_wall_s_state_.mag_filter_ = ::vid_configuration_.hw_3d_texture_image_filter_;
+
+	::hw_3d_wall_s_state_.mipmap_mode_ = ::hw_config_texture_mipmap_filter_to_renderer(
+		::vid_configuration_.hw_3d_texture_mipmap_filter_);
+
+	::hw_3d_wall_s_state_.anisotropy_ = ::hw_config_texture_anisotropy_to_renderer(
+		::vid_configuration_.hw_3d_texture_anisotropy_,
+		::vid_configuration_.hw_3d_texture_anisotropy_value_
+	);
+
+	auto param = bstone::RendererSamplerUpdateParam{};
+	param.state_ = ::hw_3d_wall_s_state_;
+	::hw_3d_wall_s_->update(param);
 }
 
 void hw_3d_sampler_wall_destroy()
@@ -4220,12 +4324,7 @@ void hw_3d_sampler_wall_destroy()
 bool hw_3d_sampler_wall_create()
 {
 	auto param = bstone::RendererSamplerCreateParam{};
-	param.state_.min_filter_ = bstone::RendererFilterKind::nearest;
-	param.state_.mag_filter_ = bstone::RendererFilterKind::nearest;
-	param.state_.mipmap_mode_ = bstone::RendererMipmapMode::nearest;
-	param.state_.address_mode_u_ = bstone::RendererAddressMode::repeat;
-	param.state_.address_mode_v_ = bstone::RendererAddressMode::repeat;
-	param.state_.anisotropy_ = bstone::RendererSampler::anisotropy_min;
+	param.state_ = ::hw_3d_wall_s_state_;
 
 	::hw_3d_wall_s_ = ::hw_renderer_->sampler_create(param);
 
@@ -4235,6 +4334,13 @@ bool hw_3d_sampler_wall_create()
 	}
 
 	return true;
+}
+
+void hw_samplers_set_default_states()
+{
+	::hw_2d_sampler_ui_set_default_state();
+	::hw_3d_sampler_sprite_set_default_state();
+	::hw_3d_sampler_wall_set_default_state();
 }
 
 void hw_samplers_uninitialize()
@@ -6357,7 +6463,7 @@ void hw_screen_3d_refresh()
 			//
 			{
 				auto& command = *command_buffer->write_sampler();
-				command.sampler_ = ::hw_3d_player_weapon_so_;
+				command.sampler_ = ::hw_3d_player_weapon_s_;
 			}
 
 			// Set vertex input.
@@ -10620,28 +10726,43 @@ void hw_3d_player_weapon_projection_matrix_build()
 	);
 }
 
+void hw_3d_player_weapon_sampler_set_default_state()
+{
+	::hw_3d_player_weapon_s_state_.min_filter_ = bstone::RendererFilterKind::nearest;
+	::hw_3d_player_weapon_s_state_.mag_filter_ = bstone::RendererFilterKind::nearest;
+	::hw_3d_player_weapon_s_state_.mipmap_mode_ = bstone::RendererMipmapMode::none;
+	::hw_3d_player_weapon_s_state_.address_mode_u_ = bstone::RendererAddressMode::clamp;
+	::hw_3d_player_weapon_s_state_.address_mode_v_ = bstone::RendererAddressMode::clamp;
+	::hw_3d_player_weapon_s_state_.anisotropy_ = bstone::RendererSampler::anisotropy_min;
+}
+
+void hw_3d_player_weapon_sampler_update()
+{
+	::hw_3d_player_weapon_s_state_.min_filter_ = ::vid_configuration_.hw_3d_texture_image_filter_;
+	::hw_3d_player_weapon_s_state_.mag_filter_ = ::vid_configuration_.hw_3d_texture_image_filter_;
+
+	auto param = bstone::RendererSamplerUpdateParam{};
+	param.state_ = ::hw_3d_player_weapon_s_state_;
+	::hw_3d_player_weapon_s_->update(param);
+}
+
 void hw_3d_player_weapon_sampler_destroy()
 {
-	if (::hw_3d_player_weapon_so_)
+	if (::hw_3d_player_weapon_s_)
 	{
-		::hw_renderer_->sampler_destroy(::hw_3d_player_weapon_so_);
-		::hw_3d_player_weapon_so_ = nullptr;
+		::hw_renderer_->sampler_destroy(::hw_3d_player_weapon_s_);
+		::hw_3d_player_weapon_s_ = nullptr;
 	}
 }
 
 bool hw_3d_player_weapon_sampler_create()
 {
 	auto param = bstone::RendererSamplerCreateParam{};
-	param.state_.min_filter_ = bstone::RendererFilterKind::nearest;
-	param.state_.mag_filter_ = bstone::RendererFilterKind::nearest;
-	param.state_.mipmap_mode_ = bstone::RendererMipmapMode::none;
-	param.state_.address_mode_u_ = bstone::RendererAddressMode::clamp;
-	param.state_.address_mode_v_ = bstone::RendererAddressMode::clamp;
-	param.state_.anisotropy_ = bstone::RendererSampler::anisotropy_min;
+	param.state_ = ::hw_3d_player_weapon_s_state_;
 
-	::hw_3d_player_weapon_so_ = ::hw_renderer_->sampler_create(param);
+	::hw_3d_player_weapon_s_ = ::hw_renderer_->sampler_create(param);
 
-	if (!::hw_3d_player_weapon_so_)
+	if (!::hw_3d_player_weapon_s_)
 	{
 		return false;
 	}
@@ -10815,6 +10936,9 @@ void hw_video_uninitialize()
 bool hw_video_initialize()
 {
 	::vid_is_hw_ = false;
+
+	::hw_samplers_set_default_states();
+	::hw_3d_player_weapon_sampler_set_default_state();
 
 	bstone::Log::write("VID: Probing for hardware accelerated renderer...");
 
@@ -11866,6 +11990,20 @@ void vid_import_ui_mask(
 	::vid_mask_buffer = src_buffer;
 }
 
+const std::string& vid_get_nearest_filter_value_string()
+{
+	static const auto& result = std::string{"nearest"};
+
+	return result;
+}
+
+const std::string& vid_get_linear_filter_value_string()
+{
+	static const auto& result = std::string{"linear"};
+
+	return result;
+}
+
 const std::string& vid_get_is_widescreen_key_name()
 {
 	static const auto& result = std::string{"vid_is_widescreen"};
@@ -11878,6 +12016,61 @@ const std::string& vid_get_is_ui_stretched_key_name()
 	static const auto& result = std::string{"vid_is_ui_stretched"};
 
 	return result;
+}
+
+const std::string& vid_get_hw_2d_texture_filter_key_name()
+{
+	static const auto& result = std::string{"vid_hw_2d_texture_filter"};
+
+	return result;
+}
+
+const std::string& vid_get_hw_3d_texture_image_filter_key_name()
+{
+	static const auto& result = std::string{"vid_hw_3d_texture_image_filter"};
+
+	return result;
+}
+
+const std::string& vid_get_hw_3d_texture_mipmap_filter_key_name()
+{
+	static const auto& result = std::string{"vid_hw_3d_texture_mipmap_filter"};
+
+	return result;
+}
+
+const std::string& vid_get_hw_3d_texture_anisotropy_key_name()
+{
+	static const auto& result = std::string{"vid_hw_3d_texture_anisotropy"};
+
+	return result;
+}
+
+const std::string& vid_get_hw_3d_texture_anisotropy_value_key_name()
+{
+	static const auto& result = std::string{"vid_hw_3d_texture_anisotropy_value"};
+
+	return result;
+}
+
+const std::string& vid_filter_to_string(
+	const bstone::RendererFilterKind filter)
+{
+	static const auto empty_string = std::string{};
+
+	switch (filter)
+	{
+		case bstone::RendererFilterKind::nearest:
+			return vid_get_nearest_filter_value_string();
+
+		case bstone::RendererFilterKind::linear:
+			return vid_get_linear_filter_value_string();
+
+		default:
+			::Quit("Invalid filter.");
+
+			return empty_string;
+	}
 }
 
 void vid_configuration_read_is_widescreen(
@@ -11902,17 +12095,98 @@ void vid_configuration_read_is_ui_stretched(
 	}
 }
 
+void vid_configuration_read_hw_2d_texture_filter(
+	const std::string& value_string)
+{
+	if (value_string == ::vid_get_nearest_filter_value_string())
+	{
+		::vid_configuration_.hw_2d_texture_filter_ = bstone::RendererFilterKind::nearest;
+	}
+	else if (value_string == ::vid_get_linear_filter_value_string())
+	{
+		::vid_configuration_.hw_2d_texture_filter_ = bstone::RendererFilterKind::linear;
+	}
+}
+
+void vid_configuration_read_hw_3d_texture_image_filter(
+	const std::string& value_string)
+{
+	if (value_string == ::vid_get_nearest_filter_value_string())
+	{
+		::vid_configuration_.hw_3d_texture_image_filter_ = bstone::RendererFilterKind::nearest;
+	}
+	else if (value_string == ::vid_get_linear_filter_value_string())
+	{
+		::vid_configuration_.hw_3d_texture_image_filter_ = bstone::RendererFilterKind::linear;
+	}
+}
+
+void vid_configuration_read_hw_3d_texture_mipmap_filter(
+	const std::string& value_string)
+{
+	if (value_string == ::vid_get_nearest_filter_value_string())
+	{
+		::vid_configuration_.hw_3d_texture_mipmap_filter_ = bstone::RendererFilterKind::nearest;
+	}
+	else if (value_string == ::vid_get_linear_filter_value_string())
+	{
+		::vid_configuration_.hw_3d_texture_mipmap_filter_ = bstone::RendererFilterKind::linear;
+	}
+}
+
+void vid_configuration_read_hw_3d_texture_anisotropy(
+	const std::string& value_string)
+{
+	int value = 0;
+
+	if (bstone::StringHelper::string_to_int(value_string, value))
+	{
+		::vid_configuration_.hw_3d_texture_anisotropy_ = (value != 0);
+	}
+}
+
+void vid_configuration_read_hw_3d_texture_anisotropy_value(
+	const std::string& value_string)
+{
+	int value = 0;
+
+	if (bstone::StringHelper::string_to_int(value_string, value))
+	{
+		::vid_configuration_.hw_3d_texture_anisotropy_value_ = value;
+	}
+}
+
 void vid_read_configuration_key_value(
 	const std::string& key_string,
 	const std::string& value_string)
 {
-	if (key_string == vid_get_is_widescreen_key_name())
+	if (key_string == ::vid_get_is_widescreen_key_name())
 	{
 		::vid_configuration_read_is_widescreen(value_string);
 	}
-	else if (key_string == vid_get_is_ui_stretched_key_name())
+	else if (key_string == ::vid_get_is_ui_stretched_key_name())
 	{
 		::vid_configuration_read_is_ui_stretched(value_string);
+	}
+	else if (key_string == ::vid_get_hw_2d_texture_filter_key_name())
+	{
+		::vid_configuration_read_hw_2d_texture_filter(value_string);
+	}
+	else if (key_string == ::vid_get_hw_3d_texture_image_filter_key_name())
+	{
+		::vid_configuration_read_hw_3d_texture_image_filter(value_string);
+	}
+	else if (key_string == ::vid_get_hw_3d_texture_mipmap_filter_key_name())
+	{
+		::vid_configuration_read_hw_3d_texture_mipmap_filter(value_string);
+	}
+	else if (key_string == ::vid_get_hw_3d_texture_anisotropy_key_name())
+	{
+		::vid_configuration_read_hw_3d_texture_anisotropy(value_string);
+	}
+	else if (key_string == ::vid_get_hw_3d_texture_anisotropy_value_key_name())
+	{
+		::vid_configuration_read_hw_3d_texture_anisotropy_value(value_string);
 	}
 	else
 	{
@@ -11940,6 +12214,84 @@ void vid_write_configuration(
 		::vid_get_is_ui_stretched_key_name(),
 		std::to_string(::vid_is_ui_stretched)
 	);
+
+	// vid_hw_2d_texture_filter
+	//
+	::write_configuration_entry(
+		text_writer,
+		::vid_get_hw_2d_texture_filter_key_name(),
+		::vid_filter_to_string(::vid_configuration_.hw_2d_texture_filter_)
+	);
+
+	// vid_hw_3d_texture_image_filter
+	//
+	::write_configuration_entry(
+		text_writer,
+		::vid_get_hw_3d_texture_image_filter_key_name(),
+		::vid_filter_to_string(::vid_configuration_.hw_3d_texture_image_filter_)
+	);
+
+	// vid_hw_3d_texture_mipmap_filter
+	//
+	::write_configuration_entry(
+		text_writer,
+		::vid_get_hw_3d_texture_mipmap_filter_key_name(),
+		::vid_filter_to_string(::vid_configuration_.hw_3d_texture_mipmap_filter_)
+	);
+
+	// vid_hw_3d_texture_anisotropy
+	//
+	::write_configuration_entry(
+		text_writer,
+		::vid_get_hw_3d_texture_anisotropy_key_name(),
+		std::to_string(::vid_configuration_.hw_3d_texture_anisotropy_)
+	);
+
+	// vid_hw_3d_texture_anisotropy_value
+	//
+	::write_configuration_entry(
+		text_writer,
+		::vid_get_hw_3d_texture_anisotropy_value_key_name(),
+		std::to_string(::vid_configuration_.hw_3d_texture_anisotropy_value_)
+	);
+}
+
+void vid_apply_hw_2d_texture_filter_configuration()
+{
+	if (!::vid_configuration_.hw_2d_texture_filter_.is_modified())
+	{
+		return;
+	}
+
+	::vid_configuration_.hw_2d_texture_filter_.set_is_modified(false);
+
+	::hw_2d_sampler_ui_update();
+}
+
+void vid_apply_hw_3d_texture_filter_configuration()
+{
+	if (!::vid_configuration_.hw_3d_texture_image_filter_.is_modified() &&
+		!::vid_configuration_.hw_3d_texture_mipmap_filter_.is_modified() &&
+		!::vid_configuration_.hw_3d_texture_anisotropy_.is_modified() &&
+		!::vid_configuration_.hw_3d_texture_anisotropy_value_.is_modified())
+	{
+		return;
+	}
+
+	::vid_configuration_.hw_3d_texture_image_filter_.set_is_modified(false);
+	::vid_configuration_.hw_3d_texture_mipmap_filter_.set_is_modified(false);
+	::vid_configuration_.hw_3d_texture_anisotropy_.set_is_modified(false);
+	::vid_configuration_.hw_3d_texture_anisotropy_value_.set_is_modified(false);
+
+	::hw_3d_sampler_sprite_update();
+	::hw_3d_sampler_wall_update();
+	::hw_3d_player_weapon_sampler_update();
+}
+
+void vid_apply_configuration()
+{
+	::vid_apply_hw_2d_texture_filter_configuration();
+	::vid_apply_hw_3d_texture_filter_configuration();
 }
 
 void vid_draw_ui_sprite(

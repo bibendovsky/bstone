@@ -29,7 +29,9 @@ Free Software Foundation, Inc.,
 #include <cstdint>
 #include <array>
 #include <vector>
+#include "bstone_mod_value.h"
 #include "bstone_ref_values.h"
+#include "bstone_renderer.h"
 
 
 namespace bstone
@@ -48,6 +50,26 @@ struct objtype;
 
 using VgaBuffer = std::vector<std::uint8_t>;
 using UiMaskBuffer = std::array<bool, ::vga_ref_width * ::vga_ref_height>;
+
+
+struct VidConfiguration
+{
+	using BoolModValue = bstone::ModValue<bool>;
+	using IntModValue = bstone::ModValue<int>;
+	using FilterModValue = bstone::ModValue<bstone::RendererFilterKind>;
+
+
+	BoolModValue is_ui_stretched_;
+	BoolModValue is_widescreen_;
+
+	FilterModValue hw_2d_texture_filter_;
+
+	FilterModValue hw_3d_texture_image_filter_;
+	FilterModValue hw_3d_texture_mipmap_filter_;
+
+	BoolModValue hw_3d_texture_anisotropy_;
+	IntModValue hw_3d_texture_anisotropy_value_;
+}; // VidConfiguration
 
 
 extern bool vid_is_hw_;
@@ -266,6 +288,19 @@ const std::string& vid_get_is_widescreen_key_name();
 
 const std::string& vid_get_is_ui_stretched_key_name();
 
+
+const std::string& vid_get_hw_2d_texture_filter_key_name();
+
+
+const std::string& vid_get_hw_3d_texture_image_filter_key_name();
+
+const std::string& vid_get_hw_3d_texture_mipmap_filter_key_name();
+
+const std::string& vid_get_hw_3d_texture_anisotropy_key_name();
+
+const std::string& vid_get_hw_3d_texture_anisotropy_value_key_name();
+
+
 void vid_read_configuration_key_value(
 	const std::string& key_string,
 	const std::string& value_string);
@@ -357,6 +392,8 @@ void vid_hw_actors_clear_render_list();
 
 void vid_hw_actors_add_render_item(
 	const int bs_actor_index);
+
+void vid_apply_configuration();
 
 
 #endif // BSTONE_ID_VL_INCLUDED
