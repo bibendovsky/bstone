@@ -82,15 +82,11 @@ int screen_y = 0;
 int screen_width = 0;
 int screen_height = 0;
 
-int filler_width = 0;
-
 bool vid_has_vsync = false;
-bool vid_widescreen = default_vid_widescreen;
 bool vid_is_hud = false;
 bool vid_is_3d = false;
 bool vid_is_fizzle_fade = false;
 bool vid_is_movie = false;
-bool vid_is_ui_stretched = false;
 
 VidConfiguration vid_configuration_;
 
@@ -667,7 +663,7 @@ void sw_calculate_dimensions()
 	::vga_height /= alignment;
 	::vga_height *= alignment;
 
-	if (::vid_widescreen)
+	if (::vid_configuration_.is_widescreen_)
 	{
 		::vga_width = ::window_width;
 	}
@@ -696,8 +692,10 @@ void sw_calculate_dimensions()
 	::screen_height /= alignment;
 	::screen_height *= alignment;
 
-	::filler_width = (::screen_width * ::vga_ref_height_4x3) - (::screen_height * ::vga_ref_width);
-	::filler_width /= 2 * ::vga_ref_height_4x3;
+	int filler_width = 0;
+
+	filler_width = (::screen_width * ::vga_ref_height_4x3) - (::screen_height * ::vga_ref_width);
+	filler_width /= 2 * ::vga_ref_height_4x3;
 
 #ifdef __vita__
 	const auto upper_filler_height = (::screen_height * ref_top_bar_height) / ::vga_ref_height + 1; //todo: double check then just hardcode values
@@ -718,9 +716,9 @@ void sw_calculate_dimensions()
 	};
 
 	::sw_ui_whole_dst_rect = SDL_Rect{
-		::filler_width,
+		filler_width,
 		0,
-		::screen_width - (2 * ::filler_width),
+		::screen_width - (2 * filler_width),
 		::screen_height,
 	};
 
@@ -735,9 +733,9 @@ void sw_calculate_dimensions()
 	};
 
 	::sw_ui_top_dst_rect = SDL_Rect{
-		::filler_width,
+		filler_width,
 		0,
-		::screen_width - (2 * ::filler_width),
+		::screen_width - (2 * filler_width),
 		upper_filler_height,
 	};
 
@@ -769,9 +767,9 @@ void sw_calculate_dimensions()
 	};
 
 	::sw_ui_bottom_dst_rect = SDL_Rect{
-		::filler_width,
+		filler_width,
 		::screen_height - lower_filler_height,
-		::screen_width - (2 * ::filler_width),
+		::screen_width - (2 * filler_width),
 		lower_filler_height,
 	};
 
@@ -780,15 +778,15 @@ void sw_calculate_dimensions()
 	::sw_filler_ui_rects[0] = SDL_Rect{
 		0,
 		0,
-		::filler_width,
+		filler_width,
 		::screen_height,
 	};
 
 	// UI right bar
 	::sw_filler_ui_rects[1] = SDL_Rect{
-		::screen_width - ::filler_width,
+		::screen_width - filler_width,
 		0,
-		::filler_width,
+		filler_width,
 		::screen_height,
 	};
 
@@ -796,15 +794,15 @@ void sw_calculate_dimensions()
 	::sw_filler_hud_rects[0] = SDL_Rect{
 		0,
 		0,
-		::filler_width,
+		filler_width,
 		upper_filler_height
 	};
 
 	// HUD upper right rect
 	::sw_filler_hud_rects[1] = SDL_Rect{
-		::screen_width - ::filler_width,
+		::screen_width - filler_width,
 		0,
-		::filler_width,
+		filler_width,
 		upper_filler_height,
 	};
 
@@ -812,15 +810,15 @@ void sw_calculate_dimensions()
 	::sw_filler_hud_rects[2] = SDL_Rect{
 		0,
 		::screen_height - lower_filler_height,
-		::filler_width,
+		filler_width,
 		lower_filler_height,
 	};
 
 	// HUD lower right rect
 	::sw_filler_hud_rects[3] = SDL_Rect{
-		::screen_width - ::filler_width,
+		::screen_width - filler_width,
 		::screen_height - lower_filler_height,
-		::filler_width,
+		filler_width,
 		lower_filler_height,
 	};
 
@@ -1149,7 +1147,7 @@ void sw_refresh_screen()
 
 	// Use filler if necessary
 	//
-	if (!::vid_is_ui_stretched)
+	if (!::vid_configuration_.is_ui_stretched_)
 	{
 		const auto is_hud = ::vid_is_hud;
 
@@ -1192,7 +1190,7 @@ void sw_refresh_screen()
 		}
 	}
 
-	if (!::vid_is_ui_stretched)
+	if (!::vid_configuration_.is_ui_stretched_)
 	{
 		if (::vid_is_fizzle_fade)
 		{
@@ -3851,7 +3849,7 @@ void hw_dimensions_calculate()
 	::vga_height /= alignment;
 	::vga_height *= alignment;
 
-	if (::vid_widescreen)
+	if (::vid_configuration_.is_widescreen_)
 	{
 		::vga_width = ::window_width;
 	}
@@ -3880,142 +3878,6 @@ void hw_dimensions_calculate()
 	::screen_height /= alignment;
 	::screen_height *= alignment;
 
-	::filler_width = (::screen_width * ::vga_ref_height_4x3) - (::screen_height * ::vga_ref_width);
-	::filler_width /= 2 * ::vga_ref_height_4x3;
-
-#ifdef __vita__
-	const auto upper_filler_height = (::screen_height * ref_top_bar_height) / ::vga_ref_height + 1; //todo: double check then just hardcode values
-	const auto lower_filler_height = (::screen_height * ref_bottom_bar_height) / ::vga_ref_height + 1;
-#else  
-	const auto upper_filler_height = (::screen_height * ref_top_bar_height) / ::vga_ref_height;
-	const auto lower_filler_height = (::screen_height * ref_bottom_bar_height) / ::vga_ref_height;
-#endif
-	const auto middle_filler_height = ::screen_height - (upper_filler_height + lower_filler_height);
-
-	// UI whole rect
-	//
-	::sw_ui_whole_src_rect = SDL_Rect{
-		0,
-		0,
-		::vga_ref_width,
-		::vga_ref_height,
-	};
-
-	::sw_ui_whole_dst_rect = SDL_Rect{
-		::filler_width,
-		0,
-		::screen_width - (2 * ::filler_width),
-		::screen_height,
-	};
-
-
-	// UI top rect
-	//
-	::sw_ui_top_src_rect = SDL_Rect{
-		0,
-		0,
-		::vga_ref_width,
-		::ref_top_bar_height,
-	};
-
-	::sw_ui_top_dst_rect = SDL_Rect{
-		::filler_width,
-		0,
-		::screen_width - (2 * ::filler_width),
-		upper_filler_height,
-	};
-
-
-	// UI middle rect (stretched to full width)
-	//
-	::sw_ui_wide_middle_src_rect = SDL_Rect{
-		0,
-		::ref_view_top_y,
-		::vga_ref_width,
-		::ref_view_height,
-	};
-
-	::sw_ui_wide_middle_dst_rect = SDL_Rect{
-		0,
-		upper_filler_height,
-		::screen_width,
-		middle_filler_height,
-	};
-
-
-	// UI bottom rect
-	//
-	::sw_ui_bottom_src_rect = SDL_Rect{
-		0,
-		::ref_view_bottom_y + 1,
-		::vga_ref_width,
-		::ref_bottom_bar_height,
-	};
-
-	::sw_ui_bottom_dst_rect = SDL_Rect{
-		::filler_width,
-		::screen_height - lower_filler_height,
-		::screen_width - (2 * ::filler_width),
-		lower_filler_height,
-	};
-
-
-	// UI left bar
-	::sw_filler_ui_rects[0] = SDL_Rect{
-		0,
-		0,
-		::filler_width,
-		::screen_height,
-	};
-
-	// UI right bar
-	::sw_filler_ui_rects[1] = SDL_Rect{
-		::screen_width - ::filler_width,
-		0,
-		::filler_width,
-		::screen_height,
-	};
-
-	// HUD upper left rect
-	::sw_filler_hud_rects[0] = SDL_Rect{
-		0,
-		0,
-		::filler_width,
-		upper_filler_height
-	};
-
-	// HUD upper right rect
-	::sw_filler_hud_rects[1] = SDL_Rect{
-		::screen_width - ::filler_width,
-		0,
-		::filler_width,
-		upper_filler_height,
-	};
-
-	// HUD lower left rect
-	::sw_filler_hud_rects[2] = SDL_Rect{
-		0,
-		::screen_height - lower_filler_height,
-		::filler_width,
-		lower_filler_height,
-	};
-
-	// HUD lower right rect
-	::sw_filler_hud_rects[3] = SDL_Rect{
-		::screen_width - ::filler_width,
-		::screen_height - lower_filler_height,
-		::filler_width,
-		lower_filler_height,
-	};
-
-	::sw_filler_color = SDL_Color{
-		::vgapal[(filler_color_index * 3) + 0],
-		::vgapal[(filler_color_index * 3) + 1],
-		::vgapal[(filler_color_index * 3) + 2],
-		0xFF,
-	};
-
-
 	::hw_2d_width_4x3_ = (::window_height * ::vga_ref_width) / ::vga_ref_height_4x3;
 
 	::hw_2d_left_filler_width_4x3_ = (::window_width - ::hw_2d_width_4x3_) / 2;
@@ -4025,10 +3887,10 @@ void hw_dimensions_calculate()
 	::hw_2d_bottom_filler_height_4x3_ = (::ref_bottom_bar_height * ::window_height) / ::vga_ref_height_4x3;
 
 
-	::hw_3d_viewport_x_ = 0;
+	::hw_3d_viewport_x_ = (::vid_configuration_.is_widescreen_ ? 0 : ::hw_2d_left_filler_width_4x3_);
 	::hw_3d_viewport_y_ = ((::ref_bottom_bar_height + ::ref_3d_margin) * ::window_height) / ::vga_ref_height;
 
-	::hw_3d_viewport_width_ = ::window_width;
+	::hw_3d_viewport_width_ = ::vga_width;
 	::hw_3d_viewport_height_ = (::ref_3d_view_height * ::window_height) / ::vga_ref_height;
 }
 
@@ -4208,9 +4070,12 @@ void hw_2d_sampler_ui_update()
 	::hw_2d_ui_s_state_.min_filter_ = ::vid_configuration_.hw_2d_texture_filter_;
 	::hw_2d_ui_s_state_.mag_filter_ = ::vid_configuration_.hw_2d_texture_filter_;
 
-	auto param = bstone::RendererSamplerUpdateParam{};
-	param.state_ = ::hw_2d_ui_s_state_;
-	::hw_2d_ui_s_->update(param);
+	if (hw_2d_ui_s_ != nullptr)
+	{
+		auto param = bstone::RendererSamplerUpdateParam{};
+		param.state_ = ::hw_2d_ui_s_state_;
+		::hw_2d_ui_s_->update(param);
+	}
 }
 
 void hw_2d_sampler_ui_destroy()
@@ -4260,9 +4125,12 @@ void hw_3d_sampler_sprite_update()
 		::vid_configuration_.hw_3d_texture_anisotropy_value_
 	);
 
-	auto param = bstone::RendererSamplerUpdateParam{};
-	param.state_ = ::hw_3d_sprite_s_state_;
-	::hw_3d_sprite_s_->update(param);
+	if (::hw_3d_sprite_s_ != nullptr)
+	{
+		auto param = bstone::RendererSamplerUpdateParam{};
+		param.state_ = ::hw_3d_sprite_s_state_;
+		::hw_3d_sprite_s_->update(param);
+	}
 }
 
 void hw_3d_sampler_sprite_destroy()
@@ -4307,9 +4175,12 @@ void hw_3d_sampler_wall_update()
 		::vid_configuration_.hw_3d_texture_anisotropy_value_
 	);
 
-	auto param = bstone::RendererSamplerUpdateParam{};
-	param.state_ = ::hw_3d_wall_s_state_;
-	::hw_3d_wall_s_->update(param);
+	if (::hw_3d_wall_s_ == nullptr)
+	{
+		auto param = bstone::RendererSamplerUpdateParam{};
+		param.state_ = ::hw_3d_wall_s_state_;
+		::hw_3d_wall_s_->update(param);
+	}
 }
 
 void hw_3d_sampler_wall_destroy()
@@ -4332,6 +4203,262 @@ bool hw_3d_sampler_wall_create()
 	{
 		return false;
 	}
+
+	return true;
+}
+
+void hw_3d_player_weapon_vb_update()
+{
+	auto vertices = Hw3dPlayerWeaponVbi{};
+	vertices.resize(::hw_3d_vertices_per_sprite);
+
+	const auto dimension = static_cast<float>(bstone::Sprite::dimension);
+	const auto half_dimension = 0.5F * dimension;
+
+	auto vertex_index = 0;
+
+	// Bottom-left.
+	//
+	{
+		auto& vertex = vertices[vertex_index++];
+		vertex.xyz_ = HwVertexPosition{-half_dimension, 0.0F, 0.0F};
+		vertex.uv_ = HwVertexTextureCoordinates{0.0F, 0.0F};
+	}
+
+	// Bottom-right.
+	//
+	{
+		auto& vertex = vertices[vertex_index++];
+		vertex.xyz_ = HwVertexPosition{half_dimension, 0.0F, 0.0F};
+		vertex.uv_ = HwVertexTextureCoordinates{1.0F, 0.0F};
+	}
+
+	// Top-right.
+	//
+	{
+		auto& vertex = vertices[vertex_index++];
+		vertex.xyz_ = HwVertexPosition{half_dimension, dimension, 0.0F};
+		vertex.uv_ = HwVertexTextureCoordinates{1.0F, 1.0F};
+	}
+
+	// Top-left.
+	//
+	{
+		auto& vertex = vertices[vertex_index];
+		vertex.xyz_ = HwVertexPosition{-half_dimension, dimension, 0.0F};
+		vertex.uv_ = HwVertexTextureCoordinates{0.0F, 1.0F};
+	}
+
+	// Update vertex buffer.
+	//
+	::hw_vertex_buffer_update(
+		::hw_3d_player_weapon_vb_,
+		0,
+		::hw_3d_vertices_per_sprite,
+		vertices.data()
+	);
+}
+
+void hw_3d_player_weapon_ib_destroy()
+{
+	::hw_index_buffer_destroy(::hw_3d_player_weapon_ib_);
+}
+
+bool hw_3d_player_weapon_ib_create()
+{
+	::hw_3d_player_weapon_ib_ = ::hw_index_buffer_create(1, ::hw_3d_indices_per_sprite);
+
+	if (!::hw_3d_player_weapon_ib_)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void hw_3d_player_weapon_ib_update()
+{
+	using Indices = std::array<std::uint8_t, ::hw_3d_indices_per_sprite>;
+
+	auto indices = Indices
+	{
+		0, 1, 2,
+		0, 2, 3,
+	}; // indices
+
+	::hw_index_buffer_update(
+		::hw_3d_player_weapon_ib_,
+		0,
+		::hw_3d_indices_per_sprite,
+		indices.data()
+	);
+}
+
+void hw_3d_player_weapon_vb_destroy()
+{
+	::hw_vertex_buffer_destroy(::hw_3d_player_weapon_vb_);
+}
+
+bool hw_3d_player_weapon_vb_create()
+{
+	::hw_3d_player_weapon_vb_ = ::hw_vertex_buffer_create<Hw3dPlayerWeaponVertex>(::hw_3d_vertices_per_sprite);
+
+	if (!::hw_3d_player_weapon_vb_)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void hw_3d_player_weapon_vi_destroy()
+{
+	::hw_vertex_input_destroy(::hw_3d_player_weapon_vi_);
+}
+
+bool hw_3d_player_weapon_vi_create()
+{
+	if (!::hw_vertex_input_create<Hw3dPlayerWeaponVertex>(
+		::hw_3d_player_weapon_ib_,
+		::hw_3d_player_weapon_vb_,
+		::hw_3d_player_weapon_vi_))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void hw_3d_player_weapon_model_matrix_update()
+{
+	const auto& assets_info = AssetsInfo{};
+
+	const auto aog_scale = 25.0 / 9.0;
+	const auto ps_scale = 91.0 / 45.0;
+
+	const auto game_scalar = (assets_info.is_ps() ? ps_scale : aog_scale);
+	const auto scalar = game_scalar * ::vga_height_scale;
+
+	const auto translate_x = 0.5 * static_cast<double>(::hw_3d_viewport_width_);
+
+	const auto bounce_offset = (assets_info.is_aog() ? 0 : ::player_get_weapon_bounce_offset());
+	const auto translate_y = ::vga_height_scale * bstone::FixedPoint{-bounce_offset}.to_double();
+
+	const auto translate_v = glm::vec3
+	{
+		static_cast<float>(translate_x),
+		static_cast<float>(translate_y),
+		0.0
+	};
+
+	const auto& identity = glm::identity<glm::mat4>();
+	const auto& translate = glm::translate(identity, translate_v);
+
+	const auto& scale = glm::scale(identity, glm::vec3{scalar, scalar, 0.0F});
+
+	::hw_3d_player_weapon_model_matrix_ = translate * scale;
+}
+
+void hw_3d_player_weapon_view_matrix_update()
+{
+	::hw_3d_player_weapon_view_matrix_ = glm::identity<glm::mat4>();
+}
+
+void hw_3d_player_weapon_projection_matrix_build()
+{
+	::hw_3d_player_weapon_projection_matrix_ = glm::orthoRH_NO(
+		0.0F, // left
+		static_cast<float>(::hw_3d_viewport_width_), // right
+		0.0F, // bottom
+		static_cast<float>(::hw_3d_viewport_height_), // top
+		0.0F, // zNear
+		1.0F // zFar
+	);
+}
+
+void hw_3d_player_weapon_sampler_set_default_state()
+{
+	::hw_3d_player_weapon_s_state_.min_filter_ = bstone::RendererFilterKind::nearest;
+	::hw_3d_player_weapon_s_state_.mag_filter_ = bstone::RendererFilterKind::nearest;
+	::hw_3d_player_weapon_s_state_.mipmap_mode_ = bstone::RendererMipmapMode::none;
+	::hw_3d_player_weapon_s_state_.address_mode_u_ = bstone::RendererAddressMode::clamp;
+	::hw_3d_player_weapon_s_state_.address_mode_v_ = bstone::RendererAddressMode::clamp;
+	::hw_3d_player_weapon_s_state_.anisotropy_ = bstone::RendererSampler::anisotropy_min;
+}
+
+void hw_3d_player_weapon_sampler_update()
+{
+	::hw_3d_player_weapon_s_state_.min_filter_ = ::vid_configuration_.hw_3d_texture_image_filter_;
+	::hw_3d_player_weapon_s_state_.mag_filter_ = ::vid_configuration_.hw_3d_texture_image_filter_;
+
+	if (::hw_3d_player_weapon_s_ == nullptr)
+	{
+		auto param = bstone::RendererSamplerUpdateParam{};
+		param.state_ = ::hw_3d_player_weapon_s_state_;
+		::hw_3d_player_weapon_s_->update(param);
+	}
+}
+
+void hw_3d_player_weapon_sampler_destroy()
+{
+	if (::hw_3d_player_weapon_s_)
+	{
+		::hw_renderer_->sampler_destroy(::hw_3d_player_weapon_s_);
+		::hw_3d_player_weapon_s_ = nullptr;
+	}
+}
+
+bool hw_3d_player_weapon_sampler_create()
+{
+	auto param = bstone::RendererSamplerCreateParam{};
+	param.state_ = ::hw_3d_player_weapon_s_state_;
+
+	::hw_3d_player_weapon_s_ = ::hw_renderer_->sampler_create(param);
+
+	if (!::hw_3d_player_weapon_s_)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void hw_3d_player_weapon_uninitialize()
+{
+	::hw_3d_player_weapon_vi_destroy();
+	::hw_3d_player_weapon_ib_destroy();
+	::hw_3d_player_weapon_vb_destroy();
+	::hw_3d_player_weapon_sampler_destroy();
+}
+
+bool hw_3d_player_weapon_initialize()
+{
+	if (!::hw_3d_player_weapon_ib_create())
+	{
+		return false;
+	}
+
+	if (!::hw_3d_player_weapon_vb_create())
+	{
+		return false;
+	}
+
+	if (!::hw_3d_player_weapon_vi_create())
+	{
+		return false;
+	}
+
+	if (!::hw_3d_player_weapon_sampler_create())
+	{
+		return false;
+	}
+
+	::hw_3d_player_weapon_ib_update();
+	::hw_3d_player_weapon_vb_update();
+
+	::hw_3d_player_weapon_model_matrix_update();
+	::hw_3d_player_weapon_view_matrix_update();
+	::hw_3d_player_weapon_projection_matrix_build();
 
 	return true;
 }
@@ -4756,7 +4883,7 @@ void hw_screen_2d_refresh()
 
 	// Fillers.
 	//
-	if (!::vid_is_ui_stretched)
+	if (!::vid_configuration_.is_ui_stretched_)
 	{
 		{
 			const auto texture_2d = (::vid_is_movie ? ::hw_2d_white_t2d_1x1_ : ::hw_2d_black_t2d_1x1_);
@@ -4820,7 +4947,7 @@ void hw_screen_2d_refresh()
 		}
 
 		{
-			const auto index_offset = (::vid_is_ui_stretched
+			const auto index_offset = (::vid_configuration_.is_ui_stretched_
 				?
 				::hw_2d_stretched_index_offset_
 				:
@@ -4875,7 +5002,7 @@ void hw_screen_2d_refresh()
 		// Draw the quad.
 		//
 		{
-			const auto index_offset = (::vid_is_ui_stretched
+			const auto index_offset = (::vid_configuration_.is_ui_stretched_
 				?
 				::hw_2d_stretched_index_offset_
 				:
@@ -6138,6 +6265,38 @@ void hw_3d_sprites_render()
 	::hw_3d_sprites_draw_count_ = draw_sprite_index;
 }
 
+void vid_apply_hw_2d_texture_filter_configuration()
+{
+	if (!::vid_configuration_.hw_2d_texture_filter_.is_modified())
+	{
+		return;
+	}
+
+	::vid_configuration_.hw_2d_texture_filter_.set_is_modified(false);
+
+	::hw_2d_sampler_ui_update();
+}
+
+void vid_apply_hw_3d_texture_filter_configuration()
+{
+	if (!::vid_configuration_.hw_3d_texture_image_filter_.is_modified() &&
+		!::vid_configuration_.hw_3d_texture_mipmap_filter_.is_modified() &&
+		!::vid_configuration_.hw_3d_texture_anisotropy_.is_modified() &&
+		!::vid_configuration_.hw_3d_texture_anisotropy_value_.is_modified())
+	{
+		return;
+	}
+
+	::vid_configuration_.hw_3d_texture_image_filter_.set_is_modified(false);
+	::vid_configuration_.hw_3d_texture_mipmap_filter_.set_is_modified(false);
+	::vid_configuration_.hw_3d_texture_anisotropy_.set_is_modified(false);
+	::vid_configuration_.hw_3d_texture_anisotropy_value_.set_is_modified(false);
+
+	::hw_3d_sampler_sprite_update();
+	::hw_3d_sampler_wall_update();
+	::hw_3d_player_weapon_sampler_update();
+}
+
 void hw_3d_fade_update()
 {
 	::hw_3d_fade_is_enabled_ = false;
@@ -6607,6 +6766,8 @@ void hw_screen_refresh()
 
 	++test_reset_counter_;
 #endif
+
+	::vid_apply_hw_configuration();
 
 	if (::vid_is_hud && ::player != nullptr)
 	{
@@ -10557,259 +10718,6 @@ void hw_3d_sprites_build()
 	::hw_3d_actors_build();
 }
 
-void hw_3d_player_weapon_vb_update()
-{
-	auto vertices = Hw3dPlayerWeaponVbi{};
-	vertices.resize(::hw_3d_vertices_per_sprite);
-
-	const auto dimension = static_cast<float>(bstone::Sprite::dimension);
-	const auto half_dimension = 0.5F * dimension;
-
-	auto vertex_index = 0;
-
-	// Bottom-left.
-	//
-	{
-		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = HwVertexPosition{-half_dimension, 0.0F, 0.0F};
-		vertex.uv_ = HwVertexTextureCoordinates{0.0F, 0.0F};
-	}
-
-	// Bottom-right.
-	//
-	{
-		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = HwVertexPosition{half_dimension, 0.0F, 0.0F};
-		vertex.uv_ = HwVertexTextureCoordinates{1.0F, 0.0F};
-	}
-
-	// Top-right.
-	//
-	{
-		auto& vertex = vertices[vertex_index++];
-		vertex.xyz_ = HwVertexPosition{half_dimension, dimension, 0.0F};
-		vertex.uv_ = HwVertexTextureCoordinates{1.0F, 1.0F};
-	}
-
-	// Top-left.
-	//
-	{
-		auto& vertex = vertices[vertex_index];
-		vertex.xyz_ = HwVertexPosition{-half_dimension, dimension, 0.0F};
-		vertex.uv_ = HwVertexTextureCoordinates{0.0F, 1.0F};
-	}
-
-	// Update vertex buffer.
-	//
-	::hw_vertex_buffer_update(
-		::hw_3d_player_weapon_vb_,
-		0,
-		::hw_3d_vertices_per_sprite,
-		vertices.data()
-	);
-}
-
-void hw_3d_player_weapon_ib_destroy()
-{
-	::hw_index_buffer_destroy(::hw_3d_player_weapon_ib_);
-}
-
-bool hw_3d_player_weapon_ib_create()
-{
-	::hw_3d_player_weapon_ib_ = ::hw_index_buffer_create(1, ::hw_3d_indices_per_sprite);
-
-	if (!::hw_3d_player_weapon_ib_)
-	{
-		return false;
-	}
-
-	return true;
-}
-
-void hw_3d_player_weapon_ib_update()
-{
-	using Indices = std::array<std::uint8_t, ::hw_3d_indices_per_sprite>;
-
-	auto indices = Indices
-	{
-		0, 1, 2,
-		0, 2, 3,
-	}; // indices
-
-	::hw_index_buffer_update(
-		::hw_3d_player_weapon_ib_,
-		0,
-		::hw_3d_indices_per_sprite,
-		indices.data()
-	);
-}
-
-void hw_3d_player_weapon_vb_destroy()
-{
-	::hw_vertex_buffer_destroy(::hw_3d_player_weapon_vb_);
-}
-
-bool hw_3d_player_weapon_vb_create()
-{
-	::hw_3d_player_weapon_vb_ = ::hw_vertex_buffer_create<Hw3dPlayerWeaponVertex>(::hw_3d_vertices_per_sprite);
-
-	if (!::hw_3d_player_weapon_vb_)
-	{
-		return false;
-	}
-
-	return true;
-}
-
-void hw_3d_player_weapon_vi_destroy()
-{
-	::hw_vertex_input_destroy(::hw_3d_player_weapon_vi_);
-}
-
-bool hw_3d_player_weapon_vi_create()
-{
-	if (!::hw_vertex_input_create<Hw3dPlayerWeaponVertex>(
-		::hw_3d_player_weapon_ib_,
-		::hw_3d_player_weapon_vb_,
-		::hw_3d_player_weapon_vi_))
-	{
-		return false;
-	}
-
-	return true;
-}
-
-void hw_3d_player_weapon_model_matrix_update()
-{
-	const auto& assets_info = AssetsInfo{};
-
-	const auto aog_scale = 25.0 / 9.0;
-	const auto ps_scale = 91.0 / 45.0;
-
-	const auto game_scalar = (assets_info.is_ps() ? ps_scale : aog_scale);
-	const auto scalar = game_scalar * ::vga_height_scale;
-
-	const auto translate_x = 0.5 * static_cast<double>(::hw_3d_viewport_width_);
-
-	const auto bounce_offset = (assets_info.is_aog() ? 0 : ::player_get_weapon_bounce_offset());
-	const auto translate_y = ::vga_height_scale * bstone::FixedPoint{-bounce_offset}.to_double();
-
-	const auto translate_v = glm::vec3
-	{
-		static_cast<float>(translate_x),
-		static_cast<float>(translate_y),
-		0.0
-	};
-
-	const auto& identity = glm::identity<glm::mat4>();
-	const auto& translate = glm::translate(identity, translate_v);
-
-	const auto& scale = glm::scale(identity, glm::vec3{scalar, scalar, 0.0F});
-
-	::hw_3d_player_weapon_model_matrix_ = translate * scale;
-}
-
-void hw_3d_player_weapon_view_matrix_update()
-{
-	::hw_3d_player_weapon_view_matrix_ = glm::identity<glm::mat4>();
-}
-
-void hw_3d_player_weapon_projection_matrix_build()
-{
-	::hw_3d_player_weapon_projection_matrix_ = glm::orthoRH_NO(
-		0.0F, // left
-		static_cast<float>(::hw_3d_viewport_width_), // right
-		0.0F, // bottom
-		static_cast<float>(::hw_3d_viewport_height_), // top
-		0.0F, // zNear
-		1.0F // zFar
-	);
-}
-
-void hw_3d_player_weapon_sampler_set_default_state()
-{
-	::hw_3d_player_weapon_s_state_.min_filter_ = bstone::RendererFilterKind::nearest;
-	::hw_3d_player_weapon_s_state_.mag_filter_ = bstone::RendererFilterKind::nearest;
-	::hw_3d_player_weapon_s_state_.mipmap_mode_ = bstone::RendererMipmapMode::none;
-	::hw_3d_player_weapon_s_state_.address_mode_u_ = bstone::RendererAddressMode::clamp;
-	::hw_3d_player_weapon_s_state_.address_mode_v_ = bstone::RendererAddressMode::clamp;
-	::hw_3d_player_weapon_s_state_.anisotropy_ = bstone::RendererSampler::anisotropy_min;
-}
-
-void hw_3d_player_weapon_sampler_update()
-{
-	::hw_3d_player_weapon_s_state_.min_filter_ = ::vid_configuration_.hw_3d_texture_image_filter_;
-	::hw_3d_player_weapon_s_state_.mag_filter_ = ::vid_configuration_.hw_3d_texture_image_filter_;
-
-	auto param = bstone::RendererSamplerUpdateParam{};
-	param.state_ = ::hw_3d_player_weapon_s_state_;
-	::hw_3d_player_weapon_s_->update(param);
-}
-
-void hw_3d_player_weapon_sampler_destroy()
-{
-	if (::hw_3d_player_weapon_s_)
-	{
-		::hw_renderer_->sampler_destroy(::hw_3d_player_weapon_s_);
-		::hw_3d_player_weapon_s_ = nullptr;
-	}
-}
-
-bool hw_3d_player_weapon_sampler_create()
-{
-	auto param = bstone::RendererSamplerCreateParam{};
-	param.state_ = ::hw_3d_player_weapon_s_state_;
-
-	::hw_3d_player_weapon_s_ = ::hw_renderer_->sampler_create(param);
-
-	if (!::hw_3d_player_weapon_s_)
-	{
-		return false;
-	}
-
-	return true;
-}
-
-void hw_3d_player_weapon_uninitialize()
-{
-	::hw_3d_player_weapon_vi_destroy();
-	::hw_3d_player_weapon_ib_destroy();
-	::hw_3d_player_weapon_vb_destroy();
-	::hw_3d_player_weapon_sampler_destroy();
-}
-
-bool hw_3d_player_weapon_initialize()
-{
-	if (!::hw_3d_player_weapon_ib_create())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_player_weapon_vb_create())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_player_weapon_vi_create())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_player_weapon_sampler_create())
-	{
-		return false;
-	}
-
-	::hw_3d_player_weapon_ib_update();
-	::hw_3d_player_weapon_vb_update();
-
-	::hw_3d_player_weapon_model_matrix_update();
-	::hw_3d_player_weapon_view_matrix_update();
-	::hw_3d_player_weapon_projection_matrix_build();
-
-	return true;
-}
-
 void hw_precache_resources()
 {
 	::hw_texture_manager_->cache_begin();
@@ -12080,7 +11988,7 @@ void vid_configuration_read_is_widescreen(
 
 	if (bstone::StringHelper::string_to_int(value_string, value))
 	{
-		::vid_widescreen = (value != 0);
+		::vid_configuration_.is_widescreen_ = (value != 0);
 	}
 }
 
@@ -12091,7 +11999,7 @@ void vid_configuration_read_is_ui_stretched(
 
 	if (bstone::StringHelper::string_to_int(value_string, value))
 	{
-		::vid_is_ui_stretched = (value != 0);
+		::vid_configuration_.is_ui_stretched_ = (value != 0);
 	}
 }
 
@@ -12204,7 +12112,7 @@ void vid_write_configuration(
 	::write_configuration_entry(
 		text_writer,
 		::vid_get_is_widescreen_key_name(),
-		std::to_string(::vid_widescreen)
+		std::to_string(::vid_configuration_.is_widescreen_)
 	);
 
 	// vid_is_ui_stretched_name
@@ -12212,7 +12120,7 @@ void vid_write_configuration(
 	::write_configuration_entry(
 		text_writer,
 		::vid_get_is_ui_stretched_key_name(),
-		std::to_string(::vid_is_ui_stretched)
+		std::to_string(::vid_configuration_.is_ui_stretched_)
 	);
 
 	// vid_hw_2d_texture_filter
@@ -12256,42 +12164,9 @@ void vid_write_configuration(
 	);
 }
 
-void vid_apply_hw_2d_texture_filter_configuration()
+VidConfiguration& vid_get_configuration()
 {
-	if (!::vid_configuration_.hw_2d_texture_filter_.is_modified())
-	{
-		return;
-	}
-
-	::vid_configuration_.hw_2d_texture_filter_.set_is_modified(false);
-
-	::hw_2d_sampler_ui_update();
-}
-
-void vid_apply_hw_3d_texture_filter_configuration()
-{
-	if (!::vid_configuration_.hw_3d_texture_image_filter_.is_modified() &&
-		!::vid_configuration_.hw_3d_texture_mipmap_filter_.is_modified() &&
-		!::vid_configuration_.hw_3d_texture_anisotropy_.is_modified() &&
-		!::vid_configuration_.hw_3d_texture_anisotropy_value_.is_modified())
-	{
-		return;
-	}
-
-	::vid_configuration_.hw_3d_texture_image_filter_.set_is_modified(false);
-	::vid_configuration_.hw_3d_texture_mipmap_filter_.set_is_modified(false);
-	::vid_configuration_.hw_3d_texture_anisotropy_.set_is_modified(false);
-	::vid_configuration_.hw_3d_texture_anisotropy_value_.set_is_modified(false);
-
-	::hw_3d_sampler_sprite_update();
-	::hw_3d_sampler_wall_update();
-	::hw_3d_player_weapon_sampler_update();
-}
-
-void vid_apply_configuration()
-{
-	::vid_apply_hw_2d_texture_filter_configuration();
-	::vid_apply_hw_3d_texture_filter_configuration();
+	return vid_configuration_;
 }
 
 void vid_draw_ui_sprite(
@@ -12792,5 +12667,11 @@ void vid_hw_actors_add_render_item(
 	}
 
 	::hw_3d_actors_to_render_.insert(bs_actor_index);
+}
+
+void vid_apply_hw_configuration()
+{
+	::vid_apply_hw_2d_texture_filter_configuration();
+	::vid_apply_hw_3d_texture_filter_configuration();
 }
 // BBi

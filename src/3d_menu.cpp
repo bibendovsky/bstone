@@ -5629,6 +5629,8 @@ void video_draw_switch(
 {
 	std::uint16_t Shape;
 
+	auto& configuration = ::vid_get_configuration();
+
 	for (int i = 0; i < video_items.amount; i++)
 	{
 		if (video_menu[i].string[0])
@@ -5646,14 +5648,14 @@ void video_draw_switch(
 			switch (i)
 			{
 			case mvl_widescreen:
-				if (::vid_widescreen)
+				if (configuration.is_widescreen_)
 				{
 					Shape++;
 				}
 				break;
 
 			case mvl_stretch_ui:
-				if (::vid_is_ui_stretched)
+				if (configuration.is_ui_stretched_)
 				{
 					Shape++;
 				}
@@ -5683,6 +5685,8 @@ void cp_video(
 	::MenuFadeIn();
 	::WaitKeyUp();
 
+	auto& configuration = ::vid_get_configuration();
+
 	do
 	{
 		which = ::HandleMenu(&video_items, video_menu, video_draw_switch);
@@ -5691,7 +5695,7 @@ void cp_video(
 		{
 		case mvl_widescreen:
 #ifndef __vita__
-			::vid_widescreen = !::vid_widescreen;
+			configuration.is_widescreen_ = !configuration.is_widescreen_;
 #endif
 			::ShootSnd();
 			::video_draw_switch(video_items.curpos);
@@ -5703,7 +5707,7 @@ void cp_video(
 			break;
 
 		case mvl_stretch_ui:
-			::vid_is_ui_stretched = !::vid_is_ui_stretched;
+			configuration.is_ui_stretched_ = !configuration.is_ui_stretched_;
 			::ShootSnd();
 			::video_draw_switch(video_items.curpos);
 			::VL_RefreshScreen();

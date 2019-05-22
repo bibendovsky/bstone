@@ -7556,7 +7556,9 @@ void set_config_defaults()
 	::g_quit_on_escape = ::default_quit_on_escape;
 	::g_no_intro_outro = ::default_g_no_intro_outro;
 
-	::vid_widescreen = ::default_vid_widescreen;
+	auto& vid_configuration = ::vid_get_configuration();
+
+	vid_configuration.is_widescreen_ = ::default_vid_widescreen;
 }
 
 ScanCode get_scan_code_by_name(
@@ -7932,7 +7934,8 @@ void read_text_config()
 void ReadConfig()
 {
 	read_text_config();
-	::vid_apply_configuration();
+
+	::vid_apply_hw_configuration();
 }
 
 

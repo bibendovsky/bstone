@@ -59,8 +59,8 @@ struct VidConfiguration
 	using FilterModValue = bstone::ModValue<bstone::RendererFilterKind>;
 
 
-	BoolModValue is_ui_stretched_;
-	BoolModValue is_widescreen_;
+	bool is_ui_stretched_;
+	bool is_widescreen_;
 
 	FilterModValue hw_2d_texture_filter_;
 
@@ -117,8 +117,6 @@ extern int vga_3d_view_top_y;
 extern int vga_3d_view_bottom_y;
 
 const bool default_vid_widescreen = true;
-extern bool vid_widescreen;
-extern bool vid_is_ui_stretched;
 
 // Is VSync enabled?
 extern bool vid_has_vsync;
@@ -393,7 +391,9 @@ void vid_hw_actors_clear_render_list();
 void vid_hw_actors_add_render_item(
 	const int bs_actor_index);
 
-void vid_apply_configuration();
+VidConfiguration& vid_get_configuration();
+
+void vid_apply_hw_configuration();
 
 
 #endif // BSTONE_ID_VL_INCLUDED
