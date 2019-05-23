@@ -1737,6 +1737,8 @@ bstone::RendererSamplerPtr hw_3d_sprite_s_;
 bstone::RendererSamplerState hw_3d_player_weapon_s_state_;
 bstone::RendererSamplerPtr hw_3d_player_weapon_s_;
 
+bstone::RendererSamplerPtr hw_fade_s_;
+
 
 Hw2dVbi hw_2d_vertices_;
 
@@ -4468,6 +4470,35 @@ bool hw_3d_player_weapon_initialize()
 	return true;
 }
 
+void hw_fade_sampler_destroy()
+{
+	if (::hw_fade_s_)
+	{
+		::hw_renderer_->sampler_destroy(::hw_fade_s_);
+		::hw_fade_s_ = nullptr;
+	}
+}
+
+bool hw_fade_sampler_create()
+{
+	auto param = bstone::RendererSamplerCreateParam{};
+	param.state_.min_filter_ = bstone::RendererFilterKind::nearest;
+	param.state_.mag_filter_ = bstone::RendererFilterKind::nearest;
+	param.state_.mipmap_mode_ = bstone::RendererMipmapMode::none;
+	param.state_.address_mode_u_ = bstone::RendererAddressMode::repeat;
+	param.state_.address_mode_v_ = bstone::RendererAddressMode::repeat;
+	param.state_.anisotropy_ = bstone::RendererSampler::anisotropy_min;
+
+	::hw_fade_s_ = ::hw_renderer_->sampler_create(param);
+
+	if (!::hw_fade_s_)
+	{
+		return false;
+	}
+
+	return true;
+}
+
 void hw_samplers_set_default_states()
 {
 	::hw_2d_sampler_ui_set_default_state();
@@ -4480,6 +4511,7 @@ void hw_samplers_uninitialize()
 	::hw_2d_sampler_ui_destroy();
 	::hw_3d_sampler_sprite_destroy();
 	::hw_3d_sampler_wall_destroy();
+	::hw_fade_sampler_destroy();
 }
 
 bool hw_samplers_initialize()
@@ -4495,6 +4527,11 @@ bool hw_samplers_initialize()
 	}
 
 	if (!::hw_3d_sampler_wall_create())
+	{
+		return false;
+	}
+
+	if (!::hw_fade_sampler_create())
 	{
 		return false;
 	}
@@ -4794,14 +4831,6 @@ bool hw_3d_fade_initialize()
 	return true;
 }
 
-void hw_vga_buffer_uninitialize()
-{
-	::sw_vga_buffer.clear();
-	::sw_vga_buffer.shrink_to_fit();
-
-	::vga_memory = nullptr;
-}
-
 void hw_screen_2d_refresh()
 {
 	const auto& assets_info = AssetsInfo{};
@@ -4995,6 +5024,13 @@ void hw_screen_2d_refresh()
 		{
 			auto& command = *command_buffer->write_texture();
 			command.texture_2d_ = ::hw_2d_fade_t2d_;
+		}
+
+		// Set sampler.
+		//
+		{
+			auto& command = *command_buffer->write_sampler();
+			command.sampler_ = ::hw_fade_s_;
 		}
 
 		// Set vertex input.
@@ -6270,6 +6306,37 @@ void hw_3d_sprites_render()
 	::hw_3d_sprites_draw_count_ = draw_sprite_index;
 }
 
+void hw_widescreen_update()
+{
+	::hw_dimensions_calculate();
+	::SetViewSize();
+	::hw_3d_matrix_projection_build();
+	::hw_3d_player_weapon_projection_matrix_build();
+	::hw_3d_fade_vb_update();
+}
+
+void vid_apply_hw_is_ui_stretched_configuration()
+{
+	if (!::vid_configuration_.is_ui_stretched_.is_modified())
+	{
+		return;
+	}
+
+	::vid_configuration_.is_ui_stretched_.set_is_modified(false);
+}
+
+void vid_apply_hw_is_widescreen_configuration()
+{
+	if (!::vid_configuration_.is_widescreen_.is_modified())
+	{
+		return;
+	}
+
+	::vid_configuration_.is_widescreen_.set_is_modified(false);
+
+	::hw_widescreen_update();
+}
+
 void vid_apply_hw_2d_texture_filter_configuration()
 {
 	if (!::vid_configuration_.hw_2d_texture_filter_.is_modified())
@@ -6703,6 +6770,13 @@ void hw_screen_3d_refresh()
 				command.texture_2d_ = ::hw_3d_fade_t2d_;
 			}
 
+			// Set sampler.
+			//
+			{
+				auto& command = *command_buffer->write_sampler();
+				command.sampler_ = ::hw_fade_s_;
+			}
+
 			// Set vertex input.
 			//
 			{
@@ -6772,8 +6846,6 @@ void hw_screen_refresh()
 	++test_reset_counter_;
 #endif
 
-	::vid_apply_hw_configuration();
-
 	if (::vid_is_hud && ::player != nullptr)
 	{
 		::vid_hw_is_draw_3d_ = true;
@@ -6823,12 +6895,6 @@ void hw_vsync_check()
 		duration).count();
 
 	::vid_has_vsync = (duration_ms >= min_expected_duration_ms);
-}
-
-void hw_widescreen_update()
-{
-	::hw_vga_buffer_uninitialize();
-	::hw_dimensions_calculate();
 }
 
 void hw_precache_flooring()
@@ -10835,7 +10901,6 @@ void hw_video_uninitialize()
 
 	::hw_3d_player_weapon_uninitialize();
 	::hw_2d_uninitialize();
-	::hw_vga_buffer_uninitialize();
 
 	::hw_texture_manager_destroy();
 
@@ -12676,6 +12741,13 @@ void vid_hw_actors_add_render_item(
 
 void vid_apply_hw_configuration()
 {
+	if (!::vid_is_hw_)
+	{
+		return;
+	}
+
+	::vid_apply_hw_is_ui_stretched_configuration();
+	::vid_apply_hw_is_widescreen_configuration();
 	::vid_apply_hw_2d_texture_filter_configuration();
 	::vid_apply_hw_3d_texture_filter_configuration();
 }

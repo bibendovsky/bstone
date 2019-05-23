@@ -59,8 +59,8 @@ struct VidConfiguration
 	using FilterModValue = bstone::ModValue<bstone::RendererFilterKind>;
 
 
-	bool is_ui_stretched_;
-	bool is_widescreen_;
+	BoolModValue is_ui_stretched_;
+	BoolModValue is_widescreen_;
 
 	FilterModValue hw_2d_texture_filter_;
 
