@@ -51,6 +51,9 @@ public:
 	bool is_opengl_;
 
 	RendererInitializeWindowParam window_;
+
+	RendererAaKind aa_kind_;
+	int aa_value_;
 }; // RendererUtilsCreateWindowParam
 
 
@@ -198,7 +201,8 @@ private:
 	bool create_window_validate_param(
 		const RendererUtilsCreateWindowParam& param);
 
-	bool create_window_set_ogl_attributes();
+	bool create_window_set_ogl_attributes(
+		const RendererUtilsCreateWindowParam& param);
 
 	std::uint32_t create_window_sdl_flags(
 		const RendererUtilsCreateWindowParam& param);

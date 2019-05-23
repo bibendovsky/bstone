@@ -971,6 +971,19 @@ bool Ogl1XRenderer::initialize(
 {
 	uninitialize_internal();
 
+	{
+		auto probe_prenderer = Ogl1XRenderer{};
+
+		if (!probe_prenderer.probe(param.renderer_path_))
+		{
+			error_message_ = "Failed to probe.";
+
+			return false;
+		}
+
+		probe_ = probe_prenderer.probe_get();
+	}
+
 	return probe_or_initialize(false, RendererPath::none, param);
 }
 
@@ -1303,6 +1316,25 @@ bool Ogl1XRenderer::probe_or_initialize(
 			auto window_param = RendererUtilsCreateWindowParam{};
 			window_param.is_opengl_ = true;
 			window_param.window_ = param.window_;
+			window_param.aa_kind_ = RendererAaKind::none;
+			window_param.aa_value_ = 0;
+
+			const auto& probe_device_features = probe_.device_features_;
+
+			switch (param.aa_kind_)
+			{
+				case RendererAaKind::ms:
+					if (!probe_device_features.framebuffer_is_available_)
+					{
+						window_param.aa_kind_ = param.aa_kind_;
+						window_param.aa_value_ = param.aa_value_;
+					}
+
+					break;
+
+				default:
+					break;
+			}
 
 			if (!ogl_renderer_utils.create_window_and_context(window_param, sdl_window, sdl_gl_context))
 			{
@@ -1397,6 +1429,11 @@ bool Ogl1XRenderer::probe_or_initialize(
 			device_features_,
 			ogl_device_features_
 		);
+
+		OglRendererUtils::framebuffer_probe(
+			extension_manager.get(),
+			device_features_
+		);
 	}
 
 	if (is_succeed)
@@ -1419,7 +1456,12 @@ bool Ogl1XRenderer::probe_or_initialize(
 	screen_width_ = screen_width;
 	screen_height_ = screen_height;
 
-	if (!is_probe)
+	if (is_probe)
+	{
+		probe_.path_ = renderer_path;
+		probe_.device_features_ = device_features_;
+	}
+	else
 	{
 		// Default state.
 		//

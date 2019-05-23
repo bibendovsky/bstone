@@ -175,6 +175,8 @@ bool OglRendererUtils::create_probe_window_and_context(
 	param.is_opengl_ = true;
 	param.window_.width_ = 1;
 	param.window_.height_ = 1;
+	param.aa_kind_ = RendererAaKind::none;
+	param.aa_value_ = 0;
 
 	return create_window_and_context(param, sdl_window, sdl_gl_context);
 }
@@ -485,6 +487,68 @@ void OglRendererUtils::mipmap_probe(
 	{
 		device_features.mipmap_is_available_ = true;
 	}
+}
+
+void OglRendererUtils::framebuffer_probe(
+	OglExtensionManagerPtr extension_manager,
+	RendererDeviceFeatures& device_features)
+{
+	auto is_available = false;
+
+	if (!is_available)
+	{
+		extension_manager->probe_extension(OglExtensionId::arb_framebuffer_object);
+
+		is_available = extension_manager->has_extension(OglExtensionId::arb_framebuffer_object);
+	}
+
+	if (!is_available)
+	{
+		extension_manager->probe_extension(OglExtensionId::ext_framebuffer_blit);
+		extension_manager->probe_extension(OglExtensionId::ext_framebuffer_multisample);
+		extension_manager->probe_extension(OglExtensionId::ext_framebuffer_object);
+		extension_manager->probe_extension(OglExtensionId::ext_packed_depth_stencil);
+
+		is_available =
+			extension_manager->has_extension(OglExtensionId::ext_framebuffer_blit) &&
+			extension_manager->has_extension(OglExtensionId::ext_framebuffer_multisample) &&
+			extension_manager->has_extension(OglExtensionId::ext_framebuffer_object) &&
+			extension_manager->has_extension(OglExtensionId::ext_packed_depth_stencil)
+		;
+	}
+
+	device_features.framebuffer_is_available_ = is_available;
+
+	device_features.msaa_min_value_ = framebuffer_get_min_value();
+	device_features.msaa_max_value_ = framebuffer_get_max_value(extension_manager);
+}
+
+int OglRendererUtils::framebuffer_get_min_value()
+{
+	return 1;
+}
+
+int OglRendererUtils::framebuffer_get_max_value(
+	OglExtensionManagerPtr extension_manager)
+{
+	auto max_value = GLint{};
+
+	if (extension_manager->has_extension(OglExtensionId::arb_framebuffer_object))
+	{
+		::glGetIntegerv(GL_MAX_SAMPLES, &max_value);
+		assert(!OglRendererUtils::was_errors());
+	}
+	else if (
+		extension_manager->has_extension(OglExtensionId::ext_framebuffer_blit) &&
+		extension_manager->has_extension(OglExtensionId::ext_framebuffer_multisample) &&
+		extension_manager->has_extension(OglExtensionId::ext_framebuffer_object) &&
+		extension_manager->has_extension(OglExtensionId::ext_packed_depth_stencil))
+	{
+		::glGetIntegerv(GL_MAX_SAMPLES_EXT, &max_value);
+		assert(!OglRendererUtils::was_errors());
+	}
+
+	return std::max(max_value, framebuffer_get_min_value());
 }
 
 void OglRendererUtils::clear_buffers()

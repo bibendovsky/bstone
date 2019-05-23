@@ -127,7 +127,12 @@ bool OglRenderer::probe(
 		switch (renderer_path)
 		{
 		case RendererPath::ogl_1_x:
-			return probe_ogl_x<Ogl1XRenderer>(RendererPath::ogl_1_x);
+			if (probe_ogl_x<Ogl1XRenderer>(RendererPath::ogl_1_x))
+			{
+				return true;
+			}
+
+			return false;
 
 		default:
 			return false;

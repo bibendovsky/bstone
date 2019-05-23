@@ -170,6 +170,16 @@ public:
 		OglRendererUtilsDeviceFeatures& ogl_device_features);
 
 
+	static void framebuffer_probe(
+		OglExtensionManagerPtr extension_manager,
+		RendererDeviceFeatures& device_features);
+
+	static int framebuffer_get_min_value();
+
+	static int framebuffer_get_max_value(
+		OglExtensionManagerPtr extension_manager);
+
+
 	static void clear_buffers();
 
 	static void swap_window(

@@ -120,6 +120,12 @@ enum class RendererBlendingFactor :
 	one_minus_src_alpha,
 }; // RendererBlendingFactor
 
+enum class RendererAaKind
+{
+	none,
+	ms,
+}; // RendererAaKind
+
 
 class RendererInitializeWindowParam
 {
@@ -143,6 +149,9 @@ class RendererInitializeParam
 public:
 	RendererPath renderer_path_;
 	RendererInitializeWindowParam window_;
+
+	RendererAaKind aa_kind_;
+	int aa_value_;
 }; // RendererInitializeParam
 
 
@@ -700,6 +709,11 @@ struct RendererDeviceFeatures
 	bool npot_is_available_;
 
 	bool mipmap_is_available_;
+
+	bool framebuffer_is_available_;
+
+	int msaa_min_value_;
+	int msaa_max_value_;
 }; // RendererDeviceFeatures
 
 //

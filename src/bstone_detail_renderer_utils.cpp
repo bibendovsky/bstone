@@ -117,7 +117,7 @@ SdlWindowUPtr RendererUtils::create_window(
 		return nullptr;
 	}
 
-	if (!create_window_set_ogl_attributes())
+	if (!create_window_set_ogl_attributes(param))
 	{
 		error_message_ = error_message_prefix + error_message_;
 
@@ -205,6 +205,17 @@ bool RendererUtils::validate_initialize_param(
 		error_message_ = "Invalid window height.";
 
 		return false;
+	}
+
+	switch (param.aa_kind_)
+	{
+		case RendererAaKind::ms:
+			break;
+
+		default:
+			error_message_ = "Invalid antialiasing kind.";
+
+			return false;
 	}
 
 	return true;
@@ -938,9 +949,36 @@ bool RendererUtils::create_window_validate_param(
 	return true;
 }
 
-bool RendererUtils::create_window_set_ogl_attributes()
+bool RendererUtils::create_window_set_ogl_attributes(
+	const RendererUtilsCreateWindowParam& param)
 {
 	::SDL_GL_ResetAttributes();
+
+	auto sdl_result = 0;
+
+	switch (param.aa_kind_)
+	{
+		case RendererAaKind::ms:
+			sdl_result = ::SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+
+			if (sdl_result != 0)
+			{
+				error_message_ = "Failed to set multisample buffer count.";
+
+				return false;
+			}
+
+			sdl_result = ::SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, param.aa_value_);
+
+			if (sdl_result != 0)
+			{
+				error_message_ = "Failed to set multisample sample count.";
+
+				return false;
+			}
+
+			break;
+	}
 
 	return true;
 }

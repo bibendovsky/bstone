@@ -2320,6 +2320,9 @@ bool hw_renderer_initialize()
 	auto param = bstone::RendererInitializeParam{};
 	param.renderer_path_ = probe.path_;
 
+	param.aa_kind_ = bstone::RendererAaKind::ms;
+	param.aa_value_ = 64;
+
 #ifdef __vita__
 	param.window_.is_visible_ = true;
 #endif // __vita__
@@ -4177,7 +4180,7 @@ void hw_3d_sampler_wall_update()
 		::vid_configuration_.hw_3d_texture_anisotropy_value_
 	);
 
-	if (::hw_3d_wall_s_ == nullptr)
+	if (::hw_3d_wall_s_ != nullptr)
 	{
 		auto param = bstone::RendererSamplerUpdateParam{};
 		param.state_ = ::hw_3d_wall_s_state_;
@@ -4393,7 +4396,7 @@ void hw_3d_player_weapon_sampler_update()
 	::hw_3d_player_weapon_s_state_.min_filter_ = ::vid_configuration_.hw_3d_texture_image_filter_;
 	::hw_3d_player_weapon_s_state_.mag_filter_ = ::vid_configuration_.hw_3d_texture_image_filter_;
 
-	if (::hw_3d_player_weapon_s_ == nullptr)
+	if (::hw_3d_player_weapon_s_ != nullptr)
 	{
 		auto param = bstone::RendererSamplerUpdateParam{};
 		param.state_ = ::hw_3d_player_weapon_s_state_;
@@ -10830,7 +10833,7 @@ void hw_video_uninitialize()
 
 	::hw_3d_fade_uninitialize();
 
-	::hw_3d_player_weapon_initialize();
+	::hw_3d_player_weapon_uninitialize();
 	::hw_2d_uninitialize();
 	::hw_vga_buffer_uninitialize();
 

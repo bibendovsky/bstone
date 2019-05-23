@@ -39,9 +39,9 @@ Free Software Foundation, Inc.,
 #define WIN32_LEAN_AND_MEAN 1
 #endif // !WIN32_LEAN_AND_MEAN
 
-#ifndef NO_MINMAX
-#define NO_MINMAX 1
-#endif // !NO_MINMAX
+#ifndef NOMINMAX
+#define NOMINMAX 1
+#endif // !NOMINMAX
 
 #include <windows.h>
 #endif // _WIN32
