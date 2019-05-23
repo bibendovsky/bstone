@@ -63,7 +63,7 @@ public:
 	bool renderer_probe(
 		const RendererPath& renderer_path) override;
 
-	RendererPath renderer_get_probe_path() const override;
+	const RendererProbe& renderer_probe_get() const override;
 
 	RendererPtr renderer_initialize(
 		const RendererInitializeParam& param) override;
@@ -114,7 +114,7 @@ public:
 	bool renderer_probe(
 		const RendererPath& renderer_path);
 
-	RendererPath renderer_get_probe_path() const;
+	const RendererProbe& renderer_probe_get() const;
 
 	RendererPtr renderer_initialize(
 		const RendererInitializeParam& param);
@@ -132,7 +132,7 @@ private:
 	bool is_initialized_;
 	std::string error_message_;
 
-	RendererPath renderer_probe_path_;
+	RendererProbe renderer_probe_;
 	Renderers renderers_;
 
 	detail::OglRenderer ogl_renderer_;
@@ -151,7 +151,7 @@ RendererManagerImpl::Impl::Impl()
 	:
 	is_initialized_{},
 	error_message_{},
-	renderer_probe_path_{},
+	renderer_probe_{},
 	renderers_{},
 	ogl_renderer_{}
 {
@@ -162,7 +162,7 @@ RendererManagerImpl::Impl::Impl(
 	:
 	is_initialized_{std::move(rhs.is_initialized_)},
 	error_message_{std::move(rhs.error_message_)},
-	renderer_probe_path_{std::move(rhs.renderer_probe_path_)},
+	renderer_probe_{std::move(rhs.renderer_probe_)},
 	renderers_{std::move(rhs.renderers_)},
 	ogl_renderer_{std::move(rhs.ogl_renderer_)}
 {
@@ -261,7 +261,7 @@ bool RendererManagerImpl::Impl::renderer_probe(
 		// OpenGL 1.x.
 		if (ogl_renderer_.probe(renderer_path))
 		{
-			renderer_probe_path_ = ogl_renderer_.get_probe_path();
+			renderer_probe_ = ogl_renderer_.probe_get();
 
 			return true;
 		}
@@ -277,7 +277,7 @@ bool RendererManagerImpl::Impl::renderer_probe(
 		{
 			if (ogl_renderer_.probe(renderer_path))
 			{
-				renderer_probe_path_ = renderer_path;
+				renderer_probe_.path_ = renderer_path;
 
 				return true;
 			}
@@ -287,9 +287,9 @@ bool RendererManagerImpl::Impl::renderer_probe(
 	return false;
 }
 
-RendererPath RendererManagerImpl::Impl::renderer_get_probe_path() const
+const RendererProbe& RendererManagerImpl::Impl::renderer_probe_get() const
 {
-	return renderer_probe_path_;
+	return renderer_probe_;
 }
 
 RendererPtr RendererManagerImpl::Impl::renderer_initialize(
@@ -361,11 +361,11 @@ bool RendererManagerImpl::renderer_probe(
 	return impl.renderer_probe(renderer_path);
 }
 
-RendererPath RendererManagerImpl::renderer_get_probe_path() const
+const RendererProbe& RendererManagerImpl::renderer_probe_get() const
 {
 	auto& impl = get_impl();
 
-	return impl.renderer_get_probe_path();
+	return impl.renderer_probe_get();
 }
 
 RendererPtr RendererManagerImpl::renderer_initialize(

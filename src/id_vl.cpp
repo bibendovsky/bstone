@@ -2315,8 +2315,10 @@ bool hw_renderer_initialize()
 
 	// Initialization parameter.
 	//
+	const auto& probe = ::hw_renderer_manager_->renderer_probe_get();
+
 	auto param = bstone::RendererInitializeParam{};
-	param.renderer_path_ = hw_renderer_manager_->renderer_get_probe_path();
+	param.renderer_path_ = probe.path_;
 
 #ifdef __vita__
 	param.window_.is_visible_ = true;

@@ -805,7 +805,7 @@ Ogl1XRenderer::Ogl1XRenderer()
 	:
 	is_initialized_{},
 	error_message_{},
-	probe_renderer_path_{},
+	probe_{},
 	sdl_window_{},
 	sdl_gl_context_{},
 	extension_manager_{},
@@ -864,7 +864,7 @@ Ogl1XRenderer::Ogl1XRenderer(
 	:
 	is_initialized_{std::move(rhs.is_initialized_)},
 	error_message_{std::move(rhs.error_message_)},
-	probe_renderer_path_{std::move(rhs.probe_renderer_path_)},
+	probe_{std::move(rhs.probe_)},
 	sdl_window_{std::move(rhs.sdl_window_)},
 	sdl_gl_context_{std::move(rhs.sdl_gl_context_)},
 	extension_manager_{std::move(rhs.extension_manager_)},
@@ -956,9 +956,9 @@ bool Ogl1XRenderer::probe(
 	return probe_or_initialize(true, renderer_path, RendererInitializeParam{});
 }
 
-RendererPath Ogl1XRenderer::get_probe_path() const
+const RendererProbe& Ogl1XRenderer::probe_get() const
 {
-	return probe_renderer_path_;
+	return probe_;
 }
 
 bool Ogl1XRenderer::is_initialized() const

@@ -706,6 +706,20 @@ struct RendererDeviceFeatures
 // RendererDeviceFeatures
 // ==========================================================================
 
+// ==========================================================================
+// RendererProbe
+//
+
+struct RendererProbe
+{
+	RendererPath path_;
+	RendererDeviceFeatures device_features_;
+}; // RendererProbe
+
+//
+// RendererProbe
+// ==========================================================================
+
 
 class Renderer
 {
@@ -733,7 +747,7 @@ public:
 	virtual bool probe(
 		const RendererPath renderer_path) = 0;
 
-	virtual RendererPath get_probe_path() const = 0;
+	virtual const RendererProbe& probe_get() const = 0;
 
 
 	virtual bool is_initialized() const = 0;

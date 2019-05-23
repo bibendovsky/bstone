@@ -46,7 +46,7 @@ OglRenderer::OglRenderer()
 	:
 	is_initialized_{},
 	error_message_{},
-	probe_renderer_path_{},
+	renderer_probe_{},
 	renderer_path_{},
 	renderer_{}
 {
@@ -57,7 +57,7 @@ OglRenderer::OglRenderer(
 	:
 	is_initialized_{std::move(rhs.is_initialized_)},
 	error_message_{std::move(rhs.error_message_)},
-	probe_renderer_path_{std::move(rhs.probe_renderer_path_)},
+	renderer_probe_{std::move(rhs.renderer_probe_)},
 	renderer_path_{std::move(rhs.renderer_path_)},
 	renderer_{std::move(rhs.renderer_)}
 {
@@ -137,9 +137,9 @@ bool OglRenderer::probe(
 	return false;
 }
 
-RendererPath OglRenderer::get_probe_path() const
+const RendererProbe& OglRenderer::probe_get() const
 {
-	return probe_renderer_path_;
+	return renderer_probe_;
 }
 
 bool OglRenderer::is_initialized() const

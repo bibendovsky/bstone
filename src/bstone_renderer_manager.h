@@ -60,7 +60,7 @@ public:
 	virtual bool renderer_probe(
 		const RendererPath& renderer_path) = 0;
 
-	virtual RendererPath renderer_get_probe_path() const = 0;
+	virtual const RendererProbe& renderer_probe_get() const = 0;
 
 	virtual RendererPtr renderer_initialize(
 		const RendererInitializeParam& param) = 0;

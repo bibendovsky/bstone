@@ -76,7 +76,7 @@ public:
 	bool probe(
 		const RendererPath renderer_path) override;
 
-	RendererPath get_probe_path() const override;
+	const RendererProbe& probe_get() const override;
 
 
 	bool is_initialized() const override;
@@ -157,7 +157,7 @@ private:
 	bool is_initialized_;
 	std::string error_message_;
 
-	RendererPath probe_renderer_path_;
+	RendererProbe renderer_probe_;
 	RendererPath renderer_path_;
 	OglXRendererUPtr renderer_;
 
@@ -170,12 +170,13 @@ private:
 
 		if (!ogl_x_renderer.probe(renderer_path))
 		{
-			probe_renderer_path_ = RendererPath::none;
+			renderer_probe_.path_ = RendererPath::none;
 
 			return false;
 		}
 
-		probe_renderer_path_ = renderer_path;
+		renderer_probe_.path_ = renderer_path;
+		renderer_probe_.device_features_ = ogl_x_renderer.device_get_features();
 
 		return true;
 	}

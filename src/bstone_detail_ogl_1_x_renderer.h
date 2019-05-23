@@ -79,7 +79,7 @@ public:
 	bool probe(
 		const RendererPath renderer_path) override;
 
-	RendererPath get_probe_path() const override;
+	const RendererProbe& probe_get() const override;
 
 
 	bool is_initialized() const override;
@@ -338,7 +338,7 @@ private:
 	bool is_initialized_;
 	std::string error_message_;
 
-	RendererPath probe_renderer_path_;
+	RendererProbe probe_;
 
 	SdlWindowUPtr sdl_window_;
 	SdlGlContextUPtr sdl_gl_context_;
