@@ -72,13 +72,27 @@ enum class OglExtensionId
 	// OpenGL 2.1.
 	v2_1,
 
+	// OpenGL 3.0.
+	v3_0,
+
 
 	// Real extensions.
 	//
 
+	arb_color_buffer_float,
+	arb_depth_buffer_float,
 	arb_framebuffer_object,
+	arb_framebuffer_srgb,
+	arb_half_float_vertex,
+	arb_map_buffer_range,
+	arb_texture_compression,
+	arb_texture_compression_rgtc,
+	arb_texture_cube_map,
 	arb_texture_filter_anisotropic,
+	arb_texture_float,
 	arb_texture_non_power_of_two,
+	arb_texture_rg,
+	arb_vertex_array_object,
 
 	ext_framebuffer_blit,
 	ext_framebuffer_multisample,

@@ -831,6 +831,63 @@ PFNGLISVERTEXARRAYPROC glIsVertexArray = nullptr;
 
 
 // ==========================================================================
+// OpenGL v3.1
+//
+
+#ifdef GL_VERSION_3_1
+
+PFNGLDRAWARRAYSINSTANCEDPROC glDrawArraysInstanced = nullptr;
+PFNGLDRAWELEMENTSINSTANCEDPROC glDrawElementsInstanced = nullptr;
+PFNGLTEXBUFFERPROC glTexBuffer = nullptr;
+PFNGLPRIMITIVERESTARTINDEXPROC glPrimitiveRestartIndex = nullptr;
+
+
+// ==========================================================================
+// GL_ARB_copy_buffer
+//
+
+#ifdef GL_ARB_copy_buffer
+
+PFNGLCOPYBUFFERSUBDATAPROC glCopyBufferSubData = nullptr;
+
+#endif // GL_ARB_copy_buffer
+
+//
+// GL_ARB_copy_buffer
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_uniform_buffer_object
+//
+
+#ifdef GL_ARB_uniform_buffer_object
+
+PFNGLGETUNIFORMINDICESPROC glGetUniformIndices = nullptr;
+PFNGLGETACTIVEUNIFORMSIVPROC glGetActiveUniformsiv = nullptr;
+PFNGLGETACTIVEUNIFORMNAMEPROC glGetActiveUniformName = nullptr;
+PFNGLGETUNIFORMBLOCKINDEXPROC glGetUniformBlockIndex = nullptr;
+PFNGLGETACTIVEUNIFORMBLOCKIVPROC glGetActiveUniformBlockiv = nullptr;
+PFNGLGETACTIVEUNIFORMBLOCKNAMEPROC glGetActiveUniformBlockName = nullptr;
+PFNGLUNIFORMBLOCKBINDINGPROC glUniformBlockBinding = nullptr;
+PFNGLBINDBUFFERRANGEPROC glBindBufferRange = nullptr;
+PFNGLBINDBUFFERBASEPROC glBindBufferBase = nullptr;
+PFNGLGETINTEGERI_VPROC glGetIntegeri_v = nullptr;
+
+#endif // GL_ARB_uniform_buffer_object
+
+//
+// GL_ARB_uniform_buffer_object
+// ==========================================================================
+
+#endif // GL_VERSION_3_1
+
+//
+// OpenGL v3.1
+// ==========================================================================
+
+
+// ==========================================================================
 // GL_EXT_framebuffer_blit
 //
 
@@ -901,3 +958,28 @@ PFNGLGENERATEMIPMAPEXTPROC glGenerateMipmapEXT = nullptr;
 //
 // GL_EXT_packed_depth_stencil
 // ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_color_buffer_float
+//
+
+#ifdef GL_ARB_color_buffer_float
+
+PFNGLCLAMPCOLORARBPROC glClampColorARB = nullptr;
+
+#endif // GL_ARB_color_buffer_float
+
+//
+// GL_ARB_color_buffer_float
+// ==========================================================================
+
+
+#ifdef GL_ARB_vertex_array_object
+
+PFNGLBINDVERTEXARRAYPROC glBindVertexArray = nullptr;
+PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays = nullptr;
+PFNGLGENVERTEXARRAYSPROC glGenVertexArrays = nullptr;
+PFNGLISVERTEXARRAYPROC glIsVertexArray = nullptr;
+
+#endif // GL_ARB_vertex_array_object
