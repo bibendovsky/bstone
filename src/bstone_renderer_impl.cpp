@@ -136,9 +136,20 @@ public:
 
 
 private:
-	static constexpr auto min_initial_size = 4096;
-	static constexpr auto min_resize_delta_size = 4096;
-	static constexpr auto command_id_size = static_cast<int>(sizeof(RendererCommandId));
+	static constexpr int get_min_initial_size()
+	{
+		return 4096;
+	}
+
+	static constexpr int get_min_resize_delta_size()
+	{
+		return 4096;
+	}
+
+	static constexpr int get_command_id_size()
+	{
+		return static_cast<int>(sizeof(RendererCommandId));
+	}
 
 
 	using Data = std::vector<std::uint8_t>;
@@ -179,7 +190,7 @@ private:
 
 		const auto command_size = static_cast<int>(sizeof(T));
 
-		const auto block_size = command_id_size + command_size;
+		const auto block_size = get_command_id_size() + command_size;
 
 		resize_if_necessary(block_size);
 
@@ -215,7 +226,7 @@ private:
 
 		return command;
 	}
-}; // RendererCommandBuffer
+}; // RendererCommandBufferImpl
 
 using RendererCommandBufferImplPtr = RendererCommandBufferImpl*;
 using RendererCommandBufferImplUPtr = std::unique_ptr<RendererCommandBufferImpl>;
@@ -586,10 +597,10 @@ void RendererCommandBufferImpl::initialize(
 	is_reading_ = false;
 	is_writing_ = false;
 
-	size_ = std::max(param.initial_size_, min_initial_size);
+	size_ = std::max(param.initial_size_, get_min_initial_size());
 	write_offset_ = 0;
 	read_offset_ = 0;
-	resize_delta_size_ = std::max(param.resize_delta_size_, min_resize_delta_size);
+	resize_delta_size_ = std::max(param.resize_delta_size_, get_min_resize_delta_size());
 
 	data_.resize(size_);
 }
