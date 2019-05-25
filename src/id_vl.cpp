@@ -677,7 +677,7 @@ void sw_calculate_dimensions()
 	::vga_width *= alignment;
 
 	::vga_width_scale = static_cast<double>(::vga_width) / static_cast<double>(::vga_ref_width);
-	::vga_height_scale = static_cast<double>(::vga_height) / static_cast<double>(::vga_ref_height_4x3);
+	::vga_height_scale = static_cast<double>(::vga_height) / static_cast<double>(::vga_ref_height);
 
 	::vga_wide_scale =
 		static_cast<double>(::vga_ref_height * ::vga_width) /
@@ -3870,7 +3870,7 @@ void hw_dimensions_calculate()
 	::vga_width *= alignment;
 
 	::vga_width_scale = static_cast<double>(::vga_width) / static_cast<double>(::vga_ref_width);
-	::vga_height_scale = static_cast<double>(::vga_height) / static_cast<double>(::vga_ref_height_4x3);
+	::vga_height_scale = static_cast<double>(::vga_height) / static_cast<double>(::vga_ref_height);
 
 	::vga_wide_scale =
 		static_cast<double>(::vga_ref_height * ::vga_width) /
@@ -5706,6 +5706,11 @@ void hw_3d_doors_render()
 bool hw_3d_fog_calculate(
 	const int sprite_lighting)
 {
+	if ((::gamestate.flags & GS_LIGHTING) == 0)
+	{
+		return false;
+	}
+
 	if (sprite_lighting == NO_SHADING)
 	{
 		return false;
@@ -5718,18 +5723,17 @@ bool hw_3d_fog_calculate(
 		return false;
 	}
 
-	const auto start_wall_height = (::normalshade * shade_index) / 63.0;
+	const auto start_wall_height = (::normalshade * shade_index) / (63.0 * ::vga_height_scale);
 
 	if (start_wall_height <= 1.0)
 	{
 		return false;
 	}
 
-	const auto height_num = bstone::FixedPoint{::heightnumerator}.to_double();
+	const auto height_num = bstone::FixedPoint{::heightnumerator}.to_double() / ::vga_height_scale;
 	const auto start_wall_distance = (32.0 * height_num) / start_wall_height;
-	const auto wall_height_step = ::normalshade / 8.0;
-	const auto extra_fog_factor = 0.75;
-	const auto fog_delta = static_cast<float>(wall_height_step * ::normalshade_div * extra_fog_factor);
+	const auto wall_height_step = ::normalshade / (8.0 * ::vga_height_scale);
+	const auto fog_delta = static_cast<float>(wall_height_step * ::normalshade_div);
 
 	::hw_3d_fog_start_ = static_cast<float>(start_wall_distance);
 	::hw_3d_fog_end_ = ::hw_3d_fog_start_ + fog_delta;

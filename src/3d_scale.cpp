@@ -371,6 +371,6 @@ void scale_player_weapon(
 void update_normalshade()
 {
 	::normalshade = static_cast<int>(
-		(3.0 * ::maxscale) / (4.0 * ::normalshade_div * ::vga_height_scale) / ::vga_wide_scale);
+		(3.0 * ::maxscale) / (4.0 * ::normalshade_div) / ::vga_wide_scale);
 }
 // BBi
