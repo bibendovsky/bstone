@@ -188,12 +188,18 @@ private:
 
 	bool resolve_v3_0();
 
+	bool resolve_v3_1();
+
 
 	bool resolve_arb_color_buffer_float();
+
+	bool resolve_arb_copy_buffer();
 
 	bool resolve_arb_framebuffer_object();
 
 	bool resolve_arb_map_buffer_range();
+
+	bool resolve_arb_uniform_buffer_object();
 
 	bool resolve_arb_vertex_array_object();
 
@@ -439,7 +445,7 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_glcore_ = false;
 		registry_item.is_gles1_ = false;
 		registry_item.is_gles2_ = false;
-		registry_item.extension_name_ = "v3.1";
+		registry_item.extension_name_ = "v3.0";
 		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_v3_0;
 
 		registry_item.dependencies_ =
@@ -454,6 +460,54 @@ void OglExtensionManagerImpl::initialize_registry()
 			OglExtensionId::arb_texture_rg,
 			OglExtensionId::arb_vertex_array_object,
 		};
+	}
+
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::v3_1)];
+		registry_item.is_virtual_ = true;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = false;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
+		registry_item.extension_name_ = "v3.1";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_v3_1;
+
+		registry_item.dependencies_ =
+		{
+			OglExtensionId::v3_0,
+			OglExtensionId::arb_copy_buffer,
+			OglExtensionId::arb_uniform_buffer_object,
+		};
+	}
+
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::arb_color_buffer_float)];
+		registry_item.is_virtual_ = false;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = true;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
+		registry_item.extension_name_ = "GL_ARB_color_buffer_float";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_arb_color_buffer_float;
+		registry_item.dependencies_ = {};
+	}
+
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::arb_copy_buffer)];
+		registry_item.is_virtual_ = false;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = true;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
+		registry_item.extension_name_ = "GL_ARB_copy_buffer";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_arb_copy_buffer;
+		registry_item.dependencies_ = {};
 	}
 
 	{
@@ -474,20 +528,6 @@ void OglExtensionManagerImpl::initialize_registry()
 			OglExtensionId::arb_framebuffer_object,
 			OglExtensionId::arb_color_buffer_float,
 		};
-	}
-
-	{
-		auto& registry_item = registry_[static_cast<int>(OglExtensionId::arb_color_buffer_float)];
-		registry_item.is_virtual_ = false;
-		registry_item.is_probed_ = false;
-		registry_item.is_available_ = false;
-		registry_item.is_gl_ = true;
-		registry_item.is_glcore_ = true;
-		registry_item.is_gles1_ = false;
-		registry_item.is_gles2_ = false;
-		registry_item.extension_name_ = "GL_ARB_color_buffer_float";
-		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_arb_color_buffer_float;
-		registry_item.dependencies_ = {};
 	}
 
 	{
@@ -642,6 +682,20 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.extension_name_ = "GL_ARB_texture_rg";
 		registry_item.resolve_symbols_function_ = nullptr;
 		registry_item.dependencies_ = {OglExtensionId::v1_1};
+	}
+
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::arb_uniform_buffer_object)];
+		registry_item.is_virtual_ = false;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = true;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
+		registry_item.extension_name_ = "GL_ARB_uniform_buffer_object";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_arb_uniform_buffer_object;
+		registry_item.dependencies_ = {};
 	}
 
 	{
@@ -1698,11 +1752,32 @@ bool OglExtensionManagerImpl::resolve_v3_0()
 	return !is_failed;
 }
 
+bool OglExtensionManagerImpl::resolve_v3_1()
+{
+	auto is_failed = false;
+
+	resolve_symbol("glDrawArraysInstanced", ::glDrawArraysInstanced, is_failed);
+	resolve_symbol("glDrawElementsInstanced", ::glDrawElementsInstanced, is_failed);
+	resolve_symbol("glTexBuffer", ::glTexBuffer, is_failed);
+	resolve_symbol("glPrimitiveRestartIndex", ::glPrimitiveRestartIndex, is_failed);
+
+	return is_failed;
+}
+
 bool OglExtensionManagerImpl::resolve_arb_color_buffer_float()
 {
 	auto is_failed = false;
 
 	resolve_symbol("glClampColorARB", ::glClampColorARB, is_failed);
+
+	return !is_failed;
+}
+
+bool OglExtensionManagerImpl::resolve_arb_copy_buffer()
+{
+	auto is_failed = false;
+
+	resolve_symbol("glCopyBufferSubData", ::glCopyBufferSubData, is_failed);
 
 	return !is_failed;
 }
@@ -1741,6 +1816,24 @@ bool OglExtensionManagerImpl::resolve_arb_map_buffer_range()
 
 	resolve_symbol("glMapBufferRange", ::glMapBufferRange, is_failed);
 	resolve_symbol("glFlushMappedBufferRange", ::glFlushMappedBufferRange, is_failed);
+
+	return !is_failed;
+}
+
+bool OglExtensionManagerImpl::resolve_arb_uniform_buffer_object()
+{
+	auto is_failed = false;
+
+	resolve_symbol("glGetUniformIndices", ::glGetUniformIndices, is_failed);
+	resolve_symbol("glGetActiveUniformsiv", ::glGetActiveUniformsiv, is_failed);
+	resolve_symbol("glGetActiveUniformName", ::glGetActiveUniformName, is_failed);
+	resolve_symbol("glGetUniformBlockIndex", ::glGetUniformBlockIndex, is_failed);
+	resolve_symbol("glGetActiveUniformBlockiv", ::glGetActiveUniformBlockiv, is_failed);
+	resolve_symbol("glGetActiveUniformBlockName", ::glGetActiveUniformBlockName, is_failed);
+	resolve_symbol("glUniformBlockBinding", ::glUniformBlockBinding, is_failed);
+	resolve_symbol("glBindBufferRange", ::glBindBufferRange, is_failed);
+	resolve_symbol("glBindBufferBase", ::glBindBufferBase, is_failed);
+	resolve_symbol("glGetIntegeri_v", ::glGetIntegeri_v, is_failed);
 
 	return !is_failed;
 }

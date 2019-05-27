@@ -75,11 +75,15 @@ enum class OglExtensionId
 	// OpenGL 3.0.
 	v3_0,
 
+	// OpenGL 3.1.
+	v3_1,
+
 
 	// Real extensions.
 	//
 
 	arb_color_buffer_float,
+	arb_copy_buffer,
 	arb_depth_buffer_float,
 	arb_framebuffer_object,
 	arb_framebuffer_srgb,
@@ -92,6 +96,7 @@ enum class OglExtensionId
 	arb_texture_float,
 	arb_texture_non_power_of_two,
 	arb_texture_rg,
+	arb_uniform_buffer_object,
 	arb_vertex_array_object,
 
 	ext_framebuffer_blit,
