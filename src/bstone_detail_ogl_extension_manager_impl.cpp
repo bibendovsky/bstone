@@ -168,82 +168,39 @@ private:
 		const OglExtensionId extension_id);
 
 
-	void clear_v1_0();
-
 	bool resolve_v1_0();
-
-
-	void clear_v1_1();
 
 	bool resolve_v1_1();
 
-
-	void clear_v1_2();
-
 	bool resolve_v1_2();
-
-
-	void clear_v1_3();
 
 	bool resolve_v1_3();
 
-
-	void clear_v1_4();
-
 	bool resolve_v1_4();
-
-
-	void clear_v1_5();
 
 	bool resolve_v1_5();
 
 
-	void clear_v2_0();
-
 	bool resolve_v2_0();
-
-
-	void clear_v2_1();
 
 	bool resolve_v2_1();
 
 
-	void clear_v3_0();
-
 	bool resolve_v3_0();
 
 
-	void clear_arb_color_buffer_float();
-
 	bool resolve_arb_color_buffer_float();
-
-
-	void clear_arb_framebuffer_object();
 
 	bool resolve_arb_framebuffer_object();
 
-
-	void clear_arb_map_buffer_range();
-
 	bool resolve_arb_map_buffer_range();
-
-
-	void clear_arb_vertex_array_object();
 
 	bool resolve_arb_vertex_array_object();
 
 
-	void clear_ext_framebuffer_blit();
-
 	bool resolve_ext_framebuffer_blit();
 
-
-	void clear_ext_framebuffer_multisample();
-
 	bool resolve_ext_framebuffer_multisample();
-
-
-	void clear_ext_framebuffer_object();
 
 	bool resolve_ext_framebuffer_object();
 }; // OglExtensionManagerImpl
@@ -1060,316 +1017,6 @@ void OglExtensionManagerImpl::probe_generic(
 	registry_item.is_available_ = true;
 }
 
-void OglExtensionManagerImpl::clear_v1_0()
-{
-	::glCullFace = nullptr;
-	::glFrontFace = nullptr;
-	::glHint = nullptr;
-	::glLineWidth = nullptr;
-	::glPointSize = nullptr;
-	::glPolygonMode = nullptr;
-	::glScissor = nullptr;
-	::glTexParameterf = nullptr;
-	::glTexParameterfv = nullptr;
-	::glTexParameteri = nullptr;
-	::glTexParameteriv = nullptr;
-	::glTexImage1D = nullptr;
-	::glTexImage2D = nullptr;
-	::glDrawBuffer = nullptr;
-	::glClear = nullptr;
-	::glClearColor = nullptr;
-	::glClearStencil = nullptr;
-	::glClearDepth = nullptr;
-	::glStencilMask = nullptr;
-	::glColorMask = nullptr;
-	::glDepthMask = nullptr;
-	::glDisable = nullptr;
-	::glEnable = nullptr;
-	::glFinish = nullptr;
-	::glFlush = nullptr;
-	::glBlendFunc = nullptr;
-	::glLogicOp = nullptr;
-	::glStencilFunc = nullptr;
-	::glStencilOp = nullptr;
-	::glDepthFunc = nullptr;
-	::glPixelStoref = nullptr;
-	::glPixelStorei = nullptr;
-	::glReadBuffer = nullptr;
-	::glReadPixels = nullptr;
-	::glGetBooleanv = nullptr;
-	::glGetDoublev = nullptr;
-	::glGetError = nullptr;
-	::glGetFloatv = nullptr;
-	::glGetIntegerv = nullptr;
-	::glGetString = nullptr;
-	::glGetTexImage = nullptr;
-	::glGetTexParameterfv = nullptr;
-	::glGetTexParameteriv = nullptr;
-	::glGetTexLevelParameterfv = nullptr;
-	::glGetTexLevelParameteriv = nullptr;
-	::glIsEnabled = nullptr;
-	::glDepthRange = nullptr;
-	::glViewport = nullptr;
-	::glNewList = nullptr;
-	::glEndList = nullptr;
-	::glCallList = nullptr;
-	::glCallLists = nullptr;
-	::glDeleteLists = nullptr;
-	::glGenLists = nullptr;
-	::glListBase = nullptr;
-	::glBegin = nullptr;
-	::glBitmap = nullptr;
-	::glColor3b = nullptr;
-	::glColor3bv = nullptr;
-	::glColor3d = nullptr;
-	::glColor3dv = nullptr;
-	::glColor3f = nullptr;
-	::glColor3fv = nullptr;
-	::glColor3i = nullptr;
-	::glColor3iv = nullptr;
-	::glColor3s = nullptr;
-	::glColor3sv = nullptr;
-	::glColor3ub = nullptr;
-	::glColor3ubv = nullptr;
-	::glColor3ui = nullptr;
-	::glColor3uiv = nullptr;
-	::glColor3us = nullptr;
-	::glColor3usv = nullptr;
-	::glColor4b = nullptr;
-	::glColor4bv = nullptr;
-	::glColor4d = nullptr;
-	::glColor4dv = nullptr;
-	::glColor4f = nullptr;
-	::glColor4fv = nullptr;
-	::glColor4i = nullptr;
-	::glColor4iv = nullptr;
-	::glColor4s = nullptr;
-	::glColor4sv = nullptr;
-	::glColor4ub = nullptr;
-	::glColor4ubv = nullptr;
-	::glColor4ui = nullptr;
-	::glColor4uiv = nullptr;
-	::glColor4us = nullptr;
-	::glColor4usv = nullptr;
-	::glEdgeFlag = nullptr;
-	::glEdgeFlagv = nullptr;
-	::glEnd = nullptr;
-	::glIndexd = nullptr;
-	::glIndexdv = nullptr;
-	::glIndexf = nullptr;
-	::glIndexfv = nullptr;
-	::glIndexi = nullptr;
-	::glIndexiv = nullptr;
-	::glIndexs = nullptr;
-	::glIndexsv = nullptr;
-	::glNormal3b = nullptr;
-	::glNormal3bv = nullptr;
-	::glNormal3d = nullptr;
-	::glNormal3dv = nullptr;
-	::glNormal3f = nullptr;
-	::glNormal3fv = nullptr;
-	::glNormal3i = nullptr;
-	::glNormal3iv = nullptr;
-	::glNormal3s = nullptr;
-	::glNormal3sv = nullptr;
-	::glRasterPos2d = nullptr;
-	::glRasterPos2dv = nullptr;
-	::glRasterPos2f = nullptr;
-	::glRasterPos2fv = nullptr;
-	::glRasterPos2i = nullptr;
-	::glRasterPos2iv = nullptr;
-	::glRasterPos2s = nullptr;
-	::glRasterPos2sv = nullptr;
-	::glRasterPos3d = nullptr;
-	::glRasterPos3dv = nullptr;
-	::glRasterPos3f = nullptr;
-	::glRasterPos3fv = nullptr;
-	::glRasterPos3i = nullptr;
-	::glRasterPos3iv = nullptr;
-	::glRasterPos3s = nullptr;
-	::glRasterPos3sv = nullptr;
-	::glRasterPos4d = nullptr;
-	::glRasterPos4dv = nullptr;
-	::glRasterPos4f = nullptr;
-	::glRasterPos4fv = nullptr;
-	::glRasterPos4i = nullptr;
-	::glRasterPos4iv = nullptr;
-	::glRasterPos4s = nullptr;
-	::glRasterPos4sv = nullptr;
-	::glRectd = nullptr;
-	::glRectdv = nullptr;
-	::glRectf = nullptr;
-	::glRectfv = nullptr;
-	::glRecti = nullptr;
-	::glRectiv = nullptr;
-	::glRects = nullptr;
-	::glRectsv = nullptr;
-	::glTexCoord1d = nullptr;
-	::glTexCoord1dv = nullptr;
-	::glTexCoord1f = nullptr;
-	::glTexCoord1fv = nullptr;
-	::glTexCoord1i = nullptr;
-	::glTexCoord1iv = nullptr;
-	::glTexCoord1s = nullptr;
-	::glTexCoord1sv = nullptr;
-	::glTexCoord2d = nullptr;
-	::glTexCoord2dv = nullptr;
-	::glTexCoord2f = nullptr;
-	::glTexCoord2fv = nullptr;
-	::glTexCoord2i = nullptr;
-	::glTexCoord2iv = nullptr;
-	::glTexCoord2s = nullptr;
-	::glTexCoord2sv = nullptr;
-	::glTexCoord3d = nullptr;
-	::glTexCoord3dv = nullptr;
-	::glTexCoord3f = nullptr;
-	::glTexCoord3fv = nullptr;
-	::glTexCoord3i = nullptr;
-	::glTexCoord3iv = nullptr;
-	::glTexCoord3s = nullptr;
-	::glTexCoord3sv = nullptr;
-	::glTexCoord4d = nullptr;
-	::glTexCoord4dv = nullptr;
-	::glTexCoord4f = nullptr;
-	::glTexCoord4fv = nullptr;
-	::glTexCoord4i = nullptr;
-	::glTexCoord4iv = nullptr;
-	::glTexCoord4s = nullptr;
-	::glTexCoord4sv = nullptr;
-	::glVertex2d = nullptr;
-	::glVertex2dv = nullptr;
-	::glVertex2f = nullptr;
-	::glVertex2fv = nullptr;
-	::glVertex2i = nullptr;
-	::glVertex2iv = nullptr;
-	::glVertex2s = nullptr;
-	::glVertex2sv = nullptr;
-	::glVertex3d = nullptr;
-	::glVertex3dv = nullptr;
-	::glVertex3f = nullptr;
-	::glVertex3fv = nullptr;
-	::glVertex3i = nullptr;
-	::glVertex3iv = nullptr;
-	::glVertex3s = nullptr;
-	::glVertex3sv = nullptr;
-	::glVertex4d = nullptr;
-	::glVertex4dv = nullptr;
-	::glVertex4f = nullptr;
-	::glVertex4fv = nullptr;
-	::glVertex4i = nullptr;
-	::glVertex4iv = nullptr;
-	::glVertex4s = nullptr;
-	::glVertex4sv = nullptr;
-	::glClipPlane = nullptr;
-	::glColorMaterial = nullptr;
-	::glFogf = nullptr;
-	::glFogfv = nullptr;
-	::glFogi = nullptr;
-	::glFogiv = nullptr;
-	::glLightf = nullptr;
-	::glLightfv = nullptr;
-	::glLighti = nullptr;
-	::glLightiv = nullptr;
-	::glLightModelf = nullptr;
-	::glLightModelfv = nullptr;
-	::glLightModeli = nullptr;
-	::glLightModeliv = nullptr;
-	::glLineStipple = nullptr;
-	::glMaterialf = nullptr;
-	::glMaterialfv = nullptr;
-	::glMateriali = nullptr;
-	::glMaterialiv = nullptr;
-	::glPolygonStipple = nullptr;
-	::glShadeModel = nullptr;
-	::glTexEnvf = nullptr;
-	::glTexEnvfv = nullptr;
-	::glTexEnvi = nullptr;
-	::glTexEnviv = nullptr;
-	::glTexGend = nullptr;
-	::glTexGendv = nullptr;
-	::glTexGenf = nullptr;
-	::glTexGenfv = nullptr;
-	::glTexGeni = nullptr;
-	::glTexGeniv = nullptr;
-	::glFeedbackBuffer = nullptr;
-	::glSelectBuffer = nullptr;
-	::glRenderMode = nullptr;
-	::glInitNames = nullptr;
-	::glLoadName = nullptr;
-	::glPassThrough = nullptr;
-	::glPopName = nullptr;
-	::glPushName = nullptr;
-	::glClearAccum = nullptr;
-	::glClearIndex = nullptr;
-	::glIndexMask = nullptr;
-	::glAccum = nullptr;
-	::glPopAttrib = nullptr;
-	::glPushAttrib = nullptr;
-	::glMap1d = nullptr;
-	::glMap1f = nullptr;
-	::glMap2d = nullptr;
-	::glMap2f = nullptr;
-	::glMapGrid1d = nullptr;
-	::glMapGrid1f = nullptr;
-	::glMapGrid2d = nullptr;
-	::glMapGrid2f = nullptr;
-	::glEvalCoord1d = nullptr;
-	::glEvalCoord1dv = nullptr;
-	::glEvalCoord1f = nullptr;
-	::glEvalCoord1fv = nullptr;
-	::glEvalCoord2d = nullptr;
-	::glEvalCoord2dv = nullptr;
-	::glEvalCoord2f = nullptr;
-	::glEvalCoord2fv = nullptr;
-	::glEvalMesh1 = nullptr;
-	::glEvalPoint1 = nullptr;
-	::glEvalMesh2 = nullptr;
-	::glEvalPoint2 = nullptr;
-	::glAlphaFunc = nullptr;
-	::glPixelZoom = nullptr;
-	::glPixelTransferf = nullptr;
-	::glPixelTransferi = nullptr;
-	::glPixelMapfv = nullptr;
-	::glPixelMapuiv = nullptr;
-	::glPixelMapusv = nullptr;
-	::glCopyPixels = nullptr;
-	::glDrawPixels = nullptr;
-	::glGetClipPlane = nullptr;
-	::glGetLightfv = nullptr;
-	::glGetLightiv = nullptr;
-	::glGetMapdv = nullptr;
-	::glGetMapfv = nullptr;
-	::glGetMapiv = nullptr;
-	::glGetMaterialfv = nullptr;
-	::glGetMaterialiv = nullptr;
-	::glGetPixelMapfv = nullptr;
-	::glGetPixelMapuiv = nullptr;
-	::glGetPixelMapusv = nullptr;
-	::glGetPolygonStipple = nullptr;
-	::glGetTexEnvfv = nullptr;
-	::glGetTexEnviv = nullptr;
-	::glGetTexGendv = nullptr;
-	::glGetTexGenfv = nullptr;
-	::glGetTexGeniv = nullptr;
-	::glIsList = nullptr;
-	::glFrustum = nullptr;
-	::glLoadIdentity = nullptr;
-	::glLoadMatrixf = nullptr;
-	::glLoadMatrixd = nullptr;
-	::glMatrixMode = nullptr;
-	::glMultMatrixf = nullptr;
-	::glMultMatrixd = nullptr;
-	::glOrtho = nullptr;
-	::glPopMatrix = nullptr;
-	::glPushMatrix = nullptr;
-	::glRotated = nullptr;
-	::glRotatef = nullptr;
-	::glScaled = nullptr;
-	::glScalef = nullptr;
-	::glTranslated = nullptr;
-	::glTranslatef = nullptr;
-}
-
 bool OglExtensionManagerImpl::resolve_v1_0()
 {
 	auto is_failed = false;
@@ -1681,48 +1328,7 @@ bool OglExtensionManagerImpl::resolve_v1_0()
 	resolve_symbol("glTranslated", ::glTranslated, is_failed);
 	resolve_symbol("glTranslatef", ::glTranslatef, is_failed);
 
-	if (is_failed)
-	{
-		clear_v1_0();
-
-		return false;
-	}
-
-	return true;
-}
-
-void OglExtensionManagerImpl::clear_v1_1()
-{
-	::glDrawArrays = nullptr;
-	::glDrawElements = nullptr;
-	::glGetPointerv = nullptr;
-	::glPolygonOffset = nullptr;
-	::glCopyTexImage1D = nullptr;
-	::glCopyTexImage2D = nullptr;
-	::glCopyTexSubImage1D = nullptr;
-	::glCopyTexSubImage2D = nullptr;
-	::glTexSubImage1D = nullptr;
-	::glTexSubImage2D = nullptr;
-	::glBindTexture = nullptr;
-	::glDeleteTextures = nullptr;
-	::glGenTextures = nullptr;
-	::glIsTexture = nullptr;
-	::glArrayElement = nullptr;
-	::glColorPointer = nullptr;
-	::glDisableClientState = nullptr;
-	::glEdgeFlagPointer = nullptr;
-	::glEnableClientState = nullptr;
-	::glIndexPointer = nullptr;
-	::glInterleavedArrays = nullptr;
-	::glNormalPointer = nullptr;
-	::glTexCoordPointer = nullptr;
-	::glVertexPointer = nullptr;
-	::glAreTexturesResident = nullptr;
-	::glPrioritizeTextures = nullptr;
-	::glIndexub = nullptr;
-	::glIndexubv = nullptr;
-	::glPopClientAttrib = nullptr;
-	::glPushClientAttrib = nullptr;
+	return !is_failed;
 }
 
 bool OglExtensionManagerImpl::resolve_v1_1()
@@ -1760,22 +1366,7 @@ bool OglExtensionManagerImpl::resolve_v1_1()
 	resolve_symbol("glPopClientAttrib", ::glPopClientAttrib, is_failed);
 	resolve_symbol("glPushClientAttrib", ::glPushClientAttrib, is_failed);
 
-	if (is_failed)
-	{
-		clear_v1_1();
-
-		return false;
-	}
-
-	return true;
-}
-
-void OglExtensionManagerImpl::clear_v1_2()
-{
-	::glDrawRangeElements = nullptr;
-	::glTexImage3D = nullptr;
-	::glTexSubImage3D = nullptr;
-	::glCopyTexSubImage3D = nullptr;
+	return !is_failed;
 }
 
 bool OglExtensionManagerImpl::resolve_v1_2()
@@ -1787,64 +1378,7 @@ bool OglExtensionManagerImpl::resolve_v1_2()
 	resolve_symbol("glTexSubImage3D", ::glTexSubImage3D, is_failed);
 	resolve_symbol("glCopyTexSubImage3D", ::glCopyTexSubImage3D, is_failed);
 
-	if (is_failed)
-	{
-		clear_v1_2();
-
-		return false;
-	}
-
-	return true;
-}
-
-void OglExtensionManagerImpl::clear_v1_3()
-{
-	::glActiveTexture = nullptr;
-	::glSampleCoverage = nullptr;
-	::glCompressedTexImage3D = nullptr;
-	::glCompressedTexImage2D = nullptr;
-	::glCompressedTexImage1D = nullptr;
-	::glCompressedTexSubImage3D = nullptr;
-	::glCompressedTexSubImage2D = nullptr;
-	::glCompressedTexSubImage1D = nullptr;
-	::glGetCompressedTexImage = nullptr;
-	::glClientActiveTexture = nullptr;
-	::glMultiTexCoord1d = nullptr;
-	::glMultiTexCoord1dv = nullptr;
-	::glMultiTexCoord1f = nullptr;
-	::glMultiTexCoord1fv = nullptr;
-	::glMultiTexCoord1i = nullptr;
-	::glMultiTexCoord1iv = nullptr;
-	::glMultiTexCoord1s = nullptr;
-	::glMultiTexCoord1sv = nullptr;
-	::glMultiTexCoord2d = nullptr;
-	::glMultiTexCoord2dv = nullptr;
-	::glMultiTexCoord2f = nullptr;
-	::glMultiTexCoord2fv = nullptr;
-	::glMultiTexCoord2i = nullptr;
-	::glMultiTexCoord2iv = nullptr;
-	::glMultiTexCoord2s = nullptr;
-	::glMultiTexCoord2sv = nullptr;
-	::glMultiTexCoord3d = nullptr;
-	::glMultiTexCoord3dv = nullptr;
-	::glMultiTexCoord3f = nullptr;
-	::glMultiTexCoord3fv = nullptr;
-	::glMultiTexCoord3i = nullptr;
-	::glMultiTexCoord3iv = nullptr;
-	::glMultiTexCoord3s = nullptr;
-	::glMultiTexCoord3sv = nullptr;
-	::glMultiTexCoord4d = nullptr;
-	::glMultiTexCoord4dv = nullptr;
-	::glMultiTexCoord4f = nullptr;
-	::glMultiTexCoord4fv = nullptr;
-	::glMultiTexCoord4i = nullptr;
-	::glMultiTexCoord4iv = nullptr;
-	::glMultiTexCoord4s = nullptr;
-	::glMultiTexCoord4sv = nullptr;
-	::glLoadTransposeMatrixf = nullptr;
-	::glLoadTransposeMatrixd = nullptr;
-	::glMultTransposeMatrixf = nullptr;
-	::glMultTransposeMatrixd = nullptr;
+	return !is_failed;
 }
 
 bool OglExtensionManagerImpl::resolve_v1_3()
@@ -1898,65 +1432,7 @@ bool OglExtensionManagerImpl::resolve_v1_3()
 	resolve_symbol("glMultTransposeMatrixf", ::glMultTransposeMatrixf, is_failed);
 	resolve_symbol("glMultTransposeMatrixd", ::glMultTransposeMatrixd, is_failed);
 
-	if (is_failed)
-	{
-		clear_v1_3();
-
-		return false;
-	}
-
-	return true;
-}
-
-void OglExtensionManagerImpl::clear_v1_4()
-{
-	::glBlendFuncSeparate = nullptr;
-	::glMultiDrawArrays = nullptr;
-	::glMultiDrawElements = nullptr;
-	::glPointParameterf = nullptr;
-	::glPointParameterfv = nullptr;
-	::glPointParameteri = nullptr;
-	::glPointParameteriv = nullptr;
-	::glFogCoordf = nullptr;
-	::glFogCoordfv = nullptr;
-	::glFogCoordd = nullptr;
-	::glFogCoorddv = nullptr;
-	::glFogCoordPointer = nullptr;
-	::glSecondaryColor3b = nullptr;
-	::glSecondaryColor3bv = nullptr;
-	::glSecondaryColor3d = nullptr;
-	::glSecondaryColor3dv = nullptr;
-	::glSecondaryColor3f = nullptr;
-	::glSecondaryColor3fv = nullptr;
-	::glSecondaryColor3i = nullptr;
-	::glSecondaryColor3iv = nullptr;
-	::glSecondaryColor3s = nullptr;
-	::glSecondaryColor3sv = nullptr;
-	::glSecondaryColor3ub = nullptr;
-	::glSecondaryColor3ubv = nullptr;
-	::glSecondaryColor3ui = nullptr;
-	::glSecondaryColor3uiv = nullptr;
-	::glSecondaryColor3us = nullptr;
-	::glSecondaryColor3usv = nullptr;
-	::glSecondaryColorPointer = nullptr;
-	::glWindowPos2d = nullptr;
-	::glWindowPos2dv = nullptr;
-	::glWindowPos2f = nullptr;
-	::glWindowPos2fv = nullptr;
-	::glWindowPos2i = nullptr;
-	::glWindowPos2iv = nullptr;
-	::glWindowPos2s = nullptr;
-	::glWindowPos2sv = nullptr;
-	::glWindowPos3d = nullptr;
-	::glWindowPos3dv = nullptr;
-	::glWindowPos3f = nullptr;
-	::glWindowPos3fv = nullptr;
-	::glWindowPos3i = nullptr;
-	::glWindowPos3iv = nullptr;
-	::glWindowPos3s = nullptr;
-	::glWindowPos3sv = nullptr;
-	::glBlendColor = nullptr;
-	::glBlendEquation = nullptr;
+	return !is_failed;
 }
 
 bool OglExtensionManagerImpl::resolve_v1_4()
@@ -2011,37 +1487,7 @@ bool OglExtensionManagerImpl::resolve_v1_4()
 	resolve_symbol("glBlendColor", ::glBlendColor, is_failed);
 	resolve_symbol("glBlendEquation", ::glBlendEquation, is_failed);
 
-	if (is_failed)
-	{
-		clear_v1_4();
-
-		return false;
-	}
-
-	return true;
-}
-
-void OglExtensionManagerImpl::clear_v1_5()
-{
-	::glGenQueries = nullptr;
-	::glDeleteQueries = nullptr;
-	::glIsQuery = nullptr;
-	::glBeginQuery = nullptr;
-	::glEndQuery = nullptr;
-	::glGetQueryiv = nullptr;
-	::glGetQueryObjectiv = nullptr;
-	::glGetQueryObjectuiv = nullptr;
-	::glBindBuffer = nullptr;
-	::glDeleteBuffers = nullptr;
-	::glGenBuffers = nullptr;
-	::glIsBuffer = nullptr;
-	::glBufferData = nullptr;
-	::glBufferSubData = nullptr;
-	::glGetBufferSubData = nullptr;
-	::glMapBuffer = nullptr;
-	::glUnmapBuffer = nullptr;
-	::glGetBufferParameteriv = nullptr;
-	::glGetBufferPointerv = nullptr;
+	return !is_failed;
 }
 
 bool OglExtensionManagerImpl::resolve_v1_5()
@@ -2068,111 +1514,7 @@ bool OglExtensionManagerImpl::resolve_v1_5()
 	resolve_symbol("glGetBufferParameteriv", ::glGetBufferParameteriv, is_failed);
 	resolve_symbol("glGetBufferPointerv", ::glGetBufferPointerv, is_failed);
 
-	if (is_failed)
-	{
-		clear_v1_5();
-
-		return false;
-	}
-
-	return true;
-}
-
-void OglExtensionManagerImpl::clear_v2_0()
-{
-	::glBlendEquationSeparate = nullptr;
-	::glDrawBuffers = nullptr;
-	::glStencilOpSeparate = nullptr;
-	::glStencilFuncSeparate = nullptr;
-	::glStencilMaskSeparate = nullptr;
-	::glAttachShader = nullptr;
-	::glBindAttribLocation = nullptr;
-	::glCompileShader = nullptr;
-	::glCreateProgram = nullptr;
-	::glCreateShader = nullptr;
-	::glDeleteProgram = nullptr;
-	::glDeleteShader = nullptr;
-	::glDetachShader = nullptr;
-	::glDisableVertexAttribArray = nullptr;
-	::glEnableVertexAttribArray = nullptr;
-	::glGetActiveAttrib = nullptr;
-	::glGetActiveUniform = nullptr;
-	::glGetAttachedShaders = nullptr;
-	::glGetAttribLocation = nullptr;
-	::glGetProgramiv = nullptr;
-	::glGetProgramInfoLog = nullptr;
-	::glGetShaderiv = nullptr;
-	::glGetShaderInfoLog = nullptr;
-	::glGetShaderSource = nullptr;
-	::glGetUniformLocation = nullptr;
-	::glGetUniformfv = nullptr;
-	::glGetUniformiv = nullptr;
-	::glGetVertexAttribdv = nullptr;
-	::glGetVertexAttribfv = nullptr;
-	::glGetVertexAttribiv = nullptr;
-	::glGetVertexAttribPointerv = nullptr;
-	::glIsProgram = nullptr;
-	::glIsShader = nullptr;
-	::glLinkProgram = nullptr;
-	::glShaderSource = nullptr;
-	::glUseProgram = nullptr;
-	::glUniform1f = nullptr;
-	::glUniform2f = nullptr;
-	::glUniform3f = nullptr;
-	::glUniform4f = nullptr;
-	::glUniform1i = nullptr;
-	::glUniform2i = nullptr;
-	::glUniform3i = nullptr;
-	::glUniform4i = nullptr;
-	::glUniform1fv = nullptr;
-	::glUniform2fv = nullptr;
-	::glUniform3fv = nullptr;
-	::glUniform4fv = nullptr;
-	::glUniform1iv = nullptr;
-	::glUniform2iv = nullptr;
-	::glUniform3iv = nullptr;
-	::glUniform4iv = nullptr;
-	::glUniformMatrix2fv = nullptr;
-	::glUniformMatrix3fv = nullptr;
-	::glUniformMatrix4fv = nullptr;
-	::glValidateProgram = nullptr;
-	::glVertexAttrib1d = nullptr;
-	::glVertexAttrib1dv = nullptr;
-	::glVertexAttrib1f = nullptr;
-	::glVertexAttrib1fv = nullptr;
-	::glVertexAttrib1s = nullptr;
-	::glVertexAttrib1sv = nullptr;
-	::glVertexAttrib2d = nullptr;
-	::glVertexAttrib2dv = nullptr;
-	::glVertexAttrib2f = nullptr;
-	::glVertexAttrib2fv = nullptr;
-	::glVertexAttrib2s = nullptr;
-	::glVertexAttrib2sv = nullptr;
-	::glVertexAttrib3d = nullptr;
-	::glVertexAttrib3dv = nullptr;
-	::glVertexAttrib3f = nullptr;
-	::glVertexAttrib3fv = nullptr;
-	::glVertexAttrib3s = nullptr;
-	::glVertexAttrib3sv = nullptr;
-	::glVertexAttrib4Nbv = nullptr;
-	::glVertexAttrib4Niv = nullptr;
-	::glVertexAttrib4Nsv = nullptr;
-	::glVertexAttrib4Nub = nullptr;
-	::glVertexAttrib4Nubv = nullptr;
-	::glVertexAttrib4Nuiv = nullptr;
-	::glVertexAttrib4Nusv = nullptr;
-	::glVertexAttrib4bv = nullptr;
-	::glVertexAttrib4d = nullptr;
-	::glVertexAttrib4dv = nullptr;
-	::glVertexAttrib4f = nullptr;
-	::glVertexAttrib4fv = nullptr;
-	::glVertexAttrib4iv = nullptr;
-	::glVertexAttrib4s = nullptr;
-	::glVertexAttrib4sv = nullptr;
-	::glVertexAttrib4ubv = nullptr;
-	::glVertexAttrib4uiv = nullptr;
-	::glVertexAttrib4usv = nullptr;
-	::glVertexAttribPointer = nullptr;
+	return !is_failed;
 }
 
 bool OglExtensionManagerImpl::resolve_v2_0()
@@ -2273,24 +1615,7 @@ bool OglExtensionManagerImpl::resolve_v2_0()
 	resolve_symbol("glVertexAttrib4usv", ::glVertexAttrib4usv, is_failed);
 	resolve_symbol("glVertexAttribPointer", ::glVertexAttribPointer, is_failed);
 
-	if (is_failed)
-	{
-		clear_v2_0();
-
-		return false;
-	}
-
-	return true;
-}
-
-void OglExtensionManagerImpl::clear_v2_1()
-{
-	::glUniformMatrix2x3fv = nullptr;
-	::glUniformMatrix3x2fv = nullptr;
-	::glUniformMatrix2x4fv = nullptr;
-	::glUniformMatrix4x2fv = nullptr;
-	::glUniformMatrix3x4fv = nullptr;
-	::glUniformMatrix4x3fv = nullptr;
+	return !is_failed;
 }
 
 bool OglExtensionManagerImpl::resolve_v2_1()
@@ -2304,76 +1629,7 @@ bool OglExtensionManagerImpl::resolve_v2_1()
 	resolve_symbol("glUniformMatrix3x4fv", ::glUniformMatrix3x4fv, is_failed);
 	resolve_symbol("glUniformMatrix4x3fv", ::glUniformMatrix4x3fv, is_failed);
 
-	if (is_failed)
-	{
-		clear_v2_1();
-
-		return false;
-	}
-
-	return true;
-}
-
-void OglExtensionManagerImpl::clear_v3_0()
-{
-	::glColorMaski = nullptr;
-	::glGetBooleani_v = nullptr;
-	::glGetIntegeri_v = nullptr;
-	::glEnablei = nullptr;
-	::glDisablei = nullptr;
-	::glIsEnabledi = nullptr;
-	::glBeginTransformFeedback = nullptr;
-	::glEndTransformFeedback = nullptr;
-	::glBindBufferRange = nullptr;
-	::glBindBufferBase = nullptr;
-	::glTransformFeedbackVaryings = nullptr;
-	::glGetTransformFeedbackVarying = nullptr;
-	::glClampColor = nullptr;
-	::glBeginConditionalRender = nullptr;
-	::glEndConditionalRender = nullptr;
-	::glVertexAttribIPointer = nullptr;
-	::glGetVertexAttribIiv = nullptr;
-	::glGetVertexAttribIuiv = nullptr;
-	::glVertexAttribI1i = nullptr;
-	::glVertexAttribI2i = nullptr;
-	::glVertexAttribI3i = nullptr;
-	::glVertexAttribI4i = nullptr;
-	::glVertexAttribI1ui = nullptr;
-	::glVertexAttribI2ui = nullptr;
-	::glVertexAttribI3ui = nullptr;
-	::glVertexAttribI4ui = nullptr;
-	::glVertexAttribI1iv = nullptr;
-	::glVertexAttribI2iv = nullptr;
-	::glVertexAttribI3iv = nullptr;
-	::glVertexAttribI4iv = nullptr;
-	::glVertexAttribI1uiv = nullptr;
-	::glVertexAttribI2uiv = nullptr;
-	::glVertexAttribI3uiv = nullptr;
-	::glVertexAttribI4uiv = nullptr;
-	::glVertexAttribI4bv = nullptr;
-	::glVertexAttribI4sv = nullptr;
-	::glVertexAttribI4ubv = nullptr;
-	::glVertexAttribI4usv = nullptr;
-	::glGetUniformuiv = nullptr;
-	::glBindFragDataLocation = nullptr;
-	::glGetFragDataLocation = nullptr;
-	::glUniform1ui = nullptr;
-	::glUniform2ui = nullptr;
-	::glUniform3ui = nullptr;
-	::glUniform4ui = nullptr;
-	::glUniform1uiv = nullptr;
-	::glUniform2uiv = nullptr;
-	::glUniform3uiv = nullptr;
-	::glUniform4uiv = nullptr;
-	::glTexParameterIiv = nullptr;
-	::glTexParameterIuiv = nullptr;
-	::glGetTexParameterIiv = nullptr;
-	::glGetTexParameterIuiv = nullptr;
-	::glClearBufferiv = nullptr;
-	::glClearBufferuiv = nullptr;
-	::glClearBufferfv = nullptr;
-	::glClearBufferfi = nullptr;
-	::glGetStringi = nullptr;
+	return is_failed;
 }
 
 bool OglExtensionManagerImpl::resolve_v3_0()
@@ -2439,19 +1695,7 @@ bool OglExtensionManagerImpl::resolve_v3_0()
 	resolve_symbol("glClearBufferfi", ::glClearBufferfi, is_failed);
 	resolve_symbol("glGetStringi", ::glGetStringi, is_failed);
 
-	if (is_failed)
-	{
-		clear_v3_0();
-
-		return false;
-	}
-
-	return true;
-}
-
-void OglExtensionManagerImpl::clear_arb_color_buffer_float()
-{
-	::glClampColorARB = nullptr;
+	return !is_failed;
 }
 
 bool OglExtensionManagerImpl::resolve_arb_color_buffer_float()
@@ -2460,38 +1704,7 @@ bool OglExtensionManagerImpl::resolve_arb_color_buffer_float()
 
 	resolve_symbol("glClampColorARB", ::glClampColorARB, is_failed);
 
-	if (is_failed)
-	{
-		clear_arb_color_buffer_float();
-
-		return false;
-	}
-
-	return true;
-}
-
-void OglExtensionManagerImpl::clear_arb_framebuffer_object()
-{
-	::glIsRenderbuffer = nullptr;
-	::glBindRenderbuffer = nullptr;
-	::glDeleteRenderbuffers = nullptr;
-	::glGenRenderbuffers = nullptr;
-	::glRenderbufferStorage = nullptr;
-	::glGetRenderbufferParameteriv = nullptr;
-	::glIsFramebuffer = nullptr;
-	::glBindFramebuffer = nullptr;
-	::glDeleteFramebuffers = nullptr;
-	::glGenFramebuffers = nullptr;
-	::glCheckFramebufferStatus = nullptr;
-	::glFramebufferTexture1D = nullptr;
-	::glFramebufferTexture2D = nullptr;
-	::glFramebufferTexture3D = nullptr;
-	::glFramebufferRenderbuffer = nullptr;
-	::glGetFramebufferAttachmentParameteriv = nullptr;
-	::glGenerateMipmap = nullptr;
-	::glBlitFramebuffer = nullptr;
-	::glRenderbufferStorageMultisample = nullptr;
-	::glFramebufferTextureLayer = nullptr;
+	return !is_failed;
 }
 
 bool OglExtensionManagerImpl::resolve_arb_framebuffer_object()
@@ -2519,20 +1732,7 @@ bool OglExtensionManagerImpl::resolve_arb_framebuffer_object()
 	resolve_symbol("glRenderbufferStorageMultisample", ::glRenderbufferStorageMultisample, is_failed);
 	resolve_symbol("glFramebufferTextureLayer", ::glFramebufferTextureLayer, is_failed);
 
-	if (is_failed)
-	{
-		clear_arb_framebuffer_object();
-
-		return false;
-	}
-
-	return true;
-}
-
-void OglExtensionManagerImpl::clear_arb_map_buffer_range()
-{
-	::glMapBufferRange = nullptr;
-	::glFlushMappedBufferRange = nullptr;
+	return !is_failed;
 }
 
 bool OglExtensionManagerImpl::resolve_arb_map_buffer_range()
@@ -2542,22 +1742,7 @@ bool OglExtensionManagerImpl::resolve_arb_map_buffer_range()
 	resolve_symbol("glMapBufferRange", ::glMapBufferRange, is_failed);
 	resolve_symbol("glFlushMappedBufferRange", ::glFlushMappedBufferRange, is_failed);
 
-	if (is_failed)
-	{
-		clear_arb_map_buffer_range();
-
-		return false;
-	}
-
-	return true;
-}
-
-void OglExtensionManagerImpl::clear_arb_vertex_array_object()
-{
-	::glBindVertexArray = nullptr;
-	::glDeleteVertexArrays = nullptr;
-	::glGenVertexArrays = nullptr;
-	::glIsVertexArray = nullptr;
+	return !is_failed;
 }
 
 bool OglExtensionManagerImpl::resolve_arb_vertex_array_object()
@@ -2569,19 +1754,7 @@ bool OglExtensionManagerImpl::resolve_arb_vertex_array_object()
 	resolve_symbol("glGenVertexArrays", ::glGenVertexArrays, is_failed);
 	resolve_symbol("glIsVertexArray", ::glIsVertexArray, is_failed);
 
-	if (is_failed)
-	{
-		clear_ext_framebuffer_blit();
-
-		return false;
-	}
-
-	return true;
-}
-
-void OglExtensionManagerImpl::clear_ext_framebuffer_blit()
-{
-	::glBlitFramebufferEXT = nullptr;
+	return !is_failed;
 }
 
 bool OglExtensionManagerImpl::resolve_ext_framebuffer_blit()
@@ -2590,19 +1763,7 @@ bool OglExtensionManagerImpl::resolve_ext_framebuffer_blit()
 
 	resolve_symbol("glBlitFramebufferEXT", ::glBlitFramebufferEXT, is_failed);
 
-	if (is_failed)
-	{
-		clear_ext_framebuffer_blit();
-
-		return false;
-	}
-
-	return true;
-}
-
-void OglExtensionManagerImpl::clear_ext_framebuffer_multisample()
-{
-	::glRenderbufferStorageMultisampleEXT = nullptr;
+	return !is_failed;
 }
 
 bool OglExtensionManagerImpl::resolve_ext_framebuffer_multisample()
@@ -2611,35 +1772,7 @@ bool OglExtensionManagerImpl::resolve_ext_framebuffer_multisample()
 
 	resolve_symbol("glRenderbufferStorageMultisampleEXT", ::glRenderbufferStorageMultisampleEXT, is_failed);
 
-	if (is_failed)
-	{
-		clear_ext_framebuffer_multisample();
-
-		return false;
-	}
-
-	return true;
-}
-
-void OglExtensionManagerImpl::clear_ext_framebuffer_object()
-{
-	::glIsRenderbufferEXT = nullptr;
-	::glBindRenderbufferEXT = nullptr;
-	::glDeleteRenderbuffersEXT = nullptr;
-	::glGenRenderbuffersEXT = nullptr;
-	::glRenderbufferStorageEXT = nullptr;
-	::glGetRenderbufferParameterivEXT = nullptr;
-	::glIsFramebufferEXT = nullptr;
-	::glBindFramebufferEXT = nullptr;
-	::glDeleteFramebuffersEXT = nullptr;
-	::glGenFramebuffersEXT = nullptr;
-	::glCheckFramebufferStatusEXT = nullptr;
-	::glFramebufferTexture1DEXT = nullptr;
-	::glFramebufferTexture2DEXT = nullptr;
-	::glFramebufferTexture3DEXT = nullptr;
-	::glFramebufferRenderbufferEXT = nullptr;
-	::glGetFramebufferAttachmentParameterivEXT = nullptr;
-	::glGenerateMipmapEXT = nullptr;
+	return !is_failed;
 }
 
 bool OglExtensionManagerImpl::resolve_ext_framebuffer_object()
@@ -2664,14 +1797,7 @@ bool OglExtensionManagerImpl::resolve_ext_framebuffer_object()
 	resolve_symbol("glGetFramebufferAttachmentParameterivEXT", ::glGetFramebufferAttachmentParameterivEXT, is_failed);
 	resolve_symbol("glGenerateMipmapEXT", ::glGenerateMipmapEXT, is_failed);
 
-	if (is_failed)
-	{
-		clear_ext_framebuffer_object();
-
-		return false;
-	}
-
-	return true;
+	return !is_failed;
 }
 
 //
