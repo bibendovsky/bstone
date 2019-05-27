@@ -521,13 +521,7 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "GL_ARB_depth_buffer_float";
 		registry_item.resolve_symbols_function_ = nullptr;
-
-		registry_item.dependencies_ =
-		{
-			OglExtensionId::v2_0,
-			OglExtensionId::arb_framebuffer_object,
-			OglExtensionId::arb_color_buffer_float,
-		};
+		registry_item.dependencies_ = {};
 	}
 
 	{
@@ -541,7 +535,7 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "GL_ARB_framebuffer_object";
 		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_arb_framebuffer_object;
-		registry_item.dependencies_ = {OglExtensionId::v1_1};
+		registry_item.dependencies_ = {};
 	}
 
 	{
@@ -555,7 +549,7 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "GL_ARB_framebuffer_sRGB";
 		registry_item.resolve_symbols_function_ = nullptr;
-		registry_item.dependencies_ = {OglExtensionId::v1_1, OglExtensionId::arb_framebuffer_object};
+		registry_item.dependencies_ = {};
 	}
 
 	{
@@ -583,7 +577,7 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "GL_ARB_map_buffer_range";
 		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_arb_map_buffer_range;
-		registry_item.dependencies_ = {OglExtensionId::v2_1};
+		registry_item.dependencies_ = {};
 	}
 
 	{
@@ -597,7 +591,7 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "GL_ARB_texture_compression";
 		registry_item.resolve_symbols_function_ = nullptr;
-		registry_item.dependencies_ = {OglExtensionId::v1_1};
+		registry_item.dependencies_ = {};
 	}
 
 	{
@@ -611,7 +605,7 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "GL_ARB_texture_compression_rgtc";
 		registry_item.resolve_symbols_function_ = nullptr;
-		registry_item.dependencies_ = {OglExtensionId::arb_texture_compression};
+		registry_item.dependencies_ = {};
 	}
 
 	{
@@ -639,7 +633,7 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "GL_ARB_texture_filter_anisotropic";
 		registry_item.resolve_symbols_function_ = nullptr;
-		registry_item.dependencies_ = {OglExtensionId::v1_2};
+		registry_item.dependencies_ = {};
 	}
 
 	{
@@ -653,7 +647,7 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "GL_ARB_texture_float";
 		registry_item.resolve_symbols_function_ = nullptr;
-		registry_item.dependencies_ = {OglExtensionId::v1_1, OglExtensionId::ext_texture};
+		registry_item.dependencies_ = {};
 	}
 
 	{
@@ -681,7 +675,7 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "GL_ARB_texture_rg";
 		registry_item.resolve_symbols_function_ = nullptr;
-		registry_item.dependencies_ = {OglExtensionId::v1_1};
+		registry_item.dependencies_ = {};
 	}
 
 	{
@@ -723,7 +717,7 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "GL_EXT_framebuffer_blit";
 		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_ext_framebuffer_blit;
-		registry_item.dependencies_ = {OglExtensionId::v1_1};
+		registry_item.dependencies_ = {};
 	}
 
 	{
@@ -737,7 +731,7 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "GL_EXT_framebuffer_multisample";
 		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_ext_framebuffer_multisample;
-		registry_item.dependencies_ = {OglExtensionId::ext_framebuffer_blit, OglExtensionId::ext_framebuffer_object};
+		registry_item.dependencies_ = {};
 	}
 
 	{
@@ -751,7 +745,7 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "GL_EXT_packed_depth_stencil";
 		registry_item.resolve_symbols_function_ = nullptr;
-		registry_item.dependencies_ = {OglExtensionId::v1_1, OglExtensionId::ext_framebuffer_object};
+		registry_item.dependencies_ = {};
 	}
 
 	{
@@ -793,7 +787,7 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "GL_SGIS_generate_mipmap";
 		registry_item.resolve_symbols_function_ = nullptr;
-		registry_item.dependencies_ = {OglExtensionId::ext_texture};
+		registry_item.dependencies_ = {};
 	}
 }
 
