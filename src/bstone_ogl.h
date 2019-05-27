@@ -33,22 +33,15 @@ Free Software Foundation, Inc.,
 
 #include <cstdint>
 
-#ifdef _WIN32
-
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN 1
-#endif // !WIN32_LEAN_AND_MEAN
-
-#ifndef NOMINMAX
-#define NOMINMAX 1
-#endif // !NOMINMAX
-
-#include <windows.h>
-#endif // _WIN32
-
 
 #ifndef APIENTRY
+
+#ifdef _WIN32
+#define APIENTRY __stdcall
+#else
 #define APIENTRY
+#endif // _WIN32
+
 #endif // !APIENTRY
 
 #ifndef APIENTRYP
@@ -3012,6 +3005,70 @@ GLAPI PFNGLCLEARBUFFERFIPROC glClearBufferfi;
 typedef const GLubyte * (APIENTRYP PFNGLGETSTRINGIPROC)(GLenum name, GLuint index);
 GLAPI PFNGLGETSTRINGIPROC glGetStringi;
 
+#endif // !GL_VERSION_3_0
+
+//
+// OpenGL v3.0
+// ==========================================================================
+
+
+// ==========================================================================
+// OpenGL v3.1
+//
+
+#ifndef GL_VERSION_3_1
+#define GL_VERSION_3_1 (1)
+
+#define GL_SAMPLER_2D_RECT 0x8B63
+#define GL_SAMPLER_2D_RECT_SHADOW 0x8B64
+#define GL_SAMPLER_BUFFER 0x8DC2
+#define GL_INT_SAMPLER_2D_RECT 0x8DCD
+#define GL_INT_SAMPLER_BUFFER 0x8DD0
+#define GL_UNSIGNED_INT_SAMPLER_2D_RECT 0x8DD5
+#define GL_UNSIGNED_INT_SAMPLER_BUFFER 0x8DD8
+#define GL_TEXTURE_BUFFER 0x8C2A
+#define GL_MAX_TEXTURE_BUFFER_SIZE 0x8C2B
+#define GL_TEXTURE_BINDING_BUFFER 0x8C2C
+#define GL_TEXTURE_BUFFER_DATA_STORE_BINDING 0x8C2D
+#define GL_TEXTURE_RECTANGLE 0x84F5
+#define GL_TEXTURE_BINDING_RECTANGLE 0x84F6
+#define GL_PROXY_TEXTURE_RECTANGLE 0x84F7
+#define GL_MAX_RECTANGLE_TEXTURE_SIZE 0x84F8
+#define GL_R8_SNORM 0x8F94
+#define GL_RG8_SNORM 0x8F95
+#define GL_RGB8_SNORM 0x8F96
+#define GL_RGBA8_SNORM 0x8F97
+#define GL_R16_SNORM 0x8F98
+#define GL_RG16_SNORM 0x8F99
+#define GL_RGB16_SNORM 0x8F9A
+#define GL_RGBA16_SNORM 0x8F9B
+#define GL_SIGNED_NORMALIZED 0x8F9C
+#define GL_PRIMITIVE_RESTART 0x8F9D
+#define GL_PRIMITIVE_RESTART_INDEX 0x8F9E
+
+
+typedef void (APIENTRYP PFNGLDRAWARRAYSINSTANCEDPROC)(GLenum mode, GLint first, GLsizei count, GLsizei instancecount);
+GLAPI PFNGLDRAWARRAYSINSTANCEDPROC glDrawArraysInstanced;
+
+typedef void (APIENTRYP PFNGLDRAWELEMENTSINSTANCEDPROC)(GLenum mode, GLsizei count, GLenum type, const void *indices, GLsizei instancecount);
+GLAPI PFNGLDRAWELEMENTSINSTANCEDPROC glDrawElementsInstanced;
+
+typedef void (APIENTRYP PFNGLTEXBUFFERPROC)(GLenum target, GLenum internalformat, GLuint buffer);
+GLAPI PFNGLTEXBUFFERPROC glTexBuffer;
+
+typedef void (APIENTRYP PFNGLPRIMITIVERESTARTINDEXPROC)(GLuint index);
+GLAPI PFNGLPRIMITIVERESTARTINDEXPROC glPrimitiveRestartIndex;
+
+#endif // !GL_VERSION_3_1
+
+//
+// OpenGL v3.1
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_depth_buffer_float
+//
 
 #ifndef GL_ARB_depth_buffer_float
 #define GL_ARB_depth_buffer_float (1)
@@ -3022,6 +3079,14 @@ GLAPI PFNGLGETSTRINGIPROC glGetStringi;
 
 #endif // !GL_ARB_depth_buffer_float
 
+//
+// GL_ARB_depth_buffer_float
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_framebuffer_object
+//
 
 #ifndef GL_ARB_framebuffer_object
 #define GL_ARB_framebuffer_object (1)
@@ -3163,6 +3228,14 @@ GLAPI PFNGLFRAMEBUFFERTEXTURELAYERPROC glFramebufferTextureLayer;
 
 #endif // !GL_ARB_framebuffer_object
 
+//
+// GL_ARB_framebuffer_object
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_texture_float
+//
 
 #ifndef GL_ARB_texture_float
 #define GL_ARB_texture_float (1)
@@ -3190,6 +3263,14 @@ GLAPI PFNGLFRAMEBUFFERTEXTURELAYERPROC glFramebufferTextureLayer;
 
 #endif // !GL_ARB_texture_float
 
+//
+// GL_ARB_texture_float
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_framebuffer_sRGB
+//
 
 #ifndef GL_ARB_framebuffer_sRGB
 #define GL_ARB_framebuffer_sRGB (1)
@@ -3198,6 +3279,14 @@ GLAPI PFNGLFRAMEBUFFERTEXTURELAYERPROC glFramebufferTextureLayer;
 
 #endif // !GL_ARB_framebuffer_sRGB
 
+//
+// GL_ARB_framebuffer_sRGB
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_half_float_vertex
+//
 
 #ifndef GL_ARB_half_float_vertex
 #define GL_ARB_half_float_vertex (1)
@@ -3206,6 +3295,14 @@ GLAPI PFNGLFRAMEBUFFERTEXTURELAYERPROC glFramebufferTextureLayer;
 
 #endif // !GL_ARB_half_float_vertex
 
+//
+// GL_ARB_half_float_vertex
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_map_buffer_range
+//
 
 #ifndef GL_ARB_map_buffer_range
 #define GL_ARB_map_buffer_range (1)
@@ -3225,6 +3322,14 @@ GLAPI PFNGLFLUSHMAPPEDBUFFERRANGEPROC glFlushMappedBufferRange;
 
 #endif // !GL_ARB_map_buffer_range
 
+//
+// GL_ARB_map_buffer_range
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_texture_compression_rgtc
+//
 
 #ifndef GL_ARB_texture_compression_rgtc
 #define GL_ARB_texture_compression_rgtc (1)
@@ -3236,6 +3341,14 @@ GLAPI PFNGLFLUSHMAPPEDBUFFERRANGEPROC glFlushMappedBufferRange;
 
 #endif // !GL_ARB_texture_compression_rgtc
 
+//
+// GL_ARB_texture_compression_rgtc
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_texture_rg
+//
 
 #ifndef GL_ARB_texture_rg
 #define GL_ARB_texture_rg
@@ -3273,6 +3386,15 @@ GLAPI PFNGLFLUSHMAPPEDBUFFERRANGEPROC glFlushMappedBufferRange;
 
 #endif // !GL_ARB_texture_rg
 
+//
+// GL_ARB_texture_rg
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_vertex_array_object
+//
+
 #ifndef GL_ARB_vertex_array_object
 #define GL_ARB_vertex_array_object
 
@@ -3292,59 +3414,9 @@ GLAPI PFNGLISVERTEXARRAYPROC glIsVertexArray;
 
 #endif // !GL_ARB_vertex_array_object
 
-#endif // !GL_VERSION_3_0
-
 //
-// OpenGL v3.0
+// GL_ARB_vertex_array_object
 // ==========================================================================
-
-
-// ==========================================================================
-// OpenGL v3.1
-//
-
-#ifndef GL_VERSION_3_1
-#define GL_VERSION_3_1 (1)
-
-#define GL_SAMPLER_2D_RECT 0x8B63
-#define GL_SAMPLER_2D_RECT_SHADOW 0x8B64
-#define GL_SAMPLER_BUFFER 0x8DC2
-#define GL_INT_SAMPLER_2D_RECT 0x8DCD
-#define GL_INT_SAMPLER_BUFFER 0x8DD0
-#define GL_UNSIGNED_INT_SAMPLER_2D_RECT 0x8DD5
-#define GL_UNSIGNED_INT_SAMPLER_BUFFER 0x8DD8
-#define GL_TEXTURE_BUFFER 0x8C2A
-#define GL_MAX_TEXTURE_BUFFER_SIZE 0x8C2B
-#define GL_TEXTURE_BINDING_BUFFER 0x8C2C
-#define GL_TEXTURE_BUFFER_DATA_STORE_BINDING 0x8C2D
-#define GL_TEXTURE_RECTANGLE 0x84F5
-#define GL_TEXTURE_BINDING_RECTANGLE 0x84F6
-#define GL_PROXY_TEXTURE_RECTANGLE 0x84F7
-#define GL_MAX_RECTANGLE_TEXTURE_SIZE 0x84F8
-#define GL_R8_SNORM 0x8F94
-#define GL_RG8_SNORM 0x8F95
-#define GL_RGB8_SNORM 0x8F96
-#define GL_RGBA8_SNORM 0x8F97
-#define GL_R16_SNORM 0x8F98
-#define GL_RG16_SNORM 0x8F99
-#define GL_RGB16_SNORM 0x8F9A
-#define GL_RGBA16_SNORM 0x8F9B
-#define GL_SIGNED_NORMALIZED 0x8F9C
-#define GL_PRIMITIVE_RESTART 0x8F9D
-#define GL_PRIMITIVE_RESTART_INDEX 0x8F9E
-
-
-typedef void (APIENTRYP PFNGLDRAWARRAYSINSTANCEDPROC)(GLenum mode, GLint first, GLsizei count, GLsizei instancecount);
-GLAPI PFNGLDRAWARRAYSINSTANCEDPROC glDrawArraysInstanced;
-
-typedef void (APIENTRYP PFNGLDRAWELEMENTSINSTANCEDPROC)(GLenum mode, GLsizei count, GLenum type, const void *indices, GLsizei instancecount);
-GLAPI PFNGLDRAWELEMENTSINSTANCEDPROC glDrawElementsInstanced;
-
-typedef void (APIENTRYP PFNGLTEXBUFFERPROC)(GLenum target, GLenum internalformat, GLuint buffer);
-GLAPI PFNGLTEXBUFFERPROC glTexBuffer;
-
-typedef void (APIENTRYP PFNGLPRIMITIVERESTARTINDEXPROC)(GLuint index);
-GLAPI PFNGLPRIMITIVERESTARTINDEXPROC glPrimitiveRestartIndex;
 
 
 // ==========================================================================
@@ -3443,12 +3515,6 @@ GLAPI PFNGLGETINTEGERI_VPROC glGetIntegeri_v;
 
 //
 // GL_ARB_uniform_buffer_object
-// ==========================================================================
-
-#endif // !GL_VERSION_3_1
-
-//
-// OpenGL v3.1
 // ==========================================================================
 
 

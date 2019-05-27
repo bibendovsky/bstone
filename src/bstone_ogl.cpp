@@ -754,6 +754,34 @@ PFNGLCLEARBUFFERFVPROC glClearBufferfv = nullptr;
 PFNGLCLEARBUFFERFIPROC glClearBufferfi = nullptr;
 PFNGLGETSTRINGIPROC glGetStringi = nullptr;
 
+#endif // GL_VERSION_3_0
+
+//
+// OpenGL 3.0
+// ==========================================================================
+
+
+// ==========================================================================
+// OpenGL v3.1
+//
+
+#ifdef GL_VERSION_3_1
+
+PFNGLDRAWARRAYSINSTANCEDPROC glDrawArraysInstanced = nullptr;
+PFNGLDRAWELEMENTSINSTANCEDPROC glDrawElementsInstanced = nullptr;
+PFNGLTEXBUFFERPROC glTexBuffer = nullptr;
+PFNGLPRIMITIVERESTARTINDEXPROC glPrimitiveRestartIndex = nullptr;
+
+#endif // GL_VERSION_3_1
+
+//
+// OpenGL v3.1
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_depth_buffer_float
+//
 
 #ifdef GL_ARB_depth_buffer_float
 #endif // GL_ARB_depth_buffer_float
@@ -784,18 +812,50 @@ PFNGLFRAMEBUFFERTEXTURELAYERPROC glFramebufferTextureLayer = nullptr;
 
 #endif // GL_ARB_framebuffer_object
 
+//
+// GL_ARB_depth_buffer_float
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_texture_float
+//
 
 #ifdef GL_ARB_texture_float
 #endif // GL_ARB_texture_float
 
+//
+// GL_ARB_texture_float
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_framebuffer_sRGB
+//
 
 #ifdef GL_ARB_framebuffer_sRGB
 #endif // GL_ARB_framebuffer_sRGB
 
+//
+// GL_ARB_framebuffer_sRGB
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_half_float_vertex
+//
 
 #ifdef GL_ARB_half_float_vertex
 #endif // GL_ARB_half_float_vertex
 
+//
+// GL_ARB_half_float_vertex
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_map_buffer_range
+//
 
 #ifdef GL_ARB_map_buffer_range
 
@@ -804,14 +864,38 @@ PFNGLFLUSHMAPPEDBUFFERRANGEPROC glFlushMappedBufferRange = nullptr;
 
 #endif // GL_ARB_map_buffer_range
 
+//
+// GL_ARB_map_buffer_range
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_texture_compression_rgtc
+//
 
 #ifdef GL_ARB_texture_compression_rgtc
 #endif // GL_ARB_texture_compression_rgtc
 
+//
+// GL_ARB_texture_compression_rgtc
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_texture_rg
+//
 
 #ifdef GL_ARB_texture_rg
 #endif // GL_ARB_texture_rg
 
+//
+// GL_ARB_texture_rg
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_vertex_array_object
+//
 
 #ifdef GL_ARB_vertex_array_object
 
@@ -822,24 +906,9 @@ PFNGLISVERTEXARRAYPROC glIsVertexArray = nullptr;
 
 #endif // GL_ARB_vertex_array_object
 
-
-#endif // GL_VERSION_3_0
-
 //
-// OpenGL 3.0
+// GL_ARB_vertex_array_object
 // ==========================================================================
-
-
-// ==========================================================================
-// OpenGL v3.1
-//
-
-#ifdef GL_VERSION_3_1
-
-PFNGLDRAWARRAYSINSTANCEDPROC glDrawArraysInstanced = nullptr;
-PFNGLDRAWELEMENTSINSTANCEDPROC glDrawElementsInstanced = nullptr;
-PFNGLTEXBUFFERPROC glTexBuffer = nullptr;
-PFNGLPRIMITIVERESTARTINDEXPROC glPrimitiveRestartIndex = nullptr;
 
 
 // ==========================================================================
@@ -870,20 +939,18 @@ PFNGLGETUNIFORMBLOCKINDEXPROC glGetUniformBlockIndex = nullptr;
 PFNGLGETACTIVEUNIFORMBLOCKIVPROC glGetActiveUniformBlockiv = nullptr;
 PFNGLGETACTIVEUNIFORMBLOCKNAMEPROC glGetActiveUniformBlockName = nullptr;
 PFNGLUNIFORMBLOCKBINDINGPROC glUniformBlockBinding = nullptr;
+
+// Already defined in 3.0.
+#if 0
 PFNGLBINDBUFFERRANGEPROC glBindBufferRange = nullptr;
 PFNGLBINDBUFFERBASEPROC glBindBufferBase = nullptr;
 PFNGLGETINTEGERI_VPROC glGetIntegeri_v = nullptr;
+#endif // 0
 
 #endif // GL_ARB_uniform_buffer_object
 
 //
 // GL_ARB_uniform_buffer_object
-// ==========================================================================
-
-#endif // GL_VERSION_3_1
-
-//
-// OpenGL v3.1
 // ==========================================================================
 
 
@@ -973,13 +1040,3 @@ PFNGLCLAMPCOLORARBPROC glClampColorARB = nullptr;
 //
 // GL_ARB_color_buffer_float
 // ==========================================================================
-
-
-#ifdef GL_ARB_vertex_array_object
-
-PFNGLBINDVERTEXARRAYPROC glBindVertexArray = nullptr;
-PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays = nullptr;
-PFNGLGENVERTEXARRAYSPROC glGenVertexArrays = nullptr;
-PFNGLISVERTEXARRAYPROC glIsVertexArray = nullptr;
-
-#endif // GL_ARB_vertex_array_object
