@@ -61,16 +61,7 @@ struct OglRendererUtilsDeviceFeatures
 {
 	OglRendererUtilsContextType context_type_;
 
-
-	// ======================================================================
-	// Mipmap generation.
-	//
-
-	bool mipmap_is_sgis_generate_mipmap_;
-
-	//
-	// Mipmap generation.
-	// ======================================================================
+	PFNGLGENERATEMIPMAPPROC mipmap_function_;
 }; // OglRendererUtilsDeviceFeatures
 
 

@@ -172,14 +172,13 @@ private:
 		Ogl1XRendererPtr renderer_;
 		std::string error_message_;
 
+		RendererPixelFormat internal_format_;
+
 		bool is_npot_;
 
 		bool is_rgba_;
 		bool is_indexed_;
 		bool is_indexed_sprite_;
-
-		bool has_rgba_alpha_;
-		bool is_generate_mipmaps_;
 
 		int width_;
 		int height_;
@@ -214,6 +213,8 @@ private:
 
 		void update(
 			const RendererTexture2dUpdateParam& param) override;
+
+		void generate_mipmaps() override;
 
 
 		bool initialize(

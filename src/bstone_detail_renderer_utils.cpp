@@ -316,6 +316,18 @@ bool RendererUtils::validate_vertex_buffer_update_param(
 bool RendererUtils::validate_texture_2d_create_param(
 	const RendererTexture2dCreateParam& param)
 {
+	switch (param.internal_format_)
+	{
+		case RendererPixelFormat::r8g8b8:
+		case RendererPixelFormat::r8g8b8a8:
+			break;
+
+		default:
+			error_message_ = "Invalid pixel format.";
+
+			return false;
+	}
+
 	if (param.width_ <= 0)
 	{
 		error_message_ = "Invalid width.";

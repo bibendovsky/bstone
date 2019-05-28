@@ -349,10 +349,18 @@ struct RendererSamplerState
 	int anisotropy_;
 }; // RendererSamplerState
 
+enum class RendererPixelFormat
+{
+	none,
+	r8g8b8,
+	r8g8b8a8,
+}; // RendererPixelFormat
+
 struct RendererTexture2dCreateParam
 {
-	bool has_rgba_alpha_;
-	bool is_generate_mipmaps_;
+	RendererPixelFormat internal_format_;
+
+	bool has_mipmaps_;
 
 	int width_;
 	int height_;
@@ -389,6 +397,8 @@ protected:
 public:
 	virtual void update(
 		const RendererTexture2dUpdateParam& param) = 0;
+
+	virtual void generate_mipmaps() = 0;
 }; // RendererTexture2d
 
 using RendererTexture2dPtr = RendererTexture2d*;

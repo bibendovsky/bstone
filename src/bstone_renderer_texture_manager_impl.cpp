@@ -542,7 +542,7 @@ bool RendererTextureManagerImpl::Detail::device_on_reset()
 		renderer_->texture_2d_destroy(texture_2d);
 		texture_2d = nullptr;
 
-		texture_2d = sprite_create_texture(wall_id);
+		texture_2d = wall_create_texture(wall_id);
 
 		if (texture_2d == nullptr)
 		{
@@ -627,10 +627,10 @@ bool RendererTextureManagerImpl::Detail::create_missing_sprite_texture()
 	const auto rgba_image = reinterpret_cast<const RendererColor32*>(raw_image.data());
 
 	auto param = RendererTexture2dCreateParam{};
-	param.is_generate_mipmaps_ = true;
+	param.has_mipmaps_ = true;
 	param.width_ = Sprite::dimension;
 	param.height_ = Sprite::dimension;
-	param.has_rgba_alpha_ = true;
+	param.internal_format_ = RendererPixelFormat::r8g8b8a8;
 	param.rgba_pixels_ = rgba_image;
 
 	auto texture_2d = renderer_->texture_2d_create(param);
@@ -642,6 +642,9 @@ bool RendererTextureManagerImpl::Detail::create_missing_sprite_texture()
 
 		return false;
 	}
+
+	// TODO
+	texture_2d->generate_mipmaps();
 
 	missing_sprite_texture_2d_ = texture_2d;
 
@@ -667,7 +670,8 @@ bool RendererTextureManagerImpl::Detail::create_missing_wall_texture()
 	const auto rgba_image = reinterpret_cast<const RendererColor32*>(raw_image.data());
 
 	auto param = RendererTexture2dCreateParam{};
-	param.is_generate_mipmaps_ = true;
+	param.internal_format_ = RendererPixelFormat::r8g8b8;
+	param.has_mipmaps_ = true;
 	param.width_ = wall_dimension;
 	param.height_ = wall_dimension;
 	param.rgba_pixels_ = rgba_image;
@@ -681,6 +685,9 @@ bool RendererTextureManagerImpl::Detail::create_missing_wall_texture()
 
 		return false;
 	}
+
+	// TODO
+	texture_2d->generate_mipmaps();
 
 	missing_wall_texture_2d_ = texture_2d;
 
@@ -700,7 +707,8 @@ RendererTexture2dPtr RendererTextureManagerImpl::Detail::wall_create_texture(
 	}
 
 	auto param = RendererTexture2dCreateParam{};
-	param.is_generate_mipmaps_ = true;
+	param.internal_format_ = RendererPixelFormat::r8g8b8;
+	param.has_mipmaps_ = true;
 	param.indexed_is_column_major_ = true;
 	param.width_ = wall_dimension;
 	param.height_ = wall_dimension;
@@ -715,6 +723,9 @@ RendererTexture2dPtr RendererTextureManagerImpl::Detail::wall_create_texture(
 
 		return nullptr;
 	}
+
+	// TODO
+	texture_2d->generate_mipmaps();
 
 	return texture_2d;
 }
@@ -739,7 +750,7 @@ RendererTexture2dPtr RendererTextureManagerImpl::Detail::sprite_create_texture(
 	}
 
 	auto param = RendererTexture2dCreateParam{};
-	param.is_generate_mipmaps_ = true;
+	param.has_mipmaps_ = true;
 	param.width_ = Sprite::dimension;
 	param.height_ = Sprite::dimension;
 	param.indexed_sprite_ = sprite;
@@ -753,6 +764,9 @@ RendererTexture2dPtr RendererTextureManagerImpl::Detail::sprite_create_texture(
 
 		return nullptr;
 	}
+
+	// TODO
+	texture_2d->generate_mipmaps();
 
 	return texture_2d;
 }

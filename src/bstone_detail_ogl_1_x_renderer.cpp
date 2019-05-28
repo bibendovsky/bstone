@@ -54,12 +54,11 @@ Ogl1XRenderer::Texture2d::Texture2d(
 	:
 	renderer_{renderer},
 	error_message_{},
+	internal_format_{},
 	is_npot_{},
 	is_rgba_{},
 	is_indexed_{},
 	is_indexed_sprite_{},
-	has_rgba_alpha_{},
-	is_generate_mipmaps_{},
 	width_{},
 	height_{},
 	actual_width_{},
@@ -128,6 +127,37 @@ void Ogl1XRenderer::Texture2d::update(
 	update_mipmaps();
 }
 
+void Ogl1XRenderer::Texture2d::generate_mipmaps()
+{
+	if (mipmap_count_ <= 1)
+	{
+		assert(!"Mipmaps not enabled.");
+
+		return;
+	}
+
+	const auto& device_features = renderer_->device_features_;
+
+	if (!device_features.mipmap_is_available_)
+	{
+		assert(!"Mipmap generation not available.");
+
+		return;
+	}
+
+	const auto& ogl_device_features = renderer_->ogl_device_features_;
+
+	if (ogl_device_features.mipmap_function_ == nullptr)
+	{
+		assert(!"Null mipmap generation function.");
+
+		return;
+	}
+
+	ogl_device_features.mipmap_function_(GL_TEXTURE_2D);
+	assert(!OglRendererUtils::was_errors());
+}
+
 bool Ogl1XRenderer::Texture2d::initialize(
 	const RendererTexture2dCreateParam& param)
 {
@@ -144,8 +174,7 @@ bool Ogl1XRenderer::Texture2d::initialize(
 	is_indexed_ = (param.indexed_pixels_ != nullptr);
 	is_indexed_sprite_ = (param.indexed_sprite_ != nullptr);
 
-	has_rgba_alpha_ = param.has_rgba_alpha_;
-	is_generate_mipmaps_ = param.is_generate_mipmaps_;
+	internal_format_ = param.internal_format_;
 
 	width_ = param.width_;
 	height_ = param.height_;
@@ -185,7 +214,7 @@ bool Ogl1XRenderer::Texture2d::initialize(
 		actual_height_ = device_features.max_texture_dimension_;
 	}
 
-	if (is_generate_mipmaps_)
+	if (param.has_mipmaps_)
 	{
 		mipmap_count_ = RendererUtils::calculate_mipmap_count(actual_width_, actual_height_);
 	}
@@ -209,7 +238,7 @@ bool Ogl1XRenderer::Texture2d::initialize(
 
 	if (is_rgba_)
 	{
-		internal_format = (has_rgba_alpha_ ? GL_RGBA8 : GL_RGB8);
+		internal_format = (internal_format_ == RendererPixelFormat::r8g8b8a8 ? GL_RGBA8 : GL_RGB8);
 	}
 	else if (is_indexed_)
 	{
@@ -233,19 +262,6 @@ bool Ogl1XRenderer::Texture2d::initialize(
 	auto mipmap_height = actual_height_;
 
 	auto mipmap_count = mipmap_count_;
-
-	if (is_generate_mipmaps_ && device_features.mipmap_is_available_)
-	{
-		auto extension_manager = renderer_->extension_manager_.get();
-
-		mipmap_count = 1;
-
-		if (ogl_device_features.mipmap_is_sgis_generate_mipmap_)
-		{
-			::glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-			assert(!OglRendererUtils::was_errors());
-		}
-	}
 
 	for (int i_mipmap = 0; i_mipmap < mipmap_count; ++i_mipmap)
 	{
@@ -322,7 +338,7 @@ void Ogl1XRenderer::Texture2d::update_mipmaps()
 
 	auto max_buffer_size = max_subbuffer_size;
 
-	if (is_generate_mipmaps_ && !device_features.mipmap_is_available_)
+	if (mipmap_count_ > 1 && !device_features.mipmap_is_available_)
 	{
 		max_buffer_size *= 2;
 	}
@@ -335,7 +351,7 @@ void Ogl1XRenderer::Texture2d::update_mipmaps()
 	auto texture_subbuffer_0 = &renderer_->texture_buffer_[0];
 	auto texture_subbuffer_1 = RendererColor32Ptr{};
 
-	if (is_generate_mipmaps_ && !device_features.mipmap_is_available_)
+	if (mipmap_count_ > 1 && !device_features.mipmap_is_available_)
 	{
 		texture_subbuffer_1 = &renderer_->texture_buffer_[max_subbuffer_size];
 	}

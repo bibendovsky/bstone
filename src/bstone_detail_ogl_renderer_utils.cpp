@@ -379,32 +379,28 @@ void OglRendererUtils::mipmap_probe(
 	OglRendererUtilsDeviceFeatures& ogl_device_features)
 {
 	device_features.mipmap_is_available_ = false;
-	ogl_device_features.mipmap_is_sgis_generate_mipmap_ = false;
+	ogl_device_features.mipmap_function_ = nullptr;
 
 	if (!device_features.mipmap_is_available_)
 	{
 		extension_manager->probe_extension(OglExtensionId::arb_framebuffer_object);
 
-		device_features.mipmap_is_available_ =
-			extension_manager->has_extension(OglExtensionId::arb_framebuffer_object);
+		if (extension_manager->has_extension(OglExtensionId::arb_framebuffer_object))
+		{
+			device_features.mipmap_is_available_ = true;
+			ogl_device_features.mipmap_function_ = ::glGenerateMipmap;
+		}
 	}
 
 	if (!device_features.mipmap_is_available_)
 	{
 		extension_manager->probe_extension(OglExtensionId::ext_framebuffer_object);
 
-		device_features.mipmap_is_available_ =
-			extension_manager->has_extension(OglExtensionId::ext_framebuffer_object);
-	}
-
-	if (!device_features.mipmap_is_available_)
-	{
-		extension_manager->probe_extension(OglExtensionId::sgis_generate_mipmap);
-
-		device_features.mipmap_is_available_ =
-			extension_manager->has_extension(OglExtensionId::sgis_generate_mipmap);
-
-		ogl_device_features.mipmap_is_sgis_generate_mipmap_ = true;
+		if (extension_manager->has_extension(OglExtensionId::ext_framebuffer_object))
+		{
+			device_features.mipmap_is_available_ = true;
+			ogl_device_features.mipmap_function_ = ::glGenerateMipmapEXT;
+		}
 	}
 }
 
