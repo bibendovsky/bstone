@@ -291,32 +291,15 @@ bool OglRendererUtils::context_get_version(
 	return true;
 }
 
-int OglRendererUtils::anisotropy_get_max_value(
-	const OglRendererUtilsDeviceFeatures& ogl_device_features)
+int OglRendererUtils::anisotropy_get_max_value()
 {
-	if (!ogl_device_features.anisotropy_is_available_)
-	{
-		return RendererSampler::anisotropy_min;
-	}
-
-	auto ogl_max_value_enum = GLenum{};
-	
-	if (ogl_device_features.anisotropy_is_ext_)
-	{
-		ogl_max_value_enum = GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT;
-	}
-	else
-	{
-		ogl_max_value_enum = GL_MAX_TEXTURE_MAX_ANISOTROPY;
-	}
-
 	auto ogl_max_value = GLfloat{};
 
-	::glGetFloatv(ogl_max_value_enum, &ogl_max_value);
+	::glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &ogl_max_value);
 
 	assert(!OglRendererUtils::was_errors());
 
-	if (ogl_max_value == GLfloat{})
+	if (ogl_max_value < static_cast<GLfloat>(RendererSampler::anisotropy_min))
 	{
 		return RendererSampler::anisotropy_min;
 	}
@@ -326,131 +309,67 @@ int OglRendererUtils::anisotropy_get_max_value(
 
 void OglRendererUtils::anisotropy_set_value(
 	const GLenum ogl_target,
-	const OglRendererUtilsDeviceFeatures& ogl_device_features,
+	const RendererDeviceFeatures& device_features,
 	const int anisotropy_value)
 {
-	if (!ogl_device_features.anisotropy_is_available_)
-	{
-		return;
-	}
-
 	auto clamped_value = anisotropy_value;
 
 	if (clamped_value < RendererSampler::anisotropy_min)
 	{
 		clamped_value = RendererSampler::anisotropy_min;
 	}
-	else if (clamped_value > ogl_device_features.anisotropy_max_value_)
+	else if (clamped_value > device_features.anisotropy_max_value_)
 	{
-		clamped_value = ogl_device_features.anisotropy_max_value_;
+		clamped_value = device_features.anisotropy_max_value_;
 	}
 
 	const auto ogl_value = static_cast<GLfloat>(clamped_value);
 
-	if (ogl_device_features.anisotropy_is_ext_)
-	{
-		::glTexParameterfv(ogl_target, GL_TEXTURE_MAX_ANISOTROPY_EXT, &ogl_value);
-	}
-	else
-	{
-		::glTexParameterfv(ogl_target, GL_TEXTURE_MAX_ANISOTROPY, &ogl_value);
-	}
-
+	::glTexParameterfv(ogl_target, GL_TEXTURE_MAX_ANISOTROPY, &ogl_value);
 	assert(!OglRendererUtils::was_errors());
 }
 
 void OglRendererUtils::anisotropy_probe(
 	OglExtensionManagerPtr extension_manager,
-	RendererDeviceFeatures& device_features,
-	OglRendererUtilsDeviceFeatures& ogl_device_features)
+	RendererDeviceFeatures& device_features)
 {
-	auto dst_ogl_device_features = ogl_device_features;
+	device_features.anisotropy_is_available_ = false;
 
-	if (!dst_ogl_device_features.anisotropy_is_available_)
+	if (!device_features.anisotropy_is_available_)
 	{
 		extension_manager->probe_extension(OglExtensionId::arb_texture_filter_anisotropic);
 
-		dst_ogl_device_features.anisotropy_is_available_ = extension_manager->has_extension(
-			OglExtensionId::arb_texture_filter_anisotropic
-		);
-
-		if (dst_ogl_device_features.anisotropy_is_available_)
-		{
-			dst_ogl_device_features.anisotropy_is_ext_ = false;
-		}
+		device_features.anisotropy_is_available_ =
+			extension_manager->has_extension(OglExtensionId::arb_texture_filter_anisotropic);
 	}
 
-	if (!dst_ogl_device_features.anisotropy_is_available_)
+	if (!device_features.anisotropy_is_available_)
 	{
 		extension_manager->probe_extension(OglExtensionId::ext_texture_filter_anisotropic);
 
-		dst_ogl_device_features.anisotropy_is_available_ = extension_manager->has_extension(
-			OglExtensionId::ext_texture_filter_anisotropic
-		);
-
-		if (dst_ogl_device_features.anisotropy_is_available_)
-		{
-			dst_ogl_device_features.anisotropy_is_ext_ = true;
-		}
+		device_features.anisotropy_is_available_ =
+			extension_manager->has_extension(OglExtensionId::ext_texture_filter_anisotropic);
 	}
 
-	if (dst_ogl_device_features.anisotropy_is_available_)
+	if (device_features.anisotropy_is_available_)
 	{
-		dst_ogl_device_features.anisotropy_max_value_ = anisotropy_get_max_value(dst_ogl_device_features);
-
-		if (dst_ogl_device_features.anisotropy_max_value_ <= RendererSampler::anisotropy_min)
-		{
-			dst_ogl_device_features.anisotropy_is_available_ = false;
-		}
-	}
-
-	if (dst_ogl_device_features.anisotropy_is_available_)
-	{
-		device_features.anisotropy_is_available_ = true;
 		device_features.anisotropy_min_value_ = RendererSampler::anisotropy_min;
-		device_features.anisotropy_max_value_ = dst_ogl_device_features.anisotropy_max_value_;
-
-		ogl_device_features = dst_ogl_device_features;
-	}
-	else
-	{
-		device_features.anisotropy_is_available_ = false;
-		device_features.anisotropy_min_value_ = RendererSampler::anisotropy_min;
-		device_features.anisotropy_max_value_ = RendererSampler::anisotropy_min;
-
-		ogl_device_features.anisotropy_is_available_ = false;
-		ogl_device_features.anisotropy_is_ext_ = false;
-		ogl_device_features.anisotropy_max_value_ = RendererSampler::anisotropy_min;
+		device_features.anisotropy_max_value_ = anisotropy_get_max_value();
 	}
 }
 
 void OglRendererUtils::npot_probe(
 	OglExtensionManagerPtr extension_manager,
-	RendererDeviceFeatures& device_features,
-	OglRendererUtilsDeviceFeatures& ogl_device_features)
+	RendererDeviceFeatures& device_features)
 {
-	auto dst_ogl_device_features = ogl_device_features;
+	device_features.npot_is_available_ = false;
 
-	if (!dst_ogl_device_features.npot_is_available_)
+	if (!device_features.npot_is_available_)
 	{
 		extension_manager->probe_extension(OglExtensionId::arb_texture_non_power_of_two);
 
-		dst_ogl_device_features.npot_is_available_ = extension_manager->has_extension(
-			OglExtensionId::arb_texture_non_power_of_two
-		);
-	}
-
-	if (dst_ogl_device_features.npot_is_available_)
-	{
-		device_features.npot_is_available_ = true;
-
-		ogl_device_features = dst_ogl_device_features;
-	}
-	else
-	{
-		device_features.npot_is_available_ = false;
-
-		ogl_device_features.npot_is_available_ = false;
+		device_features.npot_is_available_ =
+			extension_manager->has_extension(OglExtensionId::arb_texture_non_power_of_two);
 	}
 }
 
@@ -459,33 +378,33 @@ void OglRendererUtils::mipmap_probe(
 	RendererDeviceFeatures& device_features,
 	OglRendererUtilsDeviceFeatures& ogl_device_features)
 {
-	if (!ogl_device_features.mipmap_is_available_)
+	device_features.mipmap_is_available_ = false;
+	ogl_device_features.mipmap_is_sgis_generate_mipmap_ = false;
+
+	if (!device_features.mipmap_is_available_)
 	{
 		extension_manager->probe_extension(OglExtensionId::arb_framebuffer_object);
 
-		ogl_device_features.mipmap_is_available_ = extension_manager->has_extension(
-			OglExtensionId::arb_framebuffer_object);
+		device_features.mipmap_is_available_ =
+			extension_manager->has_extension(OglExtensionId::arb_framebuffer_object);
 	}
 
-	if (!ogl_device_features.mipmap_is_available_)
+	if (!device_features.mipmap_is_available_)
 	{
 		extension_manager->probe_extension(OglExtensionId::ext_framebuffer_object);
 
-		ogl_device_features.mipmap_is_available_ = extension_manager->has_extension(
-			OglExtensionId::ext_framebuffer_object);
+		device_features.mipmap_is_available_ =
+			extension_manager->has_extension(OglExtensionId::ext_framebuffer_object);
 	}
 
-	if (!ogl_device_features.mipmap_is_available_)
+	if (!device_features.mipmap_is_available_)
 	{
 		extension_manager->probe_extension(OglExtensionId::sgis_generate_mipmap);
 
-		ogl_device_features.mipmap_is_available_ = extension_manager->has_extension(
-			OglExtensionId::sgis_generate_mipmap);
-	}
+		device_features.mipmap_is_available_ =
+			extension_manager->has_extension(OglExtensionId::sgis_generate_mipmap);
 
-	if (ogl_device_features.mipmap_is_available_)
-	{
-		device_features.mipmap_is_available_ = true;
+		ogl_device_features.mipmap_is_sgis_generate_mipmap_ = true;
 	}
 }
 

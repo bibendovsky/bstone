@@ -240,7 +240,7 @@ bool Ogl1XRenderer::Texture2d::initialize(
 
 		mipmap_count = 1;
 
-		if (extension_manager->has_extension(OglExtensionId::sgis_generate_mipmap))
+		if (ogl_device_features.mipmap_is_sgis_generate_mipmap_)
 		{
 			::glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
 			assert(!OglRendererUtils::was_errors());
@@ -585,7 +585,7 @@ void Ogl1XRenderer::Texture2d::set_anisotropy()
 
 	OglRendererUtils::anisotropy_set_value(
 		GL_TEXTURE_2D,
-		ogl_device_features,
+		renderer_->device_features_,
 		sampler_state_.anisotropy_
 	);
 }
@@ -1414,14 +1414,12 @@ bool Ogl1XRenderer::probe_or_initialize(
 	{
 		OglRendererUtils::anisotropy_probe(
 			extension_manager.get(),
-			device_features_,
-			ogl_device_features_
+			device_features_
 		);
 
 		OglRendererUtils::npot_probe(
 			extension_manager.get(),
-			device_features_,
-			ogl_device_features_
+			device_features_
 		);
 
 		OglRendererUtils::mipmap_probe(
@@ -1709,16 +1707,10 @@ void Ogl1XRenderer::viewport_set_defaults()
 
 void Ogl1XRenderer::culling_enabled()
 {
-	if (culling_is_enabled_)
-	{
-		::glEnable(GL_CULL_FACE);
-		assert(!OglRendererUtils::was_errors());
-	}
-	else
-	{
-		::glDisable(GL_CULL_FACE);
-		assert(!OglRendererUtils::was_errors());
-	}
+	const auto ogl_function = (culling_is_enabled_ ? ::glEnable : ::glDisable);
+
+	ogl_function(GL_CULL_FACE);
+	assert(!OglRendererUtils::was_errors());
 }
 
 void Ogl1XRenderer::culling_set_face()
@@ -1784,16 +1776,10 @@ void Ogl1XRenderer::culling_set_defaults()
 
 void Ogl1XRenderer::depth_set_test()
 {
-	if (depth_is_test_enabled_)
-	{
-		::glEnable(GL_DEPTH_TEST);
-		assert(!OglRendererUtils::was_errors());
-	}
-	else
-	{
-		::glDisable(GL_DEPTH_TEST);
-		assert(!OglRendererUtils::was_errors());
-	}
+	const auto ogl_function = (depth_is_test_enabled_ ? ::glEnable : ::glDisable);
+
+	ogl_function(GL_DEPTH_TEST);
+	assert(!OglRendererUtils::was_errors());
 }
 
 void Ogl1XRenderer::depth_set_write()
@@ -1813,16 +1799,10 @@ void Ogl1XRenderer::depth_set_defaults()
 
 void Ogl1XRenderer::blending_enable()
 {
-	if (blending_is_enabled_)
-	{
-		::glEnable(GL_BLEND);
-		assert(!OglRendererUtils::was_errors());
-	}
-	else
-	{
-		::glDisable(GL_BLEND);
-		assert(!OglRendererUtils::was_errors());
-	}
+	const auto ogl_function = (blending_is_enabled_ ? ::glEnable : ::glDisable);
+
+	ogl_function(GL_BLEND);
+	assert(!OglRendererUtils::was_errors());
 }
 
 void Ogl1XRenderer::blending_set_function()
@@ -1871,7 +1851,7 @@ void Ogl1XRenderer::texture_set(
 
 void Ogl1XRenderer::texture_mipmap_generation_set_hint()
 {
-	if (!ogl_device_features_.mipmap_is_available_)
+	if (!device_features_.mipmap_is_available_)
 	{
 		return;
 	}
@@ -1881,17 +1861,8 @@ void Ogl1XRenderer::texture_mipmap_generation_set_hint()
 		return;
 	}
 
-	if (extension_manager_->has_extension(OglExtensionId::arb_framebuffer_object) ||
-		extension_manager_->has_extension(OglExtensionId::ext_framebuffer_object))
-	{
-		::glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
-		assert(!OglRendererUtils::was_errors());
-	}
-	else if (extension_manager_->has_extension(OglExtensionId::sgis_generate_mipmap))
-	{
-		::glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
-		assert(!OglRendererUtils::was_errors());
-	}
+	::glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
+	assert(!OglRendererUtils::was_errors());
 }
 
 void Ogl1XRenderer::texture_2d_set_defaults()
@@ -1907,16 +1878,10 @@ void Ogl1XRenderer::texture_2d_set_defaults()
 
 void Ogl1XRenderer::fog_enable()
 {
-	if (fog_is_enabled_)
-	{
-		::glEnable(GL_FOG);
-		assert(!OglRendererUtils::was_errors());
-	}
-	else
-	{
-		::glDisable(GL_FOG);
-		assert(!OglRendererUtils::was_errors());
-	}
+	const auto ogl_function = (fog_is_enabled_ ? ::glEnable : ::glDisable);
+
+	ogl_function(GL_FOG);
+	assert(!OglRendererUtils::was_errors());
 }
 
 void Ogl1XRenderer::fog_set_mode()

@@ -63,34 +63,10 @@ struct OglRendererUtilsDeviceFeatures
 
 
 	// ======================================================================
-	// Anisotropy.
-	//
-
-	bool anisotropy_is_available_;
-	bool anisotropy_is_ext_; // EXT (true) or ARB (false).
-	int anisotropy_max_value_;
-
-	//
-	// Anisotropy.
-	// ======================================================================
-
-
-	// ======================================================================
-	// Non-power-of-two textures.
-	//
-
-	bool npot_is_available_;
-
-	//
-	// Non-power-of-two textures.
-	// ======================================================================
-
-
-	// ======================================================================
 	// Mipmap generation.
 	//
 
-	bool mipmap_is_available_;
+	bool mipmap_is_sgis_generate_mipmap_;
 
 	//
 	// Mipmap generation.
@@ -144,24 +120,21 @@ public:
 		int& minor_version);
 
 
-	static int anisotropy_get_max_value(
-		const OglRendererUtilsDeviceFeatures& ogl_device_features);
+	static int anisotropy_get_max_value();
 
 	static void anisotropy_set_value(
 		const GLenum ogl_target,
-		const OglRendererUtilsDeviceFeatures& ogl_device_features,
+		const RendererDeviceFeatures& device_features,
 		const int anisotropy_value);
 
 	static void anisotropy_probe(
 		OglExtensionManagerPtr extension_manager,
-		RendererDeviceFeatures& device_features,
-		OglRendererUtilsDeviceFeatures& ogl_device_features);
+		RendererDeviceFeatures& device_features);
 
 
 	static void npot_probe(
 		OglExtensionManagerPtr extension_manager,
-		RendererDeviceFeatures& device_features,
-		OglRendererUtilsDeviceFeatures& ogl_device_features);
+		RendererDeviceFeatures& device_features);
 
 
 	static void mipmap_probe(
