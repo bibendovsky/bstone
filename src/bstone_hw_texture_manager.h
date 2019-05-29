@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_RENDERER_TEXTURE_MANAGER_INCLUDED
-#define BSTONE_RENDERER_TEXTURE_MANAGER_INCLUDED
+#ifndef BSTONE_HW_TEXTURE_MANAGER_INCLUDED
+#define BSTONE_HW_TEXTURE_MANAGER_INCLUDED
 
 
 #include "bstone_renderer.h"
@@ -39,14 +39,14 @@ namespace bstone
 {
 
 
-class RendererTextureManager
+class HwTextureManager
 {
 protected:
-	RendererTextureManager() = default;
+	HwTextureManager() = default;
 
 
 public:
-	virtual ~RendererTextureManager() = default;
+	virtual ~HwTextureManager() = default;
 
 
 	virtual bool is_initialized() const = 0;
@@ -78,22 +78,22 @@ public:
 
 
 	virtual bool device_on_reset() = 0;
-}; // RendererTextureManager
+}; // HwTextureManager
 
-using RendererTextureManagerPtr = RendererTextureManager*;
-using RendererTextureManagerUPtr = std::unique_ptr<RendererTextureManager>;
+using HwTextureManagerPtr = HwTextureManager*;
+using HwTextureManagerUPtr = std::unique_ptr<HwTextureManager>;
 
 
-class RendererTextureManagerFactory
+class HwTextureManagerFactory
 {
 public:
-	static RendererTextureManagerUPtr create(
+	static HwTextureManagerUPtr create(
 		RendererPtr renderer,
 		SpriteCachePtr sprite_cache);
-}; // RendererTextureManagerFactory
+}; // HwTextureManagerFactory
 
 
 } // bstone
 
 
-#endif // BSTONE_RENDERER_TEXTURE_MANAGER_INCLUDED
+#endif // !BSTONE_HW_TEXTURE_MANAGER_INCLUDED

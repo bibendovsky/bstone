@@ -37,9 +37,9 @@ Free Software Foundation, Inc.,
 #include "id_vh.h"
 #include "id_vl.h"
 #include "bstone_fixed_point.h"
+#include "bstone_hw_texture_manager.h"
 #include "bstone_log.h"
 #include "bstone_renderer_manager.h"
-#include "bstone_renderer_texture_manager.h"
 #include "bstone_sdl_types.h"
 #include "bstone_sprite.h"
 #include "bstone_sprite_cache.h"
@@ -1746,7 +1746,7 @@ bstone::RendererDeviceFeatures hw_device_features_;
 bstone::RendererManagerUPtr hw_renderer_manager_ = nullptr;
 bstone::RendererPtr hw_renderer_ = nullptr;
 
-bstone::RendererTextureManagerUPtr hw_texture_manager_ = nullptr;
+bstone::HwTextureManagerUPtr hw_texture_manager_ = nullptr;
 
 bstone::RendererPalette hw_palette_;
 
@@ -4793,7 +4793,7 @@ void hw_texture_manager_destroy()
 
 bool hw_texture_manager_create()
 {
-	::hw_texture_manager_ = bstone::RendererTextureManagerFactory::create(
+	::hw_texture_manager_ = bstone::HwTextureManagerFactory::create(
 		::hw_renderer_,
 		&::vid_sprite_cache
 	);
@@ -11097,7 +11097,7 @@ bool hw_video_initialize()
 
 	if (is_succeed)
 	{
-		::hw_texture_manager_ = bstone::RendererTextureManagerFactory::create(
+		::hw_texture_manager_ = bstone::HwTextureManagerFactory::create(
 			::hw_renderer_,
 			&::vid_sprite_cache
 		);

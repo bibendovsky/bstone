@@ -214,6 +214,7 @@ target_sources(
 		bstone_fixed_point.h
 		bstone_format_string.h
 		bstone_generic_fizzle_fx.h
+		bstone_hw_texture_manager.h
 		bstone_stream.h
 		bstone_log.h
 		bstone_memory_binary_reader.h
@@ -233,7 +234,6 @@ target_sources(
 		bstone_renderer_manager.h
 		bstone_renderer_sw_index_buffer.h
 		bstone_renderer_sw_vertex_buffer.h
-		bstone_renderer_texture_manager.h
 		bstone_scope_guard.h
 		bstone_sdl_types.h
 		bstone_sha1.h
@@ -299,6 +299,7 @@ target_sources(
 		bstone_fixed_point.cpp
 		bstone_format_string.cpp
 		bstone_generic_fizzle_fx.cpp
+		bstone_hw_texture_manager_impl.cpp
 		bstone_stream.cpp
 		bstone_log.cpp
 		bstone_memory_binary_reader.cpp
@@ -314,7 +315,6 @@ target_sources(
 		bstone_renderer_manager_impl.cpp
 		bstone_renderer_sw_index_buffer.cpp
 		bstone_renderer_sw_vertex_buffer.cpp
-		bstone_renderer_texture_manager_impl.cpp
 		bstone_sha1.cpp
 		bstone_sprite.cpp
 		bstone_sprite_cache.cpp

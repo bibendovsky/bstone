@@ -30,11 +30,11 @@ Free Software Foundation, Inc.,
 #include "bstone_precompiled.h"
 #include <cassert>
 #include <unordered_map>
-#include "bstone_renderer_texture_manager.h"
 #include "id_pm.h"
-#include "bstone_sprite_cache.h"
+#include "bstone_hw_texture_manager.h"
 #include "bstone_missing_sprite_64x64_image.h"
 #include "bstone_missing_wall_64x64_image.h"
+#include "bstone_sprite_cache.h"
 
 
 namespace bstone
@@ -46,7 +46,7 @@ namespace bstone
 //
 
 class RendererTextureManagerImpl :
-	public RendererTextureManager
+	public HwTextureManager
 {
 public:
 	RendererTextureManagerImpl() = default;
@@ -971,10 +971,10 @@ RendererTextureManagerImpl::Detail& RendererTextureManagerImpl::get_instance()
 
 
 // ==========================================================================
-// RendererTextureManagerFactory
+// HwTextureManagerFactory
 //
 
-RendererTextureManagerUPtr RendererTextureManagerFactory::create(
+HwTextureManagerUPtr HwTextureManagerFactory::create(
 	RendererPtr renderer,
 	SpriteCachePtr sprite_cache)
 {
@@ -986,7 +986,7 @@ RendererTextureManagerUPtr RendererTextureManagerFactory::create(
 }
 
 //
-// RendererTextureManagerFactory
+// HwTextureManagerFactory
 // ==========================================================================
 
 
