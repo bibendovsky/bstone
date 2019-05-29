@@ -408,12 +408,13 @@ bool RendererUtils::validate_texture_2d_update_param(
 
 	auto source_count = 0;
 
-	if (param.indexed_pixels_)
+	if (param.indexed_palette_ != nullptr ||
+		param.indexed_pixels_ != nullptr)
 	{
 		++source_count;
 	}
 
-	if (param.indexed_sprite_)
+	if (param.indexed_sprite_ != nullptr)
 	{
 		++source_count;
 	}

@@ -39,6 +39,20 @@ namespace bstone
 {
 
 
+enum class HwTextureManagerSolid1x1Id
+{
+	black,
+	white,
+	fade_2d,
+	fade_3d,
+	flooring,
+	ceiling,
+
+	// Item count.
+	count_,
+}; // HwTextureManagerSolid1x1Id
+
+
 class HwTextureManager
 {
 protected:
@@ -75,6 +89,32 @@ public:
 
 	virtual RendererTexture2dPtr sprite_get(
 		const int id) const = 0;
+
+
+	virtual void ui_destroy() = 0;
+
+	virtual bool ui_create(
+		const std::uint8_t* const indexed_pixels,
+		const bool* const indexed_alphas,
+		const RendererPaletteCPtr indexed_palette) = 0;
+
+	virtual void ui_update() = 0;
+
+	virtual RendererTexture2dPtr ui_get() const = 0;
+
+
+	virtual void solid_1x1_destroy(
+		const HwTextureManagerSolid1x1Id id) = 0;
+
+	virtual bool solid_1x1_create(
+		const HwTextureManagerSolid1x1Id id) = 0;
+
+	virtual void solid_1x1_update(
+		const HwTextureManagerSolid1x1Id id,
+		const RendererColor32 color) = 0;
+
+	virtual RendererTexture2dPtr solid_1x1_get(
+		const HwTextureManagerSolid1x1Id id) const = 0;
 
 
 	virtual bool device_on_reset() = 0;

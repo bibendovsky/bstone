@@ -29,11 +29,13 @@ Free Software Foundation, Inc.,
 
 #include "bstone_precompiled.h"
 #include <cassert>
+#include <array>
 #include <unordered_map>
 #include "id_pm.h"
 #include "bstone_hw_texture_manager.h"
 #include "bstone_missing_sprite_64x64_image.h"
 #include "bstone_missing_wall_64x64_image.h"
+#include "bstone_ref_values.h"
 #include "bstone_sprite_cache.h"
 
 
@@ -80,6 +82,32 @@ public:
 
 	RendererTexture2dPtr sprite_get(
 		const int id) const override;
+
+
+	void ui_destroy() override;
+
+	bool ui_create(
+		const std::uint8_t* const indexed_pixels,
+		const bool* const indexed_alphas,
+		const RendererPaletteCPtr indexed_palette) override;
+
+	void ui_update() override;
+
+	RendererTexture2dPtr ui_get() const override;
+
+
+	void solid_1x1_destroy(
+		const HwTextureManagerSolid1x1Id id) override;
+
+	bool solid_1x1_create(
+		const HwTextureManagerSolid1x1Id id) override;
+
+	void solid_1x1_update(
+		const HwTextureManagerSolid1x1Id id,
+		const RendererColor32 color) override;
+
+	RendererTexture2dPtr solid_1x1_get(
+		const HwTextureManagerSolid1x1Id id) const override;
 
 
 	bool device_on_reset() override;
@@ -149,6 +177,33 @@ public:
 	RendererTexture2dPtr sprite_get(
 		const int id) const;
 
+
+	void ui_destroy();
+
+	bool ui_create(
+		const std::uint8_t* const indexed_pixels,
+		const bool* const indexed_alphas,
+		const RendererPaletteCPtr indexed_palette);
+
+	void ui_update();
+
+	RendererTexture2dPtr ui_get() const;
+
+
+	void solid_1x1_destroy(
+		const HwTextureManagerSolid1x1Id id);
+
+	bool solid_1x1_create(
+		const HwTextureManagerSolid1x1Id id);
+
+	void solid_1x1_update(
+		const HwTextureManagerSolid1x1Id id,
+		const RendererColor32 color);
+
+	RendererTexture2dPtr solid_1x1_get(
+		const HwTextureManagerSolid1x1Id id) const;
+
+
 	bool device_on_reset();
 
 
@@ -186,6 +241,15 @@ private:
 
 	using IdToTexture2dMap = std::unordered_map<int, Texture2dItem>;
 
+	struct Solid1x1Item
+	{
+		RendererColor32 color_;
+		RendererTexture2dPtr texture_2d_;
+	}; // Solid1x1Item
+
+	using Solid1x1Items = std::array<Solid1x1Item, static_cast<std::size_t>(HwTextureManagerSolid1x1Id::count_)>;
+
+
 
 	bool is_initialized_;
 	mutable std::string error_message_;
@@ -201,6 +265,13 @@ private:
 
 	RendererTexture2dPtr missing_sprite_texture_2d_;
 	RendererTexture2dPtr missing_wall_texture_2d_;
+
+	const std::uint8_t* ui_indexed_pixels_;
+	const bool* ui_indexed_alphas_;
+	RendererPaletteCPtr ui_indexed_palette_;
+	RendererTexture2dPtr ui_t2d_;
+
+	Solid1x1Items solid_1x1_items_;
 
 
 	void destroy_missing_sprite_texture();
@@ -231,6 +302,17 @@ private:
 		const ImageKind image_kind,
 		const int id,
 		const IdToTexture2dMap& map) const;
+
+	void solid_1x1_destroy_all();
+
+	static int solid_1x1_get_index(
+		const HwTextureManagerSolid1x1Id id);
+
+	static int solid_1x1_get_updateable_index(
+		const HwTextureManagerSolid1x1Id id);
+
+	static RendererColor32 solid_1x1_get_default_color(
+		const HwTextureManagerSolid1x1Id id);
 }; // Detail
 
 
@@ -245,7 +327,12 @@ RendererTextureManagerImpl::Detail::Detail()
 	wall_map_{},
 	sprite_map_{},
 	missing_sprite_texture_2d_{},
-	missing_wall_texture_2d_{}
+	missing_wall_texture_2d_{},
+	ui_indexed_pixels_{},
+	ui_indexed_alphas_{},
+	ui_indexed_palette_{},
+	ui_t2d_{},
+	solid_1x1_items_{}
 {
 }
 
@@ -261,11 +348,18 @@ RendererTextureManagerImpl::Detail::Detail(
 	wall_map_{std::move(rhs.wall_map_)},
 	sprite_map_{std::move(rhs.sprite_map_)},
 	missing_sprite_texture_2d_{std::move(rhs.missing_sprite_texture_2d_)},
-	missing_wall_texture_2d_{std::move(rhs.missing_wall_texture_2d_)}
+	missing_wall_texture_2d_{std::move(rhs.missing_wall_texture_2d_)},
+	ui_indexed_pixels_{std::move(rhs.ui_indexed_pixels_)},
+	ui_indexed_alphas_{std::move(rhs.ui_indexed_alphas_)},
+	ui_indexed_palette_{std::move(rhs.ui_indexed_palette_)},
+	ui_t2d_{std::move(rhs.ui_t2d_)},
+	solid_1x1_items_{std::move(rhs.solid_1x1_items_)}
 {
 	rhs.is_initialized_ = false;
 	rhs.missing_sprite_texture_2d_ = nullptr;
 	rhs.missing_wall_texture_2d_ = nullptr;
+	rhs.ui_t2d_ = nullptr;
+	rhs.solid_1x1_items_.fill(Solid1x1Item{});
 }
 
 RendererTextureManagerImpl::Detail::~Detail()
@@ -483,6 +577,202 @@ RendererTexture2dPtr RendererTextureManagerImpl::Detail::sprite_get(
 	return get_texture_2d(ImageKind::sprite, id, sprite_map_);
 }
 
+void RendererTextureManagerImpl::Detail::ui_destroy()
+{
+	if (ui_t2d_ == nullptr)
+	{
+		return;
+	}
+
+	renderer_->texture_2d_destroy(ui_t2d_);
+	ui_t2d_ = nullptr;
+}
+
+bool RendererTextureManagerImpl::Detail::ui_create(
+	const std::uint8_t* const indexed_pixels,
+	const bool* const indexed_alphas,
+	const RendererPaletteCPtr indexed_palette)
+{
+	if (ui_t2d_ != nullptr)
+	{
+		error_message_ = "Already created.";
+
+		return false;
+	}
+
+	if (indexed_pixels == nullptr)
+	{
+		error_message_ = "Null indexed pixels.";
+
+		return false;
+	}
+
+	if (indexed_alphas == nullptr)
+	{
+		error_message_ = "Null indexed alphas.";
+
+		return false;
+	}
+
+	if (indexed_palette == nullptr)
+	{
+		error_message_ = "Null indexed palette.";
+
+		return false;
+	}
+
+	auto param = RendererTexture2dCreateParam{};
+	param.internal_format_ = RendererPixelFormat::r8g8b8a8;
+	param.width_ = ::vga_ref_width;
+	param.height_ = ::vga_ref_height;
+	param.indexed_pixels_ = indexed_pixels;
+	param.indexed_alphas_ = indexed_alphas;
+	param.indexed_palette_ = indexed_palette;
+
+	auto texture_2d = renderer_->texture_2d_create(param);
+
+	if (texture_2d == nullptr)
+	{
+		error_message_ = "Failed to create UI texture. ";
+		error_message_ += renderer_->get_error_message();
+
+		return false;
+	}
+
+	ui_indexed_pixels_ = indexed_pixels;
+	ui_indexed_alphas_ = indexed_alphas;
+	ui_indexed_palette_ = indexed_palette;
+	ui_t2d_ = texture_2d;
+
+	return true;
+}
+
+void RendererTextureManagerImpl::Detail::ui_update()
+{
+	if (ui_indexed_pixels_ == nullptr ||
+		ui_indexed_alphas_ == nullptr ||
+		ui_t2d_ == nullptr)
+	{
+		assert(!"Not created.");
+
+		return;
+	}
+
+	auto param = RendererTexture2dUpdateParam{};
+	param.indexed_pixels_ = ui_indexed_pixels_;
+	param.indexed_alphas_ = ui_indexed_alphas_;
+
+	ui_t2d_->update(param);
+}
+
+RendererTexture2dPtr RendererTextureManagerImpl::Detail::ui_get() const
+{
+	assert(ui_t2d_ != nullptr);
+
+	return ui_t2d_;
+}
+
+void RendererTextureManagerImpl::Detail::solid_1x1_destroy(
+	const HwTextureManagerSolid1x1Id id)
+{
+	const auto index = solid_1x1_get_index(id);
+
+	if (index < 0)
+	{
+		assert(!"Invalid index.");
+
+		return;
+	}
+
+	auto& item = solid_1x1_items_[index];
+
+	if (item.texture_2d_ == nullptr)
+	{
+		return;
+	}
+
+	item.color_ = {};
+
+	renderer_->texture_2d_destroy(item.texture_2d_);
+	item.texture_2d_ = nullptr;
+}
+
+bool RendererTextureManagerImpl::Detail::solid_1x1_create(
+	const HwTextureManagerSolid1x1Id id)
+{
+	const auto index = solid_1x1_get_index(id);
+
+	if (index < 0)
+	{
+		error_message_ = "Invalid index.";
+
+		return false;
+	}
+
+	const auto default_color = solid_1x1_get_default_color(id);
+	const auto has_alpha = (default_color.a < 0xFF);
+
+	const auto internal_format = (has_alpha ? bstone::RendererPixelFormat::r8g8b8a8 : bstone::RendererPixelFormat::r8g8b8);
+
+	auto t2d_create_param = bstone::RendererTexture2dCreateParam{};
+	t2d_create_param.width_ = 1;
+	t2d_create_param.height_ = 1;
+	t2d_create_param.internal_format_ = internal_format;
+	t2d_create_param.rgba_pixels_ = &default_color;
+
+	auto texture_2d = renderer_->texture_2d_create(t2d_create_param);
+
+	if (!texture_2d)
+	{
+		error_message_ = "Failed to create solid 1x1 texture.";
+
+		return false;
+	}
+
+	auto& item = solid_1x1_items_[index];
+	item.color_ = default_color;
+	item.texture_2d_ = texture_2d;
+
+	return true;
+}
+
+void RendererTextureManagerImpl::Detail::solid_1x1_update(
+	const HwTextureManagerSolid1x1Id id,
+	const RendererColor32 color)
+{
+	const auto index = solid_1x1_get_updateable_index(id);
+
+	if (index < 0)
+	{
+		assert(!"Non-updateable solid 1x1 texture.");
+
+		return;
+	}
+
+	auto& item = solid_1x1_items_[index];
+	item.color_ = color;
+
+	auto param = RendererTexture2dUpdateParam{};
+	param.rgba_pixels_ = &item.color_;
+
+	item.texture_2d_->update(param);
+}
+
+RendererTexture2dPtr RendererTextureManagerImpl::Detail::solid_1x1_get(
+	const HwTextureManagerSolid1x1Id id) const
+{
+	const auto index = solid_1x1_get_index(id);
+
+	if (index < 0)
+	{
+		assert(!"Invalid index.");
+
+		return nullptr;
+	}
+
+	return solid_1x1_items_[index].texture_2d_;
+}
+
 bool RendererTextureManagerImpl::Detail::device_on_reset()
 {
 	if (is_initialized_)
@@ -521,6 +811,7 @@ bool RendererTextureManagerImpl::Detail::device_on_reset()
 		const auto sprite_id = sprite_item.first;
 		auto& texture_2d = sprite_item.second.texture_2d_;
 
+
 		renderer_->texture_2d_destroy(texture_2d);
 		texture_2d = nullptr;
 
@@ -549,6 +840,32 @@ bool RendererTextureManagerImpl::Detail::device_on_reset()
 			return false;
 		}
 	}
+
+	// UI texture.
+	//
+	{
+		ui_destroy();
+
+		if (!ui_create(ui_indexed_pixels_, ui_indexed_alphas_, ui_indexed_palette_))
+		{
+			return false;
+		}
+	}
+
+	// Solid 1x1 textures.
+	//
+	for (int i = 0; i < static_cast<int>(HwTextureManagerSolid1x1Id::count_); ++i)
+	{
+		const auto id = static_cast<HwTextureManagerSolid1x1Id>(i);
+
+		solid_1x1_destroy(id);
+
+		if (!solid_1x1_create(id))
+		{
+			return false;
+		}
+	}
+
 
 	return true;
 }
@@ -601,8 +918,18 @@ void RendererTextureManagerImpl::Detail::uninitialize_internal()
 
 	sprite_map_.clear();
 
+	// "Missing" textures.
+	//
 	destroy_missing_sprite_texture();
 	destroy_missing_wall_texture();
+
+	// UI texture.
+	//
+	ui_destroy();
+
+	// Solid 1x1 textures.
+	//
+	solid_1x1_destroy_all();
 
 	renderer_ = nullptr;
 	sprite_cache_ = nullptr;
@@ -859,6 +1186,74 @@ RendererTexture2dPtr RendererTextureManagerImpl::Detail::get_texture_2d(
 	return item_it->second.texture_2d_;
 }
 
+void RendererTextureManagerImpl::Detail::solid_1x1_destroy_all()
+{
+	for (int i = 0; i < static_cast<int>(HwTextureManagerSolid1x1Id::count_); ++i)
+	{
+		const auto id = static_cast<HwTextureManagerSolid1x1Id>(i);
+
+		solid_1x1_destroy(id);
+	}
+}
+
+int RendererTextureManagerImpl::Detail::solid_1x1_get_index(
+	const HwTextureManagerSolid1x1Id id)
+{
+	switch (id)
+	{
+		case HwTextureManagerSolid1x1Id::black:
+		case HwTextureManagerSolid1x1Id::white:
+		case HwTextureManagerSolid1x1Id::fade_2d:
+		case HwTextureManagerSolid1x1Id::fade_3d:
+		case HwTextureManagerSolid1x1Id::flooring:
+		case HwTextureManagerSolid1x1Id::ceiling:
+			return static_cast<int>(id);
+
+		default:
+			return -1;
+	}
+}
+
+int RendererTextureManagerImpl::Detail::solid_1x1_get_updateable_index(
+	const HwTextureManagerSolid1x1Id id)
+{
+	switch (id)
+	{
+		case HwTextureManagerSolid1x1Id::fade_2d:
+		case HwTextureManagerSolid1x1Id::fade_3d:
+		case HwTextureManagerSolid1x1Id::flooring:
+		case HwTextureManagerSolid1x1Id::ceiling:
+			return static_cast<int>(id);
+
+		default:
+			return -1;
+	}
+}
+
+RendererColor32 RendererTextureManagerImpl::Detail::solid_1x1_get_default_color(
+	const HwTextureManagerSolid1x1Id id)
+{
+	switch (id)
+	{
+		case HwTextureManagerSolid1x1Id::black:
+			return RendererColor32{0x00, 0x00, 0x00, 0xFF};
+
+		case HwTextureManagerSolid1x1Id::white:
+			return RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+
+		case HwTextureManagerSolid1x1Id::fade_2d:
+		case HwTextureManagerSolid1x1Id::fade_3d:
+			return RendererColor32{};
+
+		case HwTextureManagerSolid1x1Id::flooring:
+		case HwTextureManagerSolid1x1Id::ceiling:
+			return RendererColor32{0x00, 0x00, 0x00, 0xFF};
+
+		default:
+			return RendererColor32{};
+	}
+}
+
 //
 // RendererTextureManagerImpl::Detail
 // ==========================================================================
@@ -940,6 +1335,70 @@ RendererTexture2dPtr RendererTextureManagerImpl::sprite_get(
 	auto& instance = get_instance();
 
 	return instance.sprite_get(id);
+}
+
+void RendererTextureManagerImpl::ui_destroy()
+{
+	auto& instance = get_instance();
+
+	instance.ui_destroy();
+}
+
+bool RendererTextureManagerImpl::ui_create(
+	const std::uint8_t* const indexed_pixels,
+	const bool* const indexed_alphas,
+	const RendererPaletteCPtr indexed_palette)
+{
+	auto& instance = get_instance();
+
+	return instance.ui_create(indexed_pixels, indexed_alphas, indexed_palette);
+}
+
+void RendererTextureManagerImpl::ui_update()
+{
+	auto& instance = get_instance();
+
+	instance.ui_update();
+}
+
+RendererTexture2dPtr RendererTextureManagerImpl::ui_get() const
+{
+	auto& instance = get_instance();
+
+	return instance.ui_get();
+}
+
+void RendererTextureManagerImpl::solid_1x1_destroy(
+	const HwTextureManagerSolid1x1Id id)
+{
+	auto& instance = get_instance();
+
+	instance.solid_1x1_destroy(id);
+}
+
+bool RendererTextureManagerImpl::solid_1x1_create(
+	const HwTextureManagerSolid1x1Id id)
+{
+	auto& instance = get_instance();
+
+	return instance.solid_1x1_create(id);
+}
+
+void RendererTextureManagerImpl::solid_1x1_update(
+	const HwTextureManagerSolid1x1Id id,
+	const RendererColor32 color)
+{
+	auto& instance = get_instance();
+
+	instance.solid_1x1_update(id, color);
+}
+
+RendererTexture2dPtr RendererTextureManagerImpl::solid_1x1_get(
+	const HwTextureManagerSolid1x1Id id) const
+{
+	auto& instance = get_instance();
+
+	return instance.solid_1x1_get(id);
 }
 
 bool RendererTextureManagerImpl::device_on_reset()

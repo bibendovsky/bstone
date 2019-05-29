@@ -2929,102 +2929,94 @@ bool hw_2d_fillers_vi_create()
 	);
 }
 
-bool hw_texture_1x1_solid_create(
-	const bstone::RendererColor32& color,
-	const bool has_alpha,
-	bstone::RendererTexture2dPtr& texture_2d)
-{
-	const auto internal_format = (has_alpha ? bstone::RendererPixelFormat::r8g8b8a8 : bstone::RendererPixelFormat::r8g8b8);
-
-	auto t2d_create_param = bstone::RendererTexture2dCreateParam{};
-	t2d_create_param.width_ = 1;
-	t2d_create_param.height_ = 1;
-	t2d_create_param.internal_format_ = internal_format;
-	t2d_create_param.rgba_pixels_ = &color;
-
-	texture_2d = ::hw_renderer_->texture_2d_create(t2d_create_param);
-
-	if (!texture_2d)
-	{
-		return false;
-	}
-
-	return true;
-}
-
-bool hw_texture_1x1_solid_update(
-	const bstone::RendererColor32& color,
-	bstone::RendererTexture2dPtr texture_2d)
-{
-	if (!texture_2d)
-	{
-		return false;
-	}
-
-	auto param = bstone::RendererTexture2dUpdateParam{};
-	param.rgba_pixels_ = &color;
-
-	texture_2d->update(param);
-
-	return true;
-}
-
 void hw_2d_texture_1x1_black_destroy()
 {
-	::hw_texture_2d_destroy(::hw_2d_black_t2d_1x1_);
+	::hw_texture_manager_->solid_1x1_destroy(bstone::HwTextureManagerSolid1x1Id::black);
+	::hw_2d_black_t2d_1x1_ = nullptr;
 }
 
 bool hw_2d_texture_1x1_black_create()
 {
-	const auto& black_color = bstone::RendererColor32{0x00, 0x00, 0x00, 0xFF};
+	if (!::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::black))
+	{
+		return false;
+	}
 
-	return hw_texture_1x1_solid_create(black_color, false, ::hw_2d_black_t2d_1x1_);
+	::hw_2d_black_t2d_1x1_ = ::hw_texture_manager_->solid_1x1_get(bstone::HwTextureManagerSolid1x1Id::black);
+
+	if (::hw_2d_black_t2d_1x1_ == nullptr)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 void hw_2d_texture_1x1_white_destroy()
 {
-	::hw_texture_2d_destroy(::hw_2d_white_t2d_1x1_);
+	::hw_texture_manager_->solid_1x1_destroy(bstone::HwTextureManagerSolid1x1Id::white);
+	::hw_2d_white_t2d_1x1_ = nullptr;
 }
 
 bool hw_2d_texture_1x1_white_create()
 {
-	const auto& white_color = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+	if (!::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::white))
+	{
+		return false;
+	}
 
-	return hw_texture_1x1_solid_create(white_color, false, ::hw_2d_white_t2d_1x1_);
+	::hw_2d_white_t2d_1x1_ = ::hw_texture_manager_->solid_1x1_get(bstone::HwTextureManagerSolid1x1Id::white);
+
+	if (::hw_2d_white_t2d_1x1_ == nullptr)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 void hw_2d_texture_1x1_fade_destroy()
 {
-	::hw_texture_2d_destroy(::hw_2d_fade_t2d_);
+	::hw_texture_manager_->solid_1x1_destroy(bstone::HwTextureManagerSolid1x1Id::fade_2d);
+	::hw_2d_fade_t2d_ = nullptr;
 }
 
 bool hw_2d_texture_1x1_fade_create()
 {
-	const auto& color = bstone::RendererColor32{};
+	if (!::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::fade_2d))
+	{
+		return false;
+	}
 
-	return hw_texture_1x1_solid_create(color, true, ::hw_2d_fade_t2d_);
+	::hw_2d_fade_t2d_ = ::hw_texture_manager_->solid_1x1_get(bstone::HwTextureManagerSolid1x1Id::fade_2d);
+
+	if (::hw_2d_fade_t2d_ == nullptr)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 void hw_2d_ui_texture_destroy()
 {
-	::hw_texture_2d_destroy(hw_2d_ui_t2d_);
+	if (::hw_2d_ui_t2d_ == nullptr)
+	{
+		return;
+	}
+
+	::hw_texture_manager_->ui_destroy();
+	::hw_2d_ui_t2d_ = nullptr;
 }
 
 bool hw_2d_ui_texture_create()
 {
-	auto param = bstone::RendererTexture2dCreateParam{};
-	param.internal_format_ = bstone::RendererPixelFormat::r8g8b8a8;
-	param.width_ = ::vga_ref_width;
-	param.height_ = ::vga_ref_height;
-	param.indexed_pixels_ = ::vid_ui_buffer.data();
-	param.indexed_alphas_ = ::vid_mask_buffer.data();
-
-	::hw_2d_ui_t2d_ = hw_renderer_->texture_2d_create(param);
-
-	if (!::hw_2d_ui_t2d_)
+	if (!::hw_texture_manager_->ui_create(::vid_ui_buffer.data(), ::vid_mask_buffer.data(), &::hw_palette_))
 	{
 		return false;
 	}
+
+	::hw_2d_ui_t2d_ = ::hw_texture_manager_->ui_get();
 
 	return true;
 }
@@ -3225,16 +3217,25 @@ bool hw_3d_flooring_vi_create()
 
 void hw_3d_flooring_texture_2d_solid_destroy()
 {
-	::hw_texture_2d_destroy(::hw_3d_flooring_solid_t2d_);
+	::hw_texture_manager_->solid_1x1_destroy(bstone::HwTextureManagerSolid1x1Id::flooring);
+	::hw_3d_flooring_solid_t2d_ = nullptr;
 }
 
 bool hw_3d_flooring_texture_2d_solid_create()
 {
-	return ::hw_texture_1x1_solid_create(
-		bstone::RendererColor32{},
-		false,
-		::hw_3d_flooring_solid_t2d_
-	);
+	if (!::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::flooring))
+	{
+		return false;
+	}
+
+	::hw_3d_flooring_solid_t2d_ = ::hw_texture_manager_->solid_1x1_get(bstone::HwTextureManagerSolid1x1Id::flooring);
+
+	if (::hw_3d_flooring_solid_t2d_ == nullptr)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 void hw_3d_flooring_uninitialize()
@@ -3391,16 +3392,25 @@ bool hw_3d_ceiling_vi_create()
 
 void hw_3d_ceiling_texture_2d_solid_destroy()
 {
-	::hw_texture_2d_destroy(::hw_3d_ceiling_solid_t2d_);
+	::hw_texture_manager_->solid_1x1_destroy(bstone::HwTextureManagerSolid1x1Id::ceiling);
+	::hw_3d_ceiling_solid_t2d_ = nullptr;
 }
 
 bool hw_3d_ceiling_texture_2d_solid_create()
 {
-	return ::hw_texture_1x1_solid_create(
-		bstone::RendererColor32{},
-		false,
-		::hw_3d_ceiling_solid_t2d_
-	);
+	if (!::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::ceiling))
+	{
+		return false;
+	}
+
+	::hw_3d_ceiling_solid_t2d_ = ::hw_texture_manager_->solid_1x1_get(bstone::HwTextureManagerSolid1x1Id::ceiling);
+
+	if (::hw_3d_ceiling_solid_t2d_ == nullptr)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 bool hw_3d_ceiling_initialize()
@@ -4758,18 +4768,25 @@ void hw_3d_fade_vb_update()
 
 void hw_3d_fade_texture_2d_destroy()
 {
-	if (::hw_3d_fade_t2d_)
-	{
-		::hw_renderer_->texture_2d_destroy(::hw_3d_fade_t2d_);
-		::hw_3d_fade_t2d_ = nullptr;
-	}
+	::hw_texture_manager_->solid_1x1_destroy(bstone::HwTextureManagerSolid1x1Id::fade_3d);
+	::hw_3d_fade_t2d_ = nullptr;
 }
 
 bool hw_3d_fade_texture_2d_create()
 {
-	const auto& color = bstone::RendererColor32{};
+	if (!::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::fade_3d))
+	{
+		return false;
+	}
 
-	return ::hw_texture_1x1_solid_create(color, true, ::hw_3d_fade_t2d_);
+	::hw_3d_fade_t2d_ = ::hw_texture_manager_->solid_1x1_get(bstone::HwTextureManagerSolid1x1Id::fade_3d);
+
+	if (::hw_3d_fade_t2d_ == nullptr)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 void hw_3d_fade_uninitialize()
@@ -4841,22 +4858,14 @@ void hw_screen_2d_refresh()
 	// Update 2D texture.
 	//
 	{
-		auto param = bstone::RendererTexture2dUpdateParam{};
-		param.indexed_pixels_ = ::vid_ui_buffer.data();
-		param.indexed_palette_ = &::hw_palette_;
-		param.indexed_alphas_ = nullptr;
-
-		::hw_2d_ui_t2d_->update(param);
+		::hw_texture_manager_->ui_update();
 	}
 
 	// Update fade color.
 	//
 	if (::hw_2d_fade_is_enabled_)
 	{
-		auto param = bstone::RendererTexture2dUpdateParam{};
-		param.rgba_pixels_ = &::hw_2d_fade_color_;
-
-		::hw_2d_fade_t2d_->update(param);
+		::hw_texture_manager_->solid_1x1_update(bstone::HwTextureManagerSolid1x1Id::fade_2d, ::hw_2d_fade_color_);
 	}
 
 
@@ -6439,7 +6448,7 @@ void hw_3d_fade_update()
 
 	const auto r8g8b8a8 = bstone::RendererColor32{r, g, b, a};
 
-	static_cast<void>(::hw_texture_1x1_solid_update(r8g8b8a8, ::hw_3d_fade_t2d_));
+	::hw_texture_manager_->solid_1x1_update(bstone::HwTextureManagerSolid1x1Id::fade_3d, r8g8b8a8);
 }
 
 void hw_screen_3d_refresh()
@@ -6922,10 +6931,7 @@ void hw_precache_flooring()
 		vga_color[2]
 	);
 
-	if (!::hw_texture_1x1_solid_update(renderer_color, ::hw_3d_flooring_solid_t2d_))
-	{
-		::Quit("Failed to update flooring solid texture.");
-	}
+	::hw_texture_manager_->solid_1x1_update(bstone::HwTextureManagerSolid1x1Id::flooring, renderer_color);
 }
 
 void hw_precache_ceiling()
@@ -6946,10 +6952,7 @@ void hw_precache_ceiling()
 		vga_color[2]
 	);
 
-	if (!::hw_texture_1x1_solid_update(renderer_color, ::hw_3d_ceiling_solid_t2d_))
-	{
-		::Quit("Failed to update ceiling solid texture.");
-	}
+	::hw_texture_manager_->solid_1x1_update(bstone::HwTextureManagerSolid1x1Id::ceiling, renderer_color);
 }
 
 bool hw_tile_is_activated_pushwall(
@@ -10832,6 +10835,11 @@ void hw_device_reset_resources_destroy()
 
 bool hw_device_reset_resources_create()
 {
+	if (!::hw_texture_manager_create())
+	{
+		return false;
+	}
+
 	if (!::hw_2d_initialize())
 	{
 		return false;
@@ -11067,6 +11075,11 @@ bool hw_video_initialize()
 
 	if (is_succeed)
 	{
+		is_succeed = ::hw_texture_manager_create();
+	}
+
+	if (is_succeed)
+	{
 		::hw_ui_buffer_initialize();
 	}
 
@@ -11148,8 +11161,9 @@ bool hw_video_initialize()
 }
 
 //
-// Accelerated renderer.
+// Hardware accelerated renderer (HW).
 // ==========================================================================
+
 
 } // namespace
 // BBi

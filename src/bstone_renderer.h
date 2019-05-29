@@ -156,6 +156,8 @@ public:
 
 
 using RendererPalette = std::array<RendererColor32, 256>;
+using RendererPalettePtr = RendererPalette*;
+using RendererPaletteCPtr = const RendererPalette*;
 
 
 // ==========================================================================
@@ -378,12 +380,12 @@ struct RendererTexture2dCreateParam
 struct RendererTexture2dUpdateParam
 {
 	const std::uint8_t* indexed_pixels_;
-	const RendererPalette* indexed_palette_;
+	RendererPaletteCPtr indexed_palette_;
 	const bool* indexed_alphas_;
 
 	SpriteCPtr indexed_sprite_;
 
-	const RendererColor32* rgba_pixels_;
+	RendererColor32CPtr rgba_pixels_;
 }; // RendererTexture2dUpdateParam
 
 class RendererTexture2d
