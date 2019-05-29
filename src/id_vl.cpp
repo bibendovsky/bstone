@@ -3838,7 +3838,10 @@ void hw_palette_update(
 			vga_color.b
 		);
 	}
+
+	::hw_texture_manager_->set_palette(::hw_palette_);
 }
+
 void hw_palette_initialize()
 {
 	::hw_palette_ = {};
@@ -3856,7 +3859,7 @@ void hw_palette_initialize()
 
 	}
 
-	::hw_renderer_->palette_update(default_palette);
+	::hw_texture_manager_->set_palette(default_palette);
 }
 
 void hw_dimensions_calculate()
