@@ -627,10 +627,10 @@ bool RendererTextureManagerImpl::Detail::create_missing_sprite_texture()
 	const auto rgba_image = reinterpret_cast<const RendererColor32*>(raw_image.data());
 
 	auto param = RendererTexture2dCreateParam{};
+	param.internal_format_ = RendererPixelFormat::r8g8b8a8;
 	param.has_mipmaps_ = true;
 	param.width_ = Sprite::dimension;
 	param.height_ = Sprite::dimension;
-	param.internal_format_ = RendererPixelFormat::r8g8b8a8;
 	param.rgba_pixels_ = rgba_image;
 
 	auto texture_2d = renderer_->texture_2d_create(param);
@@ -750,6 +750,7 @@ RendererTexture2dPtr RendererTextureManagerImpl::Detail::sprite_create_texture(
 	}
 
 	auto param = RendererTexture2dCreateParam{};
+	param.internal_format_ = RendererPixelFormat::r8g8b8a8;
 	param.has_mipmaps_ = true;
 	param.width_ = Sprite::dimension;
 	param.height_ = Sprite::dimension;
