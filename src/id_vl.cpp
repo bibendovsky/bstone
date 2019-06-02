@@ -1749,6 +1749,7 @@ bstone::RendererPtr hw_renderer_ = nullptr;
 bstone::HwTextureManagerUPtr hw_texture_manager_ = nullptr;
 
 bstone::RendererPalette hw_palette_;
+bstone::RendererPalette hw_default_palette_;
 
 bstone::RendererCommandManagerUPtr hw_command_manager_;
 bstone::RendererCommandBufferPtr hw_2d_command_buffer_;
@@ -3848,18 +3849,17 @@ void hw_palette_initialize()
 
 	::hw_palette_update(0, palette_color_count);
 
-	auto default_palette = bstone::RendererPalette{};
+	::hw_default_palette_ = bstone::RendererPalette{};
 
 	for (int i = 0; i < palette_color_count; ++i)
 	{
 		const auto vga_color = ::vgapal + (i * 3);
-		auto& hw_color = default_palette[i];
+		auto& hw_color = ::hw_default_palette_[i];
 
 		hw_color = ::hw_vga_color_to_color_32(vga_color[0], vga_color[1], vga_color[2]);
-
 	}
 
-	::hw_texture_manager_->set_palette(default_palette);
+	::hw_texture_manager_->set_palette(::hw_default_palette_);
 }
 
 void hw_dimensions_calculate()
@@ -12774,5 +12774,10 @@ void vid_apply_hw_configuration()
 	::vid_apply_hw_is_widescreen_configuration();
 	::vid_apply_hw_2d_texture_filter_configuration();
 	::vid_apply_hw_3d_texture_filter_configuration();
+}
+
+const bstone::RendererPalette& vid_hw_get_default_palette()
+{
+	return ::hw_default_palette_;
 }
 // BBi

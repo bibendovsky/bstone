@@ -32,6 +32,7 @@ Free Software Foundation, Inc.,
 #include <array>
 #include <unordered_map>
 #include "id_pm.h"
+#include "id_vl.h"
 #include "bstone_hw_texture_manager.h"
 #include "bstone_missing_sprite_64x64_image.h"
 #include "bstone_missing_wall_64x64_image.h"
@@ -1069,6 +1070,7 @@ RendererTexture2dPtr RendererTextureManagerImpl::Detail::wall_create_texture(
 	param.width_ = wall_dimension;
 	param.height_ = wall_dimension;
 	param.indexed_pixels_ = indexed_pixels;
+	param.indexed_palette_ = &::vid_hw_get_default_palette();
 
 	auto texture_2d = renderer_->texture_2d_create(param);
 
@@ -1111,6 +1113,7 @@ RendererTexture2dPtr RendererTextureManagerImpl::Detail::sprite_create_texture(
 	param.width_ = Sprite::dimension;
 	param.height_ = Sprite::dimension;
 	param.indexed_sprite_ = sprite;
+	param.indexed_palette_ = &::vid_hw_get_default_palette();
 
 	auto texture_2d = renderer_->texture_2d_create(param);
 

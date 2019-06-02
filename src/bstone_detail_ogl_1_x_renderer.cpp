@@ -118,7 +118,15 @@ void Ogl1XRenderer::Texture2d::update(
 	}
 	else if (is_indexed_sprite_)
 	{
-		indexed_sprite_ = param.indexed_sprite_;
+		if (param.indexed_palette_)
+		{
+			indexed_palette_ = param.indexed_palette_;
+		}
+
+		if (param.indexed_sprite_)
+		{
+			indexed_sprite_ = param.indexed_sprite_;
+		}
 	}
 
 	::glBindTexture(GL_TEXTURE_2D, ogl_id_);
@@ -1084,7 +1092,8 @@ void Ogl1XRenderer::palette_update(
 
 	for (auto& texture_2d : textures_2d_)
 	{
-		if (texture_2d->is_indexed_ && texture_2d->indexed_palette_)
+		if ((texture_2d->is_indexed_ || texture_2d->is_indexed_sprite_) &&
+			texture_2d->indexed_palette_ == nullptr)
 		{
 			texture_2d->update(param);
 		}

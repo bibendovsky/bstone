@@ -395,5 +395,7 @@ VidConfiguration& vid_get_configuration();
 
 void vid_apply_hw_configuration();
 
+const bstone::RendererPalette& vid_hw_get_default_palette();
+
 
 #endif // BSTONE_ID_VL_INCLUDED
