@@ -1084,7 +1084,7 @@ void Ogl1XRenderer::palette_update(
 
 	for (auto& texture_2d : textures_2d_)
 	{
-		if (!texture_2d->indexed_palette_)
+		if (texture_2d->is_indexed_ && texture_2d->indexed_palette_)
 		{
 			texture_2d->update(param);
 		}
