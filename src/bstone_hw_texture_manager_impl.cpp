@@ -652,7 +652,7 @@ bool RendererTextureManagerImpl::Detail::ui_create(
 	}
 
 	auto param = RendererTexture2dCreateParam{};
-	param.internal_format_ = RendererPixelFormat::r8g8b8a8;
+	param.storage_pixel_format_ = RendererPixelFormat::r8g8b8a8_unorm;
 	param.width_ = ::vga_ref_width;
 	param.height_ = ::vga_ref_height;
 	param.indexed_pixels_ = indexed_pixels;
@@ -742,12 +742,12 @@ bool RendererTextureManagerImpl::Detail::solid_1x1_create(
 	const auto default_color = solid_1x1_get_default_color(id);
 	const auto has_alpha = (default_color.a < 0xFF);
 
-	const auto internal_format = (has_alpha ? bstone::RendererPixelFormat::r8g8b8a8 : bstone::RendererPixelFormat::r8g8b8);
+	const auto internal_format = (has_alpha ? bstone::RendererPixelFormat::r8g8b8a8_unorm : bstone::RendererPixelFormat::r8g8b8_unorm);
 
 	auto t2d_create_param = bstone::RendererTexture2dCreateParam{};
 	t2d_create_param.width_ = 1;
 	t2d_create_param.height_ = 1;
-	t2d_create_param.internal_format_ = internal_format;
+	t2d_create_param.storage_pixel_format_ = internal_format;
 	t2d_create_param.rgba_pixels_ = &default_color;
 
 	auto texture_2d = renderer_->texture_2d_create(t2d_create_param);
@@ -984,7 +984,7 @@ bool RendererTextureManagerImpl::Detail::create_missing_sprite_texture()
 	const auto rgba_image = reinterpret_cast<const RendererColor32*>(raw_image.data());
 
 	auto param = RendererTexture2dCreateParam{};
-	param.internal_format_ = RendererPixelFormat::r8g8b8a8;
+	param.storage_pixel_format_ = RendererPixelFormat::r8g8b8a8_unorm;
 	param.has_mipmaps_ = true;
 	param.width_ = Sprite::dimension;
 	param.height_ = Sprite::dimension;
@@ -1027,7 +1027,7 @@ bool RendererTextureManagerImpl::Detail::create_missing_wall_texture()
 	const auto rgba_image = reinterpret_cast<const RendererColor32*>(raw_image.data());
 
 	auto param = RendererTexture2dCreateParam{};
-	param.internal_format_ = RendererPixelFormat::r8g8b8;
+	param.storage_pixel_format_ = RendererPixelFormat::r8g8b8_unorm;
 	param.has_mipmaps_ = true;
 	param.width_ = wall_dimension;
 	param.height_ = wall_dimension;
@@ -1064,7 +1064,7 @@ RendererTexture2dPtr RendererTextureManagerImpl::Detail::wall_create_texture(
 	}
 
 	auto param = RendererTexture2dCreateParam{};
-	param.internal_format_ = RendererPixelFormat::r8g8b8;
+	param.storage_pixel_format_ = RendererPixelFormat::r8g8b8_unorm;
 	param.has_mipmaps_ = true;
 	param.indexed_is_column_major_ = true;
 	param.width_ = wall_dimension;
@@ -1108,7 +1108,7 @@ RendererTexture2dPtr RendererTextureManagerImpl::Detail::sprite_create_texture(
 	}
 
 	auto param = RendererTexture2dCreateParam{};
-	param.internal_format_ = RendererPixelFormat::r8g8b8a8;
+	param.storage_pixel_format_ = RendererPixelFormat::r8g8b8a8_unorm;
 	param.has_mipmaps_ = true;
 	param.width_ = Sprite::dimension;
 	param.height_ = Sprite::dimension;

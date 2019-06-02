@@ -316,10 +316,10 @@ bool RendererUtils::validate_vertex_buffer_update_param(
 bool RendererUtils::validate_texture_2d_create_param(
 	const RendererTexture2dCreateParam& param)
 {
-	switch (param.internal_format_)
+	switch (param.storage_pixel_format_)
 	{
-		case RendererPixelFormat::r8g8b8:
-		case RendererPixelFormat::r8g8b8a8:
+		case RendererPixelFormat::r8g8b8_unorm:
+		case RendererPixelFormat::r8g8b8a8_unorm:
 			break;
 
 		default:
@@ -473,9 +473,9 @@ bool RendererUtils::vertex_input_validate_format(
 {
 	switch (attribute_format)
 	{
-		case RendererVertexAttributeFormat::r8g8b8a8_uint:
-		case RendererVertexAttributeFormat::r32g32_float:
-		case RendererVertexAttributeFormat::r32g32b32_float:
+		case RendererVertexAttributeFormat::r8g8b8a8_unorm:
+		case RendererVertexAttributeFormat::r32g32_sfloat:
+		case RendererVertexAttributeFormat::r32g32b32_sfloat:
 			return true;
 
 		default:

@@ -172,7 +172,7 @@ private:
 		Ogl1XRendererPtr renderer_;
 		std::string error_message_;
 
-		RendererPixelFormat internal_format_;
+		RendererPixelFormat storage_pixel_format_;
 
 		bool is_npot_;
 

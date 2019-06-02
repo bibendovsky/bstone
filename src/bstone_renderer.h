@@ -274,9 +274,9 @@ enum class RendererVertexAttributeFormat :
 	unsigned char
 {
 	none,
-	r8g8b8a8_uint,
-	r32g32_float,
-	r32g32b32_float,
+	r8g8b8a8_unorm,
+	r32g32_sfloat,
+	r32g32b32_sfloat,
 }; // RendererVertexAttributeFormat
 
 struct RendererVertexAttributeDescription
@@ -354,13 +354,13 @@ struct RendererSamplerState
 enum class RendererPixelFormat
 {
 	none,
-	r8g8b8,
-	r8g8b8a8,
+	r8g8b8_unorm,
+	r8g8b8a8_unorm,
 }; // RendererPixelFormat
 
 struct RendererTexture2dCreateParam
 {
-	RendererPixelFormat internal_format_;
+	RendererPixelFormat storage_pixel_format_;
 
 	bool has_mipmaps_;
 

@@ -54,7 +54,7 @@ Ogl1XRenderer::Texture2d::Texture2d(
 	:
 	renderer_{renderer},
 	error_message_{},
-	internal_format_{},
+	storage_pixel_format_{},
 	is_npot_{},
 	is_rgba_{},
 	is_indexed_{},
@@ -182,7 +182,7 @@ bool Ogl1XRenderer::Texture2d::initialize(
 	is_indexed_ = (param.indexed_pixels_ != nullptr);
 	is_indexed_sprite_ = (param.indexed_sprite_ != nullptr);
 
-	internal_format_ = param.internal_format_;
+	storage_pixel_format_ = param.storage_pixel_format_;
 
 	width_ = param.width_;
 	height_ = param.height_;
@@ -246,7 +246,7 @@ bool Ogl1XRenderer::Texture2d::initialize(
 
 	if (is_rgba_)
 	{
-		internal_format = (internal_format_ == RendererPixelFormat::r8g8b8a8 ? GL_RGBA8 : GL_RGB8);
+		internal_format = (storage_pixel_format_ == RendererPixelFormat::r8g8b8a8_unorm ? GL_RGBA8 : GL_RGB8);
 	}
 	else if (is_indexed_)
 	{
@@ -2136,17 +2136,17 @@ void Ogl1XRenderer::vertex_input_assign()
 
 			switch (attribute_description.format_)
 			{
-				case RendererVertexAttributeFormat::r8g8b8a8_uint:
+				case RendererVertexAttributeFormat::r8g8b8a8_unorm:
 					ogl_component_count = 4;
 					ogl_component_format = GL_UNSIGNED_BYTE;
 					break;
 
-				case RendererVertexAttributeFormat::r32g32_float:
+				case RendererVertexAttributeFormat::r32g32_sfloat:
 					ogl_component_count = 2;
 					ogl_component_format = GL_FLOAT;
 					break;
 
-				case RendererVertexAttributeFormat::r32g32b32_float:
+				case RendererVertexAttributeFormat::r32g32b32_sfloat:
 					ogl_component_count = 3;
 					ogl_component_format = GL_FLOAT;
 					break;

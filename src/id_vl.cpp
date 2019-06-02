@@ -2175,19 +2175,19 @@ bool hw_vertex_input_create(
 	descriptions.reserve(3);
 
 	::hw_vertex_input_add_attribute_description<TVertex, bstone::RendererVertexAttributeLocation::position>(
-		bstone::RendererVertexAttributeFormat::r32g32b32_float,
+		bstone::RendererVertexAttributeFormat::r32g32b32_sfloat,
 		vertex_buffer,
 		descriptions
 	);
 
 	::hw_vertex_input_add_attribute_description<TVertex, bstone::RendererVertexAttributeLocation::color>(
-		bstone::RendererVertexAttributeFormat::r8g8b8a8_uint,
+		bstone::RendererVertexAttributeFormat::r8g8b8a8_unorm,
 		vertex_buffer,
 		descriptions
 	);
 
 	::hw_vertex_input_add_attribute_description<TVertex, bstone::RendererVertexAttributeLocation::texture_coordinates>(
-		bstone::RendererVertexAttributeFormat::r32g32_float,
+		bstone::RendererVertexAttributeFormat::r32g32_sfloat,
 		vertex_buffer,
 		descriptions
 	);
@@ -6449,9 +6449,9 @@ void hw_3d_fade_update()
 	const auto b = static_cast<std::uint8_t>(b_f * 255.0F);
 	const auto a = static_cast<std::uint8_t>(a_f * 255.0F);
 
-	const auto r8g8b8a8 = bstone::RendererColor32{r, g, b, a};
+	const auto r8g8b8a8_unorm = bstone::RendererColor32{r, g, b, a};
 
-	::hw_texture_manager_->solid_1x1_update(bstone::HwTextureManagerSolid1x1Id::fade_3d, r8g8b8a8);
+	::hw_texture_manager_->solid_1x1_update(bstone::HwTextureManagerSolid1x1Id::fade_3d, r8g8b8a8_unorm);
 }
 
 void hw_screen_3d_refresh()
@@ -7316,9 +7316,9 @@ struct HwUpdateVertexRgba
 {
 	void operator()(
 		TVertex& vertex,
-		const HwVertexColor& r8g8b8a8) const
+		const HwVertexColor& r8g8b8a8_unorm) const
 	{
-		static_cast<void>(r8g8b8a8);
+		static_cast<void>(r8g8b8a8_unorm);
 	}
 }; // HwUpdateVertexRgba
 
@@ -7327,20 +7327,20 @@ struct HwUpdateVertexRgba<TVertex, true>
 {
 	void operator()(
 		TVertex& vertex,
-		const HwVertexColor& r8g8b8a8) const
+		const HwVertexColor& r8g8b8a8_unorm) const
 	{
-		vertex.rgba_ = r8g8b8a8;
+		vertex.rgba_ = r8g8b8a8_unorm;
 	}
 }; // HwUpdateVertexRgba
 
 template<typename TVertex>
 void hw_update_vertex_rgba(
 	TVertex& vertex,
-	const HwVertexColor& r8g8b8a8)
+	const HwVertexColor& r8g8b8a8_unorm)
 {
 	const auto& traits = HwVertexAttributeTraits<TVertex, bstone::RendererVertexAttributeLocation::color>{};
 
-	HwUpdateVertexRgba<TVertex, traits.is_valid>{}(vertex, r8g8b8a8);
+	HwUpdateVertexRgba<TVertex, traits.is_valid>{}(vertex, r8g8b8a8_unorm);
 }
 
 template<typename TVertex, bool TIsExists = false>
@@ -7443,7 +7443,7 @@ void hw_3d_map_wall_side(
 	side.texture_2d_ = ::hw_texture_manager_->wall_get(wall_texture_id);
 	side.wall_ = &wall;
 
-	const auto& r8g8b8a8 = HwVertexColor{0xFF, 0xFF, 0xFF, 0xFF};
+	const auto& r8g8b8a8_unorm = HwVertexColor{0xFF, 0xFF, 0xFF, 0xFF};
 
 	// Bottom-left (when looking at face side).
 	{
@@ -7459,7 +7459,7 @@ void hw_3d_map_wall_side(
 		const auto& uv = HwVertexTextureCoordinates{0.0F, 0.0F};
 
 		::hw_update_vertex_xyz(vertex, xyz);
-		::hw_update_vertex_rgba(vertex, r8g8b8a8);
+		::hw_update_vertex_rgba(vertex, r8g8b8a8_unorm);
 		::hw_update_vertex_uv(vertex, uv);
 	}
 
@@ -7477,7 +7477,7 @@ void hw_3d_map_wall_side(
 		const auto& uv = HwVertexTextureCoordinates{1.0F, 0.0F};
 
 		::hw_update_vertex_xyz(vertex, xyz);
-		::hw_update_vertex_rgba(vertex, r8g8b8a8);
+		::hw_update_vertex_rgba(vertex, r8g8b8a8_unorm);
 		::hw_update_vertex_uv(vertex, uv);
 	}
 
@@ -7495,7 +7495,7 @@ void hw_3d_map_wall_side(
 		const auto& uv = HwVertexTextureCoordinates{1.0F, 1.0F};
 
 		::hw_update_vertex_xyz(vertex, xyz);
-		::hw_update_vertex_rgba(vertex, r8g8b8a8);
+		::hw_update_vertex_rgba(vertex, r8g8b8a8_unorm);
 		::hw_update_vertex_uv(vertex, uv);
 	}
 
@@ -7513,7 +7513,7 @@ void hw_3d_map_wall_side(
 		const auto& uv = HwVertexTextureCoordinates{0.0F, 1.0F};
 
 		::hw_update_vertex_xyz(vertex, xyz);
-		::hw_update_vertex_rgba(vertex, r8g8b8a8);
+		::hw_update_vertex_rgba(vertex, r8g8b8a8_unorm);
 		::hw_update_vertex_uv(vertex, uv);
 	}
 }
