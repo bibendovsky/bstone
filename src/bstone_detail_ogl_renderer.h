@@ -106,9 +106,6 @@ public:
 	void color_buffer_set_clear_color(
 		const RendererColor32& color) override;
 
-	void palette_update(
-		const RendererPalette& palette) override;
-
 	void clear_buffers() override;
 
 	void present() override;

@@ -362,28 +362,15 @@ struct RendererTexture2dCreateParam
 {
 	RendererPixelFormat storage_pixel_format_;
 
-	bool has_mipmaps_;
-
 	int width_;
 	int height_;
 
-	bool indexed_is_column_major_;
-	const std::uint8_t* indexed_pixels_;
-	const RendererPalette* indexed_palette_;
-	const bool* indexed_alphas_;
-
-	SpriteCPtr indexed_sprite_;
-
-	const RendererColor32* rgba_pixels_;
+	int mipmap_count_;
 }; // RendererTexture2dCreateParam
 
 struct RendererTexture2dUpdateParam
 {
-	const std::uint8_t* indexed_pixels_;
-	RendererPaletteCPtr indexed_palette_;
-	const bool* indexed_alphas_;
-
-	SpriteCPtr indexed_sprite_;
+	int mipmap_level_;
 
 	RendererColor32CPtr rgba_pixels_;
 }; // RendererTexture2dUpdateParam
@@ -806,10 +793,6 @@ public:
 	virtual void clear_buffers() = 0;
 
 	virtual void present() = 0;
-
-
-	virtual void palette_update(
-		const RendererPalette& palette) = 0;
 
 
 	virtual RendererIndexBufferPtr index_buffer_create(

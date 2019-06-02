@@ -52,6 +52,11 @@ const std::string& RendererUtils::get_error_message() const
 	return error_message_;
 }
 
+int RendererUtils::get_max_mipmap_count()
+{
+	return 31;
+}
+
 float RendererUtils::deg_to_rad(
 	const float angle_deg)
 {
@@ -342,60 +347,8 @@ bool RendererUtils::validate_texture_2d_create_param(
 		return false;
 	}
 
-
-	auto source_count = 0;
-
-	if (param.indexed_pixels_)
+	if (param.mipmap_count_ <= 0)
 	{
-		++source_count;
-	}
-
-	if (param.indexed_sprite_)
-	{
-		++source_count;
-	}
-
-	if (param.rgba_pixels_)
-	{
-		++source_count;
-	}
-
-	if (source_count == 0)
-	{
-		error_message_ = "Null pixel source.";
-
-		return false;
-	}
-
-	if (source_count != 1)
-	{
-		error_message_ = "Multiple pixel sources.";
-
-		return false;
-	}
-
-	if (param.indexed_sprite_)
-	{
-		if (!param.indexed_sprite_->is_initialized())
-		{
-			error_message_ = "Sprite not initialized.";
-
-			return false;
-		}
-
-		if (param.width_ != Sprite::dimension)
-		{
-			error_message_ = "Invalid sprite width.";
-
-			return false;
-		}
-
-		if (param.height_ != Sprite::dimension)
-		{
-			error_message_ = "Invalid sprite height.";
-
-			return false;
-		}
 	}
 
 	return true;
@@ -404,43 +357,17 @@ bool RendererUtils::validate_texture_2d_create_param(
 bool RendererUtils::validate_texture_2d_update_param(
 	const RendererTexture2dUpdateParam& param)
 {
-	static_cast<void>(error_message_);
-
-	auto source_count = 0;
-
-	if (param.indexed_palette_ != nullptr ||
-		param.indexed_pixels_ != nullptr)
+	if (param.mipmap_level_ < 0 ||
+		param.mipmap_level_ >= get_max_mipmap_count())
 	{
-		++source_count;
+		error_message_ = "Invalid mipmap level.";
+
+		return false;
 	}
 
-	if (param.indexed_sprite_ != nullptr)
-	{
-		++source_count;
-	}
-
-	if (param.rgba_pixels_)
-	{
-		++source_count;
-	}
-
-	if (source_count == 0)
+	if (param.rgba_pixels_ == nullptr)
 	{
 		error_message_ = "Null pixel source.";
-
-		return false;
-	}
-
-	if (source_count != 1)
-	{
-		error_message_ = "Multiple pixel sources.";
-
-		return false;
-	}
-
-	if (param.indexed_sprite_ && !param.indexed_sprite_->is_initialized())
-	{
-		error_message_ = "Sprite not initialized.";
 
 		return false;
 	}

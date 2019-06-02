@@ -55,20 +55,9 @@ Ogl1XRenderer::Texture2d::Texture2d(
 	renderer_{renderer},
 	error_message_{},
 	storage_pixel_format_{},
-	is_npot_{},
-	is_rgba_{},
-	is_indexed_{},
-	is_indexed_sprite_{},
 	width_{},
 	height_{},
-	actual_width_{},
-	actual_height_{},
 	mipmap_count_{},
-	indexed_pixels_{},
-	indexed_palette_{},
-	indexed_alphas_{},
-	indexed_sprite_{},
-	rgba_pixels_{},
 	sampler_state_{},
 	ogl_id_{}
 {
@@ -92,54 +81,40 @@ void Ogl1XRenderer::Texture2d::update(
 		return;
 	}
 
-	if (is_rgba_)
+	if (param.mipmap_level_ >= mipmap_count_)
 	{
-		if (param.rgba_pixels_)
-		{
-			rgba_pixels_ = param.rgba_pixels_;
-		}
-	}
-	else if (is_indexed_)
-	{
-		if (param.indexed_pixels_)
-		{
-			indexed_pixels_ = param.indexed_pixels_;
-		}
+		assert(!"Mipmap level out of range.");
 
-		if (param.indexed_palette_)
-		{
-			indexed_palette_ = param.indexed_palette_;
-		}
-
-		if (param.indexed_alphas_)
-		{
-			indexed_alphas_ = param.indexed_alphas_;
-		}
-	}
-	else if (is_indexed_sprite_)
-	{
-		if (param.indexed_palette_)
-		{
-			indexed_palette_ = param.indexed_palette_;
-		}
-
-		if (param.indexed_sprite_)
-		{
-			indexed_sprite_ = param.indexed_sprite_;
-		}
+		return;
 	}
 
 	::glBindTexture(GL_TEXTURE_2D, ogl_id_);
 	assert(!OglRendererUtils::was_errors());
 
-	update_mipmaps();
+	auto mipmap_width = width_;
+	auto mipmap_height = height_;
+
+	for (auto i = 0; i < param.mipmap_level_; ++i)
+	{
+		if (mipmap_width > 1)
+		{
+			mipmap_width /= 2;
+		}
+
+		if (mipmap_height > 1)
+		{
+			mipmap_height /= 2;
+		}
+	}
+
+	upload_mipmap(param.mipmap_level_, mipmap_width, mipmap_height, param.rgba_pixels_);
 }
 
 void Ogl1XRenderer::Texture2d::generate_mipmaps()
 {
 	if (mipmap_count_ <= 1)
 	{
-		assert(!"Mipmaps not enabled.");
+		assert(!"Base mipmap.");
 
 		return;
 	}
@@ -178,10 +153,6 @@ bool Ogl1XRenderer::Texture2d::initialize(
 		return false;
 	}
 
-	is_rgba_ = (param.rgba_pixels_ != nullptr);
-	is_indexed_ = (param.indexed_pixels_ != nullptr);
-	is_indexed_sprite_ = (param.indexed_sprite_ != nullptr);
-
 	storage_pixel_format_ = param.storage_pixel_format_;
 
 	width_ = param.width_;
@@ -190,72 +161,40 @@ bool Ogl1XRenderer::Texture2d::initialize(
 	const auto& device_features = renderer_->device_features_;
 	const auto& ogl_device_features = renderer_->ogl_device_features_;
 
-	// Width.
-	//
-	if (device_features.npot_is_available_)
+	auto actual_width = RendererUtils::find_nearest_pot_value(param.width_);
+
+	if (actual_width > device_features.max_texture_dimension_)
 	{
-		actual_width_ = param.width_;
-	}
-	else
-	{
-		actual_width_ = RendererUtils::find_nearest_pot_value(param.width_);
+		actual_width = device_features.max_texture_dimension_;
 	}
 
-	if (actual_width_ > device_features.max_texture_dimension_)
+	auto actual_height = RendererUtils::find_nearest_pot_value(param.height_);
+
+	if (actual_height > device_features.max_texture_dimension_)
 	{
-		actual_width_ = device_features.max_texture_dimension_;
+		actual_height = device_features.max_texture_dimension_;
 	}
 
-	// Height.
-	//
-	if (device_features.npot_is_available_)
+	if (!device_features.npot_is_available_)
 	{
-		actual_height_ = param.height_;
-	}
-	else
-	{
-		actual_height_ = RendererUtils::find_nearest_pot_value(param.height_);
-	}
+		if (width_ != actual_width || height_ != actual_height)
+		{
+			error_message_ = "Non-power-of-two textures not supported.";
 
-	if (actual_height_ > device_features.max_texture_dimension_)
-	{
-		actual_height_ = device_features.max_texture_dimension_;
+			return false;
+		}
 	}
 
-	if (param.has_mipmaps_)
+	const auto max_mipmap_count = RendererUtils::calculate_mipmap_count(actual_width, actual_height);
+
+	if (param.mipmap_count_ > max_mipmap_count)
 	{
-		mipmap_count_ = RendererUtils::calculate_mipmap_count(actual_width_, actual_height_);
-	}
-	else
-	{
-		mipmap_count_ = 1;
+		error_message_ = "Mipmap count out of range.";
+
+		return false;
 	}
 
-	indexed_is_column_major_ = param.indexed_is_column_major_;
-	indexed_pixels_ = param.indexed_pixels_;
-	indexed_palette_ = param.indexed_palette_;
-	indexed_alphas_ = param.indexed_alphas_;
-
-	indexed_sprite_ = param.indexed_sprite_;
-
-	rgba_pixels_ = param.rgba_pixels_;
-
-	is_npot_ = (width_ != actual_width_ || height_ != actual_height_);
-
-	auto internal_format = GLenum{};
-
-	if (is_rgba_)
-	{
-		internal_format = (storage_pixel_format_ == RendererPixelFormat::r8g8b8a8_unorm ? GL_RGBA8 : GL_RGB8);
-	}
-	else if (is_indexed_)
-	{
-		internal_format = (indexed_alphas_ ? GL_RGBA8 : GL_RGB8);
-	}
-	else if (is_indexed_sprite_)
-	{
-		internal_format = GL_RGBA8;
-	}
+	const auto internal_format = (storage_pixel_format_ == RendererPixelFormat::r8g8b8a8_unorm ? GL_RGBA8 : GL_RGB8);
 
 	::glGenTextures(1, &ogl_id_);
 	assert(!OglRendererUtils::was_errors());
@@ -264,14 +203,18 @@ bool Ogl1XRenderer::Texture2d::initialize(
 	::glBindTexture(GL_TEXTURE_2D, ogl_id_);
 	assert(!OglRendererUtils::was_errors());
 
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+	assert(!OglRendererUtils::was_errors());
+
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipmap_count_ - 1);
+	assert(!OglRendererUtils::was_errors());
+
 	set_sampler_state_defaults();
 
-	auto mipmap_width = actual_width_;
-	auto mipmap_height = actual_height_;
+	auto mipmap_width = actual_width;
+	auto mipmap_height = actual_height;
 
-	auto mipmap_count = mipmap_count_;
-
-	for (int i_mipmap = 0; i_mipmap < mipmap_count; ++i_mipmap)
+	for (int i_mipmap = 0; i_mipmap < mipmap_count_; ++i_mipmap)
 	{
 		::glTexImage2D(
 			GL_TEXTURE_2D, // target
@@ -297,8 +240,6 @@ bool Ogl1XRenderer::Texture2d::initialize(
 			mipmap_height /= 2;
 		}
 	}
-
-	update_mipmaps();
 
 	return true;
 }
@@ -333,148 +274,6 @@ void Ogl1XRenderer::Texture2d::upload_mipmap(
 	);
 
 	assert(!OglRendererUtils::was_errors());
-}
-
-void Ogl1XRenderer::Texture2d::update_mipmaps()
-{
-	const auto& device_features = renderer_->device_features_;
-	const auto& ogl_device_features = renderer_->ogl_device_features_;
-
-	const auto npot_is_available = device_features.npot_is_available_;
-
-	const auto max_subbuffer_size = actual_width_ * actual_height_;
-
-	auto max_buffer_size = max_subbuffer_size;
-
-	if (mipmap_count_ > 1 && !device_features.mipmap_is_available_)
-	{
-		max_buffer_size *= 2;
-	}
-
-	if (static_cast<int>(renderer_->texture_buffer_.size()) < max_buffer_size)
-	{
-		renderer_->texture_buffer_.resize(max_buffer_size);
-	}
-
-	auto texture_subbuffer_0 = &renderer_->texture_buffer_[0];
-	auto texture_subbuffer_1 = RendererColor32Ptr{};
-
-	if (mipmap_count_ > 1 && !device_features.mipmap_is_available_)
-	{
-		texture_subbuffer_1 = &renderer_->texture_buffer_[max_subbuffer_size];
-	}
-
-	auto is_set_subbuffer_0 = false;
-
-	if (is_rgba_)
-	{
-		if (is_npot_ && !npot_is_available)
-		{
-			RendererUtils::rgba_npot_to_rgba_pot(
-				width_,
-				height_,
-				actual_width_,
-				actual_height_,
-				rgba_pixels_,
-				renderer_->texture_buffer_
-			);
-		}
-		else
-		{
-			// Don't copy the base mipmap into a buffer.
-
-			is_set_subbuffer_0 = true;
-
-			texture_subbuffer_0 = const_cast<RendererColor32Ptr>(rgba_pixels_);
-		}
-	}
-	else if (is_indexed_)
-	{
-		const auto& indexed_palette = (indexed_palette_ ? *indexed_palette_ : renderer_->palette_);
-
-		RendererUtils::indexed_to_rgba_pot(
-			width_,
-			height_,
-			actual_width_,
-			actual_height_,
-			indexed_is_column_major_,
-			indexed_pixels_,
-			indexed_palette,
-			indexed_alphas_,
-			renderer_->texture_buffer_
-		);
-	}
-	else if (is_indexed_sprite_)
-	{
-		RendererUtils::indexed_sprite_to_rgba_pot(
-			*indexed_sprite_,
-			renderer_->palette_,
-			renderer_->texture_buffer_
-		);
-	}
-
-	auto mipmap_width = actual_width_;
-	auto mipmap_height = actual_height_;
-
-	auto mipmap_count = mipmap_count_;
-
-	if (device_features.mipmap_is_available_)
-	{
-		mipmap_count = 1;
-	}
-
-	for (int i_mipmap = 0; i_mipmap < mipmap_count; ++i_mipmap)
-	{
-		if (i_mipmap > 0)
-		{
-			RendererUtils::build_mipmap(
-				mipmap_width,
-				mipmap_height,
-				texture_subbuffer_0,
-				texture_subbuffer_1);
-
-			if (mipmap_width > 1)
-			{
-				mipmap_width /= 2;
-			}
-
-			if (mipmap_height > 1)
-			{
-				mipmap_height /= 2;
-			}
-
-			if (is_set_subbuffer_0)
-			{
-				is_set_subbuffer_0 = false;
-
-				texture_subbuffer_0 = &renderer_->texture_buffer_[0];
-			}
-
-			std::swap(texture_subbuffer_0, texture_subbuffer_1);
-		}
-
-		upload_mipmap(i_mipmap, mipmap_width, mipmap_height, texture_subbuffer_0);
-	}
-
-	if (device_features.mipmap_is_available_)
-	{
-		auto extension_manager = renderer_->extension_manager_.get();
-
-		if (extension_manager->has_extension(OglExtensionId::arb_framebuffer_object))
-		{
-			::glGenerateMipmap(GL_TEXTURE_2D);
-			assert(!OglRendererUtils::was_errors());
-		}
-		else if (extension_manager->has_extension(OglExtensionId::ext_framebuffer_object))
-		{
-			::glGenerateMipmapEXT(GL_TEXTURE_2D);
-			assert(!OglRendererUtils::was_errors());
-		}
-		else
-		{
-			assert(!"Mipmap generation ia available but not utilized.");
-		}
-	}
 }
 
 void Ogl1XRenderer::Texture2d::set_mag_filter()
@@ -837,7 +636,6 @@ Ogl1XRenderer::Ogl1XRenderer()
 	ogl_device_features_{},
 	screen_width_{},
 	screen_height_{},
-	palette_{},
 	viewport_x_{},
 	viewport_y_{},
 	viewport_width_{},
@@ -896,7 +694,6 @@ Ogl1XRenderer::Ogl1XRenderer(
 	ogl_device_features_{std::move(rhs.ogl_device_features_)},
 	screen_width_{std::move(rhs.screen_width_)},
 	screen_height_{std::move(rhs.screen_height_)},
-	palette_{std::move(rhs.palette_)},
 	viewport_x_{std::move(rhs.viewport_x_)},
 	viewport_y_{std::move(rhs.viewport_y_)},
 	viewport_width_{std::move(rhs.viewport_width_)},
@@ -1075,29 +872,6 @@ void Ogl1XRenderer::present()
 	assert(is_initialized_);
 
 	OglRendererUtils::swap_window(sdl_window_.get());
-}
-
-void Ogl1XRenderer::palette_update(
-	const RendererPalette& palette)
-{
-	if (palette_ == palette)
-	{
-		return;
-	}
-
-	palette_ = palette;
-
-	auto param = RendererTexture2dUpdateParam{};
-	param.indexed_palette_ = &palette_;
-
-	for (auto& texture_2d : textures_2d_)
-	{
-		if ((texture_2d->is_indexed_ || texture_2d->is_indexed_sprite_) &&
-			texture_2d->indexed_palette_ == nullptr)
-		{
-			texture_2d->update(param);
-		}
-	}
 }
 
 RendererIndexBufferPtr Ogl1XRenderer::index_buffer_create(
@@ -1617,7 +1391,6 @@ void Ogl1XRenderer::uninitialize_internal(
 		ogl_device_features_ = {};
 		screen_width_ = {};
 		screen_height_ = {};
-		palette_ = {};
 		viewport_x_ = {};
 		viewport_y_ = {};
 		viewport_width_ = {};

@@ -74,6 +74,8 @@ public:
 	const std::string& get_error_message() const;
 
 
+	static int get_max_mipmap_count();
+
 	static float deg_to_rad(
 		const float angle_deg);
 

@@ -252,15 +252,6 @@ void OglRenderer::present()
 	renderer_->present();
 }
 
-void OglRenderer::palette_update(
-	const RendererPalette& palette)
-{
-	assert(is_initialized_);
-	assert(renderer_);
-
-	renderer_->palette_update(palette);
-}
-
 RendererIndexBufferPtr OglRenderer::index_buffer_create(
 	const RendererIndexBufferCreateParam& param)
 {

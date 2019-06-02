@@ -109,9 +109,6 @@ public:
 	void color_buffer_set_clear_color(
 		const RendererColor32& color) override;
 
-	void palette_update(
-		const RendererPalette& palette) override;
-
 	void clear_buffers() override;
 
 	void present() override;
@@ -174,28 +171,10 @@ private:
 
 		RendererPixelFormat storage_pixel_format_;
 
-		bool is_npot_;
-
-		bool is_rgba_;
-		bool is_indexed_;
-		bool is_indexed_sprite_;
-
 		int width_;
 		int height_;
 
-		int actual_width_;
-		int actual_height_;
-
 		int mipmap_count_;
-
-		bool indexed_is_column_major_;
-		const std::uint8_t* indexed_pixels_;
-		const RendererPalette* indexed_palette_;
-		const bool* indexed_alphas_;
-
-		SpriteCPtr indexed_sprite_;
-
-		RendererColor32CPtr rgba_pixels_;
 
 		RendererSamplerState sampler_state_;
 
@@ -227,8 +206,6 @@ private:
 			const int width,
 			const int height,
 			const RendererColor32CPtr src_pixels);
-
-		void update_mipmaps();
 
 
 		void set_mag_filter();
@@ -351,8 +328,6 @@ private:
 
 	int screen_width_;
 	int screen_height_;
-
-	RendererPalette palette_;
 
 	int viewport_x_;
 	int viewport_y_;

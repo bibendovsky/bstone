@@ -37,6 +37,7 @@ Free Software Foundation, Inc.,
 #include "bstone_missing_sprite_64x64_image.h"
 #include "bstone_missing_wall_64x64_image.h"
 #include "bstone_ref_values.h"
+#include "bstone_detail_renderer_utils.h"
 #include "bstone_sprite_cache.h"
 
 
@@ -242,9 +243,37 @@ private:
 		wall,
 	}; // ImageKind
 
+	struct Texture2dProperties
+	{
+		bool is_npot_;
+
+		int width_;
+		int height_;
+
+		int actual_width_;
+		int actual_height_;
+
+		bool is_generate_mipmaps_;
+		int mipmap_count_;
+
+		bool is_indexed_;
+		bool indexed_is_column_major_;
+		bool is_indexed_sprite_;
+
+		const std::uint8_t* indexed_pixels_;
+		const RendererPalette* indexed_palette_;
+		const bool* indexed_alphas_;
+
+		SpriteCPtr indexed_sprite_;
+
+		bool is_rgba_;
+		RendererColor32CPtr rgba_pixels_;
+	}; // Texture2dProperties
+
 	struct Texture2dItem
 	{
 		GenerationId generation_id_;
+		Texture2dProperties properties_;
 		RendererTexture2dPtr texture_2d_;
 	}; // Texture2dItem
 
@@ -253,6 +282,7 @@ private:
 	struct Solid1x1Item
 	{
 		RendererColor32 color_;
+		Texture2dProperties properties_;
 		RendererTexture2dPtr texture_2d_;
 	}; // Solid1x1Item
 
@@ -272,17 +302,51 @@ private:
 	IdToTexture2dMap wall_map_;
 	IdToTexture2dMap sprite_map_;
 
-	RendererTexture2dPtr missing_sprite_texture_2d_;
-	RendererTexture2dPtr missing_wall_texture_2d_;
+	Texture2dItem missing_sprite_texture_2d_item_;
+	Texture2dItem missing_wall_texture_2d_item_;
 
 	RendererPalette palette_;
 
-	const std::uint8_t* ui_indexed_pixels_;
-	const bool* ui_indexed_alphas_;
-	RendererPaletteCPtr ui_indexed_palette_;
-	RendererTexture2dPtr ui_t2d_;
+	Texture2dItem ui_t2d_item_;
+
+	detail::RendererUtils::TextureBuffer texture_buffer_;
 
 	Solid1x1Items solid_1x1_items_;
+
+
+	bool validate_image_source_texture_2d_properties(
+		const Texture2dProperties& properties);
+
+	bool validate_dimensions_texture_2d_properties(
+		const Texture2dProperties& properties);
+
+	bool validate_mipmap_texture_2d_properties(
+		const Texture2dProperties& properties);
+
+	bool validate_common_texture_2d_properties(
+		const Texture2dProperties& properties);
+
+	bool validate_indexed_texture_2d_properties(
+		const Texture2dProperties& properties);
+
+	bool validate_indexed_sprite_texture_2d_properties(
+		const Texture2dProperties& properties);
+
+	bool validate_rgba_texture_2d_properties(
+		const Texture2dProperties& properties);
+
+	bool validate_source_texture_2d_properties(
+		const Texture2dProperties& properties);
+
+	bool validate_texture_2d_properties(
+		const Texture2dProperties& properties);
+
+	Texture2dItem create_texture(
+		const Texture2dProperties& properties);
+
+	void update_mipmaps(
+		const Texture2dProperties& properties,
+		RendererTexture2dPtr texture_2d);
 
 
 	void destroy_missing_sprite_texture();
@@ -295,10 +359,10 @@ private:
 	bool create_missing_wall_texture();
 
 
-	RendererTexture2dPtr wall_create_texture(
+	Texture2dItem wall_create_texture(
 		const int wall_id);
 
-	RendererTexture2dPtr sprite_create_texture(
+	Texture2dItem sprite_create_texture(
 		const int sprite_id);
 
 
@@ -337,13 +401,11 @@ RendererTextureManagerImpl::Detail::Detail()
 	generation_id_{},
 	wall_map_{},
 	sprite_map_{},
-	missing_sprite_texture_2d_{},
-	missing_wall_texture_2d_{},
+	missing_sprite_texture_2d_item_{},
+	missing_wall_texture_2d_item_{},
 	palette_{},
-	ui_indexed_pixels_{},
-	ui_indexed_alphas_{},
-	ui_indexed_palette_{},
-	ui_t2d_{},
+	ui_t2d_item_{},
+	texture_buffer_{},
 	solid_1x1_items_{}
 {
 }
@@ -359,19 +421,17 @@ RendererTextureManagerImpl::Detail::Detail(
 	generation_id_{std::move(rhs.generation_id_)},
 	wall_map_{std::move(rhs.wall_map_)},
 	sprite_map_{std::move(rhs.sprite_map_)},
-	missing_sprite_texture_2d_{std::move(rhs.missing_sprite_texture_2d_)},
-	missing_wall_texture_2d_{std::move(rhs.missing_wall_texture_2d_)},
+	missing_sprite_texture_2d_item_{std::move(rhs.missing_sprite_texture_2d_item_)},
+	missing_wall_texture_2d_item_{std::move(rhs.missing_wall_texture_2d_item_)},
 	palette_{std::move(rhs.palette_)},
-	ui_indexed_pixels_{std::move(rhs.ui_indexed_pixels_)},
-	ui_indexed_alphas_{std::move(rhs.ui_indexed_alphas_)},
-	ui_indexed_palette_{std::move(rhs.ui_indexed_palette_)},
-	ui_t2d_{std::move(rhs.ui_t2d_)},
+	ui_t2d_item_{std::move(rhs.ui_t2d_item_)},
+	texture_buffer_{std::move(rhs.texture_buffer_)},
 	solid_1x1_items_{std::move(rhs.solid_1x1_items_)}
 {
 	rhs.is_initialized_ = false;
-	rhs.missing_sprite_texture_2d_ = nullptr;
-	rhs.missing_wall_texture_2d_ = nullptr;
-	rhs.ui_t2d_ = nullptr;
+	rhs.missing_sprite_texture_2d_item_.texture_2d_ = nullptr;
+	rhs.missing_wall_texture_2d_item_.texture_2d_ = nullptr;
+	rhs.ui_t2d_item_.texture_2d_ = nullptr;
 	rhs.solid_1x1_items_.fill(Solid1x1Item{});
 }
 
@@ -407,7 +467,7 @@ bool RendererTextureManagerImpl::Detail::set_palette(
 
 	palette_ = palette;
 
-	renderer_->palette_update(palette);
+	// TODO
 
 	return true;
 }
@@ -509,16 +569,14 @@ bool RendererTextureManagerImpl::Detail::wall_cache(
 		return true;
 	}
 
-	auto texture_2d = wall_create_texture(id);
+	auto texture_2d_item = wall_create_texture(id);
 
-	if (texture_2d == nullptr)
+	if (texture_2d_item.texture_2d_ == nullptr)
 	{
 		return false;
 	}
 
-	auto texture_2d_item = Texture2dItem{};
 	texture_2d_item.generation_id_ = generation_id_;
-	texture_2d_item.texture_2d_ = texture_2d;
 
 	wall_map_[id] = texture_2d_item;
 
@@ -571,16 +629,14 @@ bool RendererTextureManagerImpl::Detail::sprite_cache(
 		return true;
 	}
 
-	auto texture_2d = sprite_create_texture(id);
+	auto texture_2d_item = sprite_create_texture(id);
 
-	if (texture_2d == nullptr)
+	if (texture_2d_item.texture_2d_ == nullptr)
 	{
 		return false;
 	}
 
-	auto texture_2d_item = Texture2dItem{};
 	texture_2d_item.generation_id_ = generation_id_;
-	texture_2d_item.texture_2d_ = texture_2d;
 
 	sprite_map_[id] = texture_2d_item;
 
@@ -609,13 +665,13 @@ RendererTexture2dPtr RendererTextureManagerImpl::Detail::sprite_get(
 
 void RendererTextureManagerImpl::Detail::ui_destroy()
 {
-	if (ui_t2d_ == nullptr)
+	if (ui_t2d_item_.texture_2d_ == nullptr)
 	{
 		return;
 	}
 
-	renderer_->texture_2d_destroy(ui_t2d_);
-	ui_t2d_ = nullptr;
+	renderer_->texture_2d_destroy(ui_t2d_item_.texture_2d_);
+	ui_t2d_item_.texture_2d_ = nullptr;
 }
 
 bool RendererTextureManagerImpl::Detail::ui_create(
@@ -623,7 +679,7 @@ bool RendererTextureManagerImpl::Detail::ui_create(
 	const bool* const indexed_alphas,
 	const RendererPaletteCPtr indexed_palette)
 {
-	if (ui_t2d_ != nullptr)
+	if (ui_t2d_item_.texture_2d_ != nullptr)
 	{
 		error_message_ = "Already created.";
 
@@ -651,55 +707,48 @@ bool RendererTextureManagerImpl::Detail::ui_create(
 		return false;
 	}
 
-	auto param = RendererTexture2dCreateParam{};
-	param.storage_pixel_format_ = RendererPixelFormat::r8g8b8a8_unorm;
+	auto param = Texture2dProperties{};
 	param.width_ = ::vga_ref_width;
 	param.height_ = ::vga_ref_height;
+	param.mipmap_count_ = 1;
+	param.is_indexed_ = true;
 	param.indexed_pixels_ = indexed_pixels;
-	param.indexed_alphas_ = indexed_alphas;
 	param.indexed_palette_ = indexed_palette;
+	param.indexed_alphas_ = indexed_alphas;
 
-	auto texture_2d = renderer_->texture_2d_create(param);
+	auto texture_2d_item = create_texture(param);
 
-	if (texture_2d == nullptr)
+	if (texture_2d_item.texture_2d_ == nullptr)
 	{
-		error_message_ = "Failed to create UI texture. ";
-		error_message_ += renderer_->get_error_message();
+		error_message_ = "Failed to create UI texture. " + error_message_;
 
 		return false;
 	}
 
-	ui_indexed_pixels_ = indexed_pixels;
-	ui_indexed_alphas_ = indexed_alphas;
-	ui_indexed_palette_ = indexed_palette;
-	ui_t2d_ = texture_2d;
+	update_mipmaps(texture_2d_item.properties_, texture_2d_item.texture_2d_);
+
+	ui_t2d_item_ = texture_2d_item;
 
 	return true;
 }
 
 void RendererTextureManagerImpl::Detail::ui_update()
 {
-	if (ui_indexed_pixels_ == nullptr ||
-		ui_indexed_alphas_ == nullptr ||
-		ui_t2d_ == nullptr)
+	if (ui_t2d_item_.texture_2d_ == nullptr)
 	{
 		assert(!"Not created.");
 
 		return;
 	}
 
-	auto param = RendererTexture2dUpdateParam{};
-	param.indexed_pixels_ = ui_indexed_pixels_;
-	param.indexed_alphas_ = ui_indexed_alphas_;
-
-	ui_t2d_->update(param);
+	update_mipmaps(ui_t2d_item_.properties_, ui_t2d_item_.texture_2d_);
 }
 
 RendererTexture2dPtr RendererTextureManagerImpl::Detail::ui_get() const
 {
-	assert(ui_t2d_ != nullptr);
+	assert(ui_t2d_item_.texture_2d_ != nullptr);
 
-	return ui_t2d_;
+	return ui_t2d_item_.texture_2d_;
 }
 
 void RendererTextureManagerImpl::Detail::solid_1x1_destroy(
@@ -744,24 +793,28 @@ bool RendererTextureManagerImpl::Detail::solid_1x1_create(
 
 	const auto internal_format = (has_alpha ? bstone::RendererPixelFormat::r8g8b8a8_unorm : bstone::RendererPixelFormat::r8g8b8_unorm);
 
-	auto t2d_create_param = bstone::RendererTexture2dCreateParam{};
-	t2d_create_param.width_ = 1;
-	t2d_create_param.height_ = 1;
-	t2d_create_param.storage_pixel_format_ = internal_format;
-	t2d_create_param.rgba_pixels_ = &default_color;
+	auto param = Texture2dProperties{};
+	param.width_ = 1;
+	param.height_ = 1;
+	param.mipmap_count_ = 1;
+	param.is_rgba_ = true;
+	param.rgba_pixels_ = &default_color;
 
-	auto texture_2d = renderer_->texture_2d_create(t2d_create_param);
+	auto texture_2d_item = create_texture(param);
 
-	if (!texture_2d)
+	if (texture_2d_item.texture_2d_ == nullptr)
 	{
-		error_message_ = "Failed to create solid 1x1 texture.";
+		error_message_ = "Failed to create solid 1x1 texture. " + error_message_;
 
 		return false;
 	}
 
 	auto& item = solid_1x1_items_[index];
 	item.color_ = default_color;
-	item.texture_2d_ = texture_2d;
+	item.properties_ = texture_2d_item.properties_;
+	item.texture_2d_ = item.texture_2d_;
+
+	update_mipmaps(item.properties_, item.texture_2d_);
 
 	return true;
 }
@@ -839,18 +892,19 @@ bool RendererTextureManagerImpl::Detail::device_on_reset()
 	for (auto& sprite_item : sprite_map_)
 	{
 		const auto sprite_id = sprite_item.first;
-		auto& texture_2d = sprite_item.second.texture_2d_;
+		auto& texture_2d_item = sprite_item.second;
 
+		renderer_->texture_2d_destroy(texture_2d_item.texture_2d_);
+		texture_2d_item.texture_2d_ = nullptr;
 
-		renderer_->texture_2d_destroy(texture_2d);
-		texture_2d = nullptr;
+		texture_2d_item = sprite_create_texture(sprite_id);
 
-		texture_2d = sprite_create_texture(sprite_id);
-
-		if (texture_2d == nullptr)
+		if (texture_2d_item.texture_2d_ == nullptr)
 		{
 			return false;
 		}
+
+		texture_2d_item.generation_id_ = generation_id_;
 	}
 
 	// Walls.
@@ -858,17 +912,19 @@ bool RendererTextureManagerImpl::Detail::device_on_reset()
 	for (auto& wall_item : wall_map_)
 	{
 		const auto wall_id = wall_item.first;
-		auto& texture_2d = wall_item.second.texture_2d_;
+		auto& texture_2d_item = wall_item.second;
 
-		renderer_->texture_2d_destroy(texture_2d);
-		texture_2d = nullptr;
+		renderer_->texture_2d_destroy(texture_2d_item.texture_2d_);
+		texture_2d_item.texture_2d_ = nullptr;
 
-		texture_2d = wall_create_texture(wall_id);
+		texture_2d_item = wall_create_texture(wall_id);
 
-		if (texture_2d == nullptr)
+		if (texture_2d_item.texture_2d_ == nullptr)
 		{
 			return false;
 		}
+
+		texture_2d_item.generation_id_ = generation_id_;
 	}
 
 	// UI texture.
@@ -876,7 +932,10 @@ bool RendererTextureManagerImpl::Detail::device_on_reset()
 	{
 		ui_destroy();
 
-		if (!ui_create(ui_indexed_pixels_, ui_indexed_alphas_, ui_indexed_palette_))
+		if (!ui_create(
+			ui_t2d_item_.properties_.indexed_pixels_,
+			ui_t2d_item_.properties_.indexed_alphas_,
+			ui_t2d_item_.properties_.indexed_palette_))
 		{
 			return false;
 		}
@@ -963,17 +1022,396 @@ void RendererTextureManagerImpl::Detail::uninitialize_internal()
 
 	renderer_ = nullptr;
 	sprite_cache_ = nullptr;
+	texture_buffer_.clear();
+}
+
+bool RendererTextureManagerImpl::Detail::validate_image_source_texture_2d_properties(
+	const Texture2dProperties& properties)
+{
+	auto source_count = 0;
+
+	if (properties.is_indexed_)
+	{
+		++source_count;
+	}
+
+	if (properties.is_indexed_sprite_)
+	{
+		++source_count;
+	}
+
+	if (properties.is_rgba_)
+	{
+		++source_count;
+	}
+
+	if (source_count == 0)
+	{
+		error_message_ = "No image source.";
+
+		return false;
+	}
+
+	if (source_count > 1)
+	{
+		error_message_ = "Multiple image source.";
+
+		return false;
+	}
+
+	return true;
+}
+
+bool RendererTextureManagerImpl::Detail::validate_dimensions_texture_2d_properties(
+	const Texture2dProperties& properties)
+{
+	if (properties.width_ <= 0)
+	{
+		error_message_ = "Invalid width.";
+
+		return false;
+	}
+
+	if (properties.height_ <= 0)
+	{
+		error_message_ = "Invalid height.";
+
+		return false;
+	}
+
+	return true;
+}
+
+bool RendererTextureManagerImpl::Detail::validate_mipmap_texture_2d_properties(
+	const Texture2dProperties& properties)
+{
+	if (properties.mipmap_count_ <= 0 ||
+		properties.mipmap_count_ > detail::RendererUtils::get_max_mipmap_count())
+	{
+		error_message_ = "Mipmap count out of range.";
+
+		return false;
+	}
+
+	return true;
+}
+
+bool RendererTextureManagerImpl::Detail::validate_common_texture_2d_properties(
+	const Texture2dProperties& properties)
+{
+	if (!validate_image_source_texture_2d_properties(properties))
+	{
+		return false;
+	}
+
+	if (!validate_dimensions_texture_2d_properties(properties))
+	{
+		return false;
+	}
+
+	if (!validate_mipmap_texture_2d_properties(properties))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool RendererTextureManagerImpl::Detail::validate_indexed_texture_2d_properties(
+	const Texture2dProperties& properties)
+{
+	if (properties.indexed_pixels_ == nullptr)
+	{
+		error_message_ = "Null indexed image source.";
+
+		return false;
+	}
+
+	if (properties.indexed_palette_ == nullptr)
+	{
+		error_message_ = "Null indexed palette.";
+
+		return false;
+	}
+
+	return true;
+}
+
+bool RendererTextureManagerImpl::Detail::validate_indexed_sprite_texture_2d_properties(
+	const Texture2dProperties& properties)
+{
+	if (properties.indexed_sprite_ == nullptr)
+	{
+		error_message_ = "Null indexed sprite.";
+
+		return false;
+	}
+
+	if (properties.indexed_palette_ == nullptr)
+	{
+		error_message_ = "Null indexed palette.";
+
+		return false;
+	}
+
+	return true;
+}
+
+bool RendererTextureManagerImpl::Detail::validate_rgba_texture_2d_properties(
+	const Texture2dProperties& properties)
+{
+	if (properties.rgba_pixels_ == nullptr)
+	{
+		error_message_ = "Null RGBA image.";
+
+		return false;
+	}
+
+	return true;
+}
+
+bool RendererTextureManagerImpl::Detail::validate_source_texture_2d_properties(
+	const Texture2dProperties& properties)
+{
+	if (properties.is_indexed_)
+	{
+		return validate_indexed_texture_2d_properties(properties);
+	}
+	else if (properties.is_indexed_sprite_)
+	{
+		return validate_indexed_sprite_texture_2d_properties(properties);
+	}
+	else if (properties.is_rgba_)
+	{
+		return validate_rgba_texture_2d_properties(properties);
+	}
+	else
+	{
+		error_message_ = "No image source.";
+
+		return false;
+	}
+}
+
+bool RendererTextureManagerImpl::Detail::validate_texture_2d_properties(
+	const Texture2dProperties& properties)
+{
+	if (!validate_common_texture_2d_properties(properties))
+	{
+		return false;
+	}
+
+	if (!validate_source_texture_2d_properties(properties))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+RendererTextureManagerImpl::Detail::Texture2dItem RendererTextureManagerImpl::Detail::create_texture(
+	const Texture2dProperties& properties)
+{
+	if (!validate_texture_2d_properties(properties))
+	{
+		return Texture2dItem{};
+	}
+
+	auto renderer_utils = detail::RendererUtils{};
+
+	const auto& device_features = renderer_->device_get_features();
+
+	auto new_properties = properties;
+
+	// Calculate actual dimensions.
+	//
+	new_properties.actual_width_ = renderer_utils.find_nearest_pot_value(properties.width_);
+
+	if (new_properties.actual_width_ > device_features.max_texture_dimension_)
+	{
+		new_properties.actual_width_ = device_features.max_texture_dimension_;
+	}
+
+	new_properties.actual_height_ = renderer_utils.find_nearest_pot_value(properties.height_);
+
+	if (new_properties.actual_height_ > device_features.max_texture_dimension_)
+	{
+		new_properties.actual_height_ = device_features.max_texture_dimension_;
+	}
+
+	// Check for non-power-of-two dimensions.
+	//
+	new_properties.is_npot_ = (
+		new_properties.width_ != new_properties.actual_width_ ||
+		new_properties.height_ != new_properties.actual_height_);
+
+	if (new_properties.is_npot_)
+	{
+		if (device_features.npot_is_available_)
+		{
+			new_properties.actual_width_ = new_properties.width_;
+			new_properties.actual_height_ = new_properties.height_;
+		}
+	}
+
+	// Create texture object.
+	//
+	auto texture_2d = RendererTexture2dPtr{};
+	// FIXME
+
+	// Return the result.
+	//
+	auto result = Texture2dItem{};
+
+	result.properties_ = new_properties;
+	result.texture_2d_ = texture_2d;
+
+	return result;
+}
+
+void RendererTextureManagerImpl::Detail::update_mipmaps(
+	const Texture2dProperties& properties,
+	RendererTexture2dPtr texture_2d)
+{
+	const auto& device_features = renderer_->device_get_features();
+
+	const auto npot_is_available = device_features.npot_is_available_;
+
+	const auto max_subbuffer_size = properties.actual_width_ * properties.actual_height_;
+
+	auto max_buffer_size = max_subbuffer_size;
+
+	const auto is_manual_mipmaps =
+		properties.is_generate_mipmaps_ &&
+		properties.mipmap_count_ > 1 &&
+		!device_features.mipmap_is_available_;
+
+	if (is_manual_mipmaps)
+	{
+		max_buffer_size *= 2;
+	}
+
+	if (static_cast<int>(texture_buffer_.size()) < max_buffer_size)
+	{
+		texture_buffer_.resize(max_buffer_size);
+	}
+
+	auto texture_subbuffer_0 = &texture_buffer_[0];
+	auto texture_subbuffer_1 = RendererColor32Ptr{};
+
+	if (is_manual_mipmaps)
+	{
+		texture_subbuffer_1 = &texture_buffer_[max_subbuffer_size];
+	}
+
+	auto is_set_subbuffer_0 = false;
+
+	if (properties.is_rgba_)
+	{
+		if (properties.is_npot_ && !npot_is_available)
+		{
+			detail::RendererUtils::rgba_npot_to_rgba_pot(
+				properties.width_,
+				properties.height_,
+				properties.actual_width_,
+				properties.actual_height_,
+				properties.rgba_pixels_,
+				texture_buffer_
+			);
+		}
+		else
+		{
+			// Don't copy the base mipmap into a buffer.
+
+			is_set_subbuffer_0 = true;
+
+			texture_subbuffer_0 = const_cast<RendererColor32Ptr>(properties.rgba_pixels_);
+		}
+	}
+	else if (properties.is_indexed_)
+	{
+		detail::RendererUtils::indexed_to_rgba_pot(
+			properties.width_,
+			properties.height_,
+			properties.actual_width_,
+			properties.actual_height_,
+			properties.indexed_is_column_major_,
+			properties.indexed_pixels_,
+			*properties.indexed_palette_,
+			properties.indexed_alphas_,
+			texture_buffer_
+		);
+	}
+	else if (properties.is_indexed_sprite_)
+	{
+		detail::RendererUtils::indexed_sprite_to_rgba_pot(
+			*properties.indexed_sprite_,
+			*properties.indexed_palette_,
+			texture_buffer_
+		);
+	}
+
+	auto mipmap_width = properties.actual_width_;
+	auto mipmap_height = properties.actual_height_;
+
+	auto mipmap_count = properties.mipmap_count_;
+
+	if (properties.is_generate_mipmaps_ &&
+		properties.mipmap_count_ > 1 &&
+		device_features.mipmap_is_available_)
+	{
+		mipmap_count = 1;
+	}
+
+	for (int i_mipmap = 0; i_mipmap < mipmap_count; ++i_mipmap)
+	{
+		if (i_mipmap > 0)
+		{
+			detail::RendererUtils::build_mipmap(
+				mipmap_width,
+				mipmap_height,
+				texture_subbuffer_0,
+				texture_subbuffer_1);
+
+			if (mipmap_width > 1)
+			{
+				mipmap_width /= 2;
+			}
+
+			if (mipmap_height > 1)
+			{
+				mipmap_height /= 2;
+			}
+
+			if (is_set_subbuffer_0)
+			{
+				is_set_subbuffer_0 = false;
+
+				texture_subbuffer_0 = &texture_buffer_[0];
+			}
+
+			std::swap(texture_subbuffer_0, texture_subbuffer_1);
+		}
+
+		//upload_mipmap(i_mipmap, mipmap_width, mipmap_height, texture_subbuffer_0);
+	}
+
+	if (properties.is_generate_mipmaps_ &&
+		properties.mipmap_count_ > 1 &&
+		device_features.mipmap_is_available_)
+	{
+	}
 }
 
 void RendererTextureManagerImpl::Detail::destroy_missing_sprite_texture()
 {
-	if (missing_sprite_texture_2d_ == nullptr)
+	if (missing_sprite_texture_2d_item_.texture_2d_ == nullptr)
 	{
 		return;
 	}
 
-	renderer_->texture_2d_destroy(missing_sprite_texture_2d_);
-	missing_sprite_texture_2d_ = nullptr;
+	renderer_->texture_2d_destroy(missing_sprite_texture_2d_item_.texture_2d_);
+	missing_sprite_texture_2d_item_.texture_2d_ = nullptr;
 }
 
 bool RendererTextureManagerImpl::Detail::create_missing_sprite_texture()
@@ -983,40 +1421,40 @@ bool RendererTextureManagerImpl::Detail::create_missing_sprite_texture()
 	const auto& raw_image = get_missing_sprite_image();
 	const auto rgba_image = reinterpret_cast<const RendererColor32*>(raw_image.data());
 
-	auto param = RendererTexture2dCreateParam{};
-	param.storage_pixel_format_ = RendererPixelFormat::r8g8b8a8_unorm;
-	param.has_mipmaps_ = true;
+	auto param = Texture2dProperties{};
 	param.width_ = Sprite::dimension;
 	param.height_ = Sprite::dimension;
+	param.is_generate_mipmaps_ = true;
+	param.mipmap_count_ = detail::RendererUtils::calculate_mipmap_count(Sprite::dimension, Sprite::dimension);
+	param.is_rgba_ = true;
 	param.rgba_pixels_ = rgba_image;
 
-	auto texture_2d = renderer_->texture_2d_create(param);
+	auto texture_2d_item = create_texture(param);
 
-	if (texture_2d == nullptr)
+	if (texture_2d_item.texture_2d_ == nullptr)
 	{
-		error_message_ = "Failed to create a missing sprite texture. ";
-		error_message_ += renderer_->get_error_message();
+		error_message_ = "Failed to create a missing sprite texture. " + error_message_;
 
 		return false;
 	}
 
-	// TODO
-	texture_2d->generate_mipmaps();
+	missing_sprite_texture_2d_item_.properties_ = texture_2d_item.properties_;
+	missing_sprite_texture_2d_item_.texture_2d_ = texture_2d_item.texture_2d_;
 
-	missing_sprite_texture_2d_ = texture_2d;
+	update_mipmaps(missing_sprite_texture_2d_item_.properties_, missing_sprite_texture_2d_item_.texture_2d_);
 
 	return true;
 }
 
 void RendererTextureManagerImpl::Detail::destroy_missing_wall_texture()
 {
-	if (missing_wall_texture_2d_ == nullptr)
+	if (missing_wall_texture_2d_item_.texture_2d_ == nullptr)
 	{
 		return;
 	}
 
-	renderer_->texture_2d_destroy(missing_wall_texture_2d_);
-	missing_wall_texture_2d_ = nullptr;
+	renderer_->texture_2d_destroy(missing_wall_texture_2d_item_.texture_2d_);
+	missing_wall_texture_2d_item_.texture_2d_ = nullptr;
 }
 
 bool RendererTextureManagerImpl::Detail::create_missing_wall_texture()
@@ -1026,32 +1464,32 @@ bool RendererTextureManagerImpl::Detail::create_missing_wall_texture()
 	const auto& raw_image = get_missing_wall_image();
 	const auto rgba_image = reinterpret_cast<const RendererColor32*>(raw_image.data());
 
-	auto param = RendererTexture2dCreateParam{};
-	param.storage_pixel_format_ = RendererPixelFormat::r8g8b8_unorm;
-	param.has_mipmaps_ = true;
+	auto param = Texture2dProperties{};
 	param.width_ = wall_dimension;
 	param.height_ = wall_dimension;
+	param.is_generate_mipmaps_ = true;
+	param.mipmap_count_ = detail::RendererUtils::calculate_mipmap_count(param.width_, param.height_);
+	param.is_rgba_ = true;
 	param.rgba_pixels_ = rgba_image;
 
-	auto texture_2d = renderer_->texture_2d_create(param);
+	auto texture_2d_item = create_texture(param);
 
-	if (texture_2d == nullptr)
+	if (texture_2d_item.texture_2d_ == nullptr)
 	{
-		error_message_ = "Failed to create a missing wall texture. ";
-		error_message_ += renderer_->get_error_message();
+		error_message_ = "Failed to create a missing wall texture. " + error_message_;
 
 		return false;
 	}
 
 	// TODO
-	texture_2d->generate_mipmaps();
+	update_mipmaps(texture_2d_item.properties_, texture_2d_item.texture_2d_);
 
-	missing_wall_texture_2d_ = texture_2d;
+	missing_wall_texture_2d_item_ = texture_2d_item;
 
 	return true;
 }
 
-RendererTexture2dPtr RendererTextureManagerImpl::Detail::wall_create_texture(
+RendererTextureManagerImpl::Detail::Texture2dItem RendererTextureManagerImpl::Detail::wall_create_texture(
 	const int wall_id)
 {
 	const auto indexed_pixels = static_cast<const std::uint8_t*>(::PM_GetPage(wall_id));
@@ -1060,35 +1498,34 @@ RendererTexture2dPtr RendererTextureManagerImpl::Detail::wall_create_texture(
 	{
 		error_message_ = "Null data.";
 
-		return nullptr;
+		return Texture2dItem{};
 	}
 
-	auto param = RendererTexture2dCreateParam{};
-	param.storage_pixel_format_ = RendererPixelFormat::r8g8b8_unorm;
-	param.has_mipmaps_ = true;
-	param.indexed_is_column_major_ = true;
+	auto param = Texture2dProperties{};
 	param.width_ = wall_dimension;
 	param.height_ = wall_dimension;
+	param.is_generate_mipmaps_ = true;
+	param.mipmap_count_ = detail::RendererUtils::calculate_mipmap_count(param.width_, param.height_);
+	param.is_indexed_ = true;
+	param.indexed_is_column_major_ = true;
 	param.indexed_pixels_ = indexed_pixels;
 	param.indexed_palette_ = &::vid_hw_get_default_palette();
 
-	auto texture_2d = renderer_->texture_2d_create(param);
+	auto texture_2d_item = create_texture(param);
 
-	if (texture_2d == nullptr)
+	if (texture_2d_item.texture_2d_ == nullptr)
 	{
-		error_message_ = "Failed to create a wall texture. ";
-		error_message_ += renderer_->get_error_message();
+		error_message_ = "Failed to create a wall texture. " + error_message_;
 
-		return nullptr;
+		return Texture2dItem{};
 	}
 
-	// TODO
-	texture_2d->generate_mipmaps();
+	update_mipmaps(texture_2d_item.properties_, texture_2d_item.texture_2d_);
 
-	return texture_2d;
+	return texture_2d_item;
 }
 
-RendererTexture2dPtr RendererTextureManagerImpl::Detail::sprite_create_texture(
+RendererTextureManagerImpl::Detail::Texture2dItem RendererTextureManagerImpl::Detail::sprite_create_texture(
 	const int sprite_id)
 {
 	auto sprite = sprite_cache_->cache(sprite_id);
@@ -1097,38 +1534,37 @@ RendererTexture2dPtr RendererTextureManagerImpl::Detail::sprite_create_texture(
 	{
 		error_message_ = "Failed to cache a sprite #" + std::to_string(sprite_id) + ".";
 
-		return nullptr;
+		return Texture2dItem{};
 	}
 
 	if (!sprite->is_initialized())
 	{
 		error_message_ = "Sprite #" + std::to_string(sprite_id) + " not initialized.";
 
-		return nullptr;
+		return Texture2dItem{};
 	}
 
-	auto param = RendererTexture2dCreateParam{};
-	param.storage_pixel_format_ = RendererPixelFormat::r8g8b8a8_unorm;
-	param.has_mipmaps_ = true;
+	auto param = Texture2dProperties{};
 	param.width_ = Sprite::dimension;
 	param.height_ = Sprite::dimension;
+	param.is_generate_mipmaps_ = true;
+	param.mipmap_count_ = detail::RendererUtils::calculate_mipmap_count(param.width_, param.height_);
+	param.is_indexed_sprite_ = true;
 	param.indexed_sprite_ = sprite;
 	param.indexed_palette_ = &::vid_hw_get_default_palette();
 
-	auto texture_2d = renderer_->texture_2d_create(param);
+	auto texture_2d_item = create_texture(param);
 
-	if (texture_2d == nullptr)
+	if (texture_2d_item.texture_2d_ == nullptr)
 	{
-		error_message_ = "Failed to create a sprite texture. ";
-		error_message_ += renderer_->get_error_message();
+		error_message_ = "Failed to create a sprite texture. " + error_message_;
 
-		return nullptr;
+		return Texture2dItem{};
 	}
 
-	// TODO
-	texture_2d->generate_mipmaps();
+	update_mipmaps(texture_2d_item.properties_, texture_2d_item.texture_2d_);
 
-	return texture_2d;
+	return texture_2d_item;
 }
 
 bool RendererTextureManagerImpl::Detail::initialize_internal(
@@ -1205,10 +1641,10 @@ RendererTexture2dPtr RendererTextureManagerImpl::Detail::get_texture_2d(
 		switch (image_kind)
 		{
 		case ImageKind::sprite:
-			return missing_sprite_texture_2d_;
+			return missing_sprite_texture_2d_item_.texture_2d_;
 
 		case ImageKind::wall:
-			return missing_wall_texture_2d_;
+			return missing_wall_texture_2d_item_.texture_2d_;
 
 		default:
 			return nullptr;
