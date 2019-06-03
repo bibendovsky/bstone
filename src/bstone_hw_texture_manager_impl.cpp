@@ -256,17 +256,13 @@ private:
 		bool is_generate_mipmaps_;
 		int mipmap_count_;
 
-		bool is_indexed_;
 		bool indexed_is_column_major_;
-		bool is_indexed_sprite_;
-
 		const std::uint8_t* indexed_pixels_;
 		const RendererPalette* indexed_palette_;
 		const bool* indexed_alphas_;
 
 		SpriteCPtr indexed_sprite_;
 
-		bool is_rgba_;
 		RendererColor32CPtr rgba_pixels_;
 	}; // Texture2dProperties
 
@@ -711,7 +707,6 @@ bool RendererTextureManagerImpl::Detail::ui_create(
 	param.width_ = ::vga_ref_width;
 	param.height_ = ::vga_ref_height;
 	param.mipmap_count_ = 1;
-	param.is_indexed_ = true;
 	param.indexed_pixels_ = indexed_pixels;
 	param.indexed_palette_ = indexed_palette;
 	param.indexed_alphas_ = indexed_alphas;
@@ -797,7 +792,6 @@ bool RendererTextureManagerImpl::Detail::solid_1x1_create(
 	param.width_ = 1;
 	param.height_ = 1;
 	param.mipmap_count_ = 1;
-	param.is_rgba_ = true;
 	param.rgba_pixels_ = &default_color;
 
 	auto texture_2d_item = create_texture(param);
@@ -1030,17 +1024,17 @@ bool RendererTextureManagerImpl::Detail::validate_image_source_texture_2d_proper
 {
 	auto source_count = 0;
 
-	if (properties.is_indexed_)
+	if (properties.indexed_pixels_ != nullptr)
 	{
 		++source_count;
 	}
 
-	if (properties.is_indexed_sprite_)
+	if (properties.indexed_sprite_ != nullptr)
 	{
 		++source_count;
 	}
 
-	if (properties.is_rgba_)
+	if (properties.rgba_pixels_ != nullptr)
 	{
 		++source_count;
 	}
@@ -1173,15 +1167,15 @@ bool RendererTextureManagerImpl::Detail::validate_rgba_texture_2d_properties(
 bool RendererTextureManagerImpl::Detail::validate_source_texture_2d_properties(
 	const Texture2dProperties& properties)
 {
-	if (properties.is_indexed_)
+	if (properties.indexed_pixels_ != nullptr)
 	{
 		return validate_indexed_texture_2d_properties(properties);
 	}
-	else if (properties.is_indexed_sprite_)
+	else if (properties.indexed_sprite_ != nullptr)
 	{
 		return validate_indexed_sprite_texture_2d_properties(properties);
 	}
-	else if (properties.is_rgba_)
+	else if (properties.rgba_pixels_ != nullptr)
 	{
 		return validate_rgba_texture_2d_properties(properties);
 	}
@@ -1306,7 +1300,7 @@ void RendererTextureManagerImpl::Detail::update_mipmaps(
 
 	auto is_set_subbuffer_0 = false;
 
-	if (properties.is_rgba_)
+	if (properties.rgba_pixels_ != nullptr)
 	{
 		if (properties.is_npot_ && !npot_is_available)
 		{
@@ -1328,7 +1322,7 @@ void RendererTextureManagerImpl::Detail::update_mipmaps(
 			texture_subbuffer_0 = const_cast<RendererColor32Ptr>(properties.rgba_pixels_);
 		}
 	}
-	else if (properties.is_indexed_)
+	else if (properties.indexed_pixels_ != nullptr)
 	{
 		detail::RendererUtils::indexed_to_rgba_pot(
 			properties.width_,
@@ -1342,7 +1336,7 @@ void RendererTextureManagerImpl::Detail::update_mipmaps(
 			texture_buffer_
 		);
 	}
-	else if (properties.is_indexed_sprite_)
+	else if (properties.indexed_sprite_ != nullptr)
 	{
 		detail::RendererUtils::indexed_sprite_to_rgba_pot(
 			*properties.indexed_sprite_,
@@ -1426,7 +1420,6 @@ bool RendererTextureManagerImpl::Detail::create_missing_sprite_texture()
 	param.height_ = Sprite::dimension;
 	param.is_generate_mipmaps_ = true;
 	param.mipmap_count_ = detail::RendererUtils::calculate_mipmap_count(Sprite::dimension, Sprite::dimension);
-	param.is_rgba_ = true;
 	param.rgba_pixels_ = rgba_image;
 
 	auto texture_2d_item = create_texture(param);
@@ -1469,7 +1462,6 @@ bool RendererTextureManagerImpl::Detail::create_missing_wall_texture()
 	param.height_ = wall_dimension;
 	param.is_generate_mipmaps_ = true;
 	param.mipmap_count_ = detail::RendererUtils::calculate_mipmap_count(param.width_, param.height_);
-	param.is_rgba_ = true;
 	param.rgba_pixels_ = rgba_image;
 
 	auto texture_2d_item = create_texture(param);
@@ -1506,7 +1498,6 @@ RendererTextureManagerImpl::Detail::Texture2dItem RendererTextureManagerImpl::De
 	param.height_ = wall_dimension;
 	param.is_generate_mipmaps_ = true;
 	param.mipmap_count_ = detail::RendererUtils::calculate_mipmap_count(param.width_, param.height_);
-	param.is_indexed_ = true;
 	param.indexed_is_column_major_ = true;
 	param.indexed_pixels_ = indexed_pixels;
 	param.indexed_palette_ = &::vid_hw_get_default_palette();
@@ -1549,7 +1540,6 @@ RendererTextureManagerImpl::Detail::Texture2dItem RendererTextureManagerImpl::De
 	param.height_ = Sprite::dimension;
 	param.is_generate_mipmaps_ = true;
 	param.mipmap_count_ = detail::RendererUtils::calculate_mipmap_count(param.width_, param.height_);
-	param.is_indexed_sprite_ = true;
 	param.indexed_sprite_ = sprite;
 	param.indexed_palette_ = &::vid_hw_get_default_palette();
 
