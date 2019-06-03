@@ -157,37 +157,11 @@ bool Ogl1XRenderer::Texture2d::initialize(
 
 	width_ = param.width_;
 	height_ = param.height_;
+	mipmap_count_ = param.mipmap_count_;
 
-	const auto& device_features = renderer_->device_features_;
-	const auto& ogl_device_features = renderer_->ogl_device_features_;
+	const auto max_mipmap_count = RendererUtils::calculate_mipmap_count(width_, height_);
 
-	auto actual_width = RendererUtils::find_nearest_pot_value(param.width_);
-
-	if (actual_width > device_features.max_texture_dimension_)
-	{
-		actual_width = device_features.max_texture_dimension_;
-	}
-
-	auto actual_height = RendererUtils::find_nearest_pot_value(param.height_);
-
-	if (actual_height > device_features.max_texture_dimension_)
-	{
-		actual_height = device_features.max_texture_dimension_;
-	}
-
-	if (!device_features.npot_is_available_)
-	{
-		if (width_ != actual_width || height_ != actual_height)
-		{
-			error_message_ = "Non-power-of-two textures not supported.";
-
-			return false;
-		}
-	}
-
-	const auto max_mipmap_count = RendererUtils::calculate_mipmap_count(actual_width, actual_height);
-
-	if (param.mipmap_count_ > max_mipmap_count)
+	if (mipmap_count_ > max_mipmap_count)
 	{
 		error_message_ = "Mipmap count out of range.";
 
@@ -211,8 +185,8 @@ bool Ogl1XRenderer::Texture2d::initialize(
 
 	set_sampler_state_defaults();
 
-	auto mipmap_width = actual_width;
-	auto mipmap_height = actual_height;
+	auto mipmap_width = width_;
+	auto mipmap_height = height_;
 
 	for (int i_mipmap = 0; i_mipmap < mipmap_count_; ++i_mipmap)
 	{

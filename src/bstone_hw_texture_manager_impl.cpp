@@ -245,6 +245,8 @@ private:
 
 	struct Texture2dProperties
 	{
+		RendererPixelFormat image_pixel_format_;
+
 		bool is_npot_;
 
 		int width_;
@@ -313,6 +315,9 @@ private:
 	bool validate_image_source_texture_2d_properties(
 		const Texture2dProperties& properties);
 
+	bool validate_image_pixel_format_texture_2d_properties(
+		const Texture2dProperties& properties);
+
 	bool validate_dimensions_texture_2d_properties(
 		const Texture2dProperties& properties);
 
@@ -336,6 +341,9 @@ private:
 
 	bool validate_texture_2d_properties(
 		const Texture2dProperties& properties);
+
+	void set_common_texture_2d_properties(
+		Texture2dProperties& properties);
 
 	Texture2dItem create_texture(
 		const Texture2dProperties& properties);
@@ -704,6 +712,7 @@ bool RendererTextureManagerImpl::Detail::ui_create(
 	}
 
 	auto param = Texture2dProperties{};
+	param.image_pixel_format_ = RendererPixelFormat::r8g8b8a8_unorm;
 	param.width_ = ::vga_ref_width;
 	param.height_ = ::vga_ref_height;
 	param.mipmap_count_ = 1;
@@ -786,9 +795,10 @@ bool RendererTextureManagerImpl::Detail::solid_1x1_create(
 	const auto default_color = solid_1x1_get_default_color(id);
 	const auto has_alpha = (default_color.a < 0xFF);
 
-	const auto internal_format = (has_alpha ? bstone::RendererPixelFormat::r8g8b8a8_unorm : bstone::RendererPixelFormat::r8g8b8_unorm);
+	const auto image_pixel_format = (has_alpha ? bstone::RendererPixelFormat::r8g8b8a8_unorm : bstone::RendererPixelFormat::r8g8b8_unorm);
 
 	auto param = Texture2dProperties{};
+	param.image_pixel_format_ = image_pixel_format;
 	param.width_ = 1;
 	param.height_ = 1;
 	param.mipmap_count_ = 1;
@@ -806,9 +816,9 @@ bool RendererTextureManagerImpl::Detail::solid_1x1_create(
 	auto& item = solid_1x1_items_[index];
 	item.color_ = default_color;
 	item.properties_ = texture_2d_item.properties_;
-	item.texture_2d_ = item.texture_2d_;
+	item.texture_2d_ = texture_2d_item.texture_2d_;
 
-	update_mipmaps(item.properties_, item.texture_2d_);
+	update_mipmaps(item.properties_, texture_2d_item.texture_2d_);
 
 	return true;
 }
@@ -1056,6 +1066,22 @@ bool RendererTextureManagerImpl::Detail::validate_image_source_texture_2d_proper
 	return true;
 }
 
+bool RendererTextureManagerImpl::Detail::validate_image_pixel_format_texture_2d_properties(
+	const Texture2dProperties& properties)
+{
+	switch (properties.image_pixel_format_)
+	{
+		case RendererPixelFormat::r8g8b8_unorm:
+		case RendererPixelFormat::r8g8b8a8_unorm:
+			return true;
+
+		default:
+			error_message_ = "Invalid pixel format.";
+
+			return false;
+	}
+}
+
 bool RendererTextureManagerImpl::Detail::validate_dimensions_texture_2d_properties(
 	const Texture2dProperties& properties)
 {
@@ -1094,6 +1120,11 @@ bool RendererTextureManagerImpl::Detail::validate_common_texture_2d_properties(
 	const Texture2dProperties& properties)
 {
 	if (!validate_image_source_texture_2d_properties(properties))
+	{
+		return false;
+	}
+
+	if (!validate_image_pixel_format_texture_2d_properties(properties))
 	{
 		return false;
 	}
@@ -1203,6 +1234,39 @@ bool RendererTextureManagerImpl::Detail::validate_texture_2d_properties(
 	return true;
 }
 
+void RendererTextureManagerImpl::Detail::set_common_texture_2d_properties(
+	Texture2dProperties& properties)
+{
+	const auto& device_features = renderer_->device_get_features();
+
+	const auto min_actual_width = std::min(properties.width_, device_features.max_texture_dimension_);
+	const auto is_width_pot = detail::RendererUtils::is_pot_value(min_actual_width);
+
+	const auto min_actual_height = std::min(properties.height_, device_features.max_texture_dimension_);
+	const auto is_height_pot = detail::RendererUtils::is_pot_value(min_actual_height);
+
+	const auto is_npot = (!is_width_pot || !is_height_pot);
+	const auto has_hw_npot = (!is_npot || (is_npot && device_features.npot_is_available_));
+
+	if (has_hw_npot)
+	{
+		properties.actual_width_ = min_actual_width;
+		properties.actual_height_ = min_actual_height;
+	}
+	else
+	{
+		auto actual_width = detail::RendererUtils::find_nearest_pot_value(min_actual_width);
+		actual_width = std::min(actual_width, device_features.max_texture_dimension_);
+		properties.actual_width_ = actual_width;
+
+		auto actual_height = detail::RendererUtils::find_nearest_pot_value(min_actual_height);
+		actual_height = std::min(actual_height, device_features.max_texture_dimension_);
+		properties.actual_height_ = actual_height;
+	}
+
+	properties.is_npot_ = is_npot;
+}
+
 RendererTextureManagerImpl::Detail::Texture2dItem RendererTextureManagerImpl::Detail::create_texture(
 	const Texture2dProperties& properties)
 {
@@ -1211,47 +1275,28 @@ RendererTextureManagerImpl::Detail::Texture2dItem RendererTextureManagerImpl::De
 		return Texture2dItem{};
 	}
 
-	auto renderer_utils = detail::RendererUtils{};
-
-	const auto& device_features = renderer_->device_get_features();
-
 	auto new_properties = properties;
 
-	// Calculate actual dimensions.
-	//
-	new_properties.actual_width_ = renderer_utils.find_nearest_pot_value(properties.width_);
-
-	if (new_properties.actual_width_ > device_features.max_texture_dimension_)
-	{
-		new_properties.actual_width_ = device_features.max_texture_dimension_;
-	}
-
-	new_properties.actual_height_ = renderer_utils.find_nearest_pot_value(properties.height_);
-
-	if (new_properties.actual_height_ > device_features.max_texture_dimension_)
-	{
-		new_properties.actual_height_ = device_features.max_texture_dimension_;
-	}
-
-	// Check for non-power-of-two dimensions.
-	//
-	new_properties.is_npot_ = (
-		new_properties.width_ != new_properties.actual_width_ ||
-		new_properties.height_ != new_properties.actual_height_);
-
-	if (new_properties.is_npot_)
-	{
-		if (device_features.npot_is_available_)
-		{
-			new_properties.actual_width_ = new_properties.width_;
-			new_properties.actual_height_ = new_properties.height_;
-		}
-	}
+	set_common_texture_2d_properties(new_properties);
 
 	// Create texture object.
 	//
-	auto texture_2d = RendererTexture2dPtr{};
-	// FIXME
+	auto param = RendererTexture2dCreateParam{};
+	param.storage_pixel_format_ = new_properties.image_pixel_format_;
+	param.width_ = new_properties.actual_width_;
+	param.height_ = new_properties.actual_height_;
+	param.mipmap_count_ = new_properties.mipmap_count_;
+
+	auto texture_2d = renderer_->texture_2d_create(param);
+
+	if (texture_2d == nullptr)
+	{
+		error_message_ = renderer_->get_error_message();
+
+		return Texture2dItem{};
+	}
+
+	update_mipmaps(new_properties, texture_2d);
 
 	// Return the result.
 	//
@@ -1387,13 +1432,18 @@ void RendererTextureManagerImpl::Detail::update_mipmaps(
 			std::swap(texture_subbuffer_0, texture_subbuffer_1);
 		}
 
-		//upload_mipmap(i_mipmap, mipmap_width, mipmap_height, texture_subbuffer_0);
+		auto param = RendererTexture2dUpdateParam{};
+		param.mipmap_level_ = i_mipmap;
+		param.rgba_pixels_ = texture_subbuffer_0;
+
+		texture_2d->update(param);
 	}
 
 	if (properties.is_generate_mipmaps_ &&
 		properties.mipmap_count_ > 1 &&
 		device_features.mipmap_is_available_)
 	{
+		texture_2d->generate_mipmaps();
 	}
 }
 
@@ -1416,6 +1466,7 @@ bool RendererTextureManagerImpl::Detail::create_missing_sprite_texture()
 	const auto rgba_image = reinterpret_cast<const RendererColor32*>(raw_image.data());
 
 	auto param = Texture2dProperties{};
+	param.image_pixel_format_ = RendererPixelFormat::r8g8b8a8_unorm;
 	param.width_ = Sprite::dimension;
 	param.height_ = Sprite::dimension;
 	param.is_generate_mipmaps_ = true;
@@ -1458,6 +1509,7 @@ bool RendererTextureManagerImpl::Detail::create_missing_wall_texture()
 	const auto rgba_image = reinterpret_cast<const RendererColor32*>(raw_image.data());
 
 	auto param = Texture2dProperties{};
+	param.image_pixel_format_ = RendererPixelFormat::r8g8b8_unorm;
 	param.width_ = wall_dimension;
 	param.height_ = wall_dimension;
 	param.is_generate_mipmaps_ = true;
@@ -1494,6 +1546,7 @@ RendererTextureManagerImpl::Detail::Texture2dItem RendererTextureManagerImpl::De
 	}
 
 	auto param = Texture2dProperties{};
+	param.image_pixel_format_ = RendererPixelFormat::r8g8b8_unorm;
 	param.width_ = wall_dimension;
 	param.height_ = wall_dimension;
 	param.is_generate_mipmaps_ = true;
@@ -1536,6 +1589,7 @@ RendererTextureManagerImpl::Detail::Texture2dItem RendererTextureManagerImpl::De
 	}
 
 	auto param = Texture2dProperties{};
+	param.image_pixel_format_ = RendererPixelFormat::r8g8b8a8_unorm;
 	param.width_ = Sprite::dimension;
 	param.height_ = Sprite::dimension;
 	param.is_generate_mipmaps_ = true;

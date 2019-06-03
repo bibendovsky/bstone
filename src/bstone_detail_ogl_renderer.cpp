@@ -310,7 +310,7 @@ RendererTexture2dPtr OglRenderer::texture_2d_create(
 
 	auto t2d = renderer_->texture_2d_create(param);
 
-	if (!t2d)
+	if (t2d == nullptr)
 	{
 		error_message_ = renderer_->get_error_message();
 	}
