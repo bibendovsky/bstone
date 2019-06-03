@@ -757,8 +757,7 @@ public:
 	virtual const std::string& get_description() const = 0;
 
 
-	virtual bool probe(
-		const RendererPath renderer_path) = 0;
+	virtual bool probe() = 0;
 
 	virtual const RendererProbe& probe_get() const = 0;
 

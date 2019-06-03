@@ -37,9 +37,9 @@ Free Software Foundation, Inc.,
 #include <list>
 #include <vector>
 #include "bstone_detail_ogl_extension_manager.h"
-#include "bstone_detail_ogl_renderer.h"
 #include "bstone_detail_ogl_renderer_utils.h"
 #include "bstone_ogl.h"
+#include "bstone_renderer.h"
 #include "bstone_renderer_sw_index_buffer.h"
 #include "bstone_renderer_sw_vertex_buffer.h"
 
@@ -55,7 +55,7 @@ using Ogl1XRendererPtr = Ogl1XRenderer*;
 
 
 class Ogl1XRenderer :
-	public OglXRenderer
+	public Renderer
 {
 public:
 	Ogl1XRenderer();
@@ -76,8 +76,7 @@ public:
 	const std::string& get_description() const override;
 
 
-	bool probe(
-		const RendererPath renderer_path) override;
+	bool probe() override;
 
 	const RendererProbe& probe_get() const override;
 
@@ -388,8 +387,8 @@ private:
 
 	bool probe_or_initialize(
 		const bool is_probe,
-		const RendererPath probe_renderer_path,
 		const RendererInitializeParam& param);
+
 
 	bool create_default_sampler();
 

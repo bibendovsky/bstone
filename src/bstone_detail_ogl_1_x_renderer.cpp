@@ -745,10 +745,23 @@ const std::string& Ogl1XRenderer::get_description() const
 	return result;
 }
 
-bool Ogl1XRenderer::probe(
-	const RendererPath renderer_path)
+bool Ogl1XRenderer::probe()
 {
-	return probe_or_initialize(true, renderer_path, RendererInitializeParam{});
+	if (is_initialized_)
+	{
+		return false;
+	}
+
+	auto probe_renderer = Ogl1XRenderer{};
+
+	if (!probe_renderer.probe_or_initialize(true, RendererInitializeParam{}))
+	{
+		return false;
+	}
+
+	probe_ = probe_renderer.probe_get();
+
+	return true;
 }
 
 const RendererProbe& Ogl1XRenderer::probe_get() const
@@ -766,20 +779,14 @@ bool Ogl1XRenderer::initialize(
 {
 	uninitialize_internal();
 
+	if (!probe())
 	{
-		auto probe_prenderer = Ogl1XRenderer{};
+		error_message_ = "Failed to probe.";
 
-		if (!probe_prenderer.probe(param.renderer_path_))
-		{
-			error_message_ = "Failed to probe.";
-
-			return false;
-		}
-
-		probe_ = probe_prenderer.probe_get();
+		return false;
 	}
 
-	return probe_or_initialize(false, RendererPath::none, param);
+	return probe_or_initialize(false, param);
 }
 
 void Ogl1XRenderer::uninitialize()
@@ -1052,188 +1059,136 @@ void Ogl1XRenderer::execute_commands(
 
 bool Ogl1XRenderer::probe_or_initialize(
 	const bool is_probe,
-	const RendererPath probe_renderer_path,
 	const RendererInitializeParam& param)
 {
-	const auto renderer_path = (is_probe ? probe_renderer_path : param.renderer_path_);
-
-	if (renderer_path != RendererPath::ogl_1_x)
-	{
-		error_message_ = "Invalid renderer path value.";
-
-		return false;
-	}
-
-	auto is_succeed = true;
-	auto sdl_window = SdlWindowUPtr{};
-	auto sdl_gl_context = SdlGlContextUPtr{};
-	auto extension_manager = OglExtensionManagerUPtr{};
-	int screen_width = 0;
-	int screen_height = 0;
-
 	auto ogl_renderer_utils = OglRendererUtils{};
-
-	if (is_succeed)
-	{
-		if (is_probe)
-		{
-			if (!ogl_renderer_utils.create_probe_window_and_context(sdl_window, sdl_gl_context))
-			{
-				is_succeed = false;
-
-				error_message_ = ogl_renderer_utils.get_error_message();
-			}
-		}
-		else
-		{
-			auto window_param = RendererUtilsCreateWindowParam{};
-			window_param.is_opengl_ = true;
-			window_param.window_ = param.window_;
-			window_param.aa_kind_ = RendererAaKind::none;
-			window_param.aa_value_ = 0;
-
-			const auto& probe_device_features = probe_.device_features_;
-
-			switch (param.aa_kind_)
-			{
-				case RendererAaKind::ms:
-					if (!probe_device_features.framebuffer_is_available_)
-					{
-						window_param.aa_kind_ = param.aa_kind_;
-						window_param.aa_value_ = param.aa_value_;
-					}
-
-					break;
-
-				default:
-					break;
-			}
-
-			if (!ogl_renderer_utils.create_window_and_context(window_param, sdl_window, sdl_gl_context))
-			{
-				is_succeed = false;
-
-				error_message_ = ogl_renderer_utils.get_error_message();
-			}
-		}
-	}
-
-	if (is_succeed)
-	{
-		if (!ogl_renderer_utils.window_get_drawable_size(
-			sdl_window.get(),
-			screen_width,
-			screen_height))
-		{
-			is_succeed = false;
-
-			error_message_ = "Failed to get screen size. ";
-			error_message_ += ogl_renderer_utils.get_error_message();
-		}
-	}
-
-	if (is_succeed)
-	{
-		extension_manager = detail::OglExtensionManagerFactory::create();
-
-		if (extension_manager == nullptr)
-		{
-			error_message_ = "Failed to create an extension manager.";
-
-			is_succeed = false;
-		}
-	}
-
-	if (is_succeed)
-	{
-		extension_manager->probe_extension(OglExtensionId::v1_0);
-
-		if (!extension_manager->has_extension(OglExtensionId::v1_0))
-		{
-			error_message_ = "Failed to load OpenGL 1.0 symbols.";
-
-			is_succeed = false;
-		}
-	}
-
-	if (is_succeed)
-	{
-		extension_manager->probe_extension(OglExtensionId::v1_1);
-
-		if (!extension_manager->has_extension(OglExtensionId::v1_1))
-		{
-			error_message_ = "Failed to load OpenGL 1.1 symbols.";
-
-			is_succeed = false;
-		}
-	}
-
-	if (is_succeed)
-	{
-		if (!ogl_renderer_utils.renderer_features_set(device_features_))
-		{
-			error_message_ = ogl_renderer_utils.get_error_message();
-
-			is_succeed = false;
-		}
-	}
-
-	if (is_succeed)
-	{
-		ogl_device_features_.context_type_ = OglRendererUtils::context_get_type();
-	}
-
-	if (is_succeed)
-	{
-		OglRendererUtils::anisotropy_probe(
-			extension_manager.get(),
-			device_features_
-		);
-
-		OglRendererUtils::npot_probe(
-			extension_manager.get(),
-			device_features_
-		);
-
-		OglRendererUtils::mipmap_probe(
-			extension_manager.get(),
-			device_features_,
-			ogl_device_features_
-		);
-
-		OglRendererUtils::framebuffer_probe(
-			extension_manager.get(),
-			device_features_
-		);
-	}
-
-	if (is_succeed)
-	{
-		if (!create_default_sampler())
-		{
-			is_succeed = false;
-		}
-	}
-
-	if (!is_succeed)
-	{
-		return false;
-	}
-
-	is_initialized_ = true;
-	sdl_window_ = std::move(sdl_window);
-	sdl_gl_context_ = std::move(sdl_gl_context);
-	extension_manager_ = std::move(extension_manager);
-	screen_width_ = screen_width;
-	screen_height_ = screen_height;
 
 	if (is_probe)
 	{
-		probe_.path_ = renderer_path;
-		probe_.device_features_ = device_features_;
+		if (!ogl_renderer_utils.create_probe_window_and_context(sdl_window_, sdl_gl_context_))
+		{
+			error_message_ = ogl_renderer_utils.get_error_message();
+
+			return false;
+		}
 	}
 	else
 	{
+		auto window_param = RendererUtilsCreateWindowParam{};
+		window_param.is_opengl_ = true;
+		window_param.window_ = param.window_;
+		window_param.aa_kind_ = RendererAaKind::none;
+		window_param.aa_value_ = 0;
+
+		const auto& probe_device_features = probe_.device_features_;
+
+		switch (param.aa_kind_)
+		{
+			case RendererAaKind::ms:
+				if (!probe_device_features.framebuffer_is_available_)
+				{
+					window_param.aa_kind_ = param.aa_kind_;
+					window_param.aa_value_ = param.aa_value_;
+				}
+
+				break;
+
+			default:
+				break;
+		}
+
+		if (!ogl_renderer_utils.create_window_and_context(window_param, sdl_window_, sdl_gl_context_))
+		{
+			error_message_ = ogl_renderer_utils.get_error_message();
+
+			return false;
+		}
+	}
+
+	if (!ogl_renderer_utils.window_get_drawable_size(
+		sdl_window_.get(),
+		screen_width_,
+		screen_height_))
+	{
+		error_message_ = "Failed to get screen size. ";
+		error_message_ += ogl_renderer_utils.get_error_message();
+
+		return false;
+	}
+
+	extension_manager_ = detail::OglExtensionManagerFactory::create();
+
+	if (extension_manager_ == nullptr)
+	{
+		error_message_ = "Failed to create an extension manager.";
+
+		return false;
+	}
+
+	extension_manager_->probe_extension(OglExtensionId::v1_0);
+
+	if (!extension_manager_->has_extension(OglExtensionId::v1_0))
+	{
+		error_message_ = "Failed to load OpenGL 1.0 symbols.";
+
+		return false;
+	}
+
+	extension_manager_->probe_extension(OglExtensionId::v1_1);
+
+	if (!extension_manager_->has_extension(OglExtensionId::v1_1))
+	{
+		error_message_ = "Failed to load OpenGL 1.1 symbols.";
+
+		return false;
+	}
+
+	if (!ogl_renderer_utils.renderer_features_set(device_features_))
+	{
+		error_message_ = ogl_renderer_utils.get_error_message();
+
+		return false;
+	}
+
+	ogl_device_features_.context_type_ = OglRendererUtils::context_get_type();
+
+	OglRendererUtils::anisotropy_probe(
+		extension_manager_.get(),
+		device_features_
+	);
+
+	OglRendererUtils::npot_probe(
+		extension_manager_.get(),
+		device_features_
+	);
+
+	OglRendererUtils::mipmap_probe(
+		extension_manager_.get(),
+		device_features_,
+		ogl_device_features_
+	);
+
+	OglRendererUtils::framebuffer_probe(
+		extension_manager_.get(),
+		device_features_
+	);
+
+	if (!create_default_sampler())
+	{
+		return false;
+	}
+
+	if (is_probe)
+	{
+		probe_.path_ = RendererPath::ogl_1_x;
+		probe_.device_features_ = device_features_;
+
+		uninitialize_internal();
+	}
+	else
+	{
+		is_initialized_ = true;
+
 		// Default state.
 		//
 		viewport_set_defaults();
