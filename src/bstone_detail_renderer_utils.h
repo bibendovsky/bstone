@@ -68,7 +68,7 @@ public:
 	static constexpr int absolute_max_viewport_dimension = 1 << 16;
 
 
-	using TextureBuffer = std::vector<RendererColor32>;
+	using TextureBuffer = std::vector<R8g8b8a8>;
 
 
 	const std::string& get_error_message() const;
@@ -185,15 +185,15 @@ public:
 		const int height,
 		const int actual_width,
 		const int actual_height,
-		const RendererColor32* const rgba_pixels,
+		const R8g8b8a8* const rgba_pixels,
 		TextureBuffer& texture_buffer);
 
 
 	static void build_mipmap(
 		const int previous_width,
 		const int previous_height,
-		const RendererColor32CPtr src_colors,
-		const RendererColor32Ptr dst_colors);
+		const R8g8b8a8CPtr src_colors,
+		const R8g8b8a8Ptr dst_colors);
 
 
 private:

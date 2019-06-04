@@ -153,7 +153,7 @@ public:
 
 
 	static void set_color_buffer_clear_color(
-		const RendererColor32& color);
+		const R8g8b8a8& color);
 
 	static void scissor_enable(
 		const bool is_enabled);

@@ -106,7 +106,7 @@ public:
 
 
 	void color_buffer_set_clear_color(
-		const RendererColor32& color) override;
+		const R8g8b8a8& color) override;
 
 	void clear_buffers() override;
 
@@ -204,7 +204,7 @@ private:
 			const int mipmap_level,
 			const int width,
 			const int height,
-			const RendererColor32CPtr src_pixels);
+			const R8g8b8a8CPtr src_pixels);
 
 
 		void set_mag_filter();

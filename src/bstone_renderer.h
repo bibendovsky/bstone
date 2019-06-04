@@ -35,7 +35,7 @@ Free Software Foundation, Inc.,
 #include <memory>
 #include <string>
 #include <vector>
-#include "bstone_renderer_color_32.h"
+#include "bstone_rgb_color_model.h"
 #include "bstone_sprite.h"
 
 
@@ -155,7 +155,7 @@ public:
 }; // RendererInitializeParam
 
 
-using RendererPalette = std::array<RendererColor32, 256>;
+using RendererPalette = std::array<R8g8b8a8, 256>;
 using RendererPalettePtr = RendererPalette*;
 using RendererPaletteCPtr = const RendererPalette*;
 
@@ -372,7 +372,7 @@ struct RendererTexture2dUpdateParam
 {
 	int mipmap_level_;
 
-	RendererColor32CPtr rgba_pixels_;
+	R8g8b8a8CPtr rgba_pixels_;
 }; // RendererTexture2dUpdateParam
 
 class RendererTexture2d
@@ -787,7 +787,7 @@ public:
 
 
 	virtual void color_buffer_set_clear_color(
-		const RendererColor32& color) = 0;
+		const R8g8b8a8& color) = 0;
 
 	virtual void clear_buffers() = 0;
 

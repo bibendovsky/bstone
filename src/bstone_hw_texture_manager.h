@@ -111,7 +111,7 @@ public:
 
 	virtual void solid_1x1_update(
 		const HwTextureManagerSolid1x1Id id,
-		const RendererColor32 color) = 0;
+		const R8g8b8a8 color) = 0;
 
 	virtual RendererTexture2dPtr solid_1x1_get(
 		const HwTextureManagerSolid1x1Id id) const = 0;

@@ -738,7 +738,7 @@ void RendererUtils::indexed_sprite_to_rgba_pot(
 
 				if (src_pixel < 0)
 				{
-					dst_pixel = RendererColor32{};
+					dst_pixel = R8g8b8a8{};
 				}
 				else
 				{
@@ -747,7 +747,7 @@ void RendererUtils::indexed_sprite_to_rgba_pot(
 			}
 			else
 			{
-				dst_pixel = RendererColor32{};
+				dst_pixel = R8g8b8a8{};
 			}
 		}
 	}
@@ -758,7 +758,7 @@ void RendererUtils::rgba_npot_to_rgba_pot(
 	const int height,
 	const int actual_width,
 	const int actual_height,
-	const RendererColor32* const rgba_pixels,
+	const R8g8b8a8* const rgba_pixels,
 	TextureBuffer& texture_buffer)
 {
 	assert(width > 0);
@@ -805,8 +805,8 @@ void RendererUtils::rgba_npot_to_rgba_pot(
 void RendererUtils::build_mipmap(
 	const int previous_width,
 	const int previous_height,
-	const RendererColor32CPtr src_colors,
-	const RendererColor32Ptr dst_colors)
+	const R8g8b8a8CPtr src_colors,
+	const R8g8b8a8Ptr dst_colors)
 {
 	assert(previous_width >= 1);
 	assert(previous_height >= 1);

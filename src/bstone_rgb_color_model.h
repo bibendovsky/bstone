@@ -23,12 +23,12 @@ Free Software Foundation, Inc.,
 
 
 //
-// Renderer R8G8A8B8 color.
+// Types of RGB color model.
 //
 
 
-#ifndef BSTONE_RENDERER_R8G8B8A8_INCLUDED
-#define BSTONE_RENDERER_R8G8B8A8_INCLUDED
+#ifndef BSTONE_RGB_COLOR_MODEL_INCLUDED
+#define BSTONE_RGB_COLOR_MODEL_INCLUDED
 
 
 #include "glm/glm.hpp"
@@ -38,13 +38,16 @@ namespace bstone
 {
 
 
-using RendererColor32 = glm::u8vec4;
+using R8g8b8 = glm::u8vec3;
+using R8g8b8Ptr = R8g8b8*;
+using R8g8b8CPtr = const R8g8b8*;
 
-using RendererColor32Ptr = RendererColor32*;
-using RendererColor32CPtr = const RendererColor32*;
+using R8g8b8a8 = glm::u8vec4;
+using R8g8b8a8Ptr = R8g8b8a8*;
+using R8g8b8a8CPtr = const R8g8b8a8*;
 
 
 } // bstone
 
 
-#endif // !BSTONE_RENDERER_R8G8B8A8_INCLUDED
+#endif // !BSTONE_RGB_COLOR_MODEL_INCLUDED

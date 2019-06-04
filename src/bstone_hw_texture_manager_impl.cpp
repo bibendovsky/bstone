@@ -106,7 +106,7 @@ public:
 
 	void solid_1x1_update(
 		const HwTextureManagerSolid1x1Id id,
-		const RendererColor32 color) override;
+		const R8g8b8a8 color) override;
 
 	RendererTexture2dPtr solid_1x1_get(
 		const HwTextureManagerSolid1x1Id id) const override;
@@ -200,7 +200,7 @@ public:
 
 	void solid_1x1_update(
 		const HwTextureManagerSolid1x1Id id,
-		const RendererColor32 color);
+		const R8g8b8a8 color);
 
 	RendererTexture2dPtr solid_1x1_get(
 		const HwTextureManagerSolid1x1Id id) const;
@@ -257,7 +257,7 @@ private:
 
 		SpriteCPtr indexed_sprite_;
 
-		RendererColor32CPtr rgba_pixels_;
+		R8g8b8a8CPtr rgba_pixels_;
 	}; // Texture2dProperties
 
 	struct Texture2dItem
@@ -271,7 +271,7 @@ private:
 
 	struct Solid1x1Item
 	{
-		RendererColor32 color_;
+		R8g8b8a8 color_;
 		Texture2dProperties properties_;
 		RendererTexture2dPtr texture_2d_;
 	}; // Solid1x1Item
@@ -380,7 +380,7 @@ private:
 	static int solid_1x1_get_updateable_index(
 		const HwTextureManagerSolid1x1Id id);
 
-	static RendererColor32 solid_1x1_get_default_color(
+	static R8g8b8a8 solid_1x1_get_default_color(
 		const HwTextureManagerSolid1x1Id id);
 }; // Detail
 
@@ -796,7 +796,7 @@ bool RendererTextureManagerImpl::Detail::solid_1x1_create(
 
 void RendererTextureManagerImpl::Detail::solid_1x1_update(
 	const HwTextureManagerSolid1x1Id id,
-	const RendererColor32 color)
+	const R8g8b8a8 color)
 {
 	const auto index = solid_1x1_get_updateable_index(id);
 
@@ -1307,7 +1307,7 @@ void RendererTextureManagerImpl::Detail::update_mipmaps(
 	}
 
 	auto texture_subbuffer_0 = &texture_buffer_[0];
-	auto texture_subbuffer_1 = RendererColor32Ptr{};
+	auto texture_subbuffer_1 = R8g8b8a8Ptr{};
 
 	if (is_manual_mipmaps)
 	{
@@ -1335,7 +1335,7 @@ void RendererTextureManagerImpl::Detail::update_mipmaps(
 
 			is_set_subbuffer_0 = true;
 
-			texture_subbuffer_0 = const_cast<RendererColor32Ptr>(properties.rgba_pixels_);
+			texture_subbuffer_0 = const_cast<R8g8b8a8Ptr>(properties.rgba_pixels_);
 		}
 	}
 	else if (properties.indexed_pixels_ != nullptr)
@@ -1434,7 +1434,7 @@ bool RendererTextureManagerImpl::Detail::create_missing_sprite_texture()
 	destroy_missing_sprite_texture();
 
 	const auto& raw_image = get_missing_sprite_image();
-	const auto rgba_image = reinterpret_cast<const RendererColor32*>(raw_image.data());
+	const auto rgba_image = reinterpret_cast<const R8g8b8a8*>(raw_image.data());
 
 	auto param = Texture2dProperties{};
 	param.image_pixel_format_ = RendererPixelFormat::r8g8b8a8_unorm;
@@ -1477,7 +1477,7 @@ bool RendererTextureManagerImpl::Detail::create_missing_wall_texture()
 	destroy_missing_wall_texture();
 
 	const auto& raw_image = get_missing_wall_image();
-	const auto rgba_image = reinterpret_cast<const RendererColor32*>(raw_image.data());
+	const auto rgba_image = reinterpret_cast<const R8g8b8a8*>(raw_image.data());
 
 	auto param = Texture2dProperties{};
 	param.image_pixel_format_ = RendererPixelFormat::r8g8b8_unorm;
@@ -1713,27 +1713,27 @@ int RendererTextureManagerImpl::Detail::solid_1x1_get_updateable_index(
 	}
 }
 
-RendererColor32 RendererTextureManagerImpl::Detail::solid_1x1_get_default_color(
+R8g8b8a8 RendererTextureManagerImpl::Detail::solid_1x1_get_default_color(
 	const HwTextureManagerSolid1x1Id id)
 {
 	switch (id)
 	{
 		case HwTextureManagerSolid1x1Id::black:
-			return RendererColor32{0x00, 0x00, 0x00, 0xFF};
+			return R8g8b8a8{0x00, 0x00, 0x00, 0xFF};
 
 		case HwTextureManagerSolid1x1Id::white:
-			return RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+			return R8g8b8a8{0xFF, 0xFF, 0xFF, 0xFF};
 
 		case HwTextureManagerSolid1x1Id::fade_2d:
 		case HwTextureManagerSolid1x1Id::fade_3d:
-			return RendererColor32{};
+			return R8g8b8a8{};
 
 		case HwTextureManagerSolid1x1Id::flooring:
 		case HwTextureManagerSolid1x1Id::ceiling:
-			return RendererColor32{0x00, 0x00, 0x00, 0xFF};
+			return R8g8b8a8{0x00, 0x00, 0x00, 0xFF};
 
 		default:
-			return RendererColor32{};
+			return R8g8b8a8{};
 	}
 }
 
@@ -1869,7 +1869,7 @@ bool RendererTextureManagerImpl::solid_1x1_create(
 
 void RendererTextureManagerImpl::solid_1x1_update(
 	const HwTextureManagerSolid1x1Id id,
-	const RendererColor32 color)
+	const R8g8b8a8 color)
 {
 	auto& instance = get_instance();
 

@@ -1461,7 +1461,7 @@ struct HwVertexAttributeTraits<
 
 
 using HwVertexPosition = glm::vec3;
-using HwVertexColor = bstone::RendererColor32;
+using HwVertexColor = bstone::R8g8b8a8;
 using HwVertexTextureCoordinates = glm::vec2;
 
 struct HwVertexXyzUv
@@ -1768,7 +1768,7 @@ bstone::RendererVertexBufferPtr hw_2d_fillers_vb_ = nullptr;
 bstone::RendererVertexInputPtr hw_2d_fillers_vi_ = nullptr;
 
 bool hw_2d_fade_is_enabled_ = false;
-HwVertexColor hw_2d_fade_color_ = bstone::RendererColor32{};
+HwVertexColor hw_2d_fade_color_ = bstone::R8g8b8a8{};
 bstone::RendererTexture2dPtr hw_2d_fade_t2d_ = nullptr;
 
 
@@ -1889,7 +1889,7 @@ bool hw_3d_fizzle_fx_is_fading_ = false;
 int hw_3d_fizzle_fx_color_index_ = 0;
 float hw_3d_fizzle_fx_ratio_ = 0.0F;
 
-bstone::RendererColor32 hw_3d_fog_color = bstone::RendererColor32{0x00, 0x00, 0x00, 0x20};
+bstone::R8g8b8a8 hw_3d_fog_color = bstone::R8g8b8a8{0x00, 0x00, 0x00, 0x20};
 bool hw_3d_fog_is_global_enabled = false;
 float hw_3d_fog_start_ = 0.0F;
 float hw_3d_fog_end_ = 1.0F;
@@ -6445,7 +6445,7 @@ void hw_3d_fade_update()
 	const auto b = static_cast<std::uint8_t>(b_f * 255.0F);
 	const auto a = static_cast<std::uint8_t>(a_f * 255.0F);
 
-	const auto r8g8b8a8_unorm = bstone::RendererColor32{r, g, b, a};
+	const auto r8g8b8a8_unorm = bstone::R8g8b8a8{r, g, b, a};
 
 	::hw_texture_manager_->solid_1x1_update(bstone::HwTextureManagerSolid1x1Id::fade_3d, r8g8b8a8_unorm);
 }
@@ -8543,7 +8543,7 @@ void hw_3d_sprite_map(
 	//
 	{
 		auto& vertex = ::hw_3d_sprites_vbi_[vertex_index];
-		vertex.rgba_ = bstone::RendererColor32{0xFF, 0xFF, 0xFF, 0xFF};
+		vertex.rgba_ = bstone::R8g8b8a8{0xFF, 0xFF, 0xFF, 0xFF};
 		vertex.uv_ = HwVertexTextureCoordinates{0.0F, 1.0F};
 	}
 }
@@ -11149,7 +11149,7 @@ bool hw_video_initialize()
 
 		::hw_device_features_ = ::hw_renderer_->device_get_features();
 
-		::hw_renderer_->color_buffer_set_clear_color(bstone::RendererColor32{});
+		::hw_renderer_->color_buffer_set_clear_color(bstone::R8g8b8a8{});
 
 		::hw_renderer_->window_show(true);
 
