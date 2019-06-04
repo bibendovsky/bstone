@@ -533,6 +533,11 @@ bool RendererUtils::is_ogl_renderer_path(
 	}
 }
 
+int RendererUtils::aa_get_min_value()
+{
+	return 1;
+}
+
 void RendererUtils::indexed_pot_to_rgba_pot(
 	const int width,
 	const int height,

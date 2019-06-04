@@ -432,18 +432,18 @@ void OglRendererUtils::framebuffer_probe(
 		;
 	}
 
+	device_features.msaa_min_value_ = RendererUtils::aa_get_min_value();
+	device_features.msaa_max_value_ = msaa_get_max_value(extension_manager);
+
+	if (device_features.msaa_min_value_ == device_features.msaa_max_value_)
+	{
+		is_available = false;
+	}
+
 	device_features.framebuffer_is_available_ = is_available;
-
-	device_features.msaa_min_value_ = framebuffer_get_min_value();
-	device_features.msaa_max_value_ = framebuffer_get_max_value(extension_manager);
 }
 
-int OglRendererUtils::framebuffer_get_min_value()
-{
-	return 1;
-}
-
-int OglRendererUtils::framebuffer_get_max_value(
+int OglRendererUtils::msaa_get_max_value(
 	OglExtensionManagerPtr extension_manager)
 {
 	auto max_value = GLint{};
@@ -463,7 +463,7 @@ int OglRendererUtils::framebuffer_get_max_value(
 		assert(!OglRendererUtils::was_errors());
 	}
 
-	return std::max(max_value, framebuffer_get_min_value());
+	return std::max(max_value, RendererUtils::aa_get_min_value());
 }
 
 void OglRendererUtils::clear_buffers()

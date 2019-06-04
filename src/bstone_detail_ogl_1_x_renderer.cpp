@@ -1084,7 +1084,7 @@ bool Ogl1XRenderer::probe_or_initialize(
 		window_param.is_opengl_ = true;
 		window_param.window_ = param.window_;
 		window_param.aa_kind_ = RendererAaKind::none;
-		window_param.aa_value_ = 0;
+		window_param.aa_value_ = RendererUtils::aa_get_min_value();
 
 		const auto& probe_device_features = probe_.device_features_;
 
@@ -1095,6 +1095,15 @@ bool Ogl1XRenderer::probe_or_initialize(
 				{
 					window_param.aa_kind_ = param.aa_kind_;
 					window_param.aa_value_ = param.aa_value_;
+
+					if (window_param.aa_value_ < probe_device_features.msaa_min_value_)
+					{
+						window_param.aa_value_ = probe_device_features.msaa_min_value_;
+					}
+					else if (window_param.aa_value_ > probe_device_features.msaa_max_value_)
+					{
+						window_param.aa_value_ = probe_device_features.msaa_max_value_;
+					}
 				}
 
 				break;

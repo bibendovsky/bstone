@@ -138,9 +138,7 @@ public:
 		OglExtensionManagerPtr extension_manager,
 		RendererDeviceFeatures& device_features);
 
-	static int framebuffer_get_min_value();
-
-	static int framebuffer_get_max_value(
+	static int msaa_get_max_value(
 		OglExtensionManagerPtr extension_manager);
 
 
