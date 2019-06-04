@@ -32,6 +32,7 @@ Free Software Foundation, Inc.,
 #include "bstone_mod_value.h"
 #include "bstone_ref_values.h"
 #include "bstone_renderer.h"
+#include "bstone_rgb_palette.h"
 
 
 namespace bstone
@@ -395,7 +396,7 @@ VidConfiguration& vid_get_configuration();
 
 void vid_apply_hw_configuration();
 
-const bstone::RendererPalette& vid_hw_get_default_palette();
+const bstone::R8g8b8a8Palette& vid_hw_get_default_palette();
 
 
 #endif // BSTONE_ID_VL_INCLUDED

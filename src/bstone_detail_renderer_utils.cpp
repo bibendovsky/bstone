@@ -540,7 +540,7 @@ void RendererUtils::indexed_pot_to_rgba_pot(
 	const int actual_height,
 	const bool indexed_is_column_major,
 	const std::uint8_t* const indexed_pixels,
-	const RendererPalette& indexed_palette,
+	const R8g8b8a8Palette& indexed_palette,
 	const bool* const indexed_alphas,
 	TextureBuffer& texture_buffer)
 {
@@ -596,7 +596,7 @@ void RendererUtils::indexed_npot_to_rgba_pot(
 	const int actual_height,
 	const bool indexed_is_column_major,
 	const std::uint8_t* const indexed_pixels,
-	const RendererPalette& indexed_palette,
+	const R8g8b8a8Palette& indexed_palette,
 	const bool* const indexed_alphas,
 	TextureBuffer& texture_buffer)
 {
@@ -667,7 +667,7 @@ void RendererUtils::indexed_to_rgba_pot(
 	const int actual_height,
 	const bool indexed_is_column_major,
 	const std::uint8_t* const indexed_pixels,
-	const RendererPalette& indexed_palette,
+	const R8g8b8a8Palette& indexed_palette,
 	const bool* const indexed_alphas,
 	TextureBuffer& texture_buffer)
 {
@@ -705,7 +705,7 @@ void RendererUtils::indexed_to_rgba_pot(
 
 void RendererUtils::indexed_sprite_to_rgba_pot(
 	const Sprite& indexed_sprite,
-	const RendererPalette& indexed_palette,
+	const R8g8b8a8Palette& indexed_palette,
 	TextureBuffer& texture_buffer)
 {
 	assert(indexed_sprite.is_initialized());

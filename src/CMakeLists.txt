@@ -233,6 +233,7 @@ target_sources(
 		bstone_renderer_manager.h
 		bstone_renderer_sw_index_buffer.h
 		bstone_renderer_sw_vertex_buffer.h
+		bstone_rgb_palette.h
 		bstone_scope_guard.h
 		bstone_sdl_types.h
 		bstone_sha1.h

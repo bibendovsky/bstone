@@ -33,11 +33,12 @@ Free Software Foundation, Inc.,
 #include <unordered_map>
 #include "id_pm.h"
 #include "id_vl.h"
+#include "bstone_detail_renderer_utils.h"
 #include "bstone_hw_texture_manager.h"
 #include "bstone_missing_sprite_64x64_image.h"
 #include "bstone_missing_wall_64x64_image.h"
 #include "bstone_ref_values.h"
-#include "bstone_detail_renderer_utils.h"
+#include "bstone_rgb_palette.h"
 #include "bstone_sprite_cache.h"
 
 
@@ -91,7 +92,7 @@ public:
 	bool ui_create(
 		const std::uint8_t* const indexed_pixels,
 		const bool* const indexed_alphas,
-		const RendererPaletteCPtr indexed_palette) override;
+		const R8g8b8a8PaletteCPtr indexed_palette) override;
 
 	void ui_update() override;
 
@@ -185,7 +186,7 @@ public:
 	bool ui_create(
 		const std::uint8_t* const indexed_pixels,
 		const bool* const indexed_alphas,
-		const RendererPaletteCPtr indexed_palette);
+		const R8g8b8a8PaletteCPtr indexed_palette);
 
 	void ui_update();
 
@@ -252,7 +253,7 @@ private:
 
 		bool indexed_is_column_major_;
 		const std::uint8_t* indexed_pixels_;
-		const RendererPalette* indexed_palette_;
+		R8g8b8a8PaletteCPtr indexed_palette_;
 		const bool* indexed_alphas_;
 
 		SpriteCPtr indexed_sprite_;
@@ -652,7 +653,7 @@ void RendererTextureManagerImpl::Detail::ui_destroy()
 bool RendererTextureManagerImpl::Detail::ui_create(
 	const std::uint8_t* const indexed_pixels,
 	const bool* const indexed_alphas,
-	const RendererPaletteCPtr indexed_palette)
+	const R8g8b8a8PaletteCPtr indexed_palette)
 {
 	if (ui_t2d_item_.texture_2d_ != nullptr)
 	{
@@ -1830,7 +1831,7 @@ void RendererTextureManagerImpl::ui_destroy()
 bool RendererTextureManagerImpl::ui_create(
 	const std::uint8_t* const indexed_pixels,
 	const bool* const indexed_alphas,
-	const RendererPaletteCPtr indexed_palette)
+	const R8g8b8a8PaletteCPtr indexed_palette)
 {
 	auto& instance = get_instance();
 

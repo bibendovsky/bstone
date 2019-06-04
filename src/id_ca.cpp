@@ -49,6 +49,7 @@ loaded into the data segment
 #include "gfxv.h"
 #include "bstone_endian.h"
 #include "bstone_log.h"
+#include "bstone_rgb_palette.h"
 #include "bstone_sdl_types.h"
 #include "bstone_sha1.h"
 #include "bstone_sprite_cache.h"
@@ -1992,9 +1993,6 @@ public:
 
 
 private:
-	static constexpr auto palette_color_count = 256;
-
-
 	using Palette = std::vector<SDL_Color>;
 
 
@@ -2153,11 +2151,11 @@ void ImagesDumper::set_palette(
 	assert(vga_palette);
 	assert(sdl_surface->format);
 	assert(sdl_surface->format->palette);
-	assert(sdl_surface->format->palette->ncolors == palette_color_count);
+	assert(sdl_surface->format->palette->ncolors == bstone::RgbPalette::get_max_color_count());
 
 	auto& sdl_palette = *sdl_surface->format->palette;
 
-	for (int i = 0; i < palette_color_count; ++i)
+	for (int i = 0; i < bstone::RgbPalette::get_max_color_count(); ++i)
 	{
 		const auto src_color = vga_palette + (i * 3);
 		auto& dst_color = sdl_palette.colors[i];
@@ -2174,14 +2172,14 @@ void ImagesDumper::set_palette(
 	const Palette& palette)
 {
 	assert(sdl_surface);
-	assert(palette.size() == palette_color_count);
+	assert(palette.size() == bstone::RgbPalette::get_max_color_count());
 	assert(sdl_surface->format);
 	assert(sdl_surface->format->palette);
-	assert(sdl_surface->format->palette->ncolors == palette_color_count);
+	assert(sdl_surface->format->palette->ncolors == bstone::RgbPalette::get_max_color_count());
 
 	std::uninitialized_copy_n(
 		palette.cbegin(),
-		palette_color_count,
+		bstone::RgbPalette::get_max_color_count(),
 		sdl_surface->format->palette->colors
 	);
 }
@@ -2214,11 +2212,11 @@ void ImagesDumper::uninitialize_vga_palette()
 
 void ImagesDumper::initialize_vga_palette()
 {
-	vga_palette_.resize(palette_color_count);
+	vga_palette_.resize(bstone::RgbPalette::get_max_color_count());
 
 	const auto src_colors = ::vgapal;
 
-	for (int i = 0; i < palette_color_count; ++i)
+	for (int i = 0; i < bstone::RgbPalette::get_max_color_count(); ++i)
 	{
 		const auto src_color = src_colors + (i * 3);
 		auto& dst_color = vga_palette_[i];

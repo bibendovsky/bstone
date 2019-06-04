@@ -35,6 +35,7 @@ Free Software Foundation, Inc.,
 
 #include <string>
 #include "bstone_renderer.h"
+#include "bstone_rgb_palette.h"
 #include "bstone_sdl_types.h"
 #include "bstone_sprite.h"
 
@@ -143,7 +144,7 @@ public:
 		const int actual_height,
 		const bool indexed_is_column_major,
 		const std::uint8_t* const indexed_pixels,
-		const RendererPalette& indexed_palette,
+		const R8g8b8a8Palette& indexed_palette,
 		const bool* const indexed_alphas,
 		TextureBuffer& texture_buffer);
 
@@ -155,7 +156,7 @@ public:
 		const int actual_height,
 		const bool indexed_is_column_major,
 		const std::uint8_t* const indexed_pixels,
-		const RendererPalette& indexed_palette,
+		const R8g8b8a8Palette& indexed_palette,
 		const bool* const indexed_alphas,
 		TextureBuffer& texture_buffer);
 
@@ -167,7 +168,7 @@ public:
 		const int actual_height,
 		const bool indexed_is_column_major,
 		const std::uint8_t* const indexed_pixels,
-		const RendererPalette& indexed_palette,
+		const R8g8b8a8Palette& indexed_palette,
 		const bool* const indexed_alphas,
 		TextureBuffer& texture_buffer);
 
@@ -175,7 +176,7 @@ public:
 	// Converts indexed sprite pixels to RGBA ones.
 	static void indexed_sprite_to_rgba_pot(
 		const Sprite& indexed_sprite,
-		const RendererPalette& indexed_palette,
+		const R8g8b8a8Palette& indexed_palette,
 		TextureBuffer& texture_buffer);
 
 

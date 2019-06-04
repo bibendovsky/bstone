@@ -50,9 +50,6 @@ Free Software Foundation, Inc.,
 using namespace std::string_literals;
 
 
-static const int palette_color_count = 256;
-
-
 extern bool is_full_menu_active;
 
 
@@ -62,8 +59,8 @@ int bufferofs;
 
 bool screenfaded;
 
-std::uint8_t palette1[palette_color_count][3];
-std::uint8_t palette2[palette_color_count][3];
+std::uint8_t palette1[bstone::RgbPalette::get_max_color_count()][3];
+std::uint8_t palette2[bstone::RgbPalette::get_max_color_count()][3];
 std::uint8_t* vga_memory = nullptr;
 
 int vga_scale = 0;
@@ -106,16 +103,7 @@ constexpr int default_window_width = 640;
 constexpr int default_window_height = 480;
 
 
-class VgaColor
-{
-public:
-	std::uint8_t r;
-	std::uint8_t g;
-	std::uint8_t b;
-}; // VgaColor
-
-using VgaPalette = std::array<VgaColor, palette_color_count>;
-using SdlPalette = std::array<std::uint32_t, palette_color_count>;
+using SdlPalette = std::array<std::uint32_t, bstone::RgbPalette::get_max_color_count()>;
 
 
 int window_width = 0;
@@ -127,7 +115,7 @@ UiMaskBuffer vid_mask_buffer;
 
 std::string sw_error_message;
 
-VgaPalette vid_vga_palette;
+bstone::VgaPalette vid_vga_palette;
 VgaBuffer sw_vga_buffer;
 
 bool vid_use_custom_window_position = false;
@@ -650,7 +638,7 @@ void sw_initialize_palette()
 
 	::sw_update_palette(
 		0,
-		palette_color_count);
+		bstone::RgbPalette::get_max_color_count());
 }
 
 void sw_calculate_dimensions()
@@ -1748,8 +1736,8 @@ bstone::RendererPtr hw_renderer_ = nullptr;
 
 bstone::HwTextureManagerUPtr hw_texture_manager_ = nullptr;
 
-bstone::RendererPalette hw_palette_;
-bstone::RendererPalette hw_default_palette_;
+bstone::R8g8b8a8Palette hw_palette_;
+bstone::R8g8b8a8Palette hw_default_palette_;
 
 bstone::RendererCommandManagerUPtr hw_command_manager_;
 bstone::RendererCommandBufferPtr hw_2d_command_buffer_;
@@ -1975,17 +1963,17 @@ constexpr void hw_decode_xy(
 	y = xy & 0xFF;
 }
 
-HwVertexColor hw_vga_color_to_color_32(
+HwVertexColor hw_vga_color_to_r8g8b8a8(
 	const int vga_red,
 	const int vga_green,
 	const int vga_blue)
 {
 	return HwVertexColor
 	{
-		static_cast<std::uint8_t>((0xFF * vga_red) / 0x3F),
-		static_cast<std::uint8_t>((0xFF * vga_green) / 0x3F),
-		static_cast<std::uint8_t>((0xFF * vga_blue) / 0x3F),
-		0xFF
+		static_cast<std::uint8_t>((255 * vga_red) / 63),
+		static_cast<std::uint8_t>((255 * vga_green) / 63),
+		static_cast<std::uint8_t>((255 * vga_blue) / 63),
+		255
 	};
 }
 
@@ -2575,7 +2563,7 @@ bool hw_2d_fillers_vb_create()
 		return false;
 	}
 
-	const auto& filler_color = ::hw_vga_color_to_color_32(
+	const auto& filler_color = ::hw_vga_color_to_r8g8b8a8(
 		::vgapal[(::filler_color_index * 3) + 0],
 		::vgapal[(::filler_color_index * 3) + 1],
 		::vgapal[(::filler_color_index * 3) + 2]
@@ -3833,7 +3821,7 @@ void hw_palette_update(
 		const auto& vga_color = ::vid_vga_palette[color_index];
 		auto& hw_color = ::hw_palette_[color_index];
 
-		hw_color = ::hw_vga_color_to_color_32(
+		hw_color = ::hw_vga_color_to_r8g8b8a8(
 			vga_color.r,
 			vga_color.g,
 			vga_color.b
@@ -3845,16 +3833,16 @@ void hw_palette_initialize()
 {
 	::hw_palette_ = {};
 
-	::hw_palette_update(0, palette_color_count);
+	::hw_palette_update(0, bstone::RgbPalette::get_max_color_count());
 
-	::hw_default_palette_ = bstone::RendererPalette{};
+	::hw_default_palette_ = bstone::R8g8b8a8Palette{};
 
-	for (int i = 0; i < palette_color_count; ++i)
+	for (int i = 0; i < bstone::RgbPalette::get_max_color_count(); ++i)
 	{
 		const auto vga_color = ::vgapal + (i * 3);
 		auto& hw_color = ::hw_default_palette_[i];
 
-		hw_color = ::hw_vga_color_to_color_32(vga_color[0], vga_color[1], vga_color[2]);
+		hw_color = ::hw_vga_color_to_r8g8b8a8(vga_color[0], vga_color[1], vga_color[2]);
 	}
 }
 
@@ -6407,7 +6395,7 @@ void hw_3d_fade_update()
 		}
 
 		const auto vga_color = ::vgapal + (3 * ::hw_3d_fizzle_fx_color_index_);
-		const auto& color_32 = ::hw_vga_color_to_color_32(vga_color[0], vga_color[1], vga_color[2]);
+		const auto& color_32 = ::hw_vga_color_to_r8g8b8a8(vga_color[0], vga_color[1], vga_color[2]);
 
 		r_f = static_cast<float>(color_32.r) / 255.0F;
 		g_f = static_cast<float>(color_32.g) / 255.0F;
@@ -6924,7 +6912,7 @@ void hw_precache_flooring()
 	const auto vga_index = ::BottomColor & 0xFF;
 	const auto vga_color = ::vgapal + (3 * vga_index);
 
-	const auto renderer_color = ::hw_vga_color_to_color_32(
+	const auto renderer_color = ::hw_vga_color_to_r8g8b8a8(
 		vga_color[0],
 		vga_color[1],
 		vga_color[2]
@@ -6945,7 +6933,7 @@ void hw_precache_ceiling()
 	const auto vga_index = ::TopColor & 0xFF;
 	const auto vga_color = ::vgapal + (3 * vga_index);
 
-	const auto renderer_color = ::hw_vga_color_to_color_32(
+	const auto renderer_color = ::hw_vga_color_to_r8g8b8a8(
 		vga_color[0],
 		vga_color[1],
 		vga_color[2]
@@ -11257,11 +11245,11 @@ void VL_FillPalette(
 
 	if (::vid_is_hw_)
 	{
-		::hw_palette_update(0, palette_color_count);
+		::hw_palette_update(0, bstone::RgbPalette::get_max_color_count());
 	}
 	else
 	{
-		::sw_update_palette(0, palette_color_count);
+		::sw_update_palette(0, bstone::RgbPalette::get_max_color_count());
 	}
 }
 
@@ -11281,11 +11269,11 @@ void VL_SetPalette(
 
 	if (::vid_is_hw_)
 	{
-		::hw_palette_update(0, palette_color_count);
+		::hw_palette_update(0, bstone::RgbPalette::get_max_color_count());
 	}
 	else
 	{
-		::sw_update_palette(0, palette_color_count);
+		::sw_update_palette(0, bstone::RgbPalette::get_max_color_count());
 	}
 }
 
@@ -11312,7 +11300,7 @@ void vl_hw_fade_out(
 {
 	::hw_2d_fade_is_enabled_ = true;
 
-	::hw_2d_fade_color_ = ::hw_vga_color_to_color_32(red, green, blue);
+	::hw_2d_fade_color_ = ::hw_vga_color_to_r8g8b8a8(red, green, blue);
 
 	if (!::g_no_fade_in_or_out)
 	{
@@ -12772,7 +12760,7 @@ void vid_apply_hw_configuration()
 	::vid_apply_hw_3d_texture_filter_configuration();
 }
 
-const bstone::RendererPalette& vid_hw_get_default_palette()
+const bstone::R8g8b8a8Palette& vid_hw_get_default_palette()
 {
 	return ::hw_default_palette_;
 }

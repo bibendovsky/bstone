@@ -96,7 +96,7 @@ public:
 	virtual bool ui_create(
 		const std::uint8_t* const indexed_pixels,
 		const bool* const indexed_alphas,
-		const RendererPaletteCPtr indexed_palette) = 0;
+		const R8g8b8a8PaletteCPtr indexed_palette) = 0;
 
 	virtual void ui_update() = 0;
 

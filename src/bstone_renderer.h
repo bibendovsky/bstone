@@ -155,11 +155,6 @@ public:
 }; // RendererInitializeParam
 
 
-using RendererPalette = std::array<R8g8b8a8, 256>;
-using RendererPalettePtr = RendererPalette*;
-using RendererPaletteCPtr = const RendererPalette*;
-
-
 // ==========================================================================
 // RendererIndexBuffer
 //
