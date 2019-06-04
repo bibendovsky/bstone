@@ -747,21 +747,13 @@ const std::string& Ogl1XRenderer::get_description() const
 
 bool Ogl1XRenderer::probe()
 {
-	if (is_initialized_)
-	{
-		return false;
-	}
+	uninitialize_internal();
 
-	auto probe_renderer = Ogl1XRenderer{};
+	const auto result = probe_or_initialize(true, RendererInitializeParam{});
 
-	if (!probe_renderer.probe_or_initialize(true, RendererInitializeParam{}))
-	{
-		return false;
-	}
+	uninitialize_internal();
 
-	probe_ = probe_renderer.probe_get();
-
-	return true;
+	return result;
 }
 
 const RendererProbe& Ogl1XRenderer::probe_get() const
@@ -777,16 +769,30 @@ bool Ogl1XRenderer::is_initialized() const
 bool Ogl1XRenderer::initialize(
 	const RendererInitializeParam& param)
 {
+	if (probe_.path_ == RendererPath::none)
+	{
+		uninitialize_internal();
+
+		const auto probe_result = probe_or_initialize(true, RendererInitializeParam{});
+
+		uninitialize_internal();
+
+		if (!probe_result)
+		{
+			return false;
+		}
+	}
+
 	uninitialize_internal();
 
-	if (!probe())
+	if (!probe_or_initialize(false, param))
 	{
-		error_message_ = "Failed to probe.";
+		uninitialize_internal();
 
 		return false;
 	}
 
-	return probe_or_initialize(false, param);
+	return true;
 }
 
 void Ogl1XRenderer::uninitialize()
