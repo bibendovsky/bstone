@@ -70,10 +70,6 @@ public:
 	virtual void uninitialize() = 0;
 
 
-	virtual bool set_palette(
-		const RendererPalette& palette) = 0;
-
-
 	virtual bool cache_begin() = 0;
 
 	virtual bool cache_end() = 0;

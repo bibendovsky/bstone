@@ -65,10 +65,6 @@ public:
 	void uninitialize() override;
 
 
-	bool set_palette(
-		const RendererPalette& palette) override;
-
-
 	bool cache_begin() override;
 
 	bool cache_end() override;
@@ -161,10 +157,6 @@ public:
 	const std::string& get_error_message() const;
 
 	void uninitialize();
-
-
-	bool set_palette(
-		const RendererPalette& palette);
 
 
 	bool cache_begin();
@@ -303,8 +295,6 @@ private:
 	Texture2dItem missing_sprite_texture_2d_item_;
 	Texture2dItem missing_wall_texture_2d_item_;
 
-	RendererPalette palette_;
-
 	Texture2dItem ui_t2d_item_;
 
 	detail::RendererUtils::TextureBuffer texture_buffer_;
@@ -407,7 +397,6 @@ RendererTextureManagerImpl::Detail::Detail()
 	sprite_map_{},
 	missing_sprite_texture_2d_item_{},
 	missing_wall_texture_2d_item_{},
-	palette_{},
 	ui_t2d_item_{},
 	texture_buffer_{},
 	solid_1x1_items_{}
@@ -427,7 +416,6 @@ RendererTextureManagerImpl::Detail::Detail(
 	sprite_map_{std::move(rhs.sprite_map_)},
 	missing_sprite_texture_2d_item_{std::move(rhs.missing_sprite_texture_2d_item_)},
 	missing_wall_texture_2d_item_{std::move(rhs.missing_wall_texture_2d_item_)},
-	palette_{std::move(rhs.palette_)},
 	ui_t2d_item_{std::move(rhs.ui_t2d_item_)},
 	texture_buffer_{std::move(rhs.texture_buffer_)},
 	solid_1x1_items_{std::move(rhs.solid_1x1_items_)}
@@ -457,23 +445,6 @@ const std::string& RendererTextureManagerImpl::Detail::get_error_message() const
 void RendererTextureManagerImpl::Detail::uninitialize()
 {
 	uninitialize_internal();
-}
-
-bool RendererTextureManagerImpl::Detail::set_palette(
-	const RendererPalette& palette)
-{
-	if (!is_initialized_)
-	{
-		error_message_ = "Not initialized.";
-
-		return false;
-	}
-
-	palette_ = palette;
-
-	// TODO
-
-	return true;
 }
 
 bool RendererTextureManagerImpl::Detail::cache_begin()
@@ -1794,14 +1765,6 @@ void RendererTextureManagerImpl::uninitialize()
 	auto& instance = get_instance();
 
 	instance.uninitialize();
-}
-
-bool RendererTextureManagerImpl::set_palette(
-	const RendererPalette& palette)
-{
-	auto& instance = get_instance();
-
-	return instance.set_palette(palette);
 }
 
 bool RendererTextureManagerImpl::cache_begin()
