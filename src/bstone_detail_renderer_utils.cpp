@@ -925,6 +925,18 @@ bool RendererUtils::create_window_set_ogl_attributes(
 			break;
 	}
 
+	if (param.is_default_depth_buffer_disabled_)
+	{
+		sdl_result = ::SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
+
+		if (sdl_result != 0)
+		{
+			error_message_ = "Failed to set depth buffer bit depth.";
+
+			return false;
+		}
+	}
+
 	return true;
 }
 

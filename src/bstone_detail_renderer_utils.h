@@ -55,6 +55,8 @@ public:
 
 	RendererAaKind aa_kind_;
 	int aa_value_;
+
+	bool is_default_depth_buffer_disabled_;
 }; // RendererUtilsCreateWindowParam
 
 

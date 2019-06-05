@@ -610,6 +610,11 @@ Ogl1XRenderer::Ogl1XRenderer()
 	ogl_device_features_{},
 	screen_width_{},
 	screen_height_{},
+	aa_kind_{},
+	aa_value_{},
+	ogl_internal_fbo_{},
+	ogl_internal_color_rb_{},
+	ogl_internal_depth_stencil_rb_{},
 	viewport_x_{},
 	viewport_y_{},
 	viewport_width_{},
@@ -668,6 +673,11 @@ Ogl1XRenderer::Ogl1XRenderer(
 	ogl_device_features_{std::move(rhs.ogl_device_features_)},
 	screen_width_{std::move(rhs.screen_width_)},
 	screen_height_{std::move(rhs.screen_height_)},
+	aa_kind_{std::move(rhs.aa_kind_)},
+	aa_value_{std::move(rhs.aa_value_)},
+	ogl_internal_fbo_{std::move(rhs.ogl_internal_fbo_)},
+	ogl_internal_color_rb_{std::move(rhs.ogl_internal_color_rb_)},
+	ogl_internal_depth_stencil_rb_{std::move(rhs.ogl_internal_depth_stencil_rb_)},
 	viewport_x_{std::move(rhs.viewport_x_)},
 	viewport_y_{std::move(rhs.viewport_y_)},
 	viewport_width_{std::move(rhs.viewport_width_)},
@@ -714,6 +724,10 @@ Ogl1XRenderer::Ogl1XRenderer(
 	rhs.is_initialized_ = false;
 	rhs.sdl_window_ = nullptr;
 	rhs.sdl_gl_context_ = nullptr;
+
+	rhs.ogl_internal_fbo_ = GL_NONE;
+	rhs.ogl_internal_color_rb_ = GL_NONE;
+	rhs.ogl_internal_depth_stencil_rb_ = GL_NONE;
 }
 
 Ogl1XRenderer::~Ogl1XRenderer()
@@ -857,6 +871,8 @@ void Ogl1XRenderer::clear_buffers()
 void Ogl1XRenderer::present()
 {
 	assert(is_initialized_);
+
+	blit_internal_framebuffer();
 
 	OglRendererUtils::swap_window(sdl_window_.get());
 }
@@ -1093,17 +1109,20 @@ bool Ogl1XRenderer::probe_or_initialize(
 			case RendererAaKind::ms:
 				if (!probe_device_features.framebuffer_is_available_)
 				{
-					window_param.aa_kind_ = param.aa_kind_;
-					window_param.aa_value_ = param.aa_value_;
+					auto aa_kind = param.aa_kind_;
+					auto aa_value = param.aa_value_;
 
-					if (window_param.aa_value_ < probe_device_features.msaa_min_value_)
+					if (aa_value < probe_device_features.msaa_min_value_)
 					{
-						window_param.aa_value_ = probe_device_features.msaa_min_value_;
+						aa_value = probe_device_features.msaa_min_value_;
 					}
-					else if (window_param.aa_value_ > probe_device_features.msaa_max_value_)
+					else if (aa_value > probe_device_features.msaa_max_value_)
 					{
-						window_param.aa_value_ = probe_device_features.msaa_max_value_;
+						aa_value = probe_device_features.msaa_max_value_;
 					}
+
+					window_param.aa_kind_ = aa_kind;
+					window_param.aa_value_ = aa_value;
 				}
 
 				break;
@@ -1112,12 +1131,20 @@ bool Ogl1XRenderer::probe_or_initialize(
 				break;
 		}
 
+		if (probe_device_features.framebuffer_is_available_)
+		{
+			window_param.is_default_depth_buffer_disabled_ = true;
+		}
+
 		if (!ogl_renderer_utils.create_window_and_context(window_param, sdl_window_, sdl_gl_context_))
 		{
 			error_message_ = ogl_renderer_utils.get_error_message();
 
 			return false;
 		}
+
+		aa_kind_ = param.aa_kind_;
+		aa_value_ = param.aa_value_;
 	}
 
 	if (!ogl_renderer_utils.window_get_drawable_size(
@@ -1187,6 +1214,14 @@ bool Ogl1XRenderer::probe_or_initialize(
 		extension_manager_.get(),
 		device_features_
 	);
+
+	if (!is_probe)
+	{
+		if (!create_internal_framebuffer())
+		{
+			return false;
+		}
+	}
 
 	if (!create_default_sampler())
 	{
@@ -1318,6 +1353,8 @@ bool Ogl1XRenderer::create_default_sampler()
 void Ogl1XRenderer::uninitialize_internal(
 	const bool is_dtor)
 {
+	destroy_internal_framebuffer();
+
 	auto ogl_renderer_utils = OglRendererUtils{};
 
 	if (sdl_gl_context_)
@@ -1412,6 +1449,261 @@ void Ogl1XRenderer::scissor_set_defaults()
 
 	scissor_enable();
 	scissor_set_box();
+}
+
+void Ogl1XRenderer::destroy_renderbuffer(
+	GLuint& ogl_renderbuffer_name)
+{
+	if (ogl_renderbuffer_name == GL_NONE)
+	{
+		return;
+	}
+
+	const auto is_arb = extension_manager_->has_extension(OglExtensionId::arb_framebuffer_object);
+	const auto delete_renderbuffers = (is_arb ? ::glDeleteRenderbuffers : ::glDeleteRenderbuffersEXT);
+	assert(delete_renderbuffers != nullptr);
+
+	delete_renderbuffers(1, &ogl_renderbuffer_name);
+	assert(!OglRendererUtils::was_errors());
+	ogl_renderbuffer_name = GL_NONE;
+}
+
+bool Ogl1XRenderer::create_renderbuffer(
+	GLuint& ogl_renderbuffer_name)
+{
+	assert(ogl_renderbuffer_name == GL_NONE);
+
+	const auto is_arb = extension_manager_->has_extension(OglExtensionId::arb_framebuffer_object);
+	const auto gen_renderbuffers = (is_arb ? ::glGenRenderbuffers : ::glGenRenderbuffersEXT);
+	assert(gen_renderbuffers != nullptr);
+
+	gen_renderbuffers(1, &ogl_renderbuffer_name);
+	assert(!OglRendererUtils::was_errors());
+
+	return ogl_renderbuffer_name != GL_NONE;
+}
+
+void Ogl1XRenderer::bind_renderbuffer(
+	const GLenum ogl_target,
+	const GLuint ogl_renderbuffer_name)
+{
+	const auto is_arb = extension_manager_->has_extension(OglExtensionId::arb_framebuffer_object);
+	const auto bind_renderbuffer = (is_arb ? ::glBindRenderbuffer : ::glBindRenderbufferEXT);
+
+	bind_renderbuffer(ogl_target, ogl_renderbuffer_name);
+	assert(!OglRendererUtils::was_errors());
+}
+
+void Ogl1XRenderer::destroy_framebuffer(
+	GLuint& ogl_framebuffer_name)
+{
+	if (ogl_internal_fbo_ == GL_NONE)
+	{
+		return;
+	}
+
+	const auto is_arb = extension_manager_->has_extension(OglExtensionId::arb_framebuffer_object);
+	const auto delete_framebuffers = (is_arb ? ::glDeleteFramebuffers : ::glDeleteFramebuffersEXT);
+	assert(delete_framebuffers != nullptr);
+
+	delete_framebuffers(1, &ogl_framebuffer_name);
+	assert(!OglRendererUtils::was_errors());
+	ogl_framebuffer_name = GL_NONE;
+}
+
+bool Ogl1XRenderer::create_framebuffer(
+	GLuint& ogl_framebuffer_name)
+{
+	assert(ogl_framebuffer_name == GL_NONE);
+
+	const auto is_arb = extension_manager_->has_extension(OglExtensionId::arb_framebuffer_object);
+	const auto gen_framebuffers = (is_arb ? ::glGenFramebuffers : ::glGenFramebuffersEXT);
+	assert(gen_framebuffers != nullptr);
+
+	gen_framebuffers(1, &ogl_framebuffer_name);
+	assert(!OglRendererUtils::was_errors());
+
+	return ogl_framebuffer_name != GL_NONE;
+}
+
+void Ogl1XRenderer::bind_framebuffer(
+	const GLenum ogl_target,
+	const GLuint ogl_framebuffer_name)
+{
+	const auto is_arb = extension_manager_->has_extension(OglExtensionId::arb_framebuffer_object);
+	const auto bind_framebuffer = (is_arb ? ::glBindFramebuffer : ::glBindFramebufferEXT);
+
+	bind_framebuffer(ogl_target, ogl_framebuffer_name);
+	assert(!OglRendererUtils::was_errors());
+}
+
+void Ogl1XRenderer::destroy_internal_color_rb()
+{
+	destroy_renderbuffer(ogl_internal_color_rb_);
+}
+
+void Ogl1XRenderer::destroy_internal_depth_stencil_rb()
+{
+	destroy_renderbuffer(ogl_internal_depth_stencil_rb_);
+}
+
+void Ogl1XRenderer::destroy_internal_fbo()
+{
+	destroy_framebuffer(ogl_internal_fbo_);
+}
+
+void Ogl1XRenderer::destroy_internal_framebuffer()
+{
+	destroy_internal_fbo();
+	destroy_internal_color_rb();
+	destroy_internal_depth_stencil_rb();
+}
+
+bool Ogl1XRenderer::create_internal_color_rb(
+	const int width,
+	const int height)
+{
+	assert(width > 0);
+	assert(height > 0);
+
+	if (!create_renderbuffer(ogl_internal_color_rb_))
+	{
+		return false;
+	}
+
+	bind_renderbuffer(GL_RENDERBUFFER, ogl_internal_color_rb_);
+
+
+	const auto is_arb = extension_manager_->has_extension(OglExtensionId::arb_framebuffer_object);
+	const auto renderbuffer_storage_multisample = (is_arb ? ::glRenderbufferStorageMultisample : ::glRenderbufferStorageMultisampleEXT);
+	assert(renderbuffer_storage_multisample != nullptr);
+
+	auto sample_count = GLsizei{aa_value_};
+
+	if (sample_count <= 1)
+	{
+		sample_count = 0;
+	}
+	else if (sample_count > device_features_.msaa_max_value_)
+	{
+		sample_count = device_features_.msaa_max_value_;
+	}
+
+	renderbuffer_storage_multisample(GL_RENDERBUFFER, sample_count, GL_RGBA8, width, height);
+	assert(!OglRendererUtils::was_errors());
+
+	bind_renderbuffer(GL_RENDERBUFFER, GL_NONE);
+
+	return true;
+}
+
+bool Ogl1XRenderer::create_internal_depth_stencil_rb(
+	const int width,
+	const int height)
+{
+	assert(width > 0);
+	assert(height > 0);
+
+	if (!create_renderbuffer(ogl_internal_depth_stencil_rb_))
+	{
+		return false;
+	}
+
+	bind_renderbuffer(GL_RENDERBUFFER, ogl_internal_depth_stencil_rb_);
+
+
+	const auto is_arb = extension_manager_->has_extension(OglExtensionId::arb_framebuffer_object);
+	const auto renderbuffer_storage_multisample = (is_arb ? ::glRenderbufferStorageMultisample : ::glRenderbufferStorageMultisampleEXT);
+	assert(renderbuffer_storage_multisample != nullptr);
+
+	auto sample_count = GLsizei{aa_value_};
+
+	if (sample_count <= 1)
+	{
+		sample_count = 0;
+	}
+	else if (sample_count > device_features_.msaa_max_value_)
+	{
+		sample_count = device_features_.msaa_max_value_;
+	}
+
+	renderbuffer_storage_multisample(GL_RENDERBUFFER, sample_count, GL_DEPTH24_STENCIL8, width, height);
+	assert(!OglRendererUtils::was_errors());
+
+	bind_renderbuffer(GL_RENDERBUFFER, GL_NONE);
+
+	return true;
+}
+
+bool Ogl1XRenderer::create_internal_framebuffer()
+{
+	if (!create_internal_color_rb(screen_width_, screen_height_))
+	{
+		return false;
+	}
+
+	if (!create_internal_depth_stencil_rb(screen_width_, screen_height_))
+	{
+		return false;
+	}
+
+	if (!create_framebuffer(ogl_internal_fbo_))
+	{
+		return false;
+	}
+
+	bind_framebuffer(GL_FRAMEBUFFER, ogl_internal_fbo_);
+
+	const auto is_arb = extension_manager_->has_extension(OglExtensionId::arb_framebuffer_object);
+
+	const auto framebuffer_renderbuffer = (is_arb ? ::glFramebufferRenderbuffer : ::glFramebufferRenderbufferEXT);
+	assert(framebuffer_renderbuffer != nullptr);
+
+	framebuffer_renderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, ogl_internal_color_rb_);
+	framebuffer_renderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, ogl_internal_depth_stencil_rb_);
+
+	const auto check_framebuffer_status = (is_arb ? ::glCheckFramebufferStatus : ::glCheckFramebufferStatusEXT);
+	assert(check_framebuffer_status != nullptr);
+
+	const auto framebuffer_status = check_framebuffer_status(GL_FRAMEBUFFER);
+
+	if (framebuffer_status != GL_FRAMEBUFFER_COMPLETE)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void Ogl1XRenderer::blit_internal_framebuffer()
+{
+	if (ogl_internal_fbo_ == GL_NONE)
+	{
+		return;
+	}
+
+	const auto is_arb = extension_manager_->has_extension(OglExtensionId::arb_framebuffer_object);
+
+	const auto blit_framebuffer = (is_arb ? ::glBlitFramebuffer : ::glBlitFramebufferEXT);
+	assert(blit_framebuffer != nullptr);
+
+	bind_framebuffer(GL_READ_FRAMEBUFFER, ogl_internal_fbo_);
+	bind_framebuffer(GL_DRAW_FRAMEBUFFER, GL_NONE);
+
+	blit_framebuffer(
+		0,
+		0,
+		screen_width_,
+		screen_height_,
+		0,
+		0,
+		screen_width_,
+		screen_height_,
+		GL_COLOR_BUFFER_BIT,
+		GL_LINEAR
+	);
+
+	bind_framebuffer(GL_DRAW_FRAMEBUFFER, ogl_internal_fbo_);
 }
 
 void Ogl1XRenderer::viewport_set_rectangle()

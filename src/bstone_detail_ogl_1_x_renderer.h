@@ -328,6 +328,13 @@ private:
 	int screen_width_;
 	int screen_height_;
 
+	RendererAaKind aa_kind_;
+	int aa_value_;
+
+	GLuint ogl_internal_fbo_;
+	GLuint ogl_internal_color_rb_;
+	GLuint ogl_internal_depth_stencil_rb_;
+
 	int viewport_x_;
 	int viewport_y_;
 	int viewport_width_;
@@ -394,6 +401,49 @@ private:
 
 	void uninitialize_internal(
 		const bool is_dtor = false);
+
+
+	void destroy_renderbuffer(
+		GLuint& ogl_renderbuffer_name);
+
+	bool create_renderbuffer(
+		GLuint& ogl_renderbuffer_name);
+
+	void bind_renderbuffer(
+		const GLenum ogl_target,
+		const GLuint ogl_renderbuffer_name);
+
+
+	void destroy_framebuffer(
+		GLuint& ogl_framebuffer_name);
+
+	bool create_framebuffer(
+		GLuint& ogl_framebuffer_name);
+
+	void bind_framebuffer(
+		const GLenum ogl_target,
+		const GLuint ogl_framebuffer_name);
+
+
+	void destroy_internal_color_rb();
+
+	void destroy_internal_depth_stencil_rb();
+
+	void destroy_internal_fbo();
+
+	void destroy_internal_framebuffer();
+
+	bool create_internal_color_rb(
+		const int width,
+		const int height);
+
+	bool create_internal_depth_stencil_rb(
+		const int width,
+		const int height);
+
+	bool create_internal_framebuffer();
+
+	void blit_internal_framebuffer();
 
 
 	void viewport_set_rectangle();
@@ -496,6 +546,9 @@ private:
 	void vertex_input_assign();
 
 	void vertex_input_defaults();
+
+
+	bool initialize_internal_framebuffer();
 
 
 	void command_execute_culling(
