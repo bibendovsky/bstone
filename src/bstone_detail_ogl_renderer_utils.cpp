@@ -406,8 +406,10 @@ void OglRendererUtils::mipmap_probe(
 
 void OglRendererUtils::framebuffer_probe(
 	OglExtensionManagerPtr extension_manager,
-	RendererDeviceFeatures& device_features)
+	RendererDeviceFeatures& device_features,
+	OglRendererUtilsDeviceFeatures& ogl_device_features)
 {
+	auto is_arb = false;
 	auto is_available = false;
 
 	if (!is_available)
@@ -415,6 +417,11 @@ void OglRendererUtils::framebuffer_probe(
 		extension_manager->probe_extension(OglExtensionId::arb_framebuffer_object);
 
 		is_available = extension_manager->has_extension(OglExtensionId::arb_framebuffer_object);
+
+		if (is_available)
+		{
+			is_arb = true;
+		}
 	}
 
 	if (!is_available)
@@ -441,6 +448,11 @@ void OglRendererUtils::framebuffer_probe(
 	}
 
 	device_features.framebuffer_is_available_ = is_available;
+
+	if (is_available)
+	{
+		ogl_device_features.framebuffer_is_arb_ = is_arb;
+	}
 }
 
 int OglRendererUtils::msaa_get_max_value(

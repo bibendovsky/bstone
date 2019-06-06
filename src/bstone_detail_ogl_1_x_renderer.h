@@ -105,6 +105,11 @@ public:
 		const bool is_visible) override;
 
 
+	bool aa_set(
+		const RendererAaKind aa_kind,
+		const int aa_value) override;
+
+
 	void color_buffer_set_clear_color(
 		const R8g8b8a8& color) override;
 
@@ -444,6 +449,12 @@ private:
 	bool create_internal_framebuffer();
 
 	void blit_internal_framebuffer();
+
+
+	void aa_disable();
+
+	bool msaa_set(
+		const int aa_value);
 
 
 	void viewport_set_rectangle();

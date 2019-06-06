@@ -58,6 +58,7 @@ struct VidConfiguration
 	using BoolModValue = bstone::ModValue<bool>;
 	using IntModValue = bstone::ModValue<int>;
 	using FilterModValue = bstone::ModValue<bstone::RendererFilterKind>;
+	using AaKindModValue = bstone::ModValue<bstone::RendererAaKind>;
 
 
 	BoolModValue is_ui_stretched_;
@@ -70,6 +71,9 @@ struct VidConfiguration
 
 	BoolModValue hw_3d_texture_anisotropy_;
 	IntModValue hw_3d_texture_anisotropy_value_;
+
+	AaKindModValue hw_aa_kind_;
+	IntModValue hw_aa_value_;
 }; // VidConfiguration
 
 
@@ -298,6 +302,11 @@ const std::string& vid_get_hw_3d_texture_mipmap_filter_key_name();
 const std::string& vid_get_hw_3d_texture_anisotropy_key_name();
 
 const std::string& vid_get_hw_3d_texture_anisotropy_value_key_name();
+
+
+const std::string& vid_get_hw_aa_kind_key_name();
+
+const std::string& vid_get_hw_aa_value_key_name();
 
 
 void vid_read_configuration_key_value(

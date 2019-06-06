@@ -781,6 +781,11 @@ public:
 		const bool is_visible) = 0;
 
 
+	virtual bool aa_set(
+		const RendererAaKind aa_kind,
+		const int aa_value) = 0;
+
+
 	virtual void color_buffer_set_clear_color(
 		const R8g8b8a8& color) = 0;
 

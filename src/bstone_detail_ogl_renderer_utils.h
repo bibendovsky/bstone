@@ -62,6 +62,8 @@ struct OglRendererUtilsDeviceFeatures
 	OglRendererUtilsContextType context_type_;
 
 	PFNGLGENERATEMIPMAPPROC mipmap_function_;
+
+	bool framebuffer_is_arb_;
 }; // OglRendererUtilsDeviceFeatures
 
 
@@ -136,7 +138,8 @@ public:
 
 	static void framebuffer_probe(
 		OglExtensionManagerPtr extension_manager,
-		RendererDeviceFeatures& device_features);
+		RendererDeviceFeatures& device_features,
+		OglRendererUtilsDeviceFeatures& ogl_device_features);
 
 	static int msaa_get_max_value(
 		OglExtensionManagerPtr extension_manager);

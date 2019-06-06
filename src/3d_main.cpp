@@ -7628,7 +7628,9 @@ void read_text_config()
 						key_string == ::vid_get_hw_3d_texture_image_filter_key_name() ||
 						key_string == ::vid_get_hw_3d_texture_mipmap_filter_key_name() ||
 						key_string == ::vid_get_hw_3d_texture_anisotropy_key_name() ||
-						key_string == ::vid_get_hw_3d_texture_anisotropy_value_key_name())
+						key_string == ::vid_get_hw_3d_texture_anisotropy_value_key_name() ||
+						key_string == ::vid_get_hw_aa_kind_key_name() ||
+						key_string == vid_get_hw_aa_value_key_name())
 					{
 						::vid_read_configuration_key_value(key_string, value_string);
 					}

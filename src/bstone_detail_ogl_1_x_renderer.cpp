@@ -853,6 +853,26 @@ void Ogl1XRenderer::window_show(
 	static_cast<void>(renderer_utils.show_window(sdl_window_.get(), is_visible));
 }
 
+bool Ogl1XRenderer::aa_set(
+	const RendererAaKind aa_kind,
+	const int aa_value)
+{
+	switch (aa_kind)
+	{
+		case RendererAaKind::none:
+			aa_disable();
+			return true;
+
+		case RendererAaKind::ms:
+			return msaa_set(aa_value);
+
+		default:
+			error_message_ = "Invalid AA kind.";
+
+			return false;
+	}
+}
+
 void Ogl1XRenderer::color_buffer_set_clear_color(
 	const R8g8b8a8& color)
 {
@@ -1212,7 +1232,8 @@ bool Ogl1XRenderer::probe_or_initialize(
 
 	OglRendererUtils::framebuffer_probe(
 		extension_manager_.get(),
-		device_features_
+		device_features_,
+		ogl_device_features_
 	);
 
 	if (!is_probe)
@@ -1459,7 +1480,9 @@ void Ogl1XRenderer::destroy_renderbuffer(
 		return;
 	}
 
-	const auto is_arb = extension_manager_->has_extension(OglExtensionId::arb_framebuffer_object);
+	assert(device_features_.framebuffer_is_available_);
+
+	const auto is_arb = ogl_device_features_.framebuffer_is_arb_;
 	const auto delete_renderbuffers = (is_arb ? ::glDeleteRenderbuffers : ::glDeleteRenderbuffersEXT);
 	assert(delete_renderbuffers != nullptr);
 
@@ -1472,8 +1495,9 @@ bool Ogl1XRenderer::create_renderbuffer(
 	GLuint& ogl_renderbuffer_name)
 {
 	assert(ogl_renderbuffer_name == GL_NONE);
+	assert(device_features_.framebuffer_is_available_);
 
-	const auto is_arb = extension_manager_->has_extension(OglExtensionId::arb_framebuffer_object);
+	const auto is_arb = ogl_device_features_.framebuffer_is_arb_;
 	const auto gen_renderbuffers = (is_arb ? ::glGenRenderbuffers : ::glGenRenderbuffersEXT);
 	assert(gen_renderbuffers != nullptr);
 
@@ -1487,7 +1511,9 @@ void Ogl1XRenderer::bind_renderbuffer(
 	const GLenum ogl_target,
 	const GLuint ogl_renderbuffer_name)
 {
-	const auto is_arb = extension_manager_->has_extension(OglExtensionId::arb_framebuffer_object);
+	assert(device_features_.framebuffer_is_available_);
+
+	const auto is_arb = ogl_device_features_.framebuffer_is_arb_;
 	const auto bind_renderbuffer = (is_arb ? ::glBindRenderbuffer : ::glBindRenderbufferEXT);
 
 	bind_renderbuffer(ogl_target, ogl_renderbuffer_name);
@@ -1502,7 +1528,9 @@ void Ogl1XRenderer::destroy_framebuffer(
 		return;
 	}
 
-	const auto is_arb = extension_manager_->has_extension(OglExtensionId::arb_framebuffer_object);
+	assert(device_features_.framebuffer_is_available_);
+
+	const auto is_arb = ogl_device_features_.framebuffer_is_arb_;
 	const auto delete_framebuffers = (is_arb ? ::glDeleteFramebuffers : ::glDeleteFramebuffersEXT);
 	assert(delete_framebuffers != nullptr);
 
@@ -1515,8 +1543,9 @@ bool Ogl1XRenderer::create_framebuffer(
 	GLuint& ogl_framebuffer_name)
 {
 	assert(ogl_framebuffer_name == GL_NONE);
+	assert(device_features_.framebuffer_is_available_);
 
-	const auto is_arb = extension_manager_->has_extension(OglExtensionId::arb_framebuffer_object);
+	const auto is_arb = ogl_device_features_.framebuffer_is_arb_;
 	const auto gen_framebuffers = (is_arb ? ::glGenFramebuffers : ::glGenFramebuffersEXT);
 	assert(gen_framebuffers != nullptr);
 
@@ -1530,7 +1559,9 @@ void Ogl1XRenderer::bind_framebuffer(
 	const GLenum ogl_target,
 	const GLuint ogl_framebuffer_name)
 {
-	const auto is_arb = extension_manager_->has_extension(OglExtensionId::arb_framebuffer_object);
+	assert(device_features_.framebuffer_is_available_);
+
+	const auto is_arb = ogl_device_features_.framebuffer_is_arb_;
 	const auto bind_framebuffer = (is_arb ? ::glBindFramebuffer : ::glBindFramebufferEXT);
 
 	bind_framebuffer(ogl_target, ogl_framebuffer_name);
@@ -1574,7 +1605,9 @@ bool Ogl1XRenderer::create_internal_color_rb(
 	bind_renderbuffer(GL_RENDERBUFFER, ogl_internal_color_rb_);
 
 
-	const auto is_arb = extension_manager_->has_extension(OglExtensionId::arb_framebuffer_object);
+	assert(device_features_.framebuffer_is_available_);
+
+	const auto is_arb = ogl_device_features_.framebuffer_is_arb_;
 	const auto renderbuffer_storage_multisample = (is_arb ? ::glRenderbufferStorageMultisample : ::glRenderbufferStorageMultisampleEXT);
 	assert(renderbuffer_storage_multisample != nullptr);
 
@@ -1612,7 +1645,9 @@ bool Ogl1XRenderer::create_internal_depth_stencil_rb(
 	bind_renderbuffer(GL_RENDERBUFFER, ogl_internal_depth_stencil_rb_);
 
 
-	const auto is_arb = extension_manager_->has_extension(OglExtensionId::arb_framebuffer_object);
+	assert(device_features_.framebuffer_is_available_);
+
+	const auto is_arb = ogl_device_features_.framebuffer_is_arb_;
 	const auto renderbuffer_storage_multisample = (is_arb ? ::glRenderbufferStorageMultisample : ::glRenderbufferStorageMultisampleEXT);
 	assert(renderbuffer_storage_multisample != nullptr);
 
@@ -1654,7 +1689,7 @@ bool Ogl1XRenderer::create_internal_framebuffer()
 
 	bind_framebuffer(GL_FRAMEBUFFER, ogl_internal_fbo_);
 
-	const auto is_arb = extension_manager_->has_extension(OglExtensionId::arb_framebuffer_object);
+	const auto is_arb = ogl_device_features_.framebuffer_is_arb_;
 
 	const auto framebuffer_renderbuffer = (is_arb ? ::glFramebufferRenderbuffer : ::glFramebufferRenderbufferEXT);
 	assert(framebuffer_renderbuffer != nullptr);
@@ -1682,7 +1717,9 @@ void Ogl1XRenderer::blit_internal_framebuffer()
 		return;
 	}
 
-	const auto is_arb = extension_manager_->has_extension(OglExtensionId::arb_framebuffer_object);
+	assert(device_features_.framebuffer_is_available_);
+
+	const auto is_arb = ogl_device_features_.framebuffer_is_arb_;
 
 	const auto blit_framebuffer = (is_arb ? ::glBlitFramebuffer : ::glBlitFramebufferEXT);
 	assert(blit_framebuffer != nullptr);
@@ -1704,6 +1741,45 @@ void Ogl1XRenderer::blit_internal_framebuffer()
 	);
 
 	bind_framebuffer(GL_DRAW_FRAMEBUFFER, ogl_internal_fbo_);
+}
+
+void Ogl1XRenderer::aa_disable()
+{
+	if (ogl_internal_fbo_ == GL_NONE)
+	{
+		return;
+	}
+
+	if (aa_value_ <= RendererUtils::aa_get_min_value())
+	{
+		return;
+	}
+
+	destroy_internal_framebuffer();
+	static_cast<void>(create_internal_framebuffer());
+}
+
+bool Ogl1XRenderer::msaa_set(
+	const int aa_value)
+{
+	if (ogl_internal_fbo_ == GL_NONE)
+	{
+		error_message_ = "No off-screen framebuffer.";
+
+		return false;
+	}
+
+	if (aa_kind_ == RendererAaKind::ms ||
+		aa_value_ == aa_value)
+	{
+		return true;
+	}
+
+	aa_kind_ = RendererAaKind::ms;
+	aa_value_ = aa_value;
+
+	destroy_internal_framebuffer();
+	return create_internal_framebuffer();
 }
 
 void Ogl1XRenderer::viewport_set_rectangle()

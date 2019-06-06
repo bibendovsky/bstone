@@ -2311,8 +2311,8 @@ bool hw_renderer_initialize()
 	auto param = bstone::RendererInitializeParam{};
 	param.renderer_path_ = probe.path_;
 
-	param.aa_kind_ = bstone::RendererAaKind::ms;
-	param.aa_value_ = 64;
+	param.aa_kind_ = ::vid_configuration_.hw_aa_kind_;
+	param.aa_value_ = ::vid_configuration_.hw_aa_value_;
 
 #ifdef __vita__
 	param.window_.is_visible_ = true;
@@ -6370,6 +6370,22 @@ void vid_apply_hw_3d_texture_filter_configuration()
 	::hw_3d_sampler_sprite_update();
 	::hw_3d_sampler_wall_update();
 	::hw_3d_player_weapon_sampler_update();
+}
+
+void vid_apply_hw_aa_configuration()
+{
+	if (!::vid_configuration_.hw_aa_kind_.is_modified() &&
+		!::vid_configuration_.hw_aa_value_.is_modified())
+	{
+		return;
+	}
+
+	::vid_configuration_.hw_aa_kind_.set_is_modified(false);
+	::vid_configuration_.hw_aa_value_.set_is_modified(false);
+
+	const auto aa_result = ::hw_renderer_->aa_set(
+		::vid_configuration_.hw_aa_kind_,
+		::vid_configuration_.hw_aa_value_);
 }
 
 void hw_3d_fade_update()
@@ -11990,6 +12006,20 @@ const std::string& vid_get_linear_filter_value_string()
 	return result;
 }
 
+const std::string& vid_get_aa_none_value_string()
+{
+	static const auto& result = std::string{"none"};
+
+	return result;
+}
+
+const std::string& vid_get_aa_msaa_value_string()
+{
+	static const auto& result = std::string{"msaa"};
+
+	return result;
+}
+
 const std::string& vid_get_is_widescreen_key_name()
 {
 	static const auto& result = std::string{"vid_is_widescreen"};
@@ -12035,6 +12065,20 @@ const std::string& vid_get_hw_3d_texture_anisotropy_key_name()
 const std::string& vid_get_hw_3d_texture_anisotropy_value_key_name()
 {
 	static const auto& result = std::string{"vid_hw_3d_texture_anisotropy_value"};
+
+	return result;
+}
+
+const std::string& vid_get_hw_aa_kind_key_name()
+{
+	static const auto& result = std::string{"vid_hw_aa_kind"};
+
+	return result;
+}
+
+const std::string& vid_get_hw_aa_value_key_name()
+{
+	static const auto& result = std::string{"vid_hw_aa_value"};
 
 	return result;
 }
@@ -12142,6 +12186,30 @@ void vid_configuration_read_hw_3d_texture_anisotropy_value(
 	}
 }
 
+void vid_configuration_read_hw_aa_kind(
+	const std::string& value_string)
+{
+	if (value_string == ::vid_get_aa_none_value_string())
+	{
+		::vid_configuration_.hw_aa_kind_ = bstone::RendererAaKind::none;
+	}
+	else if (value_string == ::vid_get_aa_msaa_value_string())
+	{
+		::vid_configuration_.hw_aa_kind_ = bstone::RendererAaKind::ms;
+	}
+}
+
+void vid_configuration_read_hw_aa_value(
+	const std::string& value_string)
+{
+	int value = 0;
+
+	if (bstone::StringHelper::string_to_int(value_string, value))
+	{
+		::vid_configuration_.hw_aa_value_ = value;
+	}
+}
+
 void vid_read_configuration_key_value(
 	const std::string& key_string,
 	const std::string& value_string)
@@ -12174,9 +12242,42 @@ void vid_read_configuration_key_value(
 	{
 		::vid_configuration_read_hw_3d_texture_anisotropy_value(value_string);
 	}
+	else if (key_string == ::vid_get_hw_aa_kind_key_name())
+	{
+		::vid_configuration_read_hw_aa_kind(value_string);
+	}
+	else if (key_string == ::vid_get_hw_aa_value_key_name())
+	{
+		::vid_configuration_read_hw_aa_value(value_string);
+	}
 	else
 	{
 		assert(!"Invalid key name.");
+	}
+}
+
+void vid_write_hw_aa_kind_configuration(
+	bstone::TextWriter& text_writer)
+{
+	switch (::vid_configuration_.hw_aa_kind_)
+	{
+		case bstone::RendererAaKind::ms:
+			::write_configuration_entry(
+				text_writer,
+				::vid_get_hw_aa_kind_key_name(),
+				::vid_get_aa_msaa_value_string()
+			);
+
+			break;
+
+		default:
+			::write_configuration_entry(
+				text_writer,
+				::vid_get_hw_aa_kind_key_name(),
+				::vid_get_aa_none_value_string()
+			);
+
+			break;
 	}
 }
 
@@ -12199,6 +12300,18 @@ void vid_write_configuration(
 		text_writer,
 		::vid_get_is_ui_stretched_key_name(),
 		std::to_string(::vid_configuration_.is_ui_stretched_)
+	);
+
+	// vid_hw_aa_kind
+	//
+	vid_write_hw_aa_kind_configuration(text_writer);
+
+	// vid_hw_aa_value
+	//
+	::write_configuration_entry(
+		text_writer,
+		::vid_get_hw_aa_value_key_name(),
+		std::to_string(::vid_configuration_.hw_aa_value_)
 	);
 
 	// vid_hw_2d_texture_filter
@@ -12754,6 +12867,7 @@ void vid_apply_hw_configuration()
 		return;
 	}
 
+	::vid_apply_hw_aa_configuration();
 	::vid_apply_hw_is_ui_stretched_configuration();
 	::vid_apply_hw_is_widescreen_configuration();
 	::vid_apply_hw_2d_texture_filter_configuration();
