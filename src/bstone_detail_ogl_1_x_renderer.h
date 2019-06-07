@@ -105,6 +105,11 @@ public:
 		const bool is_visible) override;
 
 
+	bool downscale_set(
+		const int width,
+		const int height) override;
+
+
 	bool aa_set(
 		const RendererAaKind aa_kind,
 		const int aa_value) override;
@@ -332,6 +337,9 @@ private:
 
 	int screen_width_;
 	int screen_height_;
+
+	int downscale_width_;
+	int downscale_height_;
 
 	RendererAaKind aa_kind_;
 	int aa_value_;

@@ -610,6 +610,8 @@ Ogl1XRenderer::Ogl1XRenderer()
 	ogl_device_features_{},
 	screen_width_{},
 	screen_height_{},
+	downscale_width_{},
+	downscale_height_{},
 	aa_kind_{},
 	aa_value_{},
 	ogl_internal_fbo_{},
@@ -673,6 +675,8 @@ Ogl1XRenderer::Ogl1XRenderer(
 	ogl_device_features_{std::move(rhs.ogl_device_features_)},
 	screen_width_{std::move(rhs.screen_width_)},
 	screen_height_{std::move(rhs.screen_height_)},
+	downscale_width_{std::move(rhs.downscale_width_)},
+	downscale_height_{std::move(rhs.downscale_height_)},
 	aa_kind_{std::move(rhs.aa_kind_)},
 	aa_value_{std::move(rhs.aa_value_)},
 	ogl_internal_fbo_{std::move(rhs.ogl_internal_fbo_)},
@@ -853,6 +857,42 @@ void Ogl1XRenderer::window_show(
 	static_cast<void>(renderer_utils.show_window(sdl_window_.get(), is_visible));
 }
 
+bool Ogl1XRenderer::downscale_set(
+	const int width,
+	const int height)
+{
+	if (width <= 0 ||
+		width > screen_width_ ||
+		height <= 0 ||
+		height > screen_height_)
+	{
+		error_message_ = "Dimensions out of range.";
+
+		return false;
+	}
+
+	if (!device_features_.framebuffer_is_available_)
+	{
+		error_message_ = "Off-screen framebuffer not supported.";
+
+		return false;
+	}
+
+	if (ogl_internal_fbo_ == GL_NONE)
+	{
+		error_message_ = "No off-screen framebuffer.";
+
+		return false;
+	}
+
+	downscale_width_ = width;
+	downscale_height_ = height;
+
+	destroy_internal_framebuffer();
+
+	return create_internal_framebuffer();
+}
+
 bool Ogl1XRenderer::aa_set(
 	const RendererAaKind aa_kind,
 	const int aa_value)
@@ -895,6 +935,11 @@ void Ogl1XRenderer::present()
 	blit_internal_framebuffer();
 
 	OglRendererUtils::swap_window(sdl_window_.get());
+
+	if (ogl_internal_fbo_ != GL_NONE)
+	{
+		bind_framebuffer(GL_FRAMEBUFFER, ogl_internal_fbo_);
+	}
 }
 
 RendererIndexBufferPtr Ogl1XRenderer::index_buffer_create(
@@ -1178,6 +1223,20 @@ bool Ogl1XRenderer::probe_or_initialize(
 		return false;
 	}
 
+	if (!is_probe)
+	{
+		downscale_width_ = param.downscale_width_;
+		downscale_height_ = param.downscale_height_;
+
+		if (downscale_width_ <= 0 || downscale_width_ > param.downscale_width_ ||
+			downscale_height_ <= 0 || downscale_height_ > param.downscale_height_)
+		{
+			error_message_ = "Downscale dimensions out of range.";
+
+			return false;
+		}
+	}
+
 	extension_manager_ = detail::OglExtensionManagerFactory::create();
 
 	if (extension_manager_ == nullptr)
@@ -1393,6 +1452,8 @@ void Ogl1XRenderer::uninitialize_internal(
 		ogl_device_features_ = {};
 		screen_width_ = {};
 		screen_height_ = {};
+		downscale_width_ = {};
+		downscale_height_ = {};
 		viewport_x_ = {};
 		viewport_y_ = {};
 		viewport_width_ = {};
@@ -1672,12 +1733,12 @@ bool Ogl1XRenderer::create_internal_depth_stencil_rb(
 
 bool Ogl1XRenderer::create_internal_framebuffer()
 {
-	if (!create_internal_color_rb(screen_width_, screen_height_))
+	if (!create_internal_color_rb(downscale_width_, downscale_height_))
 	{
 		return false;
 	}
 
-	if (!create_internal_depth_stencil_rb(screen_width_, screen_height_))
+	if (!create_internal_depth_stencil_rb(downscale_width_, downscale_height_))
 	{
 		return false;
 	}
@@ -1730,17 +1791,17 @@ void Ogl1XRenderer::blit_internal_framebuffer()
 	blit_framebuffer(
 		0,
 		0,
-		screen_width_,
-		screen_height_,
+		downscale_width_,
+		downscale_height_,
 		0,
 		0,
 		screen_width_,
 		screen_height_,
 		GL_COLOR_BUFFER_BIT,
-		GL_LINEAR
+		GL_NEAREST
 	);
 
-	bind_framebuffer(GL_DRAW_FRAMEBUFFER, ogl_internal_fbo_);
+	bind_framebuffer(GL_FRAMEBUFFER, GL_NONE);
 }
 
 void Ogl1XRenderer::aa_disable()

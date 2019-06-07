@@ -150,6 +150,9 @@ public:
 	RendererPath renderer_path_;
 	RendererInitializeWindowParam window_;
 
+	int downscale_width_;
+	int downscale_height_;
+
 	RendererAaKind aa_kind_;
 	int aa_value_;
 }; // RendererInitializeParam
@@ -779,6 +782,11 @@ public:
 
 	virtual void window_show(
 		const bool is_visible) = 0;
+
+
+	virtual bool downscale_set(
+		const int width,
+		const int height) = 0;
 
 
 	virtual bool aa_set(
