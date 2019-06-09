@@ -111,9 +111,6 @@ extern int screen_y;
 extern int screen_width;
 extern int screen_height;
 
-extern int actual_screen_width;
-extern int actual_screen_height;
-
 extern int vga_scale;
 extern double vga_height_scale; // vga_width / 240
 extern double vga_width_scale; // vga_width / 320

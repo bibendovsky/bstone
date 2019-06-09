@@ -923,6 +923,29 @@ bool RendererUtils::create_window_set_ogl_attributes(
 			}
 
 			break;
+
+
+		case RendererAaKind::none:
+		default:
+			sdl_result = ::SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
+
+			if (sdl_result != 0)
+			{
+				error_message_ = "Failed to set multisample buffer count.";
+
+				return false;
+			}
+
+			sdl_result = ::SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
+
+			if (sdl_result != 0)
+			{
+				error_message_ = "Failed to set multisample sample count.";
+
+				return false;
+			}
+
+			break;
 	}
 
 	if (param.is_default_depth_buffer_disabled_)

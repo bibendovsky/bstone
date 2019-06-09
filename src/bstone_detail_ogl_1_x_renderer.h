@@ -423,7 +423,6 @@ private:
 		GLuint& ogl_renderbuffer_name);
 
 	void bind_renderbuffer(
-		const GLenum ogl_target,
 		const GLuint ogl_renderbuffer_name);
 
 

@@ -925,6 +925,11 @@ void Ogl1XRenderer::clear_buffers()
 {
 	assert(is_initialized_);
 
+	if (ogl_internal_fbo_ != GL_NONE)
+	{
+		bind_framebuffer(GL_FRAMEBUFFER, ogl_internal_fbo_);
+	}
+
 	OglRendererUtils::clear_buffers();
 }
 
@@ -935,11 +940,6 @@ void Ogl1XRenderer::present()
 	blit_internal_framebuffer();
 
 	OglRendererUtils::swap_window(sdl_window_.get());
-
-	if (ogl_internal_fbo_ != GL_NONE)
-	{
-		bind_framebuffer(GL_FRAMEBUFFER, ogl_internal_fbo_);
-	}
 }
 
 RendererIndexBufferPtr Ogl1XRenderer::index_buffer_create(
@@ -1165,7 +1165,7 @@ bool Ogl1XRenderer::probe_or_initialize(
 		window_param.is_opengl_ = true;
 		window_param.window_ = param.window_;
 		window_param.aa_kind_ = RendererAaKind::none;
-		window_param.aa_value_ = RendererUtils::aa_get_min_value();
+		window_param.aa_value_ = 0;
 
 		const auto& probe_device_features = probe_.device_features_;
 
@@ -1334,8 +1334,8 @@ bool Ogl1XRenderer::probe_or_initialize(
 
 		// Present.
 		//
-		OglRendererUtils::clear_buffers();
-		OglRendererUtils::swap_window(sdl_window_.get());
+		clear_buffers();
+		present();
 	}
 
 	return true;
@@ -1543,6 +1543,8 @@ void Ogl1XRenderer::destroy_renderbuffer(
 
 	assert(device_features_.framebuffer_is_available_);
 
+	bind_renderbuffer(GL_NONE);
+
 	const auto is_arb = ogl_device_features_.framebuffer_is_arb_;
 	const auto delete_renderbuffers = (is_arb ? ::glDeleteRenderbuffers : ::glDeleteRenderbuffersEXT);
 	assert(delete_renderbuffers != nullptr);
@@ -1569,7 +1571,6 @@ bool Ogl1XRenderer::create_renderbuffer(
 }
 
 void Ogl1XRenderer::bind_renderbuffer(
-	const GLenum ogl_target,
 	const GLuint ogl_renderbuffer_name)
 {
 	assert(device_features_.framebuffer_is_available_);
@@ -1577,7 +1578,7 @@ void Ogl1XRenderer::bind_renderbuffer(
 	const auto is_arb = ogl_device_features_.framebuffer_is_arb_;
 	const auto bind_renderbuffer = (is_arb ? ::glBindRenderbuffer : ::glBindRenderbufferEXT);
 
-	bind_renderbuffer(ogl_target, ogl_renderbuffer_name);
+	bind_renderbuffer(GL_RENDERBUFFER, ogl_renderbuffer_name);
 	assert(!OglRendererUtils::was_errors());
 }
 
@@ -1590,6 +1591,8 @@ void Ogl1XRenderer::destroy_framebuffer(
 	}
 
 	assert(device_features_.framebuffer_is_available_);
+
+	bind_framebuffer(GL_FRAMEBUFFER, GL_NONE);
 
 	const auto is_arb = ogl_device_features_.framebuffer_is_arb_;
 	const auto delete_framebuffers = (is_arb ? ::glDeleteFramebuffers : ::glDeleteFramebuffersEXT);
@@ -1663,7 +1666,7 @@ bool Ogl1XRenderer::create_internal_color_rb(
 		return false;
 	}
 
-	bind_renderbuffer(GL_RENDERBUFFER, ogl_internal_color_rb_);
+	bind_renderbuffer(ogl_internal_color_rb_);
 
 
 	assert(device_features_.framebuffer_is_available_);
@@ -1686,7 +1689,7 @@ bool Ogl1XRenderer::create_internal_color_rb(
 	renderbuffer_storage_multisample(GL_RENDERBUFFER, sample_count, GL_RGBA8, width, height);
 	assert(!OglRendererUtils::was_errors());
 
-	bind_renderbuffer(GL_RENDERBUFFER, GL_NONE);
+	bind_renderbuffer(GL_NONE);
 
 	return true;
 }
@@ -1703,7 +1706,7 @@ bool Ogl1XRenderer::create_internal_depth_stencil_rb(
 		return false;
 	}
 
-	bind_renderbuffer(GL_RENDERBUFFER, ogl_internal_depth_stencil_rb_);
+	bind_renderbuffer(ogl_internal_depth_stencil_rb_);
 
 
 	assert(device_features_.framebuffer_is_available_);
@@ -1726,7 +1729,7 @@ bool Ogl1XRenderer::create_internal_depth_stencil_rb(
 	renderbuffer_storage_multisample(GL_RENDERBUFFER, sample_count, GL_DEPTH24_STENCIL8, width, height);
 	assert(!OglRendererUtils::was_errors());
 
-	bind_renderbuffer(GL_RENDERBUFFER, GL_NONE);
+	bind_renderbuffer(GL_NONE);
 
 	return true;
 }
@@ -1768,6 +1771,8 @@ bool Ogl1XRenderer::create_internal_framebuffer()
 		return false;
 	}
 
+	bind_framebuffer(GL_FRAMEBUFFER, GL_NONE);
+
 	return true;
 }
 
@@ -1785,7 +1790,6 @@ void Ogl1XRenderer::blit_internal_framebuffer()
 	const auto blit_framebuffer = (is_arb ? ::glBlitFramebuffer : ::glBlitFramebufferEXT);
 	assert(blit_framebuffer != nullptr);
 
-	bind_framebuffer(GL_READ_FRAMEBUFFER, ogl_internal_fbo_);
 	bind_framebuffer(GL_DRAW_FRAMEBUFFER, GL_NONE);
 
 	blit_framebuffer(
@@ -1800,6 +1804,8 @@ void Ogl1XRenderer::blit_internal_framebuffer()
 		GL_COLOR_BUFFER_BIT,
 		GL_NEAREST
 	);
+
+	assert(!OglRendererUtils::was_errors());
 
 	bind_framebuffer(GL_FRAMEBUFFER, GL_NONE);
 }
