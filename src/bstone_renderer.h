@@ -786,7 +786,8 @@ public:
 
 	virtual bool downscale_set(
 		const int width,
-		const int height) = 0;
+		const int height,
+		const RendererFilterKind blit_filter) = 0;
 
 
 	virtual bool aa_set(

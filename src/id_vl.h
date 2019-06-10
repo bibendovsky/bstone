@@ -64,6 +64,10 @@ struct VidConfiguration
 	BoolModValue is_ui_stretched_;
 	BoolModValue is_widescreen_;
 
+	IntModValue downscale_width_;
+	IntModValue downscale_height_;
+	FilterModValue hw_downscale_blit_filter_;
+
 	FilterModValue hw_2d_texture_filter_;
 
 	FilterModValue hw_3d_texture_image_filter_;
@@ -307,6 +311,13 @@ const std::string& vid_get_hw_3d_texture_anisotropy_value_key_name();
 const std::string& vid_get_hw_aa_kind_key_name();
 
 const std::string& vid_get_hw_aa_value_key_name();
+
+
+const std::string& vid_get_downscale_width_key_name();
+
+const std::string& vid_get_downscale_height_key_name();
+
+const std::string& vid_get_hw_downscale_blit_filter_key_name();
 
 
 void vid_read_configuration_key_value(

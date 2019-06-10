@@ -107,7 +107,8 @@ public:
 
 	bool downscale_set(
 		const int width,
-		const int height) override;
+		const int height,
+		const RendererFilterKind blit_filter) override;
 
 
 	bool aa_set(
@@ -340,6 +341,7 @@ private:
 
 	int downscale_width_;
 	int downscale_height_;
+	RendererFilterKind downscale_blit_filter_;
 
 	RendererAaKind aa_kind_;
 	int aa_value_;

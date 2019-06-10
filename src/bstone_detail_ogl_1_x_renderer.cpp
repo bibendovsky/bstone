@@ -612,6 +612,7 @@ Ogl1XRenderer::Ogl1XRenderer()
 	screen_height_{},
 	downscale_width_{},
 	downscale_height_{},
+	downscale_blit_filter_{},
 	aa_kind_{},
 	aa_value_{},
 	ogl_msaa_fbo_{},
@@ -679,6 +680,7 @@ Ogl1XRenderer::Ogl1XRenderer(
 	screen_height_{std::move(rhs.screen_height_)},
 	downscale_width_{std::move(rhs.downscale_width_)},
 	downscale_height_{std::move(rhs.downscale_height_)},
+	downscale_blit_filter_{std::move(rhs.downscale_blit_filter_)},
 	aa_kind_{std::move(rhs.aa_kind_)},
 	aa_value_{std::move(rhs.aa_value_)},
 	ogl_msaa_fbo_{std::move(rhs.ogl_msaa_fbo_)},
@@ -736,6 +738,9 @@ Ogl1XRenderer::Ogl1XRenderer(
 	rhs.ogl_msaa_fbo_ = GL_NONE;
 	rhs.ogl_msaa_color_rb_ = GL_NONE;
 	rhs.ogl_msaa_depth_rb_ = GL_NONE;
+
+	rhs.ogl_downscale_fbo_ = GL_NONE;
+	rhs.ogl_downscale_color_rb_ = GL_NONE;
 }
 
 Ogl1XRenderer::~Ogl1XRenderer()
@@ -863,7 +868,8 @@ void Ogl1XRenderer::window_show(
 
 bool Ogl1XRenderer::downscale_set(
 	const int width,
-	const int height)
+	const int height,
+	const RendererFilterKind blit_filter)
 {
 	if (width <= 0 ||
 		width > screen_width_ ||
@@ -873,6 +879,18 @@ bool Ogl1XRenderer::downscale_set(
 		error_message_ = "Dimensions out of range.";
 
 		return false;
+	}
+
+	switch (blit_filter)
+	{
+		case RendererFilterKind::nearest:
+		case RendererFilterKind::linear:
+			break;
+
+		default:
+			error_message_ = "Invalid blit filter.";
+
+			return false;
 	}
 
 	if (!device_features_.framebuffer_is_available_)
@@ -891,10 +909,11 @@ bool Ogl1XRenderer::downscale_set(
 
 	downscale_width_ = width;
 	downscale_height_ = height;
+	downscale_blit_filter_ = blit_filter;
 
-	msaa_framebuffer_destroy();
+	framebuffers_destroy();
 
-	return msaa_framebuffer_create();
+	return framebuffers_create();
 }
 
 bool Ogl1XRenderer::aa_set(
@@ -1455,6 +1474,7 @@ void Ogl1XRenderer::uninitialize_internal(
 		screen_height_ = {};
 		downscale_width_ = {};
 		downscale_height_ = {};
+		downscale_blit_filter_ = {};
 		viewport_x_ = {};
 		viewport_y_ = {};
 		viewport_width_ = {};
@@ -1889,6 +1909,8 @@ void Ogl1XRenderer::framebuffers_blit()
 		return;
 	}
 
+	auto is_blit_filter_linear = (downscale_blit_filter_ == RendererFilterKind::linear);
+
 	if (ogl_downscale_fbo_ != GL_NONE)
 	{
 		// MSAA FBO -> Non-MSAA FBO -> Default FBO
@@ -1916,7 +1938,7 @@ void Ogl1XRenderer::framebuffers_blit()
 			downscale_height_,
 			screen_width_,
 			screen_height_,
-			false
+			is_blit_filter_linear
 		);
 	}
 	else
@@ -1933,7 +1955,7 @@ void Ogl1XRenderer::framebuffers_blit()
 			downscale_height_,
 			screen_width_,
 			screen_height_,
-			false
+			is_blit_filter_linear
 		);
 	}
 }

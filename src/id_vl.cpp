@@ -79,14 +79,6 @@ int screen_y = 0;
 int screen_width = 0;
 int screen_height = 0;
 
-#if 1
-int vid_downscale_window_width_ = 400;
-int vid_downscale_window_height_ = 240;
-#else
-int vid_downscale_window_width_ = 0;
-int vid_downscale_window_height_ = 0;
-#endif
-
 bool vid_has_vsync = false;
 bool vid_is_hud = false;
 bool vid_is_3d = false;
@@ -4029,15 +4021,27 @@ void vid_calculate_window_elements_dimensions(
 
 void hw_dimensions_calculate()
 {
-	auto downscale_window_width = ::vid_downscale_window_width_;
-	auto downscale_window_height = ::vid_downscale_window_height_;
+	auto downscale_window_width = static_cast<int>(::vid_configuration_.downscale_width_);
+	auto downscale_window_height = static_cast<int>(::vid_configuration_.downscale_height_);
 
-	if (downscale_window_width < ::vga_ref_width ||
-		downscale_window_height < ::vga_ref_height_4x3)
+	if (downscale_window_width <= 0)
+	{
+		downscale_window_width = ::window_width;
+	}
+	else if (downscale_window_width < ::vga_ref_width)
 	{
 		downscale_window_width = ::vga_ref_width;
+	}
+
+	if (downscale_window_height <= 0)
+	{
+		downscale_window_height = ::window_height;
+	}
+	else if (downscale_window_height < ::vga_ref_height_4x3)
+	{
 		downscale_window_height = ::vga_ref_height_4x3;
 	}
+
 
 	const auto ref_absolute_epsilon = 1E-6;
 
@@ -6489,6 +6493,42 @@ void hw_widescreen_update()
 	::hw_3d_fade_vb_update();
 }
 
+void hw_downscale_update()
+{
+	::hw_dimensions_calculate();
+	::SetViewSize();
+	::hw_3d_matrix_projection_build();
+	::hw_3d_player_weapon_projection_matrix_build();
+	::hw_3d_fade_vb_update();
+
+
+	auto blit_filter = *::vid_configuration_.hw_downscale_blit_filter_;
+
+	switch (blit_filter)
+	{
+		case bstone::RendererFilterKind::nearest:
+		case bstone::RendererFilterKind::linear:
+			break;
+
+		default:
+			blit_filter = bstone::RendererFilterKind::nearest;
+			break;
+	}
+
+	const auto downscale_set_result = ::hw_renderer_->downscale_set(
+		::hw_downscale_.window_width_,
+		::hw_downscale_.window_height_,
+		blit_filter
+	);
+
+	if (!downscale_set_result)
+	{
+		::Quit("Failed to set downsample parameters. " + ::hw_renderer_->get_error_message());
+
+		return;
+	}
+}
+
 void vid_apply_hw_is_ui_stretched_configuration()
 {
 	if (!::vid_configuration_.is_ui_stretched_.is_modified())
@@ -6541,6 +6581,22 @@ void vid_apply_hw_3d_texture_filter_configuration()
 	::hw_3d_sampler_sprite_update();
 	::hw_3d_sampler_wall_update();
 	::hw_3d_player_weapon_sampler_update();
+}
+
+void vid_apply_hw_downscale_configuration()
+{
+	if (!::vid_configuration_.downscale_width_.is_modified() &&
+		!::vid_configuration_.downscale_height_.is_modified() &&
+		!::vid_configuration_.hw_downscale_blit_filter_.is_modified())
+	{
+		return;
+	}
+
+	::vid_configuration_.downscale_width_.set_is_modified(false);
+	::vid_configuration_.downscale_height_.set_is_modified(false);
+	::vid_configuration_.hw_downscale_blit_filter_.set_is_modified(false);
+
+	::hw_downscale_update();
 }
 
 void vid_apply_hw_aa_configuration()
@@ -12254,6 +12310,27 @@ const std::string& vid_get_hw_aa_value_key_name()
 	return result;
 }
 
+const std::string& vid_get_downscale_width_key_name()
+{
+	static const auto& result = std::string{"vid_downscale_width"};
+
+	return result;
+}
+
+const std::string& vid_get_downscale_height_key_name()
+{
+	static const auto& result = std::string{"vid_downscale_height"};
+
+	return result;
+}
+
+const std::string& vid_get_hw_downscale_blit_filter_key_name()
+{
+	static const auto& result = std::string{"vid_hw_downscale_blit_filter"};
+
+	return result;
+}
+
 const std::string& vid_filter_to_string(
 	const bstone::RendererFilterKind filter)
 {
@@ -12381,6 +12458,41 @@ void vid_configuration_read_hw_aa_value(
 	}
 }
 
+void vid_configuration_read_downscale_width_value(
+	const std::string& value_string)
+{
+	int value = 0;
+
+	if (bstone::StringHelper::string_to_int(value_string, value))
+	{
+		::vid_configuration_.downscale_width_ = value;
+	}
+}
+
+void vid_configuration_read_downscale_height_value(
+	const std::string& value_string)
+{
+	int value = 0;
+
+	if (bstone::StringHelper::string_to_int(value_string, value))
+	{
+		::vid_configuration_.downscale_height_ = value;
+	}
+}
+
+void vid_configuration_read_hw_downscale_blit_filter_value(
+	const std::string& value_string)
+{
+	if (value_string == ::vid_get_nearest_filter_value_string())
+	{
+		::vid_configuration_.hw_downscale_blit_filter_ = bstone::RendererFilterKind::nearest;
+	}
+	else if (value_string == ::vid_get_linear_filter_value_string())
+	{
+		::vid_configuration_.hw_downscale_blit_filter_ = bstone::RendererFilterKind::linear;
+	}
+}
+
 void vid_read_configuration_key_value(
 	const std::string& key_string,
 	const std::string& value_string)
@@ -12420,6 +12532,18 @@ void vid_read_configuration_key_value(
 	else if (key_string == ::vid_get_hw_aa_value_key_name())
 	{
 		::vid_configuration_read_hw_aa_value(value_string);
+	}
+	else if (key_string == ::vid_get_downscale_width_key_name())
+	{
+		::vid_configuration_read_downscale_width_value(value_string);
+	}
+	else if (key_string == ::vid_get_downscale_height_key_name())
+	{
+		::vid_configuration_read_downscale_height_value(value_string);
+	}
+	else if (key_string == ::vid_get_hw_downscale_blit_filter_key_name())
+	{
+		::vid_configuration_read_hw_downscale_blit_filter_value(value_string);
 	}
 	else
 	{
@@ -12471,6 +12595,30 @@ void vid_write_configuration(
 		text_writer,
 		::vid_get_is_ui_stretched_key_name(),
 		std::to_string(::vid_configuration_.is_ui_stretched_)
+	);
+
+	// vid_downscale_width
+	//
+	::write_configuration_entry(
+		text_writer,
+		::vid_get_downscale_width_key_name(),
+		std::to_string(::vid_configuration_.downscale_width_)
+	);
+
+	// vid_downscale_height
+	//
+	::write_configuration_entry(
+		text_writer,
+		::vid_get_downscale_height_key_name(),
+		std::to_string(::vid_configuration_.downscale_height_)
+	);
+
+	// vid_hw_downscale_blit_filter
+	//
+	::write_configuration_entry(
+		text_writer,
+		::vid_get_hw_downscale_blit_filter_key_name(),
+		::vid_filter_to_string(::vid_configuration_.hw_downscale_blit_filter_)
 	);
 
 	// vid_hw_aa_kind
@@ -13038,6 +13186,7 @@ void vid_apply_hw_configuration()
 		return;
 	}
 
+	::vid_apply_hw_downscale_configuration();
 	::vid_apply_hw_aa_configuration();
 	::vid_apply_hw_is_ui_stretched_configuration();
 	::vid_apply_hw_is_widescreen_configuration();
