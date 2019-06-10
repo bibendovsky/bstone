@@ -344,9 +344,12 @@ private:
 	RendererAaKind aa_kind_;
 	int aa_value_;
 
-	GLuint ogl_internal_fbo_;
-	GLuint ogl_internal_color_rb_;
-	GLuint ogl_internal_depth_stencil_rb_;
+	GLuint ogl_msaa_fbo_;
+	GLuint ogl_msaa_color_rb_;
+	GLuint ogl_msaa_depth_rb_;
+
+	GLuint ogl_downscale_fbo_;
+	GLuint ogl_downscale_color_rb_;
 
 	int viewport_x_;
 	int viewport_y_;
@@ -416,46 +419,82 @@ private:
 		const bool is_dtor = false);
 
 
-	void destroy_renderbuffer(
+	void renderbuffer_destroy(
 		GLuint& ogl_renderbuffer_name);
 
-	bool create_renderbuffer(
+	bool renderbuffer_create(
 		GLuint& ogl_renderbuffer_name);
 
-	void bind_renderbuffer(
+	bool renderbuffer_create(
+		const int width,
+		const int height,
+		const int sample_count,
+		const GLenum ogl_internal_format,
+		GLuint& ogl_rb_name);
+
+	void renderbuffer_bind(
 		const GLuint ogl_renderbuffer_name);
 
 
-	void destroy_framebuffer(
+	void framebuffer_destroy(
 		GLuint& ogl_framebuffer_name);
 
-	bool create_framebuffer(
+	bool framebuffer_create(
 		GLuint& ogl_framebuffer_name);
 
-	void bind_framebuffer(
+	void framebuffer_bind(
 		const GLenum ogl_target,
 		const GLuint ogl_framebuffer_name);
 
+	void framebuffer_blit(
+		const int src_width,
+		const int src_height,
+		const int dst_width,
+		const int dst_height,
+		const bool is_linear_filter);
 
-	void destroy_internal_color_rb();
 
-	void destroy_internal_depth_stencil_rb();
+	void msaa_color_rb_destroy();
 
-	void destroy_internal_fbo();
+	void msaa_depth_rb_destroy();
 
-	void destroy_internal_framebuffer();
+	void msaa_fbo_destroy();
 
-	bool create_internal_color_rb(
+	void msaa_framebuffer_destroy();
+
+	bool msaa_color_rb_create(
+		const int width,
+		const int height,
+		const int sample_count);
+
+	bool msaa_depth_rb_create(
+		const int width,
+		const int height,
+		const int sample_count);
+
+	bool msaa_framebuffer_create();
+
+
+	void downscale_color_rb_destroy();
+
+	void downscale_fbo_destroy();
+
+	void downscale_framebuffer_destroy();
+
+	bool downscale_color_rb_create(
 		const int width,
 		const int height);
 
-	bool create_internal_depth_stencil_rb(
-		const int width,
-		const int height);
+	bool downscale_framebuffer_create();
 
-	bool create_internal_framebuffer();
 
-	void blit_internal_framebuffer();
+	void framebuffers_destroy();
+
+	bool framebuffers_create();
+
+	void framebuffers_blit();
+
+	void framebuffers_bind();
 
 
 	void aa_disable();
@@ -564,9 +603,6 @@ private:
 	void vertex_input_assign();
 
 	void vertex_input_defaults();
-
-
-	bool initialize_internal_framebuffer();
 
 
 	void command_execute_culling(

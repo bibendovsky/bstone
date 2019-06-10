@@ -517,6 +517,11 @@ bool OglRendererUtils::was_errors()
 	return was_error;
 }
 
+void OglRendererUtils::clear_errors()
+{
+	static_cast<void>(was_errors());
+}
+
 void OglRendererUtils::set_color_buffer_clear_color(
 	const R8g8b8a8& color)
 {

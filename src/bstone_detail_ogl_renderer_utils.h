@@ -152,6 +152,8 @@ public:
 
 	static bool was_errors();
 
+	static void clear_errors();
+
 
 	static void set_color_buffer_clear_color(
 		const R8g8b8a8& color);
