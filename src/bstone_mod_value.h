@@ -95,6 +95,17 @@ public:
 	}
 
 
+	T& operator*()
+	{
+		return value_;
+	}
+
+	const T& operator*() const
+	{
+		return value_;
+	}
+
+
 	bool is_modified() const
 	{
 		return is_modified_;
