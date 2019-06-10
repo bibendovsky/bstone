@@ -1764,7 +1764,7 @@ bool Ogl1XRenderer::msaa_depth_rb_create(
 
 bool Ogl1XRenderer::msaa_framebuffer_create()
 {
-	auto sample_count = 0;
+	auto sample_count = aa_value_;
 
 	if (sample_count <= 1)
 	{
