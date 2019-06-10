@@ -4032,6 +4032,10 @@ void hw_dimensions_calculate()
 	{
 		downscale_window_width = ::vga_ref_width;
 	}
+	else if (downscale_window_width > ::window_width)
+	{
+		downscale_window_width = ::window_width;
+	}
 
 	if (downscale_window_height <= 0)
 	{
@@ -4040,6 +4044,10 @@ void hw_dimensions_calculate()
 	else if (downscale_window_height < ::vga_ref_height_4x3)
 	{
 		downscale_window_height = ::vga_ref_height_4x3;
+	}
+	else if (downscale_window_height > ::window_height)
+	{
+		downscale_window_height = ::window_height;
 	}
 
 
@@ -6497,6 +6505,7 @@ void hw_downscale_update()
 {
 	::hw_dimensions_calculate();
 	::SetViewSize();
+	::hw_2d_matrix_projection_build();
 	::hw_3d_matrix_projection_build();
 	::hw_3d_player_weapon_projection_matrix_build();
 	::hw_3d_fade_vb_update();
