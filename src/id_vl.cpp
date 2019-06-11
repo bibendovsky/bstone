@@ -4024,7 +4024,11 @@ void hw_dimensions_calculate()
 	auto downscale_window_width = static_cast<int>(::vid_configuration_.downscale_width_);
 	auto downscale_window_height = static_cast<int>(::vid_configuration_.downscale_height_);
 
-	if (downscale_window_width <= 0)
+	if (!::vid_configuration_.is_downscale_)
+	{
+		downscale_window_width = ::window_width;
+	}
+	else if (downscale_window_width <= 0)
 	{
 		downscale_window_width = ::window_width;
 	}
@@ -4037,7 +4041,11 @@ void hw_dimensions_calculate()
 		downscale_window_width = ::window_width;
 	}
 
-	if (downscale_window_height <= 0)
+	if (!::vid_configuration_.is_downscale_)
+	{
+		downscale_window_height = ::window_height;
+	}
+	else if (downscale_window_height <= 0)
 	{
 		downscale_window_height = ::window_height;
 	}
@@ -6594,13 +6602,15 @@ void vid_apply_hw_3d_texture_filter_configuration()
 
 void vid_apply_hw_downscale_configuration()
 {
-	if (!::vid_configuration_.downscale_width_.is_modified() &&
+	if (!::vid_configuration_.is_downscale_.is_modified() &&
+		!::vid_configuration_.downscale_width_.is_modified() &&
 		!::vid_configuration_.downscale_height_.is_modified() &&
 		!::vid_configuration_.hw_downscale_blit_filter_.is_modified())
 	{
 		return;
 	}
 
+	::vid_configuration_.is_downscale_.set_is_modified(false);
 	::vid_configuration_.downscale_width_.set_is_modified(false);
 	::vid_configuration_.downscale_height_.set_is_modified(false);
 	::vid_configuration_.hw_downscale_blit_filter_.set_is_modified(false);
@@ -12319,6 +12329,13 @@ const std::string& vid_get_hw_aa_value_key_name()
 	return result;
 }
 
+const std::string& vid_get_is_downscale_key_name()
+{
+	static const auto& result = std::string{"vid_is_downscale"};
+
+	return result;
+}
+
 const std::string& vid_get_downscale_width_key_name()
 {
 	static const auto& result = std::string{"vid_downscale_width"};
@@ -12467,6 +12484,17 @@ void vid_configuration_read_hw_aa_value(
 	}
 }
 
+void vid_configuration_read_is_downscale_value(
+	const std::string& value_string)
+{
+	int value = 0;
+
+	if (bstone::StringHelper::string_to_int(value_string, value))
+	{
+		::vid_configuration_.is_downscale_ = value;
+	}
+}
+
 void vid_configuration_read_downscale_width_value(
 	const std::string& value_string)
 {
@@ -12542,6 +12570,10 @@ void vid_read_configuration_key_value(
 	{
 		::vid_configuration_read_hw_aa_value(value_string);
 	}
+	else if (key_string == ::vid_get_is_downscale_key_name())
+	{
+		::vid_configuration_read_is_downscale_value(value_string);
+	}
 	else if (key_string == ::vid_get_downscale_width_key_name())
 	{
 		::vid_configuration_read_downscale_width_value(value_string);
@@ -12604,6 +12636,14 @@ void vid_write_configuration(
 		text_writer,
 		::vid_get_is_ui_stretched_key_name(),
 		std::to_string(::vid_configuration_.is_ui_stretched_)
+	);
+
+	// vid_is_downscale
+	//
+	::write_configuration_entry(
+		text_writer,
+		::vid_get_is_downscale_key_name(),
+		std::to_string(::vid_configuration_.is_downscale_)
 	);
 
 	// vid_downscale_width

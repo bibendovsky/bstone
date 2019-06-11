@@ -64,6 +64,7 @@ struct VidConfiguration
 	BoolModValue is_ui_stretched_;
 	BoolModValue is_widescreen_;
 
+	BoolModValue is_downscale_;
 	IntModValue downscale_width_;
 	IntModValue downscale_height_;
 	FilterModValue hw_downscale_blit_filter_;
@@ -312,6 +313,8 @@ const std::string& vid_get_hw_aa_kind_key_name();
 
 const std::string& vid_get_hw_aa_value_key_name();
 
+
+const std::string& vid_get_is_downscale_key_name();
 
 const std::string& vid_get_downscale_width_key_name();
 
