@@ -99,6 +99,58 @@ namespace
 {
 
 
+/*
+
+Window elements.
+
+A--B------------------------------------------------------------------------C
+|                                                                           |
+|                                                                           |
+D  E------------F-----------------------------------------G--------------H  |
+|  | FILLER (1) |             TOP STATUS BAR              |  FILLER (1)  |  |
+|  I- - - - - - +-----------------------------------------+ - - - - - - -+  |
+|  J- - - - - - +-----------------------------------------+ - - - - - - -+  |
+|  |            |                                         |              |  |
+|  |   FILLER   |                                         |    FILLER    |  |
+|  |     OR     |                 3D VIEW                 |      OR      |  |
+|  |  3D VIEW   |                                         |   3D VIEW*   |  |
+|  |     (2)    |                                         |      (2)     |  |
+|  K- - - - - - +-----------------------------------------+ - - - - - - -+  |
+|  L- - - - - - +-----------------------------------------+ - - - - - - -+  |
+|  |            |                                         |              |  |
+|  |   FILLER   |            BOTTOM STATUS BAR            |    FILLER    |  |
+|  |     (3)    |                                         |      (3)     |  |
+|  |            |                                         |              |  |
+|  M------------+-----------------------------------------+--------------+  |
+|                                                                           |
+|                                                                           |
+N---------------------------------------------------------------------------+
+
+Legend:
+    - AC - window width;
+    - AN - window height;
+    - AB - window viewport left width;
+    - AD - window viewport top height;
+    - EH - screen width;
+    - EM - screen height;
+    - EF - screen left filler width;
+    - GH - screen right filler width;
+    - EI - screen top filler height;
+    - LM - screen bottom filler height;
+    - FG - screen width (4x3);
+    - EJ - screen viewport top height;
+    - KM - screen viewport bottom height;
+    - JK - screen viewport height;
+    - IJ/KL - margin height.
+
+Notes:
+    (1) Top status bar if stretch is on or filler otherwise.
+    (2) 3D view if widescreen is on or filler otherwise.
+    (3) Bottom status bar if stretch is on or filler otherwise.
+
+*/
+
+
 constexpr int default_window_width = 640;
 constexpr int default_window_height = 480;
 
@@ -151,6 +203,8 @@ bool vid_use_custom_window_position = false;
 int vid_window_x = 0;
 int vid_window_y = 0;
 
+WindowElementsDimensions downscale_;
+
 SDL_DisplayMode display_mode;
 bool vid_is_windowed = false;
 bstone::SdlWindowUPtr sw_window = nullptr;
@@ -173,6 +227,183 @@ const auto sw_ref_filler_color = SDL_Color{0x00, 0x28, 0x50, 0xFF, };
 auto sw_filler_color = SDL_Color{};
 
 const auto filler_color_index = 0xE8;
+
+
+struct CalculateScreenSizeInputParam
+{
+	bool is_widescreen_;
+
+	int window_width_;
+	int window_height_;
+}; // CalculateScreenSizeInputParam
+
+int vid_align_dimension(
+	const int dimension)
+{
+	const auto alignment = 2;
+
+	return ((dimension + (alignment - 1)) / alignment) * alignment;
+}
+
+void vid_calculate_window_elements_dimensions(
+	const CalculateScreenSizeInputParam& src_param,
+	WindowElementsDimensions& dst_param)
+{
+	const auto window_width = src_param.window_width_;
+	const auto window_height = src_param.window_height_;
+
+	assert(window_width >= ::vga_ref_width);
+	assert(window_height >= ::vga_ref_height_4x3);
+
+	auto screen_width = (window_width / 2) * 2;
+	auto screen_height = (window_height / 2) * 2;
+
+	const auto min_r_ratio = 3.0 / 4.0;
+	const auto r_ratio = static_cast<double>(window_height) / static_cast<double>(window_width);
+
+	if (r_ratio > min_r_ratio)
+	{
+		screen_height = (((screen_width * 3) / 4) / 2) * 2;
+	}
+
+	//
+	const auto window_viewport_left_width = (window_width - screen_width) / 2;
+	const auto window_viewport_right_width = window_width - screen_width - window_viewport_left_width;
+	const auto window_viewport_top_height = (window_height - screen_height) / 2;
+	const auto window_viewport_bottom_height = window_height - screen_height - window_viewport_top_height;
+
+	//
+	const auto screen_width_4x3 = (((screen_height * 4) / 3) / 2) * 2;
+
+	const auto screen_left_filler_width = (screen_width - screen_width_4x3) / 2;
+	const auto screen_right_filler_width = screen_width - screen_width_4x3 - screen_left_filler_width;
+
+	const auto screen_top_filler_height = (::ref_top_bar_height * screen_height) / ::vga_ref_height;
+	const auto screen_bottom_filler_height = (::ref_bottom_bar_height * screen_height) / ::vga_ref_height;
+
+	auto screen_viewport_left_width = 0;
+	auto screen_viewport_right_width = 0;
+	auto screen_viewport_width = 0;
+
+	if (src_param.is_widescreen_)
+	{
+		screen_viewport_width = screen_width;
+	}
+	else
+	{
+		screen_viewport_left_width = screen_left_filler_width;
+		screen_viewport_right_width = screen_width - screen_width_4x3 - screen_left_filler_width;
+		screen_viewport_width = screen_width_4x3;
+	}
+
+	const auto screen_viewport_top_height = ((::ref_top_bar_height + ::ref_3d_margin) * screen_height) / ::vga_ref_height;
+	const auto screen_viewport_bottom_height = ((::ref_bottom_bar_height + ::ref_3d_margin) * screen_height) / ::vga_ref_height;
+	const auto screen_viewport_height = screen_height - screen_viewport_top_height - screen_viewport_bottom_height;
+
+	//
+	dst_param.window_width_ = window_width;
+	dst_param.window_height_ = window_height;
+
+	dst_param.window_viewport_left_width_ = window_viewport_left_width;
+	dst_param.window_viewport_right_width_ = window_viewport_right_width;
+	dst_param.window_viewport_top_height_ = window_viewport_top_height;
+	dst_param.window_viewport_bottom_height_ = window_viewport_bottom_height;
+
+	dst_param.screen_width_ = screen_width;
+	dst_param.screen_height_ = screen_height;
+
+	dst_param.screen_width_4x3_ = screen_width_4x3;
+
+	dst_param.screen_left_filler_width_ = screen_left_filler_width;
+	dst_param.screen_right_filler_width_ = screen_right_filler_width;
+
+	dst_param.screen_top_filler_height_ = screen_top_filler_height;
+	dst_param.screen_bottom_filler_height_ = screen_bottom_filler_height;
+
+	dst_param.screen_viewport_left_width_ = screen_viewport_left_width;
+	dst_param.screen_viewport_right_width_ = screen_viewport_right_width;
+	dst_param.screen_viewport_width_ = screen_viewport_width;
+
+	dst_param.screen_viewport_top_height_ = screen_viewport_top_height;
+	dst_param.screen_viewport_bottom_height_ = screen_viewport_bottom_height;
+	dst_param.screen_viewport_height_ = screen_viewport_height;
+}
+
+CalculateScreenSizeInputParam vid_create_downscale_param()
+{
+	auto downscale_window_width = static_cast<int>(::vid_configuration_.downscale_width_);
+	auto downscale_window_height = static_cast<int>(::vid_configuration_.downscale_height_);
+
+	if (!::vid_configuration_.is_downscale_)
+	{
+		downscale_window_width = ::window_width;
+	}
+	else if (downscale_window_width <= 0)
+	{
+		downscale_window_width = ::window_width;
+	}
+	else if (downscale_window_width < ::vga_ref_width)
+	{
+		downscale_window_width = ::vga_ref_width;
+	}
+	else if (downscale_window_width > ::window_width)
+	{
+		downscale_window_width = ::window_width;
+	}
+
+	if (!::vid_configuration_.is_downscale_)
+	{
+		downscale_window_height = ::window_height;
+	}
+	else if (downscale_window_height <= 0)
+	{
+		downscale_window_height = ::window_height;
+	}
+	else if (downscale_window_height < ::vga_ref_height_4x3)
+	{
+		downscale_window_height = ::vga_ref_height_4x3;
+	}
+	else if (downscale_window_height > ::window_height)
+	{
+		downscale_window_height = ::window_height;
+	}
+
+
+	const auto ref_absolute_epsilon = 1E-6;
+
+	const auto width_ratio = static_cast<double>(::window_width) / static_cast<double>(downscale_window_width);
+	const auto height_ratio = static_cast<double>(::window_height) / static_cast<double>(downscale_window_height);
+
+	const auto absolute_epsilon = std::abs(width_ratio - height_ratio);
+
+	if (absolute_epsilon > ref_absolute_epsilon)
+	{
+		downscale_window_width = ::window_width;
+		downscale_window_height = ::window_height;
+	}
+
+	auto result = CalculateScreenSizeInputParam{};
+	result.is_widescreen_ = ::vid_configuration_.is_widescreen_;
+	result.window_width_ = downscale_window_width;
+	result.window_height_ = downscale_window_height;
+
+	return result;
+}
+
+void vid_dimensions_vga_calculate()
+{
+	::vga_width = ::downscale_.screen_viewport_width_;
+	::vga_height = ::vid_align_dimension((10 * ::downscale_.screen_height_) / 12);
+
+	::vga_width_scale = static_cast<double>(::vga_width) / static_cast<double>(::vga_ref_width);
+	::vga_height_scale = static_cast<double>(::vga_height) / static_cast<double>(::vga_ref_height);
+
+	::vga_wide_scale =
+		static_cast<double>(::vga_ref_height * ::vga_width) /
+		static_cast<double>(::vga_ref_width * ::vga_height);
+
+	::vga_area = ::vga_width * ::vga_height;
+}
 
 
 void sw_initialize_vga_buffer()
@@ -1711,8 +1942,6 @@ constexpr auto hw_2d_fillers_hud_index_offset_ = 6 * ::hw_2d_fillers_ui_quad_cou
 constexpr auto hw_2d_fillers_vertex_count_ = hw_2d_fillers_quad_count * 4;
 
 
-WindowElementsDimensions hw_downscale_;
-
 
 // Reference horizontal FOV of the camera (degrees).
 // (Found out empirical.)
@@ -2349,8 +2578,8 @@ bool hw_renderer_initialize()
 	param.window_.width_ = ::window_width;
 	param.window_.height_ = ::window_height;
 
-	param.downscale_width_ = ::hw_downscale_.window_width_;
-	param.downscale_height_ = ::hw_downscale_.window_height_;
+	param.downscale_width_ = ::downscale_.window_width_;
+	param.downscale_height_ = ::downscale_.window_height_;
 
 	param.window_.title_utf8_ = title;
 
@@ -2432,7 +2661,7 @@ void hw_2d_vb_fill_x_stretched(
 	auto vertex_index = vertex_offset;
 	auto& vertices = ::hw_2d_vertices_;
 
-	const auto height_f = static_cast<float>(::hw_downscale_.screen_height_);
+	const auto height_f = static_cast<float>(::downscale_.screen_height_);
 
 	// Bottom left.
 	{
@@ -2470,17 +2699,17 @@ void hw_2d_vb_fill_x_stretched(
 void hw_2d_vb_fill_stretched()
 {
 	const auto left_f = 0.0F;
-	const auto right_f = static_cast<float>(::hw_downscale_.screen_width_);
-	const auto width_f = static_cast<float>(::hw_downscale_.screen_width_);
+	const auto right_f = static_cast<float>(::downscale_.screen_width_);
+	const auto width_f = static_cast<float>(::downscale_.screen_width_);
 
 	hw_2d_vb_fill_x_stretched(left_f, right_f, width_f, ::hw_2d_stretched_vertex_offset_);
 }
 
 void hw_2d_vb_fill_non_stretched()
 {
-	const auto left_f = static_cast<float>(::hw_downscale_.screen_left_filler_width_);
-	const auto right_f = static_cast<float>(::hw_downscale_.screen_width_ - ::hw_downscale_.screen_right_filler_width_);
-	const auto width_f = static_cast<float>(::hw_downscale_.screen_width_4x3_);
+	const auto left_f = static_cast<float>(::downscale_.screen_left_filler_width_);
+	const auto right_f = static_cast<float>(::downscale_.screen_width_ - ::downscale_.screen_right_filler_width_);
+	const auto width_f = static_cast<float>(::downscale_.screen_width_4x3_);
 
 	hw_2d_vb_fill_x_stretched(left_f, right_f, width_f, ::hw_2d_non_stretched_vertex_offset_);
 }
@@ -2591,15 +2820,15 @@ bool hw_2d_fillers_vb_create()
 	);
 
 	const auto left_left_f = static_cast<float>(0.0F);
-	const auto left_right_f = static_cast<float>(::hw_downscale_.screen_left_filler_width_);
+	const auto left_right_f = static_cast<float>(::downscale_.screen_left_filler_width_);
 
-	const auto right_left_f = static_cast<float>(::hw_downscale_.screen_width_ - ::hw_downscale_.screen_right_filler_width_);
-	const auto right_right_f = static_cast<float>(::hw_downscale_.screen_width_);
+	const auto right_left_f = static_cast<float>(::downscale_.screen_width_ - ::downscale_.screen_right_filler_width_);
+	const auto right_right_f = static_cast<float>(::downscale_.screen_width_);
 
-	const auto top_top_f = static_cast<float>(::hw_downscale_.screen_height_);
-	const auto top_bottom_f = static_cast<float>(::hw_downscale_.screen_height_ - ::hw_downscale_.screen_top_filler_height_);
+	const auto top_top_f = static_cast<float>(::downscale_.screen_height_);
+	const auto top_bottom_f = static_cast<float>(::downscale_.screen_height_ - ::downscale_.screen_top_filler_height_);
 
-	const auto bottom_top_f = static_cast<float>(::hw_downscale_.screen_bottom_filler_height_);
+	const auto bottom_top_f = static_cast<float>(::downscale_.screen_bottom_filler_height_);
 	const auto bottom_bottom_f = static_cast<float>(0.0F);
 
 	auto vertex_index = 0;
@@ -3867,229 +4096,13 @@ void hw_palette_initialize()
 	}
 }
 
-int vid_align_dimension(
-	const int dimension)
-{
-	const auto alignment = 2;
-
-	return ((dimension + (alignment - 1)) / alignment) * alignment;
-}
-
-/*
-
-Window elements.
-
-A--B------------------------------------------------------------------------C
-|                                                                           |
-|                                                                           |
-D  E------------F-----------------------------------------G--------------H  |
-|  | FILLER (1) |             TOP STATUS BAR              |  FILLER (1)  |  |
-|  I- - - - - - +-----------------------------------------+ - - - - - - -+  |
-|  J- - - - - - +-----------------------------------------+ - - - - - - -+  |
-|  |            |                                         |              |  |
-|  |   FILLER   |                                         |    FILLER    |  |
-|  |     OR     |                 3D VIEW                 |      OR      |  |
-|  |  3D VIEW   |                                         |   3D VIEW*   |  |
-|  |     (2)    |                                         |      (2)     |  |
-|  K- - - - - - +-----------------------------------------+ - - - - - - -+  |
-|  L- - - - - - +-----------------------------------------+ - - - - - - -+  |
-|  |            |                                         |              |  |
-|  |   FILLER   |            BOTTOM STATUS BAR            |    FILLER    |  |
-|  |     (3)    |                                         |      (3)     |  |
-|  |            |                                         |              |  |
-|  M------------+-----------------------------------------+--------------+  |
-|                                                                           |
-|                                                                           |
-N---------------------------------------------------------------------------+
-
-Legend:
-    - AC - window width;
-    - AN - window height;
-    - AB - window viewport left width;
-    - AD - window viewport top height;
-    - EH - screen width;
-    - EM - screen height;
-    - EF - screen left filler width;
-    - GH - screen right filler width;
-    - EI - screen top filler height;
-    - LM - screen bottom filler height;
-    - FG - screen width (4x3);
-    - EJ - screen viewport top height;
-    - KM - screen viewport bottom height;
-    - JK - screen viewport height;
-    - IJ/KL - margin height.
-
-Notes:
-    (1) Top status bar if stretch is on or filler otherwise.
-    (2) 3D view if widescreen is on or filler otherwise.
-    (3) Bottom status bar if stretch is on or filler otherwise.
-
-*/
-
-
-struct CalculateScreenSizeInputParam
-{
-	bool is_widescreen_;
-
-	int window_width_;
-	int window_height_;
-}; // CalculateScreenSizeInputParam
-
-void vid_calculate_window_elements_dimensions(
-	const CalculateScreenSizeInputParam& src_param,
-	WindowElementsDimensions& dst_param)
-{
-	const auto window_width = src_param.window_width_;
-	const auto window_height = src_param.window_height_;
-
-	assert(window_width >= ::vga_ref_width);
-	assert(window_height >= ::vga_ref_height_4x3);
-
-	auto screen_width = (window_width / 2) * 2;
-	auto screen_height = (window_height / 2) * 2;
-
-	const auto min_r_ratio = 3.0 / 4.0;
-	const auto r_ratio = static_cast<double>(window_height) / static_cast<double>(window_width);
-
-	if (r_ratio > min_r_ratio)
-	{
-		screen_height = (((screen_width * 3) / 4) / 2) * 2;
-	}
-
-	//
-	const auto window_viewport_left_width = (window_width - screen_width) / 2;
-	const auto window_viewport_right_width = window_width - screen_width - window_viewport_left_width;
-	const auto window_viewport_top_height = (window_height - screen_height) / 2;
-	const auto window_viewport_bottom_height = window_height - screen_height - window_viewport_top_height;
-
-	//
-	const auto screen_width_4x3 = (((screen_height * 4) / 3) / 2) * 2;
-
-	const auto screen_left_filler_width = (screen_width - screen_width_4x3) / 2;
-	const auto screen_right_filler_width = screen_width - screen_width_4x3 - screen_left_filler_width;
-
-	const auto screen_top_filler_height = (::ref_top_bar_height * screen_height) / ::vga_ref_height;
-	const auto screen_bottom_filler_height = (::ref_bottom_bar_height * screen_height) / ::vga_ref_height;
-
-	auto screen_viewport_left_width = 0;
-	auto screen_viewport_right_width = 0;
-	auto screen_viewport_width = 0;
-
-	if (src_param.is_widescreen_)
-	{
-		screen_viewport_width = screen_width;
-	}
-	else
-	{
-		screen_viewport_left_width = screen_left_filler_width;
-		screen_viewport_right_width = screen_width - screen_width_4x3 - screen_left_filler_width;
-		screen_viewport_width = screen_width_4x3;
-	}
-
-	const auto screen_viewport_top_height = ((::ref_top_bar_height + ::ref_3d_margin) * screen_height) / ::vga_ref_height;
-	const auto screen_viewport_bottom_height = ((::ref_bottom_bar_height + ::ref_3d_margin) * screen_height) / ::vga_ref_height;
-	const auto screen_viewport_height = screen_height - screen_viewport_top_height - screen_viewport_bottom_height;
-
-	//
-	dst_param.window_width_ = window_width;
-	dst_param.window_height_ = window_height;
-
-	dst_param.window_viewport_left_width_ = window_viewport_left_width;
-	dst_param.window_viewport_right_width_ = window_viewport_right_width;
-	dst_param.window_viewport_top_height_ = window_viewport_top_height;
-	dst_param.window_viewport_bottom_height_ = window_viewport_bottom_height;
-
-	dst_param.screen_width_ = screen_width;
-	dst_param.screen_height_ = screen_height;
-
-	dst_param.screen_width_4x3_ = screen_width_4x3;
-
-	dst_param.screen_left_filler_width_ = screen_left_filler_width;
-	dst_param.screen_right_filler_width_ = screen_right_filler_width;
-
-	dst_param.screen_top_filler_height_ = screen_top_filler_height;
-	dst_param.screen_bottom_filler_height_ = screen_bottom_filler_height;
-
-	dst_param.screen_viewport_left_width_ = screen_viewport_left_width;
-	dst_param.screen_viewport_right_width_ = screen_viewport_right_width;
-	dst_param.screen_viewport_width_ = screen_viewport_width;
-
-	dst_param.screen_viewport_top_height_ = screen_viewport_top_height;
-	dst_param.screen_viewport_bottom_height_ = screen_viewport_bottom_height;
-	dst_param.screen_viewport_height_ = screen_viewport_height;
-}
-
 void hw_dimensions_calculate()
 {
-	auto downscale_window_width = static_cast<int>(::vid_configuration_.downscale_width_);
-	auto downscale_window_height = static_cast<int>(::vid_configuration_.downscale_height_);
+	auto src_param = ::vid_create_downscale_param();
 
-	if (!::vid_configuration_.is_downscale_)
-	{
-		downscale_window_width = ::window_width;
-	}
-	else if (downscale_window_width <= 0)
-	{
-		downscale_window_width = ::window_width;
-	}
-	else if (downscale_window_width < ::vga_ref_width)
-	{
-		downscale_window_width = ::vga_ref_width;
-	}
-	else if (downscale_window_width > ::window_width)
-	{
-		downscale_window_width = ::window_width;
-	}
+	::vid_calculate_window_elements_dimensions(src_param, ::downscale_);
 
-	if (!::vid_configuration_.is_downscale_)
-	{
-		downscale_window_height = ::window_height;
-	}
-	else if (downscale_window_height <= 0)
-	{
-		downscale_window_height = ::window_height;
-	}
-	else if (downscale_window_height < ::vga_ref_height_4x3)
-	{
-		downscale_window_height = ::vga_ref_height_4x3;
-	}
-	else if (downscale_window_height > ::window_height)
-	{
-		downscale_window_height = ::window_height;
-	}
-
-
-	const auto ref_absolute_epsilon = 1E-6;
-
-	const auto width_ratio = static_cast<double>(::window_width) / static_cast<double>(downscale_window_width);
-	const auto height_ratio = static_cast<double>(::window_height) / static_cast<double>(downscale_window_height);
-
-	const auto absolute_epsilon = std::abs(width_ratio - height_ratio);
-
-	if (absolute_epsilon > ref_absolute_epsilon)
-	{
-		downscale_window_width = ::window_width;
-		downscale_window_height = ::window_height;
-	}
-
-	auto src_param = CalculateScreenSizeInputParam{};
-	src_param.is_widescreen_ = ::vid_configuration_.is_widescreen_;
-	src_param.window_width_ = downscale_window_width;
-	src_param.window_height_ = downscale_window_height;
-
-	::vid_calculate_window_elements_dimensions(src_param, ::hw_downscale_);
-
-	::vga_width = ::hw_downscale_.screen_viewport_width_;
-	::vga_height = ::vid_align_dimension((10 * ::hw_downscale_.screen_height_) / 12);
-
-	::vga_width_scale = static_cast<double>(::vga_width) / static_cast<double>(::vga_ref_width);
-	::vga_height_scale = static_cast<double>(::vga_height) / static_cast<double>(::vga_ref_height);
-
-	::vga_wide_scale =
-		static_cast<double>(::vga_ref_height * ::vga_width) /
-		static_cast<double>(::vga_ref_width * ::vga_height);
-
-	::vga_area = ::vga_width * ::vga_height;
+	::vid_dimensions_vga_calculate();
 }
 
 void hw_2d_matrix_model_build()
@@ -4106,9 +4119,9 @@ void hw_2d_matrix_projection_build()
 {
 	::hw_2d_matrix_projection_ = glm::orthoRH_NO(
 		0.0, // left
-		static_cast<double>(::hw_downscale_.screen_width_), // right
+		static_cast<double>(::downscale_.screen_width_), // right
 		0.0, // bottom
-		static_cast<double>(::hw_downscale_.screen_height_), // top
+		static_cast<double>(::downscale_.screen_height_), // top
 		0.0, // zNear
 		1.0 // zFar
 	);
@@ -4230,8 +4243,8 @@ void hw_3d_matrix_projection_build()
 {
 	::hw_3d_matrix_projection_ = glm::perspectiveFovRH_NO<double>(
 		::hw_3d_camera_vfov_rad,
-		static_cast<double>(::hw_downscale_.screen_viewport_width_),
-		static_cast<double>(::hw_downscale_.screen_viewport_height_),
+		static_cast<double>(::downscale_.screen_viewport_width_),
+		static_cast<double>(::downscale_.screen_viewport_height_),
 		::hw_3d_camera_near_distance,
 		::hw_3d_camera_far_distance
 	);
@@ -4537,7 +4550,7 @@ void hw_3d_player_weapon_model_matrix_update()
 	const auto game_scalar = (assets_info.is_ps() ? ps_scale : aog_scale);
 	const auto scalar = game_scalar * ::vga_height_scale;
 
-	const auto translate_x = 0.5 * static_cast<double>(::hw_downscale_.screen_viewport_width_);
+	const auto translate_x = 0.5 * static_cast<double>(::downscale_.screen_viewport_width_);
 
 	const auto bounce_offset = (assets_info.is_aog() ? 0 : ::player_get_weapon_bounce_offset());
 	const auto translate_y = ::vga_height_scale * bstone::FixedPoint{-bounce_offset}.to_double();
@@ -4566,9 +4579,9 @@ void hw_3d_player_weapon_projection_matrix_build()
 {
 	::hw_3d_player_weapon_projection_matrix_ = glm::orthoRH_NO(
 		0.0F, // left
-		static_cast<float>(::hw_downscale_.screen_viewport_width_), // right
+		static_cast<float>(::downscale_.screen_viewport_width_), // right
 		0.0F, // bottom
-		static_cast<float>(::hw_downscale_.screen_viewport_height_), // top
+		static_cast<float>(::downscale_.screen_viewport_height_), // top
 		0.0F, // zNear
 		1.0F // zFar
 	);
@@ -4905,8 +4918,8 @@ void hw_3d_fade_vb_update()
 
 	auto vertex_index = 0;
 
-	const auto width_f = ::hw_downscale_.screen_viewport_width_;
-	const auto height_f = ::hw_downscale_.screen_viewport_height_;
+	const auto width_f = ::downscale_.screen_viewport_width_;
+	const auto height_f = ::downscale_.screen_viewport_height_;
 
 	// Bottom left.
 	{
@@ -5075,10 +5088,10 @@ void hw_screen_2d_refresh()
 	//
 	{
 		auto& command = *command_buffer->write_viewport();
-		command.x_ = ::hw_downscale_.window_viewport_left_width_;
-		command.y_ = ::hw_downscale_.window_viewport_bottom_height_;
-		command.width_ = ::hw_downscale_.screen_width_;
-		command.height_ = ::hw_downscale_.screen_height_;
+		command.x_ = ::downscale_.window_viewport_left_width_;
+		command.y_ = ::downscale_.window_viewport_bottom_height_;
+		command.width_ = ::downscale_.screen_width_;
+		command.height_ = ::downscale_.screen_height_;
 		command.min_depth_ = 0.0F;
 		command.max_depth_ = 0.0F;
 	}
@@ -6533,8 +6546,8 @@ void hw_downscale_update()
 	}
 
 	const auto downscale_set_result = ::hw_renderer_->downscale_set(
-		::hw_downscale_.window_width_,
-		::hw_downscale_.window_height_,
+		::downscale_.window_width_,
+		::downscale_.window_height_,
 		blit_filter
 	);
 
@@ -6725,10 +6738,10 @@ void hw_screen_3d_refresh()
 	//
 	{
 		auto& command = *command_buffer->write_viewport();
-		command.x_ = ::hw_downscale_.screen_viewport_left_width_;
-		command.y_ = ::hw_downscale_.window_viewport_bottom_height_ + ::hw_downscale_.screen_viewport_bottom_height_;
-		command.width_ = ::hw_downscale_.screen_viewport_width_;
-		command.height_ = ::hw_downscale_.screen_viewport_height_;
+		command.x_ = ::downscale_.screen_viewport_left_width_;
+		command.y_ = ::downscale_.window_viewport_bottom_height_ + ::downscale_.screen_viewport_bottom_height_;
+		command.width_ = ::downscale_.screen_viewport_width_;
+		command.height_ = ::downscale_.screen_viewport_height_;
 		command.min_depth_ = 0.0F;
 		command.max_depth_ = 1.0F;
 	}
