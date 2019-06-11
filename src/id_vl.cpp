@@ -22,7 +22,7 @@ Free Software Foundation, Inc.,
 */
 
 
-#define BSTONE_DBG_FORCE_SW (0)
+#define BSTONE_DBG_FORCE_SW (1)
 
 
 #include <cassert>
@@ -72,12 +72,6 @@ int vga_height = 0;
 int vga_area = 0;
 int vga_3d_view_top_y = 0;
 int vga_3d_view_bottom_y = 0;
-
-int screen_x = 0;
-int screen_y = 0;
-
-int screen_width = 0;
-int screen_height = 0;
 
 bool vid_has_vsync = false;
 bool vid_is_hud = false;
@@ -215,6 +209,7 @@ bstone::SdlTextureUPtr sw_ui_texture = nullptr;
 SdlPalette sw_palette;
 SDL_Rect sw_ui_whole_src_rect;
 SDL_Rect sw_ui_whole_dst_rect;
+SDL_Rect sw_ui_stretched_dst_rect;
 SDL_Rect sw_ui_top_src_rect;
 SDL_Rect sw_ui_top_dst_rect;
 SDL_Rect sw_ui_wide_middle_src_rect;
@@ -223,6 +218,7 @@ SDL_Rect sw_ui_bottom_src_rect;
 SDL_Rect sw_ui_bottom_dst_rect;
 std::array<SDL_Rect, 2> sw_filler_ui_rects;
 std::array<SDL_Rect, 4> sw_filler_hud_rects;
+SDL_Rect sw_screen_dst_rect;
 const auto sw_ref_filler_color = SDL_Color{0x00, 0x28, 0x50, 0xFF, };
 auto sw_filler_color = SDL_Color{};
 
@@ -882,8 +878,8 @@ void sw_update_viewport()
 {
 	auto sdl_result = ::SDL_RenderSetLogicalSize(
 		::sw_renderer.get(),
-		::screen_width,
-		::screen_height);
+		::downscale_.window_width_,
+		::downscale_.window_height_);
 
 	if (sdl_result != 0)
 	{
@@ -903,178 +899,181 @@ void sw_initialize_palette()
 
 void sw_calculate_dimensions()
 {
-	const auto alignment = 2;
+	auto src_param = ::vid_create_downscale_param();
 
-	// Decrease by 20% to compensate vanilla VGA stretch.
-	::vga_height = (10 * window_height) / 12;
-	::vga_height += alignment - 1;
-	::vga_height /= alignment;
-	::vga_height *= alignment;
+	::vid_calculate_window_elements_dimensions(src_param, ::downscale_);
 
-	if (::vid_configuration_.is_widescreen_)
-	{
-		::vga_width = ::window_width;
-	}
-	else
-	{
-		::vga_width = (::vga_ref_width * ::vga_height) / ::vga_ref_height;
-	}
+	::vid_dimensions_vga_calculate();
 
-	::vga_width += alignment - 1;
-	::vga_width /= alignment;
-	::vga_width *= alignment;
-
-	::vga_width_scale = static_cast<double>(::vga_width) / static_cast<double>(::vga_ref_width);
-	::vga_height_scale = static_cast<double>(::vga_height) / static_cast<double>(::vga_ref_height);
-
-	::vga_wide_scale =
-		static_cast<double>(::vga_ref_height * ::vga_width) /
-		static_cast<double>(::vga_ref_width * ::vga_height);
-
-	::vga_area = ::vga_width * ::vga_height;
-
-	::screen_width = ::vga_width;
-
-	::screen_height = (12 * ::vga_height) / 10;
-	::screen_height += alignment - 1;
-	::screen_height /= alignment;
-	::screen_height *= alignment;
-
-	int filler_width = 0;
-
-	filler_width = (::screen_width * ::vga_ref_height_4x3) - (::screen_height * ::vga_ref_width);
-	filler_width /= 2 * ::vga_ref_height_4x3;
-
-#ifdef __vita__
-	const auto upper_filler_height = (::screen_height * ref_top_bar_height) / ::vga_ref_height + 1; //todo: double check then just hardcode values
-	const auto lower_filler_height = (::screen_height * ref_bottom_bar_height) / ::vga_ref_height + 1;
-#else  
-	const auto upper_filler_height = (::screen_height * ref_top_bar_height) / ::vga_ref_height;
-	const auto lower_filler_height = (::screen_height * ref_bottom_bar_height) / ::vga_ref_height;
-#endif
-	const auto middle_filler_height = ::screen_height - (upper_filler_height + lower_filler_height);
 
 	// UI whole rect
 	//
-	::sw_ui_whole_src_rect = SDL_Rect{
+	::sw_ui_whole_src_rect = SDL_Rect
+	{
 		0,
 		0,
 		::vga_ref_width,
 		::vga_ref_height,
 	};
 
-	::sw_ui_whole_dst_rect = SDL_Rect{
-		filler_width,
-		0,
-		::screen_width - (2 * filler_width),
-		::screen_height,
+	::sw_ui_whole_dst_rect = SDL_Rect
+	{
+		::downscale_.window_viewport_left_width_ + ::downscale_.screen_left_filler_width_,
+		::downscale_.window_viewport_top_height_,
+		::downscale_.screen_width_4x3_,
+		::downscale_.screen_height_,
+	};
+
+
+	// UI stretched rect
+	//
+	::sw_ui_stretched_dst_rect = SDL_Rect
+	{
+		::downscale_.window_viewport_left_width_,
+		::downscale_.window_viewport_top_height_,
+		::downscale_.screen_width_,
+		::downscale_.screen_height_,
 	};
 
 
 	// UI top rect
 	//
-	::sw_ui_top_src_rect = SDL_Rect{
+	::sw_ui_top_src_rect = SDL_Rect
+	{
 		0,
 		0,
 		::vga_ref_width,
 		::ref_top_bar_height,
 	};
 
-	::sw_ui_top_dst_rect = SDL_Rect{
-		filler_width,
-		0,
-		::screen_width - (2 * filler_width),
-		upper_filler_height,
+	::sw_ui_top_dst_rect = SDL_Rect
+	{
+		::downscale_.window_viewport_left_width_ + ::downscale_.screen_left_filler_width_,
+		::downscale_.window_viewport_top_height_,
+		::downscale_.screen_width_4x3_,
+		::downscale_.screen_top_filler_height_,
 	};
 
 
 	// UI middle rect (stretched to full width)
 	//
-	::sw_ui_wide_middle_src_rect = SDL_Rect{
+	::sw_ui_wide_middle_src_rect = SDL_Rect
+	{
 		0,
 		::ref_view_top_y,
 		::vga_ref_width,
 		::ref_view_height,
 	};
 
-	::sw_ui_wide_middle_dst_rect = SDL_Rect{
-		0,
-		upper_filler_height,
-		::screen_width,
-		middle_filler_height,
+	::sw_ui_wide_middle_dst_rect = SDL_Rect
+	{
+		::downscale_.window_viewport_left_width_,
+		::downscale_.window_viewport_top_height_ + ::downscale_.screen_top_filler_height_,
+		::downscale_.screen_width_,
+		::downscale_.screen_height_,
 	};
 
 
 	// UI bottom rect
 	//
-	::sw_ui_bottom_src_rect = SDL_Rect{
+	::sw_ui_bottom_src_rect = SDL_Rect
+	{
 		0,
 		::ref_view_bottom_y + 1,
 		::vga_ref_width,
 		::ref_bottom_bar_height,
 	};
 
-	::sw_ui_bottom_dst_rect = SDL_Rect{
-		filler_width,
-		::screen_height - lower_filler_height,
-		::screen_width - (2 * filler_width),
-		lower_filler_height,
+	::sw_ui_bottom_dst_rect = SDL_Rect
+	{
+		::downscale_.window_viewport_left_width_ + ::downscale_.screen_left_filler_width_,
+		::downscale_.window_viewport_top_height_ + ::downscale_.screen_height_ - ::downscale_.screen_bottom_filler_height_,
+		::downscale_.screen_width_4x3_,
+		::downscale_.screen_bottom_filler_height_,
 	};
 
 
 	// UI left bar
-	::sw_filler_ui_rects[0] = SDL_Rect{
-		0,
-		0,
-		filler_width,
-		::screen_height,
+	::sw_filler_ui_rects[0] = SDL_Rect
+	{
+		::downscale_.window_viewport_left_width_,
+		::downscale_.window_viewport_top_height_,
+		::downscale_.screen_left_filler_width_,
+		::downscale_.screen_height_,
 	};
 
 	// UI right bar
-	::sw_filler_ui_rects[1] = SDL_Rect{
-		::screen_width - filler_width,
-		0,
-		filler_width,
-		::screen_height,
+	::sw_filler_ui_rects[1] = SDL_Rect
+	{
+		::downscale_.window_viewport_left_width_ + ::downscale_.screen_width_ - ::downscale_.screen_left_filler_width_,
+		::downscale_.window_viewport_top_height_,
+		::downscale_.screen_left_filler_width_,
+		::downscale_.screen_height_,
 	};
 
 	// HUD upper left rect
-	::sw_filler_hud_rects[0] = SDL_Rect{
-		0,
-		0,
-		filler_width,
-		upper_filler_height
+	::sw_filler_hud_rects[0] = SDL_Rect
+	{
+		::downscale_.window_viewport_left_width_,
+		::downscale_.window_viewport_top_height_,
+		::downscale_.screen_left_filler_width_,
+		::downscale_.screen_top_filler_height_,
 	};
 
 	// HUD upper right rect
-	::sw_filler_hud_rects[1] = SDL_Rect{
-		::screen_width - filler_width,
-		0,
-		filler_width,
-		upper_filler_height,
+	::sw_filler_hud_rects[1] = SDL_Rect
+	{
+		::downscale_.window_viewport_left_width_ + ::downscale_.screen_width_ - ::downscale_.screen_right_filler_width_,
+		::downscale_.window_viewport_top_height_,
+		::downscale_.screen_right_filler_width_,
+		::downscale_.screen_top_filler_height_,
 	};
 
 	// HUD lower left rect
-	::sw_filler_hud_rects[2] = SDL_Rect{
-		0,
-		::screen_height - lower_filler_height,
-		filler_width,
-		lower_filler_height,
+	::sw_filler_hud_rects[2] = SDL_Rect
+	{
+		::downscale_.window_viewport_left_width_,
+		::downscale_.window_viewport_top_height_ + ::downscale_.screen_height_ - ::downscale_.screen_bottom_filler_height_,
+		::downscale_.screen_left_filler_width_,
+		::downscale_.screen_bottom_filler_height_,
 	};
 
 	// HUD lower right rect
-	::sw_filler_hud_rects[3] = SDL_Rect{
-		::screen_width - filler_width,
-		::screen_height - lower_filler_height,
-		filler_width,
-		lower_filler_height,
+	::sw_filler_hud_rects[3] = SDL_Rect
+	{
+		::downscale_.window_viewport_left_width_ + ::downscale_.screen_width_ - ::downscale_.screen_right_filler_width_,
+		::downscale_.window_viewport_top_height_ + ::downscale_.screen_height_ - ::downscale_.screen_bottom_filler_height_,
+		::downscale_.screen_right_filler_width_,
+		::downscale_.screen_bottom_filler_height_,
 	};
 
-	::sw_filler_color = SDL_Color{
+	// Filler color.
+	::sw_filler_color = SDL_Color
+	{
 		::vgapal[(filler_color_index * 3) + 0],
 		::vgapal[(filler_color_index * 3) + 1],
 		::vgapal[(filler_color_index * 3) + 2],
-		0xFF, };
+		0xFF,
+	};
+
+	// Screen destination rect.
+
+	const auto screen_left = (
+		::vid_configuration_.is_widescreen_ ?
+		0 :
+		::downscale_.window_viewport_left_width_ + ::downscale_.screen_left_filler_width_);
+
+	const auto screen_top = ::downscale_.window_viewport_top_height_;
+	const auto screen_width = (::vid_configuration_.is_widescreen_ ? ::downscale_.screen_width_ : ::downscale_.screen_width_4x3_);
+	const auto screen_height = ::downscale_.screen_height_;
+
+	::sw_screen_dst_rect = SDL_Rect
+	{
+		screen_left,
+		screen_top,
+		screen_width,
+		screen_height,
+	};
 }
 
 void sw_initialize_video()
@@ -1384,7 +1383,7 @@ void sw_refresh_screen()
 			sw_renderer.get(),
 			sw_screen_texture.get(),
 			nullptr,
-			nullptr);
+			&::sw_screen_dst_rect);
 
 		if (sdl_result != 0)
 		{
@@ -1484,7 +1483,7 @@ void sw_refresh_screen()
 			::sw_renderer.get(),
 			::sw_ui_texture.get(),
 			nullptr,
-			nullptr);
+			&::sw_ui_stretched_dst_rect);
 	}
 
 	if (sdl_result != 0)
