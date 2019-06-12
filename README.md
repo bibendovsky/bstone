@@ -230,15 +230,6 @@ Notes:
 * --vid_no_vsync  
   Disables vertical synchronization.
 
-* --vid_scale factor  
-  Refinement factor. The higher a value the greater internal resolution  
-  mode will be used to render a scene. The dimensions of the resolution mode  
-  are proportional to the original one (320x200) by 'factor' value.  
-  This option can greatly affect the performance of a renderer (especially a  
-  software one).  
-  Minimum factor: 1 (identical to the original game)  
-  Default factor: depends on the game's resolution mode.
-
 * --vid_window_x offset  
   Sets a horizontal offset from the left side of the desktop screen.  
   Applicable for windowed mode only.

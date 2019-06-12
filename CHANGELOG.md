@@ -1,5 +1,10 @@
 # BStone changelog
 
+## [1.2.0] - 20??-??-??
+### Removed
+- Option "vid_scale".
+
+
 ## [1.1.12] - 2019-02-09
 ### Fixed
 - [CMake] Dependency on TestBigEndian.

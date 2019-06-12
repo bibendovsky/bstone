@@ -63,7 +63,6 @@ std::uint8_t palette1[bstone::RgbPalette::get_max_color_count()][3];
 std::uint8_t palette2[bstone::RgbPalette::get_max_color_count()][3];
 std::uint8_t* vga_memory = nullptr;
 
-int vga_scale = 0;
 double vga_height_scale = 0.0;
 double vga_width_scale = 0.0;
 double vga_wide_scale = 0.0;
@@ -1152,31 +1151,6 @@ void sw_initialize_video()
 	if (::window_height < ::vga_ref_height_4x3)
 	{
 		::window_height = ::vga_ref_height_4x3;
-	}
-
-
-	//
-	// Option "vid_scale"
-	//
-
-	const auto& vid_scale_str = ::g_args.get_option_value(
-		"vid_scale");
-
-	if (!vid_scale_str.empty())
-	{
-		int scale_value;
-
-		if (bstone::StringHelper::string_to_int(vid_scale_str, scale_value))
-		{
-			is_custom_scale = true;
-
-			if (scale_value < 1)
-			{
-				scale_value = 1;
-			}
-
-			::vga_scale = scale_value;
-		}
 	}
 
 
@@ -11279,29 +11253,6 @@ bool hw_video_initialize()
 		::window_height = ::vga_ref_height_4x3;
 	}
 
-
-	//
-	// Option "vid_scale"
-	//
-
-	const auto& vid_scale_str = ::g_args.get_option_value("vid_scale");
-
-	if (!vid_scale_str.empty())
-	{
-		int scale_value;
-
-		if (bstone::StringHelper::string_to_int(vid_scale_str, scale_value))
-		{
-			is_custom_scale = true;
-
-			if (scale_value < 1)
-			{
-				scale_value = 1;
-			}
-
-			::vga_scale = scale_value;
-		}
-	}
 
 	// Option "vid_hw_dbg_draw_all"
 	//
