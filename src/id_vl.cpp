@@ -12542,7 +12542,7 @@ void vid_configuration_read_hw_downscale_blit_filter_value(
 	}
 }
 
-void vid_read_configuration_key_value(
+bool vid_parse_configuration_key_value(
 	const std::string& key_string,
 	const std::string& value_string)
 {
@@ -12600,8 +12600,10 @@ void vid_read_configuration_key_value(
 	}
 	else
 	{
-		assert(!"Invalid key name.");
+		return false;
 	}
+
+	return true;
 }
 
 void vid_write_hw_aa_kind_configuration(

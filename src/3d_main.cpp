@@ -7622,21 +7622,8 @@ void read_text_config()
 
 				if (parse_config_line(line, key_string, index0, index1, value_string))
 				{
-					if (key_string == ::vid_get_is_widescreen_key_name() ||
-						key_string == ::vid_get_is_ui_stretched_key_name() ||
-						key_string == ::vid_get_hw_2d_texture_filter_key_name() ||
-						key_string == ::vid_get_hw_3d_texture_image_filter_key_name() ||
-						key_string == ::vid_get_hw_3d_texture_mipmap_filter_key_name() ||
-						key_string == ::vid_get_hw_3d_texture_anisotropy_key_name() ||
-						key_string == ::vid_get_hw_3d_texture_anisotropy_value_key_name() ||
-						key_string == ::vid_get_hw_aa_kind_key_name() ||
-						key_string == ::vid_get_hw_aa_value_key_name() ||
-						key_string == ::vid_get_is_downscale_key_name() ||
-						key_string == ::vid_get_downscale_width_key_name() ||
-						key_string == ::vid_get_downscale_height_key_name() ||
-						key_string == ::vid_get_hw_downscale_blit_filter_key_name())
+					if (::vid_parse_configuration_key_value(key_string, value_string))
 					{
-						::vid_read_configuration_key_value(key_string, value_string);
 					}
 					else if (key_string == snd_is_sfx_enabled_name)
 					{

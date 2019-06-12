@@ -249,6 +249,14 @@ void VL_ScreenToMem(
 	int y);
 
 // BBi
+bool vid_parse_configuration_key_value(
+	const std::string& key_string,
+	const std::string& value_string);
+
+void vid_write_configuration(
+	bstone::TextWriter& text_writer);
+
+
 void VL_RefreshScreen();
 
 int vl_get_offset(
@@ -290,45 +298,6 @@ void vid_export_ui_mask(
 
 void vid_import_ui_mask(
 	const UiMaskBuffer& src_buffer);
-
-
-const std::string& vid_get_is_widescreen_key_name();
-
-const std::string& vid_get_is_ui_stretched_key_name();
-
-
-const std::string& vid_get_hw_2d_texture_filter_key_name();
-
-
-const std::string& vid_get_hw_3d_texture_image_filter_key_name();
-
-const std::string& vid_get_hw_3d_texture_mipmap_filter_key_name();
-
-const std::string& vid_get_hw_3d_texture_anisotropy_key_name();
-
-const std::string& vid_get_hw_3d_texture_anisotropy_value_key_name();
-
-
-const std::string& vid_get_hw_aa_kind_key_name();
-
-const std::string& vid_get_hw_aa_value_key_name();
-
-
-const std::string& vid_get_is_downscale_key_name();
-
-const std::string& vid_get_downscale_width_key_name();
-
-const std::string& vid_get_downscale_height_key_name();
-
-const std::string& vid_get_hw_downscale_blit_filter_key_name();
-
-
-void vid_read_configuration_key_value(
-	const std::string& key_string,
-	const std::string& value_string);
-
-void vid_write_configuration(
-	bstone::TextWriter& text_writer);
 
 void vid_draw_ui_sprite(
 	const int sprite_id,
