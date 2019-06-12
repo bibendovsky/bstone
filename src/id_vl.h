@@ -59,7 +59,14 @@ struct VidConfiguration
 	using IntModValue = bstone::ModValue<int>;
 	using FilterModValue = bstone::ModValue<bstone::RendererFilterKind>;
 	using AaKindModValue = bstone::ModValue<bstone::RendererAaKind>;
+	using RendererKindModValue = bstone::ModValue<bstone::RendererPath>;
 
+
+	RendererKindModValue renderer_kind_;
+
+	BoolModValue is_windowed_;
+	IntModValue width_;
+	IntModValue height_;
 
 	BoolModValue is_ui_stretched_;
 	BoolModValue is_widescreen_;

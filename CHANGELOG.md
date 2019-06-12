@@ -4,6 +4,9 @@
 ### Removed
 - Option "vid_scale".
 
+### Changed
+- Renamed option "vid_windowed" to "vid_is_windowed".
+
 
 ## [1.1.12] - 2019-02-09
 ### Fixed

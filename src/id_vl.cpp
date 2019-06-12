@@ -22,7 +22,7 @@ Free Software Foundation, Inc.,
 */
 
 
-#define BSTONE_DBG_FORCE_SW (1)
+#define BSTONE_DBG_FORCE_SW (0)
 
 
 #include <cassert>
@@ -180,9 +180,6 @@ struct WindowElementsDimensions
 using SdlPalette = std::array<std::uint32_t, bstone::RgbPalette::get_max_color_count()>;
 
 
-int window_width = 0;
-int window_height = 0;
-
 VgaBuffer vid_ui_buffer;
 UiMaskBuffer vid_mask_buffer;
 
@@ -199,7 +196,6 @@ int vid_window_y = 0;
 WindowElementsDimensions downscale_;
 
 SDL_DisplayMode display_mode;
-bool vid_is_windowed = false;
 bstone::SdlWindowUPtr sw_window = nullptr;
 bstone::SdlRendererUPtr sw_renderer = nullptr;
 bstone::SdlPixelFormatUPtr sw_texture_pixel_format = nullptr;
@@ -232,12 +228,44 @@ struct CalculateScreenSizeInputParam
 	int window_height_;
 }; // CalculateScreenSizeInputParam
 
+
 int vid_align_dimension(
 	const int dimension)
 {
 	const auto alignment = 2;
 
 	return ((dimension + (alignment - 1)) / alignment) * alignment;
+}
+
+void vid_configuration_fix_window_dimension(
+	VidConfiguration::IntModValue& dimension,
+	const int min_value)
+{
+	if (dimension <= 0)
+	{
+		dimension = ::default_window_width;
+	}
+
+	if (dimension < min_value)
+	{
+		dimension = min_value;
+	}
+}
+
+void vid_configuration_fix_window_width()
+{
+	::vid_configuration_fix_window_dimension(::vid_configuration_.width_, ::vga_ref_width);
+}
+
+void vid_configuration_fix_window_height()
+{
+	::vid_configuration_fix_window_dimension(::vid_configuration_.height_, ::vga_ref_height_4x3);
+}
+
+void vid_configuration_fix_window_size()
+{
+	::vid_configuration_fix_window_width();
+	::vid_configuration_fix_window_height();
 }
 
 void vid_calculate_window_elements_dimensions(
@@ -331,50 +359,50 @@ CalculateScreenSizeInputParam vid_create_downscale_param()
 
 	if (!::vid_configuration_.is_downscale_)
 	{
-		downscale_window_width = ::window_width;
+		downscale_window_width = ::vid_configuration_.width_;
 	}
 	else if (downscale_window_width <= 0)
 	{
-		downscale_window_width = ::window_width;
+		downscale_window_width = ::vid_configuration_.width_;
 	}
 	else if (downscale_window_width < ::vga_ref_width)
 	{
 		downscale_window_width = ::vga_ref_width;
 	}
-	else if (downscale_window_width > ::window_width)
+	else if (downscale_window_width > ::vid_configuration_.width_)
 	{
-		downscale_window_width = ::window_width;
+		downscale_window_width = ::vid_configuration_.width_;
 	}
 
 	if (!::vid_configuration_.is_downscale_)
 	{
-		downscale_window_height = ::window_height;
+		downscale_window_height = ::vid_configuration_.height_;
 	}
 	else if (downscale_window_height <= 0)
 	{
-		downscale_window_height = ::window_height;
+		downscale_window_height = ::vid_configuration_.height_;
 	}
 	else if (downscale_window_height < ::vga_ref_height_4x3)
 	{
 		downscale_window_height = ::vga_ref_height_4x3;
 	}
-	else if (downscale_window_height > ::window_height)
+	else if (downscale_window_height > ::vid_configuration_.height_)
 	{
-		downscale_window_height = ::window_height;
+		downscale_window_height = ::vid_configuration_.height_;
 	}
 
 
 	const auto ref_absolute_epsilon = 1E-6;
 
-	const auto width_ratio = static_cast<double>(::window_width) / static_cast<double>(downscale_window_width);
-	const auto height_ratio = static_cast<double>(::window_height) / static_cast<double>(downscale_window_height);
+	const auto width_ratio = static_cast<double>(::vid_configuration_.width_) / static_cast<double>(downscale_window_width);
+	const auto height_ratio = static_cast<double>(::vid_configuration_.height_) / static_cast<double>(downscale_window_height);
 
 	const auto absolute_epsilon = std::abs(width_ratio - height_ratio);
 
 	if (absolute_epsilon > ref_absolute_epsilon)
 	{
-		downscale_window_width = ::window_width;
-		downscale_window_height = ::window_height;
+		downscale_window_width = ::vid_configuration_.width_;
+		downscale_window_height = ::vid_configuration_.height_;
 	}
 
 	auto result = CalculateScreenSizeInputParam{};
@@ -398,6 +426,181 @@ void vid_dimensions_vga_calculate()
 		static_cast<double>(::vga_ref_width * ::vga_height);
 
 	::vga_area = ::vga_width * ::vga_height;
+}
+
+const std::string& vid_get_empty_string()
+{
+	static const auto& result = std::string{};
+
+	return result;
+}
+
+const std::string& vid_get_nearest_value_string()
+{
+	static const auto& result = std::string{"nearest"};
+
+	return result;
+}
+
+const std::string& vid_get_linear_value_string()
+{
+	static const auto& result = std::string{"linear"};
+
+	return result;
+}
+
+const std::string& vid_get_none_value_string()
+{
+	static const auto& result = std::string{"none"};
+
+	return result;
+}
+
+const std::string& vid_get_msaa_value_string()
+{
+	static const auto& result = std::string{"msaa"};
+
+	return result;
+}
+
+const std::string& vid_get_autodetect_value_string()
+{
+	static const auto& result = std::string{"autodetect"};
+
+	return result;
+}
+
+const std::string& vid_get_software_value_string()
+{
+	static const auto& result = std::string{"software"};
+
+	return result;
+}
+
+const std::string& vid_get_ogl_1_x_value_string()
+{
+	static const auto& result = std::string{"ogl_1_x"};
+
+	return result;
+}
+
+const std::string& vid_get_renderer_kind_key_name()
+{
+	static const auto& result = std::string{"vid_renderer_kind"};
+
+	return result;
+}
+
+const std::string& vid_get_is_windowed_key_name()
+{
+	static const auto& result = std::string{"vid_is_windowed"};
+
+	return result;
+}
+
+const std::string& vid_get_width_key_name()
+{
+	static const auto& result = std::string{"vid_width"};
+
+	return result;
+}
+
+const std::string& vid_get_height_key_name()
+{
+	static const auto& result = std::string{"vid_height"};
+
+	return result;
+}
+
+const std::string& vid_get_is_widescreen_key_name()
+{
+	static const auto& result = std::string{"vid_is_widescreen"};
+
+	return result;
+}
+
+const std::string& vid_get_is_ui_stretched_key_name()
+{
+	static const auto& result = std::string{"vid_is_ui_stretched"};
+
+	return result;
+}
+
+const std::string& vid_get_hw_2d_texture_filter_key_name()
+{
+	static const auto& result = std::string{"vid_hw_2d_texture_filter"};
+
+	return result;
+}
+
+const std::string& vid_get_hw_3d_texture_image_filter_key_name()
+{
+	static const auto& result = std::string{"vid_hw_3d_texture_image_filter"};
+
+	return result;
+}
+
+const std::string& vid_get_hw_3d_texture_mipmap_filter_key_name()
+{
+	static const auto& result = std::string{"vid_hw_3d_texture_mipmap_filter"};
+
+	return result;
+}
+
+const std::string& vid_get_hw_3d_texture_anisotropy_key_name()
+{
+	static const auto& result = std::string{"vid_hw_3d_texture_anisotropy"};
+
+	return result;
+}
+
+const std::string& vid_get_hw_3d_texture_anisotropy_value_key_name()
+{
+	static const auto& result = std::string{"vid_hw_3d_texture_anisotropy_value"};
+
+	return result;
+}
+
+const std::string& vid_get_hw_aa_kind_key_name()
+{
+	static const auto& result = std::string{"vid_hw_aa_kind"};
+
+	return result;
+}
+
+const std::string& vid_get_hw_aa_value_key_name()
+{
+	static const auto& result = std::string{"vid_hw_aa_value"};
+
+	return result;
+}
+
+const std::string& vid_get_is_downscale_key_name()
+{
+	static const auto& result = std::string{"vid_is_downscale"};
+
+	return result;
+}
+
+const std::string& vid_get_downscale_width_key_name()
+{
+	static const auto& result = std::string{"vid_downscale_width"};
+
+	return result;
+}
+
+const std::string& vid_get_downscale_height_key_name()
+{
+	static const auto& result = std::string{"vid_downscale_height"};
+
+	return result;
+}
+
+const std::string& vid_get_hw_downscale_blit_filter_key_name()
+{
+	static const auto& result = std::string{"vid_hw_downscale_blit_filter"};
+
+	return result;
 }
 
 
@@ -445,7 +648,7 @@ bool sw_initialize_window()
 		SDL_WINDOW_HIDDEN |
 		0};
 
-	if (!::vid_is_windowed)
+	if (!::vid_configuration_.is_windowed_)
 	{
 		window_flags |=
 			SDL_WINDOW_BORDERLESS |
@@ -527,8 +730,8 @@ bool sw_initialize_window()
 		title.c_str(),
 		::vid_window_x,
 		::vid_window_y,
-		::window_width,
-		::window_height,
+		::vid_configuration_.width_,
+		::vid_configuration_.height_,
 		window_flags
 	)};
 
@@ -1083,11 +1286,10 @@ void sw_initialize_video()
 	bool is_custom_scale = false;
 
 	//
-	// Option "vid_windowed"
+	// Option "vid_is_windowed"
 	//
 
-	::vid_is_windowed = ::g_args.has_option(
-		"vid_windowed");
+	::vid_configuration_.is_windowed_ = ::g_args.has_option(::vid_get_is_windowed_key_name());
 
 	::vid_use_custom_window_position = false;
 
@@ -1130,29 +1332,15 @@ void sw_initialize_video()
 		width_str,
 		height_str);
 
-	static_cast<void>(bstone::StringHelper::string_to_int(width_str, ::window_width));
-	static_cast<void>(bstone::StringHelper::string_to_int(height_str, ::window_height));
+	auto window_width = 0;
+	auto window_height = 0;
 
-	if (::window_width == 0)
-	{
-		::window_width = ::default_window_width;
-	}
+	static_cast<void>(bstone::StringHelper::string_to_int(width_str, window_width));
+	static_cast<void>(bstone::StringHelper::string_to_int(height_str, window_height));
 
-	if (::window_height == 0)
-	{
-		::window_height = ::default_window_height;
-	}
-
-	if (::window_width < ::vga_ref_width)
-	{
-		::window_width = ::vga_ref_width;
-	}
-
-	if (::window_height < ::vga_ref_height_4x3)
-	{
-		::window_height = ::vga_ref_height_4x3;
-	}
-
+	::vid_configuration_.width_ = window_width;
+	::vid_configuration_.height_ = window_height;
+	::vid_configuration_fix_window_size();
 
 	int sdl_result = 0;
 
@@ -1165,12 +1353,11 @@ void sw_initialize_video()
 		::Quit("VID: Failed to get a display mode.");
 	}
 
-	if (!::vid_is_windowed)
+	if (!::vid_configuration_.is_windowed_)
 	{
-		::window_width = ::display_mode.w;
-		::window_height = ::display_mode.h;
+		::vid_configuration_.width_ = ::display_mode.w;
+		::vid_configuration_.height_ = ::display_mode.h;
 	}
-
 
 	::sw_calculate_dimensions();
 
@@ -2538,7 +2725,7 @@ bool hw_renderer_initialize()
 	param.window_.is_visible_ = true;
 #endif // __vita__
 
-	if (!::vid_is_windowed)
+	if (!::vid_configuration_.is_windowed_)
 	{
 		param.window_.is_borderless_ = true;
 		param.window_.is_fullscreen_desktop_ = true;
@@ -2548,8 +2735,8 @@ bool hw_renderer_initialize()
 	param.window_.x_ = ::vid_window_x;
 	param.window_.y_ = ::vid_window_y;
 
-	param.window_.width_ = ::window_width;
-	param.window_.height_ = ::window_height;
+	param.window_.width_ = ::vid_configuration_.width_;
+	param.window_.height_ = ::vid_configuration_.height_;
 
 	param.downscale_width_ = ::downscale_.window_width_;
 	param.downscale_height_ = ::downscale_.window_height_;
@@ -11189,10 +11376,10 @@ bool hw_video_initialize()
 	bool is_custom_scale = false;
 
 	//
-	// Option "vid_windowed"
+	// Option "vid_is_windowed"
 	//
 
-	::vid_is_windowed = ::g_args.has_option("vid_windowed");
+	::vid_configuration_.is_windowed_ = ::g_args.has_option(::vid_get_is_windowed_key_name());
 
 	::vid_use_custom_window_position = false;
 
@@ -11230,29 +11417,14 @@ bool hw_video_initialize()
 
 	::g_args.get_option_values("vid_mode", width_str, height_str);
 
-	static_cast<void>(bstone::StringHelper::string_to_int(width_str, ::window_width));
-	static_cast<void>(bstone::StringHelper::string_to_int(height_str, ::window_height));
+	auto window_width = 0;
+	auto window_height = 0;
 
-	if (::window_width == 0)
-	{
-		::window_width = ::default_window_width;
-	}
+	static_cast<void>(bstone::StringHelper::string_to_int(width_str, window_width));
+	static_cast<void>(bstone::StringHelper::string_to_int(height_str, window_height));
 
-	if (::window_height == 0)
-	{
-		::window_height = ::default_window_height;
-	}
-
-	if (::window_width < ::vga_ref_width)
-	{
-		::window_width = ::vga_ref_width;
-	}
-
-	if (::window_height < ::vga_ref_height_4x3)
-	{
-		::window_height = ::vga_ref_height_4x3;
-	}
-
+	::vid_configuration_.width_ = window_width;
+	::vid_configuration_.height_ = window_height;
 
 	// Option "vid_hw_dbg_draw_all"
 	//
@@ -11269,10 +11441,10 @@ bool hw_video_initialize()
 		return false;
 	}
 
-	if (!::vid_is_windowed)
+	if (!::vid_configuration_.is_windowed_)
 	{
-		::window_width = ::display_mode.w;
-		::window_height = ::display_mode.h;
+		::vid_configuration_.width_ = ::display_mode.w;
+		::vid_configuration_.height_ = ::display_mode.h;
 	}
 
 
@@ -12201,142 +12373,94 @@ void vid_import_ui_mask(
 	::vid_mask_buffer = src_buffer;
 }
 
-const std::string& vid_get_nearest_filter_value_string()
-{
-	static const auto& result = std::string{"nearest"};
-
-	return result;
-}
-
-const std::string& vid_get_linear_filter_value_string()
-{
-	static const auto& result = std::string{"linear"};
-
-	return result;
-}
-
-const std::string& vid_get_aa_none_value_string()
-{
-	static const auto& result = std::string{"none"};
-
-	return result;
-}
-
-const std::string& vid_get_aa_msaa_value_string()
-{
-	static const auto& result = std::string{"msaa"};
-
-	return result;
-}
-
-const std::string& vid_get_is_widescreen_key_name()
-{
-	static const auto& result = std::string{"vid_is_widescreen"};
-
-	return result;
-}
-
-const std::string& vid_get_is_ui_stretched_key_name()
-{
-	static const auto& result = std::string{"vid_is_ui_stretched"};
-
-	return result;
-}
-
-const std::string& vid_get_hw_2d_texture_filter_key_name()
-{
-	static const auto& result = std::string{"vid_hw_2d_texture_filter"};
-
-	return result;
-}
-
-const std::string& vid_get_hw_3d_texture_image_filter_key_name()
-{
-	static const auto& result = std::string{"vid_hw_3d_texture_image_filter"};
-
-	return result;
-}
-
-const std::string& vid_get_hw_3d_texture_mipmap_filter_key_name()
-{
-	static const auto& result = std::string{"vid_hw_3d_texture_mipmap_filter"};
-
-	return result;
-}
-
-const std::string& vid_get_hw_3d_texture_anisotropy_key_name()
-{
-	static const auto& result = std::string{"vid_hw_3d_texture_anisotropy"};
-
-	return result;
-}
-
-const std::string& vid_get_hw_3d_texture_anisotropy_value_key_name()
-{
-	static const auto& result = std::string{"vid_hw_3d_texture_anisotropy_value"};
-
-	return result;
-}
-
-const std::string& vid_get_hw_aa_kind_key_name()
-{
-	static const auto& result = std::string{"vid_hw_aa_kind"};
-
-	return result;
-}
-
-const std::string& vid_get_hw_aa_value_key_name()
-{
-	static const auto& result = std::string{"vid_hw_aa_value"};
-
-	return result;
-}
-
-const std::string& vid_get_is_downscale_key_name()
-{
-	static const auto& result = std::string{"vid_is_downscale"};
-
-	return result;
-}
-
-const std::string& vid_get_downscale_width_key_name()
-{
-	static const auto& result = std::string{"vid_downscale_width"};
-
-	return result;
-}
-
-const std::string& vid_get_downscale_height_key_name()
-{
-	static const auto& result = std::string{"vid_downscale_height"};
-
-	return result;
-}
-
-const std::string& vid_get_hw_downscale_blit_filter_key_name()
-{
-	static const auto& result = std::string{"vid_hw_downscale_blit_filter"};
-
-	return result;
-}
-
 const std::string& vid_filter_to_string(
 	const bstone::RendererFilterKind filter)
 {
-	static const auto empty_string = std::string{};
-
 	switch (filter)
 	{
 		case bstone::RendererFilterKind::nearest:
-			return vid_get_nearest_filter_value_string();
+			return vid_get_nearest_value_string();
 
 		case bstone::RendererFilterKind::linear:
-			return vid_get_linear_filter_value_string();
+			return vid_get_linear_value_string();
 
 		default:
 			::Quit("Invalid filter.");
 
-			return empty_string;
+			return ::vid_get_empty_string();
+	}
+}
+
+const std::string& vid_renderer_kind_to_string(
+	const bstone::RendererPath kind)
+{
+	switch (kind)
+	{
+		case bstone::RendererPath::autodetect:
+		case bstone::RendererPath::none:
+			return vid_get_autodetect_value_string();
+
+		case bstone::RendererPath::software:
+			return vid_get_software_value_string();
+
+		case bstone::RendererPath::ogl_1_x:
+			return vid_get_ogl_1_x_value_string();
+
+		default:
+			::Quit("Invalid renderer kind.");
+
+			return ::vid_get_empty_string();
+	}
+}
+
+void vid_configuration_read_renderer_kind(
+	const std::string& value_string)
+{
+	if (value_string == ::vid_get_none_value_string() ||
+		value_string == ::vid_get_autodetect_value_string())
+	{
+		::vid_configuration_.renderer_kind_ = bstone::RendererPath::autodetect;
+	}
+	else if (value_string == ::vid_get_software_value_string())
+	{
+		::vid_configuration_.renderer_kind_ = bstone::RendererPath::software;
+	}
+	else if (value_string == ::vid_get_ogl_1_x_value_string())
+	{
+		::vid_configuration_.renderer_kind_ = bstone::RendererPath::ogl_1_x;
+	}
+}
+
+void vid_configuration_read_width(
+	const std::string& value_string)
+{
+	int value = 0;
+
+	if (bstone::StringHelper::string_to_int(value_string, value))
+	{
+		::vid_configuration_.width_ = value;
+	}
+}
+
+void vid_configuration_read_height(
+	const std::string& value_string)
+{
+	int value = 0;
+
+	if (bstone::StringHelper::string_to_int(value_string, value))
+	{
+		::vid_configuration_.height_ = value;
+	}
+}
+
+void vid_configuration_read_is_windowed(
+	const std::string& value_string)
+{
+	int value = 0;
+
+	if (bstone::StringHelper::string_to_int(value_string, value))
+	{
+		::vid_configuration_.is_windowed_ = (value != 0);
 	}
 }
 
@@ -12365,11 +12489,11 @@ void vid_configuration_read_is_ui_stretched(
 void vid_configuration_read_hw_2d_texture_filter(
 	const std::string& value_string)
 {
-	if (value_string == ::vid_get_nearest_filter_value_string())
+	if (value_string == ::vid_get_nearest_value_string())
 	{
 		::vid_configuration_.hw_2d_texture_filter_ = bstone::RendererFilterKind::nearest;
 	}
-	else if (value_string == ::vid_get_linear_filter_value_string())
+	else if (value_string == ::vid_get_linear_value_string())
 	{
 		::vid_configuration_.hw_2d_texture_filter_ = bstone::RendererFilterKind::linear;
 	}
@@ -12378,11 +12502,11 @@ void vid_configuration_read_hw_2d_texture_filter(
 void vid_configuration_read_hw_3d_texture_image_filter(
 	const std::string& value_string)
 {
-	if (value_string == ::vid_get_nearest_filter_value_string())
+	if (value_string == ::vid_get_nearest_value_string())
 	{
 		::vid_configuration_.hw_3d_texture_image_filter_ = bstone::RendererFilterKind::nearest;
 	}
-	else if (value_string == ::vid_get_linear_filter_value_string())
+	else if (value_string == ::vid_get_linear_value_string())
 	{
 		::vid_configuration_.hw_3d_texture_image_filter_ = bstone::RendererFilterKind::linear;
 	}
@@ -12391,11 +12515,11 @@ void vid_configuration_read_hw_3d_texture_image_filter(
 void vid_configuration_read_hw_3d_texture_mipmap_filter(
 	const std::string& value_string)
 {
-	if (value_string == ::vid_get_nearest_filter_value_string())
+	if (value_string == ::vid_get_nearest_value_string())
 	{
 		::vid_configuration_.hw_3d_texture_mipmap_filter_ = bstone::RendererFilterKind::nearest;
 	}
-	else if (value_string == ::vid_get_linear_filter_value_string())
+	else if (value_string == ::vid_get_linear_value_string())
 	{
 		::vid_configuration_.hw_3d_texture_mipmap_filter_ = bstone::RendererFilterKind::linear;
 	}
@@ -12426,11 +12550,11 @@ void vid_configuration_read_hw_3d_texture_anisotropy_value(
 void vid_configuration_read_hw_aa_kind(
 	const std::string& value_string)
 {
-	if (value_string == ::vid_get_aa_none_value_string())
+	if (value_string == ::vid_get_none_value_string())
 	{
 		::vid_configuration_.hw_aa_kind_ = bstone::RendererAaKind::none;
 	}
-	else if (value_string == ::vid_get_aa_msaa_value_string())
+	else if (value_string == ::vid_get_msaa_value_string())
 	{
 		::vid_configuration_.hw_aa_kind_ = bstone::RendererAaKind::ms;
 	}
@@ -12483,11 +12607,11 @@ void vid_configuration_read_downscale_height_value(
 void vid_configuration_read_hw_downscale_blit_filter_value(
 	const std::string& value_string)
 {
-	if (value_string == ::vid_get_nearest_filter_value_string())
+	if (value_string == ::vid_get_nearest_value_string())
 	{
 		::vid_configuration_.hw_downscale_blit_filter_ = bstone::RendererFilterKind::nearest;
 	}
-	else if (value_string == ::vid_get_linear_filter_value_string())
+	else if (value_string == ::vid_get_linear_value_string())
 	{
 		::vid_configuration_.hw_downscale_blit_filter_ = bstone::RendererFilterKind::linear;
 	}
@@ -12497,7 +12621,26 @@ bool vid_parse_configuration_key_value(
 	const std::string& key_string,
 	const std::string& value_string)
 {
-	if (key_string == ::vid_get_is_widescreen_key_name())
+	if (false)
+	{
+	}
+	else if (key_string == ::vid_get_renderer_kind_key_name())
+	{
+		::vid_configuration_read_renderer_kind(value_string);
+	}
+	else if (key_string == ::vid_get_is_windowed_key_name())
+	{
+		::vid_configuration_read_is_windowed(value_string);
+	}
+	else if (key_string == ::vid_get_width_key_name())
+	{
+		::vid_configuration_read_width(value_string);
+	}
+	else if (key_string == ::vid_get_height_key_name())
+	{
+		::vid_configuration_read_height(value_string);
+	}
+	else if (key_string == ::vid_get_is_widescreen_key_name())
 	{
 		::vid_configuration_read_is_widescreen(value_string);
 	}
@@ -12566,7 +12709,7 @@ void vid_write_hw_aa_kind_configuration(
 			::write_configuration_entry(
 				text_writer,
 				::vid_get_hw_aa_kind_key_name(),
-				::vid_get_aa_msaa_value_string()
+				::vid_get_msaa_value_string()
 			);
 
 			break;
@@ -12575,7 +12718,34 @@ void vid_write_hw_aa_kind_configuration(
 			::write_configuration_entry(
 				text_writer,
 				::vid_get_hw_aa_kind_key_name(),
-				::vid_get_aa_none_value_string()
+				::vid_get_none_value_string()
+			);
+
+			break;
+	}
+}
+
+void vid_write_renderer_kind_configuration(
+	bstone::TextWriter& text_writer)
+{
+	switch (::vid_configuration_.renderer_kind_)
+	{
+		case bstone::RendererPath::ogl_1_x:
+			::write_configuration_entry(
+				text_writer,
+				::vid_get_renderer_kind_key_name(),
+				::vid_get_ogl_1_x_value_string()
+			);
+
+			break;
+
+		case bstone::RendererPath::autodetect:
+		case bstone::RendererPath::none:
+		default:
+			::write_configuration_entry(
+				text_writer,
+				::vid_get_renderer_kind_key_name(),
+				::vid_get_autodetect_value_string()
 			);
 
 			break;
@@ -12587,7 +12757,33 @@ void vid_write_configuration(
 {
 	text_writer.write("\n// Video\n");
 
-	// vid_is_widescreen_name
+	::vid_write_renderer_kind_configuration(text_writer);
+
+	// vid_is_windowed
+	//
+	::write_configuration_entry(
+		text_writer,
+		::vid_get_is_windowed_key_name(),
+		std::to_string(::vid_configuration_.is_windowed_)
+	);
+
+	// vid_width
+	//
+	::write_configuration_entry(
+		text_writer,
+		::vid_get_width_key_name(),
+		std::to_string(::vid_configuration_.width_)
+	);
+
+	// vid_height
+	//
+	::write_configuration_entry(
+		text_writer,
+		::vid_get_height_key_name(),
+		std::to_string(::vid_configuration_.height_)
+	);
+
+	// vid_is_widescreen
 	//
 	::write_configuration_entry(
 		text_writer,
@@ -12595,7 +12791,7 @@ void vid_write_configuration(
 		std::to_string(::vid_configuration_.is_widescreen_)
 	);
 
-	// vid_is_ui_stretched_name
+	// vid_is_ui_stretched
 	//
 	::write_configuration_entry(
 		text_writer,
