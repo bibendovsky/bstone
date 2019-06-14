@@ -207,34 +207,28 @@ Notes:
 * --profile_dir path  
   Overrides default location of the game's profile files.  
 
-* --vid_renderer [d3d|ogl|ogles|ogles2|soft]  
-  Forces to use a specified SDL renderer.  
-  "d3d" selects a Direct3D renderer.  
-  "ogl" selects an OpenGL renderer.  
-  "ogles" selects an OpenGL ES renderer.  
-  "ogles2" selects an OpenGL ES 2.0 renderer.  
-  "soft" selects a software renderer.  
-  Fallback renderer: soft.  
-  Default order without this option: d3d, ogl, ogles, ogles2, soft.
-
-* --vid_windowed  
+* --vid_is_windowed  
   Runs the game in windowed mode.  
-  Default video mode: 640x480
+  Default video height: 480
 
-* --vid_mode width height  
-  Selects the specified resolution for windowed mode.  
-  Without this option the game will use desktop's resolution.  
-  Minimum width: 640  
-  Minimum height: 480
+* --vid_width width  
+  Specifies window width.  
+  Minimum width: 320  
+  Default width: 640  
+
+* --vid_height height  
+  Specifies window height.  
+  Minimum height: 240  
+  Default height: 480
 
 * --vid_no_vsync  
   Disables vertical synchronization.
 
-* --vid_window_x offset  
+* --vid_x offset  
   Sets a horizontal offset from the left side of the desktop screen.  
   Applicable for windowed mode only.
 
-* --vid_window_y offset  
+* --vid_y offset  
   Sets a vertical offset from the top side of the desktop screen.  
   Applicable for windowed mode only.
 
