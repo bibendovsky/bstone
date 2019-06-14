@@ -34,6 +34,7 @@ Free Software Foundation, Inc.,
 #include "id_vh.h"
 #include "id_vl.h"
 #include "gfxv.h"
+#include "bstone_version.h"
 
 
 void CA_CacheScreen(
@@ -76,7 +77,7 @@ void PsFizzleFX::initialize()
 	::VWB_Bar(::WindowX, ::WindowY, ::WindowW, ::WindowH, VERSION_TEXT_BKCOLOR);
 
 	SETFONTCOLOR(VERSION_TEXT_COLOR, VERSION_TEXT_BKCOLOR);
-	::US_Print(::get_version_string().c_str());
+	::US_Print(bstone::Version::get_string().c_str());
 
 	::vid_export_ui(buffer_);
 	::vid_import_ui(current_screen);

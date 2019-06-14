@@ -243,6 +243,7 @@ target_sources(
 		bstone_text_reader.h
 		bstone_text_writer.h
 		bstone_un_value.h
+		bstone_version.h
 		gfxv.h
 		id_ca.h
 		id_heads.h
@@ -320,6 +321,7 @@ target_sources(
 		bstone_string_helper.cpp
 		bstone_text_reader.cpp
 		bstone_text_writer.cpp
+		bstone_version.cpp
 		colormap.cpp
 		d3_d2.cpp
 		d3_dr2.cpp
@@ -364,6 +366,15 @@ if (MSVC AND BSTONE_USE_PCH)
 			COMPILE_FLAGS -Yc
 	)
 endif ()
+
+
+#
+# Configure files.
+#
+configure_file(
+	"${PROJECT_SOURCE_DIR}/bstone_version_.h.in"
+	"${PROJECT_SOURCE_DIR}/bstone_version_.h"
+)
 
 
 #

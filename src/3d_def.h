@@ -3998,8 +3998,6 @@ void sys_sleep_for(
 
 void sys_default_sleep_for();
 
-const std::string& get_version_string();
-
 const std::string& get_profile_dir();
 
 void update_normalshade();

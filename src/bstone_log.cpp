@@ -30,9 +30,9 @@ Free Software Foundation, Inc.,
 #include "bstone_log.h"
 #include <iostream>
 #include "SDL_messagebox.h"
+#include "bstone_version.h"
 
 
-const std::string& get_version_string();
 const std::string& get_profile_dir();
 
 
@@ -63,7 +63,7 @@ void Log::initialize()
 	write("BStone Log");
 	write("==========");
 	write();
-	write("Version: " + ::get_version_string());
+	write("Version: " + bstone::Version::get_string());
 	write();
 }
 
@@ -75,7 +75,7 @@ void Log::write()
 void Log::write_version()
 {
 	message_type_ = LogMessageType::version;
-	write_internal("BStone version: " + ::get_version_string());
+	write_internal("BStone version: " + bstone::Version::get_string());
 }
 
 void Log::write(

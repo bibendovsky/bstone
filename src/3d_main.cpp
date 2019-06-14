@@ -50,6 +50,7 @@ Free Software Foundation, Inc.,
 #include "bstone_text_reader.h"
 #include "bstone_text_writer.h"
 #include "bstone_renderer_manager.h"
+#include "bstone_version.h"
 
 #ifdef __vita__
 #include <psp2/kernel/processmgr.h>
@@ -9660,7 +9661,7 @@ void DemoLoop()
 				const auto version_padding = 1;
 				const auto version_margin = 4;
 				const auto ps_fizzle_height = 15;
-				auto& version_string = ::get_version_string();
+				auto& version_string = bstone::Version::get_string();
 
 				::fontnumber = 2;
 
@@ -9699,7 +9700,7 @@ void DemoLoop()
 					VERSION_TEXT_BKCOLOR);
 
 				SETFONTCOLOR(VERSION_TEXT_COLOR, VERSION_TEXT_BKCOLOR);
-				::US_Print(::get_version_string().c_str());
+				::US_Print(bstone::Version::get_string().c_str());
 
 				VW_UpdateScreen();
 				::VL_FadeIn(0, 255, reinterpret_cast<std::uint8_t*>(::grsegs[TITLEPALETTE]), 30);
@@ -10453,12 +10454,6 @@ void sys_sleep_for(
 void sys_default_sleep_for()
 {
 	::sys_sleep_for(10);
-}
-
-const std::string& get_version_string()
-{
-	static const std::string version = "1.1.12";
-	return version;
 }
 
 const std::string& get_profile_dir()
