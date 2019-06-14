@@ -722,7 +722,16 @@ void vid_read_is_windowed_cl_configuration()
 {
 	// "vid_is_windowed"
 	//
-	::vid_configuration_.is_windowed_ = ::g_args.has_option(::vid_get_is_windowed_key_name());
+	const auto is_windowed_str = ::g_args.get_option_value(::vid_get_is_windowed_key_name());
+
+	auto is_windowed_value = 0;
+
+	if (!bstone::StringHelper::string_to_int(is_windowed_str, is_windowed_value))
+	{
+		return;
+	}
+
+	::vid_configuration_.is_windowed_ = (is_windowed_value != 0);
 }
 
 void vid_read_window_offset_cl_configuration(
@@ -791,6 +800,10 @@ void vid_read_cl_configuration()
 {
 	::vid_configuration_.is_custom_position_ = false;
 
+
+	// "vid_is_windowed"
+	//
+	::vid_read_is_windowed_cl_configuration();
 
 	// "vid_x"
 	//
