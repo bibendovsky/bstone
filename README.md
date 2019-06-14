@@ -207,8 +207,8 @@ Notes:
 * --profile_dir path  
   Overrides default location of the game's profile files.  
 
-* --vid_is_windowed  
-  Runs the game in windowed mode.  
+* --vid_is_windowed <0|1> 
+  Runs the game in windowed mode if value set to "1" or fullscreen otherwise.  
   Default video height: 480
 
 * --vid_width width  
