@@ -29,7 +29,6 @@ Free Software Foundation, Inc.,
 #include <algorithm>
 #include <chrono>
 #include <unordered_set>
-#include "SDL_hints.h"
 #include "glm/gtc/matrix_transform.hpp"
 #include "id_heads.h"
 #include "id_ca.h"
@@ -896,8 +895,6 @@ bool sw_initialize_window()
 		return false;
 	}
 
-	auto hint_result = ::SDL_SetHint("SDL_HINT_RENDER_DRIVER", "opengl");
-
 	return true;
 }
 
@@ -949,68 +946,6 @@ bool sw_initialize_renderer()
 
 			bstone::Log::write(
 				"VID: Using VSync...");
-		}
-
-
-		auto& ren_string = ::g_args.get_option_value(
-			"vid_renderer");
-
-		if (!ren_string.empty())
-		{
-			bstone::Log::write(
-				"VID: Setting preferred renderer...");
-
-
-			if (ren_string == "d3d")
-			{
-				renderer_driver = "direct3d";
-
-				bstone::Log::write(
-					"VID: Forcing Direct3D renderer.");
-			}
-			else if (ren_string == "ogl")
-			{
-				renderer_driver = "opengl";
-
-				bstone::Log::write(
-					"VID: Forcing OpenGL renderer.");
-			}
-			else if (ren_string == "ogles")
-			{
-				renderer_driver = "opengles";
-
-				bstone::Log::write(
-					"VID: Forcing OpenGL ES renderer.");
-			}
-			else if (ren_string == "ogles2")
-			{
-				renderer_driver = "opengles2";
-
-				bstone::Log::write(
-					"VID: Forcing OpenGL ES 2 renderer.");
-			}
-			else if (ren_string == "soft")
-			{
-				renderer_driver = "software";
-
-				bstone::Log::write(
-					"VID: Forcing software renderer.");
-			}
-			else
-			{
-				bstone::Log::write_warning("VID: Unsupported renderer: \"" + ren_string + "\".");
-			}
-
-
-			auto hint_result = ::SDL_SetHint(
-				SDL_HINT_RENDER_DRIVER,
-				renderer_driver);
-
-			if (hint_result == SDL_FALSE)
-			{
-				bstone::Log::write_warning(
-					::SDL_GetError());
-			}
 		}
 	}
 
