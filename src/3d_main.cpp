@@ -7911,14 +7911,6 @@ void read_text_config()
 
 	::gamestate.flags &= ~default_game_state_flags;
 	::gamestate.flags |= game_state_flags;
-
-	::SD_EnableSound(is_sound_enabled);
-	::SD_EnableMusic(is_music_enabled);
-
-	::sd_set_sfx_volume(sd_sfx_volume);
-	::sd_set_music_volume(sd_music_volume);
-
-	::vl_update_widescreen();
 }
 
 
@@ -7928,8 +7920,6 @@ void read_text_config()
 void ReadConfig()
 {
 	read_text_config();
-
-	::vid_apply_hw_configuration();
 }
 
 

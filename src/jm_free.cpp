@@ -1052,6 +1052,9 @@ void InitGame()
 		}
 	}
 
+	::ReadConfig();
+	::read_high_scores();
+
 	VW_Startup();
 	IN_Startup();
 	SD_Startup();
@@ -1088,9 +1091,6 @@ void InitGame()
 	updateptr = &update[0];
 
 	bufferofs = 0;
-
-	::ReadConfig();
-	::read_high_scores();
 
 
 	//
