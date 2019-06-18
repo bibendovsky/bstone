@@ -7244,42 +7244,6 @@ static void write_high_scores()
 		bstone::Log::write_error("Failed to archive high scores data."s + ex.get_message());
 	}
 }
-
-static void set_vanilla_controls()
-{
-	dirscan = {
-		ScanCode::sc_up_arrow,
-		ScanCode::sc_right_arrow,
-		ScanCode::sc_down_arrow,
-		ScanCode::sc_left_arrow,
-	}; // dirscan
-
-	buttonscan = {
-#ifdef __vita__
-		ScanCode::sc_y,
-#else
-		ScanCode::sc_control,
-#endif
-		ScanCode::sc_alt,
-		ScanCode::sc_right_shift,
-		ScanCode::sc_space,
-		ScanCode::sc_1,
-		ScanCode::sc_2,
-		ScanCode::sc_3,
-		ScanCode::sc_4,
-		ScanCode::sc_5,
-		ScanCode::sc_6,
-		ScanCode::sc_7,
-		ScanCode::sc_none,
-	}; // buttonscan
-
-	buttonmouse = {
-		bt_attack,
-		bt_strafe,
-		bt_use,
-		bt_nobutton,
-	}; // buttonmouse
-}
 // BBi
 
 
@@ -7293,9 +7257,6 @@ const auto snd_sfx_volume_name = "snd_sfx_volume";
 const auto snd_music_volume_name = "snd_music_volume";
 const auto in_mouse_sensitivity_name = "in_mouse_sensitivity";
 const auto in_is_mouse_enabled_name = "in_is_mouse_enabled";
-const auto in_mouse_binding_name = "in_mouse_binding";
-const auto in_kb_binding_name = "in_kb_binding";
-const auto in_mouse_button_name = "in_mouse_button";
 const auto in_binding_name = "in_binding";
 const auto gp_flags_name = "gp_flags";
 const auto gp_no_wall_hit_sfx_name = "gp_no_wall_hit_sfx";
@@ -7319,95 +7280,95 @@ public:
 
 const auto scan_code_name_map = std::unordered_map<ScanCode, std::string, ScanCodeHash>{
 	{ScanCode::sc_return, "return", },
-{ScanCode::sc_escape, "escape", },
-{ScanCode::sc_space, "space", },
-{ScanCode::sc_minus, "minus", },
-{ScanCode::sc_equals, "equals", },
-{ScanCode::sc_backspace, "backspace", },
-{ScanCode::sc_tab, "tab", },
-{ScanCode::sc_alt, "alt", },
-{ScanCode::sc_left_bracket, "left_bracket", },
-{ScanCode::sc_right_bracket, "right_bracket", },
-{ScanCode::sc_control, "control", },
-{ScanCode::sc_caps_lock, "caps_lock", },
-{ScanCode::sc_num_lock, "num_lock", },
-{ScanCode::sc_scroll_lock, "scroll_lock", },
-{ScanCode::sc_left_shift, "left_shift", },
-{ScanCode::sc_right_shift, "right_shift", },
-{ScanCode::sc_up_arrow, "up_arrow", },
-{ScanCode::sc_down_arrow, "down_arrow", },
-{ScanCode::sc_left_arrow, "left_arrow", },
-{ScanCode::sc_right_arrow, "right_arrow", },
-{ScanCode::sc_insert, "insert", },
-{ScanCode::sc_delete, "delete", },
-{ScanCode::sc_home, "home", },
-{ScanCode::sc_end, "end", },
-{ScanCode::sc_page_up, "page_up", },
-{ScanCode::sc_page_down, "page_down", },
-{ScanCode::sc_slash, "slash", },
-{ScanCode::sc_f1, "f1", },
-{ScanCode::sc_f2, "f2", },
-{ScanCode::sc_f3, "f3", },
-{ScanCode::sc_f4, "f4", },
-{ScanCode::sc_f5, "f5", },
-{ScanCode::sc_f6, "f6", },
-{ScanCode::sc_f7, "f7", },
-{ScanCode::sc_f8, "f8", },
-{ScanCode::sc_f9, "f9", },
-{ScanCode::sc_f10, "f10", },
-{ScanCode::sc_f11, "f11", },
-{ScanCode::sc_f12, "f12", },
-{ScanCode::sc_print_screen, "print_screen", },
-{ScanCode::sc_pause, "pause", },
-{ScanCode::sc_back_quote, "back_quote", },
-{ScanCode::sc_semicolon, "semicolon", },
-{ScanCode::sc_quote, "quote", },
-{ScanCode::sc_backslash, "backslash", },
-{ScanCode::sc_comma, "comma", },
-{ScanCode::sc_period, "period", },
-{ScanCode::sc_1, "1", },
-{ScanCode::sc_2, "2", },
-{ScanCode::sc_3, "3", },
-{ScanCode::sc_4, "4", },
-{ScanCode::sc_5, "5", },
-{ScanCode::sc_6, "6", },
-{ScanCode::sc_7, "7", },
-{ScanCode::sc_8, "8", },
-{ScanCode::sc_9, "9", },
-{ScanCode::sc_0, "0", },
-{ScanCode::sc_a, "a", },
-{ScanCode::sc_b, "b", },
-{ScanCode::sc_c, "c", },
-{ScanCode::sc_d, "d", },
-{ScanCode::sc_e, "e", },
-{ScanCode::sc_f, "f", },
-{ScanCode::sc_g, "g", },
-{ScanCode::sc_h, "h", },
-{ScanCode::sc_i, "i", },
-{ScanCode::sc_j, "j", },
-{ScanCode::sc_k, "k", },
-{ScanCode::sc_l, "l", },
-{ScanCode::sc_m, "m", },
-{ScanCode::sc_n, "n", },
-{ScanCode::sc_o, "o", },
-{ScanCode::sc_p, "p", },
-{ScanCode::sc_q, "q", },
-{ScanCode::sc_r, "r", },
-{ScanCode::sc_s, "s", },
-{ScanCode::sc_t, "t", },
-{ScanCode::sc_u, "u", },
-{ScanCode::sc_v, "v", },
-{ScanCode::sc_w, "w", },
-{ScanCode::sc_x, "x", },
-{ScanCode::sc_y, "y", },
-{ScanCode::sc_z, "z", },
-{ScanCode::sc_kp_minus, "kp_minus", },
-{ScanCode::sc_kp_plus, "kp_plus", },
-{ScanCode::sc_mouse_left, "mouse_left", },
-{ScanCode::sc_mouse_middle, "mouse_middle", },
-{ScanCode::sc_mouse_right, "mouse_right", },
-{ScanCode::sc_mouse_x1, "mouse_x1", },
-{ScanCode::sc_mouse_x2, "mouse_x2", },
+	{ScanCode::sc_escape, "escape", },
+	{ScanCode::sc_space, "space", },
+	{ScanCode::sc_minus, "minus", },
+	{ScanCode::sc_equals, "equals", },
+	{ScanCode::sc_backspace, "backspace", },
+	{ScanCode::sc_tab, "tab", },
+	{ScanCode::sc_alt, "alt", },
+	{ScanCode::sc_left_bracket, "left_bracket", },
+	{ScanCode::sc_right_bracket, "right_bracket", },
+	{ScanCode::sc_control, "control", },
+	{ScanCode::sc_caps_lock, "caps_lock", },
+	{ScanCode::sc_num_lock, "num_lock", },
+	{ScanCode::sc_scroll_lock, "scroll_lock", },
+	{ScanCode::sc_left_shift, "left_shift", },
+	{ScanCode::sc_right_shift, "right_shift", },
+	{ScanCode::sc_up_arrow, "up_arrow", },
+	{ScanCode::sc_down_arrow, "down_arrow", },
+	{ScanCode::sc_left_arrow, "left_arrow", },
+	{ScanCode::sc_right_arrow, "right_arrow", },
+	{ScanCode::sc_insert, "insert", },
+	{ScanCode::sc_delete, "delete", },
+	{ScanCode::sc_home, "home", },
+	{ScanCode::sc_end, "end", },
+	{ScanCode::sc_page_up, "page_up", },
+	{ScanCode::sc_page_down, "page_down", },
+	{ScanCode::sc_slash, "slash", },
+	{ScanCode::sc_f1, "f1", },
+	{ScanCode::sc_f2, "f2", },
+	{ScanCode::sc_f3, "f3", },
+	{ScanCode::sc_f4, "f4", },
+	{ScanCode::sc_f5, "f5", },
+	{ScanCode::sc_f6, "f6", },
+	{ScanCode::sc_f7, "f7", },
+	{ScanCode::sc_f8, "f8", },
+	{ScanCode::sc_f9, "f9", },
+	{ScanCode::sc_f10, "f10", },
+	{ScanCode::sc_f11, "f11", },
+	{ScanCode::sc_f12, "f12", },
+	{ScanCode::sc_print_screen, "print_screen", },
+	{ScanCode::sc_pause, "pause", },
+	{ScanCode::sc_back_quote, "back_quote", },
+	{ScanCode::sc_semicolon, "semicolon", },
+	{ScanCode::sc_quote, "quote", },
+	{ScanCode::sc_backslash, "backslash", },
+	{ScanCode::sc_comma, "comma", },
+	{ScanCode::sc_period, "period", },
+	{ScanCode::sc_1, "1", },
+	{ScanCode::sc_2, "2", },
+	{ScanCode::sc_3, "3", },
+	{ScanCode::sc_4, "4", },
+	{ScanCode::sc_5, "5", },
+	{ScanCode::sc_6, "6", },
+	{ScanCode::sc_7, "7", },
+	{ScanCode::sc_8, "8", },
+	{ScanCode::sc_9, "9", },
+	{ScanCode::sc_0, "0", },
+	{ScanCode::sc_a, "a", },
+	{ScanCode::sc_b, "b", },
+	{ScanCode::sc_c, "c", },
+	{ScanCode::sc_d, "d", },
+	{ScanCode::sc_e, "e", },
+	{ScanCode::sc_f, "f", },
+	{ScanCode::sc_g, "g", },
+	{ScanCode::sc_h, "h", },
+	{ScanCode::sc_i, "i", },
+	{ScanCode::sc_j, "j", },
+	{ScanCode::sc_k, "k", },
+	{ScanCode::sc_l, "l", },
+	{ScanCode::sc_m, "m", },
+	{ScanCode::sc_n, "n", },
+	{ScanCode::sc_o, "o", },
+	{ScanCode::sc_p, "p", },
+	{ScanCode::sc_q, "q", },
+	{ScanCode::sc_r, "r", },
+	{ScanCode::sc_s, "s", },
+	{ScanCode::sc_t, "t", },
+	{ScanCode::sc_u, "u", },
+	{ScanCode::sc_v, "v", },
+	{ScanCode::sc_w, "w", },
+	{ScanCode::sc_x, "x", },
+	{ScanCode::sc_y, "y", },
+	{ScanCode::sc_z, "z", },
+	{ScanCode::sc_kp_minus, "kp_minus", },
+	{ScanCode::sc_kp_plus, "kp_plus", },
+	{ScanCode::sc_mouse_left, "mouse_left", },
+	{ScanCode::sc_mouse_middle, "mouse_middle", },
+	{ScanCode::sc_mouse_right, "mouse_right", },
+	{ScanCode::sc_mouse_x1, "mouse_x1", },
+	{ScanCode::sc_mouse_x2, "mouse_x2", },
 };
 
 
@@ -7518,7 +7479,6 @@ void set_config_defaults()
 {
 	::mouseenabled = true;
 
-	::set_vanilla_controls();
 	::in_set_default_bindings();
 
 	::mouseadjustment = ::default_mouse_sensitivity;
@@ -7689,46 +7649,6 @@ void read_text_config()
 						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
 							::mouseenabled = (value != 0);
-						}
-					}
-					else if (key_string == in_mouse_binding_name)
-					{
-						if (index1 < 0)
-						{
-							if (index0 >= 0 && index0 < static_cast<int>(::dirscan.size()))
-							{
-								::dirscan[index0] = get_scan_code_by_name(value_string);
-							}
-						}
-					}
-					else if (key_string == in_kb_binding_name)
-					{
-						if (index1 < 0)
-						{
-							if (index0 >= 0 && index0 < static_cast<int>(::buttonscan.size()))
-							{
-								::buttonscan[index0] = get_scan_code_by_name(value_string);
-							}
-						}
-					}
-					else if (key_string == in_mouse_button_name)
-					{
-						if (index1 < 0)
-						{
-							if (index0 >= 0 && index0 < static_cast<int>(::buttonmouse.size()))
-							{
-								auto value = std::int16_t{};
-
-								if (bstone::StringHelper::string_to_int16(value_string, value))
-								{
-									::buttonmouse[index0] = value;
-								}
-
-								if (::buttonmouse[index0] < 0)
-								{
-									::buttonmouse[index0] = 0;
-								}
-							}
 						}
 					}
 					else if (key_string == in_binding_name)
@@ -7971,9 +7891,6 @@ void write_text_config()
 	write_config_entry(writer, in_is_mouse_enabled_name, ::mouseenabled);
 
 	writer.write("\n// Input bindings\n");
-	write_x_scan_config(::dirscan, in_mouse_binding_name, writer);
-	write_x_scan_config(::buttonscan, in_kb_binding_name, writer);
-	write_buttons_config(::buttonmouse, in_mouse_button_name, writer);
 	write_bindings_config(::in_binding_name, writer);
 
 	writer.write("\n// Gameplay\n");

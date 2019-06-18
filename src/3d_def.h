@@ -3123,9 +3123,6 @@ using Buttons = std::vector<std::int16_t>;
 
 
 extern bool mouseenabled;
-extern ScanCodes dirscan;
-extern ScanCodes buttonscan;
-extern Buttons buttonmouse;
 
 extern bool buttonheld[NUMBUTTONS];
 

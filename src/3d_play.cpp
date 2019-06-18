@@ -124,10 +124,6 @@ std::uint8_t update[UPDATESIZE];
 //
 bool mouseenabled;
 
-ScanCodes dirscan;
-ScanCodes buttonscan;
-Buttons buttonmouse;
-
 const int viewsize = 20;
 
 bool buttonheld[NUMBUTTONS];
