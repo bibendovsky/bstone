@@ -3123,14 +3123,9 @@ using Buttons = std::vector<std::int16_t>;
 
 
 extern bool mouseenabled;
-extern bool joystickenabled;
-extern bool joypadenabled;
-extern bool joystickprogressive;
-extern std::int16_t joystickport;
 extern ScanCodes dirscan;
 extern ScanCodes buttonscan;
 extern Buttons buttonmouse;
-extern Buttons buttonjoy;
 
 extern bool buttonheld[NUMBUTTONS];
 

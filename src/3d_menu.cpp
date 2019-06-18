@@ -181,11 +181,6 @@ void PreloadUpdate(
 	std::uint16_t current,
 	std::uint16_t total);
 
-void INL_GetJoyDelta(
-	std::uint16_t joy,
-	int* dx,
-	int* dy);
-
 bool LoadTheGame(
 	const std::string& file_name);
 
@@ -384,7 +379,6 @@ void CP_GameOptions(
 	std::int16_t temp1);
 
 void DrawGopMenu();
-void CalibrateJoystick();
 void ExitGame();
 
 void CP_Switches(
@@ -423,7 +417,7 @@ CP_iteminfo MainItems = {MENU_X, MENU_Y, 12, MM_NEW_MISSION, 0, 9, {77, 1, 154, 
 CP_iteminfo GopItems = {MENU_X, MENU_Y + 25, 6, 0, 0, 9, {77, 1, 154, 9, 1}};
 CP_iteminfo SndItems = {SM_X, SM_Y, 6, 0, 0, 7, {87, -1, 144, 7, 1}};
 CP_iteminfo LSItems = {LSM_X, LSM_Y, 10, 0, 0, 8, {86, -1, 144, 8, 1}};
-CP_iteminfo CtlItems = {CTL_X, CTL_Y, 7, -1, 0, 9, {87, 1, 174, 9, 1}};
+CP_iteminfo CtlItems = {CTL_X, CTL_Y, 3, -1, 0, 9, {87, 1, 174, 9, 1}};
 CP_iteminfo CusItems = {CST_X, CST_Y + 7, 6, -1, 0, 15, {54, -1, 203, 7, 1}};
 CP_iteminfo NewEitems = {NE_X, NE_Y, 6, 0, 0, 16, {43, -2, 119, 16, 1}};
 CP_iteminfo NewItems = {NM_X, NM_Y, 4, 1, 0, 16, {60, -2, 105, 16, 1}};
@@ -437,17 +431,17 @@ CP_iteminfo switches2_items = {MENU_X, MENU_Y + 30, 2, 0, 0, 9, {87, -1, 132, 7,
 
 CP_itemtype MainMenu[] = {
 	{AT_ENABLED, "NEW MISSION", CP_NewGame, static_cast<std::uint8_t>(COAL_FONT())},
-{AT_READIT, "ORDERING INFO", CP_OrderingInfo},
-{AT_READIT, "INSTRUCTIONS", CP_ReadThis},
-{AT_ENABLED, "STORY", CP_BlakeStoneSaga},
-{AT_DISABLED, "", 0},
-{AT_ENABLED, "GAME OPTIONS", CP_GameOptions},
-{AT_ENABLED, "HIGH SCORES", CP_ViewScores},
-{AT_ENABLED, "LOAD MISSION", reinterpret_cast<void(*)(std::int16_t)>(CP_LoadGame)},
-{AT_DISABLED, "SAVE MISSION", reinterpret_cast<void(*)(std::int16_t)>(CP_SaveGame)},
-{AT_DISABLED, "", 0},
-{AT_ENABLED, "BACK TO DEMO", CP_ExitOptions},
-{AT_ENABLED, "LOGOFF", 0}
+	{AT_READIT, "ORDERING INFO", CP_OrderingInfo},
+	{AT_READIT, "INSTRUCTIONS", CP_ReadThis},
+	{AT_ENABLED, "STORY", CP_BlakeStoneSaga},
+	{AT_DISABLED, "", 0},
+	{AT_ENABLED, "GAME OPTIONS", CP_GameOptions},
+	{AT_ENABLED, "HIGH SCORES", CP_ViewScores},
+	{AT_ENABLED, "LOAD MISSION", reinterpret_cast<void(*)(std::int16_t)>(CP_LoadGame)},
+	{AT_DISABLED, "SAVE MISSION", reinterpret_cast<void(*)(std::int16_t)>(CP_SaveGame)},
+	{AT_DISABLED, "", 0},
+	{AT_ENABLED, "BACK TO DEMO", CP_ExitOptions},
+	{AT_ENABLED, "LOGOFF", 0}
 };
 
 CP_itemtype GopMenu[] = {
@@ -480,10 +474,6 @@ CP_itemtype SndMenu[] = {
 
 CP_itemtype CtlMenu[] = {
 	{AT_DISABLED, "MOUSE ENABLED", 0},
-	{AT_DISABLED, "JOYSTICK ENABLED", 0},
-	{AT_DISABLED, "USE JOYSTICK PORT 2", 0},
-	{AT_DISABLED, "GRAVIS GAMEPAD ENABLED", 0},
-	{AT_DISABLED, "CALIBRATE JOYSTICK", 0},
 	{AT_DISABLED, "MOUSE SENSITIVITY", MouseSensitivity},
 	{AT_ENABLED, "CUSTOMIZE CONTROLS", CustomControls}
 };
@@ -3113,10 +3103,13 @@ void CP_Control(
 #ifdef __vita__
 	return;
 #endif
-	enum
-	{
-		MOUSEENABLE, JOYENABLE, USEPORT2, PADENABLE, CALIBRATEJOY, MOUSESENS, CUSTOMIZE
-	};
+
+enum
+{
+	MOUSEENABLE,
+	MOUSESENS,
+	CUSTOMIZE,
+};
 
 	std::int16_t which;
 
@@ -3138,35 +3131,6 @@ void CP_Control(
 			CusItems.curpos = -1;
 			ShootSnd();
 			break;
-
-		case JOYENABLE:
-			::joystickenabled = !::joystickenabled;
-			if (joystickenabled)
-			{
-				CalibrateJoystick();
-			}
-			DrawCtlScreen();
-			CusItems.curpos = -1;
-			ShootSnd();
-			break;
-
-		case USEPORT2:
-			joystickport ^= 1;
-			DrawCtlScreen();
-			ShootSnd();
-			break;
-
-		case PADENABLE:
-			::joypadenabled = !::joypadenabled;
-			DrawCtlScreen();
-			ShootSnd();
-			break;
-
-		case CALIBRATEJOY:
-			CalibrateJoystick();
-			DrawCtlScreen();
-			break;
-
 
 		case MOUSESENS:
 		case CUSTOMIZE:
@@ -3229,55 +3193,6 @@ void DrawMouseSens()
 
 	VW_UpdateScreen();
 	MenuFadeIn();
-}
-
-void CalibrateJoystick()
-{
-	std::uint16_t minx, maxx, miny, maxy;
-
-	CacheMessage(CALJOY1_TEXT);
-	VW_UpdateScreen();
-
-	while (IN_GetJoyButtonsDB(joystickport))
-	{
-	}
-	while ((LastScan != ScanCode::sc_escape) && !IN_GetJoyButtonsDB(joystickport))
-	{
-	}
-	if (LastScan == ScanCode::sc_escape)
-	{
-		return;
-	}
-
-	IN_GetJoyAbs(joystickport, &minx, &miny);
-	while (IN_GetJoyButtonsDB(joystickport))
-	{
-	}
-
-	CacheMessage(CALJOY2_TEXT);
-	VW_UpdateScreen();
-
-	while ((LastScan != ScanCode::sc_escape) && !IN_GetJoyButtonsDB(joystickport))
-	{
-	}
-	if (LastScan == ScanCode::sc_escape)
-	{
-		return;
-	}
-
-	IN_GetJoyAbs(joystickport, &maxx, &maxy);
-	if ((minx == maxx) || (miny == maxy))
-	{
-		return;
-	}
-
-	IN_SetupJoy(joystickport, minx, maxx, miny, maxy);
-	while (IN_GetJoyButtonsDB(joystickport))
-	{
-	}
-
-	IN_ClearKeysDown();
-	JoystickCalibrated = true;
 }
 
 void MouseSensitivity(
@@ -3378,23 +3293,13 @@ void DrawCtlScreen()
 	WindowW = 320;
 	SETFONTCOLOR(TEXTCOLOR, BKGDCOLOR);
 
-	if (JoysPresent[0])
-	{
-		CtlMenu[1].active = AT_ENABLED;
-		CtlMenu[2].active = AT_ENABLED;
-		CtlMenu[3].active = AT_ENABLED;
-		CtlMenu[4].active = AT_ENABLED;
-	}
-
-	CtlMenu[2].active = CtlMenu[3].active = CtlMenu[4].active = static_cast<activetypes>(joystickenabled);
-
 	if (MousePresent)
 	{
 		CtlMenu[0].active = AT_ENABLED;
-		CtlMenu[5].active = AT_ENABLED;
+		CtlMenu[1].active = AT_ENABLED;
 	}
 
-	CtlMenu[5].active = static_cast<activetypes>(mouseenabled);
+	CtlMenu[1].active = static_cast<activetypes>(mouseenabled);
 
 	fontnumber = 4;
 	DrawMenu(&CtlItems, &CtlMenu[0]);
@@ -3402,36 +3307,6 @@ void DrawCtlScreen()
 	x = CTL_X + CtlItems.indent - 24;
 	y = CTL_Y + Y_CTL_PIC_OFS;
 	if (mouseenabled)
-	{
-		VWB_DrawPic(x, y, C_SELECTEDPIC);
-	}
-	else
-	{
-		VWB_DrawPic(x, y, C_NOTSELECTEDPIC);
-	}
-
-	y = CTL_Y + 9 + Y_CTL_PIC_OFS;
-	if (joystickenabled)
-	{
-		VWB_DrawPic(x, y, C_SELECTEDPIC);
-	}
-	else
-	{
-		VWB_DrawPic(x, y, C_NOTSELECTEDPIC);
-	}
-
-	y = CTL_Y + 9 * 2 + Y_CTL_PIC_OFS;
-	if (joystickport)
-	{
-		VWB_DrawPic(x, y, C_SELECTEDPIC);
-	}
-	else
-	{
-		VWB_DrawPic(x, y, C_NOTSELECTEDPIC);
-	}
-
-	y = CTL_Y + 9 * 3 + Y_CTL_PIC_OFS;
-	if (joypadenabled)
 	{
 		VWB_DrawPic(x, y, C_SELECTEDPIC);
 	}
@@ -3459,17 +3334,6 @@ void DrawCtlScreen()
 	DrawMenuGun(&CtlItems);
 	VW_UpdateScreen();
 }
-
-enum ControlButton1
-{
-	FIRE,
-	STRAFE,
-	RUN,
-	OPEN
-}; // ControlButton1
-
-char mbarray[4][3] = {"B0", "B1", "B2", "B3"};
-int order[4] = {RUN, OPEN, FIRE, STRAFE, };
 
 void CustomControls(
 	std::int16_t)
@@ -4163,52 +4027,6 @@ void ReadAnyControl(
 			ci->button2 = buttons & 4;
 			ci->button3 = false;
 			mouseactive = true;
-		}
-	}
-
-	if (joystickenabled && !mouseactive)
-	{
-		int jx;
-		int jy;
-		std::int16_t jb;
-
-		::INL_GetJoyDelta(joystickport, &jx, &jy);
-
-		if (jy < -SENSITIVE)
-		{
-			ci->dir = dir_North;
-		}
-		else if (jy > SENSITIVE)
-		{
-			ci->dir = dir_South;
-		}
-
-		if (jx < -SENSITIVE)
-		{
-			ci->dir = dir_West;
-		}
-		else if (jx > SENSITIVE)
-		{
-			ci->dir = dir_East;
-		}
-
-		jb = ::IN_JoyButtons();
-
-		if (jb != 0)
-		{
-			ci->button0 = jb & 1;
-			ci->button1 = jb & 2;
-
-			if (joypadenabled)
-			{
-				ci->button2 = jb & 4;
-				ci->button3 = jb & 8;
-			}
-			else
-			{
-				ci->button2 = false;
-				ci->button3 = false;
-			}
 		}
 	}
 }

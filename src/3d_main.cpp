@@ -7279,13 +7279,6 @@ static void set_vanilla_controls()
 		bt_use,
 		bt_nobutton,
 	}; // buttonmouse
-
-	buttonjoy = {
-		bt_attack,
-		bt_strafe,
-		bt_use,
-		bt_run,
-	}; // buttonjoy
 }
 // BBi
 
@@ -7300,14 +7293,9 @@ const auto snd_sfx_volume_name = "snd_sfx_volume";
 const auto snd_music_volume_name = "snd_music_volume";
 const auto in_mouse_sensitivity_name = "in_mouse_sensitivity";
 const auto in_is_mouse_enabled_name = "in_is_mouse_enabled";
-const auto in_is_joystick_enabled_name = "in_is_joystick_enabled";
-const auto in_is_joystick_pad_enabled_name = "in_is_joystick_pad_enabled";
-const auto in_is_joystick_progressive_name = "in_is_joystick_progressive";
-const auto in_joystick_port_name = "in_joystick_port";
 const auto in_mouse_binding_name = "in_mouse_binding";
 const auto in_kb_binding_name = "in_kb_binding";
 const auto in_mouse_button_name = "in_mouse_button";
-const auto in_js_button_name = "in_js_button";
 const auto in_binding_name = "in_binding";
 const auto gp_flags_name = "gp_flags";
 const auto gp_no_wall_hit_sfx_name = "gp_no_wall_hit_sfx";
@@ -7530,11 +7518,6 @@ void set_config_defaults()
 {
 	::mouseenabled = true;
 
-	::joystickenabled = false;
-	::joypadenabled = false;
-	::joystickport = 0;
-	::joystickprogressive = false;
-
 	::set_vanilla_controls();
 	::in_set_default_bindings();
 
@@ -7708,47 +7691,6 @@ void read_text_config()
 							::mouseenabled = (value != 0);
 						}
 					}
-					else if (key_string == in_is_joystick_enabled_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							::joystickenabled = (value != 0);
-						}
-					}
-					else if (key_string == in_is_joystick_pad_enabled_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							::joypadenabled = (value != 0);
-						}
-					}
-					else if (key_string == in_is_joystick_progressive_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							::joystickprogressive = (value != 0);
-						}
-					}
-					else if (key_string == in_joystick_port_name)
-					{
-						std::int16_t value;
-
-						if (bstone::StringHelper::string_to_int16(value_string, value))
-						{
-							::joystickport = value;
-						}
-
-						if (::joystickport < 0)
-						{
-							::joystickport = 0;
-						}
-					}
 					else if (key_string == in_mouse_binding_name)
 					{
 						if (index1 < 0)
@@ -7785,26 +7727,6 @@ void read_text_config()
 								if (::buttonmouse[index0] < 0)
 								{
 									::buttonmouse[index0] = 0;
-								}
-							}
-						}
-					}
-					else if (key_string == in_js_button_name)
-					{
-						if (index1 < 0)
-						{
-							if (index0 >= 0 && index0 < static_cast<int>(::buttonjoy.size()))
-							{
-								auto value = std::int16_t{};
-
-								if (bstone::StringHelper::string_to_int16(value_string, value))
-								{
-									::buttonjoy[index0] = value;
-								}
-
-								if (::buttonjoy[index0] < 0)
-								{
-									::buttonjoy[index0] = 0;
 								}
 							}
 						}
@@ -8047,16 +7969,11 @@ void write_text_config()
 	writer.write("\n// Input\n");
 	write_config_entry(writer, in_mouse_sensitivity_name, ::mouseadjustment);
 	write_config_entry(writer, in_is_mouse_enabled_name, ::mouseenabled);
-	write_config_entry(writer, in_is_joystick_enabled_name, ::joystickenabled);
-	write_config_entry(writer, in_is_joystick_pad_enabled_name, ::joypadenabled);
-	write_config_entry(writer, in_is_joystick_progressive_name, ::joystickprogressive);
-	write_config_entry(writer, in_joystick_port_name, ::joystickport);
 
 	writer.write("\n// Input bindings\n");
 	write_x_scan_config(::dirscan, in_mouse_binding_name, writer);
 	write_x_scan_config(::buttonscan, in_kb_binding_name, writer);
 	write_buttons_config(::buttonmouse, in_mouse_button_name, writer);
-	write_buttons_config(::buttonjoy, in_js_button_name, writer);
 	write_bindings_config(::in_binding_name, writer);
 
 	writer.write("\n// Gameplay\n");

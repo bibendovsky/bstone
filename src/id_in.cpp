@@ -62,12 +62,6 @@ Free Software Foundation, Inc.,
 
 #define MouseInt 0x33
 
-//
-// joystick constants
-//
-#define JoyScaleMax 32768
-#define JoyScaleShift 8
-
 
 /*
 =============================================================================
@@ -81,13 +75,10 @@ Free Software Foundation, Inc.,
 // configuration variables
 //
 bool MousePresent;
-bool JoysPresent[MaxJoys];
-bool JoyPadPresent;
 bool NGinstalled = false;
 
 
 //      Global variables
-bool JoystickCalibrated; // JAM - added
 ControlType ControlTypeUsed; // JAM - added
 KeyboardState Keyboard;
 bool Paused;
@@ -107,7 +98,6 @@ KeyboardDef KbdDefs = {
 	ScanCode::sc_page_down
 }; // KeyboardDef KbdDefs
 
-JoystickDef JoyDefs[MaxJoys];
 ControlType Controls[MaxPlayers];
 
 std::uint32_t MouseDownCount;
@@ -938,179 +928,6 @@ static int INL_GetMouseButtons()
 	return result;
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      IN_GetJoyAbs() - Reads the absolute position of the specified joystick
-//
-///////////////////////////////////////////////////////////////////////////
-void IN_GetJoyAbs(
-	std::uint16_t joy,
-	std::uint16_t* xp,
-	std::uint16_t* yp)
-{
-	// FIXME
-
-	static_cast<void>(joy);
-
-	*xp = 0;
-	*yp = 0;
-}
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      INL_GetJoyDelta() - Returns the relative movement of the specified
-//              joystick (from +/-127)
-//
-///////////////////////////////////////////////////////////////////////////
-void INL_GetJoyDelta(
-	std::uint16_t joy,
-	int* dx,
-	int* dy)
-{
-	std::uint16_t x, y;
-	JoystickDef* def;
-
-	// FIXME
-#if 0
-	static std::uint32_t lasttime;
-#endif // 0
-
-	IN_GetJoyAbs(joy, &x, &y);
-	def = JoyDefs + joy;
-
-	if (x < def->threshMinX)
-	{
-		if (x < def->joyMinX)
-		{
-			x = def->joyMinX;
-		}
-
-		x = -(x - def->threshMinX);
-		x *= def->joyMultXL;
-		x >>= JoyScaleShift;
-		*dx = (x > 127) ? -127 : -x;
-	}
-	else if (x > def->threshMaxX)
-	{
-		if (x > def->joyMaxX)
-		{
-			x = def->joyMaxX;
-		}
-
-		x = x - def->threshMaxX;
-		x *= def->joyMultXH;
-		x >>= JoyScaleShift;
-		*dx = (x > 127) ? 127 : x;
-	}
-	else
-	{
-		*dx = 0;
-	}
-
-	if (y < def->threshMinY)
-	{
-		if (y < def->joyMinY)
-		{
-			y = def->joyMinY;
-		}
-
-		y = -(y - def->threshMinY);
-		y *= def->joyMultYL;
-		y >>= JoyScaleShift;
-		*dy = (y > 127) ? -127 : -y;
-	}
-	else if (y > def->threshMaxY)
-	{
-		if (y > def->joyMaxY)
-		{
-			y = def->joyMaxY;
-		}
-
-		y = y - def->threshMaxY;
-		y *= def->joyMultYH;
-		y >>= JoyScaleShift;
-		*dy = (y > 127) ? 127 : y;
-	}
-	else
-	{
-		*dy = 0;
-	}
-
-	// FIXME
-#if 0
-	lasttime = TimeCount;
-#endif // 0
-}
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      INL_GetJoyButtons() - Returns the button status of the specified
-//              joystick
-//
-///////////////////////////////////////////////////////////////////////////
-static std::uint16_t INL_GetJoyButtons(
-	std::uint16_t joy)
-{
-	// FIXME
-#if 0
-	register std::uint16_t result;
-
-	// Handle Notebook Gamepad's joystick.
-	//
-	if (NGinstalled)
-	{
-		unsigned ax, bx;
-
-		joy++;
-
-		_AL = 0x01;
-		_BX = joy;
-		NGjoy(0x00);
-
-		result = _AL;
-		result >>= joy ? 6 : 4; // Shift into bits 0-1
-		result &= 3; // Mask off the useless bits
-		result ^= 3;
-
-		return result;
-	}
-
-	// Handle normal PC joystick.
-	//
-	result = inportb(0x201); // Get all the joystick buttons
-	result >>= joy ? 6 : 4; // Shift into bits 0-1
-	result &= 3; // Mask off the useless bits
-	result ^= 3;
-	return result;
-#endif // 0
-
-	static_cast<void>(joy);
-	return 0;
-}
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      IN_GetJoyButtonsDB() - Returns the de-bounced button status of the
-//              specified joystick
-//
-///////////////////////////////////////////////////////////////////////////
-std::uint16_t IN_GetJoyButtonsDB(
-	std::uint16_t joy)
-{
-	std::uint32_t lasttime;
-	std::uint16_t result1, result2;
-
-	do
-	{
-		result1 = INL_GetJoyButtons(joy);
-		lasttime = TimeCount;
-		while (TimeCount == lasttime)
-		{
-		}
-		result2 = INL_GetJoyButtons(joy);
-	} while (result1 != result2);
-	return result1;
-}
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -1149,67 +966,6 @@ static void INL_ShutMouse()
 // BBi
 
 
-//
-//      INL_SetJoyScale() - Sets up scaling values for the specified joystick
-//
-static void INL_SetJoyScale(
-	std::uint16_t joy)
-{
-	JoystickDef* def;
-
-	def = &JoyDefs[joy];
-	def->joyMultXL = JoyScaleMax / (def->threshMinX - def->joyMinX);
-	def->joyMultXH = JoyScaleMax / (def->joyMaxX - def->threshMaxX);
-	def->joyMultYL = JoyScaleMax / (def->threshMinY - def->joyMinY);
-	def->joyMultYH = JoyScaleMax / (def->joyMaxY - def->threshMaxY);
-}
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      IN_SetupJoy() - Sets up thresholding values and calls INL_SetJoyScale()
-//              to set up scaling values
-//
-///////////////////////////////////////////////////////////////////////////
-void IN_SetupJoy(
-	std::uint16_t joy,
-	std::uint16_t minx,
-	std::uint16_t maxx,
-	std::uint16_t miny,
-	std::uint16_t maxy)
-{
-	std::uint16_t d, r;
-	JoystickDef* def;
-
-	def = &JoyDefs[joy];
-
-	def->joyMinX = minx;
-	def->joyMaxX = maxx;
-	r = maxx - minx;
-	d = r / 5;
-	def->threshMinX = ((r / 2) - d) + minx;
-	def->threshMaxX = ((r / 2) + d) + minx;
-
-	def->joyMinY = miny;
-	def->joyMaxY = maxy;
-	r = maxy - miny;
-	d = r / 5;
-	def->threshMinY = ((r / 2) - d) + miny;
-	def->threshMaxY = ((r / 2) + d) + miny;
-
-	INL_SetJoyScale(joy);
-}
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      INL_ShutJoy() - Cleans up the joystick stuff
-//
-///////////////////////////////////////////////////////////////////////////
-static void INL_ShutJoy(
-	std::uint16_t joy)
-{
-	JoysPresent[joy] = false;
-}
-
 ///////////////////////////////////////////////////////////////////////////
 //
 //      IN_Shutdown() - Shuts down the Input Mgr
@@ -1217,17 +973,11 @@ static void INL_ShutJoy(
 ///////////////////////////////////////////////////////////////////////////
 void IN_Shutdown()
 {
-	std::uint16_t i;
-
 	if (!IN_Started)
 	{
 		return;
 	}
 
-	for (i = 0; i < MaxJoys; i++)
-	{
-		INL_ShutJoy(i);
-	}
 	INL_ShutKbd();
 
 	// BBi
@@ -1444,20 +1194,6 @@ void IN_ReadControl(
 				ControlTypeUsed = ctrl_Mouse;
 			}
 		}
-
-		// Handle joystick input...
-		//
-		if (JoystickCalibrated && (ControlTypeUsed == ctrl_None))
-		{
-			INL_GetJoyDelta(ctrl_Joystick1 - ctrl_Joystick, &dx, &dy);
-			buttons = INL_GetJoyButtons(ctrl_Joystick1 - ctrl_Joystick);
-			realdelta = true;
-			if (dx || dy || buttons)
-			{
-				ControlTypeUsed = ctrl_Joystick;
-			}
-		}
-
 		// JAM end
 	}
 
@@ -1520,7 +1256,8 @@ void IN_StartAck()
 	IN_ClearKeysDown();
 	memset(btnstate, 0, sizeof(btnstate));
 
-	buttons = IN_JoyButtons() << 4;
+	buttons = 0;
+
 	if (MousePresent)
 	{
 		buttons |= IN_MouseButtons();
@@ -1548,7 +1285,8 @@ bool IN_CheckAck()
 		return true;
 	}
 
-	buttons = IN_JoyButtons() << 4;
+	buttons = 0;
+
 	if (MousePresent)
 	{
 		buttons |= IN_MouseButtons();
@@ -1612,42 +1350,6 @@ std::uint8_t IN_MouseButtons()
 	return static_cast<std::uint8_t>(::INL_GetMouseButtons());
 }
 
-std::uint8_t IN_JoyButtons()
-{
-	// FIXME
-#if 0
-	unsigned joybits;
-
-	joybits = inportb(0x201); // Get all the joystick buttons
-	joybits >>= 4; // only the high bits are useful
-	joybits ^= 15; // return with 1=pressed
-
-	return joybits;
-#else
-	return 0;
-#endif // 0
-}
-
-bool INL_StartJoy(
-	std::uint16_t joy)
-{
-	std::uint16_t x;
-	std::uint16_t y;
-
-	IN_GetJoyAbs(joy, &x, &y);
-
-	if ((x == 0 || x > MaxJoyValue - 10) ||
-		(y == 0 || y > MaxJoyValue - 10))
-	{
-		return false;
-	}
-	else
-	{
-		IN_SetupJoy(joy, 0, x * 2, 0, y * 2);
-		return true;
-	}
-}
-
 void IN_Startup()
 {
 	if (IN_Started)
@@ -1657,11 +1359,6 @@ void IN_Startup()
 
 	INL_StartKbd();
 	MousePresent = INL_StartMouse();
-
-	for (int i = 0; i < MaxJoys; ++i)
-	{
-		JoysPresent[i] = INL_StartJoy(static_cast<std::uint16_t>(i));
-	}
 
 #ifdef __vita__
 	// Vita joysticks are treated separately from other kinds of joystick

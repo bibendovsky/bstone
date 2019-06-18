@@ -35,11 +35,6 @@ Free Software Foundation, Inc.,
 #include "gfxv.h"
 
 
-void INL_GetJoyDelta(
-	std::uint16_t joy,
-	int* dx,
-	int* dy);
-
 void UpdateRadarGuage();
 void ClearMemory();
 
@@ -128,15 +123,10 @@ std::uint8_t update[UPDATESIZE];
 // control info
 //
 bool mouseenabled;
-bool joystickenabled;
-bool joypadenabled;
-bool joystickprogressive;
-std::int16_t joystickport;
 
 ScanCodes dirscan;
 ScanCodes buttonscan;
 Buttons buttonmouse;
-Buttons buttonjoy;
 
 const int viewsize = 20;
 
@@ -354,8 +344,6 @@ const int RUNMOVE = 70;
 const int BASETURN = 35;
 const int RUNTURN = 70;
 
-const int JOYSCALE = 2;
-
 
 void PollKeyboardButtons()
 {
@@ -422,47 +410,6 @@ void PollKeyboardButtons()
 
 void PollMouseButtons()
 {
-}
-
-void PollJoystickButtons()
-{
-	std::int16_t buttons;
-
-	buttons = IN_JoyButtons();
-
-	if (joystickport && !joypadenabled)
-	{
-		if (buttons & 4)
-		{
-			buttonstate[buttonjoy[0]] = true;
-		}
-		if (buttons & 8)
-		{
-			buttonstate[buttonjoy[1]] = true;
-		}
-	}
-	else
-	{
-		if (buttons & 1)
-		{
-			buttonstate[buttonjoy[0]] = true;
-		}
-		if (buttons & 2)
-		{
-			buttonstate[buttonjoy[1]] = true;
-		}
-		if (joypadenabled)
-		{
-			if (buttons & 4)
-			{
-				buttonstate[buttonjoy[2]] = true;
-			}
-			if (buttons & 8)
-			{
-				buttonstate[buttonjoy[3]] = true;
-			}
-		}
-	}
 }
 
 void PollKeyboardMove()
@@ -554,72 +501,6 @@ void PollMouseMove()
 	::controly += static_cast<int>(delta_y);
 }
 
-void PollJoystickMove()
-{
-	int joyx;
-	int joyy;
-
-	INL_GetJoyDelta(joystickport, &joyx, &joyy);
-
-	if (joystickprogressive)
-	{
-		if (joyx > 64)
-		{
-			controlx += (joyx - 64) * JOYSCALE * tics;
-		}
-		else if (joyx < -64)
-		{
-			controlx -= (-joyx - 64) * JOYSCALE * tics;
-		}
-		if (joyy > 64)
-		{
-			controlx += (joyy - 64) * JOYSCALE * tics;
-		}
-		else if (joyy < -64)
-		{
-			controly -= (-joyy - 64) * JOYSCALE * tics;
-		}
-	}
-	else if (buttonstate[bt_run])
-	{
-		if (joyx > 64)
-		{
-			controlx += RUNMOVE * tics;
-		}
-		else if (joyx < -64)
-		{
-			controlx -= RUNMOVE * tics;
-		}
-		if (joyy > 64)
-		{
-			controly += RUNMOVE * tics;
-		}
-		else if (joyy < -64)
-		{
-			controly -= RUNMOVE * tics;
-		}
-	}
-	else
-	{
-		if (joyx > 64)
-		{
-			controlx += BASEMOVE * tics;
-		}
-		else if (joyx < -64)
-		{
-			controlx -= BASEMOVE * tics;
-		}
-		if (joyy > 64)
-		{
-			controly += BASEMOVE * tics;
-		}
-		else if (joyy < -64)
-		{
-			controly -= BASEMOVE * tics;
-		}
-	}
-}
-
 /*
 ===================
 =
@@ -693,11 +574,6 @@ void PollControls()
 		PollMouseButtons();
 	}
 
-	if (joystickenabled)
-	{
-		PollJoystickButtons();
-	}
-
 	//
 	// get movements
 	//
@@ -706,11 +582,6 @@ void PollControls()
 	if (mouseenabled)
 	{
 		PollMouseMove();
-	}
-
-	if (joystickenabled)
-	{
-		PollJoystickMove();
 	}
 
 	//
