@@ -133,15 +133,6 @@ enum MenuVideoLables
 };
 // BBi
 
-// FOR INPUT TYPES
-enum MenuInputType
-{
-	MOUSE,
-	JOYSTICK,
-	KEYBOARDBTNS,
-	KEYBOARDMOVE
-}; // MenuInputType
-
 
 namespace
 {
@@ -774,65 +765,65 @@ using BindsItems = std::vector<BindsItem>;
 
 static BindsItems binds = {
 	{"MOVEMENT", 0, nullptr, },
-{"FORWARD", 0, &in_bindings[e_bi_forward], },
-{"BACKWARD", 0, &in_bindings[e_bi_backward], },
-{"LEFT", 0, &in_bindings[e_bi_left], },
-{"RIGHT", 0, &in_bindings[e_bi_right], },
-{"STRAFE", 0, &in_bindings[e_bi_strafe], },
-{"STRAFE LEFT", 0, &in_bindings[e_bi_strafe_left], },
-{"STRAFE RIGHT", 0, &in_bindings[e_bi_strafe_right], },
-{"QUICK LEFT", 0, &in_bindings[e_bi_quick_left], },
-{"QUICK RIGHT", 0, &in_bindings[e_bi_quick_right], },
-{"TURN AROUND", 0, &in_bindings[e_bi_turn_around], },
-{"RUN", 0, &in_bindings[e_bi_run], },
-{"", 0, nullptr, },
+	{"FORWARD", 0, &in_bindings[e_bi_forward], },
+	{"BACKWARD", 0, &in_bindings[e_bi_backward], },
+	{"LEFT", 0, &in_bindings[e_bi_left], },
+	{"RIGHT", 0, &in_bindings[e_bi_right], },
+	{"STRAFE", 0, &in_bindings[e_bi_strafe], },
+	{"STRAFE LEFT", 0, &in_bindings[e_bi_strafe_left], },
+	{"STRAFE RIGHT", 0, &in_bindings[e_bi_strafe_right], },
+	{"QUICK LEFT", 0, &in_bindings[e_bi_quick_left], },
+	{"QUICK RIGHT", 0, &in_bindings[e_bi_quick_right], },
+	{"TURN AROUND", 0, &in_bindings[e_bi_turn_around], },
+	{"RUN", 0, &in_bindings[e_bi_run], },
+	{"", 0, nullptr, },
 
-{"WEAPONS", 0, nullptr, },
-{"ATTACK", 0, &in_bindings[e_bi_attack], },
-{"AUTO CHARGE PISTOL", 0, &in_bindings[e_bi_weapon_1], },
-{"SLOW FIRE PROTECTOR", 0, &in_bindings[e_bi_weapon_2], },
-{"RAPID ASSAULT WEAPON", 0, &in_bindings[e_bi_weapon_3], },
-{"DUAL NEUTRON DISRUPTOR", 0, &in_bindings[e_bi_weapon_4], },
-{"PLASMA DISCHARGE UNIT", 0, &in_bindings[e_bi_weapon_5], },
-{"ANTI-PLASMA CANNON (PS)", 0, &in_bindings[e_bi_weapon_6], },
-{"FISSION DETONATOR (PS)", 0, &in_bindings[e_bi_weapon_7], },
-{"", 0, nullptr, },
+	{"WEAPONS", 0, nullptr, },
+	{"ATTACK", 0, &in_bindings[e_bi_attack], },
+	{"AUTO CHARGE PISTOL", 0, &in_bindings[e_bi_weapon_1], },
+	{"SLOW FIRE PROTECTOR", 0, &in_bindings[e_bi_weapon_2], },
+	{"RAPID ASSAULT WEAPON", 0, &in_bindings[e_bi_weapon_3], },
+	{"DUAL NEUTRON DISRUPTOR", 0, &in_bindings[e_bi_weapon_4], },
+	{"PLASMA DISCHARGE UNIT", 0, &in_bindings[e_bi_weapon_5], },
+	{"ANTI-PLASMA CANNON (PS)", 0, &in_bindings[e_bi_weapon_6], },
+	{"FISSION DETONATOR (PS)", 0, &in_bindings[e_bi_weapon_7], },
+	{"", 0, nullptr, },
 
-{"INTERACTION", 0, nullptr, },
-{"USE", 0, &in_bindings[e_bi_use], },
-{"", 0, nullptr, },
+	{"INTERACTION", 0, nullptr, },
+	{"USE", 0, &in_bindings[e_bi_use], },
+	{"", 0, nullptr, },
 
-{"HUD", 0, nullptr, },
-{"STATS", 0, &in_bindings[e_bi_stats], },
-{"MAGNIFY RADAR (PS)", 0, &in_bindings[e_bi_radar_magnify], },
-{"MINIFY RADAR (PS)", 0, &in_bindings[e_bi_radar_minify], },
-{"", 0, nullptr, },
+	{"HUD", 0, nullptr, },
+	{"STATS", 0, &in_bindings[e_bi_stats], },
+	{"MAGNIFY RADAR (PS)", 0, &in_bindings[e_bi_radar_magnify], },
+	{"MINIFY RADAR (PS)", 0, &in_bindings[e_bi_radar_minify], },
+	{"", 0, nullptr, },
 
-{"MENU", 0, nullptr, },
-{"HELP", 0, &in_bindings[e_bi_help], },
-{"SAVE", 0, &in_bindings[e_bi_save], },
-{"LOAD", 0, &in_bindings[e_bi_load], },
-{"SOUND OPTIONS", 0, &in_bindings[e_bi_sound], },
-{"CONTROLS", 0, &in_bindings[e_bi_controls], },
-{"END GAME", 0, &in_bindings[e_bi_end_game], },
-{"QUICK SAVE", 0, &in_bindings[e_bi_quick_save], },
-{"QUICK LOAD", 0, &in_bindings[e_bi_quick_load], },
-{"QUICK EXIT", 0, &in_bindings[e_bi_quick_exit], },
-{"", 0, nullptr, },
+	{"MENU", 0, nullptr, },
+	{"HELP", 0, &in_bindings[e_bi_help], },
+	{"SAVE", 0, &in_bindings[e_bi_save], },
+	{"LOAD", 0, &in_bindings[e_bi_load], },
+	{"SOUND OPTIONS", 0, &in_bindings[e_bi_sound], },
+	{"CONTROLS", 0, &in_bindings[e_bi_controls], },
+	{"END GAME", 0, &in_bindings[e_bi_end_game], },
+	{"QUICK SAVE", 0, &in_bindings[e_bi_quick_save], },
+	{"QUICK LOAD", 0, &in_bindings[e_bi_quick_load], },
+	{"QUICK EXIT", 0, &in_bindings[e_bi_quick_exit], },
+	{"", 0, nullptr, },
 
-{"OPTIONS", 0, nullptr, },
-{"ATTACK INFO", 0, &in_bindings[e_bi_attack_info], },
-{"LIGHTNING", 0, &in_bindings[e_bi_lightning], },
-{"SOUND", 0, &in_bindings[e_bi_sfx], },
-{"MUSIC", 0, &in_bindings[e_bi_music], },
-{"CEILING", 0, &in_bindings[e_bi_ceiling], },
-{"FLOORING", 0, &in_bindings[e_bi_flooring], },
-{"HEART BEAT (AOG)", 0, &in_bindings[e_bi_heart_beat], },
-{"", 0, nullptr, },
+	{"OPTIONS", 0, nullptr, },
+	{"ATTACK INFO", 0, &in_bindings[e_bi_attack_info], },
+	{"LIGHTNING", 0, &in_bindings[e_bi_lightning], },
+	{"SOUND", 0, &in_bindings[e_bi_sfx], },
+	{"MUSIC", 0, &in_bindings[e_bi_music], },
+	{"CEILING", 0, &in_bindings[e_bi_ceiling], },
+	{"FLOORING", 0, &in_bindings[e_bi_flooring], },
+	{"HEART BEAT (AOG)", 0, &in_bindings[e_bi_heart_beat], },
+	{"", 0, nullptr, },
 
-{"MISC", 0, nullptr, },
-{"PAUSE", 0, &in_bindings[e_bi_pause], },
-{"(UN)GRAB MOUSE", 0, &in_bindings[e_bi_grab_mouse], },
+	{"MISC", 0, nullptr, },
+	{"PAUSE", 0, &in_bindings[e_bi_pause], },
+	{"(UN)GRAB MOUSE", 0, &in_bindings[e_bi_grab_mouse], },
 }; // binds
 
 
@@ -2777,8 +2768,10 @@ void DrawAllSoundLights(
 	}
 }
 
-char LOADSAVE_GAME_MSG[2][25] = {"^ST1^CELoading Game\r^XX",
-"^ST1^CESaving Game\r^XX"};
+char LOADSAVE_GAME_MSG[2][25] = {
+	"^ST1^CELoading Game\r^XX",
+	"^ST1^CESaving Game\r^XX"
+};
 
 extern std::int8_t LS_current, LS_total;
 
@@ -3103,12 +3096,12 @@ void CP_Control(
 	return;
 #endif
 
-enum
-{
-	MOUSEENABLE,
-	MOUSESENS,
-	CUSTOMIZE,
-};
+	enum
+	{
+		MOUSEENABLE,
+		MOUSESENS,
+		CUSTOMIZE,
+	};
 
 	std::int16_t which;
 
