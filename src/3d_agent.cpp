@@ -494,9 +494,7 @@ void CheckWeaponChange()
 void ControlMovement(
 	objtype* ob)
 {
-	bool use_classic_strafe =
-		(in_use_modern_bindings && in_is_binding_pressed(e_bi_strafe)) ||
-		(!in_use_modern_bindings && buttonstate[bt_strafe]);
+	bool use_classic_strafe = in_is_binding_pressed(e_bi_strafe);
 
 	thrustspeed = 0;
 
@@ -530,33 +528,10 @@ void ControlMovement(
 	}
 #else
 	bool use_modern_strafe = false;
+
 	if (use_classic_strafe)
 	{
-		if (in_use_modern_bindings)
-		{
-			use_modern_strafe = true;
-		}
-		else
-		{
-			if (controlx > 0)
-			{
-				int angle = ob->angle - ANGLES / 4;
-				if (angle < 0)
-				{
-					angle += ANGLES;
-				}
-				Thrust(static_cast<std::int16_t>(angle), controlx * MOVESCALE); // move to left
-			}
-			else if (controlx < 0)
-			{
-				int angle = ob->angle + ANGLES / 4;
-				if (angle >= ANGLES)
-				{
-					angle -= ANGLES;
-				}
-				Thrust(static_cast<std::int16_t>(angle), -controlx * MOVESCALE); // move to right
-			}
-		}
+		use_modern_strafe = true;
 	}
 	else if (!gamestate.turn_around)
 	{

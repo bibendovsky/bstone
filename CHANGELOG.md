@@ -3,8 +3,12 @@
 ## [1.2.0] - 20??-??-??
 ### Removed
 - Option "vid_scale".
+- Vanilla input bindings.
 
 ### Changed
+- Renamed option "vid_window_x" to "vid_x".
+- Renamed option "vid_window_y" to "vid_y".
+- Split option "vid_mode" into "vid_width" and "vid_height".
 - Renamed option "vid_windowed" to "vid_is_windowed".
 
 

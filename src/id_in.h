@@ -270,13 +270,6 @@ const int k_max_bindings = e_bi_last_entry;
 using Binding = ScanCode[k_max_binding_keys];
 using Bindings = Binding[k_max_bindings];
 
-#ifdef __vita__
-const bool default_in_use_modern_bindings = false;
-#else
-const bool default_in_use_modern_bindings = true;
-#endif
-
-extern bool in_use_modern_bindings;
 extern Bindings in_bindings;
 
 void in_set_default_bindings();

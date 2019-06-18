@@ -7298,7 +7298,6 @@ const auto snd_is_sfx_enabled_name = "snd_is_sfx_enabled";
 const auto snd_is_music_enabled_name = "snd_is_music_enabled";
 const auto snd_sfx_volume_name = "snd_sfx_volume";
 const auto snd_music_volume_name = "snd_music_volume";
-const auto in_use_modern_bindings_name = "in_use_modern_bindings";
 const auto in_mouse_sensitivity_name = "in_mouse_sensitivity";
 const auto in_is_mouse_enabled_name = "in_is_mouse_enabled";
 const auto in_is_joystick_enabled_name = "in_is_joystick_enabled";
@@ -7548,7 +7547,6 @@ void set_config_defaults()
 	::sd_music_volume = ::sd_default_music_volume;
 
 	::g_no_wall_hit_sound = default_no_wall_hit_sound;
-	::in_use_modern_bindings = default_in_use_modern_bindings;
 	::g_always_run = default_always_run;
 
 	::g_heart_beat_sound = ::default_heart_beat_sound;
@@ -7680,15 +7678,6 @@ void read_text_config()
 						if (::sd_music_volume > ::sd_max_volume)
 						{
 							::sd_music_volume = ::sd_max_volume;
-						}
-					}
-					else if (key_string == in_use_modern_bindings_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							::in_use_modern_bindings = (value != 0);
 						}
 					}
 					else if (key_string == in_mouse_sensitivity_name)
@@ -8056,7 +8045,6 @@ void write_text_config()
 	write_config_entry(writer, snd_music_volume_name, ::sd_music_volume);
 
 	writer.write("\n// Input\n");
-	write_config_entry(writer, in_use_modern_bindings_name, ::in_use_modern_bindings);
 	write_config_entry(writer, in_mouse_sensitivity_name, ::mouseadjustment);
 	write_config_entry(writer, in_is_mouse_enabled_name, ::mouseenabled);
 	write_config_entry(writer, in_is_joystick_enabled_name, ::joystickenabled);

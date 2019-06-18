@@ -359,103 +359,69 @@ const int JOYSCALE = 2;
 
 void PollKeyboardButtons()
 {
-	if (in_use_modern_bindings)
+	if (in_is_binding_pressed(e_bi_attack))
 	{
-		if (in_is_binding_pressed(e_bi_attack))
-		{
-			buttonstate[bt_attack] = true;
-		}
-
-		if (in_is_binding_pressed(e_bi_strafe))
-		{
-			buttonstate[bt_strafe] = true;
-		}
-
-		if (in_is_binding_pressed(e_bi_run))
-		{
-			buttonstate[bt_run] = true;
-		}
-
-		if (in_is_binding_pressed(e_bi_use))
-		{
-			buttonstate[bt_use] = true;
-		}
-
-		if (in_is_binding_pressed(e_bi_weapon_1))
-		{
-			buttonstate[bt_ready_autocharge] = true;
-		}
-
-		if (in_is_binding_pressed(e_bi_weapon_2))
-		{
-			buttonstate[bt_ready_pistol] = true;
-		}
-
-		if (in_is_binding_pressed(e_bi_weapon_3))
-		{
-			buttonstate[bt_ready_burst_rifle] = true;
-		}
-
-		if (in_is_binding_pressed(e_bi_weapon_4))
-		{
-			buttonstate[bt_ready_ion_cannon] = true;
-		}
-
-		if (in_is_binding_pressed(e_bi_weapon_5))
-		{
-			buttonstate[bt_ready_grenade] = true;
-		}
-
-		const auto& assets_info = AssetsInfo{};
-
-		if (assets_info.is_ps())
-		{
-			if (in_is_binding_pressed(e_bi_weapon_6))
-			{
-				buttonstate[bt_ready_bfg_cannon] = true;
-			}
-
-			if (in_is_binding_pressed(e_bi_weapon_7))
-			{
-				buttonstate[bt_ready_plasma_detonators] = true;
-			}
-		}
+		buttonstate[bt_attack] = true;
 	}
-	else
+
+	if (in_is_binding_pressed(e_bi_strafe))
 	{
-		for (int i = 0; i < NUMBUTTONS; ++i)
+		buttonstate[bt_strafe] = true;
+	}
+
+	if (in_is_binding_pressed(e_bi_run))
+	{
+		buttonstate[bt_run] = true;
+	}
+
+	if (in_is_binding_pressed(e_bi_use))
+	{
+		buttonstate[bt_use] = true;
+	}
+
+	if (in_is_binding_pressed(e_bi_weapon_1))
+	{
+		buttonstate[bt_ready_autocharge] = true;
+	}
+
+	if (in_is_binding_pressed(e_bi_weapon_2))
+	{
+		buttonstate[bt_ready_pistol] = true;
+	}
+
+	if (in_is_binding_pressed(e_bi_weapon_3))
+	{
+		buttonstate[bt_ready_burst_rifle] = true;
+	}
+
+	if (in_is_binding_pressed(e_bi_weapon_4))
+	{
+		buttonstate[bt_ready_ion_cannon] = true;
+	}
+
+	if (in_is_binding_pressed(e_bi_weapon_5))
+	{
+		buttonstate[bt_ready_grenade] = true;
+	}
+
+	const auto& assets_info = AssetsInfo{};
+
+	if (assets_info.is_ps())
+	{
+		if (in_is_binding_pressed(e_bi_weapon_6))
 		{
-			if (Keyboard[buttonscan[i]])
-			{
-				buttonstate[i] = true;
-			}
+			buttonstate[bt_ready_bfg_cannon] = true;
+		}
+
+		if (in_is_binding_pressed(e_bi_weapon_7))
+		{
+			buttonstate[bt_ready_plasma_detonators] = true;
 		}
 	}
 }
 
 void PollMouseButtons()
 {
-	if (in_use_modern_bindings)
-	{
-		return;
-	}
-
-	std::uint8_t buttons = IN_MouseButtons();
-
-	if ((buttons & 1) != 0)
-	{
-		buttonstate[buttonmouse[0]] = true;
-	}
-
-	if ((buttons & 2) != 0)
-	{
-		buttonstate[buttonmouse[1]] = true;
-	}
-
-	if ((buttons & 4) != 0)
-	{
-		buttonstate[buttonmouse[2]] = true;
-	}
 }
 
 void PollJoystickButtons()
@@ -579,10 +545,7 @@ void PollMouseMove()
 		delta_y *= 5.0F;
 	}
 
-	if (::in_use_modern_bindings)
-	{
-		delta_y = 0.0F;
-	}
+	delta_y = 0.0F;
 
 	delta_x *= move_scale;
 	delta_y *= move_scale;
@@ -854,7 +817,6 @@ void check_heart_beat_key()
 
 void CheckKeys()
 {
-	bool one_eighty = false;
 	ScanCode scan;
 	static bool Plus_KeyReleased;
 	static bool Minus_KeyReleased;
@@ -1022,10 +984,6 @@ void CheckKeys()
 
 			CleanDrawPlayBorder();
 		}
-		else if (!in_use_modern_bindings)
-		{
-			one_eighty = true;
-		}
 	}
 
 	// Handle quick turning!
@@ -1046,7 +1004,7 @@ void CheckKeys()
 
 		// 180 degrees right
 		//
-		if (in_is_binding_pressed(e_bi_turn_around) || one_eighty)
+		if (in_is_binding_pressed(e_bi_turn_around))
 		{
 			gamestate.turn_around = 180;
 			gamestate.turn_angle = player->angle + 180;

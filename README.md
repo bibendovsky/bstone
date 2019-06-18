@@ -55,7 +55,6 @@ BStone is a source port of Blake Stone game series: Aliens of Gold and Planet St
 
 Features:
 * High resolution rendering of world (extended vanilla engine)
-* Modern and vanilla controls
 * Allows to customize control bindings
 * Separate volume control of sound effects and music
 
