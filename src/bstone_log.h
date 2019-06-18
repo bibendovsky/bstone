@@ -42,7 +42,6 @@ namespace bstone
 enum class LogMessageType
 {
 	none,
-	version,
 	information,
 	warning,
 	error,
@@ -58,10 +57,6 @@ class Log
 {
 public:
 	static void initialize();
-
-
-	// Writes the game's version to standart output and shows a message box.
-	static void write_version();
 
 
 	// Write a new line.

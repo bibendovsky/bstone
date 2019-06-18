@@ -31,6 +31,8 @@ Free Software Foundation, Inc.,
 
 
 #include <cmath>
+#include <iostream>
+#include "SDL_messagebox.h"
 #include "audio.h"
 #include "id_ca.h"
 #include "id_heads.h"
@@ -43,6 +45,7 @@ Free Software Foundation, Inc.,
 #include "3d_menu.h"
 #include "gfxv.h"
 #include "bstone_log.h"
+#include "bstone_version.h"
 
 
 using namespace std::string_literals;
@@ -1129,11 +1132,30 @@ extern const char* MainStrs[];
 extern std::int16_t starting_episode, starting_level, starting_difficulty;
 
 
+static void dump_version()
+{
+	const auto& version_string = bstone::Version::get_string();
+	const auto message = "BStone v" + version_string + '.';
+
+	// Standard output.
+	//
+	std::cout << message << '\n';
+
+	// Message box.
+	//
+	static_cast<void>(::SDL_ShowSimpleMessageBox(
+		SDL_MESSAGEBOX_INFORMATION,
+		"BStone",
+		message.c_str(),
+		nullptr)
+	);
+}
+
 void freed_main()
 {
 	if (::g_args.has_option("version"))
 	{
-		bstone::Log::write_version();
+		::dump_version();
 		::Quit();
 		return;
 	}

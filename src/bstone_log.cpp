@@ -60,22 +60,14 @@ void Log::initialize()
 	fstream_.open(log_path, StreamOpenMode::write);
 	message_.reserve(1024);
 
-	write("BStone Log");
+	write("BStone v" + bstone::Version::get_string());
 	write("==========");
-	write();
-	write("Version: " + bstone::Version::get_string());
 	write();
 }
 
 void Log::write()
 {
 	write(std::string{});
-}
-
-void Log::write_version()
-{
-	message_type_ = LogMessageType::version;
-	write_internal("BStone version: " + bstone::Version::get_string());
 }
 
 void Log::write(
@@ -110,15 +102,9 @@ void Log::write_internal(
 	const std::string& message)
 {
 	auto is_critical = false;
-	auto is_version = false;
 
 	switch (message_type_)
 	{
-	case LogMessageType::version:
-		is_version = true;
-		message_.clear();
-		break;
-
 	case LogMessageType::information:
 		message_.clear();
 		break;
@@ -144,19 +130,17 @@ void Log::write_internal(
 
 	std::cout << message_ << std::endl;
 
-	if (!is_version)
-	{
-		fstream_.write_string(message_);
-		fstream_.write_octet('\n');
-	}
+	fstream_.write_string(message_);
+	fstream_.write_octet('\n');
 
-	if (is_critical || is_version)
+	if (is_critical)
 	{
 		static_cast<void>(::SDL_ShowSimpleMessageBox(
-			is_version ? SDL_MESSAGEBOX_INFORMATION : SDL_MESSAGEBOX_ERROR,
+			SDL_MESSAGEBOX_ERROR,
 			"BStone",
 			message_.c_str(),
-			nullptr));
+			nullptr)
+		);
 	}
 }
 
