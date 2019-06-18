@@ -9637,6 +9637,9 @@ int main(
 
 	::g_args.initialize(argc, argv);
 
+	auto logger_factory = bstone::LoggerFactory{};
+	auto logger = logger_factory.create();
+
 	bstone::Log::initialize();
 
 	auto quit_message = std::string{};

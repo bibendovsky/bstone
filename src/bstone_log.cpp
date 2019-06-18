@@ -145,4 +145,326 @@ void Log::write_internal(
 }
 
 
+// ==========================================================================
+// Logger
+//
+
+Logger::Logger()
+{
+}
+
+Logger::~Logger()
+{
+}
+
+//
+// Logger
+// ==========================================================================
+
+
+// ==========================================================================
+// LoggerMonostate
+//
+
+class LoggerMonostate
+{
+public:
+	LoggerMonostate();
+
+	LoggerMonostate(
+		const LoggerMonostate& rhs) = delete;
+
+	LoggerMonostate(
+		LoggerMonostate&& rhs);
+
+	~LoggerMonostate();
+
+
+	void write(
+		const LoggerMessageKind message_kind,
+		const std::string& message);
+
+	void write();
+
+	void write(
+		const std::string& message);
+
+	void write_warning(
+		const std::string& message);
+
+	void write_error(
+		const std::string& message);
+
+	void write_critical(
+		const std::string& message);
+
+
+private:
+	bool is_file_stream_initialized_;
+	std::string message_;
+	FileStream file_stream_;
+
+
+	void initialize();
+
+	void uninitialize();
+}; // LoggerMonostate
+
+
+LoggerMonostate::LoggerMonostate()
+	:
+	is_file_stream_initialized_{},
+	message_{},
+	file_stream_{}
+{
+	initialize();
+}
+
+LoggerMonostate::LoggerMonostate(
+	LoggerMonostate&& rhs)
+	:
+	is_file_stream_initialized_{std::move(rhs.is_file_stream_initialized_)},
+	message_{std::move(rhs.message_)},
+	file_stream_{std::move(rhs.file_stream_)}
+{
+}
+
+LoggerMonostate::~LoggerMonostate()
+{
+	uninitialize();
+}
+
+void LoggerMonostate::write(
+	const LoggerMessageKind message_kind,
+	const std::string& message)
+{
+	auto is_critical = false;
+
+	switch (message_kind)
+	{
+	case LoggerMessageKind::information:
+		message_.clear();
+		break;
+
+	case LoggerMessageKind::warning:
+		message_ = "WARNING: ";
+		break;
+
+	case LoggerMessageKind::error:
+		message_ = "ERROR: ";
+		break;
+
+	case LoggerMessageKind::critical_error:
+		is_critical = true;
+		message_ = "CRITICAL: ";
+		break;
+
+	default:
+		throw std::runtime_error("Invalid message type.");
+	}
+
+	message_ += message;
+
+	std::cout << message_ << std::endl;
+
+	if (is_file_stream_initialized_)
+	{
+		static_cast<void>(file_stream_.write_string(message_));
+		static_cast<void>(file_stream_.write_octet('\n'));
+	}
+
+	if (is_critical)
+	{
+		static_cast<void>(::SDL_ShowSimpleMessageBox(
+			SDL_MESSAGEBOX_ERROR,
+			"BStone",
+			message_.c_str(),
+			nullptr)
+		);
+	}
+}
+
+void LoggerMonostate::write()
+{
+	static auto empty_message = std::string{""};
+
+	write(LoggerMessageKind::information, empty_message);
+}
+
+void LoggerMonostate::write(
+	const std::string& message)
+{
+	write(LoggerMessageKind::information, message);
+}
+
+void LoggerMonostate::write_warning(
+	const std::string& message)
+{
+	write(LoggerMessageKind::warning, message);
+}
+
+void LoggerMonostate::write_error(
+	const std::string& message)
+{
+	write(LoggerMessageKind::error, message);
+}
+
+void LoggerMonostate::write_critical(
+	const std::string& message)
+{
+	write(LoggerMessageKind::critical_error, message);
+}
+
+void LoggerMonostate::initialize()
+{
+	const auto& profile_dir = ::get_profile_dir();
+	const auto& log_path = profile_dir + "bstone_log.txt";
+
+	is_file_stream_initialized_ = file_stream_.open(log_path, StreamOpenMode::write);
+
+	if (!is_file_stream_initialized_)
+	{
+		std::cout << "ERROR: Failed to open a log file." << std::endl;
+		std::cout << "ERROR: File: \"" << log_path << "\"." << std::endl;
+	}
+
+	message_.reserve(1024);
+
+	write("BStone v" + bstone::Version::get_string());
+	write("==========");
+	write();
+}
+
+void LoggerMonostate::uninitialize()
+{
+	is_file_stream_initialized_ = false;
+	message_.clear();
+	file_stream_.close();
+}
+
+//
+// LoggerMonostate
+// ==========================================================================
+
+
+// ==========================================================================
+// LoggerImpl
+//
+
+class LoggerImpl :
+	public Logger
+{
+public:
+	LoggerImpl();
+
+	~LoggerImpl() override;
+
+
+	void write(
+		const LoggerMessageKind message_kind,
+		const std::string& message) override;
+
+	void write() override;
+
+	void write(
+		const std::string& message) override;
+
+	void write_warning(
+		const std::string& message) override;
+
+	void write_error(
+		const std::string& message) override;
+
+	void write_critical(
+		const std::string& message) override;
+
+
+private:
+	static LoggerMonostate& get_monostate();
+}; // LoggerImpl
+
+
+LoggerImpl::LoggerImpl()
+{
+	static_cast<void>(get_monostate());
+}
+
+LoggerImpl::~LoggerImpl()
+{
+}
+
+void LoggerImpl::write(
+	const LoggerMessageKind message_kind,
+	const std::string& message)
+{
+	auto& monostate = get_monostate();
+
+	monostate.write(message_kind, message);
+}
+
+void LoggerImpl::write()
+{
+	auto& monostate = get_monostate();
+
+	monostate.write();
+}
+
+void LoggerImpl::write(
+	const std::string& message)
+{
+	auto& monostate = get_monostate();
+
+	monostate.write(message);
+}
+
+void LoggerImpl::write_warning(
+	const std::string& message)
+{
+	auto& monostate = get_monostate();
+
+	monostate.write_warning(message);
+}
+
+void LoggerImpl::write_error(
+	const std::string& message)
+{
+	auto& monostate = get_monostate();
+
+	monostate.write_error(message);
+}
+
+void LoggerImpl::write_critical(
+	const std::string& message)
+{
+	auto& monostate = get_monostate();
+
+	monostate.write_critical(message);
+}
+
+LoggerMonostate& LoggerImpl::get_monostate()
+{
+	static auto result = LoggerMonostate{};
+
+	return result;
+}
+
+//
+// LoggerImpl
+// ==========================================================================
+
+
+// ==========================================================================
+// LoggerFactory
+//
+
+LoggerUPtr LoggerFactory::create()
+{
+	return LoggerUPtr{new LoggerImpl{}};
+}
+
+//
+// LoggerFactory
+// ==========================================================================
+
+
 } // bstone

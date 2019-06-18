@@ -31,6 +31,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_LOG_INCLUDED
 
 
+#include <memory>
 #include <string>
 #include "bstone_file_stream.h"
 
@@ -89,6 +90,62 @@ private:
 	static LogMessageType message_type_;
 	static std::string message_;
 };
+
+
+enum class LoggerMessageKind
+{
+	information,
+	warning,
+	error,
+	critical_error,
+}; // LoggerMessageKind
+
+
+//
+// Writes messages to standard output, file and
+// shows message box on critical error.
+//
+class Logger
+{
+public:
+	Logger();
+
+	virtual ~Logger();
+
+
+	// Writes a message of the specified kind.
+	virtual void write(
+		const LoggerMessageKind message_kind,
+		const std::string& message) = 0;
+
+	// Write a new line.
+	virtual void write() = 0;
+
+	// Writes an informational message.
+	virtual void write(
+		const std::string& message) = 0;
+
+	// Writes a warning message.
+	virtual void write_warning(
+		const std::string& message) = 0;
+
+	// Writes an error message.
+	virtual void write_error(
+		const std::string& message) = 0;
+
+	// Similar to error but with message box.
+	virtual void write_critical(
+		const std::string& message) = 0;
+}; // Logger
+
+using LoggerPtr = Logger*;
+using LoggerUPtr = std::unique_ptr<Logger>;
+
+
+struct LoggerFactory
+{
+	LoggerUPtr create();
+}; // LoggerFactory
 
 
 } // bstone
