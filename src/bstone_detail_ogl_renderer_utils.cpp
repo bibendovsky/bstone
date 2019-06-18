@@ -140,7 +140,6 @@ bool OglRendererUtils::create_window_and_context(
 	SdlWindowUPtr& sdl_window,
 	SdlGlContextUPtr& sdl_gl_context)
 {
-	auto is_succeed = true;
 	auto renderer_utils = RendererUtils{};
 
 	auto sdl_window_result = renderer_utils.create_window(param);

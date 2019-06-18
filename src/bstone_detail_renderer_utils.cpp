@@ -190,7 +190,7 @@ bool RendererUtils::validate_initialize_param(
 	switch (param.renderer_path_)
 	{
 	case RendererPath::ogl_1_x:
-		return true;
+		break;
 
 	default:
 		error_message_ = "Unsupported renderer path.";
@@ -860,10 +860,10 @@ void RendererUtils::build_mipmap(
 
 			auto& dst_color = dst_colors[dst_index];
 
-			dst_color.r = red;
-			dst_color.g = green;
-			dst_color.b = blue;
-			dst_color.a = alpha;
+			dst_color.r = static_cast<glm::u8>(red);
+			dst_color.g = static_cast<glm::u8>(green);
+			dst_color.b = static_cast<glm::u8>(blue);
+			dst_color.a = static_cast<glm::u8>(alpha);
 
 			dst_u += src_du;
 

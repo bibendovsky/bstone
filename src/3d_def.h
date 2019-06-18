@@ -2918,7 +2918,7 @@ extern std::int16_t TITLE_LOOP_MUSIC;
     "Try deleting some files from your hard disk.\n\n"
 
 
-extern std::string data_dir;
+extern std::string data_dir_;
 extern std::string mod_dir_;
 
 extern const float radtoint; // = (float)FINEANGLES/2/PI;
@@ -2959,7 +2959,7 @@ extern int* costable;
 //
 // derived constants
 //
-extern int scale;
+extern int scale_;
 extern int heightnumerator;
 
 extern bool ShowQuickMsg;

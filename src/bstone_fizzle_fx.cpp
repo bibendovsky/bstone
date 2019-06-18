@@ -189,6 +189,9 @@ void FizzleFX::plot(
 	const int x,
 	const int y)
 {
+	static_cast<void>(x);
+	static_cast<void>(y);
+
 	throw "Not implemented.";
 }
 

@@ -631,20 +631,20 @@ bool AudioMixer::Impl::update_positions()
 	auto is_player_modified = false;
 
 	{
-		auto& player = positions_.player;
+		auto& the_player = positions_.player;
 
 		is_player_modified =
-			player.view_x != ::viewx ||
-			player.view_y != ::viewy ||
-			player.view_cos != ::viewcos ||
-			player.view_sin != ::viewsin;
+			the_player.view_x != ::viewx ||
+			the_player.view_y != ::viewy ||
+			the_player.view_cos != ::viewcos ||
+			the_player.view_sin != ::viewsin;
 
 		if (is_player_modified)
 		{
-			player.view_x = ::viewx;
-			player.view_y = ::viewy;
-			player.view_cos = ::viewcos;
-			player.view_sin = ::viewsin;
+			the_player.view_x = ::viewx;
+			the_player.view_y = ::viewy;
+			the_player.view_cos = ::viewcos;
+			the_player.view_sin = ::viewsin;
 
 			has_modifications = true;
 		}
@@ -921,7 +921,7 @@ void AudioMixer::Impl::callback(
 	}
 	else
 	{
-		std::uninitialized_fill_n(dst_data, dst_length, 0);
+		std::uninitialized_fill_n(dst_data, dst_length, std::uint8_t{});
 	}
 
 	is_data_available_ = false;

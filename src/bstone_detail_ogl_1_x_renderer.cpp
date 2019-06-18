@@ -378,8 +378,6 @@ void Ogl1XRenderer::Texture2d::set_address_mode_v()
 
 void Ogl1XRenderer::Texture2d::set_anisotropy()
 {
-	const auto& ogl_device_features = renderer_->ogl_device_features_;
-
 	OglRendererUtils::anisotropy_set_value(
 		GL_TEXTURE_2D,
 		renderer_->device_features_,

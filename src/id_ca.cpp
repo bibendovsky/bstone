@@ -1132,7 +1132,7 @@ void initialize_ca_constants()
 bool ca_is_resource_exists(
 	const std::string& file_name)
 {
-	const auto path = ::data_dir + file_name;
+	const auto path = ::data_dir_ + file_name;
 
 	auto is_open = false;
 
@@ -1141,7 +1141,7 @@ bool ca_is_resource_exists(
 	if (!is_open)
 	{
 		auto&& file_name_lc = bstone::StringHelper::to_lower_ascii(file_name);
-		const auto path_lc = ::data_dir + file_name_lc;
+		const auto path_lc = ::data_dir_ + file_name_lc;
 
 		is_open = bstone::FileStream::is_exists(path_lc);
 	}
@@ -1190,7 +1190,7 @@ bool ca_open_resource_non_fatal(
 	}
 
 	const auto data_dir_result = ca_open_resource_non_fatal(
-		::data_dir, file_name_without_ext, file_extension, file_stream);
+		::data_dir_, file_name_without_ext, file_extension, file_stream);
 
 	return data_dir_result;
 }
@@ -1205,7 +1205,7 @@ void ca_open_resource(
 
 	if (!is_open)
 	{
-		const auto path = ::data_dir + file_name_without_ext + assets_info.get_extension();
+		const auto path = ::data_dir_ + file_name_without_ext + assets_info.get_extension();
 
 		::CA_CannotOpen(path);
 	}
@@ -1290,8 +1290,6 @@ void ca_dump_hashes()
 {
 	bstone::Log::write();
 	bstone::Log::write("Dumping resource hashes...");
-
-	auto data_size = std::int32_t{};
 
 	auto sha1 = bstone::Sha1{};
 

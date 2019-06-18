@@ -415,7 +415,7 @@ void TransformActor(
 		return;
 	}
 
-	ob->viewx = static_cast<std::int16_t>(centerx + ny * scale / nx); // DEBUG: use assembly divide
+	ob->viewx = static_cast<std::int16_t>(centerx + ny * ::scale_ / nx); // DEBUG: use assembly divide
 
 	q = (heightnumerator / (nx >> 8)) & 0xFFFF;
 	r = (heightnumerator % (nx >> 8)) & 0xFFFF;
@@ -491,7 +491,7 @@ void TransformTile(
 		return;
 	}
 
-	*dispx = static_cast<std::int16_t>(centerx + ((ny * scale) / nx)); // DEBUG: use assembly divide
+	*dispx = static_cast<std::int16_t>(centerx + ((ny * ::scale_) / nx)); // DEBUG: use assembly divide
 
 	q = (heightnumerator / (nx >> 8)) & 0xFFFF;
 	r = (heightnumerator % (nx >> 8)) & 0xFFFF;

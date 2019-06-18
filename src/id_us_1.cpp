@@ -335,10 +335,10 @@ void US_DrawWindow(
 	const int w,
 	const int h)
 {
-	::WindowX = x;
-	::WindowY = y;
-	::WindowW = w;
-	::WindowH = h;
+	::WindowX = static_cast<std::int16_t>(x);
+	::WindowY = static_cast<std::int16_t>(y);
+	::WindowW = static_cast<std::int16_t>(w);
+	::WindowH = static_cast<std::int16_t>(h);
 
 	::PrintX = ::WindowX;
 	::PrintY = ::WindowY;

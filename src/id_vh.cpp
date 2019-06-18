@@ -285,7 +285,7 @@ void LoadLatchMem()
 		const auto width = pictable[i - ::STARTPICS].width;
 		const auto height = pictable[i - ::STARTPICS].height;
 
-		::CA_CacheGrChunk(i);
+		::CA_CacheGrChunk(static_cast<std::int16_t>(i));
 
 		::VL_MemToLatch(
 			static_cast<const std::uint8_t*>(::grsegs[i]),

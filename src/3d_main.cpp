@@ -187,7 +187,7 @@ std::int16_t starting_episode;
 std::int16_t starting_level;
 std::int16_t starting_difficulty;
 
-std::string data_dir;
+std::string data_dir_;
 std::string mod_dir_;
 
 void InitPlaytemp();
@@ -216,7 +216,7 @@ int screenofs;
 int viewwidth;
 int viewheight;
 int centerx;
-int scale;
+int scale_;
 int maxslope;
 int heightnumerator;
 int minheightdiv;
@@ -9265,13 +9265,13 @@ void CalcProjection(
 	// calculate scale value for vertical height calculations
 	// and sprite x calculations
 	//
-	::scale = static_cast<int>(halfview * facedist / (VIEWGLOBAL / 2) / ::vga_wide_scale);
+	::scale_ = static_cast<int>(halfview * facedist / (VIEWGLOBAL / 2) / ::vga_wide_scale);
 
 	//
 	// divide heightnumerator by a posts distance to get the posts height for
 	// the heightbuffer.  The pixel height is height>>2
 	//
-	::heightnumerator = (TILEGLOBAL * ::scale) / 64;
+	::heightnumerator = (TILEGLOBAL * ::scale_) / 64;
 	::minheightdiv = (::heightnumerator / 0x7FFF) + 1;
 
 	//
@@ -9688,15 +9688,15 @@ void InitDestPath()
 
 	if (requested_data_dir.empty())
 	{
-		data_dir = ::get_default_data_dir();
+		data_dir_ = ::get_default_data_dir();
 	}
 	else
 	{
-		data_dir = requested_data_dir;
+		data_dir_ = requested_data_dir;
 
-		if (data_dir.back() != separator)
+		if (data_dir_.back() != separator)
 		{
-			data_dir += separator;
+			data_dir_ += separator;
 		}
 	}
 
@@ -9723,9 +9723,9 @@ void objtype::archive(
 	archiver->write_uint8(tilex);
 	archiver->write_uint8(tiley);
 	archiver->write_uint8(areanumber);
-	archiver->write_int8(active);
+	archiver->write_int8(static_cast<std::int8_t>(active));
 	archiver->write_int16(ticcount);
-	archiver->write_uint8(obclass);
+	archiver->write_uint8(static_cast<std::uint8_t>(obclass));
 
 	const auto state_index = ::get_state_index(state);
 	archiver->write_int32(state_index);
@@ -9733,8 +9733,8 @@ void objtype::archive(
 	archiver->write_uint32(flags);
 	archiver->write_uint16(flags2);
 	archiver->write_int32(distance);
-	archiver->write_uint8(dir);
-	archiver->write_uint8(trydir);
+	archiver->write_uint8(static_cast<std::uint8_t>(dir));
+	archiver->write_uint8(static_cast<std::uint8_t>(trydir));
 	archiver->write_int32(x);
 	archiver->write_int32(y);
 	archiver->write_uint8(s_tilex);
@@ -9838,9 +9838,9 @@ void doorobj_t::archive(
 	archiver->write_uint8(tiley);
 	archiver->write_bool(vertical);
 	archiver->write_int8(flags);
-	archiver->write_int8(lock);
-	archiver->write_uint8(type);
-	archiver->write_uint8(action);
+	archiver->write_int8(static_cast<std::int8_t>(lock));
+	archiver->write_uint8(static_cast<std::uint8_t>(type));
+	archiver->write_uint8(static_cast<std::uint8_t>(action));
 	archiver->write_int16(ticcount);
 	archiver->write_uint8_array(areanumber, 2);
 }

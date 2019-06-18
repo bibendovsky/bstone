@@ -232,7 +232,7 @@ bool check_for_files(
 
 	for (const auto& base_name : base_names)
 	{
-		if (!::ca_open_resource_non_fatal(::data_dir, base_name, extension, file_stream))
+		if (!::ca_open_resource_non_fatal(::data_dir_, base_name, extension, file_stream))
 		{
 			return false;
 		}
@@ -249,7 +249,7 @@ AssetsBaseNameToHashMap get_assets_hashes(
 
 	for (const auto& base_name : base_names)
 	{
-		const auto& hash = ::ca_calculate_hash(::data_dir, base_name, extension);
+		const auto& hash = ::ca_calculate_hash(::data_dir_, base_name, extension);
 
 		if (hash.empty())
 		{
@@ -616,7 +616,7 @@ void SetupWalls()
 
 	for (int i = 1; i < MAXWALLTILES; ++i)
 	{
-		::horizwall[i] = (i - 1) * 2;
+		::horizwall[i] = static_cast<std::int16_t>((i - 1) * 2);
 		::vertwall[i] = ::horizwall[i] + 1;
 	}
 
@@ -1143,7 +1143,7 @@ void freed_main()
 	::InitDestPath();
 
 	bstone::Log::write();
-	bstone::Log::write("Data path: \"" + ::data_dir + "\"");
+	bstone::Log::write("Data path: \"" + ::data_dir_ + "\"");
 	bstone::Log::write("Mod path: \"" + ::mod_dir_ + "\"");
 	bstone::Log::write("Profile path: \"" + ::get_profile_dir() + "\"");
 

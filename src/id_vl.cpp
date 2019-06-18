@@ -841,10 +841,9 @@ void vid_common_initialize()
 
 void sw_initialize_vga_buffer()
 {
-	const auto vga_area = 2 * ::vga_width * ::vga_height;
+	const auto area = 2 * ::vga_width * ::vga_height;
 
-	::sw_vga_buffer.resize(
-		vga_area);
+	::sw_vga_buffer.resize(area);
 
 	::vga_memory = ::sw_vga_buffer.data();
 }
@@ -986,7 +985,7 @@ bool sw_initialize_renderer()
 	}
 
 
-	SDL_RendererInfo renderer_info;
+	auto renderer_info = SDL_RendererInfo{};
 
 	if (is_succeed)
 	{
@@ -2761,6 +2760,8 @@ void hw_2d_vb_fill_x_stretched(
 	const float width_f,
 	const int vertex_offset)
 {
+	static_cast<void>(width_f);
+
 	auto vertex_index = vertex_offset;
 	auto& vertices = ::hw_2d_vertices_;
 
@@ -5147,8 +5148,6 @@ bool hw_3d_fade_initialize()
 
 void hw_screen_2d_refresh()
 {
-	const auto& assets_info = AssetsInfo{};
-
 	// Update 2D texture.
 	//
 	{
@@ -7680,6 +7679,7 @@ struct HwUpdateVertexRgba
 		TVertex& vertex,
 		const HwVertexColor& r8g8b8a8_unorm) const
 	{
+		static_cast<void>(vertex);
 		static_cast<void>(r8g8b8a8_unorm);
 	}
 }; // HwUpdateVertexRgba
@@ -8156,8 +8156,6 @@ void hw_3d_pushwall_side_translate(
 	}
 
 	const auto& vertex_offsets = all_vertex_offsets[side_direction];
-
-	auto& side = wall.sides_[side_direction];
 
 	const auto x_f = static_cast<float>(wall.x_) + translate_x;
 	const auto y_f = static_cast<float>(wall.y_) + translate_y;
@@ -11778,8 +11776,6 @@ void VL_FadeIn(
 		//
 		// fade through intermediate frames
 		//
-		auto delta = 0;
-
 		for (int i = 0; i < steps; ++i)
 		{
 			for (int j = start_index; j <= end_index; ++j)
@@ -12143,6 +12139,8 @@ std::uint8_t vl_get_pixel(
 	int x,
 	int y)
 {
+	static_cast<void>(base_offset);
+
 	return ::vid_ui_buffer[(y * ::vga_ref_width) + x];
 }
 
@@ -12214,7 +12212,7 @@ void vid_clear_3d()
 	std::uninitialized_fill(
 		::sw_vga_buffer.begin(),
 		::sw_vga_buffer.end(),
-		0);
+		VgaBuffer::value_type{});
 }
 
 void vid_export_ui(

@@ -153,7 +153,7 @@ void SetPlaneViewSize()
 
 		if (y > 0)
 		{
-			basedist[y] = GLOBAL1 / 2 * scale / y;
+			basedist[y] = GLOBAL1 / 2 * ::scale_ / y;
 		}
 	}
 

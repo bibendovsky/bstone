@@ -137,7 +137,7 @@ std::string TextReader::read_line()
 
 		if (ch != '\r' && ch != '\n')
 		{
-			line += ch;
+			line += static_cast<char>(ch);
 		}
 		else
 		{

@@ -1796,8 +1796,8 @@ void MovePWalls()
 		}
 		else
 		{
-			::pwallx += next_dx;
-			::pwally += next_dy;
+			::pwallx += static_cast<std::uint16_t>(next_dx);
+			::pwally += static_cast<std::uint16_t>(next_dy);
 
 			::vid_hw_on_pushwall_step(old_x, old_y);
 

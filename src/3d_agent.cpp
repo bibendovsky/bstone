@@ -573,7 +573,7 @@ void ControlMovement(
 		anglefrac = anglefrac + controlx;
 		int angleunits = anglefrac / ANGLESCALE;
 		anglefrac -= angleunits * ANGLESCALE;
-		ob->angle -= angleunits;
+		ob->angle -= static_cast<std::int16_t>(angleunits);
 
 		while (ob->angle >= ANGLES)
 		{
@@ -3872,7 +3872,7 @@ std::int16_t InputFloor()
 		const auto MAX_TELEPORTS = 20;
 		const std::int8_t MAX_MOVE_DELAY = 10;
 
-		std::int16_t buttonPic, buttonY;
+		std::int16_t buttonPic = 0, buttonY;
 		std::int16_t rt_code = -2, tpNum = gamestate.mapon, lastTpNum = tpNum;
 		std::int16_t teleX[MAX_TELEPORTS] = {16, 40, 86, 23, 44, 62, 83, 27, 118, 161, 161, 161, 213, 213, 184, 205, 226, 256, 276, 276};
 		std::int16_t teleY[MAX_TELEPORTS] = {13, 26, 9, 50, 50, 50, 50, 62, 42, 17, 26, 35, 41, 50, 62, 62, 62, 10, 10, 30};
@@ -4149,8 +4149,8 @@ void LoadOverheadChunk(
 
 	if (!is_succeed)
 	{
-		std::uninitialized_fill(ov_buffer.begin(), ov_buffer.end(), 0x52);
-		std::uninitialized_fill_n(reinterpret_cast<std::uint8_t*>(&ov_stats), sizeof(statsInfoType), 0);
+		std::uninitialized_fill(ov_buffer.begin(), ov_buffer.end(), VgaBuffer::value_type{0x52});
+		std::uninitialized_fill_n(reinterpret_cast<std::uint8_t*>(&ov_stats), sizeof(statsInfoType), std::uint8_t{});
 	}
 
 	ov_noImage = !is_succeed;
@@ -4340,7 +4340,7 @@ std::uint8_t ShowRatio(
 	if (total)
 	{
 		maxperc = static_cast<std::int8_t>(LRATIO(100, total, perc, 10));
-		numbars = LRATIO(48, 100, maxperc, 10);
+		numbars = static_cast<std::int8_t>(LRATIO(48, 100, maxperc, 10));
 	}
 	else
 	{
@@ -4852,7 +4852,7 @@ void GunAttack(
 		damage = ::US_RndT() / 4; // 6
 	}
 
-	::DamageActor(closest, damage, ::player);
+	::DamageActor(closest, static_cast<std::uint16_t>(damage), ::player);
 }
 
 void T_Attack(
