@@ -555,8 +555,8 @@ CP_itemtype CusMenu[] = {
 
 // BBi
 CP_itemtype video_menu[] = {
-	{AT_ENABLED, "TOGGLE WIDESCREEN", nullptr},
-	{AT_ENABLED, "TOGGLE UI STRETCH", nullptr},
+	{AT_ENABLED, "WIDESCREEN", nullptr},
+	{AT_ENABLED, "STRETCH UI", nullptr},
 };
 // BBi
 
@@ -2585,7 +2585,6 @@ void DrawSwitchDescription(
 		"ESC QUITS INSTEAD OF RETURNING TO GAME",
 		"TOGGLES HEART BEAT SOUND WITH EKG",
 		"TOGGLES <TAB>/<SHIFT+TAB> FUNCTIONS",
-
 	};
 
 	const auto& assets_info = AssetsInfo{};
