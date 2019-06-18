@@ -58,7 +58,7 @@ Free Software Foundation, Inc.,
 #include "id_us.h"
 #include "id_vh.h"
 #include "id_vl.h"
-#include "bstone_log.h"
+#include "bstone_logger.h"
 
 
 #define VW_UpdateScreen() VH_UpdateScreen()
@@ -139,7 +139,7 @@ void US_Shutdown()
 	// BBi
 	if (::SDL_RemoveTimer(sys_timer_id) == SDL_FALSE)
 	{
-		bstone::Log::write_warning("Failed to remove a timer.");
+		bstone::logger_->write_warning("Failed to remove a timer.");
 	}
 
 	sys_timer_id = 0;

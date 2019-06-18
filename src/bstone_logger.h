@@ -23,73 +23,20 @@ Free Software Foundation, Inc.,
 
 
 //
-// Logging facility
+// A logger.
 //
 
 
-#ifndef BSTONE_LOG_INCLUDED
-#define BSTONE_LOG_INCLUDED
+#ifndef BSTONE_LOGGER_INCLUDED
+#define BSTONE_LOGGER_INCLUDED
 
 
 #include <memory>
 #include <string>
-#include "bstone_file_stream.h"
 
 
 namespace bstone
 {
-
-
-enum class LogMessageType
-{
-	none,
-	information,
-	warning,
-	error,
-	critical_error,
-}; // LogMessageType
-
-
-//
-// Writes messages to standard output, file and
-// shows message box on critical error.
-//
-class Log
-{
-public:
-	static void initialize();
-
-
-	// Write a new line.
-	static void write();
-
-	// Writes an informational message.
-	static void write(
-		const std::string& message);
-
-	// Writes a warning message.
-	static void write_warning(
-		const std::string& message);
-
-	// Writes an error message.
-	static void write_error(
-		const std::string& message);
-
-	// Similar to error but with message box.
-	static void write_critical(
-		const std::string& message);
-
-
-private:
-	static void write_internal(
-		const std::string& message);
-
-
-	static bool is_initialized_;
-	static FileStream fstream_;
-	static LogMessageType message_type_;
-	static std::string message_;
-};
 
 
 enum class LoggerMessageKind
@@ -101,6 +48,8 @@ enum class LoggerMessageKind
 }; // LoggerMessageKind
 
 
+//
+// Logger interface.
 //
 // Writes messages to standard output, file and
 // shows message box on critical error.
@@ -148,7 +97,10 @@ struct LoggerFactory
 }; // LoggerFactory
 
 
+extern LoggerPtr logger_;
+
+
 } // bstone
 
 
-#endif // BSTONE_LOG_INCLUDED
+#endif // !BSTONE_LOGGER_INCLUDED

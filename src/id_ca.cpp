@@ -48,7 +48,7 @@ loaded into the data segment
 #include "id_vl.h"
 #include "gfxv.h"
 #include "bstone_endian.h"
-#include "bstone_log.h"
+#include "bstone_logger.h"
 #include "bstone_rgb_palette.h"
 #include "bstone_sdl_types.h"
 #include "bstone_sha1.h"
@@ -1288,8 +1288,8 @@ std::string ca_calculate_hash(
 
 void ca_dump_hashes()
 {
-	bstone::Log::write();
-	bstone::Log::write("Dumping resource hashes...");
+	bstone::logger_->write();
+	bstone::logger_->write("Dumping resource hashes...");
 
 	auto sha1 = bstone::Sha1{};
 
@@ -1304,7 +1304,7 @@ void ca_dump_hashes()
 				continue;
 			}
 
-			bstone::Log::write(base_name.get() + extension.get() + ": " + sha1_string);
+			bstone::logger_->write(base_name.get() + extension.get() + ": " + sha1_string);
 		}
 	}
 }
@@ -2081,15 +2081,15 @@ void ImagesDumper::uninitialize()
 void ImagesDumper::dump_walls(
 	const std::string& destination_dir)
 {
-	bstone::Log::write();
-	bstone::Log::write("<<< ================");
-	bstone::Log::write("Dumping walls.");
-	bstone::Log::write("Destination dir: \"" + destination_dir + "\"");
-	bstone::Log::write("File count: " + std::to_string(::PMSpriteStart));
+	bstone::logger_->write();
+	bstone::logger_->write("<<< ================");
+	bstone::logger_->write("Dumping walls.");
+	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
+	bstone::logger_->write("File count: " + std::to_string(::PMSpriteStart));
 
 	if (!is_initialized_)
 	{
-		bstone::Log::write_error("Not initialized.");
+		bstone::logger_->write_error("Not initialized.");
 
 		return;
 	}
@@ -2104,7 +2104,7 @@ void ImagesDumper::dump_walls(
 		dump_wall(i);
 	}
 
-	bstone::Log::write(">>> ================");
+	bstone::logger_->write(">>> ================");
 }
 
 void ImagesDumper::dump_sprites(
@@ -2117,15 +2117,15 @@ void ImagesDumper::dump_sprites(
 		sprite_count_ = 0;
 	}
 
-	bstone::Log::write();
-	bstone::Log::write("<<< ================");
-	bstone::Log::write("Dumping sprites.");
-	bstone::Log::write("Destination dir: \"" + destination_dir + "\"");
-	bstone::Log::write("File count: " + std::to_string(sprite_count_));
+	bstone::logger_->write();
+	bstone::logger_->write("<<< ================");
+	bstone::logger_->write("Dumping sprites.");
+	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
+	bstone::logger_->write("File count: " + std::to_string(sprite_count_));
 
 	if (!is_initialized_)
 	{
-		bstone::Log::write_error("Not initialized.");
+		bstone::logger_->write_error("Not initialized.");
 
 		return;
 	}
@@ -2138,7 +2138,7 @@ void ImagesDumper::dump_sprites(
 		dump_sprite(i);
 	}
 
-	bstone::Log::write(">>> ================");
+	bstone::logger_->write(">>> ================");
 }
 
 void ImagesDumper::set_palette(
@@ -2246,7 +2246,7 @@ bool ImagesDumper::initialize_surface_64x64x8()
 		auto error_message = "Failed to create SDL surface 64x64x32bit. "s;
 		error_message += ::SDL_GetError();
 
-		bstone::Log::write_error(error_message);
+		bstone::logger_->write_error(error_message);
 
 		return false;
 	}
@@ -2280,7 +2280,7 @@ bool ImagesDumper::initialize_surface_64x64x32()
 		auto error_message = "Failed to create SDL surface 64x64x8bit. "s;
 		error_message += ::SDL_GetError();
 
-		bstone::Log::write_error(error_message);
+		bstone::logger_->write_error(error_message);
 
 		return false;
 	}
@@ -2382,7 +2382,7 @@ bool ImagesDumper::save_image(
 		auto error_message = "Failed to save an image into \"" + file_name + "\". ";
 		error_message += ::SDL_GetError();
 
-		bstone::Log::write_error(error_message);
+		bstone::logger_->write_error(error_message);
 
 		return false;
 	}
@@ -2395,7 +2395,7 @@ bool ImagesDumper::dump_wall(
 {
 	if (wall_index < 0 && wall_index >= ::PMSpriteStart)
 	{
-		bstone::Log::write_error("Wall index out of range.");
+		bstone::logger_->write_error("Wall index out of range.");
 
 		return false;
 	}
@@ -2404,7 +2404,7 @@ bool ImagesDumper::dump_wall(
 
 	if (!wall_page)
 	{
-		bstone::Log::write_error("No wall page #" + std::to_string(wall_index) + ".");
+		bstone::logger_->write_error("No wall page #" + std::to_string(wall_index) + ".");
 
 		return false;
 	}
@@ -2435,7 +2435,7 @@ bool ImagesDumper::dump_sprite(
 		auto error_message = "Failed to cache a sprite #" + std::to_string(sprite_index) + ". ";
 		error_message += ex.what();
 
-		bstone::Log::write_error(error_message);
+		bstone::logger_->write_error(error_message);
 
 		return false;
 	}

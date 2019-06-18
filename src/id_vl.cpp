@@ -37,7 +37,7 @@ Free Software Foundation, Inc.,
 #include "id_vl.h"
 #include "bstone_fixed_point.h"
 #include "bstone_hw_texture_manager.h"
-#include "bstone_log.h"
+#include "bstone_logger.h"
 #include "bstone_renderer_manager.h"
 #include "bstone_sdl_types.h"
 #include "bstone_sprite.h"
@@ -858,7 +858,7 @@ void sw_initialize_ui_buffer()
 
 bool sw_initialize_window()
 {
-	bstone::Log::write("VID: Creating a window...");
+	bstone::logger_->write("VID: Creating a window...");
 
 
 	auto window_x = *::vid_configuration_.x_;
@@ -902,7 +902,7 @@ bool sw_initialize_window()
 		::sw_error_message = "VID: Failed to create a window: ";
 		::sw_error_message += ::SDL_GetError();
 
-		bstone::Log::write_error(::SDL_GetError());
+		bstone::logger_->write_error(::SDL_GetError());
 
 		return false;
 	}
@@ -912,7 +912,7 @@ bool sw_initialize_window()
 
 bool sw_initialize_renderer()
 {
-	bstone::Log::write(
+	bstone::logger_->write(
 		"VID: Initializing a renderer...");
 
 
@@ -921,7 +921,7 @@ bool sw_initialize_renderer()
 
 	if (is_succeed)
 	{
-		bstone::Log::write(
+		bstone::logger_->write(
 			"VID: Available renderer drivers:");
 
 		const auto driver_count = ::SDL_GetNumRenderDrivers();
@@ -934,7 +934,7 @@ bool sw_initialize_renderer()
 				i,
 				&info);
 
-			bstone::Log::write(std::to_string(i + 1) + ". "s + info.name);
+			bstone::logger_->write(std::to_string(i + 1) + ". "s + info.name);
 		}
 	}
 
@@ -949,21 +949,21 @@ bool sw_initialize_renderer()
 
 		if (is_vsync_disabled)
 		{
-			bstone::Log::write(
+			bstone::logger_->write(
 				"VID: Skipping VSync...");
 		}
 		else
 		{
 			renderer_flags = SDL_RENDERER_PRESENTVSYNC;
 
-			bstone::Log::write(
+			bstone::logger_->write(
 				"VID: Using VSync...");
 		}
 	}
 
 	if (is_succeed)
 	{
-		bstone::Log::write(
+		bstone::logger_->write(
 			"VID: Creating a renderer...");
 
 		::sw_renderer = bstone::SdlRendererUPtr{::SDL_CreateRenderer(
@@ -979,7 +979,7 @@ bool sw_initialize_renderer()
 			::sw_error_message = "VID: Failed to create a renderer: ";
 			::sw_error_message += ::SDL_GetError();
 
-			bstone::Log::write_error(
+			bstone::logger_->write_error(
 				::SDL_GetError());
 		}
 	}
@@ -989,7 +989,7 @@ bool sw_initialize_renderer()
 
 	if (is_succeed)
 	{
-		bstone::Log::write(
+		bstone::logger_->write(
 			"VID: Quering renderer for info...");
 
 		auto sdl_result = ::SDL_GetRendererInfo(
@@ -1003,7 +1003,7 @@ bool sw_initialize_renderer()
 			::sw_error_message = "VID: Failed to query the renderer: ";
 			::sw_error_message += ::SDL_GetError();
 
-			bstone::Log::write_error(
+			bstone::logger_->write_error(
 				::SDL_GetError());
 		}
 	}
@@ -1017,12 +1017,12 @@ bool sw_initialize_renderer()
 				renderer_driver,
 				renderer_info.name) != 0)
 			{
-				bstone::Log::write_warning("VID: Unexpected renderer is selected: \""s + renderer_info.name + "\"."s);
+				bstone::logger_->write_warning("VID: Unexpected renderer is selected: \""s + renderer_info.name + "\"."s);
 			}
 		}
 		else
 		{
-			bstone::Log::write("VID: Current renderer: \""s + renderer_info.name + "\"."s);
+			bstone::logger_->write("VID: Current renderer: \""s + renderer_info.name + "\"."s);
 		}
 	}
 
@@ -1031,7 +1031,7 @@ bool sw_initialize_renderer()
 
 	if (is_succeed)
 	{
-		bstone::Log::write(
+		bstone::logger_->write(
 			"VID: Looking up for a texture pixel format...");
 
 		const auto format_count = renderer_info.num_texture_formats;
@@ -1052,14 +1052,14 @@ bool sw_initialize_renderer()
 
 		if (pixel_format == SDL_PIXELFORMAT_UNKNOWN)
 		{
-			bstone::Log::write_warning(
+			bstone::logger_->write_warning(
 				"Falling back to a predefined pixel format.");
 
 			pixel_format = SDL_PIXELFORMAT_ARGB8888;
 		}
 
 
-		bstone::Log::write(
+		bstone::logger_->write(
 			"VID: Allocating a texture pixel format...");
 
 		::sw_texture_pixel_format = bstone::SdlPixelFormatUPtr{::SDL_AllocFormat(
@@ -1073,7 +1073,7 @@ bool sw_initialize_renderer()
 			::sw_error_message = "VID: Failed to allocate a texture pixel format: ";
 			::sw_error_message += ::SDL_GetError();
 
-			bstone::Log::write_error(
+			bstone::logger_->write_error(
 				::SDL_GetError());
 		}
 	}
@@ -1083,7 +1083,7 @@ bool sw_initialize_renderer()
 
 bool sw_initialize_screen_texture()
 {
-	bstone::Log::write(
+	bstone::logger_->write(
 		"VID: Creating a screen texture...");
 
 	::sw_screen_texture = bstone::SdlTextureUPtr{::SDL_CreateTexture(
@@ -1099,7 +1099,7 @@ bool sw_initialize_screen_texture()
 		::sw_error_message = "VID: Failed to create a screen texture: ";
 		::sw_error_message += ::SDL_GetError();
 
-		bstone::Log::write(
+		bstone::logger_->write(
 			::SDL_GetError());
 
 		return false;
@@ -1110,7 +1110,7 @@ bool sw_initialize_screen_texture()
 
 bool sw_initialize_ui_texture()
 {
-	bstone::Log::write(
+	bstone::logger_->write(
 		"VID: Creating an UI texture...");
 
 	::sw_ui_texture = bstone::SdlTextureUPtr{::SDL_CreateTexture(
@@ -1126,7 +1126,7 @@ bool sw_initialize_ui_texture()
 		::sw_error_message = "VID: Failed to create an UI texture: ";
 		::sw_error_message += ::SDL_GetError();
 
-		bstone::Log::write(
+		bstone::logger_->write(
 			::SDL_GetError());
 
 		return false;
@@ -1137,7 +1137,7 @@ bool sw_initialize_ui_texture()
 
 bool sw_initialize_textures()
 {
-	bstone::Log::write(
+	bstone::logger_->write(
 		"VID: Initializing textures...");
 
 
@@ -1183,7 +1183,7 @@ void sw_update_viewport()
 
 	if (sdl_result != 0)
 	{
-		bstone::Log::write_error(
+		bstone::logger_->write_error(
 			"VID: Failed to update a viewport.");
 	}
 }
@@ -1378,7 +1378,7 @@ void sw_calculate_dimensions()
 
 void sw_initialize_video()
 {
-	bstone::Log::write(
+	bstone::logger_->write(
 		"VID: Initializing a system...");
 
 	::vid_common_initialize();
@@ -2647,7 +2647,7 @@ void hw_ui_buffer_initialize()
 
 bool hw_renderer_initialize()
 {
-	bstone::Log::write("VID: Initializing HW renderer...");
+	bstone::logger_->write("VID: Initializing HW renderer...");
 
 
 	const auto title = ::vid_get_window_title();
@@ -2689,7 +2689,7 @@ bool hw_renderer_initialize()
 
 	if (!hw_renderer_)
 	{
-		bstone::Log::write_error("VID: Failed to initialize HW renderer.");
+		bstone::logger_->write_error("VID: Failed to initialize HW renderer.");
 
 		return false;
 	}
@@ -11296,20 +11296,20 @@ bool hw_video_initialize()
 	::hw_samplers_set_default_states();
 	::hw_3d_player_weapon_sampler_set_default_state();
 
-	bstone::Log::write("VID: Probing for hardware accelerated renderer...");
+	bstone::logger_->write("VID: Probing for hardware accelerated renderer...");
 
 	hw_renderer_manager_ = bstone::RendererManagerFactory::create();
 
 	if (!hw_renderer_manager_->initialize())
 	{
-		bstone::Log::write_warning("VID: Failed to initialize renderer manager.");
+		bstone::logger_->write_warning("VID: Failed to initialize renderer manager.");
 
 		return false;
 	}
 
 	if (!hw_renderer_manager_->renderer_probe(bstone::RendererPath::autodetect))
 	{
-		bstone::Log::write_warning("VID: No renderer path was found.");
+		bstone::logger_->write_warning("VID: No renderer path was found.");
 
 		return false;
 	}

@@ -215,7 +215,7 @@ target_sources(
 		bstone_generic_fizzle_fx.h
 		bstone_hw_texture_manager.h
 		bstone_stream.h
-		bstone_log.h
+		bstone_logger.h
 		bstone_memory_binary_reader.h
 		bstone_memory_stream.h
 		bstone_missing_sprite_64x64_image.h
@@ -301,7 +301,7 @@ target_sources(
 		bstone_generic_fizzle_fx.cpp
 		bstone_hw_texture_manager_impl.cpp
 		bstone_stream.cpp
-		bstone_log.cpp
+		bstone_logger.cpp
 		bstone_memory_binary_reader.cpp
 		bstone_memory_stream.cpp
 		bstone_missing_sprite_64x64_image.cpp

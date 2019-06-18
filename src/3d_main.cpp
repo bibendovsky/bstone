@@ -42,7 +42,7 @@ Free Software Foundation, Inc.,
 #include "movie.h"
 #include "bstone_archiver.h"
 #include "bstone_endian.h"
-#include "bstone_log.h"
+#include "bstone_logger.h"
 #include "bstone_memory_stream.h"
 #include "bstone_ps_fizzle_fx.h"
 #include "bstone_sha1.h"
@@ -7184,7 +7184,7 @@ void read_high_scores()
 		{
 			is_succeed = false;
 
-			bstone::Log::write_error("Failed to unarchive high scores. "s + ex.get_message());
+			bstone::logger_->write_error("Failed to unarchive high scores. "s + ex.get_message());
 		}
 	}
 	else
@@ -7217,7 +7217,7 @@ static void write_high_scores()
 
 	if (!stream.is_open())
 	{
-		bstone::Log::write_error("Failed to open a high scores file for writing: \"" + scores_path + "\".");
+		bstone::logger_->write_error("Failed to open a high scores file for writing: \"" + scores_path + "\".");
 
 		return;
 	}
@@ -7241,7 +7241,7 @@ static void write_high_scores()
 	}
 	catch (const bstone::ArchiverException& ex)
 	{
-		bstone::Log::write_error("Failed to archive high scores data."s + ex.get_message());
+		bstone::logger_->write_error("Failed to archive high scores data."s + ex.get_message());
 	}
 }
 // BBi
@@ -7763,7 +7763,7 @@ void write_configuration_entry(
 
 	if (!writer.write(entry_string))
 	{
-		bstone::Log::write_warning("Failed to write setting \"" + key_string + "\".");
+		bstone::logger_->write_warning("Failed to write setting \"" + key_string + "\".");
 	}
 }
 
@@ -7915,7 +7915,7 @@ void write_text_config()
 
 	if (!stream.write(stream_data, stream_size))
 	{
-		bstone::Log::write_warning("Failed to write a configuration.");
+		bstone::logger_->write_warning("Failed to write a configuration.");
 	}
 }
 
@@ -8599,7 +8599,7 @@ static bool LoadCompressedChunk(
 
 	if (::FindChunk(stream, chunk_name) == 0)
 	{
-		bstone::Log::write_error("LOAD: Failed to locate \"" + chunk_name + "\" chunk.");
+		bstone::logger_->write_error("LOAD: Failed to locate \"" + chunk_name + "\" chunk.");
 
 		return false;
 	}
@@ -8617,7 +8617,7 @@ static bool LoadCompressedChunk(
 
 		if (total_size <= 0 || total_size > stream_size)
 		{
-			bstone::Log::write_error("LOAD: Invalid \"" + chunk_name + "\" size.");
+			bstone::logger_->write_error("LOAD: Invalid \"" + chunk_name + "\" size.");
 
 			return false;
 		}
@@ -8644,14 +8644,14 @@ static bool LoadCompressedChunk(
 
 		if (decoded_size != src_size)
 		{
-			bstone::Log::write_error("LOAD: Failed to decompress \"" + chunk_name + "\" data.");
+			bstone::logger_->write_error("LOAD: Failed to decompress \"" + chunk_name + "\" data.");
 
 			return false;
 		}
 	}
 	catch (const bstone::ArchiverException& ex)
 	{
-		bstone::Log::write_error("LOAD: Failed to unarchive \"" + chunk_name + "\". " + ex.get_message());
+		bstone::logger_->write_error("LOAD: Failed to unarchive \"" + chunk_name + "\". " + ex.get_message());
 
 		return false;
 	}
@@ -8670,7 +8670,7 @@ bool LoadTheGame(
 	{
 		is_succeed = false;
 
-		bstone::Log::write_error("LOAD: Failed to open file \"" + file_name + "\".");
+		bstone::logger_->write_error("LOAD: Failed to open file \"" + file_name + "\".");
 	}
 
 	if (is_succeed)
@@ -8688,7 +8688,7 @@ bool LoadTheGame(
 		{
 			is_succeed = false;
 
-			bstone::Log::write_error("LOAD: Failed to locate VERS chunk.");
+			bstone::logger_->write_error("LOAD: Failed to locate VERS chunk.");
 		}
 	}
 
@@ -8720,14 +8720,14 @@ bool LoadTheGame(
 			{
 				is_succeed = false;
 
-				bstone::Log::write_error("LOAD: Invalid version.");
+				bstone::logger_->write_error("LOAD: Invalid version.");
 			}
 		}
 		catch (const bstone::ArchiverException&)
 		{
 			is_succeed = false;
 
-			bstone::Log::write_error("LOAD: Invalid version.");
+			bstone::logger_->write_error("LOAD: Invalid version.");
 		}
 	}
 
@@ -8782,7 +8782,7 @@ bool LoadTheGame(
 
 			if (assets_info.get_levels_hash_string() != levels_hash_string)
 			{
-				bstone::Log::write_error("LOAD: Levels hash mismatch.");
+				bstone::logger_->write_error("LOAD: Levels hash mismatch.");
 				archiver->throw_exception("Levels hash mismatch.");
 			}
 
@@ -8795,7 +8795,7 @@ bool LoadTheGame(
 		{
 			is_succeed = false;
 
-			bstone::Log::write_error("LOAD: Failed to deserialize HEAD data. "s + ex.get_message());
+			bstone::logger_->write_error("LOAD: Failed to deserialize HEAD data. "s + ex.get_message());
 		}
 	}
 
@@ -8817,7 +8817,7 @@ bool LoadTheGame(
 			{
 				is_succeed = false;
 
-				bstone::Log::write_error("LOAD: Failed to deserialize LVXX data.");
+				bstone::logger_->write_error("LOAD: Failed to deserialize LVXX data.");
 			}
 		}
 	}
@@ -8904,7 +8904,7 @@ bool SaveTheGame(
 
 	if (!file_stream.is_open())
 	{
-		bstone::Log::write_error("SAVE: Failed to open file \"" + file_name + "\".");
+		bstone::logger_->write_error("SAVE: Failed to open file \"" + file_name + "\".");
 
 		return false;
 	}
@@ -8948,7 +8948,7 @@ bool SaveTheGame(
 	}
 	catch (const bstone::ArchiverException& ex)
 	{
-		bstone::Log::write_error("SAVE: Failed to serialize HEAD chunk. "s + ex.get_message());
+		bstone::logger_->write_error("SAVE: Failed to serialize HEAD chunk. "s + ex.get_message());
 
 		return false;
 	}
@@ -8967,7 +8967,7 @@ bool SaveTheGame(
 
 	if (head_dst_size > head_desire_dst_size)
 	{
-		bstone::Log::write_error("SAVE: Failed to compress HEAD data.");
+		bstone::logger_->write_error("SAVE: Failed to compress HEAD data.");
 
 		return false;
 	}
@@ -8991,7 +8991,7 @@ bool SaveTheGame(
 
 	if (lvxx_dst_size > lvxx_desire_dst_size)
 	{
-		bstone::Log::write_error("SAVE: Failed to compress LVXX data.");
+		bstone::logger_->write_error("SAVE: Failed to compress LVXX data.");
 
 		return false;
 	}
@@ -9036,7 +9036,7 @@ bool SaveTheGame(
 	}
 	catch (const bstone::ArchiverException& ex)
 	{
-		bstone::Log::write_error("SAVE: Failed to write data. "s + ex.get_message());
+		bstone::logger_->write_error("SAVE: Failed to write data. "s + ex.get_message());
 
 		return false;
 	}
@@ -9639,8 +9639,7 @@ int main(
 
 	auto logger_factory = bstone::LoggerFactory{};
 	auto logger = logger_factory.create();
-
-	bstone::Log::initialize();
+	bstone::logger_ = logger.get();
 
 	auto quit_message = std::string{};
 
@@ -9668,7 +9667,7 @@ int main(
 
 	if (!quit_message.empty())
 	{
-		bstone::Log::write_critical(quit_message);
+		bstone::logger_->write_critical(quit_message);
 
 		return 1;
 	}

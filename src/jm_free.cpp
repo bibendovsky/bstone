@@ -44,7 +44,7 @@ Free Software Foundation, Inc.,
 #include "id_vl.h"
 #include "3d_menu.h"
 #include "gfxv.h"
-#include "bstone_log.h"
+#include "bstone_logger.h"
 #include "bstone_version.h"
 
 
@@ -339,7 +339,7 @@ bool find_aog_assets(
 		assets_info.set_extension(extension);
 		assets_info.set_base_name_to_hash_map(hashes_v1_0);
 
-		bstone::Log::write("Found \"" + title + "\" v1.0.");
+		bstone::logger_->write("Found \"" + title + "\" v1.0.");
 
 		return true;
 	}
@@ -351,7 +351,7 @@ bool find_aog_assets(
 		assets_info.set_extension(extension);
 		assets_info.set_base_name_to_hash_map(hashes_v2_0);
 
-		bstone::Log::write("Found \"" + title + "\" v2.0.");
+		bstone::logger_->write("Found \"" + title + "\" v2.0.");
 		return true;
 	}
 
@@ -362,7 +362,7 @@ bool find_aog_assets(
 		assets_info.set_extension(extension);
 		assets_info.set_base_name_to_hash_map(hashes_v2_1);
 
-		bstone::Log::write("Found \"" + title + "\" v2.1.");
+		bstone::logger_->write("Found \"" + title + "\" v2.1.");
 
 		return true;
 	}
@@ -374,7 +374,7 @@ bool find_aog_assets(
 		assets_info.set_extension(extension);
 		assets_info.set_base_name_to_hash_map(hashes_v3_0);
 
-		bstone::Log::write("Found \"" + title + "\" v3.0.");
+		bstone::logger_->write("Found \"" + title + "\" v3.0.");
 
 		return true;
 	}
@@ -394,7 +394,7 @@ bool find_aog_full_assets(
 
 	if (is_required)
 	{
-		bstone::Log::write("Forcing \"" + title + "\"...");
+		bstone::logger_->write("Forcing \"" + title + "\"...");
 	}
 
 	const auto is_found = find_aog_assets(
@@ -421,7 +421,7 @@ bool find_aog_sw_assets(
 
 	if (is_required)
 	{
-		bstone::Log::write("Forcing \"" + title + "\"...");
+		bstone::logger_->write("Forcing \"" + title + "\"...");
 	}
 
 	const auto is_found = find_aog_assets(
@@ -479,7 +479,7 @@ bool find_ps_assets(
 		assets_info.set_extension(Assets::get_ps_extension());
 		assets_info.set_base_name_to_hash_map(Assets::get_ps_base_name_to_hash_map());
 
-		bstone::Log::write("Found \"" + title + "\".");
+		bstone::logger_->write("Found \"" + title + "\".");
 		return true;
 	}
 
@@ -493,15 +493,15 @@ bool find_ps_assets(
 
 void find_ps_assets()
 {
-	bstone::Log::write("Forcing \"Planet Strike\" version...");
+	bstone::logger_->write("Forcing \"Planet Strike\" version...");
 
 	static_cast<void>(find_ps_assets(true));
 }
 
 void find_any_assets()
 {
-	bstone::Log::write();
-	bstone::Log::write("Probing for assets...");
+	bstone::logger_->write();
+	bstone::logger_->write("Probing for assets...");
 
 	auto assets_info = AssetsInfo{};
 
@@ -1164,10 +1164,10 @@ void freed_main()
 	//
 	::InitDestPath();
 
-	bstone::Log::write();
-	bstone::Log::write("Data path: \"" + ::data_dir_ + "\"");
-	bstone::Log::write("Mod path: \"" + ::mod_dir_ + "\"");
-	bstone::Log::write("Profile path: \"" + ::get_profile_dir() + "\"");
+	bstone::logger_->write();
+	bstone::logger_->write("Data path: \"" + ::data_dir_ + "\"");
+	bstone::logger_->write("Mod path: \"" + ::mod_dir_ + "\"");
+	bstone::logger_->write("Profile path: \"" + ::get_profile_dir() + "\"");
 
 	// BBi
 	if (::g_args.has_option("debug_dump_hashes"))
