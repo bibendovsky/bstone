@@ -253,7 +253,6 @@ case gen_scientistobj
 
 // gamestate.flags flag values
 
-#define GS_DRAW_FLOOR (0x0008)
 #define GS_VIRGIN_LEVEL (0x0010)
 #define GS_ATTACK_INFOAREA (0x0040)
 #define GS_KILL_INF_WARN (0x0080)
@@ -3946,6 +3945,7 @@ std::uint16_t door_object_to_ui16(
 	const doorobj_t* door_object);
 
 extern bool gp_is_ceiling_solid_;
+extern bool gp_is_flooring_solid_;
 extern bool g_no_wall_hit_sound;
 extern bool g_always_run;
 

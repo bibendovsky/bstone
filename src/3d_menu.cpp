@@ -2405,7 +2405,7 @@ void CP_Switches(
 			break;
 
 		case SW_FLOORS:
-			gamestate.flags ^= GS_DRAW_FLOOR;
+			::gp_is_flooring_solid_ = !::gp_is_flooring_solid_;
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
@@ -2510,7 +2510,7 @@ void DrawAllSwitchLights(
 				break;
 
 			case SW_FLOORS:
-				if (gamestate.flags & GS_DRAW_FLOOR)
+				if (!::gp_is_flooring_solid_)
 				{
 					Shape++;
 				}

@@ -1223,7 +1223,7 @@ void VGAClearScreen()
 		vga_clear_screen(0, half_height, TopColor);
 	}
 
-	if ((viewflags & GS_DRAW_FLOOR) == 0)
+	if (::gp_is_flooring_solid_)
 	{
 		vga_clear_screen(
 			viewheight - half_height, half_height, BottomColor);
@@ -1803,8 +1803,8 @@ void ThreeDRefresh()
 	// follow the walls from there to the right, drawwing as we go
 	//
 
-	const auto is_ceiling_textured = !::gp_is_ceiling_solid_;
-	const auto is_floor_textured = ((::gamestate.flags & GS_DRAW_FLOOR) != 0);
+	const auto is_ceiling_textured = (!::gp_is_ceiling_solid_);
+	const auto is_floor_textured = (!::gp_is_flooring_solid_);
 
 	if ((::gamestate.flags & GS_LIGHTING) != 0)
 	{

@@ -637,7 +637,7 @@ bool DebugKeys()
 		// Dec bottom color
 		//
 
-		if ((::gamestate.flags & GS_DRAW_FLOOR) != 0)
+		if (!::gp_is_flooring_solid_)
 		{
 			::FloorTile = ::DecRange(::FloorTile, static_cast<std::uint16_t>(NUM_TILES - 1));
 			::SetPlaneViewSize(); // Init new textures
@@ -655,7 +655,7 @@ bool DebugKeys()
 		// Inc bottom color
 		//
 
-		if ((::gamestate.flags & GS_DRAW_FLOOR) != 0)
+		if (!::gp_is_flooring_solid_)
 		{
 			::FloorTile = ::IncRange(::FloorTile, static_cast<std::uint16_t>(NUM_TILES - 1));
 			::SetPlaneViewSize(); // Init new textures

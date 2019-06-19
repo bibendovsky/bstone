@@ -6946,7 +6946,7 @@ void hw_screen_3d_refresh()
 	// Draw flooring.
 	//
 	{
-		auto texture_2d = ((::gamestate.flags & GS_DRAW_FLOOR) != 0
+		auto texture_2d = (!::gp_is_flooring_solid_
 			?
 			::hw_3d_flooring_textured_t2d_
 			:

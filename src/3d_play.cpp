@@ -1138,7 +1138,7 @@ void CheckKeys()
 
 	if (in_is_binding_pressed(e_bi_flooring))
 	{
-		gamestate.flags ^= GS_DRAW_FLOOR;
+		::gp_is_flooring_solid_ = !::gp_is_flooring_solid_;
 		in_reset_binding_state(e_bi_flooring);
 	}
 
