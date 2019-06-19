@@ -1145,10 +1145,6 @@ void DrawScoreNum()
 		{
 			LatchNumber(X, Y, 7, realtics);
 		}
-		else if (gamestate.flags & GS_MUSIC_TEST)
-		{
-			LatchNumber(X, Y, 7, music_num);
-		}
 		else
 		{
 			LatchNumber(X, Y, 7, gamestate.tic_score);

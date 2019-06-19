@@ -1052,63 +1052,6 @@ void CheckKeys()
 		}
 	}
 
-
-	if ((DebugOk || gamestate.flags & GS_MUSIC_TEST) && (Keyboard[ScanCode::sc_backspace]))
-	{
-		std::uint8_t old_num = music_num;
-
-		if (gamestate.flags & GS_MUSIC_TEST)
-		{
-			if (Keyboard[ScanCode::sc_left_arrow])
-			{
-				if (music_num)
-				{
-					music_num--;
-				}
-				Keyboard[ScanCode::sc_left_arrow] = false;
-			}
-			else if (Keyboard[ScanCode::sc_right_arrow])
-			{
-				if (music_num < LASTMUSIC - 1)
-				{
-					music_num++;
-				}
-				Keyboard[ScanCode::sc_right_arrow] = false;
-			}
-
-			if (old_num != music_num)
-			{
-				ClearMemory();
-
-				delete[] audiosegs[STARTMUSIC + old_num];
-				audiosegs[STARTMUSIC + old_num] = nullptr;
-
-				StartMusic(false);
-				DrawScore();
-			}
-		}
-
-		if (old_num == music_num)
-		{
-			fontnumber = 4;
-			SETFONTCOLOR(0, 15);
-
-			::vid_is_hud = true;
-
-			if (DebugKeys())
-			{
-				CleanDrawPlayBorder();
-			}
-
-			::vid_is_hud = false;
-
-			::in_clear_mouse_deltas();
-
-			lasttimecount = TimeCount;
-			return;
-		}
-	}
-
 	if (in_is_binding_pressed(e_bi_attack_info))
 	{
 		if (I_KeyReleased)

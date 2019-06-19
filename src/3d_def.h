@@ -254,7 +254,6 @@ case gen_scientistobj
 // gamestate.flags flag values
 
 #define GS_KILL_INF_WARN (0x0080)
-#define GS_MUSIC_TEST (0x0400)
 #define GS_LIGHTING (0x0800)
 #define GS_TICS_FOR_SCORE (0x1000)
 #define GS_NOWAIT (0x2000)
