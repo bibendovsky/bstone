@@ -8160,15 +8160,12 @@ bool LoadLevel(
 		::SetupGameLevel();
 		::vid_hw_on_level_load();
 
-		gamestate.flags |= GS_VIRGIN_LEVEL;
 		gamestate.turn_around = 0;
 
 		::PreloadUpdate(1, 1);
 		ForceLoadDefault = false;
 		return true;
 	}
-
-	gamestate.flags &= ~GS_VIRGIN_LEVEL;
 
 	// Read all sorts of stuff...
 	//
@@ -8408,10 +8405,6 @@ bool SaveLevel(
 	::ShowStats(0, 0, ss_justcalc,
 		&gamestuff.level[gamestate.mapon].stats);
 	gamestate.mapon = oldmapon;
-
-	// Yeah! We're no longer a virgin!
-	//
-	gamestate.flags &= ~GS_VIRGIN_LEVEL;
 
 	// Remove level chunk from file
 	//

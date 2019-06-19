@@ -2043,8 +2043,6 @@ void PlayLoop()
 	{
 		FinishPaletteShifts();
 	}
-
-	gamestate.flags &= ~GS_VIRGIN_LEVEL;
 }
 
 void ShowQuickInstructions()

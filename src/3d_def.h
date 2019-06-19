@@ -253,7 +253,6 @@ case gen_scientistobj
 
 // gamestate.flags flag values
 
-#define GS_VIRGIN_LEVEL (0x0010)
 #define GS_ATTACK_INFOAREA (0x0040)
 #define GS_KILL_INF_WARN (0x0080)
 #define GS_BAD_DIZ_FILE (0x0200)
