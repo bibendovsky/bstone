@@ -7919,12 +7919,16 @@ void write_text_config()
 	write_bindings_config(::in_binding_name, writer);
 
 	writer.write("\n// Gameplay\n");
-	write_config_entry(writer, gp_no_wall_hit_sfx_name, ::g_no_wall_hit_sound);
-	write_config_entry(writer, gp_is_always_run_name, ::g_always_run);
-	write_config_entry(writer, gp_use_heart_beat_sfx_name, ::g_heart_beat_sound);
-	write_config_entry(writer, gp_quit_on_escape_name, ::g_quit_on_escape);
-	write_config_entry(writer, gp_no_intro_outro_name, ::g_no_intro_outro);
-	write_config_entry(writer, gp_no_fade_in_or_out_name, ::g_no_fade_in_or_out);
+	write_config_entry(writer, ::gp_is_ceiling_solid_name, ::gp_is_ceiling_solid_);
+	write_config_entry(writer, ::gp_is_flooring_solid_name, ::gp_is_flooring_solid_);
+	write_config_entry(writer, ::gp_hide_attacker_info_name, ::gp_hide_attacker_info_);
+	write_config_entry(writer, ::gp_no_shading_name, ::gp_no_shading_);
+	write_config_entry(writer, ::gp_no_wall_hit_sfx_name, ::g_no_wall_hit_sound);
+	write_config_entry(writer, ::gp_is_always_run_name, ::g_always_run);
+	write_config_entry(writer, ::gp_use_heart_beat_sfx_name, ::g_heart_beat_sound);
+	write_config_entry(writer, ::gp_quit_on_escape_name, ::g_quit_on_escape);
+	write_config_entry(writer, ::gp_no_intro_outro_name, ::g_no_intro_outro);
+	write_config_entry(writer, ::gp_no_fade_in_or_out_name, ::g_no_fade_in_or_out);
 
 	writer.write("\n// Auto-map\n");
 	write_config_entry(writer, am_is_rotated_name, ::g_rotated_automap);
