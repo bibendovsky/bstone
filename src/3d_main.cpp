@@ -235,6 +235,9 @@ bool gp_is_ceiling_solid_ = default_is_ceiling_solid;
 static const bool default_is_flooring_solid = false;
 bool gp_is_flooring_solid_ = default_is_flooring_solid;
 
+static const bool default_gp_hide_attacker_info = false;
+bool gp_hide_attacker_info_ = default_gp_hide_attacker_info;
+
 static const bool default_no_wall_hit_sound = true;
 bool g_no_wall_hit_sound = default_no_wall_hit_sound;
 
@@ -7265,8 +7268,9 @@ const auto in_mouse_sensitivity_name = "in_mouse_sensitivity";
 const auto in_is_mouse_enabled_name = "in_is_mouse_enabled";
 const auto in_binding_name = "in_binding";
 const auto gp_flags_name = "gp_flags";
-const auto gp_is_ceiling_solid = "gp_is_ceiling_solid";
-const auto gp_is_flooring_solid = "gp_is_flooring_solid";
+const auto gp_is_ceiling_solid_name = "gp_is_ceiling_solid";
+const auto gp_is_flooring_solid_name = "gp_is_flooring_solid";
+const auto gp_hide_attacker_info_name = "gp_hide_attacker_info";
 const auto gp_no_wall_hit_sfx_name = "gp_no_wall_hit_sfx";
 const auto gp_is_always_run_name = "gp_is_always_run";
 const auto gp_use_heart_beat_sfx_name = "gp_use_heart_beat_sfx";
@@ -7491,7 +7495,6 @@ void set_config_defaults()
 
 	::mouseadjustment = ::default_mouse_sensitivity;
 
-	::gamestate.flags |= GS_ATTACK_INFOAREA;
 	::gamestate.flags |= GS_LIGHTING;
 
 	::sd_sfx_volume = ::sd_default_sfx_volume;
@@ -7537,7 +7540,6 @@ void read_text_config()
 
 
 	const auto default_game_state_flags = std::uint16_t{
-		GS_ATTACK_INFOAREA |
 		GS_LIGHTING
 	};
 
@@ -7694,7 +7696,7 @@ void read_text_config()
 							::g_always_run = (value != 0);
 						}
 					}
-					else if (key_string == ::gp_is_ceiling_solid)
+					else if (key_string == ::gp_is_ceiling_solid_name)
 					{
 						int value;
 
@@ -7703,13 +7705,22 @@ void read_text_config()
 							::gp_is_ceiling_solid_ = (value != 0);
 						}
 					}
-					else if (key_string == ::gp_is_flooring_solid)
+					else if (key_string == ::gp_is_flooring_solid_name)
 					{
 						int value;
 
 						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
 							::gp_is_flooring_solid_ = (value != 0);
+						}
+					}
+					else if (key_string == ::gp_hide_attacker_info_name)
+					{
+						int value;
+
+						if (bstone::StringHelper::string_to_int(value_string, value))
+						{
+							::gp_hide_attacker_info_ = (value != 0);
 						}
 					}
 					else if (key_string == gp_use_heart_beat_sfx_name)
@@ -7997,7 +8008,6 @@ void NewGame(
 	::gamestate.lives = 3;
 	::gamestate.nextextra = EXTRAPOINTS;
 	::gamestate.episode = episode;
-	::gamestate.flags |= GS_ATTACK_INFOAREA;
 	::gamestate.mapon = (assets_info.is_ps() ? 0 : 1);
 
 	::startgame = true;

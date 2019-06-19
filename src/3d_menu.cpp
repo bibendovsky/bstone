@@ -2393,7 +2393,7 @@ void CP_Switches(
 			break;
 
 		case SW_REBA_ATTACK_INFO:
-			gamestate.flags ^= GS_ATTACK_INFOAREA;
+			::gp_hide_attacker_info_ = !::gp_hide_attacker_info_;
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
@@ -2496,7 +2496,7 @@ void DrawAllSwitchLights(
 				break;
 
 			case SW_REBA_ATTACK_INFO:
-				if (gamestate.flags & GS_ATTACK_INFOAREA)
+				if (!::gp_hide_attacker_info_)
 				{
 					Shape++;
 				}

@@ -1024,7 +1024,7 @@ void TakeDamage(
 {
 	LastAttacker = attacker;
 
-	if (gamestate.flags & GS_ATTACK_INFOAREA)
+	if (!::gp_hide_attacker_info_)
 	{
 		if (attacker)
 		{

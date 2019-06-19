@@ -3246,8 +3246,6 @@ void Died()
 		gamestate.attackframe = gamestate.attackcount =
 			gamestate.weaponframe = 0;
 
-		gamestate.flags |= GS_ATTACK_INFOAREA;
-
 		DrawHealth();
 		DrawKeys();
 		DrawWeapon();

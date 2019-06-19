@@ -1113,8 +1113,9 @@ void CheckKeys()
 	{
 		if (I_KeyReleased)
 		{
-			gamestate.flags ^= GS_ATTACK_INFOAREA;
-			if (gamestate.flags & GS_ATTACK_INFOAREA)
+			::gp_hide_attacker_info_ = !::gp_hide_attacker_info_;
+
+			if (!::gp_hide_attacker_info_)
 			{
 				DISPLAY_TIMED_MSG(attacker_info_enabled, MP_ATTACK_INFO, MT_GENERAL);
 			}

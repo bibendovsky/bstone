@@ -253,7 +253,6 @@ case gen_scientistobj
 
 // gamestate.flags flag values
 
-#define GS_ATTACK_INFOAREA (0x0040)
 #define GS_KILL_INF_WARN (0x0080)
 #define GS_BAD_DIZ_FILE (0x0200)
 #define GS_MUSIC_TEST (0x0400)
@@ -3945,6 +3944,7 @@ std::uint16_t door_object_to_ui16(
 
 extern bool gp_is_ceiling_solid_;
 extern bool gp_is_flooring_solid_;
+extern bool gp_hide_attacker_info_;
 extern bool g_no_wall_hit_sound;
 extern bool g_always_run;
 
