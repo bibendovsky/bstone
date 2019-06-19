@@ -145,6 +145,15 @@ public:
 		const std::string& string);
 
 	//
+	// Flushes the buffers.
+	//
+	// Returns:
+	//    - "true" on success.
+	//    - "false" otherwise.
+	//
+	virtual bool flush() = 0;
+
+	//
 	// Indicates the stream is readable.
 	//
 	// Returns:

@@ -377,6 +377,11 @@ bool MemoryStream::write(
 	return true;
 }
 
+bool MemoryStream::flush()
+{
+	return is_open_;
+}
+
 bool MemoryStream::is_readable() const
 {
 	return is_open_ && is_readable_;

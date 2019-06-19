@@ -86,6 +86,8 @@ public:
 		const void* buffer,
 		const int count) override;
 
+	bool flush() override;
+
 	bool is_readable() const override;
 
 	bool is_seekable() const override;
