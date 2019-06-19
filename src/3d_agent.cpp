@@ -1141,14 +1141,7 @@ void DrawScoreNum()
 	}
 	else
 	{
-		if (gamestate.flags & GS_TICS_FOR_SCORE)
-		{
-			LatchNumber(X, Y, 7, realtics);
-		}
-		else
-		{
-			LatchNumber(X, Y, 7, gamestate.tic_score);
-		}
+		LatchNumber(X, Y, 7, gamestate.tic_score);
 	}
 }
 
@@ -2392,11 +2385,6 @@ void UpdateStatusBar()
 	if (DrawHealthNum_COUNT)
 	{
 		DrawHealthNum();
-	}
-
-	if (gamestate.flags & (GS_TICS_FOR_SCORE))
-	{
-		DrawScore();
 	}
 
 	const auto& assets_info = AssetsInfo{};

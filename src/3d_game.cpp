@@ -3036,7 +3036,7 @@ void ShadowPrintLocationText(
 		// Print location text
 		//
 
-		if (DebugOk || (gamestate.flags & (GS_QUICKRUN | GS_TICS_FOR_SCORE)))
+		if (DebugOk || (gamestate.flags & (GS_QUICKRUN)))
 		{
 			s = DebugText;
 		}
