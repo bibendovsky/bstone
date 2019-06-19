@@ -1052,6 +1052,27 @@ void CheckKeys()
 		}
 	}
 
+	if (::DebugOk && ::Keyboard[ScanCode::sc_backspace])
+	{
+		::fontnumber = 4;
+		::SETFONTCOLOR(0, 15);
+
+		::vid_is_hud = true;
+
+		if (::DebugKeys())
+		{
+			::CleanDrawPlayBorder();
+		}
+
+		::vid_is_hud = false;
+
+		::in_clear_mouse_deltas();
+
+		::lasttimecount = ::TimeCount;
+
+		return;
+	}
+
 	if (in_is_binding_pressed(e_bi_attack_info))
 	{
 		if (I_KeyReleased)
