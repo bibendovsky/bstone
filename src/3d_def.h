@@ -253,21 +253,16 @@ case gen_scientistobj
 
 // gamestate.flags flag values
 
-#define GS_HEARTB_SOUND (0x0001)
 #define GS_DRAW_CEILING (0x0002)
-#define GS_CLIP_WALLS (0x0004)
 #define GS_DRAW_FLOOR (0x0008)
 #define GS_VIRGIN_LEVEL (0x0010)
-#define GS_CHECK_STATS_BONUS (0x0020)
 #define GS_ATTACK_INFOAREA (0x0040)
 #define GS_KILL_INF_WARN (0x0080)
-#define GS_SHOW_OVERHEAD (0x0100)
 #define GS_BAD_DIZ_FILE (0x0200)
 #define GS_MUSIC_TEST (0x0400)
 #define GS_LIGHTING (0x0800)
 #define GS_TICS_FOR_SCORE (0x1000)
 #define GS_NOWAIT (0x2000)
-#define GS_STARTLEVEL (0x4000)
 #define GS_QUICKRUN (0x8000)
 
 // object flag values - Oh Shit Longs!

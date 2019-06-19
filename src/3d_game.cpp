@@ -2399,7 +2399,6 @@ void SetupGameLevel()
 
 	if (!loadedgame)
 	{
-		gamestate.flags |= GS_CLIP_WALLS;
 		InitGoldsternInfo();
 	}
 
@@ -3037,7 +3036,7 @@ void ShadowPrintLocationText(
 		// Print location text
 		//
 
-		if (DebugOk || (gamestate.flags & (GS_QUICKRUN | GS_STARTLEVEL | GS_TICS_FOR_SCORE | GS_MUSIC_TEST | GS_SHOW_OVERHEAD)))
+		if (DebugOk || (gamestate.flags & (GS_QUICKRUN | GS_TICS_FOR_SCORE | GS_MUSIC_TEST)))
 		{
 			s = DebugText;
 		}
@@ -3247,7 +3246,7 @@ void Died()
 		gamestate.attackframe = gamestate.attackcount =
 			gamestate.weaponframe = 0;
 
-		gamestate.flags |= (GS_CLIP_WALLS | GS_ATTACK_INFOAREA);
+		gamestate.flags |= GS_ATTACK_INFOAREA;
 
 		DrawHealth();
 		DrawKeys();

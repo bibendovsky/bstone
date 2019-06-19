@@ -7483,7 +7483,7 @@ void set_config_defaults()
 
 	::mouseadjustment = ::default_mouse_sensitivity;
 
-	::gamestate.flags |= GS_HEARTB_SOUND | GS_ATTACK_INFOAREA;
+	::gamestate.flags |= GS_ATTACK_INFOAREA;
 	::gamestate.flags |= GS_DRAW_CEILING | GS_DRAW_FLOOR | GS_LIGHTING;
 
 	::sd_sfx_volume = ::sd_default_sfx_volume;
@@ -7529,7 +7529,6 @@ void read_text_config()
 
 
 	const auto default_game_state_flags = std::uint16_t{
-		GS_HEARTB_SOUND |
 		GS_ATTACK_INFOAREA |
 		GS_LIGHTING |
 		GS_DRAW_CEILING |
@@ -7974,7 +7973,7 @@ void NewGame(
 	::gamestate.lives = 3;
 	::gamestate.nextextra = EXTRAPOINTS;
 	::gamestate.episode = episode;
-	::gamestate.flags |= (GS_CLIP_WALLS | GS_ATTACK_INFOAREA); // |GS_DRAW_CEILING|GS_DRAW_FLOOR);
+	::gamestate.flags |= GS_ATTACK_INFOAREA; // |GS_DRAW_CEILING|GS_DRAW_FLOOR);
 	::gamestate.mapon = (assets_info.is_ps() ? 0 : 1);
 
 	::startgame = true;
