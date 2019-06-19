@@ -676,6 +676,52 @@ bool OglRendererUtils::renderer_features_set(
 	return true;
 }
 
+RendererDeviceInfo OglRendererUtils::device_info_get()
+{
+	auto result = RendererDeviceInfo{};
+
+
+	// Name.
+	//
+	const auto ogl_name = reinterpret_cast<const char*>(::glGetString(GL_RENDERER));
+
+	assert(!OglRendererUtils::was_errors());
+
+	if (ogl_name != nullptr)
+	{
+		result.name_ = ogl_name;
+	}
+
+
+	// Vendor.
+	//
+	const auto ogl_vendor = reinterpret_cast<const char*>(::glGetString(GL_VENDOR));
+
+	assert(!OglRendererUtils::was_errors());
+
+	if (ogl_vendor != nullptr)
+	{
+		result.vendor_ = ogl_vendor;
+	}
+
+
+	// Version.
+	//
+	const auto ogl_version = reinterpret_cast<const char*>(::glGetString(GL_VERSION));
+
+	assert(!OglRendererUtils::was_errors());
+
+	if (ogl_version != nullptr)
+	{
+		result.version_ = ogl_version;
+	}
+
+
+	// Result.
+	//
+	return result;
+}
+
 GLenum OglRendererUtils::blending_get_factor(
 	const RendererBlendingFactor factor)
 {

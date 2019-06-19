@@ -604,6 +604,7 @@ Ogl1XRenderer::Ogl1XRenderer()
 	sdl_window_{},
 	sdl_gl_context_{},
 	extension_manager_{},
+	device_info_{},
 	device_features_{},
 	ogl_device_features_{},
 	screen_width_{},
@@ -672,6 +673,7 @@ Ogl1XRenderer::Ogl1XRenderer(
 	sdl_window_{std::move(rhs.sdl_window_)},
 	sdl_gl_context_{std::move(rhs.sdl_gl_context_)},
 	extension_manager_{std::move(rhs.extension_manager_)},
+	device_info_{std::move(rhs.device_info_)},
 	device_features_{std::move(rhs.device_features_)},
 	ogl_device_features_{std::move(rhs.ogl_device_features_)},
 	screen_width_{std::move(rhs.screen_width_)},
@@ -838,6 +840,11 @@ RendererPath Ogl1XRenderer::get_path() const
 const RendererDeviceFeatures& Ogl1XRenderer::device_get_features() const
 {
 	return device_features_;
+}
+
+const RendererDeviceInfo& Ogl1XRenderer::device_get_info() const
+{
+	return device_info_;
 }
 
 bool Ogl1XRenderer::device_is_lost() const
@@ -1337,6 +1344,8 @@ bool Ogl1XRenderer::probe_or_initialize(
 	{
 		is_initialized_ = true;
 
+		device_info_ = ogl_renderer_utils.device_info_get();
+
 		// Default state.
 		//
 		viewport_set_defaults();
@@ -1466,6 +1475,7 @@ void Ogl1XRenderer::uninitialize_internal(
 	if (!is_dtor)
 	{
 		extension_manager_ = {};
+		device_info_ = {};
 		device_features_ = {};
 		ogl_device_features_ = {};
 		screen_width_ = {};

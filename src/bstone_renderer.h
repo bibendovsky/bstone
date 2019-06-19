@@ -718,6 +718,23 @@ struct RendererDeviceFeatures
 // RendererDeviceFeatures
 // ==========================================================================
 
+
+// ==========================================================================
+// RendererDeviceInfo
+//
+
+struct RendererDeviceInfo
+{
+	std::string name_;
+	std::string vendor_;
+	std::string version_;
+}; // RendererDeviceInfo
+
+//
+// RendererDeviceInfo
+// ==========================================================================
+
+
 // ==========================================================================
 // RendererProbe
 //
@@ -773,6 +790,8 @@ public:
 
 
 	virtual const RendererDeviceFeatures& device_get_features() const = 0;
+
+	virtual const RendererDeviceInfo& device_get_info() const = 0;
 
 	virtual bool device_is_lost() const = 0;
 

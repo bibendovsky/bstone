@@ -190,6 +190,8 @@ public:
 	bool renderer_features_set(
 		RendererDeviceFeatures& device_features);
 
+	RendererDeviceInfo device_info_get();
+
 
 private:
 	std::string error_message_;

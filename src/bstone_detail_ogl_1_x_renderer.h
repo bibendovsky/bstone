@@ -94,6 +94,8 @@ public:
 
 	const RendererDeviceFeatures& device_get_features() const override;
 
+	const RendererDeviceInfo& device_get_info() const override;
+
 	bool device_is_lost() const override;
 
 	bool device_is_ready_to_reset() const override;
@@ -333,6 +335,7 @@ private:
 
 	OglExtensionManagerUPtr extension_manager_;
 
+	RendererDeviceInfo device_info_;
 	RendererDeviceFeatures device_features_;
 	detail::OglRendererUtilsDeviceFeatures ogl_device_features_;
 
