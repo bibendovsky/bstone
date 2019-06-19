@@ -253,7 +253,7 @@ bool RendererManagerImpl::Impl::renderer_probe(
 		return false;
 	}
 
-	if (renderer_path == RendererPath::autodetect)
+	if (renderer_path == RendererPath::auto_detect)
 	{
 		// OpenGL.
 		//

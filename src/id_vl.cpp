@@ -257,9 +257,9 @@ const std::string& vid_get_msaa_value_string()
 	return result;
 }
 
-const std::string& vid_get_autodetect_value_string()
+const std::string& vid_get_auto_detect_value_string()
 {
-	static const auto& result = std::string{"autodetect"};
+	static const auto& result = std::string{"auto-detect"};
 
 	return result;
 }
@@ -829,6 +829,121 @@ void vid_hw_read_cl_configuration()
 	::vid_configuration_.hw_dbg_draw_all_ = ::g_args.has_option(::vid_get_hw_dbg_draw_all_key_name());
 }
 
+const std::string& vid_to_string(
+	const bool value)
+{
+	static const auto false_string = std::string{"false"};
+	static const auto true_string = std::string{"true"};
+
+	return value ? true_string : false_string;
+}
+
+std::string vid_to_string(
+	const int value)
+{
+	return std::to_string(value);
+}
+
+const std::string& vid_to_string(
+	const bstone::RendererFilterKind filter_kind)
+{
+	static const auto invalid_string = std::string{"?"};
+
+	switch (filter_kind)
+	{
+		case bstone::RendererFilterKind::nearest:
+			return vid_get_nearest_value_string();
+
+		case bstone::RendererFilterKind::linear:
+			return vid_get_linear_value_string();
+
+		default:
+			return invalid_string;
+	}
+}
+
+const std::string& vid_to_string(
+	const bstone::RendererAaKind aa_kind)
+{
+	static const auto invalid_string = std::string{"?"};
+
+	switch (aa_kind)
+	{
+		case bstone::RendererAaKind::ms:
+			return vid_get_msaa_value_string();
+
+		case bstone::RendererAaKind::none:
+			return vid_get_none_value_string();
+
+		default:
+			return invalid_string;
+	}
+}
+
+const std::string& vid_to_string(
+	const bstone::RendererPath renderer_kind)
+{
+	static const auto invalid_string = std::string{"?"};
+	static const auto ogl_1_x_string = std::string{"OpenGL 1.x"};
+
+	switch (renderer_kind)
+	{
+		case bstone::RendererPath::none:
+			return vid_get_none_value_string();
+
+		case bstone::RendererPath::auto_detect:
+			return vid_get_auto_detect_value_string();
+
+		case bstone::RendererPath::software:
+			return vid_get_software_value_string();
+
+		case bstone::RendererPath::ogl_1_x:
+			return ogl_1_x_string;
+
+
+		default:
+			return invalid_string;
+	}
+}
+
+void vid_log_configuration()
+{
+	bstone::logger_->write();
+	bstone::logger_->write("VID: Common configuration");
+	bstone::logger_->write("VID: --------------------");
+
+	bstone::logger_->write("VID: Renderer: " + ::vid_to_string(::vid_configuration_.renderer_kind_));
+
+	bstone::logger_->write("VID: Is windowed: " + ::vid_to_string(::vid_configuration_.is_windowed_));
+	bstone::logger_->write("VID: Window offset by X: " + ::vid_to_string(::vid_configuration_.x_));
+	bstone::logger_->write("VID: Window offset by Y: " + ::vid_to_string(::vid_configuration_.y_));
+	bstone::logger_->write("VID: Window width: " + ::vid_to_string(::vid_configuration_.width_));
+	bstone::logger_->write("VID: Window height: " + ::vid_to_string(::vid_configuration_.height_));
+
+	bstone::logger_->write("VID: Is UI stretched: " + ::vid_to_string(::vid_configuration_.is_ui_stretched_));
+	bstone::logger_->write("VID: Is widescreen: " + ::vid_to_string(::vid_configuration_.is_widescreen_));
+
+	bstone::logger_->write("VID: [HW][DEBUG] Draw all: " + ::vid_to_string(::vid_configuration_.hw_dbg_draw_all_));
+
+	bstone::logger_->write("VID: Is downscale: " + ::vid_to_string(::vid_configuration_.is_downscale_));
+	bstone::logger_->write("VID: Downscale width: " + ::vid_to_string(::vid_configuration_.downscale_width_));
+	bstone::logger_->write("VID: Downscale height: " + ::vid_to_string(::vid_configuration_.downscale_height_));
+	bstone::logger_->write("VID: Downscale blit filter: " + ::vid_to_string(::vid_configuration_.hw_downscale_blit_filter_));
+
+	bstone::logger_->write("VID: [HW] 2D texture filter: " + ::vid_to_string(::vid_configuration_.hw_2d_texture_filter_));
+
+	bstone::logger_->write("VID: [HW] 3D texture image filter: " + ::vid_to_string(::vid_configuration_.hw_3d_texture_image_filter_));
+	bstone::logger_->write("VID: [HW] 3D texture mipmap filter: " + ::vid_to_string(::vid_configuration_.hw_3d_texture_mipmap_filter_));
+
+	bstone::logger_->write("VID: [HW] Texture anisotropy: " + ::vid_to_string(::vid_configuration_.hw_3d_texture_anisotropy_));
+	bstone::logger_->write("VID: [HW] Texture anisotropy value: " + ::vid_to_string(::vid_configuration_.hw_3d_texture_anisotropy_value_));
+
+	bstone::logger_->write("VID: [HW] Anti-aliasing kind: " + ::vid_to_string(::vid_configuration_.hw_aa_kind_));
+	bstone::logger_->write("VID: [HW] Anti-aliasing value: " + ::vid_to_string(::vid_configuration_.hw_aa_value_));
+
+	bstone::logger_->write("VID: --------------------");
+}
+
 void vid_common_initialize()
 {
 	::vid_get_current_display_mode();
@@ -836,6 +951,8 @@ void vid_common_initialize()
 	::vid_hw_read_cl_configuration();
 	::vid_configuration_adjust_window_position();
 	::vid_configuration_fix_window_size();
+
+	::vid_log_configuration();
 }
 
 
@@ -11307,7 +11424,7 @@ bool hw_video_initialize()
 		return false;
 	}
 
-	if (!hw_renderer_manager_->renderer_probe(bstone::RendererPath::autodetect))
+	if (!hw_renderer_manager_->renderer_probe(bstone::RendererPath::auto_detect))
 	{
 		bstone::logger_->write_warning("VID: No renderer path was found.");
 
@@ -12264,9 +12381,9 @@ const std::string& vid_renderer_kind_to_string(
 {
 	switch (kind)
 	{
-		case bstone::RendererPath::autodetect:
+		case bstone::RendererPath::auto_detect:
 		case bstone::RendererPath::none:
-			return vid_get_autodetect_value_string();
+			return vid_get_auto_detect_value_string();
 
 		case bstone::RendererPath::software:
 			return vid_get_software_value_string();
@@ -12285,9 +12402,9 @@ void vid_configuration_read_renderer_kind(
 	const std::string& value_string)
 {
 	if (value_string == ::vid_get_none_value_string() ||
-		value_string == ::vid_get_autodetect_value_string())
+		value_string == ::vid_get_auto_detect_value_string())
 	{
-		::vid_configuration_.renderer_kind_ = bstone::RendererPath::autodetect;
+		::vid_configuration_.renderer_kind_ = bstone::RendererPath::auto_detect;
 	}
 	else if (value_string == ::vid_get_software_value_string())
 	{
@@ -12607,13 +12724,13 @@ void vid_write_renderer_kind_configuration(
 
 			break;
 
-		case bstone::RendererPath::autodetect:
+		case bstone::RendererPath::auto_detect:
 		case bstone::RendererPath::none:
 		default:
 			::write_configuration_entry(
 				text_writer,
 				::vid_get_renderer_kind_key_name(),
-				::vid_get_autodetect_value_string()
+				::vid_get_auto_detect_value_string()
 			);
 
 			break;

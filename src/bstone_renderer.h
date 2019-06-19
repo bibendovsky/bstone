@@ -55,7 +55,7 @@ enum class RendererPath :
 {
 	none,
 
-	autodetect,
+	auto_detect,
 	software,
 
 	ogl_1_x,
