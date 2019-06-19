@@ -9434,7 +9434,7 @@ void DemoLoop()
 		{
 			::vid_is_movie = true;
 
-			while (!(gamestate.flags & GS_NOWAIT))
+			while (true)
 			{
 				extern bool sqActive;
 

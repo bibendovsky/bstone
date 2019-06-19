@@ -872,147 +872,144 @@ void PreDemo()
 
 	VL_SetPaletteIntensity(0, 255, vgapal, 0);
 
-	if (!(gamestate.flags & GS_NOWAIT))
+	const auto& assets_info = AssetsInfo{};
+
+	if (assets_info.is_aog_full())
 	{
-		const auto& assets_info = AssetsInfo{};
-
-		if (assets_info.is_aog_full())
-		{
-			// ---------------------
-			// Anti-piracy screen
-			// ---------------------
-
-			// Cache pic
-			//
-			CA_CacheScreen(PIRACYPIC);
-
-			// Cache and set palette.  AND  Fade it in!
-			//
-			CA_CacheGrChunk(PIRACYPALETTE);
-			VL_SetPalette(0, 256, static_cast<const std::uint8_t*>(grsegs[PIRACYPALETTE]));
-			VL_SetPaletteIntensity(0, 255, static_cast<const std::uint8_t*>(grsegs[PIRACYPALETTE]), 0);
-			VW_UpdateScreen();
-
-			VL_FadeOut(0, 255, 0, 0, 25, 20);
-			VL_FadeIn(0, 255, static_cast<const std::uint8_t*>(grsegs[PIRACYPALETTE]), 30);
-
-			// Wait a little
-			//
-			IN_UserInput(TickBase * 20);
-
-			// Free palette
-			//
-			UNCACHEGRCHUNK(PIRACYPALETTE);
-
-			VL_FadeOut(0, 255, 0, 0, 25, 20);
-			VW_FadeOut();
-
-			// Cleanup screen for upcoming SetPalette call
-			//
-			::VL_Bar(0, 0, 320, 200, 0);
-		}
-
 		// ---------------------
-		// Apogee presents
+		// Anti-piracy screen
 		// ---------------------
 
 		// Cache pic
 		//
-		CA_CacheScreen(APOGEEPIC);
-
-		// Load and start music
-		//
-		CA_CacheAudioChunk(STARTMUSIC + APOGFNFM_MUS);
-
-		::SD_StartMusic(APOGFNFM_MUS);
+		CA_CacheScreen(PIRACYPIC);
 
 		// Cache and set palette.  AND  Fade it in!
 		//
-		CA_CacheGrChunk(APOGEEPALETTE);
-		VL_SetPalette(0, 256, static_cast<const std::uint8_t*>(grsegs[APOGEEPALETTE]));
-		VL_SetPaletteIntensity(0, 255, static_cast<const std::uint8_t*>(grsegs[APOGEEPALETTE]), 0);
+		CA_CacheGrChunk(PIRACYPALETTE);
+		VL_SetPalette(0, 256, static_cast<const std::uint8_t*>(grsegs[PIRACYPALETTE]));
+		VL_SetPaletteIntensity(0, 255, static_cast<const std::uint8_t*>(grsegs[PIRACYPALETTE]), 0);
 		VW_UpdateScreen();
-		if (assets_info.is_aog())
-		{
-			VL_FadeOut(0, 255, 0, 0, 0, 20);
-		}
-		else
-		{
-			VL_FadeOut(0, 255, 25, 29, 53, 20);
-		}
-		VL_FadeIn(0, 255, static_cast<const std::uint8_t*>(grsegs[APOGEEPALETTE]), 30);
 
-		// Wait for end of fanfare
+		VL_FadeOut(0, 255, 0, 0, 25, 20);
+		VL_FadeIn(0, 255, static_cast<const std::uint8_t*>(grsegs[PIRACYPALETTE]), 30);
+
+		// Wait a little
 		//
-		if (::sd_is_music_enabled)
-		{
-			IN_StartAck();
-			while ((!sqPlayedOnce) && (!IN_CheckAck()))
-			{
-			}
-		}
-		else
-		{
-			IN_UserInput(TickBase * 6);
-		}
+		IN_UserInput(TickBase * 20);
 
-		SD_MusicOff();
-
-		// Free palette and music.  AND  Restore palette
+		// Free palette
 		//
-		UNCACHEGRCHUNK(APOGEEPALETTE);
+		UNCACHEGRCHUNK(PIRACYPALETTE);
 
-		delete[] audiosegs[STARTMUSIC + APOGFNFM_MUS];
-		audiosegs[STARTMUSIC + APOGFNFM_MUS] = nullptr;
-
-		if (assets_info.is_ps())
-		{
-			// Do A Blue Flash!
-			::VL_FadeOut(0, 255, 25, 29, 53, 20);
-		}
-		else
-		{
-			::VL_FadeOut(0, 255, 0, 0, 0, 30);
-		}
-
-		// ---------------------
-		// JAM logo intro
-		// ---------------------
-
-		// Load and start music
-		//
-		CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
-		::SD_StartMusic(TITLE_LOOP_MUSIC);
-
-		// Show JAM logo
-		//
-		if (!::DoMovie(MovieId::intro))
-		{
-			::Quit("JAM animation (IANIM.xxx) does not exist.");
-		}
-
-		// ---------------------
-		// PC-13
-		// ---------------------
-		VL_Bar(0, 0, 320, 200, 0x14);
-		CacheDrawPic(0, 64, PC13PIC);
-		VW_UpdateScreen();
-		VW_FadeIn();
-		IN_UserInput(TickBase * 2);
-
-		// Do A Red Flash!
-
-		if (assets_info.is_aog())
-		{
-			::VL_FadeOut(0, 255, 39, 0, 0, 20);
-		}
-		else
-		{
-			::VL_FadeOut(0, 255, 0, 0, 0, 20);
-		}
-
+		VL_FadeOut(0, 255, 0, 0, 25, 20);
 		VW_FadeOut();
+
+		// Cleanup screen for upcoming SetPalette call
+		//
+		::VL_Bar(0, 0, 320, 200, 0);
 	}
+
+	// ---------------------
+	// Apogee presents
+	// ---------------------
+
+	// Cache pic
+	//
+	CA_CacheScreen(APOGEEPIC);
+
+	// Load and start music
+	//
+	CA_CacheAudioChunk(STARTMUSIC + APOGFNFM_MUS);
+
+	::SD_StartMusic(APOGFNFM_MUS);
+
+	// Cache and set palette.  AND  Fade it in!
+	//
+	CA_CacheGrChunk(APOGEEPALETTE);
+	VL_SetPalette(0, 256, static_cast<const std::uint8_t*>(grsegs[APOGEEPALETTE]));
+	VL_SetPaletteIntensity(0, 255, static_cast<const std::uint8_t*>(grsegs[APOGEEPALETTE]), 0);
+	VW_UpdateScreen();
+	if (assets_info.is_aog())
+	{
+		VL_FadeOut(0, 255, 0, 0, 0, 20);
+	}
+	else
+	{
+		VL_FadeOut(0, 255, 25, 29, 53, 20);
+	}
+	VL_FadeIn(0, 255, static_cast<const std::uint8_t*>(grsegs[APOGEEPALETTE]), 30);
+
+	// Wait for end of fanfare
+	//
+	if (::sd_is_music_enabled)
+	{
+		IN_StartAck();
+		while ((!sqPlayedOnce) && (!IN_CheckAck()))
+		{
+		}
+	}
+	else
+	{
+		IN_UserInput(TickBase * 6);
+	}
+
+	SD_MusicOff();
+
+	// Free palette and music.  AND  Restore palette
+	//
+	UNCACHEGRCHUNK(APOGEEPALETTE);
+
+	delete[] audiosegs[STARTMUSIC + APOGFNFM_MUS];
+	audiosegs[STARTMUSIC + APOGFNFM_MUS] = nullptr;
+
+	if (assets_info.is_ps())
+	{
+		// Do A Blue Flash!
+		::VL_FadeOut(0, 255, 25, 29, 53, 20);
+	}
+	else
+	{
+		::VL_FadeOut(0, 255, 0, 0, 0, 30);
+	}
+
+	// ---------------------
+	// JAM logo intro
+	// ---------------------
+
+	// Load and start music
+	//
+	CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
+	::SD_StartMusic(TITLE_LOOP_MUSIC);
+
+	// Show JAM logo
+	//
+	if (!::DoMovie(MovieId::intro))
+	{
+		::Quit("JAM animation (IANIM.xxx) does not exist.");
+	}
+
+	// ---------------------
+	// PC-13
+	// ---------------------
+	VL_Bar(0, 0, 320, 200, 0x14);
+	CacheDrawPic(0, 64, PC13PIC);
+	VW_UpdateScreen();
+	VW_FadeIn();
+	IN_UserInput(TickBase * 2);
+
+	// Do A Red Flash!
+
+	if (assets_info.is_aog())
+	{
+		::VL_FadeOut(0, 255, 39, 0, 0, 20);
+	}
+	else
+	{
+		::VL_FadeOut(0, 255, 0, 0, 0, 20);
+	}
+
+	VW_FadeOut();
 
 	::vid_is_movie = false;
 }
