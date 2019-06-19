@@ -171,6 +171,7 @@ void DefaultLogger::write(
 	{
 		static_cast<void>(file_stream_.write_string(message_));
 		static_cast<void>(file_stream_.write_octet('\n'));
+		static_cast<void>(file_stream_.flush());
 	}
 
 	if (is_critical)
