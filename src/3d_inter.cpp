@@ -131,19 +131,6 @@ char prep_msg[] = "^ST1^CEGet Ready, Blake!\r^XX";
 void DisplayPrepingMsg(
 	const char* text)
 {
-	// Bomb out if FILE_ID.DIZ is bad!!
-	//
-	const auto& assets_info = AssetsInfo{};
-
-	if (!assets_info.is_aog_sw())
-	{
-		if (((gamestate.mapon != 1) || (gamestate.episode != 0)) &&
-			(gamestate.flags & GS_BAD_DIZ_FILE))
-		{
-			Quit();
-		}
-	}
-
 	::vid_set_ui_mask_3d(false);
 
 	// Cache-in font
