@@ -254,7 +254,6 @@ case gen_scientistobj
 // gamestate.flags flag values
 
 #define GS_KILL_INF_WARN (0x0080)
-#define GS_QUICKRUN (0x8000)
 
 // object flag values - Oh Shit Longs!
 

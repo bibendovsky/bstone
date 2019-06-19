@@ -185,10 +185,7 @@ void PreloadGraphics()
 		::vid_set_ui_mask_3d(false);
 	}
 
-	if (!(gamestate.flags & GS_QUICKRUN))
-	{
-		VW_FadeIn();
-	}
+	VW_FadeIn();
 
 	// BBi No delay
 #if 0

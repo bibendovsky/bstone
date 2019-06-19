@@ -1996,8 +1996,7 @@ void ShowQuickInstructions()
 	const auto& assets_info = AssetsInfo{};
 
 	if (::demoplayback ||
-		(assets_info.is_ps() && (::gamestate.mapon > 0)) ||
-		(::gamestate.flags & GS_QUICKRUN) != 0)
+		(assets_info.is_ps() && (::gamestate.mapon > 0)))
 	{
 		return;
 	}
