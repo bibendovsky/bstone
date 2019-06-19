@@ -6973,7 +6973,7 @@ void hw_screen_3d_refresh()
 	// Draw ceiling.
 	//
 	{
-		auto texture_2d = ((::gamestate.flags & GS_DRAW_CEILING) != 0
+		auto texture_2d = (!::gp_is_ceiling_solid_
 			?
 			::hw_3d_ceiling_textured_t2d_
 			:

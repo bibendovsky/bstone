@@ -2399,7 +2399,7 @@ void CP_Switches(
 			break;
 
 		case SW_CEILING:
-			gamestate.flags ^= GS_DRAW_CEILING;
+			::gp_is_ceiling_solid_ = !::gp_is_ceiling_solid_;
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
@@ -2503,7 +2503,7 @@ void DrawAllSwitchLights(
 				break;
 
 			case SW_CEILING:
-				if (gamestate.flags & GS_DRAW_CEILING)
+				if (!::gp_is_ceiling_solid_)
 				{
 					Shape++;
 				}

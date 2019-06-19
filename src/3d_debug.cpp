@@ -104,7 +104,7 @@ void DebugMemory()
 	::US_Print("\nReal Tics: ");
 	::US_PrintUnsigned(::realtics);
 
-	if ((::gamestate.flags & GS_DRAW_CEILING) != 0)
+	if (!::gp_is_ceiling_solid_)
 	{
 		::US_Print("\n\nCeiling TEX: ");
 		::US_PrintUnsigned(::CeilingTile - START_TEXTURES);
@@ -601,7 +601,7 @@ bool DebugKeys()
 		// Dec top color
 		//
 
-		if ((::gamestate.flags & GS_DRAW_CEILING) != 0)
+		if (!::gp_is_ceiling_solid_)
 		{
 			::CeilingTile = ::DecRange(::CeilingTile, static_cast<std::uint16_t>(NUM_TILES - 1));
 			::SetPlaneViewSize(); // Init new textures
@@ -619,7 +619,7 @@ bool DebugKeys()
 		// Inc top color
 		//
 
-		if ((::gamestate.flags & GS_DRAW_CEILING) != 0)
+		if (!::gp_is_ceiling_solid_)
 		{
 			::CeilingTile = ::IncRange(::CeilingTile, static_cast<std::uint16_t>(NUM_TILES - 1));
 			::SetPlaneViewSize(); // Init new textures

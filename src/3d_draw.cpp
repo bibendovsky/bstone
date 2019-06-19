@@ -1218,7 +1218,7 @@ void VGAClearScreen()
 
 	int half_height = viewheight / 2;
 
-	if ((viewflags & GS_DRAW_CEILING) == 0)
+	if (::gp_is_ceiling_solid_)
 	{
 		vga_clear_screen(0, half_height, TopColor);
 	}
@@ -1803,64 +1803,63 @@ void ThreeDRefresh()
 	// follow the walls from there to the right, drawwing as we go
 	//
 
+	const auto is_ceiling_textured = !::gp_is_ceiling_solid_;
+	const auto is_floor_textured = ((::gamestate.flags & GS_DRAW_FLOOR) != 0);
+
 	if ((::gamestate.flags & GS_LIGHTING) != 0)
 	{
-		switch (::gamestate.flags & (GS_DRAW_FLOOR | GS_DRAW_CEILING))
+		if (is_ceiling_textured && is_floor_textured)
 		{
-		case GS_DRAW_FLOOR | GS_DRAW_CEILING:
 			::MapRowPtr = ::MapLSRow;
 			::WallRefresh();
 			::DrawPlanes();
-			break;
-
-		case GS_DRAW_FLOOR:
+		}
+		else if (!is_ceiling_textured && is_floor_textured)
+		{
 			::MapRowPtr = ::F_MapLSRow;
 			::VGAClearScreen();
 			::WallRefresh();
 			::DrawPlanes();
-			break;
-
-		case GS_DRAW_CEILING:
+		}
+		else if (is_ceiling_textured && !is_floor_textured)
+		{
 			::MapRowPtr = ::C_MapLSRow;
 			::VGAClearScreen();
 			::WallRefresh();
 			::DrawPlanes();
-			break;
-
-		default:
+		}
+		else
+		{
 			::VGAClearScreen();
 			::WallRefresh();
-			break;
 		}
 	}
 	else
 	{
-		switch (::gamestate.flags & (GS_DRAW_FLOOR | GS_DRAW_CEILING))
+		if (is_ceiling_textured && is_floor_textured)
 		{
-		case GS_DRAW_FLOOR | GS_DRAW_CEILING:
 			::MapRowPtr = ::MapRow;
 			::WallRefresh();
 			::DrawPlanes();
-			break;
-
-		case GS_DRAW_FLOOR:
+		}
+		else if (!is_ceiling_textured && is_floor_textured)
+		{
 			::MapRowPtr = ::F_MapRow;
 			::VGAClearScreen();
 			::WallRefresh();
 			::DrawPlanes();
-			break;
-
-		case GS_DRAW_CEILING:
+		}
+		else if (is_ceiling_textured && !is_floor_textured)
+		{
 			::MapRowPtr = ::C_MapRow;
 			::VGAClearScreen();
 			::WallRefresh();
 			::DrawPlanes();
-			break;
-
-		default:
+		}
+		else
+		{
 			::VGAClearScreen();
 			::WallRefresh();
-			break;
 		}
 	}
 

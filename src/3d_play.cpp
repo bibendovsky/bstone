@@ -1132,7 +1132,7 @@ void CheckKeys()
 
 	if (in_is_binding_pressed(e_bi_ceiling))
 	{
-		gamestate.flags ^= GS_DRAW_CEILING;
+		::gp_is_ceiling_solid_ = !::gp_is_ceiling_solid_;
 		in_reset_binding_state(e_bi_ceiling);
 	}
 
