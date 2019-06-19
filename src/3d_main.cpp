@@ -229,14 +229,17 @@ int mouseadjustment;
 const std::string binary_config_file_name = "bstone_config";
 const std::string text_config_file_name = "bstone_config.txt";
 
-static const bool default_is_ceiling_solid = false;
-bool gp_is_ceiling_solid_ = default_is_ceiling_solid;
+static const bool default_gp_is_ceiling_solid = false;
+bool gp_is_ceiling_solid_ = default_gp_is_ceiling_solid;
 
-static const bool default_is_flooring_solid = false;
-bool gp_is_flooring_solid_ = default_is_flooring_solid;
+static const bool default_gp_is_flooring_solid = false;
+bool gp_is_flooring_solid_ = default_gp_is_flooring_solid;
 
 static const bool default_gp_hide_attacker_info = false;
 bool gp_hide_attacker_info_ = default_gp_hide_attacker_info;
+
+static const bool default_gp_no_shading = false;
+bool gp_no_shading_ = default_gp_no_shading;
 
 static const bool default_no_wall_hit_sound = true;
 bool g_no_wall_hit_sound = default_no_wall_hit_sound;
@@ -7267,10 +7270,10 @@ const auto snd_music_volume_name = "snd_music_volume";
 const auto in_mouse_sensitivity_name = "in_mouse_sensitivity";
 const auto in_is_mouse_enabled_name = "in_is_mouse_enabled";
 const auto in_binding_name = "in_binding";
-const auto gp_flags_name = "gp_flags";
 const auto gp_is_ceiling_solid_name = "gp_is_ceiling_solid";
 const auto gp_is_flooring_solid_name = "gp_is_flooring_solid";
 const auto gp_hide_attacker_info_name = "gp_hide_attacker_info";
+const auto gp_no_shading_name = "gp_no_shading";
 const auto gp_no_wall_hit_sfx_name = "gp_no_wall_hit_sfx";
 const auto gp_is_always_run_name = "gp_is_always_run";
 const auto gp_use_heart_beat_sfx_name = "gp_use_heart_beat_sfx";
@@ -7495,8 +7498,6 @@ void set_config_defaults()
 
 	::mouseadjustment = ::default_mouse_sensitivity;
 
-	::gamestate.flags |= GS_LIGHTING;
-
 	::sd_sfx_volume = ::sd_default_sfx_volume;
 	::sd_music_volume = ::sd_default_music_volume;
 
@@ -7539,14 +7540,8 @@ void read_text_config()
 	::is_config_loaded = true;
 
 
-	const auto default_game_state_flags = std::uint16_t{
-		GS_LIGHTING
-	};
-
 	auto is_sound_enabled = true;
 	auto is_music_enabled = true;
-	auto game_state_flags = default_game_state_flags;
-
 
 	set_config_defaults();
 
@@ -7669,15 +7664,6 @@ void read_text_config()
 							::in_bindings[index0][index1] = get_scan_code_by_name(value_string);
 						}
 					}
-					else if (key_string == gp_flags_name)
-					{
-						std::uint16_t value;
-
-						if (bstone::StringHelper::string_to_uint16(value_string, value))
-						{
-							game_state_flags = value;
-						}
-					}
 					else if (key_string == gp_no_wall_hit_sfx_name)
 					{
 						int value;
@@ -7721,6 +7707,15 @@ void read_text_config()
 						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
 							::gp_hide_attacker_info_ = (value != 0);
+						}
+					}
+					else if (key_string == ::gp_no_shading_name)
+					{
+						int value;
+
+						if (bstone::StringHelper::string_to_int(value_string, value))
+						{
+							::gp_no_shading_ = (value != 0);
 						}
 					}
 					else if (key_string == gp_use_heart_beat_sfx_name)
@@ -7772,10 +7767,6 @@ void read_text_config()
 			}
 		}
 	}
-
-
-	::gamestate.flags &= ~default_game_state_flags;
-	::gamestate.flags |= game_state_flags;
 }
 
 
@@ -7928,7 +7919,6 @@ void write_text_config()
 	write_bindings_config(::in_binding_name, writer);
 
 	writer.write("\n// Gameplay\n");
-	write_config_entry(writer, gp_flags_name, ::gamestate.flags);
 	write_config_entry(writer, gp_no_wall_hit_sfx_name, ::g_no_wall_hit_sound);
 	write_config_entry(writer, gp_is_always_run_name, ::g_always_run);
 	write_config_entry(writer, gp_use_heart_beat_sfx_name, ::g_heart_beat_sound);

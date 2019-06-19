@@ -1089,7 +1089,7 @@ void CheckKeys()
 	if (in_is_binding_pressed(e_bi_lightning))
 	{
 		in_reset_binding_state(e_bi_lightning);
-		gamestate.flags ^= GS_LIGHTING;
+		::gp_no_shading_ = !::gp_no_shading_;
 	}
 
 	check_heart_beat_key();

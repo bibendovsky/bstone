@@ -6011,7 +6011,7 @@ void hw_3d_doors_render()
 bool hw_3d_fog_calculate(
 	const int sprite_lighting)
 {
-	if ((::gamestate.flags & GS_LIGHTING) == 0)
+	if (::gp_no_shading_)
 	{
 		return false;
 	}
@@ -6826,7 +6826,7 @@ void hw_screen_3d_refresh()
 		return;
 	}
 
-	const auto is_shading = ((::gamestate.flags & GS_LIGHTING) != 0);
+	const auto is_shading = (!::gp_no_shading_);
 
 	const auto& assets_info = AssetsInfo{};
 

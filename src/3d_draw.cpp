@@ -553,7 +553,7 @@ void ScalePost()
 
 	::postheight = height;
 
-	if ((::gamestate.flags & GS_LIGHTING) != 0)
+	if (!::gp_no_shading_)
 	{
 		auto i = ::shade_max - ((63 * height) / ::normalshade);
 
@@ -1603,7 +1603,7 @@ void DrawScaleds()
 		//
 		// draw farthest
 		//
-		if (((::gamestate.flags & GS_LIGHTING) != 0 && ::farthest->lighting != NO_SHADING) || cloaked_shape)
+		if ((!::gp_no_shading_ && ::farthest->lighting != NO_SHADING) || cloaked_shape)
 		{
 			::ScaleLSShape(::farthest->viewx, ::farthest->shapenum, ::farthest->viewheight, ::farthest->lighting);
 		}
@@ -1806,7 +1806,7 @@ void ThreeDRefresh()
 	const auto is_ceiling_textured = (!::gp_is_ceiling_solid_);
 	const auto is_floor_textured = (!::gp_is_flooring_solid_);
 
-	if ((::gamestate.flags & GS_LIGHTING) != 0)
+	if (!::gp_no_shading_)
 	{
 		if (is_ceiling_textured && is_floor_textured)
 		{

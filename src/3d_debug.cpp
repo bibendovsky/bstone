@@ -121,7 +121,7 @@ void DebugMemory()
 		::US_PrintUnsigned(::BottomColor & 0xFF);
 	}
 
-	if ((::gamestate.flags & GS_LIGHTING) != 0)
+	if (!::gp_no_shading_)
 	{
 		::US_Print("\nShade div: ");
 		::US_PrintUnsigned(::normalshade_div);
@@ -669,7 +669,7 @@ bool DebugKeys()
 		}
 	}
 
-	if ((::gamestate.flags & GS_LIGHTING) != 0)
+	if (!::gp_no_shading_)
 	{
 		// Shading adjustments
 		//

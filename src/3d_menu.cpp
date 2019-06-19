@@ -2387,7 +2387,7 @@ void CP_Switches(
 		switch (which)
 		{
 		case SW_LIGHTING:
-			gamestate.flags ^= GS_LIGHTING;
+			::gp_no_shading_ = !::gp_no_shading_;
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
@@ -2489,7 +2489,7 @@ void DrawAllSwitchLights(
 			switch (i)
 			{
 			case SW_LIGHTING:
-				if (gamestate.flags & GS_LIGHTING)
+				if (!::gp_no_shading_)
 				{
 					Shape++;
 				}
