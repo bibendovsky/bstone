@@ -783,13 +783,120 @@ void vid_read_window_height_cl_configuration()
 	::vid_read_window_dimension_cl_configuration(::vid_get_height_key_name(), ::vid_configuration_.height_);
 }
 
+const std::string& vid_get_vid_string()
+{
+	static const auto result = std::string{"[VID]"};
+
+	return result;
+}
+
+const std::string& vid_get_hw_string()
+{
+	static const auto result = std::string{"[HW]"};
+
+	return result;
+}
+
+const std::string& vid_get_dbg_string()
+{
+	static const auto result = std::string{"[DBG]"};
+
+	return result;
+}
+
+void vid_quit(
+	const std::string& error_message)
+{
+	::Quit(::vid_get_vid_string() + ' ' + error_message);
+}
+
+void vid_quit_with_sdl_error(
+	const std::string& error_message)
+{
+	auto message = std::string{};
+	message += ::vid_get_vid_string() + ' ' + error_message;
+
+	const auto sdl_error_message = ::SDL_GetError();
+
+	if (sdl_error_message != nullptr)
+	{
+		message += ' ';
+		message += sdl_error_message;
+	}
+
+	::Quit(message);
+}
+
+void vid_log()
+{
+	bstone::logger_->write();
+}
+
+void vid_log(
+	const bstone::LoggerMessageKind message_kind,
+	const std::string& message)
+{
+	bstone::logger_->write(message_kind, ::vid_get_vid_string() + ' ' + message);
+}
+
+void vid_log(
+	const std::string& message)
+{
+	bstone::logger_->write(
+		bstone::LoggerMessageKind::information,
+		::vid_get_vid_string() + ' ' + message
+	);
+}
+
+void vid_log_warning(
+	const std::string& message)
+{
+	bstone::logger_->write(
+		bstone::LoggerMessageKind::warning,
+		::vid_get_vid_string() + ' ' + message
+	);
+}
+
+void vid_log_error(
+	const std::string& message)
+{
+	bstone::logger_->write(
+		bstone::LoggerMessageKind::error,
+		::vid_get_vid_string() + ' ' + message
+	);
+}
+
+void vid_log_error(
+	const std::string& required_message,
+	const std::string& optional_message)
+{
+	::vid_log_error(required_message);
+
+	if (!optional_message.empty())
+	{
+		::vid_log_error(optional_message);
+	}
+}
+
+void vid_hw_log(
+	const std::string& message)
+{
+	bstone::logger_->write(::vid_get_vid_string() + ::vid_get_hw_string() + ' ' + message);
+}
+
+void vid_hw_dbg_log(
+	const std::string& message)
+{
+	bstone::logger_->write(::vid_get_vid_string() + ::vid_get_hw_string() + ::vid_get_dbg_string() + ' ' + message);
+}
+
 void vid_get_current_display_mode()
 {
 	const auto sdl_result = ::SDL_GetDesktopDisplayMode(0, &::display_mode);
 
 	if (sdl_result != 0)
 	{
-		::Quit("VID: Failed to get a display mode.");
+		::vid_quit_with_sdl_error("Failed to get a display mode.");
 	}
 }
 
@@ -905,41 +1012,55 @@ const std::string& vid_to_string(
 
 void vid_log_common_configuration()
 {
-	bstone::logger_->write();
-	bstone::logger_->write("VID: --------------------");
-	bstone::logger_->write("VID: Common configuration");
-	bstone::logger_->write("VID: --------------------");
+	::vid_log();
+	::vid_log("--------------------");
+	::vid_log("Common configuration");
+	::vid_log("--------------------");
 
-	bstone::logger_->write("VID: Renderer: " + ::vid_to_string(::vid_configuration_.renderer_kind_));
+	::vid_log("Renderer: " + ::vid_to_string(::vid_configuration_.renderer_kind_));
 
-	bstone::logger_->write("VID: Is windowed: " + ::vid_to_string(::vid_configuration_.is_windowed_));
-	bstone::logger_->write("VID: Window offset by X: " + ::vid_to_string(::vid_configuration_.x_));
-	bstone::logger_->write("VID: Window offset by Y: " + ::vid_to_string(::vid_configuration_.y_));
-	bstone::logger_->write("VID: Window width: " + ::vid_to_string(::vid_configuration_.width_));
-	bstone::logger_->write("VID: Window height: " + ::vid_to_string(::vid_configuration_.height_));
+	::vid_log("Is windowed: " + ::vid_to_string(::vid_configuration_.is_windowed_));
+	::vid_log("Window offset by X: " + ::vid_to_string(::vid_configuration_.x_));
+	::vid_log("Window offset by Y: " + ::vid_to_string(::vid_configuration_.y_));
+	::vid_log("Window width: " + ::vid_to_string(::vid_configuration_.width_));
+	::vid_log("Window height: " + ::vid_to_string(::vid_configuration_.height_));
 
-	bstone::logger_->write("VID: Is UI stretched: " + ::vid_to_string(::vid_configuration_.is_ui_stretched_));
-	bstone::logger_->write("VID: Is widescreen: " + ::vid_to_string(::vid_configuration_.is_widescreen_));
+	::vid_log("Is UI stretched: " + ::vid_to_string(::vid_configuration_.is_ui_stretched_));
+	::vid_log("Is widescreen: " + ::vid_to_string(::vid_configuration_.is_widescreen_));
 
-	bstone::logger_->write("VID: [HW][DEBUG] Draw all: " + ::vid_to_string(::vid_configuration_.hw_dbg_draw_all_));
+	::vid_hw_dbg_log("Draw all: " + ::vid_to_string(::vid_configuration_.hw_dbg_draw_all_));
 
-	bstone::logger_->write("VID: Is downscale: " + ::vid_to_string(::vid_configuration_.is_downscale_));
-	bstone::logger_->write("VID: Downscale width: " + ::vid_to_string(::vid_configuration_.downscale_width_));
-	bstone::logger_->write("VID: Downscale height: " + ::vid_to_string(::vid_configuration_.downscale_height_));
-	bstone::logger_->write("VID: Downscale blit filter: " + ::vid_to_string(::vid_configuration_.hw_downscale_blit_filter_));
+	::vid_log("Is downscale: " + ::vid_to_string(::vid_configuration_.is_downscale_));
+	::vid_log("Downscale width: " + ::vid_to_string(::vid_configuration_.downscale_width_));
+	::vid_log("Downscale height: " + ::vid_to_string(::vid_configuration_.downscale_height_));
+	::vid_log("Downscale blit filter: " + ::vid_to_string(::vid_configuration_.hw_downscale_blit_filter_));
 
-	bstone::logger_->write("VID: [HW] 2D texture filter: " + ::vid_to_string(::vid_configuration_.hw_2d_texture_filter_));
+	::vid_hw_log("2D texture filter: " + ::vid_to_string(::vid_configuration_.hw_2d_texture_filter_));
 
-	bstone::logger_->write("VID: [HW] 3D texture image filter: " + ::vid_to_string(::vid_configuration_.hw_3d_texture_image_filter_));
-	bstone::logger_->write("VID: [HW] 3D texture mipmap filter: " + ::vid_to_string(::vid_configuration_.hw_3d_texture_mipmap_filter_));
+	::vid_hw_log("3D texture image filter: " + ::vid_to_string(::vid_configuration_.hw_3d_texture_image_filter_));
+	::vid_hw_log("3D texture mipmap filter: " + ::vid_to_string(::vid_configuration_.hw_3d_texture_mipmap_filter_));
 
-	bstone::logger_->write("VID: [HW] Texture anisotropy: " + ::vid_to_string(::vid_configuration_.hw_3d_texture_anisotropy_));
-	bstone::logger_->write("VID: [HW] Texture anisotropy value: " + ::vid_to_string(::vid_configuration_.hw_3d_texture_anisotropy_value_));
+	::vid_hw_log("Texture anisotropy: " + ::vid_to_string(::vid_configuration_.hw_3d_texture_anisotropy_));
+	::vid_hw_log("Texture anisotropy value: " + ::vid_to_string(::vid_configuration_.hw_3d_texture_anisotropy_value_));
 
-	bstone::logger_->write("VID: [HW] Anti-aliasing kind: " + ::vid_to_string(::vid_configuration_.hw_aa_kind_));
-	bstone::logger_->write("VID: [HW] Anti-aliasing value: " + ::vid_to_string(::vid_configuration_.hw_aa_value_));
+	::vid_hw_log("Anti-aliasing kind: " + ::vid_to_string(::vid_configuration_.hw_aa_kind_));
+	::vid_hw_log("Anti-aliasing value: " + ::vid_to_string(::vid_configuration_.hw_aa_value_));
 
-	bstone::logger_->write("VID: --------------------");
+	::vid_log("--------------------");
+}
+
+void vid_sw_log_sdl_error(
+	const std::string& message)
+{
+	auto error_message = std::string{};
+
+	error_message = "[VID] ";
+	error_message += message;
+	bstone::logger_->write_error(error_message);
+
+	error_message = "[VID] ";
+	error_message += ::SDL_GetError();
+	bstone::logger_->write_error(error_message);
 }
 
 void vid_common_initialize()
@@ -967,13 +1088,12 @@ void sw_initialize_ui_buffer()
 {
 	const auto area = ::vga_ref_width * ::vga_ref_height;
 
-	::vid_ui_buffer.resize(
-		area);
+	::vid_ui_buffer.resize(area);
 }
 
 bool sw_initialize_window()
 {
-	bstone::logger_->write("VID: Creating a window...");
+	::vid_log("Creating a window.");
 
 
 	auto window_x = *::vid_configuration_.x_;
@@ -1014,10 +1134,7 @@ bool sw_initialize_window()
 
 	if (!::sw_window)
 	{
-		::sw_error_message = "VID: Failed to create a window: ";
-		::sw_error_message += ::SDL_GetError();
-
-		bstone::logger_->write_error(::SDL_GetError());
+		::vid_sw_log_sdl_error("Failed to create a window.");
 
 		return false;
 	}
@@ -1027,7 +1144,8 @@ bool sw_initialize_window()
 
 bool sw_initialize_renderer()
 {
-	bstone::logger_->write("VID: Initializing a renderer...");
+	::vid_log();
+	::vid_log("Initializing renderer.");
 
 
 	bool is_succeed = true;
@@ -1035,7 +1153,7 @@ bool sw_initialize_renderer()
 
 	if (is_succeed)
 	{
-		bstone::logger_->write("VID: Available renderer drivers:");
+		::vid_log("Available renderer drivers:");
 
 		const auto driver_count = ::SDL_GetNumRenderDrivers();
 
@@ -1043,11 +1161,9 @@ bool sw_initialize_renderer()
 		{
 			SDL_RendererInfo info;
 
-			const auto sdl_result = ::SDL_GetRenderDriverInfo(
-				i,
-				&info);
+			const auto sdl_result = ::SDL_GetRenderDriverInfo(i, &info);
 
-			bstone::logger_->write(std::to_string(i + 1) + ". " + info.name);
+			::vid_log(std::to_string(i + 1) + ". " + info.name);
 		}
 	}
 
@@ -1057,27 +1173,23 @@ bool sw_initialize_renderer()
 
 	if (is_succeed)
 	{
-		const auto is_vsync_disabled = ::g_args.has_option(
-			"vid_no_vsync");
+		const auto is_vsync_disabled = ::g_args.has_option("vid_no_vsync");
 
 		if (is_vsync_disabled)
 		{
-			bstone::logger_->write(
-				"VID: Skipping VSync...");
+			::vid_log("Skipping VSync.");
 		}
 		else
 		{
 			renderer_flags = SDL_RENDERER_PRESENTVSYNC;
 
-			bstone::logger_->write(
-				"VID: Using VSync...");
+			::vid_log("Using VSync.");
 		}
 	}
 
 	if (is_succeed)
 	{
-		bstone::logger_->write(
-			"VID: Creating a renderer...");
+		::vid_log("Creating renderer.");
 
 		::sw_renderer = bstone::SdlRendererUPtr{::SDL_CreateRenderer(
 			::sw_window.get(),
@@ -1089,11 +1201,7 @@ bool sw_initialize_renderer()
 		{
 			is_succeed = false;
 
-			::sw_error_message = "VID: Failed to create a renderer: ";
-			::sw_error_message += ::SDL_GetError();
-
-			bstone::logger_->write_error(
-				::SDL_GetError());
+			::vid_sw_log_sdl_error("Failed to create a renderer.");
 		}
 	}
 
@@ -1102,8 +1210,7 @@ bool sw_initialize_renderer()
 
 	if (is_succeed)
 	{
-		bstone::logger_->write(
-			"VID: Quering renderer for info...");
+		::vid_log("Quering renderer for info.");
 
 		auto sdl_result = ::SDL_GetRendererInfo(
 			::sw_renderer.get(),
@@ -1113,11 +1220,7 @@ bool sw_initialize_renderer()
 		{
 			is_succeed = false;
 
-			::sw_error_message = "VID: Failed to query the renderer: ";
-			::sw_error_message += ::SDL_GetError();
-
-			bstone::logger_->write_error(
-				::SDL_GetError());
+			::vid_sw_log_sdl_error("Failed to query the renderer.");
 		}
 	}
 
@@ -1126,17 +1229,14 @@ bool sw_initialize_renderer()
 	{
 		if (renderer_driver)
 		{
-			if (::SDL_strcasecmp(
-				renderer_driver,
-				renderer_info.name) != 0)
+			if (::SDL_strcasecmp(renderer_driver, renderer_info.name) != 0)
 			{
-				bstone::logger_->write_warning(
-					"VID: Unexpected renderer is selected: \"" + std::string{renderer_info.name} + "\".");
+				::vid_log_warning("Unexpected renderer is selected: \"" + std::string{renderer_info.name} + "\".");
 			}
 		}
 		else
 		{
-			bstone::logger_->write("VID: Current renderer: \"" + std::string{renderer_info.name} + "\".");
+			::vid_log("Current renderer: \"" + std::string{renderer_info.name} + "\".");
 		}
 	}
 
@@ -1145,8 +1245,7 @@ bool sw_initialize_renderer()
 
 	if (is_succeed)
 	{
-		bstone::logger_->write(
-			"VID: Looking up for a texture pixel format...");
+		::vid_log("Looking up for a texture pixel format.");
 
 		const auto format_count = renderer_info.num_texture_formats;
 
@@ -1166,29 +1265,21 @@ bool sw_initialize_renderer()
 
 		if (pixel_format == SDL_PIXELFORMAT_UNKNOWN)
 		{
-			bstone::logger_->write_warning(
-				"Falling back to a predefined pixel format.");
+			::vid_log_warning("Falling back to a predefined pixel format.");
 
 			pixel_format = SDL_PIXELFORMAT_ARGB8888;
 		}
 
 
-		bstone::logger_->write(
-			"VID: Allocating a texture pixel format...");
+		::vid_log("Allocating a texture pixel format.");
 
-		::sw_texture_pixel_format = bstone::SdlPixelFormatUPtr{::SDL_AllocFormat(
-			pixel_format
-		)};
+		::sw_texture_pixel_format = bstone::SdlPixelFormatUPtr{::SDL_AllocFormat(pixel_format)};
 
 		if (!::sw_texture_pixel_format)
 		{
 			is_succeed = false;
 
-			::sw_error_message = "VID: Failed to allocate a texture pixel format: ";
-			::sw_error_message += ::SDL_GetError();
-
-			bstone::logger_->write_error(
-				::SDL_GetError());
+			::vid_sw_log_sdl_error("Failed to allocate a texture pixel format.");
 		}
 	}
 
@@ -1197,8 +1288,7 @@ bool sw_initialize_renderer()
 
 bool sw_initialize_screen_texture()
 {
-	bstone::logger_->write(
-		"VID: Creating a screen texture...");
+	::vid_log("Creating screen texture.");
 
 	::sw_screen_texture = bstone::SdlTextureUPtr{::SDL_CreateTexture(
 		::sw_renderer.get(),
@@ -1210,11 +1300,7 @@ bool sw_initialize_screen_texture()
 
 	if (!::sw_screen_texture)
 	{
-		::sw_error_message = "VID: Failed to create a screen texture: ";
-		::sw_error_message += ::SDL_GetError();
-
-		bstone::logger_->write(
-			::SDL_GetError());
+		::vid_sw_log_sdl_error("Failed to create a screen texture.");
 
 		return false;
 	}
@@ -1224,8 +1310,7 @@ bool sw_initialize_screen_texture()
 
 bool sw_initialize_ui_texture()
 {
-	bstone::logger_->write(
-		"VID: Creating an UI texture...");
+	::vid_log("Creating UI texture.");
 
 	::sw_ui_texture = bstone::SdlTextureUPtr{::SDL_CreateTexture(
 		::sw_renderer.get(),
@@ -1237,11 +1322,7 @@ bool sw_initialize_ui_texture()
 
 	if (!::sw_ui_texture)
 	{
-		::sw_error_message = "VID: Failed to create an UI texture: ";
-		::sw_error_message += ::SDL_GetError();
-
-		bstone::logger_->write(
-			::SDL_GetError());
+		::vid_sw_log_sdl_error("Failed to create an UI texture.");
 
 		return false;
 	}
@@ -1251,8 +1332,8 @@ bool sw_initialize_ui_texture()
 
 bool sw_initialize_textures()
 {
-	bstone::logger_->write(
-		"VID: Initializing textures...");
+	::vid_log();
+	::vid_log("Initializing textures.");
 
 
 	auto is_succeed = true;
@@ -1297,8 +1378,7 @@ void sw_update_viewport()
 
 	if (sdl_result != 0)
 	{
-		bstone::logger_->write_error(
-			"VID: Failed to update a viewport.");
+		::vid_sw_log_sdl_error("Failed to update a viewport.");
 	}
 }
 
@@ -1492,8 +1572,9 @@ void sw_calculate_dimensions()
 
 void sw_initialize_video()
 {
-	bstone::logger_->write("VID: Software video system");
-	bstone::logger_->write("VID: ---------------------");
+	::vid_log();
+	::vid_log("Software video system");
+	::vid_log("---------------------");
 
 	::vid_common_initialize();
 	::sw_calculate_dimensions();
@@ -1528,16 +1609,12 @@ void sw_initialize_video()
 
 	if (is_succeed)
 	{
-		::SDL_ShowWindow(
-			::sw_window.get());
-
-		::in_grab_mouse(
-			true);
+		::SDL_ShowWindow(::sw_window.get());
+		::in_grab_mouse(true);
 	}
 	else
 	{
-		::Quit(
-			::sw_error_message);
+		::Quit(::sw_error_message);
 	}
 }
 
@@ -1592,11 +1669,10 @@ void sw_refresh_screen()
 
 		if (sdl_result != 0)
 		{
-			::Quit("VID: Failed to lock a screen texture: " + std::string{::SDL_GetError()});
+			::vid_quit_with_sdl_error("Failed to lock a screen texture.");
 		}
 
-		auto dst_pixels = static_cast<std::uint32_t*>(
-			dst_raw_pixels);
+		auto dst_pixels = static_cast<std::uint32_t*>(dst_raw_pixels);
 
 		for (int y = 0; y < ::vga_height; ++y)
 		{
@@ -1609,8 +1685,7 @@ void sw_refresh_screen()
 			}
 		}
 
-		::SDL_UnlockTexture(
-			::sw_screen_texture.get());
+		::SDL_UnlockTexture(::sw_screen_texture.get());
 	}
 
 
@@ -1628,13 +1703,12 @@ void sw_refresh_screen()
 
 		if (sdl_result != 0)
 		{
-			::Quit("VID: Failed to lock an UI texture: " + std::string{::SDL_GetError()});
+			::vid_quit_with_sdl_error("Failed to lock an UI texture.");
 		}
 
 		const auto alpha_0_mask = ~sw_texture_pixel_format->Amask;
 
-		auto dst_pixels = static_cast<std::uint32_t*>(
-			dst_raw_pixels);
+		auto dst_pixels = static_cast<std::uint32_t*>(dst_raw_pixels);
 
 		for (int y = 0; y < ::vga_ref_height; ++y)
 		{
@@ -1657,19 +1731,17 @@ void sw_refresh_screen()
 			}
 		}
 
-		::SDL_UnlockTexture(
-			::sw_ui_texture.get());
+		::SDL_UnlockTexture(::sw_ui_texture.get());
 	}
 
 
 	// Clear all
 	//
-	sdl_result = ::SDL_RenderClear(
-		sw_renderer.get());
+	sdl_result = ::SDL_RenderClear(sw_renderer.get());
 
 	if (sdl_result != 0)
 	{
-		::Quit("VID: Failed to clear a render target: " + std::string{::SDL_GetError()});
+		::vid_quit_with_sdl_error("Failed to clear a render target.");
 	}
 
 
@@ -1685,7 +1757,7 @@ void sw_refresh_screen()
 
 		if (sdl_result != 0)
 		{
-			::Quit("VID: Failed to copy a screen texture on a render target: " + std::string{::SDL_GetError()});
+			::vid_quit_with_sdl_error("Failed to copy a screen texture on a render target.");
 		}
 	}
 
@@ -1703,20 +1775,30 @@ void sw_refresh_screen()
 			fill_color = ::sw_filler_color;
 		}
 
-		::SDL_SetRenderDrawColor(
+		sdl_result = ::SDL_SetRenderDrawColor(
 			sw_renderer.get(),
 			fill_color.r,
 			fill_color.g,
 			fill_color.b,
 			0xFF);
 
+		if (sdl_result != 0)
+		{
+			::vid_quit_with_sdl_error("Failed to set draw color.");
+		}
+
 		if (is_hud)
 		{
-			::SDL_RenderFillRects(sw_renderer.get(), ::sw_filler_hud_rects.data(), 4);
+			sdl_result = ::SDL_RenderFillRects(sw_renderer.get(), ::sw_filler_hud_rects.data(), 4);
 		}
 		else
 		{
-			::SDL_RenderFillRects(sw_renderer.get(), ::sw_filler_ui_rects.data(), 2);
+			sdl_result = ::SDL_RenderFillRects(sw_renderer.get(), ::sw_filler_ui_rects.data(), 2);
+		}
+
+		if (sdl_result != 0)
+		{
+			::vid_quit_with_sdl_error("Failed to draw fillers.");
 		}
 	}
 
@@ -1731,7 +1813,7 @@ void sw_refresh_screen()
 
 		if (sdl_result != 0)
 		{
-			::Quit("VID: Failed to set blend mode for an UI texture: " + std::string{::SDL_GetError()});
+			::vid_quit_with_sdl_error("Failed to set blend mode for an UI texture.");
 		}
 	}
 
@@ -1786,7 +1868,7 @@ void sw_refresh_screen()
 
 	if (sdl_result != 0)
 	{
-		::Quit("VID: Failed to copy an UI texture on a render target: " + std::string{::SDL_GetError()});
+		::vid_quit_with_sdl_error("Failed to copy an UI texture on render target.");
 	}
 
 	if (::vid_is_hud)
@@ -1797,20 +1879,14 @@ void sw_refresh_screen()
 
 		if (sdl_result != 0)
 		{
-			::Quit("VID: Failed to set blend mode for an UI texture: " + std::string{::SDL_GetError()});
+			::vid_quit_with_sdl_error("Failed to set blend mode for an UI texture.");
 		}
 	}
 
 
 	// Present
 	//
-	::SDL_RenderPresent(
-		sw_renderer.get());
-
-	if (sdl_result != 0)
-	{
-		::Quit("VID: Failed to present a render target: " + std::string{::SDL_GetError()});
-	}
+	::SDL_RenderPresent(sw_renderer.get());
 }
 
 void sw_check_vsync()
@@ -2434,6 +2510,24 @@ bool hw_3d_player_weapon_initialize();
 void hw_3d_player_weapon_model_matrix_update();
 
 
+void vid_log_hw_renderer_manager_error(
+	const std::string& message)
+{
+	::vid_log_error(message, ::hw_renderer_manager_->get_error_message());
+}
+
+void vid_log_hw_renderer_error(
+	const std::string& message)
+{
+	::vid_log_error(message, ::hw_renderer_->get_error_message());
+}
+
+void vid_log_hw_texture_manager_error(
+	const std::string& message)
+{
+	::vid_log_error(message, ::hw_texture_manager_->get_error_message());
+}
+
 bstone::RendererMipmapMode hw_config_texture_mipmap_filter_to_renderer(
 	const bstone::RendererFilterKind filter_kind)
 {
@@ -2519,6 +2613,18 @@ HwVertexColor hw_vga_color_to_r8g8b8a8(
 		static_cast<std::uint8_t>((255 * vga_blue) / 63),
 		255
 	};
+}
+
+void hw_sampler_destroy(
+	bstone::RendererSamplerPtr& sampler)
+{
+	if (sampler == nullptr)
+	{
+		return;
+	}
+
+	::hw_renderer_->sampler_destroy(sampler);
+	sampler = nullptr;
 }
 
 void hw_index_buffer_destroy(
@@ -2761,7 +2867,8 @@ void hw_ui_buffer_initialize()
 
 bool hw_renderer_initialize()
 {
-	bstone::logger_->write("VID: Initializing HW renderer...");
+	::vid_log();
+	::vid_log("Initializing renderer.");
 
 
 	const auto title = ::vid_get_window_title();
@@ -2803,7 +2910,7 @@ bool hw_renderer_initialize()
 
 	if (!hw_renderer_)
 	{
-		bstone::logger_->write_error("VID: Failed to initialize HW renderer.");
+		::vid_log_hw_renderer_error("Failed to initialize renderer.");
 
 		return false;
 	}
@@ -2822,6 +2929,8 @@ bool hw_2d_ui_ib_create()
 
 	if (!::hw_2d_ui_ib_)
 	{
+		::vid_log_hw_renderer_error("Failed to create UI index buffer.");
+
 		return false;
 	}
 
@@ -2862,6 +2971,8 @@ bool hw_2d_ui_vi_create()
 		::hw_2d_ui_vb_,
 		::hw_2d_ui_vi_))
 	{
+		::vid_log_hw_renderer_error("Failed to create UI vertex input.");
+
 		return false;
 	}
 
@@ -2943,6 +3054,8 @@ bool hw_2d_ui_vb_create()
 
 	if (!::hw_2d_ui_vb_)
 	{
+		::vid_log_hw_renderer_error("Failed to create UI vertex buffer.");
+
 		return false;
 	}
 
@@ -2970,6 +3083,8 @@ bool hw_2d_fillers_ib_create()
 
 	if (!::hw_2d_fillers_ib_)
 	{
+		::vid_log_hw_renderer_error("Failed to create fillers index buffer.");
+
 		return false;
 	}
 
@@ -3028,6 +3143,8 @@ bool hw_2d_fillers_vb_create()
 
 	if (!::hw_2d_fillers_vb_)
 	{
+		::vid_log_hw_renderer_error("Failed to create fillers vertex buffer.");
+
 		return false;
 	}
 
@@ -3379,11 +3496,18 @@ void hw_2d_fillers_vi_destroy()
 
 bool hw_2d_fillers_vi_create()
 {
-	return ::hw_vertex_input_create<HwVertex>(
+	const auto result = ::hw_vertex_input_create<HwVertex>(
 		::hw_2d_fillers_ib_,
 		::hw_2d_fillers_vb_,
 		::hw_2d_fillers_vi_
 	);
+
+	if (!result)
+	{
+		::vid_log_hw_renderer_error("Failed to create fillers vertex input.");
+	}
+
+	return result;
 }
 
 void hw_2d_texture_1x1_black_destroy()
@@ -3396,6 +3520,8 @@ bool hw_2d_texture_1x1_black_create()
 {
 	if (!::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::black))
 	{
+		::vid_log_hw_texture_manager_error("Failed to create 1x1 black texture.");
+
 		return false;
 	}
 
@@ -3403,6 +3529,8 @@ bool hw_2d_texture_1x1_black_create()
 
 	if (::hw_2d_black_t2d_1x1_ == nullptr)
 	{
+		::vid_log_hw_texture_manager_error("Failed to get 1x1 black texture.");
+
 		return false;
 	}
 
@@ -3419,6 +3547,8 @@ bool hw_2d_texture_1x1_white_create()
 {
 	if (!::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::white))
 	{
+		::vid_log_hw_texture_manager_error("Failed to create 1x1 white texture.");
+
 		return false;
 	}
 
@@ -3426,6 +3556,8 @@ bool hw_2d_texture_1x1_white_create()
 
 	if (::hw_2d_white_t2d_1x1_ == nullptr)
 	{
+		::vid_log_hw_texture_manager_error("Failed to get 1x1 white texture.");
+
 		return false;
 	}
 
@@ -3442,6 +3574,8 @@ bool hw_2d_texture_1x1_fade_create()
 {
 	if (!::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::fade_2d))
 	{
+		::vid_log_hw_texture_manager_error("Failed to create 1x1 2d fade texture.");
+
 		return false;
 	}
 
@@ -3449,6 +3583,8 @@ bool hw_2d_texture_1x1_fade_create()
 
 	if (::hw_2d_fade_t2d_ == nullptr)
 	{
+		::vid_log_hw_texture_manager_error("Failed to get 1x1 2d fade texture.");
+
 		return false;
 	}
 
@@ -3470,10 +3606,19 @@ bool hw_2d_ui_texture_create()
 {
 	if (!::hw_texture_manager_->ui_create(::vid_ui_buffer.data(), ::vid_mask_buffer.data(), &::hw_palette_))
 	{
+		::vid_log_hw_texture_manager_error("Failed to create UI texture.");
+
 		return false;
 	}
 
 	::hw_2d_ui_t2d_ = ::hw_texture_manager_->ui_get();
+
+	if (::hw_2d_ui_t2d_ == nullptr)
+	{
+		::vid_log_hw_texture_manager_error("Failed to get UI texture.");
+
+		return false;
+	}
 
 	return true;
 }
@@ -3497,6 +3642,9 @@ void hw_2d_uninitialize()
 
 bool hw_2d_initialize()
 {
+	::vid_log();
+	::vid_log("Initializing 2D stuff.");
+
 	if (!::hw_2d_ui_ib_create())
 	{
 		return false;
@@ -3564,6 +3712,8 @@ bool hw_3d_flooring_ib_create()
 
 		if (!::hw_3d_flooring_ib_)
 		{
+			::vid_log_hw_renderer_error("Failed to create flooring index buffer.");
+
 			return false;
 		}
 	}
@@ -3602,6 +3752,8 @@ bool hw_3d_flooring_vb_create()
 
 		if (!::hw_3d_flooring_vb_)
 		{
+			::vid_log_hw_renderer_error("Failed to create flooring vertex buffer.");
+
 			return false;
 		}
 	}
@@ -3661,11 +3813,15 @@ void hw_3d_flooring_vi_destroy()
 
 bool hw_3d_flooring_vi_create()
 {
-	if (!::hw_vertex_input_create<Hw3dFlooringVertex>(
+	const auto result = ::hw_vertex_input_create<Hw3dFlooringVertex>(
 		::hw_3d_flooring_ib_,
 		::hw_3d_flooring_vb_,
-		::hw_3d_flooring_vi_))
+		::hw_3d_flooring_vi_);
+
+	if (!result)
 	{
+		::vid_log_hw_renderer_error("Failed to create flooring vertex input.");
+
 		return false;
 	}
 
@@ -3709,6 +3865,9 @@ void hw_3d_flooring_uninitialize()
 
 bool hw_3d_flooring_initialize()
 {
+	::vid_log();
+	::vid_log("Initializing flooring.");
+
 	if (!::hw_3d_flooring_ib_create())
 	{
 		return false;
@@ -3746,6 +3905,8 @@ bool hw_3d_ceiling_ib_create()
 
 		if (!::hw_3d_ceiling_ib_)
 		{
+			::vid_log_hw_renderer_error("Failed to create ceiling index buffer.");
+
 			return false;
 		}
 	}
@@ -3784,6 +3945,8 @@ bool hw_3d_ceiling_vb_create()
 
 		if (!::hw_3d_ceiling_vb_)
 		{
+			::vid_log_hw_renderer_error("Failed to create ceiling vertex buffer.");
+
 			return false;
 		}
 	}
@@ -3841,10 +4004,17 @@ void hw_3d_ceiling_vi_destroy()
 
 bool hw_3d_ceiling_vi_create()
 {
-	return ::hw_vertex_input_create<Hw3dCeilingVertex>(
+	const auto result = ::hw_vertex_input_create<Hw3dCeilingVertex>(
 		::hw_3d_ceiling_ib_,
 		::hw_3d_ceiling_vb_,
 		::hw_3d_ceiling_vi_);
+
+	if (!result)
+	{
+		::vid_log_hw_renderer_error("Failed to create ceiling vertex input.");
+	}
+
+	return result;
 }
 
 void hw_3d_ceiling_texture_2d_solid_destroy()
@@ -3857,6 +4027,8 @@ bool hw_3d_ceiling_texture_2d_solid_create()
 {
 	if (!::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::ceiling))
 	{
+		::vid_log_hw_texture_manager_error("Failed to create 1x1 solid ceiling texture.");
+
 		return false;
 	}
 
@@ -3864,6 +4036,8 @@ bool hw_3d_ceiling_texture_2d_solid_create()
 
 	if (::hw_3d_ceiling_solid_t2d_ == nullptr)
 	{
+		::vid_log_hw_texture_manager_error("Failed to get 1x1 solid ceiling texture.");
+
 		return false;
 	}
 
@@ -3872,6 +4046,9 @@ bool hw_3d_ceiling_texture_2d_solid_create()
 
 bool hw_3d_ceiling_initialize()
 {
+	::vid_log();
+	::vid_log("Initializing ceiling.");
+
 	if (!::hw_3d_ceiling_ib_create())
 	{
 		return false;
@@ -3915,6 +4092,8 @@ bool hw_3d_walls_ib_create()
 
 	if (!::hw_3d_wall_sides_ib_)
 	{
+		::vid_log_hw_renderer_error("Failed to create walls index buffer.");
+
 		return false;
 	}
 
@@ -3926,12 +4105,7 @@ bool hw_3d_walls_ib_create()
 
 void hw_3d_walls_ib_destroy()
 {
-	if (::hw_3d_wall_sides_ib_)
-	{
-		::hw_renderer_->index_buffer_destroy(::hw_3d_wall_sides_ib_);
-		::hw_3d_wall_sides_ib_ = nullptr;
-	}
-
+	::hw_index_buffer_destroy(::hw_3d_wall_sides_ib_);
 	::hw_3d_wall_sides_ibi_.clear();
 }
 
@@ -3943,6 +4117,8 @@ bool hw_3d_walls_vb_create()
 
 	if (!::hw_3d_wall_sides_vb_)
 	{
+		::vid_log_hw_renderer_error("Failed to create walls vertex buffer.");
+
 		return false;
 	}
 
@@ -3956,11 +4132,15 @@ void hw_3d_walls_vi_destroy()
 
 bool hw_3d_walls_vi_create()
 {
-	if (!::hw_vertex_input_create<Hw3dWallVertex>(
+	const auto result = ::hw_vertex_input_create<Hw3dWallVertex>(
 		::hw_3d_wall_sides_ib_,
 		::hw_3d_wall_sides_vb_,
-		::hw_3d_wall_sides_vi_))
+		::hw_3d_wall_sides_vi_);
+
+	if (!result)
 	{
+		::vid_log_hw_renderer_error("Failed to create walls vertex input.");
+
 		return false;
 	}
 
@@ -3969,15 +4149,14 @@ bool hw_3d_walls_vi_create()
 
 void hw_3d_walls_vb_destroy()
 {
-	if (::hw_3d_wall_sides_vb_)
-	{
-		::hw_renderer_->vertex_buffer_destroy(::hw_3d_wall_sides_vb_);
-		::hw_3d_wall_sides_vb_ = nullptr;
-	}
+	::hw_vertex_buffer_destroy(::hw_3d_wall_sides_vb_);
 }
 
 bool hw_3d_walls_initialize()
 {
+	::vid_log();
+	::vid_log("Initializing walls.");
+
 	::hw_3d_xy_wall_map_.reserve(::hw_3d_wall_count_);
 
 	::hw_3d_walls_to_render_.clear();
@@ -4036,6 +4215,8 @@ bool hw_3d_pushwalls_ib_create()
 
 	if (!::hw_3d_pushwall_sides_ib_)
 	{
+		::vid_log_hw_renderer_error("Failed to create pushwalls index buffer.");
+
 		return false;
 	}
 
@@ -4049,11 +4230,7 @@ void hw_3d_pushwalls_ibi_destroy()
 
 void hw_3d_pushwalls_ib_destroy()
 {
-	if (::hw_3d_pushwall_sides_ib_)
-	{
-		::hw_renderer_->index_buffer_destroy(::hw_3d_pushwall_sides_ib_);
-		::hw_3d_pushwall_sides_ib_ = nullptr;
-	}
+	::hw_index_buffer_destroy(::hw_3d_pushwall_sides_ib_);
 }
 
 bool hw_3d_pushwalls_vb_create()
@@ -4064,6 +4241,8 @@ bool hw_3d_pushwalls_vb_create()
 
 	if (!::hw_3d_pushwall_sides_vb_)
 	{
+		::vid_log_hw_renderer_error("Failed to create pushwalls vertex buffer.");
+
 		return false;
 	}
 
@@ -4077,11 +4256,15 @@ void hw_3d_pushwalls_vi_destroy()
 
 bool hw_3d_pushwalls_vi_create()
 {
-	if (!::hw_vertex_input_create<Hw3dPushwallVertex>(
+	const auto result = ::hw_vertex_input_create<Hw3dPushwallVertex>(
 		::hw_3d_pushwall_sides_ib_,
 		::hw_3d_pushwall_sides_vb_,
-		::hw_3d_pushwall_sides_vi_))
+		::hw_3d_pushwall_sides_vi_);
+
+	if (!result)
 	{
+		::vid_log_hw_renderer_error("Failed to create pushwalls vertex input.");
+
 		return false;
 	}
 
@@ -4090,15 +4273,14 @@ bool hw_3d_pushwalls_vi_create()
 
 void hw_3d_pushwalls_vb_destroy()
 {
-	if (::hw_3d_pushwall_sides_vb_)
-	{
-		::hw_renderer_->vertex_buffer_destroy(::hw_3d_pushwall_sides_vb_);
-		::hw_3d_pushwall_sides_vb_ = nullptr;
-	}
+	::hw_vertex_buffer_destroy(::hw_3d_pushwall_sides_vb_);
 }
 
 bool hw_3d_pushwalls_initialize()
 {
+	::vid_log();
+	::vid_log("Initializing pushwalls.");
+
 	::hw_3d_xy_pushwall_map_.reserve(::hw_3d_pushwall_count_);
 
 	::hw_3d_pushwall_to_wall_vbi_.clear();
@@ -4168,6 +4350,8 @@ bool hw_3d_door_sides_ib_create()
 
 	if (!::hw_3d_door_sides_ib_)
 	{
+		::vid_log_hw_renderer_error("Failed to create doors index buffer.");
+
 		return false;
 	}
 
@@ -4181,11 +4365,7 @@ void hw_3d_door_sides_ibi_destroy()
 
 void hw_3d_door_sides_ib_destroy()
 {
-	if (::hw_3d_door_sides_ib_)
-	{
-		::hw_renderer_->index_buffer_destroy(::hw_3d_door_sides_ib_);
-		::hw_3d_door_sides_ib_ = nullptr;
-	}
+	::hw_index_buffer_destroy(::hw_3d_door_sides_ib_);
 
 	::hw_3d_door_sides_ibi_.clear();
 }
@@ -4198,6 +4378,8 @@ bool hw_3d_door_sides_vb_create()
 
 	if (!::hw_3d_door_sides_vb_)
 	{
+		::vid_log_hw_renderer_error("Failed to create doors vertex buffer.");
+
 		return false;
 	}
 
@@ -4206,11 +4388,7 @@ bool hw_3d_door_sides_vb_create()
 
 void hw_3d_door_sides_vb_destroy()
 {
-	if (::hw_3d_door_sides_vb_)
-	{
-		::hw_renderer_->vertex_buffer_destroy(::hw_3d_door_sides_vb_);
-		::hw_3d_door_sides_vb_ = nullptr;
-	}
+	::hw_vertex_buffer_destroy(::hw_3d_door_sides_vb_);
 }
 
 void hw_3d_door_sides_vi_destroy()
@@ -4220,11 +4398,15 @@ void hw_3d_door_sides_vi_destroy()
 
 bool hw_3d_door_sides_vi_create()
 {
-	if (!::hw_vertex_input_create<Hw3dDoorVertex>(
+	const auto result = ::hw_vertex_input_create<Hw3dDoorVertex>(
 		::hw_3d_door_sides_ib_,
 		::hw_3d_door_sides_vb_,
-		::hw_3d_door_sides_vi_))
+		::hw_3d_door_sides_vi_);
+
+	if (!result)
 	{
+		::vid_log_hw_renderer_error("Failed to create doors vertex input.");
+
 		return false;
 	}
 
@@ -4233,6 +4415,9 @@ bool hw_3d_door_sides_vi_create()
 
 bool hw_3d_door_sides_initialize()
 {
+	::vid_log();
+	::vid_log("Initializing doors.");
+
 	::hw_3d_xy_door_map_.reserve(::hw_3d_door_count_);
 
 	const auto max_draw_item_count = ::hw_3d_door_count_ * hw_3d_halves_per_door;
@@ -4525,6 +4710,8 @@ bool hw_2d_sampler_ui_create()
 
 	if (::hw_2d_ui_s_ == nullptr)
 	{
+		::vid_log_hw_renderer_error("Failed to create UI sampler.");
+
 		return false;
 	}
 
@@ -4564,11 +4751,7 @@ void hw_3d_sampler_sprite_update()
 
 void hw_3d_sampler_sprite_destroy()
 {
-	if (::hw_3d_sprite_s_)
-	{
-		::hw_renderer_->sampler_destroy(::hw_3d_sprite_s_);
-		::hw_3d_sprite_s_ = nullptr;
-	}
+	::hw_sampler_destroy(::hw_3d_sprite_s_);
 }
 
 bool hw_3d_sampler_sprite_create()
@@ -4577,6 +4760,13 @@ bool hw_3d_sampler_sprite_create()
 	param.state_ = ::hw_3d_sprite_s_state_;
 
 	::hw_3d_sprite_s_ = ::hw_renderer_->sampler_create(param);
+
+	if (::hw_3d_sprite_s_ == nullptr)
+	{
+		::vid_log_hw_renderer_error("Failed to create sprite sampler.");
+
+		return false;
+	}
 
 	return true;
 }
@@ -4614,11 +4804,7 @@ void hw_3d_sampler_wall_update()
 
 void hw_3d_sampler_wall_destroy()
 {
-	if (::hw_3d_wall_s_)
-	{
-		::hw_renderer_->sampler_destroy(::hw_3d_wall_s_);
-		::hw_3d_wall_s_ = nullptr;
-	}
+	::hw_sampler_destroy(::hw_3d_wall_s_);
 }
 
 bool hw_3d_sampler_wall_create()
@@ -4630,6 +4816,8 @@ bool hw_3d_sampler_wall_create()
 
 	if (::hw_3d_wall_s_ == nullptr)
 	{
+		::vid_log_hw_renderer_error("Failed to create wall sampler.");
+
 		return false;
 	}
 
@@ -4699,6 +4887,8 @@ bool hw_3d_player_weapon_ib_create()
 
 	if (!::hw_3d_player_weapon_ib_)
 	{
+		::vid_log_hw_renderer_error("Failed to create weapon index buffer.");
+
 		return false;
 	}
 
@@ -4734,6 +4924,8 @@ bool hw_3d_player_weapon_vb_create()
 
 	if (!::hw_3d_player_weapon_vb_)
 	{
+		::vid_log_hw_renderer_error("Failed to create weapon vertex buffer.");
+
 		return false;
 	}
 
@@ -4747,11 +4939,15 @@ void hw_3d_player_weapon_vi_destroy()
 
 bool hw_3d_player_weapon_vi_create()
 {
-	if (!::hw_vertex_input_create<Hw3dPlayerWeaponVertex>(
+	const auto result = ::hw_vertex_input_create<Hw3dPlayerWeaponVertex>(
 		::hw_3d_player_weapon_ib_,
 		::hw_3d_player_weapon_vb_,
-		::hw_3d_player_weapon_vi_))
+		::hw_3d_player_weapon_vi_);
+
+	if (!result)
 	{
+		::vid_log_hw_renderer_error("Failed to create weapon vertex input.");
+
 		return false;
 	}
 
@@ -4846,6 +5042,8 @@ bool hw_3d_player_weapon_sampler_create()
 
 	if (!::hw_3d_player_weapon_s_)
 	{
+		::vid_log_hw_renderer_error("Failed to create weapon sampler.");
+
 		return false;
 	}
 
@@ -4862,6 +5060,9 @@ void hw_3d_player_weapon_uninitialize()
 
 bool hw_3d_player_weapon_initialize()
 {
+	::vid_log();
+	::vid_log("Initializing player's weapon.");
+
 	if (!::hw_3d_player_weapon_ib_create())
 	{
 		return false;
@@ -4894,11 +5095,7 @@ bool hw_3d_player_weapon_initialize()
 
 void hw_fade_sampler_destroy()
 {
-	if (::hw_fade_s_)
-	{
-		::hw_renderer_->sampler_destroy(::hw_fade_s_);
-		::hw_fade_s_ = nullptr;
-	}
+	::hw_sampler_destroy(::hw_fade_s_);
 }
 
 bool hw_fade_sampler_create()
@@ -4915,6 +5112,8 @@ bool hw_fade_sampler_create()
 
 	if (!::hw_fade_s_)
 	{
+		::vid_log_hw_renderer_error("Failed to create fade sampler.");
+
 		return false;
 	}
 
@@ -4938,6 +5137,9 @@ void hw_samplers_uninitialize()
 
 bool hw_samplers_initialize()
 {
+	::vid_log();
+	::vid_log("Initializing samplers.");
+
 	if (!::hw_2d_sampler_ui_create())
 	{
 		return false;
@@ -4999,6 +5201,8 @@ bool hw_command_buffer_2d_create()
 
 	if (!::hw_2d_command_buffer_)
 	{
+		::vid_log_hw_renderer_error("Failed to create 2D command buffer.");
+
 		return false;
 	}
 
@@ -5026,6 +5230,8 @@ bool hw_command_buffer_3d_create()
 
 	if (!::hw_3d_command_buffer_)
 	{
+		::vid_log_hw_renderer_error("Failed to create 3D command buffer.");
+
 		return false;
 	}
 
@@ -5041,6 +5247,9 @@ void hw_command_manager_uninitialize()
 
 bool hw_command_manager_initialize()
 {
+	::vid_log();
+	::vid_log("Initializing command managers.");
+
 	if (!::hw_command_manager_create())
 	{
 		return false;
@@ -5070,6 +5279,8 @@ bool hw_3d_fade_ib_create()
 
 	if (!::hw_3d_fade_ib_)
 	{
+		::vid_log_hw_renderer_error("Failed to 3D fade index buffer.");
+
 		return false;
 	}
 
@@ -5087,6 +5298,8 @@ bool hw_3d_fade_vb_create()
 
 	if (!::hw_3d_fade_vb_)
 	{
+		::vid_log_hw_renderer_error("Failed to 3D fade vertex buffer.");
+
 		return false;
 	}
 
@@ -5100,11 +5313,15 @@ void hw_3d_fade_vi_destroy()
 
 bool hw_3d_fade_vi_create()
 {
-	if (!::hw_vertex_input_create<Hw3dFadeVertex>(
+	const auto result = ::hw_vertex_input_create<Hw3dFadeVertex>(
 		::hw_3d_fade_ib_,
 		::hw_3d_fade_vb_,
-		::hw_3d_fade_vi_))
+		::hw_3d_fade_vi_);
+
+	if (!result)
 	{
+		::vid_log_hw_renderer_error("Failed to 3D fade vertex input.");
+
 		return false;
 	}
 
@@ -5185,6 +5402,8 @@ bool hw_3d_fade_texture_2d_create()
 {
 	if (!::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::fade_3d))
 	{
+		::vid_log_hw_renderer_error("Failed to create 1x1 3D fade texture.");
+
 		return false;
 	}
 
@@ -5192,6 +5411,8 @@ bool hw_3d_fade_texture_2d_create()
 
 	if (::hw_3d_fade_t2d_ == nullptr)
 	{
+		::vid_log_hw_renderer_error("Failed to get 1x1 3D fade texture.");
+
 		return false;
 	}
 
@@ -5226,6 +5447,8 @@ bool hw_texture_manager_create()
 
 	if (!::hw_texture_manager_->is_initialized())
 	{
+		::vid_log_hw_texture_manager_error("Failed to initialize texture manager.");
+
 		return false;
 	}
 
@@ -5234,6 +5457,9 @@ bool hw_texture_manager_create()
 
 bool hw_3d_fade_initialize()
 {
+	::vid_log();
+	::vid_log("Initializing 3D fade.");
+
 	if (!::hw_3d_fade_ib_create())
 	{
 		return false;
@@ -6769,7 +6995,7 @@ void hw_downscale_update()
 
 	if (!downscale_set_result)
 	{
-		::Quit("Failed to set downsample parameters. " + ::hw_renderer_->get_error_message());
+		::vid_quit("Failed to set downsample parameters. " + ::hw_renderer_->get_error_message());
 
 		return;
 	}
@@ -7318,7 +7544,7 @@ void hw_screen_refresh()
 
 		if (!::hw_device_reset())
 		{
-			::Quit("Failed to reset a lost device.");
+			::vid_quit("Failed to reset a lost device.");
 			return;
 		}
 	}
@@ -7332,7 +7558,7 @@ void hw_screen_refresh()
 
 		if (!::hw_device_reset())
 		{
-			::Quit("Failed to reset a lost device.");
+			::vid_quit("Failed to reset a lost device.");
 			return;
 		}
 	}
@@ -7395,7 +7621,7 @@ void hw_precache_flooring()
 {
 	if (!::hw_texture_manager_->wall_cache(::FloorTile))
 	{
-		::Quit("Failed to cache a floor #" + std::to_string(::FloorTile) + ".");
+		::vid_quit("Failed to cache a floor #" + std::to_string(::FloorTile) + ".");
 	}
 
 	::hw_3d_flooring_textured_t2d_ = ::hw_texture_manager_->wall_get(::FloorTile);
@@ -7416,7 +7642,7 @@ void hw_precache_ceiling()
 {
 	if (!::hw_texture_manager_->wall_cache(::CeilingTile))
 	{
-		::Quit("Failed to cache a ceiling #" + std::to_string(::CeilingTile) + ".");
+		::vid_quit("Failed to cache a ceiling #" + std::to_string(::CeilingTile) + ".");
 	}
 
 	::hw_3d_ceiling_textured_t2d_ = ::hw_texture_manager_->wall_get(::CeilingTile);
@@ -7539,7 +7765,7 @@ void hw_precache_wall(
 {
 	if (!::hw_texture_manager_->wall_cache(wall_id))
 	{
-		::Quit("Failed to cache a wall #" + std::to_string(wall_id) + ".");
+		::vid_quit("Failed to cache a wall #" + std::to_string(wall_id) + ".");
 	}
 }
 
@@ -7578,7 +7804,7 @@ void hw_precache_door_track(
 
 	if (bs_door.tilex != x || bs_door.tiley != y)
 	{
-		::Quit("Expected a door at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+		::vid_quit("Expected a door at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 	}
 
 	const auto wall_id = ::door_get_track_texture_id(bs_door);
@@ -7650,7 +7876,7 @@ void hw_precache_door_side(
 {
 	if (!::hw_texture_manager_->wall_cache(page_number))
 	{
-		::Quit("Failed to cache a door side #" + std::to_string(page_number) + ".");
+		::vid_quit("Failed to cache a door side #" + std::to_string(page_number) + ".");
 	}
 }
 
@@ -7733,7 +7959,7 @@ int hw_tile_get_door_track_wall_id(
 		break;
 
 	default:
-		::Quit("Invalid direction.");
+		::vid_quit("Invalid direction.");
 	}
 
 	if (bs_door_x < 0 || bs_door_x >= MAPSIZE || bs_door_y < 0 || bs_door_y >= MAPSIZE)
@@ -7891,7 +8117,7 @@ void hw_3d_map_wall_side(
 		break;
 
 	default:
-		::Quit("Invalid direction.");
+		::vid_quit("Invalid direction.");
 	}
 
 	auto is_door_track = false;
@@ -8010,7 +8236,7 @@ void hw_3d_map_xy_to_xwall(
 		break;
 
 	default:
-		::Quit("Invalid kind.");
+		::vid_quit("Invalid wall kind.");
 		break;
 	}
 
@@ -8173,14 +8399,14 @@ void hw_3d_walls_build()
 
 	if (index_count > ::hw_3d_max_wall_sides_indices)
 	{
-		::Quit("Too many indices.");
+		::vid_quit("Too many wall indices.");
 	}
 
 	// Create index an vertex buffers.
 	//
 	if (!::hw_3d_walls_initialize())
 	{
-		::Quit("Failed to initialize walls.");
+		::vid_quit("Failed to initialize walls.");
 	}
 
 	// Build the map (XY to wall).
@@ -8266,7 +8492,7 @@ void hw_3d_pushwall_side_translate(
 		break;
 
 	default:
-		::Quit("Invalid direction.");
+		::vid_quit("Invalid direction.");
 	}
 
 	const auto& vertex_offsets = all_vertex_offsets[side_direction];
@@ -8352,7 +8578,7 @@ void hw_3d_pushwall_translate(
 		break;
 
 	default:
-		::Quit("Invalid direction.");
+		::vid_quit("Invalid direction.");
 		break;
 	}
 
@@ -8401,7 +8627,7 @@ void hw_3d_pushwall_translate()
 
 	if (wall_item_it == ::hw_3d_xy_pushwall_map_.cend())
 	{
-		::Quit("Pushwall mapping not found.");
+		::vid_quit("Pushwall mapping not found.");
 	}
 
 	const auto& wall = wall_item_it->second;
@@ -8432,7 +8658,7 @@ void hw_3d_pushwall_step(
 
 	if (old_wall_item_it == ::hw_3d_xy_pushwall_map_.cend())
 	{
-		::Quit("Pushwall mapping not found.");
+		::vid_quit("Pushwall mapping not found.");
 	}
 
 	const auto new_xy = ::hw_encode_xy(::pwallx, ::pwally);
@@ -8476,7 +8702,7 @@ void hw_3d_pushwalls_build()
 
 	if (index_count > ::hw_3d_max_wall_sides_indices)
 	{
-		::Quit("Too many indices.");
+		::vid_quit("Too many pushwall indices.");
 	}
 
 	if (::hw_3d_pushwall_count_ == 0)
@@ -8488,7 +8714,7 @@ void hw_3d_pushwalls_build()
 	//
 	if (!::hw_3d_pushwalls_initialize())
 	{
-		::Quit("Failed to initialize pushwalls.");
+		::vid_quit("Failed to initialize pushwalls.");
 	}
 
 	// Build the map (XY to pushwall).
@@ -8664,7 +8890,7 @@ void hw_3d_xy_to_door_map(
 
 	if (map_it != ::hw_3d_xy_door_map_.cend())
 	{
-		::Quit("XY map to door already exists.");
+		::vid_quit("Door already mapped.");
 	}
 
 	::hw_3d_xy_door_map_[xy] = Hw3dDoor{};
@@ -8755,7 +8981,7 @@ void hw_3d_doors_build()
 	//
 	if (!::hw_3d_door_sides_initialize())
 	{
-		::Quit("Failed to initialize door sides.");
+		::vid_quit("Failed to initialize door sides.");
 	}
 
 	// Build the map (XY to door).
@@ -9066,7 +9292,7 @@ void hw_3d_sprite_texture_change(
 		break;
 
 	default:
-		::Quit("Invalid sprite kind.");
+		::vid_quit("Invalid sprite kind.");
 
 		return;
 	}
@@ -9163,7 +9389,7 @@ void hw_sprite_cache(
 	{
 		const auto& error_message = "Failed to cache a sprite #" + std::to_string(bs_sprite_id) + ".";
 
-		::Quit(error_message);
+		::vid_quit(error_message);
 	}
 }
 
@@ -11227,7 +11453,7 @@ void hw_3d_statics_build()
 
 	if (!::hw_3d_statics_initialize())
 	{
-		::Quit("Failed to initialize statics.");
+		::vid_quit("Failed to initialize statics.");
 	}
 
 	if (::statobjlist == nullptr || ::laststatobj == nullptr)
@@ -11253,7 +11479,7 @@ void hw_3d_actors_build()
 
 	if (!::hw_3d_actors_initialize())
 	{
-		::Quit("Failed to initialize actors.");
+		::vid_quit("Failed to initialize actors.");
 	}
 
 	if (::player == nullptr)
@@ -11278,6 +11504,9 @@ void hw_3d_sprites_build()
 
 void hw_precache_resources()
 {
+	::vid_log();
+	::vid_log("Precaching resources.");
+
 	::hw_texture_manager_->cache_begin();
 
 	::hw_precache_flooring();
@@ -11363,6 +11592,9 @@ bool hw_device_reset_resources_create()
 
 bool hw_device_reset()
 {
+	::vid_log();
+	::vid_log("Resetting device.");
+
 	::hw_device_reset_resources_destroy();
 
 	::hw_renderer_->device_reset();
@@ -11410,20 +11642,20 @@ bool hw_video_initialize()
 	::hw_samplers_set_default_states();
 	::hw_3d_player_weapon_sampler_set_default_state();
 
-	bstone::logger_->write("VID: Probing for hardware accelerated renderer...");
+	::vid_log("Initializing hardware accelerated renderer.");
 
 	hw_renderer_manager_ = bstone::RendererManagerFactory::create();
 
 	if (!hw_renderer_manager_->initialize())
 	{
-		bstone::logger_->write_warning("VID: Failed to initialize renderer manager.");
+		::vid_log_hw_renderer_manager_error("Failed to initialize renderer manager.");
 
 		return false;
 	}
 
 	if (!hw_renderer_manager_->renderer_probe(bstone::RendererPath::auto_detect))
 	{
-		bstone::logger_->write_warning("VID: No renderer path was found.");
+		::vid_log_hw_renderer_manager_error("Failed to auto-detect compatible renderer.");
 
 		return false;
 	}
