@@ -58,9 +58,6 @@ Free Software Foundation, Inc.,
 #endif
 
 
-using namespace std::string_literals;
-
-
 // ==========================================================================
 // QuitException
 //
@@ -7196,7 +7193,7 @@ void read_high_scores()
 		{
 			is_succeed = false;
 
-			bstone::logger_->write_error("Failed to unarchive high scores. "s + ex.get_message());
+			bstone::logger_->write_error("Failed to unarchive high scores. " + std::string{ex.get_message()});
 		}
 	}
 	else
@@ -7253,7 +7250,7 @@ static void write_high_scores()
 	}
 	catch (const bstone::ArchiverException& ex)
 	{
-		bstone::logger_->write_error("Failed to archive high scores data."s + ex.get_message());
+		bstone::logger_->write_error("Failed to archive high scores data." + std::string{ex.get_message()});
 	}
 }
 // BBi
@@ -8815,7 +8812,7 @@ bool LoadTheGame(
 		{
 			is_succeed = false;
 
-			bstone::logger_->write_error("LOAD: Failed to deserialize HEAD data. "s + ex.get_message());
+			bstone::logger_->write_error("LOAD: Failed to deserialize HEAD data. " + std::string{ex.get_message()});
 		}
 	}
 
@@ -8968,7 +8965,7 @@ bool SaveTheGame(
 	}
 	catch (const bstone::ArchiverException& ex)
 	{
-		bstone::logger_->write_error("SAVE: Failed to serialize HEAD chunk. "s + ex.get_message());
+		bstone::logger_->write_error("SAVE: Failed to serialize HEAD chunk. " + std::string{ex.get_message()});
 
 		return false;
 	}
@@ -9056,7 +9053,7 @@ bool SaveTheGame(
 	}
 	catch (const bstone::ArchiverException& ex)
 	{
-		bstone::logger_->write_error("SAVE: Failed to write data. "s + ex.get_message());
+		bstone::logger_->write_error("SAVE: Failed to write data. " + std::string{ex.get_message()});
 
 		return false;
 	}
@@ -9673,7 +9670,7 @@ int main(
 
 		if (sdl_result != 0)
 		{
-			::Quit("Failed to initialize SDL: "s + ::SDL_GetError());
+			::Quit("Failed to initialize SDL: " + std::string{::SDL_GetError()});
 		}
 
 		freed_main();

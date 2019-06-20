@@ -56,9 +56,6 @@ loaded into the data segment
 #include "bstone_string_helper.h"
 
 
-using namespace std::string_literals;
-
-
 /*
 =============================================================================
 
@@ -1510,105 +1507,105 @@ bool AssetsInfo::is_ps() const
 
 const std::string& Assets::get_audio_header_base_name()
 {
-	static const auto audio_header_base_name = "AUDIOHED"s;
+	static const auto audio_header_base_name = std::string{"AUDIOHED"};
 
 	return audio_header_base_name;
 }
 
 const std::string& Assets::get_audio_data_base_name()
 {
-	static const auto audio_data_base_name = "AUDIOT"s;
+	static const auto audio_data_base_name = std::string{"AUDIOT"};
 
 	return audio_data_base_name;
 }
 
 const std::string& Assets::get_map_header_base_name()
 {
-	static const auto map_header_base_name = "MAPHEAD"s;
+	static const auto map_header_base_name = std::string{"MAPHEAD"};
 
 	return map_header_base_name;
 }
 
 const std::string& Assets::get_map_data_base_name()
 {
-	static const auto map_data_base_name = "MAPTEMP"s;
+	static const auto map_data_base_name = std::string{"MAPTEMP"};
 
 	return map_data_base_name;
 }
 
 const std::string& Assets::get_gfx_dictionary_base_name()
 {
-	static const auto gfx_dictionary_base_name = "VGADICT"s;
+	static const auto gfx_dictionary_base_name = std::string{"VGADICT"};
 
 	return gfx_dictionary_base_name;
 }
 
 const std::string& Assets::get_gfx_header_base_name()
 {
-	static const auto gfx_header_base_name = "VGAHEAD"s;
+	static const auto gfx_header_base_name = std::string{"VGAHEAD"};
 
 	return gfx_header_base_name;
 }
 
 const std::string& Assets::get_gfx_data_base_name()
 {
-	static const auto gfx_data_base_name = "VGAGRAPH"s;
+	static const auto gfx_data_base_name = std::string{"VGAGRAPH"};
 
 	return gfx_data_base_name;
 }
 
 const std::string& Assets::get_page_file_base_name()
 {
-	static const auto page_file_base_name = "VSWAP"s;
+	static const auto page_file_base_name = std::string{"VSWAP"};
 
 	return page_file_base_name;
 }
 
 const std::string& Assets::get_episode_6_fmv_base_name()
 {
-	static const auto episode_6_fmv_base_name = "EANIM"s;
+	static const auto episode_6_fmv_base_name = std::string{"EANIM"};
 
 	return episode_6_fmv_base_name;
 }
 
 const std::string& Assets::get_episode_3_5_fmv_base_name()
 {
-	static const auto episode_3_5_fmv_base_name = "GANIM"s;
+	static const auto episode_3_5_fmv_base_name = std::string{"GANIM"};
 
 	return episode_3_5_fmv_base_name;
 }
 
 const std::string& Assets::get_intro_fmv_base_name()
 {
-	static const auto get_intro_fmv_base_name = "IANIM"s;
+	static const auto get_intro_fmv_base_name = std::string{"IANIM"};
 
 	return get_intro_fmv_base_name;
 }
 
 const std::string& Assets::get_episode_2_4_fmv_base_name()
 {
-	static const auto get_episode_2_4_fmv_base_name = "SANIM"s;
+	static const auto get_episode_2_4_fmv_base_name = std::string{"SANIM"};
 
 	return get_episode_2_4_fmv_base_name;
 }
 
 const std::string& Assets::get_aog_sw_extension()
 {
-	static const auto get_aog_sw_extension = ".BS1"s;
+	static const auto get_aog_sw_extension = std::string{".BS1"};
 
 	return get_aog_sw_extension;
 }
 
 const std::string& Assets::get_aog_full_extension()
 {
-	static const auto get_aog_full_extension = ".BS6"s;
+	static const auto get_aog_full_extension = std::string{".BS6"};
 
 	return get_aog_full_extension;
 }
 
 const std::string& Assets::get_ps_extension()
 {
-	static const auto get_ps_extension = ".VSI"s;
+	static const auto get_ps_extension = std::string{".VSI"};
 
 	return get_ps_extension;
 }
@@ -2243,7 +2240,7 @@ bool ImagesDumper::initialize_surface_64x64x8()
 
 	if (!sdl_surface)
 	{
-		auto error_message = "Failed to create SDL surface 64x64x32bit. "s;
+		auto error_message = std::string{"Failed to create SDL surface 64x64x32bit. "};
 		error_message += ::SDL_GetError();
 
 		bstone::logger_->write_error(error_message);
@@ -2277,7 +2274,7 @@ bool ImagesDumper::initialize_surface_64x64x32()
 
 	if (!sdl_surface)
 	{
-		auto error_message = "Failed to create SDL surface 64x64x8bit. "s;
+		auto error_message = std::string{"Failed to create SDL surface 64x64x8bit. "};
 		error_message += ::SDL_GetError();
 
 		bstone::logger_->write_error(error_message);

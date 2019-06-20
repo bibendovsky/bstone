@@ -46,9 +46,6 @@ Free Software Foundation, Inc.,
 #include "bstone_text_writer.h"
 
 
-using namespace std::string_literals;
-
-
 extern bool is_full_menu_active;
 
 
@@ -906,9 +903,10 @@ const std::string& vid_to_string(
 	}
 }
 
-void vid_log_configuration()
+void vid_log_common_configuration()
 {
 	bstone::logger_->write();
+	bstone::logger_->write("VID: --------------------");
 	bstone::logger_->write("VID: Common configuration");
 	bstone::logger_->write("VID: --------------------");
 
@@ -952,7 +950,7 @@ void vid_common_initialize()
 	::vid_configuration_adjust_window_position();
 	::vid_configuration_fix_window_size();
 
-	::vid_log_configuration();
+	::vid_log_common_configuration();
 }
 
 
@@ -1029,8 +1027,7 @@ bool sw_initialize_window()
 
 bool sw_initialize_renderer()
 {
-	bstone::logger_->write(
-		"VID: Initializing a renderer...");
+	bstone::logger_->write("VID: Initializing a renderer...");
 
 
 	bool is_succeed = true;
@@ -1038,8 +1035,7 @@ bool sw_initialize_renderer()
 
 	if (is_succeed)
 	{
-		bstone::logger_->write(
-			"VID: Available renderer drivers:");
+		bstone::logger_->write("VID: Available renderer drivers:");
 
 		const auto driver_count = ::SDL_GetNumRenderDrivers();
 
@@ -1051,7 +1047,7 @@ bool sw_initialize_renderer()
 				i,
 				&info);
 
-			bstone::logger_->write(std::to_string(i + 1) + ". "s + info.name);
+			bstone::logger_->write(std::to_string(i + 1) + ". " + info.name);
 		}
 	}
 
@@ -1134,12 +1130,13 @@ bool sw_initialize_renderer()
 				renderer_driver,
 				renderer_info.name) != 0)
 			{
-				bstone::logger_->write_warning("VID: Unexpected renderer is selected: \""s + renderer_info.name + "\"."s);
+				bstone::logger_->write_warning(
+					"VID: Unexpected renderer is selected: \"" + std::string{renderer_info.name} + "\".");
 			}
 		}
 		else
 		{
-			bstone::logger_->write("VID: Current renderer: \""s + renderer_info.name + "\"."s);
+			bstone::logger_->write("VID: Current renderer: \"" + std::string{renderer_info.name} + "\".");
 		}
 	}
 
@@ -1495,8 +1492,8 @@ void sw_calculate_dimensions()
 
 void sw_initialize_video()
 {
-	bstone::logger_->write(
-		"VID: Initializing a system...");
+	bstone::logger_->write("VID: Software video system");
+	bstone::logger_->write("VID: ---------------------");
 
 	::vid_common_initialize();
 	::sw_calculate_dimensions();
@@ -1595,7 +1592,7 @@ void sw_refresh_screen()
 
 		if (sdl_result != 0)
 		{
-			::Quit("VID: Failed to lock a screen texture: "s + ::SDL_GetError());
+			::Quit("VID: Failed to lock a screen texture: " + std::string{::SDL_GetError()});
 		}
 
 		auto dst_pixels = static_cast<std::uint32_t*>(
@@ -1631,7 +1628,7 @@ void sw_refresh_screen()
 
 		if (sdl_result != 0)
 		{
-			::Quit("VID: Failed to lock an UI texture: "s + ::SDL_GetError());
+			::Quit("VID: Failed to lock an UI texture: " + std::string{::SDL_GetError()});
 		}
 
 		const auto alpha_0_mask = ~sw_texture_pixel_format->Amask;
@@ -1672,7 +1669,7 @@ void sw_refresh_screen()
 
 	if (sdl_result != 0)
 	{
-		::Quit("VID: Failed to clear a render target: "s + ::SDL_GetError());
+		::Quit("VID: Failed to clear a render target: " + std::string{::SDL_GetError()});
 	}
 
 
@@ -1688,7 +1685,7 @@ void sw_refresh_screen()
 
 		if (sdl_result != 0)
 		{
-			::Quit("VID: Failed to copy a screen texture on a render target: "s + ::SDL_GetError());
+			::Quit("VID: Failed to copy a screen texture on a render target: " + std::string{::SDL_GetError()});
 		}
 	}
 
@@ -1734,7 +1731,7 @@ void sw_refresh_screen()
 
 		if (sdl_result != 0)
 		{
-			::Quit("VID: Failed to set blend mode for an UI texture: "s + ::SDL_GetError());
+			::Quit("VID: Failed to set blend mode for an UI texture: " + std::string{::SDL_GetError()});
 		}
 	}
 
@@ -1789,7 +1786,7 @@ void sw_refresh_screen()
 
 	if (sdl_result != 0)
 	{
-		::Quit("VID: Failed to copy an UI texture on a render target: "s + ::SDL_GetError());
+		::Quit("VID: Failed to copy an UI texture on a render target: " + std::string{::SDL_GetError()});
 	}
 
 	if (::vid_is_hud)
@@ -1800,7 +1797,7 @@ void sw_refresh_screen()
 
 		if (sdl_result != 0)
 		{
-			::Quit("VID: Failed to set blend mode for an UI texture: "s + ::SDL_GetError());
+			::Quit("VID: Failed to set blend mode for an UI texture: " + std::string{::SDL_GetError()});
 		}
 	}
 
@@ -1812,7 +1809,7 @@ void sw_refresh_screen()
 
 	if (sdl_result != 0)
 	{
-		::Quit("VID: Failed to present a render target: "s + ::SDL_GetError());
+		::Quit("VID: Failed to present a render target: " + std::string{::SDL_GetError()});
 	}
 }
 

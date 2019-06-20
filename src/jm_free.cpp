@@ -48,9 +48,6 @@ Free Software Foundation, Inc.,
 #include "bstone_version.h"
 
 
-using namespace std::string_literals;
-
-
 extern SpanStart spanstart;
 extern StepScale stepscale;
 extern BaseDist basedist;
@@ -390,7 +387,7 @@ bool find_aog_assets(
 bool find_aog_full_assets(
 	const bool is_required)
 {
-	const auto& title = "Aliens of Gold (full)"s;
+	const auto& title = std::string{"Aliens of Gold (full)"};
 
 	if (is_required)
 	{
@@ -417,7 +414,7 @@ bool find_aog_full_assets(
 bool find_aog_sw_assets(
 	const bool is_required)
 {
-	const auto& title = "Aliens of Gold (shareware)"s;
+	const auto& title = std::string{"Aliens of Gold (shareware)"};
 
 	if (is_required)
 	{
@@ -444,7 +441,7 @@ bool find_aog_sw_assets(
 bool find_ps_assets(
 	const bool is_required)
 {
-	const auto& title = "Planet Strike"s;
+	const auto& title = std::string{"Planet Strike"};
 
 	const auto has_assets = check_for_files(Assets::get_ps_base_names(), Assets::get_ps_extension());
 
@@ -1025,7 +1022,7 @@ void InitGame()
 	PM_Startup();
 
 	{
-		const auto& debug_dump_walls_images_option_name = "debug_dump_walls_images"s;
+		const auto& debug_dump_walls_images_option_name = std::string{"debug_dump_walls_images"};
 
 		if (::g_args.has_option(debug_dump_walls_images_option_name))
 		{
@@ -1039,7 +1036,7 @@ void InitGame()
 	}
 
 	{
-		const auto& debug_dump_sprites_images_option_name = "debug_dump_sprites_images"s;
+		const auto& debug_dump_sprites_images_option_name = std::string{"debug_dump_sprites_images"};
 
 		if (::g_args.has_option(debug_dump_sprites_images_option_name))
 		{
