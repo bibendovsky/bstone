@@ -2621,19 +2621,19 @@ void CP_Sound(
 			// SOUND EFFECTS / DIGITIZED SOUND
 			//
 		case 0:
-			if (::sd_is_sound_enabled)
+			if (::sd_is_sound_enabled_)
 			{
-				::SD_WaitSoundDone();
-				::SD_EnableSound(false);
+				::sd_wait_sound_done();
+				::sd_enable_sound(false);
 				::DrawSoundMenu();
 			}
 			break;
 
 		case 1:
-			if (!::sd_is_sound_enabled)
+			if (!::sd_is_sound_enabled_)
 			{
-				::SD_WaitSoundDone();
-				::SD_EnableSound(true);
+				::sd_wait_sound_done();
+				::sd_enable_sound(true);
 				::CA_LoadAllSounds();
 				::DrawSoundMenu();
 				::ShootSnd();
@@ -2644,18 +2644,18 @@ void CP_Sound(
 			// MUSIC
 			//
 		case 4:
-			if (::sd_is_music_enabled)
+			if (::sd_is_music_enabled_)
 			{
-				::SD_EnableMusic(false);
+				::sd_enable_music(false);
 				::DrawSoundMenu();
 				::ShootSnd();
 			}
 			break;
 
 		case 5:
-			if (!::sd_is_music_enabled)
+			if (!::sd_is_music_enabled_)
 			{
-				::SD_EnableMusic(true);
+				::sd_enable_music(true);
 				::DrawSoundMenu();
 				::ShootSnd();
 				::StartCPMusic(MENUSONG);
@@ -2681,7 +2681,7 @@ void DrawSoundMenu()
 	// IF NO ADLIB, NON-CHOOSENESS!
 	//
 
-	if (!::sd_has_audio)
+	if (!::sd_has_audio_)
 	{
 		::SndMenu[1].active = AT_DISABLED;
 		::SndMenu[5].active = AT_DISABLED;
@@ -2732,14 +2732,14 @@ void DrawAllSoundLights(
 				// SOUND EFFECTS / DIGITIZED SOUND
 				//
 			case 0:
-				if (!::sd_is_sound_enabled)
+				if (!::sd_is_sound_enabled_)
 				{
 					++Shape;
 				}
 				break;
 
 			case 1:
-				if (::sd_is_sound_enabled)
+				if (::sd_is_sound_enabled_)
 				{
 					++Shape;
 				}
@@ -2749,14 +2749,14 @@ void DrawAllSoundLights(
 				// MUSIC
 				//
 			case 4:
-				if (!::sd_is_music_enabled)
+				if (!::sd_is_music_enabled_)
 				{
 					++Shape;
 				}
 				break;
 
 			case 5:
-				if (::sd_is_music_enabled)
+				if (::sd_is_music_enabled_)
 				{
 					++Shape;
 				}
@@ -4274,15 +4274,15 @@ void StartCPMusic(
 
 	lastmenumusic = song;
 
-	SD_MusicOff();
+	sd_music_off();
 	chunk = song;
 	CA_CacheAudioChunk(static_cast<std::int16_t>(STARTMUSIC + chunk));
-	::SD_StartMusic(chunk);
+	::sd_start_music(chunk);
 }
 
 void FreeMusic()
 {
-	SD_MusicOff();
+	sd_music_off();
 }
 
 
@@ -4337,11 +4337,11 @@ void CheckPause()
 		switch (SoundStatus)
 		{
 		case 0:
-			SD_MusicOn();
+			sd_music_on();
 			break;
 
 		case 1:
-			SD_MusicOff();
+			sd_music_off();
 			break;
 		}
 
@@ -4380,7 +4380,7 @@ void ShowPromo()
 	// Load and start music
 	//
 	::CA_CacheAudioChunk(STARTMUSIC + PROMO_MUSIC);
-	::SD_StartMusic(PROMO_MUSIC);
+	::sd_start_music(PROMO_MUSIC);
 
 	// Show promo screen 1
 	//
@@ -4416,33 +4416,44 @@ void ExitGame()
 		::ShowPromo();
 	}
 
-	SD_MusicOff();
-	SD_StopSound();
+	sd_music_off();
+	sd_stop_sound();
 	Quit();
 }
 
 // BBi
 int volume_index = 0;
-int* const volumes[2] = {&sd_sfx_volume, &sd_music_volume};
+int* const volumes[2] = {&sd_sfx_volume_, &sd_music_volume_};
 
 void draw_volume_control(
 	int index,
 	int volume,
 	bool is_enabled)
 {
-	std::int16_t slider_color =
-		is_enabled ? ENABLED_TEXT_COLOR : DISABLED_TEXT_COLOR;
+	std::int16_t slider_color = is_enabled ? ENABLED_TEXT_COLOR : DISABLED_TEXT_COLOR;
 
-	std::int16_t outline_color =
-		is_enabled ? HIGHLIGHT_TEXT_COLOR : DEACTIAVED_TEXT_COLOR;
+	std::int16_t outline_color = is_enabled ? HIGHLIGHT_TEXT_COLOR : DEACTIAVED_TEXT_COLOR;
 
 	int y = 82 + (index * 40);
 
-	VWB_Bar(74, static_cast<std::int16_t>(y), 160, 8, HIGHLIGHT_BOX_COLOR);
-	DrawOutline(73, static_cast<std::int16_t>(y - 1), 161, 9,
-		outline_color, outline_color);
-	VWB_Bar(static_cast<std::int16_t>(74 + ((160 * volume) / (::sd_max_volume + 1))),
-		static_cast<std::int16_t>(y), 16, 8, static_cast<std::uint8_t>(slider_color));
+	::VWB_Bar(74, static_cast<std::int16_t>(y), 160, 8, HIGHLIGHT_BOX_COLOR);
+
+	::DrawOutline(
+		73,
+		static_cast<std::int16_t>(y - 1),
+		161,
+		9,
+		outline_color,
+		outline_color
+	);
+
+	::VWB_Bar(
+		static_cast<std::int16_t>(74 + (((160 - 16) * volume) / ::sd_max_volume)),
+		static_cast<std::int16_t>(y),
+		16,
+		8,
+		static_cast<std::uint8_t>(slider_color)
+	);
 }
 
 void draw_volume_controls()
@@ -4574,13 +4585,13 @@ void cp_sound_volume(
 
 			if (old_volumes[0] != *volumes[0])
 			{
-				sd_set_sfx_volume(sd_sfx_volume);
+				sd_set_sfx_volume(sd_sfx_volume_);
 				sd_play_player_sound(MOVEGUN1SND, bstone::ActorChannel::item);
 			}
 
 			if (old_volumes[1] != *volumes[1])
 			{
-				sd_set_music_volume(sd_music_volume);
+				sd_set_music_volume(sd_music_volume_);
 			}
 		}
 

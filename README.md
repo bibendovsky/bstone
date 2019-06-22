@@ -231,6 +231,10 @@ Notes:
   Sets a vertical offset from the top side of the desktop screen.  
   Applicable for windowed mode only.
 
+* --snd_is_disabled <0|1>  
+  Disables audio subsystem if non-zero.  
+  Default: 0  
+
 * --snd_rate sampling_rate  
   Specifies sampling rate of mixer in hertz.  
   Default: 44100 Hz  

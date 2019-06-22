@@ -7495,8 +7495,8 @@ void set_config_defaults()
 
 	::mouseadjustment = ::default_mouse_sensitivity;
 
-	::sd_sfx_volume = ::sd_default_sfx_volume;
-	::sd_music_volume = ::sd_default_music_volume;
+	::sd_sfx_volume_ = ::sd_default_sfx_volume;
+	::sd_music_volume_ = ::sd_default_music_volume;
 
 	::g_no_wall_hit_sound = default_no_wall_hit_sound;
 	::g_always_run = default_always_run;
@@ -7536,11 +7536,7 @@ void read_text_config()
 {
 	::is_config_loaded = true;
 
-
-	auto is_sound_enabled = true;
-	auto is_music_enabled = true;
-
-	set_config_defaults();
+	::set_config_defaults();
 
 	const auto config_path = ::get_profile_dir() + ::text_config_file_name;
 
@@ -7572,7 +7568,7 @@ void read_text_config()
 
 						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
-							is_sound_enabled = (value != 0);
+							::sd_is_sound_enabled_ = (value != 0);
 						}
 					}
 					else if (key_string == snd_is_music_enabled_name)
@@ -7581,7 +7577,7 @@ void read_text_config()
 
 						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
-							is_music_enabled = (value != 0);
+							::sd_is_music_enabled_ = (value != 0);
 						}
 					}
 					else if (key_string == snd_sfx_volume_name)
@@ -7590,17 +7586,17 @@ void read_text_config()
 
 						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
-							::sd_sfx_volume = value;
+							::sd_sfx_volume_ = value;
 						}
 
-						if (::sd_sfx_volume < ::sd_min_volume)
+						if (::sd_sfx_volume_ < ::sd_min_volume)
 						{
-							::sd_sfx_volume = ::sd_min_volume;
+							::sd_sfx_volume_ = ::sd_min_volume;
 						}
 
-						if (::sd_sfx_volume > ::sd_max_volume)
+						if (::sd_sfx_volume_ > ::sd_max_volume)
 						{
-							::sd_sfx_volume = ::sd_max_volume;
+							::sd_sfx_volume_ = ::sd_max_volume;
 						}
 					}
 					else if (key_string == snd_music_volume_name)
@@ -7609,17 +7605,17 @@ void read_text_config()
 
 						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
-							::sd_music_volume = value;
+							::sd_music_volume_ = value;
 						}
 
-						if (::sd_music_volume < ::sd_min_volume)
+						if (::sd_music_volume_ < ::sd_min_volume)
 						{
-							::sd_music_volume = ::sd_min_volume;
+							::sd_music_volume_ = ::sd_min_volume;
 						}
 
-						if (::sd_music_volume > ::sd_max_volume)
+						if (::sd_music_volume_ > ::sd_max_volume)
 						{
-							::sd_music_volume = ::sd_max_volume;
+							::sd_music_volume_ = ::sd_max_volume;
 						}
 					}
 					else if (key_string == in_mouse_sensitivity_name)
@@ -7903,10 +7899,10 @@ void write_text_config()
 	::vid_write_configuration(writer);
 
 	writer.write("\n// Audio\n");
-	write_config_entry(writer, snd_is_sfx_enabled_name, ::sd_is_sound_enabled);
-	write_config_entry(writer, snd_is_music_enabled_name, ::sd_is_music_enabled);
-	write_config_entry(writer, snd_sfx_volume_name, ::sd_sfx_volume);
-	write_config_entry(writer, snd_music_volume_name, ::sd_music_volume);
+	write_config_entry(writer, snd_is_sfx_enabled_name, ::sd_is_sound_enabled_);
+	write_config_entry(writer, snd_is_music_enabled_name, ::sd_is_music_enabled_);
+	write_config_entry(writer, snd_sfx_volume_name, ::sd_sfx_volume_);
+	write_config_entry(writer, snd_music_volume_name, ::sd_music_volume_);
 
 	writer.write("\n// Input\n");
 	write_config_entry(writer, in_mouse_sensitivity_name, ::mouseadjustment);
@@ -9255,7 +9251,7 @@ void CycleColors()
 void ShutdownId()
 {
 	US_Shutdown();
-	SD_Shutdown();
+	sd_shutdown();
 	PM_Shutdown();
 	IN_Shutdown();
 	VW_Shutdown();
@@ -9325,7 +9321,7 @@ bool DoMovie(
 	const MovieId movie,
 	const void* const raw_palette)
 {
-	::SD_StopSound();
+	::sd_stop_sound();
 
 	::ClearMemory();
 	::UnCacheLump(STARTFONT, STARTFONT + NUMFONT);
@@ -9335,7 +9331,7 @@ bool DoMovie(
 
 	const auto result = movie_play(movie, palette ? palette : ::vgapal);
 
-	::SD_StopSound();
+	::sd_stop_sound();
 	::ClearMemory();
 	::LoadFonts();
 
@@ -9437,23 +9433,23 @@ void DemoLoop()
 
 			while (true)
 			{
-				extern bool sqActive;
+				extern bool sd_sq_active_;
 
 				// Start music when coming from menu...
 				//
-				if (!sqActive)
+				if (!sd_sq_active_)
 				{
 					// Load and start music
 					//
 					if (assets_info.is_aog())
 					{
 						CA_CacheAudioChunk(STARTMUSIC + MEETINGA_MUS);
-						::SD_StartMusic(MEETINGA_MUS);
+						::sd_start_music(MEETINGA_MUS);
 					}
 					else
 					{
 						CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
-						::SD_StartMusic(TITLE_LOOP_MUSIC);
+						::sd_start_music(TITLE_LOOP_MUSIC);
 					}
 				}
 
@@ -9584,19 +9580,19 @@ void DemoLoop()
 		else
 		{
 			// Start music when coming from menu...
-			if (!sqActive)
+			if (!sd_sq_active_)
 			{
 				// Load and start music
 				//
 				if (!assets_info.is_aog())
 				{
 					CA_CacheAudioChunk(STARTMUSIC + MENUSONG);
-					::SD_StartMusic(MENUSONG);
+					::sd_start_music(MENUSONG);
 				}
 				else
 				{
 					CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
-					::SD_StartMusic(TITLE_LOOP_MUSIC);
+					::sd_start_music(TITLE_LOOP_MUSIC);
 				}
 			}
 		}

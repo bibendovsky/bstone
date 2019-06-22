@@ -66,6 +66,9 @@ void VH_UpdateScreen();
 
 
 // Global variables
+
+std::atomic_uint TimeCount; // Global time in ticks
+
 char* abortprogram;
 std::int16_t PrintX;
 std::int16_t PrintY;

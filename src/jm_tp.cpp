@@ -2758,7 +2758,7 @@ void TP_HandleCodes()
 		case TP_CNVT_CODE('B', 'E'):
 			::sd_play_player_sound(TERM_BEEPSND, bstone::ActorChannel::item);
 
-			SD_WaitSoundDone();
+			sd_wait_sound_done();
 			break;
 
 			// HIDE CURSOR ------------------------------------------------------

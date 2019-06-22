@@ -3194,7 +3194,7 @@ void Warped()
 	static_cast<void>(fizzle.present(true));
 
 	IN_UserInput(100);
-	SD_WaitSoundDone();
+	sd_wait_sound_done();
 
 	::vid_is_hud = false;
 }
@@ -3231,7 +3231,7 @@ void Died()
 
 	IN_UserInput(100);
 
-	SD_WaitSoundDone();
+	sd_wait_sound_done();
 	StopMusic();
 
 	gamestate.lives--;
@@ -3414,7 +3414,7 @@ void GameLoop()
 
 	bool quit = false;
 
-	extern bool sqActive;
+	extern bool sd_sq_active_;
 
 	auto Score = std::string{};
 	bool died;
@@ -3452,7 +3452,7 @@ restartgame:
 			VW_UpdateScreen();
 		}
 
-		if (!sqActive)
+		if (!sd_sq_active_)
 		{
 			StartMusic(false);
 		}
@@ -3522,7 +3522,7 @@ restartgame:
 			}
 		}
 
-		if (!sqActive)
+		if (!sd_sq_active_)
 		{
 			StartMusic(false);
 		}
@@ -3624,7 +3624,7 @@ restartgame:
 
 				::sd_play_player_sound(BONUS1SND, bstone::ActorChannel::item);
 
-				SD_WaitSoundDone();
+				sd_wait_sound_done();
 				IN_UserInput(5 * 60);
 				ClearMemory();
 			}

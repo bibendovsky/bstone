@@ -95,7 +95,7 @@ void initialize_boss_constants();
 void initialize_messages();
 void initialize_ca_constants();
 
-void SDL_SetupDigi();
+void sd_setup_digi();
 
 
 static std::uint8_t wolfdigimap[] = {
@@ -648,7 +648,7 @@ void InitDigiMap()
 
 	for (map = reinterpret_cast<char*>(wolfdigimap); *map != LASTSOUND; map += 2)
 	{
-		DigiMap[static_cast<int>(map[0])] = map[1];
+		sd_digi_map_[static_cast<int>(map[0])] = map[1];
 	}
 }
 
@@ -919,7 +919,7 @@ void PreDemo()
 	//
 	CA_CacheAudioChunk(STARTMUSIC + APOGFNFM_MUS);
 
-	::SD_StartMusic(APOGFNFM_MUS);
+	::sd_start_music(APOGFNFM_MUS);
 
 	// Cache and set palette.  AND  Fade it in!
 	//
@@ -939,10 +939,10 @@ void PreDemo()
 
 	// Wait for end of fanfare
 	//
-	if (::sd_is_music_enabled)
+	if (::sd_is_music_enabled_)
 	{
 		IN_StartAck();
-		while ((!sqPlayedOnce) && (!IN_CheckAck()))
+		while ((!sd_sq_played_once_) && (!IN_CheckAck()))
 		{
 		}
 	}
@@ -951,7 +951,7 @@ void PreDemo()
 		IN_UserInput(TickBase * 6);
 	}
 
-	SD_MusicOff();
+	sd_music_off();
 
 	// Free palette and music.  AND  Restore palette
 	//
@@ -977,7 +977,7 @@ void PreDemo()
 	// Load and start music
 	//
 	CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
-	::SD_StartMusic(TITLE_LOOP_MUSIC);
+	::sd_start_music(TITLE_LOOP_MUSIC);
 
 	// Show JAM logo
 	//
@@ -1054,7 +1054,7 @@ void InitGame()
 
 	VW_Startup();
 	IN_Startup();
-	SD_Startup();
+	sd_startup();
 	US_Startup();
 
 	VL_SetPalette(0, 256, vgapal);

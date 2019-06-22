@@ -619,7 +619,7 @@ void PollControls()
 
 
 extern bool PP_step;
-extern bool sqActive;
+extern bool sd_sq_active_;
 extern std::int16_t pickquick;
 
 bool refresh_screen;
@@ -758,10 +758,10 @@ void CheckKeys()
 		{
 			bool is_enabled = false;
 
-			if (::sd_is_sound_enabled)
+			if (::sd_is_sound_enabled_)
 			{
-				::SD_WaitSoundDone();
-				::SD_EnableSound(false);
+				::sd_wait_sound_done();
+				::sd_enable_sound(false);
 
 				is_enabled = false;
 			}
@@ -769,13 +769,13 @@ void CheckKeys()
 			{
 				::ClearMemory();
 
-				if (::sd_has_audio)
+				if (::sd_has_audio_)
 				{
-					::SD_EnableSound(true);
+					::sd_enable_sound(true);
 				}
 				else
 				{
-					::SD_EnableSound(false);
+					::sd_enable_sound(false);
 				}
 
 				::CA_LoadAllSounds();
@@ -899,14 +899,14 @@ void CheckKeys()
 	//
 	if (in_is_binding_pressed(e_bi_pause))
 	{
-		SD_MusicOff();
+		sd_music_off();
 		fontnumber = 4;
 		BMAmsg(PAUSED_MSG);
 		IN_Ack();
 		IN_ClearKeysDown();
 		fontnumber = 2;
 		RedrawStatusAreas();
-		SD_MusicOn();
+		sd_music_on();
 		Paused = false;
 		::in_clear_mouse_deltas();
 		return;
@@ -1009,7 +1009,7 @@ void CheckKeys()
 			loadedgame = old_loadedgame;
 		}
 		ClearMemory();
-		if (!sqActive || !loadedgame)
+		if (!sd_sq_active_ || !loadedgame)
 		{
 			StartMusic(false);
 		}
@@ -1024,7 +1024,7 @@ void CheckKeys()
 		{
 			CleanDrawPlayBorder();
 		}
-		if (!sqActive)
+		if (!sd_sq_active_)
 		{
 			StartMusic(false);
 		}
@@ -1144,21 +1144,21 @@ void CheckMusicToggle()
 		{
 			bool is_enabled = false;
 
-			if (!::sd_has_audio)
+			if (!::sd_has_audio_)
 			{
 				DISPLAY_TIMED_MSG(NoAdLibCard, MP_BONUS, MT_GENERAL);
 
 				::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
 				return;
 			}
-			else if (::sd_is_music_enabled)
+			else if (::sd_is_music_enabled_)
 			{
-				::SD_EnableMusic(false);
+				::sd_enable_music(false);
 				is_enabled = false;
 			}
 			else
 			{
-				::SD_EnableMusic(true);
+				::sd_enable_music(true);
 				StartMusic(false);
 				is_enabled = true;
 			}
@@ -1194,7 +1194,7 @@ void PopupAutoMap(
 	ThreeDRefresh();
 	ThreeDRefresh();
 
-	SD_StopSound();
+	sd_stop_sound();
 	ClearMemory();
 	CacheDrawPic(BASE_X, BASE_Y, AUTOMAPPIC);
 
@@ -1442,7 +1442,7 @@ void RemoveObj(
 
 void StopMusic()
 {
-	SD_MusicOff();
+	sd_music_off();
 }
 
 // -------------------------------------------------------------------------
@@ -1454,7 +1454,7 @@ void StartMusic(
 {
 	int musicchunk;
 
-	SD_MusicOff();
+	sd_music_off();
 
 	const auto& assets_info = AssetsInfo{};
 
@@ -1482,7 +1482,7 @@ void StartMusic(
 	{
 		if (!preload)
 		{
-			::SD_StartMusic(musicchunk);
+			::sd_start_music(musicchunk);
 		}
 	}
 }

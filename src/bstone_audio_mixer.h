@@ -86,6 +86,16 @@ public:
 
 	bool is_initialized() const;
 
+	int get_rate() const;
+
+	int get_channel_count() const;
+
+	int get_mix_size_ms() const;
+
+	float get_sfx_volume() const;
+
+	float get_music_volume() const;
+
 	bool play_adlib_music(
 		const int music_index,
 		const void* const data,

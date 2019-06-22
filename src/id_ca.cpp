@@ -638,7 +638,7 @@ void CA_LoadAllSounds()
 		start = STARTADLIBSOUNDS;
 	}
 
-	if (::sd_is_sound_enabled)
+	if (::sd_is_sound_enabled_)
 	{
 		start = STARTADLIBSOUNDS;
 	}
@@ -652,7 +652,7 @@ void CA_LoadAllSounds()
 		::CA_CacheAudioChunk(start);
 	}
 
-	::old_is_sound_enabled = ::sd_is_sound_enabled;
+	::old_is_sound_enabled = ::sd_is_sound_enabled_;
 }
 
 // ===========================================================================

@@ -26,6 +26,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_3D_DEF_INCLUDED
 
 
+#include <atomic>
 #include <functional>
 #include <string>
 #include <vector>
@@ -2895,6 +2896,8 @@ struct GoldsternInfo_t
 
 =============================================================================
 */
+
+extern std::atomic_uint TimeCount; // Global time in ticks
 
 extern std::int16_t TITLE_LOOP_MUSIC;
 

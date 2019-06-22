@@ -1,6 +1,9 @@
 # BStone changelog
 
 ## [1.2.0] - 20??-??-??
+### Added
+- Option "snd_is_disabled" to ignore audio subsystem.
+
 ### Removed
 - Option "vid_scale".
 - Vanilla input bindings.
