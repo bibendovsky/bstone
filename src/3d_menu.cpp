@@ -406,7 +406,7 @@ extern bool refresh_screen;
 
 CP_iteminfo MainItems = {MENU_X, MENU_Y, 12, MM_NEW_MISSION, 0, 9, {77, 1, 154, 9, 1}};
 CP_iteminfo GopItems = {MENU_X, MENU_Y + 25, 6, 0, 0, 9, {77, 1, 154, 9, 1}};
-CP_iteminfo SndItems = {SM_X, SM_Y, 6, 0, 0, 7, {87, -1, 144, 7, 1}};
+CP_iteminfo SndItems = {SM_X, SM_Y, 2, 0, 0, 7, {87, -1, 144, 7, 1}};
 CP_iteminfo LSItems = {LSM_X, LSM_Y, 10, 0, 0, 8, {86, -1, 144, 8, 1}};
 CP_iteminfo CtlItems = {CTL_X, CTL_Y, 3, -1, 0, 9, {87, 1, 174, 9, 1}};
 CP_iteminfo CusItems = {CST_X, CST_Y + 7, 6, -1, 0, 15, {54, -1, 203, 7, 1}};
@@ -455,12 +455,8 @@ CP_itemtype GopMenu[] = {
 };
 
 CP_itemtype SndMenu[] = {
-	{AT_ENABLED, "NONE", 0},
-	{AT_ENABLED, "ADLIB/SOUND BLASTER", 0},
-	{AT_DISABLED, "", 0},
-	{AT_DISABLED, "", 0},
-	{AT_ENABLED, "NONE", 0},
-	{AT_ENABLED, "ADLIB/SOUND BLASTER", 0}
+	{AT_ENABLED, "SOUND EFFECTS", 0},
+	{AT_ENABLED, "BACKGROUND MUSIC", 0},
 };
 
 CP_itemtype CtlMenu[] = {
@@ -2621,45 +2617,37 @@ void CP_Sound(
 			// SOUND EFFECTS / DIGITIZED SOUND
 			//
 		case 0:
+			::sd_wait_sound_done();
+			::sd_enable_sound(!::sd_is_sound_enabled_);
+
 			if (::sd_is_sound_enabled_)
 			{
-				::sd_wait_sound_done();
-				::sd_enable_sound(false);
-				::DrawSoundMenu();
+				::CA_LoadAllSounds();
 			}
+
+			::DrawSoundMenu();
+
+			if (::sd_is_sound_enabled_)
+			{
+				::ShootSnd();
+			}
+
 			break;
 
 		case 1:
-			if (!::sd_is_sound_enabled_)
-			{
-				::sd_wait_sound_done();
-				::sd_enable_sound(true);
-				::CA_LoadAllSounds();
-				::DrawSoundMenu();
-				::ShootSnd();
-			}
-			break;
+			::sd_enable_music(!::sd_is_music_enabled_);
 
-			//
-			// MUSIC
-			//
-		case 4:
 			if (::sd_is_music_enabled_)
 			{
-				::sd_enable_music(false);
-				::DrawSoundMenu();
-				::ShootSnd();
-			}
-			break;
-
-		case 5:
-			if (!::sd_is_music_enabled_)
-			{
-				::sd_enable_music(true);
-				::DrawSoundMenu();
-				::ShootSnd();
 				::StartCPMusic(MENUSONG);
 			}
+
+			::DrawSoundMenu();
+			::ShootSnd();
+
+			break;
+
+		default:
 			break;
 		}
 	} while (which >= 0);
@@ -2683,19 +2671,12 @@ void DrawSoundMenu()
 
 	if (!::sd_has_audio_)
 	{
+		::SndMenu[0].active = AT_DISABLED;
 		::SndMenu[1].active = AT_DISABLED;
-		::SndMenu[5].active = AT_DISABLED;
 	}
-
-	fontnumber = 4;
-
-	SETFONTCOLOR(DISABLED_TEXT_COLOR, TERM_BACK_COLOR);
-	ShadowPrint("SOUND EFFECTS", 105, 72);
-	ShadowPrint("BACKGROUND MUSIC", 105, 100);
 
 	fontnumber = 2;
 	DrawMenu(&SndItems, &SndMenu[0]);
-
 
 	DrawAllSoundLights(SndItems.curpos);
 
@@ -2728,38 +2709,21 @@ void DrawAllSoundLights(
 
 			switch (i)
 			{
-				//
-				// SOUND EFFECTS / DIGITIZED SOUND
-				//
 			case 0:
-				if (!::sd_is_sound_enabled_)
-				{
-					++Shape;
-				}
-				break;
-
-			case 1:
 				if (::sd_is_sound_enabled_)
 				{
 					++Shape;
 				}
 				break;
 
-				//
-				// MUSIC
-				//
-			case 4:
-				if (!::sd_is_music_enabled_)
+			case 1:
+				if (::sd_is_music_enabled_)
 				{
 					++Shape;
 				}
 				break;
 
-			case 5:
-				if (::sd_is_music_enabled_)
-				{
-					++Shape;
-				}
+			default:
 				break;
 			}
 
