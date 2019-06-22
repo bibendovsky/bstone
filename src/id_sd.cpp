@@ -22,37 +22,6 @@ Free Software Foundation, Inc.,
 */
 
 
-//
-//      ID Engine
-//      ID_SD.c - Sound Manager for Wolfenstein 3D
-//      v1.3 (revised for **********, screwed with for Blake Stone)
-//      By Jason Blochowiak
-//
-
-//
-//      This module handles dealing with generating sound on the appropriate
-//              hardware
-//
-//      Depends on: User Mgr (for parm checking)
-//
-//      Globals:
-//              For User Mgr:
-//                      SoundSourcePresent - Sound Source thingie present?
-//                      SoundBlasterPresent - SoundBlaster card present?
-//                      AdLibPresent - AdLib card present?
-//                      SoundMode - What device is used for sound effects
-//                              (Use SM_SetSoundMode() to set)
-//                      MusicMode - What device is used for music
-//                              (Use SM_SetMusicMode() to set)
-//                      DigiMode - What device is used for digitized sound effects
-//                              (Use SM_SetDigiDevice() to set)
-//
-//              For Cache Mgr:
-//                      NeedsDigitized - load digitized sounds?
-//                      NeedsMusic - load music?
-//
-
-
 #include "id_sd.h"
 #include "audio.h"
 #include "id_ca.h"
@@ -81,11 +50,13 @@ bool sd_is_music_enabled_ = false;
 std::uint8_t** sd_sound_table_;
 
 // Internal variables
+
 static bool sd_started_;
 
 std::uint16_t* sd_digi_list_;
 
 // AdLib variables
+
 bool sd_sq_active_;
 std::uint16_t* sd_sq_hack_;
 std::uint16_t sd_sq_hack_len_;
@@ -94,6 +65,7 @@ bool sd_sq_played_once_;
 // Internal routines
 
 // BBi
+
 static int sd_music_index_ = -1;
 static bstone::AudioMixer sd_mixer_;
 
@@ -170,12 +142,7 @@ void sd_setup_digi()
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      sd_detect_ad_lib() - Determines if there's an AdLib (or SoundBlaster
-//              emulating an AdLib) present
-//
-///////////////////////////////////////////////////////////////////////////
+// Determines if there's an AdLib (or SoundBlaster emulating an AdLib) present
 static bool sd_detect_ad_lib()
 {
 	const auto& snd_is_disabled_string = ::g_args.get_option_value("snd_is_disabled");
@@ -316,12 +283,7 @@ void sd_shutdown()
 	sd_started_ = false;
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      sd_sound_playing() - returns the sound number that's playing, or 0 if
-//              no sound is playing
-//
-///////////////////////////////////////////////////////////////////////////
+// Returns the sound number that's playing, or 0 if no sound is playing
 bool sd_sound_playing()
 {
 	if (::sd_is_sound_enabled_)
@@ -334,21 +296,13 @@ bool sd_sound_playing()
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      sd_stop_sound() - if a sound is playing, stops it
-//
-///////////////////////////////////////////////////////////////////////////
+// If a sound is playing, stops it.
 void sd_stop_sound()
 {
 	::sd_mixer_.stop_all_sfx();
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      sd_wait_sound_done() - waits until the current sound is done playing
-//
-///////////////////////////////////////////////////////////////////////////
+// Waits until the current sound is done playing.
 void sd_wait_sound_done()
 {
 	while (::sd_sound_playing())
@@ -357,33 +311,21 @@ void sd_wait_sound_done()
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      sd_music_on() - turns on the sequencer
-//
-///////////////////////////////////////////////////////////////////////////
+// Turns on the sequencer.
 void sd_music_on()
 {
 	::sd_sq_active_ = true;
 	::sd_mixer_.play_adlib_music(sd_music_index_, sd_sq_hack_, sd_sq_hack_len_);
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      sd_music_off() - turns off the sequencer and any playing notes
-//
-///////////////////////////////////////////////////////////////////////////
+// Turns off the sequencer and any playing notes.
 void sd_music_off()
 {
 	::sd_sq_active_ = false;
 	::sd_mixer_.stop_music();
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      sd_start_music() - starts playing the music pointed to
-//
-///////////////////////////////////////////////////////////////////////////
+// Starts playing the music pointed to.
 void sd_start_music(
 	const int index)
 {
@@ -414,6 +356,7 @@ void sd_start_music(
 }
 
 // BBi
+
 void sd_play_sound(
 	const int sound_index,
 	const void* actor,
@@ -425,7 +368,7 @@ void sd_play_sound(
 		return;
 	}
 
-	if (!sd_sound_table_)
+	if (!::sd_is_sound_enabled_)
 	{
 		return;
 	}
@@ -588,4 +531,5 @@ void sd_mute(
 {
 	::sd_mixer_.set_mute(mute);
 }
+
 // BBi
