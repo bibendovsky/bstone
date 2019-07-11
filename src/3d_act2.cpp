@@ -2827,7 +2827,12 @@ void ConnectBarriers()
 
 				if (!actor)
 				{
+// BBi Custom maps may have switches connected to non-activable objects.
+#if 0
 					::Quit("A barrier switch was not connect to any barriers.");
+#endif // 0
+
+					return;
 				}
 
 				switch (actor->obclass)
