@@ -2832,7 +2832,6 @@ void ConnectBarriers()
 					case arc_barrierobj:
 					case post_barrierobj:
 						break;
-
 					default:
 						::Quit("A barrier switch was not connect to any barriers.");
 						break;
