@@ -69,10 +69,10 @@ Number keys are hard mapped to a column on the right side of the front touchscre
 Compiling
 =========
 
-Install vitasdk and cmake, enter into the `vita/` subdirectory, and type
+Install vitasdk and cmake, enter into the `build/` subdirectory, and type
 
 ```
-cmake . && cmake --build .
+cmake ../src/vita/ && cmake --build .
 ```
 
 Credits
