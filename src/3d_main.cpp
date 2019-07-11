@@ -8168,7 +8168,9 @@ void NewGame(
 
 	::startgame = true;
 
-	for (loop = 0; loop < MAPS_WITH_STATS; loop++)
+	const auto stats_levels_per_episode = assets_info.get_stats_levels_per_episode();
+
+	for (loop = 0; loop < stats_levels_per_episode; loop++)
 	{
 		::gamestuff.old_levelinfo[loop].stats.overall_floor = 100;
 		if (loop)
@@ -10227,8 +10229,11 @@ fargametype::fargametype()
 
 void fargametype::initialize()
 {
-	old_levelinfo.resize(MAPS_PER_EPISODE);
-	level.resize(MAPS_PER_EPISODE);
+	const auto& assets_info = AssetsInfo{};
+	const auto level_count_per_episode = assets_info.get_levels_per_episode();
+
+	old_levelinfo.resize(level_count_per_episode);
+	level.resize(level_count_per_episode);
 }
 
 void fargametype::clear()
@@ -10242,12 +10247,15 @@ void fargametype::clear()
 void fargametype::archive(
 	bstone::ArchiverPtr archiver) const
 {
-	for (int i = 0; i < MAPS_PER_EPISODE; ++i)
+	const auto& assets_info = AssetsInfo{};
+	const auto levels_per_episode = assets_info.get_levels_per_episode();
+
+	for (int i = 0; i < levels_per_episode; ++i)
 	{
 		old_levelinfo[i].archive(archiver);
 	}
 
-	for (int i = 0; i < MAPS_PER_EPISODE; ++i)
+	for (int i = 0; i < levels_per_episode; ++i)
 	{
 		level[i].archive(archiver);
 	}
@@ -10256,12 +10264,15 @@ void fargametype::archive(
 void fargametype::unarchive(
 	bstone::ArchiverPtr archiver)
 {
-	for (int i = 0; i < MAPS_PER_EPISODE; ++i)
+	const auto& assets_info = AssetsInfo{};
+	const auto levels_per_episode = assets_info.get_levels_per_episode();
+
+	for (int i = 0; i < levels_per_episode; ++i)
 	{
 		old_levelinfo[i].unarchive(archiver);
 	}
 
-	for (int i = 0; i < MAPS_PER_EPISODE; ++i)
+	for (int i = 0; i < levels_per_episode; ++i)
 	{
 		level[i].unarchive(archiver);
 	}
@@ -10458,7 +10469,7 @@ const std::string& get_version_string()
 #ifdef __vita__
     static const std::string version = "0.3";
 #else
-    static const std::string version = "1.1.12";
+    static const std::string version = "1.1.13";
 #endif
     return version;
 }

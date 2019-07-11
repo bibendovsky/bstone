@@ -786,7 +786,11 @@ void CAL_SetupMapFile()
 	//
 	// load all map header
 	//
-	for (i = 0; i < NUMMAPS; ++i)
+	const auto& assets_info = AssetsInfo{};
+
+	const auto total_levels = assets_info.get_total_levels();
+
+	for (i = 0; i < total_levels; ++i)
 	{
 		pos = header.headeroffsets[i];
 

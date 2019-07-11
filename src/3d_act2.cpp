@@ -2825,23 +2825,28 @@ void ConnectBarriers()
 				auto actor =
 					::actorat[barrier->coord.tilex][barrier->coord.tiley];
 
-				if (!actor)
+				if (actor != nullptr)
 				{
+					switch (actor->obclass)
+					{
+					case arc_barrierobj:
+					case post_barrierobj:
+						break;
+					default:
+						::Quit("A barrier switch was not connect to any barriers.");
+						break;
+					}
+
+					static_cast<void>(::CheckActor(actor, num));
+				}
+				else
+				{
+// BBi Custom maps may have switches connected to non-activable objects.
+#if 0
 					::Quit("A barrier switch was not connect to any barriers.");
+#endif // 0
 				}
 
-				switch (actor->obclass)
-				{
-				case arc_barrierobj:
-				case post_barrierobj:
-					break;
-
-				default:
-					::Quit("A barrier switch was not connect to any barriers.");
-					break;
-				}
-
-				static_cast<void>(::CheckActor(actor, num));
 			}
 		}
 	}
