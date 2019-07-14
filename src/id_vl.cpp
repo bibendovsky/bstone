@@ -2910,7 +2910,7 @@ bool hw_renderer_initialize()
 
 	if (!hw_renderer_)
 	{
-		::vid_log_hw_renderer_error("Failed to initialize renderer.");
+		::vid_log_hw_renderer_manager_error("Failed to initialize renderer.");
 
 		return false;
 	}
