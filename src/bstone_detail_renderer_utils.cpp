@@ -214,6 +214,7 @@ bool RendererUtils::validate_initialize_param(
 
 	switch (param.aa_kind_)
 	{
+		case RendererAaKind::none:
 		case RendererAaKind::ms:
 			break;
 
