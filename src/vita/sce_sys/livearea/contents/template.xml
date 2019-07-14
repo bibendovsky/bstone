@@ -8,4 +8,14 @@
 	<gate>
 		<startup-image>startup.png</startup-image>
 	</gate>
+
+	<frame id='frame7' multi='o' autoflip='3' >
+		<liveitem>
+			<target>psla:--ps</target>
+			<image>ps.png</image>
+			<text origin="background" align="right" y="-250" margin-right="14">
+				<str size="14" shadow="on" color="#ffffff">0.3</str>
+			</text>
+		</liveitem>
+	</frame>
 </livearea>

@@ -1,5 +1,11 @@
 # BStone changelog
 
+## [1.1.13] - 2019-07-11
+### Fixed
+- [AOG] Allow to warp to level beyond the 10th one.
+- Critical error if switch connected to non-activable object.
+
+
 ## [1.1.12] - 2019-02-09
 ### Fixed
 - [CMake] Dependency on TestBigEndian.

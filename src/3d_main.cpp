@@ -51,8 +51,7 @@ Free Software Foundation, Inc.,
 #include "bstone_text_writer.h"
 
 #ifdef __vita__
-#include <psp2/kernel/processmgr.h>
-#include <psp2/power.h>
+#include <vitasdk.h>
 #endif
 
 
@@ -207,7 +206,7 @@ std::int16_t dirangle[9] = {
 }; // dirangle
 
 //
-// proejection variables
+// projection variables
 //
 fixed focallength;
 int screenofs;
@@ -8169,7 +8168,9 @@ void NewGame(
 
 	::startgame = true;
 
-	for (loop = 0; loop < MAPS_WITH_STATS; loop++)
+	const auto stats_levels_per_episode = assets_info.get_stats_levels_per_episode();
+
+	for (loop = 0; loop < stats_levels_per_episode; loop++)
 	{
 		::gamestuff.old_levelinfo[loop].stats.overall_floor = 100;
 		if (loop)
@@ -9800,9 +9801,33 @@ int main(
 	scePowerSetBusClockFrequency(222);
 	scePowerSetGpuClockFrequency(222);
 	scePowerSetGpuXbarClockFrequency(166);
-#endif
+    sceAppUtilInit(&(SceAppUtilInitParam){}, &(SceAppUtilBootParam){});
+    SceAppUtilAppEventParam eventParam;
+    memset(&eventParam, 0, sizeof(SceAppUtilAppEventParam));
+    sceAppUtilReceiveAppEvent(&eventParam);
 
-	::g_args.initialize(argc, argv);
+    if (eventParam.type == 0x05){
+        argc++;
+        const char* pargv[argc];
+        for (int i = 0; i< argc - 1; i++)
+        {
+            pargv[i] = argv[i];
+        }
+#ifdef VITATEST
+        const char* newarg = "--cheats";
+#else
+        const char* newarg = "--ps";
+#endif
+        pargv[argc-1] = newarg;
+        ::g_args.initialize(argc, pargv);
+    }
+    else
+    {
+        ::g_args.initialize(argc, argv);
+    }
+#else
+    ::g_args.initialize(argc, argv);
+#endif
 
 	bstone::Log::initialize();
 
@@ -10204,8 +10229,11 @@ fargametype::fargametype()
 
 void fargametype::initialize()
 {
-	old_levelinfo.resize(MAPS_PER_EPISODE);
-	level.resize(MAPS_PER_EPISODE);
+	const auto& assets_info = AssetsInfo{};
+	const auto level_count_per_episode = assets_info.get_levels_per_episode();
+
+	old_levelinfo.resize(level_count_per_episode);
+	level.resize(level_count_per_episode);
 }
 
 void fargametype::clear()
@@ -10219,12 +10247,15 @@ void fargametype::clear()
 void fargametype::archive(
 	bstone::ArchiverPtr archiver) const
 {
-	for (int i = 0; i < MAPS_PER_EPISODE; ++i)
+	const auto& assets_info = AssetsInfo{};
+	const auto levels_per_episode = assets_info.get_levels_per_episode();
+
+	for (int i = 0; i < levels_per_episode; ++i)
 	{
 		old_levelinfo[i].archive(archiver);
 	}
 
-	for (int i = 0; i < MAPS_PER_EPISODE; ++i)
+	for (int i = 0; i < levels_per_episode; ++i)
 	{
 		level[i].archive(archiver);
 	}
@@ -10233,12 +10264,15 @@ void fargametype::archive(
 void fargametype::unarchive(
 	bstone::ArchiverPtr archiver)
 {
-	for (int i = 0; i < MAPS_PER_EPISODE; ++i)
+	const auto& assets_info = AssetsInfo{};
+	const auto levels_per_episode = assets_info.get_levels_per_episode();
+
+	for (int i = 0; i < levels_per_episode; ++i)
 	{
 		old_levelinfo[i].unarchive(archiver);
 	}
 
-	for (int i = 0; i < MAPS_PER_EPISODE; ++i)
+	for (int i = 0; i < levels_per_episode; ++i)
 	{
 		level[i].unarchive(archiver);
 	}
@@ -10422,12 +10456,7 @@ void gametype::restore_local_barriers()
 void sys_sleep_for(
 	const int milliseconds)
 {
-#ifdef __vita__
-	sceKernelDelayThread(milliseconds);
-	//    SDL_Delay(milliseconds); // todo: investigate this as alternative
-#else
 	::SDL_Delay(milliseconds);
-#endif
 }
 
 void sys_default_sleep_for()
@@ -10437,8 +10466,12 @@ void sys_default_sleep_for()
 
 const std::string& get_version_string()
 {
-	static const std::string version = "1.1.12";
-	return version;
+#ifdef __vita__
+    static const std::string version = "0.3";
+#else
+    static const std::string version = "1.1.13";
+#endif
+    return version;
 }
 
 const std::string& get_profile_dir()

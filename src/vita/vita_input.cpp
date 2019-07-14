@@ -24,13 +24,12 @@
 extern int in_mouse_dx;
 extern int in_mouse_dy;
 extern int control2x;
-extern int vid_is_ui_stretched;
+extern bool vid_is_ui_stretched;
 
 void TranslateControllerEvent(SDL_Event *ev)
 {
     int btn;
     SDL_Event ev_new;
-    int in_prompt;
     static const struct 
     {
         SDL_Keycode sym;
@@ -38,10 +37,14 @@ void TranslateControllerEvent(SDL_Event *ev)
     } v_keymap[] = 
     {
         { SDLK_y, SDL_SCANCODE_Y },                 // Triangle
-        { SDLK_LALT, SDL_SCANCODE_LALT },           // Circle
+#ifdef VITATEST
+        { SDLK_BACKSPACE, SDL_SCANCODE_BACKSPACE},
+#else
+        { SDLK_TAB, SDL_SCANCODE_TAB },             // Circle
+#endif
         { SDLK_RETURN, SDL_SCANCODE_RETURN },       // Cross
         { SDLK_SPACE, SDL_SCANCODE_SPACE },         // Square
-        { SDLK_TAB, SDL_SCANCODE_TAB },             // L Trigger
+        { SDLK_SPACE, SDL_SCANCODE_SPACE },         // L Trigger
         { SDLK_y, SDL_SCANCODE_Y },                 // R Trigger
         { SDLK_DOWN, SDL_SCANCODE_DOWN },           // D-Down
         { SDLK_LEFT, SDL_SCANCODE_LEFT },           // D-Left
@@ -52,34 +55,12 @@ void TranslateControllerEvent(SDL_Event *ev)
     };
     
     memset(&ev_new, 0, sizeof(SDL_Event));
-
     btn = ev->jbutton.button;
-    in_prompt = 0; // TODO-- for now just use "y" for fire button
 
-    if (in_prompt)
-    {
-        if (btn == 1 || btn == 10)
-        {
-            ev_new.key.keysym.sym = SDLK_n;
-            ev_new.key.keysym.scancode = SDL_SCANCODE_N;
-        }
-        else if (btn == 2 || btn == 11)
-        {
-            ev_new.key.keysym.sym = SDLK_y;
-            ev_new.key.keysym.scancode = SDL_SCANCODE_Y;
-        }
-        else
-        {
-            return;
-        }
-    }
-    else
-    {
-        if (btn < 0 || btn > 11)
-            return;
-        ev_new.key.keysym.sym = v_keymap[btn].sym;
-        ev_new.key.keysym.scancode = v_keymap[btn].scan;
-    }
+    if (btn < 0 || btn > 11)
+        return;
+    ev_new.key.keysym.sym = v_keymap[btn].sym;
+    ev_new.key.keysym.scancode = v_keymap[btn].scan;
 
     if (ev->type == SDL_JOYBUTTONDOWN)
     {
@@ -111,14 +92,13 @@ void TranslateTouchEvent(SDL_Event *ev)
         w *=  0.75F ; // (4/3) / (16/9)
         fingerx += 0.166667F; // (1/6), compensates for 4:3 mode being centered on the vita's screen, as opposed to left flushed
     }
+    // front touch
     if (ev->tfinger.touchId == 0)
     {
-        // front touch
-
-        if (fingerx > 660.0F / w && fingerx < 860.0F / w)    
+        if (fingerx > 660.0F / w && fingerx < 860.0F / w)
         //column containing elevator buttons
         {
-            if (fingery > 50.0F / h  && fingery <= 140.0F / h)    
+            if (fingery > 50.0F / h  && fingery <= 139.0F / h)
             //9,10  50-140 
             {
                 if (fingerx < m/w )
@@ -133,7 +113,7 @@ void TranslateTouchEvent(SDL_Event *ev)
                 }
             }
             //7,8   140-194
-            if (fingery > 140.0F / h  && fingery <= 194.0F / h)    
+            if (fingery > 139.0F / h  && fingery <= 194.0F / h)
             {
                 if (fingerx < m/w )
                 {
@@ -147,7 +127,7 @@ void TranslateTouchEvent(SDL_Event *ev)
                 }
             }
             //5,6   194-249
-            if (fingery > 194.0F / h  && fingery <= 249.0F / h)    
+            if (fingery > 194.0F / h  && fingery <= 249.0F / h)
             {
                 if (fingerx < m/w )
                 {
@@ -161,7 +141,7 @@ void TranslateTouchEvent(SDL_Event *ev)
                 }
             }
             //3,4   249-303
-            if (fingery > 249.0F / h  && fingery <= 303.0F / h)    
+            if (fingery > 249.0F / h  && fingery <= 304.0F / h)
             {
                 if (fingerx < m/w )
                 {
@@ -175,7 +155,7 @@ void TranslateTouchEvent(SDL_Event *ev)
                 }
             }
             //1,2   303-410
-            if (fingery > 303.0F / h  && fingery <= 410.0F / h)    
+            if (fingery > 304.0F / h  && fingery <= 410.0F / h)
             {
                 if (fingerx < m/w )
                 {
@@ -189,27 +169,32 @@ void TranslateTouchEvent(SDL_Event *ev)
                 }
             }
         }
-
         else
         //outside of the column
         {
-        ev_new.key.keysym.sym = SDLK_BACKQUOTE;
-        ev_new.key.keysym.scancode = SDL_SCANCODE_GRAVE;
+#ifdef VITATEST
+            ev_new.key.keysym.sym = SDLK_w;
+            ev_new.key.keysym.scancode = SDL_SCANCODE_W;
+#endif
         }
+        if (fingery > 410.0F / h)
+        {
+            if (fingerx > 480.0F / w)
+            {
+                ev_new.key.keysym.sym = SDLK_EQUALS;
+                ev_new.key.keysym.scancode = SDL_SCANCODE_EQUALS;
+            }
+            else
+            {
+                ev_new.key.keysym.sym = SDLK_MINUS;
+                ev_new.key.keysym.scancode = SDL_SCANCODE_MINUS;
+            }
+        }
+
     }
     else
     {
         // back touch
-        if (fingerx > 480.0F / w)
-        {
-            ev_new.key.keysym.sym = SDLK_EQUALS;
-            ev_new.key.keysym.scancode = SDL_SCANCODE_EQUALS;
-        }
-        else
-        {
-            ev_new.key.keysym.sym = SDLK_MINUS;
-            ev_new.key.keysym.scancode = SDL_SCANCODE_MINUS;
-        }
     }
 
     if (ev->type == SDL_FINGERDOWN)
@@ -235,17 +220,17 @@ void TranslateAnalogEvent(SDL_Event *ev)
     {   
         delta = 0;
     }
-    // denominaors in the below expressiona estimated empirically
-    if (ev->jaxis.axis == 0)
+    // denominators in the below expressions estimated empirically
+    if (ev->jaxis.axis == 0)  //side-to-side
     {
-        control2x = delta / 400;
+        control2x = delta / 360;
     }
-    else if (ev->jaxis.axis == 2)
+    else if (ev->jaxis.axis == 2) //turn
     {
-        in_mouse_dx = delta / 600 ;
+        in_mouse_dx = delta / 500 ;
     }
-    else if (ev->jaxis.axis == 1)
+    else if (ev->jaxis.axis == 1) //forward
     {
-        in_mouse_dy = delta / 1900 ;
+        in_mouse_dy = delta / 1860 ; //2100 slower than key /2050 faster /2070 a bit slower?
     }
 }
