@@ -98,6 +98,7 @@ enum class OglExtensionId
 	arb_texture_rg,
 	arb_uniform_buffer_object,
 	arb_vertex_array_object,
+	arb_vertex_buffer_object,
 
 	ext_framebuffer_blit,
 	ext_framebuffer_multisample,

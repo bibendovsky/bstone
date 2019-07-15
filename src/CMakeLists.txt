@@ -204,6 +204,7 @@ target_sources(
 		bstone_cl_args.h
 		bstone_crc32.h
 		bstone_detail_ogl_1_x_renderer.h
+		bstone_detail_ogl_2_x_renderer.h
 		bstone_detail_ogl_extension_manager.h
 		bstone_detail_ogl_renderer_utils.h
 		bstone_detail_renderer_utils.h
@@ -291,6 +292,7 @@ target_sources(
 		bstone_cl_args.cpp
 		bstone_crc32.cpp
 		bstone_detail_ogl_1_x_renderer.cpp
+		bstone_detail_ogl_2_x_renderer.cpp
 		bstone_detail_ogl_extension_manager_impl.cpp
 		bstone_detail_ogl_renderer_utils.cpp
 		bstone_detail_renderer_utils.cpp

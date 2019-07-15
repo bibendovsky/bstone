@@ -59,6 +59,7 @@ enum class RendererPath :
 	software,
 
 	ogl_1_x,
+	ogl_2_x,
 }; // RendererPath
 
 enum class RendererCommandId :

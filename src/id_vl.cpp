@@ -3537,7 +3537,11 @@ bool hw_2d_fillers_vi_create()
 
 void hw_2d_texture_1x1_black_destroy()
 {
-	::hw_texture_manager_->solid_1x1_destroy(bstone::HwTextureManagerSolid1x1Id::black);
+	if (::hw_texture_manager_ != nullptr)
+	{
+		::hw_texture_manager_->solid_1x1_destroy(bstone::HwTextureManagerSolid1x1Id::black);
+	}
+
 	::hw_2d_black_t2d_1x1_ = nullptr;
 }
 
@@ -3564,7 +3568,11 @@ bool hw_2d_texture_1x1_black_create()
 
 void hw_2d_texture_1x1_white_destroy()
 {
-	::hw_texture_manager_->solid_1x1_destroy(bstone::HwTextureManagerSolid1x1Id::white);
+	if (::hw_texture_manager_ != nullptr)
+	{
+		::hw_texture_manager_->solid_1x1_destroy(bstone::HwTextureManagerSolid1x1Id::white);
+	}
+
 	::hw_2d_white_t2d_1x1_ = nullptr;
 }
 
@@ -3591,7 +3599,11 @@ bool hw_2d_texture_1x1_white_create()
 
 void hw_2d_texture_1x1_fade_destroy()
 {
-	::hw_texture_manager_->solid_1x1_destroy(bstone::HwTextureManagerSolid1x1Id::fade_2d);
+	if (::hw_texture_manager_ != nullptr)
+	{
+		::hw_texture_manager_->solid_1x1_destroy(bstone::HwTextureManagerSolid1x1Id::fade_2d);
+	}
+
 	::hw_2d_fade_t2d_ = nullptr;
 }
 
@@ -3855,7 +3867,11 @@ bool hw_3d_flooring_vi_create()
 
 void hw_3d_flooring_texture_2d_solid_destroy()
 {
-	::hw_texture_manager_->solid_1x1_destroy(bstone::HwTextureManagerSolid1x1Id::flooring);
+	if (::hw_texture_manager_ != nullptr)
+	{
+		::hw_texture_manager_->solid_1x1_destroy(bstone::HwTextureManagerSolid1x1Id::flooring);
+	}
+
 	::hw_3d_flooring_solid_t2d_ = nullptr;
 }
 
@@ -4044,7 +4060,11 @@ bool hw_3d_ceiling_vi_create()
 
 void hw_3d_ceiling_texture_2d_solid_destroy()
 {
-	::hw_texture_manager_->solid_1x1_destroy(bstone::HwTextureManagerSolid1x1Id::ceiling);
+	if (::hw_texture_manager_ != nullptr)
+	{
+		::hw_texture_manager_->solid_1x1_destroy(bstone::HwTextureManagerSolid1x1Id::ceiling);
+	}
+
 	::hw_3d_ceiling_solid_t2d_ = nullptr;
 }
 
@@ -5419,7 +5439,11 @@ void hw_3d_fade_vb_update()
 
 void hw_3d_fade_texture_2d_destroy()
 {
-	::hw_texture_manager_->solid_1x1_destroy(bstone::HwTextureManagerSolid1x1Id::fade_3d);
+	if (::hw_texture_manager_ != nullptr)
+	{
+		::hw_texture_manager_->solid_1x1_destroy(bstone::HwTextureManagerSolid1x1Id::fade_3d);
+	}
+
 	::hw_3d_fade_t2d_ = nullptr;
 }
 

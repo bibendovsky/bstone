@@ -1040,3 +1040,28 @@ PFNGLCLAMPCOLORARBPROC glClampColorARB = nullptr;
 //
 // GL_ARB_color_buffer_float
 // ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_vertex_buffer_object
+//
+
+#ifdef GL_ARB_vertex_buffer_object
+
+PFNGLBINDBUFFERARBPROC glBindBufferARB = nullptr;
+PFNGLDELETEBUFFERSARBPROC glDeleteBuffersARB = nullptr;
+PFNGLGENBUFFERSARBPROC glGenBuffersARB = nullptr;
+PFNGLISBUFFERARBPROC glIsBufferARB = nullptr;
+PFNGLBUFFERDATAARBPROC glBufferDataARB = nullptr;
+PFNGLBUFFERSUBDATAARBPROC glBufferSubDataARB = nullptr;
+PFNGLGETBUFFERSUBDATAARBPROC glGetBufferSubDataARB = nullptr;
+PFNGLMAPBUFFERARBPROC glMapBufferARB = nullptr;
+PFNGLUNMAPBUFFERARBPROC glUnmapBufferARB = nullptr;
+PFNGLGETBUFFERPARAMETERIVARBPROC glGetBufferParameterivARB = nullptr;
+PFNGLGETBUFFERPOINTERVARBPROC glGetBufferPointervARB = nullptr;
+
+#endif // GL_ARB_vertex_buffer_object
+
+//
+// GL_ARB_vertex_buffer_object
+// ==========================================================================

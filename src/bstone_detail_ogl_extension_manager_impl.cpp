@@ -203,6 +203,8 @@ private:
 
 	bool resolve_arb_vertex_array_object();
 
+	bool resolve_arb_vertex_buffer_object();
+
 
 	bool resolve_ext_framebuffer_blit();
 
@@ -703,6 +705,20 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "GL_ARB_vertex_array_object";
 		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_arb_vertex_array_object;
+		registry_item.dependencies_ = {};
+	}
+
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::arb_vertex_buffer_object)];
+		registry_item.is_virtual_ = false;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = false;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
+		registry_item.extension_name_ = "GL_ARB_vertex_buffer_object";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_arb_vertex_buffer_object;
 		registry_item.dependencies_ = {};
 	}
 
@@ -1840,6 +1856,25 @@ bool OglExtensionManagerImpl::resolve_arb_vertex_array_object()
 	resolve_symbol("glDeleteVertexArrays", ::glDeleteVertexArrays, is_failed);
 	resolve_symbol("glGenVertexArrays", ::glGenVertexArrays, is_failed);
 	resolve_symbol("glIsVertexArray", ::glIsVertexArray, is_failed);
+
+	return !is_failed;
+}
+
+bool OglExtensionManagerImpl::resolve_arb_vertex_buffer_object()
+{
+	auto is_failed = false;
+
+	resolve_symbol("glBindBufferARB", ::glBindBufferARB, is_failed);
+	resolve_symbol("glDeleteBuffersARB", ::glDeleteBuffersARB, is_failed);
+	resolve_symbol("glGenBuffersARB", ::glGenBuffersARB, is_failed);
+	resolve_symbol("glIsBufferARB", ::glIsBufferARB, is_failed);
+	resolve_symbol("glBufferDataARB", ::glBufferDataARB, is_failed);
+	resolve_symbol("glBufferSubDataARB", ::glBufferSubDataARB, is_failed);
+	resolve_symbol("glGetBufferSubDataARB", ::glGetBufferSubDataARB, is_failed);
+	resolve_symbol("glMapBufferARB", ::glMapBufferARB, is_failed);
+	resolve_symbol("glUnmapBufferARB", ::glUnmapBufferARB, is_failed);
+	resolve_symbol("glGetBufferParameterivARB", ::glGetBufferParameterivARB, is_failed);
+	resolve_symbol("glGetBufferPointervARB", ::glGetBufferPointervARB, is_failed);
 
 	return !is_failed;
 }

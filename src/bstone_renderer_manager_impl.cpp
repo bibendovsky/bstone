@@ -31,6 +31,7 @@ Free Software Foundation, Inc.,
 #include "bstone_renderer_manager.h"
 #include <vector>
 #include "bstone_detail_ogl_1_x_renderer.h"
+#include "bstone_detail_ogl_2_x_renderer.h"
 #include "bstone_detail_ogl_renderer_utils.h"
 
 
@@ -124,18 +125,16 @@ private:
 	using Renderers = std::vector<RendererPtr>;
 
 
-	static const auto renderer_count = 1;
-
-	static const auto ogl_index = 0;
-
-
 	bool is_initialized_;
 	std::string error_message_;
+
+	int renderer_count_;
 
 	RendererProbe renderer_probe_;
 	Renderers renderers_;
 
 	detail::Ogl1XRenderer ogl_1_x_renderer_;
+	detail::Ogl2XRenderer ogl_2_x_renderer_;
 }; // RendererManagerImpl::Impl
 
 //
@@ -199,8 +198,18 @@ bool RendererManagerImpl::Impl::initialize()
 
 	is_initialized_ = true;
 
-	renderers_.resize(renderer_count);
-	renderers_[ogl_index] = &ogl_1_x_renderer_;
+	renderer_count_ = 0;
+	renderers_.resize(0);
+
+	// OpenGL 1.x
+	//
+	++renderer_count_;
+	renderers_.emplace_back(&ogl_1_x_renderer_);
+
+	// OpenGL 2.x
+	//
+	++renderer_count_;
+	renderers_.emplace_back(&ogl_2_x_renderer_);
 
 	return true;
 }
@@ -226,7 +235,7 @@ int RendererManagerImpl::Impl::get_renderer_count() const
 		return 0;
 	}
 
-	return renderer_count;
+	return renderer_count_;
 }
 
 RendererPtr RendererManagerImpl::Impl::get_renderer(
@@ -237,7 +246,7 @@ RendererPtr RendererManagerImpl::Impl::get_renderer(
 		return nullptr;
 	}
 
-	if (index < 0 || index >= renderer_count)
+	if (index < 0 || index >= renderer_count_)
 	{
 		return nullptr;
 	}
@@ -258,7 +267,17 @@ bool RendererManagerImpl::Impl::renderer_probe(
 		// OpenGL.
 		//
 
+		// OpenGL 2.x.
+		//
+		if (ogl_2_x_renderer_.probe())
+		{
+			renderer_probe_ = ogl_2_x_renderer_.probe_get();
+
+			return true;
+		}
+
 		// OpenGL 1.x.
+		//
 		if (ogl_1_x_renderer_.probe())
 		{
 			renderer_probe_ = ogl_1_x_renderer_.probe_get();
@@ -270,6 +289,18 @@ bool RendererManagerImpl::Impl::renderer_probe(
 	{
 		// OpenGL.
 		//
+
+		// OpenGL 2.x.
+		//
+		if (renderer_path == RendererPath::ogl_2_x)
+		{
+			if (ogl_2_x_renderer_.probe())
+			{
+				renderer_probe_.path_ = renderer_path;
+
+				return true;
+			}
+		}
 
 		// OpenGL 1.x.
 		//
@@ -310,6 +341,17 @@ RendererPtr RendererManagerImpl::Impl::renderer_initialize(
 			return &ogl_1_x_renderer_;
 		}
 
+		break;
+
+	case RendererPath::ogl_2_x:
+		if (ogl_2_x_renderer_.initialize(param))
+		{
+			return &ogl_2_x_renderer_;
+		}
+
+		break;
+
+	default:
 		break;
 	}
 
