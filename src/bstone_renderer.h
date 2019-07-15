@@ -128,6 +128,21 @@ enum class RendererAaKind
 	ms,
 }; // RendererAaKind
 
+enum class RendererBufferUsageKind :
+	unsigned char
+{
+	none,
+
+	// Target - drawing; updates - continuous.
+	stream_draw,
+
+	// Target - drawing; updates - seldom.
+	static_draw,
+
+	// Target - drawing; updates - often.
+	dynamic_draw,
+}; // RendererBufferUsageKind
+
 
 class RendererInitializeWindowParam
 {
@@ -192,6 +207,7 @@ using RendererIbTypeT = std::conditional_t<
 
 struct RendererIndexBufferCreateParam
 {
+	RendererBufferUsageKind usage_kind_;
 	int byte_depth_;
 	int size_;
 }; // RendererIndexBufferCreateParam
@@ -229,6 +245,7 @@ using RendererIndexBufferPtr = RendererIndexBuffer*;
 
 struct RendererVertexBufferCreateParam
 {
+	RendererBufferUsageKind usage_kind_;
 	int size_;
 }; // RendererVertexBufferCreateParam
 

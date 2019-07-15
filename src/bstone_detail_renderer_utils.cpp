@@ -231,6 +231,18 @@ bool RendererUtils::validate_initialize_param(
 bool RendererUtils::validate_index_buffer_create_param(
 	const RendererIndexBufferCreateParam& param)
 {
+	switch (param.usage_kind_)
+	{
+		case RendererBufferUsageKind::stream_draw:
+		case RendererBufferUsageKind::static_draw:
+		case RendererBufferUsageKind::dynamic_draw:
+			break;
+
+		default:
+			error_message_ = "Invalid usage kind.";
+		return false;
+	}
+
 	switch (param.byte_depth_)
 	{
 	case 1:

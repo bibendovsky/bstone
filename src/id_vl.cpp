@@ -2663,12 +2663,14 @@ void hw_index_buffer_destroy(
 }
 
 bstone::RendererIndexBufferPtr hw_index_buffer_create(
+	const bstone::RendererBufferUsageKind usage_kind,
 	const int byte_depth,
 	const int index_count)
 {
 	const auto index_buffer_size = index_count * byte_depth;
 
 	auto param = bstone::RendererIndexBufferCreateParam{};
+	param.usage_kind_ = usage_kind;
 	param.byte_depth_ = byte_depth;
 	param.size_ = index_buffer_size;
 
@@ -2708,6 +2710,7 @@ void hw_vertex_buffer_destroy(
 
 template<typename TVertex>
 bstone::RendererVertexBufferPtr hw_vertex_buffer_create(
+	const bstone::RendererBufferUsageKind usage_kind,
 	const int vertex_count)
 {
 	const auto vertex_buffer_size = static_cast<int>(vertex_count * sizeof(TVertex));
@@ -2950,7 +2953,11 @@ void hw_2d_ui_ib_destroy()
 
 bool hw_2d_ui_ib_create()
 {
-	::hw_2d_ui_ib_ = ::hw_index_buffer_create(1, ::hw_2d_index_count_);
+	::hw_2d_ui_ib_ = ::hw_index_buffer_create(
+		bstone::RendererBufferUsageKind::static_draw,
+		1,
+		::hw_2d_index_count_
+	);
 
 	if (!::hw_2d_ui_ib_)
 	{
@@ -3075,7 +3082,10 @@ void hw_2d_ui_vb_destroy()
 
 bool hw_2d_ui_vb_create()
 {
-	::hw_2d_ui_vb_ = ::hw_vertex_buffer_create<HwVertex>(::hw_2d_vertex_count_);
+	::hw_2d_ui_vb_ = ::hw_vertex_buffer_create<HwVertex>(
+		bstone::RendererBufferUsageKind::static_draw,
+		::hw_2d_vertex_count_
+	);
 
 	if (!::hw_2d_ui_vb_)
 	{
@@ -3104,7 +3114,11 @@ void hw_2d_fillers_ib_destroy()
 
 bool hw_2d_fillers_ib_create()
 {
-	::hw_2d_fillers_ib_ = ::hw_index_buffer_create(1, ::hw_2d_fillers_index_count_);
+	::hw_2d_fillers_ib_ = ::hw_index_buffer_create(
+		bstone::RendererBufferUsageKind::static_draw,
+		1,
+		::hw_2d_fillers_index_count_
+	);
 
 	if (!::hw_2d_fillers_ib_)
 	{
@@ -3164,7 +3178,10 @@ void hw_2d_fillers_vb_destroy()
 
 bool hw_2d_fillers_vb_create()
 {
-	::hw_2d_fillers_vb_ = ::hw_vertex_buffer_create<HwVertex>(::hw_2d_fillers_vertex_count_);
+	::hw_2d_fillers_vb_ = ::hw_vertex_buffer_create<HwVertex>(
+		bstone::RendererBufferUsageKind::static_draw,
+		::hw_2d_fillers_vertex_count_
+	);
 
 	if (!::hw_2d_fillers_vb_)
 	{
@@ -3745,7 +3762,11 @@ bool hw_3d_flooring_ib_create()
 	const auto index_count = 6;
 
 	{
-		::hw_3d_flooring_ib_ = ::hw_index_buffer_create(1, index_count);
+		::hw_3d_flooring_ib_ = ::hw_index_buffer_create(
+			bstone::RendererBufferUsageKind::static_draw,
+			1,
+			index_count
+		);
 
 		if (!::hw_3d_flooring_ib_)
 		{
@@ -3785,7 +3806,10 @@ bool hw_3d_flooring_vb_create()
 	const auto vertex_count = 4;
 
 	{
-		::hw_3d_flooring_vb_ = ::hw_vertex_buffer_create<Hw3dFlooringVertex>(vertex_count);
+		::hw_3d_flooring_vb_ = ::hw_vertex_buffer_create<Hw3dFlooringVertex>(
+			bstone::RendererBufferUsageKind::static_draw,
+			vertex_count
+		);
 
 		if (!::hw_3d_flooring_vb_)
 		{
@@ -3942,7 +3966,11 @@ bool hw_3d_ceiling_ib_create()
 	const auto index_count = 6;
 
 	{
-		::hw_3d_ceiling_ib_ = ::hw_index_buffer_create(1, index_count);
+		::hw_3d_ceiling_ib_ = ::hw_index_buffer_create(
+			bstone::RendererBufferUsageKind::static_draw,
+			1,
+			index_count
+		);
 
 		if (!::hw_3d_ceiling_ib_)
 		{
@@ -3982,7 +4010,10 @@ bool hw_3d_ceiling_vb_create()
 	const auto vertex_count = 4;
 
 	{
-		::hw_3d_ceiling_vb_ = ::hw_vertex_buffer_create<Hw3dCeilingVertex>(vertex_count);
+		::hw_3d_ceiling_vb_ = ::hw_vertex_buffer_create<Hw3dCeilingVertex>(
+			bstone::RendererBufferUsageKind::static_draw,
+			vertex_count
+		);
 
 		if (!::hw_3d_ceiling_vb_)
 		{
@@ -4133,7 +4164,11 @@ bool hw_3d_walls_ib_create()
 {
 	const auto index_count = ::hw_3d_wall_side_count_ * ::hw_3d_indices_per_wall_side;
 
-	::hw_3d_wall_sides_ib_ = ::hw_index_buffer_create(2, index_count);
+	::hw_3d_wall_sides_ib_ = ::hw_index_buffer_create(
+		bstone::RendererBufferUsageKind::stream_draw,
+		2,
+		index_count
+	);
 
 	if (!::hw_3d_wall_sides_ib_)
 	{
@@ -4158,7 +4193,10 @@ bool hw_3d_walls_vb_create()
 {
 	const auto vertex_count = ::hw_3d_wall_side_count_ * ::hw_3d_vertices_per_wall_side;
 
-	::hw_3d_wall_sides_vb_ = ::hw_vertex_buffer_create<Hw3dWallVertex>(vertex_count);
+	::hw_3d_wall_sides_vb_ = ::hw_vertex_buffer_create<Hw3dWallVertex>(
+		bstone::RendererBufferUsageKind::static_draw,
+		vertex_count
+	);
 
 	if (!::hw_3d_wall_sides_vb_)
 	{
@@ -4256,7 +4294,11 @@ bool hw_3d_pushwalls_ib_create()
 {
 	const auto index_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_indices_per_wall_side;
 
-	::hw_3d_pushwall_sides_ib_ = ::hw_index_buffer_create(2, index_count);
+	::hw_3d_pushwall_sides_ib_ = ::hw_index_buffer_create(
+		bstone::RendererBufferUsageKind::stream_draw,
+		2,
+		index_count
+	);
 
 	if (!::hw_3d_pushwall_sides_ib_)
 	{
@@ -4282,7 +4324,10 @@ bool hw_3d_pushwalls_vb_create()
 {
 	const auto vertex_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_vertices_per_wall_side;
 
-	::hw_3d_pushwall_sides_vb_ = ::hw_vertex_buffer_create<Hw3dPushwallVertex>(vertex_count);
+	::hw_3d_pushwall_sides_vb_ = ::hw_vertex_buffer_create<Hw3dPushwallVertex>(
+		bstone::RendererBufferUsageKind::dynamic_draw,
+		vertex_count
+	);
 
 	if (!::hw_3d_pushwall_sides_vb_)
 	{
@@ -4391,7 +4436,11 @@ bool hw_3d_door_sides_ib_create()
 {
 	const auto index_count = ::hw_3d_door_count_ * ::hw_3d_indices_per_door_side;
 
-	::hw_3d_door_sides_ib_ = ::hw_index_buffer_create(2, index_count);
+	::hw_3d_door_sides_ib_ = ::hw_index_buffer_create(
+		bstone::RendererBufferUsageKind::stream_draw,
+		2,
+		index_count
+	);
 
 	if (!::hw_3d_door_sides_ib_)
 	{
@@ -4419,7 +4468,10 @@ bool hw_3d_door_sides_vb_create()
 {
 	const auto vertex_count = ::hw_3d_door_count_ * ::hw_3d_indices_per_door_side;
 
-	::hw_3d_door_sides_vb_ = ::hw_vertex_buffer_create<Hw3dDoorVertex>(vertex_count);
+	::hw_3d_door_sides_vb_ = ::hw_vertex_buffer_create<Hw3dDoorVertex>(
+		bstone::RendererBufferUsageKind::dynamic_draw,
+		vertex_count
+	);
 
 	if (!::hw_3d_door_sides_vb_)
 	{
@@ -4928,7 +4980,11 @@ void hw_3d_player_weapon_ib_destroy()
 
 bool hw_3d_player_weapon_ib_create()
 {
-	::hw_3d_player_weapon_ib_ = ::hw_index_buffer_create(1, ::hw_3d_indices_per_sprite);
+	::hw_3d_player_weapon_ib_ = ::hw_index_buffer_create(
+		bstone::RendererBufferUsageKind::static_draw,
+		1,
+		::hw_3d_indices_per_sprite
+	);
 
 	if (!::hw_3d_player_weapon_ib_)
 	{
@@ -4965,7 +5021,10 @@ void hw_3d_player_weapon_vb_destroy()
 
 bool hw_3d_player_weapon_vb_create()
 {
-	::hw_3d_player_weapon_vb_ = ::hw_vertex_buffer_create<Hw3dPlayerWeaponVertex>(::hw_3d_vertices_per_sprite);
+	::hw_3d_player_weapon_vb_ = ::hw_vertex_buffer_create<Hw3dPlayerWeaponVertex>(
+		bstone::RendererBufferUsageKind::static_draw,
+		::hw_3d_vertices_per_sprite
+	);
 
 	if (!::hw_3d_player_weapon_vb_)
 	{
@@ -5320,7 +5379,11 @@ void hw_3d_fade_ib_destroy()
 
 bool hw_3d_fade_ib_create()
 {
-	::hw_3d_fade_ib_ = ::hw_index_buffer_create(1, 6);
+	::hw_3d_fade_ib_ = ::hw_index_buffer_create(
+		bstone::RendererBufferUsageKind::static_draw,
+		1,
+		6
+	);
 
 	if (!::hw_3d_fade_ib_)
 	{
@@ -5339,7 +5402,10 @@ void hw_3d_fade_vb_destroy()
 
 bool hw_3d_fade_vb_create()
 {
-	::hw_3d_fade_vb_ = ::hw_vertex_buffer_create<Hw3dFadeVertex>(4);
+	::hw_3d_fade_vb_ = ::hw_vertex_buffer_create<Hw3dFadeVertex>(
+		bstone::RendererBufferUsageKind::static_draw,
+		4
+	);
 
 	if (!::hw_3d_fade_vb_)
 	{
@@ -9096,7 +9162,11 @@ bool hw_sprites_ib_initialize()
 {
 	const auto index_count = ::hw_3d_max_sprites_indices;
 
-	::hw_3d_sprites_ib_ = ::hw_index_buffer_create(2, index_count);
+	::hw_3d_sprites_ib_ = ::hw_index_buffer_create(
+		bstone::RendererBufferUsageKind::stream_draw,
+		2,
+		index_count
+	);
 
 	if (!::hw_3d_sprites_ib_)
 	{
@@ -9124,7 +9194,10 @@ bool hw_sprites_vb_initialize()
 {
 	const auto vertex_count = ::hw_3d_max_sprites_vertices;
 
-	::hw_3d_sprites_vb_ = ::hw_vertex_buffer_create<Hw3dSpriteVertex>(vertex_count);
+	::hw_3d_sprites_vb_ = ::hw_vertex_buffer_create<Hw3dSpriteVertex>(
+		bstone::RendererBufferUsageKind::stream_draw,
+		vertex_count
+	);
 
 	if (!::hw_3d_sprites_vb_)
 	{
