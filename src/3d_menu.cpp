@@ -2283,7 +2283,7 @@ const std::int16_t INSTRUCTIONS_Y_POS = 154 + 10;
 // DrawInstructions() - Draws instructions centered at the bottom of
 //      the view screen.
 //
-// NOTES: Orginal font number or font color is not maintained.
+// NOTES: Original font number or font color is not maintained.
 // ---------------------------------------------------------------------------
 void DrawInstructions(
 	inst_type Type)

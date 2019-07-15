@@ -2195,7 +2195,7 @@ bool SightPlayer(
 				// Actors that look funny when just standing around go here...
 				//
 			default:
-				if (ob->flags & FL_VISABLE)
+				if (ob->flags & FL_VISIBLE)
 				{
 					sighted = true;
 				}
@@ -2385,7 +2385,7 @@ bool LookForGoodies(
 
 	// We'll let the computer-controlled actors cheat in some circumstances...
 	//
-	if ((player->areanumber != ob->areanumber) && (!(ob->flags & FL_VISABLE)))
+	if ((player->areanumber != ob->areanumber) && (!(ob->flags & FL_VISIBLE)))
 	{
 		if (!ob->ammo)
 		{

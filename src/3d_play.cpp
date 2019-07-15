@@ -1538,7 +1538,7 @@ void GetNewActor()
 
 		while (obj)
 		{
-			if ((obj->flags & (FL_DEADGUY | FL_VISABLE)) == FL_DEADGUY)
+			if ((obj->flags & (FL_DEADGUY | FL_VISIBLE)) == FL_DEADGUY)
 			{
 				RemoveObj(obj);
 				obj = nullptr;

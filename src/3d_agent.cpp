@@ -3348,7 +3348,7 @@ void Cmd_Use(
 				dy = LABS(dy);
 				dist = dx < dy ? dx : dy;
 				if ((ob->obclass == gen_scientistobj) &&
-					((ob->flags & (FL_FRIENDLY | FL_VISABLE)) == (FL_FRIENDLY | FL_VISABLE)) &&
+					((ob->flags & (FL_FRIENDLY | FL_VISIBLE)) == (FL_FRIENDLY | FL_VISIBLE)) &&
 					(dist < intg_dist))
 				{
 					if ((ob->flags & FL_ATTACKMODE) != 0)
@@ -4782,7 +4782,7 @@ void GunAttack(
 
 		for (auto check = ob->next; check; check = check->next)
 		{
-			if ((check->flags & FL_SHOOTABLE) == 0 || (check->flags & FL_VISABLE) == 0)
+			if ((check->flags & FL_SHOOTABLE) == 0 || (check->flags & FL_VISIBLE) == 0)
 			{
 				continue;
 			}
