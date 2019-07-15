@@ -871,6 +871,43 @@ void Ogl1XRenderer::window_show(
 	static_cast<void>(renderer_utils.show_window(sdl_window_.get(), is_visible));
 }
 
+bool Ogl1XRenderer::vsync_get() const
+{
+	if (!device_features_.vsync_is_available_)
+	{
+		return false;
+	}
+
+	return OglRendererUtils::vsync_get();
+}
+
+bool Ogl1XRenderer::vsync_set(
+	const bool is_enabled)
+{
+	if (!device_features_.vsync_is_available_)
+	{
+		error_message_ = "Not available.";
+
+		return false;
+	}
+
+	if (device_features_.vsync_is_requires_restart_)
+	{
+		error_message_ = "Requires restart.";
+
+		return false;
+	}
+
+	if (!OglRendererUtils::vsync_set(is_enabled))
+	{
+		error_message_ = "Not supported.";
+
+		return false;
+	}
+
+	return true;
+}
+
 bool Ogl1XRenderer::downscale_set(
 	const int width,
 	const int height,
@@ -1320,8 +1357,15 @@ bool Ogl1XRenderer::probe_or_initialize(
 		ogl_device_features_
 	);
 
+	OglRendererUtils::vsync_probe(device_features_);
+
 	if (!is_probe)
 	{
+		if (device_features_.vsync_is_available_)
+		{
+			static_cast<void>(ogl_renderer_utils.vsync_set(param.is_vsync_));
+		}
+
 		if (!framebuffers_create())
 		{
 			return false;

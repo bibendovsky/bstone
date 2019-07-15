@@ -220,8 +220,9 @@ Notes:
   Minimum height: 240  
   Default height: 480
 
-* --vid_no_vsync  
-  Disables vertical synchronization.
+* --vid_vsync <0|1>  
+  Enables (1) or disables (0) vertical synchronization.  
+  Default value: 1 (enabled)
 
 * --vid_x offset  
   Sets a horizontal offset from the left side of the desktop screen.  

@@ -70,6 +70,7 @@ struct VidConfiguration
 	IntModValue y_;
 	IntModValue width_;
 	IntModValue height_;
+	BoolModValue is_vsync_;
 
 	BoolModValue is_ui_stretched_;
 	BoolModValue is_widescreen_;

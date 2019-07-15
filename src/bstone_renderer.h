@@ -156,6 +156,8 @@ public:
 
 	RendererAaKind aa_kind_;
 	int aa_value_;
+
+	bool is_vsync_;
 }; // RendererInitializeParam
 
 
@@ -695,6 +697,9 @@ struct RendererDeviceFeatures
 {
 	bool is_losable_;
 
+	bool vsync_is_available_;
+	bool vsync_is_requires_restart_;
+
 	int max_texture_dimension_;
 
 	int max_viewport_width_;
@@ -759,10 +764,6 @@ protected:
 
 
 public:
-	static constexpr int min_vfov_deg = 10;
-	static constexpr int max_vfov_deg = 170;
-
-
 	virtual const std::string& get_error_message() const = 0;
 
 
@@ -802,6 +803,12 @@ public:
 
 	virtual void window_show(
 		const bool is_visible) = 0;
+
+
+	virtual bool vsync_get() const = 0;
+
+	virtual bool vsync_set(
+		const bool is_enabled) = 0;
 
 
 	virtual bool downscale_set(

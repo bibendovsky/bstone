@@ -13,6 +13,7 @@
 - Renamed option "vid_window_y" to "vid_y".
 - Split option "vid_mode" into "vid_width" and "vid_height".
 - Renamed option "vid_windowed" to "vid_is_windowed".
+- Renamed option "vid_no_vsync" to "vid_vsync".
 
 
 ## [1.1.12] - 2019-02-09

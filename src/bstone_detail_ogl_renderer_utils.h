@@ -145,6 +145,15 @@ public:
 		OglExtensionManagerPtr extension_manager);
 
 
+	static void vsync_probe(
+		RendererDeviceFeatures& device_features);
+
+	static bool vsync_get();
+
+	static bool vsync_set(
+		const bool is_enabled);
+
+
 	static void clear_buffers();
 
 	static void swap_window(

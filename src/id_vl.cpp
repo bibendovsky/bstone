@@ -324,6 +324,13 @@ const std::string& vid_get_is_widescreen_key_name()
 	return result;
 }
 
+const std::string& vid_get_vsync_key_name()
+{
+	static const auto& result = std::string{"vid_vsync"};
+
+	return result;
+}
+
 const std::string& vid_get_is_ui_stretched_key_name()
 {
 	static const auto& result = std::string{"vid_is_ui_stretched"};
@@ -783,6 +790,20 @@ void vid_read_window_height_cl_configuration()
 	::vid_read_window_dimension_cl_configuration(::vid_get_height_key_name(), ::vid_configuration_.height_);
 }
 
+void vid_read_vsync_cl_configuration()
+{
+	const auto vsync_str = ::g_args.get_option_value(::vid_get_vsync_key_name());
+
+	auto vsync_value = 0;
+
+	if (!bstone::StringHelper::string_to_int(vsync_str, vsync_value))
+	{
+		return;
+	}
+
+	::vid_configuration_.is_vsync_ = (vsync_value != 0);
+}
+
 const std::string& vid_get_vid_string()
 {
 	static const auto result = std::string{"[VID]"};
@@ -924,6 +945,10 @@ void vid_read_cl_configuration()
 	// "vid_height"
 	//
 	::vid_read_window_height_cl_configuration();
+
+	// "vid_vsync"
+	//
+	::vid_read_vsync_cl_configuration();
 }
 
 void vid_hw_read_cl_configuration()
@@ -1173,9 +1198,7 @@ bool sw_initialize_renderer()
 
 	if (is_succeed)
 	{
-		const auto is_vsync_disabled = ::g_args.has_option("vid_no_vsync");
-
-		if (is_vsync_disabled)
+		if (!vid_configuration_.is_vsync_)
 		{
 			::vid_log("Skipping VSync.");
 		}
@@ -2883,6 +2906,8 @@ bool hw_renderer_initialize()
 
 	param.aa_kind_ = ::vid_configuration_.hw_aa_kind_;
 	param.aa_value_ = ::vid_configuration_.hw_aa_value_;
+
+	param.is_vsync_ = ::vid_configuration_.is_vsync_;
 
 #ifdef __vita__
 	param.window_.is_visible_ = true;
@@ -7087,6 +7112,33 @@ void vid_apply_hw_aa_configuration()
 	const auto aa_result = ::hw_renderer_->aa_set(
 		::vid_configuration_.hw_aa_kind_,
 		::vid_configuration_.hw_aa_value_);
+}
+
+void vid_apply_hw_vsync_configuration()
+{
+	if (!::vid_configuration_.is_vsync_.is_modified())
+	{
+		return;
+	}
+
+	::vid_configuration_.is_vsync_.set_is_modified(false);
+
+	if (!::hw_device_features_.vsync_is_available_)
+	{
+		return;
+	}
+
+	if (::hw_device_features_.vsync_is_requires_restart_)
+	{
+		// FIXME
+	}
+
+	const auto result = ::hw_renderer_->vsync_set(::vid_configuration_.is_vsync_);
+
+	if (!result)
+	{
+		::vid_log_hw_renderer_error("Failed to update V-Sync.");
+	}
 }
 
 void hw_3d_fade_update()
@@ -11748,6 +11800,8 @@ bool hw_video_initialize()
 
 		::hw_device_features_ = ::hw_renderer_->device_get_features();
 
+		::vid_apply_hw_configuration();
+
 		::hw_renderer_->color_buffer_set_clear_color(bstone::R8g8b8a8{});
 
 		::hw_renderer_->window_show(true);
@@ -12678,6 +12732,17 @@ void vid_configuration_read_is_windowed(
 	}
 }
 
+void vid_configuration_read_vsync(
+	const std::string& value_string)
+{
+	int value = 0;
+
+	if (bstone::StringHelper::string_to_int(value_string, value))
+	{
+		::vid_configuration_.is_vsync_ = (value != 0);
+	}
+}
+
 void vid_configuration_read_is_widescreen(
 	const std::string& value_string)
 {
@@ -12845,6 +12910,10 @@ bool vid_parse_configuration_key_value(
 	else if (key_string == ::vid_get_is_windowed_key_name())
 	{
 		::vid_configuration_read_is_windowed(value_string);
+	}
+	else if (key_string == ::vid_get_vsync_key_name())
+	{
+		::vid_configuration_read_vsync(value_string);
 	}
 	else if (key_string == ::vid_get_width_key_name())
 	{
@@ -13019,6 +13088,14 @@ void vid_write_configuration(
 		text_writer,
 		::vid_get_is_widescreen_key_name(),
 		std::to_string(::vid_configuration_.is_widescreen_)
+	);
+
+	// vid_vsync
+	//
+	::write_configuration_entry(
+		text_writer,
+		::vid_get_vsync_key_name(),
+		std::to_string(::vid_configuration_.is_vsync_)
 	);
 
 	// vid_is_ui_stretched
@@ -13640,6 +13717,7 @@ void vid_apply_hw_configuration()
 	::vid_apply_hw_is_widescreen_configuration();
 	::vid_apply_hw_2d_texture_filter_configuration();
 	::vid_apply_hw_3d_texture_filter_configuration();
+	::vid_apply_hw_vsync_configuration();
 }
 
 const bstone::R8g8b8a8Palette& vid_hw_get_default_palette()

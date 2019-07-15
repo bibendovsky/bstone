@@ -477,6 +477,33 @@ int OglRendererUtils::msaa_get_max_value(
 	return std::max(max_value, RendererUtils::aa_get_min_value());
 }
 
+void OglRendererUtils::vsync_probe(
+	RendererDeviceFeatures& device_features)
+{
+	device_features.vsync_is_available_ = false;
+	device_features.vsync_is_requires_restart_ = false;
+
+	if (vsync_set(true))
+	{
+		device_features.vsync_is_available_ = true;
+	}
+}
+
+bool OglRendererUtils::vsync_get()
+{
+	const auto sdl_result = ::SDL_GL_GetSwapInterval();
+
+	return sdl_result > 0;
+}
+
+bool OglRendererUtils::vsync_set(
+	const bool is_enabled)
+{
+	const auto sdl_result = ::SDL_GL_SetSwapInterval(is_enabled);
+
+	return sdl_result == 0;
+}
+
 void OglRendererUtils::clear_buffers()
 {
 	assert(::glClear != nullptr);

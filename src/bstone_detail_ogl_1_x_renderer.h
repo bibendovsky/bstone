@@ -107,6 +107,12 @@ public:
 		const bool is_visible) override;
 
 
+	bool vsync_get() const override;
+
+	bool vsync_set(
+		const bool is_enabled) override;
+
+
 	bool downscale_set(
 		const int width,
 		const int height,
