@@ -99,10 +99,16 @@ bool RendererSwIndexBuffer::initialize(
 		return false;
 	}
 
+	usage_kind_ = param.usage_kind_;
 	byte_depth_ = param.byte_depth_;
 	data_.resize(param.size_);
 
 	return true;
+}
+
+RendererBufferUsageKind RendererSwIndexBuffer::get_usage_kind() const
+{
+	return usage_kind_;
 }
 
 int RendererSwIndexBuffer::get_byte_depth() const

@@ -40,6 +40,11 @@ namespace bstone
 // RendererSwVertexBuffer
 //
 
+RendererBufferUsageKind RendererSwVertexBuffer::get_usage_kind() const
+{
+	return usage_kind_;
+}
+
 void RendererSwVertexBuffer::update(
 	const RendererVertexBufferUpdateParam& param)
 {
@@ -94,6 +99,7 @@ bool RendererSwVertexBuffer::initialize(
 		return false;
 	}
 
+	usage_kind_ = param.usage_kind_;
 	data_.resize(param.size_);
 
 	return true;

@@ -228,6 +228,12 @@ protected:
 
 
 public:
+	virtual RendererBufferUsageKind get_usage_kind() const = 0;
+
+	virtual int get_byte_depth() const = 0;
+
+	virtual int get_size() const = 0;
+
 	virtual void update(
 		const RendererIndexBufferUpdateParam& param) = 0;
 }; // RendererIndexBuffer
@@ -265,6 +271,10 @@ protected:
 
 
 public:
+	virtual RendererBufferUsageKind get_usage_kind() const  = 0;
+
+	virtual int get_size() const = 0;
+
 	virtual void update(
 		const RendererVertexBufferUpdateParam& param) = 0;
 }; // RendererVertexBuffer

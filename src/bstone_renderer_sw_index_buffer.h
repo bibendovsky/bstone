@@ -54,6 +54,12 @@ public:
 	~RendererSwIndexBuffer() override = default;
 
 
+	RendererBufferUsageKind get_usage_kind() const override;
+
+	int get_byte_depth() const override;
+
+	int get_size() const override;
+
 	void update(
 		const RendererIndexBufferUpdateParam& param) override;
 
@@ -62,10 +68,6 @@ public:
 
 	bool initialize(
 		const RendererIndexBufferCreateParam& param);
-
-	int get_byte_depth() const;
-
-	int get_size() const;
 
 	const void* get_data() const;
 
@@ -76,6 +78,7 @@ private:
 
 	std::string error_message_;
 
+	RendererBufferUsageKind usage_kind_;
 	int byte_depth_;
 	Data data_;
 }; // RendererSwIndexBuffer
