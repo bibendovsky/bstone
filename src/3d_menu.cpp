@@ -5177,7 +5177,7 @@ void CacheMessage(
 //       - Returns the size of the data
 //       - Does not call TerminateStr() for loaded TEXT data
 //
-// RETURNS: Lenght of loaded (decompressed) data
+// RETURNS: Length of loaded (decompressed) data
 //
 // ---------------------------------------------------------------------------
 std::uint32_t CacheCompData(

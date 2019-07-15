@@ -423,7 +423,7 @@ void SpawnStatic(
 // ReserveStatic()
 //
 // Reserves a static object at location 0,0 (unseen).  This function is
-// used to gaurantee that a static will be available.
+// used to guarantee that a static will be available.
 // ---------------------------------------------------------------------------
 statobj_t* ReserveStatic()
 {
@@ -448,7 +448,7 @@ statobj_t* ReserveStatic()
 // FindReservedStatic()
 //
 // Finds a Reserved static object at location 0,0 (unseen).  This function is
-// used to gaurantee that a static will be available.
+// used to guarantee that a static will be available.
 // ---------------------------------------------------------------------------
 statobj_t* FindReservedStatic()
 {
@@ -1857,7 +1857,7 @@ void CacheMsg(
 //
 // Loads the specific message in FROM a given 'grsegs' block TO the
 // the memory address provided.  Memory allocation and handleing prior and
-// after this function usage is responsiblity of the calling function(s).
+// after this function usage is responsibility of the calling function(s).
 //
 // PARAMS:  hint_buffer - Destination address to store message
 //          SegNum - GrSeg for messages in VGAGRAPH.BS?

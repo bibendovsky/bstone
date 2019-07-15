@@ -243,7 +243,7 @@ case gen_scientistobj
 
 // Ammo/Weapon Definations
 
-#define MAX_AMMO (100) // Max ammount of ammo for any weapon
+#define MAX_AMMO (100) // Max amount of ammo for any weapon
 #define AUTOCHARGE_WAIT (50) // Tics wait time for a full charge
 
 #define MAX_PLASMA_DETONATORS (100) // Max number of Plasma Detonators
@@ -346,7 +346,7 @@ case gen_scientistobj
 #define DR_BLASTABLE (0x01)
 
 //
-// Smart Trigger Possiblities
+// Smart Trigger Possibilities
 //
 #define ST_TURN_OFF (0x00)
 #define ST_TURN_ON (0x01)

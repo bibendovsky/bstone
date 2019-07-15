@@ -64,7 +64,7 @@ Select - map or status window toggle
 
 Start - Menu/back
 
-Number keys are hard mapped to a column on the right side of the front touchscreen corresponding to the locations of the elevator buttons on the AOG level select screen. Useful for weapon selection in addition to operating the elevator. The left and right halves of the region occupied by the bottom HUD bar are mapped to "-", and "=", repectively, for controlling the map zoom level in Planet Strike.
+Number keys are hard mapped to a column on the right side of the front touchscreen corresponding to the locations of the elevator buttons on the AOG level select screen. Useful for weapon selection in addition to operating the elevator. The left and right halves of the region occupied by the bottom HUD bar are mapped to "-", and "=", respectively, for controlling the map zoom level in Planet Strike.
 
 Compiling
 =========

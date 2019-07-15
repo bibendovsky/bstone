@@ -1374,7 +1374,7 @@ extern bool barrier_damage;
 =
 = DamageActor
 =
-= Called when the player succesfully hits an enemy.
+= Called when the player successfully hits an enemy.
 =
 = Does damage points to enemy ob, either putting it into a stun frame or
 = killing it.

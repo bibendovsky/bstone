@@ -72,7 +72,7 @@ public:
 	bool reset();
 
 	// Returns a minimum output sample rate.
-	// (Emulator dependant value)
+	// (Emulator depandant value)
 	static int get_min_sample_rate();
 
 
@@ -84,7 +84,7 @@ private:
 
 
 	// Returns a maximum number of output samples generated at once.
-	// (Emulator dependant value)
+	// (Emulator dependent value)
 	static int get_max_samples_count();
 }; // Opl2
 

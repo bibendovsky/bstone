@@ -1246,7 +1246,7 @@ std::int16_t CalcRotate(
 
 	if ((ob->state->flags & SF_PAINFRAME) != 0)
 	{ // 2 rotation pain frame
-		return static_cast<std::int16_t>(4 * (target_angle / (ANGLES / 2))); // seperated by 3 (art layout...)
+		return static_cast<std::int16_t>(4 * (target_angle / (ANGLES / 2))); // separated by 3 (art layout...)
 
 	}
 	return static_cast<std::int16_t>(target_angle / (ANGLES / 8));

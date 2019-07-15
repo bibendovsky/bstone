@@ -1876,7 +1876,7 @@ objtype* MoveHiddenOfs(
 //
 // ** This function should ALWAY be used to init/start SmartAnimations! **
 //
-// NOTE : It is the programmers responsiblity to watch bit field ranges on
+// NOTE : It is the programmers responsibility to watch bit field ranges on
 //                       the passed parameters.
 //
 // NOTES: THINK function AnimateOfsObj() requires the use of TEMP3 of the
@@ -4416,7 +4416,7 @@ void DropCargo(
 	}
 
 	//
-	// Keep seperate... May later have MULTI "cargo's"
+	// Keep separate... May later have MULTI "cargo's"
 	//
 
 	if (obj->flags2 & FL2_DROP_RKEY)
@@ -6297,7 +6297,7 @@ void T_Projectile(
 
 #if BFG_SHOT_STOPS
 			//
-			// Check to see if a collison has already occured at this
+			// Check to see if a collison has already occurred at this
 			// tilex and tiley
 			//
 			if (ob->s_tilex == ob->tilex && ob->s_tiley == ob->tiley)

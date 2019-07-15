@@ -166,7 +166,7 @@ static std::int16_t DecodePosition(
 // displaying the compression/decompression status.
 //
 // These routines are called inside of the compression/decompression routines
-// and pass the orginal size of data and current position within that
+// and pass the original size of data and current position within that
 // data.  This allows for any kind of "% Done" messages.
 //
 // Your functions MUST have the following parameters in this order...

@@ -435,7 +435,7 @@ void Movie::handle_page(
 	{
 		if (flag_ == Flag::fill)
 		{
-			// First page comming in. Fill screen with fill color...
+			// First page coming in. Fill screen with fill color...
 			//
 
 			// Set READ flag to skip the first frame on an anim repeat
