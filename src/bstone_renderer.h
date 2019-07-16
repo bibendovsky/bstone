@@ -128,6 +128,14 @@ enum class RendererAaKind
 	ms,
 }; // RendererAaKind
 
+enum class RendererBufferKind :
+	unsigned char
+{
+	none,
+	index,
+	vertex,
+}; // RendererBufferKind
+
 enum class RendererBufferUsageKind :
 	unsigned char
 {

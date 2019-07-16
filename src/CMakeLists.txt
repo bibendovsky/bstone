@@ -224,6 +224,7 @@ target_sources(
 		bstone_mod_value.h
 		bstone_mt_queue_1r1w.h
 		bstone_ogl.h
+		bstone_ogl_raii.h
 		bstone_opl2.h
 		bstone_ref_values.h
 		bstone_renderer.h
@@ -232,6 +233,9 @@ target_sources(
 		bstone_precompiled.h
 		bstone_ps_fizzle_fx.h
 		bstone_renderer_manager.h
+		bstone_renderer_ogl_buffer.h
+		bstone_renderer_ogl_index_buffer.h
+		bstone_renderer_ogl_vertex_buffer.h
 		bstone_renderer_sw_index_buffer.h
 		bstone_renderer_sw_vertex_buffer.h
 		bstone_rgb_palette.h
@@ -315,6 +319,9 @@ target_sources(
 		bstone_ps_fizzle_fx.cpp
 		bstone_renderer_impl.cpp
 		bstone_renderer_manager_impl.cpp
+		bstone_renderer_ogl_buffer.cpp
+		bstone_renderer_ogl_index_buffer.cpp
+		bstone_renderer_ogl_vertex_buffer.cpp
 		bstone_renderer_sw_index_buffer.cpp
 		bstone_renderer_sw_vertex_buffer.cpp
 		bstone_sha1.cpp

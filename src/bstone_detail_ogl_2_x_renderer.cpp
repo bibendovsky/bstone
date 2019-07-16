@@ -1317,15 +1317,6 @@ bool Ogl2XRenderer::probe_or_initialize(
 		return false;
 	}
 
-	extension_manager_->probe_extension(OglExtensionId::arb_vertex_buffer_object);
-
-	if (!extension_manager_->has_extension(OglExtensionId::arb_vertex_buffer_object))
-	{
-		error_message_ = "Failed to load GL_ARB_vertex_buffer_object symbols.";
-
-		return false;
-	}
-
 	if (!ogl_renderer_utils.renderer_features_set(device_features_))
 	{
 		error_message_ = ogl_renderer_utils.get_error_message();
