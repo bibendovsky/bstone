@@ -30,7 +30,6 @@ Free Software Foundation, Inc.,
 #include "bstone_precompiled.h"
 #include "bstone_renderer_manager.h"
 #include <vector>
-#include "bstone_detail_ogl_1_x_renderer.h"
 #include "bstone_detail_ogl_2_x_renderer.h"
 #include "bstone_detail_ogl_renderer_utils.h"
 
@@ -133,7 +132,6 @@ private:
 	RendererProbe renderer_probe_;
 	Renderers renderers_;
 
-	detail::Ogl1XRenderer ogl_1_x_renderer_;
 	detail::Ogl2XRenderer ogl_2_x_renderer_;
 }; // RendererManagerImpl::Impl
 
@@ -151,8 +149,7 @@ RendererManagerImpl::Impl::Impl()
 	is_initialized_{},
 	error_message_{},
 	renderer_probe_{},
-	renderers_{},
-	ogl_1_x_renderer_{}
+	renderers_{}
 {
 }
 
@@ -162,8 +159,7 @@ RendererManagerImpl::Impl::Impl(
 	is_initialized_{std::move(rhs.is_initialized_)},
 	error_message_{std::move(rhs.error_message_)},
 	renderer_probe_{std::move(rhs.renderer_probe_)},
-	renderers_{std::move(rhs.renderers_)},
-	ogl_1_x_renderer_{std::move(rhs.ogl_1_x_renderer_)}
+	renderers_{std::move(rhs.renderers_)}
 {
 	rhs.is_initialized_ = false;
 }
@@ -200,11 +196,6 @@ bool RendererManagerImpl::Impl::initialize()
 
 	renderer_count_ = 0;
 	renderers_.resize(0);
-
-	// OpenGL 1.x
-	//
-	++renderer_count_;
-	renderers_.emplace_back(&ogl_1_x_renderer_);
 
 	// OpenGL 2.x
 	//
@@ -275,15 +266,6 @@ bool RendererManagerImpl::Impl::renderer_probe(
 
 			return true;
 		}
-
-		// OpenGL 1.x.
-		//
-		if (ogl_1_x_renderer_.probe())
-		{
-			renderer_probe_ = ogl_1_x_renderer_.probe_get();
-
-			return true;
-		}
 	}
 	else
 	{
@@ -295,18 +277,6 @@ bool RendererManagerImpl::Impl::renderer_probe(
 		if (renderer_path == RendererPath::ogl_2_x)
 		{
 			if (ogl_2_x_renderer_.probe())
-			{
-				renderer_probe_.path_ = renderer_path;
-
-				return true;
-			}
-		}
-
-		// OpenGL 1.x.
-		//
-		if (renderer_path == RendererPath::ogl_1_x)
-		{
-			if (ogl_1_x_renderer_.probe())
 			{
 				renderer_probe_.path_ = renderer_path;
 
@@ -335,14 +305,6 @@ RendererPtr RendererManagerImpl::Impl::renderer_initialize(
 
 	switch (param.renderer_path_)
 	{
-	case RendererPath::ogl_1_x:
-		if (ogl_1_x_renderer_.initialize(param))
-		{
-			return &ogl_1_x_renderer_;
-		}
-
-		break;
-
 	case RendererPath::ogl_2_x:
 		if (ogl_2_x_renderer_.initialize(param))
 		{

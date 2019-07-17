@@ -268,9 +268,9 @@ const std::string& vid_get_software_value_string()
 	return result;
 }
 
-const std::string& vid_get_ogl_1_x_value_string()
+const std::string& vid_get_ogl_2_x_value_string()
 {
-	static const auto& result = std::string{"ogl_1_x"};
+	static const auto& result = std::string{"ogl_2_x"};
 
 	return result;
 }
@@ -1013,7 +1013,7 @@ const std::string& vid_to_string(
 	const bstone::RendererPath renderer_kind)
 {
 	static const auto invalid_string = std::string{"?"};
-	static const auto ogl_1_x_string = std::string{"OpenGL 1.x"};
+	static const auto ogl_2_x_string = std::string{"OpenGL 2.x"};
 
 	switch (renderer_kind)
 	{
@@ -1026,8 +1026,8 @@ const std::string& vid_to_string(
 		case bstone::RendererPath::software:
 			return vid_get_software_value_string();
 
-		case bstone::RendererPath::ogl_1_x:
-			return ogl_1_x_string;
+		case bstone::RendererPath::ogl_2_x:
+			return ogl_2_x_string;
 
 
 		default:
@@ -12769,8 +12769,8 @@ const std::string& vid_renderer_kind_to_string(
 		case bstone::RendererPath::software:
 			return vid_get_software_value_string();
 
-		case bstone::RendererPath::ogl_1_x:
-			return vid_get_ogl_1_x_value_string();
+		case bstone::RendererPath::ogl_2_x:
+			return vid_get_ogl_2_x_value_string();
 
 		default:
 			::Quit("Invalid renderer kind.");
@@ -12791,9 +12791,9 @@ void vid_configuration_read_renderer_kind(
 	{
 		::vid_configuration_.renderer_kind_ = bstone::RendererPath::software;
 	}
-	else if (value_string == ::vid_get_ogl_1_x_value_string())
+	else if (value_string == ::vid_get_ogl_2_x_value_string())
 	{
-		::vid_configuration_.renderer_kind_ = bstone::RendererPath::ogl_1_x;
+		::vid_configuration_.renderer_kind_ = bstone::RendererPath::ogl_2_x;
 	}
 }
 
@@ -13111,11 +13111,11 @@ void vid_write_renderer_kind_configuration(
 {
 	switch (::vid_configuration_.renderer_kind_)
 	{
-		case bstone::RendererPath::ogl_1_x:
+		case bstone::RendererPath::ogl_2_x:
 			::write_configuration_entry(
 				text_writer,
 				::vid_get_renderer_kind_key_name(),
-				::vid_get_ogl_1_x_value_string()
+				::vid_get_ogl_2_x_value_string()
 			);
 
 			break;

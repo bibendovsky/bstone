@@ -189,7 +189,6 @@ bool RendererUtils::validate_initialize_param(
 {
 	switch (param.renderer_path_)
 	{
-	case RendererPath::ogl_1_x:
 	case RendererPath::ogl_2_x:
 		break;
 
@@ -539,7 +538,7 @@ bool RendererUtils::is_ogl_renderer_path(
 {
 	switch (renderer_path)
 	{
-	case RendererPath::ogl_1_x:
+	case RendererPath::ogl_2_x:
 		return true;
 
 	default:
