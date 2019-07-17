@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 //
-// Value with a modification flag.
+// A value wrapper to track changes.
 //
 
 
@@ -48,7 +48,7 @@ public:
 	}
 
 	ModValue(
-		ModValue&& rhs)
+		ModValue&& rhs) noexcept
 		:
 		is_modified_{std::move(rhs.is_modified_)},
 		value_{std::move(rhs.value_)}
@@ -89,30 +89,41 @@ public:
 	{
 	}
 
-	operator const T&() const
+	operator const T&() const noexcept
 	{
 		return value_;
 	}
 
 
-	T& operator*()
+	T& operator*() noexcept
 	{
 		return value_;
 	}
 
-	const T& operator*() const
+	const T& operator*() const noexcept
 	{
 		return value_;
 	}
 
 
-	bool is_modified() const
+	T* operator->() noexcept
+	{
+		return &value_;
+	}
+
+	const T* operator->() const noexcept
+	{
+		return &value_;
+	}
+
+
+	bool is_modified() const noexcept
 	{
 		return is_modified_;
 	}
 
 	void set_is_modified(
-		const bool value)
+		const bool value) noexcept
 	{
 		is_modified_ = value;
 	}

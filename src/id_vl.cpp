@@ -39,6 +39,7 @@ Free Software Foundation, Inc.,
 #include "bstone_hw_texture_manager.h"
 #include "bstone_logger.h"
 #include "bstone_renderer_manager.h"
+#include "bstone_renderer_shader_registry.h"
 #include "bstone_sdl_types.h"
 #include "bstone_sprite.h"
 #include "bstone_sprite_cache.h"
@@ -1958,6 +1959,16 @@ void sw_update_widescreen()
 // Hardware accelerated renderer (HW).
 //
 
+enum class HwVertexAttributeLocationId :
+	unsigned char
+{
+	none,
+	position,
+	color,
+	texture_coordinates,
+}; // HwVertexAttributeLocationId
+
+
 const auto hw_3d_map_dimension_f = static_cast<float>(MAPSIZE);
 const auto hw_3d_map_dimension_d = static_cast<double>(MAPSIZE);
 const auto hw_3d_map_height_f = 1.0F;
@@ -2012,6 +2023,9 @@ constexpr auto hw_3d_max_sprites_indices = ::hw_3d_max_statics_indices + ::hw_3d
 
 constexpr auto hw_3d_cloaked_actor_alpha_u8 = std::uint8_t{0x50};
 
+constexpr auto hw_common_command_buffer_initial_size = 1'024;
+constexpr auto hw_common_command_buffer_resize_delta_size = 1'024;
+
 constexpr auto hw_2d_command_buffer_initial_size = 4'096;
 constexpr auto hw_2d_command_buffer_resize_delta_size = 4'096;
 
@@ -2021,7 +2035,7 @@ constexpr auto hw_3d_command_buffer_resize_delta_size = 16'384;
 
 template<
 	typename T,
-	bstone::RendererVertexAttributeLocation TLocation,
+	HwVertexAttributeLocationId TLocationId,
 	typename = int>
 struct HwVertexHasAttribute :
 	std::false_type
@@ -2031,7 +2045,7 @@ struct HwVertexHasAttribute :
 template<typename T>
 struct HwVertexHasAttribute<
 	T,
-	bstone::RendererVertexAttributeLocation::position,
+	HwVertexAttributeLocationId::position,
 	decltype(static_cast<void>(T::xyz_), 0)>
 	:
 	std::true_type
@@ -2041,7 +2055,7 @@ struct HwVertexHasAttribute<
 template<typename T>
 struct HwVertexHasAttribute<
 	T,
-	bstone::RendererVertexAttributeLocation::color,
+	HwVertexAttributeLocationId::color,
 	decltype(static_cast<void>(T::rgba_), 0)>
 	:
 	std::true_type
@@ -2051,7 +2065,7 @@ struct HwVertexHasAttribute<
 template<typename T>
 struct HwVertexHasAttribute<
 	T,
-	bstone::RendererVertexAttributeLocation::texture_coordinates,
+	HwVertexAttributeLocationId::texture_coordinates,
 	decltype(static_cast<void>(T::uv_), 0)>
 	:
 	std::true_type
@@ -2061,7 +2075,7 @@ struct HwVertexHasAttribute<
 
 template<
 	typename T,
-	bstone::RendererVertexAttributeLocation TLocation,
+	HwVertexAttributeLocationId TLocationId,
 	typename = int>
 struct HwVertexAttributeTraits
 {
@@ -2073,7 +2087,7 @@ struct HwVertexAttributeTraits
 template<typename T>
 struct HwVertexAttributeTraits<
 	T,
-	bstone::RendererVertexAttributeLocation::position,
+	HwVertexAttributeLocationId::position,
 	decltype(static_cast<void>(T::xyz_), 0)>
 {
 	static constexpr auto is_valid = true;
@@ -2084,7 +2098,7 @@ struct HwVertexAttributeTraits<
 template<typename T>
 struct HwVertexAttributeTraits<
 	T,
-	bstone::RendererVertexAttributeLocation::color,
+	HwVertexAttributeLocationId::color,
 	decltype(static_cast<void>(T::rgba_), 0)>
 {
 	static constexpr auto is_valid = true;
@@ -2095,7 +2109,7 @@ struct HwVertexAttributeTraits<
 template<typename T>
 struct HwVertexAttributeTraits<
 	T,
-	bstone::RendererVertexAttributeLocation::texture_coordinates,
+	HwVertexAttributeLocationId::texture_coordinates,
 	decltype(static_cast<void>(T::uv_), 0)>
 {
 	static constexpr auto is_valid = true;
@@ -2309,6 +2323,31 @@ using Hw3dPlayerWeaponVbi = HwVertexBufferImageT<Hw3dPlayerWeaponVertex>;
 using Hw3dFadeVbi = HwVertexBufferImageT<Hw3dFadeVertex>;
 
 
+using HwShadingModeMod = bstone::ModValue<int>;
+HwShadingModeMod hw_shading_mode_;
+
+using HwBsShadeMaxMod = bstone::ModValue<int>;
+HwBsShadeMaxMod hw_bs_shade_max_;
+
+using HwBsNormalShadeMod = bstone::ModValue<int>;
+HwBsNormalShadeMod hw_bs_normal_shade_;
+
+using HwBsHeightNumeratorMod = bstone::ModValue<int>;
+HwBsHeightNumeratorMod hw_bs_height_numerator_;
+
+using HwBsLightingMod = bstone::ModValue<int>;
+HwBsLightingMod hw_bs_lighting_;
+
+using HwBsViewDirectionMod = bstone::ModValue<glm::vec2>;
+HwBsViewDirectionMod hw_bs_view_direction_;
+
+using HwBsViewPositionMod = bstone::ModValue<glm::vec2>;
+HwBsViewPositionMod hw_bs_view_position_;
+
+
+using HwMatrixTextureMod = bstone::ModValue<glm::mat4>;
+HwMatrixTextureMod hw_matrix_texture_;
+
 glm::mat4 hw_2d_matrix_model_ = glm::mat4{};
 glm::mat4 hw_2d_matrix_view_ = glm::mat4{};
 glm::mat4 hw_2d_matrix_projection_ = glm::mat4{};
@@ -2383,6 +2422,7 @@ bstone::R8g8b8a8Palette hw_palette_;
 bstone::R8g8b8a8Palette hw_default_palette_;
 
 bstone::RendererCommandManagerUPtr hw_command_manager_;
+bstone::RendererCommandBufferPtr hw_common_command_buffer_;
 bstone::RendererCommandBufferPtr hw_2d_command_buffer_;
 bstone::RendererCommandBufferPtr hw_3d_command_buffer_;
 
@@ -2422,8 +2462,10 @@ bstone::RendererTexture2dPtr hw_3d_ceiling_solid_t2d_ = nullptr;
 bstone::RendererTexture2dPtr hw_3d_ceiling_textured_t2d_ = nullptr;
 
 
-auto hw_3d_player_direction = glm::dvec2{};
-auto hw_3d_player_position = glm::dvec2{};
+auto hw_3d_player_angle_rad_ = double{};
+auto hw_3d_view_direction_ = glm::dvec2{};
+auto hw_3d_player_position_ = glm::dvec2{};
+auto hw_3d_view_position_ = glm::dvec3{};
 
 
 bool hw_3d_has_active_pushwall_ = false;
@@ -2520,10 +2562,23 @@ bool hw_3d_fizzle_fx_is_fading_ = false;
 int hw_3d_fizzle_fx_color_index_ = 0;
 float hw_3d_fizzle_fx_ratio_ = 0.0F;
 
-bstone::R8g8b8a8 hw_3d_fog_color = bstone::R8g8b8a8{0x00, 0x00, 0x00, 0x20};
-bool hw_3d_fog_is_global_enabled = false;
-float hw_3d_fog_start_ = 0.0F;
-float hw_3d_fog_end_ = 1.0F;
+bstone::RendererShaderPtr hw_shader_fragment_;
+bstone::RendererShaderPtr hw_shader_vertex_;
+bstone::RendererShaderStagePtr hw_shader_stage_;
+
+bstone::RendererShaderVariableMat4Ptr hw_shader_variable_model_mat_;
+bstone::RendererShaderVariableMat4Ptr hw_shader_variable_view_mat_;
+bstone::RendererShaderVariableMat4Ptr hw_shader_variable_projection_mat_;
+bstone::RendererShaderVariableMat4Ptr hw_shader_variable_texture_mat_;
+
+bstone::RendererShaderVariableInt32Ptr hw_shader_variable_shading_mode_;
+bstone::RendererShaderVariableFloat32Ptr hw_shader_variable_shade_max_;
+bstone::RendererShaderVariableFloat32Ptr hw_shader_variable_normal_shade_;
+bstone::RendererShaderVariableFloat32Ptr hw_shader_variable_height_numerator_;
+bstone::RendererShaderVariableFloat32Ptr hw_shader_variable_extra_lighting_;
+bstone::RendererShaderVariableVec2Ptr hw_shader_variable_view_direction_;
+bstone::RendererShaderVariableVec2Ptr hw_shader_variable_view_position_;
+
 
 
 bool hw_device_reset();
@@ -2713,7 +2768,8 @@ bstone::RendererVertexBufferPtr hw_vertex_buffer_create(
 	const bstone::RendererBufferUsageKind usage_kind,
 	const int vertex_count)
 {
-	const auto vertex_buffer_size = static_cast<int>(vertex_count * sizeof(TVertex));
+	const auto vertex_size = static_cast<int>(sizeof(TVertex));
+	const auto vertex_buffer_size = vertex_count * vertex_size;
 
 	auto param = bstone::RendererVertexBufferCreateParam{};
 	param.usage_kind_ = usage_kind;
@@ -2729,8 +2785,9 @@ void hw_vertex_buffer_update(
 	const int vertex_count,
 	const TVertex* const vertices)
 {
-	const auto offset = static_cast<int>(vertex_offset * sizeof(TVertex));
-	const auto size = static_cast<int>(vertex_count * sizeof(TVertex));
+	const auto vertex_size = static_cast<int>(sizeof(TVertex));
+	const auto offset = vertex_offset * vertex_size;
+	const auto size = vertex_count * vertex_size;
 
 	auto param = bstone::RendererVertexBufferUpdateParam{};
 	param.offset_ = offset;
@@ -2766,62 +2823,93 @@ void hw_texture_2d_destroy(
 
 template<
 	typename TVertex,
-	bstone::RendererVertexAttributeLocation TLocation,
 	bool TIsExist = false
 >
 struct HwVertexInputAddAttributeDescription
 {
 	void operator()(
+		const int location,
 		const bstone::RendererVertexAttributeFormat format,
 		const int offset,
 		const int stride,
-		bstone::RendererVertexBufferPtr vertex_buffer,
-		bstone::RendererVertexAttributeDescriptions& attribute_descriptions) const
-	{
-		static_cast<void>(format);
-		static_cast<void>(offset);
-		static_cast<void>(stride);
-		static_cast<void>(vertex_buffer);
-		static_cast<void>(attribute_descriptions);
-	}
-}; // HwVertexInputAddAttributeDescription
-
-template<typename TVertex, bstone::RendererVertexAttributeLocation TLocation>
-struct HwVertexInputAddAttributeDescription<TVertex, TLocation, true>
-{
-	void operator()(
-		const bstone::RendererVertexAttributeFormat format,
-		const int offset,
-		const int stride,
+		const glm::vec4& default_value,
 		bstone::RendererVertexBufferPtr vertex_buffer,
 		bstone::RendererVertexAttributeDescriptions& attribute_descriptions) const
 	{
 		attribute_descriptions.emplace_back();
 
 		auto& description = attribute_descriptions.back();
-		description.location_ = TLocation;
+		description.is_default_ = true;
+		description.location_ = location;
+		description.format_ = bstone::RendererVertexAttributeFormat::none;
+		description.vertex_buffer_ = nullptr;
+		description.offset_ = -1;
+		description.stride_ = -1;
+		description.default_value_ = default_value;
+	}
+}; // HwVertexInputAddAttributeDescription
+
+template<
+	typename TVertex>
+struct HwVertexInputAddAttributeDescription<TVertex, true>
+{
+	void operator()(
+		const int location,
+		const bstone::RendererVertexAttributeFormat format,
+		const int offset,
+		const int stride,
+		const glm::vec4& default_value,
+		bstone::RendererVertexBufferPtr vertex_buffer,
+		bstone::RendererVertexAttributeDescriptions& attribute_descriptions) const
+	{
+		attribute_descriptions.emplace_back();
+
+		auto& description = attribute_descriptions.back();
+		description.is_default_ = false;
+		description.location_ = location;
 		description.format_ = format;
 		description.vertex_buffer_ = vertex_buffer;
 		description.offset_ = offset;
 		description.stride_ = stride;
+		description.default_value_ = default_value;
 	}
 }; // HwVertexInputAddAttributeDescription
 
 template<
 	typename TVertex,
-	bstone::RendererVertexAttributeLocation TLocation>
+	HwVertexAttributeLocationId TLocationId>
 void hw_vertex_input_add_attribute_description(
 	const bstone::RendererVertexAttributeFormat format,
+	const glm::vec4& default_value,
 	bstone::RendererVertexBufferPtr vertex_buffer,
 	bstone::RendererVertexAttributeDescriptions& attribute_descriptions)
 {
-	const auto& traits = HwVertexAttributeTraits<TVertex, TLocation>{};
-	const auto& add_attribute = HwVertexInputAddAttributeDescription<TVertex, TLocation, traits.is_valid>{};
+	const auto& traits = HwVertexAttributeTraits<TVertex, TLocationId>{};
+	const auto& add_attribute = HwVertexInputAddAttributeDescription<TVertex, traits.is_valid>{};
+
+	auto location = 0;
+
+	switch (TLocationId)
+	{
+		case HwVertexAttributeLocationId::position:
+			location = bstone::RendererShaderRegistry::get_a_position_location();
+			break;
+
+		case HwVertexAttributeLocationId::color:
+			location = bstone::RendererShaderRegistry::get_a_color_location();
+			break;
+
+		case HwVertexAttributeLocationId::texture_coordinates:
+			location = bstone::RendererShaderRegistry::get_a_tx_coords_location();
+			break;
+	}
 
 	add_attribute(
+		location,
 		format,
 		traits.offset,
 		traits.stride,
+		default_value,
 		vertex_buffer,
 		attribute_descriptions
 	);
@@ -2839,20 +2927,23 @@ bool hw_vertex_input_create(
 	auto& descriptions = param.attribute_descriptions_;
 	descriptions.reserve(3);
 
-	::hw_vertex_input_add_attribute_description<TVertex, bstone::RendererVertexAttributeLocation::position>(
+	::hw_vertex_input_add_attribute_description<TVertex, HwVertexAttributeLocationId::position>(
 		bstone::RendererVertexAttributeFormat::r32g32b32_sfloat,
+		glm::vec4{},
 		vertex_buffer,
 		descriptions
 	);
 
-	::hw_vertex_input_add_attribute_description<TVertex, bstone::RendererVertexAttributeLocation::color>(
+	::hw_vertex_input_add_attribute_description<TVertex, HwVertexAttributeLocationId::color>(
 		bstone::RendererVertexAttributeFormat::r8g8b8a8_unorm,
+		glm::vec4{1.0F, 1.0F, 1.0F, 1.0F},
 		vertex_buffer,
 		descriptions
 	);
 
-	::hw_vertex_input_add_attribute_description<TVertex, bstone::RendererVertexAttributeLocation::texture_coordinates>(
+	::hw_vertex_input_add_attribute_description<TVertex, HwVertexAttributeLocationId::texture_coordinates>(
 		bstone::RendererVertexAttributeFormat::r32g32_sfloat,
+		glm::vec4{},
 		vertex_buffer,
 		descriptions
 	);
@@ -2869,27 +2960,491 @@ bool hw_vertex_input_create(
 
 void hw_3d_player_update_direction()
 {
-	const auto direction_angle = (::player->angle * m_pi()) / 180.0;
+	::hw_3d_player_angle_rad_ = ::player->angle * (m_pi() / 180.0);
 
-	::hw_3d_player_direction[0] = std::cos(direction_angle);
-	::hw_3d_player_direction[1] = -std::sin(direction_angle);
+	::hw_3d_view_direction_.x = std::cos(::hw_3d_player_angle_rad_);
+	::hw_3d_view_direction_.y = -std::sin(::hw_3d_player_angle_rad_);
+
+	::hw_bs_view_direction_ = ::hw_3d_view_direction_;
 }
 
 void hw_3d_player_update_position()
 {
-	::hw_3d_player_position[0] = bstone::FixedPoint{::player->x}.to_double();
-	::hw_3d_player_position[1] = bstone::FixedPoint{::player->y}.to_double();
+	::hw_3d_player_position_.x = bstone::FixedPoint{::player->x}.to_double();
+	::hw_3d_player_position_.y = bstone::FixedPoint{::player->y}.to_double();
+}
+
+void hw_3d_player_update_view_position()
+{
+	const auto focal_length = bstone::FixedPoint{::focallength}.to_double();
+
+	const auto focal_delta = glm::dvec2
+	{
+		::hw_3d_view_direction_.x * focal_length,
+		::hw_3d_view_direction_.y * focal_length,
+	};
+
+	::hw_3d_view_position_ = glm::dvec3{::hw_3d_player_position_ - focal_delta, 0.5};
+
+	::hw_bs_view_position_ = ::hw_3d_view_position_;
 }
 
 void hw_3d_player_update()
 {
 	::hw_3d_player_update_direction();
 	::hw_3d_player_update_position();
+	::hw_3d_player_update_view_position();
 }
 
 void hw_ui_buffer_initialize()
 {
 	::sw_initialize_ui_buffer();
+}
+
+void hw_shader_destroy(
+	bstone::RendererShaderPtr& shader)
+{
+	if (shader == nullptr)
+	{
+		return;
+	}
+
+	::hw_renderer_->shader_destroy(shader);
+
+	shader = nullptr;
+}
+
+bool hw_shader_create(
+	const bstone::RendererShader::Kind kind,
+	bstone::RendererShaderPtr& shader)
+{
+	auto param = bstone::RendererShader::CreateParam{};
+	param.kind_ = kind;
+
+	const auto renderer_kind = ::hw_renderer_->get_path();
+
+	switch (kind)
+	{
+		case bstone::RendererShader::Kind::fragment:
+			param.source_ = bstone::RendererShaderRegistry::get_fragment(renderer_kind);
+			break;
+
+		case bstone::RendererShader::Kind::vertex:
+			param.source_ = bstone::RendererShaderRegistry::get_vertex(renderer_kind);
+			break;
+
+		default:
+			::Quit("Unsupported shader kind.");
+
+			return false;
+	}
+
+	shader = ::hw_renderer_->shader_create(param);
+
+	return shader != nullptr;
+}
+
+void hw_shader_fragment_destroy()
+{
+	::hw_shader_destroy(::hw_shader_fragment_);
+}
+
+bool hw_shader_fragment_create()
+{
+	return ::hw_shader_create(bstone::RendererShader::Kind::fragment, ::hw_shader_fragment_);
+}
+
+void hw_shader_vertex_destroy()
+{
+	::hw_shader_destroy(::hw_shader_vertex_);
+}
+
+bool hw_shader_vertex_create()
+{
+	return ::hw_shader_create(bstone::RendererShader::Kind::vertex, ::hw_shader_vertex_);
+}
+
+void hw_shader_stage_destroy()
+{
+	if (::hw_shader_stage_ == nullptr)
+	{
+		return;
+	}
+
+	::hw_renderer_->shader_stage_destroy(::hw_shader_stage_);
+
+	::hw_shader_stage_ = nullptr;
+}
+
+bool hw_shader_stage_create()
+{
+	static const auto input_bindings = bstone::RendererShaderStage::InputBindings
+	{
+		{0, bstone::RendererShaderRegistry::get_a_position_name()},
+		{1, bstone::RendererShaderRegistry::get_a_color_name()},
+		{2, bstone::RendererShaderRegistry::get_a_tx_coords_name()},
+	};
+
+	auto param = bstone::RendererShaderStage::CreateParam{};
+	param.fragment_shader_ = ::hw_shader_fragment_;
+	param.vertex_shader_ = ::hw_shader_vertex_;
+	param.input_bindings_ = input_bindings;
+
+	::hw_shader_stage_ = ::hw_renderer_->shader_stage_create(param);
+
+	if (::hw_shader_stage_ == nullptr)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+template<typename T>
+void hw_program_uninitialize_variable(
+	T*& variable)
+{
+	variable = nullptr;
+}
+
+void hw_program_uninitialize_variable_model_mat()
+{
+	::hw_program_uninitialize_variable(::hw_shader_variable_model_mat_);
+}
+
+struct HwProgramInitializeVariableInt32Tag{};
+struct HwProgramInitializeVariableFloat32Tag{};
+struct HwProgramInitializeVariableVec2Tag{};
+struct HwProgramInitializeVariableMat4Tag{};
+
+void hw_program_initialize_variable(
+	const std::string& name,
+	bstone::RendererShaderVariableInt32Ptr& variable,
+	const HwProgramInitializeVariableInt32Tag)
+{
+	variable = ::hw_shader_stage_->find_variable_int32(name);
+}
+
+void hw_program_initialize_variable(
+	const std::string& name,
+	bstone::RendererShaderVariableFloat32Ptr& variable,
+	const HwProgramInitializeVariableFloat32Tag)
+{
+	variable = ::hw_shader_stage_->find_variable_float32(name);
+}
+
+void hw_program_initialize_variable(
+	const std::string& name,
+	bstone::RendererShaderVariableVec2Ptr& variable,
+	const HwProgramInitializeVariableVec2Tag)
+{
+	variable = ::hw_shader_stage_->find_variable_vec2(name);
+}
+
+void hw_program_initialize_variable(
+	const std::string& name,
+	bstone::RendererShaderVariableMat4Ptr& variable,
+	const HwProgramInitializeVariableMat4Tag)
+{
+	variable = ::hw_shader_stage_->find_variable_mat4(name);
+}
+
+template<typename T>
+bool hw_program_initialize_variable(
+	const std::string& name,
+	T*& variable)
+{
+	using Tag = std::conditional_t<
+		std::is_same<T, bstone::RendererShaderVariableInt32>::value,
+		HwProgramInitializeVariableInt32Tag,
+		std::conditional_t<
+			std::is_same<T, bstone::RendererShaderVariableFloat32>::value,
+			HwProgramInitializeVariableFloat32Tag,
+			std::conditional_t<
+				std::is_same<T, bstone::RendererShaderVariableVec2>::value,
+				HwProgramInitializeVariableVec2Tag,
+				std::conditional_t<
+					std::is_same<T, bstone::RendererShaderVariableMat4>::value,
+					HwProgramInitializeVariableMat4Tag,
+					void
+				>
+			>
+		>
+	>;
+
+	static_assert(!std::is_same<Tag, void>::value, "Unsupported type.");
+
+	hw_program_initialize_variable(name, variable, Tag{});
+
+	if (variable == nullptr)
+	{
+		bstone::logger_->write_error("Shader variable \"" + name + "\" not found.");
+
+		return false;
+	}
+
+	return true;
+}
+
+bool hw_program_initialize_variable_model_mat()
+{
+	return hw_program_initialize_variable(
+		bstone::RendererShaderRegistry::get_u_model_mat_name(),
+		::hw_shader_variable_model_mat_
+	);
+}
+
+void hw_program_uninitialize_variable_view_mat()
+{
+	::hw_program_uninitialize_variable(::hw_shader_variable_view_mat_);
+}
+
+bool hw_program_initialize_variable_view_mat()
+{
+	return hw_program_initialize_variable(
+		bstone::RendererShaderRegistry::get_u_view_mat_name(),
+		::hw_shader_variable_view_mat_
+	);
+}
+
+void hw_program_uninitialize_variable_projection_mat()
+{
+	::hw_program_uninitialize_variable(::hw_shader_variable_projection_mat_);
+}
+
+bool hw_program_initialize_variable_projection_mat()
+{
+	return hw_program_initialize_variable(
+		bstone::RendererShaderRegistry::get_u_projection_mat_name(),
+		::hw_shader_variable_projection_mat_
+	);
+}
+
+void hw_program_uninitialize_variable_texture_mat()
+{
+	::hw_program_uninitialize_variable(::hw_shader_variable_texture_mat_);
+}
+
+bool hw_program_initialize_variable_texture_mat()
+{
+	return hw_program_initialize_variable(
+		bstone::RendererShaderRegistry::get_u_texture_mat_name(),
+		::hw_shader_variable_texture_mat_
+	);
+}
+
+void hw_program_uninitialize_variable_shading_mode()
+{
+	::hw_program_uninitialize_variable(::hw_shader_variable_shading_mode_);
+}
+
+bool hw_program_initialize_variable_shading_mode()
+{
+	return hw_program_initialize_variable(
+		bstone::RendererShaderRegistry::get_u_shading_mode_name(),
+		::hw_shader_variable_shading_mode_
+	);
+}
+
+void hw_program_uninitialize_variable_shade_max()
+{
+	::hw_program_uninitialize_variable(::hw_shader_variable_shade_max_);
+}
+
+bool hw_program_initialize_variable_shade_max()
+{
+	return hw_program_initialize_variable(
+		bstone::RendererShaderRegistry::get_u_shade_max_name(),
+		::hw_shader_variable_shade_max_
+	);
+}
+
+void hw_program_uninitialize_variable_normal_shade()
+{
+	::hw_program_uninitialize_variable(::hw_shader_variable_normal_shade_);
+}
+
+bool hw_program_initialize_variable_normal_shade()
+{
+	return hw_program_initialize_variable(
+		bstone::RendererShaderRegistry::get_u_normal_shade_name(),
+		::hw_shader_variable_normal_shade_
+	);
+}
+
+void hw_program_uninitialize_variable_height_numerator()
+{
+	::hw_program_uninitialize_variable(::hw_shader_variable_height_numerator_);
+}
+
+bool hw_program_initialize_variable_height_numerator()
+{
+	return hw_program_initialize_variable(
+		bstone::RendererShaderRegistry::get_u_height_numerator_name(),
+		::hw_shader_variable_height_numerator_
+	);
+}
+
+void hw_program_uninitialize_variable_extra_lighting()
+{
+	::hw_program_uninitialize_variable(::hw_shader_variable_extra_lighting_);
+}
+
+bool hw_program_initialize_variable_extra_lighting()
+{
+	return hw_program_initialize_variable(
+		bstone::RendererShaderRegistry::get_u_extra_lighting_name(),
+		::hw_shader_variable_extra_lighting_
+	);
+}
+
+void hw_program_uninitialize_variable_view_direction()
+{
+	::hw_program_uninitialize_variable(::hw_shader_variable_view_direction_);
+}
+
+bool hw_program_initialize_variable_view_direction()
+{
+	return hw_program_initialize_variable(
+		bstone::RendererShaderRegistry::get_u_view_direction_name(),
+		::hw_shader_variable_view_direction_
+	);
+}
+
+void hw_program_uninitialize_variable_view_position()
+{
+	::hw_program_uninitialize_variable(::hw_shader_variable_view_position_);
+}
+
+bool hw_program_initialize_variable_view_position()
+{
+	return hw_program_initialize_variable(
+		bstone::RendererShaderRegistry::get_u_view_position_name(),
+		::hw_shader_variable_view_position_
+	);
+}
+
+void hw_program_uninitialize_variables_shading()
+{
+	::hw_program_uninitialize_variable_shading_mode();
+	::hw_program_uninitialize_variable_shade_max();
+	::hw_program_uninitialize_variable_normal_shade();
+	::hw_program_uninitialize_variable_height_numerator();
+	::hw_program_uninitialize_variable_extra_lighting();
+	::hw_program_uninitialize_variable_view_direction();
+	::hw_program_uninitialize_variable_view_position();
+}
+
+bool hw_program_initialize_variables_shading()
+{
+	if (!::hw_program_initialize_variable_shading_mode())
+	{
+		return false;
+	}
+
+	if (!::hw_program_initialize_variable_shade_max())
+	{
+		return false;
+	}
+
+	if (!::hw_program_initialize_variable_normal_shade())
+	{
+		return false;
+	}
+
+	if (!::hw_program_initialize_variable_height_numerator())
+	{
+		return false;
+	}
+
+	if (!::hw_program_initialize_variable_extra_lighting())
+	{
+		return false;
+	}
+
+	if (!::hw_program_initialize_variable_view_direction())
+	{
+		return false;
+	}
+
+	if (!::hw_program_initialize_variable_view_position())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void hw_program_uninitialize_variables()
+{
+	::hw_program_uninitialize_variable_model_mat();
+	::hw_program_uninitialize_variable_view_mat();
+	::hw_program_uninitialize_variable_projection_mat();
+	::hw_program_uninitialize_variable_texture_mat();
+	::hw_program_uninitialize_variables_shading();
+}
+
+bool hw_program_initialize_variables()
+{
+	if (!::hw_program_initialize_variable_model_mat())
+	{
+		return false;
+	}
+
+	if (!::hw_program_initialize_variable_view_mat())
+	{
+		return false;
+	}
+
+	if (!::hw_program_initialize_variable_projection_mat())
+	{
+		return false;
+	}
+
+	if (!::hw_program_initialize_variable_texture_mat())
+	{
+		return false;
+	}
+
+	if (!::hw_program_initialize_variables_shading())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void hw_program_uninitialize()
+{
+	::hw_program_uninitialize_variables();
+	::hw_shader_stage_destroy();
+	::hw_shader_fragment_destroy();
+	::hw_shader_vertex_destroy();
+}
+
+bool hw_program_initialize()
+{
+	if (!::hw_shader_fragment_create())
+	{
+		return false;
+	}
+
+	if (!::hw_shader_vertex_create())
+	{
+		return false;
+	}
+
+	if (!::hw_shader_stage_create())
+	{
+		return false;
+	}
+
+	if (!::hw_program_initialize_variables())
+	{
+		return false;
+	}
+
+	return true;
 }
 
 bool hw_renderer_initialize()
@@ -4650,12 +5205,12 @@ void hw_3d_camera_parameters_calculate()
 	const auto half_vfov_rad = tan_half_hfov_rad * ref_r_ratio;
 
 	// Radians.
-	const auto vfov_rad = 2 * half_vfov_rad;
+	const auto vfov_rad = 2.0 * half_vfov_rad;
 	::hw_3d_camera_vfov_rad = vfov_rad;
 
 	// Degrees.
 	const auto half_vfov_deg = half_vfov_rad * (180.0 / ::m_pi());
-	const auto vfov_deg = 2 * half_vfov_deg;
+	const auto vfov_deg = 2.0 * half_vfov_deg;
 	::hw_3d_camera_vfov_deg = vfov_deg;
 
 
@@ -4663,6 +5218,11 @@ void hw_3d_camera_parameters_calculate()
 	//
 	::hw_3d_camera_near_distance = 0.05;
 	::hw_3d_camera_far_distance = (std::sqrt(2.0) * ::hw_3d_map_dimension_d) + 0.5;
+}
+
+void hw_matrix_texture_build()
+{
+	::hw_matrix_texture_ = ::hw_renderer_->csc_get_texture();
 }
 
 void hw_3d_matrix_bs_to_r_build()
@@ -4710,45 +5270,34 @@ void hw_3d_matrix_model_build()
 
 void hw_3d_matrix_view_build()
 {
-	::hw_3d_matrix_view_ = glm::identity<glm::mat4>();
-
 	if (!::player)
 	{
+		::hw_3d_matrix_view_ = glm::identity<glm::mat4>();
+
 		return;
 	}
 
-	const auto angle_rad = static_cast<float>((::m_pi() * ::player->angle) / 180.0);
+	auto view_matrix = glm::identity<glm::dmat4>();
 
-	const auto focal_length = bstone::FixedPoint{::focallength}.to_float();
+	view_matrix = glm::rotate(view_matrix, ::hw_3d_player_angle_rad_, glm::dvec3{0.0, 0.0, 1.0});
+	view_matrix = glm::translate(view_matrix, -::hw_3d_view_position_);
 
-	const auto focal_delta = glm::vec2
-	{
-		std::cos(angle_rad) * focal_length,
-		-std::sin(angle_rad) * focal_length,
-	};
-
-	const auto player_position = glm::vec2
-	{
-		bstone::FixedPoint{::player->x}.to_float(),
-		bstone::FixedPoint{::player->y}.to_float(),
-	};
-
-	const auto view_position = glm::vec3{player_position - focal_delta, 0.5F};
-
-	::hw_3d_matrix_view_ = glm::rotate(::hw_3d_matrix_view_, angle_rad, glm::vec3{0.0F, 0.0F, 1.0F});
-	::hw_3d_matrix_view_ = glm::translate(::hw_3d_matrix_view_, -view_position);
-	::hw_3d_matrix_view_ = ::hw_3d_matrix_bs_to_r_ * ::hw_3d_matrix_view_;
+	::hw_3d_matrix_view_ = view_matrix;
 }
 
 void hw_3d_matrix_projection_build()
 {
-	::hw_3d_matrix_projection_ = glm::perspectiveFovRH_NO<double>(
-		::hw_3d_camera_vfov_rad,
-		static_cast<double>(::downscale_.screen_viewport_width_),
-		static_cast<double>(::downscale_.screen_viewport_height_),
-		::hw_3d_camera_near_distance,
-		::hw_3d_camera_far_distance
+	const auto perspective = glm::perspectiveFovRH_NO(
+		static_cast<float>(::hw_3d_camera_vfov_rad),
+		static_cast<float>(::downscale_.screen_viewport_width_),
+		static_cast<float>(::downscale_.screen_viewport_height_),
+		static_cast<float>(::hw_3d_camera_near_distance),
+		static_cast<float>(::hw_3d_camera_far_distance)
 	);
+
+	const auto& correction = ::hw_renderer_->csc_get_projection();
+
+	::hw_3d_matrix_projection_ = correction * perspective * ::hw_3d_matrix_bs_to_r_;
 }
 
 void hw_3d_matrices_build()
@@ -4763,6 +5312,7 @@ void hw_3d_matrices_build()
 
 void hw_matrices_build()
 {
+	::hw_matrix_texture_build();
 	::hw_2d_matrices_build();
 	::hw_3d_matrices_build();
 }
@@ -5096,7 +5646,7 @@ void hw_3d_player_weapon_view_matrix_update()
 
 void hw_3d_player_weapon_projection_matrix_build()
 {
-	::hw_3d_player_weapon_projection_matrix_ = glm::orthoRH_NO(
+	const auto ortho = glm::orthoRH_NO(
 		0.0F, // left
 		static_cast<float>(::downscale_.screen_viewport_width_), // right
 		0.0F, // bottom
@@ -5104,6 +5654,10 @@ void hw_3d_player_weapon_projection_matrix_build()
 		0.0F, // zNear
 		1.0F // zFar
 	);
+
+	const auto& correction = ::hw_renderer_->csc_get_projection();
+
+	::hw_3d_player_weapon_projection_matrix_ = correction * ortho;
 }
 
 void hw_3d_player_weapon_sampler_set_default_state()
@@ -5285,6 +5839,35 @@ bool hw_command_manager_create()
 	return true;
 }
 
+void hw_command_buffer_common_destroy()
+{
+	if (::hw_common_command_buffer_ == nullptr)
+	{
+		return;
+	}
+
+	::hw_command_manager_->buffer_remove(::hw_common_command_buffer_);
+	::hw_common_command_buffer_ = nullptr;
+}
+
+bool hw_command_buffer_common_create()
+{
+	auto param = bstone::RendererCommandManagerBufferAddParam{};
+	param.initial_size_ = ::hw_common_command_buffer_initial_size;
+	param.resize_delta_size_ = ::hw_common_command_buffer_resize_delta_size;
+
+	::hw_common_command_buffer_ = ::hw_command_manager_->buffer_add(param);
+
+	if (!::hw_common_command_buffer_)
+	{
+		::vid_log_hw_renderer_error("Failed to create common command buffer.");
+
+		return false;
+	}
+
+	return true;
+}
+
 void hw_command_buffer_2d_destroy()
 {
 	if (::hw_2d_command_buffer_ == nullptr)
@@ -5347,6 +5930,7 @@ void hw_command_manager_uninitialize()
 {
 	::hw_command_buffer_3d_destroy();
 	::hw_command_buffer_2d_destroy();
+	::hw_command_buffer_common_destroy();
 	::hw_command_manager_destroy();
 }
 
@@ -5356,6 +5940,11 @@ bool hw_command_manager_initialize()
 	::vid_log("Initializing command managers.");
 
 	if (!::hw_command_manager_create())
+	{
+		return false;
+	}
+
+	if (!::hw_command_buffer_common_create())
 	{
 		return false;
 	}
@@ -5602,6 +6191,124 @@ bool hw_3d_fade_initialize()
 	return true;
 }
 
+void hw_screen_common_refresh()
+{
+	::hw_shading_mode_ = 0;
+	::hw_bs_shade_max_ = ::shade_max;
+	::hw_bs_normal_shade_ = ::normalshade;
+	::hw_bs_height_numerator_ = ::heightnumerator;
+	::hw_bs_lighting_ = 0;
+
+
+	auto command_buffer = ::hw_common_command_buffer_;
+
+	command_buffer->enable(true);
+
+	command_buffer->write_begin();
+
+	// Build commands.
+	//
+
+	// Set shader stage.
+	//
+	{
+		auto& command = *command_buffer->write_shader_stage();
+		command.shader_stage_ = ::hw_shader_stage_;
+	}
+
+	// Set texture matrix.
+	//
+	if (::hw_matrix_texture_.is_modified())
+	{
+		::hw_matrix_texture_.set_is_modified(false);
+
+		auto& command = *command_buffer->write_shader_variable_mat4();
+		command.variable_ = ::hw_shader_variable_texture_mat_;
+		command.value_ = ::hw_matrix_texture_;
+	}
+
+	// Set shading mode.
+	//
+	if (::hw_shading_mode_.is_modified())
+	{
+		::hw_shading_mode_.set_is_modified(false);
+
+		auto& command = *command_buffer->write_shader_variable_int32();
+		command.variable_ = ::hw_shader_variable_shading_mode_;
+		command.value_ = ::hw_shading_mode_;
+	}
+
+	// Set shade_max.
+	//
+	if (::hw_bs_shade_max_.is_modified())
+	{
+		::hw_bs_shade_max_.set_is_modified(false);
+
+		auto& command = *command_buffer->write_shader_variable_float32();
+		command.variable_ = ::hw_shader_variable_shade_max_;
+		command.value_ = static_cast<float>(::hw_bs_shade_max_);
+	}
+
+	// Set normal_shade.
+	//
+	if (::hw_bs_normal_shade_.is_modified())
+	{
+		::hw_bs_normal_shade_.set_is_modified(false);
+
+		auto& command = *command_buffer->write_shader_variable_float32();
+		command.variable_ = ::hw_shader_variable_normal_shade_;
+		command.value_ = static_cast<float>(::hw_bs_normal_shade_);
+	}
+
+	// Set height_numerator.
+	//
+	if (::hw_bs_height_numerator_.is_modified())
+	{
+		::hw_bs_height_numerator_.set_is_modified(false);
+
+		auto& command = *command_buffer->write_shader_variable_float32();
+		command.variable_ = ::hw_shader_variable_height_numerator_;
+		command.value_ = bstone::FixedPoint{::hw_bs_height_numerator_}.to_float();
+	}
+
+	// Set extra_lighting.
+	//
+	if (::hw_bs_lighting_.is_modified())
+	{
+		::hw_bs_lighting_.set_is_modified(false);
+
+		auto& command = *command_buffer->write_shader_variable_float32();
+		command.variable_ = ::hw_shader_variable_extra_lighting_;
+		command.value_ = static_cast<float>(::hw_bs_lighting_);
+	}
+
+	// Set view_direction.
+	//
+	if (::vid_hw_is_draw_3d_ && ::hw_bs_view_direction_.is_modified())
+	{
+		::hw_bs_view_direction_.set_is_modified(false);
+
+		auto& command = *command_buffer->write_shader_variable_vec2();
+		command.variable_ = ::hw_shader_variable_view_direction_;
+		command.value_ = ::hw_bs_view_direction_;
+	}
+
+	// Set view_position.
+	//
+	if (::vid_hw_is_draw_3d_ && ::hw_bs_view_position_.is_modified())
+	{
+		::hw_bs_view_position_.set_is_modified(false);
+
+		auto& command = *command_buffer->write_shader_variable_vec2();
+		command.variable_ = ::hw_shader_variable_view_position_;
+		command.value_ = ::hw_bs_view_position_;
+	}
+
+	// Finalize.
+	//
+	command_buffer->write_end();
+}
+
 void hw_screen_2d_refresh()
 {
 	// Update 2D texture.
@@ -5626,7 +6333,6 @@ void hw_screen_2d_refresh()
 
 	// Build commands.
 	//
-
 
 	// Disable back-face culling.
 	//
@@ -5661,19 +6367,28 @@ void hw_screen_2d_refresh()
 		command.sampler_ = ::hw_2d_ui_s_;
 	}
 
-	// Set model-view matrix.
+	// Set model matrix.
 	//
 	{
-		auto& command = *command_buffer->write_matrix_model_view();
-		command.model_ = ::hw_2d_matrix_model_;
-		command.view_ = ::hw_2d_matrix_view_;
+		auto& command = *command_buffer->write_shader_variable_mat4();
+		command.variable_ = ::hw_shader_variable_model_mat_;
+		command.value_ = ::hw_2d_matrix_model_;
+	}
+
+	// Set view matrix.
+	//
+	{
+		auto& command = *command_buffer->write_shader_variable_mat4();
+		command.variable_ = ::hw_shader_variable_view_mat_;
+		command.value_ = ::hw_2d_matrix_view_;
 	}
 
 	// Set projection matrix.
 	//
 	{
-		auto& command = *command_buffer->write_matrix_projection();
-		command.projection_ = ::hw_2d_matrix_projection_;
+		auto& command = *command_buffer->write_shader_variable_mat4();
+		command.variable_ = ::hw_shader_variable_projection_mat_;
+		command.value_ = ::hw_2d_matrix_projection_;
 	}
 
 	// Fillers.
@@ -5835,12 +6550,12 @@ bool hw_3d_dbg_is_tile_vertex_visible(
 {
 	const auto& wall_direction = glm::dvec2
 	{
-		::hw_3d_player_position[0] - static_cast<double>(x),
-		::hw_3d_player_position[1] - static_cast<double>(y)
+		::hw_3d_player_position_[0] - static_cast<double>(x),
+		::hw_3d_player_position_[1] - static_cast<double>(y)
 	};
 
 	const auto cosine_between_directions = glm::dot(
-		wall_direction, ::hw_3d_player_direction);
+		wall_direction, ::hw_3d_view_direction_);
 
 	if (cosine_between_directions >= 0.0)
 	{
@@ -6212,12 +6927,12 @@ bool hw_3d_dbg_is_door_vertex_visible(
 {
 	const auto& wall_direction = glm::dvec2
 	{
-		::hw_3d_player_position[0] - x,
-		::hw_3d_player_position[1] - y
+		::hw_3d_player_position_[0] - x,
+		::hw_3d_player_position_[1] - y
 	};
 
 	const auto cosine_between_directions = glm::dot(
-		wall_direction, ::hw_3d_player_direction);
+		wall_direction, ::hw_3d_view_direction_);
 
 	if (cosine_between_directions >= 0.0)
 	{
@@ -6496,9 +7211,6 @@ bool hw_3d_fog_calculate(
 	const auto wall_height_step = ::normalshade / (8.0 * ::vga_height_scale);
 	const auto fog_delta = static_cast<float>(wall_height_step * ::normalshade_div);
 
-	::hw_3d_fog_start_ = static_cast<float>(start_wall_distance);
-	::hw_3d_fog_end_ = ::hw_3d_fog_start_ + fog_delta;
-
 	return true;
 }
 
@@ -6685,10 +7397,10 @@ void hw_3d_sprite_orient(
 		sprite_origin[1] = static_cast<double>(sprite.tile_y_) + 0.5;
 	};
 
-	auto direction = ::hw_3d_player_position - sprite_origin;
+	auto direction = ::hw_3d_player_position_ - sprite_origin;
 
 	const auto cosinus_between_directions = glm::dot(
-		::hw_3d_player_direction,
+		::hw_3d_view_direction_,
 		direction
 	);
 
@@ -6709,8 +7421,8 @@ void hw_3d_sprite_orient(
 
 	// Orient the sprite along the player's line of sight (inverted).
 	//
-	direction[0] = -::hw_3d_player_direction[0];
-	direction[1] = -::hw_3d_player_direction[1];
+	direction[0] = -::hw_3d_view_direction_[0];
+	direction[1] = -::hw_3d_view_direction_[1];
 
 	const auto perpendicular_dx = ::hw_3d_tile_half_dimension_d * direction[1];
 	const auto perpendicular_dy = ::hw_3d_tile_half_dimension_d * direction[0];
@@ -6934,9 +7646,12 @@ void hw_3d_sprites_render()
 		command.is_enabled_ = true;
 	}
 
+	using CurrentTexture = bstone::ModValue<bstone::RendererTexture2dPtr>;
+
 	auto draw_index = 0;
 	auto draw_quad_count = 0;
 	auto draw_index_offset_ = 0;
+	auto current_texture = CurrentTexture{};
 
 	while (draw_index < draw_sprite_index)
 	{
@@ -6954,7 +7669,8 @@ void hw_3d_sprites_render()
 
 			auto lighting = 0;
 
-			if (::hw_3d_fog_is_global_enabled)
+			// TODO Lighting
+			if (!::gp_no_shading_)
 			{
 				const auto& hw_sprite = *draw_item.sprite_;
 
@@ -6999,32 +7715,30 @@ void hw_3d_sprites_render()
 
 		if (draw_quad_count > 0)
 		{
-			auto is_shading = false;
-
-			if (::hw_3d_fog_is_global_enabled && last_lighting <= 0)
+			// Set extra lighting.
+			//
+			if (!::gp_no_shading_)
 			{
-				const auto use_fog = ::hw_3d_fog_calculate(last_lighting);
+				::hw_bs_lighting_ = last_lighting;
 
-				if (use_fog)
+				if (::hw_bs_lighting_.is_modified())
 				{
-					is_shading = true;
+					::hw_bs_lighting_.set_is_modified(false);
 
-					{
-						auto& command = *command_buffer->write_fog();
-						command.is_enabled_ = true;
-					}
-
-					{
-						auto& command = *command_buffer->write_fog_distances();
-						command.start_ = ::hw_3d_fog_start_;
-						command.end_ = ::hw_3d_fog_end_;
-					}
+					auto& command = *command_buffer->write_shader_variable_float32();
+					command.variable_ = ::hw_shader_variable_extra_lighting_;
+					command.value_ = static_cast<float>(::hw_bs_lighting_);
 				}
 			}
 
+			current_texture = last_texture;
+
+			if (current_texture.is_modified())
 			{
+				current_texture.set_is_modified(false);
+
 				auto& command = *command_buffer->write_texture();
-				command.texture_2d_ = last_texture;
+				command.texture_2d_ = current_texture;
 			}
 
 			{
@@ -7039,19 +7753,7 @@ void hw_3d_sprites_render()
 
 				draw_index_offset_ += ::hw_3d_indices_per_sprite * draw_quad_count;
 			}
-
-			if (is_shading)
-			{
-				auto& command = *command_buffer->write_fog();
-				command.is_enabled_ = false;
-			}
 		}
-	}
-
-	if (::hw_3d_fog_is_global_enabled)
-	{
-		auto& command = *command_buffer->write_fog();
-		command.is_enabled_ = true;
 	}
 
 	// Enable depth write.
@@ -7352,19 +8054,28 @@ void hw_screen_3d_refresh()
 		command.is_enabled_ = true;
 	}
 
-	// Set model-view matrix.
+	// Set model matrix.
 	//
 	{
-		auto& command = *command_buffer->write_matrix_model_view();
-		command.model_ = ::hw_3d_matrix_model_;
-		command.view_ = ::hw_3d_matrix_view_;
+		auto& command = *command_buffer->write_shader_variable_mat4();
+		command.variable_ = ::hw_shader_variable_model_mat_;
+		command.value_ = ::hw_3d_matrix_model_;
+	}
+
+	// Set view matrix.
+	//
+	{
+		auto& command = *command_buffer->write_shader_variable_mat4();
+		command.variable_ = ::hw_shader_variable_view_mat_;
+		command.value_ = ::hw_3d_matrix_view_;
 	}
 
 	// Set projection matrix.
 	//
 	{
-		auto& command = *command_buffer->write_matrix_projection();
-		command.projection_ = ::hw_3d_matrix_projection_;
+		auto& command = *command_buffer->write_shader_variable_mat4();
+		command.variable_ = ::hw_shader_variable_projection_mat_;
+		command.value_ = ::hw_3d_matrix_projection_;
 	}
 
 	// Set sampler.
@@ -7374,29 +8085,18 @@ void hw_screen_3d_refresh()
 		command.sampler_ = ::hw_3d_wall_s_;
 	}
 
-	if (is_shading)
+	// Set shading mode.
+	//
 	{
-		::hw_3d_fog_is_global_enabled = ::hw_3d_fog_calculate(0);
+		::hw_shading_mode_ = is_shading;
 
-		if (::hw_3d_fog_is_global_enabled)
+		if (::hw_shading_mode_.is_modified())
 		{
-			{
-				auto& command = *command_buffer->write_fog();
-				command.is_enabled_ = true;
-			}
+			::hw_shading_mode_.set_is_modified(false);
 
-			{
-				// Note the alpha channel is ignored in fixed pipeline.
-				//
-				auto& command = *command_buffer->write_fog_color();
-				command.color_ = ::hw_3d_fog_color;
-			}
-
-			{
-				auto& command = *command_buffer->write_fog_distances();
-				command.start_ = ::hw_3d_fog_start_;
-				command.end_ = ::hw_3d_fog_end_;
-			}
+			auto& command = *command_buffer->write_shader_variable_int32();
+			command.variable_ = ::hw_shader_variable_shading_mode_;
+			command.value_ = ::hw_shading_mode_;
 		}
 	}
 
@@ -7491,14 +8191,6 @@ void hw_screen_3d_refresh()
 	//
 	::hw_3d_sprites_render();
 
-
-	// Disable the fog.
-	//
-	{
-		auto& command = *command_buffer->write_fog();
-		command.is_enabled_ = false;
-	}
-
 	// Disable back-face culling.
 	//
 	{
@@ -7513,6 +8205,22 @@ void hw_screen_3d_refresh()
 		command.is_enabled_ = false;
 	}
 
+	// Disable shading mode.
+	//
+	if (is_shading)
+	{
+		::hw_shading_mode_ = 0;
+
+		if (::hw_shading_mode_.is_modified())
+		{
+			::hw_shading_mode_.set_is_modified(false);
+
+			auto& command = *command_buffer->write_shader_variable_int32();
+			command.variable_ = ::hw_shader_variable_shading_mode_;
+			command.value_ = ::hw_shading_mode_;
+		}
+	}
+
 	// Draw player's weapon.
 	//
 	if (::vid_is_hud)
@@ -7524,8 +8232,9 @@ void hw_screen_3d_refresh()
 			// Set projection matrix.
 			//
 			{
-				auto& command = *command_buffer->write_matrix_projection();
-				command.projection_ = ::hw_3d_player_weapon_projection_matrix_;
+				auto& command = *command_buffer->write_shader_variable_mat4();
+				command.variable_ = ::hw_shader_variable_projection_mat_;
+				command.value_ = ::hw_3d_player_weapon_projection_matrix_;
 			}
 		}
 
@@ -7538,12 +8247,20 @@ void hw_screen_3d_refresh()
 				::hw_3d_player_weapon_model_matrix_update();
 			}
 
-			// Set model-view matrix.
+			// Set model matrix.
 			//
 			{
-				auto& command = *command_buffer->write_matrix_model_view();
-				command.model_ = ::hw_3d_player_weapon_model_matrix_;
-				command.view_ = ::hw_3d_player_weapon_view_matrix_;
+				auto& command = *command_buffer->write_shader_variable_mat4();
+				command.variable_ = ::hw_shader_variable_model_mat_;
+				command.value_ = ::hw_3d_player_weapon_model_matrix_;
+			}
+
+			// Set view matrix.
+			//
+			{
+				auto& command = *command_buffer->write_shader_variable_mat4();
+				command.variable_ = ::hw_shader_variable_view_mat_;
+				command.value_ = ::hw_3d_player_weapon_view_matrix_;
 			}
 
 			// Set texture.
@@ -7603,12 +8320,20 @@ void hw_screen_3d_refresh()
 		//
 		if (::hw_3d_fade_is_enabled_)
 		{
-			// Set model-view matrix.
+			// Set model matrix.
 			//
 			{
-				auto& command = *command_buffer->write_matrix_model_view();
-				command.model_ = glm::identity<glm::mat4>();
-				command.view_ = glm::identity<glm::mat4>();
+				auto& command = *command_buffer->write_shader_variable_mat4();
+				command.variable_ = ::hw_shader_variable_model_mat_;
+				command.value_ = glm::identity<glm::mat4>();
+			}
+
+			// Set view matrix.
+			//
+			{
+				auto& command = *command_buffer->write_shader_variable_mat4();
+				command.variable_ = ::hw_shader_variable_view_mat_;
+				command.value_ = glm::identity<glm::mat4>();
 			}
 
 			// Enable blending.
@@ -7720,6 +8445,7 @@ void hw_screen_refresh()
 
 	::hw_renderer_->clear_buffers();
 
+	::hw_screen_common_refresh();
 	::hw_screen_3d_refresh();
 	::hw_screen_2d_refresh();
 
@@ -8150,7 +8876,7 @@ void hw_update_vertex_xyz(
 	TVertex& vertex,
 	const HwVertexPosition& xyz)
 {
-	const auto& traits = HwVertexAttributeTraits<TVertex, bstone::RendererVertexAttributeLocation::position>{};
+	const auto& traits = HwVertexAttributeTraits<TVertex, HwVertexAttributeLocationId::position>{};
 
 	HwUpdateVertexXyz<TVertex, traits.is_valid>{}(vertex, xyz);
 }
@@ -8183,7 +8909,7 @@ void hw_update_vertex_rgba(
 	TVertex& vertex,
 	const HwVertexColor& r8g8b8a8_unorm)
 {
-	const auto& traits = HwVertexAttributeTraits<TVertex, bstone::RendererVertexAttributeLocation::color>{};
+	const auto& traits = HwVertexAttributeTraits<TVertex, HwVertexAttributeLocationId::color>{};
 
 	HwUpdateVertexRgba<TVertex, traits.is_valid>{}(vertex, r8g8b8a8_unorm);
 }
@@ -8215,7 +8941,7 @@ void hw_update_vertex_uv(
 	TVertex& vertex,
 	const HwVertexTextureCoordinates& uv)
 {
-	const auto& traits = HwVertexAttributeTraits<TVertex, bstone::RendererVertexAttributeLocation::texture_coordinates>{};
+	const auto& traits = HwVertexAttributeTraits<TVertex, HwVertexAttributeLocationId::texture_coordinates>{};
 
 	HwUpdateVertexUv<TVertex, traits.is_valid>{}(vertex, uv);
 }
@@ -11761,6 +12487,8 @@ void hw_video_uninitialize()
 {
 	::hw_command_manager_uninitialize();
 
+	::hw_program_uninitialize();
+
 	::hw_samplers_uninitialize();
 
 	::hw_3d_walls_uninitialize();
@@ -11819,6 +12547,11 @@ bool hw_video_initialize()
 	if (is_succeed)
 	{
 		is_succeed = ::hw_renderer_initialize();
+	}
+
+	if (is_succeed)
+	{
+		is_succeed = ::hw_program_initialize();
 	}
 
 	if (is_succeed)

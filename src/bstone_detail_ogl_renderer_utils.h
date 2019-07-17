@@ -145,6 +145,10 @@ public:
 		OglExtensionManagerPtr extension_manager);
 
 
+	static void vertex_input_probe_max_locations(
+		RendererDeviceFeatures& device_features);
+
+
 	static void vsync_probe(
 		RendererDeviceFeatures& device_features);
 
@@ -200,6 +204,15 @@ public:
 		RendererDeviceFeatures& device_features);
 
 	RendererDeviceInfo device_info_get();
+
+	static std::string get_log(
+		const bool is_shader,
+		const GLuint ogl_name);
+
+
+	static const glm::mat4& csc_get_texture();
+
+	static const glm::mat4& csc_get_projection();
 
 
 private:

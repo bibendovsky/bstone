@@ -31,7 +31,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_OGL_RAII_INCLUDED
 
 
-#include "bstone_ogl.h"
+#include "bstone_detail_ogl_renderer_utils.h"
 
 
 namespace bstone
@@ -41,13 +41,15 @@ namespace bstone
 enum class OglRaiiDeleterId
 {
 	buffer,
+	shader,
+	program,
 }; // OglRaiiDeleterId
 
 
 template<OglRaiiDeleterId TDeleterId>
 struct OglRaiiDeleter
 {
-}; // OglRaiiDeleter
+};
 
 template<>
 struct OglRaiiDeleter<OglRaiiDeleterId::buffer>
@@ -57,7 +59,27 @@ struct OglRaiiDeleter<OglRaiiDeleterId::buffer>
 	{
 		::glDeleteBuffers(1, &ogl_name);
 	}
-}; // OglRaiiDeleter
+};
+
+template<>
+struct OglRaiiDeleter<OglRaiiDeleterId::shader>
+{
+	void operator()(
+		const GLuint ogl_name)
+	{
+		::glDeleteShader(ogl_name);
+	}
+};
+
+template<>
+struct OglRaiiDeleter<OglRaiiDeleterId::program>
+{
+	void operator()(
+		const GLuint ogl_name)
+	{
+		::glDeleteProgram(ogl_name);
+	}
+};
 
 
 template<OglRaiiDeleterId TDeleterId>
@@ -134,6 +156,8 @@ private:
 
 
 using OglBufferRaii = OglRaii<OglRaiiDeleterId::buffer>;
+using OglShaderRaii = OglRaii<OglRaiiDeleterId::shader>;
+using OglProgramRaii = OglRaii<OglRaiiDeleterId::program>;
 
 
 template<OglRaiiDeleterId TDeleterId>

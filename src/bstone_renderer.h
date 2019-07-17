@@ -79,19 +79,19 @@ enum class RendererCommandId :
 	blending_enable,
 	blending_function,
 
-	fog_enable,
-	fog_set_color,
-	fog_set_distances,
-
-	matrix_set_model,
-	matrix_set_view,
-	matrix_set_model_view,
-	matrix_set_projection,
-
 	texture_set,
 	sampler_set,
 
 	vertex_input_set,
+
+	shader_stage,
+
+	shader_variable_int32,
+	shader_variable_float32,
+	shader_variable_vec2,
+	shader_variable_vec4,
+	shader_variable_mat4,
+	shader_variable_sampler2d,
 
 	draw_quads,
 }; // RendererCommandId
@@ -303,15 +303,6 @@ using RendererVertexBufferPtr = RendererVertexBuffer*;
 // RendererVertexInput
 //
 
-enum class RendererVertexAttributeLocation :
-	unsigned char
-{
-	none,
-	position,
-	color,
-	texture_coordinates,
-}; // RendererVertexAttributeLocation
-
 enum class RendererVertexAttributeFormat :
 	unsigned char
 {
@@ -323,11 +314,13 @@ enum class RendererVertexAttributeFormat :
 
 struct RendererVertexAttributeDescription
 {
-	RendererVertexAttributeLocation location_;
+	bool is_default_;
+	int location_;
 	RendererVertexAttributeFormat format_;
 	RendererVertexBufferPtr vertex_buffer_;
 	int offset_;
 	int stride_;
+	glm::vec4 default_value_;
 }; // RendererVertexAttributeDescription
 
 using RendererVertexAttributeDescriptions = std::vector<RendererVertexAttributeDescription>;
@@ -468,6 +461,244 @@ using RendererSamplerPtr = RendererSampler*;
 // ==========================================================================
 
 
+// ==========================================================================
+// Shader
+//
+
+class RendererShaderVariable
+{
+protected:
+	RendererShaderVariable();
+
+	virtual ~RendererShaderVariable();
+
+public:
+	enum class Kind
+	{
+		none,
+		attribute,
+		sampler,
+		uniform,
+	}; // Kind
+
+	enum class TypeId
+	{
+		none,
+		int32,
+		float32,
+		vec2,
+		vec3,
+		vec4,
+		mat4,
+		sampler2d,
+	}; // TypeId
+
+
+	virtual Kind get_kind() const = 0;
+
+	virtual TypeId get_type_id() const = 0;
+
+	virtual int get_index() const = 0;
+
+	virtual const std::string& get_name() const = 0;
+
+	virtual int get_input_index() const = 0;
+}; // RendererShaderVariable
+
+using RendererShaderVariablePtr = RendererShaderVariable*;
+using RendererShaderVariableCPtr = const RendererShaderVariable*;
+
+
+class RendererShaderVariableInt32 :
+	public virtual RendererShaderVariable
+{
+protected:
+	RendererShaderVariableInt32();
+
+	virtual ~RendererShaderVariableInt32();
+
+public:
+	virtual void set_value(
+		const std::int32_t value) = 0;
+}; // RendererShaderVariableInt32
+
+using RendererShaderVariableInt32Ptr = RendererShaderVariableInt32*;
+using RendererShaderVariableInt32CPtr = const RendererShaderVariableInt32*;
+
+
+class RendererShaderVariableFloat32 :
+	public virtual RendererShaderVariable
+{
+protected:
+	RendererShaderVariableFloat32();
+
+	virtual ~RendererShaderVariableFloat32();
+
+public:
+	virtual void set_value(
+		const float value) = 0;
+}; // RendererShaderVariableFloat32
+
+using RendererShaderVariableFloat32Ptr = RendererShaderVariableFloat32*;
+using RendererShaderVariableFloat32CPtr = const RendererShaderVariableFloat32*;
+
+
+class RendererShaderVariableVec2 :
+	public virtual RendererShaderVariable
+{
+protected:
+	RendererShaderVariableVec2();
+
+	virtual ~RendererShaderVariableVec2();
+
+public:
+	virtual void set_value(
+		const glm::vec2& value) = 0;
+}; // RendererShaderVariableVec2
+
+using RendererShaderVariableVec2Ptr = RendererShaderVariableVec2*;
+using RendererShaderVariableVec2CPtr = const RendererShaderVariableVec2*;
+
+
+class RendererShaderVariableVec4 :
+	public virtual RendererShaderVariable
+{
+protected:
+	RendererShaderVariableVec4();
+
+	virtual ~RendererShaderVariableVec4();
+
+public:
+	virtual void set_value(
+		const glm::vec4& value) = 0;
+}; // RendererShaderVariableVec4
+
+using RendererShaderVariableVec4Ptr = RendererShaderVariableVec4*;
+using RendererShaderVariableVec4CPtr = const RendererShaderVariableVec4*;
+
+
+class RendererShaderVariableMat4 :
+	public virtual RendererShaderVariable
+{
+protected:
+	RendererShaderVariableMat4();
+
+	virtual ~RendererShaderVariableMat4();
+
+public:
+	virtual void set_value(
+		const glm::mat4& value) = 0;
+}; // RendererShaderVariableMat4
+
+using RendererShaderVariableMat4Ptr = RendererShaderVariableMat4*;
+using RendererShaderVariableMat4CPtr = const RendererShaderVariableMat4*;
+
+
+using RendererShaderVariableSampler2d = RendererShaderVariableInt32;
+using RendererShaderVariableSampler2dPtr = RendererShaderVariableSampler2d*;
+using RendererShaderVariableSampler2dCPtr = const RendererShaderVariableSampler2d*;
+
+
+class RendererShader
+{
+protected:
+	RendererShader();
+
+	virtual ~RendererShader();
+
+
+public:
+	enum class Kind
+	{
+		none,
+		fragment,
+		vertex,
+	}; // Kind
+
+	struct Source
+	{
+		const void* data_;
+		int size_;
+	}; // Source
+
+	struct CreateParam
+	{
+		Kind kind_;
+		Source source_;
+	}; // CreateParam
+
+
+	virtual bool is_initialized() const = 0;
+
+	virtual const std::string& get_error_message() const = 0;
+
+	virtual Kind get_kind() const = 0;
+}; // RendererShader
+
+using RendererShaderPtr = RendererShader*;
+
+
+class RendererShaderStage
+{
+protected:
+	RendererShaderStage();
+
+	virtual ~RendererShaderStage();
+
+
+public:
+	struct InputBinding
+	{
+		int index_;
+		std::string name_;
+	}; // InputBinding
+
+	using InputBindings = std::vector<InputBinding>;
+
+
+	struct CreateParam
+	{
+		RendererShaderPtr fragment_shader_;
+		RendererShaderPtr vertex_shader_;
+		InputBindings input_bindings_;
+	}; // CreateParam
+
+
+	virtual bool is_initialized() const = 0;
+
+	virtual const std::string& get_error_message() const = 0;
+
+	virtual void set_current() = 0;
+
+	virtual RendererShaderVariablePtr find_variable(
+		const std::string& name) = 0;
+
+	virtual RendererShaderVariableInt32Ptr find_variable_int32(
+		const std::string& name) = 0;
+
+	virtual RendererShaderVariableFloat32Ptr find_variable_float32(
+		const std::string& name) = 0;
+
+	virtual RendererShaderVariableVec2Ptr find_variable_vec2(
+		const std::string& name) = 0;
+
+	virtual RendererShaderVariableVec4Ptr find_variable_vec4(
+		const std::string& name) = 0;
+
+	virtual RendererShaderVariableMat4Ptr find_variable_mat4(
+		const std::string& name) = 0;
+
+	virtual RendererShaderVariableSampler2dPtr find_variable_sampler_2d(
+		const std::string& name) = 0;
+}; // RendererShaderStage
+
+using RendererShaderStagePtr = RendererShaderStage*;
+
+//
+// Shader
+// ==========================================================================
+
+
 struct RendererCommandViewport
 {
 	int x_;
@@ -518,43 +749,6 @@ struct RendererCommandDepthWrite
 	bool is_enabled_;
 }; // DepthSetWrite
 
-struct RendererCommandFog
-{
-	bool is_enabled_;
-}; // FogEnable
-
-struct RendererCommandFogColor
-{
-	glm::vec4 color_;
-}; // FogSetColor
-
-struct RendererCommandFogDistances
-{
-	float start_;
-	float end_;
-}; // FogSetDistances
-
-struct RendererCommandMatrixModel
-{
-	glm::mat4 model_;
-}; // MatrixSetModel
-
-struct RendererCommandMatrixView
-{
-	glm::mat4 view_;
-}; // MatrixSetView
-
-struct RendererCommandMatrixModelView
-{
-	glm::mat4 model_;
-	glm::mat4 view_;
-}; // MatrixSetModelView
-
-struct RendererCommandMatrixProjection
-{
-	glm::mat4 projection_;
-}; // MatrixSetProjection
-
 struct RendererCommandTexture
 {
 	RendererTexture2dPtr texture_2d_;
@@ -569,6 +763,47 @@ struct RendererCommandVertexInput
 {
 	RendererVertexInputPtr vertex_input_;
 }; // VertexInputSet
+
+struct RendererCommandShaderStage
+{
+	RendererShaderStagePtr shader_stage_;
+}; // RendererCommandShaderStage
+
+struct RendererCommandShaderVariableInt32
+{
+	RendererShaderVariableInt32Ptr variable_;
+	std::int32_t value_;
+};
+
+struct RendererCommandShaderVariableFloat32
+{
+	RendererShaderVariableFloat32Ptr variable_;
+	float value_;
+};
+
+struct RendererCommandShaderVariableVec2
+{
+	RendererShaderVariableVec2Ptr variable_;
+	glm::vec2 value_;
+};
+
+struct RendererCommandShaderVariableVec4
+{
+	RendererShaderVariableVec4Ptr variable_;
+	glm::vec4 value_;
+};
+
+struct RendererCommandShaderVariableMat4
+{
+	RendererShaderVariableMat4Ptr variable_;
+	glm::mat4 value_;
+};
+
+struct RendererCommandShaderVariableSampler2d
+{
+	RendererShaderVariableSampler2dPtr variable_;
+	std::int32_t value_;
+};
 
 struct RendererCommandDrawQuads
 {
@@ -616,19 +851,19 @@ public:
 	virtual RendererCommandBlending* write_blending() = 0;
 	virtual RendererCommandBlendingFunction* write_blending_function() = 0;
 
-	virtual RendererCommandFog* write_fog() = 0;
-	virtual RendererCommandFogColor* write_fog_color() = 0;
-	virtual RendererCommandFogDistances* write_fog_distances() = 0;
-
-	virtual RendererCommandMatrixModel* write_matrix_model() = 0;
-	virtual RendererCommandMatrixView* write_matrix_view() = 0;
-	virtual RendererCommandMatrixModelView* write_matrix_model_view() = 0;
-	virtual RendererCommandMatrixProjection* write_matrix_projection() = 0;
-
 	virtual RendererCommandTexture* write_texture() = 0;
 	virtual RendererCommandSampler* write_sampler() = 0;
 
 	virtual RendererCommandVertexInput* write_vertex_input() = 0;
+
+	virtual RendererCommandShaderStage* write_shader_stage() = 0;
+
+	virtual RendererCommandShaderVariableInt32* write_shader_variable_int32() = 0;
+	virtual RendererCommandShaderVariableFloat32* write_shader_variable_float32() = 0;
+	virtual RendererCommandShaderVariableVec2* write_shader_variable_vec2() = 0;
+	virtual RendererCommandShaderVariableVec4* write_shader_variable_vec4() = 0;
+	virtual RendererCommandShaderVariableMat4* write_shader_variable_mat4() = 0;
+	virtual RendererCommandShaderVariableSampler2d* write_shader_variable_sampler_2d() = 0;
 
 	virtual RendererCommandDrawQuads* write_draw_quads() = 0;
 
@@ -652,19 +887,19 @@ public:
 	virtual const RendererCommandBlending* read_blending() = 0;
 	virtual const RendererCommandBlendingFunction* read_blending_function() = 0;
 
-	virtual const RendererCommandFog* read_fog() = 0;
-	virtual const RendererCommandFogColor* read_fog_color() = 0;
-	virtual const RendererCommandFogDistances* read_fog_distances() = 0;
-
-	virtual const RendererCommandMatrixModel* read_matrix_model() = 0;
-	virtual const RendererCommandMatrixView* read_matrix_view() = 0;
-	virtual const RendererCommandMatrixModelView* read_matrix_model_view() = 0;
-	virtual const RendererCommandMatrixProjection* read_matrix_projection() = 0;
-
 	virtual const RendererCommandTexture* read_texture() = 0;
 	virtual const RendererCommandSampler* read_sampler() = 0;
 
 	virtual const RendererCommandVertexInput* read_vertex_input() = 0;
+
+	virtual const RendererCommandShaderStage* read_shader_stage() = 0;
+
+	virtual const RendererCommandShaderVariableInt32* read_shader_variable_int32() = 0;
+	virtual const RendererCommandShaderVariableFloat32* read_shader_variable_float32() = 0;
+	virtual const RendererCommandShaderVariableVec2* read_shader_variable_vec2() = 0;
+	virtual const RendererCommandShaderVariableVec4* read_shader_variable_vec4() = 0;
+	virtual const RendererCommandShaderVariableMat4* read_shader_variable_mat4() = 0;
+	virtual const RendererCommandShaderVariableSampler2d* read_shader_variable_sampler_2d() = 0;
 
 	virtual const RendererCommandDrawQuads* read_draw_quads() = 0;
 }; // RendererCommandBuffer
@@ -758,6 +993,8 @@ struct RendererDeviceFeatures
 
 	int msaa_min_value_;
 	int msaa_max_value_;
+
+	int max_vertex_input_locations_;
 }; // RendererDeviceFeatures
 
 //
@@ -846,6 +1083,11 @@ public:
 		const bool is_visible) = 0;
 
 
+	virtual const glm::mat4& csc_get_texture() const = 0;
+
+	virtual const glm::mat4& csc_get_projection() const = 0;
+
+
 	virtual bool vsync_get() const = 0;
 
 	virtual bool vsync_set(
@@ -904,6 +1146,20 @@ public:
 
 	virtual void vertex_input_destroy(
 		RendererVertexInputPtr vertex_input) = 0;
+
+
+	virtual RendererShaderPtr shader_create(
+		const RendererShader::CreateParam& param) = 0;
+
+	virtual void shader_destroy(
+		const RendererShaderPtr shader) = 0;
+
+
+	virtual RendererShaderStagePtr shader_stage_create(
+		const RendererShaderStage::CreateParam& param) = 0;
+
+	virtual void shader_stage_destroy(
+		const RendererShaderStagePtr shader) = 0;
 
 
 	virtual void execute_commands(

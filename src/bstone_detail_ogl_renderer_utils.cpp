@@ -38,7 +38,6 @@ Free Software Foundation, Inc.,
 #include <sstream>
 #include "SDL_video.h"
 #include "glm/gtc/matrix_transform.hpp"
-#include "bstone_ogl.h"
 
 
 namespace bstone
@@ -477,6 +476,22 @@ int OglRendererUtils::msaa_get_max_value(
 	return std::max(max_value, RendererUtils::aa_get_min_value());
 }
 
+void OglRendererUtils::vertex_input_probe_max_locations(
+	RendererDeviceFeatures& device_features)
+{
+	auto ogl_count = GLint{};
+
+	::glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &ogl_count);
+	assert(!OglRendererUtils::was_errors());
+
+	device_features.max_vertex_input_locations_ = 0;
+
+	if (ogl_count > 0)
+	{
+		device_features.max_vertex_input_locations_ = ogl_count;
+	}
+}
+
 void OglRendererUtils::vsync_probe(
 	RendererDeviceFeatures& device_features)
 {
@@ -746,6 +761,65 @@ RendererDeviceInfo OglRendererUtils::device_info_get()
 
 	// Result.
 	//
+	return result;
+}
+
+std::string OglRendererUtils::get_log(
+	const bool is_shader,
+	const GLuint ogl_name)
+{
+	const auto ogl_info_function = (is_shader ? ::glGetShaderInfoLog : ::glGetProgramInfoLog);
+	const auto ogl_size_function = (is_shader ? ::glGetShaderiv : ::glGetProgramiv);
+
+	auto size = GLint{};
+
+	ogl_size_function(ogl_name, GL_INFO_LOG_LENGTH, &size);
+	assert(!OglRendererUtils::was_errors());
+
+	auto result = std::string{};
+
+	if (size > 0)
+	{
+		result.resize(size);
+
+		auto info_size = GLsizei{};
+
+		ogl_info_function(ogl_name, size, &info_size, &result[0]);
+		assert(!OglRendererUtils::was_errors());
+
+		if (info_size <= 0)
+		{
+			result.clear();
+		}
+	}
+
+	return result;
+}
+
+const glm::mat4& OglRendererUtils::csc_get_texture()
+{
+	constexpr auto m_11 = 1.0F;
+
+	// Flip sign to allow to upload top-to-bottom texture images.
+	constexpr auto m_22 = -1.0F;
+
+	constexpr auto m_33 = 1.0F;
+
+	static const auto result = glm::mat4
+	{
+		m_11, 0.0F, 0.0F, 0.0F,
+		0.0F, m_22, 0.0F, 0.0F,
+		0.0F, 0.0F, m_33, 0.0F,
+		0.0F, 0.0F, 0.0F, 1.0F,
+	};
+
+	return result;
+}
+
+const glm::mat4& OglRendererUtils::csc_get_projection()
+{
+	static const auto result = glm::identity<glm::mat4>();
+
 	return result;
 }
 

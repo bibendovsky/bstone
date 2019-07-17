@@ -37,6 +37,8 @@ Free Software Foundation, Inc.,
 #include <list>
 #include <vector>
 #include "bstone_detail_ogl_extension_manager.h"
+#include "bstone_detail_ogl_renderer_shader_impl.h"
+#include "bstone_detail_ogl_renderer_shader_stage_impl.h"
 #include "bstone_detail_ogl_renderer_utils.h"
 #include "bstone_renderer_ogl_index_buffer.h"
 #include "bstone_renderer_ogl_vertex_buffer.h"
@@ -105,6 +107,11 @@ public:
 		const bool is_visible) override;
 
 
+	const glm::mat4& csc_get_texture() const override;
+
+	const glm::mat4& csc_get_projection() const override;
+
+
 	bool vsync_get() const override;
 
 	bool vsync_set(
@@ -165,6 +172,20 @@ public:
 		RendererVertexInputPtr vertex_input) override;
 
 
+	RendererShaderPtr shader_create(
+		const RendererShader::CreateParam& param) override;
+
+	void shader_destroy(
+		const RendererShaderPtr shader) override;
+
+
+	RendererShaderStagePtr shader_stage_create(
+		const RendererShaderStage::CreateParam& param) override;
+
+	void shader_stage_destroy(
+		const RendererShaderStagePtr shader) override;
+
+
 	void execute_commands(
 		const RendererCommandManagerPtr command_manager) override;
 
@@ -181,6 +202,11 @@ private:
 
 	using IndexBuffers = std::list<IndexBufferImplUPtr>;
 	using VertexBuffers = std::list<VertexBufferImplUPtr>;
+
+	using Shaders = std::list<detail::OglRendererShaderImplUPtr>;
+	using ShaderStages = std::list<detail::OglRendererShaderStageImplUPtr>;
+
+	using VertexInputEnabledLocations = std::vector<bool>;
 
 
 	// =========================================================================
@@ -395,19 +421,7 @@ private:
 
 	bool texture_2d_is_enabled_;
 
-	bool fog_is_enabled_;
-	glm::vec4 fog_color_;
-	float fog_start_distance_;
-	float fog_end_distance_;
-
-	glm::mat4 matrix_model_;
-	glm::mat4 matrix_view_;
-	glm::mat4 matrix_model_view_;
-	glm::mat4 matrix_projection_;
-
-	glm::mat4 matrix_texture_;
-
-	IndexBuffers index_buffers_;
+		IndexBuffers index_buffers_;
 	VertexBuffers vertex_buffers_;
 
 	RendererUtils::TextureBuffer texture_buffer_;
@@ -421,9 +435,12 @@ private:
 
 	VertexInputs vertex_inputs_;
 	VertexInputPtr vertex_input_current_;
-	bool vertex_input_is_position_enabled_;
-	bool vertex_input_is_color_enabled_;
-	bool vertex_input_is_texture_coordinates_enabled_;
+	VertexInputEnabledLocations vertex_input_enabled_locations_;
+
+	Shaders shaders_;
+
+	ShaderStages shader_stages_;
+	OglRendererShaderStageImplPtr current_shader_stage_;
 
 
 	bool probe_or_initialize(
@@ -570,32 +587,6 @@ private:
 	void texture_2d_set_defaults();
 
 
-	void fog_enable();
-
-	void fog_set_mode();
-
-	void fog_set_color();
-
-	void fog_set_distances();
-
-	void fog_set_hint();
-
-	void fog_set_defaults();
-
-
-	void matrix_set_model();
-
-	void matrix_set_view();
-
-	void matrix_set_model_view();
-
-	void matrix_set_projection();
-
-	void matrix_set_texture();
-
-	void matrix_set_defaults();
-
-
 	void sampler_set();
 
 
@@ -603,20 +594,21 @@ private:
 		const bool is_enabled,
 		const GLenum state);
 
-	void vertex_input_enable_position();
+	void vertex_input_enable_location(
+		const int location);
 
-	void vertex_input_enable_color();
-
-	void vertex_input_enable_texture_coordinates();
-
-	void vertex_input_enable_position(
+	void vertex_input_enable_location(
+		const int location,
 		const bool is_enabled);
 
-	void vertex_input_enable_color(
-		const bool is_enabled);
+	void vertex_input_assign_default_attribute(
+		const RendererVertexAttributeDescription& attribute_description);
 
-	void vertex_input_enable_texture_coordinates(
-		const bool is_enabled);
+	void vertex_input_assign_regular_attribute(
+		const RendererVertexAttributeDescription& attribute_description);
+
+	void vertex_input_assign_attribute(
+		const RendererVertexAttributeDescription& attribute_description);
 
 	void vertex_input_assign();
 
@@ -647,27 +639,6 @@ private:
 	void command_execute_scissor_box(
 		const RendererCommandScissorBox& command);
 
-	void command_execute_fog(
-		const RendererCommandFog& command);
-
-	void command_execute_fog_color(
-		const RendererCommandFogColor& command);
-
-	void command_execute_fog_distances(
-		const RendererCommandFogDistances& command);
-
-	void command_execute_matrix_model(
-		const RendererCommandMatrixModel& command);
-
-	void command_execute_matrix_view(
-		const RendererCommandMatrixView& command);
-
-	void command_execute_matrix_model_view(
-		const RendererCommandMatrixModelView& command);
-
-	void command_execute_matrix_projection(
-		const RendererCommandMatrixProjection& command);
-
 	void command_execute_texture(
 		const RendererCommandTexture& command);
 
@@ -676,6 +647,27 @@ private:
 
 	void command_execute_vertex_input(
 		const RendererCommandVertexInput& command);
+
+	void command_execute_shader_stage(
+		const RendererCommandShaderStage& command);
+
+	void command_execute_shader_variable_int32(
+		const RendererCommandShaderVariableInt32& command);
+
+	void command_execute_shader_variable_float32(
+		const RendererCommandShaderVariableFloat32& command);
+
+	void command_execute_shader_variable_vec2(
+		const RendererCommandShaderVariableVec2& command);
+
+	void command_execute_shader_variable_vec4(
+		const RendererCommandShaderVariableVec4& command);
+
+	void command_execute_shader_variable_mat4(
+		const RendererCommandShaderVariableMat4& command);
+
+	void command_execute_shader_variable_sampler_2d(
+		const RendererCommandShaderVariableSampler2d& command);
 
 	void command_execute_draw_quads(
 		const RendererCommandDrawQuads& command);

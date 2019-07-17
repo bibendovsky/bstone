@@ -45,7 +45,7 @@ Free Software Foundation, Inc.,
 #endif // !APIENTRY
 
 #ifndef APIENTRYP
-#define APIENTRYP APIENTRY *
+#define APIENTRYP APIENTRY*
 #endif // !APIENTRYP
 
 #ifndef GLAPIENTRY

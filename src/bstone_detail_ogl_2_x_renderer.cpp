@@ -34,7 +34,6 @@ Free Software Foundation, Inc.,
 #include "bstone_detail_ogl_2_x_renderer.h"
 #include <cassert>
 #include "glm/gtc/type_ptr.hpp"
-#include "glm/gtc/matrix_transform.hpp"
 #include "bstone_detail_ogl_renderer_utils.h"
 #include "bstone_detail_ogl_extension_manager.h"
 
@@ -560,9 +559,11 @@ Ogl2XRenderer::VertexInput::VertexInput(
 	Ogl2XRendererPtr renderer)
 	:
 	renderer_{renderer},
-	error_message_{}
+	error_message_{},
+	index_buffer_{},
+	attribute_descriptions_{}
 {
-	assert(renderer_);
+	assert(renderer_ != nullptr);
 }
 
 Ogl2XRenderer::VertexInput::~VertexInput()
@@ -574,9 +575,27 @@ bool Ogl2XRenderer::VertexInput::initialize(
 {
 	auto renderer_utils = RendererUtils{};
 
-	if (!renderer_utils.vertex_input_validate_param(param))
+	const auto max_locations = renderer_->device_features_.max_vertex_input_locations_;
+
+	if (!renderer_utils.vertex_input_validate_param(max_locations, param))
 	{
 		error_message_ = renderer_utils.get_error_message();
+
+		return false;
+	}
+
+	const auto is_location_out_of_range = std::any_of(
+		param.attribute_descriptions_.cbegin(),
+		param.attribute_descriptions_.cend(),
+		[=](const auto& item)
+		{
+			return item.location_ < 0 || item.location_ >= max_locations;
+		}
+	);
+
+	if (is_location_out_of_range)
+	{
+		error_message_ = "Location out of range.";
 
 		return false;
 	}
@@ -639,15 +658,6 @@ Ogl2XRenderer::Ogl2XRenderer()
 	blending_src_factor_{},
 	blending_dst_factor_{},
 	texture_2d_is_enabled_{},
-	fog_is_enabled_{},
-	fog_color_{},
-	fog_start_distance_{},
-	fog_end_distance_{},
-	matrix_model_{},
-	matrix_view_{},
-	matrix_model_view_{},
-	matrix_projection_{},
-	matrix_texture_{},
 	index_buffers_{},
 	vertex_buffers_{},
 	texture_buffer_{},
@@ -658,9 +668,10 @@ Ogl2XRenderer::Ogl2XRenderer()
 	sampler_default_{},
 	vertex_inputs_{},
 	vertex_input_current_{},
-	vertex_input_is_position_enabled_{},
-	vertex_input_is_color_enabled_{},
-	vertex_input_is_texture_coordinates_enabled_{}
+	vertex_input_enabled_locations_{},
+	shaders_{},
+	shader_stages_{},
+	current_shader_stage_{}
 {
 }
 
@@ -708,15 +719,6 @@ Ogl2XRenderer::Ogl2XRenderer(
 	blending_src_factor_{std::move(rhs.blending_src_factor_)},
 	blending_dst_factor_{std::move(rhs.blending_dst_factor_)},
 	texture_2d_is_enabled_{std::move(rhs.texture_2d_is_enabled_)},
-	fog_is_enabled_{std::move(rhs.fog_is_enabled_)},
-	fog_color_{std::move(rhs.fog_color_)},
-	fog_start_distance_{std::move(rhs.fog_start_distance_)},
-	fog_end_distance_{std::move(rhs.fog_end_distance_)},
-	matrix_model_{std::move(rhs.matrix_model_)},
-	matrix_view_{std::move(rhs.matrix_view_)},
-	matrix_model_view_{std::move(rhs.matrix_model_view_)},
-	matrix_projection_{std::move(rhs.matrix_projection_)},
-	matrix_texture_{std::move(rhs.matrix_texture_)},
 	index_buffers_{std::move(rhs.index_buffers_)},
 	vertex_buffers_{std::move(rhs.vertex_buffers_)},
 	texture_buffer_{std::move(rhs.texture_buffer_)},
@@ -727,9 +729,10 @@ Ogl2XRenderer::Ogl2XRenderer(
 	sampler_default_{std::move(rhs.sampler_default_)},
 	vertex_inputs_{std::move(rhs.vertex_inputs_)},
 	vertex_input_current_{std::move(rhs.vertex_input_current_)},
-	vertex_input_is_position_enabled_{std::move(rhs.vertex_input_is_position_enabled_)},
-	vertex_input_is_color_enabled_{std::move(rhs.vertex_input_is_color_enabled_)},
-	vertex_input_is_texture_coordinates_enabled_{std::move(rhs.vertex_input_is_texture_coordinates_enabled_)}
+	vertex_input_enabled_locations_{std::move(rhs.vertex_input_enabled_locations_)},
+	shaders_{std::move(rhs.shaders_)},
+	shader_stages_{std::move(rhs.shader_stages_)},
+	current_shader_stage_{std::move(rhs.current_shader_stage_)}
 {
 	rhs.is_initialized_ = false;
 	rhs.sdl_window_ = nullptr;
@@ -741,6 +744,8 @@ Ogl2XRenderer::Ogl2XRenderer(
 
 	rhs.ogl_downscale_fbo_ = GL_NONE;
 	rhs.ogl_downscale_color_rb_ = GL_NONE;
+
+	rhs.current_shader_stage_ = nullptr;
 }
 
 Ogl2XRenderer::~Ogl2XRenderer()
@@ -869,6 +874,16 @@ void Ogl2XRenderer::window_show(
 	auto renderer_utils = RendererUtils{};
 
 	static_cast<void>(renderer_utils.show_window(sdl_window_.get(), is_visible));
+}
+
+const glm::mat4& Ogl2XRenderer::csc_get_texture() const
+{
+	return detail::OglRendererUtils::csc_get_texture();
+}
+
+const glm::mat4& Ogl2XRenderer::csc_get_projection() const
+{
+	return detail::OglRendererUtils::csc_get_projection();
 }
 
 bool Ogl2XRenderer::vsync_get() const
@@ -1096,6 +1111,87 @@ void Ogl2XRenderer::vertex_input_destroy(
 	);
 }
 
+RendererShaderPtr Ogl2XRenderer::shader_create(
+	const RendererShader::CreateParam& param)
+{
+	auto shader = detail::OglRendererShaderImplUPtr{new detail::OglRendererShaderImpl{}};
+
+	shader->initialize(param);
+
+	if (!shader->is_initialized())
+	{
+		error_message_ = "Failed to create a shader. ";
+		error_message_ += shader->get_error_message();
+
+		return nullptr;
+	}
+
+	shaders_.emplace_back(std::move(shader));
+
+	return shaders_.back().get();
+}
+
+void Ogl2XRenderer::shader_destroy(
+	const RendererShaderPtr shader)
+{
+	if (shader == nullptr)
+	{
+		return;
+	}
+
+	shaders_.remove_if(
+		[=](const auto& item)
+		{
+			return item.get() == shader;
+		}
+	);
+}
+
+RendererShaderStagePtr Ogl2XRenderer::shader_stage_create(
+	const RendererShaderStage::CreateParam& param)
+{
+	auto shader_stage = detail::OglRendererShaderStageImplUPtr{new detail::OglRendererShaderStageImpl{}};
+
+	shader_stage->initialize(&current_shader_stage_, param);
+
+	if (!shader_stage->is_initialized())
+	{
+		error_message_ = "Failed to create a shader stage. ";
+		error_message_ += shader_stage->get_error_message();
+
+		return nullptr;
+	}
+
+	shader_stages_.emplace_back(std::move(shader_stage));
+
+	return shader_stages_.back().get();
+}
+
+void Ogl2XRenderer::shader_stage_destroy(
+	const RendererShaderStagePtr shader_stage)
+{
+	if (shader_stage == nullptr)
+	{
+		return;
+	}
+
+	const auto size_before = shader_stages_.size();
+
+	shader_stages_.remove_if(
+		[=](const auto& item)
+		{
+			return item.get() == shader_stage;
+		}
+	);
+
+	const auto size_after = shader_stages_.size();
+
+	if (size_before != size_after)
+	{
+		current_shader_stage_ = nullptr;
+	}
+}
+
 void Ogl2XRenderer::execute_commands(
 	const RendererCommandManagerPtr command_manager)
 {
@@ -1144,34 +1240,6 @@ void Ogl2XRenderer::execute_commands(
 				command_execute_scissor_box(*command_buffer->read_scissor_box());
 				break;
 
-			case RendererCommandId::fog_enable:
-				command_execute_fog(*command_buffer->read_fog());
-				break;
-
-			case RendererCommandId::fog_set_color:
-				command_execute_fog_color(*command_buffer->read_fog_color());
-				break;
-
-			case RendererCommandId::fog_set_distances:
-				command_execute_fog_distances(*command_buffer->read_fog_distances());
-				break;
-
-			case RendererCommandId::matrix_set_model:
-				command_execute_matrix_model(*command_buffer->read_matrix_model());
-				break;
-
-			case RendererCommandId::matrix_set_view:
-				command_execute_matrix_view(*command_buffer->read_matrix_view());
-				break;
-
-			case RendererCommandId::matrix_set_model_view:
-				command_execute_matrix_model_view(*command_buffer->read_matrix_model_view());
-				break;
-
-			case RendererCommandId::matrix_set_projection:
-				command_execute_matrix_projection(*command_buffer->read_matrix_projection());
-				break;
-
 			case RendererCommandId::blending_enable:
 				command_execute_blending(*command_buffer->read_blending());
 				break;
@@ -1190,6 +1258,34 @@ void Ogl2XRenderer::execute_commands(
 
 			case RendererCommandId::vertex_input_set:
 				command_execute_vertex_input(*command_buffer->read_vertex_input());
+				break;
+
+			case RendererCommandId::shader_stage:
+				command_execute_shader_stage(*command_buffer->read_shader_stage());
+				break;
+
+			case RendererCommandId::shader_variable_int32:
+				command_execute_shader_variable_int32(*command_buffer->read_shader_variable_int32());
+				break;
+
+			case RendererCommandId::shader_variable_float32:
+				command_execute_shader_variable_float32(*command_buffer->read_shader_variable_float32());
+				break;
+
+			case RendererCommandId::shader_variable_vec2:
+				command_execute_shader_variable_vec2(*command_buffer->read_shader_variable_vec2());
+				break;
+
+			case RendererCommandId::shader_variable_vec4:
+				command_execute_shader_variable_vec4(*command_buffer->read_shader_variable_vec4());
+				break;
+
+			case RendererCommandId::shader_variable_mat4:
+				command_execute_shader_variable_mat4(*command_buffer->read_shader_variable_mat4());
+				break;
+
+			case RendererCommandId::shader_variable_sampler2d:
+				command_execute_shader_variable_sampler_2d(*command_buffer->read_shader_variable_sampler_2d());
 				break;
 
 			case RendererCommandId::draw_quads:
@@ -1348,6 +1444,15 @@ bool Ogl2XRenderer::probe_or_initialize(
 		ogl_device_features_
 	);
 
+	OglRendererUtils::vertex_input_probe_max_locations(device_features_);
+
+	if (device_features_.max_vertex_input_locations_ <= 0)
+	{
+		error_message_ = "No vertex input locations.";
+
+		return false;
+	}
+
 	OglRendererUtils::vsync_probe(device_features_);
 
 	if (!is_probe)
@@ -1389,8 +1494,6 @@ bool Ogl2XRenderer::probe_or_initialize(
 		depth_set_defaults();
 		blending_set_defaults();
 		texture_2d_set_defaults();
-		fog_set_defaults();
-		matrix_set_defaults();
 		vertex_input_defaults();
 
 
@@ -1536,24 +1639,14 @@ void Ogl2XRenderer::uninitialize_internal(
 		depth_is_write_enabled_ = {};
 		blending_is_enabled_ = {};
 		texture_2d_is_enabled_ = {};
-		fog_is_enabled_ = {};
-		fog_color_ = {};
-		fog_start_distance_ = {};
-		fog_end_distance_ = {};
-		matrix_model_ = {};
-		matrix_view_ = {};
-		matrix_model_view_ = {};
-		matrix_projection_ = {};
-		matrix_texture_ = {};
 		index_buffers_.clear();
 		vertex_buffers_.clear();
 		texture_buffer_.clear();
 		texture_2d_current_ = {};
 		sampler_current_ = {};
 		vertex_input_current_ = {};
-		vertex_input_is_position_enabled_ = {};
-		vertex_input_is_color_enabled_ = {};
-		vertex_input_is_texture_coordinates_enabled_ = {};
+		vertex_input_enabled_locations_ = {};
+		current_shader_stage_ = {};
 	}
 
 	index_buffers_.clear();
@@ -1562,6 +1655,8 @@ void Ogl2XRenderer::uninitialize_internal(
 	samplers_.clear();
 	sampler_default_ = {};
 	vertex_inputs_.clear();
+	shaders_.clear();
+	shader_stages_.clear();
 }
 
 void Ogl2XRenderer::scissor_enable()
@@ -2257,119 +2352,6 @@ void Ogl2XRenderer::texture_2d_set_defaults()
 	texture_mipmap_generation_set_hint();
 }
 
-void Ogl2XRenderer::fog_enable()
-{
-	const auto ogl_function = (fog_is_enabled_ ? ::glEnable : ::glDisable);
-
-	ogl_function(GL_FOG);
-	assert(!OglRendererUtils::was_errors());
-}
-
-void Ogl2XRenderer::fog_set_mode()
-{
-	::glFogi(GL_FOG_MODE, GL_LINEAR);
-	assert(!OglRendererUtils::was_errors());
-}
-
-void Ogl2XRenderer::fog_set_color()
-{
-	::glFogfv(GL_FOG_COLOR, glm::value_ptr(fog_color_));
-	assert(!OglRendererUtils::was_errors());
-}
-
-void Ogl2XRenderer::fog_set_distances()
-{
-	::glFogf(GL_FOG_START, fog_start_distance_);
-	assert(!OglRendererUtils::was_errors());
-
-	::glFogf(GL_FOG_END, fog_end_distance_);
-	assert(!OglRendererUtils::was_errors());
-}
-
-void Ogl2XRenderer::fog_set_hint()
-{
-	::glHint(GL_FOG_HINT, GL_NICEST);
-	assert(!OglRendererUtils::was_errors());
-}
-
-void Ogl2XRenderer::fog_set_defaults()
-{
-	fog_is_enabled_ = false;
-	fog_enable();
-
-	fog_set_mode();
-
-	fog_color_ = glm::vec4{};
-	fog_set_color();
-
-	fog_start_distance_ = 0.0F;
-	fog_end_distance_ = 1.0F;
-	fog_set_distances();
-
-	fog_set_hint();
-}
-
-void Ogl2XRenderer::matrix_set_model()
-{
-	matrix_set_model_view();
-}
-
-void Ogl2XRenderer::matrix_set_view()
-{
-	matrix_set_model_view();
-}
-
-void Ogl2XRenderer::matrix_set_model_view()
-{
-	::glMatrixMode(GL_MODELVIEW);
-	assert(!OglRendererUtils::was_errors());
-
-	::glLoadMatrixf(glm::value_ptr(matrix_model_view_));
-	assert(!OglRendererUtils::was_errors());
-}
-
-void Ogl2XRenderer::matrix_set_projection()
-{
-	::glMatrixMode(GL_PROJECTION);
-	assert(!OglRendererUtils::was_errors());
-
-	::glLoadMatrixf(glm::value_ptr(matrix_projection_));
-	assert(!OglRendererUtils::was_errors());
-}
-
-void Ogl2XRenderer::matrix_set_texture()
-{
-	::glMatrixMode(GL_TEXTURE);
-	assert(!OglRendererUtils::was_errors());
-
-	::glLoadMatrixf(glm::value_ptr(matrix_texture_));
-	assert(!OglRendererUtils::was_errors());
-}
-
-void Ogl2XRenderer::matrix_set_defaults()
-{
-	const auto& identity = glm::identity<glm::mat4>();
-
-	// Convert from bottom-top to top-bottom.
-	const auto& matrix_texture = glm::mat4
-	{
-		1.0F, 0.0F, 0.0F, 0.0F,
-		0.0F, -1.0F, 0.0F, 0.0F,
-		0.0F, 0.0F, 1.0F, 0.0F,
-		0.0F, 0.0F, 0.0F, 1.0F,
-	};
-
-	matrix_model_ = identity;
-	matrix_view_ = identity;
-	matrix_model_view_ = matrix_view_ * matrix_model_;
-	matrix_projection_ = identity;
-	matrix_texture_ = matrix_texture;
-
-	matrix_set_model_view();
-	matrix_set_projection();
-	matrix_set_texture();
-}
-
 void Ogl2XRenderer::sampler_set()
 {
 	assert(sampler_current_);
@@ -2390,168 +2372,139 @@ void Ogl2XRenderer::vertex_input_enable_client_state(
 	assert(!OglRendererUtils::was_errors());
 }
 
-void Ogl2XRenderer::vertex_input_enable_position()
+void Ogl2XRenderer::vertex_input_assign_default_attribute(
+	const RendererVertexAttributeDescription& attribute_description)
 {
-	vertex_input_enable_client_state(
-		vertex_input_is_position_enabled_,
-		GL_VERTEX_ARRAY
+	assert(attribute_description.is_default_);
+
+	::glVertexAttrib4fv(
+		attribute_description.location_,
+		glm::value_ptr(attribute_description.default_value_)
 	);
+
+	assert(!OglRendererUtils::was_errors());
 }
 
-void Ogl2XRenderer::vertex_input_enable_color()
+void Ogl2XRenderer::vertex_input_assign_regular_attribute(
+	const RendererVertexAttributeDescription& attribute_description)
 {
-	vertex_input_enable_client_state(
-		vertex_input_is_color_enabled_,
-		GL_COLOR_ARRAY
-	);
-}
+	assert(!attribute_description.is_default_);
 
-void Ogl2XRenderer::vertex_input_enable_texture_coordinates()
-{
-	vertex_input_enable_client_state(
-		vertex_input_is_texture_coordinates_enabled_,
-		GL_TEXTURE_COORD_ARRAY
-	);
-}
+	auto ogl_component_count = GLint{};
+	auto ogl_component_format = GLenum{};
+	auto ogl_is_normalized = GLenum{};
 
-void Ogl2XRenderer::vertex_input_enable_position(
-	const bool is_enabled)
-{
-	if (vertex_input_is_position_enabled_ != is_enabled)
+	switch (attribute_description.format_)
 	{
-		vertex_input_is_position_enabled_ = is_enabled;
+		case RendererVertexAttributeFormat::r8g8b8a8_unorm:
+			ogl_is_normalized = true;
+			ogl_component_count = 4;
+			ogl_component_format = GL_UNSIGNED_BYTE;
+			break;
 
-		vertex_input_enable_position();
+		case RendererVertexAttributeFormat::r32g32_sfloat:
+			ogl_component_count = 2;
+			ogl_component_format = GL_FLOAT;
+			break;
+
+		case RendererVertexAttributeFormat::r32g32b32_sfloat:
+			ogl_component_count = 3;
+			ogl_component_format = GL_FLOAT;
+			break;
+
+		default:
+			assert(!"Invalid format.");
+			break;
 	}
+
+	vertex_input_enable_location(attribute_description.location_, true);
+
+	auto vertex_buffer = static_cast<VertexBufferImplPtr>(attribute_description.vertex_buffer_);
+
+	vertex_buffer->bind(true);
+
+	const auto vertex_buffer_data = reinterpret_cast<const void*>(static_cast<std::intptr_t>(attribute_description.offset_));
+
+	::glVertexAttribPointer(
+		attribute_description.location_,
+		ogl_component_count,
+		ogl_component_format,
+		ogl_is_normalized,
+		attribute_description.stride_,
+		vertex_buffer_data
+	);
+
+	assert(!OglRendererUtils::was_errors());
 }
 
-void Ogl2XRenderer::vertex_input_enable_color(
-	const bool is_enabled)
+void Ogl2XRenderer::vertex_input_assign_attribute(
+	const RendererVertexAttributeDescription& attribute_description)
 {
-	if (vertex_input_is_color_enabled_ != is_enabled)
+	if (attribute_description.is_default_)
 	{
-		vertex_input_is_color_enabled_ = is_enabled;
-
-		vertex_input_enable_color();
+		vertex_input_assign_default_attribute(attribute_description);
 	}
-}
-
-void Ogl2XRenderer::vertex_input_enable_texture_coordinates(
-	const bool is_enabled)
-{
-	if (vertex_input_is_texture_coordinates_enabled_ != is_enabled)
+	else
 	{
-		vertex_input_is_texture_coordinates_enabled_ = is_enabled;
-
-		vertex_input_enable_texture_coordinates();
+		vertex_input_assign_regular_attribute(attribute_description);
 	}
 }
 
 void Ogl2XRenderer::vertex_input_assign()
 {
-	if (vertex_input_current_)
+	// Disable all.
+	//
+	for (int i = 0; i < device_features_.max_vertex_input_locations_; ++i)
 	{
-		auto is_position_enabled = false;
-		auto is_color_enabled = false;
-		auto is_texture_coordinates_enabled = false;
-
-		for (const auto& attribute_description : vertex_input_current_->attribute_descriptions_)
-		{
-			using OglPointerFunction = void (APIENTRYP)(
-				const GLint size,
-				const GLenum type,
-				const GLsizei stride,
-				const void* const pointer);
-
-			auto ogl_pointer_function = OglPointerFunction{};
-
-			switch (attribute_description.location_)
-			{
-				case RendererVertexAttributeLocation::position:
-					is_position_enabled = true;
-					ogl_pointer_function = ::glVertexPointer;
-					break;
-
-				case RendererVertexAttributeLocation::color:
-					is_color_enabled = true;
-					ogl_pointer_function = ::glColorPointer;
-					break;
-
-				case RendererVertexAttributeLocation::texture_coordinates:
-					is_texture_coordinates_enabled = true;
-					ogl_pointer_function = ::glTexCoordPointer;
-					break;
-
-				default:
-					assert(!"Invalid location.");
-					break;
-			}
-
-			auto ogl_component_count = GLint{};
-			auto ogl_component_format = GLenum{};
-
-			switch (attribute_description.format_)
-			{
-				case RendererVertexAttributeFormat::r8g8b8a8_unorm:
-					ogl_component_count = 4;
-					ogl_component_format = GL_UNSIGNED_BYTE;
-					break;
-
-				case RendererVertexAttributeFormat::r32g32_sfloat:
-					ogl_component_count = 2;
-					ogl_component_format = GL_FLOAT;
-					break;
-
-				case RendererVertexAttributeFormat::r32g32b32_sfloat:
-					ogl_component_count = 3;
-					ogl_component_format = GL_FLOAT;
-					break;
-
-				default:
-					assert(!"Invalid format.");
-					break;
-			}
-
-			auto vertex_buffer = static_cast<VertexBufferImplPtr>(attribute_description.vertex_buffer_);
-
-			vertex_buffer->bind(true);
-
-			const auto vertex_buffer_data = reinterpret_cast<const void*>(static_cast<std::intptr_t>(attribute_description.offset_));
-
-			ogl_pointer_function(
-				ogl_component_count,
-				ogl_component_format,
-				static_cast<GLsizei>(attribute_description.stride_),
-				vertex_buffer_data
-			);
-
-			assert(!OglRendererUtils::was_errors());
-		}
-
-		vertex_input_enable_position(is_position_enabled);
-		vertex_input_enable_color(is_color_enabled);
-		vertex_input_enable_texture_coordinates(is_texture_coordinates_enabled);
+		vertex_input_enable_location(i, false);
 	}
-	else
+
+	if (vertex_input_current_ == nullptr)
 	{
-		vertex_input_enable_position(false);
-		vertex_input_enable_color(false);
-		vertex_input_enable_texture_coordinates(false);
+		return;
 	}
+
+	for (const auto& attribute_description : vertex_input_current_->attribute_descriptions_)
+	{
+		vertex_input_assign_attribute(attribute_description);
+	}
+}
+
+void Ogl2XRenderer::vertex_input_enable_location(
+	const int location)
+{
+	const auto is_enabled = vertex_input_enabled_locations_[location];
+	const auto olg_function = (is_enabled ? ::glEnableVertexAttribArray : ::glDisableVertexAttribArray);
+
+	olg_function(static_cast<GLuint>(location));
+	assert(!OglRendererUtils::was_errors());
+}
+
+void Ogl2XRenderer::vertex_input_enable_location(
+	const int location,
+	const bool is_enabled)
+{
+	if (vertex_input_enabled_locations_[location] == is_enabled)
+	{
+		return;
+	}
+
+	vertex_input_enabled_locations_[location] = is_enabled;
+
+	vertex_input_enable_location(location);
 }
 
 void Ogl2XRenderer::vertex_input_defaults()
 {
 	vertex_input_current_ = nullptr;
 
-	vertex_input_is_position_enabled_ = false;
-	vertex_input_enable_position();
+	vertex_input_enabled_locations_.clear();
+	vertex_input_enabled_locations_.resize(device_features_.max_vertex_input_locations_);
 
-	vertex_input_is_color_enabled_ = false;
-	vertex_input_enable_color();
-
-	vertex_input_is_texture_coordinates_enabled_ = false;
-	vertex_input_enable_texture_coordinates();
+	for (int i = 0; i < device_features_.max_vertex_input_locations_; ++i)
+	{
+		vertex_input_enable_location(i);
+	}
 }
 
 void Ogl2XRenderer::command_execute_culling(
@@ -2687,113 +2640,6 @@ void Ogl2XRenderer::command_execute_scissor_box(
 	}
 }
 
-void Ogl2XRenderer::command_execute_fog(
-	const RendererCommandFog& command)
-{
-	if (fog_is_enabled_ != command.is_enabled_)
-	{
-		fog_is_enabled_ = command.is_enabled_;
-
-		fog_enable();
-	}
-}
-
-void Ogl2XRenderer::command_execute_fog_color(
-	const RendererCommandFogColor& command)
-{
-	if (fog_color_ != command.color_)
-	{
-		fog_color_ = command.color_;
-
-		fog_set_color();
-	}
-}
-
-void Ogl2XRenderer::command_execute_fog_distances(
-	const RendererCommandFogDistances& command)
-{
-	auto is_modified = false;
-
-	if (fog_start_distance_ != command.start_)
-	{
-		is_modified = true;
-
-		fog_start_distance_ = command.start_;
-	}
-
-	if (fog_end_distance_ != command.end_)
-	{
-		is_modified = true;
-
-		fog_end_distance_ = command.end_;
-	}
-
-	if (is_modified)
-	{
-		fog_set_distances();
-	}
-}
-
-void Ogl2XRenderer::command_execute_matrix_model(
-	const RendererCommandMatrixModel& command)
-{
-	if (matrix_model_ != command.model_)
-	{
-		matrix_model_ = command.model_;
-
-		matrix_set_model();
-	}
-}
-
-void Ogl2XRenderer::command_execute_matrix_view(
-	const RendererCommandMatrixView& command)
-{
-	if (matrix_view_ != command.view_)
-	{
-		matrix_view_ = command.view_;
-
-		matrix_set_model();
-	}
-}
-
-void Ogl2XRenderer::command_execute_matrix_model_view(
-	const RendererCommandMatrixModelView& command)
-{
-	auto is_modified = false;
-
-	if (matrix_model_ != command.model_)
-	{
-		is_modified = true;
-
-		matrix_model_ = command.model_;
-	}
-
-	if (matrix_view_ != command.view_)
-	{
-		is_modified = true;
-
-		matrix_view_ = command.view_;
-	}
-
-	if (is_modified)
-	{
-		matrix_model_view_ = matrix_view_ * matrix_model_;
-
-		matrix_set_model_view();
-	}
-}
-
-void Ogl2XRenderer::command_execute_matrix_projection(
-	const RendererCommandMatrixProjection& command)
-{
-	if (matrix_projection_ != command.projection_)
-	{
-		matrix_projection_ = command.projection_;
-
-		matrix_set_projection();
-	}
-}
-
 void Ogl2XRenderer::command_execute_texture(
 	const RendererCommandTexture& command)
 {
@@ -2824,6 +2670,97 @@ void Ogl2XRenderer::command_execute_vertex_input(
 
 		vertex_input_assign();
 	}
+}
+
+void Ogl2XRenderer::command_execute_shader_stage(
+	const RendererCommandShaderStage& command)
+{
+	if (command.shader_stage_ != nullptr)
+	{
+		command.shader_stage_->set_current();
+	}
+	else
+	{
+		OglRendererShaderStageImpl::unset_current();
+	}
+}
+
+void Ogl2XRenderer::command_execute_shader_variable_int32(
+	const RendererCommandShaderVariableInt32& command)
+{
+	if (!command.variable_)
+	{
+		assert(!"Null variable.");
+
+		return;
+	}
+
+	command.variable_->set_value(command.value_);
+}
+
+void Ogl2XRenderer::command_execute_shader_variable_float32(
+	const RendererCommandShaderVariableFloat32& command)
+{
+	if (!command.variable_)
+	{
+		assert(!"Null variable.");
+
+		return;
+	}
+
+	command.variable_->set_value(command.value_);
+}
+
+void Ogl2XRenderer::command_execute_shader_variable_vec2(
+	const RendererCommandShaderVariableVec2& command)
+{
+	if (!command.variable_)
+	{
+		assert(!"Null variable.");
+
+		return;
+	}
+
+	command.variable_->set_value(command.value_);
+}
+
+void Ogl2XRenderer::command_execute_shader_variable_vec4(
+	const RendererCommandShaderVariableVec4& command)
+{
+	if (!command.variable_)
+	{
+		assert(!"Null variable.");
+
+		return;
+	}
+
+	command.variable_->set_value(command.value_);
+}
+
+void Ogl2XRenderer::command_execute_shader_variable_mat4(
+	const RendererCommandShaderVariableMat4& command)
+{
+	if (!command.variable_)
+	{
+		assert(!"Null variable.");
+
+		return;
+	}
+
+	command.variable_->set_value(command.value_);
+}
+
+void Ogl2XRenderer::command_execute_shader_variable_sampler_2d(
+	const RendererCommandShaderVariableSampler2d& command)
+{
+	if (!command.variable_)
+	{
+		assert(!"Null variable.");
+
+		return;
+	}
+
+	command.variable_->set_value(command.value_);
 }
 
 void Ogl2XRenderer::command_execute_draw_quads(

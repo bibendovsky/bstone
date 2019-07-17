@@ -124,13 +124,11 @@ public:
 		const RendererTexture2dUpdateParam& param);
 
 
-	static int vertex_input_get_location_index(
-		const RendererVertexAttributeLocation location);
-
 	static bool vertex_input_validate_format(
 		const RendererVertexAttributeFormat attribute_format);
 
 	bool vertex_input_validate_param(
+		const int max_locations,
 		const RendererVertexInputCreateParam& param);
 
 

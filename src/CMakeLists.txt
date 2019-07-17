@@ -206,6 +206,9 @@ target_sources(
 		bstone_detail_ogl_2_x_renderer.h
 		bstone_detail_ogl_extension_manager.h
 		bstone_detail_ogl_renderer_utils.h
+		bstone_detail_ogl_renderer_shader_impl.h
+		bstone_detail_ogl_renderer_shader_stage_impl.h
+		bstone_detail_ogl_renderer_shader_variable_impl.h
 		bstone_detail_renderer_utils.h
 		bstone_endian.h
 		bstone_file_stream.h
@@ -235,6 +238,7 @@ target_sources(
 		bstone_renderer_ogl_buffer.h
 		bstone_renderer_ogl_index_buffer.h
 		bstone_renderer_ogl_vertex_buffer.h
+		bstone_renderer_shader_registry.h
 		bstone_renderer_sw_index_buffer.h
 		bstone_renderer_sw_vertex_buffer.h
 		bstone_rgb_palette.h
@@ -296,6 +300,9 @@ target_sources(
 		bstone_crc32.cpp
 		bstone_detail_ogl_2_x_renderer.cpp
 		bstone_detail_ogl_extension_manager_impl.cpp
+		bstone_detail_ogl_renderer_shader_impl.cpp
+		bstone_detail_ogl_renderer_shader_stage_impl.cpp
+		bstone_detail_ogl_renderer_shader_variable_impl.cpp
 		bstone_detail_ogl_renderer_utils.cpp
 		bstone_detail_renderer_utils.cpp
 		bstone_file_stream.cpp
@@ -320,6 +327,7 @@ target_sources(
 		bstone_renderer_ogl_buffer.cpp
 		bstone_renderer_ogl_index_buffer.cpp
 		bstone_renderer_ogl_vertex_buffer.cpp
+		bstone_renderer_shader_registry.cpp
 		bstone_renderer_sw_index_buffer.cpp
 		bstone_renderer_sw_vertex_buffer.cpp
 		bstone_sha1.cpp

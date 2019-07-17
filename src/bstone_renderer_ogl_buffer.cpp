@@ -240,9 +240,16 @@ bool RendererOglBuffer::validate_param(
 		return false;
 	}
 
-	if (param.offset_ > param.size_)
+	if (param.offset_ > size_)
 	{
 		error_message_ = "Offset out of range.";
+
+		return false;
+	}
+
+	if (param.size_ > size_)
+	{
+		error_message_ = "Size out of range.";
 
 		return false;
 	}

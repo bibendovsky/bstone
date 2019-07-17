@@ -37,6 +37,54 @@ namespace bstone
 
 
 // ==========================================================================
+// Shader
+//
+
+RendererShaderVariable::RendererShaderVariable() = default;
+
+RendererShaderVariable::~RendererShaderVariable() = default;
+
+
+RendererShaderVariableInt32::RendererShaderVariableInt32() = default;
+
+RendererShaderVariableInt32::~RendererShaderVariableInt32() = default;
+
+
+RendererShaderVariableFloat32::RendererShaderVariableFloat32() = default;
+
+RendererShaderVariableFloat32::~RendererShaderVariableFloat32() = default;
+
+
+RendererShaderVariableVec2::RendererShaderVariableVec2() = default;
+
+RendererShaderVariableVec2::~RendererShaderVariableVec2() = default;
+
+
+RendererShaderVariableVec4::RendererShaderVariableVec4() = default;
+
+RendererShaderVariableVec4::~RendererShaderVariableVec4() = default;
+
+
+RendererShaderVariableMat4::RendererShaderVariableMat4() = default;
+
+RendererShaderVariableMat4::~RendererShaderVariableMat4() = default;
+
+
+RendererShader::RendererShader() = default;
+
+RendererShader::~RendererShader() = default;
+
+
+RendererShaderStage::RendererShaderStage() = default;
+
+RendererShaderStage::~RendererShaderStage() = default;
+
+//
+// Shader
+// ==========================================================================
+
+
+// ==========================================================================
 // RendererCommandBufferImpl
 //
 
@@ -78,19 +126,19 @@ public:
 	RendererCommandBlending* write_blending() override;
 	RendererCommandBlendingFunction* write_blending_function() override;
 
-	RendererCommandFog* write_fog() override;
-	RendererCommandFogColor* write_fog_color() override;
-	RendererCommandFogDistances* write_fog_distances() override;
-
-	RendererCommandMatrixModel* write_matrix_model() override;
-	RendererCommandMatrixView* write_matrix_view() override;
-	RendererCommandMatrixModelView* write_matrix_model_view() override;
-	RendererCommandMatrixProjection* write_matrix_projection() override;
-
 	RendererCommandTexture* write_texture() override;
 	RendererCommandSampler* write_sampler() override;
 
 	RendererCommandVertexInput* write_vertex_input() override;
+
+	RendererCommandShaderStage* write_shader_stage() override;
+
+	RendererCommandShaderVariableInt32* write_shader_variable_int32() override;
+	RendererCommandShaderVariableFloat32* write_shader_variable_float32() override;
+	RendererCommandShaderVariableVec2* write_shader_variable_vec2() override;
+	RendererCommandShaderVariableVec4* write_shader_variable_vec4() override;
+	RendererCommandShaderVariableMat4* write_shader_variable_mat4() override;
+	RendererCommandShaderVariableSampler2d* write_shader_variable_sampler_2d() override;
 
 	RendererCommandDrawQuads* write_draw_quads() override;
 
@@ -114,19 +162,19 @@ public:
 	const RendererCommandBlending* read_blending() override;
 	const RendererCommandBlendingFunction* read_blending_function() override;
 
-	const RendererCommandFog* read_fog() override;
-	const RendererCommandFogColor* read_fog_color() override;
-	const RendererCommandFogDistances* read_fog_distances() override;
-
-	const RendererCommandMatrixModel* read_matrix_model() override;
-	const RendererCommandMatrixView* read_matrix_view() override;
-	const RendererCommandMatrixModelView* read_matrix_model_view() override;
-	const RendererCommandMatrixProjection* read_matrix_projection() override;
-
 	const RendererCommandTexture* read_texture() override;
 	const RendererCommandSampler* read_sampler() override;
 
 	const RendererCommandVertexInput* read_vertex_input() override;
+
+	const RendererCommandShaderStage* read_shader_stage() override;
+
+	const RendererCommandShaderVariableInt32* read_shader_variable_int32() override;
+	const RendererCommandShaderVariableFloat32* read_shader_variable_float32() override;
+	const RendererCommandShaderVariableVec2* read_shader_variable_vec2() override;
+	const RendererCommandShaderVariableVec4* read_shader_variable_vec4() override;
+	const RendererCommandShaderVariableMat4* read_shader_variable_mat4() override;
+	const RendererCommandShaderVariableSampler2d* read_shader_variable_sampler_2d() override;
 
 	const RendererCommandDrawQuads* read_draw_quads() override;
 
@@ -402,41 +450,6 @@ RendererCommandBlendingFunction* RendererCommandBufferImpl::write_blending_funct
 	return write<RendererCommandBlendingFunction>(RendererCommandId::blending_function);
 }
 
-RendererCommandFog* RendererCommandBufferImpl::write_fog()
-{
-	return write<RendererCommandFog>(RendererCommandId::fog_enable);
-}
-
-RendererCommandFogColor* RendererCommandBufferImpl::write_fog_color()
-{
-	return write<RendererCommandFogColor>(RendererCommandId::fog_set_color);
-}
-
-RendererCommandFogDistances* RendererCommandBufferImpl::write_fog_distances()
-{
-	return write<RendererCommandFogDistances>(RendererCommandId::fog_set_distances);
-}
-
-RendererCommandMatrixModel* RendererCommandBufferImpl::write_matrix_model()
-{
-	return write<RendererCommandMatrixModel>(RendererCommandId::matrix_set_model);
-}
-
-RendererCommandMatrixView* RendererCommandBufferImpl::write_matrix_view()
-{
-	return write<RendererCommandMatrixView>(RendererCommandId::matrix_set_view);
-}
-
-RendererCommandMatrixModelView* RendererCommandBufferImpl::write_matrix_model_view()
-{
-	return write<RendererCommandMatrixModelView>(RendererCommandId::matrix_set_model_view);
-}
-
-RendererCommandMatrixProjection* RendererCommandBufferImpl::write_matrix_projection()
-{
-	return write<RendererCommandMatrixProjection>(RendererCommandId::matrix_set_projection);
-}
-
 RendererCommandTexture* RendererCommandBufferImpl::write_texture()
 {
 	return write<RendererCommandTexture>(RendererCommandId::texture_set);
@@ -450,6 +463,41 @@ RendererCommandSampler* RendererCommandBufferImpl::write_sampler()
 RendererCommandVertexInput* RendererCommandBufferImpl::write_vertex_input()
 {
 	return write<RendererCommandVertexInput>(RendererCommandId::vertex_input_set);
+}
+
+RendererCommandShaderStage* RendererCommandBufferImpl::write_shader_stage()
+{
+	return write<RendererCommandShaderStage>(RendererCommandId::shader_stage);
+}
+
+RendererCommandShaderVariableInt32* RendererCommandBufferImpl::write_shader_variable_int32()
+{
+	return write<RendererCommandShaderVariableInt32>(RendererCommandId::shader_variable_int32);
+}
+
+RendererCommandShaderVariableFloat32* RendererCommandBufferImpl::write_shader_variable_float32()
+{
+	return write<RendererCommandShaderVariableFloat32>(RendererCommandId::shader_variable_float32);
+}
+
+RendererCommandShaderVariableVec2* RendererCommandBufferImpl::write_shader_variable_vec2()
+{
+	return write<RendererCommandShaderVariableVec2>(RendererCommandId::shader_variable_vec2);
+}
+
+RendererCommandShaderVariableVec4* RendererCommandBufferImpl::write_shader_variable_vec4()
+{
+	return write<RendererCommandShaderVariableVec4>(RendererCommandId::shader_variable_vec4);
+}
+
+RendererCommandShaderVariableMat4* RendererCommandBufferImpl::write_shader_variable_mat4()
+{
+	return write<RendererCommandShaderVariableMat4>(RendererCommandId::shader_variable_mat4);
+}
+
+RendererCommandShaderVariableSampler2d* RendererCommandBufferImpl::write_shader_variable_sampler_2d()
+{
+	return write<RendererCommandShaderVariableSampler2d>(RendererCommandId::shader_variable_sampler2d);
 }
 
 RendererCommandDrawQuads* RendererCommandBufferImpl::write_draw_quads()
@@ -536,41 +584,6 @@ const RendererCommandBlendingFunction* RendererCommandBufferImpl::read_blending_
 	return read<RendererCommandBlendingFunction>();
 }
 
-const RendererCommandFog* RendererCommandBufferImpl::read_fog()
-{
-	return read<RendererCommandFog>();
-}
-
-const RendererCommandFogColor* RendererCommandBufferImpl::read_fog_color()
-{
-	return read<RendererCommandFogColor>();
-}
-
-const RendererCommandFogDistances* RendererCommandBufferImpl::read_fog_distances()
-{
-	return read<RendererCommandFogDistances>();
-}
-
-const RendererCommandMatrixModel* RendererCommandBufferImpl::read_matrix_model()
-{
-	return read<RendererCommandMatrixModel>();
-}
-
-const RendererCommandMatrixView* RendererCommandBufferImpl::read_matrix_view()
-{
-	return read<RendererCommandMatrixView>();
-}
-
-const RendererCommandMatrixModelView* RendererCommandBufferImpl::read_matrix_model_view()
-{
-	return read<RendererCommandMatrixModelView>();
-}
-
-const RendererCommandMatrixProjection* RendererCommandBufferImpl::read_matrix_projection()
-{
-	return read<RendererCommandMatrixProjection>();
-}
-
 const RendererCommandTexture* RendererCommandBufferImpl::read_texture()
 {
 	return read<RendererCommandTexture>();
@@ -584,6 +597,41 @@ const RendererCommandSampler* RendererCommandBufferImpl::read_sampler()
 const RendererCommandVertexInput* RendererCommandBufferImpl::read_vertex_input()
 {
 	return read<RendererCommandVertexInput>();
+}
+
+const RendererCommandShaderStage* RendererCommandBufferImpl::read_shader_stage()
+{
+	return read<RendererCommandShaderStage>();
+}
+
+const RendererCommandShaderVariableInt32* RendererCommandBufferImpl::read_shader_variable_int32()
+{
+	return read<RendererCommandShaderVariableInt32>();
+}
+
+const RendererCommandShaderVariableFloat32* RendererCommandBufferImpl::read_shader_variable_float32()
+{
+	return read<RendererCommandShaderVariableFloat32>();
+}
+
+const RendererCommandShaderVariableVec2* RendererCommandBufferImpl::read_shader_variable_vec2()
+{
+	return read<RendererCommandShaderVariableVec2>();
+}
+
+const RendererCommandShaderVariableVec4* RendererCommandBufferImpl::read_shader_variable_vec4()
+{
+	return read<RendererCommandShaderVariableVec4>();
+}
+
+const RendererCommandShaderVariableMat4* RendererCommandBufferImpl::read_shader_variable_mat4()
+{
+	return read<RendererCommandShaderVariableMat4>();
+}
+
+const RendererCommandShaderVariableSampler2d* RendererCommandBufferImpl::read_shader_variable_sampler_2d()
+{
+	return read<RendererCommandShaderVariableSampler2d>();
 }
 
 const RendererCommandDrawQuads* RendererCommandBufferImpl::read_draw_quads()

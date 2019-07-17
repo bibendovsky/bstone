@@ -33,6 +33,7 @@ Free Software Foundation, Inc.,
 #include "bstone_detail_renderer_utils.h"
 #include <cassert>
 #include <algorithm>
+#include <unordered_set>
 #include "SDL_video.h"
 #include "bstone_sprite.h"
 
@@ -388,26 +389,6 @@ bool RendererUtils::validate_texture_2d_update_param(
 	return true;
 }
 
-int RendererUtils::vertex_input_get_location_index(
-	const RendererVertexAttributeLocation location)
-{
-	switch (location)
-	{
-		case RendererVertexAttributeLocation::position:
-			return 0;
-
-		case RendererVertexAttributeLocation::color:
-			return 1;
-
-		case RendererVertexAttributeLocation::texture_coordinates:
-			return 2;
-
-		default:
-			assert(!"Invalid location.");
-			return -1;
-	}
-}
-
 bool RendererUtils::vertex_input_validate_format(
 	const RendererVertexAttributeFormat attribute_format)
 {
@@ -424,8 +405,11 @@ bool RendererUtils::vertex_input_validate_format(
 }
 
 bool RendererUtils::vertex_input_validate_param(
+	const int max_locations,
 	const RendererVertexInputCreateParam& param)
 {
+	assert(max_locations >= 0);
+
 	if (!param.index_buffer_)
 	{
 		error_message_ = "Null index buffer.";
@@ -442,52 +426,38 @@ bool RendererUtils::vertex_input_validate_param(
 		return false;
 	}
 
+	using UsedLocations = std::unordered_set<int>;
+	auto used_locations = UsedLocations{};
+	used_locations.reserve(max_locations);
+
 	for (const auto& attribute_description : attribute_descriptions)
 	{
+		if (attribute_description.is_default_)
+		{
+			continue;
+		}
+
 		// Location.
 		//
-		auto has_position_location = false;
-		auto has_color_location = false;
-		auto has_texture_coordinates_location = false;
+		const auto location = attribute_description.location_;
 
-		switch (attribute_description.location_)
+		if (location < 0 || location >= max_locations)
 		{
-			case RendererVertexAttributeLocation::position:
-				if (has_position_location)
-				{
-					error_message_ = "Duplicate position location.";
+			error_message_ = "Location out of range.";
 
-					return false;
-				}
-
-				has_position_location = true;
-
-				break;
-
-			case RendererVertexAttributeLocation::color:
-				if (has_color_location)
-				{
-					error_message_ = "Duplicate color location.";
-
-					return false;
-				}
-
-				has_color_location = true;
-
-				break;
-
-			case RendererVertexAttributeLocation::texture_coordinates:
-				if (has_texture_coordinates_location)
-				{
-					error_message_ = "Duplicate texture coordinates location.";
-
-					return false;
-				}
-
-				has_texture_coordinates_location = true;
-
-				break;
+			return false;
 		}
+
+		const auto has_location = (used_locations.find(location) != used_locations.cend());
+
+		if (has_location)
+		{
+			error_message_ = "Duplicate location.";
+
+			return false;
+		}
+
+		used_locations.insert(location);
 
 
 		// Format.
