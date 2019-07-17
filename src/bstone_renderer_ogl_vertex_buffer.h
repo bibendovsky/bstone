@@ -31,7 +31,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_RENDERER_OGL_VERTEX_BUFFER_INCLUDED
 
 
-#include "bstone_renderer.h"
+#include "bstone_renderer_ogl_buffer.h"
 
 
 namespace bstone
@@ -61,23 +61,20 @@ public:
 	void update(
 		const RendererVertexBufferUpdateParam& param) override;
 
+	void bind(
+		const bool is_binded) override;
+
 
 	bool initialize(
 		const RendererVertexBufferCreateParam& param);
 
 	const std::string& get_error_message() const;
 
-	const void* get_data() const;
-
 
 private:
-	using Data = std::vector<std::uint8_t>;
-
-
 	std::string error_message_;
 
-	RendererBufferUsageKind usage_kind_;
-	Data data_;
+	RendererOglBufferUPtr ogl_buffer_;
 }; // VertexBuffer
 
 using RendererOglVertexBufferPtr = RendererOglVertexBuffer*;

@@ -31,7 +31,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_RENDERER_OGL_INDEX_BUFFER_INCLUDED
 
 
-#include "bstone_renderer.h"
+#include "bstone_renderer_ogl_buffer.h"
 
 
 namespace bstone
@@ -63,24 +63,21 @@ public:
 	void update(
 		const RendererIndexBufferUpdateParam& param) override;
 
+	void bind(
+		const bool is_binded) override;
+
 
 	const std::string& get_error_message() const;
 
 	bool initialize(
 		const RendererIndexBufferCreateParam& param);
 
-	const void* get_data() const;
-
 
 private:
-	using Data = std::vector<std::uint8_t>;
-
-
 	std::string error_message_;
 
-	RendererBufferUsageKind usage_kind_;
 	int byte_depth_;
-	Data data_;
+	RendererOglBufferUPtr ogl_buffer_;
 }; // RendererOglIndexBuffer
 
 using RendererOglIndexBufferPtr = RendererOglIndexBuffer*;

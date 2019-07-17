@@ -87,6 +87,12 @@ void RendererSwVertexBuffer::update(
 	);
 }
 
+void RendererSwVertexBuffer::bind(
+	const bool is_binded)
+{
+	static_cast<void>(is_binded);
+}
+
 bool RendererSwVertexBuffer::initialize(
 	const RendererVertexBufferCreateParam& param)
 {

@@ -38,10 +38,8 @@ Free Software Foundation, Inc.,
 #include <vector>
 #include "bstone_detail_ogl_extension_manager.h"
 #include "bstone_detail_ogl_renderer_utils.h"
-#include "bstone_ogl.h"
-#include "bstone_renderer.h"
-#include "bstone_renderer_sw_index_buffer.h"
-#include "bstone_renderer_sw_vertex_buffer.h"
+#include "bstone_renderer_ogl_index_buffer.h"
+#include "bstone_renderer_ogl_vertex_buffer.h"
 
 
 namespace bstone
@@ -172,8 +170,17 @@ public:
 
 
 private:
-	using IndexBuffers = std::list<RendererSwIndexBufferUPtr>;
-	using VertexBuffers = std::list<RendererSwVertexBufferUPtr>;
+	using IndexBufferImpl = RendererOglIndexBuffer;
+	using VertexBufferImpl = RendererOglVertexBuffer;
+
+	using IndexBufferImplPtr = IndexBufferImpl*;
+	using VertexBufferImplPtr = VertexBufferImpl*;
+
+	using IndexBufferImplUPtr = RendererOglIndexBufferUPtr;
+	using VertexBufferImplUPtr = RendererOglVertexBufferUPtr;
+
+	using IndexBuffers = std::list<IndexBufferImplUPtr>;
+	using VertexBuffers = std::list<VertexBufferImplUPtr>;
 
 
 	// =========================================================================

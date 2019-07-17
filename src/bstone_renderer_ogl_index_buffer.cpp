@@ -43,43 +43,12 @@ namespace bstone
 void RendererOglIndexBuffer::update(
 	const RendererIndexBufferUpdateParam& param)
 {
-	auto renderer_utils = detail::RendererUtils{};
+	auto buffer_param = RendererOglBuffer::UpdateParam{};
+	buffer_param.offset_ = param.offset_;
+	buffer_param.size_ = param.size_;
+	buffer_param.data_ = param.data_;
 
-	if (!renderer_utils.validate_index_buffer_update_param(param))
-	{
-		error_message_ = renderer_utils.get_error_message();
-
-		return;
-	}
-
-	const auto size = get_size();
-
-	if (param.offset_ >= size)
-	{
-		error_message_ = "Offset out of range.";
-
-		return;
-	}
-
-	if (param.size_ > size)
-	{
-		error_message_ = "Size out of range.";
-
-		return;
-	}
-
-	if ((param.offset_ + param.size_) > size)
-	{
-		error_message_ = "Block out of range.";
-
-		return;
-	}
-
-	std::uninitialized_copy_n(
-		static_cast<const std::uint8_t*>(param.data_),
-		param.size_,
-		data_.begin() + param.offset_
-	);
+	ogl_buffer_->update(buffer_param);
 }
 
 const std::string& RendererOglIndexBuffer::get_error_message() const
@@ -99,16 +68,29 @@ bool RendererOglIndexBuffer::initialize(
 		return false;
 	}
 
-	usage_kind_ = param.usage_kind_;
+	auto ogl_buffer = RendererOglBufferUPtr{new RendererOglBuffer{}};
+
+	auto buffer_param = RendererOglBuffer::InitializeParam{};
+	buffer_param.kind_ = RendererBufferKind::index;
+	buffer_param.usage_kind_ = param.usage_kind_;
+	buffer_param.size_ = param.size_;
+
+	if (!ogl_buffer->initialize(buffer_param))
+	{
+		error_message_ = ogl_buffer->get_error_message();
+
+		return false;
+	}
+
 	byte_depth_ = param.byte_depth_;
-	data_.resize(param.size_);
+	ogl_buffer_ = std::move(ogl_buffer);
 
 	return true;
 }
 
 RendererBufferUsageKind RendererOglIndexBuffer::get_usage_kind() const
 {
-	return usage_kind_;
+	return ogl_buffer_->get_usage_kind();
 }
 
 int RendererOglIndexBuffer::get_byte_depth() const
@@ -118,12 +100,20 @@ int RendererOglIndexBuffer::get_byte_depth() const
 
 int RendererOglIndexBuffer::get_size() const
 {
-	return static_cast<int>(data_.size());
+	return ogl_buffer_->get_size();
 }
 
-const void* RendererOglIndexBuffer::get_data() const
+void RendererOglIndexBuffer::bind(
+	const bool is_binded)
 {
-	return data_.data();
+	if (is_binded)
+	{
+		ogl_buffer_->bind();
+	}
+	else
+	{
+		ogl_buffer_->unbind_target();
+	}
 }
 
 //

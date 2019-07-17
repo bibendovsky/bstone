@@ -135,6 +135,7 @@ private:
 	void uninitialize();
 }; // RendererOglBuffer
 
+
 using RendererOglBufferUPtr = std::unique_ptr<RendererOglBuffer>;
 
 //

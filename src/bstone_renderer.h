@@ -244,6 +244,9 @@ public:
 
 	virtual void update(
 		const RendererIndexBufferUpdateParam& param) = 0;
+
+	virtual void bind(
+		const bool is_binded) = 0;
 }; // RendererIndexBuffer
 
 using RendererIndexBufferPtr = RendererIndexBuffer*;
@@ -285,6 +288,9 @@ public:
 
 	virtual void update(
 		const RendererVertexBufferUpdateParam& param) = 0;
+
+	virtual void bind(
+		const bool is_binded) = 0;
 }; // RendererVertexBuffer
 
 using RendererVertexBufferPtr = RendererVertexBuffer*;

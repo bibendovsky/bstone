@@ -61,6 +61,9 @@ public:
 	void update(
 		const RendererVertexBufferUpdateParam& param) override;
 
+	void bind(
+		const bool is_binded) override;
+
 
 	bool initialize(
 		const RendererVertexBufferCreateParam& param);

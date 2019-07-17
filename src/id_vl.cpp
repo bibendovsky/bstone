@@ -2716,6 +2716,7 @@ bstone::RendererVertexBufferPtr hw_vertex_buffer_create(
 	const auto vertex_buffer_size = static_cast<int>(vertex_count * sizeof(TVertex));
 
 	auto param = bstone::RendererVertexBufferCreateParam{};
+	param.usage_kind_ = usage_kind;
 	param.size_ = vertex_buffer_size;
 
 	return ::hw_renderer_->vertex_buffer_create(param);

@@ -63,6 +63,9 @@ public:
 	void update(
 		const RendererIndexBufferUpdateParam& param) override;
 
+	void bind(
+		const bool is_binded) override;
+
 
 	const std::string& get_error_message() const;
 

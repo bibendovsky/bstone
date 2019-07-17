@@ -126,6 +126,12 @@ const void* RendererSwIndexBuffer::get_data() const
 	return data_.data();
 }
 
+void RendererSwIndexBuffer::bind(
+	const bool is_binded)
+{
+	static_cast<void>(is_binded);
+}
+
 //
 // RendererSwIndexBuffer
 // ==========================================================================

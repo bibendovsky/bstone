@@ -1009,7 +1009,7 @@ RendererIndexBufferPtr Ogl2XRenderer::index_buffer_create(
 {
 	assert(is_initialized_);
 
-	auto index_buffer = RendererSwIndexBufferUPtr{new RendererSwIndexBuffer{}};
+	auto index_buffer = IndexBufferImplUPtr{new IndexBufferImpl{}};
 
 	if (!index_buffer->initialize(param))
 	{
@@ -1039,7 +1039,7 @@ void Ogl2XRenderer::index_buffer_destroy(
 RendererVertexBufferPtr Ogl2XRenderer::vertex_buffer_create(
 	const RendererVertexBufferCreateParam& param)
 {
-	auto vertex_buffer = RendererSwVertexBufferUPtr{new RendererSwVertexBuffer{}};
+	auto vertex_buffer = VertexBufferImplUPtr{new VertexBufferImpl{}};
 
 	if (!vertex_buffer->initialize(param))
 	{
@@ -2512,14 +2512,17 @@ void Ogl2XRenderer::vertex_input_assign()
 					break;
 			}
 
-			auto& vertex_buffer = *reinterpret_cast<RendererSwVertexBuffer*>(attribute_description.vertex_buffer_);
-			const auto vertex_buffer_data = reinterpret_cast<const std::uint8_t*>(vertex_buffer.get_data());
+			auto vertex_buffer = static_cast<VertexBufferImplPtr>(attribute_description.vertex_buffer_);
+
+			vertex_buffer->bind(true);
+
+			const auto vertex_buffer_data = reinterpret_cast<const void*>(static_cast<std::intptr_t>(attribute_description.offset_));
 
 			ogl_pointer_function(
 				ogl_component_count,
 				ogl_component_format,
 				static_cast<GLsizei>(attribute_description.stride_),
-				vertex_buffer_data + attribute_description.offset_
+				vertex_buffer_data
 			);
 
 			assert(!OglRendererUtils::was_errors());
@@ -2837,10 +2840,11 @@ void Ogl2XRenderer::command_execute_draw_quads(
 	const auto indices_per_quad = triangles_per_quad * indices_per_triangle;
 	const auto index_count = indices_per_quad * command.count_;
 
-	auto& index_buffer = *reinterpret_cast<RendererSwIndexBuffer*>(vertex_input_current_->index_buffer_);
+	auto index_buffer = static_cast<IndexBufferImplPtr>(vertex_input_current_->index_buffer_);
 
-	const auto index_byte_depth = index_buffer.get_byte_depth();
-	const auto max_index_count = index_buffer.get_size() / index_byte_depth;
+	const auto index_byte_depth = index_buffer->get_byte_depth();
+	const auto max_index_count = index_buffer->get_size() / index_byte_depth;
+
 	const auto index_byte_offset = command.index_offset_ * index_byte_depth;
 	assert(command.index_offset_ < max_index_count);
 	assert(command.count_ <= max_index_count);
@@ -2857,10 +2861,12 @@ void Ogl2XRenderer::command_execute_draw_quads(
 	// Draw the quads.
 	//
 
-	const auto index_buffer_data = static_cast<const std::uint8_t*>(index_buffer.get_data()) + index_byte_offset;
+	const auto index_buffer_data = reinterpret_cast<const void*>(static_cast<std::intptr_t>(index_byte_offset));
 
 	const auto ogl_element_type = OglRendererUtils::index_buffer_get_element_type_by_byte_depth(
-		index_buffer.get_byte_depth());
+		index_buffer->get_byte_depth());
+
+	index_buffer->bind(true);
 
 	::glDrawElements(
 		GL_TRIANGLES, // mode
