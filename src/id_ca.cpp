@@ -551,7 +551,7 @@ void CA_CacheAudioChunk(
 
 	if (audiosegs[chunk])
 	{
-		return; // allready in memory
+		return; // already in memory
 	}
 
 	//
@@ -737,7 +737,7 @@ void CA_CacheGrChunk(
 	grneeded[chunk] |= ca_levelbit; // make sure it doesn't get removed
 	if (grsegs[chunk])
 	{
-		return; // allready in memory
+		return; // already in memory
 
 	}
 	//
@@ -838,7 +838,7 @@ void CA_CacheMap(
 	mapon = mapnum;
 
 	//
-	// load the planes into the allready allocated buffers
+	// load the planes into the already allocated buffers
 	//
 	size = MAPSIZE * MAPSIZE * MAPPLANES;
 
@@ -947,7 +947,7 @@ void CA_CacheMarks()
 		if (grneeded[i] & ca_levelbit)
 		{
 			if (grsegs[i])
-			{ // its allready in memory, make
+			{ // its already in memory, make
 			}
 			else
 			{
@@ -988,7 +988,7 @@ void CA_CacheMarks()
 
 			if (bufferstart <= pos && bufferend >= endpos)
 			{
-				// data is allready in buffer
+				// data is already in buffer
 				source = ::ca_buffer.data() + (pos - bufferstart);
 			}
 			else

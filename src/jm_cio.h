@@ -67,7 +67,7 @@ Free Software Foundation, Inc.,
 // FILE CHUNK IDs
 //
 // NOTE: The only reason for changing from COMP to CMP1 and having multi
-//                      comp header structs is for downward compatablity.
+//                      comp header structs is for downward compatibility.
 //
 
 #define COMP ("COMP") // Comp type is ct_LZW ALWAYS!
