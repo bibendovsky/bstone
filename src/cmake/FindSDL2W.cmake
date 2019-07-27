@@ -164,17 +164,17 @@ if (SDL2_FOUND OR SDL2W_TMP_FOUND_VC_DEV)
 		if (EXISTS ${SDL2W_TMP_SDL_VERSION_H})
 			set(
 				SDL2W_TMP_MAJOR_REGEX
-				"^#define[ \t]+SDL_MAJOR_VERSION[ \t]+([0-9])$"
+				"^#define[ \t]+SDL_MAJOR_VERSION[ \t]+([0-9]+)$"
 			)
 
 			set(
 				SDL2W_TMP_MINOR_REGEX
-				"^#define[ \t]+SDL_MINOR_VERSION[ \t]+([0-9])$"
+				"^#define[ \t]+SDL_MINOR_VERSION[ \t]+([0-9]+)$"
 			)
 
 			set(
 				SDL2W_TMP_PATCH_REGEX
-				"^#define[ \t]+SDL_PATCHLEVEL[ \t]+([0-9])$"
+				"^#define[ \t]+SDL_PATCHLEVEL[ \t]+([0-9]+)$"
 			)
 
 			file(
@@ -224,7 +224,7 @@ if (SDL2_FOUND OR SDL2W_TMP_FOUND_VC_DEV)
 
 			set(
 				SDL2W_TMP_DIGIT_REGEX
-				"^[0-9]$"
+				"^[0-9]+$"
 			)
 
 			if (SDL2W_TMP_MAJOR_VERSION MATCHES ${SDL2W_TMP_DIGIT_REGEX} AND
