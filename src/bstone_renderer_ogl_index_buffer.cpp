@@ -40,6 +40,14 @@ namespace bstone
 // RendererOglIndexBuffer
 //
 
+RendererOglIndexBuffer::RendererOglIndexBuffer(
+	const OglStateImplPtr ogl_state)
+	:
+	ogl_state_{ogl_state}
+{
+	assert(ogl_state_ != nullptr);
+}
+
 void RendererOglIndexBuffer::update(
 	const RendererIndexBufferUpdateParam& param)
 {
@@ -74,6 +82,7 @@ bool RendererOglIndexBuffer::initialize(
 	buffer_param.kind_ = RendererBufferKind::index;
 	buffer_param.usage_kind_ = param.usage_kind_;
 	buffer_param.size_ = param.size_;
+	buffer_param.ogl_state_ = ogl_state_;
 
 	if (!ogl_buffer->initialize(buffer_param))
 	{

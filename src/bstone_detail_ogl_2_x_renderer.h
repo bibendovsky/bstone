@@ -42,6 +42,7 @@ Free Software Foundation, Inc.,
 #include "bstone_detail_ogl_renderer_utils.h"
 #include "bstone_renderer_ogl_index_buffer.h"
 #include "bstone_renderer_ogl_vertex_buffer.h"
+#include "bstone_ogl_state_impl.h"
 
 
 namespace bstone
@@ -373,6 +374,7 @@ private:
 	SdlGlContextUPtr sdl_gl_context_;
 
 	OglExtensionManagerUPtr extension_manager_;
+	OglStateImplUPtr ogl_state_;
 
 	RendererDeviceInfo device_info_;
 	RendererDeviceFeatures device_features_;
@@ -421,7 +423,7 @@ private:
 
 	bool texture_2d_is_enabled_;
 
-		IndexBuffers index_buffers_;
+	IndexBuffers index_buffers_;
 	VertexBuffers vertex_buffers_;
 
 	RendererUtils::TextureBuffer texture_buffer_;

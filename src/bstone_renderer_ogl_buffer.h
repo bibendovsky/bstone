@@ -31,7 +31,6 @@ Free Software Foundation, Inc.,
 #define BSTONE_RENDERER_OGL_BUFFER_INCLUDED
 
 
-#include "bstone_renderer.h"
 #include "bstone_ogl_raii.h"
 
 
@@ -47,6 +46,10 @@ class RendererOglBuffer;
 using RendererOglBufferPtr = RendererOglBuffer*;
 
 
+class OglStateImpl;
+using OglStateImplPtr = OglStateImpl*;
+
+
 class RendererOglBuffer final
 {
 public:
@@ -55,6 +58,7 @@ public:
 		RendererBufferKind kind_;
 		RendererBufferUsageKind usage_kind_;
 		int size_;
+		OglStateImplPtr ogl_state_;
 	}; // InitializeParam
 
 	struct UpdateParam
@@ -94,8 +98,7 @@ public:
 
 	bool is_initialized() const noexcept;
 
-
-	static void reset_bindings();
+	GLuint get_ogl_name() const noexcept;
 
 
 private:
@@ -106,11 +109,7 @@ private:
 	int size_;
 	OglBufferRaii ogl_name_raii_;
 	GLenum ogl_target_;
-	RendererOglBufferPtr* binding_;
-
-
-	static RendererOglBufferPtr index_binding_;
-	static RendererOglBufferPtr vertex_binding_;
+	OglStateImplPtr ogl_state_;
 
 
 	bool validate_param(

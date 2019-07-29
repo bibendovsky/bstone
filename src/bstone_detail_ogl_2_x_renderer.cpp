@@ -623,6 +623,7 @@ Ogl2XRenderer::Ogl2XRenderer()
 	sdl_window_{},
 	sdl_gl_context_{},
 	extension_manager_{},
+	ogl_state_{},
 	device_info_{},
 	device_features_{},
 	ogl_device_features_{},
@@ -684,6 +685,7 @@ Ogl2XRenderer::Ogl2XRenderer(
 	sdl_window_{std::move(rhs.sdl_window_)},
 	sdl_gl_context_{std::move(rhs.sdl_gl_context_)},
 	extension_manager_{std::move(rhs.extension_manager_)},
+	ogl_state_{std::move(rhs.ogl_state_)},
 	device_info_{std::move(rhs.device_info_)},
 	device_features_{std::move(rhs.device_features_)},
 	ogl_device_features_{std::move(rhs.ogl_device_features_)},
@@ -1024,7 +1026,7 @@ RendererIndexBufferPtr Ogl2XRenderer::index_buffer_create(
 {
 	assert(is_initialized_);
 
-	auto index_buffer = IndexBufferImplUPtr{new RendererOglIndexBuffer{}};
+	auto index_buffer = IndexBufferImplUPtr{new RendererOglIndexBuffer{ogl_state_.get()}};
 
 	if (!index_buffer->initialize(param))
 	{
@@ -1054,7 +1056,7 @@ void Ogl2XRenderer::index_buffer_destroy(
 RendererVertexBufferPtr Ogl2XRenderer::vertex_buffer_create(
 	const RendererVertexBufferCreateParam& param)
 {
-	auto vertex_buffer = VertexBufferImplUPtr{new RendererOglVertexBuffer{}};
+	auto vertex_buffer = VertexBufferImplUPtr{new RendererOglVertexBuffer{ogl_state_.get()}};
 
 	if (!vertex_buffer->initialize(param))
 	{
@@ -1457,6 +1459,28 @@ bool Ogl2XRenderer::probe_or_initialize(
 
 	if (!is_probe)
 	{
+		ogl_state_ = std::move(OglStateImplFactory::create(RendererPath::ogl_2_x));
+
+		auto error_message = std::string{"Failed to initialize the state."};
+
+		if (ogl_state_ == nullptr)
+		{
+			error_message_ = error_message;
+
+			return false;
+		}
+
+		if (!ogl_state_->is_initialized())
+		{
+			error_message += ' ';
+			error_message += ogl_state_->get_error_message();
+
+			return false;
+		}
+	}
+
+	if (!is_probe)
+	{
 		if (device_features_.vsync_is_available_)
 		{
 			static_cast<void>(ogl_renderer_utils.vsync_set(param.is_vsync_));
@@ -1612,7 +1636,6 @@ void Ogl2XRenderer::uninitialize_internal(
 
 	if (!is_dtor)
 	{
-		extension_manager_ = {};
 		device_info_ = {};
 		device_features_ = {};
 		ogl_device_features_ = {};
@@ -1647,6 +1670,8 @@ void Ogl2XRenderer::uninitialize_internal(
 		vertex_input_current_ = {};
 		vertex_input_enabled_locations_ = {};
 		current_shader_stage_ = {};
+		ogl_state_ = {};
+		extension_manager_ = {};
 	}
 
 	index_buffers_.clear();

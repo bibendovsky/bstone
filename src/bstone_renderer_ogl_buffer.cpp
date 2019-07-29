@@ -30,6 +30,7 @@ Free Software Foundation, Inc.,
 #include "bstone_precompiled.h"
 #include "bstone_renderer_ogl_buffer.h"
 #include "bstone_detail_ogl_renderer_utils.h"
+#include "bstone_ogl_state_impl.h"
 
 
 namespace bstone
@@ -40,10 +41,6 @@ namespace bstone
 // RendererOglBuffer
 //
 
-RendererOglBuffer* RendererOglBuffer::index_binding_;
-RendererOglBuffer* RendererOglBuffer::vertex_binding_;
-
-
 RendererOglBuffer::RendererOglBuffer()
 	:
 	error_message_{},
@@ -51,8 +48,7 @@ RendererOglBuffer::RendererOglBuffer()
 	usage_kind_{},
 	size_{},
 	ogl_name_raii_{},
-	ogl_target_{},
-	binding_{}
+	ogl_target_{}
 {
 }
 
@@ -124,6 +120,8 @@ bool RendererOglBuffer::initialize(
 		return false;
 	}
 
+	ogl_state_ = param.ogl_state_;
+
 	auto ogl_name = GLuint{};
 	::glGenBuffers(1, &ogl_name);
 	assert(!detail::OglRendererUtils::was_errors());
@@ -152,20 +150,6 @@ bool RendererOglBuffer::initialize(
 	ogl_name_raii_ = std::move(ogl_name_raii);
 	ogl_target_ = olg_target;
 
-	switch (kind_)
-	{
-		case RendererBufferKind::index:
-			binding_ = &index_binding_;
-			break;
-
-		case RendererBufferKind::vertex:
-			binding_ = &vertex_binding_;
-			break;
-
-		default:
-			break;
-	}
-
 	bind(this);
 
 	return true;
@@ -176,13 +160,9 @@ bool RendererOglBuffer::is_initialized() const noexcept
 	return ogl_name_raii_ != 0;
 }
 
-void RendererOglBuffer::reset_bindings()
+GLuint RendererOglBuffer::get_ogl_name() const noexcept
 {
-	index_binding_ = nullptr;
-	vertex_binding_ = nullptr;
-
-	::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	::glBindBuffer(GL_ARRAY_BUFFER, 0);
+	return ogl_name_raii_;
 }
 
 bool RendererOglBuffer::validate_param(
@@ -216,6 +196,20 @@ bool RendererOglBuffer::validate_param(
 	if (param.size_ <= 0)
 	{
 		error_message_ = "Non-positive size.";
+
+		return false;
+	}
+
+	if (param.ogl_state_ == nullptr)
+	{
+		error_message_ = "Null OpenGL state.";
+
+		return false;
+	}
+
+	if (!param.ogl_state_->is_initialized())
+	{
+		error_message_ = "OpenGL state not initialized.";
 
 		return false;
 	}
@@ -313,28 +307,14 @@ GLenum RendererOglBuffer::ogl_get_usage(
 void RendererOglBuffer::bind(
 	RendererOglBufferPtr ogl_buffer)
 {
-	if (*binding_ == ogl_buffer)
+	if (ogl_buffer)
 	{
-		return;
+		ogl_state_->buffer_bind(ogl_buffer);
 	}
-
-	const auto ogl_name = (ogl_buffer != nullptr ? ogl_buffer->ogl_name_raii_.get() : 0);
-
-	::glBindBuffer(ogl_target_, ogl_name);
-	assert(!detail::OglRendererUtils::was_errors());
-
-	*binding_ = ogl_buffer;
-}
-
-void RendererOglBuffer::unbind(
-	RendererOglBufferPtr ogl_buffer)
-{
-	if (*binding_ != ogl_buffer)
+	else
 	{
-		return;
+		ogl_state_->buffer_unbind(kind_);
 	}
-
-	bind(nullptr);
 }
 
 void RendererOglBuffer::uninitialize()
@@ -344,14 +324,13 @@ void RendererOglBuffer::uninitialize()
 		return;
 	}
 
-	unbind(this);
+	bind(nullptr);
 
 	kind_ = {};
 	usage_kind_ = {};
 	size_ = 0;
 	ogl_name_raii_ = {};
 	ogl_target_ = {};
-	binding_ = {};
 }
 
 //

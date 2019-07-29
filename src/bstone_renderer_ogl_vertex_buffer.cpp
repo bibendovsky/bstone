@@ -40,6 +40,14 @@ namespace bstone
 // RendererOglVertexBuffer
 //
 
+RendererOglVertexBuffer::RendererOglVertexBuffer(
+	const OglStateImplPtr ogl_state)
+	:
+	ogl_state_{ogl_state}
+{
+	assert(ogl_state_ != nullptr);
+}
+
 RendererBufferUsageKind RendererOglVertexBuffer::get_usage_kind() const
 {
 	return ogl_buffer_->get_usage_kind();
@@ -79,6 +87,7 @@ bool RendererOglVertexBuffer::initialize(
 	buffer_param.kind_ = RendererBufferKind::vertex;
 	buffer_param.usage_kind_ = param.usage_kind_;
 	buffer_param.size_ = param.size_;
+	buffer_param.ogl_state_ = ogl_state_;
 
 	if (!ogl_buffer->initialize(buffer_param))
 	{

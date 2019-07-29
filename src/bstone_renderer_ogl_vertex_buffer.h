@@ -39,6 +39,10 @@ namespace bstone
 {
 
 
+class OglStateImpl;
+using OglStateImplPtr = OglStateImpl*;
+
+
 // ==========================================================================
 // RendererOglVertexBuffer
 //
@@ -47,7 +51,8 @@ class RendererOglVertexBuffer :
 	public RendererVertexBufferImpl
 {
 public:
-	RendererOglVertexBuffer() = default;
+	RendererOglVertexBuffer(
+		const OglStateImplPtr ogl_state);
 
 	RendererOglVertexBuffer(
 		const RendererOglVertexBuffer& rhs) = delete;
@@ -73,6 +78,8 @@ public:
 
 
 private:
+	OglStateImplPtr ogl_state_;
+
 	std::string error_message_;
 
 	RendererOglBufferUPtr ogl_buffer_;
