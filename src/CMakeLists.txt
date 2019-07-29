@@ -239,8 +239,6 @@ target_sources(
 		bstone_renderer_ogl_index_buffer.h
 		bstone_renderer_ogl_vertex_buffer.h
 		bstone_renderer_shader_registry.h
-		bstone_renderer_sw_index_buffer.h
-		bstone_renderer_sw_vertex_buffer.h
 		bstone_rgb_palette.h
 		bstone_scope_guard.h
 		bstone_sdl_types.h
@@ -328,8 +326,6 @@ target_sources(
 		bstone_renderer_ogl_index_buffer.cpp
 		bstone_renderer_ogl_vertex_buffer.cpp
 		bstone_renderer_shader_registry.cpp
-		bstone_renderer_sw_index_buffer.cpp
-		bstone_renderer_sw_vertex_buffer.cpp
 		bstone_sha1.cpp
 		bstone_sprite.cpp
 		bstone_sprite_cache.cpp
