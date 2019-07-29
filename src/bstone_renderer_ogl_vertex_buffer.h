@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL vertex buffer.
+// OpenGL vertex buffer implementation.
 //
 
 
@@ -32,6 +32,7 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_renderer_ogl_buffer.h"
+#include "bstone_renderer_vertex_buffer_impl.h"
 
 
 namespace bstone
@@ -43,7 +44,7 @@ namespace bstone
 //
 
 class RendererOglVertexBuffer :
-	public RendererVertexBuffer
+	public RendererVertexBufferImpl
 {
 public:
 	RendererOglVertexBuffer() = default;
@@ -65,17 +66,17 @@ public:
 		const bool is_binded) override;
 
 
-	bool initialize(
-		const RendererVertexBufferCreateParam& param);
+	const std::string& get_error_message() const override;
 
-	const std::string& get_error_message() const;
+	bool initialize(
+		const RendererVertexBufferCreateParam& param) override;
 
 
 private:
 	std::string error_message_;
 
 	RendererOglBufferUPtr ogl_buffer_;
-}; // VertexBuffer
+}; // RendererOglVertexBuffer
 
 using RendererOglVertexBufferPtr = RendererOglVertexBuffer*;
 using RendererOglVertexBufferUPtr = std::unique_ptr<RendererOglVertexBuffer>;

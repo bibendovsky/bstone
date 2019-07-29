@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL vertex buffer.
+// OpenGL vertex buffer implementation.
 //
 
 
@@ -56,6 +56,11 @@ void RendererOglVertexBuffer::update(
 	ogl_buffer_->update(buffer_param);
 }
 
+const std::string& RendererOglVertexBuffer::get_error_message() const
+{
+	return error_message_;
+}
+
 bool RendererOglVertexBuffer::initialize(
 	const RendererVertexBufferCreateParam& param)
 {
@@ -85,11 +90,6 @@ bool RendererOglVertexBuffer::initialize(
 	ogl_buffer_ = std::move(ogl_buffer);
 
 	return true;
-}
-
-const std::string& RendererOglVertexBuffer::get_error_message() const
-{
-	return error_message_;
 }
 
 int RendererOglVertexBuffer::get_size() const

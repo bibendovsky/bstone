@@ -191,14 +191,14 @@ public:
 
 
 private:
-	using IndexBufferImpl = RendererOglIndexBuffer;
-	using VertexBufferImpl = RendererOglVertexBuffer;
+	using IndexBufferImpl = RendererIndexBufferImpl;
+	using VertexBufferImpl = RendererVertexBufferImpl;
 
 	using IndexBufferImplPtr = IndexBufferImpl*;
 	using VertexBufferImplPtr = VertexBufferImpl*;
 
-	using IndexBufferImplUPtr = RendererOglIndexBufferUPtr;
-	using VertexBufferImplUPtr = RendererOglVertexBufferUPtr;
+	using IndexBufferImplUPtr = RendererIndexBufferImplUPtr;
+	using VertexBufferImplUPtr = RendererVertexBufferImplUPtr;
 
 	using IndexBuffers = std::list<IndexBufferImplUPtr>;
 	using VertexBuffers = std::list<VertexBufferImplUPtr>;

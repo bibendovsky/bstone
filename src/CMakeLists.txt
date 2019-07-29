@@ -234,11 +234,13 @@ target_sources(
 		bstone_pcm_decoder.h
 		bstone_precompiled.h
 		bstone_ps_fizzle_fx.h
+		bstone_renderer_index_buffer_impl.h
 		bstone_renderer_manager.h
 		bstone_renderer_ogl_buffer.h
 		bstone_renderer_ogl_index_buffer.h
 		bstone_renderer_ogl_vertex_buffer.h
 		bstone_renderer_shader_registry.h
+		bstone_renderer_vertex_buffer_impl.h
 		bstone_rgb_palette.h
 		bstone_scope_guard.h
 		bstone_sdl_types.h

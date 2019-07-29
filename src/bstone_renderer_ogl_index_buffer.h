@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL index buffer.
+// OpenGL index buffer implementation.
 //
 
 
@@ -32,6 +32,7 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_renderer_ogl_buffer.h"
+#include "bstone_renderer_index_buffer_impl.h"
 
 
 namespace bstone
@@ -43,7 +44,7 @@ namespace bstone
 //
 
 class RendererOglIndexBuffer :
-	public RendererIndexBuffer
+	public RendererIndexBufferImpl
 {
 public:
 	RendererOglIndexBuffer() = default;
@@ -67,10 +68,10 @@ public:
 		const bool is_binded) override;
 
 
-	const std::string& get_error_message() const;
+	const std::string& get_error_message() const override;
 
 	bool initialize(
-		const RendererIndexBufferCreateParam& param);
+		const RendererIndexBufferCreateParam& param) override;
 
 
 private:

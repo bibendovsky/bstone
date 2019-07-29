@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL index buffer.
+// OpenGL index buffer implementation.
 //
 
 
