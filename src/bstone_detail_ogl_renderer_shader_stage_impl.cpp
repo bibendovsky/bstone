@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL shader stage implementation.
+// OpenGL shader stage (implementation).
 //
 // !!! Internal usage only. !!!
 //

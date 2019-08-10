@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL Renderer utils.
+// OpenGL Renderer utils (implementation).
 //
 // !!! Internal usage only. !!!
 //

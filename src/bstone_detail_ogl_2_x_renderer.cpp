@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL 2.x renderer.
+// OpenGL 2.x renderer (implementation).
 //
 // !!! Internal usage only !!!
 //

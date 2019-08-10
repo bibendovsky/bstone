@@ -25,6 +25,8 @@ Free Software Foundation, Inc.,
 //
 // OpenGL index buffer object (implementation).
 //
+// !!! Internal usage only !!!
+//
 
 
 #ifndef BSTONE_DETAIL_OGL_INDEX_BUFFER_INCLUDED

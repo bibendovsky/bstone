@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL extension manager.
+// OpenGL extension manager (implementation).
 //
 // !!! Internal usage only !!!
 //

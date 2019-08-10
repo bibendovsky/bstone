@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL shader variable implementation.
+// OpenGL shader variable (implementation).
 //
 // !!! Internal usage only. !!!
 //

@@ -25,6 +25,8 @@ Free Software Foundation, Inc.,
 //
 // OpenGL index buffer object (implementation).
 //
+// !!! Internal usage only !!!
+//
 
 
 #include "bstone_precompiled.h"

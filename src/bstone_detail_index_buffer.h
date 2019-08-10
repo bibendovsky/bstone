@@ -25,6 +25,8 @@ Free Software Foundation, Inc.,
 //
 // Renderer's index buffer (implementation interface).
 //
+// !!! Internal usage only !!!
+//
 
 
 #ifndef BSTONE_DETAIL_INDEX_BUFFER_IMPL_INCLUDED

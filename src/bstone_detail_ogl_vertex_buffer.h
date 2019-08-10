@@ -25,6 +25,8 @@ Free Software Foundation, Inc.,
 //
 // OpenGL vertex buffer object (implementation).
 //
+// !!! Internal usage only !!!
+//
 
 
 #ifndef BSTONE_DETAIL_OGL_VERTEX_BUFFER_INCLUDED

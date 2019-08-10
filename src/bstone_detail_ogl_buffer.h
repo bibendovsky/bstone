@@ -25,6 +25,8 @@ Free Software Foundation, Inc.,
 //
 // OpenGL buffer object (implementation).
 //
+// !!! Internal usage only !!!
+//
 
 
 #ifndef BSTONE_DETAIL_OGL_BUFFER_INCLUDED

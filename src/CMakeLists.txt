@@ -300,7 +300,7 @@ target_sources(
 		bstone_cl_args.cpp
 		bstone_crc32.cpp
 		bstone_detail_ogl_2_x_renderer.cpp
-		bstone_detail_ogl_extension_manager_impl.cpp
+		bstone_detail_ogl_extension_manager.cpp
 		bstone_detail_ogl_renderer_shader_impl.cpp
 		bstone_detail_ogl_renderer_shader_stage_impl.cpp
 		bstone_detail_ogl_renderer_shader_variable_impl.cpp
