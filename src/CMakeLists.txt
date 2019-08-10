@@ -251,6 +251,8 @@ target_sources(
 		bstone_detail_ogl_shader_variable.h
 		bstone_detail_ogl_state.h
 		bstone_detail_ogl_vertex_buffer.h
+		bstone_detail_renderer_command_buffer.h
+		bstone_detail_renderer_command_manager.h
 		bstone_detail_renderer_utils.h
 		bstone_detail_vertex_buffer.h
 		gfxv.h
@@ -332,11 +334,13 @@ target_sources(
 		bstone_detail_ogl_shader_stage.cpp
 		bstone_detail_ogl_shader_variable.cpp
 		bstone_detail_ogl_renderer_utils.cpp
-		bstone_detail_renderer_utils.cpp
 		bstone_detail_ogl_2_x_state.cpp
 		bstone_detail_ogl_buffer.cpp
 		bstone_detail_ogl_index_buffer.cpp
 		bstone_detail_ogl_vertex_buffer.cpp
+		bstone_detail_renderer_command_buffer.cpp
+		bstone_detail_renderer_command_manager.cpp
+		bstone_detail_renderer_utils.cpp
 		colormap.cpp
 		d3_d2.cpp
 		d3_dr2.cpp
