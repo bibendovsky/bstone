@@ -23,24 +23,26 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL vertex buffer implementation.
+// OpenGL index buffer object (implementation).
 //
 
 
 #include "bstone_precompiled.h"
-#include "bstone_renderer_ogl_vertex_buffer.h"
+#include "bstone_detail_ogl_index_buffer.h"
 #include "bstone_detail_renderer_utils.h"
 
 
 namespace bstone
 {
+namespace detail
+{
 
 
 // ==========================================================================
-// RendererOglVertexBuffer
+// OglIndexBuffer
 //
 
-RendererOglVertexBuffer::RendererOglVertexBuffer(
+OglIndexBuffer::OglIndexBuffer(
 	const OglStateImplPtr ogl_state)
 	:
 	ogl_state_{ogl_state}
@@ -48,13 +50,8 @@ RendererOglVertexBuffer::RendererOglVertexBuffer(
 	assert(ogl_state_ != nullptr);
 }
 
-RendererBufferUsageKind RendererOglVertexBuffer::get_usage_kind() const
-{
-	return ogl_buffer_->get_usage_kind();
-}
-
-void RendererOglVertexBuffer::update(
-	const RendererVertexBufferUpdateParam& param)
+void OglIndexBuffer::update(
+	const RendererIndexBufferUpdateParam& param)
 {
 	auto buffer_param = detail::OglBuffer::UpdateParam{};
 	buffer_param.offset_ = param.offset_;
@@ -64,17 +61,17 @@ void RendererOglVertexBuffer::update(
 	ogl_buffer_->update(buffer_param);
 }
 
-const std::string& RendererOglVertexBuffer::get_error_message() const
+const std::string& OglIndexBuffer::get_error_message() const
 {
 	return error_message_;
 }
 
-bool RendererOglVertexBuffer::initialize(
-	const RendererVertexBufferCreateParam& param)
+bool OglIndexBuffer::initialize(
+	const RendererIndexBufferCreateParam& param)
 {
 	auto renderer_utils = detail::RendererUtils{};
 
-	if (!renderer_utils.validate_vertex_buffer_create_param(param))
+	if (!renderer_utils.validate_index_buffer_create_param(param))
 	{
 		error_message_ = renderer_utils.get_error_message();
 
@@ -84,7 +81,7 @@ bool RendererOglVertexBuffer::initialize(
 	auto ogl_buffer = detail::OglBufferUPtr{new detail::OglBuffer{}};
 
 	auto buffer_param = detail::OglBuffer::InitializeParam{};
-	buffer_param.kind_ = RendererBufferKind::vertex;
+	buffer_param.kind_ = RendererBufferKind::index;
 	buffer_param.usage_kind_ = param.usage_kind_;
 	buffer_param.size_ = param.size_;
 	buffer_param.ogl_state_ = ogl_state_;
@@ -96,17 +93,28 @@ bool RendererOglVertexBuffer::initialize(
 		return false;
 	}
 
+	byte_depth_ = param.byte_depth_;
 	ogl_buffer_ = std::move(ogl_buffer);
 
 	return true;
 }
 
-int RendererOglVertexBuffer::get_size() const
+RendererBufferUsageKind OglIndexBuffer::get_usage_kind() const
+{
+	return ogl_buffer_->get_usage_kind();
+}
+
+int OglIndexBuffer::get_byte_depth() const
+{
+	return byte_depth_;
+}
+
+int OglIndexBuffer::get_size() const
 {
 	return ogl_buffer_->get_size();
 }
 
-void RendererOglVertexBuffer::bind(
+void OglIndexBuffer::bind(
 	const bool is_binded)
 {
 	if (is_binded)
@@ -120,8 +128,9 @@ void RendererOglVertexBuffer::bind(
 }
 
 //
-// RendererOglVertexBuffer
+// OglIndexBuffer
 // ==========================================================================
 
 
+} // detail
 } // bstone

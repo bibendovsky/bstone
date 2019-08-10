@@ -23,16 +23,16 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL index buffer implementation.
+// OpenGL vertex buffer object (implementation).
 //
 
 
-#ifndef BSTONE_RENDERER_OGL_INDEX_BUFFER_INCLUDED
-#define BSTONE_RENDERER_OGL_INDEX_BUFFER_INCLUDED
+#ifndef BSTONE_DETAIL_OGL_VERTEX_BUFFER_INCLUDED
+#define BSTONE_DETAIL_OGL_VERTEX_BUFFER_INCLUDED
 
 
 #include "bstone_detail_ogl_buffer.h"
-#include "bstone_renderer_index_buffer_impl.h"
+#include "bstone_detail_vertex_buffer.h"
 
 
 namespace bstone
@@ -43,31 +43,33 @@ class OglStateImpl;
 using OglStateImplPtr = OglStateImpl*;
 
 
-// =========================================================================
-// RendererOglIndexBuffer
+namespace detail
+{
+
+
+// ==========================================================================
+// OglVertexBuffer
 //
 
-class RendererOglIndexBuffer :
-	public RendererIndexBufferImpl
+class OglVertexBuffer :
+	public VertexBuffer
 {
 public:
-	RendererOglIndexBuffer(
+	OglVertexBuffer(
 		const OglStateImplPtr ogl_state);
 
-	RendererOglIndexBuffer(
-		const RendererOglIndexBuffer& rhs) = delete;
+	OglVertexBuffer(
+		const OglVertexBuffer& rhs) = delete;
 
-	~RendererOglIndexBuffer() override = default;
+	~OglVertexBuffer() override = default;
 
 
 	RendererBufferUsageKind get_usage_kind() const override;
 
-	int get_byte_depth() const override;
-
 	int get_size() const override;
 
 	void update(
-		const RendererIndexBufferUpdateParam& param) override;
+		const RendererVertexBufferUpdateParam& param) override;
 
 	void bind(
 		const bool is_binded) override;
@@ -76,7 +78,7 @@ public:
 	const std::string& get_error_message() const override;
 
 	bool initialize(
-		const RendererIndexBufferCreateParam& param) override;
+		const RendererVertexBufferCreateParam& param) override;
 
 
 private:
@@ -84,19 +86,19 @@ private:
 
 	std::string error_message_;
 
-	int byte_depth_;
 	detail::OglBufferUPtr ogl_buffer_;
-}; // RendererOglIndexBuffer
+}; // OglVertexBuffer
 
-using RendererOglIndexBufferPtr = RendererOglIndexBuffer*;
-using RendererOglIndexBufferUPtr = std::unique_ptr<RendererOglIndexBuffer>;
+using OglVertexBufferPtr = OglVertexBuffer*;
+using OglVertexBufferUPtr = std::unique_ptr<OglVertexBuffer>;
 
 //
-// RendererOglIndexBuffer
-// =========================================================================
+// OglVertexBuffer
+// ==========================================================================
 
 
+} // detail
 } // bstone
 
 
-#endif // !BSTONE_RENDERER_OGL_INDEX_BUFFER_INCLUDED
+#endif // !BSTONE_DETAIL_OGL_VERTEX_BUFFER_INCLUDED

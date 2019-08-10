@@ -23,12 +23,12 @@ Free Software Foundation, Inc.,
 
 
 //
-// Renderer's index buffer implementation interface.
+// Renderer's index buffer (implementation interface).
 //
 
 
-#ifndef BSTONE_RENDERER_INDEX_BUFFER_IMPL_INCLUDED
-#define BSTONE_RENDERER_INDEX_BUFFER_IMPL_INCLUDED
+#ifndef BSTONE_DETAIL_INDEX_BUFFER_IMPL_INCLUDED
+#define BSTONE_DETAIL_INDEX_BUFFER_INCLUDED
 
 
 #include "bstone_renderer.h"
@@ -36,39 +36,42 @@ Free Software Foundation, Inc.,
 
 namespace bstone
 {
+namespace detail
+{
 
 
 // =========================================================================
-// RendererIndexBufferImpl
+// IndexBuffer
 //
 
-class RendererIndexBufferImpl :
+class IndexBuffer :
 	public RendererIndexBuffer
 {
 public:
-	RendererIndexBufferImpl() = default;
+	IndexBuffer() = default;
 
-	RendererIndexBufferImpl(
-		const RendererIndexBufferImpl& rhs) = delete;
+	IndexBuffer(
+		const IndexBuffer& rhs) = delete;
 
-	~RendererIndexBufferImpl() override = default;
+	~IndexBuffer() override = default;
 
 
 	virtual const std::string& get_error_message() const = 0;
 
 	virtual bool initialize(
 		const RendererIndexBufferCreateParam& param) = 0;
-}; // RendererIndexBufferImpl
+}; // IndexBuffer
 
-using RendererIndexBufferImplPtr = RendererIndexBufferImpl*;
-using RendererIndexBufferImplUPtr = std::unique_ptr<RendererIndexBufferImpl>;
+using IndexBufferImplPtr = IndexBuffer*;
+using IndexBufferImplUPtr = std::unique_ptr<IndexBuffer>;
 
 //
-// RendererIndexBufferImpl
+// IndexBuffer
 // =========================================================================
 
 
+} // detail
 } // bstone
 
 
-#endif // !BSTONE_RENDERER_INDEX_BUFFER_IMPL_INCLUDED
+#endif // !BSTONE_DETAIL_INDEX_BUFFER_INCLUDED

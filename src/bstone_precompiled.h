@@ -79,8 +79,6 @@ Free Software Foundation, Inc.,
 #include "bstone_sha1.h"
 #include "bstone_stream.h"
 #include "bstone_string_helper.h"
-#include "bstone_sw_index_buffer.h"
-#include "bstone_sw_vertex_buffer.h"
 
 
 #endif // BSTONE_USE_PCH

@@ -40,8 +40,8 @@ Free Software Foundation, Inc.,
 #include "bstone_detail_ogl_renderer_shader_impl.h"
 #include "bstone_detail_ogl_renderer_shader_stage_impl.h"
 #include "bstone_detail_ogl_renderer_utils.h"
-#include "bstone_renderer_ogl_index_buffer.h"
-#include "bstone_renderer_ogl_vertex_buffer.h"
+#include "bstone_detail_ogl_index_buffer.h"
+#include "bstone_detail_ogl_vertex_buffer.h"
 #include "bstone_ogl_state_impl.h"
 
 
@@ -189,14 +189,14 @@ public:
 
 
 private:
-	using IndexBufferImpl = RendererIndexBufferImpl;
-	using VertexBufferImpl = RendererVertexBufferImpl;
+	using IndexBufferImpl = IndexBuffer;
+	using VertexBufferImpl = VertexBuffer;
 
 	using IndexBufferImplPtr = IndexBufferImpl*;
 	using VertexBufferImplPtr = VertexBufferImpl*;
 
-	using IndexBufferImplUPtr = RendererIndexBufferImplUPtr;
-	using VertexBufferImplUPtr = RendererVertexBufferImplUPtr;
+	using IndexBufferImplUPtr = IndexBufferImplUPtr;
+	using VertexBufferImplUPtr = VertexBufferImplUPtr;
 
 	using IndexBuffers = std::list<IndexBufferImplUPtr>;
 	using VertexBuffers = std::list<VertexBufferImplUPtr>;

@@ -23,12 +23,12 @@ Free Software Foundation, Inc.,
 
 
 //
-// Renderer's vertex buffer implementation interface.
+// Renderer's vertex buffer (implementation interface).
 //
 
 
-#ifndef BSTONE_RENDERER_VERTEX_BUFFER_IMPL_INCLUDED
-#define BSTONE_RENDERER_VERTEX_BUFFER_IMPL_INCLUDED
+#ifndef BSTONE_DETAIL_VERTEX_BUFFER_INCLUDED
+#define BSTONE_DETAIL_VERTEX_BUFFER_INCLUDED
 
 
 #include "bstone_renderer.h"
@@ -36,39 +36,42 @@ Free Software Foundation, Inc.,
 
 namespace bstone
 {
+namespace detail
+{
 
 
 // ==========================================================================
-// RendererVertexBufferImpl
+// VertexBuffer
 //
 
-class RendererVertexBufferImpl :
+class VertexBuffer :
 	public RendererVertexBuffer
 {
 public:
-	RendererVertexBufferImpl() = default;
+	VertexBuffer() = default;
 
-	RendererVertexBufferImpl(
-		const RendererVertexBufferImpl& rhs) = delete;
+	VertexBuffer(
+		const VertexBuffer& rhs) = delete;
 
-	~RendererVertexBufferImpl() override = default;
+	~VertexBuffer() override = default;
 
 
 	virtual const std::string& get_error_message() const = 0;
 
 	virtual bool initialize(
 		const RendererVertexBufferCreateParam& param) = 0;
-}; // RendererVertexBufferImpl
+}; // VertexBuffer
 
-using RendererVertexBufferImplPtr = RendererVertexBufferImpl*;
-using RendererVertexBufferImplUPtr = std::unique_ptr<RendererVertexBufferImpl>;
+using VertexBufferImplPtr = VertexBuffer*;
+using VertexBufferImplUPtr = std::unique_ptr<VertexBuffer>;
 
 //
-// RendererVertexBufferImpl
+// VertexBuffer
 // ==========================================================================
 
 
+} // detail
 } // bstone
 
 
-#endif // !BSTONE_RENDERER_VERTEX_BUFFER_IMPL_INCLUDED
+#endif // !BSTONE_DETAIL_VERTEX_BUFFER_INCLUDED

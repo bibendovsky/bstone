@@ -1016,7 +1016,7 @@ RendererIndexBufferPtr Ogl2XRenderer::index_buffer_create(
 {
 	assert(is_initialized_);
 
-	auto index_buffer = IndexBufferImplUPtr{new RendererOglIndexBuffer{ogl_state_.get()}};
+	auto index_buffer = IndexBufferImplUPtr{new OglIndexBuffer{ogl_state_.get()}};
 
 	if (!index_buffer->initialize(param))
 	{
@@ -1046,7 +1046,7 @@ void Ogl2XRenderer::index_buffer_destroy(
 RendererVertexBufferPtr Ogl2XRenderer::vertex_buffer_create(
 	const RendererVertexBufferCreateParam& param)
 {
-	auto vertex_buffer = VertexBufferImplUPtr{new RendererOglVertexBuffer{ogl_state_.get()}};
+	auto vertex_buffer = VertexBufferImplUPtr{new OglVertexBuffer{ogl_state_.get()}};
 
 	if (!vertex_buffer->initialize(param))
 	{

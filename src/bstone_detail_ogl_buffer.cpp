@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL buffer object.
+// OpenGL buffer object (implementation).
 //
 
 
