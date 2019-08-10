@@ -232,8 +232,8 @@ private:
 	}
 }; // RendererCommandBuffer
 
-using RendererCommandBufferImplPtr = RendererCommandBuffer*;
-using RendererCommandBufferImplUPtr = std::unique_ptr<RendererCommandBuffer>;
+using RendererCommandBufferPtr = RendererCommandBuffer*;
+using RendererCommandBufferUPtr = std::unique_ptr<RendererCommandBuffer>;
 
 //
 // RendererCommandBuffer

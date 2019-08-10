@@ -57,7 +57,7 @@ int RendererCommandManager::buffer_get_count() const
 	return static_cast<int>(buffers_.size());
 }
 
-RendererCommandBufferPtr RendererCommandManager::buffer_add(
+bstone::RendererCommandBufferPtr RendererCommandManager::buffer_add(
 	const RendererCommandManagerBufferAddParam& param)
 {
 	if (!validate_param(param))
@@ -65,7 +65,7 @@ RendererCommandBufferPtr RendererCommandManager::buffer_add(
 		return nullptr;
 	}
 
-	auto buffer = RendererCommandBufferImplUPtr{new RendererCommandBuffer{}};
+	auto buffer = RendererCommandBufferUPtr{new RendererCommandBuffer{}};
 
 	buffer->initialize(param);
 
@@ -75,7 +75,7 @@ RendererCommandBufferPtr RendererCommandManager::buffer_add(
 }
 
 void RendererCommandManager::buffer_remove(
-	RendererCommandBufferPtr buffer)
+	bstone::RendererCommandBufferPtr buffer)
 {
 	if (!buffer)
 	{
@@ -94,7 +94,7 @@ void RendererCommandManager::buffer_remove(
 	);
 }
 
-RendererCommandBufferPtr RendererCommandManager::buffer_get(
+bstone::RendererCommandBufferPtr RendererCommandManager::buffer_get(
 	const int index)
 {
 	if (index < 0 || index >= buffer_get_count())

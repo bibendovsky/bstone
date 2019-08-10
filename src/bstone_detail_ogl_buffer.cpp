@@ -137,12 +137,12 @@ bool OglBuffer::initialize(
 		return false;
 	}
 
-	auto ogl_name_raii = OglBufferRaii{ogl_name};
+	auto ogl_name_raii = OglBufferHandle{ogl_name};
 
 	const auto olg_target = ogl_get_target(param.kind_);
 	const auto olg_usage = ogl_get_usage(param.usage_kind_);
 
-	::glBindBuffer(olg_target, ogl_name_raii);
+	::glBindBuffer(olg_target, ogl_name_raii.get());
 	assert(!detail::OglRendererUtils::was_errors());
 
 	::glBufferData(olg_target, param.size_, nullptr, olg_usage);
@@ -161,12 +161,12 @@ bool OglBuffer::initialize(
 
 bool OglBuffer::is_initialized() const noexcept
 {
-	return ogl_name_raii_ != 0;
+	return ogl_name_raii_ != nullptr;
 }
 
 GLuint OglBuffer::get_ogl_name() const noexcept
 {
-	return ogl_name_raii_;
+	return ogl_name_raii_.get();
 }
 
 bool OglBuffer::validate_param(

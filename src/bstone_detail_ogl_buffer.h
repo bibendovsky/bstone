@@ -33,7 +33,8 @@ Free Software Foundation, Inc.,
 #define BSTONE_DETAIL_OGL_BUFFER_INCLUDED
 
 
-#include "bstone_ogl_raii.h"
+#include "bstone_renderer.h"
+#include "bstone_ogl_handles.h"
 
 
 namespace bstone
@@ -110,7 +111,7 @@ private:
 	RendererBufferKind kind_;
 	RendererBufferUsageKind usage_kind_;
 	int size_;
-	OglBufferRaii ogl_name_raii_;
+	OglBufferHandle ogl_name_raii_;
 	GLenum ogl_target_;
 	OglStatePtr ogl_state_;
 

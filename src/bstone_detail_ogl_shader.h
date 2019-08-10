@@ -34,7 +34,7 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_renderer.h"
-#include "bstone_ogl_raii.h"
+#include "bstone_ogl_handles.h"
 
 
 namespace bstone
@@ -82,7 +82,7 @@ private:
 	std::string error_message_;
 
 	Kind kind_;
-	OglShaderRaii ogl_name_raii_;
+	OglShaderHandle ogl_name_raii_;
 	OglShaderStagePtr shader_stage_;
 
 

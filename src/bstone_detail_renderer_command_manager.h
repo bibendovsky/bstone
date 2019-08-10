@@ -55,13 +55,13 @@ public:
 
 	int buffer_get_count() const override;
 
-	RendererCommandBufferPtr buffer_add(
+	bstone::RendererCommandBufferPtr buffer_add(
 		const RendererCommandManagerBufferAddParam& param) override;
 
 	void buffer_remove(
-		RendererCommandBufferPtr buffer) override;
+		bstone::RendererCommandBufferPtr buffer) override;
 
-	RendererCommandBufferPtr buffer_get(
+	bstone::RendererCommandBufferPtr buffer_get(
 		const int index) override;
 
 
@@ -69,7 +69,7 @@ private:
 	static constexpr auto reserved_buffer_count = 8;
 
 
-	using Buffers = std::vector<RendererCommandBufferImplUPtr>;
+	using Buffers = std::vector<detail::RendererCommandBufferUPtr>;
 
 
 	Buffers buffers_;
@@ -79,8 +79,8 @@ private:
 		const RendererCommandManagerBufferAddParam& param);
 }; // RendererCommandManager
 
-using RendererCommandManagerImplPtr = RendererCommandManager*;
-using RendererCommandManagerImplUPtr = std::unique_ptr<RendererCommandManager>;
+using RendererCommandManagerPtr = detail::RendererCommandManager*;
+using RendererCommandManagerUPtr = std::unique_ptr<detail::RendererCommandManager>;
 
 //
 // RendererCommandManager

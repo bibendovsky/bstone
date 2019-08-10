@@ -171,7 +171,7 @@ void OglShaderStage::set_current()
 
 	*current_shader_stage_ptr_ = this;
 
-	::glUseProgram(ogl_name_raii_);
+	::glUseProgram(ogl_name_raii_.get());
 	assert(!OglRendererUtils::was_errors());
 }
 
@@ -294,7 +294,7 @@ void OglShaderStage::initialize(
 		return;
 	}
 
-	auto ogl_name_raii = OglProgramRaii{::glCreateProgram()};
+	auto ogl_name_raii = OglProgramHandle{::glCreateProgram()};
 
 	if (ogl_name_raii == 0)
 	{
@@ -304,28 +304,28 @@ void OglShaderStage::initialize(
 	}
 
 	const auto fragment_shader = static_cast<OglShaderPtr>(param.fragment_shader_);
-	::glAttachShader(ogl_name_raii, fragment_shader->get_ogl_name());
+	::glAttachShader(ogl_name_raii.get(), fragment_shader->get_ogl_name());
 	assert(!detail::OglRendererUtils::was_errors());
 
 	const auto vertex_shader = static_cast<OglShaderPtr>(param.vertex_shader_);
-	::glAttachShader(ogl_name_raii, vertex_shader->get_ogl_name());
+	::glAttachShader(ogl_name_raii.get(), vertex_shader->get_ogl_name());
 	assert(!detail::OglRendererUtils::was_errors());
 
-	set_input_bindings(ogl_name_raii, param.input_bindings_);
+	set_input_bindings(ogl_name_raii.get(), param.input_bindings_);
 
-	::glLinkProgram(ogl_name_raii);
+	::glLinkProgram(ogl_name_raii.get());
 	assert(!detail::OglRendererUtils::was_errors());
 
 	auto link_status = GLint{};
 
-	::glGetProgramiv(ogl_name_raii, GL_LINK_STATUS, &link_status);
+	::glGetProgramiv(ogl_name_raii.get(), GL_LINK_STATUS, &link_status);
 	assert(!detail::OglRendererUtils::was_errors());
 
 	if (link_status != GL_TRUE)
 	{
 		error_message_ = "Failed to link a program.";
 
-		const auto ogl_log = OglRendererUtils::get_log(false, ogl_name_raii);
+		const auto ogl_log = OglRendererUtils::get_log(false, ogl_name_raii.get());
 
 		if (!ogl_log.empty())
 		{
@@ -336,17 +336,17 @@ void OglShaderStage::initialize(
 		return;
 	}
 
-	const auto variable_count = get_variable_count(ogl_name_raii);
+	const auto variable_count = get_variable_count(ogl_name_raii.get());
 	auto shader_variables = ShaderVariables{};
 	shader_variables.reserve(variable_count);
 
-	if (!get_variables(RendererShaderVariable::Kind::attribute, ogl_name_raii, shader_variables))
+	if (!get_variables(RendererShaderVariable::Kind::attribute, ogl_name_raii.get(), shader_variables))
 	{
 		return;
 	}
 
 	// Note that "samplers" are included in uniforms.
-	if (!get_variables(RendererShaderVariable::Kind::uniform, ogl_name_raii, shader_variables))
+	if (!get_variables(RendererShaderVariable::Kind::uniform, ogl_name_raii.get(), shader_variables))
 	{
 		return;
 	}

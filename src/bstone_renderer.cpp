@@ -90,7 +90,7 @@ RendererShaderStage::~RendererShaderStage() = default;
 
 RendererCommandManagerUPtr RendererCommandManagerFactory::create()
 {
-	return detail::RendererCommandManagerImplUPtr{new detail::RendererCommandManager{}};
+	return detail::RendererCommandManagerUPtr{new detail::RendererCommandManager{}};
 }
 
 //

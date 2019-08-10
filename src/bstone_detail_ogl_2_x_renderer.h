@@ -189,17 +189,8 @@ public:
 
 
 private:
-	using IndexBufferImpl = IndexBuffer;
-	using VertexBufferImpl = VertexBuffer;
-
-	using IndexBufferImplPtr = IndexBufferImpl*;
-	using VertexBufferImplPtr = VertexBufferImpl*;
-
-	using IndexBufferImplUPtr = IndexBufferImplUPtr;
-	using VertexBufferImplUPtr = VertexBufferImplUPtr;
-
-	using IndexBuffers = std::list<IndexBufferImplUPtr>;
-	using VertexBuffers = std::list<VertexBufferImplUPtr>;
+	using IndexBuffers = std::list<IndexBufferUPtr>;
+	using VertexBuffers = std::list<VertexBufferUPtr>;
 
 	using Shaders = std::list<detail::OglShaderUPtr>;
 	using ShaderStages = std::list<detail::OglShaderStageUPtr>;

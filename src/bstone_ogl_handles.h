@@ -23,57 +23,41 @@ Free Software Foundation, Inc.,
 
 
 //
-// Renderer's index buffer (implementation interface).
-//
-// !!! Internal usage only !!!
+// OpenGL handle wrappers.
 //
 
 
-#ifndef BSTONE_DETAIL_INDEX_BUFFER_IMPL_INCLUDED
-#define BSTONE_DETAIL_INDEX_BUFFER_INCLUDED
+#ifndef BSTONE_OGL_HANDLES_INCLUDED
+#define BSTONE_OGL_HANDLES_INCLUDED
 
 
-#include "bstone_renderer.h"
+#include "bstone_ogl.h"
+#include "bstone_system_handle.h"
 
 
 namespace bstone
 {
-namespace detail
-{
 
 
-// =========================================================================
-// IndexBuffer
-//
+void ogl_buffer_deleter(
+	const GLuint ogl_name) noexcept;
 
-class IndexBuffer :
-	public RendererIndexBuffer
-{
-public:
-	IndexBuffer() = default;
-
-	IndexBuffer(
-		const IndexBuffer& rhs) = delete;
-
-	~IndexBuffer() override = default;
+using OglBufferHandle = SystemHandle<GLuint, 0, ogl_buffer_deleter>;
 
 
-	virtual const std::string& get_error_message() const = 0;
+void ogl_shader_deleter(
+	const GLuint ogl_name) noexcept;
 
-	virtual bool initialize(
-		const RendererIndexBufferCreateParam& param) = 0;
-}; // IndexBuffer
-
-using IndexBufferPtr = IndexBuffer*;
-using IndexBufferUPtr = std::unique_ptr<IndexBuffer>;
-
-//
-// IndexBuffer
-// =========================================================================
+using OglShaderHandle = SystemHandle<GLuint, 0, ogl_shader_deleter>;
 
 
-} // detail
+void ogl_program_deleter(
+	const GLuint ogl_name) noexcept;
+
+using OglProgramHandle = SystemHandle<GLuint, 0, ogl_program_deleter>;
+
+
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_INDEX_BUFFER_INCLUDED
+#endif // !BSTONE_OGL_HANDLES_INCLUDED

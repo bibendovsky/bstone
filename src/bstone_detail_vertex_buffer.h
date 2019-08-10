@@ -62,8 +62,8 @@ public:
 		const RendererVertexBufferCreateParam& param) = 0;
 }; // VertexBuffer
 
-using VertexBufferImplPtr = VertexBuffer*;
-using VertexBufferImplUPtr = std::unique_ptr<VertexBuffer>;
+using VertexBufferPtr = VertexBuffer*;
+using VertexBufferUPtr = std::unique_ptr<VertexBuffer>;
 
 //
 // VertexBuffer

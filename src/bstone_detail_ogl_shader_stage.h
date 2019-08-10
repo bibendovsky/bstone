@@ -115,7 +115,7 @@ private:
 	OglShaderStagePtr* current_shader_stage_ptr_;
 	OglShaderPtr fragment_shader_;
 	OglShaderPtr vertex_shader_;
-	OglProgramRaii ogl_name_raii_;
+	OglProgramHandle ogl_name_raii_;
 	ShaderVariables shader_variables_;
 
 

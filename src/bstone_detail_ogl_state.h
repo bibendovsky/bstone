@@ -79,19 +79,19 @@ using OglStateUPtr = std::unique_ptr<OglState>;
 
 
 // =========================================================================
-// OglStateImplFactory
+// OglStateFactory
 //
 
 
-struct OglStateImplFactory
+struct OglStateFactory
 {
 	static OglStateUPtr create(
 		const RendererKind renderer_kind);
-}; // OglStateImplFactory
+}; // OglStateFactory
 
 
 //
-// OglStateImplFactory
+// OglStateFactory
 // =========================================================================
 
 

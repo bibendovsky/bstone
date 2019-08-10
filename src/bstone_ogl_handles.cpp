@@ -23,57 +23,39 @@ Free Software Foundation, Inc.,
 
 
 //
-// Renderer's index buffer (implementation interface).
-//
-// !!! Internal usage only !!!
+// OpenGL handle wrappers.
 //
 
 
-#ifndef BSTONE_DETAIL_INDEX_BUFFER_IMPL_INCLUDED
-#define BSTONE_DETAIL_INDEX_BUFFER_INCLUDED
-
-
-#include "bstone_renderer.h"
+#include "bstone_precompiled.h"
+#include "bstone_ogl_handles.h"
+#include "bstone_detail_ogl_renderer_utils.h"
 
 
 namespace bstone
 {
-namespace detail
+
+
+void ogl_buffer_deleter(
+	const GLuint ogl_name) noexcept
 {
+	::glDeleteBuffers(1, &ogl_name);
+	assert(!detail::OglRendererUtils::was_errors());
+}
 
-
-// =========================================================================
-// IndexBuffer
-//
-
-class IndexBuffer :
-	public RendererIndexBuffer
+void ogl_shader_deleter(
+	const GLuint ogl_name) noexcept
 {
-public:
-	IndexBuffer() = default;
+	::glDeleteShader(ogl_name);
+	assert(!detail::OglRendererUtils::was_errors());
+}
 
-	IndexBuffer(
-		const IndexBuffer& rhs) = delete;
-
-	~IndexBuffer() override = default;
-
-
-	virtual const std::string& get_error_message() const = 0;
-
-	virtual bool initialize(
-		const RendererIndexBufferCreateParam& param) = 0;
-}; // IndexBuffer
-
-using IndexBufferPtr = IndexBuffer*;
-using IndexBufferUPtr = std::unique_ptr<IndexBuffer>;
-
-//
-// IndexBuffer
-// =========================================================================
+void ogl_program_deleter(
+	const GLuint ogl_name) noexcept
+{
+	::glDeleteProgram(ogl_name);
+	assert(!detail::OglRendererUtils::was_errors());
+}
 
 
-} // detail
 } // bstone
-
-
-#endif // !BSTONE_DETAIL_INDEX_BUFFER_INCLUDED

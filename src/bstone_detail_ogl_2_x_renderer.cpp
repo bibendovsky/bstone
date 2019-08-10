@@ -1016,7 +1016,7 @@ RendererIndexBufferPtr Ogl2XRenderer::index_buffer_create(
 {
 	assert(is_initialized_);
 
-	auto index_buffer = IndexBufferImplUPtr{new OglIndexBuffer{ogl_state_.get()}};
+	auto index_buffer = IndexBufferUPtr{new OglIndexBuffer{ogl_state_.get()}};
 
 	if (!index_buffer->initialize(param))
 	{
@@ -1046,7 +1046,7 @@ void Ogl2XRenderer::index_buffer_destroy(
 RendererVertexBufferPtr Ogl2XRenderer::vertex_buffer_create(
 	const RendererVertexBufferCreateParam& param)
 {
-	auto vertex_buffer = VertexBufferImplUPtr{new OglVertexBuffer{ogl_state_.get()}};
+	auto vertex_buffer = VertexBufferUPtr{new OglVertexBuffer{ogl_state_.get()}};
 
 	if (!vertex_buffer->initialize(param))
 	{
@@ -1449,7 +1449,7 @@ bool Ogl2XRenderer::probe_or_initialize(
 
 	if (!is_probe)
 	{
-		ogl_state_ = std::move(OglStateImplFactory::create(RendererKind::ogl_2_x));
+		ogl_state_ = std::move(OglStateFactory::create(RendererKind::ogl_2_x));
 
 		auto error_message = std::string{"Failed to initialize the state."};
 
@@ -2434,7 +2434,7 @@ void Ogl2XRenderer::vertex_input_assign_regular_attribute(
 
 	vertex_input_enable_location(attribute_description.location_, true);
 
-	auto vertex_buffer = static_cast<VertexBufferImplPtr>(attribute_description.vertex_buffer_);
+	auto vertex_buffer = static_cast<VertexBufferPtr>(attribute_description.vertex_buffer_);
 
 	vertex_buffer->bind(true);
 
@@ -2792,7 +2792,7 @@ void Ogl2XRenderer::command_execute_draw_quads(
 	const auto indices_per_quad = triangles_per_quad * indices_per_triangle;
 	const auto index_count = indices_per_quad * command.count_;
 
-	auto index_buffer = static_cast<IndexBufferImplPtr>(vertex_input_current_->index_buffer_);
+	auto index_buffer = static_cast<IndexBufferPtr>(vertex_input_current_->index_buffer_);
 
 	const auto index_byte_depth = index_buffer->get_byte_depth();
 	const auto max_index_count = index_buffer->get_size() / index_byte_depth;

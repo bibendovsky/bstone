@@ -76,7 +76,7 @@ OglShader::~OglShader()
 
 bool OglShader::is_initialized() const
 {
-	return ogl_name_raii_ != 0;
+	return ogl_name_raii_ != nullptr;
 }
 
 const std::string& OglShader::get_error_message() const
@@ -99,7 +99,7 @@ void OglShader::initialize(
 
 	const auto ogl_kind = get_ogl_kind(param.kind_);
 
-	auto ogl_name_raii = OglShaderRaii{::glCreateShader(ogl_kind)};
+	auto ogl_name_raii = OglShaderHandle{::glCreateShader(ogl_kind)};
 
 	if (ogl_name_raii == 0)
 	{
@@ -118,22 +118,22 @@ void OglShader::initialize(
 		param.source_.size_,
 	};
 
-	::glShaderSource(ogl_name_raii, 1, strings, lengths);
+	::glShaderSource(ogl_name_raii.get(), 1, strings, lengths);
 	assert(!detail::OglRendererUtils::was_errors());
 
-	::glCompileShader(ogl_name_raii);
+	::glCompileShader(ogl_name_raii.get());
 	assert(!detail::OglRendererUtils::was_errors());
 
 	auto compile_status = GLint{};
 
-	::glGetShaderiv(ogl_name_raii, GL_COMPILE_STATUS, &compile_status);
+	::glGetShaderiv(ogl_name_raii.get(), GL_COMPILE_STATUS, &compile_status);
 	assert(!detail::OglRendererUtils::was_errors());
 
 	if (compile_status != GL_TRUE)
 	{
 		error_message_ = "Failed to compile a shader.";
 
-		const auto ogl_log = OglRendererUtils::get_log(true, ogl_name_raii);
+		const auto ogl_log = OglRendererUtils::get_log(true, ogl_name_raii.get());
 
 		if (!ogl_log.empty())
 		{
@@ -150,7 +150,7 @@ void OglShader::initialize(
 
 GLuint OglShader::get_ogl_name() const
 {
-	return ogl_name_raii_;
+	return ogl_name_raii_.get();
 }
 
 void OglShader::attach_to_shader_stage(

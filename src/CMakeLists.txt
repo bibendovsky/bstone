@@ -219,7 +219,7 @@ target_sources(
 		bstone_mod_value.h
 		bstone_mt_queue_1r1w.h
 		bstone_ogl.h
-		bstone_ogl_raii.h
+		bstone_ogl_handles.h
 		bstone_opl2.h
 		bstone_ref_values.h
 		bstone_renderer.h
@@ -236,6 +236,7 @@ target_sources(
 		bstone_sprite.h
 		bstone_sprite_cache.h
 		bstone_string_helper.h
+		bstone_system_handle.h
 		bstone_text_reader.h
 		bstone_text_writer.h
 		bstone_un_value.h
@@ -314,6 +315,7 @@ target_sources(
 		bstone_missing_sprite_64x64_image.cpp
 		bstone_missing_wall_64x64_image.cpp
 		bstone_ogl.cpp
+		bstone_ogl_handles.cpp
 		bstone_opl2.cpp
 		bstone_pcm_decoder.cpp
 		bstone_precompiled.cpp
