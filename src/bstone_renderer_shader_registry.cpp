@@ -160,11 +160,11 @@ const std::string& RendererShaderRegistry::get_u_view_position_name()
 }
 
 const RendererShader::Source& RendererShaderRegistry::get_fragment(
-	const RendererPath renderer_kind)
+	const RendererKind renderer_kind)
 {
 	switch (renderer_kind)
 	{
-		case RendererPath::ogl_2_x:
+		case RendererKind::ogl_2_x:
 			return get_fragment_ogl_2_x();
 
 		default:
@@ -173,11 +173,11 @@ const RendererShader::Source& RendererShaderRegistry::get_fragment(
 }
 
 const RendererShader::Source& RendererShaderRegistry::get_vertex(
-	const RendererPath renderer_kind)
+	const RendererKind renderer_kind)
 {
 	switch (renderer_kind)
 	{
-		case RendererPath::ogl_2_x:
+		case RendererKind::ogl_2_x:
 			return get_vertex_ogl_2_x();
 
 		default:

@@ -47,19 +47,12 @@ enum class RendererKind :
 	unsigned char
 {
 	none,
-	opengl,
-}; // RendererKind
-
-enum class RendererPath :
-	unsigned char
-{
-	none,
 
 	auto_detect,
 	software,
 
 	ogl_2_x,
-}; // RendererPath
+}; // RendererKind
 
 enum class RendererCommandId :
 	unsigned char
@@ -171,7 +164,7 @@ public:
 class RendererInitializeParam
 {
 public:
-	RendererPath renderer_path_;
+	RendererKind renderer_kind_;
 	RendererInitializeWindowParam window_;
 
 	int downscale_width_;
@@ -1024,7 +1017,7 @@ struct RendererDeviceInfo
 
 struct RendererProbe
 {
-	RendererPath path_;
+	RendererKind kind_;
 	RendererDeviceFeatures device_features_;
 }; // RendererProbe
 
@@ -1063,9 +1056,6 @@ public:
 		const RendererInitializeParam& param) = 0;
 
 	virtual void uninitialize() = 0;
-
-
-	virtual RendererPath get_path() const = 0;
 
 
 	virtual const RendererDeviceFeatures& device_get_features() const = 0;

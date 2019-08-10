@@ -133,7 +133,7 @@ public:
 
 
 	static bool is_ogl_renderer_path(
-		const RendererPath renderer_path);
+		const RendererKind renderer_path);
 
 
 	static int aa_get_min_value();

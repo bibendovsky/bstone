@@ -328,11 +328,11 @@ void Ogl2XStateImpl::bind_target(
 //
 
 OglStateImplUPtr OglStateImplFactory::create(
-	const RendererPath renderer_kind)
+	const RendererKind renderer_kind)
 {
 	switch (renderer_kind)
 	{
-		case RendererPath::ogl_2_x:
+		case RendererKind::ogl_2_x:
 		{
 			auto ogl_state = Ogl2XStateImplUPtr{new Ogl2XStateImpl{}};
 

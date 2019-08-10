@@ -59,7 +59,7 @@ struct VidConfiguration
 	using IntModValue = bstone::ModValue<int>;
 	using FilterModValue = bstone::ModValue<bstone::RendererFilterKind>;
 	using AaKindModValue = bstone::ModValue<bstone::RendererAaKind>;
-	using RendererKindModValue = bstone::ModValue<bstone::RendererPath>;
+	using RendererKindModValue = bstone::ModValue<bstone::RendererKind>;
 
 
 	RendererKindModValue renderer_kind_;

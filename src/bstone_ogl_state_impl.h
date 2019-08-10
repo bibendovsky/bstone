@@ -84,7 +84,7 @@ using OglStateImplUPtr = std::unique_ptr<OglStateImpl>;
 struct OglStateImplFactory
 {
 	static OglStateImplUPtr create(
-		const RendererPath renderer_kind);
+		const RendererKind renderer_kind);
 }; // OglStateImplFactory
 
 

@@ -188,13 +188,13 @@ bool RendererUtils::show_window(
 bool RendererUtils::validate_initialize_param(
 	const RendererInitializeParam& param)
 {
-	switch (param.renderer_path_)
+	switch (param.renderer_kind_)
 	{
-	case RendererPath::ogl_2_x:
+	case RendererKind::ogl_2_x:
 		break;
 
 	default:
-		error_message_ = "Unsupported renderer path.";
+		error_message_ = "Unsupported renderer kind.";
 
 		return false;
 	}
@@ -504,11 +504,11 @@ bool RendererUtils::vertex_input_validate_param(
 }
 
 bool RendererUtils::is_ogl_renderer_path(
-	const RendererPath renderer_path)
+	const RendererKind renderer_path)
 {
 	switch (renderer_path)
 	{
-	case RendererPath::ogl_2_x:
+	case RendererKind::ogl_2_x:
 		return true;
 
 	default:

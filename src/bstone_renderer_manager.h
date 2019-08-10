@@ -58,7 +58,7 @@ public:
 
 
 	virtual bool renderer_probe(
-		const RendererPath& renderer_path) = 0;
+		const RendererKind& renderer_path) = 0;
 
 	virtual const RendererProbe& renderer_probe_get() const = 0;
 

@@ -83,10 +83,10 @@ public:
 
 
 	static const RendererShader::Source& get_fragment(
-		const RendererPath renderer_kind);
+		const RendererKind renderer_kind);
 
 	static const RendererShader::Source& get_vertex(
-		const RendererPath renderer_kind);
+		const RendererKind renderer_kind);
 
 
 private:

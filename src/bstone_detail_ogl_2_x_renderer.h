@@ -90,9 +90,6 @@ public:
 	void uninitialize() override;
 
 
-	RendererPath get_path() const override;
-
-
 	const RendererDeviceFeatures& device_get_features() const override;
 
 	const RendererDeviceInfo& device_get_info() const override;

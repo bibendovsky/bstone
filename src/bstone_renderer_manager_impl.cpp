@@ -61,7 +61,7 @@ public:
 
 
 	bool renderer_probe(
-		const RendererPath& renderer_path) override;
+		const RendererKind& renderer_path) override;
 
 	const RendererProbe& renderer_probe_get() const override;
 
@@ -112,7 +112,7 @@ public:
 
 
 	bool renderer_probe(
-		const RendererPath& renderer_path);
+		const RendererKind& renderer_path);
 
 	const RendererProbe& renderer_probe_get() const;
 
@@ -246,14 +246,14 @@ RendererPtr RendererManagerImpl::Impl::get_renderer(
 }
 
 bool RendererManagerImpl::Impl::renderer_probe(
-	const RendererPath& renderer_path)
+	const RendererKind& renderer_path)
 {
 	if (!is_initialized_)
 	{
 		return false;
 	}
 
-	if (renderer_path == RendererPath::auto_detect)
+	if (renderer_path == RendererKind::auto_detect)
 	{
 		// OpenGL.
 		//
@@ -274,11 +274,11 @@ bool RendererManagerImpl::Impl::renderer_probe(
 
 		// OpenGL 2.x.
 		//
-		if (renderer_path == RendererPath::ogl_2_x)
+		if (renderer_path == RendererKind::ogl_2_x)
 		{
 			if (ogl_2_x_renderer_.probe())
 			{
-				renderer_probe_.path_ = renderer_path;
+				renderer_probe_.kind_ = renderer_path;
 
 				return true;
 			}
@@ -303,9 +303,9 @@ RendererPtr RendererManagerImpl::Impl::renderer_initialize(
 		return nullptr;
 	}
 
-	switch (param.renderer_path_)
+	switch (param.renderer_kind_)
 	{
-	case RendererPath::ogl_2_x:
+	case RendererKind::ogl_2_x:
 		if (ogl_2_x_renderer_.initialize(param))
 		{
 			return &ogl_2_x_renderer_;
@@ -358,7 +358,7 @@ void RendererManagerImpl::uninitialize()
 }
 
 bool RendererManagerImpl::renderer_probe(
-	const RendererPath& renderer_path)
+	const RendererKind& renderer_path)
 {
 	auto& impl = get_impl();
 

@@ -762,7 +762,7 @@ const std::string& Ogl2XRenderer::get_error_message() const
 
 RendererKind Ogl2XRenderer::get_kind() const
 {
-	return RendererKind::opengl;
+	return RendererKind::ogl_2_x;
 }
 
 const std::string& Ogl2XRenderer::get_name() const
@@ -803,7 +803,7 @@ bool Ogl2XRenderer::is_initialized() const
 bool Ogl2XRenderer::initialize(
 	const RendererInitializeParam& param)
 {
-	if (probe_.path_ == RendererPath::none)
+	if (probe_.kind_ == RendererKind::none)
 	{
 		uninitialize_internal();
 
@@ -832,16 +832,6 @@ bool Ogl2XRenderer::initialize(
 void Ogl2XRenderer::uninitialize()
 {
 	uninitialize_internal();
-}
-
-RendererPath Ogl2XRenderer::get_path() const
-{
-	if (!is_initialized_)
-	{
-		return RendererPath::none;
-	}
-
-	return RendererPath::ogl_2_x;
 }
 
 const RendererDeviceFeatures& Ogl2XRenderer::device_get_features() const
@@ -1459,7 +1449,7 @@ bool Ogl2XRenderer::probe_or_initialize(
 
 	if (!is_probe)
 	{
-		ogl_state_ = std::move(OglStateImplFactory::create(RendererPath::ogl_2_x));
+		ogl_state_ = std::move(OglStateImplFactory::create(RendererKind::ogl_2_x));
 
 		auto error_message = std::string{"Failed to initialize the state."};
 
@@ -1499,7 +1489,7 @@ bool Ogl2XRenderer::probe_or_initialize(
 
 	if (is_probe)
 	{
-		probe_.path_ = RendererPath::ogl_2_x;
+		probe_.kind_ = RendererKind::ogl_2_x;
 		probe_.device_features_ = device_features_;
 
 		uninitialize_internal();

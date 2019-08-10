@@ -1011,23 +1011,23 @@ const std::string& vid_to_string(
 }
 
 const std::string& vid_to_string(
-	const bstone::RendererPath renderer_kind)
+	const bstone::RendererKind renderer_kind)
 {
 	static const auto invalid_string = std::string{"?"};
 	static const auto ogl_2_x_string = std::string{"OpenGL 2.x"};
 
 	switch (renderer_kind)
 	{
-		case bstone::RendererPath::none:
+		case bstone::RendererKind::none:
 			return vid_get_none_value_string();
 
-		case bstone::RendererPath::auto_detect:
+		case bstone::RendererKind::auto_detect:
 			return vid_get_auto_detect_value_string();
 
-		case bstone::RendererPath::software:
+		case bstone::RendererKind::software:
 			return vid_get_software_value_string();
 
-		case bstone::RendererPath::ogl_2_x:
+		case bstone::RendererKind::ogl_2_x:
 			return ogl_2_x_string;
 
 
@@ -3021,7 +3021,7 @@ bool hw_shader_create(
 	auto param = bstone::RendererShader::CreateParam{};
 	param.kind_ = kind;
 
-	const auto renderer_kind = ::hw_renderer_->get_path();
+	const auto renderer_kind = ::hw_renderer_->get_kind();
 
 	switch (kind)
 	{
@@ -3461,7 +3461,7 @@ bool hw_renderer_initialize()
 	const auto& probe = ::hw_renderer_manager_->renderer_probe_get();
 
 	auto param = bstone::RendererInitializeParam{};
-	param.renderer_path_ = probe.path_;
+	param.renderer_kind_ = probe.kind_;
 
 	param.aa_kind_ = ::vid_configuration_.hw_aa_kind_;
 	param.aa_value_ = ::vid_configuration_.hw_aa_value_;
@@ -12531,7 +12531,7 @@ bool hw_video_initialize()
 		return false;
 	}
 
-	if (!hw_renderer_manager_->renderer_probe(bstone::RendererPath::auto_detect))
+	if (!hw_renderer_manager_->renderer_probe(bstone::RendererKind::auto_detect))
 	{
 		::vid_log_hw_renderer_manager_error("Failed to auto-detect compatible renderer.");
 
@@ -13491,18 +13491,18 @@ const std::string& vid_filter_to_string(
 }
 
 const std::string& vid_renderer_kind_to_string(
-	const bstone::RendererPath kind)
+	const bstone::RendererKind kind)
 {
 	switch (kind)
 	{
-		case bstone::RendererPath::auto_detect:
-		case bstone::RendererPath::none:
+		case bstone::RendererKind::auto_detect:
+		case bstone::RendererKind::none:
 			return vid_get_auto_detect_value_string();
 
-		case bstone::RendererPath::software:
+		case bstone::RendererKind::software:
 			return vid_get_software_value_string();
 
-		case bstone::RendererPath::ogl_2_x:
+		case bstone::RendererKind::ogl_2_x:
 			return vid_get_ogl_2_x_value_string();
 
 		default:
@@ -13518,15 +13518,15 @@ void vid_configuration_read_renderer_kind(
 	if (value_string == ::vid_get_none_value_string() ||
 		value_string == ::vid_get_auto_detect_value_string())
 	{
-		::vid_configuration_.renderer_kind_ = bstone::RendererPath::auto_detect;
+		::vid_configuration_.renderer_kind_ = bstone::RendererKind::auto_detect;
 	}
 	else if (value_string == ::vid_get_software_value_string())
 	{
-		::vid_configuration_.renderer_kind_ = bstone::RendererPath::software;
+		::vid_configuration_.renderer_kind_ = bstone::RendererKind::software;
 	}
 	else if (value_string == ::vid_get_ogl_2_x_value_string())
 	{
-		::vid_configuration_.renderer_kind_ = bstone::RendererPath::ogl_2_x;
+		::vid_configuration_.renderer_kind_ = bstone::RendererKind::ogl_2_x;
 	}
 }
 
@@ -13844,7 +13844,7 @@ void vid_write_renderer_kind_configuration(
 {
 	switch (::vid_configuration_.renderer_kind_)
 	{
-		case bstone::RendererPath::ogl_2_x:
+		case bstone::RendererKind::ogl_2_x:
 			::write_configuration_entry(
 				text_writer,
 				::vid_get_renderer_kind_key_name(),
@@ -13853,8 +13853,8 @@ void vid_write_renderer_kind_configuration(
 
 			break;
 
-		case bstone::RendererPath::auto_detect:
-		case bstone::RendererPath::none:
+		case bstone::RendererKind::auto_detect:
+		case bstone::RendererKind::none:
 		default:
 			::write_configuration_entry(
 				text_writer,
