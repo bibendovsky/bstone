@@ -51,7 +51,7 @@ RendererOglIndexBuffer::RendererOglIndexBuffer(
 void RendererOglIndexBuffer::update(
 	const RendererIndexBufferUpdateParam& param)
 {
-	auto buffer_param = RendererOglBuffer::UpdateParam{};
+	auto buffer_param = detail::OglBuffer::UpdateParam{};
 	buffer_param.offset_ = param.offset_;
 	buffer_param.size_ = param.size_;
 	buffer_param.data_ = param.data_;
@@ -76,9 +76,9 @@ bool RendererOglIndexBuffer::initialize(
 		return false;
 	}
 
-	auto ogl_buffer = RendererOglBufferUPtr{new RendererOglBuffer{}};
+	auto ogl_buffer = detail::OglBufferUPtr{new detail::OglBuffer{}};
 
-	auto buffer_param = RendererOglBuffer::InitializeParam{};
+	auto buffer_param = detail::OglBuffer::InitializeParam{};
 	buffer_param.kind_ = RendererBufferKind::index;
 	buffer_param.usage_kind_ = param.usage_kind_;
 	buffer_param.size_ = param.size_;

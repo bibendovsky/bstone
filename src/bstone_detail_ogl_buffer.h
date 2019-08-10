@@ -23,12 +23,12 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL buffer.
+// OpenGL buffer object.
 //
 
 
-#ifndef BSTONE_RENDERER_OGL_BUFFER_INCLUDED
-#define BSTONE_RENDERER_OGL_BUFFER_INCLUDED
+#ifndef BSTONE_DETAIL_OGL_BUFFER_INCLUDED
+#define BSTONE_DETAIL_OGL_BUFFER_INCLUDED
 
 
 #include "bstone_ogl_raii.h"
@@ -38,19 +38,23 @@ namespace bstone
 {
 
 
-// =========================================================================
-// RendererOglBuffer
-//
-
-class RendererOglBuffer;
-using RendererOglBufferPtr = RendererOglBuffer*;
-
-
 class OglStateImpl;
 using OglStateImplPtr = OglStateImpl*;
 
 
-class RendererOglBuffer final
+namespace detail
+{
+
+
+class OglBuffer;
+using OglBufferPtr = OglBuffer*;
+
+
+// =========================================================================
+// OglBuffer
+//
+
+class OglBuffer final
 {
 public:
 	struct InitializeParam
@@ -69,12 +73,12 @@ public:
 	}; // UpdateParam
 
 
-	RendererOglBuffer();
+	OglBuffer();
 
-	RendererOglBuffer(
-		const RendererOglBuffer& rhs) = delete;
+	OglBuffer(
+		const OglBuffer& rhs) = delete;
 
-	~RendererOglBuffer();
+	~OglBuffer();
 
 
 	RendererBufferKind get_kind() const noexcept;
@@ -126,23 +130,24 @@ private:
 
 
 	void bind(
-		RendererOglBufferPtr ogl_buffer);
+		OglBufferPtr ogl_buffer);
 
 	void unbind(
-		RendererOglBufferPtr ogl_buffer);
+		OglBufferPtr ogl_buffer);
 
 	void uninitialize();
-}; // RendererOglBuffer
+}; // OglBuffer
 
 
-using RendererOglBufferUPtr = std::unique_ptr<RendererOglBuffer>;
+using OglBufferUPtr = std::unique_ptr<OglBuffer>;
 
 //
-// RendererOglBuffer
+// OglBuffer
 // =========================================================================
 
 
+} // detail
 } // bstone
 
 
-#endif // !BSTONE_RENDERER_OGL_BUFFER_INCLUDED
+#endif // !BSTONE_DETAIL_OGL_BUFFER_INCLUDED

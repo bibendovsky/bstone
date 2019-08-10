@@ -31,7 +31,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_RENDERER_OGL_VERTEX_BUFFER_INCLUDED
 
 
-#include "bstone_renderer_ogl_buffer.h"
+#include "bstone_detail_ogl_buffer.h"
 #include "bstone_renderer_vertex_buffer_impl.h"
 
 
@@ -82,7 +82,7 @@ private:
 
 	std::string error_message_;
 
-	RendererOglBufferUPtr ogl_buffer_;
+	detail::OglBufferUPtr ogl_buffer_;
 }; // RendererOglVertexBuffer
 
 using RendererOglVertexBufferPtr = RendererOglVertexBuffer*;

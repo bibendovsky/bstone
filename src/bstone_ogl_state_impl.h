@@ -31,7 +31,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_OGL_STATE_IMPL_INCLUDED
 
 
-#include "bstone_renderer_ogl_buffer.h"
+#include "bstone_detail_ogl_buffer.h"
 
 
 namespace bstone
@@ -61,11 +61,11 @@ public:
 
 
 	virtual void buffer_bind(
-		const RendererOglBufferPtr buffer) = 0;
+		const detail::OglBufferPtr buffer) = 0;
 
 	virtual void buffer_unbind(
 		const RendererBufferKind target) = 0;
-}; // RendererOglBuffer
+}; // OglBuffer
 
 
 using OglStateImplPtr = OglStateImpl*;

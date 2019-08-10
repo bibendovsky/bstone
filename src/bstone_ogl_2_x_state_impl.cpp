@@ -30,7 +30,7 @@ Free Software Foundation, Inc.,
 #include "bstone_precompiled.h"
 #include "bstone_ogl_state_impl.h"
 #include "bstone_detail_ogl_renderer_utils.h"
-#include "bstone_renderer_ogl_buffer.h"
+#include "bstone_detail_ogl_buffer.h"
 
 
 namespace bstone
@@ -74,7 +74,7 @@ public:
 
 
 	void buffer_bind(
-		const RendererOglBufferPtr buffer) override;
+		const detail::OglBufferPtr buffer) override;
 
 	void buffer_unbind(
 		const RendererBufferKind target) override;
@@ -112,7 +112,7 @@ public:
 
 
 	void buffer_bind(
-		const RendererOglBufferPtr buffer) override;
+		const detail::OglBufferPtr buffer) override;
 
 	void buffer_unbind(
 		const RendererBufferKind target) override;
@@ -124,7 +124,7 @@ private:
 	static constexpr int vertex_buffer_target_index = 1;
 
 
-	using Targets = std::array<RendererOglBufferPtr, target_index_count>;
+	using Targets = std::array<detail::OglBufferPtr, target_index_count>;
 
 
 	bool is_initialized_;
@@ -141,7 +141,7 @@ private:
 	void bind_target(
 		const int target_index,
 		const GLenum ogl_target,
-		const RendererOglBufferPtr buffer);
+		const detail::OglBufferPtr buffer);
 }; // Ogl2XStateImpl
 
 using Ogl2XStateImplPtr = Ogl2XStateImpl*;
@@ -171,7 +171,7 @@ bool OglStateErrorImpl::is_initialized() const noexcept
 }
 
 void OglStateErrorImpl::buffer_bind(
-	const RendererOglBufferPtr buffer)
+	const detail::OglBufferPtr buffer)
 {
 	static_cast<void>(buffer);
 }
@@ -230,7 +230,7 @@ bool Ogl2XStateImpl::is_initialized() const noexcept
 }
 
 void Ogl2XStateImpl::buffer_bind(
-	const RendererOglBufferPtr buffer)
+	const detail::OglBufferPtr buffer)
 {
 	if (buffer == nullptr)
 	{
@@ -292,7 +292,7 @@ bool Ogl2XStateImpl::get_target(
 void Ogl2XStateImpl::bind_target(
 	const int target_index,
 	const GLenum ogl_target,
-	const RendererOglBufferPtr buffer)
+	const detail::OglBufferPtr buffer)
 {
 	if (targets_[target_index] == buffer)
 	{

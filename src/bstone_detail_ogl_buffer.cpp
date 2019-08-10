@@ -23,25 +23,27 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL buffer.
+// OpenGL buffer object.
 //
 
 
 #include "bstone_precompiled.h"
-#include "bstone_renderer_ogl_buffer.h"
+#include "bstone_detail_ogl_buffer.h"
 #include "bstone_detail_ogl_renderer_utils.h"
 #include "bstone_ogl_state_impl.h"
 
 
 namespace bstone
 {
+namespace detail
+{
 
 
 // =========================================================================
-// RendererOglBuffer
+// OglBuffer
 //
 
-RendererOglBuffer::RendererOglBuffer()
+OglBuffer::OglBuffer()
 	:
 	error_message_{},
 	kind_{},
@@ -52,37 +54,37 @@ RendererOglBuffer::RendererOglBuffer()
 {
 }
 
-RendererOglBuffer::~RendererOglBuffer()
+OglBuffer::~OglBuffer()
 {
 	uninitialize();
 }
 
-RendererBufferKind RendererOglBuffer::get_kind() const noexcept
+RendererBufferKind OglBuffer::get_kind() const noexcept
 {
 	return kind_;
 }
 
-RendererBufferUsageKind RendererOglBuffer::get_usage_kind() const noexcept
+RendererBufferUsageKind OglBuffer::get_usage_kind() const noexcept
 {
 	return usage_kind_;
 }
 
-int RendererOglBuffer::get_size() const noexcept
+int OglBuffer::get_size() const noexcept
 {
 	return size_;
 }
 
-void RendererOglBuffer::bind()
+void OglBuffer::bind()
 {
 	bind(this);
 }
 
-void RendererOglBuffer::unbind_target()
+void OglBuffer::unbind_target()
 {
 	bind(nullptr);
 }
 
-void RendererOglBuffer::update(
+void OglBuffer::update(
 	const UpdateParam& param)
 {
 	if (!validate_param(param))
@@ -107,12 +109,12 @@ void RendererOglBuffer::update(
 	assert(!detail::OglRendererUtils::was_errors());
 }
 
-const std::string& RendererOglBuffer::get_error_message() const
+const std::string& OglBuffer::get_error_message() const
 {
 	return error_message_;
 }
 
-bool RendererOglBuffer::initialize(
+bool OglBuffer::initialize(
 	const InitializeParam& param)
 {
 	if (!validate_param(param))
@@ -155,17 +157,17 @@ bool RendererOglBuffer::initialize(
 	return true;
 }
 
-bool RendererOglBuffer::is_initialized() const noexcept
+bool OglBuffer::is_initialized() const noexcept
 {
 	return ogl_name_raii_ != 0;
 }
 
-GLuint RendererOglBuffer::get_ogl_name() const noexcept
+GLuint OglBuffer::get_ogl_name() const noexcept
 {
 	return ogl_name_raii_;
 }
 
-bool RendererOglBuffer::validate_param(
+bool OglBuffer::validate_param(
 	const InitializeParam& param)
 {
 	switch (param.kind_)
@@ -217,7 +219,7 @@ bool RendererOglBuffer::validate_param(
 	return true;
 }
 
-bool RendererOglBuffer::validate_param(
+bool OglBuffer::validate_param(
 	const UpdateParam& param)
 {
 	if (param.offset_ < 0)
@@ -265,7 +267,7 @@ bool RendererOglBuffer::validate_param(
 	return true;
 }
 
-GLenum RendererOglBuffer::ogl_get_target(
+GLenum OglBuffer::ogl_get_target(
 	const RendererBufferKind kind)
 {
 	switch (kind)
@@ -283,7 +285,7 @@ GLenum RendererOglBuffer::ogl_get_target(
 	}
 }
 
-GLenum RendererOglBuffer::ogl_get_usage(
+GLenum OglBuffer::ogl_get_usage(
 	const RendererBufferUsageKind usage_kind)
 {
 	switch (usage_kind)
@@ -304,8 +306,8 @@ GLenum RendererOglBuffer::ogl_get_usage(
 	}
 }
 
-void RendererOglBuffer::bind(
-	RendererOglBufferPtr ogl_buffer)
+void OglBuffer::bind(
+	OglBufferPtr ogl_buffer)
 {
 	if (ogl_buffer)
 	{
@@ -317,7 +319,7 @@ void RendererOglBuffer::bind(
 	}
 }
 
-void RendererOglBuffer::uninitialize()
+void OglBuffer::uninitialize()
 {
 	if (!is_initialized())
 	{
@@ -334,8 +336,9 @@ void RendererOglBuffer::uninitialize()
 }
 
 //
-// RendererOglBuffer
+// OglBuffer
 // =========================================================================
 
 
+} // detail
 } // bstone

@@ -237,7 +237,7 @@ target_sources(
 		bstone_ps_fizzle_fx.h
 		bstone_renderer_index_buffer_impl.h
 		bstone_renderer_manager.h
-		bstone_renderer_ogl_buffer.h
+		bstone_detail_ogl_buffer.h
 		bstone_renderer_ogl_index_buffer.h
 		bstone_renderer_ogl_vertex_buffer.h
 		bstone_renderer_shader_registry.h
@@ -326,7 +326,7 @@ target_sources(
 		bstone_ps_fizzle_fx.cpp
 		bstone_renderer_impl.cpp
 		bstone_renderer_manager_impl.cpp
-		bstone_renderer_ogl_buffer.cpp
+		bstone_detail_ogl_buffer.cpp
 		bstone_renderer_ogl_index_buffer.cpp
 		bstone_renderer_ogl_vertex_buffer.cpp
 		bstone_renderer_shader_registry.cpp
