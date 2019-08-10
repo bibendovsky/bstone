@@ -29,12 +29,12 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_OLG_RENDERER_SHADER_STAGE_IMPL_INCLUDED
-#define BSTONE_DETAIL_OLG_RENDERER_SHADER_STAGE_IMPL_INCLUDED
+#ifndef BSTONE_DETAIL_OLG_SHADER_STAGE_INCLUDED
+#define BSTONE_DETAIL_OLG_SHADER_STAGE_INCLUDED
 
 
-#include "bstone_detail_ogl_renderer_shader_impl.h"
-#include "bstone_detail_ogl_renderer_shader_variable_impl.h"
+#include "bstone_detail_ogl_shader.h"
+#include "bstone_detail_ogl_shader_variable.h"
 
 
 namespace bstone
@@ -43,23 +43,23 @@ namespace detail
 {
 
 
-class OglRendererShaderStageImpl;
-using OglRendererShaderStageImplPtr = OglRendererShaderStageImpl*;
+class OglShaderStage;
+using OglShaderStagePtr = OglShaderStage*;
 
 
-class OglRendererShaderStageImpl final :
+class OglShaderStage final :
 	public RendererShaderStage
 {
 public:
-	OglRendererShaderStageImpl();
+	OglShaderStage();
 
-	OglRendererShaderStageImpl(
-		const OglRendererShaderStageImpl& rhs) = delete;
+	OglShaderStage(
+		const OglShaderStage& rhs) = delete;
 
-	OglRendererShaderStageImpl(
-		OglRendererShaderStageImpl&& rhs) = default;
+	OglShaderStage(
+		OglShaderStage&& rhs) = default;
 
-	~OglRendererShaderStageImpl() override;
+	~OglShaderStage() override;
 
 
 	bool is_initialized() const override;
@@ -91,7 +91,7 @@ public:
 
 
 	void initialize(
-		OglRendererShaderStageImplPtr* current_shader_stage_ptr,
+		OglShaderStagePtr* current_shader_stage_ptr,
 		const RendererShaderStage::CreateParam& param);
 
 	void detach_fragment_shader();
@@ -106,15 +106,15 @@ private:
 
 
 	using NameBuffer = std::vector<char>;
-	using ShaderVariables = std::vector<OglRendererShaderVariableImpl>;
+	using ShaderVariables = std::vector<OglShaderVariable>;
 
 
 	bool is_initialized_;
 	std::string error_message_;
 
-	OglRendererShaderStageImplPtr* current_shader_stage_ptr_;
-	OglRendererShaderImplPtr fragment_shader_;
-	OglRendererShaderImplPtr vertex_shader_;
+	OglShaderStagePtr* current_shader_stage_ptr_;
+	OglShaderPtr fragment_shader_;
+	OglShaderPtr vertex_shader_;
 	OglProgramRaii ogl_name_raii_;
 	ShaderVariables shader_variables_;
 
@@ -144,14 +144,14 @@ private:
 	bool check_input_bindings(
 		const InputBindings& input_bindings,
 		const ShaderVariables& variables);
-}; // OglRendererShaderStageImpl
+}; // OglShaderStage
 
-using OglRendererShaderStageImplPtr = OglRendererShaderStageImpl*;
-using OglRendererShaderStageImplUPtr = std::unique_ptr<OglRendererShaderStageImpl>;
+using OglShaderStagePtr = OglShaderStage*;
+using OglShaderStageUPtr = std::unique_ptr<OglShaderStage>;
 
 
 } // detail
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_OLG_RENDERER_SHADER_STAGE_IMPL_INCLUDED
+#endif // !BSTONE_DETAIL_OLG_SHADER_STAGE_INCLUDED

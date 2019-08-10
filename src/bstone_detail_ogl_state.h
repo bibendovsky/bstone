@@ -23,12 +23,12 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL state implementation.
+// OpenGL state (implementation interface).
 //
 
 
-#ifndef BSTONE_OGL_STATE_IMPL_INCLUDED
-#define BSTONE_OGL_STATE_IMPL_INCLUDED
+#ifndef BSTONE_DETAIL_OGL_STATE_INCLUDED
+#define BSTONE_DETAIL_OGL_STATE_INCLUDED
 
 
 #include "bstone_detail_ogl_buffer.h"
@@ -36,21 +36,23 @@ Free Software Foundation, Inc.,
 
 namespace bstone
 {
+namespace detail
+{
 
 
 // =========================================================================
-// OglStateImpl
+// OglState
 //
 
-class OglStateImpl
+class OglState
 {
 public:
-	OglStateImpl();
+	OglState();
 
-	OglStateImpl(
-		const OglStateImpl& rhs) = delete;
+	OglState(
+		const OglState& rhs) = delete;
 
-	virtual ~OglStateImpl() = 0;
+	virtual ~OglState() = 0;
 
 
 	virtual const std::string& get_error_message() const noexcept = 0;
@@ -68,11 +70,11 @@ public:
 }; // OglBuffer
 
 
-using OglStateImplPtr = OglStateImpl*;
-using OglStateImplUPtr = std::unique_ptr<OglStateImpl>;
+using OglStatePtr = OglState*;
+using OglStateUPtr = std::unique_ptr<OglState>;
 
 //
-// OglStateImpl
+// OglState
 // =========================================================================
 
 
@@ -83,7 +85,7 @@ using OglStateImplUPtr = std::unique_ptr<OglStateImpl>;
 
 struct OglStateImplFactory
 {
-	static OglStateImplUPtr create(
+	static OglStateUPtr create(
 		const RendererKind renderer_kind);
 }; // OglStateImplFactory
 
@@ -93,7 +95,8 @@ struct OglStateImplFactory
 // =========================================================================
 
 
+} // detail
 } // bstone
 
 
-#endif // !BSTONE_OGL_STATE_IMPL_INCLUDED
+#endif // !BSTONE_DETAIL_OGL_STATE_INCLUDED

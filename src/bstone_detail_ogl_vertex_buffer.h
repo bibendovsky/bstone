@@ -39,14 +39,12 @@ Free Software Foundation, Inc.,
 
 namespace bstone
 {
-
-
-class OglStateImpl;
-using OglStateImplPtr = OglStateImpl*;
-
-
 namespace detail
 {
+
+
+class OglState;
+using OglStatePtr = OglState*;
 
 
 // ==========================================================================
@@ -58,7 +56,7 @@ class OglVertexBuffer :
 {
 public:
 	OglVertexBuffer(
-		const OglStateImplPtr ogl_state);
+		const OglStatePtr ogl_state);
 
 	OglVertexBuffer(
 		const OglVertexBuffer& rhs) = delete;
@@ -84,7 +82,7 @@ public:
 
 
 private:
-	OglStateImplPtr ogl_state_;
+	OglStatePtr ogl_state_;
 
 	std::string error_message_;
 

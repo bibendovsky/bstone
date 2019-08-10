@@ -45,7 +45,7 @@ namespace detail
 //
 
 OglIndexBuffer::OglIndexBuffer(
-	const OglStateImplPtr ogl_state)
+	const OglStatePtr ogl_state)
 	:
 	ogl_state_{ogl_state}
 {

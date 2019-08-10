@@ -37,12 +37,12 @@ Free Software Foundation, Inc.,
 #include <list>
 #include <vector>
 #include "bstone_detail_ogl_extension_manager.h"
-#include "bstone_detail_ogl_renderer_shader_impl.h"
-#include "bstone_detail_ogl_renderer_shader_stage_impl.h"
+#include "bstone_detail_ogl_shader.h"
+#include "bstone_detail_ogl_shader_stage.h"
 #include "bstone_detail_ogl_renderer_utils.h"
 #include "bstone_detail_ogl_index_buffer.h"
 #include "bstone_detail_ogl_vertex_buffer.h"
-#include "bstone_ogl_state_impl.h"
+#include "bstone_detail_ogl_state.h"
 
 
 namespace bstone
@@ -201,8 +201,8 @@ private:
 	using IndexBuffers = std::list<IndexBufferImplUPtr>;
 	using VertexBuffers = std::list<VertexBufferImplUPtr>;
 
-	using Shaders = std::list<detail::OglRendererShaderImplUPtr>;
-	using ShaderStages = std::list<detail::OglRendererShaderStageImplUPtr>;
+	using Shaders = std::list<detail::OglShaderUPtr>;
+	using ShaderStages = std::list<detail::OglShaderStageUPtr>;
 
 	using VertexInputEnabledLocations = std::vector<bool>;
 
@@ -371,7 +371,7 @@ private:
 	SdlGlContextUPtr sdl_gl_context_;
 
 	OglExtensionManagerUPtr extension_manager_;
-	OglStateImplUPtr ogl_state_;
+	OglStateUPtr ogl_state_;
 
 	RendererDeviceInfo device_info_;
 	RendererDeviceFeatures device_features_;
@@ -439,7 +439,7 @@ private:
 	Shaders shaders_;
 
 	ShaderStages shader_stages_;
-	OglRendererShaderStageImplPtr current_shader_stage_;
+	OglShaderStagePtr current_shader_stage_;
 
 
 	bool probe_or_initialize(

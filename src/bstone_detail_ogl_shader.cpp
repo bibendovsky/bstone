@@ -30,8 +30,8 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_precompiled.h"
-#include "bstone_detail_ogl_renderer_shader_impl.h"
-#include "bstone_detail_ogl_renderer_shader_stage_impl.h"
+#include "bstone_detail_ogl_shader.h"
+#include "bstone_detail_ogl_shader_stage.h"
 #include "bstone_detail_ogl_renderer_utils.h"
 
 
@@ -41,7 +41,7 @@ namespace detail
 {
 
 
-OglRendererShaderImpl::OglRendererShaderImpl()
+OglShader::OglShader()
 	:
 	error_message_{},
 	kind_{},
@@ -50,7 +50,7 @@ OglRendererShaderImpl::OglRendererShaderImpl()
 {
 }
 
-OglRendererShaderImpl::~OglRendererShaderImpl()
+OglShader::~OglShader()
 {
 	if (shader_stage_ == nullptr)
 	{
@@ -74,22 +74,22 @@ OglRendererShaderImpl::~OglRendererShaderImpl()
 	}
 }
 
-bool OglRendererShaderImpl::is_initialized() const
+bool OglShader::is_initialized() const
 {
 	return ogl_name_raii_ != 0;
 }
 
-const std::string& OglRendererShaderImpl::get_error_message() const
+const std::string& OglShader::get_error_message() const
 {
 	return error_message_;
 }
 
-RendererShader::Kind OglRendererShaderImpl::get_kind() const
+RendererShader::Kind OglShader::get_kind() const
 {
 	return kind_;
 }
 
-void OglRendererShaderImpl::initialize(
+void OglShader::initialize(
 	const RendererShader::CreateParam& param)
 {
 	if (!validate_param(param))
@@ -148,18 +148,18 @@ void OglRendererShaderImpl::initialize(
 	ogl_name_raii_ = std::move(ogl_name_raii);
 }
 
-GLuint OglRendererShaderImpl::get_ogl_name() const
+GLuint OglShader::get_ogl_name() const
 {
 	return ogl_name_raii_;
 }
 
-void OglRendererShaderImpl::attach_to_shader_stage(
-	const OglRendererShaderStageImplPtr shader_stage)
+void OglShader::attach_to_shader_stage(
+	const OglShaderStagePtr shader_stage)
 {
 	shader_stage_ = shader_stage;
 }
 
-GLenum OglRendererShaderImpl::get_ogl_kind(
+GLenum OglShader::get_ogl_kind(
 	const Kind kind)
 {
 	switch (kind)
@@ -177,7 +177,7 @@ GLenum OglRendererShaderImpl::get_ogl_kind(
 	}
 }
 
-bool OglRendererShaderImpl::validate_param(
+bool OglShader::validate_param(
 	const RendererShader::CreateParam& param)
 {
 	switch (param.kind_)

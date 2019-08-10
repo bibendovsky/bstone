@@ -32,7 +32,7 @@ Free Software Foundation, Inc.,
 #include "bstone_precompiled.h"
 #include "bstone_detail_ogl_buffer.h"
 #include "bstone_detail_ogl_renderer_utils.h"
-#include "bstone_ogl_state_impl.h"
+#include "bstone_detail_ogl_state.h"
 
 
 namespace bstone

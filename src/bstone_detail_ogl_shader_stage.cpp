@@ -31,8 +31,8 @@ Free Software Foundation, Inc.,
 
 #include "bstone_precompiled.h"
 #include <unordered_set>
-#include "bstone_detail_ogl_renderer_shader_stage_impl.h"
-#include "bstone_detail_ogl_renderer_shader_impl.h"
+#include "bstone_detail_ogl_shader_stage.h"
+#include "bstone_detail_ogl_shader.h"
 #include "bstone_detail_ogl_renderer_utils.h"
 
 
@@ -42,7 +42,7 @@ namespace detail
 {
 
 
-class OglRendererShaderStageImpl::Detail
+class OglShaderStage::Detail
 {
 public:
 	static RendererShaderVariablePtr find_variable(
@@ -118,7 +118,7 @@ public:
 }; // Detail
 
 
-OglRendererShaderStageImpl::OglRendererShaderStageImpl()
+OglShaderStage::OglShaderStage()
 	:
 	is_initialized_{},
 	error_message_{},
@@ -130,7 +130,7 @@ OglRendererShaderStageImpl::OglRendererShaderStageImpl()
 {
 }
 
-OglRendererShaderStageImpl::~OglRendererShaderStageImpl()
+OglShaderStage::~OglShaderStage()
 {
 	if (fragment_shader_ != nullptr)
 	{
@@ -143,17 +143,17 @@ OglRendererShaderStageImpl::~OglRendererShaderStageImpl()
 	}
 }
 
-bool OglRendererShaderStageImpl::is_initialized() const
+bool OglShaderStage::is_initialized() const
 {
 	return is_initialized_;
 }
 
-const std::string& OglRendererShaderStageImpl::get_error_message() const
+const std::string& OglShaderStage::get_error_message() const
 {
 	return error_message_;
 }
 
-void OglRendererShaderStageImpl::set_current()
+void OglShaderStage::set_current()
 {
 	if (!is_initialized_)
 	{
@@ -175,7 +175,7 @@ void OglRendererShaderStageImpl::set_current()
 	assert(!OglRendererUtils::was_errors());
 }
 
-RendererShaderVariablePtr OglRendererShaderStageImpl::find_variable(
+RendererShaderVariablePtr OglShaderStage::find_variable(
 	const std::string& name)
 {
 	if (!is_initialized_)
@@ -186,7 +186,7 @@ RendererShaderVariablePtr OglRendererShaderStageImpl::find_variable(
 	return Detail::find_variable(name, shader_variables_);
 }
 
-RendererShaderVariableInt32Ptr OglRendererShaderStageImpl::find_variable_int32(
+RendererShaderVariableInt32Ptr OglShaderStage::find_variable_int32(
 	const std::string& name)
 {
 	if (!is_initialized_)
@@ -201,7 +201,7 @@ RendererShaderVariableInt32Ptr OglRendererShaderStageImpl::find_variable_int32(
 	);
 }
 
-RendererShaderVariableFloat32Ptr OglRendererShaderStageImpl::find_variable_float32(
+RendererShaderVariableFloat32Ptr OglShaderStage::find_variable_float32(
 	const std::string& name)
 {
 	if (!is_initialized_)
@@ -216,7 +216,7 @@ RendererShaderVariableFloat32Ptr OglRendererShaderStageImpl::find_variable_float
 	);
 }
 
-RendererShaderVariableVec2Ptr OglRendererShaderStageImpl::find_variable_vec2(
+RendererShaderVariableVec2Ptr OglShaderStage::find_variable_vec2(
 	const std::string& name)
 {
 	if (!is_initialized_)
@@ -231,7 +231,7 @@ RendererShaderVariableVec2Ptr OglRendererShaderStageImpl::find_variable_vec2(
 	);
 }
 
-RendererShaderVariableVec4Ptr OglRendererShaderStageImpl::find_variable_vec4(
+RendererShaderVariableVec4Ptr OglShaderStage::find_variable_vec4(
 	const std::string& name)
 {
 	if (!is_initialized_)
@@ -246,7 +246,7 @@ RendererShaderVariableVec4Ptr OglRendererShaderStageImpl::find_variable_vec4(
 	);
 }
 
-RendererShaderVariableMat4Ptr OglRendererShaderStageImpl::find_variable_mat4(
+RendererShaderVariableMat4Ptr OglShaderStage::find_variable_mat4(
 	const std::string& name)
 {
 	if (!is_initialized_)
@@ -261,7 +261,7 @@ RendererShaderVariableMat4Ptr OglRendererShaderStageImpl::find_variable_mat4(
 	);
 }
 
-RendererShaderVariableSampler2dPtr OglRendererShaderStageImpl::find_variable_sampler_2d(
+RendererShaderVariableSampler2dPtr OglShaderStage::find_variable_sampler_2d(
 	const std::string& name)
 {
 	if (!is_initialized_)
@@ -276,8 +276,8 @@ RendererShaderVariableSampler2dPtr OglRendererShaderStageImpl::find_variable_sam
 	);
 }
 
-void OglRendererShaderStageImpl::initialize(
-	OglRendererShaderStageImplPtr* current_shader_stage_ptr,
+void OglShaderStage::initialize(
+	OglShaderStagePtr* current_shader_stage_ptr,
 	const RendererShaderStage::CreateParam& param)
 {
 	if (current_shader_stage_ptr == nullptr)
@@ -303,11 +303,11 @@ void OglRendererShaderStageImpl::initialize(
 		return;
 	}
 
-	const auto fragment_shader = static_cast<OglRendererShaderImplPtr>(param.fragment_shader_);
+	const auto fragment_shader = static_cast<OglShaderPtr>(param.fragment_shader_);
 	::glAttachShader(ogl_name_raii, fragment_shader->get_ogl_name());
 	assert(!detail::OglRendererUtils::was_errors());
 
-	const auto vertex_shader = static_cast<OglRendererShaderImplPtr>(param.vertex_shader_);
+	const auto vertex_shader = static_cast<OglShaderPtr>(param.vertex_shader_);
 	::glAttachShader(ogl_name_raii, vertex_shader->get_ogl_name());
 	assert(!detail::OglRendererUtils::was_errors());
 
@@ -357,31 +357,31 @@ void OglRendererShaderStageImpl::initialize(
 	}
 
 	is_initialized_ = true;
-	fragment_shader_ = static_cast<OglRendererShaderImplPtr>(param.fragment_shader_);
-	vertex_shader_ = static_cast<OglRendererShaderImplPtr>(param.vertex_shader_);
+	fragment_shader_ = static_cast<OglShaderPtr>(param.fragment_shader_);
+	vertex_shader_ = static_cast<OglShaderPtr>(param.vertex_shader_);
 	ogl_name_raii_ = std::move(ogl_name_raii);
 	shader_variables_ = std::move(shader_variables);
 }
 
-void OglRendererShaderStageImpl::detach_fragment_shader()
+void OglShaderStage::detach_fragment_shader()
 {
 	is_initialized_ = false;
 	fragment_shader_ = nullptr;
 }
 
-void OglRendererShaderStageImpl::detach_vertex_shader()
+void OglShaderStage::detach_vertex_shader()
 {
 	is_initialized_ = false;
 	vertex_shader_ = nullptr;
 }
 
-void OglRendererShaderStageImpl::unset_current()
+void OglShaderStage::unset_current()
 {
 	::glUseProgram(0);
 	assert(!detail::OglRendererUtils::was_errors());
 }
 
-bool OglRendererShaderStageImpl::validate_shader(
+bool OglShaderStage::validate_shader(
 	const RendererShader::Kind shader_kind,
 	const RendererShaderPtr shader)
 {
@@ -409,7 +409,7 @@ bool OglRendererShaderStageImpl::validate_shader(
 	return true;
 }
 
-bool OglRendererShaderStageImpl::validate_input_bindings(
+bool OglShaderStage::validate_input_bindings(
 	const InputBindings& input_bindings)
 {
 	if (input_bindings.empty())
@@ -490,7 +490,7 @@ bool OglRendererShaderStageImpl::validate_input_bindings(
 	return true;
 }
 
-bool OglRendererShaderStageImpl::validate_param(
+bool OglShaderStage::validate_param(
 	const RendererShaderStage::CreateParam& param)
 {
 	if (!validate_shader(RendererShader::Kind::fragment, param.fragment_shader_))
@@ -511,7 +511,7 @@ bool OglRendererShaderStageImpl::validate_param(
 	return true;
 }
 
-void OglRendererShaderStageImpl::set_input_bindings(
+void OglShaderStage::set_input_bindings(
 	const GLuint ogl_name,
 	const InputBindings& input_bindings)
 {
@@ -522,7 +522,7 @@ void OglRendererShaderStageImpl::set_input_bindings(
 	}
 }
 
-int OglRendererShaderStageImpl::get_variable_count(
+int OglShaderStage::get_variable_count(
 	const GLuint ogl_name)
 {
 	auto ogl_vertex_attribute_count = GLint{};
@@ -538,7 +538,7 @@ int OglRendererShaderStageImpl::get_variable_count(
 	return result;
 }
 
-bool OglRendererShaderStageImpl::get_variables(
+bool OglShaderStage::get_variables(
 	const RendererShaderVariable::Kind kind,
 	const GLuint ogl_name,
 	ShaderVariables& shader_variables)
@@ -606,7 +606,7 @@ bool OglRendererShaderStageImpl::get_variables(
 		auto ogl_length = GLsizei{};
 		auto ogl_size = GLint{};
 		auto ogl_type = GLenum{};
-		auto variable = OglRendererShaderVariableImpl{};
+		auto variable = OglShaderVariable{};
 
 		ogl_info_function(
 			ogl_name,
@@ -702,7 +702,7 @@ bool OglRendererShaderStageImpl::get_variables(
 
 		const auto new_kind = (is_sampler ? RendererShaderVariable::Kind::sampler : kind);
 		const auto index = static_cast<int>(shader_variables.size());
-		const auto unit_size = OglRendererShaderVariableImpl::get_unit_size(unit_type_id);
+		const auto unit_size = OglShaderVariable::get_unit_size(unit_type_id);
 		const auto value_size = unit_count * unit_size;
 
 		auto name = std::string{};
@@ -723,7 +723,7 @@ bool OglRendererShaderStageImpl::get_variables(
 	return true;
 }
 
-bool OglRendererShaderStageImpl::check_input_bindings(
+bool OglShaderStage::check_input_bindings(
 	const InputBindings& input_bindings,
 	const ShaderVariables& shader_variables)
 {

@@ -29,8 +29,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_OLG_RENDERER_SHADER_VARIABLE_IMPL_INCLUDED
-#define BSTONE_DETAIL_OLG_RENDERER_SHADER_VARIABLE_IMPL_INCLUDED
+#ifndef BSTONE_DETAIL_OLG_SHADER_VARIABLE_INCLUDED
+#define BSTONE_DETAIL_OLG_SHADER_VARIABLE_INCLUDED
 
 
 #include "bstone_ogl.h"
@@ -43,11 +43,11 @@ namespace detail
 {
 
 
-class OglRendererShaderStageImpl;
-using OglRendererShaderStageImplPtr = OglRendererShaderStageImpl*;
+class OglShaderStage;
+using OglShaderStagePtr = OglShaderStage*;
 
 
-class OglRendererShaderVariableImpl :
+class OglShaderVariable :
 	public virtual RendererShaderVariableInt32,
 	public virtual RendererShaderVariableFloat32,
 	public virtual RendererShaderVariableVec2,
@@ -62,12 +62,12 @@ public:
 	std::string name_;
 	int input_index_;
 	GLint ogl_location_;
-	OglRendererShaderStageImplPtr shader_stage_;
+	OglShaderStagePtr shader_stage_;
 
 
-	OglRendererShaderVariableImpl();
+	OglShaderVariable();
 
-	~OglRendererShaderVariableImpl() override;
+	~OglShaderVariable() override;
 
 
 	Kind get_kind() const override;
@@ -108,14 +108,14 @@ private:
 
 	void set_value(
 		const void* const value_data);
-}; // OglRendererShaderVariableImpl
+}; // OglShaderVariable
 
-using VariableImplPtr = OglRendererShaderVariableImpl*;
-using VariableImplUPtr = std::unique_ptr<OglRendererShaderVariableImpl>;
+using OglShaderVariablePtr = OglShaderVariable*;
+using OglShaderVariableUPtr = std::unique_ptr<OglShaderVariable>;
 
 
 } // detail
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_OLG_RENDERER_SHADER_VARIABLE_IMPL_INCLUDED
+#endif // !BSTONE_DETAIL_OLG_SHADER_VARIABLE_INCLUDED

@@ -23,14 +23,14 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL shader (implementation).
+// OpenGL shader object (implementation).
 //
 // !!! Internal usage only. !!!
 //
 
 
-#ifndef BSTONE_DETAIL_OLG_RENDERER_SHADER_IMPL_INCLUDED
-#define BSTONE_DETAIL_OLG_RENDERER_SHADER_IMPL_INCLUDED
+#ifndef BSTONE_DETAIL_OLG_SHADER_INCLUDED
+#define BSTONE_DETAIL_OLG_SHADER_INCLUDED
 
 
 #include "bstone_renderer.h"
@@ -43,23 +43,23 @@ namespace detail
 {
 
 
-class OglRendererShaderStageImpl;
-using OglRendererShaderStageImplPtr = OglRendererShaderStageImpl*;
+class OglShaderStage;
+using OglShaderStagePtr = OglShaderStage*;
 
 
-class OglRendererShaderImpl final :
+class OglShader final :
 	public RendererShader
 {
 public:
-	OglRendererShaderImpl();
+	OglShader();
 
-	OglRendererShaderImpl(
-		const OglRendererShaderImpl& rhs) = delete;
+	OglShader(
+		const OglShader& rhs) = delete;
 
-	OglRendererShaderImpl(
-		OglRendererShaderImpl&& rhs) = default;
+	OglShader(
+		OglShader&& rhs) = default;
 
-	~OglRendererShaderImpl() override;
+	~OglShader() override;
 
 
 	bool is_initialized() const override;
@@ -75,7 +75,7 @@ public:
 	GLuint get_ogl_name() const;
 
 	void attach_to_shader_stage(
-		const OglRendererShaderStageImplPtr shader_stage);
+		const OglShaderStagePtr shader_stage);
 
 
 private:
@@ -83,7 +83,7 @@ private:
 
 	Kind kind_;
 	OglShaderRaii ogl_name_raii_;
-	OglRendererShaderStageImplPtr shader_stage_;
+	OglShaderStagePtr shader_stage_;
 
 
 	GLenum get_ogl_kind(
@@ -91,14 +91,14 @@ private:
 
 	bool validate_param(
 		const RendererShader::CreateParam& param);
-}; // OglRendererShaderImpl
+}; // OglShader
 
-using OglRendererShaderImplPtr = OglRendererShaderImpl*;
-using OglRendererShaderImplUPtr = std::unique_ptr<OglRendererShaderImpl>;
+using OglShaderPtr = OglShader*;
+using OglShaderUPtr = std::unique_ptr<OglShader>;
 
 
 } // detail
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_OLG_RENDERER_SHADER_IMPL_INCLUDED
+#endif // !BSTONE_DETAIL_OLG_SHADER_INCLUDED

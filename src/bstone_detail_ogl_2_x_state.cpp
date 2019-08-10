@@ -28,25 +28,27 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_precompiled.h"
-#include "bstone_ogl_state_impl.h"
+#include "bstone_detail_ogl_state.h"
 #include "bstone_detail_ogl_renderer_utils.h"
 #include "bstone_detail_ogl_buffer.h"
 
 
 namespace bstone
 {
+namespace detail
+{
 
 
 // ==========================================================================
-// OglStateImpl
+// OglState
 //
 
-OglStateImpl::OglStateImpl() = default;
+OglState::OglState() = default;
 
-OglStateImpl::~OglStateImpl() = default;
+OglState::~OglState() = default;
 
 //
-// OglStateImpl
+// OglState
 // ==========================================================================
 
 
@@ -55,7 +57,7 @@ OglStateImpl::~OglStateImpl() = default;
 //
 
 class OglStateErrorImpl final :
-	public OglStateImpl
+	public OglState
 {
 public:
 	std::string error_message_;
@@ -93,7 +95,7 @@ using OglStateErrorImplUPtr = std::unique_ptr<OglStateErrorImpl>;
 //
 
 class Ogl2XStateImpl :
-	public OglStateImpl
+	public OglState
 {
 public:
 	Ogl2XStateImpl();
@@ -327,7 +329,7 @@ void Ogl2XStateImpl::bind_target(
 // OglStateImplFactory
 //
 
-OglStateImplUPtr OglStateImplFactory::create(
+OglStateUPtr OglStateImplFactory::create(
 	const RendererKind renderer_kind)
 {
 	switch (renderer_kind)
@@ -361,4 +363,5 @@ OglStateImplUPtr OglStateImplFactory::create(
 // =========================================================================
 
 
+} // detail
 } // bstone

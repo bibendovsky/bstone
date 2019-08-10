@@ -30,9 +30,9 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_precompiled.h"
-#include "bstone_detail_ogl_renderer_shader_variable_impl.h"
+#include "bstone_detail_ogl_shader_variable.h"
 #include "glm/gtc/type_ptr.hpp"
-#include "bstone_detail_ogl_renderer_shader_stage_impl.h"
+#include "bstone_detail_ogl_shader_stage.h"
 
 
 namespace bstone
@@ -41,66 +41,66 @@ namespace detail
 {
 
 
-OglRendererShaderVariableImpl::OglRendererShaderVariableImpl() = default;
+OglShaderVariable::OglShaderVariable() = default;
 
-OglRendererShaderVariableImpl::~OglRendererShaderVariableImpl() = default;
+OglShaderVariable::~OglShaderVariable() = default;
 
-RendererShaderVariable::Kind OglRendererShaderVariableImpl::get_kind() const
+RendererShaderVariable::Kind OglShaderVariable::get_kind() const
 {
 	return kind_;
 }
 
-RendererShaderVariable::TypeId OglRendererShaderVariableImpl::get_type_id() const
+RendererShaderVariable::TypeId OglShaderVariable::get_type_id() const
 {
 	return type_id_;
 }
 
-int OglRendererShaderVariableImpl::get_index() const
+int OglShaderVariable::get_index() const
 {
 	return index_;
 }
 
-const std::string& OglRendererShaderVariableImpl::get_name() const
+const std::string& OglShaderVariable::get_name() const
 {
 	return name_;
 }
 
-int OglRendererShaderVariableImpl::get_input_index() const
+int OglShaderVariable::get_input_index() const
 {
 	return input_index_;
 }
 
-void OglRendererShaderVariableImpl::set_value(
+void OglShaderVariable::set_value(
 	const std::int32_t value)
 {
 	set_value(RendererShaderVariable::TypeId::int32, &value);
 }
 
-void OglRendererShaderVariableImpl::set_value(
+void OglShaderVariable::set_value(
 	const float value)
 {
 	set_value(RendererShaderVariable::TypeId::float32, &value);
 }
 
-void OglRendererShaderVariableImpl::set_value(
+void OglShaderVariable::set_value(
 	const glm::vec2& value)
 {
 	set_value(RendererShaderVariable::TypeId::vec2, &value);
 }
 
-void OglRendererShaderVariableImpl::set_value(
+void OglShaderVariable::set_value(
 	const glm::vec4& value)
 {
 	set_value(RendererShaderVariable::TypeId::vec4, &value);
 }
 
-void OglRendererShaderVariableImpl::set_value(
+void OglShaderVariable::set_value(
 	const glm::mat4& value)
 {
 	set_value(RendererShaderVariable::TypeId::mat4, &value);
 }
 
-int OglRendererShaderVariableImpl::get_unit_size(
+int OglShaderVariable::get_unit_size(
 	const TypeId type_id)
 {
 	switch (type_id)
@@ -129,7 +129,7 @@ int OglRendererShaderVariableImpl::get_unit_size(
 	}
 }
 
-void OglRendererShaderVariableImpl::set_value(
+void OglShaderVariable::set_value(
 	const TypeId type_id,
 	const void* const value_data)
 {
@@ -173,7 +173,7 @@ void OglRendererShaderVariableImpl::set_value(
 	set_value(value_data);
 }
 
-void OglRendererShaderVariableImpl::set_value(
+void OglShaderVariable::set_value(
 	const void* const value_data)
 {
 	switch (type_id_)

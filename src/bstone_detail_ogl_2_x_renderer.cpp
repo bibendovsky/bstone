@@ -1106,7 +1106,7 @@ void Ogl2XRenderer::vertex_input_destroy(
 RendererShaderPtr Ogl2XRenderer::shader_create(
 	const RendererShader::CreateParam& param)
 {
-	auto shader = detail::OglRendererShaderImplUPtr{new detail::OglRendererShaderImpl{}};
+	auto shader = detail::OglShaderUPtr{new detail::OglShader{}};
 
 	shader->initialize(param);
 
@@ -1142,7 +1142,7 @@ void Ogl2XRenderer::shader_destroy(
 RendererShaderStagePtr Ogl2XRenderer::shader_stage_create(
 	const RendererShaderStage::CreateParam& param)
 {
-	auto shader_stage = detail::OglRendererShaderStageImplUPtr{new detail::OglRendererShaderStageImpl{}};
+	auto shader_stage = detail::OglShaderStageUPtr{new detail::OglShaderStage{}};
 
 	shader_stage->initialize(&current_shader_stage_, param);
 
@@ -2696,7 +2696,7 @@ void Ogl2XRenderer::command_execute_shader_stage(
 	}
 	else
 	{
-		OglRendererShaderStageImpl::unset_current();
+		OglShaderStage::unset_current();
 	}
 }
 

@@ -38,15 +38,12 @@ Free Software Foundation, Inc.,
 
 namespace bstone
 {
-
-
-class OglStateImpl;
-using OglStateImplPtr = OglStateImpl*;
-
-
 namespace detail
 {
 
+
+class OglState;
+using OglStatePtr = OglState*;
 
 class OglBuffer;
 using OglBufferPtr = OglBuffer*;
@@ -64,7 +61,7 @@ public:
 		RendererBufferKind kind_;
 		RendererBufferUsageKind usage_kind_;
 		int size_;
-		OglStateImplPtr ogl_state_;
+		OglStatePtr ogl_state_;
 	}; // InitializeParam
 
 	struct UpdateParam
@@ -115,7 +112,7 @@ private:
 	int size_;
 	OglBufferRaii ogl_name_raii_;
 	GLenum ogl_target_;
-	OglStateImplPtr ogl_state_;
+	OglStatePtr ogl_state_;
 
 
 	bool validate_param(
