@@ -336,7 +336,7 @@ target_sources(
 		bstone_detail_ogl_shader_stage.cpp
 		bstone_detail_ogl_shader_variable.cpp
 		bstone_detail_ogl_renderer_utils.cpp
-		bstone_detail_ogl_2_x_state.cpp
+		bstone_detail_ogl_state.cpp
 		bstone_detail_ogl_buffer.cpp
 		bstone_detail_ogl_index_buffer.cpp
 		bstone_detail_ogl_vertex_buffer.cpp

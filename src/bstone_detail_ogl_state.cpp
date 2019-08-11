@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL state implementation.
+// OpenGL state (implementation).
 //
 
 
@@ -53,19 +53,19 @@ OglState::~OglState() = default;
 
 
 // ==========================================================================
-// OglErrorState
+// ErrorOglState
 //
 
-class OglErrorState final :
+class ErrorOglState final :
 	public OglState
 {
 public:
 	std::string error_message_;
 
 
-	OglErrorState() = default;
+	ErrorOglState() = default;
 
-	~OglErrorState() override = default;
+	~ErrorOglState() override = default;
 
 
 	const std::string& get_error_message() const noexcept override;
@@ -80,30 +80,30 @@ public:
 
 	void buffer_unbind(
 		const RendererBufferKind target) override;
-}; // OglErrorState
+}; // ErrorOglState
 
-using OglErrorStatePtr = OglErrorState*;
-using OglErrorStateUPtr = std::unique_ptr<OglErrorState>;
+using OglErrorStatePtr = ErrorOglState*;
+using OglErrorStateUPtr = std::unique_ptr<ErrorOglState>;
 
 //
-// OglErrorState
+// ErrorOglState
 // ==========================================================================
 
 
 // ==========================================================================
-// Ogl2XState
+// GenericOglState
 //
 
-class Ogl2XState :
+class GenericOglState :
 	public OglState
 {
 public:
-	Ogl2XState();
+	GenericOglState();
 
-	Ogl2XState(
-		const Ogl2XState& rhs) = delete;
+	GenericOglState(
+		const GenericOglState& rhs) = delete;
 
-	~Ogl2XState() override;
+	~GenericOglState() override;
 
 
 	const std::string& get_error_message() const noexcept override;
@@ -144,61 +144,61 @@ private:
 		const int target_index,
 		const GLenum ogl_target,
 		const detail::OglBufferPtr buffer);
-}; // Ogl2XState
+}; // GenericOglState
 
-using Ogl2XStateImplPtr = Ogl2XState*;
-using Ogl2XStateImplUPtr = std::unique_ptr<Ogl2XState>;
+using GenericOglStatePtr = GenericOglState*;
+using GenericOglStateUPtr = std::unique_ptr<GenericOglState>;
 
 //
-// Ogl2XState
+// GenericOglState
 // ==========================================================================
 
 
 // ==========================================================================
-// OglErrorState
+// ErrorOglState
 //
 
-const std::string& OglErrorState::get_error_message() const noexcept
+const std::string& ErrorOglState::get_error_message() const noexcept
 {
 	return error_message_;
 }
 
-void OglErrorState::initialize()
+void ErrorOglState::initialize()
 {
 }
 
-bool OglErrorState::is_initialized() const noexcept
+bool ErrorOglState::is_initialized() const noexcept
 {
 	return false;
 }
 
-void OglErrorState::buffer_bind(
+void ErrorOglState::buffer_bind(
 	const detail::OglBufferPtr buffer)
 {
 	static_cast<void>(buffer);
 }
 
-void OglErrorState::buffer_unbind(
+void ErrorOglState::buffer_unbind(
 	const RendererBufferKind target)
 {
 	static_cast<void>(target);
 }
 
 //
-// OglErrorState
+// ErrorOglState
 // ==========================================================================
 
 
 // ==========================================================================
-// Ogl2XState
+// GenericOglState
 //
 
-constexpr int Ogl2XState::target_index_count;
-constexpr int Ogl2XState::index_buffer_target_index;
-constexpr int Ogl2XState::vertex_buffer_target_index;
+constexpr int GenericOglState::target_index_count;
+constexpr int GenericOglState::index_buffer_target_index;
+constexpr int GenericOglState::vertex_buffer_target_index;
 
 
-Ogl2XState::Ogl2XState()
+GenericOglState::GenericOglState()
 	:
 	is_initialized_{},
 	error_message_{},
@@ -206,16 +206,16 @@ Ogl2XState::Ogl2XState()
 {
 }
 
-Ogl2XState::~Ogl2XState()
+GenericOglState::~GenericOglState()
 {
 }
 
-const std::string& Ogl2XState::get_error_message() const noexcept
+const std::string& GenericOglState::get_error_message() const noexcept
 {
 	return error_message_;
 }
 
-void Ogl2XState::initialize()
+void GenericOglState::initialize()
 {
 	::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	assert(!detail::OglRendererUtils::was_errors());
@@ -226,12 +226,12 @@ void Ogl2XState::initialize()
 	is_initialized_ = true;
 }
 
-bool Ogl2XState::is_initialized() const noexcept
+bool GenericOglState::is_initialized() const noexcept
 {
 	return is_initialized_;
 }
 
-void Ogl2XState::buffer_bind(
+void GenericOglState::buffer_bind(
 	const detail::OglBufferPtr buffer)
 {
 	if (buffer == nullptr)
@@ -254,7 +254,7 @@ void Ogl2XState::buffer_bind(
 	bind_target(target_index, ogl_target, buffer);
 }
 
-void Ogl2XState::buffer_unbind(
+void GenericOglState::buffer_unbind(
 	const RendererBufferKind target_kind)
 {
 	auto ogl_target = GLenum{};
@@ -268,7 +268,7 @@ void Ogl2XState::buffer_unbind(
 	bind_target(target_index, ogl_target, nullptr);
 }
 
-bool Ogl2XState::get_target(
+bool GenericOglState::get_target(
 	const RendererBufferKind target_kind,
 	GLenum& ogl_target,
 	int& target_index)
@@ -291,7 +291,7 @@ bool Ogl2XState::get_target(
 	}
 }
 
-void Ogl2XState::bind_target(
+void GenericOglState::bind_target(
 	const int target_index,
 	const GLenum ogl_target,
 	const detail::OglBufferPtr buffer)
@@ -321,7 +321,7 @@ void Ogl2XState::bind_target(
 }
 
 //
-// Ogl2XState
+// GenericOglState
 // ==========================================================================
 
 
@@ -336,13 +336,13 @@ OglStateUPtr OglStateFactory::create(
 	{
 		case RendererKind::ogl_2_x:
 		{
-			auto ogl_state = Ogl2XStateImplUPtr{new Ogl2XState{}};
+			auto ogl_state = GenericOglStateUPtr{new GenericOglState{}};
 
 			ogl_state->initialize();
 
 			if (!ogl_state->is_initialized())
 			{
-				auto ogl_state_error = OglErrorStateUPtr{new OglErrorState{}};
+				auto ogl_state_error = OglErrorStateUPtr{new ErrorOglState{}};
 				ogl_state_error->error_message_ = ogl_state->get_error_message();
 
 				return ogl_state_error;

@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL state (implementation interface).
+// OpenGL state.
 //
 
 
