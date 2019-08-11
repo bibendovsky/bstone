@@ -83,16 +83,6 @@ public:
 		return *this;
 	}
 
-	SystemHandle& operator=(
-		const std::nullptr_t) noexcept
-	{
-		{
-			SystemHandle temp{std::move(*this)};
-		}
-
-		return *this;
-	}
-
 	~SystemHandle()
 	{
 		close();
@@ -104,15 +94,28 @@ public:
 		return handle_ != get_default();
 	}
 
+
 	bool is_default() const noexcept
 	{
 		return handle_ == get_default();
 	}
 
-
 	Handle get() const noexcept
 	{
 		return handle_;
+	}
+
+	void reset()
+	{
+		close();
+	}
+
+	void reset(
+		const Handle handle)
+	{
+		close();
+
+		handle_ = handle;
 	}
 
 

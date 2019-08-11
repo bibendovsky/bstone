@@ -224,7 +224,7 @@ bool Ogl2XRenderer::Texture2d::initialize(
 
 void Ogl2XRenderer::Texture2d::uninitialize_internal()
 {
-	ogl_handle_ = nullptr;
+	ogl_handle_.reset();
 }
 
 void Ogl2XRenderer::Texture2d::upload_mipmap(
