@@ -57,5 +57,12 @@ void ogl_program_deleter(
 	assert(!detail::OglRendererUtils::was_errors());
 }
 
+void ogl_texture_deleter(
+	const GLuint ogl_name) noexcept
+{
+	::glDeleteTextures(1, &ogl_name);
+	assert(!detail::OglRendererUtils::was_errors());
+}
+
 
 } // bstone

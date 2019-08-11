@@ -57,6 +57,12 @@ void ogl_program_deleter(
 using OglProgramHandle = SystemHandle<GLuint, 0, ogl_program_deleter>;
 
 
+void ogl_texture_deleter(
+	const GLuint ogl_name) noexcept;
+
+using OglTextureHandle = SystemHandle<GLuint, 0, ogl_texture_deleter>;
+
+
 } // bstone
 
 

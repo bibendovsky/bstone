@@ -58,7 +58,7 @@ Ogl2XRenderer::Texture2d::Texture2d(
 	height_{},
 	mipmap_count_{},
 	sampler_state_{},
-	ogl_id_{}
+	ogl_handle_{}
 {
 	assert(renderer_);
 }
@@ -87,7 +87,7 @@ void Ogl2XRenderer::Texture2d::update(
 		return;
 	}
 
-	::glBindTexture(GL_TEXTURE_2D, ogl_id_);
+	::glBindTexture(GL_TEXTURE_2D, ogl_handle_.get());
 	assert(!OglRendererUtils::was_errors());
 
 	auto mipmap_width = width_;
@@ -169,11 +169,16 @@ bool Ogl2XRenderer::Texture2d::initialize(
 
 	const auto internal_format = (storage_pixel_format_ == RendererPixelFormat::r8g8b8a8_unorm ? GL_RGBA8 : GL_RGB8);
 
-	::glGenTextures(1, &ogl_id_);
-	assert(!OglRendererUtils::was_errors());
-	assert(ogl_id_ != 0);
+	auto ogl_name = GLuint{};
 
-	::glBindTexture(GL_TEXTURE_2D, ogl_id_);
+	::glGenTextures(1, &ogl_name);
+	assert(!OglRendererUtils::was_errors());
+
+	ogl_handle_ = std::move(OglTextureHandle{ogl_name});
+
+	assert(ogl_name != 0);
+
+	::glBindTexture(GL_TEXTURE_2D, ogl_name);
 	assert(!OglRendererUtils::was_errors());
 
 	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
@@ -219,13 +224,7 @@ bool Ogl2XRenderer::Texture2d::initialize(
 
 void Ogl2XRenderer::Texture2d::uninitialize_internal()
 {
-	if (ogl_id_)
-	{
-		::glDeleteTextures(1, &ogl_id_);
-		assert(!OglRendererUtils::was_errors());
-
-		ogl_id_ = 0;
-	}
+	ogl_handle_ = nullptr;
 }
 
 void Ogl2XRenderer::Texture2d::upload_mipmap(
@@ -2323,7 +2322,7 @@ void Ogl2XRenderer::texture_set()
 
 	if (texture_2d_current_)
 	{
-		ogl_texture_name = texture_2d_current_->ogl_id_;
+		ogl_texture_name = texture_2d_current_->ogl_handle_.get();
 	}
 
 	OglRendererUtils::texture_2d_set(ogl_texture_name);

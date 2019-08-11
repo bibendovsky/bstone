@@ -36,6 +36,7 @@ Free Software Foundation, Inc.,
 #include <array>
 #include <list>
 #include <vector>
+#include "bstone_ogl_handles.h"
 #include "bstone_detail_ogl_extension_manager.h"
 #include "bstone_detail_ogl_shader.h"
 #include "bstone_detail_ogl_shader_stage.h"
@@ -218,7 +219,7 @@ private:
 
 		RendererSamplerState sampler_state_;
 
-		GLuint ogl_id_;
+		OglTextureHandle ogl_handle_;
 
 
 		Texture2d(
