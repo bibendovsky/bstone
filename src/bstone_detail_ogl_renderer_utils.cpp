@@ -206,13 +206,13 @@ bool OglRendererUtils::window_get_drawable_size(
 	return true;
 }
 
-OglRendererUtilsContextType OglRendererUtils::context_get_type()
+OglContextKind OglRendererUtils::context_get_kind()
 {
 	const auto sdl_ogl_context = ::SDL_GL_GetCurrentContext();
 
 	if (sdl_ogl_context == nullptr)
 	{
-		return OglRendererUtilsContextType::invalid;
+		return OglContextKind::invalid;
 	}
 
 	auto sdl_attribute = 0;
@@ -221,25 +221,25 @@ OglRendererUtilsContextType OglRendererUtils::context_get_type()
 
 	if (sdl_result != 0)
 	{
-		return OglRendererUtilsContextType::invalid;
+		return OglContextKind::invalid;
 	}
 
 	switch (sdl_attribute)
 	{
 		case 0:
-			return OglRendererUtilsContextType::none;
+			return OglContextKind::none;
 
 		case SDL_GL_CONTEXT_PROFILE_CORE:
-			return OglRendererUtilsContextType::core;
+			return OglContextKind::core;
 
 		case SDL_GL_CONTEXT_PROFILE_COMPATIBILITY:
-			return OglRendererUtilsContextType::compatibility;
+			return OglContextKind::compatibility;
 
 		case SDL_GL_CONTEXT_PROFILE_ES:
-			return OglRendererUtilsContextType::es;
+			return OglContextKind::es;
 
 		default:
-			return OglRendererUtilsContextType::invalid;
+			return OglContextKind::invalid;
 	}
 }
 
@@ -374,7 +374,7 @@ void OglRendererUtils::npot_probe(
 void OglRendererUtils::mipmap_probe(
 	OglExtensionManagerPtr extension_manager,
 	RendererDeviceFeatures& device_features,
-	OglRendererUtilsDeviceFeatures& ogl_device_features)
+	OglDeviceFeatures& ogl_device_features)
 {
 	device_features.mipmap_is_available_ = false;
 	ogl_device_features.mipmap_function_ = nullptr;
@@ -405,7 +405,7 @@ void OglRendererUtils::mipmap_probe(
 void OglRendererUtils::framebuffer_probe(
 	OglExtensionManagerPtr extension_manager,
 	RendererDeviceFeatures& device_features,
-	OglRendererUtilsDeviceFeatures& ogl_device_features)
+	OglDeviceFeatures& ogl_device_features)
 {
 	auto is_arb = false;
 	auto is_available = false;

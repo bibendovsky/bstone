@@ -366,7 +366,7 @@ private:
 
 	RendererDeviceInfo device_info_;
 	RendererDeviceFeatures device_features_;
-	detail::OglRendererUtilsDeviceFeatures ogl_device_features_;
+	detail::OglDeviceFeatures ogl_device_features_;
 
 	int screen_width_;
 	int screen_height_;

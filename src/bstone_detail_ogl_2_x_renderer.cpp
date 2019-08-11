@@ -1412,7 +1412,7 @@ bool Ogl2XRenderer::probe_or_initialize(
 		return false;
 	}
 
-	ogl_device_features_.context_type_ = OglRendererUtils::context_get_type();
+	ogl_device_features_.context_kind_ = OglRendererUtils::context_get_kind();
 
 	OglRendererUtils::anisotropy_probe(
 		extension_manager_.get(),
@@ -2347,7 +2347,7 @@ void Ogl2XRenderer::texture_mipmap_generation_set_hint()
 		return;
 	}
 
-	if (ogl_device_features_.context_type_ == OglRendererUtilsContextType::core)
+	if (ogl_device_features_.context_kind_ == OglContextKind::core)
 	{
 		return;
 	}

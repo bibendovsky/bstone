@@ -109,7 +109,7 @@ private:
 	using Registry = std::vector<RegistryItem>;
 
 
-	OglRendererUtilsContextType context_type_;
+	OglContextKind context_kind_;
 	int context_major_version_;
 	int context_minor_version_;
 	ExtensionNames extension_names_;
@@ -220,7 +220,7 @@ using OglExtensionManagerImplUPtr = std::unique_ptr<OglExtensionManagerImpl>;
 
 OglExtensionManagerImpl::OglExtensionManagerImpl()
 	:
-	context_type_{},
+	context_kind_{},
 	extension_names_{},
 	registry_{}
 {
@@ -229,7 +229,7 @@ OglExtensionManagerImpl::OglExtensionManagerImpl()
 OglExtensionManagerImpl::OglExtensionManagerImpl(
 	OglExtensionManagerImpl&& rhs)
 	:
-	context_type_{std::move(rhs.context_type_)},
+	context_kind_{std::move(rhs.context_kind_)},
 	extension_names_{std::move(rhs.extension_names_)},
 	registry_{std::move(rhs.registry_)}
 {
@@ -809,9 +809,9 @@ void OglExtensionManagerImpl::initialize_registry()
 
 bool OglExtensionManagerImpl::get_context_attributes()
 {
-	const auto context_type = OglRendererUtils::context_get_type();
+	const auto context_type = OglRendererUtils::context_get_kind();
 
-	if (context_type == OglRendererUtilsContextType::invalid)
+	if (context_type == OglContextKind::invalid)
 	{
 		return false;
 	}
@@ -829,7 +829,7 @@ bool OglExtensionManagerImpl::get_context_attributes()
 		return false;
 	}
 
-	context_type_ = context_type;
+	context_kind_ = context_type;
 	context_major_version_ = major_version;
 	context_minor_version_ = minor_version;
 
@@ -929,14 +929,14 @@ void OglExtensionManagerImpl::get_extension_names()
 {
 	auto is_core = false;
 
-	if (context_type_ == OglRendererUtilsContextType::es)
+	if (context_kind_ == OglContextKind::es)
 	{
 		if (context_major_version_ >= 3)
 		{
 			is_core = true;
 		}
 	}
-	else if (context_type_ == OglRendererUtilsContextType::core)
+	else if (context_kind_ == OglContextKind::core)
 	{
 		is_core = true;
 	}
@@ -956,15 +956,15 @@ void OglExtensionManagerImpl::get_extension_names()
 bool OglExtensionManagerImpl::is_gl() const
 {
 	return
-		context_type_ == OglRendererUtilsContextType::none ||
-		context_type_ == OglRendererUtilsContextType::compatibility
+		context_kind_ == OglContextKind::none ||
+		context_kind_ == OglContextKind::compatibility
 	;
 }
 
 bool OglExtensionManagerImpl::is_glcore() const
 {
 	return
-		context_type_ == OglRendererUtilsContextType::core
+		context_kind_ == OglContextKind::core
 	;
 
 }
@@ -972,7 +972,7 @@ bool OglExtensionManagerImpl::is_glcore() const
 bool OglExtensionManagerImpl::is_gles1() const
 {
 	return
-		context_type_ == OglRendererUtilsContextType::es &&
+		context_kind_ == OglContextKind::es &&
 		context_major_version_ == 1
 	;
 }
@@ -980,7 +980,7 @@ bool OglExtensionManagerImpl::is_gles1() const
 bool OglExtensionManagerImpl::is_gles2() const
 {
 	return
-		context_type_ == OglRendererUtilsContextType::es &&
+		context_kind_ == OglContextKind::es &&
 		context_major_version_ == 2
 	;
 }

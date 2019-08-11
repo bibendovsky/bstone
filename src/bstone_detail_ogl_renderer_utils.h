@@ -35,36 +35,16 @@ Free Software Foundation, Inc.,
 
 #include <vector>
 #include "glm/glm.hpp"
+#include "bstone_sdl_types.h"
+#include "bstone_detail_ogl_device_features.h"
 #include "bstone_detail_ogl_extension_manager.h"
 #include "bstone_detail_renderer_utils.h"
-#include "bstone_ogl.h"
-#include "bstone_sdl_types.h"
 
 
 namespace bstone
 {
 namespace detail
 {
-
-
-enum class OglRendererUtilsContextType
-{
-	invalid,
-	none,
-	core,
-	compatibility,
-	es,
-}; // OglRendererUtilsContextType
-
-
-struct OglRendererUtilsDeviceFeatures
-{
-	OglRendererUtilsContextType context_type_;
-
-	PFNGLGENERATEMIPMAPPROC mipmap_function_;
-
-	bool framebuffer_is_arb_;
-}; // OglRendererUtilsDeviceFeatures
 
 
 class OglRendererUtils
@@ -106,7 +86,7 @@ public:
 		int& height);
 
 
-	static OglRendererUtilsContextType context_get_type();
+	static OglContextKind context_get_kind();
 
 	static bool context_get_version(
 		int& major_version,
@@ -133,13 +113,13 @@ public:
 	static void mipmap_probe(
 		OglExtensionManagerPtr extension_manager,
 		RendererDeviceFeatures& device_features,
-		OglRendererUtilsDeviceFeatures& ogl_device_features);
+		OglDeviceFeatures& ogl_device_features);
 
 
 	static void framebuffer_probe(
 		OglExtensionManagerPtr extension_manager,
 		RendererDeviceFeatures& device_features,
-		OglRendererUtilsDeviceFeatures& ogl_device_features);
+		OglDeviceFeatures& ogl_device_features);
 
 	static int msaa_get_max_value(
 		OglExtensionManagerPtr extension_manager);

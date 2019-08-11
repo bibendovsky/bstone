@@ -244,6 +244,8 @@ target_sources(
 		bstone_detail_index_buffer.h
 		bstone_detail_ogl_2_x_renderer.h
 		bstone_detail_ogl_buffer.h
+		bstone_detail_ogl_context_kind.h
+		bstone_detail_ogl_device_features.h
 		bstone_detail_ogl_extension_manager.h
 		bstone_detail_ogl_index_buffer.h
 		bstone_detail_ogl_renderer_utils.h
