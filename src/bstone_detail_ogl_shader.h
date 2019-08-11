@@ -82,7 +82,7 @@ private:
 	std::string error_message_;
 
 	Kind kind_;
-	OglShaderHandle ogl_name_raii_;
+	OglShaderHandle ogl_handle_;
 	OglShaderStagePtr shader_stage_;
 
 

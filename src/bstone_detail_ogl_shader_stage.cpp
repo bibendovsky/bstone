@@ -125,7 +125,7 @@ OglShaderStage::OglShaderStage()
 	current_shader_stage_ptr_{},
 	fragment_shader_{},
 	vertex_shader_{},
-	ogl_name_raii_{},
+	ogl_handle_{},
 	shader_variables_{}
 {
 }
@@ -171,7 +171,7 @@ void OglShaderStage::set_current()
 
 	*current_shader_stage_ptr_ = this;
 
-	::glUseProgram(ogl_name_raii_.get());
+	::glUseProgram(ogl_handle_.get());
 	assert(!OglRendererUtils::was_errors());
 }
 
@@ -294,9 +294,9 @@ void OglShaderStage::initialize(
 		return;
 	}
 
-	auto ogl_name_raii = OglProgramHandle{::glCreateProgram()};
+	auto ogl_handle = OglProgramHandle{::glCreateProgram()};
 
-	if (ogl_name_raii == 0)
+	if (!ogl_handle)
 	{
 		error_message_ = "Failed to create OpenGL program object.";
 
@@ -304,28 +304,28 @@ void OglShaderStage::initialize(
 	}
 
 	const auto fragment_shader = static_cast<OglShaderPtr>(param.fragment_shader_);
-	::glAttachShader(ogl_name_raii.get(), fragment_shader->get_ogl_name());
+	::glAttachShader(ogl_handle.get(), fragment_shader->get_ogl_name());
 	assert(!detail::OglRendererUtils::was_errors());
 
 	const auto vertex_shader = static_cast<OglShaderPtr>(param.vertex_shader_);
-	::glAttachShader(ogl_name_raii.get(), vertex_shader->get_ogl_name());
+	::glAttachShader(ogl_handle.get(), vertex_shader->get_ogl_name());
 	assert(!detail::OglRendererUtils::was_errors());
 
-	set_input_bindings(ogl_name_raii.get(), param.input_bindings_);
+	set_input_bindings(ogl_handle.get(), param.input_bindings_);
 
-	::glLinkProgram(ogl_name_raii.get());
+	::glLinkProgram(ogl_handle.get());
 	assert(!detail::OglRendererUtils::was_errors());
 
 	auto link_status = GLint{};
 
-	::glGetProgramiv(ogl_name_raii.get(), GL_LINK_STATUS, &link_status);
+	::glGetProgramiv(ogl_handle.get(), GL_LINK_STATUS, &link_status);
 	assert(!detail::OglRendererUtils::was_errors());
 
 	if (link_status != GL_TRUE)
 	{
 		error_message_ = "Failed to link a program.";
 
-		const auto ogl_log = OglRendererUtils::get_log(false, ogl_name_raii.get());
+		const auto ogl_log = OglRendererUtils::get_log(false, ogl_handle.get());
 
 		if (!ogl_log.empty())
 		{
@@ -336,17 +336,17 @@ void OglShaderStage::initialize(
 		return;
 	}
 
-	const auto variable_count = get_variable_count(ogl_name_raii.get());
+	const auto variable_count = get_variable_count(ogl_handle.get());
 	auto shader_variables = ShaderVariables{};
 	shader_variables.reserve(variable_count);
 
-	if (!get_variables(RendererShaderVariable::Kind::attribute, ogl_name_raii.get(), shader_variables))
+	if (!get_variables(RendererShaderVariable::Kind::attribute, ogl_handle.get(), shader_variables))
 	{
 		return;
 	}
 
 	// Note that "samplers" are included in uniforms.
-	if (!get_variables(RendererShaderVariable::Kind::uniform, ogl_name_raii.get(), shader_variables))
+	if (!get_variables(RendererShaderVariable::Kind::uniform, ogl_handle.get(), shader_variables))
 	{
 		return;
 	}
@@ -359,7 +359,7 @@ void OglShaderStage::initialize(
 	is_initialized_ = true;
 	fragment_shader_ = static_cast<OglShaderPtr>(param.fragment_shader_);
 	vertex_shader_ = static_cast<OglShaderPtr>(param.vertex_shader_);
-	ogl_name_raii_ = std::move(ogl_name_raii);
+	ogl_handle_ = std::move(ogl_handle);
 	shader_variables_ = std::move(shader_variables);
 }
 

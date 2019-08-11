@@ -111,7 +111,7 @@ private:
 	RendererBufferKind kind_;
 	RendererBufferUsageKind usage_kind_;
 	int size_;
-	OglBufferHandle ogl_name_raii_;
+	OglBufferHandle ogl_handle_;
 	GLenum ogl_target_;
 	OglStatePtr ogl_state_;
 

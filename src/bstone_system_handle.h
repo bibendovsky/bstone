@@ -104,16 +104,9 @@ public:
 		return handle_ != get_default();
 	}
 
-	bool operator==(
-		const std::nullptr_t) const noexcept
+	bool is_default() const noexcept
 	{
 		return handle_ == get_default();
-	}
-
-	bool operator!=(
-		const std::nullptr_t) const noexcept
-	{
-		return handle_ != get_default();
 	}
 
 

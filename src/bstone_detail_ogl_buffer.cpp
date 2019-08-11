@@ -51,7 +51,7 @@ OglBuffer::OglBuffer()
 	kind_{},
 	usage_kind_{},
 	size_{},
-	ogl_name_raii_{},
+	ogl_handle_{},
 	ogl_target_{}
 {
 }
@@ -137,12 +137,12 @@ bool OglBuffer::initialize(
 		return false;
 	}
 
-	auto ogl_name_raii = OglBufferHandle{ogl_name};
+	auto ogl_handle = OglBufferHandle{ogl_name};
 
 	const auto olg_target = ogl_get_target(param.kind_);
 	const auto olg_usage = ogl_get_usage(param.usage_kind_);
 
-	::glBindBuffer(olg_target, ogl_name_raii.get());
+	::glBindBuffer(olg_target, ogl_handle.get());
 	assert(!detail::OglRendererUtils::was_errors());
 
 	::glBufferData(olg_target, param.size_, nullptr, olg_usage);
@@ -151,7 +151,7 @@ bool OglBuffer::initialize(
 	kind_ = param.kind_;
 	usage_kind_ = param.usage_kind_;
 	size_ = param.size_;
-	ogl_name_raii_ = std::move(ogl_name_raii);
+	ogl_handle_ = std::move(ogl_handle);
 	ogl_target_ = olg_target;
 
 	bind(this);
@@ -161,12 +161,12 @@ bool OglBuffer::initialize(
 
 bool OglBuffer::is_initialized() const noexcept
 {
-	return ogl_name_raii_ != nullptr;
+	return static_cast<bool>(ogl_handle_);
 }
 
 GLuint OglBuffer::get_ogl_name() const noexcept
 {
-	return ogl_name_raii_.get();
+	return ogl_handle_.get();
 }
 
 bool OglBuffer::validate_param(
@@ -333,7 +333,7 @@ void OglBuffer::uninitialize()
 	kind_ = {};
 	usage_kind_ = {};
 	size_ = 0;
-	ogl_name_raii_ = {};
+	ogl_handle_ = {};
 	ogl_target_ = {};
 }
 
