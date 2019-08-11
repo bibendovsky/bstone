@@ -121,26 +121,26 @@ public:
 
 
 private:
-	static constexpr int target_index_count = 2;
+	static constexpr int buffer_target_index_count = 2;
 	static constexpr int index_buffer_target_index = 0;
 	static constexpr int vertex_buffer_target_index = 1;
 
 
-	using Targets = std::array<detail::OglBufferPtr, target_index_count>;
+	using BufferTargets = std::array<detail::OglBufferPtr, buffer_target_index_count>;
 
 
 	bool is_initialized_;
 	std::string error_message_;
 
-	Targets targets_;
+	BufferTargets buffer_targets_;
 
 
-	bool get_target(
+	bool buffer_get_target(
 		const RendererBufferKind target_kind,
 		GLenum& ogl_target,
 		int& target_index);
 
-	void bind_target(
+	void buffer_bind_target(
 		const int target_index,
 		const GLenum ogl_target,
 		const detail::OglBufferPtr buffer);
@@ -193,7 +193,7 @@ void ErrorOglState::buffer_unbind(
 // GenericOglState
 //
 
-constexpr int GenericOglState::target_index_count;
+constexpr int GenericOglState::buffer_target_index_count;
 constexpr int GenericOglState::index_buffer_target_index;
 constexpr int GenericOglState::vertex_buffer_target_index;
 
@@ -202,13 +202,11 @@ GenericOglState::GenericOglState()
 	:
 	is_initialized_{},
 	error_message_{},
-	targets_{}
+	buffer_targets_{}
 {
 }
 
-GenericOglState::~GenericOglState()
-{
-}
+GenericOglState::~GenericOglState() = default;
 
 const std::string& GenericOglState::get_error_message() const noexcept
 {
@@ -246,12 +244,12 @@ void GenericOglState::buffer_bind(
 
 	const auto target_kind = buffer->get_kind();
 
-	if (!get_target(target_kind, ogl_target, target_index))
+	if (!buffer_get_target(target_kind, ogl_target, target_index))
 	{
 		return;
 	}
 
-	bind_target(target_index, ogl_target, buffer);
+	buffer_bind_target(target_index, ogl_target, buffer);
 }
 
 void GenericOglState::buffer_unbind(
@@ -260,15 +258,15 @@ void GenericOglState::buffer_unbind(
 	auto ogl_target = GLenum{};
 	auto target_index = 0;
 
-	if (!get_target(target_kind, ogl_target, target_index))
+	if (!buffer_get_target(target_kind, ogl_target, target_index))
 	{
 		return;
 	}
 
-	bind_target(target_index, ogl_target, nullptr);
+	buffer_bind_target(target_index, ogl_target, nullptr);
 }
 
-bool GenericOglState::get_target(
+bool GenericOglState::buffer_get_target(
 	const RendererBufferKind target_kind,
 	GLenum& ogl_target,
 	int& target_index)
@@ -291,12 +289,12 @@ bool GenericOglState::get_target(
 	}
 }
 
-void GenericOglState::bind_target(
+void GenericOglState::buffer_bind_target(
 	const int target_index,
 	const GLenum ogl_target,
 	const detail::OglBufferPtr buffer)
 {
-	if (targets_[target_index] == buffer)
+	if (buffer_targets_[target_index] == buffer)
 	{
 		return;
 	}
@@ -313,7 +311,7 @@ void GenericOglState::bind_target(
 		}
 	}
 
-	targets_[target_index] = buffer;
+	buffer_targets_[target_index] = buffer;
 
 	const auto ogl_name = (is_empty_name ? 0 : buffer->get_ogl_name());
 	::glBindBuffer(ogl_target, ogl_name);
