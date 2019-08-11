@@ -33,7 +33,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_DETAIL_OLG_SHADER_VARIABLE_INCLUDED
 
 
-#include "bstone_ogl.h"
+#include "bstone_ogl_api.h"
 #include "bstone_renderer.h"
 
 

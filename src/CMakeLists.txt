@@ -218,7 +218,7 @@ target_sources(
 		bstone_missing_wall_64x64_image.h
 		bstone_mod_value.h
 		bstone_mt_queue_1r1w.h
-		bstone_ogl.h
+		bstone_ogl_api.h
 		bstone_ogl_handles.h
 		bstone_opl2.h
 		bstone_ref_values.h
@@ -316,7 +316,7 @@ target_sources(
 		bstone_memory_stream.cpp
 		bstone_missing_sprite_64x64_image.cpp
 		bstone_missing_wall_64x64_image.cpp
-		bstone_ogl.cpp
+		bstone_ogl_api.cpp
 		bstone_ogl_handles.cpp
 		bstone_opl2.cpp
 		bstone_pcm_decoder.cpp

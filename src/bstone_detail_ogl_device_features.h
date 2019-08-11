@@ -33,7 +33,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_DETAIL_OGL_DEVICE_FEATURES_INCLUDED
 
 
-#include "bstone_ogl.h"
+#include "bstone_ogl_api.h"
 #include "bstone_detail_ogl_context_kind.h"
 
 

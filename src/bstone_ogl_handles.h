@@ -31,7 +31,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_OGL_HANDLES_INCLUDED
 
 
-#include "bstone_ogl.h"
+#include "bstone_ogl_api.h"
 #include "bstone_system_handle.h"
 
 

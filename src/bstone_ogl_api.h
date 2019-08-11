@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL types, tokens, procedures and functions.
+// OpenGL API.
 //
 
 

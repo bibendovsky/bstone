@@ -23,11 +23,11 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL types, tokens, procedures and functions.
+// OpenGL API.
 //
 
 
-#include "bstone_ogl.h"
+#include "bstone_ogl_api.h"
 
 
 // ==========================================================================
