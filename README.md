@@ -28,9 +28,6 @@ The full versions of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike 
 
 Any combination of these three may coexist in the directory. Press the main "start" region to launch the game. Game version will be chosen in the following order of preference: Registered, Shareware, Planet Strike. Press the "Planet Strike" region to start Planet Strike regardless of the presence of other versions.
 
-## Important note
-As of version 0.2, leaving music enabled may lead to intermittent crashing while playing. Set the "Background Music" option in the "Game Settings" menu to "None" in order to prevent this. As with other homebrew on the Vita, pressing the home button or going into sleep mode can lead to unwanted behavior upon returning to the still-running game.
-
 Playing the Game
 ================
 
@@ -64,7 +61,7 @@ Select - map or status window toggle
 
 Start - Menu/back
 
-Number keys are hard mapped to a column on the right side of the front touchscreen corresponding to the locations of the elevator buttons on the AOG level select screen. Useful for weapon selection in addition to operating the elevator. The left and right halves of the region occupied by the bottom HUD bar are mapped to "-", and "=", repectively, for controlling the map zoom level in Planet Strike.
+Number keys are hard mapped to a column on the right side of the front touchscreen corresponding to the locations of the elevator buttons on the AOG level select screen. Useful for weapon selection in addition to operating the elevator. The left and right halves of the region occupied by the bottom HUD bar are mapped to "-", and "=", respectively, for controlling the map zoom level in Planet Strike.
 
 Compiling
 =========
@@ -84,6 +81,6 @@ JAM Productions, id Software, and Apogee for Blake Stone
 
 The control functions were based on those written by fgsfdsfgs for the vita port of Chocolate Doom
 
-Rinnegatamante for help with Live Area code
+Rinnegatamante for help with various things
 
 The makers of vitasdk & Henkaku for making this possible in the first place
