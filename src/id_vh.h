@@ -30,7 +30,7 @@ Free Software Foundation, Inc.,
 #include <vector>
 
 
-#define WHITE (15) // graphics mode independant colors
+#define WHITE (15) // graphics mode independent colors
 #define BLACK (0)
 
 
@@ -73,7 +73,7 @@ extern bool allcaps;
 
 
 //
-// mode independant routines
+// mode independent routines
 // coordinates in pixels, rounded to best screen res
 // regions marked in double buffer
 //
@@ -118,7 +118,7 @@ void VWB_Vlin(
 
 
 //
-// wolfenstein EGA compatability stuff
+// wolfenstein EGA compatibility stuff
 //
 extern const std::uint8_t vgapal[768];
 
