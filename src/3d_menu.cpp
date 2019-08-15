@@ -3173,6 +3173,7 @@ void CP_Control(
 	std::int16_t)
 {
 #ifdef __vita__
+	MouseSensitivity(0);
 	return;
 #endif
 	enum
@@ -3275,7 +3276,11 @@ void DrawMousePos()
 void DrawMouseSens()
 {
 	ClearMScreen();
+#ifdef __vita__
+	DrawMenuTitle("JOYSTICK SENSITIVITY");
+#else
 	DrawMenuTitle("MOUSE SENSITIVITY");
+#endif
 	DrawInstructions(IT_MOUSE_SEN);
 
 	fontnumber = 4;
