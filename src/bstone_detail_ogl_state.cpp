@@ -29,8 +29,20 @@ Free Software Foundation, Inc.,
 
 #include "bstone_precompiled.h"
 #include "bstone_detail_ogl_state.h"
+
+#include <list>
+#include <vector>
+
+#include "bstone_exception.h"
+#include "bstone_ogl_unique_resources.h"
+
 #include "bstone_detail_ogl_buffer.h"
+#include "bstone_detail_ogl_buffer_manager.h"
+#include "bstone_detail_ogl_device_features.h"
 #include "bstone_detail_ogl_renderer_utils.h"
+#include "bstone_detail_ogl_sampler.h"
+#include "bstone_detail_ogl_texture_2d.h"
+#include "bstone_detail_ogl_vao_manager.h"
 
 
 namespace bstone
@@ -53,44 +65,6 @@ OglState::~OglState() = default;
 
 
 // ==========================================================================
-// ErrorOglState
-//
-
-class ErrorOglState final :
-	public OglState
-{
-public:
-	std::string error_message_;
-
-
-	ErrorOglState() = default;
-
-	~ErrorOglState() override = default;
-
-
-	const std::string& get_error_message() const noexcept override;
-
-	virtual void initialize() override;
-
-	virtual bool is_initialized() const noexcept override;
-
-
-	void buffer_bind(
-		const detail::OglBufferPtr buffer) override;
-
-	void buffer_unbind(
-		const RendererBufferKind target) override;
-}; // ErrorOglState
-
-using OglErrorStatePtr = ErrorOglState*;
-using OglErrorStateUPtr = std::unique_ptr<ErrorOglState>;
-
-//
-// ErrorOglState
-// ==========================================================================
-
-
-// ==========================================================================
 // GenericOglState
 //
 
@@ -98,7 +72,9 @@ class GenericOglState :
 	public OglState
 {
 public:
-	GenericOglState();
+	GenericOglState(
+		const RendererDeviceFeatures& device_features,
+		const OglDeviceFeatures& ogl_device_features);
 
 	GenericOglState(
 		const GenericOglState& rhs) = delete;
@@ -106,44 +82,133 @@ public:
 	~GenericOglState() override;
 
 
-	const std::string& get_error_message() const noexcept override;
+	RendererIndexBufferPtr index_buffer_create(
+		const RendererIndexBufferCreateParam& param) override;
 
-	void initialize() override;
+	RendererVertexBufferPtr vertex_buffer_create(
+		const RendererVertexBufferCreateParam& param) override;
 
-	bool is_initialized() const noexcept override;
+
+	void buffer_destroy(
+		const RendererBufferPtr buffer) override;
+
+	bool buffer_set_current(
+		const RendererBufferKind buffer_kind,
+		const RendererBufferPtr buffer) override;
 
 
-	void buffer_bind(
-		const detail::OglBufferPtr buffer) override;
+	OglSamplerPtr sampler_create(
+		const RendererSamplerCreateParam& param) override;
 
-	void buffer_unbind(
-		const RendererBufferKind target) override;
+	void sampler_destroy(
+		const RendererSamplerPtr sampler) override;
+
+	void sampler_set(
+		const RendererSamplerPtr sampler) override;
+
+
+	void texture_2d_enable(
+		const bool is_enable) override;
+
+	RendererTexture2dPtr texture_2d_create(
+		const RendererTexture2dCreateParam& param) override;
+
+	void texture_2d_destroy(
+		const RendererTexture2dPtr texture_2d) override;
+
+	void texture_2d_set(
+		const RendererTexture2dPtr texture_2d) override;
+
+	OglTexture2dPtr texture_2d_get_current() noexcept override;
+
+
+	OglVaoPtr vao_create() override;
+
+	void vao_destroy(
+		const OglVaoPtr vao) override;
+
+	void vao_bind(
+		const OglVaoPtr vao) override;
+
+	void vao_push_current_set_default() override;
+
+	void vao_pop() override;
+
+
+	OglVertexInputPtr vertex_input_create(
+		const RendererVertexInputCreateParam& param) override;
+
+	void vertex_input_destroy(
+		const RendererVertexInputPtr vertex_input) override;
+
+	void vertex_input_set(
+		const OglVertexInputPtr vertex_input) override;
+
+	OglVertexInputPtr vertex_input_get_current() const noexcept override;
+
+
+	void vertex_input_location_enable(
+		const int location,
+		const bool is_enabled) override;
+
+	void vertex_input_location_assign_begin() override;
+
+	void vertex_input_location_assign_end() override;
 
 
 private:
-	static constexpr int buffer_target_index_count = 2;
-	static constexpr int index_buffer_target_index = 0;
-	static constexpr int vertex_buffer_target_index = 1;
+	const RendererDeviceFeatures& device_features_;
+	const OglDeviceFeatures& ogl_device_features_;
+
+	OglVaoManagerUPtr vao_manager_;
+
+	OglBufferManagerUPtr buffer_manager_;
 
 
-	using BufferTargets = std::array<detail::OglBufferPtr, buffer_target_index_count>;
+	using Samplers = std::list<OglSamplerUPtr>;
+	OglSamplerPtr sampler_current_;
+	OglSamplerUPtr sampler_default_;
+	Samplers samplers_;
+
+	using Textures2d = std::list<OglTexture2dUPtr>;
+	bool texture_2d_is_enabled_;
+	OglTexture2dPtr texture_2d_current_;
+	Textures2d textures_2d_;
+
+	using VertexInputs = std::list<OglVertexInputUPtr>;
+	OglVertexInputPtr vertex_input_current_;
+	VertexInputs vertex_inputs_;
+
+	bool vertex_input_location_is_assigning_;
+	using VertexInputAssignedLocations = std::vector<bool>;
+	VertexInputAssignedLocations vertex_input_assigned_locations_;
 
 
-	bool is_initialized_;
-	std::string error_message_;
+	void initialize();
 
-	BufferTargets buffer_targets_;
+	void initialize_vao_manager();
 
+	void initialize_buffer_manager();
 
-	bool buffer_get_target(
-		const RendererBufferKind target_kind,
-		GLenum& ogl_target,
-		int& target_index);
+	void mipmap_set_max_quality();
 
-	void buffer_bind_target(
-		const int target_index,
-		const GLenum ogl_target,
-		const detail::OglBufferPtr buffer);
+	void sampler_create_default();
+
+	void sampler_set_defaults();
+
+	void sampler_sw_force_update_current_texture();
+
+	void texture_2d_enable();
+
+	void texture_2d_set();
+
+	void texture_2d_set_defaults();
+
+	void vertex_input_set_defaults();
+
+	void vertex_input_set();
+
+	void vertex_input_location_set_defaults();
 }; // GenericOglState
 
 using GenericOglStatePtr = GenericOglState*;
@@ -155,167 +220,448 @@ using GenericOglStateUPtr = std::unique_ptr<GenericOglState>;
 
 
 // ==========================================================================
-// ErrorOglState
-//
-
-const std::string& ErrorOglState::get_error_message() const noexcept
-{
-	return error_message_;
-}
-
-void ErrorOglState::initialize()
-{
-}
-
-bool ErrorOglState::is_initialized() const noexcept
-{
-	return false;
-}
-
-void ErrorOglState::buffer_bind(
-	const detail::OglBufferPtr buffer)
-{
-	static_cast<void>(buffer);
-}
-
-void ErrorOglState::buffer_unbind(
-	const RendererBufferKind target)
-{
-	static_cast<void>(target);
-}
-
-//
-// ErrorOglState
-// ==========================================================================
-
-
-// ==========================================================================
 // GenericOglState
 //
 
-constexpr int GenericOglState::buffer_target_index_count;
-constexpr int GenericOglState::index_buffer_target_index;
-constexpr int GenericOglState::vertex_buffer_target_index;
-
-
-GenericOglState::GenericOglState()
+GenericOglState::GenericOglState(
+	const RendererDeviceFeatures& device_features,
+	const OglDeviceFeatures& ogl_device_features)
 	:
-	is_initialized_{},
-	error_message_{},
-	buffer_targets_{}
+	device_features_{device_features},
+	ogl_device_features_{ogl_device_features},
+	vao_manager_{},
+	buffer_manager_{},
+	sampler_current_{},
+	sampler_default_{},
+	samplers_{},
+	texture_2d_is_enabled_{},
+	texture_2d_current_{},
+	textures_2d_{},
+	vertex_input_current_{},
+	vertex_inputs_{},
+	vertex_input_location_is_assigning_{},
+	vertex_input_assigned_locations_{}
 {
+	initialize();
 }
 
 GenericOglState::~GenericOglState() = default;
 
-const std::string& GenericOglState::get_error_message() const noexcept
+void GenericOglState::initialize_buffer_manager()
 {
-	return error_message_;
+	buffer_manager_ = OglBufferManagerFactory::create(
+		this,
+		vao_manager_.get()
+	);
+}
+
+void GenericOglState::initialize_vao_manager()
+{
+	vao_manager_ = OglVaoManagerFactory::create(
+		this,
+		device_features_,
+		ogl_device_features_
+	);
+}
+
+void GenericOglState::mipmap_set_max_quality()
+{
+	if (!device_features_.mipmap_is_available_)
+	{
+		return;
+	}
+
+	if (ogl_device_features_.context_kind_ == OglContextKind::core)
+	{
+		return;
+	}
+
+	::glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
+	assert(!OglRendererUtils::was_errors());
+}
+
+void GenericOglState::sampler_create_default()
+{
+	const auto param = RendererSamplerCreateParam{};
+
+	sampler_default_ = OglSamplerFactory::create(this, device_features_, ogl_device_features_, param);
+}
+
+void GenericOglState::sampler_set_defaults()
+{
+	if (device_features_.sampler_is_available_)
+	{
+		return;
+	}
+
+	sampler_create_default();
+	sampler_current_ = sampler_default_.get();
+}
+
+void GenericOglState::texture_2d_enable()
+{
+	const auto ogl_function = (texture_2d_is_enabled_ ? ::glEnable : ::glDisable);
+
+	ogl_function(GL_TEXTURE_2D);
+	assert(!OglRendererUtils::was_errors());
+}
+
+void GenericOglState::texture_2d_set()
+{
+	if (texture_2d_current_)
+	{
+		texture_2d_current_->bind();
+	}
+	else
+	{
+		OglRendererUtils::texture_2d_unbind();
+	}
+
+	if (!device_features_.sampler_is_available_)
+	{
+		sampler_sw_force_update_current_texture();
+	}
+}
+
+void GenericOglState::texture_2d_set_defaults()
+{
+	texture_2d_is_enabled_ = false;
+	texture_2d_enable();
+
+	texture_2d_current_ = nullptr;
+	texture_2d_set();
 }
 
 void GenericOglState::initialize()
 {
+	mipmap_set_max_quality();
+	sampler_set_defaults();
+	texture_2d_set_defaults();
+	initialize_vao_manager();
+	initialize_buffer_manager();
+	vertex_input_set_defaults();
+	vertex_input_location_set_defaults();
+
 	::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	assert(!detail::OglRendererUtils::was_errors());
 
 	::glBindBuffer(GL_ARRAY_BUFFER, 0);
 	assert(!detail::OglRendererUtils::was_errors());
-
-	is_initialized_ = true;
 }
 
-bool GenericOglState::is_initialized() const noexcept
+RendererIndexBufferPtr GenericOglState::index_buffer_create(
+	const RendererIndexBufferCreateParam& param)
 {
-	return is_initialized_;
+	return buffer_manager_->index_buffer_create(param);
 }
 
-void GenericOglState::buffer_bind(
-	const detail::OglBufferPtr buffer)
+RendererVertexBufferPtr GenericOglState::vertex_buffer_create(
+	const RendererVertexBufferCreateParam& param)
 {
-	if (buffer == nullptr)
-	{
-		assert(!"Null buffer.");
-
-		return;
-	}
-
-	auto ogl_target = GLenum{};
-	auto target_index = 0;
-
-	const auto target_kind = buffer->get_kind();
-
-	if (!buffer_get_target(target_kind, ogl_target, target_index))
-	{
-		return;
-	}
-
-	buffer_bind_target(target_index, ogl_target, buffer);
+	return buffer_manager_->vertex_buffer_create(param);
 }
 
-void GenericOglState::buffer_unbind(
-	const RendererBufferKind target_kind)
+void GenericOglState::buffer_destroy(
+	const RendererBufferPtr buffer)
 {
-	auto ogl_target = GLenum{};
-	auto target_index = 0;
-
-	if (!buffer_get_target(target_kind, ogl_target, target_index))
-	{
-		return;
-	}
-
-	buffer_bind_target(target_index, ogl_target, nullptr);
+	buffer_manager_->buffer_destroy(buffer);
 }
 
-bool GenericOglState::buffer_get_target(
-	const RendererBufferKind target_kind,
-	GLenum& ogl_target,
-	int& target_index)
+bool GenericOglState::buffer_set_current(
+	const RendererBufferKind buffer_kind,
+	const RendererBufferPtr buffer)
 {
-	switch (target_kind)
-	{
-		case RendererBufferKind::index:
-			ogl_target = GL_ELEMENT_ARRAY_BUFFER;
-			target_index = index_buffer_target_index;
-			return true;
-
-		case RendererBufferKind::vertex:
-			ogl_target = GL_ARRAY_BUFFER;
-			target_index = vertex_buffer_target_index;
-			return true;
-
-		default:
-			assert(!"Unsupported target kind.");
-			return false;
-	}
+	return buffer_manager_->buffer_set_current(buffer_kind, buffer);
 }
 
-void GenericOglState::buffer_bind_target(
-	const int target_index,
-	const GLenum ogl_target,
-	const detail::OglBufferPtr buffer)
+void GenericOglState::vertex_input_set_defaults()
 {
-	if (buffer_targets_[target_index] == buffer)
+	vertex_input_current_ = nullptr;
+	vertex_input_set();
+}
+
+void GenericOglState::vertex_input_set()
+{
+	if (!vertex_input_current_)
 	{
 		return;
 	}
 
-	const auto is_empty_name = (buffer == nullptr);
+	vertex_input_current_->bind();
+}
 
-	if (!is_empty_name)
+void GenericOglState::vertex_input_location_set_defaults()
+{
+	vertex_input_assigned_locations_.resize(device_features_.vertex_input_max_locations_);
+
+	for (int i = 0; i < device_features_.vertex_input_max_locations_; ++i)
 	{
-		if (!buffer->is_initialized())
+		vertex_input_location_enable(i, false);
+	}
+}
+
+OglSamplerPtr GenericOglState::sampler_create(
+	const RendererSamplerCreateParam& param)
+{
+	auto sampler = OglSamplerFactory::create(this, device_features_, ogl_device_features_, param);
+
+	samplers_.emplace_back(std::move(sampler));
+
+	return samplers_.back().get();
+}
+
+void GenericOglState::sampler_destroy(
+	const RendererSamplerPtr sampler)
+{
+	if (!sampler)
+	{
+		throw Exception{"Null sampler."};
+	}
+
+	if (sampler_current_ == sampler)
+	{
+		if (device_features_.sampler_is_available_)
 		{
-			assert(!"Buffer not initialized.");
-
-			return;
+			sampler_current_->unbind_unit();
+			sampler_current_ = nullptr;
+		}
+		else
+		{
+			sampler_current_ = sampler_default_.get();
 		}
 	}
 
-	buffer_targets_[target_index] = buffer;
+	samplers_.remove_if(
+		[=](const auto& item)
+		{
+			return item.get() == sampler;
+		}
+	);
+}
 
-	const auto ogl_name = (is_empty_name ? 0 : buffer->get_ogl_name());
-	::glBindBuffer(ogl_target, ogl_name);
-	assert(!detail::OglRendererUtils::was_errors());
+void GenericOglState::sampler_set(
+	const RendererSamplerPtr sampler)
+{
+	if (!sampler)
+	{
+		throw Exception{"Null sampler."};
+	}
+
+	if (sampler_current_ == sampler)
+	{
+		return;
+	}
+
+	sampler_current_ = static_cast<OglSamplerPtr>(sampler);
+
+	if (device_features_.sampler_is_available_)
+	{
+		sampler_current_->bind();
+	}
+	else
+	{
+		sampler_sw_force_update_current_texture();
+	}
+}
+
+void GenericOglState::sampler_sw_force_update_current_texture()
+{
+	if (!texture_2d_current_)
+	{
+		return;
+	}
+
+	texture_2d_current_->update_sampler_state(sampler_current_->get_state());
+}
+
+void GenericOglState::texture_2d_enable(
+	const bool is_enable)
+{
+	if (texture_2d_is_enabled_ == is_enable)
+	{
+		return;
+	}
+
+	texture_2d_is_enabled_ = is_enable;
+	texture_2d_enable();
+}
+
+RendererTexture2dPtr GenericOglState::texture_2d_create(
+	const RendererTexture2dCreateParam& param)
+{
+	auto texture_2d = OglTexture2dFactory::create(this, device_features_, ogl_device_features_, param);
+
+	textures_2d_.emplace_back(std::move(texture_2d));
+
+	return textures_2d_.back().get();
+}
+
+void GenericOglState::texture_2d_destroy(
+	const RendererTexture2dPtr texture_2d)
+{
+	if (!texture_2d)
+	{
+		throw Exception{"Null texture."};
+	}
+
+	textures_2d_.remove_if(
+		[=](const auto& item)
+		{
+			return item.get() == texture_2d;
+		}
+	);
+
+	if (texture_2d_current_ == texture_2d)
+	{
+		texture_2d_current_ = nullptr;
+	}
+}
+
+void GenericOglState::texture_2d_set(
+	const RendererTexture2dPtr texture_2d)
+{
+	if (texture_2d_current_ == texture_2d)
+	{
+		return;
+	}
+
+	texture_2d_current_ = static_cast<OglTexture2dPtr>(texture_2d);
+	texture_2d_set();
+}
+
+OglTexture2dPtr GenericOglState::texture_2d_get_current() noexcept
+{
+	return texture_2d_current_;
+}
+
+OglVaoPtr GenericOglState::vao_create()
+{
+	return vao_manager_->create();
+}
+
+void GenericOglState::vao_destroy(
+	const OglVaoPtr vao)
+{
+	vao_manager_->destroy(vao);
+}
+
+void GenericOglState::vao_bind(
+	const OglVaoPtr vao)
+{
+	if (!vao)
+	{
+		throw Exception{"Null VAO."};
+	}
+
+	vao_manager_->bind(vao);
+}
+
+void GenericOglState::vao_push_current_set_default()
+{
+	vao_manager_->push_current_set_default();
+}
+
+void GenericOglState::vao_pop()
+{
+	vao_manager_->pop();
+}
+
+OglVertexInputPtr GenericOglState::vertex_input_create(
+	const RendererVertexInputCreateParam& param)
+{
+	auto vertex_input = OglVertexInputFactory::create(
+		this,
+		device_features_,
+		ogl_device_features_,
+		param
+	);
+
+	vertex_inputs_.emplace_back(std::move(vertex_input));
+
+	return vertex_inputs_.back().get();
+}
+
+void GenericOglState::vertex_input_destroy(
+	const RendererVertexInputPtr vertex_input)
+{
+	if (!vertex_input)
+	{
+		throw Exception{"Null vertex input."};
+	}
+
+	vertex_inputs_.remove_if(
+		[=](const auto& item)
+		{
+			return item.get() == vertex_input;
+		}
+	);
+
+	if (vertex_input_current_ == vertex_input)
+	{
+		vertex_input_current_ = nullptr;
+	}
+}
+
+void GenericOglState::vertex_input_set(
+	const OglVertexInputPtr vertex_input)
+{
+	if (vertex_input_current_ == vertex_input)
+	{
+		return;
+	}
+
+	vertex_input_current_ = vertex_input;
+	vertex_input_set();
+}
+
+OglVertexInputPtr GenericOglState::vertex_input_get_current() const noexcept
+{
+	return vertex_input_current_;
+}
+
+void GenericOglState::vertex_input_location_enable(
+	const int location,
+	const bool is_enabled)
+{
+	if (vertex_input_location_is_assigning_)
+	{
+		vertex_input_assigned_locations_[location] = true;
+
+		return;
+	}
+
+	vao_manager_->enable_location(location, is_enabled);
+}
+
+void GenericOglState::vertex_input_location_assign_begin()
+{
+	if (vertex_input_location_is_assigning_)
+	{
+		throw Exception{"Already assigning."};
+	}
+
+	vertex_input_location_is_assigning_ = true;
+
+	std::fill(
+		vertex_input_assigned_locations_.begin(),
+		vertex_input_assigned_locations_.end(),
+		false
+	);
+}
+
+void GenericOglState::vertex_input_location_assign_end()
+{
+	if (!vertex_input_location_is_assigning_)
+	{
+		throw Exception{"Not assigning."};
+	}
+
+	vertex_input_location_is_assigning_ = false;
+
+	for (int i = 0; i < device_features_.vertex_input_max_locations_; ++i)
+	{
+		vertex_input_location_enable(i, vertex_input_assigned_locations_[i]);
+	}
 }
 
 //
@@ -328,31 +674,17 @@ void GenericOglState::buffer_bind_target(
 //
 
 OglStateUPtr OglStateFactory::create(
-	const RendererKind renderer_kind)
+	const RendererKind renderer_kind,
+	const RendererDeviceFeatures& device_features,
+	const OglDeviceFeatures& ogl_device_features)
 {
 	switch (renderer_kind)
 	{
 		case RendererKind::ogl_2_x:
-		{
-			auto ogl_state = GenericOglStateUPtr{new GenericOglState{}};
-
-			ogl_state->initialize();
-
-			if (!ogl_state->is_initialized())
-			{
-				auto ogl_state_error = OglErrorStateUPtr{new ErrorOglState{}};
-				ogl_state_error->error_message_ = ogl_state->get_error_message();
-
-				return ogl_state_error;
-			}
-
-			return ogl_state;
-		}
+			return GenericOglStateUPtr{new GenericOglState{device_features, ogl_device_features}};
 
 		default:
-			assert("Unsupported renderer kind.");
-
-			return nullptr;
+			throw Exception{"Unsupported renderer kind."};
 	}
 }
 

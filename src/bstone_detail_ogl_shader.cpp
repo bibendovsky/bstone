@@ -31,6 +31,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_precompiled.h"
 #include "bstone_detail_ogl_shader.h"
+#include "bstone_exception.h"
 #include "bstone_detail_ogl_shader_stage.h"
 #include "bstone_detail_ogl_renderer_utils.h"
 
@@ -41,13 +42,14 @@ namespace detail
 {
 
 
-OglShader::OglShader()
+OglShader::OglShader(
+	const RendererShader::CreateParam& param)
 	:
-	error_message_{},
 	kind_{},
-	ogl_handle_{},
+	ogl_resource_{},
 	shader_stage_{}
 {
+	initialize(param);
 }
 
 OglShader::~OglShader()
@@ -74,16 +76,6 @@ OglShader::~OglShader()
 	}
 }
 
-bool OglShader::is_initialized() const
-{
-	return static_cast<bool>(ogl_handle_);
-}
-
-const std::string& OglShader::get_error_message() const
-{
-	return error_message_;
-}
-
 RendererShader::Kind OglShader::get_kind() const
 {
 	return kind_;
@@ -92,20 +84,15 @@ RendererShader::Kind OglShader::get_kind() const
 void OglShader::initialize(
 	const RendererShader::CreateParam& param)
 {
-	if (!validate_param(param))
-	{
-		return;
-	}
+	validate_param(param);
 
 	const auto ogl_kind = get_ogl_kind(param.kind_);
 
-	auto ogl_handle = OglShaderHandle{::glCreateShader(ogl_kind)};
+	auto ogl_handle = OglShaderUniqueResource{::glCreateShader(ogl_kind)};
 
 	if (!ogl_handle)
 	{
-		error_message_ = "Failed to create OpenGL shader object.";
-
-		return;
+		throw Exception{"Failed to create OpenGL shader object."};
 	}
 
 	const char* const strings[] =
@@ -118,39 +105,39 @@ void OglShader::initialize(
 		param.source_.size_,
 	};
 
-	::glShaderSource(ogl_handle.get(), 1, strings, lengths);
+	::glShaderSource(ogl_handle, 1, strings, lengths);
 	assert(!detail::OglRendererUtils::was_errors());
 
-	::glCompileShader(ogl_handle.get());
+	::glCompileShader(ogl_handle);
 	assert(!detail::OglRendererUtils::was_errors());
 
 	auto compile_status = GLint{};
 
-	::glGetShaderiv(ogl_handle.get(), GL_COMPILE_STATUS, &compile_status);
+	::glGetShaderiv(ogl_handle, GL_COMPILE_STATUS, &compile_status);
 	assert(!detail::OglRendererUtils::was_errors());
 
 	if (compile_status != GL_TRUE)
 	{
-		error_message_ = "Failed to compile a shader.";
+		auto error_message = std::string{"Failed to compile a shader."};
 
-		const auto ogl_log = OglRendererUtils::get_log(true, ogl_handle.get());
+		const auto ogl_log = OglRendererUtils::get_log(true, ogl_handle);
 
 		if (!ogl_log.empty())
 		{
-			error_message_ += '\n';
-			error_message_ += ogl_log;
+			error_message += '\n';
+			error_message += ogl_log;
 		}
 
-		return;
+		throw Exception{std::move(error_message)};
 	}
 
 	kind_ = param.kind_;
-	ogl_handle_ = std::move(ogl_handle);
+	ogl_resource_ = std::move(ogl_handle);
 }
 
 GLuint OglShader::get_ogl_name() const
 {
-	return ogl_handle_.get();
+	return ogl_resource_;
 }
 
 void OglShader::attach_to_shader_stage(
@@ -171,13 +158,11 @@ GLenum OglShader::get_ogl_kind(
 			return GL_VERTEX_SHADER;
 
 		default:
-			error_message_ = "Invalid kind.";
-
-			return GL_NONE;
+			throw Exception{"Invalid kind."};
 	}
 }
 
-bool OglShader::validate_param(
+void OglShader::validate_param(
 	const RendererShader::CreateParam& param)
 {
 	switch (param.kind_)
@@ -187,26 +172,18 @@ bool OglShader::validate_param(
 			break;
 
 		default:
-			error_message_ = "Invalid kind.";
-
-			return false;
+			throw Exception{"Invalid kind."};
 	}
 
 	if (param.source_.data_ == nullptr)
 	{
-		error_message_ = "Null source data.";
-
-		return false;
+		throw Exception{"Null source data."};
 	}
 
 	if (param.source_.size_ <= 0)
 	{
-		error_message_ = "Empty source data.";
-
-		return false;
+		throw Exception{"Empty source data."};
 	}
-
-	return true;
 }
 
 

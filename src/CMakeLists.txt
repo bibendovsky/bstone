@@ -204,6 +204,7 @@ target_sources(
 		bstone_cl_args.h
 		bstone_crc32.h
 		bstone_endian.h
+		bstone_exception.h
 		bstone_file_stream.h
 		bstone_fizzle_fx.h
 		bstone_fixed_point.h
@@ -219,7 +220,7 @@ target_sources(
 		bstone_mod_value.h
 		bstone_mt_queue_1r1w.h
 		bstone_ogl_api.h
-		bstone_ogl_handles.h
+		bstone_ogl_unique_resources.h
 		bstone_opl2.h
 		bstone_ref_values.h
 		bstone_renderer.h
@@ -236,14 +237,15 @@ target_sources(
 		bstone_sprite.h
 		bstone_sprite_cache.h
 		bstone_string_helper.h
-		bstone_system_handle.h
+		bstone_unique_resource.h
 		bstone_text_reader.h
 		bstone_text_writer.h
 		bstone_un_value.h
+		bstone_uptr_resource_list.h
 		bstone_version.h
-		bstone_detail_index_buffer.h
 		bstone_detail_ogl_2_x_renderer.h
 		bstone_detail_ogl_buffer.h
+		bstone_detail_ogl_buffer_manager.h
 		bstone_detail_ogl_context_kind.h
 		bstone_detail_ogl_device_features.h
 		bstone_detail_ogl_extension_manager.h
@@ -254,10 +256,14 @@ target_sources(
 		bstone_detail_ogl_shader_variable.h
 		bstone_detail_ogl_state.h
 		bstone_detail_ogl_vertex_buffer.h
+		bstone_detail_ogl_texture_2d.h
+		bstone_detail_ogl_sampler.h
+		bstone_detail_ogl_vertex_input.h
+		bstone_detail_ogl_vao.h
+		bstone_detail_ogl_vao_manager.h
 		bstone_detail_renderer_command_buffer.h
 		bstone_detail_renderer_command_manager.h
 		bstone_detail_renderer_utils.h
-		bstone_detail_vertex_buffer.h
 		gfxv.h
 		id_ca.h
 		id_heads.h
@@ -304,6 +310,7 @@ target_sources(
 		bstone_binary_writer.cpp
 		bstone_cl_args.cpp
 		bstone_crc32.cpp
+		bstone_exception.cpp
 		bstone_file_stream.cpp
 		bstone_fizzle_fx.cpp
 		bstone_fixed_point.cpp
@@ -317,7 +324,7 @@ target_sources(
 		bstone_missing_sprite_64x64_image.cpp
 		bstone_missing_wall_64x64_image.cpp
 		bstone_ogl_api.cpp
-		bstone_ogl_handles.cpp
+		bstone_ogl_unique_resources.cpp
 		bstone_opl2.cpp
 		bstone_pcm_decoder.cpp
 		bstone_precompiled.cpp
@@ -340,8 +347,14 @@ target_sources(
 		bstone_detail_ogl_renderer_utils.cpp
 		bstone_detail_ogl_state.cpp
 		bstone_detail_ogl_buffer.cpp
+		bstone_detail_ogl_buffer_manager.cpp
 		bstone_detail_ogl_index_buffer.cpp
 		bstone_detail_ogl_vertex_buffer.cpp
+		bstone_detail_ogl_texture_2d.cpp
+		bstone_detail_ogl_sampler.cpp
+		bstone_detail_ogl_vertex_input.cpp
+		bstone_detail_ogl_vao.cpp
+		bstone_detail_ogl_vao_manager.cpp
 		bstone_detail_renderer_command_buffer.cpp
 		bstone_detail_renderer_command_manager.cpp
 		bstone_detail_renderer_utils.cpp

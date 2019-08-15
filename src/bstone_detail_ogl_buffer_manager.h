@@ -23,21 +23,33 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL vertex buffer object (implementation).
-//
-// !!! Internal usage only !!!
+// OpenGL buffer object manager (implementation interface).
 //
 
 
-#ifndef BSTONE_DETAIL_OGL_VERTEX_BUFFER_INCLUDED
-#define BSTONE_DETAIL_OGL_VERTEX_BUFFER_INCLUDED
+#ifndef BSTONE_OGL_BUFFER_MANAGER_INCLUDED
+#define BSTONE_OGL_BUFFER_MANAGER_INCLUDED
 
+
+#include <memory>
 
 #include "bstone_renderer.h"
 
 
 namespace bstone
 {
+
+
+class RendererBuffer;
+using RendererBufferPtr = RendererBuffer*;
+
+class RendererIndexBuffer;
+using RendererIndexBufferPtr = RendererIndexBuffer*;
+
+class RendererVertexBuffer;
+using RendererVertexBufferPtr = RendererVertexBuffer*;
+
+
 namespace detail
 {
 
@@ -45,42 +57,61 @@ namespace detail
 class OglState;
 using OglStatePtr = OglState*;
 
+class OglVaoManager;
+using OglVaoManagerPtr = OglVaoManager*;
+
 
 // ==========================================================================
-// OglVertexBuffer
+// OglBufferManager
 //
 
-class OglVertexBuffer :
-	public RendererVertexBuffer
+class OglBufferManager
 {
 protected:
-	OglVertexBuffer();
+	OglBufferManager();
+
 
 public:
-	~OglVertexBuffer() override;
-}; // OglVertexBuffer
+	virtual ~OglBufferManager();
 
-using OglVertexBufferPtr = OglVertexBuffer*;
-using OglVertexBufferUPtr = std::unique_ptr<OglVertexBuffer>;
+
+	virtual RendererIndexBufferPtr index_buffer_create(
+		const RendererIndexBufferCreateParam& param) = 0;
+
+	virtual RendererVertexBufferPtr vertex_buffer_create(
+		const RendererVertexBufferCreateParam& param) = 0;
+
+
+	virtual void buffer_destroy(
+		const RendererBufferPtr buffer) = 0;
+
+
+	virtual bool buffer_set_current(
+		const RendererBufferKind buffer_kind,
+		const RendererBufferPtr buffer) = 0;
+}; // OglBufferManager
+
+using OglBufferManagerPtr = OglBufferManager*;
+using OglBufferManagerUPtr = std::unique_ptr<OglBufferManager>;
 
 //
-// OglVertexBuffer
+// OglBufferManager
 // ==========================================================================
 
 
 // ==========================================================================
-// OglVertexBufferFactory
+// OglBufferManagerFactory
 //
 
-struct OglVertexBufferFactory final
+struct OglBufferManagerFactory final
 {
-	static OglVertexBufferUPtr create(
+	static OglBufferManagerUPtr create(
 		const OglStatePtr ogl_state,
-		const RendererVertexBufferCreateParam& param);
-}; // OglVertexBufferFactory
+		const OglVaoManagerPtr ogl_vao_manager);
+}; // OglBufferManagerFactory
 
 //
-// OglVertexBufferFactory
+// OglBufferManagerFactory
 // ==========================================================================
 
 
@@ -88,4 +119,4 @@ struct OglVertexBufferFactory final
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_OGL_VERTEX_BUFFER_INCLUDED
+#endif // !BSTONE_OGL_BUFFER_MANAGER_INCLUDED

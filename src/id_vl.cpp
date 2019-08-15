@@ -846,7 +846,7 @@ void vid_quit_with_sdl_error(
 		message += sdl_error_message;
 	}
 
-	::Quit(message);
+	::Quit(std::move(message));
 }
 
 void vid_log()
@@ -1638,7 +1638,7 @@ void sw_initialize_video()
 	}
 	else
 	{
-		::Quit(::sw_error_message);
+		::Quit(std::move(::sw_error_message));
 	}
 }
 
@@ -2588,22 +2588,10 @@ bool hw_3d_player_weapon_initialize();
 void hw_3d_player_weapon_model_matrix_update();
 
 
-void vid_log_hw_renderer_manager_error(
-	const std::string& message)
-{
-	::vid_log_error(message, ::hw_renderer_manager_->get_error_message());
-}
-
 void vid_log_hw_renderer_error(
 	const std::string& message)
 {
 	::vid_log_error(message, ::hw_renderer_->get_error_message());
-}
-
-void vid_log_hw_texture_manager_error(
-	const std::string& message)
-{
-	::vid_log_error(message, ::hw_texture_manager_->get_error_message());
 }
 
 bstone::RendererMipmapMode hw_config_texture_mipmap_filter_to_renderer(
@@ -2743,7 +2731,7 @@ void hw_index_buffer_update(
 	const auto offset = index_offset * byte_depth;
 	const auto size = index_count * byte_depth;
 
-	auto param = bstone::RendererIndexBufferUpdateParam{};
+	auto param = bstone::RendererBufferUpdateParam{};
 	param.offset_ = offset;
 	param.size_ = size;
 	param.data_ = indices;
@@ -2789,7 +2777,7 @@ void hw_vertex_buffer_update(
 	const auto offset = vertex_offset * vertex_size;
 	const auto size = vertex_count * vertex_size;
 
-	auto param = bstone::RendererVertexBufferUpdateParam{};
+	auto param = bstone::RendererBufferUpdateParam{};
 	param.offset_ = offset;
 	param.size_ = size;
 	param.data_ = vertices;
@@ -3490,14 +3478,7 @@ bool hw_renderer_initialize()
 
 	param.window_.title_utf8_ = title;
 
-	hw_renderer_ = hw_renderer_manager_->renderer_initialize(param);
-
-	if (!hw_renderer_)
-	{
-		::vid_log_hw_renderer_manager_error("Failed to initialize renderer.");
-
-		return false;
-	}
+	::hw_renderer_ = hw_renderer_manager_->renderer_initialize(param);
 
 	return true;
 }
@@ -4120,21 +4101,8 @@ void hw_2d_texture_1x1_black_destroy()
 
 bool hw_2d_texture_1x1_black_create()
 {
-	if (!::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::black))
-	{
-		::vid_log_hw_texture_manager_error("Failed to create 1x1 black texture.");
-
-		return false;
-	}
-
+	::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::black);
 	::hw_2d_black_t2d_1x1_ = ::hw_texture_manager_->solid_1x1_get(bstone::HwTextureManagerSolid1x1Id::black);
-
-	if (::hw_2d_black_t2d_1x1_ == nullptr)
-	{
-		::vid_log_hw_texture_manager_error("Failed to get 1x1 black texture.");
-
-		return false;
-	}
 
 	return true;
 }
@@ -4151,21 +4119,8 @@ void hw_2d_texture_1x1_white_destroy()
 
 bool hw_2d_texture_1x1_white_create()
 {
-	if (!::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::white))
-	{
-		::vid_log_hw_texture_manager_error("Failed to create 1x1 white texture.");
-
-		return false;
-	}
-
+	::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::white);
 	::hw_2d_white_t2d_1x1_ = ::hw_texture_manager_->solid_1x1_get(bstone::HwTextureManagerSolid1x1Id::white);
-
-	if (::hw_2d_white_t2d_1x1_ == nullptr)
-	{
-		::vid_log_hw_texture_manager_error("Failed to get 1x1 white texture.");
-
-		return false;
-	}
 
 	return true;
 }
@@ -4182,21 +4137,8 @@ void hw_2d_texture_1x1_fade_destroy()
 
 bool hw_2d_texture_1x1_fade_create()
 {
-	if (!::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::fade_2d))
-	{
-		::vid_log_hw_texture_manager_error("Failed to create 1x1 2d fade texture.");
-
-		return false;
-	}
-
+	::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::fade_2d);
 	::hw_2d_fade_t2d_ = ::hw_texture_manager_->solid_1x1_get(bstone::HwTextureManagerSolid1x1Id::fade_2d);
-
-	if (::hw_2d_fade_t2d_ == nullptr)
-	{
-		::vid_log_hw_texture_manager_error("Failed to get 1x1 2d fade texture.");
-
-		return false;
-	}
 
 	return true;
 }
@@ -4214,21 +4156,8 @@ void hw_2d_ui_texture_destroy()
 
 bool hw_2d_ui_texture_create()
 {
-	if (!::hw_texture_manager_->ui_create(::vid_ui_buffer.data(), ::vid_mask_buffer.data(), &::hw_palette_))
-	{
-		::vid_log_hw_texture_manager_error("Failed to create UI texture.");
-
-		return false;
-	}
-
+	::hw_texture_manager_->ui_create(::vid_ui_buffer.data(), ::vid_mask_buffer.data(), &::hw_palette_);
 	::hw_2d_ui_t2d_ = ::hw_texture_manager_->ui_get();
-
-	if (::hw_2d_ui_t2d_ == nullptr)
-	{
-		::vid_log_hw_texture_manager_error("Failed to get UI texture.");
-
-		return false;
-	}
 
 	return true;
 }
@@ -4457,17 +4386,8 @@ void hw_3d_flooring_texture_2d_solid_destroy()
 
 bool hw_3d_flooring_texture_2d_solid_create()
 {
-	if (!::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::flooring))
-	{
-		return false;
-	}
-
+	::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::flooring);
 	::hw_3d_flooring_solid_t2d_ = ::hw_texture_manager_->solid_1x1_get(bstone::HwTextureManagerSolid1x1Id::flooring);
-
-	if (::hw_3d_flooring_solid_t2d_ == nullptr)
-	{
-		return false;
-	}
 
 	return true;
 }
@@ -4657,21 +4577,8 @@ void hw_3d_ceiling_texture_2d_solid_destroy()
 
 bool hw_3d_ceiling_texture_2d_solid_create()
 {
-	if (!::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::ceiling))
-	{
-		::vid_log_hw_texture_manager_error("Failed to create 1x1 solid ceiling texture.");
-
-		return false;
-	}
-
+	::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::ceiling);
 	::hw_3d_ceiling_solid_t2d_ = ::hw_texture_manager_->solid_1x1_get(bstone::HwTextureManagerSolid1x1Id::ceiling);
-
-	if (::hw_3d_ceiling_solid_t2d_ == nullptr)
-	{
-		::vid_log_hw_texture_manager_error("Failed to get 1x1 solid ceiling texture.");
-
-		return false;
-	}
 
 	return true;
 }
@@ -6105,21 +6012,8 @@ void hw_3d_fade_texture_2d_destroy()
 
 bool hw_3d_fade_texture_2d_create()
 {
-	if (!::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::fade_3d))
-	{
-		::vid_log_hw_renderer_error("Failed to create 1x1 3D fade texture.");
-
-		return false;
-	}
-
+	::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::fade_3d);
 	::hw_3d_fade_t2d_ = ::hw_texture_manager_->solid_1x1_get(bstone::HwTextureManagerSolid1x1Id::fade_3d);
-
-	if (::hw_3d_fade_t2d_ == nullptr)
-	{
-		::vid_log_hw_renderer_error("Failed to get 1x1 3D fade texture.");
-
-		return false;
-	}
 
 	return true;
 }
@@ -6139,7 +6033,6 @@ void hw_texture_manager_destroy()
 		return;
 	}
 
-	::hw_texture_manager_->uninitialize();
 	::hw_texture_manager_ = nullptr;
 }
 
@@ -6149,13 +6042,6 @@ bool hw_texture_manager_create()
 		::hw_renderer_,
 		&::vid_sprite_cache
 	);
-
-	if (!::hw_texture_manager_->is_initialized())
-	{
-		::vid_log_hw_texture_manager_error("Failed to initialize texture manager.");
-
-		return false;
-	}
 
 	return true;
 }
@@ -8488,11 +8374,7 @@ void hw_vsync_check()
 
 void hw_precache_flooring()
 {
-	if (!::hw_texture_manager_->wall_cache(::FloorTile))
-	{
-		::vid_quit("Failed to cache a floor #" + std::to_string(::FloorTile) + ".");
-	}
-
+	::hw_texture_manager_->wall_cache(::FloorTile);
 	::hw_3d_flooring_textured_t2d_ = ::hw_texture_manager_->wall_get(::FloorTile);
 
 	const auto vga_index = ::BottomColor & 0xFF;
@@ -8509,11 +8391,7 @@ void hw_precache_flooring()
 
 void hw_precache_ceiling()
 {
-	if (!::hw_texture_manager_->wall_cache(::CeilingTile))
-	{
-		::vid_quit("Failed to cache a ceiling #" + std::to_string(::CeilingTile) + ".");
-	}
-
+	::hw_texture_manager_->wall_cache(::CeilingTile);
 	::hw_3d_ceiling_textured_t2d_ = ::hw_texture_manager_->wall_get(::CeilingTile);
 
 	const auto vga_index = ::TopColor & 0xFF;
@@ -8632,10 +8510,7 @@ bool hw_tile_is_solid_wall(
 void hw_precache_wall(
 	const int wall_id)
 {
-	if (!::hw_texture_manager_->wall_cache(wall_id))
-	{
-		::vid_quit("Failed to cache a wall #" + std::to_string(wall_id) + ".");
-	}
+	::hw_texture_manager_->wall_cache(wall_id);
 }
 
 void hw_precache_horizontal_wall(
@@ -8743,10 +8618,7 @@ void hw_precache_pushwalls()
 void hw_precache_door_side(
 	const int page_number)
 {
-	if (!::hw_texture_manager_->wall_cache(page_number))
-	{
-		::vid_quit("Failed to cache a door side #" + std::to_string(page_number) + ".");
-	}
+	::hw_texture_manager_->wall_cache(page_number);
 }
 
 void hw_precache_door(
@@ -10261,12 +10133,7 @@ void hw_3d_statics_precache()
 void hw_sprite_cache(
 	const int bs_sprite_id)
 {
-	if (!::hw_texture_manager_->sprite_cache(bs_sprite_id))
-	{
-		const auto& error_message = "Failed to cache a sprite #" + std::to_string(bs_sprite_id) + ".";
-
-		::vid_quit(error_message);
-	}
+	::hw_texture_manager_->sprite_cache(bs_sprite_id);
 }
 
 void hw_3d_actor_map(
@@ -12452,11 +12319,6 @@ bool hw_device_reset_resources_create()
 		return false;
 	}
 
-	if (!::hw_texture_manager_create())
-	{
-		return false;
-	}
-
 	::hw_3d_walls_build();
 	::hw_3d_pushwalls_build();
 	::hw_3d_doors_build();
@@ -12489,8 +12351,6 @@ void hw_video_uninitialize()
 
 	::hw_program_uninitialize();
 
-	::hw_samplers_uninitialize();
-
 	::hw_3d_walls_uninitialize();
 	::hw_3d_pushwalls_uninitialize();
 	::hw_3d_door_sides_uninitialize();
@@ -12506,11 +12366,9 @@ void hw_video_uninitialize()
 
 	::hw_texture_manager_destroy();
 
-	if (::hw_renderer_manager_)
-	{
-		::hw_renderer_manager_->uninitialize();
-		::hw_renderer_manager_ = nullptr;
-	}
+	::hw_samplers_uninitialize();
+
+	::hw_renderer_manager_ = nullptr;
 }
 
 bool hw_video_initialize()
@@ -12524,19 +12382,7 @@ bool hw_video_initialize()
 
 	hw_renderer_manager_ = bstone::RendererManagerFactory::create();
 
-	if (!hw_renderer_manager_->initialize())
-	{
-		::vid_log_hw_renderer_manager_error("Failed to initialize renderer manager.");
-
-		return false;
-	}
-
-	if (!hw_renderer_manager_->renderer_probe(bstone::RendererKind::auto_detect))
-	{
-		::vid_log_hw_renderer_manager_error("Failed to auto-detect compatible renderer.");
-
-		return false;
-	}
+	::hw_renderer_manager_->renderer_probe(bstone::RendererKind::auto_detect);
 
 	::vid_common_initialize();
 	::hw_dimensions_calculate();
@@ -12587,19 +12433,6 @@ bool hw_video_initialize()
 	if (is_succeed)
 	{
 		is_succeed = ::hw_3d_fade_initialize();
-	}
-
-	if (is_succeed)
-	{
-		::hw_texture_manager_ = bstone::HwTextureManagerFactory::create(
-			::hw_renderer_,
-			&::vid_sprite_cache
-		);
-
-		if (!::hw_texture_manager_->is_initialized())
-		{
-			is_succeed = false;
-		}
 	}
 
 	if (is_succeed)

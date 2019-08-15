@@ -64,26 +64,25 @@ Free Software Foundation, Inc.,
 
 QuitException::QuitException()
 	:
-	message_{}
+	Exception{}
 {
 }
 
 QuitException::QuitException(
-	const std::string& message)
+	const char* const message)
 	:
-	message_{message}
+	Exception{message}
 {
 }
 
-bool QuitException::is_empty() const
+QuitException::QuitException(
+	std::string&& message)
+	:
+	Exception{std::move(message)}
 {
-	return message_.empty();
 }
 
-const std::string& QuitException::get_message() const
-{
-	return message_;
-}
+QuitException::~QuitException() = default;
 
 //
 // QuitException
@@ -7193,7 +7192,7 @@ void read_high_scores()
 		{
 			is_succeed = false;
 
-			bstone::logger_->write_error("Failed to unarchive high scores. " + std::string{ex.get_message()});
+			bstone::logger_->write_error("Failed to unarchive high scores. " + std::string{ex.what()});
 		}
 	}
 	else
@@ -7250,7 +7249,7 @@ static void write_high_scores()
 	}
 	catch (const bstone::ArchiverException& ex)
 	{
-		bstone::logger_->write_error("Failed to archive high scores data." + std::string{ex.get_message()});
+		bstone::logger_->write_error("Failed to archive high scores data." + std::string{ex.what()});
 	}
 }
 // BBi
@@ -8664,7 +8663,7 @@ static bool LoadCompressedChunk(
 	}
 	catch (const bstone::ArchiverException& ex)
 	{
-		bstone::logger_->write_error("LOAD: Failed to unarchive \"" + chunk_name + "\". " + ex.get_message());
+		bstone::logger_->write_error("LOAD: Failed to unarchive \"" + chunk_name + "\". " + std::string{ex.what()});
 
 		return false;
 	}
@@ -8808,7 +8807,7 @@ bool LoadTheGame(
 		{
 			is_succeed = false;
 
-			bstone::logger_->write_error("LOAD: Failed to deserialize HEAD data. " + std::string{ex.get_message()});
+			bstone::logger_->write_error("LOAD: Failed to deserialize HEAD data. " + std::string{ex.what()});
 		}
 	}
 
@@ -8961,7 +8960,7 @@ bool SaveTheGame(
 	}
 	catch (const bstone::ArchiverException& ex)
 	{
-		bstone::logger_->write_error("SAVE: Failed to serialize HEAD chunk. " + std::string{ex.get_message()});
+		bstone::logger_->write_error("SAVE: Failed to serialize HEAD chunk. " + std::string{ex.what()});
 
 		return false;
 	}
@@ -9049,7 +9048,7 @@ bool SaveTheGame(
 	}
 	catch (const bstone::ArchiverException& ex)
 	{
-		bstone::logger_->write_error("SAVE: Failed to write data. " + std::string{ex.get_message()});
+		bstone::logger_->write_error("SAVE: Failed to write data. " + std::string{ex.what()});
 
 		return false;
 	}
@@ -9392,15 +9391,17 @@ void pre_quit()
 
 void Quit()
 {
-	::Quit({});
+	::pre_quit();
+
+	throw QuitException{};
 }
 
 void Quit(
-	const std::string& message)
+	std::string&& message)
 {
 	::pre_quit();
 
-	throw QuitException{message};
+	throw QuitException{std::move(message)};
 }
 
 void DemoLoop()
@@ -9675,7 +9676,7 @@ int main(
 	}
 	catch (const QuitException& ex)
 	{
-		quit_message = ex.get_message();
+		quit_message = ex.what();
 	}
 
 	if (!quit_message.empty())

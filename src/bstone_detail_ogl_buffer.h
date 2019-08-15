@@ -34,7 +34,6 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_renderer.h"
-#include "bstone_ogl_handles.h"
 
 
 namespace bstone
@@ -54,88 +53,18 @@ using OglBufferPtr = OglBuffer*;
 // OglBuffer
 //
 
-class OglBuffer final
+class OglBuffer :
+	public RendererBuffer
 {
-public:
-	struct InitializeParam
-	{
-		RendererBufferKind kind_;
-		RendererBufferUsageKind usage_kind_;
-		int size_;
-		OglStatePtr ogl_state_;
-	}; // InitializeParam
-
-	struct UpdateParam
-	{
-		int offset_;
-		int size_;
-		const void* data_;
-	}; // UpdateParam
-
-
+protected:
 	OglBuffer();
 
-	OglBuffer(
-		const OglBuffer& rhs) = delete;
 
-	~OglBuffer();
-
-
-	RendererBufferKind get_kind() const noexcept;
-
-	RendererBufferUsageKind get_usage_kind() const noexcept;
-
-	int get_size() const noexcept;
-
-	void bind();
-
-	void unbind_target();
-
-	void update(
-		const UpdateParam& param);
+public:
+	~OglBuffer() override;
 
 
-	const std::string& get_error_message() const;
-
-	bool initialize(
-		const InitializeParam& param);
-
-	bool is_initialized() const noexcept;
-
-	GLuint get_ogl_name() const noexcept;
-
-
-private:
-	std::string error_message_;
-
-	RendererBufferKind kind_;
-	RendererBufferUsageKind usage_kind_;
-	int size_;
-	OglBufferHandle ogl_handle_;
-	GLenum ogl_target_;
-	OglStatePtr ogl_state_;
-
-
-	bool validate_param(
-		const InitializeParam& param);
-
-	bool validate_param(
-		const UpdateParam& param);
-
-	static GLenum ogl_get_target(
-		const RendererBufferKind kind);
-
-	static GLenum ogl_get_usage(
-		const RendererBufferUsageKind usage_kind);
-
-
-	void bind(
-		OglBufferPtr ogl_buffer);
-
-	void unbind(
-		OglBufferPtr ogl_buffer);
-
-	void uninitialize();
+	virtual OglStatePtr ogl_state_get() const noexcept = 0;
 }; // OglBuffer
 
 
@@ -143,6 +72,30 @@ using OglBufferUPtr = std::unique_ptr<OglBuffer>;
 
 //
 // OglBuffer
+// =========================================================================
+
+
+// =========================================================================
+// OglBufferFactory
+//
+
+struct OglBufferFactory final
+{
+	struct InitializeParam
+	{
+		RendererBufferKind kind_;
+		RendererBufferUsageKind usage_kind_;
+		int size_;
+	}; // InitializeParam
+
+
+	static OglBufferUPtr create(
+		const OglStatePtr ogl_state,
+		const InitializeParam& param);
+}; // OglBufferFactory
+
+//
+// OglBufferFactory
 // =========================================================================
 
 

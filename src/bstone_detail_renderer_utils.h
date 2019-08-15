@@ -74,9 +74,6 @@ public:
 	using TextureBuffer = std::vector<R8g8b8a8>;
 
 
-	const std::string& get_error_message() const;
-
-
 	static int get_max_mipmap_count();
 
 	static float deg_to_rad(
@@ -92,48 +89,41 @@ public:
 		const int width,
 		const int height);
 
-	SdlWindowUPtr create_window(
+	static SdlWindowUPtr create_window(
 		const RendererUtilsCreateWindowParam& param);
 
-	bool show_window(
+	static void show_window(
 		SdlWindowPtr sdl_window,
 		const bool is_visible);
 
-	bool validate_initialize_param(
+	static void validate_initialize_param(
 		const RendererInitializeParam& param);
 
 
-	bool validate_index_buffer_create_param(
+	static void validate_buffer_update_param(
+		const RendererBufferUpdateParam& param);
+
+
+	static void validate_index_buffer_create_param(
 		const RendererIndexBufferCreateParam& param);
 
-	bool validate_index_buffer_update_param(
-		const RendererIndexBufferUpdateParam& param);
-
-
-	bool validate_vertex_buffer_create_param(
+	static void validate_vertex_buffer_create_param(
 		const RendererVertexBufferCreateParam& param);
 
-	bool validate_vertex_buffer_update_param(
-		const RendererVertexBufferUpdateParam& param);
 
-
-	bool validate_texture_2d_create_param(
+	static void validate_texture_2d_create_param(
 		const RendererTexture2dCreateParam& param);
 
-	bool validate_texture_2d_update_param(
+	static void validate_texture_2d_update_param(
 		const RendererTexture2dUpdateParam& param);
 
 
-	static bool vertex_input_validate_format(
+	static void vertex_input_validate_format(
 		const RendererVertexAttributeFormat attribute_format);
 
-	bool vertex_input_validate_param(
+	static void vertex_input_validate_param(
 		const int max_locations,
 		const RendererVertexInputCreateParam& param);
-
-
-	static bool is_ogl_renderer_path(
-		const RendererKind renderer_path);
 
 
 	static int aa_get_min_value();
@@ -201,16 +191,16 @@ public:
 
 
 private:
-	std::string error_message_;
+	RendererUtils();
 
 
-	bool create_window_validate_param(
+	static void create_window_validate_param(
 		const RendererUtilsCreateWindowParam& param);
 
-	bool create_window_set_ogl_attributes(
+	static void create_window_set_ogl_attributes(
 		const RendererUtilsCreateWindowParam& param);
 
-	std::uint32_t create_window_sdl_flags(
+	static std::uint32_t create_window_sdl_flags(
 		const RendererUtilsCreateWindowParam& param);
 }; // RendererUtils
 

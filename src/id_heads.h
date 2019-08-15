@@ -27,23 +27,22 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_cl_args.h"
+#include "bstone_exception.h"
 
 
-class QuitException
+class QuitException :
+	public bstone::Exception
 {
 public:
 	QuitException();
 
 	QuitException(
-		const std::string& message);
+		const char* const message);
 
-	bool is_empty() const;
+	QuitException(
+		std::string&& message);
 
-	const std::string& get_message() const;
-
-
-private:
-	std::string message_;
+	~QuitException() override;
 }; // QuitException
 
 
@@ -88,7 +87,7 @@ extern std::uint8_t update[UPDATESIZE];
 void Quit();
 
 void Quit(
-	const std::string& message);
+	std::string&& message);
 // BBi
 
 

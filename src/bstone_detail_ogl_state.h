@@ -32,12 +32,20 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_detail_ogl_buffer.h"
+#include "bstone_detail_ogl_device_features.h"
+#include "bstone_detail_ogl_sampler.h"
+#include "bstone_detail_ogl_texture_2d.h"
+#include "bstone_detail_ogl_vertex_input.h"
 
 
 namespace bstone
 {
 namespace detail
 {
+
+
+class OglVao;
+using OglVaoPtr = OglVao*;
 
 
 // =========================================================================
@@ -55,18 +63,78 @@ public:
 	virtual ~OglState() = 0;
 
 
-	virtual const std::string& get_error_message() const noexcept = 0;
+	virtual RendererIndexBufferPtr index_buffer_create(
+		const RendererIndexBufferCreateParam& param) = 0;
 
-	virtual void initialize() = 0;
+	virtual RendererVertexBufferPtr vertex_buffer_create(
+		const RendererVertexBufferCreateParam& param) = 0;
 
-	virtual bool is_initialized() const noexcept = 0;
+
+	virtual void buffer_destroy(
+		const RendererBufferPtr buffer) = 0;
+
+	virtual bool buffer_set_current(
+		const RendererBufferKind buffer_kind,
+		const RendererBufferPtr buffer) = 0;
 
 
-	virtual void buffer_bind(
-		const detail::OglBufferPtr buffer) = 0;
+	virtual OglSamplerPtr sampler_create(
+		const RendererSamplerCreateParam& param) = 0;
 
-	virtual void buffer_unbind(
-		const RendererBufferKind target) = 0;
+	virtual void sampler_destroy(
+		const RendererSamplerPtr sampler) = 0;
+
+	virtual void sampler_set(
+		const RendererSamplerPtr sampler) = 0;
+
+
+	virtual void texture_2d_enable(
+		const bool is_enable) = 0;
+
+	virtual RendererTexture2dPtr texture_2d_create(
+		const RendererTexture2dCreateParam& param) = 0;
+
+	virtual void texture_2d_destroy(
+		const RendererTexture2dPtr texture_2d) = 0;
+
+	virtual void texture_2d_set(
+		const RendererTexture2dPtr texture_2d) = 0;
+
+	virtual OglTexture2dPtr texture_2d_get_current() noexcept = 0;
+
+
+	virtual OglVaoPtr vao_create() = 0;
+
+	virtual void vao_destroy(
+		const OglVaoPtr vao) = 0;
+
+	virtual void vao_bind(
+		const OglVaoPtr vao) = 0;
+
+	virtual void vao_push_current_set_default() = 0;
+
+	virtual void vao_pop() = 0;
+
+
+	virtual OglVertexInputPtr vertex_input_create(
+		const RendererVertexInputCreateParam& param) = 0;
+
+	virtual void vertex_input_destroy(
+		const RendererVertexInputPtr vertex_input) = 0;
+
+	virtual void vertex_input_set(
+		const OglVertexInputPtr vertex_input) = 0;
+
+	virtual OglVertexInputPtr vertex_input_get_current() const noexcept = 0;
+
+
+	virtual void vertex_input_location_enable(
+		const int location,
+		const bool is_enabled) = 0;
+
+	virtual void vertex_input_location_assign_begin() = 0;
+
+	virtual void vertex_input_location_assign_end() = 0;
 }; // OglBuffer
 
 
@@ -86,7 +154,9 @@ using OglStateUPtr = std::unique_ptr<OglState>;
 struct OglStateFactory
 {
 	static OglStateUPtr create(
-		const RendererKind renderer_kind);
+		const RendererKind renderer_kind,
+		const RendererDeviceFeatures& device_features,
+		const OglDeviceFeatures& ogl_device_features);
 }; // OglStateFactory
 
 

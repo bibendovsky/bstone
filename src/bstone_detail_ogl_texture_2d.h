@@ -23,14 +23,14 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL index buffer object (implementation).
+// OpenGL 2D texture (implementation).
 //
 // !!! Internal usage only !!!
 //
 
 
-#ifndef BSTONE_DETAIL_OGL_INDEX_BUFFER_INCLUDED
-#define BSTONE_DETAIL_OGL_INDEX_BUFFER_INCLUDED
+#ifndef BSTONE_DETAIL_OGL_TEXTURE_2D_INCLUDED
+#define BSTONE_DETAIL_OGL_TEXTURE_2D_INCLUDED
 
 
 #include "bstone_renderer.h"
@@ -42,46 +42,56 @@ namespace detail
 {
 
 
+struct OglDeviceFeatures;
+
 class OglState;
 using OglStatePtr = OglState*;
 
 
 // =========================================================================
-// OglIndexBuffer
+// OglTexture2d
 //
 
-class OglIndexBuffer :
-	public RendererIndexBuffer
+class OglTexture2d :
+	public RendererTexture2d
 {
 protected:
-	OglIndexBuffer();
+	OglTexture2d();
 
 
 public:
-	~OglIndexBuffer() override;
-}; // OglIndexBuffer
+	~OglTexture2d() override;
 
-using OglIndexBufferPtr = OglIndexBuffer*;
-using OglIndexBufferUPtr = std::unique_ptr<OglIndexBuffer>;
+
+	virtual void bind() = 0;
+
+	virtual void update_sampler_state(
+		const RendererSamplerState& new_sampler_state) = 0;
+}; // OglTexture2d
+
+using OglTexture2dPtr = OglTexture2d*;
+using OglTexture2dUPtr = std::unique_ptr<OglTexture2d>;
 
 //
-// OglIndexBuffer
+// OglTexture2d
 // =========================================================================
 
 
 // =========================================================================
-// OglIndexBufferFactory
+// OglTexture2dFactory
 //
 
-struct OglIndexBufferFactory final
+struct OglTexture2dFactory final
 {
-	static OglIndexBufferUPtr create(
-		const OglStatePtr ogl_state,
-		const RendererIndexBufferCreateParam& param);
-}; // OglIndexBufferFactory
+	static OglTexture2dUPtr create(
+		OglStatePtr ogl_state,
+		const RendererDeviceFeatures& device_features,
+		const OglDeviceFeatures& ogl_device_features,
+		const RendererTexture2dCreateParam& param);
+}; // OglTexture2dFactory
 
 //
-// OglIndexBufferFactory
+// OglTexture2dFactory
 // =========================================================================
 
 
@@ -89,4 +99,4 @@ struct OglIndexBufferFactory final
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_OGL_INDEX_BUFFER_INCLUDED
+#endif // !BSTONE_DETAIL_OGL_TEXTURE_2D_INCLUDED

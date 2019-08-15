@@ -26,7 +26,7 @@ Free Software Foundation, Inc.,
 
 
 void Quit(
-	const std::string& message);
+	std::string&& message);
 
 
 namespace bstone

@@ -31,6 +31,10 @@ Free Software Foundation, Inc.,
 
 #include "bstone_precompiled.h"
 #include "bstone_detail_ogl_vertex_buffer.h"
+
+#include "bstone_exception.h"
+
+#include "bstone_detail_ogl_buffer.h"
 #include "bstone_detail_renderer_utils.h"
 
 
@@ -44,87 +48,132 @@ namespace detail
 // OglVertexBuffer
 //
 
-OglVertexBuffer::OglVertexBuffer(
-	const OglStatePtr ogl_state)
-	:
-	ogl_state_{ogl_state}
+OglVertexBuffer::OglVertexBuffer() = default;
+
+OglVertexBuffer::~OglVertexBuffer() = default;
+
+//
+// OglVertexBuffer
+// ==========================================================================
+
+
+// ==========================================================================
+// GenericOglVertexBuffer
+//
+
+class GenericOglVertexBuffer :
+	public OglVertexBuffer
 {
-	assert(ogl_state_ != nullptr);
+public:
+	GenericOglVertexBuffer(
+		const OglStatePtr ogl_state,
+		const RendererVertexBufferCreateParam& param);
+
+	~GenericOglVertexBuffer() override = default;
+
+
+	RendererBufferKind get_kind() const noexcept override;
+
+	RendererBufferUsageKind get_usage_kind() const noexcept override;
+
+	int get_size() const noexcept override;
+
+	void update(
+		const RendererBufferUpdateParam& param) override;
+
+	void bind(
+		const bool is_binded) override;
+
+
+private:
+	detail::OglBufferUPtr ogl_buffer_;
+
+
+	void initialize(
+		const OglStatePtr ogl_state,
+		const RendererVertexBufferCreateParam& param);
+}; // GenericOglVertexBuffer
+
+using GenericOglVertexBufferPtr = GenericOglVertexBuffer*;
+using GenericOglVertexBufferUPtr = std::unique_ptr<GenericOglVertexBuffer>;
+
+//
+// GenericOglVertexBuffer
+// ==========================================================================
+
+
+// ==========================================================================
+// GenericOglVertexBuffer
+//
+
+GenericOglVertexBuffer::GenericOglVertexBuffer(
+	const OglStatePtr ogl_state,
+	const RendererVertexBufferCreateParam& param)
+	:
+	ogl_buffer_{}
+{
+	initialize(ogl_state, param);
 }
 
-RendererBufferUsageKind OglVertexBuffer::get_usage_kind() const
+RendererBufferKind GenericOglVertexBuffer::get_kind() const noexcept
+{
+	return ogl_buffer_->get_kind();
+}
+
+RendererBufferUsageKind GenericOglVertexBuffer::get_usage_kind() const noexcept
 {
 	return ogl_buffer_->get_usage_kind();
 }
 
-void OglVertexBuffer::update(
-	const RendererVertexBufferUpdateParam& param)
+void GenericOglVertexBuffer::update(
+	const RendererBufferUpdateParam& param)
 {
-	auto buffer_param = detail::OglBuffer::UpdateParam{};
-	buffer_param.offset_ = param.offset_;
-	buffer_param.size_ = param.size_;
-	buffer_param.data_ = param.data_;
-
-	ogl_buffer_->update(buffer_param);
+	ogl_buffer_->update(param);
 }
 
-const std::string& OglVertexBuffer::get_error_message() const
-{
-	return error_message_;
-}
-
-bool OglVertexBuffer::initialize(
+void GenericOglVertexBuffer::initialize(
+	const OglStatePtr ogl_state,
 	const RendererVertexBufferCreateParam& param)
 {
-	auto renderer_utils = detail::RendererUtils{};
+	RendererUtils::validate_vertex_buffer_create_param(param);
 
-	if (!renderer_utils.validate_vertex_buffer_create_param(param))
-	{
-		error_message_ = renderer_utils.get_error_message();
-
-		return false;
-	}
-
-	auto ogl_buffer = detail::OglBufferUPtr{new detail::OglBuffer{}};
-
-	auto buffer_param = detail::OglBuffer::InitializeParam{};
+	auto buffer_param = OglBufferFactory::InitializeParam{};
 	buffer_param.kind_ = RendererBufferKind::vertex;
 	buffer_param.usage_kind_ = param.usage_kind_;
 	buffer_param.size_ = param.size_;
-	buffer_param.ogl_state_ = ogl_state_;
 
-	if (!ogl_buffer->initialize(buffer_param))
-	{
-		error_message_ = ogl_buffer->get_error_message();
-
-		return false;
-	}
-
-	ogl_buffer_ = std::move(ogl_buffer);
-
-	return true;
+	ogl_buffer_ = detail::OglBufferFactory::create(ogl_state, buffer_param);
 }
 
-int OglVertexBuffer::get_size() const
+int GenericOglVertexBuffer::get_size() const noexcept
 {
 	return ogl_buffer_->get_size();
 }
 
-void OglVertexBuffer::bind(
+void GenericOglVertexBuffer::bind(
 	const bool is_binded)
 {
-	if (is_binded)
-	{
-		ogl_buffer_->bind();
-	}
-	else
-	{
-		ogl_buffer_->unbind_target();
-	}
+	ogl_buffer_->bind(is_binded);
 }
 
 //
-// OglVertexBuffer
+// GenericOglVertexBuffer
+// ==========================================================================
+
+
+// ==========================================================================
+// OglVertexBufferFactory
+//
+
+OglVertexBufferUPtr OglVertexBufferFactory::create(
+	const OglStatePtr ogl_state,
+	const RendererVertexBufferCreateParam& param)
+{
+	return std::make_unique<GenericOglVertexBuffer>(ogl_state, param);
+}
+
+//
+// OglVertexBufferFactory
 // ==========================================================================
 
 

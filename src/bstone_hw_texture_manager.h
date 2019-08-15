@@ -63,28 +63,21 @@ public:
 	virtual ~HwTextureManager() = default;
 
 
-	virtual bool is_initialized() const = 0;
+	virtual void cache_begin() = 0;
 
-	virtual const std::string& get_error_message() const = 0;
+	virtual void cache_end() = 0;
 
-	virtual void uninitialize() = 0;
-
-
-	virtual bool cache_begin() = 0;
-
-	virtual bool cache_end() = 0;
-
-	virtual bool cache_purge() = 0;
+	virtual void cache_purge() = 0;
 
 
-	virtual bool wall_cache(
+	virtual void wall_cache(
 		const int id) = 0;
 
 	virtual RendererTexture2dPtr wall_get(
 		const int id) const = 0;
 
 
-	virtual bool sprite_cache(
+	virtual void sprite_cache(
 		const int id) = 0;
 
 	virtual RendererTexture2dPtr sprite_get(
@@ -93,7 +86,7 @@ public:
 
 	virtual void ui_destroy() = 0;
 
-	virtual bool ui_create(
+	virtual void ui_create(
 		const std::uint8_t* const indexed_pixels,
 		const bool* const indexed_alphas,
 		const R8g8b8a8PaletteCPtr indexed_palette) = 0;
@@ -106,7 +99,7 @@ public:
 	virtual void solid_1x1_destroy(
 		const HwTextureManagerSolid1x1Id id) = 0;
 
-	virtual bool solid_1x1_create(
+	virtual void solid_1x1_create(
 		const HwTextureManagerSolid1x1Id id) = 0;
 
 	virtual void solid_1x1_update(
@@ -117,7 +110,7 @@ public:
 		const HwTextureManagerSolid1x1Id id) const = 0;
 
 
-	virtual bool device_on_reset() = 0;
+	virtual void device_on_reset() = 0;
 }; // HwTextureManager
 
 using HwTextureManagerPtr = HwTextureManager*;

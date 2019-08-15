@@ -30,6 +30,7 @@ Free Software Foundation, Inc.,
 #include "bstone_precompiled.h"
 #include "bstone_renderer_manager.h"
 #include <vector>
+#include "bstone_exception.h"
 #include "bstone_detail_ogl_2_x_renderer.h"
 #include "bstone_detail_ogl_renderer_utils.h"
 
@@ -46,21 +47,21 @@ class RendererManagerImpl :
 	public RendererManager
 {
 public:
-	RendererManagerImpl() = default;
+	RendererManagerImpl();
 
-	~RendererManagerImpl() override = default;
+	RendererManagerImpl(
+		RendererManagerImpl&& rhs);
 
-
-	bool is_initialized() const override;
-
-	const std::string& get_error_message() const override;
-
-	bool initialize() override;
-
-	void uninitialize() override;
+	~RendererManagerImpl() override;
 
 
-	bool renderer_probe(
+	int get_renderer_count() const;
+
+	RendererPtr get_renderer(
+		const int index) const;
+
+
+	void renderer_probe(
 		const RendererKind& renderer_path) override;
 
 	const RendererProbe& renderer_probe_get() const override;
@@ -70,62 +71,8 @@ public:
 
 
 private:
-	class Impl;
-
-
-	static Impl& get_impl();
-}; // RendererManager
-
-//
-// RendererManagerImpl
-// ==========================================================================
-
-
-// ==========================================================================
-// RendererManagerImpl::Impl
-//
-
-class RendererManagerImpl::Impl
-{
-public:
-	Impl();
-
-	Impl(
-		Impl&& rhs);
-
-	~Impl();
-
-
-	bool is_initialized() const;
-
-	const std::string& get_error_message() const;
-
-	bool initialize();
-
-	void uninitialize();
-
-
-	int get_renderer_count() const;
-
-	RendererPtr get_renderer(
-		const int index) const;
-
-
-	bool renderer_probe(
-		const RendererKind& renderer_path);
-
-	const RendererProbe& renderer_probe_get() const;
-
-	RendererPtr renderer_initialize(
-		const RendererInitializeParam& param);
-
-
-private:
 	using Renderers = std::vector<RendererPtr>;
 
-
-	bool is_initialized_;
-	std::string error_message_;
 
 	int renderer_count_;
 
@@ -133,66 +80,46 @@ private:
 	Renderers renderers_;
 
 	detail::Ogl2XRenderer ogl_2_x_renderer_;
-}; // RendererManagerImpl::Impl
+
+
+	bool initialize();
+
+	void uninitialize();
+}; // RendererManagerImpl
 
 //
-// RendererManagerImpl::Impl
+// RendererManagerImpl
 // ==========================================================================
 
 
 // ==========================================================================
-// RendererManagerImpl::Impl
+// RendererManagerImpl
 //
 
-RendererManagerImpl::Impl::Impl()
+RendererManagerImpl::RendererManagerImpl()
 	:
-	is_initialized_{},
-	error_message_{},
 	renderer_probe_{},
 	renderers_{}
 {
+	initialize();
 }
 
-RendererManagerImpl::Impl::Impl(
-	Impl&& rhs)
+RendererManagerImpl::RendererManagerImpl(
+	RendererManagerImpl&& rhs)
 	:
-	is_initialized_{std::move(rhs.is_initialized_)},
-	error_message_{std::move(rhs.error_message_)},
 	renderer_probe_{std::move(rhs.renderer_probe_)},
 	renderers_{std::move(rhs.renderers_)}
 {
-	rhs.is_initialized_ = false;
 }
 
-RendererManagerImpl::Impl::~Impl()
+RendererManagerImpl::~RendererManagerImpl()
 {
+	uninitialize();
 }
 
-bool RendererManagerImpl::Impl::is_initialized() const
+bool RendererManagerImpl::initialize()
 {
-	return is_initialized_;
-}
-
-const std::string& RendererManagerImpl::Impl::get_error_message() const
-{
-	return error_message_;
-}
-
-bool RendererManagerImpl::Impl::initialize()
-{
-	if (is_initialized_)
-	{
-		return true;
-	}
-
-	auto ogl_renderer_utils = detail::OglRendererUtils{};
-
-	if (!ogl_renderer_utils.load_library())
-	{
-		return false;
-	}
-
-	is_initialized_ = true;
+	detail::OglRendererUtils::load_library();
 
 	renderer_count_ = 0;
 	renderers_.resize(0);
@@ -205,10 +132,8 @@ bool RendererManagerImpl::Impl::initialize()
 	return true;
 }
 
-void RendererManagerImpl::Impl::uninitialize()
+void RendererManagerImpl::uninitialize()
 {
-	is_initialized_ = false;
-
 	for (auto renderer : renderers_)
 	{
 		renderer->uninitialize();
@@ -219,40 +144,20 @@ void RendererManagerImpl::Impl::uninitialize()
 	detail::OglRendererUtils::unload_library();
 }
 
-int RendererManagerImpl::Impl::get_renderer_count() const
+int RendererManagerImpl::get_renderer_count() const
 {
-	if (!is_initialized_)
-	{
-		return 0;
-	}
-
 	return renderer_count_;
 }
 
-RendererPtr RendererManagerImpl::Impl::get_renderer(
+RendererPtr RendererManagerImpl::get_renderer(
 	const int index) const
 {
-	if (!is_initialized_)
-	{
-		return nullptr;
-	}
-
-	if (index < 0 || index >= renderer_count_)
-	{
-		return nullptr;
-	}
-
 	return renderers_[index];
 }
 
-bool RendererManagerImpl::Impl::renderer_probe(
+void RendererManagerImpl::renderer_probe(
 	const RendererKind& renderer_path)
 {
-	if (!is_initialized_)
-	{
-		return false;
-	}
-
 	if (renderer_path == RendererKind::auto_detect)
 	{
 		// OpenGL.
@@ -263,8 +168,6 @@ bool RendererManagerImpl::Impl::renderer_probe(
 		if (ogl_2_x_renderer_.probe())
 		{
 			renderer_probe_ = ogl_2_x_renderer_.probe_get();
-
-			return true;
 		}
 	}
 	else
@@ -279,29 +182,20 @@ bool RendererManagerImpl::Impl::renderer_probe(
 			if (ogl_2_x_renderer_.probe())
 			{
 				renderer_probe_.kind_ = renderer_path;
-
-				return true;
 			}
 		}
 	}
-
-	return false;
 }
 
-const RendererProbe& RendererManagerImpl::Impl::renderer_probe_get() const
+const RendererProbe& RendererManagerImpl::renderer_probe_get() const
 {
 	return renderer_probe_;
 }
 
-RendererPtr RendererManagerImpl::Impl::renderer_initialize(
+RendererPtr RendererManagerImpl::renderer_initialize(
 	const RendererInitializeParam& param)
 {
-	auto renderer_utils = detail::RendererUtils{};
-
-	if (!renderer_utils.validate_initialize_param(param))
-	{
-		return nullptr;
-	}
+	detail::RendererUtils::validate_initialize_param(param);
 
 	switch (param.renderer_kind_)
 	{
@@ -318,73 +212,6 @@ RendererPtr RendererManagerImpl::Impl::renderer_initialize(
 	}
 
 	return nullptr;
-}
-
-//
-// RendererManagerImpl::Impl
-// ==========================================================================
-
-
-// ==========================================================================
-// RendererManagerImpl
-//
-
-bool RendererManagerImpl::is_initialized() const
-{
-	auto& impl = get_impl();
-
-	return impl.is_initialized();
-}
-
-const std::string& RendererManagerImpl::get_error_message() const
-{
-	auto& impl = get_impl();
-
-	return impl.get_error_message();
-}
-
-bool RendererManagerImpl::initialize()
-{
-	auto& impl = get_impl();
-
-	return impl.initialize();
-}
-
-void RendererManagerImpl::uninitialize()
-{
-	auto& impl = get_impl();
-
-	impl.uninitialize();
-}
-
-bool RendererManagerImpl::renderer_probe(
-	const RendererKind& renderer_path)
-{
-	auto& impl = get_impl();
-
-	return impl.renderer_probe(renderer_path);
-}
-
-const RendererProbe& RendererManagerImpl::renderer_probe_get() const
-{
-	auto& impl = get_impl();
-
-	return impl.renderer_probe_get();
-}
-
-RendererPtr RendererManagerImpl::renderer_initialize(
-	const RendererInitializeParam& param)
-{
-	auto& impl = get_impl();
-
-	return impl.renderer_initialize(param);
-}
-
-RendererManagerImpl::Impl& RendererManagerImpl::get_impl()
-{
-	static auto result = Impl{};
-
-	return result;
 }
 
 //

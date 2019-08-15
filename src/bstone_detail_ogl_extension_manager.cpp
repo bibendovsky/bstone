@@ -35,8 +35,9 @@ Free Software Foundation, Inc.,
 #include <algorithm>
 #include <iterator>
 #include <sstream>
-#include "bstone_detail_ogl_renderer_utils.h"
+#include "bstone_exception.h"
 #include "bstone_sdl_types.h"
+#include "bstone_detail_ogl_renderer_utils.h"
 
 
 namespace bstone
@@ -55,19 +56,13 @@ class OglExtensionManagerImpl :
 public:
 	OglExtensionManagerImpl();
 
-	OglExtensionManagerImpl(
-		const OglExtensionManagerImpl& rhs) = delete;
-
-	OglExtensionManagerImpl(
-		OglExtensionManagerImpl&& rhs);
-
 	~OglExtensionManagerImpl() override;
 
 
-	int get_extension_count() const override;
+	int get_extension_count() const noexcept override;
 
 	const std::string& get_extension_name(
-		const int extension_index) const override;
+		const int extension_index) const noexcept override;
 
 
 	void probe_extension(
@@ -75,20 +70,17 @@ public:
 
 
 	bool has_extension(
-		const OglExtensionId extension_id) const override;
+		const OglExtensionId extension_id) const noexcept override;
 
 	bool operator[](
-		const OglExtensionId extension_id) const override;
-
-
-	bool initialize();
+		const OglExtensionId extension_id) const noexcept override;
 
 
 private:
 	using ExtensionNames = std::vector<std::string>;
 
 	using Dependencies = std::vector<OglExtensionId>;
-	using ResolveSymbolsFunction = bool (OglExtensionManagerImpl::*)();
+	using ResolveSymbolsFunction = void (OglExtensionManagerImpl::*)();
 
 
 	struct RegistryItem
@@ -116,33 +108,34 @@ private:
 	Registry registry_;
 
 
-	static const std::string& get_empty_extension_name();
+	static const std::string& get_empty_extension_name() noexcept;
 
-	static int get_registered_extension_count();
+	static int get_registered_extension_count() noexcept;
 
 	static int get_extension_index(
-		const OglExtensionId extension_id);
+		const OglExtensionId extension_id) noexcept;
 
 
 	template<typename T>
 	static void resolve_symbol(
 		const char* const name,
-		T& symbol,
-		bool& is_failed)
+		T& symbol)
 	{
 		symbol = reinterpret_cast<T>(OglRendererUtils::resolve_symbol(name));
 
-		if (symbol == nullptr)
+		if (!symbol)
 		{
-			is_failed = true;
+			throw Exception{name};
 		}
 	}
 
 
+	void initialize();
+
 	void initialize_registry();
 
 
-	bool get_context_attributes();
+	void get_context_attributes();
 
 
 	void get_core_extension_names();
@@ -152,13 +145,13 @@ private:
 	void get_extension_names();
 
 
-	bool is_gl() const;
+	bool is_gl() const noexcept;
 
-	bool is_glcore() const;
+	bool is_glcore() const noexcept;
 
-	bool is_gles1() const;
+	bool is_gles1() const noexcept;
 
-	bool is_gles2() const;
+	bool is_gles2() const noexcept;
 
 	bool is_extension_compatible(
 		const OglExtensionId extension_id) const;
@@ -168,49 +161,51 @@ private:
 		const OglExtensionId extension_id);
 
 
-	bool resolve_v1_0();
+	void resolve_v1_0();
 
-	bool resolve_v1_1();
+	void resolve_v1_1();
 
-	bool resolve_v1_2();
+	void resolve_v1_2();
 
-	bool resolve_v1_3();
+	void resolve_v1_3();
 
-	bool resolve_v1_4();
+	void resolve_v1_4();
 
-	bool resolve_v1_5();
-
-
-	bool resolve_v2_0();
-
-	bool resolve_v2_1();
+	void resolve_v1_5();
 
 
-	bool resolve_v3_0();
+	void resolve_v2_0();
 
-	bool resolve_v3_1();
-
-
-	bool resolve_arb_color_buffer_float();
-
-	bool resolve_arb_copy_buffer();
-
-	bool resolve_arb_framebuffer_object();
-
-	bool resolve_arb_map_buffer_range();
-
-	bool resolve_arb_uniform_buffer_object();
-
-	bool resolve_arb_vertex_array_object();
-
-	bool resolve_arb_vertex_buffer_object();
+	void resolve_v2_1();
 
 
-	bool resolve_ext_framebuffer_blit();
+	void resolve_v3_0();
 
-	bool resolve_ext_framebuffer_multisample();
+	void resolve_v3_1();
 
-	bool resolve_ext_framebuffer_object();
+
+	void resolve_arb_color_buffer_float();
+
+	void resolve_arb_copy_buffer();
+
+	void resolve_arb_framebuffer_object();
+
+	void resolve_arb_map_buffer_range();
+
+	void resolve_arb_sampler_objects();
+
+	void resolve_arb_uniform_buffer_object();
+
+	void resolve_arb_vertex_array_object();
+
+	void resolve_arb_vertex_buffer_object();
+
+
+	void resolve_ext_framebuffer_blit();
+
+	void resolve_ext_framebuffer_multisample();
+
+	void resolve_ext_framebuffer_object();
 }; // OglExtensionManagerImpl
 
 
@@ -224,44 +219,28 @@ OglExtensionManagerImpl::OglExtensionManagerImpl()
 	extension_names_{},
 	registry_{}
 {
-}
-
-OglExtensionManagerImpl::OglExtensionManagerImpl(
-	OglExtensionManagerImpl&& rhs)
-	:
-	context_kind_{std::move(rhs.context_kind_)},
-	extension_names_{std::move(rhs.extension_names_)},
-	registry_{std::move(rhs.registry_)}
-{
+	initialize();
 }
 
 OglExtensionManagerImpl::~OglExtensionManagerImpl()
 {
 }
 
-bool OglExtensionManagerImpl::initialize()
+void OglExtensionManagerImpl::initialize()
 {
-	if (!get_context_attributes())
-	{
-		assert(!"Failed to get context's attributes.");
-
-		return false;
-	}
-
+	get_context_attributes();
 	get_extension_names();
 
 	initialize_registry();
-
-	return true;
 }
 
-int OglExtensionManagerImpl::get_extension_count() const
+int OglExtensionManagerImpl::get_extension_count() const noexcept
 {
 	return static_cast<int>(extension_names_.size());
 }
 
 const std::string& OglExtensionManagerImpl::get_extension_name(
-	const int extension_index) const
+	const int extension_index) const noexcept
 {
 	if (extension_index < 0 || extension_index >= get_extension_count())
 	{
@@ -278,7 +257,7 @@ void OglExtensionManagerImpl::probe_extension(
 }
 
 bool OglExtensionManagerImpl::has_extension(
-	const OglExtensionId extension_id) const
+	const OglExtensionId extension_id) const noexcept
 {
 	const auto extension_index = get_extension_index(extension_id);
 
@@ -291,25 +270,25 @@ bool OglExtensionManagerImpl::has_extension(
 }
 
 bool OglExtensionManagerImpl::operator[](
-	const OglExtensionId extension_id) const
+	const OglExtensionId extension_id) const noexcept
 {
 	return has_extension(extension_id);
 }
 
-const std::string& OglExtensionManagerImpl::get_empty_extension_name()
+const std::string& OglExtensionManagerImpl::get_empty_extension_name() noexcept
 {
 	static const auto result = std::string{};
 
 	return result;
 }
 
-int OglExtensionManagerImpl::get_registered_extension_count()
+int OglExtensionManagerImpl::get_registered_extension_count() noexcept
 {
 	return static_cast<int>(OglExtensionId::count_);
 }
 
 int OglExtensionManagerImpl::get_extension_index(
-	const OglExtensionId extension_id)
+	const OglExtensionId extension_id) noexcept
 {
 	const auto extension_index = static_cast<int>(extension_id);
 
@@ -681,6 +660,20 @@ void OglExtensionManagerImpl::initialize_registry()
 	}
 
 	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::arb_sampler_objects)];
+		registry_item.is_virtual_ = false;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = true;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
+		registry_item.extension_name_ = "GL_ARB_sampler_objects";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_arb_sampler_objects;
+		registry_item.dependencies_ = {};
+	}
+
+	{
 		auto& registry_item = registry_[static_cast<int>(OglExtensionId::arb_uniform_buffer_object)];
 		registry_item.is_virtual_ = false;
 		registry_item.is_probed_ = false;
@@ -807,49 +800,40 @@ void OglExtensionManagerImpl::initialize_registry()
 	}
 }
 
-bool OglExtensionManagerImpl::get_context_attributes()
+void OglExtensionManagerImpl::get_context_attributes()
 {
 	const auto context_type = OglRendererUtils::context_get_kind();
 
 	if (context_type == OglContextKind::invalid)
 	{
-		return false;
+		throw Exception{"Invalid context kind."};
 	}
 
-	if (!OglRendererUtils::context_get_version(context_major_version_, context_minor_version_))
-	{
-		return false;
-	}
+	OglRendererUtils::context_get_version(context_major_version_, context_minor_version_);
 
 	int major_version = 0;
 	int minor_version = 0;
 
-	if (!OglRendererUtils::context_get_version(major_version, minor_version))
-	{
-		return false;
-	}
+	OglRendererUtils::context_get_version(major_version, minor_version);
 
 	context_kind_ = context_type;
 	context_major_version_ = major_version;
 	context_minor_version_ = minor_version;
-
-	return true;
 }
 
 void OglExtensionManagerImpl::get_core_extension_names()
 {
-	auto is_failed = false;
 	auto gl_get_integer_v = PFNGLGETINTEGERVPROC{};
 	auto gl_get_string_i = PFNGLGETSTRINGIPROC{};
 
-	resolve_symbol("glGetIntegerv", gl_get_integer_v, is_failed);
-	resolve_symbol("glGetStringi", gl_get_string_i, is_failed);
-
-	if (is_failed)
+	try
 	{
-		assert(!"Failed to resolve essential symbols.");
-
-		return;
+		resolve_symbol("glGetIntegerv", gl_get_integer_v);
+		resolve_symbol("glGetStringi", gl_get_string_i);
+	}
+	catch (const Exception&)
+	{
+		std::throw_with_nested(Exception{"Failed to resolve essential symbols."});
 	}
 
 	auto ogl_extension_count = GLint{};
@@ -870,38 +854,33 @@ void OglExtensionManagerImpl::get_core_extension_names()
 
 		if (extension_name == nullptr)
 		{
-			assert(!"Null extension name.");
-
-			return;
+			throw Exception{"Null extension name."};
 		}
 
 		extension_names[i] = reinterpret_cast<const char*>(extension_name);
 	}
 
-	std::swap(extension_names_, extension_names);
+	extension_names_ = std::move(extension_names);
 }
 
 void OglExtensionManagerImpl::get_compatibility_extension_names()
 {
-	auto is_failed = false;
 	auto gl_get_string = PFNGLGETSTRINGPROC{};
 
-	resolve_symbol("glGetString", gl_get_string, is_failed);
-
-	if (is_failed)
+	try
 	{
-		assert(!"Failed to resolve essential symbols.");
-
-		return;
+		resolve_symbol("glGetString", gl_get_string);
+	}
+	catch (const Exception&)
+	{
+		throw Exception{"Failed to resolve essential symbols."};
 	}
 
 	const auto ogl_extensions_c_string = gl_get_string(GL_EXTENSIONS);
 
 	if (ogl_extensions_c_string == nullptr)
 	{
-		assert(!"Null extensions string.");
-
-		return;
+		throw Exception{"Null extensions string."};
 	}
 
 	const auto& ogl_extensions_std_string = std::string
@@ -953,7 +932,7 @@ void OglExtensionManagerImpl::get_extension_names()
 	std::sort(extension_names_.begin(), extension_names_.end());
 }
 
-bool OglExtensionManagerImpl::is_gl() const
+bool OglExtensionManagerImpl::is_gl() const noexcept
 {
 	return
 		context_kind_ == OglContextKind::none ||
@@ -961,7 +940,7 @@ bool OglExtensionManagerImpl::is_gl() const
 	;
 }
 
-bool OglExtensionManagerImpl::is_glcore() const
+bool OglExtensionManagerImpl::is_glcore() const noexcept
 {
 	return
 		context_kind_ == OglContextKind::core
@@ -969,7 +948,7 @@ bool OglExtensionManagerImpl::is_glcore() const
 
 }
 
-bool OglExtensionManagerImpl::is_gles1() const
+bool OglExtensionManagerImpl::is_gles1() const noexcept
 {
 	return
 		context_kind_ == OglContextKind::es &&
@@ -977,7 +956,7 @@ bool OglExtensionManagerImpl::is_gles1() const
 	;
 }
 
-bool OglExtensionManagerImpl::is_gles2() const
+bool OglExtensionManagerImpl::is_gles2() const noexcept
 {
 	return
 		context_kind_ == OglContextKind::es &&
@@ -1012,9 +991,7 @@ void OglExtensionManagerImpl::probe_generic(
 
 	if (extension_index < 0)
 	{
-		assert(!"Invalid extension id.");
-
-		return;
+		throw Exception{"Invalid extension id."};
 	}
 
 	auto& registry_item = registry_[extension_index];
@@ -1033,9 +1010,7 @@ void OglExtensionManagerImpl::probe_generic(
 
 	if (registry_item.is_virtual_ && registry_item.resolve_symbols_function_ == nullptr)
 	{
-		assert(!"Expected symbols loader for specific version.");
-
-		return;
+		throw Exception{"Expected symbols loader for specific version."};
 	}
 
 	for (const auto dependency_extension_id : registry_item.dependencies_)
@@ -1072,7 +1047,11 @@ void OglExtensionManagerImpl::probe_generic(
 
 	if (registry_item.resolve_symbols_function_ != nullptr)
 	{
-		if (!(this->*registry_item.resolve_symbols_function_)())
+		try
+		{
+			(this->*registry_item.resolve_symbols_function_)();
+		}
+		catch (const Exception&)
 		{
 			return;
 		}
@@ -1081,845 +1060,783 @@ void OglExtensionManagerImpl::probe_generic(
 	registry_item.is_available_ = true;
 }
 
-bool OglExtensionManagerImpl::resolve_v1_0()
+void OglExtensionManagerImpl::resolve_v1_0()
 {
-	auto is_failed = false;
-
-	resolve_symbol("glCullFace", ::glCullFace, is_failed);
-	resolve_symbol("glFrontFace", ::glFrontFace, is_failed);
-	resolve_symbol("glHint", ::glHint, is_failed);
-	resolve_symbol("glLineWidth", ::glLineWidth, is_failed);
-	resolve_symbol("glPointSize", ::glPointSize, is_failed);
-	resolve_symbol("glPolygonMode", ::glPolygonMode, is_failed);
-	resolve_symbol("glScissor", ::glScissor, is_failed);
-	resolve_symbol("glTexParameterf", ::glTexParameterf, is_failed);
-	resolve_symbol("glTexParameterfv", ::glTexParameterfv, is_failed);
-	resolve_symbol("glTexParameteri", ::glTexParameteri, is_failed);
-	resolve_symbol("glTexParameteriv", ::glTexParameteriv, is_failed);
-	resolve_symbol("glTexImage1D", ::glTexImage1D, is_failed);
-	resolve_symbol("glTexImage2D", ::glTexImage2D, is_failed);
-	resolve_symbol("glDrawBuffer", ::glDrawBuffer, is_failed);
-	resolve_symbol("glClear", ::glClear, is_failed);
-	resolve_symbol("glClearColor", ::glClearColor, is_failed);
-	resolve_symbol("glClearStencil", ::glClearStencil, is_failed);
-	resolve_symbol("glClearDepth", ::glClearDepth, is_failed);
-	resolve_symbol("glStencilMask", ::glStencilMask, is_failed);
-	resolve_symbol("glColorMask", ::glColorMask, is_failed);
-	resolve_symbol("glDepthMask", ::glDepthMask, is_failed);
-	resolve_symbol("glDisable", ::glDisable, is_failed);
-	resolve_symbol("glEnable", ::glEnable, is_failed);
-	resolve_symbol("glFinish", ::glFinish, is_failed);
-	resolve_symbol("glFlush", ::glFlush, is_failed);
-	resolve_symbol("glBlendFunc", ::glBlendFunc, is_failed);
-	resolve_symbol("glLogicOp", ::glLogicOp, is_failed);
-	resolve_symbol("glStencilFunc", ::glStencilFunc, is_failed);
-	resolve_symbol("glStencilOp", ::glStencilOp, is_failed);
-	resolve_symbol("glDepthFunc", ::glDepthFunc, is_failed);
-	resolve_symbol("glPixelStoref", ::glPixelStoref, is_failed);
-	resolve_symbol("glPixelStorei", ::glPixelStorei, is_failed);
-	resolve_symbol("glReadBuffer", ::glReadBuffer, is_failed);
-	resolve_symbol("glReadPixels", ::glReadPixels, is_failed);
-	resolve_symbol("glGetBooleanv", ::glGetBooleanv, is_failed);
-	resolve_symbol("glGetDoublev", ::glGetDoublev, is_failed);
-	resolve_symbol("glGetError", ::glGetError, is_failed);
-	resolve_symbol("glGetFloatv", ::glGetFloatv, is_failed);
-	resolve_symbol("glGetIntegerv", ::glGetIntegerv, is_failed);
-	resolve_symbol("glGetString", ::glGetString, is_failed);
-	resolve_symbol("glGetTexImage", ::glGetTexImage, is_failed);
-	resolve_symbol("glGetTexParameterfv", ::glGetTexParameterfv, is_failed);
-	resolve_symbol("glGetTexParameteriv", ::glGetTexParameteriv, is_failed);
-	resolve_symbol("glGetTexLevelParameterfv", ::glGetTexLevelParameterfv, is_failed);
-	resolve_symbol("glGetTexLevelParameteriv", ::glGetTexLevelParameteriv, is_failed);
-	resolve_symbol("glIsEnabled", ::glIsEnabled, is_failed);
-	resolve_symbol("glDepthRange", ::glDepthRange, is_failed);
-	resolve_symbol("glViewport", ::glViewport, is_failed);
-	resolve_symbol("glNewList", ::glNewList, is_failed);
-	resolve_symbol("glEndList", ::glEndList, is_failed);
-	resolve_symbol("glCallList", ::glCallList, is_failed);
-	resolve_symbol("glCallLists", ::glCallLists, is_failed);
-	resolve_symbol("glDeleteLists", ::glDeleteLists, is_failed);
-	resolve_symbol("glGenLists", ::glGenLists, is_failed);
-	resolve_symbol("glListBase", ::glListBase, is_failed);
-	resolve_symbol("glBegin", ::glBegin, is_failed);
-	resolve_symbol("glBitmap", ::glBitmap, is_failed);
-	resolve_symbol("glColor3b", ::glColor3b, is_failed);
-	resolve_symbol("glColor3bv", ::glColor3bv, is_failed);
-	resolve_symbol("glColor3d", ::glColor3d, is_failed);
-	resolve_symbol("glColor3dv", ::glColor3dv, is_failed);
-	resolve_symbol("glColor3f", ::glColor3f, is_failed);
-	resolve_symbol("glColor3fv", ::glColor3fv, is_failed);
-	resolve_symbol("glColor3i", ::glColor3i, is_failed);
-	resolve_symbol("glColor3iv", ::glColor3iv, is_failed);
-	resolve_symbol("glColor3s", ::glColor3s, is_failed);
-	resolve_symbol("glColor3sv", ::glColor3sv, is_failed);
-	resolve_symbol("glColor3ub", ::glColor3ub, is_failed);
-	resolve_symbol("glColor3ubv", ::glColor3ubv, is_failed);
-	resolve_symbol("glColor3ui", ::glColor3ui, is_failed);
-	resolve_symbol("glColor3uiv", ::glColor3uiv, is_failed);
-	resolve_symbol("glColor3us", ::glColor3us, is_failed);
-	resolve_symbol("glColor3usv", ::glColor3usv, is_failed);
-	resolve_symbol("glColor4b", ::glColor4b, is_failed);
-	resolve_symbol("glColor4bv", ::glColor4bv, is_failed);
-	resolve_symbol("glColor4d", ::glColor4d, is_failed);
-	resolve_symbol("glColor4dv", ::glColor4dv, is_failed);
-	resolve_symbol("glColor4f", ::glColor4f, is_failed);
-	resolve_symbol("glColor4fv", ::glColor4fv, is_failed);
-	resolve_symbol("glColor4i", ::glColor4i, is_failed);
-	resolve_symbol("glColor4iv", ::glColor4iv, is_failed);
-	resolve_symbol("glColor4s", ::glColor4s, is_failed);
-	resolve_symbol("glColor4sv", ::glColor4sv, is_failed);
-	resolve_symbol("glColor4ub", ::glColor4ub, is_failed);
-	resolve_symbol("glColor4ubv", ::glColor4ubv, is_failed);
-	resolve_symbol("glColor4ui", ::glColor4ui, is_failed);
-	resolve_symbol("glColor4uiv", ::glColor4uiv, is_failed);
-	resolve_symbol("glColor4us", ::glColor4us, is_failed);
-	resolve_symbol("glColor4usv", ::glColor4usv, is_failed);
-	resolve_symbol("glEdgeFlag", ::glEdgeFlag, is_failed);
-	resolve_symbol("glEdgeFlagv", ::glEdgeFlagv, is_failed);
-	resolve_symbol("glEnd", ::glEnd, is_failed);
-	resolve_symbol("glIndexd", ::glIndexd, is_failed);
-	resolve_symbol("glIndexdv", ::glIndexdv, is_failed);
-	resolve_symbol("glIndexf", ::glIndexf, is_failed);
-	resolve_symbol("glIndexfv", ::glIndexfv, is_failed);
-	resolve_symbol("glIndexi", ::glIndexi, is_failed);
-	resolve_symbol("glIndexiv", ::glIndexiv, is_failed);
-	resolve_symbol("glIndexs", ::glIndexs, is_failed);
-	resolve_symbol("glIndexsv", ::glIndexsv, is_failed);
-	resolve_symbol("glNormal3b", ::glNormal3b, is_failed);
-	resolve_symbol("glNormal3bv", ::glNormal3bv, is_failed);
-	resolve_symbol("glNormal3d", ::glNormal3d, is_failed);
-	resolve_symbol("glNormal3dv", ::glNormal3dv, is_failed);
-	resolve_symbol("glNormal3f", ::glNormal3f, is_failed);
-	resolve_symbol("glNormal3fv", ::glNormal3fv, is_failed);
-	resolve_symbol("glNormal3i", ::glNormal3i, is_failed);
-	resolve_symbol("glNormal3iv", ::glNormal3iv, is_failed);
-	resolve_symbol("glNormal3s", ::glNormal3s, is_failed);
-	resolve_symbol("glNormal3sv", ::glNormal3sv, is_failed);
-	resolve_symbol("glRasterPos2d", ::glRasterPos2d, is_failed);
-	resolve_symbol("glRasterPos2dv", ::glRasterPos2dv, is_failed);
-	resolve_symbol("glRasterPos2f", ::glRasterPos2f, is_failed);
-	resolve_symbol("glRasterPos2fv", ::glRasterPos2fv, is_failed);
-	resolve_symbol("glRasterPos2i", ::glRasterPos2i, is_failed);
-	resolve_symbol("glRasterPos2iv", ::glRasterPos2iv, is_failed);
-	resolve_symbol("glRasterPos2s", ::glRasterPos2s, is_failed);
-	resolve_symbol("glRasterPos2sv", ::glRasterPos2sv, is_failed);
-	resolve_symbol("glRasterPos3d", ::glRasterPos3d, is_failed);
-	resolve_symbol("glRasterPos3dv", ::glRasterPos3dv, is_failed);
-	resolve_symbol("glRasterPos3f", ::glRasterPos3f, is_failed);
-	resolve_symbol("glRasterPos3fv", ::glRasterPos3fv, is_failed);
-	resolve_symbol("glRasterPos3i", ::glRasterPos3i, is_failed);
-	resolve_symbol("glRasterPos3iv", ::glRasterPos3iv, is_failed);
-	resolve_symbol("glRasterPos3s", ::glRasterPos3s, is_failed);
-	resolve_symbol("glRasterPos3sv", ::glRasterPos3sv, is_failed);
-	resolve_symbol("glRasterPos4d", ::glRasterPos4d, is_failed);
-	resolve_symbol("glRasterPos4dv", ::glRasterPos4dv, is_failed);
-	resolve_symbol("glRasterPos4f", ::glRasterPos4f, is_failed);
-	resolve_symbol("glRasterPos4fv", ::glRasterPos4fv, is_failed);
-	resolve_symbol("glRasterPos4i", ::glRasterPos4i, is_failed);
-	resolve_symbol("glRasterPos4iv", ::glRasterPos4iv, is_failed);
-	resolve_symbol("glRasterPos4s", ::glRasterPos4s, is_failed);
-	resolve_symbol("glRasterPos4sv", ::glRasterPos4sv, is_failed);
-	resolve_symbol("glRectd", ::glRectd, is_failed);
-	resolve_symbol("glRectdv", ::glRectdv, is_failed);
-	resolve_symbol("glRectf", ::glRectf, is_failed);
-	resolve_symbol("glRectfv", ::glRectfv, is_failed);
-	resolve_symbol("glRecti", ::glRecti, is_failed);
-	resolve_symbol("glRectiv", ::glRectiv, is_failed);
-	resolve_symbol("glRects", ::glRects, is_failed);
-	resolve_symbol("glRectsv", ::glRectsv, is_failed);
-	resolve_symbol("glTexCoord1d", ::glTexCoord1d, is_failed);
-	resolve_symbol("glTexCoord1dv", ::glTexCoord1dv, is_failed);
-	resolve_symbol("glTexCoord1f", ::glTexCoord1f, is_failed);
-	resolve_symbol("glTexCoord1fv", ::glTexCoord1fv, is_failed);
-	resolve_symbol("glTexCoord1i", ::glTexCoord1i, is_failed);
-	resolve_symbol("glTexCoord1iv", ::glTexCoord1iv, is_failed);
-	resolve_symbol("glTexCoord1s", ::glTexCoord1s, is_failed);
-	resolve_symbol("glTexCoord1sv", ::glTexCoord1sv, is_failed);
-	resolve_symbol("glTexCoord2d", ::glTexCoord2d, is_failed);
-	resolve_symbol("glTexCoord2dv", ::glTexCoord2dv, is_failed);
-	resolve_symbol("glTexCoord2f", ::glTexCoord2f, is_failed);
-	resolve_symbol("glTexCoord2fv", ::glTexCoord2fv, is_failed);
-	resolve_symbol("glTexCoord2i", ::glTexCoord2i, is_failed);
-	resolve_symbol("glTexCoord2iv", ::glTexCoord2iv, is_failed);
-	resolve_symbol("glTexCoord2s", ::glTexCoord2s, is_failed);
-	resolve_symbol("glTexCoord2sv", ::glTexCoord2sv, is_failed);
-	resolve_symbol("glTexCoord3d", ::glTexCoord3d, is_failed);
-	resolve_symbol("glTexCoord3dv", ::glTexCoord3dv, is_failed);
-	resolve_symbol("glTexCoord3f", ::glTexCoord3f, is_failed);
-	resolve_symbol("glTexCoord3fv", ::glTexCoord3fv, is_failed);
-	resolve_symbol("glTexCoord3i", ::glTexCoord3i, is_failed);
-	resolve_symbol("glTexCoord3iv", ::glTexCoord3iv, is_failed);
-	resolve_symbol("glTexCoord3s", ::glTexCoord3s, is_failed);
-	resolve_symbol("glTexCoord3sv", ::glTexCoord3sv, is_failed);
-	resolve_symbol("glTexCoord4d", ::glTexCoord4d, is_failed);
-	resolve_symbol("glTexCoord4dv", ::glTexCoord4dv, is_failed);
-	resolve_symbol("glTexCoord4f", ::glTexCoord4f, is_failed);
-	resolve_symbol("glTexCoord4fv", ::glTexCoord4fv, is_failed);
-	resolve_symbol("glTexCoord4i", ::glTexCoord4i, is_failed);
-	resolve_symbol("glTexCoord4iv", ::glTexCoord4iv, is_failed);
-	resolve_symbol("glTexCoord4s", ::glTexCoord4s, is_failed);
-	resolve_symbol("glTexCoord4sv", ::glTexCoord4sv, is_failed);
-	resolve_symbol("glVertex2d", ::glVertex2d, is_failed);
-	resolve_symbol("glVertex2dv", ::glVertex2dv, is_failed);
-	resolve_symbol("glVertex2f", ::glVertex2f, is_failed);
-	resolve_symbol("glVertex2fv", ::glVertex2fv, is_failed);
-	resolve_symbol("glVertex2i", ::glVertex2i, is_failed);
-	resolve_symbol("glVertex2iv", ::glVertex2iv, is_failed);
-	resolve_symbol("glVertex2s", ::glVertex2s, is_failed);
-	resolve_symbol("glVertex2sv", ::glVertex2sv, is_failed);
-	resolve_symbol("glVertex3d", ::glVertex3d, is_failed);
-	resolve_symbol("glVertex3dv", ::glVertex3dv, is_failed);
-	resolve_symbol("glVertex3f", ::glVertex3f, is_failed);
-	resolve_symbol("glVertex3fv", ::glVertex3fv, is_failed);
-	resolve_symbol("glVertex3i", ::glVertex3i, is_failed);
-	resolve_symbol("glVertex3iv", ::glVertex3iv, is_failed);
-	resolve_symbol("glVertex3s", ::glVertex3s, is_failed);
-	resolve_symbol("glVertex3sv", ::glVertex3sv, is_failed);
-	resolve_symbol("glVertex4d", ::glVertex4d, is_failed);
-	resolve_symbol("glVertex4dv", ::glVertex4dv, is_failed);
-	resolve_symbol("glVertex4f", ::glVertex4f, is_failed);
-	resolve_symbol("glVertex4fv", ::glVertex4fv, is_failed);
-	resolve_symbol("glVertex4i", ::glVertex4i, is_failed);
-	resolve_symbol("glVertex4iv", ::glVertex4iv, is_failed);
-	resolve_symbol("glVertex4s", ::glVertex4s, is_failed);
-	resolve_symbol("glVertex4sv", ::glVertex4sv, is_failed);
-	resolve_symbol("glClipPlane", ::glClipPlane, is_failed);
-	resolve_symbol("glColorMaterial", ::glColorMaterial, is_failed);
-	resolve_symbol("glFogf", ::glFogf, is_failed);
-	resolve_symbol("glFogfv", ::glFogfv, is_failed);
-	resolve_symbol("glFogi", ::glFogi, is_failed);
-	resolve_symbol("glFogiv", ::glFogiv, is_failed);
-	resolve_symbol("glLightf", ::glLightf, is_failed);
-	resolve_symbol("glLightfv", ::glLightfv, is_failed);
-	resolve_symbol("glLighti", ::glLighti, is_failed);
-	resolve_symbol("glLightiv", ::glLightiv, is_failed);
-	resolve_symbol("glLightModelf", ::glLightModelf, is_failed);
-	resolve_symbol("glLightModelfv", ::glLightModelfv, is_failed);
-	resolve_symbol("glLightModeli", ::glLightModeli, is_failed);
-	resolve_symbol("glLightModeliv", ::glLightModeliv, is_failed);
-	resolve_symbol("glLineStipple", ::glLineStipple, is_failed);
-	resolve_symbol("glMaterialf", ::glMaterialf, is_failed);
-	resolve_symbol("glMaterialfv", ::glMaterialfv, is_failed);
-	resolve_symbol("glMateriali", ::glMateriali, is_failed);
-	resolve_symbol("glMaterialiv", ::glMaterialiv, is_failed);
-	resolve_symbol("glPolygonStipple", ::glPolygonStipple, is_failed);
-	resolve_symbol("glShadeModel", ::glShadeModel, is_failed);
-	resolve_symbol("glTexEnvf", ::glTexEnvf, is_failed);
-	resolve_symbol("glTexEnvfv", ::glTexEnvfv, is_failed);
-	resolve_symbol("glTexEnvi", ::glTexEnvi, is_failed);
-	resolve_symbol("glTexEnviv", ::glTexEnviv, is_failed);
-	resolve_symbol("glTexGend", ::glTexGend, is_failed);
-	resolve_symbol("glTexGendv", ::glTexGendv, is_failed);
-	resolve_symbol("glTexGenf", ::glTexGenf, is_failed);
-	resolve_symbol("glTexGenfv", ::glTexGenfv, is_failed);
-	resolve_symbol("glTexGeni", ::glTexGeni, is_failed);
-	resolve_symbol("glTexGeniv", ::glTexGeniv, is_failed);
-	resolve_symbol("glFeedbackBuffer", ::glFeedbackBuffer, is_failed);
-	resolve_symbol("glSelectBuffer", ::glSelectBuffer, is_failed);
-	resolve_symbol("glRenderMode", ::glRenderMode, is_failed);
-	resolve_symbol("glInitNames", ::glInitNames, is_failed);
-	resolve_symbol("glLoadName", ::glLoadName, is_failed);
-	resolve_symbol("glPassThrough", ::glPassThrough, is_failed);
-	resolve_symbol("glPopName", ::glPopName, is_failed);
-	resolve_symbol("glPushName", ::glPushName, is_failed);
-	resolve_symbol("glClearAccum", ::glClearAccum, is_failed);
-	resolve_symbol("glClearIndex", ::glClearIndex, is_failed);
-	resolve_symbol("glIndexMask", ::glIndexMask, is_failed);
-	resolve_symbol("glAccum", ::glAccum, is_failed);
-	resolve_symbol("glPopAttrib", ::glPopAttrib, is_failed);
-	resolve_symbol("glPushAttrib", ::glPushAttrib, is_failed);
-	resolve_symbol("glMap1d", ::glMap1d, is_failed);
-	resolve_symbol("glMap1f", ::glMap1f, is_failed);
-	resolve_symbol("glMap2d", ::glMap2d, is_failed);
-	resolve_symbol("glMap2f", ::glMap2f, is_failed);
-	resolve_symbol("glMapGrid1d", ::glMapGrid1d, is_failed);
-	resolve_symbol("glMapGrid1f", ::glMapGrid1f, is_failed);
-	resolve_symbol("glMapGrid2d", ::glMapGrid2d, is_failed);
-	resolve_symbol("glMapGrid2f", ::glMapGrid2f, is_failed);
-	resolve_symbol("glEvalCoord1d", ::glEvalCoord1d, is_failed);
-	resolve_symbol("glEvalCoord1dv", ::glEvalCoord1dv, is_failed);
-	resolve_symbol("glEvalCoord1f", ::glEvalCoord1f, is_failed);
-	resolve_symbol("glEvalCoord1fv", ::glEvalCoord1fv, is_failed);
-	resolve_symbol("glEvalCoord2d", ::glEvalCoord2d, is_failed);
-	resolve_symbol("glEvalCoord2dv", ::glEvalCoord2dv, is_failed);
-	resolve_symbol("glEvalCoord2f", ::glEvalCoord2f, is_failed);
-	resolve_symbol("glEvalCoord2fv", ::glEvalCoord2fv, is_failed);
-	resolve_symbol("glEvalMesh1", ::glEvalMesh1, is_failed);
-	resolve_symbol("glEvalPoint1", ::glEvalPoint1, is_failed);
-	resolve_symbol("glEvalMesh2", ::glEvalMesh2, is_failed);
-	resolve_symbol("glEvalPoint2", ::glEvalPoint2, is_failed);
-	resolve_symbol("glAlphaFunc", ::glAlphaFunc, is_failed);
-	resolve_symbol("glPixelZoom", ::glPixelZoom, is_failed);
-	resolve_symbol("glPixelTransferf", ::glPixelTransferf, is_failed);
-	resolve_symbol("glPixelTransferi", ::glPixelTransferi, is_failed);
-	resolve_symbol("glPixelMapfv", ::glPixelMapfv, is_failed);
-	resolve_symbol("glPixelMapuiv", ::glPixelMapuiv, is_failed);
-	resolve_symbol("glPixelMapusv", ::glPixelMapusv, is_failed);
-	resolve_symbol("glCopyPixels", ::glCopyPixels, is_failed);
-	resolve_symbol("glDrawPixels", ::glDrawPixels, is_failed);
-	resolve_symbol("glGetClipPlane", ::glGetClipPlane, is_failed);
-	resolve_symbol("glGetLightfv", ::glGetLightfv, is_failed);
-	resolve_symbol("glGetLightiv", ::glGetLightiv, is_failed);
-	resolve_symbol("glGetMapdv", ::glGetMapdv, is_failed);
-	resolve_symbol("glGetMapfv", ::glGetMapfv, is_failed);
-	resolve_symbol("glGetMapiv", ::glGetMapiv, is_failed);
-	resolve_symbol("glGetMaterialfv", ::glGetMaterialfv, is_failed);
-	resolve_symbol("glGetMaterialiv", ::glGetMaterialiv, is_failed);
-	resolve_symbol("glGetPixelMapfv", ::glGetPixelMapfv, is_failed);
-	resolve_symbol("glGetPixelMapuiv", ::glGetPixelMapuiv, is_failed);
-	resolve_symbol("glGetPixelMapusv", ::glGetPixelMapusv, is_failed);
-	resolve_symbol("glGetPolygonStipple", ::glGetPolygonStipple, is_failed);
-	resolve_symbol("glGetTexEnvfv", ::glGetTexEnvfv, is_failed);
-	resolve_symbol("glGetTexEnviv", ::glGetTexEnviv, is_failed);
-	resolve_symbol("glGetTexGendv", ::glGetTexGendv, is_failed);
-	resolve_symbol("glGetTexGenfv", ::glGetTexGenfv, is_failed);
-	resolve_symbol("glGetTexGeniv", ::glGetTexGeniv, is_failed);
-	resolve_symbol("glIsList", ::glIsList, is_failed);
-	resolve_symbol("glFrustum", ::glFrustum, is_failed);
-	resolve_symbol("glLoadIdentity", ::glLoadIdentity, is_failed);
-	resolve_symbol("glLoadMatrixf", ::glLoadMatrixf, is_failed);
-	resolve_symbol("glLoadMatrixd", ::glLoadMatrixd, is_failed);
-	resolve_symbol("glMatrixMode", ::glMatrixMode, is_failed);
-	resolve_symbol("glMultMatrixf", ::glMultMatrixf, is_failed);
-	resolve_symbol("glMultMatrixd", ::glMultMatrixd, is_failed);
-	resolve_symbol("glOrtho", ::glOrtho, is_failed);
-	resolve_symbol("glPopMatrix", ::glPopMatrix, is_failed);
-	resolve_symbol("glPushMatrix", ::glPushMatrix, is_failed);
-	resolve_symbol("glRotated", ::glRotated, is_failed);
-	resolve_symbol("glRotatef", ::glRotatef, is_failed);
-	resolve_symbol("glScaled", ::glScaled, is_failed);
-	resolve_symbol("glScalef", ::glScalef, is_failed);
-	resolve_symbol("glTranslated", ::glTranslated, is_failed);
-	resolve_symbol("glTranslatef", ::glTranslatef, is_failed);
-
-	return !is_failed;
+	resolve_symbol("glCullFace", ::glCullFace);
+	resolve_symbol("glFrontFace", ::glFrontFace);
+	resolve_symbol("glHint", ::glHint);
+	resolve_symbol("glLineWidth", ::glLineWidth);
+	resolve_symbol("glPointSize", ::glPointSize);
+	resolve_symbol("glPolygonMode", ::glPolygonMode);
+	resolve_symbol("glScissor", ::glScissor);
+	resolve_symbol("glTexParameterf", ::glTexParameterf);
+	resolve_symbol("glTexParameterfv", ::glTexParameterfv);
+	resolve_symbol("glTexParameteri", ::glTexParameteri);
+	resolve_symbol("glTexParameteriv", ::glTexParameteriv);
+	resolve_symbol("glTexImage1D", ::glTexImage1D);
+	resolve_symbol("glTexImage2D", ::glTexImage2D);
+	resolve_symbol("glDrawBuffer", ::glDrawBuffer);
+	resolve_symbol("glClear", ::glClear);
+	resolve_symbol("glClearColor", ::glClearColor);
+	resolve_symbol("glClearStencil", ::glClearStencil);
+	resolve_symbol("glClearDepth", ::glClearDepth);
+	resolve_symbol("glStencilMask", ::glStencilMask);
+	resolve_symbol("glColorMask", ::glColorMask);
+	resolve_symbol("glDepthMask", ::glDepthMask);
+	resolve_symbol("glDisable", ::glDisable);
+	resolve_symbol("glEnable", ::glEnable);
+	resolve_symbol("glFinish", ::glFinish);
+	resolve_symbol("glFlush", ::glFlush);
+	resolve_symbol("glBlendFunc", ::glBlendFunc);
+	resolve_symbol("glLogicOp", ::glLogicOp);
+	resolve_symbol("glStencilFunc", ::glStencilFunc);
+	resolve_symbol("glStencilOp", ::glStencilOp);
+	resolve_symbol("glDepthFunc", ::glDepthFunc);
+	resolve_symbol("glPixelStoref", ::glPixelStoref);
+	resolve_symbol("glPixelStorei", ::glPixelStorei);
+	resolve_symbol("glReadBuffer", ::glReadBuffer);
+	resolve_symbol("glReadPixels", ::glReadPixels);
+	resolve_symbol("glGetBooleanv", ::glGetBooleanv);
+	resolve_symbol("glGetDoublev", ::glGetDoublev);
+	resolve_symbol("glGetError", ::glGetError);
+	resolve_symbol("glGetFloatv", ::glGetFloatv);
+	resolve_symbol("glGetIntegerv", ::glGetIntegerv);
+	resolve_symbol("glGetString", ::glGetString);
+	resolve_symbol("glGetTexImage", ::glGetTexImage);
+	resolve_symbol("glGetTexParameterfv", ::glGetTexParameterfv);
+	resolve_symbol("glGetTexParameteriv", ::glGetTexParameteriv);
+	resolve_symbol("glGetTexLevelParameterfv", ::glGetTexLevelParameterfv);
+	resolve_symbol("glGetTexLevelParameteriv", ::glGetTexLevelParameteriv);
+	resolve_symbol("glIsEnabled", ::glIsEnabled);
+	resolve_symbol("glDepthRange", ::glDepthRange);
+	resolve_symbol("glViewport", ::glViewport);
+	resolve_symbol("glNewList", ::glNewList);
+	resolve_symbol("glEndList", ::glEndList);
+	resolve_symbol("glCallList", ::glCallList);
+	resolve_symbol("glCallLists", ::glCallLists);
+	resolve_symbol("glDeleteLists", ::glDeleteLists);
+	resolve_symbol("glGenLists", ::glGenLists);
+	resolve_symbol("glListBase", ::glListBase);
+	resolve_symbol("glBegin", ::glBegin);
+	resolve_symbol("glBitmap", ::glBitmap);
+	resolve_symbol("glColor3b", ::glColor3b);
+	resolve_symbol("glColor3bv", ::glColor3bv);
+	resolve_symbol("glColor3d", ::glColor3d);
+	resolve_symbol("glColor3dv", ::glColor3dv);
+	resolve_symbol("glColor3f", ::glColor3f);
+	resolve_symbol("glColor3fv", ::glColor3fv);
+	resolve_symbol("glColor3i", ::glColor3i);
+	resolve_symbol("glColor3iv", ::glColor3iv);
+	resolve_symbol("glColor3s", ::glColor3s);
+	resolve_symbol("glColor3sv", ::glColor3sv);
+	resolve_symbol("glColor3ub", ::glColor3ub);
+	resolve_symbol("glColor3ubv", ::glColor3ubv);
+	resolve_symbol("glColor3ui", ::glColor3ui);
+	resolve_symbol("glColor3uiv", ::glColor3uiv);
+	resolve_symbol("glColor3us", ::glColor3us);
+	resolve_symbol("glColor3usv", ::glColor3usv);
+	resolve_symbol("glColor4b", ::glColor4b);
+	resolve_symbol("glColor4bv", ::glColor4bv);
+	resolve_symbol("glColor4d", ::glColor4d);
+	resolve_symbol("glColor4dv", ::glColor4dv);
+	resolve_symbol("glColor4f", ::glColor4f);
+	resolve_symbol("glColor4fv", ::glColor4fv);
+	resolve_symbol("glColor4i", ::glColor4i);
+	resolve_symbol("glColor4iv", ::glColor4iv);
+	resolve_symbol("glColor4s", ::glColor4s);
+	resolve_symbol("glColor4sv", ::glColor4sv);
+	resolve_symbol("glColor4ub", ::glColor4ub);
+	resolve_symbol("glColor4ubv", ::glColor4ubv);
+	resolve_symbol("glColor4ui", ::glColor4ui);
+	resolve_symbol("glColor4uiv", ::glColor4uiv);
+	resolve_symbol("glColor4us", ::glColor4us);
+	resolve_symbol("glColor4usv", ::glColor4usv);
+	resolve_symbol("glEdgeFlag", ::glEdgeFlag);
+	resolve_symbol("glEdgeFlagv", ::glEdgeFlagv);
+	resolve_symbol("glEnd", ::glEnd);
+	resolve_symbol("glIndexd", ::glIndexd);
+	resolve_symbol("glIndexdv", ::glIndexdv);
+	resolve_symbol("glIndexf", ::glIndexf);
+	resolve_symbol("glIndexfv", ::glIndexfv);
+	resolve_symbol("glIndexi", ::glIndexi);
+	resolve_symbol("glIndexiv", ::glIndexiv);
+	resolve_symbol("glIndexs", ::glIndexs);
+	resolve_symbol("glIndexsv", ::glIndexsv);
+	resolve_symbol("glNormal3b", ::glNormal3b);
+	resolve_symbol("glNormal3bv", ::glNormal3bv);
+	resolve_symbol("glNormal3d", ::glNormal3d);
+	resolve_symbol("glNormal3dv", ::glNormal3dv);
+	resolve_symbol("glNormal3f", ::glNormal3f);
+	resolve_symbol("glNormal3fv", ::glNormal3fv);
+	resolve_symbol("glNormal3i", ::glNormal3i);
+	resolve_symbol("glNormal3iv", ::glNormal3iv);
+	resolve_symbol("glNormal3s", ::glNormal3s);
+	resolve_symbol("glNormal3sv", ::glNormal3sv);
+	resolve_symbol("glRasterPos2d", ::glRasterPos2d);
+	resolve_symbol("glRasterPos2dv", ::glRasterPos2dv);
+	resolve_symbol("glRasterPos2f", ::glRasterPos2f);
+	resolve_symbol("glRasterPos2fv", ::glRasterPos2fv);
+	resolve_symbol("glRasterPos2i", ::glRasterPos2i);
+	resolve_symbol("glRasterPos2iv", ::glRasterPos2iv);
+	resolve_symbol("glRasterPos2s", ::glRasterPos2s);
+	resolve_symbol("glRasterPos2sv", ::glRasterPos2sv);
+	resolve_symbol("glRasterPos3d", ::glRasterPos3d);
+	resolve_symbol("glRasterPos3dv", ::glRasterPos3dv);
+	resolve_symbol("glRasterPos3f", ::glRasterPos3f);
+	resolve_symbol("glRasterPos3fv", ::glRasterPos3fv);
+	resolve_symbol("glRasterPos3i", ::glRasterPos3i);
+	resolve_symbol("glRasterPos3iv", ::glRasterPos3iv);
+	resolve_symbol("glRasterPos3s", ::glRasterPos3s);
+	resolve_symbol("glRasterPos3sv", ::glRasterPos3sv);
+	resolve_symbol("glRasterPos4d", ::glRasterPos4d);
+	resolve_symbol("glRasterPos4dv", ::glRasterPos4dv);
+	resolve_symbol("glRasterPos4f", ::glRasterPos4f);
+	resolve_symbol("glRasterPos4fv", ::glRasterPos4fv);
+	resolve_symbol("glRasterPos4i", ::glRasterPos4i);
+	resolve_symbol("glRasterPos4iv", ::glRasterPos4iv);
+	resolve_symbol("glRasterPos4s", ::glRasterPos4s);
+	resolve_symbol("glRasterPos4sv", ::glRasterPos4sv);
+	resolve_symbol("glRectd", ::glRectd);
+	resolve_symbol("glRectdv", ::glRectdv);
+	resolve_symbol("glRectf", ::glRectf);
+	resolve_symbol("glRectfv", ::glRectfv);
+	resolve_symbol("glRecti", ::glRecti);
+	resolve_symbol("glRectiv", ::glRectiv);
+	resolve_symbol("glRects", ::glRects);
+	resolve_symbol("glRectsv", ::glRectsv);
+	resolve_symbol("glTexCoord1d", ::glTexCoord1d);
+	resolve_symbol("glTexCoord1dv", ::glTexCoord1dv);
+	resolve_symbol("glTexCoord1f", ::glTexCoord1f);
+	resolve_symbol("glTexCoord1fv", ::glTexCoord1fv);
+	resolve_symbol("glTexCoord1i", ::glTexCoord1i);
+	resolve_symbol("glTexCoord1iv", ::glTexCoord1iv);
+	resolve_symbol("glTexCoord1s", ::glTexCoord1s);
+	resolve_symbol("glTexCoord1sv", ::glTexCoord1sv);
+	resolve_symbol("glTexCoord2d", ::glTexCoord2d);
+	resolve_symbol("glTexCoord2dv", ::glTexCoord2dv);
+	resolve_symbol("glTexCoord2f", ::glTexCoord2f);
+	resolve_symbol("glTexCoord2fv", ::glTexCoord2fv);
+	resolve_symbol("glTexCoord2i", ::glTexCoord2i);
+	resolve_symbol("glTexCoord2iv", ::glTexCoord2iv);
+	resolve_symbol("glTexCoord2s", ::glTexCoord2s);
+	resolve_symbol("glTexCoord2sv", ::glTexCoord2sv);
+	resolve_symbol("glTexCoord3d", ::glTexCoord3d);
+	resolve_symbol("glTexCoord3dv", ::glTexCoord3dv);
+	resolve_symbol("glTexCoord3f", ::glTexCoord3f);
+	resolve_symbol("glTexCoord3fv", ::glTexCoord3fv);
+	resolve_symbol("glTexCoord3i", ::glTexCoord3i);
+	resolve_symbol("glTexCoord3iv", ::glTexCoord3iv);
+	resolve_symbol("glTexCoord3s", ::glTexCoord3s);
+	resolve_symbol("glTexCoord3sv", ::glTexCoord3sv);
+	resolve_symbol("glTexCoord4d", ::glTexCoord4d);
+	resolve_symbol("glTexCoord4dv", ::glTexCoord4dv);
+	resolve_symbol("glTexCoord4f", ::glTexCoord4f);
+	resolve_symbol("glTexCoord4fv", ::glTexCoord4fv);
+	resolve_symbol("glTexCoord4i", ::glTexCoord4i);
+	resolve_symbol("glTexCoord4iv", ::glTexCoord4iv);
+	resolve_symbol("glTexCoord4s", ::glTexCoord4s);
+	resolve_symbol("glTexCoord4sv", ::glTexCoord4sv);
+	resolve_symbol("glVertex2d", ::glVertex2d);
+	resolve_symbol("glVertex2dv", ::glVertex2dv);
+	resolve_symbol("glVertex2f", ::glVertex2f);
+	resolve_symbol("glVertex2fv", ::glVertex2fv);
+	resolve_symbol("glVertex2i", ::glVertex2i);
+	resolve_symbol("glVertex2iv", ::glVertex2iv);
+	resolve_symbol("glVertex2s", ::glVertex2s);
+	resolve_symbol("glVertex2sv", ::glVertex2sv);
+	resolve_symbol("glVertex3d", ::glVertex3d);
+	resolve_symbol("glVertex3dv", ::glVertex3dv);
+	resolve_symbol("glVertex3f", ::glVertex3f);
+	resolve_symbol("glVertex3fv", ::glVertex3fv);
+	resolve_symbol("glVertex3i", ::glVertex3i);
+	resolve_symbol("glVertex3iv", ::glVertex3iv);
+	resolve_symbol("glVertex3s", ::glVertex3s);
+	resolve_symbol("glVertex3sv", ::glVertex3sv);
+	resolve_symbol("glVertex4d", ::glVertex4d);
+	resolve_symbol("glVertex4dv", ::glVertex4dv);
+	resolve_symbol("glVertex4f", ::glVertex4f);
+	resolve_symbol("glVertex4fv", ::glVertex4fv);
+	resolve_symbol("glVertex4i", ::glVertex4i);
+	resolve_symbol("glVertex4iv", ::glVertex4iv);
+	resolve_symbol("glVertex4s", ::glVertex4s);
+	resolve_symbol("glVertex4sv", ::glVertex4sv);
+	resolve_symbol("glClipPlane", ::glClipPlane);
+	resolve_symbol("glColorMaterial", ::glColorMaterial);
+	resolve_symbol("glFogf", ::glFogf);
+	resolve_symbol("glFogfv", ::glFogfv);
+	resolve_symbol("glFogi", ::glFogi);
+	resolve_symbol("glFogiv", ::glFogiv);
+	resolve_symbol("glLightf", ::glLightf);
+	resolve_symbol("glLightfv", ::glLightfv);
+	resolve_symbol("glLighti", ::glLighti);
+	resolve_symbol("glLightiv", ::glLightiv);
+	resolve_symbol("glLightModelf", ::glLightModelf);
+	resolve_symbol("glLightModelfv", ::glLightModelfv);
+	resolve_symbol("glLightModeli", ::glLightModeli);
+	resolve_symbol("glLightModeliv", ::glLightModeliv);
+	resolve_symbol("glLineStipple", ::glLineStipple);
+	resolve_symbol("glMaterialf", ::glMaterialf);
+	resolve_symbol("glMaterialfv", ::glMaterialfv);
+	resolve_symbol("glMateriali", ::glMateriali);
+	resolve_symbol("glMaterialiv", ::glMaterialiv);
+	resolve_symbol("glPolygonStipple", ::glPolygonStipple);
+	resolve_symbol("glShadeModel", ::glShadeModel);
+	resolve_symbol("glTexEnvf", ::glTexEnvf);
+	resolve_symbol("glTexEnvfv", ::glTexEnvfv);
+	resolve_symbol("glTexEnvi", ::glTexEnvi);
+	resolve_symbol("glTexEnviv", ::glTexEnviv);
+	resolve_symbol("glTexGend", ::glTexGend);
+	resolve_symbol("glTexGendv", ::glTexGendv);
+	resolve_symbol("glTexGenf", ::glTexGenf);
+	resolve_symbol("glTexGenfv", ::glTexGenfv);
+	resolve_symbol("glTexGeni", ::glTexGeni);
+	resolve_symbol("glTexGeniv", ::glTexGeniv);
+	resolve_symbol("glFeedbackBuffer", ::glFeedbackBuffer);
+	resolve_symbol("glSelectBuffer", ::glSelectBuffer);
+	resolve_symbol("glRenderMode", ::glRenderMode);
+	resolve_symbol("glInitNames", ::glInitNames);
+	resolve_symbol("glLoadName", ::glLoadName);
+	resolve_symbol("glPassThrough", ::glPassThrough);
+	resolve_symbol("glPopName", ::glPopName);
+	resolve_symbol("glPushName", ::glPushName);
+	resolve_symbol("glClearAccum", ::glClearAccum);
+	resolve_symbol("glClearIndex", ::glClearIndex);
+	resolve_symbol("glIndexMask", ::glIndexMask);
+	resolve_symbol("glAccum", ::glAccum);
+	resolve_symbol("glPopAttrib", ::glPopAttrib);
+	resolve_symbol("glPushAttrib", ::glPushAttrib);
+	resolve_symbol("glMap1d", ::glMap1d);
+	resolve_symbol("glMap1f", ::glMap1f);
+	resolve_symbol("glMap2d", ::glMap2d);
+	resolve_symbol("glMap2f", ::glMap2f);
+	resolve_symbol("glMapGrid1d", ::glMapGrid1d);
+	resolve_symbol("glMapGrid1f", ::glMapGrid1f);
+	resolve_symbol("glMapGrid2d", ::glMapGrid2d);
+	resolve_symbol("glMapGrid2f", ::glMapGrid2f);
+	resolve_symbol("glEvalCoord1d", ::glEvalCoord1d);
+	resolve_symbol("glEvalCoord1dv", ::glEvalCoord1dv);
+	resolve_symbol("glEvalCoord1f", ::glEvalCoord1f);
+	resolve_symbol("glEvalCoord1fv", ::glEvalCoord1fv);
+	resolve_symbol("glEvalCoord2d", ::glEvalCoord2d);
+	resolve_symbol("glEvalCoord2dv", ::glEvalCoord2dv);
+	resolve_symbol("glEvalCoord2f", ::glEvalCoord2f);
+	resolve_symbol("glEvalCoord2fv", ::glEvalCoord2fv);
+	resolve_symbol("glEvalMesh1", ::glEvalMesh1);
+	resolve_symbol("glEvalPoint1", ::glEvalPoint1);
+	resolve_symbol("glEvalMesh2", ::glEvalMesh2);
+	resolve_symbol("glEvalPoint2", ::glEvalPoint2);
+	resolve_symbol("glAlphaFunc", ::glAlphaFunc);
+	resolve_symbol("glPixelZoom", ::glPixelZoom);
+	resolve_symbol("glPixelTransferf", ::glPixelTransferf);
+	resolve_symbol("glPixelTransferi", ::glPixelTransferi);
+	resolve_symbol("glPixelMapfv", ::glPixelMapfv);
+	resolve_symbol("glPixelMapuiv", ::glPixelMapuiv);
+	resolve_symbol("glPixelMapusv", ::glPixelMapusv);
+	resolve_symbol("glCopyPixels", ::glCopyPixels);
+	resolve_symbol("glDrawPixels", ::glDrawPixels);
+	resolve_symbol("glGetClipPlane", ::glGetClipPlane);
+	resolve_symbol("glGetLightfv", ::glGetLightfv);
+	resolve_symbol("glGetLightiv", ::glGetLightiv);
+	resolve_symbol("glGetMapdv", ::glGetMapdv);
+	resolve_symbol("glGetMapfv", ::glGetMapfv);
+	resolve_symbol("glGetMapiv", ::glGetMapiv);
+	resolve_symbol("glGetMaterialfv", ::glGetMaterialfv);
+	resolve_symbol("glGetMaterialiv", ::glGetMaterialiv);
+	resolve_symbol("glGetPixelMapfv", ::glGetPixelMapfv);
+	resolve_symbol("glGetPixelMapuiv", ::glGetPixelMapuiv);
+	resolve_symbol("glGetPixelMapusv", ::glGetPixelMapusv);
+	resolve_symbol("glGetPolygonStipple", ::glGetPolygonStipple);
+	resolve_symbol("glGetTexEnvfv", ::glGetTexEnvfv);
+	resolve_symbol("glGetTexEnviv", ::glGetTexEnviv);
+	resolve_symbol("glGetTexGendv", ::glGetTexGendv);
+	resolve_symbol("glGetTexGenfv", ::glGetTexGenfv);
+	resolve_symbol("glGetTexGeniv", ::glGetTexGeniv);
+	resolve_symbol("glIsList", ::glIsList);
+	resolve_symbol("glFrustum", ::glFrustum);
+	resolve_symbol("glLoadIdentity", ::glLoadIdentity);
+	resolve_symbol("glLoadMatrixf", ::glLoadMatrixf);
+	resolve_symbol("glLoadMatrixd", ::glLoadMatrixd);
+	resolve_symbol("glMatrixMode", ::glMatrixMode);
+	resolve_symbol("glMultMatrixf", ::glMultMatrixf);
+	resolve_symbol("glMultMatrixd", ::glMultMatrixd);
+	resolve_symbol("glOrtho", ::glOrtho);
+	resolve_symbol("glPopMatrix", ::glPopMatrix);
+	resolve_symbol("glPushMatrix", ::glPushMatrix);
+	resolve_symbol("glRotated", ::glRotated);
+	resolve_symbol("glRotatef", ::glRotatef);
+	resolve_symbol("glScaled", ::glScaled);
+	resolve_symbol("glScalef", ::glScalef);
+	resolve_symbol("glTranslated", ::glTranslated);
+	resolve_symbol("glTranslatef", ::glTranslatef);
 }
 
-bool OglExtensionManagerImpl::resolve_v1_1()
+void OglExtensionManagerImpl::resolve_v1_1()
 {
-	auto is_failed = false;
-
-	resolve_symbol("glDrawArrays", ::glDrawArrays, is_failed);
-	resolve_symbol("glDrawElements", ::glDrawElements, is_failed);
-	resolve_symbol("glGetPointerv", ::glGetPointerv, is_failed);
-	resolve_symbol("glPolygonOffset", ::glPolygonOffset, is_failed);
-	resolve_symbol("glCopyTexImage1D", ::glCopyTexImage1D, is_failed);
-	resolve_symbol("glCopyTexImage2D", ::glCopyTexImage2D, is_failed);
-	resolve_symbol("glCopyTexSubImage1D", ::glCopyTexSubImage1D, is_failed);
-	resolve_symbol("glCopyTexSubImage2D", ::glCopyTexSubImage2D, is_failed);
-	resolve_symbol("glTexSubImage1D", ::glTexSubImage1D, is_failed);
-	resolve_symbol("glTexSubImage2D", ::glTexSubImage2D, is_failed);
-	resolve_symbol("glBindTexture", ::glBindTexture, is_failed);
-	resolve_symbol("glDeleteTextures", ::glDeleteTextures, is_failed);
-	resolve_symbol("glGenTextures", ::glGenTextures, is_failed);
-	resolve_symbol("glIsTexture", ::glIsTexture, is_failed);
-	resolve_symbol("glArrayElement", ::glArrayElement, is_failed);
-	resolve_symbol("glColorPointer", ::glColorPointer, is_failed);
-	resolve_symbol("glDisableClientState", ::glDisableClientState, is_failed);
-	resolve_symbol("glEdgeFlagPointer", ::glEdgeFlagPointer, is_failed);
-	resolve_symbol("glEnableClientState", ::glEnableClientState, is_failed);
-	resolve_symbol("glIndexPointer", ::glIndexPointer, is_failed);
-	resolve_symbol("glInterleavedArrays", ::glInterleavedArrays, is_failed);
-	resolve_symbol("glNormalPointer", ::glNormalPointer, is_failed);
-	resolve_symbol("glTexCoordPointer", ::glTexCoordPointer, is_failed);
-	resolve_symbol("glVertexPointer", ::glVertexPointer, is_failed);
-	resolve_symbol("glAreTexturesResident", ::glAreTexturesResident, is_failed);
-	resolve_symbol("glPrioritizeTextures", ::glPrioritizeTextures, is_failed);
-	resolve_symbol("glIndexub", ::glIndexub, is_failed);
-	resolve_symbol("glIndexubv", ::glIndexubv, is_failed);
-	resolve_symbol("glPopClientAttrib", ::glPopClientAttrib, is_failed);
-	resolve_symbol("glPushClientAttrib", ::glPushClientAttrib, is_failed);
-
-	return !is_failed;
+	resolve_symbol("glDrawArrays", ::glDrawArrays);
+	resolve_symbol("glDrawElements", ::glDrawElements);
+	resolve_symbol("glGetPointerv", ::glGetPointerv);
+	resolve_symbol("glPolygonOffset", ::glPolygonOffset);
+	resolve_symbol("glCopyTexImage1D", ::glCopyTexImage1D);
+	resolve_symbol("glCopyTexImage2D", ::glCopyTexImage2D);
+	resolve_symbol("glCopyTexSubImage1D", ::glCopyTexSubImage1D);
+	resolve_symbol("glCopyTexSubImage2D", ::glCopyTexSubImage2D);
+	resolve_symbol("glTexSubImage1D", ::glTexSubImage1D);
+	resolve_symbol("glTexSubImage2D", ::glTexSubImage2D);
+	resolve_symbol("glBindTexture", ::glBindTexture);
+	resolve_symbol("glDeleteTextures", ::glDeleteTextures);
+	resolve_symbol("glGenTextures", ::glGenTextures);
+	resolve_symbol("glIsTexture", ::glIsTexture);
+	resolve_symbol("glArrayElement", ::glArrayElement);
+	resolve_symbol("glColorPointer", ::glColorPointer);
+	resolve_symbol("glDisableClientState", ::glDisableClientState);
+	resolve_symbol("glEdgeFlagPointer", ::glEdgeFlagPointer);
+	resolve_symbol("glEnableClientState", ::glEnableClientState);
+	resolve_symbol("glIndexPointer", ::glIndexPointer);
+	resolve_symbol("glInterleavedArrays", ::glInterleavedArrays);
+	resolve_symbol("glNormalPointer", ::glNormalPointer);
+	resolve_symbol("glTexCoordPointer", ::glTexCoordPointer);
+	resolve_symbol("glVertexPointer", ::glVertexPointer);
+	resolve_symbol("glAreTexturesResident", ::glAreTexturesResident);
+	resolve_symbol("glPrioritizeTextures", ::glPrioritizeTextures);
+	resolve_symbol("glIndexub", ::glIndexub);
+	resolve_symbol("glIndexubv", ::glIndexubv);
+	resolve_symbol("glPopClientAttrib", ::glPopClientAttrib);
+	resolve_symbol("glPushClientAttrib", ::glPushClientAttrib);
 }
 
-bool OglExtensionManagerImpl::resolve_v1_2()
+void OglExtensionManagerImpl::resolve_v1_2()
 {
-	auto is_failed = false;
-
-	resolve_symbol("glDrawRangeElements", ::glDrawRangeElements, is_failed);
-	resolve_symbol("glTexImage3D", ::glTexImage3D, is_failed);
-	resolve_symbol("glTexSubImage3D", ::glTexSubImage3D, is_failed);
-	resolve_symbol("glCopyTexSubImage3D", ::glCopyTexSubImage3D, is_failed);
-
-	return !is_failed;
+	resolve_symbol("glDrawRangeElements", ::glDrawRangeElements);
+	resolve_symbol("glTexImage3D", ::glTexImage3D);
+	resolve_symbol("glTexSubImage3D", ::glTexSubImage3D);
+	resolve_symbol("glCopyTexSubImage3D", ::glCopyTexSubImage3D);
 }
 
-bool OglExtensionManagerImpl::resolve_v1_3()
+void OglExtensionManagerImpl::resolve_v1_3()
 {
-	auto is_failed = false;
-
-	resolve_symbol("glActiveTexture", ::glActiveTexture, is_failed);
-	resolve_symbol("glSampleCoverage", ::glSampleCoverage, is_failed);
-	resolve_symbol("glCompressedTexImage3D", ::glCompressedTexImage3D, is_failed);
-	resolve_symbol("glCompressedTexImage2D", ::glCompressedTexImage2D, is_failed);
-	resolve_symbol("glCompressedTexImage1D", ::glCompressedTexImage1D, is_failed);
-	resolve_symbol("glCompressedTexSubImage3D", ::glCompressedTexSubImage3D, is_failed);
-	resolve_symbol("glCompressedTexSubImage2D", ::glCompressedTexSubImage2D, is_failed);
-	resolve_symbol("glCompressedTexSubImage1D", ::glCompressedTexSubImage1D, is_failed);
-	resolve_symbol("glGetCompressedTexImage", ::glGetCompressedTexImage, is_failed);
-	resolve_symbol("glClientActiveTexture", ::glClientActiveTexture, is_failed);
-	resolve_symbol("glMultiTexCoord1d", ::glMultiTexCoord1d, is_failed);
-	resolve_symbol("glMultiTexCoord1dv", ::glMultiTexCoord1dv, is_failed);
-	resolve_symbol("glMultiTexCoord1f", ::glMultiTexCoord1f, is_failed);
-	resolve_symbol("glMultiTexCoord1fv", ::glMultiTexCoord1fv, is_failed);
-	resolve_symbol("glMultiTexCoord1i", ::glMultiTexCoord1i, is_failed);
-	resolve_symbol("glMultiTexCoord1iv", ::glMultiTexCoord1iv, is_failed);
-	resolve_symbol("glMultiTexCoord1s", ::glMultiTexCoord1s, is_failed);
-	resolve_symbol("glMultiTexCoord1sv", ::glMultiTexCoord1sv, is_failed);
-	resolve_symbol("glMultiTexCoord2d", ::glMultiTexCoord2d, is_failed);
-	resolve_symbol("glMultiTexCoord2dv", ::glMultiTexCoord2dv, is_failed);
-	resolve_symbol("glMultiTexCoord2f", ::glMultiTexCoord2f, is_failed);
-	resolve_symbol("glMultiTexCoord2fv", ::glMultiTexCoord2fv, is_failed);
-	resolve_symbol("glMultiTexCoord2i", ::glMultiTexCoord2i, is_failed);
-	resolve_symbol("glMultiTexCoord2iv", ::glMultiTexCoord2iv, is_failed);
-	resolve_symbol("glMultiTexCoord2s", ::glMultiTexCoord2s, is_failed);
-	resolve_symbol("glMultiTexCoord2sv", ::glMultiTexCoord2sv, is_failed);
-	resolve_symbol("glMultiTexCoord3d", ::glMultiTexCoord3d, is_failed);
-	resolve_symbol("glMultiTexCoord3dv", ::glMultiTexCoord3dv, is_failed);
-	resolve_symbol("glMultiTexCoord3f", ::glMultiTexCoord3f, is_failed);
-	resolve_symbol("glMultiTexCoord3fv", ::glMultiTexCoord3fv, is_failed);
-	resolve_symbol("glMultiTexCoord3i", ::glMultiTexCoord3i, is_failed);
-	resolve_symbol("glMultiTexCoord3iv", ::glMultiTexCoord3iv, is_failed);
-	resolve_symbol("glMultiTexCoord3s", ::glMultiTexCoord3s, is_failed);
-	resolve_symbol("glMultiTexCoord3sv", ::glMultiTexCoord3sv, is_failed);
-	resolve_symbol("glMultiTexCoord4d", ::glMultiTexCoord4d, is_failed);
-	resolve_symbol("glMultiTexCoord4dv", ::glMultiTexCoord4dv, is_failed);
-	resolve_symbol("glMultiTexCoord4f", ::glMultiTexCoord4f, is_failed);
-	resolve_symbol("glMultiTexCoord4fv", ::glMultiTexCoord4fv, is_failed);
-	resolve_symbol("glMultiTexCoord4i", ::glMultiTexCoord4i, is_failed);
-	resolve_symbol("glMultiTexCoord4iv", ::glMultiTexCoord4iv, is_failed);
-	resolve_symbol("glMultiTexCoord4s", ::glMultiTexCoord4s, is_failed);
-	resolve_symbol("glMultiTexCoord4sv", ::glMultiTexCoord4sv, is_failed);
-	resolve_symbol("glLoadTransposeMatrixf", ::glLoadTransposeMatrixf, is_failed);
-	resolve_symbol("glLoadTransposeMatrixd", ::glLoadTransposeMatrixd, is_failed);
-	resolve_symbol("glMultTransposeMatrixf", ::glMultTransposeMatrixf, is_failed);
-	resolve_symbol("glMultTransposeMatrixd", ::glMultTransposeMatrixd, is_failed);
-
-	return !is_failed;
+	resolve_symbol("glActiveTexture", ::glActiveTexture);
+	resolve_symbol("glSampleCoverage", ::glSampleCoverage);
+	resolve_symbol("glCompressedTexImage3D", ::glCompressedTexImage3D);
+	resolve_symbol("glCompressedTexImage2D", ::glCompressedTexImage2D);
+	resolve_symbol("glCompressedTexImage1D", ::glCompressedTexImage1D);
+	resolve_symbol("glCompressedTexSubImage3D", ::glCompressedTexSubImage3D);
+	resolve_symbol("glCompressedTexSubImage2D", ::glCompressedTexSubImage2D);
+	resolve_symbol("glCompressedTexSubImage1D", ::glCompressedTexSubImage1D);
+	resolve_symbol("glGetCompressedTexImage", ::glGetCompressedTexImage);
+	resolve_symbol("glClientActiveTexture", ::glClientActiveTexture);
+	resolve_symbol("glMultiTexCoord1d", ::glMultiTexCoord1d);
+	resolve_symbol("glMultiTexCoord1dv", ::glMultiTexCoord1dv);
+	resolve_symbol("glMultiTexCoord1f", ::glMultiTexCoord1f);
+	resolve_symbol("glMultiTexCoord1fv", ::glMultiTexCoord1fv);
+	resolve_symbol("glMultiTexCoord1i", ::glMultiTexCoord1i);
+	resolve_symbol("glMultiTexCoord1iv", ::glMultiTexCoord1iv);
+	resolve_symbol("glMultiTexCoord1s", ::glMultiTexCoord1s);
+	resolve_symbol("glMultiTexCoord1sv", ::glMultiTexCoord1sv);
+	resolve_symbol("glMultiTexCoord2d", ::glMultiTexCoord2d);
+	resolve_symbol("glMultiTexCoord2dv", ::glMultiTexCoord2dv);
+	resolve_symbol("glMultiTexCoord2f", ::glMultiTexCoord2f);
+	resolve_symbol("glMultiTexCoord2fv", ::glMultiTexCoord2fv);
+	resolve_symbol("glMultiTexCoord2i", ::glMultiTexCoord2i);
+	resolve_symbol("glMultiTexCoord2iv", ::glMultiTexCoord2iv);
+	resolve_symbol("glMultiTexCoord2s", ::glMultiTexCoord2s);
+	resolve_symbol("glMultiTexCoord2sv", ::glMultiTexCoord2sv);
+	resolve_symbol("glMultiTexCoord3d", ::glMultiTexCoord3d);
+	resolve_symbol("glMultiTexCoord3dv", ::glMultiTexCoord3dv);
+	resolve_symbol("glMultiTexCoord3f", ::glMultiTexCoord3f);
+	resolve_symbol("glMultiTexCoord3fv", ::glMultiTexCoord3fv);
+	resolve_symbol("glMultiTexCoord3i", ::glMultiTexCoord3i);
+	resolve_symbol("glMultiTexCoord3iv", ::glMultiTexCoord3iv);
+	resolve_symbol("glMultiTexCoord3s", ::glMultiTexCoord3s);
+	resolve_symbol("glMultiTexCoord3sv", ::glMultiTexCoord3sv);
+	resolve_symbol("glMultiTexCoord4d", ::glMultiTexCoord4d);
+	resolve_symbol("glMultiTexCoord4dv", ::glMultiTexCoord4dv);
+	resolve_symbol("glMultiTexCoord4f", ::glMultiTexCoord4f);
+	resolve_symbol("glMultiTexCoord4fv", ::glMultiTexCoord4fv);
+	resolve_symbol("glMultiTexCoord4i", ::glMultiTexCoord4i);
+	resolve_symbol("glMultiTexCoord4iv", ::glMultiTexCoord4iv);
+	resolve_symbol("glMultiTexCoord4s", ::glMultiTexCoord4s);
+	resolve_symbol("glMultiTexCoord4sv", ::glMultiTexCoord4sv);
+	resolve_symbol("glLoadTransposeMatrixf", ::glLoadTransposeMatrixf);
+	resolve_symbol("glLoadTransposeMatrixd", ::glLoadTransposeMatrixd);
+	resolve_symbol("glMultTransposeMatrixf", ::glMultTransposeMatrixf);
+	resolve_symbol("glMultTransposeMatrixd", ::glMultTransposeMatrixd);
 }
 
-bool OglExtensionManagerImpl::resolve_v1_4()
+void OglExtensionManagerImpl::resolve_v1_4()
 {
-	auto is_failed = false;
-
-	resolve_symbol("glBlendFuncSeparate", ::glBlendFuncSeparate, is_failed);
-	resolve_symbol("glMultiDrawArrays", ::glMultiDrawArrays, is_failed);
-	resolve_symbol("glMultiDrawElements", ::glMultiDrawElements, is_failed);
-	resolve_symbol("glPointParameterf", ::glPointParameterf, is_failed);
-	resolve_symbol("glPointParameterfv", ::glPointParameterfv, is_failed);
-	resolve_symbol("glPointParameteri", ::glPointParameteri, is_failed);
-	resolve_symbol("glPointParameteriv", ::glPointParameteriv, is_failed);
-	resolve_symbol("glFogCoordf", ::glFogCoordf, is_failed);
-	resolve_symbol("glFogCoordfv", ::glFogCoordfv, is_failed);
-	resolve_symbol("glFogCoordd", ::glFogCoordd, is_failed);
-	resolve_symbol("glFogCoorddv", ::glFogCoorddv, is_failed);
-	resolve_symbol("glFogCoordPointer", ::glFogCoordPointer, is_failed);
-	resolve_symbol("glSecondaryColor3b", ::glSecondaryColor3b, is_failed);
-	resolve_symbol("glSecondaryColor3bv", ::glSecondaryColor3bv, is_failed);
-	resolve_symbol("glSecondaryColor3d", ::glSecondaryColor3d, is_failed);
-	resolve_symbol("glSecondaryColor3dv", ::glSecondaryColor3dv, is_failed);
-	resolve_symbol("glSecondaryColor3f", ::glSecondaryColor3f, is_failed);
-	resolve_symbol("glSecondaryColor3fv", ::glSecondaryColor3fv, is_failed);
-	resolve_symbol("glSecondaryColor3i", ::glSecondaryColor3i, is_failed);
-	resolve_symbol("glSecondaryColor3iv", ::glSecondaryColor3iv, is_failed);
-	resolve_symbol("glSecondaryColor3s", ::glSecondaryColor3s, is_failed);
-	resolve_symbol("glSecondaryColor3sv", ::glSecondaryColor3sv, is_failed);
-	resolve_symbol("glSecondaryColor3ub", ::glSecondaryColor3ub, is_failed);
-	resolve_symbol("glSecondaryColor3ubv", ::glSecondaryColor3ubv, is_failed);
-	resolve_symbol("glSecondaryColor3ui", ::glSecondaryColor3ui, is_failed);
-	resolve_symbol("glSecondaryColor3uiv", ::glSecondaryColor3uiv, is_failed);
-	resolve_symbol("glSecondaryColor3us", ::glSecondaryColor3us, is_failed);
-	resolve_symbol("glSecondaryColor3usv", ::glSecondaryColor3usv, is_failed);
-	resolve_symbol("glSecondaryColorPointer", ::glSecondaryColorPointer, is_failed);
-	resolve_symbol("glWindowPos2d", ::glWindowPos2d, is_failed);
-	resolve_symbol("glWindowPos2dv", ::glWindowPos2dv, is_failed);
-	resolve_symbol("glWindowPos2f", ::glWindowPos2f, is_failed);
-	resolve_symbol("glWindowPos2fv", ::glWindowPos2fv, is_failed);
-	resolve_symbol("glWindowPos2i", ::glWindowPos2i, is_failed);
-	resolve_symbol("glWindowPos2iv", ::glWindowPos2iv, is_failed);
-	resolve_symbol("glWindowPos2s", ::glWindowPos2s, is_failed);
-	resolve_symbol("glWindowPos2sv", ::glWindowPos2sv, is_failed);
-	resolve_symbol("glWindowPos3d", ::glWindowPos3d, is_failed);
-	resolve_symbol("glWindowPos3dv", ::glWindowPos3dv, is_failed);
-	resolve_symbol("glWindowPos3f", ::glWindowPos3f, is_failed);
-	resolve_symbol("glWindowPos3fv", ::glWindowPos3fv, is_failed);
-	resolve_symbol("glWindowPos3i", ::glWindowPos3i, is_failed);
-	resolve_symbol("glWindowPos3iv", ::glWindowPos3iv, is_failed);
-	resolve_symbol("glWindowPos3s", ::glWindowPos3s, is_failed);
-	resolve_symbol("glWindowPos3sv", ::glWindowPos3sv, is_failed);
-	resolve_symbol("glBlendColor", ::glBlendColor, is_failed);
-	resolve_symbol("glBlendEquation", ::glBlendEquation, is_failed);
-
-	return !is_failed;
+	resolve_symbol("glBlendFuncSeparate", ::glBlendFuncSeparate);
+	resolve_symbol("glMultiDrawArrays", ::glMultiDrawArrays);
+	resolve_symbol("glMultiDrawElements", ::glMultiDrawElements);
+	resolve_symbol("glPointParameterf", ::glPointParameterf);
+	resolve_symbol("glPointParameterfv", ::glPointParameterfv);
+	resolve_symbol("glPointParameteri", ::glPointParameteri);
+	resolve_symbol("glPointParameteriv", ::glPointParameteriv);
+	resolve_symbol("glFogCoordf", ::glFogCoordf);
+	resolve_symbol("glFogCoordfv", ::glFogCoordfv);
+	resolve_symbol("glFogCoordd", ::glFogCoordd);
+	resolve_symbol("glFogCoorddv", ::glFogCoorddv);
+	resolve_symbol("glFogCoordPointer", ::glFogCoordPointer);
+	resolve_symbol("glSecondaryColor3b", ::glSecondaryColor3b);
+	resolve_symbol("glSecondaryColor3bv", ::glSecondaryColor3bv);
+	resolve_symbol("glSecondaryColor3d", ::glSecondaryColor3d);
+	resolve_symbol("glSecondaryColor3dv", ::glSecondaryColor3dv);
+	resolve_symbol("glSecondaryColor3f", ::glSecondaryColor3f);
+	resolve_symbol("glSecondaryColor3fv", ::glSecondaryColor3fv);
+	resolve_symbol("glSecondaryColor3i", ::glSecondaryColor3i);
+	resolve_symbol("glSecondaryColor3iv", ::glSecondaryColor3iv);
+	resolve_symbol("glSecondaryColor3s", ::glSecondaryColor3s);
+	resolve_symbol("glSecondaryColor3sv", ::glSecondaryColor3sv);
+	resolve_symbol("glSecondaryColor3ub", ::glSecondaryColor3ub);
+	resolve_symbol("glSecondaryColor3ubv", ::glSecondaryColor3ubv);
+	resolve_symbol("glSecondaryColor3ui", ::glSecondaryColor3ui);
+	resolve_symbol("glSecondaryColor3uiv", ::glSecondaryColor3uiv);
+	resolve_symbol("glSecondaryColor3us", ::glSecondaryColor3us);
+	resolve_symbol("glSecondaryColor3usv", ::glSecondaryColor3usv);
+	resolve_symbol("glSecondaryColorPointer", ::glSecondaryColorPointer);
+	resolve_symbol("glWindowPos2d", ::glWindowPos2d);
+	resolve_symbol("glWindowPos2dv", ::glWindowPos2dv);
+	resolve_symbol("glWindowPos2f", ::glWindowPos2f);
+	resolve_symbol("glWindowPos2fv", ::glWindowPos2fv);
+	resolve_symbol("glWindowPos2i", ::glWindowPos2i);
+	resolve_symbol("glWindowPos2iv", ::glWindowPos2iv);
+	resolve_symbol("glWindowPos2s", ::glWindowPos2s);
+	resolve_symbol("glWindowPos2sv", ::glWindowPos2sv);
+	resolve_symbol("glWindowPos3d", ::glWindowPos3d);
+	resolve_symbol("glWindowPos3dv", ::glWindowPos3dv);
+	resolve_symbol("glWindowPos3f", ::glWindowPos3f);
+	resolve_symbol("glWindowPos3fv", ::glWindowPos3fv);
+	resolve_symbol("glWindowPos3i", ::glWindowPos3i);
+	resolve_symbol("glWindowPos3iv", ::glWindowPos3iv);
+	resolve_symbol("glWindowPos3s", ::glWindowPos3s);
+	resolve_symbol("glWindowPos3sv", ::glWindowPos3sv);
+	resolve_symbol("glBlendColor", ::glBlendColor);
+	resolve_symbol("glBlendEquation", ::glBlendEquation);
 }
 
-bool OglExtensionManagerImpl::resolve_v1_5()
+void OglExtensionManagerImpl::resolve_v1_5()
 {
-	auto is_failed = false;
-
-	resolve_symbol("glGenQueries", ::glGenQueries, is_failed);
-	resolve_symbol("glDeleteQueries", ::glDeleteQueries, is_failed);
-	resolve_symbol("glIsQuery", ::glIsQuery, is_failed);
-	resolve_symbol("glBeginQuery", ::glBeginQuery, is_failed);
-	resolve_symbol("glEndQuery", ::glEndQuery, is_failed);
-	resolve_symbol("glGetQueryiv", ::glGetQueryiv, is_failed);
-	resolve_symbol("glGetQueryObjectiv", ::glGetQueryObjectiv, is_failed);
-	resolve_symbol("glGetQueryObjectuiv", ::glGetQueryObjectuiv, is_failed);
-	resolve_symbol("glBindBuffer", ::glBindBuffer, is_failed);
-	resolve_symbol("glDeleteBuffers", ::glDeleteBuffers, is_failed);
-	resolve_symbol("glGenBuffers", ::glGenBuffers, is_failed);
-	resolve_symbol("glIsBuffer", ::glIsBuffer, is_failed);
-	resolve_symbol("glBufferData", ::glBufferData, is_failed);
-	resolve_symbol("glBufferSubData", ::glBufferSubData, is_failed);
-	resolve_symbol("glGetBufferSubData", ::glGetBufferSubData, is_failed);
-	resolve_symbol("glMapBuffer", ::glMapBuffer, is_failed);
-	resolve_symbol("glUnmapBuffer", ::glUnmapBuffer, is_failed);
-	resolve_symbol("glGetBufferParameteriv", ::glGetBufferParameteriv, is_failed);
-	resolve_symbol("glGetBufferPointerv", ::glGetBufferPointerv, is_failed);
-
-	return !is_failed;
+	resolve_symbol("glGenQueries", ::glGenQueries);
+	resolve_symbol("glDeleteQueries", ::glDeleteQueries);
+	resolve_symbol("glIsQuery", ::glIsQuery);
+	resolve_symbol("glBeginQuery", ::glBeginQuery);
+	resolve_symbol("glEndQuery", ::glEndQuery);
+	resolve_symbol("glGetQueryiv", ::glGetQueryiv);
+	resolve_symbol("glGetQueryObjectiv", ::glGetQueryObjectiv);
+	resolve_symbol("glGetQueryObjectuiv", ::glGetQueryObjectuiv);
+	resolve_symbol("glBindBuffer", ::glBindBuffer);
+	resolve_symbol("glDeleteBuffers", ::glDeleteBuffers);
+	resolve_symbol("glGenBuffers", ::glGenBuffers);
+	resolve_symbol("glIsBuffer", ::glIsBuffer);
+	resolve_symbol("glBufferData", ::glBufferData);
+	resolve_symbol("glBufferSubData", ::glBufferSubData);
+	resolve_symbol("glGetBufferSubData", ::glGetBufferSubData);
+	resolve_symbol("glMapBuffer", ::glMapBuffer);
+	resolve_symbol("glUnmapBuffer", ::glUnmapBuffer);
+	resolve_symbol("glGetBufferParameteriv", ::glGetBufferParameteriv);
+	resolve_symbol("glGetBufferPointerv", ::glGetBufferPointerv);
 }
 
-bool OglExtensionManagerImpl::resolve_v2_0()
+void OglExtensionManagerImpl::resolve_v2_0()
 {
-	auto is_failed = false;
-
-	resolve_symbol("glBlendEquationSeparate", ::glBlendEquationSeparate, is_failed);
-	resolve_symbol("glDrawBuffers", ::glDrawBuffers, is_failed);
-	resolve_symbol("glStencilOpSeparate", ::glStencilOpSeparate, is_failed);
-	resolve_symbol("glStencilFuncSeparate", ::glStencilFuncSeparate, is_failed);
-	resolve_symbol("glStencilMaskSeparate", ::glStencilMaskSeparate, is_failed);
-	resolve_symbol("glAttachShader", ::glAttachShader, is_failed);
-	resolve_symbol("glBindAttribLocation", ::glBindAttribLocation, is_failed);
-	resolve_symbol("glCompileShader", ::glCompileShader, is_failed);
-	resolve_symbol("glCreateProgram", ::glCreateProgram, is_failed);
-	resolve_symbol("glCreateShader", ::glCreateShader, is_failed);
-	resolve_symbol("glDeleteProgram", ::glDeleteProgram, is_failed);
-	resolve_symbol("glDeleteShader", ::glDeleteShader, is_failed);
-	resolve_symbol("glDetachShader", ::glDetachShader, is_failed);
-	resolve_symbol("glDisableVertexAttribArray", ::glDisableVertexAttribArray, is_failed);
-	resolve_symbol("glEnableVertexAttribArray", ::glEnableVertexAttribArray, is_failed);
-	resolve_symbol("glGetActiveAttrib", ::glGetActiveAttrib, is_failed);
-	resolve_symbol("glGetActiveUniform", ::glGetActiveUniform, is_failed);
-	resolve_symbol("glGetAttachedShaders", ::glGetAttachedShaders, is_failed);
-	resolve_symbol("glGetAttribLocation", ::glGetAttribLocation, is_failed);
-	resolve_symbol("glGetProgramiv", ::glGetProgramiv, is_failed);
-	resolve_symbol("glGetProgramInfoLog", ::glGetProgramInfoLog, is_failed);
-	resolve_symbol("glGetShaderiv", ::glGetShaderiv, is_failed);
-	resolve_symbol("glGetShaderInfoLog", ::glGetShaderInfoLog, is_failed);
-	resolve_symbol("glGetShaderSource", ::glGetShaderSource, is_failed);
-	resolve_symbol("glGetUniformLocation", ::glGetUniformLocation, is_failed);
-	resolve_symbol("glGetUniformfv", ::glGetUniformfv, is_failed);
-	resolve_symbol("glGetUniformiv", ::glGetUniformiv, is_failed);
-	resolve_symbol("glGetVertexAttribdv", ::glGetVertexAttribdv, is_failed);
-	resolve_symbol("glGetVertexAttribfv", ::glGetVertexAttribfv, is_failed);
-	resolve_symbol("glGetVertexAttribiv", ::glGetVertexAttribiv, is_failed);
-	resolve_symbol("glGetVertexAttribPointerv", ::glGetVertexAttribPointerv, is_failed);
-	resolve_symbol("glIsProgram", ::glIsProgram, is_failed);
-	resolve_symbol("glIsShader", ::glIsShader, is_failed);
-	resolve_symbol("glLinkProgram", ::glLinkProgram, is_failed);
-	resolve_symbol("glShaderSource", ::glShaderSource, is_failed);
-	resolve_symbol("glUseProgram", ::glUseProgram, is_failed);
-	resolve_symbol("glUniform1f", ::glUniform1f, is_failed);
-	resolve_symbol("glUniform2f", ::glUniform2f, is_failed);
-	resolve_symbol("glUniform3f", ::glUniform3f, is_failed);
-	resolve_symbol("glUniform4f", ::glUniform4f, is_failed);
-	resolve_symbol("glUniform1i", ::glUniform1i, is_failed);
-	resolve_symbol("glUniform2i", ::glUniform2i, is_failed);
-	resolve_symbol("glUniform3i", ::glUniform3i, is_failed);
-	resolve_symbol("glUniform4i", ::glUniform4i, is_failed);
-	resolve_symbol("glUniform1fv", ::glUniform1fv, is_failed);
-	resolve_symbol("glUniform2fv", ::glUniform2fv, is_failed);
-	resolve_symbol("glUniform3fv", ::glUniform3fv, is_failed);
-	resolve_symbol("glUniform4fv", ::glUniform4fv, is_failed);
-	resolve_symbol("glUniform1iv", ::glUniform1iv, is_failed);
-	resolve_symbol("glUniform2iv", ::glUniform2iv, is_failed);
-	resolve_symbol("glUniform3iv", ::glUniform3iv, is_failed);
-	resolve_symbol("glUniform4iv", ::glUniform4iv, is_failed);
-	resolve_symbol("glUniformMatrix2fv", ::glUniformMatrix2fv, is_failed);
-	resolve_symbol("glUniformMatrix3fv", ::glUniformMatrix3fv, is_failed);
-	resolve_symbol("glUniformMatrix4fv", ::glUniformMatrix4fv, is_failed);
-	resolve_symbol("glValidateProgram", ::glValidateProgram, is_failed);
-	resolve_symbol("glVertexAttrib1d", ::glVertexAttrib1d, is_failed);
-	resolve_symbol("glVertexAttrib1dv", ::glVertexAttrib1dv, is_failed);
-	resolve_symbol("glVertexAttrib1f", ::glVertexAttrib1f, is_failed);
-	resolve_symbol("glVertexAttrib1fv", ::glVertexAttrib1fv, is_failed);
-	resolve_symbol("glVertexAttrib1s", ::glVertexAttrib1s, is_failed);
-	resolve_symbol("glVertexAttrib1sv", ::glVertexAttrib1sv, is_failed);
-	resolve_symbol("glVertexAttrib2d", ::glVertexAttrib2d, is_failed);
-	resolve_symbol("glVertexAttrib2dv", ::glVertexAttrib2dv, is_failed);
-	resolve_symbol("glVertexAttrib2f", ::glVertexAttrib2f, is_failed);
-	resolve_symbol("glVertexAttrib2fv", ::glVertexAttrib2fv, is_failed);
-	resolve_symbol("glVertexAttrib2s", ::glVertexAttrib2s, is_failed);
-	resolve_symbol("glVertexAttrib2sv", ::glVertexAttrib2sv, is_failed);
-	resolve_symbol("glVertexAttrib3d", ::glVertexAttrib3d, is_failed);
-	resolve_symbol("glVertexAttrib3dv", ::glVertexAttrib3dv, is_failed);
-	resolve_symbol("glVertexAttrib3f", ::glVertexAttrib3f, is_failed);
-	resolve_symbol("glVertexAttrib3fv", ::glVertexAttrib3fv, is_failed);
-	resolve_symbol("glVertexAttrib3s", ::glVertexAttrib3s, is_failed);
-	resolve_symbol("glVertexAttrib3sv", ::glVertexAttrib3sv, is_failed);
-	resolve_symbol("glVertexAttrib4Nbv", ::glVertexAttrib4Nbv, is_failed);
-	resolve_symbol("glVertexAttrib4Niv", ::glVertexAttrib4Niv, is_failed);
-	resolve_symbol("glVertexAttrib4Nsv", ::glVertexAttrib4Nsv, is_failed);
-	resolve_symbol("glVertexAttrib4Nub", ::glVertexAttrib4Nub, is_failed);
-	resolve_symbol("glVertexAttrib4Nubv", ::glVertexAttrib4Nubv, is_failed);
-	resolve_symbol("glVertexAttrib4Nuiv", ::glVertexAttrib4Nuiv, is_failed);
-	resolve_symbol("glVertexAttrib4Nusv", ::glVertexAttrib4Nusv, is_failed);
-	resolve_symbol("glVertexAttrib4bv", ::glVertexAttrib4bv, is_failed);
-	resolve_symbol("glVertexAttrib4d", ::glVertexAttrib4d, is_failed);
-	resolve_symbol("glVertexAttrib4dv", ::glVertexAttrib4dv, is_failed);
-	resolve_symbol("glVertexAttrib4f", ::glVertexAttrib4f, is_failed);
-	resolve_symbol("glVertexAttrib4fv", ::glVertexAttrib4fv, is_failed);
-	resolve_symbol("glVertexAttrib4iv", ::glVertexAttrib4iv, is_failed);
-	resolve_symbol("glVertexAttrib4s", ::glVertexAttrib4s, is_failed);
-	resolve_symbol("glVertexAttrib4sv", ::glVertexAttrib4sv, is_failed);
-	resolve_symbol("glVertexAttrib4ubv", ::glVertexAttrib4ubv, is_failed);
-	resolve_symbol("glVertexAttrib4uiv", ::glVertexAttrib4uiv, is_failed);
-	resolve_symbol("glVertexAttrib4usv", ::glVertexAttrib4usv, is_failed);
-	resolve_symbol("glVertexAttribPointer", ::glVertexAttribPointer, is_failed);
-
-	return !is_failed;
+	resolve_symbol("glBlendEquationSeparate", ::glBlendEquationSeparate);
+	resolve_symbol("glDrawBuffers", ::glDrawBuffers);
+	resolve_symbol("glStencilOpSeparate", ::glStencilOpSeparate);
+	resolve_symbol("glStencilFuncSeparate", ::glStencilFuncSeparate);
+	resolve_symbol("glStencilMaskSeparate", ::glStencilMaskSeparate);
+	resolve_symbol("glAttachShader", ::glAttachShader);
+	resolve_symbol("glBindAttribLocation", ::glBindAttribLocation);
+	resolve_symbol("glCompileShader", ::glCompileShader);
+	resolve_symbol("glCreateProgram", ::glCreateProgram);
+	resolve_symbol("glCreateShader", ::glCreateShader);
+	resolve_symbol("glDeleteProgram", ::glDeleteProgram);
+	resolve_symbol("glDeleteShader", ::glDeleteShader);
+	resolve_symbol("glDetachShader", ::glDetachShader);
+	resolve_symbol("glDisableVertexAttribArray", ::glDisableVertexAttribArray);
+	resolve_symbol("glEnableVertexAttribArray", ::glEnableVertexAttribArray);
+	resolve_symbol("glGetActiveAttrib", ::glGetActiveAttrib);
+	resolve_symbol("glGetActiveUniform", ::glGetActiveUniform);
+	resolve_symbol("glGetAttachedShaders", ::glGetAttachedShaders);
+	resolve_symbol("glGetAttribLocation", ::glGetAttribLocation);
+	resolve_symbol("glGetProgramiv", ::glGetProgramiv);
+	resolve_symbol("glGetProgramInfoLog", ::glGetProgramInfoLog);
+	resolve_symbol("glGetShaderiv", ::glGetShaderiv);
+	resolve_symbol("glGetShaderInfoLog", ::glGetShaderInfoLog);
+	resolve_symbol("glGetShaderSource", ::glGetShaderSource);
+	resolve_symbol("glGetUniformLocation", ::glGetUniformLocation);
+	resolve_symbol("glGetUniformfv", ::glGetUniformfv);
+	resolve_symbol("glGetUniformiv", ::glGetUniformiv);
+	resolve_symbol("glGetVertexAttribdv", ::glGetVertexAttribdv);
+	resolve_symbol("glGetVertexAttribfv", ::glGetVertexAttribfv);
+	resolve_symbol("glGetVertexAttribiv", ::glGetVertexAttribiv);
+	resolve_symbol("glGetVertexAttribPointerv", ::glGetVertexAttribPointerv);
+	resolve_symbol("glIsProgram", ::glIsProgram);
+	resolve_symbol("glIsShader", ::glIsShader);
+	resolve_symbol("glLinkProgram", ::glLinkProgram);
+	resolve_symbol("glShaderSource", ::glShaderSource);
+	resolve_symbol("glUseProgram", ::glUseProgram);
+	resolve_symbol("glUniform1f", ::glUniform1f);
+	resolve_symbol("glUniform2f", ::glUniform2f);
+	resolve_symbol("glUniform3f", ::glUniform3f);
+	resolve_symbol("glUniform4f", ::glUniform4f);
+	resolve_symbol("glUniform1i", ::glUniform1i);
+	resolve_symbol("glUniform2i", ::glUniform2i);
+	resolve_symbol("glUniform3i", ::glUniform3i);
+	resolve_symbol("glUniform4i", ::glUniform4i);
+	resolve_symbol("glUniform1fv", ::glUniform1fv);
+	resolve_symbol("glUniform2fv", ::glUniform2fv);
+	resolve_symbol("glUniform3fv", ::glUniform3fv);
+	resolve_symbol("glUniform4fv", ::glUniform4fv);
+	resolve_symbol("glUniform1iv", ::glUniform1iv);
+	resolve_symbol("glUniform2iv", ::glUniform2iv);
+	resolve_symbol("glUniform3iv", ::glUniform3iv);
+	resolve_symbol("glUniform4iv", ::glUniform4iv);
+	resolve_symbol("glUniformMatrix2fv", ::glUniformMatrix2fv);
+	resolve_symbol("glUniformMatrix3fv", ::glUniformMatrix3fv);
+	resolve_symbol("glUniformMatrix4fv", ::glUniformMatrix4fv);
+	resolve_symbol("glValidateProgram", ::glValidateProgram);
+	resolve_symbol("glVertexAttrib1d", ::glVertexAttrib1d);
+	resolve_symbol("glVertexAttrib1dv", ::glVertexAttrib1dv);
+	resolve_symbol("glVertexAttrib1f", ::glVertexAttrib1f);
+	resolve_symbol("glVertexAttrib1fv", ::glVertexAttrib1fv);
+	resolve_symbol("glVertexAttrib1s", ::glVertexAttrib1s);
+	resolve_symbol("glVertexAttrib1sv", ::glVertexAttrib1sv);
+	resolve_symbol("glVertexAttrib2d", ::glVertexAttrib2d);
+	resolve_symbol("glVertexAttrib2dv", ::glVertexAttrib2dv);
+	resolve_symbol("glVertexAttrib2f", ::glVertexAttrib2f);
+	resolve_symbol("glVertexAttrib2fv", ::glVertexAttrib2fv);
+	resolve_symbol("glVertexAttrib2s", ::glVertexAttrib2s);
+	resolve_symbol("glVertexAttrib2sv", ::glVertexAttrib2sv);
+	resolve_symbol("glVertexAttrib3d", ::glVertexAttrib3d);
+	resolve_symbol("glVertexAttrib3dv", ::glVertexAttrib3dv);
+	resolve_symbol("glVertexAttrib3f", ::glVertexAttrib3f);
+	resolve_symbol("glVertexAttrib3fv", ::glVertexAttrib3fv);
+	resolve_symbol("glVertexAttrib3s", ::glVertexAttrib3s);
+	resolve_symbol("glVertexAttrib3sv", ::glVertexAttrib3sv);
+	resolve_symbol("glVertexAttrib4Nbv", ::glVertexAttrib4Nbv);
+	resolve_symbol("glVertexAttrib4Niv", ::glVertexAttrib4Niv);
+	resolve_symbol("glVertexAttrib4Nsv", ::glVertexAttrib4Nsv);
+	resolve_symbol("glVertexAttrib4Nub", ::glVertexAttrib4Nub);
+	resolve_symbol("glVertexAttrib4Nubv", ::glVertexAttrib4Nubv);
+	resolve_symbol("glVertexAttrib4Nuiv", ::glVertexAttrib4Nuiv);
+	resolve_symbol("glVertexAttrib4Nusv", ::glVertexAttrib4Nusv);
+	resolve_symbol("glVertexAttrib4bv", ::glVertexAttrib4bv);
+	resolve_symbol("glVertexAttrib4d", ::glVertexAttrib4d);
+	resolve_symbol("glVertexAttrib4dv", ::glVertexAttrib4dv);
+	resolve_symbol("glVertexAttrib4f", ::glVertexAttrib4f);
+	resolve_symbol("glVertexAttrib4fv", ::glVertexAttrib4fv);
+	resolve_symbol("glVertexAttrib4iv", ::glVertexAttrib4iv);
+	resolve_symbol("glVertexAttrib4s", ::glVertexAttrib4s);
+	resolve_symbol("glVertexAttrib4sv", ::glVertexAttrib4sv);
+	resolve_symbol("glVertexAttrib4ubv", ::glVertexAttrib4ubv);
+	resolve_symbol("glVertexAttrib4uiv", ::glVertexAttrib4uiv);
+	resolve_symbol("glVertexAttrib4usv", ::glVertexAttrib4usv);
+	resolve_symbol("glVertexAttribPointer", ::glVertexAttribPointer);
 }
 
-bool OglExtensionManagerImpl::resolve_v2_1()
+void OglExtensionManagerImpl::resolve_v2_1()
 {
-	auto is_failed = false;
-
-	resolve_symbol("glUniformMatrix2x3fv", ::glUniformMatrix2x3fv, is_failed);
-	resolve_symbol("glUniformMatrix3x2fv", ::glUniformMatrix3x2fv, is_failed);
-	resolve_symbol("glUniformMatrix2x4fv", ::glUniformMatrix2x4fv, is_failed);
-	resolve_symbol("glUniformMatrix4x2fv", ::glUniformMatrix4x2fv, is_failed);
-	resolve_symbol("glUniformMatrix3x4fv", ::glUniformMatrix3x4fv, is_failed);
-	resolve_symbol("glUniformMatrix4x3fv", ::glUniformMatrix4x3fv, is_failed);
-
-	return is_failed;
+	resolve_symbol("glUniformMatrix2x3fv", ::glUniformMatrix2x3fv);
+	resolve_symbol("glUniformMatrix3x2fv", ::glUniformMatrix3x2fv);
+	resolve_symbol("glUniformMatrix2x4fv", ::glUniformMatrix2x4fv);
+	resolve_symbol("glUniformMatrix4x2fv", ::glUniformMatrix4x2fv);
+	resolve_symbol("glUniformMatrix3x4fv", ::glUniformMatrix3x4fv);
+	resolve_symbol("glUniformMatrix4x3fv", ::glUniformMatrix4x3fv);
 }
 
-bool OglExtensionManagerImpl::resolve_v3_0()
+void OglExtensionManagerImpl::resolve_v3_0()
 {
-	auto is_failed = false;
-
-	resolve_symbol("glColorMaski", ::glColorMaski, is_failed);
-	resolve_symbol("glGetBooleani_v", ::glGetBooleani_v, is_failed);
-	resolve_symbol("glGetIntegeri_v", ::glGetIntegeri_v, is_failed);
-	resolve_symbol("glEnablei", ::glEnablei, is_failed);
-	resolve_symbol("glDisablei", ::glDisablei, is_failed);
-	resolve_symbol("glIsEnabledi", ::glIsEnabledi, is_failed);
-	resolve_symbol("glBeginTransformFeedback", ::glBeginTransformFeedback, is_failed);
-	resolve_symbol("glEndTransformFeedback", ::glEndTransformFeedback, is_failed);
-	resolve_symbol("glBindBufferRange", ::glBindBufferRange, is_failed);
-	resolve_symbol("glBindBufferBase", ::glBindBufferBase, is_failed);
-	resolve_symbol("glTransformFeedbackVaryings", ::glTransformFeedbackVaryings, is_failed);
-	resolve_symbol("glGetTransformFeedbackVarying", ::glGetTransformFeedbackVarying, is_failed);
-	resolve_symbol("glClampColor", ::glClampColor, is_failed);
-	resolve_symbol("glBeginConditionalRender", ::glBeginConditionalRender, is_failed);
-	resolve_symbol("glEndConditionalRender", ::glEndConditionalRender, is_failed);
-	resolve_symbol("glVertexAttribIPointer", ::glVertexAttribIPointer, is_failed);
-	resolve_symbol("glGetVertexAttribIiv", ::glGetVertexAttribIiv, is_failed);
-	resolve_symbol("glGetVertexAttribIuiv", ::glGetVertexAttribIuiv, is_failed);
-	resolve_symbol("glVertexAttribI1i", ::glVertexAttribI1i, is_failed);
-	resolve_symbol("glVertexAttribI2i", ::glVertexAttribI2i, is_failed);
-	resolve_symbol("glVertexAttribI3i", ::glVertexAttribI3i, is_failed);
-	resolve_symbol("glVertexAttribI4i", ::glVertexAttribI4i, is_failed);
-	resolve_symbol("glVertexAttribI1ui", ::glVertexAttribI1ui, is_failed);
-	resolve_symbol("glVertexAttribI2ui", ::glVertexAttribI2ui, is_failed);
-	resolve_symbol("glVertexAttribI3ui", ::glVertexAttribI3ui, is_failed);
-	resolve_symbol("glVertexAttribI4ui", ::glVertexAttribI4ui, is_failed);
-	resolve_symbol("glVertexAttribI1iv", ::glVertexAttribI1iv, is_failed);
-	resolve_symbol("glVertexAttribI2iv", ::glVertexAttribI2iv, is_failed);
-	resolve_symbol("glVertexAttribI3iv", ::glVertexAttribI3iv, is_failed);
-	resolve_symbol("glVertexAttribI4iv", ::glVertexAttribI4iv, is_failed);
-	resolve_symbol("glVertexAttribI1uiv", ::glVertexAttribI1uiv, is_failed);
-	resolve_symbol("glVertexAttribI2uiv", ::glVertexAttribI2uiv, is_failed);
-	resolve_symbol("glVertexAttribI3uiv", ::glVertexAttribI3uiv, is_failed);
-	resolve_symbol("glVertexAttribI4uiv", ::glVertexAttribI4uiv, is_failed);
-	resolve_symbol("glVertexAttribI4bv", ::glVertexAttribI4bv, is_failed);
-	resolve_symbol("glVertexAttribI4sv", ::glVertexAttribI4sv, is_failed);
-	resolve_symbol("glVertexAttribI4ubv", ::glVertexAttribI4ubv, is_failed);
-	resolve_symbol("glVertexAttribI4usv", ::glVertexAttribI4usv, is_failed);
-	resolve_symbol("glGetUniformuiv", ::glGetUniformuiv, is_failed);
-	resolve_symbol("glBindFragDataLocation", ::glBindFragDataLocation, is_failed);
-	resolve_symbol("glGetFragDataLocation", ::glGetFragDataLocation, is_failed);
-	resolve_symbol("glUniform1ui", ::glUniform1ui, is_failed);
-	resolve_symbol("glUniform2ui", ::glUniform2ui, is_failed);
-	resolve_symbol("glUniform3ui", ::glUniform3ui, is_failed);
-	resolve_symbol("glUniform4ui", ::glUniform4ui, is_failed);
-	resolve_symbol("glUniform1uiv", ::glUniform1uiv, is_failed);
-	resolve_symbol("glUniform2uiv", ::glUniform2uiv, is_failed);
-	resolve_symbol("glUniform3uiv", ::glUniform3uiv, is_failed);
-	resolve_symbol("glUniform4uiv", ::glUniform4uiv, is_failed);
-	resolve_symbol("glTexParameterIiv", ::glTexParameterIiv, is_failed);
-	resolve_symbol("glTexParameterIuiv", ::glTexParameterIuiv, is_failed);
-	resolve_symbol("glGetTexParameterIiv", ::glGetTexParameterIiv, is_failed);
-	resolve_symbol("glGetTexParameterIuiv", ::glGetTexParameterIuiv, is_failed);
-	resolve_symbol("glClearBufferiv", ::glClearBufferiv, is_failed);
-	resolve_symbol("glClearBufferuiv", ::glClearBufferuiv, is_failed);
-	resolve_symbol("glClearBufferfv", ::glClearBufferfv, is_failed);
-	resolve_symbol("glClearBufferfi", ::glClearBufferfi, is_failed);
-	resolve_symbol("glGetStringi", ::glGetStringi, is_failed);
-
-	return !is_failed;
+	resolve_symbol("glColorMaski", ::glColorMaski);
+	resolve_symbol("glGetBooleani_v", ::glGetBooleani_v);
+	resolve_symbol("glGetIntegeri_v", ::glGetIntegeri_v);
+	resolve_symbol("glEnablei", ::glEnablei);
+	resolve_symbol("glDisablei", ::glDisablei);
+	resolve_symbol("glIsEnabledi", ::glIsEnabledi);
+	resolve_symbol("glBeginTransformFeedback", ::glBeginTransformFeedback);
+	resolve_symbol("glEndTransformFeedback", ::glEndTransformFeedback);
+	resolve_symbol("glBindBufferRange", ::glBindBufferRange);
+	resolve_symbol("glBindBufferBase", ::glBindBufferBase);
+	resolve_symbol("glTransformFeedbackVaryings", ::glTransformFeedbackVaryings);
+	resolve_symbol("glGetTransformFeedbackVarying", ::glGetTransformFeedbackVarying);
+	resolve_symbol("glClampColor", ::glClampColor);
+	resolve_symbol("glBeginConditionalRender", ::glBeginConditionalRender);
+	resolve_symbol("glEndConditionalRender", ::glEndConditionalRender);
+	resolve_symbol("glVertexAttribIPointer", ::glVertexAttribIPointer);
+	resolve_symbol("glGetVertexAttribIiv", ::glGetVertexAttribIiv);
+	resolve_symbol("glGetVertexAttribIuiv", ::glGetVertexAttribIuiv);
+	resolve_symbol("glVertexAttribI1i", ::glVertexAttribI1i);
+	resolve_symbol("glVertexAttribI2i", ::glVertexAttribI2i);
+	resolve_symbol("glVertexAttribI3i", ::glVertexAttribI3i);
+	resolve_symbol("glVertexAttribI4i", ::glVertexAttribI4i);
+	resolve_symbol("glVertexAttribI1ui", ::glVertexAttribI1ui);
+	resolve_symbol("glVertexAttribI2ui", ::glVertexAttribI2ui);
+	resolve_symbol("glVertexAttribI3ui", ::glVertexAttribI3ui);
+	resolve_symbol("glVertexAttribI4ui", ::glVertexAttribI4ui);
+	resolve_symbol("glVertexAttribI1iv", ::glVertexAttribI1iv);
+	resolve_symbol("glVertexAttribI2iv", ::glVertexAttribI2iv);
+	resolve_symbol("glVertexAttribI3iv", ::glVertexAttribI3iv);
+	resolve_symbol("glVertexAttribI4iv", ::glVertexAttribI4iv);
+	resolve_symbol("glVertexAttribI1uiv", ::glVertexAttribI1uiv);
+	resolve_symbol("glVertexAttribI2uiv", ::glVertexAttribI2uiv);
+	resolve_symbol("glVertexAttribI3uiv", ::glVertexAttribI3uiv);
+	resolve_symbol("glVertexAttribI4uiv", ::glVertexAttribI4uiv);
+	resolve_symbol("glVertexAttribI4bv", ::glVertexAttribI4bv);
+	resolve_symbol("glVertexAttribI4sv", ::glVertexAttribI4sv);
+	resolve_symbol("glVertexAttribI4ubv", ::glVertexAttribI4ubv);
+	resolve_symbol("glVertexAttribI4usv", ::glVertexAttribI4usv);
+	resolve_symbol("glGetUniformuiv", ::glGetUniformuiv);
+	resolve_symbol("glBindFragDataLocation", ::glBindFragDataLocation);
+	resolve_symbol("glGetFragDataLocation", ::glGetFragDataLocation);
+	resolve_symbol("glUniform1ui", ::glUniform1ui);
+	resolve_symbol("glUniform2ui", ::glUniform2ui);
+	resolve_symbol("glUniform3ui", ::glUniform3ui);
+	resolve_symbol("glUniform4ui", ::glUniform4ui);
+	resolve_symbol("glUniform1uiv", ::glUniform1uiv);
+	resolve_symbol("glUniform2uiv", ::glUniform2uiv);
+	resolve_symbol("glUniform3uiv", ::glUniform3uiv);
+	resolve_symbol("glUniform4uiv", ::glUniform4uiv);
+	resolve_symbol("glTexParameterIiv", ::glTexParameterIiv);
+	resolve_symbol("glTexParameterIuiv", ::glTexParameterIuiv);
+	resolve_symbol("glGetTexParameterIiv", ::glGetTexParameterIiv);
+	resolve_symbol("glGetTexParameterIuiv", ::glGetTexParameterIuiv);
+	resolve_symbol("glClearBufferiv", ::glClearBufferiv);
+	resolve_symbol("glClearBufferuiv", ::glClearBufferuiv);
+	resolve_symbol("glClearBufferfv", ::glClearBufferfv);
+	resolve_symbol("glClearBufferfi", ::glClearBufferfi);
+	resolve_symbol("glGetStringi", ::glGetStringi);
 }
 
-bool OglExtensionManagerImpl::resolve_v3_1()
+void OglExtensionManagerImpl::resolve_v3_1()
 {
-	auto is_failed = false;
-
-	resolve_symbol("glDrawArraysInstanced", ::glDrawArraysInstanced, is_failed);
-	resolve_symbol("glDrawElementsInstanced", ::glDrawElementsInstanced, is_failed);
-	resolve_symbol("glTexBuffer", ::glTexBuffer, is_failed);
-	resolve_symbol("glPrimitiveRestartIndex", ::glPrimitiveRestartIndex, is_failed);
-
-	return is_failed;
+	resolve_symbol("glDrawArraysInstanced", ::glDrawArraysInstanced);
+	resolve_symbol("glDrawElementsInstanced", ::glDrawElementsInstanced);
+	resolve_symbol("glTexBuffer", ::glTexBuffer);
+	resolve_symbol("glPrimitiveRestartIndex", ::glPrimitiveRestartIndex);
 }
 
-bool OglExtensionManagerImpl::resolve_arb_color_buffer_float()
+void OglExtensionManagerImpl::resolve_arb_color_buffer_float()
 {
-	auto is_failed = false;
-
-	resolve_symbol("glClampColorARB", ::glClampColorARB, is_failed);
-
-	return !is_failed;
+	resolve_symbol("glClampColorARB", ::glClampColorARB);
 }
 
-bool OglExtensionManagerImpl::resolve_arb_copy_buffer()
+void OglExtensionManagerImpl::resolve_arb_copy_buffer()
 {
-	auto is_failed = false;
-
-	resolve_symbol("glCopyBufferSubData", ::glCopyBufferSubData, is_failed);
-
-	return !is_failed;
+	resolve_symbol("glCopyBufferSubData", ::glCopyBufferSubData);
 }
 
-bool OglExtensionManagerImpl::resolve_arb_framebuffer_object()
+void OglExtensionManagerImpl::resolve_arb_framebuffer_object()
 {
-	auto is_failed = false;
-
-	resolve_symbol("glIsRenderbuffer", ::glIsRenderbuffer, is_failed);
-	resolve_symbol("glBindRenderbuffer", ::glBindRenderbuffer, is_failed);
-	resolve_symbol("glDeleteRenderbuffers", ::glDeleteRenderbuffers, is_failed);
-	resolve_symbol("glGenRenderbuffers", ::glGenRenderbuffers, is_failed);
-	resolve_symbol("glRenderbufferStorage", ::glRenderbufferStorage, is_failed);
-	resolve_symbol("glGetRenderbufferParameteriv", ::glGetRenderbufferParameteriv, is_failed);
-	resolve_symbol("glIsFramebuffer", ::glIsFramebuffer, is_failed);
-	resolve_symbol("glBindFramebuffer", ::glBindFramebuffer, is_failed);
-	resolve_symbol("glDeleteFramebuffers", ::glDeleteFramebuffers, is_failed);
-	resolve_symbol("glGenFramebuffers", ::glGenFramebuffers, is_failed);
-	resolve_symbol("glCheckFramebufferStatus", ::glCheckFramebufferStatus, is_failed);
-	resolve_symbol("glFramebufferTexture1D", ::glFramebufferTexture1D, is_failed);
-	resolve_symbol("glFramebufferTexture2D", ::glFramebufferTexture2D, is_failed);
-	resolve_symbol("glFramebufferTexture3D", ::glFramebufferTexture3D, is_failed);
-	resolve_symbol("glFramebufferRenderbuffer", ::glFramebufferRenderbuffer, is_failed);
-	resolve_symbol("glGetFramebufferAttachmentParameteriv", ::glGetFramebufferAttachmentParameteriv, is_failed);
-	resolve_symbol("glGenerateMipmap", ::glGenerateMipmap, is_failed);
-	resolve_symbol("glBlitFramebuffer", ::glBlitFramebuffer, is_failed);
-	resolve_symbol("glRenderbufferStorageMultisample", ::glRenderbufferStorageMultisample, is_failed);
-	resolve_symbol("glFramebufferTextureLayer", ::glFramebufferTextureLayer, is_failed);
-
-	return !is_failed;
+	resolve_symbol("glIsRenderbuffer", ::glIsRenderbuffer);
+	resolve_symbol("glBindRenderbuffer", ::glBindRenderbuffer);
+	resolve_symbol("glDeleteRenderbuffers", ::glDeleteRenderbuffers);
+	resolve_symbol("glGenRenderbuffers", ::glGenRenderbuffers);
+	resolve_symbol("glRenderbufferStorage", ::glRenderbufferStorage);
+	resolve_symbol("glGetRenderbufferParameteriv", ::glGetRenderbufferParameteriv);
+	resolve_symbol("glIsFramebuffer", ::glIsFramebuffer);
+	resolve_symbol("glBindFramebuffer", ::glBindFramebuffer);
+	resolve_symbol("glDeleteFramebuffers", ::glDeleteFramebuffers);
+	resolve_symbol("glGenFramebuffers", ::glGenFramebuffers);
+	resolve_symbol("glCheckFramebufferStatus", ::glCheckFramebufferStatus);
+	resolve_symbol("glFramebufferTexture1D", ::glFramebufferTexture1D);
+	resolve_symbol("glFramebufferTexture2D", ::glFramebufferTexture2D);
+	resolve_symbol("glFramebufferTexture3D", ::glFramebufferTexture3D);
+	resolve_symbol("glFramebufferRenderbuffer", ::glFramebufferRenderbuffer);
+	resolve_symbol("glGetFramebufferAttachmentParameteriv", ::glGetFramebufferAttachmentParameteriv);
+	resolve_symbol("glGenerateMipmap", ::glGenerateMipmap);
+	resolve_symbol("glBlitFramebuffer", ::glBlitFramebuffer);
+	resolve_symbol("glRenderbufferStorageMultisample", ::glRenderbufferStorageMultisample);
+	resolve_symbol("glFramebufferTextureLayer", ::glFramebufferTextureLayer);
 }
 
-bool OglExtensionManagerImpl::resolve_arb_map_buffer_range()
+void OglExtensionManagerImpl::resolve_arb_map_buffer_range()
 {
-	auto is_failed = false;
-
-	resolve_symbol("glMapBufferRange", ::glMapBufferRange, is_failed);
-	resolve_symbol("glFlushMappedBufferRange", ::glFlushMappedBufferRange, is_failed);
-
-	return !is_failed;
+	resolve_symbol("glMapBufferRange", ::glMapBufferRange);
+	resolve_symbol("glFlushMappedBufferRange", ::glFlushMappedBufferRange);
 }
 
-bool OglExtensionManagerImpl::resolve_arb_uniform_buffer_object()
+void OglExtensionManagerImpl::resolve_arb_sampler_objects()
 {
-	auto is_failed = false;
-
-	resolve_symbol("glGetUniformIndices", ::glGetUniformIndices, is_failed);
-	resolve_symbol("glGetActiveUniformsiv", ::glGetActiveUniformsiv, is_failed);
-	resolve_symbol("glGetActiveUniformName", ::glGetActiveUniformName, is_failed);
-	resolve_symbol("glGetUniformBlockIndex", ::glGetUniformBlockIndex, is_failed);
-	resolve_symbol("glGetActiveUniformBlockiv", ::glGetActiveUniformBlockiv, is_failed);
-	resolve_symbol("glGetActiveUniformBlockName", ::glGetActiveUniformBlockName, is_failed);
-	resolve_symbol("glUniformBlockBinding", ::glUniformBlockBinding, is_failed);
-	resolve_symbol("glBindBufferRange", ::glBindBufferRange, is_failed);
-	resolve_symbol("glBindBufferBase", ::glBindBufferBase, is_failed);
-	resolve_symbol("glGetIntegeri_v", ::glGetIntegeri_v, is_failed);
-
-	return !is_failed;
+	resolve_symbol("glGenSamplers", ::glGenSamplers);
+	resolve_symbol("glDeleteSamplers", ::glDeleteSamplers);
+	resolve_symbol("glIsSampler", ::glIsSampler);
+	resolve_symbol("glBindSampler", ::glBindSampler);
+	resolve_symbol("glSamplerParameteri", ::glSamplerParameteri);
+	resolve_symbol("glSamplerParameteriv", ::glSamplerParameteriv);
+	resolve_symbol("glSamplerParameterf", ::glSamplerParameterf);
+	resolve_symbol("glSamplerParameterfv", ::glSamplerParameterfv);
+	resolve_symbol("glSamplerParameterIiv", ::glSamplerParameterIiv);
+	resolve_symbol("glSamplerParameterIuiv", ::glSamplerParameterIuiv);
+	resolve_symbol("glGetSamplerParameteriv", ::glGetSamplerParameteriv);
+	resolve_symbol("glGetSamplerParameterIiv", ::glGetSamplerParameterIiv);
+	resolve_symbol("glGetSamplerParameterfv", ::glGetSamplerParameterfv);
+	resolve_symbol("glGetSamplerParameterIuiv", ::glGetSamplerParameterIuiv);
 }
 
-bool OglExtensionManagerImpl::resolve_arb_vertex_array_object()
+void OglExtensionManagerImpl::resolve_arb_uniform_buffer_object()
 {
-	auto is_failed = false;
-
-	resolve_symbol("glBindVertexArray", ::glBindVertexArray, is_failed);
-	resolve_symbol("glDeleteVertexArrays", ::glDeleteVertexArrays, is_failed);
-	resolve_symbol("glGenVertexArrays", ::glGenVertexArrays, is_failed);
-	resolve_symbol("glIsVertexArray", ::glIsVertexArray, is_failed);
-
-	return !is_failed;
+	resolve_symbol("glGetUniformIndices", ::glGetUniformIndices);
+	resolve_symbol("glGetActiveUniformsiv", ::glGetActiveUniformsiv);
+	resolve_symbol("glGetActiveUniformName", ::glGetActiveUniformName);
+	resolve_symbol("glGetUniformBlockIndex", ::glGetUniformBlockIndex);
+	resolve_symbol("glGetActiveUniformBlockiv", ::glGetActiveUniformBlockiv);
+	resolve_symbol("glGetActiveUniformBlockName", ::glGetActiveUniformBlockName);
+	resolve_symbol("glUniformBlockBinding", ::glUniformBlockBinding);
+	resolve_symbol("glBindBufferRange", ::glBindBufferRange);
+	resolve_symbol("glBindBufferBase", ::glBindBufferBase);
+	resolve_symbol("glGetIntegeri_v", ::glGetIntegeri_v);
 }
 
-bool OglExtensionManagerImpl::resolve_arb_vertex_buffer_object()
+void OglExtensionManagerImpl::resolve_arb_vertex_array_object()
 {
-	auto is_failed = false;
-
-	resolve_symbol("glBindBufferARB", ::glBindBufferARB, is_failed);
-	resolve_symbol("glDeleteBuffersARB", ::glDeleteBuffersARB, is_failed);
-	resolve_symbol("glGenBuffersARB", ::glGenBuffersARB, is_failed);
-	resolve_symbol("glIsBufferARB", ::glIsBufferARB, is_failed);
-	resolve_symbol("glBufferDataARB", ::glBufferDataARB, is_failed);
-	resolve_symbol("glBufferSubDataARB", ::glBufferSubDataARB, is_failed);
-	resolve_symbol("glGetBufferSubDataARB", ::glGetBufferSubDataARB, is_failed);
-	resolve_symbol("glMapBufferARB", ::glMapBufferARB, is_failed);
-	resolve_symbol("glUnmapBufferARB", ::glUnmapBufferARB, is_failed);
-	resolve_symbol("glGetBufferParameterivARB", ::glGetBufferParameterivARB, is_failed);
-	resolve_symbol("glGetBufferPointervARB", ::glGetBufferPointervARB, is_failed);
-
-	return !is_failed;
+	resolve_symbol("glBindVertexArray", ::glBindVertexArray);
+	resolve_symbol("glDeleteVertexArrays", ::glDeleteVertexArrays);
+	resolve_symbol("glGenVertexArrays", ::glGenVertexArrays);
+	resolve_symbol("glIsVertexArray", ::glIsVertexArray);
 }
 
-bool OglExtensionManagerImpl::resolve_ext_framebuffer_blit()
+void OglExtensionManagerImpl::resolve_arb_vertex_buffer_object()
 {
-	auto is_failed = false;
-
-	resolve_symbol("glBlitFramebufferEXT", ::glBlitFramebufferEXT, is_failed);
-
-	return !is_failed;
+	resolve_symbol("glBindBufferARB", ::glBindBufferARB);
+	resolve_symbol("glDeleteBuffersARB", ::glDeleteBuffersARB);
+	resolve_symbol("glGenBuffersARB", ::glGenBuffersARB);
+	resolve_symbol("glIsBufferARB", ::glIsBufferARB);
+	resolve_symbol("glBufferDataARB", ::glBufferDataARB);
+	resolve_symbol("glBufferSubDataARB", ::glBufferSubDataARB);
+	resolve_symbol("glGetBufferSubDataARB", ::glGetBufferSubDataARB);
+	resolve_symbol("glMapBufferARB", ::glMapBufferARB);
+	resolve_symbol("glUnmapBufferARB", ::glUnmapBufferARB);
+	resolve_symbol("glGetBufferParameterivARB", ::glGetBufferParameterivARB);
+	resolve_symbol("glGetBufferPointervARB", ::glGetBufferPointervARB);
 }
 
-bool OglExtensionManagerImpl::resolve_ext_framebuffer_multisample()
+void OglExtensionManagerImpl::resolve_ext_framebuffer_blit()
 {
-	auto is_failed = false;
-
-	resolve_symbol("glRenderbufferStorageMultisampleEXT", ::glRenderbufferStorageMultisampleEXT, is_failed);
-
-	return !is_failed;
+	resolve_symbol("glBlitFramebufferEXT", ::glBlitFramebufferEXT);
 }
 
-bool OglExtensionManagerImpl::resolve_ext_framebuffer_object()
+void OglExtensionManagerImpl::resolve_ext_framebuffer_multisample()
 {
-	auto is_failed = false;
+	resolve_symbol("glRenderbufferStorageMultisampleEXT", ::glRenderbufferStorageMultisampleEXT);
+}
 
-	resolve_symbol("glIsRenderbufferEXT", ::glIsRenderbufferEXT, is_failed);
-	resolve_symbol("glBindRenderbufferEXT", ::glBindRenderbufferEXT, is_failed);
-	resolve_symbol("glDeleteRenderbuffersEXT", ::glDeleteRenderbuffersEXT, is_failed);
-	resolve_symbol("glGenRenderbuffersEXT", ::glGenRenderbuffersEXT, is_failed);
-	resolve_symbol("glRenderbufferStorageEXT", ::glRenderbufferStorageEXT, is_failed);
-	resolve_symbol("glGetRenderbufferParameterivEXT", ::glGetRenderbufferParameterivEXT, is_failed);
-	resolve_symbol("glIsFramebufferEXT", ::glIsFramebufferEXT, is_failed);
-	resolve_symbol("glBindFramebufferEXT", ::glBindFramebufferEXT, is_failed);
-	resolve_symbol("glDeleteFramebuffersEXT", ::glDeleteFramebuffersEXT, is_failed);
-	resolve_symbol("glGenFramebuffersEXT", ::glGenFramebuffersEXT, is_failed);
-	resolve_symbol("glCheckFramebufferStatusEXT", ::glCheckFramebufferStatusEXT, is_failed);
-	resolve_symbol("glFramebufferTexture1DEXT", ::glFramebufferTexture1DEXT, is_failed);
-	resolve_symbol("glFramebufferTexture2DEXT", ::glFramebufferTexture2DEXT, is_failed);
-	resolve_symbol("glFramebufferTexture3DEXT", ::glFramebufferTexture3DEXT, is_failed);
-	resolve_symbol("glFramebufferRenderbufferEXT", ::glFramebufferRenderbufferEXT, is_failed);
-	resolve_symbol("glGetFramebufferAttachmentParameterivEXT", ::glGetFramebufferAttachmentParameterivEXT, is_failed);
-	resolve_symbol("glGenerateMipmapEXT", ::glGenerateMipmapEXT, is_failed);
-
-	return !is_failed;
+void OglExtensionManagerImpl::resolve_ext_framebuffer_object()
+{
+	resolve_symbol("glIsRenderbufferEXT", ::glIsRenderbufferEXT);
+	resolve_symbol("glBindRenderbufferEXT", ::glBindRenderbufferEXT);
+	resolve_symbol("glDeleteRenderbuffersEXT", ::glDeleteRenderbuffersEXT);
+	resolve_symbol("glGenRenderbuffersEXT", ::glGenRenderbuffersEXT);
+	resolve_symbol("glRenderbufferStorageEXT", ::glRenderbufferStorageEXT);
+	resolve_symbol("glGetRenderbufferParameterivEXT", ::glGetRenderbufferParameterivEXT);
+	resolve_symbol("glIsFramebufferEXT", ::glIsFramebufferEXT);
+	resolve_symbol("glBindFramebufferEXT", ::glBindFramebufferEXT);
+	resolve_symbol("glDeleteFramebuffersEXT", ::glDeleteFramebuffersEXT);
+	resolve_symbol("glGenFramebuffersEXT", ::glGenFramebuffersEXT);
+	resolve_symbol("glCheckFramebufferStatusEXT", ::glCheckFramebufferStatusEXT);
+	resolve_symbol("glFramebufferTexture1DEXT", ::glFramebufferTexture1DEXT);
+	resolve_symbol("glFramebufferTexture2DEXT", ::glFramebufferTexture2DEXT);
+	resolve_symbol("glFramebufferTexture3DEXT", ::glFramebufferTexture3DEXT);
+	resolve_symbol("glFramebufferRenderbufferEXT", ::glFramebufferRenderbufferEXT);
+	resolve_symbol("glGetFramebufferAttachmentParameterivEXT", ::glGetFramebufferAttachmentParameterivEXT);
+	resolve_symbol("glGenerateMipmapEXT", ::glGenerateMipmapEXT);
 }
 
 //
@@ -1931,13 +1848,9 @@ bool OglExtensionManagerImpl::resolve_ext_framebuffer_object()
 // OglExtensionManager
 //
 
-OglExtensionManager::OglExtensionManager()
-{
-}
+OglExtensionManager::OglExtensionManager() = default;
 
-OglExtensionManager::~OglExtensionManager()
-{
-}
+OglExtensionManager::~OglExtensionManager() = default;
 
 //
 // OglExtensionManager
@@ -1950,14 +1863,7 @@ OglExtensionManager::~OglExtensionManager()
 
 OglExtensionManagerUPtr OglExtensionManagerFactory::create()
 {
-	auto result = OglExtensionManagerImplUPtr{new OglExtensionManagerImpl{}};
-
-	if (!result->initialize())
-	{
-		return nullptr;
-	}
-
-	return result;
+	return OglExtensionManagerImplUPtr{new OglExtensionManagerImpl{}};
 }
 
 //

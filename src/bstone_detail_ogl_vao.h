@@ -23,21 +23,25 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL vertex buffer object (implementation).
-//
-// !!! Internal usage only !!!
+// OpenGL vertex array object (implementation interface).
 //
 
 
-#ifndef BSTONE_DETAIL_OGL_VERTEX_BUFFER_INCLUDED
-#define BSTONE_DETAIL_OGL_VERTEX_BUFFER_INCLUDED
+#ifndef BSTONE_OGL_VAO_INCLUDED
+#define BSTONE_OGL_VAO_INCLUDED
 
 
-#include "bstone_renderer.h"
+#include <memory>
 
 
 namespace bstone
 {
+
+
+class RendererBuffer;
+using RendererBufferPtr = RendererBuffer*;
+
+
 namespace detail
 {
 
@@ -45,42 +49,81 @@ namespace detail
 class OglState;
 using OglStatePtr = OglState*;
 
+class OglVaoManager;
+using OglVaoManagerPtr = OglVaoManager*;
+
 
 // ==========================================================================
-// OglVertexBuffer
+// OglVao
 //
 
-class OglVertexBuffer :
-	public RendererVertexBuffer
+class OglVao
 {
 protected:
-	OglVertexBuffer();
+	OglVao();
+
 
 public:
-	~OglVertexBuffer() override;
-}; // OglVertexBuffer
+	virtual ~OglVao();
 
-using OglVertexBufferPtr = OglVertexBuffer*;
-using OglVertexBufferUPtr = std::unique_ptr<OglVertexBuffer>;
+
+	virtual void bind() = 0;
+
+
+	virtual bool index_buffer_set_current(
+		const RendererBufferPtr index_buffer) = 0;
+
+
+	virtual void enable_location(
+		const int location,
+		const bool is_enable) = 0;
+}; // OglVao
+
+using OglVaoPtr = OglVao*;
+using OglVaoUPtr = std::unique_ptr<OglVao>;
 
 //
-// OglVertexBuffer
+// OglVao
 // ==========================================================================
 
 
 // ==========================================================================
-// OglVertexBufferFactory
+// OglVaoDeleter
 //
 
-struct OglVertexBufferFactory final
+class OglVaoDeleter
 {
-	static OglVertexBufferUPtr create(
-		const OglStatePtr ogl_state,
-		const RendererVertexBufferCreateParam& param);
-}; // OglVertexBufferFactory
+public:
+	OglVaoDeleter(
+		const OglStatePtr ogl_state);
+
+	void operator()(
+		const OglVaoPtr resource);
+
+
+private:
+	const OglStatePtr ogl_state_;
+}; // OglVaoDeleter
+
+using OglVaoResource = std::unique_ptr<OglVao, OglVaoDeleter>;
 
 //
-// OglVertexBufferFactory
+// OglVaoDeleter
+// ==========================================================================
+
+
+// ==========================================================================
+// OglVaoFactory
+//
+
+struct OglVaoFactory final
+{
+	static OglVaoUPtr create(
+		const OglVaoManagerPtr manager);
+}; // OglVaoFactory
+
+//
+// OglVaoFactory
 // ==========================================================================
 
 
@@ -88,4 +131,4 @@ struct OglVertexBufferFactory final
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_OGL_VERTEX_BUFFER_INCLUDED
+#endif // !BSTONE_OGL_VAO_INCLUDED

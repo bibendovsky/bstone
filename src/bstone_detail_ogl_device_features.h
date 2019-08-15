@@ -50,6 +50,8 @@ struct OglDeviceFeatures
 	PFNGLGENERATEMIPMAPPROC mipmap_function_;
 
 	bool framebuffer_is_arb_;
+
+	bool vao_is_available_;
 }; // OglDeviceFeatures
 
 

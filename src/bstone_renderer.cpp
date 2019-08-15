@@ -37,6 +37,45 @@ namespace bstone
 
 
 // ==========================================================================
+// RendererBuffer
+//
+
+RendererBuffer::RendererBuffer() = default;
+
+RendererBuffer::~RendererBuffer() = default;
+
+//
+// RendererBuffer
+// ==========================================================================
+
+
+// ==========================================================================
+// RendererIndexBuffer
+//
+
+RendererIndexBuffer::RendererIndexBuffer() = default;
+
+RendererIndexBuffer::~RendererIndexBuffer() = default;
+
+//
+// RendererIndexBuffer
+// ==========================================================================
+
+
+// ==========================================================================
+// RendererVertexBuffer
+//
+
+RendererVertexBuffer::RendererVertexBuffer() = default;
+
+RendererVertexBuffer::~RendererVertexBuffer() = default;
+
+//
+// RendererVertexBuffer
+// ==========================================================================
+
+
+// ==========================================================================
 // Shader
 //
 

@@ -38,6 +38,7 @@ Free Software Foundation, Inc.,
 #include <sstream>
 #include "SDL_video.h"
 #include "glm/gtc/matrix_transform.hpp"
+#include "bstone_exception.h"
 
 
 namespace bstone
@@ -50,12 +51,7 @@ namespace detail
 // OglRendererUtils
 //
 
-const std::string& OglRendererUtils::get_error_message() const
-{
-	return error_message_;
-}
-
-bool OglRendererUtils::load_library()
+void OglRendererUtils::load_library()
 {
 	const auto error_message_prefix = "Failed to load default OpenGL library. ";
 
@@ -63,13 +59,11 @@ bool OglRendererUtils::load_library()
 
 	if (sdl_result < 0)
 	{
-		error_message_ = error_message_prefix;
-		error_message_ += ::SDL_GetError();
+		auto error_message = std::string{error_message_prefix};
+		error_message += ::SDL_GetError();
 
-		return false;
+		throw Exception{std::move(error_message)};
 	}
-
-	return true;
 }
 
 void OglRendererUtils::unload_library()
@@ -90,24 +84,26 @@ SdlGlContextUPtr OglRendererUtils::create_context(
 
 	if (!sdl_window)
 	{
-		error_message_ = error_message_prefix;
-		error_message_ += "Null SDL window.";
+		auto error_message = std::string{error_message_prefix};
+		error_message += "Null SDL window.";
 
-		return nullptr;
+		throw Exception{std::move(error_message)};
 	}
 
 	auto sdl_gl_context = SdlGlContextUPtr{::SDL_GL_CreateContext(sdl_window)};
 
 	if (!sdl_gl_context)
 	{
-		error_message_ = error_message_prefix;
-		error_message_ += ::SDL_GetError();
+		auto error_message = std::string{error_message_prefix};
+		error_message += ::SDL_GetError();
+
+		throw Exception{std::move(error_message)};
 	}
 
 	return sdl_gl_context;
 }
 
-bool OglRendererUtils::make_context_current(
+void OglRendererUtils::make_context_current(
 	SdlWindowPtr sdl_window,
 	SdlGlContextPtr sdl_gl_context)
 {
@@ -115,57 +111,36 @@ bool OglRendererUtils::make_context_current(
 
 	if (!sdl_window)
 	{
-		error_message_ = error_message_prefix;
-		error_message_ += "Null SDL window.";
+		auto error_message = std::string{error_message_prefix};
+		error_message += "Null SDL window.";
 
-		return false;
+		throw Exception{std::move(error_message)};
 	}
 
 	const auto sdl_result = ::SDL_GL_MakeCurrent(sdl_window, sdl_gl_context);
 
 	if (sdl_result < 0)
 	{
-		error_message_ = error_message_prefix;
-		error_message_ += ::SDL_GetError();
+		auto error_message = std::string{error_message_prefix};
+		error_message += ::SDL_GetError();
 
-		return false;
+		throw Exception{std::move(error_message)};
 	}
-
-	return true;
 }
 
-bool OglRendererUtils::create_window_and_context(
+void OglRendererUtils::create_window_and_context(
 	const RendererUtilsCreateWindowParam& param,
 	SdlWindowUPtr& sdl_window,
 	SdlGlContextUPtr& sdl_gl_context)
 {
-	auto renderer_utils = RendererUtils{};
-
-	auto sdl_window_result = renderer_utils.create_window(param);
-
-	if (!sdl_window_result)
-	{
-		error_message_ = renderer_utils.get_error_message();
-
-		return false;
-	}
-
+	auto sdl_window_result = RendererUtils::create_window(param);
 	auto sdl_gl_context_result = create_context(sdl_window_result.get());
-
-	if (!sdl_gl_context_result)
-	{
-		error_message_ = renderer_utils.get_error_message();
-
-		return false;
-	}
 
 	sdl_window = std::move(sdl_window_result);
 	sdl_gl_context = std::move(sdl_gl_context_result);
-
-	return true;
 }
 
-bool OglRendererUtils::create_probe_window_and_context(
+void OglRendererUtils::create_probe_window_and_context(
 	SdlWindowUPtr& sdl_window,
 	SdlGlContextUPtr& sdl_gl_context)
 {
@@ -176,10 +151,10 @@ bool OglRendererUtils::create_probe_window_and_context(
 	param.aa_kind_ = RendererAaKind::none;
 	param.aa_value_ = 0;
 
-	return create_window_and_context(param, sdl_window, sdl_gl_context);
+	create_window_and_context(param, sdl_window, sdl_gl_context);
 }
 
-bool OglRendererUtils::window_get_drawable_size(
+void OglRendererUtils::window_get_drawable_size(
 	SdlWindowPtr sdl_window,
 	int& width,
 	int& height)
@@ -189,21 +164,15 @@ bool OglRendererUtils::window_get_drawable_size(
 
 	if (!sdl_window)
 	{
-		error_message_ = "Null window.";
-
-		return false;
+		throw Exception{"Null window."};
 	}
 
 	::SDL_GL_GetDrawableSize(sdl_window, &width, &height);
 
 	if (width <= 0 || height <= 0)
 	{
-		error_message_ = ::SDL_GetError();
-
-		return false;
+		throw Exception{std::move(std::string{::SDL_GetError()})};
 	}
-
-	return true;
 }
 
 OglContextKind OglRendererUtils::context_get_kind()
@@ -243,7 +212,7 @@ OglContextKind OglRendererUtils::context_get_kind()
 	}
 }
 
-bool OglRendererUtils::context_get_version(
+void OglRendererUtils::context_get_version(
 	int& major_version,
 	int& minor_version)
 {
@@ -254,7 +223,7 @@ bool OglRendererUtils::context_get_version(
 
 	if (sdl_ogl_context == nullptr)
 	{
-		return false;
+		throw Exception{"No current context."};
 	}
 
 	auto sdl_result = 0;
@@ -267,7 +236,10 @@ bool OglRendererUtils::context_get_version(
 
 	if (sdl_result != 0)
 	{
-		return false;
+		auto error_message = std::string{"Failed to get major version. "};
+		error_message += ::SDL_GetError();
+
+		throw Exception{std::move(error_message)};
 	}
 
 	// Minor.
@@ -278,15 +250,34 @@ bool OglRendererUtils::context_get_version(
 
 	if (sdl_result != 0)
 	{
-		return false;
+		auto error_message = std::string{"Failed to get minor version. "};
+		error_message += ::SDL_GetError();
+
+		throw Exception{std::move(error_message)};
 	}
 
 	// Result.
 	//
 	major_version = sdl_major_version;
 	minor_version = sdl_minor_version;
+}
 
-	return true;
+int OglRendererUtils::anisotropy_clamp_value(
+	const int anisotropy_value,
+	const RendererDeviceFeatures& device_features)
+{
+	auto clamped_value = anisotropy_value;
+
+	if (clamped_value < RendererSampler::anisotropy_min)
+	{
+		clamped_value = RendererSampler::anisotropy_min;
+	}
+	else if (clamped_value > device_features.anisotropy_max_value_)
+	{
+		clamped_value = device_features.anisotropy_max_value_;
+	}
+
+	return clamped_value;
 }
 
 int OglRendererUtils::anisotropy_get_max_value()
@@ -310,20 +301,16 @@ void OglRendererUtils::anisotropy_set_value(
 	const RendererDeviceFeatures& device_features,
 	const int anisotropy_value)
 {
-	auto clamped_value = anisotropy_value;
+	if (!device_features.anisotropy_is_available_)
+	{
+		return;
+	}
 
-	if (clamped_value < RendererSampler::anisotropy_min)
-	{
-		clamped_value = RendererSampler::anisotropy_min;
-	}
-	else if (clamped_value > device_features.anisotropy_max_value_)
-	{
-		clamped_value = device_features.anisotropy_max_value_;
-	}
+	const auto clamped_value = anisotropy_clamp_value(anisotropy_value, device_features);
 
 	const auto ogl_value = static_cast<GLfloat>(clamped_value);
 
-	::glTexParameterfv(ogl_target, GL_TEXTURE_MAX_ANISOTROPY, &ogl_value);
+	::glTexParameterf(ogl_target, GL_TEXTURE_MAX_ANISOTROPY, ogl_value);
 	assert(!OglRendererUtils::was_errors());
 }
 
@@ -476,6 +463,46 @@ int OglRendererUtils::msaa_get_max_value(
 	return std::max(max_value, RendererUtils::aa_get_min_value());
 }
 
+void OglRendererUtils::sampler_probe(
+	OglExtensionManagerPtr extension_manager,
+	RendererDeviceFeatures& device_features)
+{
+	return;
+	extension_manager->probe_extension(OglExtensionId::arb_sampler_objects);
+
+	device_features.sampler_is_available_ =
+		extension_manager->has_extension(OglExtensionId::arb_sampler_objects);
+}
+
+void OglRendererUtils::sampler_set_anisotropy(
+	const GLenum ogl_sampler,
+	const RendererDeviceFeatures& device_features,
+	const int anisotropy_value)
+{
+	if (!device_features.sampler_is_available_ ||
+		!device_features.anisotropy_is_available_)
+	{
+		return;
+	}
+
+	const auto clamped_value = anisotropy_clamp_value(anisotropy_value, device_features);
+
+	const auto ogl_value = static_cast<GLfloat>(clamped_value);
+
+	::glSamplerParameterf(ogl_sampler, GL_TEXTURE_MAX_ANISOTROPY, ogl_value);
+	assert(!OglRendererUtils::was_errors());
+}
+
+void OglRendererUtils::vertex_input_vao_probe(
+	OglExtensionManagerPtr extension_manager,
+	OglDeviceFeatures& ogl_device_features)
+{
+	extension_manager->probe_extension(OglExtensionId::arb_vertex_array_object);
+
+	ogl_device_features.vao_is_available_ =
+		extension_manager->has_extension(OglExtensionId::arb_vertex_array_object);
+}
+
 void OglRendererUtils::vertex_input_probe_max_locations(
 	RendererDeviceFeatures& device_features)
 {
@@ -484,11 +511,11 @@ void OglRendererUtils::vertex_input_probe_max_locations(
 	::glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &ogl_count);
 	assert(!OglRendererUtils::was_errors());
 
-	device_features.max_vertex_input_locations_ = 0;
+	device_features.vertex_input_max_locations_ = 0;
 
 	if (ogl_count > 0)
 	{
-		device_features.max_vertex_input_locations_ = ogl_count;
+		device_features.vertex_input_max_locations_ = ogl_count;
 	}
 }
 
@@ -643,6 +670,12 @@ void OglRendererUtils::texture_2d_set(
 	assert(!OglRendererUtils::was_errors());
 }
 
+void OglRendererUtils::texture_2d_unbind()
+{
+	::glBindTexture(GL_TEXTURE_2D, 0);
+	assert(!OglRendererUtils::was_errors());
+}
+
 void OglRendererUtils::blending_set_function(
 	const RendererBlendingFactor src_factor,
 	const RendererBlendingFactor dst_factor)
@@ -675,7 +708,7 @@ GLenum OglRendererUtils::index_buffer_get_element_type_by_byte_depth(
 	}
 }
 
-bool OglRendererUtils::renderer_features_set(
+void OglRendererUtils::renderer_features_set(
 	RendererDeviceFeatures& device_features)
 {
 	// Max texture dimension.
@@ -686,9 +719,7 @@ bool OglRendererUtils::renderer_features_set(
 
 	if (OglRendererUtils::was_errors() || ogl_texture_dimension == 0)
 	{
-		error_message_ = "Failed to get maximum texture dimension.";
-
-		return false;
+		throw Exception{"Failed to get maximum texture dimension."};
 	}
 
 
@@ -702,9 +733,7 @@ bool OglRendererUtils::renderer_features_set(
 	if (OglRendererUtils::was_errors() ||
 		ogl_viewport_dimensions[0] == 0 || ogl_viewport_dimensions[1] == 0)
 	{
-		error_message_ = "Failed to get viewport dimensions.";
-
-		return false;
+		throw Exception{"Failed to get viewport dimensions."};
 	}
 
 
@@ -714,8 +743,6 @@ bool OglRendererUtils::renderer_features_set(
 
 	device_features.max_viewport_width_ = ogl_viewport_dimensions[0];
 	device_features.max_viewport_height_ = ogl_viewport_dimensions[1];
-
-	return true;
 }
 
 RendererDeviceInfo OglRendererUtils::device_info_get()
@@ -802,13 +829,14 @@ const glm::mat4& OglRendererUtils::csc_get_texture()
 
 	// Flip sign to allow to upload top-to-bottom texture images.
 	constexpr auto m_22 = -1.0F;
+	constexpr auto m_24 = 1.0F;
 
 	constexpr auto m_33 = 1.0F;
 
 	static const auto result = glm::mat4
 	{
 		m_11, 0.0F, 0.0F, 0.0F,
-		0.0F, m_22, 0.0F, 0.0F,
+		0.0F, m_22, 0.0F, m_24,
 		0.0F, 0.0F, m_33, 0.0F,
 		0.0F, 0.0F, 0.0F, 1.0F,
 	};
@@ -821,6 +849,110 @@ const glm::mat4& OglRendererUtils::csc_get_projection()
 	static const auto result = glm::identity<glm::mat4>();
 
 	return result;
+}
+
+GLenum OglRendererUtils::filter_get_mag(
+	const RendererFilterKind mag_filter)
+{
+	switch (mag_filter)
+	{
+	case RendererFilterKind::nearest:
+		return GL_NEAREST;
+
+	case RendererFilterKind::linear:
+		return GL_LINEAR;
+
+	default:
+		throw Exception{"Unsupported magnification filter."};
+	}
+}
+
+GLenum OglRendererUtils::filter_get_min(
+	const RendererFilterKind min_filter,
+	const RendererMipmapMode mipmap_mode)
+{
+	switch (mipmap_mode)
+	{
+	case RendererMipmapMode::none:
+		switch (min_filter)
+		{
+		case RendererFilterKind::nearest:
+			return GL_NEAREST;
+
+		case RendererFilterKind::linear:
+			return GL_LINEAR;
+
+		default:
+			throw Exception{"Unsupported minification filter."};
+		}
+
+		break;
+
+	case RendererMipmapMode::nearest:
+		switch (min_filter)
+		{
+		case RendererFilterKind::nearest:
+			return GL_NEAREST_MIPMAP_NEAREST;
+
+		case RendererFilterKind::linear:
+			return GL_LINEAR_MIPMAP_NEAREST;
+
+		default:
+			throw Exception{"Unsupported minification mipmap filter."};
+		}
+
+		break;
+
+	case RendererMipmapMode::linear:
+		switch (min_filter)
+		{
+		case RendererFilterKind::nearest:
+			return GL_NEAREST_MIPMAP_LINEAR;
+
+		case RendererFilterKind::linear:
+			return GL_LINEAR_MIPMAP_LINEAR;
+
+		default:
+			throw Exception{"Unsupported minification mipmap filter."};
+		}
+
+		break;
+
+	default:
+		throw Exception{"Unsupported mipmap mode."};
+	}
+}
+
+GLenum OglRendererUtils::address_mode_get(
+	const RendererAddressMode address_mode)
+{
+	switch (address_mode)
+	{
+	case RendererAddressMode::clamp:
+		return GL_CLAMP_TO_BORDER;
+
+	case RendererAddressMode::repeat:
+		return GL_REPEAT;
+
+	default:
+		throw Exception{"Unsupported address mode."};
+	}
+}
+
+GLenum OglRendererUtils::texture_wrap_get_axis(
+	const RendererTextureAxis texture_axis)
+{
+	switch (texture_axis)
+	{
+		case RendererTextureAxis::u:
+			return GL_TEXTURE_WRAP_S;
+
+		case RendererTextureAxis::v:
+			return GL_TEXTURE_WRAP_T;
+
+		default:
+			throw Exception{"Unsupported texture axis."};
+	}
 }
 
 GLenum OglRendererUtils::blending_get_factor(

@@ -23,47 +23,45 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL handle wrappers.
+// Base exception.
 //
 
 
-#ifndef BSTONE_OGL_HANDLES_INCLUDED
-#define BSTONE_OGL_HANDLES_INCLUDED
+#ifndef BSTONE_EXCEPTION_INCLUDED
+#define BSTONE_EXCEPTION_INCLUDED
 
 
-#include "bstone_ogl_api.h"
-#include "bstone_system_handle.h"
+#include <exception>
+#include <string>
 
 
 namespace bstone
 {
 
 
-void ogl_buffer_deleter(
-	const GLuint ogl_name) noexcept;
+class Exception :
+	public std::exception
+{
+public:
+	Exception();
 
-using OglBufferHandle = SystemHandle<GLuint, 0, ogl_buffer_deleter>;
+	explicit Exception(
+		const char* const message);
+
+	explicit Exception(
+		std::string&& message) noexcept;
+
+	virtual ~Exception();
+
+	const char* what() const noexcept override;
 
 
-void ogl_shader_deleter(
-	const GLuint ogl_name) noexcept;
-
-using OglShaderHandle = SystemHandle<GLuint, 0, ogl_shader_deleter>;
-
-
-void ogl_program_deleter(
-	const GLuint ogl_name) noexcept;
-
-using OglProgramHandle = SystemHandle<GLuint, 0, ogl_program_deleter>;
-
-
-void ogl_texture_deleter(
-	const GLuint ogl_name) noexcept;
-
-using OglTextureHandle = SystemHandle<GLuint, 0, ogl_texture_deleter>;
+private:
+	std::string message_;
+}; // Exception
 
 
 } // bstone
 
 
-#endif // !BSTONE_OGL_HANDLES_INCLUDED
+#endif // !BSTONE_EXCEPTION_INCLUDED

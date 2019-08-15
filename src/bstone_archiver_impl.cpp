@@ -35,6 +35,16 @@ namespace bstone
 {
 
 
+ArchiverException::ArchiverException(
+	const char* const message)
+	:
+	Exception{message}
+{
+}
+
+ArchiverException::~ArchiverException() = default;
+
+
 namespace
 {
 
@@ -43,21 +53,10 @@ class ArchiverExceptionImpl final :
 	public ArchiverException
 {
 public:
-	ArchiverExceptionImpl() = delete;
-
 	ArchiverExceptionImpl(
 		const char* const message);
 
-	ArchiverExceptionImpl(
-		const std::string& message);
-
-	~ArchiverExceptionImpl() override = default;
-
-	const char* get_message() const override;
-
-
-private:
-	std::string message_;
+	~ArchiverExceptionImpl() override;
 }; // ArchiverException
 
 
@@ -714,21 +713,11 @@ void ArchiverImpl::write_checksum()
 ArchiverExceptionImpl::ArchiverExceptionImpl(
 	const char* const message)
 	:
-	message_{message ? message : std::string{}}
+	ArchiverException{message}
 {
 }
 
-ArchiverExceptionImpl::ArchiverExceptionImpl(
-	const std::string& message)
-	:
-	message_{message}
-{
-}
-
-const char* ArchiverExceptionImpl::get_message() const
-{
-	return message_.c_str();
-}
+ArchiverExceptionImpl::~ArchiverExceptionImpl() = default;
 
 
 } // namespace

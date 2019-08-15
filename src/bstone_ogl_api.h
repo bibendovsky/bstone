@@ -3912,4 +3912,64 @@ GLAPI PFNGLGETBUFFERPOINTERVARBPROC glGetBufferPointervARB;
 // ==========================================================================
 
 
+// ==========================================================================
+// GL_ARB_sampler_objects
+//
+
+#ifndef GL_ARB_sampler_objects
+#define GL_ARB_sampler_objects (1)
+
+#define GL_SAMPLER_BINDING 0x8919
+
+
+typedef void (APIENTRYP PFNGLGENSAMPLERSPROC)(GLsizei count, GLuint *samplers);
+GLAPI PFNGLGENSAMPLERSPROC glGenSamplers;
+
+typedef void (APIENTRYP PFNGLDELETESAMPLERSPROC)(GLsizei count, const GLuint *samplers);
+GLAPI PFNGLDELETESAMPLERSPROC glDeleteSamplers;
+
+typedef GLboolean (APIENTRYP PFNGLISSAMPLERPROC)(GLuint sampler);
+GLAPI PFNGLISSAMPLERPROC glIsSampler;
+
+typedef void (APIENTRYP PFNGLBINDSAMPLERPROC)(GLuint unit, GLuint sampler);
+GLAPI PFNGLBINDSAMPLERPROC glBindSampler;
+
+typedef void (APIENTRYP PFNGLSAMPLERPARAMETERIPROC)(GLuint sampler, GLenum pname, GLint param);
+GLAPI PFNGLSAMPLERPARAMETERIPROC glSamplerParameteri;
+
+typedef void (APIENTRYP PFNGLSAMPLERPARAMETERIVPROC)(GLuint sampler, GLenum pname, const GLint *param);
+GLAPI PFNGLSAMPLERPARAMETERIVPROC glSamplerParameteriv;
+
+typedef void (APIENTRYP PFNGLSAMPLERPARAMETERFPROC)(GLuint sampler, GLenum pname, GLfloat param);
+GLAPI PFNGLSAMPLERPARAMETERFPROC glSamplerParameterf;
+
+typedef void (APIENTRYP PFNGLSAMPLERPARAMETERFVPROC)(GLuint sampler, GLenum pname, const GLfloat *param);
+GLAPI PFNGLSAMPLERPARAMETERFVPROC glSamplerParameterfv;
+
+typedef void (APIENTRYP PFNGLSAMPLERPARAMETERIIVPROC)(GLuint sampler, GLenum pname, const GLint *param);
+GLAPI PFNGLSAMPLERPARAMETERIIVPROC glSamplerParameterIiv;
+
+typedef void (APIENTRYP PFNGLSAMPLERPARAMETERIUIVPROC)(GLuint sampler, GLenum pname, const GLuint *param);
+GLAPI PFNGLSAMPLERPARAMETERIUIVPROC glSamplerParameterIuiv;
+
+typedef void (APIENTRYP PFNGLGETSAMPLERPARAMETERIVPROC)(GLuint sampler, GLenum pname, GLint *params);
+GLAPI PFNGLGETSAMPLERPARAMETERIVPROC glGetSamplerParameteriv;
+
+typedef void (APIENTRYP PFNGLGETSAMPLERPARAMETERIIVPROC)(GLuint sampler, GLenum pname, GLint *params);
+GLAPI PFNGLGETSAMPLERPARAMETERIIVPROC glGetSamplerParameterIiv;
+
+typedef void (APIENTRYP PFNGLGETSAMPLERPARAMETERFVPROC)(GLuint sampler, GLenum pname, GLfloat *params);
+GLAPI PFNGLGETSAMPLERPARAMETERFVPROC glGetSamplerParameterfv;
+
+typedef void (APIENTRYP PFNGLGETSAMPLERPARAMETERIUIVPROC)(GLuint sampler, GLenum pname, GLuint *params);
+GLAPI PFNGLGETSAMPLERPARAMETERIUIVPROC glGetSamplerParameterIuiv;
+
+
+#endif // !GL_ARB_sampler_objects
+
+//
+// GL_ARB_sampler_objects
+// ==========================================================================
+
+
 #endif // !BSTONE_OGL_INCLUDED

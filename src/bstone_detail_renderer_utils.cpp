@@ -31,10 +31,9 @@ Free Software Foundation, Inc.,
 
 #include "bstone_precompiled.h"
 #include "bstone_detail_renderer_utils.h"
-#include <cassert>
 #include <algorithm>
 #include <unordered_set>
-#include "SDL_video.h"
+#include "bstone_exception.h"
 #include "bstone_sprite.h"
 
 
@@ -47,11 +46,6 @@ namespace detail
 // ==========================================================================
 // RendererUtils
 //
-
-const std::string& RendererUtils::get_error_message() const
-{
-	return error_message_;
-}
 
 int RendererUtils::get_max_mipmap_count()
 {
@@ -92,7 +86,9 @@ int RendererUtils::calculate_mipmap_count(
 	const int width,
 	const int height)
 {
+	//
 	// mipmap_count = [log2(max(width, height))] + 1
+	//
 
 	const auto max_size = std::max(width, height);
 
@@ -116,19 +112,8 @@ SdlWindowUPtr RendererUtils::create_window(
 {
 	const auto error_message_prefix = "Failed to create a window. ";
 
-	if (!create_window_validate_param(param))
-	{
-		error_message_ = error_message_prefix + error_message_;
-
-		return nullptr;
-	}
-
-	if (!create_window_set_ogl_attributes(param))
-	{
-		error_message_ = error_message_prefix + error_message_;
-
-		return nullptr;
-	}
+	create_window_validate_param(param);
+	create_window_set_ogl_attributes(param);
 
 	const auto sdl_flags = create_window_sdl_flags(param);
 
@@ -157,14 +142,16 @@ SdlWindowUPtr RendererUtils::create_window(
 
 	if (!sdl_window)
 	{
-		error_message_ = error_message_prefix;
-		error_message_ += ::SDL_GetError();
+		auto error_message = std::string{error_message_prefix};
+		error_message += ::SDL_GetError();
+
+		throw Exception{std::move(error_message)};
 	}
 
 	return sdl_window;
 }
 
-bool RendererUtils::show_window(
+void RendererUtils::show_window(
 	SdlWindowPtr sdl_window,
 	const bool is_visible)
 {
@@ -172,20 +159,18 @@ bool RendererUtils::show_window(
 
 	if (!sdl_window)
 	{
-		error_message_ = error_message_prefix;
-		error_message_ += "Null SDL window.";
+		auto error_message = std::string{error_message_prefix};
+		error_message += "Null SDL window.";
 
-		return false;
+		throw Exception{std::move(error_message)};
 	}
 
 	const auto sdl_function = (is_visible ? ::SDL_ShowWindow : ::SDL_HideWindow);
 
 	sdl_function(sdl_window);
-
-	return true;
 }
 
-bool RendererUtils::validate_initialize_param(
+void RendererUtils::validate_initialize_param(
 	const RendererInitializeParam& param)
 {
 	switch (param.renderer_kind_)
@@ -194,23 +179,17 @@ bool RendererUtils::validate_initialize_param(
 		break;
 
 	default:
-		error_message_ = "Unsupported renderer kind.";
-
-		return false;
+		throw Exception{"Unsupported renderer kind."};
 	}
 
 	if (param.window_.width_ <= 0)
 	{
-		error_message_ = "Invalid window width.";
-
-		return false;
+		throw Exception{"Invalid window width."};
 	}
 
 	if (param.window_.height_ <= 0)
 	{
-		error_message_ = "Invalid window height.";
-
-		return false;
+		throw Exception{"Invalid window height."};
 	}
 
 	switch (param.aa_kind_)
@@ -220,15 +199,11 @@ bool RendererUtils::validate_initialize_param(
 			break;
 
 		default:
-			error_message_ = "Invalid antialiasing kind.";
-
-			return false;
+			throw Exception{"Invalid antialiasing kind."};
 	}
-
-	return true;
 }
 
-bool RendererUtils::validate_index_buffer_create_param(
+void RendererUtils::validate_index_buffer_create_param(
 	const RendererIndexBufferCreateParam& param)
 {
 	switch (param.usage_kind_)
@@ -239,8 +214,7 @@ bool RendererUtils::validate_index_buffer_create_param(
 			break;
 
 		default:
-			error_message_ = "Invalid usage kind.";
-		return false;
+			throw Exception{"Invalid usage kind."};
 	}
 
 	switch (param.byte_depth_)
@@ -251,88 +225,44 @@ bool RendererUtils::validate_index_buffer_create_param(
 		break;
 
 	default:
-		error_message_ = "Invalid byte depth.";
-		return false;
+		throw Exception{"Invalid byte depth."};
 	}
 
 	if (param.size_ <= 0)
 	{
-		error_message_ = "Invalid size.";
-
-		return false;
+		throw Exception{"Invalid size."};
 	}
-
-	return true;
 }
 
-bool RendererUtils::validate_index_buffer_update_param(
-	const RendererIndexBufferUpdateParam& param)
+void RendererUtils::validate_buffer_update_param(
+	const RendererBufferUpdateParam& param)
 {
 	if (param.offset_ < 0)
 	{
-		error_message_ = "Invalid offset.";
-
-		return false;
+		throw Exception{"Invalid offset."};
 	}
 
 	if (param.size_ <= 0)
 	{
-		error_message_ = "Invalid count.";
-
-		return false;
+		throw Exception{"Invalid count."};
 	}
 
 	if (!param.data_)
 	{
-		error_message_ = "Null indices.";
-
-		return false;
+		throw Exception{"Null indices."};
 	}
-
-	return true;
 }
 
-bool RendererUtils::validate_vertex_buffer_create_param(
+void RendererUtils::validate_vertex_buffer_create_param(
 	const RendererVertexBufferCreateParam& param)
 {
 	if (param.size_ <= 0)
 	{
-		error_message_ = "Invalid size.";
-
-		return false;
+		throw Exception{"Invalid size."};
 	}
-
-	return true;
 }
 
-bool RendererUtils::validate_vertex_buffer_update_param(
-	const RendererVertexBufferUpdateParam& param)
-{
-	if (param.offset_ < 0)
-	{
-		error_message_ = "Invalid offset.";
-
-		return false;
-	}
-
-	if (param.size_ <= 0)
-	{
-		error_message_ = "Invalid size.";
-
-		return false;
-	}
-
-	if (!param.data_)
-	{
-		error_message_ = "Null data.";
-
-		return false;
-	}
-
-	return true;
-}
-
-bool RendererUtils::validate_texture_2d_create_param(
+void RendererUtils::validate_texture_2d_create_param(
 	const RendererTexture2dCreateParam& param)
 {
 	switch (param.storage_pixel_format_)
@@ -342,54 +272,41 @@ bool RendererUtils::validate_texture_2d_create_param(
 			break;
 
 		default:
-			error_message_ = "Invalid pixel format.";
-
-			return false;
+			throw Exception{"Invalid pixel format."};
 	}
 
 	if (param.width_ <= 0)
 	{
-		error_message_ = "Invalid width.";
-
-		return false;
+		throw Exception{"Invalid width."};
 	}
 
 	if (param.height_ <= 0)
 	{
-		error_message_ = "Invalid height.";
-
-		return false;
+		throw Exception{"Invalid height."};
 	}
 
 	if (param.mipmap_count_ <= 0)
 	{
+		throw Exception{"Invalid mipmap count."};
 	}
-
-	return true;
 }
 
-bool RendererUtils::validate_texture_2d_update_param(
+void RendererUtils::validate_texture_2d_update_param(
 	const RendererTexture2dUpdateParam& param)
 {
 	if (param.mipmap_level_ < 0 ||
 		param.mipmap_level_ >= get_max_mipmap_count())
 	{
-		error_message_ = "Invalid mipmap level.";
-
-		return false;
+		throw Exception{"Invalid mipmap level."};
 	}
 
 	if (param.rgba_pixels_ == nullptr)
 	{
-		error_message_ = "Null pixel source.";
-
-		return false;
+		throw Exception{"Null pixel source."};
 	}
-
-	return true;
 }
 
-bool RendererUtils::vertex_input_validate_format(
+void RendererUtils::vertex_input_validate_format(
 	const RendererVertexAttributeFormat attribute_format)
 {
 	switch (attribute_format)
@@ -397,33 +314,32 @@ bool RendererUtils::vertex_input_validate_format(
 		case RendererVertexAttributeFormat::r8g8b8a8_unorm:
 		case RendererVertexAttributeFormat::r32g32_sfloat:
 		case RendererVertexAttributeFormat::r32g32b32_sfloat:
-			return true;
+			return;
 
 		default:
-			return false;
+			throw Exception{"Unsupported vertex input attribute format."};
 	}
 }
 
-bool RendererUtils::vertex_input_validate_param(
+void RendererUtils::vertex_input_validate_param(
 	const int max_locations,
 	const RendererVertexInputCreateParam& param)
 {
-	assert(max_locations >= 0);
+	if (max_locations < 0)
+	{
+		throw Exception{"Maximum location count out of range."};
+	}
 
 	if (!param.index_buffer_)
 	{
-		error_message_ = "Null index buffer.";
-
-		return false;
+		throw Exception{"Null index buffer."};
 	}
 
 	const auto& attribute_descriptions = param.attribute_descriptions_;
 
 	if (attribute_descriptions.empty())
 	{
-		error_message_ = "No descriptions.";
-
-		return false;
+		throw Exception{"No descriptions."};
 	}
 
 	using UsedLocations = std::unordered_set<int>;
@@ -443,18 +359,14 @@ bool RendererUtils::vertex_input_validate_param(
 
 		if (location < 0 || location >= max_locations)
 		{
-			error_message_ = "Location out of range.";
-
-			return false;
+			throw Exception{"Location out of range."};
 		}
 
 		const auto has_location = (used_locations.find(location) != used_locations.cend());
 
 		if (has_location)
 		{
-			error_message_ = "Duplicate location.";
-
-			return false;
+			throw Exception{"Duplicate location."};
 		}
 
 		used_locations.insert(location);
@@ -462,21 +374,14 @@ bool RendererUtils::vertex_input_validate_param(
 
 		// Format.
 		//
-		if (!vertex_input_validate_format(attribute_description.format_))
-		{
-			error_message_ = "Invalid format.";
-
-			return false;
-		}
+		vertex_input_validate_format(attribute_description.format_);
 
 
 		// Vertex buffer.
 		//
 		if (!attribute_description.vertex_buffer_)
 		{
-			error_message_ = "Null vertex buffer.";
-
-			return false;
+			throw Exception{"Null vertex buffer."};
 		}
 
 
@@ -484,9 +389,7 @@ bool RendererUtils::vertex_input_validate_param(
 		//
 		if (attribute_description.offset_ < 0)
 		{
-			error_message_ = "Invalid offset.";
-
-			return false;
+			throw Exception{"Invalid offset."};
 		}
 
 
@@ -494,25 +397,8 @@ bool RendererUtils::vertex_input_validate_param(
 		//
 		if (attribute_description.stride_ < 0)
 		{
-			error_message_ = "Invalid stride.";
-
-			return false;
+			throw Exception{"Invalid stride."};
 		}
-	}
-
-	return true;
-}
-
-bool RendererUtils::is_ogl_renderer_path(
-	const RendererKind renderer_path)
-{
-	switch (renderer_path)
-	{
-	case RendererKind::ogl_2_x:
-		return true;
-
-	default:
-		return false;
 	}
 }
 
@@ -532,12 +418,35 @@ void RendererUtils::indexed_pot_to_rgba_pot(
 	const bool* const indexed_alphas,
 	TextureBuffer& texture_buffer)
 {
-	assert(width > 0);
-	assert(height > 0);
-	assert(actual_width > 0);
-	assert(actual_height > 0);
-	assert(indexed_pixels);
-	assert(texture_buffer.size() >= (actual_width * actual_height));
+	if (width <= 0)
+	{
+		throw Exception{"Width out of range."};
+	}
+
+	if (height <= 0)
+	{
+		throw Exception{"Height out of range."};
+	}
+
+	if (actual_width <= 0)
+	{
+		throw Exception{"Actual width out of range."};
+	}
+
+	if (actual_height <= 0)
+	{
+		throw Exception{"Actual height out of range."};
+	}
+
+	if (!indexed_pixels)
+	{
+		throw Exception{"Null indexed pixels."};
+	}
+
+	if (texture_buffer.size() < (actual_width * actual_height))
+	{
+		throw Exception{"Bitmap buffer too small."};
+	}
 
 	const auto has_alphas = (indexed_alphas != nullptr);
 
@@ -588,12 +497,35 @@ void RendererUtils::indexed_npot_to_rgba_pot(
 	const bool* const indexed_alphas,
 	TextureBuffer& texture_buffer)
 {
-	assert(width > 0);
-	assert(height > 0);
-	assert(actual_width > 0);
-	assert(actual_height > 0);
-	assert(indexed_pixels);
-	assert(texture_buffer.size() >= (actual_width * actual_height));
+	if (width <= 0)
+	{
+		throw Exception{"Width out of range."};
+	}
+
+	if (height <= 0)
+	{
+		throw Exception{"Height out of range."};
+	}
+
+	if (actual_width <= 0)
+	{
+		throw Exception{"Actual width out of range."};
+	}
+
+	if (actual_height <= 0)
+	{
+		throw Exception{"Actual height out of range."};
+	}
+
+	if (!indexed_pixels)
+	{
+		throw Exception{"Null indexed pixels."};
+	}
+
+	if (texture_buffer.size() < (actual_width * actual_height))
+	{
+		throw Exception{"Indexed bitmap buffer too small."};
+	}
 
 	const auto has_alphas = (indexed_alphas != nullptr);
 
@@ -696,7 +628,10 @@ void RendererUtils::indexed_sprite_to_rgba_pot(
 	const R8g8b8a8Palette& indexed_palette,
 	TextureBuffer& texture_buffer)
 {
-	assert(indexed_sprite.is_initialized());
+	if (!indexed_sprite.is_initialized())
+	{
+		throw Exception{"Indexed sprite not initialized."};
+	}
 
 	const auto left = indexed_sprite.get_left();
 	const auto right = indexed_sprite.get_right();
@@ -749,11 +684,30 @@ void RendererUtils::rgba_npot_to_rgba_pot(
 	const R8g8b8a8* const rgba_pixels,
 	TextureBuffer& texture_buffer)
 {
-	assert(width > 0);
-	assert(height > 0);
-	assert(actual_width > 0);
-	assert(actual_height > 0);
-	assert(rgba_pixels);
+if (width <= 0)
+	{
+		throw Exception{"Width out of range."};
+	}
+
+	if (height <= 0)
+	{
+		throw Exception{"Height out of range."};
+	}
+
+	if (actual_width <= 0)
+	{
+		throw Exception{"Actual width out of range."};
+	}
+
+	if (actual_height <= 0)
+	{
+		throw Exception{"Actual height out of range."};
+	}
+
+	if (!rgba_pixels)
+	{
+		throw Exception{"Null RGBA pixels."};
+	}
 
 	const auto src_du_d =
 		static_cast<double>(width) /
@@ -796,12 +750,30 @@ void RendererUtils::build_mipmap(
 	const R8g8b8a8CPtr src_colors,
 	const R8g8b8a8Ptr dst_colors)
 {
-	assert(previous_width >= 1);
-	assert(previous_height >= 1);
-	assert(!(previous_width == 1 && previous_height == 1));
-	assert(src_colors);
-	assert(dst_colors);
-	assert(src_colors != dst_colors);
+	if (previous_width <= 0)
+	{
+		throw Exception{"Previous width out of range."};
+	}
+
+	if (previous_height <= 0)
+	{
+		throw Exception{"Previous height out of range."};
+	}
+
+	if (previous_width == 1 && previous_height == 1)
+	{
+		throw Exception{"Previous dimensions has minimum dimensions."};
+	}
+
+	if (!src_colors)
+	{
+		throw Exception{"Null source colors."};
+	}
+
+	if (!dst_colors)
+	{
+		throw Exception{"Null target colors."};
+	}
 
 	const auto is_width_one = (previous_width == 1);
 	const auto is_height_one = (previous_height == 1);
@@ -857,27 +829,21 @@ void RendererUtils::build_mipmap(
 	}
 }
 
-bool RendererUtils::create_window_validate_param(
+void RendererUtils::create_window_validate_param(
 	const RendererUtilsCreateWindowParam& param)
 {
 	if (param.window_.is_positioned_ && (param.window_.x_ < 0 || param.window_.y_ < 0))
 	{
-		error_message_ = "Invalid position.";
-
-		return false;
+		throw Exception{"Invalid position."};
 	}
 
 	if (param.window_.width_ <= 0 || param.window_.height_ <= 0)
 	{
-		error_message_ = "Invalid dimensions.";
-
-		return false;
+		throw Exception{"Invalid dimensions."};
 	}
-
-	return true;
 }
 
-bool RendererUtils::create_window_set_ogl_attributes(
+void RendererUtils::create_window_set_ogl_attributes(
 	const RendererUtilsCreateWindowParam& param)
 {
 	::SDL_GL_ResetAttributes();
@@ -891,18 +857,14 @@ bool RendererUtils::create_window_set_ogl_attributes(
 
 			if (sdl_result != 0)
 			{
-				error_message_ = "Failed to set multisample buffer count.";
-
-				return false;
+				throw Exception{"Failed to set multisample buffer count."};
 			}
 
 			sdl_result = ::SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, param.aa_value_);
 
 			if (sdl_result != 0)
 			{
-				error_message_ = "Failed to set multisample sample count.";
-
-				return false;
+				throw Exception{"Failed to set multisample sample count."};
 			}
 
 			break;
@@ -914,18 +876,14 @@ bool RendererUtils::create_window_set_ogl_attributes(
 
 			if (sdl_result != 0)
 			{
-				error_message_ = "Failed to set multisample buffer count.";
-
-				return false;
+				throw Exception{"Failed to set multisample buffer count."};
 			}
 
 			sdl_result = ::SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
 
 			if (sdl_result != 0)
 			{
-				error_message_ = "Failed to set multisample sample count.";
-
-				return false;
+				throw Exception{"Failed to set multisample sample count."};
 			}
 
 			break;
@@ -937,13 +895,9 @@ bool RendererUtils::create_window_set_ogl_attributes(
 
 		if (sdl_result != 0)
 		{
-			error_message_ = "Failed to set depth buffer bit depth.";
-
-			return false;
+			throw Exception{"Failed to set depth buffer bit depth."};
 		}
 	}
-
-	return true;
 }
 
 std::uint32_t RendererUtils::create_window_sdl_flags(

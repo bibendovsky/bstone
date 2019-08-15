@@ -50,10 +50,7 @@ namespace detail
 class OglRendererUtils
 {
 public:
-	const std::string& get_error_message() const;
-
-
-	bool load_library();
+	static void load_library();
 
 	static void unload_library();
 
@@ -61,26 +58,26 @@ public:
 		const char* const symbol);
 
 
-	SdlGlContextUPtr create_context(
+	static SdlGlContextUPtr create_context(
 		SdlWindowPtr sdl_window);
 
 
-	bool make_context_current(
+	static void make_context_current(
 		SdlWindowPtr sdl_window,
 		SdlGlContextPtr sdl_gl_context);
 
 
-	bool create_window_and_context(
+	static void create_window_and_context(
 		const RendererUtilsCreateWindowParam& param,
 		SdlWindowUPtr& sdl_window,
 		SdlGlContextUPtr& sdl_gl_context);
 
-	bool create_probe_window_and_context(
+	static void create_probe_window_and_context(
 		SdlWindowUPtr& sdl_window,
 		SdlGlContextUPtr& sdl_gl_context);
 
 
-	bool window_get_drawable_size(
+	static void window_get_drawable_size(
 		SdlWindowPtr sdl_window,
 		int& width,
 		int& height);
@@ -88,12 +85,16 @@ public:
 
 	static OglContextKind context_get_kind();
 
-	static bool context_get_version(
+	static void context_get_version(
 		int& major_version,
 		int& minor_version);
 
 
 	static int anisotropy_get_max_value();
+
+	static int anisotropy_clamp_value(
+		const int anisotropy_value,
+		const RendererDeviceFeatures& device_features);
 
 	static void anisotropy_set_value(
 		const GLenum ogl_target,
@@ -124,6 +125,20 @@ public:
 	static int msaa_get_max_value(
 		OglExtensionManagerPtr extension_manager);
 
+
+	static void sampler_probe(
+		OglExtensionManagerPtr extension_manager,
+		RendererDeviceFeatures& device_features);
+
+	static void sampler_set_anisotropy(
+		const GLenum ogl_sampler,
+		const RendererDeviceFeatures& device_features,
+		const int anisotropy_value);
+
+
+	static void vertex_input_vao_probe(
+		OglExtensionManagerPtr extension_manager,
+		OglDeviceFeatures& ogl_device_features);
 
 	static void vertex_input_probe_max_locations(
 		RendererDeviceFeatures& device_features);
@@ -173,6 +188,8 @@ public:
 	static void texture_2d_set(
 		const GLuint ogl_texture_name);
 
+	static void texture_2d_unbind();
+
 	static void blending_set_function(
 		const RendererBlendingFactor src_factor,
 		const RendererBlendingFactor dst_factor);
@@ -180,10 +197,10 @@ public:
 	static GLenum index_buffer_get_element_type_by_byte_depth(
 		const int byte_depth);
 
-	bool renderer_features_set(
+	static void renderer_features_set(
 		RendererDeviceFeatures& device_features);
 
-	RendererDeviceInfo device_info_get();
+	static RendererDeviceInfo device_info_get();
 
 	static std::string get_log(
 		const bool is_shader,
@@ -195,8 +212,22 @@ public:
 	static const glm::mat4& csc_get_projection();
 
 
+	static GLenum filter_get_mag(
+		const RendererFilterKind mag_filter);
+
+	static GLenum filter_get_min(
+		const RendererFilterKind min_filter,
+		const RendererMipmapMode mipmap_mode);
+
+	static GLenum address_mode_get(
+		const RendererAddressMode address_mode);
+
+	static GLenum texture_wrap_get_axis(
+		const RendererTextureAxis texture_axis);
+
+
 private:
-	std::string error_message_;
+	OglRendererUtils();
 
 
 	static GLenum blending_get_factor(

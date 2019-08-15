@@ -23,17 +23,17 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL index buffer object (implementation).
-//
-// !!! Internal usage only !!!
+// OpenGL vertex input (implementation interface).
 //
 
 
-#ifndef BSTONE_DETAIL_OGL_INDEX_BUFFER_INCLUDED
-#define BSTONE_DETAIL_OGL_INDEX_BUFFER_INCLUDED
+#ifndef BSTONE_DETAIL_OGL_VERTEX_INPUT_INCLUDED
+#define BSTONE_DETAIL_OGL_VERTEX_INPUT_INCLUDED
 
 
 #include "bstone_renderer.h"
+
+#include "bstone_detail_ogl_device_features.h"
 
 
 namespace bstone
@@ -47,41 +47,48 @@ using OglStatePtr = OglState*;
 
 
 // =========================================================================
-// OglIndexBuffer
+// OglVertexInput
 //
 
-class OglIndexBuffer :
-	public RendererIndexBuffer
+class OglVertexInput :
+	public RendererVertexInput
 {
 protected:
-	OglIndexBuffer();
+	OglVertexInput();
 
 
 public:
-	~OglIndexBuffer() override;
-}; // OglIndexBuffer
+	~OglVertexInput() override;
 
-using OglIndexBufferPtr = OglIndexBuffer*;
-using OglIndexBufferUPtr = std::unique_ptr<OglIndexBuffer>;
+
+	virtual void bind() = 0;
+
+	virtual RendererIndexBufferPtr get_index_buffer() const noexcept = 0;
+}; // VertexInput
+
+using OglVertexInputPtr = OglVertexInput*;
+using OglVertexInputUPtr = std::unique_ptr<OglVertexInput>;
 
 //
-// OglIndexBuffer
+// OglVertexInput
 // =========================================================================
 
 
 // =========================================================================
-// OglIndexBufferFactory
+// OglVertexInputFactory
 //
 
-struct OglIndexBufferFactory final
+struct OglVertexInputFactory final
 {
-	static OglIndexBufferUPtr create(
-		const OglStatePtr ogl_state,
-		const RendererIndexBufferCreateParam& param);
-}; // OglIndexBufferFactory
+	static OglVertexInputUPtr create(
+		OglStatePtr ogl_state,
+		const RendererDeviceFeatures& device_features,
+		const OglDeviceFeatures& ogl_device_features,
+		const RendererVertexInputCreateParam& param);
+}; // OglVertexInputFactory
 
 //
-// OglIndexBufferFactory
+// OglVertexInputFactory
 // =========================================================================
 
 
@@ -89,4 +96,4 @@ struct OglIndexBufferFactory final
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_OGL_INDEX_BUFFER_INCLUDED
+#endif // !BSTONE_DETAIL_OGL_VERTEX_INPUT_INCLUDED

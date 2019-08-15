@@ -1065,3 +1065,31 @@ PFNGLGETBUFFERPOINTERVARBPROC glGetBufferPointervARB = nullptr;
 //
 // GL_ARB_vertex_buffer_object
 // ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_sampler_objects
+//
+
+#ifdef GL_ARB_sampler_objects
+
+PFNGLGENSAMPLERSPROC glGenSamplers = nullptr;
+PFNGLDELETESAMPLERSPROC glDeleteSamplers = nullptr;
+PFNGLISSAMPLERPROC glIsSampler = nullptr;
+PFNGLBINDSAMPLERPROC glBindSampler = nullptr;
+PFNGLSAMPLERPARAMETERIPROC glSamplerParameteri = nullptr;
+PFNGLSAMPLERPARAMETERIVPROC glSamplerParameteriv = nullptr;
+PFNGLSAMPLERPARAMETERFPROC glSamplerParameterf = nullptr;
+PFNGLSAMPLERPARAMETERFVPROC glSamplerParameterfv = nullptr;
+PFNGLSAMPLERPARAMETERIIVPROC glSamplerParameterIiv = nullptr;
+PFNGLSAMPLERPARAMETERIUIVPROC glSamplerParameterIuiv = nullptr;
+PFNGLGETSAMPLERPARAMETERIVPROC glGetSamplerParameteriv = nullptr;
+PFNGLGETSAMPLERPARAMETERIIVPROC glGetSamplerParameterIiv = nullptr;
+PFNGLGETSAMPLERPARAMETERFVPROC glGetSamplerParameterfv = nullptr;
+PFNGLGETSAMPLERPARAMETERIUIVPROC glGetSamplerParameterIuiv = nullptr;
+
+#endif // GL_ARB_sampler_objects
+
+//
+// GL_ARB_sampler_objects
+// ==========================================================================

@@ -331,7 +331,7 @@ void main()
 
 	o_position = position.xy;
 	o_color = a_color;
-	o_tx_coords = (u_texture_mat * vec4(a_tx_coords, 0.0, 1.0)).xy;
+	o_tx_coords = (vec4(a_tx_coords, 0.0, 1.0) * u_texture_mat).xy;
 
 	gl_Position = u_projection_mat * u_view_mat * position;
 }

@@ -178,6 +178,46 @@ public:
 
 
 // ==========================================================================
+// RendererBuffer
+//
+
+struct RendererBufferUpdateParam
+{
+	int offset_;
+	int size_;
+	const void* data_;
+}; // RendererBufferUpdateParam
+
+class RendererBuffer
+{
+protected:
+	RendererBuffer();
+
+	virtual ~RendererBuffer();
+
+
+public:
+	virtual RendererBufferKind get_kind() const noexcept = 0;
+
+	virtual RendererBufferUsageKind get_usage_kind() const noexcept = 0;
+
+	virtual int get_size() const noexcept = 0;
+
+	virtual void update(
+		const RendererBufferUpdateParam& param) = 0;
+
+	virtual void bind(
+		const bool is_bind) = 0;
+}; // RendererBuffer
+
+using RendererBufferPtr = RendererBuffer*;
+
+//
+// RendererBuffer
+// ==========================================================================
+
+
+// ==========================================================================
 // RendererIndexBuffer
 //
 
@@ -212,33 +252,17 @@ struct RendererIndexBufferCreateParam
 	int size_;
 }; // RendererIndexBufferCreateParam
 
-struct RendererIndexBufferUpdateParam
-{
-	int offset_;
-	int size_;
-	const void* data_;
-}; // RendererIndexBufferUpdateParam
-
-class RendererIndexBuffer
+class RendererIndexBuffer :
+	public RendererBuffer
 {
 protected:
-	RendererIndexBuffer() = default;
+	RendererIndexBuffer();
 
-	virtual ~RendererIndexBuffer() = default;
+	~RendererIndexBuffer() override;
 
 
 public:
-	virtual RendererBufferUsageKind get_usage_kind() const = 0;
-
-	virtual int get_byte_depth() const = 0;
-
-	virtual int get_size() const = 0;
-
-	virtual void update(
-		const RendererIndexBufferUpdateParam& param) = 0;
-
-	virtual void bind(
-		const bool is_binded) = 0;
+	virtual int get_byte_depth() const noexcept = 0;
 }; // RendererIndexBuffer
 
 using RendererIndexBufferPtr = RendererIndexBuffer*;
@@ -258,31 +282,13 @@ struct RendererVertexBufferCreateParam
 	int size_;
 }; // RendererVertexBufferCreateParam
 
-struct RendererVertexBufferUpdateParam
-{
-	int offset_;
-	int size_;
-	const void* data_;
-}; // RendererVertexBufferUpdateParam
-
-class RendererVertexBuffer
+class RendererVertexBuffer :
+	public RendererBuffer
 {
 protected:
-	RendererVertexBuffer() = default;
+	RendererVertexBuffer();
 
-	virtual ~RendererVertexBuffer() = default;
-
-
-public:
-	virtual RendererBufferUsageKind get_usage_kind() const  = 0;
-
-	virtual int get_size() const = 0;
-
-	virtual void update(
-		const RendererVertexBufferUpdateParam& param) = 0;
-
-	virtual void bind(
-		const bool is_binded) = 0;
+	~RendererVertexBuffer() override;
 }; // RendererVertexBuffer
 
 using RendererVertexBufferPtr = RendererVertexBuffer*;
@@ -331,6 +337,9 @@ protected:
 	RendererVertexInput() = default;
 
 	virtual ~RendererVertexInput() = default;
+
+
+	virtual RendererIndexBufferPtr get_index_buffer() const noexcept = 0;
 }; // RendererVertexInput
 
 using RendererVertexInputPtr = RendererVertexInput*;
@@ -364,6 +373,13 @@ enum class RendererAddressMode :
 {
 	clamp,
 	repeat,
+}; // RendererAddressMode
+
+enum class RendererTextureAxis :
+	unsigned char
+{
+	u,
+	v,
 }; // RendererAddressMode
 
 struct RendererSamplerState
@@ -445,6 +461,8 @@ public:
 
 	virtual void update(
 		const RendererSamplerUpdateParam& param) = 0;
+
+	virtual const RendererSamplerState& get_state() const noexcept = 0;
 }; // RendererSampler
 
 using RendererSamplerPtr = RendererSampler*;
@@ -621,10 +639,6 @@ public:
 	}; // CreateParam
 
 
-	virtual bool is_initialized() const = 0;
-
-	virtual const std::string& get_error_message() const = 0;
-
 	virtual Kind get_kind() const = 0;
 }; // RendererShader
 
@@ -656,10 +670,6 @@ public:
 		InputBindings input_bindings_;
 	}; // CreateParam
 
-
-	virtual bool is_initialized() const = 0;
-
-	virtual const std::string& get_error_message() const = 0;
 
 	virtual void set_current() = 0;
 
@@ -984,10 +994,12 @@ struct RendererDeviceFeatures
 
 	bool framebuffer_is_available_;
 
+	bool sampler_is_available_;
+
 	int msaa_min_value_;
 	int msaa_max_value_;
 
-	int max_vertex_input_locations_;
+	int vertex_input_max_locations_;
 }; // RendererDeviceFeatures
 
 //

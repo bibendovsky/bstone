@@ -74,6 +74,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_cl_args.h"
 #include "bstone_endian.h"
+#include "bstone_exception.h"
 #include "bstone_logger.h"
 #include "bstone_sdl_types.h"
 #include "bstone_sha1.h"

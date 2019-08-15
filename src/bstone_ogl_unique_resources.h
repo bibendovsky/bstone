@@ -23,46 +23,48 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL handle wrappers.
+// OpenGL unique resources.
 //
 
 
-#include "bstone_precompiled.h"
-#include "bstone_ogl_handles.h"
-#include "bstone_detail_ogl_renderer_utils.h"
+#ifndef BSTONE_OGL_UNIQUE_RESOURCES_INCLUDED
+#define BSTONE_OGL_UNIQUE_RESOURCES_INCLUDED
+
+
+#include "bstone_ogl_api.h"
+#include "bstone_unique_resource.h"
 
 
 namespace bstone
 {
 
 
-void ogl_buffer_deleter(
-	const GLuint ogl_name) noexcept
-{
-	::glDeleteBuffers(1, &ogl_name);
-	assert(!detail::OglRendererUtils::was_errors());
-}
+void ogl_shader_unique_resource_deleter(
+	const GLuint& ogl_name) noexcept;
 
-void ogl_shader_deleter(
-	const GLuint ogl_name) noexcept
-{
-	::glDeleteShader(ogl_name);
-	assert(!detail::OglRendererUtils::was_errors());
-}
+using OglShaderUniqueResource = UniqueResource<GLuint, ogl_shader_unique_resource_deleter>;
 
-void ogl_program_deleter(
-	const GLuint ogl_name) noexcept
-{
-	::glDeleteProgram(ogl_name);
-	assert(!detail::OglRendererUtils::was_errors());
-}
 
-void ogl_texture_deleter(
-	const GLuint ogl_name) noexcept
-{
-	::glDeleteTextures(1, &ogl_name);
-	assert(!detail::OglRendererUtils::was_errors());
-}
+void ogl_program_unique_resource_deleter(
+	const GLuint& ogl_name) noexcept;
+
+using OglProgramUniqueResource = UniqueResource<GLuint, ogl_program_unique_resource_deleter>;
+
+
+void ogl_texture_unique_resource_deleter(
+	const GLuint& ogl_name) noexcept;
+
+using OglTextureUniqueResource = UniqueResource<GLuint, ogl_texture_unique_resource_deleter>;
+
+
+void ogl_vertex_array_resource_deleter(
+	const GLuint& resource) noexcept;
+
+using OglVertexArrayResource = UniqueResource<GLuint, ogl_vertex_array_resource_deleter>;
+
 
 
 } // bstone
+
+
+#endif // !BSTONE_OGL_UNIQUE_RESOURCES_INCLUDED

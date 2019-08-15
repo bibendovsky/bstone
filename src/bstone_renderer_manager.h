@@ -48,16 +48,7 @@ public:
 	virtual ~RendererManager() = default;
 
 
-	virtual bool is_initialized() const = 0;
-
-	virtual const std::string& get_error_message() const = 0;
-
-	virtual bool initialize() = 0;
-
-	virtual void uninitialize() = 0;
-
-
-	virtual bool renderer_probe(
+	virtual void renderer_probe(
 		const RendererKind& renderer_path) = 0;
 
 	virtual const RendererProbe& renderer_probe_get() const = 0;

@@ -34,7 +34,7 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_renderer.h"
-#include "bstone_ogl_handles.h"
+#include "bstone_ogl_unique_resources.h"
 
 
 namespace bstone
@@ -51,7 +51,8 @@ class OglShader final :
 	public RendererShader
 {
 public:
-	OglShader();
+	OglShader(
+		const RendererShader::CreateParam& param);
 
 	OglShader(
 		const OglShader& rhs) = delete;
@@ -61,10 +62,6 @@ public:
 
 	~OglShader() override;
 
-
-	bool is_initialized() const override;
-
-	const std::string& get_error_message() const override;
 
 	Kind get_kind() const override;
 
@@ -79,17 +76,15 @@ public:
 
 
 private:
-	std::string error_message_;
-
 	Kind kind_;
-	OglShaderHandle ogl_handle_;
+	OglShaderUniqueResource ogl_resource_;
 	OglShaderStagePtr shader_stage_;
 
 
 	GLenum get_ogl_kind(
 		const Kind kind);
 
-	bool validate_param(
+	void validate_param(
 		const RendererShader::CreateParam& param);
 }; // OglShader
 

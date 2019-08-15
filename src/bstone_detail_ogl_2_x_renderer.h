@@ -36,7 +36,7 @@ Free Software Foundation, Inc.,
 #include <array>
 #include <list>
 #include <vector>
-#include "bstone_ogl_handles.h"
+#include "bstone_ogl_unique_resources.h"
 #include "bstone_detail_ogl_extension_manager.h"
 #include "bstone_detail_ogl_shader.h"
 #include "bstone_detail_ogl_shader_stage.h"
@@ -61,9 +61,6 @@ class Ogl2XRenderer :
 {
 public:
 	Ogl2XRenderer();
-
-	Ogl2XRenderer(
-		Ogl2XRenderer&& rhs);
 
 	~Ogl2XRenderer() override;
 
@@ -190,168 +187,8 @@ public:
 
 
 private:
-	using IndexBuffers = std::list<IndexBufferUPtr>;
-	using VertexBuffers = std::list<VertexBufferUPtr>;
-
 	using Shaders = std::list<detail::OglShaderUPtr>;
 	using ShaderStages = std::list<detail::OglShaderStageUPtr>;
-
-	using VertexInputEnabledLocations = std::vector<bool>;
-
-
-	// =========================================================================
-	// Texture2d
-	//
-
-	class Texture2d :
-		public RendererTexture2d
-	{
-	public:
-		Ogl2XRendererPtr renderer_;
-		std::string error_message_;
-
-		RendererPixelFormat storage_pixel_format_;
-
-		int width_;
-		int height_;
-
-		int mipmap_count_;
-
-		RendererSamplerState sampler_state_;
-
-		OglTextureHandle ogl_handle_;
-
-
-		Texture2d(
-			Ogl2XRendererPtr renderer);
-
-		Texture2d(
-			const Texture2d& rhs) = delete;
-
-		~Texture2d() override;
-
-
-		void update(
-			const RendererTexture2dUpdateParam& param) override;
-
-		void generate_mipmaps() override;
-
-
-		bool initialize(
-			const RendererTexture2dCreateParam& param);
-
-		void uninitialize_internal();
-
-		void upload_mipmap(
-			const int mipmap_level,
-			const int width,
-			const int height,
-			const R8g8b8a8CPtr src_pixels);
-
-
-		void set_mag_filter();
-
-		void set_min_filter();
-
-		void set_address_mode(
-			const RendererAddressMode address_mode);
-
-		void set_address_mode_u();
-
-		void set_address_mode_v();
-
-		void set_anisotropy();
-
-		void update_sampler_state(
-			const RendererSamplerState& new_sampler_state);
-
-		void set_sampler_state_defaults();
-	}; // Texture2d
-
-	using Texture2dPtr = Texture2d*;
-	using Texture2dUPtr = std::unique_ptr<Texture2d>;
-
-	using Textures2d = std::list<Texture2dUPtr>;
-
-	//
-	// Texture2d
-	// =========================================================================
-
-	// =========================================================================
-	// Sampler
-	//
-
-	class Sampler final :
-		public RendererSampler
-	{
-	public:
-		Ogl2XRendererPtr renderer_;
-
-		RendererSamplerState state_;
-
-
-		Sampler(
-			Ogl2XRendererPtr renderer);
-
-		Sampler(
-			const Sampler& rhs) = delete;
-
-		~Sampler() override;
-
-
-		void update(
-			const RendererSamplerUpdateParam& param) override;
-
-
-		bool initialize(
-			const RendererSamplerCreateParam& param);
-	}; // Sampler
-
-	using SamplerPtr = Sampler*;
-	using SamplerUPtr = std::unique_ptr<Sampler>;
-
-	using Samplers = std::list<SamplerUPtr>;
-
-	//
-	// Sampler
-	// =========================================================================
-
-	// =========================================================================
-	// VertexInput
-	//
-
-	class VertexInput final :
-		public RendererVertexInput
-	{
-	public:
-		Ogl2XRendererPtr renderer_;
-		std::string error_message_;
-
-		RendererIndexBufferPtr index_buffer_;
-		RendererVertexAttributeDescriptions attribute_descriptions_;
-
-
-		VertexInput(
-			Ogl2XRendererPtr renderer);
-
-		VertexInput(
-			const VertexInput& rhs) = delete;
-
-		~VertexInput() override;
-
-
-		bool initialize(
-			const RendererVertexInputCreateParam& param);
-	}; // VertexInput
-
-	using VertexInputPtr = VertexInput*;
-	using VertexInputUPtr = std::unique_ptr<VertexInput>;
-
-	using VertexInputs = std::list<VertexInputUPtr>;
-
-	//
-	// VertexInput
-	// =========================================================================
 
 
 	bool is_initialized_;
@@ -410,24 +247,6 @@ private:
 	RendererBlendingFactor blending_src_factor_;
 	RendererBlendingFactor blending_dst_factor_;
 
-	bool texture_2d_is_enabled_;
-
-	IndexBuffers index_buffers_;
-	VertexBuffers vertex_buffers_;
-
-	RendererUtils::TextureBuffer texture_buffer_;
-
-	Textures2d textures_2d_;
-	Texture2dPtr texture_2d_current_;
-
-	Samplers samplers_;
-	SamplerPtr sampler_current_;
-	SamplerUPtr sampler_default_;
-
-	VertexInputs vertex_inputs_;
-	VertexInputPtr vertex_input_current_;
-	VertexInputEnabledLocations vertex_input_enabled_locations_;
-
 	Shaders shaders_;
 
 	ShaderStages shader_stages_;
@@ -438,8 +257,6 @@ private:
 		const bool is_probe,
 		const RendererInitializeParam& param);
 
-
-	bool create_default_sampler();
 
 	void uninitialize_internal(
 		const bool is_dtor = false);
@@ -568,42 +385,10 @@ private:
 
 	void texture_2d_enable();
 
-	void texture_set();
-
 	void texture_set(
-		Texture2dPtr new_texture_2d);
-
-	void texture_mipmap_generation_set_hint();
+		OglTexture2dPtr new_texture_2d);
 
 	void texture_2d_set_defaults();
-
-
-	void sampler_set();
-
-
-	void vertex_input_enable_client_state(
-		const bool is_enabled,
-		const GLenum state);
-
-	void vertex_input_enable_location(
-		const int location);
-
-	void vertex_input_enable_location(
-		const int location,
-		const bool is_enabled);
-
-	void vertex_input_assign_default_attribute(
-		const RendererVertexAttributeDescription& attribute_description);
-
-	void vertex_input_assign_regular_attribute(
-		const RendererVertexAttributeDescription& attribute_description);
-
-	void vertex_input_assign_attribute(
-		const RendererVertexAttributeDescription& attribute_description);
-
-	void vertex_input_assign();
-
-	void vertex_input_defaults();
 
 
 	void command_execute_culling(

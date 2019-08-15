@@ -552,7 +552,7 @@ bool Movie::play(
 	}
 	catch (const bstone::ArchiverException& ex)
 	{
-		::Quit(ex.get_message());
+		::Quit(ex.what());
 	}
 
 	uninitialize();

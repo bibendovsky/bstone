@@ -23,14 +23,14 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL index buffer object (implementation).
+// OpenGL sampler.
 //
 // !!! Internal usage only !!!
 //
 
 
-#ifndef BSTONE_DETAIL_OGL_INDEX_BUFFER_INCLUDED
-#define BSTONE_DETAIL_OGL_INDEX_BUFFER_INCLUDED
+#ifndef BSTONE_DETAIL_OGL_SAMPLER_INCLUDED
+#define BSTONE_DETAIL_OGL_SAMPLER_INCLUDED
 
 
 #include "bstone_renderer.h"
@@ -42,46 +42,55 @@ namespace detail
 {
 
 
+struct OglDeviceFeatures;
+
 class OglState;
 using OglStatePtr = OglState*;
 
 
 // =========================================================================
-// OglIndexBuffer
+// OglSampler
 //
 
-class OglIndexBuffer :
-	public RendererIndexBuffer
+class OglSampler :
+	public RendererSampler
 {
 protected:
-	OglIndexBuffer();
+	OglSampler();
 
 
 public:
-	~OglIndexBuffer() override;
-}; // OglIndexBuffer
+	~OglSampler() override;
 
-using OglIndexBufferPtr = OglIndexBuffer*;
-using OglIndexBufferUPtr = std::unique_ptr<OglIndexBuffer>;
+
+	virtual void bind() = 0;
+
+	virtual void unbind_unit() = 0;
+}; // OglSampler
+
+using OglSamplerPtr = OglSampler*;
+using OglSamplerUPtr = std::unique_ptr<OglSampler>;
 
 //
-// OglIndexBuffer
+// OglSampler
 // =========================================================================
 
 
 // =========================================================================
-// OglIndexBufferFactory
+// OglSamplerFactory
 //
 
-struct OglIndexBufferFactory final
+struct OglSamplerFactory final
 {
-	static OglIndexBufferUPtr create(
-		const OglStatePtr ogl_state,
-		const RendererIndexBufferCreateParam& param);
-}; // OglIndexBufferFactory
+	static OglSamplerUPtr create(
+		OglStatePtr ogl_state,
+		const RendererDeviceFeatures& device_features,
+		const OglDeviceFeatures& ogl_device_features,
+		const RendererSamplerCreateParam& param);
+}; // OglSamplerFactory
 
 //
-// OglIndexBufferFactory
+// OglSamplerFactory
 // =========================================================================
 
 
@@ -89,4 +98,4 @@ struct OglIndexBufferFactory final
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_OGL_INDEX_BUFFER_INCLUDED
+#endif // !BSTONE_DETAIL_OGL_SAMPLER_INCLUDED

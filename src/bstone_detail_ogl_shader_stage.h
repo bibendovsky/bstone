@@ -51,7 +51,9 @@ class OglShaderStage final :
 	public RendererShaderStage
 {
 public:
-	OglShaderStage();
+	OglShaderStage(
+		OglShaderStagePtr* current_shader_stage_ptr,
+		const RendererShaderStage::CreateParam& param);
 
 	OglShaderStage(
 		const OglShaderStage& rhs) = delete;
@@ -61,10 +63,6 @@ public:
 
 	~OglShaderStage() override;
 
-
-	bool is_initialized() const override;
-
-	const std::string& get_error_message() const override;
 
 	void set_current() override;
 
@@ -90,10 +88,6 @@ public:
 		const std::string& name) override;
 
 
-	void initialize(
-		OglShaderStagePtr* current_shader_stage_ptr,
-		const RendererShaderStage::CreateParam& param);
-
 	void detach_fragment_shader();
 
 	void detach_vertex_shader();
@@ -109,24 +103,21 @@ private:
 	using ShaderVariables = std::vector<OglShaderVariable>;
 
 
-	bool is_initialized_;
-	std::string error_message_;
-
 	OglShaderStagePtr* current_shader_stage_ptr_;
 	OglShaderPtr fragment_shader_;
 	OglShaderPtr vertex_shader_;
-	OglProgramHandle ogl_handle_;
+	OglProgramUniqueResource ogl_resource_;
 	ShaderVariables shader_variables_;
 
 
-	bool validate_shader(
+	void validate_shader(
 		const RendererShader::Kind shader_kind,
 		const RendererShaderPtr shader);
 
-	bool validate_input_bindings(
+	void validate_input_bindings(
 		const InputBindings& input_bindings);
 
-	bool validate_param(
+	void validate_param(
 		const RendererShaderStage::CreateParam& param);
 
 	void set_input_bindings(
@@ -136,14 +127,18 @@ private:
 	int get_variable_count(
 		const GLuint ogl_name);
 
-	bool get_variables(
+	void get_variables(
 		const RendererShaderVariable::Kind kind,
 		const GLuint ogl_name,
 		ShaderVariables& shader_variables);
 
-	bool check_input_bindings(
+	void check_input_bindings(
 		const InputBindings& input_bindings,
 		const ShaderVariables& variables);
+
+	void initialize(
+		OglShaderStagePtr* current_shader_stage_ptr,
+		const RendererShaderStage::CreateParam& param);
 }; // OglShaderStage
 
 using OglShaderStagePtr = OglShaderStage*;

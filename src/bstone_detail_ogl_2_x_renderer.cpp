@@ -34,6 +34,7 @@ Free Software Foundation, Inc.,
 #include "bstone_detail_ogl_2_x_renderer.h"
 #include <cassert>
 #include "glm/gtc/type_ptr.hpp"
+#include "bstone_exception.h"
 #include "bstone_detail_ogl_renderer_utils.h"
 #include "bstone_detail_ogl_extension_manager.h"
 
@@ -42,572 +43,6 @@ namespace bstone
 {
 namespace detail
 {
-
-
-// ==========================================================================
-// Ogl2XRenderer::Texture2d
-//
-
-Ogl2XRenderer::Texture2d::Texture2d(
-	Ogl2XRendererPtr renderer)
-	:
-	renderer_{renderer},
-	error_message_{},
-	storage_pixel_format_{},
-	width_{},
-	height_{},
-	mipmap_count_{},
-	sampler_state_{},
-	ogl_handle_{}
-{
-	assert(renderer_);
-}
-
-Ogl2XRenderer::Texture2d::~Texture2d()
-{
-	uninitialize_internal();
-}
-
-void Ogl2XRenderer::Texture2d::update(
-	const RendererTexture2dUpdateParam& param)
-{
-	auto renderer_utils = RendererUtils{};
-
-	if (!renderer_utils.validate_texture_2d_update_param(param))
-	{
-		assert(!"Invalid update param.");
-
-		return;
-	}
-
-	if (param.mipmap_level_ >= mipmap_count_)
-	{
-		assert(!"Mipmap level out of range.");
-
-		return;
-	}
-
-	::glBindTexture(GL_TEXTURE_2D, ogl_handle_.get());
-	assert(!OglRendererUtils::was_errors());
-
-	auto mipmap_width = width_;
-	auto mipmap_height = height_;
-
-	for (auto i = 0; i < param.mipmap_level_; ++i)
-	{
-		if (mipmap_width > 1)
-		{
-			mipmap_width /= 2;
-		}
-
-		if (mipmap_height > 1)
-		{
-			mipmap_height /= 2;
-		}
-	}
-
-	upload_mipmap(param.mipmap_level_, mipmap_width, mipmap_height, param.rgba_pixels_);
-}
-
-void Ogl2XRenderer::Texture2d::generate_mipmaps()
-{
-	if (mipmap_count_ <= 1)
-	{
-		assert(!"Base mipmap.");
-
-		return;
-	}
-
-	const auto& device_features = renderer_->device_features_;
-
-	if (!device_features.mipmap_is_available_)
-	{
-		assert(!"Mipmap generation not available.");
-
-		return;
-	}
-
-	const auto& ogl_device_features = renderer_->ogl_device_features_;
-
-	if (ogl_device_features.mipmap_function_ == nullptr)
-	{
-		assert(!"Null mipmap generation function.");
-
-		return;
-	}
-
-	ogl_device_features.mipmap_function_(GL_TEXTURE_2D);
-	assert(!OglRendererUtils::was_errors());
-}
-
-bool Ogl2XRenderer::Texture2d::initialize(
-	const RendererTexture2dCreateParam& param)
-{
-	auto renderer_utils = RendererUtils{};
-
-	if (!renderer_utils.validate_texture_2d_create_param(param))
-	{
-		error_message_ = renderer_utils.get_error_message();
-
-		return false;
-	}
-
-	storage_pixel_format_ = param.storage_pixel_format_;
-
-	width_ = param.width_;
-	height_ = param.height_;
-	mipmap_count_ = param.mipmap_count_;
-
-	const auto max_mipmap_count = RendererUtils::calculate_mipmap_count(width_, height_);
-
-	if (mipmap_count_ > max_mipmap_count)
-	{
-		error_message_ = "Mipmap count out of range.";
-
-		return false;
-	}
-
-	const auto internal_format = (storage_pixel_format_ == RendererPixelFormat::r8g8b8a8_unorm ? GL_RGBA8 : GL_RGB8);
-
-	auto ogl_name = GLuint{};
-
-	::glGenTextures(1, &ogl_name);
-	assert(!OglRendererUtils::was_errors());
-
-	ogl_handle_ = std::move(OglTextureHandle{ogl_name});
-
-	assert(ogl_name != 0);
-
-	::glBindTexture(GL_TEXTURE_2D, ogl_name);
-	assert(!OglRendererUtils::was_errors());
-
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-	assert(!OglRendererUtils::was_errors());
-
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipmap_count_ - 1);
-	assert(!OglRendererUtils::was_errors());
-
-	set_sampler_state_defaults();
-
-	auto mipmap_width = width_;
-	auto mipmap_height = height_;
-
-	for (int i_mipmap = 0; i_mipmap < mipmap_count_; ++i_mipmap)
-	{
-		::glTexImage2D(
-			GL_TEXTURE_2D, // target
-			i_mipmap, // level
-			internal_format, // internal format
-			mipmap_width, // width
-			mipmap_height, // height
-			0, // border
-			GL_RGBA, // format
-			GL_UNSIGNED_BYTE, // type
-			nullptr // pixels
-		);
-
-		assert(!OglRendererUtils::was_errors());
-
-		if (mipmap_width > 1)
-		{
-			mipmap_width /= 2;
-		}
-
-		if (mipmap_height > 1)
-		{
-			mipmap_height /= 2;
-		}
-	}
-
-	return true;
-}
-
-void Ogl2XRenderer::Texture2d::uninitialize_internal()
-{
-	ogl_handle_.reset();
-}
-
-void Ogl2XRenderer::Texture2d::upload_mipmap(
-	const int mipmap_level,
-	const int width,
-	const int height,
-	const R8g8b8a8CPtr src_pixels)
-{
-	::glTexSubImage2D(
-		GL_TEXTURE_2D, // target
-		mipmap_level, // level
-		0, // xoffset
-		0, // yoffset
-		width, // width
-		height, // height
-		GL_RGBA, // format
-		GL_UNSIGNED_BYTE, // type
-		src_pixels // pixels
-	);
-
-	assert(!OglRendererUtils::was_errors());
-}
-
-void Ogl2XRenderer::Texture2d::set_mag_filter()
-{
-	auto ogl_mag_filter = GLenum{};
-
-	switch (sampler_state_.mag_filter_)
-	{
-	case RendererFilterKind::nearest:
-		ogl_mag_filter = GL_NEAREST;
-		break;
-
-	case RendererFilterKind::linear:
-		ogl_mag_filter = GL_LINEAR;
-		break;
-
-	default:
-		assert(!"Invalid magnification filter.");
-		break;
-	}
-
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, ogl_mag_filter);
-	assert(!OglRendererUtils::was_errors());
-}
-
-void Ogl2XRenderer::Texture2d::set_min_filter()
-{
-	auto ogl_min_filter = GLenum{};
-
-	switch (sampler_state_.mipmap_mode_)
-	{
-	case RendererMipmapMode::none:
-		switch (sampler_state_.min_filter_)
-		{
-		case RendererFilterKind::nearest:
-			ogl_min_filter = GL_NEAREST;
-			break;
-
-		case RendererFilterKind::linear:
-			ogl_min_filter = GL_LINEAR;
-			break;
-
-		default:
-			assert(!"Invalid minification filter.");
-			break;
-		}
-
-		break;
-
-	case RendererMipmapMode::nearest:
-		switch (sampler_state_.min_filter_)
-		{
-		case RendererFilterKind::nearest:
-			ogl_min_filter = GL_NEAREST_MIPMAP_NEAREST;
-			break;
-
-		case RendererFilterKind::linear:
-			ogl_min_filter = GL_LINEAR_MIPMAP_NEAREST;
-			break;
-
-		default:
-			assert(!"Invalid minification mipmap filter.");
-			break;
-		}
-
-		break;
-
-	case RendererMipmapMode::linear:
-		switch (sampler_state_.min_filter_)
-		{
-		case RendererFilterKind::nearest:
-			ogl_min_filter = GL_NEAREST_MIPMAP_LINEAR;
-			break;
-
-		case RendererFilterKind::linear:
-			ogl_min_filter = GL_LINEAR_MIPMAP_LINEAR;
-			break;
-
-		default:
-			assert(!"Invalid minification mipmap filter.");
-			break;
-		}
-
-		break;
-
-	default:
-		assert(!"Invalid mipmap mode.");
-		break;
-	}
-
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, ogl_min_filter);
-	assert(!OglRendererUtils::was_errors());
-}
-
-void Ogl2XRenderer::Texture2d::set_address_mode(
-	const RendererAddressMode address_mode)
-{
-	auto ogl_address_mode = GLenum{};
-
-	switch (address_mode)
-	{
-	case RendererAddressMode::clamp:
-		ogl_address_mode = GL_CLAMP;
-		break;
-
-	case RendererAddressMode::repeat:
-		ogl_address_mode = GL_REPEAT;
-		break;
-
-	default:
-		assert(!"Invalid address mode.");
-		break;
-	}
-
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, ogl_address_mode);
-	assert(!OglRendererUtils::was_errors());
-}
-
-void Ogl2XRenderer::Texture2d::set_address_mode_u()
-{
-	set_address_mode(sampler_state_.address_mode_u_);
-}
-
-void Ogl2XRenderer::Texture2d::set_address_mode_v()
-{
-	set_address_mode(sampler_state_.address_mode_v_);
-}
-
-void Ogl2XRenderer::Texture2d::set_anisotropy()
-{
-	OglRendererUtils::anisotropy_set_value(
-		GL_TEXTURE_2D,
-		renderer_->device_features_,
-		sampler_state_.anisotropy_
-	);
-}
-
-void Ogl2XRenderer::Texture2d::update_sampler_state(
-	const RendererSamplerState& new_sampler_state)
-{
-	auto is_modified = false;
-
-	// Magnification filter.
-	//
-	auto is_mag_filter_modified = false;
-
-	if (sampler_state_.mag_filter_ != new_sampler_state.mag_filter_)
-	{
-		is_modified = true;
-		is_mag_filter_modified = true;
-
-		sampler_state_.mag_filter_ = new_sampler_state.mag_filter_;
-	}
-
-	// Minification filter.
-	//
-	auto is_min_filter_modified = false;
-
-	if (sampler_state_.min_filter_ != new_sampler_state.min_filter_ ||
-		sampler_state_.mipmap_mode_ != new_sampler_state.mipmap_mode_)
-	{
-		is_modified = true;
-		is_min_filter_modified = true;
-
-		sampler_state_.min_filter_ = new_sampler_state.min_filter_;
-		sampler_state_.mipmap_mode_ = new_sampler_state.mipmap_mode_;
-	}
-
-	// U-axis address mode.
-	//
-	auto is_address_mode_u = false;
-
-	if (sampler_state_.address_mode_u_ != new_sampler_state.address_mode_u_)
-	{
-		is_modified = true;
-		is_address_mode_u = true;
-
-		sampler_state_.address_mode_u_ = new_sampler_state.address_mode_u_;
-	}
-
-	// V-axis address mode.
-	//
-	auto is_address_mode_v = false;
-
-	if (sampler_state_.address_mode_v_ != new_sampler_state.address_mode_v_)
-	{
-		is_modified = true;
-		is_address_mode_v = true;
-
-		sampler_state_.address_mode_v_ = new_sampler_state.address_mode_v_;
-	}
-
-	// Anisotropy.
-	//
-	auto is_anisotropy = false;
-
-	if (sampler_state_.anisotropy_ != new_sampler_state.anisotropy_)
-	{
-		is_modified = true;
-		is_anisotropy = true;
-
-		sampler_state_.anisotropy_ = new_sampler_state.anisotropy_;
-	}
-
-
-	// Modify.
-	//
-	if (is_modified)
-	{
-		renderer_->texture_set(this);
-
-		if (is_mag_filter_modified)
-		{
-			set_mag_filter();
-		}
-
-		if (is_min_filter_modified)
-		{
-			set_min_filter();
-		}
-
-		if (is_address_mode_u)
-		{
-			set_address_mode_u();
-		}
-
-		if (is_address_mode_v)
-		{
-			set_address_mode_v();
-		}
-
-		if (is_anisotropy)
-		{
-			set_anisotropy();
-		}
-	}
-}
-
-void Ogl2XRenderer::Texture2d::set_sampler_state_defaults()
-{
-	sampler_state_.mag_filter_ = RendererFilterKind::nearest;
-	set_mag_filter();
-
-	sampler_state_.min_filter_ = RendererFilterKind::nearest;
-	sampler_state_.mipmap_mode_ = RendererMipmapMode::none;
-	set_min_filter();
-
-	sampler_state_.address_mode_u_ = RendererAddressMode::clamp;
-	set_address_mode_u();
-
-	sampler_state_.address_mode_v_ = RendererAddressMode::clamp;
-	set_address_mode_v();
-
-	sampler_state_.anisotropy_ = RendererSampler::anisotropy_min;
-}
-
-//
-// Ogl2XRenderer::Texture2d
-// ==========================================================================
-
-
-// =========================================================================
-// Ogl2XRenderer::Sampler
-//
-
-Ogl2XRenderer::Sampler::Sampler(
-	Ogl2XRendererPtr renderer)
-	:
-	renderer_{renderer},
-	state_{}
-{
-	assert(renderer_);
-}
-
-Ogl2XRenderer::Sampler::~Sampler()
-{
-}
-
-void Ogl2XRenderer::Sampler::update(
-	const RendererSamplerUpdateParam& param)
-{
-	if (state_.mag_filter_ != param.state_.mag_filter_ ||
-		state_.min_filter_ != param.state_.min_filter_ ||
-		state_.mipmap_mode_ != param.state_.mipmap_mode_ ||
-		state_.address_mode_u_ != param.state_.address_mode_u_ ||
-		state_.address_mode_v_ != param.state_.address_mode_v_)
-	{
-		state_ = param.state_;
-	}
-}
-
-bool Ogl2XRenderer::Sampler::initialize(
-	const RendererSamplerCreateParam& param)
-{
-	state_ = param.state_;
-
-	return true;
-}
-
-//
-// Ogl2XRenderer::Sampler
-// =========================================================================
-
-
-// =========================================================================
-// Ogl2XRenderer::VertexInput
-//
-
-Ogl2XRenderer::VertexInput::VertexInput(
-	Ogl2XRendererPtr renderer)
-	:
-	renderer_{renderer},
-	error_message_{},
-	index_buffer_{},
-	attribute_descriptions_{}
-{
-	assert(renderer_ != nullptr);
-}
-
-Ogl2XRenderer::VertexInput::~VertexInput()
-{
-}
-
-bool Ogl2XRenderer::VertexInput::initialize(
-	const RendererVertexInputCreateParam& param)
-{
-	auto renderer_utils = RendererUtils{};
-
-	const auto max_locations = renderer_->device_features_.max_vertex_input_locations_;
-
-	if (!renderer_utils.vertex_input_validate_param(max_locations, param))
-	{
-		error_message_ = renderer_utils.get_error_message();
-
-		return false;
-	}
-
-	const auto is_location_out_of_range = std::any_of(
-		param.attribute_descriptions_.cbegin(),
-		param.attribute_descriptions_.cend(),
-		[=](const auto& item)
-		{
-			return item.location_ < 0 || item.location_ >= max_locations;
-		}
-	);
-
-	if (is_location_out_of_range)
-	{
-		error_message_ = "Location out of range.";
-
-		return false;
-	}
-
-	index_buffer_ = param.index_buffer_;
-	attribute_descriptions_ = param.attribute_descriptions_;
-
-	return true;
-}
-
-//
-// Ogl2XRenderer::VertexInput
-// =========================================================================
 
 
 // ==========================================================================
@@ -657,96 +92,10 @@ Ogl2XRenderer::Ogl2XRenderer()
 	blending_is_enabled_{},
 	blending_src_factor_{},
 	blending_dst_factor_{},
-	texture_2d_is_enabled_{},
-	index_buffers_{},
-	vertex_buffers_{},
-	texture_buffer_{},
-	textures_2d_{},
-	texture_2d_current_{},
-	samplers_{},
-	sampler_current_{},
-	sampler_default_{},
-	vertex_inputs_{},
-	vertex_input_current_{},
-	vertex_input_enabled_locations_{},
 	shaders_{},
 	shader_stages_{},
 	current_shader_stage_{}
 {
-}
-
-Ogl2XRenderer::Ogl2XRenderer(
-	Ogl2XRenderer&& rhs)
-	:
-	is_initialized_{std::move(rhs.is_initialized_)},
-	error_message_{std::move(rhs.error_message_)},
-	probe_{std::move(rhs.probe_)},
-	sdl_window_{std::move(rhs.sdl_window_)},
-	sdl_gl_context_{std::move(rhs.sdl_gl_context_)},
-	extension_manager_{std::move(rhs.extension_manager_)},
-	ogl_state_{std::move(rhs.ogl_state_)},
-	device_info_{std::move(rhs.device_info_)},
-	device_features_{std::move(rhs.device_features_)},
-	ogl_device_features_{std::move(rhs.ogl_device_features_)},
-	screen_width_{std::move(rhs.screen_width_)},
-	screen_height_{std::move(rhs.screen_height_)},
-	downscale_width_{std::move(rhs.downscale_width_)},
-	downscale_height_{std::move(rhs.downscale_height_)},
-	downscale_blit_filter_{std::move(rhs.downscale_blit_filter_)},
-	aa_kind_{std::move(rhs.aa_kind_)},
-	aa_value_{std::move(rhs.aa_value_)},
-	ogl_msaa_fbo_{std::move(rhs.ogl_msaa_fbo_)},
-	ogl_msaa_color_rb_{std::move(rhs.ogl_msaa_color_rb_)},
-	ogl_msaa_depth_rb_{std::move(rhs.ogl_msaa_depth_rb_)},
-	ogl_downscale_fbo_{std::move(rhs.ogl_downscale_fbo_)},
-	ogl_downscale_color_rb_{std::move(rhs.ogl_downscale_color_rb_)},
-	viewport_x_{std::move(rhs.viewport_x_)},
-	viewport_y_{std::move(rhs.viewport_y_)},
-	viewport_width_{std::move(rhs.viewport_width_)},
-	viewport_height_{std::move(rhs.viewport_height_)},
-	viewport_min_depth_{std::move(rhs.viewport_min_depth_)},
-	viewport_max_depth_{std::move(rhs.viewport_max_depth_)},
-	scissor_is_enabled_{std::move(rhs.scissor_is_enabled_)},
-	scissor_x_{std::move(rhs.scissor_x_)},
-	scissor_y_{std::move(rhs.scissor_y_)},
-	scissor_width_{std::move(rhs.scissor_width_)},
-	scissor_height_{std::move(rhs.scissor_height_)},
-	culling_is_enabled_{std::move(rhs.culling_is_enabled_)},
-	culling_face_{std::move(rhs.culling_face_)},
-	culling_mode_{std::move(rhs.culling_mode_)},
-	depth_is_test_enabled_{std::move(rhs.depth_is_test_enabled_)},
-	depth_is_write_enabled_{std::move(rhs.depth_is_write_enabled_)},
-	blending_is_enabled_{std::move(rhs.blending_is_enabled_)},
-	blending_src_factor_{std::move(rhs.blending_src_factor_)},
-	blending_dst_factor_{std::move(rhs.blending_dst_factor_)},
-	texture_2d_is_enabled_{std::move(rhs.texture_2d_is_enabled_)},
-	index_buffers_{std::move(rhs.index_buffers_)},
-	vertex_buffers_{std::move(rhs.vertex_buffers_)},
-	texture_buffer_{std::move(rhs.texture_buffer_)},
-	textures_2d_{std::move(rhs.textures_2d_)},
-	texture_2d_current_{std::move(rhs.texture_2d_current_)},
-	samplers_{std::move(rhs.samplers_)},
-	sampler_current_{std::move(rhs.sampler_current_)},
-	sampler_default_{std::move(rhs.sampler_default_)},
-	vertex_inputs_{std::move(rhs.vertex_inputs_)},
-	vertex_input_current_{std::move(rhs.vertex_input_current_)},
-	vertex_input_enabled_locations_{std::move(rhs.vertex_input_enabled_locations_)},
-	shaders_{std::move(rhs.shaders_)},
-	shader_stages_{std::move(rhs.shader_stages_)},
-	current_shader_stage_{std::move(rhs.current_shader_stage_)}
-{
-	rhs.is_initialized_ = false;
-	rhs.sdl_window_ = nullptr;
-	rhs.sdl_gl_context_ = nullptr;
-
-	rhs.ogl_msaa_fbo_ = GL_NONE;
-	rhs.ogl_msaa_color_rb_ = GL_NONE;
-	rhs.ogl_msaa_depth_rb_ = GL_NONE;
-
-	rhs.ogl_downscale_fbo_ = GL_NONE;
-	rhs.ogl_downscale_color_rb_ = GL_NONE;
-
-	rhs.current_shader_stage_ = nullptr;
 }
 
 Ogl2XRenderer::~Ogl2XRenderer()
@@ -862,9 +211,7 @@ void Ogl2XRenderer::window_show(
 {
 	assert(is_initialized_);
 
-	auto renderer_utils = RendererUtils{};
-
-	static_cast<void>(renderer_utils.show_window(sdl_window_.get(), is_visible));
+	RendererUtils::show_window(sdl_window_.get(), is_visible);
 }
 
 const glm::mat4& Ogl2XRenderer::csc_get_texture() const
@@ -1013,109 +360,43 @@ void Ogl2XRenderer::present()
 RendererIndexBufferPtr Ogl2XRenderer::index_buffer_create(
 	const RendererIndexBufferCreateParam& param)
 {
-	assert(is_initialized_);
-
-	auto index_buffer = IndexBufferUPtr{new OglIndexBuffer{ogl_state_.get()}};
-
-	if (!index_buffer->initialize(param))
-	{
-		error_message_ = index_buffer->get_error_message();
-
-		return nullptr;
-	}
-
-	index_buffers_.push_back(std::move(index_buffer));
-
-	return index_buffers_.back().get();
+	return ogl_state_->index_buffer_create(param);
 }
 
 void Ogl2XRenderer::index_buffer_destroy(
 	RendererIndexBufferPtr index_buffer)
 {
-	assert(index_buffer);
-
-	index_buffers_.remove_if(
-		[=](const auto& item)
-		{
-			return item.get() == index_buffer;
-		}
-	);
+	ogl_state_->buffer_destroy(index_buffer);
 }
 
 RendererVertexBufferPtr Ogl2XRenderer::vertex_buffer_create(
 	const RendererVertexBufferCreateParam& param)
 {
-	auto vertex_buffer = VertexBufferUPtr{new OglVertexBuffer{ogl_state_.get()}};
-
-	if (!vertex_buffer->initialize(param))
-	{
-		error_message_ = vertex_buffer->get_error_message();
-
-		return nullptr;
-	}
-
-	vertex_buffers_.push_back(std::move(vertex_buffer));
-
-	return vertex_buffers_.back().get();
+	return ogl_state_->vertex_buffer_create(param);
 }
 
 void Ogl2XRenderer::vertex_buffer_destroy(
 	RendererVertexBufferPtr vertex_buffer)
 {
-	assert(vertex_buffer);
-
-	vertex_buffers_.remove_if(
-		[=](const auto& item)
-		{
-			return item.get() == vertex_buffer;
-		}
-	);
+	ogl_state_->buffer_destroy(vertex_buffer);
 }
 
 RendererVertexInputPtr Ogl2XRenderer::vertex_input_create(
 	const RendererVertexInputCreateParam& param)
 {
-	auto vertex_input = VertexInputUPtr{new VertexInput{this}};
-
-	if (!vertex_input->initialize(param))
-	{
-		error_message_ = vertex_input->error_message_;
-
-		return nullptr;
-	}
-
-	vertex_inputs_.push_back(std::move(vertex_input));
-
-	return vertex_inputs_.back().get();
+	return ogl_state_->vertex_input_create(param);
 }
 
 void Ogl2XRenderer::vertex_input_destroy(
 	RendererVertexInputPtr vertex_input)
 {
-	assert(vertex_input);
-
-	vertex_inputs_.remove_if(
-		[=](const auto& item)
-		{
-			return item.get() == vertex_input;
-		}
-	);
+	ogl_state_->vertex_input_destroy(vertex_input);
 }
 
 RendererShaderPtr Ogl2XRenderer::shader_create(
 	const RendererShader::CreateParam& param)
 {
-	auto shader = detail::OglShaderUPtr{new detail::OglShader{}};
-
-	shader->initialize(param);
-
-	if (!shader->is_initialized())
-	{
-		error_message_ = "Failed to create a shader. ";
-		error_message_ += shader->get_error_message();
-
-		return nullptr;
-	}
+	auto shader = detail::OglShaderUPtr{new detail::OglShader{param}};
 
 	shaders_.emplace_back(std::move(shader));
 
@@ -1141,17 +422,7 @@ void Ogl2XRenderer::shader_destroy(
 RendererShaderStagePtr Ogl2XRenderer::shader_stage_create(
 	const RendererShaderStage::CreateParam& param)
 {
-	auto shader_stage = detail::OglShaderStageUPtr{new detail::OglShaderStage{}};
-
-	shader_stage->initialize(&current_shader_stage_, param);
-
-	if (!shader_stage->is_initialized())
-	{
-		error_message_ = "Failed to create a shader stage. ";
-		error_message_ += shader_stage->get_error_message();
-
-		return nullptr;
-	}
+	auto shader_stage = detail::OglShaderStageUPtr{new detail::OglShaderStage{&current_shader_stage_, param}};
 
 	shader_stages_.emplace_back(std::move(shader_stage));
 
@@ -1297,16 +568,9 @@ bool Ogl2XRenderer::probe_or_initialize(
 	const bool is_probe,
 	const RendererInitializeParam& param)
 {
-	auto ogl_renderer_utils = OglRendererUtils{};
-
 	if (is_probe)
 	{
-		if (!ogl_renderer_utils.create_probe_window_and_context(sdl_window_, sdl_gl_context_))
-		{
-			error_message_ = ogl_renderer_utils.get_error_message();
-
-			return false;
-		}
+		OglRendererUtils::create_probe_window_and_context(sdl_window_, sdl_gl_context_);
 	}
 	else
 	{
@@ -1350,24 +614,20 @@ bool Ogl2XRenderer::probe_or_initialize(
 			window_param.is_default_depth_buffer_disabled_ = true;
 		}
 
-		if (!ogl_renderer_utils.create_window_and_context(window_param, sdl_window_, sdl_gl_context_))
-		{
-			error_message_ = ogl_renderer_utils.get_error_message();
-
-			return false;
-		}
+		OglRendererUtils::create_window_and_context(window_param, sdl_window_, sdl_gl_context_);
 
 		aa_kind_ = param.aa_kind_;
 		aa_value_ = param.aa_value_;
 	}
 
-	if (!ogl_renderer_utils.window_get_drawable_size(
+	OglRendererUtils::window_get_drawable_size(
 		sdl_window_.get(),
 		screen_width_,
-		screen_height_))
+		screen_height_);
+
+	if (screen_width_ == 0 || screen_height_ == 0)
 	{
-		error_message_ = "Failed to get screen size. ";
-		error_message_ += ogl_renderer_utils.get_error_message();
+		error_message_ = "Failed to get screen size.";
 
 		return false;
 	}
@@ -1404,12 +664,7 @@ bool Ogl2XRenderer::probe_or_initialize(
 		return false;
 	}
 
-	if (!ogl_renderer_utils.renderer_features_set(device_features_))
-	{
-		error_message_ = ogl_renderer_utils.get_error_message();
-
-		return false;
-	}
+	OglRendererUtils::renderer_features_set(device_features_);
 
 	ogl_device_features_.context_kind_ = OglRendererUtils::context_get_kind();
 
@@ -1435,9 +690,14 @@ bool Ogl2XRenderer::probe_or_initialize(
 		ogl_device_features_
 	);
 
+	OglRendererUtils::sampler_probe(
+		extension_manager_.get(),
+		device_features_
+	);
+
 	OglRendererUtils::vertex_input_probe_max_locations(device_features_);
 
-	if (device_features_.max_vertex_input_locations_ <= 0)
+	if (device_features_.vertex_input_max_locations_ <= 0)
 	{
 		error_message_ = "No vertex input locations.";
 
@@ -1446,44 +706,31 @@ bool Ogl2XRenderer::probe_or_initialize(
 
 	OglRendererUtils::vsync_probe(device_features_);
 
+	OglRendererUtils::vertex_input_vao_probe(
+		extension_manager_.get(),
+		ogl_device_features_
+	);
+
 	if (!is_probe)
 	{
-		ogl_state_ = std::move(OglStateFactory::create(RendererKind::ogl_2_x));
-
-		auto error_message = std::string{"Failed to initialize the state."};
-
-		if (ogl_state_ == nullptr)
-		{
-			error_message_ = error_message;
-
-			return false;
-		}
-
-		if (!ogl_state_->is_initialized())
-		{
-			error_message += ' ';
-			error_message += ogl_state_->get_error_message();
-
-			return false;
-		}
+		ogl_state_ = std::move(OglStateFactory::create(
+			RendererKind::ogl_2_x,
+			device_features_,
+			ogl_device_features_
+		));
 	}
 
 	if (!is_probe)
 	{
 		if (device_features_.vsync_is_available_)
 		{
-			static_cast<void>(ogl_renderer_utils.vsync_set(param.is_vsync_));
+			static_cast<void>(OglRendererUtils::vsync_set(param.is_vsync_));
 		}
 
 		if (!framebuffers_create())
 		{
 			return false;
 		}
-	}
-
-	if (!create_default_sampler())
-	{
-		return false;
 	}
 
 	if (is_probe)
@@ -1497,7 +744,7 @@ bool Ogl2XRenderer::probe_or_initialize(
 	{
 		is_initialized_ = true;
 
-		device_info_ = ogl_renderer_utils.device_info_get();
+		device_info_ = OglRendererUtils::device_info_get();
 
 		// Default state.
 		//
@@ -1507,7 +754,6 @@ bool Ogl2XRenderer::probe_or_initialize(
 		depth_set_defaults();
 		blending_set_defaults();
 		texture_2d_set_defaults();
-		vertex_input_defaults();
 
 
 		// Present.
@@ -1522,155 +768,71 @@ bool Ogl2XRenderer::probe_or_initialize(
 RendererTexture2dPtr Ogl2XRenderer::texture_2d_create(
 	const RendererTexture2dCreateParam& param)
 {
-	auto texture_2d = Texture2dUPtr{new Texture2d{this}};
-
-	if (!texture_2d->initialize(param))
-	{
-		error_message_ = texture_2d->error_message_;
-
-		return nullptr;
-	}
-
-	textures_2d_.push_back(std::move(texture_2d));
-
-	return textures_2d_.back().get();
+	return ogl_state_->texture_2d_create(param);
 }
 
 void Ogl2XRenderer::texture_2d_destroy(
 	RendererTexture2dPtr texture_2d)
 {
-	assert(texture_2d);
-
-	textures_2d_.remove_if(
-		[=](const auto& item)
-		{
-			return item.get() == texture_2d;
-		}
-	);
+	ogl_state_->texture_2d_destroy(texture_2d);
 }
 
 RendererSamplerPtr Ogl2XRenderer::sampler_create(
 	const RendererSamplerCreateParam& param)
 {
-	auto sampler = SamplerUPtr{new Sampler{this}};
-
-	if (!sampler->initialize(param))
-	{
-		error_message_ = "Failed to initialize a sampler.";
-
-		return nullptr;
-	}
-
-	samplers_.push_back(std::move(sampler));
-
-	return samplers_.back().get();
+	return ogl_state_->sampler_create(param);
 }
 
 void Ogl2XRenderer::sampler_destroy(
 	RendererSamplerPtr sampler)
 {
-	assert(sampler);
-
-	auto is_update = false;
-
-	if (sampler == sampler_current_)
-	{
-		is_update = true;
-
-		sampler_current_ = sampler_default_.get();
-
-		sampler_set();
-	}
-
-	samplers_.remove_if(
-		[=](const auto& item)
-		{
-			return item.get() == sampler;
-		}
-	);
-}
-
-bool Ogl2XRenderer::create_default_sampler()
-{
-	sampler_default_ = SamplerUPtr{new Sampler{this}};
-
-	auto param = RendererSamplerCreateParam{};
-
-	if (!sampler_default_->initialize(param))
-	{
-		error_message_ = "Failed to initialize default sampler.";
-
-		return false;
-	}
-
-	sampler_current_ = sampler_default_.get();
-
-	return true;
+	ogl_state_->sampler_destroy(sampler);
 }
 
 void Ogl2XRenderer::uninitialize_internal(
 	const bool is_dtor)
 {
-	framebuffers_destroy();
+	shaders_.clear();
+	shader_stages_.clear();
+	current_shader_stage_ = {};
+	ogl_state_ = {};
+	extension_manager_ = {};
 
-	auto ogl_renderer_utils = OglRendererUtils{};
+	framebuffers_destroy();
 
 	if (sdl_gl_context_)
 	{
-		static_cast<void>(ogl_renderer_utils.make_context_current(sdl_window_.get(), nullptr));
+		OglRendererUtils::make_context_current(sdl_window_.get(), nullptr);
 	}
 
-	sdl_window_ = {};
 	sdl_gl_context_ = {};
+	sdl_window_ = {};
 
-	if (!is_dtor)
-	{
-		device_info_ = {};
-		device_features_ = {};
-		ogl_device_features_ = {};
-		screen_width_ = {};
-		screen_height_ = {};
-		downscale_width_ = {};
-		downscale_height_ = {};
-		downscale_blit_filter_ = {};
-		viewport_x_ = {};
-		viewport_y_ = {};
-		viewport_width_ = {};
-		viewport_height_ = {};
-		viewport_min_depth_ = {};
-		viewport_max_depth_ = {};
-		scissor_is_enabled_ = {};
-		scissor_x_ = {};
-		scissor_y_ = {};
-		scissor_width_ = {};
-		scissor_height_ = {};
-		culling_is_enabled_ = {};
-		culling_face_ = {};
-		culling_mode_ = {};
-		depth_is_test_enabled_ = {};
-		depth_is_write_enabled_ = {};
-		blending_is_enabled_ = {};
-		texture_2d_is_enabled_ = {};
-		index_buffers_.clear();
-		vertex_buffers_.clear();
-		texture_buffer_.clear();
-		texture_2d_current_ = {};
-		sampler_current_ = {};
-		vertex_input_current_ = {};
-		vertex_input_enabled_locations_ = {};
-		current_shader_stage_ = {};
-		ogl_state_ = {};
-		extension_manager_ = {};
-	}
-
-	index_buffers_.clear();
-	vertex_buffers_.clear();
-	textures_2d_.clear();
-	samplers_.clear();
-	sampler_default_ = {};
-	vertex_inputs_.clear();
-	shaders_.clear();
-	shader_stages_.clear();
+	device_info_ = {};
+	device_features_ = {};
+	ogl_device_features_ = {};
+	screen_width_ = {};
+	screen_height_ = {};
+	downscale_width_ = {};
+	downscale_height_ = {};
+	downscale_blit_filter_ = {};
+	viewport_x_ = {};
+	viewport_y_ = {};
+	viewport_width_ = {};
+	viewport_height_ = {};
+	viewport_min_depth_ = {};
+	viewport_max_depth_ = {};
+	scissor_is_enabled_ = {};
+	scissor_x_ = {};
+	scissor_y_ = {};
+	scissor_width_ = {};
+	scissor_height_ = {};
+	culling_is_enabled_ = {};
+	culling_face_ = {};
+	culling_mode_ = {};
+	depth_is_test_enabled_ = {};
+	depth_is_write_enabled_ = {};
+	blending_is_enabled_ = {};
 }
 
 void Ogl2XRenderer::scissor_enable()
@@ -2312,213 +1474,18 @@ void Ogl2XRenderer::blending_set_defaults()
 
 void Ogl2XRenderer::texture_2d_enable()
 {
-	::glEnable(GL_TEXTURE_2D);
-	assert(!OglRendererUtils::was_errors());
-}
-
-void Ogl2XRenderer::texture_set()
-{
-	auto ogl_texture_name = GLuint{};
-
-	if (texture_2d_current_)
-	{
-		ogl_texture_name = texture_2d_current_->ogl_handle_.get();
-	}
-
-	OglRendererUtils::texture_2d_set(ogl_texture_name);
+	ogl_state_->texture_2d_enable(true);
 }
 
 void Ogl2XRenderer::texture_set(
-	Texture2dPtr new_texture_2d)
+	OglTexture2dPtr new_texture_2d)
 {
-	if (texture_2d_current_ != new_texture_2d)
-	{
-		texture_2d_current_ = new_texture_2d;
-
-		texture_set();
-	}
-}
-
-void Ogl2XRenderer::texture_mipmap_generation_set_hint()
-{
-	if (!device_features_.mipmap_is_available_)
-	{
-		return;
-	}
-
-	if (ogl_device_features_.context_kind_ == OglContextKind::core)
-	{
-		return;
-	}
-
-	::glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
-	assert(!OglRendererUtils::was_errors());
+	ogl_state_->texture_2d_set(new_texture_2d);
 }
 
 void Ogl2XRenderer::texture_2d_set_defaults()
 {
-	texture_2d_is_enabled_ = true;
 	texture_2d_enable();
-
-	texture_2d_current_ = nullptr;
-	texture_set();
-
-	texture_mipmap_generation_set_hint();
-}
-
-void Ogl2XRenderer::sampler_set()
-{
-	assert(sampler_current_);
-
-	for (auto& texture_2d : textures_2d_)
-	{
-		texture_2d->update_sampler_state(sampler_default_->state_);
-	}
-}
-
-void Ogl2XRenderer::vertex_input_enable_client_state(
-	const bool is_enabled,
-	const GLenum state)
-{
-	const auto ogl_function = (is_enabled ? ::glEnableClientState : ::glDisableClientState);
-
-	ogl_function(state);
-	assert(!OglRendererUtils::was_errors());
-}
-
-void Ogl2XRenderer::vertex_input_assign_default_attribute(
-	const RendererVertexAttributeDescription& attribute_description)
-{
-	assert(attribute_description.is_default_);
-
-	::glVertexAttrib4fv(
-		attribute_description.location_,
-		glm::value_ptr(attribute_description.default_value_)
-	);
-
-	assert(!OglRendererUtils::was_errors());
-}
-
-void Ogl2XRenderer::vertex_input_assign_regular_attribute(
-	const RendererVertexAttributeDescription& attribute_description)
-{
-	assert(!attribute_description.is_default_);
-
-	auto ogl_component_count = GLint{};
-	auto ogl_component_format = GLenum{};
-	auto ogl_is_normalized = GLenum{};
-
-	switch (attribute_description.format_)
-	{
-		case RendererVertexAttributeFormat::r8g8b8a8_unorm:
-			ogl_is_normalized = true;
-			ogl_component_count = 4;
-			ogl_component_format = GL_UNSIGNED_BYTE;
-			break;
-
-		case RendererVertexAttributeFormat::r32g32_sfloat:
-			ogl_component_count = 2;
-			ogl_component_format = GL_FLOAT;
-			break;
-
-		case RendererVertexAttributeFormat::r32g32b32_sfloat:
-			ogl_component_count = 3;
-			ogl_component_format = GL_FLOAT;
-			break;
-
-		default:
-			assert(!"Invalid format.");
-			break;
-	}
-
-	vertex_input_enable_location(attribute_description.location_, true);
-
-	auto vertex_buffer = static_cast<VertexBufferPtr>(attribute_description.vertex_buffer_);
-
-	vertex_buffer->bind(true);
-
-	const auto vertex_buffer_data = reinterpret_cast<const void*>(static_cast<std::intptr_t>(attribute_description.offset_));
-
-	::glVertexAttribPointer(
-		attribute_description.location_,
-		ogl_component_count,
-		ogl_component_format,
-		ogl_is_normalized,
-		attribute_description.stride_,
-		vertex_buffer_data
-	);
-
-	assert(!OglRendererUtils::was_errors());
-}
-
-void Ogl2XRenderer::vertex_input_assign_attribute(
-	const RendererVertexAttributeDescription& attribute_description)
-{
-	if (attribute_description.is_default_)
-	{
-		vertex_input_assign_default_attribute(attribute_description);
-	}
-	else
-	{
-		vertex_input_assign_regular_attribute(attribute_description);
-	}
-}
-
-void Ogl2XRenderer::vertex_input_assign()
-{
-	// Disable all.
-	//
-	for (int i = 0; i < device_features_.max_vertex_input_locations_; ++i)
-	{
-		vertex_input_enable_location(i, false);
-	}
-
-	if (vertex_input_current_ == nullptr)
-	{
-		return;
-	}
-
-	for (const auto& attribute_description : vertex_input_current_->attribute_descriptions_)
-	{
-		vertex_input_assign_attribute(attribute_description);
-	}
-}
-
-void Ogl2XRenderer::vertex_input_enable_location(
-	const int location)
-{
-	const auto is_enabled = vertex_input_enabled_locations_[location];
-	const auto olg_function = (is_enabled ? ::glEnableVertexAttribArray : ::glDisableVertexAttribArray);
-
-	olg_function(static_cast<GLuint>(location));
-	assert(!OglRendererUtils::was_errors());
-}
-
-void Ogl2XRenderer::vertex_input_enable_location(
-	const int location,
-	const bool is_enabled)
-{
-	if (vertex_input_enabled_locations_[location] == is_enabled)
-	{
-		return;
-	}
-
-	vertex_input_enabled_locations_[location] = is_enabled;
-
-	vertex_input_enable_location(location);
-}
-
-void Ogl2XRenderer::vertex_input_defaults()
-{
-	vertex_input_current_ = nullptr;
-
-	vertex_input_enabled_locations_.clear();
-	vertex_input_enabled_locations_.resize(device_features_.max_vertex_input_locations_);
-
-	for (int i = 0; i < device_features_.max_vertex_input_locations_; ++i)
-	{
-		vertex_input_enable_location(i);
-	}
 }
 
 void Ogl2XRenderer::command_execute_culling(
@@ -2657,33 +1624,21 @@ void Ogl2XRenderer::command_execute_scissor_box(
 void Ogl2XRenderer::command_execute_texture(
 	const RendererCommandTexture& command)
 {
-	texture_set(static_cast<Texture2dPtr>(command.texture_2d_));
+	texture_set(static_cast<OglTexture2dPtr>(command.texture_2d_));
 }
 
 void Ogl2XRenderer::command_execute_sampler(
 	const RendererCommandSampler& command)
 {
-	assert(command.sampler_);
-
-	auto sampler = static_cast<SamplerPtr>(command.sampler_);
-
-	if (!sampler)
-	{
-		return;
-	}
-
-	sampler_current_ = sampler;
+	ogl_state_->sampler_set(command.sampler_);
 }
 
 void Ogl2XRenderer::command_execute_vertex_input(
 	const RendererCommandVertexInput& command)
 {
-	if (vertex_input_current_ != command.vertex_input_)
-	{
-		vertex_input_current_ = static_cast<VertexInputPtr>(command.vertex_input_);
+	auto vertex_input = static_cast<OglVertexInputPtr>(command.vertex_input_);
 
-		vertex_input_assign();
-	}
+	ogl_state_->vertex_input_set(vertex_input);
 }
 
 void Ogl2XRenderer::command_execute_shader_stage(
@@ -2782,7 +1737,6 @@ void Ogl2XRenderer::command_execute_draw_quads(
 {
 	assert(command.count_ > 0);
 	assert(command.index_offset_ >= 0);
-	assert(vertex_input_current_);
 
 	const auto triangles_per_quad = 2;
 	const auto triangle_count = command.count_ * triangles_per_quad;
@@ -2791,7 +1745,14 @@ void Ogl2XRenderer::command_execute_draw_quads(
 	const auto indices_per_quad = triangles_per_quad * indices_per_triangle;
 	const auto index_count = indices_per_quad * command.count_;
 
-	auto index_buffer = static_cast<IndexBufferPtr>(vertex_input_current_->index_buffer_);
+	auto vertex_input = ogl_state_->vertex_input_get_current();
+
+	if (!vertex_input)
+	{
+		throw Exception{"Null current vertex input."};
+	}
+
+	auto index_buffer = vertex_input->get_index_buffer();
 
 	const auto index_byte_depth = index_buffer->get_byte_depth();
 	const auto max_index_count = index_buffer->get_size() / index_byte_depth;
@@ -2802,16 +1763,8 @@ void Ogl2XRenderer::command_execute_draw_quads(
 	assert((command.index_offset_ + command.count_) <= max_index_count);
 
 
-	// Sampler state.
-	//
-	if (texture_2d_current_)
-	{
-		texture_2d_current_->update_sampler_state(sampler_current_->state_);
-	}
-
 	// Draw the quads.
 	//
-
 	const auto index_buffer_data = reinterpret_cast<const void*>(static_cast<std::intptr_t>(index_byte_offset));
 
 	const auto ogl_element_type = OglRendererUtils::index_buffer_get_element_type_by_byte_depth(

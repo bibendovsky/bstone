@@ -89,6 +89,7 @@ enum class OglExtensionId
 	arb_framebuffer_srgb,
 	arb_half_float_vertex,
 	arb_map_buffer_range,
+	arb_sampler_objects,
 	arb_texture_compression,
 	arb_texture_compression_rgtc,
 	arb_texture_cube_map,
@@ -125,10 +126,10 @@ public:
 	virtual ~OglExtensionManager();
 
 
-	virtual int get_extension_count() const = 0;
+	virtual int get_extension_count() const noexcept = 0;
 
 	virtual const std::string& get_extension_name(
-		const int extension_index) const = 0;
+		const int extension_index) const noexcept = 0;
 
 
 	virtual void probe_extension(
@@ -136,10 +137,10 @@ public:
 
 
 	virtual bool has_extension(
-		const OglExtensionId extension_id) const = 0;
+		const OglExtensionId extension_id) const noexcept = 0;
 
 	virtual bool operator[](
-		const OglExtensionId extension_id) const = 0;
+		const OglExtensionId extension_id) const noexcept = 0;
 }; // OglExtensionManager
 
 using OglExtensionManagerPtr = OglExtensionManager*;

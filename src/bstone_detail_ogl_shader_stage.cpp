@@ -31,6 +31,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_precompiled.h"
 #include <unordered_set>
+#include "bstone_exception.h"
 #include "bstone_detail_ogl_shader_stage.h"
 #include "bstone_detail_ogl_shader.h"
 #include "bstone_detail_ogl_renderer_utils.h"
@@ -118,16 +119,17 @@ public:
 }; // Detail
 
 
-OglShaderStage::OglShaderStage()
+OglShaderStage::OglShaderStage(
+	OglShaderStagePtr* current_shader_stage_ptr,
+	const RendererShaderStage::CreateParam& param)
 	:
-	is_initialized_{},
-	error_message_{},
-	current_shader_stage_ptr_{},
+	current_shader_stage_ptr_{current_shader_stage_ptr},
 	fragment_shader_{},
 	vertex_shader_{},
-	ogl_handle_{},
+	ogl_resource_{},
 	shader_variables_{}
 {
+	initialize(current_shader_stage_ptr, param);
 }
 
 OglShaderStage::~OglShaderStage()
@@ -143,25 +145,8 @@ OglShaderStage::~OglShaderStage()
 	}
 }
 
-bool OglShaderStage::is_initialized() const
-{
-	return is_initialized_;
-}
-
-const std::string& OglShaderStage::get_error_message() const
-{
-	return error_message_;
-}
-
 void OglShaderStage::set_current()
 {
-	if (!is_initialized_)
-	{
-		assert(!"Not initialized.");
-
-		return;
-	}
-
 	assert(current_shader_stage_ptr_ != nullptr);
 
 	if (*current_shader_stage_ptr_ == this)
@@ -171,29 +156,19 @@ void OglShaderStage::set_current()
 
 	*current_shader_stage_ptr_ = this;
 
-	::glUseProgram(ogl_handle_.get());
+	::glUseProgram(ogl_resource_);
 	assert(!OglRendererUtils::was_errors());
 }
 
 RendererShaderVariablePtr OglShaderStage::find_variable(
 	const std::string& name)
 {
-	if (!is_initialized_)
-	{
-		return nullptr;
-	}
-
 	return Detail::find_variable(name, shader_variables_);
 }
 
 RendererShaderVariableInt32Ptr OglShaderStage::find_variable_int32(
 	const std::string& name)
 {
-	if (!is_initialized_)
-	{
-		return nullptr;
-	}
-
 	return Detail::find_variable<RendererShaderVariableInt32>(
 		RendererShaderVariable::TypeId::int32,
 		name,
@@ -204,11 +179,6 @@ RendererShaderVariableInt32Ptr OglShaderStage::find_variable_int32(
 RendererShaderVariableFloat32Ptr OglShaderStage::find_variable_float32(
 	const std::string& name)
 {
-	if (!is_initialized_)
-	{
-		return nullptr;
-	}
-
 	return Detail::find_variable<RendererShaderVariableFloat32>(
 		RendererShaderVariable::TypeId::float32,
 		name,
@@ -219,11 +189,6 @@ RendererShaderVariableFloat32Ptr OglShaderStage::find_variable_float32(
 RendererShaderVariableVec2Ptr OglShaderStage::find_variable_vec2(
 	const std::string& name)
 {
-	if (!is_initialized_)
-	{
-		return nullptr;
-	}
-
 	return Detail::find_variable<RendererShaderVariableVec2>(
 		RendererShaderVariable::TypeId::vec2,
 		name,
@@ -234,11 +199,6 @@ RendererShaderVariableVec2Ptr OglShaderStage::find_variable_vec2(
 RendererShaderVariableVec4Ptr OglShaderStage::find_variable_vec4(
 	const std::string& name)
 {
-	if (!is_initialized_)
-	{
-		return nullptr;
-	}
-
 	return Detail::find_variable<RendererShaderVariableVec4>(
 		RendererShaderVariable::TypeId::vec4,
 		name,
@@ -249,11 +209,6 @@ RendererShaderVariableVec4Ptr OglShaderStage::find_variable_vec4(
 RendererShaderVariableMat4Ptr OglShaderStage::find_variable_mat4(
 	const std::string& name)
 {
-	if (!is_initialized_)
-	{
-		return nullptr;
-	}
-
 	return Detail::find_variable<RendererShaderVariableMat4>(
 		RendererShaderVariable::TypeId::mat4,
 		name,
@@ -264,11 +219,6 @@ RendererShaderVariableMat4Ptr OglShaderStage::find_variable_mat4(
 RendererShaderVariableSampler2dPtr OglShaderStage::find_variable_sampler_2d(
 	const std::string& name)
 {
-	if (!is_initialized_)
-	{
-		return nullptr;
-	}
-
 	return Detail::find_variable<RendererShaderVariableSampler2d>(
 			RendererShaderVariable::TypeId::sampler2d,
 			name,
@@ -282,96 +232,77 @@ void OglShaderStage::initialize(
 {
 	if (current_shader_stage_ptr == nullptr)
 	{
-		error_message_ = "Null current shader stage pointer.";
-
-		return;
+		throw Exception{"Null current shader stage pointer."};
 	}
 
 	current_shader_stage_ptr_ = current_shader_stage_ptr;
 
-	if (!validate_param(param))
-	{
-		return;
-	}
+	validate_param(param);
 
-	auto ogl_handle = OglProgramHandle{::glCreateProgram()};
+	auto ogl_handle = OglProgramUniqueResource{::glCreateProgram()};
 
 	if (!ogl_handle)
 	{
-		error_message_ = "Failed to create OpenGL program object.";
-
-		return;
+		throw Exception{"Failed to create OpenGL program object."};
 	}
 
 	const auto fragment_shader = static_cast<OglShaderPtr>(param.fragment_shader_);
-	::glAttachShader(ogl_handle.get(), fragment_shader->get_ogl_name());
+	::glAttachShader(ogl_handle, fragment_shader->get_ogl_name());
 	assert(!detail::OglRendererUtils::was_errors());
 
 	const auto vertex_shader = static_cast<OglShaderPtr>(param.vertex_shader_);
-	::glAttachShader(ogl_handle.get(), vertex_shader->get_ogl_name());
+	::glAttachShader(ogl_handle, vertex_shader->get_ogl_name());
 	assert(!detail::OglRendererUtils::was_errors());
 
-	set_input_bindings(ogl_handle.get(), param.input_bindings_);
+	set_input_bindings(ogl_handle, param.input_bindings_);
 
-	::glLinkProgram(ogl_handle.get());
+	::glLinkProgram(ogl_handle);
 	assert(!detail::OglRendererUtils::was_errors());
 
 	auto link_status = GLint{};
 
-	::glGetProgramiv(ogl_handle.get(), GL_LINK_STATUS, &link_status);
+	::glGetProgramiv(ogl_handle, GL_LINK_STATUS, &link_status);
 	assert(!detail::OglRendererUtils::was_errors());
 
 	if (link_status != GL_TRUE)
 	{
-		error_message_ = "Failed to link a program.";
+		auto error_message = std::string{"Failed to link a program."};
 
-		const auto ogl_log = OglRendererUtils::get_log(false, ogl_handle.get());
+		const auto ogl_log = OglRendererUtils::get_log(false, ogl_handle);
 
 		if (!ogl_log.empty())
 		{
-			error_message_ += '\n';
-			error_message_ += ogl_log;
+			error_message += '\n';
+			error_message += ogl_log;
 		}
 
-		return;
+		throw Exception{std::move(error_message)};
 	}
 
-	const auto variable_count = get_variable_count(ogl_handle.get());
+	const auto variable_count = get_variable_count(ogl_handle);
 	auto shader_variables = ShaderVariables{};
 	shader_variables.reserve(variable_count);
 
-	if (!get_variables(RendererShaderVariable::Kind::attribute, ogl_handle.get(), shader_variables))
-	{
-		return;
-	}
+	get_variables(RendererShaderVariable::Kind::attribute, ogl_handle, shader_variables);
 
 	// Note that "samplers" are included in uniforms.
-	if (!get_variables(RendererShaderVariable::Kind::uniform, ogl_handle.get(), shader_variables))
-	{
-		return;
-	}
+	get_variables(RendererShaderVariable::Kind::uniform, ogl_handle, shader_variables);
 
-	if (!check_input_bindings(param.input_bindings_, shader_variables))
-	{
-		return;
-	}
+	check_input_bindings(param.input_bindings_, shader_variables);
 
-	is_initialized_ = true;
 	fragment_shader_ = static_cast<OglShaderPtr>(param.fragment_shader_);
 	vertex_shader_ = static_cast<OglShaderPtr>(param.vertex_shader_);
-	ogl_handle_ = std::move(ogl_handle);
+	ogl_resource_ = std::move(ogl_handle);
 	shader_variables_ = std::move(shader_variables);
 }
 
 void OglShaderStage::detach_fragment_shader()
 {
-	is_initialized_ = false;
 	fragment_shader_ = nullptr;
 }
 
 void OglShaderStage::detach_vertex_shader()
 {
-	is_initialized_ = false;
 	vertex_shader_ = nullptr;
 }
 
@@ -381,42 +312,27 @@ void OglShaderStage::unset_current()
 	assert(!detail::OglRendererUtils::was_errors());
 }
 
-bool OglShaderStage::validate_shader(
+void OglShaderStage::validate_shader(
 	const RendererShader::Kind shader_kind,
 	const RendererShaderPtr shader)
 {
 	if (shader == nullptr)
 	{
-		error_message_ = "Null shader.";
-
-		return false;
-	}
-
-	if (!shader->is_initialized())
-	{
-		error_message_ = "Shader not initialized.";
-
-		return false;
+		throw Exception{"Null shader."};
 	}
 
 	if (shader->get_kind() != shader_kind)
 	{
-		error_message_ = "Shader kind mismatch.";
-
-		return false;
+		throw Exception{"Shader kind mismatch."};
 	}
-
-	return true;
 }
 
-bool OglShaderStage::validate_input_bindings(
+void OglShaderStage::validate_input_bindings(
 	const InputBindings& input_bindings)
 {
 	if (input_bindings.empty())
 	{
-		error_message_ = "No input bindings.";
-
-		return false;
+		throw Exception{"No input bindings."};
 	}
 
 	// Check for duplicate names.
@@ -445,9 +361,7 @@ bool OglShaderStage::validate_input_bindings(
 
 		if (name_set.size() != input_bindings.size())
 		{
-			error_message_ = "Duplicate name.";
-
-			return false;
+			throw Exception{"Duplicate name."};
 		}
 	}
 
@@ -466,9 +380,7 @@ bool OglShaderStage::validate_input_bindings(
 
 		if (name_set.size() != input_bindings.size())
 		{
-			error_message_ = "Duplicate index.";
-
-			return false;
+			throw Exception{"Duplicate index."};
 		}
 	}
 
@@ -479,36 +391,18 @@ bool OglShaderStage::validate_input_bindings(
 		{
 			if (input_binding.index_ < 0)
 			{
-				error_message_ = "Negative index.";
-
-				return false;
+				throw Exception{"Negative index."};
 			}
 		}
 	}
-
-	//
-	return true;
 }
 
-bool OglShaderStage::validate_param(
+void OglShaderStage::validate_param(
 	const RendererShaderStage::CreateParam& param)
 {
-	if (!validate_shader(RendererShader::Kind::fragment, param.fragment_shader_))
-	{
-		return false;
-	}
-
-	if (!validate_shader(RendererShader::Kind::vertex, param.vertex_shader_))
-	{
-		return false;
-	}
-
-	if (!validate_input_bindings(param.input_bindings_))
-	{
-		return false;
-	}
-
-	return true;
+	validate_shader(RendererShader::Kind::fragment, param.fragment_shader_);
+	validate_shader(RendererShader::Kind::vertex, param.vertex_shader_);
+	validate_input_bindings(param.input_bindings_);
 }
 
 void OglShaderStage::set_input_bindings(
@@ -538,7 +432,7 @@ int OglShaderStage::get_variable_count(
 	return result;
 }
 
-bool OglShaderStage::get_variables(
+void OglShaderStage::get_variables(
 	const RendererShaderVariable::Kind kind,
 	const GLuint ogl_name,
 	ShaderVariables& shader_variables)
@@ -575,9 +469,7 @@ bool OglShaderStage::get_variables(
 			break;
 
 		default:
-			error_message_ = "Unsupported variable kind.";
-
-			return false;
+			throw Exception{"Unsupported variable kind."};
 	}
 
 	auto ogl_count = GLint{};
@@ -586,7 +478,7 @@ bool OglShaderStage::get_variables(
 
 	if (ogl_count <= 0)
 	{
-		return true;
+		return;
 	}
 
 	auto ogl_max_length = GLint{};
@@ -595,7 +487,7 @@ bool OglShaderStage::get_variables(
 
 	if (ogl_max_length <= 0)
 	{
-		return true;
+		return;
 	}
 
 	auto name_buffer = NameBuffer{};
@@ -622,9 +514,7 @@ bool OglShaderStage::get_variables(
 
 		if (ogl_length <= 0)
 		{
-			error_message_ = "Empty name.";
-
-			return false;
+			throw Exception{"Empty name."};
 		}
 
 		auto unit_count = 0;
@@ -636,9 +526,7 @@ bool OglShaderStage::get_variables(
 				break;
 
 			default:
-				error_message_ = "Unsupported unit count.";
-
-				return false;
+				throw Exception{"Unsupported unit count."};
 		}
 
 		bool is_sampler = false;
@@ -676,9 +564,7 @@ bool OglShaderStage::get_variables(
 				break;
 
 			default:
-				error_message_ = "Unsupported unit type.";
-
-				return false;
+				throw Exception{"Unsupported unit type."};
 		}
 
 		auto input_index = GLint{};
@@ -690,9 +576,7 @@ bool OglShaderStage::get_variables(
 
 			if (input_index < 0)
 			{
-				error_message_ = "Vertex attribute not found.";
-
-				return false;
+				throw Exception{"Vertex attribute not found."};
 			}
 		}
 		else
@@ -719,11 +603,9 @@ bool OglShaderStage::get_variables(
 
 		shader_variables.emplace_back(variable);
 	}
-
-	return true;
 }
 
-bool OglShaderStage::check_input_bindings(
+void OglShaderStage::check_input_bindings(
 	const InputBindings& input_bindings,
 	const ShaderVariables& shader_variables)
 {
@@ -733,20 +615,14 @@ bool OglShaderStage::check_input_bindings(
 
 		if (vertex_attribute == nullptr)
 		{
-			error_message_ = "Vertex attribute not found.";
-
-			return false;
+			throw Exception{"Vertex attribute not found."};
 		}
 
 		if (vertex_attribute->get_kind() != RendererShaderVariable::Kind::attribute)
 		{
-			error_message_ = "Not a vertex attribute.";
-
-			return false;
+			throw Exception{"Not a vertex attribute."};
 		}
 	}
-
-	return true;
 }
 
 

@@ -31,6 +31,10 @@ Free Software Foundation, Inc.,
 
 #include "bstone_precompiled.h"
 #include "bstone_detail_ogl_buffer.h"
+
+#include "bstone_exception.h"
+#include "bstone_unique_resource.h"
+
 #include "bstone_detail_ogl_renderer_utils.h"
 #include "bstone_detail_ogl_state.h"
 
@@ -45,58 +49,152 @@ namespace detail
 // OglBuffer
 //
 
-OglBuffer::OglBuffer()
+OglBuffer::OglBuffer() = default;
+
+OglBuffer::~OglBuffer() = default;
+
+//
+// OglBuffer
+// =========================================================================
+
+
+// =========================================================================
+// GenericOglBuffer
+//
+
+class GenericOglBuffer :
+	public OglBuffer
+{
+public:
+	GenericOglBuffer(
+		const OglStatePtr ogl_state,
+		const OglBufferFactory::InitializeParam& param);
+
+	~GenericOglBuffer() override;
+
+
+	RendererBufferKind get_kind() const noexcept override;
+
+	RendererBufferUsageKind get_usage_kind() const noexcept override;
+
+	int get_size() const noexcept override;
+
+	void bind(
+		const bool is_bind) override;
+
+	void update(
+		const RendererBufferUpdateParam& param) override;
+
+
+	OglStatePtr ogl_state_get() const noexcept override;
+
+
+private:
+	static void resource_deleter(
+		const GLuint& ogl_name) noexcept;
+
+	using BufferResource = UniqueResource<GLuint, resource_deleter>;
+
+	RendererBufferKind kind_;
+	RendererBufferUsageKind usage_kind_;
+	int size_;
+	BufferResource ogl_resource_;
+	GLenum ogl_target_;
+	const OglStatePtr ogl_state_;
+
+
+	void validate_param(
+		const OglBufferFactory::InitializeParam& param);
+
+	void validate_param(
+		const RendererBufferUpdateParam& param);
+
+	static GLenum ogl_get_target(
+		const RendererBufferKind kind);
+
+	static GLenum ogl_get_usage(
+		const RendererBufferUsageKind usage_kind);
+
+	void initialize(
+		const OglBufferFactory::InitializeParam& param);
+
+	void uninitialize();
+}; // GenericOglBuffer
+
+
+using GenericOglBufferUPtr = std::unique_ptr<GenericOglBuffer>;
+
+//
+// GenericOglBuffer
+// =========================================================================
+
+
+// =========================================================================
+// GenericOglBuffer
+//
+
+GenericOglBuffer::GenericOglBuffer(
+	const OglStatePtr ogl_state,
+	const OglBufferFactory::InitializeParam& param)
 	:
-	error_message_{},
 	kind_{},
 	usage_kind_{},
 	size_{},
-	ogl_handle_{},
-	ogl_target_{}
+	ogl_resource_{},
+	ogl_target_{},
+	ogl_state_{ogl_state}
 {
+	initialize(param);
 }
 
-OglBuffer::~OglBuffer()
+GenericOglBuffer::~GenericOglBuffer()
 {
 	uninitialize();
 }
 
-RendererBufferKind OglBuffer::get_kind() const noexcept
+RendererBufferKind GenericOglBuffer::get_kind() const noexcept
 {
 	return kind_;
 }
 
-RendererBufferUsageKind OglBuffer::get_usage_kind() const noexcept
+RendererBufferUsageKind GenericOglBuffer::get_usage_kind() const noexcept
 {
 	return usage_kind_;
 }
 
-int OglBuffer::get_size() const noexcept
+int GenericOglBuffer::get_size() const noexcept
 {
 	return size_;
 }
 
-void OglBuffer::bind()
+void GenericOglBuffer::bind(
+	const bool is_bind)
 {
-	bind(this);
-}
+	const auto ogl_buffer = (is_bind ? this : nullptr);
+	const auto ogl_resource = (is_bind ? ogl_resource_.get() : 0);
 
-void OglBuffer::unbind_target()
-{
-	bind(nullptr);
-}
-
-void OglBuffer::update(
-	const UpdateParam& param)
-{
-	if (!validate_param(param))
+	if (ogl_state_->buffer_set_current(kind_, ogl_buffer))
 	{
-		return;
+		::glBindBuffer(ogl_target_, ogl_resource);
+		assert(!detail::OglRendererUtils::was_errors());
 	}
+}
+
+void GenericOglBuffer::update(
+	const RendererBufferUpdateParam& param)
+{
+	validate_param(param);
 
 	if (param.size_ == 0)
 	{
 		return;
+	}
+
+	const auto is_index = (kind_ == RendererBufferKind::index);
+
+	if (is_index)
+	{
+		ogl_state_->vao_push_current_set_default();
 	}
 
 	bind(this);
@@ -109,22 +207,34 @@ void OglBuffer::update(
 	);
 
 	assert(!detail::OglRendererUtils::was_errors());
-}
 
-const std::string& OglBuffer::get_error_message() const
-{
-	return error_message_;
-}
-
-bool OglBuffer::initialize(
-	const InitializeParam& param)
-{
-	if (!validate_param(param))
+	if (is_index)
 	{
-		return false;
+		ogl_state_->vao_pop();
+	}
+}
+
+OglStatePtr GenericOglBuffer::ogl_state_get() const noexcept
+{
+	return ogl_state_;
+}
+
+void GenericOglBuffer::resource_deleter(
+	const GLuint& ogl_name) noexcept
+{
+	::glDeleteBuffers(1, &ogl_name);
+	assert(!detail::OglRendererUtils::was_errors());
+}
+
+void GenericOglBuffer::initialize(
+	const OglBufferFactory::InitializeParam& param)
+{
+	if (!ogl_state_)
+	{
+		throw Exception{"Null OpenGL state."};
 	}
 
-	ogl_state_ = param.ogl_state_;
+	validate_param(param);
 
 	auto ogl_name = GLuint{};
 	::glGenBuffers(1, &ogl_name);
@@ -132,45 +242,37 @@ bool OglBuffer::initialize(
 
 	if (ogl_name == 0)
 	{
-		error_message_ = "Failed to create OpenGL buffer object.";
-
-		return false;
+		throw Exception{"Failed to create OpenGL buffer object."};
 	}
-
-	auto ogl_handle = OglBufferHandle{ogl_name};
-
-	const auto olg_target = ogl_get_target(param.kind_);
-	const auto olg_usage = ogl_get_usage(param.usage_kind_);
-
-	::glBindBuffer(olg_target, ogl_handle.get());
-	assert(!detail::OglRendererUtils::was_errors());
-
-	::glBufferData(olg_target, param.size_, nullptr, olg_usage);
-	assert(!detail::OglRendererUtils::was_errors());
 
 	kind_ = param.kind_;
 	usage_kind_ = param.usage_kind_;
 	size_ = param.size_;
-	ogl_handle_ = std::move(ogl_handle);
-	ogl_target_ = olg_target;
+	ogl_resource_.reset(ogl_name);
+	ogl_target_ = ogl_get_target(param.kind_);
 
-	bind(this);
+	const auto is_index = (kind_ == RendererBufferKind::index);
 
-	return true;
+	if (is_index)
+	{
+		ogl_state_->vao_push_current_set_default();
+	}
+
+	bind(true);
+
+	const auto olg_usage = ogl_get_usage(param.usage_kind_);
+
+	::glBufferData(ogl_target_, param.size_, nullptr, olg_usage);
+	assert(!detail::OglRendererUtils::was_errors());
+
+	if (is_index)
+	{
+		ogl_state_->vao_pop();
+	}
 }
 
-bool OglBuffer::is_initialized() const noexcept
-{
-	return static_cast<bool>(ogl_handle_);
-}
-
-GLuint OglBuffer::get_ogl_name() const noexcept
-{
-	return ogl_handle_.get();
-}
-
-bool OglBuffer::validate_param(
-	const InitializeParam& param)
+void GenericOglBuffer::validate_param(
+	const OglBufferFactory::InitializeParam& param)
 {
 	switch (param.kind_)
 	{
@@ -179,9 +281,7 @@ bool OglBuffer::validate_param(
 			break;
 
 		default:
-			error_message_ = "Invalid kind.";
-
-			return false;
+			throw Exception{"Invalid kind."};
 	}
 
 	switch (param.usage_kind_)
@@ -192,84 +292,50 @@ bool OglBuffer::validate_param(
 			break;
 
 		default:
-			error_message_ = "Invalid usage kind.";
-
-			return false;
+			throw Exception{"Invalid usage kind."};
 	}
 
 	if (param.size_ <= 0)
 	{
-		error_message_ = "Non-positive size.";
-
-		return false;
+		throw Exception{"Non-positive size."};
 	}
-
-	if (param.ogl_state_ == nullptr)
-	{
-		error_message_ = "Null OpenGL state.";
-
-		return false;
-	}
-
-	if (!param.ogl_state_->is_initialized())
-	{
-		error_message_ = "OpenGL state not initialized.";
-
-		return false;
-	}
-
-	return true;
 }
 
-bool OglBuffer::validate_param(
-	const UpdateParam& param)
+void GenericOglBuffer::validate_param(
+	const RendererBufferUpdateParam& param)
 {
 	if (param.offset_ < 0)
 	{
-		error_message_ = "Negative offset.";
-
-		return false;
+		throw Exception{"Negative offset."};
 	}
 
 	if (param.size_ < 0)
 	{
-		error_message_ = "Negative size.";
-
-		return false;
+		throw Exception{"Negative size."};
 	}
 
 	if (param.offset_ > size_)
 	{
-		error_message_ = "Offset out of range.";
-
-		return false;
+		throw Exception{"Offset out of range."};
 	}
 
 	if (param.size_ > size_)
 	{
-		error_message_ = "Size out of range.";
-
-		return false;
+		throw Exception{"Size out of range."};
 	}
 
 	if ((param.offset_ + param.size_) > size_)
 	{
-		error_message_ = "End offset out of range.";
-
-		return false;
+		throw Exception{"End offset out of range."};
 	}
 
 	if (param.size_ > 0 && param.data_ == nullptr)
 	{
-		error_message_ = "Null data.";
-
-		return false;
+		throw Exception{"Null data."};
 	}
-
-	return true;
 }
 
-GLenum OglBuffer::ogl_get_target(
+GLenum GenericOglBuffer::ogl_get_target(
 	const RendererBufferKind kind)
 {
 	switch (kind)
@@ -281,13 +347,11 @@ GLenum OglBuffer::ogl_get_target(
 			return GL_ARRAY_BUFFER;
 
 		default:
-			assert(!"Invalid kind.");
-
-			return 0;
+			throw Exception{"Unsupported buffer kind."};
 	}
 }
 
-GLenum OglBuffer::ogl_get_usage(
+GLenum GenericOglBuffer::ogl_get_usage(
 	const RendererBufferUsageKind usage_kind)
 {
 	switch (usage_kind)
@@ -302,43 +366,42 @@ GLenum OglBuffer::ogl_get_usage(
 			return GL_DYNAMIC_DRAW;
 
 		default:
-			assert(!"Invalid usage kind.");
-
-			return 0;
+			throw Exception{"Unsupported usage kind."};
 	}
 }
 
-void OglBuffer::bind(
-	OglBufferPtr ogl_buffer)
+void GenericOglBuffer::uninitialize()
 {
-	if (ogl_buffer)
+	if (ogl_resource_)
 	{
-		ogl_state_->buffer_bind(ogl_buffer);
+		bind(false);
 	}
-	else
-	{
-		ogl_state_->buffer_unbind(kind_);
-	}
-}
-
-void OglBuffer::uninitialize()
-{
-	if (!is_initialized())
-	{
-		return;
-	}
-
-	bind(nullptr);
 
 	kind_ = {};
 	usage_kind_ = {};
 	size_ = 0;
-	ogl_handle_ = {};
+	ogl_resource_.reset();
 	ogl_target_ = {};
 }
 
 //
-// OglBuffer
+// GenericOglBuffer
+// =========================================================================
+
+
+// =========================================================================
+// OglBufferFactory
+//
+
+OglBufferUPtr OglBufferFactory::create(
+	const OglStatePtr ogl_state,
+	const OglBufferFactory::InitializeParam& param)
+{
+	return std::make_unique<GenericOglBuffer>(ogl_state, param);
+}
+
+//
+// OglBufferFactory
 // =========================================================================
 
 

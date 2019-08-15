@@ -23,55 +23,47 @@ Free Software Foundation, Inc.,
 
 
 //
-// Renderer's vertex buffer (implementation interface).
+// Base exception.
 //
 
 
-#ifndef BSTONE_DETAIL_VERTEX_BUFFER_INCLUDED
-#define BSTONE_DETAIL_VERTEX_BUFFER_INCLUDED
-
-
-#include "bstone_renderer.h"
+#include "bstone_precompiled.h"
+#include "bstone_exception.h"
 
 
 namespace bstone
 {
-namespace detail
+
+
+Exception::Exception()
+	:
+	std::exception{},
+	message_{}
 {
+}
 
-
-// ==========================================================================
-// VertexBuffer
-//
-
-class VertexBuffer :
-	public RendererVertexBuffer
+Exception::Exception(
+	const char* const message)
+	:
+	std::exception{},
+	message_{message}
 {
-public:
-	VertexBuffer() = default;
+}
 
-	VertexBuffer(
-		const VertexBuffer& rhs) = delete;
+Exception::Exception(
+	std::string&& message) noexcept
+	:
+	std::exception{},
+	message_{std::move(message)}
+{
+}
 
-	~VertexBuffer() override = default;
+Exception::~Exception() = default;
 
-
-	virtual const std::string& get_error_message() const = 0;
-
-	virtual bool initialize(
-		const RendererVertexBufferCreateParam& param) = 0;
-}; // VertexBuffer
-
-using VertexBufferPtr = VertexBuffer*;
-using VertexBufferUPtr = std::unique_ptr<VertexBuffer>;
-
-//
-// VertexBuffer
-// ==========================================================================
+const char* Exception::what() const noexcept
+{
+	return message_.c_str();
+}
 
 
-} // detail
 } // bstone
-
-
-#endif // !BSTONE_DETAIL_VERTEX_BUFFER_INCLUDED

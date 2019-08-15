@@ -28,6 +28,7 @@ Free Software Foundation, Inc.,
 
 #include <cstdint>
 #include <memory>
+#include "bstone_exception.h"
 
 
 namespace bstone
@@ -38,16 +39,18 @@ class Stream;
 using StreamPtr = Stream*;
 
 
-class ArchiverException
+class ArchiverException :
+	public Exception
 {
-public:
-	virtual const char* get_message() const = 0;
-
-
 protected:
-	ArchiverException() = default;
+	explicit ArchiverException(
+		const char* const message);
 
-	virtual ~ArchiverException() = default;
+	//explicit ArchiverException(
+	//	std::string&& message) noexcept;
+
+public:
+	virtual ~ArchiverException();
 }; // ArchiverException
 
 
