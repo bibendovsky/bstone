@@ -40,7 +40,7 @@ void TranslateControllerEvent(SDL_Event *ev)
 #ifdef VITATEST
         { SDLK_BACKSPACE, SDL_SCANCODE_BACKSPACE},
 #else
-        { SDLK_TAB, SDL_SCANCODE_TAB },             // Circle
+        { SDLK_RALT, SDL_SCANCODE_RALT },             // Circle
 #endif
         { SDLK_RETURN, SDL_SCANCODE_RETURN },       // Cross
         { SDLK_SPACE, SDL_SCANCODE_SPACE },         // Square

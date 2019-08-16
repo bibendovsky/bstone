@@ -764,10 +764,12 @@ static void in_handle_keyboard(
 
 	switch (key)
 	{
+#ifndef __vita__
+// (vita) TranslateControllerEvent() does not currently affect the output of SDL_GetModState()
 	case ScanCode::sc_alt:
 		is_pressed = ((key_mod & KMOD_ALT) != 0);
 		break;
-
+#endif
 	case ScanCode::sc_control:
 		is_pressed = ((key_mod & KMOD_CTRL) != 0);
 		break;
