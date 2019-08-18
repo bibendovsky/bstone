@@ -5427,7 +5427,7 @@ void draw_volume_control(
 	VWB_Bar(74, static_cast<std::int16_t>(y), 160, 8, HIGHLIGHT_BOX_COLOR);
 	DrawOutline(73, static_cast<std::int16_t>(y - 1), 161, 9,
 		outline_color, outline_color);
-	VWB_Bar(static_cast<std::int16_t>(74 + ((160 * volume) / (::sd_max_volume + 1))),
+	VWB_Bar(static_cast<std::int16_t>(74 + ((152 * volume) / (::sd_max_volume + 1))),
 		static_cast<std::int16_t>(y), 16, 8, static_cast<std::uint8_t>(slider_color));
 }
 
@@ -5583,7 +5583,7 @@ void cp_sound_volume(
 	sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::item);
 
 	WaitKeyUp();
-	MenuFadeIn();
+	::MenuFadeOut();
 }
 
 ///
