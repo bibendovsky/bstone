@@ -20,14 +20,21 @@
 //
 
 #include "SDL.h"
+#include "../3d_def.h"
 
 extern int in_mouse_dx;
 extern int in_mouse_dy;
 extern int control2x;
 extern bool vid_is_ui_stretched;
+extern gametype gamestate;
+int GetPrevWeaponNum();
+int GetNextWeaponNum();
+void DepressGivenKey(int whichkey, int upordown);
+int lastautopress = 0;
 
 void TranslateControllerEvent(SDL_Event *ev)
 {
+    int upordown = 0;
     int btn;
     SDL_Event ev_new;
     static const struct 
@@ -65,22 +72,37 @@ void TranslateControllerEvent(SDL_Event *ev)
     if (ev->type == SDL_JOYBUTTONDOWN)
     {
         ev_new.type = ev_new.key.type = SDL_KEYDOWN;
-        ev_new.key.state = SDL_PRESSED;
+		ev_new.key.state = SDL_PRESSED;
+	    upordown = 1;
     }
     else if (ev->type == SDL_JOYBUTTONUP)
     {
-        ev_new.type = ev_new.key.type = SDL_KEYUP;
-        ev_new.key.state = SDL_RELEASED;
+    	ev_new.type = ev_new.key.type = SDL_KEYUP;
+		ev_new.key.state = SDL_RELEASED;
+	    upordown = 0;
     }
 
     SDL_PushEvent(&ev_new);
+#ifndef VITATEST
+	if (btn == 1)
+	{
+		if ((lastautopress == 0) and (upordown == 1))
+		{
+			lastautopress = GetNextWeaponNum();
+			DepressGivenKey(lastautopress, upordown);
+		}
+		else
+		{
+			DepressGivenKey(lastautopress, 0);
+			lastautopress = 0;
+		}
+	}
+#endif
 }
 
 void TranslateTouchEvent(SDL_Event *ev)
 {
-    SDL_Event ev_new;
-
-    memset(&ev_new, 0, sizeof(SDL_Event));
+    int upordown = 0;
 
     float w = 960.0F; //screen width
     float m = 760.0F; //midpoint between rows
@@ -95,7 +117,16 @@ void TranslateTouchEvent(SDL_Event *ev)
     // front touch
     if (ev->tfinger.touchId == 0)
     {
-        if (fingerx > 660.0F / w && fingerx < 860.0F / w)
+	if (ev->type == SDL_FINGERDOWN)
+	{
+	    upordown = 1;
+	}
+	else if (ev->type == SDL_FINGERUP)
+	{
+	   upordown = 0;
+	}
+
+	if (fingerx > 660.0F / w && fingerx < 860.0F / w)
         //column containing elevator buttons
         {
             if (fingery > 50.0F / h  && fingery <= 139.0F / h)
@@ -103,13 +134,11 @@ void TranslateTouchEvent(SDL_Event *ev)
             {
                 if (fingerx < m/w )
                 {
-                        ev_new.key.keysym.sym = SDLK_9;
-                        ev_new.key.keysym.scancode = SDL_SCANCODE_9;
+			DepressGivenKey(9, upordown);
                 }
                 else
                 {
-                        ev_new.key.keysym.sym = SDLK_0;
-                        ev_new.key.keysym.scancode = SDL_SCANCODE_0;
+			DepressGivenKey(0, upordown);
                 }
             }
             //7,8   140-194
@@ -117,13 +146,11 @@ void TranslateTouchEvent(SDL_Event *ev)
             {
                 if (fingerx < m/w )
                 {
-                        ev_new.key.keysym.sym = SDLK_7;
-                        ev_new.key.keysym.scancode = SDL_SCANCODE_7;
+			DepressGivenKey(7, upordown);
                 }
                 else
                 {
-                        ev_new.key.keysym.sym = SDLK_8;
-                        ev_new.key.keysym.scancode = SDL_SCANCODE_8;
+			DepressGivenKey(8, upordown);
                 }
             }
             //5,6   194-249
@@ -131,13 +158,11 @@ void TranslateTouchEvent(SDL_Event *ev)
             {
                 if (fingerx < m/w )
                 {
-                        ev_new.key.keysym.sym = SDLK_5;
-                        ev_new.key.keysym.scancode = SDL_SCANCODE_5;
+			DepressGivenKey(5, upordown);
                 }
                 else
                 {
-                        ev_new.key.keysym.sym = SDLK_6;
-                        ev_new.key.keysym.scancode = SDL_SCANCODE_6;
+			DepressGivenKey(6, upordown);
                 }
             }
             //3,4   249-303
@@ -145,13 +170,11 @@ void TranslateTouchEvent(SDL_Event *ev)
             {
                 if (fingerx < m/w )
                 {
-                        ev_new.key.keysym.sym = SDLK_3;
-                        ev_new.key.keysym.scancode = SDL_SCANCODE_3;
+			DepressGivenKey(3, upordown);
                 }
                 else
                 {
-                        ev_new.key.keysym.sym = SDLK_4;
-                        ev_new.key.keysym.scancode = SDL_SCANCODE_4;
+			DepressGivenKey(4, upordown);
                 }
             }
             //1,2   303-410
@@ -159,56 +182,65 @@ void TranslateTouchEvent(SDL_Event *ev)
             {
                 if (fingerx < m/w )
                 {
-                        ev_new.key.keysym.sym = SDLK_1;
-                        ev_new.key.keysym.scancode = SDL_SCANCODE_1;
+			DepressGivenKey(1, upordown);
                 }
                 else
                 {
-                        ev_new.key.keysym.sym = SDLK_2;
-                        ev_new.key.keysym.scancode = SDL_SCANCODE_2;
+			DepressGivenKey(2, upordown);
                 }
             }
         }
         else
         //outside of the column
         {
-#ifdef VITATEST
-            ev_new.key.keysym.sym = SDLK_w;
-            ev_new.key.keysym.scancode = SDL_SCANCODE_W;
-#endif
         }
         if (fingery > 410.0F / h)
         {
             if (fingerx > 480.0F / w)
             {
-                ev_new.key.keysym.sym = SDLK_EQUALS;
-                ev_new.key.keysym.scancode = SDL_SCANCODE_EQUALS;
+		DepressGivenKey(11, upordown);
             }
             else
             {
-                ev_new.key.keysym.sym = SDLK_MINUS;
-                ev_new.key.keysym.scancode = SDL_SCANCODE_MINUS;
+		DepressGivenKey(12, upordown);
             }
         }
+        if (fingery < 48.0F / h)
+        {
 
+            if (fingerx > 480.0F / w)
+            {
+		if ((lastautopress == 0) and (upordown == 1))
+		{
+			lastautopress = GetNextWeaponNum();
+			DepressGivenKey(lastautopress, upordown);
+		}
+		else
+		{
+			DepressGivenKey(lastautopress, 0);
+			lastautopress = 0;
+		}
+            }
+            else //left side
+	    {
+		if ((lastautopress == 0) and (upordown == 1))
+		{
+			lastautopress = GetPrevWeaponNum();
+			DepressGivenKey(lastautopress, upordown);
+		}
+		else
+		{
+			DepressGivenKey(lastautopress, 0);
+			lastautopress = 0;
+		}
+	    }
+	}
     }
     else
     {
         // back touch
     }
 
-    if (ev->type == SDL_FINGERDOWN)
-    {
-        ev_new.type = ev_new.key.type = SDL_KEYDOWN;
-        ev_new.key.state = SDL_PRESSED;
-    }
-    else if (ev->type == SDL_FINGERUP)
-    {
-        ev_new.type = ev_new.key.type = SDL_KEYUP;
-        ev_new.key.state = SDL_RELEASED;
-    }
-
-    SDL_PushEvent(&ev_new);
 }
 
 void TranslateAnalogEvent(SDL_Event *ev)
@@ -231,6 +263,168 @@ void TranslateAnalogEvent(SDL_Event *ev)
     }
     else if (ev->jaxis.axis == 1) //forward
     {
-        in_mouse_dy = delta / 1860 ; //2100 slower than key /2050 faster /2070 a bit slower?
+        in_mouse_dy = delta / 2222 ;
     }
 }
+
+int GetNextWeaponNum()
+{
+	std::int8_t cw = gamestate.weapon;
+	std::int8_t uw = gamestate.useable_weapons;
+	if ((cw < wp_pistol) && (uw & (1 << wp_pistol)))
+	{
+        	return 2;
+	}
+	else if ((cw < wp_burst_rifle) && (uw & (1 << wp_burst_rifle)))
+	{
+        	return 3;
+	}
+	else if ((cw < wp_ion_cannon) && (uw & (1 << wp_ion_cannon)))
+	{
+        	return 4;
+	}
+	else if ((cw < wp_grenade) && (uw & (1 << wp_grenade)))
+	{
+        	return 5;
+	}
+	if ((cw < wp_bfg_cannon) && (uw & (1 << wp_bfg_cannon)))
+	{
+        	return 6;
+	}
+	else
+	{
+        	return 1;
+	}
+}
+
+int GetPrevWeaponNum()
+{
+	std::int8_t cw = gamestate.weapon;
+	std::int8_t uw = gamestate.useable_weapons;
+	if (cw == wp_autocharge) cw = wp_SPACER;
+	if ((cw > wp_bfg_cannon) && (uw & (1 << wp_bfg_cannon)))
+	{
+        	return 6;
+	}
+	else if ((cw > wp_grenade) && (uw & (1 << wp_grenade)))
+	{
+        	return 5;
+	}
+	else if ((cw > wp_ion_cannon) && (uw & (1 << wp_ion_cannon)))
+	{
+        	return 4;
+	}
+	else if ((cw > wp_burst_rifle) && (uw & (1 << wp_burst_rifle)))
+	{
+        	return 3;
+	}
+	else if ((cw > wp_pistol) && (uw & (1 << wp_pistol)))
+	{
+        	return 2;
+	}
+	else
+	{
+        	return 1;
+	}
+}
+
+void DepressGivenKey(int whichkey, int upordown)
+{
+	// 0 is up, nonzero is down
+	SDL_Event ev_new;
+	memset(&ev_new, 0, sizeof(SDL_Event));
+
+	switch (whichkey)
+	{
+		case 1:
+		{
+			ev_new.key.keysym.sym = SDLK_1;
+                	ev_new.key.keysym.scancode = SDL_SCANCODE_1;
+			break;
+		}
+		case 2:
+		{
+			ev_new.key.keysym.sym = SDLK_2;
+                	ev_new.key.keysym.scancode = SDL_SCANCODE_2;
+			break;
+		}
+		case 3:
+		{
+			ev_new.key.keysym.sym = SDLK_3;
+                	ev_new.key.keysym.scancode = SDL_SCANCODE_3;
+			break;
+		}
+		case 4:
+		{
+			ev_new.key.keysym.sym = SDLK_4;
+                	ev_new.key.keysym.scancode = SDL_SCANCODE_4;
+			break;
+		}
+		case 5:
+		{
+			ev_new.key.keysym.sym = SDLK_5;
+                	ev_new.key.keysym.scancode = SDL_SCANCODE_5;
+			break;
+		}
+		case 6:
+		{
+			ev_new.key.keysym.sym = SDLK_6;
+                	ev_new.key.keysym.scancode = SDL_SCANCODE_6;
+			break;
+		}
+		case 7:
+		{
+			ev_new.key.keysym.sym = SDLK_7;
+                	ev_new.key.keysym.scancode = SDL_SCANCODE_7;
+			break;
+		}
+		case 8:
+		{
+			ev_new.key.keysym.sym = SDLK_8;
+                	ev_new.key.keysym.scancode = SDL_SCANCODE_8;
+			break;
+		}
+		case 9:
+		{
+			ev_new.key.keysym.sym = SDLK_9;
+                	ev_new.key.keysym.scancode = SDL_SCANCODE_9;
+			break;
+		}
+		case 0:
+		{
+			ev_new.key.keysym.sym = SDLK_0;
+                	ev_new.key.keysym.scancode = SDL_SCANCODE_0;
+			break;
+		}
+		case 11:
+		{
+			ev_new.key.keysym.sym = SDLK_EQUALS;
+                	ev_new.key.keysym.scancode = SDL_SCANCODE_EQUALS;
+			break;
+		}
+		case 12:
+		{
+			ev_new.key.keysym.sym = SDLK_MINUS;
+                	ev_new.key.keysym.scancode = SDL_SCANCODE_MINUS;
+			break;
+		}
+		default:
+        	{
+                	ev_new.key.keysym.sym = SDLK_0;
+                	ev_new.key.keysym.scancode = SDL_SCANCODE_0;
+        	}
+	}
+	if (upordown != 0)
+	{
+		ev_new.type = ev_new.key.type = SDL_KEYDOWN;
+		ev_new.key.state = SDL_PRESSED;
+	}
+	else
+	{
+		ev_new.type = ev_new.key.type = SDL_KEYUP;
+		ev_new.key.state = SDL_RELEASED;
+	}
+
+	SDL_PushEvent(&ev_new);
+}
+
