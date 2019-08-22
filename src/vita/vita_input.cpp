@@ -198,43 +198,43 @@ void TranslateTouchEvent(SDL_Event *ev)
         {
             if (fingerx > 480.0F / w)
             {
-		DepressGivenKey(11, upordown);
+		        DepressGivenKey(11, upordown);
             }
             else
             {
-		DepressGivenKey(12, upordown);
+		        DepressGivenKey(12, upordown);
             }
         }
-        if (fingery < 48.0F / h)
+        if (fingery < 50.0F / h)
         {
 
             if (fingerx > 480.0F / w)
             {
-		if ((lastautopress == 0) and (upordown == 1))
-		{
-			lastautopress = GetNextWeaponNum();
-			DepressGivenKey(lastautopress, upordown);
-		}
-		else
-		{
-			DepressGivenKey(lastautopress, 0);
-			lastautopress = 0;
-		}
+		        if ((lastautopress == 0) and (upordown == 1))
+		        {
+			        lastautopress = GetNextWeaponNum();
+			        DepressGivenKey(lastautopress, upordown);
+		        }
+		        else
+		        {
+			        DepressGivenKey(lastautopress, 0);
+			        lastautopress = 0;
+		        }
             }
             else //left side
-	    {
-		if ((lastautopress == 0) and (upordown == 1))
-		{
-			lastautopress = GetPrevWeaponNum();
-			DepressGivenKey(lastautopress, upordown);
-		}
-		else
-		{
-			DepressGivenKey(lastautopress, 0);
-			lastautopress = 0;
-		}
+	        {
+		        if ((lastautopress == 0) and (upordown == 1))
+		        {
+			        lastautopress = GetPrevWeaponNum();
+			        DepressGivenKey(lastautopress, upordown);
+		        }
+		        else
+		        {
+			        DepressGivenKey(lastautopress, 0);
+			        lastautopress = 0;
+		        }
+	        }
 	    }
-	}
     }
     else
     {
@@ -252,18 +252,17 @@ void TranslateAnalogEvent(SDL_Event *ev)
     {   
         delta = 0;
     }
-    // denominators in the below expressions estimated empirically
     if (ev->jaxis.axis == 0)  //side-to-side
     {
-        control2x = delta / 360;
+        control2x = static_cast<int> (delta * (1.0F + (::mouseadjustment / 6.0F)) / 1777.0F);
     }
     else if (ev->jaxis.axis == 2) //turn
     {
-        in_mouse_dx = delta / 500 ;
+        in_mouse_dx = delta / 1677 ;
     }
     else if (ev->jaxis.axis == 1) //forward
     {
-        in_mouse_dy = delta / 2222 ;
+        in_mouse_dy = delta / 6655 ;
     }
 }
 
@@ -339,80 +338,80 @@ void DepressGivenKey(int whichkey, int upordown)
 		case 1:
 		{
 			ev_new.key.keysym.sym = SDLK_1;
-                	ev_new.key.keysym.scancode = SDL_SCANCODE_1;
+            ev_new.key.keysym.scancode = SDL_SCANCODE_1;
 			break;
 		}
 		case 2:
 		{
 			ev_new.key.keysym.sym = SDLK_2;
-                	ev_new.key.keysym.scancode = SDL_SCANCODE_2;
+            ev_new.key.keysym.scancode = SDL_SCANCODE_2;
 			break;
 		}
 		case 3:
 		{
 			ev_new.key.keysym.sym = SDLK_3;
-                	ev_new.key.keysym.scancode = SDL_SCANCODE_3;
+            ev_new.key.keysym.scancode = SDL_SCANCODE_3;
 			break;
 		}
 		case 4:
 		{
 			ev_new.key.keysym.sym = SDLK_4;
-                	ev_new.key.keysym.scancode = SDL_SCANCODE_4;
+            ev_new.key.keysym.scancode = SDL_SCANCODE_4;
 			break;
 		}
 		case 5:
 		{
 			ev_new.key.keysym.sym = SDLK_5;
-                	ev_new.key.keysym.scancode = SDL_SCANCODE_5;
+            ev_new.key.keysym.scancode = SDL_SCANCODE_5;
 			break;
 		}
 		case 6:
 		{
 			ev_new.key.keysym.sym = SDLK_6;
-                	ev_new.key.keysym.scancode = SDL_SCANCODE_6;
+            ev_new.key.keysym.scancode = SDL_SCANCODE_6;
 			break;
 		}
 		case 7:
 		{
 			ev_new.key.keysym.sym = SDLK_7;
-                	ev_new.key.keysym.scancode = SDL_SCANCODE_7;
+            ev_new.key.keysym.scancode = SDL_SCANCODE_7;
 			break;
 		}
 		case 8:
 		{
 			ev_new.key.keysym.sym = SDLK_8;
-                	ev_new.key.keysym.scancode = SDL_SCANCODE_8;
+            ev_new.key.keysym.scancode = SDL_SCANCODE_8;
 			break;
 		}
 		case 9:
 		{
 			ev_new.key.keysym.sym = SDLK_9;
-                	ev_new.key.keysym.scancode = SDL_SCANCODE_9;
+            ev_new.key.keysym.scancode = SDL_SCANCODE_9;
 			break;
 		}
 		case 0:
 		{
 			ev_new.key.keysym.sym = SDLK_0;
-                	ev_new.key.keysym.scancode = SDL_SCANCODE_0;
+            ev_new.key.keysym.scancode = SDL_SCANCODE_0;
 			break;
 		}
 		case 11:
 		{
 			ev_new.key.keysym.sym = SDLK_EQUALS;
-                	ev_new.key.keysym.scancode = SDL_SCANCODE_EQUALS;
+            ev_new.key.keysym.scancode = SDL_SCANCODE_EQUALS;
 			break;
 		}
 		case 12:
 		{
 			ev_new.key.keysym.sym = SDLK_MINUS;
-                	ev_new.key.keysym.scancode = SDL_SCANCODE_MINUS;
+            ev_new.key.keysym.scancode = SDL_SCANCODE_MINUS;
 			break;
 		}
 		default:
-        	{
-                	ev_new.key.keysym.sym = SDLK_0;
-                	ev_new.key.keysym.scancode = SDL_SCANCODE_0;
-        	}
+        {
+            ev_new.key.keysym.sym = SDLK_0;
+            ev_new.key.keysym.scancode = SDL_SCANCODE_0;
+        }
 	}
 	if (upordown != 0)
 	{
