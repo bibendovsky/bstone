@@ -2945,7 +2945,11 @@ extern int mouseadjustment;
 // BBi
 const int min_mouse_sensitivity = 0;
 const int max_mouse_sensitivity = 54;
+#ifndef __vita__
 const int default_mouse_sensitivity = 5;
+#else
+const int default_mouse_sensitivity = 27;
+#endif
 // BBi
 
 //

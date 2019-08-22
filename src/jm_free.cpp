@@ -507,6 +507,13 @@ void find_any_assets()
 		return;
 	}
 
+#ifdef __vita__
+// Prefer sw to ps in case both, but not aog_full are installed and "Aliens of Gold" LiveArea region is pressed
+	if (find_aog_sw_assets(false))
+	{
+		return;
+	}
+#endif
 	if (find_ps_assets(false))
 	{
 		return;
