@@ -2,26 +2,31 @@
 
 ### High Priority
 
-* Make analog movement speed independent of framerate
-
 ### Medium Priority
-
-* Crashes sporadically when music is enabled
-* In-prompt buttons- use x,o
 
 ### Low Priority
 
 * Make 4:3 mode work properly
 * In-game control customization for Vita
+* Make analog movement speed independent of framerate
+* Mollify compiler warnings
+* Provisions for convenient mod-loading
 
 ## Future Ideas:
 
-* Create prev/next weapon keys
+* Port 3d accelerated version to vitaGL
+* Performance
+* Add manual
 
 ## Changes:
 
 ### 0.3
-* Update source to upstream version 1.1.12
+* Update source to upstream version 1.1.13
+* Prev/next weapon functions added (top area of touchscreen and "O")
+* Joystick sensitivity adjustable in-game
+* Sound volume menu cosmetic fix
+* X and O buttons function in expected way in menu
+* Fix sporadic crashes when music is enabled & other out of memory errors
 * No fadein tearing
 * In elevator, fade out from viewport instead of messagebox
 

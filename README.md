@@ -1,7 +1,7 @@
 bstone-vita
 ===========
 
-Vita port of BStone. Allowing you to play Blake Stone games natively on that handheld.
+Port of the BStone sourceport of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike (https://bibendovsky.github.io/bstone/) to the Playstation Vita.
 
 Installing and Running
 ======================
@@ -39,7 +39,7 @@ R - fire/accept
 
 × - about face
 
-○ - map or status window toggle
+○ - select next available weapon/ back out of menu
 
 △ - fire/accept
 
@@ -61,7 +61,13 @@ Select - map or status window toggle
 
 Start - Menu/back
 
-Number keys are hard mapped to a column on the right side of the front touchscreen corresponding to the locations of the elevator buttons on the AOG level select screen. Useful for weapon selection in addition to operating the elevator. The left and right halves of the region occupied by the bottom HUD bar are mapped to "-", and "=", respectively, for controlling the map zoom level in Planet Strike.
+Number keys are hard mapped to a column on the right side of the front touchscreen corresponding to the locations of the elevator buttons on the AOG level select screen. Useful for weapon selection in addition to operating the elevator. The left and right halves of the region occupied by the bottom HUD bar are mapped to "-", and "=", respectively, for controlling the map zoom level in Planet Strike. The left and right halves of the top region of the touchscreen select the previous/ next available weapon.
+
+Special Notice
+==============
+
+The savegame format has been changed from the previous version, so previous saves are unfortunately incompatible with 0.3.
+As with all homebrew Vita app, memory corruption may occur when returning from the LiveArea to an already running instance of the program. It is recommended, instead, to close and restart the app before resuming use.
 
 Compiling
 =========
