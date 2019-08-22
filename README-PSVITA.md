@@ -67,7 +67,7 @@ Special Notice
 ==============
 
 The savegame format has been changed from the previous version, so previous saves are unfortunately incompatible with 0.3.
-As with all homebrew Vita app, memory corruption may occur when returning from the LiveArea to an already running instance of the program. It is recommended, instead, to close and restart the app before resuming use.
+As with any homebrew Vita app, memory corruption may occur when returning from the LiveArea to an already running instance of the program. It is recommended, instead, to close and restart the app before resuming use.
 
 Compiling
 =========
