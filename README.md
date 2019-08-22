@@ -66,7 +66,7 @@ Supported games:
 
 2.1 - Overview (PS Vita)
 ========================
-See README-PSVITA.md for details about the source port on PS Vita.
+See [README-PSVITA.md](README-PSVITA.md) for details about the source port on PS Vita.
 
 
 3 - Required assets
