@@ -26,6 +26,15 @@ add_executable(${PROJECT_NAME} "")
 
 
 #
+# Configure files.
+#
+configure_file(
+	"${PROJECT_SOURCE_DIR}/bstone_version_.h.in"
+	"${PROJECT_BINARY_DIR}/bstone_version_.h"
+)
+
+
+#
 # Target properties.
 #
 set_target_properties(
@@ -163,6 +172,7 @@ target_include_directories(
 	PRIVATE
 		dosbox
 		lib/glm
+		${PROJECT_BINARY_DIR}
 )
 
 if (BSTONE_PANDORA)
@@ -401,15 +411,6 @@ if (MSVC AND BSTONE_USE_PCH)
 			COMPILE_FLAGS -Yc
 	)
 endif ()
-
-
-#
-# Configure files.
-#
-configure_file(
-	"${PROJECT_SOURCE_DIR}/bstone_version_.h.in"
-	"${PROJECT_SOURCE_DIR}/bstone_version_.h"
-)
 
 
 #
