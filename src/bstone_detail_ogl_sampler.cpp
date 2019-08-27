@@ -68,8 +68,6 @@ class GenericOglSampler final :
 public:
 	GenericOglSampler(
 		OglStatePtr ogl_state,
-		const RendererDeviceFeatures& device_features,
-		const OglDeviceFeatures& ogl_device_features,
 		const RendererSamplerCreateParam& param);
 
 	GenericOglSampler(
@@ -79,8 +77,6 @@ public:
 
 
 	void bind() override;
-
-	void unbind_unit() override;
 
 	void update(
 		const RendererSamplerUpdateParam& param) override;
@@ -96,8 +92,6 @@ private:
 
 
 	OglStatePtr ogl_state_;
-	const RendererDeviceFeatures& device_features_;
-	const OglDeviceFeatures& ogl_device_features_;
 
 	RendererSamplerState state_;
 	SamplerResource ogl_resource_;
@@ -137,13 +131,9 @@ using GenericOglSamplerUPtr = std::unique_ptr<GenericOglSampler>;
 
 GenericOglSampler::GenericOglSampler(
 	OglStatePtr ogl_state,
-	const RendererDeviceFeatures& device_features,
-	const OglDeviceFeatures& ogl_device_features,
 	const RendererSamplerCreateParam& param)
 	:
 	ogl_state_{ogl_state},
-	device_features_{device_features},
-	ogl_device_features_{ogl_device_features},
 	state_{}
 {
 	if (!ogl_state_)
@@ -164,12 +154,6 @@ void GenericOglSampler::bind()
 	}
 
 	::glBindSampler(0, ogl_resource_);
-	assert(!OglRendererUtils::was_errors());
-}
-
-void GenericOglSampler::unbind_unit()
-{
-	::glBindSampler(0, 0);
 	assert(!OglRendererUtils::was_errors());
 }
 
@@ -274,14 +258,7 @@ void GenericOglSampler::update(
 		}
 		else
 		{
-			auto current_texture_2d = ogl_state_->texture_2d_get_current();
-
-			if (!current_texture_2d)
-			{
-				return;
-			}
-
-			current_texture_2d->update_sampler_state(state_);
+			ogl_state_->texture_2d_current_update_sampler_state(state_);
 		}
 	}
 }
@@ -301,9 +278,11 @@ void GenericOglSampler::sampler_deleter(
 void GenericOglSampler::initialize(
 	const RendererSamplerCreateParam& param)
 {
+	const auto& device_features = ogl_state_->get_device_features();
+
 	state_ = param.state_;
 
-	if (device_features_.sampler_is_available_)
+	if (device_features.sampler_is_available_)
 	{
 		auto ogl_name = GLuint{};
 
@@ -362,7 +341,7 @@ void GenericOglSampler::set_anisotropy()
 {
 	OglRendererUtils::sampler_set_anisotropy(
 		ogl_resource_,
-		device_features_,
+		ogl_state_->get_device_features(),
 		state_.anisotropy_
 	);
 }
@@ -392,16 +371,9 @@ void GenericOglSampler::set_initial_state()
 
 OglSamplerUPtr OglSamplerFactory::create(
 	OglStatePtr ogl_state,
-	const RendererDeviceFeatures& device_features,
-	const OglDeviceFeatures& ogl_device_features,
 	const RendererSamplerCreateParam& param)
 {
-	return std::make_unique<GenericOglSampler>(
-		ogl_state,
-		device_features,
-		ogl_device_features,
-		param
-	);
+	return std::make_unique<GenericOglSampler>(ogl_state, param);
 }
 
 //

@@ -32,9 +32,13 @@ Free Software Foundation, Inc.,
 
 #include "bstone_precompiled.h"
 #include "bstone_detail_ogl_2_x_renderer.h"
+
 #include <cassert>
+
 #include "glm/gtc/type_ptr.hpp"
+
 #include "bstone_exception.h"
+
 #include "bstone_detail_ogl_renderer_utils.h"
 #include "bstone_detail_ogl_extension_manager.h"
 
@@ -1478,7 +1482,7 @@ void Ogl2XRenderer::texture_2d_enable()
 }
 
 void Ogl2XRenderer::texture_set(
-	OglTexture2dPtr new_texture_2d)
+	RendererTexture2dPtr new_texture_2d)
 {
 	ogl_state_->texture_2d_set(new_texture_2d);
 }
@@ -1624,7 +1628,7 @@ void Ogl2XRenderer::command_execute_scissor_box(
 void Ogl2XRenderer::command_execute_texture(
 	const RendererCommandTexture& command)
 {
-	texture_set(static_cast<OglTexture2dPtr>(command.texture_2d_));
+	texture_set(command.texture_2d_);
 }
 
 void Ogl2XRenderer::command_execute_sampler(

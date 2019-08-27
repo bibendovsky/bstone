@@ -261,6 +261,7 @@ target_sources(
 		bstone_detail_ogl_extension_manager.h
 		bstone_detail_ogl_index_buffer.h
 		bstone_detail_ogl_renderer_utils.h
+		bstone_detail_ogl_sampler_manager.h
 		bstone_detail_ogl_shader.h
 		bstone_detail_ogl_shader_stage.h
 		bstone_detail_ogl_shader_variable.h
@@ -351,6 +352,7 @@ target_sources(
 		bstone_version.cpp
 		bstone_detail_ogl_2_x_renderer.cpp
 		bstone_detail_ogl_extension_manager.cpp
+		bstone_detail_ogl_sampler_manager.cpp
 		bstone_detail_ogl_shader.cpp
 		bstone_detail_ogl_shader_stage.cpp
 		bstone_detail_ogl_shader_variable.cpp

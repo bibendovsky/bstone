@@ -42,8 +42,6 @@ namespace detail
 {
 
 
-struct OglDeviceFeatures;
-
 class OglState;
 using OglStatePtr = OglState*;
 
@@ -64,8 +62,6 @@ public:
 
 
 	virtual void bind() = 0;
-
-	virtual void unbind_unit() = 0;
 }; // OglSampler
 
 using OglSamplerPtr = OglSampler*;
@@ -84,8 +80,6 @@ struct OglSamplerFactory final
 {
 	static OglSamplerUPtr create(
 		OglStatePtr ogl_state,
-		const RendererDeviceFeatures& device_features,
-		const OglDeviceFeatures& ogl_device_features,
 		const RendererSamplerCreateParam& param);
 }; // OglSamplerFactory
 

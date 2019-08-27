@@ -41,6 +41,7 @@ Free Software Foundation, Inc.,
 #include "bstone_detail_ogl_device_features.h"
 #include "bstone_detail_ogl_renderer_utils.h"
 #include "bstone_detail_ogl_sampler.h"
+#include "bstone_detail_ogl_sampler_manager.h"
 #include "bstone_detail_ogl_texture_2d.h"
 #include "bstone_detail_ogl_vao_manager.h"
 
@@ -82,6 +83,11 @@ public:
 	~GenericOglState() override;
 
 
+	const RendererDeviceFeatures& get_device_features() const noexcept override;
+
+	const OglDeviceFeatures& get_ogl_device_features() const noexcept override;
+
+
 	RendererIndexBufferPtr index_buffer_create(
 		const RendererIndexBufferCreateParam& param) override;
 
@@ -97,7 +103,7 @@ public:
 		const RendererBufferPtr buffer) override;
 
 
-	OglSamplerPtr sampler_create(
+	RendererSamplerPtr sampler_create(
 		const RendererSamplerCreateParam& param) override;
 
 	void sampler_destroy(
@@ -120,6 +126,9 @@ public:
 		const RendererTexture2dPtr texture_2d) override;
 
 	OglTexture2dPtr texture_2d_get_current() noexcept override;
+
+	void texture_2d_current_update_sampler_state(
+		const RendererSamplerState& sampler_state) override;
 
 
 	OglVaoPtr vao_create() override;
@@ -164,11 +173,8 @@ private:
 
 	OglBufferManagerUPtr buffer_manager_;
 
+	OglSamplerManagerUPtr sampler_manager_;
 
-	using Samplers = std::list<OglSamplerUPtr>;
-	OglSamplerPtr sampler_current_;
-	OglSamplerUPtr sampler_default_;
-	Samplers samplers_;
 
 	using Textures2d = std::list<OglTexture2dUPtr>;
 	bool texture_2d_is_enabled_;
@@ -186,17 +192,13 @@ private:
 
 	void initialize();
 
-	void initialize_vao_manager();
+	void initialize_vertex_arrays();
 
-	void initialize_buffer_manager();
+	void initialize_buffers();
+
+	void initialize_samplers();
 
 	void mipmap_set_max_quality();
-
-	void sampler_create_default();
-
-	void sampler_set_defaults();
-
-	void sampler_sw_force_update_current_texture();
 
 	void texture_2d_enable();
 
@@ -231,9 +233,7 @@ GenericOglState::GenericOglState(
 	ogl_device_features_{ogl_device_features},
 	vao_manager_{},
 	buffer_manager_{},
-	sampler_current_{},
-	sampler_default_{},
-	samplers_{},
+	sampler_manager_{},
 	texture_2d_is_enabled_{},
 	texture_2d_current_{},
 	textures_2d_{},
@@ -247,7 +247,16 @@ GenericOglState::GenericOglState(
 
 GenericOglState::~GenericOglState() = default;
 
-void GenericOglState::initialize_buffer_manager()
+void GenericOglState::initialize_vertex_arrays()
+{
+	vao_manager_ = OglVaoManagerFactory::create(
+		this,
+		device_features_,
+		ogl_device_features_
+	);
+}
+
+void GenericOglState::initialize_buffers()
 {
 	buffer_manager_ = OglBufferManagerFactory::create(
 		this,
@@ -255,13 +264,9 @@ void GenericOglState::initialize_buffer_manager()
 	);
 }
 
-void GenericOglState::initialize_vao_manager()
+void GenericOglState::initialize_samplers()
 {
-	vao_manager_ = OglVaoManagerFactory::create(
-		this,
-		device_features_,
-		ogl_device_features_
-	);
+	sampler_manager_ = OglSamplerManagerFactory::create(this);
 }
 
 void GenericOglState::mipmap_set_max_quality()
@@ -278,24 +283,6 @@ void GenericOglState::mipmap_set_max_quality()
 
 	::glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
 	assert(!OglRendererUtils::was_errors());
-}
-
-void GenericOglState::sampler_create_default()
-{
-	const auto param = RendererSamplerCreateParam{};
-
-	sampler_default_ = OglSamplerFactory::create(this, device_features_, ogl_device_features_, param);
-}
-
-void GenericOglState::sampler_set_defaults()
-{
-	if (device_features_.sampler_is_available_)
-	{
-		return;
-	}
-
-	sampler_create_default();
-	sampler_current_ = sampler_default_.get();
 }
 
 void GenericOglState::texture_2d_enable()
@@ -319,7 +306,7 @@ void GenericOglState::texture_2d_set()
 
 	if (!device_features_.sampler_is_available_)
 	{
-		sampler_sw_force_update_current_texture();
+		texture_2d_current_update_sampler_state(sampler_manager_->sampler_current_get_state());
 	}
 }
 
@@ -335,10 +322,10 @@ void GenericOglState::texture_2d_set_defaults()
 void GenericOglState::initialize()
 {
 	mipmap_set_max_quality();
-	sampler_set_defaults();
+	initialize_vertex_arrays();
+	initialize_buffers();
+	initialize_samplers();
 	texture_2d_set_defaults();
-	initialize_vao_manager();
-	initialize_buffer_manager();
 	vertex_input_set_defaults();
 	vertex_input_location_set_defaults();
 
@@ -347,6 +334,16 @@ void GenericOglState::initialize()
 
 	::glBindBuffer(GL_ARRAY_BUFFER, 0);
 	assert(!detail::OglRendererUtils::was_errors());
+}
+
+const RendererDeviceFeatures& GenericOglState::get_device_features() const noexcept
+{
+	return device_features_;
+}
+
+const OglDeviceFeatures& GenericOglState::get_ogl_device_features() const noexcept
+{
+	return ogl_device_features_;
 }
 
 RendererIndexBufferPtr GenericOglState::index_buffer_create(
@@ -400,78 +397,22 @@ void GenericOglState::vertex_input_location_set_defaults()
 	}
 }
 
-OglSamplerPtr GenericOglState::sampler_create(
+RendererSamplerPtr GenericOglState::sampler_create(
 	const RendererSamplerCreateParam& param)
 {
-	auto sampler = OglSamplerFactory::create(this, device_features_, ogl_device_features_, param);
-
-	samplers_.emplace_back(std::move(sampler));
-
-	return samplers_.back().get();
+	return sampler_manager_->sampler_create(param);
 }
 
 void GenericOglState::sampler_destroy(
 	const RendererSamplerPtr sampler)
 {
-	if (!sampler)
-	{
-		throw Exception{"Null sampler."};
-	}
-
-	if (sampler_current_ == sampler)
-	{
-		if (device_features_.sampler_is_available_)
-		{
-			sampler_current_->unbind_unit();
-			sampler_current_ = nullptr;
-		}
-		else
-		{
-			sampler_current_ = sampler_default_.get();
-		}
-	}
-
-	samplers_.remove_if(
-		[=](const auto& item)
-		{
-			return item.get() == sampler;
-		}
-	);
+	sampler_manager_->sampler_destroy(sampler);
 }
 
 void GenericOglState::sampler_set(
 	const RendererSamplerPtr sampler)
 {
-	if (!sampler)
-	{
-		throw Exception{"Null sampler."};
-	}
-
-	if (sampler_current_ == sampler)
-	{
-		return;
-	}
-
-	sampler_current_ = static_cast<OglSamplerPtr>(sampler);
-
-	if (device_features_.sampler_is_available_)
-	{
-		sampler_current_->bind();
-	}
-	else
-	{
-		sampler_sw_force_update_current_texture();
-	}
-}
-
-void GenericOglState::sampler_sw_force_update_current_texture()
-{
-	if (!texture_2d_current_)
-	{
-		return;
-	}
-
-	texture_2d_current_->update_sampler_state(sampler_current_->get_state());
+	sampler_manager_->sampler_set(sampler);
 }
 
 void GenericOglState::texture_2d_enable(
@@ -532,6 +473,17 @@ void GenericOglState::texture_2d_set(
 OglTexture2dPtr GenericOglState::texture_2d_get_current() noexcept
 {
 	return texture_2d_current_;
+}
+
+void GenericOglState::texture_2d_current_update_sampler_state(
+	const RendererSamplerState& sampler_state)
+{
+	if (!texture_2d_current_)
+	{
+		return;
+	}
+
+	texture_2d_current_->update_sampler_state(sampler_state);
 }
 
 OglVaoPtr GenericOglState::vao_create()

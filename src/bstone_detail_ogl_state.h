@@ -33,8 +33,6 @@ Free Software Foundation, Inc.,
 
 #include "bstone_detail_ogl_buffer.h"
 #include "bstone_detail_ogl_device_features.h"
-#include "bstone_detail_ogl_sampler.h"
-#include "bstone_detail_ogl_texture_2d.h"
 #include "bstone_detail_ogl_vertex_input.h"
 
 
@@ -63,6 +61,11 @@ public:
 	virtual ~OglState() = 0;
 
 
+	virtual const RendererDeviceFeatures& get_device_features() const noexcept = 0;
+
+	virtual const OglDeviceFeatures& get_ogl_device_features() const noexcept = 0;
+
+
 	virtual RendererIndexBufferPtr index_buffer_create(
 		const RendererIndexBufferCreateParam& param) = 0;
 
@@ -78,7 +81,7 @@ public:
 		const RendererBufferPtr buffer) = 0;
 
 
-	virtual OglSamplerPtr sampler_create(
+	virtual RendererSamplerPtr sampler_create(
 		const RendererSamplerCreateParam& param) = 0;
 
 	virtual void sampler_destroy(
@@ -100,7 +103,10 @@ public:
 	virtual void texture_2d_set(
 		const RendererTexture2dPtr texture_2d) = 0;
 
-	virtual OglTexture2dPtr texture_2d_get_current() noexcept = 0;
+	virtual RendererTexture2dPtr texture_2d_get_current() noexcept = 0;
+
+	virtual void texture_2d_current_update_sampler_state(
+		const RendererSamplerState& sampler_state) = 0;
 
 
 	virtual OglVaoPtr vao_create() = 0;

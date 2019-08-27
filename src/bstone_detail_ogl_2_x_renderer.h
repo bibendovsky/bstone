@@ -386,7 +386,7 @@ private:
 	void texture_2d_enable();
 
 	void texture_set(
-		OglTexture2dPtr new_texture_2d);
+		RendererTexture2dPtr new_texture_2d);
 
 	void texture_2d_set_defaults();
 
