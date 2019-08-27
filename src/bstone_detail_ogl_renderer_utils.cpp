@@ -31,14 +31,18 @@ Free Software Foundation, Inc.,
 
 #include "bstone_precompiled.h"
 #include "bstone_detail_ogl_renderer_utils.h"
+
 #include <cassert>
 #include <algorithm>
 #include <iterator>
 #include <limits>
 #include <sstream>
+
 #include "SDL_video.h"
 #include "glm/gtc/matrix_transform.hpp"
+
 #include "bstone_exception.h"
+#include "bstone_renderer_tests.h"
 
 
 namespace bstone
@@ -319,7 +323,10 @@ void OglRendererUtils::anisotropy_probe(
 	RendererDeviceFeatures& device_features)
 {
 	device_features.anisotropy_is_available_ = false;
+	device_features.anisotropy_min_value_ = RendererSampler::anisotropy_min;
+	device_features.anisotropy_max_value_ = RendererSampler::anisotropy_min;
 
+#ifndef BSTONE_RENDERER_TEST_NO_ANISOTROPY
 	if (!device_features.anisotropy_is_available_)
 	{
 		extension_manager->probe_extension(OglExtensionId::arb_texture_filter_anisotropic);
@@ -338,9 +345,9 @@ void OglRendererUtils::anisotropy_probe(
 
 	if (device_features.anisotropy_is_available_)
 	{
-		device_features.anisotropy_min_value_ = RendererSampler::anisotropy_min;
 		device_features.anisotropy_max_value_ = anisotropy_get_max_value();
 	}
+#endif // !BSTONE_RENDERER_TEST_NO_ANISOTROPY
 }
 
 void OglRendererUtils::npot_probe(
@@ -349,6 +356,7 @@ void OglRendererUtils::npot_probe(
 {
 	device_features.npot_is_available_ = false;
 
+#ifndef BSTONE_RENDERER_TEST_POT_ONLY
 	if (!device_features.npot_is_available_)
 	{
 		extension_manager->probe_extension(OglExtensionId::arb_texture_non_power_of_two);
@@ -356,6 +364,7 @@ void OglRendererUtils::npot_probe(
 		device_features.npot_is_available_ =
 			extension_manager->has_extension(OglExtensionId::arb_texture_non_power_of_two);
 	}
+#endif //!BSTONE_RENDERER_TEST_POT_ONLY
 }
 
 void OglRendererUtils::mipmap_probe(
@@ -366,6 +375,7 @@ void OglRendererUtils::mipmap_probe(
 	device_features.mipmap_is_available_ = false;
 	ogl_device_features.mipmap_function_ = nullptr;
 
+#ifndef BSTONE_RENDERER_TEST_SW_MIPMAP
 	if (!device_features.mipmap_is_available_)
 	{
 		extension_manager->probe_extension(OglExtensionId::arb_framebuffer_object);
@@ -387,6 +397,7 @@ void OglRendererUtils::mipmap_probe(
 			ogl_device_features.mipmap_function_ = ::glGenerateMipmapEXT;
 		}
 	}
+#endif // !BSTONE_RENDERER_TEST_SW_MIPMAP
 }
 
 void OglRendererUtils::framebuffer_probe(
@@ -397,6 +408,7 @@ void OglRendererUtils::framebuffer_probe(
 	auto is_arb = false;
 	auto is_available = false;
 
+#ifndef BSTONE_RENDERER_TEST_DEFAULT_FRAMEBUFFER
 	if (!is_available)
 	{
 		extension_manager->probe_extension(OglExtensionId::arb_framebuffer_object);
@@ -423,6 +435,7 @@ void OglRendererUtils::framebuffer_probe(
 			extension_manager->has_extension(OglExtensionId::ext_packed_depth_stencil)
 		;
 	}
+#endif // !BSTONE_RENDERER_TEST_DEFAULT_FRAMEBUFFER
 
 	device_features.msaa_min_value_ = RendererUtils::aa_get_min_value();
 	device_features.msaa_max_value_ = msaa_get_max_value(extension_manager);
@@ -467,11 +480,16 @@ void OglRendererUtils::sampler_probe(
 	OglExtensionManagerPtr extension_manager,
 	RendererDeviceFeatures& device_features)
 {
-	return;
+	device_features.sampler_is_available_ = false;
+
+#ifndef BSTONE_RENDERER_TEST_SW_SAMPLER
 	extension_manager->probe_extension(OglExtensionId::arb_sampler_objects);
 
-	device_features.sampler_is_available_ =
-		extension_manager->has_extension(OglExtensionId::arb_sampler_objects);
+	if (extension_manager->has_extension(OglExtensionId::arb_sampler_objects))
+	{
+		device_features.sampler_is_available_ = true;
+	}
+#endif // !BSTONE_RENDERER_TEST_SW_SAMPLER
 }
 
 void OglRendererUtils::sampler_set_anisotropy(
@@ -497,10 +515,16 @@ void OglRendererUtils::vertex_input_vao_probe(
 	OglExtensionManagerPtr extension_manager,
 	OglDeviceFeatures& ogl_device_features)
 {
+	ogl_device_features.vao_is_available_ = false;
+
+#ifndef BSTONE_RENDERER_TEST_OGL_NO_VAO
 	extension_manager->probe_extension(OglExtensionId::arb_vertex_array_object);
 
-	ogl_device_features.vao_is_available_ =
-		extension_manager->has_extension(OglExtensionId::arb_vertex_array_object);
+	if (extension_manager->has_extension(OglExtensionId::arb_vertex_array_object))
+	{
+		ogl_device_features.vao_is_available_ = true;
+	}
+#endif // !BSTONE_RENDERER_TEST_OGL_NO_VAO
 }
 
 void OglRendererUtils::vertex_input_probe_max_locations(
@@ -525,10 +549,12 @@ void OglRendererUtils::vsync_probe(
 	device_features.vsync_is_available_ = false;
 	device_features.vsync_is_requires_restart_ = false;
 
+#ifndef BSTONE_RENDERER_TEST_NO_SWAP_INTERVAL
 	if (vsync_set(true))
 	{
 		device_features.vsync_is_available_ = true;
 	}
+#endif // !BSTONE_RENDERER_TEST_NO_SWAP_INTERVAL
 }
 
 bool OglRendererUtils::vsync_get()

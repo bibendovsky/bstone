@@ -1200,6 +1200,11 @@ void Ogl2XRenderer::framebuffers_destroy()
 
 bool Ogl2XRenderer::framebuffers_create()
 {
+	if (!device_features_.framebuffer_is_available_)
+	{
+		return true;
+	}
+
 	const auto is_downscale = (screen_width_ != downscale_width_ || screen_height_ != downscale_height_);
 	const auto is_msaa = (aa_kind_ == RendererAaKind::ms && aa_value_ > RendererUtils::aa_get_min_value());
 	const auto is_create_downscale = (is_downscale && is_msaa);

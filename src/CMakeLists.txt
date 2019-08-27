@@ -234,6 +234,7 @@ target_sources(
 		bstone_opl2.h
 		bstone_ref_values.h
 		bstone_renderer.h
+		bstone_renderer_tests.h
 		bstone_rgb_color_model.h
 		bstone_pcm_decoder.h
 		bstone_precompiled.h

@@ -7670,6 +7670,11 @@ void hw_widescreen_update()
 
 void hw_downscale_update()
 {
+	if (!::hw_device_features_.framebuffer_is_available_)
+	{
+		return;
+	}
+
 	::hw_dimensions_calculate();
 	::SetViewSize();
 	::hw_2d_matrix_projection_build();
