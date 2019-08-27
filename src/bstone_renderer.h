@@ -337,9 +337,6 @@ protected:
 	RendererVertexInput() = default;
 
 	virtual ~RendererVertexInput() = default;
-
-
-	virtual RendererIndexBufferPtr get_index_buffer() const noexcept = 0;
 }; // RendererVertexInput
 
 using RendererVertexInputPtr = RendererVertexInput*;

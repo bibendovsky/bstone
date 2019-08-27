@@ -82,8 +82,6 @@ struct OglVertexInputFactory final
 {
 	static OglVertexInputUPtr create(
 		OglStatePtr ogl_state,
-		const RendererDeviceFeatures& device_features,
-		const OglDeviceFeatures& ogl_device_features,
 		const RendererVertexInputCreateParam& param);
 }; // OglVertexInputFactory
 

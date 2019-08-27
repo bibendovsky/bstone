@@ -272,6 +272,7 @@ target_sources(
 		bstone_detail_ogl_vertex_input.h
 		bstone_detail_ogl_vao.h
 		bstone_detail_ogl_vao_manager.h
+		bstone_detail_ogl_vertex_input_manager.h
 		bstone_detail_renderer_command_buffer.h
 		bstone_detail_renderer_command_manager.h
 		bstone_detail_renderer_utils.h
@@ -367,6 +368,7 @@ target_sources(
 		bstone_detail_ogl_vertex_input.cpp
 		bstone_detail_ogl_vao.cpp
 		bstone_detail_ogl_vao_manager.cpp
+		bstone_detail_ogl_vertex_input_manager.cpp
 		bstone_detail_renderer_command_buffer.cpp
 		bstone_detail_renderer_command_manager.cpp
 		bstone_detail_renderer_utils.cpp

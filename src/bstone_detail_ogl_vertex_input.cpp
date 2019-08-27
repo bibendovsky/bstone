@@ -38,6 +38,7 @@ Free Software Foundation, Inc.,
 #include "bstone_detail_ogl_renderer_utils.h"
 #include "bstone_detail_ogl_state.h"
 #include "bstone_detail_ogl_vao.h"
+#include "bstone_detail_ogl_vertex_input_manager.h"
 #include "bstone_detail_renderer_utils.h"
 
 
@@ -70,8 +71,6 @@ class GenericOglVertexInput final :
 public:
 	GenericOglVertexInput(
 		OglStatePtr ogl_state,
-		const RendererDeviceFeatures& device_features,
-		const OglDeviceFeatures& ogl_device_features,
 		const RendererVertexInputCreateParam& param);
 
 	~GenericOglVertexInput() override;
@@ -84,8 +83,6 @@ public:
 
 private:
 	OglStatePtr ogl_state_;
-	const RendererDeviceFeatures& device_features_;
-	const OglDeviceFeatures& ogl_device_features_;
 
 	RendererIndexBufferPtr index_buffer_;
 	RendererVertexAttributeDescriptions attribute_descriptions_;
@@ -125,13 +122,9 @@ using GenericOglVertexInputUPtr = std::unique_ptr<GenericOglVertexInput>;
 
 GenericOglVertexInput::GenericOglVertexInput(
 	OglStatePtr ogl_state,
-	const RendererDeviceFeatures& device_features,
-	const OglDeviceFeatures& ogl_device_features,
 	const RendererVertexInputCreateParam& param)
 	:
 	ogl_state_{ogl_state},
-	device_features_{device_features},
-	ogl_device_features_{ogl_device_features},
 	index_buffer_{},
 	attribute_descriptions_{},
 	ogl_resource_{nullptr, OglVaoDeleter{ogl_state}}
@@ -151,7 +144,9 @@ RendererIndexBufferPtr GenericOglVertexInput::get_index_buffer() const noexcept
 
 void GenericOglVertexInput::bind()
 {
-	if (ogl_device_features_.vao_is_available_)
+	const auto& ogl_device_features = ogl_state_->get_ogl_device_features();
+
+	if (ogl_device_features.vao_is_available_)
 	{
 		for (const auto& attribute_description : attribute_descriptions_)
 		{
@@ -177,7 +172,9 @@ void GenericOglVertexInput::initialize_vao()
 
 	index_buffer_->bind(true);
 
-	if (ogl_device_features_.vao_is_available_)
+	const auto& ogl_device_features = ogl_state_->get_ogl_device_features();
+
+	if (ogl_device_features.vao_is_available_)
 	{
 		for (const auto& attribute_description : attribute_descriptions_)
 		{
@@ -192,7 +189,9 @@ void GenericOglVertexInput::initialize_vao()
 void GenericOglVertexInput::initialize(
 	const RendererVertexInputCreateParam& param)
 {
-	const auto max_locations = device_features_.vertex_input_max_locations_;
+	const auto& device_features = ogl_state_->get_device_features();
+
+	const auto max_locations = device_features.vertex_input_max_locations_;
 
 	RendererUtils::vertex_input_validate_param(max_locations, param);
 
@@ -257,7 +256,9 @@ void GenericOglVertexInput::assign_regular_attribute(
 			break;
 	}
 
-	ogl_state_->vertex_input_location_enable(attribute_description.location_, true);
+	const auto vertex_input_manager = ogl_state_->vertex_input_get_manager();
+
+	vertex_input_manager->vertex_input_location_enable(attribute_description.location_, true);
 
 	auto vertex_buffer = attribute_description.vertex_buffer_;
 
@@ -292,14 +293,16 @@ void GenericOglVertexInput::assign_attribute(
 
 void GenericOglVertexInput::bind_internal()
 {
-	ogl_state_->vertex_input_location_assign_begin();
+	const auto vertex_input_manager = ogl_state_->vertex_input_get_manager();
+
+	vertex_input_manager->vertex_input_location_assign_begin();
 
 	for (const auto& attribute_description : attribute_descriptions_)
 	{
 		assign_attribute(attribute_description);
 	}
 
-	ogl_state_->vertex_input_location_assign_end();
+	vertex_input_manager->vertex_input_location_assign_end();
 }
 
 //
@@ -313,16 +316,9 @@ void GenericOglVertexInput::bind_internal()
 
 OglVertexInputUPtr OglVertexInputFactory::create(
 	OglStatePtr ogl_state,
-	const RendererDeviceFeatures& device_features,
-	const OglDeviceFeatures& ogl_device_features,
 	const RendererVertexInputCreateParam& param)
 {
-	return std::make_unique<GenericOglVertexInput>(
-		ogl_state,
-		device_features,
-		ogl_device_features,
-		param
-	);
+	return std::make_unique<GenericOglVertexInput>(ogl_state, param);
 }
 
 //

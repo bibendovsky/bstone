@@ -45,6 +45,12 @@ namespace detail
 class OglVao;
 using OglVaoPtr = OglVao*;
 
+class OglVaoManager;
+using OglVaoManagerPtr = OglVaoManager*;
+
+class OglVertexInputManager;
+using OglVertexInputManagerPtr = OglVertexInputManager*;
+
 
 // =========================================================================
 // OglState
@@ -109,6 +115,8 @@ public:
 		const RendererSamplerState& sampler_state) = 0;
 
 
+	virtual OglVaoManagerPtr vao_get_manager() const noexcept = 0;
+
 	virtual OglVaoPtr vao_create() = 0;
 
 	virtual void vao_destroy(
@@ -122,25 +130,18 @@ public:
 	virtual void vao_pop() = 0;
 
 
-	virtual OglVertexInputPtr vertex_input_create(
+	virtual OglVertexInputManagerPtr vertex_input_get_manager() const noexcept = 0;
+
+	virtual RendererVertexInputPtr vertex_input_create(
 		const RendererVertexInputCreateParam& param) = 0;
 
 	virtual void vertex_input_destroy(
 		const RendererVertexInputPtr vertex_input) = 0;
 
 	virtual void vertex_input_set(
-		const OglVertexInputPtr vertex_input) = 0;
+		const RendererVertexInputPtr vertex_input) = 0;
 
-	virtual OglVertexInputPtr vertex_input_get_current() const noexcept = 0;
-
-
-	virtual void vertex_input_location_enable(
-		const int location,
-		const bool is_enabled) = 0;
-
-	virtual void vertex_input_location_assign_begin() = 0;
-
-	virtual void vertex_input_location_assign_end() = 0;
+	virtual RendererVertexInputPtr vertex_input_get_current() const noexcept = 0;
 }; // OglBuffer
 
 

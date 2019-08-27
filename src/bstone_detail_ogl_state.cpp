@@ -44,6 +44,7 @@ Free Software Foundation, Inc.,
 #include "bstone_detail_ogl_sampler_manager.h"
 #include "bstone_detail_ogl_texture_2d.h"
 #include "bstone_detail_ogl_vao_manager.h"
+#include "bstone_detail_ogl_vertex_input_manager.h"
 
 
 namespace bstone
@@ -131,6 +132,8 @@ public:
 		const RendererSamplerState& sampler_state) override;
 
 
+	OglVaoManagerPtr vao_get_manager() const noexcept override;
+
 	OglVaoPtr vao_create() override;
 
 	void vao_destroy(
@@ -144,25 +147,18 @@ public:
 	void vao_pop() override;
 
 
-	OglVertexInputPtr vertex_input_create(
+	OglVertexInputManagerPtr vertex_input_get_manager() const noexcept override;
+
+	RendererVertexInputPtr vertex_input_create(
 		const RendererVertexInputCreateParam& param) override;
 
 	void vertex_input_destroy(
 		const RendererVertexInputPtr vertex_input) override;
 
 	void vertex_input_set(
-		const OglVertexInputPtr vertex_input) override;
+		const RendererVertexInputPtr vertex_input) override;
 
-	OglVertexInputPtr vertex_input_get_current() const noexcept override;
-
-
-	void vertex_input_location_enable(
-		const int location,
-		const bool is_enabled) override;
-
-	void vertex_input_location_assign_begin() override;
-
-	void vertex_input_location_assign_end() override;
+	RendererVertexInputPtr vertex_input_get_current() const noexcept override;
 
 
 private:
@@ -173,6 +169,8 @@ private:
 
 	OglBufferManagerUPtr buffer_manager_;
 
+	OglVertexInputManagerUPtr vertex_input_manager_;
+
 	OglSamplerManagerUPtr sampler_manager_;
 
 
@@ -181,20 +179,14 @@ private:
 	OglTexture2dPtr texture_2d_current_;
 	Textures2d textures_2d_;
 
-	using VertexInputs = std::list<OglVertexInputUPtr>;
-	OglVertexInputPtr vertex_input_current_;
-	VertexInputs vertex_inputs_;
-
-	bool vertex_input_location_is_assigning_;
-	using VertexInputAssignedLocations = std::vector<bool>;
-	VertexInputAssignedLocations vertex_input_assigned_locations_;
-
 
 	void initialize();
 
 	void initialize_vertex_arrays();
 
 	void initialize_buffers();
+
+	void initialize_vertex_inputs();
 
 	void initialize_samplers();
 
@@ -205,12 +197,6 @@ private:
 	void texture_2d_set();
 
 	void texture_2d_set_defaults();
-
-	void vertex_input_set_defaults();
-
-	void vertex_input_set();
-
-	void vertex_input_location_set_defaults();
 }; // GenericOglState
 
 using GenericOglStatePtr = GenericOglState*;
@@ -233,14 +219,11 @@ GenericOglState::GenericOglState(
 	ogl_device_features_{ogl_device_features},
 	vao_manager_{},
 	buffer_manager_{},
+	vertex_input_manager_{},
 	sampler_manager_{},
 	texture_2d_is_enabled_{},
 	texture_2d_current_{},
-	textures_2d_{},
-	vertex_input_current_{},
-	vertex_inputs_{},
-	vertex_input_location_is_assigning_{},
-	vertex_input_assigned_locations_{}
+	textures_2d_{}
 {
 	initialize();
 }
@@ -249,19 +232,17 @@ GenericOglState::~GenericOglState() = default;
 
 void GenericOglState::initialize_vertex_arrays()
 {
-	vao_manager_ = OglVaoManagerFactory::create(
-		this,
-		device_features_,
-		ogl_device_features_
-	);
+	vao_manager_ = OglVaoManagerFactory::create(this, device_features_, ogl_device_features_);
 }
 
 void GenericOglState::initialize_buffers()
 {
-	buffer_manager_ = OglBufferManagerFactory::create(
-		this,
-		vao_manager_.get()
-	);
+	buffer_manager_ = OglBufferManagerFactory::create(this, vao_manager_.get());
+}
+
+void GenericOglState::initialize_vertex_inputs()
+{
+	vertex_input_manager_ = OglVertexInputManagerFactory::create(this);
 }
 
 void GenericOglState::initialize_samplers()
@@ -324,16 +305,9 @@ void GenericOglState::initialize()
 	mipmap_set_max_quality();
 	initialize_vertex_arrays();
 	initialize_buffers();
+	initialize_vertex_inputs();
 	initialize_samplers();
 	texture_2d_set_defaults();
-	vertex_input_set_defaults();
-	vertex_input_location_set_defaults();
-
-	::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	assert(!detail::OglRendererUtils::was_errors());
-
-	::glBindBuffer(GL_ARRAY_BUFFER, 0);
-	assert(!detail::OglRendererUtils::was_errors());
 }
 
 const RendererDeviceFeatures& GenericOglState::get_device_features() const noexcept
@@ -369,32 +343,6 @@ bool GenericOglState::buffer_set_current(
 	const RendererBufferPtr buffer)
 {
 	return buffer_manager_->buffer_set_current(buffer_kind, buffer);
-}
-
-void GenericOglState::vertex_input_set_defaults()
-{
-	vertex_input_current_ = nullptr;
-	vertex_input_set();
-}
-
-void GenericOglState::vertex_input_set()
-{
-	if (!vertex_input_current_)
-	{
-		return;
-	}
-
-	vertex_input_current_->bind();
-}
-
-void GenericOglState::vertex_input_location_set_defaults()
-{
-	vertex_input_assigned_locations_.resize(device_features_.vertex_input_max_locations_);
-
-	for (int i = 0; i < device_features_.vertex_input_max_locations_; ++i)
-	{
-		vertex_input_location_enable(i, false);
-	}
 }
 
 RendererSamplerPtr GenericOglState::sampler_create(
@@ -486,6 +434,11 @@ void GenericOglState::texture_2d_current_update_sampler_state(
 	texture_2d_current_->update_sampler_state(sampler_state);
 }
 
+OglVaoManagerPtr GenericOglState::vao_get_manager() const noexcept
+{
+	return vao_manager_.get();
+}
+
 OglVaoPtr GenericOglState::vao_create()
 {
 	return vao_manager_->create();
@@ -518,102 +471,32 @@ void GenericOglState::vao_pop()
 	vao_manager_->pop();
 }
 
-OglVertexInputPtr GenericOglState::vertex_input_create(
+OglVertexInputManagerPtr GenericOglState::vertex_input_get_manager() const noexcept
+{
+	return vertex_input_manager_.get();
+}
+
+RendererVertexInputPtr GenericOglState::vertex_input_create(
 	const RendererVertexInputCreateParam& param)
 {
-	auto vertex_input = OglVertexInputFactory::create(
-		this,
-		device_features_,
-		ogl_device_features_,
-		param
-	);
-
-	vertex_inputs_.emplace_back(std::move(vertex_input));
-
-	return vertex_inputs_.back().get();
+	return vertex_input_manager_->vertex_input_create(param);
 }
 
 void GenericOglState::vertex_input_destroy(
 	const RendererVertexInputPtr vertex_input)
 {
-	if (!vertex_input)
-	{
-		throw Exception{"Null vertex input."};
-	}
-
-	vertex_inputs_.remove_if(
-		[=](const auto& item)
-		{
-			return item.get() == vertex_input;
-		}
-	);
-
-	if (vertex_input_current_ == vertex_input)
-	{
-		vertex_input_current_ = nullptr;
-	}
+	vertex_input_manager_->vertex_input_destroy(vertex_input);
 }
 
 void GenericOglState::vertex_input_set(
-	const OglVertexInputPtr vertex_input)
+	const RendererVertexInputPtr vertex_input)
 {
-	if (vertex_input_current_ == vertex_input)
-	{
-		return;
-	}
-
-	vertex_input_current_ = vertex_input;
-	vertex_input_set();
+	vertex_input_manager_->vertex_input_set(vertex_input);
 }
 
-OglVertexInputPtr GenericOglState::vertex_input_get_current() const noexcept
+RendererVertexInputPtr GenericOglState::vertex_input_get_current() const noexcept
 {
-	return vertex_input_current_;
-}
-
-void GenericOglState::vertex_input_location_enable(
-	const int location,
-	const bool is_enabled)
-{
-	if (vertex_input_location_is_assigning_)
-	{
-		vertex_input_assigned_locations_[location] = true;
-
-		return;
-	}
-
-	vao_manager_->enable_location(location, is_enabled);
-}
-
-void GenericOglState::vertex_input_location_assign_begin()
-{
-	if (vertex_input_location_is_assigning_)
-	{
-		throw Exception{"Already assigning."};
-	}
-
-	vertex_input_location_is_assigning_ = true;
-
-	std::fill(
-		vertex_input_assigned_locations_.begin(),
-		vertex_input_assigned_locations_.end(),
-		false
-	);
-}
-
-void GenericOglState::vertex_input_location_assign_end()
-{
-	if (!vertex_input_location_is_assigning_)
-	{
-		throw Exception{"Not assigning."};
-	}
-
-	vertex_input_location_is_assigning_ = false;
-
-	for (int i = 0; i < device_features_.vertex_input_max_locations_; ++i)
-	{
-		vertex_input_location_enable(i, vertex_input_assigned_locations_[i]);
-	}
+	return vertex_input_manager_->vertex_input_get_current();
 }
 
 //
