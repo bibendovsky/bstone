@@ -70,7 +70,7 @@ class GenericOglVertexInput final :
 {
 public:
 	GenericOglVertexInput(
-		OglStatePtr ogl_state,
+		const OglVertexInputManagerPtr vertex_input_manager,
 		const RendererVertexInputCreateParam& param);
 
 	~GenericOglVertexInput() override;
@@ -82,7 +82,7 @@ public:
 
 
 private:
-	OglStatePtr ogl_state_;
+	const OglVertexInputManagerPtr vertex_input_manager_;
 
 	RendererIndexBufferPtr index_buffer_;
 	RendererVertexAttributeDescriptions attribute_descriptions_;
@@ -121,20 +121,22 @@ using GenericOglVertexInputUPtr = std::unique_ptr<GenericOglVertexInput>;
 //
 
 GenericOglVertexInput::GenericOglVertexInput(
-	OglStatePtr ogl_state,
+	const OglVertexInputManagerPtr vertex_input_manager,
 	const RendererVertexInputCreateParam& param)
 	:
-	ogl_state_{ogl_state},
+	vertex_input_manager_{vertex_input_manager},
 	index_buffer_{},
 	attribute_descriptions_{},
-	ogl_resource_{nullptr, OglVaoDeleter{ogl_state}}
+	ogl_resource_{nullptr, OglVaoDeleter{vertex_input_manager->ogl_state_get()}}
 {
 	initialize(param);
 }
 
 GenericOglVertexInput::~GenericOglVertexInput()
 {
-	ogl_state_->vao_destroy(ogl_resource_.get());
+	const auto ogl_state = vertex_input_manager_->ogl_state_get();
+
+	ogl_state->vao_destroy(ogl_resource_.get());
 }
 
 RendererIndexBufferPtr GenericOglVertexInput::get_index_buffer() const noexcept
@@ -144,7 +146,9 @@ RendererIndexBufferPtr GenericOglVertexInput::get_index_buffer() const noexcept
 
 void GenericOglVertexInput::bind()
 {
-	const auto& ogl_device_features = ogl_state_->get_ogl_device_features();
+	const auto ogl_state = vertex_input_manager_->ogl_state_get();
+
+	const auto& ogl_device_features = ogl_state->get_ogl_device_features();
 
 	if (ogl_device_features.vao_is_available_)
 	{
@@ -156,7 +160,7 @@ void GenericOglVertexInput::bind()
 			}
 		}
 
-		ogl_state_->vao_bind(ogl_resource_.get());
+		ogl_state->vao_bind(ogl_resource_.get());
 	}
 	else
 	{
@@ -166,13 +170,15 @@ void GenericOglVertexInput::bind()
 
 void GenericOglVertexInput::initialize_vao()
 {
-	ogl_resource_.reset(ogl_state_->vao_create());
+	const auto ogl_state = vertex_input_manager_->ogl_state_get();
 
-	ogl_state_->vao_bind(ogl_resource_.get());
+	ogl_resource_.reset(ogl_state->vao_create());
+
+	ogl_state->vao_bind(ogl_resource_.get());
 
 	index_buffer_->bind(true);
 
-	const auto& ogl_device_features = ogl_state_->get_ogl_device_features();
+	const auto& ogl_device_features = ogl_state->get_ogl_device_features();
 
 	if (ogl_device_features.vao_is_available_)
 	{
@@ -189,7 +195,8 @@ void GenericOglVertexInput::initialize_vao()
 void GenericOglVertexInput::initialize(
 	const RendererVertexInputCreateParam& param)
 {
-	const auto& device_features = ogl_state_->get_device_features();
+	const auto ogl_state = vertex_input_manager_->ogl_state_get();
+	const auto& device_features = ogl_state->get_device_features();
 
 	const auto max_locations = device_features.vertex_input_max_locations_;
 
@@ -253,10 +260,11 @@ void GenericOglVertexInput::assign_regular_attribute(
 
 		default:
 			throw Exception{"Invalid format."};
-			break;
 	}
 
-	const auto vertex_input_manager = ogl_state_->vertex_input_get_manager();
+	const auto ogl_state = vertex_input_manager_->ogl_state_get();
+
+	const auto vertex_input_manager = ogl_state->vertex_input_get_manager();
 
 	vertex_input_manager->vertex_input_location_enable(attribute_description.location_, true);
 
@@ -293,7 +301,8 @@ void GenericOglVertexInput::assign_attribute(
 
 void GenericOglVertexInput::bind_internal()
 {
-	const auto vertex_input_manager = ogl_state_->vertex_input_get_manager();
+	const auto ogl_state = vertex_input_manager_->ogl_state_get();
+	const auto vertex_input_manager = ogl_state->vertex_input_get_manager();
 
 	vertex_input_manager->vertex_input_location_assign_begin();
 
@@ -315,10 +324,10 @@ void GenericOglVertexInput::bind_internal()
 //
 
 OglVertexInputUPtr OglVertexInputFactory::create(
-	OglStatePtr ogl_state,
+	const OglVertexInputManagerPtr vertex_input_manager,
 	const RendererVertexInputCreateParam& param)
 {
-	return std::make_unique<GenericOglVertexInput>(ogl_state, param);
+	return std::make_unique<GenericOglVertexInput>(vertex_input_manager, param);
 }
 
 //

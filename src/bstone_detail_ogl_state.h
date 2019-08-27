@@ -141,7 +141,7 @@ public:
 	virtual void vertex_input_set(
 		const RendererVertexInputPtr vertex_input) = 0;
 
-	virtual RendererVertexInputPtr vertex_input_get_current() const noexcept = 0;
+	virtual RendererIndexBufferPtr vertex_input_get_index_buffer() const noexcept = 0;
 }; // OglBuffer
 
 

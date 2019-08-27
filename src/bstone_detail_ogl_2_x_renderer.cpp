@@ -1749,14 +1749,12 @@ void Ogl2XRenderer::command_execute_draw_quads(
 	const auto indices_per_quad = triangles_per_quad * indices_per_triangle;
 	const auto index_count = indices_per_quad * command.count_;
 
-	auto vertex_input = static_cast<OglVertexInputPtr>(ogl_state_->vertex_input_get_current());
+	auto index_buffer = ogl_state_->vertex_input_get_index_buffer();
 
-	if (!vertex_input)
+	if (!index_buffer)
 	{
-		throw Exception{"Null current vertex input."};
+		throw Exception{"Null index buffer."};
 	}
-
-	auto index_buffer = vertex_input->get_index_buffer();
 
 	const auto index_byte_depth = index_buffer->get_byte_depth();
 	const auto max_index_count = index_buffer->get_size() / index_byte_depth;

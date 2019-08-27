@@ -71,6 +71,9 @@ public:
 	~GenericOglVertexInputManager() override;
 
 
+	OglStatePtr ogl_state_get() const noexcept override;
+
+
 	RendererVertexInputPtr vertex_input_create(
 		const RendererVertexInputCreateParam& param) override;
 
@@ -138,10 +141,15 @@ GenericOglVertexInputManager::GenericOglVertexInputManager(
 
 GenericOglVertexInputManager::~GenericOglVertexInputManager() = default;
 
+OglStatePtr GenericOglVertexInputManager::ogl_state_get() const noexcept
+{
+	return ogl_state_;
+}
+
 RendererVertexInputPtr GenericOglVertexInputManager::vertex_input_create(
 	const RendererVertexInputCreateParam& param)
 {
-	return vertex_inputs_.add(ogl_state_, param);
+	return vertex_inputs_.add(this, param);
 }
 
 void GenericOglVertexInputManager::vertex_input_destroy(

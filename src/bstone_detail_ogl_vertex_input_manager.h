@@ -66,6 +66,9 @@ public:
 	virtual ~OglVertexInputManager();
 
 
+	virtual OglStatePtr ogl_state_get() const noexcept = 0;
+
+
 	virtual RendererVertexInputPtr vertex_input_create(
 		const RendererVertexInputCreateParam& param) = 0;
 

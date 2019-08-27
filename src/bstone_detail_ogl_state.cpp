@@ -158,7 +158,7 @@ public:
 	void vertex_input_set(
 		const RendererVertexInputPtr vertex_input) override;
 
-	RendererVertexInputPtr vertex_input_get_current() const noexcept override;
+	RendererIndexBufferPtr vertex_input_get_index_buffer() const noexcept override;
 
 
 private:
@@ -494,9 +494,16 @@ void GenericOglState::vertex_input_set(
 	vertex_input_manager_->vertex_input_set(vertex_input);
 }
 
-RendererVertexInputPtr GenericOglState::vertex_input_get_current() const noexcept
+RendererIndexBufferPtr GenericOglState::vertex_input_get_index_buffer() const noexcept
 {
-	return vertex_input_manager_->vertex_input_get_current();
+	const auto vertex_input = static_cast<OglVertexInputPtr>(vertex_input_manager_->vertex_input_get_current());
+
+	if (!vertex_input)
+	{
+		return nullptr;
+	}
+
+	return vertex_input->get_index_buffer();
 }
 
 //
