@@ -176,9 +176,7 @@ void GenericOglTexture2d::update(
 		throw Exception{"Mipmap level out of range."};
 	}
 
-	const auto ogl_state = ogl_texture_manager_->ogl_state_get();
-
-	ogl_state->texture_2d_set(this);
+	ogl_texture_manager_->texture_2d_set(this);
 
 	auto mipmap_width = width_;
 	auto mipmap_height = height_;

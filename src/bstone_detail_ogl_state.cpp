@@ -322,20 +322,6 @@ void GenericOglState::sampler_set(
 	sampler_manager_->sampler_set(sampler);
 }
 
-#if 0
-void GenericOglState::texture_2d_enable(
-	const bool is_enable)
-{
-	if (texture_2d_is_enabled_ == is_enable)
-	{
-		return;
-	}
-
-	texture_2d_is_enabled_ = is_enable;
-	texture_2d_enable();
-}
-#endif
-
 OglTextureManagerPtr GenericOglState::texture_manager_get() const noexcept
 {
 	return texture_manager_.get();
@@ -344,75 +330,20 @@ OglTextureManagerPtr GenericOglState::texture_manager_get() const noexcept
 RendererTexture2dPtr GenericOglState::texture_2d_create(
 	const RendererTexture2dCreateParam& param)
 {
-#if 0
-	auto texture_2d = OglTexture2dFactory::create(this, param);
-
-	textures_2d_.emplace_back(std::move(texture_2d));
-
-	return textures_2d_.back().get();
-#else
 	return texture_manager_->texture_2d_create(param);
-#endif
 }
 
 void GenericOglState::texture_2d_destroy(
 	const RendererTexture2dPtr texture_2d)
 {
-#if 0
-	if (!texture_2d)
-	{
-		throw Exception{"Null texture."};
-	}
-
-	textures_2d_.remove_if(
-		[=](const auto& item)
-		{
-			return item.get() == texture_2d;
-		}
-	);
-
-	if (texture_2d_current_ == texture_2d)
-	{
-		texture_2d_current_ = nullptr;
-	}
-#else
 	texture_manager_->texture_2d_destroy(texture_2d);
-#endif
 }
 
 void GenericOglState::texture_2d_set(
 	const RendererTexture2dPtr texture_2d)
 {
-#if 0
-	if (texture_2d_current_ == texture_2d)
-	{
-		return;
-	}
-
-	texture_2d_current_ = static_cast<OglTexture2dPtr>(texture_2d);
-	texture_2d_set();
-#else
 	texture_manager_->texture_2d_set(texture_2d);
-#endif
 }
-
-#if 0
-OglTexture2dPtr GenericOglState::texture_2d_get_current() noexcept
-{
-	return texture_2d_current_;
-}
-
-void GenericOglState::texture_2d_current_update_sampler_state(
-	const RendererSamplerState& sampler_state)
-{
-	if (!texture_2d_current_)
-	{
-		return;
-	}
-
-	texture_2d_current_->update_sampler_state(sampler_state);
-}
-#endif
 
 OglVaoManagerPtr GenericOglState::vao_get_manager() const noexcept
 {

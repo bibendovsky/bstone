@@ -529,18 +529,18 @@ void RendererUtils::indexed_npot_to_rgba_pot(
 
 	const auto has_alphas = (indexed_alphas != nullptr);
 
-	const auto src_du_f = static_cast<float>(width) / static_cast<float>(actual_width);
-	const auto src_dv_f = static_cast<float>(height) / static_cast<float>(actual_height);
+	const auto src_du_f = static_cast<double>(width) / static_cast<double>(actual_width);
+	const auto src_dv_f = static_cast<double>(height) / static_cast<double>(actual_height);
 
 	auto dst_index = 0;
 
-	auto src_v_f = 0.5F * src_dv_f;
+	auto src_v_f = 0.0;
 
 	for (int h = 0; h < actual_height; ++h)
 	{
 		const auto src_v = static_cast<int>(src_v_f);
 
-		auto src_u_f = 0.5F * src_du_f;
+		auto src_u_f = 0.0;
 
 		for (int w = 0; w < actual_width; ++w)
 		{
@@ -684,7 +684,7 @@ void RendererUtils::rgba_npot_to_rgba_pot(
 	const R8g8b8a8* const rgba_pixels,
 	TextureBuffer& texture_buffer)
 {
-if (width <= 0)
+	if (width <= 0)
 	{
 		throw Exception{"Width out of range."};
 	}
@@ -709,15 +709,10 @@ if (width <= 0)
 		throw Exception{"Null RGBA pixels."};
 	}
 
-	const auto src_du_d =
-		static_cast<double>(width) /
-		static_cast<double>(actual_width);
+	const auto src_du_f = static_cast<double>(width) / static_cast<double>(actual_width);
+	const auto src_dv_f = static_cast<double>(height) / static_cast<double>(actual_height);
 
-	const auto src_dv_d =
-		static_cast<double>(height) /
-		static_cast<double>(actual_height);
-
-	auto src_v_d = 0.5 * src_dv_d;
+	auto src_v_d = 0.0;
 
 	auto dst_index = 0;
 
@@ -725,7 +720,7 @@ if (width <= 0)
 	{
 		const auto src_v = static_cast<int>(src_v_d);
 
-		auto src_u_d = 0.5 * src_du_d;
+		auto src_u_d = 0.0;
 
 		for (int w = 0; w < actual_width; ++w)
 		{
@@ -737,10 +732,10 @@ if (width <= 0)
 
 			++dst_index;
 
-			src_u_d += src_du_d;
+			src_u_d += src_du_f;
 		}
 
-		src_v_d += src_dv_d;
+		src_v_d += src_dv_f;
 	}
 }
 
@@ -762,7 +757,7 @@ void RendererUtils::build_mipmap(
 
 	if (previous_width == 1 && previous_height == 1)
 	{
-		throw Exception{"Previous dimensions has minimum dimensions."};
+		throw Exception{"No more mipmap to build."};
 	}
 
 	if (!src_colors)

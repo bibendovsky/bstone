@@ -164,6 +164,8 @@ void GenericOglTextureManager::texture_2d_set(
 		return;
 	}
 
+	texture_2d_current_->bind();
+
 	const auto& device_features = ogl_state_->get_device_features();
 
 	if (!device_features.sampler_is_available_)
