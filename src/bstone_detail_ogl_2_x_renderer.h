@@ -383,12 +383,8 @@ private:
 	void blending_set_defaults();
 
 
-	void texture_2d_enable();
-
 	void texture_set(
 		RendererTexture2dPtr new_texture_2d);
-
-	void texture_2d_set_defaults();
 
 
 	void command_execute_culling(

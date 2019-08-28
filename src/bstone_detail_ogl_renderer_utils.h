@@ -185,7 +185,10 @@ public:
 		const float min_depth,
 		const float max_depth);
 
-	static void texture_2d_set(
+	static void texture_2d_enable(
+		const bool is_enable);
+
+	static void texture_2d_bind(
 		const GLuint ogl_texture_name);
 
 	static void texture_2d_unbind();

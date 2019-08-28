@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_OGL_VAO_MANAGER_INCLUDED
-#define BSTONE_OGL_VAO_MANAGER_INCLUDED
+#ifndef BSTONE_DETAIL_OGL_VAO_MANAGER_INCLUDED
+#define BSTONE_DETAIL_OGL_VAO_MANAGER_INCLUDED
 
 
 #include <memory>
@@ -126,4 +126,4 @@ struct OglVaoManagerFactory final
 } // bstone
 
 
-#endif // !BSTONE_OGL_VAO_MANAGER_INCLUDED
+#endif // !BSTONE_DETAIL_OGL_VAO_MANAGER_INCLUDED

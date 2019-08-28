@@ -23,21 +23,32 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL sampler object manager (implementation interface).
+// OpenGL texture object manager (implementation interface).
 //
 
 
-#ifndef BSTONE_DETAIL_OGL_SAMPLER_MANAGER_INCLUDED
-#define BSTONE_DETAIL_OGL_SAMPLER_MANAGER_INCLUDED
+#ifndef BSTONE_DETAIL_OGL_TEXTURE_MANAGER_INCLUDED
+#define BSTONE_DETAIL_OGL_TEXTURE_MANAGER_INCLUDED
 
 
 #include <memory>
 
-#include "bstone_renderer.h"
-
 
 namespace bstone
 {
+
+
+struct RendererSamplerState;
+
+class OglState;
+using OglStatePtr = OglState*;
+
+class RendererTexture2d;
+using RendererTexture2dPtr = RendererTexture2d*;
+
+struct RendererTexture2dCreateParam;
+
+
 namespace detail
 {
 
@@ -47,51 +58,60 @@ using OglStatePtr = OglState*;
 
 
 // ==========================================================================
-// OglSamplerManager
+// OglTextureManager
 //
 
-class OglSamplerManager
+class OglTextureManager
 {
 protected:
-	OglSamplerManager();
+	OglTextureManager();
 
 
 public:
-	virtual ~OglSamplerManager();
+	virtual ~OglTextureManager();
 
 
-	virtual RendererSamplerPtr sampler_create(
-		const RendererSamplerCreateParam& param) = 0;
+	virtual OglStatePtr ogl_state_get() const noexcept = 0;
 
-	virtual void sampler_destroy(
-		const RendererSamplerPtr sampler) = 0;
 
-	virtual void sampler_set(
-		const RendererSamplerPtr sampler) = 0;
+	virtual RendererTexture2dPtr texture_2d_create(
+		const RendererTexture2dCreateParam& param) = 0;
 
-	virtual const RendererSamplerState& sampler_current_get_state() const noexcept = 0;
-}; // OglSamplerManager
+	virtual void texture_2d_destroy(
+		const RendererTexture2dPtr texture_2d) = 0;
 
-using OglSamplerManagerPtr = OglSamplerManager*;
-using OglSamplerManagerUPtr = std::unique_ptr<OglSamplerManager>;
+	virtual void texture_2d_set(
+		const RendererTexture2dPtr texture_2d) = 0;
+
+	virtual bool texture_2d_set_current(
+		const RendererTexture2dPtr texture_2d) = 0;
+
+	virtual RendererTexture2dPtr texture_2d_get_current() const noexcept = 0;
+
+	virtual void texture_2d_current_update_sampler_state(
+		const RendererSamplerState& sampler_state) = 0;
+}; // OglTextureManager
+
+using OglTextureManagerPtr = OglTextureManager*;
+using OglTextureManagerUPtr = std::unique_ptr<OglTextureManager>;
 
 //
-// OglSamplerManager
+// OglTextureManager
 // ==========================================================================
 
 
 // ==========================================================================
-// OglSamplerManagerFactory
+// OglTextureManagerFactory
 //
 
-struct OglSamplerManagerFactory final
+struct OglTextureManagerFactory final
 {
-	static OglSamplerManagerUPtr create(
+	static OglTextureManagerUPtr create(
 		const OglStatePtr ogl_state);
-}; // OglSamplerManagerFactory
+}; // OglTextureManagerFactory
 
 //
-// OglSamplerManagerFactory
+// OglTextureManagerFactory
 // ==========================================================================
 
 
@@ -99,4 +119,4 @@ struct OglSamplerManagerFactory final
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_OGL_SAMPLER_MANAGER_INCLUDED
+#endif // !BSTONE_DETAIL_OGL_TEXTURE_MANAGER_INCLUDED

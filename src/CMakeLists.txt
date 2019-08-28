@@ -269,6 +269,7 @@ target_sources(
 		bstone_detail_ogl_state.h
 		bstone_detail_ogl_vertex_buffer.h
 		bstone_detail_ogl_texture_2d.h
+		bstone_detail_ogl_texture_manager.h
 		bstone_detail_ogl_sampler.h
 		bstone_detail_ogl_vertex_input.h
 		bstone_detail_ogl_vao.h
@@ -365,6 +366,7 @@ target_sources(
 		bstone_detail_ogl_index_buffer.cpp
 		bstone_detail_ogl_vertex_buffer.cpp
 		bstone_detail_ogl_texture_2d.cpp
+		bstone_detail_ogl_texture_manager.cpp
 		bstone_detail_ogl_sampler.cpp
 		bstone_detail_ogl_vertex_input.cpp
 		bstone_detail_ogl_vao.cpp

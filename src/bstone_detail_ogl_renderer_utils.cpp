@@ -689,7 +689,15 @@ void OglRendererUtils::viewport_set_depth_range(
 	assert(!OglRendererUtils::was_errors());
 }
 
-void OglRendererUtils::texture_2d_set(
+void OglRendererUtils::texture_2d_enable(
+	const bool is_enable)
+{
+	const auto ogl_function = (is_enable ? ::glEnable : ::glDisable);
+	ogl_function(GL_TEXTURE_2D);
+	assert(!OglRendererUtils::was_errors());
+}
+
+void OglRendererUtils::texture_2d_bind(
 	const GLuint ogl_texture_name)
 {
 	::glBindTexture(GL_TEXTURE_2D, ogl_texture_name);

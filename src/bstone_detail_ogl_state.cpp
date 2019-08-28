@@ -43,6 +43,7 @@ Free Software Foundation, Inc.,
 #include "bstone_detail_ogl_sampler.h"
 #include "bstone_detail_ogl_sampler_manager.h"
 #include "bstone_detail_ogl_texture_2d.h"
+#include "bstone_detail_ogl_texture_manager.h"
 #include "bstone_detail_ogl_vao_manager.h"
 #include "bstone_detail_ogl_vertex_input_manager.h"
 
@@ -104,6 +105,8 @@ public:
 		const RendererBufferPtr buffer) override;
 
 
+	OglSamplerManagerPtr sampler_get_manager() const noexcept override;
+
 	RendererSamplerPtr sampler_create(
 		const RendererSamplerCreateParam& param) override;
 
@@ -114,8 +117,7 @@ public:
 		const RendererSamplerPtr sampler) override;
 
 
-	void texture_2d_enable(
-		const bool is_enable) override;
+	OglTextureManagerPtr texture_manager_get() const noexcept;
 
 	RendererTexture2dPtr texture_2d_create(
 		const RendererTexture2dCreateParam& param) override;
@@ -125,11 +127,6 @@ public:
 
 	void texture_2d_set(
 		const RendererTexture2dPtr texture_2d) override;
-
-	OglTexture2dPtr texture_2d_get_current() noexcept override;
-
-	void texture_2d_current_update_sampler_state(
-		const RendererSamplerState& sampler_state) override;
 
 
 	OglVaoManagerPtr vao_get_manager() const noexcept override;
@@ -166,18 +163,10 @@ private:
 	const OglDeviceFeatures& ogl_device_features_;
 
 	OglVaoManagerUPtr vao_manager_;
-
 	OglBufferManagerUPtr buffer_manager_;
-
 	OglVertexInputManagerUPtr vertex_input_manager_;
-
 	OglSamplerManagerUPtr sampler_manager_;
-
-
-	using Textures2d = std::list<OglTexture2dUPtr>;
-	bool texture_2d_is_enabled_;
-	OglTexture2dPtr texture_2d_current_;
-	Textures2d textures_2d_;
+	OglTextureManagerUPtr texture_manager_;
 
 
 	void initialize();
@@ -190,13 +179,9 @@ private:
 
 	void initialize_samplers();
 
+	void initialize_textures();
+
 	void mipmap_set_max_quality();
-
-	void texture_2d_enable();
-
-	void texture_2d_set();
-
-	void texture_2d_set_defaults();
 }; // GenericOglState
 
 using GenericOglStatePtr = GenericOglState*;
@@ -221,9 +206,7 @@ GenericOglState::GenericOglState(
 	buffer_manager_{},
 	vertex_input_manager_{},
 	sampler_manager_{},
-	texture_2d_is_enabled_{},
-	texture_2d_current_{},
-	textures_2d_{}
+	texture_manager_{}
 {
 	initialize();
 }
@@ -250,6 +233,11 @@ void GenericOglState::initialize_samplers()
 	sampler_manager_ = OglSamplerManagerFactory::create(this);
 }
 
+void GenericOglState::initialize_textures()
+{
+	texture_manager_ = OglTextureManagerFactory::create(this);
+}
+
 void GenericOglState::mipmap_set_max_quality()
 {
 	if (!device_features_.mipmap_is_available_)
@@ -266,40 +254,6 @@ void GenericOglState::mipmap_set_max_quality()
 	assert(!OglRendererUtils::was_errors());
 }
 
-void GenericOglState::texture_2d_enable()
-{
-	const auto ogl_function = (texture_2d_is_enabled_ ? ::glEnable : ::glDisable);
-
-	ogl_function(GL_TEXTURE_2D);
-	assert(!OglRendererUtils::was_errors());
-}
-
-void GenericOglState::texture_2d_set()
-{
-	if (texture_2d_current_)
-	{
-		texture_2d_current_->bind();
-	}
-	else
-	{
-		OglRendererUtils::texture_2d_unbind();
-	}
-
-	if (!device_features_.sampler_is_available_)
-	{
-		texture_2d_current_update_sampler_state(sampler_manager_->sampler_current_get_state());
-	}
-}
-
-void GenericOglState::texture_2d_set_defaults()
-{
-	texture_2d_is_enabled_ = false;
-	texture_2d_enable();
-
-	texture_2d_current_ = nullptr;
-	texture_2d_set();
-}
-
 void GenericOglState::initialize()
 {
 	mipmap_set_max_quality();
@@ -307,7 +261,7 @@ void GenericOglState::initialize()
 	initialize_buffers();
 	initialize_vertex_inputs();
 	initialize_samplers();
-	texture_2d_set_defaults();
+	initialize_textures();
 }
 
 const RendererDeviceFeatures& GenericOglState::get_device_features() const noexcept
@@ -345,6 +299,11 @@ bool GenericOglState::buffer_set_current(
 	return buffer_manager_->buffer_set_current(buffer_kind, buffer);
 }
 
+OglSamplerManagerPtr GenericOglState::sampler_get_manager() const noexcept
+{
+	return sampler_manager_.get();
+}
+
 RendererSamplerPtr GenericOglState::sampler_create(
 	const RendererSamplerCreateParam& param)
 {
@@ -363,6 +322,7 @@ void GenericOglState::sampler_set(
 	sampler_manager_->sampler_set(sampler);
 }
 
+#if 0
 void GenericOglState::texture_2d_enable(
 	const bool is_enable)
 {
@@ -374,20 +334,31 @@ void GenericOglState::texture_2d_enable(
 	texture_2d_is_enabled_ = is_enable;
 	texture_2d_enable();
 }
+#endif
+
+OglTextureManagerPtr GenericOglState::texture_manager_get() const noexcept
+{
+	return texture_manager_.get();
+}
 
 RendererTexture2dPtr GenericOglState::texture_2d_create(
 	const RendererTexture2dCreateParam& param)
 {
-	auto texture_2d = OglTexture2dFactory::create(this, device_features_, ogl_device_features_, param);
+#if 0
+	auto texture_2d = OglTexture2dFactory::create(this, param);
 
 	textures_2d_.emplace_back(std::move(texture_2d));
 
 	return textures_2d_.back().get();
+#else
+	return texture_manager_->texture_2d_create(param);
+#endif
 }
 
 void GenericOglState::texture_2d_destroy(
 	const RendererTexture2dPtr texture_2d)
 {
+#if 0
 	if (!texture_2d)
 	{
 		throw Exception{"Null texture."};
@@ -404,11 +375,15 @@ void GenericOglState::texture_2d_destroy(
 	{
 		texture_2d_current_ = nullptr;
 	}
+#else
+	texture_manager_->texture_2d_destroy(texture_2d);
+#endif
 }
 
 void GenericOglState::texture_2d_set(
 	const RendererTexture2dPtr texture_2d)
 {
+#if 0
 	if (texture_2d_current_ == texture_2d)
 	{
 		return;
@@ -416,8 +391,12 @@ void GenericOglState::texture_2d_set(
 
 	texture_2d_current_ = static_cast<OglTexture2dPtr>(texture_2d);
 	texture_2d_set();
+#else
+	texture_manager_->texture_2d_set(texture_2d);
+#endif
 }
 
+#if 0
 OglTexture2dPtr GenericOglState::texture_2d_get_current() noexcept
 {
 	return texture_2d_current_;
@@ -433,6 +412,7 @@ void GenericOglState::texture_2d_current_update_sampler_state(
 
 	texture_2d_current_->update_sampler_state(sampler_state);
 }
+#endif
 
 OglVaoManagerPtr GenericOglState::vao_get_manager() const noexcept
 {

@@ -37,6 +37,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_detail_ogl_renderer_utils.h"
 #include "bstone_detail_ogl_state.h"
+#include "bstone_detail_ogl_texture_manager.h"
 #include "bstone_detail_renderer_utils.h"
 
 
@@ -68,9 +69,7 @@ class GenericOglTexture2d final :
 {
 public:
 	GenericOglTexture2d(
-		OglStatePtr ogl_state,
-		const RendererDeviceFeatures& device_features,
-		const OglDeviceFeatures& ogl_device_features,
+		const OglTextureManagerPtr ogl_texture_manager,
 		const RendererTexture2dCreateParam& param);
 
 	GenericOglTexture2d(
@@ -117,10 +116,7 @@ private:
 	void set_sampler_state_defaults();
 
 
-	const OglStatePtr ogl_state_;
-	const RendererDeviceFeatures& device_features_;
-	const OglDeviceFeatures& ogl_device_features_;
-
+	const OglTextureManagerPtr ogl_texture_manager_;
 
 	RendererPixelFormat storage_pixel_format_;
 
@@ -151,14 +147,10 @@ using GenericOglTexture2dUPtr = std::unique_ptr<GenericOglTexture2d>;
 //
 
 GenericOglTexture2d::GenericOglTexture2d(
-	const OglStatePtr ogl_state,
-	const RendererDeviceFeatures& device_features,
-	const OglDeviceFeatures& ogl_device_features,
+	const OglTextureManagerPtr ogl_texture_manager,
 	const RendererTexture2dCreateParam& param)
 	:
-	ogl_state_{ogl_state},
-	device_features_{device_features},
-	ogl_device_features_{ogl_device_features},
+	ogl_texture_manager_{ogl_texture_manager},
 	storage_pixel_format_{},
 	width_{},
 	height_{},
@@ -184,7 +176,9 @@ void GenericOglTexture2d::update(
 		throw Exception{"Mipmap level out of range."};
 	}
 
-	ogl_state_->texture_2d_set(this);
+	const auto ogl_state = ogl_texture_manager_->ogl_state_get();
+
+	ogl_state->texture_2d_set(this);
 
 	auto mipmap_width = width_;
 	auto mipmap_height = height_;
@@ -212,17 +206,22 @@ void GenericOglTexture2d::generate_mipmaps()
 		throw Exception{"Base mipmap."};
 	}
 
-	if (!device_features_.mipmap_is_available_)
+	const auto ogl_state = ogl_texture_manager_->ogl_state_get();
+	const auto& device_features = ogl_state->get_device_features();
+
+	if (!device_features.mipmap_is_available_)
 	{
 		throw Exception{"Mipmap generation not available."};
 	}
 
-	if (ogl_device_features_.mipmap_function_ == nullptr)
+	const auto& ogl_device_features = ogl_state->get_ogl_device_features();
+
+	if (ogl_device_features.mipmap_function_ == nullptr)
 	{
 		throw Exception{"Null mipmap generation function."};
 	}
 
-	ogl_device_features_.mipmap_function_(GL_TEXTURE_2D);
+	ogl_device_features.mipmap_function_(GL_TEXTURE_2D);
 	assert(!OglRendererUtils::was_errors());
 }
 
@@ -256,10 +255,9 @@ void GenericOglTexture2d::initialize(
 		throw Exception{"Failed to create OpenGL 2D-texture object."};
 	}
 
-	ogl_resource_ = std::move(OglTextureUniqueResource{ogl_name});
+	ogl_resource_.reset(ogl_name);
 
-	::glBindTexture(GL_TEXTURE_2D, ogl_name);
-	assert(!OglRendererUtils::was_errors());
+	ogl_texture_manager_->texture_2d_set(this);
 
 	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
 	assert(!OglRendererUtils::was_errors());
@@ -328,7 +326,7 @@ void GenericOglTexture2d::upload_mipmap(
 
 void GenericOglTexture2d::bind()
 {
-	OglRendererUtils::texture_2d_set(ogl_resource_);
+	OglRendererUtils::texture_2d_bind(ogl_resource_);
 }
 
 void GenericOglTexture2d::set_mag_filter()
@@ -341,7 +339,10 @@ void GenericOglTexture2d::set_mag_filter()
 
 void GenericOglTexture2d::set_min_filter()
 {
-	const auto ogl_min_filter = OglRendererUtils::filter_get_min(sampler_state_.min_filter_, sampler_state_.mipmap_mode_);
+	const auto ogl_min_filter = OglRendererUtils::filter_get_min(
+		sampler_state_.min_filter_,
+		sampler_state_.mipmap_mode_
+	);
 
 	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, ogl_min_filter);
 	assert(!OglRendererUtils::was_errors());
@@ -370,9 +371,12 @@ void GenericOglTexture2d::set_address_mode_v()
 
 void GenericOglTexture2d::set_anisotropy()
 {
+	const auto ogl_state = ogl_texture_manager_->ogl_state_get();
+	const auto& device_features = ogl_state->get_device_features();
+
 	OglRendererUtils::anisotropy_set_value(
 		GL_TEXTURE_2D,
-		device_features_,
+		device_features,
 		sampler_state_.anisotropy_
 	);
 }
@@ -449,7 +453,9 @@ void GenericOglTexture2d::update_sampler_state(
 	//
 	if (is_modified)
 	{
-		ogl_state_->texture_2d_set(this);
+		const auto ogl_state = ogl_texture_manager_->ogl_state_get();
+
+		ogl_state->texture_2d_set(this);
 
 		if (is_mag_filter_modified)
 		{
@@ -507,17 +513,10 @@ void GenericOglTexture2d::set_sampler_state_defaults()
 //
 
 OglTexture2dUPtr OglTexture2dFactory::create(
-	OglStatePtr ogl_state,
-	const RendererDeviceFeatures& device_features,
-	const OglDeviceFeatures& ogl_device_features,
+	const OglTextureManagerPtr ogl_texture_manager,
 	const RendererTexture2dCreateParam& param)
 {
-	return std::make_unique<GenericOglTexture2d>(
-		ogl_state,
-		device_features,
-		ogl_device_features,
-		param
-	);
+	return std::make_unique<GenericOglTexture2d>(ogl_texture_manager, param);
 }
 
 //

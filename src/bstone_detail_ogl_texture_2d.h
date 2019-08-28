@@ -42,10 +42,8 @@ namespace detail
 {
 
 
-struct OglDeviceFeatures;
-
-class OglState;
-using OglStatePtr = OglState*;
+class OglTextureManager;
+using OglTextureManagerPtr = OglTextureManager*;
 
 
 // =========================================================================
@@ -84,9 +82,7 @@ using OglTexture2dUPtr = std::unique_ptr<OglTexture2d>;
 struct OglTexture2dFactory final
 {
 	static OglTexture2dUPtr create(
-		OglStatePtr ogl_state,
-		const RendererDeviceFeatures& device_features,
-		const OglDeviceFeatures& ogl_device_features,
+		const OglTextureManagerPtr ogl_texture_manager,
 		const RendererTexture2dCreateParam& param);
 }; // OglTexture2dFactory
 

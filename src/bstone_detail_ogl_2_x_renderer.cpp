@@ -757,7 +757,6 @@ bool Ogl2XRenderer::probe_or_initialize(
 		culling_set_defaults();
 		depth_set_defaults();
 		blending_set_defaults();
-		texture_2d_set_defaults();
 
 
 		// Present.
@@ -1481,20 +1480,10 @@ void Ogl2XRenderer::blending_set_defaults()
 	blending_set_function();
 }
 
-void Ogl2XRenderer::texture_2d_enable()
-{
-	ogl_state_->texture_2d_enable(true);
-}
-
 void Ogl2XRenderer::texture_set(
 	RendererTexture2dPtr new_texture_2d)
 {
 	ogl_state_->texture_2d_set(new_texture_2d);
-}
-
-void Ogl2XRenderer::texture_2d_set_defaults()
-{
-	texture_2d_enable();
 }
 
 void Ogl2XRenderer::command_execute_culling(

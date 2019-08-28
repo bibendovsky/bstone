@@ -45,6 +45,12 @@ namespace detail
 class OglVao;
 using OglVaoPtr = OglVao*;
 
+class OglSamplerManager;
+using OglSamplerManagerPtr = OglSamplerManager*;
+
+class OglTextureManager;
+using OglTextureManagerPtr = OglTextureManager*;
+
 class OglVaoManager;
 using OglVaoManagerPtr = OglVaoManager*;
 
@@ -87,6 +93,8 @@ public:
 		const RendererBufferPtr buffer) = 0;
 
 
+	virtual OglSamplerManagerPtr sampler_get_manager() const noexcept = 0;
+
 	virtual RendererSamplerPtr sampler_create(
 		const RendererSamplerCreateParam& param) = 0;
 
@@ -97,8 +105,7 @@ public:
 		const RendererSamplerPtr sampler) = 0;
 
 
-	virtual void texture_2d_enable(
-		const bool is_enable) = 0;
+	virtual OglTextureManagerPtr texture_manager_get() const noexcept = 0;
 
 	virtual RendererTexture2dPtr texture_2d_create(
 		const RendererTexture2dCreateParam& param) = 0;
@@ -108,11 +115,6 @@ public:
 
 	virtual void texture_2d_set(
 		const RendererTexture2dPtr texture_2d) = 0;
-
-	virtual RendererTexture2dPtr texture_2d_get_current() noexcept = 0;
-
-	virtual void texture_2d_current_update_sampler_state(
-		const RendererSamplerState& sampler_state) = 0;
 
 
 	virtual OglVaoManagerPtr vao_get_manager() const noexcept = 0;

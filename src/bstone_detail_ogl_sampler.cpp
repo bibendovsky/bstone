@@ -37,6 +37,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_detail_ogl_renderer_utils.h"
 #include "bstone_detail_ogl_state.h"
+#include "bstone_detail_ogl_texture_manager.h"
 
 
 namespace bstone
@@ -258,7 +259,9 @@ void GenericOglSampler::update(
 		}
 		else
 		{
-			ogl_state_->texture_2d_current_update_sampler_state(state_);
+			const auto texture_manager = ogl_state_->texture_manager_get();
+
+			texture_manager->texture_2d_current_update_sampler_state(state_);
 		}
 	}
 }
