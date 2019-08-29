@@ -42,8 +42,8 @@ namespace detail
 {
 
 
-class OglState;
-using OglStatePtr = OglState*;
+class OglContext;
+using OglContextPtr = OglContext*;
 
 
 // =========================================================================
@@ -79,7 +79,7 @@ using OglSamplerUPtr = std::unique_ptr<OglSampler>;
 struct OglSamplerFactory final
 {
 	static OglSamplerUPtr create(
-		OglStatePtr ogl_state,
+		OglContextPtr ogl_context,
 		const RendererSamplerCreateParam& param);
 }; // OglSamplerFactory
 

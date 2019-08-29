@@ -48,8 +48,8 @@ namespace detail
 {
 
 
-class OglState;
-using OglStatePtr = OglState*;
+class OglContext;
+using OglContextPtr = OglContext*;
 
 struct OglDeviceFeatures;
 
@@ -112,7 +112,7 @@ using OglVaoManagerUPtr = std::unique_ptr<OglVaoManager>;
 struct OglVaoManagerFactory final
 {
 	static OglVaoManagerUPtr create(
-		const OglStatePtr ogl_state,
+		const OglContextPtr ogl_context,
 		const RendererDeviceFeatures& device_features,
 		const OglDeviceFeatures& ogl_device_features);
 }; // OglVaoManagerFactory

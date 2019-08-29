@@ -43,7 +43,7 @@ Free Software Foundation, Inc.,
 #include "bstone_detail_ogl_renderer_utils.h"
 #include "bstone_detail_ogl_index_buffer.h"
 #include "bstone_detail_ogl_vertex_buffer.h"
-#include "bstone_detail_ogl_state.h"
+#include "bstone_detail_ogl_context.h"
 
 
 namespace bstone
@@ -200,7 +200,7 @@ private:
 	SdlGlContextUPtr sdl_gl_context_;
 
 	OglExtensionManagerUPtr extension_manager_;
-	OglStateUPtr ogl_state_;
+	OglContextUPtr ogl_context_;
 
 	RendererDeviceInfo device_info_;
 	RendererDeviceFeatures device_features_;

@@ -36,7 +36,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_detail_ogl_renderer_utils.h"
 #include "bstone_detail_ogl_sampler_manager.h"
-#include "bstone_detail_ogl_state.h"
+#include "bstone_detail_ogl_context.h"
 #include "bstone_detail_ogl_texture_2d.h"
 
 
@@ -68,12 +68,12 @@ class GenericOglTextureManager :
 {
 public:
 	GenericOglTextureManager(
-		const OglStatePtr ogl_state);
+		const OglContextPtr ogl_context);
 
 	~GenericOglTextureManager() override;
 
 
-	OglStatePtr ogl_state_get() const noexcept override;
+	OglContextPtr ogl_context_get() const noexcept override;
 
 
 	RendererTexture2dPtr texture_2d_create(
@@ -95,7 +95,7 @@ public:
 
 
 private:
-	const OglStatePtr ogl_state_;
+	const OglContextPtr ogl_context_;
 
 
 	using Textures2d = UPtrResourceList<OglTexture2d, OglTexture2dFactory, Exception>;
@@ -122,9 +122,9 @@ using GenericOglTextureManagerUPtr = std::unique_ptr<GenericOglTextureManager>;
 //
 
 GenericOglTextureManager::GenericOglTextureManager(
-	const OglStatePtr ogl_state)
+	const OglContextPtr ogl_context)
 	:
-	ogl_state_{ogl_state},
+	ogl_context_{ogl_context},
 	texture_2d_is_enabled_{},
 	texture_2d_current_{},
 	textures_2d_{}
@@ -134,9 +134,9 @@ GenericOglTextureManager::GenericOglTextureManager(
 
 GenericOglTextureManager::~GenericOglTextureManager() = default;
 
-OglStatePtr GenericOglTextureManager::ogl_state_get() const noexcept
+OglContextPtr GenericOglTextureManager::ogl_context_get() const noexcept
 {
-	return ogl_state_;
+	return ogl_context_;
 }
 
 RendererTexture2dPtr GenericOglTextureManager::texture_2d_create(
@@ -166,11 +166,11 @@ void GenericOglTextureManager::texture_2d_set(
 
 	texture_2d_current_->bind();
 
-	const auto& device_features = ogl_state_->get_device_features();
+	const auto& device_features = ogl_context_->get_device_features();
 
 	if (!device_features.sampler_is_available_)
 	{
-		const auto sampler_manager = ogl_state_->sampler_get_manager();
+		const auto sampler_manager = ogl_context_->sampler_get_manager();
 		const auto& sampler_state = sampler_manager->sampler_current_get_state();
 
 		texture_2d_current_->update_sampler_state(sampler_state);
@@ -208,7 +208,7 @@ void GenericOglTextureManager::texture_2d_current_update_sampler_state(
 
 void GenericOglTextureManager::initialize()
 {
-	if (!ogl_state_)
+	if (!ogl_context_)
 	{
 		throw Exception{"Null OpenGL state."};
 	}
@@ -241,9 +241,9 @@ void GenericOglTextureManager::texture_2d_set()
 //
 
 OglTextureManagerUPtr OglTextureManagerFactory::create(
-	const OglStatePtr ogl_state)
+	const OglContextPtr ogl_context)
 {
-	return std::make_unique<GenericOglTextureManager>(ogl_state);
+	return std::make_unique<GenericOglTextureManager>(ogl_context);
 }
 
 //

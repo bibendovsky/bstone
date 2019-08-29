@@ -66,7 +66,7 @@ class GenericOglVertexBuffer :
 {
 public:
 	GenericOglVertexBuffer(
-		const OglStatePtr ogl_state,
+		const OglContextPtr ogl_context,
 		const RendererVertexBufferCreateParam& param);
 
 	~GenericOglVertexBuffer() override = default;
@@ -90,7 +90,7 @@ private:
 
 
 	void initialize(
-		const OglStatePtr ogl_state,
+		const OglContextPtr ogl_context,
 		const RendererVertexBufferCreateParam& param);
 }; // GenericOglVertexBuffer
 
@@ -107,12 +107,12 @@ using GenericOglVertexBufferUPtr = std::unique_ptr<GenericOglVertexBuffer>;
 //
 
 GenericOglVertexBuffer::GenericOglVertexBuffer(
-	const OglStatePtr ogl_state,
+	const OglContextPtr ogl_context,
 	const RendererVertexBufferCreateParam& param)
 	:
 	ogl_buffer_{}
 {
-	initialize(ogl_state, param);
+	initialize(ogl_context, param);
 }
 
 RendererBufferKind GenericOglVertexBuffer::get_kind() const noexcept
@@ -132,7 +132,7 @@ void GenericOglVertexBuffer::update(
 }
 
 void GenericOglVertexBuffer::initialize(
-	const OglStatePtr ogl_state,
+	const OglContextPtr ogl_context,
 	const RendererVertexBufferCreateParam& param)
 {
 	RendererUtils::validate_vertex_buffer_create_param(param);
@@ -142,7 +142,7 @@ void GenericOglVertexBuffer::initialize(
 	buffer_param.usage_kind_ = param.usage_kind_;
 	buffer_param.size_ = param.size_;
 
-	ogl_buffer_ = detail::OglBufferFactory::create(ogl_state, buffer_param);
+	ogl_buffer_ = detail::OglBufferFactory::create(ogl_context, buffer_param);
 }
 
 int GenericOglVertexBuffer::get_size() const noexcept
@@ -166,10 +166,10 @@ void GenericOglVertexBuffer::bind(
 //
 
 OglVertexBufferUPtr OglVertexBufferFactory::create(
-	const OglStatePtr ogl_state,
+	const OglContextPtr ogl_context,
 	const RendererVertexBufferCreateParam& param)
 {
-	return std::make_unique<GenericOglVertexBuffer>(ogl_state, param);
+	return std::make_unique<GenericOglVertexBuffer>(ogl_context, param);
 }
 
 //

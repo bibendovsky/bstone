@@ -40,8 +40,8 @@ namespace bstone
 
 struct RendererSamplerState;
 
-class OglState;
-using OglStatePtr = OglState*;
+class OglContext;
+using OglContextPtr = OglContext*;
 
 class RendererTexture2d;
 using RendererTexture2dPtr = RendererTexture2d*;
@@ -53,8 +53,8 @@ namespace detail
 {
 
 
-class OglState;
-using OglStatePtr = OglState*;
+class OglContext;
+using OglContextPtr = OglContext*;
 
 
 // ==========================================================================
@@ -71,7 +71,7 @@ public:
 	virtual ~OglTextureManager();
 
 
-	virtual OglStatePtr ogl_state_get() const noexcept = 0;
+	virtual OglContextPtr ogl_context_get() const noexcept = 0;
 
 
 	virtual RendererTexture2dPtr texture_2d_create(
@@ -107,7 +107,7 @@ using OglTextureManagerUPtr = std::unique_ptr<OglTextureManager>;
 struct OglTextureManagerFactory final
 {
 	static OglTextureManagerUPtr create(
-		const OglStatePtr ogl_state);
+		const OglContextPtr ogl_context);
 }; // OglTextureManagerFactory
 
 //

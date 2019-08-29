@@ -61,7 +61,7 @@ Ogl2XRenderer::Ogl2XRenderer()
 	sdl_window_{},
 	sdl_gl_context_{},
 	extension_manager_{},
-	ogl_state_{},
+	ogl_context_{},
 	device_info_{},
 	device_features_{},
 	ogl_device_features_{},
@@ -364,37 +364,37 @@ void Ogl2XRenderer::present()
 RendererIndexBufferPtr Ogl2XRenderer::index_buffer_create(
 	const RendererIndexBufferCreateParam& param)
 {
-	return ogl_state_->index_buffer_create(param);
+	return ogl_context_->index_buffer_create(param);
 }
 
 void Ogl2XRenderer::index_buffer_destroy(
 	RendererIndexBufferPtr index_buffer)
 {
-	ogl_state_->buffer_destroy(index_buffer);
+	ogl_context_->buffer_destroy(index_buffer);
 }
 
 RendererVertexBufferPtr Ogl2XRenderer::vertex_buffer_create(
 	const RendererVertexBufferCreateParam& param)
 {
-	return ogl_state_->vertex_buffer_create(param);
+	return ogl_context_->vertex_buffer_create(param);
 }
 
 void Ogl2XRenderer::vertex_buffer_destroy(
 	RendererVertexBufferPtr vertex_buffer)
 {
-	ogl_state_->buffer_destroy(vertex_buffer);
+	ogl_context_->buffer_destroy(vertex_buffer);
 }
 
 RendererVertexInputPtr Ogl2XRenderer::vertex_input_create(
 	const RendererVertexInputCreateParam& param)
 {
-	return ogl_state_->vertex_input_create(param);
+	return ogl_context_->vertex_input_create(param);
 }
 
 void Ogl2XRenderer::vertex_input_destroy(
 	RendererVertexInputPtr vertex_input)
 {
-	ogl_state_->vertex_input_destroy(vertex_input);
+	ogl_context_->vertex_input_destroy(vertex_input);
 }
 
 RendererShaderPtr Ogl2XRenderer::shader_create(
@@ -727,7 +727,7 @@ bool Ogl2XRenderer::probe_or_initialize(
 
 	if (!is_probe)
 	{
-		ogl_state_ = std::move(OglStateFactory::create(
+		ogl_context_ = std::move(OglContextFactory::create(
 			RendererKind::ogl_2_x,
 			device_features_,
 			ogl_device_features_
@@ -781,25 +781,25 @@ bool Ogl2XRenderer::probe_or_initialize(
 RendererTexture2dPtr Ogl2XRenderer::texture_2d_create(
 	const RendererTexture2dCreateParam& param)
 {
-	return ogl_state_->texture_2d_create(param);
+	return ogl_context_->texture_2d_create(param);
 }
 
 void Ogl2XRenderer::texture_2d_destroy(
 	RendererTexture2dPtr texture_2d)
 {
-	ogl_state_->texture_2d_destroy(texture_2d);
+	ogl_context_->texture_2d_destroy(texture_2d);
 }
 
 RendererSamplerPtr Ogl2XRenderer::sampler_create(
 	const RendererSamplerCreateParam& param)
 {
-	return ogl_state_->sampler_create(param);
+	return ogl_context_->sampler_create(param);
 }
 
 void Ogl2XRenderer::sampler_destroy(
 	RendererSamplerPtr sampler)
 {
-	ogl_state_->sampler_destroy(sampler);
+	ogl_context_->sampler_destroy(sampler);
 }
 
 void Ogl2XRenderer::uninitialize_internal(
@@ -808,7 +808,7 @@ void Ogl2XRenderer::uninitialize_internal(
 	shaders_.clear();
 	shader_stages_.clear();
 	current_shader_stage_ = {};
-	ogl_state_ = {};
+	ogl_context_ = {};
 	extension_manager_ = {};
 
 	framebuffers_destroy();
@@ -1493,7 +1493,7 @@ void Ogl2XRenderer::blending_set_defaults()
 void Ogl2XRenderer::texture_set(
 	RendererTexture2dPtr new_texture_2d)
 {
-	ogl_state_->texture_2d_set(new_texture_2d);
+	ogl_context_->texture_2d_set(new_texture_2d);
 }
 
 void Ogl2XRenderer::command_execute_culling(
@@ -1638,7 +1638,7 @@ void Ogl2XRenderer::command_execute_texture(
 void Ogl2XRenderer::command_execute_sampler(
 	const RendererCommandSampler& command)
 {
-	ogl_state_->sampler_set(command.sampler_);
+	ogl_context_->sampler_set(command.sampler_);
 }
 
 void Ogl2XRenderer::command_execute_vertex_input(
@@ -1646,7 +1646,7 @@ void Ogl2XRenderer::command_execute_vertex_input(
 {
 	auto vertex_input = static_cast<OglVertexInputPtr>(command.vertex_input_);
 
-	ogl_state_->vertex_input_set(vertex_input);
+	ogl_context_->vertex_input_set(vertex_input);
 }
 
 void Ogl2XRenderer::command_execute_shader_stage(
@@ -1753,7 +1753,7 @@ void Ogl2XRenderer::command_execute_draw_quads(
 	const auto indices_per_quad = triangles_per_quad * indices_per_triangle;
 	const auto index_count = indices_per_quad * command.count_;
 
-	auto index_buffer = ogl_state_->vertex_input_get_index_buffer();
+	auto index_buffer = ogl_context_->vertex_input_get_index_buffer();
 
 	if (!index_buffer)
 	{

@@ -42,8 +42,8 @@ namespace detail
 {
 
 
-class OglState;
-using OglStatePtr = OglState*;
+class OglContext;
+using OglContextPtr = OglContext*;
 
 class OglBuffer;
 using OglBufferPtr = OglBuffer*;
@@ -64,7 +64,7 @@ public:
 	~OglBuffer() override;
 
 
-	virtual OglStatePtr ogl_state_get() const noexcept = 0;
+	virtual OglContextPtr ogl_context_get() const noexcept = 0;
 }; // OglBuffer
 
 
@@ -90,7 +90,7 @@ struct OglBufferFactory final
 
 
 	static OglBufferUPtr create(
-		const OglStatePtr ogl_state,
+		const OglContextPtr ogl_context,
 		const InitializeParam& param);
 }; // OglBufferFactory
 

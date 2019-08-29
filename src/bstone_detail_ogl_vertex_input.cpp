@@ -36,7 +36,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_detail_ogl_device_features.h"
 #include "bstone_detail_ogl_renderer_utils.h"
-#include "bstone_detail_ogl_state.h"
+#include "bstone_detail_ogl_context.h"
 #include "bstone_detail_ogl_vao.h"
 #include "bstone_detail_ogl_vertex_input_manager.h"
 #include "bstone_detail_renderer_utils.h"
@@ -127,16 +127,16 @@ GenericOglVertexInput::GenericOglVertexInput(
 	vertex_input_manager_{vertex_input_manager},
 	index_buffer_{},
 	attribute_descriptions_{},
-	ogl_resource_{nullptr, OglVaoDeleter{vertex_input_manager->ogl_state_get()}}
+	ogl_resource_{nullptr, OglVaoDeleter{vertex_input_manager->ogl_context_get()}}
 {
 	initialize(param);
 }
 
 GenericOglVertexInput::~GenericOglVertexInput()
 {
-	const auto ogl_state = vertex_input_manager_->ogl_state_get();
+	const auto ogl_context = vertex_input_manager_->ogl_context_get();
 
-	ogl_state->vao_destroy(ogl_resource_.get());
+	ogl_context->vao_destroy(ogl_resource_.get());
 }
 
 RendererIndexBufferPtr GenericOglVertexInput::get_index_buffer() const noexcept
@@ -146,9 +146,9 @@ RendererIndexBufferPtr GenericOglVertexInput::get_index_buffer() const noexcept
 
 void GenericOglVertexInput::bind()
 {
-	const auto ogl_state = vertex_input_manager_->ogl_state_get();
+	const auto ogl_context = vertex_input_manager_->ogl_context_get();
 
-	const auto& ogl_device_features = ogl_state->get_ogl_device_features();
+	const auto& ogl_device_features = ogl_context->get_ogl_device_features();
 
 	if (ogl_device_features.vao_is_available_)
 	{
@@ -160,7 +160,7 @@ void GenericOglVertexInput::bind()
 			}
 		}
 
-		ogl_state->vao_bind(ogl_resource_.get());
+		ogl_context->vao_bind(ogl_resource_.get());
 	}
 	else
 	{
@@ -170,15 +170,15 @@ void GenericOglVertexInput::bind()
 
 void GenericOglVertexInput::initialize_vao()
 {
-	const auto ogl_state = vertex_input_manager_->ogl_state_get();
+	const auto ogl_context = vertex_input_manager_->ogl_context_get();
 
-	ogl_resource_.reset(ogl_state->vao_create());
+	ogl_resource_.reset(ogl_context->vao_create());
 
-	ogl_state->vao_bind(ogl_resource_.get());
+	ogl_context->vao_bind(ogl_resource_.get());
 
 	index_buffer_->bind(true);
 
-	const auto& ogl_device_features = ogl_state->get_ogl_device_features();
+	const auto& ogl_device_features = ogl_context->get_ogl_device_features();
 
 	if (ogl_device_features.vao_is_available_)
 	{
@@ -195,8 +195,8 @@ void GenericOglVertexInput::initialize_vao()
 void GenericOglVertexInput::initialize(
 	const RendererVertexInputCreateParam& param)
 {
-	const auto ogl_state = vertex_input_manager_->ogl_state_get();
-	const auto& device_features = ogl_state->get_device_features();
+	const auto ogl_context = vertex_input_manager_->ogl_context_get();
+	const auto& device_features = ogl_context->get_device_features();
 
 	const auto max_locations = device_features.vertex_input_max_locations_;
 
@@ -262,9 +262,9 @@ void GenericOglVertexInput::assign_regular_attribute(
 			throw Exception{"Invalid format."};
 	}
 
-	const auto ogl_state = vertex_input_manager_->ogl_state_get();
+	const auto ogl_context = vertex_input_manager_->ogl_context_get();
 
-	const auto vertex_input_manager = ogl_state->vertex_input_get_manager();
+	const auto vertex_input_manager = ogl_context->vertex_input_get_manager();
 
 	vertex_input_manager->vertex_input_location_enable(attribute_description.location_, true);
 
@@ -301,8 +301,8 @@ void GenericOglVertexInput::assign_attribute(
 
 void GenericOglVertexInput::bind_internal()
 {
-	const auto ogl_state = vertex_input_manager_->ogl_state_get();
-	const auto vertex_input_manager = ogl_state->vertex_input_get_manager();
+	const auto ogl_context = vertex_input_manager_->ogl_context_get();
+	const auto vertex_input_manager = ogl_context->vertex_input_get_manager();
 
 	vertex_input_manager->vertex_input_location_assign_begin();
 

@@ -46,8 +46,8 @@ namespace detail
 {
 
 
-class OglState;
-using OglStatePtr = OglState*;
+class OglContext;
+using OglContextPtr = OglContext*;
 
 class OglVaoManager;
 using OglVaoManagerPtr = OglVaoManager*;
@@ -95,14 +95,14 @@ class OglVaoDeleter
 {
 public:
 	OglVaoDeleter(
-		const OglStatePtr ogl_state);
+		const OglContextPtr ogl_context);
 
 	void operator()(
 		const OglVaoPtr resource);
 
 
 private:
-	const OglStatePtr ogl_state_;
+	const OglContextPtr ogl_context_;
 }; // OglVaoDeleter
 
 using OglVaoResource = std::unique_ptr<OglVao, OglVaoDeleter>;

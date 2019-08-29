@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_OGL_STATE_INCLUDED
-#define BSTONE_DETAIL_OGL_STATE_INCLUDED
+#ifndef BSTONE_DETAIL_OGL_CONTEXT_INCLUDED
+#define BSTONE_DETAIL_OGL_CONTEXT_INCLUDED
 
 
 #include "bstone_detail_ogl_buffer.h"
@@ -59,18 +59,18 @@ using OglVertexInputManagerPtr = OglVertexInputManager*;
 
 
 // =========================================================================
-// OglState
+// OglContext
 //
 
-class OglState
+class OglContext
 {
 public:
-	OglState();
+	OglContext();
 
-	OglState(
-		const OglState& rhs) = delete;
+	OglContext(
+		const OglContext& rhs) = delete;
 
-	virtual ~OglState() = 0;
+	virtual ~OglContext() = 0;
 
 
 	virtual const RendererDeviceFeatures& get_device_features() const noexcept = 0;
@@ -147,30 +147,30 @@ public:
 }; // OglBuffer
 
 
-using OglStatePtr = OglState*;
-using OglStateUPtr = std::unique_ptr<OglState>;
+using OglContextPtr = OglContext*;
+using OglContextUPtr = std::unique_ptr<OglContext>;
 
 //
-// OglState
+// OglContext
 // =========================================================================
 
 
 // =========================================================================
-// OglStateFactory
+// OglContextFactory
 //
 
 
-struct OglStateFactory
+struct OglContextFactory
 {
-	static OglStateUPtr create(
+	static OglContextUPtr create(
 		const RendererKind renderer_kind,
 		const RendererDeviceFeatures& device_features,
 		const OglDeviceFeatures& ogl_device_features);
-}; // OglStateFactory
+}; // OglContextFactory
 
 
 //
-// OglStateFactory
+// OglContextFactory
 // =========================================================================
 
 
@@ -178,4 +178,4 @@ struct OglStateFactory
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_OGL_STATE_INCLUDED
+#endif // !BSTONE_DETAIL_OGL_CONTEXT_INCLUDED

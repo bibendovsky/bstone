@@ -34,7 +34,7 @@ Free Software Foundation, Inc.,
 #include "bstone_uptr_resource_list.h"
 
 #include "bstone_detail_ogl_sampler.h"
-#include "bstone_detail_ogl_state.h"
+#include "bstone_detail_ogl_context.h"
 #include "bstone_detail_ogl_texture_manager.h"
 
 
@@ -66,7 +66,7 @@ class GenericOglSamplerManager :
 {
 public:
 	GenericOglSamplerManager(
-		const OglStatePtr ogl_state);
+		const OglContextPtr ogl_context);
 
 	~GenericOglSamplerManager() override;
 
@@ -84,7 +84,7 @@ public:
 
 
 private:
-	const OglStatePtr ogl_state_;
+	const OglContextPtr ogl_context_;
 
 	using Samplers = UPtrResourceList<OglSampler, OglSamplerFactory, Exception>;
 	OglSamplerPtr sampler_current_;
@@ -112,9 +112,9 @@ using GenericOglSamplerManagerUPtr = std::unique_ptr<GenericOglSamplerManager>;
 //
 
 GenericOglSamplerManager::GenericOglSamplerManager(
-	const OglStatePtr ogl_state)
+	const OglContextPtr ogl_context)
 	:
-	ogl_state_{ogl_state},
+	ogl_context_{ogl_context},
 	sampler_current_{},
 	sampler_default_{},
 	samplers_{}
@@ -129,7 +129,7 @@ GenericOglSamplerManager::~GenericOglSamplerManager()
 RendererSamplerPtr GenericOglSamplerManager::sampler_create(
 	const RendererSamplerCreateParam& param)
 {
-	return samplers_.add(ogl_state_, param);
+	return samplers_.add(ogl_context_, param);
 }
 
 void GenericOglSamplerManager::sampler_destroy(
@@ -137,7 +137,7 @@ void GenericOglSamplerManager::sampler_destroy(
 {
 	if (sampler_current_ == sampler)
 	{
-		const auto& device_features = ogl_state_->get_device_features();
+		const auto& device_features = ogl_context_->get_device_features();
 
 		if (device_features.sampler_is_available_)
 		{
@@ -178,12 +178,12 @@ void GenericOglSamplerManager::initialize_default_sampler()
 {
 	auto param = RendererSamplerCreateParam{};
 
-	sampler_default_ = OglSamplerFactory::create(ogl_state_, param);
+	sampler_default_ = OglSamplerFactory::create(ogl_context_, param);
 }
 
 void GenericOglSamplerManager::initialize()
 {
-	if (!ogl_state_)
+	if (!ogl_context_)
 	{
 		throw Exception{"Null OpenGL state."};
 	}
@@ -195,7 +195,7 @@ void GenericOglSamplerManager::initialize()
 
 void GenericOglSamplerManager::sampler_set()
 {
-	const auto& device_features = ogl_state_->get_device_features();
+	const auto& device_features = ogl_context_->get_device_features();
 
 	if (device_features.sampler_is_available_)
 	{
@@ -203,7 +203,7 @@ void GenericOglSamplerManager::sampler_set()
 	}
 	else
 	{
-		const auto texture_manager = ogl_state_->texture_manager_get();
+		const auto texture_manager = ogl_context_->texture_manager_get();
 
 		texture_manager->texture_2d_current_update_sampler_state(sampler_current_get_state());
 	}
@@ -219,9 +219,9 @@ void GenericOglSamplerManager::sampler_set()
 //
 
 OglSamplerManagerUPtr OglSamplerManagerFactory::create(
-	const OglStatePtr ogl_state)
+	const OglContextPtr ogl_context)
 {
-	return std::make_unique<GenericOglSamplerManager>(ogl_state);
+	return std::make_unique<GenericOglSamplerManager>(ogl_context);
 }
 
 //

@@ -36,7 +36,7 @@ Free Software Foundation, Inc.,
 #include "bstone_ogl_unique_resources.h"
 
 #include "bstone_detail_ogl_renderer_utils.h"
-#include "bstone_detail_ogl_state.h"
+#include "bstone_detail_ogl_context.h"
 #include "bstone_detail_ogl_texture_manager.h"
 #include "bstone_detail_renderer_utils.h"
 
@@ -176,8 +176,8 @@ void GenericOglTexture2d::update(
 		throw Exception{"Mipmap level out of range."};
 	}
 
-	const auto ogl_state = ogl_texture_manager_->ogl_state_get();
-	const auto& ogl_device_features = ogl_state->get_ogl_device_features();
+	const auto ogl_context = ogl_texture_manager_->ogl_context_get();
+	const auto& ogl_device_features = ogl_context->get_ogl_device_features();
 
 	if (!ogl_device_features.dsa_is_available_)
 	{
@@ -210,15 +210,15 @@ void GenericOglTexture2d::generate_mipmaps()
 		throw Exception{"Base mipmap."};
 	}
 
-	const auto ogl_state = ogl_texture_manager_->ogl_state_get();
-	const auto& device_features = ogl_state->get_device_features();
+	const auto ogl_context = ogl_texture_manager_->ogl_context_get();
+	const auto& device_features = ogl_context->get_device_features();
 
 	if (!device_features.mipmap_is_available_)
 	{
 		throw Exception{"Mipmap generation not available."};
 	}
 
-	const auto& ogl_device_features = ogl_state->get_ogl_device_features();
+	const auto& ogl_device_features = ogl_context->get_ogl_device_features();
 
 	if (ogl_device_features.dsa_is_available_)
 	{
@@ -255,8 +255,8 @@ void GenericOglTexture2d::initialize(
 		throw Exception{"Mipmap count out of range."};
 	}
 
-	const auto ogl_state = ogl_texture_manager_->ogl_state_get();
-	const auto& ogl_device_features = ogl_state->get_ogl_device_features();
+	const auto ogl_context = ogl_texture_manager_->ogl_context_get();
+	const auto& ogl_device_features = ogl_context->get_ogl_device_features();
 	const auto internal_format = (storage_pixel_format_ == RendererPixelFormat::r8g8b8a8_unorm ? GL_RGBA8 : GL_RGB8);
 
 	auto ogl_name = GLuint{};
@@ -357,8 +357,8 @@ void GenericOglTexture2d::upload_mipmap(
 	const int height,
 	const R8g8b8a8CPtr src_pixels)
 {
-	const auto ogl_state = ogl_texture_manager_->ogl_state_get();
-	const auto& ogl_device_features = ogl_state->get_ogl_device_features();
+	const auto ogl_context = ogl_texture_manager_->ogl_context_get();
+	const auto& ogl_device_features = ogl_context->get_ogl_device_features();
 
 	if (ogl_device_features.dsa_is_available_)
 	{
@@ -403,8 +403,8 @@ void GenericOglTexture2d::set_mag_filter()
 {
 	const auto ogl_mag_filter = OglRendererUtils::filter_get_mag(sampler_state_.mag_filter_);
 
-	const auto ogl_state = ogl_texture_manager_->ogl_state_get();
-	const auto& ogl_device_features = ogl_state->get_ogl_device_features();
+	const auto ogl_context = ogl_texture_manager_->ogl_context_get();
+	const auto& ogl_device_features = ogl_context->get_ogl_device_features();
 
 	if (ogl_device_features.dsa_is_available_)
 	{
@@ -425,8 +425,8 @@ void GenericOglTexture2d::set_min_filter()
 		sampler_state_.mipmap_mode_
 	);
 
-	const auto ogl_state = ogl_texture_manager_->ogl_state_get();
-	const auto& ogl_device_features = ogl_state->get_ogl_device_features();
+	const auto ogl_context = ogl_texture_manager_->ogl_context_get();
+	const auto& ogl_device_features = ogl_context->get_ogl_device_features();
 
 	if (ogl_device_features.dsa_is_available_)
 	{
@@ -447,8 +447,8 @@ void GenericOglTexture2d::set_address_mode(
 	const auto ogl_wrap_axis = OglRendererUtils::texture_wrap_get_axis(texture_axis);
 	const auto ogl_address_mode = OglRendererUtils::address_mode_get(address_mode);
 
-	const auto ogl_state = ogl_texture_manager_->ogl_state_get();
-	const auto& ogl_device_features = ogl_state->get_ogl_device_features();
+	const auto ogl_context = ogl_texture_manager_->ogl_context_get();
+	const auto& ogl_device_features = ogl_context->get_ogl_device_features();
 
 	if (ogl_device_features.dsa_is_available_)
 	{
@@ -474,8 +474,8 @@ void GenericOglTexture2d::set_address_mode_v()
 
 void GenericOglTexture2d::set_anisotropy()
 {
-	const auto ogl_state = ogl_texture_manager_->ogl_state_get();
-	const auto& device_features = ogl_state->get_device_features();
+	const auto ogl_context = ogl_texture_manager_->ogl_context_get();
+	const auto& device_features = ogl_context->get_device_features();
 
 	if (!device_features.anisotropy_is_available_)
 	{
@@ -495,7 +495,7 @@ void GenericOglTexture2d::set_anisotropy()
 
 	const auto ogl_anisotropy = static_cast<GLfloat>(anisotropy);
 
-	const auto& ogl_device_features = ogl_state->get_ogl_device_features();
+	const auto& ogl_device_features = ogl_context->get_ogl_device_features();
 
 	if (ogl_device_features.dsa_is_available_)
 	{
@@ -581,9 +581,9 @@ void GenericOglTexture2d::update_sampler_state(
 	//
 	if (is_modified)
 	{
-		const auto ogl_state = ogl_texture_manager_->ogl_state_get();
+		const auto ogl_context = ogl_texture_manager_->ogl_context_get();
 
-		ogl_state->texture_2d_set(this);
+		ogl_context->texture_2d_set(this);
 
 		if (is_mag_filter_modified)
 		{

@@ -36,7 +36,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_detail_ogl_index_buffer.h"
 #include "bstone_detail_ogl_renderer_utils.h"
-#include "bstone_detail_ogl_state.h"
+#include "bstone_detail_ogl_context.h"
 #include "bstone_detail_ogl_vao_manager.h"
 
 
@@ -241,16 +241,16 @@ void GenericOglVao::initialize()
 //
 
 OglVaoDeleter::OglVaoDeleter(
-	const OglStatePtr ogl_state)
+	const OglContextPtr ogl_context)
 	:
-	ogl_state_{ogl_state}
+	ogl_context_{ogl_context}
 {
 }
 
 void OglVaoDeleter::operator()(
 	const OglVaoPtr resource)
 {
-	ogl_state_->vao_destroy(resource);
+	ogl_context_->vao_destroy(resource);
 }
 
 //

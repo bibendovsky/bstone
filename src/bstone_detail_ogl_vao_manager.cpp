@@ -69,7 +69,7 @@ class GenericOglVaoManager :
 {
 public:
 	GenericOglVaoManager(
-		const OglStatePtr ogl_state,
+		const OglContextPtr ogl_context,
 		const RendererDeviceFeatures& device_features,
 		const OglDeviceFeatures& ogl_device_features);
 
@@ -104,7 +104,7 @@ public:
 
 
 private:
-	const OglStatePtr ogl_state_;
+	const OglContextPtr ogl_context_;
 	const RendererDeviceFeatures& device_features_;
 	const OglDeviceFeatures& ogl_device_features_;
 
@@ -139,11 +139,11 @@ using GenericOglVaoManagerUPtr = std::unique_ptr<GenericOglVaoManager>;
 //
 
 GenericOglVaoManager::GenericOglVaoManager(
-	const OglStatePtr ogl_state,
+	const OglContextPtr ogl_context,
 	const RendererDeviceFeatures& device_features,
 	const OglDeviceFeatures& ogl_device_features)
 	:
-	ogl_state_{ogl_state},
+	ogl_context_{ogl_context},
 	device_features_{device_features},
 	ogl_device_features_{ogl_device_features},
 	vao_current_{},
@@ -268,7 +268,7 @@ void GenericOglVaoManager::bind()
 
 void GenericOglVaoManager::initialize()
 {
-	if (!ogl_state_)
+	if (!ogl_context_)
 	{
 		throw Exception{"Null OpenGL state."};
 	}
@@ -286,12 +286,12 @@ void GenericOglVaoManager::initialize()
 //
 
 OglVaoManagerUPtr OglVaoManagerFactory::create(
-	const OglStatePtr ogl_state,
+	const OglContextPtr ogl_context,
 	const RendererDeviceFeatures& device_features,
 	const OglDeviceFeatures& ogl_device_features)
 {
 	return std::make_unique<GenericOglVaoManager>(
-		ogl_state,
+		ogl_context,
 		device_features,
 		ogl_device_features
 	);

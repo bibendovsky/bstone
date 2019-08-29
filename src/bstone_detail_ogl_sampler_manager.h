@@ -42,8 +42,8 @@ namespace detail
 {
 
 
-class OglState;
-using OglStatePtr = OglState*;
+class OglContext;
+using OglContextPtr = OglContext*;
 
 
 // ==========================================================================
@@ -87,7 +87,7 @@ using OglSamplerManagerUPtr = std::unique_ptr<OglSamplerManager>;
 struct OglSamplerManagerFactory final
 {
 	static OglSamplerManagerUPtr create(
-		const OglStatePtr ogl_state);
+		const OglContextPtr ogl_context);
 }; // OglSamplerManagerFactory
 
 //

@@ -48,8 +48,8 @@ namespace detail
 {
 
 
-class OglState;
-using OglStatePtr = OglState*;
+class OglContext;
+using OglContextPtr = OglContext*;
 
 
 // ==========================================================================
@@ -66,7 +66,7 @@ public:
 	virtual ~OglVertexInputManager();
 
 
-	virtual OglStatePtr ogl_state_get() const noexcept = 0;
+	virtual OglContextPtr ogl_context_get() const noexcept = 0;
 
 
 	virtual RendererVertexInputPtr vertex_input_create(
@@ -105,7 +105,7 @@ using OglVertexInputManagerUPtr = std::unique_ptr<OglVertexInputManager>;
 struct OglVertexInputManagerFactory final
 {
 	static OglVertexInputManagerUPtr create(
-		const OglStatePtr ogl_state);
+		const OglContextPtr ogl_context);
 }; // OglVertexInputManagerFactory
 
 //

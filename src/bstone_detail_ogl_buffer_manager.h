@@ -54,8 +54,8 @@ namespace detail
 {
 
 
-class OglState;
-using OglStatePtr = OglState*;
+class OglContext;
+using OglContextPtr = OglContext*;
 
 class OglVaoManager;
 using OglVaoManagerPtr = OglVaoManager*;
@@ -106,7 +106,7 @@ using OglBufferManagerUPtr = std::unique_ptr<OglBufferManager>;
 struct OglBufferManagerFactory final
 {
 	static OglBufferManagerUPtr create(
-		const OglStatePtr ogl_state,
+		const OglContextPtr ogl_context,
 		const OglVaoManagerPtr ogl_vao_manager);
 }; // OglBufferManagerFactory
 

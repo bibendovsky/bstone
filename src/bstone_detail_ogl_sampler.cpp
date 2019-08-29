@@ -36,7 +36,7 @@ Free Software Foundation, Inc.,
 #include "bstone_unique_resource.h"
 
 #include "bstone_detail_ogl_renderer_utils.h"
-#include "bstone_detail_ogl_state.h"
+#include "bstone_detail_ogl_context.h"
 #include "bstone_detail_ogl_texture_manager.h"
 
 
@@ -68,7 +68,7 @@ class GenericOglSampler final :
 {
 public:
 	GenericOglSampler(
-		OglStatePtr ogl_state,
+		OglContextPtr ogl_context,
 		const RendererSamplerCreateParam& param);
 
 	GenericOglSampler(
@@ -92,7 +92,7 @@ private:
 	using SamplerResource = bstone::UniqueResource<GLuint, sampler_deleter>;
 
 
-	OglStatePtr ogl_state_;
+	OglContextPtr ogl_context_;
 
 	RendererSamplerState state_;
 	SamplerResource ogl_resource_;
@@ -131,13 +131,13 @@ using GenericOglSamplerUPtr = std::unique_ptr<GenericOglSampler>;
 //
 
 GenericOglSampler::GenericOglSampler(
-	OglStatePtr ogl_state,
+	OglContextPtr ogl_context,
 	const RendererSamplerCreateParam& param)
 	:
-	ogl_state_{ogl_state},
+	ogl_context_{ogl_context},
 	state_{}
 {
-	if (!ogl_state_)
+	if (!ogl_context_)
 	{
 		throw Exception{"Null OpenGL state."};
 	}
@@ -259,7 +259,7 @@ void GenericOglSampler::update(
 		}
 		else
 		{
-			const auto texture_manager = ogl_state_->texture_manager_get();
+			const auto texture_manager = ogl_context_->texture_manager_get();
 
 			texture_manager->texture_2d_current_update_sampler_state(state_);
 		}
@@ -281,8 +281,8 @@ void GenericOglSampler::sampler_deleter(
 void GenericOglSampler::initialize(
 	const RendererSamplerCreateParam& param)
 {
-	const auto& device_features = ogl_state_->get_device_features();
-	const auto& ogl_device_features = ogl_state_->get_ogl_device_features();
+	const auto& device_features = ogl_context_->get_device_features();
+	const auto& ogl_device_features = ogl_context_->get_ogl_device_features();
 
 	state_ = param.state_;
 
@@ -353,7 +353,7 @@ void GenericOglSampler::set_anisotropy()
 {
 	OglRendererUtils::sampler_set_anisotropy(
 		ogl_resource_,
-		ogl_state_->get_device_features(),
+		ogl_context_->get_device_features(),
 		state_.anisotropy_
 	);
 }
@@ -382,10 +382,10 @@ void GenericOglSampler::set_initial_state()
 //
 
 OglSamplerUPtr OglSamplerFactory::create(
-	OglStatePtr ogl_state,
+	OglContextPtr ogl_context,
 	const RendererSamplerCreateParam& param)
 {
-	return std::make_unique<GenericOglSampler>(ogl_state, param);
+	return std::make_unique<GenericOglSampler>(ogl_context, param);
 }
 
 //

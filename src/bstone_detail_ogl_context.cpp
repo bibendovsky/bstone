@@ -28,7 +28,7 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_precompiled.h"
-#include "bstone_detail_ogl_state.h"
+#include "bstone_detail_ogl_context.h"
 
 #include <list>
 #include <vector>
@@ -55,34 +55,34 @@ namespace detail
 
 
 // ==========================================================================
-// OglState
+// OglContext
 //
 
-OglState::OglState() = default;
+OglContext::OglContext() = default;
 
-OglState::~OglState() = default;
+OglContext::~OglContext() = default;
 
 //
-// OglState
+// OglContext
 // ==========================================================================
 
 
 // ==========================================================================
-// GenericOglState
+// GenericOglContext
 //
 
-class GenericOglState :
-	public OglState
+class GenericOglContext :
+	public OglContext
 {
 public:
-	GenericOglState(
+	GenericOglContext(
 		const RendererDeviceFeatures& device_features,
 		const OglDeviceFeatures& ogl_device_features);
 
-	GenericOglState(
-		const GenericOglState& rhs) = delete;
+	GenericOglContext(
+		const GenericOglContext& rhs) = delete;
 
-	~GenericOglState() override;
+	~GenericOglContext() override;
 
 
 	const RendererDeviceFeatures& get_device_features() const noexcept override;
@@ -182,21 +182,21 @@ private:
 	void initialize_textures();
 
 	void mipmap_set_max_quality();
-}; // GenericOglState
+}; // GenericOglContext
 
-using GenericOglStatePtr = GenericOglState*;
-using GenericOglStateUPtr = std::unique_ptr<GenericOglState>;
+using GenericOglContextPtr = GenericOglContext*;
+using GenericOglContextUPtr = std::unique_ptr<GenericOglContext>;
 
 //
-// GenericOglState
+// GenericOglContext
 // ==========================================================================
 
 
 // ==========================================================================
-// GenericOglState
+// GenericOglContext
 //
 
-GenericOglState::GenericOglState(
+GenericOglContext::GenericOglContext(
 	const RendererDeviceFeatures& device_features,
 	const OglDeviceFeatures& ogl_device_features)
 	:
@@ -211,34 +211,34 @@ GenericOglState::GenericOglState(
 	initialize();
 }
 
-GenericOglState::~GenericOglState() = default;
+GenericOglContext::~GenericOglContext() = default;
 
-void GenericOglState::initialize_vertex_arrays()
+void GenericOglContext::initialize_vertex_arrays()
 {
 	vao_manager_ = OglVaoManagerFactory::create(this, device_features_, ogl_device_features_);
 }
 
-void GenericOglState::initialize_buffers()
+void GenericOglContext::initialize_buffers()
 {
 	buffer_manager_ = OglBufferManagerFactory::create(this, vao_manager_.get());
 }
 
-void GenericOglState::initialize_vertex_inputs()
+void GenericOglContext::initialize_vertex_inputs()
 {
 	vertex_input_manager_ = OglVertexInputManagerFactory::create(this);
 }
 
-void GenericOglState::initialize_samplers()
+void GenericOglContext::initialize_samplers()
 {
 	sampler_manager_ = OglSamplerManagerFactory::create(this);
 }
 
-void GenericOglState::initialize_textures()
+void GenericOglContext::initialize_textures()
 {
 	texture_manager_ = OglTextureManagerFactory::create(this);
 }
 
-void GenericOglState::mipmap_set_max_quality()
+void GenericOglContext::mipmap_set_max_quality()
 {
 	if (!device_features_.mipmap_is_available_)
 	{
@@ -254,7 +254,7 @@ void GenericOglState::mipmap_set_max_quality()
 	assert(!OglRendererUtils::was_errors());
 }
 
-void GenericOglState::initialize()
+void GenericOglContext::initialize()
 {
 	mipmap_set_max_quality();
 	initialize_vertex_arrays();
@@ -264,104 +264,104 @@ void GenericOglState::initialize()
 	initialize_textures();
 }
 
-const RendererDeviceFeatures& GenericOglState::get_device_features() const noexcept
+const RendererDeviceFeatures& GenericOglContext::get_device_features() const noexcept
 {
 	return device_features_;
 }
 
-const OglDeviceFeatures& GenericOglState::get_ogl_device_features() const noexcept
+const OglDeviceFeatures& GenericOglContext::get_ogl_device_features() const noexcept
 {
 	return ogl_device_features_;
 }
 
-RendererIndexBufferPtr GenericOglState::index_buffer_create(
+RendererIndexBufferPtr GenericOglContext::index_buffer_create(
 	const RendererIndexBufferCreateParam& param)
 {
 	return buffer_manager_->index_buffer_create(param);
 }
 
-RendererVertexBufferPtr GenericOglState::vertex_buffer_create(
+RendererVertexBufferPtr GenericOglContext::vertex_buffer_create(
 	const RendererVertexBufferCreateParam& param)
 {
 	return buffer_manager_->vertex_buffer_create(param);
 }
 
-void GenericOglState::buffer_destroy(
+void GenericOglContext::buffer_destroy(
 	const RendererBufferPtr buffer)
 {
 	buffer_manager_->buffer_destroy(buffer);
 }
 
-bool GenericOglState::buffer_set_current(
+bool GenericOglContext::buffer_set_current(
 	const RendererBufferKind buffer_kind,
 	const RendererBufferPtr buffer)
 {
 	return buffer_manager_->buffer_set_current(buffer_kind, buffer);
 }
 
-OglSamplerManagerPtr GenericOglState::sampler_get_manager() const noexcept
+OglSamplerManagerPtr GenericOglContext::sampler_get_manager() const noexcept
 {
 	return sampler_manager_.get();
 }
 
-RendererSamplerPtr GenericOglState::sampler_create(
+RendererSamplerPtr GenericOglContext::sampler_create(
 	const RendererSamplerCreateParam& param)
 {
 	return sampler_manager_->sampler_create(param);
 }
 
-void GenericOglState::sampler_destroy(
+void GenericOglContext::sampler_destroy(
 	const RendererSamplerPtr sampler)
 {
 	sampler_manager_->sampler_destroy(sampler);
 }
 
-void GenericOglState::sampler_set(
+void GenericOglContext::sampler_set(
 	const RendererSamplerPtr sampler)
 {
 	sampler_manager_->sampler_set(sampler);
 }
 
-OglTextureManagerPtr GenericOglState::texture_manager_get() const noexcept
+OglTextureManagerPtr GenericOglContext::texture_manager_get() const noexcept
 {
 	return texture_manager_.get();
 }
 
-RendererTexture2dPtr GenericOglState::texture_2d_create(
+RendererTexture2dPtr GenericOglContext::texture_2d_create(
 	const RendererTexture2dCreateParam& param)
 {
 	return texture_manager_->texture_2d_create(param);
 }
 
-void GenericOglState::texture_2d_destroy(
+void GenericOglContext::texture_2d_destroy(
 	const RendererTexture2dPtr texture_2d)
 {
 	texture_manager_->texture_2d_destroy(texture_2d);
 }
 
-void GenericOglState::texture_2d_set(
+void GenericOglContext::texture_2d_set(
 	const RendererTexture2dPtr texture_2d)
 {
 	texture_manager_->texture_2d_set(texture_2d);
 }
 
-OglVaoManagerPtr GenericOglState::vao_get_manager() const noexcept
+OglVaoManagerPtr GenericOglContext::vao_get_manager() const noexcept
 {
 	return vao_manager_.get();
 }
 
-OglVaoPtr GenericOglState::vao_create()
+OglVaoPtr GenericOglContext::vao_create()
 {
 	return vao_manager_->create();
 }
 
-void GenericOglState::vao_destroy(
+void GenericOglContext::vao_destroy(
 	const OglVaoPtr vao)
 {
 	vao_manager_->destroy(vao);
 }
 
-void GenericOglState::vao_bind(
+void GenericOglContext::vao_bind(
 	const OglVaoPtr vao)
 {
 	if (!vao)
@@ -372,40 +372,40 @@ void GenericOglState::vao_bind(
 	vao_manager_->bind(vao);
 }
 
-void GenericOglState::vao_push_current_set_default()
+void GenericOglContext::vao_push_current_set_default()
 {
 	vao_manager_->push_current_set_default();
 }
 
-void GenericOglState::vao_pop()
+void GenericOglContext::vao_pop()
 {
 	vao_manager_->pop();
 }
 
-OglVertexInputManagerPtr GenericOglState::vertex_input_get_manager() const noexcept
+OglVertexInputManagerPtr GenericOglContext::vertex_input_get_manager() const noexcept
 {
 	return vertex_input_manager_.get();
 }
 
-RendererVertexInputPtr GenericOglState::vertex_input_create(
+RendererVertexInputPtr GenericOglContext::vertex_input_create(
 	const RendererVertexInputCreateParam& param)
 {
 	return vertex_input_manager_->vertex_input_create(param);
 }
 
-void GenericOglState::vertex_input_destroy(
+void GenericOglContext::vertex_input_destroy(
 	const RendererVertexInputPtr vertex_input)
 {
 	vertex_input_manager_->vertex_input_destroy(vertex_input);
 }
 
-void GenericOglState::vertex_input_set(
+void GenericOglContext::vertex_input_set(
 	const RendererVertexInputPtr vertex_input)
 {
 	vertex_input_manager_->vertex_input_set(vertex_input);
 }
 
-RendererIndexBufferPtr GenericOglState::vertex_input_get_index_buffer() const noexcept
+RendererIndexBufferPtr GenericOglContext::vertex_input_get_index_buffer() const noexcept
 {
 	const auto vertex_input = static_cast<OglVertexInputPtr>(vertex_input_manager_->vertex_input_get_current());
 
@@ -418,15 +418,15 @@ RendererIndexBufferPtr GenericOglState::vertex_input_get_index_buffer() const no
 }
 
 //
-// GenericOglState
+// GenericOglContext
 // ==========================================================================
 
 
 // =========================================================================
-// OglStateFactory
+// OglContextFactory
 //
 
-OglStateUPtr OglStateFactory::create(
+OglContextUPtr OglContextFactory::create(
 	const RendererKind renderer_kind,
 	const RendererDeviceFeatures& device_features,
 	const OglDeviceFeatures& ogl_device_features)
@@ -434,7 +434,7 @@ OglStateUPtr OglStateFactory::create(
 	switch (renderer_kind)
 	{
 		case RendererKind::ogl_2_x:
-			return GenericOglStateUPtr{new GenericOglState{device_features, ogl_device_features}};
+			return GenericOglContextUPtr{new GenericOglContext{device_features, ogl_device_features}};
 
 		default:
 			throw Exception{"Unsupported renderer kind."};
@@ -442,7 +442,7 @@ OglStateUPtr OglStateFactory::create(
 }
 
 //
-// OglStateFactory
+// OglContextFactory
 // =========================================================================
 
 

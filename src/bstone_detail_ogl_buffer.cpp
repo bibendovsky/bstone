@@ -36,7 +36,7 @@ Free Software Foundation, Inc.,
 #include "bstone_unique_resource.h"
 
 #include "bstone_detail_ogl_renderer_utils.h"
-#include "bstone_detail_ogl_state.h"
+#include "bstone_detail_ogl_context.h"
 
 
 namespace bstone
@@ -67,7 +67,7 @@ class GenericOglBuffer :
 {
 public:
 	GenericOglBuffer(
-		const OglStatePtr ogl_state,
+		const OglContextPtr ogl_context,
 		const OglBufferFactory::InitializeParam& param);
 
 	~GenericOglBuffer() override;
@@ -86,7 +86,7 @@ public:
 		const RendererBufferUpdateParam& param) override;
 
 
-	OglStatePtr ogl_state_get() const noexcept override;
+	OglContextPtr ogl_context_get() const noexcept override;
 
 
 private:
@@ -100,7 +100,7 @@ private:
 	int size_;
 	BufferResource ogl_resource_;
 	GLenum ogl_target_;
-	const OglStatePtr ogl_state_;
+	const OglContextPtr ogl_context_;
 
 
 	void validate_param(
@@ -134,7 +134,7 @@ using GenericOglBufferUPtr = std::unique_ptr<GenericOglBuffer>;
 //
 
 GenericOglBuffer::GenericOglBuffer(
-	const OglStatePtr ogl_state,
+	const OglContextPtr ogl_context,
 	const OglBufferFactory::InitializeParam& param)
 	:
 	kind_{},
@@ -142,7 +142,7 @@ GenericOglBuffer::GenericOglBuffer(
 	size_{},
 	ogl_resource_{},
 	ogl_target_{},
-	ogl_state_{ogl_state}
+	ogl_context_{ogl_context}
 {
 	initialize(param);
 }
@@ -173,7 +173,7 @@ void GenericOglBuffer::bind(
 	const auto ogl_buffer = (is_bind ? this : nullptr);
 	const auto ogl_resource = (is_bind ? ogl_resource_.get() : 0);
 
-	if (ogl_state_->buffer_set_current(kind_, ogl_buffer))
+	if (ogl_context_->buffer_set_current(kind_, ogl_buffer))
 	{
 		::glBindBuffer(ogl_target_, ogl_resource);
 		assert(!detail::OglRendererUtils::was_errors());
@@ -190,7 +190,7 @@ void GenericOglBuffer::update(
 		return;
 	}
 
-	const auto& ogl_device_features = ogl_state_->get_ogl_device_features();
+	const auto& ogl_device_features = ogl_context_->get_ogl_device_features();
 
 	if (ogl_device_features.dsa_is_available_)
 	{
@@ -209,7 +209,7 @@ void GenericOglBuffer::update(
 
 		if (is_index)
 		{
-			ogl_state_->vao_push_current_set_default();
+			ogl_context_->vao_push_current_set_default();
 		}
 
 		bind(this);
@@ -225,14 +225,14 @@ void GenericOglBuffer::update(
 
 		if (is_index)
 		{
-			ogl_state_->vao_pop();
+			ogl_context_->vao_pop();
 		}
 	}
 }
 
-OglStatePtr GenericOglBuffer::ogl_state_get() const noexcept
+OglContextPtr GenericOglBuffer::ogl_context_get() const noexcept
 {
-	return ogl_state_;
+	return ogl_context_;
 }
 
 void GenericOglBuffer::resource_deleter(
@@ -245,14 +245,14 @@ void GenericOglBuffer::resource_deleter(
 void GenericOglBuffer::initialize(
 	const OglBufferFactory::InitializeParam& param)
 {
-	if (!ogl_state_)
+	if (!ogl_context_)
 	{
 		throw Exception{"Null OpenGL state."};
 	}
 
 	validate_param(param);
 
-	const auto& ogl_device_features = ogl_state_->get_ogl_device_features();
+	const auto& ogl_device_features = ogl_context_->get_ogl_device_features();
 
 	auto ogl_name = GLuint{};
 
@@ -291,7 +291,7 @@ void GenericOglBuffer::initialize(
 
 		if (is_index)
 		{
-			ogl_state_->vao_push_current_set_default();
+			ogl_context_->vao_push_current_set_default();
 		}
 
 		bind(true);
@@ -301,7 +301,7 @@ void GenericOglBuffer::initialize(
 
 		if (is_index)
 		{
-			ogl_state_->vao_pop();
+			ogl_context_->vao_pop();
 		}
 	}
 }
@@ -429,10 +429,10 @@ void GenericOglBuffer::uninitialize()
 //
 
 OglBufferUPtr OglBufferFactory::create(
-	const OglStatePtr ogl_state,
+	const OglContextPtr ogl_context,
 	const OglBufferFactory::InitializeParam& param)
 {
-	return std::make_unique<GenericOglBuffer>(ogl_state, param);
+	return std::make_unique<GenericOglBuffer>(ogl_context, param);
 }
 
 //

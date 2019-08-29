@@ -33,7 +33,7 @@ Free Software Foundation, Inc.,
 #include "bstone_exception.h"
 #include "bstone_uptr_resource_list.h"
 
-#include "bstone_detail_ogl_state.h"
+#include "bstone_detail_ogl_context.h"
 #include "bstone_detail_ogl_vertex_input.h"
 #include "bstone_detail_ogl_vao_manager.h"
 
@@ -66,12 +66,12 @@ class GenericOglVertexInputManager :
 {
 public:
 	GenericOglVertexInputManager(
-		const OglStatePtr ogl_state);
+		const OglContextPtr ogl_context);
 
 	~GenericOglVertexInputManager() override;
 
 
-	OglStatePtr ogl_state_get() const noexcept override;
+	OglContextPtr ogl_context_get() const noexcept override;
 
 
 	RendererVertexInputPtr vertex_input_create(
@@ -96,7 +96,7 @@ public:
 
 
 private:
-	const OglStatePtr ogl_state_;
+	const OglContextPtr ogl_context_;
 
 
 	using VertexInputs = UPtrResourceList<OglVertexInput, OglVertexInputFactory, Exception>;
@@ -128,9 +128,9 @@ using GenericOglVaoManagerUPtr = std::unique_ptr<GenericOglVertexInputManager>;
 //
 
 GenericOglVertexInputManager::GenericOglVertexInputManager(
-	const OglStatePtr ogl_state)
+	const OglContextPtr ogl_context)
 	:
-	ogl_state_{ogl_state},
+	ogl_context_{ogl_context},
 	vertex_input_current_{},
 	vertex_inputs_{},
 	vertex_input_location_is_assigning_{},
@@ -141,9 +141,9 @@ GenericOglVertexInputManager::GenericOglVertexInputManager(
 
 GenericOglVertexInputManager::~GenericOglVertexInputManager() = default;
 
-OglStatePtr GenericOglVertexInputManager::ogl_state_get() const noexcept
+OglContextPtr GenericOglVertexInputManager::ogl_context_get() const noexcept
 {
-	return ogl_state_;
+	return ogl_context_;
 }
 
 RendererVertexInputPtr GenericOglVertexInputManager::vertex_input_create(
@@ -186,7 +186,7 @@ void GenericOglVertexInputManager::vertex_input_location_enable(
 		return;
 	}
 
-	const auto vao_manager = ogl_state_->vao_get_manager();
+	const auto vao_manager = ogl_context_->vao_get_manager();
 
 	vao_manager->enable_location(location, is_enabled);
 }
@@ -216,7 +216,7 @@ void GenericOglVertexInputManager::vertex_input_location_assign_end()
 
 	vertex_input_location_is_assigning_ = false;
 
-	const auto& device_features = ogl_state_->get_device_features();
+	const auto& device_features = ogl_context_->get_device_features();
 
 	for (int i = 0; i < device_features.vertex_input_max_locations_; ++i)
 	{
@@ -226,7 +226,7 @@ void GenericOglVertexInputManager::vertex_input_location_assign_end()
 
 void GenericOglVertexInputManager::initialize_vertex_input_locations()
 {
-	const auto& device_features = ogl_state_->get_device_features();
+	const auto& device_features = ogl_context_->get_device_features();
 
 	vertex_input_assigned_locations_.resize(device_features.vertex_input_max_locations_);
 
@@ -238,7 +238,7 @@ void GenericOglVertexInputManager::initialize_vertex_input_locations()
 
 void GenericOglVertexInputManager::initialize()
 {
-	if (!ogl_state_)
+	if (!ogl_context_)
 	{
 		throw Exception{"Null OpenGL state."};
 	}
@@ -266,9 +266,9 @@ void GenericOglVertexInputManager::vertex_input_set()
 //
 
 OglVertexInputManagerUPtr OglVertexInputManagerFactory::create(
-	const OglStatePtr ogl_state)
+	const OglContextPtr ogl_context)
 {
-	return std::make_unique<GenericOglVertexInputManager>(ogl_state);
+	return std::make_unique<GenericOglVertexInputManager>(ogl_context);
 }
 
 //

@@ -66,7 +66,7 @@ class GenericOglBufferManager :
 {
 public:
 	GenericOglBufferManager(
-		const OglStatePtr ogl_state,
+		const OglContextPtr ogl_context,
 		const OglVaoManagerPtr ogl_vao_manager);
 
 	~GenericOglBufferManager() override;
@@ -89,7 +89,7 @@ public:
 
 
 private:
-	const OglStatePtr ogl_state_;
+	const OglContextPtr ogl_context_;
 	const OglVaoManagerPtr ogl_vao_manager_;
 
 	using IndexBuffers = UPtrResourceList<OglIndexBuffer, OglIndexBufferFactory, Exception>;
@@ -116,10 +116,10 @@ using GenericOglBufferManagerUPtr = std::unique_ptr<GenericOglBufferManager>;
 //
 
 GenericOglBufferManager::GenericOglBufferManager(
-	const OglStatePtr ogl_state,
+	const OglContextPtr ogl_context,
 	const OglVaoManagerPtr ogl_vao_manager)
 	:
-	ogl_state_{ogl_state},
+	ogl_context_{ogl_context},
 	ogl_vao_manager_{ogl_vao_manager},
 	index_buffers_{},
 	vertex_buffer_current_{},
@@ -133,13 +133,13 @@ GenericOglBufferManager::~GenericOglBufferManager() = default;
 RendererIndexBufferPtr GenericOglBufferManager::index_buffer_create(
 	const RendererIndexBufferCreateParam& param)
 {
-	return index_buffers_.add(ogl_state_, param);
+	return index_buffers_.add(ogl_context_, param);
 }
 
 RendererVertexBufferPtr GenericOglBufferManager::vertex_buffer_create(
 	const RendererVertexBufferCreateParam& param)
 {
-	return vertex_buffers_.add(ogl_state_, param);
+	return vertex_buffers_.add(ogl_context_, param);
 }
 
 void GenericOglBufferManager::buffer_destroy(
@@ -204,7 +204,7 @@ bool GenericOglBufferManager::buffer_set_current(
 
 void GenericOglBufferManager::initialize()
 {
-	if (!ogl_state_)
+	if (!ogl_context_)
 	{
 		throw Exception{"Null OpenGL state."};
 	}
@@ -220,10 +220,10 @@ void GenericOglBufferManager::initialize()
 //
 
 OglBufferManagerUPtr OglBufferManagerFactory::create(
-	const OglStatePtr ogl_state,
+	const OglContextPtr ogl_context,
 	const OglVaoManagerPtr ogl_vao_manager)
 {
-	return std::make_unique<GenericOglBufferManager>(ogl_state, ogl_vao_manager);
+	return std::make_unique<GenericOglBufferManager>(ogl_context, ogl_vao_manager);
 }
 
 //
