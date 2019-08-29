@@ -38,6 +38,7 @@ Free Software Foundation, Inc.,
 #include "bstone_detail_ogl_renderer_utils.h"
 #include "bstone_detail_ogl_context.h"
 #include "bstone_detail_ogl_vao.h"
+#include "bstone_detail_ogl_vao_manager.h"
 #include "bstone_detail_ogl_vertex_input_manager.h"
 #include "bstone_detail_renderer_utils.h"
 
@@ -127,16 +128,13 @@ GenericOglVertexInput::GenericOglVertexInput(
 	vertex_input_manager_{vertex_input_manager},
 	index_buffer_{},
 	attribute_descriptions_{},
-	ogl_resource_{nullptr, OglVaoDeleter{vertex_input_manager->ogl_context_get()}}
+	ogl_resource_{nullptr, OglVaoDeleter{vertex_input_manager->ogl_context_get()->vao_get_manager()}}
 {
 	initialize(param);
 }
 
 GenericOglVertexInput::~GenericOglVertexInput()
 {
-	const auto ogl_context = vertex_input_manager_->ogl_context_get();
-
-	ogl_context->vao_destroy(ogl_resource_.get());
 }
 
 RendererIndexBufferPtr GenericOglVertexInput::get_index_buffer() const noexcept
@@ -160,7 +158,9 @@ void GenericOglVertexInput::bind()
 			}
 		}
 
-		ogl_context->vao_bind(ogl_resource_.get());
+		const auto ogl_vao_manager = ogl_context->vao_get_manager();
+
+		ogl_vao_manager->bind(ogl_resource_.get());
 	}
 	else
 	{
@@ -171,10 +171,11 @@ void GenericOglVertexInput::bind()
 void GenericOglVertexInput::initialize_vao()
 {
 	const auto ogl_context = vertex_input_manager_->ogl_context_get();
+	const auto ogl_vao_manager = ogl_context->vao_get_manager();
 
-	ogl_resource_.reset(ogl_context->vao_create());
+	ogl_resource_.reset(ogl_vao_manager->create());
 
-	ogl_context->vao_bind(ogl_resource_.get());
+	ogl_vao_manager->bind(ogl_resource_.get());
 
 	index_buffer_->bind(true);
 

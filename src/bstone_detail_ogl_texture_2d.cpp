@@ -581,9 +581,7 @@ void GenericOglTexture2d::update_sampler_state(
 	//
 	if (is_modified)
 	{
-		const auto ogl_context = ogl_texture_manager_->ogl_context_get();
-
-		ogl_context->texture_2d_set(this);
+		ogl_texture_manager_->texture_2d_set(this);
 
 		if (is_mag_filter_modified)
 		{

@@ -42,11 +42,8 @@ namespace detail
 {
 
 
-class OglContext;
-using OglContextPtr = OglContext*;
-
-class OglBuffer;
-using OglBufferPtr = OglBuffer*;
+class OglBufferManager;
+using OglBufferManagerPtr = OglBufferManager*;
 
 
 // =========================================================================
@@ -62,9 +59,6 @@ protected:
 
 public:
 	~OglBuffer() override;
-
-
-	virtual OglContextPtr ogl_context_get() const noexcept = 0;
 }; // OglBuffer
 
 
@@ -90,7 +84,7 @@ struct OglBufferFactory final
 
 
 	static OglBufferUPtr create(
-		const OglContextPtr ogl_context,
+		const OglBufferManagerPtr ogl_buffer_manager,
 		const InitializeParam& param);
 }; // OglBufferFactory
 

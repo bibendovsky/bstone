@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL state (implementation).
+// OpenGL context (implementation).
 //
 
 
@@ -90,72 +90,15 @@ public:
 	const OglDeviceFeatures& get_ogl_device_features() const noexcept override;
 
 
-	RendererIndexBufferPtr index_buffer_create(
-		const RendererIndexBufferCreateParam& param) override;
-
-	RendererVertexBufferPtr vertex_buffer_create(
-		const RendererVertexBufferCreateParam& param) override;
-
-
-	void buffer_destroy(
-		const RendererBufferPtr buffer) override;
-
-	bool buffer_set_current(
-		const RendererBufferKind buffer_kind,
-		const RendererBufferPtr buffer) override;
-
+	OglBufferManagerPtr buffer_get_manager() const noexcept override;
 
 	OglSamplerManagerPtr sampler_get_manager() const noexcept override;
 
-	RendererSamplerPtr sampler_create(
-		const RendererSamplerCreateParam& param) override;
-
-	void sampler_destroy(
-		const RendererSamplerPtr sampler) override;
-
-	void sampler_set(
-		const RendererSamplerPtr sampler) override;
-
-
-	OglTextureManagerPtr texture_manager_get() const noexcept;
-
-	RendererTexture2dPtr texture_2d_create(
-		const RendererTexture2dCreateParam& param) override;
-
-	void texture_2d_destroy(
-		const RendererTexture2dPtr texture_2d) override;
-
-	void texture_2d_set(
-		const RendererTexture2dPtr texture_2d) override;
-
+	OglTextureManagerPtr texture_get_manager() const noexcept;
 
 	OglVaoManagerPtr vao_get_manager() const noexcept override;
 
-	OglVaoPtr vao_create() override;
-
-	void vao_destroy(
-		const OglVaoPtr vao) override;
-
-	void vao_bind(
-		const OglVaoPtr vao) override;
-
-	void vao_push_current_set_default() override;
-
-	void vao_pop() override;
-
-
 	OglVertexInputManagerPtr vertex_input_get_manager() const noexcept override;
-
-	RendererVertexInputPtr vertex_input_create(
-		const RendererVertexInputCreateParam& param) override;
-
-	void vertex_input_destroy(
-		const RendererVertexInputPtr vertex_input) override;
-
-	void vertex_input_set(
-		const RendererVertexInputPtr vertex_input) override;
-
-	RendererIndexBufferPtr vertex_input_get_index_buffer() const noexcept override;
 
 
 private:
@@ -274,29 +217,9 @@ const OglDeviceFeatures& GenericOglContext::get_ogl_device_features() const noex
 	return ogl_device_features_;
 }
 
-RendererIndexBufferPtr GenericOglContext::index_buffer_create(
-	const RendererIndexBufferCreateParam& param)
+OglBufferManagerPtr GenericOglContext::buffer_get_manager() const noexcept
 {
-	return buffer_manager_->index_buffer_create(param);
-}
-
-RendererVertexBufferPtr GenericOglContext::vertex_buffer_create(
-	const RendererVertexBufferCreateParam& param)
-{
-	return buffer_manager_->vertex_buffer_create(param);
-}
-
-void GenericOglContext::buffer_destroy(
-	const RendererBufferPtr buffer)
-{
-	buffer_manager_->buffer_destroy(buffer);
-}
-
-bool GenericOglContext::buffer_set_current(
-	const RendererBufferKind buffer_kind,
-	const RendererBufferPtr buffer)
-{
-	return buffer_manager_->buffer_set_current(buffer_kind, buffer);
+	return buffer_manager_.get();
 }
 
 OglSamplerManagerPtr GenericOglContext::sampler_get_manager() const noexcept
@@ -304,45 +227,9 @@ OglSamplerManagerPtr GenericOglContext::sampler_get_manager() const noexcept
 	return sampler_manager_.get();
 }
 
-RendererSamplerPtr GenericOglContext::sampler_create(
-	const RendererSamplerCreateParam& param)
-{
-	return sampler_manager_->sampler_create(param);
-}
-
-void GenericOglContext::sampler_destroy(
-	const RendererSamplerPtr sampler)
-{
-	sampler_manager_->sampler_destroy(sampler);
-}
-
-void GenericOglContext::sampler_set(
-	const RendererSamplerPtr sampler)
-{
-	sampler_manager_->sampler_set(sampler);
-}
-
-OglTextureManagerPtr GenericOglContext::texture_manager_get() const noexcept
+OglTextureManagerPtr GenericOglContext::texture_get_manager() const noexcept
 {
 	return texture_manager_.get();
-}
-
-RendererTexture2dPtr GenericOglContext::texture_2d_create(
-	const RendererTexture2dCreateParam& param)
-{
-	return texture_manager_->texture_2d_create(param);
-}
-
-void GenericOglContext::texture_2d_destroy(
-	const RendererTexture2dPtr texture_2d)
-{
-	texture_manager_->texture_2d_destroy(texture_2d);
-}
-
-void GenericOglContext::texture_2d_set(
-	const RendererTexture2dPtr texture_2d)
-{
-	texture_manager_->texture_2d_set(texture_2d);
 }
 
 OglVaoManagerPtr GenericOglContext::vao_get_manager() const noexcept
@@ -350,71 +237,9 @@ OglVaoManagerPtr GenericOglContext::vao_get_manager() const noexcept
 	return vao_manager_.get();
 }
 
-OglVaoPtr GenericOglContext::vao_create()
-{
-	return vao_manager_->create();
-}
-
-void GenericOglContext::vao_destroy(
-	const OglVaoPtr vao)
-{
-	vao_manager_->destroy(vao);
-}
-
-void GenericOglContext::vao_bind(
-	const OglVaoPtr vao)
-{
-	if (!vao)
-	{
-		throw Exception{"Null VAO."};
-	}
-
-	vao_manager_->bind(vao);
-}
-
-void GenericOglContext::vao_push_current_set_default()
-{
-	vao_manager_->push_current_set_default();
-}
-
-void GenericOglContext::vao_pop()
-{
-	vao_manager_->pop();
-}
-
 OglVertexInputManagerPtr GenericOglContext::vertex_input_get_manager() const noexcept
 {
 	return vertex_input_manager_.get();
-}
-
-RendererVertexInputPtr GenericOglContext::vertex_input_create(
-	const RendererVertexInputCreateParam& param)
-{
-	return vertex_input_manager_->vertex_input_create(param);
-}
-
-void GenericOglContext::vertex_input_destroy(
-	const RendererVertexInputPtr vertex_input)
-{
-	vertex_input_manager_->vertex_input_destroy(vertex_input);
-}
-
-void GenericOglContext::vertex_input_set(
-	const RendererVertexInputPtr vertex_input)
-{
-	vertex_input_manager_->vertex_input_set(vertex_input);
-}
-
-RendererIndexBufferPtr GenericOglContext::vertex_input_get_index_buffer() const noexcept
-{
-	const auto vertex_input = static_cast<OglVertexInputPtr>(vertex_input_manager_->vertex_input_get_current());
-
-	if (!vertex_input)
-	{
-		return nullptr;
-	}
-
-	return vertex_input->get_index_buffer();
 }
 
 //

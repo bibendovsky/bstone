@@ -75,6 +75,9 @@ public:
 	virtual ~OglBufferManager();
 
 
+	virtual OglContextPtr context_get() const noexcept = 0;
+
+
 	virtual RendererIndexBufferPtr index_buffer_create(
 		const RendererIndexBufferCreateParam& param) = 0;
 

@@ -241,16 +241,16 @@ void GenericOglVao::initialize()
 //
 
 OglVaoDeleter::OglVaoDeleter(
-	const OglContextPtr ogl_context)
+	const OglVaoManagerPtr ogl_vao_manager)
 	:
-	ogl_context_{ogl_context}
+	ogl_vao_manager_{ogl_vao_manager}
 {
 }
 
 void OglVaoDeleter::operator()(
 	const OglVaoPtr resource)
 {
-	ogl_context_->vao_destroy(resource);
+	ogl_vao_manager_->destroy(resource);
 }
 
 //
@@ -263,9 +263,9 @@ void OglVaoDeleter::operator()(
 //
 
 OglVaoUPtr OglVaoFactory::create(
-	const OglVaoManagerPtr manager)
+	const OglVaoManagerPtr ogl_vao_manager)
 {
-	return std::make_unique<GenericOglVao>(manager);
+	return std::make_unique<GenericOglVao>(ogl_vao_manager);
 }
 
 //

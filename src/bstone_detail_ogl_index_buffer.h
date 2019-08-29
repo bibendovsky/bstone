@@ -42,8 +42,8 @@ namespace detail
 {
 
 
-class OglContext;
-using OglContextPtr = OglContext*;
+class OglBufferManager;
+using OglBufferManagerPtr = OglBufferManager*;
 
 
 // =========================================================================
@@ -76,7 +76,7 @@ using OglIndexBufferUPtr = std::unique_ptr<OglIndexBuffer>;
 struct OglIndexBufferFactory final
 {
 	static OglIndexBufferUPtr create(
-		const OglContextPtr ogl_context,
+		const OglBufferManagerPtr ogl_buffer_manager,
 		const RendererIndexBufferCreateParam& param);
 }; // OglIndexBufferFactory
 

@@ -66,7 +66,7 @@ class GenericOglIndexBuffer :
 {
 public:
 	GenericOglIndexBuffer(
-		const OglContextPtr ogl_context,
+		const OglBufferManagerPtr ogl_buffer_manager,
 		const RendererIndexBufferCreateParam& param);
 
 	~GenericOglIndexBuffer() override = default;
@@ -93,7 +93,7 @@ private:
 
 
 	void initialize(
-		const OglContextPtr ogl_context,
+		const OglBufferManagerPtr ogl_buffer_manager,
 		const RendererIndexBufferCreateParam& param);
 }; // GenericOglIndexBuffer
 
@@ -110,13 +110,13 @@ using GenericOglIndexBufferUPtr = std::unique_ptr<GenericOglIndexBuffer>;
 //
 
 GenericOglIndexBuffer::GenericOglIndexBuffer(
-	const OglContextPtr ogl_context,
+	const OglBufferManagerPtr ogl_buffer_manager,
 	const RendererIndexBufferCreateParam& param)
 	:
 	byte_depth_{},
 	ogl_buffer_{}
 {
-	initialize(ogl_context, param);
+	initialize(ogl_buffer_manager, param);
 }
 
 void GenericOglIndexBuffer::update(
@@ -126,7 +126,7 @@ void GenericOglIndexBuffer::update(
 }
 
 void GenericOglIndexBuffer::initialize(
-	const OglContextPtr ogl_context,
+	const OglBufferManagerPtr ogl_buffer_manager,
 	const RendererIndexBufferCreateParam& param)
 {
 	RendererUtils::validate_index_buffer_create_param(param);
@@ -137,7 +137,7 @@ void GenericOglIndexBuffer::initialize(
 	buffer_param.size_ = param.size_;
 
 	byte_depth_ = param.byte_depth_;
-	ogl_buffer_ = OglBufferFactory::create(ogl_context, buffer_param);
+	ogl_buffer_ = OglBufferFactory::create(ogl_buffer_manager, buffer_param);
 }
 
 RendererBufferKind GenericOglIndexBuffer::get_kind() const noexcept
@@ -176,10 +176,10 @@ void GenericOglIndexBuffer::bind(
 //
 
 OglIndexBufferUPtr OglIndexBufferFactory::create(
-	const OglContextPtr ogl_context,
+	const OglBufferManagerPtr ogl_buffer_manager,
 	const RendererIndexBufferCreateParam& param)
 {
-	return std::make_unique<GenericOglIndexBuffer>(ogl_context, param);
+	return std::make_unique<GenericOglIndexBuffer>(ogl_buffer_manager, param);
 }
 
 //

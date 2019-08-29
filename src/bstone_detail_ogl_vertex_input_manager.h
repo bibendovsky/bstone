@@ -38,6 +38,9 @@ namespace bstone
 {
 
 
+class RendererIndexBuffer;
+using RendererIndexBufferPtr = RendererIndexBuffer*;
+
 class RendererVertexInput;
 using RendererVertexInputPtr = RendererVertexInput*;
 
@@ -79,6 +82,8 @@ public:
 		const RendererVertexInputPtr vertex_input) = 0;
 
 	virtual RendererVertexInputPtr vertex_input_get_current() const noexcept = 0;
+
+	virtual RendererIndexBufferPtr vertex_input_current_get_index_buffer() const noexcept = 0;
 
 
 	virtual void vertex_input_location_enable(

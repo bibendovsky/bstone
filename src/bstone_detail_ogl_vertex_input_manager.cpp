@@ -85,6 +85,8 @@ public:
 
 	RendererVertexInputPtr vertex_input_get_current() const noexcept override;
 
+	RendererIndexBufferPtr vertex_input_current_get_index_buffer() const noexcept override;
+
 
 	void vertex_input_location_enable(
 		const int location,
@@ -173,6 +175,16 @@ void GenericOglVertexInputManager::vertex_input_set(
 RendererVertexInputPtr GenericOglVertexInputManager::vertex_input_get_current() const noexcept
 {
 	return vertex_input_current_;
+}
+
+RendererIndexBufferPtr GenericOglVertexInputManager::vertex_input_current_get_index_buffer() const noexcept
+{
+	if (!vertex_input_current_)
+	{
+		return nullptr;
+	}
+
+	return vertex_input_current_->get_index_buffer();
 }
 
 void GenericOglVertexInputManager::vertex_input_location_enable(

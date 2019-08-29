@@ -259,7 +259,7 @@ void GenericOglSampler::update(
 		}
 		else
 		{
-			const auto texture_manager = ogl_context_->texture_manager_get();
+			const auto texture_manager = ogl_context_->texture_get_manager();
 
 			texture_manager->texture_2d_current_update_sampler_state(state_);
 		}

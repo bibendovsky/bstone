@@ -33,6 +33,7 @@ Free Software Foundation, Inc.,
 #include "bstone_exception.h"
 #include "bstone_uptr_resource_list.h"
 
+#include "bstone_detail_ogl_context.h"
 #include "bstone_detail_ogl_index_buffer.h"
 #include "bstone_detail_ogl_vao_manager.h"
 #include "bstone_detail_ogl_vertex_buffer.h"
@@ -70,6 +71,9 @@ public:
 		const OglVaoManagerPtr ogl_vao_manager);
 
 	~GenericOglBufferManager() override;
+
+
+	OglContextPtr context_get() const noexcept override;
 
 
 	RendererIndexBufferPtr index_buffer_create(
@@ -130,16 +134,21 @@ GenericOglBufferManager::GenericOglBufferManager(
 
 GenericOglBufferManager::~GenericOglBufferManager() = default;
 
+OglContextPtr GenericOglBufferManager::context_get() const noexcept
+{
+	return ogl_context_;
+}
+
 RendererIndexBufferPtr GenericOglBufferManager::index_buffer_create(
 	const RendererIndexBufferCreateParam& param)
 {
-	return index_buffers_.add(ogl_context_, param);
+	return index_buffers_.add(this, param);
 }
 
 RendererVertexBufferPtr GenericOglBufferManager::vertex_buffer_create(
 	const RendererVertexBufferCreateParam& param)
 {
-	return vertex_buffers_.add(ogl_context_, param);
+	return vertex_buffers_.add(this, param);
 }
 
 void GenericOglBufferManager::buffer_destroy(

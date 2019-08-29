@@ -39,7 +39,12 @@ Free Software Foundation, Inc.,
 
 #include "bstone_exception.h"
 
+#include "bstone_detail_ogl_buffer_manager.h"
 #include "bstone_detail_ogl_renderer_utils.h"
+#include "bstone_detail_ogl_sampler_manager.h"
+#include "bstone_detail_ogl_texture_manager.h"
+#include "bstone_detail_ogl_vertex_input.h"
+#include "bstone_detail_ogl_vertex_input_manager.h"
 #include "bstone_detail_ogl_extension_manager.h"
 
 
@@ -364,37 +369,37 @@ void Ogl2XRenderer::present()
 RendererIndexBufferPtr Ogl2XRenderer::index_buffer_create(
 	const RendererIndexBufferCreateParam& param)
 {
-	return ogl_context_->index_buffer_create(param);
+	return ogl_context_->buffer_get_manager()->index_buffer_create(param);
 }
 
 void Ogl2XRenderer::index_buffer_destroy(
 	RendererIndexBufferPtr index_buffer)
 {
-	ogl_context_->buffer_destroy(index_buffer);
+	ogl_context_->buffer_get_manager()->buffer_destroy(index_buffer);
 }
 
 RendererVertexBufferPtr Ogl2XRenderer::vertex_buffer_create(
 	const RendererVertexBufferCreateParam& param)
 {
-	return ogl_context_->vertex_buffer_create(param);
+	return ogl_context_->buffer_get_manager()->vertex_buffer_create(param);
 }
 
 void Ogl2XRenderer::vertex_buffer_destroy(
 	RendererVertexBufferPtr vertex_buffer)
 {
-	ogl_context_->buffer_destroy(vertex_buffer);
+	ogl_context_->buffer_get_manager()->buffer_destroy(vertex_buffer);
 }
 
 RendererVertexInputPtr Ogl2XRenderer::vertex_input_create(
 	const RendererVertexInputCreateParam& param)
 {
-	return ogl_context_->vertex_input_create(param);
+	return ogl_context_->vertex_input_get_manager()->vertex_input_create(param);
 }
 
 void Ogl2XRenderer::vertex_input_destroy(
 	RendererVertexInputPtr vertex_input)
 {
-	ogl_context_->vertex_input_destroy(vertex_input);
+	ogl_context_->vertex_input_get_manager()->vertex_input_destroy(vertex_input);
 }
 
 RendererShaderPtr Ogl2XRenderer::shader_create(
@@ -781,25 +786,25 @@ bool Ogl2XRenderer::probe_or_initialize(
 RendererTexture2dPtr Ogl2XRenderer::texture_2d_create(
 	const RendererTexture2dCreateParam& param)
 {
-	return ogl_context_->texture_2d_create(param);
+	return ogl_context_->texture_get_manager()->texture_2d_create(param);
 }
 
 void Ogl2XRenderer::texture_2d_destroy(
 	RendererTexture2dPtr texture_2d)
 {
-	ogl_context_->texture_2d_destroy(texture_2d);
+	ogl_context_->texture_get_manager()->texture_2d_destroy(texture_2d);
 }
 
 RendererSamplerPtr Ogl2XRenderer::sampler_create(
 	const RendererSamplerCreateParam& param)
 {
-	return ogl_context_->sampler_create(param);
+	return ogl_context_->sampler_get_manager()->sampler_create(param);
 }
 
 void Ogl2XRenderer::sampler_destroy(
 	RendererSamplerPtr sampler)
 {
-	ogl_context_->sampler_destroy(sampler);
+	ogl_context_->sampler_get_manager()->sampler_destroy(sampler);
 }
 
 void Ogl2XRenderer::uninitialize_internal(
@@ -1493,7 +1498,7 @@ void Ogl2XRenderer::blending_set_defaults()
 void Ogl2XRenderer::texture_set(
 	RendererTexture2dPtr new_texture_2d)
 {
-	ogl_context_->texture_2d_set(new_texture_2d);
+	ogl_context_->texture_get_manager()->texture_2d_set(new_texture_2d);
 }
 
 void Ogl2XRenderer::command_execute_culling(
@@ -1638,7 +1643,7 @@ void Ogl2XRenderer::command_execute_texture(
 void Ogl2XRenderer::command_execute_sampler(
 	const RendererCommandSampler& command)
 {
-	ogl_context_->sampler_set(command.sampler_);
+	ogl_context_->sampler_get_manager()->sampler_set(command.sampler_);
 }
 
 void Ogl2XRenderer::command_execute_vertex_input(
@@ -1646,7 +1651,7 @@ void Ogl2XRenderer::command_execute_vertex_input(
 {
 	auto vertex_input = static_cast<OglVertexInputPtr>(command.vertex_input_);
 
-	ogl_context_->vertex_input_set(vertex_input);
+	ogl_context_->vertex_input_get_manager()->vertex_input_set(vertex_input);
 }
 
 void Ogl2XRenderer::command_execute_shader_stage(
@@ -1753,7 +1758,7 @@ void Ogl2XRenderer::command_execute_draw_quads(
 	const auto indices_per_quad = triangles_per_quad * indices_per_triangle;
 	const auto index_count = indices_per_quad * command.count_;
 
-	auto index_buffer = ogl_context_->vertex_input_get_index_buffer();
+	auto index_buffer = ogl_context_->vertex_input_get_manager()->vertex_input_current_get_index_buffer();
 
 	if (!index_buffer)
 	{

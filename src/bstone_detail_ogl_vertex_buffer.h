@@ -42,8 +42,8 @@ namespace detail
 {
 
 
-class OglContext;
-using OglContextPtr = OglContext*;
+class OglBufferManager;
+using OglBufferManagerPtr = OglBufferManager*;
 
 
 // ==========================================================================
@@ -75,7 +75,7 @@ using OglVertexBufferUPtr = std::unique_ptr<OglVertexBuffer>;
 struct OglVertexBufferFactory final
 {
 	static OglVertexBufferUPtr create(
-		const OglContextPtr ogl_context,
+		const OglBufferManagerPtr ogl_buffer_manager,
 		const RendererVertexBufferCreateParam& param);
 }; // OglVertexBufferFactory
 
