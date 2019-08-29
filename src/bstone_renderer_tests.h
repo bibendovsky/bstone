@@ -34,25 +34,31 @@ Free Software Foundation, Inc.,
 #ifdef _DEBUG
 
 // Use textures with power-of-two dimensions.
-#define BSTONE_RENDERER_TEST_POT_ONLY
+//#define BSTONE_RENDERER_TEST_POT_ONLY
 
 // Use software mipmap generation.
-#define BSTONE_RENDERER_TEST_SW_MIPMAP
+//#define BSTONE_RENDERER_TEST_SW_MIPMAP
 
 // Use software samplers.
-#define BSTONE_RENDERER_TEST_SW_SAMPLER
+//#define BSTONE_RENDERER_TEST_SW_SAMPLER
 
 // Don't use anisotropy filter.
-#define BSTONE_RENDERER_TEST_NO_ANISOTROPY
+//#define BSTONE_RENDERER_TEST_NO_ANISOTROPY
 
 // Use default framebuffer.
-#define BSTONE_RENDERER_TEST_DEFAULT_FRAMEBUFFER
+//#define BSTONE_RENDERER_TEST_DEFAULT_FRAMEBUFFER
 
 // Don't use VAO (except if required).
-#define BSTONE_RENDERER_TEST_OGL_NO_VAO
+//#define BSTONE_RENDERER_TEST_OGL_NO_VAO
 
 // No swap interval control.
-#define BSTONE_RENDERER_TEST_NO_SWAP_INTERVAL
+//#define BSTONE_RENDERER_TEST_NO_SWAP_INTERVAL
+
+// No buffer storage.
+//#define BSTONE_RENDERER_TEST_OGL_NO_BUFFER_STORAGE
+
+// No direct state access.
+//#define BSTONE_RENDERER_TEST_OGL_NO_DSA
 
 #endif // _DEBUG
 

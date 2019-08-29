@@ -176,7 +176,13 @@ void GenericOglTexture2d::update(
 		throw Exception{"Mipmap level out of range."};
 	}
 
-	ogl_texture_manager_->texture_2d_set(this);
+	const auto ogl_state = ogl_texture_manager_->ogl_state_get();
+	const auto& ogl_device_features = ogl_state->get_ogl_device_features();
+
+	if (!ogl_device_features.dsa_is_available_)
+	{
+		ogl_texture_manager_->texture_2d_set(this);
+	}
 
 	auto mipmap_width = width_;
 	auto mipmap_height = height_;
@@ -214,13 +220,21 @@ void GenericOglTexture2d::generate_mipmaps()
 
 	const auto& ogl_device_features = ogl_state->get_ogl_device_features();
 
-	if (ogl_device_features.mipmap_function_ == nullptr)
+	if (ogl_device_features.dsa_is_available_)
 	{
-		throw Exception{"Null mipmap generation function."};
+		::glGenerateTextureMipmap(ogl_resource_.get());
+		assert(!OglRendererUtils::was_errors());
 	}
+	else
+	{
+		if (ogl_device_features.mipmap_function_ == nullptr)
+		{
+			throw Exception{"Null mipmap generation function."};
+		}
 
-	ogl_device_features.mipmap_function_(GL_TEXTURE_2D);
-	assert(!OglRendererUtils::was_errors());
+		ogl_device_features.mipmap_function_(GL_TEXTURE_2D);
+		assert(!OglRendererUtils::was_errors());
+	}
 }
 
 void GenericOglTexture2d::initialize(
@@ -241,12 +255,22 @@ void GenericOglTexture2d::initialize(
 		throw Exception{"Mipmap count out of range."};
 	}
 
+	const auto ogl_state = ogl_texture_manager_->ogl_state_get();
+	const auto& ogl_device_features = ogl_state->get_ogl_device_features();
 	const auto internal_format = (storage_pixel_format_ == RendererPixelFormat::r8g8b8a8_unorm ? GL_RGBA8 : GL_RGB8);
 
 	auto ogl_name = GLuint{};
 
-	::glGenTextures(1, &ogl_name);
-	assert(!OglRendererUtils::was_errors());
+	if (ogl_device_features.dsa_is_available_)
+	{
+		::glCreateTextures(GL_TEXTURE_2D, 1, &ogl_name);
+		assert(!OglRendererUtils::was_errors());
+	}
+	else
+	{
+		::glGenTextures(1, &ogl_name);
+		assert(!OglRendererUtils::was_errors());
+	}
 
 	if (ogl_name == 0)
 	{
@@ -255,43 +279,69 @@ void GenericOglTexture2d::initialize(
 
 	ogl_resource_.reset(ogl_name);
 
-	ogl_texture_manager_->texture_2d_set(this);
+	if (ogl_device_features.dsa_is_available_)
+	{
+		::glTextureParameteri(ogl_resource_.get(), GL_TEXTURE_BASE_LEVEL, 0);
+		assert(!OglRendererUtils::was_errors());
 
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-	assert(!OglRendererUtils::was_errors());
+		::glTextureParameteri(ogl_resource_.get(), GL_TEXTURE_MAX_LEVEL, mipmap_count_ - 1);
+		assert(!OglRendererUtils::was_errors());
+	}
+	else
+	{
+		ogl_texture_manager_->texture_2d_set(this);
 
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipmap_count_ - 1);
-	assert(!OglRendererUtils::was_errors());
+		::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+		assert(!OglRendererUtils::was_errors());
+
+		::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipmap_count_ - 1);
+		assert(!OglRendererUtils::was_errors());
+	}
 
 	set_sampler_state_defaults();
 
-	auto mipmap_width = width_;
-	auto mipmap_height = height_;
-
-	for (int i_mipmap = 0; i_mipmap < mipmap_count_; ++i_mipmap)
+	if (ogl_device_features.dsa_is_available_)
 	{
-		::glTexImage2D(
-			GL_TEXTURE_2D, // target
-			i_mipmap, // level
-			internal_format, // internal format
-			mipmap_width, // width
-			mipmap_height, // height
-			0, // border
-			GL_RGBA, // format
-			GL_UNSIGNED_BYTE, // type
-			nullptr // pixels
+		::glTextureStorage2D(
+			ogl_resource_.get(),
+			mipmap_count_,
+			internal_format,
+			width_,
+			height_
 		);
 
 		assert(!OglRendererUtils::was_errors());
+	}
+	else
+	{
+		auto mipmap_width = width_;
+		auto mipmap_height = height_;
 
-		if (mipmap_width > 1)
+		for (int i_mipmap = 0; i_mipmap < mipmap_count_; ++i_mipmap)
 		{
-			mipmap_width /= 2;
-		}
+			::glTexImage2D(
+				GL_TEXTURE_2D, // target
+				i_mipmap, // level
+				internal_format, // internal format
+				mipmap_width, // width
+				mipmap_height, // height
+				0, // border
+				GL_RGBA, // format
+				GL_UNSIGNED_BYTE, // type
+				nullptr // pixels
+			);
 
-		if (mipmap_height > 1)
-		{
-			mipmap_height /= 2;
+			assert(!OglRendererUtils::was_errors());
+
+			if (mipmap_width > 1)
+			{
+				mipmap_width /= 2;
+			}
+
+			if (mipmap_height > 1)
+			{
+				mipmap_height /= 2;
+			}
 		}
 	}
 }
@@ -307,19 +357,41 @@ void GenericOglTexture2d::upload_mipmap(
 	const int height,
 	const R8g8b8a8CPtr src_pixels)
 {
-	::glTexSubImage2D(
-		GL_TEXTURE_2D, // target
-		mipmap_level, // level
-		0, // xoffset
-		0, // yoffset
-		width, // width
-		height, // height
-		GL_RGBA, // format
-		GL_UNSIGNED_BYTE, // type
-		src_pixels // pixels
-	);
+	const auto ogl_state = ogl_texture_manager_->ogl_state_get();
+	const auto& ogl_device_features = ogl_state->get_ogl_device_features();
 
-	assert(!OglRendererUtils::was_errors());
+	if (ogl_device_features.dsa_is_available_)
+	{
+		::glTextureSubImage2D(
+			ogl_resource_.get(), // target
+			mipmap_level, // level
+			0, // xoffset
+			0, // yoffset
+			width, // width
+			height, // height
+			GL_RGBA, // format
+			GL_UNSIGNED_BYTE, // type
+			src_pixels // pixels
+		);
+
+		assert(!OglRendererUtils::was_errors());
+	}
+	else
+	{
+		::glTexSubImage2D(
+			GL_TEXTURE_2D, // target
+			mipmap_level, // level
+			0, // xoffset
+			0, // yoffset
+			width, // width
+			height, // height
+			GL_RGBA, // format
+			GL_UNSIGNED_BYTE, // type
+			src_pixels // pixels
+		);
+
+		assert(!OglRendererUtils::was_errors());
+	}
 }
 
 void GenericOglTexture2d::bind()
@@ -331,8 +403,19 @@ void GenericOglTexture2d::set_mag_filter()
 {
 	const auto ogl_mag_filter = OglRendererUtils::filter_get_mag(sampler_state_.mag_filter_);
 
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, ogl_mag_filter);
-	assert(!OglRendererUtils::was_errors());
+	const auto ogl_state = ogl_texture_manager_->ogl_state_get();
+	const auto& ogl_device_features = ogl_state->get_ogl_device_features();
+
+	if (ogl_device_features.dsa_is_available_)
+	{
+		::glTextureParameteri(ogl_resource_.get(), GL_TEXTURE_MAG_FILTER, ogl_mag_filter);
+		assert(!OglRendererUtils::was_errors());
+	}
+	else
+	{
+		::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, ogl_mag_filter);
+		assert(!OglRendererUtils::was_errors());
+	}
 }
 
 void GenericOglTexture2d::set_min_filter()
@@ -342,8 +425,19 @@ void GenericOglTexture2d::set_min_filter()
 		sampler_state_.mipmap_mode_
 	);
 
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, ogl_min_filter);
-	assert(!OglRendererUtils::was_errors());
+	const auto ogl_state = ogl_texture_manager_->ogl_state_get();
+	const auto& ogl_device_features = ogl_state->get_ogl_device_features();
+
+	if (ogl_device_features.dsa_is_available_)
+	{
+		::glTextureParameteri(ogl_resource_.get(), GL_TEXTURE_MIN_FILTER, ogl_min_filter);
+		assert(!OglRendererUtils::was_errors());
+	}
+	else
+	{
+		::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, ogl_min_filter);
+		assert(!OglRendererUtils::was_errors());
+	}
 }
 
 void GenericOglTexture2d::set_address_mode(
@@ -353,8 +447,19 @@ void GenericOglTexture2d::set_address_mode(
 	const auto ogl_wrap_axis = OglRendererUtils::texture_wrap_get_axis(texture_axis);
 	const auto ogl_address_mode = OglRendererUtils::address_mode_get(address_mode);
 
-	::glTexParameteri(GL_TEXTURE_2D, ogl_wrap_axis, ogl_address_mode);
-	assert(!OglRendererUtils::was_errors());
+	const auto ogl_state = ogl_texture_manager_->ogl_state_get();
+	const auto& ogl_device_features = ogl_state->get_ogl_device_features();
+
+	if (ogl_device_features.dsa_is_available_)
+	{
+		::glTextureParameteri(ogl_resource_.get(), ogl_wrap_axis, ogl_address_mode);
+		assert(!OglRendererUtils::was_errors());
+	}
+	else
+	{
+		::glTexParameteri(GL_TEXTURE_2D, ogl_wrap_axis, ogl_address_mode);
+		assert(!OglRendererUtils::was_errors());
+	}
 }
 
 void GenericOglTexture2d::set_address_mode_u()
@@ -372,11 +477,36 @@ void GenericOglTexture2d::set_anisotropy()
 	const auto ogl_state = ogl_texture_manager_->ogl_state_get();
 	const auto& device_features = ogl_state->get_device_features();
 
-	OglRendererUtils::anisotropy_set_value(
-		GL_TEXTURE_2D,
-		device_features,
-		sampler_state_.anisotropy_
-	);
+	if (!device_features.anisotropy_is_available_)
+	{
+		return;
+	}
+
+	auto anisotropy = sampler_state_.anisotropy_;
+
+	if (anisotropy < RendererSampler::anisotropy_min)
+	{
+		anisotropy = RendererSampler::anisotropy_min;
+	}
+	else if (anisotropy > device_features.anisotropy_max_value_)
+	{
+		anisotropy = device_features.anisotropy_max_value_;
+	}
+
+	const auto ogl_anisotropy = static_cast<GLfloat>(anisotropy);
+
+	const auto& ogl_device_features = ogl_state->get_ogl_device_features();
+
+	if (ogl_device_features.dsa_is_available_)
+	{
+		::glTextureParameterf(ogl_resource_.get(), GL_TEXTURE_MAX_ANISOTROPY, ogl_anisotropy);
+		assert(!OglRendererUtils::was_errors());
+	}
+	else
+	{
+		::glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, ogl_anisotropy);
+		assert(!OglRendererUtils::was_errors());
+	}
 }
 
 void GenericOglTexture2d::update_sampler_state(

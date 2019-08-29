@@ -153,6 +153,16 @@ public:
 		const bool is_enabled);
 
 
+	static void buffer_storage_probe(
+		const OglExtensionManagerPtr extension_manager,
+		OglDeviceFeatures& ogl_device_features);
+
+
+	static void dsa_probe(
+		const OglExtensionManagerPtr extension_manager,
+		OglDeviceFeatures& ogl_device_features);
+
+
 	static void clear_buffers();
 
 	static void swap_window(

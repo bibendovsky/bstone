@@ -572,6 +572,38 @@ bool OglRendererUtils::vsync_set(
 	return sdl_result == 0;
 }
 
+void OglRendererUtils::buffer_storage_probe(
+	const OglExtensionManagerPtr extension_manager,
+	OglDeviceFeatures& ogl_device_features)
+{
+	ogl_device_features.buffer_storage_is_available_ = false;
+
+#ifndef BSTONE_RENDERER_TEST_OGL_NO_BUFFER_STORAGE
+	extension_manager->probe_extension(OglExtensionId::arb_buffer_storage);
+
+	if (extension_manager->has_extension(OglExtensionId::arb_buffer_storage))
+	{
+		ogl_device_features.buffer_storage_is_available_ = true;
+	}
+#endif // !BSTONE_RENDERER_TEST_OGL_NO_BUFFER_STORAGE
+}
+
+void OglRendererUtils::dsa_probe(
+	const OglExtensionManagerPtr extension_manager,
+	OglDeviceFeatures& ogl_device_features)
+{
+	ogl_device_features.dsa_is_available_ = false;
+
+#ifndef BSTONE_RENDERER_TEST_OGL_NO_DSA
+	extension_manager->probe_extension(OglExtensionId::arb_direct_state_access);
+
+	if (extension_manager->has_extension(OglExtensionId::arb_direct_state_access))
+	{
+		ogl_device_features.dsa_is_available_ = true;
+	}
+#endif // !BSTONE_RENDERER_TEST_OGL_NO_DSA
+}
+
 void OglRendererUtils::clear_buffers()
 {
 	assert(::glClear != nullptr);

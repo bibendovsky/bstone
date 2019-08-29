@@ -184,9 +184,13 @@ private:
 	void resolve_v3_1();
 
 
+	void resolve_arb_buffer_storage();
+
 	void resolve_arb_color_buffer_float();
 
 	void resolve_arb_copy_buffer();
+
+	void resolve_arb_direct_state_access();
 
 	void resolve_arb_framebuffer_object();
 
@@ -464,6 +468,20 @@ void OglExtensionManagerImpl::initialize_registry()
 	}
 
 	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::arb_buffer_storage)];
+		registry_item.is_virtual_ = false;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = true;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
+		registry_item.extension_name_ = "GL_ARB_buffer_storage";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_arb_buffer_storage;
+		registry_item.dependencies_ = {};
+	}
+
+	{
 		auto& registry_item = registry_[static_cast<int>(OglExtensionId::arb_color_buffer_float)];
 		registry_item.is_virtual_ = false;
 		registry_item.is_probed_ = false;
@@ -502,6 +520,20 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "GL_ARB_depth_buffer_float";
 		registry_item.resolve_symbols_function_ = nullptr;
+		registry_item.dependencies_ = {};
+	}
+
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::arb_direct_state_access)];
+		registry_item.is_virtual_ = false;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = true;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
+		registry_item.extension_name_ = "GL_ARB_direct_state_access";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_arb_direct_state_access;
 		registry_item.dependencies_ = {};
 	}
 
@@ -1713,6 +1745,11 @@ void OglExtensionManagerImpl::resolve_v3_1()
 	resolve_symbol("glPrimitiveRestartIndex", ::glPrimitiveRestartIndex);
 }
 
+void OglExtensionManagerImpl::resolve_arb_buffer_storage()
+{
+	resolve_symbol("glBufferStorage", ::glBufferStorage);
+}
+
 void OglExtensionManagerImpl::resolve_arb_color_buffer_float()
 {
 	resolve_symbol("glClampColorARB", ::glClampColorARB);
@@ -1721,6 +1758,107 @@ void OglExtensionManagerImpl::resolve_arb_color_buffer_float()
 void OglExtensionManagerImpl::resolve_arb_copy_buffer()
 {
 	resolve_symbol("glCopyBufferSubData", ::glCopyBufferSubData);
+}
+
+void OglExtensionManagerImpl::resolve_arb_direct_state_access()
+{
+	resolve_symbol("glCreateTransformFeedbacks", ::glCreateTransformFeedbacks);
+	resolve_symbol("glTransformFeedbackBufferBase", ::glTransformFeedbackBufferBase);
+	resolve_symbol("glTransformFeedbackBufferRange", ::glTransformFeedbackBufferRange);
+	resolve_symbol("glGetTransformFeedbackiv", ::glGetTransformFeedbackiv);
+	resolve_symbol("glGetTransformFeedbacki_v", ::glGetTransformFeedbacki_v);
+	resolve_symbol("glGetTransformFeedbacki64_v", ::glGetTransformFeedbacki64_v);
+	resolve_symbol("glCreateBuffers", ::glCreateBuffers);
+	resolve_symbol("glNamedBufferStorage", ::glNamedBufferStorage);
+	resolve_symbol("glNamedBufferData", ::glNamedBufferData);
+	resolve_symbol("glNamedBufferSubData", ::glNamedBufferSubData);
+	resolve_symbol("glCopyNamedBufferSubData", ::glCopyNamedBufferSubData);
+	resolve_symbol("glClearNamedBufferData", ::glClearNamedBufferData);
+	resolve_symbol("glClearNamedBufferSubData", ::glClearNamedBufferSubData);
+	resolve_symbol("glMapNamedBuffer", ::glMapNamedBuffer);
+	resolve_symbol("glMapNamedBufferRange", ::glMapNamedBufferRange);
+	resolve_symbol("glUnmapNamedBuffer", ::glUnmapNamedBuffer);
+	resolve_symbol("glFlushMappedNamedBufferRange", ::glFlushMappedNamedBufferRange);
+	resolve_symbol("glGetNamedBufferParameteriv", ::glGetNamedBufferParameteriv);
+	resolve_symbol("glGetNamedBufferParameteri64v", ::glGetNamedBufferParameteri64v);
+	resolve_symbol("glGetNamedBufferPointerv", ::glGetNamedBufferPointerv);
+	resolve_symbol("glGetNamedBufferSubData", ::glGetNamedBufferSubData);
+	resolve_symbol("glCreateFramebuffers", ::glCreateFramebuffers);
+	resolve_symbol("glNamedFramebufferRenderbuffer", ::glNamedFramebufferRenderbuffer);
+	resolve_symbol("glNamedFramebufferParameteri", ::glNamedFramebufferParameteri);
+	resolve_symbol("glNamedFramebufferTexture", ::glNamedFramebufferTexture);
+	resolve_symbol("glNamedFramebufferTextureLayer", ::glNamedFramebufferTextureLayer);
+	resolve_symbol("glNamedFramebufferDrawBuffer", ::glNamedFramebufferDrawBuffer);
+	resolve_symbol("glNamedFramebufferDrawBuffers", ::glNamedFramebufferDrawBuffers);
+	resolve_symbol("glNamedFramebufferReadBuffer", ::glNamedFramebufferReadBuffer);
+	resolve_symbol("glInvalidateNamedFramebufferData", ::glInvalidateNamedFramebufferData);
+	resolve_symbol("glInvalidateNamedFramebufferSubData", ::glInvalidateNamedFramebufferSubData);
+	resolve_symbol("glClearNamedFramebufferiv", ::glClearNamedFramebufferiv);
+	resolve_symbol("glClearNamedFramebufferuiv", ::glClearNamedFramebufferuiv);
+	resolve_symbol("glClearNamedFramebufferfv", ::glClearNamedFramebufferfv);
+	resolve_symbol("glClearNamedFramebufferfi", ::glClearNamedFramebufferfi);
+	resolve_symbol("glBlitNamedFramebuffer", ::glBlitNamedFramebuffer);
+	resolve_symbol("glCheckNamedFramebufferStatus", ::glCheckNamedFramebufferStatus);
+	resolve_symbol("glGetNamedFramebufferParameteriv", ::glGetNamedFramebufferParameteriv);
+	resolve_symbol("glGetNamedFramebufferAttachmentParameteriv", ::glGetNamedFramebufferAttachmentParameteriv);
+	resolve_symbol("glCreateRenderbuffers", ::glCreateRenderbuffers);
+	resolve_symbol("glNamedRenderbufferStorage", ::glNamedRenderbufferStorage);
+	resolve_symbol("glNamedRenderbufferStorageMultisample", ::glNamedRenderbufferStorageMultisample);
+	resolve_symbol("glGetNamedRenderbufferParameteriv", ::glGetNamedRenderbufferParameteriv);
+	resolve_symbol("glCreateTextures", ::glCreateTextures);
+	resolve_symbol("glTextureBuffer", ::glTextureBuffer);
+	resolve_symbol("glTextureBufferRange", ::glTextureBufferRange);
+	resolve_symbol("glTextureStorage1D", ::glTextureStorage1D);
+	resolve_symbol("glTextureStorage2D", ::glTextureStorage2D);
+	resolve_symbol("glTextureStorage3D", ::glTextureStorage3D);
+	resolve_symbol("glTextureStorage2DMultisample", ::glTextureStorage2DMultisample);
+	resolve_symbol("glTextureStorage3DMultisample", ::glTextureStorage3DMultisample);
+	resolve_symbol("glTextureSubImage1D", ::glTextureSubImage1D);
+	resolve_symbol("glTextureSubImage2D", ::glTextureSubImage2D);
+	resolve_symbol("glTextureSubImage3D", ::glTextureSubImage3D);
+	resolve_symbol("glCompressedTextureSubImage1D", ::glCompressedTextureSubImage1D);
+	resolve_symbol("glCompressedTextureSubImage2D", ::glCompressedTextureSubImage2D);
+	resolve_symbol("glCompressedTextureSubImage3D", ::glCompressedTextureSubImage3D);
+	resolve_symbol("glCopyTextureSubImage1D", ::glCopyTextureSubImage1D);
+	resolve_symbol("glCopyTextureSubImage2D", ::glCopyTextureSubImage2D);
+	resolve_symbol("glCopyTextureSubImage3D", ::glCopyTextureSubImage3D);
+	resolve_symbol("glTextureParameterf", ::glTextureParameterf);
+	resolve_symbol("glTextureParameterfv", ::glTextureParameterfv);
+	resolve_symbol("glTextureParameteri", ::glTextureParameteri);
+	resolve_symbol("glTextureParameterIiv", ::glTextureParameterIiv);
+	resolve_symbol("glTextureParameterIuiv", ::glTextureParameterIuiv);
+	resolve_symbol("glTextureParameteriv", ::glTextureParameteriv);
+	resolve_symbol("glGenerateTextureMipmap", ::glGenerateTextureMipmap);
+	resolve_symbol("glBindTextureUnit", ::glBindTextureUnit);
+	resolve_symbol("glGetTextureImage", ::glGetTextureImage);
+	resolve_symbol("glGetCompressedTextureImage", ::glGetCompressedTextureImage);
+	resolve_symbol("glGetTextureLevelParameterfv", ::glGetTextureLevelParameterfv);
+	resolve_symbol("glGetTextureLevelParameteriv", ::glGetTextureLevelParameteriv);
+	resolve_symbol("glGetTextureParameterfv", ::glGetTextureParameterfv);
+	resolve_symbol("glGetTextureParameterIiv", ::glGetTextureParameterIiv);
+	resolve_symbol("glGetTextureParameterIuiv", ::glGetTextureParameterIuiv);
+	resolve_symbol("glGetTextureParameteriv", ::glGetTextureParameteriv);
+	resolve_symbol("glCreateVertexArrays", ::glCreateVertexArrays);
+	resolve_symbol("glDisableVertexArrayAttrib", ::glDisableVertexArrayAttrib);
+	resolve_symbol("glEnableVertexArrayAttrib", ::glEnableVertexArrayAttrib);
+	resolve_symbol("glVertexArrayElementBuffer", ::glVertexArrayElementBuffer);
+	resolve_symbol("glVertexArrayVertexBuffer", ::glVertexArrayVertexBuffer);
+	resolve_symbol("glVertexArrayVertexBuffers", ::glVertexArrayVertexBuffers);
+	resolve_symbol("glVertexArrayAttribBinding", ::glVertexArrayAttribBinding);
+	resolve_symbol("glVertexArrayAttribFormat", ::glVertexArrayAttribFormat);
+	resolve_symbol("glVertexArrayAttribIFormat", ::glVertexArrayAttribIFormat);
+	resolve_symbol("glVertexArrayAttribLFormat", ::glVertexArrayAttribLFormat);
+	resolve_symbol("glVertexArrayBindingDivisor", ::glVertexArrayBindingDivisor);
+	resolve_symbol("glGetVertexArrayiv", ::glGetVertexArrayiv);
+	resolve_symbol("glGetVertexArrayIndexediv", ::glGetVertexArrayIndexediv);
+	resolve_symbol("glGetVertexArrayIndexed64iv", ::glGetVertexArrayIndexed64iv);
+	resolve_symbol("glCreateSamplers", ::glCreateSamplers);
+	resolve_symbol("glCreateProgramPipelines", ::glCreateProgramPipelines);
+	resolve_symbol("glCreateQueries", ::glCreateQueries);
+	resolve_symbol("glGetQueryBufferObjecti64v", ::glGetQueryBufferObjecti64v);
+	resolve_symbol("glGetQueryBufferObjectiv", ::glGetQueryBufferObjectiv);
+	resolve_symbol("glGetQueryBufferObjectui64v", ::glGetQueryBufferObjectui64v);
+	resolve_symbol("glGetQueryBufferObjectuiv", ::glGetQueryBufferObjectuiv);
 }
 
 void OglExtensionManagerImpl::resolve_arb_framebuffer_object()

@@ -282,6 +282,7 @@ void GenericOglSampler::initialize(
 	const RendererSamplerCreateParam& param)
 {
 	const auto& device_features = ogl_state_->get_device_features();
+	const auto& ogl_device_features = ogl_state_->get_ogl_device_features();
 
 	state_ = param.state_;
 
@@ -289,8 +290,16 @@ void GenericOglSampler::initialize(
 	{
 		auto ogl_name = GLuint{};
 
-		::glGenSamplers(1, &ogl_name);
-		assert(!OglRendererUtils::was_errors());
+		if (ogl_device_features.dsa_is_available_)
+		{
+			::glCreateSamplers(1, &ogl_name);
+			assert(!OglRendererUtils::was_errors());
+		}
+		else
+		{
+			::glGenSamplers(1, &ogl_name);
+			assert(!OglRendererUtils::was_errors());
+		}
 
 		if (ogl_name == 0)
 		{

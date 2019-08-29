@@ -701,6 +701,16 @@ bool Ogl2XRenderer::probe_or_initialize(
 
 	OglRendererUtils::vertex_input_probe_max_locations(device_features_);
 
+	OglRendererUtils::buffer_storage_probe(
+		extension_manager_.get(),
+		ogl_device_features_
+	);
+
+	OglRendererUtils::dsa_probe(
+		extension_manager_.get(),
+		ogl_device_features_
+	);
+
 	if (device_features_.vertex_input_max_locations_ <= 0)
 	{
 		error_message_ = "No vertex input locations.";

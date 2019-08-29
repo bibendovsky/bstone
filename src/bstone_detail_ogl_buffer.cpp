@@ -190,27 +190,43 @@ void GenericOglBuffer::update(
 		return;
 	}
 
-	const auto is_index = (kind_ == RendererBufferKind::index);
+	const auto& ogl_device_features = ogl_state_->get_ogl_device_features();
 
-	if (is_index)
+	if (ogl_device_features.dsa_is_available_)
 	{
-		ogl_state_->vao_push_current_set_default();
+		::glNamedBufferSubData(
+			ogl_resource_.get(),
+			param.offset_,
+			param.size_,
+			param.data_
+		);
+
+		assert(!detail::OglRendererUtils::was_errors());
 	}
-
-	bind(this);
-
-	::glBufferSubData(
-		ogl_target_,
-		param.offset_,
-		param.size_,
-		param.data_
-	);
-
-	assert(!detail::OglRendererUtils::was_errors());
-
-	if (is_index)
+	else
 	{
-		ogl_state_->vao_pop();
+		const auto is_index = (kind_ == RendererBufferKind::index);
+
+		if (is_index)
+		{
+			ogl_state_->vao_push_current_set_default();
+		}
+
+		bind(this);
+
+		::glBufferSubData(
+			ogl_target_,
+			param.offset_,
+			param.size_,
+			param.data_
+		);
+
+		assert(!detail::OglRendererUtils::was_errors());
+
+		if (is_index)
+		{
+			ogl_state_->vao_pop();
+		}
 	}
 }
 
@@ -236,9 +252,20 @@ void GenericOglBuffer::initialize(
 
 	validate_param(param);
 
+	const auto& ogl_device_features = ogl_state_->get_ogl_device_features();
+
 	auto ogl_name = GLuint{};
-	::glGenBuffers(1, &ogl_name);
-	assert(!detail::OglRendererUtils::was_errors());
+
+	if (ogl_device_features.dsa_is_available_)
+	{
+		::glCreateBuffers(1, &ogl_name);
+		assert(!detail::OglRendererUtils::was_errors());
+	}
+	else
+	{
+		::glGenBuffers(1, &ogl_name);
+		assert(!detail::OglRendererUtils::was_errors());
+	}
 
 	if (ogl_name == 0)
 	{
@@ -251,23 +278,31 @@ void GenericOglBuffer::initialize(
 	ogl_resource_.reset(ogl_name);
 	ogl_target_ = ogl_get_target(param.kind_);
 
-	const auto is_index = (kind_ == RendererBufferKind::index);
-
-	if (is_index)
-	{
-		ogl_state_->vao_push_current_set_default();
-	}
-
-	bind(true);
-
 	const auto olg_usage = ogl_get_usage(param.usage_kind_);
 
-	::glBufferData(ogl_target_, param.size_, nullptr, olg_usage);
-	assert(!detail::OglRendererUtils::was_errors());
-
-	if (is_index)
+	if (ogl_device_features.buffer_storage_is_available_)
 	{
-		ogl_state_->vao_pop();
+		::glNamedBufferStorage(ogl_resource_.get(), param.size_, nullptr, GL_DYNAMIC_STORAGE_BIT);
+		assert(!detail::OglRendererUtils::was_errors());
+	}
+	else
+	{
+		const auto is_index = (kind_ == RendererBufferKind::index);
+
+		if (is_index)
+		{
+			ogl_state_->vao_push_current_set_default();
+		}
+
+		bind(true);
+
+		::glBufferData(ogl_target_, param.size_, nullptr, olg_usage);
+		assert(!detail::OglRendererUtils::was_errors());
+
+		if (is_index)
+		{
+			ogl_state_->vao_pop();
+		}
 	}
 }
 

@@ -82,9 +82,11 @@ enum class OglExtensionId
 	// Real extensions.
 	//
 
+	arb_buffer_storage,
 	arb_color_buffer_float,
 	arb_copy_buffer,
 	arb_depth_buffer_float,
+	arb_direct_state_access,
 	arb_framebuffer_object,
 	arb_framebuffer_srgb,
 	arb_half_float_vertex,
