@@ -30,6 +30,8 @@ Free Software Foundation, Inc.,
 #include "bstone_precompiled.h"
 #include "bstone_detail_renderer_command_manager.h"
 
+#include <algorithm>
+
 
 namespace bstone
 {

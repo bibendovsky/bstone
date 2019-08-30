@@ -23,17 +23,16 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL shader object (implementation).
-//
-// !!! Internal usage only. !!!
+// OpenGL shader stage manager (implementation interface).
 //
 
 
-#ifndef BSTONE_DETAIL_OLG_SHADER_INCLUDED
-#define BSTONE_DETAIL_OLG_SHADER_INCLUDED
+#ifndef BSTONE_DETAIL_OGL_SHADER_STAGE_MANAGER_INCLUDED
+#define BSTONE_DETAIL_OGL_SHADER_STAGE_MANAGER_INCLUDED
 
 
-#include "bstone_ogl_api.h"
+#include <memory>
+
 #include "bstone_renderer.h"
 
 
@@ -43,55 +42,54 @@ namespace detail
 {
 
 
-class OglShaderManager;
-using OglShaderManagerPtr = OglShaderManager*;
-
-class OglShaderStage;
-using OglShaderStagePtr = OglShaderStage*;
+class OglContext;
+using OglContextPtr = OglContext*;
 
 
 // ==========================================================================
-// OglShader
+// OglShaderStageManager
 //
 
-class OglShader :
-	public RendererShader
+class OglShaderStageManager
 {
 protected:
-	OglShader();
+	OglShaderStageManager();
 
 
 public:
-	~OglShader() override;
+	virtual ~OglShaderStageManager();
 
 
-	virtual GLuint get_ogl_name() const noexcept = 0;
+	virtual RendererShaderStagePtr shader_stage_create(
+		const RendererShaderStage::CreateParam& param) = 0;
 
-	virtual void attach_to_shader_stage(
-		const OglShaderStagePtr shader_stage) = 0;
-}; // OglShader
+	virtual void shader_stage_destroy(
+		const RendererShaderStagePtr shader_stage) = 0;
 
-using OglShaderPtr = OglShader*;
-using OglShaderUPtr = std::unique_ptr<OglShader>;
+	virtual bool shader_stage_set_current(
+		const RendererShaderStagePtr shader_stage) = 0;
+}; // OglShaderStageManager
+
+using OglShaderStageManagerPtr = OglShaderStageManager*;
+using OglShaderStageManagerUPtr = std::unique_ptr<OglShaderStageManager>;
 
 //
-// OglShader
+// OglShaderStageManager
 // ==========================================================================
 
 
 // ==========================================================================
-// OglShaderFactory
+// OglShaderStageManagerFactory
 //
 
-struct OglShaderFactory final
+struct OglShaderStageManagerFactory final
 {
-	static OglShaderUPtr create(
-		const OglShaderManagerPtr ogl_shader_manager,
-		const RendererShader::CreateParam& param);
-}; // OglShaderFactory
+	static OglShaderStageManagerUPtr create(
+		const OglContextPtr ogl_context);
+}; // OglShaderStageManagerFactory
 
 //
-// OglShaderFactory
+// OglShaderStageManager
 // ==========================================================================
 
 
@@ -99,4 +97,4 @@ struct OglShaderFactory final
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_OLG_SHADER_INCLUDED
+#endif // !BSTONE_DETAIL_OGL_SHADER_STAGE_MANAGER_INCLUDED

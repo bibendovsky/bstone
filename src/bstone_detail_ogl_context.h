@@ -60,6 +60,12 @@ using OglVaoManagerPtr = OglVaoManager*;
 class OglVertexInputManager;
 using OglVertexInputManagerPtr = OglVertexInputManager*;
 
+class OglShaderManager;
+using OglShaderManagerPtr = OglShaderManager*;
+
+class OglShaderStageManager;
+using OglShaderStageManagerPtr = OglShaderStageManager*;
+
 
 // =========================================================================
 // OglContext
@@ -90,6 +96,10 @@ public:
 	virtual OglVaoManagerPtr vao_get_manager() const noexcept = 0;
 
 	virtual OglVertexInputManagerPtr vertex_input_get_manager() const noexcept = 0;
+
+	virtual OglShaderManagerPtr shader_get_manager() const noexcept = 0;
+
+	virtual OglShaderStageManagerPtr shader_stage_get_manager() const noexcept = 0;
 }; // OglContext
 
 

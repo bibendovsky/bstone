@@ -43,106 +43,54 @@ namespace detail
 {
 
 
-class OglShaderStage;
-using OglShaderStagePtr = OglShaderStage*;
+class OglShaderStageManager;
+using OglShaderStageManagerPtr = OglShaderStageManager*;
 
 
-class OglShaderStage final :
+// ==========================================================================
+// OglShaderStage
+//
+
+class OglShaderStage :
 	public RendererShaderStage
 {
+protected:
+	OglShaderStage();
+
+
 public:
-	OglShaderStage(
-		OglShaderStagePtr* current_shader_stage_ptr,
-		const RendererShaderStage::CreateParam& param);
-
-	OglShaderStage(
-		const OglShaderStage& rhs) = delete;
-
-	OglShaderStage(
-		OglShaderStage&& rhs) = default;
-
 	~OglShaderStage() override;
 
 
-	void set_current() override;
+	virtual void detach_fragment_shader() = 0;
 
-	RendererShaderVariablePtr find_variable(
-		const std::string& name) override;
-
-	RendererShaderVariableInt32Ptr find_variable_int32(
-		const std::string& name) override;
-
-	RendererShaderVariableFloat32Ptr find_variable_float32(
-		const std::string& name) override;
-
-	RendererShaderVariableVec2Ptr find_variable_vec2(
-		const std::string& name) override;
-
-	RendererShaderVariableVec4Ptr find_variable_vec4(
-		const std::string& name) override;
-
-	RendererShaderVariableMat4Ptr find_variable_mat4(
-		const std::string& name) override;
-
-	RendererShaderVariableSampler2dPtr find_variable_sampler_2d(
-		const std::string& name) override;
-
-
-	void detach_fragment_shader();
-
-	void detach_vertex_shader();
+	virtual void detach_vertex_shader() = 0;
 
 	static void unset_current();
-
-
-private:
-	class Detail;
-
-
-	using NameBuffer = std::vector<char>;
-	using ShaderVariables = std::vector<OglShaderVariable>;
-
-
-	OglShaderStagePtr* current_shader_stage_ptr_;
-	OglShaderPtr fragment_shader_;
-	OglShaderPtr vertex_shader_;
-	OglProgramUniqueResource ogl_resource_;
-	ShaderVariables shader_variables_;
-
-
-	void validate_shader(
-		const RendererShader::Kind shader_kind,
-		const RendererShaderPtr shader);
-
-	void validate_input_bindings(
-		const InputBindings& input_bindings);
-
-	void validate_param(
-		const RendererShaderStage::CreateParam& param);
-
-	void set_input_bindings(
-		const GLuint ogl_name,
-		const InputBindings& input_bindings);
-
-	int get_variable_count(
-		const GLuint ogl_name);
-
-	void get_variables(
-		const RendererShaderVariable::Kind kind,
-		const GLuint ogl_name,
-		ShaderVariables& shader_variables);
-
-	void check_input_bindings(
-		const InputBindings& input_bindings,
-		const ShaderVariables& variables);
-
-	void initialize(
-		OglShaderStagePtr* current_shader_stage_ptr,
-		const RendererShaderStage::CreateParam& param);
 }; // OglShaderStage
 
 using OglShaderStagePtr = OglShaderStage*;
 using OglShaderStageUPtr = std::unique_ptr<OglShaderStage>;
+
+//
+// OglShaderStage
+// ==========================================================================
+
+
+// ==========================================================================
+// OglShaderStageFactory
+//
+
+struct OglShaderStageFactory final
+{
+	static OglShaderStageUPtr create(
+		const OglShaderStageManagerPtr ogl_shader_stage_manager,
+		const RendererShaderStage::CreateParam& param);
+}; //  OglShaderStageFactory
+
+//
+// OglShaderStageFactory
+// ==========================================================================
 
 
 } // detail

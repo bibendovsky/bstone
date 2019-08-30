@@ -247,11 +247,6 @@ private:
 	RendererBlendingFactor blending_src_factor_;
 	RendererBlendingFactor blending_dst_factor_;
 
-	Shaders shaders_;
-
-	ShaderStages shader_stages_;
-	OglShaderStagePtr current_shader_stage_;
-
 
 	bool probe_or_initialize(
 		const bool is_probe,

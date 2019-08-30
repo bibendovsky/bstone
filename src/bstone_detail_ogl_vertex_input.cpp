@@ -30,6 +30,8 @@ Free Software Foundation, Inc.,
 #include "bstone_precompiled.h"
 #include "bstone_detail_ogl_vertex_input.h"
 
+#include <algorithm>
+
 #include "glm/gtc/type_ptr.hpp"
 
 #include "bstone_exception.h"

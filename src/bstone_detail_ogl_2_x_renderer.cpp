@@ -45,6 +45,8 @@ Free Software Foundation, Inc.,
 #include "bstone_detail_ogl_texture_manager.h"
 #include "bstone_detail_ogl_vertex_input.h"
 #include "bstone_detail_ogl_vertex_input_manager.h"
+#include "bstone_detail_ogl_shader_manager.h"
+#include "bstone_detail_ogl_shader_stage_manager.h"
 #include "bstone_detail_ogl_extension_manager.h"
 
 
@@ -100,10 +102,7 @@ Ogl2XRenderer::Ogl2XRenderer()
 	depth_is_write_enabled_{},
 	blending_is_enabled_{},
 	blending_src_factor_{},
-	blending_dst_factor_{},
-	shaders_{},
-	shader_stages_{},
-	current_shader_stage_{}
+	blending_dst_factor_{}
 {
 }
 
@@ -405,62 +404,25 @@ void Ogl2XRenderer::vertex_input_destroy(
 RendererShaderPtr Ogl2XRenderer::shader_create(
 	const RendererShader::CreateParam& param)
 {
-	auto shader = detail::OglShaderUPtr{new detail::OglShader{param}};
-
-	shaders_.emplace_back(std::move(shader));
-
-	return shaders_.back().get();
+	return ogl_context_->shader_get_manager()->shader_create(param);
 }
 
 void Ogl2XRenderer::shader_destroy(
 	const RendererShaderPtr shader)
 {
-	if (shader == nullptr)
-	{
-		return;
-	}
-
-	shaders_.remove_if(
-		[=](const auto& item)
-		{
-			return item.get() == shader;
-		}
-	);
+	return ogl_context_->shader_get_manager()->shader_destroy(shader);
 }
 
 RendererShaderStagePtr Ogl2XRenderer::shader_stage_create(
 	const RendererShaderStage::CreateParam& param)
 {
-	auto shader_stage = detail::OglShaderStageUPtr{new detail::OglShaderStage{&current_shader_stage_, param}};
-
-	shader_stages_.emplace_back(std::move(shader_stage));
-
-	return shader_stages_.back().get();
+	return ogl_context_->shader_stage_get_manager()->shader_stage_create(param);
 }
 
 void Ogl2XRenderer::shader_stage_destroy(
 	const RendererShaderStagePtr shader_stage)
 {
-	if (shader_stage == nullptr)
-	{
-		return;
-	}
-
-	const auto size_before = shader_stages_.size();
-
-	shader_stages_.remove_if(
-		[=](const auto& item)
-		{
-			return item.get() == shader_stage;
-		}
-	);
-
-	const auto size_after = shader_stages_.size();
-
-	if (size_before != size_after)
-	{
-		current_shader_stage_ = nullptr;
-	}
+	return ogl_context_->shader_stage_get_manager()->shader_stage_destroy(shader_stage);
 }
 
 void Ogl2XRenderer::execute_commands(
@@ -810,9 +772,6 @@ void Ogl2XRenderer::sampler_destroy(
 void Ogl2XRenderer::uninitialize_internal(
 	const bool is_dtor)
 {
-	shaders_.clear();
-	shader_stages_.clear();
-	current_shader_stage_ = {};
 	ogl_context_ = {};
 	extension_manager_ = {};
 

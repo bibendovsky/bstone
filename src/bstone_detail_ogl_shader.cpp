@@ -31,7 +31,11 @@ Free Software Foundation, Inc.,
 
 #include "bstone_precompiled.h"
 #include "bstone_detail_ogl_shader.h"
+
 #include "bstone_exception.h"
+#include "bstone_unique_resource.h"
+
+#include "bstone_detail_ogl_shader_manager.h"
 #include "bstone_detail_ogl_shader_stage.h"
 #include "bstone_detail_ogl_renderer_utils.h"
 
@@ -42,9 +46,84 @@ namespace detail
 {
 
 
-OglShader::OglShader(
+// ==========================================================================
+// OglShader
+//
+
+OglShader::OglShader() = default;
+
+OglShader::~OglShader() = default;
+
+//
+// OglShader
+// ==========================================================================
+
+
+// ==========================================================================
+// GenericOglShader
+//
+
+class GenericOglShader final :
+	public OglShader
+{
+public:
+	GenericOglShader(
+		const OglShaderManagerPtr ogl_shader_manager,
+		const RendererShader::CreateParam& param);
+
+	~GenericOglShader() override;
+
+
+	Kind get_kind() const override;
+
+	GLuint get_ogl_name() const noexcept override;
+
+	void attach_to_shader_stage(
+		const OglShaderStagePtr shader_stage) override;
+
+
+private:
+	const OglShaderManagerPtr ogl_shader_manager_;
+
+	Kind kind_;
+
+	static void shader_resource_deleter(
+		const GLuint& ogl_name) noexcept;
+
+	using ShaderResource = UniqueResource<GLuint, shader_resource_deleter>;
+
+	ShaderResource ogl_resource_;
+
+	OglShaderStagePtr shader_stage_;
+
+
+	void initialize(
+		const RendererShader::CreateParam& param);
+
+	GLenum get_ogl_kind(
+		const Kind kind);
+
+	void validate_param(
+		const RendererShader::CreateParam& param);
+}; // GenericOglShader
+
+using GenericOglShaderPtr = GenericOglShader*;
+using GenericOglShaderUPtr = std::unique_ptr<GenericOglShader>;
+
+//
+// GenericOglShader
+// ==========================================================================
+
+
+// ==========================================================================
+// GenericOglShader
+//
+
+GenericOglShader::GenericOglShader(
+	const OglShaderManagerPtr ogl_shader_manager,
 	const RendererShader::CreateParam& param)
 	:
+	ogl_shader_manager_{ogl_shader_manager},
 	kind_{},
 	ogl_resource_{},
 	shader_stage_{}
@@ -52,9 +131,9 @@ OglShader::OglShader(
 	initialize(param);
 }
 
-OglShader::~OglShader()
+GenericOglShader::~GenericOglShader()
 {
-	if (shader_stage_ == nullptr)
+	if (!shader_stage_)
 	{
 		return;
 	}
@@ -76,21 +155,28 @@ OglShader::~OglShader()
 	}
 }
 
-RendererShader::Kind OglShader::get_kind() const
+RendererShader::Kind GenericOglShader::get_kind() const
 {
 	return kind_;
 }
 
-void OglShader::initialize(
+void GenericOglShader::shader_resource_deleter(
+	const GLuint& ogl_name) noexcept
+{
+	::glDeleteShader(ogl_name);
+	assert(!detail::OglRendererUtils::was_errors());
+}
+
+void GenericOglShader::initialize(
 	const RendererShader::CreateParam& param)
 {
 	validate_param(param);
 
 	const auto ogl_kind = get_ogl_kind(param.kind_);
 
-	auto ogl_handle = OglShaderUniqueResource{::glCreateShader(ogl_kind)};
+	ogl_resource_.reset(::glCreateShader(ogl_kind));
 
-	if (!ogl_handle)
+	if (!ogl_resource_)
 	{
 		throw Exception{"Failed to create OpenGL shader object."};
 	}
@@ -105,22 +191,22 @@ void OglShader::initialize(
 		param.source_.size_,
 	};
 
-	::glShaderSource(ogl_handle, 1, strings, lengths);
+	::glShaderSource(ogl_resource_.get(), 1, strings, lengths);
 	assert(!detail::OglRendererUtils::was_errors());
 
-	::glCompileShader(ogl_handle);
+	::glCompileShader(ogl_resource_.get());
 	assert(!detail::OglRendererUtils::was_errors());
 
 	auto compile_status = GLint{};
 
-	::glGetShaderiv(ogl_handle, GL_COMPILE_STATUS, &compile_status);
+	::glGetShaderiv(ogl_resource_.get(), GL_COMPILE_STATUS, &compile_status);
 	assert(!detail::OglRendererUtils::was_errors());
 
 	if (compile_status != GL_TRUE)
 	{
 		auto error_message = std::string{"Failed to compile a shader."};
 
-		const auto ogl_log = OglRendererUtils::get_log(true, ogl_handle);
+		const auto ogl_log = OglRendererUtils::get_log(true, ogl_resource_.get());
 
 		if (!ogl_log.empty())
 		{
@@ -132,21 +218,20 @@ void OglShader::initialize(
 	}
 
 	kind_ = param.kind_;
-	ogl_resource_ = std::move(ogl_handle);
 }
 
-GLuint OglShader::get_ogl_name() const
+GLuint GenericOglShader::get_ogl_name() const noexcept
 {
-	return ogl_resource_;
+	return ogl_resource_.get();
 }
 
-void OglShader::attach_to_shader_stage(
+void GenericOglShader::attach_to_shader_stage(
 	const OglShaderStagePtr shader_stage)
 {
 	shader_stage_ = shader_stage;
 }
 
-GLenum OglShader::get_ogl_kind(
+GLenum GenericOglShader::get_ogl_kind(
 	const Kind kind)
 {
 	switch (kind)
@@ -162,7 +247,7 @@ GLenum OglShader::get_ogl_kind(
 	}
 }
 
-void OglShader::validate_param(
+void GenericOglShader::validate_param(
 	const RendererShader::CreateParam& param)
 {
 	switch (param.kind_)
@@ -185,6 +270,26 @@ void OglShader::validate_param(
 		throw Exception{"Empty source data."};
 	}
 }
+
+//
+// GenericOglShader
+// ==========================================================================
+
+
+// ==========================================================================
+// OglShaderFactory
+//
+
+OglShaderUPtr OglShaderFactory::create(
+	const OglShaderManagerPtr ogl_shader_manager,
+	const RendererShader::CreateParam& param)
+{
+	return std::make_unique<GenericOglShader>(ogl_shader_manager, param);
+}
+
+//
+// OglShaderFactory
+// ==========================================================================
 
 
 } // detail

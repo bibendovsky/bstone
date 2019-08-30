@@ -42,6 +42,8 @@ Free Software Foundation, Inc.,
 #include "bstone_detail_ogl_renderer_utils.h"
 #include "bstone_detail_ogl_sampler.h"
 #include "bstone_detail_ogl_sampler_manager.h"
+#include "bstone_detail_ogl_shader_manager.h"
+#include "bstone_detail_ogl_shader_stage_manager.h"
 #include "bstone_detail_ogl_texture_2d.h"
 #include "bstone_detail_ogl_texture_manager.h"
 #include "bstone_detail_ogl_vao_manager.h"
@@ -100,6 +102,10 @@ public:
 
 	OglVertexInputManagerPtr vertex_input_get_manager() const noexcept override;
 
+	OglShaderManagerPtr shader_get_manager() const noexcept override;
+
+	OglShaderStageManagerPtr shader_stage_get_manager() const noexcept override;
+
 
 private:
 	const RendererDeviceFeatures& device_features_;
@@ -110,6 +116,8 @@ private:
 	OglVertexInputManagerUPtr vertex_input_manager_;
 	OglSamplerManagerUPtr sampler_manager_;
 	OglTextureManagerUPtr texture_manager_;
+	OglShaderManagerUPtr shader_manager_;
+	OglShaderStageManagerUPtr shader_stage_manager_;
 
 
 	void initialize();
@@ -123,6 +131,10 @@ private:
 	void initialize_samplers();
 
 	void initialize_textures();
+
+	void initialize_shaders();
+
+	void initialize_shader_stages();
 
 	void mipmap_set_max_quality();
 }; // GenericOglContext
@@ -181,6 +193,16 @@ void GenericOglContext::initialize_textures()
 	texture_manager_ = OglTextureManagerFactory::create(this);
 }
 
+void GenericOglContext::initialize_shaders()
+{
+	shader_manager_ = OglShaderManagerFactory::create(this);
+}
+
+void GenericOglContext::initialize_shader_stages()
+{
+	shader_stage_manager_ = OglShaderStageManagerFactory::create(this);
+}
+
 void GenericOglContext::mipmap_set_max_quality()
 {
 	if (!device_features_.mipmap_is_available_)
@@ -205,6 +227,8 @@ void GenericOglContext::initialize()
 	initialize_vertex_inputs();
 	initialize_samplers();
 	initialize_textures();
+	initialize_shaders();
+	initialize_shader_stages();
 }
 
 const RendererDeviceFeatures& GenericOglContext::get_device_features() const noexcept
@@ -240,6 +264,16 @@ OglVaoManagerPtr GenericOglContext::vao_get_manager() const noexcept
 OglVertexInputManagerPtr GenericOglContext::vertex_input_get_manager() const noexcept
 {
 	return vertex_input_manager_.get();
+}
+
+OglShaderManagerPtr GenericOglContext::shader_get_manager() const noexcept
+{
+	return shader_manager_.get();
+}
+
+OglShaderStageManagerPtr GenericOglContext::shader_stage_get_manager() const noexcept
+{
+	return shader_stage_manager_.get();
 }
 
 //
