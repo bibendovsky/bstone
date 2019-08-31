@@ -178,34 +178,34 @@ RendererCommandShaderStage* RendererCommandBuffer::write_shader_stage()
 	return write<RendererCommandShaderStage>(RendererCommandId::shader_stage);
 }
 
-RendererCommandShaderVariableInt32* RendererCommandBuffer::write_shader_variable_int32()
+RendererCommandShaderVarInt32* RendererCommandBuffer::write_shader_var_int32()
 {
-	return write<RendererCommandShaderVariableInt32>(RendererCommandId::shader_variable_int32);
+	return write<RendererCommandShaderVarInt32>(RendererCommandId::shader_var_int32);
 }
 
-RendererCommandShaderVariableFloat32* RendererCommandBuffer::write_shader_variable_float32()
+RendererCommandShaderVarFloat32* RendererCommandBuffer::write_shader_var_float32()
 {
-	return write<RendererCommandShaderVariableFloat32>(RendererCommandId::shader_variable_float32);
+	return write<RendererCommandShaderVarFloat32>(RendererCommandId::shader_var_float32);
 }
 
-RendererCommandShaderVariableVec2* RendererCommandBuffer::write_shader_variable_vec2()
+RendererCommandShaderVarVec2* RendererCommandBuffer::write_shader_var_vec2()
 {
-	return write<RendererCommandShaderVariableVec2>(RendererCommandId::shader_variable_vec2);
+	return write<RendererCommandShaderVarVec2>(RendererCommandId::shader_var_vec2);
 }
 
-RendererCommandShaderVariableVec4* RendererCommandBuffer::write_shader_variable_vec4()
+RendererCommandShaderVarVec4* RendererCommandBuffer::write_shader_var_vec4()
 {
-	return write<RendererCommandShaderVariableVec4>(RendererCommandId::shader_variable_vec4);
+	return write<RendererCommandShaderVarVec4>(RendererCommandId::shader_var_vec4);
 }
 
-RendererCommandShaderVariableMat4* RendererCommandBuffer::write_shader_variable_mat4()
+RendererCommandShaderVarMat4* RendererCommandBuffer::write_shader_var_mat4()
 {
-	return write<RendererCommandShaderVariableMat4>(RendererCommandId::shader_variable_mat4);
+	return write<RendererCommandShaderVarMat4>(RendererCommandId::shader_var_mat4);
 }
 
-RendererCommandShaderVariableSampler2d* RendererCommandBuffer::write_shader_variable_sampler_2d()
+RendererCommandShaderVarSampler2d* RendererCommandBuffer::write_shader_var_sampler_2d()
 {
-	return write<RendererCommandShaderVariableSampler2d>(RendererCommandId::shader_variable_sampler2d);
+	return write<RendererCommandShaderVarSampler2d>(RendererCommandId::shader_var_sampler2d);
 }
 
 RendererCommandDrawQuads* RendererCommandBuffer::write_draw_quads()
@@ -312,34 +312,34 @@ const RendererCommandShaderStage* RendererCommandBuffer::read_shader_stage()
 	return read<RendererCommandShaderStage>();
 }
 
-const RendererCommandShaderVariableInt32* RendererCommandBuffer::read_shader_variable_int32()
+const RendererCommandShaderVarInt32* RendererCommandBuffer::read_shader_var_int32()
 {
-	return read<RendererCommandShaderVariableInt32>();
+	return read<RendererCommandShaderVarInt32>();
 }
 
-const RendererCommandShaderVariableFloat32* RendererCommandBuffer::read_shader_variable_float32()
+const RendererCommandShaderVarFloat32* RendererCommandBuffer::read_shader_var_float32()
 {
-	return read<RendererCommandShaderVariableFloat32>();
+	return read<RendererCommandShaderVarFloat32>();
 }
 
-const RendererCommandShaderVariableVec2* RendererCommandBuffer::read_shader_variable_vec2()
+const RendererCommandShaderVarVec2* RendererCommandBuffer::read_shader_var_vec2()
 {
-	return read<RendererCommandShaderVariableVec2>();
+	return read<RendererCommandShaderVarVec2>();
 }
 
-const RendererCommandShaderVariableVec4* RendererCommandBuffer::read_shader_variable_vec4()
+const RendererCommandShaderVarVec4* RendererCommandBuffer::read_shader_var_vec4()
 {
-	return read<RendererCommandShaderVariableVec4>();
+	return read<RendererCommandShaderVarVec4>();
 }
 
-const RendererCommandShaderVariableMat4* RendererCommandBuffer::read_shader_variable_mat4()
+const RendererCommandShaderVarMat4* RendererCommandBuffer::read_shader_var_mat4()
 {
-	return read<RendererCommandShaderVariableMat4>();
+	return read<RendererCommandShaderVarMat4>();
 }
 
-const RendererCommandShaderVariableSampler2d* RendererCommandBuffer::read_shader_variable_sampler_2d()
+const RendererCommandShaderVarSampler2d* RendererCommandBuffer::read_shader_var_sampler_2d()
 {
-	return read<RendererCommandShaderVariableSampler2d>();
+	return read<RendererCommandShaderVarSampler2d>();
 }
 
 const RendererCommandDrawQuads* RendererCommandBuffer::read_draw_quads()

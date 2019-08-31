@@ -2566,18 +2566,18 @@ bstone::RendererShaderPtr hw_shader_fragment_;
 bstone::RendererShaderPtr hw_shader_vertex_;
 bstone::RendererShaderStagePtr hw_shader_stage_;
 
-bstone::RendererShaderVariableMat4Ptr hw_shader_variable_model_mat_;
-bstone::RendererShaderVariableMat4Ptr hw_shader_variable_view_mat_;
-bstone::RendererShaderVariableMat4Ptr hw_shader_variable_projection_mat_;
-bstone::RendererShaderVariableMat4Ptr hw_shader_variable_texture_mat_;
+bstone::RendererShaderVarMat4Ptr hw_shader_var_model_mat_;
+bstone::RendererShaderVarMat4Ptr hw_shader_var_view_mat_;
+bstone::RendererShaderVarMat4Ptr hw_shader_var_projection_mat_;
+bstone::RendererShaderVarMat4Ptr hw_shader_var_texture_mat_;
 
-bstone::RendererShaderVariableInt32Ptr hw_shader_variable_shading_mode_;
-bstone::RendererShaderVariableFloat32Ptr hw_shader_variable_shade_max_;
-bstone::RendererShaderVariableFloat32Ptr hw_shader_variable_normal_shade_;
-bstone::RendererShaderVariableFloat32Ptr hw_shader_variable_height_numerator_;
-bstone::RendererShaderVariableFloat32Ptr hw_shader_variable_extra_lighting_;
-bstone::RendererShaderVariableVec2Ptr hw_shader_variable_view_direction_;
-bstone::RendererShaderVariableVec2Ptr hw_shader_variable_view_position_;
+bstone::RendererShaderVarInt32Ptr hw_shader_var_shading_mode_;
+bstone::RendererShaderVarFloat32Ptr hw_shader_var_shade_max_;
+bstone::RendererShaderVarFloat32Ptr hw_shader_var_normal_shade_;
+bstone::RendererShaderVarFloat32Ptr hw_shader_var_height_numerator_;
+bstone::RendererShaderVarFloat32Ptr hw_shader_var_extra_lighting_;
+bstone::RendererShaderVarVec2Ptr hw_shader_var_view_direction_;
+bstone::RendererShaderVarVec2Ptr hw_shader_var_view_position_;
 
 
 
@@ -3089,71 +3089,71 @@ bool hw_shader_stage_create()
 }
 
 template<typename T>
-void hw_program_uninitialize_variable(
-	T*& variable)
+void hw_program_uninitialize_var(
+	T*& var)
 {
-	variable = nullptr;
+	var = nullptr;
 }
 
-void hw_program_uninitialize_variable_model_mat()
+void hw_program_uninitialize_var_model_mat()
 {
-	::hw_program_uninitialize_variable(::hw_shader_variable_model_mat_);
+	::hw_program_uninitialize_var(::hw_shader_var_model_mat_);
 }
 
-struct HwProgramInitializeVariableInt32Tag{};
-struct HwProgramInitializeVariableFloat32Tag{};
-struct HwProgramInitializeVariableVec2Tag{};
-struct HwProgramInitializeVariableMat4Tag{};
+struct HwProgramInitializeVarInt32Tag{};
+struct HwProgramInitializeVarFloat32Tag{};
+struct HwProgramInitializeVarVec2Tag{};
+struct HwProgramInitializeVarMat4Tag{};
 
-void hw_program_initialize_variable(
+void hw_program_initialize_var(
 	const std::string& name,
-	bstone::RendererShaderVariableInt32Ptr& variable,
-	const HwProgramInitializeVariableInt32Tag)
+	bstone::RendererShaderVarInt32Ptr& var,
+	const HwProgramInitializeVarInt32Tag)
 {
-	variable = ::hw_shader_stage_->find_variable_int32(name);
+	var = ::hw_shader_stage_->find_var_int32(name);
 }
 
-void hw_program_initialize_variable(
+void hw_program_initialize_var(
 	const std::string& name,
-	bstone::RendererShaderVariableFloat32Ptr& variable,
-	const HwProgramInitializeVariableFloat32Tag)
+	bstone::RendererShaderVarFloat32Ptr& var,
+	const HwProgramInitializeVarFloat32Tag)
 {
-	variable = ::hw_shader_stage_->find_variable_float32(name);
+	var = ::hw_shader_stage_->find_var_float32(name);
 }
 
-void hw_program_initialize_variable(
+void hw_program_initialize_var(
 	const std::string& name,
-	bstone::RendererShaderVariableVec2Ptr& variable,
-	const HwProgramInitializeVariableVec2Tag)
+	bstone::RendererShaderVarVec2Ptr& var,
+	const HwProgramInitializeVarVec2Tag)
 {
-	variable = ::hw_shader_stage_->find_variable_vec2(name);
+	var = ::hw_shader_stage_->find_var_vec2(name);
 }
 
-void hw_program_initialize_variable(
+void hw_program_initialize_var(
 	const std::string& name,
-	bstone::RendererShaderVariableMat4Ptr& variable,
-	const HwProgramInitializeVariableMat4Tag)
+	bstone::RendererShaderVarMat4Ptr& var,
+	const HwProgramInitializeVarMat4Tag)
 {
-	variable = ::hw_shader_stage_->find_variable_mat4(name);
+	var = ::hw_shader_stage_->find_var_mat4(name);
 }
 
 template<typename T>
-bool hw_program_initialize_variable(
+bool hw_program_initialize_var(
 	const std::string& name,
-	T*& variable)
+	T*& var)
 {
 	using Tag = std::conditional_t<
-		std::is_same<T, bstone::RendererShaderVariableInt32>::value,
-		HwProgramInitializeVariableInt32Tag,
+		std::is_same<T, bstone::RendererShaderVarInt32>::value,
+		HwProgramInitializeVarInt32Tag,
 		std::conditional_t<
-			std::is_same<T, bstone::RendererShaderVariableFloat32>::value,
-			HwProgramInitializeVariableFloat32Tag,
+			std::is_same<T, bstone::RendererShaderVarFloat32>::value,
+			HwProgramInitializeVarFloat32Tag,
 			std::conditional_t<
-				std::is_same<T, bstone::RendererShaderVariableVec2>::value,
-				HwProgramInitializeVariableVec2Tag,
+				std::is_same<T, bstone::RendererShaderVarVec2>::value,
+				HwProgramInitializeVarVec2Tag,
 				std::conditional_t<
-					std::is_same<T, bstone::RendererShaderVariableMat4>::value,
-					HwProgramInitializeVariableMat4Tag,
+					std::is_same<T, bstone::RendererShaderVarMat4>::value,
+					HwProgramInitializeVarMat4Tag,
 					void
 				>
 			>
@@ -3162,9 +3162,9 @@ bool hw_program_initialize_variable(
 
 	static_assert(!std::is_same<Tag, void>::value, "Unsupported type.");
 
-	hw_program_initialize_variable(name, variable, Tag{});
+	hw_program_initialize_var(name, var, Tag{});
 
-	if (variable == nullptr)
+	if (!var)
 	{
 		bstone::logger_->write_error("Shader variable \"" + name + "\" not found.");
 
@@ -3174,188 +3174,188 @@ bool hw_program_initialize_variable(
 	return true;
 }
 
-bool hw_program_initialize_variable_model_mat()
+bool hw_program_initialize_var_model_mat()
 {
-	return hw_program_initialize_variable(
+	return hw_program_initialize_var(
 		bstone::RendererShaderRegistry::get_u_model_mat_name(),
-		::hw_shader_variable_model_mat_
+		::hw_shader_var_model_mat_
 	);
 }
 
-void hw_program_uninitialize_variable_view_mat()
+void hw_program_uninitialize_var_view_mat()
 {
-	::hw_program_uninitialize_variable(::hw_shader_variable_view_mat_);
+	::hw_program_uninitialize_var(::hw_shader_var_view_mat_);
 }
 
-bool hw_program_initialize_variable_view_mat()
+bool hw_program_initialize_var_view_mat()
 {
-	return hw_program_initialize_variable(
+	return hw_program_initialize_var(
 		bstone::RendererShaderRegistry::get_u_view_mat_name(),
-		::hw_shader_variable_view_mat_
+		::hw_shader_var_view_mat_
 	);
 }
 
-void hw_program_uninitialize_variable_projection_mat()
+void hw_program_uninitialize_var_projection_mat()
 {
-	::hw_program_uninitialize_variable(::hw_shader_variable_projection_mat_);
+	::hw_program_uninitialize_var(::hw_shader_var_projection_mat_);
 }
 
-bool hw_program_initialize_variable_projection_mat()
+bool hw_program_initialize_var_projection_mat()
 {
-	return hw_program_initialize_variable(
+	return hw_program_initialize_var(
 		bstone::RendererShaderRegistry::get_u_projection_mat_name(),
-		::hw_shader_variable_projection_mat_
+		::hw_shader_var_projection_mat_
 	);
 }
 
-void hw_program_uninitialize_variable_texture_mat()
+void hw_program_uninitialize_var_texture_mat()
 {
-	::hw_program_uninitialize_variable(::hw_shader_variable_texture_mat_);
+	::hw_program_uninitialize_var(::hw_shader_var_texture_mat_);
 }
 
-bool hw_program_initialize_variable_texture_mat()
+bool hw_program_initialize_var_texture_mat()
 {
-	return hw_program_initialize_variable(
+	return hw_program_initialize_var(
 		bstone::RendererShaderRegistry::get_u_texture_mat_name(),
-		::hw_shader_variable_texture_mat_
+		::hw_shader_var_texture_mat_
 	);
 }
 
-void hw_program_uninitialize_variable_shading_mode()
+void hw_program_uninitialize_var_shading_mode()
 {
-	::hw_program_uninitialize_variable(::hw_shader_variable_shading_mode_);
+	::hw_program_uninitialize_var(::hw_shader_var_shading_mode_);
 }
 
-bool hw_program_initialize_variable_shading_mode()
+bool hw_program_initialize_var_shading_mode()
 {
-	return hw_program_initialize_variable(
+	return hw_program_initialize_var(
 		bstone::RendererShaderRegistry::get_u_shading_mode_name(),
-		::hw_shader_variable_shading_mode_
+		::hw_shader_var_shading_mode_
 	);
 }
 
-void hw_program_uninitialize_variable_shade_max()
+void hw_program_uninitialize_var_shade_max()
 {
-	::hw_program_uninitialize_variable(::hw_shader_variable_shade_max_);
+	::hw_program_uninitialize_var(::hw_shader_var_shade_max_);
 }
 
-bool hw_program_initialize_variable_shade_max()
+bool hw_program_initialize_var_shade_max()
 {
-	return hw_program_initialize_variable(
+	return hw_program_initialize_var(
 		bstone::RendererShaderRegistry::get_u_shade_max_name(),
-		::hw_shader_variable_shade_max_
+		::hw_shader_var_shade_max_
 	);
 }
 
-void hw_program_uninitialize_variable_normal_shade()
+void hw_program_uninitialize_var_normal_shade()
 {
-	::hw_program_uninitialize_variable(::hw_shader_variable_normal_shade_);
+	::hw_program_uninitialize_var(::hw_shader_var_normal_shade_);
 }
 
-bool hw_program_initialize_variable_normal_shade()
+bool hw_program_initialize_var_normal_shade()
 {
-	return hw_program_initialize_variable(
+	return hw_program_initialize_var(
 		bstone::RendererShaderRegistry::get_u_normal_shade_name(),
-		::hw_shader_variable_normal_shade_
+		::hw_shader_var_normal_shade_
 	);
 }
 
-void hw_program_uninitialize_variable_height_numerator()
+void hw_program_uninitialize_var_height_numerator()
 {
-	::hw_program_uninitialize_variable(::hw_shader_variable_height_numerator_);
+	::hw_program_uninitialize_var(::hw_shader_var_height_numerator_);
 }
 
-bool hw_program_initialize_variable_height_numerator()
+bool hw_program_initialize_var_height_numerator()
 {
-	return hw_program_initialize_variable(
+	return hw_program_initialize_var(
 		bstone::RendererShaderRegistry::get_u_height_numerator_name(),
-		::hw_shader_variable_height_numerator_
+		::hw_shader_var_height_numerator_
 	);
 }
 
-void hw_program_uninitialize_variable_extra_lighting()
+void hw_program_uninitialize_var_extra_lighting()
 {
-	::hw_program_uninitialize_variable(::hw_shader_variable_extra_lighting_);
+	::hw_program_uninitialize_var(::hw_shader_var_extra_lighting_);
 }
 
-bool hw_program_initialize_variable_extra_lighting()
+bool hw_program_initialize_var_extra_lighting()
 {
-	return hw_program_initialize_variable(
+	return hw_program_initialize_var(
 		bstone::RendererShaderRegistry::get_u_extra_lighting_name(),
-		::hw_shader_variable_extra_lighting_
+		::hw_shader_var_extra_lighting_
 	);
 }
 
-void hw_program_uninitialize_variable_view_direction()
+void hw_program_uninitialize_var_view_direction()
 {
-	::hw_program_uninitialize_variable(::hw_shader_variable_view_direction_);
+	::hw_program_uninitialize_var(::hw_shader_var_view_direction_);
 }
 
-bool hw_program_initialize_variable_view_direction()
+bool hw_program_initialize_var_view_direction()
 {
-	return hw_program_initialize_variable(
+	return hw_program_initialize_var(
 		bstone::RendererShaderRegistry::get_u_view_direction_name(),
-		::hw_shader_variable_view_direction_
+		::hw_shader_var_view_direction_
 	);
 }
 
-void hw_program_uninitialize_variable_view_position()
+void hw_program_uninitialize_var_view_position()
 {
-	::hw_program_uninitialize_variable(::hw_shader_variable_view_position_);
+	::hw_program_uninitialize_var(::hw_shader_var_view_position_);
 }
 
-bool hw_program_initialize_variable_view_position()
+bool hw_program_initialize_var_view_position()
 {
-	return hw_program_initialize_variable(
+	return hw_program_initialize_var(
 		bstone::RendererShaderRegistry::get_u_view_position_name(),
-		::hw_shader_variable_view_position_
+		::hw_shader_var_view_position_
 	);
 }
 
-void hw_program_uninitialize_variables_shading()
+void hw_program_uninitialize_vars_shading()
 {
-	::hw_program_uninitialize_variable_shading_mode();
-	::hw_program_uninitialize_variable_shade_max();
-	::hw_program_uninitialize_variable_normal_shade();
-	::hw_program_uninitialize_variable_height_numerator();
-	::hw_program_uninitialize_variable_extra_lighting();
-	::hw_program_uninitialize_variable_view_direction();
-	::hw_program_uninitialize_variable_view_position();
+	::hw_program_uninitialize_var_shading_mode();
+	::hw_program_uninitialize_var_shade_max();
+	::hw_program_uninitialize_var_normal_shade();
+	::hw_program_uninitialize_var_height_numerator();
+	::hw_program_uninitialize_var_extra_lighting();
+	::hw_program_uninitialize_var_view_direction();
+	::hw_program_uninitialize_var_view_position();
 }
 
-bool hw_program_initialize_variables_shading()
+bool hw_program_initialize_vars_shading()
 {
-	if (!::hw_program_initialize_variable_shading_mode())
+	if (!::hw_program_initialize_var_shading_mode())
 	{
 		return false;
 	}
 
-	if (!::hw_program_initialize_variable_shade_max())
+	if (!::hw_program_initialize_var_shade_max())
 	{
 		return false;
 	}
 
-	if (!::hw_program_initialize_variable_normal_shade())
+	if (!::hw_program_initialize_var_normal_shade())
 	{
 		return false;
 	}
 
-	if (!::hw_program_initialize_variable_height_numerator())
+	if (!::hw_program_initialize_var_height_numerator())
 	{
 		return false;
 	}
 
-	if (!::hw_program_initialize_variable_extra_lighting())
+	if (!::hw_program_initialize_var_extra_lighting())
 	{
 		return false;
 	}
 
-	if (!::hw_program_initialize_variable_view_direction())
+	if (!::hw_program_initialize_var_view_direction())
 	{
 		return false;
 	}
 
-	if (!::hw_program_initialize_variable_view_position())
+	if (!::hw_program_initialize_var_view_position())
 	{
 		return false;
 	}
@@ -3363,38 +3363,38 @@ bool hw_program_initialize_variables_shading()
 	return true;
 }
 
-void hw_program_uninitialize_variables()
+void hw_program_uninitialize_vars()
 {
-	::hw_program_uninitialize_variable_model_mat();
-	::hw_program_uninitialize_variable_view_mat();
-	::hw_program_uninitialize_variable_projection_mat();
-	::hw_program_uninitialize_variable_texture_mat();
-	::hw_program_uninitialize_variables_shading();
+	::hw_program_uninitialize_var_model_mat();
+	::hw_program_uninitialize_var_view_mat();
+	::hw_program_uninitialize_var_projection_mat();
+	::hw_program_uninitialize_var_texture_mat();
+	::hw_program_uninitialize_vars_shading();
 }
 
-bool hw_program_initialize_variables()
+bool hw_program_initialize_vars()
 {
-	if (!::hw_program_initialize_variable_model_mat())
+	if (!::hw_program_initialize_var_model_mat())
 	{
 		return false;
 	}
 
-	if (!::hw_program_initialize_variable_view_mat())
+	if (!::hw_program_initialize_var_view_mat())
 	{
 		return false;
 	}
 
-	if (!::hw_program_initialize_variable_projection_mat())
+	if (!::hw_program_initialize_var_projection_mat())
 	{
 		return false;
 	}
 
-	if (!::hw_program_initialize_variable_texture_mat())
+	if (!::hw_program_initialize_var_texture_mat())
 	{
 		return false;
 	}
 
-	if (!::hw_program_initialize_variables_shading())
+	if (!::hw_program_initialize_vars_shading())
 	{
 		return false;
 	}
@@ -3404,7 +3404,7 @@ bool hw_program_initialize_variables()
 
 void hw_program_uninitialize()
 {
-	::hw_program_uninitialize_variables();
+	::hw_program_uninitialize_vars();
 	::hw_shader_stage_destroy();
 	::hw_shader_fragment_destroy();
 	::hw_shader_vertex_destroy();
@@ -3427,7 +3427,7 @@ bool hw_program_initialize()
 		return false;
 	}
 
-	if (!::hw_program_initialize_variables())
+	if (!::hw_program_initialize_vars())
 	{
 		return false;
 	}
@@ -6108,8 +6108,8 @@ void hw_screen_common_refresh()
 	{
 		::hw_matrix_texture_.set_is_modified(false);
 
-		auto& command = *command_buffer->write_shader_variable_mat4();
-		command.variable_ = ::hw_shader_variable_texture_mat_;
+		auto& command = *command_buffer->write_shader_var_mat4();
+		command.var_ = ::hw_shader_var_texture_mat_;
 		command.value_ = ::hw_matrix_texture_;
 	}
 
@@ -6119,8 +6119,8 @@ void hw_screen_common_refresh()
 	{
 		::hw_shading_mode_.set_is_modified(false);
 
-		auto& command = *command_buffer->write_shader_variable_int32();
-		command.variable_ = ::hw_shader_variable_shading_mode_;
+		auto& command = *command_buffer->write_shader_var_int32();
+		command.var_ = ::hw_shader_var_shading_mode_;
 		command.value_ = ::hw_shading_mode_;
 	}
 
@@ -6130,8 +6130,8 @@ void hw_screen_common_refresh()
 	{
 		::hw_bs_shade_max_.set_is_modified(false);
 
-		auto& command = *command_buffer->write_shader_variable_float32();
-		command.variable_ = ::hw_shader_variable_shade_max_;
+		auto& command = *command_buffer->write_shader_var_float32();
+		command.var_ = ::hw_shader_var_shade_max_;
 		command.value_ = static_cast<float>(::hw_bs_shade_max_);
 	}
 
@@ -6141,8 +6141,8 @@ void hw_screen_common_refresh()
 	{
 		::hw_bs_normal_shade_.set_is_modified(false);
 
-		auto& command = *command_buffer->write_shader_variable_float32();
-		command.variable_ = ::hw_shader_variable_normal_shade_;
+		auto& command = *command_buffer->write_shader_var_float32();
+		command.var_ = ::hw_shader_var_normal_shade_;
 		command.value_ = static_cast<float>(::hw_bs_normal_shade_);
 	}
 
@@ -6152,8 +6152,8 @@ void hw_screen_common_refresh()
 	{
 		::hw_bs_height_numerator_.set_is_modified(false);
 
-		auto& command = *command_buffer->write_shader_variable_float32();
-		command.variable_ = ::hw_shader_variable_height_numerator_;
+		auto& command = *command_buffer->write_shader_var_float32();
+		command.var_ = ::hw_shader_var_height_numerator_;
 		command.value_ = bstone::FixedPoint{::hw_bs_height_numerator_}.to_float();
 	}
 
@@ -6163,8 +6163,8 @@ void hw_screen_common_refresh()
 	{
 		::hw_bs_lighting_.set_is_modified(false);
 
-		auto& command = *command_buffer->write_shader_variable_float32();
-		command.variable_ = ::hw_shader_variable_extra_lighting_;
+		auto& command = *command_buffer->write_shader_var_float32();
+		command.var_ = ::hw_shader_var_extra_lighting_;
 		command.value_ = static_cast<float>(::hw_bs_lighting_);
 	}
 
@@ -6174,8 +6174,8 @@ void hw_screen_common_refresh()
 	{
 		::hw_bs_view_direction_.set_is_modified(false);
 
-		auto& command = *command_buffer->write_shader_variable_vec2();
-		command.variable_ = ::hw_shader_variable_view_direction_;
+		auto& command = *command_buffer->write_shader_var_vec2();
+		command.var_ = ::hw_shader_var_view_direction_;
 		command.value_ = ::hw_bs_view_direction_;
 	}
 
@@ -6185,8 +6185,8 @@ void hw_screen_common_refresh()
 	{
 		::hw_bs_view_position_.set_is_modified(false);
 
-		auto& command = *command_buffer->write_shader_variable_vec2();
-		command.variable_ = ::hw_shader_variable_view_position_;
+		auto& command = *command_buffer->write_shader_var_vec2();
+		command.var_ = ::hw_shader_var_view_position_;
 		command.value_ = ::hw_bs_view_position_;
 	}
 
@@ -6256,24 +6256,24 @@ void hw_screen_2d_refresh()
 	// Set model matrix.
 	//
 	{
-		auto& command = *command_buffer->write_shader_variable_mat4();
-		command.variable_ = ::hw_shader_variable_model_mat_;
+		auto& command = *command_buffer->write_shader_var_mat4();
+		command.var_ = ::hw_shader_var_model_mat_;
 		command.value_ = ::hw_2d_matrix_model_;
 	}
 
 	// Set view matrix.
 	//
 	{
-		auto& command = *command_buffer->write_shader_variable_mat4();
-		command.variable_ = ::hw_shader_variable_view_mat_;
+		auto& command = *command_buffer->write_shader_var_mat4();
+		command.var_ = ::hw_shader_var_view_mat_;
 		command.value_ = ::hw_2d_matrix_view_;
 	}
 
 	// Set projection matrix.
 	//
 	{
-		auto& command = *command_buffer->write_shader_variable_mat4();
-		command.variable_ = ::hw_shader_variable_projection_mat_;
+		auto& command = *command_buffer->write_shader_var_mat4();
+		command.var_ = ::hw_shader_var_projection_mat_;
 		command.value_ = ::hw_2d_matrix_projection_;
 	}
 
@@ -7611,8 +7611,8 @@ void hw_3d_sprites_render()
 				{
 					::hw_bs_lighting_.set_is_modified(false);
 
-					auto& command = *command_buffer->write_shader_variable_float32();
-					command.variable_ = ::hw_shader_variable_extra_lighting_;
+					auto& command = *command_buffer->write_shader_var_float32();
+					command.var_ = ::hw_shader_var_extra_lighting_;
 					command.value_ = static_cast<float>(::hw_bs_lighting_);
 				}
 			}
@@ -7948,24 +7948,24 @@ void hw_screen_3d_refresh()
 	// Set model matrix.
 	//
 	{
-		auto& command = *command_buffer->write_shader_variable_mat4();
-		command.variable_ = ::hw_shader_variable_model_mat_;
+		auto& command = *command_buffer->write_shader_var_mat4();
+		command.var_ = ::hw_shader_var_model_mat_;
 		command.value_ = ::hw_3d_matrix_model_;
 	}
 
 	// Set view matrix.
 	//
 	{
-		auto& command = *command_buffer->write_shader_variable_mat4();
-		command.variable_ = ::hw_shader_variable_view_mat_;
+		auto& command = *command_buffer->write_shader_var_mat4();
+		command.var_ = ::hw_shader_var_view_mat_;
 		command.value_ = ::hw_3d_matrix_view_;
 	}
 
 	// Set projection matrix.
 	//
 	{
-		auto& command = *command_buffer->write_shader_variable_mat4();
-		command.variable_ = ::hw_shader_variable_projection_mat_;
+		auto& command = *command_buffer->write_shader_var_mat4();
+		command.var_ = ::hw_shader_var_projection_mat_;
 		command.value_ = ::hw_3d_matrix_projection_;
 	}
 
@@ -7985,8 +7985,8 @@ void hw_screen_3d_refresh()
 		{
 			::hw_shading_mode_.set_is_modified(false);
 
-			auto& command = *command_buffer->write_shader_variable_int32();
-			command.variable_ = ::hw_shader_variable_shading_mode_;
+			auto& command = *command_buffer->write_shader_var_int32();
+			command.var_ = ::hw_shader_var_shading_mode_;
 			command.value_ = ::hw_shading_mode_;
 		}
 	}
@@ -8106,8 +8106,8 @@ void hw_screen_3d_refresh()
 		{
 			::hw_shading_mode_.set_is_modified(false);
 
-			auto& command = *command_buffer->write_shader_variable_int32();
-			command.variable_ = ::hw_shader_variable_shading_mode_;
+			auto& command = *command_buffer->write_shader_var_int32();
+			command.var_ = ::hw_shader_var_shading_mode_;
 			command.value_ = ::hw_shading_mode_;
 		}
 	}
@@ -8123,8 +8123,8 @@ void hw_screen_3d_refresh()
 			// Set projection matrix.
 			//
 			{
-				auto& command = *command_buffer->write_shader_variable_mat4();
-				command.variable_ = ::hw_shader_variable_projection_mat_;
+				auto& command = *command_buffer->write_shader_var_mat4();
+				command.var_ = ::hw_shader_var_projection_mat_;
 				command.value_ = ::hw_3d_player_weapon_projection_matrix_;
 			}
 		}
@@ -8141,16 +8141,16 @@ void hw_screen_3d_refresh()
 			// Set model matrix.
 			//
 			{
-				auto& command = *command_buffer->write_shader_variable_mat4();
-				command.variable_ = ::hw_shader_variable_model_mat_;
+				auto& command = *command_buffer->write_shader_var_mat4();
+				command.var_ = ::hw_shader_var_model_mat_;
 				command.value_ = ::hw_3d_player_weapon_model_matrix_;
 			}
 
 			// Set view matrix.
 			//
 			{
-				auto& command = *command_buffer->write_shader_variable_mat4();
-				command.variable_ = ::hw_shader_variable_view_mat_;
+				auto& command = *command_buffer->write_shader_var_mat4();
+				command.var_ = ::hw_shader_var_view_mat_;
 				command.value_ = ::hw_3d_player_weapon_view_matrix_;
 			}
 
@@ -8214,16 +8214,16 @@ void hw_screen_3d_refresh()
 			// Set model matrix.
 			//
 			{
-				auto& command = *command_buffer->write_shader_variable_mat4();
-				command.variable_ = ::hw_shader_variable_model_mat_;
+				auto& command = *command_buffer->write_shader_var_mat4();
+				command.var_ = ::hw_shader_var_model_mat_;
 				command.value_ = glm::identity<glm::mat4>();
 			}
 
 			// Set view matrix.
 			//
 			{
-				auto& command = *command_buffer->write_shader_variable_mat4();
-				command.variable_ = ::hw_shader_variable_view_mat_;
+				auto& command = *command_buffer->write_shader_var_mat4();
+				command.var_ = ::hw_shader_var_view_mat_;
 				command.value_ = glm::identity<glm::mat4>();
 			}
 

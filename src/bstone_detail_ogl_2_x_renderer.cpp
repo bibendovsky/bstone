@@ -497,28 +497,28 @@ void Ogl2XRenderer::execute_commands(
 				command_execute_shader_stage(*command_buffer->read_shader_stage());
 				break;
 
-			case RendererCommandId::shader_variable_int32:
-				command_execute_shader_variable_int32(*command_buffer->read_shader_variable_int32());
+			case RendererCommandId::shader_var_int32:
+				command_execute_shader_var_int32(*command_buffer->read_shader_var_int32());
 				break;
 
-			case RendererCommandId::shader_variable_float32:
-				command_execute_shader_variable_float32(*command_buffer->read_shader_variable_float32());
+			case RendererCommandId::shader_var_float32:
+				command_execute_shader_var_float32(*command_buffer->read_shader_var_float32());
 				break;
 
-			case RendererCommandId::shader_variable_vec2:
-				command_execute_shader_variable_vec2(*command_buffer->read_shader_variable_vec2());
+			case RendererCommandId::shader_var_vec2:
+				command_execute_shader_var_vec2(*command_buffer->read_shader_var_vec2());
 				break;
 
-			case RendererCommandId::shader_variable_vec4:
-				command_execute_shader_variable_vec4(*command_buffer->read_shader_variable_vec4());
+			case RendererCommandId::shader_var_vec4:
+				command_execute_shader_var_vec4(*command_buffer->read_shader_var_vec4());
 				break;
 
-			case RendererCommandId::shader_variable_mat4:
-				command_execute_shader_variable_mat4(*command_buffer->read_shader_variable_mat4());
+			case RendererCommandId::shader_var_mat4:
+				command_execute_shader_var_mat4(*command_buffer->read_shader_var_mat4());
 				break;
 
-			case RendererCommandId::shader_variable_sampler2d:
-				command_execute_shader_variable_sampler_2d(*command_buffer->read_shader_variable_sampler_2d());
+			case RendererCommandId::shader_var_sampler2d:
+				command_execute_shader_var_sampler_2d(*command_buffer->read_shader_var_sampler_2d());
 				break;
 
 			case RendererCommandId::draw_quads:
@@ -1629,70 +1629,70 @@ void Ogl2XRenderer::command_execute_shader_stage(
 	command.shader_stage_->set();
 }
 
-void Ogl2XRenderer::command_execute_shader_variable_int32(
-	const RendererCommandShaderVariableInt32& command)
+void Ogl2XRenderer::command_execute_shader_var_int32(
+	const RendererCommandShaderVarInt32& command)
 {
-	if (!command.variable_)
+	if (!command.var_)
 	{
 		throw Exception{"Null variable."};
 	}
 
-	command.variable_->set_value(command.value_);
+	command.var_->set_value(command.value_);
 }
 
-void Ogl2XRenderer::command_execute_shader_variable_float32(
-	const RendererCommandShaderVariableFloat32& command)
+void Ogl2XRenderer::command_execute_shader_var_float32(
+	const RendererCommandShaderVarFloat32& command)
 {
-	if (!command.variable_)
+	if (!command.var_)
 	{
 		throw Exception{"Null variable."};
 	}
 
-	command.variable_->set_value(command.value_);
+	command.var_->set_value(command.value_);
 }
 
-void Ogl2XRenderer::command_execute_shader_variable_vec2(
-	const RendererCommandShaderVariableVec2& command)
+void Ogl2XRenderer::command_execute_shader_var_vec2(
+	const RendererCommandShaderVarVec2& command)
 {
-	if (!command.variable_)
+	if (!command.var_)
 	{
 		throw Exception{"Null variable."};
 	}
 
-	command.variable_->set_value(command.value_);
+	command.var_->set_value(command.value_);
 }
 
-void Ogl2XRenderer::command_execute_shader_variable_vec4(
-	const RendererCommandShaderVariableVec4& command)
+void Ogl2XRenderer::command_execute_shader_var_vec4(
+	const RendererCommandShaderVarVec4& command)
 {
-	if (!command.variable_)
+	if (!command.var_)
 	{
 		throw Exception{"Null variable."};
 	}
 
-	command.variable_->set_value(command.value_);
+	command.var_->set_value(command.value_);
 }
 
-void Ogl2XRenderer::command_execute_shader_variable_mat4(
-	const RendererCommandShaderVariableMat4& command)
+void Ogl2XRenderer::command_execute_shader_var_mat4(
+	const RendererCommandShaderVarMat4& command)
 {
-	if (!command.variable_)
+	if (!command.var_)
 	{
 		throw Exception{"Null variable."};
 	}
 
-	command.variable_->set_value(command.value_);
+	command.var_->set_value(command.value_);
 }
 
-void Ogl2XRenderer::command_execute_shader_variable_sampler_2d(
-	const RendererCommandShaderVariableSampler2d& command)
+void Ogl2XRenderer::command_execute_shader_var_sampler_2d(
+	const RendererCommandShaderVarSampler2d& command)
 {
-	if (!command.variable_)
+	if (!command.var_)
 	{
 		throw Exception{"Null variable."};
 	}
 
-	command.variable_->set_value(command.value_);
+	command.var_->set_value(command.value_);
 }
 
 void Ogl2XRenderer::command_execute_draw_quads(

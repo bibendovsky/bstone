@@ -79,34 +79,34 @@ RendererVertexBuffer::~RendererVertexBuffer() = default;
 // Shader
 //
 
-RendererShaderVariable::RendererShaderVariable() = default;
+RendererShaderVar::RendererShaderVar() = default;
 
-RendererShaderVariable::~RendererShaderVariable() = default;
-
-
-RendererShaderVariableInt32::RendererShaderVariableInt32() = default;
-
-RendererShaderVariableInt32::~RendererShaderVariableInt32() = default;
+RendererShaderVar::~RendererShaderVar() = default;
 
 
-RendererShaderVariableFloat32::RendererShaderVariableFloat32() = default;
+RendererShaderVarInt32::RendererShaderVarInt32() = default;
 
-RendererShaderVariableFloat32::~RendererShaderVariableFloat32() = default;
-
-
-RendererShaderVariableVec2::RendererShaderVariableVec2() = default;
-
-RendererShaderVariableVec2::~RendererShaderVariableVec2() = default;
+RendererShaderVarInt32::~RendererShaderVarInt32() = default;
 
 
-RendererShaderVariableVec4::RendererShaderVariableVec4() = default;
+RendererShaderVarFloat32::RendererShaderVarFloat32() = default;
 
-RendererShaderVariableVec4::~RendererShaderVariableVec4() = default;
+RendererShaderVarFloat32::~RendererShaderVarFloat32() = default;
 
 
-RendererShaderVariableMat4::RendererShaderVariableMat4() = default;
+RendererShaderVarVec2::RendererShaderVarVec2() = default;
 
-RendererShaderVariableMat4::~RendererShaderVariableMat4() = default;
+RendererShaderVarVec2::~RendererShaderVarVec2() = default;
+
+
+RendererShaderVarVec4::RendererShaderVarVec4() = default;
+
+RendererShaderVarVec4::~RendererShaderVarVec4() = default;
+
+
+RendererShaderVarMat4::RendererShaderVarMat4() = default;
+
+RendererShaderVarMat4::~RendererShaderVarMat4() = default;
 
 
 RendererShader::RendererShader() = default;

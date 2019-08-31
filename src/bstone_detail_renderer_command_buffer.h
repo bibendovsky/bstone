@@ -89,12 +89,12 @@ public:
 
 	RendererCommandShaderStage* write_shader_stage() override;
 
-	RendererCommandShaderVariableInt32* write_shader_variable_int32() override;
-	RendererCommandShaderVariableFloat32* write_shader_variable_float32() override;
-	RendererCommandShaderVariableVec2* write_shader_variable_vec2() override;
-	RendererCommandShaderVariableVec4* write_shader_variable_vec4() override;
-	RendererCommandShaderVariableMat4* write_shader_variable_mat4() override;
-	RendererCommandShaderVariableSampler2d* write_shader_variable_sampler_2d() override;
+	RendererCommandShaderVarInt32* write_shader_var_int32() override;
+	RendererCommandShaderVarFloat32* write_shader_var_float32() override;
+	RendererCommandShaderVarVec2* write_shader_var_vec2() override;
+	RendererCommandShaderVarVec4* write_shader_var_vec4() override;
+	RendererCommandShaderVarMat4* write_shader_var_mat4() override;
+	RendererCommandShaderVarSampler2d* write_shader_var_sampler_2d() override;
 
 	RendererCommandDrawQuads* write_draw_quads() override;
 
@@ -125,12 +125,12 @@ public:
 
 	const RendererCommandShaderStage* read_shader_stage() override;
 
-	const RendererCommandShaderVariableInt32* read_shader_variable_int32() override;
-	const RendererCommandShaderVariableFloat32* read_shader_variable_float32() override;
-	const RendererCommandShaderVariableVec2* read_shader_variable_vec2() override;
-	const RendererCommandShaderVariableVec4* read_shader_variable_vec4() override;
-	const RendererCommandShaderVariableMat4* read_shader_variable_mat4() override;
-	const RendererCommandShaderVariableSampler2d* read_shader_variable_sampler_2d() override;
+	const RendererCommandShaderVarInt32* read_shader_var_int32() override;
+	const RendererCommandShaderVarFloat32* read_shader_var_float32() override;
+	const RendererCommandShaderVarVec2* read_shader_var_vec2() override;
+	const RendererCommandShaderVarVec4* read_shader_var_vec4() override;
+	const RendererCommandShaderVarMat4* read_shader_var_mat4() override;
+	const RendererCommandShaderVarSampler2d* read_shader_var_sampler_2d() override;
 
 	const RendererCommandDrawQuads* read_draw_quads() override;
 

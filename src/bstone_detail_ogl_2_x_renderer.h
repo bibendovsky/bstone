@@ -418,23 +418,23 @@ private:
 	void command_execute_shader_stage(
 		const RendererCommandShaderStage& command);
 
-	void command_execute_shader_variable_int32(
-		const RendererCommandShaderVariableInt32& command);
+	void command_execute_shader_var_int32(
+		const RendererCommandShaderVarInt32& command);
 
-	void command_execute_shader_variable_float32(
-		const RendererCommandShaderVariableFloat32& command);
+	void command_execute_shader_var_float32(
+		const RendererCommandShaderVarFloat32& command);
 
-	void command_execute_shader_variable_vec2(
-		const RendererCommandShaderVariableVec2& command);
+	void command_execute_shader_var_vec2(
+		const RendererCommandShaderVarVec2& command);
 
-	void command_execute_shader_variable_vec4(
-		const RendererCommandShaderVariableVec4& command);
+	void command_execute_shader_var_vec4(
+		const RendererCommandShaderVarVec4& command);
 
-	void command_execute_shader_variable_mat4(
-		const RendererCommandShaderVariableMat4& command);
+	void command_execute_shader_var_mat4(
+		const RendererCommandShaderVarMat4& command);
 
-	void command_execute_shader_variable_sampler_2d(
-		const RendererCommandShaderVariableSampler2d& command);
+	void command_execute_shader_var_sampler_2d(
+		const RendererCommandShaderVarSampler2d& command);
 
 	void command_execute_draw_quads(
 		const RendererCommandDrawQuads& command);

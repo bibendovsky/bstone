@@ -79,12 +79,12 @@ enum class RendererCommandId :
 
 	shader_stage,
 
-	shader_variable_int32,
-	shader_variable_float32,
-	shader_variable_vec2,
-	shader_variable_vec4,
-	shader_variable_mat4,
-	shader_variable_sampler2d,
+	shader_var_int32,
+	shader_var_float32,
+	shader_var_vec2,
+	shader_var_vec4,
+	shader_var_mat4,
+	shader_var_sampler2d,
 
 	draw_quads,
 }; // RendererCommandId
@@ -473,15 +473,15 @@ using RendererSamplerPtr = RendererSampler*;
 // Shader
 //
 
-enum class RendererShaderVariableKind
+enum class RendererShaderVarKind
 {
 	none,
 	attribute,
 	sampler,
 	uniform,
-}; // RendererShaderVariableKind
+}; // RendererShaderVarKind
 
-enum class RendererShaderVariableTypeId
+enum class RendererShaderVarTypeId
 {
 	none,
 	int32,
@@ -491,125 +491,125 @@ enum class RendererShaderVariableTypeId
 	vec4,
 	mat4,
 	sampler2d,
-}; // RendererShaderVariableTypeId
+}; // RendererShaderVarTypeId
 
-class RendererShaderVariable
+class RendererShaderVar
 {
 protected:
-	RendererShaderVariable();
+	RendererShaderVar();
 
-	virtual ~RendererShaderVariable();
+	virtual ~RendererShaderVar();
 
 
 public:
-	virtual RendererShaderVariableKind get_kind() const noexcept = 0;
+	virtual RendererShaderVarKind get_kind() const noexcept = 0;
 
-	virtual RendererShaderVariableTypeId get_type_id() const noexcept = 0;
+	virtual RendererShaderVarTypeId get_type_id() const noexcept = 0;
 
 	virtual int get_index() const noexcept = 0;
 
 	virtual const std::string& get_name() const noexcept = 0;
 
 	virtual int get_input_index() const noexcept = 0;
-}; // RendererShaderVariable
+}; // RendererShaderVar
 
-using RendererShaderVariablePtr = RendererShaderVariable*;
-using RendererShaderVariableCPtr = const RendererShaderVariable*;
+using RendererShaderVarPtr = RendererShaderVar*;
+using RendererShaderVarCPtr = const RendererShaderVar*;
 
 
-class RendererShaderVariableInt32 :
-	public virtual RendererShaderVariable
+class RendererShaderVarInt32 :
+	public virtual RendererShaderVar
 {
 protected:
-	RendererShaderVariableInt32();
+	RendererShaderVarInt32();
 
-	virtual ~RendererShaderVariableInt32();
+	virtual ~RendererShaderVarInt32();
 
 
 public:
 	virtual void set_value(
 		const std::int32_t value) = 0;
-}; // RendererShaderVariableInt32
+}; // RendererShaderVarInt32
 
-using RendererShaderVariableInt32Ptr = RendererShaderVariableInt32*;
-using RendererShaderVariableInt32CPtr = const RendererShaderVariableInt32*;
+using RendererShaderVarInt32Ptr = RendererShaderVarInt32*;
+using RendererShaderVarInt32CPtr = const RendererShaderVarInt32*;
 
 
-class RendererShaderVariableFloat32 :
-	public virtual RendererShaderVariable
+class RendererShaderVarFloat32 :
+	public virtual RendererShaderVar
 {
 protected:
-	RendererShaderVariableFloat32();
+	RendererShaderVarFloat32();
 
-	virtual ~RendererShaderVariableFloat32();
+	virtual ~RendererShaderVarFloat32();
 
 
 public:
 	virtual void set_value(
 		const float value) = 0;
-}; // RendererShaderVariableFloat32
+}; // RendererShaderVarFloat32
 
-using RendererShaderVariableFloat32Ptr = RendererShaderVariableFloat32*;
-using RendererShaderVariableFloat32CPtr = const RendererShaderVariableFloat32*;
+using RendererShaderVarFloat32Ptr = RendererShaderVarFloat32*;
+using RendererShaderVarFloat32CPtr = const RendererShaderVarFloat32*;
 
 
-class RendererShaderVariableVec2 :
-	public virtual RendererShaderVariable
+class RendererShaderVarVec2 :
+	public virtual RendererShaderVar
 {
 protected:
-	RendererShaderVariableVec2();
+	RendererShaderVarVec2();
 
-	virtual ~RendererShaderVariableVec2();
+	virtual ~RendererShaderVarVec2();
 
 
 public:
 	virtual void set_value(
 		const glm::vec2& value) = 0;
-}; // RendererShaderVariableVec2
+}; // RendererShaderVarVec2
 
-using RendererShaderVariableVec2Ptr = RendererShaderVariableVec2*;
-using RendererShaderVariableVec2CPtr = const RendererShaderVariableVec2*;
+using RendererShaderVarVec2Ptr = RendererShaderVarVec2*;
+using RendererShaderVarVec2CPtr = const RendererShaderVarVec2*;
 
 
-class RendererShaderVariableVec4 :
-	public virtual RendererShaderVariable
+class RendererShaderVarVec4 :
+	public virtual RendererShaderVar
 {
 protected:
-	RendererShaderVariableVec4();
+	RendererShaderVarVec4();
 
-	virtual ~RendererShaderVariableVec4();
+	virtual ~RendererShaderVarVec4();
 
 
 public:
 	virtual void set_value(
 		const glm::vec4& value) = 0;
-}; // RendererShaderVariableVec4
+}; // RendererShaderVarVec4
 
-using RendererShaderVariableVec4Ptr = RendererShaderVariableVec4*;
-using RendererShaderVariableVec4CPtr = const RendererShaderVariableVec4*;
+using RendererShaderVarVec4Ptr = RendererShaderVarVec4*;
+using RendererShaderVarVec4CPtr = const RendererShaderVarVec4*;
 
 
-class RendererShaderVariableMat4 :
-	public virtual RendererShaderVariable
+class RendererShaderVarMat4 :
+	public virtual RendererShaderVar
 {
 protected:
-	RendererShaderVariableMat4();
+	RendererShaderVarMat4();
 
-	virtual ~RendererShaderVariableMat4();
+	virtual ~RendererShaderVarMat4();
 
 
 public:
 	virtual void set_value(
 		const glm::mat4& value) = 0;
-}; // RendererShaderVariableMat4
+}; // RendererShaderVarMat4
 
-using RendererShaderVariableMat4Ptr = RendererShaderVariableMat4*;
-using RendererShaderVariableMat4CPtr = const RendererShaderVariableMat4*;
+using RendererShaderVarMat4Ptr = RendererShaderVarMat4*;
+using RendererShaderVarMat4CPtr = const RendererShaderVarMat4*;
 
 
-using RendererShaderVariableSampler2d = RendererShaderVariableInt32;
-using RendererShaderVariableSampler2dPtr = RendererShaderVariableSampler2d*;
-using RendererShaderVariableSampler2dCPtr = const RendererShaderVariableSampler2d*;
+using RendererShaderVarSampler2d = RendererShaderVarInt32;
+using RendererShaderVarSampler2dPtr = RendererShaderVarSampler2d*;
+using RendererShaderVarSampler2dCPtr = const RendererShaderVarSampler2d*;
 
 
 enum class RendererShaderKind
@@ -673,25 +673,25 @@ protected:
 public:
 	virtual void set() = 0;
 
-	virtual RendererShaderVariablePtr find_variable(
+	virtual RendererShaderVarPtr find_var(
 		const std::string& name) = 0;
 
-	virtual RendererShaderVariableInt32Ptr find_variable_int32(
+	virtual RendererShaderVarInt32Ptr find_var_int32(
 		const std::string& name) = 0;
 
-	virtual RendererShaderVariableFloat32Ptr find_variable_float32(
+	virtual RendererShaderVarFloat32Ptr find_var_float32(
 		const std::string& name) = 0;
 
-	virtual RendererShaderVariableVec2Ptr find_variable_vec2(
+	virtual RendererShaderVarVec2Ptr find_var_vec2(
 		const std::string& name) = 0;
 
-	virtual RendererShaderVariableVec4Ptr find_variable_vec4(
+	virtual RendererShaderVarVec4Ptr find_var_vec4(
 		const std::string& name) = 0;
 
-	virtual RendererShaderVariableMat4Ptr find_variable_mat4(
+	virtual RendererShaderVarMat4Ptr find_var_mat4(
 		const std::string& name) = 0;
 
-	virtual RendererShaderVariableSampler2dPtr find_variable_sampler_2d(
+	virtual RendererShaderVarSampler2dPtr find_var_sampler_2d(
 		const std::string& name) = 0;
 }; // RendererShaderStage
 
@@ -772,41 +772,41 @@ struct RendererCommandShaderStage
 	RendererShaderStagePtr shader_stage_;
 }; // RendererCommandShaderStage
 
-struct RendererCommandShaderVariableInt32
+struct RendererCommandShaderVarInt32
 {
-	RendererShaderVariableInt32Ptr variable_;
+	RendererShaderVarInt32Ptr var_;
 	std::int32_t value_;
-}; // RendererCommandShaderVariableInt32
+}; // RendererCommandShaderVarInt32
 
-struct RendererCommandShaderVariableFloat32
+struct RendererCommandShaderVarFloat32
 {
-	RendererShaderVariableFloat32Ptr variable_;
+	RendererShaderVarFloat32Ptr var_;
 	float value_;
-}; // RendererCommandShaderVariableFloat32
+}; // RendererCommandShaderVarFloat32
 
-struct RendererCommandShaderVariableVec2
+struct RendererCommandShaderVarVec2
 {
-	RendererShaderVariableVec2Ptr variable_;
+	RendererShaderVarVec2Ptr var_;
 	glm::vec2 value_;
-}; // RendererCommandShaderVariableVec2
+}; // RendererCommandShaderVarVec2
 
-struct RendererCommandShaderVariableVec4
+struct RendererCommandShaderVarVec4
 {
-	RendererShaderVariableVec4Ptr variable_;
+	RendererShaderVarVec4Ptr var_;
 	glm::vec4 value_;
-}; // RendererCommandShaderVariableVec4
+}; // RendererCommandShaderVarVec4
 
-struct RendererCommandShaderVariableMat4
+struct RendererCommandShaderVarMat4
 {
-	RendererShaderVariableMat4Ptr variable_;
+	RendererShaderVarMat4Ptr var_;
 	glm::mat4 value_;
-}; // RendererCommandShaderVariableMat4
+}; // RendererCommandShaderVarMat4
 
-struct RendererCommandShaderVariableSampler2d
+struct RendererCommandShaderVarSampler2d
 {
-	RendererShaderVariableSampler2dPtr variable_;
+	RendererShaderVarSampler2dPtr var_;
 	std::int32_t value_;
-}; // RendererCommandShaderVariableSampler2d
+}; // RendererCommandShaderVarSampler2d
 
 struct RendererCommandDrawQuads
 {
@@ -861,12 +861,12 @@ public:
 
 	virtual RendererCommandShaderStage* write_shader_stage() = 0;
 
-	virtual RendererCommandShaderVariableInt32* write_shader_variable_int32() = 0;
-	virtual RendererCommandShaderVariableFloat32* write_shader_variable_float32() = 0;
-	virtual RendererCommandShaderVariableVec2* write_shader_variable_vec2() = 0;
-	virtual RendererCommandShaderVariableVec4* write_shader_variable_vec4() = 0;
-	virtual RendererCommandShaderVariableMat4* write_shader_variable_mat4() = 0;
-	virtual RendererCommandShaderVariableSampler2d* write_shader_variable_sampler_2d() = 0;
+	virtual RendererCommandShaderVarInt32* write_shader_var_int32() = 0;
+	virtual RendererCommandShaderVarFloat32* write_shader_var_float32() = 0;
+	virtual RendererCommandShaderVarVec2* write_shader_var_vec2() = 0;
+	virtual RendererCommandShaderVarVec4* write_shader_var_vec4() = 0;
+	virtual RendererCommandShaderVarMat4* write_shader_var_mat4() = 0;
+	virtual RendererCommandShaderVarSampler2d* write_shader_var_sampler_2d() = 0;
 
 	virtual RendererCommandDrawQuads* write_draw_quads() = 0;
 
@@ -897,12 +897,12 @@ public:
 
 	virtual const RendererCommandShaderStage* read_shader_stage() = 0;
 
-	virtual const RendererCommandShaderVariableInt32* read_shader_variable_int32() = 0;
-	virtual const RendererCommandShaderVariableFloat32* read_shader_variable_float32() = 0;
-	virtual const RendererCommandShaderVariableVec2* read_shader_variable_vec2() = 0;
-	virtual const RendererCommandShaderVariableVec4* read_shader_variable_vec4() = 0;
-	virtual const RendererCommandShaderVariableMat4* read_shader_variable_mat4() = 0;
-	virtual const RendererCommandShaderVariableSampler2d* read_shader_variable_sampler_2d() = 0;
+	virtual const RendererCommandShaderVarInt32* read_shader_var_int32() = 0;
+	virtual const RendererCommandShaderVarFloat32* read_shader_var_float32() = 0;
+	virtual const RendererCommandShaderVarVec2* read_shader_var_vec2() = 0;
+	virtual const RendererCommandShaderVarVec4* read_shader_var_vec4() = 0;
+	virtual const RendererCommandShaderVarMat4* read_shader_var_mat4() = 0;
+	virtual const RendererCommandShaderVarSampler2d* read_shader_var_sampler_2d() = 0;
 
 	virtual const RendererCommandDrawQuads* read_draw_quads() = 0;
 }; // RendererCommandBuffer

@@ -266,7 +266,7 @@ target_sources(
 		bstone_detail_ogl_shader_manager.h
 		bstone_detail_ogl_shader_stage.h
 		bstone_detail_ogl_shader_stage_manager.h
-		bstone_detail_ogl_shader_variable.h
+		bstone_detail_ogl_shader_var.h
 		bstone_detail_ogl_context.h
 		bstone_detail_ogl_vertex_buffer.h
 		bstone_detail_ogl_texture_2d.h
@@ -360,7 +360,7 @@ target_sources(
 		bstone_detail_ogl_shader_manager.cpp
 		bstone_detail_ogl_shader_stage.cpp
 		bstone_detail_ogl_shader_stage_manager.cpp
-		bstone_detail_ogl_shader_variable.cpp
+		bstone_detail_ogl_shader_var.cpp
 		bstone_detail_ogl_renderer_utils.cpp
 		bstone_detail_ogl_context.cpp
 		bstone_detail_ogl_buffer.cpp

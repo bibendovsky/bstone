@@ -34,7 +34,7 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_detail_ogl_shader.h"
-#include "bstone_detail_ogl_shader_variable.h"
+#include "bstone_detail_ogl_shader_var.h"
 
 
 namespace bstone

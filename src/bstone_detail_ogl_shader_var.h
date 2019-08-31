@@ -29,8 +29,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_OLG_SHADER_VARIABLE_INCLUDED
-#define BSTONE_DETAIL_OLG_SHADER_VARIABLE_INCLUDED
+#ifndef BSTONE_DETAIL_OLG_SHADER_VAR_INCLUDED
+#define BSTONE_DETAIL_OLG_SHADER_VAR_INCLUDED
 
 
 #include "bstone_renderer.h"
@@ -47,46 +47,46 @@ using OglShaderStagePtr = OglShaderStage*;
 
 
 // ==========================================================================
-// OglShaderVariable
+// OglShaderVar
 //
 
-class OglShaderVariable :
-	public virtual RendererShaderVariableInt32,
-	public virtual RendererShaderVariableFloat32,
-	public virtual RendererShaderVariableVec2,
-	public virtual RendererShaderVariableVec4,
-	public virtual RendererShaderVariableMat4
+class OglShaderVar :
+	public virtual RendererShaderVarInt32,
+	public virtual RendererShaderVarFloat32,
+	public virtual RendererShaderVarVec2,
+	public virtual RendererShaderVarVec4,
+	public virtual RendererShaderVarMat4
 {
 protected:
-	OglShaderVariable();
+	OglShaderVar();
 
 
 public:
-	~OglShaderVariable() override;
+	~OglShaderVar() override;
 
 
 	static int get_unit_size(
-		const RendererShaderVariableTypeId type_id);
-}; // OglShaderVariable
+		const RendererShaderVarTypeId type_id);
+}; // OglShaderVar
 
-using OglShaderVariablePtr = OglShaderVariable*;
-using OglShaderVariableUPtr = std::unique_ptr<OglShaderVariable>;
+using OglShaderVarPtr = OglShaderVar*;
+using OglShaderVarUPtr = std::unique_ptr<OglShaderVar>;
 
 //
-// OglShaderVariable
+// OglShaderVar
 // ==========================================================================
 
 
 // ==========================================================================
-// OglShaderVariableFactory
+// OglShaderVarFactory
 //
 
-struct OglShaderVariableFactory final
+struct OglShaderVarFactory final
 {
 	struct CreateParam final
 	{
-		RendererShaderVariableKind kind_;
-		RendererShaderVariableTypeId type_id_;
+		RendererShaderVarKind kind_;
+		RendererShaderVarTypeId type_id_;
 		int value_size_;
 		int index_;
 		std::string name_;
@@ -94,13 +94,13 @@ struct OglShaderVariableFactory final
 		int ogl_location_;
 	}; // CreateParam
 
-	static OglShaderVariableUPtr create(
+	static OglShaderVarUPtr create(
 		const OglShaderStagePtr shader_stage,
 		const CreateParam& param);
-}; // OglShaderVariableFactory
+}; // OglShaderVarFactory
 
 //
-// OglShaderVariableFactory
+// OglShaderVarFactory
 // ==========================================================================
 
 
@@ -108,4 +108,4 @@ struct OglShaderVariableFactory final
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_OLG_SHADER_VARIABLE_INCLUDED
+#endif // !BSTONE_DETAIL_OLG_SHADER_VAR_INCLUDED

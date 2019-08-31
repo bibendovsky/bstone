@@ -30,7 +30,7 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_precompiled.h"
-#include "bstone_detail_ogl_shader_variable.h"
+#include "bstone_detail_ogl_shader_var.h"
 
 #include "glm/gtc/type_ptr.hpp"
 
@@ -50,33 +50,33 @@ namespace detail
 
 
 // ==========================================================================
-// OglShaderVariable
+// OglShaderVar
 //
 
-OglShaderVariable::OglShaderVariable() = default;
+OglShaderVar::OglShaderVar() = default;
 
-OglShaderVariable::~OglShaderVariable() = default;
+OglShaderVar::~OglShaderVar() = default;
 
-int OglShaderVariable::get_unit_size(
-	const RendererShaderVariableTypeId type_id)
+int OglShaderVar::get_unit_size(
+	const RendererShaderVarTypeId type_id)
 {
 	switch (type_id)
 	{
-		case RendererShaderVariableTypeId::int32:
-		case RendererShaderVariableTypeId::float32:
-		case RendererShaderVariableTypeId::sampler2d:
+		case RendererShaderVarTypeId::int32:
+		case RendererShaderVarTypeId::float32:
+		case RendererShaderVarTypeId::sampler2d:
 			return 4;
 
-		case RendererShaderVariableTypeId::vec2:
+		case RendererShaderVarTypeId::vec2:
 			return 2 * 4;
 
-		case RendererShaderVariableTypeId::vec3:
+		case RendererShaderVarTypeId::vec3:
 			return 3 * 4;
 
-		case RendererShaderVariableTypeId::vec4:
+		case RendererShaderVarTypeId::vec4:
 			return 4 * 4;
 
-		case RendererShaderVariableTypeId::mat4:
+		case RendererShaderVarTypeId::mat4:
 			return 4 * 4 * 4;
 
 		default:
@@ -85,28 +85,28 @@ int OglShaderVariable::get_unit_size(
 }
 
 //
-// OglShaderVariable
+// OglShaderVar
 // ==========================================================================
 
 
 // ==========================================================================
-// GenericOglShaderVariable
+// GenericOglShaderVar
 //
 
-class GenericOglShaderVariable :
-	public OglShaderVariable
+class GenericOglShaderVar :
+	public OglShaderVar
 {
 public:
-	GenericOglShaderVariable(
+	GenericOglShaderVar(
 		const OglShaderStagePtr shader_stage,
-		const OglShaderVariableFactory::CreateParam& param);
+		const OglShaderVarFactory::CreateParam& param);
 
-	~GenericOglShaderVariable() override;
+	~GenericOglShaderVar() override;
 
 
-	RendererShaderVariableKind get_kind() const noexcept override;
+	RendererShaderVarKind get_kind() const noexcept override;
 
-	RendererShaderVariableTypeId get_type_id() const noexcept override;
+	RendererShaderVarTypeId get_type_id() const noexcept override;
 
 	int get_index() const noexcept override;
 
@@ -134,8 +134,8 @@ public:
 private:
 	const OglShaderStagePtr shader_stage_;
 
-	RendererShaderVariableKind kind_;
-	RendererShaderVariableTypeId type_id_;
+	RendererShaderVarKind kind_;
+	RendererShaderVarTypeId type_id_;
 	int value_size_;
 	int index_;
 	std::string name_;
@@ -144,31 +144,31 @@ private:
 
 
 	void initialize(
-		const OglShaderVariableFactory::CreateParam& param);
+		const OglShaderVarFactory::CreateParam& param);
 
 	void set_value(
-		const RendererShaderVariableTypeId type_id,
+		const RendererShaderVarTypeId type_id,
 		const void* const value_data);
 
 	void set_value(
 		const void* const value_data);
-}; // GenericOglShaderVariable
+}; // GenericOglShaderVar
 
-using GenericOglShaderVariablePtr = GenericOglShaderVariable*;
-using GenericOglShaderVariableUPtr = std::unique_ptr<GenericOglShaderVariable>;
+using GenericOglShaderVarPtr = GenericOglShaderVar*;
+using GenericOglShaderVarUPtr = std::unique_ptr<GenericOglShaderVar>;
 
 //
-// GenericOglShaderVariable
+// GenericOglShaderVar
 // ==========================================================================
 
 
 // ==========================================================================
-// GenericOglShaderVariable
+// GenericOglShaderVar
 //
 
-GenericOglShaderVariable::GenericOglShaderVariable(
+GenericOglShaderVar::GenericOglShaderVar(
 	const OglShaderStagePtr shader_stage,
-	const OglShaderVariableFactory::CreateParam& param)
+	const OglShaderVarFactory::CreateParam& param)
 	:
 	shader_stage_{shader_stage},
 	kind_{},
@@ -182,65 +182,65 @@ GenericOglShaderVariable::GenericOglShaderVariable(
 	initialize(param);
 }
 
-GenericOglShaderVariable::~GenericOglShaderVariable() = default;
+GenericOglShaderVar::~GenericOglShaderVar() = default;
 
-RendererShaderVariableKind GenericOglShaderVariable::get_kind() const noexcept
+RendererShaderVarKind GenericOglShaderVar::get_kind() const noexcept
 {
 	return kind_;
 }
 
-RendererShaderVariableTypeId GenericOglShaderVariable::get_type_id() const noexcept
+RendererShaderVarTypeId GenericOglShaderVar::get_type_id() const noexcept
 {
 	return type_id_;
 }
 
-int GenericOglShaderVariable::get_index() const noexcept
+int GenericOglShaderVar::get_index() const noexcept
 {
 	return index_;
 }
 
-const std::string& GenericOglShaderVariable::get_name() const noexcept
+const std::string& GenericOglShaderVar::get_name() const noexcept
 {
 	return name_;
 }
 
-int GenericOglShaderVariable::get_input_index() const noexcept
+int GenericOglShaderVar::get_input_index() const noexcept
 {
 	return input_index_;
 }
 
-void GenericOglShaderVariable::set_value(
+void GenericOglShaderVar::set_value(
 	const std::int32_t value)
 {
-	set_value(RendererShaderVariableTypeId::int32, &value);
+	set_value(RendererShaderVarTypeId::int32, &value);
 }
 
-void GenericOglShaderVariable::set_value(
+void GenericOglShaderVar::set_value(
 	const float value)
 {
-	set_value(RendererShaderVariableTypeId::float32, &value);
+	set_value(RendererShaderVarTypeId::float32, &value);
 }
 
-void GenericOglShaderVariable::set_value(
+void GenericOglShaderVar::set_value(
 	const glm::vec2& value)
 {
-	set_value(RendererShaderVariableTypeId::vec2, &value);
+	set_value(RendererShaderVarTypeId::vec2, &value);
 }
 
-void GenericOglShaderVariable::set_value(
+void GenericOglShaderVar::set_value(
 	const glm::vec4& value)
 {
-	set_value(RendererShaderVariableTypeId::vec4, &value);
+	set_value(RendererShaderVarTypeId::vec4, &value);
 }
 
-void GenericOglShaderVariable::set_value(
+void GenericOglShaderVar::set_value(
 	const glm::mat4& value)
 {
-	set_value(RendererShaderVariableTypeId::mat4, &value);
+	set_value(RendererShaderVarTypeId::mat4, &value);
 }
 
-void GenericOglShaderVariable::initialize(
-	const OglShaderVariableFactory::CreateParam& param)
+void GenericOglShaderVar::initialize(
+	const OglShaderVarFactory::CreateParam& param)
 {
 	if (!shader_stage_)
 	{
@@ -256,8 +256,8 @@ void GenericOglShaderVariable::initialize(
 	ogl_location_ = param.ogl_location_;
 }
 
-void GenericOglShaderVariable::set_value(
-	const RendererShaderVariableTypeId type_id,
+void GenericOglShaderVar::set_value(
+	const RendererShaderVarTypeId type_id,
 	const void* const value_data)
 {
 	if (type_id != type_id_)
@@ -279,8 +279,8 @@ void GenericOglShaderVariable::set_value(
 
 	switch (kind_)
 	{
-		case RendererShaderVariableKind::sampler:
-		case RendererShaderVariableKind::uniform:
+		case RendererShaderVarKind::sampler:
+		case RendererShaderVarKind::uniform:
 			break;
 
 		default:
@@ -298,7 +298,7 @@ void GenericOglShaderVariable::set_value(
 	set_value(value_data);
 }
 
-void GenericOglShaderVariable::set_value(
+void GenericOglShaderVar::set_value(
 	const void* const value_data)
 {
 	const auto& ogl_device_features = shader_stage_->get_manager()->get_ogl_context()->get_ogl_device_features();
@@ -312,8 +312,8 @@ void GenericOglShaderVariable::set_value(
 
 	switch (type_id_)
 	{
-		case RendererShaderVariableTypeId::int32:
-		case RendererShaderVariableTypeId::sampler2d:
+		case RendererShaderVarTypeId::int32:
+		case RendererShaderVarTypeId::sampler2d:
 			if (ogl_device_features.sso_is_available_)
 			{
 				::glProgramUniform1iv(
@@ -338,7 +338,7 @@ void GenericOglShaderVariable::set_value(
 
 			break;
 
-		case RendererShaderVariableTypeId::float32:
+		case RendererShaderVarTypeId::float32:
 			if (ogl_device_features.sso_is_available_)
 			{
 				::glProgramUniform1fv(
@@ -363,7 +363,7 @@ void GenericOglShaderVariable::set_value(
 
 			break;
 
-		case RendererShaderVariableTypeId::vec2:
+		case RendererShaderVarTypeId::vec2:
 			if (ogl_device_features.sso_is_available_)
 			{
 				::glProgramUniform2fv(
@@ -388,7 +388,7 @@ void GenericOglShaderVariable::set_value(
 
 			break;
 
-		case RendererShaderVariableTypeId::vec3:
+		case RendererShaderVarTypeId::vec3:
 			if (ogl_device_features.sso_is_available_)
 			{
 				::glProgramUniform3fv(
@@ -413,7 +413,7 @@ void GenericOglShaderVariable::set_value(
 
 			break;
 
-		case RendererShaderVariableTypeId::vec4:
+		case RendererShaderVarTypeId::vec4:
 			if (ogl_device_features.sso_is_available_)
 			{
 				::glProgramUniform4fv(
@@ -438,7 +438,7 @@ void GenericOglShaderVariable::set_value(
 
 			break;
 
-		case RendererShaderVariableTypeId::mat4:
+		case RendererShaderVarTypeId::mat4:
 			if (ogl_device_features.sso_is_available_)
 			{
 				::glProgramUniformMatrix4fv(
@@ -471,23 +471,23 @@ void GenericOglShaderVariable::set_value(
 }
 
 //
-// GenericOglShaderVariable
+// GenericOglShaderVar
 // ==========================================================================
 
 
 // ==========================================================================
-// OglShaderVariableFactory
+// OglShaderVarFactory
 //
 
-OglShaderVariableUPtr OglShaderVariableFactory::create(
+OglShaderVarUPtr OglShaderVarFactory::create(
 	const OglShaderStagePtr shader_stage,
-	const OglShaderVariableFactory::CreateParam& param)
+	const OglShaderVarFactory::CreateParam& param)
 {
-	return std::make_unique<GenericOglShaderVariable>(shader_stage, param);
+	return std::make_unique<GenericOglShaderVar>(shader_stage, param);
 }
 
 //
-// OglShaderVariableFactory
+// OglShaderVarFactory
 // ==========================================================================
 
 
