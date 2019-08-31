@@ -54,6 +54,7 @@ struct OglDeviceFeatures
 	bool vao_is_available_;
 	bool buffer_storage_is_available_;
 	bool dsa_is_available_;
+	bool sso_is_available_;
 }; // OglDeviceFeatures
 
 

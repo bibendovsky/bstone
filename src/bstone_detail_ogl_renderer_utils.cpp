@@ -604,6 +604,22 @@ void OglRendererUtils::dsa_probe(
 #endif // !BSTONE_RENDERER_TEST_OGL_NO_DSA
 }
 
+void OglRendererUtils::sso_probe(
+	const OglExtensionManagerPtr extension_manager,
+	OglDeviceFeatures& ogl_device_features)
+{
+	ogl_device_features.sso_is_available_ = false;
+
+#ifndef BSTONE_RENDERER_TEST_OGL_NO_SSO
+	extension_manager->probe_extension(OglExtensionId::arb_separate_shader_objects);
+
+	if (extension_manager->has_extension(OglExtensionId::arb_separate_shader_objects))
+	{
+		ogl_device_features.sso_is_available_ = true;
+	}
+#endif // !BSTONE_RENDERER_TEST_OGL_NO_SSO
+}
+
 void OglRendererUtils::clear_buffers()
 {
 	assert(::glClear != nullptr);

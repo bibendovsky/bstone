@@ -198,6 +198,8 @@ private:
 
 	void resolve_arb_sampler_objects();
 
+	void resolve_arb_separate_shader_objects();
+
 	void resolve_arb_uniform_buffer_object();
 
 	void resolve_arb_vertex_array_object();
@@ -702,6 +704,20 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.is_gles2_ = false;
 		registry_item.extension_name_ = "GL_ARB_sampler_objects";
 		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_arb_sampler_objects;
+		registry_item.dependencies_ = {};
+	}
+
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::arb_separate_shader_objects)];
+		registry_item.is_virtual_ = false;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = true;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
+		registry_item.extension_name_ = "GL_ARB_separate_shader_objects";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_arb_separate_shader_objects;
 		registry_item.dependencies_ = {};
 	}
 
@@ -1907,6 +1923,71 @@ void OglExtensionManagerImpl::resolve_arb_sampler_objects()
 	resolve_symbol("glGetSamplerParameterIiv", ::glGetSamplerParameterIiv);
 	resolve_symbol("glGetSamplerParameterfv", ::glGetSamplerParameterfv);
 	resolve_symbol("glGetSamplerParameterIuiv", ::glGetSamplerParameterIuiv);
+}
+
+void OglExtensionManagerImpl::resolve_arb_separate_shader_objects()
+{
+	resolve_symbol("glUseProgramStages", ::glUseProgramStages);
+	resolve_symbol("glActiveShaderProgram", ::glActiveShaderProgram);
+	resolve_symbol("glCreateShaderProgramv", ::glCreateShaderProgramv);
+	resolve_symbol("glBindProgramPipeline", ::glBindProgramPipeline);
+	resolve_symbol("glDeleteProgramPipelines", ::glDeleteProgramPipelines);
+	resolve_symbol("glGenProgramPipelines", ::glGenProgramPipelines);
+	resolve_symbol("glIsProgramPipeline", ::glIsProgramPipeline);
+	resolve_symbol("glGetProgramPipelineiv", ::glGetProgramPipelineiv);
+	resolve_symbol("glProgramParameteri", ::glProgramParameteri);
+	resolve_symbol("glProgramUniform1i", ::glProgramUniform1i);
+	resolve_symbol("glProgramUniform1iv", ::glProgramUniform1iv);
+	resolve_symbol("glProgramUniform1f", ::glProgramUniform1f);
+	resolve_symbol("glProgramUniform1fv", ::glProgramUniform1fv);
+	resolve_symbol("glProgramUniform1d", ::glProgramUniform1d);
+	resolve_symbol("glProgramUniform1dv", ::glProgramUniform1dv);
+	resolve_symbol("glProgramUniform1ui", ::glProgramUniform1ui);
+	resolve_symbol("glProgramUniform1uiv", ::glProgramUniform1uiv);
+	resolve_symbol("glProgramUniform2i", ::glProgramUniform2i);
+	resolve_symbol("glProgramUniform2iv", ::glProgramUniform2iv);
+	resolve_symbol("glProgramUniform2f", ::glProgramUniform2f);
+	resolve_symbol("glProgramUniform2fv", ::glProgramUniform2fv);
+	resolve_symbol("glProgramUniform2d", ::glProgramUniform2d);
+	resolve_symbol("glProgramUniform2dv", ::glProgramUniform2dv);
+	resolve_symbol("glProgramUniform2ui", ::glProgramUniform2ui);
+	resolve_symbol("glProgramUniform2uiv", ::glProgramUniform2uiv);
+	resolve_symbol("glProgramUniform3i", ::glProgramUniform3i);
+	resolve_symbol("glProgramUniform3iv", ::glProgramUniform3iv);
+	resolve_symbol("glProgramUniform3f", ::glProgramUniform3f);
+	resolve_symbol("glProgramUniform3fv", ::glProgramUniform3fv);
+	resolve_symbol("glProgramUniform3d", ::glProgramUniform3d);
+	resolve_symbol("glProgramUniform3dv", ::glProgramUniform3dv);
+	resolve_symbol("glProgramUniform3ui", ::glProgramUniform3ui);
+	resolve_symbol("glProgramUniform3uiv", ::glProgramUniform3uiv);
+	resolve_symbol("glProgramUniform4i", ::glProgramUniform4i);
+	resolve_symbol("glProgramUniform4iv", ::glProgramUniform4iv);
+	resolve_symbol("glProgramUniform4f", ::glProgramUniform4f);
+	resolve_symbol("glProgramUniform4fv", ::glProgramUniform4fv);
+	resolve_symbol("glProgramUniform4d", ::glProgramUniform4d);
+	resolve_symbol("glProgramUniform4dv", ::glProgramUniform4dv);
+	resolve_symbol("glProgramUniform4ui", ::glProgramUniform4ui);
+	resolve_symbol("glProgramUniform4uiv", ::glProgramUniform4uiv);
+	resolve_symbol("glProgramUniformMatrix2fv", ::glProgramUniformMatrix2fv);
+	resolve_symbol("glProgramUniformMatrix3fv", ::glProgramUniformMatrix3fv);
+	resolve_symbol("glProgramUniformMatrix4fv", ::glProgramUniformMatrix4fv);
+	resolve_symbol("glProgramUniformMatrix2dv", ::glProgramUniformMatrix2dv);
+	resolve_symbol("glProgramUniformMatrix3dv", ::glProgramUniformMatrix3dv);
+	resolve_symbol("glProgramUniformMatrix4dv", ::glProgramUniformMatrix4dv);
+	resolve_symbol("glProgramUniformMatrix2x3fv", ::glProgramUniformMatrix2x3fv);
+	resolve_symbol("glProgramUniformMatrix3x2fv", ::glProgramUniformMatrix3x2fv);
+	resolve_symbol("glProgramUniformMatrix2x4fv", ::glProgramUniformMatrix2x4fv);
+	resolve_symbol("glProgramUniformMatrix4x2fv", ::glProgramUniformMatrix4x2fv);
+	resolve_symbol("glProgramUniformMatrix3x4fv", ::glProgramUniformMatrix3x4fv);
+	resolve_symbol("glProgramUniformMatrix4x3fv", ::glProgramUniformMatrix4x3fv);
+	resolve_symbol("glProgramUniformMatrix2x3dv", ::glProgramUniformMatrix2x3dv);
+	resolve_symbol("glProgramUniformMatrix3x2dv", ::glProgramUniformMatrix3x2dv);
+	resolve_symbol("glProgramUniformMatrix2x4dv", ::glProgramUniformMatrix2x4dv);
+	resolve_symbol("glProgramUniformMatrix4x2dv", ::glProgramUniformMatrix4x2dv);
+	resolve_symbol("glProgramUniformMatrix3x4dv", ::glProgramUniformMatrix3x4dv);
+	resolve_symbol("glProgramUniformMatrix4x3dv", ::glProgramUniformMatrix4x3dv);
+	resolve_symbol("glValidateProgramPipeline", ::glValidateProgramPipeline);
+	resolve_symbol("glGetProgramPipelineInfoLog", ::glGetProgramPipelineInfoLog);
 }
 
 void OglExtensionManagerImpl::resolve_arb_uniform_buffer_object()

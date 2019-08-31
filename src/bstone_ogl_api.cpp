@@ -1219,3 +1219,78 @@ PFNGLBUFFERSTORAGEPROC glBufferStorage = nullptr;
 //
 // GL_ARB_buffer_storage
 // ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_separate_shader_objects
+//
+
+#ifdef GL_ARB_separate_shader_objects
+
+PFNGLUSEPROGRAMSTAGESPROC glUseProgramStages = nullptr;
+PFNGLACTIVESHADERPROGRAMPROC glActiveShaderProgram = nullptr;
+PFNGLCREATESHADERPROGRAMVPROC glCreateShaderProgramv = nullptr;
+PFNGLBINDPROGRAMPIPELINEPROC glBindProgramPipeline = nullptr;
+PFNGLDELETEPROGRAMPIPELINESPROC glDeleteProgramPipelines = nullptr;
+PFNGLGENPROGRAMPIPELINESPROC glGenProgramPipelines = nullptr;
+PFNGLISPROGRAMPIPELINEPROC glIsProgramPipeline = nullptr;
+PFNGLGETPROGRAMPIPELINEIVPROC glGetProgramPipelineiv = nullptr;
+PFNGLPROGRAMPARAMETERIPROC glProgramParameteri = nullptr;
+PFNGLPROGRAMUNIFORM1IPROC glProgramUniform1i = nullptr;
+PFNGLPROGRAMUNIFORM1IVPROC glProgramUniform1iv = nullptr;
+PFNGLPROGRAMUNIFORM1FPROC glProgramUniform1f = nullptr;
+PFNGLPROGRAMUNIFORM1FVPROC glProgramUniform1fv = nullptr;
+PFNGLPROGRAMUNIFORM1DPROC glProgramUniform1d = nullptr;
+PFNGLPROGRAMUNIFORM1DVPROC glProgramUniform1dv = nullptr;
+PFNGLPROGRAMUNIFORM1UIPROC glProgramUniform1ui = nullptr;
+PFNGLPROGRAMUNIFORM1UIVPROC glProgramUniform1uiv = nullptr;
+PFNGLPROGRAMUNIFORM2IPROC glProgramUniform2i = nullptr;
+PFNGLPROGRAMUNIFORM2IVPROC glProgramUniform2iv = nullptr;
+PFNGLPROGRAMUNIFORM2FPROC glProgramUniform2f = nullptr;
+PFNGLPROGRAMUNIFORM2FVPROC glProgramUniform2fv = nullptr;
+PFNGLPROGRAMUNIFORM2DPROC glProgramUniform2d = nullptr;
+PFNGLPROGRAMUNIFORM2DVPROC glProgramUniform2dv = nullptr;
+PFNGLPROGRAMUNIFORM2UIPROC glProgramUniform2ui = nullptr;
+PFNGLPROGRAMUNIFORM2UIVPROC glProgramUniform2uiv = nullptr;
+PFNGLPROGRAMUNIFORM3IPROC glProgramUniform3i = nullptr;
+PFNGLPROGRAMUNIFORM3IVPROC glProgramUniform3iv = nullptr;
+PFNGLPROGRAMUNIFORM3FPROC glProgramUniform3f = nullptr;
+PFNGLPROGRAMUNIFORM3FVPROC glProgramUniform3fv = nullptr;
+PFNGLPROGRAMUNIFORM3DPROC glProgramUniform3d = nullptr;
+PFNGLPROGRAMUNIFORM3DVPROC glProgramUniform3dv = nullptr;
+PFNGLPROGRAMUNIFORM3UIPROC glProgramUniform3ui = nullptr;
+PFNGLPROGRAMUNIFORM3UIVPROC glProgramUniform3uiv = nullptr;
+PFNGLPROGRAMUNIFORM4IPROC glProgramUniform4i = nullptr;
+PFNGLPROGRAMUNIFORM4IVPROC glProgramUniform4iv = nullptr;
+PFNGLPROGRAMUNIFORM4FPROC glProgramUniform4f = nullptr;
+PFNGLPROGRAMUNIFORM4FVPROC glProgramUniform4fv = nullptr;
+PFNGLPROGRAMUNIFORM4DPROC glProgramUniform4d = nullptr;
+PFNGLPROGRAMUNIFORM4DVPROC glProgramUniform4dv = nullptr;
+PFNGLPROGRAMUNIFORM4UIPROC glProgramUniform4ui = nullptr;
+PFNGLPROGRAMUNIFORM4UIVPROC glProgramUniform4uiv = nullptr;
+PFNGLPROGRAMUNIFORMMATRIX2FVPROC glProgramUniformMatrix2fv = nullptr;
+PFNGLPROGRAMUNIFORMMATRIX3FVPROC glProgramUniformMatrix3fv = nullptr;
+PFNGLPROGRAMUNIFORMMATRIX4FVPROC glProgramUniformMatrix4fv = nullptr;
+PFNGLPROGRAMUNIFORMMATRIX2DVPROC glProgramUniformMatrix2dv = nullptr;
+PFNGLPROGRAMUNIFORMMATRIX3DVPROC glProgramUniformMatrix3dv = nullptr;
+PFNGLPROGRAMUNIFORMMATRIX4DVPROC glProgramUniformMatrix4dv = nullptr;
+PFNGLPROGRAMUNIFORMMATRIX2X3FVPROC glProgramUniformMatrix2x3fv = nullptr;
+PFNGLPROGRAMUNIFORMMATRIX3X2FVPROC glProgramUniformMatrix3x2fv = nullptr;
+PFNGLPROGRAMUNIFORMMATRIX2X4FVPROC glProgramUniformMatrix2x4fv = nullptr;
+PFNGLPROGRAMUNIFORMMATRIX4X2FVPROC glProgramUniformMatrix4x2fv = nullptr;
+PFNGLPROGRAMUNIFORMMATRIX3X4FVPROC glProgramUniformMatrix3x4fv = nullptr;
+PFNGLPROGRAMUNIFORMMATRIX4X3FVPROC glProgramUniformMatrix4x3fv = nullptr;
+PFNGLPROGRAMUNIFORMMATRIX2X3DVPROC glProgramUniformMatrix2x3dv = nullptr;
+PFNGLPROGRAMUNIFORMMATRIX3X2DVPROC glProgramUniformMatrix3x2dv = nullptr;
+PFNGLPROGRAMUNIFORMMATRIX2X4DVPROC glProgramUniformMatrix2x4dv = nullptr;
+PFNGLPROGRAMUNIFORMMATRIX4X2DVPROC glProgramUniformMatrix4x2dv = nullptr;
+PFNGLPROGRAMUNIFORMMATRIX3X4DVPROC glProgramUniformMatrix3x4dv = nullptr;
+PFNGLPROGRAMUNIFORMMATRIX4X3DVPROC glProgramUniformMatrix4x3dv = nullptr;
+PFNGLVALIDATEPROGRAMPIPELINEPROC glValidateProgramPipeline = nullptr;
+PFNGLGETPROGRAMPIPELINEINFOLOGPROC glGetProgramPipelineInfoLog = nullptr;
+
+#endif // GL_ARB_separate_shader_objects
+
+//
+// GL_ARB_separate_shader_objects
+// ==========================================================================

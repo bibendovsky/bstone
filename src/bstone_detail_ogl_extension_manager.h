@@ -92,6 +92,7 @@ enum class OglExtensionId
 	arb_half_float_vertex,
 	arb_map_buffer_range,
 	arb_sampler_objects,
+	arb_separate_shader_objects,
 	arb_texture_compression,
 	arb_texture_compression_rgtc,
 	arb_texture_cube_map,

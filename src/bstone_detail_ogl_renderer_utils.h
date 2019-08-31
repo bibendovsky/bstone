@@ -163,6 +163,11 @@ public:
 		OglDeviceFeatures& ogl_device_features);
 
 
+	static void sso_probe(
+		const OglExtensionManagerPtr extension_manager,
+		OglDeviceFeatures& ogl_device_features);
+
+
 	static void clear_buffers();
 
 	static void swap_window(

@@ -33,7 +33,6 @@ Free Software Foundation, Inc.,
 #define BSTONE_DETAIL_OLG_SHADER_VARIABLE_INCLUDED
 
 
-#include "bstone_ogl_api.h"
 #include "bstone_renderer.h"
 
 
@@ -47,6 +46,10 @@ class OglShaderStage;
 using OglShaderStagePtr = OglShaderStage*;
 
 
+// ==========================================================================
+// OglShaderVariable
+//
+
 class OglShaderVariable :
 	public virtual RendererShaderVariableInt32,
 	public virtual RendererShaderVariableFloat32,
@@ -54,64 +57,51 @@ class OglShaderVariable :
 	public virtual RendererShaderVariableVec4,
 	public virtual RendererShaderVariableMat4
 {
-public:
-	Kind kind_;
-	TypeId type_id_;
-	int value_size_;
-	int index_;
-	std::string name_;
-	int input_index_;
-	GLint ogl_location_;
-	OglShaderStagePtr shader_stage_;
-
-
+protected:
 	OglShaderVariable();
 
+
+public:
 	~OglShaderVariable() override;
-
-
-	Kind get_kind() const override;
-
-	TypeId get_type_id() const override;
-
-	int get_index() const override;
-
-	const std::string& get_name() const override;
-
-	int get_input_index() const override;
-
-
-	void set_value(
-		const std::int32_t value) override;
-
-	void set_value(
-		const float value) override;
-
-	void set_value(
-		const glm::vec2& value) override;
-
-	void set_value(
-		const glm::vec4& value) override;
-
-	void set_value(
-		const glm::mat4& value) override;
 
 
 	static int get_unit_size(
 		const TypeId type_id);
-
-
-private:
-	void set_value(
-		const TypeId type_id,
-		const void* const value_data);
-
-	void set_value(
-		const void* const value_data);
 }; // OglShaderVariable
 
 using OglShaderVariablePtr = OglShaderVariable*;
 using OglShaderVariableUPtr = std::unique_ptr<OglShaderVariable>;
+
+//
+// OglShaderVariable
+// ==========================================================================
+
+
+// ==========================================================================
+// OglShaderVariableFactory
+//
+
+struct OglShaderVariableFactory final
+{
+	struct CreateParam final
+	{
+		RendererShaderVariable::Kind kind_;
+		RendererShaderVariable::TypeId type_id_;
+		int value_size_;
+		int index_;
+		std::string name_;
+		int input_index_;
+		int ogl_location_;
+	}; // CreateParam
+
+	static OglShaderVariableUPtr create(
+		const OglShaderStagePtr shader_stage,
+		const CreateParam& param);
+}; // OglShaderVariableFactory
+
+//
+// OglShaderVariableFactory
+// ==========================================================================
 
 
 } // detail

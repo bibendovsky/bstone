@@ -82,6 +82,9 @@ public:
 	~GenericOglShaderStage() override;
 
 
+	OglShaderStageManagerPtr manager_get() const noexcept override;
+
+
 	void set_current() override;
 
 	RendererShaderVariablePtr find_variable(
@@ -110,6 +113,8 @@ public:
 
 	void detach_vertex_shader() override;
 
+	GLuint ogl_name_get() const noexcept override;
+
 
 private:
 	using NameBuffer = std::vector<char>;
@@ -126,7 +131,7 @@ private:
 
 	ShaderStageResource ogl_resource_;
 
-	using ShaderVariables = std::vector<OglShaderVariable>;
+	using ShaderVariables = std::vector<OglShaderVariableUPtr>;
 	ShaderVariables shader_variables_;
 
 
@@ -169,7 +174,7 @@ private:
 			end_it,
 			[&](const auto& item)
 			{
-				return name == item.name_;
+				return name == item->get_name();
 			}
 		);
 
@@ -178,7 +183,7 @@ private:
 			return nullptr;
 		}
 
-		return &(*it);
+		return it->get();
 	}
 
 	template<typename T>
@@ -193,7 +198,7 @@ private:
 			end_it,
 			[&](const auto& item)
 			{
-				return type_id == item.type_id_ && name == item.name_;
+				return type_id == item->get_type_id() && name == item->get_name();
 			}
 		);
 
@@ -202,7 +207,7 @@ private:
 			return nullptr;
 		}
 
-		return static_cast<T*>(&(*it));
+		return static_cast<T*>(it->get());
 	}
 }; // GenericOglShaderStage
 
@@ -242,6 +247,11 @@ GenericOglShaderStage::~GenericOglShaderStage()
 	{
 		vertex_shader_->attach_to_shader_stage(nullptr);
 	}
+}
+
+OglShaderStageManagerPtr GenericOglShaderStage::manager_get() const noexcept
+{
+	return ogl_shader_stage_manager_;
 }
 
 void GenericOglShaderStage::set_current()
@@ -387,6 +397,11 @@ void GenericOglShaderStage::detach_fragment_shader()
 void GenericOglShaderStage::detach_vertex_shader()
 {
 	vertex_shader_ = nullptr;
+}
+
+GLuint GenericOglShaderStage::ogl_name_get() const noexcept
+{
+	return ogl_resource_.get();
 }
 
 void GenericOglShaderStage::shader_stage_resource_deleter(
@@ -582,7 +597,7 @@ void GenericOglShaderStage::get_variables(
 		auto ogl_length = GLsizei{};
 		auto ogl_size = GLint{};
 		auto ogl_type = GLenum{};
-		auto variable = OglShaderVariable{};
+		auto variable_param = OglShaderVariableFactory::CreateParam{};
 
 		ogl_info_function(
 			ogl_name,
@@ -676,16 +691,17 @@ void GenericOglShaderStage::get_variables(
 		auto name = std::string{};
 		name.assign(name_buffer.data(), static_cast<std::size_t>(ogl_length));
 
-		variable.kind_ = new_kind;
-		variable.type_id_ = unit_type_id;
-		variable.value_size_ = value_size;
-		variable.index_ = index;
-		variable.name_ = std::move(name);
-		variable.input_index_ = input_index;
-		variable.ogl_location_ = i;
-		variable.shader_stage_ = this;
+		variable_param.kind_ = new_kind;
+		variable_param.type_id_ = unit_type_id;
+		variable_param.value_size_ = value_size;
+		variable_param.index_ = index;
+		variable_param.name_ = std::move(name);
+		variable_param.input_index_ = input_index;
+		variable_param.ogl_location_ = i;
 
-		shader_variables.emplace_back(variable);
+		auto variable = OglShaderVariableFactory::create(this, variable_param);
+
+		shader_variables.emplace_back(std::move(variable));
 	}
 }
 

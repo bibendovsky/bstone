@@ -60,6 +60,9 @@ Free Software Foundation, Inc.,
 // No direct state access.
 //#define BSTONE_RENDERER_TEST_OGL_NO_DSA
 
+// No separate shader objects.
+//#define BSTONE_RENDERER_TEST_OGL_NO_SSO
+
 #endif // _DEBUG
 
 

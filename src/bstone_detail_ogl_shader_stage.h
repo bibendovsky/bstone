@@ -62,9 +62,15 @@ public:
 	~OglShaderStage() override;
 
 
+	virtual OglShaderStageManagerPtr manager_get() const noexcept = 0;
+
+
 	virtual void detach_fragment_shader() = 0;
 
 	virtual void detach_vertex_shader() = 0;
+
+	virtual GLuint ogl_name_get() const noexcept = 0;
+
 
 	static void unset_current();
 }; // OglShaderStage
@@ -86,7 +92,7 @@ struct OglShaderStageFactory final
 	static OglShaderStageUPtr create(
 		const OglShaderStageManagerPtr ogl_shader_stage_manager,
 		const RendererShaderStage::CreateParam& param);
-}; //  OglShaderStageFactory
+}; // OglShaderStageFactory
 
 //
 // OglShaderStageFactory

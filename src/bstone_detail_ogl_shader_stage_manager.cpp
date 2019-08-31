@@ -70,6 +70,9 @@ public:
 	~GenericOglShaderStageManager() override;
 
 
+	OglContextPtr ogl_context_get() const noexcept override;
+
+
 	RendererShaderStagePtr shader_stage_create(
 		const RendererShaderStage::CreateParam& param) override;
 
@@ -117,6 +120,11 @@ GenericOglShaderStageManager::GenericOglShaderStageManager(
 }
 
 GenericOglShaderStageManager::~GenericOglShaderStageManager() = default;
+
+OglContextPtr GenericOglShaderStageManager::ogl_context_get() const noexcept
+{
+	return ogl_context_;
+}
 
 RendererShaderStagePtr GenericOglShaderStageManager::shader_stage_create(
 	const RendererShaderStage::CreateParam& param)

@@ -60,6 +60,9 @@ public:
 	virtual ~OglShaderStageManager();
 
 
+	virtual OglContextPtr ogl_context_get() const noexcept = 0;
+
+
 	virtual RendererShaderStagePtr shader_stage_create(
 		const RendererShaderStage::CreateParam& param) = 0;
 
