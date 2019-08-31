@@ -130,7 +130,7 @@ GenericOglVertexInput::GenericOglVertexInput(
 	vertex_input_manager_{vertex_input_manager},
 	index_buffer_{},
 	attribute_descriptions_{},
-	ogl_resource_{nullptr, OglVaoDeleter{vertex_input_manager->ogl_context_get()->vao_get_manager()}}
+	ogl_resource_{nullptr, OglVaoDeleter{vertex_input_manager->get_ogl_context()->vao_get_manager()}}
 {
 	initialize(param);
 }
@@ -146,7 +146,7 @@ RendererIndexBufferPtr GenericOglVertexInput::get_index_buffer() const noexcept
 
 void GenericOglVertexInput::bind()
 {
-	const auto ogl_context = vertex_input_manager_->ogl_context_get();
+	const auto ogl_context = vertex_input_manager_->get_ogl_context();
 
 	const auto& ogl_device_features = ogl_context->get_ogl_device_features();
 
@@ -172,14 +172,14 @@ void GenericOglVertexInput::bind()
 
 void GenericOglVertexInput::initialize_vao()
 {
-	const auto ogl_context = vertex_input_manager_->ogl_context_get();
+	const auto ogl_context = vertex_input_manager_->get_ogl_context();
 	const auto ogl_vao_manager = ogl_context->vao_get_manager();
 
 	ogl_resource_.reset(ogl_vao_manager->create());
 
 	ogl_vao_manager->bind(ogl_resource_.get());
 
-	index_buffer_->bind(true);
+	index_buffer_->set(true);
 
 	const auto& ogl_device_features = ogl_context->get_ogl_device_features();
 
@@ -198,7 +198,7 @@ void GenericOglVertexInput::initialize_vao()
 void GenericOglVertexInput::initialize(
 	const RendererVertexInputCreateParam& param)
 {
-	const auto ogl_context = vertex_input_manager_->ogl_context_get();
+	const auto ogl_context = vertex_input_manager_->get_ogl_context();
 	const auto& device_features = ogl_context->get_device_features();
 
 	const auto max_locations = device_features.vertex_input_max_locations_;
@@ -265,15 +265,15 @@ void GenericOglVertexInput::assign_regular_attribute(
 			throw Exception{"Invalid format."};
 	}
 
-	const auto ogl_context = vertex_input_manager_->ogl_context_get();
+	const auto ogl_context = vertex_input_manager_->get_ogl_context();
 
 	const auto vertex_input_manager = ogl_context->vertex_input_get_manager();
 
-	vertex_input_manager->vertex_input_location_enable(attribute_description.location_, true);
+	vertex_input_manager->enable_location(attribute_description.location_, true);
 
 	auto vertex_buffer = attribute_description.vertex_buffer_;
 
-	vertex_buffer->bind(true);
+	vertex_buffer->set(true);
 
 	const auto vertex_buffer_data = reinterpret_cast<const void*>(static_cast<std::intptr_t>(attribute_description.offset_));
 
@@ -304,17 +304,17 @@ void GenericOglVertexInput::assign_attribute(
 
 void GenericOglVertexInput::bind_internal()
 {
-	const auto ogl_context = vertex_input_manager_->ogl_context_get();
+	const auto ogl_context = vertex_input_manager_->get_ogl_context();
 	const auto vertex_input_manager = ogl_context->vertex_input_get_manager();
 
-	vertex_input_manager->vertex_input_location_assign_begin();
+	vertex_input_manager->location_assign_begin();
 
 	for (const auto& attribute_description : attribute_descriptions_)
 	{
 		assign_attribute(attribute_description);
 	}
 
-	vertex_input_manager->vertex_input_location_assign_end();
+	vertex_input_manager->location_assign_end();
 }
 
 //

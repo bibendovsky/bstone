@@ -69,12 +69,12 @@ class GenericOglShader final :
 public:
 	GenericOglShader(
 		const OglShaderManagerPtr ogl_shader_manager,
-		const RendererShader::CreateParam& param);
+		const RendererShaderCreateParam& param);
 
 	~GenericOglShader() override;
 
 
-	Kind get_kind() const override;
+	RendererShaderKind get_kind() const noexcept override;
 
 	GLuint get_ogl_name() const noexcept override;
 
@@ -85,7 +85,7 @@ public:
 private:
 	const OglShaderManagerPtr ogl_shader_manager_;
 
-	Kind kind_;
+	RendererShaderKind kind_;
 
 	static void shader_resource_deleter(
 		const GLuint& ogl_name) noexcept;
@@ -98,13 +98,13 @@ private:
 
 
 	void initialize(
-		const RendererShader::CreateParam& param);
+		const RendererShaderCreateParam& param);
 
 	GLenum get_ogl_kind(
-		const Kind kind);
+		const RendererShaderKind kind);
 
 	void validate_param(
-		const RendererShader::CreateParam& param);
+		const RendererShaderCreateParam& param);
 }; // GenericOglShader
 
 using GenericOglShaderPtr = GenericOglShader*;
@@ -121,7 +121,7 @@ using GenericOglShaderUPtr = std::unique_ptr<GenericOglShader>;
 
 GenericOglShader::GenericOglShader(
 	const OglShaderManagerPtr ogl_shader_manager,
-	const RendererShader::CreateParam& param)
+	const RendererShaderCreateParam& param)
 	:
 	ogl_shader_manager_{ogl_shader_manager},
 	kind_{},
@@ -140,11 +140,11 @@ GenericOglShader::~GenericOglShader()
 
 	switch (kind_)
 	{
-		case Kind::fragment:
+		case RendererShaderKind::fragment:
 			shader_stage_->detach_fragment_shader();
 			break;
 
-		case Kind::vertex:
+		case RendererShaderKind::vertex:
 			shader_stage_->detach_vertex_shader();
 			break;
 
@@ -155,7 +155,7 @@ GenericOglShader::~GenericOglShader()
 	}
 }
 
-RendererShader::Kind GenericOglShader::get_kind() const
+RendererShaderKind GenericOglShader::get_kind() const noexcept
 {
 	return kind_;
 }
@@ -168,7 +168,7 @@ void GenericOglShader::shader_resource_deleter(
 }
 
 void GenericOglShader::initialize(
-	const RendererShader::CreateParam& param)
+	const RendererShaderCreateParam& param)
 {
 	validate_param(param);
 
@@ -232,14 +232,14 @@ void GenericOglShader::attach_to_shader_stage(
 }
 
 GLenum GenericOglShader::get_ogl_kind(
-	const Kind kind)
+	const RendererShaderKind kind)
 {
 	switch (kind)
 	{
-		case RendererShader::Kind::fragment:
+		case RendererShaderKind::fragment:
 			return GL_FRAGMENT_SHADER;
 
-		case RendererShader::Kind::vertex:
+		case RendererShaderKind::vertex:
 			return GL_VERTEX_SHADER;
 
 		default:
@@ -248,12 +248,12 @@ GLenum GenericOglShader::get_ogl_kind(
 }
 
 void GenericOglShader::validate_param(
-	const RendererShader::CreateParam& param)
+	const RendererShaderCreateParam& param)
 {
 	switch (param.kind_)
 	{
-		case RendererShader::Kind::fragment:
-		case RendererShader::Kind::vertex:
+		case RendererShaderKind::fragment:
+		case RendererShaderKind::vertex:
 			break;
 
 		default:
@@ -282,7 +282,7 @@ void GenericOglShader::validate_param(
 
 OglShaderUPtr OglShaderFactory::create(
 	const OglShaderManagerPtr ogl_shader_manager,
-	const RendererShader::CreateParam& param)
+	const RendererShaderCreateParam& param)
 {
 	return std::make_unique<GenericOglShader>(ogl_shader_manager, param);
 }

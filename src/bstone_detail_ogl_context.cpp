@@ -34,7 +34,6 @@ Free Software Foundation, Inc.,
 #include <vector>
 
 #include "bstone_exception.h"
-#include "bstone_ogl_unique_resources.h"
 
 #include "bstone_detail_ogl_buffer.h"
 #include "bstone_detail_ogl_buffer_manager.h"

@@ -261,7 +261,7 @@ void GenericOglSampler::update(
 		{
 			const auto texture_manager = ogl_context_->texture_get_manager();
 
-			texture_manager->texture_2d_current_update_sampler_state(state_);
+			texture_manager->update_current_sampler_state(state_);
 		}
 	}
 }

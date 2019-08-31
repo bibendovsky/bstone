@@ -70,16 +70,16 @@ public:
 	~GenericOglShaderStageManager() override;
 
 
-	OglContextPtr ogl_context_get() const noexcept override;
+	OglContextPtr get_ogl_context() const noexcept override;
 
 
-	RendererShaderStagePtr shader_stage_create(
-		const RendererShaderStage::CreateParam& param) override;
+	RendererShaderStagePtr create(
+		const RendererShaderStageCreateParam& param) override;
 
-	void shader_stage_destroy(
+	void destroy(
 		const RendererShaderStagePtr shader_stage) override;
 
-	bool shader_stage_set_current(
+	bool set_current(
 		const RendererShaderStagePtr shader_stage) override;
 
 
@@ -121,24 +121,24 @@ GenericOglShaderStageManager::GenericOglShaderStageManager(
 
 GenericOglShaderStageManager::~GenericOglShaderStageManager() = default;
 
-OglContextPtr GenericOglShaderStageManager::ogl_context_get() const noexcept
+OglContextPtr GenericOglShaderStageManager::get_ogl_context() const noexcept
 {
 	return ogl_context_;
 }
 
-RendererShaderStagePtr GenericOglShaderStageManager::shader_stage_create(
-	const RendererShaderStage::CreateParam& param)
+RendererShaderStagePtr GenericOglShaderStageManager::create(
+	const RendererShaderStageCreateParam& param)
 {
 	return shader_stages_.add(this, param);
 }
 
-void GenericOglShaderStageManager::shader_stage_destroy(
+void GenericOglShaderStageManager::destroy(
 	const RendererShaderStagePtr shader_stage)
 {
 	shader_stages_.remove(shader_stage);
 }
 
-bool GenericOglShaderStageManager::shader_stage_set_current(
+bool GenericOglShaderStageManager::set_current(
 	const RendererShaderStagePtr shader_stage)
 {
 	if (shader_stage_current_ == shader_stage)

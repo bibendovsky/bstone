@@ -82,19 +82,19 @@ public:
 	static const std::string& get_u_view_position_name();
 
 
-	static const RendererShader::Source& get_fragment(
+	static const RendererShaderSource& get_fragment(
 		const RendererKind renderer_kind);
 
-	static const RendererShader::Source& get_vertex(
+	static const RendererShaderSource& get_vertex(
 		const RendererKind renderer_kind);
 
 
 private:
-	static const RendererShader::Source& get_empty();
+	static const RendererShaderSource& get_empty();
 
-	static const RendererShader::Source& get_fragment_ogl_2_x();
+	static const RendererShaderSource& get_fragment_ogl_2_x();
 
-	static const RendererShader::Source& get_vertex_ogl_2_x();
+	static const RendererShaderSource& get_vertex_ogl_2_x();
 }; // RendererShaderRegistry
 
 

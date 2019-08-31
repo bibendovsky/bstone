@@ -70,10 +70,10 @@ public:
 	~GenericOglShaderManager() override;
 
 
-	RendererShaderPtr shader_create(
-		const RendererShader::CreateParam& param) override;
+	RendererShaderPtr create(
+		const RendererShaderCreateParam& param) override;
 
-	void shader_destroy(
+	void destroy(
 		const RendererShaderPtr shader) override;
 
 
@@ -110,13 +110,13 @@ GenericOglShaderManager::GenericOglShaderManager(
 
 GenericOglShaderManager::~GenericOglShaderManager() = default;
 
-RendererShaderPtr GenericOglShaderManager::shader_create(
-	const RendererShader::CreateParam& param)
+RendererShaderPtr GenericOglShaderManager::create(
+	const RendererShaderCreateParam& param)
 {
 	return shaders_.add(this, param);
 }
 
-void GenericOglShaderManager::shader_destroy(
+void GenericOglShaderManager::destroy(
 	const RendererShaderPtr shader)
 {
 	shaders_.remove(shader);

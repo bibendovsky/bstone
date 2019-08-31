@@ -67,7 +67,7 @@ public:
 	virtual void bind() = 0;
 
 
-	virtual bool index_buffer_set_current(
+	virtual bool set_current_index_buffer(
 		const RendererBufferPtr index_buffer) = 0;
 
 

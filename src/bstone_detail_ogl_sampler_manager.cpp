@@ -71,16 +71,16 @@ public:
 	~GenericOglSamplerManager() override;
 
 
-	RendererSamplerPtr sampler_create(
+	RendererSamplerPtr create(
 		const RendererSamplerCreateParam& param) override;
 
-	void sampler_destroy(
+	void destroy(
 		const RendererSamplerPtr sampler) override;
 
-	void sampler_set(
+	void set(
 		const RendererSamplerPtr sampler) override;
 
-	const RendererSamplerState& sampler_current_get_state() const noexcept override;
+	const RendererSamplerState& get_current_state() const noexcept override;
 
 
 private:
@@ -96,7 +96,7 @@ private:
 
 	void initialize();
 
-	void sampler_set();
+	void set();
 }; // GenericOglSamplerManager
 
 using GenericOglSamplerManagerPtr = GenericOglSamplerManager*;
@@ -126,13 +126,13 @@ GenericOglSamplerManager::~GenericOglSamplerManager()
 {
 }
 
-RendererSamplerPtr GenericOglSamplerManager::sampler_create(
+RendererSamplerPtr GenericOglSamplerManager::create(
 	const RendererSamplerCreateParam& param)
 {
 	return samplers_.add(ogl_context_, param);
 }
 
-void GenericOglSamplerManager::sampler_destroy(
+void GenericOglSamplerManager::destroy(
 	const RendererSamplerPtr sampler)
 {
 	if (sampler_current_ == sampler)
@@ -152,7 +152,7 @@ void GenericOglSamplerManager::sampler_destroy(
 	samplers_.remove(sampler);
 }
 
-void GenericOglSamplerManager::sampler_set(
+void GenericOglSamplerManager::set(
 	const RendererSamplerPtr sampler)
 {
 	if (!sampler)
@@ -166,10 +166,10 @@ void GenericOglSamplerManager::sampler_set(
 	}
 
 	sampler_current_ = static_cast<OglSamplerPtr>(sampler);
-	sampler_set();
+	set();
 }
 
-const RendererSamplerState& GenericOglSamplerManager::sampler_current_get_state() const noexcept
+const RendererSamplerState& GenericOglSamplerManager::get_current_state() const noexcept
 {
 	return sampler_current_->get_state();
 }
@@ -193,7 +193,7 @@ void GenericOglSamplerManager::initialize()
 	sampler_current_ = sampler_default_.get();
 }
 
-void GenericOglSamplerManager::sampler_set()
+void GenericOglSamplerManager::set()
 {
 	const auto& device_features = ogl_context_->get_device_features();
 
@@ -205,7 +205,7 @@ void GenericOglSamplerManager::sampler_set()
 	{
 		const auto texture_manager = ogl_context_->texture_get_manager();
 
-		texture_manager->texture_2d_current_update_sampler_state(sampler_current_get_state());
+		texture_manager->update_current_sampler_state(get_current_state());
 	}
 }
 

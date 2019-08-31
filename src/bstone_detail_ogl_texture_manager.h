@@ -71,24 +71,22 @@ public:
 	virtual ~OglTextureManager();
 
 
-	virtual OglContextPtr ogl_context_get() const noexcept = 0;
+	virtual OglContextPtr get_ogl_context() const noexcept = 0;
 
 
-	virtual RendererTexture2dPtr texture_2d_create(
+	virtual RendererTexture2dPtr create(
 		const RendererTexture2dCreateParam& param) = 0;
 
-	virtual void texture_2d_destroy(
+	virtual void destroy(
 		const RendererTexture2dPtr texture_2d) = 0;
 
-	virtual void texture_2d_set(
+	virtual void set(
 		const RendererTexture2dPtr texture_2d) = 0;
 
-	virtual bool texture_2d_set_current(
+	virtual bool set_current(
 		const RendererTexture2dPtr texture_2d) = 0;
 
-	virtual RendererTexture2dPtr texture_2d_get_current() const noexcept = 0;
-
-	virtual void texture_2d_current_update_sampler_state(
+	virtual void update_current_sampler_state(
 		const RendererSamplerState& sampler_state) = 0;
 }; // OglTextureManager
 

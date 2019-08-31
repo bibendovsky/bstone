@@ -39,7 +39,8 @@ namespace detail
 {
 
 
-enum class OglContextKind
+enum class OglContextKind :
+	unsigned char
 {
 	invalid,
 	none,

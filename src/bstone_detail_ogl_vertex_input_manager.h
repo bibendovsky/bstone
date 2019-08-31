@@ -69,30 +69,28 @@ public:
 	virtual ~OglVertexInputManager();
 
 
-	virtual OglContextPtr ogl_context_get() const noexcept = 0;
+	virtual OglContextPtr get_ogl_context() const noexcept = 0;
 
 
-	virtual RendererVertexInputPtr vertex_input_create(
+	virtual RendererVertexInputPtr create(
 		const RendererVertexInputCreateParam& param) = 0;
 
-	virtual void vertex_input_destroy(
+	virtual void destroy(
 		const RendererVertexInputPtr vertex_input) = 0;
 
-	virtual void vertex_input_set(
+	virtual void set(
 		const RendererVertexInputPtr vertex_input) = 0;
 
-	virtual RendererVertexInputPtr vertex_input_get_current() const noexcept = 0;
-
-	virtual RendererIndexBufferPtr vertex_input_current_get_index_buffer() const noexcept = 0;
+	virtual RendererIndexBufferPtr get_current_index_buffer() const noexcept = 0;
 
 
-	virtual void vertex_input_location_enable(
+	virtual void enable_location(
 		const int location,
 		const bool is_enabled) = 0;
 
-	virtual void vertex_input_location_assign_begin() = 0;
+	virtual void location_assign_begin() = 0;
 
-	virtual void vertex_input_location_assign_end() = 0;
+	virtual void location_assign_end() = 0;
 }; // OglVertexInputManager
 
 using OglVertexInputManagerPtr = OglVertexInputManager*;

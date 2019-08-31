@@ -88,7 +88,7 @@ public:
 	virtual void bind(
 		const OglVaoPtr vao) = 0;
 
-	virtual bool index_buffer_set_current(
+	virtual bool set_current_index_buffer(
 		const RendererBufferPtr index_buffer) = 0;
 
 

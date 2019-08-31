@@ -59,17 +59,17 @@ public:
 	~OglExtensionManagerImpl() override;
 
 
-	int get_extension_count() const noexcept override;
+	int get_count() const noexcept override;
 
-	const std::string& get_extension_name(
+	const std::string& get_name(
 		const int extension_index) const noexcept override;
 
 
-	void probe_extension(
+	void probe(
 		const OglExtensionId extension_id) override;
 
 
-	bool has_extension(
+	bool has(
 		const OglExtensionId extension_id) const noexcept override;
 
 	bool operator[](
@@ -240,15 +240,15 @@ void OglExtensionManagerImpl::initialize()
 	initialize_registry();
 }
 
-int OglExtensionManagerImpl::get_extension_count() const noexcept
+int OglExtensionManagerImpl::get_count() const noexcept
 {
 	return static_cast<int>(extension_names_.size());
 }
 
-const std::string& OglExtensionManagerImpl::get_extension_name(
+const std::string& OglExtensionManagerImpl::get_name(
 	const int extension_index) const noexcept
 {
-	if (extension_index < 0 || extension_index >= get_extension_count())
+	if (extension_index < 0 || extension_index >= get_count())
 	{
 		return get_empty_extension_name();
 	}
@@ -256,13 +256,13 @@ const std::string& OglExtensionManagerImpl::get_extension_name(
 	return extension_names_[extension_index];
 }
 
-void OglExtensionManagerImpl::probe_extension(
+void OglExtensionManagerImpl::probe(
 	const OglExtensionId extension_id)
 {
 	probe_generic(extension_id);
 }
 
-bool OglExtensionManagerImpl::has_extension(
+bool OglExtensionManagerImpl::has(
 	const OglExtensionId extension_id) const noexcept
 {
 	const auto extension_index = get_extension_index(extension_id);
@@ -278,7 +278,7 @@ bool OglExtensionManagerImpl::has_extension(
 bool OglExtensionManagerImpl::operator[](
 	const OglExtensionId extension_id) const noexcept
 {
-	return has_extension(extension_id);
+	return has(extension_id);
 }
 
 const std::string& OglExtensionManagerImpl::get_empty_extension_name() noexcept
@@ -1070,7 +1070,7 @@ void OglExtensionManagerImpl::probe_generic(
 
 		probe_generic(dependency_extension_id);
 
-		if (!has_extension(dependency_extension_id))
+		if (!has(dependency_extension_id))
 		{
 			return;
 		}

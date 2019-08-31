@@ -94,7 +94,7 @@ public:
 		const OglVaoPtr vao) override;
 
 
-	bool index_buffer_set_current(
+	bool set_current_index_buffer(
 		const RendererBufferPtr index_buffer) override;
 
 
@@ -240,10 +240,10 @@ void GenericOglVaoManager::bind(
 	bind();
 }
 
-bool GenericOglVaoManager::index_buffer_set_current(
+bool GenericOglVaoManager::set_current_index_buffer(
 	const RendererBufferPtr index_buffer)
 {
-	return vao_current_->index_buffer_set_current(index_buffer);
+	return vao_current_->set_current_index_buffer(index_buffer);
 }
 
 void GenericOglVaoManager::enable_location(

@@ -82,8 +82,8 @@ public:
 
 	int get_size() const noexcept override;
 
-	void bind(
-		const bool is_bind) override;
+	void set(
+		const bool is_set) override;
 
 	void update(
 		const RendererBufferUpdateParam& param) override;
@@ -168,11 +168,11 @@ int GenericOglBuffer::get_size() const noexcept
 	return size_;
 }
 
-void GenericOglBuffer::bind(
-	const bool is_bind)
+void GenericOglBuffer::set(
+	const bool is_set)
 {
-	const auto ogl_buffer = (is_bind ? this : nullptr);
-	const auto ogl_resource = (is_bind ? ogl_resource_.get() : 0);
+	const auto ogl_buffer = (is_set ? this : nullptr);
+	const auto ogl_resource = (is_set ? ogl_resource_.get() : 0);
 
 	if (ogl_buffer_manager_->buffer_set_current(kind_, ogl_buffer))
 	{
@@ -191,7 +191,7 @@ void GenericOglBuffer::update(
 		return;
 	}
 
-	const auto ogl_context = ogl_buffer_manager_->context_get();
+	const auto ogl_context = ogl_buffer_manager_->get_context();
 	const auto& ogl_device_features = ogl_context->get_ogl_device_features();
 
 	if (ogl_device_features.dsa_is_available_)
@@ -207,7 +207,7 @@ void GenericOglBuffer::update(
 	}
 	else
 	{
-		const auto ogl_context = ogl_buffer_manager_->context_get();
+		const auto ogl_context = ogl_buffer_manager_->get_context();
 		const auto ogl_vao_manager = ogl_context->vao_get_manager();
 
 		const auto is_index = (kind_ == RendererBufferKind::index);
@@ -217,7 +217,7 @@ void GenericOglBuffer::update(
 			ogl_vao_manager->push_current_set_default();
 		}
 
-		bind(this);
+		set(this);
 
 		::glBufferSubData(
 			ogl_target_,
@@ -252,7 +252,7 @@ void GenericOglBuffer::initialize(
 
 	validate_param(param);
 
-	const auto ogl_context = ogl_buffer_manager_->context_get();
+	const auto ogl_context = ogl_buffer_manager_->get_context();
 	const auto& ogl_device_features = ogl_context->get_ogl_device_features();
 
 	auto ogl_name = GLuint{};
@@ -288,7 +288,7 @@ void GenericOglBuffer::initialize(
 	}
 	else
 	{
-		const auto ogl_context = ogl_buffer_manager_->context_get();
+		const auto ogl_context = ogl_buffer_manager_->get_context();
 		const auto ogl_vao_manager = ogl_context->vao_get_manager();
 
 		const auto is_index = (kind_ == RendererBufferKind::index);
@@ -298,7 +298,7 @@ void GenericOglBuffer::initialize(
 			ogl_vao_manager->push_current_set_default();
 		}
 
-		bind(true);
+		set(true);
 
 		::glBufferData(ogl_target_, param.size_, nullptr, olg_usage);
 		assert(!detail::OglRendererUtils::was_errors());
@@ -413,7 +413,7 @@ void GenericOglBuffer::uninitialize()
 {
 	if (ogl_resource_)
 	{
-		bind(false);
+		set(false);
 	}
 
 	kind_ = {};

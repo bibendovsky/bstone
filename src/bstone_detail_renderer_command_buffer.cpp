@@ -30,6 +30,8 @@ Free Software Foundation, Inc.,
 #include "bstone_precompiled.h"
 #include "bstone_detail_renderer_command_buffer.h"
 
+#include <algorithm>
+
 
 namespace bstone
 {
@@ -74,12 +76,12 @@ RendererCommandBuffer::~RendererCommandBuffer()
 {
 }
 
-int RendererCommandBuffer::get_command_count() const
+int RendererCommandBuffer::get_command_count() const noexcept
 {
 	return command_count_;
 }
 
-bool RendererCommandBuffer::is_enabled() const
+bool RendererCommandBuffer::is_enabled() const noexcept
 {
 	return is_enabled_;
 }
@@ -118,12 +120,12 @@ void RendererCommandBuffer::write_end()
 
 RendererCommandViewport* RendererCommandBuffer::write_viewport()
 {
-	return write<RendererCommandViewport>(RendererCommandId::viewport_set);
+	return write<RendererCommandViewport>(RendererCommandId::viewport);
 }
 
 RendererCommandScissor* RendererCommandBuffer::write_scissor()
 {
-	return write<RendererCommandScissor>(RendererCommandId::scissor_enable);
+	return write<RendererCommandScissor>(RendererCommandId::scissor);
 }
 
 RendererCommandScissorBox* RendererCommandBuffer::write_scissor_box()
@@ -133,7 +135,7 @@ RendererCommandScissorBox* RendererCommandBuffer::write_scissor_box()
 
 RendererCommandCulling* RendererCommandBuffer::write_culling()
 {
-	return write<RendererCommandCulling>(RendererCommandId::culling_enable);
+	return write<RendererCommandCulling>(RendererCommandId::culling);
 }
 
 RendererCommandDepthTest* RendererCommandBuffer::write_depth_test()
@@ -148,7 +150,7 @@ RendererCommandDepthWrite* RendererCommandBuffer::write_depth_write()
 
 RendererCommandBlending* RendererCommandBuffer::write_blending()
 {
-	return write<RendererCommandBlending>(RendererCommandId::blending_enable);
+	return write<RendererCommandBlending>(RendererCommandId::blending);
 }
 
 RendererCommandBlendingFunction* RendererCommandBuffer::write_blending_function()
@@ -158,17 +160,17 @@ RendererCommandBlendingFunction* RendererCommandBuffer::write_blending_function(
 
 RendererCommandTexture* RendererCommandBuffer::write_texture()
 {
-	return write<RendererCommandTexture>(RendererCommandId::texture_set);
+	return write<RendererCommandTexture>(RendererCommandId::texture);
 }
 
 RendererCommandSampler* RendererCommandBuffer::write_sampler()
 {
-	return write<RendererCommandSampler>(RendererCommandId::sampler_set);
+	return write<RendererCommandSampler>(RendererCommandId::sampler);
 }
 
 RendererCommandVertexInput* RendererCommandBuffer::write_vertex_input()
 {
-	return write<RendererCommandVertexInput>(RendererCommandId::vertex_input_set);
+	return write<RendererCommandVertexInput>(RendererCommandId::vertex_input);
 }
 
 RendererCommandShaderStage* RendererCommandBuffer::write_shader_stage()

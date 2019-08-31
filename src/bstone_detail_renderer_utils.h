@@ -51,7 +51,7 @@ class RendererUtilsCreateWindowParam
 public:
 	bool is_opengl_;
 
-	RendererInitializeWindowParam window_;
+	RendererCreateWindowParam window_;
 
 	RendererAaKind aa_kind_;
 	int aa_value_;
@@ -97,7 +97,7 @@ public:
 		const bool is_visible);
 
 	static void validate_initialize_param(
-		const RendererInitializeParam& param);
+		const RendererCreateParam& param);
 
 
 	static void validate_buffer_update_param(

@@ -171,7 +171,7 @@ void RendererUtils::show_window(
 }
 
 void RendererUtils::validate_initialize_param(
-	const RendererInitializeParam& param)
+	const RendererCreateParam& param)
 {
 	switch (param.renderer_kind_)
 	{

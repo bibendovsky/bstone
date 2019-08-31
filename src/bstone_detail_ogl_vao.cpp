@@ -76,8 +76,9 @@ public:
 	void bind() override;
 
 
-	bool index_buffer_set_current(
+	bool set_current_index_buffer(
 		const RendererBufferPtr index_buffer) override;
+
 
 	void enable_location(
 		const int location,
@@ -92,7 +93,7 @@ private:
 		const GLuint& ogl_name) noexcept;
 
 	using VaoResource = UniqueResource<GLuint, ogl_deleter>;
-	VaoResource vao_resource_;
+	VaoResource ogl_vao_resource_;
 
 	RendererBufferPtr index_buffer_;
 
@@ -127,7 +128,7 @@ GenericOglVao::GenericOglVao(
 	const OglVaoManagerPtr manager)
 	:
 	manager_{manager},
-	vao_resource_{},
+	ogl_vao_resource_{},
 	index_buffer_{},
 	enabled_locations_{}
 {
@@ -138,16 +139,16 @@ GenericOglVao::~GenericOglVao() = default;
 
 void GenericOglVao::bind()
 {
-	if (!vao_resource_)
+	if (!ogl_vao_resource_)
 	{
 		return;
 	}
 
-	::glBindVertexArray(vao_resource_);
+	::glBindVertexArray(ogl_vao_resource_);
 	assert(!OglRendererUtils::was_errors());
 }
 
-bool GenericOglVao::index_buffer_set_current(
+bool GenericOglVao::set_current_index_buffer(
 	const RendererBufferPtr index_buffer)
 {
 	if (index_buffer_ == index_buffer)
@@ -210,7 +211,7 @@ void GenericOglVao::initialize_resource()
 		throw Exception{"Failed to create OpenGL vertex array object."};
 	}
 
-	vao_resource_.reset(ogl_name);
+	ogl_vao_resource_.reset(ogl_name);
 }
 
 void GenericOglVao::initialize_locations()

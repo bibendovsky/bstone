@@ -31,10 +31,10 @@ Free Software Foundation, Inc.,
 #define BSTONE_RENDERER_INCLUDED
 
 
-#include <array>
 #include <memory>
 #include <string>
 #include <vector>
+
 #include "bstone_rgb_color_model.h"
 #include "bstone_sprite.h"
 
@@ -59,23 +59,23 @@ enum class RendererCommandId :
 {
 	none,
 
-	viewport_set,
+	viewport,
 
-	scissor_enable,
+	scissor,
 	scissor_set_box,
 
-	culling_enable,
+	culling,
 
 	depth_set_test,
 	depth_set_write,
 
-	blending_enable,
+	blending,
 	blending_function,
 
-	texture_set,
-	sampler_set,
+	texture,
+	sampler,
 
-	vertex_input_set,
+	vertex_input,
 
 	shader_stage,
 
@@ -144,7 +144,7 @@ enum class RendererBufferUsageKind :
 }; // RendererBufferUsageKind
 
 
-class RendererInitializeWindowParam
+class RendererCreateWindowParam
 {
 public:
 	bool is_visible_;
@@ -159,13 +159,13 @@ public:
 	int height_;
 
 	std::string title_utf8_;
-}; // RendererInitializeWindowParam
+}; // RendererCreateWindowParam
 
-class RendererInitializeParam
+class RendererCreateParam
 {
 public:
 	RendererKind renderer_kind_;
-	RendererInitializeWindowParam window_;
+	RendererCreateWindowParam window_;
 
 	int downscale_width_;
 	int downscale_height_;
@@ -174,7 +174,7 @@ public:
 	int aa_value_;
 
 	bool is_vsync_;
-}; // RendererInitializeParam
+}; // RendererCreateParam
 
 
 // ==========================================================================
@@ -206,8 +206,8 @@ public:
 	virtual void update(
 		const RendererBufferUpdateParam& param) = 0;
 
-	virtual void bind(
-		const bool is_bind) = 0;
+	virtual void set(
+		const bool is_set) = 0;
 }; // RendererBuffer
 
 using RendererBufferPtr = RendererBuffer*;
@@ -377,7 +377,7 @@ enum class RendererTextureAxis :
 {
 	u,
 	v,
-}; // RendererAddressMode
+}; // RendererTextureAxis
 
 struct RendererSamplerState
 {
@@ -473,6 +473,26 @@ using RendererSamplerPtr = RendererSampler*;
 // Shader
 //
 
+enum class RendererShaderVariableKind
+{
+	none,
+	attribute,
+	sampler,
+	uniform,
+}; // RendererShaderVariableKind
+
+enum class RendererShaderVariableTypeId
+{
+	none,
+	int32,
+	float32,
+	vec2,
+	vec3,
+	vec4,
+	mat4,
+	sampler2d,
+}; // RendererShaderVariableTypeId
+
 class RendererShaderVariable
 {
 protected:
@@ -480,37 +500,17 @@ protected:
 
 	virtual ~RendererShaderVariable();
 
+
 public:
-	enum class Kind
-	{
-		none,
-		attribute,
-		sampler,
-		uniform,
-	}; // Kind
+	virtual RendererShaderVariableKind get_kind() const noexcept = 0;
 
-	enum class TypeId
-	{
-		none,
-		int32,
-		float32,
-		vec2,
-		vec3,
-		vec4,
-		mat4,
-		sampler2d,
-	}; // TypeId
+	virtual RendererShaderVariableTypeId get_type_id() const noexcept = 0;
 
+	virtual int get_index() const noexcept = 0;
 
-	virtual Kind get_kind() const = 0;
+	virtual const std::string& get_name() const noexcept = 0;
 
-	virtual TypeId get_type_id() const = 0;
-
-	virtual int get_index() const = 0;
-
-	virtual const std::string& get_name() const = 0;
-
-	virtual int get_input_index() const = 0;
+	virtual int get_input_index() const noexcept = 0;
 }; // RendererShaderVariable
 
 using RendererShaderVariablePtr = RendererShaderVariable*;
@@ -524,6 +524,7 @@ protected:
 	RendererShaderVariableInt32();
 
 	virtual ~RendererShaderVariableInt32();
+
 
 public:
 	virtual void set_value(
@@ -542,6 +543,7 @@ protected:
 
 	virtual ~RendererShaderVariableFloat32();
 
+
 public:
 	virtual void set_value(
 		const float value) = 0;
@@ -558,6 +560,7 @@ protected:
 	RendererShaderVariableVec2();
 
 	virtual ~RendererShaderVariableVec2();
+
 
 public:
 	virtual void set_value(
@@ -576,6 +579,7 @@ protected:
 
 	virtual ~RendererShaderVariableVec4();
 
+
 public:
 	virtual void set_value(
 		const glm::vec4& value) = 0;
@@ -593,6 +597,7 @@ protected:
 
 	virtual ~RendererShaderVariableMat4();
 
+
 public:
 	virtual void set_value(
 		const glm::mat4& value) = 0;
@@ -607,6 +612,25 @@ using RendererShaderVariableSampler2dPtr = RendererShaderVariableSampler2d*;
 using RendererShaderVariableSampler2dCPtr = const RendererShaderVariableSampler2d*;
 
 
+enum class RendererShaderKind
+{
+	none,
+	fragment,
+	vertex,
+}; // RendererShaderKind
+
+struct RendererShaderSource
+{
+	const void* data_;
+	int size_;
+}; // Source
+
+struct RendererShaderCreateParam
+{
+	RendererShaderKind kind_;
+	RendererShaderSource source_;
+}; // CreateParam
+
 class RendererShader
 {
 protected:
@@ -616,31 +640,27 @@ protected:
 
 
 public:
-	enum class Kind
-	{
-		none,
-		fragment,
-		vertex,
-	}; // Kind
-
-	struct Source
-	{
-		const void* data_;
-		int size_;
-	}; // Source
-
-	struct CreateParam
-	{
-		Kind kind_;
-		Source source_;
-	}; // CreateParam
-
-
-	virtual Kind get_kind() const = 0;
+	virtual RendererShaderKind get_kind() const noexcept = 0;
 }; // RendererShader
 
 using RendererShaderPtr = RendererShader*;
 
+
+struct RendererShaderStageInputBinding
+{
+	int index_;
+	std::string name_;
+}; // RendererShaderStageInputBinding
+
+using RendererShaderStageInputBindings = std::vector<RendererShaderStageInputBinding>;
+
+
+struct RendererShaderStageCreateParam
+{
+	RendererShaderPtr fragment_shader_;
+	RendererShaderPtr vertex_shader_;
+	RendererShaderStageInputBindings input_bindings_;
+}; // RendererShaderStageCreateParam
 
 class RendererShaderStage
 {
@@ -651,24 +671,7 @@ protected:
 
 
 public:
-	struct InputBinding
-	{
-		int index_;
-		std::string name_;
-	}; // InputBinding
-
-	using InputBindings = std::vector<InputBinding>;
-
-
-	struct CreateParam
-	{
-		RendererShaderPtr fragment_shader_;
-		RendererShaderPtr vertex_shader_;
-		InputBindings input_bindings_;
-	}; // CreateParam
-
-
-	virtual void set_current() = 0;
+	virtual void set() = 0;
 
 	virtual RendererShaderVariablePtr find_variable(
 		const std::string& name) = 0;
@@ -708,12 +711,12 @@ struct RendererCommandViewport
 
 	float min_depth_;
 	float max_depth_;
-}; // ViewportSet
+}; // RendererCommandViewport
 
 struct RendererCommandScissor
 {
-	bool is_enabled_;
-}; // ScissorEnable
+	bool is_enable_;
+}; // RendererCommandScissor
 
 struct RendererCommandScissorBox
 {
@@ -721,17 +724,17 @@ struct RendererCommandScissorBox
 	int y_;
 	int width_;
 	int height_;
-}; // ScissorSetBox
+}; // RendererCommandScissorBox
 
 struct RendererCommandCulling
 {
-	bool is_enabled_;
-}; // CullingEnabled
+	bool is_enable_;
+}; // RendererCommandCulling
 
 struct RendererCommandBlending
 {
-	bool is_enabled_;
-}; // EnableBlending
+	bool is_enable_;
+}; // RendererCommandBlending
 
 struct RendererCommandBlendingFunction
 {
@@ -741,28 +744,28 @@ struct RendererCommandBlendingFunction
 
 struct RendererCommandDepthTest
 {
-	bool is_enabled_;
-}; // DepthSetTest
+	bool is_enable_;
+}; // RendererCommandDepthTest
 
 struct RendererCommandDepthWrite
 {
-	bool is_enabled_;
-}; // DepthSetWrite
+	bool is_enable_;
+}; // RendererCommandDepthWrite
 
 struct RendererCommandTexture
 {
 	RendererTexture2dPtr texture_2d_;
-}; // TextureSet
+}; // RendererCommandTexture
 
 struct RendererCommandSampler
 {
 	RendererSamplerPtr sampler_;
-}; // SamplerSet
+}; // RendererCommandSampler
 
 struct RendererCommandVertexInput
 {
 	RendererVertexInputPtr vertex_input_;
-}; // VertexInputSet
+}; // RendererCommandVertexInput
 
 struct RendererCommandShaderStage
 {
@@ -773,43 +776,43 @@ struct RendererCommandShaderVariableInt32
 {
 	RendererShaderVariableInt32Ptr variable_;
 	std::int32_t value_;
-};
+}; // RendererCommandShaderVariableInt32
 
 struct RendererCommandShaderVariableFloat32
 {
 	RendererShaderVariableFloat32Ptr variable_;
 	float value_;
-};
+}; // RendererCommandShaderVariableFloat32
 
 struct RendererCommandShaderVariableVec2
 {
 	RendererShaderVariableVec2Ptr variable_;
 	glm::vec2 value_;
-};
+}; // RendererCommandShaderVariableVec2
 
 struct RendererCommandShaderVariableVec4
 {
 	RendererShaderVariableVec4Ptr variable_;
 	glm::vec4 value_;
-};
+}; // RendererCommandShaderVariableVec4
 
 struct RendererCommandShaderVariableMat4
 {
 	RendererShaderVariableMat4Ptr variable_;
 	glm::mat4 value_;
-};
+}; // RendererCommandShaderVariableMat4
 
 struct RendererCommandShaderVariableSampler2d
 {
 	RendererShaderVariableSampler2dPtr variable_;
 	std::int32_t value_;
-};
+}; // RendererCommandShaderVariableSampler2d
 
 struct RendererCommandDrawQuads
 {
 	int count_;
 	int index_offset_;
-}; // DrawQuads
+}; // RendererCommandDrawQuads
 
 
 // ==========================================================================
@@ -825,10 +828,10 @@ protected:
 
 
 public:
-	virtual int get_command_count() const = 0;
+	virtual int get_command_count() const noexcept = 0;
 
 
-	virtual bool is_enabled() const = 0;
+	virtual bool is_enabled() const noexcept = 0;
 
 	virtual void enable(
 		const bool is_enabled) = 0;
@@ -931,7 +934,7 @@ public:
 	virtual ~RendererCommandManager() = default;
 
 
-	virtual int buffer_get_count() const = 0;
+	virtual int buffer_get_count() const noexcept = 0;
 
 	virtual RendererCommandBufferPtr buffer_add(
 		const RendererCommandManagerBufferAddParam& param) = 0;
@@ -1044,36 +1047,36 @@ protected:
 
 
 public:
-	virtual const std::string& get_error_message() const = 0;
+	virtual const std::string& get_error_message() const noexcept = 0;
 
 
-	virtual RendererKind get_kind() const = 0;
+	virtual RendererKind get_kind() const noexcept = 0;
 
-	virtual const std::string& get_name() const = 0;
+	virtual const std::string& get_name() const noexcept = 0;
 
-	virtual const std::string& get_description() const = 0;
+	virtual const std::string& get_description() const noexcept = 0;
 
 
 	virtual bool probe() = 0;
 
-	virtual const RendererProbe& probe_get() const = 0;
+	virtual const RendererProbe& probe_get() const noexcept = 0;
 
 
-	virtual bool is_initialized() const = 0;
+	virtual bool is_initialized() const noexcept = 0;
 
 	virtual bool initialize(
-		const RendererInitializeParam& param) = 0;
+		const RendererCreateParam& param) = 0;
 
 	virtual void uninitialize() = 0;
 
 
-	virtual const RendererDeviceFeatures& device_get_features() const = 0;
+	virtual const RendererDeviceFeatures& device_get_features() const noexcept = 0;
 
-	virtual const RendererDeviceInfo& device_get_info() const = 0;
+	virtual const RendererDeviceInfo& device_get_info() const noexcept = 0;
 
-	virtual bool device_is_lost() const = 0;
+	virtual bool device_is_lost() const noexcept = 0;
 
-	virtual bool device_is_ready_to_reset() const = 0;
+	virtual bool device_is_ready_to_reset() const noexcept = 0;
 
 	virtual void device_reset() = 0;
 
@@ -1082,12 +1085,12 @@ public:
 		const bool is_visible) = 0;
 
 
-	virtual const glm::mat4& csc_get_texture() const = 0;
+	virtual const glm::mat4& csc_get_texture() const noexcept = 0;
 
-	virtual const glm::mat4& csc_get_projection() const = 0;
+	virtual const glm::mat4& csc_get_projection() const noexcept = 0;
 
 
-	virtual bool vsync_get() const = 0;
+	virtual bool vsync_get() const noexcept = 0;
 
 	virtual bool vsync_set(
 		const bool is_enabled) = 0;
@@ -1148,14 +1151,14 @@ public:
 
 
 	virtual RendererShaderPtr shader_create(
-		const RendererShader::CreateParam& param) = 0;
+		const RendererShaderCreateParam& param) = 0;
 
 	virtual void shader_destroy(
 		const RendererShaderPtr shader) = 0;
 
 
 	virtual RendererShaderStagePtr shader_stage_create(
-		const RendererShaderStage::CreateParam& param) = 0;
+		const RendererShaderStageCreateParam& param) = 0;
 
 	virtual void shader_stage_destroy(
 		const RendererShaderStagePtr shader) = 0;

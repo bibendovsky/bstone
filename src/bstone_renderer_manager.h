@@ -54,7 +54,7 @@ public:
 	virtual const RendererProbe& renderer_probe_get() const = 0;
 
 	virtual RendererPtr renderer_initialize(
-		const RendererInitializeParam& param) = 0;
+		const RendererCreateParam& param) = 0;
 }; // RendererManager
 
 using RendererManagerUPtr = std::unique_ptr<RendererManager>;

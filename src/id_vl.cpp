@@ -3003,21 +3003,21 @@ void hw_shader_destroy(
 }
 
 bool hw_shader_create(
-	const bstone::RendererShader::Kind kind,
+	const bstone::RendererShaderKind kind,
 	bstone::RendererShaderPtr& shader)
 {
-	auto param = bstone::RendererShader::CreateParam{};
+	auto param = bstone::RendererShaderCreateParam{};
 	param.kind_ = kind;
 
 	const auto renderer_kind = ::hw_renderer_->get_kind();
 
 	switch (kind)
 	{
-		case bstone::RendererShader::Kind::fragment:
+		case bstone::RendererShaderKind::fragment:
 			param.source_ = bstone::RendererShaderRegistry::get_fragment(renderer_kind);
 			break;
 
-		case bstone::RendererShader::Kind::vertex:
+		case bstone::RendererShaderKind::vertex:
 			param.source_ = bstone::RendererShaderRegistry::get_vertex(renderer_kind);
 			break;
 
@@ -3039,7 +3039,7 @@ void hw_shader_fragment_destroy()
 
 bool hw_shader_fragment_create()
 {
-	return ::hw_shader_create(bstone::RendererShader::Kind::fragment, ::hw_shader_fragment_);
+	return ::hw_shader_create(bstone::RendererShaderKind::fragment, ::hw_shader_fragment_);
 }
 
 void hw_shader_vertex_destroy()
@@ -3049,7 +3049,7 @@ void hw_shader_vertex_destroy()
 
 bool hw_shader_vertex_create()
 {
-	return ::hw_shader_create(bstone::RendererShader::Kind::vertex, ::hw_shader_vertex_);
+	return ::hw_shader_create(bstone::RendererShaderKind::vertex, ::hw_shader_vertex_);
 }
 
 void hw_shader_stage_destroy()
@@ -3066,14 +3066,14 @@ void hw_shader_stage_destroy()
 
 bool hw_shader_stage_create()
 {
-	static const auto input_bindings = bstone::RendererShaderStage::InputBindings
+	static const auto input_bindings = bstone::RendererShaderStageInputBindings
 	{
 		{0, bstone::RendererShaderRegistry::get_a_position_name()},
 		{1, bstone::RendererShaderRegistry::get_a_color_name()},
 		{2, bstone::RendererShaderRegistry::get_a_tx_coords_name()},
 	};
 
-	auto param = bstone::RendererShaderStage::CreateParam{};
+	auto param = bstone::RendererShaderStageCreateParam{};
 	param.fragment_shader_ = ::hw_shader_fragment_;
 	param.vertex_shader_ = ::hw_shader_vertex_;
 	param.input_bindings_ = input_bindings;
@@ -3448,7 +3448,7 @@ bool hw_renderer_initialize()
 	//
 	const auto& probe = ::hw_renderer_manager_->renderer_probe_get();
 
-	auto param = bstone::RendererInitializeParam{};
+	auto param = bstone::RendererCreateParam{};
 	param.renderer_kind_ = probe.kind_;
 
 	param.aa_kind_ = ::vid_configuration_.hw_aa_kind_;
@@ -6224,14 +6224,14 @@ void hw_screen_2d_refresh()
 	//
 	{
 		auto& command = *command_buffer->write_culling();
-		command.is_enabled_ = false;
+		command.is_enable_ = false;
 	}
 
 	// Disable depth test.
 	//
 	{
 		auto& command = *command_buffer->write_depth_test();
-		command.is_enabled_ = false;
+		command.is_enable_ = false;
 	}
 
 	// Set viewport.
@@ -6320,7 +6320,7 @@ void hw_screen_2d_refresh()
 		{
 			{
 				auto& command = *command_buffer->write_blending();
-				command.is_enabled_ = true;
+				command.is_enable_ = true;
 			}
 
 			// Set blending function.
@@ -6358,7 +6358,7 @@ void hw_screen_2d_refresh()
 		if (::vid_is_hud)
 		{
 			auto& command = *command_buffer->write_blending();
-			command.is_enabled_ = false;
+			command.is_enable_ = false;
 		}
 	}
 
@@ -6370,7 +6370,7 @@ void hw_screen_2d_refresh()
 		//
 		{
 			auto& command = *command_buffer->write_blending();
-			command.is_enabled_ = true;
+			command.is_enable_ = true;
 		}
 
 		// Set blending function.
@@ -6421,7 +6421,7 @@ void hw_screen_2d_refresh()
 		//
 		{
 			auto& command = *command_buffer->write_blending();
-			command.is_enabled_ = false;
+			command.is_enable_ = false;
 		}
 	}
 
@@ -7522,14 +7522,14 @@ void hw_3d_sprites_render()
 	//
 	{
 		auto& command = *command_buffer->write_depth_write();
-		command.is_enabled_ = false;
+		command.is_enable_ = false;
 	}
 
 	// Enable blending.
 	//
 	{
 		auto& command = *command_buffer->write_blending();
-		command.is_enabled_ = true;
+		command.is_enable_ = true;
 	}
 
 	using CurrentTexture = bstone::ModValue<bstone::RendererTexture2dPtr>;
@@ -7646,14 +7646,14 @@ void hw_3d_sprites_render()
 	//
 	{
 		auto& command = *command_buffer->write_depth_write();
-		command.is_enabled_ = true;
+		command.is_enable_ = true;
 	}
 
 	// Disable blending.
 	//
 	{
 		auto& command = *command_buffer->write_blending();
-		command.is_enabled_ = false;
+		command.is_enable_ = false;
 	}
 
 	::hw_3d_sprites_draw_count_ = draw_sprite_index;
@@ -7928,21 +7928,21 @@ void hw_screen_3d_refresh()
 	//
 	{
 		auto& command = *command_buffer->write_culling();
-		command.is_enabled_ = true;
+		command.is_enable_ = true;
 	}
 
 	// Enable depth test.
 	//
 	{
 		auto& command = *command_buffer->write_depth_test();
-		command.is_enabled_ = true;
+		command.is_enable_ = true;
 	}
 
 	// Enable depth write.
 	//
 	{
 		auto& command = *command_buffer->write_depth_write();
-		command.is_enabled_ = true;
+		command.is_enable_ = true;
 	}
 
 	// Set model matrix.
@@ -8086,14 +8086,14 @@ void hw_screen_3d_refresh()
 	//
 	{
 		auto& command = *command_buffer->write_culling();
-		command.is_enabled_ = false;
+		command.is_enable_ = false;
 	}
 
 	// Disable depth test.
 	//
 	{
 		auto& command = *command_buffer->write_depth_test();
-		command.is_enabled_ = false;
+		command.is_enable_ = false;
 	}
 
 	// Disable shading mode.
@@ -8179,7 +8179,7 @@ void hw_screen_3d_refresh()
 			//
 			{
 				auto& command = *command_buffer->write_blending();
-				command.is_enabled_ = true;
+				command.is_enable_ = true;
 			}
 
 			// Set blending function.
@@ -8202,7 +8202,7 @@ void hw_screen_3d_refresh()
 			//
 			{
 				auto& command = *command_buffer->write_blending();
-				command.is_enabled_ = false;
+				command.is_enable_ = false;
 			}
 		}
 
@@ -8231,7 +8231,7 @@ void hw_screen_3d_refresh()
 			//
 			{
 				auto& command = *command_buffer->write_blending();
-				command.is_enabled_ = true;
+				command.is_enable_ = true;
 			}
 
 			// Set blending function.
@@ -8275,7 +8275,7 @@ void hw_screen_3d_refresh()
 			//
 			{
 				auto& command = *command_buffer->write_blending();
-				command.is_enabled_ = false;
+				command.is_enable_ = false;
 			}
 		}
 	}

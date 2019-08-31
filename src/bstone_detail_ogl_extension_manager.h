@@ -129,17 +129,17 @@ public:
 	virtual ~OglExtensionManager();
 
 
-	virtual int get_extension_count() const noexcept = 0;
+	virtual int get_count() const noexcept = 0;
 
-	virtual const std::string& get_extension_name(
+	virtual const std::string& get_name(
 		const int extension_index) const noexcept = 0;
 
 
-	virtual void probe_extension(
+	virtual void probe(
 		const OglExtensionId extension_id) = 0;
 
 
-	virtual bool has_extension(
+	virtual bool has(
 		const OglExtensionId extension_id) const noexcept = 0;
 
 	virtual bool operator[](

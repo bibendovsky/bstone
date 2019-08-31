@@ -87,7 +87,7 @@ struct OglShaderFactory final
 {
 	static OglShaderUPtr create(
 		const OglShaderManagerPtr ogl_shader_manager,
-		const RendererShader::CreateParam& param);
+		const RendererShaderCreateParam& param);
 }; // OglShaderFactory
 
 //

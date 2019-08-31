@@ -230,7 +230,6 @@ target_sources(
 		bstone_mod_value.h
 		bstone_mt_queue_1r1w.h
 		bstone_ogl_api.h
-		bstone_ogl_unique_resources.h
 		bstone_opl2.h
 		bstone_ref_values.h
 		bstone_renderer.h
@@ -340,7 +339,6 @@ target_sources(
 		bstone_missing_sprite_64x64_image.cpp
 		bstone_missing_wall_64x64_image.cpp
 		bstone_ogl_api.cpp
-		bstone_ogl_unique_resources.cpp
 		bstone_opl2.cpp
 		bstone_pcm_decoder.cpp
 		bstone_precompiled.cpp

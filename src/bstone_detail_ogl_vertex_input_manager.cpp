@@ -71,30 +71,28 @@ public:
 	~GenericOglVertexInputManager() override;
 
 
-	OglContextPtr ogl_context_get() const noexcept override;
+	OglContextPtr get_ogl_context() const noexcept override;
 
 
-	RendererVertexInputPtr vertex_input_create(
+	RendererVertexInputPtr create(
 		const RendererVertexInputCreateParam& param) override;
 
-	void vertex_input_destroy(
+	void destroy(
 		const RendererVertexInputPtr vertex_input) override;
 
-	void vertex_input_set(
+	void set(
 		const RendererVertexInputPtr vertex_input) override;
 
-	RendererVertexInputPtr vertex_input_get_current() const noexcept override;
-
-	RendererIndexBufferPtr vertex_input_current_get_index_buffer() const noexcept override;
+	RendererIndexBufferPtr get_current_index_buffer() const noexcept override;
 
 
-	void vertex_input_location_enable(
+	void enable_location(
 		const int location,
 		const bool is_enabled) override;
 
-	void vertex_input_location_assign_begin() override;
+	void location_assign_begin() override;
 
-	void vertex_input_location_assign_end() override;
+	void location_assign_end() override;
 
 
 private:
@@ -114,7 +112,7 @@ private:
 
 	void initialize();
 
-	void vertex_input_set();
+	void set();
 }; // GenericOglVertexInputManager
 
 using GenericOglVaoManagerPtr = GenericOglVertexInputManager*;
@@ -143,24 +141,24 @@ GenericOglVertexInputManager::GenericOglVertexInputManager(
 
 GenericOglVertexInputManager::~GenericOglVertexInputManager() = default;
 
-OglContextPtr GenericOglVertexInputManager::ogl_context_get() const noexcept
+OglContextPtr GenericOglVertexInputManager::get_ogl_context() const noexcept
 {
 	return ogl_context_;
 }
 
-RendererVertexInputPtr GenericOglVertexInputManager::vertex_input_create(
+RendererVertexInputPtr GenericOglVertexInputManager::create(
 	const RendererVertexInputCreateParam& param)
 {
 	return vertex_inputs_.add(this, param);
 }
 
-void GenericOglVertexInputManager::vertex_input_destroy(
+void GenericOglVertexInputManager::destroy(
 	const RendererVertexInputPtr vertex_input)
 {
 	vertex_inputs_.remove(vertex_input);
 }
 
-void GenericOglVertexInputManager::vertex_input_set(
+void GenericOglVertexInputManager::set(
 	const RendererVertexInputPtr vertex_input)
 {
 	if (vertex_input_current_ == vertex_input)
@@ -169,15 +167,10 @@ void GenericOglVertexInputManager::vertex_input_set(
 	}
 
 	vertex_input_current_ = static_cast<OglVertexInputPtr>(vertex_input);
-	vertex_input_set();
+	set();
 }
 
-RendererVertexInputPtr GenericOglVertexInputManager::vertex_input_get_current() const noexcept
-{
-	return vertex_input_current_;
-}
-
-RendererIndexBufferPtr GenericOglVertexInputManager::vertex_input_current_get_index_buffer() const noexcept
+RendererIndexBufferPtr GenericOglVertexInputManager::get_current_index_buffer() const noexcept
 {
 	if (!vertex_input_current_)
 	{
@@ -187,7 +180,7 @@ RendererIndexBufferPtr GenericOglVertexInputManager::vertex_input_current_get_in
 	return vertex_input_current_->get_index_buffer();
 }
 
-void GenericOglVertexInputManager::vertex_input_location_enable(
+void GenericOglVertexInputManager::enable_location(
 	const int location,
 	const bool is_enabled)
 {
@@ -203,7 +196,7 @@ void GenericOglVertexInputManager::vertex_input_location_enable(
 	vao_manager->enable_location(location, is_enabled);
 }
 
-void GenericOglVertexInputManager::vertex_input_location_assign_begin()
+void GenericOglVertexInputManager::location_assign_begin()
 {
 	if (vertex_input_location_is_assigning_)
 	{
@@ -219,7 +212,7 @@ void GenericOglVertexInputManager::vertex_input_location_assign_begin()
 	);
 }
 
-void GenericOglVertexInputManager::vertex_input_location_assign_end()
+void GenericOglVertexInputManager::location_assign_end()
 {
 	if (!vertex_input_location_is_assigning_)
 	{
@@ -232,7 +225,7 @@ void GenericOglVertexInputManager::vertex_input_location_assign_end()
 
 	for (int i = 0; i < device_features.vertex_input_max_locations_; ++i)
 	{
-		vertex_input_location_enable(i, vertex_input_assigned_locations_[i]);
+		enable_location(i, vertex_input_assigned_locations_[i]);
 	}
 }
 
@@ -244,7 +237,7 @@ void GenericOglVertexInputManager::initialize_vertex_input_locations()
 
 	for (int i = 0; i < device_features.vertex_input_max_locations_; ++i)
 	{
-		vertex_input_location_enable(i, false);
+		enable_location(i, false);
 	}
 }
 
@@ -258,7 +251,7 @@ void GenericOglVertexInputManager::initialize()
 	initialize_vertex_input_locations();
 }
 
-void GenericOglVertexInputManager::vertex_input_set()
+void GenericOglVertexInputManager::set()
 {
 	if (!vertex_input_current_)
 	{

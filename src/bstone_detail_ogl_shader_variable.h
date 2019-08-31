@@ -66,7 +66,7 @@ public:
 
 
 	static int get_unit_size(
-		const TypeId type_id);
+		const RendererShaderVariableTypeId type_id);
 }; // OglShaderVariable
 
 using OglShaderVariablePtr = OglShaderVariable*;
@@ -85,8 +85,8 @@ struct OglShaderVariableFactory final
 {
 	struct CreateParam final
 	{
-		RendererShaderVariable::Kind kind_;
-		RendererShaderVariable::TypeId type_id_;
+		RendererShaderVariableKind kind_;
+		RendererShaderVariableTypeId type_id_;
 		int value_size_;
 		int index_;
 		std::string name_;

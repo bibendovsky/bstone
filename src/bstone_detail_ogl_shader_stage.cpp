@@ -56,12 +56,6 @@ OglShaderStage::OglShaderStage() = default;
 
 OglShaderStage::~OglShaderStage() = default;
 
-void OglShaderStage::unset_current()
-{
-	::glUseProgram(0);
-	assert(!detail::OglRendererUtils::was_errors());
-}
-
 //
 // OglShaderStage
 // ==========================================================================
@@ -77,15 +71,15 @@ class GenericOglShaderStage final :
 public:
 	GenericOglShaderStage(
 		const OglShaderStageManagerPtr ogl_shader_stage_manager,
-		const RendererShaderStage::CreateParam& param);
+		const RendererShaderStageCreateParam& param);
 
 	~GenericOglShaderStage() override;
 
 
-	OglShaderStageManagerPtr manager_get() const noexcept override;
+	OglShaderStageManagerPtr get_manager() const noexcept override;
 
 
-	void set_current() override;
+	void set() override;
 
 	RendererShaderVariablePtr find_variable(
 		const std::string& name) override;
@@ -113,7 +107,7 @@ public:
 
 	void detach_vertex_shader() override;
 
-	GLuint ogl_name_get() const noexcept override;
+	GLuint get_ogl_name() const noexcept override;
 
 
 private:
@@ -136,32 +130,32 @@ private:
 
 
 	void validate_shader(
-		const RendererShader::Kind shader_kind,
+		const RendererShaderKind shader_kind,
 		const RendererShaderPtr shader);
 
 	void validate_input_bindings(
-		const InputBindings& input_bindings);
+		const RendererShaderStageInputBindings& input_bindings);
 
 	void validate_param(
-		const RendererShaderStage::CreateParam& param);
+		const RendererShaderStageCreateParam& param);
 
 	void set_input_bindings(
 		const GLuint ogl_name,
-		const InputBindings& input_bindings);
+		const RendererShaderStageInputBindings& input_bindings);
 
 	int get_variable_count(
 		const GLuint ogl_name);
 
 	void get_variables(
-		const RendererShaderVariable::Kind kind,
+		const RendererShaderVariableKind kind,
 		const GLuint ogl_name,
 		ShaderVariables& shader_variables);
 
 	void check_input_bindings(
-		const InputBindings& input_bindings);
+		const RendererShaderStageInputBindings& input_bindings);
 
 	void initialize(
-		const RendererShaderStage::CreateParam& param);
+		const RendererShaderStageCreateParam& param);
 
 
 	RendererShaderVariablePtr find_variable_internal(
@@ -188,7 +182,7 @@ private:
 
 	template<typename T>
 	T* find_variable_internal(
-		const RendererShaderVariable::TypeId type_id,
+		const RendererShaderVariableTypeId type_id,
 		const std::string& name)
 	{
 		const auto end_it = shader_variables_.end();
@@ -225,7 +219,7 @@ using GenericOglShaderStageUPtr = std::unique_ptr<GenericOglShaderStage>;
 
 GenericOglShaderStage::GenericOglShaderStage(
 	const OglShaderStageManagerPtr ogl_shader_stage_manager,
-	const RendererShaderStage::CreateParam& param)
+	const RendererShaderStageCreateParam& param)
 	:
 	ogl_shader_stage_manager_{ogl_shader_stage_manager},
 	fragment_shader_{},
@@ -249,14 +243,14 @@ GenericOglShaderStage::~GenericOglShaderStage()
 	}
 }
 
-OglShaderStageManagerPtr GenericOglShaderStage::manager_get() const noexcept
+OglShaderStageManagerPtr GenericOglShaderStage::get_manager() const noexcept
 {
 	return ogl_shader_stage_manager_;
 }
 
-void GenericOglShaderStage::set_current()
+void GenericOglShaderStage::set()
 {
-	if (!ogl_shader_stage_manager_->shader_stage_set_current(this))
+	if (!ogl_shader_stage_manager_->set_current(this))
 	{
 		return;
 	}
@@ -275,7 +269,7 @@ RendererShaderVariableInt32Ptr GenericOglShaderStage::find_variable_int32(
 	const std::string& name)
 {
 	return find_variable_internal<RendererShaderVariableInt32>(
-		RendererShaderVariable::TypeId::int32,
+		RendererShaderVariableTypeId::int32,
 		name
 	);
 }
@@ -284,7 +278,7 @@ RendererShaderVariableFloat32Ptr GenericOglShaderStage::find_variable_float32(
 	const std::string& name)
 {
 	return find_variable_internal<RendererShaderVariableFloat32>(
-		RendererShaderVariable::TypeId::float32,
+		RendererShaderVariableTypeId::float32,
 		name
 	);
 }
@@ -293,7 +287,7 @@ RendererShaderVariableVec2Ptr GenericOglShaderStage::find_variable_vec2(
 	const std::string& name)
 {
 	return find_variable_internal<RendererShaderVariableVec2>(
-		RendererShaderVariable::TypeId::vec2,
+		RendererShaderVariableTypeId::vec2,
 		name
 	);
 }
@@ -302,7 +296,7 @@ RendererShaderVariableVec4Ptr GenericOglShaderStage::find_variable_vec4(
 	const std::string& name)
 {
 	return find_variable_internal<RendererShaderVariableVec4>(
-		RendererShaderVariable::TypeId::vec4,
+		RendererShaderVariableTypeId::vec4,
 		name
 	);
 }
@@ -311,7 +305,7 @@ RendererShaderVariableMat4Ptr GenericOglShaderStage::find_variable_mat4(
 	const std::string& name)
 {
 	return find_variable_internal<RendererShaderVariableMat4>(
-		RendererShaderVariable::TypeId::mat4,
+		RendererShaderVariableTypeId::mat4,
 		name
 	);
 }
@@ -320,13 +314,13 @@ RendererShaderVariableSampler2dPtr GenericOglShaderStage::find_variable_sampler_
 	const std::string& name)
 {
 	return find_variable_internal<RendererShaderVariableSampler2d>(
-		RendererShaderVariable::TypeId::sampler2d,
+		RendererShaderVariableTypeId::sampler2d,
 		name
 	);
 }
 
 void GenericOglShaderStage::initialize(
-	const RendererShaderStage::CreateParam& param)
+	const RendererShaderStageCreateParam& param)
 {
 	if (!ogl_shader_stage_manager_)
 	{
@@ -378,10 +372,10 @@ void GenericOglShaderStage::initialize(
 	const auto variable_count = get_variable_count(ogl_resource_.get());
 	shader_variables_.reserve(variable_count);
 
-	get_variables(RendererShaderVariable::Kind::attribute, ogl_resource_.get(), shader_variables_);
+	get_variables(RendererShaderVariableKind::attribute, ogl_resource_.get(), shader_variables_);
 
 	// Note that "samplers" are included in uniforms.
-	get_variables(RendererShaderVariable::Kind::uniform, ogl_resource_.get(), shader_variables_);
+	get_variables(RendererShaderVariableKind::uniform, ogl_resource_.get(), shader_variables_);
 
 	check_input_bindings(param.input_bindings_);
 
@@ -399,7 +393,7 @@ void GenericOglShaderStage::detach_vertex_shader()
 	vertex_shader_ = nullptr;
 }
 
-GLuint GenericOglShaderStage::ogl_name_get() const noexcept
+GLuint GenericOglShaderStage::get_ogl_name() const noexcept
 {
 	return ogl_resource_.get();
 }
@@ -412,7 +406,7 @@ void GenericOglShaderStage::shader_stage_resource_deleter(
 }
 
 void GenericOglShaderStage::validate_shader(
-	const RendererShader::Kind shader_kind,
+	const RendererShaderKind shader_kind,
 	const RendererShaderPtr shader)
 {
 	if (shader == nullptr)
@@ -427,7 +421,7 @@ void GenericOglShaderStage::validate_shader(
 }
 
 void GenericOglShaderStage::validate_input_bindings(
-	const InputBindings& input_bindings)
+	const RendererShaderStageInputBindings& input_bindings)
 {
 	if (input_bindings.empty())
 	{
@@ -497,16 +491,16 @@ void GenericOglShaderStage::validate_input_bindings(
 }
 
 void GenericOglShaderStage::validate_param(
-	const RendererShaderStage::CreateParam& param)
+	const RendererShaderStageCreateParam& param)
 {
-	validate_shader(RendererShader::Kind::fragment, param.fragment_shader_);
-	validate_shader(RendererShader::Kind::vertex, param.vertex_shader_);
+	validate_shader(RendererShaderKind::fragment, param.fragment_shader_);
+	validate_shader(RendererShaderKind::vertex, param.vertex_shader_);
 	validate_input_bindings(param.input_bindings_);
 }
 
 void GenericOglShaderStage::set_input_bindings(
 	const GLuint ogl_name,
-	const InputBindings& input_bindings)
+	const RendererShaderStageInputBindings& input_bindings)
 {
 	for (const auto& input_binding : input_bindings)
 	{
@@ -532,7 +526,7 @@ int GenericOglShaderStage::get_variable_count(
 }
 
 void GenericOglShaderStage::get_variables(
-	const RendererShaderVariable::Kind kind,
+	const RendererShaderVariableKind kind,
 	const GLuint ogl_name,
 	ShaderVariables& shader_variables)
 {
@@ -553,14 +547,14 @@ void GenericOglShaderStage::get_variables(
 
 	switch (kind)
 	{
-		case RendererShaderVariable::Kind::attribute:
+		case RendererShaderVariableKind::attribute:
 			is_attribute = true;
 			ogl_count_enum = GL_ACTIVE_ATTRIBUTES;
 			ogl_max_length_enum = GL_ACTIVE_ATTRIBUTE_MAX_LENGTH;
 			ogl_info_function = ::glGetActiveAttrib;
 			break;
 
-		case RendererShaderVariable::Kind::uniform:
+		case RendererShaderVariableKind::uniform:
 			is_uniform = true;
 			ogl_count_enum = GL_ACTIVE_UNIFORMS;
 			ogl_max_length_enum = GL_ACTIVE_UNIFORM_MAX_LENGTH;
@@ -629,37 +623,37 @@ void GenericOglShaderStage::get_variables(
 		}
 
 		bool is_sampler = false;
-		auto unit_type_id = RendererShaderVariable::TypeId{};
+		auto unit_type_id = RendererShaderVariableTypeId{};
 
 		switch (ogl_type)
 		{
 			case GL_INT:
-				unit_type_id = RendererShaderVariable::TypeId::int32;
+				unit_type_id = RendererShaderVariableTypeId::int32;
 				break;
 
 			case GL_FLOAT:
-				unit_type_id = RendererShaderVariable::TypeId::float32;
+				unit_type_id = RendererShaderVariableTypeId::float32;
 				break;
 
 			case GL_FLOAT_VEC2:
-				unit_type_id = RendererShaderVariable::TypeId::vec2;
+				unit_type_id = RendererShaderVariableTypeId::vec2;
 				break;
 
 			case GL_FLOAT_VEC3:
-				unit_type_id = RendererShaderVariable::TypeId::vec3;
+				unit_type_id = RendererShaderVariableTypeId::vec3;
 				break;
 
 			case GL_FLOAT_VEC4:
-				unit_type_id = RendererShaderVariable::TypeId::vec4;
+				unit_type_id = RendererShaderVariableTypeId::vec4;
 				break;
 
 			case GL_FLOAT_MAT4:
-				unit_type_id = RendererShaderVariable::TypeId::mat4;
+				unit_type_id = RendererShaderVariableTypeId::mat4;
 				break;
 
 			case GL_SAMPLER_2D:
 				is_sampler = true;
-				unit_type_id = RendererShaderVariable::TypeId::sampler2d;
+				unit_type_id = RendererShaderVariableTypeId::sampler2d;
 				break;
 
 			default:
@@ -683,7 +677,7 @@ void GenericOglShaderStage::get_variables(
 			input_index = -1;
 		}
 
-		const auto new_kind = (is_sampler ? RendererShaderVariable::Kind::sampler : kind);
+		const auto new_kind = (is_sampler ? RendererShaderVariableKind::sampler : kind);
 		const auto index = static_cast<int>(shader_variables.size());
 		const auto unit_size = OglShaderVariable::get_unit_size(unit_type_id);
 		const auto value_size = unit_count * unit_size;
@@ -706,7 +700,7 @@ void GenericOglShaderStage::get_variables(
 }
 
 void GenericOglShaderStage::check_input_bindings(
-	const InputBindings& input_bindings)
+	const RendererShaderStageInputBindings& input_bindings)
 {
 	for (const auto& input_binding : input_bindings)
 	{
@@ -717,7 +711,7 @@ void GenericOglShaderStage::check_input_bindings(
 			throw Exception{"Vertex attribute not found."};
 		}
 
-		if (vertex_attribute->get_kind() != RendererShaderVariable::Kind::attribute)
+		if (vertex_attribute->get_kind() != RendererShaderVariableKind::attribute)
 		{
 			throw Exception{"Not a vertex attribute."};
 		}
@@ -735,7 +729,7 @@ void GenericOglShaderStage::check_input_bindings(
 
 OglShaderStageUPtr OglShaderStageFactory::create(
 	const OglShaderStageManagerPtr ogl_shader_stage_manager,
-	const RendererShaderStage::CreateParam& param)
+	const RendererShaderStageCreateParam& param)
 {
 	return std::make_unique<GenericOglShaderStage>(ogl_shader_stage_manager, param);
 }

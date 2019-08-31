@@ -36,7 +36,7 @@ Free Software Foundation, Inc.,
 #include <array>
 #include <list>
 #include <vector>
-#include "bstone_ogl_unique_resources.h"
+
 #include "bstone_detail_ogl_extension_manager.h"
 #include "bstone_detail_ogl_shader.h"
 #include "bstone_detail_ogl_shader_stage.h"
@@ -65,36 +65,36 @@ public:
 	~Ogl2XRenderer() override;
 
 
-	const std::string& get_error_message() const override;
+	const std::string& get_error_message() const noexcept override;
 
 
-	RendererKind get_kind() const override;
+	RendererKind get_kind() const noexcept override;
 
-	const std::string& get_name() const override;
+	const std::string& get_name() const noexcept override;
 
-	const std::string& get_description() const override;
+	const std::string& get_description() const noexcept override;
 
 
 	bool probe() override;
 
-	const RendererProbe& probe_get() const override;
+	const RendererProbe& probe_get() const noexcept override;
 
 
-	bool is_initialized() const override;
+	bool is_initialized() const noexcept override;
 
 	bool initialize(
-		const RendererInitializeParam& param) override;
+		const RendererCreateParam& param) override;
 
 	void uninitialize() override;
 
 
-	const RendererDeviceFeatures& device_get_features() const override;
+	const RendererDeviceFeatures& device_get_features() const noexcept override;
 
-	const RendererDeviceInfo& device_get_info() const override;
+	const RendererDeviceInfo& device_get_info() const noexcept override;
 
-	bool device_is_lost() const override;
+	bool device_is_lost() const noexcept override;
 
-	bool device_is_ready_to_reset() const override;
+	bool device_is_ready_to_reset() const noexcept override;
 
 	void device_reset() override;
 
@@ -103,12 +103,12 @@ public:
 		const bool is_visible) override;
 
 
-	const glm::mat4& csc_get_texture() const override;
+	const glm::mat4& csc_get_texture() const noexcept override;
 
-	const glm::mat4& csc_get_projection() const override;
+	const glm::mat4& csc_get_projection() const noexcept override;
 
 
-	bool vsync_get() const override;
+	bool vsync_get() const noexcept override;
 
 	bool vsync_set(
 		const bool is_enabled) override;
@@ -169,14 +169,14 @@ public:
 
 
 	RendererShaderPtr shader_create(
-		const RendererShader::CreateParam& param) override;
+		const RendererShaderCreateParam& param) override;
 
 	void shader_destroy(
 		const RendererShaderPtr shader) override;
 
 
 	RendererShaderStagePtr shader_stage_create(
-		const RendererShaderStage::CreateParam& param) override;
+		const RendererShaderStageCreateParam& param) override;
 
 	void shader_stage_destroy(
 		const RendererShaderStagePtr shader) override;
@@ -250,7 +250,7 @@ private:
 
 	bool probe_or_initialize(
 		const bool is_probe,
-		const RendererInitializeParam& param);
+		const RendererCreateParam& param);
 
 
 	void uninitialize_internal(
@@ -378,7 +378,7 @@ private:
 	void blending_set_defaults();
 
 
-	void texture_set(
+	void texture(
 		RendererTexture2dPtr new_texture_2d);
 
 

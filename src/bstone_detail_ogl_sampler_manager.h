@@ -60,16 +60,16 @@ public:
 	virtual ~OglSamplerManager();
 
 
-	virtual RendererSamplerPtr sampler_create(
+	virtual RendererSamplerPtr create(
 		const RendererSamplerCreateParam& param) = 0;
 
-	virtual void sampler_destroy(
+	virtual void destroy(
 		const RendererSamplerPtr sampler) = 0;
 
-	virtual void sampler_set(
+	virtual void set(
 		const RendererSamplerPtr sampler) = 0;
 
-	virtual const RendererSamplerState& sampler_current_get_state() const noexcept = 0;
+	virtual const RendererSamplerState& get_current_state() const noexcept = 0;
 }; // OglSamplerManager
 
 using OglSamplerManagerPtr = OglSamplerManager*;

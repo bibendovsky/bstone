@@ -73,24 +73,22 @@ public:
 	~GenericOglTextureManager() override;
 
 
-	OglContextPtr ogl_context_get() const noexcept override;
+	OglContextPtr get_ogl_context() const noexcept override;
 
 
-	RendererTexture2dPtr texture_2d_create(
+	RendererTexture2dPtr create(
 		const RendererTexture2dCreateParam& param) override;
 
-	void texture_2d_destroy(
+	void destroy(
 		const RendererTexture2dPtr texture_2d) override;
 
-	void texture_2d_set(
+	void set(
 		const RendererTexture2dPtr texture_2d) override;
 
-	bool texture_2d_set_current(
+	bool set_current(
 		const RendererTexture2dPtr texture_2d) override;
 
-	RendererTexture2dPtr texture_2d_get_current() const noexcept override;
-
-	void texture_2d_current_update_sampler_state(
+	void update_current_sampler_state(
 		const RendererSamplerState& sampler_state) override;
 
 
@@ -106,7 +104,7 @@ private:
 
 	void initialize();
 
-	void texture_2d_set();
+	void set();
 }; // GenericOglTextureManager
 
 using GenericOglTextureManagerPtr = GenericOglTextureManager*;
@@ -134,27 +132,27 @@ GenericOglTextureManager::GenericOglTextureManager(
 
 GenericOglTextureManager::~GenericOglTextureManager() = default;
 
-OglContextPtr GenericOglTextureManager::ogl_context_get() const noexcept
+OglContextPtr GenericOglTextureManager::get_ogl_context() const noexcept
 {
 	return ogl_context_;
 }
 
-RendererTexture2dPtr GenericOglTextureManager::texture_2d_create(
+RendererTexture2dPtr GenericOglTextureManager::create(
 	const RendererTexture2dCreateParam& param)
 {
 	return textures_2d_.add(this, param);
 }
 
-void GenericOglTextureManager::texture_2d_destroy(
+void GenericOglTextureManager::destroy(
 	const RendererTexture2dPtr texture_2d)
 {
 	textures_2d_.remove(texture_2d);
 }
 
-void GenericOglTextureManager::texture_2d_set(
+void GenericOglTextureManager::set(
 	const RendererTexture2dPtr texture_2d)
 {
-	if (!texture_2d_set_current(texture_2d))
+	if (!set_current(texture_2d))
 	{
 		return;
 	}
@@ -171,13 +169,13 @@ void GenericOglTextureManager::texture_2d_set(
 	if (!device_features.sampler_is_available_)
 	{
 		const auto sampler_manager = ogl_context_->sampler_get_manager();
-		const auto& sampler_state = sampler_manager->sampler_current_get_state();
+		const auto& sampler_state = sampler_manager->get_current_state();
 
 		texture_2d_current_->update_sampler_state(sampler_state);
 	}
 }
 
-bool GenericOglTextureManager::texture_2d_set_current(
+bool GenericOglTextureManager::set_current(
 	const RendererTexture2dPtr texture_2d)
 {
 	if (texture_2d_current_ == texture_2d)
@@ -190,12 +188,7 @@ bool GenericOglTextureManager::texture_2d_set_current(
 	return true;
 }
 
-RendererTexture2dPtr GenericOglTextureManager::texture_2d_get_current() const noexcept
-{
-	return texture_2d_current_;
-}
-
-void GenericOglTextureManager::texture_2d_current_update_sampler_state(
+void GenericOglTextureManager::update_current_sampler_state(
 	const RendererSamplerState& sampler_state)
 {
 	if (!texture_2d_current_)
@@ -219,7 +212,7 @@ void GenericOglTextureManager::initialize()
 	OglRendererUtils::texture_2d_unbind();
 }
 
-void GenericOglTextureManager::texture_2d_set()
+void GenericOglTextureManager::set()
 {
 	if (texture_2d_current_)
 	{

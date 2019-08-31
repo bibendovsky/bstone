@@ -67,7 +67,7 @@ public:
 	const RendererProbe& renderer_probe_get() const override;
 
 	RendererPtr renderer_initialize(
-		const RendererInitializeParam& param) override;
+		const RendererCreateParam& param) override;
 
 
 private:
@@ -193,7 +193,7 @@ const RendererProbe& RendererManagerImpl::renderer_probe_get() const
 }
 
 RendererPtr RendererManagerImpl::renderer_initialize(
-	const RendererInitializeParam& param)
+	const RendererCreateParam& param)
 {
 	detail::RendererUtils::validate_initialize_param(param);
 

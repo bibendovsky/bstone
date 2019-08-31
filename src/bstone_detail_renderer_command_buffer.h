@@ -56,10 +56,10 @@ public:
 	~RendererCommandBuffer() override;
 
 
-	int get_command_count() const override;
+	int get_command_count() const noexcept override;
 
 
-	bool is_enabled() const override;
+	bool is_enabled() const noexcept override;
 
 	void enable(
 		const bool is_enabled) override;

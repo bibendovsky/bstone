@@ -81,8 +81,8 @@ public:
 	void update(
 		const RendererBufferUpdateParam& param) override;
 
-	void bind(
-		const bool is_binded) override;
+	void set(
+		const bool is_set) override;
 
 
 private:
@@ -150,10 +150,10 @@ int GenericOglVertexBuffer::get_size() const noexcept
 	return ogl_buffer_->get_size();
 }
 
-void GenericOglVertexBuffer::bind(
-	const bool is_binded)
+void GenericOglVertexBuffer::set(
+	const bool is_set)
 {
-	ogl_buffer_->bind(is_binded);
+	ogl_buffer_->set(is_set);
 }
 
 //

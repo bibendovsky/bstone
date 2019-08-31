@@ -60,10 +60,10 @@ public:
 	virtual ~OglShaderManager();
 
 
-	virtual RendererShaderPtr shader_create(
-		const RendererShader::CreateParam& param) = 0;
+	virtual RendererShaderPtr create(
+		const RendererShaderCreateParam& param) = 0;
 
-	virtual void shader_destroy(
+	virtual void destroy(
 		const RendererShaderPtr shader) = 0;
 }; // OglShaderManager
 

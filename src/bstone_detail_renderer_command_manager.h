@@ -53,7 +53,7 @@ public:
 	~RendererCommandManager() override;
 
 
-	int buffer_get_count() const override;
+	int buffer_get_count() const noexcept override;
 
 	bstone::RendererCommandBufferPtr buffer_add(
 		const RendererCommandManagerBufferAddParam& param) override;

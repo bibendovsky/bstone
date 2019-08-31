@@ -54,7 +54,7 @@ RendererCommandManager::~RendererCommandManager()
 {
 }
 
-int RendererCommandManager::buffer_get_count() const
+int RendererCommandManager::buffer_get_count() const noexcept
 {
 	return static_cast<int>(buffers_.size());
 }

@@ -329,18 +329,18 @@ void OglRendererUtils::anisotropy_probe(
 #ifndef BSTONE_RENDERER_TEST_NO_ANISOTROPY
 	if (!device_features.anisotropy_is_available_)
 	{
-		extension_manager->probe_extension(OglExtensionId::arb_texture_filter_anisotropic);
+		extension_manager->probe(OglExtensionId::arb_texture_filter_anisotropic);
 
 		device_features.anisotropy_is_available_ =
-			extension_manager->has_extension(OglExtensionId::arb_texture_filter_anisotropic);
+			extension_manager->has(OglExtensionId::arb_texture_filter_anisotropic);
 	}
 
 	if (!device_features.anisotropy_is_available_)
 	{
-		extension_manager->probe_extension(OglExtensionId::ext_texture_filter_anisotropic);
+		extension_manager->probe(OglExtensionId::ext_texture_filter_anisotropic);
 
 		device_features.anisotropy_is_available_ =
-			extension_manager->has_extension(OglExtensionId::ext_texture_filter_anisotropic);
+			extension_manager->has(OglExtensionId::ext_texture_filter_anisotropic);
 	}
 
 	if (device_features.anisotropy_is_available_)
@@ -359,10 +359,10 @@ void OglRendererUtils::npot_probe(
 #ifndef BSTONE_RENDERER_TEST_POT_ONLY
 	if (!device_features.npot_is_available_)
 	{
-		extension_manager->probe_extension(OglExtensionId::arb_texture_non_power_of_two);
+		extension_manager->probe(OglExtensionId::arb_texture_non_power_of_two);
 
 		device_features.npot_is_available_ =
-			extension_manager->has_extension(OglExtensionId::arb_texture_non_power_of_two);
+			extension_manager->has(OglExtensionId::arb_texture_non_power_of_two);
 	}
 #endif //!BSTONE_RENDERER_TEST_POT_ONLY
 }
@@ -378,9 +378,9 @@ void OglRendererUtils::mipmap_probe(
 #ifndef BSTONE_RENDERER_TEST_SW_MIPMAP
 	if (!device_features.mipmap_is_available_)
 	{
-		extension_manager->probe_extension(OglExtensionId::arb_framebuffer_object);
+		extension_manager->probe(OglExtensionId::arb_framebuffer_object);
 
-		if (extension_manager->has_extension(OglExtensionId::arb_framebuffer_object))
+		if (extension_manager->has(OglExtensionId::arb_framebuffer_object))
 		{
 			device_features.mipmap_is_available_ = true;
 			ogl_device_features.mipmap_function_ = ::glGenerateMipmap;
@@ -389,9 +389,9 @@ void OglRendererUtils::mipmap_probe(
 
 	if (!device_features.mipmap_is_available_)
 	{
-		extension_manager->probe_extension(OglExtensionId::ext_framebuffer_object);
+		extension_manager->probe(OglExtensionId::ext_framebuffer_object);
 
-		if (extension_manager->has_extension(OglExtensionId::ext_framebuffer_object))
+		if (extension_manager->has(OglExtensionId::ext_framebuffer_object))
 		{
 			device_features.mipmap_is_available_ = true;
 			ogl_device_features.mipmap_function_ = ::glGenerateMipmapEXT;
@@ -411,9 +411,9 @@ void OglRendererUtils::framebuffer_probe(
 #ifndef BSTONE_RENDERER_TEST_DEFAULT_FRAMEBUFFER
 	if (!is_available)
 	{
-		extension_manager->probe_extension(OglExtensionId::arb_framebuffer_object);
+		extension_manager->probe(OglExtensionId::arb_framebuffer_object);
 
-		is_available = extension_manager->has_extension(OglExtensionId::arb_framebuffer_object);
+		is_available = extension_manager->has(OglExtensionId::arb_framebuffer_object);
 
 		if (is_available)
 		{
@@ -423,16 +423,16 @@ void OglRendererUtils::framebuffer_probe(
 
 	if (!is_available)
 	{
-		extension_manager->probe_extension(OglExtensionId::ext_framebuffer_blit);
-		extension_manager->probe_extension(OglExtensionId::ext_framebuffer_multisample);
-		extension_manager->probe_extension(OglExtensionId::ext_framebuffer_object);
-		extension_manager->probe_extension(OglExtensionId::ext_packed_depth_stencil);
+		extension_manager->probe(OglExtensionId::ext_framebuffer_blit);
+		extension_manager->probe(OglExtensionId::ext_framebuffer_multisample);
+		extension_manager->probe(OglExtensionId::ext_framebuffer_object);
+		extension_manager->probe(OglExtensionId::ext_packed_depth_stencil);
 
 		is_available =
-			extension_manager->has_extension(OglExtensionId::ext_framebuffer_blit) &&
-			extension_manager->has_extension(OglExtensionId::ext_framebuffer_multisample) &&
-			extension_manager->has_extension(OglExtensionId::ext_framebuffer_object) &&
-			extension_manager->has_extension(OglExtensionId::ext_packed_depth_stencil)
+			extension_manager->has(OglExtensionId::ext_framebuffer_blit) &&
+			extension_manager->has(OglExtensionId::ext_framebuffer_multisample) &&
+			extension_manager->has(OglExtensionId::ext_framebuffer_object) &&
+			extension_manager->has(OglExtensionId::ext_packed_depth_stencil)
 		;
 	}
 #endif // !BSTONE_RENDERER_TEST_DEFAULT_FRAMEBUFFER
@@ -458,16 +458,16 @@ int OglRendererUtils::msaa_get_max_value(
 {
 	auto max_value = GLint{};
 
-	if (extension_manager->has_extension(OglExtensionId::arb_framebuffer_object))
+	if (extension_manager->has(OglExtensionId::arb_framebuffer_object))
 	{
 		::glGetIntegerv(GL_MAX_SAMPLES, &max_value);
 		assert(!OglRendererUtils::was_errors());
 	}
 	else if (
-		extension_manager->has_extension(OglExtensionId::ext_framebuffer_blit) &&
-		extension_manager->has_extension(OglExtensionId::ext_framebuffer_multisample) &&
-		extension_manager->has_extension(OglExtensionId::ext_framebuffer_object) &&
-		extension_manager->has_extension(OglExtensionId::ext_packed_depth_stencil))
+		extension_manager->has(OglExtensionId::ext_framebuffer_blit) &&
+		extension_manager->has(OglExtensionId::ext_framebuffer_multisample) &&
+		extension_manager->has(OglExtensionId::ext_framebuffer_object) &&
+		extension_manager->has(OglExtensionId::ext_packed_depth_stencil))
 	{
 		::glGetIntegerv(GL_MAX_SAMPLES_EXT, &max_value);
 		assert(!OglRendererUtils::was_errors());
@@ -483,9 +483,9 @@ void OglRendererUtils::sampler_probe(
 	device_features.sampler_is_available_ = false;
 
 #ifndef BSTONE_RENDERER_TEST_SW_SAMPLER
-	extension_manager->probe_extension(OglExtensionId::arb_sampler_objects);
+	extension_manager->probe(OglExtensionId::arb_sampler_objects);
 
-	if (extension_manager->has_extension(OglExtensionId::arb_sampler_objects))
+	if (extension_manager->has(OglExtensionId::arb_sampler_objects))
 	{
 		device_features.sampler_is_available_ = true;
 	}
@@ -518,9 +518,9 @@ void OglRendererUtils::vertex_input_vao_probe(
 	ogl_device_features.vao_is_available_ = false;
 
 #ifndef BSTONE_RENDERER_TEST_OGL_NO_VAO
-	extension_manager->probe_extension(OglExtensionId::arb_vertex_array_object);
+	extension_manager->probe(OglExtensionId::arb_vertex_array_object);
 
-	if (extension_manager->has_extension(OglExtensionId::arb_vertex_array_object))
+	if (extension_manager->has(OglExtensionId::arb_vertex_array_object))
 	{
 		ogl_device_features.vao_is_available_ = true;
 	}
@@ -579,9 +579,9 @@ void OglRendererUtils::buffer_storage_probe(
 	ogl_device_features.buffer_storage_is_available_ = false;
 
 #ifndef BSTONE_RENDERER_TEST_OGL_NO_BUFFER_STORAGE
-	extension_manager->probe_extension(OglExtensionId::arb_buffer_storage);
+	extension_manager->probe(OglExtensionId::arb_buffer_storage);
 
-	if (extension_manager->has_extension(OglExtensionId::arb_buffer_storage))
+	if (extension_manager->has(OglExtensionId::arb_buffer_storage))
 	{
 		ogl_device_features.buffer_storage_is_available_ = true;
 	}
@@ -595,9 +595,9 @@ void OglRendererUtils::dsa_probe(
 	ogl_device_features.dsa_is_available_ = false;
 
 #ifndef BSTONE_RENDERER_TEST_OGL_NO_DSA
-	extension_manager->probe_extension(OglExtensionId::arb_direct_state_access);
+	extension_manager->probe(OglExtensionId::arb_direct_state_access);
 
-	if (extension_manager->has_extension(OglExtensionId::arb_direct_state_access))
+	if (extension_manager->has(OglExtensionId::arb_direct_state_access))
 	{
 		ogl_device_features.dsa_is_available_ = true;
 	}
@@ -611,9 +611,9 @@ void OglRendererUtils::sso_probe(
 	ogl_device_features.sso_is_available_ = false;
 
 #ifndef BSTONE_RENDERER_TEST_OGL_NO_SSO
-	extension_manager->probe_extension(OglExtensionId::arb_separate_shader_objects);
+	extension_manager->probe(OglExtensionId::arb_separate_shader_objects);
 
-	if (extension_manager->has_extension(OglExtensionId::arb_separate_shader_objects))
+	if (extension_manager->has(OglExtensionId::arb_separate_shader_objects))
 	{
 		ogl_device_features.sso_is_available_ = true;
 	}

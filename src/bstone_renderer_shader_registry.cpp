@@ -159,7 +159,7 @@ const std::string& RendererShaderRegistry::get_u_view_position_name()
 	return result;
 }
 
-const RendererShader::Source& RendererShaderRegistry::get_fragment(
+const RendererShaderSource& RendererShaderRegistry::get_fragment(
 	const RendererKind renderer_kind)
 {
 	switch (renderer_kind)
@@ -172,7 +172,7 @@ const RendererShader::Source& RendererShaderRegistry::get_fragment(
 	}
 }
 
-const RendererShader::Source& RendererShaderRegistry::get_vertex(
+const RendererShaderSource& RendererShaderRegistry::get_vertex(
 	const RendererKind renderer_kind)
 {
 	switch (renderer_kind)
@@ -185,14 +185,14 @@ const RendererShader::Source& RendererShaderRegistry::get_vertex(
 	}
 }
 
-const RendererShader::Source& RendererShaderRegistry::get_empty()
+const RendererShaderSource& RendererShaderRegistry::get_empty()
 {
-	static const auto result = RendererShader::Source{};
+	static const auto result = RendererShaderSource{};
 
 	return result;
 }
 
-const RendererShader::Source& RendererShaderRegistry::get_fragment_ogl_2_x()
+const RendererShaderSource& RendererShaderRegistry::get_fragment_ogl_2_x()
 {
 	static const auto source = std::string
 	{
@@ -292,7 +292,7 @@ void main()
 )FRAGMENT_SHADER"
 	};
 
-	static const auto result = RendererShader::Source
+	static const auto result = RendererShaderSource
 	{
 		source.c_str(),
 		static_cast<int>(source.size()),
@@ -301,7 +301,7 @@ void main()
 	return result;
 }
 
-const RendererShader::Source& RendererShaderRegistry::get_vertex_ogl_2_x()
+const RendererShaderSource& RendererShaderRegistry::get_vertex_ogl_2_x()
 {
 	static const auto source = std::string
 	{
@@ -338,7 +338,7 @@ void main()
 )VERTEX_SHADER"
 	};
 
-	static const auto result = RendererShader::Source
+	static const auto result = RendererShaderSource
 	{
 		source.c_str(),
 		static_cast<int>(source.size()),

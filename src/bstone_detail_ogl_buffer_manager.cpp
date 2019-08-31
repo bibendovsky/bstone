@@ -73,7 +73,7 @@ public:
 	~GenericOglBufferManager() override;
 
 
-	OglContextPtr context_get() const noexcept override;
+	OglContextPtr get_context() const noexcept override;
 
 
 	RendererIndexBufferPtr index_buffer_create(
@@ -134,7 +134,7 @@ GenericOglBufferManager::GenericOglBufferManager(
 
 GenericOglBufferManager::~GenericOglBufferManager() = default;
 
-OglContextPtr GenericOglBufferManager::context_get() const noexcept
+OglContextPtr GenericOglBufferManager::get_context() const noexcept
 {
 	return ogl_context_;
 }
@@ -185,7 +185,7 @@ bool GenericOglBufferManager::buffer_set_current(
 	switch (buffer_kind)
 	{
 		case RendererBufferKind::index:
-			return ogl_vao_manager_->index_buffer_set_current(buffer);
+			return ogl_vao_manager_->set_current_index_buffer(buffer);
 
 		case RendererBufferKind::vertex:
 			buffer_current_ptr = &vertex_buffer_current_;
