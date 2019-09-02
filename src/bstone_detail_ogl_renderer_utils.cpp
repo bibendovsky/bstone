@@ -1136,7 +1136,7 @@ GLenum OglRendererUtils::address_mode_get(
 	switch (address_mode)
 	{
 	case RendererAddressMode::clamp:
-		return GL_CLAMP_TO_BORDER;
+		return GL_CLAMP_TO_EDGE;
 
 	case RendererAddressMode::repeat:
 		return GL_REPEAT;
