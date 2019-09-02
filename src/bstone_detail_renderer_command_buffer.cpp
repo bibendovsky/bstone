@@ -153,9 +153,9 @@ RendererCommandBlending* RendererCommandBuffer::write_blending()
 	return write<RendererCommandBlending>(RendererCommandId::blending);
 }
 
-RendererCommandBlendingFunction* RendererCommandBuffer::write_blending_function()
+RendererCommandBlendingFunc* RendererCommandBuffer::write_blending_func()
 {
-	return write<RendererCommandBlendingFunction>(RendererCommandId::blending_function);
+	return write<RendererCommandBlendingFunc>(RendererCommandId::blending_func);
 }
 
 RendererCommandTexture* RendererCommandBuffer::write_texture()
@@ -287,9 +287,9 @@ const RendererCommandBlending* RendererCommandBuffer::read_blending()
 	return read<RendererCommandBlending>();
 }
 
-const RendererCommandBlendingFunction* RendererCommandBuffer::read_blending_function()
+const RendererCommandBlendingFunc* RendererCommandBuffer::read_blending_func()
 {
-	return read<RendererCommandBlendingFunction>();
+	return read<RendererCommandBlendingFunc>();
 }
 
 const RendererCommandTexture* RendererCommandBuffer::read_texture()

@@ -697,43 +697,160 @@ void OglRendererUtils::scissor_enable(
 }
 
 void OglRendererUtils::scissor_set_box(
-	const int x,
-	const int y,
-	const int width,
-	const int height)
+	const RendererScissorBox& scissor_box)
 {
-	assert(x >= 0);
-	assert(y >= 0);
-	assert(width > 0);
-	assert(height > 0);
+	if (scissor_box.x_ < 0)
+	{
+		throw Exception{"Negative offset by X."};
+	}
 
-	::glScissor(x, y, width, height);
+	if (scissor_box.y_ < 0)
+	{
+		throw Exception{"Negative offset by Y."};
+	}
+
+	if (scissor_box.width_ < 0)
+	{
+		throw Exception{"Negative width."};
+	}
+
+	if (scissor_box.height_ < 0)
+	{
+		throw Exception{"Negative height."};
+	}
+
+	::glScissor(
+		scissor_box.x_,
+		scissor_box.y_,
+		scissor_box.width_,
+		scissor_box.height_
+	);
+
 	assert(!OglRendererUtils::was_errors());
 }
 
-void OglRendererUtils::viewport_set_rectangle(
-	const int x,
-	const int y,
-	const int width,
-	const int height)
+void OglRendererUtils::viewport_set_rect(
+	const RendererViewport& viewport)
 {
-	assert(x >= 0);
-	assert(y >= 0);
-	assert(width > 0);
-	assert(height > 0);
+	if (viewport.x_ < 0)
+	{
+		throw Exception{"Negative offset by X."};
+	}
 
-	::glViewport(x, y, width, height);
+	if (viewport.y_ < 0)
+	{
+		throw Exception{"Negative offset by Y."};
+	}
+
+	if (viewport.width_ < 0)
+	{
+		throw Exception{"Negative width."};
+	}
+
+	if (viewport.height_ < 0)
+	{
+		throw Exception{"Negative height."};
+	}
+
+	::glViewport(
+		viewport.x_,
+		viewport.y_,
+		viewport.width_,
+		viewport.height_
+	);
+
 	assert(!OglRendererUtils::was_errors());
 }
 
 void OglRendererUtils::viewport_set_depth_range(
-	const float min_depth,
-	const float max_depth)
+	const RendererViewport& viewport)
 {
-	assert(min_depth >= 0.0F && min_depth <= 1.0F);
-	assert(max_depth >= 0.0F && max_depth <= 1.0F);
+	if (viewport.min_depth_ < 0.0F || viewport.min_depth_ > 1.0F)
+	{
+		throw Exception{"Minimum depth out of range."};
+	}
 
-	::glDepthRange(min_depth, max_depth);
+	if (viewport.max_depth_ < 0.0F || viewport.max_depth_ > 1.0F)
+	{
+		throw Exception{"Maximum depth out of range."};
+	}
+
+	::glDepthRange(viewport.min_depth_, viewport.max_depth_);
+	assert(!OglRendererUtils::was_errors());
+}
+
+void OglRendererUtils::culling_enable(
+	const bool is_enable)
+{
+	const auto ogl_function = (is_enable ? ::glEnable : ::glDisable);
+
+	ogl_function(GL_CULL_FACE);
+	assert(!OglRendererUtils::was_errors());
+}
+
+void OglRendererUtils::culling_set_face(
+	const RendererCullingFace culling_face)
+{
+	auto ogl_culling_face = GLenum{};
+
+	switch (culling_face)
+	{
+	case RendererCullingFace::clockwise:
+		ogl_culling_face = GL_CW;
+		break;
+
+	case RendererCullingFace::counter_clockwise:
+		ogl_culling_face = GL_CCW;
+		break;
+
+	default:
+		throw Exception{"Unsupported front face."};
+	}
+
+	::glFrontFace(ogl_culling_face);
+	assert(!OglRendererUtils::was_errors());
+}
+
+void OglRendererUtils::culling_set_mode(
+	const RendererCullingMode culling_mode)
+{
+	auto ogl_culling_mode = GLenum{};
+
+	switch (culling_mode)
+	{
+	case RendererCullingMode::back:
+		ogl_culling_mode = GL_BACK;
+		break;
+
+	case RendererCullingMode::front:
+		ogl_culling_mode = GL_FRONT;
+		break;
+
+	case RendererCullingMode::both:
+		ogl_culling_mode = GL_FRONT_AND_BACK;
+		break;
+
+	default:
+		throw Exception{"Unsupported culling mode."};
+	}
+
+	::glCullFace(ogl_culling_mode);
+	assert(!OglRendererUtils::was_errors());
+}
+
+void OglRendererUtils::depth_test_enable(
+	const bool is_enable)
+{
+	const auto ogl_function = (is_enable ? ::glEnable : ::glDisable);
+
+	ogl_function(GL_DEPTH_TEST);
+	assert(!OglRendererUtils::was_errors());
+}
+
+void OglRendererUtils::depth_write_enable(
+	const bool is_enable)
+{
+	::glDepthMask(is_enable);
 	assert(!OglRendererUtils::was_errors());
 }
 
@@ -758,12 +875,20 @@ void OglRendererUtils::texture_2d_unbind()
 	assert(!OglRendererUtils::was_errors());
 }
 
-void OglRendererUtils::blending_set_function(
-	const RendererBlendingFactor src_factor,
-	const RendererBlendingFactor dst_factor)
+void OglRendererUtils::blending_enable(
+	const bool is_enable)
 {
-	auto ogl_src_factor = blending_get_factor(src_factor);
-	auto ogl_dst_factor = blending_get_factor(dst_factor);
+	const auto ogl_function = (is_enable ? ::glEnable : ::glDisable);
+
+	ogl_function(GL_BLEND);
+	assert(!OglRendererUtils::was_errors());
+}
+
+void OglRendererUtils::blending_set_func(
+	const RendererBlendingFunc& blending_func)
+{
+	auto ogl_src_factor = blending_get_factor(blending_func.src_factor_);
+	auto ogl_dst_factor = blending_get_factor(blending_func.dst_factor_);
 
 	::glBlendFunc(ogl_src_factor, ogl_dst_factor);
 	assert(!OglRendererUtils::was_errors());

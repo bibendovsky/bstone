@@ -70,7 +70,7 @@ enum class RendererCommandId :
 	depth_set_write,
 
 	blending,
-	blending_function,
+	blending_func,
 
 	texture,
 	sampler,
@@ -175,6 +175,31 @@ public:
 
 	bool is_vsync_;
 }; // RendererCreateParam
+
+struct RendererViewport
+{
+	int x_;
+	int y_;
+	int width_;
+	int height_;
+
+	float min_depth_;
+	float max_depth_;
+}; // RendererViewport
+
+struct RendererScissorBox
+{
+	int x_;
+	int y_;
+	int width_;
+	int height_;
+}; // RendererScissorBox
+
+struct RendererBlendingFunc
+{
+	RendererBlendingFactor src_factor_;
+	RendererBlendingFactor dst_factor_;
+}; // RendererBlendingFunc
 
 
 // ==========================================================================
@@ -704,13 +729,7 @@ using RendererShaderStagePtr = RendererShaderStage*;
 
 struct RendererCommandViewport
 {
-	int x_;
-	int y_;
-	int width_;
-	int height_;
-
-	float min_depth_;
-	float max_depth_;
+	RendererViewport viewport_;
 }; // RendererCommandViewport
 
 struct RendererCommandScissor
@@ -720,10 +739,7 @@ struct RendererCommandScissor
 
 struct RendererCommandScissorBox
 {
-	int x_;
-	int y_;
-	int width_;
-	int height_;
+	RendererScissorBox scissor_box_;
 }; // RendererCommandScissorBox
 
 struct RendererCommandCulling
@@ -736,11 +752,10 @@ struct RendererCommandBlending
 	bool is_enable_;
 }; // RendererCommandBlending
 
-struct RendererCommandBlendingFunction
+struct RendererCommandBlendingFunc
 {
-	RendererBlendingFactor src_factor_;
-	RendererBlendingFactor dst_factor_;
-}; // RendererCommandBlendingFunction
+	RendererBlendingFunc blending_func_;
+}; // RendererCommandBlendingFunc
 
 struct RendererCommandDepthTest
 {
@@ -852,7 +867,7 @@ public:
 	virtual RendererCommandDepthWrite* write_depth_write() = 0;
 
 	virtual RendererCommandBlending* write_blending() = 0;
-	virtual RendererCommandBlendingFunction* write_blending_function() = 0;
+	virtual RendererCommandBlendingFunc* write_blending_func() = 0;
 
 	virtual RendererCommandTexture* write_texture() = 0;
 	virtual RendererCommandSampler* write_sampler() = 0;
@@ -888,7 +903,7 @@ public:
 	virtual const RendererCommandDepthWrite* read_depth_write() = 0;
 
 	virtual const RendererCommandBlending* read_blending() = 0;
-	virtual const RendererCommandBlendingFunction* read_blending_function() = 0;
+	virtual const RendererCommandBlendingFunc* read_blending_func() = 0;
 
 	virtual const RendererCommandTexture* read_texture() = 0;
 	virtual const RendererCommandSampler* read_sampler() = 0;

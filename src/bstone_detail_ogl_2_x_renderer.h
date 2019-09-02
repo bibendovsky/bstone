@@ -223,30 +223,6 @@ private:
 	GLuint ogl_downscale_fbo_;
 	GLuint ogl_downscale_color_rb_;
 
-	int viewport_x_;
-	int viewport_y_;
-	int viewport_width_;
-	int viewport_height_;
-	float viewport_min_depth_;
-	float viewport_max_depth_;
-
-	bool scissor_is_enabled_;
-	int scissor_x_;
-	int scissor_y_;
-	int scissor_width_;
-	int scissor_height_;
-
-	bool culling_is_enabled_;
-	RendererCullingFace culling_face_;
-	RendererCullingMode culling_mode_;
-
-	bool depth_is_test_enabled_;
-	bool depth_is_write_enabled_;
-
-	bool blending_is_enabled_;
-	RendererBlendingFactor blending_src_factor_;
-	RendererBlendingFactor blending_dst_factor_;
-
 
 	bool probe_or_initialize(
 		const bool is_probe,
@@ -341,44 +317,7 @@ private:
 		const int aa_value);
 
 
-	void viewport_set_rectangle();
-
-	void viewport_set_depth_range();
-
-	void viewport_set_defaults();
-
-
-	void scissor_enable();
-
-	void scissor_set_box();
-
-	void scissor_set_defaults();
-
-
-	void culling_enabled();
-
-	void culling_set_face();
-
-	void culling_set_mode();
-
-	void culling_set_defaults();
-
-
-	void depth_set_test();
-
-	void depth_set_write();
-
-	void depth_set_defaults();
-
-
-	void blending_enable();
-
-	void blending_set_function();
-
-	void blending_set_defaults();
-
-
-	void texture(
+	void texture_set(
 		RendererTexture2dPtr new_texture_2d);
 
 
@@ -394,8 +333,8 @@ private:
 	void command_execute_blending(
 		const RendererCommandBlending& command);
 
-	void command_execute_blending_function(
-		const RendererCommandBlendingFunction& command);
+	void command_execute_blending_func(
+		const RendererCommandBlendingFunc& command);
 
 	void command_execute_viewport(
 		const RendererCommandViewport& command);

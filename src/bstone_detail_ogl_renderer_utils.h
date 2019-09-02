@@ -181,24 +181,44 @@ public:
 	static void set_color_buffer_clear_color(
 		const R8g8b8a8& color);
 
+
+	static void viewport_set_rect(
+		const RendererViewport& viewport);
+
+	static void viewport_set_depth_range(
+		const RendererViewport& viewport);
+
+
 	static void scissor_enable(
 		const bool is_enabled);
 
 	static void scissor_set_box(
-		const int x,
-		const int y,
-		const int width,
-		const int height);
+		const RendererScissorBox& scissor_box);
 
-	static void viewport_set_rectangle(
-		const int x,
-		const int y,
-		const int width,
-		const int height);
 
-	static void viewport_set_depth_range(
-		const float min_depth,
-		const float max_depth);
+	static void culling_enable(
+		const bool is_enable);
+
+	static void culling_set_face(
+		const RendererCullingFace culling_face);
+
+	static void culling_set_mode(
+		const RendererCullingMode culling_mode);
+
+
+	static void depth_test_enable(
+		const bool is_enable);
+
+	static void depth_write_enable(
+		const bool is_enable);
+
+
+	static void blending_enable(
+		const bool is_enable);
+
+	static void blending_set_func(
+		const RendererBlendingFunc& blending_func);
+
 
 	static void texture_2d_enable(
 		const bool is_enable);
@@ -207,10 +227,6 @@ public:
 		const GLuint ogl_texture_name);
 
 	static void texture_2d_unbind();
-
-	static void blending_set_function(
-		const RendererBlendingFactor src_factor,
-		const RendererBlendingFactor dst_factor);
 
 	static GLenum index_buffer_get_element_type_by_byte_depth(
 		const int byte_depth);

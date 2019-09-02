@@ -31,9 +31,11 @@ Free Software Foundation, Inc.,
 #define BSTONE_DETAIL_OGL_CONTEXT_INCLUDED
 
 
-#include "bstone_detail_ogl_buffer.h"
+#include <memory>
+
+#include "bstone_renderer.h"
+
 #include "bstone_detail_ogl_device_features.h"
-#include "bstone_detail_ogl_vertex_input.h"
 
 
 namespace bstone
@@ -100,6 +102,35 @@ public:
 	virtual OglShaderManagerPtr shader_get_manager() const noexcept = 0;
 
 	virtual OglShaderStageManagerPtr shader_stage_get_manager() const noexcept = 0;
+
+
+	virtual void viewport_set(
+		const RendererViewport& viewport) = 0;
+
+
+	virtual void scissor_enable(
+		const bool is_enable) = 0;
+
+	virtual void scissor_set_box(
+		const RendererScissorBox& scissor_box) = 0;
+
+
+	virtual void culling_enable(
+		const bool is_enable) = 0;
+
+
+	virtual void depth_test_enable(
+		const bool is_enable) = 0;
+
+	virtual void depth_write_enable(
+		const bool is_enable) = 0;
+
+
+	virtual void blending_enable(
+		const bool is_enable) = 0;
+
+	virtual void blending_set_func(
+		const RendererBlendingFunc& func) = 0;
 }; // OglContext
 
 

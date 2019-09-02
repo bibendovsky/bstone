@@ -6098,8 +6098,8 @@ void hw_screen_common_refresh()
 	// Set shader stage.
 	//
 	{
-		auto& command = *command_buffer->write_shader_stage();
-		command.shader_stage_ = ::hw_shader_stage_;
+		auto& shader_stage = command_buffer->write_shader_stage()->shader_stage_;
+		shader_stage = ::hw_shader_stage_;
 	}
 
 	// Set texture matrix.
@@ -6237,13 +6237,13 @@ void hw_screen_2d_refresh()
 	// Set viewport.
 	//
 	{
-		auto& command = *command_buffer->write_viewport();
-		command.x_ = ::downscale_.window_viewport_left_width_;
-		command.y_ = ::downscale_.window_viewport_bottom_height_;
-		command.width_ = ::downscale_.screen_width_;
-		command.height_ = ::downscale_.screen_height_;
-		command.min_depth_ = 0.0F;
-		command.max_depth_ = 0.0F;
+		auto& viewport = command_buffer->write_viewport()->viewport_;
+		viewport.x_ = ::downscale_.window_viewport_left_width_;
+		viewport.y_ = ::downscale_.window_viewport_bottom_height_;
+		viewport.width_ = ::downscale_.screen_width_;
+		viewport.height_ = ::downscale_.screen_height_;
+		viewport.min_depth_ = 0.0F;
+		viewport.max_depth_ = 0.0F;
 	}
 
 	// Set sampler.
@@ -6282,9 +6282,8 @@ void hw_screen_2d_refresh()
 	if (!::vid_configuration_.is_ui_stretched_)
 	{
 		{
-			const auto texture_2d = ::hw_2d_white_t2d_1x1_;
 			auto& command = *command_buffer->write_texture();
-			command.texture_2d_ = texture_2d;
+			command.texture_2d_ = ::hw_2d_white_t2d_1x1_;
 		}
 
 		{
@@ -6326,9 +6325,9 @@ void hw_screen_2d_refresh()
 			// Set blending function.
 			//
 			{
-				auto& command = *command_buffer->write_blending_function();
-				command.src_factor_ = bstone::RendererBlendingFactor::src_alpha;
-				command.dst_factor_ = bstone::RendererBlendingFactor::one_minus_src_alpha;
+				auto& blending_func = command_buffer->write_blending_func()->blending_func_;
+				blending_func.src_factor_ = bstone::RendererBlendingFactor::src_alpha;
+				blending_func.dst_factor_ = bstone::RendererBlendingFactor::one_minus_src_alpha;
 			}
 		}
 
@@ -6376,9 +6375,9 @@ void hw_screen_2d_refresh()
 		// Set blending function.
 		//
 		{
-			auto& command = *command_buffer->write_blending_function();
-			command.src_factor_ = bstone::RendererBlendingFactor::src_alpha;
-			command.dst_factor_ = bstone::RendererBlendingFactor::one_minus_src_alpha;
+			auto& blending_func = command_buffer->write_blending_func()->blending_func_;
+			blending_func.src_factor_ = bstone::RendererBlendingFactor::src_alpha;
+			blending_func.dst_factor_ = bstone::RendererBlendingFactor::one_minus_src_alpha;
 		}
 
 		// Set texture.
@@ -7915,13 +7914,13 @@ void hw_screen_3d_refresh()
 	// Set viewport.
 	//
 	{
-		auto& command = *command_buffer->write_viewport();
-		command.x_ = ::downscale_.screen_viewport_left_width_;
-		command.y_ = ::downscale_.window_viewport_bottom_height_ + ::downscale_.screen_viewport_bottom_height_;
-		command.width_ = ::downscale_.screen_viewport_width_;
-		command.height_ = ::downscale_.screen_viewport_height_;
-		command.min_depth_ = 0.0F;
-		command.max_depth_ = 1.0F;
+		auto& viewport = command_buffer->write_viewport()->viewport_;
+		viewport.x_ = ::downscale_.screen_viewport_left_width_;
+		viewport.y_ = ::downscale_.window_viewport_bottom_height_ + ::downscale_.screen_viewport_bottom_height_;
+		viewport.width_ = ::downscale_.screen_viewport_width_;
+		viewport.height_ = ::downscale_.screen_viewport_height_;
+		viewport.min_depth_ = 0.0F;
+		viewport.max_depth_ = 1.0F;
 	}
 
 	// Enable back-face culling.
@@ -8185,9 +8184,9 @@ void hw_screen_3d_refresh()
 			// Set blending function.
 			//
 			{
-				auto& command = *command_buffer->write_blending_function();
-				command.src_factor_ = bstone::RendererBlendingFactor::src_alpha;
-				command.dst_factor_ = bstone::RendererBlendingFactor::one_minus_src_alpha;
+				auto& blending_func = command_buffer->write_blending_func()->blending_func_;
+				blending_func.src_factor_ = bstone::RendererBlendingFactor::src_alpha;
+				blending_func.dst_factor_ = bstone::RendererBlendingFactor::one_minus_src_alpha;
 			}
 
 			// Draw the weapon.
@@ -8237,9 +8236,9 @@ void hw_screen_3d_refresh()
 			// Set blending function.
 			//
 			{
-				auto& command = *command_buffer->write_blending_function();
-				command.src_factor_ = bstone::RendererBlendingFactor::src_alpha;
-				command.dst_factor_ = bstone::RendererBlendingFactor::one_minus_src_alpha;
+				auto& blending_func = command_buffer->write_blending_func()->blending_func_;
+				blending_func.src_factor_ = bstone::RendererBlendingFactor::src_alpha;
+				blending_func.dst_factor_ = bstone::RendererBlendingFactor::one_minus_src_alpha;
 			}
 
 			// Set texture.

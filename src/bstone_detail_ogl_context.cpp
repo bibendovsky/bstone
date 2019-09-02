@@ -46,6 +46,7 @@ Free Software Foundation, Inc.,
 #include "bstone_detail_ogl_texture_2d.h"
 #include "bstone_detail_ogl_texture_manager.h"
 #include "bstone_detail_ogl_vao_manager.h"
+#include "bstone_detail_ogl_vertex_input.h"
 #include "bstone_detail_ogl_vertex_input_manager.h"
 
 
@@ -106,9 +107,53 @@ public:
 	OglShaderStageManagerPtr shader_stage_get_manager() const noexcept override;
 
 
+	void viewport_set(
+		const RendererViewport& viewport) override;
+
+
+	void scissor_enable(
+		const bool is_enable) override;
+
+	void scissor_set_box(
+		const RendererScissorBox& scissor_box) override;
+
+
+	void culling_enable(
+		const bool is_enable) override;
+
+
+	void depth_test_enable(
+		const bool is_enable) override;
+
+	void depth_write_enable(
+		const bool is_enable) override;
+
+
+	void blending_enable(
+		const bool is_enable) override;
+
+	void blending_set_func(
+		const RendererBlendingFunc& func) override;
+
+
 private:
 	const RendererDeviceFeatures& device_features_;
 	const OglDeviceFeatures& ogl_device_features_;
+
+	RendererViewport viewport_;
+
+	bool scissor_is_enabled_;
+	RendererScissorBox scissor_box_;
+
+	bool culling_is_enabled_;
+	RendererCullingFace culling_face_;
+	RendererCullingMode culling_mode_;
+
+	bool depth_is_test_enabled_;
+	bool depth_is_write_enabled_;
+
+	bool blending_is_enabled_;
+	RendererBlendingFunc blending_func_;
 
 	OglVaoManagerUPtr vao_manager_;
 	OglBufferManagerUPtr buffer_manager_;
@@ -136,6 +181,43 @@ private:
 	void initialize_shader_stages();
 
 	void mipmap_set_max_quality();
+
+
+	void viewport_set_rect();
+
+	void viewport_set_depth_range();
+
+	void viewport_set_defaults();
+
+
+	void scissor_enable();
+
+	void scissor_set_box();
+
+	void scissor_set_defaults();
+
+
+	void culling_enable();
+
+	void culling_set_face();
+
+	void culling_set_mode();
+
+	void culling_set_defaults();
+
+
+	void depth_set_test();
+
+	void depth_set_write();
+
+	void depth_set_defaults();
+
+
+	void blending_enable();
+
+	void blending_set_func();
+
+	void blending_set_defaults();
 }; // GenericOglContext
 
 using GenericOglContextPtr = GenericOglContext*;
@@ -156,6 +238,16 @@ GenericOglContext::GenericOglContext(
 	:
 	device_features_{device_features},
 	ogl_device_features_{ogl_device_features},
+	viewport_{},
+	scissor_is_enabled_{},
+	scissor_box_{},
+	culling_is_enabled_{},
+	culling_face_{},
+	culling_mode_{},
+	depth_is_test_enabled_{},
+	depth_is_write_enabled_{},
+	blending_is_enabled_{},
+	blending_func_{},
 	vao_manager_{},
 	buffer_manager_{},
 	vertex_input_manager_{},
@@ -228,6 +320,12 @@ void GenericOglContext::initialize()
 	initialize_textures();
 	initialize_shaders();
 	initialize_shader_stages();
+
+	viewport_set_defaults();
+	scissor_set_defaults();
+	culling_set_defaults();
+	depth_set_defaults();
+	blending_set_defaults();
 }
 
 const RendererDeviceFeatures& GenericOglContext::get_device_features() const noexcept
@@ -273,6 +371,216 @@ OglShaderManagerPtr GenericOglContext::shader_get_manager() const noexcept
 OglShaderStageManagerPtr GenericOglContext::shader_stage_get_manager() const noexcept
 {
 	return shader_stage_manager_.get();
+}
+
+void GenericOglContext::viewport_set(
+	const RendererViewport& viewport)
+{
+	if (viewport_.x_ != viewport.x_ ||
+		viewport_.y_ != viewport.y_ ||
+		viewport_.width_ != viewport.width_ ||
+		viewport_.height_ != viewport.height_)
+	{
+		viewport_.x_ = viewport.x_;
+		viewport_.y_ = viewport.y_;
+		viewport_.width_ = viewport.width_;
+		viewport_.height_ = viewport.height_;
+		viewport_set_rect();
+	}
+
+	if (viewport_.min_depth_ != viewport.min_depth_ ||
+		viewport_.max_depth_ != viewport.max_depth_)
+	{
+		viewport_.min_depth_ = viewport.min_depth_;
+		viewport_.max_depth_ = viewport.max_depth_;
+		viewport_set_depth_range();
+	}
+}
+
+void GenericOglContext::scissor_enable(
+	const bool is_enable)
+{
+	if (scissor_is_enabled_ != is_enable)
+	{
+		scissor_is_enabled_ = is_enable;
+		scissor_enable();
+	}
+}
+
+void GenericOglContext::scissor_set_box(
+	const RendererScissorBox& scissor_box)
+{
+	if (scissor_box_.x_ != scissor_box.x_ ||
+		scissor_box_.y_ != scissor_box.y_ ||
+		scissor_box_.width_ != scissor_box.width_ ||
+		scissor_box_.height_ != scissor_box.height_)
+	{
+		scissor_box_ = scissor_box;
+		scissor_set_box();
+	}
+}
+
+void GenericOglContext::culling_enable(
+	const bool is_enable)
+{
+	if (culling_is_enabled_ != is_enable)
+	{
+		culling_is_enabled_ = is_enable;
+		culling_enable();
+	}
+}
+
+void GenericOglContext::depth_test_enable(
+	const bool is_enable)
+{
+	if (depth_is_test_enabled_ != is_enable)
+	{
+		depth_is_test_enabled_ = is_enable;
+		depth_set_test();
+	}
+}
+
+void GenericOglContext::depth_write_enable(
+	const bool is_enable)
+{
+	if (depth_is_write_enabled_ != is_enable)
+	{
+		depth_is_write_enabled_ = is_enable;
+		depth_set_write();
+	}
+}
+
+
+void GenericOglContext::blending_enable(
+	const bool is_enable)
+{
+	if (blending_is_enabled_ != is_enable)
+	{
+		blending_is_enabled_ = is_enable;
+		blending_enable();
+	}
+}
+
+void GenericOglContext::blending_set_func(
+	const RendererBlendingFunc& blending_func)
+{
+	if (blending_func_.src_factor_ != blending_func.src_factor_ ||
+		blending_func_.dst_factor_ != blending_func.dst_factor_)
+	{
+		blending_func_ = blending_func;
+		blending_set_func();
+	}
+}
+
+void GenericOglContext::viewport_set_rect()
+{
+	OglRendererUtils::viewport_set_rect(viewport_);
+}
+
+void GenericOglContext::viewport_set_depth_range()
+{
+	OglRendererUtils::viewport_set_depth_range(viewport_);
+}
+
+void GenericOglContext::viewport_set_defaults()
+{
+	viewport_.x_ = 0;
+	viewport_.y_ = 0;
+	viewport_.width_ = 0;
+	viewport_.height_ = 0;
+	viewport_set_rect();
+
+	viewport_.min_depth_ = 0.0F;
+	viewport_.max_depth_ = 1.0F;
+	viewport_set_depth_range();
+}
+
+void GenericOglContext::scissor_enable()
+{
+	OglRendererUtils::scissor_enable(scissor_is_enabled_);
+}
+
+void GenericOglContext::scissor_set_box()
+{
+	OglRendererUtils::scissor_set_box(scissor_box_);
+}
+
+void GenericOglContext::scissor_set_defaults()
+{
+	scissor_is_enabled_ = false;
+	scissor_enable();
+
+	scissor_box_.x_ = 0;
+	scissor_box_.y_ = 0;
+	scissor_box_.width_ = 0;
+	scissor_box_.height_ = 0;
+	scissor_set_box();
+}
+
+void GenericOglContext::culling_enable()
+{
+	OglRendererUtils::culling_enable(culling_is_enabled_);
+}
+
+void GenericOglContext::culling_set_face()
+{
+	OglRendererUtils::culling_set_face(culling_face_);
+}
+
+void GenericOglContext::culling_set_mode()
+{
+	OglRendererUtils::culling_set_mode(culling_mode_);
+}
+
+void GenericOglContext::culling_set_defaults()
+{
+	culling_is_enabled_ = false;
+	culling_enable();
+
+	culling_face_ = RendererCullingFace::counter_clockwise;
+	culling_set_face();
+
+	culling_mode_ = RendererCullingMode::back;
+	culling_set_mode();
+}
+
+void GenericOglContext::depth_set_test()
+{
+	OglRendererUtils::depth_test_enable(depth_is_test_enabled_);
+}
+
+void GenericOglContext::depth_set_write()
+{
+	OglRendererUtils::depth_write_enable(depth_is_write_enabled_);
+}
+
+void GenericOglContext::depth_set_defaults()
+{
+	depth_is_test_enabled_ = false;
+	depth_set_test();
+
+	depth_is_write_enabled_ = false;
+	depth_set_write();
+}
+
+void GenericOglContext::blending_enable()
+{
+	OglRendererUtils::blending_enable(blending_is_enabled_);
+}
+
+void GenericOglContext::blending_set_func()
+{
+	OglRendererUtils::blending_set_func(blending_func_);
+}
+
+void GenericOglContext::blending_set_defaults()
+{
+	blending_is_enabled_ = false;
+	blending_enable();
+
+	blending_func_.src_factor_ = RendererBlendingFactor::src_alpha;
+	blending_func_.dst_factor_ = RendererBlendingFactor::one_minus_src_alpha;
+	blending_set_func();
 }
 
 //

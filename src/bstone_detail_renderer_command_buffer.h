@@ -80,7 +80,7 @@ public:
 	RendererCommandDepthWrite* write_depth_write() override;
 
 	RendererCommandBlending* write_blending() override;
-	RendererCommandBlendingFunction* write_blending_function() override;
+	RendererCommandBlendingFunc* write_blending_func() override;
 
 	RendererCommandTexture* write_texture() override;
 	RendererCommandSampler* write_sampler() override;
@@ -116,7 +116,7 @@ public:
 	const RendererCommandDepthWrite* read_depth_write() override;
 
 	const RendererCommandBlending* read_blending() override;
-	const RendererCommandBlendingFunction* read_blending_function() override;
+	const RendererCommandBlendingFunc* read_blending_func() override;
 
 	const RendererCommandTexture* read_texture() override;
 	const RendererCommandSampler* read_sampler() override;

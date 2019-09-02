@@ -83,26 +83,7 @@ Ogl2XRenderer::Ogl2XRenderer()
 	ogl_msaa_color_rb_{},
 	ogl_msaa_depth_rb_{},
 	ogl_downscale_fbo_{},
-	ogl_downscale_color_rb_{},
-	viewport_x_{},
-	viewport_y_{},
-	viewport_width_{},
-	viewport_height_{},
-	viewport_min_depth_{},
-	viewport_max_depth_{},
-	scissor_is_enabled_{},
-	scissor_x_{},
-	scissor_y_{},
-	scissor_width_{},
-	scissor_height_{},
-	culling_is_enabled_{},
-	culling_face_{},
-	culling_mode_{},
-	depth_is_test_enabled_{},
-	depth_is_write_enabled_{},
-	blending_is_enabled_{},
-	blending_src_factor_{},
-	blending_dst_factor_{}
+	ogl_downscale_color_rb_{}
 {
 }
 
@@ -477,8 +458,8 @@ void Ogl2XRenderer::execute_commands(
 				command_execute_blending(*command_buffer->read_blending());
 				break;
 
-			case RendererCommandId::blending_function:
-				command_execute_blending_function(*command_buffer->read_blending_function());
+			case RendererCommandId::blending_func:
+				command_execute_blending_func(*command_buffer->read_blending_func());
 				break;
 
 			case RendererCommandId::texture:
@@ -732,14 +713,6 @@ bool Ogl2XRenderer::probe_or_initialize(
 
 		device_info_ = OglRendererUtils::device_info_get();
 
-		// Default state.
-		//
-		viewport_set_defaults();
-		scissor_set_defaults();
-		culling_set_defaults();
-		depth_set_defaults();
-		blending_set_defaults();
-
 
 		// Present.
 		//
@@ -798,56 +771,6 @@ void Ogl2XRenderer::uninitialize_internal(
 	downscale_width_ = {};
 	downscale_height_ = {};
 	downscale_blit_filter_ = {};
-	viewport_x_ = {};
-	viewport_y_ = {};
-	viewport_width_ = {};
-	viewport_height_ = {};
-	viewport_min_depth_ = {};
-	viewport_max_depth_ = {};
-	scissor_is_enabled_ = {};
-	scissor_x_ = {};
-	scissor_y_ = {};
-	scissor_width_ = {};
-	scissor_height_ = {};
-	culling_is_enabled_ = {};
-	culling_face_ = {};
-	culling_mode_ = {};
-	depth_is_test_enabled_ = {};
-	depth_is_write_enabled_ = {};
-	blending_is_enabled_ = {};
-}
-
-void Ogl2XRenderer::scissor_enable()
-{
-	detail::OglRendererUtils::scissor_enable(scissor_is_enabled_);
-}
-
-void Ogl2XRenderer::scissor_set_box()
-{
-	assert(scissor_x_ >= 0 && scissor_x_ < screen_width_);
-	assert(scissor_y_ >= 0 && scissor_y_ < screen_height_);
-	assert((scissor_x_ + screen_width_) <= screen_width_);
-	assert((scissor_y_ + screen_height_) <= screen_height_);
-
-	detail::OglRendererUtils::scissor_set_box(
-		scissor_x_,
-		scissor_y_,
-		scissor_width_,
-		scissor_height_
-	);
-}
-
-void Ogl2XRenderer::scissor_set_defaults()
-{
-	scissor_is_enabled_ = false;
-
-	scissor_x_ = 0;
-	scissor_y_ = 0;
-	scissor_width_ = screen_width_;
-	scissor_height_ = screen_height_;
-
-	scissor_enable();
-	scissor_set_box();
 }
 
 void Ogl2XRenderer::renderbuffer_destroy(
@@ -1311,155 +1234,7 @@ bool Ogl2XRenderer::msaa_set(
 	return framebuffers_create();
 }
 
-void Ogl2XRenderer::viewport_set_rectangle()
-{
-	detail::OglRendererUtils::viewport_set_rectangle(
-		viewport_x_,
-		viewport_y_,
-		viewport_width_,
-		viewport_height_
-	);
-}
-
-void Ogl2XRenderer::viewport_set_depth_range()
-{
-	detail::OglRendererUtils::viewport_set_depth_range(
-		viewport_min_depth_,
-		viewport_max_depth_
-	);
-}
-
-void Ogl2XRenderer::viewport_set_defaults()
-{
-	viewport_x_ = 0;
-	viewport_y_ = 0;
-	viewport_width_ = screen_width_;
-	viewport_height_ = screen_height_;
-
-	viewport_set_rectangle();
-
-	viewport_min_depth_ = 0.0F;
-	viewport_max_depth_ = 1.0F;
-
-	viewport_set_depth_range();
-}
-
-void Ogl2XRenderer::culling_enabled()
-{
-	const auto ogl_function = (culling_is_enabled_ ? ::glEnable : ::glDisable);
-
-	ogl_function(GL_CULL_FACE);
-	assert(!OglRendererUtils::was_errors());
-}
-
-void Ogl2XRenderer::culling_set_face()
-{
-	auto ogl_face = GLenum{};
-
-	switch (culling_face_)
-	{
-	case RendererCullingFace::clockwise:
-		ogl_face = GL_CW;
-		break;
-
-	case RendererCullingFace::counter_clockwise:
-		ogl_face = GL_CCW;
-		break;
-
-	default:
-		assert(!"Invalid front face.");
-		break;
-	}
-
-	::glFrontFace(ogl_face);
-	assert(!OglRendererUtils::was_errors());
-}
-
-void Ogl2XRenderer::culling_set_mode()
-{
-	auto ogl_mode = GLenum{};
-
-	switch (culling_mode_)
-	{
-	case RendererCullingMode::back:
-		ogl_mode = GL_BACK;
-		break;
-
-	case RendererCullingMode::front:
-		ogl_mode = GL_FRONT;
-		break;
-
-	case RendererCullingMode::both:
-		ogl_mode = GL_FRONT_AND_BACK;
-		break;
-
-	default:
-		assert(!"Invalid culling mode.");
-		break;
-	}
-
-	::glCullFace(ogl_mode);
-}
-
-void Ogl2XRenderer::culling_set_defaults()
-{
-	culling_is_enabled_ = false;
-	culling_enabled();
-
-	culling_face_ = RendererCullingFace::counter_clockwise;
-	culling_set_face();
-
-	culling_mode_ = RendererCullingMode::back;
-	culling_set_mode();
-}
-
-void Ogl2XRenderer::depth_set_test()
-{
-	const auto ogl_function = (depth_is_test_enabled_ ? ::glEnable : ::glDisable);
-
-	ogl_function(GL_DEPTH_TEST);
-	assert(!OglRendererUtils::was_errors());
-}
-
-void Ogl2XRenderer::depth_set_write()
-{
-	::glDepthMask(depth_is_write_enabled_);
-	assert(!OglRendererUtils::was_errors());
-}
-
-void Ogl2XRenderer::depth_set_defaults()
-{
-	depth_is_test_enabled_ = false;
-	depth_set_test();
-
-	depth_is_write_enabled_ = false;
-	depth_set_write();
-}
-
-void Ogl2XRenderer::blending_enable()
-{
-	const auto ogl_function = (blending_is_enabled_ ? ::glEnable : ::glDisable);
-
-	ogl_function(GL_BLEND);
-	assert(!OglRendererUtils::was_errors());
-}
-
-void Ogl2XRenderer::blending_set_function()
-{
-	OglRendererUtils::blending_set_function(blending_src_factor_, blending_dst_factor_);
-}
-
-void Ogl2XRenderer::blending_set_defaults()
-{
-	blending_is_enabled_ = false;
-	blending_enable();
-
-	blending_src_factor_ = RendererBlendingFactor::src_alpha;
-	blending_dst_factor_ = RendererBlendingFactor::one_minus_src_alpha;
-	blending_set_function();
-}
-
-void Ogl2XRenderer::texture(
+void Ogl2XRenderer::texture_set(
 	RendererTexture2dPtr new_texture_2d)
 {
 	ogl_context_->texture_get_manager()->set(new_texture_2d);
@@ -1468,140 +1243,55 @@ void Ogl2XRenderer::texture(
 void Ogl2XRenderer::command_execute_culling(
 	const RendererCommandCulling& command)
 {
-	if (culling_is_enabled_ != command.is_enable_)
-	{
-		culling_is_enabled_ = command.is_enable_;
-
-		culling_enabled();
-	}
+	ogl_context_->culling_enable(command.is_enable_);
 }
 
 void Ogl2XRenderer::command_execute_depth_test(
 	const RendererCommandDepthTest& command)
 {
-	if (depth_is_test_enabled_ != command.is_enable_)
-	{
-		depth_is_test_enabled_ = command.is_enable_;
-
-		depth_set_test();
-	}
+	ogl_context_->depth_test_enable(command.is_enable_);
 }
 
 void Ogl2XRenderer::command_execute_depth_write(
 	const RendererCommandDepthWrite& command)
 {
-	if (depth_is_write_enabled_ != command.is_enable_)
-	{
-		depth_is_write_enabled_ = command.is_enable_;
-
-		depth_set_write();
-	}
+	ogl_context_->depth_write_enable(command.is_enable_);
 }
 
 void Ogl2XRenderer::command_execute_viewport(
 	const RendererCommandViewport& command)
 {
-	assert(command.x_ < screen_width_);
-	assert(command.y_ < screen_height_);
-	assert(command.width_ <= screen_width_);
-	assert(command.height_ <= screen_height_);
-	assert((command.x_ + command.width_) <= screen_width_);
-	assert((command.y_ + command.height_) <= screen_height_);
-
-	if (viewport_width_ > device_features_.max_viewport_width_ ||
-		viewport_height_ > device_features_.max_viewport_height_)
-	{
-		assert(!"Viewport dimensions out of range.");
-
-		return;
-	}
-
-	if (viewport_x_ != command.x_ ||
-		viewport_y_ != command.y_ ||
-		viewport_width_ != command.width_ ||
-		viewport_height_ != command.height_)
-	{
-		viewport_x_ = command.x_;
-		viewport_y_ = command.y_;
-		viewport_width_ = command.width_;
-		viewport_height_ = command.height_;
-
-		viewport_set_rectangle();
-	}
-
-	if (viewport_min_depth_ != command.min_depth_ ||
-		viewport_max_depth_ != command.max_depth_)
-	{
-		viewport_min_depth_ = command.min_depth_;
-		viewport_max_depth_ = command.max_depth_;
-
-		viewport_set_depth_range();
-	}
+	ogl_context_->viewport_set(command.viewport_);
 }
 
 void Ogl2XRenderer::command_execute_blending(
 	const RendererCommandBlending& command)
 {
-	if (blending_is_enabled_ != command.is_enable_)
-	{
-		blending_is_enabled_ = command.is_enable_;
-
-		blending_enable();
-	}
+	ogl_context_->blending_enable(command.is_enable_);
 }
 
-void Ogl2XRenderer::command_execute_blending_function(
-	const RendererCommandBlendingFunction& command)
+void Ogl2XRenderer::command_execute_blending_func(
+	const RendererCommandBlendingFunc& command)
 {
-	if (blending_src_factor_ != command.src_factor_ ||
-		blending_dst_factor_ != command.dst_factor_)
-	{
-		blending_src_factor_ = command.src_factor_;
-		blending_dst_factor_ = command.dst_factor_;
-
-		blending_set_function();
-	}
+	ogl_context_->blending_set_func(command.blending_func_);
 }
 
 void Ogl2XRenderer::command_execute_scissor(
 	const RendererCommandScissor& command)
 {
-	if (scissor_is_enabled_ != command.is_enable_)
-	{
-		scissor_is_enabled_ = command.is_enable_;
-
-		scissor_enable();
-	}
+	ogl_context_->scissor_enable(command.is_enable_);
 }
 
 void Ogl2XRenderer::command_execute_scissor_box(
 	const RendererCommandScissorBox& command)
 {
-	assert(command.x_ < screen_width_);
-	assert(command.y_ < screen_height_);
-	assert(command.width_ <= screen_width_);
-	assert(command.height_ <= screen_height_);
-	assert((command.x_ + command.width_) <= screen_width_);
-	assert((command.y_ + command.height_) <= screen_height_);
-
-	if (scissor_x_ != command.x_ ||
-		scissor_y_ != command.y_ ||
-		scissor_width_ != command.width_ ||
-		scissor_height_ != command.height_)
-	{
-		scissor_x_ = command.x_;
-		scissor_y_ = command.y_;
-		scissor_width_ = command.width_;
-		scissor_height_ = command.height_;
-
-		scissor_set_box();
-	}
+	ogl_context_->scissor_set_box(command.scissor_box_);
 }
 
 void Ogl2XRenderer::command_execute_texture(
 	const RendererCommandTexture& command)
 {
-	texture(command.texture_2d_);
+	texture_set(command.texture_2d_);
 }
 
 void Ogl2XRenderer::command_execute_sampler(
