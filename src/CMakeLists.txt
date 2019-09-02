@@ -256,6 +256,7 @@ target_sources(
 		bstone_detail_ogl_2_x_renderer.h
 		bstone_detail_ogl_buffer.h
 		bstone_detail_ogl_buffer_manager.h
+		bstone_detail_ogl_command_executor.h
 		bstone_detail_ogl_context_kind.h
 		bstone_detail_ogl_device_features.h
 		bstone_detail_ogl_extension_manager.h
@@ -354,6 +355,7 @@ target_sources(
 		bstone_text_writer.cpp
 		bstone_version.cpp
 		bstone_detail_ogl_2_x_renderer.cpp
+		bstone_detail_ogl_command_executor.cpp
 		bstone_detail_ogl_extension_manager.cpp
 		bstone_detail_ogl_sampler_manager.cpp
 		bstone_detail_ogl_shader.cpp

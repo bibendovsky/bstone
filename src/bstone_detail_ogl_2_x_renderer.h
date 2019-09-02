@@ -44,6 +44,7 @@ Free Software Foundation, Inc.,
 #include "bstone_detail_ogl_index_buffer.h"
 #include "bstone_detail_ogl_vertex_buffer.h"
 #include "bstone_detail_ogl_context.h"
+#include "bstone_detail_ogl_command_executor.h"
 
 
 namespace bstone
@@ -201,6 +202,7 @@ private:
 
 	OglExtensionManagerUPtr extension_manager_;
 	OglContextUPtr ogl_context_;
+	OglCommandExecutorUPtr command_executor_;
 
 	RendererDeviceInfo device_info_;
 	RendererDeviceFeatures device_features_;
@@ -315,68 +317,6 @@ private:
 
 	bool msaa_set(
 		const int aa_value);
-
-
-	void texture_set(
-		RendererTexture2dPtr new_texture_2d);
-
-
-	void command_execute_culling(
-		const RendererCommandCulling& command);
-
-	void command_execute_depth_test(
-		const RendererCommandDepthTest& command);
-
-	void command_execute_depth_write(
-		const RendererCommandDepthWrite& command);
-
-	void command_execute_blending(
-		const RendererCommandBlending& command);
-
-	void command_execute_blending_func(
-		const RendererCommandBlendingFunc& command);
-
-	void command_execute_viewport(
-		const RendererCommandViewport& command);
-
-	void command_execute_scissor(
-		const RendererCommandScissor& command);
-
-	void command_execute_scissor_box(
-		const RendererCommandScissorBox& command);
-
-	void command_execute_texture(
-		const RendererCommandTexture& command);
-
-	void command_execute_sampler(
-		const RendererCommandSampler& command);
-
-	void command_execute_vertex_input(
-		const RendererCommandVertexInput& command);
-
-	void command_execute_shader_stage(
-		const RendererCommandShaderStage& command);
-
-	void command_execute_shader_var_int32(
-		const RendererCommandShaderVarInt32& command);
-
-	void command_execute_shader_var_float32(
-		const RendererCommandShaderVarFloat32& command);
-
-	void command_execute_shader_var_vec2(
-		const RendererCommandShaderVarVec2& command);
-
-	void command_execute_shader_var_vec4(
-		const RendererCommandShaderVarVec4& command);
-
-	void command_execute_shader_var_mat4(
-		const RendererCommandShaderVarMat4& command);
-
-	void command_execute_shader_var_sampler_2d(
-		const RendererCommandShaderVarSampler2d& command);
-
-	void command_execute_draw_quads(
-		const RendererCommandDrawQuads& command);
 }; // OglRenderer
 
 

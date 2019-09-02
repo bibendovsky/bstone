@@ -69,6 +69,7 @@ Ogl2XRenderer::Ogl2XRenderer()
 	sdl_gl_context_{},
 	extension_manager_{},
 	ogl_context_{},
+	command_executor_{},
 	device_info_{},
 	device_features_{},
 	ogl_device_features_{},
@@ -409,111 +410,7 @@ void Ogl2XRenderer::shader_stage_destroy(
 void Ogl2XRenderer::execute_commands(
 	const RendererCommandManagerPtr command_manager)
 {
-	const auto buffer_count = command_manager->buffer_get_count();
-
-	for (int i = 0; i < buffer_count; ++i)
-	{
-		auto command_buffer = command_manager->buffer_get(i);
-
-		if (!command_buffer->is_enabled())
-		{
-			continue;
-		}
-
-		const auto command_count = command_buffer->get_command_count();
-
-		command_buffer->read_begin();
-
-		for (int j = 0; j < command_count; ++j)
-		{
-			const auto command_id = command_buffer->read_command_id();
-
-			switch (command_id)
-			{
-			case RendererCommandId::culling:
-				command_execute_culling(*command_buffer->read_culling());
-				break;
-
-			case RendererCommandId::depth_set_test:
-				command_execute_depth_test(*command_buffer->read_depth_test());
-				break;
-
-			case RendererCommandId::depth_set_write:
-				command_execute_depth_write(*command_buffer->read_depth_write());
-				break;
-
-			case RendererCommandId::viewport:
-				command_execute_viewport(*command_buffer->read_viewport());
-				break;
-
-			case RendererCommandId::scissor:
-				command_execute_scissor(*command_buffer->read_scissor());
-				break;
-
-			case RendererCommandId::scissor_set_box:
-				command_execute_scissor_box(*command_buffer->read_scissor_box());
-				break;
-
-			case RendererCommandId::blending:
-				command_execute_blending(*command_buffer->read_blending());
-				break;
-
-			case RendererCommandId::blending_func:
-				command_execute_blending_func(*command_buffer->read_blending_func());
-				break;
-
-			case RendererCommandId::texture:
-				command_execute_texture(*command_buffer->read_texture());
-				break;
-
-			case RendererCommandId::sampler:
-				command_execute_sampler(*command_buffer->read_sampler());
-				break;
-
-			case RendererCommandId::vertex_input:
-				command_execute_vertex_input(*command_buffer->read_vertex_input());
-				break;
-
-			case RendererCommandId::shader_stage:
-				command_execute_shader_stage(*command_buffer->read_shader_stage());
-				break;
-
-			case RendererCommandId::shader_var_int32:
-				command_execute_shader_var_int32(*command_buffer->read_shader_var_int32());
-				break;
-
-			case RendererCommandId::shader_var_float32:
-				command_execute_shader_var_float32(*command_buffer->read_shader_var_float32());
-				break;
-
-			case RendererCommandId::shader_var_vec2:
-				command_execute_shader_var_vec2(*command_buffer->read_shader_var_vec2());
-				break;
-
-			case RendererCommandId::shader_var_vec4:
-				command_execute_shader_var_vec4(*command_buffer->read_shader_var_vec4());
-				break;
-
-			case RendererCommandId::shader_var_mat4:
-				command_execute_shader_var_mat4(*command_buffer->read_shader_var_mat4());
-				break;
-
-			case RendererCommandId::shader_var_sampler2d:
-				command_execute_shader_var_sampler_2d(*command_buffer->read_shader_var_sampler_2d());
-				break;
-
-			case RendererCommandId::draw_quads:
-				command_execute_draw_quads(*command_buffer->read_draw_quads());
-				break;
-
-			default:
-				assert(!"Unsupported command id.");
-				break;
-			}
-		}
-
-		command_buffer->read_end();
-	}
+	command_executor_->execute(command_manager);
 }
 
 bool Ogl2XRenderer::probe_or_initialize(
@@ -680,11 +577,16 @@ bool Ogl2XRenderer::probe_or_initialize(
 
 	if (!is_probe)
 	{
-		ogl_context_ = std::move(OglContextFactory::create(
+		ogl_context_ = OglContextFactory::create(
 			RendererKind::ogl_2_x,
 			device_features_,
 			ogl_device_features_
-		));
+		);
+	}
+
+	if (!is_probe)
+	{
+		command_executor_ = OglCommandExecutorFactory::create(ogl_context_.get());
 	}
 
 	if (!is_probe)
@@ -750,6 +652,7 @@ void Ogl2XRenderer::sampler_destroy(
 void Ogl2XRenderer::uninitialize_internal(
 	const bool is_dtor)
 {
+	command_executor_ = {};
 	ogl_context_ = {};
 	extension_manager_ = {};
 
@@ -1232,205 +1135,6 @@ bool Ogl2XRenderer::msaa_set(
 	framebuffers_destroy();
 
 	return framebuffers_create();
-}
-
-void Ogl2XRenderer::texture_set(
-	RendererTexture2dPtr new_texture_2d)
-{
-	ogl_context_->texture_get_manager()->set(new_texture_2d);
-}
-
-void Ogl2XRenderer::command_execute_culling(
-	const RendererCommandCulling& command)
-{
-	ogl_context_->culling_enable(command.is_enable_);
-}
-
-void Ogl2XRenderer::command_execute_depth_test(
-	const RendererCommandDepthTest& command)
-{
-	ogl_context_->depth_test_enable(command.is_enable_);
-}
-
-void Ogl2XRenderer::command_execute_depth_write(
-	const RendererCommandDepthWrite& command)
-{
-	ogl_context_->depth_write_enable(command.is_enable_);
-}
-
-void Ogl2XRenderer::command_execute_viewport(
-	const RendererCommandViewport& command)
-{
-	ogl_context_->viewport_set(command.viewport_);
-}
-
-void Ogl2XRenderer::command_execute_blending(
-	const RendererCommandBlending& command)
-{
-	ogl_context_->blending_enable(command.is_enable_);
-}
-
-void Ogl2XRenderer::command_execute_blending_func(
-	const RendererCommandBlendingFunc& command)
-{
-	ogl_context_->blending_set_func(command.blending_func_);
-}
-
-void Ogl2XRenderer::command_execute_scissor(
-	const RendererCommandScissor& command)
-{
-	ogl_context_->scissor_enable(command.is_enable_);
-}
-
-void Ogl2XRenderer::command_execute_scissor_box(
-	const RendererCommandScissorBox& command)
-{
-	ogl_context_->scissor_set_box(command.scissor_box_);
-}
-
-void Ogl2XRenderer::command_execute_texture(
-	const RendererCommandTexture& command)
-{
-	texture_set(command.texture_2d_);
-}
-
-void Ogl2XRenderer::command_execute_sampler(
-	const RendererCommandSampler& command)
-{
-	ogl_context_->sampler_get_manager()->set(command.sampler_);
-}
-
-void Ogl2XRenderer::command_execute_vertex_input(
-	const RendererCommandVertexInput& command)
-{
-	auto vertex_input = static_cast<OglVertexInputPtr>(command.vertex_input_);
-
-	ogl_context_->vertex_input_get_manager()->set(vertex_input);
-}
-
-void Ogl2XRenderer::command_execute_shader_stage(
-	const RendererCommandShaderStage& command)
-{
-	if (!command.shader_stage_)
-	{
-		throw Exception{"Null shader stage."};
-	}
-
-	command.shader_stage_->set();
-}
-
-void Ogl2XRenderer::command_execute_shader_var_int32(
-	const RendererCommandShaderVarInt32& command)
-{
-	if (!command.var_)
-	{
-		throw Exception{"Null variable."};
-	}
-
-	command.var_->set_value(command.value_);
-}
-
-void Ogl2XRenderer::command_execute_shader_var_float32(
-	const RendererCommandShaderVarFloat32& command)
-{
-	if (!command.var_)
-	{
-		throw Exception{"Null variable."};
-	}
-
-	command.var_->set_value(command.value_);
-}
-
-void Ogl2XRenderer::command_execute_shader_var_vec2(
-	const RendererCommandShaderVarVec2& command)
-{
-	if (!command.var_)
-	{
-		throw Exception{"Null variable."};
-	}
-
-	command.var_->set_value(command.value_);
-}
-
-void Ogl2XRenderer::command_execute_shader_var_vec4(
-	const RendererCommandShaderVarVec4& command)
-{
-	if (!command.var_)
-	{
-		throw Exception{"Null variable."};
-	}
-
-	command.var_->set_value(command.value_);
-}
-
-void Ogl2XRenderer::command_execute_shader_var_mat4(
-	const RendererCommandShaderVarMat4& command)
-{
-	if (!command.var_)
-	{
-		throw Exception{"Null variable."};
-	}
-
-	command.var_->set_value(command.value_);
-}
-
-void Ogl2XRenderer::command_execute_shader_var_sampler_2d(
-	const RendererCommandShaderVarSampler2d& command)
-{
-	if (!command.var_)
-	{
-		throw Exception{"Null variable."};
-	}
-
-	command.var_->set_value(command.value_);
-}
-
-void Ogl2XRenderer::command_execute_draw_quads(
-	const RendererCommandDrawQuads& command)
-{
-	assert(command.count_ > 0);
-	assert(command.index_offset_ >= 0);
-
-	const auto triangles_per_quad = 2;
-	const auto triangle_count = command.count_ * triangles_per_quad;
-
-	const auto indices_per_triangle = 3;
-	const auto indices_per_quad = triangles_per_quad * indices_per_triangle;
-	const auto index_count = indices_per_quad * command.count_;
-
-	auto index_buffer = ogl_context_->vertex_input_get_manager()->get_current_index_buffer();
-
-	if (!index_buffer)
-	{
-		throw Exception{"Null index buffer."};
-	}
-
-	const auto index_byte_depth = index_buffer->get_byte_depth();
-	const auto max_index_count = index_buffer->get_size() / index_byte_depth;
-
-	const auto index_byte_offset = command.index_offset_ * index_byte_depth;
-	assert(command.index_offset_ < max_index_count);
-	assert(command.count_ <= max_index_count);
-	assert((command.index_offset_ + command.count_) <= max_index_count);
-
-
-	// Draw the quads.
-	//
-	const auto index_buffer_data = reinterpret_cast<const void*>(static_cast<std::intptr_t>(index_byte_offset));
-
-	const auto ogl_element_type = OglRendererUtils::index_buffer_get_element_type_by_byte_depth(
-		index_buffer->get_byte_depth());
-
-	index_buffer->set(true);
-
-	::glDrawElements(
-		GL_TRIANGLES, // mode
-		index_count, // count
-		ogl_element_type, // type
-		index_buffer_data // indices
-	);
-
-	assert(!OglRendererUtils::was_errors());
 }
 
 //
