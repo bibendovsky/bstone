@@ -7880,9 +7880,9 @@ void hw_3d_fade_update()
 		return;
 	}
 
-	const auto r = static_cast<std::uint8_t>(r_f * 255.0F);
-	const auto g = static_cast<std::uint8_t>(g_f * 255.0F);
-	const auto b = static_cast<std::uint8_t>(b_f * 255.0F);
+	const auto r = static_cast<std::uint8_t>(a_f * r_f * 255.0F);
+	const auto g = static_cast<std::uint8_t>(a_f * g_f * 255.0F);
+	const auto b = static_cast<std::uint8_t>(a_f * b_f * 255.0F);
 	const auto a = static_cast<std::uint8_t>(a_f * 255.0F);
 
 	const auto r8g8b8a8_unorm = bstone::R8g8b8a8{r, g, b, a};

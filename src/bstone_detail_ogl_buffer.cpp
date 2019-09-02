@@ -281,7 +281,8 @@ void GenericOglBuffer::initialize(
 
 	const auto olg_usage = ogl_get_usage(param.usage_kind_);
 
-	if (ogl_device_features.buffer_storage_is_available_)
+	if (ogl_device_features.dsa_is_available_ &&
+		ogl_device_features.buffer_storage_is_available_)
 	{
 		::glNamedBufferStorage(ogl_resource_.get(), param.size_, nullptr, GL_DYNAMIC_STORAGE_BIT);
 		assert(!detail::OglRendererUtils::was_errors());
