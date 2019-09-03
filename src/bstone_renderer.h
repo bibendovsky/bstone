@@ -1011,6 +1011,7 @@ struct RendererDeviceFeatures
 
 	bool sampler_is_available_;
 
+	bool msaa_is_available_;
 	int msaa_min_value_;
 	int msaa_max_value_;
 

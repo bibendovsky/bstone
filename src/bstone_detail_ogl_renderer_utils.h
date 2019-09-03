@@ -90,6 +90,13 @@ public:
 		int& minor_version);
 
 
+	static int msaa_window_get_max();
+
+	static int msaa_fbo_get_max(
+		RendererDeviceFeatures& device_features,
+		OglDeviceFeatures& ogl_device_features);
+
+
 	static int anisotropy_get_max_value();
 
 	static int anisotropy_clamp_value(
@@ -121,9 +128,6 @@ public:
 		OglExtensionManagerPtr extension_manager,
 		RendererDeviceFeatures& device_features,
 		OglDeviceFeatures& ogl_device_features);
-
-	static int msaa_get_max_value(
-		OglExtensionManagerPtr extension_manager);
 
 
 	static void sampler_probe(

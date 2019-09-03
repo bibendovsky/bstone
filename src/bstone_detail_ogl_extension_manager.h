@@ -48,6 +48,9 @@ enum class OglExtensionId
 	// Virtual extensions.
 	//
 
+	// glGetIntegerv.
+	essentials,
+
 	// OpenGL 1.0.
 	v1_0,
 

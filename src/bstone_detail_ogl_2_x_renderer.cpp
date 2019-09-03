@@ -38,6 +38,7 @@ Free Software Foundation, Inc.,
 #include "glm/gtc/type_ptr.hpp"
 
 #include "bstone_exception.h"
+#include "bstone_renderer_limits.h"
 
 #include "bstone_detail_ogl_buffer_manager.h"
 #include "bstone_detail_ogl_renderer_utils.h"
@@ -417,57 +418,80 @@ bool Ogl2XRenderer::probe_or_initialize(
 	const bool is_probe,
 	const RendererCreateParam& param)
 {
-	if (is_probe)
+	device_features_.msaa_min_value_ = RendererLimits::aa_min;
+
+	const auto msaa_window_max = OglRendererUtils::msaa_window_get_max();
+
+	if (msaa_window_max >= RendererLimits::aa_min)
 	{
-		OglRendererUtils::create_probe_window_and_context(sdl_window_, sdl_gl_context_);
+		device_features_.msaa_is_available_ = true;
+
+		if (msaa_window_max > device_features_.msaa_max_value_)
+		{
+			device_features_.msaa_max_value_ = msaa_window_max;
+		}
 	}
-	else
+
+	const auto msaa_fbo_max = OglRendererUtils::msaa_fbo_get_max(device_features_, ogl_device_features_);
+
+	if (msaa_fbo_max >= RendererLimits::aa_min)
 	{
-		auto window_param = RendererUtilsCreateWindowParam{};
-		window_param.is_opengl_ = true;
-		window_param.window_ = param.window_;
-		window_param.aa_kind_ = RendererAaKind::none;
-		window_param.aa_value_ = 0;
+		device_features_.msaa_is_available_ = true;
 
-		const auto& probe_device_features = probe_.device_features_;
-
-		switch (param.aa_kind_)
+		if (msaa_fbo_max > device_features_.msaa_max_value_)
 		{
-			case RendererAaKind::ms:
-				if (!probe_device_features.framebuffer_is_available_)
-				{
-					auto aa_kind = param.aa_kind_;
-					auto aa_value = param.aa_value_;
-
-					if (aa_value < probe_device_features.msaa_min_value_)
-					{
-						aa_value = probe_device_features.msaa_min_value_;
-					}
-					else if (aa_value > probe_device_features.msaa_max_value_)
-					{
-						aa_value = probe_device_features.msaa_max_value_;
-					}
-
-					window_param.aa_kind_ = aa_kind;
-					window_param.aa_value_ = aa_value;
-				}
-
-				break;
-
-			default:
-				break;
+			device_features_.msaa_max_value_ = msaa_fbo_max;
 		}
-
-		if (probe_device_features.framebuffer_is_available_)
-		{
-			window_param.is_default_depth_buffer_disabled_ = true;
-		}
-
-		OglRendererUtils::create_window_and_context(window_param, sdl_window_, sdl_gl_context_);
-
-		aa_kind_ = param.aa_kind_;
-		aa_value_ = param.aa_value_;
 	}
+
+	aa_kind_ = param.aa_kind_;
+	aa_value_ = param.aa_value_;
+
+	auto window_param = RendererUtilsCreateWindowParam{};
+	window_param.is_opengl_ = true;
+	window_param.window_ = param.window_;
+	window_param.aa_kind_ = aa_kind_;
+	window_param.aa_value_ = aa_value_;
+
+	if (window_param.window_.width_ == 0 || window_param.window_.height_ == 0)
+	{
+		window_param.window_.width_ = 1;
+		window_param.window_.height_ = 1;
+	}
+
+	if (window_param.aa_kind_ == RendererAaKind::ms)
+	{
+		if (device_features_.msaa_is_available_)
+		{
+			if (aa_value_ < device_features_.msaa_min_value_)
+			{
+				aa_value_ = device_features_.msaa_min_value_;
+			}
+
+			if (aa_value_ > device_features_.msaa_max_value_)
+			{
+				aa_value_ = device_features_.msaa_max_value_;
+			}
+
+			if (device_features_.framebuffer_is_available_)
+			{
+				window_param.aa_kind_ = RendererAaKind::none;
+				window_param.aa_value_ = 0;
+				window_param.is_default_depth_buffer_disabled_ = device_features_.framebuffer_is_available_;
+			}
+			else
+			{
+				window_param.aa_value_ = aa_value_;
+			}
+		}
+		else
+		{
+			window_param.aa_kind_ = RendererAaKind::none;
+			window_param.aa_value_ = 0;
+		}
+	}
+
+	OglRendererUtils::create_window_and_context(window_param, sdl_window_, sdl_gl_context_);
 
 	OglRendererUtils::window_get_drawable_size(
 		sdl_window_.get(),

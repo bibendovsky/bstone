@@ -42,6 +42,7 @@ Free Software Foundation, Inc.,
 #include "glm/gtc/matrix_transform.hpp"
 
 #include "bstone_exception.h"
+#include "bstone_renderer_limits.h"
 #include "bstone_renderer_tests.h"
 
 
@@ -284,6 +285,122 @@ int OglRendererUtils::anisotropy_clamp_value(
 	return clamped_value;
 }
 
+int OglRendererUtils::msaa_window_get_max()
+{
+	const auto sdl_gl_current_context = ::SDL_GL_GetCurrentContext();
+
+	if (sdl_gl_current_context)
+	{
+		throw Exception{"OpenGL context already exists."};
+	}
+
+	auto window_param = RendererUtilsCreateWindowParam{};
+	window_param.is_opengl_ = true;
+	window_param.window_.width_ = 1;
+	window_param.window_.height_ = 1;
+	window_param.aa_kind_ = RendererAaKind::ms;
+
+	auto max_msaa = 0;
+
+	for (int i = RendererLimits::aa_min; i <= RendererLimits::aa_max; i *= 2)
+	{
+		window_param.aa_value_ = i;
+
+		auto sdl_window = SdlWindowUPtr{};
+		auto sdl_gl_context = SdlGlContextUPtr{};
+
+		create_window_and_context(window_param, sdl_window, sdl_gl_context);
+
+		auto sdl_sample_count = 0;
+
+		const auto sdl_result = ::SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &sdl_sample_count);
+
+		if (sdl_result != 0)
+		{
+			auto message = std::string{"Failed to get window MSAA value. "};
+			message += ::SDL_GetError();
+
+			throw Exception{std::move(message)};
+		}
+
+		if (sdl_sample_count > 0)
+		{
+			max_msaa = std::max(i, max_msaa);
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	return max_msaa;
+}
+
+int OglRendererUtils::msaa_fbo_get_max(
+	RendererDeviceFeatures& device_features,
+	OglDeviceFeatures& ogl_device_features)
+{
+	const auto sdl_gl_current_context = ::SDL_GL_GetCurrentContext();
+
+	if (sdl_gl_current_context)
+	{
+		throw Exception{"OpenGL context already exists."};
+	}
+
+	auto window_param = RendererUtilsCreateWindowParam{};
+	window_param.is_opengl_ = true;
+	window_param.window_.width_ = 1;
+	window_param.window_.height_ = 1;
+
+	auto sdl_window = SdlWindowUPtr{};
+	auto sdl_gl_context = SdlGlContextUPtr{};
+
+	create_window_and_context(window_param, sdl_window, sdl_gl_context);
+
+	auto extension_manager = detail::OglExtensionManagerFactory::create();
+
+	extension_manager->probe(OglExtensionId::essentials);
+
+	if (!extension_manager->has(OglExtensionId::essentials))
+	{
+		throw Exception{"Essential function not available."};
+	}
+
+	OglRendererUtils::framebuffer_probe(
+		extension_manager.get(),
+		device_features,
+		ogl_device_features
+	);
+
+	if (!device_features.framebuffer_is_available_)
+	{
+		return 0;
+	}
+
+
+	auto ogl_enum = GLenum{};
+
+	if (ogl_device_features.framebuffer_is_arb_)
+	{
+		ogl_enum = GL_MAX_SAMPLES;
+	}
+	else if (ogl_device_features.framebuffer_is_ext_)
+	{
+		ogl_enum = GL_MAX_SAMPLES_EXT;
+	}
+	else
+	{
+		throw Exception{"OpenGL framebuffer object not available."};
+	}
+
+	auto ogl_value = GLint{};
+
+	::glGetIntegerv(ogl_enum, &ogl_value);
+	assert(!OglRendererUtils::was_errors());
+
+	return ogl_value;
+}
+
 int OglRendererUtils::anisotropy_get_max_value()
 {
 	auto ogl_max_value = GLfloat{};
@@ -405,75 +522,39 @@ void OglRendererUtils::framebuffer_probe(
 	RendererDeviceFeatures& device_features,
 	OglDeviceFeatures& ogl_device_features)
 {
-	auto is_arb = false;
-	auto is_available = false;
+	device_features.framebuffer_is_available_ = false;
+	ogl_device_features.framebuffer_is_arb_ = false;
+	ogl_device_features.framebuffer_is_ext_ = false;
 
 #ifndef BSTONE_RENDERER_TEST_DEFAULT_FRAMEBUFFER
-	if (!is_available)
+	// ARB
 	{
 		extension_manager->probe(OglExtensionId::arb_framebuffer_object);
 
-		is_available = extension_manager->has(OglExtensionId::arb_framebuffer_object);
-
-		if (is_available)
+		if (extension_manager->has(OglExtensionId::arb_framebuffer_object))
 		{
-			is_arb = true;
+			device_features.framebuffer_is_available_ = true;
+			ogl_device_features.framebuffer_is_arb_ = true;
 		}
 	}
 
-	if (!is_available)
+	// EXT
 	{
 		extension_manager->probe(OglExtensionId::ext_framebuffer_blit);
 		extension_manager->probe(OglExtensionId::ext_framebuffer_multisample);
 		extension_manager->probe(OglExtensionId::ext_framebuffer_object);
 		extension_manager->probe(OglExtensionId::ext_packed_depth_stencil);
 
-		is_available =
-			extension_manager->has(OglExtensionId::ext_framebuffer_blit) &&
+		if (extension_manager->has(OglExtensionId::ext_framebuffer_blit) &&
 			extension_manager->has(OglExtensionId::ext_framebuffer_multisample) &&
 			extension_manager->has(OglExtensionId::ext_framebuffer_object) &&
-			extension_manager->has(OglExtensionId::ext_packed_depth_stencil)
-		;
+			extension_manager->has(OglExtensionId::ext_packed_depth_stencil))
+		{
+			device_features.framebuffer_is_available_ = true;
+			ogl_device_features.framebuffer_is_ext_ = true;
+		}
 	}
 #endif // !BSTONE_RENDERER_TEST_DEFAULT_FRAMEBUFFER
-
-	device_features.msaa_min_value_ = RendererUtils::aa_get_min_value();
-	device_features.msaa_max_value_ = msaa_get_max_value(extension_manager);
-
-	if (device_features.msaa_min_value_ == device_features.msaa_max_value_)
-	{
-		is_available = false;
-	}
-
-	device_features.framebuffer_is_available_ = is_available;
-
-	if (is_available)
-	{
-		ogl_device_features.framebuffer_is_arb_ = is_arb;
-	}
-}
-
-int OglRendererUtils::msaa_get_max_value(
-	OglExtensionManagerPtr extension_manager)
-{
-	auto max_value = GLint{};
-
-	if (extension_manager->has(OglExtensionId::arb_framebuffer_object))
-	{
-		::glGetIntegerv(GL_MAX_SAMPLES, &max_value);
-		assert(!OglRendererUtils::was_errors());
-	}
-	else if (
-		extension_manager->has(OglExtensionId::ext_framebuffer_blit) &&
-		extension_manager->has(OglExtensionId::ext_framebuffer_multisample) &&
-		extension_manager->has(OglExtensionId::ext_framebuffer_object) &&
-		extension_manager->has(OglExtensionId::ext_packed_depth_stencil))
-	{
-		::glGetIntegerv(GL_MAX_SAMPLES_EXT, &max_value);
-		assert(!OglRendererUtils::was_errors());
-	}
-
-	return std::max(max_value, RendererUtils::aa_get_min_value());
 }
 
 void OglRendererUtils::sampler_probe(

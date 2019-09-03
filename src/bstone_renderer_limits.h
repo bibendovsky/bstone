@@ -23,44 +23,29 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL device features.
-//
-// !!! Internal usage only. !!!
+// Renderer limits.
 //
 
 
-#ifndef BSTONE_DETAIL_OGL_DEVICE_FEATURES_INCLUDED
-#define BSTONE_DETAIL_OGL_DEVICE_FEATURES_INCLUDED
-
-
-#include "bstone_ogl_api.h"
-#include "bstone_detail_ogl_context_kind.h"
+#ifndef BSTONE_RENDERER_LIMITS_INCLUDED
+#define BSTONE_RENDERER_LIMITS_INCLUDED
 
 
 namespace bstone
 {
-namespace detail
+
+
+struct RendererLimits final
 {
+	static constexpr auto anisotropy_min = 1;
+	static constexpr auto anisotropy_max = 32;
+
+	static constexpr auto aa_min = 1;
+	static constexpr auto aa_max = 32;
+}; // RendererLimits
 
 
-struct OglDeviceFeatures
-{
-	OglContextKind context_kind_;
-
-	PFNGLGENERATEMIPMAPPROC mipmap_function_;
-
-	bool framebuffer_is_arb_;
-	bool framebuffer_is_ext_;
-
-	bool vao_is_available_;
-	bool buffer_storage_is_available_;
-	bool dsa_is_available_;
-	bool sso_is_available_;
-}; // OglDeviceFeatures
-
-
-} // detail
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_OGL_DEVICE_FEATURES_INCLUDED
+#endif // !BSTONE_RENDERER_LIMITS_INCLUDED

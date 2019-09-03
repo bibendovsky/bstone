@@ -161,6 +161,9 @@ private:
 		const OglExtensionId extension_id);
 
 
+	void resolve_essentials();
+
+
 	void resolve_v1_0();
 
 	void resolve_v1_1();
@@ -310,6 +313,20 @@ void OglExtensionManagerImpl::initialize_registry()
 {
 	registry_.clear();
 	registry_.resize(static_cast<int>(OglExtensionId::count_));
+
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::essentials)];
+		registry_item.is_virtual_ = true;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = true;
+		registry_item.is_gles1_ = true;
+		registry_item.is_gles2_ = true;
+		registry_item.extension_name_ = "essentials";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_essentials;
+		registry_item.dependencies_ = {};
+	}
 
 	{
 		auto& registry_item = registry_[static_cast<int>(OglExtensionId::v1_0)];
@@ -1106,6 +1123,12 @@ void OglExtensionManagerImpl::probe_generic(
 	}
 
 	registry_item.is_available_ = true;
+}
+
+void OglExtensionManagerImpl::resolve_essentials()
+{
+	resolve_symbol("glGetError", ::glGetError);
+	resolve_symbol("glGetIntegerv", ::glGetIntegerv);
 }
 
 void OglExtensionManagerImpl::resolve_v1_0()
