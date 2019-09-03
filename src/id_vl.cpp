@@ -2872,8 +2872,8 @@ void hw_vertex_input_add_attribute_description(
 	bstone::RendererVertexBufferPtr vertex_buffer,
 	bstone::RendererVertexAttributeDescriptions& attribute_descriptions)
 {
-	const auto& traits = HwVertexAttributeTraits<TVertex, TLocationId>{};
-	const auto& add_attribute = HwVertexInputAddAttributeDescription<TVertex, traits.is_valid>{};
+	const auto traits = HwVertexAttributeTraits<TVertex, TLocationId>{};
+	const auto add_attribute = HwVertexInputAddAttributeDescription<TVertex, traits.is_valid>{};
 
 	auto location = 0;
 
@@ -8752,7 +8752,7 @@ void hw_update_vertex_xyz(
 	TVertex& vertex,
 	const HwVertexPosition& xyz)
 {
-	const auto& traits = HwVertexAttributeTraits<TVertex, HwVertexAttributeLocationId::position>{};
+	const auto traits = HwVertexAttributeTraits<TVertex, HwVertexAttributeLocationId::position>{};
 
 	HwUpdateVertexXyz<TVertex, traits.is_valid>{}(vertex, xyz);
 }
@@ -8785,7 +8785,7 @@ void hw_update_vertex_rgba(
 	TVertex& vertex,
 	const HwVertexColor& r8g8b8a8_unorm)
 {
-	const auto& traits = HwVertexAttributeTraits<TVertex, HwVertexAttributeLocationId::color>{};
+	const auto traits = HwVertexAttributeTraits<TVertex, HwVertexAttributeLocationId::color>{};
 
 	HwUpdateVertexRgba<TVertex, traits.is_valid>{}(vertex, r8g8b8a8_unorm);
 }
@@ -8817,7 +8817,7 @@ void hw_update_vertex_uv(
 	TVertex& vertex,
 	const HwVertexTextureCoordinates& uv)
 {
-	const auto& traits = HwVertexAttributeTraits<TVertex, HwVertexAttributeLocationId::texture_coordinates>{};
+	const auto traits = HwVertexAttributeTraits<TVertex, HwVertexAttributeLocationId::texture_coordinates>{};
 
 	HwUpdateVertexUv<TVertex, traits.is_valid>{}(vertex, uv);
 }
@@ -12203,7 +12203,7 @@ void hw_3d_statics_build()
 		::vid_quit("Failed to initialize statics.");
 	}
 
-	if (::statobjlist == nullptr || ::laststatobj == nullptr)
+	if (!::laststatobj)
 	{
 		return;
 	}

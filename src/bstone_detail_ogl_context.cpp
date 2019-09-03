@@ -96,7 +96,7 @@ public:
 
 	OglSamplerManagerPtr sampler_get_manager() const noexcept override;
 
-	OglTextureManagerPtr texture_get_manager() const noexcept;
+	OglTextureManagerPtr texture_get_manager() const noexcept override;
 
 	OglVaoManagerPtr vao_get_manager() const noexcept override;
 

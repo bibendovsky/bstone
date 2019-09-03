@@ -217,7 +217,7 @@ void GenericOglBuffer::update(
 			ogl_vao_manager->push_current_set_default();
 		}
 
-		set(this);
+		set(true);
 
 		::glBufferSubData(
 			ogl_target_,
