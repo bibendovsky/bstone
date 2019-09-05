@@ -52,7 +52,7 @@ class OglRendererUtils
 public:
 	static void load_library();
 
-	static void unload_library();
+	static void unload_library() noexcept;
 
 	static void* resolve_symbol(
 		const char* const symbol);
@@ -90,11 +90,11 @@ public:
 		int& minor_version);
 
 
-	static int msaa_window_get_max();
-
-	static int msaa_fbo_get_max(
+	static void msaa_probe(
 		RendererDeviceFeatures& device_features,
 		OglDeviceFeatures& ogl_device_features);
+
+	static int msaa_window_get_value();
 
 
 	static int anisotropy_get_max_value();
@@ -122,6 +122,11 @@ public:
 		OglExtensionManagerPtr extension_manager,
 		RendererDeviceFeatures& device_features,
 		OglDeviceFeatures& ogl_device_features);
+
+	static void mipmap_generate(
+		const GLenum ogl_target,
+		const RendererDeviceFeatures& device_features,
+		const OglDeviceFeatures& ogl_device_features);
 
 
 	static void framebuffer_probe(
@@ -265,11 +270,20 @@ public:
 
 
 private:
+	static constexpr int dummy_window_min_dimension = 256;
+
+
 	OglRendererUtils();
 
 
 	static GLenum blending_get_factor(
 		const RendererBlendingFactor factor);
+
+	static int msaa_window_get_max();
+
+	static int msaa_fbo_get_max(
+		RendererDeviceFeatures& device_features,
+		OglDeviceFeatures& ogl_device_features);
 }; // OglRendererUtils
 
 

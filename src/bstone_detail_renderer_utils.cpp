@@ -175,6 +175,7 @@ void RendererUtils::validate_initialize_param(
 {
 	switch (param.renderer_kind_)
 	{
+	case RendererKind::auto_detect:
 	case RendererKind::ogl_2_x:
 		break;
 
@@ -400,11 +401,6 @@ void RendererUtils::vertex_input_validate_param(
 			throw Exception{"Invalid stride."};
 		}
 	}
-}
-
-int RendererUtils::aa_get_min_value()
-{
-	return 1;
 }
 
 void RendererUtils::indexed_pot_to_rgba_pot(

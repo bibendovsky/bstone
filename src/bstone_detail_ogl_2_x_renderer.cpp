@@ -44,11 +44,9 @@ Free Software Foundation, Inc.,
 #include "bstone_detail_ogl_renderer_utils.h"
 #include "bstone_detail_ogl_sampler_manager.h"
 #include "bstone_detail_ogl_texture_manager.h"
-#include "bstone_detail_ogl_vertex_input.h"
 #include "bstone_detail_ogl_vertex_input_manager.h"
 #include "bstone_detail_ogl_shader_manager.h"
 #include "bstone_detail_ogl_shader_stage_manager.h"
-#include "bstone_detail_ogl_extension_manager.h"
 
 
 namespace bstone
@@ -61,11 +59,9 @@ namespace detail
 // Ogl2XRenderer
 //
 
-Ogl2XRenderer::Ogl2XRenderer()
+Ogl2XRenderer::Ogl2XRenderer(
+	const RendererCreateParam& param)
 	:
-	is_initialized_{},
-	error_message_{},
-	probe_{},
 	sdl_window_{},
 	sdl_gl_context_{},
 	extension_manager_{},
@@ -87,16 +83,12 @@ Ogl2XRenderer::Ogl2XRenderer()
 	ogl_downscale_fbo_{},
 	ogl_downscale_color_rb_{}
 {
+	initialize(param);
 }
 
 Ogl2XRenderer::~Ogl2XRenderer()
 {
 	uninitialize_internal(true);
-}
-
-const std::string& Ogl2XRenderer::get_error_message() const noexcept
-{
-	return error_message_;
 }
 
 RendererKind Ogl2XRenderer::get_kind() const noexcept
@@ -118,54 +110,196 @@ const std::string& Ogl2XRenderer::get_description() const noexcept
 	return result;
 }
 
-bool Ogl2XRenderer::probe()
+void Ogl2XRenderer::fbo_resource_deleter(
+	const GLuint& ogl_name) noexcept
 {
-	uninitialize_internal();
-
-	const auto result = probe_or_initialize(true, RendererCreateParam{});
-
-	uninitialize_internal();
-
-	return result;
+	const auto ogl_function = (::glDeleteFramebuffers ? ::glDeleteFramebuffers : ::glDeleteFramebuffersEXT);
+	ogl_function(1, &ogl_name);
+	assert(!OglRendererUtils::was_errors());
 }
 
-const RendererProbe& Ogl2XRenderer::probe_get() const noexcept
+void Ogl2XRenderer::rbo_resource_deleter(
+	const GLuint& ogl_name) noexcept
 {
-	return probe_;
+	const auto ogl_function = (::glDeleteRenderbuffers ? ::glDeleteRenderbuffers : ::glDeleteRenderbuffersEXT);
+	ogl_function(1, &ogl_name);
+	assert(!OglRendererUtils::was_errors());
 }
 
-bool Ogl2XRenderer::is_initialized() const noexcept
-{
-	return is_initialized_;
-}
-
-bool Ogl2XRenderer::initialize(
+void Ogl2XRenderer::initialize(
 	const RendererCreateParam& param)
 {
-	if (probe_.kind_ == RendererKind::none)
+	OglRendererUtils::msaa_probe(device_features_, ogl_device_features_);
+
+	aa_kind_ = param.aa_kind_;
+	aa_value_ = param.aa_value_;
+
+	auto window_param = RendererUtilsCreateWindowParam{};
+	window_param.is_opengl_ = true;
+	window_param.window_ = param.window_;
+	window_param.aa_kind_ = aa_kind_;
+	window_param.aa_value_ = aa_value_;
+
+	if (window_param.window_.width_ == 0 || window_param.window_.height_ == 0)
 	{
-		uninitialize_internal();
+		window_param.window_.width_ = 1;
+		window_param.window_.height_ = 1;
+	}
 
-		const auto probe_result = probe_or_initialize(true, RendererCreateParam{});
-
-		uninitialize_internal();
-
-		if (!probe_result)
+	if (window_param.aa_kind_ == RendererAaKind::ms)
+	{
+		if (device_features_.msaa_is_available_)
 		{
-			return false;
+			if (aa_value_ < device_features_.msaa_min_value_)
+			{
+				aa_value_ = device_features_.msaa_min_value_;
+			}
+
+			if (aa_value_ > device_features_.msaa_max_value_)
+			{
+				aa_value_ = device_features_.msaa_max_value_;
+			}
+
+			if (device_features_.msaa_is_window_)
+			{
+				window_param.aa_value_ = aa_value_;
+			}
+			else
+			{
+				window_param.aa_kind_ = RendererAaKind::none;
+				window_param.aa_value_ = 0;
+				window_param.is_default_depth_buffer_disabled_ = true;
+			}
+		}
+		else
+		{
+			window_param.aa_kind_ = RendererAaKind::none;
+			window_param.aa_value_ = 0;
 		}
 	}
 
-	uninitialize_internal();
+	OglRendererUtils::create_window_and_context(window_param, sdl_window_, sdl_gl_context_);
 
-	if (!probe_or_initialize(false, param))
+	OglRendererUtils::window_get_drawable_size(
+		sdl_window_.get(),
+		screen_width_,
+		screen_height_);
+
+	if (screen_width_ == 0 || screen_height_ == 0)
 	{
-		uninitialize_internal();
-
-		return false;
+		throw Exception{"Failed to get screen size."};
 	}
 
-	return true;
+	if (aa_kind_ == RendererAaKind::ms && device_features_.msaa_is_window_)
+	{
+		aa_value_ = OglRendererUtils::msaa_window_get_value();
+	}
+
+	downscale_width_ = param.downscale_width_;
+	downscale_height_ = param.downscale_height_;
+
+	if (downscale_width_ <= 0 || downscale_width_ > param.downscale_width_ ||
+		downscale_height_ <= 0 || downscale_height_ > param.downscale_height_)
+	{
+		throw Exception{"Downscale dimensions out of range."};
+	}
+
+	extension_manager_ = detail::OglExtensionManagerFactory::create();
+
+	if (extension_manager_ == nullptr)
+	{
+		throw Exception{"Failed to create an extension manager."};
+	}
+
+	extension_manager_->probe(OglExtensionId::v2_0);
+
+	if (!extension_manager_->has(OglExtensionId::v2_0))
+	{
+		throw Exception{"Failed to load OpenGL 2.0 symbols."};
+	}
+
+	OglRendererUtils::renderer_features_set(device_features_);
+
+	ogl_device_features_.context_kind_ = OglRendererUtils::context_get_kind();
+
+	OglRendererUtils::anisotropy_probe(
+		extension_manager_.get(),
+		device_features_
+	);
+
+	OglRendererUtils::npot_probe(
+		extension_manager_.get(),
+		device_features_
+	);
+
+	OglRendererUtils::mipmap_probe(
+		extension_manager_.get(),
+		device_features_,
+		ogl_device_features_
+	);
+
+	OglRendererUtils::framebuffer_probe(
+		extension_manager_.get(),
+		device_features_,
+		ogl_device_features_
+	);
+
+	OglRendererUtils::sampler_probe(
+		extension_manager_.get(),
+		device_features_
+	);
+
+	OglRendererUtils::vertex_input_probe_max_locations(device_features_);
+
+	OglRendererUtils::buffer_storage_probe(
+		extension_manager_.get(),
+		ogl_device_features_
+	);
+
+	OglRendererUtils::dsa_probe(
+		extension_manager_.get(),
+		ogl_device_features_
+	);
+
+	OglRendererUtils::sso_probe(
+		extension_manager_.get(),
+		ogl_device_features_
+	);
+
+	if (device_features_.vertex_input_max_locations_ <= 0)
+	{
+		throw Exception{"No vertex input locations."};
+	}
+
+	OglRendererUtils::vsync_probe(device_features_);
+
+	OglRendererUtils::vertex_input_vao_probe(
+		extension_manager_.get(),
+		ogl_device_features_
+	);
+
+	ogl_context_ = OglContextFactory::create(
+		RendererKind::ogl_2_x,
+		device_features_,
+		ogl_device_features_
+	);
+
+	command_executor_ = OglCommandExecutorFactory::create(ogl_context_.get());
+
+	if (device_features_.vsync_is_available_)
+	{
+		static_cast<void>(OglRendererUtils::vsync_set(param.is_vsync_));
+	}
+
+	framebuffers_create();
+
+	device_info_ = OglRendererUtils::device_info_get();
+
+
+	// Present.
+	//
+	clear_buffers();
+	present();
 }
 
 void Ogl2XRenderer::uninitialize()
@@ -200,8 +334,6 @@ void Ogl2XRenderer::device_reset()
 void Ogl2XRenderer::window_show(
 	const bool is_visible)
 {
-	assert(is_initialized_);
-
 	RendererUtils::show_window(sdl_window_.get(), is_visible);
 }
 
@@ -225,34 +357,26 @@ bool Ogl2XRenderer::vsync_get() const noexcept
 	return OglRendererUtils::vsync_get();
 }
 
-bool Ogl2XRenderer::vsync_set(
+void Ogl2XRenderer::vsync_set(
 	const bool is_enabled)
 {
 	if (!device_features_.vsync_is_available_)
 	{
-		error_message_ = "Not available.";
-
-		return false;
+		throw Exception{"Not available."};
 	}
 
 	if (device_features_.vsync_is_requires_restart_)
 	{
-		error_message_ = "Requires restart.";
-
-		return false;
+		throw Exception{"Requires restart."};
 	}
 
 	if (!OglRendererUtils::vsync_set(is_enabled))
 	{
-		error_message_ = "Not supported.";
-
-		return false;
+		throw Exception{"Not supported."};
 	}
-
-	return true;
 }
 
-bool Ogl2XRenderer::downscale_set(
+void Ogl2XRenderer::downscale_set(
 	const int width,
 	const int height,
 	const RendererFilterKind blit_filter)
@@ -262,9 +386,7 @@ bool Ogl2XRenderer::downscale_set(
 		height <= 0 ||
 		height > screen_height_)
 	{
-		error_message_ = "Dimensions out of range.";
-
-		return false;
+		throw Exception{"Dimensions out of range."};
 	}
 
 	switch (blit_filter)
@@ -274,23 +396,17 @@ bool Ogl2XRenderer::downscale_set(
 			break;
 
 		default:
-			error_message_ = "Unsupported blit filter.";
-
-			return false;
+			throw Exception{"Unsupported blit filter."};
 	}
 
 	if (!device_features_.framebuffer_is_available_)
 	{
-		error_message_ = "Off-screen framebuffer not supported.";
-
-		return false;
+		throw Exception{"Off-screen framebuffer not supported."};
 	}
 
 	if (ogl_msaa_fbo_ == 0)
 	{
-		error_message_ = "No off-screen framebuffer.";
-
-		return false;
+		throw Exception{"No off-screen framebuffer."};
 	}
 
 	downscale_width_ = width;
@@ -299,41 +415,58 @@ bool Ogl2XRenderer::downscale_set(
 
 	framebuffers_destroy();
 
-	return framebuffers_create();
+	framebuffers_create();
 }
 
-bool Ogl2XRenderer::aa_set(
+void Ogl2XRenderer::aa_set(
 	const RendererAaKind aa_kind,
 	const int aa_value)
 {
 	switch (aa_kind)
 	{
 		case RendererAaKind::none:
-			aa_disable();
-			return true;
-
 		case RendererAaKind::ms:
-			return msaa_set(aa_value);
+			break;
 
 		default:
-			error_message_ = "Invalid anti-aliasing kind.";
+			throw Exception{"Invalid anti-aliasing kind."};
+	}
 
-			return false;
+	auto clamped_aa_value = aa_value;
+
+	if (clamped_aa_value < RendererLimits::aa_min)
+	{
+		clamped_aa_value = RendererLimits::aa_min;
+	}
+
+	if (clamped_aa_value > RendererLimits::aa_max)
+	{
+		clamped_aa_value = RendererLimits::aa_max;
+	}
+
+	switch (aa_kind)
+	{
+		case RendererAaKind::none:
+			aa_disable();
+			return;
+
+		case RendererAaKind::ms:
+			msaa_set(clamped_aa_value);
+			return;
+
+		default:
+			throw Exception{"Invalid anti-aliasing kind."};
 	}
 }
 
 void Ogl2XRenderer::color_buffer_set_clear_color(
 	const R8g8b8a8& color)
 {
-	assert(is_initialized_);
-
 	OglRendererUtils::set_color_buffer_clear_color(color);
 }
 
 void Ogl2XRenderer::clear_buffers()
 {
-	assert(is_initialized_);
-
 	framebuffers_bind();
 
 	OglRendererUtils::clear_buffers();
@@ -341,8 +474,6 @@ void Ogl2XRenderer::clear_buffers()
 
 void Ogl2XRenderer::present()
 {
-	assert(is_initialized_);
-
 	framebuffers_blit();
 
 	OglRendererUtils::swap_window(sdl_window_.get());
@@ -414,241 +545,6 @@ void Ogl2XRenderer::execute_commands(
 	command_executor_->execute(command_manager);
 }
 
-bool Ogl2XRenderer::probe_or_initialize(
-	const bool is_probe,
-	const RendererCreateParam& param)
-{
-	device_features_.msaa_min_value_ = RendererLimits::aa_min;
-
-	const auto msaa_window_max = OglRendererUtils::msaa_window_get_max();
-
-	if (msaa_window_max >= RendererLimits::aa_min)
-	{
-		device_features_.msaa_is_available_ = true;
-
-		if (msaa_window_max > device_features_.msaa_max_value_)
-		{
-			device_features_.msaa_max_value_ = msaa_window_max;
-		}
-	}
-
-	const auto msaa_fbo_max = OglRendererUtils::msaa_fbo_get_max(device_features_, ogl_device_features_);
-
-	if (msaa_fbo_max >= RendererLimits::aa_min)
-	{
-		device_features_.msaa_is_available_ = true;
-
-		if (msaa_fbo_max > device_features_.msaa_max_value_)
-		{
-			device_features_.msaa_max_value_ = msaa_fbo_max;
-		}
-	}
-
-	aa_kind_ = param.aa_kind_;
-	aa_value_ = param.aa_value_;
-
-	auto window_param = RendererUtilsCreateWindowParam{};
-	window_param.is_opengl_ = true;
-	window_param.window_ = param.window_;
-	window_param.aa_kind_ = aa_kind_;
-	window_param.aa_value_ = aa_value_;
-
-	if (window_param.window_.width_ == 0 || window_param.window_.height_ == 0)
-	{
-		window_param.window_.width_ = 1;
-		window_param.window_.height_ = 1;
-	}
-
-	if (window_param.aa_kind_ == RendererAaKind::ms)
-	{
-		if (device_features_.msaa_is_available_)
-		{
-			if (aa_value_ < device_features_.msaa_min_value_)
-			{
-				aa_value_ = device_features_.msaa_min_value_;
-			}
-
-			if (aa_value_ > device_features_.msaa_max_value_)
-			{
-				aa_value_ = device_features_.msaa_max_value_;
-			}
-
-			if (device_features_.framebuffer_is_available_)
-			{
-				window_param.aa_kind_ = RendererAaKind::none;
-				window_param.aa_value_ = 0;
-				window_param.is_default_depth_buffer_disabled_ = device_features_.framebuffer_is_available_;
-			}
-			else
-			{
-				window_param.aa_value_ = aa_value_;
-			}
-		}
-		else
-		{
-			window_param.aa_kind_ = RendererAaKind::none;
-			window_param.aa_value_ = 0;
-		}
-	}
-
-	OglRendererUtils::create_window_and_context(window_param, sdl_window_, sdl_gl_context_);
-
-	OglRendererUtils::window_get_drawable_size(
-		sdl_window_.get(),
-		screen_width_,
-		screen_height_);
-
-	if (screen_width_ == 0 || screen_height_ == 0)
-	{
-		error_message_ = "Failed to get screen size.";
-
-		return false;
-	}
-
-	if (!is_probe)
-	{
-		downscale_width_ = param.downscale_width_;
-		downscale_height_ = param.downscale_height_;
-
-		if (downscale_width_ <= 0 || downscale_width_ > param.downscale_width_ ||
-			downscale_height_ <= 0 || downscale_height_ > param.downscale_height_)
-		{
-			error_message_ = "Downscale dimensions out of range.";
-
-			return false;
-		}
-	}
-
-	extension_manager_ = detail::OglExtensionManagerFactory::create();
-
-	if (extension_manager_ == nullptr)
-	{
-		error_message_ = "Failed to create an extension manager.";
-
-		return false;
-	}
-
-	extension_manager_->probe(OglExtensionId::v2_0);
-
-	if (!extension_manager_->has(OglExtensionId::v2_0))
-	{
-		error_message_ = "Failed to load OpenGL 2.0 symbols.";
-
-		return false;
-	}
-
-	OglRendererUtils::renderer_features_set(device_features_);
-
-	ogl_device_features_.context_kind_ = OglRendererUtils::context_get_kind();
-
-	OglRendererUtils::anisotropy_probe(
-		extension_manager_.get(),
-		device_features_
-	);
-
-	OglRendererUtils::npot_probe(
-		extension_manager_.get(),
-		device_features_
-	);
-
-	OglRendererUtils::mipmap_probe(
-		extension_manager_.get(),
-		device_features_,
-		ogl_device_features_
-	);
-
-	OglRendererUtils::framebuffer_probe(
-		extension_manager_.get(),
-		device_features_,
-		ogl_device_features_
-	);
-
-	OglRendererUtils::sampler_probe(
-		extension_manager_.get(),
-		device_features_
-	);
-
-	OglRendererUtils::vertex_input_probe_max_locations(device_features_);
-
-	OglRendererUtils::buffer_storage_probe(
-		extension_manager_.get(),
-		ogl_device_features_
-	);
-
-	OglRendererUtils::dsa_probe(
-		extension_manager_.get(),
-		ogl_device_features_
-	);
-
-	OglRendererUtils::sso_probe(
-		extension_manager_.get(),
-		ogl_device_features_
-	);
-
-	if (device_features_.vertex_input_max_locations_ <= 0)
-	{
-		error_message_ = "No vertex input locations.";
-
-		return false;
-	}
-
-	OglRendererUtils::vsync_probe(device_features_);
-
-	OglRendererUtils::vertex_input_vao_probe(
-		extension_manager_.get(),
-		ogl_device_features_
-	);
-
-	if (!is_probe)
-	{
-		ogl_context_ = OglContextFactory::create(
-			RendererKind::ogl_2_x,
-			device_features_,
-			ogl_device_features_
-		);
-	}
-
-	if (!is_probe)
-	{
-		command_executor_ = OglCommandExecutorFactory::create(ogl_context_.get());
-	}
-
-	if (!is_probe)
-	{
-		if (device_features_.vsync_is_available_)
-		{
-			static_cast<void>(OglRendererUtils::vsync_set(param.is_vsync_));
-		}
-
-		if (!framebuffers_create())
-		{
-			return false;
-		}
-	}
-
-	if (is_probe)
-	{
-		probe_.kind_ = RendererKind::ogl_2_x;
-		probe_.device_features_ = device_features_;
-
-		uninitialize_internal();
-	}
-	else
-	{
-		is_initialized_ = true;
-
-		device_info_ = OglRendererUtils::device_info_get();
-
-
-		// Present.
-		//
-		clear_buffers();
-		present();
-	}
-
-	return true;
-}
-
 RendererTexture2dPtr Ogl2XRenderer::texture_2d_create(
 	const RendererTexture2dCreateParam& param)
 {
@@ -700,102 +596,66 @@ void Ogl2XRenderer::uninitialize_internal(
 	downscale_blit_filter_ = {};
 }
 
-void Ogl2XRenderer::renderbuffer_destroy(
-	GLuint& ogl_renderbuffer_name)
+Ogl2XRenderer::RboResource Ogl2XRenderer::renderbuffer_create()
 {
-	if (ogl_renderbuffer_name == 0)
+	if (!device_features_.framebuffer_is_available_)
 	{
-		return;
+		throw Exception{"Framebuffer not available."};
 	}
 
-	assert(device_features_.framebuffer_is_available_);
+	const auto ogl_function = (ogl_device_features_.framebuffer_is_ext_ ? ::glGenRenderbuffersEXT : ::glGenRenderbuffers);
 
-	renderbuffer_bind(0);
-
-	const auto is_arb = ogl_device_features_.framebuffer_is_arb_;
-	const auto delete_renderbuffers = (is_arb ? ::glDeleteRenderbuffers : ::glDeleteRenderbuffersEXT);
-	assert(delete_renderbuffers != nullptr);
-
-	delete_renderbuffers(1, &ogl_renderbuffer_name);
-	assert(!OglRendererUtils::was_errors());
-	ogl_renderbuffer_name = 0;
-}
-
-bool Ogl2XRenderer::renderbuffer_create(
-	GLuint& ogl_renderbuffer_name)
-{
-	assert(ogl_renderbuffer_name == 0);
-	assert(device_features_.framebuffer_is_available_);
-
-	const auto is_arb = ogl_device_features_.framebuffer_is_arb_;
-	const auto gen_renderbuffers = (is_arb ? ::glGenRenderbuffers : ::glGenRenderbuffersEXT);
-	assert(gen_renderbuffers != nullptr);
-
-	gen_renderbuffers(1, &ogl_renderbuffer_name);
+	auto ogl_name = GLuint{};
+	ogl_function(1, &ogl_name);
 	assert(!OglRendererUtils::was_errors());
 
-	return ogl_renderbuffer_name != 0;
+	if (ogl_name == 0)
+	{
+		throw Exception{"Failed to create OpenGL renderbuffer object."};
+	}
+
+	return RboResource{ogl_name};
 }
 
 void Ogl2XRenderer::renderbuffer_bind(
 	const GLuint ogl_renderbuffer_name)
 {
-	assert(device_features_.framebuffer_is_available_);
+	const auto ogl_func = (ogl_device_features_.framebuffer_is_ext_ ? ::glBindRenderbufferEXT : ::glBindRenderbuffer);
 
-	const auto is_arb = ogl_device_features_.framebuffer_is_arb_;
-	const auto renderbuffer_bind = (is_arb ? ::glBindRenderbuffer : ::glBindRenderbufferEXT);
-
-	renderbuffer_bind(GL_RENDERBUFFER, ogl_renderbuffer_name);
+	ogl_func(GL_RENDERBUFFER, ogl_renderbuffer_name);
 	assert(!OglRendererUtils::was_errors());
 }
 
-void Ogl2XRenderer::framebuffer_destroy(
-	GLuint& ogl_framebuffer_name)
+Ogl2XRenderer::FboResource Ogl2XRenderer::framebuffer_create()
 {
-	if (ogl_msaa_fbo_ == 0)
+	if (!device_features_.framebuffer_is_available_)
 	{
-		return;
+		throw Exception{"Framebuffer not available."};
 	}
 
-	assert(device_features_.framebuffer_is_available_);
+	const auto ogl_func = (ogl_device_features_.framebuffer_is_ext_ ? ::glGenFramebuffersEXT : ::glGenFramebuffers);
 
-	framebuffer_bind(GL_FRAMEBUFFER, 0);
-
-	const auto is_arb = ogl_device_features_.framebuffer_is_arb_;
-	const auto delete_framebuffers = (is_arb ? ::glDeleteFramebuffers : ::glDeleteFramebuffersEXT);
-	assert(delete_framebuffers != nullptr);
-
-	delete_framebuffers(1, &ogl_framebuffer_name);
-	assert(!OglRendererUtils::was_errors());
-	ogl_framebuffer_name = 0;
-}
-
-bool Ogl2XRenderer::framebuffer_create(
-	GLuint& ogl_framebuffer_name)
-{
-	assert(ogl_framebuffer_name == 0);
-	assert(device_features_.framebuffer_is_available_);
-
-	const auto is_arb = ogl_device_features_.framebuffer_is_arb_;
-	const auto gen_framebuffers = (is_arb ? ::glGenFramebuffers : ::glGenFramebuffersEXT);
-	assert(gen_framebuffers != nullptr);
-
-	gen_framebuffers(1, &ogl_framebuffer_name);
+	auto ogl_name = GLuint{};
+	ogl_func(1, &ogl_name);
 	assert(!OglRendererUtils::was_errors());
 
-	return ogl_framebuffer_name != 0;
+	if (ogl_name == 0)
+	{
+		throw Exception{"Failed to create OpenGL framebuffer object."};
+	}
+
+	return FboResource{ogl_name};
 }
 
 void Ogl2XRenderer::framebuffer_bind(
 	const GLenum ogl_target,
-	const GLuint ogl_framebuffer_name)
+	const GLuint ogl_name)
 {
 	assert(device_features_.framebuffer_is_available_);
 
-	const auto is_arb = ogl_device_features_.framebuffer_is_arb_;
-	const auto framebuffer_bind = (is_arb ? ::glBindFramebuffer : ::glBindFramebufferEXT);
+	const auto ogl_func = (ogl_device_features_.framebuffer_is_ext_ ? ::glBindFramebufferEXT : ::glBindFramebuffer);
 
-	framebuffer_bind(ogl_target, ogl_framebuffer_name);
+	ogl_func(ogl_target, ogl_name);
 	assert(!OglRendererUtils::was_errors());
 }
 
@@ -813,14 +673,15 @@ void Ogl2XRenderer::framebuffer_blit(
 
 	assert(device_features_.framebuffer_is_available_);
 
-	const auto is_arb = ogl_device_features_.framebuffer_is_arb_;
-
-	const auto framebuffer_blit = (is_arb ? ::glBlitFramebuffer : ::glBlitFramebufferEXT);
-	assert(framebuffer_blit != nullptr);
+	const auto ogl_func = (
+		ogl_device_features_.framebuffer_is_ext_ ?
+		::glBlitFramebufferEXT :
+		::glBlitFramebuffer
+	);
 
 	const auto ogl_filter = (is_linear_filter ? GL_LINEAR : GL_NEAREST);
 
-	framebuffer_blit(
+	ogl_func(
 		0,
 		0,
 		src_width,
@@ -836,53 +697,49 @@ void Ogl2XRenderer::framebuffer_blit(
 	assert(!OglRendererUtils::was_errors());
 }
 
-bool Ogl2XRenderer::renderbuffer_create(
+Ogl2XRenderer::RboResource Ogl2XRenderer::renderbuffer_create(
 	const int width,
 	const int height,
 	const int sample_count,
-	const GLenum ogl_internal_format,
-	GLuint& ogl_rb_name)
+	const GLenum ogl_internal_format)
 {
 	assert(width > 0);
 	assert(height > 0);
 	assert(sample_count >= 0);
 	assert(ogl_internal_format > 0);
 
-	if (!renderbuffer_create(ogl_rb_name))
-	{
-		return false;
-	}
-
-	renderbuffer_bind(ogl_rb_name);
-
+	auto rbo_resource = renderbuffer_create();
+	renderbuffer_bind(rbo_resource.get());
 
 	assert(device_features_.framebuffer_is_available_);
 
-	const auto is_arb = ogl_device_features_.framebuffer_is_arb_;
-	const auto renderbuffer_storage_multisample = (is_arb ? ::glRenderbufferStorageMultisample : ::glRenderbufferStorageMultisampleEXT);
-	assert(renderbuffer_storage_multisample != nullptr);
+	const auto ogl_func = (
+		ogl_device_features_.framebuffer_is_ext_ ?
+		::glRenderbufferStorageMultisampleEXT :
+		::glRenderbufferStorageMultisample
+	);
 
-	renderbuffer_storage_multisample(GL_RENDERBUFFER, sample_count, ogl_internal_format, width, height);
+	ogl_func(GL_RENDERBUFFER, sample_count, ogl_internal_format, width, height);
 	assert(!OglRendererUtils::was_errors());
 
 	renderbuffer_bind(0);
 
-	return true;
+	return rbo_resource;
 }
 
 void Ogl2XRenderer::msaa_color_rb_destroy()
 {
-	renderbuffer_destroy(ogl_msaa_color_rb_);
+	ogl_msaa_color_rb_.reset();
 }
 
 void Ogl2XRenderer::msaa_depth_rb_destroy()
 {
-	renderbuffer_destroy(ogl_msaa_depth_rb_);
+	ogl_msaa_depth_rb_.reset();
 }
 
 void Ogl2XRenderer::msaa_fbo_destroy()
 {
-	framebuffer_destroy(ogl_msaa_fbo_);
+	ogl_msaa_fbo_.reset();
 }
 
 void Ogl2XRenderer::msaa_framebuffer_destroy()
@@ -892,83 +749,74 @@ void Ogl2XRenderer::msaa_framebuffer_destroy()
 	msaa_depth_rb_destroy();
 }
 
-bool Ogl2XRenderer::msaa_color_rb_create(
+void Ogl2XRenderer::msaa_color_rb_create(
 	const int width,
 	const int height,
 	const int sample_count)
 {
-	return renderbuffer_create(width, height, sample_count, GL_RGBA8, ogl_msaa_color_rb_);
+	ogl_msaa_color_rb_ = renderbuffer_create(width, height, sample_count, GL_RGBA8);
 }
 
-bool Ogl2XRenderer::msaa_depth_rb_create(
+void Ogl2XRenderer::msaa_depth_rb_create(
 	const int width,
 	const int height,
 	const int sample_count)
 {
-	return renderbuffer_create(width, height, sample_count, GL_DEPTH_COMPONENT, ogl_msaa_depth_rb_);
+	ogl_msaa_depth_rb_ = renderbuffer_create(width, height, sample_count, GL_DEPTH_COMPONENT);
 }
 
-bool Ogl2XRenderer::msaa_framebuffer_create()
+void Ogl2XRenderer::msaa_framebuffer_create()
 {
-	auto sample_count = aa_value_;
+	msaa_color_rb_create(downscale_width_, downscale_height_, aa_value_);
+	msaa_depth_rb_create(downscale_width_, downscale_height_, aa_value_);
 
-	if (sample_count <= 1)
-	{
-		sample_count = 0;
-	}
-	else if (sample_count > device_features_.msaa_max_value_)
-	{
-		sample_count = device_features_.msaa_max_value_;
-	}
-
-	if (!msaa_color_rb_create(downscale_width_, downscale_height_, sample_count))
-	{
-		return false;
-	}
-
-	if (!msaa_depth_rb_create(downscale_width_, downscale_height_, sample_count))
-	{
-		return false;
-	}
-
-	if (!framebuffer_create(ogl_msaa_fbo_))
-	{
-		return false;
-	}
-
+	ogl_msaa_fbo_ = framebuffer_create();
 	framebuffer_bind(GL_FRAMEBUFFER, ogl_msaa_fbo_);
 
-	const auto is_arb = ogl_device_features_.framebuffer_is_arb_;
+	const auto framebuffer_renderbuffer_func = (
+		ogl_device_features_.framebuffer_is_ext_ ?
+		::glFramebufferRenderbufferEXT :
+		::glFramebufferRenderbuffer
+	);
 
-	const auto framebuffer_renderbuffer = (is_arb ? ::glFramebufferRenderbuffer : ::glFramebufferRenderbufferEXT);
-	assert(framebuffer_renderbuffer != nullptr);
+	framebuffer_renderbuffer_func(
+		GL_FRAMEBUFFER,
+		GL_COLOR_ATTACHMENT0,
+		GL_RENDERBUFFER,
+		ogl_msaa_color_rb_
+	);
 
-	framebuffer_renderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, ogl_msaa_color_rb_);
-	framebuffer_renderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, ogl_msaa_depth_rb_);
+	framebuffer_renderbuffer_func(
+		GL_FRAMEBUFFER,
+		GL_DEPTH_ATTACHMENT,
+		GL_RENDERBUFFER,
+		ogl_msaa_depth_rb_
+	);
 
-	const auto check_framebuffer_status = (is_arb ? ::glCheckFramebufferStatus : ::glCheckFramebufferStatusEXT);
-	assert(check_framebuffer_status != nullptr);
+	const auto check_framebuffer_status_func = (
+		ogl_device_features_.framebuffer_is_ext_ ?
+		::glCheckFramebufferStatusEXT :
+		::glCheckFramebufferStatus
+	);
 
-	const auto framebuffer_status = check_framebuffer_status(GL_FRAMEBUFFER);
+	const auto framebuffer_status = check_framebuffer_status_func(GL_FRAMEBUFFER);
 
 	if (framebuffer_status != GL_FRAMEBUFFER_COMPLETE)
 	{
-		return false;
+		throw Exception{"Incomplete framebuffer object."};
 	}
 
 	framebuffer_bind(GL_FRAMEBUFFER, 0);
-
-	return true;
 }
 
 void Ogl2XRenderer::downscale_color_rb_destroy()
 {
-	renderbuffer_destroy(ogl_downscale_color_rb_);
+	ogl_downscale_color_rb_.reset();
 }
 
 void Ogl2XRenderer::downscale_fbo_destroy()
 {
-	framebuffer_destroy(ogl_downscale_fbo_);
+	ogl_downscale_fbo_.reset();
 }
 
 void Ogl2XRenderer::downscale_framebuffer_destroy()
@@ -977,47 +825,47 @@ void Ogl2XRenderer::downscale_framebuffer_destroy()
 	downscale_color_rb_destroy();
 }
 
-bool Ogl2XRenderer::downscale_color_rb_create(
+void Ogl2XRenderer::downscale_color_rb_create(
 	const int width,
 	const int height)
 {
-	return renderbuffer_create(width, height, 0, GL_RGBA8, ogl_downscale_color_rb_);
+	ogl_downscale_color_rb_ = renderbuffer_create(width, height, 0, GL_RGBA8);
 }
 
-bool Ogl2XRenderer::downscale_framebuffer_create()
+void Ogl2XRenderer::downscale_framebuffer_create()
 {
-	if (!downscale_color_rb_create(downscale_width_, downscale_height_))
-	{
-		return false;
-	}
-
-	if (!framebuffer_create(ogl_downscale_fbo_))
-	{
-		return false;
-	}
+	downscale_color_rb_create(downscale_width_, downscale_height_);
+	ogl_downscale_fbo_ = framebuffer_create();
 
 	framebuffer_bind(GL_FRAMEBUFFER, ogl_downscale_fbo_);
 
-	const auto is_arb = ogl_device_features_.framebuffer_is_arb_;
+	const auto framebuffer_renderbuffer = (
+		ogl_device_features_.framebuffer_is_ext_ ?
+		::glFramebufferRenderbufferEXT :
+		::glFramebufferRenderbuffer
+	);
 
-	const auto framebuffer_renderbuffer = (is_arb ? ::glFramebufferRenderbuffer : ::glFramebufferRenderbufferEXT);
-	assert(framebuffer_renderbuffer != nullptr);
+	framebuffer_renderbuffer(
+		GL_FRAMEBUFFER,
+		GL_COLOR_ATTACHMENT0,
+		GL_RENDERBUFFER,
+		ogl_downscale_color_rb_
+	);
 
-	framebuffer_renderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, ogl_downscale_color_rb_);
-
-	const auto check_framebuffer_status = (is_arb ? ::glCheckFramebufferStatus : ::glCheckFramebufferStatusEXT);
-	assert(check_framebuffer_status != nullptr);
+	const auto check_framebuffer_status = (
+		ogl_device_features_.framebuffer_is_ext_ ?
+		::glCheckFramebufferStatusEXT :
+		::glCheckFramebufferStatus
+	);
 
 	const auto framebuffer_status = check_framebuffer_status(GL_FRAMEBUFFER);
 
 	if (framebuffer_status != GL_FRAMEBUFFER_COMPLETE)
 	{
-		return false;
+		throw Exception{"Incomplete framebuffer object."};
 	}
 
 	framebuffer_bind(GL_FRAMEBUFFER, 0);
-
-	return true;
 }
 
 void Ogl2XRenderer::framebuffers_destroy()
@@ -1026,31 +874,23 @@ void Ogl2XRenderer::framebuffers_destroy()
 	downscale_framebuffer_destroy();
 }
 
-bool Ogl2XRenderer::framebuffers_create()
+void Ogl2XRenderer::framebuffers_create()
 {
 	if (!device_features_.framebuffer_is_available_)
 	{
-		return true;
+		return;
 	}
 
 	const auto is_downscale = (screen_width_ != downscale_width_ || screen_height_ != downscale_height_);
-	const auto is_msaa = (aa_kind_ == RendererAaKind::ms && aa_value_ > RendererUtils::aa_get_min_value());
+	const auto is_msaa = (aa_kind_ == RendererAaKind::ms && aa_value_ >= RendererLimits::aa_min);
 	const auto is_create_downscale = (is_downscale && is_msaa);
 
-	if (!msaa_framebuffer_create())
-	{
-		return false;
-	}
+	msaa_framebuffer_create();
 
 	if (is_create_downscale)
 	{
-		if (!downscale_framebuffer_create())
-		{
-			return false;
-		}
+		downscale_framebuffer_create();
 	}
-
-	return true;
 }
 
 void Ogl2XRenderer::framebuffers_blit()
@@ -1123,12 +963,9 @@ void Ogl2XRenderer::framebuffers_bind()
 
 void Ogl2XRenderer::aa_disable()
 {
-	if (ogl_msaa_fbo_ == 0)
-	{
-		return;
-	}
+	aa_kind_ = RendererAaKind::none;
 
-	if (aa_value_ <= RendererUtils::aa_get_min_value())
+	if (ogl_msaa_fbo_ == 0)
 	{
 		return;
 	}
@@ -1137,20 +974,22 @@ void Ogl2XRenderer::aa_disable()
 	static_cast<void>(msaa_framebuffer_create());
 }
 
-bool Ogl2XRenderer::msaa_set(
+void Ogl2XRenderer::msaa_set(
 	const int aa_value)
 {
-	if (ogl_msaa_fbo_ == 0)
+	if (device_features_.msaa_is_requires_restart_)
 	{
-		error_message_ = "No off-screen framebuffer.";
-
-		return false;
+		throw Exception{"Requires restart."};
 	}
 
-	if (aa_kind_ == RendererAaKind::ms ||
-		aa_value_ == aa_value)
+	if (!device_features_.framebuffer_is_available_)
 	{
-		return true;
+		throw Exception{"Framebuffer not available."};
+	}
+
+	if (aa_kind_ == RendererAaKind::ms && aa_value_ == aa_value)
+	{
+		return;
 	}
 
 	aa_kind_ = RendererAaKind::ms;
@@ -1158,7 +997,7 @@ bool Ogl2XRenderer::msaa_set(
 
 	framebuffers_destroy();
 
-	return framebuffers_create();
+	framebuffers_create();
 }
 
 //

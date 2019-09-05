@@ -48,11 +48,6 @@ public:
 	virtual ~RendererManager() = default;
 
 
-	virtual void renderer_probe(
-		const RendererKind& renderer_path) = 0;
-
-	virtual const RendererProbe& renderer_probe_get() const = 0;
-
 	virtual RendererPtr renderer_initialize(
 		const RendererCreateParam& param) = 0;
 }; // RendererManager

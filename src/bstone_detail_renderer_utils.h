@@ -126,9 +126,6 @@ public:
 		const RendererVertexInputCreateParam& param);
 
 
-	static int aa_get_min_value();
-
-
 	// Converts indexed, opaque or transparent, power-of-two pixels to RGBA ones.
 	static void indexed_pot_to_rgba_pot(
 		const int width,

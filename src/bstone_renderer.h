@@ -1012,6 +1012,8 @@ struct RendererDeviceFeatures
 	bool sampler_is_available_;
 
 	bool msaa_is_available_;
+	bool msaa_is_window_;
+	bool msaa_is_requires_restart_;
 	int msaa_min_value_;
 	int msaa_max_value_;
 
@@ -1039,21 +1041,6 @@ struct RendererDeviceInfo
 // ==========================================================================
 
 
-// ==========================================================================
-// RendererProbe
-//
-
-struct RendererProbe
-{
-	RendererKind kind_;
-	RendererDeviceFeatures device_features_;
-}; // RendererProbe
-
-//
-// RendererProbe
-// ==========================================================================
-
-
 class Renderer
 {
 protected:
@@ -1063,27 +1050,11 @@ protected:
 
 
 public:
-	virtual const std::string& get_error_message() const noexcept = 0;
-
-
 	virtual RendererKind get_kind() const noexcept = 0;
 
 	virtual const std::string& get_name() const noexcept = 0;
 
 	virtual const std::string& get_description() const noexcept = 0;
-
-
-	virtual bool probe() = 0;
-
-	virtual const RendererProbe& probe_get() const noexcept = 0;
-
-
-	virtual bool is_initialized() const noexcept = 0;
-
-	virtual bool initialize(
-		const RendererCreateParam& param) = 0;
-
-	virtual void uninitialize() = 0;
 
 
 	virtual const RendererDeviceFeatures& device_get_features() const noexcept = 0;
@@ -1108,17 +1079,17 @@ public:
 
 	virtual bool vsync_get() const noexcept = 0;
 
-	virtual bool vsync_set(
+	virtual void vsync_set(
 		const bool is_enabled) = 0;
 
 
-	virtual bool downscale_set(
+	virtual void downscale_set(
 		const int width,
 		const int height,
 		const RendererFilterKind blit_filter) = 0;
 
 
-	virtual bool aa_set(
+	virtual void aa_set(
 		const RendererAaKind aa_kind,
 		const int aa_value) = 0;
 

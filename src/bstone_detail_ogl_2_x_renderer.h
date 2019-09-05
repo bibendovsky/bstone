@@ -37,6 +37,8 @@ Free Software Foundation, Inc.,
 #include <list>
 #include <vector>
 
+#include "bstone_unique_resource.h"
+
 #include "bstone_detail_ogl_extension_manager.h"
 #include "bstone_detail_ogl_shader.h"
 #include "bstone_detail_ogl_shader_stage.h"
@@ -53,20 +55,14 @@ namespace detail
 {
 
 
-class Ogl2XRenderer;
-using Ogl2XRendererPtr = Ogl2XRenderer*;
-
-
 class Ogl2XRenderer :
 	public Renderer
 {
 public:
-	Ogl2XRenderer();
+	Ogl2XRenderer(
+		const RendererCreateParam& param);
 
 	~Ogl2XRenderer() override;
-
-
-	const std::string& get_error_message() const noexcept override;
 
 
 	RendererKind get_kind() const noexcept override;
@@ -74,19 +70,6 @@ public:
 	const std::string& get_name() const noexcept override;
 
 	const std::string& get_description() const noexcept override;
-
-
-	bool probe() override;
-
-	const RendererProbe& probe_get() const noexcept override;
-
-
-	bool is_initialized() const noexcept override;
-
-	bool initialize(
-		const RendererCreateParam& param) override;
-
-	void uninitialize() override;
 
 
 	const RendererDeviceFeatures& device_get_features() const noexcept override;
@@ -111,17 +94,17 @@ public:
 
 	bool vsync_get() const noexcept override;
 
-	bool vsync_set(
+	void vsync_set(
 		const bool is_enabled) override;
 
 
-	bool downscale_set(
+	void downscale_set(
 		const int width,
 		const int height,
 		const RendererFilterKind blit_filter) override;
 
 
-	bool aa_set(
+	void aa_set(
 		const RendererAaKind aa_kind,
 		const int aa_value) override;
 
@@ -188,14 +171,21 @@ public:
 
 
 private:
+	static void fbo_resource_deleter(
+		const GLuint& ogl_name) noexcept;
+
+	using FboResource = UniqueResource<GLuint, fbo_resource_deleter>;
+
+
+	static void rbo_resource_deleter(
+		const GLuint& ogl_name) noexcept;
+
+	using RboResource = UniqueResource<GLuint, rbo_resource_deleter>;
+
+
 	using Shaders = std::list<detail::OglShaderUPtr>;
 	using ShaderStages = std::list<detail::OglShaderStageUPtr>;
 
-
-	bool is_initialized_;
-	std::string error_message_;
-
-	RendererProbe probe_;
 
 	SdlWindowUPtr sdl_window_;
 	SdlGlContextUPtr sdl_gl_context_;
@@ -218,49 +208,41 @@ private:
 	RendererAaKind aa_kind_;
 	int aa_value_;
 
-	GLuint ogl_msaa_fbo_;
-	GLuint ogl_msaa_color_rb_;
-	GLuint ogl_msaa_depth_rb_;
+	FboResource ogl_msaa_fbo_;
+	RboResource ogl_msaa_color_rb_;
+	RboResource ogl_msaa_depth_rb_;
 
-	GLuint ogl_downscale_fbo_;
-	GLuint ogl_downscale_color_rb_;
+	FboResource ogl_downscale_fbo_;
+	RboResource ogl_downscale_color_rb_;
 
 
-	bool probe_or_initialize(
-		const bool is_probe,
+	void initialize(
 		const RendererCreateParam& param);
+
+	void uninitialize();
 
 
 	void uninitialize_internal(
 		const bool is_dtor = false);
 
 
-	void renderbuffer_destroy(
-		GLuint& ogl_renderbuffer_name);
+	RboResource renderbuffer_create();
 
-	bool renderbuffer_create(
-		GLuint& ogl_renderbuffer_name);
-
-	bool renderbuffer_create(
+	RboResource renderbuffer_create(
 		const int width,
 		const int height,
 		const int sample_count,
-		const GLenum ogl_internal_format,
-		GLuint& ogl_rb_name);
+		const GLenum ogl_internal_format);
 
 	void renderbuffer_bind(
-		const GLuint ogl_renderbuffer_name);
+		const GLuint ogl_name);
 
 
-	void framebuffer_destroy(
-		GLuint& ogl_framebuffer_name);
-
-	bool framebuffer_create(
-		GLuint& ogl_framebuffer_name);
+	FboResource framebuffer_create();
 
 	void framebuffer_bind(
 		const GLenum ogl_target,
-		const GLuint ogl_framebuffer_name);
+		const GLuint ogl_name);
 
 	void framebuffer_blit(
 		const int src_width,
@@ -278,17 +260,17 @@ private:
 
 	void msaa_framebuffer_destroy();
 
-	bool msaa_color_rb_create(
+	void msaa_color_rb_create(
 		const int width,
 		const int height,
 		const int sample_count);
 
-	bool msaa_depth_rb_create(
+	void msaa_depth_rb_create(
 		const int width,
 		const int height,
 		const int sample_count);
 
-	bool msaa_framebuffer_create();
+	void msaa_framebuffer_create();
 
 
 	void downscale_color_rb_destroy();
@@ -297,16 +279,16 @@ private:
 
 	void downscale_framebuffer_destroy();
 
-	bool downscale_color_rb_create(
+	void downscale_color_rb_create(
 		const int width,
 		const int height);
 
-	bool downscale_framebuffer_create();
+	void downscale_framebuffer_create();
 
 
 	void framebuffers_destroy();
 
-	bool framebuffers_create();
+	void framebuffers_create();
 
 	void framebuffers_blit();
 
@@ -315,9 +297,13 @@ private:
 
 	void aa_disable();
 
-	bool msaa_set(
+	void msaa_set(
 		const int aa_value);
-}; // OglRenderer
+}; // Ogl2XRenderer
+
+
+using Ogl2XRendererPtr = Ogl2XRenderer*;
+using Ogl2XRendererUPtr = std::unique_ptr<Ogl2XRenderer>;
 
 
 } // detail

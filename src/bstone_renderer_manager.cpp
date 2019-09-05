@@ -43,48 +43,31 @@ namespace bstone
 // RendererManagerImpl
 //
 
-class RendererManagerImpl :
+class GenericRendererManager :
 	public RendererManager
 {
 public:
-	RendererManagerImpl();
+	GenericRendererManager();
 
-	RendererManagerImpl(
-		RendererManagerImpl&& rhs);
+	GenericRendererManager(
+		GenericRendererManager&& rhs);
 
-	~RendererManagerImpl() override;
+	~GenericRendererManager() override;
 
-
-	int get_renderer_count() const;
-
-	RendererPtr get_renderer(
-		const int index) const;
-
-
-	void renderer_probe(
-		const RendererKind& renderer_path) override;
-
-	const RendererProbe& renderer_probe_get() const override;
 
 	RendererPtr renderer_initialize(
 		const RendererCreateParam& param) override;
 
 
 private:
-	using Renderers = std::vector<RendererPtr>;
+	detail::Ogl2XRendererUPtr ogl_2_x_renderer_;
 
 
-	int renderer_count_;
-
-	RendererProbe renderer_probe_;
-	Renderers renderers_;
-
-	detail::Ogl2XRenderer ogl_2_x_renderer_;
-
-
-	bool initialize();
+	void initialize();
 
 	void uninitialize();
+
+	void uninitialize_renderers();
 }; // RendererManagerImpl
 
 //
@@ -96,122 +79,98 @@ private:
 // RendererManagerImpl
 //
 
-RendererManagerImpl::RendererManagerImpl()
+GenericRendererManager::GenericRendererManager()
 	:
-	renderer_probe_{},
-	renderers_{}
+	ogl_2_x_renderer_{}
 {
 	initialize();
 }
 
-RendererManagerImpl::RendererManagerImpl(
-	RendererManagerImpl&& rhs)
+GenericRendererManager::GenericRendererManager(
+	GenericRendererManager&& rhs)
 	:
-	renderer_probe_{std::move(rhs.renderer_probe_)},
-	renderers_{std::move(rhs.renderers_)}
+	ogl_2_x_renderer_{std::move(rhs.ogl_2_x_renderer_)}
 {
 }
 
-RendererManagerImpl::~RendererManagerImpl()
+GenericRendererManager::~GenericRendererManager()
 {
 	uninitialize();
 }
 
-bool RendererManagerImpl::initialize()
+void GenericRendererManager::initialize()
 {
 	detail::OglRendererUtils::load_library();
-
-	renderer_count_ = 0;
-	renderers_.resize(0);
-
-	// OpenGL 2.x
-	//
-	++renderer_count_;
-	renderers_.emplace_back(&ogl_2_x_renderer_);
-
-	return true;
 }
 
-void RendererManagerImpl::uninitialize()
+void GenericRendererManager::uninitialize()
 {
-	for (auto renderer : renderers_)
-	{
-		renderer->uninitialize();
-	}
-
-	renderers_.clear();
+	uninitialize_renderers();
 
 	detail::OglRendererUtils::unload_library();
 }
 
-int RendererManagerImpl::get_renderer_count() const
+void GenericRendererManager::uninitialize_renderers()
 {
-	return renderer_count_;
+	ogl_2_x_renderer_ = nullptr;
 }
 
-RendererPtr RendererManagerImpl::get_renderer(
-	const int index) const
+RendererPtr GenericRendererManager::renderer_initialize(
+	const RendererCreateParam& param)
 {
-	return renderers_[index];
-}
+	uninitialize_renderers();
 
-void RendererManagerImpl::renderer_probe(
-	const RendererKind& renderer_path)
-{
-	if (renderer_path == RendererKind::auto_detect)
+	detail::RendererUtils::validate_initialize_param(param);
+
+	auto new_param = param;
+
+	const auto is_auto_detect = (param.renderer_kind_ == RendererKind::auto_detect);
+
+	using RendererKindList = std::vector<RendererKind>;
+
+	auto renderer_kind_list = RendererKindList{};
+
+	if (is_auto_detect)
 	{
-		// OpenGL.
-		//
-
-		// OpenGL 2.x.
-		//
-		if (ogl_2_x_renderer_.probe())
+		renderer_kind_list =
 		{
-			renderer_probe_ = ogl_2_x_renderer_.probe_get();
-		}
+			RendererKind::ogl_2_x,
+		};
 	}
 	else
 	{
-		// OpenGL.
-		//
+		renderer_kind_list = {param.renderer_kind_};
+	}
 
-		// OpenGL 2.x.
-		//
-		if (renderer_path == RendererKind::ogl_2_x)
+	for (const auto renderer_kind : renderer_kind_list)
+	{
+		new_param.renderer_kind_ = renderer_kind;
+
+		try
 		{
-			if (ogl_2_x_renderer_.probe())
+			switch (renderer_kind)
 			{
-				renderer_probe_.kind_ = renderer_path;
+				case RendererKind::ogl_2_x:
+					ogl_2_x_renderer_ = std::make_unique<detail::Ogl2XRenderer>(new_param);
+
+					return ogl_2_x_renderer_.get();
+
+
+				default:
+					throw Exception{"Unsupported renderer kind."};
+
+			}
+		}
+		catch (const Exception&)
+		{
+			if (!is_auto_detect)
+			{
+				throw;
 			}
 		}
 	}
-}
 
-const RendererProbe& RendererManagerImpl::renderer_probe_get() const
-{
-	return renderer_probe_;
-}
-
-RendererPtr RendererManagerImpl::renderer_initialize(
-	const RendererCreateParam& param)
-{
-	detail::RendererUtils::validate_initialize_param(param);
-
-	switch (param.renderer_kind_)
-	{
-	case RendererKind::ogl_2_x:
-		if (ogl_2_x_renderer_.initialize(param))
-		{
-			return &ogl_2_x_renderer_;
-		}
-
-		break;
-
-	default:
-		break;
-	}
-
-	return nullptr;
+	throw Exception{"No hardware renderer detected."};
 }
 
 //
@@ -225,7 +184,7 @@ RendererPtr RendererManagerImpl::renderer_initialize(
 
 RendererManagerUPtr RendererManagerFactory::create()
 {
-	return RendererManagerUPtr{new RendererManagerImpl{}};
+	return std::make_unique<GenericRendererManager>();
 }
 
 //

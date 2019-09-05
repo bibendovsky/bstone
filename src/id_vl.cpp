@@ -2591,7 +2591,10 @@ void hw_3d_player_weapon_model_matrix_update();
 void vid_log_hw_renderer_error(
 	const std::string& message)
 {
+	// FIXME
+#if 0
 	::vid_log_error(message, ::hw_renderer_->get_error_message());
+#endif
 }
 
 bstone::RendererMipmapMode hw_config_texture_mipmap_filter_to_renderer(
@@ -3446,10 +3449,8 @@ bool hw_renderer_initialize()
 
 	// Initialization parameter.
 	//
-	const auto& probe = ::hw_renderer_manager_->renderer_probe_get();
-
 	auto param = bstone::RendererCreateParam{};
-	param.renderer_kind_ = probe.kind_;
+	param.renderer_kind_ = bstone::RendererKind::auto_detect;
 
 	param.aa_kind_ = ::vid_configuration_.hw_aa_kind_;
 	param.aa_value_ = ::vid_configuration_.hw_aa_value_;
@@ -7695,18 +7696,11 @@ void hw_downscale_update()
 			break;
 	}
 
-	const auto downscale_set_result = ::hw_renderer_->downscale_set(
+	::hw_renderer_->downscale_set(
 		::downscale_.window_width_,
 		::downscale_.window_height_,
 		blit_filter
 	);
-
-	if (!downscale_set_result)
-	{
-		::vid_quit("Failed to set downsample parameters. " + ::hw_renderer_->get_error_message());
-
-		return;
-	}
 }
 
 void vid_apply_hw_is_ui_stretched_configuration()
@@ -7792,7 +7786,7 @@ void vid_apply_hw_aa_configuration()
 	::vid_configuration_.hw_aa_kind_.set_is_modified(false);
 	::vid_configuration_.hw_aa_value_.set_is_modified(false);
 
-	const auto aa_result = ::hw_renderer_->aa_set(
+	::hw_renderer_->aa_set(
 		::vid_configuration_.hw_aa_kind_,
 		::vid_configuration_.hw_aa_value_);
 }
@@ -7816,12 +7810,7 @@ void vid_apply_hw_vsync_configuration()
 		// FIXME
 	}
 
-	const auto result = ::hw_renderer_->vsync_set(::vid_configuration_.is_vsync_);
-
-	if (!result)
-	{
-		::vid_log_hw_renderer_error("Failed to update V-Sync.");
-	}
+	::hw_renderer_->vsync_set(::vid_configuration_.is_vsync_);
 }
 
 void hw_3d_fade_update()
@@ -12385,8 +12374,6 @@ bool hw_video_initialize()
 	::vid_log("Initializing hardware accelerated renderer.");
 
 	hw_renderer_manager_ = bstone::RendererManagerFactory::create();
-
-	::hw_renderer_manager_->renderer_probe(bstone::RendererKind::auto_detect);
 
 	::vid_common_initialize();
 	::hw_dimensions_calculate();

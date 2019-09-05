@@ -232,13 +232,10 @@ void GenericOglTexture2d::generate_mipmaps()
 	}
 	else
 	{
-		if (ogl_device_features.mipmap_function_ == nullptr)
-		{
-			throw Exception{"Null mipmap generation function."};
-		}
-
-		ogl_device_features.mipmap_function_(GL_TEXTURE_2D);
-		assert(!OglRendererUtils::was_errors());
+		OglRendererUtils::mipmap_generate(
+			GL_TEXTURE_2D,
+			device_features,
+			ogl_device_features);
 	}
 }
 

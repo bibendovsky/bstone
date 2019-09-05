@@ -71,7 +71,7 @@ void OglRendererUtils::load_library()
 	}
 }
 
-void OglRendererUtils::unload_library()
+void OglRendererUtils::unload_library() noexcept
 {
 	::SDL_GL_UnloadLibrary();
 }
@@ -151,8 +151,8 @@ void OglRendererUtils::create_probe_window_and_context(
 {
 	auto param = RendererUtilsCreateWindowParam{};
 	param.is_opengl_ = true;
-	param.window_.width_ = 1;
-	param.window_.height_ = 1;
+	param.window_.width_ = dummy_window_min_dimension;
+	param.window_.height_ = dummy_window_min_dimension;
 	param.aa_kind_ = RendererAaKind::none;
 	param.aa_value_ = 0;
 
@@ -296,8 +296,8 @@ int OglRendererUtils::msaa_window_get_max()
 
 	auto window_param = RendererUtilsCreateWindowParam{};
 	window_param.is_opengl_ = true;
-	window_param.window_.width_ = 1;
-	window_param.window_.height_ = 1;
+	window_param.window_.width_ = dummy_window_min_dimension;
+	window_param.window_.height_ = dummy_window_min_dimension;
 	window_param.aa_kind_ = RendererAaKind::ms;
 
 	auto max_msaa = 0;
@@ -349,8 +349,8 @@ int OglRendererUtils::msaa_fbo_get_max(
 
 	auto window_param = RendererUtilsCreateWindowParam{};
 	window_param.is_opengl_ = true;
-	window_param.window_.width_ = 1;
-	window_param.window_.height_ = 1;
+	window_param.window_.width_ = dummy_window_min_dimension;
+	window_param.window_.height_ = dummy_window_min_dimension;
 
 	auto sdl_window = SdlWindowUPtr{};
 	auto sdl_gl_context = SdlGlContextUPtr{};
@@ -378,20 +378,7 @@ int OglRendererUtils::msaa_fbo_get_max(
 	}
 
 
-	auto ogl_enum = GLenum{};
-
-	if (ogl_device_features.framebuffer_is_arb_)
-	{
-		ogl_enum = GL_MAX_SAMPLES;
-	}
-	else if (ogl_device_features.framebuffer_is_ext_)
-	{
-		ogl_enum = GL_MAX_SAMPLES_EXT;
-	}
-	else
-	{
-		throw Exception{"OpenGL framebuffer object not available."};
-	}
+	const auto ogl_enum = (ogl_device_features.framebuffer_is_ext_ ? GL_MAX_SAMPLES_EXT : GL_MAX_SAMPLES);
 
 	auto ogl_value = GLint{};
 
@@ -399,6 +386,85 @@ int OglRendererUtils::msaa_fbo_get_max(
 	assert(!OglRendererUtils::was_errors());
 
 	return ogl_value;
+}
+
+void OglRendererUtils::msaa_probe(
+	RendererDeviceFeatures& device_features,
+	OglDeviceFeatures& ogl_device_features)
+{
+	device_features.msaa_is_available_ = false;
+	device_features.msaa_is_window_ = false;
+	device_features.msaa_is_requires_restart_ = false;
+	device_features.msaa_min_value_ = RendererLimits::aa_min;
+	device_features.msaa_max_value_ = RendererLimits::aa_min;
+
+	const auto msaa_window_max = OglRendererUtils::msaa_window_get_max();
+
+	if (msaa_window_max >= RendererLimits::aa_min)
+	{
+		device_features.msaa_is_available_ = true;
+
+		if (msaa_window_max > device_features.msaa_max_value_)
+		{
+			device_features.msaa_max_value_ = msaa_window_max;
+		}
+	}
+
+	const auto msaa_fbo_max = OglRendererUtils::msaa_fbo_get_max(device_features, ogl_device_features);
+
+	if (msaa_fbo_max >= RendererLimits::aa_min)
+	{
+		device_features.msaa_is_available_ = true;
+
+		if (msaa_fbo_max > device_features.msaa_max_value_)
+		{
+			device_features.msaa_max_value_ = msaa_fbo_max;
+		}
+	}
+
+	if (msaa_window_max > 0 && msaa_fbo_max == 0)
+	{
+		device_features.msaa_is_window_ = true;
+		device_features.msaa_is_requires_restart_ = true;
+	}
+}
+
+int OglRendererUtils::msaa_window_get_value()
+{
+	{
+		auto sdl_buffer_count = 0;
+
+		const auto sdl_result = ::SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &sdl_buffer_count);
+
+		if (sdl_result != 0)
+		{
+			auto message = std::string{"Failed to get multisample buffer count. "};
+			message += ::SDL_GetError();
+
+			throw Exception{std::move(message)};
+		}
+
+		if (sdl_buffer_count <= 0)
+		{
+			return 0;
+		}
+	}
+
+	{
+		auto sdl_sample_count = 0;
+
+		const auto sdl_result = ::SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &sdl_sample_count);
+
+		if (sdl_result != 0)
+		{
+			auto message = std::string{"Failed to get multisample sample count. "};
+			message += ::SDL_GetError();
+
+			throw Exception{std::move(message)};
+		}
+
+		return sdl_sample_count;
+	}
 }
 
 int OglRendererUtils::anisotropy_get_max_value()
@@ -490,7 +556,7 @@ void OglRendererUtils::mipmap_probe(
 	OglDeviceFeatures& ogl_device_features)
 {
 	device_features.mipmap_is_available_ = false;
-	ogl_device_features.mipmap_function_ = nullptr;
+	ogl_device_features.mipmap_is_ext_ = false;
 
 #ifndef BSTONE_RENDERER_TEST_SW_MIPMAP
 	if (!device_features.mipmap_is_available_)
@@ -500,7 +566,6 @@ void OglRendererUtils::mipmap_probe(
 		if (extension_manager->has(OglExtensionId::arb_framebuffer_object))
 		{
 			device_features.mipmap_is_available_ = true;
-			ogl_device_features.mipmap_function_ = ::glGenerateMipmap;
 		}
 	}
 
@@ -511,10 +576,35 @@ void OglRendererUtils::mipmap_probe(
 		if (extension_manager->has(OglExtensionId::ext_framebuffer_object))
 		{
 			device_features.mipmap_is_available_ = true;
-			ogl_device_features.mipmap_function_ = ::glGenerateMipmapEXT;
+			ogl_device_features.mipmap_is_ext_ = true;
 		}
 	}
 #endif // !BSTONE_RENDERER_TEST_SW_MIPMAP
+}
+
+void OglRendererUtils::mipmap_generate(
+	const GLenum ogl_target,
+	const RendererDeviceFeatures& device_features,
+	const OglDeviceFeatures& ogl_device_features)
+{
+	if (!device_features.mipmap_is_available_)
+	{
+		throw Exception{"Mipmap generation not available."};
+	}
+
+	switch (ogl_target)
+	{
+		case GL_TEXTURE_2D:
+			break;
+
+		default:
+			throw Exception{"Unsupported texture target."};
+	}
+
+	const auto ogl_function = (ogl_device_features.mipmap_is_ext_ ? ::glGenerateMipmapEXT : ::glGenerateMipmap);
+
+	ogl_function(ogl_target);
+	assert(!OglRendererUtils::was_errors());
 }
 
 void OglRendererUtils::framebuffer_probe(
@@ -523,22 +613,20 @@ void OglRendererUtils::framebuffer_probe(
 	OglDeviceFeatures& ogl_device_features)
 {
 	device_features.framebuffer_is_available_ = false;
-	ogl_device_features.framebuffer_is_arb_ = false;
 	ogl_device_features.framebuffer_is_ext_ = false;
 
 #ifndef BSTONE_RENDERER_TEST_DEFAULT_FRAMEBUFFER
-	// ARB
+	if (!device_features.framebuffer_is_available_)
 	{
 		extension_manager->probe(OglExtensionId::arb_framebuffer_object);
 
 		if (extension_manager->has(OglExtensionId::arb_framebuffer_object))
 		{
 			device_features.framebuffer_is_available_ = true;
-			ogl_device_features.framebuffer_is_arb_ = true;
 		}
 	}
 
-	// EXT
+	if (!device_features.framebuffer_is_available_)
 	{
 		extension_manager->probe(OglExtensionId::ext_framebuffer_blit);
 		extension_manager->probe(OglExtensionId::ext_framebuffer_multisample);
@@ -627,11 +715,21 @@ void OglRendererUtils::vertex_input_probe_max_locations(
 void OglRendererUtils::vsync_probe(
 	RendererDeviceFeatures& device_features)
 {
+	const auto sdl_gl_current_context = ::SDL_GL_GetCurrentContext();
+
+	if (!sdl_gl_current_context)
+	{
+		throw Exception{"No OpenGL context."};
+	}
+
 	device_features.vsync_is_available_ = false;
 	device_features.vsync_is_requires_restart_ = false;
 
 #ifndef BSTONE_RENDERER_TEST_NO_SWAP_INTERVAL
-	if (vsync_set(true))
+	const auto off_result = vsync_set(false);
+	const auto on_result = vsync_set(true);
+
+	if (off_result && on_result)
 	{
 		device_features.vsync_is_available_ = true;
 	}
@@ -642,7 +740,18 @@ bool OglRendererUtils::vsync_get()
 {
 	const auto sdl_result = ::SDL_GL_GetSwapInterval();
 
-	return sdl_result > 0;
+	switch (sdl_result)
+	{
+		case 0:
+			return false;
+
+		case -1:
+		case 1:
+			return true;
+
+		default:
+			throw Exception{"Unsupported swap interval value."};
+	}
 }
 
 bool OglRendererUtils::vsync_set(
