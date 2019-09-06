@@ -186,6 +186,8 @@ private:
 
 	void resolve_v3_1();
 
+	void resolve_v3_2();
+
 
 	void resolve_arb_buffer_storage();
 
@@ -215,6 +217,21 @@ private:
 	void resolve_ext_framebuffer_multisample();
 
 	void resolve_ext_framebuffer_object();
+
+
+	void resolve_arb_depth_clamp();
+
+	void resolve_arb_draw_elements_base_vertex();
+
+	void resolve_arb_fragment_coord_conventions();
+
+	void resolve_arb_provoking_vertex();
+
+	void resolve_arb_seamless_cube_map();
+
+	void resolve_arb_sync();
+
+	void resolve_arb_texture_multisample();
 }; // OglExtensionManagerImpl
 
 
@@ -231,9 +248,7 @@ OglExtensionManagerImpl::OglExtensionManagerImpl()
 	initialize();
 }
 
-OglExtensionManagerImpl::~OglExtensionManagerImpl()
-{
-}
+OglExtensionManagerImpl::~OglExtensionManagerImpl() = default;
 
 void OglExtensionManagerImpl::initialize()
 {
@@ -483,6 +498,32 @@ void OglExtensionManagerImpl::initialize_registry()
 			OglExtensionId::v3_0,
 			OglExtensionId::arb_copy_buffer,
 			OglExtensionId::arb_uniform_buffer_object,
+		};
+	}
+
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::v3_2)];
+		registry_item.is_virtual_ = true;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = false;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
+		registry_item.extension_name_ = "v3.2";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_v3_2;
+
+		registry_item.dependencies_ =
+		{
+			OglExtensionId::v2_1,
+			OglExtensionId::v3_1,
+			OglExtensionId::arb_depth_clamp,
+			OglExtensionId::arb_draw_elements_base_vertex,
+			OglExtensionId::arb_fragment_coord_conventions,
+			OglExtensionId::arb_provoking_vertex,
+			OglExtensionId::arb_seamless_cube_map,
+			OglExtensionId::arb_sync,
+			OglExtensionId::arb_texture_multisample,
 		};
 	}
 
@@ -863,27 +904,116 @@ void OglExtensionManagerImpl::initialize_registry()
 		registry_item.resolve_symbols_function_ = nullptr;
 		registry_item.dependencies_ = {};
 	}
+
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::arb_depth_clamp)];
+		registry_item.is_virtual_ = false;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = true;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
+		registry_item.extension_name_ = "GL_ARB_depth_clamp";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_arb_depth_clamp;
+		registry_item.dependencies_ = {};
+	}
+
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::arb_draw_elements_base_vertex)];
+		registry_item.is_virtual_ = false;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = true;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
+		registry_item.extension_name_ = "GL_ARB_draw_elements_base_vertex";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_arb_draw_elements_base_vertex;
+		registry_item.dependencies_ = {};
+	}
+
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::arb_fragment_coord_conventions)];
+		registry_item.is_virtual_ = false;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = true;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
+		registry_item.extension_name_ = "GL_ARB_fragment_coord_conventions";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_arb_fragment_coord_conventions;
+		registry_item.dependencies_ = {};
+	}
+
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::arb_provoking_vertex)];
+		registry_item.is_virtual_ = false;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = true;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
+		registry_item.extension_name_ = "GL_ARB_provoking_vertex";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_arb_provoking_vertex;
+		registry_item.dependencies_ = {};
+	}
+
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::arb_seamless_cube_map)];
+		registry_item.is_virtual_ = false;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = true;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
+		registry_item.extension_name_ = "GL_ARB_seamless_cube_map";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_arb_seamless_cube_map;
+		registry_item.dependencies_ = {};
+	}
+
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::arb_sync)];
+		registry_item.is_virtual_ = false;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = true;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
+		registry_item.extension_name_ = "GL_ARB_sync";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_arb_sync;
+		registry_item.dependencies_ = {};
+	}
+
+	{
+		auto& registry_item = registry_[static_cast<int>(OglExtensionId::arb_texture_multisample)];
+		registry_item.is_virtual_ = false;
+		registry_item.is_probed_ = false;
+		registry_item.is_available_ = false;
+		registry_item.is_gl_ = true;
+		registry_item.is_glcore_ = true;
+		registry_item.is_gles1_ = false;
+		registry_item.is_gles2_ = false;
+		registry_item.extension_name_ = "GL_ARB_texture_multisample";
+		registry_item.resolve_symbols_function_ = &OglExtensionManagerImpl::resolve_arb_texture_multisample;
+		registry_item.dependencies_ = {};
+	}
 }
 
 void OglExtensionManagerImpl::get_context_attributes()
 {
-	const auto context_type = OglRendererUtils::context_get_kind();
+	context_kind_ = OglRendererUtils::context_get_kind();
 
-	if (context_type == OglContextKind::invalid)
+	if (context_kind_ == OglContextKind::invalid)
 	{
 		throw Exception{"Invalid context kind."};
 	}
 
 	OglRendererUtils::context_get_version(context_major_version_, context_minor_version_);
-
-	int major_version = 0;
-	int minor_version = 0;
-
-	OglRendererUtils::context_get_version(major_version, minor_version);
-
-	context_kind_ = context_type;
-	context_major_version_ = major_version;
-	context_minor_version_ = minor_version;
 }
 
 void OglExtensionManagerImpl::get_core_extension_names()
@@ -910,8 +1040,7 @@ void OglExtensionManagerImpl::get_core_extension_names()
 		return;
 	}
 
-	auto extension_names = ExtensionNames{};
-	extension_names.resize(ogl_extension_count);
+	extension_names_.resize(ogl_extension_count);
 
 	for (auto i = GLint{}; i < ogl_extension_count; ++i)
 	{
@@ -922,10 +1051,8 @@ void OglExtensionManagerImpl::get_core_extension_names()
 			throw Exception{"Null extension name."};
 		}
 
-		extension_names[i] = reinterpret_cast<const char*>(extension_name);
+		extension_names_[i] = reinterpret_cast<const char*>(extension_name);
 	}
-
-	extension_names_ = std::move(extension_names);
 }
 
 void OglExtensionManagerImpl::get_compatibility_extension_names()
@@ -1784,6 +1911,13 @@ void OglExtensionManagerImpl::resolve_v3_1()
 	resolve_symbol("glPrimitiveRestartIndex", ::glPrimitiveRestartIndex);
 }
 
+void OglExtensionManagerImpl::resolve_v3_2()
+{
+	resolve_symbol("glGetInteger64i_v", ::glGetInteger64i_v);
+	resolve_symbol("glGetBufferParameteri64v", ::glGetBufferParameteri64v);
+	resolve_symbol("glFramebufferTexture", ::glFramebufferTexture);
+}
+
 void OglExtensionManagerImpl::resolve_arb_buffer_storage()
 {
 	resolve_symbol("glBufferStorage", ::glBufferStorage);
@@ -2079,6 +2213,50 @@ void OglExtensionManagerImpl::resolve_ext_framebuffer_object()
 	resolve_symbol("glFramebufferRenderbufferEXT", ::glFramebufferRenderbufferEXT);
 	resolve_symbol("glGetFramebufferAttachmentParameterivEXT", ::glGetFramebufferAttachmentParameterivEXT);
 	resolve_symbol("glGenerateMipmapEXT", ::glGenerateMipmapEXT);
+}
+
+void OglExtensionManagerImpl::resolve_arb_depth_clamp()
+{
+}
+
+void OglExtensionManagerImpl::resolve_arb_draw_elements_base_vertex()
+{
+	resolve_symbol("glDrawElementsBaseVertex", ::glDrawElementsBaseVertex);
+	resolve_symbol("glDrawRangeElementsBaseVertex", ::glDrawRangeElementsBaseVertex);
+	resolve_symbol("glDrawElementsInstancedBaseVertex", ::glDrawElementsInstancedBaseVertex);
+	resolve_symbol("glMultiDrawElementsBaseVertex", ::glMultiDrawElementsBaseVertex);
+}
+
+void OglExtensionManagerImpl::resolve_arb_fragment_coord_conventions()
+{
+}
+
+void OglExtensionManagerImpl::resolve_arb_provoking_vertex()
+{
+	resolve_symbol("glProvokingVertex", ::glProvokingVertex);
+}
+
+void OglExtensionManagerImpl::resolve_arb_seamless_cube_map()
+{
+}
+
+void OglExtensionManagerImpl::resolve_arb_sync()
+{
+	resolve_symbol("glFenceSync", ::glFenceSync);
+	resolve_symbol("glIsSync", ::glIsSync);
+	resolve_symbol("glDeleteSync", ::glDeleteSync);
+	resolve_symbol("glClientWaitSync", ::glClientWaitSync);
+	resolve_symbol("glWaitSync", ::glWaitSync);
+	resolve_symbol("glGetInteger64v", ::glGetInteger64v);
+	resolve_symbol("glGetSynciv", ::glGetSynciv);
+}
+
+void OglExtensionManagerImpl::resolve_arb_texture_multisample()
+{
+	resolve_symbol("glTexImage2DMultisample", ::glTexImage2DMultisample);
+	resolve_symbol("glTexImage3DMultisample", ::glTexImage3DMultisample);
+	resolve_symbol("glGetMultisamplefv", ::glGetMultisamplefv);
+	resolve_symbol("glSampleMaski", ::glSampleMaski);
 }
 
 //

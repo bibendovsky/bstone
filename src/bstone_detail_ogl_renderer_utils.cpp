@@ -138,25 +138,11 @@ void OglRendererUtils::create_window_and_context(
 	SdlWindowUPtr& sdl_window,
 	SdlGlContextUPtr& sdl_gl_context)
 {
-	auto sdl_window_result = RendererUtils::create_window(param);
+	auto sdl_window_result = RendererUtils::window_create(param);
 	auto sdl_gl_context_result = create_context(sdl_window_result.get());
 
 	sdl_window = std::move(sdl_window_result);
 	sdl_gl_context = std::move(sdl_gl_context_result);
-}
-
-void OglRendererUtils::create_probe_window_and_context(
-	SdlWindowUPtr& sdl_window,
-	SdlGlContextUPtr& sdl_gl_context)
-{
-	auto param = RendererUtilsCreateWindowParam{};
-	param.is_opengl_ = true;
-	param.window_.width_ = dummy_window_min_dimension;
-	param.window_.height_ = dummy_window_min_dimension;
-	param.aa_kind_ = RendererAaKind::none;
-	param.aa_value_ = 0;
-
-	create_window_and_context(param, sdl_window, sdl_gl_context);
 }
 
 void OglRendererUtils::window_get_drawable_size(
@@ -285,7 +271,8 @@ int OglRendererUtils::anisotropy_clamp_value(
 	return clamped_value;
 }
 
-int OglRendererUtils::msaa_window_get_max()
+int OglRendererUtils::msaa_window_get_max(
+	const RendererKind renderer_kind)
 {
 	const auto sdl_gl_current_context = ::SDL_GL_GetCurrentContext();
 
@@ -295,7 +282,7 @@ int OglRendererUtils::msaa_window_get_max()
 	}
 
 	auto window_param = RendererUtilsCreateWindowParam{};
-	window_param.is_opengl_ = true;
+	window_param.renderer_kind_ = renderer_kind;
 	window_param.window_.width_ = dummy_window_min_dimension;
 	window_param.window_.height_ = dummy_window_min_dimension;
 	window_param.aa_kind_ = RendererAaKind::ms;
@@ -337,6 +324,7 @@ int OglRendererUtils::msaa_window_get_max()
 }
 
 int OglRendererUtils::msaa_fbo_get_max(
+	const RendererKind renderer_kind,
 	RendererDeviceFeatures& device_features,
 	OglDeviceFeatures& ogl_device_features)
 {
@@ -348,7 +336,7 @@ int OglRendererUtils::msaa_fbo_get_max(
 	}
 
 	auto window_param = RendererUtilsCreateWindowParam{};
-	window_param.is_opengl_ = true;
+	window_param.renderer_kind_ = renderer_kind;
 	window_param.window_.width_ = dummy_window_min_dimension;
 	window_param.window_.height_ = dummy_window_min_dimension;
 
@@ -389,6 +377,7 @@ int OglRendererUtils::msaa_fbo_get_max(
 }
 
 void OglRendererUtils::msaa_probe(
+	const RendererKind renderer_kind,
 	RendererDeviceFeatures& device_features,
 	OglDeviceFeatures& ogl_device_features)
 {
@@ -398,7 +387,8 @@ void OglRendererUtils::msaa_probe(
 	device_features.msaa_min_value_ = RendererLimits::aa_min;
 	device_features.msaa_max_value_ = RendererLimits::aa_min;
 
-	const auto msaa_window_max = OglRendererUtils::msaa_window_get_max();
+	const auto msaa_window_max = OglRendererUtils::msaa_window_get_max(
+		renderer_kind);
 
 	if (msaa_window_max >= RendererLimits::aa_min)
 	{
@@ -410,7 +400,11 @@ void OglRendererUtils::msaa_probe(
 		}
 	}
 
-	const auto msaa_fbo_max = OglRendererUtils::msaa_fbo_get_max(device_features, ogl_device_features);
+	const auto msaa_fbo_max = OglRendererUtils::msaa_fbo_get_max(
+		renderer_kind,
+		device_features,
+		ogl_device_features
+	);
 
 	if (msaa_fbo_max >= RendererLimits::aa_min)
 	{
@@ -509,7 +503,7 @@ void OglRendererUtils::anisotropy_probe(
 	device_features.anisotropy_min_value_ = RendererSampler::anisotropy_min;
 	device_features.anisotropy_max_value_ = RendererSampler::anisotropy_min;
 
-#ifndef BSTONE_RENDERER_TEST_NO_ANISOTROPY
+#ifndef BSTONE_RENDERER_HW_TEST_NO_ANISOTROPY
 	if (!device_features.anisotropy_is_available_)
 	{
 		extension_manager->probe(OglExtensionId::arb_texture_filter_anisotropic);
@@ -530,7 +524,7 @@ void OglRendererUtils::anisotropy_probe(
 	{
 		device_features.anisotropy_max_value_ = anisotropy_get_max_value();
 	}
-#endif // !BSTONE_RENDERER_TEST_NO_ANISOTROPY
+#endif // !BSTONE_RENDERER_HW_TEST_NO_ANISOTROPY
 }
 
 void OglRendererUtils::npot_probe(
@@ -539,7 +533,7 @@ void OglRendererUtils::npot_probe(
 {
 	device_features.npot_is_available_ = false;
 
-#ifndef BSTONE_RENDERER_TEST_POT_ONLY
+#ifndef BSTONE_RENDERER_HW_TEST_POT_ONLY
 	if (!device_features.npot_is_available_)
 	{
 		extension_manager->probe(OglExtensionId::arb_texture_non_power_of_two);
@@ -547,7 +541,7 @@ void OglRendererUtils::npot_probe(
 		device_features.npot_is_available_ =
 			extension_manager->has(OglExtensionId::arb_texture_non_power_of_two);
 	}
-#endif //!BSTONE_RENDERER_TEST_POT_ONLY
+#endif //!BSTONE_RENDERER_HW_TEST_POT_ONLY
 }
 
 void OglRendererUtils::mipmap_probe(
@@ -558,7 +552,7 @@ void OglRendererUtils::mipmap_probe(
 	device_features.mipmap_is_available_ = false;
 	ogl_device_features.mipmap_is_ext_ = false;
 
-#ifndef BSTONE_RENDERER_TEST_SW_MIPMAP
+#ifndef BSTONE_RENDERER_HW_TEST_SW_MIPMAP
 	if (!device_features.mipmap_is_available_)
 	{
 		extension_manager->probe(OglExtensionId::arb_framebuffer_object);
@@ -579,7 +573,7 @@ void OglRendererUtils::mipmap_probe(
 			ogl_device_features.mipmap_is_ext_ = true;
 		}
 	}
-#endif // !BSTONE_RENDERER_TEST_SW_MIPMAP
+#endif // !BSTONE_RENDERER_HW_TEST_SW_MIPMAP
 }
 
 void OglRendererUtils::mipmap_generate(
@@ -615,7 +609,7 @@ void OglRendererUtils::framebuffer_probe(
 	device_features.framebuffer_is_available_ = false;
 	ogl_device_features.framebuffer_is_ext_ = false;
 
-#ifndef BSTONE_RENDERER_TEST_DEFAULT_FRAMEBUFFER
+#ifndef BSTONE_RENDERER_TEST_HW_DEFAULT_FRAMEBUFFER
 	if (!device_features.framebuffer_is_available_)
 	{
 		extension_manager->probe(OglExtensionId::arb_framebuffer_object);
@@ -642,7 +636,7 @@ void OglRendererUtils::framebuffer_probe(
 			ogl_device_features.framebuffer_is_ext_ = true;
 		}
 	}
-#endif // !BSTONE_RENDERER_TEST_DEFAULT_FRAMEBUFFER
+#endif // !BSTONE_RENDERER_TEST_HW_DEFAULT_FRAMEBUFFER
 }
 
 void OglRendererUtils::sampler_probe(
@@ -651,14 +645,14 @@ void OglRendererUtils::sampler_probe(
 {
 	device_features.sampler_is_available_ = false;
 
-#ifndef BSTONE_RENDERER_TEST_SW_SAMPLER
+#ifndef BSTONE_RENDERER_HW_TEST_SW_SAMPLER
 	extension_manager->probe(OglExtensionId::arb_sampler_objects);
 
 	if (extension_manager->has(OglExtensionId::arb_sampler_objects))
 	{
 		device_features.sampler_is_available_ = true;
 	}
-#endif // !BSTONE_RENDERER_TEST_SW_SAMPLER
+#endif // !BSTONE_RENDERER_HW_TEST_SW_SAMPLER
 }
 
 void OglRendererUtils::sampler_set_anisotropy(
@@ -686,14 +680,14 @@ void OglRendererUtils::vertex_input_vao_probe(
 {
 	ogl_device_features.vao_is_available_ = false;
 
-#ifndef BSTONE_RENDERER_TEST_OGL_NO_VAO
+#ifndef BSTONE_RENDERER_HW_TEST_OGL_NO_VAO
 	extension_manager->probe(OglExtensionId::arb_vertex_array_object);
 
 	if (extension_manager->has(OglExtensionId::arb_vertex_array_object))
 	{
 		ogl_device_features.vao_is_available_ = true;
 	}
-#endif // !BSTONE_RENDERER_TEST_OGL_NO_VAO
+#endif // !BSTONE_RENDERER_HW_TEST_OGL_NO_VAO
 }
 
 void OglRendererUtils::vertex_input_probe_max_locations(
@@ -768,14 +762,14 @@ void OglRendererUtils::buffer_storage_probe(
 {
 	ogl_device_features.buffer_storage_is_available_ = false;
 
-#ifndef BSTONE_RENDERER_TEST_OGL_NO_BUFFER_STORAGE
+#ifndef BSTONE_RENDERER_HW_TEST_OGL_NO_BUFFER_STORAGE
 	extension_manager->probe(OglExtensionId::arb_buffer_storage);
 
 	if (extension_manager->has(OglExtensionId::arb_buffer_storage))
 	{
 		ogl_device_features.buffer_storage_is_available_ = true;
 	}
-#endif // !BSTONE_RENDERER_TEST_OGL_NO_BUFFER_STORAGE
+#endif // !BSTONE_RENDERER_HW_TEST_OGL_NO_BUFFER_STORAGE
 }
 
 void OglRendererUtils::dsa_probe(
@@ -784,14 +778,14 @@ void OglRendererUtils::dsa_probe(
 {
 	ogl_device_features.dsa_is_available_ = false;
 
-#ifndef BSTONE_RENDERER_TEST_OGL_NO_DSA
+#ifndef BSTONE_RENDERER_HW_TEST_OGL_NO_DSA
 	extension_manager->probe(OglExtensionId::arb_direct_state_access);
 
 	if (extension_manager->has(OglExtensionId::arb_direct_state_access))
 	{
 		ogl_device_features.dsa_is_available_ = true;
 	}
-#endif // !BSTONE_RENDERER_TEST_OGL_NO_DSA
+#endif // !BSTONE_RENDERER_HW_TEST_OGL_NO_DSA
 }
 
 void OglRendererUtils::sso_probe(
@@ -800,14 +794,14 @@ void OglRendererUtils::sso_probe(
 {
 	ogl_device_features.sso_is_available_ = false;
 
-#ifndef BSTONE_RENDERER_TEST_OGL_NO_SSO
+#ifndef BSTONE_RENDERER_HW_TEST_OGL_NO_SSO
 	extension_manager->probe(OglExtensionId::arb_separate_shader_objects);
 
 	if (extension_manager->has(OglExtensionId::arb_separate_shader_objects))
 	{
 		ogl_device_features.sso_is_available_ = true;
 	}
-#endif // !BSTONE_RENDERER_TEST_OGL_NO_SSO
+#endif // !BSTONE_RENDERER_HW_TEST_OGL_NO_SSO
 }
 
 void OglRendererUtils::clear_buffers()
@@ -1041,14 +1035,6 @@ void OglRendererUtils::depth_write_enable(
 	const bool is_enable)
 {
 	::glDepthMask(is_enable);
-	assert(!OglRendererUtils::was_errors());
-}
-
-void OglRendererUtils::texture_2d_enable(
-	const bool is_enable)
-{
-	const auto ogl_function = (is_enable ? ::glEnable : ::glDisable);
-	ogl_function(GL_TEXTURE_2D);
 	assert(!OglRendererUtils::was_errors());
 }
 

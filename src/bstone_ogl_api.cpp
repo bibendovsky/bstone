@@ -780,6 +780,23 @@ PFNGLPRIMITIVERESTARTINDEXPROC glPrimitiveRestartIndex = nullptr;
 
 
 // ==========================================================================
+// OpenGL v3.2
+//
+
+#ifdef GL_VERSION_3_2
+
+PFNGLGETINTEGER64I_VPROC glGetInteger64i_v = nullptr;
+PFNGLGETBUFFERPARAMETERI64VPROC glGetBufferParameteri64v = nullptr;
+PFNGLFRAMEBUFFERTEXTUREPROC glFramebufferTexture = nullptr;
+
+#endif // GL_VERSION_3_2
+
+//
+// OpenGL v3.2
+// ==========================================================================
+
+
+// ==========================================================================
 // GL_ARB_depth_buffer_float
 //
 
@@ -1199,7 +1216,7 @@ PFNGLGETQUERYBUFFEROBJECTIVPROC glGetQueryBufferObjectiv = nullptr;
 PFNGLGETQUERYBUFFEROBJECTUI64VPROC glGetQueryBufferObjectui64v = nullptr;
 PFNGLGETQUERYBUFFEROBJECTUIVPROC glGetQueryBufferObjectuiv = nullptr;
 
-#endif // !GL_ARB_direct_state_access
+#endif // GL_ARB_direct_state_access
 
 //
 // GL_ARB_direct_state_access
@@ -1214,7 +1231,7 @@ PFNGLGETQUERYBUFFEROBJECTUIVPROC glGetQueryBufferObjectuiv = nullptr;
 
 PFNGLBUFFERSTORAGEPROC glBufferStorage = nullptr;
 
-#endif // !GL_ARB_buffer_storage
+#endif // GL_ARB_buffer_storage
 
 //
 // GL_ARB_buffer_storage
@@ -1293,4 +1310,112 @@ PFNGLGETPROGRAMPIPELINEINFOLOGPROC glGetProgramPipelineInfoLog = nullptr;
 
 //
 // GL_ARB_separate_shader_objects
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_depth_clamp
+//
+
+#ifdef GL_ARB_depth_clamp
+#endif // GL_ARB_depth_clamp
+
+//
+// GL_ARB_depth_clamp
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_draw_elements_base_vertex
+//
+
+#ifdef GL_ARB_draw_elements_base_vertex
+
+PFNGLDRAWELEMENTSBASEVERTEXPROC glDrawElementsBaseVertex = nullptr;
+PFNGLDRAWRANGEELEMENTSBASEVERTEXPROC glDrawRangeElementsBaseVertex = nullptr;
+PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXPROC glDrawElementsInstancedBaseVertex = nullptr;
+PFNGLMULTIDRAWELEMENTSBASEVERTEXPROC glMultiDrawElementsBaseVertex = nullptr;
+
+#endif // GL_ARB_draw_elements_base_vertex
+
+//
+// GL_ARB_draw_elements_base_vertex
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_fragment_coord_conventions
+//
+
+#ifdef GL_ARB_fragment_coord_conventions
+#endif // GL_ARB_fragment_coord_conventions
+
+//
+// GL_ARB_fragment_coord_conventions
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_provoking_vertex
+//
+
+#ifdef GL_ARB_provoking_vertex
+
+PFNGLPROVOKINGVERTEXPROC glProvokingVertex = nullptr;
+
+#endif // GL_ARB_provoking_vertex
+
+//
+// GL_ARB_provoking_vertex
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_provoking_vertex
+//
+
+#ifdef GL_ARB_seamless_cube_map
+#endif // GL_ARB_seamless_cube_map
+
+//
+// GL_ARB_provoking_vertex
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_sync
+//
+
+#ifdef GL_ARB_sync
+
+PFNGLFENCESYNCPROC glFenceSync = nullptr;
+PFNGLISSYNCPROC glIsSync = nullptr;
+PFNGLDELETESYNCPROC glDeleteSync = nullptr;
+PFNGLCLIENTWAITSYNCPROC glClientWaitSync = nullptr;
+PFNGLWAITSYNCPROC glWaitSync = nullptr;
+PFNGLGETINTEGER64VPROC glGetInteger64v = nullptr;
+PFNGLGETSYNCIVPROC glGetSynciv = nullptr;
+
+#endif // GL_ARB_sync
+
+//
+// GL_ARB_sync
+// ==========================================================================
+
+
+// ==========================================================================
+// GL_ARB_texture_multisample
+//
+
+#ifdef GL_ARB_texture_multisample
+
+PFNGLTEXIMAGE2DMULTISAMPLEPROC glTexImage2DMultisample = nullptr;
+PFNGLTEXIMAGE3DMULTISAMPLEPROC glTexImage3DMultisample = nullptr;
+PFNGLGETMULTISAMPLEFVPROC glGetMultisamplefv = nullptr;
+PFNGLSAMPLEMASKIPROC glSampleMaski = nullptr;
+
+#endif // GL_ARB_texture_multisample
+
+//
+// GL_ARB_texture_multisample
 // ==========================================================================

@@ -51,7 +51,8 @@ enum class RendererKind :
 	auto_detect,
 	software,
 
-	ogl_2_x,
+	ogl_2,
+	ogl_3_2_core,
 }; // RendererKind
 
 enum class RendererCommandId :
@@ -1067,6 +1068,9 @@ public:
 
 	virtual void device_reset() = 0;
 
+
+	virtual void window_set_title(
+		const std::string& title_utf8) = 0;
 
 	virtual void window_show(
 		const bool is_visible) = 0;

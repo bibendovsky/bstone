@@ -72,10 +72,6 @@ public:
 		SdlWindowUPtr& sdl_window,
 		SdlGlContextUPtr& sdl_gl_context);
 
-	static void create_probe_window_and_context(
-		SdlWindowUPtr& sdl_window,
-		SdlGlContextUPtr& sdl_gl_context);
-
 
 	static void window_get_drawable_size(
 		SdlWindowPtr sdl_window,
@@ -91,6 +87,7 @@ public:
 
 
 	static void msaa_probe(
+		const RendererKind renderer_kind,
 		RendererDeviceFeatures& device_features,
 		OglDeviceFeatures& ogl_device_features);
 
@@ -229,9 +226,6 @@ public:
 		const RendererBlendingFunc& blending_func);
 
 
-	static void texture_2d_enable(
-		const bool is_enable);
-
 	static void texture_2d_bind(
 		const GLuint ogl_texture_name);
 
@@ -279,9 +273,11 @@ private:
 	static GLenum blending_get_factor(
 		const RendererBlendingFactor factor);
 
-	static int msaa_window_get_max();
+	static int msaa_window_get_max(
+		const RendererKind renderer_kind);
 
 	static int msaa_fbo_get_max(
+		const RendererKind renderer_kind,
 		RendererDeviceFeatures& device_features,
 		OglDeviceFeatures& ogl_device_features);
 }; // OglRendererUtils

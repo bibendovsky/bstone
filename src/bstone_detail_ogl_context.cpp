@@ -599,7 +599,8 @@ OglContextUPtr OglContextFactory::create(
 {
 	switch (renderer_kind)
 	{
-		case RendererKind::ogl_2_x:
+		case RendererKind::ogl_2:
+		case RendererKind::ogl_3_2_core:
 			return GenericOglContextUPtr{new GenericOglContext{device_features, ogl_device_features}};
 
 		default:

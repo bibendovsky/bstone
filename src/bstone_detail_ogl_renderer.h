@@ -23,14 +23,14 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL 2.x renderer (implementation).
+// OpenGL renderer (implementation).
 //
 // !!! Internal usage only !!!
 //
 
 
-#ifndef BSTONE_DETAIL_OGL_2_X_RENDERER_INCLUDED
-#define BSTONE_DETAIL_OGL_2_X_RENDERER_INCLUDED
+#ifndef BSTONE_DETAIL_OGL_RENDERER_INCLUDED
+#define BSTONE_DETAIL_OGL_RENDERER_INCLUDED
 
 
 #include <array>
@@ -55,14 +55,14 @@ namespace detail
 {
 
 
-class Ogl2XRenderer :
+class OglRenderer :
 	public Renderer
 {
 public:
-	Ogl2XRenderer(
+	OglRenderer(
 		const RendererCreateParam& param);
 
-	~Ogl2XRenderer() override;
+	~OglRenderer() override;
 
 
 	RendererKind get_kind() const noexcept override;
@@ -82,6 +82,9 @@ public:
 
 	void device_reset() override;
 
+
+	void window_set_title(
+		const std::string& title_utf8) override;
 
 	void window_show(
 		const bool is_visible) override;
@@ -187,6 +190,10 @@ private:
 	using ShaderStages = std::list<detail::OglShaderStageUPtr>;
 
 
+	RendererKind kind_;
+	std::string name_;
+	std::string description_;
+
 	SdlWindowUPtr sdl_window_;
 	SdlGlContextUPtr sdl_gl_context_;
 
@@ -216,14 +223,15 @@ private:
 	RboResource ogl_downscale_color_rb_;
 
 
+	void set_name_and_description();
+
 	void initialize(
 		const RendererCreateParam& param);
 
 	void uninitialize();
 
 
-	void uninitialize_internal(
-		const bool is_dtor = false);
+	void uninitialize_internal();
 
 
 	RboResource renderbuffer_create();
@@ -299,15 +307,15 @@ private:
 
 	void msaa_set(
 		const int aa_value);
-}; // Ogl2XRenderer
+}; // OglRenderer
 
 
-using Ogl2XRendererPtr = Ogl2XRenderer*;
-using Ogl2XRendererUPtr = std::unique_ptr<Ogl2XRenderer>;
+using OglRendererPtr = OglRenderer*;
+using OglRendererUPtr = std::unique_ptr<OglRenderer>;
 
 
 } // detail
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_OGL_2_X_RENDERER_INCLUDED
+#endif // !BSTONE_DETAIL_OGL_RENDERER_INCLUDED

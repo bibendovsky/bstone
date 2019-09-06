@@ -92,9 +92,13 @@ public:
 private:
 	static const RendererShaderSource& get_empty();
 
-	static const RendererShaderSource& get_fragment_ogl_2_x();
+	static const RendererShaderSource& get_fragment_ogl_2();
 
-	static const RendererShaderSource& get_vertex_ogl_2_x();
+	static const RendererShaderSource& get_vertex_ogl_2();
+
+	static const RendererShaderSource& get_fragment_ogl_3_2_core();
+
+	static const RendererShaderSource& get_vertex_ogl_3_2_core();
 }; // RendererShaderRegistry
 
 

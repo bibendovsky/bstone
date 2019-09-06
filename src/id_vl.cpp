@@ -45,6 +45,7 @@ Free Software Foundation, Inc.,
 #include "bstone_sprite_cache.h"
 #include "bstone_string_helper.h"
 #include "bstone_text_writer.h"
+#include "bstone_version.h"
 
 
 extern bool is_full_menu_active;
@@ -269,9 +270,16 @@ const std::string& vid_get_software_value_string()
 	return result;
 }
 
-const std::string& vid_get_ogl_2_x_value_string()
+const std::string& vid_get_ogl_2_value_string()
 {
-	static const auto& result = std::string{"ogl_2_x"};
+	static const auto& result = std::string{"ogl_2"};
+
+	return result;
+}
+
+const std::string& vid_get_ogl_3_2_c_value_string()
+{
+	static const auto& result = std::string{"ogl_3_2_c"};
 
 	return result;
 }
@@ -651,7 +659,7 @@ void vid_dimensions_vga_calculate()
 	::vga_area = ::vga_width * ::vga_height;
 }
 
-std::string vid_get_window_title()
+std::string vid_get_game_name_and_game_version_string()
 {
 	const auto& assets_info = AssetsInfo{};
 
@@ -722,6 +730,15 @@ std::string vid_get_window_title()
 
 	return title;
 }
+
+std::string vid_get_port_version_string()
+{
+	return "BStone v" + bstone::Version::get_string();
+}
+
+std::string vid_get_renderer_name_sw();
+std::string vid_get_renderer_name_hw();
+std::string vid_get_window_title_for_renderer();
 
 void vid_read_is_windowed_cl_configuration()
 {
@@ -1014,7 +1031,8 @@ const std::string& vid_to_string(
 	const bstone::RendererKind renderer_kind)
 {
 	static const auto invalid_string = std::string{"?"};
-	static const auto ogl_2_x_string = std::string{"OpenGL 2.x"};
+	static const auto ogl_2_string = std::string{"OpenGL 2+"};
+	static const auto ogl_3_2_core_string = std::string{"OpenGL 3.2 core"};
 
 	switch (renderer_kind)
 	{
@@ -1027,8 +1045,11 @@ const std::string& vid_to_string(
 		case bstone::RendererKind::software:
 			return vid_get_software_value_string();
 
-		case bstone::RendererKind::ogl_2_x:
-			return ogl_2_x_string;
+		case bstone::RendererKind::ogl_2:
+			return ogl_2_string;
+
+		case bstone::RendererKind::ogl_3_2_core:
+			return ogl_3_2_core_string;
 
 
 		default:
@@ -1046,8 +1067,8 @@ void vid_log_common_configuration()
 	::vid_log("Renderer: " + ::vid_to_string(::vid_configuration_.renderer_kind_));
 
 	::vid_log("Is windowed: " + ::vid_to_string(::vid_configuration_.is_windowed_));
-	::vid_log("Window offset by X: " + ::vid_to_string(::vid_configuration_.x_));
-	::vid_log("Window offset by Y: " + ::vid_to_string(::vid_configuration_.y_));
+	::vid_log("Window horizontal offset: " + ::vid_to_string(::vid_configuration_.x_));
+	::vid_log("Window vertical offset: " + ::vid_to_string(::vid_configuration_.y_));
 	::vid_log("Window width: " + ::vid_to_string(::vid_configuration_.width_));
 	::vid_log("Window height: " + ::vid_to_string(::vid_configuration_.height_));
 
@@ -1147,7 +1168,7 @@ bool sw_initialize_window()
 	window_flags = SDL_WINDOW_SHOWN;
 #endif
 
-	const auto title = ::vid_get_window_title();
+	const auto title = ::vid_get_game_name_and_game_version_string();
 
 	::sw_window = bstone::SdlWindowUPtr{::SDL_CreateWindow(
 		title.c_str(),
@@ -1633,6 +1654,9 @@ void sw_initialize_video()
 
 	if (is_succeed)
 	{
+		const auto window_title = ::vid_get_window_title_for_renderer();
+		::SDL_SetWindowTitle(::sw_window.get(), window_title.c_str());
+
 		::SDL_ShowWindow(::sw_window.get());
 		::in_grab_mouse(true);
 	}
@@ -3444,7 +3468,7 @@ bool hw_renderer_initialize()
 	::vid_log("Initializing renderer.");
 
 
-	const auto title = ::vid_get_window_title();
+	const auto title = ::vid_get_game_name_and_game_version_string();
 
 
 	// Initialization parameter.
@@ -12459,6 +12483,8 @@ bool hw_video_initialize()
 
 		::hw_renderer_->color_buffer_set_clear_color(bstone::R8g8b8a8{});
 
+		const auto window_title = ::vid_get_window_title_for_renderer();
+		::hw_renderer_->window_set_title(window_title);
 		::hw_renderer_->window_show(true);
 
 		::in_grab_mouse(true);
@@ -12470,6 +12496,64 @@ bool hw_video_initialize()
 //
 // Hardware accelerated renderer (HW).
 // ==========================================================================
+
+
+std::string vid_get_renderer_name_sw()
+{
+	auto sdl_renderer_info = SDL_RendererInfo{};
+
+	const auto sdl_result = ::SDL_GetRendererInfo(sw_renderer.get(), &sdl_renderer_info);
+
+	if (sdl_result != 0)
+	{
+		// FIXME Log error.
+		return vid_get_empty_string();
+	}
+
+	auto result = std::string{};
+	result += "software (";
+	result += sdl_renderer_info.name;
+	result += ")";
+
+	return result;
+}
+
+std::string vid_get_renderer_name_hw()
+{
+	return ::hw_renderer_->get_name();
+}
+
+std::string vid_get_window_title_for_renderer()
+{
+	const auto game_name_and_game_version_string = ::vid_get_game_name_and_game_version_string();
+	const auto port_version_string = ::vid_get_port_version_string();
+
+	auto renderer_name =  std::string{};
+
+	if (::sw_renderer)
+	{
+		renderer_name = ::vid_get_renderer_name_sw();
+	}
+	else if (::hw_renderer_)
+	{
+		renderer_name = ::vid_get_renderer_name_hw();
+	}
+
+	auto result = std::string{};
+	result += game_name_and_game_version_string;
+	result += " [";
+	result += port_version_string;
+
+	if (!renderer_name.empty())
+	{
+		result += " / ";
+		result += renderer_name;
+	}
+
+	result += ']';
+
+	return result;
+}
 
 
 } // namespace
@@ -13326,8 +13410,11 @@ const std::string& vid_renderer_kind_to_string(
 		case bstone::RendererKind::software:
 			return vid_get_software_value_string();
 
-		case bstone::RendererKind::ogl_2_x:
-			return vid_get_ogl_2_x_value_string();
+		case bstone::RendererKind::ogl_2:
+			return vid_get_ogl_2_value_string();
+
+		case bstone::RendererKind::ogl_3_2_core:
+			return vid_get_ogl_3_2_c_value_string();
 
 		default:
 			::Quit("Invalid renderer kind.");
@@ -13348,9 +13435,13 @@ void vid_configuration_read_renderer_kind(
 	{
 		::vid_configuration_.renderer_kind_ = bstone::RendererKind::software;
 	}
-	else if (value_string == ::vid_get_ogl_2_x_value_string())
+	else if (value_string == ::vid_get_ogl_2_value_string())
 	{
-		::vid_configuration_.renderer_kind_ = bstone::RendererKind::ogl_2_x;
+		::vid_configuration_.renderer_kind_ = bstone::RendererKind::ogl_2;
+	}
+	else if (value_string == ::vid_get_ogl_3_2_c_value_string())
+	{
+		::vid_configuration_.renderer_kind_ = bstone::RendererKind::ogl_3_2_core;
 	}
 }
 
@@ -13668,11 +13759,20 @@ void vid_write_renderer_kind_configuration(
 {
 	switch (::vid_configuration_.renderer_kind_)
 	{
-		case bstone::RendererKind::ogl_2_x:
+		case bstone::RendererKind::ogl_2:
 			::write_configuration_entry(
 				text_writer,
 				::vid_get_renderer_kind_key_name(),
-				::vid_get_ogl_2_x_value_string()
+				::vid_get_ogl_2_value_string()
+			);
+
+			break;
+
+		case bstone::RendererKind::ogl_3_2_core:
+			::write_configuration_entry(
+				text_writer,
+				::vid_get_renderer_kind_key_name(),
+				::vid_get_ogl_3_2_c_value_string()
 			);
 
 			break;

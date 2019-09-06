@@ -254,7 +254,7 @@ target_sources(
 		bstone_un_value.h
 		bstone_uptr_resource_list.h
 		bstone_version.h
-		bstone_detail_ogl_2_x_renderer.h
+		bstone_detail_ogl_renderer.h
 		bstone_detail_ogl_buffer.h
 		bstone_detail_ogl_buffer_manager.h
 		bstone_detail_ogl_command_executor.h
@@ -355,7 +355,7 @@ target_sources(
 		bstone_text_reader.cpp
 		bstone_text_writer.cpp
 		bstone_version.cpp
-		bstone_detail_ogl_2_x_renderer.cpp
+		bstone_detail_ogl_renderer.cpp
 		bstone_detail_ogl_command_executor.cpp
 		bstone_detail_ogl_extension_manager.cpp
 		bstone_detail_ogl_sampler_manager.cpp

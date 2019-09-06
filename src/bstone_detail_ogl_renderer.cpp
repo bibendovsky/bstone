@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL 2.x renderer (implementation).
+// OpenGL renderer (implementation).
 //
 // !!! Internal usage only !!!
 //
@@ -31,7 +31,7 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_precompiled.h"
-#include "bstone_detail_ogl_2_x_renderer.h"
+#include "bstone_detail_ogl_renderer.h"
 
 #include <cassert>
 
@@ -56,12 +56,15 @@ namespace detail
 
 
 // ==========================================================================
-// Ogl2XRenderer
+// OglRenderer
 //
 
-Ogl2XRenderer::Ogl2XRenderer(
+OglRenderer::OglRenderer(
 	const RendererCreateParam& param)
 	:
+	kind_{},
+	name_{},
+	description_{},
 	sdl_window_{},
 	sdl_gl_context_{},
 	extension_manager_{},
@@ -86,31 +89,27 @@ Ogl2XRenderer::Ogl2XRenderer(
 	initialize(param);
 }
 
-Ogl2XRenderer::~Ogl2XRenderer()
+OglRenderer::~OglRenderer()
 {
-	uninitialize_internal(true);
+	uninitialize_internal();
 }
 
-RendererKind Ogl2XRenderer::get_kind() const noexcept
+RendererKind OglRenderer::get_kind() const noexcept
 {
-	return RendererKind::ogl_2_x;
+	return kind_;
 }
 
-const std::string& Ogl2XRenderer::get_name() const noexcept
+const std::string& OglRenderer::get_name() const noexcept
 {
-	static const auto result = std::string{"ogl2"};
-
-	return result;
+	return name_;
 }
 
-const std::string& Ogl2XRenderer::get_description() const noexcept
+const std::string& OglRenderer::get_description() const noexcept
 {
-	static const auto result = std::string{"OpenGL 2.x"};
-
-	return result;
+	return description_;
 }
 
-void Ogl2XRenderer::fbo_resource_deleter(
+void OglRenderer::fbo_resource_deleter(
 	const GLuint& ogl_name) noexcept
 {
 	const auto ogl_function = (::glDeleteFramebuffers ? ::glDeleteFramebuffers : ::glDeleteFramebuffersEXT);
@@ -118,7 +117,7 @@ void Ogl2XRenderer::fbo_resource_deleter(
 	assert(!OglRendererUtils::was_errors());
 }
 
-void Ogl2XRenderer::rbo_resource_deleter(
+void OglRenderer::rbo_resource_deleter(
 	const GLuint& ogl_name) noexcept
 {
 	const auto ogl_function = (::glDeleteRenderbuffers ? ::glDeleteRenderbuffers : ::glDeleteRenderbuffersEXT);
@@ -126,16 +125,47 @@ void Ogl2XRenderer::rbo_resource_deleter(
 	assert(!OglRendererUtils::was_errors());
 }
 
-void Ogl2XRenderer::initialize(
+void OglRenderer::set_name_and_description()
+{
+	switch (kind_)
+	{
+		case RendererKind::ogl_2:
+			name_ = "GL2";
+			description_ = "OpenGL 2.0+";
+			break;
+
+		case RendererKind::ogl_3_2_core:
+			name_ = "GL3.2C";
+			description_ = "OpenGL 3.2 core";
+			break;
+
+		default:
+			throw Exception{"Unsupported renderer kind."};
+	}
+}
+
+void OglRenderer::initialize(
 	const RendererCreateParam& param)
 {
-	OglRendererUtils::msaa_probe(device_features_, ogl_device_features_);
+	switch (param.renderer_kind_)
+	{
+		case RendererKind::ogl_2:
+		case RendererKind::ogl_3_2_core:
+			break;
+
+		default:
+			throw Exception{"Unsupported renderer kind."};
+	}
+
+	kind_ = param.renderer_kind_;
+
+	OglRendererUtils::msaa_probe(kind_, device_features_, ogl_device_features_);
 
 	aa_kind_ = param.aa_kind_;
 	aa_value_ = param.aa_value_;
 
 	auto window_param = RendererUtilsCreateWindowParam{};
-	window_param.is_opengl_ = true;
+	window_param.renderer_kind_ = kind_;
 	window_param.window_ = param.window_;
 	window_param.aa_kind_ = aa_kind_;
 	window_param.aa_value_ = aa_value_;
@@ -211,11 +241,30 @@ void Ogl2XRenderer::initialize(
 		throw Exception{"Failed to create an extension manager."};
 	}
 
-	extension_manager_->probe(OglExtensionId::v2_0);
-
-	if (!extension_manager_->has(OglExtensionId::v2_0))
+	switch (kind_)
 	{
-		throw Exception{"Failed to load OpenGL 2.0 symbols."};
+		case RendererKind::ogl_2:
+			extension_manager_->probe(OglExtensionId::v2_0);
+
+			if (!extension_manager_->has(OglExtensionId::v2_0))
+			{
+				throw Exception{"Failed to load OpenGL 2.0 symbols."};
+			}
+
+			break;
+
+		case RendererKind::ogl_3_2_core:
+			extension_manager_->probe(OglExtensionId::v3_2);
+
+			if (!extension_manager_->has(OglExtensionId::v3_2))
+			{
+				throw Exception{"Failed to load OpenGL 3.2 core symbols."};
+			}
+
+			break;
+
+		default:
+			throw Exception{"Unsupported renderer kind."};
 	}
 
 	OglRendererUtils::renderer_features_set(device_features_);
@@ -279,7 +328,7 @@ void Ogl2XRenderer::initialize(
 	);
 
 	ogl_context_ = OglContextFactory::create(
-		RendererKind::ogl_2_x,
+		kind_,
 		device_features_,
 		ogl_device_features_
 	);
@@ -295,6 +344,8 @@ void Ogl2XRenderer::initialize(
 
 	device_info_ = OglRendererUtils::device_info_get();
 
+	set_name_and_description();
+
 
 	// Present.
 	//
@@ -302,52 +353,58 @@ void Ogl2XRenderer::initialize(
 	present();
 }
 
-void Ogl2XRenderer::uninitialize()
+void OglRenderer::uninitialize()
 {
 	uninitialize_internal();
 }
 
-const RendererDeviceFeatures& Ogl2XRenderer::device_get_features() const noexcept
+const RendererDeviceFeatures& OglRenderer::device_get_features() const noexcept
 {
 	return device_features_;
 }
 
-const RendererDeviceInfo& Ogl2XRenderer::device_get_info() const noexcept
+const RendererDeviceInfo& OglRenderer::device_get_info() const noexcept
 {
 	return device_info_;
 }
 
-bool Ogl2XRenderer::device_is_lost() const noexcept
+bool OglRenderer::device_is_lost() const noexcept
 {
 	return false;
 }
 
-bool Ogl2XRenderer::device_is_ready_to_reset() const noexcept
+bool OglRenderer::device_is_ready_to_reset() const noexcept
 {
 	return true;
 }
 
-void Ogl2XRenderer::device_reset()
+void OglRenderer::device_reset()
 {
 }
 
-void Ogl2XRenderer::window_show(
+void OglRenderer::window_set_title(
+	const std::string& title_utf8)
+{
+	RendererUtils::window_set_title(sdl_window_.get(), title_utf8);
+}
+
+void OglRenderer::window_show(
 	const bool is_visible)
 {
-	RendererUtils::show_window(sdl_window_.get(), is_visible);
+	RendererUtils::window_show(sdl_window_.get(), is_visible);
 }
 
-const glm::mat4& Ogl2XRenderer::csc_get_texture() const noexcept
+const glm::mat4& OglRenderer::csc_get_texture() const noexcept
 {
 	return detail::OglRendererUtils::csc_get_texture();
 }
 
-const glm::mat4& Ogl2XRenderer::csc_get_projection() const noexcept
+const glm::mat4& OglRenderer::csc_get_projection() const noexcept
 {
 	return detail::OglRendererUtils::csc_get_projection();
 }
 
-bool Ogl2XRenderer::vsync_get() const noexcept
+bool OglRenderer::vsync_get() const noexcept
 {
 	if (!device_features_.vsync_is_available_)
 	{
@@ -357,7 +414,7 @@ bool Ogl2XRenderer::vsync_get() const noexcept
 	return OglRendererUtils::vsync_get();
 }
 
-void Ogl2XRenderer::vsync_set(
+void OglRenderer::vsync_set(
 	const bool is_enabled)
 {
 	if (!device_features_.vsync_is_available_)
@@ -376,7 +433,7 @@ void Ogl2XRenderer::vsync_set(
 	}
 }
 
-void Ogl2XRenderer::downscale_set(
+void OglRenderer::downscale_set(
 	const int width,
 	const int height,
 	const RendererFilterKind blit_filter)
@@ -418,7 +475,7 @@ void Ogl2XRenderer::downscale_set(
 	framebuffers_create();
 }
 
-void Ogl2XRenderer::aa_set(
+void OglRenderer::aa_set(
 	const RendererAaKind aa_kind,
 	const int aa_value)
 {
@@ -459,119 +516,119 @@ void Ogl2XRenderer::aa_set(
 	}
 }
 
-void Ogl2XRenderer::color_buffer_set_clear_color(
+void OglRenderer::color_buffer_set_clear_color(
 	const R8g8b8a8& color)
 {
 	OglRendererUtils::set_color_buffer_clear_color(color);
 }
 
-void Ogl2XRenderer::clear_buffers()
+void OglRenderer::clear_buffers()
 {
 	framebuffers_bind();
 
 	OglRendererUtils::clear_buffers();
 }
 
-void Ogl2XRenderer::present()
+void OglRenderer::present()
 {
 	framebuffers_blit();
 
 	OglRendererUtils::swap_window(sdl_window_.get());
 }
 
-RendererIndexBufferPtr Ogl2XRenderer::index_buffer_create(
+RendererIndexBufferPtr OglRenderer::index_buffer_create(
 	const RendererIndexBufferCreateParam& param)
 {
 	return ogl_context_->buffer_get_manager()->index_buffer_create(param);
 }
 
-void Ogl2XRenderer::index_buffer_destroy(
+void OglRenderer::index_buffer_destroy(
 	RendererIndexBufferPtr index_buffer)
 {
 	ogl_context_->buffer_get_manager()->buffer_destroy(index_buffer);
 }
 
-RendererVertexBufferPtr Ogl2XRenderer::vertex_buffer_create(
+RendererVertexBufferPtr OglRenderer::vertex_buffer_create(
 	const RendererVertexBufferCreateParam& param)
 {
 	return ogl_context_->buffer_get_manager()->vertex_buffer_create(param);
 }
 
-void Ogl2XRenderer::vertex_buffer_destroy(
+void OglRenderer::vertex_buffer_destroy(
 	RendererVertexBufferPtr vertex_buffer)
 {
 	ogl_context_->buffer_get_manager()->buffer_destroy(vertex_buffer);
 }
 
-RendererVertexInputPtr Ogl2XRenderer::vertex_input_create(
+RendererVertexInputPtr OglRenderer::vertex_input_create(
 	const RendererVertexInputCreateParam& param)
 {
 	return ogl_context_->vertex_input_get_manager()->create(param);
 }
 
-void Ogl2XRenderer::vertex_input_destroy(
+void OglRenderer::vertex_input_destroy(
 	RendererVertexInputPtr vertex_input)
 {
 	ogl_context_->vertex_input_get_manager()->destroy(vertex_input);
 }
 
-RendererShaderPtr Ogl2XRenderer::shader_create(
+RendererShaderPtr OglRenderer::shader_create(
 	const RendererShaderCreateParam& param)
 {
 	return ogl_context_->shader_get_manager()->create(param);
 }
 
-void Ogl2XRenderer::shader_destroy(
+void OglRenderer::shader_destroy(
 	const RendererShaderPtr shader)
 {
 	return ogl_context_->shader_get_manager()->destroy(shader);
 }
 
-RendererShaderStagePtr Ogl2XRenderer::shader_stage_create(
+RendererShaderStagePtr OglRenderer::shader_stage_create(
 	const RendererShaderStageCreateParam& param)
 {
 	return ogl_context_->shader_stage_get_manager()->create(param);
 }
 
-void Ogl2XRenderer::shader_stage_destroy(
+void OglRenderer::shader_stage_destroy(
 	const RendererShaderStagePtr shader_stage)
 {
 	return ogl_context_->shader_stage_get_manager()->destroy(shader_stage);
 }
 
-void Ogl2XRenderer::execute_commands(
+void OglRenderer::execute_commands(
 	const RendererCommandManagerPtr command_manager)
 {
 	command_executor_->execute(command_manager);
 }
 
-RendererTexture2dPtr Ogl2XRenderer::texture_2d_create(
+RendererTexture2dPtr OglRenderer::texture_2d_create(
 	const RendererTexture2dCreateParam& param)
 {
 	return ogl_context_->texture_get_manager()->create(param);
 }
 
-void Ogl2XRenderer::texture_2d_destroy(
+void OglRenderer::texture_2d_destroy(
 	RendererTexture2dPtr texture_2d)
 {
 	ogl_context_->texture_get_manager()->destroy(texture_2d);
 }
 
-RendererSamplerPtr Ogl2XRenderer::sampler_create(
+RendererSamplerPtr OglRenderer::sampler_create(
 	const RendererSamplerCreateParam& param)
 {
 	return ogl_context_->sampler_get_manager()->create(param);
 }
 
-void Ogl2XRenderer::sampler_destroy(
+void OglRenderer::sampler_destroy(
 	RendererSamplerPtr sampler)
 {
 	ogl_context_->sampler_get_manager()->destroy(sampler);
 }
 
-void Ogl2XRenderer::uninitialize_internal(
-	const bool is_dtor)
+void OglRenderer::uninitialize_internal()
 {
+	kind_ = {};
 	command_executor_ = {};
 	ogl_context_ = {};
 	extension_manager_ = {};
@@ -596,7 +653,7 @@ void Ogl2XRenderer::uninitialize_internal(
 	downscale_blit_filter_ = {};
 }
 
-Ogl2XRenderer::RboResource Ogl2XRenderer::renderbuffer_create()
+OglRenderer::RboResource OglRenderer::renderbuffer_create()
 {
 	if (!device_features_.framebuffer_is_available_)
 	{
@@ -617,7 +674,7 @@ Ogl2XRenderer::RboResource Ogl2XRenderer::renderbuffer_create()
 	return RboResource{ogl_name};
 }
 
-void Ogl2XRenderer::renderbuffer_bind(
+void OglRenderer::renderbuffer_bind(
 	const GLuint ogl_renderbuffer_name)
 {
 	const auto ogl_func = (ogl_device_features_.framebuffer_is_ext_ ? ::glBindRenderbufferEXT : ::glBindRenderbuffer);
@@ -626,7 +683,7 @@ void Ogl2XRenderer::renderbuffer_bind(
 	assert(!OglRendererUtils::was_errors());
 }
 
-Ogl2XRenderer::FboResource Ogl2XRenderer::framebuffer_create()
+OglRenderer::FboResource OglRenderer::framebuffer_create()
 {
 	if (!device_features_.framebuffer_is_available_)
 	{
@@ -647,7 +704,7 @@ Ogl2XRenderer::FboResource Ogl2XRenderer::framebuffer_create()
 	return FboResource{ogl_name};
 }
 
-void Ogl2XRenderer::framebuffer_bind(
+void OglRenderer::framebuffer_bind(
 	const GLenum ogl_target,
 	const GLuint ogl_name)
 {
@@ -659,7 +716,7 @@ void Ogl2XRenderer::framebuffer_bind(
 	assert(!OglRendererUtils::was_errors());
 }
 
-void Ogl2XRenderer::framebuffer_blit(
+void OglRenderer::framebuffer_blit(
 	const int src_width,
 	const int src_height,
 	const int dst_width,
@@ -697,7 +754,7 @@ void Ogl2XRenderer::framebuffer_blit(
 	assert(!OglRendererUtils::was_errors());
 }
 
-Ogl2XRenderer::RboResource Ogl2XRenderer::renderbuffer_create(
+OglRenderer::RboResource OglRenderer::renderbuffer_create(
 	const int width,
 	const int height,
 	const int sample_count,
@@ -727,29 +784,29 @@ Ogl2XRenderer::RboResource Ogl2XRenderer::renderbuffer_create(
 	return rbo_resource;
 }
 
-void Ogl2XRenderer::msaa_color_rb_destroy()
+void OglRenderer::msaa_color_rb_destroy()
 {
 	ogl_msaa_color_rb_.reset();
 }
 
-void Ogl2XRenderer::msaa_depth_rb_destroy()
+void OglRenderer::msaa_depth_rb_destroy()
 {
 	ogl_msaa_depth_rb_.reset();
 }
 
-void Ogl2XRenderer::msaa_fbo_destroy()
+void OglRenderer::msaa_fbo_destroy()
 {
 	ogl_msaa_fbo_.reset();
 }
 
-void Ogl2XRenderer::msaa_framebuffer_destroy()
+void OglRenderer::msaa_framebuffer_destroy()
 {
 	msaa_fbo_destroy();
 	msaa_color_rb_destroy();
 	msaa_depth_rb_destroy();
 }
 
-void Ogl2XRenderer::msaa_color_rb_create(
+void OglRenderer::msaa_color_rb_create(
 	const int width,
 	const int height,
 	const int sample_count)
@@ -757,7 +814,7 @@ void Ogl2XRenderer::msaa_color_rb_create(
 	ogl_msaa_color_rb_ = renderbuffer_create(width, height, sample_count, GL_RGBA8);
 }
 
-void Ogl2XRenderer::msaa_depth_rb_create(
+void OglRenderer::msaa_depth_rb_create(
 	const int width,
 	const int height,
 	const int sample_count)
@@ -765,7 +822,7 @@ void Ogl2XRenderer::msaa_depth_rb_create(
 	ogl_msaa_depth_rb_ = renderbuffer_create(width, height, sample_count, GL_DEPTH_COMPONENT);
 }
 
-void Ogl2XRenderer::msaa_framebuffer_create()
+void OglRenderer::msaa_framebuffer_create()
 {
 	msaa_color_rb_create(downscale_width_, downscale_height_, aa_value_);
 	msaa_depth_rb_create(downscale_width_, downscale_height_, aa_value_);
@@ -809,30 +866,30 @@ void Ogl2XRenderer::msaa_framebuffer_create()
 	framebuffer_bind(GL_FRAMEBUFFER, 0);
 }
 
-void Ogl2XRenderer::downscale_color_rb_destroy()
+void OglRenderer::downscale_color_rb_destroy()
 {
 	ogl_downscale_color_rb_.reset();
 }
 
-void Ogl2XRenderer::downscale_fbo_destroy()
+void OglRenderer::downscale_fbo_destroy()
 {
 	ogl_downscale_fbo_.reset();
 }
 
-void Ogl2XRenderer::downscale_framebuffer_destroy()
+void OglRenderer::downscale_framebuffer_destroy()
 {
 	downscale_fbo_destroy();
 	downscale_color_rb_destroy();
 }
 
-void Ogl2XRenderer::downscale_color_rb_create(
+void OglRenderer::downscale_color_rb_create(
 	const int width,
 	const int height)
 {
 	ogl_downscale_color_rb_ = renderbuffer_create(width, height, 0, GL_RGBA8);
 }
 
-void Ogl2XRenderer::downscale_framebuffer_create()
+void OglRenderer::downscale_framebuffer_create()
 {
 	downscale_color_rb_create(downscale_width_, downscale_height_);
 	ogl_downscale_fbo_ = framebuffer_create();
@@ -868,13 +925,13 @@ void Ogl2XRenderer::downscale_framebuffer_create()
 	framebuffer_bind(GL_FRAMEBUFFER, 0);
 }
 
-void Ogl2XRenderer::framebuffers_destroy()
+void OglRenderer::framebuffers_destroy()
 {
 	msaa_framebuffer_destroy();
 	downscale_framebuffer_destroy();
 }
 
-void Ogl2XRenderer::framebuffers_create()
+void OglRenderer::framebuffers_create()
 {
 	if (!device_features_.framebuffer_is_available_)
 	{
@@ -893,7 +950,7 @@ void Ogl2XRenderer::framebuffers_create()
 	}
 }
 
-void Ogl2XRenderer::framebuffers_blit()
+void OglRenderer::framebuffers_blit()
 {
 	if (ogl_msaa_fbo_ == 0 && ogl_downscale_fbo_ == 0)
 	{
@@ -951,7 +1008,7 @@ void Ogl2XRenderer::framebuffers_blit()
 	}
 }
 
-void Ogl2XRenderer::framebuffers_bind()
+void OglRenderer::framebuffers_bind()
 {
 	if (ogl_msaa_fbo_ == 0 && ogl_downscale_fbo_ == 0)
 	{
@@ -961,7 +1018,7 @@ void Ogl2XRenderer::framebuffers_bind()
 	framebuffer_bind(GL_FRAMEBUFFER, ogl_msaa_fbo_);
 }
 
-void Ogl2XRenderer::aa_disable()
+void OglRenderer::aa_disable()
 {
 	aa_kind_ = RendererAaKind::none;
 
@@ -974,7 +1031,7 @@ void Ogl2XRenderer::aa_disable()
 	static_cast<void>(msaa_framebuffer_create());
 }
 
-void Ogl2XRenderer::msaa_set(
+void OglRenderer::msaa_set(
 	const int aa_value)
 {
 	if (device_features_.msaa_is_requires_restart_)
@@ -1001,7 +1058,7 @@ void Ogl2XRenderer::msaa_set(
 }
 
 //
-// Ogl2XRenderer
+// OglRenderer
 // ==========================================================================
 
 

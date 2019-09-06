@@ -97,7 +97,6 @@ private:
 
 
 	using Textures2d = UPtrResourceList<OglTexture2d, OglTexture2dFactory, Exception>;
-	bool texture_2d_is_enabled_;
 	OglTexture2dPtr texture_2d_current_;
 	Textures2d textures_2d_;
 
@@ -123,7 +122,6 @@ GenericOglTextureManager::GenericOglTextureManager(
 	const OglContextPtr ogl_context)
 	:
 	ogl_context_{ogl_context},
-	texture_2d_is_enabled_{},
 	texture_2d_current_{},
 	textures_2d_{}
 {
@@ -205,9 +203,6 @@ void GenericOglTextureManager::initialize()
 	{
 		throw Exception{"Null OpenGL state."};
 	}
-
-	texture_2d_is_enabled_ = true;
-	OglRendererUtils::texture_2d_enable(true);
 
 	OglRendererUtils::texture_2d_unbind();
 }

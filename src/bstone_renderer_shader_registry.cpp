@@ -164,8 +164,11 @@ const RendererShaderSource& RendererShaderRegistry::get_fragment(
 {
 	switch (renderer_kind)
 	{
-		case RendererKind::ogl_2_x:
-			return get_fragment_ogl_2_x();
+		case RendererKind::ogl_2:
+			return get_fragment_ogl_2();
+
+		case RendererKind::ogl_3_2_core:
+			return get_fragment_ogl_3_2_core();
 
 		default:
 			return get_empty();
@@ -177,8 +180,11 @@ const RendererShaderSource& RendererShaderRegistry::get_vertex(
 {
 	switch (renderer_kind)
 	{
-		case RendererKind::ogl_2_x:
-			return get_vertex_ogl_2_x();
+		case RendererKind::ogl_2:
+			return get_vertex_ogl_2();
+
+		case RendererKind::ogl_3_2_core:
+			return get_vertex_ogl_3_2_core();
 
 		default:
 			return get_empty();
@@ -192,7 +198,7 @@ const RendererShaderSource& RendererShaderRegistry::get_empty()
 	return result;
 }
 
-const RendererShaderSource& RendererShaderRegistry::get_fragment_ogl_2_x()
+const RendererShaderSource& RendererShaderRegistry::get_fragment_ogl_2()
 {
 	static const auto source = std::string
 	{
@@ -301,7 +307,7 @@ void main()
 	return result;
 }
 
-const RendererShaderSource& RendererShaderRegistry::get_vertex_ogl_2_x()
+const RendererShaderSource& RendererShaderRegistry::get_vertex_ogl_2()
 {
 	static const auto source = std::string
 	{
@@ -323,6 +329,164 @@ uniform mat4 u_texture_mat;
 varying vec2 o_position;
 varying vec4 o_color;
 varying vec2 o_tx_coords;
+
+
+void main()
+{
+	vec4 position = u_model_mat * vec4(a_position, 1.0);
+
+	o_position = position.xy;
+	o_color = a_color;
+	o_tx_coords = (vec4(a_tx_coords, 0.0, 1.0) * u_texture_mat).xy;
+
+	gl_Position = u_projection_mat * u_view_mat * position;
+}
+)VERTEX_SHADER"
+	};
+
+	static const auto result = RendererShaderSource
+	{
+		source.c_str(),
+		static_cast<int>(source.size()),
+	};
+
+	return result;
+}
+
+const RendererShaderSource& RendererShaderRegistry::get_fragment_ogl_3_2_core()
+{
+	static const auto source = std::string
+	{
+R"FRAGMENT_SHADER(
+#version 150 core
+
+
+uniform sampler2D u_sampler;
+
+
+// 0 - none
+// 1 - vanilla
+uniform int u_shading_mode;
+
+uniform float u_shade_max;
+uniform float u_normal_shade;
+uniform float u_height_numerator;
+uniform float u_extra_lighting;
+
+uniform vec2 u_view_direction;
+uniform vec2 u_view_position;
+
+
+in vec2 o_position;
+in vec4 o_color;
+in vec2 o_tx_coords;
+
+
+out vec4 frag_color;
+
+
+float calculate_no_shading()
+{
+	return 0.0;
+}
+
+float calculate_vanilla_shading()
+{
+	if (u_shade_max <= 0.0)
+	{
+		return 0.0;
+	}
+
+	const float min_nx = 0.00001;
+	const float min_height = 8.0;
+	const float max_index = 65.0;
+
+
+	float view_cos = u_view_direction.x;
+	float view_sin = -u_view_direction.y;
+
+	float gx = o_position.x - u_view_position.x;
+	float gxt = gx * view_cos;
+
+	float gy = o_position.y - u_view_position.y;
+	float gyt = gy * view_sin;
+
+	float nx = max(gxt - gyt, min_nx);
+
+	float height = max((256.0 * u_height_numerator) / nx, min_height);
+	height /= 8.0;
+
+	float index = u_shade_max - ((63.0 * height) / u_normal_shade) + u_extra_lighting;
+	index = clamp(index, 0.0, 63.0);
+
+	float shading_weight = index / max_index;
+
+	return shading_weight;
+}
+
+float calculate_shading_weight()
+{
+	if (u_shading_mode == 0)
+	{
+		return calculate_no_shading();
+	}
+	else if (u_shading_mode == 1)
+	{
+		return calculate_vanilla_shading();
+	}
+	else
+	{
+		return 0.0;
+	}
+}
+
+
+void main()
+{
+	float shading_weight = calculate_shading_weight();
+
+
+	float alpha;
+
+	frag_color = o_color * texture2D(u_sampler, o_tx_coords);
+	alpha = frag_color.a;
+	frag_color *= 1.0 - shading_weight;
+	frag_color.a = alpha;
+}
+)FRAGMENT_SHADER"
+	};
+
+	static const auto result = RendererShaderSource
+	{
+		source.c_str(),
+		static_cast<int>(source.size()),
+	};
+
+	return result;
+}
+
+const RendererShaderSource& RendererShaderRegistry::get_vertex_ogl_3_2_core()
+{
+	static const auto source = std::string
+	{
+R"VERTEX_SHADER(
+#version 150 core
+
+
+in vec3 a_position;
+in vec4 a_color;
+in vec2 a_tx_coords;
+
+
+uniform mat4 u_model_mat;
+uniform mat4 u_view_mat;
+uniform mat4 u_projection_mat;
+uniform mat4 u_texture_mat;
+
+
+out vec2 o_position;
+out vec4 o_color;
+out vec2 o_tx_coords;
 
 
 void main()

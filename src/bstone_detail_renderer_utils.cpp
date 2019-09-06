@@ -107,7 +107,7 @@ int RendererUtils::calculate_mipmap_count(
 	return result;
 }
 
-SdlWindowUPtr RendererUtils::create_window(
+SdlWindowUPtr RendererUtils::window_create(
 	const RendererUtilsCreateWindowParam& param)
 {
 	const auto error_message_prefix = "Failed to create a window. ";
@@ -151,7 +151,7 @@ SdlWindowUPtr RendererUtils::create_window(
 	return sdl_window;
 }
 
-void RendererUtils::show_window(
+void RendererUtils::window_show(
 	SdlWindowPtr sdl_window,
 	const bool is_visible)
 {
@@ -170,13 +170,25 @@ void RendererUtils::show_window(
 	sdl_function(sdl_window);
 }
 
+void RendererUtils::window_set_title(
+	const SdlWindowPtr sdl_window,
+	const std::string& title_utf8)
+{
+	if (!sdl_window)
+	{
+		throw Exception{"No window."};
+	}
+
+	::SDL_SetWindowTitle(sdl_window, title_utf8.c_str());
+}
+
 void RendererUtils::validate_initialize_param(
 	const RendererCreateParam& param)
 {
 	switch (param.renderer_kind_)
 	{
 	case RendererKind::auto_detect:
-	case RendererKind::ogl_2_x:
+	case RendererKind::ogl_2:
 		break;
 
 	default:
@@ -844,6 +856,60 @@ void RendererUtils::create_window_validate_param(
 	}
 }
 
+void RendererUtils::create_window_set_ogl_attributes_compatibility()
+{
+	const auto sdl_result = ::SDL_GL_SetAttribute(
+		SDL_GL_CONTEXT_PROFILE_MASK,
+		SDL_GL_CONTEXT_PROFILE_COMPATIBILITY
+	);
+
+	if (sdl_result != 0)
+	{
+		throw Exception{"Failed to set OpenGL context compatibility profile attribute."};
+	}
+}
+
+void RendererUtils::create_window_set_ogl_attributes_core(
+	const int major,
+	const int minor)
+{
+	{
+		const auto sdl_result = ::SDL_GL_SetAttribute(
+			SDL_GL_CONTEXT_PROFILE_MASK,
+			SDL_GL_CONTEXT_PROFILE_CORE
+		);
+
+		if (sdl_result != 0)
+		{
+			throw Exception{"Failed to set OpenGL context core profile attribute."};
+		}
+	}
+
+	{
+		const auto sdl_result = ::SDL_GL_SetAttribute(
+			SDL_GL_CONTEXT_MAJOR_VERSION,
+			major
+		);
+
+		if (sdl_result != 0)
+		{
+			throw Exception{"Failed to set OpenGL context major version attribute."};
+		}
+	}
+
+	{
+		const auto sdl_result = ::SDL_GL_SetAttribute(
+			SDL_GL_CONTEXT_MINOR_VERSION,
+			minor
+		);
+
+		if (sdl_result != 0)
+		{
+			throw Exception{"Failed to set OpenGL context minor version attribute."};
+		}
+	}
+}
+
 void RendererUtils::create_window_set_ogl_attributes(
 	const RendererUtilsCreateWindowParam& param)
 {
@@ -899,6 +965,17 @@ void RendererUtils::create_window_set_ogl_attributes(
 			throw Exception{"Failed to set depth buffer bit depth."};
 		}
 	}
+
+	switch (param.renderer_kind_)
+	{
+		case RendererKind::ogl_2:
+			create_window_set_ogl_attributes_compatibility();
+			break;
+
+		case RendererKind::ogl_3_2_core:
+			create_window_set_ogl_attributes_core(3, 2);
+			break;
+	}
 }
 
 std::uint32_t RendererUtils::create_window_sdl_flags(
@@ -925,9 +1002,15 @@ std::uint32_t RendererUtils::create_window_sdl_flags(
 		flags |= SDL_WINDOW_BORDERLESS;
 	}
 
-	if (param.is_opengl_)
+	switch (param.renderer_kind_)
 	{
-		flags |= SDL_WINDOW_OPENGL;
+		case RendererKind::ogl_2:
+		case RendererKind::ogl_3_2_core:
+			flags |= SDL_WINDOW_OPENGL;
+			break;
+
+		default:
+			break;
 	}
 
 	return flags;

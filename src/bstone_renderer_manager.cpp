@@ -29,9 +29,13 @@ Free Software Foundation, Inc.,
 
 #include "bstone_precompiled.h"
 #include "bstone_renderer_manager.h"
+
 #include <vector>
+
 #include "bstone_exception.h"
-#include "bstone_detail_ogl_2_x_renderer.h"
+#include "bstone_renderer_tests.h"
+
+#include "bstone_detail_ogl_renderer.h"
 #include "bstone_detail_ogl_renderer_utils.h"
 
 
@@ -60,7 +64,7 @@ public:
 
 
 private:
-	detail::Ogl2XRendererUPtr ogl_2_x_renderer_;
+	detail::OglRendererUPtr ogl_renderer_;
 
 
 	void initialize();
@@ -81,7 +85,7 @@ private:
 
 GenericRendererManager::GenericRendererManager()
 	:
-	ogl_2_x_renderer_{}
+	ogl_renderer_{}
 {
 	initialize();
 }
@@ -89,7 +93,7 @@ GenericRendererManager::GenericRendererManager()
 GenericRendererManager::GenericRendererManager(
 	GenericRendererManager&& rhs)
 	:
-	ogl_2_x_renderer_{std::move(rhs.ogl_2_x_renderer_)}
+	ogl_renderer_{std::move(rhs.ogl_renderer_)}
 {
 }
 
@@ -112,7 +116,7 @@ void GenericRendererManager::uninitialize()
 
 void GenericRendererManager::uninitialize_renderers()
 {
-	ogl_2_x_renderer_ = nullptr;
+	ogl_renderer_ = nullptr;
 }
 
 RendererPtr GenericRendererManager::renderer_initialize(
@@ -132,10 +136,18 @@ RendererPtr GenericRendererManager::renderer_initialize(
 
 	if (is_auto_detect)
 	{
+#ifndef BSTONE_RENDERER_HW_TEST_NO_OGL
 		renderer_kind_list =
 		{
-			RendererKind::ogl_2_x,
+#ifndef BSTONE_RENDERER_HW_TEST_NO_OGL_3_2_CORE
+			RendererKind::ogl_3_2_core,
+#endif // !BSTONE_RENDERER_HW_TEST_NO_OGL_3_2_CORE
+
+#ifndef BSTONE_RENDERER_HW_TEST_NO_OGL_2
+			RendererKind::ogl_2,
+#endif // !BSTONE_RENDERER_HW_TEST_NO_OGL_2
 		};
+#endif // BSTONE_RENDERER_HW_TEST_NO_OGL
 	}
 	else
 	{
@@ -150,11 +162,20 @@ RendererPtr GenericRendererManager::renderer_initialize(
 		{
 			switch (renderer_kind)
 			{
-				case RendererKind::ogl_2_x:
-					ogl_2_x_renderer_ = std::make_unique<detail::Ogl2XRenderer>(new_param);
+#ifndef BSTONE_RENDERER_HW_TEST_NO_OGL
 
-					return ogl_2_x_renderer_.get();
+#ifndef BSTONE_RENDERER_HW_TEST_NO_OGL_2
+				case RendererKind::ogl_2:
+#endif // !BSTONE_RENDERER_HW_TEST_NO_OGL_2
 
+#ifndef BSTONE_RENDERER_HW_TEST_NO_OGL_3_2_CORE
+				case RendererKind::ogl_3_2_core:
+#endif // !BSTONE_RENDERER_HW_TEST_NO_OGL_3_2_CORE
+
+					ogl_renderer_ = std::make_unique<detail::OglRenderer>(new_param);
+
+					return ogl_renderer_.get();
+#endif // BSTONE_RENDERER_HW_TEST_NO_OGL
 
 				default:
 					throw Exception{"Unsupported renderer kind."};

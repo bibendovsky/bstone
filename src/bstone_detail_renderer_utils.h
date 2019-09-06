@@ -49,7 +49,7 @@ namespace detail
 class RendererUtilsCreateWindowParam
 {
 public:
-	bool is_opengl_;
+	RendererKind renderer_kind_;
 
 	RendererCreateWindowParam window_;
 
@@ -89,12 +89,17 @@ public:
 		const int width,
 		const int height);
 
-	static SdlWindowUPtr create_window(
+	static SdlWindowUPtr window_create(
 		const RendererUtilsCreateWindowParam& param);
 
-	static void show_window(
+	static void window_show(
 		SdlWindowPtr sdl_window,
 		const bool is_visible);
+
+	static void window_set_title(
+		const SdlWindowPtr sdl_window,
+		const std::string& title_utf8);
+
 
 	static void validate_initialize_param(
 		const RendererCreateParam& param);
@@ -193,6 +198,12 @@ private:
 
 	static void create_window_validate_param(
 		const RendererUtilsCreateWindowParam& param);
+
+	static void create_window_set_ogl_attributes_compatibility();
+
+	static void create_window_set_ogl_attributes_core(
+		const int major,
+		const int minor);
 
 	static void create_window_set_ogl_attributes(
 		const RendererUtilsCreateWindowParam& param);
