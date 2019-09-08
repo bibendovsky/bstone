@@ -84,6 +84,9 @@ enum class OglExtensionId
 	// OpenGL 3.2.
 	v3_2,
 
+	// OpenGL ES 2.0
+	es_v2_0,
+
 
 	// Real extensions.
 	//
@@ -125,6 +128,8 @@ enum class OglExtensionId
 	ext_texture_filter_anisotropic,
 
 	sgis_generate_mipmap,
+
+	oes_texture_npot,
 
 
 	// Item count.

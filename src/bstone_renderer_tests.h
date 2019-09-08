@@ -72,6 +72,9 @@ Free Software Foundation, Inc.,
 // No OpenGL 3.2 core.
 //#define BSTONE_RENDERER_HW_TEST_NO_OGL_3_2_CORE
 
+// No OpenGL ES 2.0.
+//#define BSTONE_RENDERER_HW_TEST_NO_OGL_ES_2_0
+
 #endif // _DEBUG
 
 

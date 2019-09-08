@@ -139,6 +139,11 @@ void OglRenderer::set_name_and_description()
 			description_ = "OpenGL 3.2 core";
 			break;
 
+		case RendererKind::ogl_es_2_0:
+			name_ = "GLES2.0";
+			description_ = "OpenGL ES 2.0";
+			break;
+
 		default:
 			throw Exception{"Unsupported renderer kind."};
 	}
@@ -151,6 +156,7 @@ void OglRenderer::initialize(
 	{
 		case RendererKind::ogl_2:
 		case RendererKind::ogl_3_2_core:
+		case RendererKind::ogl_es_2_0:
 			break;
 
 		default:
@@ -259,6 +265,16 @@ void OglRenderer::initialize(
 			if (!extension_manager_->has(OglExtensionId::v3_2))
 			{
 				throw Exception{"Failed to load OpenGL 3.2 core symbols."};
+			}
+
+			break;
+
+		case RendererKind::ogl_es_2_0:
+			extension_manager_->probe(OglExtensionId::es_v2_0);
+
+			if (!extension_manager_->has(OglExtensionId::es_v2_0))
+			{
+				throw Exception{"Failed to load OpenGL ES 2.0 symbols."};
 			}
 
 			break;

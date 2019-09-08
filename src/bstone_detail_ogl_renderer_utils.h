@@ -192,7 +192,8 @@ public:
 		const RendererViewport& viewport);
 
 	static void viewport_set_depth_range(
-		const RendererViewport& viewport);
+		const RendererViewport& viewport,
+		const OglDeviceFeatures& ogl_device_features);
 
 
 	static void scissor_enable(

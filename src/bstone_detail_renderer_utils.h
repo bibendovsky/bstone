@@ -205,6 +205,10 @@ private:
 		const int major,
 		const int minor);
 
+	static void create_window_set_ogl_attributes_es(
+		const int major,
+		const int minor);
+
 	static void create_window_set_ogl_attributes(
 		const RendererUtilsCreateWindowParam& param);
 

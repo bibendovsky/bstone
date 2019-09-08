@@ -479,7 +479,7 @@ void GenericOglContext::viewport_set_rect()
 
 void GenericOglContext::viewport_set_depth_range()
 {
-	OglRendererUtils::viewport_set_depth_range(viewport_);
+	OglRendererUtils::viewport_set_depth_range(viewport_, ogl_device_features_);
 }
 
 void GenericOglContext::viewport_set_defaults()
@@ -601,6 +601,7 @@ OglContextUPtr OglContextFactory::create(
 	{
 		case RendererKind::ogl_2:
 		case RendererKind::ogl_3_2_core:
+		case RendererKind::ogl_es_2_0:
 			return GenericOglContextUPtr{new GenericOglContext{device_features, ogl_device_features}};
 
 		default:

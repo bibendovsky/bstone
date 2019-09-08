@@ -266,7 +266,25 @@ void GenericOglTexture2d::initialize(
 
 	const auto ogl_context = ogl_texture_manager_->get_ogl_context();
 	const auto& ogl_device_features = ogl_context->get_ogl_device_features();
-	const auto internal_format = (storage_pixel_format_ == RendererPixelFormat::r8g8b8a8_unorm ? GL_RGBA8 : GL_RGB8);
+	const auto is_es = (ogl_device_features.context_kind_ == OglContextKind::es);
+
+	auto internal_format = GLenum{};
+
+	if (is_es)
+	{
+		internal_format = GL_RGBA;
+	}
+	else
+	{
+		if (storage_pixel_format_ == RendererPixelFormat::r8g8b8a8_unorm)
+		{
+			internal_format = GL_RGBA8;
+		}
+		else
+		{
+			internal_format = GL_RGB8;
+		}
+	}
 
 	auto ogl_name = GLuint{};
 

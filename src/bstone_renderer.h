@@ -53,6 +53,8 @@ enum class RendererKind :
 
 	ogl_2,
 	ogl_3_2_core,
+
+	ogl_es_2_0,
 }; // RendererKind
 
 enum class RendererCommandId :

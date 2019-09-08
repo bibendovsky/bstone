@@ -99,6 +99,10 @@ private:
 	static const RendererShaderSource& get_fragment_ogl_3_2_core();
 
 	static const RendererShaderSource& get_vertex_ogl_3_2_core();
+
+	static const RendererShaderSource& get_fragment_ogl_es_2_0();
+
+	static const RendererShaderSource& get_vertex_ogl_es_2_0();
 }; // RendererShaderRegistry
 
 

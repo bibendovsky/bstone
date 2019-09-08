@@ -284,6 +284,13 @@ const std::string& vid_get_ogl_3_2_c_value_string()
 	return result;
 }
 
+const std::string& vid_get_ogl_es_2_0_value_string()
+{
+	static const auto& result = std::string{"ogl_es_2_0"};
+
+	return result;
+}
+
 const std::string& vid_get_renderer_kind_key_name()
 {
 	static const auto& result = std::string{"vid_renderer_kind"};
@@ -1033,6 +1040,7 @@ const std::string& vid_to_string(
 	static const auto invalid_string = std::string{"?"};
 	static const auto ogl_2_string = std::string{"OpenGL 2+"};
 	static const auto ogl_3_2_core_string = std::string{"OpenGL 3.2 core"};
+	static const auto ogl_es_2_0_string = std::string{"OpenGL ES 2.0"};
 
 	switch (renderer_kind)
 	{
@@ -1050,6 +1058,9 @@ const std::string& vid_to_string(
 
 		case bstone::RendererKind::ogl_3_2_core:
 			return ogl_3_2_core_string;
+
+		case bstone::RendererKind::ogl_es_2_0:
+			return ogl_es_2_0_string;
 
 
 		default:
@@ -7810,6 +7821,12 @@ void vid_apply_hw_aa_configuration()
 	::vid_configuration_.hw_aa_kind_.set_is_modified(false);
 	::vid_configuration_.hw_aa_value_.set_is_modified(false);
 
+	if (*::vid_configuration_.hw_aa_kind_ == bstone::RendererAaKind::ms &&
+		::hw_device_features_.msaa_is_requires_restart_)
+	{
+		return;
+	}
+
 	::hw_renderer_->aa_set(
 		::vid_configuration_.hw_aa_kind_,
 		::vid_configuration_.hw_aa_value_);
@@ -13416,6 +13433,9 @@ const std::string& vid_renderer_kind_to_string(
 		case bstone::RendererKind::ogl_3_2_core:
 			return vid_get_ogl_3_2_c_value_string();
 
+		case bstone::RendererKind::ogl_es_2_0:
+			return vid_get_ogl_es_2_0_value_string();
+
 		default:
 			::Quit("Invalid renderer kind.");
 
@@ -13442,6 +13462,10 @@ void vid_configuration_read_renderer_kind(
 	else if (value_string == ::vid_get_ogl_3_2_c_value_string())
 	{
 		::vid_configuration_.renderer_kind_ = bstone::RendererKind::ogl_3_2_core;
+	}
+	else if (value_string == ::vid_get_ogl_es_2_0_value_string())
+	{
+		::vid_configuration_.renderer_kind_ = bstone::RendererKind::ogl_es_2_0;
 	}
 }
 
@@ -13773,6 +13797,15 @@ void vid_write_renderer_kind_configuration(
 				text_writer,
 				::vid_get_renderer_kind_key_name(),
 				::vid_get_ogl_3_2_c_value_string()
+			);
+
+			break;
+
+		case bstone::RendererKind::ogl_es_2_0:
+			::write_configuration_entry(
+				text_writer,
+				::vid_get_renderer_kind_key_name(),
+				::vid_get_ogl_es_2_0_value_string()
 			);
 
 			break;

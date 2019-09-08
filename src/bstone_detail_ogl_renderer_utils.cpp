@@ -538,8 +538,20 @@ void OglRendererUtils::npot_probe(
 	{
 		extension_manager->probe(OglExtensionId::arb_texture_non_power_of_two);
 
-		device_features.npot_is_available_ =
-			extension_manager->has(OglExtensionId::arb_texture_non_power_of_two);
+		if (extension_manager->has(OglExtensionId::arb_texture_non_power_of_two))
+		{
+			device_features.npot_is_available_ = true;
+		}
+	}
+
+	if (!device_features.npot_is_available_)
+	{
+		extension_manager->probe(OglExtensionId::oes_texture_npot);
+
+		if (extension_manager->has(OglExtensionId::oes_texture_npot))
+		{
+			device_features.npot_is_available_ = true;
+		}
 	}
 #endif //!BSTONE_RENDERER_HW_TEST_POT_ONLY
 }
@@ -553,6 +565,11 @@ void OglRendererUtils::mipmap_probe(
 	ogl_device_features.mipmap_is_ext_ = false;
 
 #ifndef BSTONE_RENDERER_HW_TEST_SW_MIPMAP
+	if (ogl_device_features.context_kind_ == OglContextKind::es)
+	{
+		device_features.mipmap_is_available_ = true;
+	}
+
 	if (!device_features.mipmap_is_available_)
 	{
 		extension_manager->probe(OglExtensionId::arb_framebuffer_object);
@@ -947,7 +964,8 @@ void OglRendererUtils::viewport_set_rect(
 }
 
 void OglRendererUtils::viewport_set_depth_range(
-	const RendererViewport& viewport)
+	const RendererViewport& viewport,
+	const OglDeviceFeatures& ogl_device_features)
 {
 	if (viewport.min_depth_ < 0.0F || viewport.min_depth_ > 1.0F)
 	{
@@ -959,8 +977,18 @@ void OglRendererUtils::viewport_set_depth_range(
 		throw Exception{"Maximum depth out of range."};
 	}
 
-	::glDepthRange(viewport.min_depth_, viewport.max_depth_);
-	assert(!OglRendererUtils::was_errors());
+	const auto is_es = (ogl_device_features.context_kind_ == OglContextKind::es);
+
+	if (is_es)
+	{
+		::glDepthRangef(viewport.min_depth_, viewport.max_depth_);
+		assert(!OglRendererUtils::was_errors());
+	}
+	else
+	{
+		::glDepthRange(viewport.min_depth_, viewport.max_depth_);
+		assert(!OglRendererUtils::was_errors());
+	}
 }
 
 void OglRendererUtils::culling_enable(

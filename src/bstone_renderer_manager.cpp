@@ -146,6 +146,10 @@ RendererPtr GenericRendererManager::renderer_initialize(
 #ifndef BSTONE_RENDERER_HW_TEST_NO_OGL_2
 			RendererKind::ogl_2,
 #endif // !BSTONE_RENDERER_HW_TEST_NO_OGL_2
+
+#ifndef BSTONE_RENDERER_HW_TEST_NO_OGL_ES_2_0
+			RendererKind::ogl_es_2_0,
+#endif // !BSTONE_RENDERER_HW_TEST_NO_OGL_ES_2_0
 		};
 #endif // BSTONE_RENDERER_HW_TEST_NO_OGL
 	}
@@ -171,6 +175,10 @@ RendererPtr GenericRendererManager::renderer_initialize(
 #ifndef BSTONE_RENDERER_HW_TEST_NO_OGL_3_2_CORE
 				case RendererKind::ogl_3_2_core:
 #endif // !BSTONE_RENDERER_HW_TEST_NO_OGL_3_2_CORE
+
+#ifndef BSTONE_RENDERER_HW_TEST_NO_OGL_ES_2_0
+				case RendererKind::ogl_es_2_0:
+#endif // !BSTONE_RENDERER_HW_TEST_NO_OGL_ES_2_0
 
 					ogl_renderer_ = std::make_unique<detail::OglRenderer>(new_param);
 
