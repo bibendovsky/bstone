@@ -170,8 +170,13 @@ endif ()
 target_include_directories(
 	${PROJECT_NAME}
 	PRIVATE
+		.
 		dosbox
 		lib/glm
+		renderer
+		renderer/detail
+		renderer/ogl
+		renderer/ogl/detail
 		${PROJECT_BINARY_DIR}
 )
 
@@ -198,10 +203,68 @@ target_sources(
 		dosbox/mixer.h
 		dosbox/pic.h
 		dosbox/setup.h
+
+		renderer/bstone_hw_texture_manager.h
+		renderer/bstone_missing_sprite_64x64_image.h
+		renderer/bstone_missing_wall_64x64_image.h
+		renderer/bstone_renderer.h
+		renderer/bstone_renderer_limits.h
+		renderer/bstone_renderer_manager.h
+		renderer/bstone_renderer_shader_registry.h
+		renderer/bstone_renderer_tests.h
+
+		renderer/detail/bstone_detail_renderer_command_buffer.h
+		renderer/detail/bstone_detail_renderer_command_manager.h
+		renderer/detail/bstone_detail_renderer_utils.h
+
+		renderer/ogl/bstone_ogl_api.h
+
+		renderer/ogl/detail/bstone_detail_ogl_buffer.h
+		renderer/ogl/detail/bstone_detail_ogl_buffer_manager.h
+		renderer/ogl/detail/bstone_detail_ogl_command_executor.h
+		renderer/ogl/detail/bstone_detail_ogl_context.h
+		renderer/ogl/detail/bstone_detail_ogl_context_kind.h
+		renderer/ogl/detail/bstone_detail_ogl_device_features.h
+		renderer/ogl/detail/bstone_detail_ogl_extension_manager.h
+		renderer/ogl/detail/bstone_detail_ogl_index_buffer.h
+		renderer/ogl/detail/bstone_detail_ogl_renderer.h
+		renderer/ogl/detail/bstone_detail_ogl_renderer_utils.h
+		renderer/ogl/detail/bstone_detail_ogl_sampler.h
+		renderer/ogl/detail/bstone_detail_ogl_sampler_manager.h
+		renderer/ogl/detail/bstone_detail_ogl_shader.h
+		renderer/ogl/detail/bstone_detail_ogl_shader_manager.h
+		renderer/ogl/detail/bstone_detail_ogl_shader_stage.h
+		renderer/ogl/detail/bstone_detail_ogl_shader_stage_manager.h
+		renderer/ogl/detail/bstone_detail_ogl_shader_var.h
+		renderer/ogl/detail/bstone_detail_ogl_texture_2d.h
+		renderer/ogl/detail/bstone_detail_ogl_texture_manager.h
+		renderer/ogl/detail/bstone_detail_ogl_vao.h
+		renderer/ogl/detail/bstone_detail_ogl_vao_manager.h
+		renderer/ogl/detail/bstone_detail_ogl_vertex_buffer.h
+		renderer/ogl/detail/bstone_detail_ogl_vertex_input.h
+		renderer/ogl/detail/bstone_detail_ogl_vertex_input_manager.h
+
 		3d_def.h
 		3d_menu.h
 		an_codes.h
 		audio.h
+		gfxv.h
+		id_ca.h
+		id_heads.h
+		id_in.h
+		id_pm.h
+		id_sd.h
+		id_us.h
+		id_vh.h
+		id_vl.h
+		jam_io.h
+		jm_cio.h
+		jm_io.h
+		jm_lzh.h
+		jm_tp.h
+		jm_vl.h
+		movie.h
+
 		bstone_adlib_decoder.h
 		bstone_adlib_music_decoder.h
 		bstone_adlib_sfx_decoder.h
@@ -220,27 +283,18 @@ target_sources(
 		bstone_fixed_point.h
 		bstone_format_string.h
 		bstone_generic_fizzle_fx.h
-		bstone_hw_texture_manager.h
 		bstone_stream.h
 		bstone_logger.h
 		bstone_memory_binary_reader.h
 		bstone_memory_stream.h
-		bstone_missing_sprite_64x64_image.h
-		bstone_missing_wall_64x64_image.h
 		bstone_mod_value.h
 		bstone_mt_queue_1r1w.h
-		bstone_ogl_api.h
 		bstone_opl2.h
 		bstone_ref_values.h
-		bstone_renderer.h
-		bstone_renderer_limits.h
-		bstone_renderer_tests.h
 		bstone_rgb_color_model.h
 		bstone_pcm_decoder.h
 		bstone_precompiled.h
 		bstone_ps_fizzle_fx.h
-		bstone_renderer_manager.h
-		bstone_renderer_shader_registry.h
 		bstone_rgb_palette.h
 		bstone_scope_guard.h
 		bstone_sdl_types.h
@@ -254,55 +308,49 @@ target_sources(
 		bstone_un_value.h
 		bstone_uptr_resource_list.h
 		bstone_version.h
-		bstone_detail_ogl_renderer.h
-		bstone_detail_ogl_buffer.h
-		bstone_detail_ogl_buffer_manager.h
-		bstone_detail_ogl_command_executor.h
-		bstone_detail_ogl_context_kind.h
-		bstone_detail_ogl_device_features.h
-		bstone_detail_ogl_extension_manager.h
-		bstone_detail_ogl_index_buffer.h
-		bstone_detail_ogl_renderer_utils.h
-		bstone_detail_ogl_sampler_manager.h
-		bstone_detail_ogl_shader.h
-		bstone_detail_ogl_shader_manager.h
-		bstone_detail_ogl_shader_stage.h
-		bstone_detail_ogl_shader_stage_manager.h
-		bstone_detail_ogl_shader_var.h
-		bstone_detail_ogl_context.h
-		bstone_detail_ogl_vertex_buffer.h
-		bstone_detail_ogl_texture_2d.h
-		bstone_detail_ogl_texture_manager.h
-		bstone_detail_ogl_sampler.h
-		bstone_detail_ogl_vertex_input.h
-		bstone_detail_ogl_vao.h
-		bstone_detail_ogl_vao_manager.h
-		bstone_detail_ogl_vertex_input_manager.h
-		bstone_detail_renderer_command_buffer.h
-		bstone_detail_renderer_command_manager.h
-		bstone_detail_renderer_utils.h
-		gfxv.h
-		id_ca.h
-		id_heads.h
-		id_in.h
-		id_pm.h
-		id_sd.h
-		id_us.h
-		id_vh.h
-		id_vl.h
-		jam_io.h
-		jm_cio.h
-		jm_io.h
-		jm_lzh.h
-		jm_tp.h
-		jm_vl.h
-		movie.h
 )
 
 target_sources(
 	${PROJECT_NAME}
 	PRIVATE
 		dosbox/dbopl.cpp
+
+		renderer/bstone_hw_texture_manager.cpp
+		renderer/bstone_missing_sprite_64x64_image.cpp
+		renderer/bstone_missing_wall_64x64_image.cpp
+		renderer/bstone_renderer.cpp
+		renderer/bstone_renderer_manager.cpp
+		renderer/bstone_renderer_shader_registry.cpp
+
+		renderer/detail/bstone_detail_renderer_command_buffer.cpp
+		renderer/detail/bstone_detail_renderer_command_manager.cpp
+		renderer/detail/bstone_detail_renderer_utils.cpp
+
+		renderer/ogl/bstone_ogl_api.cpp
+
+		renderer/ogl/detail/bstone_detail_ogl_buffer.cpp
+		renderer/ogl/detail/bstone_detail_ogl_buffer_manager.cpp
+		renderer/ogl/detail/bstone_detail_ogl_command_executor.cpp
+		renderer/ogl/detail/bstone_detail_ogl_context.cpp
+		renderer/ogl/detail/bstone_detail_ogl_extension_manager.cpp
+		renderer/ogl/detail/bstone_detail_ogl_index_buffer.cpp
+		renderer/ogl/detail/bstone_detail_ogl_renderer.cpp
+		renderer/ogl/detail/bstone_detail_ogl_renderer_utils.cpp
+		renderer/ogl/detail/bstone_detail_ogl_sampler.cpp
+		renderer/ogl/detail/bstone_detail_ogl_sampler_manager.cpp
+		renderer/ogl/detail/bstone_detail_ogl_shader.cpp
+		renderer/ogl/detail/bstone_detail_ogl_shader_manager.cpp
+		renderer/ogl/detail/bstone_detail_ogl_shader_stage.cpp
+		renderer/ogl/detail/bstone_detail_ogl_shader_stage_manager.cpp
+		renderer/ogl/detail/bstone_detail_ogl_shader_var.cpp
+		renderer/ogl/detail/bstone_detail_ogl_texture_2d.cpp
+		renderer/ogl/detail/bstone_detail_ogl_texture_manager.cpp
+		renderer/ogl/detail/bstone_detail_ogl_vao.cpp
+		renderer/ogl/detail/bstone_detail_ogl_vao_manager.cpp
+		renderer/ogl/detail/bstone_detail_ogl_vertex_buffer.cpp
+		renderer/ogl/detail/bstone_detail_ogl_vertex_input.cpp
+		renderer/ogl/detail/bstone_detail_ogl_vertex_input_manager.cpp
+
 		3d_act1.cpp
 		3d_act2.cpp
 		3d_agent.cpp
@@ -317,69 +365,6 @@ target_sources(
 		3d_play.cpp
 		3d_scale.cpp
 		3d_state.cpp
-		bstone_adlib_decoder.cpp
-		bstone_adlib_music_decoder.cpp
-		bstone_adlib_sfx_decoder.cpp
-		bstone_archiver_impl.cpp
-		bstone_audio_decoder.cpp
-		bstone_audio_mixer.cpp
-		bstone_binary_reader.cpp
-		bstone_binary_writer.cpp
-		bstone_cl_args.cpp
-		bstone_crc32.cpp
-		bstone_exception.cpp
-		bstone_file_stream.cpp
-		bstone_fizzle_fx.cpp
-		bstone_fixed_point.cpp
-		bstone_format_string.cpp
-		bstone_generic_fizzle_fx.cpp
-		bstone_hw_texture_manager.cpp
-		bstone_stream.cpp
-		bstone_logger.cpp
-		bstone_memory_binary_reader.cpp
-		bstone_memory_stream.cpp
-		bstone_missing_sprite_64x64_image.cpp
-		bstone_missing_wall_64x64_image.cpp
-		bstone_ogl_api.cpp
-		bstone_opl2.cpp
-		bstone_pcm_decoder.cpp
-		bstone_precompiled.cpp
-		bstone_ps_fizzle_fx.cpp
-		bstone_renderer.cpp
-		bstone_renderer_manager.cpp
-		bstone_renderer_shader_registry.cpp
-		bstone_sha1.cpp
-		bstone_sprite.cpp
-		bstone_sprite_cache.cpp
-		bstone_string_helper.cpp
-		bstone_text_reader.cpp
-		bstone_text_writer.cpp
-		bstone_version.cpp
-		bstone_detail_ogl_renderer.cpp
-		bstone_detail_ogl_command_executor.cpp
-		bstone_detail_ogl_extension_manager.cpp
-		bstone_detail_ogl_sampler_manager.cpp
-		bstone_detail_ogl_shader.cpp
-		bstone_detail_ogl_shader_manager.cpp
-		bstone_detail_ogl_shader_stage.cpp
-		bstone_detail_ogl_shader_stage_manager.cpp
-		bstone_detail_ogl_shader_var.cpp
-		bstone_detail_ogl_renderer_utils.cpp
-		bstone_detail_ogl_context.cpp
-		bstone_detail_ogl_buffer.cpp
-		bstone_detail_ogl_buffer_manager.cpp
-		bstone_detail_ogl_index_buffer.cpp
-		bstone_detail_ogl_vertex_buffer.cpp
-		bstone_detail_ogl_texture_2d.cpp
-		bstone_detail_ogl_texture_manager.cpp
-		bstone_detail_ogl_sampler.cpp
-		bstone_detail_ogl_vertex_input.cpp
-		bstone_detail_ogl_vao.cpp
-		bstone_detail_ogl_vao_manager.cpp
-		bstone_detail_ogl_vertex_input_manager.cpp
-		bstone_detail_renderer_command_buffer.cpp
-		bstone_detail_renderer_command_manager.cpp
-		bstone_detail_renderer_utils.cpp
 		colormap.cpp
 		d3_d2.cpp
 		d3_dr2.cpp
@@ -401,6 +386,38 @@ target_sources(
 		scale.cpp
 		stub.cpp
 		vgapal.cpp
+
+		bstone_adlib_decoder.cpp
+		bstone_adlib_music_decoder.cpp
+		bstone_adlib_sfx_decoder.cpp
+		bstone_archiver_impl.cpp
+		bstone_audio_decoder.cpp
+		bstone_audio_mixer.cpp
+		bstone_binary_reader.cpp
+		bstone_binary_writer.cpp
+		bstone_cl_args.cpp
+		bstone_crc32.cpp
+		bstone_exception.cpp
+		bstone_file_stream.cpp
+		bstone_fizzle_fx.cpp
+		bstone_fixed_point.cpp
+		bstone_format_string.cpp
+		bstone_generic_fizzle_fx.cpp
+		bstone_stream.cpp
+		bstone_logger.cpp
+		bstone_memory_binary_reader.cpp
+		bstone_memory_stream.cpp
+		bstone_opl2.cpp
+		bstone_pcm_decoder.cpp
+		bstone_precompiled.cpp
+		bstone_ps_fizzle_fx.cpp
+		bstone_sha1.cpp
+		bstone_sprite.cpp
+		bstone_sprite_cache.cpp
+		bstone_string_helper.cpp
+		bstone_text_reader.cpp
+		bstone_text_writer.cpp
+		bstone_version.cpp
 )
 
 if (WIN32)
