@@ -11669,29 +11669,21 @@ void hw_precache_crate_content()
 	const auto& assets_info = AssetsInfo{};
 
 	::hw_sprite_cache(::SPR_STAT_24); // PISTOL SPR4V
-	::hw_sprite_cache(::SPR_STAT_31); // Charge Unit
 	::hw_sprite_cache(::SPR_STAT_27); // Auto-Burst Rifle
 	::hw_sprite_cache(::SPR_STAT_28); // Particle Charged ION
-
+	::hw_sprite_cache(::SPR_STAT_31); // Charge Unit
 	::hw_sprite_cache(::SPR_STAT_32); // Red Key SPR5V
 	::hw_sprite_cache(::SPR_STAT_33); // Yellow Key
+	::hw_sprite_cache(::SPR_STAT_34); // Green Key / BFG Cannon
 	::hw_sprite_cache(::SPR_STAT_35); // Blue Key
-
-	if (assets_info.is_aog())
-	{
-		::hw_sprite_cache(::SPR_STAT_34); // Green Key
-		::hw_sprite_cache(::SPR_STAT_36); // Gold Key
-	}
-
+	::hw_sprite_cache(::SPR_STAT_36); // Gold Key / Yellow Box?
 	::hw_sprite_cache(::SPR_STAT_42); // Chicken Leg
 	::hw_sprite_cache(::SPR_STAT_44); // Ham
 	::hw_sprite_cache(::SPR_STAT_46); // Grande Launcher
-
 	::hw_sprite_cache(::SPR_STAT_48); // money bag
 	::hw_sprite_cache(::SPR_STAT_49); // loot
 	::hw_sprite_cache(::SPR_STAT_50); // gold
 	::hw_sprite_cache(::SPR_STAT_51); // bonus
-
 	::hw_sprite_cache(::SPR_STAT_57); // Body Parts
 }
 
@@ -11776,6 +11768,7 @@ void hw_precache_security_light()
 
 void hw_precache_grate_and_steam()
 {
+	::hw_sprite_cache(::SPR_GRATE);
 	::hw_sprite_cache(::SPR_STEAM_1);
 	::hw_sprite_cache(::SPR_STEAM_2);
 	::hw_sprite_cache(::SPR_STEAM_3);
@@ -11784,6 +11777,7 @@ void hw_precache_grate_and_steam()
 
 void hw_precache_pipe_and_steam()
 {
+	::hw_sprite_cache(::SPR_STEAM_PIPE);
 	::hw_sprite_cache(::SPR_PIPE_STEAM_1);
 	::hw_sprite_cache(::SPR_PIPE_STEAM_2);
 	::hw_sprite_cache(::SPR_PIPE_STEAM_3);
@@ -11899,6 +11893,14 @@ void hw_precache_player_weapons()
 	::hw_precache_player_weapon_dual_neutron_disruptor();
 	::hw_precache_player_weapon_plasma_discharge_unit();
 	::hw_precache_player_weapon_anti_plasma_cannon();
+}
+
+void hw_precache_dead(
+	const objtype& bs_actor)
+{
+	const auto sprite_id = ::hw_3d_bs_actor_sprite_get_id(bs_actor);
+
+	::hw_sprite_cache(sprite_id);
 }
 
 void hw_precache_actors()
@@ -12228,6 +12230,10 @@ void hw_precache_actors()
 
 		case gold_morphingobj:
 			::hw_precache_morphed_dr_goldfire();
+			break;
+
+		case deadobj:
+			::hw_precache_dead(*bs_actor);
 			break;
 
 		default:
