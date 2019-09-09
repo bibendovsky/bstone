@@ -1412,6 +1412,8 @@ void RemoveObj(
 		::Quit("Tried to remove the player.");
 	}
 
+	::vid_hw_on_actor_remove(*gone);
+
 	gone->state = nullptr;
 
 	//

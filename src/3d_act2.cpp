@@ -2171,9 +2171,7 @@ void T_SmartThought(
 
 					if ((avail > DR_MIN_STATICS) && (US_RndT() & 1))
 					{
-						const auto bs_static = SpawnStatic(obj->tilex, obj->tiley, DOOR_RUBBLE_STATNUM);
-
-						::vid_hw_on_static_add(*bs_static);
+						static_cast<void>(::SpawnStatic(obj->tilex, obj->tiley, DOOR_RUBBLE_STATNUM));
 					}
 				}
 				break;
@@ -5728,8 +5726,6 @@ void SpawnCusExplosion(
 	InitAnim(new_actor, StartFrame, 0, static_cast<std::uint8_t>(NumFrames), at_ONCE, ad_FWD, (US_RndT() & 0x7), Delay);
 	A_DeathScream(new_actor);
 	MakeAlertNoise(new_actor);
-
-	::vid_hw_on_actor_add(*new_actor);
 }
 
 void T_SpawnExplosion(
@@ -6095,8 +6091,6 @@ void SpawnProjectile(
 		new_actor->x += deltax;
 		new_actor->y += deltay;
 	}
-
-	::vid_hw_on_actor_add(*new_actor);
 }
 
 objtype* proj_check;

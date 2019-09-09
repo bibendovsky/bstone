@@ -2291,6 +2291,7 @@ using Hw3dDoorIndexBuffer = std::vector<std::uint16_t>;
 
 enum class Hw3dSpriteKind
 {
+	none,
 	stat,
 	actor,
 }; // Hw3dSpriteKind
@@ -7253,12 +7254,20 @@ int hw_3d_bs_actor_sprite_get_id(
 	return result;
 }
 
+void hw_3d_actor_map(
+	const objtype& bs_actor);
+
 void hw_actor_update(
 	const std::intptr_t bs_actor_index)
 {
 	auto& hw_actor = ::hw_3d_actors_[bs_actor_index];
-
 	const auto& bs_actor = ::objlist[bs_actor_index];
+
+	if (hw_actor.kind_ == Hw3dSpriteKind::none)
+	{
+		::hw_3d_actor_map(bs_actor);
+	}
+
 	const auto new_bs_sprite_id = ::hw_3d_bs_actor_sprite_get_id(bs_actor);
 
 	if (hw_actor.bs_sprite_id_ == 0 || hw_actor.bs_sprite_id_ != new_bs_sprite_id)
@@ -7408,6 +7417,9 @@ void hw_3d_sprite_orient(
 	::hw_3d_actor_cloak_update(sprite);
 }
 
+void hw_3d_static_map(
+	const statobj_t& bs_static);
+
 void hw_3d_sprites_render()
 {
 	// Build draw list.
@@ -7469,6 +7481,14 @@ void hw_3d_sprites_render()
 		for (const auto bs_static_index : ::hw_3d_statics_to_render_)
 		{
 			auto& sprite = ::hw_3d_statics_[bs_static_index];
+
+			if (sprite.kind_ == Hw3dSpriteKind::none)
+			{
+				const auto& bs_static = ::statobjlist[bs_static_index];
+
+				::hw_3d_static_map(bs_static);
+			}
+
 			::hw_3d_sprite_orient(sprite);
 
 			const auto& hw_static = ::hw_3d_statics_[bs_static_index];
@@ -10051,12 +10071,6 @@ void hw_3d_static_map(
 	::hw_3d_sprite_map(Hw3dSpriteKind::stat, vertex_index, sprite);
 }
 
-void hw_3d_static_add(
-	const statobj_t& bs_static)
-{
-	::hw_3d_static_map(bs_static);
-}
-
 void hw_3d_sprite_texture_change(
 	const Hw3dSpriteKind sprite_kind,
 	Hw3dSprite& sprite)
@@ -10194,12 +10208,6 @@ void hw_3d_actor_map(
 	{
 		sprite.texture_2d_ = ::hw_texture_manager_->sprite_get(sprite.bs_sprite_id_);
 	}
-}
-
-void hw_3d_actor_add(
-	const objtype& bs_actor)
-{
-	::hw_3d_actor_map(bs_actor);
 }
 
 // Explosion.
@@ -10821,6 +10829,18 @@ void hw_precache_experimental_mutant_human()
 	::hw_sprite_cache(::SPR_MUTHUM2_SPIT1);
 	::hw_sprite_cache(::SPR_MUTHUM2_SPIT2);
 	::hw_sprite_cache(::SPR_MUTHUM2_SPIT3);
+
+
+	const auto& assets_info = AssetsInfo{};
+
+	if (assets_info.is_ps())
+	{
+		::hw_precache_electrical_shot();
+	}
+	else
+	{
+		::hw_precache_generic_alien_spit_1();
+	}
 }
 
 // Morphing Experimental Mutant Human.
@@ -11229,6 +11249,8 @@ void hw_precache_volatile_material_transport()
 	::hw_sprite_cache(::SPR_GSCOUT_DIE6);
 	::hw_sprite_cache(::SPR_GSCOUT_DIE7);
 	::hw_sprite_cache(::SPR_GSCOUT_DIE8);
+
+	::hw_sprite_cache(::SPR_GSCOUT_DEAD);
 
 
 	//
@@ -14288,7 +14310,7 @@ void vid_hw_on_door_lock_update(
 	door.sides_[1].texture_2d_ = back_face_texture_2d;
 }
 
-void vid_hw_on_static_add(
+void vid_hw_on_static_remove(
 	const statobj_t& bs_static)
 {
 	if (!::vid_is_hw_)
@@ -14296,7 +14318,9 @@ void vid_hw_on_static_add(
 		return;
 	}
 
-	::hw_3d_static_add(bs_static);
+	const auto bs_static_index = ::hw_get_static_index(bs_static);
+	auto& hw_static = ::hw_3d_statics_[bs_static_index];
+	hw_static = {};
 }
 
 void vid_hw_on_static_change_texture(
@@ -14310,7 +14334,7 @@ void vid_hw_on_static_change_texture(
 	::hw_3d_static_texture_change(bs_static);
 }
 
-void vid_hw_on_actor_add(
+void vid_hw_on_actor_remove(
 	const objtype& bs_actor)
 {
 	if (!::vid_is_hw_)
@@ -14318,7 +14342,9 @@ void vid_hw_on_actor_add(
 		return;
 	}
 
-	::hw_3d_actor_add(bs_actor);
+	const auto bs_actor_index = ::hw_get_actor_index(bs_actor);
+	auto& hw_actor = ::hw_3d_actors_[bs_actor_index];
+	hw_actor = {};
 }
 
 void vid_hw_fizzle_fx_set_is_enabled(
@@ -14489,7 +14515,7 @@ void vid_hw_actors_add_render_item(
 		return;
 	}
 
-	::hw_3d_actors_to_render_.insert(bs_actor_index);
+	::hw_3d_actors_to_render_.emplace(bs_actor_index);
 }
 
 void vid_apply_hw_configuration()

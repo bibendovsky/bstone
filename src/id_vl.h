@@ -335,13 +335,13 @@ void vid_hw_on_door_move(
 void vid_hw_on_door_lock_update(
 	const int door_index);
 
-void vid_hw_on_static_add(
+void vid_hw_on_static_remove(
 	const statobj_t& bs_static);
 
 void vid_hw_on_static_change_texture(
 	const statobj_t& bs_static);
 
-void vid_hw_on_actor_add(
+void vid_hw_on_actor_remove(
 	const objtype& bs_actor);
 
 
