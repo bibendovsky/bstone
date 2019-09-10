@@ -262,6 +262,15 @@ bool g_no_screens = false; // overrides "g_no_intro_outro" via command line
 static const bool default_g_no_fade_in_or_out = false;
 bool g_no_fade_in_or_out = default_g_no_fade_in_or_out;
 
+constexpr int sg_area_connect_bitmap_size = ((NUMAREAS * NUMAREAS) + 7) / 8;
+using SgAreaConnectBitmap = std::array<std::uint8_t, ::sg_area_connect_bitmap_size>;
+
+constexpr int sg_area_by_player_bitmap_size = (NUMAREAS + 7) / 8;
+using SgAreaByPlayerBitmap = std::array<std::uint8_t, ::sg_area_by_player_bitmap_size>;
+
+constexpr int sg_level_bitmap_size = ((MAPSIZE * MAPSIZE) + 7) / 8;
+using SgLevelBitmap = std::array<std::uint8_t, ::sg_level_bitmap_size>;
+
 
 // ==========================================================================
 // Sprites
@@ -8180,36 +8189,138 @@ bool LoadLevel(
 
 		archiver->initialize(&g_playtemp);
 
-		archiver->read_uint8_array(reinterpret_cast<std::uint8_t*>(tilemap), MAPSIZE * MAPSIZE);
-
-		for (int i = 0; i < MAPSIZE; ++i)
+		// tilemap
+		//
 		{
-			for (int j = 0; j < MAPSIZE; ++j)
-			{
-				const auto value = archiver->read_int32();
+			auto tilemap_bitmap = SgLevelBitmap{};
 
-				if (value < 0)
+			archiver->read_uint8_array(tilemap_bitmap.data(), ::sg_level_bitmap_size);
+
+			std::uninitialized_fill_n(
+				&::tilemap[0][0],
+				MAPSIZE * MAPSIZE,
+				std::uint8_t{}
+			);
+
+			for (int i = 0; i < MAPSIZE; ++i)
+			{
+				for (int j = 0; j < MAPSIZE; ++j)
 				{
-					actorat[i][j] = &objlist[-value];
-				}
-				else
-				{
-					actorat[i][j] = reinterpret_cast<objtype*>(static_cast<std::size_t>(value));
+					const auto index = (i * MAPSIZE) + j;
+					const auto byte_index = index / 8;
+					const auto bit_index = index % 8;
+
+					const auto byte = tilemap_bitmap[byte_index];
+
+					if ((byte & (1 << bit_index)) == 0)
+					{
+						continue;
+					}
+
+					::tilemap[i][j] = archiver->read_uint8();
 				}
 			}
 		}
 
-		archiver->read_uint8_array(reinterpret_cast<std::uint8_t*>(areaconnect), NUMAREAS * NUMAREAS);
-		archiver->read_uint8_array(reinterpret_cast<std::uint8_t*>(areabyplayer), NUMAREAS);
+		// actorat
+		//
+		{
+			auto actorat_bitmap = SgLevelBitmap{};
 
-		// Restore 'save game' actors
+			archiver->read_uint8_array(actorat_bitmap.data(), ::sg_level_bitmap_size);
+
+			std::uninitialized_fill_n(
+				&::actorat[0][0],
+				MAPSIZE * MAPSIZE,
+				nullptr
+			);
+
+			for (int i = 0; i < MAPSIZE; ++i)
+			{
+				for (int j = 0; j < MAPSIZE; ++j)
+				{
+					const auto index = (i * MAPSIZE) + j;
+					const auto byte_index = index / 8;
+					const auto bit_index = index % 8;
+
+					const auto byte = actorat_bitmap[byte_index];
+
+					if ((byte & (1 << bit_index)) == 0)
+					{
+						continue;
+					}
+
+					const auto value = archiver->read_int16();
+
+					if (value < 0)
+					{
+						::actorat[i][j] = &::objlist[-value];
+					}
+					else
+					{
+						::actorat[i][j] = reinterpret_cast<objtype*>(static_cast<std::size_t>(value));
+					}
+				}
+			}
+		}
+
+		// areaconnect
+		//
+		{
+			auto areaconnect_bitmap = SgAreaConnectBitmap{};
+
+			archiver->read_uint8_array(areaconnect_bitmap.data(), ::sg_area_connect_bitmap_size);
+
+			std::uninitialized_fill_n(
+				&::areaconnect[0][0],
+				NUMAREAS * NUMAREAS,
+				std::uint8_t{}
+			);
+
+			for (int i = 0; i < NUMAREAS; ++i)
+			{
+				for (int j = 0; j < NUMAREAS; ++j)
+				{
+					const auto index = (i * NUMAREAS) + j;
+					const auto byte_index = index / 8;
+					const auto bit_index = index % 8;
+
+					const auto byte = areaconnect_bitmap[byte_index];
+
+					if ((byte & (1 << bit_index)) == 0)
+					{
+						continue;
+					}
+
+					::areaconnect[i][j] = archiver->read_uint8();
+				}
+			}
+		}
+
+		// areabyplayer
+		//
+		{
+			auto areabyplayer_bitmap = SgAreaByPlayerBitmap{};
+			archiver->read_uint8_array(areabyplayer_bitmap.data(), ::sg_area_by_player_bitmap_size);
+
+			for (int i = 0; i < NUMAREAS; ++i)
+			{
+				const auto byte_index = i / 8;
+				const auto bit_index = i % 8;
+				const auto byte = areabyplayer_bitmap[byte_index];
+
+				::areabyplayer[i] = ((byte & (1 << bit_index)) != 0);
+			}
+		}
+
+		// Actors.
 		//
 
-		const auto actor_count = archiver->read_int32();
+		const int actor_count = archiver->read_int16();
 
 		if (actor_count < 1 || actor_count >= MAXACTORS)
 		{
-			throw "Actor count out of range.";
+			throw bstone::ArchiverException{"Actor count out of range."};
 		}
 
 		::InitActorList();
@@ -8217,7 +8328,7 @@ bool LoadLevel(
 		// First actor is always player
 		new_actor->unarchive(archiver);
 
-		for (std::int32_t i = 1; i < actor_count; ++i)
+		for (int i = 1; i < actor_count; ++i)
 		{
 			::GetNewActor();
 			new_actor->unarchive(archiver);
@@ -8254,10 +8365,10 @@ bool LoadLevel(
 
 		::ConnectBarriers();
 
-		// Read all sorts of stuff...
+		// Statics.
 		//
 
-		const auto laststatobj_index = archiver->read_int32();
+		const int laststatobj_index = archiver->read_int16();
 
 		if (laststatobj_index < 0)
 		{
@@ -8268,11 +8379,21 @@ bool LoadLevel(
 			laststatobj = &statobjlist[laststatobj_index];
 		}
 
-		for (int i = 0; i < MAXSTATS; ++i)
+		if (::laststatobj)
 		{
-			statobjlist[i].unarchive(archiver);
+			std::uninitialized_fill_n(
+				::statobjlist,
+				laststatobj_index + 1,
+				statobj_t{}
+			);
 		}
 
+		for (int i = 0; i <= laststatobj_index; ++i)
+		{
+			::statobjlist[i].unarchive(archiver);
+		}
+
+		//
 		archiver->read_uint16_array(doorposition, MAXDOORS);
 
 		for (int i = 0; i < MAXDOORS; ++i)
@@ -8424,39 +8545,170 @@ bool SaveLevel(
 
 	auto archiver = archiver_uptr.get();
 
-	archiver->write_uint8_array(&tilemap[0][0], MAPSIZE * MAPSIZE);
-
+	// tilemap
 	//
-	// actorat
-	//
-
-	for (int i = 0; i < MAPSIZE; ++i)
 	{
-		for (int j = 0; j < MAPSIZE; ++j)
+		auto tilemap_bitmap = SgLevelBitmap{};
+
+		for (int i = 0; i < MAPSIZE; ++i)
 		{
-			std::int32_t s_value;
-
-			if (actorat[i][j] >= objlist)
+			for (int j = 0; j < MAPSIZE; ++j)
 			{
-				s_value = -static_cast<std::int32_t>(actorat[i][j] - objlist);
-			}
-			else
-			{
-				s_value = static_cast<std::int32_t>(reinterpret_cast<std::size_t>(actorat[i][j]));
-			}
+				const auto tile = ::tilemap[i][j];
 
-			archiver->write_int32(s_value);
+				if (tile == 0)
+				{
+					continue;
+				}
+
+				const auto index = (i * MAPSIZE) + j;
+				const auto byte_index = index / 8;
+				const auto bit_index = index % 8;
+
+				tilemap_bitmap[byte_index] |= 1 << bit_index;
+			}
+		}
+
+		archiver->write_uint8_array(tilemap_bitmap.data(), ::sg_level_bitmap_size);
+
+		for (int i = 0; i < MAPSIZE; ++i)
+		{
+			for (int j = 0; j < MAPSIZE; ++j)
+			{
+				const auto tile = ::tilemap[i][j];
+
+				if (tile == 0)
+				{
+					continue;
+				}
+
+				archiver->write_uint8(tile);
+			}
 		}
 	}
 
-	archiver->write_uint8_array(&areaconnect[0][0], NUMAREAS * NUMAREAS);
-	archiver->write_uint8_array(reinterpret_cast<const std::uint8_t*>(areabyplayer), NUMAREAS);
+	// actorat
+	//
+	{
+		auto actorat_bitmap = SgLevelBitmap{};
+
+		for (int i = 0; i < MAPSIZE; ++i)
+		{
+			for (int j = 0; j < MAPSIZE; ++j)
+			{
+				if (!::actorat[i][j])
+				{
+					continue;
+				}
+
+				const auto index = (i * MAPSIZE) + j;
+				const auto byte_index = index / 8;
+				const auto bit_index = index % 8;
+
+				actorat_bitmap[byte_index] |= 1 << bit_index;
+			}
+		}
+
+		archiver->write_uint8_array(actorat_bitmap.data(), ::sg_level_bitmap_size);
+
+		for (int i = 0; i < MAPSIZE; ++i)
+		{
+			for (int j = 0; j < MAPSIZE; ++j)
+			{
+				const auto bs_actor = ::actorat[i][j];
+
+				if (!bs_actor)
+				{
+					continue;
+				}
+
+				int value;
+
+				if (bs_actor >= ::objlist)
+				{
+					value = -static_cast<int>(bs_actor - objlist);
+				}
+				else
+				{
+					value = static_cast<int>(reinterpret_cast<std::size_t>(bs_actor));
+				}
+
+				if (value < -32'768 || value > 32'767)
+				{
+					throw bstone::ArchiverException{"'actorat' value out of range."};
+				}
+
+				archiver->write_int16(static_cast<std::int16_t>(value));
+			}
+		}
+	}
+
+	// areaconnect
+	//
+	{
+		auto areaconnect_bitmap = SgAreaConnectBitmap{};
+
+		for (int i = 0; i < NUMAREAS; ++i)
+		{
+			for (int j = 0; j < NUMAREAS; ++j)
+			{
+				const auto connection = ::areaconnect[i][j];
+
+				if (connection == 0)
+				{
+					continue;
+				}
+
+				const auto index = (i * NUMAREAS) + j;
+				const auto byte_index = index / 8;
+				const auto bit_index = index % 8;
+
+				areaconnect_bitmap[byte_index] |= 1 << bit_index;
+			}
+		}
+
+		archiver->write_uint8_array(areaconnect_bitmap.data(), ::sg_area_connect_bitmap_size);
+
+		for (int i = 0; i < NUMAREAS; ++i)
+		{
+			for (int j = 0; j < NUMAREAS; ++j)
+			{
+				const auto connection = ::areaconnect[i][j];
+
+				if (connection == 0)
+				{
+					continue;
+				}
+
+				archiver->write_uint8(connection);
+			}
+		}
+	}
+
+	// areabyplayer
+	//
+	{
+		auto areabyplayer_bitmap = SgAreaByPlayerBitmap{};
+
+		for (int i = 0; i < NUMAREAS; ++i)
+		{
+			const auto byte_index = i / 8;
+			const auto bit_index = i % 8;
+
+			if (::areabyplayer[i])
+			{
+				areabyplayer_bitmap[byte_index] |= 1 << bit_index;
+			}
+		}
+
+		archiver->write_uint8_array(areabyplayer_bitmap.data(), ::sg_area_by_player_bitmap_size);
+	}
 
 	//
 	// objlist
 	//
 
-	std::int32_t actor_count = 0;
+	auto actor_count = 0;
 	const objtype* actor = nullptr;
 
 	for (actor = player; actor; actor = actor->next)
@@ -8464,7 +8716,7 @@ bool SaveLevel(
 		++actor_count;
 	}
 
-	archiver->write_int32(actor_count);
+	archiver->write_int16(static_cast<std::int16_t>(actor_count));
 
 	for (actor = player; actor; actor = actor->next)
 	{
@@ -8475,15 +8727,14 @@ bool SaveLevel(
 	// laststatobj
 	//
 
-	const auto laststatobj_index = static_cast<std::int32_t>(laststatobj - statobjlist);
+	const auto laststatobj_index = laststatobj - statobjlist;
 
-	archiver->write_int32(laststatobj_index);
-
+	archiver->write_int16(static_cast<std::int16_t>(laststatobj_index));
 
 	//
 	// statobjlist
 	//
-	for (int i = 0; i < MAXSTATS; ++i)
+	for (std::intptr_t i = 0; i <= laststatobj_index; ++i)
 	{
 		statobjlist[i].archive(archiver);
 	}
@@ -9744,7 +9995,7 @@ void objtype::archive(
 	archiver->write_uint8(static_cast<std::uint8_t>(obclass));
 
 	const auto state_index = ::get_state_index(state);
-	archiver->write_int32(state_index);
+	archiver->write_int16(state_index);
 
 	archiver->write_uint32(flags);
 	archiver->write_uint16(flags2);
@@ -9780,7 +10031,7 @@ void objtype::unarchive(
 	ticcount = archiver->read_int16();
 	obclass = static_cast<classtype>(archiver->read_uint8());
 
-	const auto state_index = archiver->read_int32();
+	const auto state_index = archiver->read_int16();
 	state = states_list[state_index];
 
 	flags = archiver->read_uint32();
@@ -9814,8 +10065,8 @@ void statobj_t::archive(
 	archiver->write_uint8(tiley);
 	archiver->write_uint8(areanumber);
 
-	const auto vis_index = static_cast<std::int32_t>(visspot - &spotvis[0][0]);
-	archiver->write_int32(vis_index);
+	const auto vis_index = static_cast<std::int16_t>(visspot - &spotvis[0][0]);
+	archiver->write_int16(vis_index);
 
 	archiver->write_int16(shapenum);
 	archiver->write_uint16(flags);
@@ -9830,7 +10081,7 @@ void statobj_t::unarchive(
 	tiley = archiver->read_uint8();
 	areanumber = archiver->read_uint8();
 
-	const auto vis_index = archiver->read_int32();
+	const auto vis_index = archiver->read_int16();
 
 	if (vis_index < 0)
 	{

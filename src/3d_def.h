@@ -55,7 +55,7 @@ class Stream;
 enum class ScanCode;
 
 
-const int BS_SAVE_VERSION = 6;
+const int BS_SAVE_VERSION = 7;
 
 #define GOLD_MORPH_LEVEL (19) // Level which Dr. GoldFire Morphs.
 

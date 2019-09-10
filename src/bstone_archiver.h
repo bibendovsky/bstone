@@ -42,14 +42,10 @@ using StreamPtr = Stream*;
 class ArchiverException :
 	public Exception
 {
-protected:
+public:
 	explicit ArchiverException(
 		const char* const message);
 
-	//explicit ArchiverException(
-	//	std::string&& message) noexcept;
-
-public:
 	virtual ~ArchiverException();
 }; // ArchiverException
 
