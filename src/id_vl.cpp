@@ -431,14 +431,6 @@ const std::string& vid_get_hw_downscale_blit_filter_key_name()
 	return result;
 }
 
-const std::string& vid_get_hw_dbg_draw_all_key_name()
-{
-	static const auto& result = std::string{"vid_hw_dbg_draw_all"};
-
-	return result;
-}
-
-
 int vid_align_dimension(
 	const int dimension)
 {
@@ -978,9 +970,6 @@ void vid_read_cl_configuration()
 
 void vid_hw_read_cl_configuration()
 {
-	// Option "vid_hw_dbg_draw_all"
-	//
-	::vid_configuration_.hw_dbg_draw_all_ = ::g_args.has_option(::vid_get_hw_dbg_draw_all_key_name());
 }
 
 const std::string& vid_to_string(
@@ -1085,8 +1074,6 @@ void vid_log_common_configuration()
 
 	::vid_log("Is UI stretched: " + ::vid_to_string(::vid_configuration_.is_ui_stretched_));
 	::vid_log("Is widescreen: " + ::vid_to_string(::vid_configuration_.is_widescreen_));
-
-	::vid_hw_dbg_log("Draw all: " + ::vid_to_string(::vid_configuration_.hw_dbg_draw_all_));
 
 	::vid_log("Is downscale: " + ::vid_to_string(::vid_configuration_.is_downscale_));
 	::vid_log("Downscale width: " + ::vid_to_string(::vid_configuration_.downscale_width_));
@@ -2618,7 +2605,6 @@ bstone::RendererShaderVarVec2Ptr hw_shader_var_view_position_;
 
 
 bool hw_device_reset();
-void hw_dbg_3d_orient_all_sprites();
 
 bool hw_3d_player_weapon_initialize();
 void hw_3d_player_weapon_model_matrix_update();
@@ -6528,61 +6514,33 @@ void hw_3d_walls_render()
 	auto draw_side_index = 0;
 	auto& draw_items = ::hw_3d_wall_side_draw_items_;
 
-	if (::vid_configuration_.hw_dbg_draw_all_)
+	if (::hw_3d_walls_to_render_.empty())
 	{
-		for (const auto& xy_wall_item : ::hw_3d_xy_wall_map_)
-		{
-			const auto& wall = xy_wall_item.second;
-
-			if (!::hw_3d_dbg_is_tile_visible(wall.x_, wall.y_))
-			{
-				continue;
-			}
-
-			for (const auto& side : wall.sides_)
-			{
-				if (!side.flags_.is_active_)
-				{
-					continue;
-				}
-
-				auto& draw_item = draw_items[draw_side_index++];
-
-				draw_item.texture_2d_ = side.texture_2d_;
-				draw_item.wall_side_ = &side;
-			}
-		}
+		return;
 	}
-	else
+
+	const auto wall_map_end_it = ::hw_3d_xy_wall_map_.cend();
+
+	for (const auto wall_xy : ::hw_3d_walls_to_render_)
 	{
-		if (::hw_3d_walls_to_render_.empty())
+		const auto wall_map_it = ::hw_3d_xy_wall_map_.find(wall_xy);
+
+		if (wall_map_it == wall_map_end_it)
 		{
-			return;
+			continue;
 		}
 
-		const auto wall_map_end_it = ::hw_3d_xy_wall_map_.cend();
-
-		for (const auto wall_xy : ::hw_3d_walls_to_render_)
+		for (const auto& side : wall_map_it->second.sides_)
 		{
-			const auto wall_map_it = ::hw_3d_xy_wall_map_.find(wall_xy);
-
-			if (wall_map_it == wall_map_end_it)
+			if (!side.flags_.is_active_)
 			{
 				continue;
 			}
 
-			for (const auto& side : wall_map_it->second.sides_)
-			{
-				if (!side.flags_.is_active_)
-				{
-					continue;
-				}
+			auto& draw_item = draw_items[draw_side_index++];
 
-				auto& draw_item = draw_items[draw_side_index++];
-
-				draw_item.texture_2d_ = side.texture_2d_;
-				draw_item.wall_side_ = &side;
-			}
+			draw_item.texture_2d_ = side.texture_2d_;
+			draw_item.wall_side_ = &side;
 		}
 	}
 
@@ -6694,56 +6652,33 @@ void hw_3d_pushwalls_render()
 	auto draw_side_index = 0;
 	auto& draw_items = ::hw_3d_pushwall_side_draw_items_;
 
-	if (::vid_configuration_.hw_dbg_draw_all_)
+	if (::hw_3d_pushwalls_to_render_.empty())
 	{
-		for (const auto& xy_pushwall_item : ::hw_3d_xy_pushwall_map_)
-		{
-			const auto& pushwall = xy_pushwall_item.second;
-
-			if (!::hw_3d_dbg_is_tile_visible(pushwall.x_, pushwall.y_))
-			{
-				continue;
-			}
-
-			for (const auto& side : pushwall.sides_)
-			{
-				auto& draw_item = draw_items[draw_side_index++];
-
-				draw_item.texture_2d_ = side.texture_2d_;
-				draw_item.wall_side_ = &side;
-			}
-		}
+		return;
 	}
-	else
+
+	const auto pushwall_map_end_it = ::hw_3d_xy_pushwall_map_.cend();
+
+	for (const auto pushwall_xy : ::hw_3d_pushwalls_to_render_)
 	{
-		if (::hw_3d_pushwalls_to_render_.empty())
+		const auto pushwall_map_it = ::hw_3d_xy_pushwall_map_.find(pushwall_xy);
+
+		if (pushwall_map_it == pushwall_map_end_it)
 		{
-			return;
+			continue;
 		}
 
-		const auto pushwall_map_end_it = ::hw_3d_xy_pushwall_map_.cend();
-
-		for (const auto pushwall_xy : ::hw_3d_pushwalls_to_render_)
+		for (const auto& side : pushwall_map_it->second.sides_)
 		{
-			const auto pushwall_map_it = ::hw_3d_xy_pushwall_map_.find(pushwall_xy);
-
-			if (pushwall_map_it == pushwall_map_end_it)
+			if (!side.flags_.is_active_)
 			{
 				continue;
 			}
 
-			for (const auto& side : pushwall_map_it->second.sides_)
-			{
-				if (!side.flags_.is_active_)
-				{
-					continue;
-				}
+			auto& draw_item = draw_items[draw_side_index++];
 
-				auto& draw_item = draw_items[draw_side_index++];
-
-				draw_item.texture_2d_ = side.texture_2d_;
-				draw_item.wall_side_ = &side;
-			}
+			draw_item.texture_2d_ = side.texture_2d_;
+			draw_item.wall_side_ = &side;
 		}
 	}
 
@@ -6919,61 +6854,28 @@ void hw_3d_doors_render()
 	auto draw_side_index = 0;
 	auto& draw_items = ::hw_3d_door_draw_items_;
 
-	if (::vid_configuration_.hw_dbg_draw_all_)
+	if (::hw_3d_doors_to_render_.empty())
 	{
-		for (const auto& xy_door_item : ::hw_3d_xy_door_map_)
-		{
-			const auto& hw_door = xy_door_item.second;
-			const auto bs_door_index = hw_door.bs_door_index_;
-			const auto door_position = ::doorposition[bs_door_index];
-
-			if (door_position == 0xFFFF)
-			{
-				// Skip fully open door.
-				continue;
-			}
-
-			const auto& bs_door = ::doorobjlist[bs_door_index];
-
-			if (!::hw_3d_dbg_is_door_visible(bs_door))
-			{
-				continue;
-			}
-
-			for (const auto& side : xy_door_item.second.sides_)
-			{
-				auto& draw_item = draw_items[draw_side_index++];
-
-				draw_item.texture_2d_ = side.texture_2d_;
-				draw_item.hw_door_side_ = &side;
-			}
-		}
+		return;
 	}
-	else
+
+	const auto door_map_end_it = ::hw_3d_xy_door_map_.cend();
+
+	for (const auto door_xy : ::hw_3d_doors_to_render_)
 	{
-		if (::hw_3d_doors_to_render_.empty())
+		const auto door_map_it = ::hw_3d_xy_door_map_.find(door_xy);
+
+		if (door_map_it == door_map_end_it)
 		{
-			return;
+			continue;
 		}
 
-		const auto door_map_end_it = ::hw_3d_xy_door_map_.cend();
-
-		for (const auto door_xy : ::hw_3d_doors_to_render_)
+		for (const auto& side : door_map_it->second.sides_)
 		{
-			const auto door_map_it = ::hw_3d_xy_door_map_.find(door_xy);
+			auto& draw_item = draw_items[draw_side_index++];
 
-			if (door_map_it == door_map_end_it)
-			{
-				continue;
-			}
-
-			for (const auto& side : door_map_it->second.sides_)
-			{
-				auto& draw_item = draw_items[draw_side_index++];
-
-				draw_item.texture_2d_ = side.texture_2d_;
-				draw_item.hw_door_side_ = &side;
-			}
+			draw_item.texture_2d_ = side.texture_2d_;
+			draw_item.hw_door_side_ = &side;
 		}
 	}
 
@@ -7334,11 +7236,6 @@ void hw_3d_sprite_orient(
 		direction
 	);
 
-	if (::vid_configuration_.hw_dbg_draw_all_ && cosinus_between_directions >= 0.0)
-	{
-		return;
-	}
-
 	sprite.flags_.is_visible_ = true;
 
 
@@ -7427,109 +7324,60 @@ void hw_3d_sprites_render()
 	auto draw_sprite_index = 0;
 	auto& draw_items = ::hw_3d_sprites_draw_list_;
 
-	if (::vid_configuration_.hw_dbg_draw_all_)
+	auto min_vertex_index = ::hw_3d_max_sprites_vertices;
+	auto max_vertex_index = 0;
+
+	for (const auto bs_static_index : ::hw_3d_statics_to_render_)
 	{
-		for (auto bs_static = ::statobjlist; bs_static != ::laststatobj; ++bs_static)
+		auto& sprite = ::hw_3d_statics_[bs_static_index];
+
+		if (sprite.kind_ == Hw3dSpriteKind::none)
 		{
-			if (bs_static->shapenum == -1)
-			{
-				continue;
-			}
+			const auto& bs_static = ::statobjlist[bs_static_index];
 
-			const auto bs_static_index = bs_static - ::statobjlist;
-
-			const auto& hw_static = ::hw_3d_statics_[bs_static_index];
-
-			if (!hw_static.flags_.is_visible_)
-			{
-				continue;
-			}
-
-			auto& draw_item = draw_items[draw_sprite_index++];
-
-			draw_item.texture_2d_ = hw_static.texture_2d_;
-			draw_item.sprite_ = &hw_static;
+			::hw_3d_static_map(bs_static);
 		}
 
-		for (auto bs_actor = ::player->next; bs_actor; bs_actor = bs_actor->next)
-		{
-			const auto bs_actor_index = bs_actor - ::objlist;
+		::hw_3d_sprite_orient(sprite);
 
-			const auto& hw_actor = ::hw_3d_actors_[bs_actor_index];
+		const auto& hw_static = ::hw_3d_statics_[bs_static_index];
 
-			if (!hw_actor.flags_.is_visible_)
-			{
-				continue;
-			}
+		auto& draw_item = draw_items[draw_sprite_index++];
+		draw_item.texture_2d_ = hw_static.texture_2d_;
+		draw_item.sprite_ = &hw_static;
 
-			auto& draw_item = draw_items[draw_sprite_index++];
-
-			draw_item.texture_2d_ = hw_actor.texture_2d_;
-			draw_item.sprite_ = &hw_actor;
-		}
-
-		if (draw_sprite_index == 0)
-		{
-			return;
-		}
+		min_vertex_index = std::min(hw_static.vertex_index_, min_vertex_index);
+		max_vertex_index = std::max(hw_static.vertex_index_, max_vertex_index);
 	}
-	else
+
+	for (const auto bs_actor_index : ::hw_3d_actors_to_render_)
 	{
-		auto min_vertex_index = ::hw_3d_max_sprites_vertices;
-		auto max_vertex_index = 0;
+		::hw_actor_update(bs_actor_index);
 
-		for (const auto bs_static_index : ::hw_3d_statics_to_render_)
-		{
-			auto& sprite = ::hw_3d_statics_[bs_static_index];
+		auto& hw_actor = ::hw_3d_actors_[bs_actor_index];
+		::hw_3d_sprite_orient(hw_actor);
 
-			if (sprite.kind_ == Hw3dSpriteKind::none)
-			{
-				const auto& bs_static = ::statobjlist[bs_static_index];
+		auto& draw_item = draw_items[draw_sprite_index++];
+		draw_item.texture_2d_ = hw_actor.texture_2d_;
+		draw_item.sprite_ = &hw_actor;
 
-				::hw_3d_static_map(bs_static);
-			}
-
-			::hw_3d_sprite_orient(sprite);
-
-			const auto& hw_static = ::hw_3d_statics_[bs_static_index];
-
-			auto& draw_item = draw_items[draw_sprite_index++];
-			draw_item.texture_2d_ = hw_static.texture_2d_;
-			draw_item.sprite_ = &hw_static;
-
-			min_vertex_index = std::min(hw_static.vertex_index_, min_vertex_index);
-			max_vertex_index = std::max(hw_static.vertex_index_, max_vertex_index);
-		}
-
-		for (const auto bs_actor_index : ::hw_3d_actors_to_render_)
-		{
-			::hw_actor_update(bs_actor_index);
-
-			auto& hw_actor = ::hw_3d_actors_[bs_actor_index];
-			::hw_3d_sprite_orient(hw_actor);
-
-			auto& draw_item = draw_items[draw_sprite_index++];
-			draw_item.texture_2d_ = hw_actor.texture_2d_;
-			draw_item.sprite_ = &hw_actor;
-
-			min_vertex_index = std::min(hw_actor.vertex_index_, min_vertex_index);
-			max_vertex_index = std::max(hw_actor.vertex_index_, max_vertex_index);
-		}
-
-		if (draw_sprite_index == 0)
-		{
-			return;
-		}
-
-		const auto vertex_count = max_vertex_index - min_vertex_index + ::hw_3d_vertices_per_sprite;
-
-		::hw_vertex_buffer_update(
-			::hw_3d_sprites_vb_,
-			min_vertex_index,
-			vertex_count,
-			&::hw_3d_sprites_vbi_[min_vertex_index]
-		);
+		min_vertex_index = std::min(hw_actor.vertex_index_, min_vertex_index);
+		max_vertex_index = std::max(hw_actor.vertex_index_, max_vertex_index);
 	}
+
+	if (draw_sprite_index == 0)
+	{
+		return;
+	}
+
+	const auto vertex_count = max_vertex_index - min_vertex_index + ::hw_3d_vertices_per_sprite;
+
+	::hw_vertex_buffer_update(
+		::hw_3d_sprites_vb_,
+		min_vertex_index,
+		vertex_count,
+		&::hw_3d_sprites_vbi_[min_vertex_index]
+	);
 
 	// Sort by distance (farthest -> nearest).
 	//
@@ -8380,7 +8228,6 @@ void hw_screen_refresh()
 
 		::hw_3d_player_update();
 		::hw_3d_matrix_view_build();
-		::hw_dbg_3d_orient_all_sprites();
 	}
 
 	::hw_renderer_->clear_buffers();
@@ -9976,41 +9823,6 @@ void hw_dbg_3d_update_actors()
 
 		::hw_actor_update(bs_actor_index);
 	}
-}
-
-void hw_dbg_3d_orient_all_sprites()
-{
-	if (!::vid_configuration_.hw_dbg_draw_all_)
-	{
-		return;
-	}
-
-	for (auto bs_static = ::statobjlist; bs_static != ::laststatobj; ++bs_static)
-	{
-		const auto bs_static_index = bs_static - ::statobjlist;
-
-		auto& sprite = ::hw_3d_statics_[bs_static_index];
-
-		::hw_3d_sprite_orient(sprite);
-	}
-
-	::hw_dbg_3d_update_actors();
-
-	for (auto bs_actor = ::player->next; bs_actor; bs_actor = bs_actor->next)
-	{
-		const auto bs_actor_index = bs_actor - ::objlist;
-
-		auto& sprite = ::hw_3d_actors_[bs_actor_index];
-
-		::hw_3d_sprite_orient(sprite);
-	}
-
-	::hw_vertex_buffer_update(
-		::hw_3d_sprites_vb_,
-		0,
-		::hw_3d_max_sprites_vertices,
-		::hw_3d_sprites_vbi_.data()
-	);
 }
 
 void hw_3d_sprite_map(
@@ -13944,14 +13756,6 @@ void vid_write_configuration(
 		text_writer,
 		::vid_get_downscale_height_key_name(),
 		std::to_string(::vid_configuration_.downscale_height_)
-	);
-
-	// vid_get_hw_dbg_draw_all_key_name
-	//
-	::write_configuration_entry(
-		text_writer,
-		::vid_get_hw_dbg_draw_all_key_name(),
-		std::to_string(::vid_configuration_.hw_dbg_draw_all_)
 	);
 
 	// vid_hw_downscale_blit_filter
