@@ -1020,6 +1020,9 @@ void RendererUtils::create_window_set_ogl_attributes(
 		case RendererKind::ogl_es_2_0:
 			create_window_set_ogl_attributes_es(2, 0);
 			break;
+
+		default:
+			break;
 	}
 }
 
