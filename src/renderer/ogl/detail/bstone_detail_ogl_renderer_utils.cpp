@@ -353,11 +353,10 @@ int OglRendererUtils::msaa_fbo_get_max(
 
 	OglRendererUtils::framebuffer_probe(
 		extension_manager.get(),
-		device_features,
 		ogl_device_features
 	);
 
-	if (!device_features.framebuffer_is_available_)
+	if (!ogl_device_features.framebuffer_is_available_)
 	{
 		return 0;
 	}
@@ -617,24 +616,23 @@ void OglRendererUtils::mipmap_generate(
 
 void OglRendererUtils::framebuffer_probe(
 	OglExtensionManagerPtr extension_manager,
-	RendererDeviceFeatures& device_features,
 	OglDeviceFeatures& ogl_device_features)
 {
-	device_features.framebuffer_is_available_ = false;
+	ogl_device_features.framebuffer_is_available_ = false;
 	ogl_device_features.framebuffer_is_ext_ = false;
 
 #ifndef BSTONE_RENDERER_TEST_HW_DEFAULT_FRAMEBUFFER
-	if (!device_features.framebuffer_is_available_)
+	if (!ogl_device_features.framebuffer_is_available_)
 	{
 		extension_manager->probe(OglExtensionId::arb_framebuffer_object);
 
 		if (extension_manager->has(OglExtensionId::arb_framebuffer_object))
 		{
-			device_features.framebuffer_is_available_ = true;
+			ogl_device_features.framebuffer_is_available_ = true;
 		}
 	}
 
-	if (!device_features.framebuffer_is_available_)
+	if (!ogl_device_features.framebuffer_is_available_)
 	{
 		extension_manager->probe(OglExtensionId::ext_framebuffer_blit);
 		extension_manager->probe(OglExtensionId::ext_framebuffer_multisample);
@@ -646,7 +644,7 @@ void OglRendererUtils::framebuffer_probe(
 			extension_manager->has(OglExtensionId::ext_framebuffer_object) &&
 			extension_manager->has(OglExtensionId::ext_packed_depth_stencil))
 		{
-			device_features.framebuffer_is_available_ = true;
+			ogl_device_features.framebuffer_is_available_ = true;
 			ogl_device_features.framebuffer_is_ext_ = true;
 		}
 	}

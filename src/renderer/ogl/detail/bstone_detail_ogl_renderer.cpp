@@ -291,7 +291,6 @@ void OglRenderer::initialize(
 
 	OglRendererUtils::framebuffer_probe(
 		extension_manager_.get(),
-		device_features_,
 		ogl_device_features_
 	);
 
@@ -612,7 +611,7 @@ void OglRenderer::uninitialize_internal()
 
 OglRenderer::RboResource OglRenderer::renderbuffer_create()
 {
-	if (!device_features_.framebuffer_is_available_)
+	if (!ogl_device_features_.framebuffer_is_available_)
 	{
 		throw Exception{"Framebuffer not available."};
 	}
@@ -642,7 +641,7 @@ void OglRenderer::renderbuffer_bind(
 
 OglRenderer::FboResource OglRenderer::framebuffer_create()
 {
-	if (!device_features_.framebuffer_is_available_)
+	if (!ogl_device_features_.framebuffer_is_available_)
 	{
 		throw Exception{"Framebuffer not available."};
 	}
@@ -665,7 +664,7 @@ void OglRenderer::framebuffer_bind(
 	const GLenum ogl_target,
 	const GLuint ogl_name)
 {
-	assert(device_features_.framebuffer_is_available_);
+	assert(ogl_device_features_.framebuffer_is_available_);
 
 	const auto ogl_func = (ogl_device_features_.framebuffer_is_ext_ ? ::glBindFramebufferEXT : ::glBindFramebuffer);
 
@@ -685,7 +684,7 @@ void OglRenderer::framebuffer_blit(
 	assert(dst_width > 0);
 	assert(dst_height > 0);
 
-	assert(device_features_.framebuffer_is_available_);
+	assert(ogl_device_features_.framebuffer_is_available_);
 
 	const auto ogl_func = (
 		ogl_device_features_.framebuffer_is_ext_ ?
@@ -725,7 +724,7 @@ OglRenderer::RboResource OglRenderer::renderbuffer_create(
 	auto rbo_resource = renderbuffer_create();
 	renderbuffer_bind(rbo_resource.get());
 
-	assert(device_features_.framebuffer_is_available_);
+	assert(ogl_device_features_.framebuffer_is_available_);
 
 	const auto ogl_func = (
 		ogl_device_features_.framebuffer_is_ext_ ?
@@ -830,7 +829,7 @@ void OglRenderer::framebuffers_destroy()
 
 void OglRenderer::framebuffers_create()
 {
-	if (!device_features_.framebuffer_is_available_)
+	if (!ogl_device_features_.framebuffer_is_available_)
 	{
 		return;
 	}
@@ -859,7 +858,7 @@ void OglRenderer::framebuffers_blit()
 		screen_height_,
 		screen_width_,
 		screen_height_,
-		GL_NEAREST
+		false
 	);
 }
 
@@ -894,7 +893,7 @@ void OglRenderer::msaa_set(
 		throw Exception{"Requires restart."};
 	}
 
-	if (!device_features_.framebuffer_is_available_)
+	if (!ogl_device_features_.framebuffer_is_available_)
 	{
 		throw Exception{"Framebuffer not available."};
 	}

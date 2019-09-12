@@ -48,6 +48,7 @@ struct OglDeviceFeatures
 	OglContextKind context_kind_;
 
 	bool mipmap_is_ext_;
+	bool framebuffer_is_available_;
 	bool framebuffer_is_ext_;
 	bool vao_is_available_;
 	bool buffer_storage_is_available_;

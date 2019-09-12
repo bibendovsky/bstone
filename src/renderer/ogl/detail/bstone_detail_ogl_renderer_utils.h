@@ -128,7 +128,6 @@ public:
 
 	static void framebuffer_probe(
 		OglExtensionManagerPtr extension_manager,
-		RendererDeviceFeatures& device_features,
 		OglDeviceFeatures& ogl_device_features);
 
 

@@ -1007,8 +1007,6 @@ struct RendererDeviceFeatures
 
 	bool mipmap_is_available_;
 
-	bool framebuffer_is_available_;
-
 	bool sampler_is_available_;
 
 	bool msaa_is_available_;
