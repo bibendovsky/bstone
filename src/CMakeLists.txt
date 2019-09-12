@@ -173,6 +173,7 @@ target_include_directories(
 		.
 		dosbox
 		lib/glm
+		lib/xbrz
 		renderer
 		renderer/detail
 		renderer/ogl
@@ -315,6 +316,8 @@ target_sources(
 	PRIVATE
 		dosbox/dbopl.cpp
 
+		lib/xbrz/xbrz.cpp
+
 		renderer/bstone_hw_texture_manager.cpp
 		renderer/bstone_missing_sprite_64x64_image.cpp
 		renderer/bstone_missing_wall_64x64_image.cpp
@@ -411,6 +414,7 @@ target_sources(
 		bstone_pcm_decoder.cpp
 		bstone_precompiled.cpp
 		bstone_ps_fizzle_fx.cpp
+		bstone_rgb_color_model.cpp
 		bstone_sha1.cpp
 		bstone_sprite.cpp
 		bstone_sprite_cache.cpp

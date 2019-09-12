@@ -35,6 +35,8 @@ Free Software Foundation, Inc.,
 #include <string>
 #include <vector>
 
+#include "glm/glm.hpp"
+
 #include "bstone_rgb_color_model.h"
 #include "bstone_sprite.h"
 

@@ -31,12 +31,22 @@ Free Software Foundation, Inc.,
 #define BSTONE_HW_TEXTURE_MANAGER_INCLUDED
 
 
-#include "bstone_renderer.h"
-#include "bstone_sprite_cache.h"
+#include <memory>
+#include "bstone_rgb_palette.h"
 
 
 namespace bstone
 {
+
+
+class Renderer;
+using RendererPtr = Renderer*;
+
+class RendererTexture2d;
+using RendererTexture2dPtr = RendererTexture2d*;
+
+class SpriteCache;
+using SpriteCachePtr = SpriteCache*;
 
 
 enum class HwTextureManagerSolid1x1Id
@@ -52,6 +62,12 @@ enum class HwTextureManagerSolid1x1Id
 	count_,
 }; // HwTextureManagerSolid1x1Id
 
+enum class HwTextureManagerUpscaleFilterKind
+{
+	none,
+	xbrz,
+}; // HwTextureManagerUpscaleFilterKind
+
 
 class HwTextureManager
 {
@@ -61,6 +77,21 @@ protected:
 
 public:
 	virtual ~HwTextureManager() = default;
+
+
+	virtual int upscale_filter_get_min_factor(
+		const HwTextureManagerUpscaleFilterKind upscale_filter_kind) const = 0;
+
+	virtual int upscale_filter_get_max_factor(
+		const HwTextureManagerUpscaleFilterKind upscale_filter_kind) const = 0;
+
+	virtual HwTextureManagerUpscaleFilterKind upscale_filter_get_kind() const noexcept = 0;
+
+	virtual int upscale_filter_get_factor() const noexcept = 0;
+
+	virtual void upscale_filter_set(
+		const HwTextureManagerUpscaleFilterKind upscale_filter_kind,
+		const int upscale_filter_factor) = 0;
 
 
 	virtual void cache_begin() = 0;

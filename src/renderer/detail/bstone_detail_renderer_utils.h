@@ -131,6 +131,16 @@ public:
 		const RendererVertexInputCreateParam& param);
 
 
+	// Converts indexed, opaque or transparent to RGBA as-is.
+	static void indexed_to_rgba(
+		const int width,
+		const int height,
+		const bool indexed_is_column_major,
+		const std::uint8_t* const indexed_pixels,
+		const R8g8b8a8Palette& indexed_palette,
+		const bool* const indexed_alphas,
+		TextureBuffer& texture_buffer);
+
 	// Converts indexed, opaque or transparent, power-of-two pixels to RGBA ones.
 	static void indexed_pot_to_rgba_pot(
 		const int width,

@@ -291,6 +291,13 @@ const std::string& vid_get_ogl_es_2_0_value_string()
 	return result;
 }
 
+const std::string& vid_get_xbrz_value_string()
+{
+	static const auto& result = std::string{"xbrz"};
+
+	return result;
+}
+
 const std::string& vid_get_renderer_kind_key_name()
 {
 	static const auto& result = std::string{"vid_renderer_kind"};
@@ -399,6 +406,20 @@ const std::string& vid_get_hw_aa_kind_key_name()
 const std::string& vid_get_hw_aa_value_key_name()
 {
 	static const auto& result = std::string{"vid_hw_aa_value"};
+
+	return result;
+}
+
+const std::string& vid_get_hw_texture_upscale_filter_key_name()
+{
+	static const auto& result = std::string{"vid_hw_texture_upscale_filter"};
+
+	return result;
+}
+
+const std::string& vid_get_hw_texture_upscale_filter_factor_key_name()
+{
+	static const auto& result = std::string{"vid_hw_texture_upscale_filter_factor"};
 
 	return result;
 }
@@ -1335,9 +1356,9 @@ void sw_update_palette(
 
 		sdl_color = ::SDL_MapRGB(
 			::sw_texture_pixel_format.get(),
-			(255 * vga_color.r) / 63,
-			(255 * vga_color.g) / 63,
-			(255 * vga_color.b) / 63);
+			(255 * vga_color.r_) / 63,
+			(255 * vga_color.g_) / 63,
+			(255 * vga_color.b_) / 63);
 	}
 }
 
@@ -2534,6 +2555,7 @@ bstone::RendererShaderVarVec2Ptr hw_shader_var_view_position_;
 
 
 bool hw_device_reset();
+void hw_texture_upscale_apply();
 
 bool hw_3d_player_weapon_initialize();
 void hw_3d_player_weapon_model_matrix_update();
@@ -4984,9 +5006,9 @@ void hw_palette_update(
 		auto& hw_color = ::hw_palette_[color_index];
 
 		hw_color = ::hw_vga_color_to_r8g8b8a8(
-			vga_color.r,
-			vga_color.g,
-			vga_color.b
+			vga_color.r_,
+			vga_color.g_,
+			vga_color.b_
 		);
 	}
 }
@@ -7595,6 +7617,18 @@ void vid_apply_hw_vsync_configuration()
 	::hw_renderer_->vsync_set(::vid_configuration_.is_vsync_);
 }
 
+void vid_apply_hw_texture_upscale_filter_configuration()
+{
+	if (!::vid_configuration_.hw_upscale_kind_.is_modified() &&
+		!::vid_configuration_.hw_upscale_factor_.is_modified())
+	{
+		return;
+	}
+
+	::vid_configuration_.hw_upscale_kind_.set_is_modified(false);
+	::vid_configuration_.hw_upscale_factor_.set_is_modified(false);
+}
+
 void hw_3d_fade_update()
 {
 	::hw_3d_fade_is_enabled_ = false;
@@ -7620,9 +7654,9 @@ void hw_3d_fade_update()
 		const auto vga_color = ::vgapal + (3 * ::hw_3d_fizzle_fx_color_index_);
 		const auto& color_32 = ::hw_vga_color_to_r8g8b8a8(vga_color[0], vga_color[1], vga_color[2]);
 
-		r_f = static_cast<float>(color_32.r) / 255.0F;
-		g_f = static_cast<float>(color_32.g) / 255.0F;
-		b_f = static_cast<float>(color_32.b) / 255.0F;
+		r_f = static_cast<float>(color_32.r_) / 255.0F;
+		g_f = static_cast<float>(color_32.g_) / 255.0F;
+		b_f = static_cast<float>(color_32.b_) / 255.0F;
 		a_f = ratio;
 	}
 	else if (palette_shift_info.is_bonus_shifted_ || palette_shift_info.is_damage_shifted_)
@@ -8090,6 +8124,8 @@ void hw_screen_refresh()
 			::vid_quit("Failed to reset a lost device.");
 			return;
 		}
+
+		::hw_texture_upscale_apply();
 	}
 
 	++test_reset_counter_;
@@ -12092,6 +12128,44 @@ bool hw_device_reset()
 	return true;
 }
 
+void hw_texture_upscale_resources_destroy()
+{
+	::hw_2d_ui_t2d_ = nullptr;
+	::hw_3d_flooring_textured_t2d_ = nullptr;
+	::hw_3d_ceiling_textured_t2d_ = nullptr;
+}
+
+void hw_texture_upscale_resources_create()
+{
+	::hw_2d_ui_t2d_ = ::hw_texture_manager_->ui_get();
+
+	if (::FloorTile > 0)
+	{
+		::hw_3d_flooring_textured_t2d_ = ::hw_texture_manager_->wall_get(::FloorTile);
+	}
+
+	if (::CeilingTile > 0)
+	{
+		::hw_3d_ceiling_textured_t2d_ = ::hw_texture_manager_->wall_get(::CeilingTile);
+	}
+}
+
+void hw_texture_upscale_apply()
+{
+	::vid_log();
+	::vid_log("Applying texture upscale.");
+
+
+	::hw_texture_upscale_resources_destroy();
+
+	::hw_texture_manager_->upscale_filter_set(
+		::vid_configuration_.hw_upscale_kind_,
+		::vid_configuration_.hw_upscale_factor_
+	);
+
+	::hw_texture_upscale_resources_create();
+}
+
 void hw_video_uninitialize()
 {
 	::hw_command_manager_uninitialize();
@@ -12372,9 +12446,9 @@ void VL_FillPalette(
 {
 	for (auto& vga_color : ::vid_vga_palette)
 	{
-		vga_color.r = red;
-		vga_color.g = green;
-		vga_color.b = blue;
+		vga_color.r_ = red;
+		vga_color.g_ = green;
+		vga_color.b_ = blue;
 	}
 
 	if (::vid_is_hw_)
@@ -12396,9 +12470,9 @@ void VL_SetPalette(
 	{
 		auto& vga_color = ::vid_vga_palette[first + i];
 
-		vga_color.r = palette[(3 * i) + 0];
-		vga_color.g = palette[(3 * i) + 1];
-		vga_color.b = palette[(3 * i) + 2];
+		vga_color.r_ = palette[(3 * i) + 0];
+		vga_color.g_ = palette[(3 * i) + 1];
+		vga_color.b_ = palette[(3 * i) + 2];
 	}
 
 	if (::vid_is_hw_)
@@ -12420,9 +12494,9 @@ void VL_GetPalette(
 	{
 		const auto& vga_color = ::vid_vga_palette[first + i];
 
-		palette[(3 * i) + 0] = vga_color.r;
-		palette[(3 * i) + 1] = vga_color.g;
-		palette[(3 * i) + 2] = vga_color.b;
+		palette[(3 * i) + 0] = vga_color.r_;
+		palette[(3 * i) + 1] = vga_color.g_;
+		palette[(3 * i) + 2] = vga_color.b_;
 	}
 }
 
@@ -12444,7 +12518,7 @@ void vl_hw_fade_out(
 		{
 			const auto new_alpha = (i * alpha) / step_count;
 
-			::hw_2d_fade_color_.a = static_cast<std::uint8_t>(new_alpha);
+			::hw_2d_fade_color_.a_ = static_cast<std::uint8_t>(new_alpha);
 
 			::VL_RefreshScreen();
 
@@ -12458,7 +12532,7 @@ void vl_hw_fade_out(
 	//
 	// final color
 	//
-	::hw_2d_fade_color_.a = 0xFF;
+	::hw_2d_fade_color_.a_ = 0xFF;
 
 	::VL_FillPalette(
 		static_cast<std::uint8_t>(red),
@@ -12579,7 +12653,7 @@ void vl_hw_fade_in(
 
 	::VL_SetPalette(0, 256, palette);
 
-	::hw_2d_fade_color_.a = 0xFF;
+	::hw_2d_fade_color_.a_ = 0xFF;
 
 	if (!::g_no_fade_in_or_out)
 	{
@@ -12589,7 +12663,7 @@ void vl_hw_fade_in(
 		{
 			const auto new_alpha = ((step_count - 1 - i) * alpha) / step_count;
 
-			::hw_2d_fade_color_.a = static_cast<std::uint8_t>(new_alpha);
+			::hw_2d_fade_color_.a_ = static_cast<std::uint8_t>(new_alpha);
 
 			::VL_RefreshScreen();
 
@@ -12600,7 +12674,7 @@ void vl_hw_fade_in(
 		}
 	}
 
-	::hw_2d_fade_color_.a = 0x00;
+	::hw_2d_fade_color_.a_ = 0x00;
 
 	::VL_RefreshScreen();
 
@@ -13333,6 +13407,30 @@ void vid_configuration_read_hw_aa_value(
 	}
 }
 
+void vid_configuration_read_hw_texture_upscale_filter(
+	const std::string& value_string)
+{
+	if (value_string == ::vid_get_none_value_string())
+	{
+		::vid_configuration_.hw_upscale_kind_ = bstone::HwTextureManagerUpscaleFilterKind::none;
+	}
+	else if (value_string == ::vid_get_xbrz_value_string())
+	{
+		::vid_configuration_.hw_upscale_kind_ = bstone::HwTextureManagerUpscaleFilterKind::xbrz;
+	}
+}
+
+void vid_configuration_read_hw_texture_upscale_filter_factor(
+	const std::string& value_string)
+{
+	int value = 0;
+
+	if (bstone::StringHelper::string_to_int(value_string, value))
+	{
+		::vid_configuration_.hw_upscale_factor_ = value;
+	}
+}
+
 bool vid_parse_configuration_key_value(
 	const std::string& key_string,
 	const std::string& value_string)
@@ -13395,6 +13493,14 @@ bool vid_parse_configuration_key_value(
 	else if (key_string == ::vid_get_hw_aa_value_key_name())
 	{
 		::vid_configuration_read_hw_aa_value(value_string);
+	}
+	else if (key_string == ::vid_get_hw_texture_upscale_filter_key_name())
+	{
+		::vid_configuration_read_hw_texture_upscale_filter(value_string);
+	}
+	else if (key_string == ::vid_get_hw_texture_upscale_filter_factor_key_name())
+	{
+		::vid_configuration_read_hw_texture_upscale_filter_factor(value_string);
 	}
 	else
 	{
@@ -13468,6 +13574,31 @@ void vid_write_renderer_kind_configuration(
 				text_writer,
 				::vid_get_renderer_kind_key_name(),
 				::vid_get_auto_detect_value_string()
+			);
+
+			break;
+	}
+}
+
+void vid_write_hw_texture_upscale_filter_kind_configuration(
+	bstone::TextWriter& text_writer)
+{
+	switch (::vid_configuration_.hw_upscale_kind_)
+	{
+		case bstone::HwTextureManagerUpscaleFilterKind::xbrz:
+			::write_configuration_entry(
+				text_writer,
+				::vid_get_hw_texture_upscale_filter_key_name(),
+				::vid_get_xbrz_value_string()
+			);
+
+			break;
+
+		default:
+			::write_configuration_entry(
+				text_writer,
+				::vid_get_hw_texture_upscale_filter_key_name(),
+				::vid_get_none_value_string()
 			);
 
 			break;
@@ -13555,6 +13686,18 @@ void vid_write_configuration(
 		text_writer,
 		::vid_get_hw_aa_value_key_name(),
 		std::to_string(::vid_configuration_.hw_aa_value_)
+	);
+
+	// vid_hw_texture_upscale_filter
+	//
+	::vid_write_hw_texture_upscale_filter_kind_configuration(text_writer);
+
+	// vid_hw_texture_upscale_filter_factor
+	//
+	::write_configuration_entry(
+		text_writer,
+		::vid_get_hw_texture_upscale_filter_factor_key_name(),
+		std::to_string(::vid_configuration_.hw_upscale_factor_)
 	);
 
 	// vid_hw_2d_texture_filter
@@ -14120,6 +14263,7 @@ void vid_apply_hw_configuration()
 	::vid_apply_hw_2d_texture_filter_configuration();
 	::vid_apply_hw_3d_texture_filter_configuration();
 	::vid_apply_hw_vsync_configuration();
+	::vid_apply_hw_texture_upscale_filter_configuration();
 }
 
 const bstone::R8g8b8a8Palette& vid_hw_get_default_palette()

@@ -1,0 +1,4 @@
+Changes made to compile with BStone.
+
+- Added messages for static_assert to make it compatible with C++14.
+- Replaced degree sign with the same word to avoid Unicode issues in Visual Studio.

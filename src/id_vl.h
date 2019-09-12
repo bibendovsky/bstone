@@ -33,6 +33,7 @@ Free Software Foundation, Inc.,
 #include "bstone_ref_values.h"
 #include "bstone_renderer.h"
 #include "bstone_rgb_palette.h"
+#include "bstone_hw_texture_manager.h"
 
 
 namespace bstone
@@ -60,6 +61,7 @@ struct VidConfiguration
 	using FilterModValue = bstone::ModValue<bstone::RendererFilterKind>;
 	using AaKindModValue = bstone::ModValue<bstone::RendererAaKind>;
 	using RendererKindModValue = bstone::ModValue<bstone::RendererKind>;
+	using UpscaleKindModValue = bstone::ModValue<bstone::HwTextureManagerUpscaleFilterKind>;
 
 
 	RendererKindModValue renderer_kind_;
@@ -85,6 +87,9 @@ struct VidConfiguration
 
 	AaKindModValue hw_aa_kind_;
 	IntModValue hw_aa_value_;
+
+	UpscaleKindModValue hw_upscale_kind_;
+	IntModValue hw_upscale_factor_;
 }; // VidConfiguration
 
 

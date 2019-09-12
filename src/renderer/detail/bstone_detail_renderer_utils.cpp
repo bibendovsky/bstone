@@ -415,6 +415,73 @@ void RendererUtils::vertex_input_validate_param(
 	}
 }
 
+void RendererUtils::indexed_to_rgba(
+	const int width,
+	const int height,
+	const bool indexed_is_column_major,
+	const std::uint8_t* const indexed_pixels,
+	const R8g8b8a8Palette& indexed_palette,
+	const bool* const indexed_alphas,
+	TextureBuffer& texture_buffer)
+{
+	if (width <= 0)
+	{
+		throw Exception{"Width out of range."};
+	}
+
+	if (height <= 0)
+	{
+		throw Exception{"Height out of range."};
+	}
+
+	if (!indexed_pixels)
+	{
+		throw Exception{"Null indexed pixels."};
+	}
+
+	if (texture_buffer.size() < (width * height))
+	{
+		throw Exception{"Bitmap buffer too small."};
+	}
+
+	const auto has_alphas = (indexed_alphas != nullptr);
+
+	auto dst_index = 0;
+
+	for (int src_y = 0; src_y < height; ++src_y)
+	{
+		for (int src_x = 0; src_x < width; ++src_x)
+		{
+			auto src_index = 0;
+
+			if (indexed_is_column_major)
+			{
+				src_index = (src_x * height) + src_y;
+			}
+			else
+			{
+				src_index = dst_index;
+			}
+
+			auto& dst_pixel = texture_buffer[dst_index];
+
+			dst_pixel = indexed_palette[indexed_pixels[src_index]];
+
+			if (has_alphas)
+			{
+				const auto is_transparent = !indexed_alphas[src_index];
+
+				if (is_transparent)
+				{
+					dst_pixel = {};
+				}
+			}
+
+			++dst_index;
+		}
+	}
+}
+
 void RendererUtils::indexed_pot_to_rgba_pot(
 	const int width,
 	const int height,
@@ -811,27 +878,27 @@ void RendererUtils::build_mipmap(
 			const auto& src_color_3 = src_colors[(src_v2 * previous_width) + src_u1];
 			const auto& src_color_4 = src_colors[(src_v2 * previous_width) + src_u2];
 
-			const auto alpha_sum = src_color_1.a + src_color_2.a + src_color_3.a + src_color_4.a;
+			const auto alpha_sum = src_color_1.a_ + src_color_2.a_ + src_color_3.a_ + src_color_4.a_;
 			const auto alpha_f = alpha_sum / 4.0;
 			const auto alpha = static_cast<glm::u8>(alpha_f);
 
 			const auto scale = alpha_f / (4 * 255);
 
-			const auto red_sum = src_color_1.r + src_color_2.r + src_color_3.r + src_color_4.r;
+			const auto red_sum = src_color_1.r_ + src_color_2.r_ + src_color_3.r_ + src_color_4.r_;
 			const auto red = static_cast<glm::u8>(red_sum * scale);
 
-			const auto green_sum = src_color_1.g + src_color_2.g + src_color_3.g + src_color_4.g;
+			const auto green_sum = src_color_1.g_ + src_color_2.g_ + src_color_3.g_ + src_color_4.g_;
 			const auto green = static_cast<glm::u8>(green_sum * scale);
 
-			const auto blue_sum = src_color_1.b + src_color_2.b + src_color_3.b + src_color_4.b;
+			const auto blue_sum = src_color_1.b_ + src_color_2.b_ + src_color_3.b_ + src_color_4.b_;
 			const auto blue = static_cast<glm::u8>(blue_sum * scale);
 
 			auto& dst_color = dst_colors[dst_index];
 
-			dst_color.r = static_cast<glm::u8>(red);
-			dst_color.g = static_cast<glm::u8>(green);
-			dst_color.b = static_cast<glm::u8>(blue);
-			dst_color.a = static_cast<glm::u8>(alpha);
+			dst_color.r_ = static_cast<std::uint8_t>(red);
+			dst_color.g_ = static_cast<std::uint8_t>(green);
+			dst_color.b_ = static_cast<std::uint8_t>(blue);
+			dst_color.a_ = static_cast<std::uint8_t>(alpha);
 
 			dst_u += src_du;
 
