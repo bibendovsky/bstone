@@ -75,16 +75,11 @@ OglRenderer::OglRenderer(
 	ogl_device_features_{},
 	screen_width_{},
 	screen_height_{},
-	downscale_width_{},
-	downscale_height_{},
-	downscale_blit_filter_{},
 	aa_kind_{},
 	aa_value_{},
 	ogl_msaa_fbo_{},
 	ogl_msaa_color_rb_{},
-	ogl_msaa_depth_rb_{},
-	ogl_downscale_fbo_{},
-	ogl_downscale_color_rb_{}
+	ogl_msaa_depth_rb_{}
 {
 	initialize(param);
 }
@@ -229,15 +224,6 @@ void OglRenderer::initialize(
 	if (aa_kind_ == RendererAaKind::ms && device_features_.msaa_is_window_)
 	{
 		aa_value_ = OglRendererUtils::msaa_window_get_value();
-	}
-
-	downscale_width_ = param.downscale_width_;
-	downscale_height_ = param.downscale_height_;
-
-	if (downscale_width_ <= 0 || downscale_width_ > param.downscale_width_ ||
-		downscale_height_ <= 0 || downscale_height_ > param.downscale_height_)
-	{
-		throw Exception{"Downscale dimensions out of range."};
 	}
 
 	extension_manager_ = detail::OglExtensionManagerFactory::create();
@@ -449,48 +435,6 @@ void OglRenderer::vsync_set(
 	}
 }
 
-void OglRenderer::downscale_set(
-	const int width,
-	const int height,
-	const RendererFilterKind blit_filter)
-{
-	if (width <= 0 ||
-		width > screen_width_ ||
-		height <= 0 ||
-		height > screen_height_)
-	{
-		throw Exception{"Dimensions out of range."};
-	}
-
-	switch (blit_filter)
-	{
-		case RendererFilterKind::nearest:
-		case RendererFilterKind::linear:
-			break;
-
-		default:
-			throw Exception{"Unsupported blit filter."};
-	}
-
-	if (!device_features_.framebuffer_is_available_)
-	{
-		throw Exception{"Off-screen framebuffer not supported."};
-	}
-
-	if (ogl_msaa_fbo_ == 0)
-	{
-		throw Exception{"No off-screen framebuffer."};
-	}
-
-	downscale_width_ = width;
-	downscale_height_ = height;
-	downscale_blit_filter_ = blit_filter;
-
-	framebuffers_destroy();
-
-	framebuffers_create();
-}
-
 void OglRenderer::aa_set(
 	const RendererAaKind aa_kind,
 	const int aa_value)
@@ -664,9 +608,6 @@ void OglRenderer::uninitialize_internal()
 	ogl_device_features_ = {};
 	screen_width_ = {};
 	screen_height_ = {};
-	downscale_width_ = {};
-	downscale_height_ = {};
-	downscale_blit_filter_ = {};
 }
 
 OglRenderer::RboResource OglRenderer::renderbuffer_create()
@@ -840,8 +781,8 @@ void OglRenderer::msaa_depth_rb_create(
 
 void OglRenderer::msaa_framebuffer_create()
 {
-	msaa_color_rb_create(downscale_width_, downscale_height_, aa_value_);
-	msaa_depth_rb_create(downscale_width_, downscale_height_, aa_value_);
+	msaa_color_rb_create(screen_width_, screen_height_, aa_value_);
+	msaa_depth_rb_create(screen_width_, screen_height_, aa_value_);
 
 	ogl_msaa_fbo_ = framebuffer_create();
 	framebuffer_bind(GL_FRAMEBUFFER, ogl_msaa_fbo_);
@@ -882,69 +823,9 @@ void OglRenderer::msaa_framebuffer_create()
 	framebuffer_bind(GL_FRAMEBUFFER, 0);
 }
 
-void OglRenderer::downscale_color_rb_destroy()
-{
-	ogl_downscale_color_rb_.reset();
-}
-
-void OglRenderer::downscale_fbo_destroy()
-{
-	ogl_downscale_fbo_.reset();
-}
-
-void OglRenderer::downscale_framebuffer_destroy()
-{
-	downscale_fbo_destroy();
-	downscale_color_rb_destroy();
-}
-
-void OglRenderer::downscale_color_rb_create(
-	const int width,
-	const int height)
-{
-	ogl_downscale_color_rb_ = renderbuffer_create(width, height, 0, GL_RGBA8);
-}
-
-void OglRenderer::downscale_framebuffer_create()
-{
-	downscale_color_rb_create(downscale_width_, downscale_height_);
-	ogl_downscale_fbo_ = framebuffer_create();
-
-	framebuffer_bind(GL_FRAMEBUFFER, ogl_downscale_fbo_);
-
-	const auto framebuffer_renderbuffer = (
-		ogl_device_features_.framebuffer_is_ext_ ?
-		::glFramebufferRenderbufferEXT :
-		::glFramebufferRenderbuffer
-	);
-
-	framebuffer_renderbuffer(
-		GL_FRAMEBUFFER,
-		GL_COLOR_ATTACHMENT0,
-		GL_RENDERBUFFER,
-		ogl_downscale_color_rb_
-	);
-
-	const auto check_framebuffer_status = (
-		ogl_device_features_.framebuffer_is_ext_ ?
-		::glCheckFramebufferStatusEXT :
-		::glCheckFramebufferStatus
-	);
-
-	const auto framebuffer_status = check_framebuffer_status(GL_FRAMEBUFFER);
-
-	if (framebuffer_status != GL_FRAMEBUFFER_COMPLETE)
-	{
-		throw Exception{"Incomplete framebuffer object."};
-	}
-
-	framebuffer_bind(GL_FRAMEBUFFER, 0);
-}
-
 void OglRenderer::framebuffers_destroy()
 {
 	msaa_framebuffer_destroy();
-	downscale_framebuffer_destroy();
 }
 
 void OglRenderer::framebuffers_create()
@@ -954,79 +835,37 @@ void OglRenderer::framebuffers_create()
 		return;
 	}
 
-	const auto is_downscale = (screen_width_ != downscale_width_ || screen_height_ != downscale_height_);
 	const auto is_msaa = (aa_kind_ == RendererAaKind::ms && aa_value_ >= RendererLimits::aa_min);
-	const auto is_create_downscale = (is_downscale && is_msaa);
 
 	msaa_framebuffer_create();
-
-	if (is_create_downscale)
-	{
-		downscale_framebuffer_create();
-	}
 }
 
 void OglRenderer::framebuffers_blit()
 {
-	if (ogl_msaa_fbo_ == 0 && ogl_downscale_fbo_ == 0)
+	if (ogl_msaa_fbo_ == 0)
 	{
 		return;
 	}
 
-	auto is_blit_filter_linear = (downscale_blit_filter_ == RendererFilterKind::linear);
+	// MSAA FBO -> Default FBO
+	//
 
-	if (ogl_downscale_fbo_ != 0)
-	{
-		// MSAA FBO -> Non-MSAA FBO -> Default FBO
-		//
+	// Read: MSAA
+	// Draw: Default
+	framebuffer_bind(GL_DRAW_FRAMEBUFFER, 0);
 
-		// Read: MSAA
-		// Draw: Non-MSAA
-		framebuffer_bind(GL_DRAW_FRAMEBUFFER, ogl_downscale_fbo_);
-
-		framebuffer_blit(
-			downscale_width_,
-			downscale_height_,
-			downscale_width_,
-			downscale_height_,
-			false
-		);
-
-		// Read: Non-MSAA
-		// Draw: Default
-		framebuffer_bind(GL_READ_FRAMEBUFFER, ogl_downscale_fbo_);
-		framebuffer_bind(GL_DRAW_FRAMEBUFFER, 0);
-
-		framebuffer_blit(
-			downscale_width_,
-			downscale_height_,
-			screen_width_,
-			screen_height_,
-			is_blit_filter_linear
-		);
-	}
-	else
-	{
-		// MSAA FBO -> Default FBO
-		//
-
-		// Read: MSAA
-		// Draw: Default
-		framebuffer_bind(GL_DRAW_FRAMEBUFFER, 0);
-
-		framebuffer_blit(
-			downscale_width_,
-			downscale_height_,
-			screen_width_,
-			screen_height_,
-			is_blit_filter_linear
-		);
-	}
+	framebuffer_blit(
+		screen_width_,
+		screen_height_,
+		screen_width_,
+		screen_height_,
+		GL_NEAREST
+	);
 }
 
 void OglRenderer::framebuffers_bind()
 {
-	if (ogl_msaa_fbo_ == 0 && ogl_downscale_fbo_ == 0)
+	if (ogl_msaa_fbo_ == 0)
 	{
 		return;
 	}

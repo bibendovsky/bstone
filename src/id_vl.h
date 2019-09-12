@@ -75,11 +75,6 @@ struct VidConfiguration
 	BoolModValue is_ui_stretched_;
 	BoolModValue is_widescreen_;
 
-	BoolModValue is_downscale_;
-	IntModValue downscale_width_;
-	IntModValue downscale_height_;
-	FilterModValue hw_downscale_blit_filter_;
-
 	FilterModValue hw_2d_texture_filter_;
 
 	FilterModValue hw_3d_texture_image_filter_;

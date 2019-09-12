@@ -101,12 +101,6 @@ public:
 		const bool is_enabled) override;
 
 
-	void downscale_set(
-		const int width,
-		const int height,
-		const RendererFilterKind blit_filter) override;
-
-
 	void aa_set(
 		const RendererAaKind aa_kind,
 		const int aa_value) override;
@@ -208,19 +202,12 @@ private:
 	int screen_width_;
 	int screen_height_;
 
-	int downscale_width_;
-	int downscale_height_;
-	RendererFilterKind downscale_blit_filter_;
-
 	RendererAaKind aa_kind_;
 	int aa_value_;
 
 	FboResource ogl_msaa_fbo_;
 	RboResource ogl_msaa_color_rb_;
 	RboResource ogl_msaa_depth_rb_;
-
-	FboResource ogl_downscale_fbo_;
-	RboResource ogl_downscale_color_rb_;
 
 
 	void set_name_and_description();
@@ -279,19 +266,6 @@ private:
 		const int sample_count);
 
 	void msaa_framebuffer_create();
-
-
-	void downscale_color_rb_destroy();
-
-	void downscale_fbo_destroy();
-
-	void downscale_framebuffer_destroy();
-
-	void downscale_color_rb_create(
-		const int width,
-		const int height);
-
-	void downscale_framebuffer_create();
 
 
 	void framebuffers_destroy();

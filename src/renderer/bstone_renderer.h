@@ -170,9 +170,6 @@ public:
 	RendererKind renderer_kind_;
 	RendererCreateWindowParam window_;
 
-	int downscale_width_;
-	int downscale_height_;
-
 	RendererAaKind aa_kind_;
 	int aa_value_;
 
@@ -1087,12 +1084,6 @@ public:
 
 	virtual void vsync_set(
 		const bool is_enabled) = 0;
-
-
-	virtual void downscale_set(
-		const int width,
-		const int height,
-		const RendererFilterKind blit_filter) = 0;
 
 
 	virtual void aa_set(
