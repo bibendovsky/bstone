@@ -304,10 +304,7 @@ int OglRendererUtils::msaa_window_get_max(
 
 		if (sdl_result != 0)
 		{
-			auto message = std::string{"Failed to get window MSAA value. "};
-			message += ::SDL_GetError();
-
-			throw Exception{std::move(message)};
+			break;
 		}
 
 		if (sdl_sample_count > 0)

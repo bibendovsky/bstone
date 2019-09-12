@@ -190,8 +190,10 @@ RendererPtr GenericRendererManager::renderer_initialize(
 
 			}
 		}
-		catch (const Exception&)
+		catch (const Exception& ex)
 		{
+			static_cast<void>(ex);
+
 			if (!is_auto_detect)
 			{
 				throw;
