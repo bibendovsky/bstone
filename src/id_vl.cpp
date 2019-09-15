@@ -22,7 +22,7 @@ Free Software Foundation, Inc.,
 */
 
 
-#define BSTONE_DBG_FORCE_SW (0)
+#define BSTONE_DBG_FORCE_SW (1)
 
 
 #include <cassert>
@@ -182,7 +182,7 @@ UiMaskBuffer vid_mask_buffer;
 
 std::string sw_error_message;
 
-bstone::VgaPalette vid_vga_palette;
+bstone::R8g8b8a8Palette vid_vga_palette;
 VgaBuffer sw_vga_buffer;
 
 WindowElementsDimensions vid_dimensions_;
@@ -12449,6 +12449,7 @@ void VL_FillPalette(
 		vga_color.r_ = red;
 		vga_color.g_ = green;
 		vga_color.b_ = blue;
+		vga_color.a_ = 255;
 	}
 
 	if (::vid_is_hw_)
@@ -12473,6 +12474,7 @@ void VL_SetPalette(
 		vga_color.r_ = palette[(3 * i) + 0];
 		vga_color.g_ = palette[(3 * i) + 1];
 		vga_color.b_ = palette[(3 * i) + 2];
+		vga_color.a_ = 255;
 	}
 
 	if (::vid_is_hw_)

@@ -48,8 +48,6 @@ struct RgbPalette
 }; // RgbPalette
 
 
-using VgaPalette = std::array<R8g8b8, RgbPalette::get_max_color_count()>;
-
 using R8g8b8a8Palette = std::array<R8g8b8a8, RgbPalette::get_max_color_count()>;
 using R8g8b8a8PalettePtr = R8g8b8a8Palette*;
 using R8g8b8a8PaletteCPtr = const R8g8b8a8Palette*;
