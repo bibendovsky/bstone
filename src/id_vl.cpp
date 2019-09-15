@@ -22,7 +22,7 @@ Free Software Foundation, Inc.,
 */
 
 
-#define BSTONE_DBG_FORCE_SW (0)
+#define BSTONE_DBG_FORCE_SW (1)
 
 
 #include <cassert>
@@ -38,6 +38,7 @@ Free Software Foundation, Inc.,
 #include "bstone_fixed_point.h"
 #include "bstone_hw_texture_manager.h"
 #include "bstone_logger.h"
+#include "bstone_mt_task_manager.h"
 #include "bstone_renderer_manager.h"
 #include "bstone_renderer_shader_registry.h"
 #include "bstone_sdl_types.h"
@@ -46,6 +47,8 @@ Free Software Foundation, Inc.,
 #include "bstone_string_helper.h"
 #include "bstone_text_writer.h"
 #include "bstone_version.h"
+
+#include "SDL_timer.h"
 
 
 extern bool is_full_menu_active;
@@ -2295,6 +2298,8 @@ using Hw3dSpritesVbi = HwVertexBufferImageT<Hw3dSpriteVertex>;
 using Hw3dPlayerWeaponVbi = HwVertexBufferImageT<Hw3dPlayerWeaponVertex>;
 using Hw3dFadeVbi = HwVertexBufferImageT<Hw3dFadeVertex>;
 
+
+bstone::MtTaskManagerUPtr hw_mt_task_manager_;
 
 using HwShadingModeMod = bstone::ModValue<int>;
 HwShadingModeMod hw_shading_mode_;
@@ -6011,7 +6016,8 @@ bool hw_texture_manager_create()
 {
 	::hw_texture_manager_ = bstone::HwTextureManagerFactory::create(
 		::hw_renderer_,
-		&::vid_sprite_cache
+		&::vid_sprite_cache,
+		::hw_mt_task_manager_.get()
 	);
 
 	return true;
@@ -12190,10 +12196,14 @@ void hw_video_uninitialize()
 	::hw_samplers_uninitialize();
 
 	::hw_renderer_manager_ = nullptr;
+
+	::hw_mt_task_manager_ = nullptr;
 }
 
 bool hw_video_initialize()
 {
+	::hw_mt_task_manager_ = bstone::MtTaskManagerFactory::create(1, 4096);
+
 	::vid_is_hw_ = false;
 
 	::hw_samplers_set_default_states();

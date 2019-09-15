@@ -82,6 +82,7 @@ Free Software Foundation, Inc.,
 #include "bstone_sha1.h"
 #include "bstone_stream.h"
 #include "bstone_string_helper.h"
+#include "bstone_mt_worker_manager.h"
 
 
 #endif // BSTONE_USE_PCH

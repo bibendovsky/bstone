@@ -1,13 +1,34 @@
 cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
-project(bstone VERSION 1.1.12 LANGUAGES CXX)
+project(bstone VERSION 1.2.0 LANGUAGES CXX)
 
 
+#
+# Version.
+#
+set(BSTONE_VERSION_CORE "${PROJECT_VERSION}")
+set(BSTONE_VERSION_PRE_RELEASE "alpha.1")
+
+if (BSTONE_VERSION_PRE_RELEASE STREQUAL "")
+	set(BSTONE_VERSION "${BSTONE_VERSION_CORE}")
+else ()
+	set(BSTONE_VERSION "${BSTONE_VERSION_CORE}-${BSTONE_VERSION_PRE_RELEASE}")
+endif ()
+
+message(STATUS "${PROJECT_NAME} v${BSTONE_VERSION}")
+
+
+#
+# Options.
+#
 option(BSTONE_USE_STATIC_LINKING "Link build statically." OFF)
 option(BSTONE_PANDORA "Build for Pandora." OFF)
 option(BSTONE_USE_PCH "Use precompiled headers." OFF)
 option(BSTONE_USE_MULTI_PROCESS_COMPILATION "Use multi-process compilation." ON)
 
 
+#
+# Modules.
+#
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 set(BSTONE_SDL2_COMPONENTS "")
@@ -289,6 +310,7 @@ target_sources(
 		bstone_memory_binary_reader.h
 		bstone_memory_stream.h
 		bstone_mod_value.h
+		bstone_mt_task_manager.h
 		bstone_mt_queue_1r1w.h
 		bstone_opl2.h
 		bstone_ref_values.h
@@ -410,6 +432,7 @@ target_sources(
 		bstone_logger.cpp
 		bstone_memory_binary_reader.cpp
 		bstone_memory_stream.cpp
+		bstone_mt_task_manager.cpp
 		bstone_opl2.cpp
 		bstone_pcm_decoder.cpp
 		bstone_precompiled.cpp

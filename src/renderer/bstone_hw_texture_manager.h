@@ -48,6 +48,9 @@ using RendererTexture2dPtr = RendererTexture2d*;
 class SpriteCache;
 using SpriteCachePtr = SpriteCache*;
 
+class MtTaskManager;
+using MtTaskManagerPtr = MtTaskManager*;
+
 
 enum class HwTextureManagerSolid1x1Id
 {
@@ -152,8 +155,9 @@ class HwTextureManagerFactory
 {
 public:
 	static HwTextureManagerUPtr create(
-		RendererPtr renderer,
-		SpriteCachePtr sprite_cache);
+		const RendererPtr renderer,
+		const SpriteCachePtr sprite_cache,
+		const MtTaskManagerPtr mt_task_manager);
 }; // HwTextureManagerFactory
 
 

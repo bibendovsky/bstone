@@ -42,15 +42,138 @@ Free Software Foundation, Inc.,
 #include "bstone_exception.h"
 #include "bstone_missing_sprite_64x64_image.h"
 #include "bstone_missing_wall_64x64_image.h"
+#include "bstone_mt_task_manager.h"
 #include "bstone_ref_values.h"
 #include "bstone_renderer.h"
 #include "bstone_rgb_palette.h"
 #include "bstone_sprite_cache.h"
+
 #include "bstone_detail_renderer_utils.h"
 
 
 namespace bstone
 {
+
+
+namespace detail
+{
+
+
+// ==========================================================================
+// XbrzTask
+//
+
+class XbrzTask :
+	public MtTask
+{
+public:
+	XbrzTask();
+
+	~XbrzTask() override;
+
+	void operator()() override;
+
+	bool is_completed() const noexcept override;
+
+	void set_is_completed(
+		const bool is_completed) override;
+
+
+	void initialize(
+		const int factor,
+		const int first_index,
+		const int last_index,
+		const int src_width,
+		const int src_height,
+		const std::uint32_t* const src_colors,
+		std::uint32_t* const dst_colors);
+
+
+private:
+	bool is_completed_;
+
+	int factor_;
+	int first_index_;
+	int last_index_;
+	int src_width_;
+	int src_height_;
+	const std::uint32_t* src_colors_;
+	std::uint32_t* dst_colors_;
+}; // XbrzTask
+
+using XbrzTaskPtr = XbrzTask*;
+
+using XbrzTasks = std::vector<XbrzTask>;
+using XbrzTaskPtrs = std::vector<MtTaskPtr>;
+
+
+XbrzTask::XbrzTask()
+	:
+	is_completed_{},
+	factor_{},
+	first_index_{},
+	last_index_{},
+	src_width_{},
+	src_height_{},
+	src_colors_{},
+	dst_colors_{}
+{
+}
+
+XbrzTask::~XbrzTask() = default;
+
+void XbrzTask::operator()()
+{
+	const auto xbrz_cfg = xbrz::ScalerCfg{};
+
+	xbrz::scale(
+		static_cast<std::size_t>(factor_),
+		src_colors_,
+		dst_colors_,
+		src_width_,
+		src_height_,
+		xbrz::ColorFormat::ARGB_UNBUFFERED,
+		xbrz_cfg,
+		first_index_,
+		last_index_
+	);
+}
+
+bool XbrzTask::is_completed() const noexcept
+{
+	return is_completed_;
+}
+
+void XbrzTask::set_is_completed(
+	const bool is_completed)
+{
+	is_completed_ = is_completed;
+}
+
+void XbrzTask::initialize(
+	const int factor,
+	const int first_index,
+	const int last_index,
+	const int src_width,
+	const int src_height,
+	const std::uint32_t* const src_colors,
+	std::uint32_t* const dst_colors)
+{
+	factor_ = factor;
+	first_index_ = first_index;
+	last_index_ = last_index;
+	src_width_ = src_width;
+	src_height_ = src_height;
+	src_colors_ = src_colors;
+	dst_colors_ = dst_colors;
+}
+
+//
+// XbrzTask
+// ==========================================================================
+
+
+} // detail
 
 
 // ==========================================================================
@@ -62,8 +185,9 @@ class GenericHwTextureManager final :
 {
 public:
 	GenericHwTextureManager(
-		RendererPtr renderer,
-		SpriteCachePtr sprite_cache);
+		const RendererPtr renderer,
+		const SpriteCachePtr sprite_cache,
+		const MtTaskManagerPtr mt_task_manager);
 
 	~GenericHwTextureManager() override;
 
@@ -201,6 +325,7 @@ private:
 
 	RendererPtr renderer_;
 	SpriteCachePtr sprite_cache_;
+	MtTaskManagerPtr mt_task_manager_;
 
 	HwTextureManagerUpscaleFilterKind upscale_filter_kind_;
 	int upscale_filter_factor_;
@@ -220,6 +345,9 @@ private:
 	detail::RendererUtils::RgbaBuffer upscale_buffer_;
 
 	Solid1x1Items solid_1x1_items_;
+
+	detail::XbrzTasks xbrz_tasks_;
+	detail::XbrzTaskPtrs xbrz_task_ptrs_;
 
 
 	static void validate_upscale_filter(
@@ -342,13 +470,15 @@ using HwTextureManagerImplUPtr = std::unique_ptr<GenericHwTextureManager>;
 
 
 GenericHwTextureManager::GenericHwTextureManager(
-	RendererPtr renderer,
-	SpriteCachePtr sprite_cache)
+	const RendererPtr renderer,
+	const SpriteCachePtr sprite_cache,
+	const MtTaskManagerPtr mt_task_manager)
 	:
 	renderer_{},
+	sprite_cache_{},
+	mt_task_manager_{mt_task_manager},
 	upscale_filter_kind_{},
 	upscale_filter_factor_{},
-	sprite_cache_{},
 	is_caching_{},
 	generation_id_{},
 	wall_map_{},
@@ -358,7 +488,9 @@ GenericHwTextureManager::GenericHwTextureManager(
 	ui_t2d_item_{},
 	mipmap_buffer_{},
 	upscale_buffer_{},
-	solid_1x1_items_{}
+	solid_1x1_items_{},
+	xbrz_tasks_{},
+	xbrz_task_ptrs_{}
 {
 	initialize(renderer, sprite_cache);
 }
@@ -1100,14 +1232,84 @@ void GenericHwTextureManager::upscale_xbrz(
 		throw Exception{"Unsupported image source."};
 	}
 
-	xbrz::scale(
-		static_cast<std::size_t>(upscale_filter_factor_),
-		reinterpret_cast<const std::uint32_t*>(mipmap_buffer_.data()),
-		reinterpret_cast<std::uint32_t*>(upscale_buffer_.data()),
-		properties.width_,
-		properties.height_,
-		xbrz::ColorFormat::ARGB
-	);
+	const auto lines_per_slice = 16;
+
+	auto slice_count = properties.height_ / lines_per_slice;
+	auto lines_remain = properties.height_ % lines_per_slice;
+
+	if (slice_count > 0 && lines_remain > 0 && lines_remain < 8)
+	{
+		slice_count -= 1;
+		lines_remain += lines_per_slice;
+	}
+
+	if (slice_count > 1 && mt_task_manager_->has_concurrency())
+	{
+		xbrz_tasks_.clear();
+		xbrz_tasks_.reserve(slice_count + 1);
+
+		xbrz_task_ptrs_.clear();
+		xbrz_task_ptrs_.reserve(slice_count + 1);
+
+		auto line_index = 0;
+
+		const auto src_lines = reinterpret_cast<const std::uint32_t*>(mipmap_buffer_.data());
+		const auto dst_lines = reinterpret_cast<std::uint32_t*>(upscale_buffer_.data());
+
+		for (int i = 0; i < slice_count; ++i)
+		{
+			xbrz_tasks_.emplace_back();
+			auto& xbrz_task = xbrz_tasks_.back();
+
+			xbrz_task_ptrs_.emplace_back(&xbrz_task);
+
+			xbrz_task.initialize(
+				upscale_filter_factor_,
+				line_index,
+				line_index + lines_per_slice,
+				properties.width_,
+				properties.height_,
+				src_lines,
+				dst_lines
+			);
+
+			line_index += lines_per_slice;
+		}
+
+		if (lines_remain > 0)
+		{
+			xbrz_tasks_.emplace_back();
+			auto& xbrz_task = xbrz_tasks_.back();
+
+			xbrz_task_ptrs_.emplace_back(&xbrz_task);
+
+			xbrz_task.initialize(
+				upscale_filter_factor_,
+				line_index,
+				properties.height_,
+				properties.width_,
+				properties.height_,
+				src_lines,
+				dst_lines
+			);
+		}
+
+		mt_task_manager_->add_tasks_and_wait_for_added(
+			xbrz_task_ptrs_.data(),
+			static_cast<int>(xbrz_task_ptrs_.size())
+		);
+	}
+	else
+	{
+		xbrz::scale(
+			static_cast<std::size_t>(upscale_filter_factor_),
+			reinterpret_cast<const std::uint32_t*>(mipmap_buffer_.data()),
+			reinterpret_cast<std::uint32_t*>(upscale_buffer_.data()),
+			properties.width_,
+			properties.height_,
+			xbrz::ColorFormat::ARGB
+		);
+	}
 }
 
 void GenericHwTextureManager::upscale(
@@ -1469,6 +1671,11 @@ void GenericHwTextureManager::initialize_internal(
 		throw Exception{"Null sprite cache."};
 	}
 
+	if (!mt_task_manager_)
+	{
+		throw Exception{"Null task manager."};
+	}
+
 	renderer_ = renderer;
 	sprite_cache_ = sprite_cache;
 
@@ -1666,10 +1873,11 @@ int GenericHwTextureManager::upscale_filter_clamp_factor(
 //
 
 HwTextureManagerUPtr HwTextureManagerFactory::create(
-	RendererPtr renderer,
-	SpriteCachePtr sprite_cache)
+	const RendererPtr renderer,
+	const SpriteCachePtr sprite_cache,
+	const MtTaskManagerPtr mt_task_manager)
 {
-	return HwTextureManagerImplUPtr{new GenericHwTextureManager{renderer, sprite_cache}};
+	return HwTextureManagerImplUPtr{new GenericHwTextureManager{renderer, sprite_cache, mt_task_manager}};
 }
 
 //
