@@ -438,115 +438,28 @@ void RendererUtils::indexed_to_rgba(
 		throw Exception{"Bitmap buffer too small."};
 	}
 
+	const auto is_column_major = param.indexed_is_column_major_;
 	const auto has_alphas = (param.indexed_alphas_ != nullptr);
 
-	auto dst_index = 0;
-
-	for (int src_y = 0; src_y < param.height_; ++src_y)
+	if (!is_column_major && !has_alphas)
 	{
-		for (int src_x = 0; src_x < param.width_; ++src_x)
-		{
-			int src_index;
-
-			if (param.indexed_is_column_major_)
-			{
-				src_index = (src_x * param.height_) + src_y;
-			}
-			else
-			{
-				src_index = dst_index;
-			}
-
-			const auto dst_color = (*param.indexed_palette_)[param.indexed_pixels_[src_index]];
-			auto& dst_pixel = (*param.rgba_buffer_)[dst_index];
-
-			dst_pixel = dst_color;
-
-			if (has_alphas)
-			{
-				const auto is_transparent = !param.indexed_alphas_[src_index];
-
-				if (is_transparent)
-				{
-					dst_pixel = {};
-				}
-			}
-
-			++dst_index;
-		}
+		indexed_to_rgba_rm_na(param);
 	}
-}
-
-void RendererUtils::indexed_pot_to_rgba_pot(
-	const IndexedToRgbaParam& param)
-{
-	if (param.width_ <= 0)
+	else if (!is_column_major && has_alphas)
 	{
-		throw Exception{"Width out of range."};
+		indexed_to_rgba_rm_ha(param);
 	}
-
-	if (param.height_ <= 0)
+	else if (is_column_major && !has_alphas)
 	{
-		throw Exception{"Height out of range."};
+		indexed_to_rgba_cm_na(param);
 	}
-
-	if (param.actual_width_ <= 0)
+	else if (is_column_major && has_alphas)
 	{
-		throw Exception{"Actual width out of range."};
+		indexed_to_rgba_cm_ha(param);
 	}
-
-	if (param.actual_height_ <= 0)
+	else
 	{
-		throw Exception{"Actual height out of range."};
-	}
-
-	if (!param.indexed_pixels_)
-	{
-		throw Exception{"Null indexed pixels."};
-	}
-
-	if (param.rgba_buffer_->size() < (param.actual_width_ * param.actual_height_))
-	{
-		throw Exception{"Bitmap buffer too small."};
-	}
-
-	const auto has_alphas = (param.indexed_alphas_ != nullptr);
-
-	auto dst_index = 0;
-
-	for (int src_y = 0; src_y < param.actual_height_; ++src_y)
-	{
-		for (int src_x = 0; src_x < param.actual_width_; ++src_x)
-		{
-			auto src_index = 0;
-
-			if (param.indexed_is_column_major_)
-			{
-				src_index = (src_x * param.actual_height_) + src_y;
-			}
-			else
-			{
-				src_index = dst_index;
-			}
-
-			const auto dst_color = (*param.indexed_palette_)[param.indexed_pixels_[src_index]];
-
-			auto& dst_pixel = (*param.rgba_buffer_)[dst_index];
-
-			dst_pixel = dst_color;
-
-			if (has_alphas)
-			{
-				const auto is_transparent = !param.indexed_alphas_[src_index];
-
-				if (is_transparent)
-				{
-					dst_pixel = {};
-				}
-			}
-
-			++dst_index;
-		}
+		throw Exception{"Unsupported values combination."};
 	}
 }
 
@@ -583,6 +496,7 @@ void RendererUtils::indexed_npot_to_rgba_pot(
 		throw Exception{"Indexed bitmap buffer too small."};
 	}
 
+#if 0
 	const auto has_alphas = (param.indexed_alphas_ != nullptr);
 
 	const auto src_du_f = static_cast<double>(param.width_) / static_cast<double>(param.actual_width_);
@@ -625,7 +539,7 @@ void RendererUtils::indexed_npot_to_rgba_pot(
 
 				if (is_transparent)
 				{
-					dst_pixel = {};
+					dst_pixel.reset();
 				}
 			}
 
@@ -636,6 +550,31 @@ void RendererUtils::indexed_npot_to_rgba_pot(
 
 		src_v_f += src_dv_f;
 	}
+#else
+	const auto is_column_major = param.indexed_is_column_major_;
+	const auto has_alphas = (param.indexed_alphas_ != nullptr);
+
+	if (!is_column_major && !has_alphas)
+	{
+		indexed_npot_to_rgba_rm_na(param);
+	}
+	else if (!is_column_major && has_alphas)
+	{
+		indexed_npot_to_rgba_rm_ha(param);
+	}
+	else if (is_column_major && !has_alphas)
+	{
+		indexed_npot_to_rgba_cm_na(param);
+	}
+	else if (is_column_major && has_alphas)
+	{
+		indexed_npot_to_rgba_cm_ha(param);
+	}
+	else
+	{
+		throw Exception{"Unsupported values combination."};
+	}
+#endif
 }
 
 void RendererUtils::indexed_to_rgba_pot(
@@ -648,7 +587,7 @@ void RendererUtils::indexed_to_rgba_pot(
 
 	if (!is_npot)
 	{
-		indexed_pot_to_rgba_pot(param);
+		indexed_to_rgba(param);
 	}
 	else if (is_npot)
 	{
@@ -680,11 +619,11 @@ void RendererUtils::indexed_sprite_to_rgba_pot(
 			column = indexed_sprite.get_column(w - left);
 		}
 
+		auto dst_pixels = &texture_buffer[w];
+
 		for (int h = 0; h < Sprite::dimension; ++h)
 		{
-			const auto dst_index = (h * Sprite::dimension) + w;
-
-			auto& dst_pixel = texture_buffer[dst_index];
+			auto& dst_pixel = *dst_pixels;
 
 			if (column && h >= top && h <= bottom)
 			{
@@ -694,7 +633,7 @@ void RendererUtils::indexed_sprite_to_rgba_pot(
 
 				if (src_pixel < 0)
 				{
-					dst_pixel = {};
+					dst_pixel.reset();
 				}
 				else
 				{
@@ -703,8 +642,10 @@ void RendererUtils::indexed_sprite_to_rgba_pot(
 			}
 			else
 			{
-				dst_pixel = {};
+				dst_pixel.reset();
 			}
+
+			dst_pixels += Sprite::dimension;
 		}
 	}
 }
@@ -803,67 +744,45 @@ void RendererUtils::build_mipmap(
 		throw Exception{"Null target colors."};
 	}
 
-	const auto is_width_one = (previous_width == 1);
-	const auto is_height_one = (previous_height == 1);
+	if (previous_width == 1)
+	{
+		build_mipmap_1(previous_height, src_colors, dst_colors);
 
-	const auto width = (is_width_one ? 1 : previous_width / 2);
-	const auto height = (is_height_one ? 1 : previous_height / 2);
+		return;
+	}
 
-	const auto src_du = (is_width_one ? 1 : 2);
-	const auto src_half_du = src_du / 2;
+	if (previous_height == 1)
+	{
+		build_mipmap_1(previous_width, src_colors, dst_colors);
 
-	const auto src_dv = (is_height_one ? 1 : 2);
-	const auto src_half_dv = src_dv / 2;
+		return;
+	}
 
-	auto dst_v = 0;
+	const auto width = previous_width / 2;
+	const auto height = previous_height / 2;
 
-	auto dst_index = 0;
+	auto dst_colors_0 = dst_colors;
+
+	auto src_colors_0 = src_colors;
+	auto src_colors_1 = src_colors_0 + previous_width;
 
 	for (int h = 0; h < height; ++h)
 	{
-		const auto src_v1 = dst_v + (0 * src_half_dv);
-		const auto src_v2 = dst_v + (1 * src_half_dv);
-
-		auto dst_u = 0;
-
 		for (int w = 0; w < width; ++w)
 		{
-			const auto src_u1 = dst_u + (0 * src_half_du);
-			const auto src_u2 = dst_u + (1 * src_half_du);
+			*dst_colors_0++ = R8g8b8a8::average_pa(
+				src_colors_0[0],
+				src_colors_0[1],
+				src_colors_1[0],
+				src_colors_1[1]
+			);
 
-			const auto& src_color_1 = src_colors[(src_v1 * previous_width) + src_u1];
-			const auto& src_color_2 = src_colors[(src_v1 * previous_width) + src_u2];
-			const auto& src_color_3 = src_colors[(src_v2 * previous_width) + src_u1];
-			const auto& src_color_4 = src_colors[(src_v2 * previous_width) + src_u2];
-
-			const auto alpha_sum = src_color_1.a_ + src_color_2.a_ + src_color_3.a_ + src_color_4.a_;
-			const auto alpha_f = alpha_sum / 4.0;
-			const auto alpha = static_cast<glm::u8>(alpha_f);
-
-			const auto scale = alpha_f / (4 * 255);
-
-			const auto red_sum = src_color_1.r_ + src_color_2.r_ + src_color_3.r_ + src_color_4.r_;
-			const auto red = static_cast<glm::u8>(red_sum * scale);
-
-			const auto green_sum = src_color_1.g_ + src_color_2.g_ + src_color_3.g_ + src_color_4.g_;
-			const auto green = static_cast<glm::u8>(green_sum * scale);
-
-			const auto blue_sum = src_color_1.b_ + src_color_2.b_ + src_color_3.b_ + src_color_4.b_;
-			const auto blue = static_cast<glm::u8>(blue_sum * scale);
-
-			auto& dst_color = dst_colors[dst_index];
-
-			dst_color.r_ = static_cast<std::uint8_t>(red);
-			dst_color.g_ = static_cast<std::uint8_t>(green);
-			dst_color.b_ = static_cast<std::uint8_t>(blue);
-			dst_color.a_ = static_cast<std::uint8_t>(alpha);
-
-			dst_u += src_du;
-
-			++dst_index;
+			src_colors_0 += 2;
+			src_colors_1 += 2;
 		}
 
-		dst_v += src_dv;
+		src_colors_0 += previous_width;
+		src_colors_1 += previous_width;
 	}
 }
 
@@ -1088,6 +1007,304 @@ std::uint32_t RendererUtils::create_window_sdl_flags(
 	}
 
 	return flags;
+}
+
+// Indexed (row major, has no alpha) -> RGBA
+void RendererUtils::indexed_to_rgba_rm_na(
+	const IndexedToRgbaParam& param)
+{
+	auto src_pixels = param.indexed_pixels_;
+	const auto& src_palette = *param.indexed_palette_;
+
+	auto dst_pixels = param.rgba_buffer_->data();
+
+	const auto area = param.width_ * param.height_;
+
+	for (int i = 0; i < area; ++i)
+	{
+		*dst_pixels++ = src_palette[*src_pixels++];
+	}
+}
+
+// Indexed (row major, has alpha) -> RGBA
+void RendererUtils::indexed_to_rgba_rm_ha(
+	const IndexedToRgbaParam& param)
+{
+	auto src_pixels = param.indexed_pixels_;
+	const auto& src_palette = *param.indexed_palette_;
+
+	auto dst_pixels = param.rgba_buffer_->data();
+
+	const auto area = param.width_ * param.height_;
+
+	for (int i = 0; i < area; ++i)
+	{
+		const auto src_pixel = *src_pixels++;
+		auto& dst_pixel = *dst_pixels++;
+
+		if (param.indexed_alphas_[i])
+		{
+			dst_pixel = src_palette[src_pixel];
+		}
+		else
+		{
+			dst_pixel.reset();
+		}
+	}
+}
+
+// Indexed (column major, has no alpha) -> RGBA
+void RendererUtils::indexed_to_rgba_cm_na(
+	const IndexedToRgbaParam& param)
+{
+	const auto& src_palette = *param.indexed_palette_;
+
+	auto dst_pixels = param.rgba_buffer_->data();
+
+	for (int src_y = 0; src_y < param.height_; ++src_y)
+	{
+		auto src_index = src_y;
+
+		for (int src_x = 0; src_x < param.width_; ++src_x)
+		{
+			*dst_pixels++ = src_palette[param.indexed_pixels_[src_index]];
+
+			src_index += param.height_;
+		}
+	}
+}
+
+// Indexed (column major, has alpha) -> RGBA
+void RendererUtils::indexed_to_rgba_cm_ha(
+	const IndexedToRgbaParam& param)
+{
+	const auto& src_palette = *param.indexed_palette_;
+
+	auto dst_pixels = param.rgba_buffer_->data();
+
+	for (int src_y = 0; src_y < param.height_; ++src_y)
+	{
+		auto src_index = src_y;
+
+		for (int src_x = 0; src_x < param.width_; ++src_x)
+		{
+			auto& dst_pixel = *dst_pixels++;
+
+			if (param.indexed_alphas_[src_index])
+			{
+				dst_pixel = src_palette[param.indexed_pixels_[src_index]];
+			}
+			else
+			{
+				dst_pixel.reset();
+			}
+
+			src_index += param.height_;
+		}
+	}
+}
+
+// Indexed (row major, has no alpha) -> RGBA POT
+void RendererUtils::indexed_npot_to_rgba_rm_na(
+	const IndexedToRgbaParam& param)
+{
+	const auto src_du_f = static_cast<double>(param.width_) / static_cast<double>(param.actual_width_);
+	const auto src_dv_f = static_cast<double>(param.height_) / static_cast<double>(param.actual_height_);
+
+	const auto& src_palette = *param.indexed_palette_;
+	auto dst_colors = param.rgba_buffer_->data();
+
+	auto src_v_f = 0.0;
+	auto cached_src_index = -1;
+	auto cached_color = R8g8b8a8{};
+
+	for (int h = 0; h < param.actual_height_; ++h)
+	{
+		const auto src_v = static_cast<int>(src_v_f);
+		const auto src_base_index = src_v * param.width_;
+
+		auto src_u_f = 0.0;
+
+		for (int w = 0; w < param.actual_width_; ++w)
+		{
+			const auto src_u = static_cast<int>(src_u_f);
+			const auto src_index = src_base_index + src_u;
+
+			if (src_index != cached_src_index)
+			{
+				cached_src_index = src_index;
+				cached_color = src_palette[param.indexed_pixels_[src_index]];
+			}
+
+			*dst_colors++ = cached_color;
+
+			src_u_f += src_du_f;
+		}
+
+		src_v_f += src_dv_f;
+	}
+}
+
+// Indexed (row major, has alpha) -> RGBA POT
+void RendererUtils::indexed_npot_to_rgba_rm_ha(
+	const IndexedToRgbaParam& param)
+{
+	const auto src_du_f = static_cast<double>(param.width_) / static_cast<double>(param.actual_width_);
+	const auto src_dv_f = static_cast<double>(param.height_) / static_cast<double>(param.actual_height_);
+
+	const auto& src_palette = *param.indexed_palette_;
+	auto dst_colors = param.rgba_buffer_->data();
+
+	auto src_v_f = 0.0;
+	auto cached_src_index = -1;
+	auto cached_color = R8g8b8a8{};
+
+	for (int h = 0; h < param.actual_height_; ++h)
+	{
+		const auto src_v = static_cast<int>(src_v_f);
+		const auto src_base_index = src_v * param.width_;
+
+		auto src_u_f = 0.0;
+
+		for (int w = 0; w < param.actual_width_; ++w)
+		{
+			const auto src_u = static_cast<int>(src_u_f);
+			const auto src_index = src_base_index + src_u;
+
+			auto& dst_pixel = *dst_colors++;
+
+			if (param.indexed_alphas_[src_index])
+			{
+				if (src_index != cached_src_index)
+				{
+					cached_src_index = src_index;
+					cached_color = src_palette[param.indexed_pixels_[src_index]];
+				}
+
+				dst_pixel = cached_color;
+			}
+			else
+			{
+				dst_pixel.reset();
+			}
+
+			src_u_f += src_du_f;
+		}
+
+		src_v_f += src_dv_f;
+	}
+}
+
+// Indexed (column major, has no alpha) -> RGBA POT
+void RendererUtils::indexed_npot_to_rgba_cm_na(
+	const IndexedToRgbaParam& param)
+{
+	const auto src_du_f = static_cast<double>(param.width_) / static_cast<double>(param.actual_width_);
+	const auto src_dv_f = static_cast<double>(param.height_) / static_cast<double>(param.actual_height_);
+
+	const auto& src_palette = *param.indexed_palette_;
+	auto dst_colors = param.rgba_buffer_->data();
+
+	auto src_v_f = 0.0;
+	auto cached_src_index = -1;
+	auto cached_color = R8g8b8a8{};
+
+	for (int h = 0; h < param.actual_height_; ++h)
+	{
+		const auto src_v = static_cast<int>(src_v_f);
+
+		auto src_u_f = 0.0;
+
+		for (int w = 0; w < param.actual_width_; ++w)
+		{
+			const auto src_u = static_cast<int>(src_u_f);
+
+			const auto src_index = (src_u * param.height_) + src_v;
+
+			if (src_index != cached_src_index)
+			{
+				cached_src_index = src_index;
+				cached_color = src_palette[param.indexed_pixels_[src_index]];
+			}
+
+			*dst_colors++ = cached_color;
+
+			src_u_f += src_du_f;
+		}
+
+		src_v_f += src_dv_f;
+	}
+}
+
+// Indexed (column major, has alpha) -> RGBA POT
+void RendererUtils::indexed_npot_to_rgba_cm_ha(
+	const IndexedToRgbaParam& param)
+{
+	const auto src_du_f = static_cast<double>(param.width_) / static_cast<double>(param.actual_width_);
+	const auto src_dv_f = static_cast<double>(param.height_) / static_cast<double>(param.actual_height_);
+
+	const auto& src_palette = *param.indexed_palette_;
+	auto dst_colors = param.rgba_buffer_->data();
+
+	auto src_v_f = 0.0;
+	auto cached_src_index = -1;
+	auto cached_color = R8g8b8a8{};
+
+	for (int h = 0; h < param.actual_height_; ++h)
+	{
+		const auto src_v = static_cast<int>(src_v_f);
+
+		auto src_u_f = 0.0;
+
+		for (int w = 0; w < param.actual_width_; ++w)
+		{
+			const auto src_u = static_cast<int>(src_u_f);
+
+			const auto src_index = (src_u * param.height_) + src_v;
+
+			auto& dst_pixel = *dst_colors++;
+
+			if (param.indexed_alphas_[src_index])
+			{
+				if (src_index != cached_src_index)
+				{
+					cached_src_index = src_index;
+					cached_color = src_palette[param.indexed_pixels_[src_index]];
+				}
+
+				dst_pixel = cached_color;
+			}
+			else
+			{
+				dst_pixel.reset();
+			}
+
+			src_u_f += src_du_f;
+		}
+
+		src_v_f += src_dv_f;
+	}
+}
+
+void RendererUtils::build_mipmap_1(
+	const int previous_dimension,
+	const R8g8b8a8CPtr src_colors,
+	const R8g8b8a8Ptr dst_colors)
+{
+	const auto dimension = previous_dimension / 2;
+
+	auto src_colors_0 = src_colors;
+	auto dst_colors_0 = dst_colors;
+
+	for (int i = 0; i < dimension; ++i)
+	{
+		*dst_colors_0++ = R8g8b8a8::average_pa(
+			src_colors_0[0],
+			src_colors_0[1]
+		);
+
+		src_colors_0 += 2;
+	}
 }
 
 //

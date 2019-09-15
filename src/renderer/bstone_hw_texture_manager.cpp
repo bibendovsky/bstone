@@ -1059,11 +1059,19 @@ void GenericHwTextureManager::upscale_xbrz(
 	const Texture2dProperties& properties)
 {
 	const auto area = properties.width_ * properties.height_;
-	const auto upscale_area = properties.upscale_width_ * properties.upscale_height_;
 
 	if (mipmap_buffer_.size() < area)
 	{
+		mipmap_buffer_.clear();
 		mipmap_buffer_.resize(area);
+	}
+
+	const auto upscale_area = properties.upscale_width_ * properties.upscale_height_;
+
+	if (upscale_buffer_.size() < upscale_area)
+	{
+		upscale_buffer_.clear();
+		upscale_buffer_.resize(upscale_area);
 	}
 
 	if (properties.indexed_pixels_)
@@ -1090,11 +1098,6 @@ void GenericHwTextureManager::upscale_xbrz(
 	else
 	{
 		throw Exception{"Unsupported image source."};
-	}
-
-	if (upscale_buffer_.size() < upscale_area)
-	{
-		upscale_buffer_.resize(upscale_area);
 	}
 
 	xbrz::scale(
@@ -1187,6 +1190,7 @@ void GenericHwTextureManager::update_mipmaps(
 
 	if (static_cast<int>(mipmap_buffer_.size()) < max_buffer_size)
 	{
+		mipmap_buffer_.clear();
 		mipmap_buffer_.resize(max_buffer_size);
 	}
 

@@ -118,6 +118,22 @@ public:
 
 	const std::uint8_t& operator[](
 		const int index) const;
+
+
+	void reset();
+
+
+	// Averages two colors and premultiplies alpha.
+	static R8g8b8a8 average_pa(
+		const R8g8b8a8 color_0,
+		const R8g8b8a8 color_1);
+
+	// Averages four colors and premultiplies alpha.
+	static R8g8b8a8 average_pa(
+		const R8g8b8a8 color_0,
+		const R8g8b8a8 color_1,
+		const R8g8b8a8 color_2,
+		const R8g8b8a8 color_3);
 }; // R8g8b8a8
 
 using R8g8b8a8Ptr = R8g8b8a8*;

@@ -146,15 +146,11 @@ public:
 		const RendererVertexInputCreateParam& param);
 
 
-	// Converts indexed, opaque or transparent to RGBA as-is.
+	// Converts indexed opaque (MxN) or indexed transparent (MxN) to RGBA (MxN).
 	static void indexed_to_rgba(
 		const IndexedToRgbaParam& param);
 
-	// Converts indexed, opaque or transparent, power-of-two pixels to RGBA ones.
-	static void indexed_pot_to_rgba_pot(
-		const IndexedToRgbaParam& param);
-
-	// Converts indexed, opaque or transparent, non-power-of-two pixels to RGBA ones.
+	// Converts indexed opaque or indexed transparent, non-power-of-two pixels to RGBA ones.
 	static void indexed_npot_to_rgba_pot(
 		const IndexedToRgbaParam& param);
 
@@ -180,6 +176,7 @@ public:
 		RgbaBuffer& texture_buffer);
 
 
+	// Builds mipmap with premultiplied alpha.
 	static void build_mipmap(
 		const int previous_width,
 		const int previous_height,
@@ -209,6 +206,46 @@ private:
 
 	static std::uint32_t create_window_sdl_flags(
 		const RendererUtilsCreateWindowParam& param);
+
+
+	// Indexed (row major, has no alpha) -> RGBA
+	static void indexed_to_rgba_rm_na(
+		const IndexedToRgbaParam& param);
+
+	// Indexed (row major, has alpha) -> RGBA
+	static void indexed_to_rgba_rm_ha(
+		const IndexedToRgbaParam& param);
+
+	// Indexed (column major, has no alpha) -> RGBA
+	static void indexed_to_rgba_cm_na(
+		const IndexedToRgbaParam& param);
+
+	// Indexed (column major, has alpha) -> RGBA
+	static void indexed_to_rgba_cm_ha(
+		const IndexedToRgbaParam& param);
+
+
+	// Indexed (row major, has no alpha) -> RGBA POT
+	static void indexed_npot_to_rgba_rm_na(
+		const IndexedToRgbaParam& param);
+
+	// Indexed (row major, has alpha) -> RGBA POT
+	static void indexed_npot_to_rgba_rm_ha(
+		const IndexedToRgbaParam& param);
+
+	// Indexed (column major, has no alpha) -> RGBA POT
+	static void indexed_npot_to_rgba_cm_na(
+		const IndexedToRgbaParam& param);
+
+	// Indexed (column major, has alpha) -> RGBA POT
+	static void indexed_npot_to_rgba_cm_ha(
+		const IndexedToRgbaParam& param);
+
+
+	static void build_mipmap_1(
+		const int previous_dimension,
+		const R8g8b8a8CPtr src_colors,
+		const R8g8b8a8Ptr dst_colors);
 }; // RendererUtils
 
 

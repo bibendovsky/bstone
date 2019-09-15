@@ -37,6 +37,9 @@ namespace bstone
 {
 
 
+static_assert(sizeof(R8g8b8a8) == 4, "Class size mismatch.");
+
+
 // ==========================================================================
 // R8g8b8
 //
@@ -145,6 +148,55 @@ const std::uint8_t& R8g8b8a8::operator[](
 	const int index) const
 {
 	return get(index);
+}
+
+void R8g8b8a8::reset()
+{
+	*reinterpret_cast<std::uint32_t*>(this) = 0;
+}
+
+R8g8b8a8 R8g8b8a8::average_pa(
+	const R8g8b8a8 color_0,
+	const R8g8b8a8 color_1)
+{
+	constexpr auto color_count = 2;
+	constexpr auto denominator = 255 * color_count * color_count;
+
+	const auto a_sum = color_0.a_ + color_1.a_;
+	const auto r_sum = color_0.r_ + color_1.r_;
+	const auto g_sum = color_0.g_ + color_1.g_;
+	const auto b_sum = color_0.b_ + color_1.b_;
+
+	return R8g8b8a8
+	{
+		static_cast<std::uint8_t>((r_sum * a_sum) / denominator),
+		static_cast<std::uint8_t>((g_sum * a_sum) / denominator),
+		static_cast<std::uint8_t>((b_sum * a_sum) / denominator),
+		static_cast<std::uint8_t>(a_sum / color_count),
+	};
+}
+
+R8g8b8a8 R8g8b8a8::average_pa(
+	const R8g8b8a8 color_0,
+	const R8g8b8a8 color_1,
+	const R8g8b8a8 color_2,
+	const R8g8b8a8 color_3)
+{
+	constexpr auto color_count = 4;
+	constexpr auto denominator = 255 * color_count * color_count;
+
+	const auto a_sum = color_0.a_ + color_1.a_ + color_2.a_ + color_3.a_;
+	const auto r_sum = color_0.r_ + color_1.r_ + color_2.r_ + color_3.r_;
+	const auto g_sum = color_0.g_ + color_1.g_ + color_2.g_ + color_3.g_;
+	const auto b_sum = color_0.b_ + color_1.b_ + color_2.b_ + color_3.b_;
+
+	return R8g8b8a8
+	{
+		static_cast<std::uint8_t>((r_sum * a_sum) / denominator),
+		static_cast<std::uint8_t>((g_sum * a_sum) / denominator),
+		static_cast<std::uint8_t>((b_sum * a_sum) / denominator),
+		static_cast<std::uint8_t>(a_sum / color_count),
+	};
 }
 
 //
