@@ -22,7 +22,7 @@ Free Software Foundation, Inc.,
 */
 
 
-#define BSTONE_DBG_FORCE_SW (1)
+#define BSTONE_DBG_FORCE_SW (0)
 
 
 #include <cassert>

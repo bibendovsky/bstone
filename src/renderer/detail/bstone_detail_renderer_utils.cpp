@@ -416,60 +416,55 @@ void RendererUtils::vertex_input_validate_param(
 }
 
 void RendererUtils::indexed_to_rgba(
-	const int width,
-	const int height,
-	const bool indexed_is_column_major,
-	const std::uint8_t* const indexed_pixels,
-	const R8g8b8a8Palette& indexed_palette,
-	const bool* const indexed_alphas,
-	TextureBuffer& texture_buffer)
+	const IndexedToRgbaParam& param)
 {
-	if (width <= 0)
+	if (param.width_ <= 0)
 	{
 		throw Exception{"Width out of range."};
 	}
 
-	if (height <= 0)
+	if (param.height_ <= 0)
 	{
 		throw Exception{"Height out of range."};
 	}
 
-	if (!indexed_pixels)
+	if (!param.indexed_pixels_)
 	{
 		throw Exception{"Null indexed pixels."};
 	}
 
-	if (texture_buffer.size() < (width * height))
+	if (param.rgba_buffer_->size() < (param.width_ * param.height_))
 	{
 		throw Exception{"Bitmap buffer too small."};
 	}
 
-	const auto has_alphas = (indexed_alphas != nullptr);
+	const auto has_alphas = (param.indexed_alphas_ != nullptr);
 
 	auto dst_index = 0;
 
-	for (int src_y = 0; src_y < height; ++src_y)
+	for (int src_y = 0; src_y < param.height_; ++src_y)
 	{
-		for (int src_x = 0; src_x < width; ++src_x)
+		for (int src_x = 0; src_x < param.width_; ++src_x)
 		{
-			auto src_index = 0;
+			int src_index;
 
-			if (indexed_is_column_major)
+			if (param.indexed_is_column_major_)
 			{
-				src_index = (src_x * height) + src_y;
+				src_index = (src_x * param.height_) + src_y;
 			}
 			else
 			{
 				src_index = dst_index;
 			}
 
-			auto& dst_pixel = texture_buffer[dst_index];
+			const auto dst_color = (*param.indexed_palette_)[param.indexed_pixels_[src_index]];
+			auto& dst_pixel = (*param.rgba_buffer_)[dst_index];
 
-			dst_pixel = indexed_palette[indexed_pixels[src_index]];
+			dst_pixel = dst_color;
 
 			if (has_alphas)
 			{
-				const auto is_transparent = !indexed_alphas[src_index];
+				const auto is_transparent = !param.indexed_alphas_[src_index];
 
 				if (is_transparent)
 				{
@@ -483,72 +478,66 @@ void RendererUtils::indexed_to_rgba(
 }
 
 void RendererUtils::indexed_pot_to_rgba_pot(
-	const int width,
-	const int height,
-	const int actual_width,
-	const int actual_height,
-	const bool indexed_is_column_major,
-	const std::uint8_t* const indexed_pixels,
-	const R8g8b8a8Palette& indexed_palette,
-	const bool* const indexed_alphas,
-	TextureBuffer& texture_buffer)
+	const IndexedToRgbaParam& param)
 {
-	if (width <= 0)
+	if (param.width_ <= 0)
 	{
 		throw Exception{"Width out of range."};
 	}
 
-	if (height <= 0)
+	if (param.height_ <= 0)
 	{
 		throw Exception{"Height out of range."};
 	}
 
-	if (actual_width <= 0)
+	if (param.actual_width_ <= 0)
 	{
 		throw Exception{"Actual width out of range."};
 	}
 
-	if (actual_height <= 0)
+	if (param.actual_height_ <= 0)
 	{
 		throw Exception{"Actual height out of range."};
 	}
 
-	if (!indexed_pixels)
+	if (!param.indexed_pixels_)
 	{
 		throw Exception{"Null indexed pixels."};
 	}
 
-	if (texture_buffer.size() < (actual_width * actual_height))
+	if (param.rgba_buffer_->size() < (param.actual_width_ * param.actual_height_))
 	{
 		throw Exception{"Bitmap buffer too small."};
 	}
 
-	const auto has_alphas = (indexed_alphas != nullptr);
+	const auto has_alphas = (param.indexed_alphas_ != nullptr);
 
 	auto dst_index = 0;
 
-	for (int src_y = 0; src_y < actual_height; ++src_y)
+	for (int src_y = 0; src_y < param.actual_height_; ++src_y)
 	{
-		for (int src_x = 0; src_x < actual_width; ++src_x)
+		for (int src_x = 0; src_x < param.actual_width_; ++src_x)
 		{
 			auto src_index = 0;
 
-			if (indexed_is_column_major)
+			if (param.indexed_is_column_major_)
 			{
-				src_index = (src_x * actual_height) + src_y;
+				src_index = (src_x * param.actual_height_) + src_y;
 			}
 			else
 			{
 				src_index = dst_index;
 			}
 
-			auto& dst_pixel = texture_buffer[dst_index];
+			const auto dst_color = (*param.indexed_palette_)[param.indexed_pixels_[src_index]];
 
-			dst_pixel = indexed_palette[indexed_pixels[src_index]];
+			auto& dst_pixel = (*param.rgba_buffer_)[dst_index];
+
+			dst_pixel = dst_color;
 
 			if (has_alphas)
 			{
-				const auto is_transparent = !indexed_alphas[src_index];
+				const auto is_transparent = !param.indexed_alphas_[src_index];
 
 				if (is_transparent)
 				{
@@ -562,83 +551,77 @@ void RendererUtils::indexed_pot_to_rgba_pot(
 }
 
 void RendererUtils::indexed_npot_to_rgba_pot(
-	const int width,
-	const int height,
-	const int actual_width,
-	const int actual_height,
-	const bool indexed_is_column_major,
-	const std::uint8_t* const indexed_pixels,
-	const R8g8b8a8Palette& indexed_palette,
-	const bool* const indexed_alphas,
-	TextureBuffer& texture_buffer)
+	const IndexedToRgbaParam& param)
 {
-	if (width <= 0)
+	if (param.width_ <= 0)
 	{
 		throw Exception{"Width out of range."};
 	}
 
-	if (height <= 0)
+	if (param.height_ <= 0)
 	{
 		throw Exception{"Height out of range."};
 	}
 
-	if (actual_width <= 0)
+	if (param.actual_width_ <= 0)
 	{
 		throw Exception{"Actual width out of range."};
 	}
 
-	if (actual_height <= 0)
+	if (param.actual_height_ <= 0)
 	{
 		throw Exception{"Actual height out of range."};
 	}
 
-	if (!indexed_pixels)
+	if (!param.indexed_pixels_)
 	{
 		throw Exception{"Null indexed pixels."};
 	}
 
-	if (texture_buffer.size() < (actual_width * actual_height))
+	if (param.rgba_buffer_->size() < (param.actual_width_ * param.actual_height_))
 	{
 		throw Exception{"Indexed bitmap buffer too small."};
 	}
 
-	const auto has_alphas = (indexed_alphas != nullptr);
+	const auto has_alphas = (param.indexed_alphas_ != nullptr);
 
-	const auto src_du_f = static_cast<double>(width) / static_cast<double>(actual_width);
-	const auto src_dv_f = static_cast<double>(height) / static_cast<double>(actual_height);
+	const auto src_du_f = static_cast<double>(param.width_) / static_cast<double>(param.actual_width_);
+	const auto src_dv_f = static_cast<double>(param.height_) / static_cast<double>(param.actual_height_);
 
 	auto dst_index = 0;
 
 	auto src_v_f = 0.0;
 
-	for (int h = 0; h < actual_height; ++h)
+	for (int h = 0; h < param.actual_height_; ++h)
 	{
 		const auto src_v = static_cast<int>(src_v_f);
 
 		auto src_u_f = 0.0;
 
-		for (int w = 0; w < actual_width; ++w)
+		for (int w = 0; w < param.actual_width_; ++w)
 		{
 			const auto src_u = static_cast<int>(src_u_f);
 
 			auto src_index = 0;
 
-			if (indexed_is_column_major)
+			if (param.indexed_is_column_major_)
 			{
-				src_index = (src_u * height) + src_v;
+				src_index = (src_u * param.height_) + src_v;
 			}
 			else
 			{
-				src_index = (src_v * width) + src_u;
+				src_index = (src_v * param.width_) + src_u;
 			}
 
-			auto& dst_pixel = texture_buffer[dst_index];
+			auto dst_color = (*param.indexed_palette_)[param.indexed_pixels_[src_index]];
 
-			dst_pixel = indexed_palette[indexed_pixels[src_index]];
+			auto& dst_pixel = (*param.rgba_buffer_)[dst_index];
+
+			dst_pixel = dst_color;
 
 			if (has_alphas)
 			{
-				const auto is_transparent = !indexed_alphas[src_index];
+				const auto is_transparent = !param.indexed_alphas_[src_index];
 
 				if (is_transparent)
 				{
@@ -656,52 +639,27 @@ void RendererUtils::indexed_npot_to_rgba_pot(
 }
 
 void RendererUtils::indexed_to_rgba_pot(
-	const int width,
-	const int height,
-	const int actual_width,
-	const int actual_height,
-	const bool indexed_is_column_major,
-	const std::uint8_t* const indexed_pixels,
-	const R8g8b8a8Palette& indexed_palette,
-	const bool* const indexed_alphas,
-	TextureBuffer& texture_buffer)
+	const IndexedToRgbaParam& param)
 {
-	const auto is_npot = (width != actual_width || height != actual_height);
+	const auto is_npot = (
+		param.width_ != param.actual_width_ ||
+		param.height_ != param.actual_height_
+	);
 
 	if (!is_npot)
 	{
-		indexed_pot_to_rgba_pot(
-			width,
-			height,
-			actual_width,
-			actual_height,
-			indexed_is_column_major,
-			indexed_pixels,
-			indexed_palette,
-			indexed_alphas,
-			texture_buffer
-		);
+		indexed_pot_to_rgba_pot(param);
 	}
 	else if (is_npot)
 	{
-		indexed_npot_to_rgba_pot(
-			width,
-			height,
-			actual_width,
-			actual_height,
-			indexed_is_column_major,
-			indexed_pixels,
-			indexed_palette,
-			indexed_alphas,
-			texture_buffer
-		);
+		indexed_npot_to_rgba_pot(param);
 	}
 }
 
 void RendererUtils::indexed_sprite_to_rgba_pot(
 	const Sprite& indexed_sprite,
 	const R8g8b8a8Palette& indexed_palette,
-	TextureBuffer& texture_buffer)
+	RgbaBuffer& texture_buffer)
 {
 	if (!indexed_sprite.is_initialized())
 	{
@@ -757,7 +715,7 @@ void RendererUtils::rgba_npot_to_rgba_pot(
 	const int actual_width,
 	const int actual_height,
 	const R8g8b8a8* const rgba_pixels,
-	TextureBuffer& texture_buffer)
+	RgbaBuffer& texture_buffer)
 {
 	if (width <= 0)
 	{

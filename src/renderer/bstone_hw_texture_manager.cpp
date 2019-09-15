@@ -216,8 +216,8 @@ private:
 
 	Texture2dItem ui_t2d_item_;
 
-	detail::RendererUtils::TextureBuffer mipmap_buffer_;
-	detail::RendererUtils::TextureBuffer upscale_buffer_;
+	detail::RendererUtils::RgbaBuffer mipmap_buffer_;
+	detail::RendererUtils::RgbaBuffer upscale_buffer_;
 
 	Solid1x1Items solid_1x1_items_;
 
@@ -1068,15 +1068,16 @@ void GenericHwTextureManager::upscale_xbrz(
 
 	if (properties.indexed_pixels_)
 	{
-		detail::RendererUtils::indexed_to_rgba(
-			properties.width_,
-			properties.height_,
-			properties.indexed_is_column_major_,
-			properties.indexed_pixels_,
-			*properties.indexed_palette_,
-			properties.indexed_alphas_,
-			mipmap_buffer_
-		);
+		auto param = detail::RendererUtils::IndexedToRgbaParam{};
+		param.width_ = properties.width_;
+		param.height_ = properties.height_;
+		param.indexed_is_column_major_ = properties.indexed_is_column_major_;
+		param.indexed_pixels_ = properties.indexed_pixels_;
+		param.indexed_palette_ = properties.indexed_palette_;
+		param.indexed_alphas_ = properties.indexed_alphas_;
+		param.rgba_buffer_ = &mipmap_buffer_;
+
+		detail::RendererUtils::indexed_to_rgba(param);
 	}
 	else if (properties.indexed_sprite_)
 	{
@@ -1245,17 +1246,19 @@ void GenericHwTextureManager::update_mipmaps(
 	}
 	else if (properties.indexed_pixels_)
 	{
-		detail::RendererUtils::indexed_to_rgba_pot(
-			properties.width_,
-			properties.height_,
-			properties.actual_width_,
-			properties.actual_height_,
-			properties.indexed_is_column_major_,
-			properties.indexed_pixels_,
-			*properties.indexed_palette_,
-			properties.indexed_alphas_,
-			mipmap_buffer_
-		);
+		auto param = detail::RendererUtils::IndexedToRgbaParam{};
+
+		param.width_ = properties.width_;
+		param.height_ = properties.height_;
+		param.actual_width_ = properties.actual_width_;
+		param.actual_height_ = properties.actual_height_;
+		param.indexed_is_column_major_ = properties.indexed_is_column_major_;
+		param.indexed_pixels_ = properties.indexed_pixels_;
+		param.indexed_palette_ = properties.indexed_palette_;
+		param.indexed_alphas_ = properties.indexed_alphas_;
+		param.rgba_buffer_ = &mipmap_buffer_;
+
+		detail::RendererUtils::indexed_to_rgba_pot(param);
 	}
 	else if (properties.indexed_sprite_)
 	{

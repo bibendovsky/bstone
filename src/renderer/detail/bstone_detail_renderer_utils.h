@@ -71,7 +71,22 @@ public:
 	static constexpr int absolute_max_viewport_dimension = 1 << 16;
 
 
-	using TextureBuffer = std::vector<R8g8b8a8>;
+	using RgbaBuffer = std::vector<R8g8b8a8>;
+	using RgbaBufferPtr = RgbaBuffer*;
+
+
+	struct IndexedToRgbaParam
+	{
+		int width_;
+		int height_;
+		int actual_width_;
+		int actual_height_;
+		bool indexed_is_column_major_;
+		const std::uint8_t* indexed_pixels_;
+		R8g8b8a8PaletteCPtr indexed_palette_;
+		const bool* indexed_alphas_;
+		RgbaBufferPtr rgba_buffer_;
+	}; // IndexedToRgbaParam
 
 
 	static int get_max_mipmap_count();
@@ -133,56 +148,26 @@ public:
 
 	// Converts indexed, opaque or transparent to RGBA as-is.
 	static void indexed_to_rgba(
-		const int width,
-		const int height,
-		const bool indexed_is_column_major,
-		const std::uint8_t* const indexed_pixels,
-		const R8g8b8a8Palette& indexed_palette,
-		const bool* const indexed_alphas,
-		TextureBuffer& texture_buffer);
+		const IndexedToRgbaParam& param);
 
 	// Converts indexed, opaque or transparent, power-of-two pixels to RGBA ones.
 	static void indexed_pot_to_rgba_pot(
-		const int width,
-		const int height,
-		const int actual_width,
-		const int actual_height,
-		const bool indexed_is_column_major,
-		const std::uint8_t* const indexed_pixels,
-		const R8g8b8a8Palette& indexed_palette,
-		const bool* const indexed_alphas,
-		TextureBuffer& texture_buffer);
+		const IndexedToRgbaParam& param);
 
 	// Converts indexed, opaque or transparent, non-power-of-two pixels to RGBA ones.
 	static void indexed_npot_to_rgba_pot(
-		const int width,
-		const int height,
-		const int actual_width,
-		const int actual_height,
-		const bool indexed_is_column_major,
-		const std::uint8_t* const indexed_pixels,
-		const R8g8b8a8Palette& indexed_palette,
-		const bool* const indexed_alphas,
-		TextureBuffer& texture_buffer);
+		const IndexedToRgbaParam& param);
 
 	// Converts indexed pixels to RGBA ones.
 	static void indexed_to_rgba_pot(
-		const int width,
-		const int height,
-		const int actual_width,
-		const int actual_height,
-		const bool indexed_is_column_major,
-		const std::uint8_t* const indexed_pixels,
-		const R8g8b8a8Palette& indexed_palette,
-		const bool* const indexed_alphas,
-		TextureBuffer& texture_buffer);
+		const IndexedToRgbaParam& param);
 
 
 	// Converts indexed sprite pixels to RGBA ones.
 	static void indexed_sprite_to_rgba_pot(
 		const Sprite& indexed_sprite,
 		const R8g8b8a8Palette& indexed_palette,
-		TextureBuffer& texture_buffer);
+		RgbaBuffer& texture_buffer);
 
 
 	// Converts RGBA non-power-of-two pixels to RGBA power-of-two ones.
@@ -192,7 +177,7 @@ public:
 		const int actual_width,
 		const int actual_height,
 		const R8g8b8a8* const rgba_pixels,
-		TextureBuffer& texture_buffer);
+		RgbaBuffer& texture_buffer);
 
 
 	static void build_mipmap(
