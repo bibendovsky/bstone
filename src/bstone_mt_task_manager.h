@@ -50,12 +50,21 @@ protected:
 public:
 	virtual ~MtTask();
 
-	virtual void operator()() = 0;
+
+	virtual void execute() = 0;
+
 
 	virtual bool is_completed() const noexcept = 0;
 
-	virtual void set_is_completed(
-		const bool is_completed) = 0;
+	virtual void set_completed() = 0;
+
+
+	virtual bool is_failed() const noexcept = 0;
+
+	virtual std::exception_ptr get_exception_ptr() const noexcept = 0;
+
+	virtual void set_failed(
+		const std::exception_ptr exception_ptr) = 0;
 }; // MtTask
 
 using MtTaskPtr = MtTask*;

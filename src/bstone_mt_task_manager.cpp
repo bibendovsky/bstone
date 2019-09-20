@@ -49,25 +49,25 @@ namespace detail
 
 
 // ==========================================================================
-// MtFlag
+// MtSpinFlag
 //
 
-class MtFlag
+class MtSpinFlag
 {
 public:
 	static constexpr int default_spin_count = 4096;
 
 
-	explicit MtFlag(
+	explicit MtSpinFlag(
 		const int spin_count = default_spin_count);
 
-	MtFlag(
-		const MtFlag& that) = delete;
+	MtSpinFlag(
+		const MtSpinFlag& that) = delete;
 
-	MtFlag& operator=(
-		const MtFlag& that) = delete;
+	MtSpinFlag& operator=(
+		const MtSpinFlag& that) = delete;
 
-	~MtFlag();
+	~MtSpinFlag();
 
 
 	void lock() noexcept;
@@ -81,12 +81,12 @@ private:
 
 	volatile int spin_count_;
 	Flag flag_;
-}; // MtFlag
+}; // MtSpinFlag
 
-using MtFlagLock = std::unique_lock<MtFlag>;
+using MtSpinFlagLock = std::unique_lock<MtSpinFlag>;
 
 //
-// MtFlag
+// MtSpinFlag
 // ==========================================================================
 
 
@@ -127,8 +127,8 @@ private:
 	Index size_;
 	MtIndex mt_read_index_;
 	MtIndex mt_write_index_;
+	MtSpinFlag mt_spin_flag_;
 	Items items_;
-	MtFlag mt_flag_;
 }; // MtTaskQueue
 
 //
@@ -167,7 +167,17 @@ public:
 
 
 private:
-	using MtThreads = std::vector<std::thread>;
+	struct MtThread
+	{
+		bool is_failed_;
+		std::exception_ptr exception_;
+
+		std::thread thread_;
+	}; // MtThread
+
+	using MtThreadPtr = MtThread*;
+
+	using MtThreads = std::vector<MtThread>;
 
 
 	int concurrency_max_;
@@ -188,7 +198,8 @@ private:
 
 	void uninitialize();
 
-	void mt_thread_func();
+	void mt_thread_func(
+		MtThread* mt_thread);
 }; // MtTaskManager
 
 using GenericMtTaskManagerPtr = GenericMtTaskManager*;
@@ -204,10 +215,10 @@ namespace detail
 
 
 // ==========================================================================
-// MtFlag
+// MtSpinFlag
 //
 
-MtFlag::MtFlag(
+MtSpinFlag::MtSpinFlag(
 	const int spin_count)
 	:
 	spin_count_{spin_count},
@@ -219,9 +230,9 @@ MtFlag::MtFlag(
 	}
 }
 
-MtFlag::~MtFlag() = default;
+MtSpinFlag::~MtSpinFlag() = default;
 
-void MtFlag::lock() noexcept
+void MtSpinFlag::lock() noexcept
 {
 	while (flag_.test_and_set(std::memory_order_acquire))
 	{
@@ -231,13 +242,13 @@ void MtFlag::lock() noexcept
 	}
 }
 
-void MtFlag::unlock() noexcept
+void MtSpinFlag::unlock() noexcept
 {
 	flag_.clear(std::memory_order::memory_order_release);
 }
 
 //
-// MtFlag
+// MtSpinFlag
 // ==========================================================================
 
 
@@ -251,8 +262,8 @@ MtTaskQueue::MtTaskQueue(
 	size_{},
 	mt_read_index_{ATOMIC_VAR_INIT(0)},
 	mt_write_index_{ATOMIC_VAR_INIT(0)},
-	items_{},
-	mt_flag_{}
+	mt_spin_flag_{},
+	items_{}
 {
 	if (size <= 0)
 	{
@@ -271,7 +282,7 @@ void MtTaskQueue::push(
 		throw Exception{"Null task."};
 	}
 
-	MtFlagLock flag_lock{mt_flag_};
+	MtSpinFlagLock flag_lock{mt_spin_flag_};
 
 	const auto read_index = mt_read_index_.load(std::memory_order_acquire);
 	const auto write_index = mt_write_index_.load(std::memory_order_acquire);
@@ -316,7 +327,7 @@ void MtTaskQueue::push(
 		throw Exception{"Null task."};
 	}
 
-	MtFlagLock flag_lock{mt_flag_};
+	MtSpinFlagLock flag_lock{mt_spin_flag_};
 
 	const auto read_index = mt_read_index_.load(std::memory_order_acquire);
 
@@ -345,7 +356,7 @@ void MtTaskQueue::push(
 bool MtTaskQueue::pop(
 	MtTaskPtr& mt_task) noexcept
 {
-	MtFlagLock flag_lock{mt_flag_};
+	MtSpinFlagLock flag_lock{mt_spin_flag_};
 
 	const auto read_index = mt_read_index_.load(std::memory_order_acquire);
 	const auto write_index = mt_write_index_.load(std::memory_order_acquire);
@@ -455,6 +466,24 @@ void GenericMtTaskManager::add_tasks_and_wait_for_added(
 			}
 		);
 	}
+
+	for (auto& mt_thread : mt_threads_)
+	{
+		if (mt_thread.is_failed_)
+		{
+			std::rethrow_exception(mt_thread.exception_);
+		}
+	}
+
+	for (int i = 0; i < mt_task_count; ++i)
+	{
+		const auto& mt_task = mt_tasks[i];
+
+		if (mt_task->is_failed())
+		{
+			std::rethrow_exception(mt_task->get_exception_ptr());
+		}
+	}
 }
 
 void GenericMtTaskManager::initialize_concurrency()
@@ -490,7 +519,10 @@ void GenericMtTaskManager::initialize_threads()
 
 	for (auto& mt_thread : mt_threads_)
 	{
-		mt_thread = std::move(std::thread{&GenericMtTaskManager::mt_thread_func, this});
+		mt_thread.is_failed_ = false;
+		mt_thread.exception_ = nullptr;
+
+		mt_thread.thread_ = std::move(std::thread{&GenericMtTaskManager::mt_thread_func, this, &mt_thread});
 	}
 }
 
@@ -508,32 +540,47 @@ void GenericMtTaskManager::uninitialize()
 	{
 		for (auto& mt_thread : mt_threads_)
 		{
-			if (mt_thread.joinable())
+			if (mt_thread.thread_.joinable())
 			{
-				mt_thread.join();
+				mt_thread.thread_.join();
 			}
 		}
 	}
 }
 
-void GenericMtTaskManager::mt_thread_func()
+void GenericMtTaskManager::mt_thread_func(
+	MtThread* mt_thread)
 {
 	const auto sleep_duration_ms = std::chrono::milliseconds{1};
 
-	while (!mt_is_quit_)
+	try
 	{
-		auto task = MtTaskPtr{};
-
-		if (mt_task_queue_.pop(task))
+		while (!mt_is_quit_)
 		{
-			(*task)();
+			auto task = MtTaskPtr{};
 
-			task->set_is_completed(true);
+			if (mt_task_queue_.pop(task))
+			{
+				try
+				{
+					task->execute();
+					task->set_completed();
+				}
+				catch (...)
+				{
+					task->set_failed(std::current_exception());
+				}
+			}
+			else
+			{
+				std::this_thread::sleep_for(sleep_duration_ms);
+			}
 		}
-		else
-		{
-			std::this_thread::sleep_for(sleep_duration_ms);
-		}
+	}
+	catch (...)
+	{
+		mt_thread->is_failed_ = true;
+		mt_thread->exception_ = std::current_exception();
 	}
 }
 

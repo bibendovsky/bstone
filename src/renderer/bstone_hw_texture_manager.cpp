@@ -71,12 +71,21 @@ public:
 
 	~XbrzTask() override;
 
-	void operator()() override;
+
+	void execute() override;
+
 
 	bool is_completed() const noexcept override;
 
-	void set_is_completed(
-		const bool is_completed) override;
+	void set_completed() override;
+
+
+	bool is_failed() const noexcept override;
+
+	std::exception_ptr get_exception_ptr() const noexcept override;
+
+	void set_failed(
+		const std::exception_ptr exception_ptr) override;
 
 
 	void initialize(
@@ -91,6 +100,9 @@ public:
 
 private:
 	bool is_completed_;
+	bool is_failed_;
+	std::exception_ptr exception_ptr_;
+
 
 	int factor_;
 	int first_index_;
@@ -122,7 +134,7 @@ XbrzTask::XbrzTask()
 
 XbrzTask::~XbrzTask() = default;
 
-void XbrzTask::operator()()
+void XbrzTask::execute()
 {
 	const auto xbrz_cfg = xbrz::ScalerCfg{};
 
@@ -144,10 +156,43 @@ bool XbrzTask::is_completed() const noexcept
 	return is_completed_;
 }
 
-void XbrzTask::set_is_completed(
-	const bool is_completed)
+void XbrzTask::set_completed()
 {
-	is_completed_ = is_completed;
+	if (is_completed_)
+	{
+		throw Exception{"Already completed."};
+	}
+
+	is_completed_ = true;
+}
+
+bool XbrzTask::is_failed() const noexcept
+{
+	return is_failed_;
+}
+
+std::exception_ptr XbrzTask::get_exception_ptr() const noexcept
+{
+	return exception_ptr_;
+}
+
+void XbrzTask::set_failed(
+	const std::exception_ptr exception_ptr)
+{
+	if (is_completed_)
+	{
+		throw Exception{"Already completed."};
+	}
+
+	if (is_failed_)
+	{
+		throw Exception{"Already failed."};
+	}
+
+	is_completed_ = true;
+	is_failed_ = true;
+
+	exception_ptr_ = exception_ptr;
 }
 
 void XbrzTask::initialize(
