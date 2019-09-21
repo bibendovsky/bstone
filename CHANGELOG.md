@@ -1,5 +1,6 @@
 # BStone changelog
 
+
 ## [1.2.0] - 20??-??-??
 ### Added
 - Option "snd_is_disabled" to ignore audio subsystem.
@@ -14,6 +15,12 @@
 - Split option "vid_mode" into "vid_width" and "vid_height".
 - Renamed option "vid_windowed" to "vid_is_windowed".
 - Renamed option "vid_no_vsync" to "vid_vsync".
+
+
+## [1.1.13] - 2019-07-11
+### Fixed
+- [AOG] Allow to warp to level beyond the 10th one.
+- Critical error if switch connected to non-activable object.
 
 
 ## [1.1.12] - 2019-02-09

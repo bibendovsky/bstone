@@ -12,17 +12,22 @@ set(SHORT_NAME bstone)
 project(${SHORT_NAME})
 include("${VITASDK}/share/vita.cmake" REQUIRED)
 
-set(VITA_APP_NAME "bstone-vita")
+set(VITA_APP_NAME "bstone")
 set(VITA_TITLEID  "BSTONE012")
+set(VITA_VERSION  "00.30")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+set(BSTONE_FLAGS "-Wall -fpermissive -Ofast -flto -funroll-loops -fvariable-expansion-in-unroller")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+option(VITA_TEST "Vita debug mode" OFF)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -finline-functions -funswitch-loops -ftree-vectorize -fipa-cp-clone -floop-unroll-and-jam -ftree-loop-vectorize -ftree-loop-distribution -ffast-math -fgcse-after-reload")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -finline-functions -funswitch-loops -ftree-vectorize -fipa-cp-clone -floop-unroll-and-jam -ftree-loop-vectorize -ftree-loop-distribution -ffast-math -fgcse-after-reload")
+if(VITA_TEST)
+  add_definitions(-DVITATEST)
+#  set(BSTONE_FLAGS "-Wall -fpermissive -g -Og")
+  set(VITA_APP_NAME "bstone-t")
+endif()
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11 ${BSTONE_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 ${BSTONE_FLAGS}")
 
 include_directories(
   "../dosbox"
@@ -32,8 +37,6 @@ include_directories(
 link_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
 )
-
-set(BSTONE_PCH_BASE_NAME "bstone_precompiled")
 
 set(
     BSTONE_HEADERS
@@ -74,6 +77,7 @@ set(
     "../bstone_opl2.h"
     "../bstone_ref_values.h"
     "../bstone_pcm_decoder.h"
+    "../bstone_precompiled.h"
     "../bstone_ps_fizzle_fx.h"
     "../bstone_scope_guard.h"
     "../bstone_sha1.h"
@@ -99,7 +103,6 @@ set(
     "../jm_tp.h"
     "../jm_vl.h"
     "../movie.h"
-    "../${BSTONE_PCH_BASE_NAME}.h"
 )
 
 set(
@@ -122,7 +125,7 @@ set(
     "../bstone_adlib_decoder.cpp"
     "../bstone_adlib_music_decoder.cpp"
     "../bstone_adlib_sfx_decoder.cpp"
-    "../bstone_archiver.cpp"
+    "../bstone_archiver_impl.cpp"
     "../bstone_audio_decoder.cpp"
     "../bstone_audio_mixer.cpp"
     "../bstone_binary_reader.cpp"
@@ -140,6 +143,7 @@ set(
     "../bstone_memory_stream.cpp"
     "../bstone_opl2.cpp"
     "../bstone_pcm_decoder.cpp"
+    "../bstone_precompiled.cpp"
     "../bstone_ps_fizzle_fx.cpp"
     "../bstone_sha1.cpp"
     "../bstone_sprite.cpp"
@@ -167,7 +171,6 @@ set(
     "../markhack.cpp"
     "../movie.cpp"
     "../scale.cpp"
-    "../${BSTONE_PCH_BASE_NAME}.cpp"
     "../stub.cpp"
     "../vgapal.cpp"
     "vita_input.cpp"
@@ -191,7 +194,8 @@ target_link_libraries(${SHORT_NAME}
   SceHid_stub
   m
   ScePower_stub
-#  pthread
+  SceAppUtil_stub
+  pthread
 )
 
 vita_create_self(${SHORT_NAME}.self ${SHORT_NAME})
@@ -201,5 +205,6 @@ vita_create_vpk(${SHORT_NAME}.vpk ${VITA_TITLEID} ${SHORT_NAME}.self
   FILE sce_sys/icon0.png sce_sys/icon0.png
   FILE sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
   FILE sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
+  FILE sce_sys/livearea/contents/ps.png sce_sys/livearea/contents/ps.png
   FILE sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
 )

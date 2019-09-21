@@ -925,7 +925,7 @@ void DrawHealthMonitor()
 // --------------------------------------------------------------------------
 // DrawHealth()
 //
-// PURPOSE : Marks the Health_NUM to be refreshed durring the next
+// PURPOSE : Marks the Health_NUM to be refreshed during the next
 //           StatusBarRefresh.
 // --------------------------------------------------------------------------
 void DrawHealth()
@@ -1100,7 +1100,7 @@ void HealSelf(
 // --------------------------------------------------------------------------
 // DrawScore()
 //
-// PURPOSE : Marks the Score to be refreshed durring the next
+// PURPOSE : Marks the Score to be refreshed during the next
 //      StatusBarRefresh.
 // --------------------------------------------------------------------------
 void DrawScore()
@@ -1316,7 +1316,7 @@ void TakeKey(
 // ---------------------------------------------------------------------------
 // DrawWeapon()
 //
-// PURPOSE : Marks the Weapon pics to be refreshed durring the next
+// PURPOSE : Marks the Weapon pics to be refreshed during the next
 //      StatusBarRefresh.
 // ---------------------------------------------------------------------------
 void DrawWeapon()
@@ -1375,7 +1375,7 @@ void GiveWeapon(
 // DrawAmmo()
 //
 // PURPOSE : Marks the AMMO NUM & AMMO PIC (if necessary) to be refreshed
-//                               durring the next StatusBarRefresh.
+//                               during the next StatusBarRefresh.
 //
 // NOTE : This re-computes the number of LEDs to be lit.
 // ---------------------------------------------------------------------------
@@ -1686,7 +1686,7 @@ void GiveAmmo(
 // ComputeAvailWeapons()
 //
 // This function creates a Bit MASK for gamestate.weapons according to what
-// weapon is available for useage due to ammo avail.
+// weapon is available for usage due to ammo avail.
 //
 // ---------------------------------------------------------------------------
 void ComputeAvailWeapons()
@@ -1970,10 +1970,17 @@ void DisplayNoMoMsgs()
 	status_message += std::to_string(gamestate.tokens);
 	status_message.resize(default_msg_length, ' ');
 
-	if (gamestuff.level[gamestate.mapon + 1].locked)
-	{
-		const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = AssetsInfo{};
 
+	auto is_level_locked = true;
+
+	if (::gamestate.mapon < (assets_info.get_levels_per_episode() - 1))
+	{
+		is_level_locked = ::gamestuff.level[::gamestate.mapon + 1].locked;
+	}
+
+	if (is_level_locked)
+	{
 		switch (gamestate.mapon)
 		{
 		case 19:
@@ -3309,7 +3316,7 @@ void Cmd_Use(
 				dy = LABS(dy);
 				dist = dx < dy ? dx : dy;
 				if ((ob->obclass == gen_scientistobj) &&
-					((ob->flags & (FL_FRIENDLY | FL_VISABLE)) == (FL_FRIENDLY | FL_VISABLE)) &&
+					((ob->flags & (FL_FRIENDLY | FL_VISIBLE)) == (FL_FRIENDLY | FL_VISIBLE)) &&
 					(dist < intg_dist))
 				{
 					if ((ob->flags & FL_ATTACKMODE) != 0)
@@ -3678,7 +3685,9 @@ std::int16_t InputFloor()
 
 		auto last_unlocked_map = 0;
 
-		for (int i = 1; i < MAPS_WITH_STATS; ++i)
+		const auto stats_levels_per_episode = assets_info.get_stats_levels_per_episode();
+
+		for (int i = 1; i < stats_levels_per_episode; ++i)
 		{
 			if (!::gamestuff.level[i].locked)
 			{
@@ -3940,7 +3949,7 @@ std::int16_t InputFloor()
 				rt_code = -1; // ABORT
 
 				LoadLocationText(static_cast<std::int16_t>(
-					gamestate.mapon + MAPS_PER_EPISODE * gamestate.episode));
+					gamestate.mapon + (assets_info.get_levels_per_episode() * gamestate.episode)));
 				break;
 			}
 			else if (Keyboard[ScanCode::sc_return] || buttonstate[bt_attack])
@@ -4295,7 +4304,10 @@ std::int16_t ShowStats(
 	//
 	by += 7;
 	stats->overall_floor = floor;
-	for (loop = 0; loop < MAPS_WITH_STATS; loop++)
+
+	const auto stats_levels_per_episode = assets_info.get_stats_levels_per_episode();
+
+	for (loop = 0; loop < stats_levels_per_episode; loop++)
 	{
 		total += 300;
 		mission += gamestuff.level[loop].stats.overall_floor;
@@ -4738,7 +4750,7 @@ void GunAttack(
 
 		for (auto check = ob->next; check; check = check->next)
 		{
-			if ((check->flags & FL_SHOOTABLE) == 0 || (check->flags & FL_VISABLE) == 0)
+			if ((check->flags & FL_SHOOTABLE) == 0 || (check->flags & FL_VISIBLE) == 0)
 			{
 				continue;
 			}
@@ -5372,7 +5384,7 @@ void SW_HandleStatic(
 //      tilex - Tile X coord that the Smart switch points to.
 //      tiley - Tile Y coord that the Smart switch points to.
 //      force - Force switch operation.  Will not check the players current
-//              and last tilex & tiley coords.  This is usefull for other
+//              and last tilex & tiley coords.  This is useful for other
 //              actors toggling barrier switches.
 //
 // RETURNS: Boolean: TRUE  - Remove switch from map

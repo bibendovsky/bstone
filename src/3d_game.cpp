@@ -2407,9 +2407,11 @@ void SetupGameLevel()
 	//
 	// load the level
 	//
+	const auto& assets_info = AssetsInfo{};
+
 	CA_CacheMap(static_cast<std::int16_t>(
-		gamestate.mapon + MAPS_PER_EPISODE * gamestate.episode));
-	mapon = static_cast<std::int16_t>(mapon - (gamestate.episode * MAPS_PER_EPISODE));
+		gamestate.mapon + assets_info.get_levels_per_episode() * gamestate.episode));
+	mapon = static_cast<std::int16_t>(mapon - (gamestate.episode * assets_info.get_levels_per_episode()));
 
 	mapwidth = mapheaderseg[mapon]->width;
 	mapheight = mapheaderseg[mapon]->height;
@@ -2423,7 +2425,7 @@ void SetupGameLevel()
 	fix_level_inplace();
 
 	LoadLocationText(static_cast<std::int16_t>(
-		gamestate.mapon + MAPS_PER_EPISODE * gamestate.episode));
+		gamestate.mapon + (assets_info.get_levels_per_episode() * gamestate.episode)));
 
 	//
 	// copy the wall data to a data segment array
@@ -2437,8 +2439,6 @@ void SetupGameLevel()
 		::wallheight.begin(),
 		::wallheight.end(),
 		0);
-
-	const auto& assets_info = AssetsInfo{};
 
 	map = mapsegs[0];
 	map2 = mapsegs[1];
@@ -2999,8 +2999,7 @@ void ShadowPrintLocationText(
 			::px = 13;
 		}
 
-		if ((!assets_info.is_ps() && (gamestate.mapon % 10) == 0) ||
-			(assets_info.is_ps() && gamestate.mapon > 19))
+		if (assets_info.is_secret_level(::gamestate.mapon))
 		{
 			::ShPrint(" SECRET ", 0, false);
 		}

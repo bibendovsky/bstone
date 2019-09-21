@@ -41,6 +41,13 @@ Free Software Foundation, Inc.,
 #include <cstdint>
 #include <bitset>
 
+#ifdef __vita__
+#include "SDL.h"
+void TranslateControllerEvent(SDL_Event *ev);
+void TranslateTouchEvent(SDL_Event *ev);
+void TranslateAnalogEvent(SDL_Event *ev);
+#endif
+
 #define MaxPlayers 4
 #define MaxKbds 2
 #define NumCodes 128
@@ -354,12 +361,6 @@ extern std::uint8_t* DemoBuffer;
 extern std::uint16_t DemoOffset, DemoSize;
 
 // Function prototypes
-#ifdef __vita__
-void TranslateControllerEvent(SDL_Event *ev);
-void TranslateTouchEvent(SDL_Event *ev);
-void TranslateAnalogEvent(SDL_Event *ev);
-#endif
-
 #define IN_KeyDown(code) (Keyboard[(code)])
 #define IN_ClearKey(code) { Keyboard[code] = false; \
                             if (code == LastScan) { LastScan = ScanCode::sc_none; } }

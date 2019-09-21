@@ -1261,7 +1261,7 @@ std::int16_t CalcRotate(
 
 	if ((ob->state->flags & SF_PAINFRAME) != 0)
 	{ // 2 rotation pain frame
-		return static_cast<std::int16_t>(4 * (target_angle / (ANGLES / 2))); // seperated by 3 (art layout...)
+		return static_cast<std::int16_t>(4 * (target_angle / (ANGLES / 2))); // separated by 3 (art layout...)
 
 	}
 	return static_cast<std::int16_t>(target_angle / (ANGLES / 8));
@@ -1269,8 +1269,8 @@ std::int16_t CalcRotate(
 
 
 
-const int MAXVISABLE = 50;
-visobj_t vislist[MAXVISABLE];
+const int MAXVISIBLE = 50;
+visobj_t vislist[MAXVISIBLE];
 visobj_t* visptr;
 visobj_t* visstep;
 visobj_t* farthest;
@@ -1406,7 +1406,7 @@ void hw_draw_sprites()
 =
 = DrawScaleds
 =
-= Draws all objects that are visable
+= Draws all objects that are visible
 =
 =====================
 */
@@ -1421,7 +1421,7 @@ void DrawScaleds()
 
 	std::int16_t i;
 	std::int16_t least;
-	std::int16_t numvisable;
+	std::int16_t numvisible;
 	std::int16_t height;
 	std::uint8_t* tilespot;
 	std::uint8_t* visspot;
@@ -1446,7 +1446,7 @@ void DrawScaleds()
 
 		if (!*statptr->visspot)
 		{
-			continue; // not visable
+			continue; // not visible
 		}
 
 		::TransformTile(statptr->tilex, statptr->tiley, &::visptr->viewx, &::visptr->viewheight);
@@ -1459,7 +1459,7 @@ void DrawScaleds()
 		::visptr->cloaked = false;
 		::visptr->lighting = statptr->lighting; // Could add additional flashing/lighting
 
-		if (::visptr < &::vislist[MAXVISABLE - 1])
+		if (::visptr < &::vislist[MAXVISIBLE - 1])
 		{
 			// don't let it overflow
 			++visptr;
@@ -1556,31 +1556,31 @@ void DrawScaleds()
 				::visptr->shapenum += ::CalcRotate(obj);
 			}
 
-			if (::visptr < &::vislist[MAXVISABLE - 1])
+			if (::visptr < &::vislist[MAXVISIBLE - 1])
 			{
 				// don't let it overflow
 				++::visptr;
 			}
 
-			obj->flags |= FL_VISABLE;
+			obj->flags |= FL_VISIBLE;
 		}
 		else
 		{
-			obj->flags &= ~FL_VISABLE;
+			obj->flags &= ~FL_VISIBLE;
 		}
 	}
 
 	//
 	// draw from back to front
 	//
-	numvisable = static_cast<std::int16_t>(::visptr - &::vislist[0]);
+	numvisible = static_cast<std::int16_t>(::visptr - &::vislist[0]);
 
-	if (!numvisable)
+	if (!numvisible)
 	{
-		return; // no visable objects
+		return; // no visible objects
 	}
 
-	for (i = 0; i < numvisable; i++)
+	for (i = 0; i < numvisible; i++)
 	{
 		least = 32000;
 

@@ -507,6 +507,13 @@ void find_any_assets()
 		return;
 	}
 
+#ifdef __vita__
+// Prefer sw to ps in case both, but not aog_full are installed and "Aliens of Gold" LiveArea region is pressed
+	if (find_aog_sw_assets(false))
+	{
+		return;
+	}
+#endif
 	if (find_ps_assets(false))
 	{
 		return;
@@ -786,7 +793,11 @@ void CAL_SetupMapFile()
 	//
 	// load all map header
 	//
-	for (i = 0; i < NUMMAPS; ++i)
+	const auto& assets_info = AssetsInfo{};
+
+	const auto total_levels = assets_info.get_total_levels();
+
+	for (i = 0; i < total_levels; ++i)
 	{
 		pos = header.headeroffsets[i];
 

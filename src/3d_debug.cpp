@@ -515,7 +515,10 @@ bool DebugKeys()
 		VW_UpdateScreen();
 		::IN_Ack();
 
-		for (auto i = 0; i < ::MAPS_WITH_STATS; ++i)
+		const auto& assets_info = AssetsInfo{};
+		const auto stats_levels_per_episode = assets_info.get_stats_levels_per_episode();
+
+		for (auto i = 0; i < stats_levels_per_episode; ++i)
 		{
 			::gamestuff.level[i].locked = false;
 		}
@@ -576,7 +579,7 @@ bool DebugKeys()
 		{
 			const auto& assets_info = AssetsInfo{};
 
-			const auto max_warp_level = (assets_info.is_aog() ? 10 : 23);
+			const auto max_warp_level = assets_info.get_levels_per_episode() - 1;
 			const auto level = ::atoi(string);
 
 			if (level > -1 && level <= max_warp_level)

@@ -2214,7 +2214,7 @@ const std::int16_t INSTRUCTIONS_Y_POS = 154 + 10;
 // DrawInstructions() - Draws instructions centered at the bottom of
 //      the view screen.
 //
-// NOTES: Orginal font number or font color is not maintained.
+// NOTES: Original font number or font color is not maintained.
 // ---------------------------------------------------------------------------
 void DrawInstructions(
 	inst_type Type)
@@ -3057,6 +3057,7 @@ void CP_Control(
 	std::int16_t)
 {
 #ifdef __vita__
+	MouseSensitivity(0);
 	return;
 #endif
 
@@ -3133,7 +3134,11 @@ void DrawMousePos()
 void DrawMouseSens()
 {
 	ClearMScreen();
+#ifdef __vita__
+	DrawMenuTitle("JOYSTICK SENSITIVITY");
+#else
 	DrawMenuTitle("MOUSE SENSITIVITY");
+#endif
 	DrawInstructions(IT_MOUSE_SEN);
 
 	fontnumber = 4;
@@ -4160,7 +4165,7 @@ void CacheMessage(
 //       - Returns the size of the data
 //       - Does not call TerminateStr() for loaded TEXT data
 //
-// RETURNS: Lenght of loaded (decompressed) data
+// RETURNS: Length of loaded (decompressed) data
 //
 // ---------------------------------------------------------------------------
 std::uint32_t CacheCompData(
@@ -4572,7 +4577,7 @@ void cp_sound_volume(
 	sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::item);
 
 	WaitKeyUp();
-	MenuFadeIn();
+	::MenuFadeOut();
 }
 
 ///

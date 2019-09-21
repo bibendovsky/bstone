@@ -110,7 +110,7 @@ objtype* actorat[MAPSIZE][MAPSIZE];
 // replacing refresh manager
 //
 std::uint16_t mapwidth, mapheight, tics, realtics;
-bool compatability;
+bool compatibility;
 bool usedummy = false;
 bool nevermark = false;
 std::uint8_t* updateptr;
@@ -1345,7 +1345,7 @@ void GetNewActor()
 
 		while (obj)
 		{
-			if ((obj->flags & (FL_DEADGUY | FL_VISABLE)) == FL_DEADGUY)
+			if ((obj->flags & (FL_DEADGUY | FL_VISIBLE)) == FL_DEADGUY)
 			{
 				RemoveObj(obj);
 				obj = nullptr;
@@ -1381,7 +1381,7 @@ void GetNewActor()
 			lastobj->next = new_actor;
 		}
 
-		new_actor->prev = lastobj; // new_actor->next is allready nullptr from memset
+		new_actor->prev = lastobj; // new_actor->next is already nullptr from memset
 
 		lastobj = new_actor;
 
@@ -1462,17 +1462,23 @@ void StartMusic(
 
 	if (!assets_info.is_ps())
 	{
-		musicchunk = songs[gamestate.mapon + gamestate.episode * MAPS_WITH_STATS];
+		const auto level_count = assets_info.get_stats_levels_per_episode();
+		const auto level_number = ::gamestate.mapon % level_count;
+
+		musicchunk = ::songs[level_number + (::gamestate.episode * level_count)];
 	}
 	else
 	{
-		if (playstate == ex_victorious)
+		if (::playstate == ex_victorious)
 		{
 			musicchunk = FORTRESS_MUS;
 		}
 		else
 		{
-			musicchunk = songs[gamestate.mapon + gamestate.episode * MAPS_PER_EPISODE];
+			const auto level_count = assets_info.get_levels_per_episode();
+			const auto map_number = ::gamestate.mapon % level_count;
+
+			musicchunk = ::songs[map_number];
 		}
 	}
 

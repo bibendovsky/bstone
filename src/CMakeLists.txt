@@ -155,10 +155,11 @@ endif ()
 #
 # Target link libraries.
 #
-if (BSTONE_USE_STATIC_LINKING AND NOT WIN32)
+if (BSTONE_USE_STATIC_LINKING AND (NOT WIN32 OR MINGW))
 	target_link_libraries(
 		${PROJECT_NAME}
-		-static
+		PRIVATE
+			-static
 	)
 endif ()
 

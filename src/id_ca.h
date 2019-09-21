@@ -31,12 +31,6 @@ Free Software Foundation, Inc.,
 #include "bstone_file_stream.h"
 
 
-extern int NUM_EPISODES;
-extern int MAPS_PER_EPISODE;
-extern int MAPS_WITH_STATS;
-
-extern int NUMMAPS;
-
 const int MAPPLANES = 2;
 
 
@@ -166,23 +160,33 @@ public:
 
 	bool is_ps() const;
 
+	int get_episode_count() const;
+
+	int get_levels_per_episode() const;
+
+	int get_stats_levels_per_episode() const;
+
+	int get_total_levels() const;
+
+	bool is_secret_level(
+		const int level_number) const;
+
 
 private:
 	static std::string empty_extension_;
-
 	static AssetsVersion version_;
-
 	static AssetsCRefString extension_;
-
 	static AssetsCRefStrings base_names_;
-
 	static AssetsBaseNameToHashMap base_name_to_hash_map_;
-
 	static std::string levels_hash_;
-
 	static int gfx_header_offset_count_;
-
 	static bool are_modded_levels_;
+	static int episode_count_;
+	static int levels_per_episode_;
+	static int stats_levels_per_episode_;
+	static int total_levels_;
+	static int min_secret_level_index_;
+	static int max_secret_level_index_;
 }; // AssetsInfo
 
 

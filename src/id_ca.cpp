@@ -78,12 +78,6 @@ std::uint8_t ca_levelbit, ca_levelnum;
 
 std::int16_t profilehandle, debughandle;
 
-int NUM_EPISODES = 0;
-int MAPS_PER_EPISODE = 0;
-int MAPS_WITH_STATS = 0;
-
-int NUMMAPS = 0;
-
 
 /*
 =============================================================================
@@ -562,7 +556,7 @@ void CA_CacheAudioChunk(
 
 	if (audiosegs[chunk])
 	{
-		return; // allready in memory
+		return; // already in memory
 	}
 
 	//
@@ -748,7 +742,7 @@ void CA_CacheGrChunk(
 	grneeded[chunk] |= ca_levelbit; // make sure it doesn't get removed
 	if (grsegs[chunk])
 	{
-		return; // allready in memory
+		return; // already in memory
 
 	}
 	//
@@ -849,7 +843,7 @@ void CA_CacheMap(
 	mapon = mapnum;
 
 	//
-	// load the planes into the allready allocated buffers
+	// load the planes into the already allocated buffers
 	//
 	size = MAPSIZE * MAPSIZE * MAPPLANES;
 
@@ -958,7 +952,7 @@ void CA_CacheMarks()
 		if (grneeded[i] & ca_levelbit)
 		{
 			if (grsegs[i])
-			{ // its allready in memory, make
+			{ // its already in memory, make
 			}
 			else
 			{
@@ -999,7 +993,7 @@ void CA_CacheMarks()
 
 			if (bufferstart <= pos && bufferend >= endpos)
 			{
-				// data is allready in buffer
+				// data is already in buffer
 				source = ::ca_buffer.data() + (pos - bufferstart);
 			}
 			else
@@ -1102,28 +1096,9 @@ void initialize_ca_constants()
 {
 	const auto& assets_info = AssetsInfo{};
 
-	if (assets_info.is_aog_full())
-	{
-		NUM_EPISODES = 6;
-		MAPS_PER_EPISODE = 15;
-		MAPS_WITH_STATS = 11;
-	}
-	else if (assets_info.is_aog_sw())
-	{
-		NUM_EPISODES = 1;
-		MAPS_PER_EPISODE = 15;
-		MAPS_WITH_STATS = 11;
-	}
-	else if (assets_info.is_ps())
-	{
-		NUM_EPISODES = 1;
-		MAPS_PER_EPISODE = 25;
-		MAPS_WITH_STATS = 20;
-	}
+	const auto total_level_count = assets_info.get_episode_count() * assets_info.get_levels_per_episode();
 
-	NUMMAPS = NUM_EPISODES * MAPS_PER_EPISODE;
-
-	mapheaderseg.resize(NUMMAPS);
+	mapheaderseg.resize(total_level_count);
 }
 
 bool ca_is_resource_exists(
@@ -1316,6 +1291,10 @@ AssetsBaseNameToHashMap AssetsInfo::base_name_to_hash_map_;
 int AssetsInfo::gfx_header_offset_count_;
 std::string AssetsInfo::levels_hash_;
 bool AssetsInfo::are_modded_levels_;
+int AssetsInfo::episode_count_;
+int AssetsInfo::levels_per_episode_;
+int AssetsInfo::stats_levels_per_episode_;
+int AssetsInfo::total_levels_;
 
 
 AssetsVersion AssetsInfo::get_version() const
@@ -1361,6 +1340,54 @@ void AssetsInfo::set_version(
 		gfx_header_offset_count_ = 0;
 		break;
 	}
+
+
+	{
+		if (is_aog_full())
+		{
+			episode_count_ = 6;
+		}
+		else if (is_aog_sw() || is_ps())
+		{
+			episode_count_ = 1;
+		}
+		else
+		{
+			::Quit("No assets information.");
+		}
+	}
+
+	{
+		if (is_aog())
+		{
+			levels_per_episode_ = 15;
+		}
+		else if (is_ps())
+		{
+			levels_per_episode_ = 24;
+		}
+		else
+		{
+			::Quit("No assets information.");
+		}
+	}
+
+	{
+		if (is_aog())
+		{
+			stats_levels_per_episode_ = 11;
+		}
+		else if (is_ps())
+		{
+			stats_levels_per_episode_ = 20;
+		}
+		else
+		{
+			::Quit("No assets information.");
+		}
+	}
+
+	total_levels_ = episode_count_ * levels_per_episode_;
 }
 
 const std::string& AssetsInfo::get_extension() const
@@ -1502,6 +1529,45 @@ bool AssetsInfo::is_aog() const
 bool AssetsInfo::is_ps() const
 {
 	return version_ == AssetsVersion::ps;
+}
+
+int AssetsInfo::get_episode_count() const
+{
+	return episode_count_;
+}
+
+int AssetsInfo::get_levels_per_episode() const
+{
+	return levels_per_episode_;
+}
+
+int AssetsInfo::get_stats_levels_per_episode() const
+{
+	return stats_levels_per_episode_;
+}
+
+int AssetsInfo::get_total_levels() const
+{
+	return total_levels_;
+}
+
+bool AssetsInfo::is_secret_level(
+	const int level_number) const
+{
+	if (is_aog())
+	{
+		return level_number <= 0 || level_number >= 10;
+	}
+	else if (is_ps())
+	{
+		return level_number > 19;
+	}
+	else
+	{
+		::Quit("No assets information.");
+
+		return false;
+	}
 }
 
 
