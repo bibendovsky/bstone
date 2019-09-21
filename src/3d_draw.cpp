@@ -1383,11 +1383,11 @@ void hw_draw_sprites()
 				obj->flags2 &= ~FL2_DAMAGE_CLOAK;
 			}
 
-			obj->flags |= FL_VISABLE;
+			obj->flags |= FL_VISIBLE;
 		}
 		else
 		{
-			obj->flags &= ~FL_VISABLE;
+			obj->flags &= ~FL_VISIBLE;
 		}
 
 		const auto bs_actor_index = static_cast<int>(obj - ::objlist);
