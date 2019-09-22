@@ -31,6 +31,8 @@ option(BSTONE_USE_MULTI_PROCESS_COMPILATION "Use multi-process compilation." ON)
 #
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
+# SDL2W
+#
 set(BSTONE_SDL2_COMPONENTS "")
 
 if (BSTONE_USE_STATIC_LINKING)
@@ -38,6 +40,12 @@ if (BSTONE_USE_STATIC_LINKING)
 endif ()
 
 find_package(SDL2W 2.0.4 REQUIRED COMPONENTS ${BSTONE_SDL2_COMPONENTS})
+
+# Threads
+#
+set(THREADS_PREFER_PTHREAD_FLAG "TRUE")
+
+find_package(Threads REQUIRED)
 
 
 #
@@ -167,6 +175,7 @@ target_link_libraries(
 	${PROJECT_NAME}
 	PRIVATE
 		SDL2W
+		Threads::Threads
 )
 
 if (BSTONE_PANDORA)

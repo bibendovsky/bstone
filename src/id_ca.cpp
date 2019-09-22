@@ -2253,7 +2253,7 @@ void ImagesDumper::normalize_destination_dir()
 #ifdef _WIN32
 			'\\'
 #else // _WIN32
-			'//'
+			'/'
 #endif // _WIN32
 			;
 

@@ -222,7 +222,7 @@ MtSpinFlag::MtSpinFlag(
 	const int spin_count)
 	:
 	spin_count_{spin_count},
-	flag_{ATOMIC_FLAG_INIT}
+	flag_{}
 {
 	if (spin_count_ < 0)
 	{
@@ -260,8 +260,8 @@ MtTaskQueue::MtTaskQueue(
 	const int size)
 	:
 	size_{},
-	mt_read_index_{ATOMIC_VAR_INIT(0)},
-	mt_write_index_{ATOMIC_VAR_INIT(0)},
+	mt_read_index_{},
+	mt_write_index_{},
 	mt_spin_flag_{},
 	items_{}
 {
