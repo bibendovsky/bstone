@@ -122,6 +122,8 @@ using XbrzTaskPtrs = std::vector<MtTaskPtr>;
 XbrzTask::XbrzTask()
 	:
 	is_completed_{},
+	is_failed_{},
+	exception_ptr_{},
 	factor_{},
 	first_index_{},
 	last_index_{},

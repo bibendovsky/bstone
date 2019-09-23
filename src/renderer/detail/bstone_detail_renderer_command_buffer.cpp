@@ -32,6 +32,8 @@ Free Software Foundation, Inc.,
 
 #include <algorithm>
 
+#include "bstone_exception.h"
+
 
 namespace bstone
 {
@@ -57,24 +59,7 @@ RendererCommandBuffer::RendererCommandBuffer()
 {
 }
 
-RendererCommandBuffer::RendererCommandBuffer(
-	RendererCommandBuffer&& rhs)
-	:
-	is_enabled_{std::move(rhs.is_enabled_)},
-	is_reading_{std::move(rhs.is_reading_)},
-	is_writing_{std::move(rhs.is_writing_)},
-	size_{std::move(rhs.size_)},
-	write_offset_{std::move(rhs.write_offset_)},
-	read_offset_{std::move(rhs.read_offset_)},
-	resize_delta_size_{std::move(rhs.resize_delta_size_)},
-	command_count_{std::move(rhs.command_count_)},
-	data_{std::move(rhs.data_)}
-{
-}
-
-RendererCommandBuffer::~RendererCommandBuffer()
-{
-}
+RendererCommandBuffer::~RendererCommandBuffer() = default;
 
 int RendererCommandBuffer::get_command_count() const noexcept
 {
@@ -94,11 +79,14 @@ void RendererCommandBuffer::enable(
 
 void RendererCommandBuffer::write_begin()
 {
-	if (is_reading_ || is_writing_)
+	if (is_reading_)
 	{
-		assert(!"Invalid state.");
+		throw Exception{"Already reading."};
+	}
 
-		return;
+	if (is_writing_)
+	{
+		throw Exception{"Already writing."};
 	}
 
 	is_writing_ = true;
@@ -108,11 +96,14 @@ void RendererCommandBuffer::write_begin()
 
 void RendererCommandBuffer::write_end()
 {
-	if (is_reading_ || !is_writing_)
+	if (is_reading_)
 	{
-		assert(!"Invalid state.");
+		throw Exception{"Already reading."};
+	}
 
-		return;
+	if (!is_writing_)
+	{
+		throw Exception{"Not writing."};
 	}
 
 	is_writing_ = false;
@@ -215,11 +206,14 @@ RendererCommandDrawQuads* RendererCommandBuffer::write_draw_quads()
 
 void RendererCommandBuffer::read_begin()
 {
-	if (is_reading_ || is_writing_)
+	if (is_reading_)
 	{
-		assert(!"Invalid state.");
+		throw Exception{"Already reading."};
+	}
 
-		return;
+	if (is_writing_)
+	{
+		throw Exception{"Already writing."};
 	}
 
 	is_reading_ = true;
@@ -228,14 +222,20 @@ void RendererCommandBuffer::read_begin()
 
 void RendererCommandBuffer::read_end()
 {
-	if (!is_reading_ || is_writing_)
+	if (!is_reading_)
 	{
-		assert(!"Invalid state.");
-
-		return;
+		throw Exception{"Not reading."};
 	}
 
-	assert(write_offset_ == read_offset_);
+	if (is_writing_)
+	{
+		throw Exception{"Already writing."};
+	}
+
+	if (write_offset_ != read_offset_)
+	{
+		throw Exception{"Offset mismatch."};
+	}
 
 	is_reading_ = false;
 }
@@ -364,7 +364,10 @@ void RendererCommandBuffer::initialize(
 void RendererCommandBuffer::resize_if_necessary(
 	const int dst_delta_size)
 {
-	assert(dst_delta_size > 0);
+	if (dst_delta_size <= 0)
+	{
+		throw Exception{"Resize delta out of range."};
+	}
 
 	if ((size_ - write_offset_) >= dst_delta_size)
 	{

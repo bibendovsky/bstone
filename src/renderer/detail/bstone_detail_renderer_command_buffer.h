@@ -50,9 +50,6 @@ class RendererCommandBuffer final :
 public:
 	RendererCommandBuffer();
 
-	RendererCommandBuffer(
-		RendererCommandBuffer&& rhs);
-
 	~RendererCommandBuffer() override;
 
 

@@ -22,7 +22,7 @@ Free Software Foundation, Inc.,
 */
 
 
-#define BSTONE_DBG_FORCE_SW (1)
+#define BSTONE_DBG_FORCE_SW (0)
 
 
 #include <cassert>
@@ -47,8 +47,6 @@ Free Software Foundation, Inc.,
 #include "bstone_string_helper.h"
 #include "bstone_text_writer.h"
 #include "bstone_version.h"
-
-#include "SDL_timer.h"
 
 
 extern bool is_full_menu_active;
@@ -89,6 +87,10 @@ bstone::SpriteCache vid_sprite_cache;
 // BBi
 namespace
 {
+
+
+void hw_screen_refresh();
+void sw_screen_refresh();
 
 
 /*
@@ -179,39 +181,37 @@ struct WindowElementsDimensions
 using SdlPalette = std::array<std::uint32_t, bstone::RgbPalette::get_max_color_count()>;
 
 
-VgaBuffer vid_ui_buffer;
-UiMaskBuffer vid_mask_buffer;
+VgaBuffer vid_ui_buffer_;
+UiMaskBuffer vid_mask_buffer_;
 
 
-std::string sw_error_message;
-
-bstone::R8g8b8a8Palette vid_vga_palette;
-VgaBuffer sw_vga_buffer;
+bstone::R8g8b8a8Palette vid_vga_palette_;
+VgaBuffer sw_vga_buffer_;
 
 WindowElementsDimensions vid_dimensions_;
 
-SDL_DisplayMode display_mode;
-bstone::SdlWindowUPtr sw_window = nullptr;
-bstone::SdlRendererUPtr sw_renderer = nullptr;
-bstone::SdlPixelFormatUPtr sw_texture_pixel_format = nullptr;
-bstone::SdlTextureUPtr sw_screen_texture = nullptr;
-bstone::SdlTextureUPtr sw_ui_texture = nullptr;
-SdlPalette sw_palette;
-SDL_Rect sw_ui_whole_src_rect;
-SDL_Rect sw_ui_whole_dst_rect;
-SDL_Rect sw_ui_stretched_dst_rect;
-SDL_Rect sw_ui_top_src_rect;
-SDL_Rect sw_ui_top_dst_rect;
-SDL_Rect sw_ui_wide_middle_src_rect;
-SDL_Rect sw_ui_wide_middle_dst_rect;
-SDL_Rect sw_ui_bottom_src_rect;
-SDL_Rect sw_ui_bottom_dst_rect;
-std::array<SDL_Rect, 2> sw_filler_ui_rects;
-std::array<SDL_Rect, 4> sw_filler_hud_rects;
-SDL_Rect sw_screen_dst_rect;
-const auto sw_ref_filler_color = SDL_Color{0x00, 0x28, 0x50, 0xFF, };
-auto sw_filler_color = SDL_Color{};
+SDL_DisplayMode display_mode_;
+bstone::SdlWindowUPtr sw_window_ = nullptr;
+bstone::SdlRendererUPtr sw_renderer_ = nullptr;
+bstone::SdlPixelFormatUPtr sw_texture_pixel_format_ = nullptr;
+bstone::SdlTextureUPtr sw_screen_texture_ = nullptr;
+bstone::SdlTextureUPtr sw_ui_texture_ = nullptr;
+SdlPalette sw_palette_;
+SDL_Rect sw_ui_whole_src_rect_;
+SDL_Rect sw_ui_whole_dst_rect_;
+SDL_Rect sw_ui_stretched_dst_rect_;
+SDL_Rect sw_ui_top_src_rect_;
+SDL_Rect sw_ui_top_dst_rect_;
+SDL_Rect sw_ui_wide_middle_src_rect_;
+SDL_Rect sw_ui_wide_middle_dst_rect_;
+SDL_Rect sw_ui_bottom_src_rect_;
+SDL_Rect sw_ui_bottom_dst_rect_;
+std::array<SDL_Rect, 2> sw_filler_ui_rects_;
+std::array<SDL_Rect, 4> sw_filler_hud_rects_;
+SDL_Rect sw_screen_dst_rect_;
+auto sw_filler_color_ = SDL_Color{};
 
+const auto sw_ref_filler_color = SDL_Color{0x00, 0x28, 0x50, 0xFF};
 const auto filler_color_index = 0xE8;
 
 
@@ -308,9 +308,9 @@ const std::string& vid_get_renderer_kind_key_name()
 	return result;
 }
 
-const std::string& vid_get_is_windowed_key_name()
+const std::string& vid_get_windowed_key_name()
 {
-	static const auto& result = std::string{"vid_is_windowed"};
+	static const auto& result = std::string{"vid_windowed"};
 
 	return result;
 }
@@ -456,7 +456,7 @@ void vid_configuration_fix_window_width()
 	::vid_configuration_fix_window_dimension(
 		::vid_configuration_.width_,
 		::vga_ref_width,
-		::display_mode.w
+		::display_mode_.w
 	);
 }
 
@@ -465,7 +465,7 @@ void vid_configuration_fix_window_height()
 	::vid_configuration_fix_window_dimension(
 		::vid_configuration_.height_,
 		::vga_ref_height_4x3,
-		::display_mode.h
+		::display_mode_.h
 	);
 }
 
@@ -699,9 +699,9 @@ std::string vid_get_window_title_for_renderer();
 
 void vid_read_is_windowed_cl_configuration()
 {
-	// "vid_is_windowed"
+	// "vid_windowed"
 	//
-	const auto is_windowed_str = ::g_args.get_option_value(::vid_get_is_windowed_key_name());
+	const auto is_windowed_str = ::g_args.get_option_value(::vid_get_windowed_key_name());
 
 	auto is_windowed_value = 0;
 
@@ -800,12 +800,47 @@ const std::string& vid_get_dbg_string()
 	return result;
 }
 
+[[noreturn]]
+void vid_throw_sdl_error(
+	const std::string& message_prefix)
+{
+	auto error_message = ::vid_get_vid_string();
+	error_message += ' ';
+
+	if (!message_prefix.empty())
+	{
+		error_message += message_prefix;
+		error_message += ' ';
+	}
+
+	const auto sdl_error_message = ::SDL_GetError();
+
+	if (sdl_error_message)
+	{
+		error_message = sdl_error_message;
+	}
+	else
+	{
+		error_message = "Generic SDL error.";
+	}
+
+	throw bstone::Exception{std::move(error_message)};
+}
+
+[[noreturn]]
+void vid_throw_sdl_error()
+{
+	::vid_throw_sdl_error(::vid_get_empty_string());
+}
+
+[[noreturn]]
 void vid_quit(
 	const std::string& error_message)
 {
 	::Quit(::vid_get_vid_string() + ' ' + error_message);
 }
 
+[[noreturn]]
 void vid_quit_with_sdl_error(
 	const std::string& error_message)
 {
@@ -886,13 +921,31 @@ void vid_hw_dbg_log(
 	bstone::logger_->write(::vid_get_vid_string() + ::vid_get_hw_string() + ::vid_get_dbg_string() + ' ' + message);
 }
 
+[[noreturn]]
+void vid_hw_log_error_and_throw(
+	const std::string& message)
+{
+	auto error_message = std::string{};
+
+	error_message += ::vid_get_vid_string();
+	error_message += ::vid_get_hw_string();
+	error_message += ' ';
+	error_message += message;
+
+	bstone::logger_->write(error_message);
+
+	throw bstone::Exception{std::move(error_message)};
+}
+
 void vid_get_current_display_mode()
 {
-	const auto sdl_result = ::SDL_GetDesktopDisplayMode(0, &::display_mode);
+	::vid_log("Getting desktop display mode.");
+
+	const auto sdl_result = ::SDL_GetDesktopDisplayMode(0, &::display_mode_);
 
 	if (sdl_result != 0)
 	{
-		::vid_quit_with_sdl_error("Failed to get a display mode.");
+		::vid_throw_sdl_error();
 	}
 }
 
@@ -901,7 +954,7 @@ void vid_read_cl_configuration()
 	::vid_configuration_.is_custom_position_ = false;
 
 
-	// "vid_is_windowed"
+	// "vid_windowed"
 	//
 	::vid_read_is_windowed_cl_configuration();
 
@@ -948,8 +1001,6 @@ std::string vid_to_string(
 const std::string& vid_to_string(
 	const bstone::RendererFilterKind filter_kind)
 {
-	static const auto invalid_string = std::string{"?"};
-
 	switch (filter_kind)
 	{
 		case bstone::RendererFilterKind::nearest:
@@ -959,15 +1010,13 @@ const std::string& vid_to_string(
 			return vid_get_linear_value_string();
 
 		default:
-			return invalid_string;
+			throw bstone::Exception{"Unsupported renderer filter kind."};
 	}
 }
 
 const std::string& vid_to_string(
 	const bstone::RendererAaKind aa_kind)
 {
-	static const auto invalid_string = std::string{"?"};
-
 	switch (aa_kind)
 	{
 		case bstone::RendererAaKind::ms:
@@ -977,14 +1026,13 @@ const std::string& vid_to_string(
 			return vid_get_none_value_string();
 
 		default:
-			return invalid_string;
+			throw bstone::Exception{"Unsupported anti-aliasing kind."};
 	}
 }
 
 const std::string& vid_to_string(
 	const bstone::RendererKind renderer_kind)
 {
-	static const auto invalid_string = std::string{"?"};
 	static const auto ogl_2_string = std::string{"OpenGL 2+"};
 	static const auto ogl_3_2_core_string = std::string{"OpenGL 3.2 core"};
 	static const auto ogl_es_2_0_string = std::string{"OpenGL ES 2.0"};
@@ -1011,7 +1059,7 @@ const std::string& vid_to_string(
 
 
 		default:
-			return invalid_string;
+			throw bstone::Exception{"Unsupported renderer kind."};
 	}
 }
 
@@ -1047,20 +1095,6 @@ void vid_log_common_configuration()
 	::vid_log("--------------------");
 }
 
-void vid_sw_log_sdl_error(
-	const std::string& message)
-{
-	auto error_message = std::string{};
-
-	error_message = "[VID] ";
-	error_message += message;
-	bstone::logger_->write_error(error_message);
-
-	error_message = "[VID] ";
-	error_message += ::SDL_GetError();
-	bstone::logger_->write_error(error_message);
-}
-
 void vid_common_initialize()
 {
 	::vid_get_current_display_mode();
@@ -1072,26 +1106,64 @@ void vid_common_initialize()
 	::vid_log_common_configuration();
 }
 
+void vid_check_vsync()
+{
+	using Clock = std::chrono::steady_clock;
+
+	constexpr int draw_count = 10;
+
+	constexpr int duration_tolerance_pct = 25;
+
+	const int expected_duration_ms =
+		(1000 * draw_count) / ::display_mode_.refresh_rate;
+
+	const int min_expected_duration_ms =
+		((100 - duration_tolerance_pct) * expected_duration_ms) / 100;
+
+	const auto before_timestamp = Clock::now();
+
+	for (int i = 0; i < draw_count; ++i)
+	{
+		if (::vid_is_hw_)
+		{
+			::hw_screen_refresh();
+		}
+		else
+		{
+			::sw_screen_refresh();
+		}
+	}
+
+	const auto after_timestamp = Clock::now();
+
+	const auto duration = after_timestamp - before_timestamp;
+
+	const auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+		duration).count();
+
+	::vid_has_vsync = (duration_ms >= min_expected_duration_ms);
+}
+
 
 void sw_initialize_vga_buffer()
 {
 	const auto area = 2 * ::vga_width * ::vga_height;
 
-	::sw_vga_buffer.resize(area);
+	::sw_vga_buffer_.resize(area);
 
-	::vga_memory = ::sw_vga_buffer.data();
+	::vga_memory = ::sw_vga_buffer_.data();
 }
 
 void sw_initialize_ui_buffer()
 {
 	const auto area = ::vga_ref_width * ::vga_ref_height;
 
-	::vid_ui_buffer.resize(area);
+	::vid_ui_buffer_.resize(area);
 }
 
-bool sw_initialize_window()
+void sw_window_create()
 {
-	::vid_log("Creating a window.");
+	::vid_log("Creating window.");
 
 
 	auto window_x = *::vid_configuration_.x_;
@@ -1121,7 +1193,7 @@ bool sw_initialize_window()
 
 	const auto title = ::vid_get_game_name_and_game_version_string();
 
-	::sw_window = bstone::SdlWindowUPtr{::SDL_CreateWindow(
+	::sw_window_ = bstone::SdlWindowUPtr{::SDL_CreateWindow(
 		title.c_str(),
 		window_x,
 		window_y,
@@ -1130,26 +1202,17 @@ bool sw_initialize_window()
 		window_flags
 	)};
 
-	if (!::sw_window)
+	if (!::sw_window_)
 	{
-		::vid_sw_log_sdl_error("Failed to create a window.");
-
-		return false;
+		::vid_throw_sdl_error();
 	}
-
-	return true;
 }
 
-bool sw_initialize_renderer()
+void sw_initialize_renderer()
 {
 	::vid_log();
 	::vid_log("Initializing renderer.");
 
-
-	bool is_succeed = true;
-
-
-	if (is_succeed)
 	{
 		::vid_log("Available renderer drivers:");
 
@@ -1169,7 +1232,6 @@ bool sw_initialize_renderer()
 	std::uint32_t renderer_flags = 0;
 	const char* renderer_driver = nullptr;
 
-	if (is_succeed)
 	{
 		if (!vid_configuration_.is_vsync_)
 		{
@@ -1183,51 +1245,44 @@ bool sw_initialize_renderer()
 		}
 	}
 
-	if (is_succeed)
 	{
 		::vid_log("Creating renderer.");
 
-		::sw_renderer = bstone::SdlRendererUPtr{::SDL_CreateRenderer(
-			::sw_window.get(),
+		::sw_renderer_ = bstone::SdlRendererUPtr{::SDL_CreateRenderer(
+			::sw_window_.get(),
 			-1,
 			renderer_flags
 		)};
 
-		if (!::sw_renderer)
+		if (!::sw_renderer_)
 		{
-			is_succeed = false;
-
-			::vid_sw_log_sdl_error("Failed to create a renderer.");
+			::vid_throw_sdl_error();
 		}
 	}
 
 
 	auto renderer_info = SDL_RendererInfo{};
 
-	if (is_succeed)
 	{
-		::vid_log("Quering renderer for info.");
+		::vid_log("Quering renderer for information.");
 
 		auto sdl_result = ::SDL_GetRendererInfo(
-			::sw_renderer.get(),
+			::sw_renderer_.get(),
 			&renderer_info);
 
 		if (sdl_result != 0)
 		{
-			is_succeed = false;
-
-			::vid_sw_log_sdl_error("Failed to query the renderer.");
+			::vid_throw_sdl_error();
 		}
 	}
 
 
-	if (is_succeed)
 	{
 		if (renderer_driver)
 		{
 			if (::SDL_strcasecmp(renderer_driver, renderer_info.name) != 0)
 			{
-				::vid_log_warning("Unexpected renderer is selected: \"" + std::string{renderer_info.name} + "\".");
+				::vid_log_warning("Mismatch renderer: \"" + std::string{renderer_info.name} + "\".");
 			}
 		}
 		else
@@ -1239,7 +1294,6 @@ bool sw_initialize_renderer()
 
 	std::uint32_t pixel_format = SDL_PIXELFORMAT_UNKNOWN;
 
-	if (is_succeed)
 	{
 		::vid_log("Looking up for a texture pixel format.");
 
@@ -1255,6 +1309,7 @@ bool sw_initialize_renderer()
 				SDL_ISPIXELFORMAT_ALPHA(format))
 			{
 				pixel_format = format;
+
 				break;
 			}
 		}
@@ -1269,82 +1324,58 @@ bool sw_initialize_renderer()
 
 		::vid_log("Allocating a texture pixel format.");
 
-		::sw_texture_pixel_format = bstone::SdlPixelFormatUPtr{::SDL_AllocFormat(pixel_format)};
+		::sw_texture_pixel_format_ = bstone::SdlPixelFormatUPtr{::SDL_AllocFormat(pixel_format)};
 
-		if (!::sw_texture_pixel_format)
+		if (!::sw_texture_pixel_format_)
 		{
-			is_succeed = false;
-
-			::vid_sw_log_sdl_error("Failed to allocate a texture pixel format.");
+			::vid_throw_sdl_error();
 		}
 	}
-
-	return is_succeed;
 }
 
-bool sw_initialize_screen_texture()
+void sw_screen_texture_create()
 {
 	::vid_log("Creating screen texture.");
 
-	::sw_screen_texture = bstone::SdlTextureUPtr{::SDL_CreateTexture(
-		::sw_renderer.get(),
-		::sw_texture_pixel_format->format,
+	::sw_screen_texture_ = bstone::SdlTextureUPtr{::SDL_CreateTexture(
+		::sw_renderer_.get(),
+		::sw_texture_pixel_format_->format,
 		SDL_TEXTUREACCESS_STREAMING,
 		::vga_width,
 		::vga_height
 	)};
 
-	if (!::sw_screen_texture)
+	if (!::sw_screen_texture_)
 	{
-		::vid_sw_log_sdl_error("Failed to create a screen texture.");
-
-		return false;
+		::vid_throw_sdl_error();
 	}
-
-	return true;
 }
 
-bool sw_initialize_ui_texture()
+void sw_ui_texture_create()
 {
 	::vid_log("Creating UI texture.");
 
-	::sw_ui_texture = bstone::SdlTextureUPtr{::SDL_CreateTexture(
-		::sw_renderer.get(),
-		::sw_texture_pixel_format->format,
+	::sw_ui_texture_ = bstone::SdlTextureUPtr{::SDL_CreateTexture(
+		::sw_renderer_.get(),
+		::sw_texture_pixel_format_->format,
 		SDL_TEXTUREACCESS_STREAMING,
 		::vga_ref_width,
 		::vga_ref_height
 	)};
 
-	if (!::sw_ui_texture)
+	if (!::sw_ui_texture_)
 	{
-		::vid_sw_log_sdl_error("Failed to create an UI texture.");
-
-		return false;
+		::vid_throw_sdl_error();
 	}
-
-	return true;
 }
 
-bool sw_initialize_textures()
+void sw_initialize_textures()
 {
 	::vid_log();
 	::vid_log("Initializing textures.");
 
-
-	auto is_succeed = true;
-
-	if (is_succeed)
-	{
-		is_succeed = sw_initialize_screen_texture();
-	}
-
-	if (is_succeed)
-	{
-		is_succeed = sw_initialize_ui_texture();
-	}
-
-	return is_succeed;
+	::sw_screen_texture_create();
+	::sw_ui_texture_create();
 }
 
 void sw_update_palette(
@@ -1354,11 +1385,11 @@ void sw_update_palette(
 	for (int i = 0; i < color_count; ++i)
 	{
 		const auto color_index = first_index + i;
-		const auto& vga_color = ::vid_vga_palette[color_index];
-		auto& sdl_color = ::sw_palette[color_index];
+		const auto& vga_color = ::vid_vga_palette_[color_index];
+		auto& sdl_color = ::sw_palette_[color_index];
 
 		sdl_color = ::SDL_MapRGB(
-			::sw_texture_pixel_format.get(),
+			::sw_texture_pixel_format_.get(),
 			(255 * vga_color.r_) / 63,
 			(255 * vga_color.g_) / 63,
 			(255 * vga_color.b_) / 63);
@@ -1368,19 +1399,19 @@ void sw_update_palette(
 void sw_update_viewport()
 {
 	auto sdl_result = ::SDL_RenderSetLogicalSize(
-		::sw_renderer.get(),
+		::sw_renderer_.get(),
 		::vid_dimensions_.window_width_,
 		::vid_dimensions_.window_height_);
 
 	if (sdl_result != 0)
 	{
-		::vid_sw_log_sdl_error("Failed to update a viewport.");
+		::vid_throw_sdl_error("Failed to update a viewport.");
 	}
 }
 
 void sw_initialize_palette()
 {
-	::vid_vga_palette.fill({});
+	::vid_vga_palette_.fill({});
 
 	::sw_update_palette(
 		0,
@@ -1398,7 +1429,7 @@ void sw_calculate_dimensions()
 
 	// UI whole rect
 	//
-	::sw_ui_whole_src_rect = SDL_Rect
+	::sw_ui_whole_src_rect_ = SDL_Rect
 	{
 		0,
 		0,
@@ -1406,7 +1437,7 @@ void sw_calculate_dimensions()
 		::vga_ref_height,
 	};
 
-	::sw_ui_whole_dst_rect = SDL_Rect
+	::sw_ui_whole_dst_rect_ = SDL_Rect
 	{
 		::vid_dimensions_.window_viewport_left_width_ + ::vid_dimensions_.screen_left_filler_width_,
 		::vid_dimensions_.window_viewport_top_height_,
@@ -1417,7 +1448,7 @@ void sw_calculate_dimensions()
 
 	// UI stretched rect
 	//
-	::sw_ui_stretched_dst_rect = SDL_Rect
+	::sw_ui_stretched_dst_rect_ = SDL_Rect
 	{
 		::vid_dimensions_.window_viewport_left_width_,
 		::vid_dimensions_.window_viewport_top_height_,
@@ -1428,7 +1459,7 @@ void sw_calculate_dimensions()
 
 	// UI top rect
 	//
-	::sw_ui_top_src_rect = SDL_Rect
+	::sw_ui_top_src_rect_ = SDL_Rect
 	{
 		0,
 		0,
@@ -1436,7 +1467,7 @@ void sw_calculate_dimensions()
 		::ref_top_bar_height,
 	};
 
-	::sw_ui_top_dst_rect = SDL_Rect
+	::sw_ui_top_dst_rect_ = SDL_Rect
 	{
 		::vid_dimensions_.window_viewport_left_width_ + ::vid_dimensions_.screen_left_filler_width_,
 		::vid_dimensions_.window_viewport_top_height_,
@@ -1447,7 +1478,7 @@ void sw_calculate_dimensions()
 
 	// UI middle rect (stretched to full width)
 	//
-	::sw_ui_wide_middle_src_rect = SDL_Rect
+	::sw_ui_wide_middle_src_rect_ = SDL_Rect
 	{
 		0,
 		::ref_view_top_y,
@@ -1455,7 +1486,7 @@ void sw_calculate_dimensions()
 		::ref_view_height,
 	};
 
-	::sw_ui_wide_middle_dst_rect = SDL_Rect
+	::sw_ui_wide_middle_dst_rect_ = SDL_Rect
 	{
 		::vid_dimensions_.window_viewport_left_width_,
 		::vid_dimensions_.window_viewport_top_height_ + ::vid_dimensions_.screen_top_filler_height_,
@@ -1466,7 +1497,7 @@ void sw_calculate_dimensions()
 
 	// UI bottom rect
 	//
-	::sw_ui_bottom_src_rect = SDL_Rect
+	::sw_ui_bottom_src_rect_ = SDL_Rect
 	{
 		0,
 		::ref_view_bottom_y + 1,
@@ -1474,7 +1505,7 @@ void sw_calculate_dimensions()
 		::ref_bottom_bar_height,
 	};
 
-	::sw_ui_bottom_dst_rect = SDL_Rect
+	::sw_ui_bottom_dst_rect_ = SDL_Rect
 	{
 		::vid_dimensions_.window_viewport_left_width_ + ::vid_dimensions_.screen_left_filler_width_,
 		::vid_dimensions_.window_viewport_top_height_ + ::vid_dimensions_.screen_height_ - ::vid_dimensions_.screen_bottom_filler_height_,
@@ -1484,7 +1515,7 @@ void sw_calculate_dimensions()
 
 
 	// UI left bar
-	::sw_filler_ui_rects[0] = SDL_Rect
+	::sw_filler_ui_rects_[0] = SDL_Rect
 	{
 		::vid_dimensions_.window_viewport_left_width_,
 		::vid_dimensions_.window_viewport_top_height_,
@@ -1493,7 +1524,7 @@ void sw_calculate_dimensions()
 	};
 
 	// UI right bar
-	::sw_filler_ui_rects[1] = SDL_Rect
+	::sw_filler_ui_rects_[1] = SDL_Rect
 	{
 		::vid_dimensions_.window_viewport_left_width_ + ::vid_dimensions_.screen_width_ - ::vid_dimensions_.screen_left_filler_width_,
 		::vid_dimensions_.window_viewport_top_height_,
@@ -1502,7 +1533,7 @@ void sw_calculate_dimensions()
 	};
 
 	// HUD upper left rect
-	::sw_filler_hud_rects[0] = SDL_Rect
+	::sw_filler_hud_rects_[0] = SDL_Rect
 	{
 		::vid_dimensions_.window_viewport_left_width_,
 		::vid_dimensions_.window_viewport_top_height_,
@@ -1511,7 +1542,7 @@ void sw_calculate_dimensions()
 	};
 
 	// HUD upper right rect
-	::sw_filler_hud_rects[1] = SDL_Rect
+	::sw_filler_hud_rects_[1] = SDL_Rect
 	{
 		::vid_dimensions_.window_viewport_left_width_ + ::vid_dimensions_.screen_width_ - ::vid_dimensions_.screen_right_filler_width_,
 		::vid_dimensions_.window_viewport_top_height_,
@@ -1520,7 +1551,7 @@ void sw_calculate_dimensions()
 	};
 
 	// HUD lower left rect
-	::sw_filler_hud_rects[2] = SDL_Rect
+	::sw_filler_hud_rects_[2] = SDL_Rect
 	{
 		::vid_dimensions_.window_viewport_left_width_,
 		::vid_dimensions_.window_viewport_top_height_ + ::vid_dimensions_.screen_height_ - ::vid_dimensions_.screen_bottom_filler_height_,
@@ -1529,7 +1560,7 @@ void sw_calculate_dimensions()
 	};
 
 	// HUD lower right rect
-	::sw_filler_hud_rects[3] = SDL_Rect
+	::sw_filler_hud_rects_[3] = SDL_Rect
 	{
 		::vid_dimensions_.window_viewport_left_width_ + ::vid_dimensions_.screen_width_ - ::vid_dimensions_.screen_right_filler_width_,
 		::vid_dimensions_.window_viewport_top_height_ + ::vid_dimensions_.screen_height_ - ::vid_dimensions_.screen_bottom_filler_height_,
@@ -1538,7 +1569,7 @@ void sw_calculate_dimensions()
 	};
 
 	// Filler color.
-	::sw_filler_color = SDL_Color
+	::sw_filler_color_ = SDL_Color
 	{
 		::vgapal[(filler_color_index * 3) + 0],
 		::vgapal[(filler_color_index * 3) + 1],
@@ -1557,7 +1588,7 @@ void sw_calculate_dimensions()
 	const auto screen_width = (::vid_configuration_.is_widescreen_ ? ::vid_dimensions_.screen_width_ : ::vid_dimensions_.screen_width_4x3_);
 	const auto screen_height = ::vid_dimensions_.screen_height_;
 
-	::sw_screen_dst_rect = SDL_Rect
+	::sw_screen_dst_rect_ = SDL_Rect
 	{
 		screen_left,
 		screen_top,
@@ -1566,87 +1597,58 @@ void sw_calculate_dimensions()
 	};
 }
 
-void sw_initialize_video()
+void sw_video_initialize()
 {
 	::vid_log();
-	::vid_log("Software video system");
-	::vid_log("---------------------");
+	::vid_log("Initializing software accelerated video system.");
 
 	::vid_common_initialize();
 	::sw_calculate_dimensions();
 
-	bool is_succeed = true;
+	::sw_window_create();
+	::sw_initialize_renderer();
+	::sw_initialize_textures();
+	::sw_initialize_palette();
+	::sw_initialize_vga_buffer();
+	::sw_initialize_ui_buffer();
 
-	if (is_succeed)
-	{
-		is_succeed = ::sw_initialize_window();
-	}
+	const auto window_title = ::vid_get_window_title_for_renderer();
+	::SDL_SetWindowTitle(::sw_window_.get(), window_title.c_str());
 
-	if (is_succeed)
-	{
-		is_succeed = ::sw_initialize_renderer();
-	}
-
-	if (is_succeed)
-	{
-		is_succeed = ::sw_initialize_textures();
-	}
-
-	if (is_succeed)
-	{
-		::sw_initialize_palette();
-	}
-
-	if (is_succeed)
-	{
-		::sw_initialize_vga_buffer();
-		::sw_initialize_ui_buffer();
-	}
-
-	if (is_succeed)
-	{
-		const auto window_title = ::vid_get_window_title_for_renderer();
-		::SDL_SetWindowTitle(::sw_window.get(), window_title.c_str());
-
-		::SDL_ShowWindow(::sw_window.get());
-		::in_grab_mouse(true);
-	}
-	else
-	{
-		::Quit(std::move(::sw_error_message));
-	}
+	::SDL_ShowWindow(::sw_window_.get());
+	::in_grab_mouse(true);
 }
 
-void sw_uninitialize_screen_texture()
+void sw_screen_texture_destroy()
 {
-	::sw_screen_texture = nullptr;
+	::sw_screen_texture_ = nullptr;
 }
 
-void sw_uninitialize_ui_texture()
+void sw_ui_texture_destroy()
 {
-	::sw_ui_texture = nullptr;
+	::sw_ui_texture_ = nullptr;
 }
 
-void sw_uninitialize_vga_buffer()
+void sw_vga_buffer_uninitialize()
 {
-	::sw_vga_buffer.clear();
-	::sw_vga_buffer.shrink_to_fit();
+	::sw_vga_buffer_.clear();
+	::sw_vga_buffer_.shrink_to_fit();
 
 	::vga_memory = nullptr;
 }
 
-void sw_uninitialize_video()
+void sw_video_uninitialize()
 {
-	::sw_texture_pixel_format = nullptr;
-	::sw_uninitialize_screen_texture();
-	::sw_uninitialize_ui_texture();
-	::sw_renderer = nullptr;
-	::sw_window = nullptr;
+	::sw_texture_pixel_format_ = nullptr;
+	::sw_screen_texture_destroy();
+	::sw_ui_texture_destroy();
+	::sw_renderer_ = nullptr;
+	::sw_window_ = nullptr;
 
-	::sw_uninitialize_vga_buffer();
+	::sw_vga_buffer_uninitialize();
 }
 
-void sw_refresh_screen()
+void sw_screen_refresh()
 {
 	int sdl_result = 0;
 
@@ -1654,21 +1656,21 @@ void sw_refresh_screen()
 	//
 	if (::vid_is_hud)
 	{
-		const auto src_pixels = ::sw_vga_buffer.data();
+		const auto src_pixels = ::sw_vga_buffer_.data();
 		const auto src_pitch = ::vga_width;
 
 		void* dst_raw_pixels = nullptr;
 		int dst_pitch = 0;
 
 		sdl_result = ::SDL_LockTexture(
-			::sw_screen_texture.get(),
+			::sw_screen_texture_.get(),
 			nullptr,
 			&dst_raw_pixels,
 			&dst_pitch);
 
 		if (sdl_result != 0)
 		{
-			::vid_quit_with_sdl_error("Failed to lock a screen texture.");
+			::vid_throw_sdl_error("Failed to lock a screen texture.");
 		}
 
 		auto dst_pixels = static_cast<std::uint32_t*>(dst_raw_pixels);
@@ -1680,11 +1682,11 @@ void sw_refresh_screen()
 
 			for (int x = 0; x < ::vga_width; ++x)
 			{
-				dst_line[x] = sw_palette[src_line[x]];
+				dst_line[x] = sw_palette_[src_line[x]];
 			}
 		}
 
-		::SDL_UnlockTexture(::sw_screen_texture.get());
+		::SDL_UnlockTexture(::sw_screen_texture_.get());
 	}
 
 
@@ -1695,17 +1697,17 @@ void sw_refresh_screen()
 		int dst_pitch = 0;
 
 		sdl_result = ::SDL_LockTexture(
-			::sw_ui_texture.get(),
+			::sw_ui_texture_.get(),
 			nullptr,
 			&dst_raw_pixels,
 			&dst_pitch);
 
 		if (sdl_result != 0)
 		{
-			::vid_quit_with_sdl_error("Failed to lock an UI texture.");
+			::vid_throw_sdl_error("Failed to lock an UI texture.");
 		}
 
-		const auto alpha_0_mask = ~sw_texture_pixel_format->Amask;
+		const auto alpha_0_mask = ~sw_texture_pixel_format_->Amask;
 
 		auto dst_pixels = static_cast<std::uint32_t*>(dst_raw_pixels);
 
@@ -1716,11 +1718,11 @@ void sw_refresh_screen()
 			for (int x = 0; x < ::vga_ref_width; ++x)
 			{
 				const auto src_offset = (y * ::vga_ref_width) + x;
-				auto dst_color = ::sw_palette[::vid_ui_buffer[src_offset]];
+				auto dst_color = ::sw_palette_[::vid_ui_buffer_[src_offset]];
 
 				if (::vid_is_hud)
 				{
-					if (!::vid_mask_buffer[src_offset])
+					if (!::vid_mask_buffer_[src_offset])
 					{
 						dst_color &= alpha_0_mask;
 					}
@@ -1730,17 +1732,17 @@ void sw_refresh_screen()
 			}
 		}
 
-		::SDL_UnlockTexture(::sw_ui_texture.get());
+		::SDL_UnlockTexture(::sw_ui_texture_.get());
 	}
 
 
 	// Clear all
 	//
-	sdl_result = ::SDL_RenderClear(sw_renderer.get());
+	sdl_result = ::SDL_RenderClear(sw_renderer_.get());
 
 	if (sdl_result != 0)
 	{
-		::vid_quit_with_sdl_error("Failed to clear a render target.");
+		::vid_throw_sdl_error("Failed to clear a render target.");
 	}
 
 
@@ -1749,14 +1751,14 @@ void sw_refresh_screen()
 	if (::vid_is_hud)
 	{
 		sdl_result = ::SDL_RenderCopy(
-			sw_renderer.get(),
-			sw_screen_texture.get(),
+			sw_renderer_.get(),
+			sw_screen_texture_.get(),
 			nullptr,
-			&::sw_screen_dst_rect);
+			&::sw_screen_dst_rect_);
 
 		if (sdl_result != 0)
 		{
-			::vid_quit_with_sdl_error("Failed to copy a screen texture on a render target.");
+			::vid_throw_sdl_error("Failed to copy a screen texture on a render target.");
 		}
 	}
 
@@ -1771,11 +1773,11 @@ void sw_refresh_screen()
 
 		if (!::vid_is_movie)
 		{
-			fill_color = ::sw_filler_color;
+			fill_color = ::sw_filler_color_;
 		}
 
 		sdl_result = ::SDL_SetRenderDrawColor(
-			sw_renderer.get(),
+			sw_renderer_.get(),
 			fill_color.r,
 			fill_color.g,
 			fill_color.b,
@@ -1783,21 +1785,21 @@ void sw_refresh_screen()
 
 		if (sdl_result != 0)
 		{
-			::vid_quit_with_sdl_error("Failed to set draw color.");
+			::vid_throw_sdl_error("Failed to set draw color.");
 		}
 
 		if (is_hud)
 		{
-			sdl_result = ::SDL_RenderFillRects(sw_renderer.get(), ::sw_filler_hud_rects.data(), 4);
+			sdl_result = ::SDL_RenderFillRects(sw_renderer_.get(), ::sw_filler_hud_rects_.data(), 4);
 		}
 		else
 		{
-			sdl_result = ::SDL_RenderFillRects(sw_renderer.get(), ::sw_filler_ui_rects.data(), 2);
+			sdl_result = ::SDL_RenderFillRects(sw_renderer_.get(), ::sw_filler_ui_rects_.data(), 2);
 		}
 
 		if (sdl_result != 0)
 		{
-			::vid_quit_with_sdl_error("Failed to draw fillers.");
+			::vid_throw_sdl_error("Failed to draw fillers.");
 		}
 	}
 
@@ -1807,12 +1809,12 @@ void sw_refresh_screen()
 	if (::vid_is_hud)
 	{
 		sdl_result = ::SDL_SetTextureBlendMode(
-			::sw_ui_texture.get(),
+			::sw_ui_texture_.get(),
 			SDL_BLENDMODE_BLEND);
 
 		if (sdl_result != 0)
 		{
-			::vid_quit_with_sdl_error("Failed to set blend mode for an UI texture.");
+			::vid_throw_sdl_error("Failed to set blend mode for an UI texture.");
 		}
 	}
 
@@ -1823,109 +1825,78 @@ void sw_refresh_screen()
 			if (sdl_result == 0)
 			{
 				sdl_result = ::SDL_RenderCopy(
-					::sw_renderer.get(),
-					::sw_ui_texture.get(),
-					&::sw_ui_top_src_rect,
-					&::sw_ui_top_dst_rect);
+					::sw_renderer_.get(),
+					::sw_ui_texture_.get(),
+					&::sw_ui_top_src_rect_,
+					&::sw_ui_top_dst_rect_);
 			}
 
 			if (sdl_result == 0)
 			{
 				sdl_result = ::SDL_RenderCopy(
-					::sw_renderer.get(),
-					::sw_ui_texture.get(),
-					&::sw_ui_wide_middle_src_rect,
-					&::sw_ui_wide_middle_dst_rect);
+					::sw_renderer_.get(),
+					::sw_ui_texture_.get(),
+					&::sw_ui_wide_middle_src_rect_,
+					&::sw_ui_wide_middle_dst_rect_);
 			}
 
 			if (sdl_result == 0)
 			{
 				sdl_result = ::SDL_RenderCopy(
-					::sw_renderer.get(),
-					::sw_ui_texture.get(),
-					&::sw_ui_bottom_src_rect,
-					&::sw_ui_bottom_dst_rect);
+					::sw_renderer_.get(),
+					::sw_ui_texture_.get(),
+					&::sw_ui_bottom_src_rect_,
+					&::sw_ui_bottom_dst_rect_);
 			}
 		}
 		else
 		{
 			sdl_result = ::SDL_RenderCopy(
-				::sw_renderer.get(),
-				::sw_ui_texture.get(),
+				::sw_renderer_.get(),
+				::sw_ui_texture_.get(),
 				nullptr,
-				&::sw_ui_whole_dst_rect);
+				&::sw_ui_whole_dst_rect_);
 		}
 	}
 	else
 	{
 		sdl_result = ::SDL_RenderCopy(
-			::sw_renderer.get(),
-			::sw_ui_texture.get(),
+			::sw_renderer_.get(),
+			::sw_ui_texture_.get(),
 			nullptr,
-			&::sw_ui_stretched_dst_rect);
+			&::sw_ui_stretched_dst_rect_);
 	}
 
 	if (sdl_result != 0)
 	{
-		::vid_quit_with_sdl_error("Failed to copy an UI texture on render target.");
+		::vid_throw_sdl_error("Failed to copy an UI texture on render target.");
 	}
 
 	if (::vid_is_hud)
 	{
 		sdl_result = ::SDL_SetTextureBlendMode(
-			::sw_ui_texture.get(),
+			::sw_ui_texture_.get(),
 			SDL_BLENDMODE_NONE);
 
 		if (sdl_result != 0)
 		{
-			::vid_quit_with_sdl_error("Failed to set blend mode for an UI texture.");
+			::vid_throw_sdl_error("Failed to set blend mode for an UI texture.");
 		}
 	}
 
 
 	// Present
 	//
-	::SDL_RenderPresent(sw_renderer.get());
-}
-
-void sw_check_vsync()
-{
-	using Clock = std::chrono::system_clock;
-
-	constexpr int draw_count = 10;
-
-	constexpr int duration_tolerance_pct = 25;
-
-	const int expected_duration_ms =
-		(1000 * draw_count) / ::display_mode.refresh_rate;
-
-	const int min_expected_duration_ms =
-		((100 - duration_tolerance_pct) * expected_duration_ms) / 100;
-
-	const auto before_timestamp = Clock::now();
-
-	for (int i = 0; i < draw_count; ++i)
-	{
-		::sw_refresh_screen();
-	}
-
-	const auto after_timestamp = Clock::now();
-
-	const auto duration = after_timestamp - before_timestamp;
-
-	const auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-		duration).count();
-
-	::vid_has_vsync = (duration_ms >= min_expected_duration_ms);
+	::SDL_RenderPresent(sw_renderer_.get());
 }
 
 void sw_update_widescreen()
 {
-	::sw_uninitialize_screen_texture();
-	::sw_uninitialize_vga_buffer();
+	::sw_screen_texture_destroy();
+	::sw_vga_buffer_uninitialize();
 	::sw_calculate_dimensions();
 	::sw_initialize_vga_buffer();
-	::sw_initialize_screen_texture();
+	::sw_screen_texture_create();
 	::sw_update_viewport();
 }
 
@@ -2559,21 +2530,12 @@ bstone::RendererShaderVarVec2Ptr hw_shader_var_view_position_;
 
 
 
-bool hw_device_reset();
+void hw_device_reset();
 void hw_texture_upscale_apply();
 
-bool hw_3d_player_weapon_initialize();
+void hw_3d_player_weapon_initialize();
 void hw_3d_player_weapon_model_matrix_update();
 
-
-void vid_log_hw_renderer_error(
-	const std::string& message)
-{
-	// FIXME
-#if 0
-	::vid_log_error(message, ::hw_renderer_->get_error_message());
-#endif
-}
 
 bstone::RendererMipmapMode hw_config_texture_mipmap_filter_to_renderer(
 	const bstone::RendererFilterKind filter_kind)
@@ -2588,7 +2550,6 @@ bstone::RendererMipmapMode hw_config_texture_mipmap_filter_to_renderer(
 
 		default:
 			::Quit("Invalid mipmap mode.");
-			return bstone::RendererMipmapMode::none;
 	}
 }
 
@@ -2885,7 +2846,7 @@ void hw_vertex_input_add_attribute_description(
 }
 
 template<typename TVertex>
-bool hw_vertex_input_create(
+void hw_vertex_input_create(
 	bstone::RendererIndexBufferPtr index_buffer,
 	bstone::RendererVertexBufferPtr vertex_buffer,
 	bstone::RendererVertexInputPtr& vertex_input)
@@ -2918,13 +2879,6 @@ bool hw_vertex_input_create(
 	);
 
 	vertex_input = ::hw_renderer_->vertex_input_create(param);
-
-	if (!vertex_input)
-	{
-		return false;
-	}
-
-	return true;
 }
 
 void hw_3d_player_update_direction()
@@ -2983,7 +2937,7 @@ void hw_shader_destroy(
 	shader = nullptr;
 }
 
-bool hw_shader_create(
+void hw_shader_create(
 	const bstone::RendererShaderKind kind,
 	bstone::RendererShaderPtr& shader)
 {
@@ -3004,13 +2958,9 @@ bool hw_shader_create(
 
 		default:
 			::Quit("Unsupported shader kind.");
-
-			return false;
 	}
 
 	shader = ::hw_renderer_->shader_create(param);
-
-	return shader != nullptr;
 }
 
 void hw_shader_fragment_destroy()
@@ -3018,9 +2968,9 @@ void hw_shader_fragment_destroy()
 	::hw_shader_destroy(::hw_shader_fragment_);
 }
 
-bool hw_shader_fragment_create()
+void hw_shader_fragment_create()
 {
-	return ::hw_shader_create(bstone::RendererShaderKind::fragment, ::hw_shader_fragment_);
+	::hw_shader_create(bstone::RendererShaderKind::fragment, ::hw_shader_fragment_);
 }
 
 void hw_shader_vertex_destroy()
@@ -3028,9 +2978,9 @@ void hw_shader_vertex_destroy()
 	::hw_shader_destroy(::hw_shader_vertex_);
 }
 
-bool hw_shader_vertex_create()
+void hw_shader_vertex_create()
 {
-	return ::hw_shader_create(bstone::RendererShaderKind::vertex, ::hw_shader_vertex_);
+	::hw_shader_create(bstone::RendererShaderKind::vertex, ::hw_shader_vertex_);
 }
 
 void hw_shader_stage_destroy()
@@ -3119,7 +3069,7 @@ void hw_program_initialize_var(
 }
 
 template<typename T>
-bool hw_program_initialize_var(
+void hw_program_initialize_var(
 	const std::string& name,
 	T*& var)
 {
@@ -3143,21 +3093,17 @@ bool hw_program_initialize_var(
 
 	static_assert(!std::is_same<Tag, void>::value, "Unsupported type.");
 
-	hw_program_initialize_var(name, var, Tag{});
+	::hw_program_initialize_var(name, var, Tag{});
 
 	if (!var)
 	{
-		bstone::logger_->write_error("Shader variable \"" + name + "\" not found.");
-
-		return false;
+		::vid_hw_log_error_and_throw("Shader variable \"" + name + "\" not found.");
 	}
-
-	return true;
 }
 
-bool hw_program_initialize_var_model_mat()
+void hw_program_initialize_var_model_mat()
 {
-	return hw_program_initialize_var(
+	::hw_program_initialize_var(
 		bstone::RendererShaderRegistry::get_u_model_mat_name(),
 		::hw_shader_var_model_mat_
 	);
@@ -3168,9 +3114,9 @@ void hw_program_uninitialize_var_view_mat()
 	::hw_program_uninitialize_var(::hw_shader_var_view_mat_);
 }
 
-bool hw_program_initialize_var_view_mat()
+void hw_program_initialize_var_view_mat()
 {
-	return hw_program_initialize_var(
+	::hw_program_initialize_var(
 		bstone::RendererShaderRegistry::get_u_view_mat_name(),
 		::hw_shader_var_view_mat_
 	);
@@ -3181,9 +3127,9 @@ void hw_program_uninitialize_var_projection_mat()
 	::hw_program_uninitialize_var(::hw_shader_var_projection_mat_);
 }
 
-bool hw_program_initialize_var_projection_mat()
+void hw_program_initialize_var_projection_mat()
 {
-	return hw_program_initialize_var(
+	::hw_program_initialize_var(
 		bstone::RendererShaderRegistry::get_u_projection_mat_name(),
 		::hw_shader_var_projection_mat_
 	);
@@ -3194,9 +3140,9 @@ void hw_program_uninitialize_var_texture_mat()
 	::hw_program_uninitialize_var(::hw_shader_var_texture_mat_);
 }
 
-bool hw_program_initialize_var_texture_mat()
+void hw_program_initialize_var_texture_mat()
 {
-	return hw_program_initialize_var(
+	::hw_program_initialize_var(
 		bstone::RendererShaderRegistry::get_u_texture_mat_name(),
 		::hw_shader_var_texture_mat_
 	);
@@ -3207,9 +3153,9 @@ void hw_program_uninitialize_var_shading_mode()
 	::hw_program_uninitialize_var(::hw_shader_var_shading_mode_);
 }
 
-bool hw_program_initialize_var_shading_mode()
+void hw_program_initialize_var_shading_mode()
 {
-	return hw_program_initialize_var(
+	::hw_program_initialize_var(
 		bstone::RendererShaderRegistry::get_u_shading_mode_name(),
 		::hw_shader_var_shading_mode_
 	);
@@ -3220,9 +3166,9 @@ void hw_program_uninitialize_var_shade_max()
 	::hw_program_uninitialize_var(::hw_shader_var_shade_max_);
 }
 
-bool hw_program_initialize_var_shade_max()
+void hw_program_initialize_var_shade_max()
 {
-	return hw_program_initialize_var(
+	::hw_program_initialize_var(
 		bstone::RendererShaderRegistry::get_u_shade_max_name(),
 		::hw_shader_var_shade_max_
 	);
@@ -3233,9 +3179,9 @@ void hw_program_uninitialize_var_normal_shade()
 	::hw_program_uninitialize_var(::hw_shader_var_normal_shade_);
 }
 
-bool hw_program_initialize_var_normal_shade()
+void hw_program_initialize_var_normal_shade()
 {
-	return hw_program_initialize_var(
+	::hw_program_initialize_var(
 		bstone::RendererShaderRegistry::get_u_normal_shade_name(),
 		::hw_shader_var_normal_shade_
 	);
@@ -3246,9 +3192,9 @@ void hw_program_uninitialize_var_height_numerator()
 	::hw_program_uninitialize_var(::hw_shader_var_height_numerator_);
 }
 
-bool hw_program_initialize_var_height_numerator()
+void hw_program_initialize_var_height_numerator()
 {
-	return hw_program_initialize_var(
+	::hw_program_initialize_var(
 		bstone::RendererShaderRegistry::get_u_height_numerator_name(),
 		::hw_shader_var_height_numerator_
 	);
@@ -3259,9 +3205,9 @@ void hw_program_uninitialize_var_extra_lighting()
 	::hw_program_uninitialize_var(::hw_shader_var_extra_lighting_);
 }
 
-bool hw_program_initialize_var_extra_lighting()
+void hw_program_initialize_var_extra_lighting()
 {
-	return hw_program_initialize_var(
+	::hw_program_initialize_var(
 		bstone::RendererShaderRegistry::get_u_extra_lighting_name(),
 		::hw_shader_var_extra_lighting_
 	);
@@ -3272,9 +3218,9 @@ void hw_program_uninitialize_var_view_direction()
 	::hw_program_uninitialize_var(::hw_shader_var_view_direction_);
 }
 
-bool hw_program_initialize_var_view_direction()
+void hw_program_initialize_var_view_direction()
 {
-	return hw_program_initialize_var(
+	::hw_program_initialize_var(
 		bstone::RendererShaderRegistry::get_u_view_direction_name(),
 		::hw_shader_var_view_direction_
 	);
@@ -3285,9 +3231,9 @@ void hw_program_uninitialize_var_view_position()
 	::hw_program_uninitialize_var(::hw_shader_var_view_position_);
 }
 
-bool hw_program_initialize_var_view_position()
+void hw_program_initialize_var_view_position()
 {
-	return hw_program_initialize_var(
+	::hw_program_initialize_var(
 		bstone::RendererShaderRegistry::get_u_view_position_name(),
 		::hw_shader_var_view_position_
 	);
@@ -3304,44 +3250,15 @@ void hw_program_uninitialize_vars_shading()
 	::hw_program_uninitialize_var_view_position();
 }
 
-bool hw_program_initialize_vars_shading()
+void hw_program_initialize_vars_shading()
 {
-	if (!::hw_program_initialize_var_shading_mode())
-	{
-		return false;
-	}
-
-	if (!::hw_program_initialize_var_shade_max())
-	{
-		return false;
-	}
-
-	if (!::hw_program_initialize_var_normal_shade())
-	{
-		return false;
-	}
-
-	if (!::hw_program_initialize_var_height_numerator())
-	{
-		return false;
-	}
-
-	if (!::hw_program_initialize_var_extra_lighting())
-	{
-		return false;
-	}
-
-	if (!::hw_program_initialize_var_view_direction())
-	{
-		return false;
-	}
-
-	if (!::hw_program_initialize_var_view_position())
-	{
-		return false;
-	}
-
-	return true;
+	::hw_program_initialize_var_shading_mode();
+	::hw_program_initialize_var_shade_max();
+	::hw_program_initialize_var_normal_shade();
+	::hw_program_initialize_var_height_numerator();
+	::hw_program_initialize_var_extra_lighting();
+	::hw_program_initialize_var_view_direction();
+	::hw_program_initialize_var_view_position();
 }
 
 void hw_program_uninitialize_vars()
@@ -3353,34 +3270,15 @@ void hw_program_uninitialize_vars()
 	::hw_program_uninitialize_vars_shading();
 }
 
-bool hw_program_initialize_vars()
+void hw_program_initialize_vars()
 {
-	if (!::hw_program_initialize_var_model_mat())
-	{
-		return false;
-	}
+	::vid_log("Initializing shader variables.");
 
-	if (!::hw_program_initialize_var_view_mat())
-	{
-		return false;
-	}
-
-	if (!::hw_program_initialize_var_projection_mat())
-	{
-		return false;
-	}
-
-	if (!::hw_program_initialize_var_texture_mat())
-	{
-		return false;
-	}
-
-	if (!::hw_program_initialize_vars_shading())
-	{
-		return false;
-	}
-
-	return true;
+	::hw_program_initialize_var_model_mat();
+	::hw_program_initialize_var_view_mat();
+	::hw_program_initialize_var_projection_mat();
+	::hw_program_initialize_var_texture_mat();
+	::hw_program_initialize_vars_shading();
 }
 
 void hw_program_uninitialize()
@@ -3391,32 +3289,17 @@ void hw_program_uninitialize()
 	::hw_shader_vertex_destroy();
 }
 
-bool hw_program_initialize()
+void hw_program_initialize()
 {
-	if (!::hw_shader_fragment_create())
-	{
-		return false;
-	}
+	::vid_log("Initializing shader program.");
 
-	if (!::hw_shader_vertex_create())
-	{
-		return false;
-	}
-
-	if (!::hw_shader_stage_create())
-	{
-		return false;
-	}
-
-	if (!::hw_program_initialize_vars())
-	{
-		return false;
-	}
-
-	return true;
+	::hw_shader_fragment_create();
+	::hw_shader_vertex_create();
+	::hw_shader_stage_create();
+	::hw_program_initialize_vars();
 }
 
-bool hw_renderer_initialize()
+void hw_renderer_initialize()
 {
 	::vid_log();
 	::vid_log("Initializing renderer.");
@@ -3455,8 +3338,6 @@ bool hw_renderer_initialize()
 	param.window_.title_utf8_ = title;
 
 	::hw_renderer_ = hw_renderer_manager_->renderer_initialize(param);
-
-	return true;
 }
 
 void hw_2d_ui_ib_destroy()
@@ -3464,20 +3345,15 @@ void hw_2d_ui_ib_destroy()
 	::hw_index_buffer_destroy(::hw_2d_ui_ib_);
 }
 
-bool hw_2d_ui_ib_create()
+void hw_2d_ui_ib_create()
 {
+	::vid_log("Creating UI index buffer.");
+
 	::hw_2d_ui_ib_ = ::hw_index_buffer_create(
 		bstone::RendererBufferUsageKind::static_draw,
 		1,
 		::hw_2d_index_count_
 	);
-
-	if (!::hw_2d_ui_ib_)
-	{
-		::vid_log_hw_renderer_error("Failed to create UI index buffer.");
-
-		return false;
-	}
 
 
 	using Indices = std::array<std::uint8_t, ::hw_2d_index_count_>;
@@ -3500,8 +3376,6 @@ bool hw_2d_ui_ib_create()
 		0,
 		::hw_2d_index_count_,
 		indices.data());
-
-	return true;
 }
 
 void hw_2d_ui_vi_destroy()
@@ -3509,19 +3383,14 @@ void hw_2d_ui_vi_destroy()
 	::hw_vertex_input_destroy(::hw_2d_ui_vi_);
 }
 
-bool hw_2d_ui_vi_create()
+void hw_2d_ui_vi_create()
 {
-	if (!::hw_vertex_input_create<HwVertex>(
+	::vid_log("Creating UI vertex input.");
+
+	::hw_vertex_input_create<HwVertex>(
 		::hw_2d_ui_ib_,
 		::hw_2d_ui_vb_,
-		::hw_2d_ui_vi_))
-	{
-		::vid_log_hw_renderer_error("Failed to create UI vertex input.");
-
-		return false;
-	}
-
-	return true;
+		::hw_2d_ui_vi_);
 }
 
 void hw_2d_vb_fill_x_stretched(
@@ -3593,19 +3462,14 @@ void hw_2d_ui_vb_destroy()
 	::hw_vertex_buffer_destroy(::hw_2d_ui_vb_);
 }
 
-bool hw_2d_ui_vb_create()
+void hw_2d_ui_vb_create()
 {
+	::vid_log("Creating UI vertex buffer.");
+
 	::hw_2d_ui_vb_ = ::hw_vertex_buffer_create<HwVertex>(
 		bstone::RendererBufferUsageKind::static_draw,
 		::hw_2d_vertex_count_
 	);
-
-	if (!::hw_2d_ui_vb_)
-	{
-		::vid_log_hw_renderer_error("Failed to create UI vertex buffer.");
-
-		return false;
-	}
 
 	hw_2d_vb_fill_stretched();
 	hw_2d_vb_fill_non_stretched();
@@ -3616,8 +3480,6 @@ bool hw_2d_ui_vb_create()
 		::hw_2d_vertex_count_,
 		::hw_2d_vertices_.data()
 	);
-
-	return true;
 }
 
 void hw_2d_fillers_ib_destroy()
@@ -3625,20 +3487,15 @@ void hw_2d_fillers_ib_destroy()
 	::hw_index_buffer_destroy(::hw_2d_fillers_ib_);
 }
 
-bool hw_2d_fillers_ib_create()
+void hw_2d_fillers_ib_create()
 {
+	::vid_log("Creating 2D filler index buffer.");
+
 	::hw_2d_fillers_ib_ = ::hw_index_buffer_create(
 		bstone::RendererBufferUsageKind::static_draw,
 		1,
 		::hw_2d_fillers_index_count_
 	);
-
-	if (!::hw_2d_fillers_ib_)
-	{
-		::vid_log_hw_renderer_error("Failed to create fillers index buffer.");
-
-		return false;
-	}
 
 	using Indices = std::array<std::uint8_t, ::hw_2d_fillers_index_count_>;
 
@@ -3680,8 +3537,6 @@ bool hw_2d_fillers_ib_create()
 		0,
 		::hw_2d_fillers_index_count_,
 		indices.data());
-
-	return true;
 }
 
 void hw_2d_fillers_vb_destroy()
@@ -3689,19 +3544,14 @@ void hw_2d_fillers_vb_destroy()
 	::hw_vertex_buffer_destroy(::hw_2d_fillers_vb_);
 }
 
-bool hw_2d_fillers_vb_create()
+void hw_2d_fillers_vb_create()
 {
+	::vid_log("Creating 2D filler vertex buffer.");
+
 	::hw_2d_fillers_vb_ = ::hw_vertex_buffer_create<HwVertex>(
 		bstone::RendererBufferUsageKind::static_draw,
 		::hw_2d_fillers_vertex_count_
 	);
-
-	if (!::hw_2d_fillers_vb_)
-	{
-		::vid_log_hw_renderer_error("Failed to create fillers vertex buffer.");
-
-		return false;
-	}
 
 	const auto& filler_color = ::hw_vga_color_to_r8g8b8a8(
 		::vgapal[(::filler_color_index * 3) + 0],
@@ -4040,8 +3890,6 @@ bool hw_2d_fillers_vb_create()
 		::hw_2d_fillers_vertex_count_,
 		vertices.data()
 	);
-
-	return true;
 }
 
 void hw_2d_fillers_vi_destroy()
@@ -4049,20 +3897,15 @@ void hw_2d_fillers_vi_destroy()
 	::hw_vertex_input_destroy(::hw_2d_fillers_vi_);
 }
 
-bool hw_2d_fillers_vi_create()
+void hw_2d_fillers_vi_create()
 {
-	const auto result = ::hw_vertex_input_create<HwVertex>(
+	::vid_log("Creating 2D filler vertex input.");
+
+	::hw_vertex_input_create<HwVertex>(
 		::hw_2d_fillers_ib_,
 		::hw_2d_fillers_vb_,
 		::hw_2d_fillers_vi_
 	);
-
-	if (!result)
-	{
-		::vid_log_hw_renderer_error("Failed to create fillers vertex input.");
-	}
-
-	return result;
 }
 
 void hw_2d_texture_1x1_black_destroy()
@@ -4075,12 +3918,12 @@ void hw_2d_texture_1x1_black_destroy()
 	::hw_2d_black_t2d_1x1_ = nullptr;
 }
 
-bool hw_2d_texture_1x1_black_create()
+void hw_2d_texture_1x1_black_create()
 {
+	::vid_log("Creating 2D 1x1 black texture.");
+
 	::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::black);
 	::hw_2d_black_t2d_1x1_ = ::hw_texture_manager_->solid_1x1_get(bstone::HwTextureManagerSolid1x1Id::black);
-
-	return true;
 }
 
 void hw_2d_texture_1x1_white_destroy()
@@ -4093,12 +3936,12 @@ void hw_2d_texture_1x1_white_destroy()
 	::hw_2d_white_t2d_1x1_ = nullptr;
 }
 
-bool hw_2d_texture_1x1_white_create()
+void hw_2d_texture_1x1_white_create()
 {
+	::vid_log("Creating 2D 1x1 white texture.");
+
 	::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::white);
 	::hw_2d_white_t2d_1x1_ = ::hw_texture_manager_->solid_1x1_get(bstone::HwTextureManagerSolid1x1Id::white);
-
-	return true;
 }
 
 void hw_2d_texture_1x1_fade_destroy()
@@ -4111,12 +3954,12 @@ void hw_2d_texture_1x1_fade_destroy()
 	::hw_2d_fade_t2d_ = nullptr;
 }
 
-bool hw_2d_texture_1x1_fade_create()
+void hw_2d_texture_1x1_fade_create()
 {
+	::vid_log("Creating 2D 1x1 fade texture.");
+
 	::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::fade_2d);
 	::hw_2d_fade_t2d_ = ::hw_texture_manager_->solid_1x1_get(bstone::HwTextureManagerSolid1x1Id::fade_2d);
-
-	return true;
 }
 
 void hw_2d_ui_texture_destroy()
@@ -4130,12 +3973,12 @@ void hw_2d_ui_texture_destroy()
 	::hw_2d_ui_t2d_ = nullptr;
 }
 
-bool hw_2d_ui_texture_create()
+void hw_2d_ui_texture_create()
 {
-	::hw_texture_manager_->ui_create(::vid_ui_buffer.data(), ::vid_mask_buffer.data(), &::hw_palette_);
-	::hw_2d_ui_t2d_ = ::hw_texture_manager_->ui_get();
+	::vid_log("Creating UI texture.");
 
-	return true;
+	::hw_texture_manager_->ui_create(::vid_ui_buffer_.data(), ::vid_mask_buffer_.data(), &::hw_palette_);
+	::hw_2d_ui_t2d_ = ::hw_texture_manager_->ui_get();
 }
 
 void hw_2d_uninitialize()
@@ -4155,62 +3998,22 @@ void hw_2d_uninitialize()
 	::hw_2d_texture_1x1_fade_destroy();
 }
 
-bool hw_2d_initialize()
+void hw_2d_initialize()
 {
 	::vid_log();
-	::vid_log("Initializing 2D stuff.");
+	::vid_log("Initializing 2D resources.");
 
-	if (!::hw_2d_ui_ib_create())
-	{
-		return false;
-	}
+	::hw_2d_ui_ib_create();
+	::hw_2d_ui_vb_create();
+	::hw_2d_ui_vi_create();
+	::hw_2d_fillers_ib_create();
+	::hw_2d_fillers_vb_create();
 
-	if (!::hw_2d_ui_vb_create())
-	{
-		return false;
-	}
-
-	if (!::hw_2d_ui_vi_create())
-	{
-		return false;
-	}
-
-	if (!::hw_2d_fillers_ib_create())
-	{
-		return false;
-	}
-
-	if (!::hw_2d_fillers_vb_create())
-	{
-		return false;
-	}
-
-	if (!::hw_2d_fillers_vi_create())
-	{
-		return false;
-	}
-
-	if (!::hw_2d_ui_texture_create())
-	{
-		return false;
-	}
-
-	if (!::hw_2d_texture_1x1_black_create())
-	{
-		return false;
-	}
-
-	if (!::hw_2d_texture_1x1_white_create())
-	{
-		return false;
-	}
-
-	if (!::hw_2d_texture_1x1_fade_create())
-	{
-		return false;
-	}
-
-	return true;
+	::hw_2d_fillers_vi_create();
+	::hw_2d_ui_texture_create();
+	::hw_2d_texture_1x1_black_create();
+	::hw_2d_texture_1x1_white_create();
+	::hw_2d_texture_1x1_fade_create();
 }
 
 void hw_3d_flooring_ib_destroy()
@@ -4218,8 +4021,10 @@ void hw_3d_flooring_ib_destroy()
 	::hw_index_buffer_destroy(::hw_3d_flooring_ib_);
 }
 
-bool hw_3d_flooring_ib_create()
+void hw_3d_flooring_ib_create()
 {
+	::vid_log("Creating 3D flooring index buffer.");
+
 	const auto index_count = 6;
 
 	{
@@ -4228,13 +4033,6 @@ bool hw_3d_flooring_ib_create()
 			1,
 			index_count
 		);
-
-		if (!::hw_3d_flooring_ib_)
-		{
-			::vid_log_hw_renderer_error("Failed to create flooring index buffer.");
-
-			return false;
-		}
 	}
 
 	{
@@ -4253,8 +4051,6 @@ bool hw_3d_flooring_ib_create()
 			indices.data()
 		);
 	}
-
-	return true;
 }
 
 void hw_3d_flooring_vb_destroy()
@@ -4262,8 +4058,10 @@ void hw_3d_flooring_vb_destroy()
 	::hw_vertex_buffer_destroy(::hw_3d_flooring_vb_);
 }
 
-bool hw_3d_flooring_vb_create()
+void hw_3d_flooring_vb_create()
 {
+	::vid_log("Creating 3D flooring vertex buffer.");
+
 	const auto vertex_count = 4;
 
 	{
@@ -4271,13 +4069,6 @@ bool hw_3d_flooring_vb_create()
 			bstone::RendererBufferUsageKind::static_draw,
 			vertex_count
 		);
-
-		if (!::hw_3d_flooring_vb_)
-		{
-			::vid_log_hw_renderer_error("Failed to create flooring vertex buffer.");
-
-			return false;
-		}
 	}
 
 	{
@@ -4324,8 +4115,6 @@ bool hw_3d_flooring_vb_create()
 			vertices.data()
 		);
 	}
-
-	return true;
 }
 
 void hw_3d_flooring_vi_destroy()
@@ -4333,21 +4122,14 @@ void hw_3d_flooring_vi_destroy()
 	::hw_vertex_input_destroy(::hw_3d_flooring_vi_);
 }
 
-bool hw_3d_flooring_vi_create()
+void hw_3d_flooring_vi_create()
 {
-	const auto result = ::hw_vertex_input_create<Hw3dFlooringVertex>(
+	::vid_log("Creating 3D flooring vertex input.");
+
+	::hw_vertex_input_create<Hw3dFlooringVertex>(
 		::hw_3d_flooring_ib_,
 		::hw_3d_flooring_vb_,
 		::hw_3d_flooring_vi_);
-
-	if (!result)
-	{
-		::vid_log_hw_renderer_error("Failed to create flooring vertex input.");
-
-		return false;
-	}
-
-	return true;
 }
 
 void hw_3d_flooring_texture_2d_solid_destroy()
@@ -4360,12 +4142,12 @@ void hw_3d_flooring_texture_2d_solid_destroy()
 	::hw_3d_flooring_solid_t2d_ = nullptr;
 }
 
-bool hw_3d_flooring_texture_2d_solid_create()
+void hw_3d_flooring_texture_2d_solid_create()
 {
+	::vid_log("Creating 3D flooring 1x1 solid texture.");
+
 	::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::flooring);
 	::hw_3d_flooring_solid_t2d_ = ::hw_texture_manager_->solid_1x1_get(bstone::HwTextureManagerSolid1x1Id::flooring);
-
-	return true;
 }
 
 void hw_3d_flooring_uninitialize()
@@ -4380,32 +4162,15 @@ void hw_3d_flooring_uninitialize()
 	::hw_3d_flooring_textured_t2d_ = nullptr;
 }
 
-bool hw_3d_flooring_initialize()
+void hw_3d_flooring_initialize()
 {
 	::vid_log();
-	::vid_log("Initializing flooring.");
+	::vid_log("Initializing 3D flooring.");
 
-	if (!::hw_3d_flooring_ib_create())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_flooring_vb_create())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_flooring_vi_create())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_flooring_texture_2d_solid_create())
-	{
-		return false;
-	}
-
-	return true;
+	::hw_3d_flooring_ib_create();
+	::hw_3d_flooring_vb_create();
+	::hw_3d_flooring_vi_create();
+	::hw_3d_flooring_texture_2d_solid_create();
 }
 
 void hw_3d_ceiling_ib_destroy()
@@ -4413,8 +4178,10 @@ void hw_3d_ceiling_ib_destroy()
 	::hw_index_buffer_destroy(::hw_3d_ceiling_ib_);
 }
 
-bool hw_3d_ceiling_ib_create()
+void hw_3d_ceiling_ib_create()
 {
+	::vid_log("Creating 3D ceiling index buffer.");
+
 	const auto index_count = 6;
 
 	{
@@ -4423,13 +4190,6 @@ bool hw_3d_ceiling_ib_create()
 			1,
 			index_count
 		);
-
-		if (!::hw_3d_ceiling_ib_)
-		{
-			::vid_log_hw_renderer_error("Failed to create ceiling index buffer.");
-
-			return false;
-		}
 	}
 
 	{
@@ -4448,8 +4208,6 @@ bool hw_3d_ceiling_ib_create()
 			indices.data()
 		);
 	}
-
-	return true;
 }
 
 void hw_3d_ceiling_vb_destroy()
@@ -4457,8 +4215,10 @@ void hw_3d_ceiling_vb_destroy()
 	::hw_vertex_buffer_destroy(::hw_3d_ceiling_vb_);
 }
 
-bool hw_3d_ceiling_vb_create()
+void hw_3d_ceiling_vb_create()
 {
+	::vid_log("Creating 3D ceiling vertex buffer.");
+
 	const auto vertex_count = 4;
 
 	{
@@ -4466,13 +4226,6 @@ bool hw_3d_ceiling_vb_create()
 			bstone::RendererBufferUsageKind::static_draw,
 			vertex_count
 		);
-
-		if (!::hw_3d_ceiling_vb_)
-		{
-			::vid_log_hw_renderer_error("Failed to create ceiling vertex buffer.");
-
-			return false;
-		}
 	}
 
 	{
@@ -4517,8 +4270,6 @@ bool hw_3d_ceiling_vb_create()
 			vertices.data()
 		);
 	}
-
-	return true;
 }
 
 void hw_3d_ceiling_vi_destroy()
@@ -4526,19 +4277,14 @@ void hw_3d_ceiling_vi_destroy()
 	::hw_vertex_input_destroy(::hw_3d_ceiling_vi_);
 }
 
-bool hw_3d_ceiling_vi_create()
+void hw_3d_ceiling_vi_create()
 {
-	const auto result = ::hw_vertex_input_create<Hw3dCeilingVertex>(
+	::vid_log("Creating 3D ceiling vertex input.");
+
+	::hw_vertex_input_create<Hw3dCeilingVertex>(
 		::hw_3d_ceiling_ib_,
 		::hw_3d_ceiling_vb_,
 		::hw_3d_ceiling_vi_);
-
-	if (!result)
-	{
-		::vid_log_hw_renderer_error("Failed to create ceiling vertex input.");
-	}
-
-	return result;
 }
 
 void hw_3d_ceiling_texture_2d_solid_destroy()
@@ -4551,40 +4297,21 @@ void hw_3d_ceiling_texture_2d_solid_destroy()
 	::hw_3d_ceiling_solid_t2d_ = nullptr;
 }
 
-bool hw_3d_ceiling_texture_2d_solid_create()
+void hw_3d_ceiling_texture_2d_solid_create()
 {
 	::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::ceiling);
 	::hw_3d_ceiling_solid_t2d_ = ::hw_texture_manager_->solid_1x1_get(bstone::HwTextureManagerSolid1x1Id::ceiling);
-
-	return true;
 }
 
-bool hw_3d_ceiling_initialize()
+void hw_3d_ceiling_initialize()
 {
 	::vid_log();
-	::vid_log("Initializing ceiling.");
+	::vid_log("Initializing 3D ceiling.");
 
-	if (!::hw_3d_ceiling_ib_create())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_ceiling_vb_create())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_ceiling_vi_create())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_ceiling_texture_2d_solid_create())
-	{
-		return false;
-	}
-
-	return true;
+	::hw_3d_ceiling_ib_create();
+	::hw_3d_ceiling_vb_create();
+	::hw_3d_ceiling_vi_create();
+	::hw_3d_ceiling_texture_2d_solid_create();
 }
 
 void hw_3d_ceiling_uninitialize()
@@ -4599,8 +4326,10 @@ void hw_3d_ceiling_uninitialize()
 	::hw_3d_ceiling_textured_t2d_ = nullptr;
 }
 
-bool hw_3d_walls_ib_create()
+void hw_3d_walls_ib_create()
 {
+	::vid_log("Creating wall index buffer.");
+
 	const auto index_count = ::hw_3d_wall_side_count_ * ::hw_3d_indices_per_wall_side;
 
 	::hw_3d_wall_sides_ib_ = ::hw_index_buffer_create(
@@ -4609,17 +4338,8 @@ bool hw_3d_walls_ib_create()
 		index_count
 	);
 
-	if (!::hw_3d_wall_sides_ib_)
-	{
-		::vid_log_hw_renderer_error("Failed to create walls index buffer.");
-
-		return false;
-	}
-
 	::hw_3d_wall_sides_ibi_.clear();
 	::hw_3d_wall_sides_ibi_.resize(index_count);
-
-	return true;
 }
 
 void hw_3d_walls_ib_destroy()
@@ -4628,23 +4348,16 @@ void hw_3d_walls_ib_destroy()
 	::hw_3d_wall_sides_ibi_.clear();
 }
 
-bool hw_3d_walls_vb_create()
+void hw_3d_walls_vb_create()
 {
+	::vid_log("Creating wall vertex buffer.");
+
 	const auto vertex_count = ::hw_3d_wall_side_count_ * ::hw_3d_vertices_per_wall_side;
 
 	::hw_3d_wall_sides_vb_ = ::hw_vertex_buffer_create<Hw3dWallVertex>(
 		bstone::RendererBufferUsageKind::static_draw,
 		vertex_count
 	);
-
-	if (!::hw_3d_wall_sides_vb_)
-	{
-		::vid_log_hw_renderer_error("Failed to create walls vertex buffer.");
-
-		return false;
-	}
-
-	return true;
 }
 
 void hw_3d_walls_vi_destroy()
@@ -4652,21 +4365,14 @@ void hw_3d_walls_vi_destroy()
 	::hw_vertex_input_destroy(::hw_3d_wall_sides_vi_);
 }
 
-bool hw_3d_walls_vi_create()
+void hw_3d_walls_vi_create()
 {
-	const auto result = ::hw_vertex_input_create<Hw3dWallVertex>(
+	::vid_log("Creating wall vertex input.");
+
+	::hw_vertex_input_create<Hw3dWallVertex>(
 		::hw_3d_wall_sides_ib_,
 		::hw_3d_wall_sides_vb_,
 		::hw_3d_wall_sides_vi_);
-
-	if (!result)
-	{
-		::vid_log_hw_renderer_error("Failed to create walls vertex input.");
-
-		return false;
-	}
-
-	return true;
 }
 
 void hw_3d_walls_vb_destroy()
@@ -4674,7 +4380,7 @@ void hw_3d_walls_vb_destroy()
 	::hw_vertex_buffer_destroy(::hw_3d_wall_sides_vb_);
 }
 
-bool hw_3d_walls_initialize()
+void hw_3d_walls_initialize()
 {
 	::vid_log();
 	::vid_log("Initializing walls.");
@@ -4687,22 +4393,9 @@ bool hw_3d_walls_initialize()
 	::hw_3d_wall_side_draw_items_.clear();
 	::hw_3d_wall_side_draw_items_.resize(::hw_3d_wall_side_count_);
 
-	if (!::hw_3d_walls_ib_create())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_walls_vb_create())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_walls_vi_create())
-	{
-		return false;
-	}
-
-	return true;
+	::hw_3d_walls_ib_create();
+	::hw_3d_walls_vb_create();
+	::hw_3d_walls_vi_create();
 }
 
 void hw_3d_walls_uninitialize()
@@ -4719,18 +4412,18 @@ void hw_3d_walls_uninitialize()
 	::hw_3d_walls_vi_destroy();
 }
 
-bool hw_3d_pushwalls_ibi_create()
+void hw_3d_pushwalls_ibi_create()
 {
 	const auto index_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_indices_per_wall_side;
 
 	::hw_3d_pushwall_sides_ibi_.clear();
 	::hw_3d_pushwall_sides_ibi_.resize(index_count);
-
-	return true;
 }
 
-bool hw_3d_pushwalls_ib_create()
+void hw_3d_pushwalls_ib_create()
 {
+	::vid_log("Creating pushwall index buffer.");
+
 	const auto index_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_indices_per_wall_side;
 
 	::hw_3d_pushwall_sides_ib_ = ::hw_index_buffer_create(
@@ -4738,15 +4431,6 @@ bool hw_3d_pushwalls_ib_create()
 		2,
 		index_count
 	);
-
-	if (!::hw_3d_pushwall_sides_ib_)
-	{
-		::vid_log_hw_renderer_error("Failed to create pushwalls index buffer.");
-
-		return false;
-	}
-
-	return true;
 }
 
 void hw_3d_pushwalls_ibi_destroy()
@@ -4759,23 +4443,16 @@ void hw_3d_pushwalls_ib_destroy()
 	::hw_index_buffer_destroy(::hw_3d_pushwall_sides_ib_);
 }
 
-bool hw_3d_pushwalls_vb_create()
+void hw_3d_pushwalls_vb_create()
 {
+	::vid_log("Creating pushwall vertex buffer.");
+
 	const auto vertex_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_vertices_per_wall_side;
 
 	::hw_3d_pushwall_sides_vb_ = ::hw_vertex_buffer_create<Hw3dPushwallVertex>(
 		bstone::RendererBufferUsageKind::dynamic_draw,
 		vertex_count
 	);
-
-	if (!::hw_3d_pushwall_sides_vb_)
-	{
-		::vid_log_hw_renderer_error("Failed to create pushwalls vertex buffer.");
-
-		return false;
-	}
-
-	return true;
 }
 
 void hw_3d_pushwalls_vi_destroy()
@@ -4783,21 +4460,14 @@ void hw_3d_pushwalls_vi_destroy()
 	::hw_vertex_input_destroy(::hw_3d_pushwall_sides_vi_);
 }
 
-bool hw_3d_pushwalls_vi_create()
+void hw_3d_pushwalls_vi_create()
 {
-	const auto result = ::hw_vertex_input_create<Hw3dPushwallVertex>(
+	::vid_log("Creating pushwall vertex input.");
+
+	::hw_vertex_input_create<Hw3dPushwallVertex>(
 		::hw_3d_pushwall_sides_ib_,
 		::hw_3d_pushwall_sides_vb_,
 		::hw_3d_pushwall_sides_vi_);
-
-	if (!result)
-	{
-		::vid_log_hw_renderer_error("Failed to create pushwalls vertex input.");
-
-		return false;
-	}
-
-	return true;
 }
 
 void hw_3d_pushwalls_vb_destroy()
@@ -4805,7 +4475,7 @@ void hw_3d_pushwalls_vb_destroy()
 	::hw_vertex_buffer_destroy(::hw_3d_pushwall_sides_vb_);
 }
 
-bool hw_3d_pushwalls_initialize()
+void hw_3d_pushwalls_initialize()
 {
 	::vid_log();
 	::vid_log("Initializing pushwalls.");
@@ -4821,27 +4491,10 @@ bool hw_3d_pushwalls_initialize()
 	::hw_3d_pushwall_side_draw_items_.clear();
 	::hw_3d_pushwall_side_draw_items_.resize(::hw_3d_pushwall_side_count_);
 
-	if (!::hw_3d_pushwalls_ibi_create())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_pushwalls_ib_create())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_pushwalls_vb_create())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_pushwalls_vi_create())
-	{
-		return false;
-	}
-
-	return true;
+	::hw_3d_pushwalls_ibi_create();
+	::hw_3d_pushwalls_ib_create();
+	::hw_3d_pushwalls_vb_create();
+	::hw_3d_pushwalls_vi_create();
 }
 
 void hw_3d_pushwalls_uninitialize()
@@ -4861,18 +4514,18 @@ void hw_3d_pushwalls_uninitialize()
 	::hw_3d_pushwalls_vb_destroy();
 }
 
-bool hw_3d_door_sides_ibi_create()
+void hw_3d_door_sides_ibi_create()
 {
 	const auto index_count = ::hw_3d_door_count_ * ::hw_3d_indices_per_door_side;
 
 	::hw_3d_door_sides_ibi_.clear();
 	::hw_3d_door_sides_ibi_.resize(index_count);
-
-	return true;
 }
 
-bool hw_3d_door_sides_ib_create()
+void hw_3d_door_sides_ib_create()
 {
+	::vid_log("Creating door index buffer.");
+
 	const auto index_count = ::hw_3d_door_count_ * ::hw_3d_indices_per_door_side;
 
 	::hw_3d_door_sides_ib_ = ::hw_index_buffer_create(
@@ -4880,15 +4533,6 @@ bool hw_3d_door_sides_ib_create()
 		2,
 		index_count
 	);
-
-	if (!::hw_3d_door_sides_ib_)
-	{
-		::vid_log_hw_renderer_error("Failed to create doors index buffer.");
-
-		return false;
-	}
-
-	return true;
 }
 
 void hw_3d_door_sides_ibi_destroy()
@@ -4903,23 +4547,16 @@ void hw_3d_door_sides_ib_destroy()
 	::hw_3d_door_sides_ibi_.clear();
 }
 
-bool hw_3d_door_sides_vb_create()
+void hw_3d_door_sides_vb_create()
 {
+	::vid_log("Creating door vertex buffer.");
+
 	const auto vertex_count = ::hw_3d_door_count_ * ::hw_3d_indices_per_door_side;
 
 	::hw_3d_door_sides_vb_ = ::hw_vertex_buffer_create<Hw3dDoorVertex>(
 		bstone::RendererBufferUsageKind::dynamic_draw,
 		vertex_count
 	);
-
-	if (!::hw_3d_door_sides_vb_)
-	{
-		::vid_log_hw_renderer_error("Failed to create doors vertex buffer.");
-
-		return false;
-	}
-
-	return true;
 }
 
 void hw_3d_door_sides_vb_destroy()
@@ -4932,24 +4569,17 @@ void hw_3d_door_sides_vi_destroy()
 	::hw_vertex_input_destroy(::hw_3d_door_sides_vi_);
 }
 
-bool hw_3d_door_sides_vi_create()
+void hw_3d_door_sides_vi_create()
 {
-	const auto result = ::hw_vertex_input_create<Hw3dDoorVertex>(
+	::vid_log("Creating door vertex input.");
+
+	::hw_vertex_input_create<Hw3dDoorVertex>(
 		::hw_3d_door_sides_ib_,
 		::hw_3d_door_sides_vb_,
 		::hw_3d_door_sides_vi_);
-
-	if (!result)
-	{
-		::vid_log_hw_renderer_error("Failed to create doors vertex input.");
-
-		return false;
-	}
-
-	return true;
 }
 
-bool hw_3d_door_sides_initialize()
+void hw_3d_door_sides_initialize()
 {
 	::vid_log();
 	::vid_log("Initializing doors.");
@@ -4962,27 +4592,10 @@ bool hw_3d_door_sides_initialize()
 	::hw_3d_door_draw_items_.clear();
 	::hw_3d_door_draw_items_.resize(max_draw_item_count);
 
-	if (!::hw_3d_door_sides_ibi_create())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_door_sides_ib_create())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_door_sides_vb_create())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_door_sides_vi_create())
-	{
-		return false;
-	}
-
-	return true;
+	::hw_3d_door_sides_ibi_create();
+	::hw_3d_door_sides_ib_create();
+	::hw_3d_door_sides_vb_create();
+	::hw_3d_door_sides_vi_create();
 }
 
 void hw_3d_door_sides_uninitialize()
@@ -5007,7 +4620,7 @@ void hw_palette_update(
 	for (int i = 0; i < color_count; ++i)
 	{
 		const auto color_index = first_index + i;
-		const auto& vga_color = ::vid_vga_palette[color_index];
+		const auto& vga_color = ::vid_vga_palette_[color_index];
 		auto& hw_color = ::hw_palette_[color_index];
 
 		hw_color = ::hw_vga_color_to_r8g8b8a8(
@@ -5232,21 +4845,14 @@ void hw_2d_sampler_ui_destroy()
 	}
 }
 
-bool hw_2d_sampler_ui_create()
+void hw_2d_sampler_ui_create()
 {
+	::vid_log("Creating UI sampler.");
+
 	auto param = bstone::RendererSamplerCreateParam{};
 	param.state_ = ::hw_2d_ui_s_state_;
 
 	::hw_2d_ui_s_ = ::hw_renderer_->sampler_create(param);
-
-	if (::hw_2d_ui_s_ == nullptr)
-	{
-		::vid_log_hw_renderer_error("Failed to create UI sampler.");
-
-		return false;
-	}
-
-	return true;
 }
 
 void hw_3d_sampler_sprite_set_default_state()
@@ -5272,7 +4878,7 @@ void hw_3d_sampler_sprite_update()
 		::vid_configuration_.hw_3d_texture_anisotropy_value_
 	);
 
-	if (::hw_3d_sprite_s_ != nullptr)
+	if (::hw_3d_sprite_s_)
 	{
 		auto param = bstone::RendererSamplerUpdateParam{};
 		param.state_ = ::hw_3d_sprite_s_state_;
@@ -5285,21 +4891,14 @@ void hw_3d_sampler_sprite_destroy()
 	::hw_sampler_destroy(::hw_3d_sprite_s_);
 }
 
-bool hw_3d_sampler_sprite_create()
+void hw_3d_sampler_sprite_create()
 {
+	::vid_log("Creating sprite sampler.");
+
 	auto param = bstone::RendererSamplerCreateParam{};
 	param.state_ = ::hw_3d_sprite_s_state_;
 
 	::hw_3d_sprite_s_ = ::hw_renderer_->sampler_create(param);
-
-	if (::hw_3d_sprite_s_ == nullptr)
-	{
-		::vid_log_hw_renderer_error("Failed to create sprite sampler.");
-
-		return false;
-	}
-
-	return true;
 }
 
 void hw_3d_sampler_wall_set_default_state()
@@ -5338,21 +4937,14 @@ void hw_3d_sampler_wall_destroy()
 	::hw_sampler_destroy(::hw_3d_wall_s_);
 }
 
-bool hw_3d_sampler_wall_create()
+void hw_3d_sampler_wall_create()
 {
+	::vid_log("Creating wall side sampler.");
+
 	auto param = bstone::RendererSamplerCreateParam{};
 	param.state_ = ::hw_3d_wall_s_state_;
 
 	::hw_3d_wall_s_ = ::hw_renderer_->sampler_create(param);
-
-	if (::hw_3d_wall_s_ == nullptr)
-	{
-		::vid_log_hw_renderer_error("Failed to create wall sampler.");
-
-		return false;
-	}
-
-	return true;
 }
 
 void hw_3d_player_weapon_vb_update()
@@ -5412,22 +5004,15 @@ void hw_3d_player_weapon_ib_destroy()
 	::hw_index_buffer_destroy(::hw_3d_player_weapon_ib_);
 }
 
-bool hw_3d_player_weapon_ib_create()
+void hw_3d_player_weapon_ib_create()
 {
+	::vid_log("Creating player's weapon index buffer.");
+
 	::hw_3d_player_weapon_ib_ = ::hw_index_buffer_create(
 		bstone::RendererBufferUsageKind::static_draw,
 		1,
 		::hw_3d_indices_per_sprite
 	);
-
-	if (!::hw_3d_player_weapon_ib_)
-	{
-		::vid_log_hw_renderer_error("Failed to create weapon index buffer.");
-
-		return false;
-	}
-
-	return true;
 }
 
 void hw_3d_player_weapon_ib_update()
@@ -5453,21 +5038,14 @@ void hw_3d_player_weapon_vb_destroy()
 	::hw_vertex_buffer_destroy(::hw_3d_player_weapon_vb_);
 }
 
-bool hw_3d_player_weapon_vb_create()
+void hw_3d_player_weapon_vb_create()
 {
+	::vid_log("Creating player's weapon vertex buffer.");
+
 	::hw_3d_player_weapon_vb_ = ::hw_vertex_buffer_create<Hw3dPlayerWeaponVertex>(
 		bstone::RendererBufferUsageKind::static_draw,
 		::hw_3d_vertices_per_sprite
 	);
-
-	if (!::hw_3d_player_weapon_vb_)
-	{
-		::vid_log_hw_renderer_error("Failed to create weapon vertex buffer.");
-
-		return false;
-	}
-
-	return true;
 }
 
 void hw_3d_player_weapon_vi_destroy()
@@ -5475,21 +5053,14 @@ void hw_3d_player_weapon_vi_destroy()
 	::hw_vertex_input_destroy(::hw_3d_player_weapon_vi_);
 }
 
-bool hw_3d_player_weapon_vi_create()
+void hw_3d_player_weapon_vi_create()
 {
-	const auto result = ::hw_vertex_input_create<Hw3dPlayerWeaponVertex>(
+	::vid_log("Creating player's weapon vertex input.");
+
+	::hw_vertex_input_create<Hw3dPlayerWeaponVertex>(
 		::hw_3d_player_weapon_ib_,
 		::hw_3d_player_weapon_vb_,
 		::hw_3d_player_weapon_vi_);
-
-	if (!result)
-	{
-		::vid_log_hw_renderer_error("Failed to create weapon vertex input.");
-
-		return false;
-	}
-
-	return true;
 }
 
 void hw_3d_player_weapon_model_matrix_update()
@@ -5575,21 +5146,14 @@ void hw_3d_player_weapon_sampler_destroy()
 	}
 }
 
-bool hw_3d_player_weapon_sampler_create()
+void hw_3d_player_weapon_sampler_create()
 {
+	::vid_log("Creating player's weapon sampler.");
+
 	auto param = bstone::RendererSamplerCreateParam{};
 	param.state_ = ::hw_3d_player_weapon_s_state_;
 
 	::hw_3d_player_weapon_s_ = ::hw_renderer_->sampler_create(param);
-
-	if (!::hw_3d_player_weapon_s_)
-	{
-		::vid_log_hw_renderer_error("Failed to create weapon sampler.");
-
-		return false;
-	}
-
-	return true;
 }
 
 void hw_3d_player_weapon_uninitialize()
@@ -5600,30 +5164,15 @@ void hw_3d_player_weapon_uninitialize()
 	::hw_3d_player_weapon_sampler_destroy();
 }
 
-bool hw_3d_player_weapon_initialize()
+void hw_3d_player_weapon_initialize()
 {
 	::vid_log();
 	::vid_log("Initializing player's weapon.");
 
-	if (!::hw_3d_player_weapon_ib_create())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_player_weapon_vb_create())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_player_weapon_vi_create())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_player_weapon_sampler_create())
-	{
-		return false;
-	}
+	::hw_3d_player_weapon_ib_create();
+	::hw_3d_player_weapon_vb_create();
+	::hw_3d_player_weapon_vi_create();
+	::hw_3d_player_weapon_sampler_create();
 
 	::hw_3d_player_weapon_ib_update();
 	::hw_3d_player_weapon_vb_update();
@@ -5631,8 +5180,6 @@ bool hw_3d_player_weapon_initialize()
 	::hw_3d_player_weapon_model_matrix_update();
 	::hw_3d_player_weapon_view_matrix_update();
 	::hw_3d_player_weapon_projection_matrix_build();
-
-	return true;
 }
 
 void hw_fade_sampler_destroy()
@@ -5640,8 +5187,10 @@ void hw_fade_sampler_destroy()
 	::hw_sampler_destroy(::hw_fade_s_);
 }
 
-bool hw_fade_sampler_create()
+void hw_fade_sampler_create()
 {
+	::vid_log("Creating fade sampler.");
+
 	auto param = bstone::RendererSamplerCreateParam{};
 	param.state_.min_filter_ = bstone::RendererFilterKind::nearest;
 	param.state_.mag_filter_ = bstone::RendererFilterKind::nearest;
@@ -5651,15 +5200,6 @@ bool hw_fade_sampler_create()
 	param.state_.anisotropy_ = bstone::RendererSampler::anisotropy_min;
 
 	::hw_fade_s_ = ::hw_renderer_->sampler_create(param);
-
-	if (!::hw_fade_s_)
-	{
-		::vid_log_hw_renderer_error("Failed to create fade sampler.");
-
-		return false;
-	}
-
-	return true;
 }
 
 void hw_samplers_set_default_states()
@@ -5677,32 +5217,15 @@ void hw_samplers_uninitialize()
 	::hw_fade_sampler_destroy();
 }
 
-bool hw_samplers_initialize()
+void hw_samplers_initialize()
 {
 	::vid_log();
 	::vid_log("Initializing samplers.");
 
-	if (!::hw_2d_sampler_ui_create())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_sampler_sprite_create())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_sampler_wall_create())
-	{
-		return false;
-	}
-
-	if (!::hw_fade_sampler_create())
-	{
-		return false;
-	}
-
-	return true;
+	::hw_2d_sampler_ui_create();
+	::hw_3d_sampler_sprite_create();
+	::hw_3d_sampler_wall_create();
+	::hw_fade_sampler_create();
 }
 
 void hw_command_manager_destroy()
@@ -5710,21 +5233,16 @@ void hw_command_manager_destroy()
 	::hw_command_manager_ = nullptr;
 }
 
-bool hw_command_manager_create()
+void hw_command_manager_create()
 {
+	::vid_log("Creating command manager.");
+
 	::hw_command_manager_ = bstone::RendererCommandManagerFactory::create();
-
-	if (!::hw_command_manager_)
-	{
-		return false;
-	}
-
-	return true;
 }
 
 void hw_command_buffer_common_destroy()
 {
-	if (::hw_common_command_buffer_ == nullptr)
+	if (!::hw_common_command_buffer_)
 	{
 		return;
 	}
@@ -5733,27 +5251,20 @@ void hw_command_buffer_common_destroy()
 	::hw_common_command_buffer_ = nullptr;
 }
 
-bool hw_command_buffer_common_create()
+void hw_command_buffer_common_create()
 {
+	::vid_log("Creating common command buffer.");
+
 	auto param = bstone::RendererCommandManagerBufferAddParam{};
 	param.initial_size_ = ::hw_common_command_buffer_initial_size;
 	param.resize_delta_size_ = ::hw_common_command_buffer_resize_delta_size;
 
 	::hw_common_command_buffer_ = ::hw_command_manager_->buffer_add(param);
-
-	if (!::hw_common_command_buffer_)
-	{
-		::vid_log_hw_renderer_error("Failed to create common command buffer.");
-
-		return false;
-	}
-
-	return true;
 }
 
 void hw_command_buffer_2d_destroy()
 {
-	if (::hw_2d_command_buffer_ == nullptr)
+	if (!::hw_2d_command_buffer_)
 	{
 		return;
 	}
@@ -5762,27 +5273,20 @@ void hw_command_buffer_2d_destroy()
 	::hw_2d_command_buffer_ = nullptr;
 }
 
-bool hw_command_buffer_2d_create()
+void hw_command_buffer_2d_create()
 {
+	::vid_log("Creating 2D command buffer.");
+
 	auto param = bstone::RendererCommandManagerBufferAddParam{};
 	param.initial_size_ = ::hw_2d_command_buffer_initial_size;
 	param.resize_delta_size_ = ::hw_2d_command_buffer_resize_delta_size;
 
 	::hw_2d_command_buffer_ = ::hw_command_manager_->buffer_add(param);
-
-	if (!::hw_2d_command_buffer_)
-	{
-		::vid_log_hw_renderer_error("Failed to create 2D command buffer.");
-
-		return false;
-	}
-
-	return true;
 }
 
 void hw_command_buffer_3d_destroy()
 {
-	if (::hw_3d_command_buffer_ == nullptr)
+	if (!::hw_3d_command_buffer_)
 	{
 		return;
 	}
@@ -5791,22 +5295,15 @@ void hw_command_buffer_3d_destroy()
 	::hw_3d_command_buffer_ = nullptr;
 }
 
-bool hw_command_buffer_3d_create()
+void hw_command_buffer_3d_create()
 {
+	::vid_log("Creating 3D command buffer.");
+
 	auto param = bstone::RendererCommandManagerBufferAddParam{};
 	param.initial_size_ = ::hw_3d_command_buffer_initial_size;
 	param.resize_delta_size_ = ::hw_3d_command_buffer_resize_delta_size;
 
 	::hw_3d_command_buffer_ = ::hw_command_manager_->buffer_add(param);
-
-	if (!::hw_3d_command_buffer_)
-	{
-		::vid_log_hw_renderer_error("Failed to create 3D command buffer.");
-
-		return false;
-	}
-
-	return true;
 }
 
 void hw_command_manager_uninitialize()
@@ -5817,32 +5314,15 @@ void hw_command_manager_uninitialize()
 	::hw_command_manager_destroy();
 }
 
-bool hw_command_manager_initialize()
+void hw_command_manager_initialize()
 {
 	::vid_log();
-	::vid_log("Initializing command managers.");
+	::vid_log("Initializing command manager.");
 
-	if (!::hw_command_manager_create())
-	{
-		return false;
-	}
-
-	if (!::hw_command_buffer_common_create())
-	{
-		return false;
-	}
-
-	if (!::hw_command_buffer_3d_create())
-	{
-		return false;
-	}
-
-	if (!::hw_command_buffer_2d_create())
-	{
-		return false;
-	}
-
-	return true;
+	::hw_command_manager_create();
+	::hw_command_buffer_common_create();
+	::hw_command_buffer_3d_create();
+	::hw_command_buffer_2d_create();
 }
 
 void hw_3d_fade_ib_destroy()
@@ -5850,22 +5330,15 @@ void hw_3d_fade_ib_destroy()
 	::hw_index_buffer_destroy(::hw_3d_fade_ib_);
 }
 
-bool hw_3d_fade_ib_create()
+void hw_3d_fade_ib_create()
 {
+	::vid_log("Creating 3D fade index buffer.");
+
 	::hw_3d_fade_ib_ = ::hw_index_buffer_create(
 		bstone::RendererBufferUsageKind::static_draw,
 		1,
 		6
 	);
-
-	if (!::hw_3d_fade_ib_)
-	{
-		::vid_log_hw_renderer_error("Failed to 3D fade index buffer.");
-
-		return false;
-	}
-
-	return true;
 }
 
 void hw_3d_fade_vb_destroy()
@@ -5873,21 +5346,14 @@ void hw_3d_fade_vb_destroy()
 	::hw_vertex_buffer_destroy(::hw_3d_fade_vb_);
 }
 
-bool hw_3d_fade_vb_create()
+void hw_3d_fade_vb_create()
 {
+	::vid_log("Creating 3D fade vertex buffer.");
+
 	::hw_3d_fade_vb_ = ::hw_vertex_buffer_create<Hw3dFadeVertex>(
 		bstone::RendererBufferUsageKind::static_draw,
 		4
 	);
-
-	if (!::hw_3d_fade_vb_)
-	{
-		::vid_log_hw_renderer_error("Failed to 3D fade vertex buffer.");
-
-		return false;
-	}
-
-	return true;
 }
 
 void hw_3d_fade_vi_destroy()
@@ -5895,21 +5361,14 @@ void hw_3d_fade_vi_destroy()
 	::hw_vertex_input_destroy(::hw_3d_fade_vi_);
 }
 
-bool hw_3d_fade_vi_create()
+void hw_3d_fade_vi_create()
 {
-	const auto result = ::hw_vertex_input_create<Hw3dFadeVertex>(
+	::vid_log("Creating 3D fade vertex input.");
+
+	::hw_vertex_input_create<Hw3dFadeVertex>(
 		::hw_3d_fade_ib_,
 		::hw_3d_fade_vb_,
 		::hw_3d_fade_vi_);
-
-	if (!result)
-	{
-		::vid_log_hw_renderer_error("Failed to 3D fade vertex input.");
-
-		return false;
-	}
-
-	return true;
 }
 
 void hw_3d_fade_ib_update()
@@ -5986,12 +5445,12 @@ void hw_3d_fade_texture_2d_destroy()
 	::hw_3d_fade_t2d_ = nullptr;
 }
 
-bool hw_3d_fade_texture_2d_create()
+void hw_3d_fade_texture_2d_create()
 {
+	::vid_log("Create 3D fade texture.");
+
 	::hw_texture_manager_->solid_1x1_create(bstone::HwTextureManagerSolid1x1Id::fade_3d);
 	::hw_3d_fade_t2d_ = ::hw_texture_manager_->solid_1x1_get(bstone::HwTextureManagerSolid1x1Id::fade_3d);
-
-	return true;
 }
 
 void hw_3d_fade_uninitialize()
@@ -6004,54 +5463,32 @@ void hw_3d_fade_uninitialize()
 
 void hw_texture_manager_destroy()
 {
-	if (::hw_texture_manager_ == nullptr)
-	{
-		return;
-	}
-
 	::hw_texture_manager_ = nullptr;
 }
 
-bool hw_texture_manager_create()
+void hw_texture_manager_create()
 {
+	::vid_log("Creating texture manager.");
+
 	::hw_texture_manager_ = bstone::HwTextureManagerFactory::create(
 		::hw_renderer_,
 		&::vid_sprite_cache,
 		::hw_mt_task_manager_.get()
 	);
-
-	return true;
 }
 
-bool hw_3d_fade_initialize()
+void hw_3d_fade_initialize()
 {
 	::vid_log();
 	::vid_log("Initializing 3D fade.");
 
-	if (!::hw_3d_fade_ib_create())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_fade_vb_create())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_fade_vi_create())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_fade_texture_2d_create())
-	{
-		return false;
-	}
+	::hw_3d_fade_ib_create();
+	::hw_3d_fade_vb_create();
+	::hw_3d_fade_vi_create();
+	::hw_3d_fade_texture_2d_create();
 
 	::hw_3d_fade_ib_update();
 	::hw_3d_fade_vb_update();
-
-	return true;
 }
 
 void hw_screen_common_refresh()
@@ -7412,7 +6849,6 @@ void hw_3d_sprites_render()
 
 			auto lighting = 0;
 
-			// TODO Lighting
 			if (!::gp_no_shading_)
 			{
 				const auto& hw_sprite = *draw_item.sprite_;
@@ -8111,11 +7547,7 @@ void hw_screen_refresh()
 			return;
 		}
 
-		if (!::hw_device_reset())
-		{
-			::vid_quit("Failed to reset a lost device.");
-			return;
-		}
+		::hw_device_reset();
 	}
 #else
 	static bool test_reset_is_reset_tested_ = false;
@@ -8125,12 +7557,7 @@ void hw_screen_refresh()
 	{
 		test_reset_is_reset_tested_ = true;
 
-		if (!::hw_device_reset())
-		{
-			::vid_quit("Failed to reset a lost device.");
-			return;
-		}
-
+		::hw_device_reset();
 		::hw_texture_upscale_apply();
 	}
 
@@ -8155,37 +7582,6 @@ void hw_screen_refresh()
 	::hw_renderer_->present();
 
 	::vid_hw_is_draw_3d_ = false;
-}
-
-void hw_vsync_check()
-{
-	using Clock = std::chrono::system_clock;
-
-	constexpr int draw_count = 10;
-
-	constexpr int duration_tolerance_pct = 25;
-
-	const int expected_duration_ms =
-		(1000 * draw_count) / ::display_mode.refresh_rate;
-
-	const int min_expected_duration_ms =
-		((100 - duration_tolerance_pct) * expected_duration_ms) / 100;
-
-	const auto before_timestamp = Clock::now();
-
-	for (int i = 0; i < draw_count; ++i)
-	{
-		::hw_screen_refresh();
-	}
-
-	const auto after_timestamp = Clock::now();
-
-	const auto duration = after_timestamp - before_timestamp;
-
-	const auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-		duration).count();
-
-	::vid_has_vsync = (duration_ms >= min_expected_duration_ms);
 }
 
 void hw_precache_flooring()
@@ -8794,7 +8190,6 @@ void hw_3d_map_xy_to_xwall(
 
 	default:
 		::vid_quit("Invalid wall kind.");
-		break;
 	}
 
 	auto is_north_solid = false;
@@ -8912,7 +8307,6 @@ void hw_3d_walls_build()
 
 		default:
 			::Quit("Invalid direction.");
-			break;
 		}
 	}
 
@@ -8961,10 +8355,7 @@ void hw_3d_walls_build()
 
 	// Create index an vertex buffers.
 	//
-	if (!::hw_3d_walls_initialize())
-	{
-		::vid_quit("Failed to initialize walls.");
-	}
+	::hw_3d_walls_initialize();
 
 	// Build the map (XY to wall).
 	//
@@ -9136,7 +8527,6 @@ void hw_3d_pushwall_translate(
 
 	default:
 		::vid_quit("Invalid direction.");
-		break;
 	}
 
 	::hw_3d_pushwall_side_translate(
@@ -9269,10 +8659,7 @@ void hw_3d_pushwalls_build()
 
 	// Create index an vertex buffers.
 	//
-	if (!::hw_3d_pushwalls_initialize())
-	{
-		::vid_quit("Failed to initialize pushwalls.");
-	}
+	::hw_3d_pushwalls_initialize();
 
 	// Build the map (XY to pushwall).
 	//
@@ -9536,10 +8923,7 @@ void hw_3d_doors_build()
 
 	// Create index an vertex buffers.
 	//
-	if (!::hw_3d_door_sides_initialize())
-	{
-		::vid_quit("Failed to initialize door sides.");
-	}
+	::hw_3d_door_sides_initialize();
 
 	// Build the map (XY to door).
 	//
@@ -9573,8 +8957,10 @@ void hw_3d_doors_build()
 	::hw_3d_doors_to_render_.reserve(::hw_3d_door_count_);
 }
 
-bool hw_sprites_ib_initialize()
+void hw_sprites_ibi_initialize()
 {
+	::vid_log("Creating sprite index buffer.");
+
 	const auto index_count = ::hw_3d_max_sprites_indices;
 
 	::hw_3d_sprites_ib_ = ::hw_index_buffer_create(
@@ -9583,15 +8969,8 @@ bool hw_sprites_ib_initialize()
 		index_count
 	);
 
-	if (!::hw_3d_sprites_ib_)
-	{
-		return false;
-	}
-
 	::hw_3d_sprites_ibi_.clear();
 	::hw_3d_sprites_ibi_.resize(index_count);
-
-	return true;
 }
 
 void hw_3d_sprites_ib_uninitialize()
@@ -9605,8 +8984,10 @@ void hw_3d_sprites_ib_uninitialize()
 	::hw_3d_sprites_ibi_.clear();
 }
 
-bool hw_sprites_vb_initialize()
+void hw_sprites_vb_initialize()
 {
+	::vid_log("Creating sprite vertex buffer.");
+
 	const auto vertex_count = ::hw_3d_max_sprites_vertices;
 
 	::hw_3d_sprites_vb_ = ::hw_vertex_buffer_create<Hw3dSpriteVertex>(
@@ -9614,14 +8995,7 @@ bool hw_sprites_vb_initialize()
 		vertex_count
 	);
 
-	if (!::hw_3d_sprites_vb_)
-	{
-		return false;
-	}
-
 	::hw_3d_sprites_vbi_.resize(vertex_count);
-
-	return true;
 }
 
 void hw_3d_sprites_vb_uninitialize()
@@ -9640,71 +9014,45 @@ void hw_3d_sprites_vi_uninitialize()
 	::hw_vertex_input_destroy(::hw_3d_sprites_vi_);
 }
 
-bool hw_3d_sprites_vi_initialize()
+void hw_3d_sprites_vi_initialize()
 {
-	if (!::hw_vertex_input_create<Hw3dSpriteVertex>(
+	::vid_log("Creating sprite vertex input.");
+
+	::hw_vertex_input_create<Hw3dSpriteVertex>(
 		::hw_3d_sprites_ib_,
 		::hw_3d_sprites_vb_,
-		::hw_3d_sprites_vi_))
-	{
-		return false;
-	}
-
-	return true;
+		::hw_3d_sprites_vi_);
 }
 
-bool hw_3d_statics_initialize()
+void hw_3d_statics_initialize()
 {
 	::hw_3d_statics_.resize(MAXSTATS);
 
 	::hw_3d_statics_to_render_.clear();
 	::hw_3d_statics_to_render_.reserve(MAXSTATS);
-
-	return true;
 }
 
-bool hw_3d_actors_initialize()
+void hw_3d_actors_initialize()
 {
 	::hw_3d_actors_.resize(MAXACTORS);
 
 	::hw_3d_actors_to_render_.clear();
 	::hw_3d_actors_to_render_.reserve(MAXACTORS);
-
-	return true;
 }
 
-bool hw_3d_sprites_initialize()
+void hw_3d_sprites_initialize()
 {
+	::vid_log("Initializing sprites.");
+
 	::hw_3d_sprites_draw_count_ = 0;
 	::hw_3d_sprites_draw_list_.clear();
 	::hw_3d_sprites_draw_list_.resize(::hw_3d_max_sprites);
 
-	if (!::hw_sprites_ib_initialize())
-	{
-		return false;
-	}
-
-	if (!::hw_sprites_vb_initialize())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_sprites_vi_initialize())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_statics_initialize())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_actors_initialize())
-	{
-		return false;
-	}
-
-	return true;
+	::hw_sprites_ibi_initialize();
+	::hw_sprites_vb_initialize();
+	::hw_3d_sprites_vi_initialize();
+	::hw_3d_statics_initialize();
+	::hw_3d_actors_initialize();
 }
 
 void hw_3d_statics_uninitialize()
@@ -9816,8 +9164,6 @@ void hw_3d_sprite_texture_change(
 
 	default:
 		::vid_quit("Invalid sprite kind.");
-
-		return;
 	}
 
 	sprite.texture_2d_ = ::hw_texture_manager_->sprite_get(sprite_id);
@@ -11983,10 +11329,7 @@ void hw_3d_statics_build()
 {
 	::hw_3d_statics_uninitialize();
 
-	if (!::hw_3d_statics_initialize())
-	{
-		::vid_quit("Failed to initialize statics.");
-	}
+	::hw_3d_statics_initialize();
 
 	if (!::laststatobj)
 	{
@@ -12008,18 +11351,14 @@ void hw_3d_statics_build()
 void hw_3d_actors_build()
 {
 	::hw_3d_actors_uninitialize();
+	::hw_3d_actors_initialize();
 
-	if (!::hw_3d_actors_initialize())
-	{
-		::vid_quit("Failed to initialize actors.");
-	}
-
-	if (::player == nullptr)
+	if (!::player)
 	{
 		return;
 	}
 
-	for (auto bs_actor = ::player->next; bs_actor != nullptr; bs_actor = bs_actor->next)
+	for (auto bs_actor = ::player->next; bs_actor; bs_actor = bs_actor->next)
 	{
 		::hw_3d_actor_map(*bs_actor);
 	}
@@ -12071,67 +11410,33 @@ void hw_device_reset_resources_destroy()
 	::hw_texture_manager_destroy();
 }
 
-bool hw_device_reset_resources_create()
+void hw_device_reset_resources_create()
 {
-	if (!::hw_texture_manager_create())
-	{
-		return false;
-	}
+	::vid_log("Creating resources after device reset.");
 
-	if (!::hw_2d_initialize())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_flooring_initialize())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_ceiling_initialize())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_fade_initialize())
-	{
-		return false;
-	}
-
-	if (!::hw_3d_player_weapon_initialize())
-	{
-		return false;
-	}
-
-	if (!::hw_samplers_initialize())
-	{
-		return false;
-	}
+	::hw_texture_manager_create();
+	::hw_2d_initialize();
+	::hw_3d_flooring_initialize();
+	::hw_3d_ceiling_initialize();
+	::hw_3d_fade_initialize();
+	::hw_3d_player_weapon_initialize();
+	::hw_samplers_initialize();
 
 	::hw_3d_walls_build();
 	::hw_3d_pushwalls_build();
 	::hw_3d_doors_build();
 	::hw_3d_statics_build();
 	::hw_3d_actors_build();
-
-	return true;
 }
 
-bool hw_device_reset()
+void hw_device_reset()
 {
 	::vid_log();
 	::vid_log("Resetting device.");
 
 	::hw_device_reset_resources_destroy();
-
 	::hw_renderer_->device_reset();
-
-	if (!hw_device_reset_resources_create())
-	{
-		return false;
-	}
-
-	return true;
+	::hw_device_reset_resources_create();
 }
 
 void hw_texture_upscale_resources_destroy()
@@ -12200,8 +11505,13 @@ void hw_video_uninitialize()
 	::hw_mt_task_manager_ = nullptr;
 }
 
-bool hw_video_initialize()
+void hw_video_initialize()
 {
+	::vid_log();
+	::vid_log("Initializing hardware accelerated video system.");
+
+	::vid_log("Initializing task manager.");
+
 	::hw_mt_task_manager_ = bstone::MtTaskManagerFactory::create(1, 4096);
 
 	::vid_is_hw_ = false;
@@ -12209,102 +11519,40 @@ bool hw_video_initialize()
 	::hw_samplers_set_default_states();
 	::hw_3d_player_weapon_sampler_set_default_state();
 
-	::vid_log("Initializing hardware accelerated renderer.");
+	::vid_log("Creating renderer manager.");
 
 	hw_renderer_manager_ = bstone::RendererManagerFactory::create();
 
 	::vid_common_initialize();
 	::hw_dimensions_calculate();
 
+	::hw_renderer_initialize();
+	::hw_program_initialize();
+	::hw_texture_manager_create();
+	::hw_ui_buffer_initialize();
+	::hw_palette_initialize();
+	::hw_2d_initialize();
+	::hw_3d_flooring_initialize();
+	::hw_3d_ceiling_initialize();
+	::hw_3d_fade_initialize();
+	::hw_3d_player_weapon_initialize();
+	::hw_command_manager_initialize();
+	::hw_matrices_build();
+	::hw_samplers_initialize();
 
-	bool is_succeed = true;
+	::hw_device_features_ = ::hw_renderer_->device_get_features();
 
-	if (is_succeed)
-	{
-		is_succeed = ::hw_renderer_initialize();
-	}
+	::vid_is_hw_ = true;
 
-	if (is_succeed)
-	{
-		is_succeed = ::hw_program_initialize();
-	}
+	::vid_apply_hw_configuration();
 
-	if (is_succeed)
-	{
-		is_succeed = ::hw_texture_manager_create();
-	}
+	::hw_renderer_->color_buffer_set_clear_color(bstone::R8g8b8a8{});
 
-	if (is_succeed)
-	{
-		::hw_ui_buffer_initialize();
-	}
+	const auto window_title = ::vid_get_window_title_for_renderer();
+	::hw_renderer_->window_set_title(window_title);
+	::hw_renderer_->window_show(true);
 
-	if (is_succeed)
-	{
-		::hw_palette_initialize();
-	}
-
-	if (is_succeed)
-	{
-		is_succeed = ::hw_2d_initialize();
-	}
-
-	if (is_succeed)
-	{
-		is_succeed = ::hw_3d_flooring_initialize();
-	}
-
-	if (is_succeed)
-	{
-		is_succeed = ::hw_3d_ceiling_initialize();
-	}
-
-	if (is_succeed)
-	{
-		is_succeed = ::hw_3d_fade_initialize();
-	}
-
-	if (is_succeed)
-	{
-		is_succeed = ::hw_3d_player_weapon_initialize();
-	}
-
-	if (is_succeed)
-	{
-		is_succeed = ::hw_command_manager_initialize();
-	}
-
-	if (is_succeed)
-	{
-		::hw_matrices_build();
-	}
-
-	if (is_succeed)
-	{
-		if (!::hw_samplers_initialize())
-		{
-			is_succeed = false;
-		}
-	}
-
-	if (is_succeed)
-	{
-		::vid_is_hw_ = true;
-
-		::hw_device_features_ = ::hw_renderer_->device_get_features();
-
-		::vid_apply_hw_configuration();
-
-		::hw_renderer_->color_buffer_set_clear_color(bstone::R8g8b8a8{});
-
-		const auto window_title = ::vid_get_window_title_for_renderer();
-		::hw_renderer_->window_set_title(window_title);
-		::hw_renderer_->window_show(true);
-
-		::in_grab_mouse(true);
-	}
-
-	return is_succeed;
+	::in_grab_mouse(true);
 }
 
 //
@@ -12316,12 +11564,11 @@ std::string vid_get_renderer_name_sw()
 {
 	auto sdl_renderer_info = SDL_RendererInfo{};
 
-	const auto sdl_result = ::SDL_GetRendererInfo(sw_renderer.get(), &sdl_renderer_info);
+	const auto sdl_result = ::SDL_GetRendererInfo(sw_renderer_.get(), &sdl_renderer_info);
 
 	if (sdl_result != 0)
 	{
-		// FIXME Log error.
-		return vid_get_empty_string();
+		::vid_throw_sdl_error("Failed to get renderer's information.");
 	}
 
 	auto result = std::string{};
@@ -12344,7 +11591,7 @@ std::string vid_get_window_title_for_renderer()
 
 	auto renderer_name =  std::string{};
 
-	if (::sw_renderer)
+	if (::sw_renderer_)
 	{
 		renderer_name = ::vid_get_renderer_name_sw();
 	}
@@ -12395,33 +11642,56 @@ void VL_WaitVBL(
 // BBi Moved from jm_free.cpp
 void VL_Startup()
 {
-#if !BSTONE_DBG_FORCE_SW
-	if (::hw_video_initialize())
+#if BSTONE_DBG_FORCE_SW
+	const auto is_sw = true;
+#else
+	const auto is_sw = (*vid_configuration_.renderer_kind_ == bstone::RendererKind::software);
+#endif // BSTONE_DBG_FORCE_SW
+
+	auto is_try_sw = false;
+
+	if (is_sw)
 	{
-		::hw_screen_refresh();
+		is_try_sw = true;
 	}
 	else
 	{
-		::hw_video_uninitialize();
-#endif // BSTONE_DBG_FORCE_SW
+		try
+		{
+			::hw_video_initialize();
+			::hw_screen_refresh();
+		}
+		catch (const bstone::Exception& ex)
+		{
+			is_try_sw = true;
 
-		::sw_initialize_video();
-		::sw_refresh_screen();
+			::hw_video_uninitialize();
 
-#if !BSTONE_DBG_FORCE_SW
+			::vid_log_error(ex.what());
+			::vid_log("Falling back to software accelerated video system.");
+		}
 	}
-#endif // BSTONE_DBG_FORCE_SW
+
+	if (is_try_sw)
+	{
+		try
+		{
+			::sw_video_initialize();
+			::sw_screen_refresh();
+		}
+		catch (const bstone::Exception& ex)
+		{
+			::sw_video_uninitialize();
+
+			::vid_log_error(ex.what());
+
+			throw;
+		}
+	}
 
 	::in_handle_events();
 
-	if (::vid_is_hw_)
-	{
-		::hw_vsync_check();
-	}
-	else
-	{
-		::sw_check_vsync();
-	}
+	::vid_check_vsync();
 }
 // BBi
 
@@ -12433,7 +11703,7 @@ void VL_Shutdown()
 	}
 	else
 	{
-		::sw_uninitialize_video();
+		::sw_video_uninitialize();
 	}
 }
 
@@ -12454,7 +11724,7 @@ void VL_FillPalette(
 	std::uint8_t green,
 	std::uint8_t blue)
 {
-	for (auto& vga_color : ::vid_vga_palette)
+	for (auto& vga_color : ::vid_vga_palette_)
 	{
 		vga_color.r_ = red;
 		vga_color.g_ = green;
@@ -12479,7 +11749,7 @@ void VL_SetPalette(
 {
 	for (int i = 0; i < count; ++i)
 	{
-		auto& vga_color = ::vid_vga_palette[first + i];
+		auto& vga_color = ::vid_vga_palette_[first + i];
 
 		vga_color.r_ = palette[(3 * i) + 0];
 		vga_color.g_ = palette[(3 * i) + 1];
@@ -12504,7 +11774,7 @@ void VL_GetPalette(
 {
 	for (int i = 0; i < count; ++i)
 	{
-		const auto& vga_color = ::vid_vga_palette[first + i];
+		const auto& vga_color = ::vid_vga_palette_[first + i];
 
 		palette[(3 * i) + 0] = vga_color.r_;
 		palette[(3 * i) + 1] = vga_color.g_;
@@ -12616,9 +11886,9 @@ void VL_FadeOut(
 				*newptr++ = static_cast<std::uint8_t>(orig + ((delta * i) / steps));
 			}
 
-			::sw_filler_color.r = ::palette2[filler_color_index][0];
-			::sw_filler_color.g = ::palette2[filler_color_index][1];
-			::sw_filler_color.b = ::palette2[filler_color_index][2];
+			::sw_filler_color_.r = ::palette2[filler_color_index][0];
+			::sw_filler_color_.g = ::palette2[filler_color_index][1];
+			::sw_filler_color_.b = ::palette2[filler_color_index][2];
 
 			::VL_SetPalette(0, 256, &::palette2[0][0]);
 
@@ -12634,7 +11904,7 @@ void VL_FadeOut(
 	//
 	// final color
 	//
-	::sw_filler_color = SDL_Color
+	::sw_filler_color_ = SDL_Color
 	{
 		static_cast<std::uint8_t>(red),
 		static_cast<std::uint8_t>(green),
@@ -12741,9 +12011,9 @@ void VL_FadeIn(
 					static_cast<std::uint8_t>(::palette1[0][j] + ((delta * i) / steps));
 			}
 
-			::sw_filler_color.r = ::palette2[filler_color_index][0];
-			::sw_filler_color.g = ::palette2[filler_color_index][1];
-			::sw_filler_color.b = ::palette2[filler_color_index][2];
+			::sw_filler_color_.r = ::palette2[filler_color_index][0];
+			::sw_filler_color_.g = ::palette2[filler_color_index][1];
+			::sw_filler_color_.b = ::palette2[filler_color_index][2];
 
 			::VL_SetPalette(0, 256, &::palette2[0][0]);
 
@@ -12759,9 +12029,9 @@ void VL_FadeIn(
 	//
 	// final color
 	//
-	::sw_filler_color.r = palette[(filler_color_index * 3) + 0];
-	::sw_filler_color.g = palette[(filler_color_index * 3) + 1];
-	::sw_filler_color.b = palette[(filler_color_index * 3) + 2];
+	::sw_filler_color_.r = palette[(filler_color_index * 3) + 0];
+	::sw_filler_color_.g = palette[(filler_color_index * 3) + 1];
+	::sw_filler_color_.b = palette[(filler_color_index * 3) + 2];
 
 	::VL_SetPalette(0, 256, palette);
 
@@ -12837,8 +12107,8 @@ void VL_Plot(
 {
 	const auto offset = (y * ::vga_ref_width) + x;
 
-	::vid_ui_buffer[offset] = color;
-	::vid_mask_buffer[offset] = !is_transparent;
+	::vid_ui_buffer_[offset] = color;
+	::vid_mask_buffer_[offset] = !is_transparent;
 }
 
 void VL_Hlin(
@@ -12873,13 +12143,13 @@ void VL_Bar(
 		const auto count = height * ::vga_ref_width;
 
 		std::uninitialized_fill(
-			::vid_ui_buffer.begin() + offset,
-			::vid_ui_buffer.begin() + offset + count,
+			::vid_ui_buffer_.begin() + offset,
+			::vid_ui_buffer_.begin() + offset + count,
 			color);
 
 		std::uninitialized_fill(
-			::vid_mask_buffer.begin() + offset,
-			::vid_mask_buffer.begin() + offset + count,
+			::vid_mask_buffer_.begin() + offset,
+			::vid_mask_buffer_.begin() + offset + count,
 			!is_transparent);
 	}
 	else
@@ -12889,13 +12159,13 @@ void VL_Bar(
 			const auto offset = ((y + i) * ::vga_ref_width) + x;
 
 			std::uninitialized_fill(
-				::vid_ui_buffer.begin() + offset,
-				::vid_ui_buffer.begin() + offset + width,
+				::vid_ui_buffer_.begin() + offset,
+				::vid_ui_buffer_.begin() + offset + width,
 				color);
 
 			std::uninitialized_fill(
-				::vid_mask_buffer.begin() + offset,
-				::vid_mask_buffer.begin() + offset + width,
+				::vid_mask_buffer_.begin() + offset,
+				::vid_mask_buffer_.begin() + offset + width,
 				!is_transparent);
 		}
 	}
@@ -13008,11 +12278,11 @@ void VL_LatchToScreen(
 		std::uninitialized_copy(
 			::latches_cache.cbegin() + src_offset,
 			::latches_cache.cbegin() + src_offset + width,
-			::vid_ui_buffer.begin() + dst_offset);
+			::vid_ui_buffer_.begin() + dst_offset);
 
 		std::uninitialized_fill(
-			::vid_mask_buffer.begin() + dst_offset,
-			::vid_mask_buffer.begin() + dst_offset + width,
+			::vid_mask_buffer_.begin() + dst_offset,
+			::vid_mask_buffer_.begin() + dst_offset + width,
 			true);
 	}
 }
@@ -13029,13 +12299,13 @@ void VL_ScreenToScreen(
 		const auto dst_offset = dest + (h * ::vga_ref_width);
 
 		std::uninitialized_copy(
-			::vid_ui_buffer.cbegin() + src_offset,
-			::vid_ui_buffer.cbegin() + src_offset + width,
-			::vid_ui_buffer.begin() + dst_offset);
+			::vid_ui_buffer_.cbegin() + src_offset,
+			::vid_ui_buffer_.cbegin() + src_offset + width,
+			::vid_ui_buffer_.begin() + dst_offset);
 
 		std::uninitialized_fill(
-			::vid_mask_buffer.begin() + dst_offset,
-			::vid_mask_buffer.begin() + dst_offset + width,
+			::vid_mask_buffer_.begin() + dst_offset,
+			::vid_mask_buffer_.begin() + dst_offset + width,
 			true);
 	}
 }
@@ -13047,13 +12317,13 @@ void JM_VGALinearFill(
 	std::uint8_t fill)
 {
 	std::uninitialized_fill(
-		::vid_ui_buffer.begin() + start,
-		::vid_ui_buffer.begin() + start + length,
+		::vid_ui_buffer_.begin() + start,
+		::vid_ui_buffer_.begin() + start + length,
 		fill);
 
 	std::uninitialized_fill(
-		::vid_mask_buffer.begin() + start,
-		::vid_mask_buffer.begin() + start + length,
+		::vid_mask_buffer_.begin() + start,
+		::vid_mask_buffer_.begin() + start + length,
 		true);
 }
 
@@ -13065,7 +12335,7 @@ void VL_RefreshScreen()
 	}
 	else
 	{
-		::sw_refresh_screen();
+		::sw_screen_refresh();
 	}
 }
 
@@ -13077,7 +12347,7 @@ void VH_UpdateScreen()
 	}
 	else
 	{
-		::sw_refresh_screen();
+		::sw_screen_refresh();
 	}
 }
 
@@ -13096,7 +12366,7 @@ std::uint8_t vl_get_pixel(
 {
 	static_cast<void>(base_offset);
 
-	return ::vid_ui_buffer[(y * ::vga_ref_width) + x];
+	return ::vid_ui_buffer_[(y * ::vga_ref_width) + x];
 }
 
 void vl_minimize_fullscreen_window(
@@ -13105,12 +12375,12 @@ void vl_minimize_fullscreen_window(
 	if (value)
 	{
 		::SDL_MinimizeWindow(
-			::sw_window.get());
+			::sw_window_.get());
 	}
 	else
 	{
 		::SDL_RestoreWindow(
-			::sw_window.get());
+			::sw_window_.get());
 	}
 }
 
@@ -13129,7 +12399,7 @@ void vl_update_widescreen()
 void vid_set_ui_mask(
 	bool value)
 {
-	::vid_mask_buffer.fill(
+	::vid_mask_buffer_.fill(
 		value);
 }
 
@@ -13145,8 +12415,8 @@ void vid_set_ui_mask(
 		const auto offset = ((y + h) * ::vga_ref_width) + x;
 
 		std::uninitialized_fill(
-			::vid_mask_buffer.begin() + offset,
-			::vid_mask_buffer.begin() + offset + width,
+			::vid_mask_buffer_.begin() + offset,
+			::vid_mask_buffer_.begin() + offset + width,
 			value);
 	}
 }
@@ -13165,35 +12435,35 @@ void vid_set_ui_mask_3d(
 void vid_clear_3d()
 {
 	std::uninitialized_fill(
-		::sw_vga_buffer.begin(),
-		::sw_vga_buffer.end(),
+		::sw_vga_buffer_.begin(),
+		::sw_vga_buffer_.end(),
 		VgaBuffer::value_type{});
 }
 
 void vid_export_ui(
 	VgaBuffer& dst_buffer)
 {
-	dst_buffer = ::vid_ui_buffer;
+	dst_buffer = ::vid_ui_buffer_;
 }
 
 void vid_import_ui(
 	const VgaBuffer& src_buffer,
 	bool is_transparent)
 {
-	::vid_ui_buffer = src_buffer;
+	::vid_ui_buffer_ = src_buffer;
 	::vid_set_ui_mask(!is_transparent);
 }
 
 void vid_export_ui_mask(
 	UiMaskBuffer& dst_buffer)
 {
-	dst_buffer = ::vid_mask_buffer;
+	dst_buffer = ::vid_mask_buffer_;
 }
 
 void vid_import_ui_mask(
 	const UiMaskBuffer& src_buffer)
 {
-	::vid_mask_buffer = src_buffer;
+	::vid_mask_buffer_ = src_buffer;
 }
 
 const std::string& vid_filter_to_string(
@@ -13454,7 +12724,7 @@ bool vid_parse_configuration_key_value(
 	{
 		::vid_configuration_read_renderer_kind(value_string);
 	}
-	else if (key_string == ::vid_get_is_windowed_key_name())
+	else if (key_string == ::vid_get_windowed_key_name())
 	{
 		::vid_configuration_read_is_windowed(value_string);
 	}
@@ -13624,11 +12894,11 @@ void vid_write_configuration(
 
 	::vid_write_renderer_kind_configuration(text_writer);
 
-	// vid_is_windowed
+	// vid_windowed
 	//
 	::write_configuration_entry(
 		text_writer,
-		::vid_get_is_windowed_key_name(),
+		::vid_get_windowed_key_name(),
 		std::to_string(::vid_configuration_.is_windowed_)
 	);
 

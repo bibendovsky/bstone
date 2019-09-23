@@ -84,9 +84,9 @@ extern bstone::ClArgs g_args;
 extern std::uint8_t update[UPDATESIZE];
 
 
-void Quit();
+[[noreturn]] void Quit();
 
-void Quit(
+[[noreturn]] void Quit(
 	std::string&& message);
 // BBi
 

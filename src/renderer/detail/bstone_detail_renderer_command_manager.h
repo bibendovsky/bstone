@@ -75,7 +75,7 @@ private:
 	Buffers buffers_;
 
 
-	static bool validate_param(
+	static void validate_param(
 		const RendererCommandManagerBufferAddParam& param);
 }; // RendererCommandManager
 

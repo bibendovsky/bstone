@@ -9642,14 +9642,14 @@ void pre_quit()
 	::ShutdownId();
 }
 
-void Quit()
+[[noreturn]] void Quit()
 {
 	::pre_quit();
 
 	throw QuitException{};
 }
 
-void Quit(
+[[noreturn]] void Quit(
 	std::string&& message)
 {
 	::pre_quit();
@@ -9954,6 +9954,14 @@ int main(
 	catch (const QuitException& ex)
 	{
 		quit_message = ex.what();
+	}
+	catch (const std::exception& ex)
+	{
+		quit_message = ex.what();
+	}
+	catch (...)
+	{
+		quit_message = "Unhandled exception";
 	}
 
 	if (!quit_message.empty())

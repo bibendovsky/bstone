@@ -29,6 +29,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_precompiled.h"
 #include "bstone_detail_renderer_command_manager.h"
+#include "bstone_exception.h"
 
 #include <algorithm>
 
@@ -50,9 +51,7 @@ RendererCommandManager::RendererCommandManager()
 	buffers_.reserve(reserved_buffer_count);
 }
 
-RendererCommandManager::~RendererCommandManager()
-{
-}
+RendererCommandManager::~RendererCommandManager() = default;
 
 int RendererCommandManager::buffer_get_count() const noexcept
 {
@@ -62,10 +61,7 @@ int RendererCommandManager::buffer_get_count() const noexcept
 bstone::RendererCommandBufferPtr RendererCommandManager::buffer_add(
 	const RendererCommandManagerBufferAddParam& param)
 {
-	if (!validate_param(param))
-	{
-		return nullptr;
-	}
+	validate_param(param);
 
 	auto buffer = RendererCommandBufferUPtr{new RendererCommandBuffer{}};
 
@@ -101,26 +97,24 @@ bstone::RendererCommandBufferPtr RendererCommandManager::buffer_get(
 {
 	if (index < 0 || index >= buffer_get_count())
 	{
-		return nullptr;
+		throw Exception{"Index out of range."};
 	}
 
 	return buffers_[index].get();
 }
 
-bool RendererCommandManager::validate_param(
+void RendererCommandManager::validate_param(
 	const RendererCommandManagerBufferAddParam& param)
 {
 	if (param.initial_size_ < 0)
 	{
-		return false;
+		throw Exception{"Initial size out of range."};
 	}
 
 	if (param.resize_delta_size_ < 0)
 	{
-		return false;
+		throw Exception{"Resize delta out of range."};
 	}
-
-	return true;
 }
 
 //
