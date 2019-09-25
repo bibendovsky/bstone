@@ -262,81 +262,81 @@ Not available in shareware version.
 
 Add option "--cheats" to enable these keys.
 
-* [Backspace]+[A]  
+* <kbd>Backspace</kbd>+<kbd>A</kbd>  
   Toggles visibility of actors on auto-map.
 
-* [Backspace]+[C]  
+* <kbd>Backspace</kbd>+<kbd>C</kbd>  
   Shows counts of total static objects, in use static objects,  
   doors, total actors, active actors.
 
-* [Backspace]+[D]  
+* <kbd>Backspace</kbd>+<kbd>D</kbd>  
   Toggles player's invisibility.
 
-* [Backspace]+[E]  
+* <kbd>Backspace</kbd>+<kbd>E</kbd>  
   Win mission instantly.
 
-* [Backspace]+[F]  
+* <kbd>Backspace</kbd>+<kbd>F</kbd>  
   Shows player's coordinates and direction.
 
-* [Backspace]+[G]  
+* <kbd>Backspace</kbd>+<kbd>G</kbd>  
   Toggles god mode.
 
-* [Backspace]+[H]  
+* <kbd>Backspace</kbd>+<kbd>H</kbd>  
   Hurt yourself by 1%.
 
-* [Backspace]+[I]  
+* <kbd>Backspace</kbd>+<kbd>I</kbd>  
   Each usage adds 99% health, 5 tokens, 50 ammo, one new weapon.
 
-* [Backspace]+[K]  
+* <kbd>Backspace</kbd>+<kbd>K</kbd>  
   Shows total counts of enemies, points and informants on the map.
 
-* [Backspace]+[M]  
+* <kbd>Backspace</kbd>+<kbd>M</kbd>  
   Memory information.
 
-* [Backspace]+[O]  
+* <kbd>Backspace</kbd>+<kbd>O</kbd>  
   Shows push walls on auto-map.
 
-* [Backspace]+[Q]  
+* <kbd>Backspace</kbd>+<kbd>Q</kbd>  
   Instant quit.
 
-* [Backspace]+[R]  
+* <kbd>Backspace</kbd>+<kbd>R</kbd>  
   Shows full map.
 
-* [Backspace]+[S]  
+* <kbd>Backspace</kbd>+<kbd>S</kbd>  
   Slow motion.
 
-* [Backspace]+[U]  
+* <kbd>Backspace</kbd>+<kbd>U</kbd>  
   Unlocks all maps.
 
-* [Backspace]+[W]  
+* <kbd>Backspace</kbd>+<kbd>W</kbd>  
   Warps to specified map.
 
-* [Backspace]+[Shift/Caps Lock]+[W]  
+* <kbd>Backspace</kbd>+<kbd>Shift</kbd>/<kbd>Caps Lock</kbd>+<kbd>W</kbd>  
   Warps to specified map but loads it from scratch  
   rather from a saved game file/memory.
 
-* [Backspace]+[Home]  
+* <kbd>Backspace</kbd>+<kbd>Home</kbd>  
   Selects previous ceiling texture.
 
-* [Backspace]+[Page Up]  
+* <kbd>Backspace</kbd>+<kbd>Page Up</kbd>  
   Selects next ceiling texture.
 
-* [Backspace]+[End]  
+* <kbd>Backspace</kbd>+<kbd>End</kbd>  
   Selects previous flooring texture.
 
-* [Backspace]+[Page Down]  
+* <kbd>Backspace</kbd>+<kbd>Page Down</kbd>  
   Selects next flooring texture.
 
-* [Backspace]+[-]  
+* <kbd>Backspace</kbd>+<kbd>-</kbd>  
   Decreases shading depth.
 
-* [Backspace]+[=]  
+* <kbd>Backspace</kbd>+<kbd>=</kbd>  
   Increases shading depth.
 
-* [Backspace]+['[']  
+* <kbd>Backspace</kbd>+<kbd>[</kbd>  
   Decreases shading drop off.
 
-* [Backspace]+[']']  
+* <kbd>Backspace</kbd>+<kbd>]</kbd>  
   Increases shading drop off.
 
 
