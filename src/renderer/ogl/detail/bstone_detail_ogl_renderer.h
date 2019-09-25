@@ -83,6 +83,9 @@ public:
 	void device_reset() override;
 
 
+	void window_set_mode(
+		const RendererWindowSetModeParam& param) override;
+
 	void window_set_title(
 		const std::string& title_utf8) override;
 

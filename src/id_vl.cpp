@@ -77,7 +77,7 @@ bool vid_is_3d = false;
 bool vid_is_fizzle_fade = false;
 bool vid_is_movie = false;
 
-VidConfiguration vid_configuration_;
+VidCfg vid_cfg_;
 
 bool vid_hw_is_draw_3d_ = false;
 
@@ -308,9 +308,16 @@ const std::string& vid_get_renderer_kind_key_name()
 	return result;
 }
 
-const std::string& vid_get_windowed_key_name()
+const std::string& vid_get_is_windowed_key_name()
 {
-	static const auto& result = std::string{"vid_windowed"};
+	static const auto& result = std::string{"vid_is_windowed"};
+
+	return result;
+}
+
+const std::string& vid_get_is_positioned_key_name()
+{
+	static const auto& result = std::string{"vid_is_positioned"};
 
 	return result;
 }
@@ -343,13 +350,6 @@ const std::string& vid_get_height_key_name()
 	return result;
 }
 
-const std::string& vid_get_is_widescreen_key_name()
-{
-	static const auto& result = std::string{"vid_is_widescreen"};
-
-	return result;
-}
-
 const std::string& vid_get_vsync_key_name()
 {
 	static const auto& result = std::string{"vid_vsync"};
@@ -360,6 +360,13 @@ const std::string& vid_get_vsync_key_name()
 const std::string& vid_get_is_ui_stretched_key_name()
 {
 	static const auto& result = std::string{"vid_is_ui_stretched"};
+
+	return result;
+}
+
+const std::string& vid_get_is_widescreen_key_name()
+{
+	static const auto& result = std::string{"vid_is_widescreen"};
 
 	return result;
 }
@@ -420,9 +427,9 @@ const std::string& vid_get_hw_texture_upscale_filter_key_name()
 	return result;
 }
 
-const std::string& vid_get_hw_texture_upscale_filter_factor_key_name()
+const std::string& vid_get_hw_texture_upscale_xbrz_factor_key_name()
 {
-	static const auto& result = std::string{"vid_hw_texture_upscale_filter_factor"};
+	static const auto& result = std::string{"vid_hw_texture_upscale_xbrz_factor"};
 
 	return result;
 }
@@ -435,8 +442,8 @@ int vid_align_dimension(
 	return ((dimension + (alignment - 1)) / alignment) * alignment;
 }
 
-void vid_configuration_fix_window_dimension(
-	VidConfiguration::IntModValue& dimension,
+void vid_cfg_fix_window_dimension(
+	VidCfg::IntModValue& dimension,
 	const int min_value,
 	const int default_value)
 {
@@ -451,34 +458,34 @@ void vid_configuration_fix_window_dimension(
 	}
 }
 
-void vid_configuration_fix_window_width()
+void vid_cfg_fix_window_width()
 {
-	::vid_configuration_fix_window_dimension(
-		::vid_configuration_.width_,
+	::vid_cfg_fix_window_dimension(
+		::vid_cfg_.width_,
 		::vga_ref_width,
 		::display_mode_.w
 	);
 }
 
-void vid_configuration_fix_window_height()
+void vid_cfg_fix_window_height()
 {
-	::vid_configuration_fix_window_dimension(
-		::vid_configuration_.height_,
+	::vid_cfg_fix_window_dimension(
+		::vid_cfg_.height_,
 		::vga_ref_height_4x3,
 		::display_mode_.h
 	);
 }
 
-void vid_configuration_fix_window_size()
+void vid_cfg_fix_window_size()
 {
-	::vid_configuration_fix_window_width();
-	::vid_configuration_fix_window_height();
+	::vid_cfg_fix_window_width();
+	::vid_cfg_fix_window_height();
 }
 
-void vid_configuration_adjust_window_position()
+void vid_cfg_adjust_window_position()
 {
-	auto window_x = *::vid_configuration_.x_;
-	auto window_y = *::vid_configuration_.y_;
+	auto window_x = *::vid_cfg_.x_;
+	auto window_y = *::vid_cfg_.y_;
 
 	if (window_x < 0)
 	{
@@ -490,8 +497,8 @@ void vid_configuration_adjust_window_position()
 		window_y = 0;
 	}
 
-	::vid_configuration_.x_ = window_x;
-	::vid_configuration_.y_ = window_y;
+	::vid_cfg_.x_ = window_x;
+	::vid_cfg_.y_ = window_y;
 }
 
 void vid_calculate_window_elements_dimensions(
@@ -580,8 +587,8 @@ void vid_calculate_window_elements_dimensions(
 
 CalculateScreenSizeInputParam vid_create_screen_size_param()
 {
-	auto window_width = static_cast<int>(::vid_configuration_.width_);
-	auto window_height = static_cast<int>(::vid_configuration_.height_);
+	auto window_width = static_cast<int>(::vid_cfg_.width_);
+	auto window_height = static_cast<int>(::vid_cfg_.height_);
 
 	if (window_width < ::vga_ref_width)
 	{
@@ -594,7 +601,7 @@ CalculateScreenSizeInputParam vid_create_screen_size_param()
 	}
 
 	auto result = CalculateScreenSizeInputParam{};
-	result.is_widescreen_ = ::vid_configuration_.is_widescreen_;
+	result.is_widescreen_ = ::vid_cfg_.is_widescreen_;
 	result.window_width_ = window_width;
 	result.window_height_ = window_height;
 
@@ -697,86 +704,174 @@ std::string vid_get_renderer_name_sw();
 std::string vid_get_renderer_name_hw();
 std::string vid_get_window_title_for_renderer();
 
-void vid_read_is_windowed_cl_configuration()
-{
-	// "vid_windowed"
-	//
-	const auto is_windowed_str = ::g_args.get_option_value(::vid_get_windowed_key_name());
 
-	auto is_windowed_value = 0;
-
-	if (!bstone::StringHelper::string_to_int(is_windowed_str, is_windowed_value))
-	{
-		return;
-	}
-
-	::vid_configuration_.is_windowed_ = (is_windowed_value != 0);
-}
-
-void vid_read_window_offset_cl_configuration(
+void vid_cfg_cl_read_bool(
 	const std::string& option_name,
-	VidConfiguration::IntModValue& offset)
+	VidCfg::BoolModValue& mod_value)
 {
-	const auto& offset_str = ::g_args.get_option_value(option_name);
+	int value;
 
-	auto offset_value = 0;
+	const auto& value_string = ::g_args.get_option_value(option_name);
 
-	if (!bstone::StringHelper::string_to_int(offset_str, offset_value))
+	if (!bstone::StringHelper::string_to_int(value_string, value))
 	{
 		return;
 	}
 
-	::vid_configuration_.is_custom_position_ = true;
-
-	offset = offset_value;
+	mod_value = (value != 0);
 }
 
-void vid_read_window_offset_x_cl_configuration()
-{
-	::vid_read_window_offset_cl_configuration(::vid_get_x_key_name(), ::vid_configuration_.x_);
-}
-
-void vid_read_window_offset_y_cl_configuration()
-{
-	::vid_read_window_offset_cl_configuration(::vid_get_y_key_name(), ::vid_configuration_.y_);
-}
-
-void vid_read_window_dimension_cl_configuration(
+void vid_cfg_cl_read_int(
 	const std::string& option_name,
-	VidConfiguration::IntModValue& dimension)
+	VidCfg::IntModValue& mod_value)
 {
-	const auto& dimension_str = ::g_args.get_option_value(option_name);
+	int value;
 
-	auto dimension_value = 0;
+	const auto& value_string = ::g_args.get_option_value(option_name);
 
-	if (bstone::StringHelper::string_to_int(dimension_str, dimension_value))
-	{
-		dimension = dimension_value;
-	}
-}
-
-void vid_read_window_width_cl_configuration()
-{
-	::vid_read_window_dimension_cl_configuration(::vid_get_width_key_name(), ::vid_configuration_.width_);
-}
-
-void vid_read_window_height_cl_configuration()
-{
-	::vid_read_window_dimension_cl_configuration(::vid_get_height_key_name(), ::vid_configuration_.height_);
-}
-
-void vid_read_vsync_cl_configuration()
-{
-	const auto vsync_str = ::g_args.get_option_value(::vid_get_vsync_key_name());
-
-	auto vsync_value = 0;
-
-	if (!bstone::StringHelper::string_to_int(vsync_str, vsync_value))
+	if (!bstone::StringHelper::string_to_int(value_string, value))
 	{
 		return;
 	}
 
-	::vid_configuration_.is_vsync_ = (vsync_value != 0);
+	mod_value = value;
+}
+
+void vid_cfg_cl_read_is_windowed()
+{
+	vid_cfg_cl_read_bool(::vid_get_is_windowed_key_name(), ::vid_cfg_.is_windowed_);
+}
+
+void vid_cfg_cl_read_is_positioned()
+{
+	vid_cfg_cl_read_bool(::vid_get_is_positioned_key_name(), ::vid_cfg_.is_positioned_);
+}
+
+void vid_cfg_cl_read_window_offset_x()
+{
+	::vid_cfg_cl_read_int(::vid_get_x_key_name(), ::vid_cfg_.x_);
+}
+
+void vid_cfg_cl_read_window_offset_y()
+{
+	::vid_cfg_cl_read_int(::vid_get_y_key_name(), ::vid_cfg_.y_);
+}
+
+void vid_cfg_cl_read_window_width()
+{
+	::vid_cfg_cl_read_int(::vid_get_width_key_name(), ::vid_cfg_.width_);
+}
+
+void vid_cfg_cl_read_window_height()
+{
+	::vid_cfg_cl_read_int(::vid_get_height_key_name(), ::vid_cfg_.height_);
+}
+
+void vid_cfg_cl_read_vsync()
+{
+	::vid_cfg_cl_read_bool(::vid_get_vsync_key_name(), ::vid_cfg_.is_vsync_);
+}
+
+void vid_cfg_cl_read_is_ui_stretched()
+{
+	::vid_cfg_cl_read_bool(::vid_get_is_ui_stretched_key_name(), ::vid_cfg_.is_ui_stretched_);
+}
+
+void vid_cfg_cl_read_is_widescreen()
+{
+	::vid_cfg_cl_read_bool(::vid_get_is_widescreen_key_name(), ::vid_cfg_.is_widescreen_);
+}
+
+void vid_cfg_cl_read_renderer_filter_kind(
+	const std::string& value_string,
+	VidCfg::FilterModValue& filter_kind)
+{
+	if (false)
+	{
+	}
+	else if (value_string == ::vid_get_nearest_value_string())
+	{
+		filter_kind = bstone::RendererFilterKind::nearest;
+	}
+	else if (value_string == ::vid_get_linear_value_string())
+	{
+		filter_kind = bstone::RendererFilterKind::linear;
+	}
+}
+
+void vid_cfg_cl_read_hw_2d_texture_filter()
+{
+	const auto& value_string = ::g_args.get_option_value(::vid_get_hw_2d_texture_filter_key_name());
+
+	::vid_cfg_cl_read_renderer_filter_kind(value_string, ::vid_cfg_.hw_2d_texture_filter_);
+}
+
+void vid_cfg_cl_read_hw_3d_texture_image_filter()
+{
+	const auto& value_string = ::g_args.get_option_value(::vid_get_hw_3d_texture_image_filter_key_name());
+
+	::vid_cfg_cl_read_renderer_filter_kind(value_string, ::vid_cfg_.hw_3d_texture_image_filter_);
+}
+
+void vid_cfg_cl_read_hw_3d_texture_mipmap_filter()
+{
+	const auto& value_string = ::g_args.get_option_value(::vid_get_hw_3d_texture_mipmap_filter_key_name());
+
+	::vid_cfg_cl_read_renderer_filter_kind(value_string, ::vid_cfg_.hw_3d_texture_mipmap_filter_);
+}
+
+void vid_cfg_cl_read_hw_3d_texture_anisotropy()
+{
+	::vid_cfg_cl_read_bool(::vid_get_hw_3d_texture_anisotropy_key_name(), ::vid_cfg_.hw_3d_texture_anisotropy_);
+}
+
+void vid_cfg_cl_read_hw_3d_texture_anisotropy_value()
+{
+	::vid_cfg_cl_read_int(::vid_get_hw_3d_texture_anisotropy_value_key_name(), ::vid_cfg_.hw_3d_texture_anisotropy_value_);
+}
+
+void vid_cfg_cl_read_hw_aa_kind()
+{
+	const auto& value_string = ::g_args.get_option_value(::vid_get_hw_aa_kind_key_name());
+
+	if (false)
+	{
+	}
+	else if (value_string == ::vid_get_none_value_string())
+	{
+		::vid_cfg_.hw_aa_kind_ = bstone::RendererAaKind::none;
+	}
+	else if (value_string == ::vid_get_msaa_value_string())
+	{
+		::vid_cfg_.hw_aa_kind_ = bstone::RendererAaKind::ms;
+	}
+}
+
+void vid_cfg_cl_read_hw_aa_value()
+{
+	::vid_cfg_cl_read_int(::vid_get_hw_aa_value_key_name(), ::vid_cfg_.hw_aa_value_);
+}
+
+void vid_cfg_cl_read_hw_upscale_kind()
+{
+	const auto& value_string = ::g_args.get_option_value(::vid_get_hw_texture_upscale_filter_key_name());
+
+	if (false)
+	{
+	}
+	else if (value_string == ::vid_get_none_value_string())
+	{
+		::vid_cfg_.hw_upscale_kind_ = bstone::HwTextureManagerUpscaleFilterKind::none;
+	}
+	else if (value_string == ::vid_get_msaa_value_string())
+	{
+		::vid_cfg_.hw_upscale_kind_ = bstone::HwTextureManagerUpscaleFilterKind::xbrz;
+	}
+}
+
+void vid_cfg_cl_read_hw_upscale_xbrz_factor()
+{
+	::vid_cfg_cl_read_int(::vid_get_hw_texture_upscale_xbrz_factor_key_name(), ::vid_cfg_.hw_upscale_xbrz_factor_);
 }
 
 const std::string& vid_get_vid_string()
@@ -949,38 +1044,40 @@ void vid_get_current_display_mode()
 	}
 }
 
-void vid_read_cl_configuration()
+void vid_cfg_cl_read()
 {
-	::vid_configuration_.is_custom_position_ = false;
+	static auto is_already_read = false;
 
+	if (is_already_read)
+	{
+		return;
+	}
 
-	// "vid_windowed"
-	//
-	::vid_read_is_windowed_cl_configuration();
+	is_already_read = true;
 
-	// "vid_x"
-	//
-	::vid_read_window_offset_x_cl_configuration();
-
-	// "vid_y"
-	//
-	::vid_read_window_offset_y_cl_configuration();
-
-	// "vid_width"
-	//
-	::vid_read_window_width_cl_configuration();
-
-	// "vid_height"
-	//
-	::vid_read_window_height_cl_configuration();
-
-	// "vid_vsync"
-	//
-	::vid_read_vsync_cl_configuration();
+	::vid_cfg_cl_read_is_windowed();
+	::vid_cfg_cl_read_is_positioned();
+	::vid_cfg_cl_read_window_offset_x();
+	::vid_cfg_cl_read_window_offset_y();
+	::vid_cfg_cl_read_window_width();
+	::vid_cfg_cl_read_window_height();
+	::vid_cfg_cl_read_vsync();
+	::vid_cfg_cl_read_is_ui_stretched();
+	::vid_cfg_cl_read_is_widescreen();
+	::vid_cfg_cl_read_hw_2d_texture_filter();
+	::vid_cfg_cl_read_hw_3d_texture_image_filter();
+	::vid_cfg_cl_read_hw_3d_texture_mipmap_filter();
+	::vid_cfg_cl_read_hw_3d_texture_anisotropy();
+	::vid_cfg_cl_read_hw_3d_texture_anisotropy_value();
+	::vid_cfg_cl_read_hw_aa_kind();
+	::vid_cfg_cl_read_hw_aa_value();
+	::vid_cfg_cl_read_hw_upscale_kind();
+	::vid_cfg_cl_read_hw_upscale_xbrz_factor();
 }
 
-void vid_hw_read_cl_configuration()
+void vid_cfg_read()
 {
+	::vid_cfg_cl_read();
 }
 
 const std::string& vid_to_string(
@@ -1039,9 +1136,6 @@ const std::string& vid_to_string(
 
 	switch (renderer_kind)
 	{
-		case bstone::RendererKind::none:
-			return vid_get_none_value_string();
-
 		case bstone::RendererKind::auto_detect:
 			return vid_get_auto_detect_value_string();
 
@@ -1063,6 +1157,26 @@ const std::string& vid_to_string(
 	}
 }
 
+const std::string& vid_to_string(
+	const bstone::HwTextureManagerUpscaleFilterKind upscale_filter_kind)
+{
+	static const auto ogl_2_string = std::string{"OpenGL 2+"};
+	static const auto ogl_3_2_core_string = std::string{"OpenGL 3.2 core"};
+	static const auto ogl_es_2_0_string = std::string{"OpenGL ES 2.0"};
+
+	switch (upscale_filter_kind)
+	{
+		case bstone::HwTextureManagerUpscaleFilterKind::none:
+			return vid_get_none_value_string();
+
+		case bstone::HwTextureManagerUpscaleFilterKind::xbrz:
+			return vid_get_xbrz_value_string();
+
+		default:
+			throw bstone::Exception{"Unsupported texture upscale filter kind."};
+	}
+}
+
 void vid_log_common_configuration()
 {
 	::vid_log();
@@ -1070,27 +1184,31 @@ void vid_log_common_configuration()
 	::vid_log("Common configuration");
 	::vid_log("--------------------");
 
-	::vid_log("Renderer: " + ::vid_to_string(::vid_configuration_.renderer_kind_));
+	::vid_log("Renderer: " + ::vid_to_string(::vid_cfg_.renderer_kind_));
 
-	::vid_log("Is windowed: " + ::vid_to_string(::vid_configuration_.is_windowed_));
-	::vid_log("Window horizontal offset: " + ::vid_to_string(::vid_configuration_.x_));
-	::vid_log("Window vertical offset: " + ::vid_to_string(::vid_configuration_.y_));
-	::vid_log("Window width: " + ::vid_to_string(::vid_configuration_.width_));
-	::vid_log("Window height: " + ::vid_to_string(::vid_configuration_.height_));
+	::vid_log("Is windowed: " + ::vid_to_string(::vid_cfg_.is_windowed_));
+	::vid_log("Window positioned: " + ::vid_to_string(::vid_cfg_.is_positioned_));
+	::vid_log("Window horizontal offset: " + ::vid_to_string(::vid_cfg_.x_));
+	::vid_log("Window vertical offset: " + ::vid_to_string(::vid_cfg_.y_));
+	::vid_log("Window width: " + ::vid_to_string(::vid_cfg_.width_));
+	::vid_log("Window height: " + ::vid_to_string(::vid_cfg_.height_));
 
-	::vid_log("Is UI stretched: " + ::vid_to_string(::vid_configuration_.is_ui_stretched_));
-	::vid_log("Is widescreen: " + ::vid_to_string(::vid_configuration_.is_widescreen_));
+	::vid_log("UI stretched: " + ::vid_to_string(::vid_cfg_.is_ui_stretched_));
+	::vid_log("Widescreen: " + ::vid_to_string(::vid_cfg_.is_widescreen_));
 
-	::vid_hw_log("2D texture filter: " + ::vid_to_string(::vid_configuration_.hw_2d_texture_filter_));
+	::vid_hw_log("2D texture filter: " + ::vid_to_string(::vid_cfg_.hw_2d_texture_filter_));
 
-	::vid_hw_log("3D texture image filter: " + ::vid_to_string(::vid_configuration_.hw_3d_texture_image_filter_));
-	::vid_hw_log("3D texture mipmap filter: " + ::vid_to_string(::vid_configuration_.hw_3d_texture_mipmap_filter_));
+	::vid_hw_log("3D texture image filter: " + ::vid_to_string(::vid_cfg_.hw_3d_texture_image_filter_));
+	::vid_hw_log("3D texture mipmap filter: " + ::vid_to_string(::vid_cfg_.hw_3d_texture_mipmap_filter_));
 
-	::vid_hw_log("Texture anisotropy: " + ::vid_to_string(::vid_configuration_.hw_3d_texture_anisotropy_));
-	::vid_hw_log("Texture anisotropy value: " + ::vid_to_string(::vid_configuration_.hw_3d_texture_anisotropy_value_));
+	::vid_hw_log("Texture anisotropy: " + ::vid_to_string(::vid_cfg_.hw_3d_texture_anisotropy_));
+	::vid_hw_log("Texture anisotropy value: " + ::vid_to_string(::vid_cfg_.hw_3d_texture_anisotropy_value_));
 
-	::vid_hw_log("Anti-aliasing kind: " + ::vid_to_string(::vid_configuration_.hw_aa_kind_));
-	::vid_hw_log("Anti-aliasing value: " + ::vid_to_string(::vid_configuration_.hw_aa_value_));
+	::vid_hw_log("Texture upscale filter: " + ::vid_to_string(::vid_cfg_.hw_upscale_kind_));
+	::vid_hw_log("Texture upscale xBRZ factor: " + ::vid_to_string(::vid_cfg_.hw_upscale_xbrz_factor_));
+
+	::vid_hw_log("Anti-aliasing kind: " + ::vid_to_string(::vid_cfg_.hw_aa_kind_));
+	::vid_hw_log("Anti-aliasing value: " + ::vid_to_string(::vid_cfg_.hw_aa_value_));
 
 	::vid_log("--------------------");
 }
@@ -1098,10 +1216,8 @@ void vid_log_common_configuration()
 void vid_common_initialize()
 {
 	::vid_get_current_display_mode();
-	::vid_read_cl_configuration();
-	::vid_hw_read_cl_configuration();
-	::vid_configuration_adjust_window_position();
-	::vid_configuration_fix_window_size();
+	::vid_cfg_adjust_window_position();
+	::vid_cfg_fix_window_size();
 
 	::vid_log_common_configuration();
 }
@@ -1166,10 +1282,15 @@ void sw_window_create()
 	::vid_log("Creating window.");
 
 
-	auto window_x = *::vid_configuration_.x_;
-	auto window_y = *::vid_configuration_.y_;
+	int window_x;
+	int window_y;
 
-	if (!::vid_configuration_.is_custom_position_)
+	if (::vid_cfg_.is_positioned_)
+	{
+		window_x = *::vid_cfg_.x_;
+		window_y = *::vid_cfg_.y_;
+	}
+	else
 	{
 		window_x = SDL_WINDOWPOS_CENTERED;
 		window_y = SDL_WINDOWPOS_CENTERED;
@@ -1180,7 +1301,7 @@ void sw_window_create()
 		SDL_WINDOW_HIDDEN |
 		0};
 
-	if (!::vid_configuration_.is_windowed_)
+	if (!::vid_cfg_.is_windowed_)
 	{
 		window_flags |=
 			SDL_WINDOW_BORDERLESS |
@@ -1197,8 +1318,8 @@ void sw_window_create()
 		title.c_str(),
 		window_x,
 		window_y,
-		::vid_configuration_.width_,
-		::vid_configuration_.height_,
+		::vid_cfg_.width_,
+		::vid_cfg_.height_,
 		window_flags
 	)};
 
@@ -1233,7 +1354,7 @@ void sw_initialize_renderer()
 	const char* renderer_driver = nullptr;
 
 	{
-		if (!vid_configuration_.is_vsync_)
+		if (!vid_cfg_.is_vsync_)
 		{
 			::vid_log("Skipping VSync.");
 		}
@@ -1580,12 +1701,12 @@ void sw_calculate_dimensions()
 	// Screen destination rect.
 
 	const auto screen_left = (
-		::vid_configuration_.is_widescreen_ ?
+		::vid_cfg_.is_widescreen_ ?
 		0 :
 		::vid_dimensions_.window_viewport_left_width_ + ::vid_dimensions_.screen_left_filler_width_);
 
 	const auto screen_top = ::vid_dimensions_.window_viewport_top_height_;
-	const auto screen_width = (::vid_configuration_.is_widescreen_ ? ::vid_dimensions_.screen_width_ : ::vid_dimensions_.screen_width_4x3_);
+	const auto screen_width = (::vid_cfg_.is_widescreen_ ? ::vid_dimensions_.screen_width_ : ::vid_dimensions_.screen_width_4x3_);
 	const auto screen_height = ::vid_dimensions_.screen_height_;
 
 	::sw_screen_dst_rect_ = SDL_Rect
@@ -1765,7 +1886,7 @@ void sw_screen_refresh()
 
 	// Use filler if necessary
 	//
-	if (!::vid_configuration_.is_ui_stretched_)
+	if (!::vid_cfg_.is_ui_stretched_)
 	{
 		const auto is_hud = ::vid_is_hud;
 
@@ -1818,7 +1939,7 @@ void sw_screen_refresh()
 		}
 	}
 
-	if (!::vid_configuration_.is_ui_stretched_)
+	if (!::vid_cfg_.is_ui_stretched_)
 	{
 		if (::vid_is_fizzle_fade)
 		{
@@ -1890,7 +2011,7 @@ void sw_screen_refresh()
 	::SDL_RenderPresent(sw_renderer_.get());
 }
 
-void sw_update_widescreen()
+void sw_widescreen_apply()
 {
 	::sw_screen_texture_destroy();
 	::sw_vga_buffer_uninitialize();
@@ -2557,12 +2678,7 @@ int hw_config_texture_anisotropy_to_renderer(
 	const bool is_enabled,
 	const int value)
 {
-	if (!is_enabled || value <= bstone::RendererSampler::anisotropy_min)
-	{
-		return bstone::RendererSampler::anisotropy_min;
-	}
-
-	return value;
+	return is_enabled ? value : bstone::RendererSampler::anisotropy_min;
 }
 
 int hw_get_static_index(
@@ -3311,29 +3427,34 @@ void hw_renderer_initialize()
 	// Initialization parameter.
 	//
 	auto param = bstone::RendererCreateParam{};
-	param.renderer_kind_ = bstone::RendererKind::auto_detect;
+	param.renderer_kind_ = ::vid_cfg_.renderer_kind_;
 
-	param.aa_kind_ = ::vid_configuration_.hw_aa_kind_;
-	param.aa_value_ = ::vid_configuration_.hw_aa_value_;
+	param.aa_kind_ = ::vid_cfg_.hw_aa_kind_;
+	param.aa_value_ = ::vid_cfg_.hw_aa_value_;
 
-	param.is_vsync_ = ::vid_configuration_.is_vsync_;
+	param.is_vsync_ = ::vid_cfg_.is_vsync_;
 
 #ifdef __vita__
 	param.window_.is_visible_ = true;
 #endif // __vita__
 
-	if (!::vid_configuration_.is_windowed_)
+	if (::vid_cfg_.is_windowed_)
+	{
+		param.window_.width_ = ::vid_cfg_.width_;
+		param.window_.height_ = ::vid_cfg_.height_;
+	}
+	else
 	{
 		param.window_.is_borderless_ = true;
 		param.window_.is_fullscreen_desktop_ = true;
+
+		param.window_.width_ = ::display_mode_.w;
+		param.window_.height_ = ::display_mode_.h;
 	}
 
-	param.window_.is_positioned_ = ::vid_configuration_.is_custom_position_;
-	param.window_.x_ = ::vid_configuration_.x_;
-	param.window_.y_ = ::vid_configuration_.y_;
-
-	param.window_.width_ = ::vid_configuration_.width_;
-	param.window_.height_ = ::vid_configuration_.height_;
+	param.window_.is_positioned_ = ::vid_cfg_.is_positioned_;
+	param.window_.x_ = ::vid_cfg_.x_;
+	param.window_.y_ = ::vid_cfg_.y_;
 
 	param.window_.title_utf8_ = title;
 
@@ -4823,10 +4944,15 @@ void hw_2d_sampler_ui_set_default_state()
 	::hw_2d_ui_s_state_.anisotropy_ = bstone::RendererSampler::anisotropy_min;
 }
 
+void hw_2d_sampler_ui_update_state()
+{
+	::hw_2d_ui_s_state_.min_filter_ = ::vid_cfg_.hw_2d_texture_filter_;
+	::hw_2d_ui_s_state_.mag_filter_ = ::vid_cfg_.hw_2d_texture_filter_;
+}
+
 void hw_2d_sampler_ui_update()
 {
-	::hw_2d_ui_s_state_.min_filter_ = ::vid_configuration_.hw_2d_texture_filter_;
-	::hw_2d_ui_s_state_.mag_filter_ = ::vid_configuration_.hw_2d_texture_filter_;
+	::hw_2d_sampler_ui_update_state();
 
 	if (hw_2d_ui_s_ != nullptr)
 	{
@@ -4849,6 +4975,8 @@ void hw_2d_sampler_ui_create()
 {
 	::vid_log("Creating UI sampler.");
 
+	::hw_2d_sampler_ui_update_state();
+
 	auto param = bstone::RendererSamplerCreateParam{};
 	param.state_ = ::hw_2d_ui_s_state_;
 
@@ -4865,18 +4993,23 @@ void hw_3d_sampler_sprite_set_default_state()
 	::hw_3d_sprite_s_state_.anisotropy_ = bstone::RendererSampler::anisotropy_min;
 }
 
-void hw_3d_sampler_sprite_update()
+void hw_3d_sampler_sprite_update_state()
 {
-	::hw_3d_sprite_s_state_.min_filter_ = ::vid_configuration_.hw_3d_texture_image_filter_;
-	::hw_3d_sprite_s_state_.mag_filter_ = ::vid_configuration_.hw_3d_texture_image_filter_;
+	::hw_3d_sprite_s_state_.min_filter_ = ::vid_cfg_.hw_3d_texture_image_filter_;
+	::hw_3d_sprite_s_state_.mag_filter_ = ::vid_cfg_.hw_3d_texture_image_filter_;
 
 	::hw_3d_sprite_s_state_.mipmap_mode_ = ::hw_config_texture_mipmap_filter_to_renderer(
-		::vid_configuration_.hw_3d_texture_mipmap_filter_);
+		::vid_cfg_.hw_3d_texture_mipmap_filter_);
 
 	::hw_3d_sprite_s_state_.anisotropy_ = ::hw_config_texture_anisotropy_to_renderer(
-		::vid_configuration_.hw_3d_texture_anisotropy_,
-		::vid_configuration_.hw_3d_texture_anisotropy_value_
+		::vid_cfg_.hw_3d_texture_anisotropy_,
+		::vid_cfg_.hw_3d_texture_anisotropy_value_
 	);
+}
+
+void hw_3d_sampler_sprite_update()
+{
+	::hw_3d_sampler_sprite_update_state();
 
 	if (::hw_3d_sprite_s_)
 	{
@@ -4895,6 +5028,8 @@ void hw_3d_sampler_sprite_create()
 {
 	::vid_log("Creating sprite sampler.");
 
+	::hw_3d_sampler_sprite_update_state();
+
 	auto param = bstone::RendererSamplerCreateParam{};
 	param.state_ = ::hw_3d_sprite_s_state_;
 
@@ -4911,18 +5046,23 @@ void hw_3d_sampler_wall_set_default_state()
 	::hw_3d_wall_s_state_.anisotropy_ = bstone::RendererSampler::anisotropy_min;
 }
 
-void hw_3d_sampler_wall_update()
+void hw_3d_sampler_wall_update_state()
 {
-	::hw_3d_wall_s_state_.min_filter_ = ::vid_configuration_.hw_3d_texture_image_filter_;
-	::hw_3d_wall_s_state_.mag_filter_ = ::vid_configuration_.hw_3d_texture_image_filter_;
+	::hw_3d_wall_s_state_.min_filter_ = ::vid_cfg_.hw_3d_texture_image_filter_;
+	::hw_3d_wall_s_state_.mag_filter_ = ::vid_cfg_.hw_3d_texture_image_filter_;
 
 	::hw_3d_wall_s_state_.mipmap_mode_ = ::hw_config_texture_mipmap_filter_to_renderer(
-		::vid_configuration_.hw_3d_texture_mipmap_filter_);
+		::vid_cfg_.hw_3d_texture_mipmap_filter_);
 
 	::hw_3d_wall_s_state_.anisotropy_ = ::hw_config_texture_anisotropy_to_renderer(
-		::vid_configuration_.hw_3d_texture_anisotropy_,
-		::vid_configuration_.hw_3d_texture_anisotropy_value_
+		::vid_cfg_.hw_3d_texture_anisotropy_,
+		::vid_cfg_.hw_3d_texture_anisotropy_value_
 	);
+}
+
+void hw_3d_sampler_wall_update()
+{
+	::hw_3d_sampler_wall_update_state();
 
 	if (::hw_3d_wall_s_ != nullptr)
 	{
@@ -4940,6 +5080,8 @@ void hw_3d_sampler_wall_destroy()
 void hw_3d_sampler_wall_create()
 {
 	::vid_log("Creating wall side sampler.");
+
+	::hw_3d_sampler_wall_update_state();
 
 	auto param = bstone::RendererSamplerCreateParam{};
 	param.state_ = ::hw_3d_wall_s_state_;
@@ -5124,10 +5266,15 @@ void hw_3d_player_weapon_sampler_set_default_state()
 	::hw_3d_player_weapon_s_state_.anisotropy_ = bstone::RendererSampler::anisotropy_min;
 }
 
+void hw_3d_player_weapon_sampler_update_state()
+{
+	::hw_3d_player_weapon_s_state_.min_filter_ = ::vid_cfg_.hw_3d_texture_image_filter_;
+	::hw_3d_player_weapon_s_state_.mag_filter_ = ::vid_cfg_.hw_3d_texture_image_filter_;
+}
+
 void hw_3d_player_weapon_sampler_update()
 {
-	::hw_3d_player_weapon_s_state_.min_filter_ = ::vid_configuration_.hw_3d_texture_image_filter_;
-	::hw_3d_player_weapon_s_state_.mag_filter_ = ::vid_configuration_.hw_3d_texture_image_filter_;
+	::hw_3d_player_weapon_sampler_update_state();
 
 	if (::hw_3d_player_weapon_s_ != nullptr)
 	{
@@ -5149,6 +5296,8 @@ void hw_3d_player_weapon_sampler_destroy()
 void hw_3d_player_weapon_sampler_create()
 {
 	::vid_log("Creating player's weapon sampler.");
+
+	::hw_3d_player_weapon_sampler_update_state();
 
 	auto param = bstone::RendererSamplerCreateParam{};
 	param.state_ = ::hw_3d_player_weapon_s_state_;
@@ -5693,7 +5842,7 @@ void hw_screen_2d_refresh()
 
 	// Fillers.
 	//
-	if (!::vid_configuration_.is_ui_stretched_)
+	if (!::vid_cfg_.is_ui_stretched_)
 	{
 		{
 			auto& command = *command_buffer->write_texture();
@@ -5756,7 +5905,7 @@ void hw_screen_2d_refresh()
 		}
 
 		{
-			const auto index_offset = (::vid_configuration_.is_ui_stretched_
+			const auto index_offset = (::vid_cfg_.is_ui_stretched_
 				?
 				::hw_2d_stretched_index_offset_
 				:
@@ -5818,7 +5967,7 @@ void hw_screen_2d_refresh()
 		// Draw the quad.
 		//
 		{
-			const auto index_offset = (::vid_configuration_.is_ui_stretched_
+			const auto index_offset = (::vid_cfg_.is_ui_stretched_
 				?
 				::hw_2d_stretched_index_offset_
 				:
@@ -6952,8 +7101,10 @@ void hw_3d_sprites_render()
 	::hw_3d_sprites_draw_count_ = draw_sprite_index;
 }
 
-void hw_widescreen_update()
+void hw_widescreen_apply()
 {
+	::vid_cfg_.is_widescreen_.set_is_modified(false);
+
 	::hw_dimensions_calculate();
 	::SetViewSize();
 	::hw_3d_matrix_projection_build();
@@ -6961,54 +7112,32 @@ void hw_widescreen_update()
 	::hw_3d_fade_vb_update();
 }
 
-void vid_apply_hw_is_ui_stretched_configuration()
-{
-	if (!::vid_configuration_.is_ui_stretched_.is_modified())
-	{
-		return;
-	}
-
-	::vid_configuration_.is_ui_stretched_.set_is_modified(false);
-}
-
-void vid_apply_hw_is_widescreen_configuration()
-{
-	if (!::vid_configuration_.is_widescreen_.is_modified())
-	{
-		return;
-	}
-
-	::vid_configuration_.is_widescreen_.set_is_modified(false);
-
-	::hw_widescreen_update();
-}
-
 void vid_apply_hw_2d_texture_filter_configuration()
 {
-	if (!::vid_configuration_.hw_2d_texture_filter_.is_modified())
+	if (!::vid_cfg_.hw_2d_texture_filter_.is_modified())
 	{
 		return;
 	}
 
-	::vid_configuration_.hw_2d_texture_filter_.set_is_modified(false);
+	::vid_cfg_.hw_2d_texture_filter_.set_is_modified(false);
 
 	::hw_2d_sampler_ui_update();
 }
 
 void vid_apply_hw_3d_texture_filter_configuration()
 {
-	if (!::vid_configuration_.hw_3d_texture_image_filter_.is_modified() &&
-		!::vid_configuration_.hw_3d_texture_mipmap_filter_.is_modified() &&
-		!::vid_configuration_.hw_3d_texture_anisotropy_.is_modified() &&
-		!::vid_configuration_.hw_3d_texture_anisotropy_value_.is_modified())
+	if (!::vid_cfg_.hw_3d_texture_image_filter_.is_modified() &&
+		!::vid_cfg_.hw_3d_texture_mipmap_filter_.is_modified() &&
+		!::vid_cfg_.hw_3d_texture_anisotropy_.is_modified() &&
+		!::vid_cfg_.hw_3d_texture_anisotropy_value_.is_modified())
 	{
 		return;
 	}
 
-	::vid_configuration_.hw_3d_texture_image_filter_.set_is_modified(false);
-	::vid_configuration_.hw_3d_texture_mipmap_filter_.set_is_modified(false);
-	::vid_configuration_.hw_3d_texture_anisotropy_.set_is_modified(false);
-	::vid_configuration_.hw_3d_texture_anisotropy_value_.set_is_modified(false);
+	::vid_cfg_.hw_3d_texture_image_filter_.set_is_modified(false);
+	::vid_cfg_.hw_3d_texture_mipmap_filter_.set_is_modified(false);
+	::vid_cfg_.hw_3d_texture_anisotropy_.set_is_modified(false);
+	::vid_cfg_.hw_3d_texture_anisotropy_value_.set_is_modified(false);
 
 	::hw_3d_sampler_sprite_update();
 	::hw_3d_sampler_wall_update();
@@ -7017,34 +7146,34 @@ void vid_apply_hw_3d_texture_filter_configuration()
 
 void vid_apply_hw_aa_configuration()
 {
-	if (!::vid_configuration_.hw_aa_kind_.is_modified() &&
-		!::vid_configuration_.hw_aa_value_.is_modified())
+	if (!::vid_cfg_.hw_aa_kind_.is_modified() &&
+		!::vid_cfg_.hw_aa_value_.is_modified())
 	{
 		return;
 	}
 
-	::vid_configuration_.hw_aa_kind_.set_is_modified(false);
-	::vid_configuration_.hw_aa_value_.set_is_modified(false);
+	::vid_cfg_.hw_aa_kind_.set_is_modified(false);
+	::vid_cfg_.hw_aa_value_.set_is_modified(false);
 
-	if (*::vid_configuration_.hw_aa_kind_ == bstone::RendererAaKind::ms &&
+	if (*::vid_cfg_.hw_aa_kind_ == bstone::RendererAaKind::ms &&
 		::hw_device_features_.msaa_is_requires_restart_)
 	{
 		return;
 	}
 
 	::hw_renderer_->aa_set(
-		::vid_configuration_.hw_aa_kind_,
-		::vid_configuration_.hw_aa_value_);
+		::vid_cfg_.hw_aa_kind_,
+		::vid_cfg_.hw_aa_value_);
 }
 
 void vid_apply_hw_vsync_configuration()
 {
-	if (!::vid_configuration_.is_vsync_.is_modified())
+	if (!::vid_cfg_.is_vsync_.is_modified())
 	{
 		return;
 	}
 
-	::vid_configuration_.is_vsync_.set_is_modified(false);
+	::vid_cfg_.is_vsync_.set_is_modified(false);
 
 	if (!::hw_device_features_.vsync_is_available_)
 	{
@@ -7056,19 +7185,19 @@ void vid_apply_hw_vsync_configuration()
 		// FIXME
 	}
 
-	::hw_renderer_->vsync_set(::vid_configuration_.is_vsync_);
+	::hw_renderer_->vsync_set(::vid_cfg_.is_vsync_);
 }
 
 void vid_apply_hw_texture_upscale_filter_configuration()
 {
-	if (!::vid_configuration_.hw_upscale_kind_.is_modified() &&
-		!::vid_configuration_.hw_upscale_factor_.is_modified())
+	if (!::vid_cfg_.hw_upscale_kind_.is_modified() &&
+		!::vid_cfg_.hw_upscale_xbrz_factor_.is_modified())
 	{
 		return;
 	}
 
-	::vid_configuration_.hw_upscale_kind_.set_is_modified(false);
-	::vid_configuration_.hw_upscale_factor_.set_is_modified(false);
+	::vid_cfg_.hw_upscale_kind_.set_is_modified(false);
+	::vid_cfg_.hw_upscale_xbrz_factor_.set_is_modified(false);
 }
 
 void hw_3d_fade_update()
@@ -11470,8 +11599,8 @@ void hw_texture_upscale_apply()
 	::hw_texture_upscale_resources_destroy();
 
 	::hw_texture_manager_->upscale_filter_set(
-		::vid_configuration_.hw_upscale_kind_,
-		::vid_configuration_.hw_upscale_factor_
+		::vid_cfg_.hw_upscale_kind_,
+		::vid_cfg_.hw_upscale_xbrz_factor_
 	);
 
 	::hw_texture_upscale_resources_create();
@@ -11543,8 +11672,6 @@ void hw_video_initialize()
 	::hw_device_features_ = ::hw_renderer_->device_get_features();
 
 	::vid_is_hw_ = true;
-
-	::vid_apply_hw_configuration();
 
 	::hw_renderer_->color_buffer_set_clear_color(bstone::R8g8b8a8{});
 
@@ -11642,10 +11769,13 @@ void VL_WaitVBL(
 // BBi Moved from jm_free.cpp
 void VL_Startup()
 {
+	::vid_cfg_cl_read();
+
+
 #if BSTONE_DBG_FORCE_SW
 	const auto is_sw = true;
 #else
-	const auto is_sw = (*vid_configuration_.renderer_kind_ == bstone::RendererKind::software);
+	const auto is_sw = (*::vid_cfg_.renderer_kind_ == bstone::RendererKind::software);
 #endif // BSTONE_DBG_FORCE_SW
 
 	auto is_try_sw = false;
@@ -12388,11 +12518,11 @@ void vl_update_widescreen()
 {
 	if (::vid_is_hw_)
 	{
-		::hw_widescreen_update();
+		::hw_widescreen_apply();
 	}
 	else
 	{
-		::sw_update_widescreen();
+		::sw_widescreen_apply();
 	}
 }
 
@@ -12490,7 +12620,6 @@ const std::string& vid_renderer_kind_to_string(
 	switch (kind)
 	{
 		case bstone::RendererKind::auto_detect:
-		case bstone::RendererKind::none:
 			return vid_get_auto_detect_value_string();
 
 		case bstone::RendererKind::software:
@@ -12512,208 +12641,211 @@ const std::string& vid_renderer_kind_to_string(
 	}
 }
 
-void vid_configuration_read_renderer_kind(
+void vid_cfg_file_read_renderer_kind(
 	const std::string& value_string)
 {
-	if (value_string == ::vid_get_none_value_string() ||
+	if (false)
+	{
+	}
+	else if (value_string == ::vid_get_none_value_string() ||
 		value_string == ::vid_get_auto_detect_value_string())
 	{
-		::vid_configuration_.renderer_kind_ = bstone::RendererKind::auto_detect;
+		::vid_cfg_.renderer_kind_ = bstone::RendererKind::auto_detect;
 	}
 	else if (value_string == ::vid_get_software_value_string())
 	{
-		::vid_configuration_.renderer_kind_ = bstone::RendererKind::software;
+		::vid_cfg_.renderer_kind_ = bstone::RendererKind::software;
 	}
 	else if (value_string == ::vid_get_ogl_2_value_string())
 	{
-		::vid_configuration_.renderer_kind_ = bstone::RendererKind::ogl_2;
+		::vid_cfg_.renderer_kind_ = bstone::RendererKind::ogl_2;
 	}
 	else if (value_string == ::vid_get_ogl_3_2_c_value_string())
 	{
-		::vid_configuration_.renderer_kind_ = bstone::RendererKind::ogl_3_2_core;
+		::vid_cfg_.renderer_kind_ = bstone::RendererKind::ogl_3_2_core;
 	}
 	else if (value_string == ::vid_get_ogl_es_2_0_value_string())
 	{
-		::vid_configuration_.renderer_kind_ = bstone::RendererKind::ogl_es_2_0;
+		::vid_cfg_.renderer_kind_ = bstone::RendererKind::ogl_es_2_0;
 	}
 }
 
-void vid_configuration_read_width(
+void vid_cfg_file_read_width(
 	const std::string& value_string)
 {
 	int value = 0;
 
 	if (bstone::StringHelper::string_to_int(value_string, value))
 	{
-		::vid_configuration_.width_ = value;
+		::vid_cfg_.width_ = value;
 	}
 }
 
-void vid_configuration_read_height(
+void vid_cfg_file_read_height(
 	const std::string& value_string)
 {
 	int value = 0;
 
 	if (bstone::StringHelper::string_to_int(value_string, value))
 	{
-		::vid_configuration_.height_ = value;
+		::vid_cfg_.height_ = value;
 	}
 }
 
-void vid_configuration_read_is_windowed(
+void vid_cfg_file_read_is_windowed(
 	const std::string& value_string)
 {
 	int value = 0;
 
 	if (bstone::StringHelper::string_to_int(value_string, value))
 	{
-		::vid_configuration_.is_windowed_ = (value != 0);
+		::vid_cfg_.is_windowed_ = (value != 0);
 	}
 }
 
-void vid_configuration_read_vsync(
+void vid_cfg_file_read_vsync(
 	const std::string& value_string)
 {
 	int value = 0;
 
 	if (bstone::StringHelper::string_to_int(value_string, value))
 	{
-		::vid_configuration_.is_vsync_ = (value != 0);
+		::vid_cfg_.is_vsync_ = (value != 0);
 	}
 }
 
-void vid_configuration_read_is_widescreen(
+void vid_cfg_file_read_is_widescreen(
 	const std::string& value_string)
 {
 	int value = 0;
 
 	if (bstone::StringHelper::string_to_int(value_string, value))
 	{
-		::vid_configuration_.is_widescreen_ = (value != 0);
+		::vid_cfg_.is_widescreen_ = (value != 0);
 	}
 }
 
-void vid_configuration_read_is_ui_stretched(
+void vid_cfg_file_read_is_ui_stretched(
 	const std::string& value_string)
 {
 	int value = 0;
 
 	if (bstone::StringHelper::string_to_int(value_string, value))
 	{
-		::vid_configuration_.is_ui_stretched_ = (value != 0);
+		::vid_cfg_.is_ui_stretched_ = (value != 0);
 	}
 }
 
-void vid_configuration_read_hw_2d_texture_filter(
+void vid_cfg_file_read_hw_2d_texture_filter(
 	const std::string& value_string)
 {
 	if (value_string == ::vid_get_nearest_value_string())
 	{
-		::vid_configuration_.hw_2d_texture_filter_ = bstone::RendererFilterKind::nearest;
+		::vid_cfg_.hw_2d_texture_filter_ = bstone::RendererFilterKind::nearest;
 	}
 	else if (value_string == ::vid_get_linear_value_string())
 	{
-		::vid_configuration_.hw_2d_texture_filter_ = bstone::RendererFilterKind::linear;
+		::vid_cfg_.hw_2d_texture_filter_ = bstone::RendererFilterKind::linear;
 	}
 }
 
-void vid_configuration_read_hw_3d_texture_image_filter(
+void vid_cfg_file_read_hw_3d_texture_image_filter(
 	const std::string& value_string)
 {
 	if (value_string == ::vid_get_nearest_value_string())
 	{
-		::vid_configuration_.hw_3d_texture_image_filter_ = bstone::RendererFilterKind::nearest;
+		::vid_cfg_.hw_3d_texture_image_filter_ = bstone::RendererFilterKind::nearest;
 	}
 	else if (value_string == ::vid_get_linear_value_string())
 	{
-		::vid_configuration_.hw_3d_texture_image_filter_ = bstone::RendererFilterKind::linear;
+		::vid_cfg_.hw_3d_texture_image_filter_ = bstone::RendererFilterKind::linear;
 	}
 }
 
-void vid_configuration_read_hw_3d_texture_mipmap_filter(
+void vid_cfg_file_read_hw_3d_texture_mipmap_filter(
 	const std::string& value_string)
 {
 	if (value_string == ::vid_get_nearest_value_string())
 	{
-		::vid_configuration_.hw_3d_texture_mipmap_filter_ = bstone::RendererFilterKind::nearest;
+		::vid_cfg_.hw_3d_texture_mipmap_filter_ = bstone::RendererFilterKind::nearest;
 	}
 	else if (value_string == ::vid_get_linear_value_string())
 	{
-		::vid_configuration_.hw_3d_texture_mipmap_filter_ = bstone::RendererFilterKind::linear;
+		::vid_cfg_.hw_3d_texture_mipmap_filter_ = bstone::RendererFilterKind::linear;
 	}
 }
 
-void vid_configuration_read_hw_3d_texture_anisotropy(
+void vid_cfg_file_read_hw_3d_texture_anisotropy(
 	const std::string& value_string)
 {
 	int value = 0;
 
 	if (bstone::StringHelper::string_to_int(value_string, value))
 	{
-		::vid_configuration_.hw_3d_texture_anisotropy_ = (value != 0);
+		::vid_cfg_.hw_3d_texture_anisotropy_ = (value != 0);
 	}
 }
 
-void vid_configuration_read_hw_3d_texture_anisotropy_value(
+void vid_cfg_file_read_hw_3d_texture_anisotropy_value(
 	const std::string& value_string)
 {
 	int value = 0;
 
 	if (bstone::StringHelper::string_to_int(value_string, value))
 	{
-		::vid_configuration_.hw_3d_texture_anisotropy_value_ = value;
+		::vid_cfg_.hw_3d_texture_anisotropy_value_ = value;
 	}
 }
 
-void vid_configuration_read_hw_aa_kind(
+void vid_cfg_file_read_hw_aa_kind(
 	const std::string& value_string)
 {
 	if (value_string == ::vid_get_none_value_string())
 	{
-		::vid_configuration_.hw_aa_kind_ = bstone::RendererAaKind::none;
+		::vid_cfg_.hw_aa_kind_ = bstone::RendererAaKind::none;
 	}
 	else if (value_string == ::vid_get_msaa_value_string())
 	{
-		::vid_configuration_.hw_aa_kind_ = bstone::RendererAaKind::ms;
+		::vid_cfg_.hw_aa_kind_ = bstone::RendererAaKind::ms;
 	}
 }
 
-void vid_configuration_read_hw_aa_value(
+void vid_cfg_file_read_hw_aa_value(
 	const std::string& value_string)
 {
 	int value = 0;
 
 	if (bstone::StringHelper::string_to_int(value_string, value))
 	{
-		::vid_configuration_.hw_aa_value_ = value;
+		::vid_cfg_.hw_aa_value_ = value;
 	}
 }
 
-void vid_configuration_read_hw_texture_upscale_filter(
+void vid_cfg_file_read_hw_texture_upscale_filter(
 	const std::string& value_string)
 {
 	if (value_string == ::vid_get_none_value_string())
 	{
-		::vid_configuration_.hw_upscale_kind_ = bstone::HwTextureManagerUpscaleFilterKind::none;
+		::vid_cfg_.hw_upscale_kind_ = bstone::HwTextureManagerUpscaleFilterKind::none;
 	}
 	else if (value_string == ::vid_get_xbrz_value_string())
 	{
-		::vid_configuration_.hw_upscale_kind_ = bstone::HwTextureManagerUpscaleFilterKind::xbrz;
+		::vid_cfg_.hw_upscale_kind_ = bstone::HwTextureManagerUpscaleFilterKind::xbrz;
 	}
 }
 
-void vid_configuration_read_hw_texture_upscale_filter_factor(
+void vid_cfg_file_read_hw_texture_upscale_xbrz_factor(
 	const std::string& value_string)
 {
 	int value = 0;
 
 	if (bstone::StringHelper::string_to_int(value_string, value))
 	{
-		::vid_configuration_.hw_upscale_factor_ = value;
+		::vid_cfg_.hw_upscale_xbrz_factor_ = value;
 	}
 }
 
-bool vid_parse_configuration_key_value(
+bool vid_cfg_file_parse_key_value(
 	const std::string& key_string,
 	const std::string& value_string)
 {
@@ -12722,67 +12854,67 @@ bool vid_parse_configuration_key_value(
 	}
 	else if (key_string == ::vid_get_renderer_kind_key_name())
 	{
-		::vid_configuration_read_renderer_kind(value_string);
+		::vid_cfg_file_read_renderer_kind(value_string);
 	}
-	else if (key_string == ::vid_get_windowed_key_name())
+	else if (key_string == ::vid_get_is_windowed_key_name())
 	{
-		::vid_configuration_read_is_windowed(value_string);
+		::vid_cfg_file_read_is_windowed(value_string);
 	}
 	else if (key_string == ::vid_get_vsync_key_name())
 	{
-		::vid_configuration_read_vsync(value_string);
+		::vid_cfg_file_read_vsync(value_string);
 	}
 	else if (key_string == ::vid_get_width_key_name())
 	{
-		::vid_configuration_read_width(value_string);
+		::vid_cfg_file_read_width(value_string);
 	}
 	else if (key_string == ::vid_get_height_key_name())
 	{
-		::vid_configuration_read_height(value_string);
+		::vid_cfg_file_read_height(value_string);
 	}
 	else if (key_string == ::vid_get_is_widescreen_key_name())
 	{
-		::vid_configuration_read_is_widescreen(value_string);
+		::vid_cfg_file_read_is_widescreen(value_string);
 	}
 	else if (key_string == ::vid_get_is_ui_stretched_key_name())
 	{
-		::vid_configuration_read_is_ui_stretched(value_string);
+		::vid_cfg_file_read_is_ui_stretched(value_string);
 	}
 	else if (key_string == ::vid_get_hw_2d_texture_filter_key_name())
 	{
-		::vid_configuration_read_hw_2d_texture_filter(value_string);
+		::vid_cfg_file_read_hw_2d_texture_filter(value_string);
 	}
 	else if (key_string == ::vid_get_hw_3d_texture_image_filter_key_name())
 	{
-		::vid_configuration_read_hw_3d_texture_image_filter(value_string);
+		::vid_cfg_file_read_hw_3d_texture_image_filter(value_string);
 	}
 	else if (key_string == ::vid_get_hw_3d_texture_mipmap_filter_key_name())
 	{
-		::vid_configuration_read_hw_3d_texture_mipmap_filter(value_string);
+		::vid_cfg_file_read_hw_3d_texture_mipmap_filter(value_string);
 	}
 	else if (key_string == ::vid_get_hw_3d_texture_anisotropy_key_name())
 	{
-		::vid_configuration_read_hw_3d_texture_anisotropy(value_string);
+		::vid_cfg_file_read_hw_3d_texture_anisotropy(value_string);
 	}
 	else if (key_string == ::vid_get_hw_3d_texture_anisotropy_value_key_name())
 	{
-		::vid_configuration_read_hw_3d_texture_anisotropy_value(value_string);
+		::vid_cfg_file_read_hw_3d_texture_anisotropy_value(value_string);
 	}
 	else if (key_string == ::vid_get_hw_aa_kind_key_name())
 	{
-		::vid_configuration_read_hw_aa_kind(value_string);
+		::vid_cfg_file_read_hw_aa_kind(value_string);
 	}
 	else if (key_string == ::vid_get_hw_aa_value_key_name())
 	{
-		::vid_configuration_read_hw_aa_value(value_string);
+		::vid_cfg_file_read_hw_aa_value(value_string);
 	}
 	else if (key_string == ::vid_get_hw_texture_upscale_filter_key_name())
 	{
-		::vid_configuration_read_hw_texture_upscale_filter(value_string);
+		::vid_cfg_file_read_hw_texture_upscale_filter(value_string);
 	}
-	else if (key_string == ::vid_get_hw_texture_upscale_filter_factor_key_name())
+	else if (key_string == ::vid_get_hw_texture_upscale_xbrz_factor_key_name())
 	{
-		::vid_configuration_read_hw_texture_upscale_filter_factor(value_string);
+		::vid_cfg_file_read_hw_texture_upscale_xbrz_factor(value_string);
 	}
 	else
 	{
@@ -12795,10 +12927,10 @@ bool vid_parse_configuration_key_value(
 void vid_write_hw_aa_kind_configuration(
 	bstone::TextWriter& text_writer)
 {
-	switch (::vid_configuration_.hw_aa_kind_)
+	switch (::vid_cfg_.hw_aa_kind_)
 	{
 		case bstone::RendererAaKind::ms:
-			::write_configuration_entry(
+			::cfg_file_write_entry(
 				text_writer,
 				::vid_get_hw_aa_kind_key_name(),
 				::vid_get_msaa_value_string()
@@ -12807,7 +12939,7 @@ void vid_write_hw_aa_kind_configuration(
 			break;
 
 		default:
-			::write_configuration_entry(
+			::cfg_file_write_entry(
 				text_writer,
 				::vid_get_hw_aa_kind_key_name(),
 				::vid_get_none_value_string()
@@ -12820,10 +12952,10 @@ void vid_write_hw_aa_kind_configuration(
 void vid_write_renderer_kind_configuration(
 	bstone::TextWriter& text_writer)
 {
-	switch (::vid_configuration_.renderer_kind_)
+	switch (::vid_cfg_.renderer_kind_)
 	{
 		case bstone::RendererKind::ogl_2:
-			::write_configuration_entry(
+			::cfg_file_write_entry(
 				text_writer,
 				::vid_get_renderer_kind_key_name(),
 				::vid_get_ogl_2_value_string()
@@ -12832,7 +12964,7 @@ void vid_write_renderer_kind_configuration(
 			break;
 
 		case bstone::RendererKind::ogl_3_2_core:
-			::write_configuration_entry(
+			::cfg_file_write_entry(
 				text_writer,
 				::vid_get_renderer_kind_key_name(),
 				::vid_get_ogl_3_2_c_value_string()
@@ -12841,7 +12973,7 @@ void vid_write_renderer_kind_configuration(
 			break;
 
 		case bstone::RendererKind::ogl_es_2_0:
-			::write_configuration_entry(
+			::cfg_file_write_entry(
 				text_writer,
 				::vid_get_renderer_kind_key_name(),
 				::vid_get_ogl_es_2_0_value_string()
@@ -12850,9 +12982,8 @@ void vid_write_renderer_kind_configuration(
 			break;
 
 		case bstone::RendererKind::auto_detect:
-		case bstone::RendererKind::none:
 		default:
-			::write_configuration_entry(
+			::cfg_file_write_entry(
 				text_writer,
 				::vid_get_renderer_kind_key_name(),
 				::vid_get_auto_detect_value_string()
@@ -12865,10 +12996,10 @@ void vid_write_renderer_kind_configuration(
 void vid_write_hw_texture_upscale_filter_kind_configuration(
 	bstone::TextWriter& text_writer)
 {
-	switch (::vid_configuration_.hw_upscale_kind_)
+	switch (::vid_cfg_.hw_upscale_kind_)
 	{
 		case bstone::HwTextureManagerUpscaleFilterKind::xbrz:
-			::write_configuration_entry(
+			::cfg_file_write_entry(
 				text_writer,
 				::vid_get_hw_texture_upscale_filter_key_name(),
 				::vid_get_xbrz_value_string()
@@ -12877,7 +13008,7 @@ void vid_write_hw_texture_upscale_filter_kind_configuration(
 			break;
 
 		default:
-			::write_configuration_entry(
+			::cfg_file_write_entry(
 				text_writer,
 				::vid_get_hw_texture_upscale_filter_key_name(),
 				::vid_get_none_value_string()
@@ -12887,145 +13018,149 @@ void vid_write_hw_texture_upscale_filter_kind_configuration(
 	}
 }
 
-void vid_write_configuration(
+void vid_cfg_file_write(
 	bstone::TextWriter& text_writer)
 {
 	text_writer.write("\n// Video\n");
 
 	::vid_write_renderer_kind_configuration(text_writer);
 
-	// vid_windowed
-	//
-	::write_configuration_entry(
+	::cfg_file_write_entry(
 		text_writer,
-		::vid_get_windowed_key_name(),
-		std::to_string(::vid_configuration_.is_windowed_)
+		::vid_get_is_windowed_key_name(),
+		std::to_string(::vid_cfg_.is_windowed_)
 	);
 
-	// vid_x
-	//
-	::write_configuration_entry(
+	::cfg_file_write_entry(
+		text_writer,
+		::vid_get_is_positioned_key_name(),
+		std::to_string(::vid_cfg_.is_positioned_)
+	);
+
+	::cfg_file_write_entry(
 		text_writer,
 		::vid_get_x_key_name(),
-		std::to_string(::vid_configuration_.x_)
+		std::to_string(::vid_cfg_.x_)
 	);
 
-	// vid_y
-	//
-	::write_configuration_entry(
+	::cfg_file_write_entry(
 		text_writer,
 		::vid_get_y_key_name(),
-		std::to_string(::vid_configuration_.y_)
+		std::to_string(::vid_cfg_.y_)
 	);
 
-	// vid_width
-	//
-	::write_configuration_entry(
+	::cfg_file_write_entry(
 		text_writer,
 		::vid_get_width_key_name(),
-		std::to_string(::vid_configuration_.width_)
+		std::to_string(::vid_cfg_.width_)
 	);
 
-	// vid_height
-	//
-	::write_configuration_entry(
+	::cfg_file_write_entry(
 		text_writer,
 		::vid_get_height_key_name(),
-		std::to_string(::vid_configuration_.height_)
+		std::to_string(::vid_cfg_.height_)
 	);
 
-	// vid_is_widescreen
-	//
-	::write_configuration_entry(
-		text_writer,
-		::vid_get_is_widescreen_key_name(),
-		std::to_string(::vid_configuration_.is_widescreen_)
-	);
-
-	// vid_vsync
-	//
-	::write_configuration_entry(
+	::cfg_file_write_entry(
 		text_writer,
 		::vid_get_vsync_key_name(),
-		std::to_string(::vid_configuration_.is_vsync_)
+		std::to_string(::vid_cfg_.is_vsync_)
 	);
 
-	// vid_is_ui_stretched
-	//
-	::write_configuration_entry(
+	::cfg_file_write_entry(
 		text_writer,
 		::vid_get_is_ui_stretched_key_name(),
-		std::to_string(::vid_configuration_.is_ui_stretched_)
+		std::to_string(::vid_cfg_.is_ui_stretched_)
 	);
 
-	// vid_hw_aa_kind
-	//
-	vid_write_hw_aa_kind_configuration(text_writer);
+	::cfg_file_write_entry(
+		text_writer,
+		::vid_get_is_widescreen_key_name(),
+		std::to_string(::vid_cfg_.is_widescreen_)
+	);
 
-	// vid_hw_aa_value
-	//
-	::write_configuration_entry(
+	::vid_write_hw_aa_kind_configuration(text_writer);
+
+	::cfg_file_write_entry(
 		text_writer,
 		::vid_get_hw_aa_value_key_name(),
-		std::to_string(::vid_configuration_.hw_aa_value_)
+		std::to_string(::vid_cfg_.hw_aa_value_)
 	);
 
-	// vid_hw_texture_upscale_filter
-	//
 	::vid_write_hw_texture_upscale_filter_kind_configuration(text_writer);
 
-	// vid_hw_texture_upscale_filter_factor
-	//
-	::write_configuration_entry(
+	::cfg_file_write_entry(
 		text_writer,
-		::vid_get_hw_texture_upscale_filter_factor_key_name(),
-		std::to_string(::vid_configuration_.hw_upscale_factor_)
+		::vid_get_hw_texture_upscale_xbrz_factor_key_name(),
+		std::to_string(::vid_cfg_.hw_upscale_xbrz_factor_)
 	);
 
-	// vid_hw_2d_texture_filter
-	//
-	::write_configuration_entry(
+	::cfg_file_write_entry(
 		text_writer,
 		::vid_get_hw_2d_texture_filter_key_name(),
-		::vid_filter_to_string(::vid_configuration_.hw_2d_texture_filter_)
+		::vid_filter_to_string(::vid_cfg_.hw_2d_texture_filter_)
 	);
 
-	// vid_hw_3d_texture_image_filter
-	//
-	::write_configuration_entry(
+	::cfg_file_write_entry(
 		text_writer,
 		::vid_get_hw_3d_texture_image_filter_key_name(),
-		::vid_filter_to_string(::vid_configuration_.hw_3d_texture_image_filter_)
+		::vid_filter_to_string(::vid_cfg_.hw_3d_texture_image_filter_)
 	);
 
-	// vid_hw_3d_texture_mipmap_filter
-	//
-	::write_configuration_entry(
+	::cfg_file_write_entry(
 		text_writer,
 		::vid_get_hw_3d_texture_mipmap_filter_key_name(),
-		::vid_filter_to_string(::vid_configuration_.hw_3d_texture_mipmap_filter_)
+		::vid_filter_to_string(::vid_cfg_.hw_3d_texture_mipmap_filter_)
 	);
 
-	// vid_hw_3d_texture_anisotropy
-	//
-	::write_configuration_entry(
+	::cfg_file_write_entry(
 		text_writer,
 		::vid_get_hw_3d_texture_anisotropy_key_name(),
-		std::to_string(::vid_configuration_.hw_3d_texture_anisotropy_)
+		std::to_string(::vid_cfg_.hw_3d_texture_anisotropy_)
 	);
 
-	// vid_hw_3d_texture_anisotropy_value
-	//
-	::write_configuration_entry(
+	::cfg_file_write_entry(
 		text_writer,
 		::vid_get_hw_3d_texture_anisotropy_value_key_name(),
-		std::to_string(::vid_configuration_.hw_3d_texture_anisotropy_value_)
+		std::to_string(::vid_cfg_.hw_3d_texture_anisotropy_value_)
 	);
 }
 
-VidConfiguration& vid_get_configuration()
+void vid_cfg_set_defaults()
 {
-	return vid_configuration_;
+	::vid_cfg_ = {};
+
+	::vid_cfg_.renderer_kind_ = bstone::RendererKind::auto_detect;
+
+	::vid_cfg_.is_windowed_ = false;
+	::vid_cfg_.is_positioned_ = false;
+	::vid_cfg_.x_ = 0;
+	::vid_cfg_.y_ = 0;
+	::vid_cfg_.width_ = 0;
+	::vid_cfg_.height_ = 0;
+	::vid_cfg_.is_vsync_ = true;
+
+	::vid_cfg_.is_ui_stretched_ = false;
+	::vid_cfg_.is_widescreen_ = true;
+
+	::vid_cfg_.hw_2d_texture_filter_ = bstone::RendererFilterKind::nearest;
+
+	::vid_cfg_.hw_3d_texture_image_filter_ = bstone::RendererFilterKind::nearest;
+	::vid_cfg_.hw_3d_texture_mipmap_filter_ = bstone::RendererFilterKind::nearest;
+
+	::vid_cfg_.hw_3d_texture_anisotropy_ = true;
+	::vid_cfg_.hw_3d_texture_anisotropy_value_ = 0;
+
+	::vid_cfg_.hw_aa_kind_ = bstone::RendererAaKind::ms;
+	::vid_cfg_.hw_aa_value_ = 0;
+
+	::vid_cfg_.hw_upscale_kind_ = bstone::HwTextureManagerUpscaleFilterKind::none;
+	::vid_cfg_.hw_upscale_xbrz_factor_ = 0;
+}
+
+VidCfg& vid_cfg_get()
+{
+	return vid_cfg_;
 }
 
 void vid_draw_ui_sprite(
@@ -13530,22 +13665,6 @@ void vid_hw_actors_add_render_item(
 	}
 
 	::hw_3d_actors_to_render_.emplace(bs_actor_index);
-}
-
-void vid_apply_hw_configuration()
-{
-	if (!::vid_is_hw_)
-	{
-		return;
-	}
-
-	::vid_apply_hw_aa_configuration();
-	::vid_apply_hw_is_ui_stretched_configuration();
-	::vid_apply_hw_is_widescreen_configuration();
-	::vid_apply_hw_2d_texture_filter_configuration();
-	::vid_apply_hw_3d_texture_filter_configuration();
-	::vid_apply_hw_vsync_configuration();
-	::vid_apply_hw_texture_upscale_filter_configuration();
 }
 
 const bstone::R8g8b8a8Palette& vid_hw_get_default_palette()

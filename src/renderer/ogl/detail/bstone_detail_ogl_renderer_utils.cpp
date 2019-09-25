@@ -259,7 +259,11 @@ int OglRendererUtils::anisotropy_clamp_value(
 {
 	auto clamped_value = anisotropy_value;
 
-	if (clamped_value < RendererSampler::anisotropy_min)
+	if (clamped_value <= 0)
+	{
+		clamped_value = device_features.anisotropy_max_value_;
+	}
+	else if (clamped_value < RendererSampler::anisotropy_min)
 	{
 		clamped_value = RendererSampler::anisotropy_min;
 	}

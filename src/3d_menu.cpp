@@ -4628,7 +4628,7 @@ void video_draw_switch(
 {
 	std::uint16_t Shape;
 
-	auto& configuration = ::vid_get_configuration();
+	auto& configuration = ::vid_cfg_get();
 
 	for (int i = 0; i < video_items.amount; i++)
 	{
@@ -4684,7 +4684,7 @@ void cp_video(
 	::MenuFadeIn();
 	::WaitKeyUp();
 
-	auto& configuration = ::vid_get_configuration();
+	auto& configuration = ::vid_cfg_get();
 
 	do
 	{

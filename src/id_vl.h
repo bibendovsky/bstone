@@ -54,7 +54,7 @@ using VgaBuffer = std::vector<std::uint8_t>;
 using UiMaskBuffer = std::array<bool, ::vga_ref_width * ::vga_ref_height>;
 
 
-struct VidConfiguration
+struct VidCfg
 {
 	using BoolModValue = bstone::ModValue<bool>;
 	using IntModValue = bstone::ModValue<int>;
@@ -67,7 +67,7 @@ struct VidConfiguration
 	RendererKindModValue renderer_kind_;
 
 	BoolModValue is_windowed_;
-	BoolModValue is_custom_position_;
+	BoolModValue is_positioned_;
 	IntModValue x_;
 	IntModValue y_;
 	IntModValue width_;
@@ -89,8 +89,8 @@ struct VidConfiguration
 	IntModValue hw_aa_value_;
 
 	UpscaleKindModValue hw_upscale_kind_;
-	IntModValue hw_upscale_factor_;
-}; // VidConfiguration
+	IntModValue hw_upscale_xbrz_factor_;
+}; // VidCfg
 
 
 extern bool vid_is_hw_;
@@ -253,11 +253,15 @@ void VL_ScreenToMem(
 	int y);
 
 // BBi
-bool vid_parse_configuration_key_value(
+void vid_cfg_set_defaults();
+
+VidCfg& vid_cfg_get();
+
+bool vid_cfg_file_parse_key_value(
 	const std::string& key_string,
 	const std::string& value_string);
 
-void vid_write_configuration(
+void vid_cfg_file_write(
 	bstone::TextWriter& text_writer);
 
 
@@ -387,10 +391,6 @@ void vid_hw_actors_clear_render_list();
 
 void vid_hw_actors_add_render_item(
 	const int bs_actor_index);
-
-VidConfiguration& vid_get_configuration();
-
-void vid_apply_hw_configuration();
 
 const bstone::R8g8b8a8Palette& vid_hw_get_default_palette();
 

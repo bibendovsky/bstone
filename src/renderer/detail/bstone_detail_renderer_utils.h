@@ -107,6 +107,11 @@ public:
 	static SdlWindowUPtr window_create(
 		const RendererUtilsCreateWindowParam& param);
 
+
+	static void window_set_mode(
+		SdlWindowPtr sdl_window,
+		const RendererWindowSetModeParam& param);
+
 	static void window_show(
 		SdlWindowPtr sdl_window,
 		const bool is_visible);

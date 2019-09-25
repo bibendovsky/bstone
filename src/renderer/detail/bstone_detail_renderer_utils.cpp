@@ -151,6 +151,81 @@ SdlWindowUPtr RendererUtils::window_create(
 	return sdl_window;
 }
 
+void RendererUtils::window_set_mode(
+	SdlWindowPtr sdl_window,
+	const RendererWindowSetModeParam& param)
+{
+	if (!sdl_window)
+	{
+		throw Exception{"Null window."};
+	}
+
+	if (param.height_ <= 0)
+	{
+		throw Exception{"Height out of range."};
+	}
+
+	if (param.width_ <= 0)
+	{
+		throw Exception{"Width out of range."};
+	}
+
+
+	//
+	const auto sdl_window_flags = ::SDL_GetWindowFlags(sdl_window);
+
+	const auto is_current_windowed =
+		((sdl_window_flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) == 0);
+
+	const auto is_windowed_changed = (is_current_windowed != param.is_windowed_);
+
+
+	//
+	int current_width = 0;
+	int current_height = 0;
+
+	::SDL_GetWindowSize(sdl_window, &current_width, &current_height);
+
+	if (current_width <= 0 || current_height <= 0)
+	{
+		throw Exception{"Failed to get current window size."};
+	}
+
+	const auto is_size_changed = (current_width != param.width_ || current_height != param.height_);
+
+
+	//
+	if (!is_windowed_changed && !is_size_changed)
+	{
+		return;
+	}
+
+	if (is_windowed_changed)
+	{
+		const Uint32 sdl_window_flags = (param.is_windowed_ ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
+
+		const auto sdl_result = ::SDL_SetWindowFullscreen(sdl_window, sdl_window_flags);
+
+		if (sdl_result != 0)
+		{
+			throw Exception{"Failed to change fullscreen mode."};
+		}
+	}
+
+	if (is_size_changed && param.is_windowed_)
+	{
+		if (param.is_positioned_)
+		{
+			const auto x = std::max(param.x_, 0);
+			const auto y = std::max(param.y_, 0);
+
+			::SDL_SetWindowPosition(sdl_window, x, y);
+		}
+
+		::SDL_SetWindowSize(sdl_window, param.width_, param.height_);
+	}
+}
+
 void RendererUtils::window_show(
 	SdlWindowPtr sdl_window,
 	const bool is_visible)

@@ -48,9 +48,8 @@ namespace bstone
 enum class RendererKind :
 	unsigned char
 {
-	none,
-
 	auto_detect,
+
 	software,
 
 	ogl_2,
@@ -166,6 +165,19 @@ public:
 	std::string title_utf8_;
 }; // RendererCreateWindowParam
 
+class RendererWindowSetModeParam
+{
+public:
+	bool is_windowed_;
+	bool is_positioned_;
+
+	int x_;
+	int y_;
+
+	int width_;
+	int height_;
+}; // RendererWindowSetModeParam
+
 class RendererCreateParam
 {
 public:
@@ -251,7 +263,6 @@ using RendererBufferPtr = RendererBuffer*;
 enum class RendererIbElementTypeId :
 	unsigned char
 {
-	none,
 	uint8,
 	uint16,
 	uint32,
@@ -1067,6 +1078,9 @@ public:
 
 	virtual void device_reset() = 0;
 
+
+	virtual void window_set_mode(
+		const RendererWindowSetModeParam& param) = 0;
 
 	virtual void window_set_title(
 		const std::string& title_utf8) = 0;

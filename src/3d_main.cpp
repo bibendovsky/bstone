@@ -7515,9 +7515,7 @@ void set_config_defaults()
 	::g_quit_on_escape = ::default_quit_on_escape;
 	::g_no_intro_outro = ::default_g_no_intro_outro;
 
-	auto& vid_configuration = ::vid_get_configuration();
-
-	vid_configuration.is_widescreen_ = ::default_vid_widescreen;
+	::vid_cfg_set_defaults();
 }
 
 ScanCode get_scan_code_by_name(
@@ -7567,7 +7565,7 @@ void read_text_config()
 
 				if (parse_config_line(line, key_string, index0, index1, value_string))
 				{
-					if (::vid_parse_configuration_key_value(key_string, value_string))
+					if (::vid_cfg_file_parse_key_value(key_string, value_string))
 					{
 					}
 					else if (key_string == snd_is_sfx_enabled_name)
@@ -7780,7 +7778,7 @@ void ReadConfig()
 }
 
 
-void write_configuration_entry(
+void cfg_file_write_entry(
 	bstone::TextWriter& writer,
 	const std::string& key_string,
 	const std::string& value_string)
@@ -7804,7 +7802,7 @@ void write_config_entry(
 	const std::string& key_string,
 	T&& value_string)
 {
-	write_configuration_entry(writer, key_string, std::to_string(value_string));
+	cfg_file_write_entry(writer, key_string, std::to_string(value_string));
 }
 
 const std::string& get_scan_code_name(
@@ -7904,7 +7902,7 @@ void write_text_config()
 	writer.write("// WARNING! This is auto-generated file.\n");
 	writer.write("\n");
 
-	::vid_write_configuration(writer);
+	::vid_cfg_file_write(writer);
 
 	writer.write("\n// Audio\n");
 	write_config_entry(writer, snd_is_sfx_enabled_name, ::sd_is_sound_enabled_);

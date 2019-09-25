@@ -181,6 +181,11 @@ void OglRenderer::initialize(
 	{
 		if (device_features_.msaa_is_available_)
 		{
+			if (aa_value_ <= 0)
+			{
+				aa_value_ = device_features_.msaa_max_value_;
+			}
+
 			if (aa_value_ < device_features_.msaa_min_value_)
 			{
 				aa_value_ = device_features_.msaa_min_value_;
@@ -381,6 +386,15 @@ bool OglRenderer::device_is_ready_to_reset() const noexcept
 
 void OglRenderer::device_reset()
 {
+}
+
+void OglRenderer::window_set_mode(
+	const RendererWindowSetModeParam& param)
+{
+	RendererUtils::window_set_mode(sdl_window_.get(), param);
+
+	screen_width_ = param.width_;
+	screen_height_ = param.height_;
 }
 
 void OglRenderer::window_set_title(

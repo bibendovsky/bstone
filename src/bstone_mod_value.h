@@ -39,8 +39,15 @@ template<typename T>
 class ModValue final
 {
 public:
+	ModValue()
+		:
+		is_modified_{true},
+		value_{}
+	{
+	}
+
 	explicit ModValue(
-		const T& value = T{})
+		const T& value)
 		:
 		is_modified_{true},
 		value_{value}
@@ -77,7 +84,7 @@ public:
 	}
 
 	ModValue& operator=(
-		ModValue&& rhs)
+		ModValue&& rhs) noexcept
 	{
 		is_modified_ = std::move(rhs.is_modified_);
 		value_ = std::move(rhs.value_);
@@ -85,9 +92,8 @@ public:
 		return *this;
 	}
 
-	~ModValue()
-	{
-	}
+	~ModValue() = default;
+
 
 	operator const T&() const noexcept
 	{

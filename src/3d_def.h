@@ -4014,7 +4014,7 @@ fixed player_get_weapon_bounce_offset();
 
 PaletteShiftInfo palette_shift_get_info();
 
-void write_configuration_entry(
+void cfg_file_write_entry(
 	bstone::TextWriter& writer,
 	const std::string& key_string,
 	const std::string& value_string);
