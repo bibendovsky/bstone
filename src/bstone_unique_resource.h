@@ -70,9 +70,9 @@ public:
 	UniqueResource(
 		UniqueResource&& rhs) noexcept
 		:
-		resource_{rhs.resource_}
+		resource_{}
 	{
-		rhs.resource_ = Resource{};
+		std::swap(resource_, rhs.resource_);
 	}
 
 	UniqueResource& operator=(
@@ -164,10 +164,8 @@ private:
 			return;
 		}
 
-		auto resource = resource_;
+		TDeleter(resource_);
 		resource_ = {};
-
-		TDeleter(resource);
 	}
 }; // Handle
 

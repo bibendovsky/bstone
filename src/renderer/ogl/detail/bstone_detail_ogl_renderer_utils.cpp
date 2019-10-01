@@ -259,13 +259,13 @@ int OglRendererUtils::anisotropy_clamp_value(
 {
 	auto clamped_value = anisotropy_value;
 
-	if (clamped_value <= 0)
+	if (clamped_value < RendererLimits::anisotropy_min_off)
 	{
-		clamped_value = device_features.anisotropy_max_value_;
+		clamped_value = RendererLimits::anisotropy_min_off;
 	}
-	else if (clamped_value < RendererSampler::anisotropy_min)
+	else if (clamped_value < RendererLimits::anisotropy_min_on)
 	{
-		clamped_value = RendererSampler::anisotropy_min;
+		clamped_value = RendererLimits::anisotropy_min_on;
 	}
 	else if (clamped_value > device_features.anisotropy_max_value_)
 	{
@@ -469,9 +469,9 @@ int OglRendererUtils::anisotropy_get_max_value()
 
 	assert(!OglRendererUtils::was_errors());
 
-	if (ogl_max_value < static_cast<GLfloat>(RendererSampler::anisotropy_min))
+	if (ogl_max_value <= static_cast<GLfloat>(RendererLimits::anisotropy_min_off))
 	{
-		return RendererSampler::anisotropy_min;
+		return RendererLimits::anisotropy_min_off;
 	}
 
 	return static_cast<int>(ogl_max_value);
@@ -500,8 +500,7 @@ void OglRendererUtils::anisotropy_probe(
 	RendererDeviceFeatures& device_features)
 {
 	device_features.anisotropy_is_available_ = false;
-	device_features.anisotropy_min_value_ = RendererSampler::anisotropy_min;
-	device_features.anisotropy_max_value_ = RendererSampler::anisotropy_min;
+	device_features.anisotropy_max_value_ = RendererLimits::anisotropy_min_off;
 
 #ifndef BSTONE_RENDERER_HW_TEST_NO_ANISOTROPY
 	if (!device_features.anisotropy_is_available_)

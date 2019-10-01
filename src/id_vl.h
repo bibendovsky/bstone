@@ -82,8 +82,7 @@ struct VidCfg
 	FilterModValue hw_3d_texture_image_filter_;
 	FilterModValue hw_3d_texture_mipmap_filter_;
 
-	BoolModValue hw_3d_texture_anisotropy_;
-	IntModValue hw_3d_texture_anisotropy_value_;
+	IntModValue hw_3d_texture_anisotropy_;
 
 	AaKindModValue hw_aa_kind_;
 	IntModValue hw_aa_value_;
@@ -263,6 +262,25 @@ bool vid_cfg_file_parse_key_value(
 
 void vid_cfg_file_write(
 	bstone::TextWriter& text_writer);
+
+
+using VidRendererKinds = std::vector<bstone::RendererKind>;
+
+const VidRendererKinds& vid_renderer_kinds_get_available();
+
+
+struct VidWindowSize
+{
+	bool is_current_;
+	bool is_custom_;
+
+	int width_;
+	int height_;
+}; // VidWindowSize
+
+using VidWindowSizes = std::vector<VidWindowSize>;
+
+const VidWindowSizes& vid_window_size_get_list();
 
 
 void VL_RefreshScreen();

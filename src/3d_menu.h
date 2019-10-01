@@ -102,6 +102,11 @@ struct CP_iteminfo
 
 struct CP_itemtype
 {
+	using CarouselFunc = void(*)(
+		const int item_index,
+		const bool is_left,
+		const bool is_right);
+
 	activetypes active;
 	std::string string;
 
@@ -110,6 +115,8 @@ struct CP_itemtype
 
 	std::uint8_t fontnumber; // Font to print text in
 	std::uint8_t height; // Hight of text (Y_Offset from previous line)
+
+	CarouselFunc carousel_func_;
 }; // CP_itemtype
 
 struct CustomCtrls

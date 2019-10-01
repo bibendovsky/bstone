@@ -35,12 +35,13 @@ namespace bstone
 {
 
 
-struct RendererLimits final
+struct RendererLimits
 {
-	static constexpr auto anisotropy_min = 1;
-	static constexpr auto anisotropy_max = 32;
+	static constexpr auto anisotropy_min_off = 1;
+	static constexpr auto anisotropy_min_on = 2;
+	static constexpr auto anisotropy_max = 16;
 
-	static constexpr auto aa_min = 1;
+	static constexpr auto aa_min = 2;
 	static constexpr auto aa_max = 32;
 }; // RendererLimits
 

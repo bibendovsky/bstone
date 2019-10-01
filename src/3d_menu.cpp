@@ -39,6 +39,7 @@ Free Software Foundation, Inc.,
 #include "jm_lzh.h"
 #include "jm_tp.h"
 #include "bstone_scope_guard.h"
+#include "bstone_renderer_limits.h"
 
 
 #define GAME_DESCRIPTION_LEN (31)
@@ -128,6 +129,7 @@ enum sw2_labels
 
 enum MenuVideoLables
 {
+	mvl_mode,
 	mvl_widescreen,
 	mvl_stretch_ui,
 };
@@ -415,7 +417,8 @@ CP_iteminfo NewItems = {NM_X, NM_Y, 4, 1, 0, 16, {60, -2, 105, 16, 1}};
 CP_iteminfo SwitchItems = {MENU_X, 0, 0, 0, 0, 9, {87, -1, 132, 7, 1}};
 
 // BBi
-CP_iteminfo video_items = {MENU_X, MENU_Y + 30, 2, 0, 0, 9, {77, -1, 154, 7, 1}};
+CP_iteminfo video_items = {MENU_X, MENU_Y + 30, 3, 0, 0, 9, {77, -1, 154, 7, 1}};
+CP_iteminfo video_mode_items = {MENU_X, MENU_Y + 10, 8, 0, 0, 9, {77, -1, 154, 7, 1}};
 CP_iteminfo switches2_items = {MENU_X, MENU_Y + 30, 2, 0, 0, 9, {87, -1, 132, 7, 1}};
 // BBi
 
@@ -541,7 +544,24 @@ CP_itemtype CusMenu[] = {
 };
 
 // BBi
-CP_itemtype video_menu[] = {
+CP_itemtype video_mode_menu[] =
+{
+	{AT_ENABLED, "RENDERER", nullptr},
+	{AT_ENABLED, "WINDOW SIZE", nullptr},
+	{AT_ENABLED, "IS WINDOWED", nullptr},
+	{AT_ENABLED, "VSYNC", nullptr},
+	{AT_ENABLED, "ANTI-ALIASING KIND", nullptr},
+	{AT_ENABLED, "ANTI-ALIASING FACTOR", nullptr},
+	{AT_DISABLED, "", nullptr},
+	{AT_ENABLED, "APPLY", nullptr},
+};
+
+void video_menu_mode_routine(
+	const std::int16_t index);
+
+CP_itemtype video_menu[] =
+{
+	{AT_ENABLED, "MODE", video_menu_mode_routine},
 	{AT_ENABLED, "WIDESCREEN", nullptr},
 	{AT_ENABLED, "STRETCH UI", nullptr},
 };
@@ -3702,6 +3722,34 @@ std::int16_t HandleMenu(
 			TicDelay(20);
 			break;
 
+			// Carousel (left).
+			//
+			case dir_West:
+			{
+				auto routine = items[which].carousel_func_;
+
+				if (routine)
+				{
+					routine(which, true, false);
+				}
+
+				break;
+			}
+
+			// Carousel (right).
+			//
+			case dir_East:
+			{
+				auto routine = items[which].carousel_func_;
+
+				if (routine)
+				{
+					routine(which, false, true);
+				}
+
+				break;
+			}
+
 		default:
 			break;
 		}
@@ -4585,6 +4633,7 @@ void draw_video_descriptions(
 	std::int16_t which)
 {
 	const char* instructions[] = {
+		"CHANGES THE VIDEO MODE",
 		"TOGGLES BETWEEN WIDESCREEN AND 4X3 MODES",
 		"TOGGLES STRETCHING OF USER INTERFACE",
 	};
@@ -4646,6 +4695,9 @@ void video_draw_switch(
 
 			switch (i)
 			{
+				case mvl_mode:
+					continue;
+
 			case mvl_widescreen:
 				if (configuration.is_widescreen_)
 				{
@@ -4674,6 +4726,554 @@ void video_draw_switch(
 	draw_video_descriptions(which);
 }
 
+///
+void draw_carousel(
+	const int item_index,
+	CP_iteminfo* item_i,
+	CP_itemtype* items,
+	const std::string& text)
+{
+	const int which = item_i->curpos;
+
+	int item_text_width;
+	int item_text_height;
+
+	VW_MeasurePropString(
+		items[item_index].string.c_str(),
+		&item_text_width,
+		&item_text_height
+	);
+
+	int carousel_text_width;
+	int carousel_text_height;
+
+	VW_MeasurePropString(
+		text.c_str(),
+		&carousel_text_width,
+		&carousel_text_height
+	);
+
+	const auto max_height = item_i->y_spacing;
+
+	const auto arrow_width = 3;
+	const auto arrow_height = 5;
+	const auto arrow_y = item_i->y + (item_index * max_height) + (max_height / 2) - (arrow_height / 2);
+
+	const auto left_arrow_x = item_i->x + item_i->indent + item_text_width + 3;
+
+	const auto arrow_color = static_cast<std::uint8_t>(color_norml[items->active]);
+
+	VL_Plot(left_arrow_x + 0, arrow_y - 0, arrow_color);
+	VL_Vlin(left_arrow_x + 1, arrow_y - 1, 3, arrow_color);
+	VL_Vlin(left_arrow_x + 2, arrow_y - 2, 5, arrow_color);
+
+	WindowW = 320;
+	WindowH = 200;
+
+	const auto carousel_text_x = left_arrow_x + arrow_width + 2;
+
+	WindowX = carousel_text_x;
+	WindowY = item_i->y + (item_index * max_height);
+
+	PrintX = WindowX;
+	PrintY = WindowY;
+
+	SetTextColor(items + item_index, item_index == which);
+
+	ShadowPrint(text.c_str(), WindowX, WindowY);
+
+	const auto right_arrow_x = carousel_text_x + carousel_text_width + 2;
+
+	VL_Vlin(right_arrow_x + 0, arrow_y - 2, 5, arrow_color);
+	VL_Vlin(right_arrow_x + 1, arrow_y - 1, 3, arrow_color);
+	VL_Plot(right_arrow_x + 2, arrow_y - 0, arrow_color);
+}
+
+
+int menu_video_mode_renderer_index_;
+VidRendererKinds menu_video_mode_renderer_kinds_;
+bool menu_video_mode_is_windowed_;
+int menu_video_mode_width_;
+int menu_video_mode_height_;
+int menu_video_mode_sizes_index_;
+VidWindowSizes menu_video_mode_sizes_;
+bool menu_video_mode_is_vsync_;
+bstone::RendererAaKind menu_video_mode_aa_kind_;
+int menu_video_mode_aa_factor_;
+
+int menu_video_mode_aa_factor_adjust(
+	const int aa_factor)
+{
+	auto current_aa_factor = aa_factor;
+
+	if (current_aa_factor < bstone::RendererLimits::aa_min)
+	{
+		current_aa_factor = bstone::RendererLimits::aa_min;
+	}
+	else if (current_aa_factor > bstone::RendererLimits::aa_max)
+	{
+		current_aa_factor = bstone::RendererLimits::aa_max;
+	}
+
+	auto current_pow = 0;
+
+	while ((1 << current_pow) < current_aa_factor)
+	{
+		++current_pow;
+	}
+
+	current_aa_factor = 1 << current_pow;
+
+	return current_aa_factor;
+}
+
+const std::string& menu_video_mode_renderer_kind_get_string(
+	const bstone::RendererKind renderer_kind)
+{
+	static const auto auto_detect_string = std::string{"AUTO-DETECT"};
+	static const auto software_string = std::string{"SOFTWARE"};
+
+	static const auto ogl_2_string = std::string{"OPENGL 2.0+"};
+	static const auto ogl_3_2_c_string = std::string{"OPENGL 3.2 CORE"};
+	static const auto ogl_es_2_0_string = std::string{"OPENGL ES 2.0"};
+
+	switch (renderer_kind)
+	{
+		case bstone::RendererKind::auto_detect:
+			return auto_detect_string;
+
+		case bstone::RendererKind::software:
+			return software_string;
+
+		case bstone::RendererKind::ogl_2:
+			return ogl_2_string;
+
+		case bstone::RendererKind::ogl_3_2_core:
+			return ogl_3_2_c_string;
+
+		case bstone::RendererKind::ogl_es_2_0:
+			return ogl_es_2_0_string;
+
+		default:
+			Quit("Unsupported renderer kind.");
+	}
+}
+
+std::string menu_video_mode_size_get_string(
+	const VidWindowSize& size)
+{
+	return std::to_string(size.width_) + " X " + std::to_string(size.height_);
+}
+
+const std::string& menu_video_mode_aa_kind_get_string(
+	const bstone::RendererAaKind aa_kind)
+{
+	static const auto none_string = std::string{"NONE"};
+	static const auto msaa_string = std::string{"MSAA"};
+
+	switch (aa_kind)
+	{
+		case bstone::RendererAaKind::none:
+			return none_string;
+
+		case bstone::RendererAaKind::ms:
+			return msaa_string;
+
+		default:
+			Quit("Unsupported AA kind.");
+	}
+}
+
+std::string menu_video_mode_aa_factor_get_string(
+	const int aa_factor)
+{
+	return std::to_string(aa_factor);
+}
+
+
+void draw_video_mode_descriptions(
+	std::int16_t which)
+{
+	static const char* instructions[] =
+	{
+		"SELECTS THE RENDERER",
+		"SELECTS WINDOW SIZE",
+		"TOGGLES BETWEEN FAKE FULLSCREEN AND WINDOWED",
+		"TOGGLES VERTICAL SYNCHRONIZATION",
+		"SELECTS ANTI-ALIASING KIND",
+		"SELECTS ANTI-ALIASING FACTOR",
+		"",
+		"APPLIES SETTINGS",
+	};
+
+	::fontnumber = 2;
+
+	::WindowX = 48;
+	::WindowY = 144;
+	::WindowW = 236;
+	::WindowH = 8;
+
+	::VWB_Bar(
+		::WindowX,
+		::WindowY - 1,
+		::WindowW,
+		::WindowH,
+		::menu_background_color);
+
+	::SETFONTCOLOR(TERM_SHADOW_COLOR, TERM_BACK_COLOR);
+	::US_PrintCentered(instructions[which]);
+
+	--::WindowX;
+	--::WindowY;
+
+	SETFONTCOLOR(INSTRUCTIONS_TEXT_COLOR, TERM_BACK_COLOR);
+	::US_PrintCentered(instructions[which]);
+}
+
+void video_mode_draw_menu()
+{
+	::CA_CacheScreen(BACKGROUND_SCREENPIC);
+	::ClearMScreen();
+	::DrawMenuTitle("VIDEO MODE");
+	::DrawInstructions(IT_STANDARD);
+	::DrawMenu(&video_mode_items, video_mode_menu);
+	VW_UpdateScreen();
+
+	const auto& vid_cfg = vid_cfg_get();
+
+	{
+		menu_video_mode_renderer_kinds_ = vid_renderer_kinds_get_available();
+
+		if (menu_video_mode_renderer_kinds_.empty())
+		{
+			::Quit("Empty renderer kind list.");
+		}
+
+		const auto renderer_kind_it = std::find(
+			menu_video_mode_renderer_kinds_.cbegin(),
+			menu_video_mode_renderer_kinds_.cend(),
+			*vid_cfg.renderer_kind_
+		);
+
+		if (renderer_kind_it == menu_video_mode_renderer_kinds_.cend())
+		{
+			menu_video_mode_renderer_index_ = 0;
+		}
+		else
+		{
+			menu_video_mode_renderer_index_ = static_cast<int>(
+				renderer_kind_it - menu_video_mode_renderer_kinds_.cbegin());
+		}
+	}
+
+	{
+		menu_video_mode_is_windowed_ = vid_cfg.is_windowed_;
+	}
+
+	{
+		menu_video_mode_width_ = vid_cfg.width_;
+		menu_video_mode_height_ = vid_cfg.height_;
+	}
+
+	{
+		menu_video_mode_sizes_index_ = 0;
+		menu_video_mode_sizes_ = vid_window_size_get_list();
+
+		const auto index_it = std::find_if(
+			menu_video_mode_sizes_.cbegin(),
+			menu_video_mode_sizes_.cend(),
+			[](const auto& item)
+			{
+				return item.is_current_;
+			}
+		);
+
+		if (index_it != menu_video_mode_sizes_.cend())
+		{
+			menu_video_mode_sizes_index_ = static_cast<int>(
+				index_it - menu_video_mode_sizes_.cbegin());
+		}
+	}
+
+	{
+		menu_video_mode_is_vsync_ = vid_cfg.is_vsync_;
+	}
+
+	{
+		menu_video_mode_aa_kind_ = vid_cfg.hw_aa_kind_;
+		menu_video_mode_aa_factor_ = menu_video_mode_aa_factor_adjust(vid_cfg.hw_aa_value_);
+	}
+}
+
+void video_mode_update_menu()
+{
+	::ClearMScreen();
+	::DrawMenuTitle("VIDEO MODE");
+	::DrawInstructions(IT_STANDARD);
+	::DrawMenu(&video_mode_items, video_mode_menu);
+}
+
+void video_mode_draw_switch(
+	std::int16_t which)
+{
+	std::uint16_t Shape;
+
+	auto& configuration = ::vid_cfg_get();
+
+	const auto renderer_kind = menu_video_mode_renderer_kinds_[menu_video_mode_renderer_index_];
+	const auto& renderer_kind_string = menu_video_mode_renderer_kind_get_string(renderer_kind);
+
+	const auto& window_size = menu_video_mode_sizes_[menu_video_mode_sizes_index_];
+	const auto window_size_string = menu_video_mode_size_get_string(window_size);
+
+	const auto aa_kind_string = menu_video_mode_aa_kind_get_string(menu_video_mode_aa_kind_);
+	const auto aa_factor_string = menu_video_mode_aa_factor_get_string(menu_video_mode_aa_factor_);
+
+	for (int i = 0; i < video_mode_items.amount; ++i)
+	{
+		if (video_mode_menu[i].string[0])
+		{
+			Shape = ::C_NOTSELECTEDPIC;
+
+			if (video_mode_items.cursor.on)
+			{
+				if (i == which)
+				{
+					Shape += 2;
+				}
+			}
+
+			switch (i)
+			{
+				case 0:
+					draw_carousel(
+						i,
+						&video_mode_items,
+						video_mode_menu,
+						renderer_kind_string
+					);
+
+					continue;
+
+				case 1:
+					draw_carousel(
+						i,
+						&video_mode_items,
+						video_mode_menu,
+						window_size_string
+					);
+
+					continue;
+
+				case 2:
+					if (menu_video_mode_is_windowed_)
+					{
+						++Shape;
+					}
+
+					break;
+
+				case 3:
+					if (menu_video_mode_is_vsync_)
+					{
+						++Shape;
+					}
+
+					break;
+
+				case 4:
+					draw_carousel(
+						i,
+						&video_mode_items,
+						video_mode_menu,
+						aa_kind_string
+					);
+
+					continue;
+
+				case 5:
+					draw_carousel(
+						i,
+						&video_mode_items,
+						video_mode_menu,
+						aa_factor_string
+					);
+
+					continue;
+
+				default:
+					continue;
+			}
+
+			::VWB_DrawPic(
+				video_mode_items.x - 16,
+				video_mode_items.y + (i * video_mode_items.y_spacing) - 1,
+				Shape);
+		}
+	}
+
+	draw_video_mode_descriptions(which);
+}
+
+void video_menu_mode_renderer_carousel(
+	const int item_index,
+	const bool is_left,
+	const bool is_right)
+{
+	const auto max_index = static_cast<int>(menu_video_mode_renderer_kinds_.size());
+
+	const auto delta = (is_left ? -1 : (is_right ? 1 : 0));
+
+	menu_video_mode_renderer_index_ += delta;
+
+	if (menu_video_mode_renderer_index_ < 0)
+	{
+		menu_video_mode_renderer_index_ = max_index - 1;
+	}
+	else if (menu_video_mode_renderer_index_ >= max_index)
+	{
+		menu_video_mode_renderer_index_ = 0;
+	}
+
+	video_mode_update_menu();
+	video_mode_draw_switch(item_index);
+
+	TicDelay(20);
+}
+
+void video_menu_mode_window_size_carousel(
+	const int item_index,
+	const bool is_left,
+	const bool is_right)
+{
+	const auto max_index = static_cast<int>(menu_video_mode_sizes_.size());
+
+	const auto delta = (is_left ? -1 : (is_right ? 1 : 0));
+
+	menu_video_mode_sizes_index_ += delta;
+
+	if (menu_video_mode_sizes_index_ < 0)
+	{
+		menu_video_mode_sizes_index_ = max_index - 1;
+	}
+	else if (menu_video_mode_sizes_index_ >= max_index)
+	{
+		menu_video_mode_sizes_index_ = 0;
+	}
+
+	video_mode_update_menu();
+	video_mode_draw_switch(item_index);
+
+	TicDelay(20);
+}
+
+void video_menu_mode_window_aa_kind_carousel(
+	const int item_index,
+	const bool is_left,
+	const bool is_right)
+{
+	switch (menu_video_mode_aa_kind_)
+	{
+		case bstone::RendererAaKind::none:
+			if (is_left)
+			{
+				menu_video_mode_aa_kind_ = bstone::RendererAaKind::ms;
+			}
+			else if (is_right)
+			{
+				menu_video_mode_aa_kind_ = bstone::RendererAaKind::ms;
+			}
+
+			break;
+
+		case bstone::RendererAaKind::ms:
+			if (is_left)
+			{
+				menu_video_mode_aa_kind_ = bstone::RendererAaKind::none;
+			}
+			else if (is_right)
+			{
+				menu_video_mode_aa_kind_ = bstone::RendererAaKind::none;
+			}
+
+			break;
+	}
+
+	video_mode_update_menu();
+	video_mode_draw_switch(item_index);
+
+	TicDelay(20);
+}
+
+void video_menu_mode_window_aa_factor_carousel(
+	const int item_index,
+	const bool is_left,
+	const bool is_right)
+{
+	if (is_left)
+	{
+		menu_video_mode_aa_factor_ /= 2;
+	}
+	else if (is_right)
+	{
+		menu_video_mode_aa_factor_ *= 2;
+	}
+
+	if (menu_video_mode_aa_factor_ < bstone::RendererLimits::aa_min)
+	{
+		menu_video_mode_aa_factor_ = bstone::RendererLimits::aa_max;
+	}
+	else if (menu_video_mode_aa_factor_ > bstone::RendererLimits::aa_max)
+	{
+		menu_video_mode_aa_factor_ = bstone::RendererLimits::aa_min;
+	}
+
+	video_mode_update_menu();
+	video_mode_draw_switch(item_index);
+
+	TicDelay(20);
+}
+
+void video_menu_mode_routine(
+	const std::int16_t)
+{
+	std::int16_t which;
+
+	::CA_CacheScreen(BACKGROUND_SCREENPIC);
+	::video_mode_draw_menu();
+	::MenuFadeIn();
+	::WaitKeyUp();
+
+	auto& configuration = ::vid_cfg_get();
+
+	video_mode_menu[0].carousel_func_ = ::video_menu_mode_renderer_carousel;
+	video_mode_menu[1].carousel_func_ = ::video_menu_mode_window_size_carousel;
+
+	video_mode_menu[4].carousel_func_ = ::video_menu_mode_window_aa_kind_carousel;
+	video_mode_menu[5].carousel_func_ = ::video_menu_mode_window_aa_factor_carousel;
+
+	do
+	{
+		which = ::HandleMenu(&video_mode_items, video_mode_menu, video_mode_draw_switch);
+
+		switch (which)
+		{
+			case 2:
+				menu_video_mode_is_windowed_ = !menu_video_mode_is_windowed_;
+				break;
+
+			case 3:
+				menu_video_mode_is_vsync_ = !menu_video_mode_is_vsync_;
+				break;
+
+			default:
+				break;
+		}
+	} while (which >= 0);
+
+	::MenuFadeOut();
+}
+
 void cp_video(
 	std::int16_t)
 {
@@ -4692,6 +5292,12 @@ void cp_video(
 
 		switch (which)
 		{
+			case mvl_mode:
+				::video_draw_menu();
+				::MenuFadeIn();
+				::WaitKeyUp();
+				break;
+
 		case mvl_widescreen:
 #ifndef __vita__
 			configuration.is_widescreen_ = !configuration.is_widescreen_;

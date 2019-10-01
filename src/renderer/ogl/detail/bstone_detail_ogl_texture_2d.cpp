@@ -35,6 +35,8 @@ Free Software Foundation, Inc.,
 #include "bstone_exception.h"
 #include "bstone_unique_resource.h"
 
+#include "bstone_renderer_limits.h"
+
 #include "bstone_detail_ogl_renderer_utils.h"
 #include "bstone_detail_ogl_context.h"
 #include "bstone_detail_ogl_texture_manager.h"
@@ -511,9 +513,9 @@ void GenericOglTexture2d::set_anisotropy()
 
 	auto anisotropy = sampler_state_.anisotropy_;
 
-	if (anisotropy < RendererSampler::anisotropy_min)
+	if (anisotropy < RendererLimits::anisotropy_min_off)
 	{
-		anisotropy = RendererSampler::anisotropy_min;
+		anisotropy = RendererLimits::anisotropy_min_off;
 	}
 	else if (anisotropy > device_features.anisotropy_max_value_)
 	{
@@ -652,7 +654,7 @@ void GenericOglTexture2d::set_sampler_state_defaults()
 	sampler_state_.address_mode_v_ = RendererAddressMode::clamp;
 	set_address_mode_v();
 
-	sampler_state_.anisotropy_ = RendererSampler::anisotropy_min;
+	sampler_state_.anisotropy_ = RendererLimits::anisotropy_min_off;
 	set_anisotropy();
 }
 
