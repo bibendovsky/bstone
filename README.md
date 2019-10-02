@@ -104,23 +104,23 @@ The path to those files depends on platform.
 To override the path use --profile_dir option.
 
 On Windows, the path might look like:  
-"C:\\Users\\john\\AppData\\Roaming\\bibendovsky\\bstone\\"
+`"C:\\Users\\john\\AppData\\Roaming\\bibendovsky\\bstone\\"`
 
 On Linux, the path might look like:  
-"/home/john/.local/share/bibendovsky/bstone/"
+`"/home/john/.local/share/bibendovsky/bstone/"`
 
 On Mac OS X, the path might look like:  
-"/Users/john/Library/Application Support/bibendovsky/bstone/"
+`"/Users/john/Library/Application Support/bibendovsky/bstone/"`
 
-Configuration file name: bstone_config  
-Log file name: bstone_log.txt  
-High scores file name: bstone_game_high_scores  
-Saved game file name: bstone_game_saved_game
+Configuration file name: `bstone_config`  
+Log file name: `bstone_log.txt`  
+High scores file name: `bstone_game_high_scores`  
+Saved game file name: `bstone_game_saved_game`
 
 Where "game" is:  
-* aog_sw - Aliens of Gold (shareware)  
-* aog_full - Aliens of Gold (full)  
-* ps - Planet Strike
+* `aog_sw` - Aliens of Gold (shareware)  
+* `aog_full` - Aliens of Gold (full)  
+* `ps` - Planet Strike
 
 
 5 - Compiling
@@ -136,103 +136,103 @@ Minimum requirements:
   (<http://www.libsdl.org/>)
 
 CMake variables:
-* CMAKE_BUILD_TYPE  
+* `CMAKE_BUILD_TYPE`  
   Selects which build(s) to compile.  
   Use semicolon to separate entries. 
-  Usually it's Debug or Release.  
+  Usually it's `Debug` or `Release`.  
   For other values see CMake documentation.
 
-* CMAKE_INSTALL_PREFIX  
+* `CMAKE_INSTALL_PREFIX`  
   Selects location where install files to.
 
-* BSTONE_PANDORA  
+* `BSTONE_PANDORA`  
   Enables build for Open Pandora.
 
-* BSTONE_USE_PCH  
+* `BSTONE_USE_PCH`  
   If enabled utilizes precompiled headers to speed up compilation.  
   Note: Visual C++ only
 
-* BSTONE_USE_STATIC_LINKING  
+* `BSTONE_USE_STATIC_LINKING`  
   If enabled links modules statically to avoid dependency on  
   system and custom libraries at run-time.
 
-* BSTONE_USE_MULTI_PROCESS_COMPILATION  
+* `BSTONE_USE_MULTI_PROCESS_COMPILATION`  
   Enables multi-process compilation if supported.
 
-* SDL2W_SDL2_DIR  
+* `SDL2W_SDL2_DIR`  
   Defines directory with SDL2 CMake configuration file or with official SDL2 development Windows build.
 
 
 Notes:
-* Use ON value to enable option and value OFF to disable option.
+* Use `ON` value to enable option and value `OFF` to disable option.
 
 
 6 - Command-line options
 ========================
 
-* --version  
+* `--version`  
   Outputs the port's version to standard output and  
   into message box.
 
-* --aog_sw  
+* `--aog_sw`  
   Switches the port to Blake Stone: Aliens of Gold (shareware) mode.  
   If appropriate data files will not be found the port will fail.  
   Default switch strategy: AoG -> PS -> AoG (SW)
 
-* --aog  
+* `--aog`  
   Switches the port to Blake Stone: Aliens of Gold mode.  
   If appropriate data files will not be found the port will fail.  
   Default switch strategy: AoG -> PS -> AoG (SW)
   
-* --ps  
+* `--ps`  
   Switches the port to Blake Stone: Planet Strike mode.  
   If appropriate data files will not be found the port will fail.  
   Default switch strategy: AoG -> PS -> AoG (SW)
 
-* --no_screens  
+* `--no_screens`  
   Skips start-up screens and the ending promo pages (AoG SW).
 
-* --cheats  
+* `--cheats`  
   Enables so called "debug mode" without much fuss.
 
-* --data_dir path_to_data  
+* `--data_dir path_to_data`  
   Specifies location to the game's data files.  
   Default: current working directory.
 
-* --mod_dir path_to_data  
+* `--mod_dir path_to_data`  
   Specifies location to the mod's data files.  
   Default: undefined.
 
-* --profile_dir path  
+* `--profile_dir path`  
   Overrides default location of the game's profile files.  
 
-* --vid_is_windowed <0|1> 
+* `--vid_is_windowed <0|1>`  
   Runs the game in windowed mode if value set to "1" or fullscreen otherwise.  
   Default video height: 480
 
-* --vid_width width  
+* `--vid_width width`  
   Specifies window width.  
   Minimum width: 320  
   Default width: 640  
 
-* --vid_height height  
+* `--vid_height height`  
   Specifies window height.  
   Minimum height: 240  
   Default height: 480
 
-* --vid_vsync <0|1>  
+* `--vid_vsync <0|1>`  
   Enables (1) or disables (0) vertical synchronization.  
   Default value: 1 (enabled)
 
-* --vid_x offset  
+* `--vid_x offset`  
   Sets a horizontal offset from the left side of the desktop screen.  
   Applicable for windowed mode only.
 
-* --vid_y offset  
+* `--vid_y offset`  
   Sets a vertical offset from the top side of the desktop screen.  
   Applicable for windowed mode only.
 
-* --snd_is_disabled <0|1>  
+* `--snd_is_disabled <0|1>`  
   Disables audio subsystem if non-zero.  
   Default: 0  
 
@@ -241,7 +241,7 @@ Notes:
   Default: 44100 Hz  
   Minimum: 11025 Hz
 
-* --snd_mix_size duration  
+* `--snd_mix_size duration`  
   Specifies mix data size in milliseconds.  
   Default: 40 ms  
   Minimum: 20 ms
@@ -250,7 +250,7 @@ Notes:
 7 - Cheat key
 =============
 
-[J] [A] [M] [Enter]  
+<kbd>J</kbd> <kbd>A</kbd> <kbd>M</kbd> <kbd>Enter</kbd>  
 Press specified keys sequentially.  
 Shows message "NOW you're jammin'!!", and gives to you all keys,  
 all weapons and restores health to 100% but zeroes score points.  
