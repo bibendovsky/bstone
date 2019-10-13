@@ -4608,7 +4608,7 @@ void CheckPinballBonus(
 
 	// Check TOTAL ENEMY bonus
 	//
-	if (gamestuff.level[gamestate.mapon].stats.total_enemy ==
+	if (gamestuff.level[gamestate.mapon].stats.total_enemy <=
 		gamestuff.level[gamestate.mapon].stats.accum_enemy)
 	{
 		ActivatePinballBonus(B_ENEMY_DESTROYED);
@@ -4616,7 +4616,7 @@ void CheckPinballBonus(
 
 	// Check TOTAL POINTS bonus
 	//
-	if (gamestuff.level[gamestate.mapon].stats.total_points ==
+	if (gamestuff.level[gamestate.mapon].stats.total_points <=
 		gamestuff.level[gamestate.mapon].stats.accum_points)
 	{
 		ActivatePinballBonus(B_TOTAL_POINTS);
@@ -4624,7 +4624,7 @@ void CheckPinballBonus(
 
 	// Check INFORMANTS ALIVE bonus
 	//
-	if ((gamestuff.level[gamestate.mapon].stats.total_inf ==
+	if ((gamestuff.level[gamestate.mapon].stats.total_inf <=
 		gamestuff.level[gamestate.mapon].stats.accum_inf) && // All informants alive?
 		(gamestuff.level[gamestate.mapon].stats.total_inf) && // Any informants in level?
 		((BONUS_SHOWN & (B_TOTAL_POINTS | B_ENEMY_DESTROYED)) ==
