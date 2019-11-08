@@ -1169,6 +1169,8 @@ void IN_ReadControl(
 				mx = motion_Right;
 			}
 
+// Enter/Space/Escape should be enough to enter/leave menu item. [#179]
+#if 0
 			if (Keyboard[def->button0])
 			{
 				buttons += 1 << 0;
@@ -1177,6 +1179,8 @@ void IN_ReadControl(
 			{
 				buttons += 1 << 1;
 			}
+#endif // 0
+
 			realdelta = false;
 			if (mx || my || buttons)
 			{
