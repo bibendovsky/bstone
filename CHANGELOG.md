@@ -1,5 +1,10 @@
 # BStone changelog
 
+## [1.1.14] - 2019-??-??
+### Removed
+- <kbd>Alt</kbd> and <kbd>Ctrl</kbd> to handle menu item.
+
+
 ## [1.1.13] - 2019-07-11
 ### Fixed
 - [AOG] Allow to warp to level beyond the 10th one.
