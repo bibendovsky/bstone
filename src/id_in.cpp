@@ -764,10 +764,12 @@ static void in_handle_keyboard(
 
 	switch (key)
 	{
+#ifndef __vita__
+// (vita) TranslateControllerEvent() does not currently affect the output of SDL_GetModState()
 	case ScanCode::sc_alt:
 		is_pressed = ((key_mod & KMOD_ALT) != 0);
 		break;
-
+#endif
 	case ScanCode::sc_control:
 		is_pressed = ((key_mod & KMOD_CTRL) != 0);
 		break;
@@ -1509,6 +1511,8 @@ void IN_ReadControl(
 				mx = motion_Right;
 			}
 
+// Enter/Space/Escape should be enough to enter/leave menu item. [#179]
+#if 0
 			if (Keyboard[def->button0])
 			{
 				buttons += 1 << 0;
@@ -1517,6 +1521,8 @@ void IN_ReadControl(
 			{
 				buttons += 1 << 1;
 			}
+#endif // 0
+
 			realdelta = false;
 			if (mx || my || buttons)
 			{

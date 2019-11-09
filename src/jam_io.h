@@ -43,7 +43,7 @@ Free Software Foundation, Inc.,
 // FILE CHUNK IDs
 //
 // NOTE: The only reason for changing from COMP to CMP1 and having multi
-// comp header structs is for downward compatablity.
+// comp header structs is for downward compatibility.
 //
 
 #define COMP ("COMP") // Comp type is ct_LZW ALWAYS!
@@ -73,7 +73,7 @@ struct COMPStruct
 
 struct JAMPHeader
 {
-	std::uint32_t OrginalLen; // Orginal FileLength of compressed Data.
+	std::uint32_t OrginalLen; // Original FileLength of compressed Data.
 	ct_TYPES CompType; // SEE: ct_TYPES above for list of pos.
 	std::uint32_t CompressLen; // Length of data after compression (A MUST for LZHUFF!)
 };

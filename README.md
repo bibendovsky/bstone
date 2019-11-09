@@ -66,7 +66,7 @@ Supported games:
 
 2.1 - Overview (PS Vita)
 ========================
-See README-PSVITA.md for details about the source port on PS Vita.
+See [README-PSVITA.md](README-PSVITA.md) for details about the source port on PS Vita.
 
 
 3 - Required assets
@@ -105,23 +105,23 @@ The path to those files depends on platform.
 To override the path use --profile_dir option.
 
 On Windows, the path might look like:  
-"C:\\Users\\john\\AppData\\Roaming\\bibendovsky\\bstone\\"
+`"C:\\Users\\john\\AppData\\Roaming\\bibendovsky\\bstone\\"`
 
 On Linux, the path might look like:  
-"/home/john/.local/share/bibendovsky/bstone/"
+`"/home/john/.local/share/bibendovsky/bstone/"`
 
 On Mac OS X, the path might look like:  
-"/Users/john/Library/Application Support/bibendovsky/bstone/"
+`"/Users/john/Library/Application Support/bibendovsky/bstone/"`
 
-Configuration file name: bstone_config  
-Log file name: bstone_log.txt  
-High scores file name: bstone_game_high_scores  
-Saved game file name: bstone_game_saved_game
+Configuration file name: `bstone_config`  
+Log file name: `bstone_log.txt`  
+High scores file name: `bstone_game_high_scores`  
+Saved game file name: `bstone_game_saved_game`
 
 Where "game" is:  
-* aog_sw - Aliens of Gold (shareware)  
-* aog_full - Aliens of Gold (full)  
-* ps - Planet Strike
+* `aog_sw` - Aliens of Gold (shareware)  
+* `aog_full` - Aliens of Gold (full)  
+* `ps` - Planet Strike
 
 
 5 - Compiling
@@ -137,100 +137,100 @@ Minimum requirements:
   (<http://www.libsdl.org/>)
 
 CMake variables:
-* CMAKE_BUILD_TYPE  
+* `CMAKE_BUILD_TYPE`  
   Selects which build(s) to compile.  
   Use semicolon to separate entries. 
-  Usually it's Debug or Release.  
+  Usually it's `Debug` or `Release`.  
   For other values see CMake documentation.
 
-* CMAKE_INSTALL_PREFIX  
+* `CMAKE_INSTALL_PREFIX`  
   Selects location where install files to.
 
-* BSTONE_PANDORA  
+* `BSTONE_PANDORA`  
   Enables build for Open Pandora.
 
-* BSTONE_USE_PCH  
+* `BSTONE_USE_PCH`  
   If enabled utilizes precompiled headers to speed up compilation.  
   Note: Visual C++ only
 
-* BSTONE_USE_STATIC_LINKING  
+* `BSTONE_USE_STATIC_LINKING`  
   If enabled links modules statically to avoid dependency on  
   system and custom libraries at run-time.
 
-* BSTONE_USE_MULTI_PROCESS_COMPILATION  
+* `BSTONE_USE_MULTI_PROCESS_COMPILATION`  
   Enables multi-process compilation if supported.
 
-* SDL2W_SDL2_DIR  
+* `SDL2W_SDL2_DIR`  
   Defines directory with SDL2 CMake configuration file or with official SDL2 development Windows build.
 
 
 Notes:
-* Use ON value to enable option and value OFF to disable option.
+* Use `ON` value to enable option and value `OFF` to disable option.
 
 
 6 - Command-line options
 ========================
 
-* --version  
+* `--version`  
   Outputs the port's version to standard output and  
   into message box.
 
-* --aog_sw  
+* `--aog_sw`  
   Switches the port to Blake Stone: Aliens of Gold (shareware) mode.  
   If appropriate data files will not be found the port will fail.  
   Default switch strategy: AoG -> PS -> AoG (SW)
 
-* --aog  
+* `--aog`  
   Switches the port to Blake Stone: Aliens of Gold mode.  
   If appropriate data files will not be found the port will fail.  
   Default switch strategy: AoG -> PS -> AoG (SW)
   
-* --ps  
+* `--ps`  
   Switches the port to Blake Stone: Planet Strike mode.  
   If appropriate data files will not be found the port will fail.  
   Default switch strategy: AoG -> PS -> AoG (SW)
 
-* --no_screens  
+* `--no_screens`  
   Skips start-up screens and the ending promo pages (AoG SW).
 
-* --cheats  
+* `--cheats`  
   Enables so called "debug mode" without much fuss.
 
-* --data_dir path_to_data  
+* `--data_dir path_to_data`  
   Specifies location to the game's data files.  
   Default: current working directory.
 
-* --mod_dir path_to_data  
+* `--mod_dir path_to_data`  
   Specifies location to the mod's data files.  
   Default: undefined.
 
-* --profile_dir path  
+* `--profile_dir path`  
   Overrides default location of the game's profile files.  
 
-* --vid_renderer [d3d|ogl|ogles|ogles2|soft]  
+* `--vid_renderer [d3d|ogl|ogles|ogles2|soft]`  
   Forces to use a specified SDL renderer.  
-  "d3d" selects a Direct3D renderer.  
-  "ogl" selects an OpenGL renderer.  
-  "ogles" selects an OpenGL ES renderer.  
-  "ogles2" selects an OpenGL ES 2.0 renderer.  
-  "soft" selects a software renderer.  
-  Fallback renderer: soft.  
-  Default order without this option: d3d, ogl, ogles, ogles2, soft.
+  `d3d` selects a Direct3D renderer.  
+  `ogl` selects an OpenGL renderer.  
+  `ogles` selects an OpenGL ES renderer.  
+  `ogles2` selects an OpenGL ES 2.0 renderer.  
+  `soft` selects a software renderer.  
+  Fallback renderer: `soft`.  
+  Default order without this option: `d3d`, `ogl`, `ogles`, `ogles2`, `soft`.
 
-* --vid_windowed  
+* `--vid_windowed`  
   Runs the game in windowed mode.  
   Default video mode: 640x480
 
-* --vid_mode width height  
+* `--vid_mode width height`  
   Selects the specified resolution for windowed mode.  
   Without this option the game will use desktop's resolution.  
   Minimum width: 640  
   Minimum height: 480
 
-* --vid_no_vsync  
+* `--vid_no_vsync`  
   Disables vertical synchronization.
 
-* --vid_scale factor  
+* `--vid_scale factor`  
   Refinement factor. The higher a value the greater internal resolution  
   mode will be used to render a scene. The dimensions of the resolution mode  
   are proportional to the original one (320x200) by 'factor' value.  
@@ -239,20 +239,20 @@ Notes:
   Minimum factor: 1 (identical to the original game)  
   Default factor: depends on the game's resolution mode.
 
-* --vid_window_x offset  
+* `--vid_window_x offset`  
   Sets a horizontal offset from the left side of the desktop screen.  
   Applicable for windowed mode only.
 
-* --vid_window_y offset  
+* `--vid_window_y offset`  
   Sets a vertical offset from the top side of the desktop screen.  
   Applicable for windowed mode only.
 
-* --snd_rate sampling_rate  
+* `--snd_rate sampling_rate`  
   Specifies sampling rate of mixer in hertz.  
   Default: 44100 Hz  
   Minimum: 11025 Hz
 
-* --snd_mix_size duration  
+* `--snd_mix_size duration`  
   Specifies mix data size in milliseconds.  
   Default: 40 ms  
   Minimum: 20 ms
@@ -261,7 +261,7 @@ Notes:
 7 - Cheat key
 =============
 
-[J] [A] [M] [Enter]  
+<kbd>J</kbd> <kbd>A</kbd> <kbd>M</kbd> <kbd>Enter</kbd>  
 Press specified keys sequentially.  
 Shows message "NOW you're jammin'!!", and gives to you all keys,  
 all weapons and restores health to 100% but zeroes score points.  
@@ -273,81 +273,81 @@ Not available in shareware version.
 
 Add option "--cheats" to enable these keys.
 
-* [Backspace]+[A]  
+* <kbd>Backspace</kbd>+<kbd>A</kbd>  
   Toggles visibility of actors on auto-map.
 
-* [Backspace]+[C]  
+* <kbd>Backspace</kbd>+<kbd>C</kbd>  
   Shows counts of total static objects, in use static objects,  
   doors, total actors, active actors.
 
-* [Backspace]+[D]  
+* <kbd>Backspace</kbd>+<kbd>D</kbd>  
   Toggles player's invisibility.
 
-* [Backspace]+[E]  
+* <kbd>Backspace</kbd>+<kbd>E</kbd>  
   Win mission instantly.
 
-* [Backspace]+[F]  
+* <kbd>Backspace</kbd>+<kbd>F</kbd>  
   Shows player's coordinates and direction.
 
-* [Backspace]+[G]  
+* <kbd>Backspace</kbd>+<kbd>G</kbd>  
   Toggles god mode.
 
-* [Backspace]+[H]  
+* <kbd>Backspace</kbd>+<kbd>H</kbd>  
   Hurt yourself by 1%.
 
-* [Backspace]+[I]  
+* <kbd>Backspace</kbd>+<kbd>I</kbd>  
   Each usage adds 99% health, 5 tokens, 50 ammo, one new weapon.
 
-* [Backspace]+[K]  
+* <kbd>Backspace</kbd>+<kbd>K</kbd>  
   Shows total counts of enemies, points and informants on the map.
 
-* [Backspace]+[M]  
+* <kbd>Backspace</kbd>+<kbd>M</kbd>  
   Memory information.
 
-* [Backspace]+[O]  
+* <kbd>Backspace</kbd>+<kbd>O</kbd>  
   Shows push walls on auto-map.
 
-* [Backspace]+[Q]  
+* <kbd>Backspace</kbd>+<kbd>Q</kbd>  
   Instant quit.
 
-* [Backspace]+[R]  
+* <kbd>Backspace</kbd>+<kbd>R</kbd>  
   Shows full map.
 
-* [Backspace]+[S]  
+* <kbd>Backspace</kbd>+<kbd>S</kbd>  
   Slow motion.
 
-* [Backspace]+[U]  
+* <kbd>Backspace</kbd>+<kbd>U</kbd>  
   Unlocks all maps.
 
-* [Backspace]+[W]  
+* <kbd>Backspace</kbd>+<kbd>W</kbd>  
   Warps to specified map.
 
-* [Backspace]+[Shift/Caps Lock]+[W]  
+* <kbd>Backspace</kbd>+<kbd>Shift</kbd>/<kbd>Caps Lock</kbd>+<kbd>W</kbd>  
   Warps to specified map but loads it from scratch  
   rather from a saved game file/memory.
 
-* [Backspace]+[Home]  
+* <kbd>Backspace</kbd>+<kbd>Home</kbd>  
   Selects previous ceiling texture.
 
-* [Backspace]+[Page Up]  
+* <kbd>Backspace</kbd>+<kbd>Page Up</kbd>  
   Selects next ceiling texture.
 
-* [Backspace]+[End]  
+* <kbd>Backspace</kbd>+<kbd>End</kbd>  
   Selects previous flooring texture.
 
-* [Backspace]+[Page Down]  
+* <kbd>Backspace</kbd>+<kbd>Page Down</kbd>  
   Selects next flooring texture.
 
-* [Backspace]+[-]  
+* <kbd>Backspace</kbd>+<kbd>-</kbd>  
   Decreases shading depth.
 
-* [Backspace]+[=]  
+* <kbd>Backspace</kbd>+<kbd>=</kbd>  
   Increases shading depth.
 
-* [Backspace]+['[']  
+* <kbd>Backspace</kbd>+<kbd>[</kbd>  
   Decreases shading drop off.
 
-* [Backspace]+[']']  
+* <kbd>Backspace</kbd>+<kbd>]</kbd>  
   Increases shading drop off.
 
 

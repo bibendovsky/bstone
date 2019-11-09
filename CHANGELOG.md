@@ -1,5 +1,30 @@
 # BStone changelog
 
+## [1.1.14] - 2019-11-09
+### Added
+- [Vita] Version 0.3 (by 01y).
+- [Vita] Joystick sensitivity via CONTROLS menu (by 01y).
+- [Vita] Previous/Next weapon controls (by 01y).
+- [Vita] Circle button backs out of menu (by 01y).
+
+### Changed
+- README monospace formatting, keyboard glyphs (by cxong).
+- [Vita] Heap size increased to 192 MiB (by 01y).
+- [Vita] Assets search strategy (by 01y).
+- [Vita] Control constants to match default keyboard speed (by 01y).
+
+### Removed
+- <kbd>Alt</kbd> and <kbd>Ctrl</kbd> to handle menu item (by bibendovsky).
+
+### Fixed
+- Text typos (by mnhauke).
+- SDL with two digit sub-version number (by bibendovsky).
+- Apply floor bonus correctly on percentage greater than 100% (by XxMiltenXx).
+- [Vita] Readme corrections (by 01y).
+- [Vita] Circle button behavior in menu (by 01y).
+- [Vita] Sound volume visualization (by 01y).
+
+
 ## [1.1.13] - 2019-07-11
 ### Fixed
 - [AOG] Allow to warp to level beyond the 10th one.

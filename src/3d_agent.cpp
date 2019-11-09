@@ -950,7 +950,7 @@ void DrawHealthMonitor()
 // --------------------------------------------------------------------------
 // DrawHealth()
 //
-// PURPOSE : Marks the Health_NUM to be refreshed durring the next
+// PURPOSE : Marks the Health_NUM to be refreshed during the next
 //           StatusBarRefresh.
 // --------------------------------------------------------------------------
 void DrawHealth()
@@ -1125,7 +1125,7 @@ void HealSelf(
 // --------------------------------------------------------------------------
 // DrawScore()
 //
-// PURPOSE : Marks the Score to be refreshed durring the next
+// PURPOSE : Marks the Score to be refreshed during the next
 //      StatusBarRefresh.
 // --------------------------------------------------------------------------
 void DrawScore()
@@ -1352,7 +1352,7 @@ void TakeKey(
 // ---------------------------------------------------------------------------
 // DrawWeapon()
 //
-// PURPOSE : Marks the Weapon pics to be refreshed durring the next
+// PURPOSE : Marks the Weapon pics to be refreshed during the next
 //      StatusBarRefresh.
 // ---------------------------------------------------------------------------
 void DrawWeapon()
@@ -1411,7 +1411,7 @@ void GiveWeapon(
 // DrawAmmo()
 //
 // PURPOSE : Marks the AMMO NUM & AMMO PIC (if necessary) to be refreshed
-//                               durring the next StatusBarRefresh.
+//                               during the next StatusBarRefresh.
 //
 // NOTE : This re-computes the number of LEDs to be lit.
 // ---------------------------------------------------------------------------
@@ -1722,7 +1722,7 @@ void GiveAmmo(
 // ComputeAvailWeapons()
 //
 // This function creates a Bit MASK for gamestate.weapons according to what
-// weapon is available for useage due to ammo avail.
+// weapon is available for usage due to ammo avail.
 //
 // ---------------------------------------------------------------------------
 void ComputeAvailWeapons()
@@ -3348,7 +3348,7 @@ void Cmd_Use(
 				dy = LABS(dy);
 				dist = dx < dy ? dx : dy;
 				if ((ob->obclass == gen_scientistobj) &&
-					((ob->flags & (FL_FRIENDLY | FL_VISABLE)) == (FL_FRIENDLY | FL_VISABLE)) &&
+					((ob->flags & (FL_FRIENDLY | FL_VISIBLE)) == (FL_FRIENDLY | FL_VISIBLE)) &&
 					(dist < intg_dist))
 				{
 					if ((ob->flags & FL_ATTACKMODE) != 0)
@@ -4640,7 +4640,7 @@ void CheckPinballBonus(
 
 	// Check TOTAL ENEMY bonus
 	//
-	if (gamestuff.level[gamestate.mapon].stats.total_enemy ==
+	if (gamestuff.level[gamestate.mapon].stats.total_enemy <= // FIXME: https://github.com/bibendovsky/bstone/issues/86 https://github.com/bibendovsky/bstone/pull/176
 		gamestuff.level[gamestate.mapon].stats.accum_enemy)
 	{
 		ActivatePinballBonus(B_ENEMY_DESTROYED);
@@ -4648,7 +4648,7 @@ void CheckPinballBonus(
 
 	// Check TOTAL POINTS bonus
 	//
-	if (gamestuff.level[gamestate.mapon].stats.total_points ==
+	if (gamestuff.level[gamestate.mapon].stats.total_points <= // FIXME: https://github.com/bibendovsky/bstone/issues/86 https://github.com/bibendovsky/bstone/pull/176
 		gamestuff.level[gamestate.mapon].stats.accum_points)
 	{
 		ActivatePinballBonus(B_TOTAL_POINTS);
@@ -4656,7 +4656,7 @@ void CheckPinballBonus(
 
 	// Check INFORMANTS ALIVE bonus
 	//
-	if ((gamestuff.level[gamestate.mapon].stats.total_inf ==
+	if ((gamestuff.level[gamestate.mapon].stats.total_inf <= // FIXME: https://github.com/bibendovsky/bstone/issues/86 https://github.com/bibendovsky/bstone/pull/176
 		gamestuff.level[gamestate.mapon].stats.accum_inf) && // All informants alive?
 		(gamestuff.level[gamestate.mapon].stats.total_inf) && // Any informants in level?
 		((BONUS_SHOWN & (B_TOTAL_POINTS | B_ENEMY_DESTROYED)) ==
@@ -4782,7 +4782,7 @@ void GunAttack(
 
 		for (auto check = ob->next; check; check = check->next)
 		{
-			if ((check->flags & FL_SHOOTABLE) == 0 || (check->flags & FL_VISABLE) == 0)
+			if ((check->flags & FL_SHOOTABLE) == 0 || (check->flags & FL_VISIBLE) == 0)
 			{
 				continue;
 			}
@@ -5413,7 +5413,7 @@ void SW_HandleStatic(
 //      tilex - Tile X coord that the Smart switch points to.
 //      tiley - Tile Y coord that the Smart switch points to.
 //      force - Force switch operation.  Will not check the players current
-//              and last tilex & tiley coords.  This is usefull for other
+//              and last tilex & tiley coords.  This is useful for other
 //              actors toggling barrier switches.
 //
 // RETURNS: Boolean: TRUE  - Remove switch from map

@@ -52,6 +52,7 @@ Free Software Foundation, Inc.,
 
 #ifdef __vita__
 #include <vitasdk.h>
+int _newlib_heap_size_user = 192 * 1024 * 1024;
 #endif
 
 
@@ -156,7 +157,7 @@ bstone::ClArgs g_args;
 
 
 #define FOCALLENGTH (0x5700L) // in global coordinates
-#define VIEWGLOBAL 0x10000 // globals visable flush to wall
+#define VIEWGLOBAL 0x10000 // globals visible flush to wall
 
 #define VIEWWIDTH (256) // size of view window
 #define VIEWHEIGHT (144)
@@ -10467,11 +10468,11 @@ void sys_default_sleep_for()
 const std::string& get_version_string()
 {
 #ifdef __vita__
-    static const std::string version = "0.3";
+	static const std::string version = "0.3";
 #else
-    static const std::string version = "1.1.13";
+	static const std::string version = "1.1.14";
 #endif
-    return version;
+	return version;
 }
 
 const std::string& get_profile_dir()

@@ -43,7 +43,7 @@ std::string noeat_msg1 =
 std::string NoAdLibCard =
 "^FC57\r       MUSIC:\r"
 "^FCA6  YOU DON'T HAVE AN\r"
-"  ADLIB COMPATABLE\r"
+"  ADLIB COMPATIBLE\r"
 "     SOUND CARD."
 ;
 

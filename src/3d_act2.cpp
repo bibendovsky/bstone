@@ -1339,14 +1339,14 @@ void T_OfsThink(
 		break;
 
 	case podobj:
-		if (obj->flags & FL_VISABLE)
+		if (obj->flags & FL_VISIBLE)
 		{
 			FirstSighting(obj);
 		}
 		break;
 
 	case podeggobj:
-		if (!(obj->flags & FL_VISABLE))
+		if (!(obj->flags & FL_VISIBLE))
 		{
 			break;
 		}
@@ -1370,7 +1370,7 @@ void T_OfsThink(
 	case morphing_spider_mutantobj:
 	case morphing_reptilian_warriorobj:
 	case morphing_mutanthuman2obj:
-		if (!(obj->flags & FL_VISABLE))
+		if (!(obj->flags & FL_VISIBLE))
 		{
 			break;
 		}
@@ -1393,7 +1393,7 @@ void T_OfsThink(
 		break;
 
 	case gurney_waitobj:
-		if (obj->flags & FL_VISABLE)
+		if (obj->flags & FL_VISIBLE)
 		{
 			SightPlayer(obj);
 		}
@@ -1876,7 +1876,7 @@ objtype* MoveHiddenOfs(
 //
 // ** This function should ALWAY be used to init/start SmartAnimations! **
 //
-// NOTE : It is the programmers responsiblity to watch bit field ranges on
+// NOTE : It is the programmers responsibility to watch bit field ranges on
 //                       the passed parameters.
 //
 // NOTES: THINK function AnimateOfsObj() requires the use of TEMP3 of the
@@ -3847,7 +3847,7 @@ void T_LiquidStand(
 
 		if (dx > 1 || dy > 1)
 		{
-			if (!(obj->flags & FL_VISABLE) || (US_RndT() < 40) || (obj->temp2 == 5))
+			if (!(obj->flags & FL_VISIBLE) || (US_RndT() < 40) || (obj->temp2 == 5))
 			{
 				NewState(obj, &s_liquid_fall1);
 				obj->flags |= FL_OFFSET_STATES;
@@ -4416,7 +4416,7 @@ void DropCargo(
 	}
 
 	//
-	// Keep seperate... May later have MULTI "cargo's"
+	// Keep separate... May later have MULTI "cargo's"
 	//
 
 	if (obj->flags2 & FL2_DROP_RKEY)
@@ -5127,7 +5127,7 @@ void T_Shoot(
 		}
 		if (thrustspeed >= RUNSPEED)
 		{
-			if (ob->flags & FL_VISABLE)
+			if (ob->flags & FL_VISIBLE)
 			{
 				hitchance = 160 - dist * 16; // player can see to dodge
 			}
@@ -5138,7 +5138,7 @@ void T_Shoot(
 		}
 		else
 		{
-			if (ob->flags & FL_VISABLE)
+			if (ob->flags & FL_VISIBLE)
 			{
 				hitchance = 256 - dist * 16; // player can see to dodge
 			}
@@ -5620,7 +5620,7 @@ void T_PainThink(
 
 	if (obj->hitpoints > (full_hp >> 1) + (full_hp >> 2))
 	{
-		//       Orginal HitPoints
+		//       Original HitPoints
 		//
 
 		switch (obj->obclass)
@@ -5639,7 +5639,7 @@ void T_PainThink(
 	}
 	else if (obj->hitpoints > (full_hp >> 1))
 	{
-		//      3/4 Orginal HitPoints
+		//      3/4 Original HitPoints
 		//
 
 		switch (obj->obclass)
@@ -5658,7 +5658,7 @@ void T_PainThink(
 	}
 	else if (obj->hitpoints > (full_hp >> 2))
 	{
-		//      1/2 Orginal HitPoints
+		//      1/2 Original HitPoints
 		//
 
 		switch (obj->obclass)
@@ -5677,7 +5677,7 @@ void T_PainThink(
 	}
 	else
 	{
-		//      1/4 Orginal HitPoints
+		//      1/4 Original HitPoints
 		//
 
 		switch (obj->obclass)
@@ -5765,7 +5765,7 @@ statetype s_steamrelease6 = {0, 4, 16, nullptr, nullptr, &s_steamgrate};
 void T_SteamObj(
 	objtype* obj)
 {
-	if (obj->flags & FL_VISABLE)
+	if (obj->flags & FL_VISIBLE)
 	{
 		if ((obj->temp2 -= tics) <= 0)
 		{
@@ -6297,7 +6297,7 @@ void T_Projectile(
 
 #if BFG_SHOT_STOPS
 			//
-			// Check to see if a collison has already occured at this
+			// Check to see if a collison has already occurred at this
 			// tilex and tiley
 			//
 			if (ob->s_tilex == ob->tilex && ob->s_tiley == ob->tiley)
