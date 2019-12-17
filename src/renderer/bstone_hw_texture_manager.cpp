@@ -301,9 +301,6 @@ public:
 		const HwTextureManagerSolid1x1Id id) const override;
 
 
-	void device_on_reset() override;
-
-
 private:
 	static constexpr auto wall_dimension = 64;
 
@@ -892,72 +889,6 @@ RendererTexture2dPtr GenericHwTextureManager::solid_1x1_get(
 	}
 
 	return solid_1x1_items_[index].texture_2d_;
-}
-
-void GenericHwTextureManager::device_on_reset()
-{
-	// Missing sprite texture.
-	//
-	{
-		destroy_missing_sprite_texture();
-		create_missing_sprite_texture();
-	}
-
-	// Missing wall texture.
-	//
-	{
-		destroy_missing_wall_texture();
-		create_missing_wall_texture();
-	}
-
-	// Sprites.
-	//
-	for (auto& sprite_item : sprite_map_)
-	{
-		const auto sprite_id = sprite_item.first;
-		auto& texture_2d_item = sprite_item.second;
-
-		renderer_->texture_2d_destroy(texture_2d_item.texture_2d_);
-		texture_2d_item.texture_2d_ = nullptr;
-
-		texture_2d_item = sprite_create_texture(sprite_id);
-		texture_2d_item.generation_id_ = generation_id_;
-	}
-
-	// Walls.
-	//
-	for (auto& wall_item : wall_map_)
-	{
-		const auto wall_id = wall_item.first;
-		auto& texture_2d_item = wall_item.second;
-
-		renderer_->texture_2d_destroy(texture_2d_item.texture_2d_);
-		texture_2d_item.texture_2d_ = nullptr;
-
-		texture_2d_item = wall_create_texture(wall_id);
-		texture_2d_item.generation_id_ = generation_id_;
-	}
-
-	// UI texture.
-	//
-	{
-		ui_destroy();
-
-		ui_create(
-			ui_t2d_item_.properties_.indexed_pixels_,
-			ui_t2d_item_.properties_.indexed_alphas_,
-			ui_t2d_item_.properties_.indexed_palette_);
-	}
-
-	// Solid 1x1 textures.
-	//
-	for (int i = 0; i < static_cast<int>(HwTextureManagerSolid1x1Id::count_); ++i)
-	{
-		const auto id = static_cast<HwTextureManagerSolid1x1Id>(i);
-
-		solid_1x1_destroy(id);
-		solid_1x1_create(id);
-	}
 }
 
 void GenericHwTextureManager::initialize(

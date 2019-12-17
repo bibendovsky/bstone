@@ -214,6 +214,8 @@ void RendererUtils::window_set_mode(
 
 	if (is_size_changed && param.is_windowed_)
 	{
+		::SDL_SetWindowSize(sdl_window, param.width_, param.height_);
+
 		if (param.is_positioned_)
 		{
 			const auto x = std::max(param.x_, 0);
@@ -221,8 +223,10 @@ void RendererUtils::window_set_mode(
 
 			::SDL_SetWindowPosition(sdl_window, x, y);
 		}
-
-		::SDL_SetWindowSize(sdl_window, param.width_, param.height_);
+		else
+		{
+			::SDL_SetWindowPosition(sdl_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+		}
 	}
 }
 
@@ -264,6 +268,7 @@ void RendererUtils::validate_initialize_param(
 	{
 	case RendererKind::auto_detect:
 	case RendererKind::ogl_2:
+	case RendererKind::ogl_3_2_core:
 		break;
 
 	default:
@@ -901,6 +906,20 @@ void RendererUtils::create_window_set_ogl_attributes_core(
 		if (sdl_result != 0)
 		{
 			throw Exception{"Failed to set OpenGL context core profile attribute."};
+		}
+	}
+
+	{
+		const int sdl_flags = SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG;
+
+		const auto sdl_result = ::SDL_GL_SetAttribute(
+			SDL_GL_CONTEXT_FLAGS,
+			sdl_flags
+		);
+
+		if (sdl_result != 0)
+		{
+			throw Exception{"Failed to set OpenGL context flags."};
 		}
 	}
 

@@ -82,14 +82,14 @@ void RendererCommandManager::buffer_remove(
 		return;
 	}
 
-	std::remove_if(
+	static_cast<void>(std::remove_if(
 		buffers_.begin(),
 		buffers_.end(),
 		[&](const auto& item)
 		{
 			return item.get() == buffer;
 		}
-	);
+	));
 }
 
 bstone::RendererCommandBufferPtr RendererCommandManager::buffer_get(

@@ -374,27 +374,21 @@ const RendererDeviceInfo& OglRenderer::device_get_info() const noexcept
 	return device_info_;
 }
 
-bool OglRenderer::device_is_lost() const noexcept
-{
-	return false;
-}
-
-bool OglRenderer::device_is_ready_to_reset() const noexcept
-{
-	return true;
-}
-
-void OglRenderer::device_reset()
-{
-}
-
 void OglRenderer::window_set_mode(
 	const RendererWindowSetModeParam& param)
 {
 	RendererUtils::window_set_mode(sdl_window_.get(), param);
 
+	const auto size_changed = (screen_width_ != param.width_ || screen_height_ != param.height_);
+
 	screen_width_ = param.width_;
 	screen_height_ = param.height_;
+
+	if (size_changed && ogl_device_features_.framebuffer_is_available_)
+	{
+		msaa_framebuffer_destroy();
+		msaa_framebuffer_create();
+	}
 }
 
 void OglRenderer::window_set_title(

@@ -142,9 +142,6 @@ public:
 
 	virtual RendererTexture2dPtr solid_1x1_get(
 		const HwTextureManagerSolid1x1Id id) const = 0;
-
-
-	virtual void device_on_reset() = 0;
 }; // HwTextureManager
 
 using HwTextureManagerPtr = HwTextureManager*;

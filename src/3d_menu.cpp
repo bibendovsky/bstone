@@ -130,6 +130,7 @@ enum sw2_labels
 enum MenuVideoLables
 {
 	mvl_mode,
+	mvl_texturing,
 	mvl_widescreen,
 	mvl_stretch_ui,
 };
@@ -419,6 +420,7 @@ CP_iteminfo SwitchItems = {MENU_X, 0, 0, 0, 0, 9, {87, -1, 132, 7, 1}};
 // BBi
 CP_iteminfo video_items = {MENU_X, MENU_Y + 30, 3, 0, 0, 9, {77, -1, 154, 7, 1}};
 CP_iteminfo video_mode_items = {MENU_X, MENU_Y + 10, 8, 0, 0, 9, {77, -1, 154, 7, 1}};
+CP_iteminfo texturing_items = {MENU_X, MENU_Y + 10, 9, 0, 0, 9, {77, -1, 154, 7, 1}};
 CP_iteminfo switches2_items = {MENU_X, MENU_Y + 30, 2, 0, 0, 9, {87, -1, 132, 7, 1}};
 // BBi
 
@@ -550,18 +552,48 @@ CP_itemtype video_mode_menu[] =
 	{AT_ENABLED, "WINDOW SIZE", nullptr},
 	{AT_ENABLED, "IS WINDOWED", nullptr},
 	{AT_ENABLED, "VSYNC", nullptr},
-	{AT_ENABLED, "ANTI-ALIASING KIND", nullptr},
-	{AT_ENABLED, "ANTI-ALIASING FACTOR", nullptr},
+	{AT_ENABLED, "ANTI-ALIASING TYPE", nullptr},
+	{AT_ENABLED, "ANTI-ALIASING DEGREE", nullptr},
 	{AT_DISABLED, "", nullptr},
-	{AT_ENABLED, "APPLY", nullptr},
+	{AT_DISABLED, "APPLY", nullptr},
+};
+
+enum class TexturingMenuIndices
+{
+	anisotropy,
+	separator_1,
+	image_2d_filter,
+	separator_2,
+	image_3d_filter,
+	mipmap_3d_filter,
+	separator_3,
+	upscale_filter,
+	upscale_degree,
+}; // TexturingMenuIndices
+
+CP_itemtype texturing_menu[] =
+{
+	{AT_ENABLED, "ANISOTROPY", nullptr},
+	{AT_DISABLED, "", nullptr},
+	{AT_ENABLED, "2D IMAGE FILTER", nullptr},
+	{AT_DISABLED, "", nullptr},
+	{AT_ENABLED, "3D IMAGE FILTER", nullptr},
+	{AT_ENABLED, "3D MIPMAP FILTER", nullptr},
+	{AT_DISABLED, "", nullptr},
+	{AT_ENABLED, "UPSCALE FILTER", nullptr},
+	{AT_ENABLED, "UPSCALE DEGREE", nullptr},
 };
 
 void video_menu_mode_routine(
 	const std::int16_t index);
 
+void texturing_routine(
+	const std::int16_t index);
+
 CP_itemtype video_menu[] =
 {
 	{AT_ENABLED, "MODE", video_menu_mode_routine},
+	{AT_ENABLED, "TEXTURING", texturing_routine},
 	{AT_ENABLED, "WIDESCREEN", nullptr},
 	{AT_ENABLED, "STRETCH UI", nullptr},
 };
@@ -4634,6 +4666,7 @@ void draw_video_descriptions(
 {
 	const char* instructions[] = {
 		"CHANGES THE VIDEO MODE",
+		"CHANGES TEXTURING OPTIONS",
 		"TOGGLES BETWEEN WIDESCREEN AND 4X3 MODES",
 		"TOGGLES STRETCHING OF USER INTERFACE",
 	};
@@ -4696,6 +4729,7 @@ void video_draw_switch(
 			switch (i)
 			{
 				case mvl_mode:
+				case mvl_texturing:
 					continue;
 
 			case mvl_widescreen:
@@ -4792,14 +4826,32 @@ void draw_carousel(
 
 int menu_video_mode_renderer_index_;
 VidRendererKinds menu_video_mode_renderer_kinds_;
-bool menu_video_mode_is_windowed_;
-int menu_video_mode_width_;
-int menu_video_mode_height_;
 int menu_video_mode_sizes_index_;
 VidWindowSizes menu_video_mode_sizes_;
-bool menu_video_mode_is_vsync_;
-bstone::RendererAaKind menu_video_mode_aa_kind_;
-int menu_video_mode_aa_factor_;
+
+VideoModeCfg menu_video_mode_cfg_;
+VideoModeCfg menu_video_mode_cfg_saved_;
+
+void menu_video_mode_set_renderer_kind(
+	VideoModeCfg& video_mode_cfg)
+{
+	video_mode_cfg.renderer_kind_ = menu_video_mode_renderer_kinds_[menu_video_mode_renderer_index_];
+}
+
+void menu_video_mode_set_window_size(
+	VideoModeCfg& video_mode_cfg)
+{
+	const auto& window_size = menu_video_mode_sizes_[menu_video_mode_sizes_index_];
+	video_mode_cfg.width_ = window_size.width_;
+	video_mode_cfg.height_ = window_size.height_;
+}
+
+void menu_video_mode_update_apply_button()
+{
+	const auto is_modified = (menu_video_mode_cfg_ != menu_video_mode_cfg_saved_);
+
+	video_mode_menu[7].active = (is_modified ? AT_ENABLED : AT_DISABLED);
+}
 
 int menu_video_mode_aa_factor_adjust(
 	const int aa_factor)
@@ -4967,20 +5019,26 @@ void video_mode_draw_menu()
 	}
 
 	{
-		menu_video_mode_is_windowed_ = vid_cfg.is_windowed_;
+		menu_video_mode_cfg_.renderer_kind_ = vid_cfg.renderer_kind_;
 	}
 
 	{
-		menu_video_mode_width_ = vid_cfg.width_;
-		menu_video_mode_height_ = vid_cfg.height_;
+		menu_video_mode_cfg_.is_windowed_ = vid_cfg.is_windowed_;
+	}
+
+	{
+		menu_video_mode_cfg_.width_ = vid_cfg.width_;
+		menu_video_mode_cfg_.height_ = vid_cfg.height_;
 	}
 
 	{
 		menu_video_mode_sizes_index_ = 0;
 		menu_video_mode_sizes_ = vid_window_size_get_list();
 
+		const auto index_begin = menu_video_mode_sizes_.cbegin();
+
 		const auto index_it = std::find_if(
-			menu_video_mode_sizes_.cbegin(),
+			index_begin,
 			menu_video_mode_sizes_.cend(),
 			[](const auto& item)
 			{
@@ -4990,19 +5048,20 @@ void video_mode_draw_menu()
 
 		if (index_it != menu_video_mode_sizes_.cend())
 		{
-			menu_video_mode_sizes_index_ = static_cast<int>(
-				index_it - menu_video_mode_sizes_.cbegin());
+			menu_video_mode_sizes_index_ = static_cast<int>(index_it - index_begin);
 		}
 	}
 
 	{
-		menu_video_mode_is_vsync_ = vid_cfg.is_vsync_;
+		menu_video_mode_cfg_.is_vsync_ = vid_cfg.is_vsync_;
 	}
 
 	{
-		menu_video_mode_aa_kind_ = vid_cfg.hw_aa_kind_;
-		menu_video_mode_aa_factor_ = menu_video_mode_aa_factor_adjust(vid_cfg.hw_aa_value_);
+		menu_video_mode_cfg_.aa_kind_ = vid_cfg.hw_aa_kind_;
+		menu_video_mode_cfg_.aa_factor_ = menu_video_mode_aa_factor_adjust(vid_cfg.hw_aa_value_);
 	}
+
+	menu_video_mode_cfg_saved_ = menu_video_mode_cfg_;
 }
 
 void video_mode_update_menu()
@@ -5026,8 +5085,8 @@ void video_mode_draw_switch(
 	const auto& window_size = menu_video_mode_sizes_[menu_video_mode_sizes_index_];
 	const auto window_size_string = menu_video_mode_size_get_string(window_size);
 
-	const auto aa_kind_string = menu_video_mode_aa_kind_get_string(menu_video_mode_aa_kind_);
-	const auto aa_factor_string = menu_video_mode_aa_factor_get_string(menu_video_mode_aa_factor_);
+	const auto aa_kind_string = menu_video_mode_aa_kind_get_string(menu_video_mode_cfg_.aa_kind_);
+	const auto aa_factor_string = menu_video_mode_aa_factor_get_string(menu_video_mode_cfg_.aa_factor_);
 
 	for (int i = 0; i < video_mode_items.amount; ++i)
 	{
@@ -5066,7 +5125,7 @@ void video_mode_draw_switch(
 					continue;
 
 				case 2:
-					if (menu_video_mode_is_windowed_)
+					if (menu_video_mode_cfg_.is_windowed_)
 					{
 						++Shape;
 					}
@@ -5074,7 +5133,7 @@ void video_mode_draw_switch(
 					break;
 
 				case 3:
-					if (menu_video_mode_is_vsync_)
+					if (menu_video_mode_cfg_.is_vsync_)
 					{
 						++Shape;
 					}
@@ -5135,6 +5194,9 @@ void video_menu_mode_renderer_carousel(
 		menu_video_mode_renderer_index_ = 0;
 	}
 
+	menu_video_mode_set_renderer_kind(menu_video_mode_cfg_);
+	menu_video_mode_update_apply_button();
+
 	video_mode_update_menu();
 	video_mode_draw_switch(item_index);
 
@@ -5161,6 +5223,9 @@ void video_menu_mode_window_size_carousel(
 		menu_video_mode_sizes_index_ = 0;
 	}
 
+	menu_video_mode_set_window_size(menu_video_mode_cfg_);
+	menu_video_mode_update_apply_button();
+
 	video_mode_update_menu();
 	video_mode_draw_switch(item_index);
 
@@ -5172,16 +5237,16 @@ void video_menu_mode_window_aa_kind_carousel(
 	const bool is_left,
 	const bool is_right)
 {
-	switch (menu_video_mode_aa_kind_)
+	switch (menu_video_mode_cfg_.aa_kind_)
 	{
 		case bstone::RendererAaKind::none:
 			if (is_left)
 			{
-				menu_video_mode_aa_kind_ = bstone::RendererAaKind::ms;
+				menu_video_mode_cfg_.aa_kind_ = bstone::RendererAaKind::ms;
 			}
 			else if (is_right)
 			{
-				menu_video_mode_aa_kind_ = bstone::RendererAaKind::ms;
+				menu_video_mode_cfg_.aa_kind_ = bstone::RendererAaKind::ms;
 			}
 
 			break;
@@ -5189,15 +5254,17 @@ void video_menu_mode_window_aa_kind_carousel(
 		case bstone::RendererAaKind::ms:
 			if (is_left)
 			{
-				menu_video_mode_aa_kind_ = bstone::RendererAaKind::none;
+				menu_video_mode_cfg_.aa_kind_ = bstone::RendererAaKind::none;
 			}
 			else if (is_right)
 			{
-				menu_video_mode_aa_kind_ = bstone::RendererAaKind::none;
+				menu_video_mode_cfg_.aa_kind_ = bstone::RendererAaKind::none;
 			}
 
 			break;
 	}
+
+	menu_video_mode_update_apply_button();
 
 	video_mode_update_menu();
 	video_mode_draw_switch(item_index);
@@ -5210,23 +5277,29 @@ void video_menu_mode_window_aa_factor_carousel(
 	const bool is_left,
 	const bool is_right)
 {
+	auto aa_factor = menu_video_mode_cfg_.aa_factor_;
+
 	if (is_left)
 	{
-		menu_video_mode_aa_factor_ /= 2;
+		aa_factor /= 2;
 	}
 	else if (is_right)
 	{
-		menu_video_mode_aa_factor_ *= 2;
+		aa_factor *= 2;
 	}
 
-	if (menu_video_mode_aa_factor_ < bstone::RendererLimits::aa_min)
+	if (aa_factor < bstone::RendererLimits::aa_min)
 	{
-		menu_video_mode_aa_factor_ = bstone::RendererLimits::aa_max;
+		aa_factor = bstone::RendererLimits::aa_max;
 	}
-	else if (menu_video_mode_aa_factor_ > bstone::RendererLimits::aa_max)
+	else if (aa_factor > bstone::RendererLimits::aa_max)
 	{
-		menu_video_mode_aa_factor_ = bstone::RendererLimits::aa_min;
+		aa_factor = bstone::RendererLimits::aa_min;
 	}
+
+	menu_video_mode_cfg_.aa_factor_ = aa_factor;
+
+	menu_video_mode_update_apply_button();
 
 	video_mode_update_menu();
 	video_mode_draw_switch(item_index);
@@ -5259,11 +5332,26 @@ void video_menu_mode_routine(
 		switch (which)
 		{
 			case 2:
-				menu_video_mode_is_windowed_ = !menu_video_mode_is_windowed_;
+				menu_video_mode_cfg_.is_windowed_ = !menu_video_mode_cfg_.is_windowed_;
+				menu_video_mode_update_apply_button();
+				video_mode_update_menu();
 				break;
 
 			case 3:
-				menu_video_mode_is_vsync_ = !menu_video_mode_is_vsync_;
+				menu_video_mode_cfg_.is_vsync_ = !menu_video_mode_cfg_.is_vsync_;
+				menu_video_mode_update_apply_button();
+				video_mode_update_menu();
+				break;
+
+			case 7:
+				if (menu_video_mode_cfg_ != menu_video_mode_cfg_saved_)
+				{
+					menu_video_mode_cfg_saved_ = menu_video_mode_cfg_;
+					menu_video_mode_update_apply_button();
+					vid_video_mode_apply(menu_video_mode_cfg_);
+					video_mode_draw_menu();
+				}
+
 				break;
 
 			default:
@@ -5274,6 +5362,455 @@ void video_menu_mode_routine(
 	::MenuFadeOut();
 }
 
+///
+const std::string& texturing_filter_to_string(
+	const bstone::RendererFilterKind filter)
+{
+	static const auto nearest_string = std::string{"NEAREST"};
+	static const auto linear_string = std::string{"LINEAR"};
+
+	switch (filter)
+	{
+		case bstone::RendererFilterKind::nearest:
+			return nearest_string;
+
+		case bstone::RendererFilterKind::linear:
+			return linear_string;
+
+		default:
+			Quit("Unsupported filter.");
+	}
+}
+
+int texturing_anisotropy_to_pot(
+	const int anisotropy)
+{
+	auto pot_anisotropy = anisotropy;
+
+	if (pot_anisotropy < bstone::RendererLimits::anisotropy_min_off)
+	{
+		pot_anisotropy = bstone::RendererLimits::anisotropy_min_off;
+	}
+	else if (pot_anisotropy > bstone::RendererLimits::anisotropy_max)
+	{
+		pot_anisotropy = bstone::RendererLimits::anisotropy_max;
+	}
+
+	auto power = 0;
+
+	while (pot_anisotropy > (1 << power))
+	{
+		++power;
+	}
+
+	return 1 << power;
+}
+
+void texturing_draw_descriptions(
+	std::int16_t which)
+{
+	static const char* instructions[] =
+	{
+		"SELECTS DEGREE OF ANISOTROPY FOR 3D ELEMENTS",
+		"",
+		"SELECTS IMAGE FILTER FOR 2D ELEMENTS",
+		"",
+		"SELECTS IMAGE FILTER FOR 3D ELEMENTS",
+		"SELECTS MIPMAP FILTER FOR 3D ELEMENTS",
+		"",
+		"SELECTS UPSCALE FILTER FOR 8-BIT TEXTURES",
+		"SELECTS DEGREE OF UPSCALE",
+	};
+
+	::fontnumber = 2;
+
+	::WindowX = 48;
+	::WindowY = 144;
+	::WindowW = 236;
+	::WindowH = 8;
+
+	::VWB_Bar(
+		::WindowX,
+		::WindowY - 1,
+		::WindowW,
+		::WindowH,
+		::menu_background_color);
+
+	::SETFONTCOLOR(TERM_SHADOW_COLOR, TERM_BACK_COLOR);
+	::US_PrintCentered(instructions[which]);
+
+	--::WindowX;
+	--::WindowY;
+
+	SETFONTCOLOR(INSTRUCTIONS_TEXT_COLOR, TERM_BACK_COLOR);
+	::US_PrintCentered(instructions[which]);
+}
+
+void texturing_draw_menu()
+{
+	::CA_CacheScreen(BACKGROUND_SCREENPIC);
+	::ClearMScreen();
+	::DrawMenuTitle("TEXTURING");
+	::DrawInstructions(IT_STANDARD);
+	::DrawMenu(&texturing_items, texturing_menu);
+	VW_UpdateScreen();
+
+
+	auto& vid_cfg = vid_cfg_get();
+	vid_cfg.hw_3d_texture_anisotropy_ = texturing_anisotropy_to_pot(vid_cfg.hw_3d_texture_anisotropy_);
+}
+
+void texturing_update_menu()
+{
+	::ClearMScreen();
+	::DrawMenuTitle("TEXTURING");
+	::DrawInstructions(IT_STANDARD);
+	::DrawMenu(&texturing_items, texturing_menu);
+}
+
+void texturing_draw_switch(
+	std::int16_t which)
+{
+	std::uint16_t Shape;
+
+	const auto& vid_cfg = vid_cfg_get();
+
+	for (int i = 0; i < texturing_items.amount; ++i)
+	{
+		if (texturing_menu[i].string[0])
+		{
+			Shape = ::C_NOTSELECTEDPIC;
+
+			if (texturing_items.cursor.on)
+			{
+				if (i == which)
+				{
+					Shape += 2;
+				}
+			}
+
+			switch (i)
+			{
+				case static_cast<int>(TexturingMenuIndices::anisotropy):
+				{
+					const auto anisotropy_string = (
+						vid_cfg.hw_3d_texture_anisotropy_ > bstone::RendererLimits::anisotropy_min_off ?
+						std::to_string(vid_cfg.hw_3d_texture_anisotropy_) :
+						"OFF"
+					);
+
+					draw_carousel(
+						i,
+						&texturing_items,
+						texturing_menu,
+						anisotropy_string
+					);
+
+					continue;
+				}
+
+				case static_cast<int>(TexturingMenuIndices::image_2d_filter):
+				{
+					const auto& image_2d_filter_string = texturing_filter_to_string(vid_cfg.hw_2d_texture_filter_);
+
+					draw_carousel(
+						i,
+						&texturing_items,
+						texturing_menu,
+						image_2d_filter_string
+					);
+
+					continue;
+				}
+
+				case static_cast<int>(TexturingMenuIndices::image_3d_filter):
+				{
+					const auto& image_3d_filter_string = texturing_filter_to_string(vid_cfg.hw_3d_texture_image_filter_);
+
+					draw_carousel(
+						i,
+						&texturing_items,
+						texturing_menu,
+						image_3d_filter_string
+					);
+
+					continue;
+				}
+
+				case static_cast<int>(TexturingMenuIndices::mipmap_3d_filter):
+				{
+					const auto& mipmap_3d_filter_string = texturing_filter_to_string(vid_cfg.hw_3d_texture_mipmap_filter_);
+
+					draw_carousel(
+						i,
+						&texturing_items,
+						texturing_menu,
+						mipmap_3d_filter_string
+					);
+
+					continue;
+				}
+
+				case static_cast<int>(TexturingMenuIndices::upscale_filter):
+				{
+					const auto upscale_filter_string = (
+						*vid_cfg.hw_upscale_kind_ == bstone::HwTextureManagerUpscaleFilterKind::none ?
+						"NONE" :
+						"XBRZ"
+					);
+
+					draw_carousel(
+						i,
+						&texturing_items,
+						texturing_menu,
+						upscale_filter_string
+					);
+
+					continue;
+				}
+
+				case static_cast<int>(TexturingMenuIndices::upscale_degree):
+				{
+					const auto upscale_degree_string = std::to_string(*vid_cfg.hw_upscale_xbrz_factor_);
+
+					draw_carousel(
+						i,
+						&texturing_items,
+						texturing_menu,
+						upscale_degree_string
+					);
+
+					continue;
+				}
+
+				default:
+					continue;
+			}
+
+#if 0
+			::VWB_DrawPic(
+				video_mode_items.x - 16,
+				video_mode_items.y + (i * video_mode_items.y_spacing) - 1,
+				Shape);
+#endif
+		}
+	}
+
+	texturing_draw_descriptions(which);
+}
+
+void texturing_anisotropy_carousel(
+	const int item_index,
+	const bool is_left,
+	const bool is_right)
+{
+	auto& vid_cfg = vid_cfg_get();
+
+	auto anisotropy = texturing_anisotropy_to_pot(*vid_cfg.hw_3d_texture_anisotropy_);
+
+	if (is_left)
+	{
+		anisotropy /= 2;
+	}
+	else if (is_right)
+	{
+		anisotropy *= 2;
+	}
+
+	if (anisotropy < bstone::RendererLimits::anisotropy_min_off)
+	{
+		anisotropy = bstone::RendererLimits::anisotropy_max;
+	}
+
+	if (anisotropy > bstone::RendererLimits::anisotropy_max)
+	{
+		anisotropy = bstone::RendererLimits::anisotropy_min_off;
+	}
+
+	vid_cfg.hw_3d_texture_anisotropy_ = anisotropy;
+
+	vid_texturing_apply_anisotropy();
+
+	texturing_update_menu();
+	texturing_draw_switch(item_index);
+
+	TicDelay(20);
+}
+
+void texturing_filter_carousel(
+	VidCfg::FilterModValue& filter)
+{
+	switch (filter)
+	{
+		case bstone::RendererFilterKind::nearest:
+			filter = bstone::RendererFilterKind::linear;
+			break;
+
+		case bstone::RendererFilterKind::linear:
+			filter = bstone::RendererFilterKind::nearest;
+			break;
+
+		default:
+			Quit("Unsupported filter.");
+	}
+}
+
+void texturing_2d_image_filter_carousel(
+	const int item_index,
+	const bool is_left,
+	const bool is_right)
+{
+	auto& vid_cfg = vid_cfg_get();
+	texturing_filter_carousel(vid_cfg.hw_2d_texture_filter_);
+	vid_texturing_apply_2d_image_filter();
+
+	texturing_update_menu();
+	texturing_draw_switch(item_index);
+
+	TicDelay(20);
+}
+
+void texturing_3d_image_filter_carousel(
+	const int item_index,
+	const bool is_left,
+	const bool is_right)
+{
+	auto& vid_cfg = vid_cfg_get();
+	texturing_filter_carousel(vid_cfg.hw_3d_texture_image_filter_);
+	vid_texturing_apply_3d_image_filter();
+
+	texturing_update_menu();
+	texturing_draw_switch(item_index);
+
+	TicDelay(20);
+}
+
+void texturing_3d_mipmap_filter_carousel(
+	const int item_index,
+	const bool is_left,
+	const bool is_right)
+{
+	auto& vid_cfg = vid_cfg_get();
+	texturing_filter_carousel(vid_cfg.hw_3d_texture_mipmap_filter_);
+	vid_texturing_apply_3d_mipmap_filter();
+
+	texturing_update_menu();
+	texturing_draw_switch(item_index);
+
+	TicDelay(20);
+}
+
+void texturing_upscale_filter_carousel(
+	const int item_index,
+	const bool is_left,
+	const bool is_right)
+{
+	auto& vid_cfg = vid_cfg_get();
+
+	if (*vid_cfg.hw_upscale_kind_ == bstone::HwTextureManagerUpscaleFilterKind::none)
+	{
+		*vid_cfg.hw_upscale_kind_ = bstone::HwTextureManagerUpscaleFilterKind::xbrz;
+	}
+	else if (*vid_cfg.hw_upscale_kind_ == bstone::HwTextureManagerUpscaleFilterKind::xbrz)
+	{
+		*vid_cfg.hw_upscale_kind_ = bstone::HwTextureManagerUpscaleFilterKind::none;
+	}
+
+	vid_texturing_apply_upscale();
+
+	texturing_update_menu();
+	texturing_draw_switch(item_index);
+
+	TicDelay(20);
+}
+
+void texturing_upscale_degree_carousel(
+	const int item_index,
+	const bool is_left,
+	const bool is_right)
+{
+	auto& vid_cfg = vid_cfg_get();
+
+	auto xbrz_degree = *vid_cfg.hw_upscale_xbrz_factor_;
+
+	if (xbrz_degree < 2)
+	{
+		xbrz_degree = 2;
+	}
+	else if (xbrz_degree > 6)
+	{
+		xbrz_degree = 6;
+	}
+
+	if (is_left)
+	{
+		--xbrz_degree;
+
+		if (xbrz_degree < 2)
+		{
+			xbrz_degree = 6;
+		}
+	}
+	else if (is_right)
+	{
+		++xbrz_degree;
+
+		if (xbrz_degree > 6)
+		{
+			xbrz_degree = 2;
+		}
+	}
+
+	vid_cfg.hw_upscale_xbrz_factor_ = xbrz_degree;
+
+	vid_texturing_apply_upscale();
+
+	texturing_update_menu();
+	texturing_draw_switch(item_index);
+
+	TicDelay(20);
+}
+
+void texturing_routine(
+	const std::int16_t index)
+{
+	std::int16_t which;
+
+	::CA_CacheScreen(BACKGROUND_SCREENPIC);
+	::texturing_draw_menu();
+	::MenuFadeIn();
+	::WaitKeyUp();
+
+	texturing_menu[static_cast<int>(TexturingMenuIndices::anisotropy)].carousel_func_ =
+		texturing_anisotropy_carousel;
+	texturing_menu[static_cast<int>(TexturingMenuIndices::image_2d_filter)].carousel_func_ =
+		texturing_2d_image_filter_carousel;
+	texturing_menu[static_cast<int>(TexturingMenuIndices::image_3d_filter)].carousel_func_ =
+		texturing_3d_image_filter_carousel;
+	texturing_menu[static_cast<int>(TexturingMenuIndices::mipmap_3d_filter)].carousel_func_ =
+		texturing_3d_mipmap_filter_carousel;
+	texturing_menu[static_cast<int>(TexturingMenuIndices::upscale_filter)].carousel_func_ =
+		texturing_upscale_filter_carousel;
+	texturing_menu[static_cast<int>(TexturingMenuIndices::upscale_degree)].carousel_func_ =
+		texturing_upscale_degree_carousel;
+
+	auto& configuration = ::vid_cfg_get();
+
+	do
+	{
+		which = ::HandleMenu(&texturing_items, texturing_menu, texturing_draw_switch);
+
+		switch (which)
+		{
+			default:
+				break;
+		}
+	} while (which >= 0);
+
+	::MenuFadeOut();
+}
+
+///
 void cp_video(
 	std::int16_t)
 {
@@ -5293,6 +5830,7 @@ void cp_video(
 		switch (which)
 		{
 			case mvl_mode:
+			case mvl_texturing:
 				::video_draw_menu();
 				::MenuFadeIn();
 				::WaitKeyUp();

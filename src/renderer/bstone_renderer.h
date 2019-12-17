@@ -999,8 +999,6 @@ struct RendererCommandManagerFactory
 
 struct RendererDeviceFeatures
 {
-	bool is_losable_;
-
 	bool vsync_is_available_;
 	bool vsync_is_requires_restart_;
 
@@ -1067,12 +1065,6 @@ public:
 	virtual const RendererDeviceFeatures& device_get_features() const noexcept = 0;
 
 	virtual const RendererDeviceInfo& device_get_info() const noexcept = 0;
-
-	virtual bool device_is_lost() const noexcept = 0;
-
-	virtual bool device_is_ready_to_reset() const noexcept = 0;
-
-	virtual void device_reset() = 0;
 
 
 	virtual void window_set_mode(

@@ -91,6 +91,25 @@ struct VidCfg
 	IntModValue hw_upscale_xbrz_factor_;
 }; // VidCfg
 
+struct VideoModeCfg
+{
+	bstone::RendererKind renderer_kind_;
+	bool is_windowed_;
+	int width_;
+	int height_;
+	bool is_vsync_;
+	bstone::RendererAaKind aa_kind_;
+	int aa_factor_;
+}; // VideoModeCfg
+
+bool operator==(
+	const VideoModeCfg& lhs,
+	const VideoModeCfg& rhs) noexcept;
+
+bool operator!=(
+	const VideoModeCfg& lhs,
+	const VideoModeCfg& rhs) noexcept;
+
 
 extern bool vid_is_hw_;
 
@@ -411,6 +430,19 @@ void vid_hw_actors_add_render_item(
 	const int bs_actor_index);
 
 const bstone::R8g8b8a8Palette& vid_hw_get_default_palette();
+
+void vid_video_mode_apply(
+	const VideoModeCfg& video_mode_cfg);
+
+void vid_texturing_apply_anisotropy();
+
+void vid_texturing_apply_2d_image_filter();
+
+void vid_texturing_apply_3d_image_filter();
+
+void vid_texturing_apply_3d_mipmap_filter();
+
+void vid_texturing_apply_upscale();
 
 
 #endif // BSTONE_ID_VL_INCLUDED

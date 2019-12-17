@@ -76,12 +76,6 @@ public:
 
 	const RendererDeviceInfo& device_get_info() const noexcept override;
 
-	bool device_is_lost() const noexcept override;
-
-	bool device_is_ready_to_reset() const noexcept override;
-
-	void device_reset() override;
-
 
 	void window_set_mode(
 		const RendererWindowSetModeParam& param) override;

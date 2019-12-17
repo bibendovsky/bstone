@@ -145,6 +145,11 @@ void GenericOglTextureManager::destroy(
 	const RendererTexture2dPtr texture_2d)
 {
 	textures_2d_.remove(texture_2d);
+
+	if (texture_2d_current_ == texture_2d)
+	{
+		texture_2d_current_ = nullptr;
+	}
 }
 
 void GenericOglTextureManager::set(
