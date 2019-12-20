@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -27,13 +27,15 @@ Free Software Foundation, Inc.,
 
 
 #include <cstdint>
+
 #include <array>
 #include <vector>
-#include "bstone_mod_value.h"
+
 #include "bstone_ref_values.h"
-#include "bstone_renderer.h"
+#include "bstone_renderer_kind.h"
+#include "bstone_ren_3d_types.h"
 #include "bstone_rgb_palette.h"
-#include "bstone_hw_texture_manager.h"
+#include "bstone_hw_texture_mgr.h"
 
 
 namespace bstone
@@ -56,50 +58,43 @@ using UiMaskBuffer = std::array<bool, ::vga_ref_width * ::vga_ref_height>;
 
 struct VidCfg
 {
-	using BoolModValue = bstone::ModValue<bool>;
-	using IntModValue = bstone::ModValue<int>;
-	using FilterModValue = bstone::ModValue<bstone::RendererFilterKind>;
-	using AaKindModValue = bstone::ModValue<bstone::RendererAaKind>;
-	using RendererKindModValue = bstone::ModValue<bstone::RendererKind>;
-	using UpscaleKindModValue = bstone::ModValue<bstone::HwTextureManagerUpscaleFilterKind>;
+	bstone::RendererKind renderer_kind_;
 
+	bool is_windowed_;
+	bool is_positioned_;
+	bool is_vsync_;
 
-	RendererKindModValue renderer_kind_;
+	bool is_ui_stretched_;
+	bool is_widescreen_;
 
-	BoolModValue is_windowed_;
-	BoolModValue is_positioned_;
-	IntModValue x_;
-	IntModValue y_;
-	IntModValue width_;
-	IntModValue height_;
-	BoolModValue is_vsync_;
+	int windowed_x_;
+	int windowed_y_;
+	int windowed_width_;
+	int windowed_height_;
 
-	BoolModValue is_ui_stretched_;
-	BoolModValue is_widescreen_;
+	bstone::Ren3dFilterKind d2_texture_filter_;
 
-	FilterModValue hw_2d_texture_filter_;
+	bstone::Ren3dFilterKind d3_texture_image_filter_;
+	bstone::Ren3dFilterKind d3_texture_mipmap_filter_;
 
-	FilterModValue hw_3d_texture_image_filter_;
-	FilterModValue hw_3d_texture_mipmap_filter_;
+	int d3_texture_anisotropy_;
 
-	IntModValue hw_3d_texture_anisotropy_;
+	bstone::Ren3dAaKind aa_kind_;
+	int aa_degree_;
 
-	AaKindModValue hw_aa_kind_;
-	IntModValue hw_aa_value_;
-
-	UpscaleKindModValue hw_upscale_kind_;
-	IntModValue hw_upscale_xbrz_factor_;
+	bstone::HwTextureMgrUpscaleFilterKind texture_upscale_kind_;
+	int texture_upscale_xbrz_degree_;
 }; // VidCfg
 
 struct VideoModeCfg
 {
 	bstone::RendererKind renderer_kind_;
 	bool is_windowed_;
-	int width_;
-	int height_;
+	int windowed_width_;
+	int windowed_height_;
 	bool is_vsync_;
-	bstone::RendererAaKind aa_kind_;
-	int aa_factor_;
+	bstone::Ren3dAaKind aa_kind_;
+	int aa_degree_;
 }; // VideoModeCfg
 
 bool operator==(
@@ -114,6 +109,9 @@ bool operator!=(
 extern bool vid_is_hw_;
 
 extern std::uint8_t* vga_memory;
+
+constexpr auto vid_upscale_min_degree = 2;
+constexpr auto vid_upscale_max_degree = 6;
 
 
 // ===========================================================================
@@ -131,7 +129,7 @@ extern int bufferofs; // all drawing is reletive to this
 extern bool screenfaded;
 
 // BBi
-const int vga_ref_size = 256 * 1024;
+const int vga_ref_size = 256 * 1'024;
 const int vga_plane_count = 4;
 const int vga_plane_width = vga_ref_width / 4;
 const int vga_plane_height = vga_ref_height + 8;
@@ -275,17 +273,17 @@ void vid_cfg_set_defaults();
 
 VidCfg& vid_cfg_get();
 
-bool vid_cfg_file_parse_key_value(
+bool vid_cfg_parse_key_value(
 	const std::string& key_string,
 	const std::string& value_string);
 
-void vid_cfg_file_write(
+void vid_cfg_write(
 	bstone::TextWriter& text_writer);
 
 
 using VidRendererKinds = std::vector<bstone::RendererKind>;
 
-const VidRendererKinds& vid_renderer_kinds_get_available();
+const VidRendererKinds& vid_get_available_renderer_kinds();
 
 
 struct VidWindowSize
@@ -293,13 +291,13 @@ struct VidWindowSize
 	bool is_current_;
 	bool is_custom_;
 
-	int width_;
-	int height_;
+	int windowed_width_;
+	int windowed_height_;
 }; // VidWindowSize
 
 using VidWindowSizes = std::vector<VidWindowSize>;
 
-const VidWindowSizes& vid_window_size_get_list();
+const VidWindowSizes& vid_get_window_size_list();
 
 
 void VL_RefreshScreen();
@@ -350,15 +348,15 @@ void vid_draw_ui_sprite(
 	const int center_y,
 	const int new_side);
 
-void vid_hw_on_level_load();
+void vid_hw_on_load_level();
 
-void vid_hw_on_wall_switch_update(
+void vid_hw_on_update_wall_switch(
 	const int x,
 	const int y);
 
-void vid_hw_on_pushwall_move();
+void vid_hw_on_move_pushwall();
 
-void vid_hw_on_pushwall_step(
+void vid_hw_on_step_pushwall(
 	const int old_x,
 	const int old_y);
 
@@ -368,81 +366,78 @@ void vid_hw_on_pushwall_to_wall(
 	const int new_x,
 	const int new_y);
 
-void vid_hw_on_door_move(
+void vid_hw_on_move_door(
 	const int door_index);
 
-void vid_hw_on_door_lock_update(
+void vid_hw_on_update_door_lock(
 	const int door_index);
 
-void vid_hw_on_static_remove(
+void vid_hw_on_remove_static(
 	const statobj_t& bs_static);
 
-void vid_hw_on_static_change_texture(
-	const statobj_t& bs_static);
-
-void vid_hw_on_actor_remove(
+void vid_hw_on_remove_actor(
 	const objtype& bs_actor);
 
 
-void vid_hw_fizzle_fx_set_is_enabled(
+void vid_hw_enable_fizzle_fx(
 	const bool is_enabled);
 
-void vid_hw_fizzle_fx_set_is_fading(
+void vid_hw_enable_fizzle_fx_fading(
 	const bool is_fading);
 
-void vid_hw_fizzle_fx_set_color_index(
+void vid_hw_set_fizzle_fx_color_index(
 	const int color_index);
 
-void vid_hw_fizzle_fx_set_ratio(
+void vid_hw_set_fizzle_fx_ratio(
 	const float ratio);
 
 
-void vid_hw_walls_clear_render_list();
+void vid_hw_clear_wall_render_list();
 
-void vid_hw_walls_add_render_item(
+void vid_hw_add_wall_render_item(
 	const int tile_x,
 	const int tile_y);
 
 
-void vid_hw_pushwalls_clear_render_list();
+void vid_hw_clear_pushwall_render_list();
 
-void vid_hw_pushwalls_add_render_item(
+void vid_hw_add_pushwall_render_item(
 	const int tile_x,
 	const int tile_y);
 
 
-void vid_hw_doors_clear_render_list();
+void vid_hw_clear_door_render_list();
 
-void vid_hw_doors_add_render_item(
+void vid_hw_add_door_render_item(
 	const int tile_x,
 	const int tile_y);
 
 
-void vid_hw_statics_clear_render_list();
+void vid_hw_clear_static_render_list();
 
-void vid_hw_statics_add_render_item(
+void vid_hw_add_static_render_item(
 	const int bs_static_index);
 
 
-void vid_hw_actors_clear_render_list();
+void vid_hw_clear_actor_render_list();
 
-void vid_hw_actors_add_render_item(
+void vid_hw_add_actor_render_item(
 	const int bs_actor_index);
 
-const bstone::R8g8b8a8Palette& vid_hw_get_default_palette();
+const bstone::Rgba8Palette& vid_hw_get_default_palette();
 
-void vid_video_mode_apply(
+void vid_apply_video_mode(
 	const VideoModeCfg& video_mode_cfg);
 
-void vid_texturing_apply_anisotropy();
+void vid_apply_anisotropy();
 
-void vid_texturing_apply_2d_image_filter();
+void vid_apply_2d_image_filter();
 
-void vid_texturing_apply_3d_image_filter();
+void vid_apply_3d_image_filter();
 
-void vid_texturing_apply_3d_mipmap_filter();
+void vid_apply_mipmap_filter();
 
-void vid_texturing_apply_upscale();
+void vid_apply_upscale();
 
 
 #endif // BSTONE_ID_VL_INCLUDED

@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -32,7 +32,7 @@ Free Software Foundation, Inc.,
 
 
 #include <array>
-#include "bstone_rgb_color_model.h"
+#include "bstone_rgb8.h"
 
 
 namespace bstone
@@ -48,9 +48,9 @@ struct RgbPalette
 }; // RgbPalette
 
 
-using R8g8b8a8Palette = std::array<R8g8b8a8, RgbPalette::get_max_color_count()>;
-using R8g8b8a8PalettePtr = R8g8b8a8Palette*;
-using R8g8b8a8PaletteCPtr = const R8g8b8a8Palette*;
+using Rgba8Palette = std::array<Rgba8, RgbPalette::get_max_color_count()>;
+using Rgba8PalettePtr = Rgba8Palette*;
+using Rgba8PaletteCPtr = const Rgba8Palette*;
 
 
 } // bstone

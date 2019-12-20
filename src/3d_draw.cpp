@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -688,7 +688,7 @@ void HitVertWall()
 		postsource = &last_texture_data[last_texture_offset];
 	}
 
-	::vid_hw_walls_add_render_item(::xtile, ::ytile);
+	::vid_hw_add_wall_render_item(::xtile, ::ytile);
 }
 
 /*
@@ -768,7 +768,7 @@ void HitHorizWall()
 		postsource = &last_texture_data[last_texture_offset];
 	}
 
-	::vid_hw_walls_add_render_item(::xtile, ::ytile);
+	::vid_hw_add_wall_render_item(::xtile, ::ytile);
 }
 
 void HitHorizDoor()
@@ -903,7 +903,7 @@ void HitHorizDoor()
 	}
 
 	const auto& bs_door = ::doorobjlist[door_index];
-	::vid_hw_doors_add_render_item(bs_door.tilex, bs_door.tiley);
+	::vid_hw_add_door_render_item(bs_door.tilex, bs_door.tiley);
 }
 
 void HitVertDoor()
@@ -1038,7 +1038,7 @@ void HitVertDoor()
 	}
 
 	const auto& bs_door = ::doorobjlist[door_index];
-	::vid_hw_doors_add_render_item(bs_door.tilex, bs_door.tiley);
+	::vid_hw_add_door_render_item(bs_door.tilex, bs_door.tiley);
 }
 
 /*
@@ -1096,7 +1096,7 @@ void HitHorizPWall()
 		postsource = &last_texture_data[last_texture_offset];
 	}
 
-	::vid_hw_pushwalls_add_render_item(::pwallx, ::pwally);
+	::vid_hw_add_pushwall_render_item(::pwallx, ::pwally);
 }
 
 /*
@@ -1154,7 +1154,7 @@ void HitVertPWall()
 		postsource = &last_texture_data[last_texture_offset];
 	}
 
-	::vid_hw_pushwalls_add_render_item(::pwallx, ::pwally);
+	::vid_hw_add_pushwall_render_item(::pwallx, ::pwally);
 }
 
 /*
@@ -1286,7 +1286,7 @@ void hw_draw_sprites()
 	// place static objects
 	//
 
-	::vid_hw_statics_clear_render_list();
+	::vid_hw_clear_static_render_list();
 
 	for (auto statptr = ::statobjlist; statptr != ::laststatobj; ++statptr)
 	{
@@ -1311,7 +1311,7 @@ void hw_draw_sprites()
 		}
 
 		const auto bs_static_index = static_cast<int>(statptr - ::statobjlist);
-		::vid_hw_statics_add_render_item(bs_static_index);
+		::vid_hw_add_static_render_item(bs_static_index);
 	}
 
 
@@ -1319,7 +1319,7 @@ void hw_draw_sprites()
 	// place active objects
 	//
 
-	::vid_hw_actors_clear_render_list();
+	::vid_hw_clear_actor_render_list();
 
 	const auto& assets_info = AssetsInfo{};
 
@@ -1391,7 +1391,7 @@ void hw_draw_sprites()
 		}
 
 		const auto bs_actor_index = static_cast<int>(obj - ::objlist);
-		::vid_hw_actors_add_render_item(bs_actor_index);
+		::vid_hw_add_actor_render_item(bs_actor_index);
 	}
 
 	::cloaked_shape = false;
@@ -2340,15 +2340,7 @@ void door_get_page_numbers_for_caching(
 		break;
 
 	default:
-		horizontal_locked_page_number = 0;
-		horizontal_unlocked_page_number = 0;
-
-		vertical_locked_page_number = 0;
-		vertical_unlocked_page_number = 0;
-
 		::Quit("Invalid door type.");
-
-		break;
 	}
 }
 

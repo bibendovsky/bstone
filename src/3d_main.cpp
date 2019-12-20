@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -49,7 +49,7 @@ Free Software Foundation, Inc.,
 #include "bstone_string_helper.h"
 #include "bstone_text_reader.h"
 #include "bstone_text_writer.h"
-#include "bstone_renderer_manager.h"
+#include "bstone_ren_3d_mgr.h"
 #include "bstone_version.h"
 
 #ifdef __vita__
@@ -64,7 +64,7 @@ int _newlib_heap_size_user = 192 * 1024 * 1024;
 
 QuitException::QuitException()
 	:
-	Exception{}
+	Exception{""}
 {
 }
 
@@ -76,13 +76,11 @@ QuitException::QuitException(
 }
 
 QuitException::QuitException(
-	std::string&& message)
+	const std::string& message)
 	:
-	Exception{std::move(message)}
+	Exception{message}
 {
 }
-
-QuitException::~QuitException() = default;
 
 //
 // QuitException
@@ -7565,7 +7563,7 @@ void read_text_config()
 
 				if (parse_config_line(line, key_string, index0, index1, value_string))
 				{
-					if (::vid_cfg_file_parse_key_value(key_string, value_string))
+					if (::vid_cfg_parse_key_value(key_string, value_string))
 					{
 					}
 					else if (key_string == snd_is_sfx_enabled_name)
@@ -7902,7 +7900,7 @@ void write_text_config()
 	writer.write("// WARNING! This is auto-generated file.\n");
 	writer.write("\n");
 
-	::vid_cfg_file_write(writer);
+	::vid_cfg_write(writer);
 
 	writer.write("\n// Audio\n");
 	write_config_entry(writer, snd_is_sfx_enabled_name, ::sd_is_sound_enabled_);
@@ -8163,7 +8161,7 @@ bool LoadLevel(
 	if ((::FindChunk(&g_playtemp, chunk_name) == 0) || ForceLoadDefault)
 	{
 		::SetupGameLevel();
-		::vid_hw_on_level_load();
+		::vid_hw_on_load_level();
 
 		gamestate.turn_around = 0;
 
@@ -8459,7 +8457,7 @@ bool LoadLevel(
 		}
 
 		::apply_cross_barriers();
-		::vid_hw_on_level_load();
+		::vid_hw_on_load_level();
 	}
 	else
 	{
@@ -9648,11 +9646,11 @@ void pre_quit()
 }
 
 [[noreturn]] void Quit(
-	std::string&& message)
+	const std::string& message)
 {
 	::pre_quit();
 
-	throw QuitException{std::move(message)};
+	throw QuitException{message};
 }
 
 void DemoLoop()
@@ -9955,7 +9953,7 @@ int main(
 	}
 	catch (const std::exception& ex)
 	{
-		quit_message = ex.what();
+		quit_message = bstone::Exception::get_nested_message(ex);
 	}
 	catch (...)
 	{

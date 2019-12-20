@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -720,7 +720,7 @@ void ExplodeStatics(
 					spot->shapenum = -1;
 					spot->itemnumber = bo_nothing;
 
-					::vid_hw_on_static_remove(*spot);
+					::vid_hw_on_remove_static(*spot);
 				}
 			}
 		}
@@ -935,7 +935,7 @@ void CheckLinkedDoors(
 			doorobjlist[door_index].lock = kt_none;
 			OpenDoor(door_index);
 
-			::vid_hw_on_door_lock_update(door_index);
+			::vid_hw_on_update_door_lock(door_index);
 
 			break;
 
@@ -943,7 +943,7 @@ void CheckLinkedDoors(
 			doorobjlist[door_index].lock = kt_none;
 			CloseDoor(door_index);
 
-			::vid_hw_on_door_lock_update(door_index);
+			::vid_hw_on_update_door_lock(door_index);
 
 			break;
 		}
@@ -1243,7 +1243,7 @@ void OperateDoor(
 			DISPLAY_TIMED_MSG(od_granted, MP_DOOR_OPERATE, MT_GENERAL);
 			doorobjlist[door].lock = kt_none;                           // UnLock door
 
-			::vid_hw_on_door_lock_update(door);
+			::vid_hw_on_update_door_lock(door);
 		}
 	}
 	else
@@ -1280,8 +1280,8 @@ void BlockDoorOpen(
 
 	TransformAreas(doorobjlist[door].tilex, doorobjlist[door].tiley, 1);
 
-	::vid_hw_on_door_move(door);
-	::vid_hw_on_door_lock_update(door);
+	::vid_hw_on_move_door(door);
+	::vid_hw_on_update_door_lock(door);
 }
 
 void TryBlastDoor(
@@ -1527,7 +1527,7 @@ void DoorOpening(
 
 	doorposition[door] = static_cast<std::uint16_t>(position);
 
-	::vid_hw_on_door_move(door);
+	::vid_hw_on_move_door(door);
 }
 
 void DoorClosing(
@@ -1562,7 +1562,7 @@ void DoorClosing(
 
 	doorposition[door] = static_cast<std::uint16_t>(position);
 
-	::vid_hw_on_door_move(door);
+	::vid_hw_on_move_door(door);
 }
 
 /*
@@ -1781,7 +1781,7 @@ void MovePWalls()
 			::pwallstate = 0;
 			::pwallpos = 63;
 
-			::vid_hw_on_pushwall_step(old_x, old_y);
+			::vid_hw_on_step_pushwall(old_x, old_y);
 
 			::vid_hw_on_pushwall_to_wall(
 				old_x,
@@ -1797,7 +1797,7 @@ void MovePWalls()
 			::pwallx += static_cast<std::uint16_t>(next_dx);
 			::pwally += static_cast<std::uint16_t>(next_dy);
 
-			::vid_hw_on_pushwall_step(old_x, old_y);
+			::vid_hw_on_step_pushwall(old_x, old_y);
 
 			const auto next_x = ::pwallx + next_dx;
 			const auto next_y = ::pwally + next_dy;
@@ -1809,7 +1809,7 @@ void MovePWalls()
 				::pwallstate = 0;
 				::pwallpos = 63;
 
-				::vid_hw_on_pushwall_step(old_x, old_y);
+				::vid_hw_on_step_pushwall(old_x, old_y);
 
 				::vid_hw_on_pushwall_to_wall(
 					old_x,
@@ -1830,7 +1830,7 @@ void MovePWalls()
 
 	::pwallpos = (::pwallstate / 2) & 63;
 
-	::vid_hw_on_pushwall_move();
+	::vid_hw_on_move_pushwall();
 }
 
 // ==========================================================================

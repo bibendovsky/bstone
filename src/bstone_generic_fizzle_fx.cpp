@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -84,8 +84,8 @@ void GenericFizzleFX::initialize()
 {
 	if (::vid_is_hw_ && !is_vanilla_only())
 	{
-		::vid_hw_fizzle_fx_set_color_index(impl_->plot_color_);
-		::vid_hw_fizzle_fx_set_is_fading(impl_->is_transparent_);
+		::vid_hw_set_fizzle_fx_color_index(impl_->plot_color_);
+		::vid_hw_enable_fizzle_fx_fading(impl_->is_transparent_);
 
 		return;
 	}
@@ -156,7 +156,7 @@ void GenericFizzleFX::skip_to_the_end()
 {
 	if (::vid_is_hw_ && !is_vanilla_only())
 	{
-		::vid_hw_fizzle_fx_set_ratio(1.0F);
+		::vid_hw_set_fizzle_fx_ratio(1.0F);
 
 		return;
 	}

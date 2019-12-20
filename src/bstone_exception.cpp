@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -35,34 +35,52 @@ namespace bstone
 {
 
 
-Exception::Exception()
-	:
-	std::exception{},
-	message_{}
-{
-}
-
 Exception::Exception(
 	const char* const message)
 	:
-	std::exception{},
-	message_{message}
+	std::runtime_error{message}
 {
 }
 
 Exception::Exception(
-	std::string&& message) noexcept
+	const std::string& message)
 	:
-	std::exception{},
-	message_{std::move(message)}
+	std::runtime_error{message}
 {
 }
 
-Exception::~Exception() = default;
-
-const char* Exception::what() const noexcept
+std::string Exception::get_nested_message(
+	const std::exception& exception)
 {
-	return message_.c_str();
+	constexpr auto reserve_size = std::string::size_type{1024};
+
+	auto message = std::string{};
+	message.reserve(reserve_size);
+
+	get_nested_message(exception, message);
+
+	return message;
+}
+
+void Exception::get_nested_message(
+	const std::exception& exception,
+	std::string& message)
+{
+	if (!message.empty())
+	{
+		message += '\n';
+	}
+
+	message += exception.what();
+
+	try
+	{
+		std::rethrow_if_nested(exception);
+	}
+	catch (const std::exception& nex)
+	{
+		get_nested_message(nex, message);
+	}
 }
 
 

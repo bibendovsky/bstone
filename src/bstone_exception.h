@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -31,7 +31,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_EXCEPTION_INCLUDED
 
 
-#include <exception>
+#include <stdexcept>
 #include <string>
 
 
@@ -40,24 +40,24 @@ namespace bstone
 
 
 class Exception :
-	public std::exception
+	public std::runtime_error
 {
 public:
-	Exception();
-
 	explicit Exception(
 		const char* const message);
 
 	explicit Exception(
-		std::string&& message) noexcept;
+		const std::string& message);
 
-	virtual ~Exception();
 
-	const char* what() const noexcept override;
+	static std::string get_nested_message(
+		const std::exception& exception);
 
 
 private:
-	std::string message_;
+	static void get_nested_message(
+		const std::exception& exception,
+		std::string& message);
 }; // Exception
 
 

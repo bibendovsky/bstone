@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -2586,7 +2586,7 @@ void ActivateWallSwitch(
 
 		// BBi
 		::set_cross_barrier_state(num);
-		::vid_hw_on_wall_switch_update(x, y);
+		::vid_hw_on_update_wall_switch(x, y);
 		// BBi
 
 		::DisplaySwitchOperateMsg(num);
@@ -2608,7 +2608,7 @@ void ActivateWallSwitch(
 						*tile = static_cast<std::uint8_t>(newwall);
 						*actor = newwall;
 
-						::vid_hw_on_wall_switch_update(mapx, mapy);
+						::vid_hw_on_update_wall_switch(mapx, mapy);
 					}
 				}
 

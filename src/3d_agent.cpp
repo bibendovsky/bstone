@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -2666,11 +2666,7 @@ void GetBonus(
 
 	if (check->shapenum == -1)
 	{
-		::vid_hw_on_static_remove(*check);
-	}
-	else
-	{
-		::vid_hw_on_static_change_texture(*check);
+		::vid_hw_on_remove_static(*check);
 	}
 }
 
@@ -5371,7 +5367,7 @@ void SW_HandleStatic(
 		stat->shapenum = -1;
 		stat->itemnumber = bo_nothing;
 
-		::vid_hw_on_static_remove(*stat);
+		::vid_hw_on_remove_static(*stat);
 
 		break;
 	}
@@ -5500,7 +5496,7 @@ bool OperateSmartSwitch(
 		doorobjlist[DoorNum].lock = kt_none;
 		OpenDoor(DoorNum);
 
-		::vid_hw_on_door_lock_update(DoorNum);
+		::vid_hw_on_update_door_lock(DoorNum);
 
 		return false;
 
