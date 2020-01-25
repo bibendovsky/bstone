@@ -1417,7 +1417,6 @@ void in_handle_events()
 
 		case SDL_QUIT:
 			::Quit();
-			break;
 		}
 	}
 }

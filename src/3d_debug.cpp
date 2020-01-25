@@ -480,8 +480,6 @@ bool DebugKeys()
 		//
 
 		::Quit();
-
-		return true;
 	}
 	else if (::Keyboard[ScanCode::sc_o])
 	{

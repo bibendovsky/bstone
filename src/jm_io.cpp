@@ -74,11 +74,9 @@ int IO_LoadFile(
 
 		case ct_LZW:
 			::Quit("No code for LZW compression.");
-			break;
 
 		default:
 			::Quit("Unknown compression type.");
-			break;
 		}
 	}
 	else

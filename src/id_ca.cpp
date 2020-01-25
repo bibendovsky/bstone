@@ -1562,8 +1562,38 @@ bool AssetsInfo::is_secret_level(
 	else
 	{
 		::Quit("No assets information.");
+	}
+}
 
-		return false;
+int AssetsInfo::secret_floor_get_index(
+	const int level_number) const
+{
+	if (is_aog())
+	{
+		if (level_number <= 0)
+		{
+			return 0;
+		}
+
+		if (level_number >= 10)
+		{
+			return level_number - 10 + 1;
+		}
+
+		return -1;
+	}
+	else if (is_ps())
+	{
+		if (level_number >= 20)
+		{
+			return level_number - 20;
+		}
+
+		return -1;
+	}
+	else
+	{
+		Quit("No assets information.");
 	}
 }
 

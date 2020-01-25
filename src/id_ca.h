@@ -171,6 +171,9 @@ public:
 	bool is_secret_level(
 		const int level_number) const;
 
+	int secret_floor_get_index(
+		const int level_number) const;
+
 
 private:
 	static std::string empty_extension_;
