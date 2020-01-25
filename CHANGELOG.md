@@ -1,5 +1,14 @@
 # BStone changelog
 
+
+## [1.1.15] - 2020-01-25
+### Changed
+- Number secret floor (by bibendovsky).
+
+### Fixed
+- Destination position for inter-floor teleporter (by bibendovsky).
+
+
 ## [1.1.14] - 2019-11-09
 ### Added
 - [Vita] Version 0.3 (by 01y).
