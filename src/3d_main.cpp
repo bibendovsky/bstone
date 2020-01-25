@@ -10470,7 +10470,7 @@ const std::string& get_version_string()
 #ifdef __vita__
 	static const std::string version = "0.3";
 #else
-	static const std::string version = "1.1.14";
+	static const std::string version = "1.1.15";
 #endif
 	return version;
 }
