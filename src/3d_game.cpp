@@ -2997,12 +2997,16 @@ void ShadowPrintLocationText(
 		}
 		else
 		{
-			::px = 13;
+			::px = 16;
 		}
 
 		if (assets_info.is_secret_level(::gamestate.mapon))
 		{
-			::ShPrint(" SECRET ", 0, false);
+			const auto secret_floor_index = assets_info.secret_floor_get_index(gamestate.mapon);
+			const auto index_string = std::to_string(secret_floor_index + 1);
+			const auto message = "SECRET " + index_string;
+
+			ShPrint(message.c_str(), 0, false);
 		}
 		else
 		{

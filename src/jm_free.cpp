@@ -1117,7 +1117,6 @@ void freed_main()
 	{
 		bstone::Log::write_version();
 		::Quit();
-		return;
 	}
 
 	// Setup for APOGEECD thingie.
@@ -1134,7 +1133,6 @@ void freed_main()
 	{
 		::ca_dump_hashes();
 		::Quit();
-		return;
 	}
 
 	// Make sure there's room to play the game

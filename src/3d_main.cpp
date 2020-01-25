@@ -9546,11 +9546,13 @@ void pre_quit()
 	::ShutdownId();
 }
 
+[[noreturn]]
 void Quit()
 {
 	::Quit({});
 }
 
+[[noreturn]]
 void Quit(
 	const std::string& message)
 {
