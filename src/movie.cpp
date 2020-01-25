@@ -504,7 +504,6 @@ void Movie::handle_page(
 
 	default:
 		::Quit("Unrecognized anim code.");
-		break;
 	}
 }
 

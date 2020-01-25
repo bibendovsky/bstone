@@ -8283,6 +8283,48 @@ int NextChunk(
 std::int8_t LS_current = -1;
 std::int8_t LS_total = -1;
 
+void player_fix_transported_position()
+{
+	if (playstate != ex_transported)
+	{
+		return;
+	}
+
+	if (gamestuff.level[gamestate.mapon].ptilex == 0 ||
+		gamestuff.level[gamestate.mapon].ptiley == 0)
+	{
+		return;
+	}
+
+	const auto tile_x = gamestuff.level[gamestate.mapon].ptilex;
+	const auto tile_y = gamestuff.level[gamestate.mapon].ptiley;
+	auto dir = 1 + (gamestuff.level[gamestate.mapon].pangle / 90);
+
+	const auto& assets_info = AssetsInfo{};
+
+	if (assets_info.is_aog())
+	{
+		dir -= 1;
+	}
+
+	player->tilex = static_cast<std::uint8_t>(tile_x);
+	player->tiley = static_cast<std::uint8_t>(tile_y);
+
+	player->areanumber = GetAreaNumber(player->tilex, player->tiley);
+
+	player->x = (static_cast<std::int32_t>(tile_x) << TILESHIFT) + (TILEGLOBAL / 2);
+	player->y = (static_cast<std::int32_t>(tile_y) << TILESHIFT) + (TILEGLOBAL / 2);
+
+	player->angle = (1 - dir) * 90;
+
+	if (player->angle < 0)
+	{
+		player->angle += ANGLES;
+	}
+
+	areabyplayer[player->areanumber] = true;
+}
+
 bool LoadLevel(
 	int level_index)
 {
@@ -8389,6 +8431,8 @@ bool LoadLevel(
 
 		// First actor is always player
 		new_actor->unarchive(archiver);
+
+		player_fix_transported_position();
 
 		for (std::int32_t i = 1; i < actor_count; ++i)
 		{
@@ -9546,11 +9590,13 @@ void pre_quit()
 	::ShutdownId();
 }
 
+[[noreturn]]
 void Quit()
 {
 	::Quit({});
 }
 
+[[noreturn]]
 void Quit(
 	const std::string& message)
 {
@@ -10470,7 +10516,7 @@ const std::string& get_version_string()
 #ifdef __vita__
 	static const std::string version = "0.3";
 #else
-	static const std::string version = "1.1.14";
+	static const std::string version = "1.1.15";
 #endif
 	return version;
 }

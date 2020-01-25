@@ -25,6 +25,7 @@ Free Software Foundation, Inc.,
 #include "bstone_string_helper.h"
 
 
+[[noreturn]]
 void Quit(
 	const std::string& message);
 
@@ -129,8 +130,6 @@ std::string StringHelper::octet_to_hex_string(
 	if (octet < 0 || octet > 0xFF)
 	{
 		::Quit("Octet value out of range: " + std::to_string(octet) + ".");
-
-		return {};
 	}
 
 	const auto high_nibble = (octet >> 4) & 0xF;
