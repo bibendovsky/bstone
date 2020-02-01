@@ -1,6 +1,11 @@
 # BStone changelog
 
 
+## [1.1.16] - 2020-02-01
+### Fixed
+- Removed some checks on barriers (by bibendovsky).
+
+
 ## [1.1.15] - 2020-01-25
 ### Changed
 - Number secret floor (by bibendovsky).
