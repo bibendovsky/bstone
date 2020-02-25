@@ -33,7 +33,7 @@ Required variables:
                        Leave empty to search automatically.
 
 Targets:
-    - SDL2W
+    - SDL2W::SDL2W
 
 ]]
 
@@ -54,21 +54,21 @@ unset(SDL2W_TMP_FOUND_TARGETS)
 unset(SDL2W_TMP_FOUND_VC_DEV)
 
 if (SDL2_FOUND)
-	message(STATUS "SDL2W: Found config.")
+	message(STATUS "[SDL2W] Found config.")
 
 	set(SDL2W_TMP_FOUND_CONFIG TRUE)
 
 	if (TARGET SDL2::SDL2main AND (TARGET SDL2::SDL2 OR TARGET SDL2::SDL2-static))
-		message(STATUS "SDL2W: Found targets.")
+		message(STATUS "[SDL2W] Found targets.")
 
 		set(SDL2W_TMP_FOUND_TARGETS TRUE)
 	elseif (SDL2_INCLUDE_DIRS AND SDL2_LIBRARIES)
-		message(STATUS "SDL2W: Found config variables.")
+		message(STATUS "[SDL2W] Found config variables.")
 	else ()
-		message(FATAL_ERROR "SDL2W: Supported config not found.")
+		message(FATAL_ERROR "[SDL2W] Supported config not found.")
 	endif ()
 else ()
-	message(STATUS "SDL2W: Config not found.")
+	message(STATUS "[SDL2W] Config not found.")
 endif ()
 
 #
@@ -82,7 +82,7 @@ if (WIN32 AND NOT MINGW AND NOT SDL2W_TMP_FOUND_CONFIG AND SDL2W_SDL2_DIR)
 	elseif (CMAKE_SIZEOF_VOID_P EQUAL 4)
 		set(SDL2W_TMP_ARCH_NAME x86)
 	else ()
-		message(FATAL_ERROR "SDL2W: Unsupported CPU architecture.")
+		message(FATAL_ERROR "[SDL2W] Unsupported CPU architecture.")
 	endif ()
 
 	if (SDL2W_TMP_ARCH_NAME)
@@ -94,7 +94,7 @@ if (WIN32 AND NOT MINGW AND NOT SDL2W_TMP_FOUND_CONFIG AND SDL2W_SDL2_DIR)
 		set(SDL2W_TMP_SDL2MAIN_LIB ${SDL2W_TMP_SDL2_LIBRARIES_DIR}/SDL2main.lib)
 
 		if (EXISTS ${SDL2W_TMP_SDL_H} AND EXISTS ${SDL2W_TMP_SDL2_LIB} AND EXISTS ${SDL2W_TMP_SDL2MAIN_LIB})
-			message(STATUS "SDL2W: Found official development build for Visual C++.")
+			message(STATUS "[SDL2W] Found official development build for Visual C++.")
 
 			set(SDL2W_TMP_FOUND_VC_DEV TRUE)
 			set(SDL2_INCLUDE_DIRS ${SDL2W_TMP_SDL2_INCLUDE_DIR})
@@ -232,7 +232,7 @@ if (SDL2_FOUND OR SDL2W_TMP_FOUND_VC_DEV)
 				SDL2W_TMP_PATCH_VERSION MATCHES ${SDL2W_TMP_DIGIT_REGEX}
 				)
 				if (NOT ${SDL2W_TMP_MAJOR_VERSION} EQUAL 2)
-					message(FATAL_ERROR "SDL2W: Unsupported major version (got: ${SDL2W_TMP_MAJOR_VERSION}; expected: 2).")
+					message(FATAL_ERROR "[SDL2W] Unsupported major version (got: ${SDL2W_TMP_MAJOR_VERSION}; expected: 2).")
 				endif ()
 
 				set(
@@ -243,7 +243,7 @@ if (SDL2_FOUND OR SDL2W_TMP_FOUND_VC_DEV)
 		endif ()
 	endif ()
 
-	message(STATUS "SDL2W: Found version: ${SDL2W_TMP_VERSION_STRING}")
+	message(STATUS "[SDL2W] Found version: ${SDL2W_TMP_VERSION_STRING}")
 
 	# Default handler.
 	#
@@ -269,6 +269,7 @@ if (SDL2_FOUND OR SDL2W_TMP_FOUND_VC_DEV)
 	#
 	if (NOT TARGET ${CMAKE_FIND_PACKAGE_NAME})
 		add_library(${CMAKE_FIND_PACKAGE_NAME} INTERFACE)
+		add_library(${CMAKE_FIND_PACKAGE_NAME}::${CMAKE_FIND_PACKAGE_NAME} ALIAS ${CMAKE_FIND_PACKAGE_NAME})
 
 		if (NOT SDL2W_TMP_FOUND_TARGETS)
 			target_include_directories(
@@ -321,6 +322,6 @@ if (SDL2_FOUND OR SDL2W_TMP_FOUND_VC_DEV)
 	endif ()
 else ()
 	if (${CMAKE_FIND_PACKAGE_NAME}_FIND_REQUIRED)
-		message(FATAL_ERROR "SDL2W: SDL2 not found.")
+		message(FATAL_ERROR "[SDL2W] SDL2 not found.")
 	endif ()
 endif ()

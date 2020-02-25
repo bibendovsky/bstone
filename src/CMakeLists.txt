@@ -14,7 +14,7 @@ else ()
 	set(BSTONE_VERSION "${BSTONE_VERSION_CORE}-${BSTONE_VERSION_PRE_RELEASE}")
 endif ()
 
-message(STATUS "${PROJECT_NAME} v${BSTONE_VERSION}")
+message(STATUS "[${PROJECT_NAME}] v${BSTONE_VERSION}")
 
 
 #
@@ -174,7 +174,7 @@ endif ()
 target_link_libraries(
 	${PROJECT_NAME}
 	PRIVATE
-		SDL2W
+		SDL2W::SDL2W
 		Threads::Threads
 )
 
