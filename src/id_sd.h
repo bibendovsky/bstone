@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -77,32 +77,40 @@ struct MusicGroup
 
 
 // Global variables
-extern bool sd_has_audio;
-extern bool sd_is_sound_enabled;
-extern bool sd_is_music_enabled;
-extern std::int16_t DigiMap[];
-extern std::atomic<std::uint32_t> TimeCount; // Global time in ticks
 
-extern bool sqActive;
-extern bool sqPlayedOnce;
+extern bool sd_has_audio_;
+extern bool sd_is_sound_enabled_;
+extern bool sd_is_music_enabled_;
+extern std::int16_t sd_digi_map_[];
+
+extern bool sd_sq_active_;
+extern bool sd_sq_played_once_;
+
 
 // Function prototypes
-void SD_Startup();
-void SD_Shutdown();
-void SD_StopSound();
-void SD_WaitSoundDone();
-void SD_StartMusic(
-	int index);
-void SD_MusicOn();
-void SD_MusicOff();
 
-bool SD_EnableSound(
-	bool enable);
+void sd_startup();
 
-bool SD_EnableMusic(
-	bool enable);
+void sd_shutdown();
 
-bool SD_SoundPlaying();
+void sd_stop_sound();
+
+void sd_wait_sound_done();
+
+void sd_start_music(
+	const int index);
+
+void sd_music_on();
+
+void sd_music_off();
+
+bool sd_enable_sound(
+	const bool enable);
+
+bool sd_enable_music(
+	const bool enable);
+
+bool sd_sound_playing();
 
 
 // BBi
@@ -111,44 +119,45 @@ const int sd_max_volume = 20;
 const int sd_default_sfx_volume = 10;
 const int sd_default_music_volume = 5;
 
-extern int sd_sfx_volume;
-extern int sd_music_volume;
+extern int sd_sfx_volume_;
+extern int sd_music_volume_;
+
 
 void sd_play_sound(
-	int sound_index,
+	const int sound_index,
 	const void* actor,
-	bstone::ActorType actor_type,
-	bstone::ActorChannel actor_channel);
+	const bstone::ActorType actor_type,
+	const bstone::ActorChannel actor_channel);
 
 void sd_play_actor_sound(
-	int sound_index,
+	const int sound_index,
 	const objtype* actor,
-	bstone::ActorChannel actor_channel);
+	const bstone::ActorChannel actor_channel);
 
 void sd_play_player_sound(
-	int sound_index,
-	bstone::ActorChannel actor_channel);
+	const int sound_index,
+	const bstone::ActorChannel actor_channel);
 
 void sd_play_door_sound(
-	int sound_index,
+	const int sound_index,
 	const doorobj_t* door);
 
 void sd_play_wall_sound(
-	int sound_index);
+	const int sound_index);
 
 void sd_update_positions();
 
 bool sd_is_player_channel_playing(
-	bstone::ActorChannel channel);
+	const bstone::ActorChannel channel);
 
 void sd_set_sfx_volume(
-	int volume);
+	const int volume);
 
 void sd_set_music_volume(
-	int volume);
+	const int volume);
 
 void sd_mute(
-	bool mute);
+	const bool mute);
 // BBi
 
 

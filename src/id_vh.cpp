@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -285,7 +285,7 @@ void LoadLatchMem()
 		const auto width = pictable[i - ::STARTPICS].width;
 		const auto height = pictable[i - ::STARTPICS].height;
 
-		::CA_CacheGrChunk(i);
+		::CA_CacheGrChunk(static_cast<std::int16_t>(i));
 
 		::VL_MemToLatch(
 			static_cast<const std::uint8_t*>(::grsegs[i]),

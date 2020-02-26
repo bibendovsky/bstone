@@ -1,6 +1,21 @@
 # BStone changelog
 
 
+## [1.2.0] - 20??-??-??
+### Added
+- Option "snd_is_disabled" to ignore audio subsystem.
+
+### Removed
+- Option "vid_scale".
+- Vanilla input bindings.
+
+### Changed
+- Renamed option "vid_window_x" to "vid_x".
+- Renamed option "vid_window_y" to "vid_y".
+- Split option "vid_mode" into "vid_width" and "vid_height".
+- Renamed option "vid_no_vsync" to "vid_vsync".
+
+
 ## [1.1.16] - 2020-02-01
 ### Fixed
 - Removed some checks on barriers (by bibendovsky).

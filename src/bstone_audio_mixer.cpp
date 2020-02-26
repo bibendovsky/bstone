@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -37,7 +37,7 @@ Free Software Foundation, Inc.,
 
 const int ATABLEMAX = 15;
 
-extern bool sqPlayedOnce;
+extern bool sd_sq_played_once_;
 extern std::uint8_t lefttable[ATABLEMAX][ATABLEMAX * 2];
 extern std::uint8_t righttable[ATABLEMAX][ATABLEMAX * 2];
 
@@ -62,6 +62,16 @@ public:
 	void uninitialize();
 
 	bool is_initialized() const;
+
+	int get_rate() const;
+
+	int get_channel_count() const;
+
+	int get_mix_size_ms() const;
+
+	float get_sfx_volume() const;
+
+	float get_music_volume() const;
 
 	bool play_adlib_music(
 		const int music_index,
@@ -585,6 +595,31 @@ bool AudioMixer::Impl::is_initialized() const
 	return is_initialized_;
 }
 
+int AudioMixer::Impl::get_rate() const
+{
+	return dst_rate_;
+}
+
+int AudioMixer::Impl::get_channel_count() const
+{
+	return get_max_channels();
+}
+
+int AudioMixer::Impl::get_mix_size_ms() const
+{
+	return mix_size_ms_;
+}
+
+float AudioMixer::Impl::get_sfx_volume() const
+{
+	return sfx_volume_.load(std::memory_order_acquire);
+}
+
+float AudioMixer::Impl::get_music_volume() const
+{
+	return music_volume_.load(std::memory_order_acquire);
+}
+
 bool AudioMixer::Impl::play_adlib_music(
 	const int music_index,
 	const void* const data,
@@ -631,20 +666,20 @@ bool AudioMixer::Impl::update_positions()
 	auto is_player_modified = false;
 
 	{
-		auto& player = positions_.player;
+		auto& the_player = positions_.player;
 
 		is_player_modified =
-			player.view_x != ::viewx ||
-			player.view_y != ::viewy ||
-			player.view_cos != ::viewcos ||
-			player.view_sin != ::viewsin;
+			the_player.view_x != ::viewx ||
+			the_player.view_y != ::viewy ||
+			the_player.view_cos != ::viewcos ||
+			the_player.view_sin != ::viewsin;
 
 		if (is_player_modified)
 		{
-			player.view_x = ::viewx;
-			player.view_y = ::viewy;
-			player.view_cos = ::viewcos;
-			player.view_sin = ::viewsin;
+			the_player.view_x = ::viewx;
+			the_player.view_y = ::viewy;
+			the_player.view_cos = ::viewcos;
+			the_player.view_sin = ::viewsin;
 
 			has_modifications = true;
 		}
@@ -921,7 +956,7 @@ void AudioMixer::Impl::callback(
 	}
 	else
 	{
-		std::uninitialized_fill_n(dst_data, dst_length, 0);
+		std::uninitialized_fill_n(dst_data, dst_length, std::uint8_t{});
 	}
 
 	is_data_available_ = false;
@@ -1037,7 +1072,7 @@ void AudioMixer::Impl::mix_samples()
 			{
 				if (sound_it->type == SoundType::adlib_music)
 				{
-					::sqPlayedOnce = true;
+					::sd_sq_played_once_ = true;
 					sound_it->decode_offset = 0;
 				}
 				else
@@ -1740,6 +1775,31 @@ void AudioMixer::uninitialize()
 bool AudioMixer::is_initialized() const
 {
 	return impl_->is_initialized();
+}
+
+int AudioMixer::get_rate() const
+{
+	return impl_->get_rate();
+}
+
+int AudioMixer::get_channel_count() const
+{
+	return impl_->get_channel_count();
+}
+
+int AudioMixer::get_mix_size_ms() const
+{
+	return impl_->get_mix_size_ms();
+}
+
+float AudioMixer::get_sfx_volume() const
+{
+	return impl_->get_sfx_volume();
+}
+
+float AudioMixer::get_music_volume() const
+{
+	return impl_->get_music_volume();
 }
 
 bool AudioMixer::play_adlib_music(

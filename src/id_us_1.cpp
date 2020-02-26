@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -58,7 +58,7 @@ Free Software Foundation, Inc.,
 #include "id_us.h"
 #include "id_vh.h"
 #include "id_vl.h"
-#include "bstone_log.h"
+#include "bstone_logger.h"
 
 
 #define VW_UpdateScreen() VH_UpdateScreen()
@@ -66,6 +66,9 @@ void VH_UpdateScreen();
 
 
 // Global variables
+
+std::atomic_uint TimeCount; // Global time in ticks
+
 char* abortprogram;
 std::int16_t PrintX;
 std::int16_t PrintY;
@@ -139,7 +142,7 @@ void US_Shutdown()
 	// BBi
 	if (::SDL_RemoveTimer(sys_timer_id) == SDL_FALSE)
 	{
-		bstone::Log::write_warning("Failed to remove a timer.");
+		bstone::logger_->write_warning("Failed to remove a timer.");
 	}
 
 	sys_timer_id = 0;
@@ -335,10 +338,10 @@ void US_DrawWindow(
 	const int w,
 	const int h)
 {
-	::WindowX = x;
-	::WindowY = y;
-	::WindowW = w;
-	::WindowH = h;
+	::WindowX = static_cast<std::int16_t>(x);
+	::WindowY = static_cast<std::int16_t>(y);
+	::WindowW = static_cast<std::int16_t>(w);
+	::WindowH = static_cast<std::int16_t>(h);
 
 	::PrintX = ::WindowX;
 	::PrintY = ::WindowY;

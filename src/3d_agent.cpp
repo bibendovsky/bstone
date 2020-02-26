@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -494,9 +494,7 @@ void CheckWeaponChange()
 void ControlMovement(
 	objtype* ob)
 {
-	bool use_classic_strafe =
-		(in_use_modern_bindings && in_is_binding_pressed(e_bi_strafe)) ||
-		(!in_use_modern_bindings && buttonstate[bt_strafe]);
+	bool use_classic_strafe = in_is_binding_pressed(e_bi_strafe);
 
 	thrustspeed = 0;
 
@@ -530,33 +528,10 @@ void ControlMovement(
 	}
 #else
 	bool use_modern_strafe = false;
+
 	if (use_classic_strafe)
 	{
-		if (in_use_modern_bindings)
-		{
-			use_modern_strafe = true;
-		}
-		else
-		{
-			if (controlx > 0)
-			{
-				int angle = ob->angle - ANGLES / 4;
-				if (angle < 0)
-				{
-					angle += ANGLES;
-				}
-				Thrust(static_cast<std::int16_t>(angle), controlx * MOVESCALE); // move to left
-			}
-			else if (controlx < 0)
-			{
-				int angle = ob->angle + ANGLES / 4;
-				if (angle >= ANGLES)
-				{
-					angle -= ANGLES;
-				}
-				Thrust(static_cast<std::int16_t>(angle), -controlx * MOVESCALE); // move to right
-			}
-		}
+		use_modern_strafe = true;
 	}
 	else if (!gamestate.turn_around)
 	{
@@ -598,7 +573,7 @@ void ControlMovement(
 		anglefrac = anglefrac + controlx;
 		int angleunits = anglefrac / ANGLESCALE;
 		anglefrac -= angleunits * ANGLESCALE;
-		ob->angle -= angleunits;
+		ob->angle -= static_cast<std::int16_t>(angleunits);
 
 		while (ob->angle >= ANGLES)
 		{
@@ -1049,7 +1024,7 @@ void TakeDamage(
 {
 	LastAttacker = attacker;
 
-	if (gamestate.flags & GS_ATTACK_INFOAREA)
+	if (!::gp_hide_attacker_info_)
 	{
 		if (attacker)
 		{
@@ -1166,18 +1141,7 @@ void DrawScoreNum()
 	}
 	else
 	{
-		if (gamestate.flags & GS_TICS_FOR_SCORE)
-		{
-			LatchNumber(X, Y, 7, realtics);
-		}
-		else if (gamestate.flags & GS_MUSIC_TEST)
-		{
-			LatchNumber(X, Y, 7, music_num);
-		}
-		else
-		{
-			LatchNumber(X, Y, 7, gamestate.tic_score);
-		}
+		LatchNumber(X, Y, 7, gamestate.tic_score);
 	}
 }
 
@@ -2430,11 +2394,6 @@ void UpdateStatusBar()
 		DrawHealthNum();
 	}
 
-	if (gamestate.flags & (GS_TICS_FOR_SCORE))
-	{
-		DrawScore();
-	}
-
 	const auto& assets_info = AssetsInfo{};
 
 	if (!assets_info.is_ps())
@@ -2704,6 +2663,11 @@ void GetBonus(
 	StartBonusFlash();
 	check->shapenum = shapenum; // remove from list if shapenum == -1
 	check->itemnumber = bo_nothing;
+
+	if (check->shapenum == -1)
+	{
+		::vid_hw_on_remove_static(*check);
+	}
 }
 
 void writeTokenStr(
@@ -3901,7 +3865,7 @@ std::int16_t InputFloor()
 		const auto MAX_TELEPORTS = 20;
 		const std::int8_t MAX_MOVE_DELAY = 10;
 
-		std::int16_t buttonPic, buttonY;
+		std::int16_t buttonPic = 0, buttonY;
 		std::int16_t rt_code = -2, tpNum = gamestate.mapon, lastTpNum = tpNum;
 		std::int16_t teleX[MAX_TELEPORTS] = {16, 40, 86, 23, 44, 62, 83, 27, 118, 161, 161, 161, 213, 213, 184, 205, 226, 256, 276, 276};
 		std::int16_t teleY[MAX_TELEPORTS] = {13, 26, 9, 50, 50, 50, 50, 62, 42, 17, 26, 35, 41, 50, 62, 62, 62, 10, 10, 30};
@@ -4178,8 +4142,8 @@ void LoadOverheadChunk(
 
 	if (!is_succeed)
 	{
-		std::uninitialized_fill(ov_buffer.begin(), ov_buffer.end(), 0x52);
-		std::uninitialized_fill_n(reinterpret_cast<std::uint8_t*>(&ov_stats), sizeof(statsInfoType), 0);
+		std::uninitialized_fill(ov_buffer.begin(), ov_buffer.end(), VgaBuffer::value_type{0x52});
+		std::uninitialized_fill_n(reinterpret_cast<std::uint8_t*>(&ov_stats), sizeof(statsInfoType), std::uint8_t{});
 	}
 
 	ov_noImage = !is_succeed;
@@ -4372,7 +4336,7 @@ std::uint8_t ShowRatio(
 	if (total)
 	{
 		maxperc = static_cast<std::int8_t>(LRATIO(100, total, perc, 10));
-		numbars = LRATIO(48, 100, maxperc, 10);
+		numbars = static_cast<std::int8_t>(LRATIO(48, 100, maxperc, 10));
 	}
 	else
 	{
@@ -4438,7 +4402,7 @@ std::uint8_t ShowRatio(
 	{
 		::sd_play_player_sound(STATS2SND, bstone::ActorChannel::item);
 
-		while (::SD_SoundPlaying() && LastScan == ScanCode::sc_none)
+		while (::sd_sound_playing() && LastScan == ScanCode::sc_none)
 		{
 			::in_handle_events();
 		}
@@ -4884,7 +4848,7 @@ void GunAttack(
 		damage = ::US_RndT() / 4; // 6
 	}
 
-	::DamageActor(closest, damage, ::player);
+	::DamageActor(closest, static_cast<std::uint16_t>(damage), ::player);
 }
 
 void T_Attack(
@@ -5402,6 +5366,9 @@ void SW_HandleStatic(
 		}
 		stat->shapenum = -1;
 		stat->itemnumber = bo_nothing;
+
+		::vid_hw_on_remove_static(*stat);
+
 		break;
 	}
 }
@@ -5528,6 +5495,9 @@ bool OperateSmartSwitch(
 
 		doorobjlist[DoorNum].lock = kt_none;
 		OpenDoor(DoorNum);
+
+		::vid_hw_on_update_door_lock(DoorNum);
+
 		return false;
 
 
@@ -5731,4 +5701,10 @@ void try_to_grab_bonus_items()
 }
 
 
+}
+
+
+fixed player_get_weapon_bounce_offset()
+{
+	return ::bounceOffset;
 }

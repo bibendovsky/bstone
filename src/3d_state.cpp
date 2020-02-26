@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -28,6 +28,7 @@ Free Software Foundation, Inc.,
 #include "id_heads.h"
 #include "id_sd.h"
 #include "id_us.h"
+#include "id_vl.h"
 
 
 void OpenDoor(
@@ -1017,9 +1018,15 @@ void KillActor(
 	case crate1obj:
 	case crate2obj:
 	case crate3obj:
-		ui16_to_static_object(ob->temp3)->shapenum = -1;
+		{
+			auto bs_static = ::ui16_to_static_object(ob->temp3);
 
-		SpawnStatic(tilex, tiley, ob->temp2);
+			bs_static->shapenum = -1;
+			::vid_hw_on_remove_static(*bs_static);
+
+			static_cast<void>(SpawnStatic(tilex, tiley, ob->temp2));
+		}
+
 		ob->obclass = deadobj;
 		ob->lighting = NO_SHADING; // No Shading
 		::InitSmartSpeedAnim(ob, SPR_GRENADE_EXPLODE2, 0, 3, at_ONCE, ad_FWD, 3 + (US_RndT() & 7));
@@ -2466,6 +2473,12 @@ bool LookForGoodies(
 						statptr->shapenum = shapenum; // remove from list if necessary
 						statptr->itemnumber = bo_nothing;
 						statptr->flags &= ~FL_BONUS;
+
+						if (statptr->shapenum == -1)
+						{
+							::vid_hw_on_remove_static(*statptr);
+						}
+
 						return true;
 					}
 

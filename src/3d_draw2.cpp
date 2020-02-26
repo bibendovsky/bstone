@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -94,7 +94,7 @@ void DrawSpans(
 	auto startxfrac = ::viewx + ::FixedMul(length, pcos);
 	auto startyfrac = ::viewy - ::FixedMul(length, psin);
 
-	if ((::gamestate.flags & GS_LIGHTING) != 0)
+	if (!::gp_no_shading_)
 	{
 		auto i = ::shade_max - ((63 * height) / ::normalshade);
 
@@ -126,7 +126,7 @@ void DrawSpans(
 #else
 	if (::mr_count > 0)
 	{
-		if ((::gamestate.flags & GS_LIGHTING) != 0)
+		if (!::gp_no_shading_)
 		{
 			::MapLSRow();
 		}
@@ -153,7 +153,7 @@ void SetPlaneViewSize()
 
 		if (y > 0)
 		{
-			basedist[y] = GLOBAL1 / 2 * scale / y;
+			basedist[y] = GLOBAL1 / 2 * ::scale_ / y;
 		}
 	}
 
@@ -178,64 +178,76 @@ void SetPlaneViewSize()
 
 void DrawPlanes()
 {
+	if (::vid_is_hw_)
+	{
+		return;
+	}
+
 	if ((::viewheight / 2) != ::halfheight)
 	{
 		::SetPlaneViewSize(); // screen size has changed
 	}
 
-	psin = viewsin;
+	::psin = ::viewsin;
 
-	if (psin < 0)
+	if (::psin < 0)
 	{
-		psin = -(psin & 0xFFFF);
+		::psin = -(::psin & 0xFFFF);
 	}
 
-	pcos = viewcos;
+	::pcos = ::viewcos;
 
-	if (pcos < 0)
+	if (::pcos < 0)
 	{
-		pcos = -(pcos & 0xFFFF);
+		::pcos = -(::pcos & 0xFFFF);
 	}
+
+	auto lastheight_d = static_cast<double>(::halfheight);
 
 	int x = 0;
-	int height = 0;
-	int lastheight = halfheight;
 
-	for (x = 0; x < ::viewwidth; ++x)
+	for ( ; x < ::viewwidth; ++x)
 	{
-		height = wallheight[x] / 8;
+		const auto height_d = ::wallheight[x] / 8.0;
 
-		if (height < lastheight)
-		{ // more starts
+		if (height_d < lastheight_d)
+		{
+			auto height = static_cast<int>(height_d);
+			auto lastheight = static_cast<int>(lastheight_d);
+
+			// more starts
 			do
 			{
-				spanstart[--lastheight] = x;
+				::spanstart[--lastheight] = x;
 			} while (lastheight > height);
-		}
-		else if (height > lastheight)
-		{ // draw spans
-			if (height > halfheight)
-			{
-				height = halfheight;
-			}
 
-			for (; lastheight < height; ++lastheight)
+			lastheight_d = static_cast<double>(lastheight);
+		}
+		else if (height_d > lastheight_d)
+		{
+			const auto height = static_cast<int>(std::min(height_d, static_cast<double>(::halfheight)));
+			auto lastheight = static_cast<int>(lastheight_d);
+
+			// draw spans
+			while (lastheight < height)
 			{
 				if (lastheight > 0)
 				{
-					DrawSpans(spanstart[lastheight], x - 1, lastheight);
+					::DrawSpans(::spanstart[lastheight], x - 1, lastheight);
 				}
+
+				++lastheight;
 			}
+
+			lastheight_d = static_cast<double>(lastheight);
 		}
 	}
 
-	height = halfheight;
-
-	for (; lastheight < height; ++lastheight)
+	for (auto lastheight = static_cast<int>(lastheight_d); lastheight < ::halfheight; ++lastheight)
 	{
 		if (lastheight > 0)
 		{
-			DrawSpans(spanstart[lastheight], x - 1, lastheight);
+			::DrawSpans(::spanstart[lastheight], x - 1, lastheight);
 		}
 	}
 }

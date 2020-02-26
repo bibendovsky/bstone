@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -131,19 +131,6 @@ char prep_msg[] = "^ST1^CEGet Ready, Blake!\r^XX";
 void DisplayPrepingMsg(
 	const char* text)
 {
-	// Bomb out if FILE_ID.DIZ is bad!!
-	//
-	const auto& assets_info = AssetsInfo{};
-
-	if (!assets_info.is_aog_sw())
-	{
-		if (((gamestate.mapon != 1) || (gamestate.episode != 0)) &&
-			(gamestate.flags & GS_BAD_DIZ_FILE))
-		{
-			Quit();
-		}
-	}
-
 	::vid_set_ui_mask_3d(false);
 
 	// Cache-in font
@@ -198,10 +185,7 @@ void PreloadGraphics()
 		::vid_set_ui_mask_3d(false);
 	}
 
-	if (!(gamestate.flags & GS_QUICKRUN))
-	{
-		VW_FadeIn();
-	}
+	VW_FadeIn();
 
 	// BBi No delay
 #if 0

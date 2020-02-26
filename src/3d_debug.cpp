@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -104,7 +104,7 @@ void DebugMemory()
 	::US_Print("\nReal Tics: ");
 	::US_PrintUnsigned(::realtics);
 
-	if ((::gamestate.flags & GS_DRAW_CEILING) != 0)
+	if (!::gp_is_ceiling_solid_)
 	{
 		::US_Print("\n\nCeiling TEX: ");
 		::US_PrintUnsigned(::CeilingTile - START_TEXTURES);
@@ -121,7 +121,7 @@ void DebugMemory()
 		::US_PrintUnsigned(::BottomColor & 0xFF);
 	}
 
-	if ((::gamestate.flags & GS_LIGHTING) != 0)
+	if (!::gp_no_shading_)
 	{
 		::US_Print("\nShade div: ");
 		::US_PrintUnsigned(::normalshade_div);
@@ -602,7 +602,7 @@ bool DebugKeys()
 		// Dec top color
 		//
 
-		if ((::gamestate.flags & GS_DRAW_CEILING) != 0)
+		if (!::gp_is_ceiling_solid_)
 		{
 			::CeilingTile = ::DecRange(::CeilingTile, static_cast<std::uint16_t>(NUM_TILES - 1));
 			::SetPlaneViewSize(); // Init new textures
@@ -620,7 +620,7 @@ bool DebugKeys()
 		// Inc top color
 		//
 
-		if ((::gamestate.flags & GS_DRAW_CEILING) != 0)
+		if (!::gp_is_ceiling_solid_)
 		{
 			::CeilingTile = ::IncRange(::CeilingTile, static_cast<std::uint16_t>(NUM_TILES - 1));
 			::SetPlaneViewSize(); // Init new textures
@@ -638,7 +638,7 @@ bool DebugKeys()
 		// Dec bottom color
 		//
 
-		if ((::gamestate.flags & GS_DRAW_FLOOR) != 0)
+		if (!::gp_is_flooring_solid_)
 		{
 			::FloorTile = ::DecRange(::FloorTile, static_cast<std::uint16_t>(NUM_TILES - 1));
 			::SetPlaneViewSize(); // Init new textures
@@ -656,7 +656,7 @@ bool DebugKeys()
 		// Inc bottom color
 		//
 
-		if ((::gamestate.flags & GS_DRAW_FLOOR) != 0)
+		if (!::gp_is_flooring_solid_)
 		{
 			::FloorTile = ::IncRange(::FloorTile, static_cast<std::uint16_t>(NUM_TILES - 1));
 			::SetPlaneViewSize(); // Init new textures
@@ -670,7 +670,7 @@ bool DebugKeys()
 		}
 	}
 
-	if ((::gamestate.flags & GS_LIGHTING) != 0)
+	if (!::gp_no_shading_)
 	{
 		// Shading adjustments
 		//

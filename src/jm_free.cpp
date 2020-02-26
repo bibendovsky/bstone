@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -31,6 +31,8 @@ Free Software Foundation, Inc.,
 
 
 #include <cmath>
+#include <iostream>
+#include "SDL_messagebox.h"
 #include "audio.h"
 #include "id_ca.h"
 #include "id_heads.h"
@@ -42,10 +44,8 @@ Free Software Foundation, Inc.,
 #include "id_vl.h"
 #include "3d_menu.h"
 #include "gfxv.h"
-#include "bstone_log.h"
-
-
-using namespace std::string_literals;
+#include "bstone_logger.h"
+#include "bstone_version.h"
 
 
 extern SpanStart spanstart;
@@ -95,7 +95,7 @@ void initialize_boss_constants();
 void initialize_messages();
 void initialize_ca_constants();
 
-void SDL_SetupDigi();
+void sd_setup_digi();
 
 
 static std::uint8_t wolfdigimap[] = {
@@ -232,7 +232,7 @@ bool check_for_files(
 
 	for (const auto& base_name : base_names)
 	{
-		if (!::ca_open_resource_non_fatal(::data_dir, base_name, extension, file_stream))
+		if (!::ca_open_resource_non_fatal(::data_dir_, base_name, extension, file_stream))
 		{
 			return false;
 		}
@@ -249,7 +249,7 @@ AssetsBaseNameToHashMap get_assets_hashes(
 
 	for (const auto& base_name : base_names)
 	{
-		const auto& hash = ::ca_calculate_hash(::data_dir, base_name, extension);
+		const auto& hash = ::ca_calculate_hash(::data_dir_, base_name, extension);
 
 		if (hash.empty())
 		{
@@ -336,7 +336,7 @@ bool find_aog_assets(
 		assets_info.set_extension(extension);
 		assets_info.set_base_name_to_hash_map(hashes_v1_0);
 
-		bstone::Log::write("Found \"" + title + "\" v1.0.");
+		bstone::logger_->write("Found \"" + title + "\" v1.0.");
 
 		return true;
 	}
@@ -348,7 +348,7 @@ bool find_aog_assets(
 		assets_info.set_extension(extension);
 		assets_info.set_base_name_to_hash_map(hashes_v2_0);
 
-		bstone::Log::write("Found \"" + title + "\" v2.0.");
+		bstone::logger_->write("Found \"" + title + "\" v2.0.");
 		return true;
 	}
 
@@ -359,7 +359,7 @@ bool find_aog_assets(
 		assets_info.set_extension(extension);
 		assets_info.set_base_name_to_hash_map(hashes_v2_1);
 
-		bstone::Log::write("Found \"" + title + "\" v2.1.");
+		bstone::logger_->write("Found \"" + title + "\" v2.1.");
 
 		return true;
 	}
@@ -371,7 +371,7 @@ bool find_aog_assets(
 		assets_info.set_extension(extension);
 		assets_info.set_base_name_to_hash_map(hashes_v3_0);
 
-		bstone::Log::write("Found \"" + title + "\" v3.0.");
+		bstone::logger_->write("Found \"" + title + "\" v3.0.");
 
 		return true;
 	}
@@ -387,11 +387,11 @@ bool find_aog_assets(
 bool find_aog_full_assets(
 	const bool is_required)
 {
-	const auto& title = "Aliens of Gold (full)"s;
+	const auto& title = std::string{"Aliens of Gold (full)"};
 
 	if (is_required)
 	{
-		bstone::Log::write("Forcing \"" + title + "\"...");
+		bstone::logger_->write("Forcing \"" + title + "\"...");
 	}
 
 	const auto is_found = find_aog_assets(
@@ -414,11 +414,11 @@ bool find_aog_full_assets(
 bool find_aog_sw_assets(
 	const bool is_required)
 {
-	const auto& title = "Aliens of Gold (shareware)"s;
+	const auto& title = std::string{"Aliens of Gold (shareware)"};
 
 	if (is_required)
 	{
-		bstone::Log::write("Forcing \"" + title + "\"...");
+		bstone::logger_->write("Forcing \"" + title + "\"...");
 	}
 
 	const auto is_found = find_aog_assets(
@@ -441,7 +441,7 @@ bool find_aog_sw_assets(
 bool find_ps_assets(
 	const bool is_required)
 {
-	const auto& title = "Planet Strike"s;
+	const auto& title = std::string{"Planet Strike"};
 
 	const auto has_assets = check_for_files(Assets::get_ps_base_names(), Assets::get_ps_extension());
 
@@ -476,7 +476,7 @@ bool find_ps_assets(
 		assets_info.set_extension(Assets::get_ps_extension());
 		assets_info.set_base_name_to_hash_map(Assets::get_ps_base_name_to_hash_map());
 
-		bstone::Log::write("Found \"" + title + "\".");
+		bstone::logger_->write("Found \"" + title + "\".");
 		return true;
 	}
 
@@ -490,15 +490,15 @@ bool find_ps_assets(
 
 void find_ps_assets()
 {
-	bstone::Log::write("Forcing \"Planet Strike\" version...");
+	bstone::logger_->write("Forcing \"Planet Strike\" version...");
 
 	static_cast<void>(find_ps_assets(true));
 }
 
 void find_any_assets()
 {
-	bstone::Log::write();
-	bstone::Log::write("Probing for assets...");
+	bstone::logger_->write();
+	bstone::logger_->write("Probing for assets...");
 
 	auto assets_info = AssetsInfo{};
 
@@ -623,7 +623,7 @@ void SetupWalls()
 
 	for (int i = 1; i < MAXWALLTILES; ++i)
 	{
-		::horizwall[i] = (i - 1) * 2;
+		::horizwall[i] = static_cast<std::int16_t>((i - 1) * 2);
 		::vertwall[i] = ::horizwall[i] + 1;
 	}
 
@@ -655,7 +655,7 @@ void InitDigiMap()
 
 	for (map = reinterpret_cast<char*>(wolfdigimap); *map != LASTSOUND; map += 2)
 	{
-		DigiMap[static_cast<int>(map[0])] = map[1];
+		sd_digi_map_[static_cast<int>(map[0])] = map[1];
 	}
 }
 
@@ -880,147 +880,144 @@ void PreDemo()
 
 	VL_SetPaletteIntensity(0, 255, vgapal, 0);
 
-	if (!(gamestate.flags & GS_NOWAIT))
+	const auto& assets_info = AssetsInfo{};
+
+	if (assets_info.is_aog_full())
 	{
-		const auto& assets_info = AssetsInfo{};
-
-		if (assets_info.is_aog_full())
-		{
-			// ---------------------
-			// Anti-piracy screen
-			// ---------------------
-
-			// Cache pic
-			//
-			CA_CacheScreen(PIRACYPIC);
-
-			// Cache and set palette.  AND  Fade it in!
-			//
-			CA_CacheGrChunk(PIRACYPALETTE);
-			VL_SetPalette(0, 256, static_cast<const std::uint8_t*>(grsegs[PIRACYPALETTE]));
-			VL_SetPaletteIntensity(0, 255, static_cast<const std::uint8_t*>(grsegs[PIRACYPALETTE]), 0);
-			VW_UpdateScreen();
-
-			VL_FadeOut(0, 255, 0, 0, 25, 20);
-			VL_FadeIn(0, 255, static_cast<const std::uint8_t*>(grsegs[PIRACYPALETTE]), 30);
-
-			// Wait a little
-			//
-			IN_UserInput(TickBase * 20);
-
-			// Free palette
-			//
-			UNCACHEGRCHUNK(PIRACYPALETTE);
-
-			VL_FadeOut(0, 255, 0, 0, 25, 20);
-			VW_FadeOut();
-
-			// Cleanup screen for upcoming SetPalette call
-			//
-			::VL_Bar(0, 0, 320, 200, 0);
-		}
-
 		// ---------------------
-		// Apogee presents
+		// Anti-piracy screen
 		// ---------------------
 
 		// Cache pic
 		//
-		CA_CacheScreen(APOGEEPIC);
-
-		// Load and start music
-		//
-		CA_CacheAudioChunk(STARTMUSIC + APOGFNFM_MUS);
-
-		::SD_StartMusic(APOGFNFM_MUS);
+		CA_CacheScreen(PIRACYPIC);
 
 		// Cache and set palette.  AND  Fade it in!
 		//
-		CA_CacheGrChunk(APOGEEPALETTE);
-		VL_SetPalette(0, 256, static_cast<const std::uint8_t*>(grsegs[APOGEEPALETTE]));
-		VL_SetPaletteIntensity(0, 255, static_cast<const std::uint8_t*>(grsegs[APOGEEPALETTE]), 0);
+		CA_CacheGrChunk(PIRACYPALETTE);
+		VL_SetPalette(0, 256, static_cast<const std::uint8_t*>(grsegs[PIRACYPALETTE]));
+		VL_SetPaletteIntensity(0, 255, static_cast<const std::uint8_t*>(grsegs[PIRACYPALETTE]), 0);
 		VW_UpdateScreen();
-		if (assets_info.is_aog())
-		{
-			VL_FadeOut(0, 255, 0, 0, 0, 20);
-		}
-		else
-		{
-			VL_FadeOut(0, 255, 25, 29, 53, 20);
-		}
-		VL_FadeIn(0, 255, static_cast<const std::uint8_t*>(grsegs[APOGEEPALETTE]), 30);
 
-		// Wait for end of fanfare
+		VL_FadeOut(0, 255, 0, 0, 25, 20);
+		VL_FadeIn(0, 255, static_cast<const std::uint8_t*>(grsegs[PIRACYPALETTE]), 30);
+
+		// Wait a little
 		//
-		if (::sd_is_music_enabled)
-		{
-			IN_StartAck();
-			while ((!sqPlayedOnce) && (!IN_CheckAck()))
-			{
-			}
-		}
-		else
-		{
-			IN_UserInput(TickBase * 6);
-		}
+		IN_UserInput(TickBase * 20);
 
-		SD_MusicOff();
-
-		// Free palette and music.  AND  Restore palette
+		// Free palette
 		//
-		UNCACHEGRCHUNK(APOGEEPALETTE);
+		UNCACHEGRCHUNK(PIRACYPALETTE);
 
-		delete[] audiosegs[STARTMUSIC + APOGFNFM_MUS];
-		audiosegs[STARTMUSIC + APOGFNFM_MUS] = nullptr;
-
-		if (assets_info.is_ps())
-		{
-			// Do A Blue Flash!
-			::VL_FadeOut(0, 255, 25, 29, 53, 20);
-		}
-		else
-		{
-			::VL_FadeOut(0, 255, 0, 0, 0, 30);
-		}
-
-		// ---------------------
-		// JAM logo intro
-		// ---------------------
-
-		// Load and start music
-		//
-		CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
-		::SD_StartMusic(TITLE_LOOP_MUSIC);
-
-		// Show JAM logo
-		//
-		if (!::DoMovie(MovieId::intro))
-		{
-			::Quit("JAM animation (IANIM.xxx) does not exist.");
-		}
-
-		// ---------------------
-		// PC-13
-		// ---------------------
-		VL_Bar(0, 0, 320, 200, 0x14);
-		CacheDrawPic(0, 64, PC13PIC);
-		VW_UpdateScreen();
-		VW_FadeIn();
-		IN_UserInput(TickBase * 2);
-
-		// Do A Red Flash!
-
-		if (assets_info.is_aog())
-		{
-			::VL_FadeOut(0, 255, 39, 0, 0, 20);
-		}
-		else
-		{
-			::VL_FadeOut(0, 255, 0, 0, 0, 20);
-		}
-
+		VL_FadeOut(0, 255, 0, 0, 25, 20);
 		VW_FadeOut();
+
+		// Cleanup screen for upcoming SetPalette call
+		//
+		::VL_Bar(0, 0, 320, 200, 0);
 	}
+
+	// ---------------------
+	// Apogee presents
+	// ---------------------
+
+	// Cache pic
+	//
+	CA_CacheScreen(APOGEEPIC);
+
+	// Load and start music
+	//
+	CA_CacheAudioChunk(STARTMUSIC + APOGFNFM_MUS);
+
+	::sd_start_music(APOGFNFM_MUS);
+
+	// Cache and set palette.  AND  Fade it in!
+	//
+	CA_CacheGrChunk(APOGEEPALETTE);
+	VL_SetPalette(0, 256, static_cast<const std::uint8_t*>(grsegs[APOGEEPALETTE]));
+	VL_SetPaletteIntensity(0, 255, static_cast<const std::uint8_t*>(grsegs[APOGEEPALETTE]), 0);
+	VW_UpdateScreen();
+	if (assets_info.is_aog())
+	{
+		VL_FadeOut(0, 255, 0, 0, 0, 20);
+	}
+	else
+	{
+		VL_FadeOut(0, 255, 25, 29, 53, 20);
+	}
+	VL_FadeIn(0, 255, static_cast<const std::uint8_t*>(grsegs[APOGEEPALETTE]), 30);
+
+	// Wait for end of fanfare
+	//
+	if (::sd_is_music_enabled_)
+	{
+		IN_StartAck();
+		while ((!sd_sq_played_once_) && (!IN_CheckAck()))
+		{
+		}
+	}
+	else
+	{
+		IN_UserInput(TickBase * 6);
+	}
+
+	sd_music_off();
+
+	// Free palette and music.  AND  Restore palette
+	//
+	UNCACHEGRCHUNK(APOGEEPALETTE);
+
+	delete[] audiosegs[STARTMUSIC + APOGFNFM_MUS];
+	audiosegs[STARTMUSIC + APOGFNFM_MUS] = nullptr;
+
+	if (assets_info.is_ps())
+	{
+		// Do A Blue Flash!
+		::VL_FadeOut(0, 255, 25, 29, 53, 20);
+	}
+	else
+	{
+		::VL_FadeOut(0, 255, 0, 0, 0, 30);
+	}
+
+	// ---------------------
+	// JAM logo intro
+	// ---------------------
+
+	// Load and start music
+	//
+	CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
+	::sd_start_music(TITLE_LOOP_MUSIC);
+
+	// Show JAM logo
+	//
+	if (!::DoMovie(MovieId::intro))
+	{
+		::Quit("JAM animation (IANIM.xxx) does not exist.");
+	}
+
+	// ---------------------
+	// PC-13
+	// ---------------------
+	VL_Bar(0, 0, 320, 200, 0x14);
+	CacheDrawPic(0, 64, PC13PIC);
+	VW_UpdateScreen();
+	VW_FadeIn();
+	IN_UserInput(TickBase * 2);
+
+	// Do A Red Flash!
+
+	if (assets_info.is_aog())
+	{
+		::VL_FadeOut(0, 255, 39, 0, 0, 20);
+	}
+	else
+	{
+		::VL_FadeOut(0, 255, 0, 0, 0, 20);
+	}
+
+	VW_FadeOut();
 
 	::vid_is_movie = false;
 }
@@ -1033,10 +1030,42 @@ void InitGame()
 	std::uint16_t* blockstart;
 
 	CA_Startup();
+	PM_Startup();
+
+	{
+		const auto& debug_dump_walls_images_option_name = std::string{"debug_dump_walls_images"};
+
+		if (::g_args.has_option(debug_dump_walls_images_option_name))
+		{
+			const auto& dump_dir = ::g_args.get_option_value(debug_dump_walls_images_option_name);
+
+			::ca_dump_walls_images(dump_dir);
+
+			::Quit();
+			return;
+		}
+	}
+
+	{
+		const auto& debug_dump_sprites_images_option_name = std::string{"debug_dump_sprites_images"};
+
+		if (::g_args.has_option(debug_dump_sprites_images_option_name))
+		{
+			const auto& dump_dir = ::g_args.get_option_value(debug_dump_sprites_images_option_name);
+
+			::ca_dump_sprites_images(dump_dir);
+
+			::Quit();
+			return;
+		}
+	}
+
+	::ReadConfig();
+	::read_high_scores();
+
 	VW_Startup();
 	IN_Startup();
-	PM_Startup();
-	SD_Startup();
+	sd_startup();
 	US_Startup();
 
 	VL_SetPalette(0, 256, vgapal);
@@ -1070,9 +1099,6 @@ void InitGame()
 	updateptr = &update[0];
 
 	bufferofs = 0;
-
-	::ReadConfig();
-	::read_high_scores();
 
 
 	//
@@ -1111,11 +1137,30 @@ extern const char* MainStrs[];
 extern std::int16_t starting_episode, starting_level, starting_difficulty;
 
 
+static void dump_version()
+{
+	const auto& version_string = bstone::Version::get_string();
+	const auto message = "BStone v" + version_string + '.';
+
+	// Standard output.
+	//
+	std::cout << message << '\n';
+
+	// Message box.
+	//
+	static_cast<void>(::SDL_ShowSimpleMessageBox(
+		SDL_MESSAGEBOX_INFORMATION,
+		"BStone",
+		message.c_str(),
+		nullptr)
+	);
+}
+
 void freed_main()
 {
 	if (::g_args.has_option("version"))
 	{
-		bstone::Log::write_version();
+		::dump_version();
 		::Quit();
 	}
 
@@ -1123,10 +1168,10 @@ void freed_main()
 	//
 	::InitDestPath();
 
-	bstone::Log::write();
-	bstone::Log::write("Data path: \"" + ::data_dir + "\"");
-	bstone::Log::write("Mod path: \"" + ::mod_dir_ + "\"");
-	bstone::Log::write("Profile path: \"" + ::get_profile_dir() + "\"");
+	bstone::logger_->write();
+	bstone::logger_->write("Data path: \"" + ::data_dir_ + "\"");
+	bstone::logger_->write("Mod path: \"" + ::mod_dir_ + "\"");
+	bstone::logger_->write("Profile path: \"" + ::get_profile_dir() + "\"");
 
 	// BBi
 	if (::g_args.has_option("debug_dump_hashes"))

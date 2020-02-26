@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -26,6 +26,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_3D_DEF_INCLUDED
 
 
+#include <atomic>
 #include <functional>
 #include <string>
 #include <vector>
@@ -54,7 +55,7 @@ class Stream;
 enum class ScanCode;
 
 
-const int BS_SAVE_VERSION = 6;
+const int BS_SAVE_VERSION = 7;
 
 #define GOLD_MORPH_LEVEL (19) // Level which Dr. GoldFire Morphs.
 
@@ -253,22 +254,7 @@ case gen_scientistobj
 
 // gamestate.flags flag values
 
-#define GS_HEARTB_SOUND (0x0001)
-#define GS_DRAW_CEILING (0x0002)
-#define GS_CLIP_WALLS (0x0004)
-#define GS_DRAW_FLOOR (0x0008)
-#define GS_VIRGIN_LEVEL (0x0010)
-#define GS_CHECK_STATS_BONUS (0x0020)
-#define GS_ATTACK_INFOAREA (0x0040)
 #define GS_KILL_INF_WARN (0x0080)
-#define GS_SHOW_OVERHEAD (0x0100)
-#define GS_BAD_DIZ_FILE (0x0200)
-#define GS_MUSIC_TEST (0x0400)
-#define GS_LIGHTING (0x0800)
-#define GS_TICS_FOR_SCORE (0x1000)
-#define GS_NOWAIT (0x2000)
-#define GS_STARTLEVEL (0x4000)
-#define GS_QUICKRUN (0x8000)
 
 // object flag values - Oh Shit Longs!
 
@@ -2911,6 +2897,8 @@ struct GoldsternInfo_t
 =============================================================================
 */
 
+extern std::atomic_uint TimeCount; // Global time in ticks
+
 extern std::int16_t TITLE_LOOP_MUSIC;
 
 #define CANT_PLAY_TXT "\n" \
@@ -2918,7 +2906,7 @@ extern std::int16_t TITLE_LOOP_MUSIC;
     "Try deleting some files from your hard disk.\n\n"
 
 
-extern std::string data_dir;
+extern std::string data_dir_;
 extern std::string mod_dir_;
 
 extern const float radtoint; // = (float)FINEANGLES/2/PI;
@@ -2963,7 +2951,7 @@ extern int* costable;
 //
 // derived constants
 //
-extern int scale;
+extern int scale_;
 extern int heightnumerator;
 
 extern bool ShowQuickMsg;
@@ -3127,14 +3115,6 @@ using Buttons = std::vector<std::int16_t>;
 
 
 extern bool mouseenabled;
-extern bool joystickenabled;
-extern bool joypadenabled;
-extern bool joystickprogressive;
-extern std::int16_t joystickport;
-extern ScanCodes dirscan;
-extern ScanCodes buttonscan;
-extern Buttons buttonmouse;
-extern Buttons buttonjoy;
 
 extern bool buttonheld[NUMBUTTONS];
 
@@ -3201,7 +3181,7 @@ using StepScale = std::vector<int>;
 using BaseDist = std::vector<int>;
 using PlaneYLookup = std::vector<int>;
 using MirrorOfs = std::vector<int>;
-using WallHeight = std::vector<int>;
+using WallHeight = std::vector<double>;
 
 extern WallHeight wallheight;
 
@@ -3522,7 +3502,7 @@ extern std::int16_t pwalldist;
 
 statobj_t* ReserveStatic();
 
-void SpawnStatic(
+statobj_t* SpawnStatic(
 	std::int16_t tilex,
 	std::int16_t tiley,
 	std::int16_t type);
@@ -3910,7 +3890,39 @@ void CacheMessage(
 
 
 // BBi
+namespace bstone
+{
+
+
+class TextWriter;
+
+
+} // bstone
+
+
+constexpr int tilemap_wall_mask = 0B0011'1111;
+constexpr int tilemap_door_track_flag = 0B0100'0000;
+constexpr int tilemap_door_flag = 0B1000'0000;
+constexpr int tilemap_door_flags = tilemap_door_track_flag | tilemap_door_flag;
+
+
 using Buffer = std::vector<unsigned char>;
+
+
+struct PaletteShiftInfo
+{
+	bool is_bonus_shifted_;
+	std::uint8_t bonus_r_;
+	std::uint8_t bonus_g_;
+	std::uint8_t bonus_b_;
+	std::uint8_t bonus_a_;
+
+	bool is_damage_shifted_;
+	std::uint8_t damage_r_;
+	std::uint8_t damage_g_;
+	std::uint8_t damage_b_;
+	std::uint8_t damage_a_;
+}; // PaletteShiftInfo
 
 
 objtype* ui16_to_actor(
@@ -3931,6 +3943,10 @@ doorobj_t* ui16_to_door_object(
 std::uint16_t door_object_to_ui16(
 	const doorobj_t* door_object);
 
+extern bool gp_is_ceiling_solid_;
+extern bool gp_is_flooring_solid_;
+extern bool gp_hide_attacker_info_;
+extern bool gp_no_shading_;
 extern bool g_no_wall_hit_sound;
 extern bool g_always_run;
 
@@ -3970,11 +3986,39 @@ void sys_sleep_for(
 
 void sys_default_sleep_for();
 
-const std::string& get_version_string();
-
 const std::string& get_profile_dir();
 
 void update_normalshade();
+
+int door_get_track_texture_id(
+	const doorobj_t& door);
+
+void door_get_page_numbers_for_caching(
+	const doorobj_t& door,
+	int& horizontal_locked_page_number,
+	int& horizontal_unlocked_page_number,
+	int& vertical_locked_page_number,
+	int& vertical_unlocked_page_number);
+
+void door_get_page_numbers(
+	const doorobj_t& door,
+	int& front_face_page_number,
+	int& back_face_page_number);
+
+int actor_calculate_rotation(
+	const objtype& actor);
+
+int player_get_weapon_sprite_id();
+
+fixed player_get_weapon_bounce_offset();
+
+PaletteShiftInfo palette_shift_get_info();
+
+void cfg_file_write_entry(
+	bstone::TextWriter& writer,
+	const std::string& key_string,
+	const std::string& value_string);
+
 // BBi
 
 

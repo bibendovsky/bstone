@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -132,6 +132,10 @@ void draw_wall_ui(
 	const int x,
 	const int y,
 	const void* raw_wall);
+
+
+static auto tp_handle_codes_can_peek_prev_2 = false;
+static const char* first_ch_copy = nullptr;
 
 
 // string array table is a quick, easy and expandable way to print
@@ -2013,6 +2017,8 @@ void TP_Presenter(
 		cur_y = yl;
 	}
 	first_ch = pi->script[0];
+	first_ch_copy = first_ch;
+
 	pi->pagenum = 0;
 	numanims = 0;
 	disp_str_num = -1;
@@ -2025,6 +2031,7 @@ void TP_Presenter(
 	flags = fl_presenting | fl_startofline;
 	if (*first_ch == TP_CONTROL_CHAR)
 	{
+		tp_handle_codes_can_peek_prev_2 = ((first_ch - first_ch_copy) >= 2);
 		TP_HandleCodes();
 	}
 
@@ -2077,6 +2084,7 @@ void TP_Presenter(
 	{
 		if (*first_ch == TP_CONTROL_CHAR)
 		{
+			tp_handle_codes_can_peek_prev_2 = ((first_ch - first_ch_copy) >= 2);
 			TP_HandleCodes();
 		}
 		else
@@ -2290,7 +2298,8 @@ void TP_HandleCodes()
 	std::int16_t old_bgcolor = 0;
 	std::int8_t c;
 
-	if ((first_ch[-2] == TP_RETURN_CHAR) && (first_ch[-1] == '\n'))
+	if (tp_handle_codes_can_peek_prev_2 &&
+		(first_ch[-2] == TP_RETURN_CHAR) && (first_ch[-1] == '\n'))
 	{
 		flags |= fl_startofline;
 	}
@@ -2758,7 +2767,7 @@ void TP_HandleCodes()
 		case TP_CNVT_CODE('B', 'E'):
 			::sd_play_player_sound(TERM_BEEPSND, bstone::ActorChannel::item);
 
-			SD_WaitSoundDone();
+			sd_wait_sound_done();
 			break;
 
 			// HIDE CURSOR ------------------------------------------------------
@@ -2833,10 +2842,13 @@ void TP_HandleCodes()
 
 			if (first_ch)
 			{
+				first_ch_copy = first_ch;
+
 				while (flags & fl_presenting && *first_ch)
 				{
 					if (*first_ch == TP_CONTROL_CHAR)
 					{
+						tp_handle_codes_can_peek_prev_2 = ((first_ch - first_ch_copy) >= 2);
 						TP_HandleCodes();
 					}
 					else
@@ -2967,6 +2979,7 @@ void TP_HandleCodes()
 				cur_y = yh - font_height;
 			}
 			first_ch = pi->script[static_cast<int>(pi->pagenum)];
+			first_ch_copy = first_ch;
 
 			numanims = 0;
 			TP_PurgeAllGfx();
@@ -2974,6 +2987,7 @@ void TP_HandleCodes()
 
 			if (*first_ch == TP_CONTROL_CHAR)
 			{
+				tp_handle_codes_can_peek_prev_2 = ((first_ch - first_ch_copy) >= 2);
 				TP_HandleCodes();
 				flags &= ~fl_startofline;
 			}
@@ -3093,7 +3107,7 @@ std::int16_t TP_DrawShape(
 			VWB_Bar(x, y, 64, 64, static_cast<std::uint8_t>(bgcolor));
 		}
 
-		::vid_draw_ui_sprite(shapenum, x + 32, y + 32, bstone::Sprite::side);
+		::vid_draw_ui_sprite(shapenum, x + 32, y + 32, bstone::Sprite::dimension);
 		break;
 
 	case pis_latchpic:

@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -42,21 +42,20 @@ Free Software Foundation, Inc.,
 #include "movie.h"
 #include "bstone_archiver.h"
 #include "bstone_endian.h"
-#include "bstone_log.h"
+#include "bstone_logger.h"
 #include "bstone_memory_stream.h"
 #include "bstone_ps_fizzle_fx.h"
 #include "bstone_sha1.h"
 #include "bstone_string_helper.h"
 #include "bstone_text_reader.h"
 #include "bstone_text_writer.h"
+#include "bstone_ren_3d_mgr.h"
+#include "bstone_version.h"
 
 #ifdef __vita__
 #include <vitasdk.h>
 int _newlib_heap_size_user = 192 * 1024 * 1024;
 #endif
-
-
-using namespace std::string_literals;
 
 
 // ==========================================================================
@@ -65,25 +64,22 @@ using namespace std::string_literals;
 
 QuitException::QuitException()
 	:
-	message_{}
+	Exception{""}
+{
+}
+
+QuitException::QuitException(
+	const char* const message)
+	:
+	Exception{message}
 {
 }
 
 QuitException::QuitException(
 	const std::string& message)
 	:
-	message_{message}
+	Exception{message}
 {
-}
-
-bool QuitException::is_empty() const
-{
-	return message_.empty();
-}
-
-const std::string& QuitException::get_message() const
-{
-	return message_;
 }
 
 //
@@ -185,7 +181,7 @@ std::int16_t starting_episode;
 std::int16_t starting_level;
 std::int16_t starting_difficulty;
 
-std::string data_dir;
+std::string data_dir_;
 std::string mod_dir_;
 
 void InitPlaytemp();
@@ -214,7 +210,7 @@ int screenofs;
 int viewwidth;
 int viewheight;
 int centerx;
-int scale;
+int scale_;
 int maxslope;
 int heightnumerator;
 int minheightdiv;
@@ -226,6 +222,18 @@ int mouseadjustment;
 
 const std::string binary_config_file_name = "bstone_config";
 const std::string text_config_file_name = "bstone_config.txt";
+
+static const bool default_gp_is_ceiling_solid = false;
+bool gp_is_ceiling_solid_ = default_gp_is_ceiling_solid;
+
+static const bool default_gp_is_flooring_solid = false;
+bool gp_is_flooring_solid_ = default_gp_is_flooring_solid;
+
+static const bool default_gp_hide_attacker_info = false;
+bool gp_hide_attacker_info_ = default_gp_hide_attacker_info;
+
+static const bool default_gp_no_shading = false;
+bool gp_no_shading_ = default_gp_no_shading;
 
 static const bool default_no_wall_hit_sound = true;
 bool g_no_wall_hit_sound = default_no_wall_hit_sound;
@@ -251,6 +259,15 @@ bool g_no_screens = false; // overrides "g_no_intro_outro" via command line
 // Disables animated fade in/out effect.
 static const bool default_g_no_fade_in_or_out = false;
 bool g_no_fade_in_or_out = default_g_no_fade_in_or_out;
+
+constexpr int sg_area_connect_bitmap_size = ((NUMAREAS * NUMAREAS) + 7) / 8;
+using SgAreaConnectBitmap = std::array<std::uint8_t, ::sg_area_connect_bitmap_size>;
+
+constexpr int sg_area_by_player_bitmap_size = (NUMAREAS + 7) / 8;
+using SgAreaByPlayerBitmap = std::array<std::uint8_t, ::sg_area_by_player_bitmap_size>;
+
+constexpr int sg_level_bitmap_size = ((MAPSIZE * MAPSIZE) + 7) / 8;
+using SgLevelBitmap = std::array<std::uint8_t, ::sg_level_bitmap_size>;
 
 
 // ==========================================================================
@@ -680,6 +697,7 @@ std::int16_t SPR_GOLD_DEATH2 = 0;
 std::int16_t SPR_GOLD_DEATH3 = 0;
 std::int16_t SPR_GOLD_DEATH4 = 0;
 std::int16_t SPR_GOLD_DEATH5 = 0;
+
 std::int16_t SPR_MGOLD_OUCH = 0;
 
 std::int16_t SPR_GOLD_MORPH1 = 0;
@@ -797,6 +815,7 @@ std::int16_t SPR_FSCOUT_DIE4 = 0;
 std::int16_t SPR_FSCOUT_DIE5 = 0;
 std::int16_t SPR_FSCOUT_DIE6 = 0;
 std::int16_t SPR_FSCOUT_DIE7 = 0;
+
 std::int16_t SPR_FSCOUT_DEAD = 0;
 
 std::int16_t SPR_EXPLOSION_1 = 0;
@@ -1148,6 +1167,7 @@ std::int16_t SPR_VSPIKE8 = 0;
 std::int16_t SPR_GREEN_OOZE1 = 0;
 std::int16_t SPR_GREEN_OOZE2 = 0;
 std::int16_t SPR_GREEN_OOZE3 = 0;
+
 std::int16_t SPR_BLACK_OOZE1 = 0;
 std::int16_t SPR_BLACK_OOZE2 = 0;
 std::int16_t SPR_BLACK_OOZE3 = 0;
@@ -1155,6 +1175,7 @@ std::int16_t SPR_BLACK_OOZE3 = 0;
 std::int16_t SPR_GREEN2_OOZE1 = 0;
 std::int16_t SPR_GREEN2_OOZE2 = 0;
 std::int16_t SPR_GREEN2_OOZE3 = 0;
+
 std::int16_t SPR_BLACK2_OOZE1 = 0;
 std::int16_t SPR_BLACK2_OOZE2 = 0;
 std::int16_t SPR_BLACK2_OOZE3 = 0;
@@ -7178,7 +7199,7 @@ void read_high_scores()
 		{
 			is_succeed = false;
 
-			bstone::Log::write_error("Failed to unarchive high scores. "s + ex.get_message());
+			bstone::logger_->write_error("Failed to unarchive high scores. " + std::string{ex.what()});
 		}
 	}
 	else
@@ -7211,7 +7232,7 @@ static void write_high_scores()
 
 	if (!stream.is_open())
 	{
-		bstone::Log::write_error("Failed to open a high scores file for writing: \"" + scores_path + "\".");
+		bstone::logger_->write_error("Failed to open a high scores file for writing: \"" + scores_path + "\".");
 
 		return;
 	}
@@ -7235,51 +7256,8 @@ static void write_high_scores()
 	}
 	catch (const bstone::ArchiverException& ex)
 	{
-		bstone::Log::write_error("Failed to archive high scores data."s + ex.get_message());
+		bstone::logger_->write_error("Failed to archive high scores data." + std::string{ex.what()});
 	}
-}
-
-static void set_vanilla_controls()
-{
-	dirscan = {
-		ScanCode::sc_up_arrow,
-		ScanCode::sc_right_arrow,
-		ScanCode::sc_down_arrow,
-		ScanCode::sc_left_arrow,
-	}; // dirscan
-
-	buttonscan = {
-#ifdef __vita__
-		ScanCode::sc_y,
-#else
-		ScanCode::sc_control,
-#endif
-		ScanCode::sc_alt,
-		ScanCode::sc_right_shift,
-		ScanCode::sc_space,
-		ScanCode::sc_1,
-		ScanCode::sc_2,
-		ScanCode::sc_3,
-		ScanCode::sc_4,
-		ScanCode::sc_5,
-		ScanCode::sc_6,
-		ScanCode::sc_7,
-		ScanCode::sc_none,
-	}; // buttonscan
-
-	buttonmouse = {
-		bt_attack,
-		bt_strafe,
-		bt_use,
-		bt_nobutton,
-	}; // buttonmouse
-
-	buttonjoy = {
-		bt_attack,
-		bt_strafe,
-		bt_use,
-		bt_run,
-	}; // buttonjoy
 }
 // BBi
 
@@ -7288,25 +7266,17 @@ namespace
 {
 
 
-const auto vid_is_widescreen_name = "vid_is_widescreen";
-const auto vid_is_ui_stretched_name = "vid_is_ui_stretched";
 const auto snd_is_sfx_enabled_name = "snd_is_sfx_enabled";
 const auto snd_is_music_enabled_name = "snd_is_music_enabled";
 const auto snd_sfx_volume_name = "snd_sfx_volume";
 const auto snd_music_volume_name = "snd_music_volume";
-const auto in_use_modern_bindings_name = "in_use_modern_bindings";
 const auto in_mouse_sensitivity_name = "in_mouse_sensitivity";
 const auto in_is_mouse_enabled_name = "in_is_mouse_enabled";
-const auto in_is_joystick_enabled_name = "in_is_joystick_enabled";
-const auto in_is_joystick_pad_enabled_name = "in_is_joystick_pad_enabled";
-const auto in_is_joystick_progressive_name = "in_is_joystick_progressive";
-const auto in_joystick_port_name = "in_joystick_port";
-const auto in_mouse_binding_name = "in_mouse_binding";
-const auto in_kb_binding_name = "in_kb_binding";
-const auto in_mouse_button_name = "in_mouse_button";
-const auto in_js_button_name = "in_js_button";
 const auto in_binding_name = "in_binding";
-const auto gp_flags_name = "gp_flags";
+const auto gp_is_ceiling_solid_name = "gp_is_ceiling_solid";
+const auto gp_is_flooring_solid_name = "gp_is_flooring_solid";
+const auto gp_hide_attacker_info_name = "gp_hide_attacker_info";
+const auto gp_no_shading_name = "gp_no_shading";
 const auto gp_no_wall_hit_sfx_name = "gp_no_wall_hit_sfx";
 const auto gp_is_always_run_name = "gp_is_always_run";
 const auto gp_use_heart_beat_sfx_name = "gp_use_heart_beat_sfx";
@@ -7328,95 +7298,95 @@ public:
 
 const auto scan_code_name_map = std::unordered_map<ScanCode, std::string, ScanCodeHash>{
 	{ScanCode::sc_return, "return", },
-{ScanCode::sc_escape, "escape", },
-{ScanCode::sc_space, "space", },
-{ScanCode::sc_minus, "minus", },
-{ScanCode::sc_equals, "equals", },
-{ScanCode::sc_backspace, "backspace", },
-{ScanCode::sc_tab, "tab", },
-{ScanCode::sc_alt, "alt", },
-{ScanCode::sc_left_bracket, "left_bracket", },
-{ScanCode::sc_right_bracket, "right_bracket", },
-{ScanCode::sc_control, "control", },
-{ScanCode::sc_caps_lock, "caps_lock", },
-{ScanCode::sc_num_lock, "num_lock", },
-{ScanCode::sc_scroll_lock, "scroll_lock", },
-{ScanCode::sc_left_shift, "left_shift", },
-{ScanCode::sc_right_shift, "right_shift", },
-{ScanCode::sc_up_arrow, "up_arrow", },
-{ScanCode::sc_down_arrow, "down_arrow", },
-{ScanCode::sc_left_arrow, "left_arrow", },
-{ScanCode::sc_right_arrow, "right_arrow", },
-{ScanCode::sc_insert, "insert", },
-{ScanCode::sc_delete, "delete", },
-{ScanCode::sc_home, "home", },
-{ScanCode::sc_end, "end", },
-{ScanCode::sc_page_up, "page_up", },
-{ScanCode::sc_page_down, "page_down", },
-{ScanCode::sc_slash, "slash", },
-{ScanCode::sc_f1, "f1", },
-{ScanCode::sc_f2, "f2", },
-{ScanCode::sc_f3, "f3", },
-{ScanCode::sc_f4, "f4", },
-{ScanCode::sc_f5, "f5", },
-{ScanCode::sc_f6, "f6", },
-{ScanCode::sc_f7, "f7", },
-{ScanCode::sc_f8, "f8", },
-{ScanCode::sc_f9, "f9", },
-{ScanCode::sc_f10, "f10", },
-{ScanCode::sc_f11, "f11", },
-{ScanCode::sc_f12, "f12", },
-{ScanCode::sc_print_screen, "print_screen", },
-{ScanCode::sc_pause, "pause", },
-{ScanCode::sc_back_quote, "back_quote", },
-{ScanCode::sc_semicolon, "semicolon", },
-{ScanCode::sc_quote, "quote", },
-{ScanCode::sc_backslash, "backslash", },
-{ScanCode::sc_comma, "comma", },
-{ScanCode::sc_period, "period", },
-{ScanCode::sc_1, "1", },
-{ScanCode::sc_2, "2", },
-{ScanCode::sc_3, "3", },
-{ScanCode::sc_4, "4", },
-{ScanCode::sc_5, "5", },
-{ScanCode::sc_6, "6", },
-{ScanCode::sc_7, "7", },
-{ScanCode::sc_8, "8", },
-{ScanCode::sc_9, "9", },
-{ScanCode::sc_0, "0", },
-{ScanCode::sc_a, "a", },
-{ScanCode::sc_b, "b", },
-{ScanCode::sc_c, "c", },
-{ScanCode::sc_d, "d", },
-{ScanCode::sc_e, "e", },
-{ScanCode::sc_f, "f", },
-{ScanCode::sc_g, "g", },
-{ScanCode::sc_h, "h", },
-{ScanCode::sc_i, "i", },
-{ScanCode::sc_j, "j", },
-{ScanCode::sc_k, "k", },
-{ScanCode::sc_l, "l", },
-{ScanCode::sc_m, "m", },
-{ScanCode::sc_n, "n", },
-{ScanCode::sc_o, "o", },
-{ScanCode::sc_p, "p", },
-{ScanCode::sc_q, "q", },
-{ScanCode::sc_r, "r", },
-{ScanCode::sc_s, "s", },
-{ScanCode::sc_t, "t", },
-{ScanCode::sc_u, "u", },
-{ScanCode::sc_v, "v", },
-{ScanCode::sc_w, "w", },
-{ScanCode::sc_x, "x", },
-{ScanCode::sc_y, "y", },
-{ScanCode::sc_z, "z", },
-{ScanCode::sc_kp_minus, "kp_minus", },
-{ScanCode::sc_kp_plus, "kp_plus", },
-{ScanCode::sc_mouse_left, "mouse_left", },
-{ScanCode::sc_mouse_middle, "mouse_middle", },
-{ScanCode::sc_mouse_right, "mouse_right", },
-{ScanCode::sc_mouse_x1, "mouse_x1", },
-{ScanCode::sc_mouse_x2, "mouse_x2", },
+	{ScanCode::sc_escape, "escape", },
+	{ScanCode::sc_space, "space", },
+	{ScanCode::sc_minus, "minus", },
+	{ScanCode::sc_equals, "equals", },
+	{ScanCode::sc_backspace, "backspace", },
+	{ScanCode::sc_tab, "tab", },
+	{ScanCode::sc_alt, "alt", },
+	{ScanCode::sc_left_bracket, "left_bracket", },
+	{ScanCode::sc_right_bracket, "right_bracket", },
+	{ScanCode::sc_control, "control", },
+	{ScanCode::sc_caps_lock, "caps_lock", },
+	{ScanCode::sc_num_lock, "num_lock", },
+	{ScanCode::sc_scroll_lock, "scroll_lock", },
+	{ScanCode::sc_left_shift, "left_shift", },
+	{ScanCode::sc_right_shift, "right_shift", },
+	{ScanCode::sc_up_arrow, "up_arrow", },
+	{ScanCode::sc_down_arrow, "down_arrow", },
+	{ScanCode::sc_left_arrow, "left_arrow", },
+	{ScanCode::sc_right_arrow, "right_arrow", },
+	{ScanCode::sc_insert, "insert", },
+	{ScanCode::sc_delete, "delete", },
+	{ScanCode::sc_home, "home", },
+	{ScanCode::sc_end, "end", },
+	{ScanCode::sc_page_up, "page_up", },
+	{ScanCode::sc_page_down, "page_down", },
+	{ScanCode::sc_slash, "slash", },
+	{ScanCode::sc_f1, "f1", },
+	{ScanCode::sc_f2, "f2", },
+	{ScanCode::sc_f3, "f3", },
+	{ScanCode::sc_f4, "f4", },
+	{ScanCode::sc_f5, "f5", },
+	{ScanCode::sc_f6, "f6", },
+	{ScanCode::sc_f7, "f7", },
+	{ScanCode::sc_f8, "f8", },
+	{ScanCode::sc_f9, "f9", },
+	{ScanCode::sc_f10, "f10", },
+	{ScanCode::sc_f11, "f11", },
+	{ScanCode::sc_f12, "f12", },
+	{ScanCode::sc_print_screen, "print_screen", },
+	{ScanCode::sc_pause, "pause", },
+	{ScanCode::sc_back_quote, "back_quote", },
+	{ScanCode::sc_semicolon, "semicolon", },
+	{ScanCode::sc_quote, "quote", },
+	{ScanCode::sc_backslash, "backslash", },
+	{ScanCode::sc_comma, "comma", },
+	{ScanCode::sc_period, "period", },
+	{ScanCode::sc_1, "1", },
+	{ScanCode::sc_2, "2", },
+	{ScanCode::sc_3, "3", },
+	{ScanCode::sc_4, "4", },
+	{ScanCode::sc_5, "5", },
+	{ScanCode::sc_6, "6", },
+	{ScanCode::sc_7, "7", },
+	{ScanCode::sc_8, "8", },
+	{ScanCode::sc_9, "9", },
+	{ScanCode::sc_0, "0", },
+	{ScanCode::sc_a, "a", },
+	{ScanCode::sc_b, "b", },
+	{ScanCode::sc_c, "c", },
+	{ScanCode::sc_d, "d", },
+	{ScanCode::sc_e, "e", },
+	{ScanCode::sc_f, "f", },
+	{ScanCode::sc_g, "g", },
+	{ScanCode::sc_h, "h", },
+	{ScanCode::sc_i, "i", },
+	{ScanCode::sc_j, "j", },
+	{ScanCode::sc_k, "k", },
+	{ScanCode::sc_l, "l", },
+	{ScanCode::sc_m, "m", },
+	{ScanCode::sc_n, "n", },
+	{ScanCode::sc_o, "o", },
+	{ScanCode::sc_p, "p", },
+	{ScanCode::sc_q, "q", },
+	{ScanCode::sc_r, "r", },
+	{ScanCode::sc_s, "s", },
+	{ScanCode::sc_t, "t", },
+	{ScanCode::sc_u, "u", },
+	{ScanCode::sc_v, "v", },
+	{ScanCode::sc_w, "w", },
+	{ScanCode::sc_x, "x", },
+	{ScanCode::sc_y, "y", },
+	{ScanCode::sc_z, "z", },
+	{ScanCode::sc_kp_minus, "kp_minus", },
+	{ScanCode::sc_kp_plus, "kp_plus", },
+	{ScanCode::sc_mouse_left, "mouse_left", },
+	{ScanCode::sc_mouse_middle, "mouse_middle", },
+	{ScanCode::sc_mouse_right, "mouse_right", },
+	{ScanCode::sc_mouse_x1, "mouse_x1", },
+	{ScanCode::sc_mouse_x2, "mouse_x2", },
 };
 
 
@@ -7527,24 +7497,14 @@ void set_config_defaults()
 {
 	::mouseenabled = true;
 
-	::joystickenabled = false;
-	::joypadenabled = false;
-	::joystickport = 0;
-	::joystickprogressive = false;
-
-	::set_vanilla_controls();
 	::in_set_default_bindings();
 
 	::mouseadjustment = ::default_mouse_sensitivity;
 
-	::gamestate.flags |= GS_HEARTB_SOUND | GS_ATTACK_INFOAREA;
-	::gamestate.flags |= GS_DRAW_CEILING | GS_DRAW_FLOOR | GS_LIGHTING;
-
-	::sd_sfx_volume = ::sd_default_sfx_volume;
-	::sd_music_volume = ::sd_default_music_volume;
+	::sd_sfx_volume_ = ::sd_default_sfx_volume;
+	::sd_music_volume_ = ::sd_default_music_volume;
 
 	::g_no_wall_hit_sound = default_no_wall_hit_sound;
-	::in_use_modern_bindings = default_in_use_modern_bindings;
 	::g_always_run = default_always_run;
 
 	::g_heart_beat_sound = ::default_heart_beat_sound;
@@ -7553,7 +7513,7 @@ void set_config_defaults()
 	::g_quit_on_escape = ::default_quit_on_escape;
 	::g_no_intro_outro = ::default_g_no_intro_outro;
 
-	::vid_widescreen = ::default_vid_widescreen;
+	::vid_cfg_set_defaults();
 }
 
 ScanCode get_scan_code_by_name(
@@ -7580,21 +7540,7 @@ void read_text_config()
 {
 	::is_config_loaded = true;
 
-
-	const auto default_game_state_flags = std::uint16_t{
-		GS_HEARTB_SOUND |
-		GS_ATTACK_INFOAREA |
-		GS_LIGHTING |
-		GS_DRAW_CEILING |
-		GS_DRAW_FLOOR
-	};
-
-	auto is_sound_enabled = true;
-	auto is_music_enabled = true;
-	auto game_state_flags = default_game_state_flags;
-
-
-	set_config_defaults();
+	::set_config_defaults();
 
 	const auto config_path = ::get_profile_dir() + ::text_config_file_name;
 
@@ -7610,97 +7556,73 @@ void read_text_config()
 			{
 				const auto line = reader.read_line();
 
-				auto name = std::string{};
+				auto key_string = std::string{};
 				auto index0 = int{};
 				auto index1 = int{};
 				auto value_string = std::string{};
 
-				if (parse_config_line(line, name, index0, index1, value_string))
+				if (parse_config_line(line, key_string, index0, index1, value_string))
 				{
-					if (name == vid_is_widescreen_name)
+					if (::vid_cfg_parse_key_value(key_string, value_string))
+					{
+					}
+					else if (key_string == snd_is_sfx_enabled_name)
 					{
 						int value;
 
 						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
-							::vid_widescreen = (value != 0);
+							::sd_is_sound_enabled_ = (value != 0);
 						}
 					}
-					else if (name == vid_is_ui_stretched_name)
+					else if (key_string == snd_is_music_enabled_name)
 					{
 						int value;
 
 						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
-							::vid_is_ui_stretched = (value != 0);
+							::sd_is_music_enabled_ = (value != 0);
 						}
 					}
-					else if (name == snd_is_sfx_enabled_name)
+					else if (key_string == snd_sfx_volume_name)
 					{
 						int value;
 
 						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
-							is_sound_enabled = (value != 0);
+							::sd_sfx_volume_ = value;
+						}
+
+						if (::sd_sfx_volume_ < ::sd_min_volume)
+						{
+							::sd_sfx_volume_ = ::sd_min_volume;
+						}
+
+						if (::sd_sfx_volume_ > ::sd_max_volume)
+						{
+							::sd_sfx_volume_ = ::sd_max_volume;
 						}
 					}
-					else if (name == snd_is_music_enabled_name)
+					else if (key_string == snd_music_volume_name)
 					{
 						int value;
 
 						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
-							is_music_enabled = (value != 0);
+							::sd_music_volume_ = value;
+						}
+
+						if (::sd_music_volume_ < ::sd_min_volume)
+						{
+							::sd_music_volume_ = ::sd_min_volume;
+						}
+
+						if (::sd_music_volume_ > ::sd_max_volume)
+						{
+							::sd_music_volume_ = ::sd_max_volume;
 						}
 					}
-					else if (name == snd_sfx_volume_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							::sd_sfx_volume = value;
-						}
-
-						if (::sd_sfx_volume < ::sd_min_volume)
-						{
-							::sd_sfx_volume = ::sd_min_volume;
-						}
-
-						if (::sd_sfx_volume > ::sd_max_volume)
-						{
-							::sd_sfx_volume = ::sd_max_volume;
-						}
-					}
-					else if (name == snd_music_volume_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							::sd_music_volume = value;
-						}
-
-						if (::sd_music_volume < ::sd_min_volume)
-						{
-							::sd_music_volume = ::sd_min_volume;
-						}
-
-						if (::sd_music_volume > ::sd_max_volume)
-						{
-							::sd_music_volume = ::sd_max_volume;
-						}
-					}
-					else if (name == in_use_modern_bindings_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							::in_use_modern_bindings = (value != 0);
-						}
-					}
-					else if (name == in_mouse_sensitivity_name)
+					else if (key_string == in_mouse_sensitivity_name)
 					{
 						int value;
 
@@ -7719,7 +7641,7 @@ void read_text_config()
 							::mouseadjustment = max_mouse_sensitivity;
 						}
 					}
-					else if (name == in_is_mouse_enabled_name)
+					else if (key_string == in_is_mouse_enabled_name)
 					{
 						int value;
 
@@ -7728,108 +7650,7 @@ void read_text_config()
 							::mouseenabled = (value != 0);
 						}
 					}
-					else if (name == in_is_joystick_enabled_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							::joystickenabled = (value != 0);
-						}
-					}
-					else if (name == in_is_joystick_pad_enabled_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							::joypadenabled = (value != 0);
-						}
-					}
-					else if (name == in_is_joystick_progressive_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							::joystickprogressive = (value != 0);
-						}
-					}
-					else if (name == in_joystick_port_name)
-					{
-						std::int16_t value;
-
-						if (bstone::StringHelper::string_to_int16(value_string, value))
-						{
-							::joystickport = value;
-						}
-
-						if (::joystickport < 0)
-						{
-							::joystickport = 0;
-						}
-					}
-					else if (name == in_mouse_binding_name)
-					{
-						if (index1 < 0)
-						{
-							if (index0 >= 0 && index0 < static_cast<int>(::dirscan.size()))
-							{
-								::dirscan[index0] = get_scan_code_by_name(value_string);
-							}
-						}
-					}
-					else if (name == in_kb_binding_name)
-					{
-						if (index1 < 0)
-						{
-							if (index0 >= 0 && index0 < static_cast<int>(::buttonscan.size()))
-							{
-								::buttonscan[index0] = get_scan_code_by_name(value_string);
-							}
-						}
-					}
-					else if (name == in_mouse_button_name)
-					{
-						if (index1 < 0)
-						{
-							if (index0 >= 0 && index0 < static_cast<int>(::buttonmouse.size()))
-							{
-								auto value = std::int16_t{};
-
-								if (bstone::StringHelper::string_to_int16(value_string, value))
-								{
-									::buttonmouse[index0] = value;
-								}
-
-								if (::buttonmouse[index0] < 0)
-								{
-									::buttonmouse[index0] = 0;
-								}
-							}
-						}
-					}
-					else if (name == in_js_button_name)
-					{
-						if (index1 < 0)
-						{
-							if (index0 >= 0 && index0 < static_cast<int>(::buttonjoy.size()))
-							{
-								auto value = std::int16_t{};
-
-								if (bstone::StringHelper::string_to_int16(value_string, value))
-								{
-									::buttonjoy[index0] = value;
-								}
-
-								if (::buttonjoy[index0] < 0)
-								{
-									::buttonjoy[index0] = 0;
-								}
-							}
-						}
-					}
-					else if (name == in_binding_name)
+					else if (key_string == in_binding_name)
 					{
 						static_assert(std::is_array<Bindings>::value, "Expected C-array type.");
 
@@ -7840,16 +7661,7 @@ void read_text_config()
 							::in_bindings[index0][index1] = get_scan_code_by_name(value_string);
 						}
 					}
-					else if (name == gp_flags_name)
-					{
-						std::uint16_t value;
-
-						if (bstone::StringHelper::string_to_uint16(value_string, value))
-						{
-							game_state_flags = value;
-						}
-					}
-					else if (name == gp_no_wall_hit_sfx_name)
+					else if (key_string == gp_no_wall_hit_sfx_name)
 					{
 						int value;
 
@@ -7858,7 +7670,7 @@ void read_text_config()
 							::g_no_wall_hit_sound = (value != 0);
 						}
 					}
-					else if (name == gp_is_always_run_name)
+					else if (key_string == gp_is_always_run_name)
 					{
 						int value;
 
@@ -7867,7 +7679,43 @@ void read_text_config()
 							::g_always_run = (value != 0);
 						}
 					}
-					else if (name == gp_use_heart_beat_sfx_name)
+					else if (key_string == ::gp_is_ceiling_solid_name)
+					{
+						int value;
+
+						if (bstone::StringHelper::string_to_int(value_string, value))
+						{
+							::gp_is_ceiling_solid_ = (value != 0);
+						}
+					}
+					else if (key_string == ::gp_is_flooring_solid_name)
+					{
+						int value;
+
+						if (bstone::StringHelper::string_to_int(value_string, value))
+						{
+							::gp_is_flooring_solid_ = (value != 0);
+						}
+					}
+					else if (key_string == ::gp_hide_attacker_info_name)
+					{
+						int value;
+
+						if (bstone::StringHelper::string_to_int(value_string, value))
+						{
+							::gp_hide_attacker_info_ = (value != 0);
+						}
+					}
+					else if (key_string == ::gp_no_shading_name)
+					{
+						int value;
+
+						if (bstone::StringHelper::string_to_int(value_string, value))
+						{
+							::gp_no_shading_ = (value != 0);
+						}
+					}
+					else if (key_string == gp_use_heart_beat_sfx_name)
 					{
 						int value;
 
@@ -7876,7 +7724,7 @@ void read_text_config()
 							::g_heart_beat_sound = (value != 0);
 						}
 					}
-					else if (name == gp_quit_on_escape_name)
+					else if (key_string == gp_quit_on_escape_name)
 					{
 						int value;
 
@@ -7885,7 +7733,7 @@ void read_text_config()
 							::g_quit_on_escape = (value != 0);
 						}
 					}
-					else if (name == gp_no_intro_outro_name)
+					else if (key_string == gp_no_intro_outro_name)
 					{
 						int value;
 
@@ -7894,7 +7742,7 @@ void read_text_config()
 							::g_no_intro_outro = (value != 0);
 						}
 					}
-					else if (name == am_is_rotated_name)
+					else if (key_string == am_is_rotated_name)
 					{
 						int value;
 
@@ -7903,7 +7751,7 @@ void read_text_config()
 							::g_rotated_automap = (value != 0);
 						}
 					}
-					else if (name == ::gp_no_fade_in_or_out_name)
+					else if (key_string == ::gp_no_fade_in_or_out_name)
 					{
 						int value;
 
@@ -7916,18 +7764,6 @@ void read_text_config()
 			}
 		}
 	}
-
-
-	::gamestate.flags &= ~default_game_state_flags;
-	::gamestate.flags |= game_state_flags;
-
-	::SD_EnableSound(is_sound_enabled);
-	::SD_EnableMusic(is_music_enabled);
-
-	::sd_set_sfx_volume(sd_sfx_volume);
-	::sd_set_music_volume(sd_music_volume);
-
-	::vl_update_widescreen();
 }
 
 
@@ -7940,6 +7776,20 @@ void ReadConfig()
 }
 
 
+void cfg_file_write_entry(
+	bstone::TextWriter& writer,
+	const std::string& key_string,
+	const std::string& value_string)
+{
+	const auto entry_string = key_string + " \"" + value_string + "\"\n";
+
+	if (!writer.write(entry_string))
+	{
+		bstone::logger_->write_warning("Failed to write setting \"" + key_string + "\".");
+	}
+}
+
+
 namespace
 {
 
@@ -7947,17 +7797,10 @@ namespace
 template<typename T>
 void write_config_entry(
 	bstone::TextWriter& writer,
-	const std::string& name,
-	T&& value)
+	const std::string& key_string,
+	T&& value_string)
 {
-	auto&& value_string = std::to_string(value);
-
-	const auto string = name + " \"" + value_string + "\"\n";
-
-	if (!writer.write(string))
-	{
-		bstone::Log::write_warning("Failed to write setting \"" + name + "\".");
-	}
+	cfg_file_write_entry(writer, key_string, std::to_string(value_string));
 }
 
 const std::string& get_scan_code_name(
@@ -8057,40 +7900,32 @@ void write_text_config()
 	writer.write("// WARNING! This is auto-generated file.\n");
 	writer.write("\n");
 
-	writer.write("\n// Video\n");
-	write_config_entry(writer, vid_is_widescreen_name, ::vid_widescreen);
-	write_config_entry(writer, vid_is_ui_stretched_name, ::vid_is_ui_stretched);
+	::vid_cfg_write(writer);
 
 	writer.write("\n// Audio\n");
-	write_config_entry(writer, snd_is_sfx_enabled_name, ::sd_is_sound_enabled);
-	write_config_entry(writer, snd_is_music_enabled_name, ::sd_is_music_enabled);
-	write_config_entry(writer, snd_sfx_volume_name, ::sd_sfx_volume);
-	write_config_entry(writer, snd_music_volume_name, ::sd_music_volume);
+	write_config_entry(writer, snd_is_sfx_enabled_name, ::sd_is_sound_enabled_);
+	write_config_entry(writer, snd_is_music_enabled_name, ::sd_is_music_enabled_);
+	write_config_entry(writer, snd_sfx_volume_name, ::sd_sfx_volume_);
+	write_config_entry(writer, snd_music_volume_name, ::sd_music_volume_);
 
 	writer.write("\n// Input\n");
-	write_config_entry(writer, in_use_modern_bindings_name, ::in_use_modern_bindings);
 	write_config_entry(writer, in_mouse_sensitivity_name, ::mouseadjustment);
 	write_config_entry(writer, in_is_mouse_enabled_name, ::mouseenabled);
-	write_config_entry(writer, in_is_joystick_enabled_name, ::joystickenabled);
-	write_config_entry(writer, in_is_joystick_pad_enabled_name, ::joypadenabled);
-	write_config_entry(writer, in_is_joystick_progressive_name, ::joystickprogressive);
-	write_config_entry(writer, in_joystick_port_name, ::joystickport);
 
 	writer.write("\n// Input bindings\n");
-	write_x_scan_config(::dirscan, in_mouse_binding_name, writer);
-	write_x_scan_config(::buttonscan, in_kb_binding_name, writer);
-	write_buttons_config(::buttonmouse, in_mouse_button_name, writer);
-	write_buttons_config(::buttonjoy, in_js_button_name, writer);
 	write_bindings_config(::in_binding_name, writer);
 
 	writer.write("\n// Gameplay\n");
-	write_config_entry(writer, gp_flags_name, ::gamestate.flags);
-	write_config_entry(writer, gp_no_wall_hit_sfx_name, ::g_no_wall_hit_sound);
-	write_config_entry(writer, gp_is_always_run_name, ::g_always_run);
-	write_config_entry(writer, gp_use_heart_beat_sfx_name, ::g_heart_beat_sound);
-	write_config_entry(writer, gp_quit_on_escape_name, ::g_quit_on_escape);
-	write_config_entry(writer, gp_no_intro_outro_name, ::g_no_intro_outro);
-	write_config_entry(writer, gp_no_fade_in_or_out_name, ::g_no_fade_in_or_out);
+	write_config_entry(writer, ::gp_is_ceiling_solid_name, ::gp_is_ceiling_solid_);
+	write_config_entry(writer, ::gp_is_flooring_solid_name, ::gp_is_flooring_solid_);
+	write_config_entry(writer, ::gp_hide_attacker_info_name, ::gp_hide_attacker_info_);
+	write_config_entry(writer, ::gp_no_shading_name, ::gp_no_shading_);
+	write_config_entry(writer, ::gp_no_wall_hit_sfx_name, ::g_no_wall_hit_sound);
+	write_config_entry(writer, ::gp_is_always_run_name, ::g_always_run);
+	write_config_entry(writer, ::gp_use_heart_beat_sfx_name, ::g_heart_beat_sound);
+	write_config_entry(writer, ::gp_quit_on_escape_name, ::g_quit_on_escape);
+	write_config_entry(writer, ::gp_no_intro_outro_name, ::g_no_intro_outro);
+	write_config_entry(writer, ::gp_no_fade_in_or_out_name, ::g_no_fade_in_or_out);
 
 	writer.write("\n// Auto-map\n");
 	write_config_entry(writer, am_is_rotated_name, ::g_rotated_automap);
@@ -8105,7 +7940,7 @@ void write_text_config()
 
 	if (!stream.write(stream_data, stream_size))
 	{
-		bstone::Log::write_warning("Failed to write a configuration.");
+		bstone::logger_->write_warning("Failed to write a configuration.");
 	}
 }
 
@@ -8164,7 +7999,6 @@ void NewGame(
 	::gamestate.lives = 3;
 	::gamestate.nextextra = EXTRAPOINTS;
 	::gamestate.episode = episode;
-	::gamestate.flags |= (GS_CLIP_WALLS | GS_ATTACK_INFOAREA); // |GS_DRAW_CEILING|GS_DRAW_FLOOR);
 	::gamestate.mapon = (assets_info.is_ps() ? 0 : 1);
 
 	::startgame = true;
@@ -8360,6 +8194,8 @@ bool LoadLevel(
 
 	::update_normalshade();
 
+	::pwallstate = 0;
+
 	std::string chunk_name = "LV" + bstone::StringHelper::octet_to_hex_string(level_index);
 
 	g_playtemp.set_position(0);
@@ -8367,16 +8203,14 @@ bool LoadLevel(
 	if ((::FindChunk(&g_playtemp, chunk_name) == 0) || ForceLoadDefault)
 	{
 		::SetupGameLevel();
+		::vid_hw_on_load_level();
 
-		gamestate.flags |= GS_VIRGIN_LEVEL;
 		gamestate.turn_around = 0;
 
 		::PreloadUpdate(1, 1);
 		ForceLoadDefault = false;
 		return true;
 	}
-
-	gamestate.flags &= ~GS_VIRGIN_LEVEL;
 
 	// Read all sorts of stuff...
 	//
@@ -8395,36 +8229,138 @@ bool LoadLevel(
 
 		archiver->initialize(&g_playtemp);
 
-		archiver->read_uint8_array(reinterpret_cast<std::uint8_t*>(tilemap), MAPSIZE * MAPSIZE);
-
-		for (int i = 0; i < MAPSIZE; ++i)
+		// tilemap
+		//
 		{
-			for (int j = 0; j < MAPSIZE; ++j)
-			{
-				const auto value = archiver->read_int32();
+			auto tilemap_bitmap = SgLevelBitmap{};
 
-				if (value < 0)
+			archiver->read_uint8_array(tilemap_bitmap.data(), ::sg_level_bitmap_size);
+
+			std::uninitialized_fill_n(
+				&::tilemap[0][0],
+				MAPSIZE * MAPSIZE,
+				std::uint8_t{}
+			);
+
+			for (int i = 0; i < MAPSIZE; ++i)
+			{
+				for (int j = 0; j < MAPSIZE; ++j)
 				{
-					actorat[i][j] = &objlist[-value];
-				}
-				else
-				{
-					actorat[i][j] = reinterpret_cast<objtype*>(static_cast<std::size_t>(value));
+					const auto index = (i * MAPSIZE) + j;
+					const auto byte_index = index / 8;
+					const auto bit_index = index % 8;
+
+					const auto byte = tilemap_bitmap[byte_index];
+
+					if ((byte & (1 << bit_index)) == 0)
+					{
+						continue;
+					}
+
+					::tilemap[i][j] = archiver->read_uint8();
 				}
 			}
 		}
 
-		archiver->read_uint8_array(reinterpret_cast<std::uint8_t*>(areaconnect), NUMAREAS * NUMAREAS);
-		archiver->read_uint8_array(reinterpret_cast<std::uint8_t*>(areabyplayer), NUMAREAS);
+		// actorat
+		//
+		{
+			auto actorat_bitmap = SgLevelBitmap{};
 
-		// Restore 'save game' actors
+			archiver->read_uint8_array(actorat_bitmap.data(), ::sg_level_bitmap_size);
+
+			std::uninitialized_fill_n(
+				&::actorat[0][0],
+				MAPSIZE * MAPSIZE,
+				nullptr
+			);
+
+			for (int i = 0; i < MAPSIZE; ++i)
+			{
+				for (int j = 0; j < MAPSIZE; ++j)
+				{
+					const auto index = (i * MAPSIZE) + j;
+					const auto byte_index = index / 8;
+					const auto bit_index = index % 8;
+
+					const auto byte = actorat_bitmap[byte_index];
+
+					if ((byte & (1 << bit_index)) == 0)
+					{
+						continue;
+					}
+
+					const auto value = archiver->read_int16();
+
+					if (value < 0)
+					{
+						::actorat[i][j] = &::objlist[-value];
+					}
+					else
+					{
+						::actorat[i][j] = reinterpret_cast<objtype*>(static_cast<std::size_t>(value));
+					}
+				}
+			}
+		}
+
+		// areaconnect
+		//
+		{
+			auto areaconnect_bitmap = SgAreaConnectBitmap{};
+
+			archiver->read_uint8_array(areaconnect_bitmap.data(), ::sg_area_connect_bitmap_size);
+
+			std::uninitialized_fill_n(
+				&::areaconnect[0][0],
+				NUMAREAS * NUMAREAS,
+				std::uint8_t{}
+			);
+
+			for (int i = 0; i < NUMAREAS; ++i)
+			{
+				for (int j = 0; j < NUMAREAS; ++j)
+				{
+					const auto index = (i * NUMAREAS) + j;
+					const auto byte_index = index / 8;
+					const auto bit_index = index % 8;
+
+					const auto byte = areaconnect_bitmap[byte_index];
+
+					if ((byte & (1 << bit_index)) == 0)
+					{
+						continue;
+					}
+
+					::areaconnect[i][j] = archiver->read_uint8();
+				}
+			}
+		}
+
+		// areabyplayer
+		//
+		{
+			auto areabyplayer_bitmap = SgAreaByPlayerBitmap{};
+			archiver->read_uint8_array(areabyplayer_bitmap.data(), ::sg_area_by_player_bitmap_size);
+
+			for (int i = 0; i < NUMAREAS; ++i)
+			{
+				const auto byte_index = i / 8;
+				const auto bit_index = i % 8;
+				const auto byte = areabyplayer_bitmap[byte_index];
+
+				::areabyplayer[i] = ((byte & (1 << bit_index)) != 0);
+			}
+		}
+
+		// Actors.
 		//
 
-		const auto actor_count = archiver->read_int32();
+		const int actor_count = archiver->read_int16();
 
 		if (actor_count < 1 || actor_count >= MAXACTORS)
 		{
-			throw "Actor count out of range.";
+			throw bstone::ArchiverException{"Actor count out of range."};
 		}
 
 		::InitActorList();
@@ -8434,7 +8370,7 @@ bool LoadLevel(
 
 		player_fix_transported_position();
 
-		for (std::int32_t i = 1; i < actor_count; ++i)
+		for (int i = 1; i < actor_count; ++i)
 		{
 			::GetNewActor();
 			new_actor->unarchive(archiver);
@@ -8471,10 +8407,10 @@ bool LoadLevel(
 
 		::ConnectBarriers();
 
-		// Read all sorts of stuff...
+		// Statics.
 		//
 
-		const auto laststatobj_index = archiver->read_int32();
+		const int laststatobj_index = archiver->read_int16();
 
 		if (laststatobj_index < 0)
 		{
@@ -8485,11 +8421,21 @@ bool LoadLevel(
 			laststatobj = &statobjlist[laststatobj_index];
 		}
 
-		for (int i = 0; i < MAXSTATS; ++i)
+		if (::laststatobj)
 		{
-			statobjlist[i].unarchive(archiver);
+			std::uninitialized_fill_n(
+				::statobjlist,
+				laststatobj_index + 1,
+				statobj_t{}
+			);
 		}
 
+		for (int i = 0; i <= laststatobj_index; ++i)
+		{
+			::statobjlist[i].unarchive(archiver);
+		}
+
+		//
 		archiver->read_uint16_array(doorposition, MAXDOORS);
 
 		for (int i = 0; i < MAXDOORS; ++i)
@@ -8523,10 +8469,6 @@ bool LoadLevel(
 			::gamestate.barrier_table[i].unarchive(archiver);
 		}
 
-		// BBi
-		::apply_cross_barriers();
-		// BBi
-
 		gamestate.plasma_detonators = archiver->read_int16();
 
 		// Read and evaluate checksum
@@ -8542,7 +8484,26 @@ bool LoadLevel(
 		is_succeed = false;
 	}
 
-	if (!is_succeed)
+	if (is_succeed)
+	{
+		// Fix moving pushwall.
+		//
+		// TODO Archive mapsegs[1] into saved game?
+		//
+		if (::pwallstate != 0)
+		{
+			auto& tile_object = ::mapsegs[1][(MAPSIZE * ::pwally) + ::pwallx];
+
+			if (tile_object == PUSHABLETILE)
+			{
+				tile_object = 0;
+			}
+		}
+
+		::apply_cross_barriers();
+		::vid_hw_on_load_level();
+	}
+	else
 	{
 		std::int16_t old_wx = WindowX;
 		std::int16_t old_wy = WindowY;
@@ -8604,10 +8565,6 @@ bool SaveLevel(
 		&gamestuff.level[gamestate.mapon].stats);
 	gamestate.mapon = oldmapon;
 
-	// Yeah! We're no longer a virgin!
-	//
-	gamestate.flags &= ~GS_VIRGIN_LEVEL;
-
 	// Remove level chunk from file
 	//
 	std::string chunk_name = "LV" + bstone::StringHelper::octet_to_hex_string(level_index);
@@ -8630,39 +8587,170 @@ bool SaveLevel(
 
 	auto archiver = archiver_uptr.get();
 
-	archiver->write_uint8_array(&tilemap[0][0], MAPSIZE * MAPSIZE);
-
+	// tilemap
 	//
-	// actorat
-	//
-
-	for (int i = 0; i < MAPSIZE; ++i)
 	{
-		for (int j = 0; j < MAPSIZE; ++j)
+		auto tilemap_bitmap = SgLevelBitmap{};
+
+		for (int i = 0; i < MAPSIZE; ++i)
 		{
-			std::int32_t s_value;
-
-			if (actorat[i][j] >= objlist)
+			for (int j = 0; j < MAPSIZE; ++j)
 			{
-				s_value = -static_cast<std::int32_t>(actorat[i][j] - objlist);
-			}
-			else
-			{
-				s_value = static_cast<std::int32_t>(reinterpret_cast<std::size_t>(actorat[i][j]));
-			}
+				const auto tile = ::tilemap[i][j];
 
-			archiver->write_int32(s_value);
+				if (tile == 0)
+				{
+					continue;
+				}
+
+				const auto index = (i * MAPSIZE) + j;
+				const auto byte_index = index / 8;
+				const auto bit_index = index % 8;
+
+				tilemap_bitmap[byte_index] |= 1 << bit_index;
+			}
+		}
+
+		archiver->write_uint8_array(tilemap_bitmap.data(), ::sg_level_bitmap_size);
+
+		for (int i = 0; i < MAPSIZE; ++i)
+		{
+			for (int j = 0; j < MAPSIZE; ++j)
+			{
+				const auto tile = ::tilemap[i][j];
+
+				if (tile == 0)
+				{
+					continue;
+				}
+
+				archiver->write_uint8(tile);
+			}
 		}
 	}
 
-	archiver->write_uint8_array(&areaconnect[0][0], NUMAREAS * NUMAREAS);
-	archiver->write_uint8_array(reinterpret_cast<const std::uint8_t*>(areabyplayer), NUMAREAS);
+	// actorat
+	//
+	{
+		auto actorat_bitmap = SgLevelBitmap{};
+
+		for (int i = 0; i < MAPSIZE; ++i)
+		{
+			for (int j = 0; j < MAPSIZE; ++j)
+			{
+				if (!::actorat[i][j])
+				{
+					continue;
+				}
+
+				const auto index = (i * MAPSIZE) + j;
+				const auto byte_index = index / 8;
+				const auto bit_index = index % 8;
+
+				actorat_bitmap[byte_index] |= 1 << bit_index;
+			}
+		}
+
+		archiver->write_uint8_array(actorat_bitmap.data(), ::sg_level_bitmap_size);
+
+		for (int i = 0; i < MAPSIZE; ++i)
+		{
+			for (int j = 0; j < MAPSIZE; ++j)
+			{
+				const auto bs_actor = ::actorat[i][j];
+
+				if (!bs_actor)
+				{
+					continue;
+				}
+
+				int value;
+
+				if (bs_actor >= ::objlist)
+				{
+					value = -static_cast<int>(bs_actor - objlist);
+				}
+				else
+				{
+					value = static_cast<int>(reinterpret_cast<std::size_t>(bs_actor));
+				}
+
+				if (value < -32'768 || value > 32'767)
+				{
+					throw bstone::ArchiverException{"'actorat' value out of range."};
+				}
+
+				archiver->write_int16(static_cast<std::int16_t>(value));
+			}
+		}
+	}
+
+	// areaconnect
+	//
+	{
+		auto areaconnect_bitmap = SgAreaConnectBitmap{};
+
+		for (int i = 0; i < NUMAREAS; ++i)
+		{
+			for (int j = 0; j < NUMAREAS; ++j)
+			{
+				const auto connection = ::areaconnect[i][j];
+
+				if (connection == 0)
+				{
+					continue;
+				}
+
+				const auto index = (i * NUMAREAS) + j;
+				const auto byte_index = index / 8;
+				const auto bit_index = index % 8;
+
+				areaconnect_bitmap[byte_index] |= 1 << bit_index;
+			}
+		}
+
+		archiver->write_uint8_array(areaconnect_bitmap.data(), ::sg_area_connect_bitmap_size);
+
+		for (int i = 0; i < NUMAREAS; ++i)
+		{
+			for (int j = 0; j < NUMAREAS; ++j)
+			{
+				const auto connection = ::areaconnect[i][j];
+
+				if (connection == 0)
+				{
+					continue;
+				}
+
+				archiver->write_uint8(connection);
+			}
+		}
+	}
+
+	// areabyplayer
+	//
+	{
+		auto areabyplayer_bitmap = SgAreaByPlayerBitmap{};
+
+		for (int i = 0; i < NUMAREAS; ++i)
+		{
+			const auto byte_index = i / 8;
+			const auto bit_index = i % 8;
+
+			if (::areabyplayer[i])
+			{
+				areabyplayer_bitmap[byte_index] |= 1 << bit_index;
+			}
+		}
+
+		archiver->write_uint8_array(areabyplayer_bitmap.data(), ::sg_area_by_player_bitmap_size);
+	}
 
 	//
 	// objlist
 	//
 
-	std::int32_t actor_count = 0;
+	auto actor_count = 0;
 	const objtype* actor = nullptr;
 
 	for (actor = player; actor; actor = actor->next)
@@ -8670,7 +8758,7 @@ bool SaveLevel(
 		++actor_count;
 	}
 
-	archiver->write_int32(actor_count);
+	archiver->write_int16(static_cast<std::int16_t>(actor_count));
 
 	for (actor = player; actor; actor = actor->next)
 	{
@@ -8681,15 +8769,14 @@ bool SaveLevel(
 	// laststatobj
 	//
 
-	const auto laststatobj_index = static_cast<std::int32_t>(laststatobj - statobjlist);
+	const auto laststatobj_index = laststatobj - statobjlist;
 
-	archiver->write_int32(laststatobj_index);
-
+	archiver->write_int16(static_cast<std::int16_t>(laststatobj_index));
 
 	//
 	// statobjlist
 	//
-	for (int i = 0; i < MAXSTATS; ++i)
+	for (std::intptr_t i = 0; i <= laststatobj_index; ++i)
 	{
 		statobjlist[i].archive(archiver);
 	}
@@ -8817,7 +8904,7 @@ static bool LoadCompressedChunk(
 
 	if (::FindChunk(stream, chunk_name) == 0)
 	{
-		bstone::Log::write_error("LOAD: Failed to locate \"" + chunk_name + "\" chunk.");
+		bstone::logger_->write_error("LOAD: Failed to locate \"" + chunk_name + "\" chunk.");
 
 		return false;
 	}
@@ -8835,7 +8922,7 @@ static bool LoadCompressedChunk(
 
 		if (total_size <= 0 || total_size > stream_size)
 		{
-			bstone::Log::write_error("LOAD: Invalid \"" + chunk_name + "\" size.");
+			bstone::logger_->write_error("LOAD: Invalid \"" + chunk_name + "\" size.");
 
 			return false;
 		}
@@ -8862,14 +8949,14 @@ static bool LoadCompressedChunk(
 
 		if (decoded_size != src_size)
 		{
-			bstone::Log::write_error("LOAD: Failed to decompress \"" + chunk_name + "\" data.");
+			bstone::logger_->write_error("LOAD: Failed to decompress \"" + chunk_name + "\" data.");
 
 			return false;
 		}
 	}
 	catch (const bstone::ArchiverException& ex)
 	{
-		bstone::Log::write_error("LOAD: Failed to unarchive \"" + chunk_name + "\". " + ex.get_message());
+		bstone::logger_->write_error("LOAD: Failed to unarchive \"" + chunk_name + "\". " + std::string{ex.what()});
 
 		return false;
 	}
@@ -8888,7 +8975,7 @@ bool LoadTheGame(
 	{
 		is_succeed = false;
 
-		bstone::Log::write_error("LOAD: Failed to open file \"" + file_name + "\".");
+		bstone::logger_->write_error("LOAD: Failed to open file \"" + file_name + "\".");
 	}
 
 	if (is_succeed)
@@ -8906,7 +8993,7 @@ bool LoadTheGame(
 		{
 			is_succeed = false;
 
-			bstone::Log::write_error("LOAD: Failed to locate VERS chunk.");
+			bstone::logger_->write_error("LOAD: Failed to locate VERS chunk.");
 		}
 	}
 
@@ -8938,14 +9025,14 @@ bool LoadTheGame(
 			{
 				is_succeed = false;
 
-				bstone::Log::write_error("LOAD: Invalid version.");
+				bstone::logger_->write_error("LOAD: Invalid version.");
 			}
 		}
 		catch (const bstone::ArchiverException&)
 		{
 			is_succeed = false;
 
-			bstone::Log::write_error("LOAD: Invalid version.");
+			bstone::logger_->write_error("LOAD: Invalid version.");
 		}
 	}
 
@@ -9000,7 +9087,7 @@ bool LoadTheGame(
 
 			if (assets_info.get_levels_hash_string() != levels_hash_string)
 			{
-				bstone::Log::write_error("LOAD: Levels hash mismatch.");
+				bstone::logger_->write_error("LOAD: Levels hash mismatch.");
 				archiver->throw_exception("Levels hash mismatch.");
 			}
 
@@ -9013,7 +9100,7 @@ bool LoadTheGame(
 		{
 			is_succeed = false;
 
-			bstone::Log::write_error("LOAD: Failed to deserialize HEAD data. "s + ex.get_message());
+			bstone::logger_->write_error("LOAD: Failed to deserialize HEAD data. " + std::string{ex.what()});
 		}
 	}
 
@@ -9035,7 +9122,7 @@ bool LoadTheGame(
 			{
 				is_succeed = false;
 
-				bstone::Log::write_error("LOAD: Failed to deserialize LVXX data.");
+				bstone::logger_->write_error("LOAD: Failed to deserialize LVXX data.");
 			}
 		}
 	}
@@ -9122,7 +9209,7 @@ bool SaveTheGame(
 
 	if (!file_stream.is_open())
 	{
-		bstone::Log::write_error("SAVE: Failed to open file \"" + file_name + "\".");
+		bstone::logger_->write_error("SAVE: Failed to open file \"" + file_name + "\".");
 
 		return false;
 	}
@@ -9166,7 +9253,7 @@ bool SaveTheGame(
 	}
 	catch (const bstone::ArchiverException& ex)
 	{
-		bstone::Log::write_error("SAVE: Failed to serialize HEAD chunk. "s + ex.get_message());
+		bstone::logger_->write_error("SAVE: Failed to serialize HEAD chunk. " + std::string{ex.what()});
 
 		return false;
 	}
@@ -9185,7 +9272,7 @@ bool SaveTheGame(
 
 	if (head_dst_size > head_desire_dst_size)
 	{
-		bstone::Log::write_error("SAVE: Failed to compress HEAD data.");
+		bstone::logger_->write_error("SAVE: Failed to compress HEAD data.");
 
 		return false;
 	}
@@ -9209,7 +9296,7 @@ bool SaveTheGame(
 
 	if (lvxx_dst_size > lvxx_desire_dst_size)
 	{
-		bstone::Log::write_error("SAVE: Failed to compress LVXX data.");
+		bstone::logger_->write_error("SAVE: Failed to compress LVXX data.");
 
 		return false;
 	}
@@ -9254,7 +9341,7 @@ bool SaveTheGame(
 	}
 	catch (const bstone::ArchiverException& ex)
 	{
-		bstone::Log::write_error("SAVE: Failed to write data. "s + ex.get_message());
+		bstone::logger_->write_error("SAVE: Failed to write data. " + std::string{ex.what()});
 
 		return false;
 	}
@@ -9456,7 +9543,7 @@ void CycleColors()
 void ShutdownId()
 {
 	US_Shutdown();
-	SD_Shutdown();
+	sd_shutdown();
 	PM_Shutdown();
 	IN_Shutdown();
 	VW_Shutdown();
@@ -9476,20 +9563,20 @@ void CalcProjection(
 	std::int32_t focal)
 {
 	::focallength = focal;
-	const double facedist = focal + MINDIST;
+	const auto facedist = static_cast<double>(focal + MINDIST);
 	const auto halfview = ::viewwidth / 2; // half view in pixels
 
 	//
 	// calculate scale value for vertical height calculations
 	// and sprite x calculations
 	//
-	::scale = static_cast<int>(halfview * facedist / (VIEWGLOBAL / 2));
+	::scale_ = static_cast<int>(halfview * facedist / (VIEWGLOBAL / 2) / ::vga_wide_scale);
 
 	//
 	// divide heightnumerator by a posts distance to get the posts height for
 	// the heightbuffer.  The pixel height is height>>2
 	//
-	::heightnumerator = (TILEGLOBAL * ::scale) / 64;
+	::heightnumerator = (TILEGLOBAL * ::scale_) / 64;
 	::minheightdiv = (::heightnumerator / 0x7FFF) + 1;
 
 	//
@@ -9499,12 +9586,17 @@ void CalcProjection(
 	::pixelangle.clear();
 	::pixelangle.resize(::vga_width);
 
-	for (int i = 0; i < halfview; i++)
+	for (int i = 0; i < halfview; ++i)
 	{
 		// start 1/2 pixel over, so viewangle bisects two middle pixels
-		const double tang = i * VIEWGLOBAL / ::viewwidth / facedist;
-		const auto angle = static_cast<float>(::atan(tang));
+		const auto tang =
+			::vga_wide_scale *
+			(static_cast<double>(i) / static_cast<double>(::viewwidth)) *
+			(static_cast<double>(VIEWGLOBAL) / facedist);
+
+		const auto angle = std::atan(tang);
 		const auto intang = static_cast<int>(angle * radtoint);
+
 		::pixelangle[halfview - 1 - i] = intang;
 		::pixelangle[halfview + i] = -intang;
 	}
@@ -9521,7 +9613,7 @@ bool DoMovie(
 	const MovieId movie,
 	const void* const raw_palette)
 {
-	::SD_StopSound();
+	::sd_stop_sound();
 
 	::ClearMemory();
 	::UnCacheLump(STARTFONT, STARTFONT + NUMFONT);
@@ -9531,7 +9623,7 @@ bool DoMovie(
 
 	const auto result = movie_play(movie, palette ? palette : ::vgapal);
 
-	::SD_StopSound();
+	::sd_stop_sound();
 	::ClearMemory();
 	::LoadFonts();
 
@@ -9590,14 +9682,14 @@ void pre_quit()
 	::ShutdownId();
 }
 
-[[noreturn]]
-void Quit()
+[[noreturn]] void Quit()
 {
-	::Quit({});
+	::pre_quit();
+
+	throw QuitException{};
 }
 
-[[noreturn]]
-void Quit(
+[[noreturn]] void Quit(
 	const std::string& message)
 {
 	::pre_quit();
@@ -9633,25 +9725,25 @@ void DemoLoop()
 		{
 			::vid_is_movie = true;
 
-			while (!(gamestate.flags & GS_NOWAIT))
+			while (true)
 			{
-				extern bool sqActive;
+				extern bool sd_sq_active_;
 
 				// Start music when coming from menu...
 				//
-				if (!sqActive)
+				if (!sd_sq_active_)
 				{
 					// Load and start music
 					//
 					if (assets_info.is_aog())
 					{
 						CA_CacheAudioChunk(STARTMUSIC + MEETINGA_MUS);
-						::SD_StartMusic(MEETINGA_MUS);
+						::sd_start_music(MEETINGA_MUS);
 					}
 					else
 					{
 						CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
-						::SD_StartMusic(TITLE_LOOP_MUSIC);
+						::sd_start_music(TITLE_LOOP_MUSIC);
 					}
 				}
 
@@ -9688,7 +9780,7 @@ void DemoLoop()
 				const auto version_padding = 1;
 				const auto version_margin = 4;
 				const auto ps_fizzle_height = 15;
-				auto& version_string = ::get_version_string();
+				auto& version_string = bstone::Version::get_string();
 
 				::fontnumber = 2;
 
@@ -9727,7 +9819,7 @@ void DemoLoop()
 					VERSION_TEXT_BKCOLOR);
 
 				SETFONTCOLOR(VERSION_TEXT_COLOR, VERSION_TEXT_BKCOLOR);
-				::US_Print(::get_version_string().c_str());
+				::US_Print(bstone::Version::get_string().c_str());
 
 				VW_UpdateScreen();
 				::VL_FadeIn(0, 255, reinterpret_cast<std::uint8_t*>(::grsegs[TITLEPALETTE]), 30);
@@ -9782,19 +9874,19 @@ void DemoLoop()
 		else
 		{
 			// Start music when coming from menu...
-			if (!sqActive)
+			if (!sd_sq_active_)
 			{
 				// Load and start music
 				//
 				if (!assets_info.is_aog())
 				{
 					CA_CacheAudioChunk(STARTMUSIC + MENUSONG);
-					::SD_StartMusic(MENUSONG);
+					::sd_start_music(MENUSONG);
 				}
 				else
 				{
 					CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
-					::SD_StartMusic(TITLE_LOOP_MUSIC);
+					::sd_start_music(TITLE_LOOP_MUSIC);
 				}
 			}
 		}
@@ -9876,7 +9968,9 @@ int main(
     ::g_args.initialize(argc, argv);
 #endif
 
-	bstone::Log::initialize();
+	auto logger_factory = bstone::LoggerFactory{};
+	auto logger = logger_factory.create();
+	bstone::logger_ = logger.get();
 
 	auto quit_message = std::string{};
 
@@ -9890,7 +9984,7 @@ int main(
 
 		if (sdl_result != 0)
 		{
-			::Quit("Failed to initialize SDL: "s + ::SDL_GetError());
+			::Quit("Failed to initialize SDL: " + std::string{::SDL_GetError()});
 		}
 
 		freed_main();
@@ -9899,12 +9993,20 @@ int main(
 	}
 	catch (const QuitException& ex)
 	{
-		quit_message = ex.get_message();
+		quit_message = ex.what();
+	}
+	catch (const std::exception& ex)
+	{
+		quit_message = bstone::Exception::get_nested_message(ex);
+	}
+	catch (...)
+	{
+		quit_message = "Unhandled exception";
 	}
 
 	if (!quit_message.empty())
 	{
-		bstone::Log::write_critical(quit_message);
+		bstone::logger_->write_critical(quit_message);
 
 		return 1;
 	}
@@ -9927,15 +10029,15 @@ void InitDestPath()
 
 	if (requested_data_dir.empty())
 	{
-		data_dir = ::get_default_data_dir();
+		data_dir_ = ::get_default_data_dir();
 	}
 	else
 	{
-		data_dir = requested_data_dir;
+		data_dir_ = requested_data_dir;
 
-		if (data_dir.back() != separator)
+		if (data_dir_.back() != separator)
 		{
-			data_dir += separator;
+			data_dir_ += separator;
 		}
 	}
 
@@ -9962,18 +10064,18 @@ void objtype::archive(
 	archiver->write_uint8(tilex);
 	archiver->write_uint8(tiley);
 	archiver->write_uint8(areanumber);
-	archiver->write_int8(active);
+	archiver->write_int8(static_cast<std::int8_t>(active));
 	archiver->write_int16(ticcount);
-	archiver->write_uint8(obclass);
+	archiver->write_uint8(static_cast<std::uint8_t>(obclass));
 
 	const auto state_index = ::get_state_index(state);
-	archiver->write_int32(state_index);
+	archiver->write_int16(state_index);
 
 	archiver->write_uint32(flags);
 	archiver->write_uint16(flags2);
 	archiver->write_int32(distance);
-	archiver->write_uint8(dir);
-	archiver->write_uint8(trydir);
+	archiver->write_uint8(static_cast<std::uint8_t>(dir));
+	archiver->write_uint8(static_cast<std::uint8_t>(trydir));
 	archiver->write_int32(x);
 	archiver->write_int32(y);
 	archiver->write_uint8(s_tilex);
@@ -10003,7 +10105,7 @@ void objtype::unarchive(
 	ticcount = archiver->read_int16();
 	obclass = static_cast<classtype>(archiver->read_uint8());
 
-	const auto state_index = archiver->read_int32();
+	const auto state_index = archiver->read_int16();
 	state = states_list[state_index];
 
 	flags = archiver->read_uint32();
@@ -10037,8 +10139,8 @@ void statobj_t::archive(
 	archiver->write_uint8(tiley);
 	archiver->write_uint8(areanumber);
 
-	const auto vis_index = static_cast<std::int32_t>(visspot - &spotvis[0][0]);
-	archiver->write_int32(vis_index);
+	const auto vis_index = static_cast<std::int16_t>(visspot - &spotvis[0][0]);
+	archiver->write_int16(vis_index);
 
 	archiver->write_int16(shapenum);
 	archiver->write_uint16(flags);
@@ -10053,7 +10155,7 @@ void statobj_t::unarchive(
 	tiley = archiver->read_uint8();
 	areanumber = archiver->read_uint8();
 
-	const auto vis_index = archiver->read_int32();
+	const auto vis_index = archiver->read_int16();
 
 	if (vis_index < 0)
 	{
@@ -10077,9 +10179,9 @@ void doorobj_t::archive(
 	archiver->write_uint8(tiley);
 	archiver->write_bool(vertical);
 	archiver->write_int8(flags);
-	archiver->write_int8(lock);
-	archiver->write_uint8(type);
-	archiver->write_uint8(action);
+	archiver->write_int8(static_cast<std::int8_t>(lock));
+	archiver->write_uint8(static_cast<std::uint8_t>(type));
+	archiver->write_uint8(static_cast<std::uint8_t>(action));
 	archiver->write_int16(ticcount);
 	archiver->write_uint8_array(areanumber, 2);
 }
@@ -10509,16 +10611,6 @@ void sys_sleep_for(
 void sys_default_sleep_for()
 {
 	::sys_sleep_for(10);
-}
-
-const std::string& get_version_string()
-{
-#ifdef __vita__
-	static const std::string version = "0.3";
-#else
-	static const std::string version = "1.1.16";
-#endif
-	return version;
 }
 
 const std::string& get_profile_dir()

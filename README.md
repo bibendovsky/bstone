@@ -28,7 +28,7 @@ Contents
 ==============
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC  
-Copyright (c) 2013-2019 Boris I. Bendovsky (<bibendovsky@hotmail.com>)
+Copyright (c) 2013-2020 Boris I. Bendovsky (<bibendovsky@hotmail.com>)
 
 This program is free software; you can redistribute it and/or  
 modify it under the terms of the GNU General Public License  
@@ -55,7 +55,6 @@ BStone is a source port of Blake Stone game series: Aliens of Gold and Planet St
 
 Features:
 * High resolution rendering of world (extended vanilla engine)
-* Modern and vanilla controls
 * Allows to customize control bindings
 * Separate volume control of sound effects and music
 
@@ -207,47 +206,37 @@ Notes:
 * `--profile_dir path`  
   Overrides default location of the game's profile files.  
 
-* `--vid_renderer [d3d|ogl|ogles|ogles2|soft]`  
-  Forces to use a specified SDL renderer.  
-  `d3d` selects a Direct3D renderer.  
-  `ogl` selects an OpenGL renderer.  
-  `ogles` selects an OpenGL ES renderer.  
-  `ogles2` selects an OpenGL ES 2.0 renderer.  
-  `soft` selects a software renderer.  
-  Fallback renderer: `soft`.  
-  Default order without this option: `d3d`, `ogl`, `ogles`, `ogles2`, `soft`.
+* `--vid_is_windowed <0|1>`  
+  Runs the game in windowed mode if value set to "1" or fullscreen otherwise.  
+  Default video height: 480
 
-* `--vid_windowed`  
-  Runs the game in windowed mode.  
-  Default video mode: 640x480
+* `--vid_width width`  
+  Specifies window width.  
+  Minimum width: 320  
+  Default width: 640  
 
-* `--vid_mode width height`  
-  Selects the specified resolution for windowed mode.  
-  Without this option the game will use desktop's resolution.  
-  Minimum width: 640  
-  Minimum height: 480
+* `--vid_height height`  
+  Specifies window height.  
+  Minimum height: 240  
+  Default height: 480
 
-* `--vid_no_vsync`  
-  Disables vertical synchronization.
+* `--vid_vsync <0|1>`  
+  Enables (1) or disables (0) vertical synchronization.  
+  Default value: 1 (enabled)
 
-* `--vid_scale factor`  
-  Refinement factor. The higher a value the greater internal resolution  
-  mode will be used to render a scene. The dimensions of the resolution mode  
-  are proportional to the original one (320x200) by 'factor' value.  
-  This option can greatly affect the performance of a renderer (especially a  
-  software one).  
-  Minimum factor: 1 (identical to the original game)  
-  Default factor: depends on the game's resolution mode.
-
-* `--vid_window_x offset`  
+* `--vid_x offset`  
   Sets a horizontal offset from the left side of the desktop screen.  
   Applicable for windowed mode only.
 
-* `--vid_window_y offset`  
+* `--vid_y offset`  
   Sets a vertical offset from the top side of the desktop screen.  
   Applicable for windowed mode only.
 
-* `--snd_rate sampling_rate`  
+* `--snd_is_disabled <0|1>`  
+  Disables audio subsystem if non-zero.  
+  Default: 0  
+
+* --snd_rate sampling_rate  
   Specifies sampling rate of mixer in hertz.  
   Default: 44100 Hz  
   Minimum: 11025 Hz

@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -35,20 +35,25 @@ loaded into the data segment
 */
 
 
+#include <cassert>
 #include <algorithm>
+#include <memory>
+#include "SDL_endian.h"
 #include "id_ca.h"
 #include "audio.h"
 #include "id_heads.h"
+#include "id_pm.h"
 #include "id_sd.h"
+#include "id_vh.h"
 #include "id_vl.h"
 #include "gfxv.h"
 #include "bstone_endian.h"
-#include "bstone_log.h"
+#include "bstone_logger.h"
+#include "bstone_rgb_palette.h"
+#include "bstone_sdl2_types.h"
 #include "bstone_sha1.h"
+#include "bstone_sprite_cache.h"
 #include "bstone_string_helper.h"
-
-
-using namespace std::string_literals;
 
 
 /*
@@ -627,7 +632,7 @@ void CA_LoadAllSounds()
 		start = STARTADLIBSOUNDS;
 	}
 
-	if (::sd_is_sound_enabled)
+	if (::sd_is_sound_enabled_)
 	{
 		start = STARTADLIBSOUNDS;
 	}
@@ -641,7 +646,7 @@ void CA_LoadAllSounds()
 		::CA_CacheAudioChunk(start);
 	}
 
-	::old_is_sound_enabled = ::sd_is_sound_enabled;
+	::old_is_sound_enabled = ::sd_is_sound_enabled_;
 }
 
 // ===========================================================================
@@ -1099,7 +1104,7 @@ void initialize_ca_constants()
 bool ca_is_resource_exists(
 	const std::string& file_name)
 {
-	const auto path = ::data_dir + file_name;
+	const auto path = ::data_dir_ + file_name;
 
 	auto is_open = false;
 
@@ -1108,7 +1113,7 @@ bool ca_is_resource_exists(
 	if (!is_open)
 	{
 		auto&& file_name_lc = bstone::StringHelper::to_lower_ascii(file_name);
-		const auto path_lc = ::data_dir + file_name_lc;
+		const auto path_lc = ::data_dir_ + file_name_lc;
 
 		is_open = bstone::FileStream::is_exists(path_lc);
 	}
@@ -1157,7 +1162,7 @@ bool ca_open_resource_non_fatal(
 	}
 
 	const auto data_dir_result = ca_open_resource_non_fatal(
-		::data_dir, file_name_without_ext, file_extension, file_stream);
+		::data_dir_, file_name_without_ext, file_extension, file_stream);
 
 	return data_dir_result;
 }
@@ -1172,7 +1177,7 @@ void ca_open_resource(
 
 	if (!is_open)
 	{
-		const auto path = ::data_dir + file_name_without_ext + assets_info.get_extension();
+		const auto path = ::data_dir_ + file_name_without_ext + assets_info.get_extension();
 
 		::CA_CannotOpen(path);
 	}
@@ -1255,10 +1260,8 @@ std::string ca_calculate_hash(
 
 void ca_dump_hashes()
 {
-	bstone::Log::write();
-	bstone::Log::write("Dumping resource hashes...");
-
-	auto data_size = std::int32_t{};
+	bstone::logger_->write();
+	bstone::logger_->write("Dumping resource hashes...");
 
 	auto sha1 = bstone::Sha1{};
 
@@ -1273,7 +1276,7 @@ void ca_dump_hashes()
 				continue;
 			}
 
-			bstone::Log::write(base_name.get() + extension.get() + ": " + sha1_string);
+			bstone::logger_->write(base_name.get() + extension.get() + ": " + sha1_string);
 		}
 	}
 }
@@ -1600,105 +1603,105 @@ int AssetsInfo::secret_floor_get_index(
 
 const std::string& Assets::get_audio_header_base_name()
 {
-	static const auto audio_header_base_name = "AUDIOHED"s;
+	static const auto audio_header_base_name = std::string{"AUDIOHED"};
 
 	return audio_header_base_name;
 }
 
 const std::string& Assets::get_audio_data_base_name()
 {
-	static const auto audio_data_base_name = "AUDIOT"s;
+	static const auto audio_data_base_name = std::string{"AUDIOT"};
 
 	return audio_data_base_name;
 }
 
 const std::string& Assets::get_map_header_base_name()
 {
-	static const auto map_header_base_name = "MAPHEAD"s;
+	static const auto map_header_base_name = std::string{"MAPHEAD"};
 
 	return map_header_base_name;
 }
 
 const std::string& Assets::get_map_data_base_name()
 {
-	static const auto map_data_base_name = "MAPTEMP"s;
+	static const auto map_data_base_name = std::string{"MAPTEMP"};
 
 	return map_data_base_name;
 }
 
 const std::string& Assets::get_gfx_dictionary_base_name()
 {
-	static const auto gfx_dictionary_base_name = "VGADICT"s;
+	static const auto gfx_dictionary_base_name = std::string{"VGADICT"};
 
 	return gfx_dictionary_base_name;
 }
 
 const std::string& Assets::get_gfx_header_base_name()
 {
-	static const auto gfx_header_base_name = "VGAHEAD"s;
+	static const auto gfx_header_base_name = std::string{"VGAHEAD"};
 
 	return gfx_header_base_name;
 }
 
 const std::string& Assets::get_gfx_data_base_name()
 {
-	static const auto gfx_data_base_name = "VGAGRAPH"s;
+	static const auto gfx_data_base_name = std::string{"VGAGRAPH"};
 
 	return gfx_data_base_name;
 }
 
 const std::string& Assets::get_page_file_base_name()
 {
-	static const auto page_file_base_name = "VSWAP"s;
+	static const auto page_file_base_name = std::string{"VSWAP"};
 
 	return page_file_base_name;
 }
 
 const std::string& Assets::get_episode_6_fmv_base_name()
 {
-	static const auto episode_6_fmv_base_name = "EANIM"s;
+	static const auto episode_6_fmv_base_name = std::string{"EANIM"};
 
 	return episode_6_fmv_base_name;
 }
 
 const std::string& Assets::get_episode_3_5_fmv_base_name()
 {
-	static const auto episode_3_5_fmv_base_name = "GANIM"s;
+	static const auto episode_3_5_fmv_base_name = std::string{"GANIM"};
 
 	return episode_3_5_fmv_base_name;
 }
 
 const std::string& Assets::get_intro_fmv_base_name()
 {
-	static const auto get_intro_fmv_base_name = "IANIM"s;
+	static const auto get_intro_fmv_base_name = std::string{"IANIM"};
 
 	return get_intro_fmv_base_name;
 }
 
 const std::string& Assets::get_episode_2_4_fmv_base_name()
 {
-	static const auto get_episode_2_4_fmv_base_name = "SANIM"s;
+	static const auto get_episode_2_4_fmv_base_name = std::string{"SANIM"};
 
 	return get_episode_2_4_fmv_base_name;
 }
 
 const std::string& Assets::get_aog_sw_extension()
 {
-	static const auto get_aog_sw_extension = ".BS1"s;
+	static const auto get_aog_sw_extension = std::string{".BS1"};
 
 	return get_aog_sw_extension;
 }
 
 const std::string& Assets::get_aog_full_extension()
 {
-	static const auto get_aog_full_extension = ".BS6"s;
+	static const auto get_aog_full_extension = std::string{".BS6"};
 
 	return get_aog_full_extension;
 }
 
 const std::string& Assets::get_ps_extension()
 {
-	static const auto get_ps_extension = ".VSI"s;
+	static const auto get_ps_extension = std::string{".VSI"};
 
 	return get_ps_extension;
 }
@@ -2057,4 +2060,516 @@ bool Assets::are_official_levels(
 	);
 
 	return result;
+}
+
+
+// ==========================================================================
+// ImagesDumper
+//
+
+class ImagesDumper
+{
+public:
+	bool is_initialized() const;
+
+	bool initialize();
+
+	void uninitialize();
+
+	void dump_walls(
+		const std::string& destination_dir);
+
+	void dump_sprites(
+		const std::string& destination_dir);
+
+
+private:
+	using Palette = std::vector<SDL_Color>;
+
+
+	bool is_initialized_;
+	int sprite_count_;
+	bstone::SdlSurfaceUPtr sdl_surface_64x64x8_;
+	bstone::SdlSurfaceUPtr sdl_surface_64x64x32_;
+	std::string destination_dir_;
+	std::string destination_path_;
+	bstone::SpriteCache sprite_cache_;
+	Palette vga_palette_;
+
+
+	void set_palette(
+		bstone::SdlSurfacePtr sdl_surface,
+		const std::uint8_t* const vga_palette);
+
+	void set_palette(
+		bstone::SdlSurfacePtr sdl_surface,
+		const Palette& palette);
+
+	void normalize_destination_dir();
+
+	void uninitialize_vga_palette();
+
+	void initialize_vga_palette();
+
+	void uninitialize_surface_64x64x8();
+
+	bool initialize_surface_64x64x8();
+
+	void uninitialize_surface_64x64x32();
+
+	bool initialize_surface_64x64x32();
+
+	void convert_wall_page_into_surface(
+		const std::uint8_t* const src_indices);
+
+	void convert_sprite_page_into_surface(
+		const bstone::Sprite& sprite);
+
+	bool save_image(
+		const std::string& name_prefix,
+		const int image_index,
+		bstone::SdlSurfacePtr sdl_surface);
+
+	bool dump_wall(
+		const int wall_index);
+
+	bool dump_sprite(
+		const int sprite_index);
+}; // ImagesDumper
+
+
+bool ImagesDumper::is_initialized() const
+{
+	return is_initialized_;
+}
+
+bool ImagesDumper::initialize()
+{
+	if (!initialize_surface_64x64x8())
+	{
+		return false;
+	}
+
+	if (!initialize_surface_64x64x32())
+	{
+		return false;
+	}
+
+	initialize_vga_palette();
+
+	is_initialized_ = true;
+
+	return true;
+}
+
+void ImagesDumper::uninitialize()
+{
+	is_initialized_ = false;
+
+	uninitialize_surface_64x64x8();
+	uninitialize_surface_64x64x32();
+	uninitialize_vga_palette();
+}
+
+void ImagesDumper::dump_walls(
+	const std::string& destination_dir)
+{
+	bstone::logger_->write();
+	bstone::logger_->write("<<< ================");
+	bstone::logger_->write("Dumping walls.");
+	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
+	bstone::logger_->write("File count: " + std::to_string(::PMSpriteStart));
+
+	if (!is_initialized_)
+	{
+		bstone::logger_->write_error("Not initialized.");
+
+		return;
+	}
+
+	destination_dir_ = destination_dir;
+	normalize_destination_dir();
+
+	set_palette(sdl_surface_64x64x8_.get(), vga_palette_);
+
+	for (int i = 0; i < ::PMSpriteStart; ++i)
+	{
+		dump_wall(i);
+	}
+
+	bstone::logger_->write(">>> ================");
+}
+
+void ImagesDumper::dump_sprites(
+	const std::string& destination_dir)
+{
+	sprite_count_ = ::ChunksInFile - ::PMSpriteStart - 1;
+
+	if (sprite_count_ < 0)
+	{
+		sprite_count_ = 0;
+	}
+
+	bstone::logger_->write();
+	bstone::logger_->write("<<< ================");
+	bstone::logger_->write("Dumping sprites.");
+	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
+	bstone::logger_->write("File count: " + std::to_string(sprite_count_));
+
+	if (!is_initialized_)
+	{
+		bstone::logger_->write_error("Not initialized.");
+
+		return;
+	}
+
+	destination_dir_ = destination_dir;
+	normalize_destination_dir();
+
+	for (int i = 0; i < sprite_count_; ++i)
+	{
+		dump_sprite(i);
+	}
+
+	bstone::logger_->write(">>> ================");
+}
+
+void ImagesDumper::set_palette(
+	bstone::SdlSurfacePtr sdl_surface,
+	const std::uint8_t* const vga_palette)
+{
+	assert(sdl_surface);
+	assert(vga_palette);
+	assert(sdl_surface->format);
+	assert(sdl_surface->format->palette);
+	assert(sdl_surface->format->palette->ncolors == bstone::RgbPalette::get_max_color_count());
+
+	auto& sdl_palette = *sdl_surface->format->palette;
+
+	for (int i = 0; i < bstone::RgbPalette::get_max_color_count(); ++i)
+	{
+		const auto src_color = vga_palette + (i * 3);
+		auto& dst_color = sdl_palette.colors[i];
+
+		dst_color.r = static_cast<Uint8>((255 * src_color[0]) / 63);
+		dst_color.g = static_cast<Uint8>((255 * src_color[1]) / 63);
+		dst_color.b = static_cast<Uint8>((255 * src_color[2]) / 63);
+		dst_color.a = 255;
+	}
+}
+
+void ImagesDumper::set_palette(
+	bstone::SdlSurfacePtr sdl_surface,
+	const Palette& palette)
+{
+	assert(sdl_surface);
+	assert(palette.size() == bstone::RgbPalette::get_max_color_count());
+	assert(sdl_surface->format);
+	assert(sdl_surface->format->palette);
+	assert(sdl_surface->format->palette->ncolors == bstone::RgbPalette::get_max_color_count());
+
+	std::uninitialized_copy_n(
+		palette.cbegin(),
+		bstone::RgbPalette::get_max_color_count(),
+		sdl_surface->format->palette->colors
+	);
+}
+
+void ImagesDumper::normalize_destination_dir()
+{
+	if (!destination_dir_.empty())
+	{
+		constexpr auto native_separator =
+#ifdef _WIN32
+			'\\'
+#else // _WIN32
+			'/'
+#endif // _WIN32
+			;
+
+		const auto last_char = destination_dir_.back();
+
+		if (last_char != '\\' && last_char != '/')
+		{
+			destination_dir_ += native_separator;
+		}
+	}
+}
+
+void ImagesDumper::uninitialize_vga_palette()
+{
+	vga_palette_.clear();
+}
+
+void ImagesDumper::initialize_vga_palette()
+{
+	vga_palette_.resize(bstone::RgbPalette::get_max_color_count());
+
+	const auto src_colors = ::vgapal;
+
+	for (int i = 0; i < bstone::RgbPalette::get_max_color_count(); ++i)
+	{
+		const auto src_color = src_colors + (i * 3);
+		auto& dst_color = vga_palette_[i];
+
+		dst_color.r = static_cast<Uint8>((255 * src_color[0]) / 63);
+		dst_color.g = static_cast<Uint8>((255 * src_color[1]) / 63);
+		dst_color.b = static_cast<Uint8>((255 * src_color[2]) / 63);
+		dst_color.a = 255;
+	}
+}
+
+void ImagesDumper::uninitialize_surface_64x64x8()
+{
+	sdl_surface_64x64x8_ = nullptr;
+}
+
+bool ImagesDumper::initialize_surface_64x64x8()
+{
+	auto sdl_surface = ::SDL_CreateRGBSurfaceWithFormat(
+		0, // flags
+		64, // width
+		64, // height
+		8, // depth
+		SDL_PIXELFORMAT_INDEX8 // format
+	);
+
+	if (!sdl_surface)
+	{
+		auto error_message = std::string{"Failed to create SDL surface 64x64x32bit. "};
+		error_message += ::SDL_GetError();
+
+		bstone::logger_->write_error(error_message);
+
+		return false;
+	}
+
+	sdl_surface_64x64x8_ = bstone::SdlSurfaceUPtr{sdl_surface};
+
+	return true;
+}
+
+void ImagesDumper::uninitialize_surface_64x64x32()
+{
+	sdl_surface_64x64x32_ = nullptr;
+}
+
+bool ImagesDumper::initialize_surface_64x64x32()
+{
+	auto sdl_surface = ::SDL_CreateRGBSurfaceWithFormat(
+		0, // flags
+		64, // width
+		64, // height
+		32, // depth
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+		SDL_PIXELFORMAT_ABGR8888 // format
+#else // SDL_BYTEORDER == SDL_LIL_ENDIAN
+		SDL_PIXELFORMAT_RGBA8888 // format
+#endif // SDL_BYTEORDER == SDL_LIL_ENDIAN
+	);
+
+	if (!sdl_surface)
+	{
+		auto error_message = std::string{"Failed to create SDL surface 64x64x8bit. "};
+		error_message += ::SDL_GetError();
+
+		bstone::logger_->write_error(error_message);
+
+		return false;
+	}
+
+	sdl_surface_64x64x32_ = bstone::SdlSurfaceUPtr{sdl_surface};
+
+	return true;
+}
+
+void ImagesDumper::convert_wall_page_into_surface(
+	const std::uint8_t* const src_indices)
+{
+	assert(src_indices);
+
+	const auto pitch = sdl_surface_64x64x8_->pitch;
+
+	auto dst_indices = static_cast<std::uint8_t*>(sdl_surface_64x64x8_->pixels);
+
+	auto src_index = 0;
+
+	for (int w = 0; w < 64; ++w)
+	{
+		for (int h = 0; h < 64; ++h)
+		{
+			const auto dst_index = (h * pitch) + w;
+
+			dst_indices[dst_index] = src_indices[src_index];
+
+			++src_index;
+		}
+	}
+}
+
+void ImagesDumper::convert_sprite_page_into_surface(
+	const bstone::Sprite& sprite)
+{
+	const auto pitch = sdl_surface_64x64x32_->pitch / 4;
+
+	auto dst_colors = static_cast<SDL_Color*>(sdl_surface_64x64x32_->pixels);
+
+	const auto left = sprite.get_left();
+	const auto right = sprite.get_right();
+	const auto top = sprite.get_top();
+	const auto bottom = sprite.get_bottom();
+
+	for (int w = 0; w < 64; ++w)
+	{
+		const std::int16_t* column = nullptr;
+
+		if (w >= left && w <= right)
+		{
+			column = sprite.get_column(w - left);
+		}
+
+		for (int h = 0; h < 64; ++h)
+		{
+			auto dst_color = SDL_Color{};
+
+			if (column && h >= top && h <= bottom)
+			{
+				const auto color_index = column[h - top];
+
+				if (color_index >= 0)
+				{
+					dst_color = vga_palette_[color_index];
+				}
+			}
+
+			const auto dst_index = (h * pitch) + w;
+
+			dst_colors[dst_index] = dst_color;
+		}
+	}
+}
+
+bool ImagesDumper::save_image(
+	const std::string& name_prefix,
+	const int image_index,
+	bstone::SdlSurfacePtr sdl_surface)
+{
+	const auto image_index_digits = 8;
+
+	auto wall_index_string = std::to_string(image_index);
+	wall_index_string.reserve(image_index_digits);
+
+	const auto pad_count = image_index_digits - static_cast<int>(wall_index_string.size());
+
+	for (int i = 0; i < pad_count; ++i)
+	{
+		wall_index_string.insert(0, 1, '0');
+	}
+
+	const auto& file_name = destination_dir_ + name_prefix + wall_index_string + ".bmp";
+
+	const auto sdl_result = ::SDL_SaveBMP(sdl_surface, file_name.c_str());
+
+	if (sdl_result != 0)
+	{
+		auto error_message = "Failed to save an image into \"" + file_name + "\". ";
+		error_message += ::SDL_GetError();
+
+		bstone::logger_->write_error(error_message);
+
+		return false;
+	}
+
+	return true;
+}
+
+bool ImagesDumper::dump_wall(
+	const int wall_index)
+{
+	if (wall_index < 0 && wall_index >= ::PMSpriteStart)
+	{
+		bstone::logger_->write_error("Wall index out of range.");
+
+		return false;
+	}
+
+	const auto wall_page = static_cast<const std::uint8_t*>(::PM_GetPage(wall_index));
+
+	if (!wall_page)
+	{
+		bstone::logger_->write_error("No wall page #" + std::to_string(wall_index) + ".");
+
+		return false;
+	}
+
+	convert_wall_page_into_surface(wall_page);
+
+	if (!save_image("wall_", wall_index, sdl_surface_64x64x8_.get()))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool ImagesDumper::dump_sprite(
+	const int sprite_index)
+{
+	const auto cache_sprite_index = sprite_index + 1;
+
+	auto sprite = bstone::SpriteCPtr{};
+
+	try
+	{
+		sprite = sprite_cache_.cache(cache_sprite_index);
+	}
+	catch (const std::runtime_error& ex)
+	{
+		auto error_message = "Failed to cache a sprite #" + std::to_string(sprite_index) + ". ";
+		error_message += ex.what();
+
+		bstone::logger_->write_error(error_message);
+
+		return false;
+	}
+
+	convert_sprite_page_into_surface(*sprite);
+
+	if (!save_image("sprite_", cache_sprite_index, sdl_surface_64x64x32_.get()))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+//
+// ImagesDumper
+// ==========================================================================
+
+
+void ca_dump_walls_images(
+	const std::string& destination_dir)
+{
+	auto images_dumper = ImagesDumper{};
+
+	if (!images_dumper.initialize())
+	{
+		return;
+	}
+
+	images_dumper.dump_walls(destination_dir);
+}
+
+void ca_dump_sprites_images(
+	const std::string& destination_dir)
+{
+	auto images_dumper = ImagesDumper{};
+
+	if (!images_dumper.initialize())
+	{
+		return;
+	}
+
+	images_dumper.dump_sprites(destination_dir);
 }

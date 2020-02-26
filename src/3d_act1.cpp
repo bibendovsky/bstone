@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -28,6 +28,7 @@ Free Software Foundation, Inc.,
 #include "id_heads.h"
 #include "id_sd.h"
 #include "id_us.h"
+#include "id_vl.h"
 
 
 // ===========================================================================
@@ -283,20 +284,23 @@ statobj_t* FindEmptyStatic()
 {
 	statobj_t* spot;
 
-	for (spot = &statobjlist[0];; spot++)
+	for (spot = &::statobjlist[0]; ; ++spot)
 	{
-		if (spot == laststatobj)
+		if (spot == ::laststatobj)
 		{
-			if (spot == &statobjlist[MAXSTATS])
+			if (spot == &::statobjlist[MAXSTATS])
 			{
 				return nullptr;
 			}
-			laststatobj++; // space at end
+
+			++::laststatobj; // space at end
+
 			break;
 		}
 
 		if (spot->shapenum == -1)
-		{ // -1 is a free spot
+		{
+			// -1 is a free spot
 			break;
 		}
 	}
@@ -304,7 +308,7 @@ statobj_t* FindEmptyStatic()
 	return spot;
 }
 
-void SpawnStatic(
+statobj_t* SpawnStatic(
 	std::int16_t tilex,
 	std::int16_t tiley,
 	std::int16_t type)
@@ -317,7 +321,7 @@ void SpawnStatic(
 
 	if (!spot)
 	{
-		return;
+		return nullptr;
 	}
 
 	spot->shapenum = statinfo[type].picnum;
@@ -411,12 +415,16 @@ void SpawnStatic(
 
 	spot->areanumber = GetAreaNumber(spot->tilex, spot->tiley);
 
-	spot++;
+	auto result = spot;
+
+	++spot;
 
 	if (spot == &statobjlist[MAXSTATS])
 	{
 		::Quit("Too many static objects.");
 	}
+
+	return result;
 }
 
 // ---------------------------------------------------------------------------
@@ -711,6 +719,8 @@ void ExplodeStatics(
 					// Remove static
 					spot->shapenum = -1;
 					spot->itemnumber = bo_nothing;
+
+					::vid_hw_on_remove_static(*spot);
 				}
 			}
 		}
@@ -924,11 +934,17 @@ void CheckLinkedDoors(
 		case dr_opening:
 			doorobjlist[door_index].lock = kt_none;
 			OpenDoor(door_index);
+
+			::vid_hw_on_update_door_lock(door_index);
+
 			break;
 
 		case dr_closing:
 			doorobjlist[door_index].lock = kt_none;
 			CloseDoor(door_index);
+
+			::vid_hw_on_update_door_lock(door_index);
+
 			break;
 		}
 	}
@@ -1226,6 +1242,8 @@ void OperateDoor(
 			TakeKey(lock - kt_red);
 			DISPLAY_TIMED_MSG(od_granted, MP_DOOR_OPERATE, MT_GENERAL);
 			doorobjlist[door].lock = kt_none;                           // UnLock door
+
+			::vid_hw_on_update_door_lock(door);
 		}
 	}
 	else
@@ -1261,6 +1279,9 @@ void BlockDoorOpen(
 	actorat[doorobjlist[door].tilex][doorobjlist[door].tiley] = 0;
 
 	TransformAreas(doorobjlist[door].tilex, doorobjlist[door].tiley, 1);
+
+	::vid_hw_on_move_door(door);
+	::vid_hw_on_update_door_lock(door);
 }
 
 void TryBlastDoor(
@@ -1505,6 +1526,8 @@ void DoorOpening(
 	}
 
 	doorposition[door] = static_cast<std::uint16_t>(position);
+
+	::vid_hw_on_move_door(door);
 }
 
 void DoorClosing(
@@ -1538,6 +1561,8 @@ void DoorClosing(
 	}
 
 	doorposition[door] = static_cast<std::uint16_t>(position);
+
+	::vid_hw_on_move_door(door);
 }
 
 /*
@@ -1681,35 +1706,31 @@ void PushWall(
 
 void MovePWalls()
 {
-	std::int16_t oldblock, oldtile;
-
-	if (!pwallstate)
+	if (::pwallstate == 0)
 	{
 		return;
 	}
 
-	oldblock = pwallstate / 128;
+	const auto oldblock = ::pwallstate / 128;
 
-	pwallstate += tics * 4;
+	::pwallstate += ::tics * 4;
 
-	if (pwallstate / 128 != oldblock)
+	if ((::pwallstate / 128) != oldblock)
 	{
-		std::uint16_t areanumber;
-
-		pwalldist--;
+		--::pwalldist;
 
 		// block crossed into a new block
-		oldtile = tilemap[pwallx][pwally] & 63;
+		const auto oldtile = ::tilemap[::pwallx][::pwally] & 63;
 
 		//
 		// the tile can now be walked into
 		//
-		tilemap[pwallx][pwally] = 0;
+		::tilemap[::pwallx][::pwally] = 0;
+		::actorat[::pwallx][::pwally] = nullptr;
 
-		actorat[pwallx][pwally] = nullptr;
+		std::uint16_t areanumber = ::GetAreaNumber(::player->tilex, ::player->tiley);
 
-		areanumber = GetAreaNumber(player->tilex, player->tiley);
-		if (GAN_HiddenArea)
+		if (::GAN_HiddenArea)
 		{
 			areanumber += HIDDENAREATILE;
 		}
@@ -1717,78 +1738,99 @@ void MovePWalls()
 		{
 			areanumber += AREATILE;
 		}
-		*(mapsegs[0] + farmapylookup[pwally] + pwallx) = areanumber;
+
+		::mapsegs[0][::farmapylookup[::pwally] + ::pwallx] = areanumber;
 
 		//
 		// see if it should be pushed farther
 		//
-		if (!pwalldist)
+		const auto old_x = ::pwallx;
+		const auto old_y = ::pwally;
+
+		auto next_dx = 0;
+		auto next_dy = 0;
+
+		switch (::pwalldir)
+		{
+		case di_north:
+			next_dy = -1;
+			break;
+
+		case di_east:
+			next_dx = 1;
+			break;
+
+		case di_south:
+			next_dy = 1;
+			break;
+
+		case di_west:
+			next_dx = -1;
+			break;
+
+		default:
+			::Quit("Invalid pushwall direction.");
+			break;
+		}
+
+		if (::pwalldist == 0)
 		{
 			//
 			// the block has been pushed two tiles
 			//
-			pwallstate = 0;
+			::pwallstate = 0;
+			::pwallpos = 63;
+
+			::vid_hw_on_step_pushwall(old_x, old_y);
+
+			::vid_hw_on_pushwall_to_wall(
+				old_x,
+				old_y,
+				old_x + next_dx,
+				old_y + next_dy
+			);
+
 			return;
 		}
 		else
 		{
-			switch (pwalldir)
+			::pwallx += static_cast<std::uint16_t>(next_dx);
+			::pwally += static_cast<std::uint16_t>(next_dy);
+
+			::vid_hw_on_step_pushwall(old_x, old_y);
+
+			const auto next_x = ::pwallx + next_dx;
+			const auto next_y = ::pwally + next_dy;
+
+			auto& next_actorat = ::actorat[next_x][next_y];
+
+			if (next_actorat)
 			{
-			case di_north:
-				pwally--;
-				if (actorat[pwallx][pwally - 1])
-				{
-					pwallstate = 0;
-					return;
-				}
+				::pwallstate = 0;
+				::pwallpos = 63;
 
-				tilemap[pwallx][pwally - 1] = static_cast<std::uint8_t>(oldtile);
-				actorat[pwallx][pwally - 1] = reinterpret_cast<objtype*>(oldtile);
-				break;
+				::vid_hw_on_step_pushwall(old_x, old_y);
 
-			case di_east:
-				pwallx++;
-				if (actorat[pwallx + 1][pwally])
-				{
-					pwallstate = 0;
-					return;
-				}
+				::vid_hw_on_pushwall_to_wall(
+					old_x,
+					old_y,
+					next_x,
+					next_y
+				);
 
-				tilemap[pwallx + 1][pwally] = static_cast<std::uint8_t>(oldtile);
-				actorat[pwallx + 1][pwally] = reinterpret_cast<objtype*>(oldtile);
-				break;
-
-			case di_south:
-				pwally++;
-				if (actorat[pwallx][pwally + 1])
-				{
-					pwallstate = 0;
-					return;
-				}
-
-				tilemap[pwallx][pwally + 1] = static_cast<std::uint8_t>(oldtile);
-				actorat[pwallx][pwally + 1] = reinterpret_cast<objtype*>(oldtile);
-				break;
-
-			case di_west:
-				pwallx--;
-				if (actorat[pwallx - 1][pwally])
-				{
-					pwallstate = 0;
-					return;
-				}
-
-				tilemap[pwallx - 1][pwally] = static_cast<std::uint8_t>(oldtile);
-				actorat[pwallx - 1][pwally] = reinterpret_cast<objtype*>(oldtile);
-				break;
+				return;
 			}
 
-			tilemap[pwallx][pwally] = static_cast<std::uint8_t>(oldtile | 0xc0);
+			::tilemap[next_x][next_y] = static_cast<std::uint8_t>(oldtile);
+			next_actorat = reinterpret_cast<objtype*>(static_cast<std::uintptr_t>(oldtile));
+
+			::tilemap[::pwallx][::pwally] = static_cast<std::uint8_t>(oldtile | 0xC0);
 		}
 	}
 
+	::pwallpos = (::pwallstate / 2) & 63;
 
-	pwallpos = (pwallstate / 2) & 63;
+	::vid_hw_on_move_pushwall();
 }
 
 // ==========================================================================

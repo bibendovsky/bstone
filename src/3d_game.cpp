@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -572,7 +572,7 @@ void ScanInfoPlane()
 				{
 					::Quit("Yellow puddle (AOG full/PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
-				SpawnStatic(x, y, tile - 23);
+				static_cast<void>(SpawnStatic(x, y, tile - 23));
 				break;
 
 			case 71: // BFG Weapon
@@ -580,7 +580,7 @@ void ScanInfoPlane()
 				{
 					::Quit("BFG (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
-				SpawnStatic(x, y, tile - 23);
+				static_cast<void>(SpawnStatic(x, y, tile - 23));
 				break;
 
 			case 85: // Money bag
@@ -654,7 +654,7 @@ void ScanInfoPlane()
 			case 80:
 			case 83: // Floor Grate
 			case 84: // Floor Pipe
-				SpawnStatic(x, y, tile - 23);
+				static_cast<void>(SpawnStatic(x, y, tile - 23));
 				break;
 
 			case 399: // gold 1
@@ -701,7 +701,7 @@ void ScanInfoPlane()
 			case 422: //
 			case 423: // bo_coin
 			case 424: // bo_coin5
-				SpawnStatic(x, y, tile - 315);
+				static_cast<void>(SpawnStatic(x, y, tile - 315));
 				break;
 
 			case 486: // Plasma Detonator
@@ -711,7 +711,7 @@ void ScanInfoPlane()
 				}
 
 				SpawnHiddenOfs(en_plasma_detonator_reserve, x, y); // Spawn a reserve
-				SpawnStatic(x, y, 486 - 375);
+				static_cast<void>(SpawnStatic(x, y, 486 - 375));
 				break;
 
 			case 487: // Door rubble
@@ -723,14 +723,14 @@ void ScanInfoPlane()
 			case 493: // AOG: Rent A Cop - Dead.
 			case 494: // AOG: Pro Guard - Dead.
 			case 495: // AOG: Swat Guard - Dead.
-				SpawnStatic(x, y, tile - 375);
+				static_cast<void>(SpawnStatic(x, y, tile - 375));
 				break;
 
 
 			case 393: // crate 2
 			case 394: // crate 3
 			case 392: // crate 1
-				SpawnStatic(x, y, tile - 315);
+				static_cast<void>(SpawnStatic(x, y, tile - 315));
 				break;
 
 			case 81:
@@ -1660,13 +1660,13 @@ void ScanInfoPlane()
 			case 136:
 				if (gamestate.difficulty < gd_hard)
 				{
-					SpawnStatic(x, y, 74 - 23);
+					static_cast<void>(SpawnStatic(x, y, 74 - 23));
 					break;
 				}
 			case 135:
 				if (gamestate.difficulty < gd_medium)
 				{
-					SpawnStatic(x, y, 74 - 23);
+					static_cast<void>(SpawnStatic(x, y, 74 - 23));
 					break;
 				}
 			case 134:
@@ -1681,13 +1681,13 @@ void ScanInfoPlane()
 			case 172:
 				if (gamestate.difficulty < gd_hard)
 				{
-					SpawnStatic(x, y, 73 - 23);
+					static_cast<void>(SpawnStatic(x, y, 73 - 23));
 					break;
 				}
 			case 171:
 				if (gamestate.difficulty < gd_medium)
 				{
-					SpawnStatic(x, y, 73 - 23);
+					static_cast<void>(SpawnStatic(x, y, 73 - 23));
 					break;
 				}
 			case 170:
@@ -1702,13 +1702,13 @@ void ScanInfoPlane()
 			case 161:
 				if (gamestate.difficulty < gd_hard)
 				{
-					SpawnStatic(x, y, 72 - 23);
+					static_cast<void>(SpawnStatic(x, y, 72 - 23));
 					break;
 				}
 			case 173:
 				if (gamestate.difficulty < gd_medium)
 				{
-					SpawnStatic(x, y, 72 - 23);
+					static_cast<void>(SpawnStatic(x, y, 72 - 23));
 					break;
 				}
 			case 137:
@@ -1845,7 +1845,7 @@ void ScanInfoPlane()
 
 				if (scan_value == 0xff)
 				{
-					SpawnStatic(x, y, 402 - 315);
+					static_cast<void>(SpawnStatic(x, y, 402 - 315));
 				}
 				else
 				{
@@ -1889,7 +1889,7 @@ void ScanInfoPlane()
 
 				if (scan_value == 0xff)
 				{
-					SpawnStatic(x, y, 403 - 315);
+					static_cast<void>(SpawnStatic(x, y, 403 - 315));
 				}
 				else
 				{
@@ -1934,7 +1934,7 @@ void ScanInfoPlane()
 
 				if (scan_value == 0xff)
 				{
-					SpawnStatic(x, y, 48 - 23);
+					static_cast<void>(SpawnStatic(x, y, 48 - 23));
 				}
 				else
 				{
@@ -2399,7 +2399,6 @@ void SetupGameLevel()
 
 	if (!loadedgame)
 	{
-		gamestate.flags |= GS_CLIP_WALLS;
 		InitGoldsternInfo();
 	}
 
@@ -3040,7 +3039,7 @@ void ShadowPrintLocationText(
 		// Print location text
 		//
 
-		if (DebugOk || (gamestate.flags & (GS_QUICKRUN | GS_STARTLEVEL | GS_TICS_FOR_SCORE | GS_MUSIC_TEST | GS_SHOW_OVERHEAD)))
+		if (DebugOk)
 		{
 			s = DebugText;
 		}
@@ -3198,7 +3197,7 @@ void Warped()
 	static_cast<void>(fizzle.present(true));
 
 	IN_UserInput(100);
-	SD_WaitSoundDone();
+	sd_wait_sound_done();
 
 	::vid_is_hud = false;
 }
@@ -3235,7 +3234,7 @@ void Died()
 
 	IN_UserInput(100);
 
-	SD_WaitSoundDone();
+	sd_wait_sound_done();
 	StopMusic();
 
 	gamestate.lives--;
@@ -3249,8 +3248,6 @@ void Died()
 		gamestate.ammo = STARTAMMO;
 		gamestate.attackframe = gamestate.attackcount =
 			gamestate.weaponframe = 0;
-
-		gamestate.flags |= (GS_CLIP_WALLS | GS_ATTACK_INFOAREA);
 
 		DrawHealth();
 		DrawKeys();
@@ -3420,7 +3417,7 @@ void GameLoop()
 
 	bool quit = false;
 
-	extern bool sqActive;
+	extern bool sd_sq_active_;
 
 	auto Score = std::string{};
 	bool died;
@@ -3458,7 +3455,7 @@ restartgame:
 			VW_UpdateScreen();
 		}
 
-		if (!sqActive)
+		if (!sd_sq_active_)
 		{
 			StartMusic(false);
 		}
@@ -3528,7 +3525,7 @@ restartgame:
 			}
 		}
 
-		if (!sqActive)
+		if (!sd_sq_active_)
 		{
 			StartMusic(false);
 		}
@@ -3630,7 +3627,7 @@ restartgame:
 
 				::sd_play_player_sound(BONUS1SND, bstone::ActorChannel::item);
 
-				SD_WaitSoundDone();
+				sd_wait_sound_done();
 				IN_UserInput(5 * 60);
 				ClearMemory();
 			}

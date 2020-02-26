@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -62,12 +62,6 @@ Free Software Foundation, Inc.,
 
 #define MouseInt 0x33
 
-//
-// joystick constants
-//
-#define JoyScaleMax 32768
-#define JoyScaleShift 8
-
 
 /*
 =============================================================================
@@ -81,13 +75,10 @@ Free Software Foundation, Inc.,
 // configuration variables
 //
 bool MousePresent;
-bool JoysPresent[MaxJoys];
-bool JoyPadPresent;
 bool NGinstalled = false;
 
 
 //      Global variables
-bool JoystickCalibrated; // JAM - added
 ControlType ControlTypeUsed; // JAM - added
 KeyboardState Keyboard;
 bool Paused;
@@ -107,12 +98,10 @@ KeyboardDef KbdDefs = {
 	ScanCode::sc_page_down
 }; // KeyboardDef KbdDefs
 
-JoystickDef JoyDefs[MaxJoys];
 ControlType Controls[MaxPlayers];
 
 std::uint32_t MouseDownCount;
 
-bool in_use_modern_bindings = default_in_use_modern_bindings;
 Bindings in_bindings;
 bool in_is_mouse_grabbed = false;
 static bool in_last_is_mouse_grabbed = false;
@@ -941,270 +930,6 @@ static int INL_GetMouseButtons()
 	return result;
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      IN_GetJoyAbs() - Reads the absolute position of the specified joystick
-//
-///////////////////////////////////////////////////////////////////////////
-void IN_GetJoyAbs(
-	std::uint16_t joy,
-	std::uint16_t* xp,
-	std::uint16_t* yp)
-{
-	// FIXME
-#if 0
-	std::uint8_t xb, yb;
-	std::uint8_t xs, ys;
-	std::uint16_t x, y;
-
-	// Handle Notebook Gamepad's joystick.
-	//
-	if (NGinstalled)
-	{
-		unsigned ax, bx;
-
-		joy++;
-
-		_AL = 0x01;
-		_BX = joy;
-		NGjoy(0x01);
-
-		ax = _AX;
-		bx = _BX;
-		*xp = ax;
-		*yp = bx;
-
-		return;
-	}
-
-	// Handle normal PC joystick.
-	//
-	x = y = 0;
-	xs = joy ? 2 : 0; // Find shift value for x axis
-	xb = 1 << xs; // Use shift value to get x bit mask
-	ys = joy ? 3 : 1; // Do the same for y axis
-	yb = 1 << ys;
-
-	// Read the absolute joystick values
-	asm             pushf // Save some registers
-		asm             push si
-		asm             push di
-		asm             cli // Make sure an interrupt doesn't screw the timings
-
-
-		asm             mov dx, 0x201
-		asm             in al, dx
-		asm             out dx, al // Clear the resistors
-
-		asm             mov ah, [xb] // Get masks into registers
-		asm             mov ch, [yb]
-
-		asm             xor             si, si // Clear count registers
-		asm             xor             di, di
-		asm             xor             bh, bh // Clear high byte of bx for later
-
-		asm             push bp // Don't mess up stack frame
-		asm             mov bp, MaxJoyValue
-
-		loop :
-	asm             in al, dx // Get bits indicating whether all are finished
-
-		asm             dec bp // Check bounding register
-		asm             jz done // We have a silly value - abort
-
-		asm             mov bl, al // Duplicate the bits
-		asm             and bl, ah // Mask off useless bits (in [xb])
-		asm             add si, bx // Possibly increment count register
-		asm             mov cl, bl // Save for testing later
-
-		asm             mov bl, al
-		asm             and bl, ch // [yb]
-		asm             add di, bx
-
-		asm             add cl, bl
-		asm             jnz loop // If both bits were 0, drop out
-
-		done :
-	asm     pop bp
-
-		asm             mov cl, [xs] // Get the number of bits to shift
-		asm             shr si, cl //  and shift the count that many times
-
-		asm             mov cl, [ys]
-		asm             shr di, cl
-
-		asm             mov[x], si // Store the values into the variables
-		asm             mov[y], di
-
-		asm             pop di
-		asm             pop si
-		asm             popf // Restore the registers
-
-		* xp = x;
-	*yp = y;
-#endif // 0
-
-	static_cast<void>(joy);
-
-	*xp = 0;
-	*yp = 0;
-}
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      INL_GetJoyDelta() - Returns the relative movement of the specified
-//              joystick (from +/-127)
-//
-///////////////////////////////////////////////////////////////////////////
-void INL_GetJoyDelta(
-	std::uint16_t joy,
-	int* dx,
-	int* dy)
-{
-	std::uint16_t x, y;
-	JoystickDef* def;
-
-	// FIXME
-#if 0
-	static std::uint32_t lasttime;
-#endif // 0
-
-	IN_GetJoyAbs(joy, &x, &y);
-	def = JoyDefs + joy;
-
-	if (x < def->threshMinX)
-	{
-		if (x < def->joyMinX)
-		{
-			x = def->joyMinX;
-		}
-
-		x = -(x - def->threshMinX);
-		x *= def->joyMultXL;
-		x >>= JoyScaleShift;
-		*dx = (x > 127) ? -127 : -x;
-	}
-	else if (x > def->threshMaxX)
-	{
-		if (x > def->joyMaxX)
-		{
-			x = def->joyMaxX;
-		}
-
-		x = x - def->threshMaxX;
-		x *= def->joyMultXH;
-		x >>= JoyScaleShift;
-		*dx = (x > 127) ? 127 : x;
-	}
-	else
-	{
-		*dx = 0;
-	}
-
-	if (y < def->threshMinY)
-	{
-		if (y < def->joyMinY)
-		{
-			y = def->joyMinY;
-		}
-
-		y = -(y - def->threshMinY);
-		y *= def->joyMultYL;
-		y >>= JoyScaleShift;
-		*dy = (y > 127) ? -127 : -y;
-	}
-	else if (y > def->threshMaxY)
-	{
-		if (y > def->joyMaxY)
-		{
-			y = def->joyMaxY;
-		}
-
-		y = y - def->threshMaxY;
-		y *= def->joyMultYH;
-		y >>= JoyScaleShift;
-		*dy = (y > 127) ? 127 : y;
-	}
-	else
-	{
-		*dy = 0;
-	}
-
-	// FIXME
-#if 0
-	lasttime = TimeCount;
-#endif // 0
-}
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      INL_GetJoyButtons() - Returns the button status of the specified
-//              joystick
-//
-///////////////////////////////////////////////////////////////////////////
-static std::uint16_t INL_GetJoyButtons(
-	std::uint16_t joy)
-{
-	// FIXME
-#if 0
-	register std::uint16_t result;
-
-	// Handle Notebook Gamepad's joystick.
-	//
-	if (NGinstalled)
-	{
-		unsigned ax, bx;
-
-		joy++;
-
-		_AL = 0x01;
-		_BX = joy;
-		NGjoy(0x00);
-
-		result = _AL;
-		result >>= joy ? 6 : 4; // Shift into bits 0-1
-		result &= 3; // Mask off the useless bits
-		result ^= 3;
-
-		return result;
-	}
-
-	// Handle normal PC joystick.
-	//
-	result = inportb(0x201); // Get all the joystick buttons
-	result >>= joy ? 6 : 4; // Shift into bits 0-1
-	result &= 3; // Mask off the useless bits
-	result ^= 3;
-	return result;
-#endif // 0
-
-	static_cast<void>(joy);
-	return 0;
-}
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      IN_GetJoyButtonsDB() - Returns the de-bounced button status of the
-//              specified joystick
-//
-///////////////////////////////////////////////////////////////////////////
-std::uint16_t IN_GetJoyButtonsDB(
-	std::uint16_t joy)
-{
-	std::uint32_t lasttime;
-	std::uint16_t result1, result2;
-
-	do
-	{
-		result1 = INL_GetJoyButtons(joy);
-		lasttime = TimeCount;
-		while (TimeCount == lasttime)
-		{
-		}
-		result2 = INL_GetJoyButtons(joy);
-	} while (result1 != result2);
-	return result1;
-}
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -1243,67 +968,6 @@ static void INL_ShutMouse()
 // BBi
 
 
-//
-//      INL_SetJoyScale() - Sets up scaling values for the specified joystick
-//
-static void INL_SetJoyScale(
-	std::uint16_t joy)
-{
-	JoystickDef* def;
-
-	def = &JoyDefs[joy];
-	def->joyMultXL = JoyScaleMax / (def->threshMinX - def->joyMinX);
-	def->joyMultXH = JoyScaleMax / (def->joyMaxX - def->threshMaxX);
-	def->joyMultYL = JoyScaleMax / (def->threshMinY - def->joyMinY);
-	def->joyMultYH = JoyScaleMax / (def->joyMaxY - def->threshMaxY);
-}
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      IN_SetupJoy() - Sets up thresholding values and calls INL_SetJoyScale()
-//              to set up scaling values
-//
-///////////////////////////////////////////////////////////////////////////
-void IN_SetupJoy(
-	std::uint16_t joy,
-	std::uint16_t minx,
-	std::uint16_t maxx,
-	std::uint16_t miny,
-	std::uint16_t maxy)
-{
-	std::uint16_t d, r;
-	JoystickDef* def;
-
-	def = &JoyDefs[joy];
-
-	def->joyMinX = minx;
-	def->joyMaxX = maxx;
-	r = maxx - minx;
-	d = r / 5;
-	def->threshMinX = ((r / 2) - d) + minx;
-	def->threshMaxX = ((r / 2) + d) + minx;
-
-	def->joyMinY = miny;
-	def->joyMaxY = maxy;
-	r = maxy - miny;
-	d = r / 5;
-	def->threshMinY = ((r / 2) - d) + miny;
-	def->threshMaxY = ((r / 2) + d) + miny;
-
-	INL_SetJoyScale(joy);
-}
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      INL_ShutJoy() - Cleans up the joystick stuff
-//
-///////////////////////////////////////////////////////////////////////////
-static void INL_ShutJoy(
-	std::uint16_t joy)
-{
-	JoysPresent[joy] = false;
-}
-
 ///////////////////////////////////////////////////////////////////////////
 //
 //      IN_Shutdown() - Shuts down the Input Mgr
@@ -1311,17 +975,11 @@ static void INL_ShutJoy(
 ///////////////////////////////////////////////////////////////////////////
 void IN_Shutdown()
 {
-	std::uint16_t i;
-
 	if (!IN_Started)
 	{
 		return;
 	}
 
-	for (i = 0; i < MaxJoys; i++)
-	{
-		INL_ShutJoy(i);
-	}
 	INL_ShutKbd();
 
 	// BBi
@@ -1541,20 +1199,6 @@ void IN_ReadControl(
 				ControlTypeUsed = ctrl_Mouse;
 			}
 		}
-
-		// Handle joystick input...
-		//
-		if (JoystickCalibrated && (ControlTypeUsed == ctrl_None))
-		{
-			INL_GetJoyDelta(ctrl_Joystick1 - ctrl_Joystick, &dx, &dy);
-			buttons = INL_GetJoyButtons(ctrl_Joystick1 - ctrl_Joystick);
-			realdelta = true;
-			if (dx || dy || buttons)
-			{
-				ControlTypeUsed = ctrl_Joystick;
-			}
-		}
-
 		// JAM end
 	}
 
@@ -1617,7 +1261,8 @@ void IN_StartAck()
 	IN_ClearKeysDown();
 	memset(btnstate, 0, sizeof(btnstate));
 
-	buttons = IN_JoyButtons() << 4;
+	buttons = 0;
+
 	if (MousePresent)
 	{
 		buttons |= IN_MouseButtons();
@@ -1645,7 +1290,8 @@ bool IN_CheckAck()
 		return true;
 	}
 
-	buttons = IN_JoyButtons() << 4;
+	buttons = 0;
+
 	if (MousePresent)
 	{
 		buttons |= IN_MouseButtons();
@@ -1709,42 +1355,6 @@ std::uint8_t IN_MouseButtons()
 	return static_cast<std::uint8_t>(::INL_GetMouseButtons());
 }
 
-std::uint8_t IN_JoyButtons()
-{
-	// FIXME
-#if 0
-	unsigned joybits;
-
-	joybits = inportb(0x201); // Get all the joystick buttons
-	joybits >>= 4; // only the high bits are useful
-	joybits ^= 15; // return with 1=pressed
-
-	return joybits;
-#else
-	return 0;
-#endif // 0
-}
-
-bool INL_StartJoy(
-	std::uint16_t joy)
-{
-	std::uint16_t x;
-	std::uint16_t y;
-
-	IN_GetJoyAbs(joy, &x, &y);
-
-	if ((x == 0 || x > MaxJoyValue - 10) ||
-		(y == 0 || y > MaxJoyValue - 10))
-	{
-		return false;
-	}
-	else
-	{
-		IN_SetupJoy(joy, 0, x * 2, 0, y * 2);
-		return true;
-	}
-}
-
 void IN_Startup()
 {
 	if (IN_Started)
@@ -1754,11 +1364,6 @@ void IN_Startup()
 
 	INL_StartKbd();
 	MousePresent = INL_StartMouse();
-
-	for (int i = 0; i < MaxJoys; ++i)
-	{
-		JoysPresent[i] = INL_StartJoy(static_cast<std::uint16_t>(i));
-	}
 
 #ifdef __vita__
 	// Vita joysticks are treated separately from other kinds of joystick
@@ -1857,351 +1462,25 @@ void in_set_default_bindings()
 bool in_is_binding_pressed(
 	BindingId binding_id)
 {
-	if (in_use_modern_bindings)
-	{
-		const Binding& binding = in_bindings[binding_id];
+	const Binding& binding = in_bindings[binding_id];
 
-		return (binding[0] != ScanCode::sc_none && Keyboard[binding[0]]) ||
-			(binding[1] != ScanCode::sc_none && Keyboard[binding[1]]);
-	}
-	else
-	{
-		const auto& assets_info = AssetsInfo{};
-
-		switch (binding_id)
-		{
-		case e_bi_forward:
-			return Keyboard[dirscan[di_north]];
-
-		case e_bi_backward:
-			return Keyboard[dirscan[di_south]];
-
-		case e_bi_left:
-			return Keyboard[dirscan[di_west]];
-
-		case e_bi_right:
-			return Keyboard[dirscan[di_east]];
-
-		case e_bi_strafe:
-			return Keyboard[buttonscan[bt_strafe]];
-
-		case e_bi_quick_left:
-			return Keyboard[ScanCode::sc_q];
-
-		case e_bi_quick_right:
-			return Keyboard[ScanCode::sc_e];
-
-		case e_bi_turn_around:
-			return Keyboard[ScanCode::sc_w] || Keyboard[ScanCode::sc_return];
-
-		case e_bi_run:
-			return Keyboard[buttonscan[bt_run]];
-
-		case e_bi_attack:
-			return Keyboard[buttonscan[bt_attack]];
-
-		case e_bi_weapon_1:
-			return Keyboard[ScanCode::sc_1];
-
-		case e_bi_weapon_2:
-			return Keyboard[ScanCode::sc_2];
-
-		case e_bi_weapon_3:
-			return Keyboard[ScanCode::sc_3];
-
-		case e_bi_weapon_4:
-			return Keyboard[ScanCode::sc_4];
-
-		case e_bi_weapon_5:
-			return Keyboard[ScanCode::sc_5];
-
-		case e_bi_weapon_6:
-			return Keyboard[ScanCode::sc_6];
-
-		case e_bi_weapon_7:
-			if (!assets_info.is_ps())
-			{
-				return false;
-			}
-
-			return Keyboard[ScanCode::sc_back_quote];
-
-		case e_bi_use:
-			return Keyboard[ScanCode::sc_space];
-
-		case e_bi_stats:
-			return Keyboard[ScanCode::sc_tab];
-
-		case e_bi_radar_magnify:
-			if (!assets_info.is_ps())
-			{
-				return false;
-			}
-
-			return Keyboard[ScanCode::sc_equals];
-
-		case e_bi_radar_minify:
-			if (!assets_info.is_ps())
-			{
-				return false;
-			}
-
-			return Keyboard[ScanCode::sc_minus];
-
-		case e_bi_help:
-			return Keyboard[ScanCode::sc_f1];
-
-		case e_bi_save:
-			return Keyboard[ScanCode::sc_f2];
-
-		case e_bi_load:
-			return Keyboard[ScanCode::sc_f3];
-
-		case e_bi_sound:
-			return Keyboard[ScanCode::sc_f4];
-
-		case e_bi_controls:
-			return Keyboard[ScanCode::sc_f6];
-
-		case e_bi_end_game:
-			return Keyboard[ScanCode::sc_f7];
-
-		case e_bi_quick_save:
-			return Keyboard[ScanCode::sc_f8];
-
-		case e_bi_quick_load:
-			return Keyboard[ScanCode::sc_f9];
-
-		case e_bi_quick_exit:
-			return Keyboard[ScanCode::sc_f10];
-
-		case e_bi_attack_info:
-			return Keyboard[ScanCode::sc_i];
-
-		case e_bi_lightning:
-			return Keyboard[ScanCode::sc_l];
-
-		case e_bi_sfx:
-			return Keyboard[ScanCode::sc_s];
-
-		case e_bi_music:
-			return Keyboard[ScanCode::sc_m];
-
-		case e_bi_ceiling:
-			return Keyboard[ScanCode::sc_c];
-
-		case e_bi_flooring:
-			return Keyboard[ScanCode::sc_f];
-
-		case e_bi_heart_beat:
-			if (!assets_info.is_aog())
-			{
-				return false;
-			}
-
-			return Keyboard[ScanCode::sc_h];
-
-		case e_bi_pause:
-			return Keyboard[ScanCode::sc_p] || Keyboard[ScanCode::sc_pause];
-
-		default:
-			return false;
-		}
-	}
+	return (binding[0] != ScanCode::sc_none && Keyboard[binding[0]]) ||
+		(binding[1] != ScanCode::sc_none && Keyboard[binding[1]]);
 }
 
 void in_reset_binding_state(
 	BindingId binding_id)
 {
-	if (in_use_modern_bindings)
+	const auto& binding = in_bindings[binding_id];
+
+	if (binding[0] != ScanCode::sc_none)
 	{
-		const auto& binding = in_bindings[binding_id];
-
-		if (binding[0] != ScanCode::sc_none)
-		{
-			Keyboard[binding[0]] = false;
-		}
-
-		if (binding[1] != ScanCode::sc_none)
-		{
-			Keyboard[binding[1]] = false;
-		}
+		Keyboard[binding[0]] = false;
 	}
-	else
+
+	if (binding[1] != ScanCode::sc_none)
 	{
-		const auto& assets_info = AssetsInfo{};
-
-		switch (binding_id)
-		{
-		case e_bi_forward:
-			Keyboard[dirscan[di_north]] = false;
-			break;
-
-		case e_bi_backward:
-			Keyboard[dirscan[di_south]] = false;
-			break;
-
-		case e_bi_left:
-			Keyboard[dirscan[di_west]] = false;
-			break;
-
-		case e_bi_right:
-			Keyboard[dirscan[di_east]] = false;
-			break;
-
-		case e_bi_strafe:
-			Keyboard[buttonscan[bt_strafe]] = false;
-			break;
-
-		case e_bi_quick_left:
-			Keyboard[ScanCode::sc_q] = false;
-			break;
-
-		case e_bi_quick_right:
-			Keyboard[ScanCode::sc_e] = false;
-			break;
-
-		case e_bi_turn_around:
-			Keyboard[ScanCode::sc_w] = false;
-			Keyboard[ScanCode::sc_return] = false;
-			break;
-
-		case e_bi_run:
-			Keyboard[buttonscan[bt_run]] = false;
-			break;
-
-		case e_bi_attack:
-			Keyboard[buttonscan[bt_attack]] = false;
-			break;
-
-		case e_bi_weapon_1:
-			Keyboard[ScanCode::sc_1] = false;
-			break;
-
-		case e_bi_weapon_2:
-			Keyboard[ScanCode::sc_2] = false;
-			break;
-
-		case e_bi_weapon_3:
-			Keyboard[ScanCode::sc_3] = false;
-			break;
-
-		case e_bi_weapon_4:
-			Keyboard[ScanCode::sc_4] = false;
-			break;
-
-		case e_bi_weapon_5:
-			Keyboard[ScanCode::sc_5] = false;
-			break;
-
-		case e_bi_weapon_6:
-			Keyboard[ScanCode::sc_6] = false;
-			break;
-
-		case e_bi_weapon_7:
-			if (assets_info.is_ps())
-			{
-				Keyboard[ScanCode::sc_back_quote] = false;
-			}
-			break;
-
-		case e_bi_use:
-			Keyboard[ScanCode::sc_space] = false;
-			break;
-
-		case e_bi_stats:
-			Keyboard[ScanCode::sc_tab] = false;
-			break;
-
-		case e_bi_radar_magnify:
-			if (assets_info.is_ps())
-			{
-				Keyboard[ScanCode::sc_equals] = false;
-			}
-			break;
-
-		case e_bi_radar_minify:
-			if (assets_info.is_ps())
-			{
-				Keyboard[ScanCode::sc_minus] = false;
-			}
-			break;
-
-		case e_bi_help:
-			Keyboard[ScanCode::sc_f1] = false;
-			break;
-
-		case e_bi_save:
-			Keyboard[ScanCode::sc_f2] = false;
-			break;
-
-		case e_bi_load:
-			Keyboard[ScanCode::sc_f3] = false;
-			break;
-
-		case e_bi_sound:
-			Keyboard[ScanCode::sc_f4] = false;
-			break;
-
-		case e_bi_controls:
-			Keyboard[ScanCode::sc_f6] = false;
-			break;
-
-		case e_bi_end_game:
-			Keyboard[ScanCode::sc_f7] = false;
-			break;
-
-		case e_bi_quick_save:
-			Keyboard[ScanCode::sc_f8] = false;
-			break;
-
-		case e_bi_quick_load:
-			Keyboard[ScanCode::sc_f9] = false;
-			break;
-
-		case e_bi_quick_exit:
-			Keyboard[ScanCode::sc_f10] = false;
-			break;
-
-		case e_bi_attack_info:
-			Keyboard[ScanCode::sc_i] = false;
-			break;
-
-		case e_bi_lightning:
-			Keyboard[ScanCode::sc_l] = false;
-			break;
-
-		case e_bi_sfx:
-			Keyboard[ScanCode::sc_s] = false;
-			break;
-
-		case e_bi_music:
-			Keyboard[ScanCode::sc_m] = false;
-			break;
-
-		case e_bi_ceiling:
-			Keyboard[ScanCode::sc_c] = false;
-			break;
-
-		case e_bi_flooring:
-			Keyboard[ScanCode::sc_f] = false;
-			break;
-
-		case e_bi_pause:
-			Keyboard[ScanCode::sc_p] = false;
-			Keyboard[ScanCode::sc_pause] = false;
-			break;
-
-		case e_bi_heart_beat:
-			if (assets_info.is_aog())
-			{
-				Keyboard[ScanCode::sc_h] = false;
-			}
-			break;
-
-		default:
-			break;
-		}
+		Keyboard[binding[1]] = false;
 	}
 }
 

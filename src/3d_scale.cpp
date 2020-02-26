@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -119,7 +119,7 @@ void generic_scale_shape(
 	}
 
 
-	constexpr auto side = bstone::Sprite::side;
+	constexpr auto dimension = bstone::Sprite::dimension;
 
 	constexpr auto mid_bob = 6;
 	constexpr auto bob_start = 6;
@@ -154,27 +154,27 @@ void generic_scale_shape(
 		::vga_3d_view_top_y + ::centery - half_height;
 
 	const auto left = sprite_ptr->get_left();
-	auto x1 = offset_x + ((left * height) / side);
+	auto x1 = offset_x + ((left * height) / dimension);
 
 	if (x1 >= ::viewwidth)
 	{
 		return;
 	}
 
-	auto x2 = x1 + ((sprite_width * height) / side);
+	auto x2 = x1 + ((sprite_width * height) / dimension);
 
 	const auto top = sprite_ptr->get_top();
-	auto y1 = offset_y + ((top * height) / side);
+	auto y1 = offset_y + ((top * height) / dimension);
 
 	if (y1 > ::vga_3d_view_bottom_y)
 	{
 		return;
 	}
 
-	auto y2 = y1 + ((sprite_height * height) / side);
+	auto y2 = y1 + ((sprite_height * height) / dimension);
 
 
-	const auto tx_delta = bstone::FixedPoint{side, 0} / height;
+	const auto tx_delta = bstone::FixedPoint{dimension, 0} / height;
 
 	auto tx_column = bstone::FixedPoint{};
 
@@ -239,7 +239,7 @@ void generic_scale_shape(
 
 	for (int x = x1; x < x2; ++x)
 	{
-		if (!is_player_weapon && ::wallheight[x] > ref_height)
+		if (!is_player_weapon && ::wallheight[x] > static_cast<double>(ref_height))
 		{
 			tx_column += tx_delta;
 			continue;
@@ -370,6 +370,7 @@ void scale_player_weapon(
 
 void update_normalshade()
 {
-	::normalshade = static_cast<int>((3.0F * ::maxscale) / (4.0F * ::normalshade_div * ::vga_height_scale));
+	::normalshade = static_cast<int>(
+		(3.0 * ::maxscale) / (4.0 * ::normalshade_div) / ::vga_wide_scale);
 }
 // BBi

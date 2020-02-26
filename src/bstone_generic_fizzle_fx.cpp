@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -82,6 +82,14 @@ GenericFizzleFX::~GenericFizzleFX()
 
 void GenericFizzleFX::initialize()
 {
+	if (::vid_is_hw_ && !is_vanilla_only())
+	{
+		::vid_hw_set_fizzle_fx_color_index(impl_->plot_color_);
+		::vid_hw_enable_fizzle_fx_fading(impl_->is_transparent_);
+
+		return;
+	}
+
 	impl_->y_offset_ = ::ref_view_top_y;
 	impl_->height_ = ::ref_view_height;
 
@@ -99,6 +107,11 @@ void GenericFizzleFX::uninitialize()
 }
 
 bool GenericFizzleFX::is_abortable() const
+{
+	return false;
+}
+
+bool GenericFizzleFX::is_vanilla_only() const
 {
 	return false;
 }
@@ -122,6 +135,11 @@ void GenericFizzleFX::plot(
 	const int x,
 	const int y)
 {
+	if (::vid_is_hw_ && !is_vanilla_only())
+	{
+		return;
+	}
+
 	if (impl_->is_transparent_)
 	{
 		::VL_Plot(x, y, impl_->plot_color_, !impl_->is_transparent_);
@@ -136,6 +154,13 @@ void GenericFizzleFX::plot(
 
 void GenericFizzleFX::skip_to_the_end()
 {
+	if (::vid_is_hw_ && !is_vanilla_only())
+	{
+		::vid_hw_set_fizzle_fx_ratio(1.0F);
+
+		return;
+	}
+
 	if (impl_->is_transparent_)
 	{
 		::VL_Bar(0, get_y(), ::vga_ref_width, get_height(), impl_->plot_color_, !impl_->is_transparent_);

@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -45,6 +45,12 @@ namespace bstone
 bool FizzleFX::present(
 	const bool trigger_fade)
 {
+	if (::vid_is_hw_ && !is_vanilla_only())
+	{
+		::vid_hw_enable_fizzle_fx(true);
+		::vid_hw_set_fizzle_fx_ratio(0.0F);
+	}
+
 	if (trigger_fade)
 	{
 		::vid_is_fizzle_fade = true;
@@ -84,30 +90,46 @@ bool FizzleFX::present(
 
 			remain_pixels = 0;
 
-			for (auto p = 0; p < pixel_count; ++p)
+			if (::vid_is_hw_ && !is_vanilla_only())
 			{
-				auto x = (rndval >> 8) & 0xFFFF;
-				auto y = ((rndval & 0xFF) - 1) & 0xFF;
-
-				auto carry = ((rndval & 1) != 0);
-
-				rndval >>= 1;
-
-				if (carry)
-				{
-					rndval ^= 0x00012000;
-				}
-
-				if (x >= width || y >= height)
-				{
-					continue;
-				}
-
-				plot(x, y_offset + y);
-
-				if (rndval == 1)
+				if ((frame + 1) >= frame_count)
 				{
 					do_full_copy = true;
+				}
+				else
+				{
+					const auto ratio = static_cast<float>(frame) / static_cast<float>(frame_count);
+
+					::vid_hw_set_fizzle_fx_ratio(ratio);
+				}
+			}
+			else
+			{
+				for (auto p = 0; p < pixel_count; ++p)
+				{
+					auto x = (rndval >> 8) & 0xFFFF;
+					auto y = ((rndval & 0xFF) - 1) & 0xFF;
+
+					auto carry = ((rndval & 1) != 0);
+
+					rndval >>= 1;
+
+					if (carry)
+					{
+						rndval ^= 0x00012000;
+					}
+
+					if (x >= width || y >= height)
+					{
+						continue;
+					}
+
+					plot(x, y_offset + y);
+
+					if (rndval == 1)
+					{
+						do_full_copy = true;
+					}
 				}
 			}
 		}
@@ -130,10 +152,20 @@ bool FizzleFX::present(
 		::vid_is_fizzle_fade = false;
 	}
 
+	if (::vid_is_hw_ && !is_vanilla_only())
+	{
+		::vid_hw_enable_fizzle_fx(false);
+	}
+
 	return is_aborted;
 }
 
 bool FizzleFX::is_abortable() const
+{
+	throw "Not implemented.";
+}
+
+bool FizzleFX::is_vanilla_only() const
 {
 	throw "Not implemented.";
 }
@@ -157,6 +189,9 @@ void FizzleFX::plot(
 	const int x,
 	const int y)
 {
+	static_cast<void>(x);
+	static_cast<void>(y);
+
 	throw "Not implemented.";
 }
 

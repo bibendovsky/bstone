@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -50,7 +50,6 @@ void TranslateAnalogEvent(SDL_Event *ev);
 
 #define MaxPlayers 4
 #define MaxKbds 2
-#define MaxJoys 2
 #define NumCodes 128
 
 enum class ScanCode
@@ -170,10 +169,6 @@ enum class ScanCode
 
 #define MouseInt 0x33
 
-#define  NGint 0x15
-#define  NGjoy(com) _AH = 0x84; _DX = com; geninterrupt(NGint);
-
-#define MaxJoyValue 5000 // JAM
 
 enum Demo
 {
@@ -189,9 +184,6 @@ enum ControlType
 	ctrl_Keyboard,
 	ctrl_Keyboard1 = ctrl_Keyboard,
 	ctrl_Keyboard2,
-	ctrl_Joystick,
-	ctrl_Joystick1 = ctrl_Joystick,
-	ctrl_Joystick2,
 	ctrl_Mouse
 }; // ControlType
 
@@ -277,13 +269,6 @@ const int k_max_bindings = e_bi_last_entry;
 using Binding = ScanCode[k_max_binding_keys];
 using Bindings = Binding[k_max_bindings];
 
-#ifdef __vita__
-const bool default_in_use_modern_bindings = false;
-#else
-const bool default_in_use_modern_bindings = true;
-#endif
-
-extern bool in_use_modern_bindings;
 extern Bindings in_bindings;
 
 void in_set_default_bindings();
@@ -316,22 +301,6 @@ struct KeyboardDef
 	ScanCode down;
 	ScanCode downright;
 }; // KeyboardDef
-
-struct JoystickDef
-{
-	std::uint16_t joyMinX;
-	std::uint16_t joyMinY;
-	std::uint16_t threshMinX;
-	std::uint16_t threshMinY;
-	std::uint16_t threshMaxX;
-	std::uint16_t threshMaxY;
-	std::uint16_t joyMaxX;
-	std::uint16_t joyMaxY;
-	std::uint16_t joyMultXL;
-	std::uint16_t joyMultYL;
-	std::uint16_t joyMultXH;
-	std::uint16_t joyMultYH;
-}; // JoystickDef
 
 
 // Global variables
@@ -379,18 +348,13 @@ private:
 	State state_;
 }; // KeyboardState
 
-extern bool NGinstalled; // JAM
-
-extern bool JoystickCalibrated; // JAM - added
 extern ControlType ControlTypeUsed; // JAM - added
 extern KeyboardState Keyboard;
 extern bool MousePresent;
-extern bool JoysPresent[];
 extern bool Paused;
 extern char LastASCII;
 extern ScanCode LastScan;
 extern KeyboardDef KbdDefs;
-extern JoystickDef JoyDefs[];
 extern ControlType Controls[MaxPlayers];
 
 extern std::uint8_t* DemoBuffer;
@@ -409,27 +373,16 @@ void IN_ClearKeysDown();
 void IN_ReadCursor(CursorInfo*);
 void IN_ReadControl(std::int16_t, ControlInfo*);
 void IN_SetControlType(std::int16_t, ControlType);
-void IN_GetJoyAbs(std::uint16_t joy, std::uint16_t * xp, std::uint16_t * yp);
-
-void IN_SetupJoy(
-	std::uint16_t joy,
-	std::uint16_t minx,
-	std::uint16_t maxx,
-	std::uint16_t miny,
-	std::uint16_t maxy);
 
 void IN_Ack();
 
 extern bool IN_UserInput(
 	std::uint32_t delay);
 extern char IN_WaitForASCII();
-extern std::uint16_t IN_GetJoyButtonsDB(
-	std::uint16_t joy);
 extern const std::string& IN_GetScanName(ScanCode);
 
 
 std::uint8_t IN_MouseButtons();
-std::uint8_t IN_JoyButtons();
 
 
 // BBi

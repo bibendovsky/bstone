@@ -44,6 +44,8 @@ private:
 	Cache cache_;
 }; // SpriteCache
 
+using SpriteCachePtr = SpriteCache*;
+
 
 } // bstone
 

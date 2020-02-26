@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -27,23 +27,20 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_cl_args.h"
+#include "bstone_exception.h"
 
 
-class QuitException
+class QuitException :
+	public bstone::Exception
 {
 public:
 	QuitException();
 
-	QuitException(
+	explicit QuitException(
+		const char* const message);
+
+	explicit QuitException(
 		const std::string& message);
-
-	bool is_empty() const;
-
-	const std::string& get_message() const;
-
-
-private:
-	std::string message_;
 }; // QuitException
 
 
@@ -85,11 +82,9 @@ extern bstone::ClArgs g_args;
 extern std::uint8_t update[UPDATESIZE];
 
 
-[[noreturn]]
-void Quit();
+[[noreturn]] void Quit();
 
-[[noreturn]]
-void Quit(
+[[noreturn]] void Quit(
 	const std::string& message);
 // BBi
 
