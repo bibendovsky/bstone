@@ -22,9 +22,6 @@ Free Software Foundation, Inc.,
 */
 
 
-#define BSTONE_DBG_FORCE_SW (0)
-
-
 #include <cassert>
 
 #include <algorithm>
@@ -883,7 +880,7 @@ void vid_cl_read_texture_upscale_filter()
 	{
 		::vid_cfg_.texture_upscale_kind_ = bstone::HwTextureMgrUpscaleFilterKind::none;
 	}
-	else if (value_string == ::vid_get_msaa_value_string())
+	else if (value_string == ::vid_get_xbrz_value_string())
 	{
 		::vid_cfg_.texture_upscale_kind_ = bstone::HwTextureMgrUpscaleFilterKind::xbrz;
 	}
@@ -11745,12 +11742,7 @@ void VL_Startup()
 {
 	::vid_cl_read();
 
-
-#if BSTONE_DBG_FORCE_SW
-	const auto is_sw = true;
-#else
 	const auto is_sw = (vid_cfg_.renderer_kind_ == bstone::RendererKind::software);
-#endif // BSTONE_DBG_FORCE_SW
 
 	auto is_try_sw = false;
 

@@ -55,6 +55,7 @@ BStone is a source port of Blake Stone game series: Aliens of Gold and Planet St
 
 Features:
 * High resolution rendering of world (extended vanilla engine)
+* 3D-rendering
 * Allows to customize control bindings
 * Separate volume control of sound effects and music
 
@@ -172,79 +173,170 @@ Notes:
 
 * `--version`  
   Outputs the port's version to standard output and  
-  into message box.
+  into message box.  
 
 * `--aog_sw`  
   Switches the port to Blake Stone: Aliens of Gold (shareware) mode.  
   If appropriate data files will not be found the port will fail.  
-  Default switch strategy: AoG -> PS -> AoG (SW)
+  Default switch strategy: AoG -> PS -> AoG (SW)  
 
 * `--aog`  
   Switches the port to Blake Stone: Aliens of Gold mode.  
   If appropriate data files will not be found the port will fail.  
-  Default switch strategy: AoG -> PS -> AoG (SW)
+  Default switch strategy: AoG -> PS -> AoG (SW)  
   
 * `--ps`  
   Switches the port to Blake Stone: Planet Strike mode.  
   If appropriate data files will not be found the port will fail.  
-  Default switch strategy: AoG -> PS -> AoG (SW)
+  Default switch strategy: AoG -> PS -> AoG (SW)  
 
 * `--no_screens`  
-  Skips start-up screens and the ending promo pages (AoG SW).
+  Skips start-up screens and the ending promo pages (AoG SW).  
 
 * `--cheats`  
-  Enables so called "debug mode" without much fuss.
+  Enables so called "debug mode" without much fuss.  
 
-* `--data_dir path_to_data`  
-  Specifies location to the game's data files.  
-  Default: current working directory.
+* `--data_dir dir`  
+  Specifies a directory with game's resource files.  
+  Default: current working directory.  
 
-* `--mod_dir path_to_data`  
-  Specifies location to the mod's data files.  
-  Default: undefined.
+* `--mod_dir dir`  
+  Specifies a directory with mod's resource files.  
+  Default: undefined.  
 
-* `--profile_dir path`  
-  Overrides default location of the game's profile files.  
+* `--profile_dir dir`  
+  Overrides default directory of the game's profile files.  
 
-* `--vid_is_windowed <0|1>`  
-  Runs the game in windowed mode if value set to "1" or fullscreen otherwise.  
-  Default video height: 480
+* `--vid_renderer value`  
+  Select a renderer.  
+  Values:
+    - `auto_detect` - tries to auto-detect the best renderer.
+    - `software` - the vanilla renderer.
+    - `gl_2_0` - OpenGL 2.0 or higher.
+    - `gl_3_2_c` - OpenGL 3.2. core.
+    - `gles_2_0` - OpenGL ES 2.0 or higher.
 
-* `--vid_width width`  
-  Specifies window width.  
+  Default: `auto_detect`
+
+* `--vid_is_windowed value`  
+  Starts up the game in windowed mode (1) or in fake fullscreen (0) otherwise.  
+  Values: 0, 1  
+  Default: 1  
+
+* `--vid_windowed_width width`  
+  Specifies window width for windowed mode.  
   Minimum width: 320  
   Default width: 640  
 
-* `--vid_height height`  
-  Specifies window height.  
+* `--vid_windowed_height height`  
+  Specifies window height for windowed mode.  
   Minimum height: 240  
-  Default height: 480
+  Default height: 480  
 
-* `--vid_vsync <0|1>`  
-  Enables (1) or disables (0) vertical synchronization.  
-  Default value: 1 (enabled)
-
-* `--vid_x offset`  
+* `--vid_windowed_x offset`  
   Sets a horizontal offset from the left side of the desktop screen.  
-  Applicable for windowed mode only.
+  Applicable for positionable window only.  
+  Default: 0  
 
-* `--vid_y offset`  
+* `--vid_windowed_y offset`  
   Sets a vertical offset from the top side of the desktop screen.  
-  Applicable for windowed mode only.
+  Applicable for positionable window only.  
+  Default: 0  
 
-* `--snd_is_disabled <0|1>`  
-  Disables audio subsystem if non-zero.  
+* `--vid_is_positioned value`  
+  Centers (0) a windowed window on the desktop or moves it (1) in the specified position.  
+  Values: 0, 1  
+  Default: 0  
+
+* `--vid_is_vsync value`  
+  Enables (1) or disables (0) vertical synchronization.  
+  Values: 0, 1  
+  Default: 1  
+
+* `--vid_is_widescreen value`  
+  Enables (1) or disables (0) widescreen rendering.  
+  Values: 0, 1  
+  Default: 1  
+
+* `--vid_is_ui_stretched value`  
+  Stretches (1) the UI or keeps it (0) at 4x3 ratio otherwise.  
+  Values: 0, 1  
+  Default: 0  
+
+* `--vid_2d_texture_filter filter`  
+  Sets texturing filter for UI.  
+  Applicable only for 3D-rendering.  
+  Values: `nearest`, `linear`  
+  Default: `nearest`  
+
+* `--vid_3d_texture_image_filter filter`  
+  Sets texturing image filter for the scene.  
+  Applicable only for 3D-rendering.  
+  Values: `nearest`, `linear`  
+  Default: `nearest`  
+
+* `--vid_3d_texture_mipmap_filter filter`  
+  Sets texturing mipmap filter for the scene.  
+  Applicable only for 3D-rendering.  
+  Values: `nearest`, `linear`  
+  Default: `nearest`  
+
+* `--vid_3d_texture_anisotropy value`  
+  Sets anisotropy degree for the scene.  
+  Value `1` or lower disables the filter.  
+  Applicable only for 3D-rendering.  
+  Values: [1..16]  
+  Default: 1  
+
+* `--vid_texture_upscale_filter filter`  
+  Sets texturing upscale filter.  
+  Applicable only for 3D-rendering.  
+  Values: `none`, `xbrz`  
+  Default: `none`  
+  **WARNING** `xbrz` is a high resource usage filter!  
+
+* `--vid_texture_upscale_xbrz_degree degree`  
+  Sets a degree of xBRZ texturing upscale.  
+  Applicable only for 3D-rendering.  
+  Values: [2..6]  
+  Default: 0  
+
+* `--vid_aa_kind value`  
+  Sets an anti-aliasing mode.  
+  Applicable only for 3D-rendering.  
+  Values: `none`, `msaa`  
+  Default: `none`  
+
+* `--vid_aa_degree value`  
+  Sets a degree of the anti-aliasing.  
+  Applicable only for 3D-rendering.  
+  Values: [2..32]  
+  Default: 1  
+
+* `--snd_is_disabled value`  
+  Enables (1) or disables (0) audio subsystem.  
   Default: 0  
 
 * --snd_rate sampling_rate  
   Specifies sampling rate of mixer in hertz.  
   Default: 44100 Hz  
-  Minimum: 11025 Hz
+  Minimum: 11025 Hz  
 
 * `--snd_mix_size duration`  
   Specifies mix data size in milliseconds.  
   Default: 40 ms  
-  Minimum: 20 ms
+  Minimum: 20 ms  
+
+* `--debug_dump_hashes`  
+  Dumps hashes (SHA-1) of all resource files into the log.  
+
+* `--debug_dump_walls_images dir`  
+  Dumps graphics resources (wall, flooring, etc.) into existing directory `dir`.  
+  Supported file format: BMP (Windows)  
+
+* `--debug_dump_sprites_images dir`  
+  Dumps graphics resources (actors, decorations, etc.) into existing directory `dir`.  
+  Supported file format: BMP (Windows)  
 
 
 7 - Cheat key
@@ -345,16 +437,24 @@ Add option "--cheats" to enable these keys.
 
 * Simple DirectMedia Library  
   <http://libsdl.org/>  
-  See file COPYING-SDL2.txt for a license information.
+  See file `COPYING-SDL2.txt` for license information.
 
 * DOSBox  
   <http://www.dosbox.com/>  
-  See file dosbox/COPYING for a license information.  
+  See file `src/dosbox/COPYING` for license information.  
   Note: The source port uses only an OPL emulation code.
+
+* GLM  
+  <https://glm.g-truc.net/>
+  See file `src/lib/glm/copying.txt` for license information.
+
+* xBRZ  
+  <http://sourceforge.net/projects/xbrz/>  
+  See directory `src/lib/xbrz` for license information (`License.txt`) and essential changes made by the port (`bstone_changelog.txt`).  
 
 
 10 - Credits
-===========
+============
 
 * id Software  
   Developing Wolfenstein 3D engine.  

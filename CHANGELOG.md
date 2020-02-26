@@ -3,17 +3,36 @@
 
 ## [1.2.0] - 20??-??-??
 ### Added
-- Option "snd_is_disabled" to ignore audio subsystem.
+- 3D-renderer (OpenGL backend).
+- Menu to control video mode.
+- Menu to control texturing.
+- Option `snd_is_disabled` to ignore audio subsystem.
+- Option `vid_is_positioned` to control position of the window.
+- Option `vid_is_widescreen` to control widescreen mode.
+- Option `vid_is_ui_stretched` to control UI stretching.
+- Option `vid_2d_texture_filter` to control texturing filter for UI.
+- Option `vid_3d_texture_image_filter` to control texturing image filter for the scene.
+- Option `vid_3d_texture_mipmap_filter` to control texturing mipmap filter for the scene.
+- Option `vid_3d_texture_anisotropy` to control anisotropy filter for the scene.
+- Option `vid_texture_upscale_filter` to select texturing upscale filter.
+- Option `vid_texture_upscale_xbrz_degree` to control degree of xBRZ filter.
+- Option `vid_aa_kind` to select anti-aliasing mode.
+- Option `vid_aa_degree` to select anti-aliasing degree.
+- Option `debug_dump_hashes` to dump hashes of resource files.
+- Option `debug_dump_walls_images` to dump graphics resources (wall, flooring, etc.).
+- Option `debug_dump_sprites_images` to dump graphics resources (actors, decorations, etc.).
 
 ### Removed
 - Option "vid_scale".
 - Vanilla input bindings.
 
 ### Changed
-- Renamed option "vid_window_x" to "vid_x".
-- Renamed option "vid_window_y" to "vid_y".
-- Split option "vid_mode" into "vid_width" and "vid_height".
-- Renamed option "vid_no_vsync" to "vid_vsync".
+- Renamed option `vid_windowed` to `vid_is_windowed`.
+- Renamed option `vid_window_x` to `vid_x`.
+- Renamed option `vid_window_y` to `vid_y`.
+- Split option `vid_mode` into `vid_width` and `vid_height`.
+- Renamed option `vid_no_vsync` to `vid_vsync`.
+- Values of option `vid_renderer`.
 
 
 ## [1.1.16] - 2020-02-01
