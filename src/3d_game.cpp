@@ -2431,7 +2431,6 @@ void SetupGameLevel()
 	// copy the wall data to a data segment array
 	//
 	memset(TravelTable, 0, sizeof(TravelTable));
-	::gamestate.initialize_local_barriers();
 	memset(tilemap, 0, sizeof(tilemap));
 	memset(actorat, 0, sizeof(actorat));
 
@@ -2673,43 +2672,33 @@ void SetupGameLevel()
 					break;
 
 				case ON_SWITCH:
-					switchon = true;
+					if (assets_info.is_ps())
+					{
+						switchon = true;
+					}
 				case OFF_SWITCH:
 				{
 					if (assets_info.is_aog())
 					{
-						if (map1[1] != 0)
+						if ((map1[0] & 0xFF00) == 0xF800)
 						{
-							std::uint8_t level = 0xFF;
+							const auto level = map1[0] & 0xFF;
 
-							if (map1[0] != 0xF8FF)
-							{
-								level = static_cast<std::uint8_t>(map1[0] & 0xFF);
-							}
+							const auto switch_x = (map1[1] >> 8) & 0xFF;
+							const auto switch_y = map1[1] & 0xFF;
 
-							if (level == ::gamestate.mapon)
-							{
-								level = 0xFF;
-							}
-
-							auto switch_x = static_cast<std::uint8_t>((map1[1] / 256) & 0xFF);
-							auto switch_y = static_cast<std::uint8_t>(map1[1] & 0xFF);
-
+							const auto barrier_code = UpdateBarrierTable(level, switch_x, switch_y);
+							map1[0] = 0xF800 | barrier_code;
 							map1[1] = 0;
-							map1[0] = 0xF800 | UpdateBarrierTable(level, switch_x, switch_y, switchon);
-
-							if (level != 0xFF)
-							{
-								::store_cross_barrier(level, switch_x, switch_y, switchon);
-							}
 						}
 					}
 					else
 					{
-						auto switch_x = static_cast<std::uint8_t>((map1[0] / 256) & 0xFF);
-						auto switch_y = static_cast<std::uint8_t>(map1[0] & 0xFF);
+						const auto switch_x = (map1[0] >> 8) & 0xFF;
+						const auto switch_y = map1[0] & 0xFF;
 
-						map1[0] = 0xF800 | UpdateBarrierTable(0xFF, switch_x, switch_y, switchon);
+						const auto barrier_code = UpdateBarrierTable(switch_x, switch_y, switchon);
+						map1[0] = 0xF800 | barrier_code;
 					}
 
 					// Init for next time.
@@ -2748,10 +2737,6 @@ void SetupGameLevel()
 		}
 	}
 
-
-	// BBi
-	::apply_cross_barriers();
-	// BBi
 
 //
 // spawn actors
@@ -3465,7 +3450,6 @@ restartgame:
 			::gamestate.score = ::gamestate.oldscore;
 			::gamestate.tic_score = ::gamestate.oldscore;
 			::memcpy(::gamestate.numkeys, ::gamestate.old_numkeys, sizeof(::gamestate.numkeys));
-			::gamestate.restore_local_barriers();
 			::gamestate.rpower = ::gamestate.old_rpower;
 			::gamestate.tokens = ::gamestate.old_tokens;
 			::gamestate.weapons = ::gamestate.old_weapons[0];
@@ -3566,7 +3550,6 @@ restartgame:
 			gamestate.oldscore = gamestate.score;
 			memcpy(gamestate.old_numkeys, gamestate.numkeys, sizeof(gamestate.old_numkeys));
 			gamestate.old_tokens = gamestate.tokens;
-			::gamestate.store_local_barriers();
 			gamestate.old_weapons[0] = gamestate.weapons;
 			gamestate.old_weapons[1] = gamestate.weapon;
 			gamestate.old_weapons[2] = gamestate.chosenweapon;

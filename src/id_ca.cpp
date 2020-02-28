@@ -1295,6 +1295,8 @@ int AssetsInfo::episode_count_;
 int AssetsInfo::levels_per_episode_;
 int AssetsInfo::stats_levels_per_episode_;
 int AssetsInfo::total_levels_;
+int AssetsInfo::barrier_switches_per_level_;
+int AssetsInfo::max_barrier_switches_per_level_bits_;
 
 
 AssetsVersion AssetsInfo::get_version() const
@@ -1364,7 +1366,7 @@ void AssetsInfo::set_version(
 		}
 		else if (is_ps())
 		{
-			levels_per_episode_ = 24;
+			levels_per_episode_ = 25;
 		}
 		else
 		{
@@ -1380,6 +1382,23 @@ void AssetsInfo::set_version(
 		else if (is_ps())
 		{
 			stats_levels_per_episode_ = 20;
+		}
+		else
+		{
+			::Quit("No assets information.");
+		}
+	}
+
+	{
+		if (is_aog())
+		{
+			barrier_switches_per_level_ = 5;
+			max_barrier_switches_per_level_bits_ = 3;
+		}
+		else if (is_ps())
+		{
+			barrier_switches_per_level_ = 40;
+			max_barrier_switches_per_level_bits_ = 6;
 		}
 		else
 		{
@@ -1549,6 +1568,16 @@ int AssetsInfo::get_stats_levels_per_episode() const
 int AssetsInfo::get_total_levels() const
 {
 	return total_levels_;
+}
+
+int AssetsInfo::get_barrier_switches_per_level() const noexcept
+{
+	return barrier_switches_per_level_;
+}
+
+int AssetsInfo::get_max_barrier_switches_per_level_bits() const noexcept
+{
+	return max_barrier_switches_per_level_bits_;
 }
 
 bool AssetsInfo::is_secret_level(

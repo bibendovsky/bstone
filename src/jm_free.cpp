@@ -1204,6 +1204,7 @@ void freed_main()
 	::initialize_messages();
 	::initialize_ca_constants();
 	::gamestuff.initialize();
+	gamestate.initialize();
 
 	if (::g_args.has_option("no_screens"))
 	{

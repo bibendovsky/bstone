@@ -55,7 +55,7 @@ class Stream;
 enum class ScanCode;
 
 
-const int BS_SAVE_VERSION = 7;
+const int BS_SAVE_VERSION = 8;
 
 #define GOLD_MORPH_LEVEL (19) // Level which Dr. GoldFire Morphs.
 
@@ -105,8 +105,9 @@ case gen_scientistobj
 
 
 // Barrier Code Stuff
-
+#if 0
 #define MAX_BARRIER_SWITCHES (40) // max number level wall switches
+#endif
 
 
 #define MAX_INF_AREA_MSGS (6)
@@ -2358,9 +2359,6 @@ struct tilecoord_t
 struct barrier_type
 {
 	// !!! Used in saved game.
-	std::uint8_t level;
-
-	// !!! Used in saved game.
 	tilecoord_t coord;
 
 	// !!! Used in saved game.
@@ -2373,6 +2371,9 @@ struct barrier_type
 	void unarchive(
 		bstone::ArchiverPtr archiver);
 }; // barrier_type;
+
+using Barriers = std::vector<barrier_type>;
+
 
 struct statsInfoType
 {
@@ -2582,15 +2583,8 @@ struct gametype
 	// !!! Used in saved game.
 	std::int8_t old_numkeys[NUMKEYS];
 
-	// BBi
-	barrier_type cross_barriers[MAX_BARRIER_SWITCHES];
-	// BBi
-
 	// !!! Used in saved game.
-	barrier_type barrier_table[MAX_BARRIER_SWITCHES];
-
-	// !!! Used in saved game.
-	barrier_type old_barrier_table[MAX_BARRIER_SWITCHES];
+	Barriers barrier_table;
 
 	// !!! Used in saved game.
 	std::uint16_t tokens;
@@ -2617,10 +2611,24 @@ struct gametype
 	void unarchive(
 		bstone::ArchiverPtr archiver);
 
-	void initialize_cross_barriers();
-	void initialize_local_barriers();
-	void store_local_barriers();
-	void restore_local_barriers();
+	void initialize();
+	void initialize_barriers();
+
+
+	int get_barrier_group_offset(
+		const int level) const;
+
+	int get_barrier_index(
+		const int code) const;
+
+	int encode_barrier_index(
+		const int level,
+		const int index) const;
+
+	void decode_barrier_index(
+		const int code,
+		int& level,
+		int& index) const;
 }; // gametype
 
 enum exit_t
@@ -3429,26 +3437,22 @@ void CacheDrawPic(
 	int y,
 	int pic);
 
-// BBi
-void store_cross_barrier(
-	std::uint8_t level,
-	std::uint8_t x,
-	std::uint8_t y,
-	bool state);
-
-void apply_cross_barriers();
-// BBi
-
 void ActivateWallSwitch(
 	std::uint16_t iconnum,
 	std::int16_t x,
 	std::int16_t y);
 
+// AOG
 std::uint16_t UpdateBarrierTable(
-	std::uint8_t level,
-	std::uint8_t x,
-	std::uint8_t y,
-	bool OnOff);
+	const int level,
+	const int x,
+	const int y);
+
+// PS
+std::uint16_t UpdateBarrierTable(
+	const int x,
+	const int y,
+	const bool on_off);
 
 std::uint16_t ScanBarrierTable(
 	std::uint8_t x,

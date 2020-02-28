@@ -168,6 +168,10 @@ public:
 
 	int get_total_levels() const;
 
+	int get_barrier_switches_per_level() const noexcept;
+
+	int get_max_barrier_switches_per_level_bits() const noexcept;
+
 	bool is_secret_level(
 		const int level_number) const;
 
@@ -190,6 +194,8 @@ private:
 	static int total_levels_;
 	static int min_secret_level_index_;
 	static int max_secret_level_index_;
+	static int barrier_switches_per_level_;
+	static int max_barrier_switches_per_level_bits_;
 }; // AssetsInfo
 
 
