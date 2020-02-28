@@ -7978,10 +7978,9 @@ void NewGame(
 
 	ShowQuickMsg = true;
 	::gamestuff.clear();
-	memset(&gamestate, 0, sizeof(gamestate));
+	gamestate.initialize();
 
-	::gamestate.initialize_cross_barriers();
-	::gamestate.initialize_local_barriers();
+	::gamestate.initialize_barriers();
 	::gamestate.flags = oldf & ~(GS_KILL_INF_WARN);
 
 	::gamestate.difficulty = difficulty;
@@ -8217,9 +8216,13 @@ bool LoadLevel(
 
 	bool is_succeed = true;
 
+	const auto old_barrier_table = gamestate.barrier_table;
+
 	loadedgame = true;
 	::SetupGameLevel();
 	loadedgame = oldloaded;
+
+	gamestate.barrier_table = old_barrier_table;
 
 	auto archiver_uptr = bstone::ArchiverFactory::create();
 
@@ -8464,11 +8467,6 @@ bool LoadLevel(
 			GoldieList[i].unarchive(archiver);
 		}
 
-		for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
-		{
-			::gamestate.barrier_table[i].unarchive(archiver);
-		}
-
 		gamestate.plasma_detonators = archiver->read_int16();
 
 		// Read and evaluate checksum
@@ -8500,7 +8498,6 @@ bool LoadLevel(
 			}
 		}
 
-		::apply_cross_barriers();
 		::vid_hw_on_load_level();
 	}
 	else
@@ -8809,11 +8806,6 @@ bool SaveLevel(
 	for (int i = 0; i < GOLDIE_MAX_SPAWNS; ++i)
 	{
 		GoldieList[i].archive(archiver);
-	}
-
-	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
-	{
-		::gamestate.barrier_table[i].archive(archiver);
 	}
 
 	archiver->write_int16(::gamestate.plasma_detonators);
@@ -9940,32 +9932,35 @@ int main(
 	scePowerSetBusClockFrequency(222);
 	scePowerSetGpuClockFrequency(222);
 	scePowerSetGpuXbarClockFrequency(166);
-    sceAppUtilInit(&(SceAppUtilInitParam){}, &(SceAppUtilBootParam){});
-    SceAppUtilAppEventParam eventParam;
-    memset(&eventParam, 0, sizeof(SceAppUtilAppEventParam));
-    sceAppUtilReceiveAppEvent(&eventParam);
+	sceAppUtilInit(&(SceAppUtilInitParam)
+	{
+	}, & (SceAppUtilBootParam){});
+	SceAppUtilAppEventParam eventParam;
+	memset(&eventParam, 0, sizeof(SceAppUtilAppEventParam));
+	sceAppUtilReceiveAppEvent(&eventParam);
 
-    if (eventParam.type == 0x05){
-        argc++;
-        const char* pargv[argc];
-        for (int i = 0; i< argc - 1; i++)
-        {
-            pargv[i] = argv[i];
-        }
+	if (eventParam.type == 0x05)
+	{
+		argc++;
+		const char* pargv[argc];
+		for (int i = 0; i < argc - 1; i++)
+		{
+			pargv[i] = argv[i];
+		}
 #ifdef VITATEST
-        const char* newarg = "--cheats";
+		const char* newarg = "--cheats";
 #else
-        const char* newarg = "--ps";
+		const char* newarg = "--ps";
 #endif
-        pargv[argc-1] = newarg;
-        ::g_args.initialize(argc, pargv);
-    }
-    else
-    {
-        ::g_args.initialize(argc, argv);
-    }
+		pargv[argc - 1] = newarg;
+		::g_args.initialize(argc, pargv);
+	}
+	else
+	{
+		::g_args.initialize(argc, argv);
+	}
 #else
-    ::g_args.initialize(argc, argv);
+	::g_args.initialize(argc, argv);
 #endif
 
 	auto logger_factory = bstone::LoggerFactory{};
@@ -10308,7 +10303,6 @@ void tilecoord_t::unarchive(
 void barrier_type::archive(
 	bstone::ArchiverPtr archiver) const
 {
-	archiver->write_uint8(level);
 	coord.archive(archiver);
 	archiver->write_uint8(on);
 }
@@ -10316,7 +10310,6 @@ void barrier_type::archive(
 void barrier_type::unarchive(
 	bstone::ArchiverPtr archiver)
 {
-	level = archiver->read_uint8();
 	coord.unarchive(archiver);
 	on = archiver->read_uint8();
 }
@@ -10470,19 +10463,9 @@ void gametype::archive(
 	archiver->write_int8_array(numkeys, NUMKEYS);
 	archiver->write_int8_array(old_numkeys, NUMKEYS);
 
-	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	for (auto& barrier : barrier_table)
 	{
-		cross_barriers[i].archive(archiver);
-	}
-
-	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
-	{
-		barrier_table[i].archive(archiver);
-	}
-
-	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
-	{
-		old_barrier_table[i].archive(archiver);
+		barrier.archive(archiver);
 	}
 
 	archiver->write_uint16(tokens);
@@ -10536,19 +10519,9 @@ void gametype::unarchive(
 	archiver->read_int8_array(numkeys, NUMKEYS);
 	archiver->read_int8_array(old_numkeys, NUMKEYS);
 
-	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	for (auto& barrier : barrier_table)
 	{
-		cross_barriers[i].unarchive(archiver);
-	}
-
-	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
-	{
-		barrier_table[i].unarchive(archiver);
-	}
-
-	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
-	{
-		old_barrier_table[i].unarchive(archiver);
+		barrier.unarchive(archiver);
 	}
 
 	tokens = archiver->read_uint16();
@@ -10559,46 +10532,167 @@ void gametype::unarchive(
 	wintiley = archiver->read_int16();
 }
 
-void gametype::initialize_cross_barriers()
+void gametype::initialize()
 {
-	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	turn_around = {};
+	turn_angle = {};
+	flags = {};
+	lastmapon = {};
+	difficulty = {};
+	mapon = {};
+	oldscore = {};
+	tic_score = {};
+	score = {};
+	nextextra = {};
+	score_roll_wait = {};
+	lives = {};
+	health = {};
+	std::fill(std::begin(health_str), std::end(health_str), char{});
+	rpower = {};
+	old_rpower = {};
+	rzoom = {};
+	radar_leds = {};
+	lastradar_leds = {};
+	lastammo_leds = {};
+	ammo_leds = {};
+	ammo = {};
+	old_ammo = {};
+	plasma_detonators = {};
+	old_plasma_detonators = {};
+	useable_weapons = {};
+	weapons = {};
+	weapon = {};
+	chosenweapon = {};
+	std::fill(std::begin(old_weapons), std::end(old_weapons), std::int8_t{});
+	weapon_wait = {};
+	attackframe = {};
+	attackcount = {};
+	weaponframe = {};
+	episode = {};
+	TimeCount = {};
+	msg = {};
+	std::fill(std::begin(numkeys), std::end(numkeys), std::int8_t{});
+	std::fill(std::begin(old_numkeys), std::end(old_numkeys), std::int8_t{});
+	barrier_table = {};
+	tokens = {};
+	old_tokens = {};
+	boss_key_dropped = {};
+	old_boss_key_dropped = {};
+	wintilex = {};
+	wintiley = {};
+
+
+	const auto& assets_info = AssetsInfo{};
+	const auto switches_per_level = assets_info.get_barrier_switches_per_level();
+	const auto levels_per_episode = assets_info.get_levels_per_episode();
+	const auto switches_per_episode = switches_per_level * levels_per_episode;
+
+	barrier_table.resize(switches_per_episode);
+}
+
+void gametype::initialize_barriers()
+{
+	for (auto& barrier : barrier_table)
 	{
-		cross_barriers[i].level = 0xFF;
-		cross_barriers[i].coord.tilex = 0xFF;
-		cross_barriers[i].coord.tiley = 0xFF;
-		cross_barriers[i].on = 0xFF;
+		barrier.coord.tilex = 0xFF;
+		barrier.coord.tiley = 0xFF;
+		barrier.on = 0xFF;
 	}
 }
 
-void gametype::initialize_local_barriers()
+int gametype::get_barrier_group_offset(
+	const int level) const
 {
-	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
-	{
-		barrier_table[i].level = 0xFF;
-		barrier_table[i].coord.tilex = 0xFF;
-		barrier_table[i].coord.tiley = 0xFF;
-		barrier_table[i].on = 0xFF;
+	const auto& assets_info = AssetsInfo{};
 
-		old_barrier_table[i].level = 0xFF;
-		old_barrier_table[i].coord.tilex = 0xFF;
-		old_barrier_table[i].coord.tiley = 0xFF;
-		old_barrier_table[i].on = 0xFF;
+	if (level < 0 || level >= assets_info.get_levels_per_episode())
+	{
+		Quit("[BRR_GRP_IDX] Level index out of range.");
+	}
+
+	const auto switches_per_level = assets_info.get_barrier_switches_per_level();
+
+	return level * switches_per_level;
+}
+
+int gametype::get_barrier_index(
+	const int code) const
+{
+	auto level = 0;
+	auto index = 0;
+	decode_barrier_index(code, level, index);
+
+	const auto& assets_info = AssetsInfo{};
+	const auto max_switches = assets_info.get_barrier_switches_per_level();
+
+	return (level * max_switches) + index;
+}
+
+int gametype::encode_barrier_index(
+	const int level,
+	const int index) const
+{
+	const auto& assets_info = AssetsInfo{};
+
+	if (index < 0 || index >= assets_info.get_barrier_switches_per_level())
+	{
+		Quit("[BARR_ENC_IDX] Barrier index out of range.");
+	}
+
+	if (assets_info.is_aog())
+	{
+		if (level < 0 || level >= assets_info.get_levels_per_episode())
+		{
+			Quit("[BARR_ENC_IDX] Level index out of range.");
+		}
+
+		const auto switch_index_bits = assets_info.get_max_barrier_switches_per_level_bits();
+		const auto switch_index_shift = 1 << switch_index_bits;
+		const auto switch_index_mask = switch_index_shift - 1;
+
+		return (level * switch_index_shift) | (index & switch_index_mask);
+	}
+	else
+	{
+		return index;
 	}
 }
 
-void gametype::store_local_barriers()
+void gametype::decode_barrier_index(
+	const int code,
+	int& level,
+	int& index) const
 {
-	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	if (code < 0)
 	{
-		old_barrier_table[i] = barrier_table[i];
+		Quit("[BARR_DEC_IDX] Invalid code.");
 	}
-}
 
-void gametype::restore_local_barriers()
-{
-	for (int i = 0; i < MAX_BARRIER_SWITCHES; ++i)
+	const auto& assets_info = AssetsInfo{};
+
+	if (assets_info.is_aog())
 	{
-		barrier_table[i] = old_barrier_table[i];
+		const auto switch_index_bits = assets_info.get_max_barrier_switches_per_level_bits();
+		const auto switch_index_shift = 1 << switch_index_bits;
+		const auto switch_index_mask = switch_index_shift - 1;
+
+		level = code / switch_index_shift;
+		index = code & switch_index_mask;
+	}
+	else
+	{
+		level = mapon;
+		index = code;
+	}
+
+	if (level < 0 || level >= assets_info.get_levels_per_episode())
+	{
+		Quit("[BARR_DEC_IDX] Level index out of range.");
+	}
+
+	if (index < 0 || index >= assets_info.get_barrier_switches_per_level())
+	{
+		Quit("[BARR_DEC_IDX] Barrier index out of range.");
 	}
 }
 
