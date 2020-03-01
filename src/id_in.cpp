@@ -1375,8 +1375,6 @@ void IN_Startup()
 	SDL_JoystickEventState(SDL_ENABLE);
 #endif
 
-	::in_set_default_bindings();
-
 	IN_Started = true;
 }
 

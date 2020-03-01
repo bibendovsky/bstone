@@ -7522,10 +7522,10 @@ ScanCode get_scan_code_by_name(
 	const auto it = std::find_if(
 		scan_code_name_map.cbegin(),
 		scan_code_name_map.cend(),
-		[&](const std::pair<ScanCode, std::string>& item)
-	{
-		return item.second == name;
-	}
+		[&name](const auto& item)
+		{
+			return item.second == name;
+		}
 	);
 
 	if (it == scan_code_name_map.cend())
