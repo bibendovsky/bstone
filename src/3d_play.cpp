@@ -899,16 +899,29 @@ void CheckKeys()
 	//
 	if (in_is_binding_pressed(e_bi_pause))
 	{
-		sd_music_off();
+		if (sd_is_music_enabled_)
+		{
+			sd_music_off();
+		}
+
 		fontnumber = 4;
 		BMAmsg(PAUSED_MSG);
+
+		IN_ClearKeysDown();
 		IN_Ack();
 		IN_ClearKeysDown();
+
 		fontnumber = 2;
 		RedrawStatusAreas();
-		sd_music_on();
+
+		if (sd_is_music_enabled_)
+		{
+			sd_music_on();
+		}
+
 		Paused = false;
 		::in_clear_mouse_deltas();
+
 		return;
 	}
 
