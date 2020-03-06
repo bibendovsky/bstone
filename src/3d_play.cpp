@@ -899,6 +899,10 @@ void CheckKeys()
 	//
 	if (in_is_binding_pressed(e_bi_pause))
 	{
+		const auto old_vid_is_hud = vid_is_hud;
+
+		vid_is_hud = true;
+
 		if (sd_is_music_enabled_)
 		{
 			sd_music_off();
@@ -921,6 +925,8 @@ void CheckKeys()
 
 		Paused = false;
 		::in_clear_mouse_deltas();
+
+		vid_is_hud = old_vid_is_hud;
 
 		return;
 	}
