@@ -3130,7 +3130,7 @@ void DrawWarpIn()
 		::ref_view_height,
 		BLACK);
 
-	::LatchDrawPic(0, ::ref_view_bottom_y, ::STATUSBARPIC);
+	::LatchDrawPic(0, 200 - STATUSLINES, ::STATUSBARPIC);
 	::LatchDrawPic(0, 0, ::TOP_STATUSBARPIC);
 
 	::ShadowPrintLocationText(sp_normal);
