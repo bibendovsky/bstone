@@ -3166,9 +3166,6 @@ void Warped()
 
 	RotateView(iangle, 2);
 
-	gamestate.weapon = gamestate.old_weapons[3];
-	gamestate.attackframe = gamestate.attackcount = gamestate.weaponframe = 0;
-
 	IN_ClearKeysDown();
 
 	::sd_play_player_sound(WARPINSND, bstone::ActorChannel::item);
@@ -3183,6 +3180,9 @@ void Warped()
 
 	IN_UserInput(100);
 	sd_wait_sound_done();
+
+	gamestate.weapon = gamestate.old_weapons[3];
+	gamestate.attackframe = gamestate.attackcount = gamestate.weaponframe = 0;
 
 	::vid_is_hud = false;
 }
@@ -3539,7 +3539,9 @@ restartgame:
 			gamestate.mapon++;
 			ClearNClose();
 			DrawTopInfo(sp_loading);
+#if 0
 			DisplayPrepingMsg(prep_msg);
+#endif
 			WindowY = 181;
 			LS_current = 1;
 			LS_total = 38;
