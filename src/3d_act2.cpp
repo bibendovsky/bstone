@@ -2493,7 +2493,16 @@ void DisplaySwitchOperateMsg(
 
 	if (!assets_info.is_ps())
 	{
-		message += "\r      ON FLOOR " + std::to_string(level);
+		if (assets_info.is_secret_level(level))
+		{
+			const auto secret_level = assets_info.secret_floor_get_index(level) + 1;
+
+			message += "\r  ON SECRET FLOOR " + std::to_string(secret_level);
+		}
+		else
+		{
+			message += "\r      ON FLOOR " + std::to_string(level);
+		}
 	}
 
 	DISPLAY_TIMED_MSG(message.c_str(), MP_WALLSWITCH_OPERATE, MT_GENERAL);
