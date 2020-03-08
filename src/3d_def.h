@@ -2217,17 +2217,13 @@ struct objtype
 	// !!! Used in saved game.
 	std::uint8_t s_tiley;
 
-	// !!! Used in saved game.
 	std::int16_t viewx;
 
-	// !!! Used in saved game.
 	std::uint16_t viewheight;
 
-	// !!! Used in saved game.
 	fixed transx;
 
 	// in global coord
-	// !!! Used in saved game.
 	fixed transy;
 
 	// FIXME
