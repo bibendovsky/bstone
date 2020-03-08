@@ -2503,9 +2503,6 @@ struct gametype
 	std::int16_t health;
 
 	// !!! Used in saved game.
-	char health_str[4];
-
-	// !!! Used in saved game.
 	std::int16_t rpower;
 
 	// !!! Used in saved game.

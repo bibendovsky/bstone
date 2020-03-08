@@ -930,26 +930,6 @@ void DrawHealthMonitor()
 // --------------------------------------------------------------------------
 void DrawHealth()
 {
-	const auto& assets_info = AssetsInfo{};
-
-	if (assets_info.is_ps())
-	{
-		auto health_string = std::to_string(gamestate.health);
-
-		std::uninitialized_fill_n(
-			gamestate.health_str,
-			4,
-			'\0');
-
-		auto index = 0;
-
-		for (auto ch : health_string)
-		{
-			gamestate.health_str[index] = ch - '0';
-			index += 1;
-		}
-	}
-
 	DrawHealthNum_COUNT = 3;
 }
 
@@ -994,28 +974,36 @@ void DrawHealthNum()
 		py = PrintY;
 
 		VW_DrawPropString(health_string.c_str());
-
-		DrawHealthNum_COUNT -= 1;
 	}
 	else
 	{
-		std::int8_t loop, num;
-		std::int16_t check = 100;
+		const auto base_x = 16;
+		const auto is_zero = (gamestate.health <= 0);
 
-		DrawHealthNum_COUNT--;
+		auto check = 100;
 
-		for (loop = num = 0; loop < 3; loop++, check /= 10)
+		for (int i = 0; i < 3; ++i)
 		{
-			if (gamestate.health < check)
+			auto pic_num = 0;
+
+			if (gamestate.health < check &&
+				(!is_zero || (is_zero && i < 2)))
 			{
-				LatchDrawPic(16 + loop, 162, NG_BLANKPIC);
+				pic_num = NG_BLANKPIC;
 			}
 			else
 			{
-				LatchDrawPic(16 + loop, 162, gamestate.health_str[static_cast<int>(num++)] + NG_0PIC);
+				const auto digit = (gamestate.health / check) % 10;
+				pic_num = NG_0PIC + digit;
 			}
+
+			LatchDrawPic(base_x + i, 162, pic_num);
+
+			check /= 10;
 		}
 	}
+
+	DrawHealthNum_COUNT -= 1;
 }
 
 void TakeDamage(
