@@ -13356,7 +13356,7 @@ void vid_hw_on_pushwall_to_wall(
 		return;
 	}
 
-	assert(old_x != new_x || old_y != new_y);
+	//assert(old_x != new_x || old_y != new_y);
 
 	const auto old_xy = ::hw_encode_xy(old_x, old_y);
 	const auto old_pushwall_it = ::hw_xy_pushwall_map_.find(old_xy);

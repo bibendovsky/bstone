@@ -1809,13 +1809,13 @@ void MovePWalls()
 				::pwallstate = 0;
 				::pwallpos = 63;
 
-				::vid_hw_on_step_pushwall(old_x, old_y);
+				::vid_hw_on_step_pushwall(pwallx, pwally);
 
 				::vid_hw_on_pushwall_to_wall(
-					old_x,
-					old_y,
-					next_x,
-					next_y
+					pwallx,
+					pwally,
+					pwallx,
+					pwally
 				);
 
 				return;
