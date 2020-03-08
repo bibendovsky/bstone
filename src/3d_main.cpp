@@ -10436,7 +10436,6 @@ void gametype::archive(
 	archiver->write_int16(score_roll_wait);
 	archiver->write_int16(lives);
 	archiver->write_int16(health);
-	archiver->write_char_array(health_str, 4);
 	archiver->write_int16(rpower);
 	archiver->write_int16(old_rpower);
 	archiver->write_int8(rzoom);
@@ -10492,7 +10491,6 @@ void gametype::unarchive(
 	score_roll_wait = archiver->read_int16();
 	lives = archiver->read_int16();
 	health = archiver->read_int16();
-	archiver->read_char_array(health_str, 4);
 	rpower = archiver->read_int16();
 	old_rpower = archiver->read_int16();
 	rzoom = archiver->read_int8();
@@ -10547,7 +10545,6 @@ void gametype::initialize()
 	score_roll_wait = {};
 	lives = {};
 	health = {};
-	std::fill(std::begin(health_str), std::end(health_str), char{});
 	rpower = {};
 	old_rpower = {};
 	rzoom = {};
