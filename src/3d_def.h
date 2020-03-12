@@ -2568,9 +2568,6 @@ struct gametype
 	bool boss_key_dropped;
 
 	// !!! Used in saved game.
-	bool old_boss_key_dropped;
-
-	// !!! Used in saved game.
 	std::int16_t wintilex;
 
 	// !!! Used in saved game.
