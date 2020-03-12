@@ -10444,7 +10444,6 @@ void gametype::archive(
 	archiver->write_int16(ammo);
 	archiver->write_int16(old_ammo);
 	archiver->write_int16(plasma_detonators);
-	archiver->write_int16(old_plasma_detonators);
 	archiver->write_int8(useable_weapons);
 	archiver->write_int8(weapons);
 	archiver->write_int8(weapon);
@@ -10497,7 +10496,6 @@ void gametype::unarchive(
 	ammo = archiver->read_int16();
 	old_ammo = archiver->read_int16();
 	plasma_detonators = archiver->read_int16();
-	old_plasma_detonators = archiver->read_int16();
 	useable_weapons = archiver->read_int8();
 	weapons = archiver->read_int8();
 	weapon = archiver->read_int8();
@@ -10549,7 +10547,6 @@ void gametype::initialize()
 	ammo = {};
 	old_ammo = {};
 	plasma_detonators = {};
-	old_plasma_detonators = {};
 	useable_weapons = {};
 	weapons = {};
 	weapon = {};
