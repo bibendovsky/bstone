@@ -3448,7 +3448,6 @@ restartgame:
 		if (!(loadedgame || LevelInPlaytemp(gamestate.mapon)))
 		{
 			::memcpy(::gamestate.numkeys, ::gamestate.old_numkeys, sizeof(::gamestate.numkeys));
-			::gamestate.rpower = ::gamestate.old_rpower;
 			::gamestate.tokens = ::gamestate.old_tokens;
 			::gamestate.weapons = ::gamestate.old_weapons[0];
 			::gamestate.weapon = ::gamestate.old_weapons[1];
@@ -3546,7 +3545,6 @@ restartgame:
 			StartMusic(false);
 			SaveLevel(gamestate.lastmapon);
 
-			gamestate.old_rpower = gamestate.rpower;
 			memcpy(gamestate.old_numkeys, gamestate.numkeys, sizeof(gamestate.old_numkeys));
 			gamestate.old_tokens = gamestate.tokens;
 			gamestate.old_weapons[0] = gamestate.weapons;

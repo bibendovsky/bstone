@@ -10436,7 +10436,6 @@ void gametype::archive(
 	archiver->write_int16(lives);
 	archiver->write_int16(health);
 	archiver->write_int16(rpower);
-	archiver->write_int16(old_rpower);
 	archiver->write_int8(rzoom);
 	archiver->write_int8(radar_leds);
 	archiver->write_int8(lastradar_leds);
@@ -10490,7 +10489,6 @@ void gametype::unarchive(
 	lives = archiver->read_int16();
 	health = archiver->read_int16();
 	rpower = archiver->read_int16();
-	old_rpower = archiver->read_int16();
 	rzoom = archiver->read_int8();
 	radar_leds = archiver->read_int8();
 	lastradar_leds = archiver->read_int8();
@@ -10543,7 +10541,6 @@ void gametype::initialize()
 	lives = {};
 	health = {};
 	rpower = {};
-	old_rpower = {};
 	rzoom = {};
 	radar_leds = {};
 	lastradar_leds = {};
