@@ -2565,9 +2565,6 @@ struct gametype
 	std::uint16_t tokens;
 
 	// !!! Used in saved game.
-	std::uint16_t old_tokens;
-
-	// !!! Used in saved game.
 	bool boss_key_dropped;
 
 	// !!! Used in saved game.
