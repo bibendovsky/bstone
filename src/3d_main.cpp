@@ -10459,7 +10459,6 @@ void gametype::archive(
 
 	archiver->write_uint16(tokens);
 	archiver->write_bool(boss_key_dropped);
-	archiver->write_bool(old_boss_key_dropped);
 	archiver->write_int16(wintilex);
 	archiver->write_int16(wintiley);
 }
@@ -10507,7 +10506,6 @@ void gametype::unarchive(
 
 	tokens = archiver->read_uint16();
 	boss_key_dropped = archiver->read_bool();
-	old_boss_key_dropped = archiver->read_bool();
 	wintilex = archiver->read_int16();
 	wintiley = archiver->read_int16();
 }
@@ -10549,7 +10547,6 @@ void gametype::initialize()
 	barrier_table = {};
 	tokens = {};
 	boss_key_dropped = {};
-	old_boss_key_dropped = {};
 	wintilex = {};
 	wintiley = {};
 
