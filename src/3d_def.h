@@ -2503,9 +2503,6 @@ struct gametype
 	std::int16_t rpower;
 
 	// !!! Used in saved game.
-	std::int16_t old_rpower;
-
-	// !!! Used in saved game.
 	std::int8_t rzoom;
 
 	// !!! Used in saved game.
