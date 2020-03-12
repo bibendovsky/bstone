@@ -2482,9 +2482,6 @@ struct gametype
 	std::int16_t mapon;
 
 	// !!! Used in saved game.
-	std::int32_t oldscore;
-
-	// !!! Used in saved game.
 	std::int32_t tic_score;
 
 	// !!! Used in saved game.
