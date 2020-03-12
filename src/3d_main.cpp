@@ -10451,7 +10451,6 @@ void gametype::archive(
 	archiver->write_uint32(TimeCount);
 	// Skip "msg"
 	archiver->write_int8_array(numkeys, NUMKEYS);
-	archiver->write_int8_array(old_numkeys, NUMKEYS);
 
 	for (auto& barrier : barrier_table)
 	{
@@ -10501,7 +10500,6 @@ void gametype::unarchive(
 	TimeCount = archiver->read_uint32();
 	msg = nullptr;
 	archiver->read_int8_array(numkeys, NUMKEYS);
-	archiver->read_int8_array(old_numkeys, NUMKEYS);
 
 	for (auto& barrier : barrier_table)
 	{
@@ -10550,7 +10548,6 @@ void gametype::initialize()
 	TimeCount = {};
 	msg = {};
 	std::fill(std::begin(numkeys), std::end(numkeys), std::int8_t{});
-	std::fill(std::begin(old_numkeys), std::end(old_numkeys), std::int8_t{});
 	barrier_table = {};
 	tokens = {};
 	old_tokens = {};

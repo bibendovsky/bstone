@@ -2559,9 +2559,6 @@ struct gametype
 	std::int8_t numkeys[NUMKEYS];
 
 	// !!! Used in saved game.
-	std::int8_t old_numkeys[NUMKEYS];
-
-	// !!! Used in saved game.
 	Barriers barrier_table;
 
 	// !!! Used in saved game.

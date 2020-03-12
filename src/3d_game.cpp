@@ -3447,7 +3447,6 @@ restartgame:
 
 		if (!(loadedgame || LevelInPlaytemp(gamestate.mapon)))
 		{
-			::memcpy(::gamestate.numkeys, ::gamestate.old_numkeys, sizeof(::gamestate.numkeys));
 			::gamestate.tokens = ::gamestate.old_tokens;
 			::gamestate.boss_key_dropped = ::gamestate.old_boss_key_dropped;
 			::gamestuff.level = ::gamestuff.old_levelinfo;
@@ -3540,7 +3539,6 @@ restartgame:
 			StartMusic(false);
 			SaveLevel(gamestate.lastmapon);
 
-			memcpy(gamestate.old_numkeys, gamestate.numkeys, sizeof(gamestate.old_numkeys));
 			gamestate.old_tokens = gamestate.tokens;
 			gamestate.old_boss_key_dropped = gamestate.boss_key_dropped;
 			gamestuff.old_levelinfo = gamestuff.level;
