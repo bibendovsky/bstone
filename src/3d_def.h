@@ -2527,9 +2527,6 @@ struct gametype
 	std::int16_t plasma_detonators;
 
 	// !!! Used in saved game.
-	std::int16_t old_plasma_detonators;
-
-	// !!! Used in saved game.
 	std::int8_t useable_weapons;
 
 	// !!! Used in saved game.

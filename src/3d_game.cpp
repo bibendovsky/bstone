@@ -3453,7 +3453,6 @@ restartgame:
 			::gamestate.weapon = ::gamestate.old_weapons[1];
 			::gamestate.chosenweapon = ::gamestate.old_weapons[2];
 			::gamestate.ammo = ::gamestate.old_ammo;
-			::gamestate.plasma_detonators = ::gamestate.old_plasma_detonators;
 			::gamestate.boss_key_dropped = ::gamestate.old_boss_key_dropped;
 			::gamestuff.level = ::gamestuff.old_levelinfo;
 			::DrawKeys();
