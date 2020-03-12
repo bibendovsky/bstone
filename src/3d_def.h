@@ -2536,9 +2536,6 @@ struct gametype
 	std::int8_t chosenweapon;
 
 	// !!! Used in saved game.
-	std::int8_t old_weapons[4];
-
-	// !!! Used in saved game.
 	std::int8_t weapon_wait;
 
 	// !!! Used in saved game.

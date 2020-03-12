@@ -7988,9 +7988,6 @@ void NewGame(
 	::gamestate.weapons = 1 << wp_autocharge; // |1<<wp_plasma_detonators;
 	::gamestate.weapon = wp_autocharge;
 	::gamestate.chosenweapon = wp_autocharge;
-	::gamestate.old_weapons[0] = ::gamestate.weapons;
-	::gamestate.old_weapons[1] = ::gamestate.weapon;
-	::gamestate.old_weapons[2] = ::gamestate.chosenweapon;
 
 	::gamestate.health = 100;
 	::gamestate.ammo = STARTAMMO;
@@ -10446,7 +10443,6 @@ void gametype::archive(
 	archiver->write_int8(weapons);
 	archiver->write_int8(weapon);
 	archiver->write_int8(chosenweapon);
-	archiver->write_int8_array(old_weapons, 4);
 	archiver->write_int8(weapon_wait);
 	archiver->write_int16(attackframe);
 	archiver->write_int16(attackcount);
@@ -10497,7 +10493,6 @@ void gametype::unarchive(
 	weapons = archiver->read_int8();
 	weapon = archiver->read_int8();
 	chosenweapon = archiver->read_int8();
-	archiver->read_int8_array(old_weapons, 4);
 	weapon_wait = archiver->read_int8();
 	attackframe = archiver->read_int16();
 	attackcount = archiver->read_int16();
@@ -10547,7 +10542,6 @@ void gametype::initialize()
 	weapons = {};
 	weapon = {};
 	chosenweapon = {};
-	std::fill(std::begin(old_weapons), std::end(old_weapons), std::int8_t{});
 	weapon_wait = {};
 	attackframe = {};
 	attackcount = {};
