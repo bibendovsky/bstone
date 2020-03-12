@@ -3452,7 +3452,6 @@ restartgame:
 			::gamestate.weapons = ::gamestate.old_weapons[0];
 			::gamestate.weapon = ::gamestate.old_weapons[1];
 			::gamestate.chosenweapon = ::gamestate.old_weapons[2];
-			::gamestate.ammo = ::gamestate.old_ammo;
 			::gamestate.boss_key_dropped = ::gamestate.old_boss_key_dropped;
 			::gamestuff.level = ::gamestuff.old_levelinfo;
 			::DrawKeys();
@@ -3549,7 +3548,6 @@ restartgame:
 			gamestate.old_weapons[0] = gamestate.weapons;
 			gamestate.old_weapons[1] = gamestate.weapon;
 			gamestate.old_weapons[2] = gamestate.chosenweapon;
-			gamestate.old_ammo = gamestate.ammo;
 			gamestate.old_boss_key_dropped = gamestate.boss_key_dropped;
 			gamestuff.old_levelinfo = gamestuff.level;
 			break;

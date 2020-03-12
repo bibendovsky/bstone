@@ -7993,7 +7993,6 @@ void NewGame(
 	::gamestate.old_weapons[2] = ::gamestate.chosenweapon;
 
 	::gamestate.health = 100;
-	::gamestate.old_ammo = STARTAMMO;
 	::gamestate.ammo = STARTAMMO;
 	::gamestate.lives = 3;
 	::gamestate.nextextra = EXTRAPOINTS;
@@ -10442,7 +10441,6 @@ void gametype::archive(
 	archiver->write_int8(lastammo_leds);
 	archiver->write_int8(ammo_leds);
 	archiver->write_int16(ammo);
-	archiver->write_int16(old_ammo);
 	archiver->write_int16(plasma_detonators);
 	archiver->write_int8(useable_weapons);
 	archiver->write_int8(weapons);
@@ -10494,7 +10492,6 @@ void gametype::unarchive(
 	lastammo_leds = archiver->read_int8();
 	ammo_leds = archiver->read_int8();
 	ammo = archiver->read_int16();
-	old_ammo = archiver->read_int16();
 	plasma_detonators = archiver->read_int16();
 	useable_weapons = archiver->read_int8();
 	weapons = archiver->read_int8();
@@ -10545,7 +10542,6 @@ void gametype::initialize()
 	lastammo_leds = {};
 	ammo_leds = {};
 	ammo = {};
-	old_ammo = {};
 	plasma_detonators = {};
 	useable_weapons = {};
 	weapons = {};
