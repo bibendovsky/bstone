@@ -3447,8 +3447,6 @@ restartgame:
 
 		if (!(loadedgame || LevelInPlaytemp(gamestate.mapon)))
 		{
-			::gamestate.score = ::gamestate.oldscore;
-			::gamestate.tic_score = ::gamestate.oldscore;
 			::memcpy(::gamestate.numkeys, ::gamestate.old_numkeys, sizeof(::gamestate.numkeys));
 			::gamestate.rpower = ::gamestate.old_rpower;
 			::gamestate.tokens = ::gamestate.old_tokens;
@@ -3549,7 +3547,6 @@ restartgame:
 			SaveLevel(gamestate.lastmapon);
 
 			gamestate.old_rpower = gamestate.rpower;
-			gamestate.oldscore = gamestate.score;
 			memcpy(gamestate.old_numkeys, gamestate.numkeys, sizeof(gamestate.old_numkeys));
 			gamestate.old_tokens = gamestate.tokens;
 			gamestate.old_weapons[0] = gamestate.weapons;

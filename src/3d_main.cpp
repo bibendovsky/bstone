@@ -10429,7 +10429,6 @@ void gametype::archive(
 	archiver->write_int16(lastmapon);
 	archiver->write_int16(difficulty);
 	archiver->write_int16(mapon);
-	archiver->write_int32(oldscore);
 	archiver->write_int32(tic_score);
 	archiver->write_int32(score);
 	archiver->write_int32(nextextra);
@@ -10484,7 +10483,6 @@ void gametype::unarchive(
 	lastmapon = archiver->read_int16();
 	difficulty = archiver->read_int16();
 	mapon = archiver->read_int16();
-	oldscore = archiver->read_int32();
 	tic_score = archiver->read_int32();
 	score = archiver->read_int32();
 	nextextra = archiver->read_int32();
@@ -10538,7 +10536,6 @@ void gametype::initialize()
 	lastmapon = {};
 	difficulty = {};
 	mapon = {};
-	oldscore = {};
 	tic_score = {};
 	score = {};
 	nextextra = {};
