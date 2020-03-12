@@ -3447,7 +3447,6 @@ restartgame:
 
 		if (!(loadedgame || LevelInPlaytemp(gamestate.mapon)))
 		{
-			::gamestuff.level = ::gamestuff.old_levelinfo;
 			::DrawKeys();
 			::DrawScore();
 		}
@@ -3536,8 +3535,6 @@ restartgame:
 			LS_total = 38;
 			StartMusic(false);
 			SaveLevel(gamestate.lastmapon);
-
-			gamestuff.old_levelinfo = gamestuff.level;
 			break;
 
 		case ex_died:
