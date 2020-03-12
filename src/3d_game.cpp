@@ -3152,7 +3152,7 @@ void Warped()
 	std::int16_t iangle;
 
 	DisplayInfoMsg("\r\r\r   TRANSPORTING OUT", MP_POWERUP, 7 * 60, MT_GENERAL);
-	gamestate.old_weapons[3] = gamestate.weapon;
+	const auto old_weapon = gamestate.weapon;
 	gamestate.weapon = -1; // take away weapon
 
 	ThreeDRefresh();
@@ -3181,7 +3181,7 @@ void Warped()
 	IN_UserInput(100);
 	sd_wait_sound_done();
 
-	gamestate.weapon = gamestate.old_weapons[3];
+	gamestate.weapon = old_weapon;
 	gamestate.attackframe = gamestate.attackcount = gamestate.weaponframe = 0;
 
 	::vid_is_hud = false;
@@ -3449,9 +3449,6 @@ restartgame:
 		{
 			::memcpy(::gamestate.numkeys, ::gamestate.old_numkeys, sizeof(::gamestate.numkeys));
 			::gamestate.tokens = ::gamestate.old_tokens;
-			::gamestate.weapons = ::gamestate.old_weapons[0];
-			::gamestate.weapon = ::gamestate.old_weapons[1];
-			::gamestate.chosenweapon = ::gamestate.old_weapons[2];
 			::gamestate.boss_key_dropped = ::gamestate.old_boss_key_dropped;
 			::gamestuff.level = ::gamestuff.old_levelinfo;
 			::DrawKeys();
@@ -3545,9 +3542,6 @@ restartgame:
 
 			memcpy(gamestate.old_numkeys, gamestate.numkeys, sizeof(gamestate.old_numkeys));
 			gamestate.old_tokens = gamestate.tokens;
-			gamestate.old_weapons[0] = gamestate.weapons;
-			gamestate.old_weapons[1] = gamestate.weapon;
-			gamestate.old_weapons[2] = gamestate.chosenweapon;
 			gamestate.old_boss_key_dropped = gamestate.boss_key_dropped;
 			gamestuff.old_levelinfo = gamestuff.level;
 			break;
