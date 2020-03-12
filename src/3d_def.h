@@ -2438,7 +2438,6 @@ struct fargametype
 {
 	using LevelInfos = std::vector<levelinfo>;
 
-	LevelInfos old_levelinfo;
 	LevelInfos level;
 
 	fargametype();

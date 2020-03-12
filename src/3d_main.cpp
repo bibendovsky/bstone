@@ -7971,7 +7971,7 @@ void NewGame(
 {
 	const auto& assets_info = AssetsInfo{};
 
-	std::uint16_t oldf = gamestate.flags, loop;
+	std::uint16_t oldf = gamestate.flags;
 
 	InitPlaytemp();
 	playstate = ex_stillplaying;
@@ -8000,12 +8000,13 @@ void NewGame(
 
 	const auto stats_levels_per_episode = assets_info.get_stats_levels_per_episode();
 
-	for (loop = 0; loop < stats_levels_per_episode; loop++)
+	for (int i = 0; i < stats_levels_per_episode; ++i)
 	{
-		::gamestuff.old_levelinfo[loop].stats.overall_floor = 100;
-		if (loop)
+		::gamestuff.level[i].stats.overall_floor = 100;
+
+		if (i != 0)
 		{
-			::gamestuff.old_levelinfo[loop].locked = true;
+			::gamestuff.level[i].locked = true;
 		}
 	}
 
@@ -10360,7 +10361,6 @@ void levelinfo::unarchive(
 
 fargametype::fargametype()
 	:
-	old_levelinfo{},
 	level{}
 {
 }
@@ -10370,13 +10370,11 @@ void fargametype::initialize()
 	const auto& assets_info = AssetsInfo{};
 	const auto level_count_per_episode = assets_info.get_levels_per_episode();
 
-	old_levelinfo.resize(level_count_per_episode);
 	level.resize(level_count_per_episode);
 }
 
 void fargametype::clear()
 {
-	old_levelinfo.clear();
 	level.clear();
 
 	initialize();
@@ -10390,11 +10388,6 @@ void fargametype::archive(
 
 	for (int i = 0; i < levels_per_episode; ++i)
 	{
-		old_levelinfo[i].archive(archiver);
-	}
-
-	for (int i = 0; i < levels_per_episode; ++i)
-	{
 		level[i].archive(archiver);
 	}
 }
@@ -10404,11 +10397,6 @@ void fargametype::unarchive(
 {
 	const auto& assets_info = AssetsInfo{};
 	const auto levels_per_episode = assets_info.get_levels_per_episode();
-
-	for (int i = 0; i < levels_per_episode; ++i)
-	{
-		old_levelinfo[i].unarchive(archiver);
-	}
 
 	for (int i = 0; i < levels_per_episode; ++i)
 	{
