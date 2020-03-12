@@ -3161,22 +3161,24 @@ void Cmd_Use(
 
 				if ((new_floor = InputFloor()) != -1 && new_floor != gamestate.mapon)
 				{
-					std::int16_t angle = player->angle;
+					const auto is_ps = assets_info.is_ps();
 
-					gamestuff.level[gamestate.mapon].ptilex = player->tilex;
-					gamestuff.level[gamestate.mapon].ptiley = player->tiley;
-
-					if (assets_info.is_ps())
+					if (is_ps)
 					{
-						angle = player->angle - 180;
+						gamestuff.level[gamestate.mapon].ptilex = player->tilex;
+						gamestuff.level[gamestate.mapon].ptiley = player->tiley;
+
+						auto angle = player->angle - 180;
+
 						if (angle < 0)
 						{
 							angle += ANGLES;
 						}
+
+						gamestuff.level[gamestate.mapon].pangle = static_cast<std::int16_t>(angle);
 					}
 
-					gamestuff.level[gamestate.mapon].pangle = angle;
-					playstate = assets_info.is_ps() ? ex_transported : ex_warped;
+					playstate = is_ps ? ex_transported : ex_completed;
 
 					gamestate.lastmapon = gamestate.mapon;
 					gamestate.mapon = new_floor - 1;
@@ -3195,28 +3197,6 @@ void Cmd_Use(
 					playstate = ex_transported;
 					gamestate.lastmapon = gamestate.mapon;
 					gamestate.mapon = (iconnum & 0xff) - 1;
-
-					if (assets_info.is_aog())
-					{
-						gamestuff.level[gamestate.mapon + 1].ptilex = player->tilex;
-						gamestuff.level[gamestate.mapon + 1].ptiley = player->tiley;
-
-#if 0
-						{
-							int angle = player->angle - 180;
-
-							while (angle < 0)
-							{
-								angle += ANGLES;
-							}
-
-							gamestuff.level[gamestate.mapon + 1].pangle =
-								static_cast<std::int16_t>(angle);
-						}
-#else
-						gamestuff.level[gamestate.mapon + 1].pangle = 0;
-#endif
-					}
 					break;
 
 				default:
@@ -4639,18 +4619,16 @@ void SpawnPlayer(
 	std::int16_t tiley,
 	std::int16_t dir)
 {
-	if (gamestuff.level[gamestate.mapon].ptilex &&
-		gamestuff.level[gamestate.mapon].ptiley)
+	const auto& assets_info = AssetsInfo{};
+
+	if (assets_info.is_ps())
 	{
-		tilex = gamestuff.level[gamestate.mapon].ptilex;
-		tiley = gamestuff.level[gamestate.mapon].ptiley;
-		dir = 1 + (gamestuff.level[gamestate.mapon].pangle / 90);
-
-		const auto& assets_info = AssetsInfo{};
-
-		if (assets_info.is_aog())
+		if (gamestuff.level[gamestate.mapon].ptilex &&
+			gamestuff.level[gamestate.mapon].ptiley)
 		{
-			dir -= 1;
+			tilex = gamestuff.level[gamestate.mapon].ptilex;
+			tiley = gamestuff.level[gamestate.mapon].ptiley;
+			dir = 1 + (gamestuff.level[gamestate.mapon].pangle / 90);
 		}
 	}
 
