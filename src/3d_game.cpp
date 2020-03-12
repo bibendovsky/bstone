@@ -3447,7 +3447,6 @@ restartgame:
 
 		if (!(loadedgame || LevelInPlaytemp(gamestate.mapon)))
 		{
-			::gamestate.tokens = ::gamestate.old_tokens;
 			::gamestate.boss_key_dropped = ::gamestate.old_boss_key_dropped;
 			::gamestuff.level = ::gamestuff.old_levelinfo;
 			::DrawKeys();
@@ -3539,7 +3538,6 @@ restartgame:
 			StartMusic(false);
 			SaveLevel(gamestate.lastmapon);
 
-			gamestate.old_tokens = gamestate.tokens;
 			gamestate.old_boss_key_dropped = gamestate.boss_key_dropped;
 			gamestuff.old_levelinfo = gamestuff.level;
 			break;
