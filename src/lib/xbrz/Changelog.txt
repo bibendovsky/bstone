@@ -1,6 +1,8 @@
-===========
-|Changelog|
-===========
+xBRZ 1.8 [2019-11-28]
+---------------------
+Consider ARGB outside area as transparent
+Fixed ARGB scaling issue on image borders
+
 
 xBRZ 1.7 [2019-07-04]
 ---------------------
