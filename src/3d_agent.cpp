@@ -4333,6 +4333,8 @@ std::uint8_t ShowRatio(
 	PrintStatPercent(nx, ny, 0);
 	for (loop = 0; loop < numbars; loop++)
 	{
+		in_handle_events();
+
 		if (LastScan != ScanCode::sc_none)
 		{
 			show_stats_quick = true;
