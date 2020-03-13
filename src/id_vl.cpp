@@ -9874,7 +9874,7 @@ void hw_precache_high_energy_plasma_alien()
 	::hw_precache_electrical_shot();
 }
 
-// High Energy Plasma Alien.
+// Plasma Sphere.
 void hw_precache_plasma_sphere()
 {
 	::hw_cache_sprite(::SPR_ELECTRO_SPHERE_ROAM1);
@@ -11000,6 +11000,11 @@ void hw_precache_special_stuff()
 	if (::GoldsternInfo.SpawnCnt > 0)
 	{
 		::hw_precache_dr_goldfire();
+	}
+
+	if (NumEAWalls > 0)
+	{
+		hw_precache_high_energy_plasma_alien();
 	}
 }
 
