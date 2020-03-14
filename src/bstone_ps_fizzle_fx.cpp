@@ -47,7 +47,7 @@ namespace bstone
 
 PsFizzleFX::PsFizzleFX()
 	:
-	buffer_(::vga_ref_width * ::vga_ref_height)
+	buffer_(vga_ref_width * vga_ref_height)
 {
 }
 
@@ -68,19 +68,19 @@ void PsFizzleFX::initialize()
 	const auto version_padding = 1;
 
 	VgaBuffer current_screen;
-	::vid_export_ui(current_screen);
+	vid_export_ui(current_screen);
 
-	::CA_CacheScreen(TITLE2PIC);
-	::fontnumber = 2;
-	::PrintX = ::WindowX + version_padding;
-	::PrintY = ::WindowY + version_padding;
-	::VWB_Bar(::WindowX, ::WindowY, ::WindowW, ::WindowH, VERSION_TEXT_BKCOLOR);
+	CA_CacheScreen(TITLE2PIC);
+	fontnumber = 2;
+	PrintX = WindowX + version_padding;
+	PrintY = WindowY + version_padding;
+	VWB_Bar(WindowX, WindowY, WindowW, WindowH, VERSION_TEXT_BKCOLOR);
 
 	SETFONTCOLOR(VERSION_TEXT_COLOR, VERSION_TEXT_BKCOLOR);
-	::US_Print(bstone::Version::get_string().c_str());
+	US_Print(bstone::Version::get_string().c_str());
 
-	::vid_export_ui(buffer_);
-	::vid_import_ui(current_screen);
+	vid_export_ui(buffer_);
+	vid_import_ui(current_screen);
 }
 
 void PsFizzleFX::uninitialize()
@@ -109,22 +109,22 @@ int PsFizzleFX::get_y() const
 
 int PsFizzleFX::get_height() const
 {
-	return ::vga_ref_height;
+	return vga_ref_height;
 }
 
 void PsFizzleFX::plot(
 	const int x,
 	const int y)
 {
-	const auto offset = (y * ::vga_ref_width) + x;
+	const auto offset = (y * vga_ref_width) + x;
 	const auto color_index = buffer_[offset];
 
-	::VL_Plot(x, y, color_index);
+	VL_Plot(x, y, color_index);
 }
 
 void PsFizzleFX::skip_to_the_end()
 {
-	::vid_import_ui(buffer_);
+	vid_import_ui(buffer_);
 }
 
 

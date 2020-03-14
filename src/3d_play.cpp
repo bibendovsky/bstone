@@ -467,17 +467,17 @@ void PollMouseMove()
 	int mousexmove;
 	int mouseymove;
 
-	::in_get_mouse_deltas(mousexmove, mouseymove);
-	::in_clear_mouse_deltas();
+	in_get_mouse_deltas(mousexmove, mouseymove);
+	in_clear_mouse_deltas();
 
-	auto is_running = ::in_is_binding_pressed(e_bi_run);
+	auto is_running = in_is_binding_pressed(e_bi_run);
 
 	if (g_always_run)
 	{
 		is_running = !is_running;
 	}
 
-	const auto move_scale = 1.0F + (::mouseadjustment / 6.0F);
+	const auto move_scale = 1.0F + (mouseadjustment / 6.0F);
 
 	auto delta_x = static_cast<float>(mousexmove);
 	auto delta_y = static_cast<float>(mouseymove);
@@ -493,8 +493,8 @@ void PollMouseMove()
 	delta_x *= move_scale;
 	delta_y *= move_scale;
 
-	::controlx += static_cast<int>(delta_x);
-	::controly += static_cast<int>(delta_y);
+	controlx += static_cast<int>(delta_x);
+	controly += static_cast<int>(delta_y);
 }
 
 /*
@@ -559,7 +559,7 @@ void PollControls()
 	CalcTics();
 
 	// BBi
-	::in_handle_events();
+	in_handle_events();
 	//
 	// get button states
 	//
@@ -657,16 +657,16 @@ void check_heart_beat_key()
 
 	static bool is_key_released;
 
-	if (::in_is_binding_pressed(e_bi_heart_beat))
+	if (in_is_binding_pressed(e_bi_heart_beat))
 	{
 		if (is_key_released)
 		{
-			::g_heart_beat_sound = !::g_heart_beat_sound;
+			g_heart_beat_sound = !::g_heart_beat_sound;
 
 			const auto& message = (
-				::g_heart_beat_sound ?
-				::ekg_heartbeat_enabled :
-				::ekg_heartbeat_disabled);
+				g_heart_beat_sound ?
+				ekg_heartbeat_enabled :
+				ekg_heartbeat_disabled);
 
 			DISPLAY_TIMED_MSG(message.c_str(), MP_BONUS, MT_GENERAL);
 			is_key_released = false;
@@ -758,33 +758,33 @@ void CheckKeys()
 		{
 			bool is_enabled = false;
 
-			if (::sd_is_sound_enabled_)
+			if (sd_is_sound_enabled_)
 			{
-				::sd_wait_sound_done();
-				::sd_enable_sound(false);
+				sd_wait_sound_done();
+				sd_enable_sound(false);
 
 				is_enabled = false;
 			}
 			else
 			{
-				::ClearMemory();
+				ClearMemory();
 
-				if (::sd_has_audio_)
+				if (sd_has_audio_)
 				{
-					::sd_enable_sound(true);
+					sd_enable_sound(true);
 				}
 				else
 				{
-					::sd_enable_sound(false);
+					sd_enable_sound(false);
 				}
 
-				::CA_LoadAllSounds();
+				CA_LoadAllSounds();
 
 				is_enabled = true;
 			}
 
 			DISPLAY_TIMED_MSG(
-				is_enabled ? ::SoundOn : ::SoundOff,
+				is_enabled ? SoundOn : SoundOff,
 				MP_BONUS,
 				MT_GENERAL);
 
@@ -841,7 +841,7 @@ void CheckKeys()
 
 			// BBi
 #if 0
-			VW_ScreenToScreen(PAGE1START, ::bufferofs, 320, 160);
+			VW_ScreenToScreen(PAGE1START, bufferofs, 320, 160);
 #endif
 
 			Message("\n NOW you're jammin'!! \n");
@@ -924,7 +924,7 @@ void CheckKeys()
 		}
 
 		Paused = false;
-		::in_clear_mouse_deltas();
+		in_clear_mouse_deltas();
 
 		vid_is_hud = old_vid_is_hud;
 
@@ -978,22 +978,22 @@ void CheckKeys()
 	{
 	case ScanCode::sc_f7: // END GAME
 	case ScanCode::sc_f10: // QUIT TO DOS
-		::vid_is_hud = true;
+		vid_is_hud = true;
 		FinishPaletteShifts();
 		ClearMemory();
 		US_ControlPanel(scan);
 		CleanDrawPlayBorder();
-		::vid_is_hud = false;
+		vid_is_hud = false;
 		return;
 
 	case ScanCode::sc_f2: // SAVE MISSION
 	case ScanCode::sc_f8: // QUICK SAVE
 		// Make sure there's room to save...
 		//
-		::vid_is_hud = true;
+		vid_is_hud = true;
 		ClearMemory();
 		FinishPaletteShifts();
-		::vid_is_hud = false;
+		vid_is_hud = false;
 
 		if (!CheckDiskSpace(DISK_SPACE_NEEDED, CANT_SAVE_GAME_TXT, cds_id_print))
 		{
@@ -1012,9 +1012,9 @@ void CheckKeys()
 		refresh_screen = true;
 		if (scan < ScanCode::sc_f8)
 		{
-			::vid_is_hud = true;
+			vid_is_hud = true;
 			VW_FadeOut();
-			::vid_is_hud = false;
+			vid_is_hud = false;
 		}
 		StopMusic();
 		ClearMemory();
@@ -1067,27 +1067,27 @@ void CheckKeys()
 
 		if (assets_info.is_ps())
 		{
-			::TryDropPlasmaDetonator();
+			TryDropPlasmaDetonator();
 		}
 	}
 
-	if (::DebugOk && ::Keyboard[ScanCode::sc_backspace])
+	if (DebugOk && Keyboard[ScanCode::sc_backspace])
 	{
-		::fontnumber = 4;
-		::SETFONTCOLOR(0, 15);
+		fontnumber = 4;
+		SETFONTCOLOR(0, 15);
 
-		::vid_is_hud = true;
+		vid_is_hud = true;
 
-		if (::DebugKeys())
+		if (DebugKeys())
 		{
-			::CleanDrawPlayBorder();
+			CleanDrawPlayBorder();
 		}
 
-		::vid_is_hud = false;
+		vid_is_hud = false;
 
-		::in_clear_mouse_deltas();
+		in_clear_mouse_deltas();
 
-		::lasttimecount = ::TimeCount;
+		lasttimecount = TimeCount;
 
 		return;
 	}
@@ -1096,7 +1096,7 @@ void CheckKeys()
 	{
 		if (I_KeyReleased)
 		{
-			::gp_hide_attacker_info_ = !::gp_hide_attacker_info_;
+			gp_hide_attacker_info_ = !::gp_hide_attacker_info_;
 
 			if (!::gp_hide_attacker_info_)
 			{
@@ -1116,20 +1116,20 @@ void CheckKeys()
 
 	if (in_is_binding_pressed(e_bi_ceiling))
 	{
-		::gp_is_ceiling_solid_ = !::gp_is_ceiling_solid_;
+		gp_is_ceiling_solid_ = !::gp_is_ceiling_solid_;
 		in_reset_binding_state(e_bi_ceiling);
 	}
 
 	if (in_is_binding_pressed(e_bi_flooring))
 	{
-		::gp_is_flooring_solid_ = !::gp_is_flooring_solid_;
+		gp_is_flooring_solid_ = !::gp_is_flooring_solid_;
 		in_reset_binding_state(e_bi_flooring);
 	}
 
 	if (in_is_binding_pressed(e_bi_lightning))
 	{
 		in_reset_binding_state(e_bi_lightning);
-		::gp_no_shading_ = !::gp_no_shading_;
+		gp_no_shading_ = !::gp_no_shading_;
 	}
 
 	check_heart_beat_key();
@@ -1167,17 +1167,17 @@ void CheckMusicToggle()
 			{
 				DISPLAY_TIMED_MSG(NoAdLibCard, MP_BONUS, MT_GENERAL);
 
-				::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
+				sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
 				return;
 			}
-			else if (::sd_is_music_enabled_)
+			else if (sd_is_music_enabled_)
 			{
-				::sd_enable_music(false);
+				sd_enable_music(false);
 				is_enabled = false;
 			}
 			else
 			{
-				::sd_enable_music(true);
+				sd_enable_music(true);
 				StartMusic(false);
 				is_enabled = true;
 			}
@@ -1203,7 +1203,7 @@ char Computing[] = {"Computing..."};
 void PopupAutoMap(
 	bool is_shift_pressed)
 {
-	::vid_is_hud = true;
+	vid_is_hud = true;
 
 	const auto& assets_info = AssetsInfo{};
 
@@ -1237,7 +1237,7 @@ void PopupAutoMap(
 			overlay_flags |= OV_WHOLE_MAP;
 		}
 
-		::ShowOverhead(BASE_X + 4, BASE_Y + 4, 32, 0, overlay_flags);
+		ShowOverhead(BASE_X + 4, BASE_Y + 4, 32, 0, overlay_flags);
 
 		ShowStats(BASE_X + 157, BASE_Y + 25, ss_quick, &gamestuff.level[gamestate.mapon].stats);
 	}
@@ -1252,8 +1252,8 @@ void PopupAutoMap(
 
 		if (!assets_info.is_ps())
 		{
-			::CycleColors();
-			::in_handle_events();
+			CycleColors();
+			in_handle_events();
 		}
 	}
 
@@ -1264,15 +1264,15 @@ void PopupAutoMap(
 
 		if (!assets_info.is_ps())
 		{
-			::CycleColors();
-			::in_handle_events();
+			CycleColors();
+			in_handle_events();
 		}
 	}
 
 	CleanDrawPlayBorder();
 	IN_ClearKeysDown();
 
-	::vid_is_hud = false;
+	vid_is_hud = false;
 }
 
 
@@ -1385,7 +1385,7 @@ void GetNewActor()
 		}
 		else
 		{
-			::Quit("No free spots in objlist.");
+			Quit("No free spots in objlist.");
 		}
 	}
 	else
@@ -1428,10 +1428,10 @@ void RemoveObj(
 
 	if (gone == player)
 	{
-		::Quit("Tried to remove the player.");
+		Quit("Tried to remove the player.");
 	}
 
-	::vid_hw_on_remove_actor(*gone);
+	vid_hw_on_remove_actor(*gone);
 
 	gone->state = nullptr;
 
@@ -1482,22 +1482,22 @@ void StartMusic(
 	if (!assets_info.is_ps())
 	{
 		const auto level_count = assets_info.get_stats_levels_per_episode();
-		const auto level_number = ::gamestate.mapon % level_count;
+		const auto level_number = gamestate.mapon % level_count;
 
-		musicchunk = ::songs[level_number + (::gamestate.episode * level_count)];
+		musicchunk = songs[level_number + (gamestate.episode * level_count)];
 	}
 	else
 	{
-		if (::playstate == ex_victorious)
+		if (playstate == ex_victorious)
 		{
 			musicchunk = FORTRESS_MUS;
 		}
 		else
 		{
 			const auto level_count = assets_info.get_levels_per_episode();
-			const auto map_number = ::gamestate.mapon % level_count;
+			const auto map_number = gamestate.mapon % level_count;
 
-			musicchunk = ::songs[map_number];
+			musicchunk = songs[map_number];
 		}
 	}
 
@@ -1509,7 +1509,7 @@ void StartMusic(
 	{
 		if (!preload)
 		{
-			::sd_start_music(musicchunk);
+			sd_start_music(musicchunk);
 		}
 	}
 }
@@ -1533,7 +1533,7 @@ bool palshifted;
 
 void InitRedShifts()
 {
-	if (::vid_is_hw_)
+	if (vid_is_hw_)
 	{
 		return;
 	}
@@ -1661,7 +1661,7 @@ void UpdatePaletteShifts()
 		red = 0;
 	}
 
-	if (::vid_is_hw_)
+	if (vid_is_hw_)
 	{
 		palette_shift_info_.is_bonus_shifted_ = false;
 
@@ -1692,7 +1692,7 @@ void UpdatePaletteShifts()
 			palette_shift_info_.damage_a_ = alpha;
 		}
 
-		::palshifted = (palette_shift_info_.is_bonus_shifted_ || palette_shift_info_.is_damage_shifted_);
+		palshifted = (palette_shift_info_.is_bonus_shifted_ || palette_shift_info_.is_damage_shifted_);
 
 		return;
 	}
@@ -1728,7 +1728,7 @@ void UpdatePaletteShifts()
 
 void FinishPaletteShifts()
 {
-	if (::vid_is_hw_)
+	if (vid_is_hw_)
 	{
 		palette_shift_info_.is_bonus_shifted_ = false;
 		palette_shift_info_.is_damage_shifted_ = false;
@@ -1748,7 +1748,7 @@ void FinishPaletteShifts()
 		VW_WaitVBL(1);
 #endif
 		VL_SetPalette(0, 256, vgapal);
-		::VL_RefreshScreen();
+		VL_RefreshScreen();
 	}
 }
 
@@ -1924,7 +1924,7 @@ void PlayLoop()
 	ClearPaletteShifts();
 	ForceUpdateStatusBar();
 
-	::in_clear_mouse_deltas();
+	in_clear_mouse_deltas();
 
 	tics = 1; // for first time through
 	if (demoplayback)
@@ -1983,7 +1983,7 @@ void PlayLoop()
 			CheckSpawnGoldstern();
 		}
 
-		::vid_is_hud = true;
+		vid_is_hud = true;
 		UpdatePaletteShifts();
 
 		ThreeDRefresh();
@@ -2004,7 +2004,7 @@ void PlayLoop()
 			ShowQuickInstructions();
 		}
 
-		::vid_is_hud = false;
+		vid_is_hud = false;
 
 		CheckKeys();
 
@@ -2039,33 +2039,33 @@ void PlayLoop()
 
 void ShowQuickInstructions()
 {
-	::ShowQuickMsg = false;
+	ShowQuickMsg = false;
 
 	const auto& assets_info = AssetsInfo{};
 
-	if (::demoplayback ||
-		(assets_info.is_ps() && (::gamestate.mapon > 0)))
+	if (demoplayback ||
+		(assets_info.is_ps() && (gamestate.mapon > 0)))
 	{
 		return;
 	}
 
-	::ThreeDRefresh();
-	::ThreeDRefresh();
-	::ClearMemory();
-	::WindowX = 0;
-	::WindowY = 16;
-	::WindowW = 320;
-	::WindowH = 168;
-	::CacheMessage(QUICK_INFO1_TEXT);
+	ThreeDRefresh();
+	ThreeDRefresh();
+	ClearMemory();
+	WindowX = 0;
+	WindowY = 16;
+	WindowW = 320;
+	WindowH = 168;
+	CacheMessage(QUICK_INFO1_TEXT);
 
 	if (!::IN_UserInput(120))
 	{
-		::CacheMessage(QUICK_INFO2_TEXT);
-		::IN_Ack();
+		CacheMessage(QUICK_INFO2_TEXT);
+		IN_Ack();
 	}
 
-	::IN_ClearKeysDown();
-	::CleanDrawPlayBorder();
+	IN_ClearKeysDown();
+	CleanDrawPlayBorder();
 }
 
 void CleanDrawPlayBorder()

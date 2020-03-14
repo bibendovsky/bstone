@@ -129,7 +129,7 @@ std::string StringHelper::octet_to_hex_string(
 {
 	if (octet < 0 || octet > 0xFF)
 	{
-		::Quit("Octet value out of range: " + std::to_string(octet) + ".");
+		Quit("Octet value out of range: " + std::to_string(octet) + ".");
 	}
 
 	const auto high_nibble = (octet >> 4) & 0xF;

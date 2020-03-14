@@ -49,37 +49,37 @@ enum DrawMode
 static void generic_draw_post(
 	DrawMode draw_mode)
 {
-	if (::postheight <= 0.0)
+	if (postheight <= 0.0)
 	{
 		return;
 	}
 
-	int y = ::posty;
+	int y = posty;
 
-	auto cur_step = 32.0 / ::postheight;
+	auto cur_step = 32.0 / postheight;
 
 	auto step = cur_step;
 	cur_step /= 2.0;
 
-	int fraction = (::vid_is_3d ? ::vga_width : 1);
+	int fraction = (vid_is_3d ? vga_width : 1);
 
-	const int max_height = ::viewheight / 2;
+	const int max_height = viewheight / 2;
 
 	int screen_column = 0;
 
-	if (::vid_is_3d)
+	if (vid_is_3d)
 	{
 		screen_column =
-			::bufferofs +
-			((max_height - 1) * ::vga_width) +
-			::postx;
+			bufferofs +
+			((max_height - 1) * vga_width) +
+			postx;
 	}
 	else
 	{
 		y += max_height - 1;
 	}
 
-	const auto n = static_cast<int>(std::min(::postheight, static_cast<double>(max_height)));
+	const auto n = static_cast<int>(std::min(postheight, static_cast<double>(max_height)));
 
 	for (int h = 0; h < n; ++h)
 	{
@@ -99,14 +99,14 @@ static void generic_draw_post(
 			pixel = pixel_index;
 		}
 
-		if (::vid_is_3d)
+		if (vid_is_3d)
 		{
-			::vga_memory[screen_column] = pixel;
+			vga_memory[screen_column] = pixel;
 		}
 		else
 		{
-			::VL_Plot(
-				::postx,
+			VL_Plot(
+				postx,
 				y,
 				pixel);
 		}
@@ -125,17 +125,17 @@ static void generic_draw_post(
 			pixel = pixel_index;
 		}
 
-		if (::vid_is_3d)
+		if (vid_is_3d)
 		{
-			::vga_memory[screen_column + fraction] = pixel;
+			vga_memory[screen_column + fraction] = pixel;
 
-			screen_column -= ::vga_width;
-			fraction += 2 * ::vga_width;
+			screen_column -= vga_width;
+			fraction += 2 * vga_width;
 		}
 		else
 		{
-			::VL_Plot(
-				::postx,
+			VL_Plot(
+				postx,
 				y + fraction,
 				pixel);
 
@@ -184,7 +184,7 @@ void draw_wall_ui(
 		{
 			auto pixel = wall[wall_base + h];
 
-			::VL_Plot(
+			VL_Plot(
 				x + w,
 				y + h,
 				pixel);

@@ -65,7 +65,7 @@ int IO_LoadFile(
 				std::unique_ptr<std::uint8_t> compressed_buffer(
 					new std::uint8_t[head.CompressLen]);
 
-				::LZH_Decompress(compressed_buffer.get(), *dst,
+				LZH_Decompress(compressed_buffer.get(), *dst,
 					size, head.CompressLen);
 			}
 
@@ -73,10 +73,10 @@ int IO_LoadFile(
 			break;
 
 		case ct_LZW:
-			::Quit("No code for LZW compression.");
+			Quit("No code for LZW compression.");
 
 		default:
-			::Quit("Unknown compression type.");
+			Quit("Unknown compression type.");
 		}
 	}
 	else

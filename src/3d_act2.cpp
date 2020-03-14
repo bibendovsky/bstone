@@ -134,27 +134,27 @@ std::uint16_t MAPSPOT(
 	const std::uint8_t y,
 	const std::uint8_t plane)
 {
-	return ::mapsegs[plane][::farmapylookup[y] + x];
+	return mapsegs[plane][::farmapylookup[y] + x];
 }
 
 objtype* SLIDE_TEMP(
 	const objtype* const obj)
 {
-	return ::ui16_to_actor(obj->hitpoints);
+	return ui16_to_actor(obj->hitpoints);
 }
 
 void SpawnExplosion(
 	const fixed x,
 	const fixed y)
 {
-	::SpawnCusExplosion(x, y, SPR_EXPLOSION_1, 4, 5, explosionobj);
+	SpawnCusExplosion(x, y, SPR_EXPLOSION_1, 4, 5, explosionobj);
 }
 
 void SpawnFlash(
 	const fixed x,
 	const fixed y)
 {
-	::SpawnCusExplosion(x, y, SPR_EXPLOSION_1, 4, 5, deadobj);
+	SpawnCusExplosion(x, y, SPR_EXPLOSION_1, 4, 5, deadobj);
 }
 
 
@@ -254,9 +254,9 @@ void T_Security(
 #define CLOSE_RANGE (1) // Tiles
 
 #define ALIENSPEED (SPDPATROL)
-#define ALIENAMMOINIT (30 + (::US_RndT() % 60))
+#define ALIENAMMOINIT (30 + (US_RndT() % 60))
 
-#define GR_DAMAGE (40 + (::US_RndT() & 0x7F)) // 20 & ... 0x3F
+#define GR_DAMAGE (40 + (US_RndT() & 0x7F)) // 20 & ... 0x3F
 #define BFG_DAMAGE (GR_DAMAGE << 1) // Hit Point damage cause by BFG
 #define PLASMA_DETONATOR_DAMAGE (500)
 #define DETONATOR_FLASH_RATE (20)
@@ -641,7 +641,7 @@ static void display_remaining_generators()
 		;
 
 
-	const auto remaining_generators = ::get_remaining_generators();
+	const auto remaining_generators = get_remaining_generators();
 
 	static std::string message;
 
@@ -874,38 +874,38 @@ void SpawnOffsetObj(
 		break;
 
 	case en_green_ooze:
-		::InitSmartSpeedAnim(
-			::new_actor,
-			::SPR_GREEN_OOZE1,
-			::US_RndT() % 3,
+		InitSmartSpeedAnim(
+			new_actor,
+			SPR_GREEN_OOZE1,
+			US_RndT() % 3,
 			2,
 			at_CYCLE,
 			ad_FWD,
-			(assets_info.is_ps() ? 5 + (::US_RndT() & 2) : 30));
+			(assets_info.is_ps() ? 5 + (US_RndT() & 2) : 30));
 
 		new_actor->flags &= ~(FL_SHOOTABLE | FL_SOLID);
 		break;
 
 	case en_black_ooze:
-		::InitSmartSpeedAnim(
-			::new_actor,
-			::SPR_BLACK_OOZE1,
-			::US_RndT() % 3,
+		InitSmartSpeedAnim(
+			new_actor,
+			SPR_BLACK_OOZE1,
+			US_RndT() % 3,
 			2,
 			at_CYCLE,
 			ad_FWD,
-			(assets_info.is_ps() ? 5 + (::US_RndT() & 2) : 30));
+			(assets_info.is_ps() ? 5 + (US_RndT() & 2) : 30));
 
 		new_actor->flags &= ~(FL_SHOOTABLE | FL_SOLID);
 		break;
 
 	case en_green2_ooze:
-		::InitSmartSpeedAnim(new_actor, SPR_GREEN2_OOZE1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 5 + (US_RndT() & 2));
+		InitSmartSpeedAnim(new_actor, SPR_GREEN2_OOZE1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 5 + (US_RndT() & 2));
 		new_actor->flags &= ~(FL_SHOOTABLE | FL_SOLID);
 		break;
 
 	case en_black2_ooze:
-		::InitSmartSpeedAnim(new_actor, SPR_BLACK2_OOZE1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 5 + (US_RndT() & 2));
+		InitSmartSpeedAnim(new_actor, SPR_BLACK2_OOZE1, US_RndT() % 3, 2, at_CYCLE, ad_FWD, 5 + (US_RndT() & 2));
 		new_actor->flags &= ~(FL_SHOOTABLE | FL_SOLID);
 		break;
 
@@ -922,11 +922,11 @@ void SpawnOffsetObj(
 	case en_rotating_cube:
 		if (!assets_info.is_ps())
 		{
-			::InitSmartSpeedAnim(new_actor, SPR_VITAL_STAND, 0, 0, at_NONE, ad_FWD, 0);
+			InitSmartSpeedAnim(new_actor, SPR_VITAL_STAND, 0, 0, at_NONE, ad_FWD, 0);
 		}
 		else
 		{
-			::InitSmartSpeedAnim(new_actor, SPR_CUBE1, 0, 9, at_CYCLE, ad_FWD, 5);
+			InitSmartSpeedAnim(new_actor, SPR_CUBE1, 0, 9, at_CYCLE, ad_FWD, 5);
 			new_actor->flags2 = FL2_BFGSHOT_SOLID;
 		}
 		new_actor->lighting = LAMP_ON_SHADING;
@@ -955,7 +955,7 @@ void SpawnOffsetObj(
 		new_actor->flags &= ~(FL_SOLID | FL_SHOOTABLE);
 		if (detonators_spawned++)
 		{
-			::Quit("Too many Fission/Plasma Detonators are placed in this map! You can only have one!");
+			Quit("Too many Fission/Plasma Detonators are placed in this map! You can only have one!");
 		}
 		break;
 
@@ -1143,7 +1143,7 @@ void SpawnOffsetObj(
 		case en_reptilian_warrior:
 		case en_acid_dragon:
 		case en_mech_guardian:
-			::new_actor->hitpoints *= 15;
+			new_actor->hitpoints *= 15;
 			break;
 
 		default:
@@ -1198,7 +1198,7 @@ void T_OfsThink(
 			obj->flags &= ~FL_SHOOTABLE;
 			obj->obclass = pd_explosionobj;
 			A_DeathScream(obj);
-			::InitSmartSpeedAnim(obj, SPR_DETONATOR_EXP1, 0, 7, at_ONCE, ad_FWD, 3 + (US_RndT() & 3));
+			InitSmartSpeedAnim(obj, SPR_DETONATOR_EXP1, 0, 7, at_ONCE, ad_FWD, 3 + (US_RndT() & 3));
 			return;
 		}
 		else
@@ -1247,7 +1247,7 @@ void T_OfsThink(
 			if ((obj->temp1 = grenade_shapes[static_cast<int>(dist)]) == 0)
 			{
 				obj->obclass = gr_explosionobj;
-				::InitSmartSpeedAnim(obj, SPR_GRENADE_EXPLODE1, 0, 4, at_ONCE, ad_FWD, 3 + (US_RndT() & 3));
+				InitSmartSpeedAnim(obj, SPR_GRENADE_EXPLODE1, 0, 4, at_ONCE, ad_FWD, 3 + (US_RndT() & 3));
 			}
 		}
 
@@ -1363,9 +1363,9 @@ void T_OfsThink(
 			break;
 		}
 
-		::sd_play_actor_sound(PODHATCHSND, obj, bstone::ActorChannel::voice);
+		sd_play_actor_sound(PODHATCHSND, obj, bstone::ActorChannel::voice);
 
-		::InitSmartSpeedAnim(obj, SPR_POD_HATCH1, 0, 2, at_ONCE, ad_FWD, 7);
+		InitSmartSpeedAnim(obj, SPR_POD_HATCH1, 0, 2, at_ONCE, ad_FWD, 7);
 		break;
 
 	case morphing_spider_mutantobj:
@@ -1383,7 +1383,7 @@ void T_OfsThink(
 		}
 
 		obj->flags &= ~FL_SHOOTABLE;
-		::InitSmartSpeedAnim(obj, obj->temp1, 0, 8, at_ONCE, ad_FWD, 2);
+		InitSmartSpeedAnim(obj, obj->temp1, 0, 8, at_ONCE, ad_FWD, 2);
 		break;
 
 	case crate1obj:
@@ -1504,7 +1504,7 @@ void T_OfsBounce(
 
 	if (dist < TILEGLOBAL)
 	{
-		::sd_play_actor_sound(ELECARCDAMAGESND, ob, bstone::ActorChannel::weapon);
+		sd_play_actor_sound(ELECARCDAMAGESND, ob, bstone::ActorChannel::weapon);
 
 		TakeDamage(4, ob);
 	}
@@ -1812,7 +1812,7 @@ objtype* FindHiddenOfs(
 
 	if (!obj)
 	{
-		::Quit("Unable to find a \"Hidden Actor\" at location (0, 0).");
+		Quit("Unable to find a \"Hidden Actor\" at location (0, 0).");
 	}
 
 	return obj;
@@ -1866,7 +1866,7 @@ objtype* MoveHiddenOfs(
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// ::InitSmartAnim() - Sets up an object for a SmartAnimation
+// InitSmartAnim() - Sets up an object for a SmartAnimation
 //
 // PARAMETERS:  Obj  - Ptr to object structure
 //              ShapeNum - First shape number in anim
@@ -1968,7 +1968,7 @@ void T_SmartThought(
 	case green2_oozeobj:
 	case black2_oozeobj:
 	{
-		if (((::US_RndT() & 7) == 7) &&
+		if (((US_RndT() & 7) == 7) &&
 			ofs_anim_t::get_curframe(obj) == 2 &&
 			obj->tilex == player->tilex &&
 			obj->tiley == player->tiley)
@@ -1993,7 +1993,7 @@ void T_SmartThought(
 
 			if (dy <= 0x16000 && dx <= 0x16000)
 			{
-				::sd_play_actor_sound(
+				sd_play_actor_sound(
 					ELECARCDAMAGESND, obj, bstone::ActorChannel::weapon);
 
 				TakeDamage(4, obj);
@@ -2036,7 +2036,7 @@ void T_SmartThought(
 	if (ofs_anim_t::get_animtype(obj) != 0)
 	{
 		int old_frame = ofs_anim_t::get_curframe(obj);
-		bool is_animated = ::AnimateOfsObj(obj);
+		bool is_animated = AnimateOfsObj(obj);
 
 		if (is_animated)
 		{
@@ -2048,7 +2048,7 @@ void T_SmartThought(
 				dx = obj->obclass - morphing_spider_mutantobj;
 				obj->temp1 = MorphEndShapes[dx];
 
-				::sd_play_actor_sound(
+				sd_play_actor_sound(
 					MorphSounds[dx], obj, bstone::ActorChannel::voice);
 
 				obj->obclass = static_cast<classtype>(MorphClass[dx]);
@@ -2071,13 +2071,13 @@ void T_SmartThought(
 				{
 					if (obj->temp1 == SPR_VITAL_OUCH)
 					{
-						::InitSmartSpeedAnim(obj, SPR_VITAL_STAND, 0, 0, at_NONE, ad_FWD, 0);
+						InitSmartSpeedAnim(obj, SPR_VITAL_STAND, 0, 0, at_NONE, ad_FWD, 0);
 					}
 					else if (obj->temp1 == SPR_VITAL_DIE_8)
 					{
-						::InitSmartSpeedAnim(obj, SPR_VITAL_DEAD_1, 0, 2, at_CYCLE, ad_FWD, 16);
+						InitSmartSpeedAnim(obj, SPR_VITAL_DEAD_1, 0, 2, at_CYCLE, ad_FWD, 16);
 
-						if (::get_remaining_generators() == 0)
+						if (get_remaining_generators() == 0)
 						{
 							obj->ammo = 1;
 						}
@@ -2086,7 +2086,7 @@ void T_SmartThought(
 				else if (assets_info.is_ps())
 				{
 					DISPLAY_TIMED_MSG(pd_floorunlocked, MP_FLOOR_UNLOCKED, MT_GENERAL);
-					::sd_play_player_sound(ROLL_SCORESND, bstone::ActorChannel::item);
+					sd_play_player_sound(ROLL_SCORESND, bstone::ActorChannel::item);
 					obj->lighting = 0;
 				}
 				break;
@@ -2129,12 +2129,12 @@ void T_SmartThought(
 		{
 			if (obj->temp1 == SPR_VITAL_DIE_2)
 			{
-				::display_remaining_generators();
+				display_remaining_generators();
 			}
 			else if (obj->temp1 == SPR_VITAL_DIE_4)
 			{
-				::display_remaining_generators();
-				::ExplodeRadius(obj, 35 + (::US_RndT() & 15), true);
+				display_remaining_generators();
+				ExplodeRadius(obj, 35 + (US_RndT() & 15), true);
 			}
 			else if (obj->temp1 == SPR_VITAL_DEAD_1)
 			{
@@ -2173,7 +2173,7 @@ void T_SmartThought(
 
 					if ((avail > DR_MIN_STATICS) && (US_RndT() & 1))
 					{
-						static_cast<void>(::SpawnStatic(obj->tilex, obj->tiley, DOOR_RUBBLE_STATNUM));
+						static_cast<void>(SpawnStatic(obj->tilex, obj->tiley, DOOR_RUBBLE_STATNUM));
 					}
 				}
 				break;
@@ -2422,14 +2422,14 @@ void ActivateWallSwitch(
 
 		barrier.on ^= 1;
 		auto newwall = states[barrier.on];
-		::tilemap[x][y] = static_cast<std::uint8_t>(states[barrier.on]);
+		tilemap[x][y] = static_cast<std::uint8_t>(states[barrier.on]);
 
 		// BBi
-		::vid_hw_on_update_wall_switch(x, y);
+		vid_hw_on_update_wall_switch(x, y);
 		// BBi
 
-		::DisplaySwitchOperateMsg(num);
-		::sd_play_player_sound(::SWITCHSND, bstone::ActorChannel::item);
+		DisplaySwitchOperateMsg(num);
+		sd_play_player_sound(SWITCHSND, bstone::ActorChannel::item);
 
 		auto tile = &::tilemap[0][0];
 		auto actor = reinterpret_cast<std::size_t*>(&::actorat[0][0]);
@@ -2440,14 +2440,14 @@ void ActivateWallSwitch(
 			{
 				if (*tile == OFF_SWITCH || *tile == ON_SWITCH)
 				{
-					auto icon = *(::mapsegs[1] + ::farmapylookup[mapy] + mapx);
+					auto icon = *(mapsegs[1] + farmapylookup[mapy] + mapx);
 
 					if (icon == iconnum)
 					{
 						*tile = static_cast<std::uint8_t>(newwall);
 						*actor = newwall;
 
-						::vid_hw_on_update_wall_switch(mapx, mapy);
+						vid_hw_on_update_wall_switch(mapx, mapy);
 					}
 				}
 
@@ -2458,8 +2458,8 @@ void ActivateWallSwitch(
 	}
 	else
 	{
-		DISPLAY_TIMED_MSG(::SwitchNotActivateMsg, MP_WALLSWITCH_OPERATE, MT_GENERAL);
-		::sd_play_player_sound(::NOWAYSND, bstone::ActorChannel::no_way);
+		DISPLAY_TIMED_MSG(SwitchNotActivateMsg, MP_WALLSWITCH_OPERATE, MT_GENERAL);
+		sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
 	}
 }
 
@@ -2673,9 +2673,9 @@ std::int16_t CheckAndConnect(
 				{
 					++::bars_connected;
 
-					if (::CheckActor(ob, code))
+					if (CheckActor(ob, code))
 					{
-						::CheckAndConnect(
+						CheckAndConnect(
 							x + offsets[loop],
 							y + offsets[3 - loop],
 							code);
@@ -2716,18 +2716,18 @@ void ConnectBarriers()
 
 		if (barrier.on != 0xFF)
 		{
-			::bars_connected = 0;
+			bars_connected = 0;
 
 			const auto code = gamestate.encode_barrier_index(level, i);
 
-			if (::CheckAndConnect(
+			if (CheckAndConnect(
 				barrier.coord.tilex,
 				barrier.coord.tiley,
 				static_cast<std::uint16_t>(code)) == 0)
 			{
 				if (assets_info.is_ps())
 				{
-					::Quit("A barrier switch was not connect to any barriers.");
+					Quit("A barrier switch was not connect to any barriers.");
 				}
 			}
 		}
@@ -2790,7 +2790,7 @@ void SpawnBarrier(
 
 		if (OnOff)
 		{
-			::InitSmartSpeedAnim(
+			InitSmartSpeedAnim(
 				new_actor,
 				SPR_ELEC_ARC1,
 				US_RndT() % 3,
@@ -2816,7 +2816,7 @@ void SpawnBarrier(
 	case en_post_barrier:
 		if (OnOff)
 		{
-			::InitSmartSpeedAnim(
+			InitSmartSpeedAnim(
 				new_actor,
 				SPR_ELEC_POST1,
 				US_RndT() % 3,
@@ -2938,7 +2938,7 @@ void ToggleBarrier(
 		switch (obj->obclass)
 		{
 		case post_barrierobj:
-			::InitSmartSpeedAnim(
+			InitSmartSpeedAnim(
 				obj,
 				SPR_ELEC_POST1,
 				US_RndT() % 3,
@@ -2951,7 +2951,7 @@ void ToggleBarrier(
 			break;
 
 		case arc_barrierobj:
-			::InitSmartSpeedAnim(
+			InitSmartSpeedAnim(
 				obj,
 				SPR_ELEC_ARC1,
 				US_RndT() % 3,
@@ -2998,7 +2998,7 @@ void T_BarrierShutdown(
 					obj->temp1 = SPR_ELEC_ARC1 + obj->temp3;
 					obj->temp3 = (obj->temp3 + 1) % 4;
 
-					::sd_play_actor_sound(
+					sd_play_actor_sound(
 						ELECARCDAMAGESND, obj, bstone::ActorChannel::weapon);
 
 					obj->flags |= (FL_SOLID | FL_FAKE_STATIC);
@@ -3238,7 +3238,7 @@ void T_BarrierTransition(
 		{
 			const auto barrier_index = gamestate.get_barrier_index(obj->temp2);
 
-			if (::gamestate.barrier_table[barrier_index].on)
+			if (gamestate.barrier_table[barrier_index].on)
 			{
 				ToggleBarrier(obj);
 			}
@@ -4155,13 +4155,13 @@ void A_DeathScream(
 	case swatobj:
 	{
 		const int sounds[] = {
-			::SWATDIESND,
-			assets_info.is_ps() ? ::SWATDEATH2SND : ::SWATDEATH3SND,
+			SWATDIESND,
+			assets_info.is_ps() ? SWATDEATH2SND : SWATDEATH3SND,
 		}; // sounds
 
-		auto sound_index = (assets_info.is_aog_sw() ? 0 : (::US_RndT() % 2));
+		auto sound_index = (assets_info.is_aog_sw() ? 0 : (US_RndT() % 2));
 
-		::sd_play_actor_sound(sounds[sound_index], ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(sounds[sound_index], ob, bstone::ActorChannel::voice);
 
 		break;
 	}
@@ -4173,9 +4173,9 @@ void A_DeathScream(
 			RENTDEATH2SND,
 		}; // sounds
 
-		auto sound_index = (assets_info.is_aog_sw() ? 0 : (::US_RndT() % 2));
+		auto sound_index = (assets_info.is_aog_sw() ? 0 : (US_RndT() % 2));
 
-		::sd_play_actor_sound(sounds[sound_index], ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(sounds[sound_index], ob, bstone::ActorChannel::voice);
 
 		break;
 	}
@@ -4195,16 +4195,16 @@ void A_DeathScream(
 			EXPLODE2SND,
 		}; // sounds
 
-		auto sound_index = (assets_info.is_aog_sw() ? 0 : (::US_RndT() % 2));
+		auto sound_index = (assets_info.is_aog_sw() ? 0 : (US_RndT() % 2));
 
-		::sd_play_actor_sound(sounds[sound_index], ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(sounds[sound_index], ob, bstone::ActorChannel::voice);
 
 		break;
 	}
 
 	case rotating_cubeobj:
-		::sd_play_actor_sound(EXPLODE1SND, ob, bstone::ActorChannel::voice);
-		::sd_play_player_sound(VITAL_GONESND, bstone::ActorChannel::item);
+		sd_play_actor_sound(EXPLODE1SND, ob, bstone::ActorChannel::voice);
+		sd_play_player_sound(VITAL_GONESND, bstone::ActorChannel::item);
 		break;
 
 	case gen_scientistobj:
@@ -4217,16 +4217,16 @@ void A_DeathScream(
 			is_informant ? INFORMDEATH3SND : SCIDEATH3SND,
 		}; // sounds
 
-		auto sound_index = assets_info.is_aog_sw() ? 0 : (::US_RndT() % 3);
+		auto sound_index = assets_info.is_aog_sw() ? 0 : (US_RndT() % 3);
 
-		::sd_play_actor_sound(sounds[sound_index], ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(sounds[sound_index], ob, bstone::ActorChannel::voice);
 		break;
 	}
 
 	case genetic_guardobj:
 		if (assets_info.is_aog())
 		{
-			::sd_play_actor_sound(GGUARDDEATHSND, ob, bstone::ActorChannel::voice);
+			sd_play_actor_sound(GGUARDDEATHSND, ob, bstone::ActorChannel::voice);
 			break;
 		}
 
@@ -4234,11 +4234,11 @@ void A_DeathScream(
 	case cyborg_warriorobj:
 	case acid_dragonobj:
 	case podobj:
-		::sd_play_actor_sound(PODDEATHSND, ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(PODDEATHSND, ob, bstone::ActorChannel::voice);
 		break;
 
 	case liquidobj:
-		::sd_play_actor_sound(LIQUIDDIESND, ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(LIQUIDDIESND, ob, bstone::ActorChannel::voice);
 		break;
 
 	case proguardobj:
@@ -4248,44 +4248,44 @@ void A_DeathScream(
 			PRODEATH2SND,
 		}; // sounds
 
-		auto sound_index = (assets_info.is_aog_sw() ? 0 : (::US_RndT() % 2));
+		auto sound_index = (assets_info.is_aog_sw() ? 0 : (US_RndT() % 2));
 
-		::sd_play_actor_sound(sounds[sound_index], ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(sounds[sound_index], ob, bstone::ActorChannel::voice);
 
 		break;
 	}
 
 	case final_boss1obj:
 	case spider_mutantobj:
-		::sd_play_actor_sound(BLUEBOYDEATHSND, ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(BLUEBOYDEATHSND, ob, bstone::ActorChannel::voice);
 		break;
 
 	case mech_guardianobj:
 	case final_boss3obj:
 	case mutant_human2obj:
-		::sd_play_actor_sound(DOGBOYDEATHSND, ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(DOGBOYDEATHSND, ob, bstone::ActorChannel::voice);
 		break;
 
 	case reptilian_warriorobj:
 	case scan_alienobj:
-		::sd_play_actor_sound(SCANDEATHSND, ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(SCANDEATHSND, ob, bstone::ActorChannel::voice);
 		break;
 
 	case lcan_alienobj:
 	case final_boss4obj:
-		::sd_play_actor_sound(LCANDEATHSND, ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(LCANDEATHSND, ob, bstone::ActorChannel::voice);
 		break;
 
 	case gurneyobj:
-		::sd_play_actor_sound(GURNEYDEATHSND, ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(GURNEYDEATHSND, ob, bstone::ActorChannel::voice);
 		break;
 
 	case lcan_wait_alienobj:
-		::sd_play_actor_sound(LCANBREAKSND, ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(LCANBREAKSND, ob, bstone::ActorChannel::voice);
 		break;
 
 	case scan_wait_alienobj:
-		::sd_play_actor_sound(SCANBREAKSND, ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(SCANBREAKSND, ob, bstone::ActorChannel::voice);
 		break;
 
 	default:
@@ -4879,7 +4879,7 @@ void T_Path(
 
 		if (ob->tilex > MAPSIZE || ob->tiley > MAPSIZE)
 		{
-			::Quit("Actor walked out of map.");
+			Quit("Actor walked out of map.");
 		}
 
 		ob->x = ((std::int32_t)ob->tilex << TILESHIFT) + TILEGLOBAL / 2;
@@ -4928,7 +4928,7 @@ void T_Shoot(
 	switch (ob->obclass)
 	{
 	case electroobj:
-		::SpawnProjectile(ob, electroshotobj);
+		SpawnProjectile(ob, electroshotobj);
 		break;
 
 	case mutant_human2obj:
@@ -5069,12 +5069,12 @@ void T_Shoot(
 
 		case proguardobj:
 		case swatobj:
-			::sd_play_actor_sound(
+			sd_play_actor_sound(
 				ATKBURSTRIFLESND, ob, bstone::ActorChannel::weapon);
 			break;
 
 		default:
-			::sd_play_actor_sound(
+			sd_play_actor_sound(
 				ATKCHARGEDSND, ob, bstone::ActorChannel::weapon);
 			break;
 		}
@@ -5137,14 +5137,14 @@ void T_Hit(
 	case podobj:
 		hitchance = 220; // Higher - Better Chance (255 max!)
 		damage = (US_RndT() >> 3) | 1;
-		::sd_play_actor_sound(CLAWATTACKSND, ob, bstone::ActorChannel::weapon);
+		sd_play_actor_sound(CLAWATTACKSND, ob, bstone::ActorChannel::weapon);
 		break;
 
 	case genetic_guardobj:
 	case mutant_human2obj:
 		hitchance = 220; // Higher - Better Chance (255 max!)
 		damage = (US_RndT() >> 3) | 1;
-		::sd_play_actor_sound(PUNCHATTACKSND, ob, bstone::ActorChannel::weapon);
+		sd_play_actor_sound(PUNCHATTACKSND, ob, bstone::ActorChannel::weapon);
 		break;
 
 	default:
@@ -5361,25 +5361,25 @@ void T_GoldMorph(
 void A_Laugh(
 	objtype* obj)
 {
-	::sd_play_actor_sound(GOLDSTERNLAUGHSND, obj, bstone::ActorChannel::voice);
+	sd_play_actor_sound(GOLDSTERNLAUGHSND, obj, bstone::ActorChannel::voice);
 }
 
 void A_WarpIn(
 	objtype*)
 {
-	::sd_play_player_sound(WARPINSND, bstone::ActorChannel::item);
+	sd_play_player_sound(WARPINSND, bstone::ActorChannel::item);
 }
 
 void A_WarpOut(
 	objtype*)
 {
-	::sd_play_player_sound(WARPOUTSND, bstone::ActorChannel::item);
+	sd_play_player_sound(WARPOUTSND, bstone::ActorChannel::item);
 }
 
 void A_Beep(
 	objtype*)
 {
-	::sd_play_player_sound(ELEV_BUTTONSND, bstone::ActorChannel::item);
+	sd_play_player_sound(ELEV_BUTTONSND, bstone::ActorChannel::item);
 }
 
 void InitGoldsternInfo()
@@ -5481,7 +5481,7 @@ statetype s_scout_dead = {0, SPR_DEMO, 20, nullptr, nullptr, &s_scout_dead};
 void A_Scout_Alert(
 	objtype* obj)
 {
-	::sd_play_actor_sound(SCOUT_ALERTSND, obj, bstone::ActorChannel::voice);
+	sd_play_actor_sound(SCOUT_ALERTSND, obj, bstone::ActorChannel::voice);
 
 	MakeAlertNoise(obj);
 }
@@ -5844,7 +5844,7 @@ void SpawnProjectile(
 	case final_boss4shotobj:
 		SpawnNewObj(x >> TILESHIFT, y >> TILESHIFT, &s_ofs_random);
 
-		::sd_play_actor_sound(
+		sd_play_actor_sound(
 			SPITATTACKSND, new_actor, bstone::ActorChannel::voice);
 
 		new_actor->speed = SPDPROJ;
@@ -5861,7 +5861,7 @@ void SpawnProjectile(
 	case final_boss2shotobj:
 		SpawnNewObj(x >> TILESHIFT, y >> TILESHIFT, &s_ofs_shot1);
 
-		::sd_play_actor_sound(
+		sd_play_actor_sound(
 			ELECTSHOTSND, new_actor, bstone::ActorChannel::voice);
 
 		new_actor->speed = SPDPROJ;
@@ -5892,7 +5892,7 @@ void SpawnProjectile(
 	case dogshotobj:
 		SpawnNewObj(x >> TILESHIFT, y >> TILESHIFT, &s_liquid_shot);
 
-		::sd_play_actor_sound(
+		sd_play_actor_sound(
 			SPITATTACKSND, new_actor, bstone::ActorChannel::voice);
 
 		new_actor->temp2 = SPR_SPIT1_1 + temp;
@@ -6125,47 +6125,47 @@ void T_Projectile(
 		switch (ob->obclass)
 		{
 		case spider_mutantshotobj:
-			::InitSmartSpeedAnim(ob, SPR_BOSS1_EXP1, 0, 2, at_ONCE, ad_FWD, 5);
+			InitSmartSpeedAnim(ob, SPR_BOSS1_EXP1, 0, 2, at_ONCE, ad_FWD, 5);
 			return;
 			break;
 
 		case acid_dragonshotobj:
-			::InitSmartSpeedAnim(ob, SPR_BOSS5_EXP1, 0, 2, at_ONCE, ad_FWD, 5);
+			InitSmartSpeedAnim(ob, SPR_BOSS5_EXP1, 0, 2, at_ONCE, ad_FWD, 5);
 			return;
 			break;
 
 		case mut_hum1shotobj:
 		case electroshotobj: // Explode on walls
-			::InitSmartSpeedAnim(ob, SPR_ELEC_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
+			InitSmartSpeedAnim(ob, SPR_ELEC_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
 			return;
 			break;
 
 		case final_boss2shotobj:
 		case goldmorphshotobj:
-			::InitSmartSpeedAnim(ob, SPR_MGOLD_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
+			InitSmartSpeedAnim(ob, SPR_MGOLD_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
 			return;
 			break;
 
 		case final_boss4shotobj:
-			::InitSmartSpeedAnim(ob, SPR_BOSS10_SPIT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
+			InitSmartSpeedAnim(ob, SPR_BOSS10_SPIT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
 			return;
 			break;
 
 		case lcanshotobj: // Explode on walls
 		case podshotobj:
-			::InitSmartSpeedAnim(ob, SPR_SPIT_EXP3_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
+			InitSmartSpeedAnim(ob, SPR_SPIT_EXP3_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
 			return;
 			break;
 
 		case scanshotobj: // Explode on walls
 		case dogshotobj:
-			::InitSmartSpeedAnim(ob, SPR_SPIT_EXP1_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
+			InitSmartSpeedAnim(ob, SPR_SPIT_EXP1_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
 			return;
 			break;
 
 
 		case liquidshotobj: // Explode on walls
-			::InitSmartSpeedAnim(ob, SPR_LIQUID_SHOT_BURST_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
+			InitSmartSpeedAnim(ob, SPR_LIQUID_SHOT_BURST_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
 			return;
 			break;
 
@@ -6184,7 +6184,7 @@ void T_Projectile(
 			//
 
 			ob->obclass = gr_explosionobj;
-			::InitSmartSpeedAnim(ob, SPR_EXPLOSION_1, 0, 4, at_ONCE, ad_FWD, 3 + (US_RndT() & 7));
+			InitSmartSpeedAnim(ob, SPR_EXPLOSION_1, 0, 4, at_ONCE, ad_FWD, 3 + (US_RndT() & 7));
 			A_DeathScream(ob);
 			return;
 			break;
@@ -6286,45 +6286,45 @@ void T_Projectile(
 			case mut_hum1shotobj:
 			case electroshotobj:
 				damage = (US_RndT() >> 5);
-				::InitSmartSpeedAnim(ob, SPR_ELEC_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 3 + (US_RndT() & 7));
+				InitSmartSpeedAnim(ob, SPR_ELEC_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 3 + (US_RndT() & 7));
 				break;
 
 			case final_boss4shotobj:
 				damage = (US_RndT() >> 4);
-				::InitSmartSpeedAnim(ob, SPR_BOSS10_SPIT_EXP1, 0, 1, at_ONCE, ad_FWD, 3 + (US_RndT() & 3));
+				InitSmartSpeedAnim(ob, SPR_BOSS10_SPIT_EXP1, 0, 1, at_ONCE, ad_FWD, 3 + (US_RndT() & 3));
 				break;
 
 			case goldmorphshotobj:
 			case final_boss2shotobj:
 				damage = (US_RndT() >> 4);
-				::InitSmartSpeedAnim(ob, SPR_MGOLD_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
+				InitSmartSpeedAnim(ob, SPR_MGOLD_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
 				break;
 
 			case lcanshotobj:
 			case podshotobj:
 				damage = (US_RndT() >> 4);
-				::InitSmartSpeedAnim(ob, SPR_SPIT_EXP3_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
+				InitSmartSpeedAnim(ob, SPR_SPIT_EXP3_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
 				break;
 
 			case scanshotobj:
 			case dogshotobj:
 				damage = (US_RndT() >> 4);
-				::InitSmartSpeedAnim(ob, SPR_SPIT_EXP1_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
+				InitSmartSpeedAnim(ob, SPR_SPIT_EXP1_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
 				break;
 
 			case liquidshotobj:
 				damage = (US_RndT() >> 4);
-				::InitSmartSpeedAnim(ob, SPR_LIQUID_SHOT_BURST_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
+				InitSmartSpeedAnim(ob, SPR_LIQUID_SHOT_BURST_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
 				break;
 
 			case spider_mutantshotobj:
 				damage = (US_RndT() >> 4);
-				::InitSmartSpeedAnim(ob, SPR_BOSS1_EXP1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
+				InitSmartSpeedAnim(ob, SPR_BOSS1_EXP1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
 				break;
 
 			case acid_dragonshotobj:
 				damage = (US_RndT() >> 4);
-				::InitSmartSpeedAnim(ob, SPR_BOSS5_EXP1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
+				InitSmartSpeedAnim(ob, SPR_BOSS5_EXP1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
 				break;
 
 			default:
@@ -6446,9 +6446,9 @@ void ExplodeFill(
 					{
 						proj_check->lighting = EXPLOSION_SHADING;
 						proj_check->flags &= ~(FL_SOLID | FL_SHOOTABLE);
-						::InitSmartSpeedAnim(proj_check, SPR_CUBE_EXP1, 0, 8, at_ONCE, ad_FWD, 5);
+						InitSmartSpeedAnim(proj_check, SPR_CUBE_EXP1, 0, 8, at_ONCE, ad_FWD, 5);
 
-						::sd_play_actor_sound(
+						sd_play_actor_sound(
 							EXPLODE1SND, proj_check, bstone::ActorChannel::voice);
 
 						// Unlock Next floor
@@ -6607,12 +6607,12 @@ std::int16_t CalcAngle(
 
 	if (angle < 0)
 	{
-		angle = static_cast<float>(::m_pi() * 2 + angle);
+		angle = static_cast<float>(m_pi() * 2 + angle);
 	}
 
 	// Convert rads to degs
 
-	iangle = static_cast<std::int16_t>(angle / (::m_pi() * 2) * ANGLES);
+	iangle = static_cast<std::int16_t>(angle / (m_pi() * 2) * ANGLES);
 
 	return iangle;
 }

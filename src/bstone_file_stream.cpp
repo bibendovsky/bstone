@@ -123,7 +123,7 @@ bool FileStream::open(
 	}
 
 
-	auto sdl_context = ::SDL_RWFromFile(file_name.c_str(), mode);
+	auto sdl_context = SDL_RWFromFile(file_name.c_str(), mode);
 
 	if (!sdl_context)
 	{

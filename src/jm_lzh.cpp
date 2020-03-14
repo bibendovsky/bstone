@@ -850,13 +850,13 @@ static void Putcode(
 
 	if (putlen >= 8)
 	{
-		::CIO_WritePtr(outfile_ptr, putbuf >> 8);
+		CIO_WritePtr(outfile_ptr, putbuf >> 8);
 		++codesize;
 
 		putlen -= 8;
 		if (putlen >= 8)
 		{
-			::CIO_WritePtr(outfile_ptr, static_cast<std::uint8_t>(putbuf));
+			CIO_WritePtr(outfile_ptr, static_cast<std::uint8_t>(putbuf));
 			++codesize;
 
 			putlen -= 8;
@@ -899,11 +899,11 @@ static void EncodeChar(
 		k = prnt[k];
 	} while (k != R);
 
-	::Putcode(outfile_ptr, j, i);
+	Putcode(outfile_ptr, j, i);
 
 	code = i;
 	len = j;
-	::update(c);
+	update(c);
 }
 
 static void EncodePosition(
@@ -917,13 +917,13 @@ static void EncodePosition(
 	//
 
 	i = c >> 6;
-	::Putcode(outfile_ptr, p_len[i], static_cast<std::uint16_t>(p_code[i]) << 8);
+	Putcode(outfile_ptr, p_len[i], static_cast<std::uint16_t>(p_code[i]) << 8);
 
 	//
 	// output lower 6 bits directly
 	//
 
-	::Putcode(outfile_ptr, 6, (c & 0x3F) << 10);
+	Putcode(outfile_ptr, 6, (c & 0x3F) << 10);
 }
 
 static void EncodeEnd(
@@ -931,7 +931,7 @@ static void EncodeEnd(
 {
 	if (putlen != 0)
 	{
-		::CIO_WritePtr(outfile_ptr, putbuf >> 8);
+		CIO_WritePtr(outfile_ptr, putbuf >> 8);
 		++codesize;
 	}
 }
@@ -959,7 +959,7 @@ static std::int16_t GetByte(
 	{
 		if (*CompressLength)
 		{
-			i = ::CIO_ReadPtr(infile_ptr);
+			i = CIO_ReadPtr(infile_ptr);
 			(*CompressLength)--;
 		}
 		else
@@ -987,7 +987,7 @@ static std::int16_t GetBit(
 	{
 		if (*CompressLength)
 		{
-			i = ::CIO_ReadPtr(infile_ptr);
+			i = CIO_ReadPtr(infile_ptr);
 			(*CompressLength)--;
 		}
 		else
@@ -1021,12 +1021,12 @@ static std::int16_t DecodeChar(
 
 	while (c < T)
 	{
-		c += ::GetBit(infile_ptr, CompressLength);
+		c += GetBit(infile_ptr, CompressLength);
 		c = son[c];
 	}
 
 	c -= T;
-	::update(c);
+	update(c);
 	return c;
 }
 
@@ -1042,7 +1042,7 @@ static std::int16_t DecodePosition(
 	// decode upper 6 bits from given table
 	//
 
-	i = ::GetByte(infile_ptr, CompressLength);
+	i = GetByte(infile_ptr, CompressLength);
 	c = static_cast<std::uint16_t>(d_code[i]) << 6;
 	j = d_len[i];
 
@@ -1053,7 +1053,7 @@ static std::int16_t DecodePosition(
 	j -= 2;
 	while (j--)
 	{
-		i = (i << 1) + ::GetBit(infile_ptr, CompressLength);
+		i = (i << 1) + GetBit(infile_ptr, CompressLength);
 	}
 
 	return c | (i & 0x3F);
@@ -1098,11 +1098,11 @@ int LZH_Decompress(
 
 	for (count = 0; count < static_cast<std::int32_t>(textsize); )
 	{
-		c = ::DecodeChar(infile, &CompressLength);
+		c = DecodeChar(infile, &CompressLength);
 
 		if (c < 256)
 		{
-			::CIO_WritePtr(outfile, static_cast<std::uint8_t>(c));
+			CIO_WritePtr(outfile, static_cast<std::uint8_t>(c));
 
 			datasize--; // Dec # of bytes to write
 
@@ -1112,7 +1112,7 @@ int LZH_Decompress(
 		}
 		else
 		{
-			i = (r - ::DecodePosition(infile, &CompressLength) - 1) & (N - 1);
+			i = (r - DecodePosition(infile, &CompressLength) - 1) & (N - 1);
 
 			j = c - 255 + THRESHOLD;
 
@@ -1120,7 +1120,7 @@ int LZH_Decompress(
 			{
 				c = text_buf[(i + k) & (N - 1)];
 
-				::CIO_WritePtr(outfile, static_cast<std::uint8_t>(c));
+				CIO_WritePtr(outfile, static_cast<std::uint8_t>(c));
 
 				datasize--; // dec count of bytes to write
 
@@ -1184,7 +1184,7 @@ int LZH_Compress(
 
 	for (length = 0; length < F && (DataLength > datasize); length++)
 	{
-		c = ::CIO_ReadPtr(infile);
+		c = CIO_ReadPtr(infile);
 
 		datasize++; // Dec num of bytes to compress
 		text_buf[r + length] = static_cast<std::uint8_t>(c);
@@ -1209,19 +1209,19 @@ int LZH_Compress(
 		if (match_length <= THRESHOLD)
 		{
 			match_length = 1;
-			::EncodeChar(outfile, text_buf[r]);
+			EncodeChar(outfile, text_buf[r]);
 		}
 		else
 		{
-			::EncodeChar(outfile, 255 - THRESHOLD + match_length);
-			::EncodePosition(outfile, match_position);
+			EncodeChar(outfile, 255 - THRESHOLD + match_length);
+			EncodePosition(outfile, match_position);
 		}
 
 		last_match_length = match_length;
 
 		for (i = 0; i < last_match_length && (DataLength > datasize); i++)
 		{
-			c = ::CIO_ReadPtr(infile);
+			c = CIO_ReadPtr(infile);
 
 			datasize++;
 
@@ -1258,7 +1258,7 @@ int LZH_Compress(
 
 	} while (length > 0);
 
-	::EncodeEnd(outfile);
+	EncodeEnd(outfile);
 
 	if (LZH_CompressDisplayVector)
 	{

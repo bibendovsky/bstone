@@ -130,24 +130,24 @@ static Direction DirTable[] = // Quick lookup for total direction
 bool in_grab_mouse(
 	bool grab)
 {
-	if (grab == ::in_is_mouse_grabbed)
+	if (grab == in_is_mouse_grabbed)
 	{
 		return grab;
 	}
 
-	auto sdl_result = ::SDL_SetRelativeMouseMode(
+	auto sdl_result = SDL_SetRelativeMouseMode(
 		grab ? SDL_TRUE : SDL_FALSE);
 
 	if (sdl_result == 0)
 	{
-		::in_is_mouse_grabbed = grab;
+		in_is_mouse_grabbed = grab;
 	}
 	else
 	{
-		::in_is_mouse_grabbed = false;
+		in_is_mouse_grabbed = false;
 	}
 
-	return ::in_is_mouse_grabbed;
+	return in_is_mouse_grabbed;
 }
 
 static ScanCode in_keyboard_map_to_bstone(
@@ -718,7 +718,7 @@ static char in_keyboard_map_to_char(
 	case SDLK_x:
 	case SDLK_y:
 	case SDLK_z:
-		return is_caps ? static_cast<char>(::SDL_toupper(key_code)) :
+		return is_caps ? static_cast<char>(SDL_toupper(key_code)) :
 			static_cast<char>(key_code);
 	}
 
@@ -729,8 +729,8 @@ static void in_handle_keyboard(
 	const SDL_KeyboardEvent& e)
 {
 	SDL_Keycode key_code = e.keysym.sym;
-	SDL_Keymod key_mod = ::SDL_GetModState();
-	ScanCode key = ::in_keyboard_map_to_bstone(key_code, key_mod);
+	SDL_Keymod key_mod = SDL_GetModState();
+	ScanCode key = in_keyboard_map_to_bstone(key_code, key_mod);
 
 	if (key == ScanCode::sc_none)
 	{
@@ -740,11 +740,11 @@ static void in_handle_keyboard(
 	// Check for special keys
 	if (e.state == SDL_PRESSED)
 	{
-		const auto& grab_mouse_binding = ::in_bindings[e_bi_grab_mouse];
+		const auto& grab_mouse_binding = in_bindings[e_bi_grab_mouse];
 
 		if (grab_mouse_binding[0] == key || grab_mouse_binding[1] == key)
 		{
-			::in_grab_mouse(!::in_is_mouse_grabbed);
+			in_grab_mouse(!::in_is_mouse_grabbed);
 		}
 	}
 
@@ -774,7 +774,7 @@ static void in_handle_keyboard(
 	{
 		LastScan = key;
 
-		char key_char = ::in_keyboard_map_to_char(e);
+		char key_char = in_keyboard_map_to_char(e);
 
 		if (key_char != '\0')
 		{
@@ -818,7 +818,7 @@ static void in_handle_mouse_buttons(
 
 		if (!::in_is_mouse_grabbed)
 		{
-			if (::in_grab_mouse(true))
+			if (in_grab_mouse(true))
 			{
 				apply_key = false;
 			}
@@ -847,7 +847,7 @@ int in_mouse_dy;
 static void in_handle_mouse_motion(
 	const SDL_MouseMotionEvent& e)
 {
-	if (::in_is_mouse_grabbed)
+	if (in_is_mouse_grabbed)
 	{
 		in_mouse_dx += e.xrel;
 		in_mouse_dy += e.yrel;
@@ -866,11 +866,11 @@ static void in_handle_mouse(
 	{
 	case SDL_MOUSEBUTTONDOWN:
 	case SDL_MOUSEBUTTONUP:
-		::in_handle_mouse_buttons(e.button);
+		in_handle_mouse_buttons(e.button);
 		break;
 
 	case SDL_MOUSEMOTION:
-		::in_handle_mouse_motion(e.motion);
+		in_handle_mouse_motion(e.motion);
 		break;
 	}
 }
@@ -886,8 +886,8 @@ static void INL_GetMouseDelta(
 	int* x,
 	int* y)
 {
-	*x = ::in_mouse_dx;
-	*y = ::in_mouse_dy;
+	*x = in_mouse_dx;
+	*y = in_mouse_dy;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -898,7 +898,7 @@ static void INL_GetMouseDelta(
 ///////////////////////////////////////////////////////////////////////////
 static int INL_GetMouseButtons()
 {
-	::in_handle_events();
+	in_handle_events();
 
 	int result = 0;
 
@@ -963,7 +963,7 @@ bool INL_StartMouse()
 // BBi
 static void INL_ShutMouse()
 {
-	// ::SDL_ShowCursor(SDL_TRUE);
+	// SDL_ShowCursor(SDL_TRUE);
 }
 // BBi
 
@@ -983,7 +983,7 @@ void IN_Shutdown()
 	INL_ShutKbd();
 
 	// BBi
-	::INL_ShutMouse();
+	INL_ShutMouse();
 
 	IN_Started = false;
 }
@@ -1011,27 +1011,27 @@ static void in_handle_window(
 	case SDL_WINDOWEVENT_FOCUS_GAINED:
 		reset_state = true;
 
-		::vl_minimize_fullscreen_window(false);
+		vl_minimize_fullscreen_window(false);
 
-		if (::in_last_is_mouse_grabbed)
+		if (in_last_is_mouse_grabbed)
 		{
-			::in_last_is_mouse_grabbed = ::in_grab_mouse(true);
+			in_last_is_mouse_grabbed = in_grab_mouse(true);
 		}
-		::sd_mute(false);
+		sd_mute(false);
 		break;
 
 	case SDL_WINDOWEVENT_FOCUS_LOST:
 		reset_state = true;
-		::in_last_is_mouse_grabbed = ::in_is_mouse_grabbed;
-		static_cast<void>(::in_grab_mouse(false));
-		::sd_mute(true);
-		::vl_minimize_fullscreen_window(true);
+		in_last_is_mouse_grabbed = in_is_mouse_grabbed;
+		static_cast<void>(in_grab_mouse(false));
+		sd_mute(true);
+		vl_minimize_fullscreen_window(true);
 		break;
 	}
 
 	if (reset_state)
 	{
-		::in_reset_state();
+		in_reset_state();
 	}
 }
 
@@ -1039,7 +1039,7 @@ void in_handle_events()
 {
 	SDL_Event e;
 
-	::SDL_PumpEvents();
+	SDL_PumpEvents();
 
 	while (SDL_PollEvent(&e))
 	{
@@ -1060,21 +1060,21 @@ void in_handle_events()
 #endif
 		case SDL_KEYDOWN:
 		case SDL_KEYUP:
-			::in_handle_keyboard(e.key);
+			in_handle_keyboard(e.key);
 			break;
 
 		case SDL_MOUSEBUTTONDOWN:
 		case SDL_MOUSEBUTTONUP:
 		case SDL_MOUSEMOTION:
-			::in_handle_mouse(e);
+			in_handle_mouse(e);
 			break;
 
 		case SDL_WINDOWEVENT:
-			::in_handle_window(e.window);
+			in_handle_window(e.window);
 			break;
 
 		case SDL_QUIT:
-			::Quit();
+			Quit();
 		}
 	}
 }
@@ -1116,7 +1116,7 @@ void IN_ReadControl(
 	KeyboardDef* def;
 
 	// BBi
-	::in_handle_events();
+	in_handle_events();
 
 	dx = dy = 0;
 	mx = my = motion_None;
@@ -1236,7 +1236,7 @@ char IN_WaitForASCII()
 
 	while ((result = LastASCII) == '\0')
 	{
-		::in_handle_events();
+		in_handle_events();
 	}
 	LastASCII = '\0';
 	return result;
@@ -1352,7 +1352,7 @@ bool IN_UserInput(
 
 std::uint8_t IN_MouseButtons()
 {
-	return static_cast<std::uint8_t>(::INL_GetMouseButtons());
+	return static_cast<std::uint8_t>(INL_GetMouseButtons());
 }
 
 void IN_Startup()
@@ -1383,14 +1383,14 @@ void in_get_mouse_deltas(
 	int& dx,
 	int& dy)
 {
-	::INL_GetMouseDelta(&dx, &dy);
+	INL_GetMouseDelta(&dx, &dy);
 }
 
 void in_clear_mouse_deltas()
 {
 #ifndef __vita__
-	::in_mouse_dx = 0;
-	::in_mouse_dy = 0;
+	in_mouse_dx = 0;
+	in_mouse_dy = 0;
 #endif
 }
 
@@ -1484,17 +1484,17 @@ void in_reset_binding_state(
 
 void in_reset_state()
 {
-	::LastASCII = '\0';
-	::LastScan = ScanCode::sc_none;
+	LastASCII = '\0';
+	LastScan = ScanCode::sc_none;
 
-	::Keyboard.reset();
+	Keyboard.reset();
 
 	for (int i = 0; i < NUMBUTTONS; ++i)
 	{
-		::buttonstate[i] = false;
-		::buttonheld[i] = false;
+		buttonstate[i] = false;
+		buttonheld[i] = false;
 	}
 
-	::in_clear_mouse_deltas();
+	in_clear_mouse_deltas();
 }
 // BBi

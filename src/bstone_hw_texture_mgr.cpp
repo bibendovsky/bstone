@@ -1595,7 +1595,7 @@ void HwTextureMgrImpl::create_missing_wall_texture()
 HwTextureMgrImpl::Texture2dItem HwTextureMgrImpl::wall_create_texture(
 	const int wall_id)
 {
-	const auto indexed_pixels = static_cast<const std::uint8_t*>(::PM_GetPage(wall_id));
+	const auto indexed_pixels = static_cast<const std::uint8_t*>(PM_GetPage(wall_id));
 
 	if (!indexed_pixels)
 	{

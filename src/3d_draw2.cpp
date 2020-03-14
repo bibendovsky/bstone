@@ -83,20 +83,20 @@ void DrawSpans(
 	int x2,
 	int height)
 {
-	const auto toprow = ::bufferofs + ::planeylookup[height];
+	const auto toprow = bufferofs + planeylookup[height];
 
-	::mr_rowofs = ::mirrorofs[height];
+	mr_rowofs = mirrorofs[height];
 
-	::mr_xstep = ::psin / (2 * height);
-	::mr_ystep = ::pcos / (2 * height);
+	mr_xstep = psin / (2 * height);
+	mr_ystep = pcos / (2 * height);
 
-	auto length = ::basedist[height];
-	auto startxfrac = ::viewx + ::FixedMul(length, pcos);
-	auto startyfrac = ::viewy - ::FixedMul(length, psin);
+	auto length = basedist[height];
+	auto startxfrac = viewx + FixedMul(length, pcos);
+	auto startyfrac = viewy - FixedMul(length, psin);
 
 	if (!::gp_no_shading_)
 	{
-		auto i = ::shade_max - ((63 * height) / ::normalshade);
+		auto i = shade_max - ((63 * height) / normalshade);
 
 		if (i < 0)
 		{
@@ -107,32 +107,32 @@ void DrawSpans(
 			i = 63;
 		}
 
-		::shadingtable = ::lightsource + (i * 256);
+		shadingtable = lightsource + (i * 256);
 	}
 
-	const auto prestep = (::viewwidth / 2) - x1;
+	const auto prestep = (viewwidth / 2) - x1;
 
-	::mr_xfrac = startxfrac - (::mr_xstep * prestep);
-	::mr_yfrac = startyfrac - (::mr_ystep * prestep);
+	mr_xfrac = startxfrac - (mr_xstep * prestep);
+	mr_yfrac = startyfrac - (mr_ystep * prestep);
 
-	::mr_dest = toprow + x1;
-	::mr_count = x2 - x1 + 1;
+	mr_dest = toprow + x1;
+	mr_count = x2 - x1 + 1;
 
 #if GAMESTATE_TEST
-	if (::mr_count > 0)
+	if (mr_count > 0)
 	{
-		::MapRowPtr();
+		MapRowPtr();
 	}
 #else
-	if (::mr_count > 0)
+	if (mr_count > 0)
 	{
 		if (!::gp_no_shading_)
 		{
-			::MapLSRow();
+			MapLSRow();
 		}
 		else
 		{
-			::MapRow();
+			MapRow();
 		}
 	}
 #endif
@@ -143,7 +143,7 @@ void SetPlaneViewSize()
 	const std::uint8_t* src;
 	std::uint8_t* dest;
 
-	::halfheight = ::viewheight / 2;
+	halfheight = viewheight / 2;
 
 	for (int y = 0; y < halfheight; ++y)
 	{
@@ -153,7 +153,7 @@ void SetPlaneViewSize()
 
 		if (y > 0)
 		{
-			basedist[y] = GLOBAL1 / 2 * ::scale_ / y;
+			basedist[y] = GLOBAL1 / 2 * scale_ / y;
 		}
 	}
 
@@ -178,37 +178,37 @@ void SetPlaneViewSize()
 
 void DrawPlanes()
 {
-	if (::vid_is_hw_)
+	if (vid_is_hw_)
 	{
 		return;
 	}
 
-	if ((::viewheight / 2) != ::halfheight)
+	if ((viewheight / 2) != halfheight)
 	{
-		::SetPlaneViewSize(); // screen size has changed
+		SetPlaneViewSize(); // screen size has changed
 	}
 
-	::psin = ::viewsin;
+	psin = viewsin;
 
-	if (::psin < 0)
+	if (psin < 0)
 	{
-		::psin = -(::psin & 0xFFFF);
+		psin = -(psin & 0xFFFF);
 	}
 
-	::pcos = ::viewcos;
+	pcos = viewcos;
 
-	if (::pcos < 0)
+	if (pcos < 0)
 	{
-		::pcos = -(::pcos & 0xFFFF);
+		pcos = -(pcos & 0xFFFF);
 	}
 
-	auto lastheight_d = static_cast<double>(::halfheight);
+	auto lastheight_d = static_cast<double>(halfheight);
 
 	int x = 0;
 
-	for ( ; x < ::viewwidth; ++x)
+	for ( ; x < viewwidth; ++x)
 	{
-		const auto height_d = ::wallheight[x] / 8.0;
+		const auto height_d = wallheight[x] / 8.0;
 
 		if (height_d < lastheight_d)
 		{
@@ -218,14 +218,14 @@ void DrawPlanes()
 			// more starts
 			do
 			{
-				::spanstart[--lastheight] = x;
+				spanstart[--lastheight] = x;
 			} while (lastheight > height);
 
 			lastheight_d = static_cast<double>(lastheight);
 		}
 		else if (height_d > lastheight_d)
 		{
-			const auto height = static_cast<int>(std::min(height_d, static_cast<double>(::halfheight)));
+			const auto height = static_cast<int>(std::min(height_d, static_cast<double>(halfheight)));
 			auto lastheight = static_cast<int>(lastheight_d);
 
 			// draw spans
@@ -233,7 +233,7 @@ void DrawPlanes()
 			{
 				if (lastheight > 0)
 				{
-					::DrawSpans(::spanstart[lastheight], x - 1, lastheight);
+					DrawSpans(spanstart[lastheight], x - 1, lastheight);
 				}
 
 				++lastheight;
@@ -243,11 +243,11 @@ void DrawPlanes()
 		}
 	}
 
-	for (auto lastheight = static_cast<int>(lastheight_d); lastheight < ::halfheight; ++lastheight)
+	for (auto lastheight = static_cast<int>(lastheight_d); lastheight < halfheight; ++lastheight)
 	{
 		if (lastheight > 0)
 		{
-			::DrawSpans(::spanstart[lastheight], x - 1, lastheight);
+			DrawSpans(spanstart[lastheight], x - 1, lastheight);
 		}
 	}
 }

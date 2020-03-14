@@ -2765,7 +2765,7 @@ void TP_HandleCodes()
 			// BELL -------------------------------------------------------------
 			//
 		case TP_CNVT_CODE('B', 'E'):
-			::sd_play_player_sound(TERM_BEEPSND, bstone::ActorChannel::item);
+			sd_play_player_sound(TERM_BEEPSND, bstone::ActorChannel::item);
 
 			sd_wait_sound_done();
 			break;
@@ -2833,7 +2833,7 @@ void TP_HandleCodes()
 			disp_str_num = TP_VALUE(first_ch, 2);
 			if (disp_str_num >= PI_MAX_NUM_DISP_STRS)
 			{
-				::Quit("String number exceeds max array size.");
+				Quit("String number exceeds max array size.");
 			}
 
 			old_first_ch = first_ch + 2;
@@ -2881,7 +2881,7 @@ void TP_HandleCodes()
 			if ((temp < LASTSOUND))
 			{
 				TP_CacheIn(ct_scaled, 0);
-				::sd_play_player_sound(temp, bstone::ActorChannel::item);
+				sd_play_player_sound(temp, bstone::ActorChannel::item);
 			}
 			first_ch += 2;
 			break;
@@ -3090,8 +3090,8 @@ std::int16_t TP_DrawShape(
 	switch (shapetype)
 	{
 	case pis_scwall:
-		::TP_CacheIn(ct_scaled, 0);
-		addr = ::PM_GetPage(shapenum);
+		TP_CacheIn(ct_scaled, 0);
+		addr = PM_GetPage(shapenum);
 
 		draw_wall_ui(
 			x,
@@ -3107,7 +3107,7 @@ std::int16_t TP_DrawShape(
 			VWB_Bar(x, y, 64, 64, static_cast<std::uint8_t>(bgcolor));
 		}
 
-		::vid_draw_ui_sprite(shapenum, x + 32, y + 32, bstone::Sprite::dimension);
+		vid_draw_ui_sprite(shapenum, x + 32, y + 32, bstone::Sprite::dimension);
 		break;
 
 	case pis_latchpic:
@@ -3328,7 +3328,7 @@ void TP_CachePage(
 
 				if (num_anims++ == TP_MAX_ANIMS)
 				{
-					::Quit("Too many anims on one page.");
+					Quit("Too many anims on one page.");
 				}
 
 				anim = &piAnimTable[shapenum];
@@ -3520,7 +3520,7 @@ bool TP_SlowPrint(
 		{
 			if (*string != ' ')
 			{
-				::sd_play_player_sound(TERM_TYPESND, bstone::ActorChannel::item);
+				sd_play_player_sound(TERM_TYPESND, bstone::ActorChannel::item);
 			}
 		}
 
@@ -3572,7 +3572,7 @@ std::int32_t TP_LoadScript(
 
 		if (!p)
 		{
-			::Quit("Can't find the ^XX doc terminator string.");
+			Quit("Can't find the ^XX doc terminator string.");
 		}
 		size = static_cast<std::int32_t>(p - static_cast<const char*>(p_i->scriptstart) - 1);
 	}
@@ -3647,7 +3647,7 @@ void TP_InitScript(
 				}
 				else
 				{
-					::Quit("Too many pages in presenter.");
+					Quit("Too many pages in presenter.");
 				}
 				break;
 			}

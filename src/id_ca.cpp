@@ -164,7 +164,7 @@ std::int32_t GRFILEPOS(
 
 void CloseGrFile()
 {
-	::grhandle.close();
+	grhandle.close();
 }
 
 void OpenMapFile()
@@ -180,19 +180,19 @@ void OpenMapFile()
 		CA_CannotOpen(fname);
 	}
 #else
-	::ca_open_resource(Assets::get_map_data_base_name(), ::maphandle);
+	ca_open_resource(Assets::get_map_data_base_name(), maphandle);
 #endif
 }
 
 void CloseMapFile()
 {
-	::maphandle.close();
+	maphandle.close();
 }
 
 void OpenAudioFile()
 {
 #ifndef AUDIOHEADERLINKED
-	::ca_open_resource(Assets::get_audio_data_base_name(), ::audiohandle);
+	ca_open_resource(Assets::get_audio_data_base_name(), audiohandle);
 #else
 	// TODO Remove or fix
 	if ((audiohandle = open("AUDIO."EXTENSION,
@@ -205,7 +205,7 @@ void OpenAudioFile()
 
 void CloseAudioFile()
 {
-	::audiohandle.close();
+	audiohandle.close();
 }
 
 /*
@@ -314,7 +314,7 @@ void ca_huff_expand_on_screen(
 		int x = p;
 		int y = 0;
 
-		while (y < ::vga_ref_height)
+		while (y < vga_ref_height)
 		{
 			if ((val & mask) == 0)
 			{
@@ -342,7 +342,7 @@ void ca_huff_expand_on_screen(
 
 				x += 4;
 
-				if (x >= ::vga_ref_width)
+				if (x >= vga_ref_width)
 				{
 					x = p;
 					++y;
@@ -533,7 +533,7 @@ void CA_Startup()
 	ca_levelbit = 1;
 	ca_levelnum = 0;
 
-	::ca_buffer.reserve(BUFFERSIZE);
+	ca_buffer.reserve(BUFFERSIZE);
 }
 
 /*
@@ -627,12 +627,12 @@ void CA_LoadAllSounds()
 {
 	std::int16_t start = 0;
 
-	if (::old_is_sound_enabled)
+	if (old_is_sound_enabled)
 	{
 		start = STARTADLIBSOUNDS;
 	}
 
-	if (::sd_is_sound_enabled_)
+	if (sd_is_sound_enabled_)
 	{
 		start = STARTADLIBSOUNDS;
 	}
@@ -643,10 +643,10 @@ void CA_LoadAllSounds()
 
 	for (auto i = 0; i < NUMSOUNDS; ++i, ++start)
 	{
-		::CA_CacheAudioChunk(start);
+		CA_CacheAudioChunk(start);
 	}
 
-	::old_is_sound_enabled = ::sd_is_sound_enabled_;
+	old_is_sound_enabled = sd_is_sound_enabled_;
 }
 
 // ===========================================================================
@@ -764,13 +764,13 @@ void CA_CacheGrChunk(
 	compressed = GRFILEPOS(next) - pos;
 
 
-	::grhandle.set_position(pos);
+	grhandle.set_position(pos);
 
-	::ca_buffer.resize(compressed);
-	::grhandle.read(::ca_buffer.data(), compressed);
-	source = ::ca_buffer.data();
+	ca_buffer.resize(compressed);
+	grhandle.read(ca_buffer.data(), compressed);
+	source = ca_buffer.data();
 
-	::CAL_ExpandGrChunk(chunk, source);
+	CAL_ExpandGrChunk(chunk, source);
 }
 
 
@@ -804,9 +804,9 @@ void CA_CacheScreen(
 
 	grhandle.set_position(pos);
 
-	::ca_buffer.resize(compressed);
-	grhandle.read(::ca_buffer.data(), compressed);
-	source = ::ca_buffer.data();
+	ca_buffer.resize(compressed);
+	grhandle.read(ca_buffer.data(), compressed);
+	source = ca_buffer.data();
 
 	source += 4; // skip over length
 
@@ -855,8 +855,8 @@ void CA_CacheMap(
 		dest = &mapsegs[plane];
 
 		maphandle.set_position(pos);
-		::ca_buffer.resize(compressed);
-		source = reinterpret_cast<std::uint16_t*>(::ca_buffer.data());
+		ca_buffer.resize(compressed);
+		source = reinterpret_cast<std::uint16_t*>(ca_buffer.data());
 
 		maphandle.read(source, compressed);
 
@@ -879,7 +879,7 @@ void CA_CacheMap(
 		//
 		// unRLEW, skipping expanded length
 		//
-		::CA_RLEWexpand(source + 1, *dest, size, rlew_tag);
+		CA_RLEWexpand(source + 1, *dest, size, rlew_tag);
 #endif
 	}
 }
@@ -898,7 +898,7 @@ void CA_UpLevel()
 {
 	if (ca_levelnum == 7)
 	{
-		::Quit("Up past level 7.");
+		Quit("Up past level 7.");
 	}
 
 	ca_levelbit <<= 1;
@@ -919,7 +919,7 @@ void CA_DownLevel()
 {
 	if (!ca_levelnum)
 	{
-		::Quit("Down past level 0.");
+		Quit("Down past level 0.");
 	}
 
 	ca_levelbit >>= 1;
@@ -994,7 +994,7 @@ void CA_CacheMarks()
 			if (bufferstart <= pos && bufferend >= endpos)
 			{
 				// data is already in buffer
-				source = ::ca_buffer.data() + (pos - bufferstart);
+				source = ca_buffer.data() + (pos - bufferstart);
 			}
 			else
 			{
@@ -1034,11 +1034,11 @@ void CA_CacheMarks()
 				}
 
 				grhandle.set_position(pos);
-				::ca_buffer.resize(endpos - pos);
-				grhandle.read(::ca_buffer.data(), endpos - pos);
+				ca_buffer.resize(endpos - pos);
+				grhandle.read(ca_buffer.data(), endpos - pos);
 				bufferstart = pos;
 				bufferend = endpos;
-				source = ::ca_buffer.data();
+				source = ca_buffer.data();
 			}
 
 			CAL_ExpandGrChunk(i, source);
@@ -1049,7 +1049,7 @@ void CA_CacheMarks()
 void CA_CannotOpen(
 	const std::string& string)
 {
-	::Quit("Can't open " + string + "!\n");
+	Quit("Can't open " + string + "!\n");
 }
 
 void UNCACHEGRCHUNK(
@@ -1065,7 +1065,7 @@ std::string ca_load_script(
 	int chunk_id,
 	bool strip_xx)
 {
-	::CA_CacheGrChunk(static_cast<std::int16_t>(chunk_id));
+	CA_CacheGrChunk(static_cast<std::int16_t>(chunk_id));
 
 	const char* script = static_cast<const char*>(grsegs[chunk_id]);
 
@@ -1081,7 +1081,7 @@ std::string ca_load_script(
 
 	if (length == 0)
 	{
-		::Quit("Invalid script.");
+		Quit("Invalid script.");
 	}
 
 	if (strip_xx)
@@ -1104,7 +1104,7 @@ void initialize_ca_constants()
 bool ca_is_resource_exists(
 	const std::string& file_name)
 {
-	const auto path = ::data_dir_ + file_name;
+	const auto path = data_dir_ + file_name;
 
 	auto is_open = false;
 
@@ -1113,7 +1113,7 @@ bool ca_is_resource_exists(
 	if (!is_open)
 	{
 		auto&& file_name_lc = bstone::StringHelper::to_lower_ascii(file_name);
-		const auto path_lc = ::data_dir_ + file_name_lc;
+		const auto path_lc = data_dir_ + file_name_lc;
 
 		is_open = bstone::FileStream::is_exists(path_lc);
 	}
@@ -1153,7 +1153,7 @@ bool ca_open_resource_non_fatal(
 	if (!::mod_dir_.empty())
 	{
 		const auto mod_dir_result = ca_open_resource_non_fatal(
-			::mod_dir_, file_name_without_ext, file_extension, file_stream);
+			mod_dir_, file_name_without_ext, file_extension, file_stream);
 
 		if (mod_dir_result)
 		{
@@ -1162,7 +1162,7 @@ bool ca_open_resource_non_fatal(
 	}
 
 	const auto data_dir_result = ca_open_resource_non_fatal(
-		::data_dir_, file_name_without_ext, file_extension, file_stream);
+		data_dir_, file_name_without_ext, file_extension, file_stream);
 
 	return data_dir_result;
 }
@@ -1177,9 +1177,9 @@ void ca_open_resource(
 
 	if (!is_open)
 	{
-		const auto path = ::data_dir_ + file_name_without_ext + assets_info.get_extension();
+		const auto path = data_dir_ + file_name_without_ext + assets_info.get_extension();
 
-		::CA_CannotOpen(path);
+		CA_CannotOpen(path);
 	}
 }
 
@@ -1269,7 +1269,7 @@ void ca_dump_hashes()
 	{
 		for (const auto& extension : Assets::get_extensions())
 		{
-			const auto& sha1_string = ::ca_calculate_hash(base_name, extension);
+			const auto& sha1_string = ca_calculate_hash(base_name, extension);
 
 			if (sha1_string.empty())
 			{
@@ -1355,7 +1355,7 @@ void AssetsInfo::set_version(
 		}
 		else
 		{
-			::Quit("No assets information.");
+			Quit("No assets information.");
 		}
 	}
 
@@ -1370,7 +1370,7 @@ void AssetsInfo::set_version(
 		}
 		else
 		{
-			::Quit("No assets information.");
+			Quit("No assets information.");
 		}
 	}
 
@@ -1385,7 +1385,7 @@ void AssetsInfo::set_version(
 		}
 		else
 		{
-			::Quit("No assets information.");
+			Quit("No assets information.");
 		}
 	}
 
@@ -1402,7 +1402,7 @@ void AssetsInfo::set_version(
 		}
 		else
 		{
-			::Quit("No assets information.");
+			Quit("No assets information.");
 		}
 	}
 
@@ -1593,7 +1593,7 @@ bool AssetsInfo::is_secret_level(
 	}
 	else
 	{
-		::Quit("No assets information.");
+		Quit("No assets information.");
 	}
 }
 
@@ -2207,7 +2207,7 @@ void ImagesDumper::dump_walls(
 	bstone::logger_->write("<<< ================");
 	bstone::logger_->write("Dumping walls.");
 	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
-	bstone::logger_->write("File count: " + std::to_string(::PMSpriteStart));
+	bstone::logger_->write("File count: " + std::to_string(PMSpriteStart));
 
 	if (!is_initialized_)
 	{
@@ -2221,7 +2221,7 @@ void ImagesDumper::dump_walls(
 
 	set_palette(sdl_surface_64x64x8_.get(), vga_palette_);
 
-	for (int i = 0; i < ::PMSpriteStart; ++i)
+	for (int i = 0; i < PMSpriteStart; ++i)
 	{
 		dump_wall(i);
 	}
@@ -2232,7 +2232,7 @@ void ImagesDumper::dump_walls(
 void ImagesDumper::dump_sprites(
 	const std::string& destination_dir)
 {
-	sprite_count_ = ::ChunksInFile - ::PMSpriteStart - 1;
+	sprite_count_ = ChunksInFile - PMSpriteStart - 1;
 
 	if (sprite_count_ < 0)
 	{
@@ -2334,7 +2334,7 @@ void ImagesDumper::initialize_vga_palette()
 {
 	vga_palette_.resize(bstone::RgbPalette::get_max_color_count());
 
-	const auto src_colors = ::vgapal;
+	const auto src_colors = vgapal;
 
 	for (int i = 0; i < bstone::RgbPalette::get_max_color_count(); ++i)
 	{
@@ -2355,7 +2355,7 @@ void ImagesDumper::uninitialize_surface_64x64x8()
 
 bool ImagesDumper::initialize_surface_64x64x8()
 {
-	auto sdl_surface = ::SDL_CreateRGBSurfaceWithFormat(
+	auto sdl_surface = SDL_CreateRGBSurfaceWithFormat(
 		0, // flags
 		64, // width
 		64, // height
@@ -2366,7 +2366,7 @@ bool ImagesDumper::initialize_surface_64x64x8()
 	if (!sdl_surface)
 	{
 		auto error_message = std::string{"Failed to create SDL surface 64x64x32bit. "};
-		error_message += ::SDL_GetError();
+		error_message += SDL_GetError();
 
 		bstone::logger_->write_error(error_message);
 
@@ -2385,7 +2385,7 @@ void ImagesDumper::uninitialize_surface_64x64x32()
 
 bool ImagesDumper::initialize_surface_64x64x32()
 {
-	auto sdl_surface = ::SDL_CreateRGBSurfaceWithFormat(
+	auto sdl_surface = SDL_CreateRGBSurfaceWithFormat(
 		0, // flags
 		64, // width
 		64, // height
@@ -2400,7 +2400,7 @@ bool ImagesDumper::initialize_surface_64x64x32()
 	if (!sdl_surface)
 	{
 		auto error_message = std::string{"Failed to create SDL surface 64x64x8bit. "};
-		error_message += ::SDL_GetError();
+		error_message += SDL_GetError();
 
 		bstone::logger_->write_error(error_message);
 
@@ -2497,12 +2497,12 @@ bool ImagesDumper::save_image(
 
 	const auto& file_name = destination_dir_ + name_prefix + wall_index_string + ".bmp";
 
-	const auto sdl_result = ::SDL_SaveBMP(sdl_surface, file_name.c_str());
+	const auto sdl_result = SDL_SaveBMP(sdl_surface, file_name.c_str());
 
 	if (sdl_result != 0)
 	{
 		auto error_message = "Failed to save an image into \"" + file_name + "\". ";
-		error_message += ::SDL_GetError();
+		error_message += SDL_GetError();
 
 		bstone::logger_->write_error(error_message);
 
@@ -2515,14 +2515,14 @@ bool ImagesDumper::save_image(
 bool ImagesDumper::dump_wall(
 	const int wall_index)
 {
-	if (wall_index < 0 && wall_index >= ::PMSpriteStart)
+	if (wall_index < 0 && wall_index >= PMSpriteStart)
 	{
 		bstone::logger_->write_error("Wall index out of range.");
 
 		return false;
 	}
 
-	const auto wall_page = static_cast<const std::uint8_t*>(::PM_GetPage(wall_index));
+	const auto wall_page = static_cast<const std::uint8_t*>(PM_GetPage(wall_index));
 
 	if (!wall_page)
 	{

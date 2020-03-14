@@ -73,10 +73,10 @@ void SetupScaling(
 {
 	maxscaleheight /= 2; // one scaler every two pixels
 
-	::maxscale = maxscaleheight - 1;
-	::maxscaleshl2 = ::maxscale * 4;
-	::update_normalshade();
-	::centery = ::viewheight / 2;
+	maxscale = maxscaleheight - 1;
+	maxscaleshl2 = maxscale * 4;
+	update_normalshade();
+	centery = viewheight / 2;
 }
 
 
@@ -102,7 +102,7 @@ void generic_scale_shape(
 			return;
 		}
 
-		if (ref_half_height > ::maxscaleshl2)
+		if (ref_half_height > maxscaleshl2)
 		{
 			return;
 		}
@@ -110,7 +110,7 @@ void generic_scale_shape(
 
 	const auto height =
 		is_player_weapon ?
-		(::vga_height * ref_height) / ::vga_ref_height :
+		(vga_height * ref_height) / vga_ref_height :
 		ref_height / 4;
 
 	if (height == 0)
@@ -133,11 +133,11 @@ void generic_scale_shape(
 
 	const auto bob_offset =
 		use_bobbing ?
-		(::vga_height * (bob_start + mid_bob - bounce_offset_n)) / ::vga_ref_height :
+		(vga_height * (bob_start + mid_bob - bounce_offset_n)) / vga_ref_height :
 		0;
 
 
-	const auto sprite_ptr = ::vid_sprite_cache.cache(shapenum);
+	const auto sprite_ptr = vid_sprite_cache.cache(shapenum);
 	const auto sprite_width = sprite_ptr->get_width();
 	const auto sprite_height = sprite_ptr->get_height();
 
@@ -145,18 +145,18 @@ void generic_scale_shape(
 
 	const auto offset_x =
 		is_player_weapon ?
-		(::viewwidth - height) / 2 :
+		(viewwidth - height) / 2 :
 		xcenter - half_height;
 
 	const auto offset_y =
 		is_player_weapon ?
-		::vga_3d_view_bottom_y - height + bob_offset :
-		::vga_3d_view_top_y + ::centery - half_height;
+		vga_3d_view_bottom_y - height + bob_offset :
+		vga_3d_view_top_y + centery - half_height;
 
 	const auto left = sprite_ptr->get_left();
 	auto x1 = offset_x + ((left * height) / dimension);
 
-	if (x1 >= ::viewwidth)
+	if (x1 >= viewwidth)
 	{
 		return;
 	}
@@ -166,7 +166,7 @@ void generic_scale_shape(
 	const auto top = sprite_ptr->get_top();
 	auto y1 = offset_y + ((top * height) / dimension);
 
-	if (y1 > ::vga_3d_view_bottom_y)
+	if (y1 > vga_3d_view_bottom_y)
 	{
 		return;
 	}
@@ -184,9 +184,9 @@ void generic_scale_shape(
 		x1 = 0;
 	}
 
-	if (x2 > ::viewwidth)
+	if (x2 > viewwidth)
 	{
-		x2 = ::viewwidth;
+		x2 = viewwidth;
 	}
 
 	if (x2 < x1)
@@ -196,15 +196,15 @@ void generic_scale_shape(
 
 	auto tx_row_begin = bstone::FixedPoint{};
 
-	if (y1 < ::vga_3d_view_top_y)
+	if (y1 < vga_3d_view_top_y)
 	{
-		tx_row_begin += tx_delta * (::vga_3d_view_top_y - y1);
-		y1 = ::vga_3d_view_top_y;
+		tx_row_begin += tx_delta * (vga_3d_view_top_y - y1);
+		y1 = vga_3d_view_top_y;
 	}
 
-	if (y2 > ::vga_3d_view_bottom_y)
+	if (y2 > vga_3d_view_bottom_y)
 	{
-		y2 = ::vga_3d_view_bottom_y;
+		y2 = vga_3d_view_bottom_y;
 	}
 
 	if (y2 < y1)
@@ -216,7 +216,7 @@ void generic_scale_shape(
 
 	if (draw_mode == ShapeDrawMode::shaded)
 	{
-		auto i = shade_max - (63 * ref_height / (::normalshade * 8)) + lighting;
+		auto i = shade_max - (63 * ref_height / (normalshade * 8)) + lighting;
 
 		if (i < 0)
 		{
@@ -228,18 +228,18 @@ void generic_scale_shape(
 		}
 
 		// BBi Don't shade cloaked shape
-		if (::cloaked_shape)
+		if (cloaked_shape)
 		{
 			i = 0;
 		}
 
-		shading = ::lightsource + (i * 256);
+		shading = lightsource + (i * 256);
 	}
 
 
 	for (int x = x1; x < x2; ++x)
 	{
-		if (!is_player_weapon && ::wallheight[x] > static_cast<double>(ref_height))
+		if (!is_player_weapon && wallheight[x] > static_cast<double>(ref_height))
 		{
 			tx_column += tx_delta;
 			continue;
@@ -260,15 +260,15 @@ void generic_scale_shape(
 				continue;
 			}
 
-			const auto pixel_offset = ::vl_get_offset(0, x, y);
+			const auto pixel_offset = vl_get_offset(0, x, y);
 			auto color_index = static_cast<std::uint8_t>(sprite_color);
 
 			if (draw_mode == ShapeDrawMode::shaded)
 			{
 #if CLOAKED_SHAPES
-				if (::cloaked_shape)
+				if (cloaked_shape)
 				{
-					color_index = shading[0x1000 | ::vga_memory[pixel_offset]];
+					color_index = shading[0x1000 | vga_memory[pixel_offset]];
 				}
 				else
 #endif
@@ -277,7 +277,7 @@ void generic_scale_shape(
 				}
 			}
 
-			::vga_memory[pixel_offset] = color_index;
+			vga_memory[pixel_offset] = color_index;
 
 			tx_row += tx_delta;
 		}
@@ -370,7 +370,7 @@ void scale_player_weapon(
 
 void update_normalshade()
 {
-	::normalshade = static_cast<int>(
-		(3.0 * ::maxscale) / (4.0 * ::normalshade_div) / ::vga_wide_scale);
+	normalshade = static_cast<int>(
+		(3.0 * maxscale) / (4.0 * normalshade_div) / vga_wide_scale);
 }
 // BBi
