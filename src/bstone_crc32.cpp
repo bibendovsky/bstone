@@ -23,6 +23,7 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_crc32.h"
+
 #include <array>
 #include <stdexcept>
 

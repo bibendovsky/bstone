@@ -32,6 +32,7 @@ Free Software Foundation, Inc.,
 
 
 #include <string>
+
 #include "bstone_stream.h"
 
 

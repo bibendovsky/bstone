@@ -25,6 +25,7 @@ Free Software Foundation, Inc.,
 #ifndef BSTONE_AN_CODES_INCLUDED
 #define BSTONE_AN_CODES_INCLUDED
 
+
 // --------------------------------------------------------------------------
 //
 // ANIM CODES - DOCS

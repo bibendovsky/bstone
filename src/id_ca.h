@@ -27,6 +27,7 @@ Free Software Foundation, Inc.,
 
 
 #include <unordered_map>
+
 #include "3d_def.h"
 #include "bstone_file_stream.h"
 

@@ -28,6 +28,7 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_file_stream.h"
+
 #include "SDL_rwops.h"
 
 

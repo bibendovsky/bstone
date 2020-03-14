@@ -32,6 +32,7 @@ Free Software Foundation, Inc.,
 
 
 #include <array>
+
 #include "bstone_rgb8.h"
 
 

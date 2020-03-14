@@ -27,7 +27,9 @@ Free Software Foundation, Inc.,
 
 
 #include <cstdint>
+
 #include <memory>
+
 #include "bstone_exception.h"
 
 

@@ -23,7 +23,9 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_stream.h"
+
 #include <vector>
+
 #include "bstone_un_value.h"
 
 

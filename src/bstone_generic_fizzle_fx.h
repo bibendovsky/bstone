@@ -32,7 +32,9 @@ Free Software Foundation, Inc.,
 
 
 #include <cstdint>
+
 #include <memory>
+
 #include "bstone_fizzle_fx.h"
 
 

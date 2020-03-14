@@ -31,8 +31,11 @@ Free Software Foundation, Inc.,
 
 
 #include <cmath>
+
 #include <iostream>
+
 #include "SDL_messagebox.h"
+
 #include "audio.h"
 #include "id_ca.h"
 #include "id_heads.h"

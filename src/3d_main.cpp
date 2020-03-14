@@ -25,7 +25,9 @@ Free Software Foundation, Inc.,
 #include <algorithm>
 #include <functional>
 #include <unordered_map>
+
 #include "SDL.h"
+
 #include "3d_def.h"
 #include "audio.h"
 #include "jm_lzh.h"

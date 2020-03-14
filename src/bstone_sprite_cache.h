@@ -8,6 +8,7 @@
 
 
 #include <vector>
+
 #include "bstone_sprite.h"
 
 

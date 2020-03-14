@@ -35,7 +35,9 @@ Free Software Foundation, Inc.,
 
 
 #include <cstdint>
+
 #include <atomic>
+
 #include "bstone_audio_mixer.h"
 
 

@@ -32,6 +32,7 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_precompiled.h"
+
 #include "bstone_hw_shader_registry.h"
 
 

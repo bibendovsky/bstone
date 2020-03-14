@@ -23,11 +23,14 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_audio_mixer.h"
+
 #include <atomic>
 #include <list>
 #include <mutex>
 #include <utility>
+
 #include "SDL_audio.h"
+
 #include "3d_def.h"
 #include "audio.h"
 #include "bstone_adlib_music_decoder.h"

@@ -32,6 +32,7 @@ Free Software Foundation, Inc.,
 
 
 #include <cstdint>
+
 #include "SDL_endian.h"
 
 
