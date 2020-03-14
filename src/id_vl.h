@@ -53,7 +53,7 @@ struct objtype;
 
 
 using VgaBuffer = std::vector<std::uint8_t>;
-using UiMaskBuffer = std::array<bool, ::vga_ref_width * ::vga_ref_height>;
+using UiMaskBuffer = std::array<bool, vga_ref_width * vga_ref_height>;
 
 
 struct VidCfg

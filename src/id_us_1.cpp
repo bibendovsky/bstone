@@ -140,7 +140,7 @@ void US_Shutdown()
 	}
 
 	// BBi
-	if (::SDL_RemoveTimer(sys_timer_id) == SDL_FALSE)
+	if (SDL_RemoveTimer(sys_timer_id) == SDL_FALSE)
 	{
 		bstone::logger_->write_warning("Failed to remove a timer.");
 	}
@@ -148,7 +148,7 @@ void US_Shutdown()
 	sys_timer_id = 0;
 	// BBi
 
-	::US_Started = false;
+	US_Started = false;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -207,7 +207,7 @@ void US_PrintUnsigned(
 	std::uint32_t n)
 {
 	auto buffer = std::to_string(n);
-	::US_Print(buffer.c_str());
+	US_Print(buffer.c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -267,7 +267,7 @@ void US_CPrintLine(
 
 	if (w > WindowW)
 	{
-		::Quit("String exceeds width.");
+		Quit("String exceeds width.");
 	}
 	px = static_cast<std::int16_t>(WindowX + ((WindowW - w) / 2));
 	py = PrintY;
@@ -308,7 +308,7 @@ void US_CPrint(
 			line_begin,
 			line_end - line_begin);
 
-		::US_CPrintLine(substring.c_str());
+		US_CPrintLine(substring.c_str());
 
 		line_begin = line_end + 1;
 	}
@@ -338,39 +338,39 @@ void US_DrawWindow(
 	const int w,
 	const int h)
 {
-	::WindowX = static_cast<std::int16_t>(x);
-	::WindowY = static_cast<std::int16_t>(y);
-	::WindowW = static_cast<std::int16_t>(w);
-	::WindowH = static_cast<std::int16_t>(h);
+	WindowX = static_cast<std::int16_t>(x);
+	WindowY = static_cast<std::int16_t>(y);
+	WindowW = static_cast<std::int16_t>(w);
+	WindowH = static_cast<std::int16_t>(h);
 
-	::PrintX = ::WindowX;
-	::PrintY = ::WindowY;
+	PrintX = WindowX;
+	PrintY = WindowY;
 
 	const auto sx = x - 8;
 	const auto sy = y - 8;
 	const auto sw = w + 8;
 	const auto sh = h + 8;
 
-	::US_ClearWindow();
+	US_ClearWindow();
 
 	auto i = 0;
 
-	::VWB_DrawTile8(sx, sy, 0);
-	::VWB_DrawTile8(sx, sy + sh, 5);
+	VWB_DrawTile8(sx, sy, 0);
+	VWB_DrawTile8(sx, sy + sh, 5);
 
 	for (i = sx + 8; i <= sx + sw - 8; i += 8)
 	{
-		::VWB_DrawTile8(i, sy, 1);
-		::VWB_DrawTile8(i, sy + sh, 6);
+		VWB_DrawTile8(i, sy, 1);
+		VWB_DrawTile8(i, sy + sh, 6);
 	}
 
-	::VWB_DrawTile8(i, sy, 2);
-	::VWB_DrawTile8(i, sy + sh, 7);
+	VWB_DrawTile8(i, sy, 2);
+	VWB_DrawTile8(i, sy + sh, 7);
 
 	for (i = sy + 8; i <= sy + sh - 8; i += 8)
 	{
-		::VWB_DrawTile8(sx, i, 3);
-		::VWB_DrawTile8(sx + sw, i, 4);
+		VWB_DrawTile8(sx, i, 3);
+		VWB_DrawTile8(sx + sw, i, 4);
 	}
 }
 
@@ -387,10 +387,10 @@ void US_CenterWindow(
 	const auto w8 = w * 8;
 	const auto h8 = h * 8;
 
-	const auto x = (::vga_ref_width - w8) / 2;
-	const auto y = ::ref_view_top_y + (::ref_view_height - h8) / 2;
+	const auto x = (vga_ref_width - w8) / 2;
+	const auto y = ref_view_top_y + (ref_view_height - h8) / 2;
 
-	::US_DrawWindow(x, y, w8, h8);
+	US_DrawWindow(x, y, w8, h8);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -582,7 +582,7 @@ bool US_LineInput(
 			}
 		}
 
-		::in_handle_events();
+		in_handle_events();
 
 		sc = LastScan;
 		LastScan = ScanCode::sc_none;
@@ -720,31 +720,31 @@ bool US_LineInput(
 
 void US_Startup()
 {
-	if (::US_Started)
+	if (US_Started)
 	{
 		return;
 	}
 
 	// BBi
-	sys_timer_id = ::SDL_AddTimer(
+	sys_timer_id = SDL_AddTimer(
 		1000 / TickBase,
 		sys_timer_callback,
 		nullptr);
 
 	if (sys_timer_id == 0)
 	{
-		::Quit("Failed to add a timer.");
+		Quit("Failed to add a timer.");
 	}
 	// BBi
 
-	::US_InitRndT(true); // Initialize the random number generator
-	::US_Started = true;
+	US_InitRndT(true); // Initialize the random number generator
+	US_Started = true;
 }
 
 void SETFONTCOLOR(
 	const int foreground_color,
 	const int background_color)
 {
-	::fontcolor = static_cast<std::uint8_t>(foreground_color);
-	::backcolor = static_cast<std::uint8_t>(background_color);
+	fontcolor = static_cast<std::uint8_t>(foreground_color);
+	backcolor = static_cast<std::uint8_t>(background_color);
 }

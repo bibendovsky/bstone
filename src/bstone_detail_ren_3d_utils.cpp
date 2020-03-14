@@ -1094,7 +1094,7 @@ void Ren3dUtils::create_window_set_gl_profile_and_version(
 void Ren3dUtils::create_window_set_gl_attributes(
 	const Ren3dUtilsCreateWindowParam& param)
 {
-	::SDL_GL_ResetAttributes();
+	SDL_GL_ResetAttributes();
 
 	auto sdl_result = 0;
 

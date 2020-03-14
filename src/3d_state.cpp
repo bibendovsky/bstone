@@ -188,7 +188,7 @@ static bool CHECKDIAG(
 	int x,
 	int y)
 {
-	auto actor = ::actorat[x][y];
+	auto actor = actorat[x][y];
 	auto temp = reinterpret_cast<std::size_t>(actor);
 
 	if (temp != 0)
@@ -204,7 +204,7 @@ static bool CHECKDIAG(
 		}
 	}
 
-	if (::ElevatorFloor(static_cast<std::int8_t>(x), static_cast<std::int8_t>(y)))
+	if (ElevatorFloor(static_cast<std::int8_t>(x), static_cast<std::int8_t>(y)))
 	{
 		return false;
 	}
@@ -217,7 +217,7 @@ static bool CHECKSIDE(
 	int y,
 	std::int16_t& door_index)
 {
-	auto actor = ::actorat[x][y];
+	auto actor = actorat[x][y];
 	auto temp = reinterpret_cast<std::size_t>(actor);
 
 	if (temp != 0)
@@ -231,7 +231,7 @@ static bool CHECKSIDE(
 		{
 			door_index = temp & 63;
 
-			if (::doorobjlist[door_index].lock != kt_none)
+			if (doorobjlist[door_index].lock != kt_none)
 			{
 				return false;
 			}
@@ -868,7 +868,7 @@ void MoveObj(
 		return;
 
 	default:
-		::Quit("Illegal direction passed.");
+		Quit("Illegal direction passed.");
 	}
 
 	ob->x += sign_x * move;
@@ -878,7 +878,7 @@ void MoveObj(
 	// check to make sure it's not on top of player
 	//
 	if (ob->obclass != electrosphereobj &&
-		::areabyplayer[ob->areanumber])
+		areabyplayer[ob->areanumber])
 	{
 		auto dx = std::abs(ob->x - player->x);
 		auto dy = std::abs(ob->y - player->y);
@@ -895,7 +895,7 @@ void MoveObj(
 			ob->x += sign_x * move;
 			ob->y += sign_y * move;
 
-			::PlayerIsBlocking(ob);
+			PlayerIsBlocking(ob);
 			return;
 		}
 	}
@@ -999,9 +999,9 @@ void KillActor(
 	switch (clas)
 	{
 	case podeggobj:
-		::sd_play_actor_sound(PODHATCHSND, ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(PODHATCHSND, ob, bstone::ActorChannel::voice);
 
-		::InitSmartSpeedAnim(ob, SPR_POD_HATCH1, 0, 2, at_ONCE, ad_FWD, 7);
+		InitSmartSpeedAnim(ob, SPR_POD_HATCH1, 0, 2, at_ONCE, ad_FWD, 7);
 		KeepSolid = true;
 		deadguy = givepoints = false;
 		break;
@@ -1010,7 +1010,7 @@ void KillActor(
 	case morphing_reptilian_warriorobj:
 	case morphing_mutanthuman2obj:
 		ob->flags &= ~FL_SHOOTABLE;
-		::InitSmartSpeedAnim(ob, ob->temp1, 0, 8, at_ONCE, ad_FWD, 2);
+		InitSmartSpeedAnim(ob, ob->temp1, 0, 8, at_ONCE, ad_FWD, 2);
 		KeepSolid = true;
 		deadguy = givepoints = false;
 		break;
@@ -1019,17 +1019,17 @@ void KillActor(
 	case crate2obj:
 	case crate3obj:
 		{
-			auto bs_static = ::ui16_to_static_object(ob->temp3);
+			auto bs_static = ui16_to_static_object(ob->temp3);
 
 			bs_static->shapenum = -1;
-			::vid_hw_on_remove_static(*bs_static);
+			vid_hw_on_remove_static(*bs_static);
 
 			static_cast<void>(SpawnStatic(tilex, tiley, ob->temp2));
 		}
 
 		ob->obclass = deadobj;
 		ob->lighting = NO_SHADING; // No Shading
-		::InitSmartSpeedAnim(ob, SPR_GRENADE_EXPLODE2, 0, 3, at_ONCE, ad_FWD, 3 + (US_RndT() & 7));
+		InitSmartSpeedAnim(ob, SPR_GRENADE_EXPLODE2, 0, 3, at_ONCE, ad_FWD, 3 + (US_RndT() & 7));
 		A_DeathScream(ob);
 		MakeAlertNoise(ob);
 		break;
@@ -1037,13 +1037,13 @@ void KillActor(
 	case floatingbombobj:
 		ob->lighting = EXPLOSION_SHADING;
 		A_DeathScream(ob);
-		::InitSmartSpeedAnim(ob, SPR_FSCOUT_DIE1, 0, 7, at_ONCE, ad_FWD, assets_info.is_ps() ? 5 : 17);
+		InitSmartSpeedAnim(ob, SPR_FSCOUT_DIE1, 0, 7, at_ONCE, ad_FWD, assets_info.is_ps() ? 5 : 17);
 		break;
 
 	case volatiletransportobj:
 		ob->lighting = EXPLOSION_SHADING;
 		A_DeathScream(ob);
-		::InitSmartSpeedAnim(ob, SPR_GSCOUT_DIE1, 0, 8, at_ONCE, ad_FWD, assets_info.is_ps() ? 5 : 17);
+		InitSmartSpeedAnim(ob, SPR_GSCOUT_DIE1, 0, 8, at_ONCE, ad_FWD, assets_info.is_ps() ? 5 : 17);
 		break;
 
 	case goldsternobj:
@@ -1056,14 +1056,14 @@ void KillActor(
 		GoldsternInfo.WaitTime = MIN_GOLDIE_WAIT + Random(MAX_GOLDIE_WAIT - MIN_GOLDIE_WAIT); // Reinit Delay Timer before spawning on new position
 		clas = goldsternobj;
 
-		if (::gamestate.mapon == 9)
+		if (gamestate.mapon == 9)
 		{
 			if (!::gamestate.boss_key_dropped)
 			{
-				::gamestate.boss_key_dropped = true;
+				gamestate.boss_key_dropped = true;
 
-				static_cast<void>(::ReserveStatic());
-				::PlaceReservedItemNearTile(bo_gold_key, ob->tilex, ob->tiley);
+				static_cast<void>(ReserveStatic());
+				PlaceReservedItemNearTile(bo_gold_key, ob->tilex, ob->tiley);
 			}
 		}
 		break;
@@ -1071,7 +1071,7 @@ void KillActor(
 	case gold_morphobj:
 		GoldsternInfo.flags = GS_NO_MORE;
 
-		::sd_play_actor_sound(PODDEATHSND, ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(PODDEATHSND, ob, bstone::ActorChannel::voice);
 
 		ob->flags |= FL_OFFSET_STATES;
 		InitAnim(ob, SPR_GOLD_DEATH1, 0, 4, at_ONCE, ad_FWD, 25, 9);
@@ -1193,23 +1193,23 @@ void KillActor(
 	case reptilian_warriorobj:
 		if (assets_info.is_ps())
 		{
-			::PlaceItemNearTile(bo_clip2, tilex, tiley);
+			PlaceItemNearTile(bo_clip2, tilex, tiley);
 		}
 	case spider_mutantobj:
 	case breather_beastobj:
 	case acid_dragonobj:
-		::NewState(ob, &s_ofs_die1);
+		NewState(ob, &s_ofs_die1);
 
 		if (!assets_info.is_ps())
 		{
-			static_cast<void>(::ReserveStatic());
-			::PlaceReservedItemNearTile(bo_gold_key, ob->tilex, ob->tiley);
+			static_cast<void>(ReserveStatic());
+			PlaceReservedItemNearTile(bo_gold_key, ob->tilex, ob->tiley);
 			ActivatePinballBonus(B_GALIEN_DESTROYED);
 		}
 		break;
 
 	case final_boss2obj:
-		::sd_play_actor_sound(PODDEATHSND, ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(PODDEATHSND, ob, bstone::ActorChannel::voice);
 
 		InitAnim(ob, SPR_BOSS8_DIE1, 0, 4, at_ONCE, ad_FWD, 25, 9);
 		break;
@@ -1229,19 +1229,19 @@ void KillActor(
 		break;
 
 	case gurney_waitobj: // mutant asleep on gurney
-		::InitSmartAnim(ob, SPR_GURNEY_MUT_B1, 0, 3, at_ONCE, ad_FWD);
+		InitSmartAnim(ob, SPR_GURNEY_MUT_B1, 0, 3, at_ONCE, ad_FWD);
 		KeepSolid = true;
 		givepoints = false;
 		break;
 
 	case scan_wait_alienobj: // Actual Canister - Destroyed
-		::InitSmartAnim(ob, SPR_SCAN_ALIEN_B1, 0, 3, at_ONCE, ad_FWD);
+		InitSmartAnim(ob, SPR_SCAN_ALIEN_B1, 0, 3, at_ONCE, ad_FWD);
 		KeepSolid = true;
 		givepoints = false;
 		break;
 
 	case lcan_wait_alienobj: // Actual Canister - Destroyed
-		::InitSmartAnim(ob, SPR_LCAN_ALIEN_B1, 0, 3, at_ONCE, ad_FWD);
+		InitSmartAnim(ob, SPR_LCAN_ALIEN_B1, 0, 3, at_ONCE, ad_FWD);
 		KeepSolid = true;
 		givepoints = false;
 		break;
@@ -1257,10 +1257,10 @@ void KillActor(
 			break;
 		}
 
-		::A_DeathScream(ob);
+		A_DeathScream(ob);
 		ob->ammo = 0;
 		ob->lighting = EXPLOSION_SHADING;
-		::InitSmartSpeedAnim(ob, SPR_VITAL_DIE_1, 0, 7, at_ONCE, ad_FWD, 7);
+		InitSmartSpeedAnim(ob, SPR_VITAL_DIE_1, 0, 7, at_ONCE, ad_FWD, 7);
 		break;
 
 	default:
@@ -1547,12 +1547,12 @@ void DamageActor(
 			{
 				if (!assets_info.is_aog_sw())
 				{
-					::sd_play_actor_sound(::SWATDEATH2SND, ob, bstone::ActorChannel::voice);
+					sd_play_actor_sound(SWATDEATH2SND, ob, bstone::ActorChannel::voice);
 				}
 
-				::NewState(ob, &::s_swatwounded1);
+				NewState(ob, &::s_swatwounded1);
 				ob->flags &= ~(FL_SHOOTABLE | FL_SOLID);
-				ob->temp2 = (5 * 60) + ((::US_RndT() % 20) * 60);
+				ob->temp2 = (5 * 60) + ((US_RndT() % 20) * 60);
 				return;
 			}
 			break;
@@ -1579,7 +1579,7 @@ void DamageActor(
 		{
 		case volatiletransportobj:
 		case floatingbombobj:
-			::T_PainThink(ob);
+			T_PainThink(ob);
 			break;
 
 		case goldsternobj:
@@ -1653,7 +1653,7 @@ void DamageActor(
 			if ((ob->hitpoints + damage) ==
 				starthitpoints[gamestate.difficulty][en_rotating_cube])
 			{
-				::InitSmartSpeedAnim(ob, SPR_VITAL_OUCH, 0, 0, at_ONCE, ad_FWD, 23);
+				InitSmartSpeedAnim(ob, SPR_VITAL_OUCH, 0, 0, at_ONCE, ad_FWD, 23);
 			}
 			break;
 
@@ -1978,7 +1978,7 @@ void FirstSighting(
 			return;
 		}
 
-		::sd_play_actor_sound(SCOUT_ALERTSND, ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(SCOUT_ALERTSND, ob, bstone::ActorChannel::voice);
 
 		NewState(ob, &s_scout_run);
 		ob->speed *= 3; // Haul Ass
@@ -1986,28 +1986,28 @@ void FirstSighting(
 
 
 	case goldsternobj:
-		::sd_play_actor_sound(GOLDSTERNHALTSND, ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(GOLDSTERNHALTSND, ob, bstone::ActorChannel::voice);
 
 		NewState(ob, &s_goldchase1);
 		ob->speed *= 3; // go faster when chasing player
 		break;
 
 	case rentacopobj:
-		::sd_play_actor_sound(HALTSND, ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(HALTSND, ob, bstone::ActorChannel::voice);
 
 		NewState(ob, &s_rent_chase1);
 		ob->speed *= 3; // go faster when chasing player
 		break;
 
 	case gen_scientistobj:
-		::sd_play_actor_sound(SCIENTISTHALTSND, ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(SCIENTISTHALTSND, ob, bstone::ActorChannel::voice);
 
 		NewState(ob, &s_ofcchase1);
 		ob->speed *= 3; // go faster when chasing player
 		break;
 
 	case swatobj:
-		::sd_play_actor_sound(SWATHALTSND, ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(SWATHALTSND, ob, bstone::ActorChannel::voice);
 
 		NewState(ob, &s_swatchase1);
 		ob->speed *= 3; // go faster when chasing player
@@ -2018,7 +2018,7 @@ void FirstSighting(
 	case genetic_guardobj:
 	case final_boss4obj:
 	case final_boss2obj:
-		::sd_play_actor_sound(GGUARDHALTSND, ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(GGUARDHALTSND, ob, bstone::ActorChannel::voice);
 
 		NewState(ob, &s_ofs_chase1);
 		ob->speed *= 3; // go faster when chasing player
@@ -2030,14 +2030,14 @@ void FirstSighting(
 	case mutant_human1obj:
 	case final_boss3obj:
 	case final_boss1obj:
-		::sd_play_actor_sound(BLUEBOYHALTSND, ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(BLUEBOYHALTSND, ob, bstone::ActorChannel::voice);
 
 		NewState(ob, &s_ofs_chase1);
 		ob->speed *= 2; // go faster when chasing player
 		break;
 
 	case mutant_human2obj:
-		::sd_play_actor_sound(DOGBOYHALTSND, ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(DOGBOYHALTSND, ob, bstone::ActorChannel::voice);
 
 		NewState(ob, &s_ofs_chase1);
 		ob->speed *= 2; // go faster when chasing player
@@ -2049,21 +2049,21 @@ void FirstSighting(
 
 	case spider_mutantobj:
 	case scan_alienobj:
-		::sd_play_actor_sound(SCANHALTSND, ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(SCANHALTSND, ob, bstone::ActorChannel::voice);
 
 		NewState(ob, &s_ofs_chase1);
 		ob->speed *= 3; // go faster when chasing player
 		break;
 
 	case lcan_alienobj:
-		::sd_play_actor_sound(LCANHALTSND, ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(LCANHALTSND, ob, bstone::ActorChannel::voice);
 
 		NewState(ob, &s_ofs_chase1);
 		ob->speed *= 3; // go faster when chasing player
 		break;
 
 	case gurneyobj:
-		::sd_play_actor_sound(GURNEYSND, ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(GURNEYSND, ob, bstone::ActorChannel::voice);
 
 		NewState(ob, &s_ofs_chase1);
 		ob->speed *= 3; // go faster when chasing player
@@ -2071,7 +2071,7 @@ void FirstSighting(
 
 	case acid_dragonobj:
 	case podobj:
-		::sd_play_actor_sound(PODHALTSND, ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(PODHALTSND, ob, bstone::ActorChannel::voice);
 
 		NewState(ob, &s_ofs_chase1);
 		ob->speed *= 2;
@@ -2085,7 +2085,7 @@ void FirstSighting(
 			if (ob->temp2 != 0)
 			{
 				ob->flags &= ~(FL_SHOOTABLE);
-				::InitSmartAnim(ob, SPR_GURNEY_MUT_B1, 0, 3, at_ONCE, ad_FWD);
+				InitSmartAnim(ob, SPR_GURNEY_MUT_B1, 0, 3, at_ONCE, ad_FWD);
 			}
 			else
 			{
@@ -2095,14 +2095,14 @@ void FirstSighting(
 		break;
 
 	case proguardobj:
-		::sd_play_actor_sound(PROHALTSND, ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(PROHALTSND, ob, bstone::ActorChannel::voice);
 
 		NewState(ob, &s_prochase1);
 		ob->speed *= 4; // go faster when chasing player
 		break;
 
 	case hang_terrotobj:
-		::sd_play_actor_sound(TURRETSND, ob, bstone::ActorChannel::voice);
+		sd_play_actor_sound(TURRETSND, ob, bstone::ActorChannel::voice);
 
 		NewState(ob, &s_terrot_seek1);
 		break;
@@ -2319,10 +2319,10 @@ bool CheckView(
 	fangle = static_cast<float>(atan2(static_cast<double>(deltay), static_cast<double>(deltax))); // returns -pi to pi
 	if (fangle < 0)
 	{
-		fangle = static_cast<float>(::m_pi() * 2 + fangle);
+		fangle = static_cast<float>(m_pi() * 2 + fangle);
 	}
 
-	angle = static_cast<std::int16_t>(fangle / (::m_pi() * 2) * ANGLES + 23);
+	angle = static_cast<std::int16_t>(fangle / (m_pi() * 2) * ANGLES + 23);
 
 	if (angle > 360)
 	{
@@ -2476,7 +2476,7 @@ bool LookForGoodies(
 
 						if (statptr->shapenum == -1)
 						{
-							::vid_hw_on_remove_static(*statptr);
+							vid_hw_on_remove_static(*statptr);
 						}
 
 						return true;

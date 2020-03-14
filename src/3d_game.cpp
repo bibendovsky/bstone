@@ -40,7 +40,7 @@ Free Software Foundation, Inc.,
 #include "bstone_generic_fizzle_fx.h"
 
 
-#define NUM_TILES (::PMSpriteStart)
+#define NUM_TILES (PMSpriteStart)
 
 
 /*
@@ -307,7 +307,7 @@ void SetSoundLoc(
 
 void UpdateSoundLoc()
 {
-	::sd_update_positions();
+	sd_update_positions();
 }
 
 /*
@@ -324,7 +324,7 @@ void INVALID_ACTOR_ERR(
 	const int x,
 	const int y)
 {
-	::Quit("Invalid actor at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+	Quit("Invalid actor at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 }
 
 
@@ -370,7 +370,7 @@ void ScanInfoPlane()
 			case SMART_ON_TRIGGER:
 				if (!assets_info.is_ps())
 				{
-					::Quit("Smart trigger (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					Quit("Smart trigger (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 				continue;
 
@@ -418,13 +418,13 @@ void ScanInfoPlane()
 				CeilingTile = START_TEXTURES + ((tile & 0xff00) >> 8);
 				if (CeilingTile > NUM_TILES - 1)
 				{
-					::Quit("Ceiling tile/texture is out of range.");
+					Quit("Ceiling tile/texture is out of range.");
 				}
 
 				FloorTile = START_TEXTURES + (tile & 0xff);
 				if (FloorTile > NUM_TILES - 1)
 				{
-					::Quit("Floor tile/texture is out of range.");
+					Quit("Floor tile/texture is out of range.");
 				}
 
 				gottextures = true;
@@ -473,7 +473,7 @@ void ScanInfoPlane()
 
 				if (++st->NumMsgs > MAX_CACHE_MSGS)
 				{
-					::Quit("(INFORMANTS) Too many \"cached msgs\" loaded.");
+					Quit("(INFORMANTS) Too many \"cached msgs\" loaded.");
 				}
 
 				ci->areanumber = GetAreaNumber(static_cast<std::int8_t>(x), static_cast<std::int8_t>(y));
@@ -570,7 +570,7 @@ void ScanInfoPlane()
 			case 30: // Yellow Puddle
 				if (assets_info.is_aog_sw())
 				{
-					::Quit("Yellow puddle (AOG full/PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					Quit("Yellow puddle (AOG full/PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 				static_cast<void>(SpawnStatic(x, y, tile - 23));
 				break;
@@ -578,7 +578,7 @@ void ScanInfoPlane()
 			case 71: // BFG Weapon
 				if (!assets_info.is_ps())
 				{
-					::Quit("BFG (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					Quit("BFG (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 				static_cast<void>(SpawnStatic(x, y, tile - 23));
 				break;
@@ -707,7 +707,7 @@ void ScanInfoPlane()
 			case 486: // Plasma Detonator
 				if (!assets_info.is_ps())
 				{
-					::Quit("Plasma detonator (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					Quit("Plasma detonator (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				SpawnHiddenOfs(en_plasma_detonator_reserve, x, y); // Spawn a reserve
@@ -789,11 +789,11 @@ void ScanInfoPlane()
 			case 174:
 				if (assets_info.is_ps())
 				{
-					::SpawnBarrier(en_post_barrier, x, y, false);
+					SpawnBarrier(en_post_barrier, x, y, false);
 				}
 				else
 				{
-					::SpawnBarrier(en_arc_barrier, x, y, true);
+					SpawnBarrier(en_arc_barrier, x, y, true);
 				}
 				break;
 
@@ -808,7 +808,7 @@ void ScanInfoPlane()
 			case 139:
 				if (!assets_info.is_ps())
 				{
-					::Quit("Switchable arc barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					Quit("Switchable arc barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				//
@@ -828,7 +828,7 @@ void ScanInfoPlane()
 			case 562: // Off
 				if (!assets_info.is_ps())
 				{
-					::Quit("Switchable post barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					Quit("Switchable post barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				SpawnBarrier(en_vpost_barrier, x, y, (tile - 562) != 0);
@@ -851,7 +851,7 @@ void ScanInfoPlane()
 			case 565:
 				if (!assets_info.is_ps())
 				{
-					::Quit("Cyclic post barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					Quit("Cyclic post barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				SpawnBarrier(en_vpost_barrier, x, y, 0);
@@ -868,7 +868,7 @@ void ScanInfoPlane()
 			case 425: // Off
 				if (!assets_info.is_ps())
 				{
-					::Quit("Spike barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					Quit("Spike barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				SpawnBarrier(en_vspike_barrier, x, y, (tile - 425) != 0);
@@ -891,7 +891,7 @@ void ScanInfoPlane()
 			case 428:
 				if (!assets_info.is_ps())
 				{
-					::Quit("Cyclic spike barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					Quit("Cyclic spike barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 				SpawnBarrier(en_vspike_barrier, x, y, 0);
 				break;
@@ -921,7 +921,7 @@ void ScanInfoPlane()
 				{
 					if (GoldsternInfo.SpawnCnt == GOLDIE_MAX_SPAWNS)
 					{
-						::Quit("Too many Dr. Goldfire Spawn sites in level.");
+						Quit("Too many Dr. Goldfire Spawn sites in level.");
 					}
 					GoldsternInfo.flags = GS_FIRSTTIME;
 					if (gamestate.mapon == 9)
@@ -951,19 +951,19 @@ void ScanInfoPlane()
 			case 141:
 				if (!assets_info.is_ps())
 				{
-					::Quit("Goldstern spawn (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					Quit("Goldstern spawn (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				if (!loadedgame)
 				{
 					if (GoldsternInfo.GoldSpawned)
 					{
-						::Quit("Too many FAST Goldfire spawn sites in map.");
+						Quit("Too many FAST Goldfire spawn sites in map.");
 					}
 
 					if (GoldsternInfo.SpawnCnt == GOLDIE_MAX_SPAWNS)
 					{
-						::Quit("Too many Dr. Goldfire Spawn sites in level.");
+						Quit("Too many Dr. Goldfire Spawn sites in level.");
 					}
 
 					GoldieList[GoldsternInfo.SpawnCnt].tilex = static_cast<std::uint8_t>(x);
@@ -992,11 +992,11 @@ void ScanInfoPlane()
 				//
 
 			case 177:
-				::SpawnOffsetObj(en_rotating_cube, x, y);
+				SpawnOffsetObj(en_rotating_cube, x, y);
 
 				if (assets_info.is_ps())
 				{
-					::new_actor = nullptr;
+					new_actor = nullptr;
 				}
 
 				break;
@@ -1321,7 +1321,7 @@ void ScanInfoPlane()
 			case 313:
 				if (!assets_info.is_ps())
 				{
-					::Quit("Black ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					Quit("Black ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				if (gamestate.difficulty < gd_hard)
@@ -1332,7 +1332,7 @@ void ScanInfoPlane()
 			case 295:
 				if (!assets_info.is_ps())
 				{
-					::Quit("Black ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					Quit("Black ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				if (gamestate.difficulty < gd_medium)
@@ -1343,7 +1343,7 @@ void ScanInfoPlane()
 			case 277:
 				if (!assets_info.is_ps())
 				{
-					::Quit("Black ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					Quit("Black ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				SpawnOffsetObj(en_black2_ooze, x, y);
@@ -1357,7 +1357,7 @@ void ScanInfoPlane()
 			case 322:
 				if (!assets_info.is_ps())
 				{
-					::Quit("Green ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					Quit("Green ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				if (gamestate.difficulty < gd_hard)
@@ -1368,7 +1368,7 @@ void ScanInfoPlane()
 			case 304:
 				if (!assets_info.is_ps())
 				{
-					::Quit("Green ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					Quit("Green ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				if (gamestate.difficulty < gd_medium)
@@ -1379,7 +1379,7 @@ void ScanInfoPlane()
 			case 286:
 				if (!assets_info.is_ps())
 				{
-					::Quit("Green ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					Quit("Green ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				SpawnOffsetObj(en_green2_ooze, x, y);
@@ -2418,7 +2418,7 @@ void SetupGameLevel()
 
 	if (mapwidth != 64 || mapheight != 64)
 	{
-		::Quit("Map not 64 x 64.");
+		Quit("Map not 64 x 64.");
 	}
 
 	// BBi
@@ -2435,8 +2435,8 @@ void SetupGameLevel()
 	memset(actorat, 0, sizeof(actorat));
 
 	std::uninitialized_fill(
-		::wallheight.begin(),
-		::wallheight.end(),
+		wallheight.begin(),
+		wallheight.end(),
 		0);
 
 	map = mapsegs[0];
@@ -2520,17 +2520,17 @@ void SetupGameLevel()
 
 			if (y <= 63 && x <= 63 && tile == 30)
 			{
-				if (assets_info.is_aog() && ::gamestate.episode < 5 && ::gamestate.mapon == 9)
+				if (assets_info.is_aog() && gamestate.episode < 5 && gamestate.mapon == 9)
 				{
 					if (is_wintile_found)
 					{
-						::Quit("Multiple \"wintile\"s on level.");
+						Quit("Multiple \"wintile\"s on level.");
 					}
 
 					is_wintile_found = true;
 
-					::gamestate.wintilex = x;
-					::gamestate.wintiley = y;
+					gamestate.wintilex = x;
+					gamestate.wintiley = y;
 				}
 			}
 
@@ -2667,7 +2667,7 @@ void SetupGameLevel()
 					}
 					if (NumEAWalls++ == MAXEAWALLS)
 					{
-						::Quit("Too many Electro-Alien walls in level.");
+						Quit("Too many Electro-Alien walls in level.");
 					}
 					break;
 
@@ -2807,7 +2807,7 @@ void SetupGameLevel()
 			gamestate.mapon < 10 &&
 			gamestuff.level[gamestate.mapon + 1].locked)
 		{
-			::Quit("No red key on floor " + std::to_string(gamestate.mapon) + ".");
+			Quit("No red key on floor " + std::to_string(gamestate.mapon) + ".");
 		}
 
 		if (assets_info.is_aog_full() &&
@@ -2815,7 +2815,7 @@ void SetupGameLevel()
 			gamestate.mapon == 9 &&
 			!is_projection_generator_present)
 		{
-			::Quit("No projection generator(s) on floor 10 episode 6.");
+			Quit("No projection generator(s) on floor 10 episode 6.");
 		}
 	}
 	else
@@ -2828,7 +2828,7 @@ void SetupGameLevel()
 			!detonators_spawned &&
 			gamestuff.level[gamestate.mapon + 1].locked)
 		{
-			::Quit("No Fision/Plasma Detonator on level.");
+			Quit("No Fision/Plasma Detonator on level.");
 		}
 	}
 }
@@ -2852,8 +2852,8 @@ void LoadLocationText(
 
 void DrawPlayBorder()
 {
-	::vid_set_ui_mask_3d(
-		::playstate == ex_transported);
+	vid_set_ui_mask_3d(
+		playstate == ex_transported);
 }
 
 // --------------------------------------------------------------------------
@@ -2977,14 +2977,14 @@ void ShadowPrintLocationText(
 
 		if (assets_info.is_aog())
 		{
-			::px = 17;
+			px = 17;
 		}
 		else
 		{
-			::px = 16;
+			px = 16;
 		}
 
-		if (assets_info.is_secret_level(::gamestate.mapon))
+		if (assets_info.is_secret_level(gamestate.mapon))
 		{
 			const auto secret_floor_index = assets_info.secret_floor_get_index(gamestate.mapon);
 			const auto index_string = std::to_string(secret_floor_index + 1);
@@ -3007,7 +3007,7 @@ void ShadowPrintLocationText(
 				auto map_string = std::to_string(
 					assets_info.is_aog() ? gamestate.mapon : gamestate.mapon + 1);
 
-				::ShPrint(map_string.c_str(), 0, false);
+				ShPrint(map_string.c_str(), 0, false);
 			}
 		}
 
@@ -3018,7 +3018,7 @@ void ShadowPrintLocationText(
 		if (!type)
 		{
 			auto lives_string = std::to_string(gamestate.lives);
-			::ShPrint(lives_string.c_str(), 0, false);
+			ShPrint(lives_string.c_str(), 0, false);
 		}
 
 		// Print location text
@@ -3063,33 +3063,33 @@ void DrawTopInfo(
 void DrawPlayScreen(
 	bool InitInfoMsg)
 {
-	if (::loadedgame)
+	if (loadedgame)
 	{
 		return;
 	}
 
-	if (::playstate != ex_transported)
+	if (playstate != ex_transported)
 	{
 		VW_FadeOut();
 	}
 
-	::WindowW = 253;
-	::WindowH = 8;
-	::fontnumber = 2;
+	WindowW = 253;
+	WindowH = 8;
+	fontnumber = 2;
 
-	::DrawPlayBorder();
+	DrawPlayBorder();
 
-	::LatchDrawPic(0, 200 - STATUSLINES, STATUSBARPIC);
-	::LatchDrawPic(0, 0, TOP_STATUSBARPIC);
+	LatchDrawPic(0, 200 - STATUSLINES, STATUSBARPIC);
+	LatchDrawPic(0, 0, TOP_STATUSBARPIC);
 
-	::ShadowPrintLocationText(sp_normal);
+	ShadowPrintLocationText(sp_normal);
 
-	::DrawHealth();
-	::DrawKeys();
-	::DrawWeapon();
-	::DrawScore();
+	DrawHealth();
+	DrawKeys();
+	DrawWeapon();
+	DrawScore();
 
-	::InitInfoArea();
+	InitInfoArea();
 
 	if (InitInfoMsg)
 	{
@@ -3097,57 +3097,57 @@ void DrawPlayScreen(
 	}
 	else
 	{
-		::DisplayNoMoMsgs();
+		DisplayNoMoMsgs();
 	}
 
-	::ForceUpdateStatusBar();
+	ForceUpdateStatusBar();
 }
 
 void DrawWarpIn()
 {
-	::vid_is_hud = true;
+	vid_is_hud = true;
 
-	::InitInfoArea();
+	InitInfoArea();
 
-	::DisplayInfoMsg(
+	DisplayInfoMsg(
 		"\r\r    TRANSPORTING...",
 		MP_POWERUP,
 		2 * 60,
 		MT_GENERAL);
 
-	::DrawHealth();
-	::DrawKeys();
-	::DrawWeapon();
-	::DrawScore();
-	::WindowW = 253;
-	::WindowH = 8;
-	::fontnumber = 2;
+	DrawHealth();
+	DrawKeys();
+	DrawWeapon();
+	DrawScore();
+	WindowW = 253;
+	WindowH = 8;
+	fontnumber = 2;
 
 	VW_Bar(
 		0,
-		::ref_view_top_y,
-		::vga_ref_width,
-		::ref_view_height,
+		ref_view_top_y,
+		vga_ref_width,
+		ref_view_height,
 		BLACK);
 
-	::LatchDrawPic(0, 200 - STATUSLINES, ::STATUSBARPIC);
-	::LatchDrawPic(0, 0, ::TOP_STATUSBARPIC);
+	LatchDrawPic(0, 200 - STATUSLINES, STATUSBARPIC);
+	LatchDrawPic(0, 0, TOP_STATUSBARPIC);
 
-	::ShadowPrintLocationText(sp_normal);
-	::UpdateStatusBar();
+	ShadowPrintLocationText(sp_normal);
+	UpdateStatusBar();
 
-	::sd_play_player_sound(::WARPINSND, bstone::ActorChannel::item);
+	sd_play_player_sound(WARPINSND, bstone::ActorChannel::item);
 
-	::fizzlein = true;
+	fizzlein = true;
 
-	::ThreeDRefresh();
+	ThreeDRefresh();
 
-	::vid_is_hud = false;
+	vid_is_hud = false;
 }
 
 void Warped()
 {
-	::vid_is_hud = true;
+	vid_is_hud = true;
 
 	std::int16_t iangle;
 
@@ -3168,7 +3168,7 @@ void Warped()
 
 	IN_ClearKeysDown();
 
-	::sd_play_player_sound(WARPINSND, bstone::ActorChannel::item);
+	sd_play_player_sound(WARPINSND, bstone::ActorChannel::item);
 
 	bstone::GenericFizzleFX fizzle(
 		BLACK,
@@ -3184,13 +3184,13 @@ void Warped()
 	gamestate.weapon = old_weapon;
 	gamestate.attackframe = gamestate.attackcount = gamestate.weaponframe = 0;
 
-	::vid_is_hud = false;
+	vid_is_hud = false;
 }
 
 
 void Died()
 {
-	::vid_is_hud = true;
+	vid_is_hud = true;
 
 	const std::uint8_t DEATHROTATE = 2;
 
@@ -3198,7 +3198,7 @@ void Died()
 
 	gamestate.weapon = -1; // take away weapon
 
-	::sd_play_player_sound(PLAYERDEATHSND, bstone::ActorChannel::voice);
+	sd_play_player_sound(PLAYERDEATHSND, bstone::ActorChannel::voice);
 
 	iangle = CalcAngle(player, killerobj);
 
@@ -3242,7 +3242,7 @@ void Died()
 		ForceUpdateStatusBar();
 	}
 
-	::vid_is_hud = false;
+	vid_is_hud = false;
 }
 
 // --------------------------------------------------------------------------
@@ -3397,7 +3397,7 @@ void RotateView(
 void GameLoop()
 {
 	// BBi
-	::vid_set_ui_mask_3d(false);
+	vid_set_ui_mask_3d(false);
 	// BBi
 
 	bool quit = false;
@@ -3447,8 +3447,8 @@ restartgame:
 
 		if (!(loadedgame || LevelInPlaytemp(gamestate.mapon)))
 		{
-			::DrawKeys();
-			::DrawScore();
+			DrawKeys();
+			DrawScore();
 		}
 
 		startgame = false;
@@ -3457,8 +3457,8 @@ restartgame:
 			if (LS_current == -1)
 			{
 				// BBi
-				::VL_Bar(0, ::ref_view_top_y, ::vga_ref_width, ::ref_view_height, BLACK);
-				::vid_clear_3d();
+				VL_Bar(0, ref_view_top_y, vga_ref_width, ref_view_height, BLACK);
+				vid_clear_3d();
 				// BBi
 
 				DrawTopInfo(sp_loading);
@@ -3559,7 +3559,7 @@ restartgame:
 
 
 		case ex_victorious:
-			::vid_is_hud = true;
+			vid_is_hud = true;
 
 			MainMenu[MM_SAVE_MISSION].active = AT_DISABLED;
 			MainMenu[MM_VIEW_SCORES].routine = &CP_ViewScores;
@@ -3582,12 +3582,12 @@ restartgame:
 
 				// BBi
 #if 0
-				VW_ScreenToScreen(PAGE1START, ::bufferofs, 320, 200);
+				VW_ScreenToScreen(PAGE1START, bufferofs, 320, 200);
 #endif
 
 				UNCACHEGRCHUNK(STARTFONT + 1);
 
-				::sd_play_player_sound(BONUS1SND, bstone::ActorChannel::item);
+				sd_play_player_sound(BONUS1SND, bstone::ActorChannel::item);
 
 				sd_wait_sound_done();
 				IN_UserInput(5 * 60);
@@ -3596,7 +3596,7 @@ restartgame:
 
 			VW_FadeOut();
 
-			::vid_is_hud = false;
+			vid_is_hud = false;
 
 			Score = std::to_string(gamestate.score);
 			piStringTable[0] = Score.c_str();
@@ -3607,7 +3607,7 @@ restartgame:
 
 				if (!assets_info.is_ps())
 				{
-					::vid_is_movie = true;
+					vid_is_movie = true;
 
 					auto movie = MovieId::intro;
 
@@ -3629,18 +3629,18 @@ restartgame:
 						break;
 					}
 
-					::DoMovie(movie);
+					DoMovie(movie);
 				}
 				else
 				{
 					CA_CacheGrChunk(ENDINGPALETTE);
 
-					::DoMovie(MovieId::final, ::grsegs[ENDINGPALETTE]);
+					DoMovie(MovieId::final, grsegs[ENDINGPALETTE]);
 
 					UNCACHEGRCHUNK(ENDINGPALETTE);
 				}
 
-				::vid_is_movie = false;
+				vid_is_movie = false;
 
 				NewViewSize(); // Recreates & Allocs the ScaleDirectory
 				Breifing(BT_WIN, gamestate.episode);
@@ -3662,7 +3662,7 @@ restartgame:
 
 
 	// BBi
-	::vid_is_hud = false;
+	vid_is_hud = false;
 	// BBi
 }
 
@@ -3682,11 +3682,11 @@ static void fix_level_inplace()
 	//
 	if (assets_info.is_aog_full() &&
 		!::loadedgame &&
-		::gamestate.episode == 1 &&
-		::gamestate.mapon == 6)
+		gamestate.episode == 1 &&
+		gamestate.mapon == 6)
 	{
 		// Replace standing bio-tech with a moving one.
-		::mapsegs[1][(26 * MAPSIZE) + 38] = 157;
-		::mapsegs[1][(33 * MAPSIZE) + 55] = 157;
+		mapsegs[1][(26 * MAPSIZE) + 38] = 157;
+		mapsegs[1][(33 * MAPSIZE) + 55] = 157;
 	}
 }

@@ -176,7 +176,7 @@ void DefaultLogger::write(
 
 	if (is_critical)
 	{
-		static_cast<void>(::SDL_ShowSimpleMessageBox(
+		static_cast<void>(SDL_ShowSimpleMessageBox(
 			SDL_MESSAGEBOX_ERROR,
 			"BStone",
 			message_.c_str(),
@@ -218,7 +218,7 @@ void DefaultLogger::write_critical(
 
 void DefaultLogger::initialize()
 {
-	const auto& profile_dir = ::get_profile_dir();
+	const auto& profile_dir = get_profile_dir();
 	const auto& log_path = profile_dir + "bstone_log.txt";
 
 	is_file_stream_initialized_ = file_stream_.open(log_path, StreamOpenMode::write);

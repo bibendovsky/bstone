@@ -200,7 +200,7 @@ int get_vgahead_offset_count()
 	auto file_stream = bstone::FileStream{};
 	const auto& base_name = Assets::get_gfx_header_base_name();
 	const auto& file_extension = assets_info.get_extension();
-	const auto is_open = ::ca_open_resource_non_fatal(base_name, file_extension, file_stream);
+	const auto is_open = ca_open_resource_non_fatal(base_name, file_extension, file_stream);
 
 	if (!is_open)
 	{
@@ -232,7 +232,7 @@ bool check_for_files(
 
 	for (const auto& base_name : base_names)
 	{
-		if (!::ca_open_resource_non_fatal(::data_dir_, base_name, extension, file_stream))
+		if (!::ca_open_resource_non_fatal(data_dir_, base_name, extension, file_stream))
 		{
 			return false;
 		}
@@ -249,7 +249,7 @@ AssetsBaseNameToHashMap get_assets_hashes(
 
 	for (const auto& base_name : base_names)
 	{
-		const auto& hash = ::ca_calculate_hash(::data_dir_, base_name, extension);
+		const auto& hash = ca_calculate_hash(data_dir_, base_name, extension);
 
 		if (hash.empty())
 		{
@@ -311,7 +311,7 @@ bool find_aog_assets(
 	{
 		if (is_required)
 		{
-			::Quit("Missing \"" + title + "\" assets.");
+			Quit("Missing \"" + title + "\" assets.");
 		}
 
 		return false;
@@ -323,7 +323,7 @@ bool find_aog_assets(
 	{
 		if (is_required)
 		{
-			::Quit("Failed to calculate hashes for \"" + title + "\" assets.");
+			Quit("Failed to calculate hashes for \"" + title + "\" assets.");
 		}
 
 		return false;
@@ -378,7 +378,7 @@ bool find_aog_assets(
 
 	if (is_required)
 	{
-		::Quit("Unsupported \"" + title + "\" assets.");
+		Quit("Unsupported \"" + title + "\" assets.");
 	}
 
 	return false;
@@ -449,7 +449,7 @@ bool find_ps_assets(
 	{
 		if (is_required)
 		{
-			::Quit("Missing \"" + title + "\" assets.");
+			Quit("Missing \"" + title + "\" assets.");
 		}
 
 		return false;
@@ -461,7 +461,7 @@ bool find_ps_assets(
 	{
 		if (is_required)
 		{
-			::Quit("Failed to calculate hashes for \"" + title + "\" assets.");
+			Quit("Failed to calculate hashes for \"" + title + "\" assets.");
 		}
 
 		return false;
@@ -482,7 +482,7 @@ bool find_ps_assets(
 
 	if (is_required)
 	{
-		::Quit("Unsupported \"" + title + "\" assets.");
+		Quit("Unsupported \"" + title + "\" assets.");
 	}
 
 	return false;
@@ -524,20 +524,20 @@ void find_any_assets()
 		return;
 	}
 
-	::Quit("No assets.");
+	Quit("No assets.");
 }
 
 void find_assets()
 {
-	if (::g_args.has_option("aog"))
+	if (g_args.has_option("aog"))
 	{
 		static_cast<void>(find_aog_full_assets(true));
 	}
-	else if (::g_args.has_option("ps"))
+	else if (g_args.has_option("ps"))
 	{
 		static_cast<void>(find_ps_assets(true));
 	}
-	else if (::g_args.has_option("aog_sw"))
+	else if (g_args.has_option("aog_sw"))
 	{
 		static_cast<void>(find_aog_sw_assets(true));
 	}
@@ -623,15 +623,15 @@ void SetupWalls()
 
 	for (int i = 1; i < MAXWALLTILES; ++i)
 	{
-		::horizwall[i] = static_cast<std::int16_t>((i - 1) * 2);
-		::vertwall[i] = ::horizwall[i] + 1;
+		horizwall[i] = static_cast<std::int16_t>((i - 1) * 2);
+		vertwall[i] = horizwall[i] + 1;
 	}
 
 	WallHeight().swap(wallheight);
-	wallheight.resize(::vga_width);
+	wallheight.resize(vga_width);
 
 
-	const int k_half_height = ::vga_height / 2;
+	const int k_half_height = vga_height / 2;
 
 	SpanStart().swap(spanstart);
 	spanstart.resize(k_half_height);
@@ -667,10 +667,10 @@ void CAL_SetupAudioFile()
 	// load maphead.ext (offsets and tileinfo for map file)
 	//
 #ifndef AUDIOHEADERLINKED
-	::ca_open_resource(Assets::get_audio_header_base_name(), handle);
+	ca_open_resource(Assets::get_audio_header_base_name(), handle);
 	auto length = static_cast<std::int32_t>(handle.get_size());
-	::audiostarts = new std::int32_t[length / 4];
-	handle.read(::audiostarts, length);
+	audiostarts = new std::int32_t[length / 4];
+	handle.read(audiostarts, length);
 	handle.close();
 #else
 	// TODO Remove or fix
@@ -682,14 +682,14 @@ void CAL_SetupAudioFile()
 	//
 	// open the data file
 	//
-	::OpenAudioFile();
+	OpenAudioFile();
 }
 
 void CAL_SetupGrFile()
 {
 	if (!check_vgahead_offset_count())
 	{
-		::Quit("Mismatch GFX header offset count.");
+		Quit("Mismatch GFX header offset count.");
 	}
 
 	bstone::FileStream handle;
@@ -699,37 +699,37 @@ void CAL_SetupGrFile()
 	// load ???dict.ext (huffman dictionary for graphics files)
 	//
 
-	::ca_open_resource(Assets::get_gfx_dictionary_base_name(), handle);
-	handle.read(&::grhuffman, sizeof(::grhuffman));
+	ca_open_resource(Assets::get_gfx_dictionary_base_name(), handle);
+	handle.read(&::grhuffman, sizeof(grhuffman));
 
 	//
 	// load the data offsets from ???head.ext
 	//
 	int grstarts_size = (NUMCHUNKS + 1) * FILEPOSSIZE;
 
-	::grstarts = new std::int32_t[(grstarts_size + 3) / 4];
+	grstarts = new std::int32_t[(grstarts_size + 3) / 4];
 
-	::ca_open_resource(Assets::get_gfx_header_base_name(), handle);
-	handle.read(::grstarts, grstarts_size);
+	ca_open_resource(Assets::get_gfx_header_base_name(), handle);
+	handle.read(grstarts, grstarts_size);
 
 	//
 	// Open the graphics file, leaving it open until the game is finished
 	//
-	::ca_open_resource(Assets::get_gfx_data_base_name(), ::grhandle);
+	ca_open_resource(Assets::get_gfx_data_base_name(), grhandle);
 
 	//
 	// load the pic and sprite headers into the arrays in the data segment
 	//
-	::pictable = new pictabletype[NUMPICS];
-	::CAL_GetGrChunkLength(STRUCTPIC); // position file pointer
+	pictable = new pictabletype[NUMPICS];
+	CAL_GetGrChunkLength(STRUCTPIC); // position file pointer
 	compseg = new std::uint8_t[::chunkcomplen];
-	::grhandle.read(compseg, ::chunkcomplen);
+	grhandle.read(compseg, chunkcomplen);
 
-	::CAL_HuffExpand(
+	CAL_HuffExpand(
 		compseg,
 		reinterpret_cast<std::uint8_t*>(pictable),
 		NUMPICS * sizeof(pictabletype),
-		::grhuffman);
+		grhuffman);
 
 	delete[] compseg;
 }
@@ -742,8 +742,8 @@ static void cal_setup_map_data_file()
 
 	if (!::mod_dir_.empty())
 	{
-		const auto& modded_hash = ::ca_calculate_hash(
-			::mod_dir_, Assets::get_map_data_base_name(), assets_info.get_extension());
+		const auto& modded_hash = ca_calculate_hash(
+			mod_dir_, Assets::get_map_data_base_name(), assets_info.get_extension());
 
 		if (!modded_hash.empty())
 		{
@@ -753,7 +753,7 @@ static void cal_setup_map_data_file()
 
 			if (are_official_levels && modded_hash != assets_info.get_levels_hash_string())
 			{
-				::Quit("Mismatch official levels are not allowed in the mod directory.");
+				Quit("Mismatch official levels are not allowed in the mod directory.");
 			}
 
 			assets_info.set_levels_hash(modded_hash);
@@ -767,7 +767,7 @@ static void cal_setup_map_data_file()
 		assets_info.set_levels_hash(official_hash);
 	}
 
-	::OpenMapFile();
+	OpenMapFile();
 }
 
 void CAL_SetupMapFile()
@@ -784,7 +784,7 @@ void CAL_SetupMapFile()
 	// load maphead.ext (offsets and tileinfo for map file)
 	//
 
-	::ca_open_resource(Assets::get_map_header_base_name(), handle);
+	ca_open_resource(Assets::get_map_header_base_name(), handle);
 	handle.read(&header.RLEWtag, sizeof(header.RLEWtag));
 	handle.read(&header.headeroffsets, sizeof(header.headeroffsets));
 
@@ -858,8 +858,8 @@ void CheckForEpisodes()
 	{
 		for (int i = 1; i < 6; ++i)
 		{
-			::NewEmenu[i].active = AT_ENABLED;
-			::EpisodeSelect[i] = 1;
+			NewEmenu[i].active = AT_ENABLED;
+			EpisodeSelect[i] = 1;
 		}
 	}
 }
@@ -871,12 +871,12 @@ extern char bc_buffer[];
 
 void PreDemo()
 {
-	if (::g_no_intro_outro || ::g_no_screens)
+	if (g_no_intro_outro || g_no_screens)
 	{
 		return;
 	}
 
-	::vid_is_movie = true;
+	vid_is_movie = true;
 
 	VL_SetPaletteIntensity(0, 255, vgapal, 0);
 
@@ -915,7 +915,7 @@ void PreDemo()
 
 		// Cleanup screen for upcoming SetPalette call
 		//
-		::VL_Bar(0, 0, 320, 200, 0);
+		VL_Bar(0, 0, 320, 200, 0);
 	}
 
 	// ---------------------
@@ -930,7 +930,7 @@ void PreDemo()
 	//
 	CA_CacheAudioChunk(STARTMUSIC + APOGFNFM_MUS);
 
-	::sd_start_music(APOGFNFM_MUS);
+	sd_start_music(APOGFNFM_MUS);
 
 	// Cache and set palette.  AND  Fade it in!
 	//
@@ -950,7 +950,7 @@ void PreDemo()
 
 	// Wait for end of fanfare
 	//
-	if (::sd_is_music_enabled_)
+	if (sd_is_music_enabled_)
 	{
 		IN_StartAck();
 		while ((!sd_sq_played_once_) && (!IN_CheckAck()))
@@ -974,11 +974,11 @@ void PreDemo()
 	if (assets_info.is_ps())
 	{
 		// Do A Blue Flash!
-		::VL_FadeOut(0, 255, 25, 29, 53, 20);
+		VL_FadeOut(0, 255, 25, 29, 53, 20);
 	}
 	else
 	{
-		::VL_FadeOut(0, 255, 0, 0, 0, 30);
+		VL_FadeOut(0, 255, 0, 0, 0, 30);
 	}
 
 	// ---------------------
@@ -988,13 +988,13 @@ void PreDemo()
 	// Load and start music
 	//
 	CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
-	::sd_start_music(TITLE_LOOP_MUSIC);
+	sd_start_music(TITLE_LOOP_MUSIC);
 
 	// Show JAM logo
 	//
 	if (!::DoMovie(MovieId::intro))
 	{
-		::Quit("JAM animation (IANIM.xxx) does not exist.");
+		Quit("JAM animation (IANIM.xxx) does not exist.");
 	}
 
 	// ---------------------
@@ -1010,21 +1010,21 @@ void PreDemo()
 
 	if (assets_info.is_aog())
 	{
-		::VL_FadeOut(0, 255, 39, 0, 0, 20);
+		VL_FadeOut(0, 255, 39, 0, 0, 20);
 	}
 	else
 	{
-		::VL_FadeOut(0, 255, 0, 0, 0, 20);
+		VL_FadeOut(0, 255, 0, 0, 0, 20);
 	}
 
 	VW_FadeOut();
 
-	::vid_is_movie = false;
+	vid_is_movie = false;
 }
 
 void InitGame()
 {
-	::vid_is_movie = true;
+	vid_is_movie = true;
 
 	std::int16_t i, x, y;
 	std::uint16_t* blockstart;
@@ -1035,13 +1035,13 @@ void InitGame()
 	{
 		const auto& debug_dump_walls_images_option_name = std::string{"debug_dump_walls_images"};
 
-		if (::g_args.has_option(debug_dump_walls_images_option_name))
+		if (g_args.has_option(debug_dump_walls_images_option_name))
 		{
-			const auto& dump_dir = ::g_args.get_option_value(debug_dump_walls_images_option_name);
+			const auto& dump_dir = g_args.get_option_value(debug_dump_walls_images_option_name);
 
-			::ca_dump_walls_images(dump_dir);
+			ca_dump_walls_images(dump_dir);
 
-			::Quit();
+			Quit();
 			return;
 		}
 	}
@@ -1049,19 +1049,19 @@ void InitGame()
 	{
 		const auto& debug_dump_sprites_images_option_name = std::string{"debug_dump_sprites_images"};
 
-		if (::g_args.has_option(debug_dump_sprites_images_option_name))
+		if (g_args.has_option(debug_dump_sprites_images_option_name))
 		{
-			const auto& dump_dir = ::g_args.get_option_value(debug_dump_sprites_images_option_name);
+			const auto& dump_dir = g_args.get_option_value(debug_dump_sprites_images_option_name);
 
-			::ca_dump_sprites_images(dump_dir);
+			ca_dump_sprites_images(dump_dir);
 
-			::Quit();
+			Quit();
 			return;
 		}
 	}
 
-	::ReadConfig();
-	::read_high_scores();
+	ReadConfig();
+	read_high_scores();
 
 	VW_Startup();
 	IN_Startup();
@@ -1118,7 +1118,7 @@ void InitGame()
 
 	InitRedShifts();
 
-	::vid_is_movie = false;
+	vid_is_movie = false;
 }
 
 std::uint16_t scan_atoi(
@@ -1148,7 +1148,7 @@ static void dump_version()
 
 	// Message box.
 	//
-	static_cast<void>(::SDL_ShowSimpleMessageBox(
+	static_cast<void>(SDL_ShowSimpleMessageBox(
 		SDL_MESSAGEBOX_INFORMATION,
 		"BStone",
 		message.c_str(),
@@ -1158,65 +1158,65 @@ static void dump_version()
 
 void freed_main()
 {
-	if (::g_args.has_option("version"))
+	if (g_args.has_option("version"))
 	{
-		::dump_version();
-		::Quit();
+		dump_version();
+		Quit();
 	}
 
 	// Setup for APOGEECD thingie.
 	//
-	::InitDestPath();
+	InitDestPath();
 
 	bstone::logger_->write();
-	bstone::logger_->write("Data path: \"" + ::data_dir_ + "\"");
-	bstone::logger_->write("Mod path: \"" + ::mod_dir_ + "\"");
-	bstone::logger_->write("Profile path: \"" + ::get_profile_dir() + "\"");
+	bstone::logger_->write("Data path: \"" + data_dir_ + "\"");
+	bstone::logger_->write("Mod path: \"" + mod_dir_ + "\"");
+	bstone::logger_->write("Profile path: \"" + get_profile_dir() + "\"");
 
 	// BBi
-	if (::g_args.has_option("debug_dump_hashes"))
+	if (g_args.has_option("debug_dump_hashes"))
 	{
-		::ca_dump_hashes();
-		::Quit();
+		ca_dump_hashes();
+		Quit();
 	}
 
 	// Make sure there's room to play the game
 	//
-	::CheckDiskSpace(DISK_SPACE_NEEDED, CANT_PLAY_TXT, cds_dos_print);
+	CheckDiskSpace(DISK_SPACE_NEEDED, CANT_PLAY_TXT, cds_dos_print);
 
 	// Which version is this? (SHAREWARE? 1-3? 1-6?)
 	//
-	::CheckForEpisodes();
+	CheckForEpisodes();
 
 	// BBi
-	::initialize_sprites();
-	::initialize_gfxv_contants();
-	::initialize_states();
-	::initialize_tp_shape_table();
-	::initialize_tp_animation_table();
-	::initialize_audio_constants();
-	::initialize_songs();
-	::initialize_static_info_constants();
-	::initialize_weapon_constants();
-	::initialize_grenade_shape_constants();
-	::initialize_static_health_table();
-	::initialize_boss_constants();
-	::initialize_messages();
-	::initialize_ca_constants();
-	::gamestuff.initialize();
+	initialize_sprites();
+	initialize_gfxv_contants();
+	initialize_states();
+	initialize_tp_shape_table();
+	initialize_tp_animation_table();
+	initialize_audio_constants();
+	initialize_songs();
+	initialize_static_info_constants();
+	initialize_weapon_constants();
+	initialize_grenade_shape_constants();
+	initialize_static_health_table();
+	initialize_boss_constants();
+	initialize_messages();
+	initialize_ca_constants();
+	gamestuff.initialize();
 	gamestate.initialize();
 
-	if (::g_args.has_option("no_screens"))
+	if (g_args.has_option("no_screens"))
 	{
-		::g_no_screens = true;
+		g_no_screens = true;
 	}
 
-	if (::g_args.has_option("cheats"))
+	if (g_args.has_option("cheats"))
 	{
-		::DebugOk = true;
+		DebugOk = true;
 	}
 
-	::InitGame();
+	InitGame();
 
-	::PreDemo();
+	PreDemo();
 }

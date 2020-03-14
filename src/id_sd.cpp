@@ -34,10 +34,10 @@ Free Software Foundation, Inc.,
 #include "bstone_string_helper.h"
 
 
-std::uint16_t sd_start_pc_sounds_ = ::STARTPCSOUNDS;
-std::uint16_t sd_start_al_sounds_ = ::STARTADLIBSOUNDS;
+std::uint16_t sd_start_pc_sounds_ = STARTPCSOUNDS;
+std::uint16_t sd_start_al_sounds_ = STARTADLIBSOUNDS;
 
-std::int16_t sd_last_sound_ = ::LASTSOUND;
+std::int16_t sd_last_sound_ = LASTSOUND;
 std::int16_t sd_digi_map_[::LASTSOUND];
 
 
@@ -69,8 +69,8 @@ bool sd_sq_played_once_;
 static int sd_music_index_ = -1;
 static bstone::AudioMixer sd_mixer_;
 
-int sd_sfx_volume_ = ::sd_default_sfx_volume;
-int sd_music_volume_ = ::sd_default_music_volume;
+int sd_sfx_volume_ = sd_default_sfx_volume;
+int sd_music_volume_ = sd_default_music_volume;
 
 
 const std::string& sd_get_snd_string()
@@ -101,7 +101,7 @@ void sd_log(
 void sd_log_error(
 	const std::string& message)
 {
-	::sd_log(bstone::LoggerMessageKind::error, message);
+	sd_log(bstone::LoggerMessageKind::error, message);
 }
 
 
@@ -129,7 +129,7 @@ void sd_setup_digi()
 	sd_digi_list_ = new std::uint16_t[i * 2];
 
 	const std::uint16_t* src_list = static_cast<const std::uint16_t*>(
-		::PM_GetPage(ChunksInFile - 1));
+		PM_GetPage(ChunksInFile - 1));
 
 	for (auto j = 0; j < (i * 2); ++j)
 	{
@@ -145,7 +145,7 @@ void sd_setup_digi()
 // Determines if there's an AdLib (or SoundBlaster emulating an AdLib) present
 static bool sd_detect_ad_lib()
 {
-	const auto& snd_is_disabled_string = ::g_args.get_option_value("snd_is_disabled");
+	const auto& snd_is_disabled_string = g_args.get_option_value("snd_is_disabled");
 
 	if (snd_is_disabled_string.empty())
 	{
@@ -167,20 +167,20 @@ bool sd_enable_sound(
 {
 	auto is_enabled = enable;
 
-	::sd_stop_sound();
+	sd_stop_sound();
 
 	if (is_enabled && !::sd_has_audio_)
 	{
 		is_enabled = false;
 	}
 
-	::sd_sound_table_ = &::audiosegs[::sd_start_al_sounds_];
+	sd_sound_table_ = &::audiosegs[::sd_start_al_sounds_];
 
-	::sd_is_sound_enabled_ = is_enabled;
+	sd_is_sound_enabled_ = is_enabled;
 
 	if (is_enabled)
 	{
-		::sd_set_sfx_volume(::sd_sfx_volume_);
+		sd_set_sfx_volume(sd_sfx_volume_);
 	}
 
 	return is_enabled;
@@ -189,78 +189,78 @@ bool sd_enable_sound(
 bool sd_enable_music(
 	const bool enable)
 {
-	::sd_music_off();
+	sd_music_off();
 
-	::sd_is_music_enabled_ = enable;
+	sd_is_music_enabled_ = enable;
 
 	return enable;
 }
 
 void sd_startup()
 {
-	if (::sd_started_)
+	if (sd_started_)
 	{
 		return;
 	}
 
-	::sd_log();
-	::sd_log("Initializing audio");
-	::sd_log("------------------");
+	sd_log();
+	sd_log("Initializing audio");
+	sd_log("------------------");
 
-	::sd_has_audio_ = ::sd_detect_ad_lib();
+	sd_has_audio_ = sd_detect_ad_lib();
 
-	if (::sd_has_audio_)
+	if (sd_has_audio_)
 	{
 		auto snd_rate = 0;
 		auto snd_mix_size = 0;
 
 		{
-			const auto& snd_rate_string = ::g_args.get_option_value("snd_rate");
+			const auto& snd_rate_string = g_args.get_option_value("snd_rate");
 
 			static_cast<void>(bstone::StringHelper::string_to_int(snd_rate_string, snd_rate));
 		}
 
 		{
-			const auto& snd_mix_size_string = ::g_args.get_option_value("snd_mix_size");
+			const auto& snd_mix_size_string = g_args.get_option_value("snd_mix_size");
 
 			static_cast<void>(bstone::StringHelper::string_to_int(snd_mix_size_string, snd_mix_size));
 		}
 
-		if (::sd_mixer_.initialize(snd_rate, snd_mix_size))
+		if (sd_mixer_.initialize(snd_rate, snd_mix_size))
 		{
-			::sd_log("Channel count: " + std::to_string(::sd_mixer_.get_channel_count()));
-			::sd_log("Sample rate: " + std::to_string(::sd_mixer_.get_rate()) + " Hz");
-			::sd_log("Mix size: " + std::to_string(::sd_mixer_.get_mix_size_ms()) + " ms");
-			::sd_log("Effects volume: " + std::to_string(::sd_sfx_volume_) + " / " + std::to_string(::sd_max_volume));
-			::sd_log("Music volume: " + std::to_string(::sd_music_volume_) + " / " + std::to_string(::sd_max_volume));
+			sd_log("Channel count: " + std::to_string(sd_mixer_.get_channel_count()));
+			sd_log("Sample rate: " + std::to_string(sd_mixer_.get_rate()) + " Hz");
+			sd_log("Mix size: " + std::to_string(sd_mixer_.get_mix_size_ms()) + " ms");
+			sd_log("Effects volume: " + std::to_string(sd_sfx_volume_) + " / " + std::to_string(sd_max_volume));
+			sd_log("Music volume: " + std::to_string(sd_music_volume_) + " / " + std::to_string(sd_max_volume));
 		}
 		else
 		{
-			::sd_log_error("Failed to initialize mixer.");
+			sd_log_error("Failed to initialize mixer.");
 		}
 	}
 	else
 	{
-		::sd_log("Audio subsystem disabled.");
+		sd_log("Audio subsystem disabled.");
 
-		::sd_mixer_.uninitialize();
+		sd_mixer_.uninitialize();
 	}
 
-	::sd_setup_digi();
+	sd_setup_digi();
 
-	::sd_started_ = true;
+	sd_started_ = true;
 
 
-	if (::sd_has_audio_)
+	if (sd_has_audio_)
 	{
-		if (::sd_is_sound_enabled_)
+		if (sd_is_sound_enabled_)
 		{
-			::sd_enable_sound(true);
+			sd_enable_sound(true);
 		}
 
-		if (::sd_is_music_enabled_)
+		if (sd_is_music_enabled_)
 		{
-			::sd_enable_music(true);
+			sd_enable_music(true);
 		}
 	}
 }
@@ -277,7 +277,7 @@ void sd_shutdown()
 	// Free music data
 	for (int i = 0; i < LASTMUSIC; ++i)
 	{
-		delete[] static_cast<std::uint8_t*>(::audiosegs[STARTMUSIC + i]);
+		delete[] static_cast<std::uint8_t*>(audiosegs[STARTMUSIC + i]);
 	}
 
 	sd_started_ = false;
@@ -286,9 +286,9 @@ void sd_shutdown()
 // Returns the sound number that's playing, or 0 if no sound is playing
 bool sd_sound_playing()
 {
-	if (::sd_is_sound_enabled_)
+	if (sd_is_sound_enabled_)
 	{
-		return ::sd_mixer_.is_any_sfx_playing();
+		return sd_mixer_.is_any_sfx_playing();
 	}
 	else
 	{
@@ -299,59 +299,59 @@ bool sd_sound_playing()
 // If a sound is playing, stops it.
 void sd_stop_sound()
 {
-	::sd_mixer_.stop_all_sfx();
+	sd_mixer_.stop_all_sfx();
 }
 
 // Waits until the current sound is done playing.
 void sd_wait_sound_done()
 {
-	while (::sd_sound_playing())
+	while (sd_sound_playing())
 	{
-		::sys_default_sleep_for();
+		sys_default_sleep_for();
 	}
 }
 
 // Turns on the sequencer.
 void sd_music_on()
 {
-	::sd_sq_active_ = true;
-	::sd_mixer_.play_adlib_music(sd_music_index_, sd_sq_hack_, sd_sq_hack_len_);
+	sd_sq_active_ = true;
+	sd_mixer_.play_adlib_music(sd_music_index_, sd_sq_hack_, sd_sq_hack_len_);
 }
 
 // Turns off the sequencer and any playing notes.
 void sd_music_off()
 {
-	::sd_sq_active_ = false;
-	::sd_mixer_.stop_music();
+	sd_sq_active_ = false;
+	sd_mixer_.stop_music();
 }
 
 // Starts playing the music pointed to.
 void sd_start_music(
 	const int index)
 {
-	::sd_music_off();
+	sd_music_off();
 
-	::sd_sq_played_once_ = false;
+	sd_sq_played_once_ = false;
 
-	if (::sd_is_music_enabled_)
+	if (sd_is_music_enabled_)
 	{
-		::sd_music_index_ = index;
+		sd_music_index_ = index;
 
 		auto music_data = reinterpret_cast<std::uint16_t*>(
-			::audiosegs[STARTMUSIC + index]);
+			audiosegs[STARTMUSIC + index]);
 
 		auto length = bstone::Endian::little(music_data[0]) + 2;
 
-		::sd_sq_hack_ = music_data;
-		::sd_sq_hack_len_ = static_cast<std::uint16_t>(length);
+		sd_sq_hack_ = music_data;
+		sd_sq_hack_len_ = static_cast<std::uint16_t>(length);
 
-		::sd_set_music_volume(::sd_music_volume_);
+		sd_set_music_volume(sd_music_volume_);
 
-		::sd_music_on();
+		sd_music_on();
 	}
 	else
 	{
-		::sd_sq_played_once_ = true;
+		sd_sq_played_once_ = true;
 	}
 }
 
@@ -402,9 +402,9 @@ void sd_play_sound(
 		return;
 	}
 
-	if (::sd_is_sound_enabled_ && !sound)
+	if (sd_is_sound_enabled_ && !sound)
 	{
-		::Quit("Uncached sound.");
+		Quit("Uncached sound.");
 	}
 
 	int priority = bstone::Endian::little(sound->priority);
@@ -415,7 +415,7 @@ void sd_play_sound(
 	{
 		int digi_page = sd_digi_list_[(2 * digi_index) + 0];
 		int digi_length = sd_digi_list_[(2 * digi_index) + 1];
-		const void* digi_data = ::PM_GetSoundPage(digi_page);
+		const void* digi_data = PM_GetSoundPage(digi_page);
 
 		sd_mixer_.play_pcm_sound(digi_index, priority, digi_data, digi_length,
 			actor_index, actor_type, actor_channel);
@@ -495,17 +495,17 @@ void sd_set_sfx_volume(
 {
 	auto new_volume = volume;
 
-	if (new_volume < ::sd_min_volume)
+	if (new_volume < sd_min_volume)
 	{
-		new_volume = ::sd_min_volume;
+		new_volume = sd_min_volume;
 	}
 
-	if (new_volume > ::sd_max_volume)
+	if (new_volume > sd_max_volume)
 	{
-		new_volume = ::sd_max_volume;
+		new_volume = sd_max_volume;
 	}
 
-	sd_mixer_.set_sfx_volume(static_cast<float>(new_volume) / ::sd_max_volume);
+	sd_mixer_.set_sfx_volume(static_cast<float>(new_volume) / sd_max_volume);
 }
 
 void sd_set_music_volume(
@@ -513,23 +513,23 @@ void sd_set_music_volume(
 {
 	auto new_volume = volume;
 
-	if (new_volume < ::sd_min_volume)
+	if (new_volume < sd_min_volume)
 	{
-		new_volume = ::sd_min_volume;
+		new_volume = sd_min_volume;
 	}
 
-	if (new_volume > ::sd_max_volume)
+	if (new_volume > sd_max_volume)
 	{
-		new_volume = ::sd_max_volume;
+		new_volume = sd_max_volume;
 	}
 
-	sd_mixer_.set_music_volume(static_cast<float>(new_volume) / ::sd_max_volume);
+	sd_mixer_.set_music_volume(static_cast<float>(new_volume) / sd_max_volume);
 }
 
 void sd_mute(
 	const bool mute)
 {
-	::sd_mixer_.set_mute(mute);
+	sd_mixer_.set_mute(mute);
 }
 
 // BBi

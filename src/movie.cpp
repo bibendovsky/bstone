@@ -229,16 +229,16 @@ void Movie::initialize(
 
 	palette_ = palette;
 
-	::JM_VGALinearFill(0, ::vga_ref_width * ::vga_ref_height, 0);
+	JM_VGALinearFill(0, vga_ref_width * vga_ref_height, 0);
 
-	::VL_FillPalette(0, 0, 0);
+	VL_FillPalette(0, 0, 0);
 
 	// Find out how much memory we have to work with.
 	buffer_.resize(max_buffer_size);
 
 	archiver_ = bstone::ArchiverFactory::create();
 
-	::IN_ClearKeysDown();
+	IN_ClearKeysDown();
 }
 
 void Movie::uninitialize()
@@ -253,16 +253,16 @@ void Movie::jm_draw_block(
 	const char* const source,
 	const int length)
 {
-	auto x = byte_offset % ::vga_ref_width;
-	auto y = byte_offset / ::vga_ref_width;
+	auto x = byte_offset % vga_ref_width;
+	auto y = byte_offset / vga_ref_width;
 
 	for (int i = 0; i < length; ++i)
 	{
-		::VL_Plot(x, y, static_cast<std::uint8_t>(source[i]));
+		VL_Plot(x, y, static_cast<std::uint8_t>(source[i]));
 
 		++x;
 
-		if (x == ::vga_ref_width)
+		if (x == vga_ref_width)
 		{
 			x = 0;
 			++y;
@@ -381,7 +381,7 @@ void Movie::handle_page(
 
 	auto frame = buffer_ptr_;
 
-	::IN_ReadControl(0, &control_info_);
+	IN_ReadControl(0, &control_info_);
 
 	switch (blk.code)
 	{
@@ -392,7 +392,7 @@ void Movie::handle_page(
 
 		const auto sound_chunk = bstone::Endian::little(*reinterpret_cast<const std::uint16_t*>(frame));
 
-		::sd_play_player_sound(sound_chunk, bstone::ActorChannel::item);
+		sd_play_player_sound(sound_chunk, bstone::ActorChannel::item);
 
 		buffer_ptr_ += blk.recsize;
 	}
@@ -402,9 +402,9 @@ void Movie::handle_page(
 		// Fade In Page
 		//
 
-		::VL_FadeIn(0, 255, palette_, 30);
+		VL_FadeIn(0, 255, palette_, 30);
 		is_ever_faded_ = true;
-		::screenfaded = false;
+		screenfaded = false;
 		break;
 
 	case AN_FADE_OUT_FRAME:
@@ -412,19 +412,19 @@ void Movie::handle_page(
 		//
 
 		VW_FadeOut();
-		::screenfaded = true;
+		screenfaded = true;
 		break;
 
 	case AN_PAUSE: // Pause
 	{
 		const auto vbls = bstone::Endian::little(*reinterpret_cast<const std::uint16_t*>(frame));
 
-		::IN_UserInput(vbls);
+		IN_UserInput(vbls);
 
 		buffer_ptr_ += blk.recsize;
 
 		// BBi
-		::IN_ClearKeysDown();
+		IN_ClearKeysDown();
 		control_info_ = {};
 		// BBi
 	}
@@ -441,14 +441,14 @@ void Movie::handle_page(
 			// Set READ flag to skip the first frame on an anim repeat
 			flag_ = Flag::none;
 
-			::JM_VGALinearFill(0, ::vga_ref_width * ::vga_ref_height, *frame);
+			JM_VGALinearFill(0, vga_ref_width * vga_ref_height, *frame);
 
 			++frame;
 		}
 
 		show_frame(frame);
 
-		::VL_RefreshScreen();
+		VL_RefreshScreen();
 
 		if (TimeCount < static_cast<std::uint32_t>(descriptor.tick_delay_))
 		{
@@ -472,18 +472,18 @@ void Movie::handle_page(
 				wait_time *= 1000;
 				wait_time /= TickBase;
 
-				::sys_sleep_for(wait_time);
+				sys_sleep_for(wait_time);
 			}
 		}
 		else
 		{
-			::sys_sleep_for(1000 / TickBase);
+			sys_sleep_for(1000 / TickBase);
 		}
 
-		::TimeCount = 0;
+		TimeCount = 0;
 
 		if (!::screenfaded &&
-			(control_info_.button0 || control_info_.button1 || ::LastScan != ScanCode::sc_none))
+			(control_info_.button0 || control_info_.button1 || LastScan != ScanCode::sc_none))
 		{
 			is_exit_ = true;
 
@@ -492,7 +492,7 @@ void Movie::handle_page(
 				// This needs to be a passed flag...
 
 				VW_FadeOut();
-				::screenfaded = true;
+				screenfaded = true;
 			}
 		}
 		break;
@@ -503,7 +503,7 @@ void Movie::handle_page(
 		break;
 
 	default:
-		::Quit("Unrecognized anim code.");
+		Quit("Unrecognized anim code.");
 	}
 }
 
@@ -521,7 +521,7 @@ bool Movie::play(
 	// Start the anim process
 	//
 
-	::ca_open_resource(descriptor.file_base_name_, file_stream_);
+	ca_open_resource(descriptor.file_base_name_, file_stream_);
 
 	if (!file_stream_.is_open())
 	{
@@ -551,7 +551,7 @@ bool Movie::play(
 	}
 	catch (const bstone::ArchiverException& ex)
 	{
-		::Quit(ex.what());
+		Quit(ex.what());
 	}
 
 	uninitialize();

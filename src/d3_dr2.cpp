@@ -107,9 +107,9 @@ void AsmRefresh()
 	int yint; // temporary yintercept
 	int yint_h; // high part of temporary yintercept
 
-	::vid_hw_clear_wall_render_list();
-	::vid_hw_clear_pushwall_render_list();
-	::vid_hw_clear_door_render_list();
+	vid_hw_clear_wall_render_list();
+	vid_hw_clear_pushwall_render_list();
+	vid_hw_clear_door_render_list();
 
 	pixx = 0;
 
@@ -530,7 +530,7 @@ horizentry:
 nextpix:
 	++pixx;
 
-	if (pixx < ::viewwidth)
+	if (pixx < viewwidth)
 	{
 		goto pixxloop;
 	}

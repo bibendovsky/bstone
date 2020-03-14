@@ -512,7 +512,7 @@ bool AudioMixer::Impl::initialize(
 
 	auto dst_spec = SDL_AudioSpec{};
 
-	device_id_ = ::SDL_OpenAudioDevice(
+	device_id_ = SDL_OpenAudioDevice(
 		nullptr,
 		0,
 		&src_spec,
@@ -550,7 +550,7 @@ bool AudioMixer::Impl::initialize(
 		modified_actors_indices_.reserve(MAXACTORS);
 		modified_doors_indices_.reserve(MAXDOORS);
 
-		::SDL_PauseAudioDevice(device_id_, 0);
+		SDL_PauseAudioDevice(device_id_, 0);
 	}
 	else
 	{
@@ -566,8 +566,8 @@ void AudioMixer::Impl::uninitialize()
 
 	if (device_id_ != 0)
 	{
-		::SDL_PauseAudioDevice(device_id_, 1);
-		::SDL_CloseAudioDevice(device_id_);
+		SDL_PauseAudioDevice(device_id_, 1);
+		SDL_CloseAudioDevice(device_id_);
 		device_id_ = 0;
 	}
 
@@ -669,17 +669,17 @@ bool AudioMixer::Impl::update_positions()
 		auto& the_player = positions_.player;
 
 		is_player_modified =
-			the_player.view_x != ::viewx ||
-			the_player.view_y != ::viewy ||
-			the_player.view_cos != ::viewcos ||
-			the_player.view_sin != ::viewsin;
+			the_player.view_x != viewx ||
+			the_player.view_y != viewy ||
+			the_player.view_cos != viewcos ||
+			the_player.view_sin != viewsin;
 
 		if (is_player_modified)
 		{
-			the_player.view_x = ::viewx;
-			the_player.view_y = ::viewy;
-			the_player.view_cos = ::viewcos;
-			the_player.view_sin = ::viewsin;
+			the_player.view_x = viewx;
+			the_player.view_y = viewy;
+			the_player.view_cos = viewcos;
+			the_player.view_sin = viewsin;
 
 			has_modifications = true;
 		}
@@ -696,13 +696,13 @@ bool AudioMixer::Impl::update_positions()
 		auto& actor = positions_.actors[i];
 
 		const auto is_actor_modified =
-			actor.x != ::objlist[i].x ||
-			actor.y != ::objlist[i].y;
+			actor.x != objlist[i].x ||
+			actor.y != objlist[i].y;
 
 		if (is_actor_modified)
 		{
-			actor.x = ::objlist[i].x;
-			actor.y = ::objlist[i].y;
+			actor.x = objlist[i].x;
+			actor.y = objlist[i].y;
 
 			has_modifications = true;
 			modified_actors_indices_.emplace_back(i);
@@ -717,8 +717,8 @@ bool AudioMixer::Impl::update_positions()
 	{
 		auto& door = positions_.doors[i];
 
-		const auto x = (::doorobjlist[i].tilex << TILESHIFT) + (1 << (TILESHIFT - 1));
-		const auto y = (::doorobjlist[i].tiley << TILESHIFT) + (1 << (TILESHIFT - 1));
+		const auto x = (doorobjlist[i].tilex << TILESHIFT) + (1 << (TILESHIFT - 1));
+		const auto y = (doorobjlist[i].tiley << TILESHIFT) + (1 << (TILESHIFT - 1));
 
 		const auto is_door_modified =
 			door.x != x ||
@@ -739,12 +739,12 @@ bool AudioMixer::Impl::update_positions()
 	auto is_push_wall_modified = false;
 
 	{
-		auto x = (::pwallx << TILESHIFT) + (1 << (TILESHIFT - 1));
-		auto y = (::pwally << TILESHIFT) + (1 << (TILESHIFT - 1));
+		auto x = (pwallx << TILESHIFT) + (1 << (TILESHIFT - 1));
+		auto y = (pwally << TILESHIFT) + (1 << (TILESHIFT - 1));
 
-		const auto wall_offset = (65535 * ::pwallpos) / 63;
+		const auto wall_offset = (65535 * pwallpos) / 63;
 
-		switch (::pwalldir)
+		switch (pwalldir)
 		{
 		case di_east:
 			x += wall_offset;
@@ -1072,7 +1072,7 @@ void AudioMixer::Impl::mix_samples()
 			{
 				if (sound_it->type == SoundType::adlib_music)
 				{
-					::sd_sq_played_once_ = true;
+					sd_sq_played_once_ = true;
 					sound_it->decode_offset = 0;
 				}
 				else
@@ -1449,15 +1449,15 @@ void AudioMixer::Impl::spatialize_sound(
 	//
 	// calculate newx
 	//
-	auto xt = ::FixedByFrac(gx, mt_positions_.player.view_cos);
-	auto yt = ::FixedByFrac(gy, mt_positions_.player.view_sin);
+	auto xt = FixedByFrac(gx, mt_positions_.player.view_cos);
+	auto yt = FixedByFrac(gy, mt_positions_.player.view_sin);
 	auto x = (xt - yt) >> TILESHIFT;
 
 	//
 	// calculate newy
 	//
-	xt = ::FixedByFrac(gx, mt_positions_.player.view_sin);
-	yt = ::FixedByFrac(gy, mt_positions_.player.view_cos);
+	xt = FixedByFrac(gx, mt_positions_.player.view_sin);
+	yt = FixedByFrac(gy, mt_positions_.player.view_cos);
 
 	auto y = (yt + xt) >> TILESHIFT;
 
@@ -1577,12 +1577,12 @@ bool AudioMixer::Impl::play_sound(
 
 void AudioMixer::Impl::lock()
 {
-	::SDL_LockAudioDevice(device_id_);
+	SDL_LockAudioDevice(device_id_);
 }
 
 void AudioMixer::Impl::unlock()
 {
-	::SDL_UnlockAudioDevice(device_id_);
+	SDL_UnlockAudioDevice(device_id_);
 }
 
 void AudioMixer::Impl::callback_proxy(

@@ -45,19 +45,19 @@ namespace bstone
 bool FizzleFX::present(
 	const bool trigger_fade)
 {
-	if (::vid_is_hw_ && !is_vanilla_only())
+	if (vid_is_hw_ && !is_vanilla_only())
 	{
-		::vid_hw_enable_fizzle_fx(true);
-		::vid_hw_set_fizzle_fx_ratio(0.0F);
+		vid_hw_enable_fizzle_fx(true);
+		vid_hw_set_fizzle_fx_ratio(0.0F);
 	}
 
 	if (trigger_fade)
 	{
-		::vid_is_fizzle_fade = true;
+		vid_is_fizzle_fade = true;
 	}
 
 	const auto y_offset = get_y();
-	const auto width = ::vga_ref_width;
+	const auto width = vga_ref_width;
 	const auto height = get_height();
 	const auto frame_count = get_frame_count();
 	const auto area = width * height;
@@ -67,10 +67,10 @@ bool FizzleFX::present(
 	auto remain_pixels = area % frame_count;
 	auto frame = 0;
 
-	::IN_StartAck();
+	IN_StartAck();
 
-	::TimeCount = 0;
-	::LastScan = ScanCode::sc_none;
+	TimeCount = 0;
+	LastScan = ScanCode::sc_none;
 
 	auto is_finished = false;
 	auto is_aborted = false;
@@ -78,7 +78,7 @@ bool FizzleFX::present(
 
 	while (!is_finished)
 	{
-		if (is_abortable() && ::IN_CheckAck())
+		if (is_abortable() && IN_CheckAck())
 		{
 			is_aborted = true;
 			do_full_copy = true;
@@ -90,7 +90,7 @@ bool FizzleFX::present(
 
 			remain_pixels = 0;
 
-			if (::vid_is_hw_ && !is_vanilla_only())
+			if (vid_is_hw_ && !is_vanilla_only())
 			{
 				if ((frame + 1) >= frame_count)
 				{
@@ -100,7 +100,7 @@ bool FizzleFX::present(
 				{
 					const auto ratio = static_cast<float>(frame) / static_cast<float>(frame_count);
 
-					::vid_hw_set_fizzle_fx_ratio(ratio);
+					vid_hw_set_fizzle_fx_ratio(ratio);
 				}
 			}
 			else
@@ -140,21 +140,21 @@ bool FizzleFX::present(
 			skip_to_the_end();
 		}
 
-		::VL_RefreshScreen();
+		VL_RefreshScreen();
 
 		++frame;
 
-		::CalcTics();
+		CalcTics();
 	}
 
 	if (trigger_fade)
 	{
-		::vid_is_fizzle_fade = false;
+		vid_is_fizzle_fade = false;
 	}
 
-	if (::vid_is_hw_ && !is_vanilla_only())
+	if (vid_is_hw_ && !is_vanilla_only())
 	{
-		::vid_hw_enable_fizzle_fx(false);
+		vid_hw_enable_fizzle_fx(false);
 	}
 
 	return is_aborted;

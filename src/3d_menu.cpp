@@ -143,7 +143,7 @@ namespace
 
 std::int16_t COAL_FONT()
 {
-	return ::STARTFONT + 4;
+	return STARTFONT + 4;
 }
 
 
@@ -952,7 +952,7 @@ void binds_initialize_menu()
 
 	if (!has_bindings)
 	{
-		::Quit("No bindings.");
+		Quit("No bindings.");
 	}
 
 	binds_names.clear();
@@ -1615,7 +1615,7 @@ void binds_draw_menu()
 		}
 	}
 
-	::MenuFadeOut();
+	MenuFadeOut();
 }
 
 
@@ -1688,7 +1688,7 @@ void HelpPresenter(
 
 	if (startmusic)
 	{
-		::StartCPMusic(static_cast<std::int16_t>(TEXTSONG));
+		StartCPMusic(static_cast<std::int16_t>(TEXTSONG));
 	}
 
 	// Load, present, and free help text.
@@ -1697,7 +1697,7 @@ void HelpPresenter(
 	TP_Presenter(&pi);
 	TP_FreeScript(&pi, id_cache);
 
-	::MenuFadeOut();
+	MenuFadeOut();
 
 	// Reset view size
 	//
@@ -1708,7 +1708,7 @@ void HelpPresenter(
 
 	if (startmusic && TPscan == ScanCode::sc_escape)
 	{
-		::StartCPMusic(MENUSONG);
+		StartCPMusic(MENUSONG);
 	}
 
 	IN_ClearKeysDown();
@@ -1717,12 +1717,12 @@ void HelpPresenter(
 void US_ControlPanel(
 	ScanCode scancode)
 {
-	::is_full_menu_active = (scancode != ScanCode::sc_f7 && scancode != ScanCode::sc_f10);
+	is_full_menu_active = (scancode != ScanCode::sc_f7 && scancode != ScanCode::sc_f10);
 
 	auto guard_flag = bstone::ScopeGuard{
 		[&]()
 	{
-		::is_full_menu_active = false;
+		is_full_menu_active = false;
 	}
 	};
 
@@ -1747,7 +1747,7 @@ void US_ControlPanel(
 
 	SetupControlPanel();
 
-	::StartCPMusic(MENUSONG);
+	StartCPMusic(MENUSONG);
 
 	//
 	// F-KEYS FROM WITHIN GAME
@@ -1757,22 +1757,22 @@ void US_ControlPanel(
 	switch (scancode)
 	{
 	case ScanCode::sc_f1:
-		::CleanupControlPanel();
-		::HelpScreens();
+		CleanupControlPanel();
+		HelpScreens();
 		return;
 
 	case ScanCode::sc_f2:
-		::CP_SaveGame(0);
+		CP_SaveGame(0);
 		finish = true;
 		break;
 
 	case ScanCode::sc_f3:
-		::CP_LoadGame(0);
+		CP_LoadGame(0);
 		finish = true;
 		break;
 
 	case ScanCode::sc_f4:
-		::CP_Sound(0);
+		CP_Sound(0);
 		finish = true;
 		break;
 
@@ -1787,7 +1787,7 @@ void US_ControlPanel(
 
 	if (finish)
 	{
-		::CleanupControlPanel();
+		CleanupControlPanel();
 		return;
 	}
 
@@ -1952,7 +1952,7 @@ bool CP_CheckQuick(
 	case ScanCode::sc_f7:
 		// BBi
 #if 0
-		VW_ScreenToScreen(PAGE1START, ::bufferofs, 320, 160);
+		VW_ScreenToScreen(PAGE1START, bufferofs, 320, 160);
 #endif
 
 		CA_CacheGrChunk(STARTFONT + 1);
@@ -1975,14 +1975,14 @@ bool CP_CheckQuick(
 		{
 			string = "Quick Save will overwrite:\n\"";
 
-			::CA_CacheGrChunk(STARTFONT + 1);
+			CA_CacheGrChunk(STARTFONT + 1);
 
-			string += ::SaveGameNames[static_cast<int>(::LSItems.curpos)];
+			string += SaveGameNames[static_cast<int>(LSItems.curpos)];
 			string += "\"?";
 
 			// BBi
 #if 0
-			VW_ScreenToScreen(PAGE1START, ::bufferofs, 320, 160);
+			VW_ScreenToScreen(PAGE1START, bufferofs, 320, 160);
 #endif
 
 			if (Confirm(string.c_str()))
@@ -2000,16 +2000,16 @@ bool CP_CheckQuick(
 		{
 			CA_CacheGrChunk(STARTFONT + 1);
 
-			::vid_is_hud = true;
+			vid_is_hud = true;
 			VW_FadeOut();
-			::vid_is_hud = false;
+			vid_is_hud = false;
 
-			::StartCPMusic(MENUSONG);
+			StartCPMusic(MENUSONG);
 
 			pickquick = CP_SaveGame(0);
 
 			lasttimecount = TimeCount;
-			::in_clear_mouse_deltas();
+			in_clear_mouse_deltas();
 		}
 
 		return true;
@@ -2021,14 +2021,14 @@ bool CP_CheckQuick(
 		{
 			string = "Quick Load:\n\"";
 
-			::CA_CacheGrChunk(STARTFONT + 1);
+			CA_CacheGrChunk(STARTFONT + 1);
 
-			string += ::SaveGameNames[static_cast<int>(::LSItems.curpos)];
+			string += SaveGameNames[static_cast<int>(LSItems.curpos)];
 			string += "\"?";
 
 			// BBi
 #if 0
-			VW_ScreenToScreen(PAGE1START, ::bufferofs, 320, 160);
+			VW_ScreenToScreen(PAGE1START, bufferofs, 320, 160);
 #endif
 
 			if (Confirm(string.c_str()))
@@ -2047,16 +2047,16 @@ bool CP_CheckQuick(
 		{
 			CA_CacheGrChunk(STARTFONT + 1);
 
-			::vid_is_hud = true;
+			vid_is_hud = true;
 			VW_FadeOut();
-			::vid_is_hud = false;
+			vid_is_hud = false;
 
-			::StartCPMusic(MENUSONG);
+			StartCPMusic(MENUSONG);
 
 			pickquick = CP_LoadGame(0);
 
 			lasttimecount = TimeCount;
-			::in_clear_mouse_deltas();
+			in_clear_mouse_deltas();
 		}
 
 		if (pickquick)
@@ -2072,7 +2072,7 @@ bool CP_CheckQuick(
 
 		// BBi
 #if 0
-		VW_ScreenToScreen(PAGE1START, ::bufferofs, 320, 160);
+		VW_ScreenToScreen(PAGE1START, bufferofs, 320, 160);
 #endif
 
 		WindowX = WindowY = 0;
@@ -2113,7 +2113,7 @@ void CP_ViewScores(
 {
 	fontnumber = 4;
 
-	::StartCPMusic(static_cast<std::int16_t>(ROSTER_MUS));
+	StartCPMusic(static_cast<std::int16_t>(ROSTER_MUS));
 
 	DrawHighScores();
 	VW_UpdateScreen();
@@ -2122,9 +2122,9 @@ void CP_ViewScores(
 
 	IN_Ack();
 
-	::StartCPMusic(MENUSONG);
+	StartCPMusic(MENUSONG);
 
-	::MenuFadeOut();
+	MenuFadeOut();
 }
 
 void CP_NewGame(
@@ -2148,17 +2148,17 @@ firstpart:
 			switch (which)
 			{
 			case -1:
-				::MenuFadeOut();
+				MenuFadeOut();
 				return;
 
 			default:
 				if (!EpisodeSelect[which])
 				{
-					::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::item);
+					sd_play_player_sound(NOWAYSND, bstone::ActorChannel::item);
 					CacheMessage(READTHIS_TEXT);
 					IN_ClearKeysDown();
 					IN_Ack();
-					VL_Bar(35, 69, 250, 62, ::menu_background_color);
+					VL_Bar(35, 69, 250, 62, menu_background_color);
 					DrawNewEpisode();
 					which = 0;
 				}
@@ -2186,14 +2186,14 @@ firstpart:
 	{
 		if (!Confirm(CURGAME))
 		{
-			::MenuFadeOut();
+			MenuFadeOut();
 			return;
 		}
 	}
 
 secondpart:
 
-	::MenuFadeOut();
+	MenuFadeOut();
 	if (ingame)
 	{
 		CA_CacheScreen(BACKGROUND_SCREENPIC);
@@ -2203,7 +2203,7 @@ secondpart:
 
 	if (which < 0)
 	{
-		::MenuFadeOut();
+		MenuFadeOut();
 
 		if (!assets_info.is_ps())
 		{
@@ -2216,7 +2216,7 @@ secondpart:
 	}
 
 	ShootSnd();
-	::MenuFadeOut();
+	MenuFadeOut();
 	ControlPanelFree();
 
 	if (Breifing(BT_INTRO, episode))
@@ -2290,7 +2290,7 @@ void DrawInstructions(
 	WindowW = 236;
 	WindowH = 8;
 
-	VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, ::menu_background_color);
+	VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, menu_background_color);
 
 	SETFONTCOLOR(TERM_SHADOW_COLOR, TERM_BACK_COLOR);
 	US_PrintCentered(instr[Type]);
@@ -2383,7 +2383,7 @@ void CP_GameOptions(
 
 	} while (which >= 0);
 
-	::MenuFadeOut();
+	MenuFadeOut();
 }
 
 void DrawGopMenu()
@@ -2435,25 +2435,25 @@ void CP_Switches(
 		switch (which)
 		{
 		case SW_LIGHTING:
-			::gp_no_shading_ = !::gp_no_shading_;
+			gp_no_shading_ = !::gp_no_shading_;
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
 
 		case SW_REBA_ATTACK_INFO:
-			::gp_hide_attacker_info_ = !::gp_hide_attacker_info_;
+			gp_hide_attacker_info_ = !::gp_hide_attacker_info_;
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
 
 		case SW_CEILING:
-			::gp_is_ceiling_solid_ = !::gp_is_ceiling_solid_;
+			gp_is_ceiling_solid_ = !::gp_is_ceiling_solid_;
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
 
 		case SW_FLOORS:
-			::gp_is_flooring_solid_ = !::gp_is_flooring_solid_;
+			gp_is_flooring_solid_ = !::gp_is_flooring_solid_;
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
@@ -2491,7 +2491,7 @@ void CP_Switches(
 		}
 	} while (which >= 0);
 
-	::MenuFadeOut();
+	MenuFadeOut();
 }
 
 void DrawSwitchMenu()
@@ -2635,7 +2635,7 @@ void DrawSwitchDescription(
 	WindowW = 236;
 	WindowH = 8;
 
-	VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, ::menu_background_color);
+	VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, menu_background_color);
 
 	SETFONTCOLOR(TERM_SHADOW_COLOR, TERM_BACK_COLOR);
 	US_PrintCentered(instr[which]);
@@ -2669,33 +2669,33 @@ void CP_Sound(
 			// SOUND EFFECTS / DIGITIZED SOUND
 			//
 		case 0:
-			::sd_wait_sound_done();
-			::sd_enable_sound(!::sd_is_sound_enabled_);
+			sd_wait_sound_done();
+			sd_enable_sound(!::sd_is_sound_enabled_);
 
-			if (::sd_is_sound_enabled_)
+			if (sd_is_sound_enabled_)
 			{
-				::CA_LoadAllSounds();
+				CA_LoadAllSounds();
 			}
 
-			::DrawSoundMenu();
+			DrawSoundMenu();
 
-			if (::sd_is_sound_enabled_)
+			if (sd_is_sound_enabled_)
 			{
-				::ShootSnd();
+				ShootSnd();
 			}
 
 			break;
 
 		case 1:
-			::sd_enable_music(!::sd_is_music_enabled_);
+			sd_enable_music(!::sd_is_music_enabled_);
 
-			if (::sd_is_music_enabled_)
+			if (sd_is_music_enabled_)
 			{
-				::StartCPMusic(MENUSONG);
+				StartCPMusic(MENUSONG);
 			}
 
-			::DrawSoundMenu();
-			::ShootSnd();
+			DrawSoundMenu();
+			ShootSnd();
 
 			break;
 
@@ -2704,7 +2704,7 @@ void CP_Sound(
 		}
 	} while (which >= 0);
 
-	::MenuFadeOut();
+	MenuFadeOut();
 }
 
 void DrawSoundMenu()
@@ -2723,8 +2723,8 @@ void DrawSoundMenu()
 
 	if (!::sd_has_audio_)
 	{
-		::SndMenu[0].active = AT_DISABLED;
-		::SndMenu[1].active = AT_DISABLED;
+		SndMenu[0].active = AT_DISABLED;
+		SndMenu[1].active = AT_DISABLED;
 	}
 
 	fontnumber = 2;
@@ -2762,14 +2762,14 @@ void DrawAllSoundLights(
 			switch (i)
 			{
 			case 0:
-				if (::sd_is_sound_enabled_)
+				if (sd_is_sound_enabled_)
 				{
 					++Shape;
 				}
 				break;
 
 			case 1:
-				if (::sd_is_music_enabled_)
+				if (sd_is_music_enabled_)
 				{
 					++Shape;
 				}
@@ -2803,11 +2803,11 @@ void DrawLSAction(
 	screenfaded = true;
 	DrawTopInfo(static_cast<sp_type>(sp_loading + which));
 
-	::VL_Bar(
+	VL_Bar(
 		0,
-		::ref_view_top_y,
-		::vga_ref_width,
-		::ref_view_height,
+		ref_view_top_y,
+		vga_ref_width,
+		ref_view_height,
 		BLACK);
 
 	DisplayPrepingMsg(LOADSAVE_GAME_MSG[which]);
@@ -2837,14 +2837,14 @@ std::int16_t CP_LoadGame(
 
 		if (SaveGamesAvail[which])
 		{
-			auto name = ::get_saved_game_base_name();
+			auto name = get_saved_game_base_name();
 			name += static_cast<char>('0' + which);
 
 			DrawLSAction(0); // Testing...
 
-			auto name_path = ::get_profile_dir() + name;
+			auto name_path = get_profile_dir() + name;
 
-			loadedgame = ::LoadTheGame(name_path);
+			loadedgame = LoadTheGame(name_path);
 
 			if (!loadedgame)
 			{
@@ -2867,10 +2867,10 @@ restart:
 		{
 			ShootSnd();
 
-			auto name = ::get_saved_game_base_name();
+			auto name = get_saved_game_base_name();
 			name += static_cast<char>('0' + which);
 
-			auto name_path = ::get_profile_dir() + name;
+			auto name_path = get_profile_dir() + name;
 
 			DrawLSAction(0);
 
@@ -2880,14 +2880,14 @@ restart:
 				StartGame = 0;
 				loadedgame = 0;
 				LS_current = -1; // Clean up
-				::playstate = ex_abort;
+				playstate = ex_abort;
 				goto restart;
 			}
 
 			loadedgame = true;
 			StartGame = true;
 
-			::ShootSnd();
+			ShootSnd();
 
 			//
 			// CHANGE "READ THIS!" TO NORMAL COLOR
@@ -2900,7 +2900,7 @@ restart:
 
 	if (which == -1)
 	{
-		::MenuFadeOut();
+		MenuFadeOut();
 	}
 
 	if (loadedgame)
@@ -3010,12 +3010,12 @@ std::int16_t CP_SaveGame(
 		if (SaveGamesAvail[which])
 		{
 			DrawLSAction(1); // Testing...
-			auto name = ::get_saved_game_base_name();
+			auto name = get_saved_game_base_name();
 			name += static_cast<char>('0' + which);
 
-			auto name_path = ::get_profile_dir() + name;
+			auto name_path = get_profile_dir() + name;
 
-			::SaveTheGame(name_path, &SaveGameNames[which][0]);
+			SaveTheGame(name_path, &SaveGameNames[which][0]);
 
 			return 1;
 		}
@@ -3050,7 +3050,7 @@ std::int16_t CP_SaveGame(
 
 			strcpy(input, &SaveGameNames[which][0]);
 
-			auto name = ::get_saved_game_base_name();
+			auto name = get_saved_game_base_name();
 			name += static_cast<char>('0' + which);
 
 			fontnumber = 2;
@@ -3066,8 +3066,8 @@ std::int16_t CP_SaveGame(
 
 				DrawLSAction(1);
 
-				auto name_path = ::get_profile_dir() + name;
-				::SaveTheGame(name_path, input);
+				auto name_path = get_profile_dir() + name;
+				SaveTheGame(name_path, input);
 
 				ShootSnd();
 				exit = 1;
@@ -3079,11 +3079,11 @@ std::int16_t CP_SaveGame(
 					LSM_Y + which * LSItems.y_spacing - 1,
 					LSM_W - LSItems.indent - 1,
 					7,
-					::menu_background_color);
+					menu_background_color);
 
 				PrintLSEntry(which, HIGHLIGHT_TEXT_COLOR);
 				VW_UpdateScreen();
-				::sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::item);
+				sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::item);
 				continue;
 			}
 
@@ -3093,7 +3093,7 @@ std::int16_t CP_SaveGame(
 
 	} while (which >= 0);
 
-	::MenuFadeOut();
+	MenuFadeOut();
 	use_custom_cursor = false;
 	allcaps = temp_caps;
 	return exit;
@@ -3134,7 +3134,7 @@ void CP_Control(
 		switch (which)
 		{
 		case MOUSEENABLE:
-			::mouseenabled = !::mouseenabled;
+			mouseenabled = !::mouseenabled;
 
 			DrawCtlScreen();
 			CusItems.curpos = -1;
@@ -3150,7 +3150,7 @@ void CP_Control(
 		}
 	} while (which >= 0);
 
-	::MenuFadeOut();
+	MenuFadeOut();
 }
 
 void DrawMousePos()
@@ -3158,16 +3158,16 @@ void DrawMousePos()
 	const int thumb_width = 16;
 	const int track_width = 160;
 	const int slide_width = track_width - thumb_width;
-	const int max_mouse_delta = ::max_mouse_sensitivity - ::min_mouse_sensitivity;
+	const int max_mouse_delta = max_mouse_sensitivity - min_mouse_sensitivity;
 
-	::VWB_Bar(
+	VWB_Bar(
 		74,
 		92,
 		track_width,
 		8,
 		HIGHLIGHT_BOX_COLOR);
 
-	::DrawOutline(
+	DrawOutline(
 		73,
 		91,
 		track_width + 1,
@@ -3175,8 +3175,8 @@ void DrawMousePos()
 		ENABLED_TEXT_COLOR,
 		ENABLED_TEXT_COLOR);
 
-	::VWB_Bar(
-		74 + ((slide_width * ::mouseadjustment) / max_mouse_delta),
+	VWB_Bar(
+		74 + ((slide_width * mouseadjustment) / max_mouse_delta),
 		92,
 		thumb_width,
 		8,
@@ -3214,7 +3214,7 @@ void MouseSensitivity(
 	ControlInfo ci;
 	std::int16_t exit = 0;
 
-	const auto oldMA = ::mouseadjustment;
+	const auto oldMA = mouseadjustment;
 
 	DrawMouseSens();
 	do
@@ -3224,16 +3224,16 @@ void MouseSensitivity(
 		{
 		case dir_North:
 		case dir_West:
-			if (::mouseadjustment > 0)
+			if (mouseadjustment > 0)
 			{
-				::mouseadjustment -= 1;
+				mouseadjustment -= 1;
 				DrawMousePos();
 				VW_UpdateScreen();
-				::sd_play_player_sound(MOVEGUN1SND, bstone::ActorChannel::item);
+				sd_play_player_sound(MOVEGUN1SND, bstone::ActorChannel::item);
 
 				while (Keyboard[ScanCode::sc_left_arrow])
 				{
-					::in_handle_events();
+					in_handle_events();
 				}
 
 				WaitKeyUp();
@@ -3242,16 +3242,16 @@ void MouseSensitivity(
 
 		case dir_South:
 		case dir_East:
-			if (::mouseadjustment < ::max_mouse_sensitivity)
+			if (mouseadjustment < max_mouse_sensitivity)
 			{
-				::mouseadjustment += 1;
+				mouseadjustment += 1;
 				DrawMousePos();
 				VW_UpdateScreen();
-				::sd_play_player_sound(MOVEGUN1SND, bstone::ActorChannel::item);
+				sd_play_player_sound(MOVEGUN1SND, bstone::ActorChannel::item);
 
 				while (Keyboard[ScanCode::sc_right_arrow])
 				{
-					::in_handle_events();
+					in_handle_events();
 				}
 
 				WaitKeyUp();
@@ -3275,16 +3275,16 @@ void MouseSensitivity(
 
 	if (exit == 2)
 	{
-		::mouseadjustment = oldMA;
-		::sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::item);
+		mouseadjustment = oldMA;
+		sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::item);
 	}
 	else
 	{
-		::sd_play_player_sound(SHOOTSND, bstone::ActorChannel::item);
+		sd_play_player_sound(SHOOTSND, bstone::ActorChannel::item);
 	}
 
 	WaitKeyUp();
-	::MenuFadeOut();
+	MenuFadeOut();
 }
 
 // --------------------------------------------------------------------------
@@ -3351,7 +3351,7 @@ void DrawCtlScreen()
 void CustomControls(
 	std::int16_t)
 {
-	::binds_draw_menu();
+	binds_draw_menu();
 }
 
 void CP_Quit()
@@ -3369,7 +3369,7 @@ void CP_Quit()
 // ---------------------------------------------------------------------------
 void ClearMScreen()
 {
-	VWB_Bar(SCREEN_X, SCREEN_Y, SCREEN_W, SCREEN_H, ::menu_background_color);
+	VWB_Bar(SCREEN_X, SCREEN_Y, SCREEN_W, SCREEN_H, menu_background_color);
 }
 
 // ---------------------------------------------------------------------------
@@ -3455,10 +3455,10 @@ void ReadGameNames()
 {
 	for (int i = 0; i < 10; ++i)
 	{
-		auto name = ::get_saved_game_base_name();
+		auto name = get_saved_game_base_name();
 		name += static_cast<char>('0' + i);
 
-		auto name_path = ::get_profile_dir() + name;
+		auto name_path = get_profile_dir() + name;
 
 		bstone::FileStream stream(name_path);
 
@@ -3469,7 +3469,7 @@ void ReadGameNames()
 
 		SaveGamesAvail[i] = 1;
 
-		int chunk_size = ::FindChunk(&stream, "DESC");
+		int chunk_size = FindChunk(&stream, "DESC");
 
 		if (chunk_size > 0)
 		{
@@ -3484,11 +3484,11 @@ void ReadGameNames()
 
 			stream.read(temp, temp_size);
 
-			::strcpy(&SaveGameNames[i][0], temp);
+			strcpy(&SaveGameNames[i][0], temp);
 		}
 		else
 		{
-			::strcpy(&SaveGameNames[i][0], "DESCRIPTION LOST");
+			strcpy(&SaveGameNames[i][0], "DESCRIPTION LOST");
 		}
 	}
 }
@@ -3844,19 +3844,19 @@ std::int16_t HandleMenu(
 			{
 				if (!Confirm(CURGAME))
 				{
-					::MenuFadeOut();
+					MenuFadeOut();
 					return 0;
 				}
 			}
 
 			ShootSnd();
-			::MenuFadeOut();
+			MenuFadeOut();
 			(items + which)->routine(0);
 		}
 		return which;
 
 	case 2:
-		::sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::item);
+		sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::item);
 
 		return -1;
 	}
@@ -3876,7 +3876,7 @@ void EraseGun(
 {
 	static_cast<void>(x);
 
-	VWB_Bar(item_i->cursor.x, y + item_i->cursor.y_ofs, item_i->cursor.width, item_i->cursor.height, ::menu_background_color);
+	VWB_Bar(item_i->cursor.x, y + item_i->cursor.y_ofs, item_i->cursor.width, item_i->cursor.height, menu_background_color);
 	SetTextColor(items + which, 0);
 
 	ShadowPrint((items + which)->string.c_str(), item_i->x + item_i->indent, y);
@@ -3983,7 +3983,7 @@ void WaitKeyUp()
 	{
 		ControlInfo ci;
 
-		::ReadAnyControl(&ci);
+		ReadAnyControl(&ci);
 
 		quit = !(
 			ci.button0 != 0 ||
@@ -4004,7 +4004,7 @@ void ReadAnyControl(
 {
 	bool mouseactive = false;
 
-	::IN_ReadControl(0, ci);
+	IN_ReadControl(0, ci);
 
 	//
 	// UNDO some of the ControlInfo vars that were init
@@ -4032,8 +4032,8 @@ void ReadAnyControl(
 		// HOME MOUSE
 		// CHECK MOUSE BUTTONS
 
-		::in_get_mouse_deltas(mousex, mousey);
-		::in_clear_mouse_deltas();
+		in_get_mouse_deltas(mousex, mousey);
+		in_clear_mouse_deltas();
 
 		const int DELTA_THRESHOLD = 10;
 
@@ -4059,7 +4059,7 @@ void ReadAnyControl(
 			mouseactive = true;
 		}
 
-		int buttons = ::IN_MouseButtons();
+		int buttons = IN_MouseButtons();
 
 		if (buttons != 0)
 		{
@@ -4137,7 +4137,7 @@ std::int16_t Confirm(
 
 	IN_ClearKeysDown();
 
-	::sd_play_player_sound(
+	sd_play_player_sound(
 		whichsnd[xit],
 		bstone::ActorChannel::item);
 
@@ -4265,7 +4265,7 @@ std::uint32_t CacheCompData(
 
 	if (!assets_info.is_ps())
 	{
-		data_length = ::ca_gr_last_expanded_size;
+		data_length = ca_gr_last_expanded_size;
 	}
 	else
 	{
@@ -4300,7 +4300,7 @@ std::uint32_t CacheCompData(
 			Quit("Out of memory.");
 		}
 
-		::LZH_Decompress(
+		LZH_Decompress(
 			chunk,
 			dst,
 			data_length,
@@ -4326,7 +4326,7 @@ void StartCPMusic(
 	sd_music_off();
 	chunk = song;
 	CA_CacheAudioChunk(static_cast<std::int16_t>(STARTMUSIC + chunk));
-	::sd_start_music(chunk);
+	sd_start_music(chunk);
 }
 
 void FreeMusic()
@@ -4417,41 +4417,41 @@ void DrawMenuGun(
 
 void ShootSnd()
 {
-	::sd_play_player_sound(SHOOTSND, bstone::ActorChannel::item);
+	sd_play_player_sound(SHOOTSND, bstone::ActorChannel::item);
 }
 
 void ShowPromo()
 {
-	::vid_is_movie = true;
+	vid_is_movie = true;
 
 	const auto PROMO_MUSIC = HIDINGA_MUS;
 
 	// Load and start music
 	//
-	::CA_CacheAudioChunk(STARTMUSIC + PROMO_MUSIC);
-	::sd_start_music(PROMO_MUSIC);
+	CA_CacheAudioChunk(STARTMUSIC + PROMO_MUSIC);
+	sd_start_music(PROMO_MUSIC);
 
 	// Show promo screen 1
 	//
-	::MenuFadeOut();
-	::CA_CacheScreen(PROMO1PIC);
+	MenuFadeOut();
+	CA_CacheScreen(PROMO1PIC);
 	VW_UpdateScreen();
 	MenuFadeIn();
-	::IN_UserInput(TickBase * 20);
+	IN_UserInput(TickBase * 20);
 
 	// Show promo screen 2
 	//
-	::MenuFadeOut();
-	::CA_CacheScreen(PROMO2PIC);
+	MenuFadeOut();
+	CA_CacheScreen(PROMO2PIC);
 	VW_UpdateScreen();
 	MenuFadeIn();
-	::IN_UserInput(TickBase * 20);
+	IN_UserInput(TickBase * 20);
 
 	// Music off and freed!
 	//
-	::StopMusic();
+	StopMusic();
 
-	::vid_is_movie = false;
+	vid_is_movie = false;
 }
 
 void ExitGame()
@@ -4462,7 +4462,7 @@ void ExitGame()
 
 	if (assets_info.is_aog_sw_v3_0() && !::g_no_intro_outro && !::g_no_screens)
 	{
-		::ShowPromo();
+		ShowPromo();
 	}
 
 	sd_music_off();
@@ -4485,9 +4485,9 @@ void draw_volume_control(
 
 	int y = 82 + (index * 40);
 
-	::VWB_Bar(74, static_cast<std::int16_t>(y), 160, 8, HIGHLIGHT_BOX_COLOR);
+	VWB_Bar(74, static_cast<std::int16_t>(y), 160, 8, HIGHLIGHT_BOX_COLOR);
 
-	::DrawOutline(
+	DrawOutline(
 		73,
 		static_cast<std::int16_t>(y - 1),
 		161,
@@ -4496,8 +4496,8 @@ void draw_volume_control(
 		outline_color
 	);
 
-	::VWB_Bar(
-		static_cast<std::int16_t>(74 + (((160 - 16) * volume) / ::sd_max_volume)),
+	VWB_Bar(
+		static_cast<std::int16_t>(74 + (((160 - 16) * volume) / sd_max_volume)),
 		static_cast<std::int16_t>(y),
 		16,
 		8,
@@ -4575,7 +4575,7 @@ void cp_sound_volume(
 
 			while (Keyboard[ScanCode::sc_up_arrow])
 			{
-				::in_handle_events();
+				in_handle_events();
 			}
 			break;
 
@@ -4590,12 +4590,12 @@ void cp_sound_volume(
 
 			while (Keyboard[ScanCode::sc_down_arrow])
 			{
-				::in_handle_events();
+				in_handle_events();
 			}
 			break;
 
 		case dir_West:
-			if (*volumes[volume_index] > ::sd_min_volume)
+			if (*volumes[volume_index] > sd_min_volume)
 			{
 				redraw_controls = true;
 				update_volumes = true;
@@ -4606,12 +4606,12 @@ void cp_sound_volume(
 
 			while (Keyboard[ScanCode::sc_left_arrow])
 			{
-				::in_handle_events();
+				in_handle_events();
 			}
 			break;
 
 		case dir_East:
-			if (*volumes[volume_index] < ::sd_max_volume)
+			if (*volumes[volume_index] < sd_max_volume)
 			{
 				redraw_controls = true;
 				update_volumes = true;
@@ -4620,7 +4620,7 @@ void cp_sound_volume(
 
 			while (Keyboard[ScanCode::sc_right_arrow])
 			{
-				::in_handle_events();
+				in_handle_events();
 			}
 			break;
 
@@ -4657,7 +4657,7 @@ void cp_sound_volume(
 	sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::item);
 
 	WaitKeyUp();
-	::MenuFadeOut();
+	MenuFadeOut();
 }
 
 ///
@@ -4671,37 +4671,37 @@ void draw_video_descriptions(
 		"TOGGLES STRETCHING OF USER INTERFACE",
 	};
 
-	::fontnumber = 2;
+	fontnumber = 2;
 
-	::WindowX = 48;
-	::WindowY = 144;
-	::WindowW = 236;
-	::WindowH = 8;
+	WindowX = 48;
+	WindowY = 144;
+	WindowW = 236;
+	WindowH = 8;
 
-	::VWB_Bar(
-		::WindowX,
-		::WindowY - 1,
-		::WindowW,
-		::WindowH,
-		::menu_background_color);
+	VWB_Bar(
+		WindowX,
+		WindowY - 1,
+		WindowW,
+		WindowH,
+		menu_background_color);
 
-	::SETFONTCOLOR(TERM_SHADOW_COLOR, TERM_BACK_COLOR);
-	::US_PrintCentered(instructions[which]);
+	SETFONTCOLOR(TERM_SHADOW_COLOR, TERM_BACK_COLOR);
+	US_PrintCentered(instructions[which]);
 
 	--::WindowX;
 	--::WindowY;
 
 	SETFONTCOLOR(INSTRUCTIONS_TEXT_COLOR, TERM_BACK_COLOR);
-	::US_PrintCentered(instructions[which]);
+	US_PrintCentered(instructions[which]);
 }
 
 void video_draw_menu()
 {
-	::CA_CacheScreen(BACKGROUND_SCREENPIC);
-	::ClearMScreen();
-	::DrawMenuTitle("VIDEO SETTINGS");
-	::DrawInstructions(IT_STANDARD);
-	::DrawMenu(&video_items, video_menu);
+	CA_CacheScreen(BACKGROUND_SCREENPIC);
+	ClearMScreen();
+	DrawMenuTitle("VIDEO SETTINGS");
+	DrawInstructions(IT_STANDARD);
+	DrawMenu(&video_items, video_menu);
 	VW_UpdateScreen();
 }
 
@@ -4710,13 +4710,13 @@ void video_draw_switch(
 {
 	std::uint16_t Shape;
 
-	auto& configuration = ::vid_cfg_get();
+	auto& configuration = vid_cfg_get();
 
 	for (int i = 0; i < video_items.amount; i++)
 	{
 		if (video_menu[i].string[0])
 		{
-			Shape = ::C_NOTSELECTEDPIC;
+			Shape = C_NOTSELECTEDPIC;
 
 			if (video_items.cursor.on)
 			{
@@ -4750,7 +4750,7 @@ void video_draw_switch(
 				break;
 			}
 
-			::VWB_DrawPic(
+			VWB_DrawPic(
 				video_items.x - 16,
 				video_items.y + (i * video_items.y_spacing) - 1,
 				Shape);
@@ -4958,37 +4958,37 @@ void draw_video_mode_descriptions(
 		"APPLIES SETTINGS",
 	};
 
-	::fontnumber = 2;
+	fontnumber = 2;
 
-	::WindowX = 48;
-	::WindowY = 144;
-	::WindowW = 236;
-	::WindowH = 8;
+	WindowX = 48;
+	WindowY = 144;
+	WindowW = 236;
+	WindowH = 8;
 
-	::VWB_Bar(
-		::WindowX,
-		::WindowY - 1,
-		::WindowW,
-		::WindowH,
-		::menu_background_color);
+	VWB_Bar(
+		WindowX,
+		WindowY - 1,
+		WindowW,
+		WindowH,
+		menu_background_color);
 
-	::SETFONTCOLOR(TERM_SHADOW_COLOR, TERM_BACK_COLOR);
-	::US_PrintCentered(instructions[which]);
+	SETFONTCOLOR(TERM_SHADOW_COLOR, TERM_BACK_COLOR);
+	US_PrintCentered(instructions[which]);
 
 	--::WindowX;
 	--::WindowY;
 
 	SETFONTCOLOR(INSTRUCTIONS_TEXT_COLOR, TERM_BACK_COLOR);
-	::US_PrintCentered(instructions[which]);
+	US_PrintCentered(instructions[which]);
 }
 
 void video_mode_draw_menu()
 {
-	::CA_CacheScreen(BACKGROUND_SCREENPIC);
-	::ClearMScreen();
-	::DrawMenuTitle("VIDEO MODE");
-	::DrawInstructions(IT_STANDARD);
-	::DrawMenu(&video_mode_items, video_mode_menu);
+	CA_CacheScreen(BACKGROUND_SCREENPIC);
+	ClearMScreen();
+	DrawMenuTitle("VIDEO MODE");
+	DrawInstructions(IT_STANDARD);
+	DrawMenu(&video_mode_items, video_mode_menu);
 	VW_UpdateScreen();
 
 	const auto& vid_cfg = vid_cfg_get();
@@ -4998,7 +4998,7 @@ void video_mode_draw_menu()
 
 		if (menu_video_mode_renderer_kinds_.empty())
 		{
-			::Quit("Empty renderer kind list.");
+			Quit("Empty renderer kind list.");
 		}
 
 		const auto renderer_kind_it = std::find(
@@ -5066,10 +5066,10 @@ void video_mode_draw_menu()
 
 void video_mode_update_menu()
 {
-	::ClearMScreen();
-	::DrawMenuTitle("VIDEO MODE");
-	::DrawInstructions(IT_STANDARD);
-	::DrawMenu(&video_mode_items, video_mode_menu);
+	ClearMScreen();
+	DrawMenuTitle("VIDEO MODE");
+	DrawInstructions(IT_STANDARD);
+	DrawMenu(&video_mode_items, video_mode_menu);
 }
 
 void video_mode_draw_switch(
@@ -5077,7 +5077,7 @@ void video_mode_draw_switch(
 {
 	std::uint16_t Shape;
 
-	auto& configuration = ::vid_cfg_get();
+	auto& configuration = vid_cfg_get();
 
 	const auto renderer_kind = menu_video_mode_renderer_kinds_[menu_video_mode_renderer_index_];
 	const auto& renderer_kind_string = menu_video_mode_renderer_kind_get_string(renderer_kind);
@@ -5092,7 +5092,7 @@ void video_mode_draw_switch(
 	{
 		if (video_mode_menu[i].string[0])
 		{
-			Shape = ::C_NOTSELECTEDPIC;
+			Shape = C_NOTSELECTEDPIC;
 
 			if (video_mode_items.cursor.on)
 			{
@@ -5164,7 +5164,7 @@ void video_mode_draw_switch(
 					continue;
 			}
 
-			::VWB_DrawPic(
+			VWB_DrawPic(
 				video_mode_items.x - 16,
 				video_mode_items.y + (i * video_mode_items.y_spacing) - 1,
 				Shape);
@@ -5312,22 +5312,22 @@ void video_menu_mode_routine(
 {
 	std::int16_t which;
 
-	::CA_CacheScreen(BACKGROUND_SCREENPIC);
-	::video_mode_draw_menu();
-	::MenuFadeIn();
-	::WaitKeyUp();
+	CA_CacheScreen(BACKGROUND_SCREENPIC);
+	video_mode_draw_menu();
+	MenuFadeIn();
+	WaitKeyUp();
 
-	auto& configuration = ::vid_cfg_get();
+	auto& configuration = vid_cfg_get();
 
-	video_mode_menu[0].carousel_func_ = ::video_menu_mode_renderer_carousel;
-	video_mode_menu[1].carousel_func_ = ::video_menu_mode_window_size_carousel;
+	video_mode_menu[0].carousel_func_ = video_menu_mode_renderer_carousel;
+	video_mode_menu[1].carousel_func_ = video_menu_mode_window_size_carousel;
 
-	video_mode_menu[4].carousel_func_ = ::video_menu_mode_window_aa_kind_carousel;
-	video_mode_menu[5].carousel_func_ = ::video_menu_mode_window_aa_factor_carousel;
+	video_mode_menu[4].carousel_func_ = video_menu_mode_window_aa_kind_carousel;
+	video_mode_menu[5].carousel_func_ = video_menu_mode_window_aa_factor_carousel;
 
 	do
 	{
-		which = ::HandleMenu(&video_mode_items, video_mode_menu, video_mode_draw_switch);
+		which = HandleMenu(&video_mode_items, video_mode_menu, video_mode_draw_switch);
 
 		switch (which)
 		{
@@ -5359,7 +5359,7 @@ void video_menu_mode_routine(
 		}
 	} while (which >= 0);
 
-	::MenuFadeOut();
+	MenuFadeOut();
 }
 
 ///
@@ -5439,37 +5439,37 @@ void texturing_draw_descriptions(
 		"SELECTS DEGREE OF UPSCALE",
 	};
 
-	::fontnumber = 2;
+	fontnumber = 2;
 
-	::WindowX = 48;
-	::WindowY = 144;
-	::WindowW = 236;
-	::WindowH = 8;
+	WindowX = 48;
+	WindowY = 144;
+	WindowW = 236;
+	WindowH = 8;
 
-	::VWB_Bar(
-		::WindowX,
-		::WindowY - 1,
-		::WindowW,
-		::WindowH,
-		::menu_background_color);
+	VWB_Bar(
+		WindowX,
+		WindowY - 1,
+		WindowW,
+		WindowH,
+		menu_background_color);
 
-	::SETFONTCOLOR(TERM_SHADOW_COLOR, TERM_BACK_COLOR);
-	::US_PrintCentered(instructions[which]);
+	SETFONTCOLOR(TERM_SHADOW_COLOR, TERM_BACK_COLOR);
+	US_PrintCentered(instructions[which]);
 
 	--::WindowX;
 	--::WindowY;
 
 	SETFONTCOLOR(INSTRUCTIONS_TEXT_COLOR, TERM_BACK_COLOR);
-	::US_PrintCentered(instructions[which]);
+	US_PrintCentered(instructions[which]);
 }
 
 void texturing_draw_menu()
 {
-	::CA_CacheScreen(BACKGROUND_SCREENPIC);
-	::ClearMScreen();
-	::DrawMenuTitle("TEXTURING");
-	::DrawInstructions(IT_STANDARD);
-	::DrawMenu(&texturing_items, texturing_menu);
+	CA_CacheScreen(BACKGROUND_SCREENPIC);
+	ClearMScreen();
+	DrawMenuTitle("TEXTURING");
+	DrawInstructions(IT_STANDARD);
+	DrawMenu(&texturing_items, texturing_menu);
 	VW_UpdateScreen();
 
 
@@ -5479,10 +5479,10 @@ void texturing_draw_menu()
 
 void texturing_update_menu()
 {
-	::ClearMScreen();
-	::DrawMenuTitle("TEXTURING");
-	::DrawInstructions(IT_STANDARD);
-	::DrawMenu(&texturing_items, texturing_menu);
+	ClearMScreen();
+	DrawMenuTitle("TEXTURING");
+	DrawInstructions(IT_STANDARD);
+	DrawMenu(&texturing_items, texturing_menu);
 }
 
 void texturing_draw_switch(
@@ -5496,7 +5496,7 @@ void texturing_draw_switch(
 	{
 		if (texturing_menu[i].string[0])
 		{
-			Shape = ::C_NOTSELECTEDPIC;
+			Shape = C_NOTSELECTEDPIC;
 
 			if (texturing_items.cursor.on)
 			{
@@ -5606,7 +5606,7 @@ void texturing_draw_switch(
 					continue;
 			}
 
-			::VWB_DrawPic(
+			VWB_DrawPic(
 				texturing_items.x - 16,
 				texturing_items.y + (i * texturing_items.y_spacing) - 1,
 				Shape);
@@ -5784,10 +5784,10 @@ void texturing_routine(
 {
 	std::int16_t which;
 
-	::CA_CacheScreen(BACKGROUND_SCREENPIC);
-	::texturing_draw_menu();
-	::MenuFadeIn();
-	::WaitKeyUp();
+	CA_CacheScreen(BACKGROUND_SCREENPIC);
+	texturing_draw_menu();
+	MenuFadeIn();
+	WaitKeyUp();
 
 	texturing_menu[static_cast<int>(TexturingMenuIndices::anisotropy)].carousel_func_ =
 		texturing_anisotropy_carousel;
@@ -5802,14 +5802,14 @@ void texturing_routine(
 	texturing_menu[static_cast<int>(TexturingMenuIndices::upscale_degree)].carousel_func_ =
 		texturing_upscale_degree_carousel;
 
-	auto& configuration = ::vid_cfg_get();
+	auto& configuration = vid_cfg_get();
 
 	do
 	{
-		which = ::HandleMenu(&texturing_items, texturing_menu, texturing_draw_switch);
+		which = HandleMenu(&texturing_items, texturing_menu, texturing_draw_switch);
 	} while (which >= 0);
 
-	::MenuFadeOut();
+	MenuFadeOut();
 }
 
 ///
@@ -5818,44 +5818,44 @@ void cp_video(
 {
 	std::int16_t which;
 
-	::CA_CacheScreen(BACKGROUND_SCREENPIC);
-	::video_draw_menu();
-	::MenuFadeIn();
-	::WaitKeyUp();
+	CA_CacheScreen(BACKGROUND_SCREENPIC);
+	video_draw_menu();
+	MenuFadeIn();
+	WaitKeyUp();
 
-	auto& configuration = ::vid_cfg_get();
+	auto& configuration = vid_cfg_get();
 
 	do
 	{
-		which = ::HandleMenu(&video_items, video_menu, video_draw_switch);
+		which = HandleMenu(&video_items, video_menu, video_draw_switch);
 
 		switch (which)
 		{
 			case mvl_mode:
 			case mvl_texturing:
-				::video_draw_menu();
-				::MenuFadeIn();
-				::WaitKeyUp();
+				video_draw_menu();
+				MenuFadeIn();
+				WaitKeyUp();
 				break;
 
 		case mvl_widescreen:
 #ifndef __vita__
 			configuration.is_widescreen_ = !configuration.is_widescreen_;
 #endif
-			::ShootSnd();
-			::video_draw_switch(video_items.curpos);
-			::vl_update_widescreen();
-			::SetupWalls();
-			::NewViewSize();
-			::SetPlaneViewSize();
-			::VL_RefreshScreen();
+			ShootSnd();
+			video_draw_switch(video_items.curpos);
+			vl_update_widescreen();
+			SetupWalls();
+			NewViewSize();
+			SetPlaneViewSize();
+			VL_RefreshScreen();
 			break;
 
 		case mvl_stretch_ui:
 			configuration.is_ui_stretched_ = !configuration.is_ui_stretched_;
-			::ShootSnd();
-			::video_draw_switch(video_items.curpos);
-			::VL_RefreshScreen();
+			ShootSnd();
+			video_draw_switch(video_items.curpos);
+			VL_RefreshScreen();
 			break;
 
 		default:
@@ -5863,7 +5863,7 @@ void cp_video(
 		}
 	} while (which >= 0);
 
-	::MenuFadeOut();
+	MenuFadeOut();
 }
 
 void draw_switch2_description(
@@ -5884,7 +5884,7 @@ void draw_switch2_description(
 	WindowW = 236;
 	WindowH = 8;
 
-	VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, ::menu_background_color);
+	VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, menu_background_color);
 
 	SETFONTCOLOR(TERM_SHADOW_COLOR, TERM_BACK_COLOR);
 	US_PrintCentered(instr[which]);
@@ -5923,14 +5923,14 @@ void draw_all_switch2_lights(
 			switch (i)
 			{
 			case SW2_NO_INTRO_OUTRO:
-				if (::g_no_intro_outro)
+				if (g_no_intro_outro)
 				{
 					shape += 1;
 				}
 				break;
 
 			case SW2_NO_FADE_IN_OR_OUT:
-				if (::g_no_fade_in_or_out)
+				if (g_no_fade_in_or_out)
 				{
 					shape += 1;
 				}
@@ -5977,20 +5977,20 @@ void cp_switches2(
 		switch (which)
 		{
 		case SW2_NO_INTRO_OUTRO:
-			::g_no_intro_outro = !::g_no_intro_outro;
+			g_no_intro_outro = !::g_no_intro_outro;
 			ShootSnd();
 			draw_switch2_menu();
 			break;
 
 		case SW2_NO_FADE_IN_OR_OUT:
-			::g_no_fade_in_or_out = !::g_no_fade_in_or_out;
+			g_no_fade_in_or_out = !::g_no_fade_in_or_out;
 			ShootSnd();
 			draw_switch2_menu();
 			break;
 		}
 	} while (which >= 0);
 
-	::MenuFadeOut();
+	MenuFadeOut();
 }
 ///
 
@@ -6000,16 +6000,16 @@ void MenuFadeOut()
 
 	if (assets_info.is_aog())
 	{
-		::VL_FadeOut(0, 255, 44, 0, 0, 10);
+		VL_FadeOut(0, 255, 44, 0, 0, 10);
 	}
 	else
 	{
-		::VL_FadeOut(0, 255, 40, 44, 44, 10);
+		VL_FadeOut(0, 255, 40, 44, 44, 10);
 	}
 }
 
 void MenuFadeIn()
 {
-	::VL_FadeIn(0, 255, ::vgapal, 10);
+	VL_FadeIn(0, 255, vgapal, 10);
 }
 // BBi
