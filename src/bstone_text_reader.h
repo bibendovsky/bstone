@@ -33,6 +33,7 @@ Free Software Foundation, Inc.,
 
 #include <array>
 #include <string>
+
 #include "bstone_stream.h"
 
 

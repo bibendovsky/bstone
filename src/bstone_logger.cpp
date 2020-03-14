@@ -28,8 +28,11 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_logger.h"
+
 #include <iostream>
+
 #include "SDL_messagebox.h"
+
 #include "bstone_file_stream.h"
 #include "bstone_version.h"
 

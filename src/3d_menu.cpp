@@ -23,8 +23,10 @@ Free Software Foundation, Inc.,
 
 
 #include <cstring>
+
 #include <algorithm>
 #include <map>
+
 #include "audio.h"
 #include "id_ca.h"
 #include "id_heads.h"

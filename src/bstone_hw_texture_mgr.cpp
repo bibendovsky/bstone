@@ -28,9 +28,11 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_precompiled.h"
+
 #include "bstone_hw_texture_mgr.h"
 
 #include <cassert>
+
 #include <array>
 #include <unordered_map>
 

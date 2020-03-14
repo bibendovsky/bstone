@@ -4,8 +4,10 @@
 
 
 #include "bstone_sprite.h"
+
 #include <stdexcept>
 #include <memory>
+
 #include "bstone_endian.h"
 
 

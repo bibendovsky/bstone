@@ -40,11 +40,11 @@ Free Software Foundation, Inc.,
 #include "bstone_unique_resource.h"
 
 #include "bstone_detail_ren_3d_gl_buffer.h"
+#include "bstone_detail_ren_3d_gl_context.h"
 #include "bstone_detail_ren_3d_gl_extension_mgr.h"
 #include "bstone_detail_ren_3d_gl_shader.h"
 #include "bstone_detail_ren_3d_gl_shader_stage.h"
 #include "bstone_detail_ren_3d_gl_utils.h"
-#include "bstone_detail_ren_3d_gl_context.h"
 
 
 namespace bstone

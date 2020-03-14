@@ -32,6 +32,7 @@ Free Software Foundation, Inc.,
 
 
 #include <vector>
+
 #include "bstone_adlib_decoder.h"
 #include "bstone_memory_binary_reader.h"
 

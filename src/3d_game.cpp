@@ -23,6 +23,7 @@ Free Software Foundation, Inc.,
 
 
 #include <cstring>
+
 #include "3d_def.h"
 #include "3d_menu.h"
 #include "audio.h"

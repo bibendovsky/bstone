@@ -35,11 +35,15 @@ loaded into the data segment
 */
 
 
+#include "id_ca.h"
+
 #include <cassert>
+
 #include <algorithm>
 #include <memory>
+
 #include "SDL_endian.h"
-#include "id_ca.h"
+
 #include "audio.h"
 #include "id_heads.h"
 #include "id_pm.h"

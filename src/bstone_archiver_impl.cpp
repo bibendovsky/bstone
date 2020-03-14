@@ -22,9 +22,11 @@ Free Software Foundation, Inc.,
 */
 
 
+#include "bstone_archiver.h"
+
 #include <string>
 #include <vector>
-#include "bstone_archiver.h"
+
 #include "bstone_crc32.h"
 #include "bstone_endian.h"
 #include "bstone_stream.h"

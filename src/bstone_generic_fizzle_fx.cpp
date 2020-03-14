@@ -28,6 +28,7 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_generic_fizzle_fx.h"
+
 #include "id_vl.h"
 
 

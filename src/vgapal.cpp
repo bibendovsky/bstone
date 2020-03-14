@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 //
-// BBi Missing data in original source code release.
+// Missing data in original source code release.
 //
 
 

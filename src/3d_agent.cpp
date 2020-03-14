@@ -24,9 +24,11 @@ Free Software Foundation, Inc.,
 
 #include <cmath>
 #include <cstring>
+
 #include <array>
 #include <deque>
 #include <limits>
+
 #include "3d_def.h"
 #include "audio.h"
 #include "jm_tp.h"

@@ -27,6 +27,7 @@ Free Software Foundation, Inc.,
 //
 
 #include "bstone_precompiled.h"
+
 #include "bstone_mt_task_mgr.h"
 
 #include <algorithm>
