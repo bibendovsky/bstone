@@ -255,6 +255,14 @@ Ren3dGlTexture2dImpl::Ren3dGlTexture2dImpl(
 		throw Ren3dGlTexture2dImplCreateException{"Mipmap count out of range."};
 	}
 
+	// TODO Disable when OpenGL ES 2.0 won't be supported.
+#if 1
+	if (mipmap_count_ > 1 && mipmap_count_ != max_mipmap_count)
+	{
+		throw Ren3dGlTexture2dImplCreateException{"Mismatch mipmap count."};
+	}
+#endif
+
 	auto gl_name = GLuint{};
 
 	if (gl_device_features_.is_dsa_available_)
@@ -275,6 +283,8 @@ Ren3dGlTexture2dImpl::Ren3dGlTexture2dImpl(
 		throw Ren3dGlTexture2dImplCreateException{"Failed to create an object."};
 	}
 
+// TODO Enable when OpenGL ES 2.0 won't be supported.
+#if 0
 	if (gl_device_features_.is_dsa_available_)
 	{
 		glTextureParameteri(texture_resource_.get(), GL_TEXTURE_BASE_LEVEL, 0);
@@ -293,6 +303,7 @@ Ren3dGlTexture2dImpl::Ren3dGlTexture2dImpl(
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipmap_count_ - 1);
 		Ren3dGlError::ensure_debug();
 	}
+#endif
 
 	set_sampler_state_defaults();
 
