@@ -1,11 +1,12 @@
 # BStone changelog
 
 
-## [1.2.0] - 20??-??-??
+## [1.2.0] - 2020-??-??
 ### Added
 - 3D-renderer (OpenGL backend).
 - Menu to control video mode.
 - Menu to control texturing.
+- [RHW] Texture upscale filter (xBRZ).
 - Option `snd_is_disabled` to ignore audio subsystem.
 - Option `vid_is_positioned` to control position of the window.
 - Option `vid_is_widescreen` to control widescreen mode.
@@ -21,10 +22,11 @@
 - Option `debug_dump_hashes` to dump hashes of resource files.
 - Option `debug_dump_walls_images` to dump graphics resources (wall, flooring, etc.).
 - Option `debug_dump_sprites_images` to dump graphics resources (actors, decorations, etc.).
+- Generic instructiond on how to compile on Linux-based system.
 
 ### Removed
 - Option "vid_scale".
-- Vanilla input bindings.
+- Vanilla input bindings and related menu items.
 
 ### Changed
 - Renamed option `vid_windowed` to `vid_is_windowed`.
@@ -33,6 +35,7 @@
 - Split option `vid_mode` into `vid_width` and `vid_height`.
 - Renamed option `vid_no_vsync` to `vid_vsync`.
 - Values of option `vid_renderer`.
+- Serializing barrier switches.
 
 
 ## [1.1.16] - 2020-02-01
