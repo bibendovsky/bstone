@@ -20,9 +20,10 @@ Contents
 9. Third party use
 10. Credits
 11. Links  
-    11.1. General
-    11.2. Add-ons for Aliens Of Gold (full)
-    11.3. Add-ons for Planet Strike
+    11.1. Essentials  
+    11.2. General  
+    11.3. Add-ons for Aliens Of Gold (full)  
+    11.4. Add-ons for Planet Strike
 
 
 1 - Disclaimer
@@ -479,10 +480,15 @@ Add option `--cheats` to enable these keys.
 11 - Links
 ==========
 
+11.1 - Essentials
+=================
+
+* [Home page](http://bibendovsky.github.io/bstone/)
+* [Precompiled binaries and their source code](http://github.com/bibendovsky/bstone/releases)
+
 11.1 - General
 ==============
 
-* [Home page](http://bibendovsky.github.io/bstone/)
 * [Blake Stone: Aliens Of Gold official site](http://legacy.3drealms.com/blake/index.html)
 * [Blake Stone: Planet Strike official site](http://legacy.3drealms.com/planet/index.html)
 * [Apogee's article about releasing of an original source code](http://www.apogeesoftware.com/uncategorized/apogee-releases-blake-stone-source-code)
