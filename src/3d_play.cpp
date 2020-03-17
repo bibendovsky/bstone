@@ -1534,11 +1534,6 @@ bool palshifted;
 
 void InitRedShifts()
 {
-	if (vid_is_hw_)
-	{
-		return;
-	}
-
 	//
 	// fade through intermediate frames
 	//
