@@ -283,6 +283,11 @@ Ren3dGlTexture2dImpl::Ren3dGlTexture2dImpl(
 		throw Ren3dGlTexture2dImplCreateException{"Failed to create an object."};
 	}
 
+	if (!gl_device_features_.is_dsa_available_)
+	{
+		bind();
+	}
+
 // TODO Enable when OpenGL ES 2.0 won't be supported.
 #if 0
 	if (gl_device_features_.is_dsa_available_)
