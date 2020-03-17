@@ -40,6 +40,9 @@ Targets:
 
 cmake_minimum_required (VERSION 3.1.3 FATAL_ERROR)
 
+set (SDL2W_VERSION "1.0.0")
+message (STATUS "[SDL2W] Version: ${SDL2W_VERSION}")
+
 set (SDL2W_SDL2_DIR "" CACHE PATH "The directory with CMake configuration files or the directory with official SDL2 development Windows build. Leave empty to figure out the location of SDL2.")
 
 set (SDL2_DIR "" CACHE PATH "The directory containing a CMake configuration file for SDL2." FORCE)
@@ -106,7 +109,7 @@ set (SDL2W_TMP_USE_STATIC FALSE)
 if (SDL2_FOUND OR SDL2W_TMP_FOUND_MSVC_DEV)
 	# Parse components.
 	#
-	if (${${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS})
+	if (${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS)
 		message(STATUS "[SDL2W] Selected components:")
 
 		foreach (SDL2W_TMP_COMP ${${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS})
@@ -134,20 +137,20 @@ if (SDL2_FOUND OR SDL2W_TMP_FOUND_MSVC_DEV)
 				get_target_property (
 					SDL2W_TMP_SDL2_LOCATION
 					SDL2::SDL2-static
-					IMPORTED_LOCATION
+					LOCATION
 				)
 			else ()
 				get_target_property (
 					SDL2W_TMP_SDL2_LOCATION
 					SDL2::SDL2
-					IMPORTED_LOCATION
+					LOCATION
 				)
 			endif ()
 		else ()
 			get_target_property (
 				SDL2W_TMP_SDL2_LOCATION
 				SDL2::SDL2
-				IMPORTED_LOCATION
+				LOCATION
 			)
 		endif ()
 
@@ -161,7 +164,7 @@ if (SDL2_FOUND OR SDL2W_TMP_FOUND_MSVC_DEV)
 		get_target_property (
 			SDL2W_TMP_SDL2_MAIN_LOCATION
 			SDL2::SDL2main
-			IMPORTED_LOCATION
+			LOCATION
 		)
 
 		message (STATUS "[SDL2W]     \"${SDL2W_TMP_SDL2_MAIN_LOCATION}\"")
