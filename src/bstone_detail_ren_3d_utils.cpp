@@ -308,6 +308,26 @@ public:
 // Ren3dUtilsBuildMipmapException
 // ==========================================================================
 
+// ==========================================================================
+// Ren3dUtilsBuildMipmapException
+//
+
+class Ren3dUtilsCalcMipmapCountException :
+	public Exception
+{
+public:
+	explicit Ren3dUtilsCalcMipmapCountException(
+		const char* const message)
+		:
+		Exception{std::string{"[REN_3D_UTL_CALC_MIPMAP_CNT] "} + message}
+	{
+	}
+}; // Ren3dUtilsCalcMipmapCountException
+
+//
+// Ren3dUtilsCalcMipmapCountException
+// ==========================================================================
+
 
 // ==========================================================================
 // Ren3dUtils
@@ -351,16 +371,23 @@ int Ren3dUtils::calculate_mipmap_count(
 	// mipmap_count = [log2(max(width, height))] + 1
 	//
 
-	const auto max_size = std::max(width, height);
-
-	int log_2;
-
-	for (log_2 = 0; log_2 < 32; ++log_2)
+	if (width <= 0)
 	{
-		if ((1 << log_2) >= max_size)
-		{
-			break;
-		}
+		throw Ren3dUtilsCalcMipmapCountException("Width out of range.");
+	}
+
+	if (height <= 0)
+	{
+		throw Ren3dUtilsCalcMipmapCountException("Height out of range.");
+	}
+
+	auto log_2 = 0;
+	auto max_size = std::max(width, height);
+
+	while (max_size > 1)
+	{
+		log_2 += 1;
+		max_size /= 2;
 	}
 
 	const auto result = log_2 + 1;
