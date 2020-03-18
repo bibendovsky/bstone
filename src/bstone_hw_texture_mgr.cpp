@@ -1192,6 +1192,14 @@ void HwTextureMgrImpl::set_common_texture_2d_properties(
 	properties.actual_height_ = actual_height;
 
 	properties.is_npot_ = is_npot;
+
+	if (properties.mipmap_count_ > 1)
+	{
+		properties.mipmap_count_ = detail::Ren3dUtils::calculate_mipmap_count(
+			properties.upscale_width_,
+			properties.upscale_height_
+		);
+	}
 }
 
 void HwTextureMgrImpl::upscale_xbrz(
