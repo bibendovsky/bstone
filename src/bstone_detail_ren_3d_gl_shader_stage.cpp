@@ -658,6 +658,7 @@ void Ren3dGlShaderStageImpl::get_vars(
 		}
 
 		auto input_index = GLint{};
+		auto gl_location = GLint{};
 
 		if (is_attribute)
 		{
@@ -668,10 +669,20 @@ void Ren3dGlShaderStageImpl::get_vars(
 			{
 				throw Ren3dGlShaderStageImplCreateException{"Vertex attribute not found."};
 			}
+
+			gl_location = -1;
 		}
 		else
 		{
 			input_index = -1;
+
+			gl_location = glGetUniformLocation(gl_name, name_buffer.data());
+			Ren3dGlError::ensure_debug();
+
+			if (gl_location < 0)
+			{
+				throw Ren3dGlShaderStageImplCreateException{"Uniform not found."};
+			}
 		}
 
 		const auto new_kind = (is_sampler ? Ren3dShaderVarKind::sampler : kind);
@@ -688,7 +699,7 @@ void Ren3dGlShaderStageImpl::get_vars(
 		var_param.index_ = index;
 		var_param.name_ = std::move(name);
 		var_param.input_index_ = input_index;
-		var_param.gl_location_ = i;
+		var_param.gl_location_ = gl_location;
 
 		auto var = Ren3dGlShaderVarFactory::create(this, var_param);
 
