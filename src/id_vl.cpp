@@ -6995,6 +6995,25 @@ void hw_orient_sprite(
 void hw_map_static(
 	const statobj_t& bs_static);
 
+void hw_update_static(
+	const int bs_static_index)
+{
+	auto& sprite = hw_statics_[bs_static_index];
+	const auto& bs_static = statobjlist[bs_static_index];
+	auto& hw_static = hw_statics_[bs_static_index];
+
+	if (sprite.kind_ == HwSpriteKind::none)
+	{
+		hw_map_static(bs_static);
+	}
+	else
+	{
+		hw_static.bs_sprite_id_ = bs_static.shapenum;
+	}
+
+	hw_orient_sprite(hw_static);
+}
+
 void hw_render_sprites()
 {
 	// Build draw list.
@@ -7007,18 +7026,9 @@ void hw_render_sprites()
 
 	for (const auto bs_static_index : hw_statics_to_render_)
 	{
-		auto& sprite = hw_statics_[bs_static_index];
+		hw_update_static(bs_static_index);
 
-		if (sprite.kind_ == HwSpriteKind::none)
-		{
-			const auto& bs_static = statobjlist[bs_static_index];
-
-			hw_map_static(bs_static);
-		}
-
-		hw_orient_sprite(sprite);
-
-		const auto& hw_static = hw_statics_[bs_static_index];
+		auto& hw_static = hw_statics_[bs_static_index];
 
 		auto& draw_item = draw_items[draw_sprite_index++];
 		draw_item.texture_id_ = hw_static.bs_sprite_id_;
