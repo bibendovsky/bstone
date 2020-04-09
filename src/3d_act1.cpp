@@ -1780,16 +1780,14 @@ void MovePWalls()
 			// the block has been pushed two tiles
 			//
 			pwallstate = 0;
-			pwallpos = 63;
+			pwallpos = 0;
+
+			pwallx += next_dx;
+			pwally += next_dy;
 
 			vid_hw_on_step_pushwall(old_x, old_y);
 
-			vid_hw_on_pushwall_to_wall(
-				old_x,
-				old_y,
-				old_x + next_dx,
-				old_y + next_dy
-			);
+			pwallpos = 63;
 
 			return;
 		}

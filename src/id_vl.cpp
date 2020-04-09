@@ -13564,7 +13564,9 @@ void vid_hw_add_wall_render_item(
 
 	hw_wall_last_xy_to_render_at_ = xy;
 
-	const auto is_pushwall = hw_is_pushwall(tile_x, tile_y);
+	const auto is_pushwall =
+		hw_is_pushwall(tile_x, tile_y) ||
+		hw_xy_pushwall_map_.find(xy) != hw_xy_pushwall_map_.cend();
 
 	if (is_pushwall)
 	{
