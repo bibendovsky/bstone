@@ -32,7 +32,7 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_audio_decoder.h"
-#include "bstone_opl2.h"
+#include "bstone_dosbox_dbopl.h"
 
 
 namespace bstone
@@ -59,7 +59,7 @@ public:
 
 
 protected:
-	Opl2 emulator_;
+	DosboxDbopl emulator_;
 
 
 	void set_emulator_default_state();
