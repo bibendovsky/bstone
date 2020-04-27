@@ -24,21 +24,23 @@ Free Software Foundation, Inc.,
 
 #include "bstone_audio_mixer.h"
 
+#include <cassert>
 #include <cmath>
 
 #include <algorithm>
 #include <atomic>
+#include <deque>
 #include <list>
 #include <mutex>
 #include <utility>
+#include <vector>
 
 #include "SDL_audio.h"
 
 #include "3d_def.h"
 #include "audio.h"
-#include "bstone_adlib_music_decoder.h"
-#include "bstone_adlib_sfx_decoder.h"
-#include "bstone_pcm_decoder.h"
+
+#include "bstone_audio_decoder.h"
 
 
 const int ATABLEMAX = 15;
@@ -62,12 +64,15 @@ public:
 
 	// Note: Mix size in milliseconds.
 	bool initialize(
+		const Opl3Type opl3_type,
 		const int dst_rate,
 		const int mix_size_ms);
 
 	void uninitialize();
 
 	bool is_initialized() const;
+
+	Opl3Type get_opl3_type() const;
 
 	int get_rate() const;
 
@@ -159,24 +164,17 @@ private:
 		int decoded_count;
 		int buffer_size_;
 		Samples samples;
-		std::unique_ptr<AudioDecoder> decoder;
+		AudioDecoderUPtr decoder;
+
 
 		CacheItem();
-
-		CacheItem(
-			const CacheItem& that);
-
-		~CacheItem();
-
-		CacheItem& operator=(
-			const CacheItem& that);
 
 		bool is_decoded() const;
 	}; // CacheItem
 
-	using Cache = std::vector<CacheItem>;
+	using Cache = std::deque<CacheItem>;
 
-	struct Location final
+	struct Location
 	{
 		int x;
 		int y;
@@ -184,7 +182,7 @@ private:
 
 	using Locations = std::vector<Location>;
 
-	struct PlayerLocation final
+	struct PlayerLocation
 	{
 		int view_x;
 		int view_y;
@@ -192,7 +190,7 @@ private:
 		int view_sin;
 	}; // PlayerLocation
 
-	struct Positions final
+	struct Positions
 	{
 		PlayerLocation player;
 		Locations actors;
@@ -231,7 +229,7 @@ private:
 		stop_all_sfx
 	}; // CommandType
 
-	struct Command final
+	struct Command
 	{
 		CommandType command;
 		Sound sound;
@@ -243,6 +241,7 @@ private:
 
 
 	bool is_initialized_;
+	Opl3Type opl3_type_;
 	int dst_rate_;
 	SDL_AudioDeviceID device_id_;
 	int mix_samples_count_;
@@ -333,8 +332,8 @@ private:
 		const int dst_rate,
 		const int mix_size_ms);
 
-	static AudioDecoder* create_decoder_by_sound_type(
-		const SoundType sound_type);
+	AudioDecoderUPtr create_decoder_by_sound_type(
+		const SoundType sound_type) const;
 
 	static bool is_sound_type_valid(
 		const SoundType sound_type);
@@ -355,53 +354,6 @@ AudioMixer::Impl::CacheItem::CacheItem()
 	buffer_size_{},
 	decoder{}
 {
-}
-
-AudioMixer::Impl::CacheItem::CacheItem(
-	const CacheItem& that)
-	:
-	is_active{that.is_active},
-	is_invalid{that.is_invalid},
-	sound_type{that.sound_type},
-	samples_count{that.samples_count},
-	decoded_count{that.decoded_count},
-	samples{that.samples}
-{
-	if (that.decoder)
-	{
-		decoder.reset(that.decoder->clone());
-	}
-	else
-	{
-		decoder = nullptr;
-	}
-}
-
-AudioMixer::Impl::CacheItem::~CacheItem() = default;
-
-AudioMixer::Impl::CacheItem& AudioMixer::Impl::CacheItem::operator=(
-	const CacheItem& that)
-{
-	if (std::addressof(that) != this)
-	{
-		is_active = that.is_active;
-		is_invalid = that.is_invalid;
-		sound_type = that.sound_type;
-		samples_count = that.samples_count;
-		decoded_count = that.decoded_count;
-		samples = that.samples;
-
-		if (that.decoder)
-		{
-			decoder.reset(that.decoder->clone());
-		}
-		else
-		{
-			decoder = nullptr;
-		}
-	}
-
-	return *this;
 }
 
 bool AudioMixer::Impl::CacheItem::is_decoded() const
@@ -441,6 +393,7 @@ bool AudioMixer::Impl::Sound::is_audible() const
 AudioMixer::Impl::Impl()
 	:
 	is_initialized_{},
+	opl3_type_{},
 	dst_rate_{},
 	device_id_{},
 	mix_samples_count_{},
@@ -483,10 +436,20 @@ AudioMixer::Impl::~Impl()
 }
 
 bool AudioMixer::Impl::initialize(
+	const Opl3Type opl3_type,
 	const int dst_rate,
 	const int mix_size_ms)
 {
 	uninitialize();
+
+	switch (opl3_type)
+	{
+		case Opl3Type::dbopl:
+			break;
+
+		default:
+			return false;
+	}
 
 	if (dst_rate == 0)
 	{
@@ -535,6 +498,9 @@ bool AudioMixer::Impl::initialize(
 	if (is_succeed)
 	{
 		is_initialized_ = true;
+
+		opl3_type_ = opl3_type;
+
 		mix_samples_count_ = dst_spec.samples;
 
 		const auto total_samples = get_max_channels() * mix_samples_count_;
@@ -570,6 +536,8 @@ void AudioMixer::Impl::uninitialize()
 {
 	is_initialized_ = false;
 
+	opl3_type_ = {};
+
 	if (device_id_ != 0)
 	{
 		SDL_PauseAudioDevice(device_id_, 1);
@@ -587,9 +555,9 @@ void AudioMixer::Impl::uninitialize()
 	commands_.clear();
 	mt_commands_.clear();
 	mute_ = false;
-	adlib_music_cache_ = {};
-	adlib_sfx_cache_ = {};
-	pcm_cache_ = {};
+	adlib_music_cache_.clear();
+	adlib_sfx_cache_.clear();
+	pcm_cache_.clear();
 	player_channels_state_ = 0;
 	is_music_playing_ = false;
 	is_any_sfx_playing_ = false;
@@ -599,6 +567,11 @@ void AudioMixer::Impl::uninitialize()
 bool AudioMixer::Impl::is_initialized() const
 {
 	return is_initialized_;
+}
+
+Opl3Type AudioMixer::Impl::get_opl3_type() const
+{
+	return opl3_type_;
 }
 
 int AudioMixer::Impl::get_rate() const
@@ -1090,7 +1063,7 @@ void AudioMixer::Impl::mix_samples()
 				{
 					sd_sq_played_once_ = true;
 
-					if (cache_item->decoder->reset())
+					if (cache_item->decoder->rewind())
 					{
 						cache_item->decoded_count = 0;
 						cache_item->buffer_size_ = 0;
@@ -1320,7 +1293,7 @@ bool AudioMixer::Impl::initialize_cache_item(
 
 	if (is_succeed)
 	{
-		decoder.reset(create_decoder_by_sound_type(command.sound.type));
+		decoder = create_decoder_by_sound_type(command.sound.type);
 
 		is_succeed = (decoder != nullptr);
 	}
@@ -1717,19 +1690,19 @@ void AudioMixer::Impl::set_player_channel_state(
 	}
 }
 
-AudioDecoder* AudioMixer::Impl::create_decoder_by_sound_type(
-	const SoundType sound_type)
+AudioDecoderUPtr AudioMixer::Impl::create_decoder_by_sound_type(
+	const SoundType sound_type) const
 {
 	switch (sound_type)
 	{
 	case SoundType::adlib_music:
-		return new AdlibMusicDecoder();
+		return make_audio_decoder(AudioDecoderType::adlib_music, opl3_type_);
 
 	case SoundType::adlib_sfx:
-		return new AdlibSfxDecoder();
+		return make_audio_decoder(AudioDecoderType::adlib_sfx, opl3_type_);
 
 	case SoundType::pcm:
-		return new PcmDecoder();
+		return make_audio_decoder(AudioDecoderType::pcm, opl3_type_);
 
 	default:
 		return nullptr;
@@ -1775,7 +1748,7 @@ bool AudioMixer::Impl::is_sound_index_valid(
 
 AudioMixer::AudioMixer()
 	:
-	impl_{new Impl{}}
+	impl_{std::make_unique<Impl>()}
 {
 }
 
@@ -1786,15 +1759,14 @@ AudioMixer::AudioMixer(
 {
 }
 
-AudioMixer::~AudioMixer()
-{
-}
+AudioMixer::~AudioMixer() = default;
 
 bool AudioMixer::initialize(
+	const Opl3Type opl3_type,
 	const int dst_rate,
 	const int mix_size_ms)
 {
-	return impl_->initialize(dst_rate, mix_size_ms);
+	return impl_->initialize(opl3_type, dst_rate, mix_size_ms);
 }
 
 void AudioMixer::uninitialize()
@@ -1805,6 +1777,11 @@ void AudioMixer::uninitialize()
 bool AudioMixer::is_initialized() const
 {
 	return impl_->is_initialized();
+}
+
+Opl3Type AudioMixer::get_opl3_type() const
+{
+	return impl_->get_opl3_type();
 }
 
 int AudioMixer::get_rate() const

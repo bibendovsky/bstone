@@ -197,6 +197,22 @@ bool sd_enable_music(
 	return enable;
 }
 
+const std::string& sd_get_opl3_long_name(
+	const bstone::Opl3Type opl3_type)
+{
+	static const auto unknown = std::string{"???"};
+	static const auto dosbox_dbopl = std::string{"DosBox DBOPL"};
+
+	switch (opl3_type)
+	{
+		case bstone::Opl3Type::dbopl:
+			return dosbox_dbopl;
+
+		default:
+			return unknown;
+	}
+}
+
 void sd_startup()
 {
 	if (sd_started_)
@@ -227,13 +243,14 @@ void sd_startup()
 			static_cast<void>(bstone::StringHelper::string_to_int(snd_mix_size_string, snd_mix_size));
 		}
 
-		if (sd_mixer_.initialize(snd_rate, snd_mix_size))
+		if (sd_mixer_.initialize(bstone::Opl3Type::dbopl, snd_rate, snd_mix_size))
 		{
 			sd_log("Channel count: " + std::to_string(sd_mixer_.get_channel_count()));
 			sd_log("Sample rate: " + std::to_string(sd_mixer_.get_rate()) + " Hz");
 			sd_log("Mix size: " + std::to_string(sd_mixer_.get_mix_size_ms()) + " ms");
 			sd_log("Effects volume: " + std::to_string(sd_sfx_volume_) + " / " + std::to_string(sd_max_volume));
 			sd_log("Music volume: " + std::to_string(sd_music_volume_) + " / " + std::to_string(sd_max_volume));
+			sd_log("OPL3 type: " + sd_get_opl3_long_name(sd_mixer_.get_opl3_type()));
 		}
 		else
 		{

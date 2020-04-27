@@ -303,12 +303,10 @@ target_sources(
 		movie.h
 
 		bstone_adlib_decoder.h
-		bstone_adlib_music_decoder.h
-		bstone_adlib_sfx_decoder.h
-		bstone_audio_decoder.h
-		bstone_audio_mixer.h
 		bstone_archiver.h
 		bstone_atomic.h
+		bstone_audio_decoder.h
+		bstone_audio_mixer.h
 		bstone_binary_reader.h
 		bstone_binary_writer.h
 		bstone_cl_args.h
@@ -316,33 +314,33 @@ target_sources(
 		bstone_endian.h
 		bstone_exception.h
 		bstone_file_stream.h
-		bstone_fizzle_fx.h
 		bstone_fixed_point.h
+		bstone_fizzle_fx.h
 		bstone_format_string.h
 		bstone_generic_fizzle_fx.h
-		bstone_stream.h
 		bstone_logger.h
+		bstone_low_pass_filter.h
 		bstone_memory_binary_reader.h
 		bstone_memory_stream.h
 		bstone_mod_value.h
-		bstone_mt_task_mgr.h
 		bstone_mt_queue_1r1w.h
-		bstone_dosbox_dbopl.h
-		bstone_ref_values.h
-		bstone_rgb8.h
-		bstone_pcm_decoder.h
+		bstone_mt_task_mgr.h
+		bstone_opl3.h
 		bstone_precompiled.h
 		bstone_ps_fizzle_fx.h
+		bstone_ref_values.h
+		bstone_rgb8.h
 		bstone_rgb_palette.h
 		bstone_scope_guard.h
 		bstone_sha1.h
 		bstone_sprite.h
 		bstone_sprite_cache.h
+		bstone_stream.h
 		bstone_string_helper.h
-		bstone_unique_resource.h
 		bstone_text_reader.h
 		bstone_text_writer.h
 		bstone_un_value.h
+		bstone_unique_resource.h
 		bstone_uptr_resource_list.h
 		bstone_version.h
 )
@@ -433,25 +431,26 @@ target_sources(
 		bstone_binary_writer.cpp
 		bstone_cl_args.cpp
 		bstone_crc32.cpp
+		bstone_dosbox_dbopl.cpp
 		bstone_exception.cpp
 		bstone_file_stream.cpp
-		bstone_fizzle_fx.cpp
 		bstone_fixed_point.cpp
+		bstone_fizzle_fx.cpp
 		bstone_format_string.cpp
 		bstone_generic_fizzle_fx.cpp
-		bstone_stream.cpp
 		bstone_logger.cpp
 		bstone_memory_binary_reader.cpp
 		bstone_memory_stream.cpp
 		bstone_mt_task_mgr.cpp
-		bstone_dosbox_dbopl.cpp
-		bstone_pcm_decoder.cpp
+		bstone_opl3.cpp
+		bstone_pcm_audio_decoder.cpp
 		bstone_precompiled.cpp
 		bstone_ps_fizzle_fx.cpp
 		bstone_rgb8.cpp
 		bstone_sha1.cpp
 		bstone_sprite.cpp
 		bstone_sprite_cache.cpp
+		bstone_stream.cpp
 		bstone_string_helper.cpp
 		bstone_text_reader.cpp
 		bstone_text_writer.cpp

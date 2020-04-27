@@ -23,13 +23,13 @@ Free Software Foundation, Inc.,
 
 
 //
-// Audio decoder interface.
+// OPL3 emulator interface.
 //
 
 
 #include "bstone_precompiled.h"
 
-#include "bstone_audio_decoder.h"
+#include "bstone_opl3.h"
 
 
 namespace bstone
@@ -40,32 +40,19 @@ namespace detail
 {
 
 
-AudioDecoderUPtr make_adlib_music_audio_decoder(
-	const Opl3Type opl3_type);
-
-AudioDecoderUPtr make_adlib_sfx_audio_decoder(
-	const Opl3Type opl3_type);
-
-AudioDecoderUPtr make_pcm_audio_decoder();
+Opl3UPtr make_dbopl_opl3();
 
 
 } // detail
 
 
-AudioDecoderUPtr make_audio_decoder(
-	const AudioDecoderType audio_decoder_type,
+Opl3UPtr make_opl3(
 	const Opl3Type opl3_type)
 {
-	switch (audio_decoder_type)
+	switch (opl3_type)
 	{
-		case AudioDecoderType::adlib_music:
-			return detail::make_adlib_music_audio_decoder(opl3_type);
-
-		case AudioDecoderType::adlib_sfx:
-			return detail::make_adlib_sfx_audio_decoder(opl3_type);
-
-		case AudioDecoderType::pcm:
-			return detail::make_pcm_audio_decoder();
+		case Opl3Type::dbopl:
+			return detail::make_dbopl_opl3();
 
 		default:
 			return nullptr;

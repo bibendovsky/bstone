@@ -23,73 +23,89 @@ Free Software Foundation, Inc.,
 
 
 //
-// A wrapper for DOSBox DBOPL.
+// OPL3 emulator interface.
 //
 
 
-#ifndef BSTONE_DOSBOX_DBOPL_INCLUDED
-#define BSTONE_DOSBOX_DBOPL_INCLUDED
+#ifndef BSTONE_OPL3_INCLUDED
+#define BSTONE_OPL3_INCLUDED
 
 
-#include "dbopl.h"
+#include <cstdint>
+
+#include <memory>
 
 
 namespace bstone
 {
 
 
-// A wrapper for DOSBox OPL2 emulator.
-class DosboxDbopl final
+class Opl3;
+
+
+enum class Opl3Type
+{
+	none,
+
+	// DosBox DBOPL
+	dbopl,
+}; // Opl3Type
+
+
+using Opl3UPtr = std::unique_ptr<Opl3>;
+
+
+//
+// OPL3 emulator interface.
+//
+class Opl3
 {
 public:
-	DosboxDbopl();
+	Opl3() = default;
+
+	virtual ~Opl3() = default;
+
+
+	virtual Opl3Type get_type() const noexcept = 0;
 
 	// Initializes the emulator with a specified output sample rate.
-	void initialize(
-		const int sample_rate);
+	virtual void initialize(
+		const int sample_rate) = 0;
 
 	// Uninitializes the emulator.
-	void uninitialize();
+	virtual void uninitialize() = 0;
 
 	// Returns true if the wrapper initialized or false otherwise.
-	bool is_initialized() const;
+	virtual bool is_initialized() const noexcept = 0;
 
 	// Returns an output sample rate.
-	int get_sample_rate() const;
+	virtual int get_sample_rate() const noexcept = 0;
 
 	// Writes a value into a register.
-	void write(
-		const int fm_port,
-		const int fm_value);
+	virtual void write(
+		const int port,
+		const int value) = 0;
 
 	// Generates number of mono samples into a provided buffer.
 	// Returns false on error.
-	bool generate(
+	virtual bool generate(
 		const int count,
-		std::int16_t* buffer);
+		std::int16_t* const buffer) = 0;
 
-	// Resets the emulator.
-	bool reset();
+	// Initializes the emulator with defined earlier sample rate.
+	virtual bool reset() = 0;
 
 	// Returns a minimum output sample rate.
-	// (Emulator depandant value)
-	static int get_min_sample_rate();
+	// (Emulator dependant value)
+	virtual int get_min_sample_rate() const noexcept = 0;
+}; // Opl3
 
 
-private:
-	bool is_initialized_;
-	int sample_rate_;
-	DBOPL::Handler emulator_;
-	MixerChannel channel_;
-
-
-	// Returns a maximum number of output samples generated at once.
-	// (Emulator dependent value)
-	static int get_max_samples_count();
-}; // DosboxDbopl
+Opl3UPtr make_opl3(
+	const Opl3Type opl3_type);
 
 
 } // bstone
 
 
-#endif // !BSTONE_DOSBOX_DBOPL_INCLUDED
+#endif // !BSTONE_OPL3_INCLUDED
