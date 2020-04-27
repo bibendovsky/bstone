@@ -28,6 +28,8 @@ Free Software Foundation, Inc.,
 
 #include <memory>
 
+#include "bstone_opl3.h"
+
 
 namespace bstone
 {
@@ -79,12 +81,15 @@ public:
 
 	// Note: Mix size in milliseconds.
 	bool initialize(
+		const Opl3Type opl3_type,
 		const int dst_rate,
 		const int mix_size_ms);
 
 	void uninitialize();
 
 	bool is_initialized() const;
+
+	Opl3Type get_opl3_type() const;
 
 	int get_rate() const;
 
