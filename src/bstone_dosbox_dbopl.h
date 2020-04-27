@@ -23,12 +23,12 @@ Free Software Foundation, Inc.,
 
 
 //
-// A wrapper for the DOSBox OPL2 emulator.
+// A wrapper for DOSBox DBOPL.
 //
 
 
-#ifndef BSTONE_OPL2_INCLUDED
-#define BSTONE_OPL2_INCLUDED
+#ifndef BSTONE_DOSBOX_DBOPL_INCLUDED
+#define BSTONE_DOSBOX_DBOPL_INCLUDED
 
 
 #include "dbopl.h"
@@ -39,10 +39,10 @@ namespace bstone
 
 
 // A wrapper for DOSBox OPL2 emulator.
-class Opl2 final
+class DosboxDbopl final
 {
 public:
-	Opl2();
+	DosboxDbopl();
 
 	// Initializes the emulator with a specified output sample rate.
 	void initialize(
@@ -86,10 +86,10 @@ private:
 	// Returns a maximum number of output samples generated at once.
 	// (Emulator dependent value)
 	static int get_max_samples_count();
-}; // Opl2
+}; // DosboxDbopl
 
 
 } // bstone
 
 
-#endif // !BSTONE_OPL2_INCLUDED
+#endif // !BSTONE_DOSBOX_DBOPL_INCLUDED

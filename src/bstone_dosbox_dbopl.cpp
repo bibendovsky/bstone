@@ -23,25 +23,25 @@ Free Software Foundation, Inc.,
 
 
 //
-// A wrapper for the DOSBox OPL2 emulator.
+// A wrapper for DOSBox DBOPL.
 //
 
 
-#include "bstone_opl2.h"
+#include "bstone_dosbox_dbopl.h"
 
 
 namespace bstone
 {
 
 
-Opl2::Opl2()
+DosboxDbopl::DosboxDbopl()
 	:
 	is_initialized_{},
 	sample_rate_{}
 {
 }
 
-void Opl2::initialize(
+void DosboxDbopl::initialize(
 	const int sample_rate)
 {
 	uninitialize();
@@ -54,24 +54,24 @@ void Opl2::initialize(
 	is_initialized_ = true;
 }
 
-void Opl2::uninitialize()
+void DosboxDbopl::uninitialize()
 {
 	is_initialized_ = false;
 	sample_rate_ = 0;
 	emulator_ = DBOPL::Handler{};
 }
 
-bool Opl2::is_initialized() const
+bool DosboxDbopl::is_initialized() const
 {
 	return is_initialized_;
 }
 
-int Opl2::get_sample_rate() const
+int DosboxDbopl::get_sample_rate() const
 {
 	return sample_rate_;
 }
 
-void Opl2::write(
+void DosboxDbopl::write(
 	const int fm_port,
 	const int fm_value)
 {
@@ -83,7 +83,7 @@ void Opl2::write(
 	emulator_.WriteReg(static_cast<Bit32u>(fm_port), static_cast<Bit8u>(fm_value));
 }
 
-bool Opl2::generate(
+bool DosboxDbopl::generate(
 	const int count,
 	std::int16_t* buffer)
 {
@@ -119,7 +119,7 @@ bool Opl2::generate(
 	return true;
 }
 
-bool Opl2::reset()
+bool DosboxDbopl::reset()
 {
 	if (!is_initialized())
 	{
@@ -131,12 +131,12 @@ bool Opl2::reset()
 	return true;
 }
 
-int Opl2::get_min_sample_rate()
+int DosboxDbopl::get_min_sample_rate()
 {
 	return 8000;
 }
 
-int Opl2::get_max_samples_count()
+int DosboxDbopl::get_max_samples_count()
 {
 	return 512;
 }

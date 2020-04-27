@@ -327,7 +327,7 @@ target_sources(
 		bstone_mod_value.h
 		bstone_mt_task_mgr.h
 		bstone_mt_queue_1r1w.h
-		bstone_opl2.h
+		bstone_dosbox_dbopl.h
 		bstone_ref_values.h
 		bstone_rgb8.h
 		bstone_pcm_decoder.h
@@ -444,7 +444,7 @@ target_sources(
 		bstone_memory_binary_reader.cpp
 		bstone_memory_stream.cpp
 		bstone_mt_task_mgr.cpp
-		bstone_opl2.cpp
+		bstone_dosbox_dbopl.cpp
 		bstone_pcm_decoder.cpp
 		bstone_precompiled.cpp
 		bstone_ps_fizzle_fx.cpp
