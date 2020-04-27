@@ -998,6 +998,9 @@ void AudioMixer::Impl::mix_samples()
 	auto sound_it = sounds_.begin();
 	auto sound_end_it = sounds_.end();
 
+	constexpr auto sfx_volume_scale = 7.0F;
+	constexpr auto music_volume_scale = 6.0F;
+
 	while (sound_it != sound_end_it)
 	{
 		if (!decode_sound(*sound_it))
@@ -1028,11 +1031,11 @@ void AudioMixer::Impl::mix_samples()
 		switch (sound_it->type)
 		{
 		case SoundType::adlib_music:
-			volume_scale = 8.0F * music_volume;
+			volume_scale = music_volume_scale * music_volume;
 			break;
 
 		case SoundType::adlib_sfx:
-			volume_scale = 8.0F * sfx_volume;
+			volume_scale = sfx_volume_scale * sfx_volume;
 			break;
 
 		default:
