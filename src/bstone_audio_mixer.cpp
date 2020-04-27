@@ -154,6 +154,7 @@ private:
 		SoundType sound_type;
 		int samples_count;
 		int decoded_count;
+		int buffer_size_;
 		Samples samples;
 		std::unique_ptr<AudioDecoder> decoder;
 
@@ -203,7 +204,7 @@ private:
 
 	using Indices = std::vector<int>;
 
-	struct Sound final
+	struct Sound
 	{
 		SoundType type;
 		int priority;
@@ -348,6 +349,7 @@ AudioMixer::Impl::CacheItem::CacheItem()
 	sound_type{},
 	samples_count{},
 	decoded_count{},
+	buffer_size_{},
 	decoder{}
 {
 }
@@ -372,9 +374,7 @@ AudioMixer::Impl::CacheItem::CacheItem(
 	}
 }
 
-AudioMixer::Impl::CacheItem::~CacheItem()
-{
-}
+AudioMixer::Impl::CacheItem::~CacheItem() = default;
 
 AudioMixer::Impl::CacheItem& AudioMixer::Impl::CacheItem::operator=(
 	const CacheItem& that)
@@ -1010,9 +1010,11 @@ void AudioMixer::Impl::mix_samples()
 			continue;
 		}
 
+		const auto is_adlib_music = (sound_it->type == SoundType::adlib_music);
+
 		auto cache_item = sound_it->cache;
 
-		if (sound_it->decode_offset == cache_item->decoded_count)
+		if (!is_adlib_music && sound_it->decode_offset == cache_item->decoded_count)
 		{
 			++sound_it;
 			continue;
@@ -1041,12 +1043,23 @@ void AudioMixer::Impl::mix_samples()
 			break;
 		}
 
-		const auto remain_count = cache_item->decoded_count - sound_it->decode_offset;
-		const auto decode_count = std::min(remain_count, mix_samples_count_);
+		auto decode_count = 0;
+
+		if (is_adlib_music)
+		{
+			decode_count = cache_item->buffer_size_;
+		}
+		else
+		{
+			const auto remain_count = cache_item->decoded_count - sound_it->decode_offset;
+			decode_count = std::min(remain_count, mix_samples_count_);
+		}
+
+		const auto base_offset = (is_adlib_music ? 0 : sound_it->decode_offset);
 
 		for (int i = 0; i < decode_count; ++i)
 		{
-			const auto sample = volume_scale * cache_item->samples[sound_it->decode_offset + i];
+			const auto sample = volume_scale * cache_item->samples[base_offset + i];
 
 			// Left channel.
 			//
@@ -1067,18 +1080,40 @@ void AudioMixer::Impl::mix_samples()
 			max_right_sample = std::max(right_sample, max_right_sample);
 		}
 
-		sound_it->decode_offset += decode_count;
+		if (!is_adlib_music)
+		{
+			sound_it->decode_offset += decode_count;
+		}
 
-		if (sound_it->decode_offset == cache_item->decoded_count)
+		if ((is_adlib_music && cache_item->is_decoded()) ||
+			(!is_adlib_music && sound_it->decode_offset == cache_item->decoded_count))
 		{
 			if (cache_item->is_decoded())
 			{
+				auto is_erase = false;
+
 				if (sound_it->type == SoundType::adlib_music)
 				{
 					sd_sq_played_once_ = true;
+#if 0
 					sound_it->decode_offset = 0;
+#endif
+					if (cache_item->decoder->reset())
+					{
+						cache_item->decoded_count = 0;
+						cache_item->buffer_size_ = 0;
+					}
+					else
+					{
+						is_erase = true;
+					}
 				}
 				else
+				{
+					is_erase = true;
+				}
+
+				if (is_erase)
 				{
 					set_player_channel_state(*sound_it, false);
 					sound_it = sounds_.erase(sound_it);
@@ -1228,7 +1263,9 @@ void AudioMixer::Impl::handle_play_command(
 		return;
 	}
 
-	if (command.sound.type != SoundType::adlib_music && command.sound.actor_index >= 0)
+	const auto is_adlib_music = (command.sound.type == SoundType::adlib_music);
+
+	if (!is_adlib_music && command.sound.actor_index >= 0)
 	{
 		// Search existing sound which can override a
 		// new one because of priority.
@@ -1262,7 +1299,7 @@ void AudioMixer::Impl::handle_play_command(
 		}
 	}
 
-	if (command.sound.type == SoundType::adlib_music)
+	if (is_adlib_music)
 	{
 		is_music_playing_ = true;
 	}
@@ -1346,9 +1383,12 @@ bool AudioMixer::Impl::initialize_cache_item(
 
 	if (is_succeed)
 	{
+		const auto is_adlib_music = (command.sound.type == SoundType::adlib_music);
+
 		cache_item.sound_type = command.sound.type;
 		cache_item.samples_count = samples_count;
-		cache_item.samples.resize(samples_count);
+		cache_item.samples.resize(is_adlib_music ? mix_samples_count_ : samples_count);
+		cache_item.buffer_size_ = 0;
 		cache_item.decoder.swap(decoder);
 	}
 	else
@@ -1384,18 +1424,46 @@ bool AudioMixer::Impl::decode_sound(
 		return true;
 	}
 
-	const auto ahead_count = std::min(sound.decode_offset + mix_samples_count_, cache_item->samples_count);
+	if (sound.type == SoundType::adlib_music)
+	{
+		const auto total_remain_count = cache_item->samples_count - cache_item->decoded_count;
+
+		if (total_remain_count == 0)
+		{
+			return true;
+		}
+
+		auto remain_count = std::min(total_remain_count, cache_item->buffer_size_);
+
+		if (remain_count == 0)
+		{
+			remain_count = std::min(total_remain_count, mix_samples_count_);
+		}
+
+		cache_item->buffer_size_ = cache_item->decoder->decode(
+			remain_count,
+			cache_item->samples.data());
+
+		cache_item->decoded_count += cache_item->buffer_size_;
+
+		return true;
+	}
+
+	const auto ahead_count = std::min(
+		sound.decode_offset + mix_samples_count_,
+		cache_item->samples_count
+	);
 
 	if (ahead_count <= cache_item->decoded_count)
 	{
 		return true;
 	}
 
-	int planned_count = std::min(
+	const auto planned_count = std::min(
 		cache_item->samples_count - cache_item->decoded_count,
 		mix_samples_count_);
 
-	int actual_count = cache_item->decoder->decode(
+	const auto actual_count = cache_item->decoder->decode(
 		planned_count,
 		&cache_item->samples[cache_item->decoded_count]);
 
