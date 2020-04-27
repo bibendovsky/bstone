@@ -24,6 +24,9 @@ Free Software Foundation, Inc.,
 
 #include "bstone_audio_mixer.h"
 
+#include <cmath>
+
+#include <algorithm>
 #include <atomic>
 #include <list>
 #include <mutex>
@@ -992,12 +995,6 @@ void AudioMixer::Impl::mix_samples()
 	auto sfx_volume = static_cast<float>(sfx_volume_);
 	auto music_volume = static_cast<float>(music_volume_);
 
-	auto min_left_sample = 32767;
-	auto max_left_sample = -32768;
-
-	auto min_right_sample = 32767;
-	auto max_right_sample = -32768;
-
 	auto sound_it = sounds_.begin();
 	auto sound_end_it = sounds_.end();
 
@@ -1067,17 +1064,11 @@ void AudioMixer::Impl::mix_samples()
 
 			mix_buffer_[(2 * i) + 0] += left_sample;
 
-			min_left_sample = std::min(left_sample, min_left_sample);
-			max_left_sample = std::max(left_sample, max_left_sample);
-
 			// Right channel.
 			//
 			const auto right_sample = static_cast<int>(sound_it->right_volume * sample);
 
 			mix_buffer_[(2 * i) + 1] += right_sample;
-
-			min_right_sample = std::min(right_sample, min_right_sample);
-			max_right_sample = std::max(right_sample, max_right_sample);
 		}
 
 		if (!is_adlib_music)
@@ -1095,9 +1086,7 @@ void AudioMixer::Impl::mix_samples()
 				if (sound_it->type == SoundType::adlib_music)
 				{
 					sd_sq_played_once_ = true;
-#if 0
-					sound_it->decode_offset = 0;
-#endif
+
 					if (cache_item->decoder->reset())
 					{
 						cache_item->decoded_count = 0;
@@ -1126,76 +1115,43 @@ void AudioMixer::Impl::mix_samples()
 	}
 
 
-	//
-	// Calculate normalizations factors.
-	//
-
-	// Left channel.
-	//
-	auto normalize_left = false;
-	auto normalize_left_scale = 1.0F;
-
-	if (min_left_sample < -32768 && -min_left_sample > max_left_sample)
-	{
-		normalize_left = true;
-		normalize_left_scale = -32768.0F / min_left_sample;
-	}
-	else if (max_left_sample > 32767 && max_left_sample >= -min_left_sample)
-	{
-		normalize_left = true;
-		normalize_left_scale = 32767.0F / max_left_sample;
-	}
-
-	// Right channel.
-	//
-	auto normalize_right = false;
-	auto normalize_right_scale = 1.0F;
-
-	if (min_right_sample < -32768 && -min_right_sample > max_right_sample)
-	{
-		normalize_right = true;
-		normalize_right_scale = -32768.0F / min_right_sample;
-	}
-	else if (max_right_sample > 32767 && max_right_sample >= -min_right_sample)
-	{
-		normalize_right = true;
-		normalize_right_scale = 32767.0F / max_right_sample;
-	}
-
-
-	//
-	// Normalize and output.
-	//
-	for (int i = 0; i < mix_samples_count_; ++i)
-	{
-		// Left channel.
-		//
-		auto left_sample = mix_buffer_[(2 * i) + 0];
-
-		if (normalize_left)
+	const auto max_mix_sample_it = std::max_element(
+		mix_buffer_.cbegin(),
+		mix_buffer_.cend(),
+		[](const auto lhs, const auto rhs)
 		{
-			left_sample = static_cast<int>(normalize_left_scale * left_sample);
+			return std::abs(lhs) < std::abs(rhs);
 		}
+	);
 
-		left_sample = std::min(left_sample, 32767);
-		left_sample = std::max(left_sample, -32768);
+	if (max_mix_sample_it != mix_buffer_.cend())
+	{
+		constexpr auto max_mix_sample_value = 32'760;
 
-		buffer_[(2 * i) + 0] = static_cast<std::int16_t>(left_sample);
+		const auto max_mix_sample = std::abs(*max_mix_sample_it);
 
-
-		// Right channel.
-		//
-		auto right_sample = mix_buffer_[(2 * i) + 1];
-
-		if (normalize_right)
+		if (max_mix_sample <= max_mix_sample_value)
 		{
-			right_sample = static_cast<int>(normalize_right_scale * right_sample);
+			std::uninitialized_copy(
+				mix_buffer_.cbegin(),
+				mix_buffer_.cend(),
+				buffer_.begin()
+			);
 		}
+		else
+		{
+			const auto scalar = 32'768.0F / max_mix_sample;
 
-		right_sample = std::min(right_sample, 32767);
-		right_sample = std::max(right_sample, -32768);
-
-		buffer_[(2 * i) + 1] = static_cast<std::int16_t>(right_sample);
+			std::transform(
+				mix_buffer_.cbegin(),
+				mix_buffer_.cend(),
+				buffer_.begin(),
+				[scalar](const auto item)
+				{
+					return static_cast<Sample>(item * scalar);
+				}
+			);
+		}
 	}
 
 	const auto music_count = (is_music_playing() ? 1 : 0);
