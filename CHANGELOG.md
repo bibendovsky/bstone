@@ -36,6 +36,11 @@
 - Renamed option `vid_no_vsync` to `vid_vsync`.
 - Values of option `vid_renderer`.
 - Serializing barrier switches.
+- Disabled music caching.
+- Reduced volume factor for OPL sounds.
+
+### Fixed
+- Audio normalization.
 
 
 ## [1.1.16] - 2020-02-01
