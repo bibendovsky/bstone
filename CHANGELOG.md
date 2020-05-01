@@ -25,7 +25,7 @@
 - Generic instructiond on how to compile on Linux-based system.
 
 ### Removed
-- Option "vid_scale".
+- Option `vid_scale`.
 - Vanilla input bindings and related menu items.
 
 ### Changed
@@ -37,7 +37,7 @@
 - Values of option `vid_renderer`.
 - Serializing barrier switches.
 - Disabled music caching.
-- Reduced volume factor for OPL sounds.
+- Reduced volume factor of OPL sounds.
 
 ### Fixed
 - Audio normalization.
