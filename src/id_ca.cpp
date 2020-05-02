@@ -46,6 +46,7 @@ loaded into the data segment
 #include "SDL_endian.h"
 
 #include "audio.h"
+#include "jm_lzh.h"
 #include "id_heads.h"
 #include "id_pm.h"
 #include "id_sd.h"
@@ -83,6 +84,7 @@ std::uint16_t* mapsegs[MAPPLANES];
 MapHeaderSegments mapheaderseg;
 AudioSegments audiosegs;
 GrSegments grsegs;
+GrSegmentSizes grsegs_sizes_;
 
 GrNeeded grneeded;
 std::uint8_t ca_levelbit, ca_levelnum;
@@ -211,8 +213,6 @@ std::string ca_make_padded_asset_number_string(
 	result.insert(0, max_padded_numer_string_length - result.size(), '0');
 	return result;
 }
-
-int ca_gr_last_expanded_size;
 
 void CAL_CarmackExpand(
 	std::uint16_t* source,
@@ -802,7 +802,7 @@ void CAL_ExpandGrChunk(
 
 	CAL_HuffExpand(source, static_cast<std::uint8_t*>(grsegs[chunk]), expanded, grhuffman);
 
-	ca_gr_last_expanded_size = expanded;
+	grsegs_sizes_[chunk] = expanded;
 }
 
 /*
@@ -3202,6 +3202,265 @@ void ca_dump_sfx(
 
 	auto audio_dumper = AudioDumper{};
 	audio_dumper.dump_sfx(ca_normalize_path(destination_dir));
+
+	bstone::logger_->write(">>> ================");
+}
+
+// ==========================================================================
+// TextDumper
+//
+
+class TextDumperException :
+	public bstone::Exception
+{
+public:
+	explicit TextDumperException(
+		const std::string& message)
+		:
+		Exception{std::string{"[DBG_TXT_DMPR] "} + message}
+	{
+	}
+
+	explicit TextDumperException(
+		const int number,
+		const std::string& message)
+		:
+		Exception{std::string{"[DBG_TXT_DMPR][Text #"} + std::to_string(number) + "] " + message}
+	{
+	}
+}; // TextDumperException
+
+
+class TextDumper
+{
+public:
+	TextDumper();
+
+
+	void dump_text(
+		const std::string& dst_dir);
+
+
+private:
+	enum class CompressionType :
+		std::uint16_t
+	{
+		none = 0,
+		lzw = 1,
+		lzh = 2,
+	}; // CompressionType
+
+	struct TextNumber
+	{
+		bool is_compressed_;
+		int number_;
+	}; // TextNumber
+
+#pragma pack(push, 1)
+	struct CompressedHeader
+	{
+		char name_id_[4];
+		std::uint32_t uncompressed_size_;
+		CompressionType compression_type_;
+		std::uint32_t compressed_size_;
+	}; // CompressedHeader
+#pragma pack(pop)
+
+	using TextNumbers = std::vector<TextNumber>;
+	using Buffer = std::vector<std::uint8_t>;
+
+
+	TextNumbers text_numbers_;
+	Buffer buffer_;
+
+
+	void initialize_text();
+
+	void dump_text(
+		const std::string& dst_dir,
+		const TextNumber& number);
+}; // TextDumper
+
+
+TextDumper::TextDumper()
+	:
+	text_numbers_{}
+{
+	initialize_text();
+}
+
+void TextDumper::dump_text(
+	const std::string& dst_dir)
+{
+	bstone::logger_->write("File count: " + std::to_string(text_numbers_.size()));
+
+	for (const auto text_number : text_numbers_)
+	{
+		dump_text(dst_dir, text_number);
+	}
+}
+
+void TextDumper::initialize_text()
+{
+	text_numbers_.reserve(50);
+
+	text_numbers_.emplace_back(TextNumber{false, INFORMANT_HINTS});
+	text_numbers_.emplace_back(TextNumber{false, NICE_SCIE_HINTS});
+	text_numbers_.emplace_back(TextNumber{false, MEAN_SCIE_HINTS});
+	text_numbers_.emplace_back(TextNumber{false, BRIEF_W1});
+	text_numbers_.emplace_back(TextNumber{false, BRIEF_I1});
+	text_numbers_.emplace_back(TextNumber{false, BRIEF_W2});
+	text_numbers_.emplace_back(TextNumber{false, BRIEF_I2});
+	text_numbers_.emplace_back(TextNumber{false, BRIEF_W3});
+	text_numbers_.emplace_back(TextNumber{false, BRIEF_I3});
+	text_numbers_.emplace_back(TextNumber{false, BRIEF_W4});
+	text_numbers_.emplace_back(TextNumber{false, BRIEF_I4});
+	text_numbers_.emplace_back(TextNumber{false, BRIEF_W5});
+	text_numbers_.emplace_back(TextNumber{false, BRIEF_I5});
+	text_numbers_.emplace_back(TextNumber{false, BRIEF_W6});
+	text_numbers_.emplace_back(TextNumber{false, BRIEF_I6});
+	text_numbers_.emplace_back(TextNumber{false, LEVEL_DESCS});
+	text_numbers_.emplace_back(TextNumber{true, POWERBALLTEXT});
+	text_numbers_.emplace_back(TextNumber{true, TICSTEXT});
+	text_numbers_.emplace_back(TextNumber{true, MUSICTEXT});
+	text_numbers_.emplace_back(TextNumber{true, RADARTEXT});
+	text_numbers_.emplace_back(TextNumber{false, HELPTEXT});
+	text_numbers_.emplace_back(TextNumber{false, SAGATEXT});
+	text_numbers_.emplace_back(TextNumber{false, LOSETEXT});
+	text_numbers_.emplace_back(TextNumber{false, ORDERTEXT});
+	text_numbers_.emplace_back(TextNumber{false, CREDITSTEXT});
+	text_numbers_.emplace_back(TextNumber{false, MUSTBE386TEXT});
+	text_numbers_.emplace_back(TextNumber{false, QUICK_INFO1_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, QUICK_INFO2_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, BADINFO_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, CALJOY1_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, CALJOY2_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, READTHIS_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, ELEVMSG0_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, ELEVMSG1_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, ELEVMSG4_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, ELEVMSG5_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, FLOORMSG_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, YOUWIN_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, CHANGEVIEW_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, BADCHECKSUMTEXT});
+	text_numbers_.emplace_back(TextNumber{false, DIZ_ERR_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, BADLEVELSTEXT});
+	text_numbers_.emplace_back(TextNumber{false, BADSAVEGAME_TEXT});
+
+	std::sort(
+		text_numbers_.begin(),
+		text_numbers_.end(),
+		[](const auto& lhs, const auto& rhs)
+		{
+			return lhs.number_ < rhs.number_;
+		}
+	);
+
+	const auto non_zero_number_it = std::find_if(
+		text_numbers_.begin(),
+		text_numbers_.end(),
+		[](const auto item)
+		{
+			return item.number_ != 0;
+		}
+	);
+
+	if (non_zero_number_it == text_numbers_.end())
+	{
+		throw TextDumperException{"Empty list."};
+	}
+
+	text_numbers_.erase(text_numbers_.begin(), non_zero_number_it);
+}
+
+void TextDumper::dump_text(
+	const std::string& dst_dir,
+	const TextNumber& text_number)
+{
+	const auto number = text_number.number_;
+
+	CA_CacheGrChunk(number);
+
+	auto text_data = grsegs[number];
+	auto text_size = grsegs_sizes_[number];
+
+	if (text_number.is_compressed_)
+	{
+		constexpr auto max_uncompressed_size = 256;
+
+		const auto header_size = sizeof(CompressedHeader);
+		const auto compressed_header = static_cast<CompressedHeader*>(text_data);
+		const auto pure_data_size = text_size - header_size;
+
+		if (text_size <= header_size ||
+			compressed_header->compressed_size_ > pure_data_size ||
+			compressed_header->uncompressed_size_ > max_uncompressed_size)
+		{
+			throw TextDumperException{number, "Damaged compression header."};
+		}
+
+		if (compressed_header->compression_type_ != CompressionType::lzh)
+		{
+			throw TextDumperException{number, "Expected LZH compression type."};
+		}
+
+		buffer_.resize(compressed_header->uncompressed_size_);
+
+		if (!LZH_Startup())
+		{
+			throw TextDumperException{number, "Failed to initialized LZH decoder."};
+		}
+
+		const auto decoded_size = LZH_Decompress(
+			static_cast<const char*>(text_data) + header_size,
+			buffer_.data(),
+			compressed_header->uncompressed_size_,
+			compressed_header->compressed_size_
+		);
+
+		LZH_Shutdown();
+
+		buffer_.resize(decoded_size);
+
+		text_data = buffer_.data();
+		text_size = decoded_size;
+	}
+	else
+	{
+		text_data = grsegs[number];
+	}
+
+	const auto& number_string = ca_make_padded_asset_number_string(number);
+	const auto& file_name = ca_append_path(dst_dir, "text_" + number_string + ".txt");
+
+	auto file_stream = bstone::FileStream{file_name, bstone::StreamOpenMode::write};
+
+	if (!file_stream.is_open())
+	{
+		throw TextDumperException{number, "Failed to open \"" + file_name + "\" for writing."};
+	}
+
+	if (!file_stream.write(text_data, text_size))
+	{
+		throw TextDumperException{number, "Write I/O error."};
+	}
+}
+
+//
+// TextDumper
+// ==========================================================================
+
+void ca_dump_text(
+	const std::string& destination_dir)
+{
+	bstone::logger_->write();
+	bstone::logger_->write("<<< ================");
+	bstone::logger_->write("Dumping text.");
+	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
+
+	auto text_dumper = TextDumper{};
+	text_dumper.dump_text(ca_normalize_path(destination_dir));
 
 	bstone::logger_->write(">>> ================");
 }

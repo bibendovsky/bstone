@@ -270,6 +270,7 @@ using AudioSegments = std::vector<std::uint8_t*>;
 using GrSegments = std::vector<void*>;
 using GrNeeded = std::vector<std::uint8_t>;
 using MapHeaderSegments = std::vector<maptype*>;
+using GrSegmentSizes = std::vector<int>;
 
 
 extern std::uint16_t rlew_tag;
@@ -280,6 +281,7 @@ extern std::uint16_t* mapsegs[MAPPLANES];
 extern MapHeaderSegments mapheaderseg;
 extern AudioSegments audiosegs;
 extern GrSegments grsegs;
+extern GrSegmentSizes grsegs_sizes_;
 
 extern GrNeeded grneeded;
 extern std::uint8_t ca_levelbit, ca_levelnum;
@@ -357,8 +359,6 @@ void ca_huff_expand_on_screen(
 void CloseGrFile();
 
 // BBi
-extern int ca_gr_last_expanded_size;
-
 std::string ca_load_script(
 	int chunk_id,
 	bool strip_xx = false);
@@ -398,6 +398,9 @@ void ca_dump_music(
 	const std::string& destination_dir);
 
 void ca_dump_sfx(
+	const std::string& destination_dir);
+
+void ca_dump_text(
 	const std::string& destination_dir);
 
 

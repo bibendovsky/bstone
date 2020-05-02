@@ -1088,6 +1088,19 @@ void InitGame()
 		}
 	}
 
+	{
+		const auto& debug_dump_text_option_name = std::string{"debug_dump_text"};
+
+		if (g_args.has_option(debug_dump_text_option_name))
+		{
+			const auto& dump_dir = g_args.get_option_value(debug_dump_text_option_name);
+
+			ca_dump_text(dump_dir);
+
+			Quit();
+		}
+	}
+
 	ReadConfig();
 	read_high_scores();
 

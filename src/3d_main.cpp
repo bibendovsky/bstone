@@ -7067,6 +7067,8 @@ void initialize_gfxv_contants()
 	}
 
 	grsegs.resize(NUMCHUNKS);
+	grsegs_sizes_.resize(NUMCHUNKS);
+
 	grneeded.resize(NUMCHUNKS);
 }
 
