@@ -77,6 +77,14 @@ struct MusicGroup
 	std::uint16_t values[1];
 }; // MusicGroup
 
+struct SfxInfo
+{
+	bool is_digitized_;
+	int digi_index_;
+	const void* data_;
+	int size_;
+}; // SfxInfo
+
 
 // Global variables
 
@@ -160,6 +168,14 @@ void sd_set_music_volume(
 
 void sd_mute(
 	const bool mute);
+
+int sd_get_adlib_music_data_size(
+	const void* const raw_music_data);
+
+SfxInfo sd_get_sfx_info(
+	const int sfx_number);
+
+void sd_debug_setup_dump();
 // BBi
 
 

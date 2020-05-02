@@ -43,6 +43,9 @@ namespace bstone
 class Opl3;
 
 
+constexpr auto opl3_fixed_frequency = 49'716;
+
+
 enum class Opl3Type
 {
 	none,
