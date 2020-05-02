@@ -22,7 +22,9 @@
 - Option `debug_dump_hashes` to dump hashes of resource files.
 - Option `debug_dump_walls_images` to dump graphics resources (wall, flooring, etc.).
 - Option `debug_dump_sprites_images` to dump graphics resources (actors, decorations, etc.).
-- Generic instructiond on how to compile on Linux-based system.
+- Option `debug_dump_music` to dump music resources.
+- Option `debug_dump_sfx` to dump sfx resources.
+- Generic instruction on how to compile on Linux-based system.
 
 ### Removed
 - Option `vid_scale`.

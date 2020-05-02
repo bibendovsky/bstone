@@ -349,6 +349,14 @@ Notes:
   Dumps graphics resources (actors, decorations, etc.) into existing directory `dir`.  
   Supported file format: [BMP](http://wikipedia.org/wiki/BMP_file_format)
 
+* `--debug_dump_music dir`  
+  Dumps music resources into existing directory `dir`.  
+  Supported file format: [WAV](http://en.wikipedia.org/wiki/WAV)
+
+* `--debug_dump_sfx dir`  
+  Dumps sfx resources into existing directory `dir`.  
+  Supported file format: [WAV](http://en.wikipedia.org/wiki/WAV)
+
 
 7 - Cheat key
 =============
