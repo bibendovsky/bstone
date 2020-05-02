@@ -4267,7 +4267,7 @@ std::uint32_t CacheCompData(
 
 	if (!assets_info.is_ps())
 	{
-		data_length = ca_gr_last_expanded_size;
+		data_length = grsegs_sizes_[item_number];
 	}
 	else
 	{
