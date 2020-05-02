@@ -175,7 +175,7 @@ int sd_get_adlib_music_data_size(
 SfxInfo sd_get_sfx_info(
 	const int sfx_number);
 
-void sd_debug_setup_dump();
+void sd_setup_extracting();
 // BBi
 
 

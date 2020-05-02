@@ -1025,6 +1025,89 @@ void PreDemo()
 	vid_is_movie = false;
 }
 
+void check_for_extract_options()
+{
+	{
+		const auto& extract_all_option_name = std::string{"extract_all"};
+
+		if (g_args.has_option(extract_all_option_name))
+		{
+			const auto& dst_dir = g_args.get_option_value(extract_all_option_name);
+
+			ca_extract_all(dst_dir);
+
+			Quit();
+			return;
+		}
+	}
+
+	{
+		const auto& extract_walls_option_name = std::string{"extract_walls"};
+
+		if (g_args.has_option(extract_walls_option_name))
+		{
+			const auto& dst_dir = g_args.get_option_value(extract_walls_option_name);
+
+			ca_extract_walls(dst_dir);
+
+			Quit();
+			return;
+		}
+	}
+
+	{
+		const auto& extract_sprites_option_name = std::string{"extract_sprites"};
+
+		if (g_args.has_option(extract_sprites_option_name))
+		{
+			const auto& dst_dir = g_args.get_option_value(extract_sprites_option_name);
+
+			ca_extract_sprites(dst_dir);
+
+			Quit();
+		}
+	}
+
+	{
+		const auto& extract_musics_option_name = std::string{"extract_music"};
+
+		if (g_args.has_option(extract_musics_option_name))
+		{
+			const auto& dst_dir = g_args.get_option_value(extract_musics_option_name);
+
+			ca_extract_music(dst_dir);
+
+			Quit();
+		}
+	}
+
+	{
+		const auto& extract_sfx_option_name = std::string{"extract_sfx"};
+
+		if (g_args.has_option(extract_sfx_option_name))
+		{
+			const auto& extract_dir = g_args.get_option_value(extract_sfx_option_name);
+
+			ca_extract_sfx(extract_dir);
+
+			Quit();
+		}
+	}
+
+	{
+		const auto& extract_texts_option_name = std::string{"extract_texts"};
+
+		if (g_args.has_option(extract_texts_option_name))
+		{
+			const auto& dst_dir = g_args.get_option_value(extract_texts_option_name);
+
+			ca_extract_texts(dst_dir);
+
+			Quit();
+		}
+	}
+}
+
 void InitGame()
 {
 	vid_is_movie = true;
@@ -1035,85 +1118,7 @@ void InitGame()
 	CA_Startup();
 	PM_Startup();
 
-	{
-		const auto& extract_all_option_name = std::string{"extract_all"};
-
-		if (g_args.has_option(extract_all_option_name))
-		{
-			const auto& dump_dir = g_args.get_option_value(extract_all_option_name);
-
-			ca_extract_all(dump_dir);
-
-			Quit();
-			return;
-		}
-	}
-
-	{
-		const auto& debug_dump_walls_images_option_name = std::string{"debug_dump_walls_images"};
-
-		if (g_args.has_option(debug_dump_walls_images_option_name))
-		{
-			const auto& dump_dir = g_args.get_option_value(debug_dump_walls_images_option_name);
-
-			ca_dump_walls_images(dump_dir);
-
-			Quit();
-			return;
-		}
-	}
-
-	{
-		const auto& debug_dump_sprites_images_option_name = std::string{"debug_dump_sprites_images"};
-
-		if (g_args.has_option(debug_dump_sprites_images_option_name))
-		{
-			const auto& dump_dir = g_args.get_option_value(debug_dump_sprites_images_option_name);
-
-			ca_dump_sprites_images(dump_dir);
-
-			Quit();
-		}
-	}
-
-	{
-		const auto& debug_dump_music_option_name = std::string{"debug_dump_music"};
-
-		if (g_args.has_option(debug_dump_music_option_name))
-		{
-			const auto& dump_dir = g_args.get_option_value(debug_dump_music_option_name);
-
-			ca_dump_music(dump_dir);
-
-			Quit();
-		}
-	}
-
-	{
-		const auto& debug_dump_sfx_option_name = std::string{"debug_dump_sfx"};
-
-		if (g_args.has_option(debug_dump_sfx_option_name))
-		{
-			const auto& dump_dir = g_args.get_option_value(debug_dump_sfx_option_name);
-
-			ca_dump_sfx(dump_dir);
-
-			Quit();
-		}
-	}
-
-	{
-		const auto& debug_dump_text_option_name = std::string{"debug_dump_text"};
-
-		if (g_args.has_option(debug_dump_text_option_name))
-		{
-			const auto& dump_dir = g_args.get_option_value(debug_dump_text_option_name);
-
-			ca_dump_text(dump_dir);
-
-			Quit();
-		}
-	}
+	check_for_extract_options();
 
 	ReadConfig();
 	read_high_scores();
@@ -1192,7 +1197,7 @@ extern const char* MainStrs[];
 extern std::int16_t starting_episode, starting_level, starting_difficulty;
 
 
-static void dump_version()
+static void output_version()
 {
 	const auto& version_string = bstone::Version::get_string();
 	const auto message = "BStone v" + version_string + '.';
@@ -1215,7 +1220,7 @@ void freed_main()
 {
 	if (g_args.has_option("version"))
 	{
-		dump_version();
+		output_version();
 		Quit();
 	}
 
@@ -1229,10 +1234,12 @@ void freed_main()
 	bstone::logger_->write("Profile path: \"" + get_profile_dir() + "\"");
 
 	// BBi
-	if (g_args.has_option("debug_dump_hashes"))
 	{
-		ca_dump_hashes();
-		Quit();
+		if (g_args.has_option("calculate_hashes"))
+		{
+			ca_calculate_hashes();
+			Quit();
+		}
 	}
 
 	// Make sure there's room to play the game

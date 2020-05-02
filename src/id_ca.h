@@ -386,21 +386,21 @@ std::string ca_calculate_hash(
 	const std::string& base_name,
 	const std::string& extension);
 
-void ca_dump_hashes();
+void ca_calculate_hashes();
 
-void ca_dump_walls_images(
+void ca_extract_walls(
 	const std::string& destination_dir);
 
-void ca_dump_sprites_images(
+void ca_extract_sprites(
 	const std::string& destination_dir);
 
-void ca_dump_music(
+void ca_extract_music(
 	const std::string& destination_dir);
 
-void ca_dump_sfx(
+void ca_extract_sfx(
 	const std::string& destination_dir);
 
-void ca_dump_text(
+void ca_extract_texts(
 	const std::string& destination_dir);
 
 void ca_extract_all(
