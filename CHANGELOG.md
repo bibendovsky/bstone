@@ -19,12 +19,13 @@
 - Option `vid_texture_upscale_xbrz_degree` to control degree of xBRZ filter.
 - Option `vid_aa_kind` to select anti-aliasing mode.
 - Option `vid_aa_degree` to select anti-aliasing degree.
-- Option `debug_dump_hashes` to dump hashes of resource files.
-- Option `debug_dump_walls_images` to dump graphics resources (wall, flooring, etc.).
-- Option `debug_dump_sprites_images` to dump graphics resources (actors, decorations, etc.).
-- Option `debug_dump_music` to dump music resources.
-- Option `debug_dump_sfx` to dump sfx resources.
-- Option `debug_dump_text` to dump text resources.
+- Option `calculate_hashes` to calculate hashes of resource files.
+- Option `extract_walls` to extract graphics resources (wall, flooring, etc.).
+- Option `extract_sprites` to extract graphics resources (actors, decorations, etc.).
+- Option `extract_music` to extract music resources.
+- Option `extract_sfx` to extract sfx resources.
+- Option `extract_texts` to extract text resources.
+- Option `extract_all` to extract all resources.
 - Generic instruction on how to compile on Linux-based system.
 
 ### Removed
@@ -35,6 +36,7 @@
 - Renamed option `vid_windowed` to `vid_is_windowed`.
 - Renamed option `vid_window_x` to `vid_x`.
 - Renamed option `vid_window_y` to `vid_y`.
+- Renamed option `debug_dump_hashes` to `calculate_hashes`.
 - Split option `vid_mode` into `vid_width` and `vid_height`.
 - Renamed option `vid_no_vsync` to `vid_vsync`.
 - Values of option `vid_renderer`.
