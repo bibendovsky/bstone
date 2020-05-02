@@ -595,7 +595,7 @@ SfxInfo sd_get_sfx_info(
 	return result;
 }
 
-void sd_debug_setup_dump()
+void sd_setup_extracting()
 {
 	sd_setup_digi();
 	sd_sound_table_ = &::audiosegs[sd_start_al_sounds_];

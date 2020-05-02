@@ -1340,10 +1340,10 @@ std::string ca_calculate_hash(
 	return ca_calculate_hash(file_stream);
 }
 
-void ca_dump_hashes()
+void ca_calculate_hashes()
 {
 	bstone::logger_->write();
-	bstone::logger_->write("Dumping resource hashes...");
+	bstone::logger_->write("Calculating resource hashes...");
 
 	auto sha1 = bstone::Sha1{};
 
@@ -2175,10 +2175,10 @@ bool Assets::are_official_levels(
 
 
 // ==========================================================================
-// ImagesDumper
+// ImageExtractor
 //
 
-class ImagesDumper
+class ImageExtractor
 {
 public:
 	bool is_initialized() const;
@@ -2187,10 +2187,10 @@ public:
 
 	void uninitialize();
 
-	void dump_walls(
+	void extract_walls(
 		const std::string& destination_dir);
 
-	void dump_sprites(
+	void extract_sprites(
 		const std::string& destination_dir);
 
 
@@ -2239,20 +2239,20 @@ private:
 		const int image_index,
 		bstone::SdlSurfacePtr sdl_surface);
 
-	bool dump_wall(
+	bool extract_wall(
 		const int wall_index);
 
-	bool dump_sprite(
+	bool extract_sprite(
 		const int sprite_index);
-}; // ImagesDumper
+}; // ImageExtractor
 
 
-bool ImagesDumper::is_initialized() const
+bool ImageExtractor::is_initialized() const
 {
 	return is_initialized_;
 }
 
-bool ImagesDumper::initialize()
+bool ImageExtractor::initialize()
 {
 	if (!initialize_surface_64x64x8())
 	{
@@ -2271,7 +2271,7 @@ bool ImagesDumper::initialize()
 	return true;
 }
 
-void ImagesDumper::uninitialize()
+void ImageExtractor::uninitialize()
 {
 	is_initialized_ = false;
 
@@ -2280,12 +2280,12 @@ void ImagesDumper::uninitialize()
 	uninitialize_vga_palette();
 }
 
-void ImagesDumper::dump_walls(
+void ImageExtractor::extract_walls(
 	const std::string& destination_dir)
 {
 	bstone::logger_->write();
 	bstone::logger_->write("<<< ================");
-	bstone::logger_->write("Dumping walls.");
+	bstone::logger_->write("Extracting walls.");
 	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
 	bstone::logger_->write("File count: " + std::to_string(PMSpriteStart));
 
@@ -2302,13 +2302,13 @@ void ImagesDumper::dump_walls(
 
 	for (int i = 0; i < PMSpriteStart; ++i)
 	{
-		dump_wall(i);
+		extract_wall(i);
 	}
 
 	bstone::logger_->write(">>> ================");
 }
 
-void ImagesDumper::dump_sprites(
+void ImageExtractor::extract_sprites(
 	const std::string& destination_dir)
 {
 	sprite_count_ = ChunksInFile - PMSpriteStart - 1;
@@ -2320,7 +2320,7 @@ void ImagesDumper::dump_sprites(
 
 	bstone::logger_->write();
 	bstone::logger_->write("<<< ================");
-	bstone::logger_->write("Dumping sprites.");
+	bstone::logger_->write("Extracting sprites.");
 	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
 	bstone::logger_->write("File count: " + std::to_string(sprite_count_));
 
@@ -2335,13 +2335,13 @@ void ImagesDumper::dump_sprites(
 
 	for (int i = 0; i < sprite_count_; ++i)
 	{
-		dump_sprite(i);
+		extract_sprite(i);
 	}
 
 	bstone::logger_->write(">>> ================");
 }
 
-void ImagesDumper::set_palette(
+void ImageExtractor::set_palette(
 	bstone::SdlSurfacePtr sdl_surface,
 	const std::uint8_t* const vga_palette)
 {
@@ -2365,7 +2365,7 @@ void ImagesDumper::set_palette(
 	}
 }
 
-void ImagesDumper::set_palette(
+void ImageExtractor::set_palette(
 	bstone::SdlSurfacePtr sdl_surface,
 	const Palette& palette)
 {
@@ -2382,12 +2382,12 @@ void ImagesDumper::set_palette(
 	);
 }
 
-void ImagesDumper::uninitialize_vga_palette()
+void ImageExtractor::uninitialize_vga_palette()
 {
 	vga_palette_.clear();
 }
 
-void ImagesDumper::initialize_vga_palette()
+void ImageExtractor::initialize_vga_palette()
 {
 	vga_palette_.resize(bstone::RgbPalette::get_max_color_count());
 
@@ -2405,12 +2405,12 @@ void ImagesDumper::initialize_vga_palette()
 	}
 }
 
-void ImagesDumper::uninitialize_surface_64x64x8()
+void ImageExtractor::uninitialize_surface_64x64x8()
 {
 	sdl_surface_64x64x8_ = nullptr;
 }
 
-bool ImagesDumper::initialize_surface_64x64x8()
+bool ImageExtractor::initialize_surface_64x64x8()
 {
 	auto sdl_surface = SDL_CreateRGBSurfaceWithFormat(
 		0, // flags
@@ -2435,12 +2435,12 @@ bool ImagesDumper::initialize_surface_64x64x8()
 	return true;
 }
 
-void ImagesDumper::uninitialize_surface_64x64x32()
+void ImageExtractor::uninitialize_surface_64x64x32()
 {
 	sdl_surface_64x64x32_ = nullptr;
 }
 
-bool ImagesDumper::initialize_surface_64x64x32()
+bool ImageExtractor::initialize_surface_64x64x32()
 {
 	auto sdl_surface = SDL_CreateRGBSurfaceWithFormat(
 		0, // flags
@@ -2469,7 +2469,7 @@ bool ImagesDumper::initialize_surface_64x64x32()
 	return true;
 }
 
-void ImagesDumper::convert_wall_page_into_surface(
+void ImageExtractor::convert_wall_page_into_surface(
 	const std::uint8_t* const src_indices)
 {
 	assert(src_indices);
@@ -2493,7 +2493,7 @@ void ImagesDumper::convert_wall_page_into_surface(
 	}
 }
 
-void ImagesDumper::convert_sprite_page_into_surface(
+void ImageExtractor::convert_sprite_page_into_surface(
 	const bstone::Sprite& sprite)
 {
 	const auto pitch = sdl_surface_64x64x32_->pitch / 4;
@@ -2535,7 +2535,7 @@ void ImagesDumper::convert_sprite_page_into_surface(
 	}
 }
 
-bool ImagesDumper::save_image(
+bool ImageExtractor::save_image(
 	const std::string& name_prefix,
 	const int image_index,
 	bstone::SdlSurfacePtr sdl_surface)
@@ -2561,7 +2561,7 @@ bool ImagesDumper::save_image(
 	return true;
 }
 
-bool ImagesDumper::dump_wall(
+bool ImageExtractor::extract_wall(
 	const int wall_index)
 {
 	if (wall_index < 0 && wall_index >= PMSpriteStart)
@@ -2590,7 +2590,7 @@ bool ImagesDumper::dump_wall(
 	return true;
 }
 
-bool ImagesDumper::dump_sprite(
+bool ImageExtractor::extract_sprite(
 	const int sprite_index)
 {
 	const auto cache_sprite_index = sprite_index + 1;
@@ -2622,57 +2622,57 @@ bool ImagesDumper::dump_sprite(
 }
 
 //
-// ImagesDumper
+// ImageExtractor
 // ==========================================================================
 
 
-void ca_dump_walls_images(
+void ca_extract_walls(
 	const std::string& destination_dir)
 {
-	auto images_dumper = ImagesDumper{};
+	auto images_extractor = ImageExtractor{};
 
-	if (!images_dumper.initialize())
+	if (!images_extractor.initialize())
 	{
 		return;
 	}
 
-	images_dumper.dump_walls(destination_dir);
+	images_extractor.extract_walls(destination_dir);
 }
 
-void ca_dump_sprites_images(
+void ca_extract_sprites(
 	const std::string& destination_dir)
 {
-	auto images_dumper = ImagesDumper{};
+	auto images_extractor = ImageExtractor{};
 
-	if (!images_dumper.initialize())
+	if (!images_extractor.initialize())
 	{
 		return;
 	}
 
-	images_dumper.dump_sprites(destination_dir);
+	images_extractor.extract_sprites(destination_dir);
 }
 
 // ==========================================================================
-// AudioDumper
+// AudioExtractor
 //
 
-class AudioDumperException :
+class AudioExtractorException :
 	public bstone::Exception
 {
 public:
-	explicit AudioDumperException(
+	explicit AudioExtractorException(
 		const char* const message)
 		:
 		bstone::Exception{std::string{"[DBG_MUS_DMPR] "} + message}
 	{
 	}
-}; // AudioDumperException
+}; // AudioExtractorException
 
-class AudioDumperTrackException :
+class AudioExtractorTrackException :
 	public bstone::Exception
 {
 public:
-	explicit AudioDumperTrackException(
+	explicit AudioExtractorTrackException(
 		const int track_number,
 		const char* const message)
 		:
@@ -2680,25 +2680,25 @@ public:
 	{
 	}
 
-	explicit AudioDumperTrackException(
+	explicit AudioExtractorTrackException(
 		const int track_number,
 		const std::string& message)
 		:
 		bstone::Exception{std::string{"[DBG_MUS_DMPR][TRK #"} + std::to_string(track_number) + "] " + message}
 	{
 	}
-}; // AudioDumperTrackException
+}; // AudioExtractorTrackException
 
 
-class AudioDumper
+class AudioExtractor
 {
 public:
-	AudioDumper();
+	AudioExtractor();
 
-	void dump_music(
+	void extract_music(
 		const std::string& destination_dir);
 
-	void dump_sfx(
+	void extract_sfx(
 		const std::string& destination_dir);
 
 
@@ -2716,7 +2716,7 @@ private:
 	DecodeBuffer decode_buffer_;
 
 
-	bool dump_wav_header(
+	bool write_wav_header(
 		const int data_size,
 		const int bit_depth,
 		const int sample_rate,
@@ -2724,29 +2724,29 @@ private:
 
 	void initialize_music();
 
-	void dump_music(
+	void extract_music(
 		const std::string& destination_dir,
 		const int number);
 
 	void initialize_sfx();
 
-	void dump_adlib_sfx(
+	void write_adlib_sfx(
 		const int number,
 		const SfxInfo& sfx_info,
 		bstone::Stream& stream);
 
-	void dump_pcm_sfx(
+	void write_pcm_sfx(
 		const int number,
 		const SfxInfo& sfx_info,
 		bstone::Stream& stream);
 
-	void dump_sfx(
+	void extract_sfx(
 		const std::string& destination_dir,
 		const int number);
-}; // AudioDumper
+}; // AudioExtractor
 
 
-AudioDumper::AudioDumper()
+AudioExtractor::AudioExtractor()
 	:
 	assets_info_{},
 	music_numbers_{},
@@ -2755,7 +2755,7 @@ AudioDumper::AudioDumper()
 	decode_buffer_.resize(bstone::opl3_fixed_frequency);
 }
 
-void AudioDumper::dump_music(
+void AudioExtractor::extract_music(
 	const std::string& destination_dir)
 {
 	initialize_music();
@@ -2764,11 +2764,11 @@ void AudioDumper::dump_music(
 
 	for (const auto music_number : music_numbers_)
 	{
-		dump_music(destination_dir, music_number);
+		extract_music(destination_dir, music_number);
 	}
 }
 
-void AudioDumper::dump_sfx(
+void AudioExtractor::extract_sfx(
 	const std::string& destination_dir)
 {
 	initialize_sfx();
@@ -2777,11 +2777,11 @@ void AudioDumper::dump_sfx(
 
 	for (int i = 0; i < NUMSOUNDS; ++i)
 	{
-		dump_sfx(destination_dir, i);
+		extract_sfx(destination_dir, i);
 	}
 }
 
-bool AudioDumper::dump_wav_header(
+bool AudioExtractor::write_wav_header(
 	const int data_size,
 	const int bit_depth,
 	const int sample_rate,
@@ -2821,11 +2821,11 @@ bool AudioDumper::dump_wav_header(
 	return result;
 }
 
-void AudioDumper::initialize_music()
+void AudioExtractor::initialize_music()
 {
 	if (LASTMUSIC <= 0 || STARTMUSIC <= 0)
 	{
-		throw AudioDumperException{"Assets information not initialized."};
+		throw AudioExtractorException{"Assets information not initialized."};
 	}
 
 	music_numbers_.reserve(LASTMUSIC + 1);
@@ -2881,7 +2881,7 @@ void AudioDumper::initialize_music()
 	std::sort(music_numbers_.begin(), music_numbers_.end());
 }
 
-void AudioDumper::dump_music(
+void AudioExtractor::extract_music(
 	const std::string& destination_dir,
 	const int number)
 {
@@ -2895,7 +2895,7 @@ void AudioDumper::dump_music(
 
 	if (!file_stream.is_open())
 	{
-		throw AudioDumperTrackException{number, "Failed to open \"" + file_name + "\" for writing."};
+		throw AudioExtractorTrackException{number, "Failed to open \"" + file_name + "\" for writing."};
 	}
 
 	auto audio_decoder = bstone::make_audio_decoder(
@@ -2905,7 +2905,7 @@ void AudioDumper::dump_music(
 
 	if (!audio_decoder)
 	{
-		throw AudioDumperTrackException{number, "Failed to create AdLib music decoder."};
+		throw AudioExtractorTrackException{number, "Failed to create AdLib music decoder."};
 	}
 
 	const auto music_data = audiosegs[music_index];
@@ -2916,12 +2916,12 @@ void AudioDumper::dump_music(
 		music_data_size,
 		bstone::opl3_fixed_frequency))
 	{
-		throw AudioDumperTrackException{number, "Failed to initialize AdLib music decoder."};
+		throw AudioExtractorTrackException{number, "Failed to initialize AdLib music decoder."};
 	}
 
 	if (!file_stream.set_position(wav_prefix_size))
 	{
-		throw AudioDumperTrackException{number, "I/O error on \"" + file_name + "\"."};
+		throw AudioExtractorTrackException{number, "I/O error on \"" + file_name + "\"."};
 	}
 
 	constexpr auto sample_size = static_cast<int>(sizeof(Sample));
@@ -2954,7 +2954,7 @@ void AudioDumper::dump_music(
 
 		if (!file_stream.write(decode_buffer_.data(), decoded_size))
 		{
-			throw AudioDumperTrackException{number, "I/O error on \"" + file_name + "\"."};
+			throw AudioExtractorTrackException{number, "I/O error on \"" + file_name + "\"."};
 		}
 
 		data_size += decoded_size;
@@ -2963,12 +2963,12 @@ void AudioDumper::dump_music(
 
 	if (!file_stream.set_position(0))
 	{
-		throw AudioDumperTrackException{number, "I/O error on \"" + file_name + "\"."};
+		throw AudioExtractorTrackException{number, "I/O error on \"" + file_name + "\"."};
 	}
 
-	if (!dump_wav_header(data_size, bit_depth, bstone::opl3_fixed_frequency, file_stream))
+	if (!write_wav_header(data_size, bit_depth, bstone::opl3_fixed_frequency, file_stream))
 	{
-		throw AudioDumperTrackException{number, "I/O error on \"" + file_name + "\"."};
+		throw AudioExtractorTrackException{number, "I/O error on \"" + file_name + "\"."};
 	}
 
 	const auto volume_factor = 32'768.0 / abs_max_sample;
@@ -2988,19 +2988,19 @@ void AudioDumper::dump_music(
 	);
 }
 
-void AudioDumper::initialize_sfx()
+void AudioExtractor::initialize_sfx()
 {
 	for (int i = 0; i < NUMSOUNDS; ++i)
 	{
 		CA_CacheAudioChunk(STARTADLIBSOUNDS + i);
 	}
 
-	sd_debug_setup_dump();
+	sd_setup_extracting();
 
 	InitDigiMap();
 }
 
-void AudioDumper::dump_adlib_sfx(
+void AudioExtractor::write_adlib_sfx(
 	const int number,
 	const SfxInfo& sfx_info,
 	bstone::Stream& stream)
@@ -3012,7 +3012,7 @@ void AudioDumper::dump_adlib_sfx(
 
 	if (!audio_decoder)
 	{
-		throw AudioDumperTrackException{number, "Failed to create AdLib music decoder."};
+		throw AudioExtractorTrackException{number, "Failed to create AdLib music decoder."};
 	}
 
 	if (!audio_decoder->initialize(
@@ -3020,12 +3020,12 @@ void AudioDumper::dump_adlib_sfx(
 		sfx_info.size_,
 		bstone::opl3_fixed_frequency))
 	{
-		throw AudioDumperTrackException{number, "Failed to initialize AdLib music decoder."};
+		throw AudioExtractorTrackException{number, "Failed to initialize AdLib music decoder."};
 	}
 
 	if (!stream.set_position(wav_prefix_size))
 	{
-		throw AudioDumperTrackException{number, "Seek I/O error."};
+		throw AudioExtractorTrackException{number, "Seek I/O error."};
 	}
 
 	constexpr auto sample_size = static_cast<int>(sizeof(Sample));
@@ -3058,7 +3058,7 @@ void AudioDumper::dump_adlib_sfx(
 
 		if (!stream.write(decode_buffer_.data(), decoded_size))
 		{
-			throw AudioDumperTrackException{number, "Write I/O error."};
+			throw AudioExtractorTrackException{number, "Write I/O error."};
 		}
 
 		data_size += decoded_size;
@@ -3067,12 +3067,12 @@ void AudioDumper::dump_adlib_sfx(
 
 	if (!stream.set_position(0))
 	{
-		throw AudioDumperTrackException{number, "Seek I/O error."};
+		throw AudioExtractorTrackException{number, "Seek I/O error."};
 	}
 
-	if (!dump_wav_header(data_size, bit_depth, bstone::opl3_fixed_frequency, stream))
+	if (!write_wav_header(data_size, bit_depth, bstone::opl3_fixed_frequency, stream))
 	{
-		throw AudioDumperTrackException{number, "Write I/O error."};
+		throw AudioExtractorTrackException{number, "Write I/O error."};
 	}
 
 	const auto volume_factor = 32'768.0 / abs_max_sample;
@@ -3092,7 +3092,7 @@ void AudioDumper::dump_adlib_sfx(
 	);
 }
 
-void AudioDumper::dump_pcm_sfx(
+void AudioExtractor::write_pcm_sfx(
 	const int number,
 	const SfxInfo& sfx_info,
 	bstone::Stream& stream)
@@ -3101,21 +3101,21 @@ void AudioDumper::dump_pcm_sfx(
 	constexpr auto bit_depth = sample_size * 8;
 	const auto data_size = (sfx_info.data_ ? sfx_info.size_ : 0);
 
-	if (!dump_wav_header(data_size, bit_depth, bstone::audio_decoder_pcm_fixed_frequency, stream))
+	if (!write_wav_header(data_size, bit_depth, bstone::audio_decoder_pcm_fixed_frequency, stream))
 	{
-		throw AudioDumperTrackException{number, "Write I/O error."};
+		throw AudioExtractorTrackException{number, "Write I/O error."};
 	}
 
 	if (!stream.write(sfx_info.data_, data_size))
 	{
-		throw AudioDumperTrackException{number, "Write I/O error."};
+		throw AudioExtractorTrackException{number, "Write I/O error."};
 	}
 
 	if ((data_size % 2) != 0)
 	{
 		if (!stream.write_octet(0))
 		{
-			throw AudioDumperTrackException{number, "Write I/O error."};
+			throw AudioExtractorTrackException{number, "Write I/O error."};
 		}
 	}
 
@@ -3148,7 +3148,7 @@ void AudioDumper::dump_pcm_sfx(
 	);
 }
 
-void AudioDumper::dump_sfx(
+void AudioExtractor::extract_sfx(
 	const std::string& destination_dir,
 	const int number)
 {
@@ -3161,83 +3161,83 @@ void AudioDumper::dump_sfx(
 
 	if (!file_stream.is_open())
 	{
-		throw AudioDumperTrackException{number, "Failed to open \"" + file_name + "\" for writing."};
+		throw AudioExtractorTrackException{number, "Failed to open \"" + file_name + "\" for writing."};
 	}
 
 	if (sfx_info.is_digitized_)
 	{
-		dump_pcm_sfx(number, sfx_info, file_stream);
+		write_pcm_sfx(number, sfx_info, file_stream);
 	}
 	else
 	{
-		dump_adlib_sfx(number, sfx_info, file_stream);
+		write_adlib_sfx(number, sfx_info, file_stream);
 	}
 }
 
 //
-// AudioDumper
+// AudioExtractor
 // ==========================================================================
 
-void ca_dump_music(
+void ca_extract_music(
 	const std::string& destination_dir)
 {
 	bstone::logger_->write();
 	bstone::logger_->write("<<< ================");
-	bstone::logger_->write("Dumping music.");
+	bstone::logger_->write("Extracting music.");
 	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
 
-	auto audio_dumper = AudioDumper{};
-	audio_dumper.dump_music(ca_normalize_path(destination_dir));
+	auto audio_extractor = AudioExtractor{};
+	audio_extractor.extract_music(ca_normalize_path(destination_dir));
 
 	bstone::logger_->write(">>> ================");
 }
 
-void ca_dump_sfx(
+void ca_extract_sfx(
 	const std::string& destination_dir)
 {
 	bstone::logger_->write();
 	bstone::logger_->write("<<< ================");
-	bstone::logger_->write("Dumping sfx.");
+	bstone::logger_->write("Extracting sfx.");
 	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
 
-	auto audio_dumper = AudioDumper{};
-	audio_dumper.dump_sfx(ca_normalize_path(destination_dir));
+	auto audio_extractor = AudioExtractor{};
+	audio_extractor.extract_sfx(ca_normalize_path(destination_dir));
 
 	bstone::logger_->write(">>> ================");
 }
 
 // ==========================================================================
-// TextDumper
+// TextExtractor
 //
 
-class TextDumperException :
+class TextExtractorException :
 	public bstone::Exception
 {
 public:
-	explicit TextDumperException(
+	explicit TextExtractorException(
 		const std::string& message)
 		:
 		Exception{std::string{"[DBG_TXT_DMPR] "} + message}
 	{
 	}
 
-	explicit TextDumperException(
+	explicit TextExtractorException(
 		const int number,
 		const std::string& message)
 		:
 		Exception{std::string{"[DBG_TXT_DMPR][Text #"} + std::to_string(number) + "] " + message}
 	{
 	}
-}; // TextDumperException
+}; // TextExtractorException
 
 
-class TextDumper
+class TextExtractor
 {
 public:
-	TextDumper();
+	TextExtractor();
 
 
-	void dump_text(
+	void extract_text(
 		const std::string& dst_dir);
 
 
@@ -3276,31 +3276,31 @@ private:
 
 	void initialize_text();
 
-	void dump_text(
+	void extract_text(
 		const std::string& dst_dir,
 		const TextNumber& number);
-}; // TextDumper
+}; // TextExtractor
 
 
-TextDumper::TextDumper()
+TextExtractor::TextExtractor()
 	:
 	text_numbers_{}
 {
 	initialize_text();
 }
 
-void TextDumper::dump_text(
+void TextExtractor::extract_text(
 	const std::string& dst_dir)
 {
 	bstone::logger_->write("File count: " + std::to_string(text_numbers_.size()));
 
 	for (const auto text_number : text_numbers_)
 	{
-		dump_text(dst_dir, text_number);
+		extract_text(dst_dir, text_number);
 	}
 }
 
-void TextDumper::initialize_text()
+void TextExtractor::initialize_text()
 {
 	text_numbers_.reserve(50);
 
@@ -3368,13 +3368,13 @@ void TextDumper::initialize_text()
 
 	if (non_zero_number_it == text_numbers_.end())
 	{
-		throw TextDumperException{"Empty list."};
+		throw TextExtractorException{"Empty list."};
 	}
 
 	text_numbers_.erase(text_numbers_.begin(), non_zero_number_it);
 }
 
-void TextDumper::dump_text(
+void TextExtractor::extract_text(
 	const std::string& dst_dir,
 	const TextNumber& text_number)
 {
@@ -3397,19 +3397,19 @@ void TextDumper::dump_text(
 			compressed_header->compressed_size_ > pure_data_size ||
 			compressed_header->uncompressed_size_ > max_uncompressed_size)
 		{
-			throw TextDumperException{number, "Damaged compression header."};
+			throw TextExtractorException{number, "Damaged compression header."};
 		}
 
 		if (compressed_header->compression_type_ != CompressionType::lzh)
 		{
-			throw TextDumperException{number, "Expected LZH compression type."};
+			throw TextExtractorException{number, "Expected LZH compression type."};
 		}
 
 		buffer_.resize(compressed_header->uncompressed_size_);
 
 		if (!LZH_Startup())
 		{
-			throw TextDumperException{number, "Failed to initialized LZH decoder."};
+			throw TextExtractorException{number, "Failed to initialized LZH decoder."};
 		}
 
 		const auto decoded_size = LZH_Decompress(
@@ -3438,29 +3438,29 @@ void TextDumper::dump_text(
 
 	if (!file_stream.is_open())
 	{
-		throw TextDumperException{number, "Failed to open \"" + file_name + "\" for writing."};
+		throw TextExtractorException{number, "Failed to open \"" + file_name + "\" for writing."};
 	}
 
 	if (!file_stream.write(text_data, text_size))
 	{
-		throw TextDumperException{number, "Write I/O error."};
+		throw TextExtractorException{number, "Write I/O error."};
 	}
 }
 
 //
-// TextDumper
+// TextExtractor
 // ==========================================================================
 
-void ca_dump_text(
+void ca_extract_texts(
 	const std::string& destination_dir)
 {
 	bstone::logger_->write();
 	bstone::logger_->write("<<< ================");
-	bstone::logger_->write("Dumping text.");
+	bstone::logger_->write("Extracting text.");
 	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
 
-	auto text_dumper = TextDumper{};
-	text_dumper.dump_text(ca_normalize_path(destination_dir));
+	auto text_extractor = TextExtractor{};
+	text_extractor.extract_text(ca_normalize_path(destination_dir));
 
 	bstone::logger_->write(">>> ================");
 }
@@ -3468,9 +3468,9 @@ void ca_dump_text(
 void ca_extract_all(
 	const std::string& destination_dir)
 {
-	ca_dump_walls_images(destination_dir);
-	ca_dump_sprites_images(destination_dir);
-	ca_dump_music(destination_dir);
-	ca_dump_sfx(destination_dir);
-	ca_dump_text(destination_dir);
+	ca_extract_walls(destination_dir);
+	ca_extract_sprites(destination_dir);
+	ca_extract_music(destination_dir);
+	ca_extract_sfx(destination_dir);
+	ca_extract_texts(destination_dir);
 }
