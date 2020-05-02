@@ -38,6 +38,7 @@ loaded into the data segment
 #include "id_ca.h"
 
 #include <cassert>
+#include <cmath>
 
 #include <algorithm>
 #include <memory>
@@ -51,13 +52,19 @@ loaded into the data segment
 #include "id_vh.h"
 #include "id_vl.h"
 #include "gfxv.h"
+
+#include "bstone_binary_writer.h"
 #include "bstone_endian.h"
+#include "bstone_exception.h"
 #include "bstone_logger.h"
 #include "bstone_rgb_palette.h"
 #include "bstone_sdl2_types.h"
 #include "bstone_sha1.h"
 #include "bstone_sprite_cache.h"
 #include "bstone_string_helper.h"
+
+#include "bstone_opl3.h"
+#include "bstone_audio_decoder.h"
 
 
 /*
@@ -82,6 +89,7 @@ std::uint8_t ca_levelbit, ca_levelnum;
 
 std::int16_t profilehandle, debughandle;
 
+void InitDigiMap();
 
 /*
 =============================================================================
@@ -134,6 +142,76 @@ static const int BUFFERSIZE = 0x10000;
 
 
 // BBi
+constexpr auto path_native_separator =
+#ifdef _WIN32
+		'\\'
+#else // _WIN32
+		'/'
+#endif // _WIN32
+		;
+
+std::string ca_normalize_path(
+	const std::string& path)
+{
+	auto result = path;
+
+	for (auto& ch : result)
+	{
+		if (ch == '/' || ch == '\\')
+		{
+			if (ch != path_native_separator)
+			{
+				ch = path_native_separator;
+			}
+		}
+	}
+
+	return result;
+}
+
+std::string ca_append_path(
+	const std::string& path,
+	const std::string& sub_path)
+{
+	if (path.empty() || sub_path.empty())
+	{
+		return std::string{};
+	}
+	else if (!path.empty() && sub_path.empty())
+	{
+		return path;
+	}
+	else if (path.empty() && !sub_path.empty())
+	{
+		return sub_path;
+	}
+	else
+	{
+		auto result = std::string{};
+		result.reserve(path.size() + 1 + sub_path.size());
+		result += path;
+
+		if (path.back() != path_native_separator)
+		{
+			result += path_native_separator;
+		}
+
+		result += sub_path;
+
+		return result;
+	}
+}
+
+std::string ca_make_padded_asset_number_string(
+	const int number)
+{
+	constexpr auto max_padded_numer_string_length = 8;
+
+	auto result = std::to_string(number);
+	result.insert(0, max_padded_numer_string_length - result.size(), '0');
+	return result;
+}
+
 int ca_gr_last_expanded_size;
 
 void CAL_CarmackExpand(
@@ -629,7 +707,7 @@ done:
 */
 void CA_LoadAllSounds()
 {
-	std::int16_t start = 0;
+	auto start = 0;
 
 	if (old_is_sound_enabled)
 	{
@@ -645,9 +723,9 @@ void CA_LoadAllSounds()
 		return;
 	}
 
-	for (auto i = 0; i < NUMSOUNDS; ++i, ++start)
+	for (int i = 0; i < NUMSOUNDS; ++i)
 	{
-		CA_CacheAudioChunk(start);
+		CA_CacheAudioChunk(start++);
 	}
 
 	old_is_sound_enabled = sd_is_sound_enabled_;
@@ -2138,8 +2216,6 @@ private:
 		bstone::SdlSurfacePtr sdl_surface,
 		const Palette& palette);
 
-	void normalize_destination_dir();
-
 	void uninitialize_vga_palette();
 
 	void initialize_vga_palette();
@@ -2220,8 +2296,7 @@ void ImagesDumper::dump_walls(
 		return;
 	}
 
-	destination_dir_ = destination_dir;
-	normalize_destination_dir();
+	destination_dir_ = ca_normalize_path(destination_dir);
 
 	set_palette(sdl_surface_64x64x8_.get(), vga_palette_);
 
@@ -2256,8 +2331,7 @@ void ImagesDumper::dump_sprites(
 		return;
 	}
 
-	destination_dir_ = destination_dir;
-	normalize_destination_dir();
+	destination_dir_ = ca_normalize_path(destination_dir);
 
 	for (int i = 0; i < sprite_count_; ++i)
 	{
@@ -2306,27 +2380,6 @@ void ImagesDumper::set_palette(
 		bstone::RgbPalette::get_max_color_count(),
 		sdl_surface->format->palette->colors
 	);
-}
-
-void ImagesDumper::normalize_destination_dir()
-{
-	if (!destination_dir_.empty())
-	{
-		constexpr auto native_separator =
-#ifdef _WIN32
-			'\\'
-#else // _WIN32
-			'/'
-#endif // _WIN32
-			;
-
-		const auto last_char = destination_dir_.back();
-
-		if (last_char != '\\' && last_char != '/')
-		{
-			destination_dir_ += native_separator;
-		}
-	}
 }
 
 void ImagesDumper::uninitialize_vga_palette()
@@ -2489,17 +2542,9 @@ bool ImagesDumper::save_image(
 {
 	const auto image_index_digits = 8;
 
-	auto wall_index_string = std::to_string(image_index);
-	wall_index_string.reserve(image_index_digits);
+	const auto& wall_index_string = ca_make_padded_asset_number_string(image_index);
 
-	const auto pad_count = image_index_digits - static_cast<int>(wall_index_string.size());
-
-	for (int i = 0; i < pad_count; ++i)
-	{
-		wall_index_string.insert(0, 1, '0');
-	}
-
-	const auto& file_name = destination_dir_ + name_prefix + wall_index_string + ".bmp";
+	const auto& file_name = ca_append_path(destination_dir_, name_prefix + wall_index_string + ".bmp");
 
 	const auto sdl_result = SDL_SaveBMP(sdl_surface, file_name.c_str());
 
@@ -2605,4 +2650,558 @@ void ca_dump_sprites_images(
 	}
 
 	images_dumper.dump_sprites(destination_dir);
+}
+
+// ==========================================================================
+// AudioDumper
+//
+
+class AudioDumperException :
+	public bstone::Exception
+{
+public:
+	explicit AudioDumperException(
+		const char* const message)
+		:
+		bstone::Exception{std::string{"[DBG_MUS_DMPR] "} + message}
+	{
+	}
+}; // AudioDumperException
+
+class AudioDumperTrackException :
+	public bstone::Exception
+{
+public:
+	explicit AudioDumperTrackException(
+		const int track_number,
+		const char* const message)
+		:
+		bstone::Exception{std::string{"[DBG_MUS_DMPR][TRK #"} + std::to_string(track_number) + "] " + message}
+	{
+	}
+
+	explicit AudioDumperTrackException(
+		const int track_number,
+		const std::string& message)
+		:
+		bstone::Exception{std::string{"[DBG_MUS_DMPR][TRK #"} + std::to_string(track_number) + "] " + message}
+	{
+	}
+}; // AudioDumperTrackException
+
+
+class AudioDumper
+{
+public:
+	AudioDumper();
+
+	void dump_music(
+		const std::string& destination_dir);
+
+	void dump_sfx(
+		const std::string& destination_dir);
+
+
+private:
+	static constexpr auto wav_prefix_size = 44;
+
+
+	using Sample = std::int16_t;
+	using MusicNumbers = std::vector<int>;
+	using DecodeBuffer = std::vector<Sample>;
+
+	AssetsInfo assets_info_;
+
+	MusicNumbers music_numbers_;
+	DecodeBuffer decode_buffer_;
+
+
+	bool dump_wav_header(
+		const int data_size,
+		const int bit_depth,
+		const int sample_rate,
+		bstone::Stream& stream);
+
+	void initialize_music();
+
+	void dump_music(
+		const std::string& destination_dir,
+		const int number);
+
+	void initialize_sfx();
+
+	void dump_adlib_sfx(
+		const int number,
+		const SfxInfo& sfx_info,
+		bstone::Stream& stream);
+
+	void dump_pcm_sfx(
+		const int number,
+		const SfxInfo& sfx_info,
+		bstone::Stream& stream);
+
+	void dump_sfx(
+		const std::string& destination_dir,
+		const int number);
+}; // AudioDumper
+
+
+AudioDumper::AudioDumper()
+	:
+	assets_info_{},
+	music_numbers_{},
+	decode_buffer_{}
+{
+	decode_buffer_.resize(bstone::opl3_fixed_frequency);
+}
+
+void AudioDumper::dump_music(
+	const std::string& destination_dir)
+{
+	initialize_music();
+
+	bstone::logger_->write("File count: " + std::to_string(music_numbers_.size()));
+
+	for (const auto music_number : music_numbers_)
+	{
+		dump_music(destination_dir, music_number);
+	}
+}
+
+void AudioDumper::dump_sfx(
+	const std::string& destination_dir)
+{
+	initialize_sfx();
+
+	bstone::logger_->write("File count: " + std::to_string(NUMSOUNDS));
+
+	for (int i = 0; i < NUMSOUNDS; ++i)
+	{
+		dump_sfx(destination_dir, i);
+	}
+}
+
+bool AudioDumper::dump_wav_header(
+	const int data_size,
+	const int bit_depth,
+	const int sample_rate,
+	bstone::Stream& stream)
+{
+	const auto aligned_data_size = ((data_size + 1) / 2) * 2;
+	const auto wav_size = aligned_data_size + wav_prefix_size;
+
+	const auto audio_format = 1; // PCM
+	const auto channel_count = 1;
+	const auto byte_depth = bit_depth / 8;
+	const auto byte_rate = sample_rate * channel_count * byte_depth;
+	const auto block_align = channel_count * byte_depth;
+
+	auto writer = bstone::BinaryWriter{&stream};
+
+	auto result = true;
+
+	result &= writer.write_u32(bstone::Endian::big(0x52494646)); // "RIFF"
+
+	// riff_chunk_size = = "file size" - "chunk id" + "chunk size".
+	const auto riff_chunk_size = static_cast<std::uint32_t>(wav_size - 4 - 4);
+	result &= writer.write_u32(bstone::Endian::little(riff_chunk_size)); // Chunk size.
+
+	result &= writer.write_u32(bstone::Endian::big(0x57415645)); // "WAVE"
+	result &= writer.write_u32(bstone::Endian::big(0x666D7420)); // "fmt "
+	result &= writer.write_u32(bstone::Endian::little(16)); // Format size.
+	result &= writer.write_u16(bstone::Endian::little(audio_format)); // Audio format.
+	result &= writer.write_u16(bstone::Endian::little(channel_count)); // Channel count.
+	result &= writer.write_u32(bstone::Endian::little(sample_rate)); // Sample rate.
+	result &= writer.write_u32(bstone::Endian::little(byte_rate)); // Byte rate.
+	result &= writer.write_u16(bstone::Endian::little(block_align)); // Block align.
+	result &= writer.write_u16(bstone::Endian::little(bit_depth)); // Bits per sample.
+	result &= writer.write_u32(bstone::Endian::big(0x64617461)); // "data"
+	result &= writer.write_u32(bstone::Endian::little(data_size)); // Data size.
+
+	return result;
+}
+
+void AudioDumper::initialize_music()
+{
+	if (LASTMUSIC <= 0 || STARTMUSIC <= 0)
+	{
+		throw AudioDumperException{"Assets information not initialized."};
+	}
+
+	music_numbers_.reserve(LASTMUSIC + 1);
+
+	music_numbers_.emplace_back(APOGFNFM_MUS);
+	music_numbers_.emplace_back(THEME_MUS);
+
+	if (assets_info_.is_aog())
+	{
+		music_numbers_.emplace_back(S2100A_MUS);
+		music_numbers_.emplace_back(GOLDA_MUS);
+		//music_numbers_.emplace_back(APOGFNFM_MUS);
+		music_numbers_.emplace_back(DRKHALLA_MUS);
+		music_numbers_.emplace_back(FREEDOMA_MUS);
+		music_numbers_.emplace_back(GENEFUNK_MUS);
+		music_numbers_.emplace_back(TIMEA_MUS);
+		music_numbers_.emplace_back(HIDINGA_MUS);
+		music_numbers_.emplace_back(INCNRATN_MUS);
+		music_numbers_.emplace_back(JUNGLEA_MUS);
+		music_numbers_.emplace_back(LEVELA_MUS);
+		music_numbers_.emplace_back(MEETINGA_MUS);
+		music_numbers_.emplace_back(STRUTA_MUS);
+		music_numbers_.emplace_back(RACSHUFL_MUS);
+		music_numbers_.emplace_back(RUMBAA_MUS);
+		music_numbers_.emplace_back(SEARCHNA_MUS);
+		music_numbers_.emplace_back(THEWAYA_MUS);
+		music_numbers_.emplace_back(INTRIGEA_MUS);
+	}
+
+	if (assets_info_.is_ps())
+	{
+		music_numbers_.emplace_back(CATACOMB_MUS);
+		music_numbers_.emplace_back(STICKS_MUS);
+		music_numbers_.emplace_back(PLOT_MUS);
+		music_numbers_.emplace_back(CIRCLES_MUS);
+		music_numbers_.emplace_back(LASTLAFF_MUS);
+		music_numbers_.emplace_back(TOHELL_MUS);
+		music_numbers_.emplace_back(FORTRESS_MUS);
+		music_numbers_.emplace_back(GIVING_MUS);
+		music_numbers_.emplace_back(HARTBEAT_MUS);
+		music_numbers_.emplace_back(LURKING_MUS);
+		music_numbers_.emplace_back(MAJMIN_MUS);
+		music_numbers_.emplace_back(VACCINAP_MUS);
+		music_numbers_.emplace_back(DARKNESS_MUS);
+		music_numbers_.emplace_back(MONASTRY_MUS);
+		music_numbers_.emplace_back(TOMBP_MUS);
+		music_numbers_.emplace_back(TIME_MUS);
+		music_numbers_.emplace_back(MOURNING_MUS);
+		music_numbers_.emplace_back(SERPENT_MUS);
+		music_numbers_.emplace_back(HISCORE_MUS);
+	}
+
+	std::sort(music_numbers_.begin(), music_numbers_.end());
+}
+
+void AudioDumper::dump_music(
+	const std::string& destination_dir,
+	const int number)
+{
+	const auto music_index = STARTMUSIC + number;
+	CA_CacheAudioChunk(music_index);
+
+	const auto& number_string = ca_make_padded_asset_number_string(number);
+	const auto& file_name = ca_append_path(destination_dir, "music_" + number_string + ".wav");
+
+	auto file_stream = bstone::FileStream{file_name, bstone::StreamOpenMode::write};
+
+	if (!file_stream.is_open())
+	{
+		throw AudioDumperTrackException{number, "Failed to open \"" + file_name + "\" for writing."};
+	}
+
+	auto audio_decoder = bstone::make_audio_decoder(
+		bstone::AudioDecoderType::adlib_music,
+		bstone::Opl3Type::dbopl
+	);
+
+	if (!audio_decoder)
+	{
+		throw AudioDumperTrackException{number, "Failed to create AdLib music decoder."};
+	}
+
+	const auto music_data = audiosegs[music_index];
+	const auto music_data_size = sd_get_adlib_music_data_size(music_data);
+
+	if (!audio_decoder->initialize(
+		music_data,
+		music_data_size,
+		bstone::opl3_fixed_frequency))
+	{
+		throw AudioDumperTrackException{number, "Failed to initialize AdLib music decoder."};
+	}
+
+	if (!file_stream.set_position(wav_prefix_size))
+	{
+		throw AudioDumperTrackException{number, "I/O error on \"" + file_name + "\"."};
+	}
+
+	constexpr auto sample_size = static_cast<int>(sizeof(Sample));
+	constexpr auto bit_depth = sample_size * 8;
+
+	auto data_size = 0;
+	auto sample_count = 0;
+	auto abs_max_sample = 0;
+
+	while (true)
+	{
+		const auto decoded_count = audio_decoder->decode(
+			bstone::opl3_fixed_frequency,
+			decode_buffer_.data()
+		);
+
+		if (decoded_count == 0)
+		{
+			break;
+		}
+
+		for (int i = 0; i < decoded_count; ++i)
+		{
+			const auto sample = static_cast<int>(decode_buffer_[i]);
+
+			abs_max_sample = std::max(std::abs(sample), abs_max_sample);
+		}
+
+		const auto decoded_size = decoded_count * sample_size;
+
+		if (!file_stream.write(decode_buffer_.data(), decoded_size))
+		{
+			throw AudioDumperTrackException{number, "I/O error on \"" + file_name + "\"."};
+		}
+
+		data_size += decoded_size;
+		sample_count += decoded_count;
+	}
+
+	if (!file_stream.set_position(0))
+	{
+		throw AudioDumperTrackException{number, "I/O error on \"" + file_name + "\"."};
+	}
+
+	if (!dump_wav_header(data_size, bit_depth, bstone::opl3_fixed_frequency, file_stream))
+	{
+		throw AudioDumperTrackException{number, "I/O error on \"" + file_name + "\"."};
+	}
+
+	const auto volume_factor = 32'768.0 / abs_max_sample;
+	const auto volume_factor_string = (data_size > 0 ? std::to_string(volume_factor) : "-");
+
+	auto sha1 = bstone::Sha1{};
+	sha1.process(music_data, music_data_size);
+	sha1.finish();
+	const auto sha1_string = (data_size > 0 ? sha1.to_string() : "-");
+
+	bstone::logger_->write(
+		"Track " + std::to_string(number) + ". " +
+			"Sample rate: " + std::to_string(bstone::opl3_fixed_frequency) + ". " +
+			"Sample count: " + std::to_string(sample_count) + ". " +
+			"SHA1: " + sha1_string + ". " +
+			"Volume factor: " + volume_factor_string + "."
+	);
+}
+
+void AudioDumper::initialize_sfx()
+{
+	for (int i = 0; i < NUMSOUNDS; ++i)
+	{
+		CA_CacheAudioChunk(STARTADLIBSOUNDS + i);
+	}
+
+	sd_debug_setup_dump();
+
+	InitDigiMap();
+}
+
+void AudioDumper::dump_adlib_sfx(
+	const int number,
+	const SfxInfo& sfx_info,
+	bstone::Stream& stream)
+{
+	auto audio_decoder = bstone::make_audio_decoder(
+		bstone::AudioDecoderType::adlib_sfx,
+		bstone::Opl3Type::dbopl
+	);
+
+	if (!audio_decoder)
+	{
+		throw AudioDumperTrackException{number, "Failed to create AdLib music decoder."};
+	}
+
+	if (!audio_decoder->initialize(
+		sfx_info.data_,
+		sfx_info.size_,
+		bstone::opl3_fixed_frequency))
+	{
+		throw AudioDumperTrackException{number, "Failed to initialize AdLib music decoder."};
+	}
+
+	if (!stream.set_position(wav_prefix_size))
+	{
+		throw AudioDumperTrackException{number, "Seek I/O error."};
+	}
+
+	constexpr auto sample_size = static_cast<int>(sizeof(Sample));
+	constexpr auto bit_depth = sample_size * 8;
+
+	auto data_size = 0;
+	auto sample_count = 0;
+	auto abs_max_sample = 0;
+
+	while (true)
+	{
+		const auto decoded_count = audio_decoder->decode(
+			bstone::opl3_fixed_frequency,
+			decode_buffer_.data()
+		);
+
+		if (decoded_count == 0)
+		{
+			break;
+		}
+
+		for (int i = 0; i < decoded_count; ++i)
+		{
+			const auto sample = static_cast<int>(decode_buffer_[i]);
+
+			abs_max_sample = std::max(std::abs(sample), abs_max_sample);
+		}
+
+		const auto decoded_size = decoded_count * sample_size;
+
+		if (!stream.write(decode_buffer_.data(), decoded_size))
+		{
+			throw AudioDumperTrackException{number, "Write I/O error."};
+		}
+
+		data_size += decoded_size;
+		sample_count += decoded_count;
+	}
+
+	if (!stream.set_position(0))
+	{
+		throw AudioDumperTrackException{number, "Seek I/O error."};
+	}
+
+	if (!dump_wav_header(data_size, bit_depth, bstone::opl3_fixed_frequency, stream))
+	{
+		throw AudioDumperTrackException{number, "Write I/O error."};
+	}
+
+	const auto volume_factor = 32'768.0 / abs_max_sample;
+	const auto volume_factor_string = (data_size > 0 ? std::to_string(volume_factor) : "-");
+
+	auto sha1 = bstone::Sha1{};
+	sha1.process(sfx_info.data_, sfx_info.size_);
+	sha1.finish();
+	const auto sha1_string = (data_size > 0 ? sha1.to_string() : "-");
+
+	bstone::logger_->write(
+		"Track " + std::to_string(number) + ". " +
+			"Sample rate: " + std::to_string(bstone::opl3_fixed_frequency) + ". " +
+			"Sample count: " + std::to_string(sample_count) + ". " +
+			"SHA1: " + sha1_string + ". " +
+			"Volume factor: " + volume_factor_string + "."
+	);
+}
+
+void AudioDumper::dump_pcm_sfx(
+	const int number,
+	const SfxInfo& sfx_info,
+	bstone::Stream& stream)
+{
+	constexpr auto sample_size = 1;
+	constexpr auto bit_depth = sample_size * 8;
+	const auto data_size = (sfx_info.data_ ? sfx_info.size_ : 0);
+
+	if (!dump_wav_header(data_size, bit_depth, bstone::audio_decoder_pcm_fixed_frequency, stream))
+	{
+		throw AudioDumperTrackException{number, "Write I/O error."};
+	}
+
+	if (!stream.write(sfx_info.data_, data_size))
+	{
+		throw AudioDumperTrackException{number, "Write I/O error."};
+	}
+
+	if ((data_size % 2) != 0)
+	{
+		if (!stream.write_octet(0))
+		{
+			throw AudioDumperTrackException{number, "Write I/O error."};
+		}
+	}
+
+	auto abs_max_sample = 0;
+
+	if (data_size > 0)
+	{
+		const auto pcm_u8_data = static_cast<const std::uint8_t*>(sfx_info.data_);
+
+		for (int i = 0; i < data_size; ++i)
+		{
+			abs_max_sample = std::max(std::abs(pcm_u8_data[i] - 128), abs_max_sample);
+		}
+	}
+
+	const auto volume_factor = 128.0 / abs_max_sample;
+	const auto volume_factor_string = (data_size > 0 ? std::to_string(volume_factor) : "-");
+
+	auto sha1 = bstone::Sha1{};
+	sha1.process(sfx_info.data_, data_size);
+	sha1.finish();
+	const auto sha1_string = (data_size > 0 ? sha1.to_string() : "-");
+
+	bstone::logger_->write(
+		"Track " + std::to_string(number) + ". " +
+			"Sample rate: " + std::to_string(bstone::audio_decoder_pcm_fixed_frequency) + ". " +
+			"Sample count: " + std::to_string(data_size) + ". " +
+			"SHA1: " + sha1_string + ". " +
+			"Volume factor: " + volume_factor_string + "."
+	);
+}
+
+void AudioDumper::dump_sfx(
+	const std::string& destination_dir,
+	const int number)
+{
+	const auto& sfx_info = sd_get_sfx_info(number);
+
+	const auto& number_string = ca_make_padded_asset_number_string(number);
+	const auto& file_name = ca_append_path(destination_dir, "sfx_" + number_string + ".wav");
+
+	auto file_stream = bstone::FileStream{file_name, bstone::StreamOpenMode::write};
+
+	if (!file_stream.is_open())
+	{
+		throw AudioDumperTrackException{number, "Failed to open \"" + file_name + "\" for writing."};
+	}
+
+	if (sfx_info.is_digitized_)
+	{
+		dump_pcm_sfx(number, sfx_info, file_stream);
+	}
+	else
+	{
+		dump_adlib_sfx(number, sfx_info, file_stream);
+	}
+}
+
+//
+// AudioDumper
+// ==========================================================================
+
+void ca_dump_music(
+	const std::string& destination_dir)
+{
+	bstone::logger_->write();
+	bstone::logger_->write("<<< ================");
+	bstone::logger_->write("Dumping music.");
+	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
+
+	auto audio_dumper = AudioDumper{};
+	audio_dumper.dump_music(ca_normalize_path(destination_dir));
+
+	bstone::logger_->write(">>> ================");
+}
+
+void ca_dump_sfx(
+	const std::string& destination_dir)
+{
+	bstone::logger_->write();
+	bstone::logger_->write("<<< ================");
+	bstone::logger_->write("Dumping sfx.");
+	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
+
+	auto audio_dumper = AudioDumper{};
+	audio_dumper.dump_sfx(ca_normalize_path(destination_dir));
+
+	bstone::logger_->write(">>> ================");
 }

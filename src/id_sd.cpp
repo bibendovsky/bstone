@@ -39,7 +39,7 @@ std::uint16_t sd_start_pc_sounds_ = STARTPCSOUNDS;
 std::uint16_t sd_start_al_sounds_ = STARTADLIBSOUNDS;
 
 std::int16_t sd_last_sound_ = LASTSOUND;
-std::int16_t sd_digi_map_[::LASTSOUND];
+std::int16_t sd_digi_map_[LASTSOUND];
 
 
 // Global variables
@@ -355,10 +355,10 @@ void sd_start_music(
 	{
 		sd_music_index_ = index;
 
-		auto music_data = reinterpret_cast<std::uint16_t*>(
+		const auto music_data = reinterpret_cast<std::uint16_t*>(
 			audiosegs[STARTMUSIC + index]);
 
-		auto length = bstone::Endian::little(music_data[0]) + 2;
+		const auto length = sd_get_adlib_music_data_size(music_data);
 
 		sd_sq_hack_ = music_data;
 		sd_sq_hack_len_ = static_cast<std::uint16_t>(length);
@@ -427,30 +427,37 @@ void sd_play_sound(
 
 	int priority = bstone::Endian::little(sound->priority);
 
-	int digi_index = sd_digi_map_[sound_index];
+	const auto sfx_info = sd_get_sfx_info(sound_index);
 
-	if (digi_index != -1)
-	{
-		int digi_page = sd_digi_list_[(2 * digi_index) + 0];
-		int digi_length = sd_digi_list_[(2 * digi_index) + 1];
-		const void* digi_data = PM_GetSoundPage(digi_page);
-
-		sd_mixer_.play_pcm_sound(digi_index, priority, digi_data, digi_length,
-			actor_index, actor_type, actor_channel);
-
-		return;
-	}
-
-	if (!::sd_is_sound_enabled_)
+	if (!sfx_info.data_ || sfx_info.size_ <= 0)
 	{
 		return;
 	}
 
-	int data_size = audiostarts[sd_start_al_sounds_ + sound_index + 1] -
-		audiostarts[sd_start_al_sounds_ + sound_index];
-
-	sd_mixer_.play_adlib_sound(sound_index, priority, sound, data_size,
-		actor_index, actor_type, actor_channel);
+	if (sfx_info.is_digitized_)
+	{
+		sd_mixer_.play_pcm_sound(
+			sfx_info.digi_index_,
+			priority,
+			sfx_info.data_,
+			sfx_info.size_,
+			actor_index,
+			actor_type,
+			actor_channel
+		);
+	}
+	else
+	{
+		sd_mixer_.play_adlib_sound(
+			sound_index,
+			priority,
+			sfx_info.data_,
+			sfx_info.size_,
+			actor_index,
+			actor_type,
+			actor_channel
+		);
+	}
 }
 
 void sd_play_actor_sound(
@@ -550,4 +557,47 @@ void sd_mute(
 	sd_mixer_.set_mute(mute);
 }
 
+int sd_get_adlib_music_data_size(
+	const void* const raw_music_data)
+{
+	return bstone::Endian::little(reinterpret_cast<const std::uint16_t*>(raw_music_data)[0]) + 2;
+}
+
+SfxInfo sd_get_sfx_info(
+	const int sfx_number)
+{
+	auto result = SfxInfo{};
+
+	if (sfx_number >= 0 && sfx_number < NUMSOUNDS)
+	{
+		const auto digi_index = sd_digi_map_[sfx_number];
+
+		if (digi_index >= 0)
+		{
+			const auto digi_page = sd_digi_list_[(2 * digi_index) + 0];
+
+			result.is_digitized_ = true;
+			result.digi_index_ = digi_index;
+			result.data_ = PM_GetSoundPage(digi_page);
+			result.size_ = sd_digi_list_[(2 * digi_index) + 1];
+		}
+		else
+		{
+			const auto start_index = sd_start_al_sounds_ + sfx_number;
+
+			result.is_digitized_ = false;
+			result.digi_index_ = -1;
+			result.data_ = sd_sound_table_[sfx_number];
+			result.size_ = audiostarts[start_index + 1] - audiostarts[start_index];
+		}
+	}
+
+	return result;
+}
+
+void sd_debug_setup_dump()
+{
+	sd_setup_digi();
+	sd_sound_table_ = &::audiosegs[sd_start_al_sounds_];
+}
 // BBi

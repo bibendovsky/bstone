@@ -42,6 +42,9 @@ namespace bstone
 {
 
 
+constexpr auto audio_decoder_pcm_fixed_frequency = 7'000;
+
+
 enum class AudioDecoderType
 {
 	none,

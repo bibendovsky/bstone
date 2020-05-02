@@ -1059,7 +1059,32 @@ void InitGame()
 			ca_dump_sprites_images(dump_dir);
 
 			Quit();
-			return;
+		}
+	}
+
+	{
+		const auto& debug_dump_music_option_name = std::string{"debug_dump_music"};
+
+		if (g_args.has_option(debug_dump_music_option_name))
+		{
+			const auto& dump_dir = g_args.get_option_value(debug_dump_music_option_name);
+
+			ca_dump_music(dump_dir);
+
+			Quit();
+		}
+	}
+
+	{
+		const auto& debug_dump_sfx_option_name = std::string{"debug_dump_sfx"};
+
+		if (g_args.has_option(debug_dump_sfx_option_name))
+		{
+			const auto& dump_dir = g_args.get_option_value(debug_dump_sfx_option_name);
+
+			ca_dump_sfx(dump_dir);
+
+			Quit();
 		}
 	}
 

@@ -243,7 +243,7 @@ int PcmDecoder::get_dst_length_in_samples() const noexcept
 
 int PcmDecoder::get_src_rate()
 {
-	return 7000;
+	return audio_decoder_pcm_fixed_frequency;
 }
 
 int PcmDecoder::get_min_dst_rate()
