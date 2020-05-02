@@ -1036,6 +1036,20 @@ void InitGame()
 	PM_Startup();
 
 	{
+		const auto& extract_all_option_name = std::string{"extract_all"};
+
+		if (g_args.has_option(extract_all_option_name))
+		{
+			const auto& dump_dir = g_args.get_option_value(extract_all_option_name);
+
+			ca_extract_all(dump_dir);
+
+			Quit();
+			return;
+		}
+	}
+
+	{
 		const auto& debug_dump_walls_images_option_name = std::string{"debug_dump_walls_images"};
 
 		if (g_args.has_option(debug_dump_walls_images_option_name))

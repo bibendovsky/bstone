@@ -403,5 +403,8 @@ void ca_dump_sfx(
 void ca_dump_text(
 	const std::string& destination_dir);
 
+void ca_extract_all(
+	const std::string& destination_dir);
+
 
 #endif // BSTONE_ID_CA_INCLUDED

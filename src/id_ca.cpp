@@ -3464,3 +3464,13 @@ void ca_dump_text(
 
 	bstone::logger_->write(">>> ================");
 }
+
+void ca_extract_all(
+	const std::string& destination_dir)
+{
+	ca_dump_walls_images(destination_dir);
+	ca_dump_sprites_images(destination_dir);
+	ca_dump_music(destination_dir);
+	ca_dump_sfx(destination_dir);
+	ca_dump_text(destination_dir);
+}
