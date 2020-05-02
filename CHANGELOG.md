@@ -24,6 +24,7 @@
 - Option `debug_dump_sprites_images` to dump graphics resources (actors, decorations, etc.).
 - Option `debug_dump_music` to dump music resources.
 - Option `debug_dump_sfx` to dump sfx resources.
+- Option `debug_dump_text` to dump text resources.
 - Generic instruction on how to compile on Linux-based system.
 
 ### Removed
