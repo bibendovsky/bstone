@@ -357,6 +357,10 @@ Notes:
   Dumps sfx resources into existing directory `dir`.  
   Supported file format: [WAV](http://en.wikipedia.org/wiki/WAV)
 
+* `--debug_dump_text dir`  
+  Dumps text resources into existing directory `dir`.  
+  Supported file format: TXT
+
 
 7 - Cheat key
 =============
