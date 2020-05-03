@@ -42,6 +42,8 @@ Free Software Foundation, Inc.,
 //
 
 
+#include <cstring>
+
 #include "SDL_events.h"
 
 #include "id_ca.h"

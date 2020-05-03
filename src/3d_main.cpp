@@ -22,6 +22,8 @@ Free Software Foundation, Inc.,
 */
 
 
+#include <cmath>
+
 #include <algorithm>
 #include <functional>
 #include <unordered_map>
