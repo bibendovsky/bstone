@@ -51,6 +51,8 @@ Free Software Foundation, Inc.,
 //
 
 
+#include <cstring>
+
 #include "SDL_timer.h"
 
 #include "id_heads.h"
