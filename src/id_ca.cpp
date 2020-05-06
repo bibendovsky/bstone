@@ -1232,7 +1232,7 @@ bool ca_open_resource_non_fatal(
 	const std::string& file_extension,
 	bstone::FileStream& file_stream)
 {
-	if (!::mod_dir_.empty())
+	if (!mod_dir_.empty())
 	{
 		const auto mod_dir_result = ca_open_resource_non_fatal(
 			mod_dir_, file_name_without_ext, file_extension, file_stream);
@@ -1317,7 +1317,7 @@ std::string ca_calculate_hash(
 {
 	auto file_stream = bstone::FileStream{};
 
-	if (!::ca_open_resource_non_fatal(base_name, extension, file_stream))
+	if (!ca_open_resource_non_fatal(base_name, extension, file_stream))
 	{
 		return {};
 	}
@@ -1332,7 +1332,7 @@ std::string ca_calculate_hash(
 {
 	auto file_stream = bstone::FileStream{};
 
-	if (!::ca_open_resource_non_fatal(data_dir, base_name, extension, file_stream))
+	if (!ca_open_resource_non_fatal(data_dir, base_name, extension, file_stream))
 	{
 		return {};
 	}

@@ -554,7 +554,7 @@ void ScalePost()
 
 	postheight = height;
 
-	if (!::gp_no_shading_)
+	if (!gp_no_shading_)
 	{
 		auto i = shade_max - ((63 * height) / normalshade);
 
@@ -666,7 +666,7 @@ void HitVertWall()
 
 			ytile = yintercept >> TILESHIFT;
 
-			auto door_index = tilemap[::xtile - xtilestep][::ytile];
+			auto door_index = tilemap[xtile - xtilestep][ytile];
 
 			if ((door_index & 0x80) != 0 && (door_index & 0xC0) != 0xC0)
 			{
@@ -746,7 +746,7 @@ void HitHorizWall()
 
 			xtile = xintercept >> TILESHIFT;
 
-			auto door_index = tilemap[::xtile][::ytile - ytilestep];
+			auto door_index = tilemap[xtile][ytile - ytilestep];
 
 			if ((door_index & 0x80) != 0 && (door_index & 0xC0) != 0xC0)
 			{
@@ -1185,7 +1185,7 @@ void vga_clear_screen(
 	if (viewwidth == vga_width)
 	{
 		std::uninitialized_fill_n(
-			&::vga_memory[pixel_offset],
+			&vga_memory[pixel_offset],
 			height * vga_width,
 			static_cast<std::uint8_t>(color));
 	}
@@ -1194,7 +1194,7 @@ void vga_clear_screen(
 		for (int y = 0; y < height; ++y)
 		{
 			std::uninitialized_fill_n(
-				&::vga_memory[pixel_offset],
+				&vga_memory[pixel_offset],
 				viewwidth,
 				static_cast<std::uint8_t>(color));
 
@@ -1353,8 +1353,8 @@ void hw_draw_sprites()
 			continue;
 		}
 
-		const auto visspot = &::spotvis[0][0] + spotloc;
-		const auto tilespot = &::tilemap[0][0] + spotloc;
+		const auto visspot = &spotvis[0][0] + spotloc;
+		const auto tilespot = &tilemap[0][0] + spotloc;
 
 		//
 		// could be in any of the nine surrounding tiles
@@ -1431,7 +1431,7 @@ void DrawScaleds()
 	statobj_t* statptr;
 	objtype* obj;
 
-	visptr = &::vislist[0];
+	visptr = &vislist[0];
 
 	//
 	// place static objects
@@ -1450,9 +1450,9 @@ void DrawScaleds()
 			continue; // not visible
 		}
 
-		TransformTile(statptr->tilex, statptr->tiley, &::visptr->viewx, &::visptr->viewheight);
+		TransformTile(statptr->tilex, statptr->tiley, &visptr->viewx, &visptr->viewheight);
 
-		if (!::visptr->viewheight)
+		if (!visptr->viewheight)
 		{
 			continue; // to close to the object
 		}
@@ -1460,7 +1460,7 @@ void DrawScaleds()
 		visptr->cloaked = false;
 		visptr->lighting = statptr->lighting; // Could add additional flashing/lighting
 
-		if (visptr < &::vislist[MAXVISIBLE - 1])
+		if (visptr < &vislist[MAXVISIBLE - 1])
 		{
 			// don't let it overflow
 			++visptr;
@@ -1499,8 +1499,8 @@ void DrawScaleds()
 			continue;
 		}
 
-		visspot = &::spotvis[0][0] + spotloc;
-		tilespot = &::tilemap[0][0] + spotloc;
+		visspot = &spotvis[0][0] + spotloc;
+		tilespot = &tilemap[0][0] + spotloc;
 
 		//
 		// could be in any of the nine surrounding tiles
@@ -1557,10 +1557,10 @@ void DrawScaleds()
 				visptr->shapenum += CalcRotate(obj);
 			}
 
-			if (visptr < &::vislist[MAXVISIBLE - 1])
+			if (visptr < &vislist[MAXVISIBLE - 1])
 			{
 				// don't let it overflow
-				++::visptr;
+				++visptr;
 			}
 
 			obj->flags |= FL_VISIBLE;
@@ -1574,7 +1574,7 @@ void DrawScaleds()
 	//
 	// draw from back to front
 	//
-	numvisible = static_cast<std::int16_t>(visptr - &::vislist[0]);
+	numvisible = static_cast<std::int16_t>(visptr - &vislist[0]);
 
 	if (!numvisible)
 	{
@@ -1585,7 +1585,7 @@ void DrawScaleds()
 	{
 		least = 32000;
 
-		for (visstep = &::vislist[0]; visstep < visptr; ++::visstep)
+		for (visstep = &vislist[0]; visstep < visptr; ++visstep)
 		{
 			height = visstep->viewheight;
 
@@ -1604,7 +1604,7 @@ void DrawScaleds()
 		//
 		// draw farthest
 		//
-		if ((!::gp_no_shading_ && farthest->lighting != NO_SHADING) || cloaked_shape)
+		if ((!gp_no_shading_ && farthest->lighting != NO_SHADING) || cloaked_shape)
 		{
 			ScaleLSShape(farthest->viewx, farthest->shapenum, farthest->viewheight, farthest->lighting);
 		}
@@ -1804,10 +1804,10 @@ void ThreeDRefresh()
 	// follow the walls from there to the right, drawwing as we go
 	//
 
-	const auto is_ceiling_textured = (!::gp_is_ceiling_solid_);
-	const auto is_floor_textured = (!::gp_is_flooring_solid_);
+	const auto is_ceiling_textured = (!gp_is_ceiling_solid_);
+	const auto is_floor_textured = (!gp_is_flooring_solid_);
 
-	if (!::gp_no_shading_)
+	if (!gp_no_shading_)
 	{
 		if (is_ceiling_textured && is_floor_textured)
 		{

@@ -565,7 +565,7 @@ void ControlMovement(
 
 			if (gamestate.turn_around < 0)
 			{
-				controlx = -::controlx;
+				controlx = -controlx;
 			}
 		}
 
@@ -1014,7 +1014,7 @@ void TakeDamage(
 {
 	LastAttacker = attacker;
 
-	if (!::gp_hide_attacker_info_)
+	if (!gp_hide_attacker_info_)
 	{
 		if (attacker)
 		{
@@ -1966,7 +1966,7 @@ void DisplayNoMoMsgs()
 
 	if (gamestate.mapon < (assets_info.get_levels_per_episode() - 1))
 	{
-		is_level_locked = gamestuff.level[::gamestate.mapon + 1].locked;
+		is_level_locked = gamestuff.level[gamestate.mapon + 1].locked;
 	}
 
 	if (is_level_locked)
@@ -2808,7 +2808,7 @@ bool ClipMove(
 
 	if (!g_no_wall_hit_sound)
 	{
-		if (!::sd_is_player_channel_playing(bstone::ActorChannel::hit_wall))
+		if (!sd_is_player_channel_playing(bstone::ActorChannel::hit_wall))
 		{
 			sd_play_player_sound(HITWALLSND, bstone::ActorChannel::hit_wall);
 		}
@@ -3267,7 +3267,7 @@ void Cmd_Use(
 					continue;
 				}
 
-				if ((!::tilemap[dst_x][dst_y]) &&
+				if ((!tilemap[dst_x][dst_y]) &&
 					(actorat[dst_x][dst_y] >= objlist))
 				{
 					ob = actorat[dst_x][dst_y];
@@ -3439,7 +3439,7 @@ bool Interrogate(
 
 					if (ci.areanumber == ob->areanumber)
 					{
-						InfAreaMsgs[::NumAreaMsgs++] = InfHintList.smInfo[ci.mInfo.local_val].mInfo.mSeg;
+						InfAreaMsgs[NumAreaMsgs++] = InfHintList.smInfo[ci.mInfo.local_val].mInfo.mSeg;
 					}
 				}
 
@@ -3480,7 +3480,7 @@ bool Interrogate(
 			//
 			if (!msgptr)
 			{
-				msgptr = InfHintList.smInfo[::InfHintList.smInfo[ob->s_tiley].mInfo.local_val].mInfo.mSeg;
+				msgptr = InfHintList.smInfo[InfHintList.smInfo[ob->s_tiley].mInfo.local_val].mInfo.mSeg;
 			}
 
 			ob->flags |= FL_INTERROGATED; // Scientist has been interrogated
@@ -3500,17 +3500,17 @@ bool Interrogate(
 			//
 			ob->flags &= ~FL_FRIENDLY; // Make him attack!
 			ob->flags |= FL_INTERROGATED; //  "    "     "
-			st = &::MeanSciList;
+			st = &MeanSciList;
 		}
 		else
 		{
 			// Nice
 			//
 			ob->flags |= FL_MUST_ATTACK; // Make him mean!
-			st = &::NiceSciList;
+			st = &NiceSciList;
 		}
 
-		msgptr = st->smInfo[::Random(st->NumMsgs)].mInfo.mSeg;
+		msgptr = st->smInfo[Random(st->NumMsgs)].mInfo.mSeg;
 	}
 
 	if (msgptr)
@@ -3655,7 +3655,7 @@ std::int16_t InputFloor()
 
 		for (int i = 1; i < stats_levels_per_episode; ++i)
 		{
-			if (!::gamestuff.level[i].locked)
+			if (!gamestuff.level[i].locked)
 			{
 				last_unlocked_map = i;
 			}
@@ -3692,7 +3692,7 @@ std::int16_t InputFloor()
 				is_button_pressed = true;
 				button_index = target_level - 1;
 
-				if (!::gamestuff.level[target_level].locked)
+				if (!gamestuff.level[target_level].locked)
 				{
 					result = target_level;
 				}
@@ -3750,7 +3750,7 @@ std::int16_t InputFloor()
 					py = ref_top_bar_height + 10;
 
 					USL_DrawString(
-						floor_number_strings[::gamestate.mapon - 1]);
+						floor_number_strings[gamestate.mapon - 1]);
 				}
 
 				if (draw_locked_floor)
@@ -3805,7 +3805,7 @@ std::int16_t InputFloor()
 					167,
 					ref_top_bar_height + 76,
 					ss_normal,
-					&::gamestuff.level[::gamestate.mapon].stats));
+					&gamestuff.level[gamestate.mapon].stats));
 
 				IN_ClearKeysDown();
 			}
@@ -3922,7 +3922,7 @@ std::int16_t InputFloor()
 			{
 				if (locked)
 				{
-					if (!::sd_is_player_channel_playing(bstone::ActorChannel::no_way))
+					if (!sd_is_player_channel_playing(bstone::ActorChannel::no_way))
 					{
 						sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
 					}
@@ -4094,7 +4094,7 @@ void LoadOverheadChunk(
 		try
 		{
 			auto archiver = archiver_uptr.get();
-			archiver->initialize(&::g_playtemp);
+			archiver->initialize(&g_playtemp);
 
 			archiver->read_uint8_array(ov_buffer.data(), 4096);
 			ov_stats.unarchive(archiver);
@@ -4142,7 +4142,7 @@ void SaveOverheadChunk(
 
 	auto archiver_uptr = bstone::ArchiverFactory::create();
 	auto archiver = archiver_uptr.get();
-	archiver->initialize(&::g_playtemp);
+	archiver->initialize(&g_playtemp);
 
 	archiver->write_uint8_array(ov_buffer.data(), 4096);
 	ov_stats.archive(archiver);
@@ -4699,8 +4699,8 @@ void GunAttack(
 	const auto theta = (player->angle * m_pi()) / 180.0;
 	const auto cos_t = std::cos(theta);
 	const auto sin_t = std::sin(theta);
-	const auto x_1 = bstone::FixedPoint{::player->x}.to_double();
-	const auto y_1 = (MAPSIZE - 1) - bstone::FixedPoint{::player->y}.to_double();
+	const auto x_1 = bstone::FixedPoint{player->x}.to_double();
+	const auto y_1 = (MAPSIZE - 1) - bstone::FixedPoint{player->y}.to_double();
 
 	//
 	// find potential targets
@@ -5643,8 +5643,8 @@ void try_to_grab_bonus_items()
 	const auto min_distance = item_radius + player_radius;
 	const auto min_sqr_distance = min_distance * min_distance;
 
-	const auto player_x = bstone::FixedPoint{::player->x}.to_double();
-	const auto player_y = bstone::FixedPoint{::player->y}.to_double();
+	const auto player_x = bstone::FixedPoint{player->x}.to_double();
+	const auto player_y = bstone::FixedPoint{player->y}.to_double();
 
 	for (auto item = statobjlist; item != laststatobj; ++item)
 	{

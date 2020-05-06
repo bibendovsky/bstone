@@ -662,7 +662,7 @@ void check_heart_beat_key()
 	{
 		if (is_key_released)
 		{
-			g_heart_beat_sound = !::g_heart_beat_sound;
+			g_heart_beat_sound = !g_heart_beat_sound;
 
 			const auto& message = (
 				g_heart_beat_sound ?
@@ -1097,9 +1097,9 @@ void CheckKeys()
 	{
 		if (I_KeyReleased)
 		{
-			gp_hide_attacker_info_ = !::gp_hide_attacker_info_;
+			gp_hide_attacker_info_ = !gp_hide_attacker_info_;
 
-			if (!::gp_hide_attacker_info_)
+			if (!gp_hide_attacker_info_)
 			{
 				DISPLAY_TIMED_MSG(attacker_info_enabled, MP_ATTACK_INFO, MT_GENERAL);
 			}
@@ -1117,20 +1117,20 @@ void CheckKeys()
 
 	if (in_is_binding_pressed(e_bi_ceiling))
 	{
-		gp_is_ceiling_solid_ = !::gp_is_ceiling_solid_;
+		gp_is_ceiling_solid_ = !gp_is_ceiling_solid_;
 		in_reset_binding_state(e_bi_ceiling);
 	}
 
 	if (in_is_binding_pressed(e_bi_flooring))
 	{
-		gp_is_flooring_solid_ = !::gp_is_flooring_solid_;
+		gp_is_flooring_solid_ = !gp_is_flooring_solid_;
 		in_reset_binding_state(e_bi_flooring);
 	}
 
 	if (in_is_binding_pressed(e_bi_lightning))
 	{
 		in_reset_binding_state(e_bi_lightning);
-		gp_no_shading_ = !::gp_no_shading_;
+		gp_no_shading_ = !gp_no_shading_;
 	}
 
 	check_heart_beat_key();
@@ -1164,7 +1164,7 @@ void CheckMusicToggle()
 		{
 			bool is_enabled = false;
 
-			if (!::sd_has_audio_)
+			if (!sd_has_audio_)
 			{
 				DISPLAY_TIMED_MSG(NoAdLibCard, MP_BONUS, MT_GENERAL);
 
@@ -2054,7 +2054,7 @@ void ShowQuickInstructions()
 	WindowH = 168;
 	CacheMessage(QUICK_INFO1_TEXT);
 
-	if (!::IN_UserInput(120))
+	if (!IN_UserInput(120))
 	{
 		CacheMessage(QUICK_INFO2_TEXT);
 		IN_Ack();

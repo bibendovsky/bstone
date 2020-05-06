@@ -285,16 +285,16 @@ statobj_t* FindEmptyStatic()
 {
 	statobj_t* spot;
 
-	for (spot = &::statobjlist[0]; ; ++spot)
+	for (spot = &statobjlist[0]; ; ++spot)
 	{
 		if (spot == laststatobj)
 		{
-			if (spot == &::statobjlist[MAXSTATS])
+			if (spot == &statobjlist[MAXSTATS])
 			{
 				return nullptr;
 			}
 
-			++::laststatobj; // space at end
+			++laststatobj; // space at end
 
 			break;
 		}
@@ -1718,16 +1718,16 @@ void MovePWalls()
 
 	if ((pwallstate / 128) != oldblock)
 	{
-		--::pwalldist;
+		--pwalldist;
 
 		// block crossed into a new block
-		const auto oldtile = tilemap[::pwallx][::pwally] & 63;
+		const auto oldtile = tilemap[pwallx][pwally] & 63;
 
 		//
 		// the tile can now be walked into
 		//
-		tilemap[::pwallx][::pwally] = 0;
-		actorat[::pwallx][::pwally] = nullptr;
+		tilemap[pwallx][pwally] = 0;
+		actorat[pwallx][pwally] = nullptr;
 
 		std::uint16_t areanumber = GetAreaNumber(player->tilex, player->tiley);
 
@@ -1740,7 +1740,7 @@ void MovePWalls()
 			areanumber += AREATILE;
 		}
 
-		mapsegs[0][::farmapylookup[::pwally] + pwallx] = areanumber;
+		mapsegs[0][farmapylookup[pwally] + pwallx] = areanumber;
 
 		//
 		// see if it should be pushed farther
@@ -1823,7 +1823,7 @@ void MovePWalls()
 			tilemap[next_x][next_y] = static_cast<std::uint8_t>(oldtile);
 			next_actorat = reinterpret_cast<objtype*>(static_cast<std::uintptr_t>(oldtile));
 
-			tilemap[::pwallx][::pwally] = static_cast<std::uint8_t>(oldtile | 0xC0);
+			tilemap[pwallx][pwally] = static_cast<std::uint8_t>(oldtile | 0xC0);
 		}
 	}
 

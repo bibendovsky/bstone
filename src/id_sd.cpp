@@ -170,12 +170,12 @@ bool sd_enable_sound(
 
 	sd_stop_sound();
 
-	if (is_enabled && !::sd_has_audio_)
+	if (is_enabled && !sd_has_audio_)
 	{
 		is_enabled = false;
 	}
 
-	sd_sound_table_ = &::audiosegs[::sd_start_al_sounds_];
+	sd_sound_table_ = &audiosegs[sd_start_al_sounds_];
 
 	sd_is_sound_enabled_ = is_enabled;
 
@@ -386,7 +386,7 @@ void sd_play_sound(
 		return;
 	}
 
-	if (!::sd_is_sound_enabled_)
+	if (!sd_is_sound_enabled_)
 	{
 		return;
 	}
@@ -598,6 +598,6 @@ SfxInfo sd_get_sfx_info(
 void sd_setup_extracting()
 {
 	sd_setup_digi();
-	sd_sound_table_ = &::audiosegs[sd_start_al_sounds_];
+	sd_sound_table_ = &audiosegs[sd_start_al_sounds_];
 }
 // BBi

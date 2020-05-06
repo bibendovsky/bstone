@@ -118,7 +118,7 @@ Uint32 sys_timer_callback(
 {
 	static_cast<void>(param);
 
-	++::TimeCount;
+	++TimeCount;
 
 	return interval;
 }
@@ -137,7 +137,7 @@ HighScores Scores;
 ///////////////////////////////////////////////////////////////////////////
 void US_Shutdown()
 {
-	if (!::US_Started)
+	if (!US_Started)
 	{
 		return;
 	}

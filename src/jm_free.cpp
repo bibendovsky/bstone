@@ -235,7 +235,7 @@ bool check_for_files(
 
 	for (const auto& base_name : base_names)
 	{
-		if (!::ca_open_resource_non_fatal(data_dir_, base_name, extension, file_stream))
+		if (!ca_open_resource_non_fatal(data_dir_, base_name, extension, file_stream))
 		{
 			return false;
 		}
@@ -703,7 +703,7 @@ void CAL_SetupGrFile()
 	//
 
 	ca_open_resource(Assets::get_gfx_dictionary_base_name(), handle);
-	handle.read(&::grhuffman, sizeof(grhuffman));
+	handle.read(&grhuffman, sizeof(grhuffman));
 
 	//
 	// load the data offsets from ???head.ext
@@ -725,7 +725,7 @@ void CAL_SetupGrFile()
 	//
 	pictable = new pictabletype[NUMPICS];
 	CAL_GetGrChunkLength(STRUCTPIC); // position file pointer
-	compseg = new std::uint8_t[::chunkcomplen];
+	compseg = new std::uint8_t[chunkcomplen];
 	grhandle.read(compseg, chunkcomplen);
 
 	CAL_HuffExpand(
@@ -743,7 +743,7 @@ static void cal_setup_map_data_file()
 
 	auto has_mod = false;
 
-	if (!::mod_dir_.empty())
+	if (!mod_dir_.empty())
 	{
 		const auto& modded_hash = ca_calculate_hash(
 			mod_dir_, Assets::get_map_data_base_name(), assets_info.get_extension());
@@ -995,7 +995,7 @@ void PreDemo()
 
 	// Show JAM logo
 	//
-	if (!::DoMovie(MovieId::intro))
+	if (!DoMovie(MovieId::intro))
 	{
 		Quit("JAM animation (IANIM.xxx) does not exist.");
 	}

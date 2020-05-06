@@ -3001,7 +3001,7 @@ void ShadowPrintLocationText(
 			}
 			else
 			{
-				ShPrint(" AREA: ", 0, false);
+				ShPrint("AREA: ", 0, false);
 			}
 			if (!type)
 			{
@@ -3682,7 +3682,7 @@ static void fix_level_inplace()
 	// (E2M6; x: 55; y: 33)
 	//
 	if (assets_info.is_aog_full() &&
-		!::loadedgame &&
+		!loadedgame &&
 		gamestate.episode == 1 &&
 		gamestate.mapon == 6)
 	{

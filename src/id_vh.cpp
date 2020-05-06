@@ -265,7 +265,7 @@ void LoadLatchMem()
 	//
 	latchpics[picnum++] = destoff;
 	CA_CacheGrChunk(STARTTILE8);
-	auto src = static_cast<const std::uint8_t*>(grsegs[::STARTTILE8]);
+	auto src = static_cast<const std::uint8_t*>(grsegs[STARTTILE8]);
 
 	for (int i = 0; i < NUMTILE8; ++i)
 	{

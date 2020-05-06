@@ -2437,25 +2437,25 @@ void CP_Switches(
 		switch (which)
 		{
 		case SW_LIGHTING:
-			gp_no_shading_ = !::gp_no_shading_;
+			gp_no_shading_ = !gp_no_shading_;
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
 
 		case SW_REBA_ATTACK_INFO:
-			gp_hide_attacker_info_ = !::gp_hide_attacker_info_;
+			gp_hide_attacker_info_ = !gp_hide_attacker_info_;
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
 
 		case SW_CEILING:
-			gp_is_ceiling_solid_ = !::gp_is_ceiling_solid_;
+			gp_is_ceiling_solid_ = !gp_is_ceiling_solid_;
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
 
 		case SW_FLOORS:
-			gp_is_flooring_solid_ = !::gp_is_flooring_solid_;
+			gp_is_flooring_solid_ = !gp_is_flooring_solid_;
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
@@ -2539,28 +2539,28 @@ void DrawAllSwitchLights(
 			switch (i)
 			{
 			case SW_LIGHTING:
-				if (!::gp_no_shading_)
+				if (!gp_no_shading_)
 				{
 					Shape++;
 				}
 				break;
 
 			case SW_REBA_ATTACK_INFO:
-				if (!::gp_hide_attacker_info_)
+				if (!gp_hide_attacker_info_)
 				{
 					Shape++;
 				}
 				break;
 
 			case SW_CEILING:
-				if (!::gp_is_ceiling_solid_)
+				if (!gp_is_ceiling_solid_)
 				{
 					Shape++;
 				}
 				break;
 
 			case SW_FLOORS:
-				if (!::gp_is_flooring_solid_)
+				if (!gp_is_flooring_solid_)
 				{
 					Shape++;
 				}
@@ -2672,7 +2672,7 @@ void CP_Sound(
 			//
 		case 0:
 			sd_wait_sound_done();
-			sd_enable_sound(!::sd_is_sound_enabled_);
+			sd_enable_sound(!sd_is_sound_enabled_);
 
 			if (sd_is_sound_enabled_)
 			{
@@ -2689,7 +2689,7 @@ void CP_Sound(
 			break;
 
 		case 1:
-			sd_enable_music(!::sd_is_music_enabled_);
+			sd_enable_music(!sd_is_music_enabled_);
 
 			if (sd_is_music_enabled_)
 			{
@@ -2723,7 +2723,7 @@ void DrawSoundMenu()
 	// IF NO ADLIB, NON-CHOOSENESS!
 	//
 
-	if (!::sd_has_audio_)
+	if (!sd_has_audio_)
 	{
 		SndMenu[0].active = AT_DISABLED;
 		SndMenu[1].active = AT_DISABLED;
@@ -2876,7 +2876,7 @@ restart:
 
 			DrawLSAction(0);
 
-			if (!::LoadTheGame(name_path))
+			if (!LoadTheGame(name_path))
 			{
 				exit = 0;
 				StartGame = 0;
@@ -3136,7 +3136,7 @@ void CP_Control(
 		switch (which)
 		{
 		case MOUSEENABLE:
-			mouseenabled = !::mouseenabled;
+			mouseenabled = !mouseenabled;
 
 			DrawCtlScreen();
 			CusItems.curpos = -1;
@@ -4462,7 +4462,7 @@ void ExitGame()
 
 	const auto& assets_info = AssetsInfo{};
 
-	if (assets_info.is_aog_sw_v3_0() && !::g_no_intro_outro && !::g_no_screens)
+	if (assets_info.is_aog_sw_v3_0() && !g_no_intro_outro && !g_no_screens)
 	{
 		ShowPromo();
 	}
@@ -4690,8 +4690,8 @@ void draw_video_descriptions(
 	SETFONTCOLOR(TERM_SHADOW_COLOR, TERM_BACK_COLOR);
 	US_PrintCentered(instructions[which]);
 
-	--::WindowX;
-	--::WindowY;
+	--WindowX;
+	--WindowY;
 
 	SETFONTCOLOR(INSTRUCTIONS_TEXT_COLOR, TERM_BACK_COLOR);
 	US_PrintCentered(instructions[which]);
@@ -4977,8 +4977,8 @@ void draw_video_mode_descriptions(
 	SETFONTCOLOR(TERM_SHADOW_COLOR, TERM_BACK_COLOR);
 	US_PrintCentered(instructions[which]);
 
-	--::WindowX;
-	--::WindowY;
+	--WindowX;
+	--WindowY;
 
 	SETFONTCOLOR(INSTRUCTIONS_TEXT_COLOR, TERM_BACK_COLOR);
 	US_PrintCentered(instructions[which]);
@@ -5458,8 +5458,8 @@ void texturing_draw_descriptions(
 	SETFONTCOLOR(TERM_SHADOW_COLOR, TERM_BACK_COLOR);
 	US_PrintCentered(instructions[which]);
 
-	--::WindowX;
-	--::WindowY;
+	--WindowX;
+	--WindowY;
 
 	SETFONTCOLOR(INSTRUCTIONS_TEXT_COLOR, TERM_BACK_COLOR);
 	US_PrintCentered(instructions[which]);
@@ -5979,13 +5979,13 @@ void cp_switches2(
 		switch (which)
 		{
 		case SW2_NO_INTRO_OUTRO:
-			g_no_intro_outro = !::g_no_intro_outro;
+			g_no_intro_outro = !g_no_intro_outro;
 			ShootSnd();
 			draw_switch2_menu();
 			break;
 
 		case SW2_NO_FADE_IN_OR_OUT:
-			g_no_fade_in_or_out = !::g_no_fade_in_or_out;
+			g_no_fade_in_or_out = !g_no_fade_in_or_out;
 			ShootSnd();
 			draw_switch2_menu();
 			break;

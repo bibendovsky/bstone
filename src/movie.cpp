@@ -482,7 +482,7 @@ void Movie::handle_page(
 
 		TimeCount = 0;
 
-		if (!::screenfaded &&
+		if (!screenfaded &&
 			(control_info_.button0 || control_info_.button1 || LastScan != ScanCode::sc_none))
 		{
 			is_exit_ = true;

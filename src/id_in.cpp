@@ -747,7 +747,7 @@ static void in_handle_keyboard(
 
 		if (grab_mouse_binding[0] == key || grab_mouse_binding[1] == key)
 		{
-			in_grab_mouse(!::in_is_mouse_grabbed);
+			in_grab_mouse(!in_is_mouse_grabbed);
 		}
 	}
 
@@ -819,7 +819,7 @@ static void in_handle_mouse_buttons(
 	{
 		bool apply_key = true;
 
-		if (!::in_is_mouse_grabbed)
+		if (!in_is_mouse_grabbed)
 		{
 			if (in_grab_mouse(true))
 			{

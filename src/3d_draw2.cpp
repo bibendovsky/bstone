@@ -94,7 +94,7 @@ void DrawSpans(
 	auto startxfrac = viewx + FixedMul(length, pcos);
 	auto startyfrac = viewy - FixedMul(length, psin);
 
-	if (!::gp_no_shading_)
+	if (!gp_no_shading_)
 	{
 		auto i = shade_max - ((63 * height) / normalshade);
 
@@ -126,7 +126,7 @@ void DrawSpans(
 #else
 	if (mr_count > 0)
 	{
-		if (!::gp_no_shading_)
+		if (!gp_no_shading_)
 		{
 			MapLSRow();
 		}

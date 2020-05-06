@@ -285,7 +285,7 @@ bool TryWalk(
 	switch (ob->dir)
 	{
 	case north:
-		if (!::CHECKSIDE(ob->tilex, ob->tiley - 1, door_index))
+		if (!CHECKSIDE(ob->tilex, ob->tiley - 1, door_index))
 		{
 			return false;
 		}
@@ -304,15 +304,15 @@ bool TryWalk(
 		break;
 
 	case northeast:
-		if (!::CHECKDIAG(ob->tilex + 1, ob->tiley - 1))
+		if (!CHECKDIAG(ob->tilex + 1, ob->tiley - 1))
 		{
 			return false;
 		}
-		if (!::CHECKDIAG(ob->tilex + 1, ob->tiley))
+		if (!CHECKDIAG(ob->tilex + 1, ob->tiley))
 		{
 			return false;
 		}
-		if (!::CHECKDIAG(ob->tilex, ob->tiley - 1))
+		if (!CHECKDIAG(ob->tilex, ob->tiley - 1))
 		{
 			return false;
 		}
@@ -327,7 +327,7 @@ bool TryWalk(
 		break;
 
 	case east:
-		if (!::CHECKSIDE(ob->tilex + 1, ob->tiley, door_index))
+		if (!CHECKSIDE(ob->tilex + 1, ob->tiley, door_index))
 		{
 			return false;
 		}
@@ -351,15 +351,15 @@ bool TryWalk(
 		break;
 
 	case southeast:
-		if (!::CHECKDIAG(ob->tilex + 1, ob->tiley + 1))
+		if (!CHECKDIAG(ob->tilex + 1, ob->tiley + 1))
 		{
 			return false;
 		}
-		if (!::CHECKDIAG(ob->tilex + 1, ob->tiley))
+		if (!CHECKDIAG(ob->tilex + 1, ob->tiley))
 		{
 			return false;
 		}
-		if (!::CHECKDIAG(ob->tilex, ob->tiley + 1))
+		if (!CHECKDIAG(ob->tilex, ob->tiley + 1))
 		{
 			return false;
 		}
@@ -374,7 +374,7 @@ bool TryWalk(
 		break;
 
 	case south:
-		if (!::CHECKSIDE(ob->tilex, ob->tiley + 1, door_index))
+		if (!CHECKSIDE(ob->tilex, ob->tiley + 1, door_index))
 		{
 			return false;
 		}
@@ -393,15 +393,15 @@ bool TryWalk(
 		break;
 
 	case southwest:
-		if (!::CHECKDIAG(ob->tilex - 1, ob->tiley + 1))
+		if (!CHECKDIAG(ob->tilex - 1, ob->tiley + 1))
 		{
 			return false;
 		}
-		if (!::CHECKDIAG(ob->tilex - 1, ob->tiley))
+		if (!CHECKDIAG(ob->tilex - 1, ob->tiley))
 		{
 			return false;
 		}
-		if (!::CHECKDIAG(ob->tilex, ob->tiley + 1))
+		if (!CHECKDIAG(ob->tilex, ob->tiley + 1))
 		{
 			return false;
 		}
@@ -416,7 +416,7 @@ bool TryWalk(
 		break;
 
 	case west:
-		if (!::CHECKSIDE(ob->tilex - 1, ob->tiley, door_index))
+		if (!CHECKSIDE(ob->tilex - 1, ob->tiley, door_index))
 		{
 			return false;
 		}
@@ -440,15 +440,15 @@ bool TryWalk(
 		break;
 
 	case northwest:
-		if (!::CHECKDIAG(ob->tilex - 1, ob->tiley - 1))
+		if (!CHECKDIAG(ob->tilex - 1, ob->tiley - 1))
 		{
 			return false;
 		}
-		if (!::CHECKDIAG(ob->tilex - 1, ob->tiley))
+		if (!CHECKDIAG(ob->tilex - 1, ob->tiley))
 		{
 			return false;
 		}
-		if (!::CHECKDIAG(ob->tilex, ob->tiley - 1))
+		if (!CHECKDIAG(ob->tilex, ob->tiley - 1))
 		{
 			return false;
 		}
@@ -1059,7 +1059,7 @@ void KillActor(
 
 		if (gamestate.mapon == 9)
 		{
-			if (!::gamestate.boss_key_dropped)
+			if (!gamestate.boss_key_dropped)
 			{
 				gamestate.boss_key_dropped = true;
 
@@ -1551,7 +1551,7 @@ void DamageActor(
 					sd_play_actor_sound(SWATDEATH2SND, ob, bstone::ActorChannel::voice);
 				}
 
-				NewState(ob, &::s_swatwounded1);
+				NewState(ob, &s_swatwounded1);
 				ob->flags &= ~(FL_SHOOTABLE | FL_SOLID);
 				ob->temp2 = (5 * 60) + ((US_RndT() % 20) * 60);
 				return;

@@ -1033,7 +1033,7 @@ void vid_get_current_display_mode()
 {
 	vid_log("Getting display mode.");
 
-	const auto sdl_result = SDL_GetDesktopDisplayMode(0, &::vid_display_mode_);
+	const auto sdl_result = SDL_GetDesktopDisplayMode(0, &vid_display_mode_);
 
 	if (sdl_result != 0)
 	{
@@ -1336,7 +1336,7 @@ void sw_create_window()
 
 	const auto title = vid_get_game_name_and_game_version_string();
 
-	sw_window_ = bstone::SdlWindowUPtr{::SDL_CreateWindow(
+	sw_window_ = bstone::SdlWindowUPtr{SDL_CreateWindow(
 		title.c_str(),
 		window_x,
 		window_y,
@@ -1345,7 +1345,7 @@ void sw_create_window()
 		window_flags
 	)};
 
-	if (!::sw_window_)
+	if (!sw_window_)
 	{
 		vid_throw_sdl_error();
 	}
@@ -1391,13 +1391,13 @@ void sw_initialize_renderer()
 	{
 		vid_log("Creating renderer.");
 
-		sw_renderer_ = bstone::SdlRendererUPtr{::SDL_CreateRenderer(
+		sw_renderer_ = bstone::SdlRendererUPtr{SDL_CreateRenderer(
 			sw_window_.get(),
 			-1,
 			renderer_flags
 		)};
 
-		if (!::sw_renderer_)
+		if (!sw_renderer_)
 		{
 			vid_throw_sdl_error();
 		}
@@ -1469,9 +1469,9 @@ void sw_initialize_renderer()
 
 		vid_log("Allocating a texture pixel format.");
 
-		sw_texture_pixel_format_ = bstone::SdlPixelFormatUPtr{::SDL_AllocFormat(pixel_format)};
+		sw_texture_pixel_format_ = bstone::SdlPixelFormatUPtr{SDL_AllocFormat(pixel_format)};
 
-		if (!::sw_texture_pixel_format_)
+		if (!sw_texture_pixel_format_)
 		{
 			vid_throw_sdl_error();
 		}
@@ -1482,7 +1482,7 @@ void sw_create_screen_texture()
 {
 	vid_log("Creating screen texture.");
 
-	sw_screen_texture_ = bstone::SdlTextureUPtr{::SDL_CreateTexture(
+	sw_screen_texture_ = bstone::SdlTextureUPtr{SDL_CreateTexture(
 		sw_renderer_.get(),
 		sw_texture_pixel_format_->format,
 		SDL_TEXTUREACCESS_STREAMING,
@@ -1490,7 +1490,7 @@ void sw_create_screen_texture()
 		vga_height
 	)};
 
-	if (!::sw_screen_texture_)
+	if (!sw_screen_texture_)
 	{
 		vid_throw_sdl_error();
 	}
@@ -1500,7 +1500,7 @@ void sw_create_ui_texture()
 {
 	vid_log("Creating UI texture.");
 
-	sw_ui_texture_ = bstone::SdlTextureUPtr{::SDL_CreateTexture(
+	sw_ui_texture_ = bstone::SdlTextureUPtr{SDL_CreateTexture(
 		sw_renderer_.get(),
 		sw_texture_pixel_format_->format,
 		SDL_TEXTUREACCESS_STREAMING,
@@ -1508,7 +1508,7 @@ void sw_create_ui_texture()
 		vga_ref_height
 	)};
 
-	if (!::sw_ui_texture_)
+	if (!sw_ui_texture_)
 	{
 		vid_throw_sdl_error();
 	}
@@ -1865,11 +1865,11 @@ void sw_refresh_screen()
 			for (int x = 0; x < vga_ref_width; ++x)
 			{
 				const auto src_offset = (y * vga_ref_width) + x;
-				auto dst_color = sw_palette_[::vid_ui_buffer_[src_offset]];
+				auto dst_color = sw_palette_[vid_ui_buffer_[src_offset]];
 
 				if (vid_is_hud)
 				{
-					if (!::vid_mask_buffer_[src_offset])
+					if (!vid_mask_buffer_[src_offset])
 					{
 						dst_color &= alpha_0_mask;
 					}
@@ -1913,7 +1913,7 @@ void sw_refresh_screen()
 			sw_renderer_.get(),
 			sw_screen_texture_.get(),
 			nullptr,
-			&::sw_screen_dst_rect_);
+			&sw_screen_dst_rect_);
 
 		if (sdl_result != 0)
 		{
@@ -1935,7 +1935,7 @@ void sw_refresh_screen()
 		}
 	}
 
-	if (!::vid_cfg_.is_ui_stretched_)
+	if (!vid_cfg_.is_ui_stretched_)
 	{
 		if (vid_is_fizzle_fade)
 		{
@@ -1944,8 +1944,8 @@ void sw_refresh_screen()
 				sdl_result = SDL_RenderCopy(
 					sw_renderer_.get(),
 					sw_ui_texture_.get(),
-					&::sw_ui_top_src_rect_,
-					&::sw_ui_top_dst_rect_);
+					&sw_ui_top_src_rect_,
+					&sw_ui_top_dst_rect_);
 			}
 
 			if (sdl_result == 0)
@@ -1953,8 +1953,8 @@ void sw_refresh_screen()
 				sdl_result = SDL_RenderCopy(
 					sw_renderer_.get(),
 					sw_ui_texture_.get(),
-					&::sw_ui_wide_middle_src_rect_,
-					&::sw_ui_wide_middle_dst_rect_);
+					&sw_ui_wide_middle_src_rect_,
+					&sw_ui_wide_middle_dst_rect_);
 			}
 
 			if (sdl_result == 0)
@@ -1962,8 +1962,8 @@ void sw_refresh_screen()
 				sdl_result = SDL_RenderCopy(
 					sw_renderer_.get(),
 					sw_ui_texture_.get(),
-					&::sw_ui_bottom_src_rect_,
-					&::sw_ui_bottom_dst_rect_);
+					&sw_ui_bottom_src_rect_,
+					&sw_ui_bottom_dst_rect_);
 			}
 		}
 		else
@@ -1972,7 +1972,7 @@ void sw_refresh_screen()
 				sw_renderer_.get(),
 				sw_ui_texture_.get(),
 				nullptr,
-				&::sw_ui_whole_dst_rect_);
+				&sw_ui_whole_dst_rect_);
 		}
 	}
 	else
@@ -1981,7 +1981,7 @@ void sw_refresh_screen()
 			sw_renderer_.get(),
 			sw_ui_texture_.get(),
 			nullptr,
-			&::sw_ui_stretched_dst_rect_);
+			&sw_ui_stretched_dst_rect_);
 	}
 
 	if (sdl_result != 0)
@@ -2004,13 +2004,13 @@ void sw_refresh_screen()
 
 	// Use filler if necessary
 	//
-	if (!::vid_cfg_.is_ui_stretched_)
+	if (!vid_cfg_.is_ui_stretched_)
 	{
 		const auto is_hud = vid_is_hud;
 
 		auto fill_color = SDL_Color{};
 
-		if (!::vid_is_movie)
+		if (!vid_is_movie)
 		{
 			fill_color = sw_filler_color_;
 		}
@@ -3052,13 +3052,13 @@ void hw_update_player_direction()
 
 void hw_update_player_position()
 {
-	hw_player_position_.x = bstone::FixedPoint{::player->x}.to_double();
-	hw_player_position_.y = bstone::FixedPoint{::player->y}.to_double();
+	hw_player_position_.x = bstone::FixedPoint{player->x}.to_double();
+	hw_player_position_.y = bstone::FixedPoint{player->y}.to_double();
 }
 
 void hw_update_player_view_position()
 {
-	const auto focal_length = bstone::FixedPoint{::focallength}.to_double();
+	const auto focal_length = bstone::FixedPoint{focallength}.to_double();
 
 	const auto focal_delta = glm::dvec2
 	{
@@ -3066,7 +3066,7 @@ void hw_update_player_view_position()
 		hw_view_direction_.y * focal_length,
 	};
 
-	hw_view_position_ = glm::dvec3{::hw_player_position_ - focal_delta, 0.5};
+	hw_view_position_ = glm::dvec3{hw_player_position_ - focal_delta, 0.5};
 
 	hw_bs_view_position_ = hw_view_position_;
 }
@@ -3535,7 +3535,7 @@ void hw_initialize_renderer()
 	param.window_.rect_2d_.extent_.width_ = vid_dimensions_.window_width_;
 	param.window_.rect_2d_.extent_.height_ = vid_dimensions_.window_height_;
 
-	if (!::vid_cfg_.is_windowed_)
+	if (!vid_cfg_.is_windowed_)
 	{
 		param.window_.is_borderless_ = true;
 		param.window_.is_fake_fullscreen_ = true;
@@ -4235,7 +4235,7 @@ void hw_create_ui_texture()
 {
 	vid_log("Creating UI texture.");
 
-	hw_texture_manager_->create_ui(vid_ui_buffer_.data(), vid_mask_buffer_.data(), &::hw_palette_);
+	hw_texture_manager_->create_ui(vid_ui_buffer_.data(), vid_mask_buffer_.data(), &hw_palette_);
 	hw_ui_t2d_ = hw_texture_manager_->get_ui();
 }
 
@@ -4504,20 +4504,20 @@ void hw_create_ceiling_vb()
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = HwVertexPosition{0.0F, hw_map_dimension_f, hw_map_height_f};
-			vertex.uv_ = HwVertexTextureCoordinates{::hw_map_dimension_f, 0.0F};
+			vertex.uv_ = HwVertexTextureCoordinates{hw_map_dimension_f, 0.0F};
 		}
 
 		// Top-right.
 		{
 			auto& vertex = vertices[vertex_index++];
-			vertex.xyz_ = HwVertexPosition{::hw_map_dimension_f, hw_map_dimension_f, hw_map_height_f};
-			vertex.uv_ = HwVertexTextureCoordinates{::hw_map_dimension_f, hw_map_dimension_f};
+			vertex.xyz_ = HwVertexPosition{hw_map_dimension_f, hw_map_dimension_f, hw_map_height_f};
+			vertex.uv_ = HwVertexTextureCoordinates{hw_map_dimension_f, hw_map_dimension_f};
 		}
 
 		// Top-left.
 		{
 			auto& vertex = vertices[vertex_index++];
-			vertex.xyz_ = HwVertexPosition{::hw_map_dimension_f, 0.0F, hw_map_height_f};
+			vertex.xyz_ = HwVertexPosition{hw_map_dimension_f, 0.0F, hw_map_height_f};
 			vertex.uv_ = HwVertexTextureCoordinates{0.0F, hw_map_dimension_f};
 		}
 
@@ -5019,7 +5019,7 @@ void hw_build_model_matrix()
 
 void hw_build_view_matrix()
 {
-	if (!::player)
+	if (!player)
 	{
 		hw_3d_matrix_view_ = glm::identity<glm::mat4>();
 
@@ -5029,7 +5029,7 @@ void hw_build_view_matrix()
 	auto view_matrix = glm::identity<glm::dmat4>();
 
 	view_matrix = glm::rotate(view_matrix, hw_player_angle_rad_, glm::dvec3{0.0, 0.0, 1.0});
-	view_matrix = glm::translate(view_matrix, -::hw_view_position_);
+	view_matrix = glm::translate(view_matrix, -hw_view_position_);
 
 	hw_3d_matrix_view_ = view_matrix;
 }
@@ -5726,7 +5726,7 @@ void hw_create_texture_manager()
 
 	hw_texture_manager_ = bstone::HwTextureMgrFactory::create(
 		hw_renderer_,
-		&::vid_sprite_cache,
+		&vid_sprite_cache,
 		hw_mt_task_manager_.get()
 	);
 }
@@ -5831,7 +5831,7 @@ void hw_refresh_common()
 
 		auto& command = *command_buffer->write_set_float32_uniform();
 		command.var_ = hw_height_numerator_uniform_;
-		command.value_ = bstone::FixedPoint{::hw_bs_height_numerator_}.to_float();
+		command.value_ = bstone::FixedPoint{hw_bs_height_numerator_}.to_float();
 	}
 
 	// Set extra_lighting.
@@ -5956,7 +5956,7 @@ void hw_refresh_2d()
 
 	// Fillers.
 	//
-	if (!::vid_cfg_.is_ui_stretched_)
+	if (!vid_cfg_.is_ui_stretched_)
 	{
 		{
 			auto& command = *command_buffer->write_set_texture();
@@ -6717,7 +6717,7 @@ bool hw_calculate_fog(
 		return false;
 	}
 
-	const auto height_num = bstone::FixedPoint{::heightnumerator}.to_double() / vga_height_scale;
+	const auto height_num = bstone::FixedPoint{heightnumerator}.to_double() / vga_height_scale;
 	const auto start_wall_distance = (32.0 * height_num) / start_wall_height;
 	const auto wall_height_step = normalshade / (8.0 * vga_height_scale);
 	const auto fog_delta = static_cast<float>(wall_height_step * normalshade_div);
@@ -6926,8 +6926,8 @@ void hw_orient_sprite(
 
 	// Orient the sprite along the player's line of sight (inverted).
 	//
-	direction[0] = -::hw_view_direction_[0];
-	direction[1] = -::hw_view_direction_[1];
+	direction[0] = -hw_view_direction_[0];
+	direction[1] = -hw_view_direction_[1];
 
 	const auto perpendicular_dx = hw_tile_half_dimension_d * direction[1];
 	const auto perpendicular_dy = hw_tile_half_dimension_d * direction[0];
@@ -7064,7 +7064,7 @@ void hw_render_sprites()
 		hw_sprites_vb_,
 		min_vertex_index,
 		vertex_count,
-		&::hw_sprites_vbi_[min_vertex_index]
+		&hw_sprites_vbi_[min_vertex_index]
 	);
 
 	// Sort by distance (farthest -> nearest).
@@ -7146,7 +7146,7 @@ void hw_render_sprites()
 
 			auto lighting = 0;
 
-			if (!::gp_no_shading_)
+			if (!gp_no_shading_)
 			{
 				const auto& hw_sprite = *draw_item.sprite_;
 
@@ -7193,7 +7193,7 @@ void hw_render_sprites()
 		{
 			// Set extra lighting.
 			//
-			if (!::gp_no_shading_)
+			if (!gp_no_shading_)
 			{
 				hw_bs_lighting_ = last_lighting;
 
@@ -7281,7 +7281,7 @@ void hw_update_3d_fade()
 
 		auto ratio = hw_fizzle_fx_ratio_;
 
-		if (!::hw_fizzle_fx_is_fading_)
+		if (!hw_fizzle_fx_is_fading_)
 		{
 			ratio = 1.0F - ratio;
 		}
@@ -7315,7 +7315,7 @@ void hw_update_3d_fade()
 		}
 	}
 
-	if (!::hw_3d_fade_is_enabled_)
+	if (!hw_3d_fade_is_enabled_)
 	{
 		return;
 	}
@@ -7336,12 +7336,12 @@ void hw_refresh_3d()
 
 	command_buffer->enable(false);
 
-	if (!::vid_hw_is_draw_3d_)
+	if (!vid_hw_is_draw_3d_)
 	{
 		return;
 	}
 
-	const auto is_shading = (!::gp_no_shading_);
+	const auto is_shading = (!gp_no_shading_);
 
 	const auto& assets_info = AssetsInfo{};
 
@@ -7459,7 +7459,7 @@ void hw_refresh_3d()
 	// Draw flooring.
 	//
 	{
-		auto texture_2d = (!::gp_is_flooring_solid_
+		auto texture_2d = (!gp_is_flooring_solid_
 			?
 			hw_flooring_textured_t2d_
 			:
@@ -7491,7 +7491,7 @@ void hw_refresh_3d()
 	// Draw ceiling.
 	//
 	{
-		auto texture_2d = (!::gp_is_ceiling_solid_
+		auto texture_2d = (!gp_is_ceiling_solid_
 			?
 			hw_ceiling_textured_t2d_
 			:
@@ -7825,7 +7825,7 @@ bool hw_is_solid_wall(
 
 	const auto tile_wall = tilemap[x][y];
 
-	if (!::hw_is_solid_wall(tile_wall))
+	if (!hw_is_solid_wall(tile_wall))
 	{
 		return false;
 	}
@@ -7900,7 +7900,7 @@ int hw_get_door_track_wall_id(
 
 	const auto bs_door_tile = tilemap[bs_door_x][bs_door_y];
 
-	if (!::hw_is_door(bs_door_tile))
+	if (!hw_is_door(bs_door_tile))
 	{
 		return -1;
 	}
@@ -8041,7 +8041,7 @@ void hw_precache_walls()
 				continue;
 			}
 
-			if (!::hw_is_solid_wall(x, y))
+			if (!hw_is_solid_wall(x, y))
 			{
 				continue;
 			}
@@ -8068,7 +8068,7 @@ void hw_precache_pushwalls()
 	{
 		for (int x = 0; x < MAPSIZE; ++x)
 		{
-			if (!::hw_is_pushwall(x, y))
+			if (!hw_is_pushwall(x, y))
 			{
 				continue;
 			}
@@ -8116,7 +8116,7 @@ void hw_precache_doors()
 
 	for (auto bs_door = doorobjlist; lastdoorobj && bs_door != lastdoorobj; ++bs_door)
 	{
-		++::hw_door_count_;
+		++hw_door_count_;
 
 		hw_precache_door(*bs_door);
 	}
@@ -8228,8 +8228,8 @@ void hw_map_wall_side(
 {
 	static const float all_vertex_offsets[4][4] =
 	{
-		{::hw_tile_dimension_f, 0.0F, 0.0F, 0.0F,},
-		{::hw_tile_dimension_f, hw_tile_dimension_f, hw_tile_dimension_f, 0.0F,},
+		{hw_tile_dimension_f, 0.0F, 0.0F, 0.0F,},
+		{hw_tile_dimension_f, hw_tile_dimension_f, hw_tile_dimension_f, 0.0F,},
 		{0.0F, hw_tile_dimension_f, hw_tile_dimension_f, hw_tile_dimension_f,},
 		{0.0F, 0.0F, 0.0F, hw_tile_dimension_f,},
 	};
@@ -8479,19 +8479,19 @@ void hw_build_walls()
 		switch (pwalldir)
 		{
 		case di_north:
-			--::hw_active_pushwall_next_y_;
+			--hw_active_pushwall_next_y_;
 			break;
 
 		case di_east:
-			++::hw_active_pushwall_next_x_;
+			++hw_active_pushwall_next_x_;
 			break;
 
 		case di_south:
-			++::hw_active_pushwall_next_y_;
+			++hw_active_pushwall_next_y_;
 			break;
 
 		case di_west:
-			--::hw_active_pushwall_next_x_;
+			--hw_active_pushwall_next_x_;
 			break;
 
 		default:
@@ -8508,7 +8508,7 @@ void hw_build_walls()
 	{
 		for (int x = 0; x < MAPSIZE; ++x)
 		{
-			if (!::hw_is_solid_wall(x, y))
+			if (!hw_is_solid_wall(x, y))
 			{
 				continue;
 			}
@@ -8561,7 +8561,7 @@ void hw_build_walls()
 	{
 		for (int x = 0; x < MAPSIZE; ++x)
 		{
-			if (!::hw_is_solid_wall(x, y))
+			if (!hw_is_solid_wall(x, y))
 			{
 				continue;
 			}
@@ -8608,8 +8608,8 @@ void hw_translate_pushwall_side(
 {
 	static const float all_vertex_offsets[4][4] =
 	{
-		{::hw_tile_dimension_f, 0.0F, 0.0F, 0.0F,},
-		{::hw_tile_dimension_f, hw_tile_dimension_f, hw_tile_dimension_f, 0.0F,},
+		{hw_tile_dimension_f, 0.0F, 0.0F, 0.0F,},
+		{hw_tile_dimension_f, hw_tile_dimension_f, hw_tile_dimension_f, 0.0F,},
 		{0.0F, hw_tile_dimension_f, hw_tile_dimension_f, hw_tile_dimension_f,},
 		{0.0F, 0.0F, 0.0F, hw_tile_dimension_f,},
 	};
@@ -8780,7 +8780,7 @@ void hw_translate_pushwall()
 		hw_pushwall_sides_vb_,
 		first_vertex_index,
 		vertex_count,
-		&::hw_pushwalls_vbi_[first_vertex_index]
+		&hw_pushwalls_vbi_[first_vertex_index]
 	);
 }
 
@@ -8821,7 +8821,7 @@ void hw_build_pushwalls()
 	{
 		for (int x = 0; x < MAPSIZE; ++x)
 		{
-			if (!::hw_is_pushwall(x, y))
+			if (!hw_is_pushwall(x, y))
 			{
 				continue;
 			}
@@ -8865,7 +8865,7 @@ void hw_build_pushwalls()
 	{
 		for (int x = 0; x < MAPSIZE; ++x)
 		{
-			if (!::hw_is_pushwall(x, y))
+			if (!hw_is_pushwall(x, y))
 			{
 				continue;
 			}
@@ -11479,7 +11479,7 @@ void hw_build_statics()
 
 	hw_initialize_statics();
 
-	if (!::laststatobj)
+	if (!laststatobj)
 	{
 		return;
 	}
@@ -11501,7 +11501,7 @@ void hw_build_actors()
 	hw_uninitialize_actors();
 	hw_initialize_actors();
 
-	if (!::player)
+	if (!player)
 	{
 		return;
 	}
@@ -11908,7 +11908,7 @@ void vl_hw_fade_out(
 
 	hw_2d_fade_color_ = hw_vga_color_to_rgba_8(red, green, blue);
 
-	if (!::g_no_fade_in_or_out)
+	if (!g_no_fade_in_or_out)
 	{
 		const auto alpha = 0xFF;
 
@@ -11920,7 +11920,7 @@ void vl_hw_fade_out(
 
 			VL_RefreshScreen();
 
-			if (!::vid_has_vsync)
+			if (!vid_has_vsync)
 			{
 				VL_WaitVBL(1);
 			}
@@ -11939,7 +11939,7 @@ void vl_hw_fade_out(
 
 	VL_RefreshScreen();
 
-	if (!::vid_has_vsync)
+	if (!vid_has_vsync)
 	{
 		VL_WaitVBL(1);
 	}
@@ -11973,19 +11973,19 @@ void VL_FadeOut(
 		return;
 	}
 
-	if (!::g_no_fade_in_or_out)
+	if (!g_no_fade_in_or_out)
 	{
-		VL_GetPalette(0, 256, &::palette1[0][0]);
+		VL_GetPalette(0, 256, &palette1[0][0]);
 
-		std::uninitialized_copy_n(&::palette1[0][0], 768, &::palette2[0][0]);
+		std::uninitialized_copy_n(&palette1[0][0], 768, &palette2[0][0]);
 
 		//
 		// fade through intermediate frames
 		//
 		for (int i = 0; i < steps; ++i)
 		{
-			auto origptr = &::palette1[start][0];
-			auto newptr = &::palette2[start][0];
+			auto origptr = &palette1[start][0];
+			auto newptr = &palette2[start][0];
 
 			for (int j = start; j <= end; ++j)
 			{
@@ -12002,11 +12002,11 @@ void VL_FadeOut(
 				*newptr++ = static_cast<std::uint8_t>(orig + ((delta * i) / steps));
 			}
 
-			VL_SetPalette(0, 256, &::palette2[0][0]);
+			VL_SetPalette(0, 256, &palette2[0][0]);
 
 			VL_RefreshScreen();
 
-			if (!::vid_has_vsync)
+			if (!vid_has_vsync)
 			{
 				VL_WaitVBL(1);
 			}
@@ -12023,7 +12023,7 @@ void VL_FadeOut(
 
 	VL_RefreshScreen();
 
-	if (!::vid_has_vsync)
+	if (!vid_has_vsync)
 	{
 		VL_WaitVBL(1);
 	}
@@ -12041,7 +12041,7 @@ void vl_hw_fade_in(
 
 	hw_2d_fade_color_.a_ = 0xFF;
 
-	if (!::g_no_fade_in_or_out)
+	if (!g_no_fade_in_or_out)
 	{
 		const auto alpha = 0xFF;
 
@@ -12053,7 +12053,7 @@ void vl_hw_fade_in(
 
 			VL_RefreshScreen();
 
-			if (!::vid_has_vsync)
+			if (!vid_has_vsync)
 			{
 				VL_WaitVBL(1);
 			}
@@ -12064,7 +12064,7 @@ void vl_hw_fade_in(
 
 	VL_RefreshScreen();
 
-	if (!::vid_has_vsync)
+	if (!vid_has_vsync)
 	{
 		VL_WaitVBL(1);
 	}
@@ -12093,11 +12093,11 @@ void VL_FadeIn(
 		return;
 	}
 
-	if (!::g_no_fade_in_or_out)
+	if (!g_no_fade_in_or_out)
 	{
-		VL_GetPalette(0, 256, &::palette1[0][0]);
+		VL_GetPalette(0, 256, &palette1[0][0]);
 
-		std::uninitialized_copy_n(&::palette1[0][0], 768, &::palette2[0][0]);
+		std::uninitialized_copy_n(&palette1[0][0], 768, &palette2[0][0]);
 
 		const auto start_index = start * 3;
 		const auto end_index = (end * 3) + 2;
@@ -12115,11 +12115,11 @@ void VL_FadeIn(
 					static_cast<std::uint8_t>(palette1[0][j] + ((delta * i) / steps));
 			}
 
-			VL_SetPalette(0, 256, &::palette2[0][0]);
+			VL_SetPalette(0, 256, &palette2[0][0]);
 
 			VL_RefreshScreen();
 
-			if (!::vid_has_vsync)
+			if (!vid_has_vsync)
 			{
 				VL_WaitVBL(1);
 			}
@@ -12133,7 +12133,7 @@ void VL_FadeIn(
 
 	VL_RefreshScreen();
 
-	if (!::vid_has_vsync)
+	if (!vid_has_vsync)
 	{
 		VL_WaitVBL(1);
 	}
@@ -12147,7 +12147,7 @@ void VL_SetPaletteIntensity(
 	const std::uint8_t* palette,
 	int intensity)
 {
-	auto cmap = &::palette1[0][0] + (start * 3);
+	auto cmap = &palette1[0][0] + (start * 3);
 
 	intensity = 63 - intensity;
 
@@ -12184,7 +12184,7 @@ void VL_SetPaletteIntensity(
 	VL_SetPalette(
 		start,
 		end - start + 1,
-		&::palette1[0][0]);
+		&palette1[0][0]);
 }
 
 /*
@@ -13266,7 +13266,7 @@ void vid_draw_ui_sprite(
 
 void vid_hw_on_load_level()
 {
-	if (!::vid_is_hw_)
+	if (!vid_is_hw_)
 	{
 		return;
 	}
@@ -13283,7 +13283,7 @@ void vid_hw_on_update_wall_switch(
 	const int x,
 	const int y)
 {
-	if (!::vid_is_hw_)
+	if (!vid_is_hw_)
 	{
 		return;
 	}
@@ -13340,7 +13340,7 @@ void vid_hw_on_update_wall_switch(
 
 void vid_hw_on_move_pushwall()
 {
-	if (!::vid_is_hw_)
+	if (!vid_is_hw_)
 	{
 		return;
 	}
@@ -13352,7 +13352,7 @@ void vid_hw_on_step_pushwall(
 	const int old_x,
 	const int old_y)
 {
-	if (!::vid_is_hw_)
+	if (!vid_is_hw_)
 	{
 		return;
 	}
@@ -13366,7 +13366,7 @@ void vid_hw_on_pushwall_to_wall(
 	const int new_x,
 	const int new_y)
 {
-	if (!::vid_is_hw_)
+	if (!vid_is_hw_)
 	{
 		return;
 	}
@@ -13424,7 +13424,7 @@ void vid_hw_on_pushwall_to_wall(
 void vid_hw_on_move_door(
 	const int door_index)
 {
-	if (!::vid_is_hw_)
+	if (!vid_is_hw_)
 	{
 		return;
 	}
@@ -13451,14 +13451,14 @@ void vid_hw_on_move_door(
 		hw_door_sides_vb_,
 		old_vertex_index,
 		hw_vertices_per_door,
-		&::hw_doors_vbi_[old_vertex_index]
+		&hw_doors_vbi_[old_vertex_index]
 	);
 }
 
 void vid_hw_on_update_door_lock(
 	const int bs_door_index)
 {
-	if (!::vid_is_hw_)
+	if (!vid_is_hw_)
 	{
 		return;
 	}
@@ -13488,7 +13488,7 @@ void vid_hw_on_update_door_lock(
 void vid_hw_on_remove_static(
 	const statobj_t& bs_static)
 {
-	if (!::vid_is_hw_)
+	if (!vid_is_hw_)
 	{
 		return;
 	}
@@ -13501,7 +13501,7 @@ void vid_hw_on_remove_static(
 void vid_hw_on_remove_actor(
 	const objtype& bs_actor)
 {
-	if (!::vid_is_hw_)
+	if (!vid_is_hw_)
 	{
 		return;
 	}
@@ -13537,7 +13537,7 @@ void vid_hw_set_fizzle_fx_ratio(
 
 void vid_hw_clear_wall_render_list()
 {
-	if (!::vid_is_hw_)
+	if (!vid_is_hw_)
 	{
 		return;
 	}
@@ -13550,7 +13550,7 @@ void vid_hw_add_wall_render_item(
 	const int tile_x,
 	const int tile_y)
 {
-	if (!::vid_is_hw_)
+	if (!vid_is_hw_)
 	{
 		return;
 	}
@@ -13580,7 +13580,7 @@ void vid_hw_add_wall_render_item(
 
 void vid_hw_clear_pushwall_render_list()
 {
-	if (!::vid_is_hw_)
+	if (!vid_is_hw_)
 	{
 		return;
 	}
@@ -13593,7 +13593,7 @@ void vid_hw_add_pushwall_render_item(
 	const int tile_x,
 	const int tile_y)
 {
-	if (!::vid_is_hw_)
+	if (!vid_is_hw_)
 	{
 		return;
 	}
@@ -13612,7 +13612,7 @@ void vid_hw_add_pushwall_render_item(
 
 void vid_hw_clear_door_render_list()
 {
-	if (!::vid_is_hw_)
+	if (!vid_is_hw_)
 	{
 		return;
 	}
@@ -13625,7 +13625,7 @@ void vid_hw_add_door_render_item(
 	const int tile_x,
 	const int tile_y)
 {
-	if (!::vid_is_hw_)
+	if (!vid_is_hw_)
 	{
 		return;
 	}
@@ -13644,7 +13644,7 @@ void vid_hw_add_door_render_item(
 
 void vid_hw_clear_static_render_list()
 {
-	if (!::vid_is_hw_)
+	if (!vid_is_hw_)
 	{
 		return;
 	}
@@ -13655,7 +13655,7 @@ void vid_hw_clear_static_render_list()
 void vid_hw_add_static_render_item(
 	const int bs_static_index)
 {
-	if (!::vid_is_hw_)
+	if (!vid_is_hw_)
 	{
 		return;
 	}
@@ -13665,7 +13665,7 @@ void vid_hw_add_static_render_item(
 
 void vid_hw_clear_actor_render_list()
 {
-	if (!::vid_is_hw_)
+	if (!vid_is_hw_)
 	{
 		return;
 	}
@@ -13676,7 +13676,7 @@ void vid_hw_clear_actor_render_list()
 void vid_hw_add_actor_render_item(
 	const int bs_actor_index)
 {
-	if (!::vid_is_hw_)
+	if (!vid_is_hw_)
 	{
 		return;
 	}

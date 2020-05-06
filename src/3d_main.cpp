@@ -8201,7 +8201,7 @@ bool LoadLevel(
 			archiver->read_uint8_array(tilemap_bitmap.data(), sg_level_bitmap_size);
 
 			std::uninitialized_fill_n(
-				&::tilemap[0][0],
+				&tilemap[0][0],
 				MAPSIZE * MAPSIZE,
 				std::uint8_t{}
 			);
@@ -8234,7 +8234,7 @@ bool LoadLevel(
 			archiver->read_uint8_array(actorat_bitmap.data(), sg_level_bitmap_size);
 
 			std::uninitialized_fill_n(
-				&::actorat[0][0],
+				&actorat[0][0],
 				MAPSIZE * MAPSIZE,
 				nullptr
 			);
@@ -8258,7 +8258,7 @@ bool LoadLevel(
 
 					if (value < 0)
 					{
-						actorat[i][j] = &::objlist[-value];
+						actorat[i][j] = &objlist[-value];
 					}
 					else
 					{
@@ -8276,7 +8276,7 @@ bool LoadLevel(
 			archiver->read_uint8_array(areaconnect_bitmap.data(), sg_area_connect_bitmap_size);
 
 			std::uninitialized_fill_n(
-				&::areaconnect[0][0],
+				&areaconnect[0][0],
 				NUMAREAS * NUMAREAS,
 				std::uint8_t{}
 			);
@@ -8594,7 +8594,7 @@ bool SaveLevel(
 		{
 			for (int j = 0; j < MAPSIZE; ++j)
 			{
-				if (!::actorat[i][j])
+				if (!actorat[i][j])
 				{
 					continue;
 				}
@@ -8994,7 +8994,7 @@ bool LoadTheGame(
 
 	if (is_succeed)
 	{
-		if (!::LoadCompressedChunk("HEAD", &file_stream, head_buffer))
+		if (!LoadCompressedChunk("HEAD", &file_stream, head_buffer))
 		{
 			is_succeed = false;
 		}
@@ -9006,7 +9006,7 @@ bool LoadTheGame(
 
 	if (is_succeed)
 	{
-		if (!::LoadCompressedChunk("LVXX", &file_stream, lvxx_buffer))
+		if (!LoadCompressedChunk("LVXX", &file_stream, lvxx_buffer))
 		{
 			is_succeed = false;
 		}
@@ -9069,7 +9069,7 @@ bool LoadTheGame(
 				0,
 				lvxx_buffer.data());
 
-			if (!lvxx_stream.copy_to(&::g_playtemp))
+			if (!lvxx_stream.copy_to(&g_playtemp))
 			{
 				is_succeed = false;
 
@@ -9469,7 +9469,7 @@ void CycleColors()
 		VL_SetPalette(CRNG_LOW, CRNG_SIZE, (std::uint8_t*)cbuffer);
 		VL_RefreshScreen();
 
-		use_delay = !::vid_has_vsync;
+		use_delay = !vid_has_vsync;
 	}
 	else
 	{
@@ -9556,7 +9556,7 @@ void CalcProjection(
 	// if a point's abs(y/x) is greater than maxslope, the point is outside
 	// the view area
 	//
-	maxslope = finetangent[::pixelangle[0]];
+	maxslope = finetangent[pixelangle[0]];
 	maxslope /= 256;
 }
 
@@ -9672,7 +9672,7 @@ void DemoLoop()
 
 		vid_is_movie = false;
 
-		if (!::g_no_intro_outro && !::g_no_screens)
+		if (!g_no_intro_outro && !g_no_screens)
 		{
 			vid_is_movie = true;
 
@@ -9938,7 +9938,7 @@ int main(
 
 		if (sdl_result != 0)
 		{
-			Quit("Failed to initialize SDL: " + std::string{::SDL_GetError()});
+			Quit("Failed to initialize SDL: " + std::string{SDL_GetError()});
 		}
 
 		freed_main();
@@ -10001,7 +10001,7 @@ void InitDestPath()
 	{
 		mod_dir_ = g_args.get_option_value(mod_dir_option_name);
 
-		if (!::mod_dir_.empty())
+		if (!mod_dir_.empty())
 		{
 			if (mod_dir_.back() != separator)
 			{

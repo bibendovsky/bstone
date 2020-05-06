@@ -1620,7 +1620,7 @@ HwTextureMgrImpl::Texture2dItem HwTextureMgrImpl::wall_create_texture(
 	param.mipmap_count_ = detail::Ren3dUtils::calculate_mipmap_count(param.width_, param.height_);
 	param.indexed_is_column_major_ = true;
 	param.indexed_pixels_ = indexed_pixels;
-	param.indexed_palette_ = &::vid_hw_get_default_palette();
+	param.indexed_palette_ = &vid_hw_get_default_palette();
 
 	auto texture_2d_item = create_texture(param);
 
@@ -1651,7 +1651,7 @@ HwTextureMgrImpl::Texture2dItem HwTextureMgrImpl::sprite_create_texture(
 	param.is_generate_mipmaps_ = true;
 	param.mipmap_count_ = detail::Ren3dUtils::calculate_mipmap_count(param.width_, param.height_);
 	param.indexed_sprite_ = sprite;
-	param.indexed_palette_ = &::vid_hw_get_default_palette();
+	param.indexed_palette_ = &vid_hw_get_default_palette();
 
 	auto texture_2d_item = create_texture(param);
 

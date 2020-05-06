@@ -135,7 +135,7 @@ std::uint16_t MAPSPOT(
 	const std::uint8_t y,
 	const std::uint8_t plane)
 {
-	return mapsegs[plane][::farmapylookup[y] + x];
+	return mapsegs[plane][farmapylookup[y] + x];
 }
 
 objtype* SLIDE_TEMP(
@@ -2432,8 +2432,8 @@ void ActivateWallSwitch(
 		DisplaySwitchOperateMsg(num);
 		sd_play_player_sound(SWITCHSND, bstone::ActorChannel::item);
 
-		auto tile = &::tilemap[0][0];
-		auto actor = reinterpret_cast<std::size_t*>(&::actorat[0][0]);
+		auto tile = &tilemap[0][0];
+		auto actor = reinterpret_cast<std::size_t*>(&actorat[0][0]);
 
 		for (int mapx = 0; mapx < MAPSIZE; ++mapx)
 		{
@@ -2672,7 +2672,7 @@ std::int16_t CheckAndConnect(
 				if ((ob->tilex == x + offsets[loop]) &&
 					(ob->tiley == y + offsets[3 - loop]))
 				{
-					++::bars_connected;
+					++bars_connected;
 
 					if (CheckActor(ob, code))
 					{
@@ -3180,7 +3180,7 @@ void T_BarrierTransition(
 		{
 			const auto barrier_index = gamestate.get_barrier_index(obj->temp2);
 
-			if (!::gamestate.barrier_table[barrier_index].on)
+			if (!gamestate.barrier_table[barrier_index].on)
 			{
 				ToggleBarrier(obj);
 			}
