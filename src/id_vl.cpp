@@ -10479,32 +10479,37 @@ void hw_precache_perscan_drone()
 	hw_cache_sprite(SPR_FSCOUT_W1_7);
 	hw_cache_sprite(SPR_FSCOUT_W1_8);
 
-	hw_cache_sprite(SPR_FSCOUT_W2_1);
-	hw_cache_sprite(SPR_FSCOUT_W2_2);
-	hw_cache_sprite(SPR_FSCOUT_W2_3);
-	hw_cache_sprite(SPR_FSCOUT_W2_4);
-	hw_cache_sprite(SPR_FSCOUT_W2_5);
-	hw_cache_sprite(SPR_FSCOUT_W2_6);
-	hw_cache_sprite(SPR_FSCOUT_W2_7);
-	hw_cache_sprite(SPR_FSCOUT_W2_8);
+	const auto& assets_info = AssetsInfo{};
 
-	hw_cache_sprite(SPR_FSCOUT_W3_1);
-	hw_cache_sprite(SPR_FSCOUT_W3_2);
-	hw_cache_sprite(SPR_FSCOUT_W3_3);
-	hw_cache_sprite(SPR_FSCOUT_W3_4);
-	hw_cache_sprite(SPR_FSCOUT_W3_5);
-	hw_cache_sprite(SPR_FSCOUT_W3_6);
-	hw_cache_sprite(SPR_FSCOUT_W3_7);
-	hw_cache_sprite(SPR_FSCOUT_W3_8);
+	if (assets_info.is_aog_full())
+	{
+		hw_cache_sprite(SPR_FSCOUT_W2_1);
+		hw_cache_sprite(SPR_FSCOUT_W2_2);
+		hw_cache_sprite(SPR_FSCOUT_W2_3);
+		hw_cache_sprite(SPR_FSCOUT_W2_4);
+		hw_cache_sprite(SPR_FSCOUT_W2_5);
+		hw_cache_sprite(SPR_FSCOUT_W2_6);
+		hw_cache_sprite(SPR_FSCOUT_W2_7);
+		hw_cache_sprite(SPR_FSCOUT_W2_8);
 
-	hw_cache_sprite(SPR_FSCOUT_W4_1);
-	hw_cache_sprite(SPR_FSCOUT_W4_2);
-	hw_cache_sprite(SPR_FSCOUT_W4_3);
-	hw_cache_sprite(SPR_FSCOUT_W4_4);
-	hw_cache_sprite(SPR_FSCOUT_W4_5);
-	hw_cache_sprite(SPR_FSCOUT_W4_6);
-	hw_cache_sprite(SPR_FSCOUT_W4_7);
-	hw_cache_sprite(SPR_FSCOUT_W4_8);
+		hw_cache_sprite(SPR_FSCOUT_W3_1);
+		hw_cache_sprite(SPR_FSCOUT_W3_2);
+		hw_cache_sprite(SPR_FSCOUT_W3_3);
+		hw_cache_sprite(SPR_FSCOUT_W3_4);
+		hw_cache_sprite(SPR_FSCOUT_W3_5);
+		hw_cache_sprite(SPR_FSCOUT_W3_6);
+		hw_cache_sprite(SPR_FSCOUT_W3_7);
+		hw_cache_sprite(SPR_FSCOUT_W3_8);
+
+		hw_cache_sprite(SPR_FSCOUT_W4_1);
+		hw_cache_sprite(SPR_FSCOUT_W4_2);
+		hw_cache_sprite(SPR_FSCOUT_W4_3);
+		hw_cache_sprite(SPR_FSCOUT_W4_4);
+		hw_cache_sprite(SPR_FSCOUT_W4_5);
+		hw_cache_sprite(SPR_FSCOUT_W4_6);
+		hw_cache_sprite(SPR_FSCOUT_W4_7);
+		hw_cache_sprite(SPR_FSCOUT_W4_8);
+	}
 
 	hw_cache_sprite(SPR_FSCOUT_DIE1);
 	hw_cache_sprite(SPR_FSCOUT_DIE2);
