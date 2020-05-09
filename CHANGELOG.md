@@ -1,7 +1,7 @@
 # BStone changelog
 
 
-## [1.2.0] - 2020-??-??
+## [1.2.0] - 2020-05-09
 ### Added
 - 3D-renderer (OpenGL backend).
 - Menu to control video mode.
@@ -43,6 +43,7 @@
 - Serializing barrier switches.
 - Disabled music caching.
 - Reduced volume factor of OPL sounds.
+- Saved games are not compatible with previous versions.
 
 ### Fixed
 - Audio normalization.
