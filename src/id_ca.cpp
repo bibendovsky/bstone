@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -35,20 +35,37 @@ loaded into the data segment
 */
 
 
-#include <algorithm>
 #include "id_ca.h"
+
+#include <cassert>
+#include <cmath>
+
+#include <algorithm>
+#include <memory>
+
+#include "SDL_endian.h"
+
 #include "audio.h"
+#include "jm_lzh.h"
 #include "id_heads.h"
+#include "id_pm.h"
 #include "id_sd.h"
+#include "id_vh.h"
 #include "id_vl.h"
 #include "gfxv.h"
+
+#include "bstone_binary_writer.h"
 #include "bstone_endian.h"
-#include "bstone_log.h"
+#include "bstone_exception.h"
+#include "bstone_logger.h"
+#include "bstone_rgb_palette.h"
+#include "bstone_sdl2_types.h"
 #include "bstone_sha1.h"
+#include "bstone_sprite_cache.h"
 #include "bstone_string_helper.h"
 
-
-using namespace std::string_literals;
+#include "bstone_opl3.h"
+#include "bstone_audio_decoder.h"
 
 
 /*
@@ -67,12 +84,14 @@ std::uint16_t* mapsegs[MAPPLANES];
 MapHeaderSegments mapheaderseg;
 AudioSegments audiosegs;
 GrSegments grsegs;
+GrSegmentSizes grsegs_sizes_;
 
 GrNeeded grneeded;
 std::uint8_t ca_levelbit, ca_levelnum;
 
 std::int16_t profilehandle, debughandle;
 
+void InitDigiMap();
 
 /*
 =============================================================================
@@ -125,7 +144,75 @@ static const int BUFFERSIZE = 0x10000;
 
 
 // BBi
-int ca_gr_last_expanded_size;
+constexpr auto path_native_separator =
+#ifdef _WIN32
+		'\\'
+#else // _WIN32
+		'/'
+#endif // _WIN32
+		;
+
+std::string ca_normalize_path(
+	const std::string& path)
+{
+	auto result = path;
+
+	for (auto& ch : result)
+	{
+		if (ch == '/' || ch == '\\')
+		{
+			if (ch != path_native_separator)
+			{
+				ch = path_native_separator;
+			}
+		}
+	}
+
+	return result;
+}
+
+std::string ca_append_path(
+	const std::string& path,
+	const std::string& sub_path)
+{
+	if (path.empty() || sub_path.empty())
+	{
+		return std::string{};
+	}
+	else if (!path.empty() && sub_path.empty())
+	{
+		return path;
+	}
+	else if (path.empty() && !sub_path.empty())
+	{
+		return sub_path;
+	}
+	else
+	{
+		auto result = std::string{};
+		result.reserve(path.size() + 1 + sub_path.size());
+		result += path;
+
+		if (path.back() != path_native_separator)
+		{
+			result += path_native_separator;
+		}
+
+		result += sub_path;
+
+		return result;
+	}
+}
+
+std::string ca_make_padded_asset_number_string(
+	const int number)
+{
+	constexpr auto max_padded_numer_string_length = 8;
+
+	auto result = std::to_string(number);
+	result.insert(0, max_padded_numer_string_length - result.size(), '0');
+	return result;
+}
 
 void CAL_CarmackExpand(
 	std::uint16_t* source,
@@ -159,7 +246,7 @@ std::int32_t GRFILEPOS(
 
 void CloseGrFile()
 {
-	::grhandle.close();
+	grhandle.close();
 }
 
 void OpenMapFile()
@@ -175,19 +262,19 @@ void OpenMapFile()
 		CA_CannotOpen(fname);
 	}
 #else
-	::ca_open_resource(Assets::get_map_data_base_name(), ::maphandle);
+	ca_open_resource(Assets::get_map_data_base_name(), maphandle);
 #endif
 }
 
 void CloseMapFile()
 {
-	::maphandle.close();
+	maphandle.close();
 }
 
 void OpenAudioFile()
 {
 #ifndef AUDIOHEADERLINKED
-	::ca_open_resource(Assets::get_audio_data_base_name(), ::audiohandle);
+	ca_open_resource(Assets::get_audio_data_base_name(), audiohandle);
 #else
 	// TODO Remove or fix
 	if ((audiohandle = open("AUDIO."EXTENSION,
@@ -200,7 +287,7 @@ void OpenAudioFile()
 
 void CloseAudioFile()
 {
-	::audiohandle.close();
+	audiohandle.close();
 }
 
 /*
@@ -309,7 +396,7 @@ void ca_huff_expand_on_screen(
 		int x = p;
 		int y = 0;
 
-		while (y < ::vga_ref_height)
+		while (y < vga_ref_height)
 		{
 			if ((val & mask) == 0)
 			{
@@ -337,7 +424,7 @@ void ca_huff_expand_on_screen(
 
 				x += 4;
 
-				if (x >= ::vga_ref_width)
+				if (x >= vga_ref_width)
 				{
 					x = p;
 					++y;
@@ -528,7 +615,7 @@ void CA_Startup()
 	ca_levelbit = 1;
 	ca_levelnum = 0;
 
-	::ca_buffer.reserve(BUFFERSIZE);
+	ca_buffer.reserve(BUFFERSIZE);
 }
 
 /*
@@ -620,14 +707,14 @@ done:
 */
 void CA_LoadAllSounds()
 {
-	std::int16_t start = 0;
+	auto start = 0;
 
-	if (::old_is_sound_enabled)
+	if (old_is_sound_enabled)
 	{
 		start = STARTADLIBSOUNDS;
 	}
 
-	if (::sd_is_sound_enabled)
+	if (sd_is_sound_enabled_)
 	{
 		start = STARTADLIBSOUNDS;
 	}
@@ -636,12 +723,12 @@ void CA_LoadAllSounds()
 		return;
 	}
 
-	for (auto i = 0; i < NUMSOUNDS; ++i, ++start)
+	for (int i = 0; i < NUMSOUNDS; ++i)
 	{
-		::CA_CacheAudioChunk(start);
+		CA_CacheAudioChunk(start++);
 	}
 
-	::old_is_sound_enabled = ::sd_is_sound_enabled;
+	old_is_sound_enabled = sd_is_sound_enabled_;
 }
 
 // ===========================================================================
@@ -715,7 +802,7 @@ void CAL_ExpandGrChunk(
 
 	CAL_HuffExpand(source, static_cast<std::uint8_t*>(grsegs[chunk]), expanded, grhuffman);
 
-	ca_gr_last_expanded_size = expanded;
+	grsegs_sizes_[chunk] = expanded;
 }
 
 /*
@@ -759,13 +846,13 @@ void CA_CacheGrChunk(
 	compressed = GRFILEPOS(next) - pos;
 
 
-	::grhandle.set_position(pos);
+	grhandle.set_position(pos);
 
-	::ca_buffer.resize(compressed);
-	::grhandle.read(::ca_buffer.data(), compressed);
-	source = ::ca_buffer.data();
+	ca_buffer.resize(compressed);
+	grhandle.read(ca_buffer.data(), compressed);
+	source = ca_buffer.data();
 
-	::CAL_ExpandGrChunk(chunk, source);
+	CAL_ExpandGrChunk(chunk, source);
 }
 
 
@@ -799,9 +886,9 @@ void CA_CacheScreen(
 
 	grhandle.set_position(pos);
 
-	::ca_buffer.resize(compressed);
-	grhandle.read(::ca_buffer.data(), compressed);
-	source = ::ca_buffer.data();
+	ca_buffer.resize(compressed);
+	grhandle.read(ca_buffer.data(), compressed);
+	source = ca_buffer.data();
 
 	source += 4; // skip over length
 
@@ -824,6 +911,11 @@ void CA_CacheScreen(
 void CA_CacheMap(
 	std::int16_t mapnum)
 {
+	if (mapheaderseg[mapnum] == nullptr)
+	{
+		Quit("There are no assets for level index " + std::to_string(mapnum) + '.');
+	}
+
 	std::int32_t pos;
 	std::int32_t compressed;
 	std::int16_t plane;
@@ -850,8 +942,8 @@ void CA_CacheMap(
 		dest = &mapsegs[plane];
 
 		maphandle.set_position(pos);
-		::ca_buffer.resize(compressed);
-		source = reinterpret_cast<std::uint16_t*>(::ca_buffer.data());
+		ca_buffer.resize(compressed);
+		source = reinterpret_cast<std::uint16_t*>(ca_buffer.data());
 
 		maphandle.read(source, compressed);
 
@@ -874,7 +966,7 @@ void CA_CacheMap(
 		//
 		// unRLEW, skipping expanded length
 		//
-		::CA_RLEWexpand(source + 1, *dest, size, rlew_tag);
+		CA_RLEWexpand(source + 1, *dest, size, rlew_tag);
 #endif
 	}
 }
@@ -893,7 +985,7 @@ void CA_UpLevel()
 {
 	if (ca_levelnum == 7)
 	{
-		::Quit("Up past level 7.");
+		Quit("Up past level 7.");
 	}
 
 	ca_levelbit <<= 1;
@@ -914,7 +1006,7 @@ void CA_DownLevel()
 {
 	if (!ca_levelnum)
 	{
-		::Quit("Down past level 0.");
+		Quit("Down past level 0.");
 	}
 
 	ca_levelbit >>= 1;
@@ -989,7 +1081,7 @@ void CA_CacheMarks()
 			if (bufferstart <= pos && bufferend >= endpos)
 			{
 				// data is already in buffer
-				source = ::ca_buffer.data() + (pos - bufferstart);
+				source = ca_buffer.data() + (pos - bufferstart);
 			}
 			else
 			{
@@ -1029,11 +1121,11 @@ void CA_CacheMarks()
 				}
 
 				grhandle.set_position(pos);
-				::ca_buffer.resize(endpos - pos);
-				grhandle.read(::ca_buffer.data(), endpos - pos);
+				ca_buffer.resize(endpos - pos);
+				grhandle.read(ca_buffer.data(), endpos - pos);
 				bufferstart = pos;
 				bufferend = endpos;
-				source = ::ca_buffer.data();
+				source = ca_buffer.data();
 			}
 
 			CAL_ExpandGrChunk(i, source);
@@ -1044,7 +1136,7 @@ void CA_CacheMarks()
 void CA_CannotOpen(
 	const std::string& string)
 {
-	::Quit("Can't open " + string + "!\n");
+	Quit("Can't open " + string + "!\n");
 }
 
 void UNCACHEGRCHUNK(
@@ -1060,7 +1152,7 @@ std::string ca_load_script(
 	int chunk_id,
 	bool strip_xx)
 {
-	::CA_CacheGrChunk(static_cast<std::int16_t>(chunk_id));
+	CA_CacheGrChunk(static_cast<std::int16_t>(chunk_id));
 
 	const char* script = static_cast<const char*>(grsegs[chunk_id]);
 
@@ -1076,7 +1168,7 @@ std::string ca_load_script(
 
 	if (length == 0)
 	{
-		::Quit("Invalid script.");
+		Quit("Invalid script.");
 	}
 
 	if (strip_xx)
@@ -1099,7 +1191,7 @@ void initialize_ca_constants()
 bool ca_is_resource_exists(
 	const std::string& file_name)
 {
-	const auto path = ::data_dir + file_name;
+	const auto path = data_dir_ + file_name;
 
 	auto is_open = false;
 
@@ -1108,7 +1200,7 @@ bool ca_is_resource_exists(
 	if (!is_open)
 	{
 		auto&& file_name_lc = bstone::StringHelper::to_lower_ascii(file_name);
-		const auto path_lc = ::data_dir + file_name_lc;
+		const auto path_lc = data_dir_ + file_name_lc;
 
 		is_open = bstone::FileStream::is_exists(path_lc);
 	}
@@ -1145,10 +1237,10 @@ bool ca_open_resource_non_fatal(
 	const std::string& file_extension,
 	bstone::FileStream& file_stream)
 {
-	if (!::mod_dir_.empty())
+	if (!mod_dir_.empty())
 	{
 		const auto mod_dir_result = ca_open_resource_non_fatal(
-			::mod_dir_, file_name_without_ext, file_extension, file_stream);
+			mod_dir_, file_name_without_ext, file_extension, file_stream);
 
 		if (mod_dir_result)
 		{
@@ -1157,7 +1249,7 @@ bool ca_open_resource_non_fatal(
 	}
 
 	const auto data_dir_result = ca_open_resource_non_fatal(
-		::data_dir, file_name_without_ext, file_extension, file_stream);
+		data_dir_, file_name_without_ext, file_extension, file_stream);
 
 	return data_dir_result;
 }
@@ -1172,9 +1264,9 @@ void ca_open_resource(
 
 	if (!is_open)
 	{
-		const auto path = ::data_dir + file_name_without_ext + assets_info.get_extension();
+		const auto path = data_dir_ + file_name_without_ext + assets_info.get_extension();
 
-		::CA_CannotOpen(path);
+		CA_CannotOpen(path);
 	}
 }
 
@@ -1230,7 +1322,7 @@ std::string ca_calculate_hash(
 {
 	auto file_stream = bstone::FileStream{};
 
-	if (!::ca_open_resource_non_fatal(base_name, extension, file_stream))
+	if (!ca_open_resource_non_fatal(base_name, extension, file_stream))
 	{
 		return {};
 	}
@@ -1245,7 +1337,7 @@ std::string ca_calculate_hash(
 {
 	auto file_stream = bstone::FileStream{};
 
-	if (!::ca_open_resource_non_fatal(data_dir, base_name, extension, file_stream))
+	if (!ca_open_resource_non_fatal(data_dir, base_name, extension, file_stream))
 	{
 		return {};
 	}
@@ -1253,12 +1345,10 @@ std::string ca_calculate_hash(
 	return ca_calculate_hash(file_stream);
 }
 
-void ca_dump_hashes()
+void ca_calculate_hashes()
 {
-	bstone::Log::write();
-	bstone::Log::write("Dumping resource hashes...");
-
-	auto data_size = std::int32_t{};
+	bstone::logger_->write();
+	bstone::logger_->write("Calculating resource hashes...");
 
 	auto sha1 = bstone::Sha1{};
 
@@ -1266,14 +1356,14 @@ void ca_dump_hashes()
 	{
 		for (const auto& extension : Assets::get_extensions())
 		{
-			const auto& sha1_string = ::ca_calculate_hash(base_name, extension);
+			const auto& sha1_string = ca_calculate_hash(base_name, extension);
 
 			if (sha1_string.empty())
 			{
 				continue;
 			}
 
-			bstone::Log::write(base_name.get() + extension.get() + ": " + sha1_string);
+			bstone::logger_->write(base_name.get() + extension.get() + ": " + sha1_string);
 		}
 	}
 }
@@ -1292,6 +1382,8 @@ int AssetsInfo::episode_count_;
 int AssetsInfo::levels_per_episode_;
 int AssetsInfo::stats_levels_per_episode_;
 int AssetsInfo::total_levels_;
+int AssetsInfo::barrier_switches_per_level_;
+int AssetsInfo::max_barrier_switches_per_level_bits_;
 
 
 AssetsVersion AssetsInfo::get_version() const
@@ -1350,7 +1442,7 @@ void AssetsInfo::set_version(
 		}
 		else
 		{
-			::Quit("No assets information.");
+			Quit("No assets information.");
 		}
 	}
 
@@ -1365,7 +1457,7 @@ void AssetsInfo::set_version(
 		}
 		else
 		{
-			::Quit("No assets information.");
+			Quit("No assets information.");
 		}
 	}
 
@@ -1380,7 +1472,24 @@ void AssetsInfo::set_version(
 		}
 		else
 		{
-			::Quit("No assets information.");
+			Quit("No assets information.");
+		}
+	}
+
+	{
+		if (is_aog())
+		{
+			barrier_switches_per_level_ = 5;
+			max_barrier_switches_per_level_bits_ = 3;
+		}
+		else if (is_ps())
+		{
+			barrier_switches_per_level_ = 40;
+			max_barrier_switches_per_level_bits_ = 6;
+		}
+		else
+		{
+			Quit("No assets information.");
 		}
 	}
 
@@ -1548,6 +1657,16 @@ int AssetsInfo::get_total_levels() const
 	return total_levels_;
 }
 
+int AssetsInfo::get_barrier_switches_per_level() const noexcept
+{
+	return barrier_switches_per_level_;
+}
+
+int AssetsInfo::get_max_barrier_switches_per_level_bits() const noexcept
+{
+	return max_barrier_switches_per_level_bits_;
+}
+
 bool AssetsInfo::is_secret_level(
 	const int level_number) const
 {
@@ -1561,7 +1680,7 @@ bool AssetsInfo::is_secret_level(
 	}
 	else
 	{
-		::Quit("No assets information.");
+		Quit("No assets information.");
 	}
 }
 
@@ -1600,105 +1719,105 @@ int AssetsInfo::secret_floor_get_index(
 
 const std::string& Assets::get_audio_header_base_name()
 {
-	static const auto audio_header_base_name = "AUDIOHED"s;
+	static const auto audio_header_base_name = std::string{"AUDIOHED"};
 
 	return audio_header_base_name;
 }
 
 const std::string& Assets::get_audio_data_base_name()
 {
-	static const auto audio_data_base_name = "AUDIOT"s;
+	static const auto audio_data_base_name = std::string{"AUDIOT"};
 
 	return audio_data_base_name;
 }
 
 const std::string& Assets::get_map_header_base_name()
 {
-	static const auto map_header_base_name = "MAPHEAD"s;
+	static const auto map_header_base_name = std::string{"MAPHEAD"};
 
 	return map_header_base_name;
 }
 
 const std::string& Assets::get_map_data_base_name()
 {
-	static const auto map_data_base_name = "MAPTEMP"s;
+	static const auto map_data_base_name = std::string{"MAPTEMP"};
 
 	return map_data_base_name;
 }
 
 const std::string& Assets::get_gfx_dictionary_base_name()
 {
-	static const auto gfx_dictionary_base_name = "VGADICT"s;
+	static const auto gfx_dictionary_base_name = std::string{"VGADICT"};
 
 	return gfx_dictionary_base_name;
 }
 
 const std::string& Assets::get_gfx_header_base_name()
 {
-	static const auto gfx_header_base_name = "VGAHEAD"s;
+	static const auto gfx_header_base_name = std::string{"VGAHEAD"};
 
 	return gfx_header_base_name;
 }
 
 const std::string& Assets::get_gfx_data_base_name()
 {
-	static const auto gfx_data_base_name = "VGAGRAPH"s;
+	static const auto gfx_data_base_name = std::string{"VGAGRAPH"};
 
 	return gfx_data_base_name;
 }
 
 const std::string& Assets::get_page_file_base_name()
 {
-	static const auto page_file_base_name = "VSWAP"s;
+	static const auto page_file_base_name = std::string{"VSWAP"};
 
 	return page_file_base_name;
 }
 
 const std::string& Assets::get_episode_6_fmv_base_name()
 {
-	static const auto episode_6_fmv_base_name = "EANIM"s;
+	static const auto episode_6_fmv_base_name = std::string{"EANIM"};
 
 	return episode_6_fmv_base_name;
 }
 
 const std::string& Assets::get_episode_3_5_fmv_base_name()
 {
-	static const auto episode_3_5_fmv_base_name = "GANIM"s;
+	static const auto episode_3_5_fmv_base_name = std::string{"GANIM"};
 
 	return episode_3_5_fmv_base_name;
 }
 
 const std::string& Assets::get_intro_fmv_base_name()
 {
-	static const auto get_intro_fmv_base_name = "IANIM"s;
+	static const auto get_intro_fmv_base_name = std::string{"IANIM"};
 
 	return get_intro_fmv_base_name;
 }
 
 const std::string& Assets::get_episode_2_4_fmv_base_name()
 {
-	static const auto get_episode_2_4_fmv_base_name = "SANIM"s;
+	static const auto get_episode_2_4_fmv_base_name = std::string{"SANIM"};
 
 	return get_episode_2_4_fmv_base_name;
 }
 
 const std::string& Assets::get_aog_sw_extension()
 {
-	static const auto get_aog_sw_extension = ".BS1"s;
+	static const auto get_aog_sw_extension = std::string{".BS1"};
 
 	return get_aog_sw_extension;
 }
 
 const std::string& Assets::get_aog_full_extension()
 {
-	static const auto get_aog_full_extension = ".BS6"s;
+	static const auto get_aog_full_extension = std::string{".BS6"};
 
 	return get_aog_full_extension;
 }
 
 const std::string& Assets::get_ps_extension()
 {
-	static const auto get_ps_extension = ".VSI"s;
+	static const auto get_ps_extension = std::string{".VSI"};
 
 	return get_ps_extension;
 }
@@ -2057,4 +2176,1306 @@ bool Assets::are_official_levels(
 	);
 
 	return result;
+}
+
+
+// ==========================================================================
+// ImageExtractor
+//
+
+class ImageExtractor
+{
+public:
+	bool is_initialized() const;
+
+	bool initialize();
+
+	void uninitialize();
+
+	void extract_walls(
+		const std::string& destination_dir);
+
+	void extract_sprites(
+		const std::string& destination_dir);
+
+
+private:
+	using Palette = std::vector<SDL_Color>;
+
+
+	bool is_initialized_;
+	int sprite_count_;
+	bstone::SdlSurfaceUPtr sdl_surface_64x64x8_;
+	bstone::SdlSurfaceUPtr sdl_surface_64x64x32_;
+	std::string destination_dir_;
+	std::string destination_path_;
+	bstone::SpriteCache sprite_cache_;
+	Palette vga_palette_;
+
+
+	void set_palette(
+		bstone::SdlSurfacePtr sdl_surface,
+		const std::uint8_t* const vga_palette);
+
+	void set_palette(
+		bstone::SdlSurfacePtr sdl_surface,
+		const Palette& palette);
+
+	void uninitialize_vga_palette();
+
+	void initialize_vga_palette();
+
+	void uninitialize_surface_64x64x8();
+
+	bool initialize_surface_64x64x8();
+
+	void uninitialize_surface_64x64x32();
+
+	bool initialize_surface_64x64x32();
+
+	void convert_wall_page_into_surface(
+		const std::uint8_t* const src_indices);
+
+	void convert_sprite_page_into_surface(
+		const bstone::Sprite& sprite);
+
+	bool save_image(
+		const std::string& name_prefix,
+		const int image_index,
+		bstone::SdlSurfacePtr sdl_surface);
+
+	bool extract_wall(
+		const int wall_index);
+
+	bool extract_sprite(
+		const int sprite_index);
+}; // ImageExtractor
+
+
+bool ImageExtractor::is_initialized() const
+{
+	return is_initialized_;
+}
+
+bool ImageExtractor::initialize()
+{
+	if (!initialize_surface_64x64x8())
+	{
+		return false;
+	}
+
+	if (!initialize_surface_64x64x32())
+	{
+		return false;
+	}
+
+	initialize_vga_palette();
+
+	is_initialized_ = true;
+
+	return true;
+}
+
+void ImageExtractor::uninitialize()
+{
+	is_initialized_ = false;
+
+	uninitialize_surface_64x64x8();
+	uninitialize_surface_64x64x32();
+	uninitialize_vga_palette();
+}
+
+void ImageExtractor::extract_walls(
+	const std::string& destination_dir)
+{
+	bstone::logger_->write();
+	bstone::logger_->write("<<< ================");
+	bstone::logger_->write("Extracting walls.");
+	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
+	bstone::logger_->write("File count: " + std::to_string(PMSpriteStart));
+
+	if (!is_initialized_)
+	{
+		bstone::logger_->write_error("Not initialized.");
+
+		return;
+	}
+
+	destination_dir_ = ca_normalize_path(destination_dir);
+
+	set_palette(sdl_surface_64x64x8_.get(), vga_palette_);
+
+	for (int i = 0; i < PMSpriteStart; ++i)
+	{
+		extract_wall(i);
+	}
+
+	bstone::logger_->write(">>> ================");
+}
+
+void ImageExtractor::extract_sprites(
+	const std::string& destination_dir)
+{
+	sprite_count_ = ChunksInFile - PMSpriteStart - 1;
+
+	if (sprite_count_ < 0)
+	{
+		sprite_count_ = 0;
+	}
+
+	bstone::logger_->write();
+	bstone::logger_->write("<<< ================");
+	bstone::logger_->write("Extracting sprites.");
+	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
+	bstone::logger_->write("File count: " + std::to_string(sprite_count_));
+
+	if (!is_initialized_)
+	{
+		bstone::logger_->write_error("Not initialized.");
+
+		return;
+	}
+
+	destination_dir_ = ca_normalize_path(destination_dir);
+
+	for (int i = 0; i < sprite_count_; ++i)
+	{
+		extract_sprite(i);
+	}
+
+	bstone::logger_->write(">>> ================");
+}
+
+void ImageExtractor::set_palette(
+	bstone::SdlSurfacePtr sdl_surface,
+	const std::uint8_t* const vga_palette)
+{
+	assert(sdl_surface);
+	assert(vga_palette);
+	assert(sdl_surface->format);
+	assert(sdl_surface->format->palette);
+	assert(sdl_surface->format->palette->ncolors == bstone::RgbPalette::get_max_color_count());
+
+	auto& sdl_palette = *sdl_surface->format->palette;
+
+	for (int i = 0; i < bstone::RgbPalette::get_max_color_count(); ++i)
+	{
+		const auto src_color = vga_palette + (i * 3);
+		auto& dst_color = sdl_palette.colors[i];
+
+		dst_color.r = static_cast<Uint8>((255 * src_color[0]) / 63);
+		dst_color.g = static_cast<Uint8>((255 * src_color[1]) / 63);
+		dst_color.b = static_cast<Uint8>((255 * src_color[2]) / 63);
+		dst_color.a = 255;
+	}
+}
+
+void ImageExtractor::set_palette(
+	bstone::SdlSurfacePtr sdl_surface,
+	const Palette& palette)
+{
+	assert(sdl_surface);
+	assert(palette.size() == bstone::RgbPalette::get_max_color_count());
+	assert(sdl_surface->format);
+	assert(sdl_surface->format->palette);
+	assert(sdl_surface->format->palette->ncolors == bstone::RgbPalette::get_max_color_count());
+
+	std::uninitialized_copy_n(
+		palette.cbegin(),
+		bstone::RgbPalette::get_max_color_count(),
+		sdl_surface->format->palette->colors
+	);
+}
+
+void ImageExtractor::uninitialize_vga_palette()
+{
+	vga_palette_.clear();
+}
+
+void ImageExtractor::initialize_vga_palette()
+{
+	vga_palette_.resize(bstone::RgbPalette::get_max_color_count());
+
+	const auto src_colors = vgapal;
+
+	for (int i = 0; i < bstone::RgbPalette::get_max_color_count(); ++i)
+	{
+		const auto src_color = src_colors + (i * 3);
+		auto& dst_color = vga_palette_[i];
+
+		dst_color.r = static_cast<Uint8>((255 * src_color[0]) / 63);
+		dst_color.g = static_cast<Uint8>((255 * src_color[1]) / 63);
+		dst_color.b = static_cast<Uint8>((255 * src_color[2]) / 63);
+		dst_color.a = 255;
+	}
+}
+
+void ImageExtractor::uninitialize_surface_64x64x8()
+{
+	sdl_surface_64x64x8_ = nullptr;
+}
+
+bool ImageExtractor::initialize_surface_64x64x8()
+{
+	auto sdl_surface = SDL_CreateRGBSurfaceWithFormat(
+		0, // flags
+		64, // width
+		64, // height
+		8, // depth
+		SDL_PIXELFORMAT_INDEX8 // format
+	);
+
+	if (!sdl_surface)
+	{
+		auto error_message = std::string{"Failed to create SDL surface 64x64x32bit. "};
+		error_message += SDL_GetError();
+
+		bstone::logger_->write_error(error_message);
+
+		return false;
+	}
+
+	sdl_surface_64x64x8_ = bstone::SdlSurfaceUPtr{sdl_surface};
+
+	return true;
+}
+
+void ImageExtractor::uninitialize_surface_64x64x32()
+{
+	sdl_surface_64x64x32_ = nullptr;
+}
+
+bool ImageExtractor::initialize_surface_64x64x32()
+{
+	auto sdl_surface = SDL_CreateRGBSurfaceWithFormat(
+		0, // flags
+		64, // width
+		64, // height
+		32, // depth
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+		SDL_PIXELFORMAT_ABGR8888 // format
+#else // SDL_BYTEORDER == SDL_LIL_ENDIAN
+		SDL_PIXELFORMAT_RGBA8888 // format
+#endif // SDL_BYTEORDER == SDL_LIL_ENDIAN
+	);
+
+	if (!sdl_surface)
+	{
+		auto error_message = std::string{"Failed to create SDL surface 64x64x8bit. "};
+		error_message += SDL_GetError();
+
+		bstone::logger_->write_error(error_message);
+
+		return false;
+	}
+
+	sdl_surface_64x64x32_ = bstone::SdlSurfaceUPtr{sdl_surface};
+
+	return true;
+}
+
+void ImageExtractor::convert_wall_page_into_surface(
+	const std::uint8_t* const src_indices)
+{
+	assert(src_indices);
+
+	const auto pitch = sdl_surface_64x64x8_->pitch;
+
+	auto dst_indices = static_cast<std::uint8_t*>(sdl_surface_64x64x8_->pixels);
+
+	auto src_index = 0;
+
+	for (int w = 0; w < 64; ++w)
+	{
+		for (int h = 0; h < 64; ++h)
+		{
+			const auto dst_index = (h * pitch) + w;
+
+			dst_indices[dst_index] = src_indices[src_index];
+
+			++src_index;
+		}
+	}
+}
+
+void ImageExtractor::convert_sprite_page_into_surface(
+	const bstone::Sprite& sprite)
+{
+	const auto pitch = sdl_surface_64x64x32_->pitch / 4;
+
+	auto dst_colors = static_cast<SDL_Color*>(sdl_surface_64x64x32_->pixels);
+
+	const auto left = sprite.get_left();
+	const auto right = sprite.get_right();
+	const auto top = sprite.get_top();
+	const auto bottom = sprite.get_bottom();
+
+	for (int w = 0; w < 64; ++w)
+	{
+		const std::int16_t* column = nullptr;
+
+		if (w >= left && w <= right)
+		{
+			column = sprite.get_column(w - left);
+		}
+
+		for (int h = 0; h < 64; ++h)
+		{
+			auto dst_color = SDL_Color{};
+
+			if (column && h >= top && h <= bottom)
+			{
+				const auto color_index = column[h - top];
+
+				if (color_index >= 0)
+				{
+					dst_color = vga_palette_[color_index];
+				}
+			}
+
+			const auto dst_index = (h * pitch) + w;
+
+			dst_colors[dst_index] = dst_color;
+		}
+	}
+}
+
+bool ImageExtractor::save_image(
+	const std::string& name_prefix,
+	const int image_index,
+	bstone::SdlSurfacePtr sdl_surface)
+{
+	const auto image_index_digits = 8;
+
+	const auto& wall_index_string = ca_make_padded_asset_number_string(image_index);
+
+	const auto& file_name = ca_append_path(destination_dir_, name_prefix + wall_index_string + ".bmp");
+
+	const auto sdl_result = SDL_SaveBMP(sdl_surface, file_name.c_str());
+
+	if (sdl_result != 0)
+	{
+		auto error_message = "Failed to save an image into \"" + file_name + "\". ";
+		error_message += SDL_GetError();
+
+		bstone::logger_->write_error(error_message);
+
+		return false;
+	}
+
+	return true;
+}
+
+bool ImageExtractor::extract_wall(
+	const int wall_index)
+{
+	if (wall_index < 0 && wall_index >= PMSpriteStart)
+	{
+		bstone::logger_->write_error("Wall index out of range.");
+
+		return false;
+	}
+
+	const auto wall_page = static_cast<const std::uint8_t*>(PM_GetPage(wall_index));
+
+	if (!wall_page)
+	{
+		bstone::logger_->write_error("No wall page #" + std::to_string(wall_index) + ".");
+
+		return false;
+	}
+
+	convert_wall_page_into_surface(wall_page);
+
+	if (!save_image("wall_", wall_index, sdl_surface_64x64x8_.get()))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool ImageExtractor::extract_sprite(
+	const int sprite_index)
+{
+	const auto cache_sprite_index = sprite_index + 1;
+
+	auto sprite = bstone::SpriteCPtr{};
+
+	try
+	{
+		sprite = sprite_cache_.cache(cache_sprite_index);
+	}
+	catch (const std::runtime_error& ex)
+	{
+		auto error_message = "Failed to cache a sprite #" + std::to_string(sprite_index) + ". ";
+		error_message += ex.what();
+
+		bstone::logger_->write_error(error_message);
+
+		return false;
+	}
+
+	convert_sprite_page_into_surface(*sprite);
+
+	if (!save_image("sprite_", cache_sprite_index, sdl_surface_64x64x32_.get()))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+//
+// ImageExtractor
+// ==========================================================================
+
+
+void ca_extract_walls(
+	const std::string& destination_dir)
+{
+	auto images_extractor = ImageExtractor{};
+
+	if (!images_extractor.initialize())
+	{
+		return;
+	}
+
+	images_extractor.extract_walls(destination_dir);
+}
+
+void ca_extract_sprites(
+	const std::string& destination_dir)
+{
+	auto images_extractor = ImageExtractor{};
+
+	if (!images_extractor.initialize())
+	{
+		return;
+	}
+
+	images_extractor.extract_sprites(destination_dir);
+}
+
+// ==========================================================================
+// AudioExtractor
+//
+
+class AudioExtractorException :
+	public bstone::Exception
+{
+public:
+	explicit AudioExtractorException(
+		const char* const message)
+		:
+		bstone::Exception{std::string{"[DBG_MUS_DMPR] "} + message}
+	{
+	}
+}; // AudioExtractorException
+
+class AudioExtractorTrackException :
+	public bstone::Exception
+{
+public:
+	explicit AudioExtractorTrackException(
+		const int track_number,
+		const char* const message)
+		:
+		bstone::Exception{std::string{"[DBG_MUS_DMPR][TRK #"} + std::to_string(track_number) + "] " + message}
+	{
+	}
+
+	explicit AudioExtractorTrackException(
+		const int track_number,
+		const std::string& message)
+		:
+		bstone::Exception{std::string{"[DBG_MUS_DMPR][TRK #"} + std::to_string(track_number) + "] " + message}
+	{
+	}
+}; // AudioExtractorTrackException
+
+
+class AudioExtractor
+{
+public:
+	AudioExtractor();
+
+	void extract_music(
+		const std::string& destination_dir);
+
+	void extract_sfx(
+		const std::string& destination_dir);
+
+
+private:
+	static constexpr auto wav_prefix_size = 44;
+
+
+	using Sample = std::int16_t;
+	using MusicNumbers = std::vector<int>;
+	using DecodeBuffer = std::vector<Sample>;
+
+	AssetsInfo assets_info_;
+
+	MusicNumbers music_numbers_;
+	DecodeBuffer decode_buffer_;
+
+
+	bool write_wav_header(
+		const int data_size,
+		const int bit_depth,
+		const int sample_rate,
+		bstone::Stream& stream);
+
+	void initialize_music();
+
+	void extract_music(
+		const std::string& destination_dir,
+		const int number);
+
+	void initialize_sfx();
+
+	void write_adlib_sfx(
+		const int number,
+		const SfxInfo& sfx_info,
+		bstone::Stream& stream);
+
+	void write_pcm_sfx(
+		const int number,
+		const SfxInfo& sfx_info,
+		bstone::Stream& stream);
+
+	void extract_sfx(
+		const std::string& destination_dir,
+		const int number);
+}; // AudioExtractor
+
+
+AudioExtractor::AudioExtractor()
+	:
+	assets_info_{},
+	music_numbers_{},
+	decode_buffer_{}
+{
+	decode_buffer_.resize(bstone::opl3_fixed_frequency);
+}
+
+void AudioExtractor::extract_music(
+	const std::string& destination_dir)
+{
+	initialize_music();
+
+	bstone::logger_->write("File count: " + std::to_string(music_numbers_.size()));
+
+	for (const auto music_number : music_numbers_)
+	{
+		extract_music(destination_dir, music_number);
+	}
+}
+
+void AudioExtractor::extract_sfx(
+	const std::string& destination_dir)
+{
+	initialize_sfx();
+
+	bstone::logger_->write("File count: " + std::to_string(NUMSOUNDS));
+
+	for (int i = 0; i < NUMSOUNDS; ++i)
+	{
+		extract_sfx(destination_dir, i);
+	}
+}
+
+bool AudioExtractor::write_wav_header(
+	const int data_size,
+	const int bit_depth,
+	const int sample_rate,
+	bstone::Stream& stream)
+{
+	const auto aligned_data_size = ((data_size + 1) / 2) * 2;
+	const auto wav_size = aligned_data_size + wav_prefix_size;
+
+	const auto audio_format = 1; // PCM
+	const auto channel_count = 1;
+	const auto byte_depth = bit_depth / 8;
+	const auto byte_rate = sample_rate * channel_count * byte_depth;
+	const auto block_align = channel_count * byte_depth;
+
+	auto writer = bstone::BinaryWriter{&stream};
+
+	auto result = true;
+
+	result &= writer.write_u32(bstone::Endian::big(0x52494646)); // "RIFF"
+
+	// riff_chunk_size = = "file size" - "chunk id" + "chunk size".
+	const auto riff_chunk_size = static_cast<std::uint32_t>(wav_size - 4 - 4);
+	result &= writer.write_u32(bstone::Endian::little(riff_chunk_size)); // Chunk size.
+
+	result &= writer.write_u32(bstone::Endian::big(0x57415645)); // "WAVE"
+	result &= writer.write_u32(bstone::Endian::big(0x666D7420)); // "fmt "
+	result &= writer.write_u32(bstone::Endian::little(16)); // Format size.
+	result &= writer.write_u16(bstone::Endian::little(audio_format)); // Audio format.
+	result &= writer.write_u16(bstone::Endian::little(channel_count)); // Channel count.
+	result &= writer.write_u32(bstone::Endian::little(sample_rate)); // Sample rate.
+	result &= writer.write_u32(bstone::Endian::little(byte_rate)); // Byte rate.
+	result &= writer.write_u16(bstone::Endian::little(block_align)); // Block align.
+	result &= writer.write_u16(bstone::Endian::little(bit_depth)); // Bits per sample.
+	result &= writer.write_u32(bstone::Endian::big(0x64617461)); // "data"
+	result &= writer.write_u32(bstone::Endian::little(data_size)); // Data size.
+
+	return result;
+}
+
+void AudioExtractor::initialize_music()
+{
+	if (LASTMUSIC <= 0 || STARTMUSIC <= 0)
+	{
+		throw AudioExtractorException{"Assets information not initialized."};
+	}
+
+	music_numbers_.reserve(LASTMUSIC + 1);
+
+	music_numbers_.emplace_back(APOGFNFM_MUS);
+	music_numbers_.emplace_back(THEME_MUS);
+
+	if (assets_info_.is_aog())
+	{
+		music_numbers_.emplace_back(S2100A_MUS);
+		music_numbers_.emplace_back(GOLDA_MUS);
+		//music_numbers_.emplace_back(APOGFNFM_MUS);
+		music_numbers_.emplace_back(DRKHALLA_MUS);
+		music_numbers_.emplace_back(FREEDOMA_MUS);
+		music_numbers_.emplace_back(GENEFUNK_MUS);
+		music_numbers_.emplace_back(TIMEA_MUS);
+		music_numbers_.emplace_back(HIDINGA_MUS);
+		music_numbers_.emplace_back(INCNRATN_MUS);
+		music_numbers_.emplace_back(JUNGLEA_MUS);
+		music_numbers_.emplace_back(LEVELA_MUS);
+		music_numbers_.emplace_back(MEETINGA_MUS);
+		music_numbers_.emplace_back(STRUTA_MUS);
+		music_numbers_.emplace_back(RACSHUFL_MUS);
+		music_numbers_.emplace_back(RUMBAA_MUS);
+		music_numbers_.emplace_back(SEARCHNA_MUS);
+		music_numbers_.emplace_back(THEWAYA_MUS);
+		music_numbers_.emplace_back(INTRIGEA_MUS);
+	}
+
+	if (assets_info_.is_ps())
+	{
+		music_numbers_.emplace_back(CATACOMB_MUS);
+		music_numbers_.emplace_back(STICKS_MUS);
+		music_numbers_.emplace_back(PLOT_MUS);
+		music_numbers_.emplace_back(CIRCLES_MUS);
+		music_numbers_.emplace_back(LASTLAFF_MUS);
+		music_numbers_.emplace_back(TOHELL_MUS);
+		music_numbers_.emplace_back(FORTRESS_MUS);
+		music_numbers_.emplace_back(GIVING_MUS);
+		music_numbers_.emplace_back(HARTBEAT_MUS);
+		music_numbers_.emplace_back(LURKING_MUS);
+		music_numbers_.emplace_back(MAJMIN_MUS);
+		music_numbers_.emplace_back(VACCINAP_MUS);
+		music_numbers_.emplace_back(DARKNESS_MUS);
+		music_numbers_.emplace_back(MONASTRY_MUS);
+		music_numbers_.emplace_back(TOMBP_MUS);
+		music_numbers_.emplace_back(TIME_MUS);
+		music_numbers_.emplace_back(MOURNING_MUS);
+		music_numbers_.emplace_back(SERPENT_MUS);
+		music_numbers_.emplace_back(HISCORE_MUS);
+	}
+
+	std::sort(music_numbers_.begin(), music_numbers_.end());
+}
+
+void AudioExtractor::extract_music(
+	const std::string& destination_dir,
+	const int number)
+{
+	const auto music_index = STARTMUSIC + number;
+	CA_CacheAudioChunk(music_index);
+
+	const auto& number_string = ca_make_padded_asset_number_string(number);
+	const auto& file_name = ca_append_path(destination_dir, "music_" + number_string + ".wav");
+
+	auto file_stream = bstone::FileStream{file_name, bstone::StreamOpenMode::write};
+
+	if (!file_stream.is_open())
+	{
+		throw AudioExtractorTrackException{number, "Failed to open \"" + file_name + "\" for writing."};
+	}
+
+	auto audio_decoder = bstone::make_audio_decoder(
+		bstone::AudioDecoderType::adlib_music,
+		bstone::Opl3Type::dbopl
+	);
+
+	if (!audio_decoder)
+	{
+		throw AudioExtractorTrackException{number, "Failed to create AdLib music decoder."};
+	}
+
+	const auto music_data = audiosegs[music_index];
+	const auto music_data_size = sd_get_adlib_music_data_size(music_data);
+
+	if (!audio_decoder->initialize(
+		music_data,
+		music_data_size,
+		bstone::opl3_fixed_frequency))
+	{
+		throw AudioExtractorTrackException{number, "Failed to initialize AdLib music decoder."};
+	}
+
+	if (!file_stream.set_position(wav_prefix_size))
+	{
+		throw AudioExtractorTrackException{number, "I/O error on \"" + file_name + "\"."};
+	}
+
+	constexpr auto sample_size = static_cast<int>(sizeof(Sample));
+	constexpr auto bit_depth = sample_size * 8;
+
+	auto data_size = 0;
+	auto sample_count = 0;
+	auto abs_max_sample = 0;
+
+	while (true)
+	{
+		const auto decoded_count = audio_decoder->decode(
+			bstone::opl3_fixed_frequency,
+			decode_buffer_.data()
+		);
+
+		if (decoded_count == 0)
+		{
+			break;
+		}
+
+		for (int i = 0; i < decoded_count; ++i)
+		{
+			const auto sample = static_cast<int>(decode_buffer_[i]);
+
+			abs_max_sample = std::max(std::abs(sample), abs_max_sample);
+		}
+
+		const auto decoded_size = decoded_count * sample_size;
+
+		if (!file_stream.write(decode_buffer_.data(), decoded_size))
+		{
+			throw AudioExtractorTrackException{number, "I/O error on \"" + file_name + "\"."};
+		}
+
+		data_size += decoded_size;
+		sample_count += decoded_count;
+	}
+
+	if (!file_stream.set_position(0))
+	{
+		throw AudioExtractorTrackException{number, "I/O error on \"" + file_name + "\"."};
+	}
+
+	if (!write_wav_header(data_size, bit_depth, bstone::opl3_fixed_frequency, file_stream))
+	{
+		throw AudioExtractorTrackException{number, "I/O error on \"" + file_name + "\"."};
+	}
+
+	const auto volume_factor = 32'768.0 / abs_max_sample;
+	const auto volume_factor_string = (data_size > 0 ? std::to_string(volume_factor) : "-");
+
+	auto sha1 = bstone::Sha1{};
+	sha1.process(music_data, music_data_size);
+	sha1.finish();
+	const auto sha1_string = (data_size > 0 ? sha1.to_string() : "-");
+
+	bstone::logger_->write(
+		"Track " + std::to_string(number) + ". " +
+			"Sample rate: " + std::to_string(bstone::opl3_fixed_frequency) + ". " +
+			"Sample count: " + std::to_string(sample_count) + ". " +
+			"SHA1: " + sha1_string + ". " +
+			"Volume factor: " + volume_factor_string + "."
+	);
+}
+
+void AudioExtractor::initialize_sfx()
+{
+	for (int i = 0; i < NUMSOUNDS; ++i)
+	{
+		CA_CacheAudioChunk(STARTADLIBSOUNDS + i);
+	}
+
+	sd_setup_extracting();
+
+	InitDigiMap();
+}
+
+void AudioExtractor::write_adlib_sfx(
+	const int number,
+	const SfxInfo& sfx_info,
+	bstone::Stream& stream)
+{
+	auto audio_decoder = bstone::make_audio_decoder(
+		bstone::AudioDecoderType::adlib_sfx,
+		bstone::Opl3Type::dbopl
+	);
+
+	if (!audio_decoder)
+	{
+		throw AudioExtractorTrackException{number, "Failed to create AdLib music decoder."};
+	}
+
+	if (!audio_decoder->initialize(
+		sfx_info.data_,
+		sfx_info.size_,
+		bstone::opl3_fixed_frequency))
+	{
+		throw AudioExtractorTrackException{number, "Failed to initialize AdLib music decoder."};
+	}
+
+	if (!stream.set_position(wav_prefix_size))
+	{
+		throw AudioExtractorTrackException{number, "Seek I/O error."};
+	}
+
+	constexpr auto sample_size = static_cast<int>(sizeof(Sample));
+	constexpr auto bit_depth = sample_size * 8;
+
+	auto data_size = 0;
+	auto sample_count = 0;
+	auto abs_max_sample = 0;
+
+	while (true)
+	{
+		const auto decoded_count = audio_decoder->decode(
+			bstone::opl3_fixed_frequency,
+			decode_buffer_.data()
+		);
+
+		if (decoded_count == 0)
+		{
+			break;
+		}
+
+		for (int i = 0; i < decoded_count; ++i)
+		{
+			const auto sample = static_cast<int>(decode_buffer_[i]);
+
+			abs_max_sample = std::max(std::abs(sample), abs_max_sample);
+		}
+
+		const auto decoded_size = decoded_count * sample_size;
+
+		if (!stream.write(decode_buffer_.data(), decoded_size))
+		{
+			throw AudioExtractorTrackException{number, "Write I/O error."};
+		}
+
+		data_size += decoded_size;
+		sample_count += decoded_count;
+	}
+
+	if (!stream.set_position(0))
+	{
+		throw AudioExtractorTrackException{number, "Seek I/O error."};
+	}
+
+	if (!write_wav_header(data_size, bit_depth, bstone::opl3_fixed_frequency, stream))
+	{
+		throw AudioExtractorTrackException{number, "Write I/O error."};
+	}
+
+	const auto volume_factor = 32'768.0 / abs_max_sample;
+	const auto volume_factor_string = (data_size > 0 ? std::to_string(volume_factor) : "-");
+
+	auto sha1 = bstone::Sha1{};
+	sha1.process(sfx_info.data_, sfx_info.size_);
+	sha1.finish();
+	const auto sha1_string = (data_size > 0 ? sha1.to_string() : "-");
+
+	bstone::logger_->write(
+		"Track " + std::to_string(number) + ". " +
+			"Sample rate: " + std::to_string(bstone::opl3_fixed_frequency) + ". " +
+			"Sample count: " + std::to_string(sample_count) + ". " +
+			"SHA1: " + sha1_string + ". " +
+			"Volume factor: " + volume_factor_string + "."
+	);
+}
+
+void AudioExtractor::write_pcm_sfx(
+	const int number,
+	const SfxInfo& sfx_info,
+	bstone::Stream& stream)
+{
+	constexpr auto sample_size = 1;
+	constexpr auto bit_depth = sample_size * 8;
+	const auto data_size = (sfx_info.data_ ? sfx_info.size_ : 0);
+
+	if (!write_wav_header(data_size, bit_depth, bstone::audio_decoder_pcm_fixed_frequency, stream))
+	{
+		throw AudioExtractorTrackException{number, "Write I/O error."};
+	}
+
+	if (!stream.write(sfx_info.data_, data_size))
+	{
+		throw AudioExtractorTrackException{number, "Write I/O error."};
+	}
+
+	if ((data_size % 2) != 0)
+	{
+		if (!stream.write_octet(0))
+		{
+			throw AudioExtractorTrackException{number, "Write I/O error."};
+		}
+	}
+
+	auto abs_max_sample = 0;
+
+	if (data_size > 0)
+	{
+		const auto pcm_u8_data = static_cast<const std::uint8_t*>(sfx_info.data_);
+
+		for (int i = 0; i < data_size; ++i)
+		{
+			abs_max_sample = std::max(std::abs(pcm_u8_data[i] - 128), abs_max_sample);
+		}
+	}
+
+	const auto volume_factor = 128.0 / abs_max_sample;
+	const auto volume_factor_string = (data_size > 0 ? std::to_string(volume_factor) : "-");
+
+	auto sha1 = bstone::Sha1{};
+	sha1.process(sfx_info.data_, data_size);
+	sha1.finish();
+	const auto sha1_string = (data_size > 0 ? sha1.to_string() : "-");
+
+	bstone::logger_->write(
+		"Track " + std::to_string(number) + ". " +
+			"Sample rate: " + std::to_string(bstone::audio_decoder_pcm_fixed_frequency) + ". " +
+			"Sample count: " + std::to_string(data_size) + ". " +
+			"SHA1: " + sha1_string + ". " +
+			"Volume factor: " + volume_factor_string + "."
+	);
+}
+
+void AudioExtractor::extract_sfx(
+	const std::string& destination_dir,
+	const int number)
+{
+	const auto& sfx_info = sd_get_sfx_info(number);
+
+	const auto& number_string = ca_make_padded_asset_number_string(number);
+	const auto& file_name = ca_append_path(destination_dir, "sfx_" + number_string + ".wav");
+
+	auto file_stream = bstone::FileStream{file_name, bstone::StreamOpenMode::write};
+
+	if (!file_stream.is_open())
+	{
+		throw AudioExtractorTrackException{number, "Failed to open \"" + file_name + "\" for writing."};
+	}
+
+	if (sfx_info.is_digitized_)
+	{
+		write_pcm_sfx(number, sfx_info, file_stream);
+	}
+	else
+	{
+		write_adlib_sfx(number, sfx_info, file_stream);
+	}
+}
+
+//
+// AudioExtractor
+// ==========================================================================
+
+void ca_extract_music(
+	const std::string& destination_dir)
+{
+	bstone::logger_->write();
+	bstone::logger_->write("<<< ================");
+	bstone::logger_->write("Extracting music.");
+	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
+
+	auto audio_extractor = AudioExtractor{};
+	audio_extractor.extract_music(ca_normalize_path(destination_dir));
+
+	bstone::logger_->write(">>> ================");
+}
+
+void ca_extract_sfx(
+	const std::string& destination_dir)
+{
+	bstone::logger_->write();
+	bstone::logger_->write("<<< ================");
+	bstone::logger_->write("Extracting sfx.");
+	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
+
+	auto audio_extractor = AudioExtractor{};
+	audio_extractor.extract_sfx(ca_normalize_path(destination_dir));
+
+	bstone::logger_->write(">>> ================");
+}
+
+// ==========================================================================
+// TextExtractor
+//
+
+class TextExtractorException :
+	public bstone::Exception
+{
+public:
+	explicit TextExtractorException(
+		const std::string& message)
+		:
+		Exception{std::string{"[DBG_TXT_DMPR] "} + message}
+	{
+	}
+
+	explicit TextExtractorException(
+		const int number,
+		const std::string& message)
+		:
+		Exception{std::string{"[DBG_TXT_DMPR][Text #"} + std::to_string(number) + "] " + message}
+	{
+	}
+}; // TextExtractorException
+
+
+class TextExtractor
+{
+public:
+	TextExtractor();
+
+
+	void extract_text(
+		const std::string& dst_dir);
+
+
+private:
+	enum class CompressionType :
+		std::uint16_t
+	{
+		none = 0,
+		lzw = 1,
+		lzh = 2,
+	}; // CompressionType
+
+	struct TextNumber
+	{
+		bool is_compressed_;
+		int number_;
+	}; // TextNumber
+
+#pragma pack(push, 1)
+	struct CompressedHeader
+	{
+		char name_id_[4];
+		std::uint32_t uncompressed_size_;
+		CompressionType compression_type_;
+		std::uint32_t compressed_size_;
+	}; // CompressedHeader
+#pragma pack(pop)
+
+	using TextNumbers = std::vector<TextNumber>;
+	using Buffer = std::vector<std::uint8_t>;
+
+
+	TextNumbers text_numbers_;
+	Buffer buffer_;
+
+
+	void initialize_text();
+
+	void extract_text(
+		const std::string& dst_dir,
+		const TextNumber& number);
+}; // TextExtractor
+
+
+TextExtractor::TextExtractor()
+	:
+	text_numbers_{}
+{
+	initialize_text();
+}
+
+void TextExtractor::extract_text(
+	const std::string& dst_dir)
+{
+	bstone::logger_->write("File count: " + std::to_string(text_numbers_.size()));
+
+	for (const auto text_number : text_numbers_)
+	{
+		extract_text(dst_dir, text_number);
+	}
+}
+
+void TextExtractor::initialize_text()
+{
+	text_numbers_.reserve(50);
+
+	text_numbers_.emplace_back(TextNumber{false, INFORMANT_HINTS});
+	text_numbers_.emplace_back(TextNumber{false, NICE_SCIE_HINTS});
+	text_numbers_.emplace_back(TextNumber{false, MEAN_SCIE_HINTS});
+	text_numbers_.emplace_back(TextNumber{false, BRIEF_W1});
+	text_numbers_.emplace_back(TextNumber{false, BRIEF_I1});
+	text_numbers_.emplace_back(TextNumber{false, BRIEF_W2});
+	text_numbers_.emplace_back(TextNumber{false, BRIEF_I2});
+	text_numbers_.emplace_back(TextNumber{false, BRIEF_W3});
+	text_numbers_.emplace_back(TextNumber{false, BRIEF_I3});
+	text_numbers_.emplace_back(TextNumber{false, BRIEF_W4});
+	text_numbers_.emplace_back(TextNumber{false, BRIEF_I4});
+	text_numbers_.emplace_back(TextNumber{false, BRIEF_W5});
+	text_numbers_.emplace_back(TextNumber{false, BRIEF_I5});
+	text_numbers_.emplace_back(TextNumber{false, BRIEF_W6});
+	text_numbers_.emplace_back(TextNumber{false, BRIEF_I6});
+	text_numbers_.emplace_back(TextNumber{false, LEVEL_DESCS});
+	text_numbers_.emplace_back(TextNumber{true, POWERBALLTEXT});
+	text_numbers_.emplace_back(TextNumber{true, TICSTEXT});
+	text_numbers_.emplace_back(TextNumber{true, MUSICTEXT});
+	text_numbers_.emplace_back(TextNumber{true, RADARTEXT});
+	text_numbers_.emplace_back(TextNumber{false, HELPTEXT});
+	text_numbers_.emplace_back(TextNumber{false, SAGATEXT});
+	text_numbers_.emplace_back(TextNumber{false, LOSETEXT});
+	text_numbers_.emplace_back(TextNumber{false, ORDERTEXT});
+	text_numbers_.emplace_back(TextNumber{false, CREDITSTEXT});
+	text_numbers_.emplace_back(TextNumber{false, MUSTBE386TEXT});
+	text_numbers_.emplace_back(TextNumber{false, QUICK_INFO1_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, QUICK_INFO2_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, BADINFO_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, CALJOY1_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, CALJOY2_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, READTHIS_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, ELEVMSG0_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, ELEVMSG1_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, ELEVMSG4_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, ELEVMSG5_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, FLOORMSG_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, YOUWIN_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, CHANGEVIEW_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, BADCHECKSUMTEXT});
+	text_numbers_.emplace_back(TextNumber{false, DIZ_ERR_TEXT});
+	text_numbers_.emplace_back(TextNumber{false, BADLEVELSTEXT});
+	text_numbers_.emplace_back(TextNumber{false, BADSAVEGAME_TEXT});
+
+	std::sort(
+		text_numbers_.begin(),
+		text_numbers_.end(),
+		[](const auto& lhs, const auto& rhs)
+		{
+			return lhs.number_ < rhs.number_;
+		}
+	);
+
+	const auto non_zero_number_it = std::find_if(
+		text_numbers_.begin(),
+		text_numbers_.end(),
+		[](const auto item)
+		{
+			return item.number_ != 0;
+		}
+	);
+
+	if (non_zero_number_it == text_numbers_.end())
+	{
+		throw TextExtractorException{"Empty list."};
+	}
+
+	text_numbers_.erase(text_numbers_.begin(), non_zero_number_it);
+}
+
+void TextExtractor::extract_text(
+	const std::string& dst_dir,
+	const TextNumber& text_number)
+{
+	const auto number = text_number.number_;
+
+	CA_CacheGrChunk(number);
+
+	auto text_data = grsegs[number];
+	auto text_size = grsegs_sizes_[number];
+
+	if (text_number.is_compressed_)
+	{
+		constexpr auto max_uncompressed_size = 256;
+
+		const auto header_size = sizeof(CompressedHeader);
+		const auto compressed_header = static_cast<CompressedHeader*>(text_data);
+		const auto pure_data_size = text_size - header_size;
+
+		if (text_size <= header_size ||
+			compressed_header->compressed_size_ > pure_data_size ||
+			compressed_header->uncompressed_size_ > max_uncompressed_size)
+		{
+			throw TextExtractorException{number, "Damaged compression header."};
+		}
+
+		if (compressed_header->compression_type_ != CompressionType::lzh)
+		{
+			throw TextExtractorException{number, "Expected LZH compression type."};
+		}
+
+		buffer_.resize(compressed_header->uncompressed_size_);
+
+		if (!LZH_Startup())
+		{
+			throw TextExtractorException{number, "Failed to initialized LZH decoder."};
+		}
+
+		const auto decoded_size = LZH_Decompress(
+			static_cast<const char*>(text_data) + header_size,
+			buffer_.data(),
+			compressed_header->uncompressed_size_,
+			compressed_header->compressed_size_
+		);
+
+		LZH_Shutdown();
+
+		buffer_.resize(decoded_size);
+
+		text_data = buffer_.data();
+		text_size = decoded_size;
+	}
+	else
+	{
+		text_data = grsegs[number];
+	}
+
+	const auto& number_string = ca_make_padded_asset_number_string(number);
+	const auto& file_name = ca_append_path(dst_dir, "text_" + number_string + ".txt");
+
+	auto file_stream = bstone::FileStream{file_name, bstone::StreamOpenMode::write};
+
+	if (!file_stream.is_open())
+	{
+		throw TextExtractorException{number, "Failed to open \"" + file_name + "\" for writing."};
+	}
+
+	if (!file_stream.write(text_data, text_size))
+	{
+		throw TextExtractorException{number, "Write I/O error."};
+	}
+}
+
+//
+// TextExtractor
+// ==========================================================================
+
+void ca_extract_texts(
+	const std::string& destination_dir)
+{
+	bstone::logger_->write();
+	bstone::logger_->write("<<< ================");
+	bstone::logger_->write("Extracting text.");
+	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
+
+	auto text_extractor = TextExtractor{};
+	text_extractor.extract_text(ca_normalize_path(destination_dir));
+
+	bstone::logger_->write(">>> ================");
+}
+
+void ca_extract_all(
+	const std::string& destination_dir)
+{
+	ca_extract_walls(destination_dir);
+	ca_extract_sprites(destination_dir);
+	ca_extract_music(destination_dir);
+	ca_extract_sfx(destination_dir);
+	ca_extract_texts(destination_dir);
 }

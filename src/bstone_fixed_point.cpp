@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -67,6 +67,11 @@ FixedPoint::Value& FixedPoint::get_value()
 FixedPoint::Value FixedPoint::get_value() const
 {
 	return value_;
+}
+
+float FixedPoint::to_float() const
+{
+	return static_cast<float>(get_int()) + (static_cast<float>(get_frac()) / static_cast<float>(max_frac));
 }
 
 double FixedPoint::to_double() const

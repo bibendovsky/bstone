@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -102,6 +102,7 @@ Free Software Foundation, Inc.,
 
 
 #include <cstring>
+
 #include "audio.h"
 #include "id_ca.h"
 #include "id_heads.h"
@@ -132,6 +133,10 @@ void draw_wall_ui(
 	const int x,
 	const int y,
 	const void* raw_wall);
+
+
+static auto tp_handle_codes_can_peek_prev_2 = false;
+static const char* first_ch_copy = nullptr;
 
 
 // string array table is a quick, easy and expandable way to print
@@ -2013,6 +2018,8 @@ void TP_Presenter(
 		cur_y = yl;
 	}
 	first_ch = pi->script[0];
+	first_ch_copy = first_ch;
+
 	pi->pagenum = 0;
 	numanims = 0;
 	disp_str_num = -1;
@@ -2025,6 +2032,7 @@ void TP_Presenter(
 	flags = fl_presenting | fl_startofline;
 	if (*first_ch == TP_CONTROL_CHAR)
 	{
+		tp_handle_codes_can_peek_prev_2 = ((first_ch - first_ch_copy) >= 2);
 		TP_HandleCodes();
 	}
 
@@ -2077,6 +2085,7 @@ void TP_Presenter(
 	{
 		if (*first_ch == TP_CONTROL_CHAR)
 		{
+			tp_handle_codes_can_peek_prev_2 = ((first_ch - first_ch_copy) >= 2);
 			TP_HandleCodes();
 		}
 		else
@@ -2290,7 +2299,8 @@ void TP_HandleCodes()
 	std::int16_t old_bgcolor = 0;
 	std::int8_t c;
 
-	if ((first_ch[-2] == TP_RETURN_CHAR) && (first_ch[-1] == '\n'))
+	if (tp_handle_codes_can_peek_prev_2 &&
+		(first_ch[-2] == TP_RETURN_CHAR) && (first_ch[-1] == '\n'))
 	{
 		flags |= fl_startofline;
 	}
@@ -2756,9 +2766,9 @@ void TP_HandleCodes()
 			// BELL -------------------------------------------------------------
 			//
 		case TP_CNVT_CODE('B', 'E'):
-			::sd_play_player_sound(TERM_BEEPSND, bstone::ActorChannel::item);
+			sd_play_player_sound(TERM_BEEPSND, bstone::ActorChannel::item);
 
-			SD_WaitSoundDone();
+			sd_wait_sound_done();
 			break;
 
 			// HIDE CURSOR ------------------------------------------------------
@@ -2824,7 +2834,7 @@ void TP_HandleCodes()
 			disp_str_num = TP_VALUE(first_ch, 2);
 			if (disp_str_num >= PI_MAX_NUM_DISP_STRS)
 			{
-				::Quit("String number exceeds max array size.");
+				Quit("String number exceeds max array size.");
 			}
 
 			old_first_ch = first_ch + 2;
@@ -2833,10 +2843,13 @@ void TP_HandleCodes()
 
 			if (first_ch)
 			{
+				first_ch_copy = first_ch;
+
 				while (flags & fl_presenting && *first_ch)
 				{
 					if (*first_ch == TP_CONTROL_CHAR)
 					{
+						tp_handle_codes_can_peek_prev_2 = ((first_ch - first_ch_copy) >= 2);
 						TP_HandleCodes();
 					}
 					else
@@ -2869,7 +2882,7 @@ void TP_HandleCodes()
 			if ((temp < LASTSOUND))
 			{
 				TP_CacheIn(ct_scaled, 0);
-				::sd_play_player_sound(temp, bstone::ActorChannel::item);
+				sd_play_player_sound(temp, bstone::ActorChannel::item);
 			}
 			first_ch += 2;
 			break;
@@ -2967,6 +2980,7 @@ void TP_HandleCodes()
 				cur_y = yh - font_height;
 			}
 			first_ch = pi->script[static_cast<int>(pi->pagenum)];
+			first_ch_copy = first_ch;
 
 			numanims = 0;
 			TP_PurgeAllGfx();
@@ -2974,6 +2988,7 @@ void TP_HandleCodes()
 
 			if (*first_ch == TP_CONTROL_CHAR)
 			{
+				tp_handle_codes_can_peek_prev_2 = ((first_ch - first_ch_copy) >= 2);
 				TP_HandleCodes();
 				flags &= ~fl_startofline;
 			}
@@ -3076,8 +3091,8 @@ std::int16_t TP_DrawShape(
 	switch (shapetype)
 	{
 	case pis_scwall:
-		::TP_CacheIn(ct_scaled, 0);
-		addr = ::PM_GetPage(shapenum);
+		TP_CacheIn(ct_scaled, 0);
+		addr = PM_GetPage(shapenum);
 
 		draw_wall_ui(
 			x,
@@ -3093,7 +3108,7 @@ std::int16_t TP_DrawShape(
 			VWB_Bar(x, y, 64, 64, static_cast<std::uint8_t>(bgcolor));
 		}
 
-		::vid_draw_ui_sprite(shapenum, x + 32, y + 32, bstone::Sprite::side);
+		vid_draw_ui_sprite(shapenum, x + 32, y + 32, bstone::Sprite::dimension);
 		break;
 
 	case pis_latchpic:
@@ -3314,7 +3329,7 @@ void TP_CachePage(
 
 				if (num_anims++ == TP_MAX_ANIMS)
 				{
-					::Quit("Too many anims on one page.");
+					Quit("Too many anims on one page.");
 				}
 
 				anim = &piAnimTable[shapenum];
@@ -3506,7 +3521,7 @@ bool TP_SlowPrint(
 		{
 			if (*string != ' ')
 			{
-				::sd_play_player_sound(TERM_TYPESND, bstone::ActorChannel::item);
+				sd_play_player_sound(TERM_TYPESND, bstone::ActorChannel::item);
 			}
 		}
 
@@ -3558,7 +3573,7 @@ std::int32_t TP_LoadScript(
 
 		if (!p)
 		{
-			::Quit("Can't find the ^XX doc terminator string.");
+			Quit("Can't find the ^XX doc terminator string.");
 		}
 		size = static_cast<std::int32_t>(p - static_cast<const char*>(p_i->scriptstart) - 1);
 	}
@@ -3633,7 +3648,7 @@ void TP_InitScript(
 				}
 				else
 				{
-					::Quit("Too many pages in presenter.");
+					Quit("Too many pages in presenter.");
 				}
 				break;
 			}

@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -23,11 +23,13 @@ Free Software Foundation, Inc.,
 
 
 #include <cstring>
+
 #include "audio.h"
 #include "id_ca.h"
 #include "id_heads.h"
 #include "id_sd.h"
 #include "id_us.h"
+#include "id_vl.h"
 
 
 // ===========================================================================
@@ -283,7 +285,7 @@ statobj_t* FindEmptyStatic()
 {
 	statobj_t* spot;
 
-	for (spot = &statobjlist[0];; spot++)
+	for (spot = &statobjlist[0]; ; ++spot)
 	{
 		if (spot == laststatobj)
 		{
@@ -291,12 +293,15 @@ statobj_t* FindEmptyStatic()
 			{
 				return nullptr;
 			}
-			laststatobj++; // space at end
+
+			++laststatobj; // space at end
+
 			break;
 		}
 
 		if (spot->shapenum == -1)
-		{ // -1 is a free spot
+		{
+			// -1 is a free spot
 			break;
 		}
 	}
@@ -304,7 +309,7 @@ statobj_t* FindEmptyStatic()
 	return spot;
 }
 
-void SpawnStatic(
+statobj_t* SpawnStatic(
 	std::int16_t tilex,
 	std::int16_t tiley,
 	std::int16_t type)
@@ -317,7 +322,7 @@ void SpawnStatic(
 
 	if (!spot)
 	{
-		return;
+		return nullptr;
 	}
 
 	spot->shapenum = statinfo[type].picnum;
@@ -353,7 +358,7 @@ void SpawnStatic(
 	case bo_gold_key:
 		if (assets_info.is_ps())
 		{
-			::Quit("Green/Gold key (AOG) at (" + std::to_string(tilex) + ", " + std::to_string(tiley) + ").");
+			Quit("Green/Gold key (AOG) at (" + std::to_string(tilex) + ", " + std::to_string(tiley) + ").");
 		}
 		TravelTable[tilex][tiley] |= TT_KEYS;
 		spot->flags = FL_BONUS;
@@ -363,7 +368,7 @@ void SpawnStatic(
 	case bo_plasma_detonator:
 		if (!assets_info.is_ps())
 		{
-			::Quit("Plasma detonator (PS) at (" + std::to_string(tilex) + ", " + std::to_string(tiley) + ").");
+			Quit("Plasma detonator (PS) at (" + std::to_string(tilex) + ", " + std::to_string(tiley) + ").");
 		}
 		TravelTable[tilex][tiley] |= TT_KEYS;
 		spot->flags = FL_BONUS;
@@ -411,12 +416,16 @@ void SpawnStatic(
 
 	spot->areanumber = GetAreaNumber(spot->tilex, spot->tiley);
 
-	spot++;
+	auto result = spot;
+
+	++spot;
 
 	if (spot == &statobjlist[MAXSTATS])
 	{
-		::Quit("Too many static objects.");
+		Quit("Too many static objects.");
 	}
+
+	return result;
 }
 
 // ---------------------------------------------------------------------------
@@ -431,7 +440,7 @@ statobj_t* ReserveStatic()
 
 	if (!spot)
 	{
-		::Quit("Too many static objects.");
+		Quit("Too many static objects.");
 	}
 
 	// Mark as Used.
@@ -485,7 +494,7 @@ statobj_t* UseReservedStatic(
 
 	if (!spot)
 	{
-		::Quit("Count not find a reserved static at location (0, 0) with shape #1.");
+		Quit("Count not find a reserved static at location (0, 0) with shape #1.");
 	}
 
 	//
@@ -496,7 +505,7 @@ statobj_t* UseReservedStatic(
 	{
 		if (statinfo[type].picnum == -1)
 		{ // End of Static List...
-			::Quit("Couldn't find type.");
+			Quit("Couldn't find type.");
 		}
 
 		if (statinfo[type].type == itemtype)
@@ -589,7 +598,7 @@ void PlaceItemType(
 	{
 		if (statinfo[type].picnum == -1)
 		{ // end of list
-			::Quit("Couldn't find type.");
+			Quit("Couldn't find type.");
 		}
 		if (statinfo[type].type == itemtype)
 		{
@@ -711,6 +720,8 @@ void ExplodeStatics(
 					// Remove static
 					spot->shapenum = -1;
 					spot->itemnumber = bo_nothing;
+
+					vid_hw_on_remove_static(*spot);
 				}
 			}
 		}
@@ -819,7 +830,7 @@ void SpawnDoor(
 
 	if (doornum == 64)
 	{
-		::Quit("Too many doors in level.");
+		Quit("Too many doors in level.");
 	}
 
 	doorposition[doornum] = 0; // doors start out fully closed
@@ -924,11 +935,17 @@ void CheckLinkedDoors(
 		case dr_opening:
 			doorobjlist[door_index].lock = kt_none;
 			OpenDoor(door_index);
+
+			vid_hw_on_update_door_lock(door_index);
+
 			break;
 
 		case dr_closing:
 			doorobjlist[door_index].lock = kt_none;
 			CloseDoor(door_index);
+
+			vid_hw_on_update_door_lock(door_index);
+
 			break;
 		}
 	}
@@ -1020,12 +1037,12 @@ void CloseDoor(
 				return;
 			}
 		}
-		check = ::get_actor_near_door(tilex - 1, tiley);
+		check = get_actor_near_door(tilex - 1, tiley);
 		if (check && ((check->x + MINDIST) >> TILESHIFT) == tilex)
 		{
 			return;
 		}
-		check = ::get_actor_near_door(tilex + 1, tiley);
+		check = get_actor_near_door(tilex + 1, tiley);
 		if (check && ((check->x - MINDIST) >> TILESHIFT) == tilex)
 		{
 			return;
@@ -1044,12 +1061,12 @@ void CloseDoor(
 				return;
 			}
 		}
-		check = ::get_actor_near_door(tilex, tiley - 1);
+		check = get_actor_near_door(tilex, tiley - 1);
 		if (check && ((check->y + MINDIST) >> TILESHIFT) == tiley)
 		{
 			return;
 		}
-		check = ::get_actor_near_door(tilex, tiley + 1);
+		check = get_actor_near_door(tilex, tiley + 1);
 		if (check && ((check->y - MINDIST) >> TILESHIFT) == tiley)
 		{
 			return;
@@ -1069,12 +1086,12 @@ void CloseDoor(
 		case dr_office:
 		case dr_space:
 		case dr_normal:
-			::sd_play_door_sound(
+			sd_play_door_sound(
 				HTECHDOORCLOSESND, &doorobjlist[door]);
 			break;
 
 		default:
-			::sd_play_door_sound(CLOSEDOORSND, &doorobjlist[door]);
+			sd_play_door_sound(CLOSEDOORSND, &doorobjlist[door]);
 			break;
 		}
 	}
@@ -1175,7 +1192,7 @@ void OperateDoor(
 		if (doorobjlist[door].action == dr_closed)
 		{
 			DISPLAY_TIMED_MSG(od_oneway, MP_DOOR_OPERATE, MT_GENERAL);
-			::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
+			sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
 		}
 
 		return;
@@ -1190,7 +1207,7 @@ void OperateDoor(
 	{
 		if (!(gamestate.numkeys[lock - kt_red]))
 		{
-			::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
+			sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
 
 			switch (lock)
 			{
@@ -1226,6 +1243,8 @@ void OperateDoor(
 			TakeKey(lock - kt_red);
 			DISPLAY_TIMED_MSG(od_granted, MP_DOOR_OPERATE, MT_GENERAL);
 			doorobjlist[door].lock = kt_none;                           // UnLock door
+
+			vid_hw_on_update_door_lock(door);
 		}
 	}
 	else
@@ -1261,6 +1280,9 @@ void BlockDoorOpen(
 	actorat[doorobjlist[door].tilex][doorobjlist[door].tiley] = 0;
 
 	TransformAreas(doorobjlist[door].tilex, doorobjlist[door].tiley, 1);
+
+	vid_hw_on_move_door(door);
+	vid_hw_on_update_door_lock(door);
 }
 
 void TryBlastDoor(
@@ -1313,7 +1335,7 @@ void BlastNearDoors(
 
 void DropPlasmaDetonator()
 {
-	auto obj = ::MoveHiddenOfs(
+	auto obj = MoveHiddenOfs(
 		plasma_detonator_reserveobj,
 		plasma_detonatorobj,
 		player->x,
@@ -1324,13 +1346,13 @@ void DropPlasmaDetonator()
 		obj->flags |= FL_SHOOTABLE;
 
 		DISPLAY_TIMED_MSG(pd_dropped, MP_DOOR_OPERATE, MT_GENERAL);
-		::sd_play_actor_sound(ROBOT_SERVOSND, obj, bstone::ActorChannel::voice);
+		sd_play_actor_sound(ROBOT_SERVOSND, obj, bstone::ActorChannel::voice);
 
 		TakePlasmaDetonator(1);
 		return;
 	}
 
-	::Quit("Could not find Fision/Plasma Detonator reserve object.");
+	Quit("Could not find Fision/Plasma Detonator reserve object.");
 }
 
 // --------------------------------------------------------------------------
@@ -1367,7 +1389,7 @@ void TryDropPlasmaDetonator()
 
 	if (!obj)
 	{
-		::Quit("Cound not find security cube - Need to have one pal!");
+		Quit("Cound not find security cube - Need to have one pal!");
 	}
 
 	if (obj->areanumber != player->areanumber)
@@ -1433,7 +1455,7 @@ std::int16_t TransformAreas(
 	}
 	else
 	{
-		::Quit("Invalid linkable area.");
+		Quit("Invalid linkable area.");
 	}
 
 	// Define the two areas...
@@ -1441,13 +1463,13 @@ std::int16_t TransformAreas(
 	area1 = GetAreaNumber(static_cast<std::int8_t>(tilex + xofs), static_cast<std::int8_t>(tiley + yofs));
 	if (area1 >= NUMAREAS)
 	{
-		::Quit("Area1 out of table range.");
+		Quit("Area1 out of table range.");
 	}
 
 	area2 = GetAreaNumber(static_cast<std::int8_t>(tilex - xofs), static_cast<std::int8_t>(tiley - yofs));
 	if (area2 >= NUMAREAS)
 	{
-		::Quit("Area2 out of table range.");
+		Quit("Area2 out of table range.");
 	}
 
 	// Connect these two areas.
@@ -1478,12 +1500,12 @@ void DoorOpening(
 			case dr_office:
 			case dr_space:
 			case dr_normal:
-				::sd_play_door_sound(
+				sd_play_door_sound(
 					HTECHDOOROPENSND, &doorobjlist[door]);
 				break;
 
 			default:
-				::sd_play_door_sound(OPENDOORSND, &doorobjlist[door]);
+				sd_play_door_sound(OPENDOORSND, &doorobjlist[door]);
 				break;
 			}
 		}
@@ -1505,6 +1527,8 @@ void DoorOpening(
 	}
 
 	doorposition[door] = static_cast<std::uint16_t>(position);
+
+	vid_hw_on_move_door(door);
 }
 
 void DoorClosing(
@@ -1538,6 +1562,8 @@ void DoorClosing(
 	}
 
 	doorposition[door] = static_cast<std::uint16_t>(position);
+
+	vid_hw_on_move_door(door);
 }
 
 /*
@@ -1676,39 +1702,35 @@ void PushWall(
 	tilemap[pwallx][pwally] |= 0xc0;
 	*(mapsegs[1] + farmapylookup[pwally] + pwallx) = 0; // remove P tile info
 
-	::sd_play_wall_sound(PUSHWALLSND);
+	sd_play_wall_sound(PUSHWALLSND);
 }
 
 void MovePWalls()
 {
-	std::int16_t oldblock, oldtile;
-
-	if (!pwallstate)
+	if (pwallstate == 0)
 	{
 		return;
 	}
 
-	oldblock = pwallstate / 128;
+	const auto oldblock = pwallstate / 128;
 
 	pwallstate += tics * 4;
 
-	if (pwallstate / 128 != oldblock)
+	if ((pwallstate / 128) != oldblock)
 	{
-		std::uint16_t areanumber;
-
-		pwalldist--;
+		--pwalldist;
 
 		// block crossed into a new block
-		oldtile = tilemap[pwallx][pwally] & 63;
+		const auto oldtile = tilemap[pwallx][pwally] & 63;
 
 		//
 		// the tile can now be walked into
 		//
 		tilemap[pwallx][pwally] = 0;
-
 		actorat[pwallx][pwally] = nullptr;
 
-		areanumber = GetAreaNumber(player->tilex, player->tiley);
+		std::uint16_t areanumber = GetAreaNumber(player->tilex, player->tiley);
+
 		if (GAN_HiddenArea)
 		{
 			areanumber += HIDDENAREATILE;
@@ -1717,78 +1739,97 @@ void MovePWalls()
 		{
 			areanumber += AREATILE;
 		}
-		*(mapsegs[0] + farmapylookup[pwally] + pwallx) = areanumber;
+
+		mapsegs[0][farmapylookup[pwally] + pwallx] = areanumber;
 
 		//
 		// see if it should be pushed farther
 		//
-		if (!pwalldist)
+		const auto old_x = pwallx;
+		const auto old_y = pwally;
+
+		auto next_dx = 0;
+		auto next_dy = 0;
+
+		switch (pwalldir)
+		{
+		case di_north:
+			next_dy = -1;
+			break;
+
+		case di_east:
+			next_dx = 1;
+			break;
+
+		case di_south:
+			next_dy = 1;
+			break;
+
+		case di_west:
+			next_dx = -1;
+			break;
+
+		default:
+			Quit("Invalid pushwall direction.");
+			break;
+		}
+
+		if (pwalldist == 0)
 		{
 			//
 			// the block has been pushed two tiles
 			//
 			pwallstate = 0;
+			pwallpos = 0;
+
+			pwallx += next_dx;
+			pwally += next_dy;
+
+			vid_hw_on_step_pushwall(old_x, old_y);
+
+			pwallpos = 63;
+
 			return;
 		}
 		else
 		{
-			switch (pwalldir)
+			pwallx += static_cast<std::uint16_t>(next_dx);
+			pwally += static_cast<std::uint16_t>(next_dy);
+
+			vid_hw_on_step_pushwall(old_x, old_y);
+
+			const auto next_x = pwallx + next_dx;
+			const auto next_y = pwally + next_dy;
+
+			auto& next_actorat = actorat[next_x][next_y];
+
+			if (next_actorat)
 			{
-			case di_north:
-				pwally--;
-				if (actorat[pwallx][pwally - 1])
-				{
-					pwallstate = 0;
-					return;
-				}
+				pwallstate = 0;
+				pwallpos = 63;
 
-				tilemap[pwallx][pwally - 1] = static_cast<std::uint8_t>(oldtile);
-				actorat[pwallx][pwally - 1] = reinterpret_cast<objtype*>(oldtile);
-				break;
+				vid_hw_on_step_pushwall(pwallx, pwally);
 
-			case di_east:
-				pwallx++;
-				if (actorat[pwallx + 1][pwally])
-				{
-					pwallstate = 0;
-					return;
-				}
+				vid_hw_on_pushwall_to_wall(
+					pwallx,
+					pwally,
+					pwallx,
+					pwally
+				);
 
-				tilemap[pwallx + 1][pwally] = static_cast<std::uint8_t>(oldtile);
-				actorat[pwallx + 1][pwally] = reinterpret_cast<objtype*>(oldtile);
-				break;
-
-			case di_south:
-				pwally++;
-				if (actorat[pwallx][pwally + 1])
-				{
-					pwallstate = 0;
-					return;
-				}
-
-				tilemap[pwallx][pwally + 1] = static_cast<std::uint8_t>(oldtile);
-				actorat[pwallx][pwally + 1] = reinterpret_cast<objtype*>(oldtile);
-				break;
-
-			case di_west:
-				pwallx--;
-				if (actorat[pwallx - 1][pwally])
-				{
-					pwallstate = 0;
-					return;
-				}
-
-				tilemap[pwallx - 1][pwally] = static_cast<std::uint8_t>(oldtile);
-				actorat[pwallx - 1][pwally] = reinterpret_cast<objtype*>(oldtile);
-				break;
+				return;
 			}
 
-			tilemap[pwallx][pwally] = static_cast<std::uint8_t>(oldtile | 0xc0);
+			tilemap[next_x][next_y] = static_cast<std::uint8_t>(oldtile);
+			next_actorat = reinterpret_cast<objtype*>(static_cast<std::uintptr_t>(oldtile));
+
+			tilemap[pwallx][pwally] = static_cast<std::uint8_t>(oldtile | 0xC0);
 		}
 	}
 
-
 	pwallpos = (pwallstate / 2) & 63;
+
+	vid_hw_on_move_pushwall();
 }
 
 // ==========================================================================
@@ -1888,7 +1929,7 @@ std::int16_t LoadMsg(
 
 		if (!Message)
 		{
-			::Quit("Invalid 'Cached Message' number");
+			Quit("Invalid 'Cached Message' number");
 		}
 
 		Message += 3;           // Bump to start of next Message
@@ -1905,7 +1946,7 @@ std::int16_t LoadMsg(
 	//
 	if ((EndOfMsg = strstr(Message, msg_xx)) == nullptr)
 	{
-		::Quit("Invalid 'Cached Message' number");
+		Quit("Invalid 'Cached Message' number");
 	}
 	EndOfMsg += 3;
 
@@ -1920,7 +1961,7 @@ std::int16_t LoadMsg(
 
 		if (pos >= MaxMsgLen)
 		{
-			::Quit("Cached Hint Message is to Long for allocated space.");
+			Quit("Cached Hint Message is to Long for allocated space.");
 		}
 
 		Message++;
@@ -1956,7 +1997,7 @@ void SpawnConcession(
 
 	if (ConHintList.NumMsgs >= MAXCONCESSIONS)
 	{
-		::Quit("Too many concession machines in level.");
+		Quit("Too many concession machines in level.");
 	}
 
 	if (credits != PUSHABLETILE)
@@ -1976,7 +2017,7 @@ void SpawnConcession(
 	//
 	if (++ConHintList.NumMsgs > MAX_CACHE_MSGS)
 	{
-		::Quit("(CONCESSIONS) Too many 'cached msgs' loaded.");
+		Quit("(CONCESSIONS) Too many 'cached msgs' loaded.");
 	}
 
 	actorat[static_cast<int>(tilex)][static_cast<int>(tiley)] = reinterpret_cast<objtype*>(ConHintList.NumMsgs);
@@ -2041,7 +2082,7 @@ void OperateConcession(
 			if (gamestate.health == 100)
 			{
 				DISPLAY_TIMED_MSG(noeat_msg1, MP_CONCESSION_OPERATE, MT_GENERAL);
-				::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::item);
+				sd_play_player_sound(NOWAYSND, bstone::ActorChannel::item);
 
 				return;
 			}
@@ -2066,7 +2107,7 @@ void OperateConcession(
 			if (!gamestate.tokens)
 			{
 				DISPLAY_TIMED_MSG(NoFoodTokens, MP_NO_MORE_TOKENS, MT_NO_MO_FOOD_TOKENS);
-				::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::item);
+				sd_play_player_sound(NOWAYSND, bstone::ActorChannel::item);
 
 				return;
 			}
@@ -2076,14 +2117,14 @@ void OperateConcession(
 			}
 
 			ci->mInfo.local_val--;
-			::sd_play_player_sound(CONCESSIONSSND, bstone::ActorChannel::item);
+			sd_play_player_sound(CONCESSIONSSND, bstone::ActorChannel::item);
 
 			switch (ci->type)
 			{
 			case CT_FOOD:
 				if (assets_info.is_ps())
 				{
-					::writeTokenStr(food_msg1);
+					writeTokenStr(food_msg1);
 				}
 
 				DISPLAY_TIMED_MSG(food_msg1, MP_CONCESSION_OPERATE, MT_GENERAL);
@@ -2093,7 +2134,7 @@ void OperateConcession(
 			case CT_BEVS:
 				if (assets_info.is_ps())
 				{
-					::writeTokenStr(bevs_msg1);
+					writeTokenStr(bevs_msg1);
 				}
 
 				DISPLAY_TIMED_MSG(bevs_msg1, MP_CONCESSION_OPERATE, MT_GENERAL);
@@ -2106,7 +2147,7 @@ void OperateConcession(
 	else
 	{
 		DISPLAY_TIMED_MSG(OutOrder, MP_CONCESSION_OUT_ORDER, MT_GENERAL);
-		::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::item);
+		sd_play_player_sound(NOWAYSND, bstone::ActorChannel::item);
 	}
 }
 
@@ -2218,14 +2259,14 @@ void CheckSpawnEA()
 		usedummy = true;
 		SpawnStand(en_electro_alien, temp.tilex, temp.tiley, 0);
 
-		::sd_play_actor_sound(ELECAPPEARSND, new_actor, bstone::ActorChannel::item);
+		sd_play_actor_sound(ELECAPPEARSND, new_actor, bstone::ActorChannel::item);
 
 		usedummy = false;
 		if (new_actor != &dummyobj)
 		{
 			eaList[static_cast<int>(loop)].aliens_out++;
 			new_actor->temp2 = loop;
-			::sd_play_actor_sound(ELECAPPEARSND, new_actor, bstone::ActorChannel::item);
+			sd_play_actor_sound(ELECAPPEARSND, new_actor, bstone::ActorChannel::item);
 		}
 
 		// Reset spawn delay.

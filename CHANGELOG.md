@@ -1,6 +1,54 @@
 # BStone changelog
 
 
+## [1.2.0] - 2020-05-09
+### Added
+- 3D-renderer (OpenGL backend).
+- Menu to control video mode.
+- Menu to control texturing.
+- [RHW] Texture upscale filter (xBRZ).
+- Option `snd_is_disabled` to ignore audio subsystem.
+- Option `vid_is_positioned` to control position of the window.
+- Option `vid_is_widescreen` to control widescreen mode.
+- Option `vid_is_ui_stretched` to control UI stretching.
+- Option `vid_2d_texture_filter` to control texturing filter for UI.
+- Option `vid_3d_texture_image_filter` to control texturing image filter for the scene.
+- Option `vid_3d_texture_mipmap_filter` to control texturing mipmap filter for the scene.
+- Option `vid_3d_texture_anisotropy` to control anisotropy filter for the scene.
+- Option `vid_texture_upscale_filter` to select texturing upscale filter.
+- Option `vid_texture_upscale_xbrz_degree` to control degree of xBRZ filter.
+- Option `vid_aa_kind` to select anti-aliasing mode.
+- Option `vid_aa_degree` to select anti-aliasing degree.
+- Option `calculate_hashes` to calculate hashes of resource files.
+- Option `extract_walls` to extract graphics resources (wall, flooring, etc.).
+- Option `extract_sprites` to extract graphics resources (actors, decorations, etc.).
+- Option `extract_music` to extract music resources.
+- Option `extract_sfx` to extract sfx resources.
+- Option `extract_texts` to extract text resources.
+- Option `extract_all` to extract all resources.
+- Generic instruction on how to compile on Linux-based system.
+
+### Removed
+- Option `vid_scale`.
+- Vanilla input bindings and related menu items.
+
+### Changed
+- Renamed option `vid_windowed` to `vid_is_windowed`.
+- Renamed option `vid_window_x` to `vid_x`.
+- Renamed option `vid_window_y` to `vid_y`.
+- Renamed option `debug_dump_hashes` to `calculate_hashes`.
+- Split option `vid_mode` into `vid_width` and `vid_height`.
+- Renamed option `vid_no_vsync` to `vid_vsync`.
+- Values of option `vid_renderer`.
+- Serializing barrier switches.
+- Disabled music caching.
+- Reduced volume factor of OPL sounds.
+- Saved games are not compatible with previous versions.
+
+### Fixed
+- Audio normalization.
+
+
 ## [1.1.16] - 2020-02-01
 ### Fixed
 - Removed some checks on barriers (by bibendovsky).

@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -23,6 +23,7 @@ Free Software Foundation, Inc.,
 
 
 #include <cstring>
+
 #include "id_ca.h"
 #include "id_in.h"
 #include "id_vh.h"
@@ -238,21 +239,21 @@ void LoadLatchMem()
 	// Calculate total size of latches cache.
 	//
 	const auto tile8_total_size =
-		::STARTTILE8 * 8 * 8;
+		STARTTILE8 * 8 * 8;
 
 	int pics_total_size = 0;
 
-	for (int i = ::LATCHPICS_LUMP_START; i <= ::LATCHPICS_LUMP_END; ++i)
+	for (int i = LATCHPICS_LUMP_START; i <= LATCHPICS_LUMP_END; ++i)
 	{
-		const auto width = pictable[i - ::STARTPICS].width;
-		const auto height = pictable[i - ::STARTPICS].height;
+		const auto width = pictable[i - STARTPICS].width;
+		const auto height = pictable[i - STARTPICS].height;
 
 		pics_total_size += width * height;
 	}
 
 	const auto latches_cache_size = tile8_total_size + pics_total_size;
 
-	::latches_cache.resize(
+	latches_cache.resize(
 		latches_cache_size);
 
 
@@ -262,40 +263,40 @@ void LoadLatchMem()
 	//
 	// tile 8s
 	//
-	::latchpics[picnum++] = destoff;
-	::CA_CacheGrChunk(::STARTTILE8);
-	auto src = static_cast<const std::uint8_t*>(::grsegs[::STARTTILE8]);
+	latchpics[picnum++] = destoff;
+	CA_CacheGrChunk(STARTTILE8);
+	auto src = static_cast<const std::uint8_t*>(grsegs[STARTTILE8]);
 
-	for (int i = 0; i < ::NUMTILE8; ++i)
+	for (int i = 0; i < NUMTILE8; ++i)
 	{
-		::VL_MemToLatch(src, 8, 8, destoff);
+		VL_MemToLatch(src, 8, 8, destoff);
 		src += 64;
 		destoff += 64;
 	}
 
-	::UNCACHEGRCHUNK(::STARTTILE8);
+	UNCACHEGRCHUNK(STARTTILE8);
 
 	//
 	// pics
 	//
 	++picnum;
 
-	for (int i = ::LATCHPICS_LUMP_START; i <= ::LATCHPICS_LUMP_END; ++i)
+	for (int i = LATCHPICS_LUMP_START; i <= LATCHPICS_LUMP_END; ++i)
 	{
-		const auto width = pictable[i - ::STARTPICS].width;
-		const auto height = pictable[i - ::STARTPICS].height;
+		const auto width = pictable[i - STARTPICS].width;
+		const auto height = pictable[i - STARTPICS].height;
 
-		::CA_CacheGrChunk(i);
+		CA_CacheGrChunk(static_cast<std::int16_t>(i));
 
-		::VL_MemToLatch(
-			static_cast<const std::uint8_t*>(::grsegs[i]),
+		VL_MemToLatch(
+			static_cast<const std::uint8_t*>(grsegs[i]),
 			width,
 			height,
 			destoff);
 
-		::UNCACHEGRCHUNK(i);
+		UNCACHEGRCHUNK(i);
 
-		::latchpics[picnum++] = destoff;
+		latchpics[picnum++] = destoff;
 		destoff += width * height;
 	}
 }

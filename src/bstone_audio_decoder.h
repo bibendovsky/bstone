@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 //
-// Base class for audio decoding.
+// Audio decoder interface.
 //
 
 
@@ -33,32 +33,51 @@ Free Software Foundation, Inc.,
 
 #include <cstdint>
 
+#include <memory>
+
+#include "bstone_opl3.h"
+
 
 namespace bstone
 {
 
 
-// Base class for audio decoding.
+constexpr auto audio_decoder_pcm_fixed_frequency = 7'000;
+
+
+enum class AudioDecoderType
+{
+	none,
+	adlib_music,
+	adlib_sfx,
+	pcm,
+}; // AudioDecoderType
+
+
+//
+// Audio decoder interface.
+//
 class AudioDecoder
 {
 public:
-	AudioDecoder();
+	AudioDecoder() = default;
 
-	virtual ~AudioDecoder();
+	virtual ~AudioDecoder() = default;
+
 
 	// Initializes the instance.
 	// Returns false on error.
 	virtual bool initialize(
 		const void* const src_raw_data,
 		const int src_raw_size,
-		const int dst_rate);
+		const int dst_rate) = 0;
 
 	// Uninitializes the instance.
-	virtual void uninitialize();
+	virtual void uninitialize() = 0;
 
 	// Returns true if the instance is initialized or
 	// false otherwise.
-	bool is_initialized() const;
+	virtual bool is_initialized() const noexcept = 0;
 
 	// Decodes specified number of samples into a provided buffer.
 	// Returns a number of decoded samples.
@@ -67,37 +86,18 @@ public:
 		std::int16_t* const dst_data) = 0;
 
 	// Resets the instance.
-	virtual bool reset() = 0;
-
-	// Creates a clone of the instance.
-	virtual AudioDecoder* clone() = 0;
-
-	// Returns an output sample rate.
-	int get_dst_rate() const;
+	virtual bool rewind() = 0;
 
 	// Returns a length of the audio data in samples.
-	int get_dst_length_in_samples() const;
-
-
-protected:
-	const void* get_raw_data() const;
-
-	int get_raw_size() const;
-
-	void set_is_initialized(
-		const bool value);
-
-	void set_dst_length_in_samples(
-		const int value);
-
-
-private:
-	bool is_initialized_;
-	const void* raw_data_;
-	int raw_size_;
-	int dst_rate_;
-	int dst_length_in_samples_;
+	virtual int get_dst_length_in_samples() const noexcept = 0;
 }; // AudioDecoder
+
+using AudioDecoderUPtr = std::unique_ptr<AudioDecoder>;
+
+
+AudioDecoderUPtr make_audio_decoder(
+	const AudioDecoderType audio_decoder_type,
+	const Opl3Type opl3_type);
 
 
 } // bstone

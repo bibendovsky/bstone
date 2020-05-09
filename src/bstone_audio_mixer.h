@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -27,6 +27,8 @@ Free Software Foundation, Inc.,
 
 
 #include <memory>
+
+#include "bstone_opl3.h"
 
 
 namespace bstone
@@ -79,12 +81,25 @@ public:
 
 	// Note: Mix size in milliseconds.
 	bool initialize(
+		const Opl3Type opl3_type,
 		const int dst_rate,
 		const int mix_size_ms);
 
 	void uninitialize();
 
 	bool is_initialized() const;
+
+	Opl3Type get_opl3_type() const;
+
+	int get_rate() const;
+
+	int get_channel_count() const;
+
+	int get_mix_size_ms() const;
+
+	float get_sfx_volume() const;
+
+	float get_music_volume() const;
 
 	bool play_adlib_music(
 		const int music_index,

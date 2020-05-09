@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 //
-// A base class for AdLib audio decoding.
+// AdLib audio decoder common tasks.
 //
 
 
@@ -31,45 +31,55 @@ Free Software Foundation, Inc.,
 #define BSTONE_ADLIB_DECODER_INCLUDED
 
 
-#include "bstone_audio_decoder.h"
-#include "bstone_opl2.h"
-
-
 namespace bstone
 {
 
 
-// A base class for AdLib audio decoding.
-class AdlibDecoder :
-	public AudioDecoder
+class Opl3;
+
+
+namespace adlib
 {
-public:
-	AdlibDecoder();
-
-	~AdlibDecoder() override;
-
-	bool initialize(
-		const void* raw_data,
-		int raw_size,
-		int dst_rate) override;
-
-	void uninitialize() override;
-
-	bool reset() override;
 
 
-protected:
-	Opl2 emulator_;
+// Channel stuff.
+//
+
+constexpr auto al_freq_l = 0xA0;
+constexpr auto al_freq_h = 0xB0;
+constexpr auto al_feed_con = 0xC0;
 
 
-	void set_emulator_default_state();
+struct Instrument
+{
+	int m_char_;
+	int c_char_;
+	int m_scale_;
+	int c_scale_;
+	int m_attack_;
+	int c_attack_;
+	int m_sus_;
+	int c_sus_;
+	int m_wave_;
+	int c_wave_;
+}; // Instrument
 
 
-private:
-	void uninitialize_internal();
-}; // AdlibDecoder
+//
+// Initializes OPL3 emulator's registries.
+//
+bool initialize_registers(
+	Opl3* opl3);
+
+//
+// Initializes OPL3 emulator instrument's registries.
+//
+bool set_instrument(
+	Opl3* opl3,
+	const Instrument& instrument);
 
 
+} // adlib
 } // bstone
 
 

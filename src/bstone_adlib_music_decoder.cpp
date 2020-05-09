@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -23,30 +23,92 @@ Free Software Foundation, Inc.,
 
 
 //
-// A decoder for AdLib music.
+// AdLib music decoder.
 //
 
 
-#include "bstone_adlib_music_decoder.h"
+#include "bstone_precompiled.h"
+
+#include <algorithm>
+
+#include "bstone_adlib_decoder.h"
+#include "bstone_audio_decoder.h"
 #include "bstone_endian.h"
+#include "bstone_memory_binary_reader.h"
+#include "bstone_opl3.h"
 
 
 namespace bstone
 {
 
 
-AdlibMusicDecoder::AdlibMusicDecoder() :
+//
+// AdLib music decoder.
+//
+class AdlibMusicDecoder final :
+	public AudioDecoder
+{
+public:
+	AdlibMusicDecoder(
+		const Opl3Type opl3_type);
+
+	~AdlibMusicDecoder() override;
+
+	bool initialize(
+		const void* const raw_data,
+		const int raw_size,
+		const int dst_rate) override;
+
+	void uninitialize() override;
+
+	bool is_initialized() const noexcept override;
+
+	int decode(
+		const int dst_count,
+		std::int16_t* const dst_data) override;
+
+	bool rewind() override;
+
+	int get_dst_length_in_samples() const noexcept override;
+
+	// Returns a number of calls per second of
+	// original interrupt routine.
+	static int get_tick_rate();
+
+
+private:
+	Opl3UPtr emulator_;
+
+	bool is_initialized_;
+
+	MemoryBinaryReader reader_;
+	int commands_count_;
+	int command_index_;
+	int samples_per_tick_;
+	int remains_count_;
+
+	int dst_length_in_samples_;
+
+
+	void uninitialize_internal();
+}; // AdlibMusicDecoder
+
+
+AdlibMusicDecoder::AdlibMusicDecoder(
+	const Opl3Type opl3_type)
+	:
+	emulator_{make_opl3(opl3_type)},
+	is_initialized_{},
+	reader_{},
 	commands_count_{},
 	command_index_{},
 	samples_per_tick_{},
-	remains_count_{}
+	remains_count_{},
+	dst_length_in_samples_{}
 {
 }
 
-AdlibMusicDecoder::~AdlibMusicDecoder()
-{
-	uninitialize_internal();
-}
+AdlibMusicDecoder::~AdlibMusicDecoder() = default;
 
 bool AdlibMusicDecoder::initialize(
 	const void* const raw_data,
@@ -55,10 +117,27 @@ bool AdlibMusicDecoder::initialize(
 {
 	uninitialize();
 
-	if (!AdlibDecoder::initialize(raw_data, raw_size, dst_rate))
+	if (!emulator_)
 	{
 		return false;
 	}
+
+	if (!raw_data)
+	{
+		return false;
+	}
+
+	if (raw_size < 0)
+	{
+		return false;
+	}
+
+	if (dst_rate < 1)
+	{
+		return false;
+	}
+
+	emulator_->initialize(dst_rate);
 
 	static_cast<void>(reader_.open(raw_data, raw_size));
 
@@ -77,7 +156,7 @@ bool AdlibMusicDecoder::initialize(
 	command_index_ = 0;
 	commands_count_ = commands_size / 4;
 
-	samples_per_tick_ = emulator_.get_sample_rate() / get_tick_rate();
+	samples_per_tick_ = emulator_->get_sample_rate() / get_tick_rate();
 	remains_count_ = 0;
 
 	auto ticks_count = 0;
@@ -88,28 +167,33 @@ bool AdlibMusicDecoder::initialize(
 		ticks_count += bstone::Endian::little(reader_.read_u16());
 	}
 
-	set_dst_length_in_samples(ticks_count * samples_per_tick_);
+	dst_length_in_samples_ = ticks_count * samples_per_tick_;
 
 	reader_.set_position(2);
 
-	set_is_initialized(true);
+	is_initialized_ = true;
 
 	return true;
+}
+
+bool AdlibMusicDecoder::is_initialized() const noexcept
+{
+	return is_initialized_;
 }
 
 void AdlibMusicDecoder::uninitialize()
 {
 	uninitialize_internal();
-
-	AdlibDecoder::uninitialize();
 }
 
-bool AdlibMusicDecoder::reset()
+bool AdlibMusicDecoder::rewind()
 {
-	if (!AdlibDecoder::reset())
+	if (!emulator_->reset())
 	{
 		return false;
 	}
+
+	adlib::initialize_registers(emulator_.get());
 
 	reader_.set_position(2);
 
@@ -119,16 +203,16 @@ bool AdlibMusicDecoder::reset()
 	return true;
 }
 
-AudioDecoder* AdlibMusicDecoder::clone()
+int AdlibMusicDecoder::get_dst_length_in_samples() const noexcept
 {
-	return new AdlibMusicDecoder(*this);
+	return dst_length_in_samples_;
 }
 
 int AdlibMusicDecoder::decode(
 	const int dst_count,
 	std::int16_t* const dst_data)
 {
-	if (!is_initialized())
+	if (!is_initialized_)
 	{
 		return 0;
 	}
@@ -159,7 +243,7 @@ int AdlibMusicDecoder::decode(
 		{
 			int count = std::min(dst_remain_count, remains_count_);
 
-			emulator_.generate(count, &dst_data[dst_data_index]);
+			emulator_->generate(count, &dst_data[dst_data_index]);
 
 			dst_data_index += count;
 			dst_remain_count -= count;
@@ -177,7 +261,7 @@ int AdlibMusicDecoder::decode(
 
 				delay = bstone::Endian::little(reader_.read_u16());
 
-				emulator_.write(command_port, command_value);
+				emulator_->write(command_port, command_value);
 				++command_index_;
 			}
 
@@ -200,12 +284,34 @@ int AdlibMusicDecoder::get_tick_rate()
 
 void AdlibMusicDecoder::uninitialize_internal()
 {
+	if (emulator_)
+	{
+		emulator_->reset();
+	}
+
+	is_initialized_ = {};
 	reader_.close();
-	commands_count_ = 0;
-	command_index_ = 0;
-	samples_per_tick_ = 0;
-	remains_count_ = 0;
+	commands_count_ = {};
+	command_index_ = {};
+	samples_per_tick_ = {};
+	remains_count_ = {};
+
+	dst_length_in_samples_ = {};
 }
+
+
+namespace detail
+{
+
+
+AudioDecoderUPtr make_adlib_music_audio_decoder(
+	const Opl3Type opl3_type)
+{
+	return std::make_unique<AdlibMusicDecoder>(opl3_type);
+}
+
+
+} // detail
 
 
 } // bstone

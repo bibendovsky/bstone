@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -22,87 +22,95 @@ Free Software Foundation, Inc.,
 */
 
 
-//
-//      ID Engine
-//      ID_SD.c - Sound Manager for Wolfenstein 3D
-//      v1.3 (revised for **********, screwed with for Blake Stone)
-//      By Jason Blochowiak
-//
-
-//
-//      This module handles dealing with generating sound on the appropriate
-//              hardware
-//
-//      Depends on: User Mgr (for parm checking)
-//
-//      Globals:
-//              For User Mgr:
-//                      SoundSourcePresent - Sound Source thingie present?
-//                      SoundBlasterPresent - SoundBlaster card present?
-//                      AdLibPresent - AdLib card present?
-//                      SoundMode - What device is used for sound effects
-//                              (Use SM_SetSoundMode() to set)
-//                      MusicMode - What device is used for music
-//                              (Use SM_SetMusicMode() to set)
-//                      DigiMode - What device is used for digitized sound effects
-//                              (Use SM_SetDigiDevice() to set)
-//
-//              For Cache Mgr:
-//                      NeedsDigitized - load digitized sounds?
-//                      NeedsMusic - load music?
-//
-
-
 #include "id_sd.h"
+
 #include "audio.h"
 #include "id_ca.h"
 #include "id_heads.h"
 #include "id_pm.h"
 #include "bstone_audio_mixer.h"
 #include "bstone_endian.h"
+#include "bstone_logger.h"
 #include "bstone_memory_binary_reader.h"
 #include "bstone_string_helper.h"
 
-extern std::uint16_t sdStartPCSounds;
-extern std::uint16_t sdStartALSounds;
-extern std::int16_t sdLastSound;
-extern std::int16_t DigiMap[];
+
+std::uint16_t sd_start_pc_sounds_ = STARTPCSOUNDS;
+std::uint16_t sd_start_al_sounds_ = STARTADLIBSOUNDS;
+
+std::int16_t sd_last_sound_ = LASTSOUND;
+std::int16_t sd_digi_map_[LASTSOUND];
 
 
 // Global variables
-bool sd_has_audio = false;
-bool sd_is_sound_enabled = false;
-bool sd_is_music_enabled = false;
-std::atomic<std::uint32_t> TimeCount;
 
-std::uint8_t** SoundTable;
+bool sd_has_audio_ = false;
+bool sd_is_sound_enabled_ = false;
+bool sd_is_music_enabled_ = false;
+
+std::uint8_t** sd_sound_table_;
 
 // Internal variables
-static bool SD_Started;
-bool nextsoundpos;
 
-std::uint16_t* DigiList;
+static bool sd_started_;
+
+std::uint16_t* sd_digi_list_;
 
 // AdLib variables
-bool sqActive;
-std::uint16_t* sqHack;
-std::uint16_t sqHackLen;
-bool sqPlayedOnce;
+
+bool sd_sq_active_;
+std::uint16_t* sd_sq_hack_;
+std::uint16_t sd_sq_hack_len_;
+bool sd_sq_played_once_;
 
 // Internal routines
 
 // BBi
-static int music_index = -1;
-static bstone::AudioMixer mixer;
 
-int sd_sfx_volume = ::sd_default_sfx_volume;
-int sd_music_volume = ::sd_default_music_volume;
+static int sd_music_index_ = -1;
+static bstone::AudioMixer sd_mixer_;
+
+int sd_sfx_volume_ = sd_default_sfx_volume;
+int sd_music_volume_ = sd_default_music_volume;
+
+
+const std::string& sd_get_snd_string()
+{
+	static const auto result = std::string{"[SND]"};
+
+	return result;
+}
+
+void sd_log()
+{
+	bstone::logger_->write();
+}
+
+void sd_log(
+	const bstone::LoggerMessageKind message_kind,
+	const std::string& message)
+{
+	bstone::logger_->write(message_kind, sd_get_snd_string() + ' ' + message);
+}
+
+void sd_log(
+	const std::string& message)
+{
+	bstone::logger_->write(bstone::LoggerMessageKind::information, sd_get_snd_string() + ' ' + message);
+}
+
+void sd_log_error(
+	const std::string& message)
+{
+	sd_log(bstone::LoggerMessageKind::error, message);
+}
+
 
 //
 // Stuff for digitized sounds
 //
 
-void SDL_SetupDigi()
+void sd_setup_digi()
 {
 	const std::uint16_t* p;
 	int pg;
@@ -119,155 +127,186 @@ void SDL_SetupDigi()
 		pg += (bstone::Endian::little(p[1]) + (PMPageSize - 1)) / PMPageSize;
 		p += 2;
 	}
-	DigiList = new std::uint16_t[i * 2];
+	sd_digi_list_ = new std::uint16_t[i * 2];
 
 	const std::uint16_t* src_list = static_cast<const std::uint16_t*>(
-		::PM_GetPage(ChunksInFile - 1));
+		PM_GetPage(ChunksInFile - 1));
 
 	for (auto j = 0; j < (i * 2); ++j)
 	{
-		DigiList[j] = bstone::Endian::little(src_list[j]);
+		sd_digi_list_[j] = bstone::Endian::little(src_list[j]);
 	}
 
-	for (i = 0; i < sdLastSound; i++)
+	for (i = 0; i < sd_last_sound_; i++)
 	{
-		DigiMap[i] = -1;
+		sd_digi_map_[i] = -1;
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      SDL_DetectAdLib() - Determines if there's an AdLib (or SoundBlaster
-//              emulating an AdLib) present
-//
-///////////////////////////////////////////////////////////////////////////
-static bool SDL_DetectAdLib()
+// Determines if there's an AdLib (or SoundBlaster emulating an AdLib) present
+static bool sd_detect_ad_lib()
 {
-	return true;
-}
+	const auto& snd_is_disabled_string = g_args.get_option_value("snd_is_disabled");
 
-////////////////////////////////////////////////////////////////////////////
-//
-//      SDL_ShutDevice() - turns off whatever device was being used for sound fx
-//
-////////////////////////////////////////////////////////////////////////////
-static void SDL_ShutDevice()
-{
-	sd_is_sound_enabled = false;
-}
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      SDL_StartDevice() - turns on whatever device is to be used for sound fx
-//
-///////////////////////////////////////////////////////////////////////////
-static void SDL_StartDevice()
-{
-}
-
-bool SD_EnableSound(
-	bool enable)
-{
-	::SD_StopSound();
-
-	if (enable && !::sd_has_audio)
+	if (snd_is_disabled_string.empty())
 	{
-		enable = false;
+		return true;
 	}
 
-	auto table_offset = (enable ? ::sdStartALSounds : sdStartPCSounds);
+	auto snd_is_disabled_int = 0;
 
-	if (::sd_is_sound_enabled != enable)
+	if (!bstone::StringHelper::string_to_int(snd_is_disabled_string, snd_is_disabled_int))
 	{
-		::SDL_ShutDevice();
-		::sd_is_sound_enabled = enable;
-		::SoundTable = &::audiosegs[table_offset];
-		::SDL_StartDevice();
+		return true;
 	}
+
+	return snd_is_disabled_int == 0;
+}
+
+bool sd_enable_sound(
+	const bool enable)
+{
+	auto is_enabled = enable;
+
+	sd_stop_sound();
+
+	if (is_enabled && !sd_has_audio_)
+	{
+		is_enabled = false;
+	}
+
+	sd_sound_table_ = &audiosegs[sd_start_al_sounds_];
+
+	sd_is_sound_enabled_ = is_enabled;
+
+	if (is_enabled)
+	{
+		sd_set_sfx_volume(sd_sfx_volume_);
+	}
+
+	return is_enabled;
+}
+
+bool sd_enable_music(
+	const bool enable)
+{
+	sd_music_off();
+
+	sd_is_music_enabled_ = enable;
 
 	return enable;
 }
 
-bool SD_EnableMusic(
-	bool enable)
+const std::string& sd_get_opl3_long_name(
+	const bstone::Opl3Type opl3_type)
 {
-	::SD_MusicOff();
+	static const auto unknown = std::string{"???"};
+	static const auto dosbox_dbopl = std::string{"DosBox DBOPL"};
 
-	::sd_is_music_enabled = enable;
+	switch (opl3_type)
+	{
+		case bstone::Opl3Type::dbopl:
+			return dosbox_dbopl;
 
-	return enable;
+		default:
+			return unknown;
+	}
 }
 
-void SD_Startup()
+void sd_startup()
 {
-	if (SD_Started)
+	if (sd_started_)
 	{
 		return;
 	}
 
-	TimeCount = 0;
+	sd_log();
+	sd_log("Initializing audio");
+	sd_log("------------------");
 
-	::SD_EnableSound(false);
-	::SD_EnableMusic(false);
+	sd_has_audio_ = sd_detect_ad_lib();
 
-	::sd_has_audio = ::SDL_DetectAdLib();
-
-	if (::sd_has_audio)
+	if (sd_has_audio_)
 	{
-		auto&& snd_rate_string = ::g_args.get_option_value("snd_rate");
+		auto snd_rate = 0;
+		auto snd_mix_size = 0;
 
-		int snd_rate;
+		{
+			const auto& snd_rate_string = g_args.get_option_value("snd_rate");
 
-		static_cast<void>(bstone::StringHelper::string_to_int(snd_rate_string, snd_rate));
+			static_cast<void>(bstone::StringHelper::string_to_int(snd_rate_string, snd_rate));
+		}
 
-		auto&& snd_mix_size_string =
-			::g_args.get_option_value("snd_mix_size");
+		{
+			const auto& snd_mix_size_string = g_args.get_option_value("snd_mix_size");
 
-		int snd_mix_size;
+			static_cast<void>(bstone::StringHelper::string_to_int(snd_mix_size_string, snd_mix_size));
+		}
 
-		static_cast<void>(bstone::StringHelper::string_to_int(snd_mix_size_string, snd_mix_size));
-
-		mixer.initialize(snd_rate, snd_mix_size);
+		if (sd_mixer_.initialize(bstone::Opl3Type::dbopl, snd_rate, snd_mix_size))
+		{
+			sd_log("Channel count: " + std::to_string(sd_mixer_.get_channel_count()));
+			sd_log("Sample rate: " + std::to_string(sd_mixer_.get_rate()) + " Hz");
+			sd_log("Mix size: " + std::to_string(sd_mixer_.get_mix_size_ms()) + " ms");
+			sd_log("Effects volume: " + std::to_string(sd_sfx_volume_) + " / " + std::to_string(sd_max_volume));
+			sd_log("Music volume: " + std::to_string(sd_music_volume_) + " / " + std::to_string(sd_max_volume));
+			sd_log("OPL3 type: " + sd_get_opl3_long_name(sd_mixer_.get_opl3_type()));
+		}
+		else
+		{
+			sd_log_error("Failed to initialize mixer.");
+		}
 	}
 	else
 	{
-		mixer.uninitialize();
+		sd_log("Audio subsystem disabled.");
+
+		sd_mixer_.uninitialize();
 	}
 
-	::SDL_SetupDigi();
+	sd_setup_digi();
 
-	::SD_Started = true;
+	sd_started_ = true;
+
+
+	if (sd_has_audio_)
+	{
+		if (sd_is_sound_enabled_)
+		{
+			sd_enable_sound(true);
+		}
+
+		if (sd_is_music_enabled_)
+		{
+			sd_enable_music(true);
+		}
+	}
 }
 
-void SD_Shutdown()
+void sd_shutdown()
 {
-	if (!SD_Started)
+	if (!sd_started_)
 	{
 		return;
 	}
 
-	mixer.uninitialize();
+	sd_mixer_.uninitialize();
 
 	// Free music data
 	for (int i = 0; i < LASTMUSIC; ++i)
 	{
-		delete[] static_cast<std::uint8_t*>(::audiosegs[STARTMUSIC + i]);
+		delete[] static_cast<std::uint8_t*>(audiosegs[STARTMUSIC + i]);
 	}
 
-	SD_Started = false;
+	sd_started_ = false;
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      SD_SoundPlaying() - returns the sound number that's playing, or 0 if
-//              no sound is playing
-//
-///////////////////////////////////////////////////////////////////////////
-bool SD_SoundPlaying()
+// Returns the sound number that's playing, or 0 if no sound is playing
+bool sd_sound_playing()
 {
-	if (::sd_is_sound_enabled)
+	if (sd_is_sound_enabled_)
 	{
-		return ::mixer.is_any_sfx_playing();
+		return sd_mixer_.is_any_sfx_playing();
 	}
 	else
 	{
@@ -275,96 +314,79 @@ bool SD_SoundPlaying()
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      SD_StopSound() - if a sound is playing, stops it
-//
-///////////////////////////////////////////////////////////////////////////
-void SD_StopSound()
+// If a sound is playing, stops it.
+void sd_stop_sound()
 {
-	::mixer.stop_all_sfx();
+	sd_mixer_.stop_all_sfx();
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      SD_WaitSoundDone() - waits until the current sound is done playing
-//
-///////////////////////////////////////////////////////////////////////////
-void SD_WaitSoundDone()
+// Waits until the current sound is done playing.
+void sd_wait_sound_done()
 {
-	while (::SD_SoundPlaying())
+	while (sd_sound_playing())
 	{
-		::sys_default_sleep_for();
+		sys_default_sleep_for();
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      SD_MusicOn() - turns on the sequencer
-//
-///////////////////////////////////////////////////////////////////////////
-void SD_MusicOn()
+// Turns on the sequencer.
+void sd_music_on()
 {
-	::sqActive = true;
-	::mixer.play_adlib_music(music_index, sqHack, sqHackLen);
+	sd_sq_active_ = true;
+	sd_mixer_.play_adlib_music(sd_music_index_, sd_sq_hack_, sd_sq_hack_len_);
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      SD_MusicOff() - turns off the sequencer and any playing notes
-//
-///////////////////////////////////////////////////////////////////////////
-void SD_MusicOff()
+// Turns off the sequencer and any playing notes.
+void sd_music_off()
 {
-	::sqActive = false;
-	::mixer.stop_music();
+	sd_sq_active_ = false;
+	sd_mixer_.stop_music();
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      SD_StartMusic() - starts playing the music pointed to
-//
-///////////////////////////////////////////////////////////////////////////
-void SD_StartMusic(
-	int index)
+// Starts playing the music pointed to.
+void sd_start_music(
+	const int index)
 {
-	::SD_MusicOff();
+	sd_music_off();
 
-	::sqPlayedOnce = false;
+	sd_sq_played_once_ = false;
 
-	if (::sd_is_music_enabled)
+	if (sd_is_music_enabled_)
 	{
-		::music_index = index;
+		sd_music_index_ = index;
 
-		auto music_data = reinterpret_cast<std::uint16_t*>(
-			::audiosegs[STARTMUSIC + index]);
+		const auto music_data = reinterpret_cast<std::uint16_t*>(
+			audiosegs[STARTMUSIC + index]);
 
-		auto length = bstone::Endian::little(music_data[0]) + 2;
+		const auto length = sd_get_adlib_music_data_size(music_data);
 
-		::sqHack = music_data;
-		::sqHackLen = static_cast<std::uint16_t>(length);
+		sd_sq_hack_ = music_data;
+		sd_sq_hack_len_ = static_cast<std::uint16_t>(length);
 
-		::SD_MusicOn();
+		sd_set_music_volume(sd_music_volume_);
+
+		sd_music_on();
 	}
 	else
 	{
-		::sqPlayedOnce = true;
+		sd_sq_played_once_ = true;
 	}
 }
 
 // BBi
+
 void sd_play_sound(
-	int sound_index,
+	const int sound_index,
 	const void* actor,
-	bstone::ActorType actor_type,
-	bstone::ActorChannel actor_channel)
+	const bstone::ActorType actor_type,
+	const bstone::ActorChannel actor_channel)
 {
 	if (sound_index < 0)
 	{
 		return;
 	}
 
-	if (!SoundTable)
+	if (!sd_is_sound_enabled_)
 	{
 		return;
 	}
@@ -391,50 +413,57 @@ void sd_play_sound(
 	}
 
 	const SoundCommon* sound = reinterpret_cast<SoundCommon*>(
-		SoundTable[sound_index]);
+		sd_sound_table_[sound_index]);
 
 	if (!sound)
 	{
 		return;
 	}
 
-	if (::sd_is_sound_enabled && !sound)
+	if (sd_is_sound_enabled_ && !sound)
 	{
-		::Quit("Uncached sound.");
+		Quit("Uncached sound.");
 	}
 
 	int priority = bstone::Endian::little(sound->priority);
 
-	int digi_index = DigiMap[sound_index];
+	const auto sfx_info = sd_get_sfx_info(sound_index);
 
-	if (digi_index != -1)
-	{
-		int digi_page = DigiList[(2 * digi_index) + 0];
-		int digi_length = DigiList[(2 * digi_index) + 1];
-		const void* digi_data = ::PM_GetSoundPage(digi_page);
-
-		mixer.play_pcm_sound(digi_index, priority, digi_data, digi_length,
-			actor_index, actor_type, actor_channel);
-
-		return;
-	}
-
-	if (!::sd_is_sound_enabled)
+	if (!sfx_info.data_ || sfx_info.size_ <= 0)
 	{
 		return;
 	}
 
-	int data_size = audiostarts[sdStartALSounds + sound_index + 1] -
-		audiostarts[sdStartALSounds + sound_index];
-
-	mixer.play_adlib_sound(sound_index, priority, sound, data_size,
-		actor_index, actor_type, actor_channel);
+	if (sfx_info.is_digitized_)
+	{
+		sd_mixer_.play_pcm_sound(
+			sfx_info.digi_index_,
+			priority,
+			sfx_info.data_,
+			sfx_info.size_,
+			actor_index,
+			actor_type,
+			actor_channel
+		);
+	}
+	else
+	{
+		sd_mixer_.play_adlib_sound(
+			sound_index,
+			priority,
+			sfx_info.data_,
+			sfx_info.size_,
+			actor_index,
+			actor_type,
+			actor_channel
+		);
+	}
 }
 
 void sd_play_actor_sound(
-	int sound_index,
+	const int sound_index,
 	const objtype* actor,
-	bstone::ActorChannel actor_channel)
+	const bstone::ActorChannel actor_channel)
 {
 	sd_play_sound(
 		sound_index,
@@ -444,8 +473,8 @@ void sd_play_actor_sound(
 }
 
 void sd_play_player_sound(
-	int sound_index,
-	bstone::ActorChannel actor_channel)
+	const int sound_index,
+	const bstone::ActorChannel actor_channel)
 {
 	sd_play_sound(
 		sound_index,
@@ -455,7 +484,7 @@ void sd_play_player_sound(
 }
 
 void sd_play_door_sound(
-	int sound_index,
+	const int sound_index,
 	const doorobj_t* door)
 {
 	sd_play_sound(
@@ -466,7 +495,7 @@ void sd_play_door_sound(
 }
 
 void sd_play_wall_sound(
-	int sound_index)
+	const int sound_index)
 {
 	sd_play_sound(
 		sound_index,
@@ -477,50 +506,98 @@ void sd_play_wall_sound(
 
 void sd_update_positions()
 {
-	mixer.update_positions();
+	sd_mixer_.update_positions();
 }
 
 bool sd_is_player_channel_playing(
-	bstone::ActorChannel channel)
+	const bstone::ActorChannel channel)
 {
-	return mixer.is_player_channel_playing(channel);
+	return sd_mixer_.is_player_channel_playing(channel);
 }
 
 void sd_set_sfx_volume(
-	int volume)
+	const int volume)
 {
-	if (volume < ::sd_min_volume)
+	auto new_volume = volume;
+
+	if (new_volume < sd_min_volume)
 	{
-		volume = ::sd_min_volume;
+		new_volume = sd_min_volume;
 	}
 
-	if (volume > ::sd_max_volume)
+	if (new_volume > sd_max_volume)
 	{
-		volume = ::sd_max_volume;
+		new_volume = sd_max_volume;
 	}
 
-	mixer.set_sfx_volume(static_cast<float>(volume) / ::sd_max_volume);
+	sd_mixer_.set_sfx_volume(static_cast<float>(new_volume) / sd_max_volume);
 }
 
 void sd_set_music_volume(
-	int volume)
+	const int volume)
 {
-	if (volume < ::sd_min_volume)
+	auto new_volume = volume;
+
+	if (new_volume < sd_min_volume)
 	{
-		volume = ::sd_min_volume;
+		new_volume = sd_min_volume;
 	}
 
-	if (volume > ::sd_max_volume)
+	if (new_volume > sd_max_volume)
 	{
-		volume = ::sd_max_volume;
+		new_volume = sd_max_volume;
 	}
 
-	mixer.set_music_volume(static_cast<float>(volume) / ::sd_max_volume);
+	sd_mixer_.set_music_volume(static_cast<float>(new_volume) / sd_max_volume);
 }
 
 void sd_mute(
-	bool mute)
+	const bool mute)
 {
-	::mixer.set_mute(mute);
+	sd_mixer_.set_mute(mute);
+}
+
+int sd_get_adlib_music_data_size(
+	const void* const raw_music_data)
+{
+	return bstone::Endian::little(reinterpret_cast<const std::uint16_t*>(raw_music_data)[0]) + 2;
+}
+
+SfxInfo sd_get_sfx_info(
+	const int sfx_number)
+{
+	auto result = SfxInfo{};
+
+	if (sfx_number >= 0 && sfx_number < NUMSOUNDS)
+	{
+		const auto digi_index = sd_digi_map_[sfx_number];
+
+		if (digi_index >= 0)
+		{
+			const auto digi_page = sd_digi_list_[(2 * digi_index) + 0];
+
+			result.is_digitized_ = true;
+			result.digi_index_ = digi_index;
+			result.data_ = PM_GetSoundPage(digi_page);
+			result.size_ = sd_digi_list_[(2 * digi_index) + 1];
+		}
+		else
+		{
+			const auto start_index = sd_start_al_sounds_ + sfx_number;
+
+			result.is_digitized_ = false;
+			result.digi_index_ = -1;
+			result.data_ = sd_sound_table_[sfx_number];
+			result.size_ = audiostarts[start_index + 1] - audiostarts[start_index];
+		}
+	}
+
+	return result;
+}
+
+void sd_setup_extracting()
+{
+	sd_setup_digi();
+	sd_sound_table_ = &audiosegs[sd_start_al_sounds_];
 }
 // BBi

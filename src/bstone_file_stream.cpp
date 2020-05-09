@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -28,7 +28,8 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_file_stream.h"
-#include "SDL.h"
+
+#include "SDL_rwops.h"
 
 
 namespace bstone
@@ -49,7 +50,8 @@ SDL_RWops* get_sdl_context(
 } // namespace
 
 
-FileStream::FileStream() :
+FileStream::FileStream()
+	:
 	context_{},
 	is_readable_{},
 	is_seekable_{},
@@ -122,7 +124,7 @@ bool FileStream::open(
 	}
 
 
-	auto sdl_context = ::SDL_RWFromFile(file_name.c_str(), mode);
+	auto sdl_context = SDL_RWFromFile(file_name.c_str(), mode);
 
 	if (!sdl_context)
 	{
@@ -149,7 +151,7 @@ bool FileStream::is_open() const
 
 std::int64_t FileStream::get_size()
 {
-	if (!context_)
+	if (context_ == nullptr)
 	{
 		return 0;
 	}
@@ -169,7 +171,7 @@ std::int64_t FileStream::seek(
 	const std::int64_t offset,
 	const StreamSeekOrigin origin)
 {
-	if (!context_)
+	if (context_ == nullptr)
 	{
 		return -1;
 	}
@@ -209,7 +211,7 @@ int FileStream::read(
 	void* buffer,
 	const int count)
 {
-	if (!context_)
+	if (context_ == nullptr)
 	{
 		return 0;
 	}
@@ -238,7 +240,7 @@ bool FileStream::write(
 	const void* buffer,
 	const int count)
 {
-	if (!context_)
+	if (context_ == nullptr)
 	{
 		return false;
 	}
@@ -268,19 +270,24 @@ bool FileStream::write(
 	return write_result == count;
 }
 
+bool FileStream::flush()
+{
+	return context_ != nullptr;
+}
+
 bool FileStream::is_readable() const
 {
-	return is_open() && is_readable_;
+	return context_ != nullptr && is_readable_;
 }
 
 bool FileStream::is_seekable() const
 {
-	return context_ && is_seekable_;
+	return context_ != nullptr && is_seekable_;
 }
 
 bool FileStream::is_writable() const
 {
-	return context_ && is_writable_;
+	return context_ != nullptr && is_writable_;
 }
 
 bool FileStream::is_exists(
@@ -293,7 +300,7 @@ bool FileStream::is_exists(
 
 void FileStream::close_internal()
 {
-	if (context_)
+	if (context_ != nullptr)
 	{
 		auto sdl_context = get_sdl_context(context_);
 		static_cast<void>(SDL_RWclose(sdl_context));

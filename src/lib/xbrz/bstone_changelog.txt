@@ -1,0 +1,4 @@
+Changes made to compile with BStone.
+
+- Changed text encoding of `xbrz.cpp` from Windows-1250 (?) to UTF-8.
+- Made the code compatible with C++14. Look up `BStone` for changes.

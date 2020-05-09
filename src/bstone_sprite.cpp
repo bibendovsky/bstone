@@ -4,8 +4,10 @@
 
 
 #include "bstone_sprite.h"
+
 #include <stdexcept>
 #include <memory>
+
 #include "bstone_endian.h"
 
 
@@ -80,7 +82,7 @@ void Sprite::initialize(
 	const int left = bstone::Endian::little(values_16[0]);
 	const int right = bstone::Endian::little(values_16[1]);
 
-	if (left > right || left >= side || right >= side)
+	if (left > right || left >= dimension || right >= dimension)
 	{
 		throw std::runtime_error{"Invalid edge values."};
 	}
@@ -98,14 +100,14 @@ void Sprite::initialize(
 		const auto commands_offset = bstone::Endian::little(commands_offsets[i - left]);
 		const auto commands = reinterpret_cast<const std::uint16_t*>(&values_8[commands_offset]);
 
-		auto iCommand = 0;
+		auto i_command = 0;
 
-		auto end = bstone::Endian::little(commands[iCommand++]) / 2;
+		auto end = bstone::Endian::little(commands[i_command++]) / 2;
 
 		while (end != 0)
 		{
-			const auto pixels_offset = static_cast<int>(bstone::Endian::little(commands[iCommand++]));
-			const auto start = bstone::Endian::little(commands[iCommand++]) / 2;
+			const auto pixels_offset = static_cast<int>(bstone::Endian::little(commands[i_command++]));
+			const auto start = bstone::Endian::little(commands[i_command++]) / 2;
 
 			if (top < 0 || start < top)
 			{
@@ -117,7 +119,7 @@ void Sprite::initialize(
 				bottom = end;
 			}
 
-			end = bstone::Endian::little(commands[iCommand++]) / 2;
+			end = bstone::Endian::little(commands[i_command++]) / 2;
 		}
 	}
 
@@ -125,7 +127,7 @@ void Sprite::initialize(
 	//
 
 	const auto width = (right - left) + 1;
-	const auto height = (bottom - top) + 1;
+	const auto height = bottom - top;
 	const auto area = width * height;
 
 	image_.resize(area, -1);
@@ -135,14 +137,14 @@ void Sprite::initialize(
 		const auto commands_offset = static_cast<int>(bstone::Endian::little(commands_offsets[i]));
 		const auto commands = reinterpret_cast<const std::uint16_t*>(&values_8[commands_offset]);
 
-		auto iCommand = 0;
+		auto i_command = 0;
 
-		auto end = bstone::Endian::little(commands[iCommand++]) / 2;
+		auto end = bstone::Endian::little(commands[i_command++]) / 2;
 
 		while (end != 0)
 		{
-			auto pixels_offset = static_cast<int>(bstone::Endian::little(commands[iCommand++]));
-			const auto start = static_cast<int>(bstone::Endian::little(commands[iCommand++]) / 2);
+			auto pixels_offset = static_cast<int>(bstone::Endian::little(commands[i_command++]));
+			const auto start = static_cast<int>(bstone::Endian::little(commands[i_command++]) / 2);
 			const auto count = end - start;
 
 			pixels_offset += start;
@@ -153,14 +155,14 @@ void Sprite::initialize(
 
 			std::uninitialized_copy_n(src_pixels, count, dst_pixels);
 
-			end = bstone::Endian::little(commands[iCommand++]) / 2;
+			end = bstone::Endian::little(commands[i_command++]) / 2;
 		}
 	}
 
 	left_ = left;
 	right_ = right;
 	top_ = top;
-	bottom_ = bottom;
+	bottom_ = bottom - 1;
 }
 
 void Sprite::uninitialize()
@@ -205,10 +207,15 @@ int Sprite::get_height() const
 	return (bottom_ - top_) + 1;
 }
 
-const short* Sprite::get_column(
+const std::int16_t* Sprite::get_column(
 	const int index) const
 {
 	return &image_[index * get_height()];
+}
+
+const std::int16_t* Sprite::get_data() const
+{
+	return image_.data();
 }
 
 

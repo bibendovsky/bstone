@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -23,6 +23,7 @@ Free Software Foundation, Inc.,
 
 
 #include <cstring>
+
 #include "gfxv.h"
 #include "id_ca.h"
 #include "id_heads.h"
@@ -245,7 +246,7 @@ void TransformActor(
 void BuildTables();
 
 std::int16_t CalcRotate(
-	objtype* ob);
+	const objtype* ob);
 
 void DrawScaleds();
 void CalcTics();
@@ -415,7 +416,7 @@ void TransformActor(
 		return;
 	}
 
-	ob->viewx = static_cast<std::int16_t>(centerx + ny * scale / nx); // DEBUG: use assembly divide
+	ob->viewx = static_cast<std::int16_t>(centerx + ny * scale_ / nx); // DEBUG: use assembly divide
 
 	q = (heightnumerator / (nx >> 8)) & 0xFFFF;
 	r = (heightnumerator % (nx >> 8)) & 0xFFFF;
@@ -468,15 +469,15 @@ void TransformTile(
 	//
 	// calculate newx
 	//
-	gxt = FixedByFrac(gx, ::viewcos);
-	gyt = FixedByFrac(gy, ::viewsin);
+	gxt = FixedByFrac(gx, viewcos);
+	gyt = FixedByFrac(gy, viewsin);
 	nx = gxt - gyt - 0x2000; // 0x2000 is size of object
 
 	//
 	// calculate newy
 	//
-	gxt = ::FixedByFrac(gx, ::viewsin);
-	gyt = ::FixedByFrac(gy, ::viewcos);
+	gxt = FixedByFrac(gx, viewsin);
+	gyt = FixedByFrac(gy, viewcos);
 	ny = gyt + gxt;
 
 
@@ -491,7 +492,7 @@ void TransformTile(
 		return;
 	}
 
-	*dispx = static_cast<std::int16_t>(centerx + ((ny * scale) / nx)); // DEBUG: use assembly divide
+	*dispx = static_cast<std::int16_t>(centerx + ((ny * scale_) / nx)); // DEBUG: use assembly divide
 
 	q = (heightnumerator / (nx >> 8)) & 0xFFFF;
 	r = (heightnumerator % (nx >> 8)) & 0xFFFF;
@@ -509,31 +510,24 @@ void TransformTile(
 =
 ====================
 */
-int CalcHeight()
+double CalcHeight()
 {
 	int gx = xintercept - viewx;
-	int gxt = FixedByFrac(gx, viewcos);
+	const auto gxt = static_cast<double>(FixedByFrac(gx, viewcos));
 
 	int gy = yintercept - viewy;
-	int gyt = FixedByFrac(gy, viewsin);
-
-	int nx = gxt - gyt;
+	const auto gyt = static_cast<double>(FixedByFrac(gy, viewsin));
 
 	//
 	// calculate perspective ratio (heightnumerator/(nx>>8))
 	//
 
-	if (nx < mindist)
-	{
-		nx = mindist; // don't let divide overflow
+	const auto min_nx = 0.00001;
+	const auto min_result = 8.0;
 
-	}
-	int result = heightnumerator / (nx / 256);
+	const auto nx = std::max(gxt - gyt, min_nx);
 
-	if (result < 8)
-	{
-		result = 8;
-	}
+	const auto result = std::max((256.0 * static_cast<double>(heightnumerator)) / nx, min_result);
 
 	return result;
 }
@@ -545,36 +539,41 @@ int postx;
 // BBi
 int posty;
 
-int postheight;
+double postheight;
 const std::uint8_t* shadingtable;
 extern const std::uint8_t* lightsource;
 
 void ScalePost()
 {
-	const auto height = ::wallheight[postx] / 8;
-
-	::postheight = height;
-
-	if ((::gamestate.flags & GS_LIGHTING) != 0)
+	if (vid_is_hw_)
 	{
-		auto i = ::shade_max - ((63 * height) / ::normalshade);
+		return;
+	}
 
-		if (i < 0)
+	const auto height = wallheight[postx] / 8.0;
+
+	postheight = height;
+
+	if (!gp_no_shading_)
+	{
+		auto i = shade_max - ((63 * height) / normalshade);
+
+		if (i < 0.0)
 		{
-			i = 0;
+			i = 0.0;
 		}
-		else if (i > 63)
+		else if (i > 63.0)
 		{
-			i = 63;
+			i = 63.0;
 		}
 
-		::shadingtable = ::lightsource + (i * 256);
+		shadingtable = lightsource + (static_cast<std::ptrdiff_t>(i) * 256);
 
-		::DrawLSPost();
+		DrawLSPost();
 	}
 	else
 	{
-		::DrawPost();
+		DrawPost();
 	}
 }
 
@@ -667,13 +666,13 @@ void HitVertWall()
 
 			ytile = yintercept >> TILESHIFT;
 
-			auto door_index = ::tilemap[::xtile - ::xtilestep][::ytile];
+			auto door_index = tilemap[xtile - xtilestep][ytile];
 
 			if ((door_index & 0x80) != 0 && (door_index & 0xC0) != 0xC0)
 			{
-				auto door = ::doorobjlist[door_index & 0x3F];
+				auto door = doorobjlist[door_index & 0x3F];
 
-				wallpic = static_cast<std::int16_t>(DOORWALL + ::DoorJamsShade[door.type]);
+				wallpic = static_cast<std::int16_t>(DOORWALL + DoorJamsShade[door.type]);
 			}
 			else
 			{
@@ -689,6 +688,8 @@ void HitVertWall()
 		last_texture_offset = texture;
 		postsource = &last_texture_data[last_texture_offset];
 	}
+
+	vid_hw_add_wall_render_item(xtile, ytile);
 }
 
 /*
@@ -745,13 +746,13 @@ void HitHorizWall()
 
 			xtile = xintercept >> TILESHIFT;
 
-			auto door_index = ::tilemap[::xtile][::ytile - ::ytilestep];
+			auto door_index = tilemap[xtile][ytile - ytilestep];
 
 			if ((door_index & 0x80) != 0 && (door_index & 0xC0) != 0xC0)
 			{
-				auto door = ::doorobjlist[door_index & 0x3F];
+				auto door = doorobjlist[door_index & 0x3F];
 
-				wallpic = static_cast<std::int16_t>(DOORWALL + ::DoorJams[door.type]);
+				wallpic = static_cast<std::int16_t>(DOORWALL + DoorJams[door.type]);
 			}
 			else
 			{
@@ -768,6 +769,7 @@ void HitHorizWall()
 		postsource = &last_texture_data[last_texture_offset];
 	}
 
+	vid_hw_add_wall_render_item(xtile, ytile);
 }
 
 void HitHorizDoor()
@@ -900,6 +902,9 @@ void HitHorizDoor()
 		last_texture_offset = texture;
 		postsource = &last_texture_data[last_texture_offset];
 	}
+
+	const auto& bs_door = doorobjlist[door_index];
+	vid_hw_add_door_render_item(bs_door.tilex, bs_door.tiley);
 }
 
 void HitVertDoor()
@@ -1032,6 +1037,9 @@ void HitVertDoor()
 		last_texture_offset = texture;
 		postsource = &last_texture_data[last_texture_offset];
 	}
+
+	const auto& bs_door = doorobjlist[door_index];
+	vid_hw_add_door_render_item(bs_door.tilex, bs_door.tiley);
 }
 
 /*
@@ -1088,6 +1096,8 @@ void HitHorizPWall()
 		last_texture_offset = texture;
 		postsource = &last_texture_data[last_texture_offset];
 	}
+
+	vid_hw_add_pushwall_render_item(pwallx, pwally);
 }
 
 /*
@@ -1145,6 +1155,7 @@ void HitVertPWall()
 		postsource = &last_texture_data[last_texture_offset];
 	}
 
+	vid_hw_add_pushwall_render_item(pwallx, pwally);
 }
 
 /*
@@ -1169,13 +1180,13 @@ void vga_clear_screen(
 	int height,
 	int color)
 {
-	int pixel_offset = ::vl_get_offset(::bufferofs, 0, y_offset);
+	int pixel_offset = vl_get_offset(bufferofs, 0, y_offset);
 
-	if (::viewwidth == ::vga_width)
+	if (viewwidth == vga_width)
 	{
 		std::uninitialized_fill_n(
-			&::vga_memory[pixel_offset],
-			height * ::vga_width,
+			&vga_memory[pixel_offset],
+			height * vga_width,
 			static_cast<std::uint8_t>(color));
 	}
 	else
@@ -1183,11 +1194,11 @@ void vga_clear_screen(
 		for (int y = 0; y < height; ++y)
 		{
 			std::uninitialized_fill_n(
-				&::vga_memory[pixel_offset],
-				::viewwidth,
+				&vga_memory[pixel_offset],
+				viewwidth,
 				static_cast<std::uint8_t>(color));
 
-			pixel_offset += ::vga_width;
+			pixel_offset += vga_width;
 		}
 	}
 }
@@ -1199,16 +1210,21 @@ void vga_clear_screen(
 
 void VGAClearScreen()
 {
+	if (vid_is_hw_)
+	{
+		return;
+	}
+
 	viewflags = gamestate.flags;
 
 	int half_height = viewheight / 2;
 
-	if ((viewflags & GS_DRAW_CEILING) == 0)
+	if (gp_is_ceiling_solid_)
 	{
 		vga_clear_screen(0, half_height, TopColor);
 	}
 
-	if ((viewflags & GS_DRAW_FLOOR) == 0)
+	if (gp_is_flooring_solid_)
 	{
 		vga_clear_screen(
 			viewheight - half_height, half_height, BottomColor);
@@ -1216,14 +1232,14 @@ void VGAClearScreen()
 }
 
 std::int16_t CalcRotate(
-	objtype* ob)
+	const objtype* ob)
 {
 	dirtype dir = ob->dir;
 
 	// this isn't exactly correct, as it should vary by a trig value,
 	// but it is close enough with only eight rotations
 
-	int view_angle = ::player->angle + ((::centerx - ob->viewx) / 8);
+	int view_angle = player->angle + ((centerx - ob->viewx) / 8);
 
 	if (dir == nodir)
 	{
@@ -1261,6 +1277,131 @@ visobj_t* visstep;
 visobj_t* farthest;
 
 
+namespace
+{
+
+
+void hw_draw_sprites()
+{
+	//
+	// place static objects
+	//
+
+	vid_hw_clear_static_render_list();
+
+	for (auto statptr = statobjlist; statptr != laststatobj; ++statptr)
+	{
+		if (statptr->shapenum == -1)
+		{
+			continue; // object has been deleted
+		}
+
+		if (!(*statptr->visspot))
+		{
+			continue; // not visable
+		}
+
+		auto dispx = int16_t{};
+		auto dispheight = int16_t{};
+
+		TransformTile(statptr->tilex, statptr->tiley, &dispx, &dispheight);
+
+		if (dispheight <= 0)
+		{
+			continue; // to close to the object
+		}
+
+		const auto bs_static_index = static_cast<int>(statptr - statobjlist);
+		vid_hw_add_static_render_item(bs_static_index);
+	}
+
+
+	//
+	// place active objects
+	//
+
+	vid_hw_clear_actor_render_list();
+
+	const auto& assets_info = AssetsInfo{};
+
+	for (auto obj = player->next; obj; obj = obj->next)
+	{
+		if ((obj->flags & FL_OFFSET_STATES) != 0)
+		{
+			const auto shapenum = obj->temp1 + obj->state->shapenum;
+
+			if (shapenum == 0)
+			{
+				continue; // no shape
+			}
+		}
+		else
+		{
+			const auto shapenum = obj->state->shapenum;
+
+			if (shapenum == 0)
+			{
+				continue; // no shape
+			}
+		}
+
+		const auto spotloc = (obj->tilex << 6) + obj->tiley; // optimize: keep in struct?
+
+		// BBi Do not draw detonator if it's not visible.
+		if (spotloc == 0)
+		{
+			continue;
+		}
+
+		const auto visspot = &spotvis[0][0] + spotloc;
+		const auto tilespot = &tilemap[0][0] + spotloc;
+
+		//
+		// could be in any of the nine surrounding tiles
+		//
+
+		if (*visspot ||
+			(visspot[-1] && !tilespot[-1]) ||
+			(visspot[+1] && !tilespot[+1]) ||
+			(visspot[-65] && !tilespot[-65]) ||
+			(visspot[-64] && !tilespot[-64]) ||
+			(visspot[-63] && !tilespot[-63]) ||
+			(visspot[+65] && !tilespot[+65]) ||
+			(visspot[+64] && !tilespot[+64]) ||
+			(visspot[+63] && !tilespot[+63]))
+		{
+			obj->active = ac_yes;
+
+			TransformActor(obj);
+
+			if (obj->viewheight == 0)
+			{
+				continue; // too close or far away
+			}
+
+			if (assets_info.is_ps() && (obj->flags & FL_DEADGUY) == 0)
+			{
+				obj->flags2 &= ~FL2_DAMAGE_CLOAK;
+			}
+
+			obj->flags |= FL_VISIBLE;
+		}
+		else
+		{
+			obj->flags &= ~FL_VISIBLE;
+		}
+
+		const auto bs_actor_index = static_cast<int>(obj - objlist);
+		vid_hw_add_actor_render_item(bs_actor_index);
+	}
+
+	cloaked_shape = false;
+}
+
+
+} // namespace
+
+
 /*
 =====================
 =
@@ -1272,6 +1413,13 @@ visobj_t* farthest;
 */
 void DrawScaleds()
 {
+	if (vid_is_hw_)
+	{
+		hw_draw_sprites();
+
+		return;
+	}
+
 	std::int16_t i;
 	std::int16_t least;
 	std::int16_t numvisible;
@@ -1283,16 +1431,16 @@ void DrawScaleds()
 	statobj_t* statptr;
 	objtype* obj;
 
-	::visptr = &::vislist[0];
+	visptr = &vislist[0];
 
 	//
 	// place static objects
 	//
-	for (statptr = ::statobjlist; statptr != laststatobj; ++statptr)
+	for (statptr = statobjlist; statptr != laststatobj; ++statptr)
 	{
-		::visptr->shapenum = statptr->shapenum;
+		visptr->shapenum = statptr->shapenum;
 
-		if (::visptr->shapenum == -1)
+		if (visptr->shapenum == -1)
 		{
 			continue; // object has been deleted
 		}
@@ -1302,17 +1450,17 @@ void DrawScaleds()
 			continue; // not visible
 		}
 
-		::TransformTile(statptr->tilex, statptr->tiley, &::visptr->viewx, &::visptr->viewheight);
+		TransformTile(statptr->tilex, statptr->tiley, &visptr->viewx, &visptr->viewheight);
 
-		if (!::visptr->viewheight)
+		if (!visptr->viewheight)
 		{
 			continue; // to close to the object
 		}
 
-		::visptr->cloaked = false;
-		::visptr->lighting = statptr->lighting; // Could add additional flashing/lighting
+		visptr->cloaked = false;
+		visptr->lighting = statptr->lighting; // Could add additional flashing/lighting
 
-		if (::visptr < &::vislist[MAXVISIBLE - 1])
+		if (visptr < &vislist[MAXVISIBLE - 1])
 		{
 			// don't let it overflow
 			++visptr;
@@ -1322,11 +1470,11 @@ void DrawScaleds()
 	//
 	// place active objects
 	//
-	for (obj = ::player->next; obj; obj = obj->next)
+	for (obj = player->next; obj; obj = obj->next)
 	{
 		if ((obj->flags & FL_OFFSET_STATES) != 0)
 		{
-			::visptr->shapenum = static_cast<std::int16_t>(obj->temp1 + obj->state->shapenum);
+			visptr->shapenum = static_cast<std::int16_t>(obj->temp1 + obj->state->shapenum);
 
 			if (visptr->shapenum == 0)
 			{
@@ -1337,7 +1485,7 @@ void DrawScaleds()
 		{
 			visptr->shapenum = static_cast<std::int16_t>(obj->state->shapenum);
 
-			if (::visptr->shapenum == 0)
+			if (visptr->shapenum == 0)
 			{
 				continue; // no shape
 			}
@@ -1351,8 +1499,8 @@ void DrawScaleds()
 			continue;
 		}
 
-		visspot = &::spotvis[0][0] + spotloc;
-		tilespot = &::tilemap[0][0] + spotloc;
+		visspot = &spotvis[0][0] + spotloc;
+		tilespot = &tilemap[0][0] + spotloc;
 
 		//
 		// could be in any of the nine surrounding tiles
@@ -1370,7 +1518,7 @@ void DrawScaleds()
 		{
 			obj->active = ac_yes;
 
-			::TransformActor(obj);
+			TransformActor(obj);
 
 			if (!obj->viewheight)
 			{
@@ -1382,13 +1530,13 @@ void DrawScaleds()
 			if (assets_info.is_ps() &&
 				(obj->flags2 & (FL2_CLOAKED | FL2_DAMAGE_CLOAK)) == FL2_CLOAKED)
 			{
-				::visptr->cloaked = true;
-				::visptr->lighting = 0;
+				visptr->cloaked = true;
+				visptr->lighting = 0;
 			}
 			else
 			{
-				::visptr->cloaked = false;
-				::visptr->lighting = obj->lighting;
+				visptr->cloaked = false;
+				visptr->lighting = obj->lighting;
 			}
 
 			if (assets_info.is_ps() && (obj->flags & FL_DEADGUY) == 0)
@@ -1396,23 +1544,23 @@ void DrawScaleds()
 				obj->flags2 &= ~FL2_DAMAGE_CLOAK;
 			}
 
-			::visptr->viewx = obj->viewx;
-			::visptr->viewheight = obj->viewheight;
+			visptr->viewx = obj->viewx;
+			visptr->viewheight = obj->viewheight;
 
-			if (::visptr->shapenum == -1)
+			if (visptr->shapenum == -1)
 			{
-				::visptr->shapenum = obj->temp1; // special shape
+				visptr->shapenum = obj->temp1; // special shape
 			}
 
 			if ((obj->state->flags & SF_ROTATE) != 0)
 			{
-				::visptr->shapenum += ::CalcRotate(obj);
+				visptr->shapenum += CalcRotate(obj);
 			}
 
-			if (::visptr < &::vislist[MAXVISIBLE - 1])
+			if (visptr < &vislist[MAXVISIBLE - 1])
 			{
 				// don't let it overflow
-				++::visptr;
+				++visptr;
 			}
 
 			obj->flags |= FL_VISIBLE;
@@ -1426,7 +1574,7 @@ void DrawScaleds()
 	//
 	// draw from back to front
 	//
-	numvisible = static_cast<std::int16_t>(::visptr - &::vislist[0]);
+	numvisible = static_cast<std::int16_t>(visptr - &vislist[0]);
 
 	if (!numvisible)
 	{
@@ -1437,9 +1585,9 @@ void DrawScaleds()
 	{
 		least = 32000;
 
-		for (::visstep = &::vislist[0]; ::visstep < ::visptr; ++::visstep)
+		for (visstep = &vislist[0]; visstep < visptr; ++visstep)
 		{
-			height = ::visstep->viewheight;
+			height = visstep->viewheight;
 
 			if (height < least)
 			{
@@ -1451,24 +1599,24 @@ void DrawScaleds()
 		//
 		// Init our global flag...
 		//
-		::cloaked_shape = ::farthest->cloaked;
+		cloaked_shape = farthest->cloaked;
 
 		//
 		// draw farthest
 		//
-		if (((::gamestate.flags & GS_LIGHTING) != 0 && ::farthest->lighting != NO_SHADING) || cloaked_shape)
+		if ((!gp_no_shading_ && farthest->lighting != NO_SHADING) || cloaked_shape)
 		{
-			::ScaleLSShape(::farthest->viewx, ::farthest->shapenum, ::farthest->viewheight, ::farthest->lighting);
+			ScaleLSShape(farthest->viewx, farthest->shapenum, farthest->viewheight, farthest->lighting);
 		}
 		else
 		{
-			::ScaleShape(::farthest->viewx, ::farthest->shapenum, ::farthest->viewheight);
+			ScaleShape(farthest->viewx, farthest->shapenum, farthest->viewheight);
 		}
 
-		::farthest->viewheight = 32000;
+		farthest->viewheight = 32000;
 	}
 
-	::cloaked_shape = false;
+	cloaked_shape = false;
 }
 
 
@@ -1498,16 +1646,21 @@ bool useBounceOffset = false;
 
 void DrawPlayerWeapon()
 {
-	if (::playstate == ex_victorious)
+	if (vid_is_hw_)
 	{
 		return;
 	}
 
-	if (::gamestate.weapon != -1)
+	if (playstate == ex_victorious)
+	{
+		return;
+	}
+
+	if (gamestate.weapon != -1)
 	{
 		const auto shapenum =
-			::weaponscale[static_cast<int>(::gamestate.weapon)] +
-			::gamestate.weaponframe;
+			weaponscale[static_cast<int>(gamestate.weapon)] +
+			gamestate.weaponframe;
 
 		if (shapenum != 0)
 		{
@@ -1515,9 +1668,9 @@ void DrawPlayerWeapon()
 
 			const auto height = assets_info.is_aog() ? 128 : 88;
 
-			::useBounceOffset = assets_info.is_ps();
-			::scale_player_weapon(shapenum, height);
-			::useBounceOffset = false;
+			useBounceOffset = assets_info.is_ps();
+			scale_player_weapon(shapenum, height);
+			useBounceOffset = false;
 		}
 	}
 }
@@ -1614,19 +1767,19 @@ extern std::uint16_t LastMsgPri;
 
 void RedrawStatusAreas()
 {
-	::DrawInfoArea_COUNT = 3;
-	::InitInfoArea_COUNT = 3;
+	DrawInfoArea_COUNT = 3;
+	InitInfoArea_COUNT = 3;
 
-	::LatchDrawPic(0, 0, TOP_STATUSBARPIC);
-	::ShadowPrintLocationText(sp_normal);
+	LatchDrawPic(0, 0, TOP_STATUSBARPIC);
+	ShadowPrintLocationText(sp_normal);
 
-	::LatchDrawPic(0, 200 - STATUSLINES, STATUSBARPIC);
-	::DrawAmmoPic();
-	::DrawScoreNum();
-	::DrawWeaponPic();
-	::DrawAmmoNum();
-	::DrawKeyPics();
-	::DrawHealthNum();
+	LatchDrawPic(0, 200 - STATUSLINES, STATUSBARPIC);
+	DrawAmmoPic();
+	DrawScoreNum();
+	DrawWeaponPic();
+	DrawAmmoNum();
+	DrawKeyPics();
+	DrawHealthNum();
 }
 
 void F_MapLSRow();
@@ -1635,103 +1788,102 @@ void MapLSRow();
 
 void ThreeDRefresh()
 {
-	::memset(::spotvis, 0, sizeof(::spotvis));
+	memset(spotvis, 0, sizeof(spotvis));
 
-	::bufferofs = 0;
+	bufferofs = 0;
 
-	::UpdateInfoAreaClock();
-	::UpdateStatusBar();
+	UpdateInfoAreaClock();
+	UpdateStatusBar();
 
 	// BBi
-	::vid_is_3d = true;
+	vid_is_3d = true;
 
-	::bufferofs += ::screenofs;
+	bufferofs += screenofs;
 
 	//
 	// follow the walls from there to the right, drawwing as we go
 	//
 
-	if ((::gamestate.flags & GS_LIGHTING) != 0)
+	const auto is_ceiling_textured = (!gp_is_ceiling_solid_);
+	const auto is_floor_textured = (!gp_is_flooring_solid_);
+
+	if (!gp_no_shading_)
 	{
-		switch (::gamestate.flags & (GS_DRAW_FLOOR | GS_DRAW_CEILING))
+		if (is_ceiling_textured && is_floor_textured)
 		{
-		case GS_DRAW_FLOOR | GS_DRAW_CEILING:
-			::MapRowPtr = ::MapLSRow;
-			::WallRefresh();
-			::DrawPlanes();
-			break;
-
-		case GS_DRAW_FLOOR:
-			::MapRowPtr = ::F_MapLSRow;
-			::VGAClearScreen();
-			::WallRefresh();
-			::DrawPlanes();
-			break;
-
-		case GS_DRAW_CEILING:
-			::MapRowPtr = ::C_MapLSRow;
-			::VGAClearScreen();
-			::WallRefresh();
-			::DrawPlanes();
-			break;
-
-		default:
-			::VGAClearScreen();
-			::WallRefresh();
-			break;
+			MapRowPtr = MapLSRow;
+			WallRefresh();
+			DrawPlanes();
+		}
+		else if (!is_ceiling_textured && is_floor_textured)
+		{
+			MapRowPtr = F_MapLSRow;
+			VGAClearScreen();
+			WallRefresh();
+			DrawPlanes();
+		}
+		else if (is_ceiling_textured && !is_floor_textured)
+		{
+			MapRowPtr = C_MapLSRow;
+			VGAClearScreen();
+			WallRefresh();
+			DrawPlanes();
+		}
+		else
+		{
+			VGAClearScreen();
+			WallRefresh();
 		}
 	}
 	else
 	{
-		switch (::gamestate.flags & (GS_DRAW_FLOOR | GS_DRAW_CEILING))
+		if (is_ceiling_textured && is_floor_textured)
 		{
-		case GS_DRAW_FLOOR | GS_DRAW_CEILING:
-			::MapRowPtr = ::MapRow;
-			::WallRefresh();
-			::DrawPlanes();
-			break;
-
-		case GS_DRAW_FLOOR:
-			::MapRowPtr = ::F_MapRow;
-			::VGAClearScreen();
-			::WallRefresh();
-			::DrawPlanes();
-			break;
-
-		case GS_DRAW_CEILING:
-			::MapRowPtr = ::C_MapRow;
-			::VGAClearScreen();
-			::WallRefresh();
-			::DrawPlanes();
-			break;
-
-		default:
-			::VGAClearScreen();
-			::WallRefresh();
-			break;
+			MapRowPtr = MapRow;
+			WallRefresh();
+			DrawPlanes();
+		}
+		else if (!is_ceiling_textured && is_floor_textured)
+		{
+			MapRowPtr = F_MapRow;
+			VGAClearScreen();
+			WallRefresh();
+			DrawPlanes();
+		}
+		else if (is_ceiling_textured && !is_floor_textured)
+		{
+			MapRowPtr = C_MapRow;
+			VGAClearScreen();
+			WallRefresh();
+			DrawPlanes();
+		}
+		else
+		{
+			VGAClearScreen();
+			WallRefresh();
 		}
 	}
 
-	::UpdateTravelTable();
+	UpdateTravelTable();
 
 	//
 	// draw all the scaled images
 	//
-	::DrawScaleds(); // draw scaled stuf
+	DrawScaleds(); // draw scaled stuf
 
 	// BBi
-	::vid_is_3d = false;
+	vid_is_3d = false;
 
-	::DrawPlayerWeapon(); // draw player's hands
+	DrawPlayerWeapon(); // draw player's hands
 
 //
 // show screen and time last cycle
 //
-	if (::fizzlein)
+	if (fizzlein)
 	{
-		::fizzlein = false;
+		fizzlein = false;
 
-		::vid_set_ui_mask_3d(false);
+		vid_set_ui_mask_3d(false);
 
 		bstone::GenericFizzleFX fizzle(BLACK, false);
 
@@ -1739,22 +1891,22 @@ void ThreeDRefresh()
 
 		static_cast<void>(fizzle.present(true));
 
-		::lasttimecount = ::TimeCount; // don't make a big tic count
+		lasttimecount = TimeCount; // don't make a big tic count
 	}
 
-	::bufferofs = 0;
+	bufferofs = 0;
 
 	const auto& assets_info = AssetsInfo{};
 
 	if (assets_info.is_ps())
 	{
-		::DrawRadar();
+		DrawRadar();
 	}
 
 	// BBi
-	::VL_RefreshScreen();
+	VL_RefreshScreen();
 
-	::frameon++;
+	frameon++;
 }
 
 // !!! Used in saved game.
@@ -2022,9 +2174,9 @@ void ShowOverhead(
 
 					if (check_for_hidden_area)
 					{
-						static_cast<void>(::GetAreaNumber(mx, my));
+						static_cast<void>(GetAreaNumber(mx, my));
 
-						if (::GAN_HiddenArea)
+						if (GAN_HiddenArea)
 						{
 							color = HIDDEN_COLOR;
 						}
@@ -2063,7 +2215,7 @@ void ShowOverhead(
 						//
 						if (iconnum == PUSHABLETILE)
 						{
-							if (::show_pwalls_on_automap(mx, my))
+							if (show_pwalls_on_automap(mx, my))
 							{
 								color = (assets_info.is_aog() ? PWALL_COLOR : 0x79);
 							}
@@ -2085,4 +2237,229 @@ void ShowOverhead(
 		baselmx += yinc;
 		baselmy -= xinc;
 	}
+}
+
+int door_get_track_texture_id(
+	const doorobj_t& door)
+{
+	auto result = DOORWALL;
+
+	if (door.vertical)
+	{
+		result += DoorJamsShade[door.type];
+	}
+	else
+	{
+		result += DoorJams[door.type];
+	}
+
+	return result;
+}
+
+void door_get_page_numbers_for_caching(
+	const doorobj_t& door,
+	int& horizontal_locked_page_number,
+	int& horizontal_unlocked_page_number,
+	int& vertical_locked_page_number,
+	int& vertical_unlocked_page_number)
+{
+	switch (door.type)
+	{
+	case dr_normal:
+		horizontal_locked_page_number = DOORWALL + L_METAL;
+		horizontal_unlocked_page_number = horizontal_locked_page_number + UL_METAL;
+
+		vertical_locked_page_number = DOORWALL + L_METAL_SHADE;
+		vertical_unlocked_page_number = vertical_locked_page_number + UL_METAL;
+
+		break;
+
+	case dr_elevator:
+		horizontal_locked_page_number = DOORWALL + L_ELEVATOR;
+		horizontal_unlocked_page_number = horizontal_locked_page_number + UL_METAL;
+
+		vertical_locked_page_number = DOORWALL + L_ELEVATOR_SHADE;
+		vertical_unlocked_page_number = vertical_locked_page_number + UL_METAL;
+
+		break;
+
+	case dr_prison:
+		horizontal_locked_page_number = DOORWALL + L_PRISON;
+		horizontal_unlocked_page_number = horizontal_locked_page_number + UL_METAL;
+
+		vertical_locked_page_number = DOORWALL + L_PRISON_SHADE;
+		vertical_unlocked_page_number = vertical_locked_page_number + UL_METAL;
+
+		break;
+
+	case dr_space:
+		horizontal_locked_page_number = DOORWALL +  L_SPACE;
+		horizontal_unlocked_page_number = horizontal_locked_page_number + UL_METAL;
+
+		vertical_locked_page_number = DOORWALL + L_SPACE_SHADE;
+		vertical_unlocked_page_number = vertical_locked_page_number + UL_METAL;
+
+		break;
+
+	case dr_bio:
+		horizontal_locked_page_number = DOORWALL + L_BIO;
+		horizontal_unlocked_page_number = horizontal_locked_page_number + UL_METAL;
+
+		vertical_locked_page_number = DOORWALL + L_BIO_SHADE;
+		vertical_unlocked_page_number = vertical_locked_page_number + UL_METAL;
+
+		break;
+
+	case dr_high_security:
+		horizontal_locked_page_number = DOORWALL + L_HIGH_SECURITY;
+		horizontal_unlocked_page_number = horizontal_locked_page_number + UL_METAL;
+
+		vertical_locked_page_number = DOORWALL + L_HIGH_SECURITY_SHADE;
+		vertical_unlocked_page_number = vertical_locked_page_number + UL_METAL;
+
+		break;
+
+	case dr_office:
+		horizontal_locked_page_number = DOORWALL + L_HIGH_TECH;
+		horizontal_unlocked_page_number = horizontal_locked_page_number + UL_METAL;
+
+		vertical_locked_page_number = DOORWALL + L_HIGH_TECH_SHADE;
+		vertical_unlocked_page_number = vertical_locked_page_number + UL_METAL;
+
+		break;
+
+	case dr_oneway_up:
+	case dr_oneway_left:
+	case dr_oneway_right:
+	case dr_oneway_down:
+		horizontal_locked_page_number = DOORWALL + NOEXIT;
+		horizontal_unlocked_page_number = DOORWALL + L_ENTER_ONLY;
+
+		vertical_locked_page_number = DOORWALL + NOEXIT_SHADE;
+		vertical_unlocked_page_number = DOORWALL + L_ENTER_ONLY_SHADE;
+
+		break;
+
+	default:
+		Quit("Invalid door type.");
+	}
+}
+
+void door_get_page_numbers(
+	const doorobj_t& door,
+	int& front_face_page_number,
+	int& back_face_page_number)
+{
+	const auto is_unlocked = (door.lock == kt_none);
+
+	auto is_lockable = true;
+
+	front_face_page_number = DOORWALL;
+	back_face_page_number = DOORWALL;
+
+	switch (door.type)
+	{
+	case dr_normal:
+		front_face_page_number += (door.vertical ? L_METAL_SHADE : L_METAL);
+
+		break;
+
+	case dr_elevator:
+		front_face_page_number += (door.vertical ? L_ELEVATOR_SHADE : L_ELEVATOR);
+
+		break;
+
+	case dr_prison:
+		front_face_page_number += (door.vertical ? L_PRISON_SHADE : L_PRISON);
+
+		break;
+
+	case dr_space:
+		front_face_page_number += (door.vertical ? L_SPACE_SHADE : L_SPACE);
+
+		break;
+
+	case dr_bio:
+		front_face_page_number += (door.vertical ? L_BIO_SHADE : L_BIO);
+
+		break;
+
+	case dr_high_security:
+		front_face_page_number += (door.vertical ? L_HIGH_SECURITY_SHADE : L_HIGH_SECURITY);
+
+		break;
+
+	case dr_office:
+		front_face_page_number += (door.vertical ? L_HIGH_TECH_SHADE : L_HIGH_TECH);
+
+		break;
+
+	case dr_oneway_up:
+		is_lockable = false;
+
+		front_face_page_number += L_ENTER_ONLY;
+		back_face_page_number += NOEXIT;
+
+		break;
+
+	case dr_oneway_left:
+		is_lockable = false;
+
+		front_face_page_number += NOEXIT_SHADE;
+		back_face_page_number += L_ENTER_ONLY_SHADE;
+
+		break;
+
+	case dr_oneway_right:
+		is_lockable = false;
+
+		front_face_page_number += L_ENTER_ONLY_SHADE;
+		back_face_page_number += NOEXIT_SHADE;
+
+		break;
+
+	case dr_oneway_down:
+		is_lockable = false;
+
+		front_face_page_number += NOEXIT;
+		back_face_page_number += L_ENTER_ONLY;
+
+		break;
+
+	default:
+		front_face_page_number = 0;
+		back_face_page_number = 0;
+
+		Quit("Invalid door type.");
+
+		break;
+	}
+
+	if (is_lockable)
+	{
+		if (is_unlocked)
+		{
+			front_face_page_number += UL_METAL;
+		}
+
+		back_face_page_number = front_face_page_number;
+	}
+}
+
+int actor_calculate_rotation(
+	const objtype& actor)
+{
+	return CalcRotate(&actor);
+}
+
+int player_get_weapon_sprite_id()
+{
+	if (playstate == ex_victorious || gamestate.weapon == -1)
+	{
+		return 0;
+	}
+
+	return
+		weaponscale[static_cast<std::intptr_t>(gamestate.weapon)] +
+		gamestate.weaponframe;
 }

@@ -4,7 +4,9 @@
 
 
 #include "bstone_sprite_cache.h"
+
 #include <stdexcept>
+
 #include "id_pm.h"
 
 
@@ -33,7 +35,7 @@ const Sprite* SpriteCache::cache(
 		throw std::runtime_error{"Invalid sprite id."};
 	}
 
-	const auto sprite_data = ::PM_GetSpritePage(sprite_id);
+	const auto sprite_data = PM_GetSpritePage(sprite_id);
 
 	if (!sprite_data)
 	{

@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -23,9 +23,11 @@ Free Software Foundation, Inc.,
 
 
 //
-// Base class for audio decoding.
+// Audio decoder interface.
 //
 
+
+#include "bstone_precompiled.h"
 
 #include "bstone_audio_decoder.h"
 
@@ -34,94 +36,40 @@ namespace bstone
 {
 
 
-AudioDecoder::AudioDecoder() :
-	is_initialized_{},
-	raw_data_{},
-	raw_size_{},
-	dst_rate_{},
-	dst_length_in_samples_{}
+namespace detail
 {
-}
 
-AudioDecoder::~AudioDecoder()
+
+AudioDecoderUPtr make_adlib_music_audio_decoder(
+	const Opl3Type opl3_type);
+
+AudioDecoderUPtr make_adlib_sfx_audio_decoder(
+	const Opl3Type opl3_type);
+
+AudioDecoderUPtr make_pcm_audio_decoder();
+
+
+} // detail
+
+
+AudioDecoderUPtr make_audio_decoder(
+	const AudioDecoderType audio_decoder_type,
+	const Opl3Type opl3_type)
 {
-}
-
-bool AudioDecoder::initialize(
-	const void* const raw_data,
-	const int raw_size,
-	const int dst_rate)
-{
-	uninitialize();
-
-	if (!raw_data)
+	switch (audio_decoder_type)
 	{
-		return false;
+		case AudioDecoderType::adlib_music:
+			return detail::make_adlib_music_audio_decoder(opl3_type);
+
+		case AudioDecoderType::adlib_sfx:
+			return detail::make_adlib_sfx_audio_decoder(opl3_type);
+
+		case AudioDecoderType::pcm:
+			return detail::make_pcm_audio_decoder();
+
+		default:
+			return nullptr;
 	}
-
-	if (raw_size < 0)
-	{
-		return false;
-	}
-
-	if (dst_rate < 1)
-	{
-		return false;
-	}
-
-	raw_data_ = raw_data;
-	raw_size_ = raw_size;
-	dst_rate_ = dst_rate;
-	dst_length_in_samples_ = 0;
-
-	return true;
-}
-
-void AudioDecoder::uninitialize()
-{
-	dst_length_in_samples_ = 0;
-	raw_data_ = nullptr;
-	raw_size_ = 0;
-	dst_rate_ = 0;
-
-	set_is_initialized(false);
-}
-
-bool AudioDecoder::is_initialized() const
-{
-	return is_initialized_;
-}
-
-int AudioDecoder::get_dst_rate() const
-{
-	return dst_rate_;
-}
-
-int AudioDecoder::get_dst_length_in_samples() const
-{
-	return dst_length_in_samples_;
-}
-
-const void* AudioDecoder::get_raw_data() const
-{
-	return raw_data_;
-}
-
-void AudioDecoder::set_is_initialized(
-	const bool value)
-{
-	is_initialized_ = value;
-}
-
-int AudioDecoder::get_raw_size() const
-{
-	return raw_size_;
-}
-
-void AudioDecoder::set_dst_length_in_samples(
-	const int value)
-{
-	dst_length_in_samples_ = value;
 }
 
 

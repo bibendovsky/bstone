@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -23,6 +23,7 @@ Free Software Foundation, Inc.,
 
 
 #include "id_pm.h"
+
 #include "id_ca.h"
 #include "id_heads.h"
 #include "bstone_endian.h"
@@ -52,13 +53,13 @@ std::uint32_t* chunks_offsets = nullptr;
 static void open_page_file(
 	const std::string& file_name)
 {
-	::ca_open_resource(file_name, PageFile);
+	ca_open_resource(file_name, PageFile);
 
 	const auto file_length = PageFile.get_size();
 
 	if (file_length > 4 * 1024 * 1024)
 	{
-		::Quit("Page file is too large.");
+		Quit("Page file is too large.");
 	}
 
 	const auto file_length_32 = static_cast<std::int32_t>(file_length);
@@ -67,7 +68,7 @@ static void open_page_file(
 
 	if (PageFile.read(raw_data.data(), file_length_32) != file_length_32)
 	{
-		::Quit("Page file read error.");
+		Quit("Page file read error.");
 	}
 
 	bstone::MemoryBinaryReader reader(raw_data.data(), file_length);
@@ -86,8 +87,8 @@ static void open_page_file(
 
 void PM_Startup()
 {
-	::PM_Shutdown();
-	::open_page_file(Assets::get_page_file_base_name());
+	PM_Shutdown();
+	open_page_file(Assets::get_page_file_base_name());
 }
 
 void PM_Shutdown()
@@ -108,14 +109,14 @@ void* PM_GetPage(
 {
 	if (page_number >= ChunksInFile)
 	{
-		::Quit("Invalid page request.");
+		Quit("Invalid page request.");
 	}
 
 	std::uint32_t offset = chunks_offsets[page_number];
 
 	if (offset == 0)
 	{
-		::Quit("Tried to load a sparse page.");
+		Quit("Tried to load a sparse page.");
 	}
 
 	return &raw_data[offset];

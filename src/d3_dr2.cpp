@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -30,6 +30,7 @@ Free Software Foundation, Inc.,
 
 
 #include "3d_def.h"
+#include "id_vl.h"
 
 
 static const int DEG90 = 900;
@@ -105,6 +106,10 @@ void AsmRefresh()
 	int yt; // temporary ytile
 	int yint; // temporary yintercept
 	int yint_h; // high part of temporary yintercept
+
+	vid_hw_clear_wall_render_list();
+	vid_hw_clear_pushwall_render_list();
+	vid_hw_clear_door_render_list();
 
 	pixx = 0;
 
@@ -525,7 +530,7 @@ horizentry:
 nextpix:
 	++pixx;
 
-	if (pixx < ::viewwidth)
+	if (pixx < viewwidth)
 	{
 		goto pixxloop;
 	}

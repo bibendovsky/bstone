@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -27,6 +27,7 @@ Free Software Foundation, Inc.,
 
 
 #include <string>
+
 #include "id_in.h"
 
 
@@ -102,6 +103,11 @@ struct CP_iteminfo
 
 struct CP_itemtype
 {
+	using CarouselFunc = void(*)(
+		const int item_index,
+		const bool is_left,
+		const bool is_right);
+
 	activetypes active;
 	std::string string;
 
@@ -110,6 +116,8 @@ struct CP_itemtype
 
 	std::uint8_t fontnumber; // Font to print text in
 	std::uint8_t height; // Hight of text (Y_Offset from previous line)
+
+	CarouselFunc carousel_func_;
 }; // CP_itemtype
 
 struct CustomCtrls

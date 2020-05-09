@@ -8,6 +8,7 @@
 
 
 #include <vector>
+
 #include "bstone_sprite.h"
 
 
@@ -43,6 +44,8 @@ private:
 
 	Cache cache_;
 }; // SpriteCache
+
+using SpriteCachePtr = SpriteCache*;
 
 
 } // bstone

@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -24,9 +24,11 @@ Free Software Foundation, Inc.,
 
 #include <cmath>
 #include <cstring>
+
 #include <array>
 #include <deque>
 #include <limits>
+
 #include "3d_def.h"
 #include "audio.h"
 #include "jm_tp.h"
@@ -494,9 +496,7 @@ void CheckWeaponChange()
 void ControlMovement(
 	objtype* ob)
 {
-	bool use_classic_strafe =
-		(in_use_modern_bindings && in_is_binding_pressed(e_bi_strafe)) ||
-		(!in_use_modern_bindings && buttonstate[bt_strafe]);
+	bool use_classic_strafe = in_is_binding_pressed(e_bi_strafe);
 
 	thrustspeed = 0;
 
@@ -530,33 +530,10 @@ void ControlMovement(
 	}
 #else
 	bool use_modern_strafe = false;
+
 	if (use_classic_strafe)
 	{
-		if (in_use_modern_bindings)
-		{
-			use_modern_strafe = true;
-		}
-		else
-		{
-			if (controlx > 0)
-			{
-				int angle = ob->angle - ANGLES / 4;
-				if (angle < 0)
-				{
-					angle += ANGLES;
-				}
-				Thrust(static_cast<std::int16_t>(angle), controlx * MOVESCALE); // move to left
-			}
-			else if (controlx < 0)
-			{
-				int angle = ob->angle + ANGLES / 4;
-				if (angle >= ANGLES)
-				{
-					angle -= ANGLES;
-				}
-				Thrust(static_cast<std::int16_t>(angle), -controlx * MOVESCALE); // move to right
-			}
-		}
+		use_modern_strafe = true;
 	}
 	else if (!gamestate.turn_around)
 	{
@@ -582,13 +559,13 @@ void ControlMovement(
 #endif
 	if (!use_classic_strafe)
 	{
-		if (::gamestate.turn_around)
+		if (gamestate.turn_around)
 		{
-			::controlx = 100 * tics;
+			controlx = 100 * tics;
 
-			if (::gamestate.turn_around < 0)
+			if (gamestate.turn_around < 0)
 			{
-				::controlx = -::controlx;
+				controlx = -controlx;
 			}
 		}
 
@@ -598,7 +575,7 @@ void ControlMovement(
 		anglefrac = anglefrac + controlx;
 		int angleunits = anglefrac / ANGLESCALE;
 		anglefrac -= angleunits * ANGLESCALE;
-		ob->angle -= angleunits;
+		ob->angle -= static_cast<std::int16_t>(angleunits);
 
 		while (ob->angle >= ANGLES)
 		{
@@ -695,7 +672,7 @@ static void STATUSDRAWPIC(
 	int y,
 	int picnum)
 {
-	::LatchDrawPic(x, y + (200 - STATUSLINES), picnum);
+	LatchDrawPic(x, y + (200 - STATUSLINES), picnum);
 }
 
 void StatusAllDrawPic(
@@ -703,7 +680,7 @@ void StatusAllDrawPic(
 	std::uint16_t y,
 	std::uint16_t picnum)
 {
-	::STATUSDRAWPIC(x, y, picnum);
+	STATUSDRAWPIC(x, y, picnum);
 }
 
 /*
@@ -883,10 +860,10 @@ void DrawHealthMonitor()
 
 	for (int i = 0; i < 6; ++i)
 	{
-		::CA_CacheGrChunk(
+		CA_CacheGrChunk(
 			static_cast<std::int16_t>(ECG_HEARTBEAT_00 + ecg_segments[i]));
 
-		::VWB_DrawPic(
+		VWB_DrawPic(
 			120 + (i * 8),
 			200 - STATUSLINES + 8,
 			ECG_HEARTBEAT_00 + ecg_segments[i]);
@@ -917,9 +894,9 @@ void DrawHealthMonitor()
 		{
 			heart_picture_index = ECG_HEART_GOOD;
 
-			if (::g_heart_beat_sound)
+			if (g_heart_beat_sound)
 			{
-				::sd_play_player_sound(H_BEATSND, bstone::ActorChannel::item);
+				sd_play_player_sound(H_BEATSND, bstone::ActorChannel::item);
 			}
 		}
 		else
@@ -938,10 +915,10 @@ void DrawHealthMonitor()
 		heart_sign_tics += 1;
 	}
 
-	::CA_CacheGrChunk(
+	CA_CacheGrChunk(
 		static_cast<std::int16_t>(heart_picture_index));
 
-	::VWB_DrawPic(
+	VWB_DrawPic(
 		120,
 		200 - STATUSLINES + 32,
 		heart_picture_index);
@@ -955,26 +932,6 @@ void DrawHealthMonitor()
 // --------------------------------------------------------------------------
 void DrawHealth()
 {
-	const auto& assets_info = AssetsInfo{};
-
-	if (assets_info.is_ps())
-	{
-		auto health_string = std::to_string(gamestate.health);
-
-		std::uninitialized_fill_n(
-			gamestate.health_str,
-			4,
-			'\0');
-
-		auto index = 0;
-
-		for (auto ch : health_string)
-		{
-			gamestate.health_str[index] = ch - '0';
-			index += 1;
-		}
-	}
-
 	DrawHealthNum_COUNT = 3;
 }
 
@@ -984,11 +941,11 @@ void DrawHealthNum()
 
 	if (!assets_info.is_ps())
 	{
-		::CA_CacheGrChunk(ECG_GRID_PIECE);
+		CA_CacheGrChunk(ECG_GRID_PIECE);
 
 		for (int i = 0; i < 3; ++i)
 		{
-			::VWB_DrawPic(
+			VWB_DrawPic(
 				144 + (i * 8),
 				200 - STATUSLINES + 32,
 				ECG_GRID_PIECE);
@@ -1019,28 +976,36 @@ void DrawHealthNum()
 		py = PrintY;
 
 		VW_DrawPropString(health_string.c_str());
-
-		DrawHealthNum_COUNT -= 1;
 	}
 	else
 	{
-		std::int8_t loop, num;
-		std::int16_t check = 100;
+		const auto base_x = 16;
+		const auto is_zero = (gamestate.health <= 0);
 
-		DrawHealthNum_COUNT--;
+		auto check = 100;
 
-		for (loop = num = 0; loop < 3; loop++, check /= 10)
+		for (int i = 0; i < 3; ++i)
 		{
-			if (gamestate.health < check)
+			auto pic_num = 0;
+
+			if (gamestate.health < check &&
+				(!is_zero || (is_zero && i < 2)))
 			{
-				LatchDrawPic(16 + loop, 162, NG_BLANKPIC);
+				pic_num = NG_BLANKPIC;
 			}
 			else
 			{
-				LatchDrawPic(16 + loop, 162, gamestate.health_str[static_cast<int>(num++)] + NG_0PIC);
+				const auto digit = (gamestate.health / check) % 10;
+				pic_num = NG_0PIC + digit;
 			}
+
+			LatchDrawPic(base_x + i, 162, pic_num);
+
+			check /= 10;
 		}
 	}
+
+	DrawHealthNum_COUNT -= 1;
 }
 
 void TakeDamage(
@@ -1049,7 +1014,7 @@ void TakeDamage(
 {
 	LastAttacker = attacker;
 
-	if (gamestate.flags & GS_ATTACK_INFOAREA)
+	if (!gp_hide_attacker_info_)
 	{
 		if (attacker)
 		{
@@ -1166,18 +1131,7 @@ void DrawScoreNum()
 	}
 	else
 	{
-		if (gamestate.flags & GS_TICS_FOR_SCORE)
-		{
-			LatchNumber(X, Y, 7, realtics);
-		}
-		else if (gamestate.flags & GS_MUSIC_TEST)
-		{
-			LatchNumber(X, Y, 7, music_num);
-		}
-		else
-		{
-			LatchNumber(X, Y, 7, gamestate.tic_score);
-		}
+		LatchNumber(X, Y, 7, gamestate.tic_score);
 	}
 }
 
@@ -1270,7 +1224,7 @@ void DrawKeys()
 
 void DrawKeyPics()
 {
-	::DrawKeyPics_COUNT -= 1;
+	DrawKeyPics_COUNT -= 1;
 
 	const auto& assets_info = AssetsInfo{};
 
@@ -1302,7 +1256,7 @@ void DrawKeyPics()
 				color = off_colors[index];
 			}
 
-			::VWB_Bar(
+			VWB_Bar(
 				257 + (i * 8),
 				200 - STATUSLINES + 25,
 				7,
@@ -1314,13 +1268,13 @@ void DrawKeyPics()
 	{
 		for (auto loop = 0; loop < 3; loop++)
 		{
-			if (::gamestate.numkeys[loop])
+			if (gamestate.numkeys[loop])
 			{
-				::LatchDrawPic(15 + 2 * loop, 179, ::RED_KEYPIC + loop);
+				LatchDrawPic(15 + 2 * loop, 179, RED_KEYPIC + loop);
 			}
 			else
 			{
-				::LatchDrawPic(15 + 2 * loop, 179, ::NO_KEYPIC);
+				LatchDrawPic(15 + 2 * loop, 179, NO_KEYPIC);
 			}
 		}
 	}
@@ -1370,7 +1324,7 @@ void DrawWeaponPic()
 
 	const auto& assets_info = AssetsInfo{};
 
-	::LatchDrawPic(
+	LatchDrawPic(
 		assets_info.is_ps() ? 31 : 22,
 		assets_info.is_ps() ? 176 : 152,
 		WEAPON1PIC + gamestate.weapon);
@@ -1381,20 +1335,20 @@ void DrawWeaponPic()
 void GiveWeapon(
 	int weapon)
 {
-	::GiveAmmo(6);
+	GiveAmmo(6);
 
-	if ((::gamestate.weapons & (1 << weapon)) == 0)
+	if ((gamestate.weapons & (1 << weapon)) == 0)
 	{
-		::gamestate.weapons |= 1 << weapon;
+		gamestate.weapons |= 1 << weapon;
 
-		if (::gamestate.weapon < weapon)
+		if (gamestate.weapon < weapon)
 		{
-			::gamestate.weapon = static_cast<std::int8_t>(weapon);
-			::gamestate.chosenweapon = static_cast<std::int8_t>(weapon);
-			::DrawWeapon();
+			gamestate.weapon = static_cast<std::int8_t>(weapon);
+			gamestate.chosenweapon = static_cast<std::int8_t>(weapon);
+			DrawWeapon();
 		}
 
-		::ComputeAvailWeapons();
+		ComputeAvailWeapons();
 	}
 }
 
@@ -1481,7 +1435,7 @@ void DrawAmmoNum()
 
 	if (assets_info.is_ps() || (!assets_info.is_ps() && gamestate.weapon != wp_autocharge))
 	{
-		::DrawGAmmoNum();
+		DrawGAmmoNum();
 	}
 
 	DrawAmmoNum_COUNT--;
@@ -1502,7 +1456,7 @@ void DrawGAmmoNum()
 
 	if (assets_info.is_ps())
 	{
-		::LatchDrawPic(31, 184, W1_CORNERPIC + gamestate.weapon);
+		LatchDrawPic(31, 184, W1_CORNERPIC + gamestate.weapon);
 	}
 
 	px = PrintX;
@@ -1714,7 +1668,7 @@ void GiveAmmo(
 		DrawWeapon();
 	}
 
-	::sd_play_player_sound(GETAMMOSND, bstone::ActorChannel::item);
+	sd_play_player_sound(GETAMMOSND, bstone::ActorChannel::item);
 }
 
 
@@ -1733,11 +1687,11 @@ void ComputeAvailWeapons()
 	// Determine what ammo ammounts we have avail
 	//
 
-	if (::gamestate.ammo > 0)
+	if (gamestate.ammo > 0)
 	{
 		if (assets_info.is_ps() && gamestate.ammo >= BFG_ENERGY_USE)
 		{
-			::gamestate.useable_weapons =
+			gamestate.useable_weapons =
 				(1 << wp_bfg_cannon) |
 				(1 << wp_grenade) |
 				(1 << wp_ion_cannon) |
@@ -1747,7 +1701,7 @@ void ComputeAvailWeapons()
 		}
 		else if (gamestate.ammo >= GRENADE_ENERGY_USE)
 		{
-			::gamestate.useable_weapons =
+			gamestate.useable_weapons =
 				(1 << wp_grenade) |
 				(1 << wp_ion_cannon) |
 				(1 << wp_burst_rifle) |
@@ -1756,7 +1710,7 @@ void ComputeAvailWeapons()
 		}
 		else
 		{
-			::gamestate.useable_weapons =
+			gamestate.useable_weapons =
 				(1 << wp_ion_cannon) |
 				(1 << wp_burst_rifle) |
 				(1 << wp_pistol) |
@@ -1765,7 +1719,7 @@ void ComputeAvailWeapons()
 	}
 	else
 	{
-		::gamestate.useable_weapons = 1 << wp_autocharge;
+		gamestate.useable_weapons = 1 << wp_autocharge;
 	}
 
 	//
@@ -1818,7 +1772,7 @@ void GiveToken(
 		gamestate.tokens = MAX_TOKENS;
 	}
 
-	::sd_play_player_sound(GOTTOKENSND, bstone::ActorChannel::item);
+	sd_play_player_sound(GOTTOKENSND, bstone::ActorChannel::item);
 }
 
 
@@ -1849,7 +1803,7 @@ bool DisplayInfoMsg(
 		return false;
 	}
 
-	return ::DisplayInfoMsg(
+	return DisplayInfoMsg(
 		Msg.c_str(),
 		Priority,
 		DisplayTime,
@@ -1981,11 +1935,11 @@ auto status_message = std::string{};
 
 void DisplayNoMoMsgs()
 {
-	::LastMsgPri = MP_min_val;
+	LastMsgPri = MP_min_val;
 
 	if (BONUS_QUEUE)
 	{
-		::DisplayPinballBonus();
+		DisplayPinballBonus();
 
 		return;
 	}
@@ -1994,8 +1948,8 @@ void DisplayNoMoMsgs()
 	const auto have_detonator_msg = "\r\r^FC39DESTROY SECURITY CUBE!";
 	const auto destroy_goldfire_msg = "\r\r^FC39  DESTROY GOLDFIRE!";
 
-	::MsgTicsRemain = 0;
-	::StatusAllDrawPic(0, 40, DIM_LIGHTPIC);
+	MsgTicsRemain = 0;
+	StatusAllDrawPic(0, 40, DIM_LIGHTPIC);
 
 	const auto default_msg_length = 78;
 
@@ -2010,9 +1964,9 @@ void DisplayNoMoMsgs()
 
 	auto is_level_locked = true;
 
-	if (::gamestate.mapon < (assets_info.get_levels_per_episode() - 1))
+	if (gamestate.mapon < (assets_info.get_levels_per_episode() - 1))
 	{
-		is_level_locked = ::gamestuff.level[::gamestate.mapon + 1].locked;
+		is_level_locked = gamestuff.level[gamestate.mapon + 1].locked;
 	}
 
 	if (is_level_locked)
@@ -2048,7 +2002,7 @@ void DisplayNoMoMsgs()
 		}
 	}
 
-	::DisplayInfoMsg(status_message.c_str(), MP_max_val, 0, MT_NOTHING);
+	DisplayInfoMsg(status_message.c_str(), MP_max_val, 0, MT_NOTHING);
 }
 
 // --------------------------------------------------------------------------
@@ -2295,7 +2249,7 @@ std::int16_t DrawShape(
 	{
 	case pis_scaled:
 		VW_Bar(x, y, 37, 37, static_cast<std::uint8_t>(InfoAreaSetup.backgr_color)); // JTR changed
-		::vid_draw_ui_sprite(shapenum, x + 19, y + 20, 37);
+		vid_draw_ui_sprite(shapenum, x + 19, y + 20, 37);
 		width = 37;
 		break;
 
@@ -2430,16 +2384,11 @@ void UpdateStatusBar()
 		DrawHealthNum();
 	}
 
-	if (gamestate.flags & (GS_TICS_FOR_SCORE))
-	{
-		DrawScore();
-	}
-
 	const auto& assets_info = AssetsInfo{};
 
 	if (!assets_info.is_ps())
 	{
-		::DrawHealthMonitor();
+		DrawHealthMonitor();
 	}
 }
 
@@ -2448,12 +2397,12 @@ void UpdateStatusBar()
 // ---------------------------------------------------------------------------
 void ForceUpdateStatusBar()
 {
-	::DrawScore();
-	::DrawWeapon();
-	::DrawKeys();
-	::DrawHealth();
-	::UpdateRadarGuage();
-	::UpdateStatusBar();
+	DrawScore();
+	DrawWeapon();
+	DrawKeys();
+	DrawHealth();
+	UpdateRadarGuage();
+	UpdateStatusBar();
 }
 
 
@@ -2550,19 +2499,19 @@ void GetBonus(
 
 		GiveKey(keynum);
 
-		::sd_play_player_sound(GETKEYSND, bstone::ActorChannel::item);
+		sd_play_player_sound(GETKEYSND, bstone::ActorChannel::item);
 
 		TravelTable[check->tilex][check->tiley] &= ~TT_KEYS;
 		break;
 	}
 
 	case bo_money_bag:
-		::sd_play_player_sound(BONUS1SND, bstone::ActorChannel::item);
+		sd_play_player_sound(BONUS1SND, bstone::ActorChannel::item);
 		givepoints = true;
 		break;
 
 	case bo_loot:
-		::sd_play_player_sound(BONUS2SND, bstone::ActorChannel::item);
+		sd_play_player_sound(BONUS2SND, bstone::ActorChannel::item);
 
 		givepoints = true;
 		break;
@@ -2572,13 +2521,13 @@ void GetBonus(
 	case bo_gold2:
 	case bo_gold3:
 	case bo_gold:
-		::sd_play_player_sound(BONUS3SND, bstone::ActorChannel::item);
+		sd_play_player_sound(BONUS3SND, bstone::ActorChannel::item);
 		givepoints = true;
 		break;
 
 
 	case bo_bonus:
-		::sd_play_player_sound(BONUS4SND, bstone::ActorChannel::item);
+		sd_play_player_sound(BONUS4SND, bstone::ActorChannel::item);
 		givepoints = true;
 		break;
 
@@ -2599,7 +2548,7 @@ void GetBonus(
 			return;
 		}
 
-		::sd_play_player_sound(static_health[check->itemnumber - bo_fullheal][1],
+		sd_play_player_sound(static_health[check->itemnumber - bo_fullheal][1],
 			bstone::ActorChannel::item);
 
 		HealSelf(static_health[check->itemnumber - bo_fullheal][0]);
@@ -2634,31 +2583,31 @@ void GetBonus(
 	case bo_plasma_detonator:
 		TravelTable[check->tilex][check->tiley] &= ~TT_KEYS;
 		GivePlasmaDetonator(1);
-		::sd_play_player_sound(GETDETONATORSND, bstone::ActorChannel::item);
+		sd_play_player_sound(GETDETONATORSND, bstone::ActorChannel::item);
 		break;
 
 	case bo_pistol:
-		::sd_play_player_sound(GETPISTOLSND, bstone::ActorChannel::item);
+		sd_play_player_sound(GETPISTOLSND, bstone::ActorChannel::item);
 		GiveWeapon(wp_pistol);
 		break;
 
 	case bo_burst_rifle:
-		::sd_play_player_sound(GETBURSTRIFLESND, bstone::ActorChannel::item);
+		sd_play_player_sound(GETBURSTRIFLESND, bstone::ActorChannel::item);
 		GiveWeapon(wp_burst_rifle);
 		break;
 
 	case bo_ion_cannon:
-		::sd_play_player_sound(GETIONCANNONSND, bstone::ActorChannel::item);
+		sd_play_player_sound(GETIONCANNONSND, bstone::ActorChannel::item);
 		GiveWeapon(wp_ion_cannon);
 		break;
 
 	case bo_grenade:
-		::sd_play_player_sound(GETCANNONSND, bstone::ActorChannel::item);
+		sd_play_player_sound(GETCANNONSND, bstone::ActorChannel::item);
 		GiveWeapon(wp_grenade);
 		break;
 
 	case bo_bfg_cannon:
-		::sd_play_player_sound(GETCANNONSND, bstone::ActorChannel::item);
+		sd_play_player_sound(GETCANNONSND, bstone::ActorChannel::item);
 		GiveWeapon(wp_bfg_cannon);
 		break;
 
@@ -2689,7 +2638,7 @@ void GetBonus(
 		}
 		gamestate.rpower += RADAR_PAK_VALUE;
 
-		::sd_play_player_sound(RADAR_POWERUPSND, bstone::ActorChannel::item);
+		sd_play_player_sound(RADAR_POWERUPSND, bstone::ActorChannel::item);
 
 		UpdateRadarGuage();
 		break;
@@ -2704,6 +2653,11 @@ void GetBonus(
 	StartBonusFlash();
 	check->shapenum = shapenum; // remove from list if shapenum == -1
 	check->itemnumber = bo_nothing;
+
+	if (check->shapenum == -1)
+	{
+		vid_hw_on_remove_static(*check);
+	}
 }
 
 void writeTokenStr(
@@ -2854,9 +2808,9 @@ bool ClipMove(
 
 	if (!g_no_wall_hit_sound)
 	{
-		if (!::sd_is_player_channel_playing(bstone::ActorChannel::hit_wall))
+		if (!sd_is_player_channel_playing(bstone::ActorChannel::hit_wall))
 		{
-			::sd_play_player_sound(HITWALLSND, bstone::ActorChannel::hit_wall);
+			sd_play_player_sound(HITWALLSND, bstone::ActorChannel::hit_wall);
 		}
 	}
 
@@ -2998,20 +2952,20 @@ std::int8_t GetAreaNumber(
 	int tilex,
 	int tiley)
 {
-	::GAN_HiddenArea = false;
+	GAN_HiddenArea = false;
 
 	// Are we on a wall?
 	//
-	if (::tilemap[tilex][tiley] != 0 &&
-		(::tilemap[tilex][tiley] & 0xC0) == 0)
+	if (tilemap[tilex][tiley] != 0 &&
+		(tilemap[tilex][tiley] & 0xC0) == 0)
 	{
 		return 127;
 	}
 
 	// Get initial areanumber from map
 	//
-	auto offset = ::farmapylookup[tiley] + tilex;
-	auto areanumber = ::ValidAreaTile(::mapsegs[0] + offset);
+	auto offset = farmapylookup[tiley] + tilex;
+	auto areanumber = ValidAreaTile(mapsegs[0] + offset);
 
 	// Special tile areas must use a valid areanumber tile around it.
 	//
@@ -3021,7 +2975,7 @@ std::int8_t GetAreaNumber(
 
 		for (auto i = 0; i < 8; ++i)
 		{
-			auto new_x = tilex + ::xy_offset[i][0];
+			auto new_x = tilex + xy_offset[i][0];
 
 			if (new_x < 0 || new_x >= MAPSIZE)
 			{
@@ -3029,15 +2983,15 @@ std::int8_t GetAreaNumber(
 			}
 
 
-			auto new_y = tiley + ::xy_offset[i][1];
+			auto new_y = tiley + xy_offset[i][1];
 
 			if (new_y < 0 || new_y >= MAPSIZE)
 			{
 				continue;
 			}
 
-			offset = ::farmapylookup[new_y] + new_x;
-			areanumber = ::ValidAreaTile(::mapsegs[0] + offset);
+			offset = farmapylookup[new_y] + new_x;
+			areanumber = ValidAreaTile(mapsegs[0] + offset);
 
 			if (areanumber != 0)
 			{
@@ -3057,7 +3011,7 @@ std::int8_t GetAreaNumber(
 	//
 	if (areanumber >= HIDDENAREATILE)
 	{
-		::GAN_HiddenArea = true;
+		GAN_HiddenArea = true;
 		areanumber -= HIDDENAREATILE;
 	}
 	else
@@ -3209,22 +3163,24 @@ void Cmd_Use(
 
 				if ((new_floor = InputFloor()) != -1 && new_floor != gamestate.mapon)
 				{
-					std::int16_t angle = player->angle;
+					const auto is_ps = assets_info.is_ps();
 
-					gamestuff.level[gamestate.mapon].ptilex = player->tilex;
-					gamestuff.level[gamestate.mapon].ptiley = player->tiley;
-
-					if (assets_info.is_ps())
+					if (is_ps)
 					{
-						angle = player->angle - 180;
+						gamestuff.level[gamestate.mapon].ptilex = player->tilex;
+						gamestuff.level[gamestate.mapon].ptiley = player->tiley;
+
+						auto angle = player->angle - 180;
+
 						if (angle < 0)
 						{
 							angle += ANGLES;
 						}
+
+						gamestuff.level[gamestate.mapon].pangle = static_cast<std::int16_t>(angle);
 					}
 
-					gamestuff.level[gamestate.mapon].pangle = angle;
-					playstate = assets_info.is_ps() ? ex_transported : ex_warped;
+					playstate = is_ps ? ex_transported : ex_completed;
 
 					gamestate.lastmapon = gamestate.mapon;
 					gamestate.mapon = new_floor - 1;
@@ -3243,28 +3199,6 @@ void Cmd_Use(
 					playstate = ex_transported;
 					gamestate.lastmapon = gamestate.mapon;
 					gamestate.mapon = (iconnum & 0xff) - 1;
-
-					if (assets_info.is_aog())
-					{
-						gamestuff.level[gamestate.mapon + 1].ptilex = player->tilex;
-						gamestuff.level[gamestate.mapon + 1].ptiley = player->tiley;
-
-#if 0
-						{
-							int angle = player->angle - 180;
-
-							while (angle < 0)
-							{
-								angle += ANGLES;
-							}
-
-							gamestuff.level[gamestate.mapon + 1].pangle =
-								static_cast<std::int16_t>(angle);
-						}
-#else
-						gamestuff.level[gamestate.mapon + 1].pangle = 0;
-#endif
-					}
 					break;
 
 				default:
@@ -3324,8 +3258,8 @@ void Cmd_Use(
 		{
 			for (x = -MDIST; x < MDIST + 1; x++)
 			{
-				auto dst_x = ::player->tilex + x;
-				auto dst_y = ::player->tiley + y;
+				auto dst_x = player->tilex + x;
+				auto dst_y = player->tiley + y;
 
 				// Don't check outside of the map plane:
 				if (dst_x < 0 || dst_y < 0 || dst_x > 63 || dst_y > 63)
@@ -3333,10 +3267,10 @@ void Cmd_Use(
 					continue;
 				}
 
-				if ((!::tilemap[dst_x][dst_y]) &&
-					(::actorat[dst_x][dst_y] >= ::objlist))
+				if ((!tilemap[dst_x][dst_y]) &&
+					(actorat[dst_x][dst_y] >= objlist))
 				{
-					ob = ::actorat[dst_x][dst_y];
+					ob = actorat[dst_x][dst_y];
 				}
 				else
 				{
@@ -3472,14 +3406,14 @@ bool Interrogate(
 		{
 			if ((ob->flags & FL_HAS_AMMO) != 0 && (gamestate.ammo != MAX_AMMO))
 			{
-				::GiveAmmo((US_RndT() % 8) + 1);
+				GiveAmmo((US_RndT() % 8) + 1);
 				ob->flags &= ~FL_HAS_AMMO;
 				msgptr = msg_have_ammo;
 			}
 
 			else if ((ob->flags & FL_HAS_TOKENS) && (gamestate.tokens != MAX_TOKENS))
 			{
-				::GiveToken(5);
+				GiveToken(5);
 				ob->flags &= ~FL_HAS_TOKENS;
 				msgptr = msg_have_token;
 			}
@@ -3490,13 +3424,13 @@ bool Interrogate(
 			// If new areanumber OR no 'area msgs' have been compiled, compile
 			// a list of all special messages for this areanumber.
 			//
-			if ((::LastInfArea == 0xFF) || (::LastInfArea != ob->areanumber))
+			if ((LastInfArea == 0xFF) || (LastInfArea != ob->areanumber))
 			{
-				::NumAreaMsgs = 0;
+				NumAreaMsgs = 0;
 
-				for (auto i = 0; i < ::InfHintList.NumMsgs; ++i)
+				for (auto i = 0; i < InfHintList.NumMsgs; ++i)
 				{
-					const auto& ci = ::InfHintList.smInfo[i];
+					const auto& ci = InfHintList.smInfo[i];
 
 					if (ci.areanumber == 0xFF)
 					{
@@ -3505,17 +3439,17 @@ bool Interrogate(
 
 					if (ci.areanumber == ob->areanumber)
 					{
-						::InfAreaMsgs[::NumAreaMsgs++] = ::InfHintList.smInfo[ci.mInfo.local_val].mInfo.mSeg;
+						InfAreaMsgs[NumAreaMsgs++] = InfHintList.smInfo[ci.mInfo.local_val].mInfo.mSeg;
 					}
 				}
 
-				::LastInfArea = ob->areanumber;
+				LastInfArea = ob->areanumber;
 			}
 
 			// Randomly select an informant hint, either: specific to areanumber
 			// or general hint...
 			//
-			if (::NumAreaMsgs)
+			if (NumAreaMsgs)
 			{
 				if (ob->ammo != ob->areanumber)
 				{
@@ -3526,19 +3460,19 @@ bool Interrogate(
 
 				if (ob->s_tilex == 0xFF)
 				{
-					ob->s_tilex = static_cast<std::uint8_t>(::Random(::NumAreaMsgs));
+					ob->s_tilex = static_cast<std::uint8_t>(Random(NumAreaMsgs));
 				}
 
-				msgptr = ::InfAreaMsgs[ob->s_tilex];
+				msgptr = InfAreaMsgs[ob->s_tilex];
 			}
 			else
 			{
 				if (ob->s_tiley == 0xff)
 				{
-					ob->s_tiley = static_cast<std::uint8_t>(::FirstGenInfMsg + ::Random(::TotalGenInfMsgs));
+					ob->s_tiley = static_cast<std::uint8_t>(FirstGenInfMsg + Random(TotalGenInfMsgs));
 				}
 
-				msgptr = ::InfHintList.smInfo[ob->s_tiley].mInfo.mSeg;
+				msgptr = InfHintList.smInfo[ob->s_tiley].mInfo.mSeg;
 			}
 
 			// Still no msgptr? This is a shared message! Use smInfo[local_val]
@@ -3546,7 +3480,7 @@ bool Interrogate(
 			//
 			if (!msgptr)
 			{
-				msgptr = ::InfHintList.smInfo[::InfHintList.smInfo[ob->s_tiley].mInfo.local_val].mInfo.mSeg;
+				msgptr = InfHintList.smInfo[InfHintList.smInfo[ob->s_tiley].mInfo.local_val].mInfo.mSeg;
 			}
 
 			ob->flags |= FL_INTERROGATED; // Scientist has been interrogated
@@ -3560,23 +3494,23 @@ bool Interrogate(
 
 		rt_value = false;
 
-		if ((ob->flags & FL_MUST_ATTACK) != 0 || (::US_RndT() & 1) != 0)
+		if ((ob->flags & FL_MUST_ATTACK) != 0 || (US_RndT() & 1) != 0)
 		{
 			// Mean
 			//
 			ob->flags &= ~FL_FRIENDLY; // Make him attack!
 			ob->flags |= FL_INTERROGATED; //  "    "     "
-			st = &::MeanSciList;
+			st = &MeanSciList;
 		}
 		else
 		{
 			// Nice
 			//
 			ob->flags |= FL_MUST_ATTACK; // Make him mean!
-			st = &::NiceSciList;
+			st = &NiceSciList;
 		}
 
-		msgptr = st->smInfo[::Random(st->NumMsgs)].mInfo.mSeg;
+		msgptr = st->smInfo[Random(st->NumMsgs)].mInfo.mSeg;
 	}
 
 	if (msgptr)
@@ -3587,12 +3521,12 @@ bool Interrogate(
 
 		if (msg.size() > static_cast<std::string::size_type>(MSG_BUFFER_LEN))
 		{
-			::Quit("Interrogation message too long.");
+			Quit("Interrogation message too long.");
 		}
 
-		::DisplayInfoMsg(msg.c_str(), MP_INTERROGATE, DISPLAY_MSG_STD_TIME * 2, MT_GENERAL);
+		DisplayInfoMsg(msg.c_str(), MP_INTERROGATE, DISPLAY_MSG_STD_TIME * 2, MT_GENERAL);
 
-		::sd_play_player_sound(INTERROGATESND, bstone::ActorChannel::interrogation);
+		sd_play_player_sound(INTERROGATESND, bstone::ActorChannel::interrogation);
 	}
 
 	return rt_value;
@@ -3632,67 +3566,67 @@ std::int16_t InputFloor()
 	{
 		const std::string messages[4] = {
 			// "Current floor:\nSelect a floor."
-			::ca_load_script(ELEVMSG0_TEXT),
+			ca_load_script(ELEVMSG0_TEXT),
 			// "RED access card used to unlock floor!"
-			::ca_load_script(ELEVMSG1_TEXT),
+			ca_load_script(ELEVMSG1_TEXT),
 			// "Floor is locked. Try another floor."
-			::ca_load_script(ELEVMSG4_TEXT),
+			ca_load_script(ELEVMSG4_TEXT),
 			// "You must first get the red access keycard!"
-			::ca_load_script(ELEVMSG5_TEXT)
+			ca_load_script(ELEVMSG5_TEXT)
 		}; // messages
 
 		const char* const floor_number_strings[10] = {
 			"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"
 		};
 
-		::CA_CacheGrChunk(STARTFONT + 3);
-		::CacheLump(TELEPORT_LUMP_START, TELEPORT_LUMP_END);
+		CA_CacheGrChunk(STARTFONT + 3);
+		CacheLump(TELEPORT_LUMP_START, TELEPORT_LUMP_END);
 
-		const auto old_vid_is_hud = ::vid_is_hud;
-		::vid_is_hud = true;
-		::vid_set_ui_mask_3d(false);
-		::VW_FadeOut();
-		::vid_is_hud = old_vid_is_hud;
+		const auto old_vid_is_hud = vid_is_hud;
+		vid_is_hud = true;
+		vid_set_ui_mask_3d(false);
+		VW_FadeOut();
+		vid_is_hud = old_vid_is_hud;
 
-		::DrawTopInfo(sp_normal);
+		DrawTopInfo(sp_normal);
 
 		auto border_width = 7;
 		auto border_height = 5;
-		auto outer_height = ::ref_view_height;
+		auto outer_height = ref_view_height;
 
-		::BevelBox(
+		BevelBox(
 			0,
-			::ref_top_bar_height,
-			static_cast<std::int16_t>(::vga_ref_width),
+			ref_top_bar_height,
+			static_cast<std::int16_t>(vga_ref_width),
 			static_cast<std::int16_t>(outer_height),
 			BORDER_HI_COLOR,
 			BORDER_MED_COLOR,
 			BORDER_LO_COLOR);
 
-		::BevelBox(
+		BevelBox(
 			static_cast<std::int16_t>(border_width),
-			static_cast<std::int16_t>(::ref_top_bar_height + border_height),
-			static_cast<std::int16_t>(::vga_ref_width - (2 * border_width)),
+			static_cast<std::int16_t>(ref_top_bar_height + border_height),
+			static_cast<std::int16_t>(vga_ref_width - (2 * border_width)),
 			static_cast<std::int16_t>(outer_height - (2 * border_height)),
 			BORDER_LO_COLOR,
 			BORDER_MED_COLOR,
 			BORDER_HI_COLOR);
 
-		::CacheDrawPic(8, ref_top_bar_height + 6, TELEPORTBACKPIC);
+		CacheDrawPic(8, ref_top_bar_height + 6, TELEPORTBACKPIC);
 
-		::fontnumber = 1;
-		::CA_CacheGrChunk(STARTFONT + 1);
-		::CacheBMAmsg(FLOORMSG_TEXT);
-		::UNCACHEGRCHUNK(STARTFONT + 1);
+		fontnumber = 1;
+		CA_CacheGrChunk(STARTFONT + 1);
+		CacheBMAmsg(FLOORMSG_TEXT);
+		UNCACHEGRCHUNK(STARTFONT + 1);
 
-		::ShowOverhead(
+		ShowOverhead(
 			14,
 			ref_top_bar_height + 55,
 			32,
 			0,
 			OV_KEYS | OV_WHOLE_MAP);
 
-		::IN_ClearKeysDown();
+		IN_ClearKeysDown();
 
 		auto result = -2;
 		auto draw_stats = true;
@@ -3713,7 +3647,7 @@ std::int16_t InputFloor()
 		pi.fontnumber = 3;
 		pi.custom_line_height = 17;
 
-		::fontcolor = 0x38;
+		fontcolor = 0x38;
 
 		auto last_unlocked_map = 0;
 
@@ -3721,7 +3655,7 @@ std::int16_t InputFloor()
 
 		for (int i = 1; i < stats_levels_per_episode; ++i)
 		{
-			if (!::gamestuff.level[i].locked)
+			if (!gamestuff.level[i].locked)
 			{
 				last_unlocked_map = i;
 			}
@@ -3729,10 +3663,10 @@ std::int16_t InputFloor()
 
 		while (result == -2)
 		{
-			::CalcTics();
-			::in_handle_events();
+			CalcTics();
+			in_handle_events();
 
-			if (::Keyboard[ScanCode::sc_escape])
+			if (Keyboard[ScanCode::sc_escape])
 			{
 				result = -1;
 			}
@@ -3743,26 +3677,26 @@ std::int16_t InputFloor()
 				i <= static_cast<int>(ScanCode::sc_0);
 				++i)
 			{
-				if (::Keyboard[i])
+				if (Keyboard[i])
 				{
 					target_level = i - static_cast<int>(ScanCode::sc_1) + 1;
 					break;
 				}
 			}
 
-			if (target_level >= 1 && target_level != ::gamestate.mapon)
+			if (target_level >= 1 && target_level != gamestate.mapon)
 			{
-				::sd_play_player_sound(ELEV_BUTTONSND, bstone::ActorChannel::item);
+				sd_play_player_sound(ELEV_BUTTONSND, bstone::ActorChannel::item);
 
 				draw_button = true;
 				is_button_pressed = true;
 				button_index = target_level - 1;
 
-				if (!::gamestuff.level[target_level].locked)
+				if (!gamestuff.level[target_level].locked)
 				{
 					result = target_level;
 				}
-				else if (::gamestate.numkeys[kt_red] > 0 &&
+				else if (gamestate.numkeys[kt_red] > 0 &&
 					target_level == (last_unlocked_map + 1))
 				{
 					result = target_level;
@@ -3772,7 +3706,7 @@ std::int16_t InputFloor()
 					draw_current_floor = false;
 					message = &messages[1];
 
-					::gamestate.numkeys[kt_red] = 0;
+					gamestate.numkeys[kt_red] = 0;
 				}
 				else
 				{
@@ -3797,37 +3731,37 @@ std::int16_t InputFloor()
 			{
 				draw_message = false;
 
-				::VWB_DrawPic(24, ref_top_bar_height + 10, TELEPORT_TEXT_BG);
+				VWB_DrawPic(24, ref_top_bar_height + 10, TELEPORT_TEXT_BG);
 
-				::fontcolor = 0x97;
+				fontcolor = 0x97;
 				pi.script[0] = message->c_str();
 				pi.flags = TPF_CACHE_NO_GFX | TPF_USE_CURRENT;
 				pi.cur_x = 0xFFFF;
 				pi.cur_y = 0xFFFF;
-				::TP_InitScript(&pi);
-				::TP_Presenter(&pi);
+				TP_InitScript(&pi);
+				TP_Presenter(&pi);
 
 				if (draw_current_floor)
 				{
-					::fontnumber = 3;
-					::fontcolor = 0x38;
+					fontnumber = 3;
+					fontcolor = 0x38;
 
-					::px = 167;
-					::py = ref_top_bar_height + 10;
+					px = 167;
+					py = ref_top_bar_height + 10;
 
-					::USL_DrawString(
-						floor_number_strings[::gamestate.mapon - 1]);
+					USL_DrawString(
+						floor_number_strings[gamestate.mapon - 1]);
 				}
 
 				if (draw_locked_floor)
 				{
-					::fontnumber = 3;
-					::fontcolor = 0x38;
+					fontnumber = 3;
+					fontcolor = 0x38;
 
-					::px = 82;
-					::py = ref_top_bar_height + 10;
+					px = 82;
+					py = ref_top_bar_height + 10;
 
-					::USL_DrawString(
+					USL_DrawString(
 						floor_number_strings[target_level - 1]);
 				}
 
@@ -3848,32 +3782,32 @@ std::int16_t InputFloor()
 						TELEPORT1ONPIC :
 						TELEPORT1OFFPIC;
 
-					::VWB_DrawPic(
+					VWB_DrawPic(
 						x,
 						y,
 						base_pic + button_index);
 				}
 			}
 
-			::CycleColors();
-			::VW_UpdateScreen();
+			CycleColors();
+			VW_UpdateScreen();
 
-			if (::screenfaded)
+			if (screenfaded)
 			{
-				::VW_FadeIn();
+				VW_FadeIn();
 			}
 
 			if (draw_stats)
 			{
 				draw_stats = false;
 
-				static_cast<void>(::ShowStats(
+				static_cast<void>(ShowStats(
 					167,
 					ref_top_bar_height + 76,
 					ss_normal,
-					&::gamestuff.level[::gamestate.mapon].stats));
+					&gamestuff.level[gamestate.mapon].stats));
 
-				::IN_ClearKeysDown();
+				IN_ClearKeysDown();
 			}
 
 			if (use_delay)
@@ -3886,12 +3820,12 @@ std::int16_t InputFloor()
 				is_button_pressed = false;
 				message = &messages[0];
 
-				::IN_UserInput(210);
-				::IN_ClearKeysDown();
+				IN_UserInput(210);
+				IN_ClearKeysDown();
 			}
 		}
 
-		::IN_ClearKeysDown();
+		IN_ClearKeysDown();
 
 		return static_cast<std::int16_t>(result);
 	}
@@ -3901,7 +3835,7 @@ std::int16_t InputFloor()
 		const auto MAX_TELEPORTS = 20;
 		const std::int8_t MAX_MOVE_DELAY = 10;
 
-		std::int16_t buttonPic, buttonY;
+		std::int16_t buttonPic = 0, buttonY;
 		std::int16_t rt_code = -2, tpNum = gamestate.mapon, lastTpNum = tpNum;
 		std::int16_t teleX[MAX_TELEPORTS] = {16, 40, 86, 23, 44, 62, 83, 27, 118, 161, 161, 161, 213, 213, 184, 205, 226, 256, 276, 276};
 		std::int16_t teleY[MAX_TELEPORTS] = {13, 26, 9, 50, 50, 50, 50, 62, 42, 17, 26, 35, 41, 50, 62, 62, 62, 10, 10, 30};
@@ -3912,11 +3846,11 @@ std::int16_t InputFloor()
 
 		ClearMemory();
 
-		const auto old_vid_is_hud = ::vid_is_hud;
-		::vid_is_hud = true;
-		::vid_set_ui_mask_3d(false);
-		::VW_FadeOut();
-		::vid_is_hud = old_vid_is_hud;
+		const auto old_vid_is_hud = vid_is_hud;
+		vid_is_hud = true;
+		vid_set_ui_mask_3d(false);
+		VW_FadeOut();
+		vid_is_hud = old_vid_is_hud;
 
 		CacheDrawPic(0, 0, TELEPORTBACKTOPPIC);
 		CacheDrawPic(0, 12 * 8, TELEPORTBACKBOTPIC);
@@ -3948,7 +3882,7 @@ std::int16_t InputFloor()
 			CalcTics();
 
 			// BBi
-			::in_handle_events();
+			in_handle_events();
 
 			if (Keyboard[ScanCode::sc_left_arrow])
 			{
@@ -3988,9 +3922,9 @@ std::int16_t InputFloor()
 			{
 				if (locked)
 				{
-					if (!::sd_is_player_channel_playing(bstone::ActorChannel::no_way))
+					if (!sd_is_player_channel_playing(bstone::ActorChannel::no_way))
 					{
-						::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
+						sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
 					}
 				}
 				else
@@ -4147,23 +4081,23 @@ void LoadOverheadChunk(
 {
 	// Find and load chunk
 	//
-	::g_playtemp.set_position(0);
+	g_playtemp.set_position(0);
 
 	std::string chunk_name = "OV" + bstone::StringHelper::octet_to_hex_string(tpNum);
 
 	bool is_succeed = true;
 
-	if (::FindChunk(&g_playtemp, chunk_name) > 0)
+	if (FindChunk(&g_playtemp, chunk_name) > 0)
 	{
 		auto archiver_uptr = bstone::ArchiverFactory::create();
 
 		try
 		{
 			auto archiver = archiver_uptr.get();
-			archiver->initialize(&::g_playtemp);
+			archiver->initialize(&g_playtemp);
 
-			archiver->read_uint8_array(::ov_buffer.data(), 4096);
-			::ov_stats.unarchive(archiver);
+			archiver->read_uint8_array(ov_buffer.data(), 4096);
+			ov_stats.unarchive(archiver);
 			archiver->read_checksum();
 		}
 		catch (const bstone::ArchiverException&)
@@ -4178,8 +4112,8 @@ void LoadOverheadChunk(
 
 	if (!is_succeed)
 	{
-		std::uninitialized_fill(ov_buffer.begin(), ov_buffer.end(), 0x52);
-		std::uninitialized_fill_n(reinterpret_cast<std::uint8_t*>(&ov_stats), sizeof(statsInfoType), 0);
+		std::uninitialized_fill(ov_buffer.begin(), ov_buffer.end(), VgaBuffer::value_type{0x52});
+		std::uninitialized_fill_n(reinterpret_cast<std::uint8_t*>(&ov_stats), sizeof(statsInfoType), std::uint8_t{});
 	}
 
 	ov_noImage = !is_succeed;
@@ -4192,31 +4126,31 @@ void SaveOverheadChunk(
 	//
 	std::string chunk_name = "OV" + bstone::StringHelper::octet_to_hex_string(tpNum);
 
-	::DeleteChunk(::g_playtemp, chunk_name);
+	DeleteChunk(g_playtemp, chunk_name);
 
 	// Prepare buffer
 	//
-	::VL_ScreenToMem(::ov_buffer.data(), 64, 64, TOV_X, TOV_Y);
+	VL_ScreenToMem(ov_buffer.data(), 64, 64, TOV_X, TOV_Y);
 
 	// Write chunk ID, SIZE, and IMAGE
 	//
-	::g_playtemp.seek(0, bstone::StreamSeekOrigin::end);
-	::g_playtemp.write(chunk_name.c_str(), 4);
-	::g_playtemp.skip(4);
+	g_playtemp.seek(0, bstone::StreamSeekOrigin::end);
+	g_playtemp.write(chunk_name.c_str(), 4);
+	g_playtemp.skip(4);
 
-	const auto beg_offset = ::g_playtemp.get_position();
+	const auto beg_offset = g_playtemp.get_position();
 
 	auto archiver_uptr = bstone::ArchiverFactory::create();
 	auto archiver = archiver_uptr.get();
-	archiver->initialize(&::g_playtemp);
+	archiver->initialize(&g_playtemp);
 
-	archiver->write_uint8_array(::ov_buffer.data(), 4096);
-	::ov_stats.archive(archiver);
+	archiver->write_uint8_array(ov_buffer.data(), 4096);
+	ov_stats.archive(archiver);
 	archiver->write_checksum();
 
-	const auto end_offset = ::g_playtemp.get_position();
+	const auto end_offset = g_playtemp.get_position();
 	const auto chunk_size = static_cast<std::int32_t>(end_offset - beg_offset);
-	::g_playtemp.seek(-(chunk_size + 4), bstone::StreamSeekOrigin::current);
+	g_playtemp.seek(-(chunk_size + 4), bstone::StreamSeekOrigin::current);
 	archiver->write_int32(chunk_size);
 }
 
@@ -4372,7 +4306,7 @@ std::uint8_t ShowRatio(
 	if (total)
 	{
 		maxperc = static_cast<std::int8_t>(LRATIO(100, total, perc, 10));
-		numbars = LRATIO(48, 100, maxperc, 10);
+		numbars = static_cast<std::int8_t>(LRATIO(48, 100, maxperc, 10));
 	}
 	else
 	{
@@ -4401,6 +4335,8 @@ std::uint8_t ShowRatio(
 	PrintStatPercent(nx, ny, 0);
 	for (loop = 0; loop < numbars; loop++)
 	{
+		in_handle_events();
+
 		if (LastScan != ScanCode::sc_none)
 		{
 			show_stats_quick = true;
@@ -4427,7 +4363,7 @@ std::uint8_t ShowRatio(
 		{
 			if (!(loop % 2))
 			{
-				::sd_play_player_sound(STATS1SND, bstone::ActorChannel::item);
+				sd_play_player_sound(STATS1SND, bstone::ActorChannel::item);
 			}
 			VW_WaitVBL(1);
 			VW_UpdateScreen();
@@ -4436,11 +4372,11 @@ std::uint8_t ShowRatio(
 
 	if (!show_stats_quick && numbars)
 	{
-		::sd_play_player_sound(STATS2SND, bstone::ActorChannel::item);
+		sd_play_player_sound(STATS2SND, bstone::ActorChannel::item);
 
-		while (::SD_SoundPlaying() && LastScan == ScanCode::sc_none)
+		while (sd_sound_playing() && LastScan == ScanCode::sc_none)
 		{
-			::in_handle_events();
+			in_handle_events();
 		}
 	}
 
@@ -4504,12 +4440,12 @@ void B_GAliFunc()
 
 void B_EManFunc()
 {
-	::sd_play_player_sound(EXTRA_MANSND, bstone::ActorChannel::item);
+	sd_play_player_sound(EXTRA_MANSND, bstone::ActorChannel::item);
 
-	::fontnumber = 2;
+	fontnumber = 2;
 
-	::LatchDrawPic(0, 0, TOP_STATUSBARPIC);
-	::ShadowPrintLocationText(sp_normal);
+	LatchDrawPic(0, 0, TOP_STATUSBARPIC);
+	ShadowPrintLocationText(sp_normal);
 }
 
 void B_MillFunc()
@@ -4583,7 +4519,7 @@ void DisplayPinballBonus()
 		{
 			// Start this bonus!
 			//
-			::sd_play_player_sound(ROLL_SCORESND, bstone::ActorChannel::item);
+			sd_play_player_sound(ROLL_SCORESND, bstone::ActorChannel::item);
 
 			DisplayInfoMsg(PinballBonus[static_cast<int>(loop)].BonusText, MP_PINBALL_BONUS, 7 * 60, MT_BONUS);
 
@@ -4687,18 +4623,16 @@ void SpawnPlayer(
 	std::int16_t tiley,
 	std::int16_t dir)
 {
-	if (gamestuff.level[gamestate.mapon].ptilex &&
-		gamestuff.level[gamestate.mapon].ptiley)
+	const auto& assets_info = AssetsInfo{};
+
+	if (assets_info.is_ps())
 	{
-		tilex = gamestuff.level[gamestate.mapon].ptilex;
-		tiley = gamestuff.level[gamestate.mapon].ptiley;
-		dir = 1 + (gamestuff.level[gamestate.mapon].pangle / 90);
-
-		const auto& assets_info = AssetsInfo{};
-
-		if (assets_info.is_aog())
+		if (gamestuff.level[gamestate.mapon].ptilex &&
+			gamestuff.level[gamestate.mapon].ptiley)
 		{
-			dir -= 1;
+			tilex = gamestuff.level[gamestate.mapon].ptilex;
+			tiley = gamestuff.level[gamestate.mapon].ptiley;
+			dir = 1 + (gamestuff.level[gamestate.mapon].pangle / 90);
 		}
 	}
 
@@ -4728,33 +4662,33 @@ void SpawnPlayer(
 void GunAttack(
 	objtype* ob)
 {
-	if (::gamestate.weapon != wp_autocharge)
+	if (gamestate.weapon != wp_autocharge)
 	{
-		::MakeAlertNoise(ob);
+		MakeAlertNoise(ob);
 	}
 
 	auto skip = false;
 
-	switch (::gamestate.weapon)
+	switch (gamestate.weapon)
 	{
 	case wp_autocharge:
 		skip = true;
-		::sd_play_player_sound(::ATKAUTOCHARGESND, bstone::ActorChannel::weapon);
+		sd_play_player_sound(ATKAUTOCHARGESND, bstone::ActorChannel::weapon);
 
 		break;
 
 	case wp_pistol:
 		skip = true;
-		::sd_play_player_sound(::ATKCHARGEDSND, bstone::ActorChannel::weapon);
+		sd_play_player_sound(ATKCHARGEDSND, bstone::ActorChannel::weapon);
 
 		break;
 
 	case wp_burst_rifle:
-		::sd_play_player_sound(::ATKBURSTRIFLESND, bstone::ActorChannel::weapon);
+		sd_play_player_sound(ATKBURSTRIFLESND, bstone::ActorChannel::weapon);
 		break;
 
 	case wp_ion_cannon:
-		::sd_play_player_sound(::ATKIONCANNONSND, bstone::ActorChannel::weapon);
+		sd_play_player_sound(ATKIONCANNONSND, bstone::ActorChannel::weapon);
 		break;
 
 	default:
@@ -4762,11 +4696,11 @@ void GunAttack(
 	}
 
 	const auto object_radius = 0.5;
-	const auto theta = (::player->angle * ::m_pi()) / 180.0;
+	const auto theta = (player->angle * m_pi()) / 180.0;
 	const auto cos_t = std::cos(theta);
 	const auto sin_t = std::sin(theta);
-	const auto x_1 = bstone::FixedPoint{::player->x}.to_double();
-	const auto y_1 = (MAPSIZE - 1) - bstone::FixedPoint{::player->y}.to_double();
+	const auto x_1 = bstone::FixedPoint{player->x}.to_double();
+	const auto y_1 = (MAPSIZE - 1) - bstone::FixedPoint{player->y}.to_double();
 
 	//
 	// find potential targets
@@ -4848,7 +4782,7 @@ void GunAttack(
 		//
 		// trace a line from player to enemey
 		//
-		if (::CheckLine(closest, ::player))
+		if (CheckLine(closest, player))
 		{
 			break;
 		}
@@ -4858,8 +4792,8 @@ void GunAttack(
 	// hit something
 	//
 
-	const auto dx = std::abs(closest->tilex - ::player->tilex);
-	const auto dy = std::abs(closest->tiley - ::player->tiley);
+	const auto dx = std::abs(closest->tilex - player->tilex);
+	const auto dy = std::abs(closest->tiley - player->tiley);
 
 	auto dist = (dx > dy ? dx : dy);
 
@@ -4867,24 +4801,24 @@ void GunAttack(
 
 	if (dist < 2)
 	{
-		damage = ::US_RndT() / 2; // 4
+		damage = US_RndT() / 2; // 4
 	}
 	else if (dist < 4)
 	{
-		damage = ::US_RndT() / 4; // 6
+		damage = US_RndT() / 4; // 6
 	}
 	else
 	{
-		if ((::US_RndT() / 12) < dist)
+		if ((US_RndT() / 12) < dist)
 		{
 			// missed
 			return;
 		}
 
-		damage = ::US_RndT() / 4; // 6
+		damage = US_RndT() / 4; // 6
 	}
 
-	::DamageActor(closest, damage, ::player);
+	DamageActor(closest, static_cast<std::uint16_t>(damage), player);
 }
 
 void T_Attack(
@@ -5090,7 +5024,7 @@ void T_Attack(
 					}
 				}
 
-				::sd_play_player_sound(ATKGRENADESND, bstone::ActorChannel::weapon);
+				sd_play_player_sound(ATKGRENADESND, bstone::ActorChannel::weapon);
 
 				SpawnProjectile(ob, grenadeobj);
 				MakeAlertNoise(ob);
@@ -5135,7 +5069,7 @@ void T_Attack(
 					}
 				}
 
-				::sd_play_player_sound(ATKIONCANNONSND, bstone::ActorChannel::weapon);
+				sd_play_player_sound(ATKIONCANNONSND, bstone::ActorChannel::weapon);
 
 				SpawnProjectile(ob, bfg_shotobj);
 				MakeAlertNoise(ob);
@@ -5196,7 +5130,7 @@ void T_Player(
 
 		if (play_hit_wall_sound)
 		{
-			::sd_play_player_sound(HITWALLSND, bstone::ActorChannel::hit_wall);
+			sd_play_player_sound(HITWALLSND, bstone::ActorChannel::hit_wall);
 		}
 	}
 
@@ -5216,7 +5150,7 @@ void T_Player(
 
 void RunBlakeRun()
 {
-	::vid_is_hud = true;
+	vid_is_hud = true;
 
 	const fixed BLAKE_SPEED = MOVESCALE * 50;
 
@@ -5293,10 +5227,10 @@ void RunBlakeRun()
 		dy = ABS(dy);
 
 		// BBi
-		::in_handle_events();
+		in_handle_events();
 	} while ((dx < 6) && (dy < 6));
 
-	::vid_is_hud = false;
+	vid_is_hud = false;
 }
 
 void SW_HandleActor(
@@ -5402,6 +5336,9 @@ void SW_HandleStatic(
 		}
 		stat->shapenum = -1;
 		stat->itemnumber = bo_nothing;
+
+		vid_hw_on_remove_static(*stat);
+
 		break;
 	}
 }
@@ -5528,6 +5465,9 @@ bool OperateSmartSwitch(
 
 		doorobjlist[DoorNum].lock = kt_none;
 		OpenDoor(DoorNum);
+
+		vid_hw_on_update_door_lock(DoorNum);
+
 		return false;
 
 
@@ -5577,7 +5517,7 @@ bool OperateSmartSwitch(
 	// Handle Statics
 	//
 	case wit_STATIC:
-		stat = ::FindStatic(tilex, tiley);
+		stat = FindStatic(tilex, tiley);
 
 		if (!stat)
 		{
@@ -5703,10 +5643,10 @@ void try_to_grab_bonus_items()
 	const auto min_distance = item_radius + player_radius;
 	const auto min_sqr_distance = min_distance * min_distance;
 
-	const auto player_x = bstone::FixedPoint{::player->x}.to_double();
-	const auto player_y = bstone::FixedPoint{::player->y}.to_double();
+	const auto player_x = bstone::FixedPoint{player->x}.to_double();
+	const auto player_y = bstone::FixedPoint{player->y}.to_double();
 
-	for (auto item = ::statobjlist; item != laststatobj; ++item)
+	for (auto item = statobjlist; item != laststatobj; ++item)
 	{
 		if (item->shapenum < 0 || (item->flags & FL_BONUS) == 0)
 		{
@@ -5726,9 +5666,15 @@ void try_to_grab_bonus_items()
 			continue;
 		}
 
-		::GetBonus(item);
+		GetBonus(item);
 	}
 }
 
 
+}
+
+
+fixed player_get_weapon_bounce_offset()
+{
+	return bounceOffset;
 }

@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -23,6 +23,7 @@ Free Software Foundation, Inc.,
 
 
 #include <cstring>
+
 #include "audio.h"
 #include "id_ca.h"
 #include "id_heads.h"
@@ -60,7 +61,7 @@ bool Breifing(
 	breifing_type BreifingType,
 	std::uint16_t episode)
 {
-	::HelpPresenter(
+	HelpPresenter(
 		nullptr,
 		true,
 		static_cast<std::uint16_t>(BRIEF_W1 + (episode * 2) + BreifingType - 1),
@@ -131,20 +132,7 @@ char prep_msg[] = "^ST1^CEGet Ready, Blake!\r^XX";
 void DisplayPrepingMsg(
 	const char* text)
 {
-	// Bomb out if FILE_ID.DIZ is bad!!
-	//
-	const auto& assets_info = AssetsInfo{};
-
-	if (!assets_info.is_aog_sw())
-	{
-		if (((gamestate.mapon != 1) || (gamestate.episode != 0)) &&
-			(gamestate.flags & GS_BAD_DIZ_FILE))
-		{
-			Quit();
-		}
-	}
-
-	::vid_set_ui_mask_3d(false);
+	vid_set_ui_mask_3d(false);
 
 	// Cache-in font
 	//
@@ -172,9 +160,9 @@ void DisplayPrepingMsg(
 
 	// Update screen and fade in
 	//
-	const auto old_vid_is_hud = ::vid_is_hud;
+	const auto old_vid_is_hud = vid_is_hud;
 
-	::vid_is_hud = true;
+	vid_is_hud = true;
 
 	VW_UpdateScreen();
 	if (screenfaded)
@@ -182,26 +170,23 @@ void DisplayPrepingMsg(
 		VW_FadeIn();
 	}
 
-	::vid_is_hud = old_vid_is_hud;
+	vid_is_hud = old_vid_is_hud;
 }
 
 void PreloadGraphics()
 {
 	WindowY = 188;
 
-	const auto old_vid_is_hud = ::vid_is_hud;
+	const auto old_vid_is_hud = vid_is_hud;
 
-	if (::playstate != ex_transported)
+	if (playstate != ex_transported)
 	{
-		::vid_is_hud = true;
+		vid_is_hud = true;
 
-		::vid_set_ui_mask_3d(false);
+		vid_set_ui_mask_3d(false);
 	}
 
-	if (!(gamestate.flags & GS_QUICKRUN))
-	{
-		VW_FadeIn();
-	}
+	VW_FadeIn();
 
 	// BBi No delay
 #if 0
@@ -216,7 +201,7 @@ void PreloadGraphics()
 	DrawPlayBorder();
 	VW_UpdateScreen();
 
-	::vid_is_hud = old_vid_is_hud;
+	vid_is_hud = old_vid_is_hud;
 }
 
 
@@ -269,8 +254,8 @@ void DrawHighScores()
 		}
 
 		buffer = std::to_string(s->score);
-		::USL_MeasureString(buffer.c_str(), &w, &h);
-		::ShadowPrint(buffer.c_str(), static_cast<std::int16_t>(205 - w), static_cast<std::int16_t>(68 + (SCORE_Y_SPACING * i))); // 235
+		USL_MeasureString(buffer.c_str(), &w, &h);
+		ShadowPrint(buffer.c_str(), static_cast<std::int16_t>(205 - w), static_cast<std::int16_t>(68 + (SCORE_Y_SPACING * i))); // 235
 
 		//
 		// mission ratio
@@ -297,7 +282,7 @@ void CheckHighScore(
 
 	if (DebugOk)
 	{
-		::sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
+		sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
 
 		return;
 	}
@@ -323,7 +308,7 @@ void CheckHighScore(
 		}
 	}
 
-	::StartCPMusic(static_cast<std::int16_t>(ROSTER_MUS));
+	StartCPMusic(static_cast<std::int16_t>(ROSTER_MUS));
 
 	DrawHighScores();
 

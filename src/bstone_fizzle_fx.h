@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -68,6 +68,9 @@ protected:
 
 	// Returns true if the effect can be interrupted.
 	virtual bool is_abortable() const = 0;
+
+	// Returns true if the effect for vanilla renderer only.
+	virtual bool is_vanilla_only() const = 0;
 
 	// Returns total frame count.
 	virtual int get_frame_count() const = 0;

@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -27,6 +27,7 @@ Free Software Foundation, Inc.,
 
 
 #include <unordered_map>
+
 #include "3d_def.h"
 #include "bstone_file_stream.h"
 
@@ -168,6 +169,10 @@ public:
 
 	int get_total_levels() const;
 
+	int get_barrier_switches_per_level() const noexcept;
+
+	int get_max_barrier_switches_per_level_bits() const noexcept;
+
 	bool is_secret_level(
 		const int level_number) const;
 
@@ -190,6 +195,8 @@ private:
 	static int total_levels_;
 	static int min_secret_level_index_;
 	static int max_secret_level_index_;
+	static int barrier_switches_per_level_;
+	static int max_barrier_switches_per_level_bits_;
 }; // AssetsInfo
 
 
@@ -263,6 +270,7 @@ using AudioSegments = std::vector<std::uint8_t*>;
 using GrSegments = std::vector<void*>;
 using GrNeeded = std::vector<std::uint8_t>;
 using MapHeaderSegments = std::vector<maptype*>;
+using GrSegmentSizes = std::vector<int>;
 
 
 extern std::uint16_t rlew_tag;
@@ -273,6 +281,7 @@ extern std::uint16_t* mapsegs[MAPPLANES];
 extern MapHeaderSegments mapheaderseg;
 extern AudioSegments audiosegs;
 extern GrSegments grsegs;
+extern GrSegmentSizes grsegs_sizes_;
 
 extern GrNeeded grneeded;
 extern std::uint8_t ca_levelbit, ca_levelnum;
@@ -350,8 +359,6 @@ void ca_huff_expand_on_screen(
 void CloseGrFile();
 
 // BBi
-extern int ca_gr_last_expanded_size;
-
 std::string ca_load_script(
 	int chunk_id,
 	bool strip_xx = false);
@@ -379,7 +386,25 @@ std::string ca_calculate_hash(
 	const std::string& base_name,
 	const std::string& extension);
 
-void ca_dump_hashes();
+void ca_calculate_hashes();
+
+void ca_extract_walls(
+	const std::string& destination_dir);
+
+void ca_extract_sprites(
+	const std::string& destination_dir);
+
+void ca_extract_music(
+	const std::string& destination_dir);
+
+void ca_extract_sfx(
+	const std::string& destination_dir);
+
+void ca_extract_texts(
+	const std::string& destination_dir);
+
+void ca_extract_all(
+	const std::string& destination_dir);
 
 
 #endif // BSTONE_ID_CA_INCLUDED

@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -27,7 +27,10 @@ Free Software Foundation, Inc.,
 
 
 #include <cstdint>
+
 #include <memory>
+
+#include "bstone_exception.h"
 
 
 namespace bstone
@@ -38,16 +41,14 @@ class Stream;
 using StreamPtr = Stream*;
 
 
-class ArchiverException
+class ArchiverException :
+	public Exception
 {
 public:
-	virtual const char* get_message() const = 0;
+	explicit ArchiverException(
+		const char* const message);
 
-
-protected:
-	ArchiverException() = default;
-
-	virtual ~ArchiverException() = default;
+	virtual ~ArchiverException();
 }; // ArchiverException
 
 

@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -23,7 +23,9 @@ Free Software Foundation, Inc.,
 
 
 #include <cstring>
+
 #include <memory>
+
 #include "id_heads.h"
 #include "id_ca.h"
 #include "jm_cio.h"
@@ -65,7 +67,7 @@ int IO_LoadFile(
 				std::unique_ptr<std::uint8_t> compressed_buffer(
 					new std::uint8_t[head.CompressLen]);
 
-				::LZH_Decompress(compressed_buffer.get(), *dst,
+				LZH_Decompress(compressed_buffer.get(), *dst,
 					size, head.CompressLen);
 			}
 
@@ -73,10 +75,10 @@ int IO_LoadFile(
 			break;
 
 		case ct_LZW:
-			::Quit("No code for LZW compression.");
+			Quit("No code for LZW compression.");
 
 		default:
-			::Quit("Unknown compression type.");
+			Quit("Unknown compression type.");
 		}
 	}
 	else
