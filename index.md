@@ -338,16 +338,31 @@ Notes:
   Default: `40`  
   Minimum: `20`
 
-* `--debug_dump_hashes`  
-  Dumps hashes (SHA-1) of all resource files into the log.
+* `--calculate_hashes`  
+  Calculates hashes (SHA-1) of all resource files and outputs them into the log.
 
-* `--debug_dump_walls_images dir`  
-  Dumps graphics resources (wall, flooring, etc.) into existing directory `dir`.  
+* `--extract_walls dir`  
+  Extracts graphics resources (wall, flooring, etc.) into existing directory `dir`.  
   Supported file format: [BMP](http://wikipedia.org/wiki/BMP_file_format)
 
-* `--debug_dump_sprites_images dir`  
-  Dumps graphics resources (actors, decorations, etc.) into existing directory `dir`.  
+* `--extract_sprites dir`  
+  Extracts graphics resources (actors, decorations, etc.) into existing directory `dir`.  
   Supported file format: [BMP](http://wikipedia.org/wiki/BMP_file_format)
+
+* `--extract_music dir`  
+  Extracts music resources into existing directory `dir`.  
+  Supported file format: [WAV](http://en.wikipedia.org/wiki/WAV)
+
+* `--extract_sfx dir`  
+  Extracts sfx resources into existing directory `dir`.  
+  Supported file format: [WAV](http://en.wikipedia.org/wiki/WAV)
+
+* `--extract_texts dir`  
+  Extracts text resources into existing directory `dir`.  
+  Supported file format: TXT
+
+* `--extract_all dir`  
+  Extracts all resources (walls, sprites, music, sfx and texts) into existing directory `dir`.
 
 
 7 - Cheat key
