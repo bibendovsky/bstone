@@ -911,6 +911,11 @@ void CA_CacheScreen(
 void CA_CacheMap(
 	std::int16_t mapnum)
 {
+	if (mapheaderseg[mapnum] == nullptr)
+	{
+		Quit("There are no assets for level index " + std::to_string(mapnum) + '.');
+	}
+
 	std::int32_t pos;
 	std::int32_t compressed;
 	std::int16_t plane;
@@ -1448,7 +1453,7 @@ void AssetsInfo::set_version(
 		}
 		else if (is_ps())
 		{
-			levels_per_episode_ = 25;
+			levels_per_episode_ = 24;
 		}
 		else
 		{

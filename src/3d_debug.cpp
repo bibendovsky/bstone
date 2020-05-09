@@ -583,16 +583,19 @@ bool DebugKeys()
 
 			if (level > -1 && level <= max_warp_level)
 			{
-				gamestate.lastmapon = gamestate.mapon;
-				playstate = ex_warped;
-
-				if (ForceLoadDefault)
+				if (mapheaderseg[level])
 				{
-					BONUS_QUEUE = 0;
-					BONUS_SHOWN = 0;
-				}
+					gamestate.lastmapon = gamestate.mapon;
+					playstate = ex_warped;
 
-				gamestate.mapon = static_cast<std::int16_t>(level - 1);
+					if (ForceLoadDefault)
+					{
+						BONUS_QUEUE = 0;
+						BONUS_SHOWN = 0;
+					}
+
+					gamestate.mapon = static_cast<std::int16_t>(level - 1);
+				}
 			}
 		}
 
