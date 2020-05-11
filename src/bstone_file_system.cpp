@@ -350,7 +350,7 @@ bool has_file(
 		return false;
 	}
 
-	return S_ISREG(posix_stat) != 0;
+	return S_ISREG(posix_stat.st_mode) != 0;
 #endif // _WIN32
 }
 
