@@ -32,6 +32,7 @@ Free Software Foundation, Inc.,
 
 #include <cmath>
 
+#include <algorithm>
 #include <iostream>
 
 #include "SDL_messagebox.h"
@@ -47,8 +48,11 @@ Free Software Foundation, Inc.,
 #include "id_vl.h"
 #include "3d_menu.h"
 #include "gfxv.h"
+
 #include "bstone_logger.h"
 #include "bstone_version.h"
+#include "bstone_content_path.h"
+#include "bstone_file_system.h"
 
 
 extern SpanStart spanstart;
@@ -227,15 +231,69 @@ bool check_vgahead_offset_count()
 	return offset_count == assets_info.get_gfx_header_offset_count();
 }
 
-bool check_for_files(
+class AddSearchPathException :
+	public bstone::Exception
+{
+public:
+	explicit AddSearchPathException(
+		const char* const message)
+		:
+		bstone::Exception{std::string{"[ADD_SEARCH_PATH] "} + message}
+	{
+	}
+}; // AddSearchPathException
+
+struct SearchPath
+{
+	std::string source_name_;
+	std::string path_;
+}; // SearchPath
+
+using SearchPaths = std::vector<SearchPath>;
+
+using Games = std::vector<Game>;
+
+struct FoundContent
+{
+	Game game_;
+	AssetsVersion version_;
+	const SearchPath* search_path_;
+}; // FoundContent
+
+using FoundContents = std::vector<FoundContent>;
+
+
+void add_search_path(
+	const std::string& source_name,
+	const std::string& path,
+	SearchPaths& search_paths)
+{
+	if (source_name.empty())
+	{
+		throw AddSearchPathException{"Empty source name."};
+	}
+
+	if (path.empty())
+	{
+		throw AddSearchPathException{"Empty path."};
+	}
+
+	search_paths.emplace_back();
+	auto& search_path = search_paths.back();
+	search_path.source_name_ = source_name;
+	search_path.path_ = path;
+}
+
+bool has_content(
+	const SearchPath& search_path,
 	const AssetsCRefStrings& base_names,
 	const std::string& extension)
 {
-	auto file_stream = bstone::FileStream{};
-
 	for (const auto& base_name : base_names)
 	{
-		if (!ca_open_resource_non_fatal(data_dir_, base_name, extension, file_stream))
+		const auto& path = bstone::file_system::append_path(search_path.path_, base_name.get() + extension);
+
+		if (!bstone::file_system::has_file(path))
 		{
 			return false;
 		}
@@ -244,46 +302,36 @@ bool check_for_files(
 	return true;
 }
 
-AssetsBaseNameToHashMap get_assets_hashes(
+bool has_content(
+	const SearchPath& search_path,
 	const AssetsCRefStrings& base_names,
-	const std::string& extension)
+	const std::string& extension,
+	const AssetsBaseNameToHashMap& hash_map)
 {
-	auto map = AssetsBaseNameToHashMap{};
+	if (!has_content(search_path, base_names, extension))
+	{
+		return false;
+	}
 
 	for (const auto& base_name : base_names)
 	{
-		const auto& hash = ca_calculate_hash(data_dir_, base_name, extension);
+		const auto& hash = ca_calculate_hash(
+			search_path.path_,
+			base_name,
+			extension
+		);
 
 		if (hash.empty())
 		{
-			return {};
+			return false;
 		}
 
-		map[base_name] = hash;
-	}
-
-	return map;
-}
-
-bool compare_assets_hashes(
-	const AssetsBaseNameToHashMap& lhs,
-	const AssetsBaseNameToHashMap& rhs)
-{
-	if (lhs.size() != rhs.size())
-	{
-		return false;
-	}
-
-	for (const auto& lhs_item : lhs)
-	{
-		const auto rhs_it = rhs.find(lhs_item.first);
-
-		if (rhs_it == rhs.cend())
+		if (hash_map.count(base_name) != 1)
 		{
 			return false;
 		}
 
-		if (lhs_item.second != rhs_it->second)
+		if (hash_map.at(base_name) != hash)
 		{
 			return false;
 		}
@@ -292,262 +340,605 @@ bool compare_assets_hashes(
 	return true;
 }
 
-bool find_aog_assets(
-	const bool is_required,
-	const std::string& title,
-	const AssetsCRefStrings& base_names,
-	const std::string& extension,
-	const AssetsBaseNameToHashMap& hashes_v1_0,
-	const AssetsBaseNameToHashMap& hashes_v2_0,
-	const AssetsBaseNameToHashMap& hashes_v2_1,
-	const AssetsBaseNameToHashMap& hashes_v3_0,
-	const AssetsVersion v1_0,
-	const AssetsVersion v2_0,
-	const AssetsVersion v2_1,
-	const AssetsVersion v3_0)
+FoundContent find_aog_content(
+	const SearchPath& search_path)
 {
+	const auto& assets = Assets{};
+
+	auto result = FoundContent{};
+	result.game_ = Game::aog;
+	result.search_path_ = &search_path;
+
+	// v2.1
+	{
+		const auto is_match = has_content(
+			search_path,
+			assets.get_aog_full_base_names(),
+			assets.get_aog_full_extension(),
+			assets.get_aog_full_v2_1_base_name_to_hash_map()
+		);
+
+		if (is_match)
+		{
+			result.version_ = AssetsVersion::aog_full_v2_1;
+			return result;
+		}
+	}
+
+	// v3.0
+	{
+		const auto is_match = has_content(
+			search_path,
+			assets.get_aog_full_base_names(),
+			assets.get_aog_full_extension(),
+			assets.get_aog_full_v3_0_base_name_to_hash_map()
+		);
+
+		if (is_match)
+		{
+			result.version_ = AssetsVersion::aog_full_v3_0;
+			return result;
+		}
+	}
+
+	// v2.0
+	{
+		const auto is_match = has_content(
+			search_path,
+			assets.get_aog_full_base_names(),
+			assets.get_aog_full_extension(),
+			assets.get_aog_full_v2_0_base_name_to_hash_map()
+		);
+
+		if (is_match)
+		{
+			result.version_ = AssetsVersion::aog_full_v2_0;
+			return result;
+		}
+	}
+
+	// v1.0
+	{
+		const auto is_match = has_content(
+			search_path,
+			assets.get_aog_full_base_names(),
+			assets.get_aog_full_extension(),
+			assets.get_aog_full_v1_0_base_name_to_hash_map()
+		);
+
+		if (is_match)
+		{
+			result.version_ = AssetsVersion::aog_full_v1_0;
+			return result;
+		}
+	}
+
+	return FoundContent{};
+}
+
+FoundContent find_aog_sw_content(
+	const SearchPath& search_path)
+{
+	const auto& assets = Assets{};
+
+	auto result = FoundContent{};
+	result.game_ = Game::aog_sw;
+	result.search_path_ = &search_path;
+
+	// v2.1
+	{
+		const auto is_match = has_content(
+			search_path,
+			assets.get_aog_sw_base_names(),
+			assets.get_aog_sw_extension(),
+			assets.get_aog_sw_v2_1_base_name_to_hash_map()
+		);
+
+		if (is_match)
+		{
+			result.version_ = AssetsVersion::aog_sw_v2_1;
+			return result;
+		}
+	}
+
+	// v3.0
+	{
+		const auto is_match = has_content(
+			search_path,
+			assets.get_aog_sw_base_names(),
+			assets.get_aog_sw_extension(),
+			assets.get_aog_sw_v3_0_base_name_to_hash_map()
+		);
+
+		if (is_match)
+		{
+			result.version_ = AssetsVersion::aog_sw_v3_0;
+			return result;
+		}
+	}
+
+	// v2.0
+	{
+		const auto is_match = has_content(
+			search_path,
+			assets.get_aog_sw_base_names(),
+			assets.get_aog_sw_extension(),
+			assets.get_aog_sw_v2_0_base_name_to_hash_map()
+		);
+
+		if (is_match)
+		{
+			result.version_ = AssetsVersion::aog_sw_v2_0;
+			return result;
+		}
+	}
+
+	// v1.0
+	{
+		const auto is_match = has_content(
+			search_path,
+			assets.get_aog_sw_base_names(),
+			assets.get_aog_sw_extension(),
+			assets.get_aog_sw_v1_0_base_name_to_hash_map()
+		);
+
+		if (is_match)
+		{
+			result.version_ = AssetsVersion::aog_sw_v1_0;
+			return result;
+		}
+	}
+
+	return FoundContent{};
+}
+
+FoundContent find_ps_content(
+	const SearchPath& search_path)
+{
+	const auto& assets = Assets{};
+
+	auto result = FoundContent{};
+	result.game_ = Game::ps;
+	result.search_path_ = &search_path;
+
+	{
+		const auto is_match = has_content(
+			search_path,
+			assets.get_ps_base_names(),
+			assets.get_ps_extension(),
+			assets.get_ps_base_name_to_hash_map()
+		);
+
+		if (is_match)
+		{
+			result.version_ = AssetsVersion::ps;
+			return result;
+		}
+	}
+
+
+	return FoundContent{};
+}
+
+FoundContent find_assets(
+	const Game game,
+	const SearchPath& search_path)
+{
+	const auto& assets = Assets{};
+
+	switch (game)
+	{
+		case Game::aog:
+			return find_aog_content(search_path);
+
+		case Game::aog_sw:
+			return find_aog_sw_content(search_path);
+
+		case Game::ps:
+			return find_ps_content(search_path);
+
+		default:
+			Quit("Unsupported game.");
+	}
+}
+
+const char* get_content_acronym(
+	const Game game)
+{
+	switch (game)
+	{
+		case Game::aog:
+			return "AOG";
+
+		case Game::aog_sw:
+			return "AOG (SW)";
+
+		case Game::ps:
+			return "PS";
+
+		default:
+			Quit("Unsupported game.");
+	}
+}
+
+const FoundContent* choose_content(
+	const FoundContents& found_contents)
+{
+	if (found_contents.empty())
+	{
+		Quit("No content.");
+	}
+
+	if (found_contents.size() == 1)
+	{
+		return found_contents.data();
+	}
+
+	bstone::logger_->write("Found multiple contents.");
+
+	using SdlButton = SDL_MessageBoxButtonData;
+	using SdlButtons = std::vector<SdlButton>;
+
+	auto sdl_buttons = SdlButtons{};
+	sdl_buttons.reserve(found_contents.size() + 1);
+
+	auto button_id = 0;
+
+	{
+		sdl_buttons.emplace_back();
+		auto& sdl_button = sdl_buttons.back();
+		sdl_button.buttonid = -1;
+		sdl_button.text = "Cancel";
+	}
+
+	for (auto it = found_contents.crbegin(); it != found_contents.crend(); ++it)
+	{
+		sdl_buttons.emplace_back();
+		auto& sdl_button = sdl_buttons.back();
+		sdl_button.flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT;
+		sdl_button.buttonid = static_cast<int>(it->game_);
+		sdl_button.text = get_content_acronym(it->game_);
+	}
+
+	auto sdl_message_box_data = SDL_MessageBoxData{};
+	sdl_message_box_data.flags = SDL_MESSAGEBOX_INFORMATION;
+	sdl_message_box_data.title = "BStone";
+	sdl_message_box_data.message = "Select content to play.";
+	sdl_message_box_data.numbuttons = static_cast<int>(sdl_buttons.size());
+	sdl_message_box_data.buttons = sdl_buttons.data();
+
+	auto selected_button_id = -1;
+
+	bstone::logger_->write("Waiting for user response.");
+
+	const auto sdl_result = SDL_ShowMessageBox(&sdl_message_box_data, &selected_button_id);
+
+	if (sdl_result != 0)
+	{
+		const auto sdl_error = SDL_GetError();
+		Quit(std::string{"Failed to show message box. "} + sdl_error);
+	}
+
+	if (selected_button_id < 0)
+	{
+		return nullptr;
+	}
+
+	const auto content_it = std::find_if(
+		found_contents.cbegin(),
+		found_contents.cend(),
+		[selected_button_id](const auto& item)
+		{
+			return static_cast<int>(item.game_) == selected_button_id;
+		}
+	);
+
+	if (content_it == found_contents.cend())
+	{
+		Quit("Expected found content.");
+	}
+
+	return &(*content_it);
+}
+
+void set_assets_info(
+	const FoundContent& found_content)
+{
+	const auto& assets = Assets{};
 	auto assets_info = AssetsInfo{};
 
-	const auto has_assets = check_for_files(base_names, extension);
-
-	if (!has_assets)
+	switch (found_content.game_)
 	{
-		if (is_required)
-		{
-			Quit("Missing \"" + title + "\" assets.");
-		}
+		case Game::aog:
+			assets_info.set_base_names(assets.get_aog_full_base_names());
+			assets_info.set_extension(assets.get_aog_full_extension());
 
-		return false;
+			switch (found_content.version_)
+			{
+				case AssetsVersion::aog_full_v1_0:
+					assets_info.set_base_name_to_hash_map(assets.get_aog_full_v1_0_base_name_to_hash_map());
+					break;
+
+				case AssetsVersion::aog_full_v2_0:
+					assets_info.set_base_name_to_hash_map(assets.get_aog_full_v2_0_base_name_to_hash_map());
+					break;
+
+				case AssetsVersion::aog_full_v2_1:
+					assets_info.set_base_name_to_hash_map(assets.get_aog_full_v2_1_base_name_to_hash_map());
+					break;
+
+				case AssetsVersion::aog_full_v3_0:
+					assets_info.set_base_name_to_hash_map(assets.get_aog_full_v3_0_base_name_to_hash_map());
+					break;
+
+				default:
+					Quit("Unsupported game version.");
+			}
+
+			break;
+
+		case Game::aog_sw:
+			assets_info.set_base_names(assets.get_aog_sw_base_names());
+			assets_info.set_extension(assets.get_aog_sw_extension());
+
+			switch (found_content.version_)
+			{
+				case AssetsVersion::aog_sw_v1_0:
+					assets_info.set_base_name_to_hash_map(assets.get_aog_sw_v1_0_base_name_to_hash_map());
+					break;
+
+				case AssetsVersion::aog_sw_v2_0:
+					assets_info.set_base_name_to_hash_map(assets.get_aog_sw_v2_0_base_name_to_hash_map());
+					break;
+
+				case AssetsVersion::aog_sw_v2_1:
+					assets_info.set_base_name_to_hash_map(assets.get_aog_sw_v2_1_base_name_to_hash_map());
+					break;
+
+				case AssetsVersion::aog_sw_v3_0:
+					assets_info.set_base_name_to_hash_map(assets.get_aog_sw_v3_0_base_name_to_hash_map());
+					break;
+
+				default:
+					Quit("Unsupported game version.");
+			}
+			break;
+
+		case Game::ps:
+			assets_info.set_base_names(assets.get_ps_base_names());
+			assets_info.set_extension(assets.get_ps_extension());
+			assets_info.set_base_name_to_hash_map(assets.get_ps_base_name_to_hash_map());
+			break;
+
+		default:
+			Quit("Unsupported game.");
 	}
 
-	const auto hashes = get_assets_hashes(base_names, extension);
-
-	if (hashes.empty())
-	{
-		if (is_required)
-		{
-			Quit("Failed to calculate hashes for \"" + title + "\" assets.");
-		}
-
-		return false;
-	}
-
-	if (compare_assets_hashes(hashes, hashes_v1_0))
-	{
-		assets_info.set_version(v1_0);
-		assets_info.set_base_names(base_names);
-		assets_info.set_extension(extension);
-		assets_info.set_base_name_to_hash_map(hashes_v1_0);
-
-		bstone::logger_->write("Found \"" + title + "\" v1.0.");
-
-		return true;
-	}
-
-	if (compare_assets_hashes(hashes, hashes_v2_0))
-	{
-		assets_info.set_version(v2_0);
-		assets_info.set_base_names(base_names);
-		assets_info.set_extension(extension);
-		assets_info.set_base_name_to_hash_map(hashes_v2_0);
-
-		bstone::logger_->write("Found \"" + title + "\" v2.0.");
-		return true;
-	}
-
-	if (compare_assets_hashes(hashes, hashes_v2_1))
-	{
-		assets_info.set_version(v2_1);
-		assets_info.set_base_names(base_names);
-		assets_info.set_extension(extension);
-		assets_info.set_base_name_to_hash_map(hashes_v2_1);
-
-		bstone::logger_->write("Found \"" + title + "\" v2.1.");
-
-		return true;
-	}
-
-	if (compare_assets_hashes(hashes, hashes_v3_0))
-	{
-		assets_info.set_version(v3_0);
-		assets_info.set_base_names(base_names);
-		assets_info.set_extension(extension);
-		assets_info.set_base_name_to_hash_map(hashes_v3_0);
-
-		bstone::logger_->write("Found \"" + title + "\" v3.0.");
-
-		return true;
-	}
-
-	if (is_required)
-	{
-		Quit("Unsupported \"" + title + "\" assets.");
-	}
-
-	return false;
+	assets_info.set_version(found_content.version_);
 }
 
-bool find_aog_full_assets(
-	const bool is_required)
+void log_found_content(
+	const FoundContent& found_content)
 {
-	const auto& title = std::string{"Aliens of Gold (full)"};
+	const auto& assets_info = AssetsInfo{};
 
-	if (is_required)
+	static const auto aog_title = std::string{"Aliens Of Gold"};
+	static const auto aog_sw_title = std::string{"Aliens Of Gold (shareware)"};
+	static const auto ps_title = std::string{"Planet Strike"};
+
+	static const auto v1_0 = std::string{"v1.0"};
+	static const auto v2_0 = std::string{"v2.0"};
+	static const auto v2_1 = std::string{"v2.1"};
+	static const auto v3_0 = std::string{"v3.0"};
+
+	auto title = std::string{};
+	auto version = std::string{};
+
+	switch (found_content.version_)
 	{
-		bstone::logger_->write("Forcing \"" + title + "\"...");
+		case AssetsVersion::aog_sw_v1_0:
+			title = aog_sw_title;
+			version = v1_0;
+			break;
+
+		case AssetsVersion::aog_sw_v2_0:
+			title = aog_sw_title;
+			version = v2_0;
+			break;
+
+		case AssetsVersion::aog_sw_v2_1:
+			title = aog_sw_title;
+			version = v2_1;
+			break;
+
+		case AssetsVersion::aog_sw_v3_0:
+			title = aog_sw_title;
+			version = v3_0;
+			break;
+
+		case AssetsVersion::aog_full_v1_0:
+			title = aog_title;
+			version = v1_0;
+			break;
+
+		case AssetsVersion::aog_full_v2_0:
+			title = aog_title;
+			version = v2_0;
+			break;
+
+		case AssetsVersion::aog_full_v2_1:
+			title = aog_title;
+			version = v2_1;
+			break;
+
+		case AssetsVersion::aog_full_v3_0:
+			title = aog_title;
+			version = v3_0;
+			break;
+
+		case AssetsVersion::ps:
+			title = ps_title;
+			break;
 	}
 
-	const auto is_found = find_aog_assets(
-		is_required,
-		title,
-		Assets::get_aog_full_base_names(),
-		Assets::get_aog_full_extension(),
-		Assets::get_aog_full_v1_0_base_name_to_hash_map(),
-		Assets::get_aog_full_v2_0_base_name_to_hash_map(),
-		Assets::get_aog_full_v2_1_base_name_to_hash_map(),
-		Assets::get_aog_full_v3_0_base_name_to_hash_map(),
-		AssetsVersion::aog_full_v1_0,
-		AssetsVersion::aog_full_v2_0,
-		AssetsVersion::aog_full_v2_1,
-		AssetsVersion::aog_full_v3_0);
+	auto name_and_version = std::string{"\"Blake Stone: "};
+	name_and_version += (title.empty() ? "???" : title);
+	name_and_version += '\"';
 
-	return is_found;
+	if (!version.empty())
+	{
+		name_and_version += ' ';
+		name_and_version += version;
+	}
+
+	bstone::logger_->write("Found " + name_and_version + '.');
+	bstone::logger_->write("Content source: " + found_content.search_path_->source_name_);
 }
 
-bool find_aog_sw_assets(
-	const bool is_required)
+void find_contents()
 {
-	const auto& title = std::string{"Aliens of Gold (shareware)"};
+	bstone::logger_->write("Looking for game content.");
 
-	if (is_required)
+	// Games to find.
+	//
+	const auto force_aog = g_args.has_option("aog");
+	const auto force_aog_sw = g_args.has_option("aog_sw");
+	const auto force_ps = g_args.has_option("ps");
+
+	const auto forced_game_count = force_aog + force_aog_sw + force_ps;
+
+	if (forced_game_count > 1)
 	{
-		bstone::logger_->write("Forcing \"" + title + "\"...");
+		Quit("Multiple game modes defined.");
 	}
 
-	const auto is_found = find_aog_assets(
-		is_required,
-		title,
-		Assets::get_aog_sw_base_names(),
-		Assets::get_aog_sw_extension(),
-		Assets::get_aog_sw_v1_0_base_name_to_hash_map(),
-		Assets::get_aog_sw_v2_0_base_name_to_hash_map(),
-		Assets::get_aog_sw_v2_1_base_name_to_hash_map(),
-		Assets::get_aog_sw_v3_0_base_name_to_hash_map(),
-		AssetsVersion::aog_sw_v1_0,
-		AssetsVersion::aog_sw_v2_0,
-		AssetsVersion::aog_sw_v2_1,
-		AssetsVersion::aog_sw_v3_0);
+	auto games_to_find = Games{};
 
-	return is_found;
-}
-
-bool find_ps_assets(
-	const bool is_required)
-{
-	const auto& title = std::string{"Planet Strike"};
-
-	const auto has_assets = check_for_files(Assets::get_ps_base_names(), Assets::get_ps_extension());
-
-	if (!has_assets)
+	if (forced_game_count == 0)
 	{
-		if (is_required)
-		{
-			Quit("Missing \"" + title + "\" assets.");
-		}
-
-		return false;
-	}
-
-	const auto hashes = get_assets_hashes(Assets::get_ps_base_names(), Assets::get_ps_extension());
-
-	if (hashes.empty())
-	{
-		if (is_required)
-		{
-			Quit("Failed to calculate hashes for \"" + title + "\" assets.");
-		}
-
-		return false;
-	}
-
-	if (compare_assets_hashes(hashes, Assets::get_ps_base_name_to_hash_map()))
-	{
-		auto assets_info = AssetsInfo{};
-
-		assets_info.set_version(AssetsVersion::ps);
-		assets_info.set_base_names(Assets::get_ps_base_names());
-		assets_info.set_extension(Assets::get_ps_extension());
-		assets_info.set_base_name_to_hash_map(Assets::get_ps_base_name_to_hash_map());
-
-		bstone::logger_->write("Found \"" + title + "\".");
-		return true;
-	}
-
-	if (is_required)
-	{
-		Quit("Unsupported \"" + title + "\" assets.");
-	}
-
-	return false;
-}
-
-void find_ps_assets()
-{
-	bstone::logger_->write("Forcing \"Planet Strike\" version...");
-
-	static_cast<void>(find_ps_assets(true));
-}
-
-void find_any_assets()
-{
-	bstone::logger_->write();
-	bstone::logger_->write("Probing for assets...");
-
-	auto assets_info = AssetsInfo{};
-
-	if (find_aog_full_assets(false))
-	{
-		return;
-	}
-
-#ifdef __vita__
-// Prefer sw to ps in case both, but not aog_full are installed and "Aliens of Gold" LiveArea region is pressed
-	if (find_aog_sw_assets(false))
-	{
-		return;
-	}
-#endif
-	if (find_ps_assets(false))
-	{
-		return;
-	}
-
-	if (find_aog_sw_assets(false))
-	{
-		return;
-	}
-
-	Quit("No assets.");
-}
-
-void find_assets()
-{
-	if (g_args.has_option("aog"))
-	{
-		static_cast<void>(find_aog_full_assets(true));
-	}
-	else if (g_args.has_option("ps"))
-	{
-		static_cast<void>(find_ps_assets(true));
-	}
-	else if (g_args.has_option("aog_sw"))
-	{
-		static_cast<void>(find_aog_sw_assets(true));
+		games_to_find = {Game::aog, Game::aog_sw, Game::ps};
 	}
 	else
 	{
-		static_cast<void>(find_any_assets());
+		if (force_aog)
+		{
+			games_to_find = {Game::aog};
+		}
+		else if (force_aog_sw)
+		{
+			games_to_find = {Game::aog_sw};
+		}
+		else
+		{
+			games_to_find = {Game::ps};
+		}
 	}
+
+
+	// Paths to search.
+	//
+	const auto& working_full_dir = bstone::file_system::append_path_separator(
+		bstone::file_system::get_working_dir());
+
+	const auto& data_full_dir = bstone::file_system::append_path_separator(
+		data_dir_.empty() ? working_full_dir : bstone::file_system::resolve_path(data_dir_));
+
+	auto search_paths = SearchPaths{};
+
+	if (data_full_dir != working_full_dir)
+	{
+		add_search_path("custom dir", data_full_dir, search_paths);
+	}
+	else
+	{
+		{
+			add_search_path("working dir", working_full_dir, search_paths);
+		}
+
+		{
+			const auto& source_name = std::string{"GOG"};
+			const auto& content_path = bstone::make_content_path(bstone::ContentPathProvider::gog);
+
+			if (!content_path.aog_.empty())
+			{
+				add_search_path(source_name, content_path.aog_, search_paths);
+			}
+
+			if (!content_path.ps_.empty())
+			{
+				add_search_path(source_name, content_path.ps_, search_paths);
+			}
+		}
+
+		{
+			const auto& source_name = std::string{"Steam"};
+			const auto& content_path = bstone::make_content_path(bstone::ContentPathProvider::steam);
+
+			if (!content_path.aog_.empty())
+			{
+				add_search_path(source_name, content_path.aog_, search_paths);
+			}
+
+			if (!content_path.ps_.empty())
+			{
+				add_search_path(source_name, content_path.ps_, search_paths);
+			}
+		}
+	}
+
+
+	// Find contents.
+	//
+	auto found_contents = FoundContents{};
+
+	for (const auto& search_path : search_paths)
+	{
+		for (const auto game : games_to_find)
+		{
+			const auto already_found = std::any_of(
+				found_contents.cbegin(),
+				found_contents.cend(),
+				[game](const auto& item)
+				{
+					return item.game_ == game;
+				}
+			);
+
+			if (already_found)
+			{
+				continue;
+			}
+
+			const auto& found_content = find_assets(game, search_path);
+
+			if (found_content.game_ != Game::none &&
+				found_content.search_path_ != nullptr &&
+				found_content.version_ != AssetsVersion::none)
+			{
+				found_contents.push_back(found_content);
+			}
+		}
+	}
+
+	if (found_contents.empty())
+	{
+		Quit("Content not found.");
+	}
+
+	const auto content = choose_content(found_contents);
+
+	if (content == nullptr)
+	{
+		bstone::logger_->write("Cancelled by user.");
+
+		Quit();
+	}
+
+	set_assets_info(*content);
+
+	data_dir_ = content->search_path_->path_;
+
+	log_found_content(*content);
 }
 
 
@@ -853,8 +1244,6 @@ extern std::int16_t EpisodeSelect[];
 
 void CheckForEpisodes()
 {
-	find_assets();
-
 	const auto& assets_info = AssetsInfo{};
 
 	if (assets_info.is_aog_full())
@@ -1227,6 +1616,8 @@ void freed_main()
 	// Setup for APOGEECD thingie.
 	//
 	InitDestPath();
+
+	find_contents();
 
 	bstone::logger_->write();
 	bstone::logger_->write("Data path: \"" + data_dir_ + "\"");

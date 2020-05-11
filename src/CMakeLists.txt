@@ -206,6 +206,7 @@ target_include_directories(
 		dosbox
 		lib/glm
 		lib/xbrz
+		sys/win32
 		${PROJECT_BINARY_DIR}
 )
 
@@ -313,12 +314,15 @@ target_sources(
 		bstone_cl_args.h
 		bstone_crc32.h
 		bstone_endian.h
+		bstone_encoding.h
 		bstone_exception.h
 		bstone_file_stream.h
+		bstone_file_system.h
 		bstone_fixed_point.h
 		bstone_fizzle_fx.h
 		bstone_format_string.h
 		bstone_generic_fizzle_fx.h
+		bstone_content_path.h
 		bstone_logger.h
 		bstone_low_pass_filter.h
 		bstone_memory_binary_reader.h
@@ -345,6 +349,14 @@ target_sources(
 		bstone_uptr_resource_list.h
 		bstone_version.h
 )
+
+if (WIN32)
+	target_sources(
+		${PROJECT_NAME}
+		PRIVATE
+			sys/win32/bstone_win32_registry.h
+	)
+endif ()
 
 target_sources(
 	${PROJECT_NAME}
@@ -426,6 +438,7 @@ target_sources(
 		bstone_adlib_music_decoder.cpp
 		bstone_adlib_sfx_decoder.cpp
 		bstone_archiver_impl.cpp
+		bstone_content_path.cpp
 		bstone_audio_decoder.cpp
 		bstone_audio_mixer.cpp
 		bstone_binary_reader.cpp
@@ -433,12 +446,15 @@ target_sources(
 		bstone_cl_args.cpp
 		bstone_crc32.cpp
 		bstone_dosbox_dbopl.cpp
+		bstone_encoding.cpp
 		bstone_exception.cpp
 		bstone_file_stream.cpp
+		bstone_file_system.cpp
 		bstone_fixed_point.cpp
 		bstone_fizzle_fx.cpp
 		bstone_format_string.cpp
 		bstone_generic_fizzle_fx.cpp
+		bstone_gog_content_path.cpp
 		bstone_logger.cpp
 		bstone_memory_binary_reader.cpp
 		bstone_memory_stream.cpp
@@ -451,6 +467,7 @@ target_sources(
 		bstone_sha1.cpp
 		bstone_sprite.cpp
 		bstone_sprite_cache.cpp
+		bstone_steam_content_path.cpp
 		bstone_stream.cpp
 		bstone_string_helper.cpp
 		bstone_text_reader.cpp
@@ -463,6 +480,7 @@ if (WIN32)
 		${PROJECT_NAME}
 		PRIVATE
 			sys/win32/bstone_win32.rc
+			sys/win32/bstone_win32_registry.cpp
 	)
 endif ()
 

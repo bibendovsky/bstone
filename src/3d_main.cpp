@@ -44,8 +44,10 @@ Free Software Foundation, Inc.,
 #include "id_vl.h"
 #include "3d_menu.h"
 #include "movie.h"
+
 #include "bstone_archiver.h"
 #include "bstone_endian.h"
+#include "bstone_file_system.h"
 #include "bstone_logger.h"
 #include "bstone_memory_stream.h"
 #include "bstone_ps_fizzle_fx.h"
@@ -9970,15 +9972,6 @@ int main(
 
 void InitDestPath()
 {
-	const auto separator =
-#ifdef _WIN32
-		'\\'
-#else
-		'/'
-#endif
-		;
-
-	auto default_data_dir = get_default_data_dir();
 	auto requested_data_dir = g_args.get_option_value("data_dir");
 
 	if (requested_data_dir.empty())
@@ -9988,11 +9981,6 @@ void InitDestPath()
 	else
 	{
 		data_dir_ = requested_data_dir;
-
-		if (data_dir_.back() != separator)
-		{
-			data_dir_ += separator;
-		}
 	}
 
 	static const auto& mod_dir_option_name = std::string{"mod_dir"};
@@ -10000,14 +9988,6 @@ void InitDestPath()
 	if (g_args.has_option(mod_dir_option_name))
 	{
 		mod_dir_ = g_args.get_option_value(mod_dir_option_name);
-
-		if (!mod_dir_.empty())
-		{
-			if (mod_dir_.back() != separator)
-			{
-				mod_dir_ += separator;
-			}
-		}
 	}
 }
 
@@ -10637,24 +10617,6 @@ const std::string& get_profile_dir()
 
 		profile_dir = g_args.get_option_value("profile_dir");
 
-		if (!profile_dir.empty())
-		{
-			const auto separator_char =
-#ifdef _WIN32
-				'\\'
-#else
-				'/'
-#endif
-			;
-
-			const auto end_char = profile_dir.back();
-
-			if (end_char != '\\' && end_char != '/')
-			{
-				profile_dir += separator_char;
-			}
-		}
-
 		if (profile_dir.empty())
 		{
 			auto sdl_dir = SDL_GetPrefPath("bibendovsky", "bstone");
@@ -10681,17 +10643,13 @@ const std::string& get_default_data_dir()
 	{
 		is_initialized = true;
 
-		auto sdl_dir = SDL_GetBasePath();
+		result = bstone::file_system::get_working_dir();
 
-		if (sdl_dir)
-		{
-			result = sdl_dir;
-			SDL_free(sdl_dir);
-		}
-	}
 #ifdef __vita__
-	result = "ux0:/data/bstone/";
+		result = "ux0:/data/bstone/";
 #endif
+	}
+
 	return result;
 }
 
