@@ -196,9 +196,16 @@ extern const std::uint8_t colormap[16896];
 const std::uint8_t* lightsource;
 
 
+const std::string& get_message_box_title()
+{
+	static const auto result = "BStone v" + bstone::Version::get_string();
+
+	return result;
+}
+
+
 namespace
 {
-
 
 int get_vgahead_offset_count()
 {
@@ -602,7 +609,7 @@ const FoundContent* choose_content(
 
 	auto sdl_message_box_data = SDL_MessageBoxData{};
 	sdl_message_box_data.flags = SDL_MESSAGEBOX_INFORMATION;
-	sdl_message_box_data.title = "BStone";
+	sdl_message_box_data.title = get_message_box_title().c_str();
 	sdl_message_box_data.message = "Select content to play.";
 	sdl_message_box_data.numbuttons = static_cast<int>(sdl_buttons.size());
 	sdl_message_box_data.buttons = sdl_buttons.data();
@@ -1588,7 +1595,7 @@ static void output_version()
 	//
 	static_cast<void>(SDL_ShowSimpleMessageBox(
 		SDL_MESSAGEBOX_INFORMATION,
-		"BStone",
+		get_message_box_title().c_str(),
 		message.c_str(),
 		nullptr)
 	);

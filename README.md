@@ -99,6 +99,19 @@ Legend:
 * PS - Planet Strike
 
 
+The port auto-detect assets of some digital distribution services.
+Note that option `--data_dir` disables auto-detection.
+
+Supported services:
+
+- [GOG](http://gog.com/)  
+  Windows only.
+
+- [Steam](http://store.steampowered.com)  
+  Windows only.  
+  "The Apogee Throwback Pack" supported as well as separated titles.
+
+
 4 - Profile
 ===========
 
@@ -187,18 +200,15 @@ Notes:
 
 * `--aog_sw`  
   Switches the port to "Blake Stone: Aliens Of Gold (shareware)" mode.  
-  If appropriate data files will not be found the port will fail.  
-  Default switch strategy: AOG -> PS -> AOG (SW)
+  If appropriate data files will not be found the port will fail.
 
 * `--aog`  
   Switches the port to "Blake Stone: Aliens Of Gold" mode.  
-  If appropriate data files will not be found the port will fail.  
-  Default switch strategy: AOG -> PS -> AOG (SW)
+  If appropriate data files will not be found the port will fail.
 
 * `--ps`  
   Switches the port to "Blake Stone: Planet Strike" mode.  
-  If appropriate data files will not be found the port will fail.  
-  Default switch strategy: AOG -> PS -> AOG (SW)
+  If appropriate data files will not be found the port will fail.
 
 * `--no_screens`  
   Skips start-up screens and the ending promo pages (AOG SW).

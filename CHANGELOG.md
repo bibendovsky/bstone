@@ -1,6 +1,12 @@
 # BStone changelog
 
 
+## [1.2.1] - 2020-05-11
+### Added
+- Auto-detect game content of GOG and Steam.
+- Show message box with options if multiple game contents found.
+
+
 ## [1.2.0] - 2020-05-09
 ### Added
 - 3D-renderer (OpenGL backend).
