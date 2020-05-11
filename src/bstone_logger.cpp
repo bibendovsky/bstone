@@ -39,6 +39,8 @@ Free Software Foundation, Inc.,
 
 const std::string& get_profile_dir();
 
+const std::string& get_message_box_title();
+
 
 namespace bstone
 {
@@ -181,7 +183,7 @@ void DefaultLogger::write(
 	{
 		static_cast<void>(SDL_ShowSimpleMessageBox(
 			SDL_MESSAGEBOX_ERROR,
-			"BStone",
+			get_message_box_title().c_str(),
 			message_.c_str(),
 			nullptr)
 		);
