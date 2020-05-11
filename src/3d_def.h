@@ -3873,6 +3873,15 @@ class TextWriter;
 } // bstone
 
 
+enum class Game
+{
+	none,
+	aog,
+	aog_sw,
+	ps,
+}; // Game
+
+
 constexpr int tilemap_wall_mask = 0B0011'1111;
 constexpr int tilemap_door_track_flag = 0B0100'0000;
 constexpr int tilemap_door_flag = 0B1000'0000;
