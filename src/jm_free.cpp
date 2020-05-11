@@ -584,20 +584,20 @@ const FoundContent* choose_content(
 
 	auto button_id = 0;
 
+	for (const auto& found_content : found_contents)
+	{
+		sdl_buttons.emplace_back();
+		auto& sdl_button = sdl_buttons.back();
+		sdl_button.flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT;
+		sdl_button.buttonid = button_id++;
+		sdl_button.text = get_content_acronym(found_content.game_);
+	}
+
 	{
 		sdl_buttons.emplace_back();
 		auto& sdl_button = sdl_buttons.back();
 		sdl_button.buttonid = -1;
 		sdl_button.text = "Cancel";
-	}
-
-	for (auto it = found_contents.crbegin(); it != found_contents.crend(); ++it)
-	{
-		sdl_buttons.emplace_back();
-		auto& sdl_button = sdl_buttons.back();
-		sdl_button.flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT;
-		sdl_button.buttonid = static_cast<int>(it->game_);
-		sdl_button.text = get_content_acronym(it->game_);
 	}
 
 	auto sdl_message_box_data = SDL_MessageBoxData{};
@@ -624,21 +624,7 @@ const FoundContent* choose_content(
 		return nullptr;
 	}
 
-	const auto content_it = std::find_if(
-		found_contents.cbegin(),
-		found_contents.cend(),
-		[selected_button_id](const auto& item)
-		{
-			return static_cast<int>(item.game_) == selected_button_id;
-		}
-	);
-
-	if (content_it == found_contents.cend())
-	{
-		Quit("Expected found content.");
-	}
-
-	return &(*content_it);
+	return &found_contents[selected_button_id];
 }
 
 void set_assets_info(
@@ -779,6 +765,9 @@ void log_found_content(
 		case AssetsVersion::ps:
 			title = ps_title;
 			break;
+
+		default:
+			Quit("Unsupported version.");
 	}
 
 	auto name_and_version = std::string{"\"Blake Stone: "};
