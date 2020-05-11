@@ -170,7 +170,10 @@ void Ren3dGlVertexInputMgrImpl::set(
 
 void Ren3dGlVertexInputMgrImpl::bind_default_vao()
 {
-	default_vertex_input_->bind_vao();
+	if (default_vertex_input_)
+	{
+		default_vertex_input_->bind_vao();
+	}
 }
 
 void Ren3dGlVertexInputMgrImpl::initialize_default_vertex_input()
