@@ -10,7 +10,8 @@ Contents
 1. Disclaimer
 2. Overview  
    2.1. Overview (PS Vita)
-3. Required assets
+3. Required assets  
+   3.1. Addon support.
 4. Profile
 5. Compiling  
    5.1. Generic instructions for Linux-based system or build environment (MinGW)
@@ -97,6 +98,26 @@ Legend:
 * AOG SW - Aliens Of Gold (shareware)
 * AOG - Aliens Of Gold (full)
 * PS - Planet Strike
+
+
+The port auto-detect assets of some digital distribution services.
+Note that option `--data_dir` disables auto-detection.
+
+Supported services:
+
+- [GOG](http://gog.com/)  
+  Windows only.
+
+- [Steam](http://store.steampowered.com)  
+  Windows only.  
+  "The Apogee Throwback Pack" supported as well as separated titles.
+
+
+3.1 - Addon support
+===================
+
+Don't overwrite any original files.
+Put addon files into different directory and point to them with option `mod_dir` (i.e. `bstone.exe --mod_dir addon1`).
 
 
 4 - Profile
@@ -187,18 +208,15 @@ Notes:
 
 * `--aog_sw`  
   Switches the port to "Blake Stone: Aliens Of Gold (shareware)" mode.  
-  If appropriate data files will not be found the port will fail.  
-  Default switch strategy: AOG -> PS -> AOG (SW)
+  If appropriate data files will not be found the port will fail.
 
 * `--aog`  
   Switches the port to "Blake Stone: Aliens Of Gold" mode.  
-  If appropriate data files will not be found the port will fail.  
-  Default switch strategy: AOG -> PS -> AOG (SW)
+  If appropriate data files will not be found the port will fail.
 
 * `--ps`  
   Switches the port to "Blake Stone: Planet Strike" mode.  
-  If appropriate data files will not be found the port will fail.  
-  Default switch strategy: AOG -> PS -> AOG (SW)
+  If appropriate data files will not be found the port will fail.
 
 * `--no_screens`  
   Skips start-up screens and the ending promo pages (AOG SW).
