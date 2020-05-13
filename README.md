@@ -10,7 +10,8 @@ Contents
 1. Disclaimer
 2. Overview  
    2.1. Overview (PS Vita)
-3. Required assets
+3. Required assets  
+   3.1. Addon support.
 4. Profile
 5. Compiling  
    5.1. Generic instructions for Linux-based system or build environment (MinGW)
@@ -110,6 +111,13 @@ Supported services:
 - [Steam](http://store.steampowered.com)  
   Windows only.  
   "The Apogee Throwback Pack" supported as well as separated titles.
+
+
+3.1 - Addon support
+===================
+
+Don't overwrite any original files.
+Put addon files into different directory and point to them with option `mod_dir` (i.e. `bstone.exe --mod_dir addon1`).
 
 
 4 - Profile
