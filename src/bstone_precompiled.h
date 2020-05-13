@@ -49,6 +49,7 @@ Free Software Foundation, Inc.,
 #include <bitset>
 #include <deque>
 #include <chrono>
+#include <codecvt>
 #include <exception>
 #include <fstream>
 #include <functional>

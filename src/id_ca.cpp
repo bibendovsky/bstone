@@ -43,8 +43,6 @@ loaded into the data segment
 #include <algorithm>
 #include <memory>
 
-#include "SDL_endian.h"
-
 #include "audio.h"
 #include "jm_lzh.h"
 #include "id_heads.h"
@@ -57,6 +55,7 @@ loaded into the data segment
 #include "bstone_binary_writer.h"
 #include "bstone_endian.h"
 #include "bstone_exception.h"
+#include "bstone_file_system.h"
 #include "bstone_logger.h"
 #include "bstone_rgb_palette.h"
 #include "bstone_sdl2_types.h"
@@ -144,66 +143,6 @@ static const int BUFFERSIZE = 0x10000;
 
 
 // BBi
-constexpr auto path_native_separator =
-#ifdef _WIN32
-		'\\'
-#else // _WIN32
-		'/'
-#endif // _WIN32
-		;
-
-std::string ca_normalize_path(
-	const std::string& path)
-{
-	auto result = path;
-
-	for (auto& ch : result)
-	{
-		if (ch == '/' || ch == '\\')
-		{
-			if (ch != path_native_separator)
-			{
-				ch = path_native_separator;
-			}
-		}
-	}
-
-	return result;
-}
-
-std::string ca_append_path(
-	const std::string& path,
-	const std::string& sub_path)
-{
-	if (path.empty() || sub_path.empty())
-	{
-		return std::string{};
-	}
-	else if (!path.empty() && sub_path.empty())
-	{
-		return path;
-	}
-	else if (path.empty() && !sub_path.empty())
-	{
-		return sub_path;
-	}
-	else
-	{
-		auto result = std::string{};
-		result.reserve(path.size() + 1 + sub_path.size());
-		result += path;
-
-		if (path.back() != path_native_separator)
-		{
-			result += path_native_separator;
-		}
-
-		result += sub_path;
-
-		return result;
-	}
-}
-
 std::string ca_make_padded_asset_number_string(
 	const int number)
 {
@@ -1215,7 +1154,7 @@ bool ca_open_resource_non_fatal(
 	bstone::FileStream& file_stream)
 {
 	const auto file_name = file_name_without_ext + file_extension;
-	const auto path = data_dir + file_name;
+	const auto path = bstone::file_system::append_path(data_dir, file_name);
 
 	auto is_open = false;
 
@@ -1224,7 +1163,7 @@ bool ca_open_resource_non_fatal(
 	if (!is_open)
 	{
 		auto&& file_name_lc = bstone::StringHelper::to_lower_ascii(file_name);
-		const auto path_lc = data_dir + file_name_lc;
+		const auto path_lc = bstone::file_system::append_path(data_dir, file_name_lc);
 
 		is_open = file_stream.open(path_lc);
 	}
@@ -2301,7 +2240,7 @@ void ImageExtractor::extract_walls(
 		return;
 	}
 
-	destination_dir_ = ca_normalize_path(destination_dir);
+	destination_dir_ = bstone::file_system::normalize_path(destination_dir);
 
 	set_palette(sdl_surface_64x64x8_.get(), vga_palette_);
 
@@ -2336,7 +2275,7 @@ void ImageExtractor::extract_sprites(
 		return;
 	}
 
-	destination_dir_ = ca_normalize_path(destination_dir);
+	destination_dir_ = bstone::file_system::normalize_path(destination_dir);
 
 	for (int i = 0; i < sprite_count_; ++i)
 	{
@@ -2549,7 +2488,10 @@ bool ImageExtractor::save_image(
 
 	const auto& wall_index_string = ca_make_padded_asset_number_string(image_index);
 
-	const auto& file_name = ca_append_path(destination_dir_, name_prefix + wall_index_string + ".bmp");
+	const auto& file_name = bstone::file_system::append_path(
+		destination_dir_,
+		name_prefix + wall_index_string + ".bmp"
+	);
 
 	const auto sdl_result = SDL_SaveBMP(sdl_surface, file_name.c_str());
 
@@ -2894,7 +2836,11 @@ void AudioExtractor::extract_music(
 	CA_CacheAudioChunk(music_index);
 
 	const auto& number_string = ca_make_padded_asset_number_string(number);
-	const auto& file_name = ca_append_path(destination_dir, "music_" + number_string + ".wav");
+
+	const auto& file_name = bstone::file_system::append_path(
+		destination_dir,
+		"music_" + number_string + ".wav"
+	);
 
 	auto file_stream = bstone::FileStream{file_name, bstone::StreamOpenMode::write};
 
@@ -3160,7 +3106,11 @@ void AudioExtractor::extract_sfx(
 	const auto& sfx_info = sd_get_sfx_info(number);
 
 	const auto& number_string = ca_make_padded_asset_number_string(number);
-	const auto& file_name = ca_append_path(destination_dir, "sfx_" + number_string + ".wav");
+
+	const auto& file_name = bstone::file_system::append_path(
+		destination_dir,
+		"sfx_" + number_string + ".wav"
+	);
 
 	auto file_stream = bstone::FileStream{file_name, bstone::StreamOpenMode::write};
 
@@ -3192,7 +3142,7 @@ void ca_extract_music(
 	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
 
 	auto audio_extractor = AudioExtractor{};
-	audio_extractor.extract_music(ca_normalize_path(destination_dir));
+	audio_extractor.extract_music(bstone::file_system::normalize_path(destination_dir));
 
 	bstone::logger_->write(">>> ================");
 }
@@ -3206,7 +3156,7 @@ void ca_extract_sfx(
 	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
 
 	auto audio_extractor = AudioExtractor{};
-	audio_extractor.extract_sfx(ca_normalize_path(destination_dir));
+	audio_extractor.extract_sfx(bstone::file_system::normalize_path(destination_dir));
 
 	bstone::logger_->write(">>> ================");
 }
@@ -3437,7 +3387,11 @@ void TextExtractor::extract_text(
 	}
 
 	const auto& number_string = ca_make_padded_asset_number_string(number);
-	const auto& file_name = ca_append_path(dst_dir, "text_" + number_string + ".txt");
+
+	const auto& file_name = bstone::file_system::append_path(
+		dst_dir,
+		"text_" + number_string + ".txt"
+	);
 
 	auto file_stream = bstone::FileStream{file_name, bstone::StreamOpenMode::write};
 
@@ -3465,7 +3419,7 @@ void ca_extract_texts(
 	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
 
 	auto text_extractor = TextExtractor{};
-	text_extractor.extract_text(ca_normalize_path(destination_dir));
+	text_extractor.extract_text(bstone::file_system::normalize_path(destination_dir));
 
 	bstone::logger_->write(">>> ================");
 }

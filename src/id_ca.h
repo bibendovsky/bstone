@@ -95,7 +95,7 @@ enum class AssetsVersion
 }; // AssetsVersion
 
 
-struct AssetsInfo final
+class AssetsInfo
 {
 public:
 	AssetsVersion get_version() const;
@@ -200,7 +200,7 @@ private:
 }; // AssetsInfo
 
 
-struct Assets final
+struct Assets
 {
 	static constexpr auto max_size = 4000000;
 
