@@ -9983,12 +9983,20 @@ void InitDestPath()
 		data_dir_ = requested_data_dir;
 	}
 
+	data_dir_ = bstone::file_system::normalize_path(
+		bstone::file_system::append_path_separator(
+			data_dir_));
+
 	static const auto& mod_dir_option_name = std::string{"mod_dir"};
 
 	if (g_args.has_option(mod_dir_option_name))
 	{
 		mod_dir_ = g_args.get_option_value(mod_dir_option_name);
 	}
+
+	mod_dir_ = bstone::file_system::normalize_path(
+		bstone::file_system::append_path_separator(
+			mod_dir_));
 }
 
 // BBi
@@ -10627,10 +10635,14 @@ const std::string& get_profile_dir()
 				SDL_free(sdl_dir);
 			}
 		}
-	}
+
 #ifdef __vita__
-	profile_dir = "ux0:/data/bstone/";
+		profile_dir = "ux0:/data/bstone/";
 #endif
+
+		profile_dir = bstone::file_system::append_path_separator(profile_dir);
+	}
+
 	return profile_dir;
 }
 
