@@ -932,7 +932,9 @@ void find_contents()
 
 	set_assets_info(*content);
 
-	data_dir_ = content->search_path_->path_;
+	data_dir_ = bstone::file_system::normalize_path(
+		bstone::file_system::append_path_separator(
+			content->search_path_->path_));
 
 	log_found_content(*content);
 }
