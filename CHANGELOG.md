@@ -1,6 +1,11 @@
 # BStone changelog
 
 
+## [1.2.2] - 2020-05-14
+### Fixed
+- Handling of file paths.
+
+
 ## [1.2.1] - 2020-05-11
 ### Added
 - Auto-detect game content of GOG and Steam.
