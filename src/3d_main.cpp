@@ -7395,6 +7395,8 @@ const auto scan_code_name_map = std::unordered_map<ScanCode, std::string, ScanCo
 	{ScanCode::sc_mouse_right, "mouse_right", },
 	{ScanCode::sc_mouse_x1, "mouse_x1", },
 	{ScanCode::sc_mouse_x2, "mouse_x2", },
+	{ScanCode::sc_mouse_wheel_down, "mouse_wheel_down", },
+	{ScanCode::sc_mouse_wheel_up, "mouse_wheel_up", },
 };
 
 
