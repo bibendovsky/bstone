@@ -1654,8 +1654,12 @@ void freed_main()
 	initialize_boss_constants();
 	initialize_messages();
 	initialize_ca_constants();
+
 	gamestuff.initialize();
+	old_gamestuff = gamestuff;
+
 	gamestate.initialize();
+	old_gamestate = gamestate;
 
 	if (g_args.has_option("no_screens"))
 	{
