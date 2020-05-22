@@ -149,7 +149,10 @@ enum class ScanCode
 	sc_mouse_middle = 0x65,
 	sc_mouse_right = 0x66,
 	sc_mouse_x1 = 0x67,
-	sc_mouse_x2 = 0x68
+	sc_mouse_x2 = 0x68,
+
+	sc_mouse_wheel_down = 0x69,
+	sc_mouse_wheel_up = 0x6A,
 }; // ScanCode
 
 #define key_None 0
@@ -260,6 +263,9 @@ enum BindingId
 	e_bi_pause,
 	e_bi_grab_mouse,
 
+	e_bi_cycle_previous_weapon,
+	e_bi_cycle_next_weapon,
+
 	e_bi_last_entry,
 }; // BindingId
 
@@ -312,29 +318,14 @@ private:
 
 
 public:
-	KeyboardState() :
-		state_()
-	{
-	}
-
-	KeyboardState(
-		const KeyboardState& that) = delete;
-
-	KeyboardState& operator=(
-		const KeyboardState& that) = delete;
-
-	~KeyboardState()
-	{
-	}
-
 	State::reference operator[](
-		int index)
+		const int index)
 	{
 		return state_[index];
 	}
 
 	State::reference operator[](
-		ScanCode scan_code)
+		const ScanCode scan_code)
 	{
 		return state_[static_cast<std::size_t>(scan_code)];
 	}

@@ -342,6 +342,49 @@ const int BASETURN = 35;
 const int RUNTURN = 70;
 
 
+void cycle_weapon(
+	const int direction)
+{
+	auto weapon_index = gamestate.weapon;
+
+	while (true)
+	{
+		weapon_index += direction;
+
+		if (weapon_index < wp_autocharge)
+		{
+			weapon_index = wp_bfg_cannon;
+		}
+		else if (weapon_index >= wp_SPACER)
+		{
+			weapon_index = wp_autocharge;
+		}
+
+		const auto weapon_bit = 1 << weapon_index;
+
+		if ((gamestate.useable_weapons & weapon_bit) != 0 &&
+			(gamestate.weapons & weapon_bit) != 0)
+		{
+			break;
+		}
+	}
+
+	if (weapon_index != gamestate.weapon)
+	{
+		buttonstate[bt_ready_autocharge + weapon_index] = true;
+	}
+}
+
+void cycle_previous_weapon()
+{
+	cycle_weapon(-1);
+}
+
+void cycle_next_weapon()
+{
+	cycle_weapon(1);
+}
+
 void PollKeyboardButtons()
 {
 	if (in_is_binding_pressed(e_bi_attack))
@@ -402,6 +445,20 @@ void PollKeyboardButtons()
 		{
 			buttonstate[bt_ready_plasma_detonators] = true;
 		}
+	}
+
+	if (in_is_binding_pressed(e_bi_cycle_previous_weapon))
+	{
+		in_reset_binding_state(e_bi_cycle_previous_weapon);
+
+		cycle_previous_weapon();
+	}
+
+	if (in_is_binding_pressed(e_bi_cycle_next_weapon))
+	{
+		in_reset_binding_state(e_bi_cycle_next_weapon);
+
+		cycle_next_weapon();
 	}
 }
 

@@ -838,6 +838,9 @@ static BindsItems binds = {
 	{"ANTI-PLASMA CANNON (PS)", 0, &in_bindings[e_bi_weapon_6], },
 	{"FISSION DETONATOR (PS)", 0, &in_bindings[e_bi_weapon_7], },
 	{"", 0, nullptr, },
+	{"CYCLE NEXT", 0, &in_bindings[e_bi_cycle_next_weapon], },
+	{"CYCLE PREVIOUS", 0, &in_bindings[e_bi_cycle_previous_weapon], },
+	{"", 0, nullptr, },
 
 	{"INTERACTION", 0, nullptr, },
 	{"USE", 0, &in_bindings[e_bi_use], },
@@ -1051,6 +1054,9 @@ void binds_initialize_menu()
 	binds_names[ScanCode::sc_mouse_right] = "MOUSE 3";
 	binds_names[ScanCode::sc_mouse_x1] = "MOUSE 4";
 	binds_names[ScanCode::sc_mouse_x2] = "MOUSE 5";
+
+	binds_names[ScanCode::sc_mouse_wheel_down] = "MWHEEL DOWN";
+	binds_names[ScanCode::sc_mouse_wheel_up] = "MWHEEL UP";
 
 	for (const auto& binds_name : binds_names)
 	{

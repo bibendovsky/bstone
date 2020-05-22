@@ -45,6 +45,7 @@ Free Software Foundation, Inc.,
 #include <cstring>
 
 #include "SDL_events.h"
+#include "SDL_version.h"
 
 #include "id_ca.h"
 #include "id_heads.h"
@@ -862,6 +863,41 @@ static void in_handle_mouse_motion(
 	}
 }
 
+static void in_handle_mouse_wheel(
+	const SDL_MouseWheelEvent& e)
+{
+	if (!in_is_mouse_grabbed)
+	{
+		return;
+	}
+
+	auto vertical_value = e.y;
+
+#if SDL_VERSION_ATLEAST(2, 0, 4)
+	if (e.direction == SDL_MOUSEWHEEL_FLIPPED)
+	{
+		vertical_value = -vertical_value;
+	}
+#endif // SDL_VERSION_ATLEAST(2, 0, 4)
+
+	auto scan_code = ScanCode{};
+
+	if (vertical_value < 0)
+	{
+		scan_code = ScanCode::sc_mouse_wheel_down;
+	}
+	else if (vertical_value > 0)
+	{
+		scan_code = ScanCode::sc_mouse_wheel_up;
+	}
+
+	if (scan_code != ScanCode::sc_none)
+	{
+		Keyboard[scan_code] = true;
+		LastScan = scan_code;
+	}
+}
+
 static void in_handle_mouse(
 	const SDL_Event& e)
 {
@@ -874,6 +910,10 @@ static void in_handle_mouse(
 
 	case SDL_MOUSEMOTION:
 		in_handle_mouse_motion(e.motion);
+		break;
+
+	case SDL_MOUSEWHEEL:
+		in_handle_mouse_wheel(e.wheel);
 		break;
 	}
 }
@@ -1069,6 +1109,7 @@ void in_handle_events()
 		case SDL_MOUSEBUTTONDOWN:
 		case SDL_MOUSEBUTTONUP:
 		case SDL_MOUSEMOTION:
+		case SDL_MOUSEWHEEL:
 			in_handle_mouse(e);
 			break;
 
@@ -1428,6 +1469,9 @@ void in_set_default_bindings()
 	in_bindings[e_bi_weapon_5][0] = ScanCode::sc_5;
 	in_bindings[e_bi_weapon_6][0] = ScanCode::sc_6;
 	in_bindings[e_bi_weapon_7][0] = ScanCode::sc_back_quote;
+
+	in_bindings[e_bi_cycle_next_weapon][0] = ScanCode::sc_mouse_wheel_up;
+	in_bindings[e_bi_cycle_previous_weapon][0] = ScanCode::sc_mouse_wheel_down;
 
 	in_bindings[e_bi_use][0] = ScanCode::sc_space;
 	in_bindings[e_bi_use][1] = ScanCode::sc_mouse_right;
