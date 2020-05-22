@@ -56,7 +56,7 @@ class Stream;
 enum class ScanCode;
 
 
-const int BS_SAVE_VERSION = 9;
+const int BS_SAVE_VERSION = 10;
 
 #define GOLD_MORPH_LEVEL (19) // Level which Dr. GoldFire Morphs.
 
@@ -2443,12 +2443,6 @@ struct fargametype
 
 	fargametype();
 
-	fargametype(
-		const fargametype& that) = delete;
-
-	fargametype& operator=(
-		const fargametype& that) = delete;
-
 	void initialize();
 
 	void clear();
@@ -2982,6 +2976,7 @@ int FindChunk(
 */
 
 extern fargametype gamestuff;
+extern fargametype old_gamestuff;
 extern tilecoord_t GoldieList[GOLDIE_MAX_SPAWNS];
 extern GoldsternInfo_t GoldsternInfo;
 
@@ -2991,6 +2986,7 @@ extern bool ingame;
 extern bool fizzlein;
 extern int latchpics[NUMLATCHPICS];
 extern gametype gamestate;
+extern gametype old_gamestate;
 extern std::int16_t doornum;
 
 

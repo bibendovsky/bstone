@@ -127,7 +127,11 @@ void AddTotalEnemy(
 */
 
 fargametype gamestuff;
+fargametype old_gamestuff;
+
 gametype gamestate;
+gametype old_gamestate;
+
 bool ingame;
 bool fizzlein;
 int latchpics[NUMLATCHPICS];
@@ -3227,13 +3231,20 @@ void Died()
 
 	if (gamestate.lives > -1)
 	{
+		old_gamestate.lives -= 1;
+		gamestate = old_gamestate;
+
+		gamestuff = old_gamestuff;
+
+#if 0
 		gamestate.health = 100;
-		gamestate.weapons = 1 << wp_autocharge; // |1<<wp_plasma_detonators;
+		gamestate.weapons = 1 << wp_autocharge;
 		gamestate.weapon = gamestate.chosenweapon = wp_autocharge;
 
 		gamestate.ammo = STARTAMMO;
 		gamestate.attackframe = gamestate.attackcount =
 			gamestate.weaponframe = 0;
+#endif
 
 		DrawHealth();
 		DrawKeys();
@@ -3526,6 +3537,8 @@ restartgame:
 		case ex_warped:
 			ClearMemory();
 			gamestate.mapon++;
+			old_gamestate = gamestate;
+			old_gamestuff = gamestuff;
 			ClearNClose();
 			DrawTopInfo(sp_loading);
 #if 0
