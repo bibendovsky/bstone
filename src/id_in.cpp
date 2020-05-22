@@ -1455,9 +1455,6 @@ void in_set_default_bindings()
 	in_bindings[e_bi_strafe][0] = ScanCode::sc_alt;
 	in_bindings[e_bi_strafe_left][0] = ScanCode::sc_a;
 	in_bindings[e_bi_strafe_right][0] = ScanCode::sc_d;
-	in_bindings[e_bi_quick_left][0] = ScanCode::sc_q;
-	in_bindings[e_bi_quick_right][0] = ScanCode::sc_e;
-	in_bindings[e_bi_turn_around][0] = ScanCode::sc_r;
 	in_bindings[e_bi_run][0] = ScanCode::sc_left_shift;
 
 	in_bindings[e_bi_attack][0] = ScanCode::sc_control;
@@ -1470,8 +1467,11 @@ void in_set_default_bindings()
 	in_bindings[e_bi_weapon_6][0] = ScanCode::sc_6;
 	in_bindings[e_bi_weapon_7][0] = ScanCode::sc_back_quote;
 
-	in_bindings[e_bi_cycle_next_weapon][0] = ScanCode::sc_mouse_wheel_up;
-	in_bindings[e_bi_cycle_previous_weapon][0] = ScanCode::sc_mouse_wheel_down;
+	in_bindings[e_bi_cycle_next_weapon][0] = ScanCode::sc_e;
+	in_bindings[e_bi_cycle_next_weapon][1] = ScanCode::sc_mouse_wheel_up;
+
+	in_bindings[e_bi_cycle_previous_weapon][0] = ScanCode::sc_q;
+	in_bindings[e_bi_cycle_previous_weapon][1] = ScanCode::sc_mouse_wheel_down;
 
 	in_bindings[e_bi_use][0] = ScanCode::sc_space;
 	in_bindings[e_bi_use][1] = ScanCode::sc_mouse_right;
@@ -1489,14 +1489,6 @@ void in_set_default_bindings()
 	in_bindings[e_bi_quick_save][0] = ScanCode::sc_f8;
 	in_bindings[e_bi_quick_load][0] = ScanCode::sc_f9;
 	in_bindings[e_bi_quick_exit][0] = ScanCode::sc_f10;
-
-	in_bindings[e_bi_attack_info][0] = ScanCode::sc_i;
-	in_bindings[e_bi_lightning][0] = ScanCode::sc_l;
-	in_bindings[e_bi_sfx][0] = ScanCode::sc_x;
-	in_bindings[e_bi_music][0] = ScanCode::sc_m;
-	in_bindings[e_bi_ceiling][0] = ScanCode::sc_c;
-	in_bindings[e_bi_flooring][0] = ScanCode::sc_f;
-	in_bindings[e_bi_heart_beat][0] = ScanCode::sc_h;
 
 	in_bindings[e_bi_pause][0] = ScanCode::sc_p;
 	in_bindings[e_bi_pause][1] = ScanCode::sc_pause;
