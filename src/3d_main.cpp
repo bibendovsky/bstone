@@ -7979,8 +7979,6 @@ void NewGame(
 {
 	const auto& assets_info = AssetsInfo{};
 
-	std::uint16_t oldf = gamestate.flags;
-
 	InitPlaytemp();
 	playstate = ex_stillplaying;
 
@@ -7989,11 +7987,10 @@ void NewGame(
 	gamestate.initialize();
 
 	gamestate.initialize_barriers();
-	gamestate.flags = oldf & ~(GS_KILL_INF_WARN);
 
 	gamestate.difficulty = difficulty;
 
-	gamestate.weapons = 1 << wp_autocharge; // |1<<wp_plasma_detonators;
+	gamestate.weapons = 1 << wp_autocharge;
 	gamestate.weapon = wp_autocharge;
 	gamestate.chosenweapon = wp_autocharge;
 
@@ -8003,6 +8000,8 @@ void NewGame(
 	gamestate.nextextra = EXTRAPOINTS;
 	gamestate.episode = episode;
 	gamestate.mapon = (assets_info.is_ps() ? 0 : 1);
+
+	old_gamestate = gamestate;
 
 	startgame = true;
 
@@ -8017,6 +8016,8 @@ void NewGame(
 			gamestuff.level[i].locked = true;
 		}
 	}
+
+	old_gamestuff = gamestuff;
 
 	ExtraRadarFlags = 0;
 	InstantWin = 0;
@@ -8517,11 +8518,12 @@ bool SaveLevel(
 
 	// Make sure floor stats are saved!
 	//
-	std::int16_t oldmapon = gamestate.mapon;
-	gamestate.mapon = gamestate.lastmapon;
-	ShowStats(0, 0, ss_justcalc,
-		&gamestuff.level[gamestate.mapon].stats);
-	gamestate.mapon = oldmapon;
+	ShowStats(
+		0,
+		0,
+		ss_justcalc,
+		&gamestuff.level[gamestate.lastmapon].stats
+	);
 
 	// Remove level chunk from file
 	//
@@ -9045,7 +9047,10 @@ bool LoadTheGame(
 			}
 
 			gamestate.unarchive(archiver);
+			old_gamestate.unarchive(archiver);
+
 			gamestuff.unarchive(archiver);
+			old_gamestuff.unarchive(archiver);
 
 			archiver->read_checksum();
 		}
@@ -9196,7 +9201,10 @@ bool SaveTheGame(
 		// Other stuff.
 		//
 		gamestate.archive(archiver);
+		old_gamestate.archive(archiver);
+
 		gamestuff.archive(archiver);
+		old_gamestuff.archive(archiver);
 
 		// Checksum.
 		//
