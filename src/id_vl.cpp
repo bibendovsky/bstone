@@ -11060,6 +11060,13 @@ void hw_precache_special_stuff()
 			hw_precache_dr_goldfire();
 		}
 	}
+	else if (assets_info.is_ps())
+	{
+		if (gamestate.mapon == 19)
+		{
+			hw_precache_morphed_dr_goldfire();
+		}
+	}
 
 	if (GoldsternInfo.SpawnCnt > 0)
 	{
