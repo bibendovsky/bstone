@@ -2435,9 +2435,9 @@ void SetupGameLevel()
 	//
 	// copy the wall data to a data segment array
 	//
-	memset(TravelTable, 0, sizeof(TravelTable));
-	memset(tilemap, 0, sizeof(tilemap));
-	memset(actorat, 0, sizeof(actorat));
+	travel_table_ = TravelTable{};
+	tilemap = TileMap{};
+	actorat = ActorAt{};
 
 	std::uninitialized_fill(
 		wallheight.begin(),
@@ -2484,7 +2484,7 @@ void SetupGameLevel()
 
 			if ((assets_info.is_ps() && tile < 64) || icon == PUSHABLETILE)
 			{
-				TravelTable[x][y] |= TT_TRAVELED;
+				travel_table_[x][y] |= TT_TRAVELED;
 			}
 		}
 	}
@@ -2888,7 +2888,7 @@ void BMAmsg(
 		const char* p = msg;
 		std::int16_t cheight;
 
-		memset(&pi, 0, sizeof(pi));
+		pi = PresenterInfo{};
 		pi.flags = TPF_CACHE_NO_GFX;
 		pi.script[0] = p;
 		while (*p)
@@ -3266,7 +3266,7 @@ void LoseScreen()
 
 	VW_FadeOut();
 
-	memset(&pi, 0, sizeof(pi));
+	pi = PresenterInfo{};
 	pi.flags = TPF_USE_CURRENT | TPF_SHOW_CURSOR | TPF_SCROLL_REGION | TPF_CONTINUE | TPF_TERM_SOUND | TPF_ABORTABLE;
 	pi.xl = 14;
 	pi.yl = 141;
@@ -3591,7 +3591,7 @@ restartgame:
 			{
 				fontnumber = 1;
 				CA_CacheGrChunk(STARTFONT + 1);
-				memset(update, 0, sizeof(update));
+				update = Update{};
 				CacheBMAmsg(YOUWIN_TEXT);
 
 				// BBi

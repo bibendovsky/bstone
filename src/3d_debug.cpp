@@ -214,7 +214,7 @@ void ShowMap()
 {
 	objtype old_player;
 
-	memcpy(&old_player, player, sizeof(objtype));
+	old_player = *player;
 	player->angle = 90;
 	player->x = player->y = ((std::int32_t)32 << TILESHIFT) + (TILEGLOBAL / 2);
 
@@ -230,7 +230,7 @@ void ShowMap()
 
 	ExtraRadarFlags = old_flags;
 
-	memcpy(player, &old_player, sizeof(objtype));
+	*player = old_player;
 	IN_Ack();
 }
 

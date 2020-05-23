@@ -2161,7 +2161,7 @@ char* HandleControlCodes(
 	case TP_CNVT_CODE('A', 'N'):
 		shapenum = TP_VALUE(first_ch, 2);
 		first_ch += 2;
-		memcpy(&piAnimList[static_cast<int>(InfoAreaSetup.numanims)], &piAnimTable[shapenum], sizeof(piAnimInfo));
+		piAnimList[static_cast<int>(InfoAreaSetup.numanims)] = piAnimTable[shapenum];
 		anim = &piAnimList[static_cast<int>(InfoAreaSetup.numanims++)];
 		shape = &piShapeTable[anim->baseshape + anim->frame]; // BUG!! (assumes "pia_shapetable")
 
@@ -2501,7 +2501,7 @@ void GetBonus(
 
 		sd_play_player_sound(GETKEYSND, bstone::ActorChannel::item);
 
-		TravelTable[check->tilex][check->tiley] &= ~TT_KEYS;
+		travel_table_[check->tilex][check->tiley] &= ~TT_KEYS;
 		break;
 	}
 
@@ -2581,7 +2581,7 @@ void GetBonus(
 	break;
 
 	case bo_plasma_detonator:
-		TravelTable[check->tilex][check->tiley] &= ~TT_KEYS;
+		travel_table_[check->tilex][check->tiley] &= ~TT_KEYS;
 		GivePlasmaDetonator(1);
 		sd_play_player_sound(GETDETONATORSND, bstone::ActorChannel::item);
 		break;
@@ -2849,7 +2849,7 @@ void Thrust(
 	std::int16_t angle,
 	std::int32_t speed)
 {
-	extern std::uint8_t TravelTable[MAPSIZE][MAPSIZE];
+	extern TravelTable travel_table_;
 	objtype dumb;
 	std::int32_t xmove, ymove;
 	std::uint16_t offset, *map[2];
@@ -2878,7 +2878,7 @@ void Thrust(
 
 	player->areanumber = GetAreaNumber(player->tilex, player->tiley);
 	areabyplayer[player->areanumber] = true;
-	TravelTable[player->tilex][player->tiley] |= TT_TRAVELED;
+	travel_table_[player->tilex][player->tiley] |= TT_TRAVELED;
 
 	offset = farmapylookup[player->tiley] + player->tilex;
 	map[0] = mapsegs[0] + offset;
@@ -3858,14 +3858,14 @@ std::int16_t InputFloor()
 		CacheLump(TELEPORT_LUMP_START, TELEPORT_LUMP_END);
 		VWB_DrawMPic(teleX[tpNum], teleY[tpNum], TELEPORT1ONPIC + tpNum);
 
-		memcpy(&old_player, player, sizeof(objtype));
+		old_player = *player;
 		player->angle = 90;
 		player->x = player->y = ((std::int32_t)32 << TILESHIFT) + (TILEGLOBAL / 2);
 
 		ov_buffer.resize(4096);
 
 		ShowStats(0, 0, ss_justcalc, &gamestuff.level[gamestate.mapon].stats);
-		memcpy(&ov_stats, &gamestuff.level[gamestate.mapon].stats, sizeof(statsInfoType));
+		ov_stats = gamestuff.level[gamestate.mapon].stats;
 		ShowOverhead(TOV_X, TOV_Y, 32, 0, RADAR_FLAGS);
 		SaveOverheadChunk(tpNum);
 
@@ -4060,7 +4060,7 @@ std::int16_t InputFloor()
 
 		VW_FadeOut();
 
-		memcpy(player, &old_player, sizeof(objtype));
+		*player = old_player;
 		UnCacheLump(TELEPORT_LUMP_START, TELEPORT_LUMP_END);
 
 		DrawPlayScreen(false);
@@ -4576,7 +4576,10 @@ void CheckPinballBonus(
 
 	// Check TOTAL ENEMY bonus
 	//
-	if (gamestuff.level[gamestate.mapon].stats.total_enemy <= // FIXME: https://github.com/bibendovsky/bstone/issues/86 https://github.com/bibendovsky/bstone/pull/176
+	// FIXME
+	// https://github.com/bibendovsky/bstone/issues/86
+	// https://github.com/bibendovsky/bstone/pull/176
+	if (gamestuff.level[gamestate.mapon].stats.total_enemy <=  
 		gamestuff.level[gamestate.mapon].stats.accum_enemy)
 	{
 		ActivatePinballBonus(B_ENEMY_DESTROYED);
@@ -4584,7 +4587,10 @@ void CheckPinballBonus(
 
 	// Check TOTAL POINTS bonus
 	//
-	if (gamestuff.level[gamestate.mapon].stats.total_points <= // FIXME: https://github.com/bibendovsky/bstone/issues/86 https://github.com/bibendovsky/bstone/pull/176
+	// FIXME
+	// https://github.com/bibendovsky/bstone/issues/86
+	// https://github.com/bibendovsky/bstone/pull/176
+	if (gamestuff.level[gamestate.mapon].stats.total_points <= 
 		gamestuff.level[gamestate.mapon].stats.accum_points)
 	{
 		ActivatePinballBonus(B_TOTAL_POINTS);
@@ -4592,7 +4598,10 @@ void CheckPinballBonus(
 
 	// Check INFORMANTS ALIVE bonus
 	//
-	if ((gamestuff.level[gamestate.mapon].stats.total_inf <= // FIXME: https://github.com/bibendovsky/bstone/issues/86 https://github.com/bibendovsky/bstone/pull/176
+	// FIXME
+	// https://github.com/bibendovsky/bstone/issues/86
+	// https://github.com/bibendovsky/bstone/pull/176
+	if ((gamestuff.level[gamestate.mapon].stats.total_inf <=
 		gamestuff.level[gamestate.mapon].stats.accum_inf) && // All informants alive?
 		(gamestuff.level[gamestate.mapon].stats.total_inf) && // Any informants in level?
 		((BONUS_SHOWN & (B_TOTAL_POINTS | B_ENEMY_DESTROYED)) ==
@@ -5646,7 +5655,7 @@ void try_to_grab_bonus_items()
 	const auto player_x = bstone::FixedPoint{player->x}.to_double();
 	const auto player_y = bstone::FixedPoint{player->y}.to_double();
 
-	for (auto item = statobjlist; item != laststatobj; ++item)
+	for (auto item = statobjlist.data(); item != laststatobj; ++item)
 	{
 		if (item->shapenum < 0 || (item->flags & FL_BONUS) == 0)
 		{

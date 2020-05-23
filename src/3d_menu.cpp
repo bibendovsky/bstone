@@ -1646,7 +1646,7 @@ void HelpPresenter(
 	PresenterInfo pi;
 	int oldwidth;
 
-	memset(&pi, 0, sizeof(pi));
+	pi = PresenterInfo{};
 
 	pi.flags = TPF_SHOW_PAGES;
 	if (continue_keys)
@@ -4277,7 +4277,12 @@ std::uint32_t CacheCompData(
 	}
 	else
 	{
-		memcpy(CompHeader.NameId, &chunk[0], 4);
+		std::uninitialized_copy_n(
+			&chunk[0],
+			4,
+			CompHeader.NameId
+		);
+
 		CompHeader.OriginalLen = ((std::uint32_t*)&chunk[4])[0];
 		CompHeader.CompType = (ct_TYPES)((std::int16_t*)&chunk[8])[0];
 		CompHeader.CompressLen = ((std::uint32_t*)&chunk[10])[0];

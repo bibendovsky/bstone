@@ -2756,7 +2756,7 @@ int hw_cfg_texture_anisotropy_to_renderer(
 int hw_get_static_index(
 	const statobj_t& bs_static)
 {
-	return static_cast<int>(&bs_static - statobjlist);
+	return static_cast<int>(&bs_static - statobjlist.data());
 }
 
 HwSprite& hw_get_static(
@@ -9305,7 +9305,7 @@ void hw_map_sprite(
 void hw_map_static(
 	const statobj_t& bs_static)
 {
-	const auto bs_static_index = static_cast<int>(&bs_static - statobjlist);
+	const auto bs_static_index = static_cast<int>(&bs_static - statobjlist.data());
 
 	auto vertex_index = hw_statics_base_vertex_index;
 	vertex_index += (bs_static_index * hw_vertices_per_sprite);
@@ -9415,7 +9415,7 @@ void hw_precache_static(
 
 void hw_precache_statics()
 {
-	for (auto bs_static = statobjlist; laststatobj && bs_static != laststatobj; ++bs_static)
+	for (auto bs_static = statobjlist.data(); laststatobj && bs_static != laststatobj; ++bs_static)
 	{
 		if (bs_static->shapenum == -1 ||
 			(bs_static->tilex == 0 && bs_static->tiley == 0))
@@ -11538,7 +11538,7 @@ void hw_build_statics()
 		return;
 	}
 
-	for (auto bs_static = statobjlist; bs_static != laststatobj; ++bs_static)
+	for (auto bs_static = statobjlist.data(); bs_static != laststatobj; ++bs_static)
 	{
 		if (bs_static->shapenum == -1 ||
 			(bs_static->tilex == 0 && bs_static->tiley == 0))

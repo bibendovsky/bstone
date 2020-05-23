@@ -1289,7 +1289,7 @@ void hw_draw_sprites()
 
 	vid_hw_clear_static_render_list();
 
-	for (auto statptr = statobjlist; statptr != laststatobj; ++statptr)
+	for (auto statptr = statobjlist.data(); statptr != laststatobj; ++statptr)
 	{
 		if (statptr->shapenum == -1)
 		{
@@ -1311,7 +1311,7 @@ void hw_draw_sprites()
 			continue; // to close to the object
 		}
 
-		const auto bs_static_index = static_cast<int>(statptr - statobjlist);
+		const auto bs_static_index = static_cast<int>(statptr - statobjlist.data());
 		vid_hw_add_static_render_item(bs_static_index);
 	}
 
@@ -1436,7 +1436,7 @@ void DrawScaleds()
 	//
 	// place static objects
 	//
-	for (statptr = statobjlist; statptr != laststatobj; ++statptr)
+	for (statptr = statobjlist.data(); statptr != laststatobj; ++statptr)
 	{
 		visptr->shapenum = statptr->shapenum;
 
@@ -1788,7 +1788,7 @@ void MapLSRow();
 
 void ThreeDRefresh()
 {
-	memset(spotvis, 0, sizeof(spotvis));
+	spotvis = SpotVis{};
 
 	bufferofs = 0;
 
@@ -1910,7 +1910,7 @@ void ThreeDRefresh()
 }
 
 // !!! Used in saved game.
-std::uint8_t TravelTable[MAPSIZE][MAPSIZE];
+TravelTable travel_table_;
 
 void UpdateTravelTable()
 {
@@ -1918,7 +1918,7 @@ void UpdateTravelTable()
 	{
 		for (int j = 0; j < MAPSIZE; ++j)
 		{
-			TravelTable[i][j] |= spotvis[i][j];
+			travel_table_[i][j] |= spotvis[i][j];
 		}
 	}
 }
@@ -1991,7 +1991,7 @@ static bool show_pwalls_on_automap(
 			continue;
 		}
 
-		if ((TravelTable[new_x][new_y] & TT_TRAVELED) != 0)
+		if ((travel_table_[new_x][new_y] & TT_TRAVELED) != 0)
 		{
 			return true;
 		}
@@ -2126,7 +2126,7 @@ void ShowOverhead(
 			{
 				// SHOW TRAVELED
 				//
-				if ((TravelTable[mx][my] & TT_TRAVELED) != 0 ||
+				if ((travel_table_[mx][my] & TT_TRAVELED) != 0 ||
 					(flags & OV_SHOWALL) != 0)
 				{
 					// What's at this map location?
@@ -2185,7 +2185,7 @@ void ShowOverhead(
 					// SHOW KEYS
 					//
 					if ((flags & OV_KEYS) != 0 &&
-						(TravelTable[mx][my] & TT_KEYS) != 0)
+						(travel_table_[mx][my] & TT_KEYS) != 0)
 					{
 						color = 0xF3;
 					}

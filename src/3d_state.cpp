@@ -879,6 +879,7 @@ void MoveObj(
 	// check to make sure it's not on top of player
 	//
 	if (ob->obclass != electrosphereobj &&
+		ob->areanumber < NUMAREAS &&
 		areabyplayer[ob->areanumber])
 	{
 		auto dx = std::abs(ob->x - player->x);
@@ -1888,7 +1889,7 @@ bool CheckSight(
 	//
 	// don't bother tracing a line if the area isn't connected to the player's
 	//
-	if (!areabyplayer[from_obj->areanumber])
+	if (from_obj->areanumber < NUMAREAS && !areabyplayer[from_obj->areanumber])
 	{
 		return false;
 	}
@@ -2164,7 +2165,7 @@ bool SightPlayer(
 	}
 	else
 	{
-		if (!areabyplayer[ob->areanumber])
+		if (ob->areanumber < NUMAREAS && !areabyplayer[ob->areanumber])
 		{
 			return false;
 		}
@@ -2308,7 +2309,7 @@ bool CheckView(
 	// don't bother tracing a line if the area isn't connected to the player's
 	//
 
-	if (!areabyplayer[from_obj->areanumber])
+	if (from_obj->areanumber < NUMAREAS && !areabyplayer[from_obj->areanumber])
 	{
 		return false;
 	}
@@ -2514,7 +2515,7 @@ bool LookForGoodies(
 
 	// Should actor run for a door? (quick escape!)
 	//
-	if (areabyplayer[ob->areanumber])
+	if (ob->areanumber < NUMAREAS && areabyplayer[ob->areanumber])
 	{
 		const int DOOR_CHOICES = 8;
 

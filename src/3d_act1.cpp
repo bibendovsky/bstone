@@ -82,7 +82,7 @@ concession_t ConHintList = {};
 =============================================================================
 */
 
-statobj_t statobjlist[MAXSTATS];
+StatObjList statobjlist;
 statobj_t* laststatobj;
 StatInfos statinfo;
 
@@ -261,7 +261,7 @@ statobj_t* FindStatic(
 {
 	statobj_t* spot;
 
-	for (spot = statobjlist; spot != laststatobj; spot++)
+	for (spot = statobjlist.data(); spot != laststatobj; spot++)
 	{
 		if (spot->shapenum != -1 && spot->tilex == tilex && spot->tiley == tiley)
 		{
@@ -289,7 +289,7 @@ statobj_t* FindEmptyStatic()
 	{
 		if (spot == laststatobj)
 		{
-			if (spot == &statobjlist[MAXSTATS])
+			if (spot == (statobjlist.data() + MAXSTATS))
 			{
 				return nullptr;
 			}
@@ -360,7 +360,7 @@ statobj_t* SpawnStatic(
 		{
 			Quit("Green/Gold key (AOG) at (" + std::to_string(tilex) + ", " + std::to_string(tiley) + ").");
 		}
-		TravelTable[tilex][tiley] |= TT_KEYS;
+		travel_table_[tilex][tiley] |= TT_KEYS;
 		spot->flags = FL_BONUS;
 		spot->itemnumber = static_cast<std::uint8_t>(statinfo[type].type);
 		break;
@@ -370,7 +370,7 @@ statobj_t* SpawnStatic(
 		{
 			Quit("Plasma detonator (PS) at (" + std::to_string(tilex) + ", " + std::to_string(tiley) + ").");
 		}
-		TravelTable[tilex][tiley] |= TT_KEYS;
+		travel_table_[tilex][tiley] |= TT_KEYS;
 		spot->flags = FL_BONUS;
 		spot->itemnumber = static_cast<std::uint8_t>(statinfo[type].type);
 		break;
@@ -378,7 +378,7 @@ statobj_t* SpawnStatic(
 	case bo_red_key:
 	case bo_yellow_key:
 	case bo_blue_key:
-		TravelTable[tilex][tiley] |= TT_KEYS;
+		travel_table_[tilex][tiley] |= TT_KEYS;
 
 	case bo_gold1:
 	case bo_gold2:
@@ -420,7 +420,7 @@ statobj_t* SpawnStatic(
 
 	++spot;
 
-	if (spot == &statobjlist[MAXSTATS])
+	if (spot == (statobjlist.data() + MAXSTATS))
 	{
 		Quit("Too many static objects.");
 	}
@@ -525,7 +525,7 @@ statobj_t* UseReservedStatic(
 	case bo_red_key:
 	case bo_yellow_key:
 	case bo_blue_key:
-		TravelTable[tilex][tiley] |= TT_KEYS;
+		travel_table_[tilex][tiley] |= TT_KEYS;
 		break;
 	}
 
@@ -764,10 +764,10 @@ std::int16_t doornum;
 std::uint16_t doorposition[MAXDOORS];
 
  // !!! Used in saved game.
-std::uint8_t areaconnect[NUMAREAS][NUMAREAS];
+AreaConnect areaconnect;
 
  // !!! Used in saved game.
-bool areabyplayer[NUMAREAS];
+AreaByPlayer areabyplayer;
 
 
 /*
@@ -786,7 +786,7 @@ void RecursiveConnect(
 
 	for (i = 0; i < NUMAREAS; i++)
 	{
-		if (areaconnect[areanumber][i] && !areabyplayer[i])
+		if (!areabyplayer[i] && areaconnect[areanumber][i])
 		{
 			areabyplayer[i] = true;
 			RecursiveConnect(i);
@@ -796,21 +796,21 @@ void RecursiveConnect(
 
 void ConnectAreas()
 {
-	memset(areabyplayer, 0, sizeof(areabyplayer));
+	areabyplayer.reset();
 	areabyplayer[player->areanumber] = true;
 	RecursiveConnect(player->areanumber);
 }
 
 void InitAreas()
 {
-	memset(areabyplayer, 0, sizeof(areabyplayer));
+	areabyplayer.reset();
 	areabyplayer[player->areanumber] = true;
 }
 
 void InitDoorList()
 {
-	memset(areabyplayer, 0, sizeof(areabyplayer));
-	memset(areaconnect, 0, sizeof(areaconnect));
+	areabyplayer.reset();
+	areaconnect = AreaConnect{};
 
 	lastdoorobj = &doorobjlist[0];
 	doornum = 0;
@@ -1078,6 +1078,12 @@ void CloseDoor(
 	// play door sound if in a connected area
 	//
 	area = GetAreaNumber(doorobjlist[door].tilex, doorobjlist[door].tiley);
+
+	if (area >= NUMAREAS)
+	{
+		Quit("[CLOSE_DOOR] Area number out of range.");
+	}
+
 	if (areabyplayer[area])
 	{
 		switch (doorobjlist[door].type)
@@ -1857,7 +1863,12 @@ void InitMsgCache(
 	std::uint16_t infoSize)
 {
 	FreeMsgCache(mList, infoSize);
-	memset(mList, 0, listSize);
+
+	std::uninitialized_fill_n(
+		reinterpret_cast<std::uint8_t*>(mList),
+		listSize,
+		0
+	);
 }
 
 void FreeMsgCache(
@@ -2195,16 +2206,22 @@ void CheckSpawnEA()
 		//
 		for (ofs = 0; ofs < 4; ofs++)
 		{
-			std::int8_t nx = eaList[static_cast<int>(loop)].tilex + xy_offset[static_cast<int>(ofs)][0];
-			std::int8_t ny = eaList[static_cast<int>(loop)].tiley + xy_offset[static_cast<int>(ofs)][1];
-			std::int8_t areanumber = GetAreaNumber(nx, ny);
+			const auto nx = eaList[static_cast<int>(loop)].tilex + xy_offset[static_cast<int>(ofs)][0];
+			const auto ny = eaList[static_cast<int>(loop)].tiley + xy_offset[static_cast<int>(ofs)][1];
 
-			if ((nx < 0) || (nx > 63) || (ny < 0) || (ny > 63))
+			if (nx < 0 || nx > 63 || ny < 0 || ny > 63)
 			{
 				continue;
 			}
 
-			if (areanumber != 127 && areabyplayer[static_cast<int>(areanumber)])
+			const auto areanumber = GetAreaNumber(nx, ny);
+
+			if (areanumber >= NUMAREAS)
+			{
+				continue;
+			}
+
+			if (areabyplayer[static_cast<int>(areanumber)])
 			{
 				break;
 			}

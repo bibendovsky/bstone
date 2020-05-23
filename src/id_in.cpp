@@ -1293,7 +1293,8 @@ char IN_WaitForASCII()
 //
 ///////////////////////////////////////////////////////////////////////////
 
-bool btnstate[8];
+using BtnState = std::bitset<8>;
+BtnState btnstate;
 
 void IN_StartAck()
 {
@@ -1303,7 +1304,7 @@ void IN_StartAck()
 	// get initial state of everything
 	//
 	IN_ClearKeysDown();
-	memset(btnstate, 0, sizeof(btnstate));
+	btnstate.reset();
 
 	buttons = 0;
 

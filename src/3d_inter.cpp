@@ -50,7 +50,7 @@ void CA_CacheScreen(
 
 void ClearSplitVWB()
 {
-	memset(update, 0, sizeof(update));
+	update = Update{};
 	WindowX = 0;
 	WindowY = 0;
 	WindowW = 320;

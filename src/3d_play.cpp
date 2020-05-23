@@ -102,9 +102,9 @@ std::uint8_t* nearmapylookup[MAPSIZE];
 bool singlestep = false;
 bool godmode; // ,noclip;
 
-std::uint8_t tilemap[MAPSIZE][MAPSIZE]; // wall values only !!! Used in saved game.
-std::uint8_t spotvis[MAPSIZE][MAPSIZE];
-objtype* actorat[MAPSIZE][MAPSIZE];
+TileMap tilemap; // wall values only !!! Used in saved game.
+SpotVis spotvis;
+ActorAt actorat;
 
 
 //
@@ -118,7 +118,7 @@ std::uint8_t* updateptr;
 std::uint16_t mapwidthtable[64];
 std::uint16_t uwidthtable[UPDATEHIGH];
 std::uint16_t blockstarts[UPDATEWIDE * UPDATEHIGH];
-std::uint8_t update[UPDATESIZE];
+Update update;
 
 //
 // control info
@@ -127,7 +127,7 @@ bool mouseenabled;
 
 const int viewsize = 20;
 
-bool buttonheld[NUMBUTTONS];
+ButtonHeld buttonheld;
 
 bool demorecord;
 bool demoplayback;
@@ -147,7 +147,7 @@ int controly; // range from -100 to 100 per tic
 #ifdef __vita__
 int control2x; //left stick horizontal axis
 #endif
-bool buttonstate[NUMBUTTONS];
+ButtonState buttonstate;
 int strafe_value = 0;
 
 
@@ -575,8 +575,8 @@ void PollControls()
 
 	controlx = 0;
 	controly = 0;
-	memcpy(buttonheld, buttonstate, sizeof(buttonstate));
-	memset(buttonstate, 0, sizeof(buttonstate));
+	buttonheld = buttonstate;
+	buttonstate.reset();
 
 	if (demoplayback)
 	{
@@ -1380,7 +1380,8 @@ void InitActorList()
 	memset(DeadGuys, 0, sizeof(DeadGuys));
 #endif
 
-	memset(statobjlist, 0, sizeof(statobjlist));
+	statobjlist = StatObjList{};
+
 	for (i = 0; i < MAXACTORS; i++)
 	{
 		objlist[i].prev = &objlist[i + 1];
@@ -1439,7 +1440,7 @@ void GetNewActor()
 		if (usedummy)
 		{
 			new_actor = &dummyobj;
-			memset(new_actor, 0, sizeof(*new_actor));
+			*new_actor = {};
 		}
 		else
 		{
@@ -1451,14 +1452,14 @@ void GetNewActor()
 		new_actor = objfreelist;
 		objfreelist = new_actor->prev;
 
-		memset(new_actor, 0, sizeof(*new_actor));
+		*new_actor = {};
 
 		if (lastobj)
 		{
 			lastobj->next = new_actor;
 		}
 
-		new_actor->prev = lastobj; // new_actor->next is already nullptr from memset
+		new_actor->prev = lastobj; // new_actor->next is already null from memset
 
 		lastobj = new_actor;
 
@@ -1854,7 +1855,7 @@ void DoActor(
 		}
 	}
 
-	if (!ob->active && !areabyplayer[ob->areanumber])
+	if (!ob->active && ob->areanumber < NUMAREAS && !areabyplayer[ob->areanumber])
 	{
 		return;
 	}
@@ -1973,7 +1974,7 @@ void PlayLoop()
 
 	framecount = frameon = 0;
 	anglefrac = 0;
-	memset(buttonstate, 0, sizeof(buttonstate));
+	buttonstate.reset();
 	ClearPaletteShifts();
 	ForceUpdateStatusBar();
 
@@ -2008,7 +2009,7 @@ void PlayLoop()
 			{
 				if (!reset_areas)
 				{
-					memset(areabyplayer, 1, sizeof(areabyplayer));
+					areabyplayer.set();
 				}
 				reset_areas = true;
 

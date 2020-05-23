@@ -5000,7 +5000,7 @@ void T_Shoot(
 
 		ob->lighting = -10;
 
-		if (!areabyplayer[ob->areanumber])
+		if (ob->areanumber < NUMAREAS && !areabyplayer[ob->areanumber])
 		{
 			return;
 		}
@@ -5385,7 +5385,7 @@ void A_Beep(
 
 void InitGoldsternInfo()
 {
-	memset(&GoldsternInfo, 0, sizeof(GoldsternInfo));
+	GoldsternInfo = GoldsternInfo_t{};
 	GoldsternInfo.LastIndex = GOLDIE_MAX_SPAWNS;
 }
 
@@ -5423,7 +5423,7 @@ void T_Security(
 
 	if (!(obj->flags & FL_ALERTED))
 	{
-		if (alerted && areabyplayer[obj->areanumber])
+		if (alerted && obj->areanumber < NUMAREAS && areabyplayer[obj->areanumber])
 		{
 			obj->flags |= FL_ALERTED;
 		}
@@ -6347,7 +6347,10 @@ void T_Projectile(
 
 #define EX_RADIUS 2 // Tiles out from center
 
-std::int8_t ff_buffer[EX_RADIUS * 2 + 1][EX_RADIUS * 2 + 1];
+using SubFfBuffer = std::array<std::int8_t, (EX_RADIUS * 2) + 1>;
+using FfBuffer = std::array<SubFfBuffer, (EX_RADIUS * 2) + 1>;
+
+FfBuffer ff_buffer;
 std::int16_t ff_damageplayer, ff_damage;
 objtype* ff_obj;
 
@@ -6386,7 +6389,7 @@ void ExplodeRadius(
 	}
 
 	ff_obj = obj;
-	memset(ff_buffer, 0, sizeof(ff_buffer));
+	ff_buffer = FfBuffer{};
 	ExplodeFill(obj->tilex, obj->tiley);
 	ExplodeStatics(obj->tilex, obj->tiley);
 }
@@ -6397,9 +6400,10 @@ void ExplodeFill(
 {
 	const auto& assets_info = AssetsInfo{};
 
-	std::int8_t bx = tx - ff_obj->tilex + EX_RADIUS,
-		by = ty - ff_obj->tiley + EX_RADIUS,
-		door, no_wall;
+	std::int8_t bx = tx - ff_obj->tilex + EX_RADIUS;
+	std::int8_t by = ty - ff_obj->tiley + EX_RADIUS;
+	std::int8_t door;
+	std::int8_t no_wall;
 
 	// Damage actors on this spot!
 	//
@@ -6506,7 +6510,7 @@ void ExplodeFill(
 		no_wall = !tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
 	}
 
-	if ((!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]) && (no_wall) && (bx <= EX_RADIUS * 2))
+	if ((bx <= (EX_RADIUS * 2)) && no_wall && (!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]))
 	{
 		ExplodeFill(tx, ty);
 	}
@@ -6526,7 +6530,7 @@ void ExplodeFill(
 		no_wall = !tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
 	}
 
-	if ((!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]) && (no_wall) && (bx >= 0))
+	if (bx >= 0 && no_wall && (!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]))
 	{
 		ExplodeFill(tx, ty);
 	}
@@ -6548,7 +6552,9 @@ void ExplodeFill(
 		no_wall = !tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
 	}
 
-	if ((!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]) && (no_wall) && (by <= EX_RADIUS * 2))
+	if ((by <= (EX_RADIUS * 2)) &&
+		no_wall &&
+		(!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]))
 	{
 		ExplodeFill(tx, ty);
 	}
@@ -6568,7 +6574,9 @@ void ExplodeFill(
 		no_wall = !tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
 	}
 
-	if ((!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]) && (no_wall) && (by >= 0))
+	if ((by >= 0) &&
+		no_wall &&
+		(!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]))
 	{
 		ExplodeFill(tx, ty);
 	}

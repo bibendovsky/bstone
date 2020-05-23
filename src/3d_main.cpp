@@ -269,9 +269,6 @@ bool g_no_fade_in_or_out = default_g_no_fade_in_or_out;
 constexpr int sg_area_connect_bitmap_size = ((NUMAREAS * NUMAREAS) + 7) / 8;
 using SgAreaConnectBitmap = std::array<std::uint8_t, sg_area_connect_bitmap_size>;
 
-constexpr int sg_area_by_player_bitmap_size = (NUMAREAS + 7) / 8;
-using SgAreaByPlayerBitmap = std::array<std::uint8_t, sg_area_by_player_bitmap_size>;
-
 constexpr int sg_level_bitmap_size = ((MAPSIZE * MAPSIZE) + 7) / 8;
 using SgLevelBitmap = std::array<std::uint8_t, sg_level_bitmap_size>;
 
@@ -7955,6 +7952,54 @@ void write_text_config()
 }
 
 
+template<std::size_t TBitCount>
+void archive_bitset(
+	const std::bitset<TBitCount>& bitset,
+	bstone::Archiver& archiver)
+{
+	constexpr auto byte_count = (TBitCount + 7) / 8;
+	using Buffer = std::array<std::uint8_t, byte_count>;
+
+	auto buffer = Buffer{};
+
+	for (decltype(TBitCount) i = 0; i < TBitCount; ++i)
+	{
+		const auto byte_index = i / 8;
+		const auto bit_index = i % 8;
+
+		if (bitset.test(i))
+		{
+			buffer[byte_index] |= static_cast<std::uint8_t>(1 << bit_index);
+		}
+	}
+
+	archiver.write_uint8_array(buffer.data(), static_cast<int>(buffer.size()));
+}
+
+template<std::size_t TBitCount>
+void unarchive_bitset(
+	std::bitset<TBitCount>& bitset,
+	bstone::Archiver& archiver)
+{
+	constexpr auto byte_count = (TBitCount + 7) / 8;
+	using Buffer = std::array<std::uint8_t, byte_count>;
+
+	auto buffer = Buffer{};
+	archiver.read_uint8_array(buffer.data(), static_cast<int>(buffer.size()));
+
+	for (decltype(TBitCount) i = 0; i < TBitCount; ++i)
+	{
+		const auto byte_index = i / 8;
+		const auto bit_index = i % 8;
+
+		if ((buffer[byte_index] & (1 << bit_index)) != 0)
+		{
+			bitset.set(i);
+		}
+	}
+}
+
+
 } // namespace
 
 
@@ -8280,11 +8325,7 @@ bool LoadLevel(
 
 			archiver->read_uint8_array(areaconnect_bitmap.data(), sg_area_connect_bitmap_size);
 
-			std::uninitialized_fill_n(
-				&areaconnect[0][0],
-				NUMAREAS * NUMAREAS,
-				std::uint8_t{}
-			);
+			areaconnect = AreaConnect{};
 
 			for (int i = 0; i < NUMAREAS; ++i)
 			{
@@ -8308,19 +8349,7 @@ bool LoadLevel(
 
 		// areabyplayer
 		//
-		{
-			auto areabyplayer_bitmap = SgAreaByPlayerBitmap{};
-			archiver->read_uint8_array(areabyplayer_bitmap.data(), sg_area_by_player_bitmap_size);
-
-			for (int i = 0; i < NUMAREAS; ++i)
-			{
-				const auto byte_index = i / 8;
-				const auto bit_index = i % 8;
-				const auto byte = areabyplayer_bitmap[byte_index];
-
-				areabyplayer[i] = ((byte & (1 << bit_index)) != 0);
-			}
-		}
+		unarchive_bitset(areabyplayer, *archiver);
 
 		// Actors.
 		//
@@ -8391,7 +8420,7 @@ bool LoadLevel(
 		if (laststatobj)
 		{
 			std::uninitialized_fill_n(
-				statobjlist,
+				statobjlist.begin(),
 				laststatobj_index + 1,
 				statobj_t{}
 			);
@@ -8416,7 +8445,7 @@ bool LoadLevel(
 		pwalldir = archiver->read_int16();
 		pwallpos = archiver->read_uint16();
 		pwalldist = archiver->read_int16();
-		archiver->read_uint8_array(reinterpret_cast<std::uint8_t*>(TravelTable), MAPSIZE * MAPSIZE);
+		archiver->read_uint8_array(&travel_table_[0][0], MAPSIZE * MAPSIZE);
 		ConHintList.unarchive(archiver);
 
 		for (int i = 0; i < MAXEAWALLS; ++i)
@@ -8691,22 +8720,7 @@ bool SaveLevel(
 
 	// areabyplayer
 	//
-	{
-		auto areabyplayer_bitmap = SgAreaByPlayerBitmap{};
-
-		for (int i = 0; i < NUMAREAS; ++i)
-		{
-			const auto byte_index = i / 8;
-			const auto bit_index = i % 8;
-
-			if (areabyplayer[i])
-			{
-				areabyplayer_bitmap[byte_index] |= 1 << bit_index;
-			}
-		}
-
-		archiver->write_uint8_array(areabyplayer_bitmap.data(), sg_area_by_player_bitmap_size);
-	}
+	archive_bitset(areabyplayer, *archiver);
 
 	//
 	// objlist
@@ -8731,7 +8745,7 @@ bool SaveLevel(
 	// laststatobj
 	//
 
-	const auto laststatobj_index = laststatobj - statobjlist;
+	const auto laststatobj_index = laststatobj - statobjlist.data();
 
 	archiver->write_int16(static_cast<std::int16_t>(laststatobj_index));
 
@@ -8758,7 +8772,7 @@ bool SaveLevel(
 	archiver->write_int16(pwalldir);
 	archiver->write_uint16(pwallpos);
 	archiver->write_int16(pwalldist);
-	archiver->write_uint8_array(&TravelTable[0][0], MAPSIZE * MAPSIZE);
+	archiver->write_uint8_array(&travel_table_[0][0], MAPSIZE * MAPSIZE);
 	ConHintList.archive(archiver);
 
 	for (int i = 0; i < MAXEAWALLS; ++i)
@@ -9462,9 +9476,28 @@ void CycleColors()
 			numregs = c->lastreg - c->firstreg;                 // is one less than in range
 			last = first + numregs;
 
-			memcpy(temp, cbuffer[last], 3);
-			memmove(cbuffer[first + 1], cbuffer[first], numregs * 3);
-			memcpy(cbuffer[first], temp, 3);
+			std::uninitialized_copy_n(
+				cbuffer[last],
+				3,
+				temp
+			);
+
+			{
+				const auto count = numregs * 3;
+				auto src = &cbuffer[first][0] + count - 1;
+				auto dst = &cbuffer[first + 1][0] + count - 1;
+
+				for (int i = 0; i < count; ++i)
+				{
+					*dst-- = *src--;
+				}
+			}
+
+			std::uninitialized_copy_n(
+				temp,
+				3,
+				cbuffer[first]
+			);
 
 			c->delay_count = c->init_delay;
 		}
@@ -9877,7 +9910,7 @@ void DrawCreditsPage()
 
 	CA_CacheScreen(BACKGROUND_SCREENPIC);
 
-	memset(&pi, 0, sizeof(pi));
+	pi = PresenterInfo{};
 	pi.flags = TPF_CACHE_NO_GFX;
 	pi.xl = 38;
 	pi.yl = 28;
