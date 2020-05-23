@@ -461,9 +461,9 @@ statobj_t* ReserveStatic()
 // ---------------------------------------------------------------------------
 statobj_t* FindReservedStatic()
 {
-	statobj_t* spot;
+	const auto last_static = statobjlist.data()  + MAXSTATS;
 
-	for (spot = &statobjlist[0]; spot < &statobjlist[MAXSTATS]; spot++)
+	for (auto spot = &statobjlist[0]; spot < last_static; ++spot)
 	{
 		if (spot->shapenum == 1 && (!spot->tilex) && (!spot->tiley))
 		{ // -1 is a free spot
