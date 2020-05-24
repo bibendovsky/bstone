@@ -8408,25 +8408,30 @@ bool LoadLevel(
 
 		const int laststatobj_index = archiver->read_int16();
 
+		if (laststatobj_index > MAXSTATS)
+		{
+			throw "Last static index out of range.";
+		}
+
 		if (laststatobj_index < 0)
 		{
 			laststatobj = nullptr;
 		}
 		else
 		{
-			laststatobj = &statobjlist[laststatobj_index];
+			laststatobj = statobjlist.data() + laststatobj_index;
 		}
 
 		if (laststatobj)
 		{
 			std::uninitialized_fill_n(
 				statobjlist.begin(),
-				laststatobj_index + 1,
+				laststatobj_index,
 				statobj_t{}
 			);
 		}
 
-		for (int i = 0; i <= laststatobj_index; ++i)
+		for (int i = 0; i < laststatobj_index; ++i)
 		{
 			statobjlist[i].unarchive(archiver);
 		}
@@ -8752,7 +8757,7 @@ bool SaveLevel(
 	//
 	// statobjlist
 	//
-	for (std::intptr_t i = 0; i <= laststatobj_index; ++i)
+	for (std::intptr_t i = 0; i < laststatobj_index; ++i)
 	{
 		statobjlist[i].archive(archiver);
 	}
