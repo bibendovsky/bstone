@@ -939,7 +939,7 @@ std::uint16_t actor_points[] = {
 	5000, // goldstern Morphed
 	2025, // volatile transport
 	2025, // floating bomb
-	0, // rotating cube
+	5000, // projection generator / rotating cube (non-countable)
 
 	5000, // spider_mutant
 	6000, // breather_beast
@@ -1254,15 +1254,17 @@ void KillActor(
 		break;
 
 	case rotating_cubeobj:
-		if (assets_info.is_ps())
+		if (assets_info.is_ps() || assets_info.is_aog_sw())
 		{
-			break;
+			givepoints = false;
 		}
-
-		A_DeathScream(ob);
-		ob->ammo = 0;
-		ob->lighting = EXPLOSION_SHADING;
-		InitSmartSpeedAnim(ob, SPR_VITAL_DIE_1, 0, 7, at_ONCE, ad_FWD, 7);
+		else
+		{
+			A_DeathScream(ob);
+			ob->ammo = 0;
+			ob->lighting = EXPLOSION_SHADING;
+			InitSmartSpeedAnim(ob, SPR_VITAL_DIE_1, 0, 7, at_ONCE, ad_FWD, 7);
+		}
 		break;
 
 	default:
