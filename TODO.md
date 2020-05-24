@@ -1,2 +1,6 @@
 - [HWR] Fix Z-fighting.
 - Replace vid_throw_sdl_error with Sdl2EnsureResult.
+- Apply delayed bonus at the end of episode.
+- Investigate "spinning" actors inside "guard block" (E5L2; (12, 41) or (15, 41)).
+- Fix displying actors on auto-map after loading from saved game.
+- Fix zigzag movement along a wall with when strife enabled.

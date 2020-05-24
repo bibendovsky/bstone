@@ -279,13 +279,14 @@ void CheckHighScore(
 
 
 	// Check for cheaters
-
+#if NDEBUG
 	if (DebugOk)
 	{
 		sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
 
 		return;
 	}
+#endif // NDEBUG
 
 	strcpy(myscore.name, "");
 	myscore.score = score;
