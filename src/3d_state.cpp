@@ -916,7 +916,8 @@ char dki_msg[] =
 "^FC19	    DO NOT SHOOT\r"
 "	    INFORMANTS!!\r";
 
-std::uint16_t actor_points[] = {
+const ActorPoints actor_points =
+{
 	1025, // rent-a-cop
 	1050, // turret
 	500, // general scientist
@@ -939,7 +940,7 @@ std::uint16_t actor_points[] = {
 	5000, // goldstern Morphed
 	2025, // volatile transport
 	2025, // floating bomb
-	5000, // projection generator / rotating cube (non-countable)
+	50000, // projection generator
 
 	5000, // spider_mutant
 	6000, // breather_beast
@@ -952,7 +953,14 @@ std::uint16_t actor_points[] = {
 	50000, // final_boss #3
 	60000, // final_boss #4
 
-	0, 0, 0, 0, 0, // blake,crate1/2/3, oozes
+	0, // blake
+	0, // crate 1
+	0, // crate 2
+	0, // crate 3
+	0, // green ooze
+	0, // black ooze
+	0, // green ooze 2
+	0, // black ooze 2
 	0, // pod egg
 
 	5000, // morphing_spider_mutant
@@ -1003,18 +1011,32 @@ void KillActor(
 	case podeggobj:
 		sd_play_actor_sound(PODHATCHSND, ob, bstone::ActorChannel::voice);
 
-		InitSmartSpeedAnim(ob, SPR_POD_HATCH1, 0, 2, at_ONCE, ad_FWD, 7);
+		InitSmartSpeedAnim(ob, SPR_POD_HATCH1, 0, 2, at_ONCE, ad_FWD, assets_info.is_aog() ? 75 : 7);
 		KeepSolid = true;
-		deadguy = givepoints = false;
+
+		if (assets_info.is_aog())
+		{
+			givepoints = false;
+		}
+		else
+		{
+			deadguy = false;
+			givepoints = false;
+		}
+
 		break;
 
 	case morphing_spider_mutantobj:
 	case morphing_reptilian_warriorobj:
 	case morphing_mutanthuman2obj:
-		ob->flags &= ~FL_SHOOTABLE;
-		InitSmartSpeedAnim(ob, ob->temp1, 0, 8, at_ONCE, ad_FWD, 2);
-		KeepSolid = true;
-		deadguy = givepoints = false;
+		if (assets_info.is_ps())
+		{
+			ob->flags &= ~FL_SHOOTABLE;
+			InitSmartSpeedAnim(ob, ob->temp1, 0, 8, at_ONCE, ad_FWD, 2);
+			KeepSolid = true;
+			deadguy = givepoints = false;
+		}
+
 		break;
 
 	case crate1obj:
@@ -1029,9 +1051,19 @@ void KillActor(
 			static_cast<void>(SpawnStatic(tilex, tiley, ob->temp2));
 		}
 
-		ob->obclass = deadobj;
+		ob->obclass = (assets_info.is_aog() ? explosionobj : deadobj);
 		ob->lighting = NO_SHADING; // No Shading
-		InitSmartSpeedAnim(ob, SPR_GRENADE_EXPLODE2, 0, 3, at_ONCE, ad_FWD, 3 + (US_RndT() & 7));
+
+		InitSmartSpeedAnim(
+			ob,
+			SPR_GRENADE_EXPLODE2,
+			0,
+			3,
+			at_ONCE,
+			ad_FWD,
+			(assets_info.is_aog() ? 32 : 3) + (US_RndT() & 7)
+		);
+
 		A_DeathScream(ob);
 		MakeAlertNoise(ob);
 		break;
@@ -1039,13 +1071,13 @@ void KillActor(
 	case floatingbombobj:
 		ob->lighting = EXPLOSION_SHADING;
 		A_DeathScream(ob);
-		InitSmartSpeedAnim(ob, SPR_FSCOUT_DIE1, 0, 7, at_ONCE, ad_FWD, assets_info.is_ps() ? 5 : 17);
+		InitSmartSpeedAnim(ob, SPR_FSCOUT_DIE1, 0, 7, at_ONCE, ad_FWD, assets_info.is_ps() ? 5 : 30);
 		break;
 
 	case volatiletransportobj:
 		ob->lighting = EXPLOSION_SHADING;
 		A_DeathScream(ob);
-		InitSmartSpeedAnim(ob, SPR_GSCOUT_DIE1, 0, 8, at_ONCE, ad_FWD, assets_info.is_ps() ? 5 : 17);
+		InitSmartSpeedAnim(ob, SPR_GSCOUT_DIE1, 0, 8, at_ONCE, ad_FWD, assets_info.is_ps() ? 5 : 30);
 		break;
 
 	case goldsternobj:
@@ -1058,16 +1090,16 @@ void KillActor(
 		GoldsternInfo.WaitTime = MIN_GOLDIE_WAIT + Random(MAX_GOLDIE_WAIT - MIN_GOLDIE_WAIT); // Reinit Delay Timer before spawning on new position
 		clas = goldsternobj;
 
-		if (gamestate.mapon == 9)
+		if (assets_info.is_aog() &&
+			gamestate.mapon == 9 &&
+			!gamestate.boss_key_dropped)
 		{
-			if (!gamestate.boss_key_dropped)
-			{
-				gamestate.boss_key_dropped = true;
+			gamestate.boss_key_dropped = true;
 
-				static_cast<void>(ReserveStatic());
-				PlaceReservedItemNearTile(bo_gold_key, ob->tilex, ob->tiley);
-			}
+			static_cast<void>(ReserveStatic());
+			PlaceReservedItemNearTile(bo_gold_key, ob->tilex, ob->tiley);
 		}
+
 		break;
 
 	case gold_morphobj:
@@ -1301,7 +1333,7 @@ void KillActor(
 			ob->flags |= (FL_NONMARK | FL_DEADGUY);
 		}
 
-		if ((clas >= rentacopobj) && (clas < crate1obj) && (clas != electroobj) && (clas != goldsternobj))
+		if (clas >= rentacopobj && clas < crate1obj && clas != electroobj && clas != goldsternobj)
 		{
 			gamestuff.level[gamestate.mapon].stats.accum_enemy++;
 		}

@@ -3249,7 +3249,11 @@ void F_MapRow();
 =============================================================================
 */
 
-extern std::uint16_t actor_points[];
+constexpr auto actor_points_size = 45;
+
+using ActorPoints = std::array<std::uint16_t, actor_points_size>;
+extern const ActorPoints actor_points;
+
 extern dirtype opposite[9];
 extern dirtype diagonal[9][9];
 
