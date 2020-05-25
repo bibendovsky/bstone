@@ -38,7 +38,9 @@ Free Software Foundation, Inc.,
 #include "id_vl.h"
 #include "3d_menu.h"
 #include "gfxv.h"
+
 #include "bstone_generic_fizzle_fx.h"
+#include "bstone_logger.h"
 
 
 #define NUM_TILES (PMSpriteStart)
@@ -3701,16 +3703,71 @@ static void fix_level_inplace()
 	}
 
 	// Fix standing bio-tech near volatile containers
-	// (E2M6; x: 38; y: 26)
-	// (E2M6; x: 55; y: 33)
+	// (E2L6; x: 38; y: 26)
+	// (E2L6; x: 55; y: 33)
 	//
 	if (assets_info.is_aog_full() &&
 		!loadedgame &&
 		gamestate.episode == 1 &&
 		gamestate.mapon == 6)
 	{
-		// Replace standing bio-tech with a moving one.
-		mapsegs[1][(26 * MAPSIZE) + 38] = 157;
-		mapsegs[1][(33 * MAPSIZE) + 55] = 157;
+		{
+			// Replace standing bio-tech with a moving one.
+			constexpr auto x = 38;
+			constexpr auto y = 26;
+
+			constexpr auto index = (y * MAPSIZE) + x;
+
+			if (mapsegs[1][index] == 153)
+			{
+				mapsegs[1][index] = 157;
+
+				bstone::logger_->write(
+					"[FIX_LEVEL] Bio-tech at (" + std::to_string(x) + ", " + std::to_string(y) +
+						"): standing -> moving.");
+			}
+		}
+
+		{
+			// Replace standing bio-tech with a moving one.
+			constexpr auto x = 55;
+			constexpr auto y = 33;
+
+			constexpr auto index = (y * MAPSIZE) + x;
+
+			if (mapsegs[1][index] == 153)
+			{
+				mapsegs[1][index] = 157;
+
+				bstone::logger_->write(
+					"[LEVEL_FIX] Bio-tech at (" + std::to_string(x) + ", " + std::to_string(y) +
+						"): standing -> moving.");
+			}
+		}
+	}
+
+	// Fix bio-tech placed on special tile (AREATILE).
+	// (E5L2; x: 18; y: 43)
+	//
+	if (assets_info.is_aog_full() &&
+		!loadedgame &&
+		gamestate.episode == 4 &&
+		gamestate.mapon == 2)
+	{
+		constexpr auto y = 43;
+		constexpr auto old_x = 18;
+		constexpr auto new_x = 17;
+
+		constexpr auto old_index = (y * MAPSIZE) + old_x;
+		constexpr auto new_index = (y * MAPSIZE) + new_x;
+
+		if (mapsegs[1][old_index] != 0 && mapsegs[1][new_index] == 0)
+		{
+			std::swap(mapsegs[1][old_index], mapsegs[1][new_index]);
+
+			bstone::logger_->write(
+				"[LEVEL_FIX] Bio-tech at (" + std::to_string(old_x) + ", " + std::to_string(y) +
+					"): move one tile to the left.");
+		}
 	}
 }
