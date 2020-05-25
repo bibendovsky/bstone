@@ -3575,7 +3575,11 @@ void ExplodeStatics(
 
 extern std::int8_t detonators_spawned;
 
-extern std::int16_t starthitpoints[][NUMHITENEMIES];
+constexpr auto difficulty_levels = 4;
+using SubStartHitPoints = std::array<std::uint16_t, NUMHITENEMIES>;
+using StartHitPoints = std::array<SubStartHitPoints, difficulty_levels>;
+
+extern const StartHitPoints* starthitpoints;
 
 extern statetype s_ofs_bounce;
 
@@ -4022,6 +4026,8 @@ void cfg_file_write_entry(
 	const std::string& key_string,
 	const std::string& value_string);
 
+std::uint16_t get_start_hit_point(
+	const int index);
 // BBi
 
 

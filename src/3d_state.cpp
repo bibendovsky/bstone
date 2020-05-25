@@ -1572,7 +1572,7 @@ void DamageActor(
 
 			// Calculate 'wound boundary' (based on NUM_WOUND_STAGES).
 			//
-			wound_mod = starthitpoints[gamestate.difficulty][en_swat] / (ob->temp1 + 1) + 1;
+			wound_mod = get_start_hit_point(en_swat) / (ob->temp1 + 1) + 1;
 			mod_before = old_hp / wound_mod;
 			mod_after = ob->hitpoints / wound_mod;
 
@@ -1686,8 +1686,7 @@ void DamageActor(
 			}
 
 			// Show 'pain' animation only once
-			if ((ob->hitpoints + damage) ==
-				starthitpoints[gamestate.difficulty][en_rotating_cube])
+			if ((ob->hitpoints + damage) == get_start_hit_point(en_rotating_cube))
 			{
 				InitSmartSpeedAnim(ob, SPR_VITAL_OUCH, 0, 0, at_ONCE, ad_FWD, 23);
 			}
@@ -2433,7 +2432,7 @@ bool LookForGoodies(
 		{
 			ob->ammo += 8;
 		}
-		if (ob->hitpoints <= (starthitpoints[gamestate.difficulty][ob->obclass - rentacopobj] >> 1))
+		if (ob->hitpoints <= (get_start_hit_point(ob->obclass - rentacopobj) >> 1))
 		{
 			ob->hitpoints += 10;
 		}
@@ -2478,7 +2477,7 @@ bool LookForGoodies(
 						case bo_candybar:
 						case bo_sandwich:
 						case bo_chicken:
-							if (ob->hitpoints > (starthitpoints[gamestate.difficulty][ob->obclass - rentacopobj] >> 1))
+							if (ob->hitpoints > (get_start_hit_point(ob->obclass - rentacopobj) >> 1))
 							{
 								continue; // actor has plenty of health!
 							}
@@ -2487,7 +2486,7 @@ bool LookForGoodies(
 							break;
 
 						case bo_ham:
-							if (ob->hitpoints > (starthitpoints[gamestate.difficulty][ob->obclass - rentacopobj] >> 1))
+							if (ob->hitpoints > (get_start_hit_point(ob->obclass - rentacopobj) >> 1))
 							{
 								continue; // actor has plenty of health!
 							}
@@ -2496,7 +2495,7 @@ bool LookForGoodies(
 							break;
 
 						case bo_water:
-							if (ob->hitpoints > (starthitpoints[gamestate.difficulty][ob->obclass - rentacopobj] >> 1))
+							if (ob->hitpoints > (get_start_hit_point(ob->obclass - rentacopobj) >> 1))
 							{
 								continue; // actor has plenty of health!
 							}
@@ -2647,7 +2646,7 @@ std::uint16_t CheckRunChase(
 		RunReason |= RR_AMMO;
 	}
 
-	if (ob->hitpoints <= (starthitpoints[gamestate.difficulty][ob->obclass - rentacopobj] >> 1))
+	if (ob->hitpoints <= (get_start_hit_point(ob->obclass - rentacopobj) >> 1))
 	{
 		RunReason |= RR_HEALTH; // Feeling sickly!
 
