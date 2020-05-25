@@ -56,11 +56,13 @@ void try_to_grab_bonus_items();
 
 struct PinballBonusInfo
 {
-	char* BonusText; // REBA text pointer
+	const char* BonusText; // REBA text pointer
 	std::int32_t Points; // Score for this bonus
 	bool Recurring; // Appear multiple times in a single level?
 	void (*func)(); // Code to execute when you get this bonus.
 }; // PinballBonusInfo
+
+using PinballBonusInfos = std::array<PinballBonusInfo, 7>;
 
 struct atkinf_t
 {
@@ -4430,7 +4432,7 @@ bool PerfectStats()
 
 void B_GAliFunc()
 {
-	extern char B_GAlienDead2[];
+	extern const char* B_GAlienDead2;
 
 	if (gamestate.episode == 5)
 	{
@@ -4461,82 +4463,108 @@ void B_RollFunc()
 }
 
 
-char B_GAlienDead2[] = "^FC57    GUARDIAN ALIEN\r"
-"      DESTROYED!\r\r"
-"^FCA6 FIND AND DESTROY ALL\r"
-"PROJECTION GENERATORS!";
+const char* B_GAlienDead2 =
+	"^FC57    GUARDIAN ALIEN\r"
+	"      DESTROYED!\r\r"
+	"^FCA6 FIND AND DESTROY ALL\r"
+	"PROJECTION GENERATORS!"
+;
 
-char B_GAlienDead[] = "^FC57    GUARDIAN ALIEN\r"
-"      DESTROYED!\r\r"
-"^FCA6   FIND THE EXIT TO\r"
-"COMPLETE THIS MISSION";
+const char* B_GAlienDead =
+	"^FC57    GUARDIAN ALIEN\r"
+	"      DESTROYED!\r\r"
+	"^FCA6   FIND THE EXIT TO\r"
+	"COMPLETE THIS MISSION"
+;
 
-char B_ScoreRolled[] = "^FC57\rROLLED SCORE DISPLAY!\r"
-"^FCA6   FULL AMMO BONUS!\r"
-"  FULL HEALTH BONUS!\r"
-"1,000,000 POINT BONUS!";
+const char* B_ScoreRolled =
+	"^FC57\rROLLED SCORE DISPLAY!\r"
+	"^FCA6   FULL AMMO BONUS!\r"
+	"  FULL HEALTH BONUS!\r"
+	"1,000,000 POINT BONUS!"
+;
 
-char B_OneMillion[] = "^FC57\r     GREAT SCORE!\r"
-"^FCA6   FULL AMMO BONUS!\r"
-"  FULL HEALTH BONUS!\r"
-"1,000,000 POINT BONUS!";
+const char* B_OneMillion =
+	"^FC57\r     GREAT SCORE!\r"
+	"^FCA6   FULL AMMO BONUS!\r"
+	"  FULL HEALTH BONUS!\r"
+	"1,000,000 POINT BONUS!"
+;
 
-char B_ExtraMan[] = "^FC57\r\r     GREAT SCORE!\r"
-"^FCA6  EXTRA LIFE BONUS!\r";
+const char* B_ExtraMan =
+	"^FC57\r\r     GREAT SCORE!\r"
+	"^FCA6  EXTRA LIFE BONUS!\r"
+;
 
-char B_EnemyDestroyed[] = "^FC57\r\r ALL ENEMY DESTROYED!\r"
-"^FCA6  50,000 POINT BONUS!\r";
+const char* B_EnemyDestroyed =
+	"^FC57\r\r ALL ENEMY DESTROYED!\r"
+	"^FCA6  50,000 POINT BONUS!\r"
+;
 
-char B_TotalPoints[] = "^FC57\r\r ALL POINTS COLLECTED!\r"
-"^FCA6  50,000 POINT BONUS!\r";
+const char* B_TotalPoints =
+	"^FC57\r\r ALL POINTS COLLECTED!\r"
+	"^FCA6  50,000 POINT BONUS!\r"
+;
 
-char B_InformantsAlive[] = "^FC57\r\r ALL INFORMANTS ALIVE!\r"
-"^FCA6  50,000 POINT BONUS!\r";
+const char* B_InformantsAlive =
+	"^FC57\r\r ALL INFORMANTS ALIVE!\r"
+	"^FCA6  50,000 POINT BONUS!\r"
+;
 
 
-PinballBonusInfo PinballBonus[] = {
+const PinballBonusInfos PinballBonus =
+{
 	//                                       Special
 	//  BonusText           Points   Recur? Function
 	// -----------------------------------------------------
-	{B_GAlienDead, 0, false, B_GAliFunc},
-{B_ScoreRolled, 1000000l, true, B_RollFunc},
-{B_OneMillion, 1000000l, false, B_MillFunc},
-{B_ExtraMan, 0, true, B_EManFunc},
-{B_EnemyDestroyed, 50000l, false, nullptr},
-{B_TotalPoints, 50000l, false, nullptr},
-{B_InformantsAlive, 50000l, false, nullptr},
+
+	PinballBonusInfo{B_GAlienDead, 0, false, B_GAliFunc},
+	PinballBonusInfo{B_ScoreRolled, 1000000l, true, B_RollFunc},
+	PinballBonusInfo{B_OneMillion, 1000000l, false, B_MillFunc},
+	PinballBonusInfo{B_ExtraMan, 0, true, B_EManFunc},
+	PinballBonusInfo{B_EnemyDestroyed, 50000l, false, nullptr},
+	PinballBonusInfo{B_TotalPoints, 50000l, false, nullptr},
+	PinballBonusInfo{B_InformantsAlive, 50000l, false, nullptr},
 };
 
 void DisplayPinballBonus()
 {
-	std::int8_t loop;
+	const auto is_victory = (playstate == ex_victorious);
 
 	// Check queue for bonuses
 	//
-	for (loop = 0; loop < static_cast<std::int8_t>(sizeof(gamestuff.level[0].bonus_queue) * 8); loop++)
-	{
-		if ((BONUS_QUEUE & (1 << loop)) && (LastMsgPri < MP_PINBALL_BONUS))
-		{
-			// Start this bonus!
-			//
-			sd_play_player_sound(ROLL_SCORESND, bstone::ActorChannel::item);
+	const auto count = static_cast<int>(sizeof(gamestuff.level[0].bonus_queue) * 8);
 
-			DisplayInfoMsg(PinballBonus[static_cast<int>(loop)].BonusText, MP_PINBALL_BONUS, 7 * 60, MT_BONUS);
+	for (int loop = 0; loop < count; ++loop)
+	{
+		if ((BONUS_QUEUE & (1 << loop)) != 0 && (is_victory || LastMsgPri < MP_PINBALL_BONUS))
+		{
+			if (!is_victory)
+			{
+				// Start this bonus!
+				//
+
+				sd_play_player_sound(ROLL_SCORESND, bstone::ActorChannel::item);
+
+				DisplayInfoMsg(PinballBonus[loop].BonusText, MP_PINBALL_BONUS, 7 * 60, MT_BONUS);
+			}
 
 			// Add to "shown" ... Remove from "queue"
 			//
-			if (!PinballBonus[static_cast<int>(loop)].Recurring)
+			if (!PinballBonus[loop].Recurring)
 			{
 				BONUS_SHOWN |= (1 << loop);
 			}
+
 			BONUS_QUEUE &= ~(1 << loop);
 
 			// Give points and execute special function.
 			//
-			GivePoints(PinballBonus[static_cast<int>(loop)].Points, false);
-			if (PinballBonus[static_cast<int>(loop)].func)
+			GivePoints(PinballBonus[loop].Points, false);
+
+			if (PinballBonus[loop].func)
 			{
-				PinballBonus[static_cast<int>(loop)].func();
+				PinballBonus[loop].func();
 			}
 		}
 	}
@@ -4545,8 +4573,8 @@ void DisplayPinballBonus()
 void CheckPinballBonus(
 	std::int32_t points)
 {
-	std::int32_t score_before = gamestate.score,
-		score_after = gamestate.score + points;
+	const auto score_before = gamestate.score;
+	const auto score_after = gamestate.score + points;
 
 	// Check SCORE ROLLED bonus
 	//

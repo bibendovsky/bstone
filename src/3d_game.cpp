@@ -3406,6 +3406,14 @@ void RotateView(
 
 }
 
+void apply_bonus_queue()
+{
+	while (gamestuff.level[gamestate.mapon].bonus_queue != 0)
+	{
+		GivePoints(0, false);
+	}
+}
+
 void GameLoop()
 {
 	// BBi
@@ -3581,6 +3589,8 @@ restartgame:
 
 			if (playstate == ex_victorious)
 			{
+				apply_bonus_queue();
+
 				ThreeDRefresh();
 				ThreeDRefresh();
 			}
