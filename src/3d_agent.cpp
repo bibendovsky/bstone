@@ -4732,10 +4732,13 @@ void GunAttack(
 		break;
 	}
 
-	const auto object_radius = 0.5;
+	static const auto object_radius = 0.5;
+
 	const auto theta = (player->angle * m_pi()) / 180.0;
-	const auto cos_t = std::cos(theta);
-	const auto sin_t = std::sin(theta);
+
+	const auto theta_cos = std::cos(theta);
+	const auto theta_sin = std::sin(theta);
+
 	const auto x_1 = bstone::FixedPoint{player->x}.to_double();
 	const auto y_1 = (MAPSIZE - 1) - bstone::FixedPoint{player->y}.to_double();
 
@@ -4751,6 +4754,9 @@ void GunAttack(
 	{
 		const auto old_closest = closest;
 
+		auto closest_x = 0.0;
+		auto closest_y = 0.0;
+
 		for (auto check = ob->next; check; check = check->next)
 		{
 			if ((check->flags & FL_SHOOTABLE) == 0 || (check->flags & FL_VISIBLE) == 0)
@@ -4765,7 +4771,7 @@ void GunAttack(
 			const auto dy_0_1 = y_0 - y_1;
 
 			//
-			// How to calculate a distance from a line defined by two points to the given point.
+			// How to calculate a distance from a line defined by two points to the given one.
 			// (http://wikipedia.org/wiki/Distance_from_a_point_to_a_line)
 			//
 			//                              |(y2 - y1) x0 - (x2 - x1) y0 + x2 y1 - y2 x1|
@@ -4786,9 +4792,9 @@ void GunAttack(
 			//
 			// So the distance is:
 			//
-			// distance(x1, y1, a, (x0, y0) = |sin(theta) (x0 - x1) - cos(theta) (y0 - y1)|
+			// distance(x1, y1, a, (x0, y0)) = |sin(theta) (x0 - x1) - cos(theta) (y0 - y1)|
 			//
-			const auto distance_to_hitscan_line = std::abs((sin_t * dx_0_1) - (cos_t * dy_0_1));
+			const auto distance_to_hitscan_line = std::abs((theta_sin * dx_0_1) - (theta_cos * dy_0_1));
 
 			if (distance_to_hitscan_line > object_radius)
 			{
@@ -4808,12 +4814,26 @@ void GunAttack(
 				view_dist = sqr_distance_to_object;
 
 				closest = check;
+
+				closest_x = x_0;
+				closest_y = y_0;
 			}
 		}
 
 		if (closest == old_closest)
 		{
 			return; // no more targets, all missed
+		}
+
+		const auto direction_to_closest_x = closest_x - x_1;
+		const auto direction_to_closest_y = closest_y - y_1;
+
+		const auto dot = (direction_to_closest_x * theta_cos) + (direction_to_closest_y * theta_sin);
+
+		if (dot <= 0)
+		{
+			// The closest target should be in front of the player.
+			continue;
 		}
 
 		//

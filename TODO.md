@@ -2,4 +2,4 @@
 - Replace vid_throw_sdl_error with Sdl2EnsureResult.
 - Fix zigzag movement along a wall with strafing enabled.
 - Revise AOG compatibility.
-- Fix player's atack tracing.
+- Write saved game into temporary file and only then rename it.
