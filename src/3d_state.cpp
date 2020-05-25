@@ -1011,7 +1011,7 @@ void KillActor(
 	case podeggobj:
 		sd_play_actor_sound(PODHATCHSND, ob, bstone::ActorChannel::voice);
 
-		InitSmartSpeedAnim(ob, SPR_POD_HATCH1, 0, 2, at_ONCE, ad_FWD, assets_info.is_aog() ? 75 : 7);
+		InitSmartSpeedAnim(ob, SPR_POD_HATCH1, 0, 2, at_ONCE, ad_FWD, assets_info.is_aog() ? 45 : 7);
 		KeepSolid = true;
 
 		if (assets_info.is_aog())
@@ -1061,7 +1061,7 @@ void KillActor(
 			3,
 			at_ONCE,
 			ad_FWD,
-			(assets_info.is_aog() ? 32 : 3) + (US_RndT() & 7)
+			(assets_info.is_aog() ? 24 : 3) + (US_RndT() & 7)
 		);
 
 		A_DeathScream(ob);
@@ -1071,13 +1071,13 @@ void KillActor(
 	case floatingbombobj:
 		ob->lighting = EXPLOSION_SHADING;
 		A_DeathScream(ob);
-		InitSmartSpeedAnim(ob, SPR_FSCOUT_DIE1, 0, 7, at_ONCE, ad_FWD, assets_info.is_ps() ? 5 : 30);
+		InitSmartSpeedAnim(ob, SPR_FSCOUT_DIE1, 0, 7, at_ONCE, ad_FWD, assets_info.is_ps() ? 5 : 20);
 		break;
 
 	case volatiletransportobj:
 		ob->lighting = EXPLOSION_SHADING;
 		A_DeathScream(ob);
-		InitSmartSpeedAnim(ob, SPR_GSCOUT_DIE1, 0, 8, at_ONCE, ad_FWD, assets_info.is_ps() ? 5 : 30);
+		InitSmartSpeedAnim(ob, SPR_GSCOUT_DIE1, 0, 8, at_ONCE, ad_FWD, assets_info.is_ps() ? 5 : 20);
 		break;
 
 	case goldsternobj:

@@ -1182,6 +1182,8 @@ void initialize_grenade_shape_constants()
 void T_OfsThink(
 	objtype* obj)
 {
+	const auto& assets_info = AssetsInfo{};
+
 	std::int8_t dx, dy, dist;
 	std::int8_t oldofs, ofs = 0;
 
@@ -1366,7 +1368,7 @@ void T_OfsThink(
 
 		sd_play_actor_sound(PODHATCHSND, obj, bstone::ActorChannel::voice);
 
-		InitSmartSpeedAnim(obj, SPR_POD_HATCH1, 0, 2, at_ONCE, ad_FWD, 7);
+		InitSmartSpeedAnim(obj, SPR_POD_HATCH1, 0, 2, at_ONCE, ad_FWD, assets_info.is_aog() ? 45 : 7);
 		break;
 
 	case morphing_spider_mutantobj:

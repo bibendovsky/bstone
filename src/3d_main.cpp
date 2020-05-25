@@ -7111,7 +7111,7 @@ void InitSmartAnim(
 		MaxOfs,
 		AnimType,
 		AnimDir,
-		assets_info.is_ps() ? 7 : 21);
+		assets_info.is_ps() ? 7 : 30);
 }
 
 bstone::MemoryStream g_playtemp;
