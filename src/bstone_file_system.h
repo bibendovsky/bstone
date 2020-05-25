@@ -58,6 +58,10 @@ std::string resolve_path(
 bool has_file(
 	const std::string& path);
 
+void rename(
+	const std::string& old_path,
+	const std::string& new_path);
+
 
 } // file_system
 } // bstone

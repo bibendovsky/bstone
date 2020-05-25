@@ -7231,13 +7231,14 @@ static void write_high_scores()
 		return;
 	}
 
-	auto scores_path = get_profile_dir() + get_score_file_name();
+	const auto& scores_path = get_profile_dir() + get_score_file_name();
+	const auto& tmp_scores_path = scores_path + ".temp";
 
-	auto stream = bstone::FileStream{scores_path, bstone::StreamOpenMode::write};
+	auto stream = bstone::FileStream{tmp_scores_path, bstone::StreamOpenMode::write};
 
 	if (!stream.is_open())
 	{
-		bstone::logger_->write_error("Failed to open a high scores file for writing: \"" + scores_path + "\".");
+		bstone::logger_->write_error("Failed to open a high scores file for writing: \"" + tmp_scores_path + "\".");
 
 		return;
 	}
@@ -7258,8 +7259,12 @@ static void write_high_scores()
 		}
 
 		archiver->write_checksum();
+
+		stream.close();
+
+		bstone::file_system::rename(tmp_scores_path, scores_path);
 	}
-	catch (const bstone::ArchiverException& ex)
+	catch (const bstone::Exception& ex)
 	{
 		bstone::logger_->write_error("Failed to archive high scores data." + std::string{ex.what()});
 	}
@@ -7549,7 +7554,7 @@ void read_text_config()
 
 	set_config_defaults();
 
-	const auto config_path = get_profile_dir() + text_config_file_name;
+	const auto& config_path = get_profile_dir() + text_config_file_name;
 
 	bstone::FileStream stream{config_path};
 
@@ -7941,14 +7946,19 @@ void write_text_config()
 	const auto stream_size = static_cast<int>(memory_stream.get_size());
 	const auto stream_data = memory_stream.get_data();
 
-	const auto config_path = get_profile_dir() + text_config_file_name;
+	const auto& config_path = get_profile_dir() + text_config_file_name;
+	const auto& tmp_config_path = config_path + ".temp";
 
-	bstone::FileStream stream{config_path, bstone::StreamOpenMode::write};
-
-	if (!stream.write(stream_data, stream_size))
 	{
-		bstone::logger_->write_warning("Failed to write a configuration.");
+		bstone::FileStream stream{tmp_config_path, bstone::StreamOpenMode::write};
+
+		if (!stream.write(stream_data, stream_size))
+		{
+			bstone::logger_->write_warning("Failed to write a configuration.");
+		}
 	}
+
+	bstone::file_system::rename(tmp_config_path, config_path);
 }
 
 
@@ -9184,11 +9194,13 @@ bool SaveTheGame(
 	const std::string& file_name,
 	const std::string& description)
 {
-	auto file_stream = bstone::FileStream{file_name, bstone::StreamOpenMode::write};
+	const auto tmp_file_name = file_name + ".temp";
+
+	auto file_stream = bstone::FileStream{tmp_file_name, bstone::StreamOpenMode::write};
 
 	if (!file_stream.is_open())
 	{
-		bstone::logger_->write_error("SAVE: Failed to open file \"" + file_name + "\".");
+		bstone::logger_->write_error("SAVE: Failed to open file \"" + tmp_file_name + "\".");
 
 		return false;
 	}
@@ -9320,6 +9332,11 @@ bool SaveTheGame(
 
 		//
 		NewViewSize();
+
+		// Rename temporary file.
+		//
+		file_stream.close();
+		bstone::file_system::rename(tmp_file_name, file_name);
 	}
 	catch (const bstone::ArchiverException& ex)
 	{

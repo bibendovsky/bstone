@@ -39,6 +39,7 @@ Free Software Foundation, Inc.,
 #else
 #include <sys/stat.h>
 #include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #endif // _WIN32
@@ -75,14 +76,14 @@ class GetWorkingDirException :
 public:
 	GetWorkingDirException()
 		:
-		Exception{"[GET_WORKING_DIR] Failed to get."}
+		Exception{"[FS_GET_WORKING_DIR] Failed to get."}
 	{
 	}
 
 	explicit GetWorkingDirException(
 		const char* const message)
 		:
-		Exception{std::string{"[GET_WORKING_DIR] "} + message}
+		Exception{std::string{"[FS_GET_WORKING_DIR] "} + message}
 	{
 	}
 }; // GetWorkingDirException
@@ -93,17 +94,35 @@ class ResolvePathException :
 public:
 	ResolvePathException()
 		:
-		Exception{"[RESOLVE_PATH] Failed to get."}
+		Exception{"[FS_RESOLVE_PATH] Failed to get."}
 	{
 	}
 
 	explicit ResolvePathException(
 		const char* const message)
 		:
-		Exception{std::string{"[RESOLVE_PATH] "} + message}
+		Exception{std::string{"[FS_RESOLVE_PATH] "} + message}
 	{
 	}
 }; // ResolvePathException
+
+class RenameException :
+	public Exception
+{
+public:
+	RenameException()
+		:
+		Exception{"[FS_RENAME] Failed to rename."}
+	{
+	}
+
+	explicit RenameException(
+		const char* const message)
+		:
+		Exception{std::string{"[RESOLVE_PATH] "} + message}
+	{
+	}
+}; // RenameException
 
 
 } // detail
@@ -351,6 +370,44 @@ bool has_file(
 	}
 
 	return S_ISREG(posix_stat.st_mode) != 0;
+#endif // _WIN32
+}
+
+void rename(
+	const std::string& old_path,
+	const std::string& new_path)
+{
+	if (old_path.empty())
+	{
+		throw detail::RenameException{"Empty old path."};
+	}
+
+	if (new_path.empty())
+	{
+		throw detail::RenameException{"Empty new path."};
+	}
+
+#if _WIN32
+	const auto& old_path_utf16 = utf8_to_utf16(old_path);
+	const auto& new_path_utf16 = utf8_to_utf16(new_path);
+
+	const auto win32_move_file_result = MoveFileExW(
+		reinterpret_cast<LPCWSTR>(old_path_utf16.c_str()),
+		reinterpret_cast<LPCWSTR>(new_path_utf16.c_str()),
+		MOVEFILE_REPLACE_EXISTING
+	);
+
+	if (win32_move_file_result == FALSE)
+	{
+		throw detail::RenameException{};
+	}
+#else
+	const auto posix_rename_result = rename(old_path.c_str(), new_path.c_str());
+
+	if (posix_rename_result != 0)
+	{
+		throw detail::RenameException{};
+	}
 #endif // _WIN32
 }
 
