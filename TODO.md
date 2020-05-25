@@ -1,5 +1,4 @@
 - [HWR] Fix Z-fighting.
 - Replace vid_throw_sdl_error with Sdl2EnsureResult.
-- Fix displaying actors on auto-map after loading saved game.
 - Fix zigzag movement along a wall with strafing enabled.
 - Revise AOG compatibility.

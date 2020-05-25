@@ -1956,12 +1956,23 @@ void DrawRadar()
 std::uint16_t tc_time;
 
 static bool show_pwalls_on_automap(
-	int x,
-	int y)
+	const int x,
+	const int y,
+	const bool is_show_all)
 {
 	const auto& assets_info = AssetsInfo{};
 
 	if (assets_info.is_ps())
+	{
+		return true;
+	}
+
+	if (tilemap[x][y] == 0)
+	{
+		return false;
+	}
+
+	if (is_show_all)
 	{
 		return true;
 	}
@@ -1984,7 +1995,7 @@ static bool show_pwalls_on_automap(
 			continue;
 		}
 
-		auto iconnum = *(mapsegs[1] + farmapylookup[new_y] + new_x);
+		const auto iconnum = mapsegs[1][farmapylookup[new_y] + new_x];
 
 		if (iconnum == PUSHABLETILE)
 		{
@@ -2075,6 +2086,8 @@ void ShowOverhead(
 
 	int diameter = radius * 2;
 
+	const auto is_show_all = ((flags & OV_SHOWALL) != 0);
+
 	// Draw rotated radar.
 	//
 
@@ -2126,8 +2139,7 @@ void ShowOverhead(
 			{
 				// SHOW TRAVELED
 				//
-				if ((travel_table_[mx][my] & TT_TRAVELED) != 0 ||
-					(flags & OV_SHOWALL) != 0)
+				if ((travel_table_[mx][my] & TT_TRAVELED) != 0 || is_show_all)
 				{
 					// What's at this map location?
 					//
@@ -2215,7 +2227,7 @@ void ShowOverhead(
 						//
 						if (iconnum == PUSHABLETILE)
 						{
-							if (show_pwalls_on_automap(mx, my))
+							if (show_pwalls_on_automap(mx, my, is_show_all))
 							{
 								color = (assets_info.is_aog() ? PWALL_COLOR : 0x79);
 							}
