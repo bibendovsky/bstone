@@ -748,6 +748,11 @@ void initialize_hit_point_table()
 std::uint16_t get_start_hit_point(
 	const int index)
 {
+	if (index >= NUMHITENEMIES)
+	{
+		return 0;
+	}
+
 	return (*starthitpoints)[gamestate.difficulty][index];
 }
 
