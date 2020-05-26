@@ -475,7 +475,7 @@ void PollKeyboardMove()
 		is_running = !is_running;
 	}
 
-	int value = tics * (is_running ? RUNMOVE : BASEMOVE);
+	const auto value = tics * (is_running ? RUNMOVE : BASEMOVE);
 
 	if (in_is_binding_pressed(e_bi_forward))
 	{

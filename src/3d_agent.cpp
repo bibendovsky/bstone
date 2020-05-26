@@ -481,6 +481,22 @@ void CheckWeaponChange()
 	}
 }
 
+int clamp_angle(
+	int angle)
+{
+	while (angle >= ANGLES)
+	{
+		angle -= ANGLES;
+	}
+
+	while (angle < 0)
+	{
+		angle += ANGLES;
+	}
+
+	return angle;
+}
+
 /*
 =======================
 =
@@ -498,12 +514,21 @@ void CheckWeaponChange()
 void ControlMovement(
 	objtype* ob)
 {
-	bool use_classic_strafe = in_is_binding_pressed(e_bi_strafe);
+	const auto is_original_strafe =
+		gamestate.turn_around == 0 &&
+		in_is_binding_pressed(e_bi_strafe)
+	;
+
+	const auto is_modern_strafe =
+		gamestate.turn_around == 0 &&
+		!in_is_binding_pressed(e_bi_strafe) &&
+		strafe_value != 0
+	;
 
 	thrustspeed = 0;
 
-	int oldx = player->x;
-	int oldy = player->y;
+	const auto oldx = player->x;
+	const auto oldy = player->y;
 
 	//
 	// side to side move
@@ -531,37 +556,18 @@ void ControlMovement(
 		}
 	}
 #else
-	bool use_modern_strafe = false;
-
-	if (use_classic_strafe)
+	if (is_original_strafe || is_modern_strafe && controly == 0)
 	{
-		use_modern_strafe = true;
-	}
-	else if (!gamestate.turn_around)
-	{
-		use_modern_strafe = true;
-	}
-
-	if (use_modern_strafe && strafe_value != 0)
-	{
-		int sign = (strafe_value > 0) ? 1 : -1;
-		int angle = ob->angle + (sign * (ANGLES / 4));
-
-		if (angle < 0)
-		{
-			angle += ANGLES;
-		}
-		else if (angle >= ANGLES)
-		{
-			angle -= ANGLES;
-		}
+		const auto sign = (strafe_value > 0 ? 1 : -1);
+		const auto angle = clamp_angle(ob->angle + (sign * (ANGLES / 4)));
 
 		Thrust(static_cast<std::int16_t>(angle), -abs(strafe_value) * MOVESCALE);
 	}
 #endif
-	if (!use_classic_strafe)
+
+	if (!is_original_strafe)
 	{
-		if (gamestate.turn_around)
+		if (gamestate.turn_around != 0)
 		{
 			controlx = 100 * tics;
 
@@ -574,22 +580,14 @@ void ControlMovement(
 		//
 		// not strafing
 		//
-		anglefrac = anglefrac + controlx;
+		anglefrac += controlx;
 		int angleunits = anglefrac / ANGLESCALE;
 		anglefrac -= angleunits * ANGLESCALE;
 		ob->angle -= static_cast<std::int16_t>(angleunits);
 
-		while (ob->angle >= ANGLES)
-		{
-			ob->angle -= ANGLES;
-		}
+		ob->angle = clamp_angle(ob->angle);
 
-		while (ob->angle < 0)
-		{
-			ob->angle += ANGLES;
-		}
-
-		if (gamestate.turn_around)
+		if (gamestate.turn_around != 0)
 		{
 			bool done = false;
 
@@ -620,35 +618,45 @@ void ControlMovement(
 		}
 	}
 
+	if (is_modern_strafe && controly != 0)
+	{
+		const auto x = -strafe_value * MOVESCALE;
+		const auto y = -controly * (controly < 0 ? MOVESCALE : BACKMOVESCALE);
 
-	//
-	// forward/backwards move
-	//
-	if (controly < 0)
-	{
-		Thrust(ob->angle, -controly * MOVESCALE); // move forwards
+		const auto angle_delta = 90 - static_cast<int>((180.0 * std::atan2(y, x)) / m_pi());
+		const auto angle = clamp_angle(ob->angle + angle_delta);
+		const auto value = std::abs(y);
+
+		Thrust(static_cast<std::int16_t>(angle), value);
 	}
-	else if (controly > 0)
+	else
 	{
-		int angle = ob->angle + ANGLES / 2;
-		if (angle >= ANGLES)
+		//
+		// forward/backwards move
+		//
+		if (controly < 0)
 		{
-			angle -= ANGLES;
+			Thrust(ob->angle, -controly * MOVESCALE); // move forwards
 		}
-		Thrust(static_cast<std::int16_t>(angle), controly * BACKMOVESCALE); // move backwards
-	}
-	else if (bounceOk)
-	{
-		bounceOk--;
+		else if (controly > 0)
+		{
+			const auto angle = clamp_angle(ob->angle + ANGLES / 2);
+
+			Thrust(static_cast<std::int16_t>(angle), controly * BACKMOVESCALE); // move backwards
+		}
+		else if (bounceOk != 0)
+		{
+			bounceOk -= 1;
+		}
 	}
 
-	if (controly)
+	if (controly != 0)
 	{
 		bounceOk = 8;
 	}
-	else if (bounceOk)
+	else if (bounceOk != 0)
 	{
-		bounceOk--;
+		bounceOk -= 1;
 	}
 
 	ob->dir = static_cast<dirtype>(((ob->angle + 22) % 360) / 45);
