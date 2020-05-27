@@ -9,6 +9,7 @@
 - Apply bonus queue after finishing the mission.
 - Write data into temporary file and then rename it.
 - Enable high score menu for debug build.
+- Saved games are not compatible with previous version.
 
 ### Fixed
 - [AOG] Animation timings for some actors to match origin.
