@@ -402,7 +402,7 @@ void rename(
 		throw detail::RenameException{};
 	}
 #else
-	const auto posix_rename_result = rename(old_path.c_str(), new_path.c_str());
+	const auto posix_rename_result = ::rename(old_path.c_str(), new_path.c_str());
 
 	if (posix_rename_result != 0)
 	{

@@ -556,7 +556,7 @@ void ControlMovement(
 		}
 	}
 #else
-	if (is_original_strafe || is_modern_strafe && controly == 0)
+	if (is_original_strafe || (is_modern_strafe && controly == 0))
 	{
 		const auto sign = (strafe_value > 0 ? 1 : -1);
 		const auto angle = clamp_angle(ob->angle + (sign * (ANGLES / 4)));
