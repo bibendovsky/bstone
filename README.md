@@ -10,21 +10,24 @@ Contents
 1. Disclaimer
 2. Overview  
    2.1. Overview (PS Vita)
-3. Required assets  
-   3.1. Addon support.
-4. Profile
-5. Compiling  
-   5.1. Generic instructions for Linux-based system or build environment (MinGW)
-6. Command-line options
-7. Cheat key
-8. Debug keys
-9. Third party use
-10. Credits
-11. Links  
-    11.1. Essentials  
-    11.2. General  
-    11.3. Add-ons for Aliens Of Gold (full)  
-    11.4. Add-ons for Planet Strike
+3. Installation  
+   3.1. Windows (GOG / Steam)  
+   3.2. Windows (Generic)
+4. Required assets  
+   4.1. Addon support.
+5. Profile
+6. Compiling  
+   6.1. Generic instructions for Linux-based system or build environment (MinGW)
+7. Command-line options
+8. Cheat key
+9. Debug keys
+10. Third party use
+11. Credits
+12. Links  
+    12.1. Essentials  
+    12.2. General  
+    12.3. Add-ons for Aliens Of Gold (full)  
+    12.4. Add-ons for Planet Strike
 
 
 1 - Disclaimer
@@ -72,7 +75,27 @@ Supported games:
 See [README-PSVITA.md](README-PSVITA.md) for details about the source port on PS Vita.
 
 
-3 - Required assets
+3 - Installation
+================
+
+
+3.1 - Windows (GOG / Steam)
+===========================
+
+- Download the latest release.
+- Extract it into convinient for you directory.
+- Run `bstone.exe` to play.
+
+
+3.2 - Windows (generic)
+=======================
+
+- Download the latest release.
+- Extract it into the directory with game files.
+- Run `bstone.exe` to play.
+
+
+4 - Required assets
 ===================
 
 Since all titles are not free (except shareware) you have to own a copy of the game in order to play.
@@ -113,14 +136,14 @@ Supported services:
   "The Apogee Throwback Pack" supported as well as separated titles.
 
 
-3.1 - Addon support
+4.1 - Addon support
 ===================
 
 Don't overwrite any original files.
 Put addon files into different directory and point to them with option `mod_dir` (i.e. `bstone.exe --mod_dir addon1`).
 
 
-4 - Profile
+5 - Profile
 ===========
 
 Configuration file, saved game files, etc. are stored in user's profile. The path to those files depends on platform. To override the path use `--profile_dir` option.
@@ -142,7 +165,7 @@ Where `<game>` is:
 * `ps` - Planet Strike
 
 
-5 - Compiling
+6 - Compiling
 =============
 
 Minimum requirements:
@@ -182,7 +205,7 @@ Notes:
 * Use `ON` value to enable option and value `OFF` to disable option.
 
 
-5.1 - Generic instructions for Linux-based system or build environment (MinGW)
+6.1 - Generic instructions for Linux-based system or build environment (MinGW)
 =============================================================================
 
 1. Install minimum required software described above.
@@ -200,7 +223,7 @@ Notes:
 6. On success you will find executable and text files in the directory `~/bstone-x.y.z/build/install`.
 
 
-6 - Command-line options
+7 - Command-line options
 ========================
 
 * `--version`  
@@ -383,14 +406,14 @@ Notes:
   Extracts all resources (walls, sprites, music, sfx and texts) into existing directory `dir`.
 
 
-7 - Cheat key
+8 - Cheat key
 =============
 
 <kbd>J</kbd> <kbd>A</kbd> <kbd>M</kbd> <kbd>Enter</kbd>  
 Press specified keys sequentially. Shows message "NOW you're jammin'!!", and gives to you all keys, all weapons and restores health to 100% but zeroes score points. Not available in shareware version.
 
 
-8 - Debug keys
+9 - Debug keys
 ==============
 
 Add option `--cheats` to enable these keys.
@@ -472,8 +495,8 @@ Add option `--cheats` to enable these keys.
   Increases shading drop off.
 
 
-9 - Third party use
-===================
+10 - Third party use
+====================
 
 * [SDL (Simple DirectMedia Library)](http://libsdl.org/)  
   See file `COPYING-SDL2.txt` for license information.
@@ -489,7 +512,7 @@ Add option `--cheats` to enable these keys.
   See directory `src/lib/xbrz` for license information (`License.txt`) and essential changes made by the port (`bstone_changelog.txt`).  
 
 
-10 - Credits
+11 - Credits
 ============
 
 * [id Software](http://www.idsoftware.com/)  
@@ -510,16 +533,16 @@ Add option `--cheats` to enable these keys.
 * Various contributors for providing fixies, ideas, etc.
 
 
-11 - Links
+12 - Links
 ==========
 
-11.1 - Essentials
+12.1 - Essentials
 =================
 
 * [Home page](http://bibendovsky.github.io/bstone/)
 * [Precompiled binaries and their source code](http://github.com/bibendovsky/bstone/releases)
 
-11.1 - General
+12.1 - General
 ==============
 
 * [Blake Stone: Aliens Of Gold official site](http://legacy.3drealms.com/blake/index.html)
@@ -528,14 +551,14 @@ Add option `--cheats` to enable these keys.
 * [Original source code](http://bibendovsky.github.io/bstone/files/official/Blake%20Stone%20Planet%20Strike%20Source%20Code.rar)
 * [Repacked shareware Blake Stone: Aliens Of Gold (v3.0)](http://bibendovsky.github.io/bstone/files/official/repack/bs_aog_v3_0_sw.zip)
 
-11.2 - Add-ons for Aliens Of Gold (full)
+12.2 - Add-ons for Aliens Of Gold (full)
 ========================================
 
 * Add-on [BSE90](http://bibendovsky.github.io/bstone/files/community/aog/bse90.zip) by ack
 * Add-on [GUYSTONE](http://bibendovsky.github.io/bstone/files/community/aog/guystone.zip) by Guy Brys
 * Ling's Blake Stone [Levels](http://bibendovsky.github.io/bstone/files/community/aog/lingstone.zip) by Ling Yan Li
 
-11.3 - Add-ons for Planet Strike
+12.3 - Add-ons for Planet Strike
 ================================
 
 * Add-on [BSE24](http://bibendovsky.github.io/bstone/files/community/ps/bse24.zip) by ack
