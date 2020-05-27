@@ -32,6 +32,8 @@ Free Software Foundation, Inc.,
 #include "id_us.h"
 #include "id_vh.h"
 
+#include "bstone_logger.h"
+
 
 #define NUM_TILES (PMSpriteStart)
 
@@ -214,7 +216,7 @@ void ShowMap()
 {
 	objtype old_player;
 
-	memcpy(&old_player, player, sizeof(objtype));
+	old_player = *player;
 	player->angle = 90;
 	player->x = player->y = ((std::int32_t)32 << TILESHIFT) + (TILEGLOBAL / 2);
 
@@ -230,7 +232,7 @@ void ShowMap()
 
 	ExtraRadarFlags = old_flags;
 
-	memcpy(player, &old_player, sizeof(objtype));
+	*player = old_player;
 	IN_Ack();
 }
 
@@ -277,9 +279,321 @@ std::uint16_t DecRange(
 	return Value;
 }
 
+void log_bonus_stuff()
+{
+	bstone::logger_->write();
+	bstone::logger_->write("<<<<<<<<");
+	bstone::logger_->write("Current bonus items.");
+
+	auto number = 0;
+	auto static_name = std::string{};
+
+	for (const auto& bs_static : statobjlist)
+	{
+		if (&bs_static == laststatobj)
+		{
+			break;
+		}
+
+		if (bs_static.shapenum < 0)
+		{
+			continue;
+		}
+
+		if (false)
+		{
+		}
+		else if (bs_static.itemnumber == bo_money_bag)
+		{
+			static_name = "Money Bag";
+		}
+		else if (bs_static.itemnumber == bo_loot)
+		{
+			static_name = "Loot";
+		}
+		else if (bs_static.itemnumber == bo_gold1)
+		{
+			static_name = "One Gold Bar";
+		}
+		else if (bs_static.itemnumber == bo_gold2)
+		{
+			static_name = "Two Gold Bars";
+		}
+		else if (bs_static.itemnumber == bo_gold3)
+		{
+			static_name = "Three Gold Bars";
+		}
+		else if (bs_static.itemnumber == bo_gold)
+		{
+			static_name = "Five Gold Bars";
+		}
+		else if (bs_static.itemnumber == bo_bonus)
+		{
+			static_name = "Xylan Orb";
+		}
+		else
+		{
+			static_name.clear();
+		}
+
+		if (!static_name.empty())
+		{
+			number += 1;
+
+			bstone::logger_->write(
+				std::to_string(number) +
+					". (" +
+					std::to_string(bs_static.tilex) +
+					", " +
+					std::to_string(bs_static.tiley) +
+					") " +
+					static_name
+			);
+		}
+	}
+
+	bstone::logger_->write(">>>>>>>>");
+}
+
+void log_enemy_stuff()
+{
+	const auto& assets_info = AssetsInfo{};
+
+	bstone::logger_->write();
+	bstone::logger_->write("<<<<<<<<");
+	bstone::logger_->write("Current enemies.");
+
+	auto number = 0;
+	auto actor_name = std::string{};
+
+	for (auto bs_actor = objlist; bs_actor != nullptr; bs_actor = bs_actor->next)
+	{
+		if (bs_actor->hitpoints <= 0)
+		{
+			continue;
+		}
+
+		if ((bs_actor->flags & FL_DEADGUY) != 0)
+		{
+			continue;
+		}
+
+		const auto is_informant = ((bs_actor->flags & FL_INFORMANT) != 0);
+
+		actor_name.clear();
+
+		switch (bs_actor->obclass)
+		{
+			case rentacopobj:
+				if (assets_info.is_aog())
+				{
+					actor_name = "Sector Patrol";
+				}
+				else
+				{
+					actor_name = "Sector Guard";
+				}
+
+				break;
+
+			case hang_terrotobj:
+				actor_name = "Robot Turret";
+				break;
+
+			case gen_scientistobj:
+				if (!is_informant)
+				{
+					actor_name = "Mean Bio-Technician";
+				}
+				break;
+
+			case podobj:
+				actor_name = "Pod Alien";
+				break;
+
+			case electroobj:
+				actor_name = "High Enemy Plasma Alien (non-countable)";
+				break;
+
+			case electrosphereobj:
+				actor_name = "Plasma Sphere";
+				break;
+
+			case proguardobj:
+				if (assets_info.is_aog())
+				{
+					actor_name = "Star Sentinel";
+				}
+				else
+				{
+					actor_name = "Tech Warrior";
+				}
+
+				break;
+
+			case genetic_guardobj:
+				actor_name = "High Security Genetic Guard";
+				break;
+
+			case mutant_human1obj:
+				actor_name = "Experimental Mech Sentinel";
+				break;
+
+			case mutant_human2obj:
+				actor_name = "Experimental Mutant Human";
+				break;
+
+			case lcan_wait_alienobj:
+				break;
+
+			case lcan_alienobj:
+				actor_name = "Large Experimental Genetic Alien";
+				break;
+
+			case scan_wait_alienobj:
+				break;
+
+			case scan_alienobj:
+				actor_name = "Small Experimental Genetic Alien";
+				break;
+
+			case gurney_waitobj:
+				break;
+
+			case gurneyobj:
+				actor_name = "Mutated Guard";
+				break;
+
+			case liquidobj:
+				actor_name = "Fluid Alien";
+				break;
+
+			case swatobj:
+				if (assets_info.is_aog())
+				{
+					actor_name = "Star Trooper";
+				}
+				else
+				{
+					actor_name = "Alien Protector";
+				}
+
+				break;
+
+			case goldsternobj:
+				actor_name = "Dr. Goldfire (non-countable)";
+				break;
+
+			case gold_morphobj:
+				actor_name = "Morphed Dr. Goldfire";
+				break;
+
+			case volatiletransportobj:
+				actor_name = "Volatile Material Transport";
+				break;
+
+			case floatingbombobj:
+				actor_name = "Perscan Drone";
+				break;
+
+			case rotating_cubeobj:
+				if (assets_info.is_aog())
+				{
+					actor_name = "Projection Generator";
+				}
+				else
+				{
+					actor_name = "Security Cube";
+				}
+
+				break;
+
+			case spider_mutantobj:
+				actor_name = "Spider Mutant";
+				break;
+
+			case breather_beastobj:
+				actor_name = "Breather Beast";
+				break;
+
+			case cyborg_warriorobj:
+				actor_name = "Cyborg Warrior";
+				break;
+
+			case reptilian_warriorobj:
+				actor_name = "Reptilian Warrior";
+				break;
+
+			case acid_dragonobj:
+				actor_name = "Acid Dragon";
+				break;
+
+			case mech_guardianobj:
+				actor_name = "Bio-Mech Guardian";
+				break;
+
+			case final_boss1obj:
+				actor_name = "The Giant Stalker";
+				break;
+
+			case final_boss2obj:
+				actor_name = "The Spector Demon";
+				break;
+
+			case final_boss3obj:
+				actor_name = "The Armored Stalker";
+				break;
+
+			case final_boss4obj:
+				actor_name = "The Crawler Beast";
+				break;
+
+			case blakeobj:
+				actor_name = "Blake Stone";
+				break;
+
+			default:
+				break;
+		}
+
+		if (!actor_name.empty())
+		{
+			number += 1;
+
+			bstone::logger_->write(
+				std::to_string(number) +
+					". (" +
+					std::to_string(bs_actor->tilex) +
+					", " +
+					std::to_string(bs_actor->tiley) +
+					") " +
+					actor_name
+			);
+		}
+	}
+
+	bstone::logger_->write(">>>>>>>>");
+}
+
+void log_stuff()
+{
+	log_bonus_stuff();
+	log_enemy_stuff();
+
+	US_CenterWindow(19, 3);
+	US_PrintCentered("See log for stuff.");
+	VW_UpdateScreen();
+	IN_Ack();
+}
 
 bool DebugKeys()
 {
+	if (Keyboard[ScanCode::sc_l])
+	{
+		log_stuff();
+		return true;
+	}
+
 	if (Keyboard[ScanCode::sc_a])
 	{
 		// A = Show Actors on AutoMap

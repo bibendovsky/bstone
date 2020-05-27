@@ -47,7 +47,7 @@ Free Software Foundation, Inc.,
 // ---------------------------------------------------------------------------
 
 
-#include <cstring>
+#include <memory>
 
 #include "jm_cio.h"
 #include "jm_lzh.h"
@@ -596,10 +596,20 @@ static void reconst()
 		k++;
 		l = (j - k) * 2;
 
-		memcpy(&freq[k + 1], &freq[k], l);
+		std::uninitialized_copy_n(
+			&freq[k],
+			l,
+			&freq[k + 1]
+		);
+
 		freq[k] = f;
 
-		memcpy(&son[k + 1], &son[k], l);
+		std::uninitialized_copy_n(
+			&son[k],
+			l,
+			&son[k + 1]
+		);
+
 		son[k] = i;
 	}
 

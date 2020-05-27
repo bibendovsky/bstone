@@ -38,7 +38,9 @@ Free Software Foundation, Inc.,
 #include "id_vl.h"
 #include "3d_menu.h"
 #include "gfxv.h"
+
 #include "bstone_generic_fizzle_fx.h"
+#include "bstone_logger.h"
 
 
 #define NUM_TILES (PMSpriteStart)
@@ -127,7 +129,11 @@ void AddTotalEnemy(
 */
 
 fargametype gamestuff;
+fargametype old_gamestuff;
+
 gametype gamestate;
+gametype old_gamestate;
+
 bool ingame;
 bool fizzlein;
 int latchpics[NUMLATCHPICS];
@@ -2431,9 +2437,9 @@ void SetupGameLevel()
 	//
 	// copy the wall data to a data segment array
 	//
-	memset(TravelTable, 0, sizeof(TravelTable));
-	memset(tilemap, 0, sizeof(tilemap));
-	memset(actorat, 0, sizeof(actorat));
+	travel_table_ = TravelTable{};
+	tilemap = TileMap{};
+	actorat = ActorAt{};
 
 	std::uninitialized_fill(
 		wallheight.begin(),
@@ -2480,7 +2486,7 @@ void SetupGameLevel()
 
 			if ((assets_info.is_ps() && tile < 64) || icon == PUSHABLETILE)
 			{
-				TravelTable[x][y] |= TT_TRAVELED;
+				travel_table_[x][y] |= TT_TRAVELED;
 			}
 		}
 	}
@@ -2884,7 +2890,7 @@ void BMAmsg(
 		const char* p = msg;
 		std::int16_t cheight;
 
-		memset(&pi, 0, sizeof(pi));
+		pi = PresenterInfo{};
 		pi.flags = TPF_CACHE_NO_GFX;
 		pi.script[0] = p;
 		while (*p)
@@ -3227,13 +3233,20 @@ void Died()
 
 	if (gamestate.lives > -1)
 	{
+		old_gamestate.lives -= 1;
+		gamestate = old_gamestate;
+
+		gamestuff = old_gamestuff;
+
+#if 0
 		gamestate.health = 100;
-		gamestate.weapons = 1 << wp_autocharge; // |1<<wp_plasma_detonators;
+		gamestate.weapons = 1 << wp_autocharge;
 		gamestate.weapon = gamestate.chosenweapon = wp_autocharge;
 
 		gamestate.ammo = STARTAMMO;
 		gamestate.attackframe = gamestate.attackcount =
 			gamestate.weaponframe = 0;
+#endif
 
 		DrawHealth();
 		DrawKeys();
@@ -3255,7 +3268,7 @@ void LoseScreen()
 
 	VW_FadeOut();
 
-	memset(&pi, 0, sizeof(pi));
+	pi = PresenterInfo{};
 	pi.flags = TPF_USE_CURRENT | TPF_SHOW_CURSOR | TPF_SCROLL_REGION | TPF_CONTINUE | TPF_TERM_SOUND | TPF_ABORTABLE;
 	pi.xl = 14;
 	pi.yl = 141;
@@ -3395,6 +3408,14 @@ void RotateView(
 
 }
 
+void apply_bonus_queue()
+{
+	while (gamestuff.level[gamestate.mapon].bonus_queue != 0)
+	{
+		GivePoints(0, false);
+	}
+}
+
 void GameLoop()
 {
 	// BBi
@@ -3526,6 +3547,8 @@ restartgame:
 		case ex_warped:
 			ClearMemory();
 			gamestate.mapon++;
+			old_gamestate = gamestate;
+			old_gamestuff = gamestuff;
 			ClearNClose();
 			DrawTopInfo(sp_loading);
 #if 0
@@ -3568,6 +3591,8 @@ restartgame:
 
 			if (playstate == ex_victorious)
 			{
+				apply_bonus_queue();
+
 				ThreeDRefresh();
 				ThreeDRefresh();
 			}
@@ -3578,7 +3603,7 @@ restartgame:
 			{
 				fontnumber = 1;
 				CA_CacheGrChunk(STARTFONT + 1);
-				memset(update, 0, sizeof(update));
+				update = Update{};
 				CacheBMAmsg(YOUWIN_TEXT);
 
 				// BBi
@@ -3678,16 +3703,71 @@ static void fix_level_inplace()
 	}
 
 	// Fix standing bio-tech near volatile containers
-	// (E2M6; x: 38; y: 26)
-	// (E2M6; x: 55; y: 33)
+	// (E2L6; x: 38; y: 26)
+	// (E2L6; x: 55; y: 33)
 	//
 	if (assets_info.is_aog_full() &&
 		!loadedgame &&
 		gamestate.episode == 1 &&
 		gamestate.mapon == 6)
 	{
-		// Replace standing bio-tech with a moving one.
-		mapsegs[1][(26 * MAPSIZE) + 38] = 157;
-		mapsegs[1][(33 * MAPSIZE) + 55] = 157;
+		{
+			// Replace standing bio-tech with a moving one.
+			constexpr auto x = 38;
+			constexpr auto y = 26;
+
+			constexpr auto index = (y * MAPSIZE) + x;
+
+			if (mapsegs[1][index] == 153)
+			{
+				mapsegs[1][index] = 157;
+
+				bstone::logger_->write(
+					"[FIX_LEVEL] Bio-tech at (" + std::to_string(x) + ", " + std::to_string(y) +
+						"): standing -> moving.");
+			}
+		}
+
+		{
+			// Replace standing bio-tech with a moving one.
+			constexpr auto x = 55;
+			constexpr auto y = 33;
+
+			constexpr auto index = (y * MAPSIZE) + x;
+
+			if (mapsegs[1][index] == 153)
+			{
+				mapsegs[1][index] = 157;
+
+				bstone::logger_->write(
+					"[LEVEL_FIX] Bio-tech at (" + std::to_string(x) + ", " + std::to_string(y) +
+						"): standing -> moving.");
+			}
+		}
+	}
+
+	// Fix bio-tech placed on special tile (AREATILE).
+	// (E5L2; x: 18; y: 43)
+	//
+	if (assets_info.is_aog_full() &&
+		!loadedgame &&
+		gamestate.episode == 4 &&
+		gamestate.mapon == 2)
+	{
+		constexpr auto y = 43;
+		constexpr auto old_x = 18;
+		constexpr auto new_x = 17;
+
+		constexpr auto old_index = (y * MAPSIZE) + old_x;
+		constexpr auto new_index = (y * MAPSIZE) + new_x;
+
+		if (mapsegs[1][old_index] != 0 && mapsegs[1][new_index] == 0)
+		{
+			std::swap(mapsegs[1][old_index], mapsegs[1][new_index]);
+
+			bstone::logger_->write(
+				"[LEVEL_FIX] Bio-tech at (" + std::to_string(old_x) + ", " + std::to_string(y) +
+					"): move one tile to the left.");
+		}
 	}
 }

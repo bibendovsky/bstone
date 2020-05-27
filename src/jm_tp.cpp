@@ -2489,7 +2489,7 @@ void TP_HandleCodes()
 		case TP_CNVT_CODE('A', 'N'):
 			shapenum = TP_VALUE(first_ch, 2);
 			first_ch += 2;
-			memcpy(&piAnimList[numanims], &piAnimTable[shapenum], sizeof(piAnimInfo));
+			piAnimList[numanims] = piAnimTable[shapenum];
 			anim = &piAnimList[numanims++];
 
 			anim->y = cur_y;

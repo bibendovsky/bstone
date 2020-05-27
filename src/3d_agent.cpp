@@ -56,11 +56,13 @@ void try_to_grab_bonus_items();
 
 struct PinballBonusInfo
 {
-	char* BonusText; // REBA text pointer
+	const char* BonusText; // REBA text pointer
 	std::int32_t Points; // Score for this bonus
 	bool Recurring; // Appear multiple times in a single level?
 	void (*func)(); // Code to execute when you get this bonus.
 }; // PinballBonusInfo
+
+using PinballBonusInfos = std::array<PinballBonusInfo, 7>;
 
 struct atkinf_t
 {
@@ -479,6 +481,22 @@ void CheckWeaponChange()
 	}
 }
 
+int clamp_angle(
+	int angle)
+{
+	while (angle >= ANGLES)
+	{
+		angle -= ANGLES;
+	}
+
+	while (angle < 0)
+	{
+		angle += ANGLES;
+	}
+
+	return angle;
+}
+
 /*
 =======================
 =
@@ -496,12 +514,21 @@ void CheckWeaponChange()
 void ControlMovement(
 	objtype* ob)
 {
-	bool use_classic_strafe = in_is_binding_pressed(e_bi_strafe);
+	const auto is_original_strafe =
+		gamestate.turn_around == 0 &&
+		in_is_binding_pressed(e_bi_strafe)
+	;
+
+	const auto is_modern_strafe =
+		gamestate.turn_around == 0 &&
+		!in_is_binding_pressed(e_bi_strafe) &&
+		strafe_value != 0
+	;
 
 	thrustspeed = 0;
 
-	int oldx = player->x;
-	int oldy = player->y;
+	const auto oldx = player->x;
+	const auto oldy = player->y;
 
 	//
 	// side to side move
@@ -529,37 +556,18 @@ void ControlMovement(
 		}
 	}
 #else
-	bool use_modern_strafe = false;
-
-	if (use_classic_strafe)
+	if (is_original_strafe || (is_modern_strafe && controly == 0))
 	{
-		use_modern_strafe = true;
-	}
-	else if (!gamestate.turn_around)
-	{
-		use_modern_strafe = true;
-	}
-
-	if (use_modern_strafe && strafe_value != 0)
-	{
-		int sign = (strafe_value > 0) ? 1 : -1;
-		int angle = ob->angle + (sign * (ANGLES / 4));
-
-		if (angle < 0)
-		{
-			angle += ANGLES;
-		}
-		else if (angle >= ANGLES)
-		{
-			angle -= ANGLES;
-		}
+		const auto sign = (strafe_value > 0 ? 1 : -1);
+		const auto angle = clamp_angle(ob->angle + (sign * (ANGLES / 4)));
 
 		Thrust(static_cast<std::int16_t>(angle), -abs(strafe_value) * MOVESCALE);
 	}
 #endif
-	if (!use_classic_strafe)
+
+	if (!is_original_strafe)
 	{
-		if (gamestate.turn_around)
+		if (gamestate.turn_around != 0)
 		{
 			controlx = 100 * tics;
 
@@ -572,22 +580,14 @@ void ControlMovement(
 		//
 		// not strafing
 		//
-		anglefrac = anglefrac + controlx;
+		anglefrac += controlx;
 		int angleunits = anglefrac / ANGLESCALE;
 		anglefrac -= angleunits * ANGLESCALE;
 		ob->angle -= static_cast<std::int16_t>(angleunits);
 
-		while (ob->angle >= ANGLES)
-		{
-			ob->angle -= ANGLES;
-		}
+		ob->angle = clamp_angle(ob->angle);
 
-		while (ob->angle < 0)
-		{
-			ob->angle += ANGLES;
-		}
-
-		if (gamestate.turn_around)
+		if (gamestate.turn_around != 0)
 		{
 			bool done = false;
 
@@ -618,35 +618,45 @@ void ControlMovement(
 		}
 	}
 
+	if (is_modern_strafe && controly != 0)
+	{
+		const auto x = -strafe_value * MOVESCALE;
+		const auto y = -controly * (controly < 0 ? MOVESCALE : BACKMOVESCALE);
 
-	//
-	// forward/backwards move
-	//
-	if (controly < 0)
-	{
-		Thrust(ob->angle, -controly * MOVESCALE); // move forwards
+		const auto angle_delta = 90 - static_cast<int>((180.0 * std::atan2(y, x)) / m_pi());
+		const auto angle = clamp_angle(ob->angle + angle_delta);
+		const auto value = std::abs(y);
+
+		Thrust(static_cast<std::int16_t>(angle), value);
 	}
-	else if (controly > 0)
+	else
 	{
-		int angle = ob->angle + ANGLES / 2;
-		if (angle >= ANGLES)
+		//
+		// forward/backwards move
+		//
+		if (controly < 0)
 		{
-			angle -= ANGLES;
+			Thrust(ob->angle, -controly * MOVESCALE); // move forwards
 		}
-		Thrust(static_cast<std::int16_t>(angle), controly * BACKMOVESCALE); // move backwards
-	}
-	else if (bounceOk)
-	{
-		bounceOk--;
+		else if (controly > 0)
+		{
+			const auto angle = clamp_angle(ob->angle + ANGLES / 2);
+
+			Thrust(static_cast<std::int16_t>(angle), controly * BACKMOVESCALE); // move backwards
+		}
+		else if (bounceOk != 0)
+		{
+			bounceOk -= 1;
+		}
 	}
 
-	if (controly)
+	if (controly != 0)
 	{
 		bounceOk = 8;
 	}
-	else if (bounceOk)
+	else if (bounceOk != 0)
 	{
-		bounceOk--;
+		bounceOk -= 1;
 	}
 
 	ob->dir = static_cast<dirtype>(((ob->angle + 22) % 360) / 45);
@@ -2161,7 +2171,7 @@ char* HandleControlCodes(
 	case TP_CNVT_CODE('A', 'N'):
 		shapenum = TP_VALUE(first_ch, 2);
 		first_ch += 2;
-		memcpy(&piAnimList[static_cast<int>(InfoAreaSetup.numanims)], &piAnimTable[shapenum], sizeof(piAnimInfo));
+		piAnimList[static_cast<int>(InfoAreaSetup.numanims)] = piAnimTable[shapenum];
 		anim = &piAnimList[static_cast<int>(InfoAreaSetup.numanims++)];
 		shape = &piShapeTable[anim->baseshape + anim->frame]; // BUG!! (assumes "pia_shapetable")
 
@@ -2501,7 +2511,7 @@ void GetBonus(
 
 		sd_play_player_sound(GETKEYSND, bstone::ActorChannel::item);
 
-		TravelTable[check->tilex][check->tiley] &= ~TT_KEYS;
+		travel_table_[check->tilex][check->tiley] &= ~TT_KEYS;
 		break;
 	}
 
@@ -2581,7 +2591,7 @@ void GetBonus(
 	break;
 
 	case bo_plasma_detonator:
-		TravelTable[check->tilex][check->tiley] &= ~TT_KEYS;
+		travel_table_[check->tilex][check->tiley] &= ~TT_KEYS;
 		GivePlasmaDetonator(1);
 		sd_play_player_sound(GETDETONATORSND, bstone::ActorChannel::item);
 		break;
@@ -2849,7 +2859,7 @@ void Thrust(
 	std::int16_t angle,
 	std::int32_t speed)
 {
-	extern std::uint8_t TravelTable[MAPSIZE][MAPSIZE];
+	extern TravelTable travel_table_;
 	objtype dumb;
 	std::int32_t xmove, ymove;
 	std::uint16_t offset, *map[2];
@@ -2878,7 +2888,7 @@ void Thrust(
 
 	player->areanumber = GetAreaNumber(player->tilex, player->tiley);
 	areabyplayer[player->areanumber] = true;
-	TravelTable[player->tilex][player->tiley] |= TT_TRAVELED;
+	travel_table_[player->tilex][player->tiley] |= TT_TRAVELED;
 
 	offset = farmapylookup[player->tiley] + player->tilex;
 	map[0] = mapsegs[0] + offset;
@@ -3858,14 +3868,14 @@ std::int16_t InputFloor()
 		CacheLump(TELEPORT_LUMP_START, TELEPORT_LUMP_END);
 		VWB_DrawMPic(teleX[tpNum], teleY[tpNum], TELEPORT1ONPIC + tpNum);
 
-		memcpy(&old_player, player, sizeof(objtype));
+		old_player = *player;
 		player->angle = 90;
 		player->x = player->y = ((std::int32_t)32 << TILESHIFT) + (TILEGLOBAL / 2);
 
 		ov_buffer.resize(4096);
 
 		ShowStats(0, 0, ss_justcalc, &gamestuff.level[gamestate.mapon].stats);
-		memcpy(&ov_stats, &gamestuff.level[gamestate.mapon].stats, sizeof(statsInfoType));
+		ov_stats = gamestuff.level[gamestate.mapon].stats;
 		ShowOverhead(TOV_X, TOV_Y, 32, 0, RADAR_FLAGS);
 		SaveOverheadChunk(tpNum);
 
@@ -4060,7 +4070,7 @@ std::int16_t InputFloor()
 
 		VW_FadeOut();
 
-		memcpy(player, &old_player, sizeof(objtype));
+		*player = old_player;
 		UnCacheLump(TELEPORT_LUMP_START, TELEPORT_LUMP_END);
 
 		DrawPlayScreen(false);
@@ -4430,7 +4440,7 @@ bool PerfectStats()
 
 void B_GAliFunc()
 {
-	extern char B_GAlienDead2[];
+	extern const char* B_GAlienDead2;
 
 	if (gamestate.episode == 5)
 	{
@@ -4461,82 +4471,108 @@ void B_RollFunc()
 }
 
 
-char B_GAlienDead2[] = "^FC57    GUARDIAN ALIEN\r"
-"      DESTROYED!\r\r"
-"^FCA6 FIND AND DESTROY ALL\r"
-"PROJECTION GENERATORS!";
+const char* B_GAlienDead2 =
+	"^FC57    GUARDIAN ALIEN\r"
+	"      DESTROYED!\r\r"
+	"^FCA6 FIND AND DESTROY ALL\r"
+	"PROJECTION GENERATORS!"
+;
 
-char B_GAlienDead[] = "^FC57    GUARDIAN ALIEN\r"
-"      DESTROYED!\r\r"
-"^FCA6   FIND THE EXIT TO\r"
-"COMPLETE THIS MISSION";
+const char* B_GAlienDead =
+	"^FC57    GUARDIAN ALIEN\r"
+	"      DESTROYED!\r\r"
+	"^FCA6   FIND THE EXIT TO\r"
+	"COMPLETE THIS MISSION"
+;
 
-char B_ScoreRolled[] = "^FC57\rROLLED SCORE DISPLAY!\r"
-"^FCA6   FULL AMMO BONUS!\r"
-"  FULL HEALTH BONUS!\r"
-"1,000,000 POINT BONUS!";
+const char* B_ScoreRolled =
+	"^FC57\rROLLED SCORE DISPLAY!\r"
+	"^FCA6   FULL AMMO BONUS!\r"
+	"  FULL HEALTH BONUS!\r"
+	"1,000,000 POINT BONUS!"
+;
 
-char B_OneMillion[] = "^FC57\r     GREAT SCORE!\r"
-"^FCA6   FULL AMMO BONUS!\r"
-"  FULL HEALTH BONUS!\r"
-"1,000,000 POINT BONUS!";
+const char* B_OneMillion =
+	"^FC57\r     GREAT SCORE!\r"
+	"^FCA6   FULL AMMO BONUS!\r"
+	"  FULL HEALTH BONUS!\r"
+	"1,000,000 POINT BONUS!"
+;
 
-char B_ExtraMan[] = "^FC57\r\r     GREAT SCORE!\r"
-"^FCA6  EXTRA LIFE BONUS!\r";
+const char* B_ExtraMan =
+	"^FC57\r\r     GREAT SCORE!\r"
+	"^FCA6  EXTRA LIFE BONUS!\r"
+;
 
-char B_EnemyDestroyed[] = "^FC57\r\r ALL ENEMY DESTROYED!\r"
-"^FCA6  50,000 POINT BONUS!\r";
+const char* B_EnemyDestroyed =
+	"^FC57\r\r ALL ENEMY DESTROYED!\r"
+	"^FCA6  50,000 POINT BONUS!\r"
+;
 
-char B_TotalPoints[] = "^FC57\r\r ALL POINTS COLLECTED!\r"
-"^FCA6  50,000 POINT BONUS!\r";
+const char* B_TotalPoints =
+	"^FC57\r\r ALL POINTS COLLECTED!\r"
+	"^FCA6  50,000 POINT BONUS!\r"
+;
 
-char B_InformantsAlive[] = "^FC57\r\r ALL INFORMANTS ALIVE!\r"
-"^FCA6  50,000 POINT BONUS!\r";
+const char* B_InformantsAlive =
+	"^FC57\r\r ALL INFORMANTS ALIVE!\r"
+	"^FCA6  50,000 POINT BONUS!\r"
+;
 
 
-PinballBonusInfo PinballBonus[] = {
+const PinballBonusInfos PinballBonus =
+{
 	//                                       Special
 	//  BonusText           Points   Recur? Function
 	// -----------------------------------------------------
-	{B_GAlienDead, 0, false, B_GAliFunc},
-{B_ScoreRolled, 1000000l, true, B_RollFunc},
-{B_OneMillion, 1000000l, false, B_MillFunc},
-{B_ExtraMan, 0, true, B_EManFunc},
-{B_EnemyDestroyed, 50000l, false, nullptr},
-{B_TotalPoints, 50000l, false, nullptr},
-{B_InformantsAlive, 50000l, false, nullptr},
+
+	PinballBonusInfo{B_GAlienDead, 0, false, B_GAliFunc},
+	PinballBonusInfo{B_ScoreRolled, 1000000l, true, B_RollFunc},
+	PinballBonusInfo{B_OneMillion, 1000000l, false, B_MillFunc},
+	PinballBonusInfo{B_ExtraMan, 0, true, B_EManFunc},
+	PinballBonusInfo{B_EnemyDestroyed, 50000l, false, nullptr},
+	PinballBonusInfo{B_TotalPoints, 50000l, false, nullptr},
+	PinballBonusInfo{B_InformantsAlive, 50000l, false, nullptr},
 };
 
 void DisplayPinballBonus()
 {
-	std::int8_t loop;
+	const auto is_victory = (playstate == ex_victorious);
 
 	// Check queue for bonuses
 	//
-	for (loop = 0; loop < static_cast<std::int8_t>(sizeof(gamestuff.level[0].bonus_queue) * 8); loop++)
-	{
-		if ((BONUS_QUEUE & (1 << loop)) && (LastMsgPri < MP_PINBALL_BONUS))
-		{
-			// Start this bonus!
-			//
-			sd_play_player_sound(ROLL_SCORESND, bstone::ActorChannel::item);
+	const auto count = static_cast<int>(sizeof(gamestuff.level[0].bonus_queue) * 8);
 
-			DisplayInfoMsg(PinballBonus[static_cast<int>(loop)].BonusText, MP_PINBALL_BONUS, 7 * 60, MT_BONUS);
+	for (int loop = 0; loop < count; ++loop)
+	{
+		if ((BONUS_QUEUE & (1 << loop)) != 0 && (is_victory || LastMsgPri < MP_PINBALL_BONUS))
+		{
+			if (!is_victory)
+			{
+				// Start this bonus!
+				//
+
+				sd_play_player_sound(ROLL_SCORESND, bstone::ActorChannel::item);
+
+				DisplayInfoMsg(PinballBonus[loop].BonusText, MP_PINBALL_BONUS, 7 * 60, MT_BONUS);
+			}
 
 			// Add to "shown" ... Remove from "queue"
 			//
-			if (!PinballBonus[static_cast<int>(loop)].Recurring)
+			if (!PinballBonus[loop].Recurring)
 			{
 				BONUS_SHOWN |= (1 << loop);
 			}
+
 			BONUS_QUEUE &= ~(1 << loop);
 
 			// Give points and execute special function.
 			//
-			GivePoints(PinballBonus[static_cast<int>(loop)].Points, false);
-			if (PinballBonus[static_cast<int>(loop)].func)
+			GivePoints(PinballBonus[loop].Points, false);
+
+			if (PinballBonus[loop].func)
 			{
-				PinballBonus[static_cast<int>(loop)].func();
+				PinballBonus[loop].func();
 			}
 		}
 	}
@@ -4545,8 +4581,8 @@ void DisplayPinballBonus()
 void CheckPinballBonus(
 	std::int32_t points)
 {
-	std::int32_t score_before = gamestate.score,
-		score_after = gamestate.score + points;
+	const auto score_before = gamestate.score;
+	const auto score_after = gamestate.score + points;
 
 	// Check SCORE ROLLED bonus
 	//
@@ -4576,7 +4612,10 @@ void CheckPinballBonus(
 
 	// Check TOTAL ENEMY bonus
 	//
-	if (gamestuff.level[gamestate.mapon].stats.total_enemy <= // FIXME: https://github.com/bibendovsky/bstone/issues/86 https://github.com/bibendovsky/bstone/pull/176
+	// FIXME
+	// https://github.com/bibendovsky/bstone/issues/86
+	// https://github.com/bibendovsky/bstone/pull/176
+	if (gamestuff.level[gamestate.mapon].stats.total_enemy <=  
 		gamestuff.level[gamestate.mapon].stats.accum_enemy)
 	{
 		ActivatePinballBonus(B_ENEMY_DESTROYED);
@@ -4584,7 +4623,10 @@ void CheckPinballBonus(
 
 	// Check TOTAL POINTS bonus
 	//
-	if (gamestuff.level[gamestate.mapon].stats.total_points <= // FIXME: https://github.com/bibendovsky/bstone/issues/86 https://github.com/bibendovsky/bstone/pull/176
+	// FIXME
+	// https://github.com/bibendovsky/bstone/issues/86
+	// https://github.com/bibendovsky/bstone/pull/176
+	if (gamestuff.level[gamestate.mapon].stats.total_points <= 
 		gamestuff.level[gamestate.mapon].stats.accum_points)
 	{
 		ActivatePinballBonus(B_TOTAL_POINTS);
@@ -4592,7 +4634,10 @@ void CheckPinballBonus(
 
 	// Check INFORMANTS ALIVE bonus
 	//
-	if ((gamestuff.level[gamestate.mapon].stats.total_inf <= // FIXME: https://github.com/bibendovsky/bstone/issues/86 https://github.com/bibendovsky/bstone/pull/176
+	// FIXME
+	// https://github.com/bibendovsky/bstone/issues/86
+	// https://github.com/bibendovsky/bstone/pull/176
+	if ((gamestuff.level[gamestate.mapon].stats.total_inf <=
 		gamestuff.level[gamestate.mapon].stats.accum_inf) && // All informants alive?
 		(gamestuff.level[gamestate.mapon].stats.total_inf) && // Any informants in level?
 		((BONUS_SHOWN & (B_TOTAL_POINTS | B_ENEMY_DESTROYED)) ==
@@ -4695,10 +4740,13 @@ void GunAttack(
 		break;
 	}
 
-	const auto object_radius = 0.5;
+	static const auto object_radius = 0.5;
+
 	const auto theta = (player->angle * m_pi()) / 180.0;
-	const auto cos_t = std::cos(theta);
-	const auto sin_t = std::sin(theta);
+
+	const auto theta_cos = std::cos(theta);
+	const auto theta_sin = std::sin(theta);
+
 	const auto x_1 = bstone::FixedPoint{player->x}.to_double();
 	const auto y_1 = (MAPSIZE - 1) - bstone::FixedPoint{player->y}.to_double();
 
@@ -4714,6 +4762,9 @@ void GunAttack(
 	{
 		const auto old_closest = closest;
 
+		auto closest_x = 0.0;
+		auto closest_y = 0.0;
+
 		for (auto check = ob->next; check; check = check->next)
 		{
 			if ((check->flags & FL_SHOOTABLE) == 0 || (check->flags & FL_VISIBLE) == 0)
@@ -4728,7 +4779,7 @@ void GunAttack(
 			const auto dy_0_1 = y_0 - y_1;
 
 			//
-			// How to calculate a distance from a line defined by two points to the given point.
+			// How to calculate a distance from a line defined by two points to the given one.
 			// (http://wikipedia.org/wiki/Distance_from_a_point_to_a_line)
 			//
 			//                              |(y2 - y1) x0 - (x2 - x1) y0 + x2 y1 - y2 x1|
@@ -4749,9 +4800,9 @@ void GunAttack(
 			//
 			// So the distance is:
 			//
-			// distance(x1, y1, a, (x0, y0) = |sin(theta) (x0 - x1) - cos(theta) (y0 - y1)|
+			// distance(x1, y1, a, (x0, y0)) = |sin(theta) (x0 - x1) - cos(theta) (y0 - y1)|
 			//
-			const auto distance_to_hitscan_line = std::abs((sin_t * dx_0_1) - (cos_t * dy_0_1));
+			const auto distance_to_hitscan_line = std::abs((theta_sin * dx_0_1) - (theta_cos * dy_0_1));
 
 			if (distance_to_hitscan_line > object_radius)
 			{
@@ -4771,12 +4822,26 @@ void GunAttack(
 				view_dist = sqr_distance_to_object;
 
 				closest = check;
+
+				closest_x = x_0;
+				closest_y = y_0;
 			}
 		}
 
 		if (closest == old_closest)
 		{
 			return; // no more targets, all missed
+		}
+
+		const auto direction_to_closest_x = closest_x - x_1;
+		const auto direction_to_closest_y = closest_y - y_1;
+
+		const auto dot = (direction_to_closest_x * theta_cos) + (direction_to_closest_y * theta_sin);
+
+		if (dot <= 0)
+		{
+			// The closest target should be in front of the player.
+			continue;
 		}
 
 		//
@@ -5646,7 +5711,7 @@ void try_to_grab_bonus_items()
 	const auto player_x = bstone::FixedPoint{player->x}.to_double();
 	const auto player_y = bstone::FixedPoint{player->y}.to_double();
 
-	for (auto item = statobjlist; item != laststatobj; ++item)
+	for (auto item = statobjlist.data(); item != laststatobj; ++item)
 	{
 		if (item->shapenum < 0 || (item->flags & FL_BONUS) == 0)
 		{

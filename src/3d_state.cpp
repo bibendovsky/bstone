@@ -879,6 +879,7 @@ void MoveObj(
 	// check to make sure it's not on top of player
 	//
 	if (ob->obclass != electrosphereobj &&
+		ob->areanumber < NUMAREAS &&
 		areabyplayer[ob->areanumber])
 	{
 		auto dx = std::abs(ob->x - player->x);
@@ -915,7 +916,8 @@ char dki_msg[] =
 "^FC19	    DO NOT SHOOT\r"
 "	    INFORMANTS!!\r";
 
-std::uint16_t actor_points[] = {
+const ActorPoints actor_points =
+{
 	1025, // rent-a-cop
 	1050, // turret
 	500, // general scientist
@@ -938,7 +940,7 @@ std::uint16_t actor_points[] = {
 	5000, // goldstern Morphed
 	2025, // volatile transport
 	2025, // floating bomb
-	0, // rotating cube
+	50000, // projection generator
 
 	5000, // spider_mutant
 	6000, // breather_beast
@@ -951,7 +953,14 @@ std::uint16_t actor_points[] = {
 	50000, // final_boss #3
 	60000, // final_boss #4
 
-	0, 0, 0, 0, 0, // blake,crate1/2/3, oozes
+	0, // blake
+	0, // crate 1
+	0, // crate 2
+	0, // crate 3
+	0, // green ooze
+	0, // black ooze
+	0, // green ooze 2
+	0, // black ooze 2
 	0, // pod egg
 
 	5000, // morphing_spider_mutant
@@ -1002,18 +1011,32 @@ void KillActor(
 	case podeggobj:
 		sd_play_actor_sound(PODHATCHSND, ob, bstone::ActorChannel::voice);
 
-		InitSmartSpeedAnim(ob, SPR_POD_HATCH1, 0, 2, at_ONCE, ad_FWD, 7);
+		InitSmartSpeedAnim(ob, SPR_POD_HATCH1, 0, 2, at_ONCE, ad_FWD, assets_info.is_aog() ? 45 : 7);
 		KeepSolid = true;
-		deadguy = givepoints = false;
+
+		if (assets_info.is_aog())
+		{
+			givepoints = false;
+		}
+		else
+		{
+			deadguy = false;
+			givepoints = false;
+		}
+
 		break;
 
 	case morphing_spider_mutantobj:
 	case morphing_reptilian_warriorobj:
 	case morphing_mutanthuman2obj:
-		ob->flags &= ~FL_SHOOTABLE;
-		InitSmartSpeedAnim(ob, ob->temp1, 0, 8, at_ONCE, ad_FWD, 2);
-		KeepSolid = true;
-		deadguy = givepoints = false;
+		if (assets_info.is_ps())
+		{
+			ob->flags &= ~FL_SHOOTABLE;
+			InitSmartSpeedAnim(ob, ob->temp1, 0, 8, at_ONCE, ad_FWD, 2);
+			KeepSolid = true;
+			deadguy = givepoints = false;
+		}
+
 		break;
 
 	case crate1obj:
@@ -1028,9 +1051,19 @@ void KillActor(
 			static_cast<void>(SpawnStatic(tilex, tiley, ob->temp2));
 		}
 
-		ob->obclass = deadobj;
+		ob->obclass = (assets_info.is_aog() ? explosionobj : deadobj);
 		ob->lighting = NO_SHADING; // No Shading
-		InitSmartSpeedAnim(ob, SPR_GRENADE_EXPLODE2, 0, 3, at_ONCE, ad_FWD, 3 + (US_RndT() & 7));
+
+		InitSmartSpeedAnim(
+			ob,
+			SPR_GRENADE_EXPLODE2,
+			0,
+			3,
+			at_ONCE,
+			ad_FWD,
+			(assets_info.is_aog() ? 24 : 3) + (US_RndT() & 7)
+		);
+
 		A_DeathScream(ob);
 		MakeAlertNoise(ob);
 		break;
@@ -1038,13 +1071,13 @@ void KillActor(
 	case floatingbombobj:
 		ob->lighting = EXPLOSION_SHADING;
 		A_DeathScream(ob);
-		InitSmartSpeedAnim(ob, SPR_FSCOUT_DIE1, 0, 7, at_ONCE, ad_FWD, assets_info.is_ps() ? 5 : 17);
+		InitSmartSpeedAnim(ob, SPR_FSCOUT_DIE1, 0, 7, at_ONCE, ad_FWD, assets_info.is_ps() ? 5 : 20);
 		break;
 
 	case volatiletransportobj:
 		ob->lighting = EXPLOSION_SHADING;
 		A_DeathScream(ob);
-		InitSmartSpeedAnim(ob, SPR_GSCOUT_DIE1, 0, 8, at_ONCE, ad_FWD, assets_info.is_ps() ? 5 : 17);
+		InitSmartSpeedAnim(ob, SPR_GSCOUT_DIE1, 0, 8, at_ONCE, ad_FWD, assets_info.is_ps() ? 5 : 20);
 		break;
 
 	case goldsternobj:
@@ -1057,16 +1090,16 @@ void KillActor(
 		GoldsternInfo.WaitTime = MIN_GOLDIE_WAIT + Random(MAX_GOLDIE_WAIT - MIN_GOLDIE_WAIT); // Reinit Delay Timer before spawning on new position
 		clas = goldsternobj;
 
-		if (gamestate.mapon == 9)
+		if (assets_info.is_aog() &&
+			gamestate.mapon == 9 &&
+			!gamestate.boss_key_dropped)
 		{
-			if (!gamestate.boss_key_dropped)
-			{
-				gamestate.boss_key_dropped = true;
+			gamestate.boss_key_dropped = true;
 
-				static_cast<void>(ReserveStatic());
-				PlaceReservedItemNearTile(bo_gold_key, ob->tilex, ob->tiley);
-			}
+			static_cast<void>(ReserveStatic());
+			PlaceReservedItemNearTile(bo_gold_key, ob->tilex, ob->tiley);
 		}
+
 		break;
 
 	case gold_morphobj:
@@ -1253,15 +1286,17 @@ void KillActor(
 		break;
 
 	case rotating_cubeobj:
-		if (assets_info.is_ps())
+		if (assets_info.is_ps() || assets_info.is_aog_sw())
 		{
-			break;
+			givepoints = false;
 		}
-
-		A_DeathScream(ob);
-		ob->ammo = 0;
-		ob->lighting = EXPLOSION_SHADING;
-		InitSmartSpeedAnim(ob, SPR_VITAL_DIE_1, 0, 7, at_ONCE, ad_FWD, 7);
+		else
+		{
+			A_DeathScream(ob);
+			ob->ammo = 0;
+			ob->lighting = EXPLOSION_SHADING;
+			InitSmartSpeedAnim(ob, SPR_VITAL_DIE_1, 0, 7, at_ONCE, ad_FWD, 7);
+		}
 		break;
 
 	default:
@@ -1298,7 +1333,7 @@ void KillActor(
 			ob->flags |= (FL_NONMARK | FL_DEADGUY);
 		}
 
-		if ((clas >= rentacopobj) && (clas < crate1obj) && (clas != electroobj) && (clas != goldsternobj))
+		if (clas >= rentacopobj && clas < crate1obj && clas != electroobj && clas != goldsternobj)
 		{
 			gamestuff.level[gamestate.mapon].stats.accum_enemy++;
 		}
@@ -1537,7 +1572,7 @@ void DamageActor(
 
 			// Calculate 'wound boundary' (based on NUM_WOUND_STAGES).
 			//
-			wound_mod = starthitpoints[gamestate.difficulty][en_swat] / (ob->temp1 + 1) + 1;
+			wound_mod = get_start_hit_point(en_swat) / (ob->temp1 + 1) + 1;
 			mod_before = old_hp / wound_mod;
 			mod_after = ob->hitpoints / wound_mod;
 
@@ -1651,8 +1686,7 @@ void DamageActor(
 			}
 
 			// Show 'pain' animation only once
-			if ((ob->hitpoints + damage) ==
-				starthitpoints[gamestate.difficulty][en_rotating_cube])
+			if ((ob->hitpoints + damage) == get_start_hit_point(en_rotating_cube))
 			{
 				InitSmartSpeedAnim(ob, SPR_VITAL_OUCH, 0, 0, at_ONCE, ad_FWD, 23);
 			}
@@ -1888,7 +1922,7 @@ bool CheckSight(
 	//
 	// don't bother tracing a line if the area isn't connected to the player's
 	//
-	if (!areabyplayer[from_obj->areanumber])
+	if (from_obj->areanumber < NUMAREAS && !areabyplayer[from_obj->areanumber])
 	{
 		return false;
 	}
@@ -2164,7 +2198,7 @@ bool SightPlayer(
 	}
 	else
 	{
-		if (!areabyplayer[ob->areanumber])
+		if (ob->areanumber < NUMAREAS && !areabyplayer[ob->areanumber])
 		{
 			return false;
 		}
@@ -2308,7 +2342,7 @@ bool CheckView(
 	// don't bother tracing a line if the area isn't connected to the player's
 	//
 
-	if (!areabyplayer[from_obj->areanumber])
+	if (from_obj->areanumber < NUMAREAS && !areabyplayer[from_obj->areanumber])
 	{
 		return false;
 	}
@@ -2398,7 +2432,7 @@ bool LookForGoodies(
 		{
 			ob->ammo += 8;
 		}
-		if (ob->hitpoints <= (starthitpoints[gamestate.difficulty][ob->obclass - rentacopobj] >> 1))
+		if (ob->hitpoints <= (get_start_hit_point(ob->obclass - rentacopobj) >> 1))
 		{
 			ob->hitpoints += 10;
 		}
@@ -2443,7 +2477,7 @@ bool LookForGoodies(
 						case bo_candybar:
 						case bo_sandwich:
 						case bo_chicken:
-							if (ob->hitpoints > (starthitpoints[gamestate.difficulty][ob->obclass - rentacopobj] >> 1))
+							if (ob->hitpoints > (get_start_hit_point(ob->obclass - rentacopobj) >> 1))
 							{
 								continue; // actor has plenty of health!
 							}
@@ -2452,7 +2486,7 @@ bool LookForGoodies(
 							break;
 
 						case bo_ham:
-							if (ob->hitpoints > (starthitpoints[gamestate.difficulty][ob->obclass - rentacopobj] >> 1))
+							if (ob->hitpoints > (get_start_hit_point(ob->obclass - rentacopobj) >> 1))
 							{
 								continue; // actor has plenty of health!
 							}
@@ -2461,7 +2495,7 @@ bool LookForGoodies(
 							break;
 
 						case bo_water:
-							if (ob->hitpoints > (starthitpoints[gamestate.difficulty][ob->obclass - rentacopobj] >> 1))
+							if (ob->hitpoints > (get_start_hit_point(ob->obclass - rentacopobj) >> 1))
 							{
 								continue; // actor has plenty of health!
 							}
@@ -2514,7 +2548,7 @@ bool LookForGoodies(
 
 	// Should actor run for a door? (quick escape!)
 	//
-	if (areabyplayer[ob->areanumber])
+	if (ob->areanumber < NUMAREAS && areabyplayer[ob->areanumber])
 	{
 		const int DOOR_CHOICES = 8;
 
@@ -2612,7 +2646,7 @@ std::uint16_t CheckRunChase(
 		RunReason |= RR_AMMO;
 	}
 
-	if (ob->hitpoints <= (starthitpoints[gamestate.difficulty][ob->obclass - rentacopobj] >> 1))
+	if (ob->hitpoints <= (get_start_hit_point(ob->obclass - rentacopobj) >> 1))
 	{
 		RunReason |= RR_HEALTH; // Feeling sickly!
 

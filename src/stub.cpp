@@ -91,7 +91,7 @@ statobj_t* ui16_to_static_object(
 std::uint16_t static_object_to_ui16(
 	const statobj_t* static_object)
 {
-	auto index = static_object - statobjlist;
+	auto index = static_object - statobjlist.data();
 
 	if (index < 0)
 	{

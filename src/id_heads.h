@@ -26,6 +26,9 @@ Free Software Foundation, Inc.,
 #define BSTONE_ID_HEADS_INCLUDED
 
 
+#include <array>
+
+
 #include "bstone_cl_args.h"
 #include "bstone_exception.h"
 
@@ -74,12 +77,11 @@ void SETFONTCOLOR(
 	const int background_color);
 
 const int UPDATESIZE = UPDATEWIDE * UPDATEHIGH;
-
-extern std::uint8_t update[UPDATESIZE];
+using Update = std::array<std::uint8_t, UPDATESIZE>;
+extern Update update;
 
 
 extern bstone::ClArgs g_args;
-extern std::uint8_t update[UPDATESIZE];
 
 
 [[noreturn]] void Quit();

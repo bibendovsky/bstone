@@ -98,6 +98,7 @@ void initialize_static_info_constants();
 void initialize_weapon_constants();
 void initialize_grenade_shape_constants();
 void initialize_static_health_table();
+void initialize_hit_point_table();
 void initialize_boss_constants();
 void initialize_messages();
 void initialize_ca_constants();
@@ -1652,10 +1653,15 @@ void freed_main()
 	initialize_grenade_shape_constants();
 	initialize_static_health_table();
 	initialize_boss_constants();
+	initialize_hit_point_table();
 	initialize_messages();
 	initialize_ca_constants();
+
 	gamestuff.initialize();
+	old_gamestuff = gamestuff;
+
 	gamestate.initialize();
+	old_gamestate = gamestate;
 
 	if (g_args.has_option("no_screens"))
 	{

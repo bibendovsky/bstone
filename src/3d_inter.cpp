@@ -50,7 +50,7 @@ void CA_CacheScreen(
 
 void ClearSplitVWB()
 {
-	memset(update, 0, sizeof(update));
+	update = Update{};
 	WindowX = 0;
 	WindowY = 0;
 	WindowW = 320;
@@ -279,13 +279,14 @@ void CheckHighScore(
 
 
 	// Check for cheaters
-
+#if NDEBUG
 	if (DebugOk)
 	{
 		sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
 
 		return;
 	}
+#endif // NDEBUG
 
 	strcpy(myscore.name, "");
 	myscore.score = score;

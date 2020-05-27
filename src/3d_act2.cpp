@@ -291,10 +291,226 @@ std::int8_t detonators_spawned = 0;
 =============================================================================
 */
 
-std::int16_t starthitpoints[4][NUMHITENEMIES] = {
+const StartHitPoints aog_start_hit_points =
+{
 	//
 	// BABY MODE
 	//
+	SubStartHitPoints
+	{
+		6, // Rent-A-Cop
+		6, // Hang Terrot
+		6, // general scientist
+		28, // pod alien
+		18, // Electro-Alien
+		1, // Electro-Sphere
+		43, // ProGuard
+		20, // Genetic Guard
+		27, // Mutant Human Type 1
+		27, // Mutant Human Type 2
+		1, // Large Canister Alien - CONTAINER HP
+		37, // Large Can-Alien - ALIEN HP
+		1, // Small Canister Alien - CONTAINER HP
+		30, // Small Can-Alien - ALIEN HP
+		1, // Gurney Mutant - Waiting HP
+		33, // Gurney Mutant - Spawned HP
+		47, // Liquid Alien -
+		88, // Swat Guards
+		50, // Goldstern
+		0, // Morphed Goldstern
+		17, // Volatile Material Transport
+		20, // Floating Bomb
+		150, // Vital Defence Obj  - DON'T CHANGE
+		800, // spider_mutant
+		850, // breather_beast
+		900, // cyborg_warror
+		950, // reptilian_warrior
+		1000, // acid_dragon
+		1050, // mech_guardian
+		0, // final_boss 1
+		0, // final_boss 2
+		0, // final_boss 3
+		0, // final_boss 4
+		0, // Blake
+		1, // Crate 1
+		1, // Crate 2
+		1, // Crate 3
+		0, // green ooze
+		0, // black ooze
+		0, // green ooze 2
+		0, // black ooze 2
+		1, // Pod egg
+		0, // morphing_spider_mutant
+		0, // morphing_reptilian_warrior
+		0, // morphing_Mutant Human Type 2
+	},
+
+	//
+	// DON'T HURT ME MODE
+	//
+
+	SubStartHitPoints
+	{
+		9, // Rent-A-Cop
+		9, // Hang Terrot
+		9, // general scientist
+		60, // pod alien
+		37, // Electro-Alien
+		1, // Electro-Sphere
+		63, // ProGuard
+		60, // Genetic Guard
+		50, // Mutant Human Type 1
+		50, // Mutant Human Type 2
+		1, // Large Canister Alien - CONTAINER HP
+		75, // Large Can-Alien - ALIEN HP
+		1, // Small Canister Alien - CONTAINER HP
+		60, // Small Can-Alien - ALIEN HP
+		1, // Gurney Mutant - Waiting HP
+		37, // Gurney Mutant - Spawned HP
+		66, // Liquid Alien -
+		112, // SWAT Guards
+		63, // Goldstern
+		0, // Morphed Goldstern
+		25, // Volatile Material Transport
+		40, // Floating Bomb
+		175, // Vital Defence Obj  - DON'T CHANGE
+		1000, // spider_mutant
+		1250, // breather_beast
+		1500, // cyborg_warror
+		1750, // reptilian_warrior
+		2000, // acid_dragon
+		2500, // mech_guardian
+		0, // final_boss 1
+		0, // final_boss 2
+		0, // final_boss 3
+		0, // final_boss 4
+		0, // Blake
+		1, // Crate 1
+		1, // Crate 2
+		1, // Crate 3
+		0, // green ooze
+		0, // black ooze
+		0, // green ooze 2
+		0, // black ooze 2
+		1, // Pod egg
+		0, // morphing_spider_mutant
+		0, // morphing_reptilian_warrior
+		0, // morphing_Mutant Human Type 2
+	},
+
+	//
+	// BRING 'EM ON MODE
+	//
+
+	SubStartHitPoints
+	{
+		25, // Rent-A-Cop
+		23, // Hang Terrot
+		23, // general scientist
+		160, // pod alien
+		112, // Electro-Alien
+		1, // Electro-Sphere
+		150, // ProGuard
+		180, // Genetic Guard
+		155, // Mutant Human Type 1
+		155, // Mutant Human Type 2
+		1, // Large Canister Alien - CONTAINER HP
+		225, // Large Can-Alien - ALIEN HP
+		1, // Small Canister Alien - CONTAINER HP
+		180, // Small Can-Alien - ALIEN HP
+		1, // Gurney Mutant - Waiting HP
+		150, // Gurney Mutant - Spawned HP
+		163, // Liquid Alien -
+		325, // SWAT Guards
+		125, // Goldstern
+		0, // Morphed Goldstern
+		63, // Volatile Material Transport
+		60, // Floating Bomb
+		375, // Vital Defence Obj  - DON'T CHANGE
+		2000, // spider_mutant
+		2500, // breather_beast
+		3000, // cyborg_warror
+		3500, // reptilian_warrior
+		4000, // acid_dragon
+		5000, // mech_guardian
+		0, // final_boss 1
+		0, // final_boss 2
+		0, // final_boss 3
+		0, // final_boss 4
+		0, // Blake
+		1, // Crate 1
+		1, // Crate 2
+		1, // Crate 3
+		0, // green ooze
+		0, // black ooze
+		0, // green ooze 2
+		0, // black ooze 2
+		1, // Pod egg
+		0, // morphing_spider_mutant
+		0, // morphing_reptilian_warrior
+		0, // morphing_Mutant Human Type 2
+	},
+
+	//
+	// DEATH INCARNATE MODE
+	//
+
+	SubStartHitPoints
+	{
+		38, // Rent-A-Cop
+		28, // Hang Terrot
+		28, // general scientist
+		210, // pod alien
+		150, // Electro-Alien
+		1, // Electro-Sphere
+		175, // ProGuard
+		240, // Genetic Guard
+		210, // Mutant Human Type 1
+		210, // Mutant Human Type 2
+		1, // Large Canister Alien - CONTAINER HP
+		300, // Large Can-Alien - ALIEN HP
+		1, // Small Canister Alien - CONTAINER HP
+		240, // Small Can-Alien - ALIEN HP
+		1, // Gurney Mutant - Waiting HP
+		200, // Gurney Mutant - Spawned HP
+		210, // Liquid Alien -
+		425, // SWAT Gaurds
+		188, // Goldstern
+		0, // Morphed Goldstern
+		75, // Volatile Material Transport
+		85, // Floating Bomb
+		450, // Vital Defence Obj - DON'T CHANGE
+		3000, // spider_mutant
+		3500, // breather_beast
+		4000, // cyborg_warror
+		4500, // reptilian_warrior
+		5000, // acid_dragon
+		6000, // mech_guardian
+		0, // final_boss 1
+		0, // final_boss 2
+		0, // final_boss 3
+		0, // final_boss 4
+		0, // Blake
+		1, // Crate 1
+		1, // Crate 2
+		1, // Crate 3
+		0, // green ooze
+		0, // black ooze
+		0, // green ooze 2
+		0, // black ooze 2
+		1, // Pod egg
+		0, // morphing_spider_mutant
+		0, // morphing_reptilian_warrior
+		0, // morphing_Mutant Human Type 2
+	},
+}; // aog_start_hit_points
+
+const StartHitPoints ps_start_hit_points =
+{
+	//
+	// BABY MODE
+	//
+	SubStartHitPoints
 	{
 		4, // Rent-A-Cop
 		4, // Hang Terrot
@@ -329,9 +545,14 @@ std::int16_t starthitpoints[4][NUMHITENEMIES] = {
 		1700, // final_boss 2
 		1800, // final_boss 3
 		1900, // final_boss 4
+		1, // Blake
 		1, // Crate 1
 		1, // Crate 2
 		1, // Crate 3
+		1, // green ooze
+		1, // black ooze
+		1, // green ooze 2
+		1, // black ooze 2
 		1, // Pod egg
 		1, // morphing_spider_mutant
 		1, // morphing_reptilian_warrior
@@ -342,6 +563,7 @@ std::int16_t starthitpoints[4][NUMHITENEMIES] = {
 	// DON'T HURT ME MODE
 	//
 
+	SubStartHitPoints
 	{
 		9, // Rent-A-Cop
 		9, // Hang Terrot
@@ -376,9 +598,14 @@ std::int16_t starthitpoints[4][NUMHITENEMIES] = {
 		1800, // final_boss 2
 		1900, // final_boss 3
 		2000, // final_boss 4
+		1, // Blake
 		1, // Crate 1
 		1, // Crate 2
 		1, // Crate 3
+		1, // green ooze
+		1, // black ooze
+		1, // green ooze 2
+		1, // black ooze 2
 		1, // Pod egg
 		1, // morphing_spider_mutant
 		1, // morphing_reptilian_warrior
@@ -389,6 +616,7 @@ std::int16_t starthitpoints[4][NUMHITENEMIES] = {
 	// BRING 'EM ON MODE
 	//
 
+	SubStartHitPoints
 	{
 		25, // Rent-A-Cop
 		23, // Hang Terrot
@@ -423,9 +651,14 @@ std::int16_t starthitpoints[4][NUMHITENEMIES] = {
 		1900, // final_boss 2
 		2000, // final_boss 3
 		2100, // final_boss 4
+		1, // Blake
 		1, // Crate 1
 		1, // Crate 2
 		1, // Crate 3
+		1, // green ooze
+		1, // black ooze
+		1, // green ooze 2
+		1, // black ooze 2
 		1, // Pod egg
 		1, // morphing_spider_mutant
 		1, // morphing_reptilian_warrior
@@ -436,6 +669,7 @@ std::int16_t starthitpoints[4][NUMHITENEMIES] = {
 	// DEATH INCARNATE MODE
 	//
 
+	SubStartHitPoints
 	{
 		38, // Rent-A-Cop
 		28, // Hang Terrot
@@ -470,15 +704,23 @@ std::int16_t starthitpoints[4][NUMHITENEMIES] = {
 		2000, // final_boss 2
 		2100, // final_boss 3
 		2200, // final_boss 4
+		1, // Blake
 		1, // Crate 1
 		1, // Crate 2
 		1, // Crate 3
+		1, // green ooze
+		1, // black ooze
+		1, // green ooze 2
+		1, // black ooze 2
 		1, // Pod egg
 		1, // morphing_spider_mutant
 		1, // morphing_reptilian_warrior
 		1, // morphing_Mutant Human Type 2
 	},
-};
+}; // ps_start_hit_points
+
+
+const StartHitPoints* starthitpoints = nullptr;
 
 
 using BossIds = std::vector<std::int16_t>;
@@ -495,6 +737,24 @@ std::uint16_t MorphClass[] = {
 	mutant_human2obj,
 };
 
+
+void initialize_hit_point_table()
+{
+	const auto& assets_info = AssetsInfo{};
+
+	starthitpoints = (assets_info.is_aog() ? &aog_start_hit_points : &ps_start_hit_points);
+}
+
+std::uint16_t get_start_hit_point(
+	const int index)
+{
+	if (index >= NUMHITENEMIES)
+	{
+		return 0;
+	}
+
+	return (*starthitpoints)[gamestate.difficulty][index];
+}
 
 void initialize_boss_constants()
 {
@@ -1131,7 +1391,7 @@ void SpawnOffsetObj(
 
 	if (which < static_cast<enemy_t>(SPACER1_OBJ))
 	{
-		new_actor->hitpoints = starthitpoints[gamestate.difficulty][which];
+		new_actor->hitpoints = get_start_hit_point(which);
 	}
 
 	if (!assets_info.is_ps())
@@ -1182,6 +1442,8 @@ void initialize_grenade_shape_constants()
 void T_OfsThink(
 	objtype* obj)
 {
+	const auto& assets_info = AssetsInfo{};
+
 	std::int8_t dx, dy, dist;
 	std::int8_t oldofs, ofs = 0;
 
@@ -1366,7 +1628,7 @@ void T_OfsThink(
 
 		sd_play_actor_sound(PODHATCHSND, obj, bstone::ActorChannel::voice);
 
-		InitSmartSpeedAnim(obj, SPR_POD_HATCH1, 0, 2, at_ONCE, ad_FWD, 7);
+		InitSmartSpeedAnim(obj, SPR_POD_HATCH1, 0, 2, at_ONCE, ad_FWD, assets_info.is_aog() ? 45 : 7);
 		break;
 
 	case morphing_spider_mutantobj:
@@ -2053,7 +2315,7 @@ void T_SmartThought(
 					MorphSounds[dx], obj, bstone::ActorChannel::voice);
 
 				obj->obclass = static_cast<classtype>(MorphClass[dx]);
-				obj->hitpoints = starthitpoints[gamestate.difficulty][MorphClass[dx] - rentacopobj];
+				obj->hitpoints = get_start_hit_point(MorphClass[dx] - rentacopobj);
 				obj->flags &= ~FL_FAKE_STATIC;
 				obj->flags |= FL_PROJ_TRANSPARENT | FL_SHOOTABLE;
 				NewState(obj, &s_ofs_chase1);
@@ -2064,7 +2326,7 @@ void T_SmartThought(
 				obj->obclass = podobj;
 				obj->temp1 = SPR_POD_WALK1;
 				NewState(obj, &s_ofs_chase1);
-				obj->hitpoints = starthitpoints[gamestate.difficulty][en_pod];
+				obj->hitpoints = get_start_hit_point(en_pod);
 				break;
 
 			case rotating_cubeobj:
@@ -3813,7 +4075,7 @@ void SpawnStand(
 		new_actor->speed = SPDPATROL;
 		if (gamestate.mapon == 9)
 		{
-			new_actor->hitpoints = starthitpoints[gamestate.difficulty][which] * 15;
+			new_actor->hitpoints = get_start_hit_point(which) * 15;
 		}
 		ammo = 25;
 		break;
@@ -3921,7 +4183,7 @@ void SpawnStand(
 
 	new_actor->ammo = static_cast<std::uint8_t>(ammo);
 	new_actor->obclass = static_cast<classtype>(rentacopobj + which);
-	new_actor->hitpoints += starthitpoints[gamestate.difficulty][which];
+	new_actor->hitpoints += get_start_hit_point(which);
 	new_actor->dir = static_cast<dirtype>(dir << 1);
 
 	if (new_actor->flags & FL_INFORMANT)
@@ -4122,7 +4384,7 @@ void SpawnPatrol(
 	new_actor->ammo = static_cast<std::uint8_t>(ammo);
 	new_actor->obclass = static_cast<classtype>(rentacopobj + which);
 	new_actor->dir = static_cast<dirtype>(dir << 1);
-	new_actor->hitpoints = starthitpoints[gamestate.difficulty][which];
+	new_actor->hitpoints = get_start_hit_point(which);
 	new_actor->distance = 0;
 	if (new_actor->obclass != blakeobj)
 	{
@@ -5000,7 +5262,7 @@ void T_Shoot(
 
 		ob->lighting = -10;
 
-		if (!areabyplayer[ob->areanumber])
+		if (ob->areanumber < NUMAREAS && !areabyplayer[ob->areanumber])
 		{
 			return;
 		}
@@ -5353,7 +5615,7 @@ void T_GoldMorph(
 	obj->ammo = ALIENAMMOINIT;
 	obj->flags |= FL_PROJ_TRANSPARENT | FL_NO_SLIDE | FL_SHOOTABLE | FL_SOLID;
 	obj->flags2 = FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE;
-	obj->hitpoints = starthitpoints[gamestate.difficulty][en_gold_morph];
+	obj->hitpoints = get_start_hit_point(en_gold_morph);
 	obj->obclass = gold_morphobj;
 
 	noShots = false;
@@ -5385,7 +5647,7 @@ void A_Beep(
 
 void InitGoldsternInfo()
 {
-	memset(&GoldsternInfo, 0, sizeof(GoldsternInfo));
+	GoldsternInfo = GoldsternInfo_t{};
 	GoldsternInfo.LastIndex = GOLDIE_MAX_SPAWNS;
 }
 
@@ -5423,7 +5685,7 @@ void T_Security(
 
 	if (!(obj->flags & FL_ALERTED))
 	{
-		if (alerted && areabyplayer[obj->areanumber])
+		if (alerted && obj->areanumber < NUMAREAS && areabyplayer[obj->areanumber])
 		{
 			obj->flags |= FL_ALERTED;
 		}
@@ -5506,16 +5768,9 @@ void T_ExplodeDamage(
 void T_PainThink(
 	objtype* obj)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto full_hp = get_start_hit_point(obj->obclass - rentacopobj);
 
-	if (assets_info.is_aog_sw())
-	{
-		return;
-	}
-
-	std::int16_t full_hp = starthitpoints[gamestate.difficulty][obj->obclass - rentacopobj];
-
-	if (obj->hitpoints > (full_hp >> 1) + (full_hp >> 2))
+	if (obj->hitpoints > ((3 * full_hp) / 4))
 	{
 		//       Original HitPoints
 		//
@@ -5534,7 +5789,7 @@ void T_PainThink(
 			break;
 		}
 	}
-	else if (obj->hitpoints > (full_hp >> 1))
+	else if (obj->hitpoints > (full_hp / 2))
 	{
 		//      3/4 Original HitPoints
 		//
@@ -5553,7 +5808,7 @@ void T_PainThink(
 			break;
 		}
 	}
-	else if (obj->hitpoints > (full_hp >> 2))
+	else if (obj->hitpoints > (full_hp / 4))
 	{
 		//      1/2 Original HitPoints
 		//
@@ -6347,7 +6602,10 @@ void T_Projectile(
 
 #define EX_RADIUS 2 // Tiles out from center
 
-std::int8_t ff_buffer[EX_RADIUS * 2 + 1][EX_RADIUS * 2 + 1];
+using SubFfBuffer = std::array<std::int8_t, (EX_RADIUS * 2) + 1>;
+using FfBuffer = std::array<SubFfBuffer, (EX_RADIUS * 2) + 1>;
+
+FfBuffer ff_buffer;
 std::int16_t ff_damageplayer, ff_damage;
 objtype* ff_obj;
 
@@ -6386,7 +6644,7 @@ void ExplodeRadius(
 	}
 
 	ff_obj = obj;
-	memset(ff_buffer, 0, sizeof(ff_buffer));
+	ff_buffer = FfBuffer{};
 	ExplodeFill(obj->tilex, obj->tiley);
 	ExplodeStatics(obj->tilex, obj->tiley);
 }
@@ -6397,9 +6655,10 @@ void ExplodeFill(
 {
 	const auto& assets_info = AssetsInfo{};
 
-	std::int8_t bx = tx - ff_obj->tilex + EX_RADIUS,
-		by = ty - ff_obj->tiley + EX_RADIUS,
-		door, no_wall;
+	std::int8_t bx = tx - ff_obj->tilex + EX_RADIUS;
+	std::int8_t by = ty - ff_obj->tiley + EX_RADIUS;
+	std::int8_t door;
+	std::int8_t no_wall;
 
 	// Damage actors on this spot!
 	//
@@ -6506,7 +6765,7 @@ void ExplodeFill(
 		no_wall = !tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
 	}
 
-	if ((!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]) && (no_wall) && (bx <= EX_RADIUS * 2))
+	if ((bx <= (EX_RADIUS * 2)) && no_wall && (!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]))
 	{
 		ExplodeFill(tx, ty);
 	}
@@ -6526,7 +6785,7 @@ void ExplodeFill(
 		no_wall = !tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
 	}
 
-	if ((!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]) && (no_wall) && (bx >= 0))
+	if (bx >= 0 && no_wall && (!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]))
 	{
 		ExplodeFill(tx, ty);
 	}
@@ -6548,7 +6807,9 @@ void ExplodeFill(
 		no_wall = !tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
 	}
 
-	if ((!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]) && (no_wall) && (by <= EX_RADIUS * 2))
+	if ((by <= (EX_RADIUS * 2)) &&
+		no_wall &&
+		(!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]))
 	{
 		ExplodeFill(tx, ty);
 	}
@@ -6568,7 +6829,9 @@ void ExplodeFill(
 		no_wall = !tilemap[static_cast<int>(tx)][static_cast<int>(ty)];
 	}
 
-	if ((!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]) && (no_wall) && (by >= 0))
+	if ((by >= 0) &&
+		no_wall &&
+		(!ff_buffer[static_cast<int>(bx)][static_cast<int>(by)]))
 	{
 		ExplodeFill(tx, ty);
 	}

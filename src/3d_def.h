@@ -26,7 +26,9 @@ Free Software Foundation, Inc.,
 #define BSTONE_3D_DEF_INCLUDED
 
 
+#include <array>
 #include <atomic>
+#include <bitset>
 #include <functional>
 #include <string>
 #include <vector>
@@ -56,7 +58,7 @@ class Stream;
 enum class ScanCode;
 
 
-const int BS_SAVE_VERSION = 9;
+const int BS_SAVE_VERSION = 10;
 
 #define GOLD_MORPH_LEVEL (19) // Level which Dr. GoldFire Morphs.
 
@@ -2275,7 +2277,7 @@ struct objtype
 }; // objtype
 
 
-enum ButtonState
+enum ButtonStateType
 {
 	bt_nobutton = -1,
 	bt_attack = 0,
@@ -2293,7 +2295,7 @@ enum ButtonState
 	bt_SPACER,
 
 	NUMBUTTONS,
-}; // ButtonState
+}; // ButtonStateType
 
 
 enum weapontype
@@ -2442,12 +2444,6 @@ struct fargametype
 	LevelInfos level;
 
 	fargametype();
-
-	fargametype(
-		const fargametype& that) = delete;
-
-	fargametype& operator=(
-		const fargametype& that) = delete;
 
 	void initialize();
 
@@ -2982,6 +2978,7 @@ int FindChunk(
 */
 
 extern fargametype gamestuff;
+extern fargametype old_gamestuff;
 extern tilecoord_t GoldieList[GOLDIE_MAX_SPAWNS];
 extern GoldsternInfo_t GoldsternInfo;
 
@@ -2991,6 +2988,7 @@ extern bool ingame;
 extern bool fizzlein;
 extern int latchpics[NUMLATCHPICS];
 extern gametype gamestate;
+extern gametype old_gamestate;
 extern std::int16_t doornum;
 
 
@@ -3065,7 +3063,10 @@ extern objtype* player;
 extern objtype* lastobj;
 extern objtype* objfreelist;
 extern objtype* killerobj;
-extern statobj_t statobjlist[MAXSTATS];
+
+using StatObjList = std::array<statobj_t, MAXSTATS>;
+extern StatObjList statobjlist;
+
 extern statobj_t* laststatobj;
 extern doorobj_t doorobjlist[MAXDOORS];
 extern doorobj_t* lastdoorobj;
@@ -3073,9 +3074,17 @@ extern doorobj_t* lastdoorobj;
 extern std::uint16_t farmapylookup[MAPSIZE];
 extern std::uint8_t* nearmapylookup[MAPSIZE];
 
-extern std::uint8_t tilemap[MAPSIZE][MAPSIZE]; // wall values only
-extern std::uint8_t spotvis[MAPSIZE][MAPSIZE];
-extern objtype* actorat[MAPSIZE][MAPSIZE];
+using SubTileMap = std::array<std::uint8_t, MAPSIZE>;
+using TileMap = std::array<SubTileMap, MAPSIZE>;
+extern TileMap tilemap; // wall values only
+
+using SubSpotVis = std::array<std::uint8_t, MAPSIZE>;
+using SpotVis = std::array<SubSpotVis, MAPSIZE>;
+extern SpotVis spotvis;
+
+using SubActorAt = std::array<objtype*, MAPSIZE>;
+using ActorAt = std::array<SubActorAt, MAPSIZE>;
+extern ActorAt actorat;
 
 extern bool singlestep;
 extern bool godmode;
@@ -3093,7 +3102,8 @@ using Buttons = std::vector<std::int16_t>;
 
 extern bool mouseenabled;
 
-extern bool buttonheld[NUMBUTTONS];
+using ButtonHeld = std::bitset<NUMBUTTONS>;
+extern ButtonHeld buttonheld;
 
 extern const int viewsize;
 
@@ -3105,7 +3115,9 @@ extern int controly; // range from -100 to 100
 #ifdef __vita__
 extern int control2x; //left stick horizontal axis
 #endif
-extern bool buttonstate[NUMBUTTONS];
+
+using ButtonState = std::bitset<NUMBUTTONS>;
+extern ButtonState buttonstate;
 extern int strafe_value;
 
 extern char Computing[];
@@ -3146,7 +3158,9 @@ bool DebugKeys();
 =============================================================================
 */
 
-extern std::uint8_t TravelTable[MAPSIZE][MAPSIZE];
+using SubTravelTable = std::array<std::uint8_t, MAPSIZE>;
+using TravelTable = std::array<SubTravelTable, MAPSIZE>;
+extern TravelTable travel_table_;
 
 extern std::int32_t lasttimecount;
 extern std::int32_t framecount;
@@ -3235,7 +3249,11 @@ void F_MapRow();
 =============================================================================
 */
 
-extern std::uint16_t actor_points[];
+constexpr auto actor_points_size = 45;
+
+using ActorPoints = std::array<std::uint16_t, actor_points_size>;
+extern const ActorPoints actor_points;
+
 extern dirtype opposite[9];
 extern dirtype diagonal[9][9];
 
@@ -3461,9 +3479,12 @@ extern std::int16_t doornum;
 
 extern std::uint16_t doorposition[MAXDOORS];
 
-extern std::uint8_t areaconnect[NUMAREAS][NUMAREAS];
+using SubAreaConnect = std::array<std::uint8_t, NUMAREAS>;
+using AreaConnect = std::array<SubAreaConnect, NUMAREAS>;
+extern AreaConnect areaconnect;
 
-extern bool areabyplayer[NUMAREAS];
+using AreaByPlayer = std::bitset<NUMAREAS>;
+extern AreaByPlayer areabyplayer;
 
 extern std::uint16_t pwallstate;
 extern std::uint16_t pwallpos; // amount a pushable wall has been moved (0-63)
@@ -3554,7 +3575,11 @@ void ExplodeStatics(
 
 extern std::int8_t detonators_spawned;
 
-extern std::int16_t starthitpoints[][NUMHITENEMIES];
+constexpr auto difficulty_levels = 4;
+using SubStartHitPoints = std::array<std::uint16_t, NUMHITENEMIES>;
+using StartHitPoints = std::array<SubStartHitPoints, difficulty_levels>;
+
+extern const StartHitPoints* starthitpoints;
 
 extern statetype s_ofs_bounce;
 
@@ -4001,6 +4026,8 @@ void cfg_file_write_entry(
 	const std::string& key_string,
 	const std::string& value_string);
 
+std::uint16_t get_start_hit_point(
+	const int index);
 // BBi
 
 

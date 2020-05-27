@@ -2756,7 +2756,7 @@ int hw_cfg_texture_anisotropy_to_renderer(
 int hw_get_static_index(
 	const statobj_t& bs_static)
 {
-	return static_cast<int>(&bs_static - statobjlist);
+	return static_cast<int>(&bs_static - statobjlist.data());
 }
 
 HwSprite& hw_get_static(
@@ -9305,7 +9305,7 @@ void hw_map_sprite(
 void hw_map_static(
 	const statobj_t& bs_static)
 {
-	const auto bs_static_index = static_cast<int>(&bs_static - statobjlist);
+	const auto bs_static_index = static_cast<int>(&bs_static - statobjlist.data());
 
 	auto vertex_index = hw_statics_base_vertex_index;
 	vertex_index += (bs_static_index * hw_vertices_per_sprite);
@@ -9319,69 +9319,103 @@ void hw_map_static(
 	hw_map_sprite(HwSpriteKind::stat, vertex_index, sprite);
 }
 
+void hw_cache_sprite(
+	const int bs_sprite_id)
+{
+	hw_texture_manager_->cache_sprite(bs_sprite_id);
+}
+
+void hw_precache_water_bowl()
+{
+	hw_cache_sprite(SPR_STAT_40); // Full.
+	hw_cache_sprite(SPR_STAT_41); // Empty.
+}
+
+void hw_precache_chicken_leg()
+{
+	hw_cache_sprite(SPR_STAT_42); // Intact.
+	hw_cache_sprite(SPR_STAT_43); // Gnawed.
+}
+
+void hw_precache_ham()
+{
+	hw_cache_sprite(SPR_STAT_44); // Intact.
+	hw_cache_sprite(SPR_STAT_45); // Bone.
+}
+
+void hw_precache_candy_bar()
+{
+	hw_cache_sprite(SPR_CANDY_BAR); // Intact.
+	hw_cache_sprite(SPR_CANDY_WRAPER); // Wrapper.
+}
+
+void hw_precache_sandwich()
+{
+	hw_cache_sprite(SPR_SANDWICH); // Intact.
+	hw_cache_sprite(SPR_SANDWICH_WRAPER); // Wrapper.
+}
+
+void hw_precache_plasma_detonator_explosion()
+{
+	hw_cache_sprite(SPR_DETONATOR_EXP1);
+	hw_cache_sprite(SPR_DETONATOR_EXP2);
+	hw_cache_sprite(SPR_DETONATOR_EXP3);
+	hw_cache_sprite(SPR_DETONATOR_EXP4);
+	hw_cache_sprite(SPR_DETONATOR_EXP5);
+	hw_cache_sprite(SPR_DETONATOR_EXP6);
+	hw_cache_sprite(SPR_DETONATOR_EXP7);
+	hw_cache_sprite(SPR_DETONATOR_EXP8);
+}
+
+void hw_precache_plasma_detonator()
+{
+	hw_cache_sprite(SPR_DOORBOMB);
+	hw_cache_sprite(SPR_ALT_DOORBOMB);
+
+	hw_precache_plasma_detonator_explosion();
+}
+
 void hw_precache_static(
 	const statobj_t& bs_static)
 {
-	int sprite_0 = bs_static.shapenum;
-	int sprite_1 = bs_static.shapenum;
+	const auto sprite_number = bs_static.shapenum;
 
 	if (false)
 	{
 	}
-	// Full water bowl.
-	else if (sprite_0 == SPR_STAT_40)
+	else if (sprite_number == SPR_STAT_40 || sprite_number == SPR_STAT_41)
 	{
-		// Empty water bowl.
-		sprite_1 = SPR_STAT_41;
+		hw_precache_water_bowl();
 	}
-	// Chicken leg.
-	else if (sprite_0 == SPR_STAT_42)
+	else if (sprite_number == SPR_STAT_42 || sprite_number == SPR_STAT_43)
 	{
-		// Chicken bone.
-		sprite_1 = SPR_STAT_43;
+		hw_precache_chicken_leg();
 	}
-	// Ham.
-	else if (sprite_0 == SPR_STAT_44)
+	else if (sprite_number == SPR_STAT_44 || sprite_number == SPR_STAT_45)
 	{
-		// Ham bone.
-		sprite_1 = SPR_STAT_45;
+		hw_precache_ham();
 	}
-	// Candy bar.
-	else if (sprite_0 == SPR_CANDY_BAR)
+	else if (sprite_number == SPR_CANDY_BAR || sprite_number == SPR_CANDY_WRAPER)
 	{
-		// Candy bar wrapper.
-		sprite_1 = SPR_CANDY_WRAPER;
+		hw_precache_candy_bar();
 	}
-	// Sandwich.
-	else if (sprite_0 == SPR_SANDWICH)
+	else if (sprite_number == SPR_SANDWICH || sprite_number == SPR_SANDWICH_WRAPER)
 	{
-		// Sandwich wrapper.
-		sprite_1 = SPR_SANDWICH_WRAPER;
+		hw_precache_sandwich();
 	}
-	// Plasma detonator.
-	else if (sprite_0 == SPR_DOORBOMB)
+	else if (sprite_number == SPR_DOORBOMB || sprite_number == SPR_ALT_DOORBOMB)
 	{
-		// Plasma detonator (blink).
-		sprite_1 = SPR_ALT_DOORBOMB;
+		hw_precache_plasma_detonator();
 	}
-	// Plasma detonator (blink).
-	else if (sprite_0 == SPR_ALT_DOORBOMB)
+	else
 	{
-		// Plasma detonator.
-		sprite_1 = SPR_DOORBOMB;
-	}
-
-	hw_texture_manager_->cache_sprite(sprite_0);
-
-	if (sprite_0 != sprite_1)
-	{
-		hw_texture_manager_->cache_sprite(sprite_1);
+		hw_cache_sprite(sprite_number);
 	}
 }
 
 void hw_precache_statics()
 {
-	for (auto bs_static = statobjlist; laststatobj && bs_static != laststatobj; ++bs_static)
+	for (auto bs_static = statobjlist.data(); laststatobj && bs_static != laststatobj; ++bs_static)
 	{
 		if (bs_static->shapenum == -1 ||
 			(bs_static->tilex == 0 && bs_static->tiley == 0))
@@ -9391,12 +9425,6 @@ void hw_precache_statics()
 
 		hw_precache_static(*bs_static);
 	}
-}
-
-void hw_cache_sprite(
-	const int bs_sprite_id)
-{
-	hw_texture_manager_->cache_sprite(bs_sprite_id);
 }
 
 void hw_map_actor(
@@ -9467,26 +9495,6 @@ void hw_precache_flying_grenade()
 	hw_cache_sprite(SPR_GRENADE_FLY4);
 
 	hw_precache_grenade_explosion();
-}
-
-void hw_precache_plasma_detonator_explosion()
-{
-	hw_cache_sprite(SPR_DETONATOR_EXP1);
-	hw_cache_sprite(SPR_DETONATOR_EXP2);
-	hw_cache_sprite(SPR_DETONATOR_EXP3);
-	hw_cache_sprite(SPR_DETONATOR_EXP4);
-	hw_cache_sprite(SPR_DETONATOR_EXP5);
-	hw_cache_sprite(SPR_DETONATOR_EXP6);
-	hw_cache_sprite(SPR_DETONATOR_EXP7);
-	hw_cache_sprite(SPR_DETONATOR_EXP8);
-}
-
-void hw_precache_plasma_detonator()
-{
-	hw_cache_sprite(SPR_DOORBOMB);
-	hw_cache_sprite(SPR_ALT_DOORBOMB);
-
-	hw_precache_plasma_detonator_explosion();
 }
 
 void hw_precache_anti_plasma_cannon_explosion()
@@ -9610,10 +9618,27 @@ void hw_precache_golden_access_card()
 	}
 }
 
+// Small yellow box (PS).
+void hw_precache_small_yellow_box()
+{
+	const auto& assets_info = AssetsInfo{};
+
+	if (assets_info.is_ps())
+	{
+		hw_cache_sprite(SPR_STAT_36);
+	}
+}
+
 // Partial Charge Pack.
 void hw_precache_partial_charge_pack()
 {
 	hw_cache_sprite(SPR_STAT_26);
+}
+
+// Charge Pack.
+void hw_precache_charge_pack()
+{
+	hw_cache_sprite(SPR_STAT_31);
 }
 
 // Slow Fire Protector.
@@ -9626,6 +9651,29 @@ void hw_precache_slow_fire_protector()
 void hw_precache_rapid_assault_weapon()
 {
 	hw_cache_sprite(SPR_STAT_27);
+}
+
+// Dual Neutron Disruptor.
+void hw_precache_dual_neutron_disruptor_weapon()
+{
+	hw_cache_sprite(SPR_STAT_28);
+}
+
+// Plasma Discharge Unit.
+void hw_precache_plasma_discharge_unit_weapon()
+{
+	hw_cache_sprite(SPR_STAT_46);
+}
+
+// Anti-Plasma Cannon.
+void hw_precache_anti_plasma_cannon_weapon()
+{
+	const auto& assets_info = AssetsInfo{};
+
+	if (assets_info.is_ps())
+	{
+		hw_cache_sprite(SPR_STAT_34);
+	}
 }
 
 // Generic alien spit (#1).
@@ -10883,18 +10931,19 @@ void hw_precache_crate_content()
 {
 	const auto& assets_info = AssetsInfo{};
 
-	hw_cache_sprite(SPR_STAT_24); // PISTOL SPR4V
-	hw_cache_sprite(SPR_STAT_27); // Auto-Burst Rifle
-	hw_cache_sprite(SPR_STAT_28); // Particle Charged ION
-	hw_cache_sprite(SPR_STAT_31); // Charge Unit
-	hw_cache_sprite(SPR_STAT_32); // Red Key SPR5V
-	hw_cache_sprite(SPR_STAT_33); // Yellow Key
-	hw_cache_sprite(SPR_STAT_34); // Green Key / BFG Cannon
-	hw_cache_sprite(SPR_STAT_35); // Blue Key
-	hw_cache_sprite(SPR_STAT_36); // Gold Key / Yellow Box?
-	hw_cache_sprite(SPR_STAT_42); // Chicken Leg
-	hw_cache_sprite(SPR_STAT_44); // Ham
-	hw_cache_sprite(SPR_STAT_46); // Grande Launcher
+	hw_precache_chicken_leg();
+	hw_precache_ham();
+
+	hw_precache_charge_pack();
+
+	hw_precache_slow_fire_protector();
+	hw_precache_rapid_assault_weapon();
+	hw_precache_dual_neutron_disruptor_weapon();
+	hw_precache_plasma_discharge_unit_weapon();
+	hw_precache_anti_plasma_cannon_weapon();
+
+	hw_precache_small_yellow_box();
+
 	hw_cache_sprite(SPR_STAT_48); // money bag
 	hw_cache_sprite(SPR_STAT_49); // loot
 	hw_cache_sprite(SPR_STAT_50); // gold
@@ -11009,6 +11058,13 @@ void hw_precache_special_stuff()
 		{
 			hw_precache_blake_stone();
 			hw_precache_dr_goldfire();
+		}
+	}
+	else if (assets_info.is_ps())
+	{
+		if (gamestate.mapon == 19)
+		{
+			hw_precache_morphed_dr_goldfire();
 		}
 	}
 
@@ -11489,7 +11545,7 @@ void hw_build_statics()
 		return;
 	}
 
-	for (auto bs_static = statobjlist; bs_static != laststatobj; ++bs_static)
+	for (auto bs_static = statobjlist.data(); bs_static != laststatobj; ++bs_static)
 	{
 		if (bs_static->shapenum == -1 ||
 			(bs_static->tilex == 0 && bs_static->tiley == 0))
