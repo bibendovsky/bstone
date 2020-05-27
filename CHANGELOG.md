@@ -1,6 +1,31 @@
 # BStone changelog
 
 
+## [1.2.3] - 2020-05-27
+### Added
+- Input bindings to cycle weapons.
+
+### Changed
+- Apply bonus queue after finishing the mission.
+- Write data into temporary file and then rename it.
+- Enable high score menu for debug build.
+
+### Fixed
+- [AOG] Animation timings for some actors to match origin.
+- [AOG] Bio-tech placed on special tile (E5L2; (18, 43)).
+- Sprite precache for crate items.
+- Sprite precache for morphed Dr. Goldfire.
+- Level state after death when extra live is available.
+- Add points for destroying projector generator.
+- Displaying pushwalls after loading from saved game.
+- Hit points table.
+- Player's attack tracing.
+- Zigzag movement when strafing along the wall.
+
+### Removed
+- Default values for some input bindings.
+
+
 ## [1.2.2] - 2020-05-14
 ### Fixed
 - Handling of file paths.
