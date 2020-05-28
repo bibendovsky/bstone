@@ -3693,8 +3693,20 @@ restartgame:
 }
 
 // BBi
+std::string xy_to_string(
+	const int x,
+	const int y)
+{
+	return '(' + std::to_string(x) + ", " + std::to_string(y) + ')';
+}
+
 static void fix_level_inplace()
 {
+	if (loadedgame)
+	{
+		return;
+	}
+
 	const auto& assets_info = AssetsInfo{};
 
 	if (assets_info.are_modded_levels())
@@ -3702,12 +3714,13 @@ static void fix_level_inplace()
 		return;
 	}
 
-	// Fix standing bio-tech near volatile containers
-	// (E2L6; x: 38; y: 26)
-	// (E2L6; x: 55; y: 33)
+	//
+	// Fix standing bio-tech near volatile containers.
+	//
+	// E2L6 (38, 26)
+	// E2L6 (55, 33)
 	//
 	if (assets_info.is_aog_full() &&
-		!loadedgame &&
 		gamestate.episode == 1 &&
 		gamestate.mapon == 6)
 	{
@@ -3723,8 +3736,8 @@ static void fix_level_inplace()
 				mapsegs[1][index] = 157;
 
 				bstone::logger_->write(
-					"[FIX_LEVEL] Bio-tech at (" + std::to_string(x) + ", " + std::to_string(y) +
-						"): standing -> moving.");
+					"[FIX][E2L6] Changing bio-tech at " + xy_to_string(x, y) +
+						" from standing to moving.");
 			}
 		}
 
@@ -3740,17 +3753,17 @@ static void fix_level_inplace()
 				mapsegs[1][index] = 157;
 
 				bstone::logger_->write(
-					"[LEVEL_FIX] Bio-tech at (" + std::to_string(x) + ", " + std::to_string(y) +
-						"): standing -> moving.");
+					"[FIX][E2L6] Changing bio-tech at " + xy_to_string(x, y) +
+						" from standing to moving.");
 			}
 		}
 	}
 
+	//
 	// Fix bio-tech placed on special tile (AREATILE).
-	// (E5L2; x: 18; y: 43)
+	// E5L2 (18, 43)
 	//
 	if (assets_info.is_aog_full() &&
-		!loadedgame &&
 		gamestate.episode == 4 &&
 		gamestate.mapon == 2)
 	{
@@ -3766,8 +3779,63 @@ static void fix_level_inplace()
 			std::swap(mapsegs[1][old_index], mapsegs[1][new_index]);
 
 			bstone::logger_->write(
-				"[LEVEL_FIX] Bio-tech at (" + std::to_string(old_x) + ", " + std::to_string(y) +
-					"): move one tile to the left.");
+				"[FIX][E5L2] Moving bio-tech at " + xy_to_string(old_x, y) +
+					" one tile to the left.");
+		}
+	}
+
+	//
+	// Add missing switch for barriers located behind pushwall.
+	//
+	// E4L1
+	// Barriers: (54, 52), (55, 52), (56, 52)
+	// New switch location: (54, 61)
+	//
+	if (assets_info.is_aog_full() &&
+		gamestate.episode == 3 &&
+		gamestate.mapon == 1)
+	{
+		constexpr auto barrier_y = 52;
+		constexpr auto barrier_1_x = 54;
+		constexpr auto barrier_2_x = 54;
+		constexpr auto barrier_3_x = 54;
+
+		constexpr auto barrier_1_index = (barrier_y * MAPSIZE) + barrier_1_x;
+		constexpr auto barrier_2_index = (barrier_y * MAPSIZE) + barrier_2_x;
+		constexpr auto barrier_3_index = (barrier_y * MAPSIZE) + barrier_3_x;
+
+		constexpr auto barrier_object_id = 174;
+
+
+		constexpr auto switch_y = 61;
+		constexpr auto switch_wall_x = 54;
+		constexpr auto switch_object_x = 55;
+
+		constexpr auto switch_wall_index = (switch_y * MAPSIZE) + switch_wall_x;
+		constexpr auto switch_object_index = (switch_y * MAPSIZE) + switch_object_x;
+
+		constexpr auto switch_old_wall_id = 55;
+		constexpr auto switch_new_wall_id = 45;
+
+
+		if (mapsegs[1][barrier_1_index] == barrier_object_id &&
+			mapsegs[1][barrier_2_index] == barrier_object_id &&
+			mapsegs[1][barrier_3_index] == barrier_object_id &&
+			mapsegs[0][switch_wall_index] == switch_old_wall_id &&
+			mapsegs[1][switch_wall_index] == 0 &&
+			mapsegs[1][switch_object_index] == 0)
+		{
+			mapsegs[0][switch_wall_index] = switch_new_wall_id;
+			mapsegs[1][switch_wall_index] = 0xF8FF;
+			mapsegs[1][switch_object_index] = static_cast<std::uint16_t>((barrier_1_x << 8) | barrier_y);
+
+			bstone::logger_->write(
+				"[FIX][E4L1] Adding missing switch at " +
+					xy_to_string(switch_wall_x, switch_y) +
+					" for barrier at " +
+					xy_to_string(barrier_1_x, barrier_y) +
+					'.'
+			);
 		}
 	}
 }
