@@ -5161,6 +5161,8 @@ void T_Attack(
 		gamestate.weaponframe =
 			attackinfo[static_cast<int>(gamestate.weapon)][gamestate.attackframe].frame;
 	}
+
+	try_to_grab_bonus_items();
 }
 
 void T_Player(
