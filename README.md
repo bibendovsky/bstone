@@ -12,9 +12,9 @@ Contents
    2.1. Overview (PS Vita)
 3. Installation  
    3.1. Windows (GOG / Steam)  
-   3.2. Windows (Generic)
-4. Required assets  
-   4.1. Addon support.
+   3.2. Windows (Generic)  
+   3.3. Addons
+4. Required assets
 5. Profile
 6. Compiling  
    6.1. Generic instructions for Linux-based system or build environment (MinGW)
@@ -95,6 +95,13 @@ See [README-PSVITA.md](README-PSVITA.md) for details about the source port on PS
 - Run `bstone.exe` to play.
 
 
+3.3 - Addons
+============
+
+- Put addon's files into separate directory. Do not overwrite any original files!
+- Run with command line option `--mod_dir` to pointo to this directory (i.e. `bstone.exe --mod_dir addon1`).
+
+
 4 - Required assets
 ===================
 
@@ -134,13 +141,6 @@ Supported services:
 - [Steam](http://store.steampowered.com)  
   Windows only.  
   "The Apogee Throwback Pack" supported as well as separated titles.
-
-
-4.1 - Addon support
-===================
-
-Don't overwrite any original files.
-Put addon files into different directory and point to them with option `mod_dir` (i.e. `bstone.exe --mod_dir addon1`).
 
 
 5 - Profile
@@ -493,6 +493,9 @@ Add option `--cheats` to enable these keys.
 
 * <kbd>Backspace</kbd>+<kbd>]</kbd>  
   Increases shading drop off.
+
+* <kbd>Backspace</kbd>+<kbd>l</kbd>  
+  Dumps information into the log about remaining bonus items and enemies.
 
 
 10 - Third party use
