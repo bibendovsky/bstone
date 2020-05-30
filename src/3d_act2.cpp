@@ -1393,24 +1393,6 @@ void SpawnOffsetObj(
 	{
 		new_actor->hitpoints = get_start_hit_point(which);
 	}
-
-	if (!assets_info.is_ps())
-	{
-		switch (which)
-		{
-		case en_spider_mutant:
-		case en_breather_beast:
-		case en_cyborg_warrior:
-		case en_reptilian_warrior:
-		case en_acid_dragon:
-		case en_mech_guardian:
-			new_actor->hitpoints *= 15;
-			break;
-
-		default:
-			break;
-		}
-	}
 }
 
 
