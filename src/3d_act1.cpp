@@ -283,30 +283,22 @@ statobj_t* FindStatic(
 // ---------------------------------------------------------------------------
 statobj_t* FindEmptyStatic()
 {
-	statobj_t* spot;
+	const auto start_spot = statobjlist.data();
 
-	for (spot = &statobjlist[0]; ; ++spot)
+	for (auto spot = start_spot; spot != laststatobj; ++spot)
 	{
-		if (spot == laststatobj)
-		{
-			if (spot == (statobjlist.data() + MAXSTATS))
-			{
-				return nullptr;
-			}
-
-			++laststatobj; // space at end
-
-			break;
-		}
-
 		if (spot->shapenum == -1)
 		{
-			// -1 is a free spot
-			break;
+			return spot;
 		}
 	}
 
-	return spot;
+	if ((laststatobj - start_spot) < MAXSTATS)
+	{
+		return laststatobj++;
+	}
+
+	return nullptr;
 }
 
 statobj_t* SpawnStatic(
