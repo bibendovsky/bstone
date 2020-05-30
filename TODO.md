@@ -1,3 +1,4 @@
 - [HWR] Fix Z-fighting.
 - Replace vid_throw_sdl_error with Sdl2EnsureResult.
 - Revise AOG compatibility.
+- Increase maximum actors.
