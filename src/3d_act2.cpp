@@ -2468,10 +2468,14 @@ void T_SmartThought(
 				break;
 
 			case gurney_waitobj:
+// FIXME
+// Remove this or convert the reserved actor into real one.
+#if 0
 				if (obj->temp2)
 				{
 					RemoveObj(ui16_to_actor(obj->temp2));
 				}
+#endif
 
 				SpawnOffsetObj(en_gurney, obj->tilex, obj->tiley);
 				NewState(obj, &s_ofs_static);
@@ -2479,10 +2483,14 @@ void T_SmartThought(
 				break;
 
 			case scan_wait_alienobj:
+// FIXME
+// Remove this or convert the reserved actor into real one.
+#if 0
 				if (obj->temp2)
 				{
 					RemoveObj(ui16_to_actor(obj->temp2));
 				}
+#endif
 
 				SpawnOffsetObj(en_scan_alien, obj->tilex, obj->tiley);
 				NewState(obj, &s_ofs_static);
@@ -2490,10 +2498,14 @@ void T_SmartThought(
 				break;
 
 			case lcan_wait_alienobj:
+// FIXME
+// Remove this or convert the reserved actor into real one.
+#if 0
 				if (obj->temp2)
 				{
 					RemoveObj(ui16_to_actor(obj->temp2));
 				}
+#endif
 
 				SpawnOffsetObj(en_lcan_alien, obj->tilex, obj->tiley);
 				NewState(obj, &s_ofs_static);

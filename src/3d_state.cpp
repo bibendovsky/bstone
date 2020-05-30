@@ -1520,6 +1520,9 @@ void DamageActor(
 	{
 		switch (ob->obclass)
 		{
+// FIXME
+// Remove this or convert the reserved actor into real one.
+#if 0
 		case scan_wait_alienobj: // These actors do not have an ouch!
 		case lcan_wait_alienobj: // So... RETURN!
 		case gurney_waitobj:
@@ -1531,6 +1534,7 @@ void DamageActor(
 				return;
 			}
 			break;
+#endif
 
 		case goldsternobj:
 			if (gamestate.mapon == GOLD_MORPH_LEVEL)
