@@ -10463,6 +10463,13 @@ void hw_precache_morphed_dr_goldfire()
 // Volatile Material Transport.
 void hw_precache_volatile_material_transport()
 {
+	const auto& assets_info = AssetsInfo{};
+
+	if (assets_info.is_aog_sw())
+	{
+		return;
+	}
+
 	hw_cache_sprite(SPR_GSCOUT_W1_1);
 	hw_cache_sprite(SPR_GSCOUT_W1_2);
 	hw_cache_sprite(SPR_GSCOUT_W1_3);
@@ -10529,7 +10536,7 @@ void hw_precache_perscan_drone()
 
 	const auto& assets_info = AssetsInfo{};
 
-	if (assets_info.is_aog_full())
+	if (!assets_info.is_aog_sw())
 	{
 		hw_cache_sprite(SPR_FSCOUT_W2_1);
 		hw_cache_sprite(SPR_FSCOUT_W2_2);
