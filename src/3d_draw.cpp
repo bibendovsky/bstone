@@ -1962,11 +1962,6 @@ static bool show_pwalls_on_automap(
 {
 	const auto& assets_info = AssetsInfo{};
 
-	if (assets_info.is_ps())
-	{
-		return true;
-	}
-
 	if (tilemap[x][y] == 0)
 	{
 		return false;
