@@ -58,7 +58,7 @@ class Stream;
 enum class ScanCode;
 
 
-const int BS_SAVE_VERSION = 10;
+const int BS_SAVE_VERSION = 11;
 
 #define GOLD_MORPH_LEVEL (19) // Level which Dr. GoldFire Morphs.
 
@@ -137,8 +137,8 @@ case gen_scientistobj
 #define TT_TRAVELED (0x01)
 #define TT_KEYS (0x02)
 
+constexpr auto MAXACTORS = 200; // max number of nazis, etc / map
 
-#define MAXACTORS (150) // max number of nazis, etc / map
 #define MAXSTATS (400) // max number of lamps, bonus, etc
 #define MAXDOORS (64) // max number of sliding doors
 #define MAXCONCESSIONS (15) // max number of concession machines
