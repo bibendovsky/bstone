@@ -1430,6 +1430,20 @@ void check_for_extract_options()
 	}
 
 	{
+		const auto& extract_vga_palette_option_name = std::string{"extract_vga_palette"};
+
+		if (g_args.has_option(extract_vga_palette_option_name))
+		{
+			const auto& dst_dir = g_args.get_option_value(extract_vga_palette_option_name);
+
+			ca_extract_vga_palette(dst_dir);
+
+			Quit();
+			return;
+		}
+	}
+
+	{
 		const auto& extract_walls_option_name = std::string{"extract_walls"};
 
 		if (g_args.has_option(extract_walls_option_name))

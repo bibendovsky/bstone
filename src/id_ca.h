@@ -388,6 +388,9 @@ std::string ca_calculate_hash(
 
 void ca_calculate_hashes();
 
+void ca_extract_vga_palette(
+	const std::string& destination_dir);
+
 void ca_extract_walls(
 	const std::string& destination_dir);
 

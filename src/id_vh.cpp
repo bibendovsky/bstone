@@ -213,6 +213,23 @@ void VWB_Vlin(
 	VW_Vlin(y1, y2, x, color);
 }
 
+void vwb_rect(
+	const int x,
+	const int y,
+	const int width,
+	const int height,
+	const int color)
+{
+	VWB_Bar(x, y, width, 1, static_cast<std::uint8_t>(color));
+	VWB_Bar(x, y + height - 1, width, 1, static_cast<std::uint8_t>(color));
+
+	if (height > 2)
+	{
+		VWB_Bar(x, y + 1, 1, height - 2, static_cast<std::uint8_t>(color));
+		VWB_Bar(x + width - 1, y + 1, 1, height - 2, static_cast<std::uint8_t>(color));
+	}
+}
+
 
 /*
 =============================================================================

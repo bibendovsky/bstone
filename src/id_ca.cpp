@@ -2131,6 +2131,9 @@ public:
 
 	void uninitialize();
 
+	void extract_vga_palette(
+		const std::string& destination_dir);
+
 	void extract_walls(
 		const std::string& destination_dir);
 
@@ -2144,6 +2147,7 @@ private:
 
 	bool is_initialized_;
 	int sprite_count_;
+	bstone::SdlSurfaceUPtr sdl_surface_16x16x8_;
 	bstone::SdlSurfaceUPtr sdl_surface_64x64x8_;
 	bstone::SdlSurfaceUPtr sdl_surface_64x64x32_;
 	std::string destination_dir_;
@@ -2165,6 +2169,10 @@ private:
 	void initialize_vga_palette();
 
 	void uninitialize_surface_64x64x8();
+
+	bool initialize_surface_16x16x8();
+
+	void uninitialize_surface_16x16x8();
 
 	bool initialize_surface_64x64x8();
 
@@ -2198,6 +2206,11 @@ bool ImageExtractor::is_initialized() const
 
 bool ImageExtractor::initialize()
 {
+	if (!initialize_surface_16x16x8())
+	{
+		return false;
+	}
+
 	if (!initialize_surface_64x64x8())
 	{
 		return false;
@@ -2222,6 +2235,63 @@ void ImageExtractor::uninitialize()
 	uninitialize_surface_64x64x8();
 	uninitialize_surface_64x64x32();
 	uninitialize_vga_palette();
+}
+
+void ImageExtractor::extract_vga_palette(
+	const std::string& destination_dir)
+{
+	bstone::logger_->write();
+	bstone::logger_->write("<<< ================");
+	bstone::logger_->write("Extracting VGA palette.");
+	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
+
+	if (!is_initialized_)
+	{
+		bstone::logger_->write_error("Not initialized.");
+
+		return;
+	}
+
+	destination_dir_ = bstone::file_system::normalize_path(destination_dir);
+
+	set_palette(sdl_surface_16x16x8_.get(), vga_palette_);
+
+	const auto pitch = sdl_surface_16x16x8_->pitch;
+
+	auto dst_indices = static_cast<std::uint8_t*>(sdl_surface_16x16x8_->pixels);
+
+	auto src_index = std::uint8_t{};
+
+	for (int h = 0; h < 16; ++h)
+	{
+		for (int w = 0; w < 16; ++w)
+		{
+			const auto dst_index = (h * pitch) + w;
+
+			dst_indices[dst_index] = src_index;
+
+			src_index += 1;
+		}
+	}
+
+	const auto& file_name = bstone::file_system::append_path(
+		destination_dir_,
+		"vga_palette.bmp"
+	);
+
+	const auto sdl_result = SDL_SaveBMP(sdl_surface_16x16x8_.get(), file_name.c_str());
+
+	if (sdl_result != 0)
+	{
+		auto error_message = "Failed to save VGA palette into \"" + file_name + "\". ";
+		error_message += SDL_GetError();
+
+		bstone::logger_->write_error(error_message);
+
+		return;
+	}
+
+	bstone::logger_->write(">>> ================");
 }
 
 void ImageExtractor::extract_walls(
@@ -2354,6 +2424,36 @@ void ImageExtractor::uninitialize_surface_64x64x8()
 	sdl_surface_64x64x8_ = nullptr;
 }
 
+bool ImageExtractor::initialize_surface_16x16x8()
+{
+	auto sdl_surface = SDL_CreateRGBSurfaceWithFormat(
+		0, // flags
+		16, // width
+		16, // height
+		8, // depth
+		SDL_PIXELFORMAT_INDEX8 // format
+	);
+
+	if (!sdl_surface)
+	{
+		auto error_message = std::string{"Failed to create SDL surface 16x16x8bit. "};
+		error_message += SDL_GetError();
+
+		bstone::logger_->write_error(error_message);
+
+		return false;
+	}
+
+	sdl_surface_16x16x8_ = bstone::SdlSurfaceUPtr{sdl_surface};
+
+	return true;
+}
+
+void ImageExtractor::uninitialize_surface_16x16x8()
+{
+	sdl_surface_16x16x8_ = nullptr;
+}
+
 bool ImageExtractor::initialize_surface_64x64x8()
 {
 	auto sdl_surface = SDL_CreateRGBSurfaceWithFormat(
@@ -2366,7 +2466,7 @@ bool ImageExtractor::initialize_surface_64x64x8()
 
 	if (!sdl_surface)
 	{
-		auto error_message = std::string{"Failed to create SDL surface 64x64x32bit. "};
+		auto error_message = std::string{"Failed to create SDL surface 64x64x8bit. "};
 		error_message += SDL_GetError();
 
 		bstone::logger_->write_error(error_message);
@@ -2572,6 +2672,19 @@ bool ImageExtractor::extract_sprite(
 // ImageExtractor
 // ==========================================================================
 
+
+void ca_extract_vga_palette(
+	const std::string& destination_dir)
+{
+	auto images_extractor = ImageExtractor{};
+
+	if (!images_extractor.initialize())
+	{
+		return;
+	}
+
+	images_extractor.extract_vga_palette(destination_dir);
+}
 
 void ca_extract_walls(
 	const std::string& destination_dir)
@@ -3427,6 +3540,7 @@ void ca_extract_texts(
 void ca_extract_all(
 	const std::string& destination_dir)
 {
+	ca_extract_vga_palette(destination_dir);
 	ca_extract_walls(destination_dir);
 	ca_extract_sprites(destination_dir);
 	ca_extract_music(destination_dir);
