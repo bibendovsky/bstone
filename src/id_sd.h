@@ -169,6 +169,12 @@ void sd_set_music_volume(
 void sd_mute(
 	const bool mute);
 
+void sd_pause_sfx(
+	const bool is_pause);
+
+void sd_pause_music(
+	const bool is_pause);
+
 int sd_get_adlib_music_data_size(
 	const void* const raw_music_data);
 

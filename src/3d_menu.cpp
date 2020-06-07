@@ -1409,7 +1409,7 @@ void binds_draw_menu()
 				if (Keyboard[ScanCode::sc_escape])
 				{
 					quit = true;
-					sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::item);
+					sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::unpausable);
 				}
 				else if (LastScan != ScanCode::sc_none)
 				{
@@ -1422,7 +1422,7 @@ void binds_draw_menu()
 					}
 					else
 					{
-						sd_play_player_sound(NOWAYSND, bstone::ActorChannel::item);
+						sd_play_player_sound(NOWAYSND, bstone::ActorChannel::unpausable);
 					}
 				}
 			}
@@ -1617,7 +1617,7 @@ void binds_draw_menu()
 			if (handle_escape)
 			{
 				handle_escape = false;
-				sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::item);
+				sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::unpausable);
 				break;
 			}
 		}
@@ -1726,12 +1726,14 @@ void US_ControlPanel(
 	ScanCode scancode)
 {
 	is_full_menu_active = (scancode != ScanCode::sc_f7 && scancode != ScanCode::sc_f10);
+	sd_pause_sfx(true);
 
 	auto guard_flag = bstone::ScopeGuard{
 		[&]()
-	{
-		is_full_menu_active = false;
-	}
+		{
+			is_full_menu_active = false;
+			sd_pause_sfx(false);
+		}
 	};
 
 	// BBi
@@ -2162,7 +2164,7 @@ firstpart:
 			default:
 				if (!EpisodeSelect[which])
 				{
-					sd_play_player_sound(NOWAYSND, bstone::ActorChannel::item);
+					sd_play_player_sound(NOWAYSND, bstone::ActorChannel::unpausable);
 					CacheMessage(READTHIS_TEXT);
 					IN_ClearKeysDown();
 					IN_Ack();
@@ -3091,7 +3093,7 @@ std::int16_t CP_SaveGame(
 
 				PrintLSEntry(which, HIGHLIGHT_TEXT_COLOR);
 				VW_UpdateScreen();
-				sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::item);
+				sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::unpausable);
 				continue;
 			}
 
@@ -3237,7 +3239,7 @@ void MouseSensitivity(
 				mouseadjustment -= 1;
 				DrawMousePos();
 				VW_UpdateScreen();
-				sd_play_player_sound(MOVEGUN1SND, bstone::ActorChannel::item);
+				sd_play_player_sound(MOVEGUN1SND, bstone::ActorChannel::unpausable);
 
 				while (Keyboard[ScanCode::sc_left_arrow])
 				{
@@ -3255,7 +3257,7 @@ void MouseSensitivity(
 				mouseadjustment += 1;
 				DrawMousePos();
 				VW_UpdateScreen();
-				sd_play_player_sound(MOVEGUN1SND, bstone::ActorChannel::item);
+				sd_play_player_sound(MOVEGUN1SND, bstone::ActorChannel::unpausable);
 
 				while (Keyboard[ScanCode::sc_right_arrow])
 				{
@@ -3284,11 +3286,11 @@ void MouseSensitivity(
 	if (exit == 2)
 	{
 		mouseadjustment = oldMA;
-		sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::item);
+		sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::unpausable);
 	}
 	else
 	{
-		sd_play_player_sound(SHOOTSND, bstone::ActorChannel::item);
+		sd_play_player_sound(SHOOTSND, bstone::ActorChannel::unpausable);
 	}
 
 	WaitKeyUp();
@@ -3864,7 +3866,7 @@ std::int16_t HandleMenu(
 		return which;
 
 	case 2:
-		sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::item);
+		sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::unpausable);
 
 		return -1;
 	}
@@ -4145,9 +4147,7 @@ std::int16_t Confirm(
 
 	IN_ClearKeysDown();
 
-	sd_play_player_sound(
-		whichsnd[xit],
-		bstone::ActorChannel::item);
+	sd_play_player_sound(whichsnd[xit], bstone::ActorChannel::unpausable);
 
 	FREEFONT(STARTFONT + fontnumber);
 
@@ -4430,7 +4430,7 @@ void DrawMenuGun(
 
 void ShootSnd()
 {
-	sd_play_player_sound(SHOOTSND, bstone::ActorChannel::item);
+	sd_play_player_sound(SHOOTSND, bstone::ActorChannel::unpausable);
 }
 
 void ShowPromo()
@@ -4648,7 +4648,7 @@ void cp_sound_volume(
 			if (old_volumes[0] != *volumes[0])
 			{
 				sd_set_sfx_volume(sd_sfx_volume_);
-				sd_play_player_sound(MOVEGUN1SND, bstone::ActorChannel::item);
+				sd_play_player_sound(MOVEGUN1SND, bstone::ActorChannel::unpausable);
 			}
 
 			if (old_volumes[1] != *volumes[1])
@@ -4667,7 +4667,7 @@ void cp_sound_volume(
 		quit = (ci.button1 || Keyboard[ScanCode::sc_escape]);
 	}
 
-	sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::item);
+	sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::unpausable);
 
 	WaitKeyUp();
 	MenuFadeOut();

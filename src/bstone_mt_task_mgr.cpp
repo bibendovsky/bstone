@@ -206,7 +206,7 @@ private:
 	int concurrency_;
 	int concurrency_reserve_;
 
-	bool mt_is_quit_;
+	std::atomic_bool mt_is_quit_;
 
 	detail::MtTaskQueue mt_task_queue_;
 	MtThreads mt_threads_;
@@ -266,7 +266,7 @@ void MtSpinFlag::lock() noexcept
 
 void MtSpinFlag::unlock() noexcept
 {
-	flag_.clear(std::memory_order::memory_order_release);
+	flag_.clear(std::memory_order_release);
 }
 
 //
@@ -556,7 +556,7 @@ void MtTaskMgrImpl::initialize()
 
 void MtTaskMgrImpl::uninitialize()
 {
-	mt_is_quit_ = true;
+	mt_is_quit_.store(true, std::memory_order_release);
 
 	if (has_concurrency())
 	{
@@ -577,7 +577,7 @@ void MtTaskMgrImpl::mt_thread_func(
 
 	try
 	{
-		while (!mt_is_quit_)
+		while (!mt_is_quit_.load(std::memory_order_acquire))
 		{
 			auto task = MtTaskPtr{};
 
