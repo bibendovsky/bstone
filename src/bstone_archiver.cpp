@@ -71,11 +71,6 @@ public:
 	~ArchiverImpl() override = default;
 
 
-	void create();
-
-	void destroy() override;
-
-
 	void initialize(
 		StreamPtr stream) override;
 
@@ -386,9 +381,6 @@ private:
 }; // ArchiverImpl
 
 
-using ArchiverImplUPtr = std::unique_ptr<ArchiverImpl, ArchiverDeleter>;
-
-
 ArchiverImpl::ArchiverImpl()
 	:
 	is_initialized_{},
@@ -398,17 +390,6 @@ ArchiverImpl::ArchiverImpl()
 	stream_{},
 	buffer_{}
 {
-}
-
-void ArchiverImpl::create()
-{
-}
-
-void ArchiverImpl::destroy()
-{
-	uninitialize();
-
-	delete this;
 }
 
 void ArchiverImpl::initialize(
@@ -725,13 +706,9 @@ ArchiverExceptionImpl::~ArchiverExceptionImpl() = default;
 } // namespace
 
 
-ArchiverUPtr ArchiverFactory::create()
+ArchiverUPtr make_archiver()
 {
-	auto archiver = ArchiverImplUPtr{new ArchiverImpl{}};
-
-	archiver->create();
-
-	return archiver;
+	return std::make_unique<ArchiverImpl>();
 }
 
 

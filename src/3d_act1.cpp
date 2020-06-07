@@ -817,8 +817,8 @@ void SpawnDoor(
 {
 	std::uint16_t* map[2];
 
-	map[0] = mapsegs[0] + farmapylookup[tiley] + tilex;
-	map[1] = mapsegs[1] + farmapylookup[tiley] + tilex;
+	map[0] = &mapsegs[0][farmapylookup[tiley] + tilex];
+	map[1] = &mapsegs[1][farmapylookup[tiley] + tilex];
 
 	if (doornum == 64)
 	{
@@ -893,9 +893,9 @@ void CheckLinkedDoors(
 
 	// Find next door in link.
 	//
-	if (*(mapsegs[1] + (farmapylookup[tiley] + tilex)))
+	if (mapsegs[1][farmapylookup[tiley] + tilex])
 	{
-		std::uint16_t value = *(mapsegs[1] + (farmapylookup[tiley] + tilex));
+		std::uint16_t value = mapsegs[1][farmapylookup[tiley] + tilex];
 
 		// Define the next door in the link.
 		//
@@ -1698,7 +1698,7 @@ void PushWall(
 	pwallstate = 1;
 	pwallpos = 0;
 	tilemap[pwallx][pwally] |= 0xc0;
-	*(mapsegs[1] + farmapylookup[pwally] + pwallx) = 0; // remove P tile info
+	mapsegs[1][farmapylookup[pwally] + pwallx] = 0; // remove P tile info
 
 	sd_play_wall_sound(PUSHWALLSND);
 }
@@ -1872,8 +1872,7 @@ void FreeMsgCache(
 
 	while (mList->NumMsgs--)
 	{
-		delete[] ci->mSeg;
-		ci->mSeg = nullptr;
+		ci->mSeg.clear();
 
 		ch_ptr = (char*)ci;
 		ch_ptr += infoSize;
@@ -1892,8 +1891,9 @@ void CacheMsg(
 	std::uint16_t SegNum,
 	std::uint16_t MsgNum)
 {
-	ci->mSeg = new char[MAX_CACHE_MSG_LEN];
-	LoadMsg(ci->mSeg, SegNum, MsgNum, MAX_CACHE_MSG_LEN);
+	ci->mSeg.clear();
+	ci->mSeg.resize(MAX_CACHE_MSG_LEN);
+	LoadMsg(ci->mSeg.data(), SegNum, MsgNum, MAX_CACHE_MSG_LEN);
 }
 
 // ---------------------------------------------------------------------------
@@ -1922,7 +1922,7 @@ std::int16_t LoadMsg(
 	std::int16_t pos = 0;
 
 	CA_CacheGrChunk(SegNum);
-	Message = static_cast<char*>(grsegs[SegNum]);
+	Message = reinterpret_cast<char*>(grsegs[SegNum].data());
 
 	// Search for end of MsgNum-1 (Start of our message)
 	//
@@ -2171,7 +2171,7 @@ void CheckSpawnEA()
 
 	for (loop = 0; loop < NumEAWalls; loop++)
 	{
-		std::uint16_t* map1 = mapsegs[1] + farmapylookup[static_cast<int>(eaList[static_cast<int>(loop)].tiley)] + eaList[static_cast<int>(loop)].tilex;
+		const auto map1 = &mapsegs[1][farmapylookup[static_cast<int>(eaList[static_cast<int>(loop)].tiley)] + eaList[static_cast<int>(loop)].tilex];
 
 		// Limit the number of aliens spawned by each outlet.
 		//

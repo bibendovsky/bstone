@@ -357,7 +357,7 @@ void ScanInfoPlane()
 	detonators_spawned = 0;
 
 	new_actor = nullptr;
-	start = mapsegs[1];
+	start = mapsegs[1].data();
 	for (y = 0; y < mapheight; y++)
 	{
 		for (x = 0; x < mapwidth; x++)
@@ -371,7 +371,7 @@ void ScanInfoPlane()
 			//
 			// Check for tiles/icons to ignore...
 			//
-			switch ((std::uint16_t) * (mapsegs[0] + farmapylookup[y] + x))
+			switch (mapsegs[0][farmapylookup[y] + x])
 			{
 			case SMART_OFF_TRIGGER:
 			case SMART_ON_TRIGGER:
@@ -2420,8 +2420,8 @@ void SetupGameLevel()
 		gamestate.mapon + assets_info.get_levels_per_episode() * gamestate.episode));
 	mapon = static_cast<std::int16_t>(mapon - (gamestate.episode * assets_info.get_levels_per_episode()));
 
-	mapwidth = mapheaderseg[mapon]->width;
-	mapheight = mapheaderseg[mapon]->height;
+	mapwidth = mapheaderseg[mapon].width;
+	mapheight = mapheaderseg[mapon].height;
 
 	if (mapwidth != 64 || mapheight != 64)
 	{
@@ -2446,8 +2446,8 @@ void SetupGameLevel()
 		wallheight.end(),
 		0);
 
-	map = mapsegs[0];
-	map2 = mapsegs[1];
+	map = mapsegs[0].data();
+	map2 = mapsegs[1].data();
 	for (y = 0; y < mapheight; y++)
 	{
 		for (x = 0; x < mapwidth; x++)
@@ -2504,8 +2504,8 @@ void SetupGameLevel()
 
 	InitStaticList();
 
-	map = mapsegs[0];
-	map1 = mapsegs[1];
+	map = mapsegs[0].data();
+	map1 = mapsegs[1].data();
 
 	NumEAWalls = 0;
 	alerted = 0;
@@ -2768,7 +2768,7 @@ void SetupGameLevel()
 	// Take out the special tiles that were not used...
 	//
 
-	map = mapsegs[0];
+	map = mapsegs[0].data();
 	for (y = 0; y < mapheight; y++)
 	{
 		for (x = 0; x < mapwidth; x++)
@@ -2885,7 +2885,7 @@ void BMAmsg(
 	if (msg)
 	{
 		PresenterInfo pi;
-		fontstruct* font = (fontstruct*)grsegs[STARTFONT + fontnumber];
+		fontstruct* font = (fontstruct*)grsegs[STARTFONT + fontnumber].data();
 		std::int8_t numlines = 1;
 		const char* p = msg;
 		std::int16_t cheight;
@@ -2926,7 +2926,7 @@ void CacheBMAmsg(
 	char* string, *pos;
 
 	CA_CacheGrChunk(MsgNum);
-	string = (char*)grsegs[MsgNum];
+	string = (char*)grsegs[MsgNum].data();
 
 	pos = strstr(string, "^XX");
 	*(pos + 3) = 0;
@@ -3661,7 +3661,7 @@ restartgame:
 				{
 					CA_CacheGrChunk(ENDINGPALETTE);
 
-					DoMovie(MovieId::final, grsegs[ENDINGPALETTE]);
+					DoMovie(MovieId::final, grsegs[ENDINGPALETTE].data());
 
 					UNCACHEGRCHUNK(ENDINGPALETTE);
 				}

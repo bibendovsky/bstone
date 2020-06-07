@@ -501,7 +501,7 @@ bool ElevatorFloor(
 	std::int8_t x,
 	std::int8_t y)
 {
-	std::uint8_t tile = static_cast<std::uint8_t>(*(mapsegs[0] + farmapylookup[static_cast<int>(y)] + x));
+	std::uint8_t tile = static_cast<std::uint8_t>(mapsegs[0][farmapylookup[static_cast<int>(y)] + x]);
 
 	if (tile >= HIDDENAREATILE)
 	{
@@ -2573,8 +2573,8 @@ bool LookForGoodies(
 		{
 			// Is this an elevator door   OR   a locked door?
 			//
-			if ((!(*(mapsegs[0] + farmapylookup[door->tiley] + (door->tilex - 1)) - AREATILE)) ||
-				(!(*(mapsegs[0] + farmapylookup[door->tiley] + (door->tilex + 1)) - AREATILE)) ||
+			if ((!(mapsegs[0][farmapylookup[door->tiley] + (door->tilex - 1)] - AREATILE)) ||
+				(!(mapsegs[0][farmapylookup[door->tiley] + (door->tilex + 1)] - AREATILE)) ||
 				(door->lock != kt_none))
 			{
 				continue;

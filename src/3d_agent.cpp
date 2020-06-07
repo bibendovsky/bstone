@@ -2891,8 +2891,8 @@ void Thrust(
 	travel_table_[player->tilex][player->tiley] |= TT_TRAVELED;
 
 	offset = farmapylookup[player->tiley] + player->tilex;
-	map[0] = mapsegs[0] + offset;
-	map[1] = mapsegs[1] + offset;
+	map[0] = &mapsegs[0][offset];
+	map[1] = &mapsegs[1][offset];
 
 	// Check for trigger tiles.
 	//
@@ -2975,7 +2975,7 @@ std::int8_t GetAreaNumber(
 	// Get initial areanumber from map
 	//
 	auto offset = farmapylookup[tiley] + tilex;
-	auto areanumber = ValidAreaTile(mapsegs[0] + offset);
+	auto areanumber = ValidAreaTile(&mapsegs[0][offset]);
 
 	// Special tile areas must use a valid areanumber tile around it.
 	//
@@ -3001,7 +3001,7 @@ std::int8_t GetAreaNumber(
 			}
 
 			offset = farmapylookup[new_y] + new_x;
-			areanumber = ValidAreaTile(mapsegs[0] + offset);
+			areanumber = ValidAreaTile(&mapsegs[0][offset]);
 
 			if (areanumber != 0)
 			{
@@ -3134,7 +3134,7 @@ void Cmd_Use(
 	}
 
 	door_index = tilemap[checkx][checky];
-	iconnum = *(mapsegs[1] + farmapylookup[checky] + checkx);
+	iconnum = mapsegs[1][farmapylookup[checky] + checkx];
 
 	// BBi Play sound only for walls
 	if (door_index != 0 && (door_index & 0x80) == 0)
@@ -3449,7 +3449,7 @@ bool Interrogate(
 
 					if (ci.areanumber == ob->areanumber)
 					{
-						InfAreaMsgs[NumAreaMsgs++] = InfHintList.smInfo[ci.mInfo.local_val].mInfo.mSeg;
+						InfAreaMsgs[NumAreaMsgs++] = InfHintList.smInfo[ci.mInfo.local_val].mInfo.mSeg.data();
 					}
 				}
 
@@ -3482,7 +3482,7 @@ bool Interrogate(
 					ob->s_tiley = static_cast<std::uint8_t>(FirstGenInfMsg + Random(TotalGenInfMsgs));
 				}
 
-				msgptr = InfHintList.smInfo[ob->s_tiley].mInfo.mSeg;
+				msgptr = InfHintList.smInfo[ob->s_tiley].mInfo.mSeg.data();
 			}
 
 			// Still no msgptr? This is a shared message! Use smInfo[local_val]
@@ -3490,7 +3490,7 @@ bool Interrogate(
 			//
 			if (!msgptr)
 			{
-				msgptr = InfHintList.smInfo[InfHintList.smInfo[ob->s_tiley].mInfo.local_val].mInfo.mSeg;
+				msgptr = InfHintList.smInfo[InfHintList.smInfo[ob->s_tiley].mInfo.local_val].mInfo.mSeg.data();
 			}
 
 			ob->flags |= FL_INTERROGATED; // Scientist has been interrogated
@@ -3520,7 +3520,7 @@ bool Interrogate(
 			st = &NiceSciList;
 		}
 
-		msgptr = st->smInfo[Random(st->NumMsgs)].mInfo.mSeg;
+		msgptr = st->smInfo[Random(st->NumMsgs)].mInfo.mSeg.data();
 	}
 
 	if (msgptr)
@@ -4229,15 +4229,14 @@ void LoadOverheadChunk(
 
 	if (FindChunk(&g_playtemp, chunk_name) > 0)
 	{
-		auto archiver_uptr = bstone::ArchiverFactory::create();
+		auto archiver = bstone::make_archiver();
 
 		try
 		{
-			auto archiver = archiver_uptr.get();
 			archiver->initialize(&g_playtemp);
 
 			archiver->read_uint8_array(ov_buffer.data(), 4096);
-			ov_stats.unarchive(archiver);
+			ov_stats.unarchive(archiver.get());
 			archiver->read_checksum();
 		}
 		catch (const bstone::ArchiverException&)
@@ -4280,12 +4279,11 @@ void SaveOverheadChunk(
 
 	const auto beg_offset = g_playtemp.get_position();
 
-	auto archiver_uptr = bstone::ArchiverFactory::create();
-	auto archiver = archiver_uptr.get();
+	auto archiver = bstone::make_archiver();
 	archiver->initialize(&g_playtemp);
 
 	archiver->write_uint8_array(ov_buffer.data(), 4096);
-	ov_stats.archive(archiver);
+	ov_stats.archive(archiver.get());
 	archiver->write_checksum();
 
 	const auto end_offset = g_playtemp.get_position();
@@ -5582,7 +5580,7 @@ bool OperateSmartSwitch(
 
 	tile = tilemap[tilex][tiley];
 	obj = actorat[tilex][tiley];
-	iconnum = *(mapsegs[1] + farmapylookup[tiley] + tilex);
+	iconnum = mapsegs[1][farmapylookup[tiley] + tilex];
 	WhatItIs = wit_NOTHING;
 
 	//

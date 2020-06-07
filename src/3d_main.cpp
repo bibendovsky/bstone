@@ -7183,7 +7183,7 @@ void read_high_scores()
 
 	if (stream.is_open())
 	{
-		auto archiver = bstone::ArchiverFactory::create();
+		auto archiver = bstone::make_archiver();
 
 		try
 		{
@@ -7243,7 +7243,7 @@ static void write_high_scores()
 		return;
 	}
 
-	auto archiver = bstone::ArchiverFactory::create();
+	auto archiver = bstone::make_archiver();
 
 	try
 	{
@@ -8245,12 +8245,10 @@ bool LoadLevel(
 
 	gamestate.barrier_table = old_barrier_table;
 
-	auto archiver_uptr = bstone::ArchiverFactory::create();
+	auto archiver = bstone::make_archiver();
 
 	try
 	{
-		auto archiver = archiver_uptr.get();
-
 		archiver->initialize(&g_playtemp);
 
 		// tilemap
@@ -8374,12 +8372,12 @@ bool LoadLevel(
 		InitActorList();
 
 		// First actor is always player
-		new_actor->unarchive(archiver);
+		new_actor->unarchive(archiver.get());
 
 		for (int i = 1; i < actor_count; ++i)
 		{
 			GetNewActor();
-			new_actor->unarchive(archiver);
+			new_actor->unarchive(archiver.get());
 			actorat[new_actor->tilex][new_actor->tiley] = new_actor;
 
 #if LOOK_FOR_DEAD_GUYS
@@ -8443,7 +8441,7 @@ bool LoadLevel(
 
 		for (int i = 0; i < laststatobj_index; ++i)
 		{
-			statobjlist[i].unarchive(archiver);
+			statobjlist[i].unarchive(archiver.get());
 		}
 
 		//
@@ -8451,7 +8449,7 @@ bool LoadLevel(
 
 		for (int i = 0; i < MAXDOORS; ++i)
 		{
-			doorobjlist[i].unarchive(archiver);
+			doorobjlist[i].unarchive(archiver.get());
 		}
 
 		pwallstate = archiver->read_uint16();
@@ -8461,18 +8459,18 @@ bool LoadLevel(
 		pwallpos = archiver->read_uint16();
 		pwalldist = archiver->read_int16();
 		archiver->read_uint8_array(&travel_table_[0][0], MAPSIZE * MAPSIZE);
-		ConHintList.unarchive(archiver);
+		ConHintList.unarchive(archiver.get());
 
 		for (int i = 0; i < MAXEAWALLS; ++i)
 		{
-			eaList[i].unarchive(archiver);
+			eaList[i].unarchive(archiver.get());
 		}
 
-		GoldsternInfo.unarchive(archiver);
+		GoldsternInfo.unarchive(archiver.get());
 
 		for (int i = 0; i < GOLDIE_MAX_SPAWNS; ++i)
 		{
-			GoldieList[i].unarchive(archiver);
+			GoldieList[i].unarchive(archiver.get());
 		}
 
 		gamestate.plasma_detonators = archiver->read_int16();
@@ -8588,10 +8586,8 @@ bool SaveLevel(
 
 	std::int64_t beg_offset = g_playtemp.get_position();
 
-	auto archiver_uptr = bstone::ArchiverFactory::create();
-	archiver_uptr->initialize(&g_playtemp);
-
-	auto archiver = archiver_uptr.get();
+	auto archiver = bstone::make_archiver();
+	archiver->initialize(&g_playtemp);
 
 	// tilemap
 	//
@@ -8753,7 +8749,7 @@ bool SaveLevel(
 
 	for (actor = player; actor; actor = actor->next)
 	{
-		actor->archive(archiver);
+		actor->archive(archiver.get());
 	}
 
 	//
@@ -8769,7 +8765,7 @@ bool SaveLevel(
 	//
 	for (std::intptr_t i = 0; i < laststatobj_index; ++i)
 	{
-		statobjlist[i].archive(archiver);
+		statobjlist[i].archive(archiver.get());
 	}
 
 	//
@@ -8778,7 +8774,7 @@ bool SaveLevel(
 
 	for (int i = 0; i < MAXDOORS; ++i)
 	{
-		doorobjlist[i].archive(archiver);
+		doorobjlist[i].archive(archiver.get());
 	}
 
 	archiver->write_uint16(pwallstate);
@@ -8788,18 +8784,18 @@ bool SaveLevel(
 	archiver->write_uint16(pwallpos);
 	archiver->write_int16(pwalldist);
 	archiver->write_uint8_array(&travel_table_[0][0], MAPSIZE * MAPSIZE);
-	ConHintList.archive(archiver);
+	ConHintList.archive(archiver.get());
 
 	for (int i = 0; i < MAXEAWALLS; ++i)
 	{
-		eaList[i].archive(archiver);
+		eaList[i].archive(archiver.get());
 	}
 
-	GoldsternInfo.archive(archiver);
+	GoldsternInfo.archive(archiver.get());
 
 	for (int i = 0; i < GOLDIE_MAX_SPAWNS; ++i)
 	{
-		GoldieList[i].archive(archiver);
+		GoldieList[i].archive(archiver.get());
 	}
 
 	archiver->write_int16(gamestate.plasma_detonators);
@@ -8899,10 +8895,8 @@ static bool LoadCompressedChunk(
 
 	try
 	{
-		auto archiver_uptr = bstone::ArchiverFactory::create();
-		archiver_uptr->initialize(stream);
-
-		auto archiver = archiver_uptr.get();
+		auto archiver = bstone::make_archiver();
+		archiver->initialize(stream);
 
 		auto total_size = archiver->read_int32();
 
@@ -8991,8 +8985,7 @@ bool LoadTheGame(
 
 		file_stream.skip(-4);
 
-		auto archiver_uptr = bstone::ArchiverFactory::create();
-		auto archiver = archiver_uptr.get();
+		auto archiver = bstone::make_archiver();
 
 		try
 		{
@@ -9052,7 +9045,7 @@ bool LoadTheGame(
 	//
 	if (is_succeed)
 	{
-		auto archiver_uptr = bstone::ArchiverFactory::create();
+		auto archiver = bstone::make_archiver();
 
 		try
 		{
@@ -9061,7 +9054,6 @@ bool LoadTheGame(
 				0,
 				head_buffer.data());
 
-			auto archiver = archiver_uptr.get();
 			archiver->initialize(&head_stream);
 
 			auto levels_hash_digest = bstone::Sha1::Digest{};
@@ -9077,11 +9069,11 @@ bool LoadTheGame(
 				archiver->throw_exception("Levels hash mismatch.");
 			}
 
-			gamestate.unarchive(archiver);
-			old_gamestate.unarchive(archiver);
+			gamestate.unarchive(archiver.get());
+			old_gamestate.unarchive(archiver.get());
 
-			gamestuff.unarchive(archiver);
-			old_gamestuff.unarchive(archiver);
+			gamestuff.unarchive(archiver.get());
+			old_gamestuff.unarchive(archiver.get());
 
 			archiver->read_checksum();
 		}
@@ -9217,10 +9209,8 @@ bool SaveTheGame(
 
 	try
 	{
-		auto archiver_uptr = bstone::ArchiverFactory::create();
-		archiver_uptr->initialize(&head_stream);
-
-		auto archiver = archiver_uptr.get();
+		auto archiver = bstone::make_archiver();
+		archiver->initialize(&head_stream);
 
 		// Levels hash.
 		//
@@ -9233,11 +9223,11 @@ bool SaveTheGame(
 
 		// Other stuff.
 		//
-		gamestate.archive(archiver);
-		old_gamestate.archive(archiver);
+		gamestate.archive(archiver.get());
+		old_gamestate.archive(archiver.get());
 
-		gamestuff.archive(archiver);
-		old_gamestuff.archive(archiver);
+		gamestuff.archive(archiver.get());
+		old_gamestuff.archive(archiver.get());
 
 		// Checksum.
 		//
@@ -9300,10 +9290,8 @@ bool SaveTheGame(
 	//
 	try
 	{
-		auto archiver_uptr = bstone::ArchiverFactory::create();
-		archiver_uptr->initialize(&file_stream);
-
-		auto archiver = archiver_uptr.get();
+		auto archiver = bstone::make_archiver();
+		archiver->initialize(&file_stream);
 
 		// Write VERS chunk
 		//
@@ -9785,12 +9773,12 @@ void DemoLoop()
 				VL_SetPalette(
 					0,
 					256,
-					reinterpret_cast<const std::uint8_t*>(grsegs[TITLEPALETTE]));
+					grsegs[TITLEPALETTE].data());
 
 				VL_SetPaletteIntensity(
 					0,
 					255,
-					reinterpret_cast<const std::uint8_t*>(grsegs[TITLEPALETTE]),
+					grsegs[TITLEPALETTE].data(),
 					0);
 
 				auto version_text_width = 0;
@@ -9840,7 +9828,7 @@ void DemoLoop()
 				US_Print(bstone::Version::get_string().c_str());
 
 				VW_UpdateScreen();
-				VL_FadeIn(0, 255, reinterpret_cast<std::uint8_t*>(grsegs[TITLEPALETTE]), 30);
+				VL_FadeIn(0, 255, grsegs[TITLEPALETTE].data(), 30);
 				UNCACHEGRCHUNK(TITLEPALETTE);
 
 				if (assets_info.is_ps())
@@ -10219,7 +10207,7 @@ void mCacheInfo::unarchive(
 {
 	local_val = archiver->read_uint8();
 	global_val = archiver->read_uint8();
-	mSeg = nullptr;
+	mSeg.clear();
 }
 
 void con_mCacheInfo::archive(

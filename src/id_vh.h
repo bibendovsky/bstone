@@ -62,7 +62,9 @@ struct fontstruct
 }; // fontstruct
 
 
-extern pictabletype* pictable;
+using PicTable = std::vector<pictabletype>;
+extern PicTable pictable;
+
 extern pictabletype* picmtable;
 extern spritetabletype* spritetable;
 

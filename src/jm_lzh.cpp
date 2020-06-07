@@ -67,11 +67,6 @@ Free Software Foundation, Inc.,
 #define INCLUDE_LZH_DECOMP 1
 
 
-#define LZH_DYNAMIC_ALLOCATION
-
-#define LZH_ID_MEMORY_ALLOCATION
-
-
 // ===========================================================================
 //
 // DEFINES
@@ -192,30 +187,13 @@ void(*LZH_DecompressDisplayVector)(std::uint32_t, std::uint32_t) = nullptr;
 // ===========================================================================
 /* pointing children nodes (son[], son[] + 1)*/
 
-std::uint16_t code, len;
-std::uint32_t textsize = 0, codesize = 0, printcount = 0, datasize;
+std::uint16_t code;
+std::uint16_t len;
 
-#ifdef LZH_DYNAMIC_ALLOCATION
-
-std::int16_t* son = nullptr;
-
-//
-// pointing parent nodes.
-// area [T..(T + N_CHAR - 1)] are pointers for leaves
-//
-
-std::int16_t* prnt;
-std::uint16_t* freq; /* cumulative freq table */
-std::uint8_t* text_buf;
-
-#ifdef LZH_ID_MEMORY_ALLOCATION
-std::int16_t* id_son;
-std::int16_t* id_prnt;
-std::uint16_t* id_freq;
-std::uint8_t* id_text_buf;
-#endif
-
-#else
+std::uint32_t textsize = 0;
+std::uint32_t codesize = 0;
+std::uint32_t printcount = 0;
+std::uint32_t datasize;
 
 std::int16_t son[T];
 
@@ -230,9 +208,6 @@ std::uint16_t freq[T + 1]; /* cumulative freq table */
 
 std::uint8_t text_buf[N + F - 1];
 
-#endif
-
-
 
 //
 // COMPRESSION VARIABLES
@@ -240,22 +215,13 @@ std::uint8_t text_buf[N + F - 1];
 
 #if INCLUDE_LZH_COMP
 
-#ifdef LZH_DYNAMIC_ALLOCATION
+static std::int16_t lson[N + 1];
+static std::int16_t rson[N + 257];
+static std::int16_t dad[N + 1];
 
-static std::int16_t* lson, *rson, *dad;
+static std::int16_t match_position;
+static std::int16_t match_length;
 
-#ifdef LZH_ID_MEMORY_ALLOCATION
-std::int16_t* id_lson;
-std::int16_t* id_rson;
-std::int16_t* id_dad;
-#endif
-#else
-
-static std::int16_t lson[N + 1], rson[N + 257], dad[N + 1];
-
-#endif
-
-static std::int16_t match_position, match_length;
 std::uint16_t putbuf = 0;
 std::uint16_t putlen = 0;
 
@@ -268,7 +234,8 @@ std::uint16_t putlen = 0;
 // encoder table
 //
 
-std::uint8_t p_len[64] = {
+std::uint8_t p_len[64] =
+{
 	0x03, 0x04, 0x04, 0x04, 0x05, 0x05, 0x05, 0x05,
 	0x05, 0x05, 0x05, 0x05, 0x06, 0x06, 0x06, 0x06,
 	0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06,
@@ -303,7 +270,8 @@ std::uint8_t p_code[64] = {
 
 #if INCLUDE_LZH_DECOMP
 
-std::uint8_t d_code[256] = {
+std::uint8_t d_code[256] =
+{
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -338,7 +306,8 @@ std::uint8_t d_code[256] = {
 	0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F,
 };
 
-std::uint8_t d_len[256] = {
+std::uint8_t d_len[256] =
+{
 	0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03,
 	0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03,
 	0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03,
@@ -387,156 +356,18 @@ std::uint16_t getlen = 0;
 
 bool LZH_Startup()
 {
-	if (son)
-	{
-		return true;
-	}
-
-#ifdef LZH_DYNAMIC_ALLOCATION
-#ifdef LZH_ID_MEMORY_ALLOCATION
-	id_son = new std::int16_t[T];
-	id_prnt = new std::int16_t[T + N_CHAR];
-	id_freq = new std::uint16_t[T + 1];
-	id_text_buf = new std::uint8_t[N + F - 1];
-#else
-	if (!(son = farmalloc(T * sizeof(*son))))
-	{
-		return false;
-	}
-
-	if (!(prnt = farmalloc((T + N_CHAR) * sizeof(*prnt))))
-	{
-		return false;
-	}
-
-	if (!(freq = farmalloc((T + 1) * sizeof(*freq))))
-	{
-		return false;
-	}
-
-	if (!(text_buf = farmalloc((N + F - 1) * sizeof(*text_buf))))
-	{
-		return false;
-	}
-#endif
-
-#if INCLUDE_LZH_COMP
-#ifdef LZH_ID_MEMORY_ALLOCATION
-	id_lson = new std::int16_t[N + 1];
-	id_rson = new std::int16_t[N + 257];
-	id_dad = new std::int16_t[N + 1];
-#else
-	if (!(lson = farmalloc((N + 1) * sizeof(*lson))))
-	{
-		return false;
-	}
-
-	if (!(rson = farmalloc((N + 257) * sizeof(*rson))))
-	{
-		return false;
-	}
-
-	if (!(dad = farmalloc((N + 1) * sizeof(*dad))))
-	{
-		return false;
-	}
-#endif
-#endif
-#endif
-
 	return true;
 }
 
 void LZH_Shutdown()
 {
-#ifdef LZH_DYNAMIC_ALLOCATION
-#ifdef LZH_ID_MEMORY_ALLOCATION
-	delete[] id_son;
-	id_son = nullptr;
-
-	delete[] id_prnt;
-	id_prnt = nullptr;
-
-	delete[] id_freq;
-	id_freq = nullptr;
-
-	delete[] id_text_buf;
-	id_text_buf = nullptr;
-#else
-	if (son)
-	{
-		farfree(son);
-	}
-
-	if (prnt)
-	{
-		farfree(prnt);
-	}
-
-	if (freq)
-	{
-		farfree(freq);
-	}
-
-	if (text_buf)
-	{
-		farfree(text_buf);
-	}
-#endif
-
-#if INCLUDE_LZH_COMP
-#ifdef LZH_ID_MEMORY_ALLOCATION
-	delete[] id_lson;
-	id_lson = nullptr;
-
-	delete[] id_rson;
-	id_rson = nullptr;
-
-	delete[] id_dad;
-	id_dad = nullptr;
-#else
-	if (lson)
-	{
-		farfree(lson);
-	}
-
-	if (rson)
-	{
-		farfree(rson);
-	}
-
-	if (dad)
-	{
-		farfree(dad);
-	}
-#endif
-#endif
-
-	son = nullptr; // Must be zeroed on shutdown!
-#endif
 }
 
 /* initialize freq tree */
 static void StartHuff()
 {
-	std::int16_t i, j;
-
-#ifdef LZH_DYNAMIC_ALLOCATION
-#ifdef LZH_ID_MEMORY_ALLOCATION
-
-	// Assign _seg pointers to far pointers, always initialized here in case
-	// the memory manager shifted things around after LZH_Startup() was called.
-	//
-	son = id_son;
-	prnt = id_prnt;
-	freq = id_freq;
-	text_buf = id_text_buf;
-	lson = id_lson;
-	rson = id_rson;
-	dad = id_dad;
-
-#endif
-#endif
+	std::int16_t i;
+	std::int16_t j;
 
 	for (i = 0; i < N_CHAR; i++)
 	{
@@ -565,8 +396,12 @@ static void StartHuff()
 /* reconstruct freq tree */
 static void reconst()
 {
-	std::int16_t i, j, k;
-	std::uint16_t f, l;
+	std::int16_t i;
+	std::int16_t j;
+	std::int16_t k;
+
+	std::uint16_t f;
+	std::uint16_t l;
 
 	/* halven cumulative freq for leaf nodes */
 
@@ -632,7 +467,10 @@ static void reconst()
 static void update(
 	std::int16_t c)
 {
-	std::int16_t i, j, k, l;
+	std::int16_t i;
+	std::int16_t j;
+	std::int16_t k;
+	std::int16_t l;
 
 	if (freq[R] == MAX_FREQ)
 	{
@@ -747,7 +585,9 @@ static void DeleteNode(
 static void InsertNode(
 	std::int16_t r)
 {
-	std::int16_t i, p, cmp;
+	std::int16_t i;
+	std::int16_t p;
+	std::int16_t cmp;
 	std::uint8_t* key;
 	std::uint16_t c;
 
@@ -885,7 +725,8 @@ static void EncodeChar(
 	std::uint16_t c)
 {
 	std::uint16_t i;
-	std::int16_t j, k;
+	std::int16_t j;
+	std::int16_t k;
 
 	i = 0;
 	j = 0;
@@ -1087,7 +928,11 @@ int LZH_Decompress(
 	std::uint32_t OriginalLength,
 	std::uint32_t CompressLength)
 {
-	std::int16_t i, j, k, r, c;
+	std::int16_t i;
+	std::int16_t j;
+	std::int16_t k;
+	std::int16_t r;
+	std::int16_t c;
 	std::int32_t count;
 
 	datasize = textsize = OriginalLength;

@@ -2711,6 +2711,8 @@ enum inst_type
 //
 struct mCacheInfo
 {
+	using MSeg = std::vector<char>;
+
 	// where msg is in 'local' list
 	// !!! Used in saved game.
 	std::uint8_t local_val;
@@ -2720,7 +2722,7 @@ struct mCacheInfo
 	std::uint8_t global_val;
 
 	// pointer to message
-	char* mSeg;
+	MSeg mSeg;
 
 
 	void archive(

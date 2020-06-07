@@ -1778,8 +1778,7 @@ void sw_destroy_ui_texture()
 
 void sw_uninitialize_vga_buffer()
 {
-	sw_vga_buffer_.clear();
-	sw_vga_buffer_.shrink_to_fit();
+	sw_vga_buffer_ = std::move(VgaBuffer{});
 
 	vga_memory = nullptr;
 }

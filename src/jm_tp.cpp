@@ -115,7 +115,6 @@ Free Software Foundation, Inc.,
 #include "id_vl.h"
 #include "gfxv.h"
 #include "3d_menu.h"
-#include "jm_io.h"
 #include "jm_tp.h"
 #include "bstone_sprite.h"
 
@@ -2028,7 +2027,7 @@ void TP_Presenter(
 	fontnumber = pi->fontnumber;
 	TP_PurgeAllGfx();
 	TP_CachePage(first_ch);
-	font = (fontstruct*)grsegs[STARTFONT + fontnumber];
+	font = (fontstruct*)grsegs[STARTFONT + fontnumber].data();
 	flags = fl_presenting | fl_startofline;
 	if (*first_ch == TP_CONTROL_CHAR)
 	{
@@ -2068,7 +2067,7 @@ void TP_Presenter(
 		fontnumber = oldf;
 	}
 
-	font = (fontstruct*)grsegs[STARTFONT + fontnumber];
+	font = (fontstruct*)grsegs[STARTFONT + fontnumber].data();
 	if (!(pi->flags & TPF_USE_CURRENT))
 	{
 		VWB_Bar(xl - TP_MARGIN, yl - TP_MARGIN, xh - xl + 1 + (TP_MARGIN * 2), yh - yl + 1 + (TP_MARGIN * 2), static_cast<std::uint8_t>(bgcolor));
@@ -2627,14 +2626,14 @@ void TP_HandleCodes()
 				flags &= ~fl_uncachefont;
 			}
 			fontnumber = TP_VALUE(first_ch++, 1);
-			if (!grsegs[STARTFONT + fontnumber])
+			if (grsegs[STARTFONT + fontnumber].empty())
 			{
 				TP_CacheIn(ct_chunk, STARTFONT + fontnumber);
 				flags |= fl_uncachefont;
 			}
 			else
 			{
-				font = (fontstruct*)grsegs[STARTFONT + fontnumber];
+				font = (fontstruct*)grsegs[STARTFONT + fontnumber].data();
 			}
 			break;
 
@@ -3265,7 +3264,7 @@ void TP_PurgeAllGfx()
 
 	for (loop = STARTPICS; loop < CONTROLS_LUMP_START; loop++)
 	{
-		if (grsegs[loop])
+		if (!grsegs[loop].empty())
 		{
 			UNCACHEGRCHUNK(loop);
 		}
@@ -3273,7 +3272,7 @@ void TP_PurgeAllGfx()
 
 	for (loop = CONTROLS_LUMP_END + 1; loop < STARTPICS + NUMPICS; loop++)
 	{
-		if (grsegs[loop])
+		if (!grsegs[loop].empty())
 		{
 			UNCACHEGRCHUNK(loop);
 		}
@@ -3560,31 +3559,31 @@ std::int32_t TP_LoadScript(
 	PresenterInfo* p_i,
 	std::uint16_t id_cache)
 {
+	if (filename != nullptr && filename[0] != '\0')
+	{
+		Quit("[TP] Regular file not supported.");
+	}
+
+	if (id_cache <= 0)
+	{
+		Quit("[TP] Segment number out of range.");
+	}
+
 	std::int32_t size;
 
-	if (id_cache)
-	{
-		const char* p;
+	const char* p;
 
-		p_i->id_cache = id_cache;
-		CA_CacheGrChunk(id_cache);
-		p_i->scriptstart = grsegs[id_cache];
-		p = strstr(static_cast<const char*>(grsegs[id_cache]), "^XX");
+	p_i->id_cache = id_cache;
+	CA_CacheGrChunk(id_cache);
+	p_i->scriptstart = grsegs[id_cache].data();
+	p = strstr(reinterpret_cast<const char*>(grsegs[id_cache].data()), "^XX");
 
-		if (!p)
-		{
-			Quit("Can't find the ^XX doc terminator string.");
-		}
-		size = static_cast<std::int32_t>(p - static_cast<const char*>(p_i->scriptstart) - 1);
-	}
-	else
+	if (!p)
 	{
-		p_i->id_cache = -1;
-		if ((size = IO_LoadFile(filename, &p_i->scriptstart)) == 0)
-		{
-			return 0;
-		}
+		Quit("Can't find the ^XX doc terminator string.");
 	}
+
+	size = static_cast<std::int32_t>(p - static_cast<const char*>(p_i->scriptstart) - 1);
 
 	p_i->script[0] = (char*)p_i->scriptstart;
 	const_cast<char*>(p_i->script[0])[size + 4] = '\0'; // Last byte is trashed!
@@ -3607,7 +3606,6 @@ void TP_FreeScript(
 	}
 	else if ((*p_i->script != nullptr) && (p_i->flags & TPF_CACHED_SCRIPT))
 	{
-		delete[] static_cast<char*>(p_i->scriptstart);
 		p_i->scriptstart = nullptr;
 	}
 }
@@ -3711,7 +3709,7 @@ void TP_CacheIn(
 
 	// Re-assign font pointer
 	//
-	font = (fontstruct*)grsegs[STARTFONT + fontnumber];
+	font = (fontstruct*)grsegs[STARTFONT + fontnumber].data();
 
 	// Re-assign script pointers IF this is a cached script!
 	//
@@ -3728,7 +3726,7 @@ void TP_CacheIn(
 		//
 		if (pi->id_cache != -1)
 		{
-			pi->scriptstart = grsegs[pi->id_cache];
+			pi->scriptstart = grsegs[pi->id_cache].data();
 		}
 		pi->script[0] = static_cast<char*>(pi->scriptstart);
 		for (loop = 1; loop < pi->numpages; loop++)

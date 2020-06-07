@@ -2697,7 +2697,7 @@ void ActivateWallSwitch(
 			{
 				if (*tile == OFF_SWITCH || *tile == ON_SWITCH)
 				{
-					auto icon = *(mapsegs[1] + farmapylookup[mapy] + mapx);
+					auto icon = mapsegs[1][farmapylookup[mapy] + mapx];
 
 					if (icon == iconnum)
 					{
@@ -4220,7 +4220,7 @@ void CheckForSpecialTile(
 
 	const auto& assets_info = AssetsInfo{};
 
-	map = mapsegs[0] + farmapylookup[tiley] + tilex;
+	map = &mapsegs[0][farmapylookup[tiley] + tilex];
 
 	switch (*map)
 	{
@@ -4281,7 +4281,7 @@ void CheckForSpecialTile(
 		obj->flags2 |= FL2_LINC;
 		obj->flags &= ~FL_INFORMANT; // Make sure informants dont have links
 		getarea = true;
-		map1 = mapsegs[1] + farmapylookup[tiley] + tilex + 1;
+		map1 = &mapsegs[1][farmapylookup[tiley] + tilex + 1];
 		obj->linc = *map1;
 		*map1 = 0;
 		break;

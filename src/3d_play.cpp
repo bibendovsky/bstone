@@ -1604,7 +1604,7 @@ void StartMusic(
 		}
 	}
 
-	if (!audiosegs[STARTMUSIC + musicchunk])
+	if (audiosegs[STARTMUSIC + musicchunk].empty())
 	{
 		CA_CacheAudioChunk(static_cast<std::int16_t>(STARTMUSIC + musicchunk));
 	}

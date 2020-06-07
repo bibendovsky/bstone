@@ -38,6 +38,8 @@ Free Software Foundation, Inc.,
 std::uint16_t sd_start_pc_sounds_ = STARTPCSOUNDS;
 std::uint16_t sd_start_al_sounds_ = STARTADLIBSOUNDS;
 
+auto sd_base_index_ = 0;
+
 std::int16_t sd_last_sound_ = LASTSOUND;
 std::int16_t sd_digi_map_[LASTSOUND];
 
@@ -48,13 +50,12 @@ bool sd_has_audio_ = false;
 bool sd_is_sound_enabled_ = false;
 bool sd_is_music_enabled_ = false;
 
-std::uint8_t** sd_sound_table_;
-
 // Internal variables
 
 static bool sd_started_;
 
-std::uint16_t* sd_digi_list_;
+using SdDigiList = std::vector<std::uint16_t>;
+SdDigiList sd_digi_list_;
 
 // AdLib variables
 
@@ -127,7 +128,7 @@ void sd_setup_digi()
 		pg += (bstone::Endian::little(p[1]) + (PMPageSize - 1)) / PMPageSize;
 		p += 2;
 	}
-	sd_digi_list_ = new std::uint16_t[i * 2];
+	sd_digi_list_.resize(i * 2);
 
 	const std::uint16_t* src_list = static_cast<const std::uint16_t*>(
 		PM_GetPage(ChunksInFile - 1));
@@ -175,8 +176,7 @@ bool sd_enable_sound(
 		is_enabled = false;
 	}
 
-	sd_sound_table_ = &audiosegs[sd_start_al_sounds_];
-
+	sd_base_index_ = sd_start_al_sounds_;
 	sd_is_sound_enabled_ = is_enabled;
 
 	if (is_enabled)
@@ -297,7 +297,7 @@ void sd_shutdown()
 	// Free music data
 	for (int i = 0; i < LASTMUSIC; ++i)
 	{
-		delete[] static_cast<std::uint8_t*>(audiosegs[STARTMUSIC + i]);
+		audiosegs[STARTMUSIC + i] = std::move(AudioSegment{});
 	}
 
 	sd_started_ = false;
@@ -358,7 +358,7 @@ void sd_start_music(
 		sd_music_index_ = index;
 
 		const auto music_data = reinterpret_cast<std::uint16_t*>(
-			audiosegs[STARTMUSIC + index]);
+			audiosegs[STARTMUSIC + index].data());
 
 		const auto length = sd_get_adlib_music_data_size(music_data);
 
@@ -414,8 +414,7 @@ void sd_play_sound(
 		}
 	}
 
-	const SoundCommon* sound = reinterpret_cast<SoundCommon*>(
-		sd_sound_table_[sound_index]);
+	const auto sound = reinterpret_cast<SoundCommon*>(audiosegs[sd_base_index_ + sound_index].data());
 
 	if (!sound)
 	{
@@ -601,7 +600,7 @@ SfxInfo sd_get_sfx_info(
 
 			result.is_digitized_ = false;
 			result.digi_index_ = -1;
-			result.data_ = sd_sound_table_[sfx_number];
+			result.data_ = audiosegs[sd_base_index_ + sfx_number].data();
 			result.size_ = audiostarts[start_index + 1] - audiostarts[start_index];
 		}
 	}
@@ -612,6 +611,6 @@ SfxInfo sd_get_sfx_info(
 void sd_setup_extracting()
 {
 	sd_setup_digi();
-	sd_sound_table_ = &audiosegs[sd_start_al_sounds_];
+	sd_base_index_ = sd_start_al_sounds_;
 }
 // BBi

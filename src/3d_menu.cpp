@@ -324,7 +324,7 @@ char EndGameStr[] = {"    End current game?\n"
 char QuitToDosStr[] = {"      Quit to DOS?\n"
 " Are you sure (Y or N)?"};
 
-#define FREEFONT(fontnum) { if (fontnum != STARTFONT + 2 && grsegs[fontnum]) { UNCACHEGRCHUNK(fontnum); } }
+#define FREEFONT(fontnum) { if (fontnum != STARTFONT + 2 && !grsegs[fontnum].empty()) { UNCACHEGRCHUNK(fontnum); } }
 
 
 static const char* const CURGAME =
@@ -4168,7 +4168,7 @@ void Message(
 	fontnumber = 1;
 	CA_CacheGrChunk(STARTFONT + 1);
 
-	font = static_cast<fontstruct*>(grsegs[STARTFONT + fontnumber]);
+	font = reinterpret_cast<fontstruct*>(grsegs[STARTFONT + fontnumber].data());
 
 	h = font->height;
 	for (i = 0; i < strlen(string); i++)
@@ -4237,96 +4237,13 @@ void CacheMessage(
 	char* string;
 
 	CA_CacheGrChunk(MessageNum);
-	string = (char*)grsegs[MessageNum];
+	string = (char*)grsegs[MessageNum].data();
 
 	TerminateStr(string);
 
 	Message(string);
 
 	FREEFONT(MessageNum);
-}
-
-// ---------------------------------------------------------------------------
-// CacheCompData() - Caches and Decompresses data from the VGAGRAPH
-//
-// NOTE: - User is responsible for freeing loaded data
-//       - Returns the size of the data
-//       - Does not call TerminateStr() for loaded TEXT data
-//
-// RETURNS: Length of loaded (decompressed) data
-//
-// ---------------------------------------------------------------------------
-std::uint32_t CacheCompData(
-	std::uint16_t item_number,
-	void** dst_ptr)
-{
-	char* chunk;
-	char* dst;
-	CompHeader_t CompHeader{};
-	std::uint32_t data_length;
-
-	// Load compressed data
-	CA_CacheGrChunk(item_number);
-	chunk = (char*)grsegs[item_number];
-
-	const auto& assets_info = AssetsInfo{};
-
-	if (!assets_info.is_ps())
-	{
-		data_length = grsegs_sizes_[item_number];
-	}
-	else
-	{
-		std::uninitialized_copy_n(
-			&chunk[0],
-			4,
-			CompHeader.NameId
-		);
-
-		CompHeader.OriginalLen = ((std::uint32_t*)&chunk[4])[0];
-		CompHeader.CompType = (ct_TYPES)((std::int16_t*)&chunk[8])[0];
-		CompHeader.CompressLen = ((std::uint32_t*)&chunk[10])[0];
-
-		data_length = CompHeader.OriginalLen;
-
-		chunk += 14;
-	}
-
-	// Allocate Dest Memory
-
-	dst = new char[data_length];
-	*dst_ptr = dst;
-
-	if (!assets_info.is_ps())
-	{
-		std::copy(
-			chunk,
-			&chunk[data_length],
-			dst);
-	}
-	else
-	{
-		// Decompress and terminate string
-
-		if (!LZH_Startup())
-		{
-			Quit("Out of memory.");
-		}
-
-		LZH_Decompress(
-			chunk,
-			dst,
-			data_length,
-			CompHeader.CompressLen);
-
-		LZH_Shutdown();
-	}
-
-	// Free compressed data
-	UNCACHEGRCHUNK(item_number);
-
-	// Return loaded size
-	return data_length;
 }
 
 void StartCPMusic(

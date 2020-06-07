@@ -79,7 +79,7 @@ std::uint16_t rlew_tag;
 
 std::int16_t mapon;
 
-std::uint16_t* mapsegs[MAPPLANES];
+MapSegments mapsegs;
 MapHeaderSegments mapheaderseg;
 AudioSegments audiosegs;
 GrSegments grsegs;
@@ -113,8 +113,9 @@ extern std::uint8_t audiodict;
 void CA_CannotOpen(
 	const std::string& string);
 
-std::int32_t* grstarts; // array of offsets in egagraph, -1 for sparse
-std::int32_t* audiostarts; // array of offsets in audio / audiot
+GrStarts grstarts; // array of offsets in egagraph, -1 for sparse
+
+AudioStarts audiostarts; // array of offsets in audio / audiot
 
 #ifdef GRHEADERLINKED
 huffnode* grhuffman;
@@ -168,7 +169,7 @@ std::int32_t GRFILEPOS(
 
 	offset = c * 3;
 
-	value = *(std::int32_t*)(((std::uint8_t*)grstarts) + offset);
+	value = *(std::int32_t*)(((std::uint8_t*)grstarts.data()) + offset);
 
 	value &= 0x00ffffffl;
 
@@ -575,7 +576,7 @@ void CA_CacheAudioChunk(
 	std::uint8_t* source;
 #endif
 
-	if (audiosegs[chunk])
+	if (!audiosegs[chunk].empty())
 	{
 		return; // already in memory
 	}
@@ -593,8 +594,8 @@ void CA_CacheAudioChunk(
 
 #ifndef AUDIOHEADERLINKED
 
-	audiosegs[chunk] = new std::uint8_t[compressed];
-	audiohandle.read(audiosegs[chunk], compressed);
+	audiosegs[chunk].resize(compressed);
+	audiohandle.read(audiosegs[chunk].data(), compressed);
 
 #else
 
@@ -737,9 +738,9 @@ void CAL_ExpandGrChunk(
 	// allocate final space, decompress it, and free bigbuffer
 	// Sprites need to have shifts made and various other junk
 	//
-	grsegs[chunk] = new char[expanded];
+	grsegs[chunk].resize(expanded);
 
-	CAL_HuffExpand(source, static_cast<std::uint8_t*>(grsegs[chunk]), expanded, grhuffman);
+	CAL_HuffExpand(source, grsegs[chunk].data(), expanded, grhuffman);
 
 	grsegs_sizes_[chunk] = expanded;
 }
@@ -761,11 +762,13 @@ void CA_CacheGrChunk(
 	std::int16_t next;
 
 	grneeded[chunk] |= ca_levelbit; // make sure it doesn't get removed
-	if (grsegs[chunk])
+
+	if (!grsegs[chunk].empty())
 	{
 		return; // already in memory
 
 	}
+
 	//
 	// load the chunk into a buffer, either the miscbuffer if it fits, or allocate
 	// a larger buffer
@@ -850,7 +853,7 @@ void CA_CacheScreen(
 void CA_CacheMap(
 	std::int16_t mapnum)
 {
-	if (mapheaderseg[mapnum] == nullptr)
+	if (mapheaderseg[mapnum].name[0] == '\0')
 	{
 		Quit("There are no assets for level index " + std::to_string(mapnum) + '.');
 	}
@@ -858,7 +861,6 @@ void CA_CacheMap(
 	std::int32_t pos;
 	std::int32_t compressed;
 	std::int16_t plane;
-	std::uint16_t** dest;
 	std::uint16_t size;
 	std::uint16_t* source;
 #ifdef CARMACIZED
@@ -875,10 +877,10 @@ void CA_CacheMap(
 
 	for (plane = 0; plane < MAPPLANES; plane++)
 	{
-		pos = mapheaderseg[mapnum]->planestart[plane];
-		compressed = mapheaderseg[mapnum]->planelength[plane];
+		pos = mapheaderseg[mapnum].planestart[plane];
+		compressed = mapheaderseg[mapnum].planelength[plane];
 
-		dest = &mapsegs[plane];
+		const auto dest = mapsegs[plane].data();
 
 		maphandle.set_position(pos);
 		ca_buffer.resize(compressed);
@@ -905,7 +907,7 @@ void CA_CacheMap(
 		//
 		// unRLEW, skipping expanded length
 		//
-		CA_RLEWexpand(source + 1, *dest, size, rlew_tag);
+		CA_RLEWexpand(source + 1, dest, size, rlew_tag);
 #endif
 	}
 }
@@ -977,7 +979,7 @@ void CA_CacheMarks()
 	{
 		if (grneeded[i] & ca_levelbit)
 		{
-			if (grsegs[i])
+			if (!grsegs[i].empty())
 			{ // its already in memory, make
 			}
 			else
@@ -1000,7 +1002,7 @@ void CA_CacheMarks()
 
 	for (i = 0; i < NUMCHUNKS; i++)
 	{
-		if ((grneeded[i] & ca_levelbit) && !grsegs[i])
+		if ((grneeded[i] & ca_levelbit) && grsegs[i].empty())
 		{
 			pos = GRFILEPOS(i);
 			if (pos < 0)
@@ -1029,7 +1031,7 @@ void CA_CacheMarks()
 				while (next < NUMCHUNKS)
 				{
 					while (next < NUMCHUNKS &&
-						!(grneeded[next] & ca_levelbit && !grsegs[next]))
+						!(grneeded[next] & ca_levelbit && grsegs[next].empty()))
 					{
 						++next;
 					}
@@ -1081,8 +1083,7 @@ void CA_CannotOpen(
 void UNCACHEGRCHUNK(
 	int chunk)
 {
-	delete[] static_cast<char*>(grsegs[chunk]);
-	grsegs[chunk] = nullptr;
+	grsegs[chunk] = std::move(GrSegment{});
 
 	grneeded[chunk] &= ~ca_levelbit;
 }
@@ -1093,7 +1094,7 @@ std::string ca_load_script(
 {
 	CA_CacheGrChunk(static_cast<std::int16_t>(chunk_id));
 
-	const char* script = static_cast<const char*>(grsegs[chunk_id]);
+	const auto script = reinterpret_cast<const char*>(grsegs[chunk_id].data());
 
 	int length = 0;
 
@@ -2972,7 +2973,7 @@ void AudioExtractor::extract_music(
 		throw AudioExtractorTrackException{number, "Failed to create AdLib music decoder."};
 	}
 
-	const auto music_data = audiosegs[music_index];
+	const auto music_data = audiosegs[music_index].data();
 	const auto music_data_size = sd_get_adlib_music_data_size(music_data);
 
 	if (!audio_decoder->initialize(
@@ -3450,7 +3451,7 @@ void TextExtractor::extract_text(
 
 	CA_CacheGrChunk(number);
 
-	auto text_data = grsegs[number];
+	auto text_data = grsegs[number].data();
 	auto text_size = grsegs_sizes_[number];
 
 	if (text_number.is_compressed_)
@@ -3458,7 +3459,7 @@ void TextExtractor::extract_text(
 		constexpr auto max_uncompressed_size = 256;
 
 		const auto header_size = sizeof(CompressedHeader);
-		const auto compressed_header = static_cast<CompressedHeader*>(text_data);
+		const auto compressed_header = reinterpret_cast<CompressedHeader*>(text_data);
 		const auto pure_data_size = text_size - header_size;
 
 		if (text_size <= header_size ||
@@ -3481,7 +3482,7 @@ void TextExtractor::extract_text(
 		}
 
 		const auto decoded_size = LZH_Decompress(
-			static_cast<const char*>(text_data) + header_size,
+			reinterpret_cast<const char*>(text_data) + header_size,
 			buffer_.data(),
 			compressed_header->uncompressed_size_,
 			compressed_header->compressed_size_
@@ -3496,7 +3497,7 @@ void TextExtractor::extract_text(
 	}
 	else
 	{
-		text_data = grsegs[number];
+		text_data = grsegs[number].data();
 	}
 
 	const auto& number_string = ca_make_padded_asset_number_string(number);
