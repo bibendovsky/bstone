@@ -152,10 +152,10 @@ public:
 
 
 private:
-	using Sample = std::int16_t;
+	using Sample = float;
 	using Samples = std::vector<Sample>;
 
-	using MixSample = int;
+	using MixSample = float;
 	using MixSamples = std::vector<MixSample>;
 
 	using MtLock = std::mutex;
@@ -484,7 +484,7 @@ bool AudioMixerImpl::initialize(
 
 	auto src_spec = SDL_AudioSpec{};
 	src_spec.freq = dst_rate_;
-	src_spec.format = AUDIO_S16SYS;
+	src_spec.format = AUDIO_F32SYS;
 	src_spec.channels = static_cast<std::uint8_t>(get_max_channels());
 	src_spec.samples = static_cast<std::uint16_t>(mix_samples_count_);
 	src_spec.callback = callback_proxy;
@@ -996,13 +996,13 @@ void AudioMixerImpl::mix_samples()
 	if (sounds_.empty())
 	{
 		is_any_sfx_playing_ = false;
-		std::uninitialized_fill(buffer_.begin(), buffer_.end(), std::int16_t{});
+		std::uninitialized_fill(buffer_.begin(), buffer_.end(), Sample{});
 		return;
 	}
 
 	spatialize_sounds();
 
-	std::uninitialized_fill(mix_buffer_.begin(), mix_buffer_.end(), 0);
+	std::uninitialized_fill(mix_buffer_.begin(), mix_buffer_.end(), MixSample{});
 
 	auto sfx_volume = static_cast<float>(sfx_volume_);
 	auto music_volume = static_cast<float>(music_volume_);
@@ -1093,13 +1093,13 @@ void AudioMixerImpl::mix_samples()
 
 			// Left channel.
 			//
-			const auto left_sample = static_cast<int>(sound_it->left_volume * sample);
+			const auto left_sample = static_cast<Sample>(sound_it->left_volume * sample);
 
 			mix_buffer_[(2 * i) + 0] += left_sample;
 
 			// Right channel.
 			//
-			const auto right_sample = static_cast<int>(sound_it->right_volume * sample);
+			const auto right_sample = static_cast<Sample>(sound_it->right_volume * sample);
 
 			mix_buffer_[(2 * i) + 1] += right_sample;
 		}
@@ -1159,7 +1159,7 @@ void AudioMixerImpl::mix_samples()
 
 	if (max_mix_sample_it != mix_buffer_.cend())
 	{
-		constexpr auto max_mix_sample_value = 32'760;
+		constexpr auto max_mix_sample_value = 1.0F;
 
 		const auto max_mix_sample = std::abs(*max_mix_sample_it);
 
@@ -1173,7 +1173,7 @@ void AudioMixerImpl::mix_samples()
 		}
 		else
 		{
-			const auto scalar = 32'768.0F / max_mix_sample;
+			const auto scalar = 1.0F / max_mix_sample;
 
 			std::transform(
 				mix_buffer_.cbegin(),

@@ -30,9 +30,12 @@ Free Software Foundation, Inc.,
 #include "bstone_precompiled.h"
 
 #include <algorithm>
+#include <type_traits>
+#include <vector>
 
 #include "dbopl.h"
 
+#include "bstone_audio_sample_converter.h"
 #include "bstone_opl3.h"
 
 
@@ -75,6 +78,12 @@ public:
 		const int count,
 		std::int16_t* buffer) override;
 
+	// Generates number of mono samples into a provided buffer.
+	// Returns false on error.
+	bool generate(
+		const int count,
+		float* buffer) override;
+
 	// Resets the emulator.
 	bool reset() override;
 
@@ -84,15 +93,44 @@ public:
 
 
 private:
+	struct S16Tag{};
+	struct F32Tag{};
+
+	using Buffer = std::vector<std::int16_t>;
+
+
 	bool is_initialized_;
 	int sample_rate_;
 	DBOPL::Handler emulator_;
 	MixerChannel channel_;
+	Buffer samples_;
 
 
 	// Returns a maximum number of output samples generated at once.
 	// (Emulator dependent value)
 	static int get_max_samples_count() noexcept;
+
+
+	void generate_block(
+		const int count,
+		std::int16_t* buffer,
+		const S16Tag);
+
+	void generate_block(
+		const int count,
+		float* buffer,
+		const F32Tag);
+
+	template<typename T>
+	void generate_block(
+		const int count,
+		T* buffer);
+
+
+	template<typename T>
+	bool generate(
+		const int count,
+		T* buffer);
 }; // DosboxDbopl
 
 
@@ -101,7 +139,8 @@ DosboxDbopl::DosboxDbopl()
 	is_initialized_{},
 	sample_rate_{},
 	emulator_{},
-	channel_{}
+	channel_{},
+	samples_{}
 {
 }
 
@@ -118,6 +157,7 @@ void DosboxDbopl::initialize(
 	sample_rate_ = std::max(sample_rate, get_min_sample_rate());
 
 	channel_ = {};
+	samples_.resize(get_max_samples_count());
 
 	emulator_ = {};
 	emulator_.Init(sample_rate_);
@@ -159,36 +199,14 @@ bool DosboxDbopl::generate(
 	const int count,
 	std::int16_t* buffer)
 {
-	if (!is_initialized_)
-	{
-		return false;
-	}
+	return generate<std::int16_t>(count, buffer);
+}
 
-	if (count < 1)
-	{
-		return false;
-	}
-
-	if (!buffer)
-	{
-		return false;
-	}
-
-	auto remain_count = count;
-
-	while (remain_count > 0)
-	{
-		const auto generate_count = std::min(remain_count, get_max_samples_count());
-
-		channel_.set_buffer(buffer);
-
-		emulator_.Generate(&channel_, static_cast<Bitu>(generate_count));
-
-		remain_count -= generate_count;
-		buffer += generate_count;
-	}
-
-	return true;
+bool DosboxDbopl::generate(
+	const int count,
+	float* buffer)
+{
+	return generate<float>(count, buffer);
 }
 
 bool DosboxDbopl::reset()
@@ -211,6 +229,86 @@ int DosboxDbopl::get_min_sample_rate() const noexcept
 int DosboxDbopl::get_max_samples_count() noexcept
 {
 	return 512;
+}
+
+void DosboxDbopl::generate_block(
+	const int count,
+	std::int16_t* buffer,
+	const S16Tag)
+{
+	channel_.set_buffer(buffer);
+
+	emulator_.Generate(&channel_, static_cast<Bitu>(count));
+}
+
+void DosboxDbopl::generate_block(
+	const int count,
+	float* buffer,
+	const F32Tag)
+{
+	channel_.set_buffer(samples_.data());
+
+	emulator_.Generate(&channel_, static_cast<Bitu>(count));
+
+	std::transform(
+		samples_.cbegin(),
+		samples_.cbegin() + count,
+		buffer,
+		AudioSampleConverter::s16_to_f32
+	);
+}
+
+template<typename T>
+void DosboxDbopl::generate_block(
+	const int count,
+	T* buffer)
+{
+	using Tag = std::conditional_t<
+		std::is_same<T, std::int16_t>::value,
+		S16Tag,
+		std::conditional_t<
+			std::is_same<T, float>::value,
+			F32Tag,
+			void
+		>
+	>;
+
+	generate_block(count, buffer, Tag{});
+}
+
+template<typename T>
+bool DosboxDbopl::generate(
+	const int count,
+	T* buffer)
+{
+	if (!is_initialized_)
+	{
+		return false;
+	}
+
+	if (count < 1)
+	{
+		return false;
+	}
+
+	if (buffer == nullptr)
+	{
+		return false;
+	}
+
+	auto remain_count = count;
+
+	while (remain_count > 0)
+	{
+		const auto generate_count = std::min(remain_count, get_max_samples_count());
+
+		generate_block<T>(generate_count, buffer);
+
+		remain_count -= generate_count;
+		buffer += generate_count;
+	}
+
+	return true;
 }
 
 

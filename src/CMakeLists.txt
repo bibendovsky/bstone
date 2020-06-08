@@ -308,6 +308,7 @@ target_sources(
 		bstone_atomic.h
 		bstone_audio_decoder.h
 		bstone_audio_mixer.h
+		bstone_audio_sample_converter.h
 		bstone_binary_reader.h
 		bstone_binary_writer.h
 		bstone_cl_args.h
@@ -439,6 +440,7 @@ target_sources(
 		bstone_content_path.cpp
 		bstone_audio_decoder.cpp
 		bstone_audio_mixer.cpp
+		bstone_audio_sample_converter.cpp
 		bstone_binary_reader.cpp
 		bstone_binary_writer.cpp
 		bstone_cl_args.cpp
@@ -454,6 +456,7 @@ target_sources(
 		bstone_generic_fizzle_fx.cpp
 		bstone_gog_content_path.cpp
 		bstone_logger.cpp
+		bstone_low_pass_filter.cpp
 		bstone_memory_binary_reader.cpp
 		bstone_memory_stream.cpp
 		bstone_mt_task_mgr.cpp

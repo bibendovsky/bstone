@@ -29,8 +29,17 @@ Free Software Foundation, Inc.,
 
 #include "bstone_precompiled.h"
 
+#include <cassert>
+#include <cmath>
+
+#include <algorithm>
+#include <type_traits>
+#include <vector>
+
 #include "bstone_audio_decoder.h"
+#include "bstone_audio_sample_converter.h"
 #include "bstone_low_pass_filter.h"
+#include "bstone_unique_resource.h"
 
 
 namespace bstone
@@ -61,6 +70,10 @@ public:
 		const int dst_count,
 		std::int16_t* const dst_data) override;
 
+	int decode(
+		const int dst_count,
+		float* const dst_data) override;
+
 	bool rewind() override;
 
 	int get_dst_length_in_samples() const noexcept override;
@@ -73,35 +86,135 @@ public:
 
 
 private:
+	static constexpr auto lpf_order =
+#ifdef NDEBUG
+		80
+#else
+		40
+#endif
+	;
+
+
+	template<typename TSrc, typename TDst>
+	struct SampleConverter;
+
+	template<>
+	struct SampleConverter<std::uint8_t, std::int16_t>
+	{
+		std::int16_t operator()(
+			const std::uint8_t u8_sample) const noexcept
+		{
+			return AudioSampleConverter::u8_to_s16(u8_sample);
+		}
+	}; // SampleConverter
+
+	template<>
+	struct SampleConverter<std::uint8_t, float>
+	{
+		float operator()(
+			const std::uint8_t u8_sample) const noexcept
+		{
+			return AudioSampleConverter::u8_to_f32(u8_sample);
+		}
+	}; // SampleConverter
+
+	template<>
+	struct SampleConverter<std::uint8_t, double>
+	{
+		double operator()(
+			const std::uint8_t u8_sample) const noexcept
+		{
+			return AudioSampleConverter::u8_to_f64(u8_sample);
+		}
+	}; // SampleConverter
+
+	template<>
+	struct SampleConverter<float, std::int16_t>
+	{
+		std::int16_t operator()(
+			const float f32_sample) const noexcept
+		{
+			return AudioSampleConverter::f32_to_s16(f32_sample);
+		}
+	}; // SampleConverter
+
+	template<>
+	struct SampleConverter<float, float>
+	{
+		float operator()(
+			const float f32_sample) const noexcept
+		{
+			return f32_sample;
+		}
+	}; // SampleConverter
+
+	template<>
+	struct SampleConverter<double, std::int16_t>
+	{
+		std::int16_t operator()(
+			const double f64_sample) const noexcept
+		{
+			return AudioSampleConverter::f64_to_s16(f64_sample);
+		}
+	}; // SampleConverter
+
+	template<>
+	struct SampleConverter<double, float>
+	{
+		float operator()(
+			const double f64_sample) const noexcept
+		{
+			return static_cast<float>(f64_sample);
+		}
+	}; // SampleConverter
+
+
 	bool is_initialized_;
+	bool need_upsampling_;
 
-	const void* src_raw_data_;
+	double ratio_;
 
-	std::int64_t offset_;
-	std::int64_t dst_count_;
-	std::int64_t dst_ratio_;
+	const unsigned char* src_data_;
 
-	LowPassFilterInt16 low_pass_filter_;
+	int src_offset_;
+	int src_count_;
 
-	int dst_length_in_samples_;
+	int dst_offset_;
+	int dst_count_;
+
+	LowPassFilter lpf_;
 
 
 	void uninitialize_internal();
 
-	static std::int16_t pcm_u8_to_pcm_s16(
-		const std::uint8_t sample);
+	template<typename TDst>
+	int decode_upsampled(
+		const int dst_count,
+		TDst* const dst_data);
+
+	template<typename TSrc, typename TDst>
+	int decode_non_upsampled(
+		const int dst_count,
+		TDst* const dst_data);
+
+	template<typename T>
+	int decode(
+		const int dst_count,
+		T* const dst_data);
 }; // PcmDecoder
 
 
 PcmDecoder::PcmDecoder()
 	:
 	is_initialized_{},
-	src_raw_data_{},
-	offset_{},
+	need_upsampling_{},
+	ratio_{},
+	src_data_{},
+	src_offset_{},
+	src_count_{},
+	dst_offset_{},
 	dst_count_{},
-	dst_ratio_{},
-	low_pass_filter_{},
-	dst_length_in_samples_{}
+	lpf_{}
 {
 }
 
@@ -134,21 +247,25 @@ bool PcmDecoder::initialize(
 		return false;
 	}
 
-	const auto i_size = static_cast<std::int64_t>(src_raw_size);
-	const auto o_rate = static_cast<std::int64_t>(dst_rate);
-	const auto i_rate = static_cast<std::int64_t>(get_src_rate());
+	need_upsampling_ = (dst_rate != get_src_rate());
 
-	src_raw_data_ = src_raw_data;
-	dst_length_in_samples_ = static_cast<int>((i_size * o_rate) / i_rate);
+	ratio_ = static_cast<double>(dst_rate) / static_cast<double>(get_src_rate());
 
-	dst_count_ = get_dst_length_in_samples();
-	dst_ratio_ = (i_size * 65'536) / dst_count_;
+	src_data_ = static_cast<const unsigned char*>(src_raw_data);
+	src_offset_ = 0;
+	src_count_ = src_raw_size;
 
-	low_pass_filter_.initialize(get_src_rate(), dst_rate);
+	dst_offset_ = 0;
+	dst_count_ = static_cast<int>(std::ceil(src_raw_size * ratio_));
+
+	if (need_upsampling_)
+	{
+		lpf_.initialize(lpf_order, get_src_rate() / 2, dst_rate);
+	}
 
 	is_initialized_ = true;
 
-	return true;
+	return is_initialized_;
 }
 
 bool PcmDecoder::is_initialized() const noexcept
@@ -165,6 +282,120 @@ int PcmDecoder::decode(
 	const int dst_count,
 	std::int16_t* const dst_data)
 {
+	return decode<std::int16_t>(dst_count, dst_data);
+}
+
+int PcmDecoder::decode(
+	const int dst_count,
+	float* const dst_data)
+{
+	return decode<float>(dst_count, dst_data);
+}
+
+bool PcmDecoder::rewind()
+{
+	if (!is_initialized())
+	{
+		return false;
+	}
+
+	src_offset_ = 0;
+	dst_offset_ = 0;
+
+	return true;
+}
+
+int PcmDecoder::get_dst_length_in_samples() const noexcept
+{
+	return dst_count_;
+}
+
+int PcmDecoder::get_src_rate()
+{
+	return audio_decoder_pcm_fixed_frequency;
+}
+
+int PcmDecoder::get_min_dst_rate()
+{
+	return 11'025;
+}
+
+void PcmDecoder::uninitialize_internal()
+{
+	is_initialized_ = false;
+	need_upsampling_ = false;
+	ratio_ = 0.0;
+	src_data_ = nullptr;
+	src_offset_ = 0;
+	src_count_ = 0;
+	dst_offset_ = 0;
+	dst_count_ = 0;
+}
+
+template<typename TDst>
+int PcmDecoder::decode_upsampled(
+	const int dst_count,
+	TDst* const dst_data)
+{
+	const auto u8_to_xx = SampleConverter<std::uint8_t, TDst>{};
+	const auto u8_to_f64 = SampleConverter<std::uint8_t, double>{};
+	const auto f64_to_xx = SampleConverter<double, TDst>{};
+
+	const auto count = std::min(dst_count, dst_count_ - dst_offset_);
+
+	for (int i = 0; i < count; ++i)
+	{
+		const auto src_offset = static_cast<int>(
+			(static_cast<long long>(src_count_ - 1) * static_cast<long long>(dst_offset_)) /
+				static_cast<long long>(dst_count_ - 1)
+		);
+
+		const auto u8_sample = src_data_[src_offset];
+		const auto f64_sample = u8_to_f64(u8_sample);
+		const auto f64_lpf_sample = lpf_.process_sample(f64_sample);
+		const auto dst_sample = f64_to_xx(f64_lpf_sample);
+
+		dst_data[i] = dst_sample;
+
+		dst_offset_ += 1;
+	}
+
+	return count;
+}
+
+template<typename TSrc, typename TDst>
+int PcmDecoder::decode_non_upsampled(
+	const int dst_count,
+	TDst* const dst_data)
+{
+	if (src_offset_ >= src_count_)
+	{
+		return 0;
+	}
+
+	const auto to_copy_count = std::min(
+		dst_count,
+		src_count_ - src_offset_
+	);
+
+	std::transform(
+		&src_data_[src_offset_],
+		&src_data_[src_offset_ + to_copy_count],
+		dst_data,
+		SampleConverter<std::uint8_t, TDst>{}
+	);
+
+	src_offset_ += to_copy_count;
+	dst_offset_ += to_copy_count;
+
+	return to_copy_count;
+}
+
+template<typename T>
+int PcmDecoder::decode(
+	const int dst_count,
+	T* const dst_data)
+{
 	if (!is_initialized_)
 	{
 		return 0;
@@ -175,94 +406,24 @@ int PcmDecoder::decode(
 		return 0;
 	}
 
-	if (!dst_data)
+	if (dst_data == nullptr)
 	{
 		return 0;
 	}
 
-	if (offset_ >= dst_count_)
+	if (dst_offset_ >= dst_count_)
 	{
 		return 0;
 	}
 
-	auto actual_count = 0;
-
-	const auto src_samples = static_cast<const std::uint8_t*>(src_raw_data_);
-
-	auto offset = offset_;
-
-	auto cached_index = -1;
-	auto cached_sample = std::int16_t{};
-
-	for (int i = 0; i < dst_count && offset < dst_count_; ++i)
+	if (need_upsampling_)
 	{
-		const auto src_index = static_cast<int>((offset * dst_ratio_) / 65'536);
-
-		if (src_index != cached_index)
-		{
-			cached_index = src_index;
-			cached_sample = pcm_u8_to_pcm_s16(src_samples[src_index]);
-		}
-
-		dst_data[i] = cached_sample;
-
-		offset += 1;
-		actual_count += 1;
+		return decode_upsampled<T>(dst_count, dst_data);
 	}
-
-	offset = offset_;
-
-	for (int i = 0; i < actual_count; ++i)
+	else
 	{
-		dst_data[i] = low_pass_filter_.filter(dst_data[i]);
-
-		offset += 1;
+		return decode_non_upsampled<std::uint8_t, T>(dst_count, dst_data);
 	}
-
-	offset_ = offset;
-
-	return actual_count;
-}
-
-bool PcmDecoder::rewind()
-{
-	if (!is_initialized())
-	{
-		return false;
-	}
-
-	offset_ = 0;
-
-	return true;
-}
-
-int PcmDecoder::get_dst_length_in_samples() const noexcept
-{
-	return dst_length_in_samples_;
-}
-
-int PcmDecoder::get_src_rate()
-{
-	return audio_decoder_pcm_fixed_frequency;
-}
-
-int PcmDecoder::get_min_dst_rate()
-{
-	return 11025;
-}
-
-void PcmDecoder::uninitialize_internal()
-{
-	offset_ = 0;
-	dst_count_ = 0;
-	dst_ratio_ = 0;
-	low_pass_filter_ = {};
-}
-
-std::int16_t PcmDecoder::pcm_u8_to_pcm_s16(
-	const std::uint8_t sample)
-{
-	return static_cast<std::int16_t>(((static_cast<int>(sample) * 65535) / 255) - 32768);
 }
 
 
