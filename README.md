@@ -382,6 +382,10 @@ Notes:
 * `--calculate_hashes`  
   Calculates hashes (SHA-1) of all resource files and outputs them into the log.
 
+* `--extract_vga_palette dir`  
+  Extracts VGA palette into existing directory `dir`.  
+  Supported file format: [BMP](http://wikipedia.org/wiki/BMP_file_format)
+
 * `--extract_walls dir`  
   Extracts graphics resources (wall, flooring, etc.) into existing directory `dir`.  
   Supported file format: [BMP](http://wikipedia.org/wiki/BMP_file_format)
@@ -403,7 +407,7 @@ Notes:
   Supported file format: TXT
 
 * `--extract_all dir`  
-  Extracts all resources (walls, sprites, music, sfx and texts) into existing directory `dir`.
+  Extracts all resources (walls, sprites, etc.) into existing directory `dir`.
 
 
 8 - Cheat key
