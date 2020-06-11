@@ -62,7 +62,9 @@ struct fontstruct
 }; // fontstruct
 
 
-extern pictabletype* pictable;
+using PicTable = std::vector<pictabletype>;
+extern PicTable pictable;
+
 extern pictabletype* picmtable;
 extern spritetabletype* spritetable;
 
@@ -116,6 +118,13 @@ void VWB_Vlin(
 	int y2,
 	int x,
 	std::uint8_t color);
+
+void vwb_rect(
+	const int x,
+	const int y,
+	const int width,
+	const int height,
+	const int color);
 
 
 //

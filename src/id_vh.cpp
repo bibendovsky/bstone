@@ -43,7 +43,7 @@ bool IN_CheckAck();
 void CalcTics();
 void ForceUpdateStatusBar();
 
-pictabletype* pictable;
+PicTable pictable;
 pictabletype* picmtable;
 
 std::int16_t px;
@@ -60,8 +60,7 @@ LatchesCache latches_cache;
 void VW_DrawPropString(
 	const char* string)
 {
-	fontstruct* font =
-		static_cast<fontstruct*>(grsegs[STARTFONT + fontnumber]);
+	const auto font = reinterpret_cast<fontstruct*>(grsegs[STARTFONT + fontnumber].data());
 
 	int height = font->height;
 
@@ -116,7 +115,7 @@ void VW_MeasurePropString(
 		string,
 		width,
 		height,
-		static_cast<fontstruct*>(grsegs[STARTFONT + fontnumber]));
+		reinterpret_cast<fontstruct*>(grsegs[STARTFONT + fontnumber].data()));
 }
 
 
@@ -146,7 +145,7 @@ void VWB_DrawPic(
 	int height = pictable[picnum].height;
 
 	VL_MemToScreen(
-		static_cast<const std::uint8_t*>(grsegs[chunknum]),
+		grsegs[chunknum].data(),
 		width,
 		height,
 		x & (~7),
@@ -163,7 +162,7 @@ void VWB_DrawMPic(
 	int height = pictable[picnum].height;
 
 	VL_MaskMemToScreen(
-		static_cast<const std::uint8_t*>(grsegs[chunknum]),
+		grsegs[chunknum].data(),
 		width,
 		height,
 		x,
@@ -211,6 +210,23 @@ void VWB_Vlin(
 	std::uint8_t color)
 {
 	VW_Vlin(y1, y2, x, color);
+}
+
+void vwb_rect(
+	const int x,
+	const int y,
+	const int width,
+	const int height,
+	const int color)
+{
+	VWB_Bar(x, y, width, 1, static_cast<std::uint8_t>(color));
+	VWB_Bar(x, y + height - 1, width, 1, static_cast<std::uint8_t>(color));
+
+	if (height > 2)
+	{
+		VWB_Bar(x, y + 1, 1, height - 2, static_cast<std::uint8_t>(color));
+		VWB_Bar(x + width - 1, y + 1, 1, height - 2, static_cast<std::uint8_t>(color));
+	}
 }
 
 
@@ -265,7 +281,7 @@ void LoadLatchMem()
 	//
 	latchpics[picnum++] = destoff;
 	CA_CacheGrChunk(STARTTILE8);
-	auto src = static_cast<const std::uint8_t*>(grsegs[STARTTILE8]);
+	auto src = grsegs[STARTTILE8].data();
 
 	for (int i = 0; i < NUMTILE8; ++i)
 	{
@@ -289,7 +305,7 @@ void LoadLatchMem()
 		CA_CacheGrChunk(static_cast<std::int16_t>(i));
 
 		VL_MemToLatch(
-			static_cast<const std::uint8_t*>(grsegs[i]),
+			grsegs[i].data(),
 			width,
 			height,
 			destoff);

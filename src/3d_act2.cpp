@@ -1393,24 +1393,6 @@ void SpawnOffsetObj(
 	{
 		new_actor->hitpoints = get_start_hit_point(which);
 	}
-
-	if (!assets_info.is_ps())
-	{
-		switch (which)
-		{
-		case en_spider_mutant:
-		case en_breather_beast:
-		case en_cyborg_warrior:
-		case en_reptilian_warrior:
-		case en_acid_dragon:
-		case en_mech_guardian:
-			new_actor->hitpoints *= 15;
-			break;
-
-		default:
-			break;
-		}
-	}
 }
 
 
@@ -2468,10 +2450,14 @@ void T_SmartThought(
 				break;
 
 			case gurney_waitobj:
+// FIXME
+// Remove this or convert the reserved actor into real one.
+#if 0
 				if (obj->temp2)
 				{
 					RemoveObj(ui16_to_actor(obj->temp2));
 				}
+#endif
 
 				SpawnOffsetObj(en_gurney, obj->tilex, obj->tiley);
 				NewState(obj, &s_ofs_static);
@@ -2479,10 +2465,14 @@ void T_SmartThought(
 				break;
 
 			case scan_wait_alienobj:
+// FIXME
+// Remove this or convert the reserved actor into real one.
+#if 0
 				if (obj->temp2)
 				{
 					RemoveObj(ui16_to_actor(obj->temp2));
 				}
+#endif
 
 				SpawnOffsetObj(en_scan_alien, obj->tilex, obj->tiley);
 				NewState(obj, &s_ofs_static);
@@ -2490,10 +2480,14 @@ void T_SmartThought(
 				break;
 
 			case lcan_wait_alienobj:
+// FIXME
+// Remove this or convert the reserved actor into real one.
+#if 0
 				if (obj->temp2)
 				{
 					RemoveObj(ui16_to_actor(obj->temp2));
 				}
+#endif
 
 				SpawnOffsetObj(en_lcan_alien, obj->tilex, obj->tiley);
 				NewState(obj, &s_ofs_static);
@@ -2703,7 +2697,7 @@ void ActivateWallSwitch(
 			{
 				if (*tile == OFF_SWITCH || *tile == ON_SWITCH)
 				{
-					auto icon = *(mapsegs[1] + farmapylookup[mapy] + mapx);
+					auto icon = mapsegs[1][farmapylookup[mapy] + mapx];
 
 					if (icon == iconnum)
 					{
@@ -4226,7 +4220,7 @@ void CheckForSpecialTile(
 
 	const auto& assets_info = AssetsInfo{};
 
-	map = mapsegs[0] + farmapylookup[tiley] + tilex;
+	map = &mapsegs[0][farmapylookup[tiley] + tilex];
 
 	switch (*map)
 	{
@@ -4287,7 +4281,7 @@ void CheckForSpecialTile(
 		obj->flags2 |= FL2_LINC;
 		obj->flags &= ~FL_INFORMANT; // Make sure informants dont have links
 		getarea = true;
-		map1 = mapsegs[1] + farmapylookup[tiley] + tilex + 1;
+		map1 = &mapsegs[1][farmapylookup[tiley] + tilex + 1];
 		obj->linc = *map1;
 		*map1 = 0;
 		break;

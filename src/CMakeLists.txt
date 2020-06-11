@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
-project(bstone VERSION 1.2.3 LANGUAGES CXX)
+project(bstone VERSION 1.2.4 LANGUAGES CXX)
 
 
 #
@@ -298,7 +298,6 @@ target_sources(
 		id_vl.h
 		jam_io.h
 		jm_cio.h
-		jm_io.h
 		jm_lzh.h
 		jm_tp.h
 		jm_vl.h
@@ -309,6 +308,7 @@ target_sources(
 		bstone_atomic.h
 		bstone_audio_decoder.h
 		bstone_audio_mixer.h
+		bstone_audio_sample_converter.h
 		bstone_binary_reader.h
 		bstone_binary_writer.h
 		bstone_cl_args.h
@@ -425,7 +425,6 @@ target_sources(
 		id_vl.cpp
 		jm_cio.cpp
 		jm_free.cpp
-		jm_io.cpp
 		jm_lzh.cpp
 		jm_tp.cpp
 		markhack.cpp
@@ -437,10 +436,11 @@ target_sources(
 		bstone_adlib_decoder.cpp
 		bstone_adlib_music_decoder.cpp
 		bstone_adlib_sfx_decoder.cpp
-		bstone_archiver_impl.cpp
+		bstone_archiver.cpp
 		bstone_content_path.cpp
 		bstone_audio_decoder.cpp
 		bstone_audio_mixer.cpp
+		bstone_audio_sample_converter.cpp
 		bstone_binary_reader.cpp
 		bstone_binary_writer.cpp
 		bstone_cl_args.cpp
@@ -456,6 +456,7 @@ target_sources(
 		bstone_generic_fizzle_fx.cpp
 		bstone_gog_content_path.cpp
 		bstone_logger.cpp
+		bstone_low_pass_filter.cpp
 		bstone_memory_binary_reader.cpp
 		bstone_memory_stream.cpp
 		bstone_mt_task_mgr.cpp

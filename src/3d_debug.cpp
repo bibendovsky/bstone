@@ -897,7 +897,7 @@ bool DebugKeys()
 
 			if (level > -1 && level <= max_warp_level)
 			{
-				if (mapheaderseg[level])
+				if (mapheaderseg[level].name[0] != '\0')
 				{
 					gamestate.lastmapon = gamestate.mapon;
 					playstate = ex_warped;

@@ -55,7 +55,9 @@ public:
 class Archiver
 {
 public:
-	virtual void destroy() = 0;
+	Archiver() = default;
+
+	virtual ~Archiver() = default;
 
 
 	virtual void initialize(
@@ -177,35 +179,13 @@ public:
 
 
 	virtual void write_checksum() = 0;
-
-
-protected:
-	Archiver() = default;
-
-	virtual ~Archiver() = default;
 }; // Archiver
 
 
-using ArchiverPtr = Archiver*;
+using ArchiverUPtr = std::unique_ptr<Archiver>;
 
 
-struct ArchiverDeleter
-{
-	void operator()(
-		ArchiverPtr archiver)
-	{
-		archiver->destroy();
-	}
-}; // ArchiverDeleter
-
-
-using ArchiverUPtr = std::unique_ptr<Archiver, ArchiverDeleter>;
-
-
-struct ArchiverFactory final
-{
-	static ArchiverUPtr create();
-}; // ArchiverFactory
+ArchiverUPtr make_archiver();
 
 
 } // bstone

@@ -26,6 +26,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_ID_CA_INCLUDED
 
 
+#include <memory>
 #include <unordered_map>
 
 #include "3d_def.h"
@@ -52,7 +53,8 @@ struct maptype
 {
 	std::int32_t planestart[3];
 	std::uint16_t planelength[3];
-	std::uint16_t width, height;
+	std::uint16_t width;
+	std::uint16_t height;
 	char name[16];
 }; // maptype
 
@@ -266,18 +268,26 @@ struct Assets
 
 // ===========================================================================
 
-using AudioSegments = std::vector<std::uint8_t*>;
-using GrSegments = std::vector<void*>;
-using GrNeeded = std::vector<std::uint8_t>;
-using MapHeaderSegments = std::vector<maptype*>;
+using AudioSegment = Buffer;
+using AudioSegments = std::vector<AudioSegment>;
+
+using GrSegment = Buffer;
+using GrSegments = std::vector<GrSegment>;
+
+using GrNeeded = Buffer;
 using GrSegmentSizes = std::vector<int>;
+
+using MapHeaderSegments = std::vector<maptype>;
 
 
 extern std::uint16_t rlew_tag;
 
 extern std::int16_t mapon;
 
-extern std::uint16_t* mapsegs[MAPPLANES];
+using MapSegment = std::vector<std::uint16_t>;
+using MapSegments = std::array<MapSegment, MAPPLANES>;
+extern MapSegments mapsegs;
+
 extern MapHeaderSegments mapheaderseg;
 extern AudioSegments audiosegs;
 extern GrSegments grsegs;
@@ -290,8 +300,11 @@ extern char* titleptr[8];
 
 extern std::int16_t profilehandle, debughandle;
 
-extern std::int32_t* grstarts; // array of offsets in egagraph, -1 for sparse
-extern std::int32_t* audiostarts; // array of offsets in audio / audiot
+using GrStarts = std::vector<std::int32_t>;
+extern GrStarts grstarts; // array of offsets in egagraph, -1 for sparse
+
+using AudioStarts = std::vector<std::int32_t>;
+extern AudioStarts audiostarts; // array of offsets in audio / audiot
 //
 // hooks for custom cache dialogs
 //
@@ -387,6 +400,9 @@ std::string ca_calculate_hash(
 	const std::string& extension);
 
 void ca_calculate_hashes();
+
+void ca_extract_vga_palette(
+	const std::string& destination_dir);
 
 void ca_extract_walls(
 	const std::string& destination_dir);

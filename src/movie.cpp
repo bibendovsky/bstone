@@ -236,7 +236,7 @@ void Movie::initialize(
 	// Find out how much memory we have to work with.
 	buffer_.resize(max_buffer_size);
 
-	archiver_ = bstone::ArchiverFactory::create();
+	archiver_ = bstone::make_archiver();
 
 	IN_ClearKeysDown();
 }

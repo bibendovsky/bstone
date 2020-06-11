@@ -95,6 +95,12 @@ public:
 		const int count,
 		std::int16_t* const buffer) = 0;
 
+	// Generates number of mono samples into a provided buffer.
+	// Returns false on error.
+	virtual bool generate(
+		const int count,
+		float* const buffer) = 0;
+
 	// Initializes the emulator with defined earlier sample rate.
 	virtual bool reset() = 0;
 

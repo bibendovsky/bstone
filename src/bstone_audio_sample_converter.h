@@ -23,63 +23,47 @@ Free Software Foundation, Inc.,
 
 
 //
-// Low-pass filter.
-//
-// Based on information at
-// http://www.labbookpages.co.uk/audio/firWindowing.html
+// Audio sample converter.
 //
 
 
-#include <vector>
+#ifndef BSTONE_AUDIO_SAMPLE_CONVERTER_INCLUDED
+#define BSTONE_AUDIO_SAMPLE_CONVERTER_INCLUDED
 
-#include "bstone_exception.h"
+
+#include <cstdint>
 
 
 namespace bstone
 {
 
 
-class LowPassFilter
+//
+// Audio sample converter.
+//
+struct AudioSampleConverter
 {
-public:
-	LowPassFilter();
+	static std::int16_t u8_to_s16(
+		const std::uint8_t u8_sample) noexcept;
 
-	LowPassFilter(
-		const int filter_order,
-		const int cut_off_frequency,
-		const int sampling_frequency);
+	static float u8_to_f32(
+		const std::uint8_t u8_sample) noexcept;
 
+	static double u8_to_f64(
+		const std::uint8_t u8_sample) noexcept;
 
-	void initialize(
-		const int filter_order,
-		const int cut_off_frequency,
-		const int sampling_frequency);
+	static float s16_to_f32(
+		const std::int16_t s16_sample) noexcept;
 
-	double process_sample(
-		const double sample);
+	static std::int16_t f32_to_s16(
+		const float f32_sample) noexcept;
 
-
-private:
-	using Weights = std::vector<double>;
-	using Samples = std::vector<double>;
-
-
-	int length_;
-	int half_length_;
-	int left_length_;
-	Weights weights_;
-	Samples samples_;
-
-
-	static double get_pi() noexcept;
-
-	void initialize_weights(
-		const int filter_order,
-		const int cut_off_frequency,
-		const int sampling_frequency);
-
-	void apply_hann_weights();
-}; // LowPassFilter
+	static std::int16_t f64_to_s16(
+		const double f64_sample) noexcept;
+}; // AudioSampleConverter
 
 
 } // bstone
+
+
+#endif // !BSTONE_AUDIO_SAMPLE_CONVERTER_INCLUDED

@@ -165,7 +165,7 @@ void DrawInfoArea();
 std::uint8_t ValidAreaTile(
 	const std::uint16_t* ptr);
 
-std::int16_t InputFloor();
+int InputFloor();
 
 bool Interrogate(
 	objtype* ob);
@@ -2891,8 +2891,8 @@ void Thrust(
 	travel_table_[player->tilex][player->tiley] |= TT_TRAVELED;
 
 	offset = farmapylookup[player->tiley] + player->tilex;
-	map[0] = mapsegs[0] + offset;
-	map[1] = mapsegs[1] + offset;
+	map[0] = &mapsegs[0][offset];
+	map[1] = &mapsegs[1][offset];
 
 	// Check for trigger tiles.
 	//
@@ -2975,7 +2975,7 @@ std::int8_t GetAreaNumber(
 	// Get initial areanumber from map
 	//
 	auto offset = farmapylookup[tiley] + tilex;
-	auto areanumber = ValidAreaTile(mapsegs[0] + offset);
+	auto areanumber = ValidAreaTile(&mapsegs[0][offset]);
 
 	// Special tile areas must use a valid areanumber tile around it.
 	//
@@ -3001,7 +3001,7 @@ std::int8_t GetAreaNumber(
 			}
 
 			offset = farmapylookup[new_y] + new_x;
-			areanumber = ValidAreaTile(mapsegs[0] + offset);
+			areanumber = ValidAreaTile(&mapsegs[0][offset]);
 
 			if (areanumber != 0)
 			{
@@ -3134,7 +3134,7 @@ void Cmd_Use(
 	}
 
 	door_index = tilemap[checkx][checky];
-	iconnum = *(mapsegs[1] + farmapylookup[checky] + checkx);
+	iconnum = mapsegs[1][farmapylookup[checky] + checkx];
 
 	// BBi Play sound only for walls
 	if (door_index != 0 && (door_index & 0x80) == 0)
@@ -3169,9 +3169,9 @@ void Cmd_Use(
 				//
 			case TRANSPORTERTILE:
 			{
-				std::int16_t new_floor;
+				const auto new_floor = InputFloor();
 
-				if ((new_floor = InputFloor()) != -1 && new_floor != gamestate.mapon)
+				if (new_floor != -1 && new_floor != gamestate.mapon)
 				{
 					const auto is_ps = assets_info.is_ps();
 
@@ -3193,7 +3193,7 @@ void Cmd_Use(
 					playstate = is_ps ? ex_transported : ex_completed;
 
 					gamestate.lastmapon = gamestate.mapon;
-					gamestate.mapon = new_floor - 1;
+					gamestate.mapon = static_cast<std::int16_t>(new_floor - 1);
 				}
 				else
 				{
@@ -3449,7 +3449,7 @@ bool Interrogate(
 
 					if (ci.areanumber == ob->areanumber)
 					{
-						InfAreaMsgs[NumAreaMsgs++] = InfHintList.smInfo[ci.mInfo.local_val].mInfo.mSeg;
+						InfAreaMsgs[NumAreaMsgs++] = InfHintList.smInfo[ci.mInfo.local_val].mInfo.mSeg.data();
 					}
 				}
 
@@ -3482,7 +3482,7 @@ bool Interrogate(
 					ob->s_tiley = static_cast<std::uint8_t>(FirstGenInfMsg + Random(TotalGenInfMsgs));
 				}
 
-				msgptr = InfHintList.smInfo[ob->s_tiley].mInfo.mSeg;
+				msgptr = InfHintList.smInfo[ob->s_tiley].mInfo.mSeg.data();
 			}
 
 			// Still no msgptr? This is a shared message! Use smInfo[local_val]
@@ -3490,7 +3490,7 @@ bool Interrogate(
 			//
 			if (!msgptr)
 			{
-				msgptr = InfHintList.smInfo[InfHintList.smInfo[ob->s_tiley].mInfo.local_val].mInfo.mSeg;
+				msgptr = InfHintList.smInfo[InfHintList.smInfo[ob->s_tiley].mInfo.local_val].mInfo.mSeg.data();
 			}
 
 			ob->flags |= FL_INTERROGATED; // Scientist has been interrogated
@@ -3520,7 +3520,7 @@ bool Interrogate(
 			st = &NiceSciList;
 		}
 
-		msgptr = st->smInfo[Random(st->NumMsgs)].mInfo.mSeg;
+		msgptr = st->smInfo[Random(st->NumMsgs)].mInfo.mSeg.data();
 	}
 
 	if (msgptr)
@@ -3568,515 +3568,645 @@ const int TOV_X = 16;
 const int TOV_Y = 132;
 
 
-std::int16_t InputFloor()
+int aog_input_floor()
 {
 	const auto& assets_info = AssetsInfo{};
 
-	if (assets_info.is_aog())
+	static const std::string messages[4] =
 	{
-		const std::string messages[4] = {
-			// "Current floor:\nSelect a floor."
-			ca_load_script(ELEVMSG0_TEXT),
-			// "RED access card used to unlock floor!"
-			ca_load_script(ELEVMSG1_TEXT),
-			// "Floor is locked. Try another floor."
-			ca_load_script(ELEVMSG4_TEXT),
-			// "You must first get the red access keycard!"
-			ca_load_script(ELEVMSG5_TEXT)
-		}; // messages
+		// "Current floor:\nSelect a floor."
+		ca_load_script(ELEVMSG0_TEXT),
+		// "RED access card used to unlock floor!"
+		ca_load_script(ELEVMSG1_TEXT),
+		// "Floor is locked. Try another floor."
+		ca_load_script(ELEVMSG4_TEXT),
+		// "You must first get the red access keycard!"
+		ca_load_script(ELEVMSG5_TEXT)
+	}; // messages
 
-		const char* const floor_number_strings[10] = {
-			"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"
-		};
+	static const char* const floor_number_strings[10] =
+	{
+		"1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+	};
 
-		CA_CacheGrChunk(STARTFONT + 3);
-		CacheLump(TELEPORT_LUMP_START, TELEPORT_LUMP_END);
+	CA_CacheGrChunk(STARTFONT + 3);
+	CacheLump(TELEPORT_LUMP_START, TELEPORT_LUMP_END);
 
-		const auto old_vid_is_hud = vid_is_hud;
-		vid_is_hud = true;
-		vid_set_ui_mask_3d(false);
-		VW_FadeOut();
-		vid_is_hud = old_vid_is_hud;
+	const auto old_vid_is_hud = vid_is_hud;
+	vid_is_hud = true;
+	vid_set_ui_mask_3d(false);
+	VW_FadeOut();
+	vid_is_hud = old_vid_is_hud;
 
-		DrawTopInfo(sp_normal);
+	DrawTopInfo(sp_normal);
 
-		auto border_width = 7;
-		auto border_height = 5;
-		auto outer_height = ref_view_height;
+	auto border_width = 7;
+	auto border_height = 5;
+	auto outer_height = ref_view_height;
 
-		BevelBox(
-			0,
-			ref_top_bar_height,
-			static_cast<std::int16_t>(vga_ref_width),
-			static_cast<std::int16_t>(outer_height),
-			BORDER_HI_COLOR,
-			BORDER_MED_COLOR,
-			BORDER_LO_COLOR);
+	BevelBox(
+		0,
+		ref_top_bar_height,
+		static_cast<std::int16_t>(vga_ref_width),
+		static_cast<std::int16_t>(outer_height),
+		BORDER_HI_COLOR,
+		BORDER_MED_COLOR,
+		BORDER_LO_COLOR);
 
-		BevelBox(
-			static_cast<std::int16_t>(border_width),
-			static_cast<std::int16_t>(ref_top_bar_height + border_height),
-			static_cast<std::int16_t>(vga_ref_width - (2 * border_width)),
-			static_cast<std::int16_t>(outer_height - (2 * border_height)),
-			BORDER_LO_COLOR,
-			BORDER_MED_COLOR,
-			BORDER_HI_COLOR);
+	BevelBox(
+		static_cast<std::int16_t>(border_width),
+		static_cast<std::int16_t>(ref_top_bar_height + border_height),
+		static_cast<std::int16_t>(vga_ref_width - (2 * border_width)),
+		static_cast<std::int16_t>(outer_height - (2 * border_height)),
+		BORDER_LO_COLOR,
+		BORDER_MED_COLOR,
+		BORDER_HI_COLOR);
 
-		CacheDrawPic(8, ref_top_bar_height + 6, TELEPORTBACKPIC);
+	CacheDrawPic(8, ref_top_bar_height + 6, TELEPORTBACKPIC);
 
-		fontnumber = 1;
-		CA_CacheGrChunk(STARTFONT + 1);
-		CacheBMAmsg(FLOORMSG_TEXT);
-		UNCACHEGRCHUNK(STARTFONT + 1);
+	fontnumber = 1;
+	CA_CacheGrChunk(STARTFONT + 1);
+	CacheBMAmsg(FLOORMSG_TEXT);
+	UNCACHEGRCHUNK(STARTFONT + 1);
 
-		ShowOverhead(
-			14,
-			ref_top_bar_height + 55,
-			32,
-			0,
-			OV_KEYS | OV_WHOLE_MAP);
+	ShowOverhead(
+		14,
+		ref_top_bar_height + 55,
+		32,
+		0,
+		OV_KEYS | OV_WHOLE_MAP);
 
+	IN_ClearKeysDown();
+
+	auto result = -2;
+	auto draw_stats = true;
+	auto draw_message = true;
+	auto draw_current_floor = true;
+	auto draw_locked_floor = false;
+	auto draw_cursor = true;
+	auto use_delay = false;
+	auto draw_button = false;
+	auto button_index = 0;
+	auto is_button_pressed = false;
+	auto message = &messages[0];
+
+	PresenterInfo pi{};
+	pi.xl = 24;
+	pi.yl = ref_top_bar_height + 8;
+	pi.xh = pi.xl + 210;
+	pi.yh = pi.yl + 34;
+	pi.fontnumber = 3;
+	pi.custom_line_height = 17;
+
+	fontcolor = 0x38;
+
+	auto last_unlocked_map = 0;
+
+	const auto stats_levels_per_episode = assets_info.get_stats_levels_per_episode();
+
+	for (int i = 1; i < stats_levels_per_episode; ++i)
+	{
+		if (!gamestuff.level[i].locked)
+		{
+			last_unlocked_map = i;
+		}
+	}
+
+	const auto cursor_current_floor = static_cast<int>(gamestate.mapon);
+	auto cursor_target_floor = cursor_current_floor;
+
+	while (result == -2)
+	{
+		CalcTics();
 		IN_ClearKeysDown();
 
-		auto result = -2;
-		auto draw_stats = true;
-		auto draw_message = true;
-		auto draw_current_floor = true;
-		auto draw_locked_floor = false;
-		auto use_delay = false;
-		auto draw_button = false;
-		auto button_index = 0;
-		auto is_button_pressed = false;
-		auto message = &messages[0];
+		in_handle_events();
 
-		PresenterInfo pi{};
-		pi.xl = 24;
-		pi.yl = ref_top_bar_height + 8;
-		pi.xh = pi.xl + 210;
-		pi.yh = pi.yl + 34;
-		pi.fontnumber = 3;
-		pi.custom_line_height = 17;
-
-		fontcolor = 0x38;
-
-		auto last_unlocked_map = 0;
-
-		const auto stats_levels_per_episode = assets_info.get_stats_levels_per_episode();
-
-		for (int i = 1; i < stats_levels_per_episode; ++i)
+		if (Keyboard[ScanCode::sc_escape] ||
+			Keyboard[ScanCode::sc_mouse_right])
 		{
-			if (!gamestuff.level[i].locked)
+			result = -1;
+		}
+
+		auto target_level = 0;
+
+		if (false)
+		{
+		}
+		else if (Keyboard[ScanCode::sc_up_arrow] ||
+			Keyboard[ScanCode::sc_right_arrow] ||
+			in_is_binding_pressed(BindingId::e_bi_forward) ||
+			in_is_binding_pressed(BindingId::e_bi_cycle_next_weapon) ||
+			in_is_binding_pressed(BindingId::e_bi_right) ||
+			in_is_binding_pressed(BindingId::e_bi_strafe_right))
+		{
+			cursor_target_floor += 1;
+
+			if (cursor_target_floor > 10)
 			{
-				last_unlocked_map = i;
+				cursor_target_floor = 1;
+			}
+
+			draw_cursor = true;
+		}
+		else if (Keyboard[ScanCode::sc_down_arrow] ||
+			Keyboard[ScanCode::sc_left_arrow] ||
+			in_is_binding_pressed(BindingId::e_bi_backward) ||
+			in_is_binding_pressed(BindingId::e_bi_cycle_previous_weapon) ||
+			in_is_binding_pressed(BindingId::e_bi_left) ||
+			in_is_binding_pressed(BindingId::e_bi_strafe_left))
+		{
+			cursor_target_floor -= 1;
+
+			if (cursor_target_floor < 1)
+			{
+				cursor_target_floor = 10;
+			}
+
+			draw_cursor = true;
+		}
+		else if (
+			Keyboard[ScanCode::sc_space] ||
+			Keyboard[ScanCode::sc_mouse_left] ||
+			in_is_binding_pressed(BindingId::e_bi_attack))
+		{
+			target_level = cursor_target_floor;
+
+			draw_cursor = true;
+		}
+
+		for (auto i = static_cast<int>(ScanCode::sc_1);
+			i <= static_cast<int>(ScanCode::sc_0);
+			++i)
+		{
+			if (Keyboard[i])
+			{
+				target_level = i - static_cast<int>(ScanCode::sc_1) + 1;
+
+				cursor_target_floor = target_level;
+				draw_cursor = true;
+
+				break;
 			}
 		}
 
-		while (result == -2)
+		if (target_level >= 1 && target_level != gamestate.mapon)
 		{
-			CalcTics();
-			in_handle_events();
+			sd_play_player_sound(ELEV_BUTTONSND, bstone::ActorChannel::item);
 
-			if (Keyboard[ScanCode::sc_escape])
+			draw_button = true;
+			is_button_pressed = true;
+			button_index = target_level - 1;
+
+			if (!gamestuff.level[target_level].locked)
 			{
-				result = -1;
+				result = target_level;
 			}
-
-			auto target_level = 0;
-
-			for (auto i = static_cast<int>(ScanCode::sc_1);
-				i <= static_cast<int>(ScanCode::sc_0);
-				++i)
+			else if (gamestate.numkeys[kt_red] > 0 &&
+				target_level == (last_unlocked_map + 1))
 			{
-				if (Keyboard[i])
-				{
-					target_level = i - static_cast<int>(ScanCode::sc_1) + 1;
-					break;
-				}
+				result = target_level;
+
+				use_delay = true;
+				draw_message = true;
+				draw_current_floor = false;
+				message = &messages[1];
+
+				gamestate.numkeys[kt_red] = 0;
 			}
-
-			if (target_level >= 1 && target_level != gamestate.mapon)
+			else
 			{
-				sd_play_player_sound(ELEV_BUTTONSND, bstone::ActorChannel::item);
+				use_delay = true;
+				draw_message = true;
+				draw_current_floor = false;
 
-				draw_button = true;
-				is_button_pressed = true;
-				button_index = target_level - 1;
-
-				if (!gamestuff.level[target_level].locked)
+				if (target_level == (last_unlocked_map + 1))
 				{
-					result = target_level;
-				}
-				else if (gamestate.numkeys[kt_red] > 0 &&
-					target_level == (last_unlocked_map + 1))
-				{
-					result = target_level;
-
-					use_delay = true;
-					draw_message = true;
-					draw_current_floor = false;
-					message = &messages[1];
-
-					gamestate.numkeys[kt_red] = 0;
+					draw_locked_floor = false;
+					message = &messages[3];
 				}
 				else
 				{
-					use_delay = true;
-					draw_message = true;
-					draw_current_floor = false;
+					draw_locked_floor = true;
+					message = &messages[2];
+				}
+			}
+		}
 
-					if (target_level == (last_unlocked_map + 1))
+		if (draw_message)
+		{
+			draw_message = false;
+
+			VWB_DrawPic(24, ref_top_bar_height + 10, TELEPORT_TEXT_BG);
+
+			fontcolor = 0x97;
+			pi.script[0] = message->c_str();
+			pi.flags = TPF_CACHE_NO_GFX | TPF_USE_CURRENT;
+			pi.cur_x = 0xFFFF;
+			pi.cur_y = 0xFFFF;
+			TP_InitScript(&pi);
+			TP_Presenter(&pi);
+
+			if (draw_current_floor)
+			{
+				fontnumber = 3;
+				fontcolor = 0x38;
+
+				px = 167;
+				py = ref_top_bar_height + 10;
+
+				USL_DrawString(floor_number_strings[gamestate.mapon - 1]);
+			}
+
+			if (draw_locked_floor)
+			{
+				fontnumber = 3;
+				fontcolor = 0x38;
+
+				px = 82;
+				py = ref_top_bar_height + 10;
+
+				USL_DrawString(floor_number_strings[target_level - 1]);
+			}
+
+			if (draw_button)
+			{
+				draw_button = false;
+
+				const auto base_x = 264;
+				const auto base_y = ref_top_bar_height + 98;
+				const auto step_x = 24;
+				const auto step_y = 20;
+
+				const auto x = base_x + (step_x * (button_index % 2));
+				const auto y = base_y - (step_y * (button_index / 2));
+
+				auto base_pic =
+					is_button_pressed ?
+					TELEPORT1ONPIC :
+					TELEPORT1OFFPIC;
+
+				VWB_DrawPic(
+					x,
+					y,
+					base_pic + button_index);
+			}
+		}
+
+		if (draw_cursor)
+		{
+			draw_cursor = false;
+
+			const auto base_x = 264;
+			const auto base_y = ref_top_bar_height + 98;
+			const auto step_x = 24;
+			const auto step_y = 20;
+
+			for (int i_button = 0; i_button < 10; ++i_button)
+			{
+				auto color = 0;
+
+				if (cursor_current_floor == (i_button + 1))
+				{
+					if (cursor_current_floor == cursor_target_floor)
 					{
-						draw_locked_floor = false;
-						message = &messages[3];
+						color = 0x1F;
 					}
 					else
 					{
-						draw_locked_floor = true;
-						message = &messages[2];
+						color = 0x18;
 					}
 				}
-			}
-
-			if (draw_message)
-			{
-				draw_message = false;
-
-				VWB_DrawPic(24, ref_top_bar_height + 10, TELEPORT_TEXT_BG);
-
-				fontcolor = 0x97;
-				pi.script[0] = message->c_str();
-				pi.flags = TPF_CACHE_NO_GFX | TPF_USE_CURRENT;
-				pi.cur_x = 0xFFFF;
-				pi.cur_y = 0xFFFF;
-				TP_InitScript(&pi);
-				TP_Presenter(&pi);
-
-				if (draw_current_floor)
+				else if (cursor_target_floor > 0 && cursor_target_floor == (i_button + 1))
 				{
-					fontnumber = 3;
-					fontcolor = 0x38;
-
-					px = 167;
-					py = ref_top_bar_height + 10;
-
-					USL_DrawString(
-						floor_number_strings[gamestate.mapon - 1]);
-				}
-
-				if (draw_locked_floor)
-				{
-					fontnumber = 3;
-					fontcolor = 0x38;
-
-					px = 82;
-					py = ref_top_bar_height + 10;
-
-					USL_DrawString(
-						floor_number_strings[target_level - 1]);
-				}
-
-				if (draw_button)
-				{
-					draw_button = false;
-
-					auto base_x = 264;
-					auto base_y = ref_top_bar_height + 98;
-					auto step_x = 24;
-					auto step_y = 20;
-
-					auto x = base_x + (step_x * (button_index % 2));
-					auto y = base_y - (step_y * (button_index / 2));
-
-					auto base_pic =
-						is_button_pressed ?
-						TELEPORT1ONPIC :
-						TELEPORT1OFFPIC;
-
-					VWB_DrawPic(
-						x,
-						y,
-						base_pic + button_index);
-				}
-			}
-
-			CycleColors();
-			VW_UpdateScreen();
-
-			if (screenfaded)
-			{
-				VW_FadeIn();
-			}
-
-			if (draw_stats)
-			{
-				draw_stats = false;
-
-				static_cast<void>(ShowStats(
-					167,
-					ref_top_bar_height + 76,
-					ss_normal,
-					&gamestuff.level[gamestate.mapon].stats));
-
-				IN_ClearKeysDown();
-			}
-
-			if (use_delay)
-			{
-				use_delay = false;
-				draw_message = true;
-				draw_current_floor = true;
-				draw_locked_floor = false;
-				draw_button = true;
-				is_button_pressed = false;
-				message = &messages[0];
-
-				IN_UserInput(210);
-				IN_ClearKeysDown();
-			}
-		}
-
-		IN_ClearKeysDown();
-
-		return static_cast<std::int16_t>(result);
-	}
-	else
-	{
-		const auto RADAR_FLAGS = OV_KEYS;
-		const auto MAX_TELEPORTS = 20;
-		const std::int8_t MAX_MOVE_DELAY = 10;
-
-		std::int16_t buttonPic = 0, buttonY;
-		std::int16_t rt_code = -2, tpNum = gamestate.mapon, lastTpNum = tpNum;
-		std::int16_t teleX[MAX_TELEPORTS] = {16, 40, 86, 23, 44, 62, 83, 27, 118, 161, 161, 161, 213, 213, 184, 205, 226, 256, 276, 276};
-		std::int16_t teleY[MAX_TELEPORTS] = {13, 26, 9, 50, 50, 50, 50, 62, 42, 17, 26, 35, 41, 50, 62, 62, 62, 10, 10, 30};
-		std::int8_t moveActive = 0;
-		objtype old_player;
-		bool locked = false;
-		bool buttonsDrawn = false;
-
-		ClearMemory();
-
-		const auto old_vid_is_hud = vid_is_hud;
-		vid_is_hud = true;
-		vid_set_ui_mask_3d(false);
-		VW_FadeOut();
-		vid_is_hud = old_vid_is_hud;
-
-		CacheDrawPic(0, 0, TELEPORTBACKTOPPIC);
-		CacheDrawPic(0, 12 * 8, TELEPORTBACKBOTPIC);
-		DisplayTeleportName(static_cast<std::int8_t>(tpNum), locked);
-		CacheLump(TELEPORT_LUMP_START, TELEPORT_LUMP_END);
-		VWB_DrawMPic(teleX[tpNum], teleY[tpNum], TELEPORT1ONPIC + tpNum);
-
-		old_player = *player;
-		player->angle = 90;
-		player->x = player->y = ((std::int32_t)32 << TILESHIFT) + (TILEGLOBAL / 2);
-
-		ov_buffer.resize(4096);
-
-		ShowStats(0, 0, ss_justcalc, &gamestuff.level[gamestate.mapon].stats);
-		ov_stats = gamestuff.level[gamestate.mapon].stats;
-		ShowOverhead(TOV_X, TOV_Y, 32, 0, RADAR_FLAGS);
-		SaveOverheadChunk(tpNum);
-
-		px = 115;
-		py = 188;
-		fontcolor = 0xaf;
-		fontnumber = 2;
-		ShPrint(if_help, 0, false);
-
-		controlx = controly = 0;
-		IN_ClearKeysDown();
-		while (rt_code == -2)
-		{
-			CalcTics();
-
-			// BBi
-			in_handle_events();
-
-			if (Keyboard[ScanCode::sc_left_arrow])
-			{
-				controlx = -1;
-			}
-			else if (Keyboard[ScanCode::sc_right_arrow])
-			{
-				controlx = 1;
-			}
-			else
-			{
-				controlx = 0;
-			}
-
-			if (Keyboard[ScanCode::sc_up_arrow])
-			{
-				controly = -1;
-			}
-			else if (Keyboard[ScanCode::sc_down_arrow])
-			{
-				controly = 1;
-			}
-			else
-			{
-				controly = 0;
-			}
-
-			if (Keyboard[ScanCode::sc_escape] || buttonstate[bt_strafe])
-			{
-				rt_code = -1; // ABORT
-
-				LoadLocationText(static_cast<std::int16_t>(
-					gamestate.mapon + (assets_info.get_levels_per_episode() * gamestate.episode)));
-				break;
-			}
-			else if (Keyboard[ScanCode::sc_return] || buttonstate[bt_attack])
-			{
-				if (locked)
-				{
-					if (!sd_is_player_channel_playing(bstone::ActorChannel::no_way))
-					{
-						sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
-					}
+					color = 0xAF;
 				}
 				else
 				{
-					std::int8_t loop;
-
-					rt_code = tpNum; // ACCEPT
-
-					// Flash selection
-					//
-					for (loop = 0; loop < 10; loop++)
-					{
-						VWB_DrawMPic(teleX[tpNum], teleY[tpNum], TELEPORT1OFFPIC + tpNum);
-						VW_UpdateScreen();
-						VW_WaitVBL(4);
-
-						VWB_DrawMPic(teleX[tpNum], teleY[tpNum], TELEPORT1ONPIC + tpNum);
-						VW_UpdateScreen();
-						VW_WaitVBL(4);
-					}
-
-					break;
+					color = 0x82;
 				}
+
+				const auto x = base_x + (step_x * (i_button % 2));
+				const auto y = base_y - (step_y * (i_button / 2));
+
+				vwb_rect(x, y, 17, 17, static_cast<std::uint8_t>(color));
 			}
+		}
 
-			CheckMusicToggle();
+		CycleColors();
+		VW_UpdateScreen();
 
-			// Handle delay
-			//
-			if (moveActive)
+		if (screenfaded)
+		{
+			VW_FadeIn();
+		}
+
+		if (draw_stats)
+		{
+			draw_stats = false;
+
+			static_cast<void>(ShowStats(
+				167,
+				ref_top_bar_height + 76,
+				ss_normal,
+				&gamestuff.level[gamestate.mapon].stats));
+		}
+
+		if (use_delay)
+		{
+			use_delay = false;
+			draw_message = true;
+			draw_current_floor = true;
+			draw_locked_floor = false;
+			draw_button = true;
+			draw_cursor = true;
+			is_button_pressed = false;
+			message = &messages[0];
+
+			IN_UserInput(210);
+		}
+	}
+
+	IN_ClearKeysDown();
+
+	return result;
+}
+
+int ps_input_floor()
+{
+	const auto& assets_info = AssetsInfo{};
+
+	const auto RADAR_FLAGS = OV_KEYS;
+	const auto MAX_TELEPORTS = 20;
+	const auto MAX_MOVE_DELAY = 10;
+
+	int buttonPic = 0;
+	int buttonY = 0;
+	int rt_code = -2;
+	int tpNum = gamestate.mapon;
+	int lastTpNum = tpNum;
+
+	static const int teleX[MAX_TELEPORTS] =
+	{
+		16, 40, 86, 23, 44, 62, 83, 27, 118, 161, 161, 161, 213, 213, 184, 205, 226, 256, 276, 276,
+	};
+
+	static const int teleY[MAX_TELEPORTS] =
+	{
+		13, 26, 9, 50, 50, 50, 50, 62, 42, 17, 26, 35, 41, 50, 62, 62, 62, 10, 10, 30
+	};
+
+	int moveActive = 0;
+	objtype old_player;
+	bool locked = false;
+	bool buttonsDrawn = false;
+
+	ClearMemory();
+
+	const auto old_vid_is_hud = vid_is_hud;
+	vid_is_hud = true;
+	vid_set_ui_mask_3d(false);
+	VW_FadeOut();
+	vid_is_hud = old_vid_is_hud;
+
+	CacheDrawPic(0, 0, TELEPORTBACKTOPPIC);
+	CacheDrawPic(0, 12 * 8, TELEPORTBACKBOTPIC);
+	DisplayTeleportName(static_cast<std::int8_t>(tpNum), locked);
+	CacheLump(TELEPORT_LUMP_START, TELEPORT_LUMP_END);
+	VWB_DrawMPic(teleX[tpNum], teleY[tpNum], TELEPORT1ONPIC + tpNum);
+
+	old_player = *player;
+	player->angle = 90;
+	player->x = (static_cast<std::int32_t>(32) << TILESHIFT) + (TILEGLOBAL / 2);
+	player->y = player->x;
+
+	ov_buffer.resize(4096);
+
+	ShowStats(0, 0, ss_justcalc, &gamestuff.level[gamestate.mapon].stats);
+	ov_stats = gamestuff.level[gamestate.mapon].stats;
+	ShowOverhead(TOV_X, TOV_Y, 32, 0, RADAR_FLAGS);
+	SaveOverheadChunk(tpNum);
+
+	px = 115;
+	py = 188;
+	fontcolor = 0xAF;
+	fontnumber = 2;
+	ShPrint(if_help, 0, false);
+
+	controlx = 0;
+	controly = 0;
+
+	IN_ClearKeysDown();
+
+	while (rt_code == -2)
+	{
+		CalcTics();
+
+		// BBi
+		in_handle_events();
+
+		if (Keyboard[ScanCode::sc_left_arrow])
+		{
+			controlx = -1;
+		}
+		else if (Keyboard[ScanCode::sc_right_arrow])
+		{
+			controlx = 1;
+		}
+		else
+		{
+			controlx = 0;
+		}
+
+		if (Keyboard[ScanCode::sc_up_arrow])
+		{
+			controly = -1;
+		}
+		else if (Keyboard[ScanCode::sc_down_arrow])
+		{
+			controly = 1;
+		}
+		else
+		{
+			controly = 0;
+		}
+
+		if (Keyboard[ScanCode::sc_escape] || buttonstate[bt_strafe])
+		{
+			rt_code = -1; // ABORT
+
+			LoadLocationText(static_cast<std::int16_t>(
+				gamestate.mapon + (assets_info.get_levels_per_episode() * gamestate.episode)));
+
+			break;
+		}
+		else if (Keyboard[ScanCode::sc_return] || buttonstate[bt_attack])
+		{
+			if (locked)
 			{
-				moveActive -= static_cast<std::int8_t>(tics);
-				if (moveActive < 0)
+				if (!sd_is_player_channel_playing(bstone::ActorChannel::no_way))
 				{
-					moveActive = 0;
+					sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
 				}
 			}
-
-			// Move to NEXT / PREV teleport?
-			//
-			buttonY = 0;
-			if (controlx > 0 || controly > 0)
+			else
 			{
-				if (!moveActive && tpNum < MAX_TELEPORTS - 1)
+				rt_code = tpNum; // ACCEPT
+
+				// Flash selection
+				//
+				for (int loop = 0; loop < 10; ++loop)
 				{
-					tpNum++; // MOVE NEXT
-					moveActive = MAX_MOVE_DELAY;
+					VWB_DrawMPic(teleX[tpNum], teleY[tpNum], TELEPORT1OFFPIC + tpNum);
+					VW_UpdateScreen();
+					VW_WaitVBL(4);
+
+					VWB_DrawMPic(teleX[tpNum], teleY[tpNum], TELEPORT1ONPIC + tpNum);
+					VW_UpdateScreen();
+					VW_WaitVBL(4);
 				}
 
-				buttonPic = TELEDNONPIC;
-				buttonY = 104;
+				break;
 			}
-			else if (controlx < 0 || controly < 0)
+		}
+
+		CheckMusicToggle();
+
+		// Handle delay
+		//
+		if (moveActive != 0)
+		{
+			moveActive -= static_cast<int>(tics);
+
+			if (moveActive < 0)
 			{
-				if (!moveActive && tpNum)
-				{
-					tpNum--; // MOVE PREV
-					moveActive = MAX_MOVE_DELAY;
-				}
+				moveActive = 0;
+			}
+		}
 
-				buttonPic = TELEUPONPIC;
-				buttonY = 91;
+		// Move to NEXT / PREV teleport?
+		//
+		buttonY = 0;
+
+		if (controlx > 0 || controly > 0)
+		{
+			if (moveActive == 0 && tpNum < (MAX_TELEPORTS - 1))
+			{
+				tpNum += 1; // MOVE NEXT
+				moveActive = MAX_MOVE_DELAY;
 			}
 
-			// Light buttons?
+			buttonPic = TELEDNONPIC;
+			buttonY = 104;
+		}
+		else if (controlx < 0 || controly < 0)
+		{
+			if (moveActive == 0 && tpNum)
+			{
+				tpNum -= 1; // MOVE PREV
+				moveActive = MAX_MOVE_DELAY;
+			}
+
+			buttonPic = TELEUPONPIC;
+			buttonY = 91;
+		}
+
+		// Light buttons?
+		//
+		if (buttonY != 0)
+		{
+			VWB_DrawMPic(34, 91, TELEUPOFFPIC);
+			VWB_DrawMPic(270, 91, TELEUPOFFPIC);
+			VWB_DrawMPic(34, 104, TELEDNOFFPIC);
+			VWB_DrawMPic(270, 104, TELEDNOFFPIC);
+
+			VWB_DrawMPic(34, buttonY, buttonPic);
+			VWB_DrawMPic(270, buttonY, buttonPic);
+			buttonsDrawn = true;
+		}
+		else
+			// Unlight buttons?
 			//
-			if (buttonY)
+			if (buttonsDrawn)
 			{
 				VWB_DrawMPic(34, 91, TELEUPOFFPIC);
 				VWB_DrawMPic(270, 91, TELEUPOFFPIC);
 				VWB_DrawMPic(34, 104, TELEDNOFFPIC);
 				VWB_DrawMPic(270, 104, TELEDNOFFPIC);
-
-				VWB_DrawMPic(34, buttonY, buttonPic);
-				VWB_DrawMPic(270, buttonY, buttonPic);
-				buttonsDrawn = true;
+				buttonsDrawn = false;
 			}
-			else
-				// Unlight buttons?
-				//
-				if (buttonsDrawn)
-				{
-					VWB_DrawMPic(34, 91, TELEUPOFFPIC);
-					VWB_DrawMPic(270, 91, TELEUPOFFPIC);
-					VWB_DrawMPic(34, 104, TELEDNOFFPIC);
-					VWB_DrawMPic(270, 104, TELEDNOFFPIC);
-					buttonsDrawn = false;
-				}
 
-			// Change visual information
-			//
-			if (tpNum != lastTpNum)
+		// Change visual information
+		//
+		if (tpNum != lastTpNum)
+		{
+			locked = gamestuff.level[tpNum].locked;
+			DisplayTeleportName(static_cast<std::int8_t>(tpNum), locked);
+
+			VWB_DrawMPic(teleX[lastTpNum], teleY[lastTpNum], TELEPORT1OFFPIC + lastTpNum);
+			VWB_DrawMPic(teleX[tpNum], teleY[tpNum], TELEPORT1ONPIC + tpNum);
+
+			LoadOverheadChunk(tpNum);
+			ShowOverheadChunk();
+
+			if (ov_noImage)
 			{
-				locked = gamestuff.level[tpNum].locked;
-				DisplayTeleportName(static_cast<std::int8_t>(tpNum), locked);
-
-				VWB_DrawMPic(teleX[lastTpNum], teleY[lastTpNum], TELEPORT1OFFPIC + lastTpNum);
-				VWB_DrawMPic(teleX[tpNum], teleY[tpNum], TELEPORT1ONPIC + tpNum);
-
-				LoadOverheadChunk(tpNum);
-				ShowOverheadChunk();
-				if (ov_noImage)
-				{
-					fontcolor = 0x57;
-					WindowX = WindowW = TOV_X;
-					WindowY = WindowH = TOV_Y;
-					WindowW += 63;
-					WindowH += 63;
-					PrintX = TOV_X + 5;
-					PrintY = TOV_Y + 13;
-					US_Print(if_noImage);
-				}
-				lastTpNum = tpNum;
+				fontcolor = 0x57;
+				WindowX = WindowW = TOV_X;
+				WindowY = WindowH = TOV_Y;
+				WindowW += 63;
+				WindowH += 63;
+				PrintX = TOV_X + 5;
+				PrintY = TOV_Y + 13;
+				US_Print(if_noImage);
 			}
 
-			if (locked)
-			{
-				ShowOverhead(TOV_X, TOV_Y, 32, -1, RADAR_FLAGS);
-			}
-
-			CycleColors();
-			VW_UpdateScreen();
-			if (screenfaded)
-			{
-				VW_FadeIn();
-				ShowStats(235, 138, ss_normal, &ov_stats);
-				IN_ClearKeysDown();
-				controlx = controly = 0;
-			}
+			lastTpNum = tpNum;
 		}
 
-		vid_set_ui_mask(false);
+		if (locked)
+		{
+			ShowOverhead(TOV_X, TOV_Y, 32, -1, RADAR_FLAGS);
+		}
 
-		VW_FadeOut();
+		CycleColors();
+		VW_UpdateScreen();
 
-		*player = old_player;
-		UnCacheLump(TELEPORT_LUMP_START, TELEPORT_LUMP_END);
+		if (screenfaded)
+		{
+			VW_FadeIn();
+			ShowStats(235, 138, ss_normal, &ov_stats);
+			IN_ClearKeysDown();
 
-		DrawPlayScreen(false);
-		IN_ClearKeysDown();
+			controlx = 0;
+			controly = 0;
+		}
+	}
 
-		return rt_code;
+	vid_set_ui_mask(false);
+
+	VW_FadeOut();
+
+	*player = old_player;
+	UnCacheLump(TELEPORT_LUMP_START, TELEPORT_LUMP_END);
+
+	DrawPlayScreen(false);
+	IN_ClearKeysDown();
+
+	return rt_code;
+}
+
+int InputFloor()
+{
+	const auto& assets_info = AssetsInfo{};
+
+	if (assets_info.is_aog())
+	{
+		return aog_input_floor();
+	}
+	else
+	{
+		return ps_input_floor();
 	}
 }
 
@@ -4099,15 +4229,14 @@ void LoadOverheadChunk(
 
 	if (FindChunk(&g_playtemp, chunk_name) > 0)
 	{
-		auto archiver_uptr = bstone::ArchiverFactory::create();
+		auto archiver = bstone::make_archiver();
 
 		try
 		{
-			auto archiver = archiver_uptr.get();
 			archiver->initialize(&g_playtemp);
 
 			archiver->read_uint8_array(ov_buffer.data(), 4096);
-			ov_stats.unarchive(archiver);
+			ov_stats.unarchive(archiver.get());
 			archiver->read_checksum();
 		}
 		catch (const bstone::ArchiverException&)
@@ -4150,12 +4279,11 @@ void SaveOverheadChunk(
 
 	const auto beg_offset = g_playtemp.get_position();
 
-	auto archiver_uptr = bstone::ArchiverFactory::create();
-	auto archiver = archiver_uptr.get();
+	auto archiver = bstone::make_archiver();
 	archiver->initialize(&g_playtemp);
 
 	archiver->write_uint8_array(ov_buffer.data(), 4096);
-	ov_stats.archive(archiver);
+	ov_stats.archive(archiver.get());
 	archiver->write_checksum();
 
 	const auto end_offset = g_playtemp.get_position();
@@ -5161,6 +5289,8 @@ void T_Attack(
 		gamestate.weaponframe =
 			attackinfo[static_cast<int>(gamestate.weapon)][gamestate.attackframe].frame;
 	}
+
+	try_to_grab_bonus_items();
 }
 
 void T_Player(
@@ -5450,7 +5580,7 @@ bool OperateSmartSwitch(
 
 	tile = tilemap[tilex][tiley];
 	obj = actorat[tilex][tiley];
-	iconnum = *(mapsegs[1] + farmapylookup[tiley] + tilex);
+	iconnum = mapsegs[1][farmapylookup[tiley] + tilex];
 	WhatItIs = wit_NOTHING;
 
 	//

@@ -961,25 +961,21 @@ void CheckKeys()
 
 		vid_is_hud = true;
 
-		if (sd_is_music_enabled_)
-		{
-			sd_music_off();
-		}
-
 		fontnumber = 4;
 		BMAmsg(PAUSED_MSG);
+
+		sd_pause_sfx(true);
+		sd_pause_music(true);
 
 		IN_ClearKeysDown();
 		IN_Ack();
 		IN_ClearKeysDown();
 
+		sd_pause_sfx(false);
+		sd_pause_music(false);
+
 		fontnumber = 2;
 		RedrawStatusAreas();
-
-		if (sd_is_music_enabled_)
-		{
-			sd_music_on();
-		}
 
 		Paused = false;
 		in_clear_mouse_deltas();
@@ -1068,16 +1064,19 @@ void CheckKeys()
 	case ScanCode::sc_escape: // MAIN MENU
 	{
 		refresh_screen = true;
+
 		if (scan < ScanCode::sc_f8)
 		{
 			vid_is_hud = true;
 			VW_FadeOut();
 			vid_is_hud = false;
 		}
+
 		StopMusic();
 		ClearMemory();
 		ClearSplitVWB();
 		US_ControlPanel(scan);
+
 		if (refresh_screen)
 		{
 			const auto old_loadedgame = loadedgame;
@@ -1085,12 +1084,16 @@ void CheckKeys()
 			DrawPlayScreen(false);
 			loadedgame = old_loadedgame;
 		}
+
 		ClearMemory();
+
 		if (!sd_sq_active_ || !loadedgame)
 		{
 			StartMusic(false);
 		}
+
 		IN_ClearKeysDown();
+
 		if (loadedgame)
 		{
 			PreloadGraphics();
@@ -1105,6 +1108,7 @@ void CheckKeys()
 		{
 			StartMusic(false);
 		}
+
 		return;
 	}
 
@@ -1116,7 +1120,9 @@ void CheckKeys()
 
 	if (in_is_binding_pressed(e_bi_stats))
 	{
+		sd_pause_sfx(true);
 		PopupAutoMap(Keyboard[ScanCode::sc_left_shift] || Keyboard[ScanCode::sc_right_shift]);
+		sd_pause_sfx(false);
 	}
 
 	if (Keyboard[ScanCode::sc_back_quote])
@@ -1417,8 +1423,9 @@ void InitActorList()
 */
 void GetNewActor()
 {
-	if (objcount >= MAXACTORS - 1)
+	if (objcount >= (MAXACTORS - 1))
 	{
+#if 0
 		objtype* obj = player->next;
 
 		while (obj)
@@ -1433,6 +1440,43 @@ void GetNewActor()
 				obj = obj->next;
 			}
 		}
+#else
+		//
+		// Remove the farthest dead actor and not the "waiting" one.
+		//
+		// Skip "waiting" actors to avoid mismatch stats for enemies.
+		// A "waiting" actor maybe removed by this function while animating,
+		// before it could spawn an appropriate actor.
+		//
+
+		auto max_squared_distance = 0;
+		auto farthest_actor = static_cast<objtype*>(nullptr);
+
+		for (auto actor = player->next; actor != nullptr; actor = actor->next)
+		{
+			if ((actor->flags & (FL_DEADGUY | FL_VISIBLE)) == FL_DEADGUY &&
+				actor->obclass != gurney_waitobj &&
+				actor->obclass != lcan_wait_alienobj &&
+				actor->obclass != scan_wait_alienobj)
+			{
+				const auto dx = player->tilex - actor->tilex;
+				const auto dy = player->tiley - actor->tiley;
+
+				const auto squared_distance = (dx * dx) + (dy * dy);
+
+				if (squared_distance > max_squared_distance)
+				{
+					max_squared_distance = squared_distance;
+					farthest_actor = actor;
+				}
+			}
+		}
+
+		if (farthest_actor != nullptr)
+		{
+			RemoveObj(farthest_actor);
+		}
+#endif
 	}
 
 	if (!objfreelist)
@@ -1463,7 +1507,7 @@ void GetNewActor()
 
 		lastobj = new_actor;
 
-		objcount++;
+		objcount += 1;
 	}
 }
 
@@ -1560,7 +1604,7 @@ void StartMusic(
 		}
 	}
 
-	if (!audiosegs[STARTMUSIC + musicchunk])
+	if (audiosegs[STARTMUSIC + musicchunk].empty())
 	{
 		CA_CacheAudioChunk(static_cast<std::int16_t>(STARTMUSIC + musicchunk));
 	}

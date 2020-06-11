@@ -259,7 +259,7 @@ void DefaultLogger::uninitialize()
 
 LoggerUPtr LoggerFactory::create()
 {
-	return LoggerUPtr{new DefaultLogger{}};
+	return std::make_unique<DefaultLogger>();
 }
 
 //

@@ -1062,8 +1062,8 @@ void CAL_SetupAudioFile()
 #ifndef AUDIOHEADERLINKED
 	ca_open_resource(Assets::get_audio_header_base_name(), handle);
 	auto length = static_cast<std::int32_t>(handle.get_size());
-	audiostarts = new std::int32_t[length / 4];
-	handle.read(audiostarts, length);
+	audiostarts.resize(length / 4);
+	handle.read(audiostarts.data(), length);
 	handle.close();
 #else
 	// TODO Remove or fix
@@ -1086,7 +1086,6 @@ void CAL_SetupGrFile()
 	}
 
 	bstone::FileStream handle;
-	std::uint8_t* compseg;
 
 	//
 	// load ???dict.ext (huffman dictionary for graphics files)
@@ -1100,10 +1099,10 @@ void CAL_SetupGrFile()
 	//
 	int grstarts_size = (NUMCHUNKS + 1) * FILEPOSSIZE;
 
-	grstarts = new std::int32_t[(grstarts_size + 3) / 4];
+	grstarts.resize((grstarts_size + 3) / 4);
 
 	ca_open_resource(Assets::get_gfx_header_base_name(), handle);
-	handle.read(grstarts, grstarts_size);
+	handle.read(grstarts.data(), grstarts_size);
 
 	//
 	// Open the graphics file, leaving it open until the game is finished
@@ -1113,18 +1112,19 @@ void CAL_SetupGrFile()
 	//
 	// load the pic and sprite headers into the arrays in the data segment
 	//
-	pictable = new pictabletype[NUMPICS];
+	pictable.resize(NUMPICS);
 	CAL_GetGrChunkLength(STRUCTPIC); // position file pointer
-	compseg = new std::uint8_t[chunkcomplen];
-	grhandle.read(compseg, chunkcomplen);
+
+	auto compseg = Buffer{};
+	compseg.resize(chunkcomplen);
+
+	grhandle.read(compseg.data(), chunkcomplen);
 
 	CAL_HuffExpand(
-		compseg,
-		reinterpret_cast<std::uint8_t*>(pictable),
+		compseg.data(),
+		reinterpret_cast<std::uint8_t*>(pictable.data()),
 		NUMPICS * sizeof(pictabletype),
 		grhuffman);
-
-	delete[] compseg;
 }
 
 static void cal_setup_map_data_file()
@@ -1199,8 +1199,8 @@ void CAL_SetupMapFile()
 			continue;
 		}
 
-		mapheaderseg[i] = new maptype();
-		map_header = mapheaderseg[i];
+		mapheaderseg[i] = maptype{};
+		map_header = &mapheaderseg[i];
 
 		maphandle.set_position(pos);
 
@@ -1230,7 +1230,7 @@ void CAL_SetupMapFile()
 	//
 	for (i = 0; i < MAPPLANES; ++i)
 	{
-		mapsegs[i] = new std::uint16_t[64 * 64];
+		mapsegs[i].resize(64 * 64);
 	}
 }
 
@@ -1286,12 +1286,12 @@ void PreDemo()
 		// Cache and set palette.  AND  Fade it in!
 		//
 		CA_CacheGrChunk(PIRACYPALETTE);
-		VL_SetPalette(0, 256, static_cast<const std::uint8_t*>(grsegs[PIRACYPALETTE]));
-		VL_SetPaletteIntensity(0, 255, static_cast<const std::uint8_t*>(grsegs[PIRACYPALETTE]), 0);
+		VL_SetPalette(0, 256, grsegs[PIRACYPALETTE].data());
+		VL_SetPaletteIntensity(0, 255, grsegs[PIRACYPALETTE].data(), 0);
 		VW_UpdateScreen();
 
 		VL_FadeOut(0, 255, 0, 0, 25, 20);
-		VL_FadeIn(0, 255, static_cast<const std::uint8_t*>(grsegs[PIRACYPALETTE]), 30);
+		VL_FadeIn(0, 255, grsegs[PIRACYPALETTE].data(), 30);
 
 		// Wait a little
 		//
@@ -1326,8 +1326,8 @@ void PreDemo()
 	// Cache and set palette.  AND  Fade it in!
 	//
 	CA_CacheGrChunk(APOGEEPALETTE);
-	VL_SetPalette(0, 256, static_cast<const std::uint8_t*>(grsegs[APOGEEPALETTE]));
-	VL_SetPaletteIntensity(0, 255, static_cast<const std::uint8_t*>(grsegs[APOGEEPALETTE]), 0);
+	VL_SetPalette(0, 256, grsegs[APOGEEPALETTE].data());
+	VL_SetPaletteIntensity(0, 255, grsegs[APOGEEPALETTE].data(), 0);
 	VW_UpdateScreen();
 	if (assets_info.is_aog())
 	{
@@ -1337,7 +1337,7 @@ void PreDemo()
 	{
 		VL_FadeOut(0, 255, 25, 29, 53, 20);
 	}
-	VL_FadeIn(0, 255, static_cast<const std::uint8_t*>(grsegs[APOGEEPALETTE]), 30);
+	VL_FadeIn(0, 255, grsegs[APOGEEPALETTE].data(), 30);
 
 	// Wait for end of fanfare
 	//
@@ -1359,8 +1359,7 @@ void PreDemo()
 	//
 	UNCACHEGRCHUNK(APOGEEPALETTE);
 
-	delete[] audiosegs[STARTMUSIC + APOGFNFM_MUS];
-	audiosegs[STARTMUSIC + APOGFNFM_MUS] = nullptr;
+	audiosegs[STARTMUSIC + APOGFNFM_MUS] = std::move(AudioSegment{});
 
 	if (assets_info.is_ps())
 	{
@@ -1423,6 +1422,20 @@ void check_for_extract_options()
 			const auto& dst_dir = g_args.get_option_value(extract_all_option_name);
 
 			ca_extract_all(dst_dir);
+
+			Quit();
+			return;
+		}
+	}
+
+	{
+		const auto& extract_vga_palette_option_name = std::string{"extract_vga_palette"};
+
+		if (g_args.has_option(extract_vga_palette_option_name))
+		{
+			const auto& dst_dir = g_args.get_option_value(extract_vga_palette_option_name);
+
+			ca_extract_vga_palette(dst_dir);
 
 			Quit();
 			return;
@@ -1511,9 +1524,9 @@ void InitGame()
 	ReadConfig();
 	read_high_scores();
 
+	sd_startup();
 	VW_Startup();
 	IN_Startup();
-	sd_startup();
 	US_Startup();
 
 	VL_SetPalette(0, 256, vgapal);

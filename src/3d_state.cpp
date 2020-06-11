@@ -501,7 +501,7 @@ bool ElevatorFloor(
 	std::int8_t x,
 	std::int8_t y)
 {
-	std::uint8_t tile = static_cast<std::uint8_t>(*(mapsegs[0] + farmapylookup[static_cast<int>(y)] + x));
+	std::uint8_t tile = static_cast<std::uint8_t>(mapsegs[0][farmapylookup[static_cast<int>(y)] + x]);
 
 	if (tile >= HIDDENAREATILE)
 	{
@@ -1520,6 +1520,9 @@ void DamageActor(
 	{
 		switch (ob->obclass)
 		{
+// FIXME
+// Remove this or convert the reserved actor into real one.
+#if 0
 		case scan_wait_alienobj: // These actors do not have an ouch!
 		case lcan_wait_alienobj: // So... RETURN!
 		case gurney_waitobj:
@@ -1531,6 +1534,7 @@ void DamageActor(
 				return;
 			}
 			break;
+#endif
 
 		case goldsternobj:
 			if (gamestate.mapon == GOLD_MORPH_LEVEL)
@@ -2569,8 +2573,8 @@ bool LookForGoodies(
 		{
 			// Is this an elevator door   OR   a locked door?
 			//
-			if ((!(*(mapsegs[0] + farmapylookup[door->tiley] + (door->tilex - 1)) - AREATILE)) ||
-				(!(*(mapsegs[0] + farmapylookup[door->tiley] + (door->tilex + 1)) - AREATILE)) ||
+			if ((!(mapsegs[0][farmapylookup[door->tiley] + (door->tilex - 1)] - AREATILE)) ||
+				(!(mapsegs[0][farmapylookup[door->tiley] + (door->tilex + 1)] - AREATILE)) ||
 				(door->lock != kt_none))
 			{
 				continue;

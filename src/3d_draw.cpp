@@ -1962,11 +1962,6 @@ static bool show_pwalls_on_automap(
 {
 	const auto& assets_info = AssetsInfo{};
 
-	if (assets_info.is_ps())
-	{
-		return true;
-	}
-
 	if (tilemap[x][y] == 0)
 	{
 		return false;
@@ -2221,7 +2216,7 @@ void ShowOverhead(
 					if ((ExtraRadarFlags & OV_PUSHWALLS) != 0 ||
 						(assets_info.is_ps() && zoom == 4 && (flags & OV_PUSHWALLS) != 0))
 					{
-						auto iconnum = *(mapsegs[1] + farmapylookup[my] + mx);
+						auto iconnum = mapsegs[1][farmapylookup[my] + mx];
 
 						// SHOW PUSHWALLS
 						//

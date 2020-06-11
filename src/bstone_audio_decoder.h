@@ -85,12 +85,19 @@ public:
 		const int dst_count,
 		std::int16_t* const dst_data) = 0;
 
+	// Decodes specified number of samples into a provided buffer.
+	// Returns a number of decoded samples.
+	virtual int decode(
+		const int dst_count,
+		float* const dst_data) = 0;
+
 	// Resets the instance.
 	virtual bool rewind() = 0;
 
 	// Returns a length of the audio data in samples.
 	virtual int get_dst_length_in_samples() const noexcept = 0;
 }; // AudioDecoder
+
 
 using AudioDecoderUPtr = std::unique_ptr<AudioDecoder>;
 

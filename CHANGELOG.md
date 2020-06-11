@@ -1,6 +1,27 @@
 # BStone changelog
 
 
+## [1.2.4] - 2020-06-11
+### Added
+- [AOG] "Cursor" for elevetor panel.
+- Option `--extract_vga_palette` to extract VGA palette.
+- Pause game audio when in menu.
+
+### Changed
+- Increased maximum actor count.
+- Use floating point for audio mixing.
+- Rewrite low-pass filter for PCM upsampling.
+- Saved games are not compatible with previous version.
+
+### Fixed
+- [AOG] Revised initial hitpoints for bosses.
+- [AOG][E4L1] Added missing barrier switch for 100% points.
+- [PS] Hide already pushed pushwall on auto-map.
+- Pickup items while attacking.
+- Sprite precache for Perscan Drone and Volatile Material Transport.
+- Both games should be now completable with 100% rating.
+
+
 ## [1.2.3] - 2020-05-27
 ### Added
 - Input bindings to cycle weapons.

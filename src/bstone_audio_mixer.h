@@ -51,6 +51,7 @@ enum class ActorChannel
 	hit_wall,
 	no_way,
 	interrogation,
+	unpausable,
 }; // ActorChannel
 
 enum class SoundType
@@ -62,114 +63,107 @@ enum class SoundType
 }; // SoundType
 
 
-class AudioMixer final
+class AudioMixer
 {
 public:
-	AudioMixer();
+	AudioMixer() = default;
 
-	AudioMixer(
-		const AudioMixer& rhs) = delete;
-
-	AudioMixer(
-		AudioMixer&& rhs);
-
-	AudioMixer& operator=(
-		const AudioMixer& rhs) = delete;
-
-	~AudioMixer();
+	virtual ~AudioMixer() = default;
 
 
 	// Note: Mix size in milliseconds.
-	bool initialize(
+	virtual bool initialize(
 		const Opl3Type opl3_type,
 		const int dst_rate,
-		const int mix_size_ms);
+		const int mix_size_ms) = 0;
 
-	void uninitialize();
+	virtual void uninitialize() = 0;
 
-	bool is_initialized() const;
+	virtual bool is_initialized() const = 0;
 
-	Opl3Type get_opl3_type() const;
+	virtual Opl3Type get_opl3_type() const = 0;
 
-	int get_rate() const;
+	virtual int get_rate() const = 0;
 
-	int get_channel_count() const;
+	virtual int get_channel_count() const = 0;
 
-	int get_mix_size_ms() const;
+	virtual int get_mix_size_ms() const = 0;
 
-	float get_sfx_volume() const;
+	virtual float get_sfx_volume() const = 0;
 
-	float get_music_volume() const;
+	virtual float get_music_volume() const = 0;
 
-	bool play_adlib_music(
+	virtual bool play_adlib_music(
 		const int music_index,
 		const void* const data,
-		const int data_size);
+		const int data_size) = 0;
 
 	// Negative index of an actor defines a non-positional sound.
-	bool play_adlib_sound(
+	virtual bool play_adlib_sound(
 		const int sound_index,
 		const int priority,
 		const void* const data,
 		const int data_size,
 		const int actor_index = -1,
 		const ActorType actor_type = ActorType::none,
-		const ActorChannel actor_channel = ActorChannel::voice);
+		const ActorChannel actor_channel = ActorChannel::voice) = 0;
 
 	// Negative index of an actor defines a non-positional sound.
-	bool play_pcm_sound(
+	virtual bool play_pcm_sound(
 		const int sound_index,
 		const int priority,
 		const void* const data,
 		const int data_size,
 		const int actor_index = -1,
 		const ActorType actor_type = ActorType::none,
-		const ActorChannel actor_channel = ActorChannel::voice);
+		const ActorChannel actor_channel = ActorChannel::voice) = 0;
 
-	bool update_positions();
+	virtual bool update_positions() = 0;
 
-	bool stop_music();
+	virtual bool stop_music() = 0;
 
-	bool stop_all_sfx();
+	virtual bool stop_all_sfx() = 0;
 
-	bool set_mute(
-		const bool value);
+	virtual bool pause_all_sfx(
+		const bool is_pause) = 0;
 
-	bool set_sfx_volume(
-		const float volume);
+	virtual bool pause_music(
+		const bool is_pause) = 0;
 
-	bool set_music_volume(
-		const float volume);
+	virtual bool set_mute(
+		const bool value) = 0;
 
-	bool is_music_playing() const;
+	virtual bool set_sfx_volume(
+		const float volume) = 0;
 
-	bool is_any_sfx_playing() const;
+	virtual bool set_music_volume(
+		const float volume) = 0;
 
-	bool is_player_channel_playing(
-		const ActorChannel channel) const;
+	virtual bool is_music_playing() const = 0;
 
-	static int get_min_rate();
+	virtual bool is_any_sfx_playing() const = 0;
 
-	static int get_default_rate();
+	virtual bool is_player_channel_playing(
+		const ActorChannel channel) const = 0;
 
-	static int get_min_mix_size_ms();
+	virtual int get_min_rate() const = 0;
 
-	static int get_default_mix_size_ms();
+	virtual int get_default_rate() const = 0;
 
-	static int get_max_channels();
+	virtual int get_min_mix_size_ms() const = 0;
 
-	static int get_max_commands();
+	virtual int get_default_mix_size_ms() const = 0;
 
+	virtual int get_max_channels() const = 0;
 
-private:
-	class Impl;
-
-
-	using ImplUPtr = std::unique_ptr<Impl>;
-
-
-	ImplUPtr impl_;
+	virtual int get_max_commands() const = 0;
 }; // AudioMixer
+
+
+using AudioMixerUPtr = std::unique_ptr<AudioMixer>;
+
+
+AudioMixerUPtr make_audio_mixer();
 
 
 } // bstone
