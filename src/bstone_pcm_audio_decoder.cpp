@@ -46,6 +46,87 @@ namespace bstone
 {
 
 
+namespace detail
+{
+
+
+template<typename TSrc, typename TDst>
+struct PcmDecoderSampleConverter;
+
+template<>
+struct PcmDecoderSampleConverter<std::uint8_t, std::int16_t>
+{
+	std::int16_t operator()(
+		const std::uint8_t u8_sample) const noexcept
+	{
+		return AudioSampleConverter::u8_to_s16(u8_sample);
+	}
+}; // PcmDecoderSampleConverter
+
+template<>
+struct PcmDecoderSampleConverter<std::uint8_t, float>
+{
+	float operator()(
+		const std::uint8_t u8_sample) const noexcept
+	{
+		return AudioSampleConverter::u8_to_f32(u8_sample);
+	}
+}; // PcmDecoderSampleConverter
+
+template<>
+struct PcmDecoderSampleConverter<std::uint8_t, double>
+{
+	double operator()(
+		const std::uint8_t u8_sample) const noexcept
+	{
+		return AudioSampleConverter::u8_to_f64(u8_sample);
+	}
+}; // PcmDecoderSampleConverter
+
+template<>
+struct PcmDecoderSampleConverter<float, std::int16_t>
+{
+	std::int16_t operator()(
+		const float f32_sample) const noexcept
+	{
+		return AudioSampleConverter::f32_to_s16(f32_sample);
+	}
+}; // PcmDecoderSampleConverter
+
+template<>
+struct PcmDecoderSampleConverter<float, float>
+{
+	float operator()(
+		const float f32_sample) const noexcept
+	{
+		return f32_sample;
+	}
+}; // PcmDecoderSampleConverter
+
+template<>
+struct PcmDecoderSampleConverter<double, std::int16_t>
+{
+	std::int16_t operator()(
+		const double f64_sample) const noexcept
+	{
+		return AudioSampleConverter::f64_to_s16(f64_sample);
+	}
+}; // PcmDecoderSampleConverter
+
+template<>
+struct PcmDecoderSampleConverter<double, float>
+{
+	float operator()(
+		const double f64_sample) const noexcept
+	{
+		return static_cast<float>(f64_sample);
+	}
+}; // PcmDecoderSampleConverter
+
+
+} // detail
+
+
 //
 // PCM audio decoder.
 //
@@ -93,80 +174,6 @@ private:
 		40
 #endif
 	;
-
-
-	template<typename TSrc, typename TDst>
-	struct SampleConverter;
-
-	template<>
-	struct SampleConverter<std::uint8_t, std::int16_t>
-	{
-		std::int16_t operator()(
-			const std::uint8_t u8_sample) const noexcept
-		{
-			return AudioSampleConverter::u8_to_s16(u8_sample);
-		}
-	}; // SampleConverter
-
-	template<>
-	struct SampleConverter<std::uint8_t, float>
-	{
-		float operator()(
-			const std::uint8_t u8_sample) const noexcept
-		{
-			return AudioSampleConverter::u8_to_f32(u8_sample);
-		}
-	}; // SampleConverter
-
-	template<>
-	struct SampleConverter<std::uint8_t, double>
-	{
-		double operator()(
-			const std::uint8_t u8_sample) const noexcept
-		{
-			return AudioSampleConverter::u8_to_f64(u8_sample);
-		}
-	}; // SampleConverter
-
-	template<>
-	struct SampleConverter<float, std::int16_t>
-	{
-		std::int16_t operator()(
-			const float f32_sample) const noexcept
-		{
-			return AudioSampleConverter::f32_to_s16(f32_sample);
-		}
-	}; // SampleConverter
-
-	template<>
-	struct SampleConverter<float, float>
-	{
-		float operator()(
-			const float f32_sample) const noexcept
-		{
-			return f32_sample;
-		}
-	}; // SampleConverter
-
-	template<>
-	struct SampleConverter<double, std::int16_t>
-	{
-		std::int16_t operator()(
-			const double f64_sample) const noexcept
-		{
-			return AudioSampleConverter::f64_to_s16(f64_sample);
-		}
-	}; // SampleConverter
-
-	template<>
-	struct SampleConverter<double, float>
-	{
-		float operator()(
-			const double f64_sample) const noexcept
-		{
-			return static_cast<float>(f64_sample);
-		}
-	}; // SampleConverter
 
 
 	bool is_initialized_;
@@ -337,9 +344,9 @@ int PcmDecoder::decode_upsampled(
 	const int dst_count,
 	TDst* const dst_data)
 {
-	const auto u8_to_xx = SampleConverter<std::uint8_t, TDst>{};
-	const auto u8_to_f64 = SampleConverter<std::uint8_t, double>{};
-	const auto f64_to_xx = SampleConverter<double, TDst>{};
+	const auto u8_to_xx = detail::PcmDecoderSampleConverter<std::uint8_t, TDst>{};
+	const auto u8_to_f64 = detail::PcmDecoderSampleConverter<std::uint8_t, double>{};
+	const auto f64_to_xx = detail::PcmDecoderSampleConverter<double, TDst>{};
 
 	const auto count = std::min(dst_count, dst_count_ - dst_offset_);
 
@@ -382,7 +389,7 @@ int PcmDecoder::decode_non_upsampled(
 		&src_data_[src_offset_],
 		&src_data_[src_offset_ + to_copy_count],
 		dst_data,
-		SampleConverter<std::uint8_t, TDst>{}
+		detail::PcmDecoderSampleConverter<std::uint8_t, TDst>{}
 	);
 
 	src_offset_ += to_copy_count;
