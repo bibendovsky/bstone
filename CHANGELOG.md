@@ -1,6 +1,11 @@
 # BStone changelog
 
 
+## [1.2.5] - 2020-06-11
+### Fixed
+- [AOG][E4L1] Removed unnecessary in-place level fix.
+
+
 ## [1.2.4] - 2020-06-11
 ### Added
 - [AOG] "Cursor" for elevetor panel.
