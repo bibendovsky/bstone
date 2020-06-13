@@ -26,6 +26,7 @@ Free Software Foundation, Inc.,
 
 #include <algorithm>
 #include <map>
+#include <vector>
 
 #include "audio.h"
 #include "id_ca.h"
@@ -40,6 +41,7 @@ Free Software Foundation, Inc.,
 #include "jm_cio.h"
 #include "jm_lzh.h"
 #include "jm_tp.h"
+
 #include "bstone_scope_guard.h"
 #include "bstone_ren_3d_limits.h"
 
@@ -397,6 +399,9 @@ void cp_sound_volume(
 
 void cp_video(
 	std::int16_t);
+
+void cp_resampling(
+	std::int16_t);
 // BBi
 
 
@@ -411,7 +416,7 @@ extern bool refresh_screen;
 
 CP_iteminfo MainItems = {MENU_X, MENU_Y, 12, MM_NEW_MISSION, 0, 9, {77, 1, 154, 9, 1}};
 CP_iteminfo GopItems = {MENU_X, MENU_Y + 25, 6, 0, 0, 9, {77, 1, 154, 9, 1}};
-CP_iteminfo SndItems = {SM_X, SM_Y, 2, 0, 0, 7, {87, -1, 144, 7, 1}};
+CP_iteminfo SndItems = {SM_X, SM_Y, 3, 0, 0, 8, {87, -1, 144, 7, 1}};
 CP_iteminfo LSItems = {LSM_X, LSM_Y, 10, 0, 0, 8, {86, -1, 144, 8, 1}};
 CP_iteminfo CtlItems = {CTL_X, CTL_Y, 3, -1, 0, 9, {87, 1, 174, 9, 1}};
 CP_iteminfo CusItems = {CST_X, CST_Y + 7, 6, -1, 0, 15, {54, -1, 203, 7, 1}};
@@ -424,6 +429,7 @@ CP_iteminfo video_items = {MENU_X, MENU_Y + 30, 3, 0, 0, 9, {77, -1, 154, 7, 1}}
 CP_iteminfo video_mode_items = {MENU_X, MENU_Y + 10, 8, 0, 0, 9, {77, -1, 154, 7, 1}};
 CP_iteminfo texturing_items = {MENU_X, MENU_Y + 10, 9, 0, 0, 9, {77, -1, 154, 7, 1}};
 CP_iteminfo switches2_items = {MENU_X, MENU_Y + 30, 2, 0, 0, 9, {87, -1, 132, 7, 1}};
+CP_iteminfo resampling_items = {MENU_X, MENU_Y + 30, 3, 0, 0, 9, {77, -1, 154, 7, 1}};
 // BBi
 
 
@@ -461,9 +467,11 @@ CP_itemtype GopMenu[] = {
 	// BBi
 };
 
-CP_itemtype SndMenu[] = {
+CP_itemtype SndMenu[] =
+{
 	{AT_ENABLED, "SOUND EFFECTS", 0},
 	{AT_ENABLED, "BACKGROUND MUSIC", 0},
+	{AT_ENABLED, "RESAMPLING", cp_resampling},
 };
 
 CP_itemtype CtlMenu[] = {
@@ -490,6 +498,13 @@ CP_itemtype switch2_menu[] =
 {
 	{AT_ENABLED, "SKIP INTRO/OUTRO", 0},
 	{AT_ENABLED, "SKIP FADE IN/OUT EFFECT", 0},
+};
+
+CP_itemtype resampling_menu[] =
+{
+	{AT_ENABLED, "INTERPOLATION", 0},
+	{AT_ENABLED, "LOW-PASS FILTER", 0},
+	{AT_ENABLED, "APPLY", 0},
 };
 
 
@@ -2709,6 +2724,11 @@ void CP_Sound(
 
 			break;
 
+		case 2:
+			MenuFadeIn();
+			DrawSoundMenu();
+			break;
+
 		default:
 			break;
 		}
@@ -2753,6 +2773,11 @@ void DrawAllSoundLights(
 
 	for (i = 0; i < SndItems.amount; i++)
 	{
+		if (i > 1)
+		{
+			break;
+		}
+
 		if (SndMenu[i].string[0])
 		{
 			Shape = C_NOTSELECTEDPIC;
@@ -5917,6 +5942,243 @@ void cp_switches2(
 			ShootSnd();
 			draw_switch2_menu();
 			break;
+		}
+	} while (which >= 0);
+
+	MenuFadeOut();
+}
+///
+
+///
+static int resampling_interpolation_;
+static std::string resampling_interpolation_string_;
+
+static bool resampling_lpf_;
+static std::string resampling_lpf_string_;
+
+void update_resampling_apply_state()
+{
+	const auto is_changed =
+		resampling_lpf_ != sd_cfg_get_resampling_low_pass_filter() ||
+		resampling_interpolation_ != static_cast<int>(sd_get_resampling_interpolation())
+	;
+
+	resampling_menu[2].active = (is_changed ? AT_ENABLED : AT_DISABLED);
+}
+
+void draw_resampling_description(
+	std::int16_t which)
+{
+	const char* instr[] =
+	{
+		"SELECTS INTERPOLATION METHOD",
+		"TOGGLES LOW-PASS FILTER",
+		"APPLIES CHANGES"
+	};
+
+	const auto& assets_info = AssetsInfo{};
+
+	fontnumber = 2;
+
+	WindowX = 48;
+	WindowY = (assets_info.is_ps() ? 134 : 144);
+	WindowW = 236;
+	WindowH = 8;
+
+	VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, menu_background_color);
+
+	SETFONTCOLOR(TERM_SHADOW_COLOR, TERM_BACK_COLOR);
+	US_PrintCentered(instr[which]);
+
+	WindowX--;
+	WindowY--;
+
+	SETFONTCOLOR(INSTRUCTIONS_TEXT_COLOR, TERM_BACK_COLOR);
+	US_PrintCentered(instr[which]);
+}
+
+void draw_resampling_switch(
+	std::int16_t which)
+{
+	for (int i = 0; i < resampling_items.amount; ++i)
+	{
+		if (resampling_menu[i].string[0])
+		{
+			switch (i)
+			{
+				case 0:
+					draw_carousel(
+						i,
+						&resampling_items,
+						resampling_menu,
+						resampling_interpolation_string_
+					);
+
+					break;
+
+				case 1:
+					draw_carousel(
+						i,
+						&resampling_items,
+						resampling_menu,
+						resampling_lpf_string_
+					);
+
+					break;
+
+				default:
+					break;
+			}
+		}
+	}
+
+	draw_resampling_description(which);
+}
+
+void update_resampling_menu()
+{
+	ClearMScreen();
+	DrawMenuTitle("SOUND RESAMPLING");
+
+	fontnumber = 2;
+
+	DrawMenu(&resampling_items, &resampling_menu[0]);
+	DrawInstructions(IT_STANDARD);
+}
+
+void update_resampling_interpolation_string()
+{
+	switch (resampling_interpolation_)
+	{
+		case 1:
+			resampling_interpolation_string_ = "ZOH";
+			break;
+
+		case 2:
+			resampling_interpolation_string_ = "LINEAR";
+			break;
+
+		default:
+			resampling_interpolation_string_ = "???";
+			break;
+	}
+}
+
+void update_resampling_lpf_string()
+{
+	if (resampling_lpf_)
+	{
+		resampling_lpf_string_ = "ON";
+	}
+	else
+	{
+		resampling_lpf_string_ = "OFF";
+	}
+}
+
+void draw_resampling_menu()
+{
+	resampling_interpolation_ = static_cast<int>(sd_get_resampling_interpolation());
+
+	if (resampling_interpolation_ <= 0)
+	{
+		resampling_interpolation_ = 1;
+	}
+
+	resampling_lpf_ = sd_cfg_get_resampling_low_pass_filter();
+
+	update_resampling_interpolation_string();
+	update_resampling_lpf_string();
+	update_resampling_apply_state();
+
+	CA_CacheScreen(BACKGROUND_SCREENPIC);
+
+	update_resampling_menu();
+
+	VW_UpdateScreen();
+}
+
+void resampling_interpolation_carousel(
+	const int item_index,
+	const bool is_left,
+	const bool is_right)
+{
+	if (is_left)
+	{
+		resampling_interpolation_ -= 1;
+	}
+	else if (is_right)
+	{
+		resampling_interpolation_ += 1;
+	}
+
+	if (resampling_interpolation_ <= 0)
+	{
+		resampling_interpolation_ = 2;
+	}
+	else if (resampling_interpolation_ > 2)
+	{
+		resampling_interpolation_ = 1;
+	}
+
+	update_resampling_interpolation_string();
+	update_resampling_apply_state();
+
+	update_resampling_menu();
+	draw_resampling_switch(item_index);
+
+	TicDelay(20);
+}
+
+void resampling_lpf_carousel(
+	const int item_index,
+	const bool is_left,
+	const bool is_right)
+{
+	resampling_lpf_ = !resampling_lpf_;
+
+	update_resampling_lpf_string();
+	update_resampling_apply_state();
+
+	update_resampling_menu();
+	draw_resampling_switch(item_index);
+
+	TicDelay(20);
+}
+
+void cp_resampling(
+	std::int16_t)
+{
+	CA_CacheScreen(BACKGROUND_SCREENPIC);
+	draw_resampling_menu();
+	MenuFadeIn();
+	WaitKeyUp();
+
+	resampling_menu[0].carousel_func_ = resampling_interpolation_carousel;
+	resampling_menu[1].carousel_func_ = resampling_lpf_carousel;
+
+	auto which = 0;
+
+	do
+	{
+		which = HandleMenu(&resampling_items, &resampling_menu[0], draw_resampling_switch);
+
+		switch (which)
+		{
+			case 2:
+				sd_cfg_set_resampling_interpolation(
+					static_cast<bstone::AudioDecoderInterpolationType>(resampling_interpolation_)
+				);
+				sd_cfg_set_resampling_low_pass_filter(resampling_lpf_);
+				sd_apply_resampling();
+
+				ShootSnd();
+				draw_resampling_menu();
+
+				break;
+
+			default:
+				break;
 		}
 	} while (which >= 0);
 

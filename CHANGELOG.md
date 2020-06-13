@@ -1,6 +1,12 @@
 # BStone changelog
 
 
+## [1.2.6] - 2020-06-18
+### Added
+- Option `snd_resampling_interpolation` to specify interpolation method for resampling.
+- Option `snd_resampling_lpf` to toggle low-pass filter for resampling.
+
+
 ## [1.2.5] - 2020-06-11
 ### Fixed
 - [AOG][E4L1] Removed unnecessary in-place level fix.

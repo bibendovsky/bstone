@@ -220,6 +220,15 @@ private:
 
 	void uninitialize();
 
+	bool mt_is_quit();
+
+	//
+	// Returns:
+	//    - "true" if task was picked and executed.
+	//    - "false" if there are no more tasks.
+	//
+	bool try_pick_and_execute();
+
 	void mt_thread_func(
 		MtThread* mt_thread);
 }; // MtTaskMgr
@@ -475,10 +484,13 @@ void MtTaskMgrImpl::add_tasks_and_wait_for_added(
 {
 	mt_task_queue_.push(mt_tasks, mt_task_count);
 
+	auto is_quit = false;
 	auto is_completed = false;
 
-	while (!is_completed)
+	while (!is_quit && !is_completed)
 	{
+		try_pick_and_execute();
+
 		is_completed = std::all_of(
 			mt_tasks,
 			mt_tasks + mt_task_count,
@@ -487,6 +499,8 @@ void MtTaskMgrImpl::add_tasks_and_wait_for_added(
 				return item->is_completed();
 			}
 		);
+
+		is_quit = mt_is_quit();
 	}
 
 	for (auto& mt_thread : mt_threads_)
@@ -570,6 +584,33 @@ void MtTaskMgrImpl::uninitialize()
 	}
 }
 
+bool MtTaskMgrImpl::mt_is_quit()
+{
+	return mt_is_quit_.load(std::memory_order_acquire);
+}
+
+bool MtTaskMgrImpl::try_pick_and_execute()
+{
+	auto mt_task = MtTaskPtr{};
+
+	if (!mt_task_queue_.pop(mt_task))
+	{
+		return false;
+	}
+
+	try
+	{
+		mt_task->execute();
+		mt_task->set_completed();
+	}
+	catch (...)
+	{
+		mt_task->set_failed(std::current_exception());
+	}
+
+	return true;
+}
+
 void MtTaskMgrImpl::mt_thread_func(
 	MtThread* mt_thread)
 {
@@ -577,23 +618,9 @@ void MtTaskMgrImpl::mt_thread_func(
 
 	try
 	{
-		while (!mt_is_quit_.load(std::memory_order_acquire))
+		while (!mt_is_quit())
 		{
-			auto task = MtTaskPtr{};
-
-			if (mt_task_queue_.pop(task))
-			{
-				try
-				{
-					task->execute();
-					task->set_completed();
-				}
-				catch (...)
-				{
-					task->set_failed(std::current_exception());
-				}
-			}
-			else
+			if (!try_pick_and_execute())
 			{
 				std::this_thread::sleep_for(sleep_duration_ms);
 			}
@@ -611,18 +638,12 @@ void MtTaskMgrImpl::mt_thread_func(
 // ==========================================================================
 
 
-// ==========================================================================
-// MtTaskMgrFactory
-
-MtTaskMgrUPtr MtTaskMgrFactory::create(
+MtTaskMgrUPtr make_mt_task_manager(
 	const int concurrency_reserve,
 	const int max_task_count)
 {
 	return std::make_unique<MtTaskMgrImpl>(concurrency_reserve, max_task_count);
 }
-
-// MtTaskMgrFactory
-// ==========================================================================
 
 
 } // bstone

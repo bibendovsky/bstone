@@ -55,9 +55,7 @@ public:
 	~AdlibMusicDecoder() override;
 
 	bool initialize(
-		const void* const raw_data,
-		const int raw_size,
-		const int dst_rate) override;
+		const AudioDecoderInitParam& param) override;
 
 	void uninitialize() override;
 
@@ -74,6 +72,11 @@ public:
 	bool rewind() override;
 
 	int get_dst_length_in_samples() const noexcept override;
+
+	bool set_resampling(
+		const AudioDecoderInterpolationType interpolation_type,
+		const bool lpf,
+		const bool lpf_flush_samples) override;
 
 	// Returns a number of calls per second of
 	// original interrupt routine.
@@ -120,9 +123,7 @@ AdlibMusicDecoder::AdlibMusicDecoder(
 AdlibMusicDecoder::~AdlibMusicDecoder() = default;
 
 bool AdlibMusicDecoder::initialize(
-	const void* const raw_data,
-	const int raw_size,
-	const int dst_rate)
+	const AudioDecoderInitParam& param)
 {
 	uninitialize();
 
@@ -131,24 +132,24 @@ bool AdlibMusicDecoder::initialize(
 		return false;
 	}
 
-	if (!raw_data)
+	if (!param.src_raw_data_)
 	{
 		return false;
 	}
 
-	if (raw_size < 0)
+	if (param.src_raw_size_ < 0)
 	{
 		return false;
 	}
 
-	if (dst_rate < 1)
+	if (param.dst_rate_ < 1)
 	{
 		return false;
 	}
 
-	emulator_->initialize(dst_rate);
+	emulator_->initialize(param.dst_rate_);
 
-	static_cast<void>(reader_.open(raw_data, raw_size));
+	static_cast<void>(reader_.open(param.src_raw_data_, param.src_raw_size_));
 
 	const auto commands_size = static_cast<int>(bstone::Endian::little(reader_.read_u16()));
 
@@ -157,7 +158,7 @@ bool AdlibMusicDecoder::initialize(
 		return false;
 	}
 
-	if ((commands_size + 2) > raw_size)
+	if ((commands_size + 2) > param.src_raw_size_)
 	{
 		return false;
 	}
@@ -222,6 +223,14 @@ bool AdlibMusicDecoder::rewind()
 int AdlibMusicDecoder::get_dst_length_in_samples() const noexcept
 {
 	return dst_length_in_samples_;
+}
+
+bool AdlibMusicDecoder::set_resampling(
+	const AudioDecoderInterpolationType interpolation_type,
+	const bool lpf,
+	const bool lpf_flush_samples)
+{
+	return false;
 }
 
 int AdlibMusicDecoder::decode(

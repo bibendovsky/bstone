@@ -23,65 +23,48 @@ Free Software Foundation, Inc.,
 
 
 //
-// Low-pass filter.
-//
-// Based on information at
-// http://www.labbookpages.co.uk/audio/firWindowing.html
+// Various math constants and functions.
 //
 
 
-#include <vector>
+#ifndef BSTONE_MATH_INCLUDED
+#define BSTONE_MATH_INCLUDED
 
-#include "bstone_exception.h"
+
+#include <type_traits>
 
 
 namespace bstone
 {
-
-
-class LowPassFilter
+namespace math
 {
-public:
-	LowPassFilter();
-
-	LowPassFilter(
-		const int filter_order,
-		const int cut_off_frequency,
-		const int sampling_frequency);
 
 
-	void initialize(
-		const int filter_order,
-		const int cut_off_frequency,
-		const int sampling_frequency);
-
-	double process_sample(
-		const double sample);
-
-	void reset_samples();
+template<typename T>
+inline T gcd(
+	const T a,
+	const T b) noexcept
+{
+	static_assert(std::is_integral<T>::value, "Expected integral type.");
 
 
-private:
-	using Weights = std::vector<double>;
-	using Samples = std::vector<double>;
+	if (b == 0)
+	{
+		return a;
+	}
+	else if (a < b)
+	{
+		return gcd(b, a);
+	}
+	else
+	{
+		return gcd(b, a % b);
+	}
+}
 
 
-	int length_;
-	int half_length_;
-	int left_length_;
-	Weights weights_;
-	Samples samples_;
-
-
-	static double get_pi() noexcept;
-
-	void initialize_weights(
-		const int filter_order,
-		const int cut_off_frequency,
-		const int sampling_frequency);
-
-	void apply_hann_weights();
-}; // LowPassFilter
-
-
+} // math
 } // bstone
+
+
+#endif // BSTONE_MATH_INCLUDED

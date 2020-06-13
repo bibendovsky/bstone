@@ -58,16 +58,15 @@ class AudioMixerImpl final :
 	public AudioMixer
 {
 public:
-	AudioMixerImpl();
+	AudioMixerImpl(
+		MtTaskMgr* const mt_task_manager);
 
 	~AudioMixerImpl() override;
 
 
 	// Note: Mix size in milliseconds.
 	bool initialize(
-		const Opl3Type opl3_type,
-		const int dst_rate,
-		const int mix_size_ms) override;
+		const AudioMixerInitParam& param) override;
 
 	void uninitialize() override;
 
@@ -84,6 +83,10 @@ public:
 	float get_sfx_volume() const override;
 
 	float get_music_volume() const override;
+
+	AudioDecoderInterpolationType get_resampling_interpolation() const noexcept override;
+
+	bool get_resampling_lpf() const noexcept override;
 
 	bool play_adlib_music(
 		const int music_index,
@@ -109,6 +112,10 @@ public:
 		const int actor_index = -1,
 		const ActorType actor_type = ActorType::none,
 		const ActorChannel actor_channel = ActorChannel::voice) override;
+
+	bool set_resampling(
+		const bstone::AudioDecoderInterpolationType interpolation,
+		const bool low_pass_filter_);
 
 	bool update_positions() override;
 
@@ -160,6 +167,7 @@ private:
 
 	using MtLock = std::mutex;
 	using MtLockGuard = std::lock_guard<MtLock>;
+
 
 	class CacheItem
 	{
@@ -233,19 +241,84 @@ private:
 	{
 		play,
 		stop_music,
-		stop_all_sfx
+		stop_all_sfx,
+		resampling,
 	}; // CommandType
 
-	struct Command
+	struct CommandPlay
 	{
-		CommandType command;
 		Sound sound;
 		const void* data;
 		int data_size;
+	}; // CommandPlay
+
+	struct CommandResampling
+	{
+		AudioDecoderInterpolationType interpolation_;
+		bool low_pass_filter_;
+	}; // CommandResampling
+
+	struct Command
+	{
+		CommandType command_;
+
+		union
+		{
+			CommandPlay play_;
+			CommandResampling resampling_;
+		};
 	}; // Command
 
 	using Commands = std::vector<Command>;
 
+
+	class SetResamplingMtTask :
+		public MtTask
+	{
+	public:
+		SetResamplingMtTask();
+
+		~SetResamplingMtTask() override;
+
+
+		void execute() override;
+
+
+		bool is_completed() const noexcept override;
+
+		void set_completed() override;
+
+
+		bool is_failed() const noexcept override;
+
+		std::exception_ptr get_exception_ptr() const noexcept override;
+
+		void set_failed(
+			const std::exception_ptr exception_ptr) override;
+
+
+		void initialize(
+			CacheItem* cache_item,
+			const AudioDecoderInterpolationType interpolation_,
+			const bool is_lpf_) noexcept;
+
+
+	private:
+		CacheItem* cache_item_;
+		AudioDecoderInterpolationType interpolation_;
+		bool is_lpf_;
+
+		bool is_completed_;
+		bool is_failed_;
+
+		std::exception_ptr exception_ptr_;
+	}; // SetResamplingMtTask
+
+	using SetResamplingMtTasks = std::vector<SetResamplingMtTask>;
+	using SetResamplingMtTasksPtrs = std::vector<MtTask*>;
+
+
+	MtTaskMgr* const mt_task_manager_;
 
 	bool is_initialized_;
 	Opl3Type opl3_type_;
@@ -276,6 +349,10 @@ private:
 	std::atomic<float> sfx_volume_;
 	std::atomic<float> music_volume_;
 	int mix_size_ms_;
+	AudioDecoderInterpolationType interpolation_;
+	bool is_lpf_;
+	SetResamplingMtTasks set_resampling_mt_tasks_;
+	SetResamplingMtTasksPtrs set_resampling_mt_tasks_ptrs_;
 
 
 	void callback(
@@ -285,6 +362,8 @@ private:
 	void mix();
 
 	void mix_samples();
+
+	void handle_resampling();
 
 	void handle_commands();
 
@@ -399,8 +478,114 @@ bool AudioMixerImpl::Sound::is_audible() const
 	return left_volume > 0.0F || right_volume > 0.0F;
 }
 
-AudioMixerImpl::AudioMixerImpl()
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// SetResamplingMtTask
+//
+
+AudioMixerImpl::SetResamplingMtTask::SetResamplingMtTask()
 	:
+	cache_item_{},
+	interpolation_{},
+	is_lpf_{},
+	is_completed_{},
+	is_failed_{},
+	exception_ptr_{}
+{
+}
+
+AudioMixerImpl::SetResamplingMtTask::~SetResamplingMtTask() = default;
+
+void AudioMixerImpl::SetResamplingMtTask::execute()
+{
+	auto is_invalid = false;
+
+	if (!is_invalid)
+	{
+		const auto set_result = cache_item_->decoder->set_resampling(
+			interpolation_,
+			is_lpf_,
+			true
+		);
+
+		if (!set_result)
+		{
+			is_invalid = true;
+		}
+	}
+
+	if (!is_invalid)
+	{
+		const auto rewind_result = cache_item_->decoder->rewind();
+
+		if (!rewind_result)
+		{
+			is_invalid = true;
+		}
+	}
+
+	if (!is_invalid && cache_item_->decoded_count > 0)
+	{
+		const auto decoded_count = cache_item_->decoder->decode(
+			cache_item_->decoded_count,
+			cache_item_->samples.data()
+		);
+
+		if (decoded_count != cache_item_->decoded_count)
+		{
+			is_invalid = true;
+		}
+	}
+
+	if (is_invalid)
+	{
+		cache_item_->is_invalid = true;
+	}
+}
+
+bool AudioMixerImpl::SetResamplingMtTask::is_completed() const noexcept
+{
+	return is_completed_;
+}
+
+void AudioMixerImpl::SetResamplingMtTask::set_completed()
+{
+	is_completed_ = true;
+}
+
+bool AudioMixerImpl::SetResamplingMtTask::is_failed() const noexcept
+{
+	return is_failed_;
+}
+
+std::exception_ptr AudioMixerImpl::SetResamplingMtTask::get_exception_ptr() const noexcept
+{
+	return exception_ptr_;
+}
+
+void AudioMixerImpl::SetResamplingMtTask::set_failed(
+	const std::exception_ptr exception_ptr)
+{
+	is_failed_ = true;
+}
+
+void AudioMixerImpl::SetResamplingMtTask::initialize(
+	CacheItem* cache_item,
+	const AudioDecoderInterpolationType interpolation,
+	const bool is_lpf) noexcept
+{
+	cache_item_ = cache_item;
+	interpolation_ = interpolation;
+	is_lpf_ = is_lpf;
+}
+
+//
+// SetResamplingMtTask
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+AudioMixerImpl::AudioMixerImpl(
+	MtTaskMgr* const mt_task_manager)
+	:
+	mt_task_manager_{mt_task_manager},
 	is_initialized_{},
 	opl3_type_{},
 	dst_rate_{},
@@ -429,7 +614,11 @@ AudioMixerImpl::AudioMixerImpl()
 	is_any_sfx_playing_{},
 	sfx_volume_{},
 	music_volume_{},
-	mix_size_ms_{}
+	mix_size_ms_{},
+	interpolation_{},
+	is_lpf_{},
+	set_resampling_mt_tasks_{},
+	set_resampling_mt_tasks_ptrs_{}
 {
 	// Initialize atomic fields
 	//
@@ -447,13 +636,11 @@ AudioMixerImpl::~AudioMixerImpl()
 }
 
 bool AudioMixerImpl::initialize(
-	const Opl3Type opl3_type,
-	const int dst_rate,
-	const int mix_size_ms)
+	const AudioMixerInitParam& param)
 {
 	uninitialize();
 
-	switch (opl3_type)
+	switch (param.opl3_type_)
 	{
 		case Opl3Type::dbopl:
 			break;
@@ -462,22 +649,22 @@ bool AudioMixerImpl::initialize(
 			return false;
 	}
 
-	if (dst_rate == 0)
+	if (param.dst_rate_ == 0)
 	{
 		dst_rate_ = get_default_rate();
 	}
 	else
 	{
-		dst_rate_ = std::max(dst_rate, get_min_rate());
+		dst_rate_ = std::max(param.dst_rate_, get_min_rate());
 	}
 
-	if (mix_size_ms == 0)
+	if (param.mix_size_ms_ == 0)
 	{
 		mix_size_ms_ = get_default_mix_size_ms();
 	}
 	else
 	{
-		mix_size_ms_ = std::max(mix_size_ms, get_min_mix_size_ms());
+		mix_size_ms_ = std::max(param.mix_size_ms_, get_min_mix_size_ms());
 	}
 
 	mix_samples_count_ = calculate_mix_samples_count(dst_rate_, mix_size_ms_);
@@ -510,7 +697,7 @@ bool AudioMixerImpl::initialize(
 	{
 		is_initialized_ = true;
 
-		opl3_type_ = opl3_type;
+		opl3_type_ = param.opl3_type_;
 
 		mix_samples_count_ = dst_spec.samples;
 
@@ -532,6 +719,17 @@ bool AudioMixerImpl::initialize(
 		positions_.initialize();
 		modified_actors_indices_.reserve(MAXACTORS);
 		modified_doors_indices_.reserve(MAXDOORS);
+
+		interpolation_ = param.resampling_interpolation_;
+		is_lpf_ = param.resampling_lpf_;
+
+		set_resampling_mt_tasks_.resize(NUMSOUNDS);
+		set_resampling_mt_tasks_ptrs_.resize(NUMSOUNDS);
+
+		for (int i = 0; i < NUMSOUNDS; ++i)
+		{
+			set_resampling_mt_tasks_ptrs_[i] = &set_resampling_mt_tasks_[i];
+		}
 
 		SDL_PauseAudioDevice(device_id_, 0);
 	}
@@ -612,6 +810,16 @@ float AudioMixerImpl::get_music_volume() const
 	return music_volume_.load(std::memory_order_acquire);
 }
 
+AudioDecoderInterpolationType AudioMixerImpl::get_resampling_interpolation() const noexcept
+{
+	return interpolation_;
+}
+
+bool AudioMixerImpl::get_resampling_lpf() const noexcept
+{
+	return is_lpf_;
+}
+
 bool AudioMixerImpl::play_adlib_music(
 	const int music_index,
 	const void* const data,
@@ -642,6 +850,49 @@ bool AudioMixerImpl::play_pcm_sound(
 	const ActorChannel actor_channel)
 {
 	return play_sound(SoundType::pcm, priority, sound_index, data, data_size, actor_index, actor_type, actor_channel);
+}
+
+bool AudioMixerImpl::set_resampling(
+	const bstone::AudioDecoderInterpolationType interpolation,
+	const bool low_pass_filter_)
+{
+	if (!is_initialized())
+	{
+		return false;
+	}
+
+	auto new_interpolation = interpolation;
+
+	switch (interpolation)
+	{
+		case bstone::AudioDecoderInterpolationType::zoh:
+		case bstone::AudioDecoderInterpolationType::linear:
+			break;
+
+		default:
+			new_interpolation = bstone::AudioDecoderInterpolationType::linear;
+			break;
+	}
+
+	if (new_interpolation == interpolation_ &&
+		low_pass_filter_ == is_lpf_)
+	{
+		return true;
+	}
+
+	interpolation_ = new_interpolation;
+	is_lpf_ = low_pass_filter_;
+
+	auto command = Command{};
+	command.command_ = CommandType::resampling;
+	command.resampling_.interpolation_ = interpolation_;
+	command.resampling_.low_pass_filter_ = is_lpf_;
+
+	MtLockGuard guard_lock{mt_commands_lock_};
+
+	mt_commands_.push_back(command);
+
+	return true;
 }
 
 bool AudioMixerImpl::update_positions()
@@ -817,7 +1068,7 @@ bool AudioMixerImpl::stop_music()
 	}
 
 	auto command = Command{};
-	command.command = CommandType::stop_music;
+	command.command_ = CommandType::stop_music;
 
 	MtLockGuard guard_lock{mt_commands_lock_};
 
@@ -834,7 +1085,7 @@ bool AudioMixerImpl::stop_all_sfx()
 	}
 
 	auto command = Command{};
-	command.command = CommandType::stop_all_sfx;
+	command.command_ = CommandType::stop_all_sfx;
 
 	MtLockGuard guard_lock{mt_commands_lock_};
 
@@ -961,7 +1212,7 @@ int AudioMixerImpl::get_max_channels() const
 
 int AudioMixerImpl::get_max_commands() const
 {
-	return 128;
+	return 192;
 }
 
 void AudioMixerImpl::callback(
@@ -1192,6 +1443,85 @@ void AudioMixerImpl::mix_samples()
 	is_any_sfx_playing_ = ((sounds_.size() - music_count) > 0);
 }
 
+void AudioMixerImpl::handle_resampling()
+{
+	auto task_index = 0;
+
+	for (auto& cache : pcm_cache_)
+	{
+		if (cache.is_invalid || !cache.is_active)
+		{
+			continue;
+		}
+
+#if 0
+		auto is_invalid = false;
+
+		if (!is_invalid)
+		{
+			const auto set_result = cache.decoder->set_resampling(
+				interpolation_,
+				is_lpf_,
+				true
+			);
+
+			if (!set_result)
+			{
+				is_invalid = true;
+			}
+		}
+
+		if (!is_invalid)
+		{
+			const auto rewind_result = cache.decoder->rewind();
+
+			if (!rewind_result)
+			{
+				is_invalid = true;
+			}
+		}
+
+		if (!is_invalid && cache.decoded_count > 0)
+		{
+			const auto decoded_count = cache.decoder->decode(
+				cache.decoded_count,
+				cache.samples.data()
+			);
+
+			if (decoded_count != cache.decoded_count)
+			{
+				is_invalid = true;
+			}
+		}
+
+		if (is_invalid)
+		{
+			cache.is_invalid = true;
+		}
+#else
+		set_resampling_mt_tasks_[task_index++].initialize(
+			&cache,
+			interpolation_,
+			is_lpf_
+		);
+#endif
+	}
+
+	if (task_index > 0)
+	{
+		try
+		{
+			mt_task_manager_->add_tasks_and_wait_for_added(
+				set_resampling_mt_tasks_ptrs_.data(),
+				task_index
+			);
+		}
+		catch (...)
+		{
+		}
+	}
+}
+
 void AudioMixerImpl::handle_commands()
 {
 	{
@@ -1217,9 +1547,12 @@ void AudioMixerImpl::handle_commands()
 		return;
 	}
 
+	auto has_resampling = false;
+	CommandResampling command_resampling;
+
 	for (const auto& command : commands_)
 	{
-		switch (command.command)
+		switch (command.command_)
 		{
 		case CommandType::play:
 			handle_play_command(command);
@@ -1229,18 +1562,28 @@ void AudioMixerImpl::handle_commands()
 			handle_stop_music_command();
 			break;
 
+		case CommandType::resampling:
+			has_resampling = true;
+			command_resampling = command.resampling_;
+			break;
+
 		default:
 			break;
 		}
 	}
 
 	commands_.clear();
+
+	if (has_resampling)
+	{
+		handle_resampling();
+	}
 }
 
 void AudioMixerImpl::handle_play_command(
 	const Command& command)
 {
-	auto cache_item = command.sound.cache;
+	auto cache_item = command.play_.sound.cache;
 
 	if (!cache_item)
 	{
@@ -1252,19 +1595,19 @@ void AudioMixerImpl::handle_play_command(
 		return;
 	}
 
-	const auto is_adlib_music = (command.sound.type == SoundType::adlib_music);
+	const auto is_adlib_music = (command.play_.sound.type == SoundType::adlib_music);
 
-	if (!is_adlib_music && command.sound.actor_index >= 0)
+	if (!is_adlib_music && command.play_.sound.actor_index >= 0)
 	{
 		// Search existing sound which can override a
 		// new one because of priority.
 
 		for (const auto& sound : sounds_)
 		{
-			if (sound.priority > command.sound.priority &&
-				sound.actor_index == command.sound.actor_index &&
-				sound.actor_type == command.sound.actor_type &&
-				sound.actor_channel == command.sound.actor_channel)
+			if (sound.priority > command.play_.sound.priority &&
+				sound.actor_index == command.play_.sound.actor_index &&
+				sound.actor_type == command.play_.sound.actor_type &&
+				sound.actor_channel == command.play_.sound.actor_channel)
 			{
 				return;
 			}
@@ -1274,9 +1617,9 @@ void AudioMixerImpl::handle_play_command(
 
 		for (auto i = sounds_.begin(); i != sounds_.end(); )
 		{
-			if (i->actor_index == command.sound.actor_index &&
-				i->actor_type == command.sound.actor_type &&
-				i->actor_channel == command.sound.actor_channel)
+			if (i->actor_index == command.play_.sound.actor_index &&
+				i->actor_type == command.play_.sound.actor_type &&
+				i->actor_channel == command.play_.sound.actor_channel)
 			{
 				set_player_channel_state(*i, false);
 				i = sounds_.erase(i);
@@ -1297,7 +1640,7 @@ void AudioMixerImpl::handle_play_command(
 		is_any_sfx_playing_ = true;
 	}
 
-	auto sound = command.sound;
+	auto sound = command.play_.sound;
 	sound.decode_offset = 0;
 	sounds_.push_back(sound);
 
@@ -1350,14 +1693,21 @@ bool AudioMixerImpl::initialize_cache_item(
 
 	if (is_succeed)
 	{
-		decoder = create_decoder_by_sound_type(command.sound.type);
+		decoder = create_decoder_by_sound_type(command.play_.sound.type);
 
 		is_succeed = (decoder != nullptr);
 	}
 
 	if (is_succeed)
 	{
-		is_succeed = decoder->initialize(command.data, command.data_size, dst_rate_);
+		auto param = AudioDecoderInitParam{};
+		param.src_raw_data_ = command.play_.data;
+		param.src_raw_size_ = command.play_.data_size;
+		param.dst_rate_ = dst_rate_;
+		param.resampler_interpolation_ = interpolation_;
+		param.resampler_lpf_ = is_lpf_;
+
+		is_succeed = decoder->initialize(param);
 	}
 
 	auto samples_count = 0;
@@ -1372,9 +1722,9 @@ bool AudioMixerImpl::initialize_cache_item(
 
 	if (is_succeed)
 	{
-		const auto is_adlib_music = (command.sound.type == SoundType::adlib_music);
+		const auto is_adlib_music = (command.play_.sound.type == SoundType::adlib_music);
 
-		cache_item.sound_type = command.sound.type;
+		cache_item.sound_type = command.play_.sound.type;
 		cache_item.samples_count = samples_count;
 		cache_item.samples.resize(is_adlib_music ? mix_samples_count_ : samples_count);
 		cache_item.buffer_size_ = 0;
@@ -1625,15 +1975,15 @@ bool AudioMixerImpl::play_sound(
 	}
 
 	auto command = Command{};
-	command.command = CommandType::play;
-	command.sound.type = sound_type;
-	command.sound.priority = priority;
-	command.sound.cache = get_cache_item(sound_type, sound_index);
-	command.sound.actor_index = actor_index;
-	command.sound.actor_type = actor_type;
-	command.sound.actor_channel = actor_channel;
-	command.data = data;
-	command.data_size = data_size;
+	command.command_ = CommandType::play;
+	command.play_.sound.type = sound_type;
+	command.play_.sound.priority = priority;
+	command.play_.sound.cache = get_cache_item(sound_type, sound_index);
+	command.play_.sound.actor_index = actor_index;
+	command.play_.sound.actor_type = actor_type;
+	command.play_.sound.actor_channel = actor_channel;
+	command.play_.data = data;
+	command.play_.data_size = data_size;
 
 	MtLockGuard guard_lock{mt_commands_lock_};
 
@@ -1806,9 +2156,10 @@ bool AudioMixerImpl::is_sound_index_valid(
 }
 
 
-AudioMixerUPtr make_audio_mixer()
+AudioMixerUPtr make_audio_mixer(
+	MtTaskMgr* const mt_task_manager)
 {
-	return std::make_unique<AudioMixerImpl>();
+	return std::make_unique<AudioMixerImpl>(mt_task_manager);
 }
 
 

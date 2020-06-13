@@ -379,6 +379,18 @@ Notes:
   Default: `40`  
   Minimum: `20`
 
+* `--snd_resampling_interpolation value`  
+  Specifies interpolation method for sample-rate conversion.  
+  PCM audio only.  
+  Values: `zoh` ([zero-order hold](http://wikipedia.org/wiki/Zero-order_hold)) or `linear`  
+  Default: `linear`
+
+* `--snd_resampling_lpf value`  
+  Toggles low-pass filter for sample-rate conversion.  
+  PCM audio only.  
+  Values: `0` (disable) or `1` (enable)  
+  Default: `1`
+
 * `--calculate_hashes`  
   Calculates hashes (SHA-1) of all resource files and outputs them into the log.
 

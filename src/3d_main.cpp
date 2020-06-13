@@ -273,6 +273,9 @@ constexpr int sg_level_bitmap_size = ((MAPSIZE * MAPSIZE) + 7) / 8;
 using SgLevelBitmap = std::array<std::uint8_t, sg_level_bitmap_size>;
 
 
+bstone::MtTaskMgr* mt_task_manager_ = nullptr;
+
+
 // ==========================================================================
 // Sprites
 
@@ -7526,6 +7529,7 @@ void set_config_defaults()
 	g_no_intro_outro = default_g_no_intro_outro;
 
 	vid_cfg_set_defaults();
+	sd_cfg_set_defaults();
 }
 
 ScanCode get_scan_code_by_name(
@@ -7576,6 +7580,9 @@ void read_text_config()
 				if (parse_config_line(line, key_string, index0, index1, value_string))
 				{
 					if (vid_cfg_parse_key_value(key_string, value_string))
+					{
+					}
+					else if (sd_cfg_parse_key_value(key_string, value_string))
 					{
 					}
 					else if (key_string == snd_is_sfx_enabled_name)
@@ -7919,6 +7926,7 @@ void write_text_config()
 	write_config_entry(writer, snd_is_music_enabled_name, sd_is_music_enabled_);
 	write_config_entry(writer, snd_sfx_volume_name, sd_sfx_volume_);
 	write_config_entry(writer, snd_music_volume_name, sd_music_volume_);
+	sd_cfg_write(writer);
 
 	writer.write("\n// Input\n");
 	write_config_entry(writer, in_mouse_sensitivity_name, mouseadjustment);
@@ -9985,6 +9993,9 @@ int main(
 
 	try
 	{
+		auto mt_task_manager = bstone::make_mt_task_manager(1, 4096);
+		mt_task_manager_ = mt_task_manager.get();
+
 		int sdl_result = 0;
 
 		std::uint32_t init_flags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER;

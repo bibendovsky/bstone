@@ -100,7 +100,7 @@ public:
 		const int task_count) = 0;
 }; // MtTaskMgr
 
-using MtTaskMgrPtr = MtTaskMgr*;
+
 using MtTaskMgrUPtr = std::unique_ptr<MtTaskMgr>;
 
 //
@@ -108,18 +108,9 @@ using MtTaskMgrUPtr = std::unique_ptr<MtTaskMgr>;
 // ==========================================================================
 
 
-// ==========================================================================
-// MtTaskMgrFactory
-
-struct MtTaskMgrFactory
-{
-	static MtTaskMgrUPtr create(
-		const int concurrency_reserve,
-		const int task_count);
-}; // MtTaskMgrFactory
-
-// MtTaskMgrFactory
-// ==========================================================================
+MtTaskMgrUPtr make_mt_task_manager(
+	const int concurrency_reserve,
+	const int max_task_count);
 
 
 } // bstone

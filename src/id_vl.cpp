@@ -2433,8 +2433,6 @@ using HwPlayerWeaponVbi = HwVertexBufferImageT<HwPlayerWeaponVertex>;
 using HwFadeVbi = HwVertexBufferImageT<HwFadeVertex>;
 
 
-bstone::MtTaskMgrUPtr hw_mt_task_manager_;
-
 using HwSamplerVarMod = bstone::ModValue<int>;
 HwSamplerVarMod hw_sampler_var_;
 
@@ -5726,7 +5724,7 @@ void hw_create_texture_manager()
 	hw_texture_manager_ = bstone::HwTextureMgrFactory::create(
 		hw_renderer_,
 		&vid_sprite_cache,
-		hw_mt_task_manager_.get()
+		mt_task_manager_
 	);
 }
 
@@ -11679,8 +11677,6 @@ void hw_uninitialize_video()
 	hw_renderer_ = nullptr;
 	hw_renderer_manager_ = nullptr;
 
-	hw_mt_task_manager_ = nullptr;
-
 	vid_is_hw_ = false;
 }
 
@@ -11690,8 +11686,6 @@ void hw_initialize_video()
 	vid_log("Initializing hardware accelerated video system.");
 
 	vid_log("Initializing task manager.");
-
-	hw_mt_task_manager_ = bstone::MtTaskMgrFactory::create(1, 4096);
 
 	vid_is_hw_ = false;
 

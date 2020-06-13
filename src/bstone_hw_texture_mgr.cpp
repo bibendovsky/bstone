@@ -87,7 +87,7 @@ namespace detail
 // XbrzTask
 //
 
-class XbrzTask :
+class XbrzTask final :
 	public MtTask
 {
 public:
