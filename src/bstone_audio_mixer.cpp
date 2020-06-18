@@ -115,7 +115,7 @@ public:
 
 	bool set_resampling(
 		const bstone::AudioDecoderInterpolationType interpolation,
-		const bool low_pass_filter_);
+		const bool low_pass_filter_) override;
 
 	bool update_positions() override;
 
