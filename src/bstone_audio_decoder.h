@@ -53,6 +53,23 @@ enum class AudioDecoderType
 	pcm,
 }; // AudioDecoderType
 
+enum class AudioDecoderInterpolationType
+{
+	none,
+	zoh,
+	linear,
+}; // AudioDecoderInterpolationType
+
+
+struct AudioDecoderInitParam
+{
+	const void* src_raw_data_;
+	int src_raw_size_;
+	int dst_rate_;
+	AudioDecoderInterpolationType resampler_interpolation_;
+	bool resampler_lpf_;
+}; // AudioDecoderInitParam
+
 
 //
 // Audio decoder interface.
@@ -68,9 +85,7 @@ public:
 	// Initializes the instance.
 	// Returns false on error.
 	virtual bool initialize(
-		const void* const src_raw_data,
-		const int src_raw_size,
-		const int dst_rate) = 0;
+		const AudioDecoderInitParam& param) = 0;
 
 	// Uninitializes the instance.
 	virtual void uninitialize() = 0;
@@ -91,11 +106,16 @@ public:
 		const int dst_count,
 		float* const dst_data) = 0;
 
-	// Resets the instance.
+	// Sets decoding position to the beginning.
 	virtual bool rewind() = 0;
 
 	// Returns a length of the audio data in samples.
 	virtual int get_dst_length_in_samples() const noexcept = 0;
+
+	virtual bool set_resampling(
+		const AudioDecoderInterpolationType interpolation_type,
+		const bool lpf,
+		const bool lpf_flush_samples) = 0;
 }; // AudioDecoder
 
 

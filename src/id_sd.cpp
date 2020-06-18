@@ -28,11 +28,13 @@ Free Software Foundation, Inc.,
 #include "id_ca.h"
 #include "id_heads.h"
 #include "id_pm.h"
+
 #include "bstone_audio_mixer.h"
 #include "bstone_endian.h"
 #include "bstone_logger.h"
 #include "bstone_memory_binary_reader.h"
 #include "bstone_string_helper.h"
+#include "bstone_text_writer.h"
 
 
 std::uint16_t sd_start_pc_sounds_ = STARTPCSOUNDS;
@@ -71,8 +73,14 @@ bool sd_sq_played_once_;
 static int sd_music_index_ = -1;
 static bstone::AudioMixerUPtr sd_mixer_;
 
+static bstone::AudioDecoderInterpolationType sd_interpolation_ = bstone::AudioDecoderInterpolationType::linear;
+static bool sd_lpf_ = true;
+
 int sd_sfx_volume_ = sd_default_sfx_volume;
 int sd_music_volume_ = sd_default_music_volume;
+
+
+void sd_cfg_parse_cl();
 
 
 const std::string& sd_get_snd_string()
@@ -213,6 +221,35 @@ const std::string& sd_get_opl3_long_name(
 	}
 }
 
+const std::string& sd_get_resampling_interpolation_long_name(
+	const bstone::AudioDecoderInterpolationType interpolation_type)
+{
+	static const auto unknown = std::string{"???"};
+	static const auto zoh = std::string{"Zero-Order Hold"};
+	static const auto linear = std::string{"Linear"};
+
+	switch (interpolation_type)
+	{
+		case bstone::AudioDecoderInterpolationType::zoh:
+			return zoh;
+
+		case bstone::AudioDecoderInterpolationType::linear:
+			return linear;
+
+		default:
+			return unknown;
+	}
+}
+
+const std::string& sd_get_resampling_lpf_long_name(
+	const bool is_enabled)
+{
+	static const auto on = std::string{"On"};
+	static const auto off = std::string{"Off"};
+
+	return is_enabled ? on : off;
+}
+
 void sd_startup()
 {
 	if (sd_started_)
@@ -243,9 +280,18 @@ void sd_startup()
 			static_cast<void>(bstone::StringHelper::string_to_int(snd_mix_size_string, snd_mix_size));
 		}
 
-		sd_mixer_ = bstone::make_audio_mixer();
+		sd_cfg_parse_cl();
 
-		if (sd_mixer_->initialize(bstone::Opl3Type::dbopl, snd_rate, snd_mix_size))
+		sd_mixer_ = bstone::make_audio_mixer(mt_task_manager_);
+
+		auto param = bstone::AudioMixerInitParam{};
+		param.opl3_type_ = bstone::Opl3Type::dbopl;
+		param.dst_rate_ = snd_rate;
+		param.mix_size_ms_ = snd_mix_size;
+		param.resampling_interpolation_ = sd_interpolation_;
+		param.resampling_lpf_ = sd_lpf_;
+
+		if (sd_mixer_->initialize(param))
 		{
 			sd_log("Channel count: " + std::to_string(sd_mixer_->get_channel_count()));
 			sd_log("Sample rate: " + std::to_string(sd_mixer_->get_rate()) + " Hz");
@@ -253,6 +299,12 @@ void sd_startup()
 			sd_log("Effects volume: " + std::to_string(sd_sfx_volume_) + " / " + std::to_string(sd_max_volume));
 			sd_log("Music volume: " + std::to_string(sd_music_volume_) + " / " + std::to_string(sd_max_volume));
 			sd_log("OPL3 type: " + sd_get_opl3_long_name(sd_mixer_->get_opl3_type()));
+
+			sd_log("Resampling interpolation: " +
+				sd_get_resampling_interpolation_long_name(sd_mixer_->get_resampling_interpolation()));
+
+			sd_log("Resampling low-pass filter: " +
+				sd_get_resampling_lpf_long_name(sd_mixer_->get_resampling_lpf()));
 		}
 		else
 		{
@@ -612,5 +664,171 @@ void sd_setup_extracting()
 {
 	sd_setup_digi();
 	sd_base_index_ = sd_start_al_sounds_;
+}
+
+bstone::AudioDecoderInterpolationType sd_get_resampling_interpolation() noexcept
+{
+	return sd_interpolation_;
+}
+
+void sd_cfg_set_resampling_interpolation(
+	const bstone::AudioDecoderInterpolationType interpolation_type)
+{
+	sd_interpolation_ = interpolation_type;
+}
+
+bool sd_cfg_get_resampling_low_pass_filter() noexcept
+{
+	return sd_lpf_;
+}
+
+void sd_cfg_set_resampling_low_pass_filter(
+	const bool is_enabled)
+{
+	sd_lpf_ = is_enabled;
+}
+
+void sd_apply_resampling()
+{
+	if (!sd_has_audio_)
+	{
+		return;
+	}
+
+	sd_log();
+	sd_log("Applying resample parameters.");
+
+	if (!sd_mixer_->set_resampling(sd_interpolation_, sd_lpf_))
+	{
+		sd_log_error("Failed to apply resample parameters.");
+
+		return;
+	}
+
+	sd_log("Resampling interpolation: " +
+		sd_get_resampling_interpolation_long_name(sd_mixer_->get_resampling_interpolation()));
+
+	sd_log("Resampling low-pass filter: " +
+		sd_get_resampling_lpf_long_name(sd_mixer_->get_resampling_lpf()));
+
+}
+
+void sd_cfg_set_defaults()
+{
+	sd_interpolation_ = bstone::AudioDecoderInterpolationType::linear;
+	sd_lpf_ = true;
+}
+
+const std::string sd_cfg_get_zoh_name()
+{
+	static const auto result = std::string{"zoh"};
+	return result;
+}
+
+const std::string sd_cfg_get_linear_name()
+{
+	static const auto result = std::string{"linear"};
+	return result;
+}
+
+const std::string sd_cfg_get_resampling_interpolation_name()
+{
+	static const auto result = std::string{"snd_resampling_interpolation"};
+	return result;
+}
+
+const std::string sd_cfg_get_resampling_lpf_name()
+{
+	static const auto result = std::string{"snd_resampling_lpf"};
+	return result;
+}
+
+bool sd_cfg_parse_key_value(
+	const std::string& key_string,
+	const std::string& value_string)
+{
+	if (key_string == sd_cfg_get_resampling_interpolation_name())
+	{
+		if (value_string == sd_cfg_get_zoh_name())
+		{
+			sd_cfg_set_resampling_interpolation(bstone::AudioDecoderInterpolationType::zoh);
+		}
+		else if (value_string == sd_cfg_get_linear_name())
+		{
+			sd_cfg_set_resampling_interpolation(bstone::AudioDecoderInterpolationType::linear);
+		}
+
+		return true;
+	}
+	else if (key_string == sd_cfg_get_resampling_lpf_name())
+	{
+		int value = 0;
+
+		if (bstone::StringHelper::string_to_int(value_string, value))
+		{
+			sd_cfg_set_resampling_low_pass_filter(value != 0);
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+void sd_cfg_parse_cl()
+{
+	{
+		const auto& value_string = g_args.get_option_value(sd_cfg_get_resampling_interpolation_name());
+
+		if (!value_string.empty())
+		{
+			sd_cfg_parse_key_value(sd_cfg_get_resampling_interpolation_name(), value_string);
+		}
+	}
+
+	{
+		const auto& value_string = g_args.get_option_value(sd_cfg_get_resampling_lpf_name());
+
+		if (!value_string.empty())
+		{
+			sd_cfg_parse_key_value(sd_cfg_get_resampling_lpf_name(), value_string);
+		}
+	}
+}
+
+void sd_cfg_write(
+	bstone::TextWriter& text_writer)
+{
+	// Interpolation.
+	//
+	{
+		auto value_string = std::string{};
+
+		switch (sd_interpolation_)
+		{
+			case bstone::AudioDecoderInterpolationType::zoh:
+				value_string = sd_cfg_get_zoh_name();
+				break;
+
+			case bstone::AudioDecoderInterpolationType::linear:
+			default:
+				value_string = sd_cfg_get_linear_name();
+				break;
+		}
+
+		cfg_file_write_entry(
+			text_writer,
+			sd_cfg_get_resampling_interpolation_name(),
+			value_string
+		);
+	}
+
+	// LPF
+	//
+	cfg_file_write_entry(
+		text_writer,
+		sd_cfg_get_resampling_lpf_name(),
+		std::to_string(sd_lpf_)
+	);
 }
 // BBi

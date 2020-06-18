@@ -53,6 +53,8 @@ Free Software Foundation, Inc.,
 
 #include <cstring>
 
+#include <atomic>
+
 #include "SDL_timer.h"
 
 #include "id_heads.h"
@@ -61,6 +63,7 @@ Free Software Foundation, Inc.,
 #include "id_us.h"
 #include "id_vh.h"
 #include "id_vl.h"
+
 #include "bstone_logger.h"
 
 

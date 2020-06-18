@@ -33,6 +33,8 @@ Free Software Foundation, Inc.,
 
 #include <cmath>
 
+#include <algorithm>
+
 
 namespace bstone
 {
@@ -130,6 +132,11 @@ double LowPassFilter::process_sample(
 	}
 
 	return result;
+}
+
+void LowPassFilter::reset_samples()
+{
+	std::uninitialized_fill(samples_.begin(), samples_.end(), 0.0);
 }
 
 double LowPassFilter::get_pi() noexcept

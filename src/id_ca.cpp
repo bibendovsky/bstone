@@ -2976,10 +2976,12 @@ void AudioExtractor::extract_music(
 	const auto music_data = audiosegs[music_index].data();
 	const auto music_data_size = sd_get_adlib_music_data_size(music_data);
 
-	if (!audio_decoder->initialize(
-		music_data,
-		music_data_size,
-		bstone::opl3_fixed_frequency))
+	auto param = bstone::AudioDecoderInitParam{};
+	param.src_raw_data_ = music_data;
+	param.src_raw_size_ = music_data_size;
+	param.dst_rate_ = bstone::opl3_fixed_frequency;
+
+	if (!audio_decoder->initialize(param))
 	{
 		throw AudioExtractorTrackException{number, "Failed to initialize AdLib music decoder."};
 	}
@@ -3080,10 +3082,12 @@ void AudioExtractor::write_adlib_sfx(
 		throw AudioExtractorTrackException{number, "Failed to create AdLib music decoder."};
 	}
 
-	if (!audio_decoder->initialize(
-		sfx_info.data_,
-		sfx_info.size_,
-		bstone::opl3_fixed_frequency))
+	auto param = bstone::AudioDecoderInitParam{};
+	param.src_raw_data_ = sfx_info.data_;
+	param.src_raw_size_ = sfx_info.size_;
+	param.dst_rate_ = bstone::opl3_fixed_frequency;
+
+	if (!audio_decoder->initialize(param))
 	{
 		throw AudioExtractorTrackException{number, "Failed to initialize AdLib music decoder."};
 	}

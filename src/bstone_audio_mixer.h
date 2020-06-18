@@ -28,11 +28,15 @@ Free Software Foundation, Inc.,
 
 #include <memory>
 
+#include "bstone_audio_decoder.h"
 #include "bstone_opl3.h"
 
 
 namespace bstone
 {
+
+
+class MtTaskMgr;
 
 
 enum class ActorType
@@ -63,6 +67,18 @@ enum class SoundType
 }; // SoundType
 
 
+struct AudioMixerInitParam
+{
+	Opl3Type opl3_type_;
+	int dst_rate_;
+
+	int mix_size_ms_; // (milliseconds)
+
+	AudioDecoderInterpolationType resampling_interpolation_;
+	bool resampling_lpf_;
+}; // AudioMixerInitParam
+
+
 class AudioMixer
 {
 public:
@@ -71,11 +87,8 @@ public:
 	virtual ~AudioMixer() = default;
 
 
-	// Note: Mix size in milliseconds.
 	virtual bool initialize(
-		const Opl3Type opl3_type,
-		const int dst_rate,
-		const int mix_size_ms) = 0;
+		const AudioMixerInitParam& param) = 0;
 
 	virtual void uninitialize() = 0;
 
@@ -92,6 +105,10 @@ public:
 	virtual float get_sfx_volume() const = 0;
 
 	virtual float get_music_volume() const = 0;
+
+	virtual AudioDecoderInterpolationType get_resampling_interpolation() const noexcept = 0;
+
+	virtual bool get_resampling_lpf() const noexcept = 0;
 
 	virtual bool play_adlib_music(
 		const int music_index,
@@ -117,6 +134,10 @@ public:
 		const int actor_index = -1,
 		const ActorType actor_type = ActorType::none,
 		const ActorChannel actor_channel = ActorChannel::voice) = 0;
+
+	virtual bool set_resampling(
+		const bstone::AudioDecoderInterpolationType interpolation,
+		const bool low_pass_filter_) = 0;
 
 	virtual bool update_positions() = 0;
 
@@ -163,7 +184,8 @@ public:
 using AudioMixerUPtr = std::unique_ptr<AudioMixer>;
 
 
-AudioMixerUPtr make_audio_mixer();
+AudioMixerUPtr make_audio_mixer(
+	MtTaskMgr* const mt_task_manager);
 
 
 } // bstone

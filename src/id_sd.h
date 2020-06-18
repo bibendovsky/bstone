@@ -36,9 +36,20 @@ Free Software Foundation, Inc.,
 
 #include <cstdint>
 
-#include <atomic>
+#include <string>
 
+#include "bstone_audio_decoder.h"
 #include "bstone_audio_mixer.h"
+
+
+namespace bstone
+{
+
+
+class TextWriter;
+
+
+} // bstone
 
 
 struct objtype;
@@ -182,6 +193,30 @@ SfxInfo sd_get_sfx_info(
 	const int sfx_number);
 
 void sd_setup_extracting();
+
+
+bstone::AudioDecoderInterpolationType sd_get_resampling_interpolation() noexcept;
+
+void sd_cfg_set_resampling_interpolation(
+	const bstone::AudioDecoderInterpolationType interpolation_type);
+
+
+bool sd_cfg_get_resampling_low_pass_filter() noexcept;
+
+void sd_cfg_set_resampling_low_pass_filter(
+	const bool is_enabled);
+
+void sd_apply_resampling();
+
+void sd_cfg_set_defaults();
+
+bool sd_cfg_parse_key_value(
+	const std::string& key_string,
+	const std::string& value_string);
+
+void sd_cfg_write(
+	bstone::TextWriter& text_writer);
+
 // BBi
 
 

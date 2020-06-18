@@ -39,6 +39,7 @@ Free Software Foundation, Inc.,
 #include "bstone_audio_decoder.h"
 #include "bstone_audio_sample_converter.h"
 #include "bstone_low_pass_filter.h"
+#include "bstone_math.h"
 #include "bstone_unique_resource.h"
 
 
@@ -139,9 +140,7 @@ public:
 	~PcmDecoder() override;
 
 	bool initialize(
-		const void* const src_raw_data,
-		const int src_raw_size,
-		const int dst_rate) override;
+		const AudioDecoderInitParam& param) override;
 
 	void uninitialize() override;
 
@@ -159,11 +158,16 @@ public:
 
 	int get_dst_length_in_samples() const noexcept override;
 
+	bool set_resampling(
+		const AudioDecoderInterpolationType interpolation_type,
+		const bool lpf,
+		const bool lpf_flush_samples) override;
+
 	// Return an input sample rate.
-	static int get_src_rate();
+	static int get_src_rate() noexcept;
 
 	// Returns a minimum output sample rate.
-	static int get_min_dst_rate();
+	static int get_min_dst_rate() noexcept;
 
 
 private:
@@ -178,12 +182,27 @@ private:
 
 	bool is_initialized_;
 	bool need_upsampling_;
+	bool is_zoh_;
+	bool is_lpf_;
 
 	double ratio_;
 
 	const unsigned char* src_data_;
 
 	int src_offset_;
+
+	int src_offset_x_num_;
+	int src_offset_x_den_;
+	int src_offset_x_step_;
+
+	int src_offset_y_num_;
+	int src_offset_y_step_;
+
+	bool src_offset_y_is_negative_;
+
+	std::uint8_t src_sample_;
+	double src_sample_f64_;
+
 	int src_count_;
 
 	int dst_offset_;
@@ -215,9 +234,18 @@ PcmDecoder::PcmDecoder()
 	:
 	is_initialized_{},
 	need_upsampling_{},
+	is_zoh_{},
+	is_lpf_{},
 	ratio_{},
 	src_data_{},
 	src_offset_{},
+	src_offset_x_num_{},
+	src_offset_x_den_{},
+	src_offset_x_step_{},
+	src_offset_y_num_{},
+	src_offset_y_step_{},
+	src_offset_y_is_negative_{},
+	src_sample_{},
 	src_count_{},
 	dst_offset_{},
 	dst_count_{},
@@ -228,46 +256,56 @@ PcmDecoder::PcmDecoder()
 PcmDecoder::~PcmDecoder() = default;
 
 bool PcmDecoder::initialize(
-	const void* const src_raw_data,
-	const int src_raw_size,
-	const int dst_rate)
+	const AudioDecoderInitParam& param)
 {
 	uninitialize();
 
-	if (!src_raw_data)
+	if (!param.src_raw_data_)
 	{
 		return false;
 	}
 
-	if (src_raw_size < 0)
+	if (param.src_raw_size_ < 0)
 	{
 		return false;
 	}
 
-	if (dst_rate < 1)
+	if (param.dst_rate_ < 1)
 	{
 		return false;
 	}
 
-	if (dst_rate < get_min_dst_rate())
+	if (param.dst_rate_ < get_min_dst_rate())
 	{
 		return false;
 	}
 
-	need_upsampling_ = (dst_rate != get_src_rate());
+	const auto src_rate = get_src_rate();
+	const auto rate_gcd = math::gcd(src_rate, param.dst_rate_);
 
-	ratio_ = static_cast<double>(dst_rate) / static_cast<double>(get_src_rate());
+	need_upsampling_ = (param.dst_rate_ != src_rate);
 
-	src_data_ = static_cast<const unsigned char*>(src_raw_data);
-	src_offset_ = 0;
-	src_count_ = src_raw_size;
+	is_zoh_ = (param.resampler_interpolation_ == AudioDecoderInterpolationType::zoh);
+	is_lpf_ = param.resampler_lpf_;
+
+	ratio_ = static_cast<double>(param.dst_rate_) / static_cast<double>(src_rate);
+
+	src_data_ = static_cast<const unsigned char*>(param.src_raw_data_);
+
+	src_offset_ = -1;
+
+	src_offset_x_num_ = src_rate / rate_gcd;
+	src_offset_x_den_ = param.dst_rate_ / rate_gcd;
+	src_offset_x_step_ = src_offset_x_den_;
+
+	src_count_ = param.src_raw_size_;
 
 	dst_offset_ = 0;
-	dst_count_ = static_cast<int>(std::ceil(src_raw_size * ratio_));
+	dst_count_ = static_cast<int>(std::ceil(param.src_raw_size_ * ratio_));
 
 	if (need_upsampling_)
 	{
-		lpf_.initialize(lpf_order, get_src_rate() / 2, dst_rate);
+		lpf_.initialize(lpf_order, get_src_rate() / 2, param.dst_rate_);
 	}
 
 	is_initialized_ = true;
@@ -306,7 +344,11 @@ bool PcmDecoder::rewind()
 		return false;
 	}
 
-	src_offset_ = 0;
+	src_offset_ = -1;
+	src_offset_x_step_ = src_offset_x_den_;
+
+	src_offset_y_num_ = 0;
+
 	dst_offset_ = 0;
 
 	return true;
@@ -317,12 +359,33 @@ int PcmDecoder::get_dst_length_in_samples() const noexcept
 	return dst_count_;
 }
 
-int PcmDecoder::get_src_rate()
+bool PcmDecoder::set_resampling(
+	const AudioDecoderInterpolationType interpolation_type,
+	const bool lpf,
+	const bool lpf_flush_samples)
+{
+	if (!is_initialized())
+	{
+		return false;
+	}
+
+	is_zoh_ = (interpolation_type == AudioDecoderInterpolationType::zoh);
+	is_lpf_ = lpf;
+
+	if (lpf_flush_samples)
+	{
+		lpf_.reset_samples();
+	}
+
+	return true;
+}
+
+int PcmDecoder::get_src_rate() noexcept
 {
 	return audio_decoder_pcm_fixed_frequency;
 }
 
-int PcmDecoder::get_min_dst_rate()
+int PcmDecoder::get_min_dst_rate() noexcept
 {
 	return 11'025;
 }
@@ -331,9 +394,19 @@ void PcmDecoder::uninitialize_internal()
 {
 	is_initialized_ = false;
 	need_upsampling_ = false;
+	is_zoh_ = false;
+	is_lpf_ = false;
 	ratio_ = 0.0;
 	src_data_ = nullptr;
 	src_offset_ = 0;
+	src_offset_x_num_ = 0;
+	src_offset_x_den_ = 0;
+	src_offset_x_step_ = 0;
+	src_offset_y_num_ = 0;
+	src_offset_y_step_ = 0;
+	src_offset_y_is_negative_ = false;
+	src_sample_ = 0;
+	src_sample_f64_ = 0.0;
 	src_count_ = 0;
 	dst_offset_ = 0;
 	dst_count_ = 0;
@@ -352,19 +425,73 @@ int PcmDecoder::decode_upsampled(
 
 	for (int i = 0; i < count; ++i)
 	{
-		const auto src_offset = static_cast<int>(
-			(static_cast<long long>(src_count_ - 1) * static_cast<long long>(dst_offset_)) /
-				static_cast<long long>(dst_count_ - 1)
-		);
+		if (src_offset_x_step_ >= src_offset_x_den_)
+		{
+			src_offset_ += 1;
+			src_offset_x_step_ -= src_offset_x_den_;
 
-		const auto u8_sample = src_data_[src_offset];
-		const auto f64_sample = u8_to_f64(u8_sample);
-		const auto f64_lpf_sample = lpf_.process_sample(f64_sample);
+			src_sample_ = src_data_[src_offset_];
+
+			auto next_sample = src_sample_;
+
+			if ((src_offset_ + 1) < src_count_)
+			{
+				next_sample = src_data_[src_offset_ + 1];
+			}
+
+			src_sample_f64_ = u8_to_f64(src_sample_);
+
+			const auto delta = next_sample - src_sample_;
+			const auto abs_delta = std::abs(delta);
+
+			if (abs_delta > 1)
+			{
+				src_offset_y_num_ = abs_delta * src_offset_x_num_;
+				src_offset_y_step_ = 0;
+				src_offset_y_is_negative_ = (delta < 0);
+			}
+			else
+			{
+				src_offset_y_num_ = 0;
+			}
+		}
+
+		const auto f64_sample = src_sample_f64_;
+		const auto f64_lpf_sample = is_lpf_ ? lpf_.process_sample(f64_sample) : f64_sample;
 		const auto dst_sample = f64_to_xx(f64_lpf_sample);
 
 		dst_data[i] = dst_sample;
 
 		dst_offset_ += 1;
+
+		src_offset_x_step_ += src_offset_x_num_;
+
+		if (!is_zoh_ && src_offset_y_num_ != 0)
+		{
+			src_offset_y_step_ += src_offset_y_num_;
+
+			auto new_src_sample = src_sample_;
+
+			while (src_offset_y_step_ >= src_offset_x_den_)
+			{
+				src_offset_y_step_ -= src_offset_x_den_;
+
+				if (src_offset_y_is_negative_)
+				{
+					new_src_sample -= 1;
+				}
+				else
+				{
+					new_src_sample += 1;
+				}
+			}
+
+			if (src_sample_ != new_src_sample)
+			{
+				src_sample_ = new_src_sample;
+				src_sample_f64_ = u8_to_f64(src_sample_);
+			}
+		}
 	}
 
 	return count;

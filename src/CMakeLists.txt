@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
-project(bstone VERSION 1.2.5 LANGUAGES CXX)
+project(bstone VERSION 1.2.6 LANGUAGES CXX)
 
 
 #
@@ -325,6 +325,7 @@ target_sources(
 		bstone_content_path.h
 		bstone_logger.h
 		bstone_low_pass_filter.h
+		bstone_math.h
 		bstone_memory_binary_reader.h
 		bstone_memory_stream.h
 		bstone_mod_value.h

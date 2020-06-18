@@ -35,6 +35,8 @@ Free Software Foundation, Inc.,
 
 #include "movie.h"
 
+#include "bstone_mt_task_mgr.h"
+
 
 namespace bstone
 {
@@ -3967,6 +3969,9 @@ extern bool g_quit_on_escape;
 extern bool g_no_intro_outro;
 extern bool g_no_screens; // overrides "g_no_intro_outro" via command line
 extern bool g_no_fade_in_or_out;
+
+
+extern bstone::MtTaskMgr* mt_task_manager_;
 
 
 void InitSmartSpeedAnim(

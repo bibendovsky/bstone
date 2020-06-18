@@ -77,6 +77,8 @@ Free Software Foundation, Inc.,
 #include "bstone_endian.h"
 #include "bstone_exception.h"
 #include "bstone_logger.h"
+#include "bstone_math.h"
+#include "bstone_mt_task_mgr.h"
 #include "bstone_sha1.h"
 #include "bstone_stream.h"
 #include "bstone_string_helper.h"
