@@ -12,9 +12,9 @@ Contents
    2.1. Overview (PS Vita)
 3. Installation  
    3.1. Windows (GOG / Steam)  
-   3.2. Windows (Generic)
-4. Required assets  
-   4.1. Addon support.
+   3.2. Windows (Generic)  
+   3.3. Addons
+4. Required assets
 5. Profile
 6. Compiling  
    6.1. Generic instructions for Linux-based system or build environment (MinGW)
@@ -95,6 +95,13 @@ See [README-PSVITA.md](README-PSVITA.md) for details about the source port on PS
 - Run `bstone.exe` to play.
 
 
+3.3 - Addons
+============
+
+- Put addon's files into separate directory. Do not overwrite any original files!
+- Run with command line option `--mod_dir` to pointo to this directory (i.e. `bstone.exe --mod_dir addon1`).
+
+
 4 - Required assets
 ===================
 
@@ -134,13 +141,6 @@ Supported services:
 - [Steam](http://store.steampowered.com)  
   Windows only.  
   "The Apogee Throwback Pack" supported as well as separated titles.
-
-
-4.1 - Addon support
-===================
-
-Don't overwrite any original files.
-Put addon files into different directory and point to them with option `mod_dir` (i.e. `bstone.exe --mod_dir addon1`).
 
 
 5 - Profile
@@ -379,8 +379,24 @@ Notes:
   Default: `40`  
   Minimum: `20`
 
+* `--snd_resampling_interpolation value`  
+  Specifies interpolation method for sample-rate conversion.  
+  PCM audio only.  
+  Values: `zoh` ([zero-order hold](http://wikipedia.org/wiki/Zero-order_hold)) or `linear`  
+  Default: `linear`
+
+* `--snd_resampling_lpf value`  
+  Toggles low-pass filter for sample-rate conversion.  
+  PCM audio only.  
+  Values: `0` (disable) or `1` (enable)  
+  Default: `1`
+
 * `--calculate_hashes`  
   Calculates hashes (SHA-1) of all resource files and outputs them into the log.
+
+* `--extract_vga_palette dir`  
+  Extracts VGA palette into existing directory `dir`.  
+  Supported file format: [BMP](http://wikipedia.org/wiki/BMP_file_format)
 
 * `--extract_walls dir`  
   Extracts graphics resources (wall, flooring, etc.) into existing directory `dir`.  
@@ -403,7 +419,7 @@ Notes:
   Supported file format: TXT
 
 * `--extract_all dir`  
-  Extracts all resources (walls, sprites, music, sfx and texts) into existing directory `dir`.
+  Extracts all resources (walls, sprites, etc.) into existing directory `dir`.
 
 
 8 - Cheat key
@@ -493,6 +509,9 @@ Add option `--cheats` to enable these keys.
 
 * <kbd>Backspace</kbd>+<kbd>]</kbd>  
   Increases shading drop off.
+
+* <kbd>Backspace</kbd>+<kbd>l</kbd>  
+  Dumps information into the log about remaining bonus items and enemies.
 
 
 10 - Third party use
