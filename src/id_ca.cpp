@@ -3480,19 +3480,12 @@ void TextExtractor::extract_text(
 
 		buffer_.resize(compressed_header->uncompressed_size_);
 
-		if (!LZH_Startup())
-		{
-			throw TextExtractorException{number, "Failed to initialized LZH decoder."};
-		}
-
 		const auto decoded_size = LZH_Decompress(
-			reinterpret_cast<const char*>(text_data) + header_size,
+			text_data + header_size,
 			buffer_.data(),
 			compressed_header->uncompressed_size_,
 			compressed_header->compressed_size_
 		);
-
-		LZH_Shutdown();
 
 		buffer_.resize(decoded_size);
 

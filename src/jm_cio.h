@@ -123,12 +123,12 @@ struct CompHeader_t
 //
 // ---------------------------------------------------------------------------
 
-char CIO_WritePtr(
-	void*& dst,
+void CIO_WritePtr(
+	std::uint8_t*& dst,
 	std::uint8_t value);
 
-std::int16_t CIO_ReadPtr(
-	const void*& src);
+std::uint8_t CIO_ReadPtr(
+	const std::uint8_t*& src);
 
 
 #endif // BSTONE_JM_CIO_INCLUDED

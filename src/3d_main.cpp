@@ -8925,15 +8925,11 @@ static bool LoadCompressedChunk(
 
 		buffer.resize(src_size);
 
-		static_cast<void>(LZH_Startup());
-
 		auto decoded_size = LZH_Decompress(
 			src_buffer.data(),
 			buffer.data(),
 			src_size,
 			size);
-
-		LZH_Shutdown();
 
 		if (decoded_size != src_size)
 		{
@@ -9256,11 +9252,7 @@ bool SaveTheGame(
 
 	Buffer head_buffer(head_desire_dst_size);
 
-	static_cast<void>(LZH_Startup());
-
 	const auto head_dst_size = LZH_Compress(head_stream.get_data(), head_buffer.data(), head_src_size);
-
-	LZH_Shutdown();
 
 	if (head_dst_size > head_desire_dst_size)
 	{
@@ -9280,11 +9272,7 @@ bool SaveTheGame(
 
 	Buffer lvxx_buffer(lvxx_desire_dst_size);
 
-	static_cast<void>(LZH_Startup());
-
 	const auto lvxx_dst_size = LZH_Compress(g_playtemp.get_data(), lvxx_buffer.data(), lvxx_src_size);
-
-	LZH_Shutdown();
 
 	if (lvxx_dst_size > lvxx_desire_dst_size)
 	{

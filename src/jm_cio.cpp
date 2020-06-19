@@ -40,14 +40,11 @@ Free Software Foundation, Inc.,
 // NOTE : For PtrTypes DEST_MEM a ZERO (0) is always returned.
 //
 // ---------------------------------------------------------------------------
-char CIO_WritePtr(
-	void*& buffer,
+void CIO_WritePtr(
+	std::uint8_t*& buffer,
 	std::uint8_t value)
 {
-	std::uint8_t*& buffer_ref = reinterpret_cast<std::uint8_t*&>(buffer);
-	buffer_ref[0] = value;
-	++buffer_ref;
-	return '\0';
+	*buffer++ = value;
 }
 
 // ---------------------------------------------------------------------------
@@ -60,11 +57,8 @@ char CIO_WritePtr(
 //
 //
 // ---------------------------------------------------------------------------
-std::int16_t CIO_ReadPtr(
-	const void*& buffer)
+std::uint8_t CIO_ReadPtr(
+	const std::uint8_t*& buffer)
 {
-	const std::uint8_t*& buffer_ref = reinterpret_cast<const std::uint8_t*&>(buffer);
-	std::uint8_t value = buffer_ref[0];
-	++buffer_ref;
-	return value;
+	return *(buffer++);
 }

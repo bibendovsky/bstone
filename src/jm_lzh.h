@@ -29,33 +29,16 @@ Free Software Foundation, Inc.,
 #include <cstdint>
 
 
-extern void(*LZH_CompressDisplayVector)(std::uint32_t, std::uint32_t);
-extern void(*LZH_DecompressDisplayVector)(
-	std::uint32_t,
-	std::uint32_t);
-
-
-
-// ===========================================================================
-//
-// PROTOTYPES
-//
-// ===========================================================================
-
-
-bool LZH_Startup();
-void LZH_Shutdown();
-
 int LZH_Compress(
-	const void* infile,
-	void* outfile,
-	std::uint32_t DataLength);
+	const std::uint8_t* in_buffer,
+	std::uint8_t* out_buffer,
+	int in_length);
 
 int LZH_Decompress(
-	const void* infile,
-	void* outfile,
-	std::uint32_t OrginalLength,
-	std::uint32_t CompressLength);
+	const std::uint8_t* in_buffer,
+	std::uint8_t* out_buffer,
+	int uncompressed_length,
+	int compressed_length);
 
 
 #endif // BSTONE_JM_LZH_INCLUDED
