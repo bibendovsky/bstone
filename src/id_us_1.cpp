@@ -67,10 +67,6 @@ Free Software Foundation, Inc.,
 #include "bstone_logger.h"
 
 
-#define VW_UpdateScreen() VH_UpdateScreen()
-void VH_UpdateScreen();
-
-
 // Global variables
 
 std::atomic_uint TimeCount; // Global time in ticks

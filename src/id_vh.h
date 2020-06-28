@@ -72,7 +72,18 @@ extern std::uint8_t fontcolor;
 extern std::int16_t fontnumber;
 extern std::int16_t px;
 extern std::int16_t py;
-extern bool allcaps;
+
+//
+// wolfenstein EGA compatibility stuff
+//
+extern const std::uint8_t vgapal[768];
+
+extern int latchpics[];
+
+extern int LatchMemFree;
+
+using LatchesCache = std::vector<std::uint8_t>;
+extern LatchesCache latches_cache;
 
 
 //
@@ -85,14 +96,17 @@ void VWB_DrawTile8(
 	int x,
 	int y,
 	int tile);
+
 void VWB_DrawPic(
 	int x,
 	int y,
 	int chunknum);
+
 void VWB_DrawMPic(
 	int x,
 	int y,
 	int chunknum);
+
 void VWB_Bar(
 	int x,
 	int y,
@@ -102,22 +116,38 @@ void VWB_Bar(
 
 void VWB_DrawPropString(
 	const char* string);
+
 void VW_DrawPropString(
 	const char* string);
+
 void VWB_Plot(
 	int x,
 	int y,
 	std::uint8_t color);
+
 void VWB_Hlin(
 	int x1,
 	int x2,
 	int y,
 	std::uint8_t color);
+
 void VWB_Vlin(
 	int y1,
 	int y2,
 	int x,
 	std::uint8_t color);
+
+void VW_MeasurePropString(
+	const char* string,
+	int* width,
+	int* height);
+
+void LatchDrawPic(
+	int x,
+	int y,
+	int picnum);
+
+void LoadLatchMem();
 
 void vwb_rect(
 	const int x,
@@ -127,47 +157,60 @@ void vwb_rect(
 	const int color);
 
 
-//
-// wolfenstein EGA compatibility stuff
-//
-extern const std::uint8_t vgapal[768];
+void VW_Startup();
 
+void VW_Shutdown();
 
-#define VW_Startup VL_Startup
-#define VW_Shutdown VL_Shutdown
-#define VW_Bar VL_Bar
-#define VW_Plot VL_Plot
-#define VW_Hlin(x, z, y, c) VL_Hlin((x), (y), (z) - (x) + 1, (c))
-#define VW_Vlin(y, z, x, c) VL_Vlin((x), (y), (z) - (y) + 1, (c))
-#define VW_WaitVBL VL_WaitVBL
-#define VW_FadeIn() VL_FadeIn(0, 255, vgapal, 30);
-#define VW_FadeOut() VL_FadeOut(0, 255, 0, 0, 0, 30);
-#define VW_ScreenToScreen VL_ScreenToScreen
-void VW_MeasurePropString(
-	const char* string,
-	int* width,
-	int* height);
-#define VW_UpdateScreen() VH_UpdateScreen()
-
-#define LatchDrawChar(x, y, p) VL_LatchToScreen(latchpics[0] + (p) * 64, 8, 8, x, y)
-#define LatchDrawTile(x, y, p) VL_LatchToScreen(latchpics[1] + (p) * 64, 16, 16, x, y)
-
-void LatchDrawPic(
+void VW_Bar(
 	int x,
 	int y,
-	int picnum);
-void LoadLatchMem();
+	int width,
+	int height,
+	std::uint8_t color,
+	const bool is_transparent = false);
 
-extern int latchpics[];
+void VW_Plot(
+	int x,
+	int y,
+	std::uint8_t color,
+	const bool is_transparent = false);
 
-extern int LatchMemFree;
+void VW_Hlin(
+	int x,
+	int z,
+	int y,
+	std::uint8_t c);
 
-// BBi
-void vl_minimize_fullscreen_window(
-	bool value);
+void VW_Vlin(
+	int y,
+	int z,
+	int x,
+	std::uint8_t c);
 
-using LatchesCache = std::vector<std::uint8_t>;
-extern LatchesCache latches_cache;
+void VW_WaitVBL(
+	std::uint32_t vbls);
+
+void VW_FadeIn();
+
+void VW_FadeOut();
+
+void VW_ScreenToScreen(
+	int source,
+	int dest,
+	int width,
+	int height);
+
+void VW_UpdateScreen();
+
+void LatchDrawChar(
+	int x,
+	int y,
+	int p);
+
+void LatchDrawTile(
+	int x,
+	int y,
+	int p);
 
 
 #endif // BSTONE_ID_VH_INCLUDED

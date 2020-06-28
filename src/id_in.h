@@ -351,6 +351,8 @@ extern ControlType Controls[MaxPlayers];
 extern std::uint8_t* DemoBuffer;
 extern std::uint16_t DemoOffset, DemoSize;
 
+extern bool allcaps;
+
 // Function prototypes
 #define IN_KeyDown(code) (Keyboard[(code)])
 #define IN_ClearKey(code) { Keyboard[code] = false; \

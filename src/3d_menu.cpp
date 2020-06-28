@@ -168,7 +168,6 @@ extern std::int16_t SoundStatus;
 void CA_CacheScreen(
 	std::int16_t chunk);
 
-void VH_UpdateScreen();
 void DrawHighScores();
 void ClearMemory();
 

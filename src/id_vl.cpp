@@ -12496,18 +12496,6 @@ void VL_RefreshScreen()
 	}
 }
 
-void VH_UpdateScreen()
-{
-	if (vid_is_hw_)
-	{
-		hw_refresh();
-	}
-	else
-	{
-		sw_refresh_screen();
-	}
-}
-
 int vl_get_offset(
 	int base_offset,
 	int x,
@@ -12524,25 +12512,6 @@ std::uint8_t vl_get_pixel(
 	static_cast<void>(base_offset);
 
 	return vid_ui_buffer_[(y * vga_ref_width) + x];
-}
-
-void vl_minimize_fullscreen_window(
-	bool value)
-{
-#if 0
-	if (value)
-	{
-		SDL_MinimizeWindow(
-			sw_window_.get());
-	}
-	else
-	{
-		SDL_RestoreWindow(
-			sw_window_.get());
-	}
-#else
-	static_cast<void>(value);
-#endif
 }
 
 void vl_update_widescreen()

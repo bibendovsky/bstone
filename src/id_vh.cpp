@@ -31,6 +31,9 @@ Free Software Foundation, Inc.,
 #include "gfxv.h"
 
 
+extern ControlInfo c;
+
+
 void VL_LatchToScreen(
 	int source,
 	int width,
@@ -39,9 +42,13 @@ void VL_LatchToScreen(
 	int y);
 
 void IN_StartAck();
+
 bool IN_CheckAck();
+
 void CalcTics();
+
 void ForceUpdateStatusBar();
+
 
 PicTable pictable;
 pictabletype* picmtable;
@@ -52,10 +59,10 @@ std::uint8_t fontcolor;
 std::uint8_t backcolor;
 std::int16_t fontnumber;
 
-bool allcaps = false;
 
 // BBi
 LatchesCache latches_cache;
+
 
 void VW_DrawPropString(
 	const char* string)
@@ -317,4 +324,97 @@ void LoadLatchMem()
 	}
 }
 
-extern ControlInfo c;
+
+void VW_Startup()
+{
+	VL_Startup();
+}
+
+void VW_Shutdown()
+{
+	VL_Shutdown();
+}
+
+void VW_Bar(
+	int x,
+	int y,
+	int width,
+	int height,
+	std::uint8_t color,
+	const bool is_transparent)
+{
+	VL_Bar(x, y, width, height, color, is_transparent);
+}
+
+void VW_Plot(
+	int x,
+	int y,
+	std::uint8_t color,
+	const bool is_transparent)
+{
+	VL_Plot(x, y, color, is_transparent);
+}
+
+void VW_Hlin(
+	int x,
+	int z,
+	int y,
+	std::uint8_t c)
+{
+	VL_Hlin(x, y, z - x + 1, c);
+}
+
+void VW_Vlin(
+	int y,
+	int z,
+	int x,
+	std::uint8_t c)
+{
+	VL_Vlin(x, y, z - y + 1, c);
+}
+
+void VW_WaitVBL(
+	std::uint32_t vbls)
+{
+	VL_WaitVBL(vbls);
+}
+
+void VW_FadeIn()
+{
+	VL_FadeIn(0, 255, vgapal, 30);
+}
+
+void VW_FadeOut()
+{
+	VL_FadeOut(0, 255, 0, 0, 0, 30);
+}
+
+void VW_ScreenToScreen(
+	int source,
+	int dest,
+	int width,
+	int height)
+{
+	VL_ScreenToScreen(source, dest, width, height);
+}
+
+void VW_UpdateScreen()
+{
+	VL_RefreshScreen();
+}
+
+void LatchDrawChar(
+	int x,
+	int y,
+	int p)
+{
+	VL_LatchToScreen(latchpics[0] + (p) * 64, 8, 8, x, y);
+}
+
+void LatchDrawTile(
+	int x,
+	int y,
+	int p)
+{
+	VL_LatchToScreen(latchpics[1] + (p) * 64, 16, 16, x, y);
+}

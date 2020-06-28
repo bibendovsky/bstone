@@ -71,7 +71,6 @@ void CAL_GetGrChunkLength(
 void CA_CacheScreen(
 	std::int16_t chunk);
 
-void VH_UpdateScreen();
 void IN_StartAck();
 bool IN_CheckAck();
 void OpenMapFile();

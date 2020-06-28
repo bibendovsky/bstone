@@ -38,8 +38,6 @@ Free Software Foundation, Inc.,
 #define NUM_TILES (PMSpriteStart)
 
 
-void VH_UpdateScreen();
-
 void TakeDamage(
 	std::int16_t points,
 	objtype* attacker);

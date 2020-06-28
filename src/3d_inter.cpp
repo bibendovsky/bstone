@@ -36,8 +36,6 @@ Free Software Foundation, Inc.,
 #include "gfxv.h"
 
 
-void VH_UpdateScreen();
-
 void CA_CacheScreen(
 	std::int16_t chunk);
 

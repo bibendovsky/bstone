@@ -89,8 +89,6 @@ void FinishPaletteShifts();
 void CA_CacheScreen(
 	std::int16_t chunk);
 
-void VH_UpdateScreen();
-
 void DoActor(
 	objtype* ob);
 

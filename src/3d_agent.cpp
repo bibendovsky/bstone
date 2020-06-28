@@ -131,7 +131,7 @@ void OperateDoor(
 void TryDropPlasmaDetonator();
 
 void ClearMemory();
-void VH_UpdateScreen();
+
 void InitAreas();
 
 void FirstSighting(
@@ -147,8 +147,6 @@ void DoActor(
 	objtype* ob);
 
 void RunBlakeRun();
-
-#define VW_UpdateScreen() VH_UpdateScreen()
 
 std::int16_t DrawShape(
 	std::int16_t x,

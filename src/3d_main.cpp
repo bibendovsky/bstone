@@ -138,7 +138,6 @@ void ClearMemory();
 void CA_CacheScreen(
 	std::int16_t chunk);
 
-void VH_UpdateScreen();
 void DrawHighScores();
 void freed_main();
 
