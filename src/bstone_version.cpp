@@ -38,11 +38,10 @@ namespace bstone
 
 const std::string& Version::get_string()
 {
-	static const auto version_c_string =
+	static const auto result = std::string
+	{
 #include "bstone_version_.h"
-	;
-
-	static const auto result = std::string{version_c_string};
+	};
 
 	return result;
 }
