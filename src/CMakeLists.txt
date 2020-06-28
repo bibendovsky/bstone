@@ -317,7 +317,6 @@ target_sources(
 		bstone_exception.h
 		bstone_file_stream.h
 		bstone_file_system.h
-		bstone_fixed_point.h
 		bstone_fizzle_fx.h
 		bstone_format_string.h
 		bstone_generic_fizzle_fx.h
@@ -449,7 +448,6 @@ target_sources(
 		bstone_exception.cpp
 		bstone_file_stream.cpp
 		bstone_file_system.cpp
-		bstone_fixed_point.cpp
 		bstone_fizzle_fx.cpp
 		bstone_format_string.cpp
 		bstone_generic_fizzle_fx.cpp

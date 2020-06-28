@@ -43,11 +43,47 @@ Free Software Foundation, Inc.,
 #include "bstone_audio_decoder.h"
 
 
-const int ATABLEMAX = 15;
+constexpr auto ATABLEMAX = 15;
 
 extern bool sd_sq_played_once_;
-extern std::uint8_t lefttable[ATABLEMAX][ATABLEMAX * 2];
-extern std::uint8_t righttable[ATABLEMAX][ATABLEMAX * 2];
+
+const std::uint8_t righttable[ATABLEMAX][ATABLEMAX * 2] =
+{
+	{8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 6, 0, 0, 0, 0, 0, 1, 3, 5, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 6, 4, 0, 0, 0, 0, 0, 2, 4, 6, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 6, 6, 4, 1, 0, 0, 0, 1, 2, 4, 6, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 6, 5, 4, 2, 1, 0, 1, 2, 3, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 6, 5, 4, 3, 2, 2, 3, 3, 5, 6, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 6, 6, 5, 4, 4, 4, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 6, 6, 5, 5, 5, 6, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 6, 6, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8}
+};
+
+const std::uint8_t lefttable[ATABLEMAX][ATABLEMAX * 2] =
+{
+	{8, 8, 8, 8, 8, 8, 8, 8, 5, 3, 1, 0, 0, 0, 0, 0, 6, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 6, 4, 2, 0, 0, 0, 0, 0, 4, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 6, 4, 2, 1, 0, 0, 0, 1, 4, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 3, 2, 1, 0, 1, 2, 4, 5, 6, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 6, 5, 3, 3, 2, 2, 3, 4, 5, 6, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 6, 5, 4, 4, 4, 4, 5, 6, 6, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 6, 6, 5, 5, 5, 6, 6, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 6, 6, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8}
+};
 
 
 namespace bstone
@@ -191,18 +227,18 @@ private:
 
 	struct Location
 	{
-		int x;
-		int y;
+		double x;
+		double y;
 	}; // Location
 
 	using Locations = std::vector<Location>;
 
 	struct PlayerLocation
 	{
-		int view_x;
-		int view_y;
-		int view_cos;
-		int view_sin;
+		double view_x;
+		double view_y;
+		double view_cos;
+		double view_sin;
 	}; // PlayerLocation
 
 	struct Positions
@@ -904,6 +940,7 @@ bool AudioMixerImpl::update_positions()
 
 	auto has_modifications = false;
 
+
 	// Player.
 	//
 	auto is_player_modified = false;
@@ -927,7 +964,6 @@ bool AudioMixerImpl::update_positions()
 			has_modifications = true;
 		}
 	}
-
 
 
 	// Actors.
@@ -960,8 +996,8 @@ bool AudioMixerImpl::update_positions()
 	{
 		auto& door = positions_.doors[i];
 
-		const auto x = (doorobjlist[i].tilex << TILESHIFT) + (1 << (TILESHIFT - 1));
-		const auto y = (doorobjlist[i].tiley << TILESHIFT) + (1 << (TILESHIFT - 1));
+		const auto x = doorobjlist[i].tilex + 0.5;
+		const auto y = doorobjlist[i].tiley + 0.5;
 
 		const auto is_door_modified =
 			door.x != x ||
@@ -977,15 +1013,15 @@ bool AudioMixerImpl::update_positions()
 		}
 	}
 
-	// Push-wall.
+	// Pushwall.
 	//
 	auto is_push_wall_modified = false;
 
 	{
-		auto x = (pwallx << TILESHIFT) + (1 << (TILESHIFT - 1));
-		auto y = (pwally << TILESHIFT) + (1 << (TILESHIFT - 1));
+		auto x = pwallx + 0.5;
+		auto y = pwally + 0.5;
 
-		const auto wall_offset = (65535 * pwallpos) / 63;
+		const auto wall_offset = pwallpos;
 
 		switch (pwalldir)
 		{
@@ -1853,39 +1889,18 @@ void AudioMixerImpl::spatialize_sound(
 		return;
 	}
 
-	auto gx = location->x;
-	auto gy = location->y;
-
 	//
 	// translate point to view centered coordinates
 	//
-	gx -= mt_positions_.player.view_x;
-	gy -= mt_positions_.player.view_y;
+	const auto gx = location->x - mt_positions_.player.view_x;
+	const auto gy = location->y - mt_positions_.player.view_y;
 
 	//
 	// calculate newx
 	//
-	auto xt = FixedByFrac(gx, mt_positions_.player.view_cos);
-	auto yt = FixedByFrac(gy, mt_positions_.player.view_sin);
-	auto x = (xt - yt) >> TILESHIFT;
-
-	//
-	// calculate newy
-	//
-	xt = FixedByFrac(gx, mt_positions_.player.view_sin);
-	yt = FixedByFrac(gy, mt_positions_.player.view_cos);
-
-	auto y = (yt + xt) >> TILESHIFT;
-
-	if (y <= -ATABLEMAX)
-	{
-		y = -ATABLEMAX;
-	}
-
-	if (y >= ATABLEMAX)
-	{
-		y = ATABLEMAX - 1;
-	}
+	auto xt = gx * mt_positions_.player.view_cos;
+	auto yt = gy * mt_positions_.player.view_sin;
+	auto x = static_cast<int>(xt - yt);
 
 	if (x < 0)
 	{
@@ -1895,6 +1910,23 @@ void AudioMixerImpl::spatialize_sound(
 	if (x >= ATABLEMAX)
 	{
 		x = ATABLEMAX - 1;
+	}
+
+	//
+	// calculate newy
+	//
+	xt = gx * mt_positions_.player.view_sin;
+	yt = gy * mt_positions_.player.view_cos;
+	auto y = static_cast<int>(yt + xt);
+
+	if (y <= -ATABLEMAX)
+	{
+		y = -ATABLEMAX;
+	}
+
+	if (y >= ATABLEMAX)
+	{
+		y = ATABLEMAX - 1;
 	}
 
 	const auto left = 9 - lefttable[x][y + ATABLEMAX];

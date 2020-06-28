@@ -40,6 +40,19 @@ namespace math
 {
 
 
+constexpr double fixed_to_floating(
+	const int value)
+{
+	return (value >> 16) + ((value & 0xFFFF) / 65'536.0);
+}
+
+constexpr int floating_to_fixed(
+	const double value)
+{
+	return static_cast<int>(value * 65'536.0);
+}
+
+
 template<typename T>
 inline T gcd(
 	const T a,

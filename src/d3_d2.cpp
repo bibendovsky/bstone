@@ -64,23 +64,30 @@ static void generic_map_row(
 	DrawOptions draw_options,
 	ShadingOptions shading_options)
 {
-	int xy_step = (mr_ystep << 16) | (mr_xstep & 0xFFFF);
-	int xy_frac = (mr_yfrac << 16) | (mr_xfrac & 0xFFFF);
+	const auto need_draw_ceiling =
+		draw_options == DO_CEILING ||
+		draw_options == DO_CEILING_AND_FLOORING;
 
-	int screen_offset = mr_dest;
+	const auto need_draw_flooring =
+		draw_options == DO_FLOORING ||
+		draw_options == DO_CEILING_AND_FLOORING;
+
+	auto xy_step = (mr_ystep << 16) | (mr_xstep & 0xFFFF);
+	auto xy_frac = (mr_yfrac << 16) | (mr_xfrac & 0xFFFF);
+
+	auto screen_offset = mr_dest;
 
 	for (int i = 0; i < mr_count; ++i)
 	{
-		int xy = ((xy_frac >> 3) & 0x1FFF1F80) | ((xy_frac >> 25) & 0x7E);
+		auto xy = ((xy_frac >> 3) & 0x1FFF1F80) | ((xy_frac >> 25) & 0x7E);
 
-		int pics_index = xy & 0xFFFF;
+		const auto pics_index = xy & 0xFFFF;
 
-		if (draw_options == DO_CEILING ||
-			draw_options == DO_CEILING_AND_FLOORING)
+		if (need_draw_ceiling)
 		{
-			std::uint8_t ceiling_index = planepics[pics_index + 0];
+			const auto ceiling_index = planepics[pics_index + 0];
 
-			std::uint8_t ceiling_pixel =
+			const auto ceiling_pixel =
 				(shading_options == SO_DEFAULT) ?
 				shadingtable[ceiling_index] :
 				ceiling_index;
@@ -88,12 +95,11 @@ static void generic_map_row(
 			vga_memory[screen_offset] = ceiling_pixel;
 		}
 
-		if (draw_options == DO_FLOORING ||
-			draw_options == DO_CEILING_AND_FLOORING)
+		if (need_draw_flooring)
 		{
-			std::uint8_t flooring_index = planepics[pics_index + 1];
+			const auto flooring_index = planepics[pics_index + 1];
 
-			std::uint8_t flooring_pixel =
+			const auto flooring_pixel =
 				(shading_options == SO_DEFAULT) ?
 				shadingtable[flooring_index] :
 				flooring_index;
@@ -101,7 +107,7 @@ static void generic_map_row(
 			vga_memory[screen_offset + mr_rowofs] = flooring_pixel;
 		}
 
-		++screen_offset;
+		screen_offset += 1;
 		xy_frac += xy_step;
 	}
 }

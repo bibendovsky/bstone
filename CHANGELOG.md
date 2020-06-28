@@ -4,6 +4,12 @@
 ## [1.2.7] - 2020-??-??
 ### Fixed
 - Extraction of compressed texts.
+- Same texture for door type BIO.
+- Player radius for item pickup.
+- Missing test for pushwall in CheckLine.
+
+### Changed
+- Replaced almost all fixed-point arithmetic with a floating-point one.
 
 
 ## [1.2.6] - 2020-06-18

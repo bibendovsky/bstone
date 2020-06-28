@@ -212,6 +212,13 @@ void US_PrintUnsigned(
 	US_Print(buffer.c_str());
 }
 
+void US_PrintF64(
+	const double f64)
+{
+	const auto& buffer = std::to_string(f64);
+	US_Print(buffer.c_str());
+}
+
 ///////////////////////////////////////////////////////////////////////////
 //
 //      USL_PrintInCenter() - Prints a string in the center of the given rect

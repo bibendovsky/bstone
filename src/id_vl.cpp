@@ -36,7 +36,6 @@ Free Software Foundation, Inc.,
 #include "id_vh.h"
 #include "id_vl.h"
 
-#include "bstone_fixed_point.h"
 #include "bstone_hw_texture_mgr.h"
 #include "bstone_logger.h"
 #include "bstone_mod_value.h"
@@ -2388,8 +2387,8 @@ struct HwSprite
 	}; // BsObject
 
 
-	int x_;
-	int y_;
+	double x_;
+	double y_;
 	int tile_x_;
 	int tile_y_;
 	int bs_sprite_id_;
@@ -2445,7 +2444,7 @@ HwBsShadeMaxMod hw_bs_shade_max_;
 using HwBsNormalShadeMod = bstone::ModValue<int>;
 HwBsNormalShadeMod hw_bs_normal_shade_;
 
-using HwBsHeightNumeratorMod = bstone::ModValue<int>;
+using HwBsHeightNumeratorMod = bstone::ModValue<double>;
 HwBsHeightNumeratorMod hw_bs_height_numerator_;
 
 using HwBsLightingMod = bstone::ModValue<int>;
@@ -3049,18 +3048,16 @@ void hw_update_player_direction()
 
 void hw_update_player_position()
 {
-	hw_player_position_.x = bstone::FixedPoint{player->x}.to_double();
-	hw_player_position_.y = bstone::FixedPoint{player->y}.to_double();
+	hw_player_position_.x = player->x;
+	hw_player_position_.y = player->y;
 }
 
 void hw_update_player_view_position()
 {
-	const auto focal_length = bstone::FixedPoint{focallength}.to_double();
-
 	const auto focal_delta = glm::dvec2
 	{
-		hw_view_direction_.x * focal_length,
-		hw_view_direction_.y * focal_length,
+		hw_view_direction_.x * focallength,
+		hw_view_direction_.y * focallength,
 	};
 
 	hw_view_position_ = glm::dvec3{hw_player_position_ - focal_delta, 0.5};
@@ -5337,8 +5334,8 @@ void hw_update_player_weapon_model_matrix()
 
 	const auto translate_x = 0.5 * static_cast<double>(vid_dimensions_.screen_viewport_width_);
 
-	const auto bounce_offset = (assets_info.is_aog() ? 0 : player_get_weapon_bounce_offset());
-	const auto translate_y = vga_height_scale * bstone::FixedPoint{-bounce_offset}.to_double();
+	const auto bounce_offset = (assets_info.is_aog() ? 0.0 : -player_get_weapon_bounce_offset());
+	const auto translate_y = vga_height_scale * bounce_offset;
 
 	const auto translate_v = glm::vec3
 	{
@@ -5828,7 +5825,7 @@ void hw_refresh_common()
 
 		auto& command = *command_buffer->write_set_float32_uniform();
 		command.var_ = hw_height_numerator_uniform_;
-		command.value_ = bstone::FixedPoint{hw_bs_height_numerator_}.to_float();
+		command.value_ = static_cast<float>(hw_bs_height_numerator_);
 	}
 
 	// Set extra_lighting.
@@ -6714,7 +6711,7 @@ bool hw_calculate_fog(
 		return false;
 	}
 
-	const auto height_num = bstone::FixedPoint{heightnumerator}.to_double() / vga_height_scale;
+	const auto height_num = heightnumerator / vga_height_scale;
 	const auto start_wall_distance = (32.0 * height_num) / start_wall_height;
 	const auto wall_height_step = normalshade / (8.0 * vga_height_scale);
 	const auto fog_delta = static_cast<float>(wall_height_step * normalshade_div);
@@ -6780,8 +6777,8 @@ int hw_calculate_actor_anim_rotation(
 {
 	auto dir = bs_actor.dir;
 
-	const auto view_dir_x = static_cast<double>(bs_actor.x - player->x);
-	const auto view_dir_y = static_cast<double>(-bs_actor.y + player->y);
+	const auto view_dir_x = bs_actor.x - player->x;
+	const auto view_dir_y = -bs_actor.y + player->y;
 
 	const auto view_angle_rad = std::atan2(view_dir_y, view_dir_x);
 	const auto view_angle = static_cast<int>((180.0 * view_angle_rad) / m_pi());
@@ -6895,8 +6892,8 @@ void hw_orient_sprite(
 
 	if (sprite.kind_ == HwSpriteKind::actor)
 	{
-		sprite_origin[0] = bstone::FixedPoint{sprite.x_}.to_double();
-		sprite_origin[1] = bstone::FixedPoint{sprite.y_}.to_double();
+		sprite_origin[0] = sprite.x_;
+		sprite_origin[1] = sprite.y_;
 	}
 	else
 	{
@@ -8463,7 +8460,7 @@ void hw_build_walls()
 
 	// Check for moving pushwall.
 	//
-	hw_has_active_pushwall_ = (pwallstate != 0);
+	hw_has_active_pushwall_ = (pwallstate != 0.0);
 
 	hw_active_pushwall_next_x_ = 0;
 	hw_active_pushwall_next_y_ = 0;
@@ -8688,7 +8685,7 @@ void hw_translate_pushwall(
 	int& vertex_index,
 	HwPushwallsVbi& vb_buffer)
 {
-	auto translate_distance = static_cast<float>(pwallpos) / 63.0F;
+	auto translate_distance = static_cast<float>(pwallpos);
 
 	auto translate_x = 0.0F;
 	auto translate_y = 0.0F;
@@ -8968,7 +8965,7 @@ void hw_map_door_side(
 	const auto& hw_door = *door_side.hw_door_;
 	const auto bs_door_index = hw_door.bs_door_index_;
 	const auto& bs_door = doorobjlist[bs_door_index];
-	const auto door_offset = (0.5F * static_cast<float>(doorposition[bs_door_index])) / 65'535.0F;
+	const auto door_offset = static_cast<float>(0.5 * doorposition[bs_door_index]);
 
 	auto flags = HwQuadFlags{};
 	flags.is_back_face_ = door_side.is_back_face_;

@@ -41,8 +41,9 @@ Free Software Foundation, Inc.,
 #include "id_vl.h"
 #include "3d_menu.h"
 #include "gfxv.h"
+
 #include "bstone_archiver.h"
-#include "bstone_fixed_point.h"
+#include "bstone_math.h"
 #include "bstone_memory_stream.h"
 #include "bstone_string_helper.h"
 
@@ -190,8 +191,9 @@ void GetBonus(
 
 #define MAXMOUSETURN (10)
 
-#define MOVESCALE (150L)
-#define BACKMOVESCALE (100L)
+constexpr auto MOVESCALE = bstone::math::fixed_to_floating(150);
+constexpr auto BACKMOVESCALE = bstone::math::fixed_to_floating(100);
+
 #define ANGLESCALE (20)
 #define MAX_DA (100)
 
@@ -241,7 +243,7 @@ std::int16_t tryDetonatorDelay = 0;
 //
 // player state info
 //
-std::int32_t thrustspeed;
+double thrustspeed;
 
 // unsigned plux,pluy; // player coordinates scaled to unsigned
 
@@ -305,8 +307,6 @@ void T_Attack(
 
 statetype s_player = {0, 0, 0, &T_Player, nullptr, nullptr};
 statetype s_attack = {0, 0, 0, &T_Attack, nullptr, nullptr};
-
-std::int32_t playerxmove, playerymove;
 
 atkinf_t attackinfo[7][14] = {
 	{{6, 0, 1}, {6, 2, 2}, {6, 0, 3}, {6, -1, 4}}, // Auto charge
@@ -417,7 +417,7 @@ void SpawnPlayer(
 
 void Thrust(
 	std::int16_t angle,
-	std::int32_t speed);
+	double speed);
 
 bool TryMove(
 	objtype* ob);
@@ -427,8 +427,8 @@ void T_Player(
 
 bool ClipMove(
 	objtype* ob,
-	std::int32_t xmove,
-	std::int32_t ymove);
+	const double xmove,
+	const double ymove);
 
 void T_Stand(
 	objtype* ob);
@@ -523,10 +523,7 @@ void ControlMovement(
 		strafe_value != 0
 	;
 
-	thrustspeed = 0;
-
-	const auto oldx = player->x;
-	const auto oldy = player->y;
+	thrustspeed = 0.0;
 
 	//
 	// side to side move
@@ -658,12 +655,6 @@ void ControlMovement(
 	}
 
 	ob->dir = static_cast<dirtype>(((ob->angle + 22) % 360) / 45);
-
-	//
-	// calculate total move
-	//
-	playerxmove = player->x - oldx;
-	playerymove = player->y - oldy;
 }
 
 
@@ -2695,47 +2686,52 @@ void writeTokenStr(
 bool TryMove(
 	objtype* ob)
 {
-	std::int16_t xl, yl, xh, yh, x, y, xx, yy;
-	objtype* check;
-	std::int32_t deltax, deltay;
+	int xl;
+	int yl;
+	int xh;
+	int yh;
 
 	if (ob == player)
 	{
-		xl = (ob->x - PLAYERSIZE) >> TILESHIFT;
-		yl = (ob->y - PLAYERSIZE) >> TILESHIFT;
-		xh = (ob->x + PLAYERSIZE) >> TILESHIFT;
-		yh = (ob->y + PLAYERSIZE) >> TILESHIFT;
+		xl = static_cast<int>(ob->x - PLAYERSIZE);
+		yl = static_cast<int>(ob->y - PLAYERSIZE);
+		xh = static_cast<int>(ob->x + PLAYERSIZE);
+		yh = static_cast<int>(ob->y + PLAYERSIZE);
 	}
 	else
 	{
 		if (ob->obclass == blakeobj)
 		{
-			xl = (ob->x - (0x1000l)) >> TILESHIFT;
-			yl = (ob->y - (0x1000l)) >> TILESHIFT;
-			xh = (ob->x + (0x1000l)) >> TILESHIFT;
-			yh = (ob->y + (0x1000l)) >> TILESHIFT;
+			constexpr auto radius = bstone::math::fixed_to_floating(0x1000);
+
+			xl = static_cast<int>(ob->x - radius);
+			yl = static_cast<int>(ob->y - radius);
+			xh = static_cast<int>(ob->x + radius);
+			yh = static_cast<int>(ob->y + radius);
 		}
 		else
 		{
-			xl = (ob->x - (0x7FFFl)) >> TILESHIFT;
-			yl = (ob->y - (0x7FFFl)) >> TILESHIFT;
-			xh = (ob->x + (0x7FFFl)) >> TILESHIFT;
-			yh = (ob->y + (0x7FFFl)) >> TILESHIFT;
+			constexpr auto radius = bstone::math::fixed_to_floating(0x8000);
+
+			xl = static_cast<int>(ob->x - radius);
+			yl = static_cast<int>(ob->y - radius);
+			xh = static_cast<int>(ob->x + radius);
+			yh = static_cast<int>(ob->y + radius);
 		}
 	}
 
 	//
 	// check for solid walls
 	//
-	for (y = yl; y <= yh; y++)
+	for (auto y = yl; y <= yh; ++y)
 	{
-		for (x = xl; x <= xh; x++)
+		for (auto x = xl; x <= xh; ++x)
 		{
-			check = actorat[x][y];
+			const auto check = actorat[x][y];
 
-			if (check)
+			if (check != nullptr)
 			{
-				if ((check < objlist) || (check->flags & FL_FAKE_STATIC))
+				if (check < objlist || (check->flags & FL_FAKE_STATIC) != 0)
 				{
 					return false;
 				}
@@ -2754,26 +2750,34 @@ bool TryMove(
 	// NOTE: xl,yl may go NEGITIVE!
 	//  ----  xh,yh may exceed 63 (MAPWIDTH-1)
 
-	for (y = yl; y <= yh; y++)
+	for (auto y = yl; y <= yh; ++y)
 	{
-		for (x = xl; x <= xh; x++)
+		if (y < 0 || y >= MAPSIZE)
 		{
-			xx = x & 0x3f;
+			continue;
+		}
 
-			yy = y & 0x3f;
-
-			check = actorat[xx][yy];
-
-			if ((check > objlist) && ((check->flags & (FL_SOLID | FL_FAKE_STATIC)) == FL_SOLID))
+		for (auto x = xl; x <= xh; ++x)
+		{
+			if (x < 0 || x >= MAPSIZE)
 			{
-				deltax = ob->x - check->x;
-				if ((deltax < -MINACTORDIST) || (deltax > MINACTORDIST))
+				continue;
+			}
+
+			const auto check = actorat[x][y];
+
+			if (check > objlist && (check->flags & (FL_SOLID | FL_FAKE_STATIC)) == FL_SOLID)
+			{
+				auto deltax = ob->x - check->x;
+
+				if (deltax < -MINACTORDIST || deltax > MINACTORDIST)
 				{
 					continue;
 				}
 
-				deltay = ob->y - check->y;
-				if ((deltay < -MINACTORDIST) || (deltay > MINACTORDIST))
+				auto deltay = ob->y - check->y;
+
+				if (deltay < -MINACTORDIST || deltay > MINACTORDIST)
 				{
 					continue;
 				}
@@ -2786,28 +2790,19 @@ bool TryMove(
 	return true;
 }
 
-
-/*
-===================
-=
-= ClipMove
-=
-= returns true if object hit a wall
-=
-===================
-*/
+//
+// returns true if object hit a wall
+//
 bool ClipMove(
 	objtype* ob,
-	std::int32_t xmove,
-	std::int32_t ymove)
+	const double xmove,
+	const double ymove)
 {
-	std::int32_t basex, basey;
+	auto basex = ob->x;
+	auto basey = ob->y;
 
-	basex = ob->x;
-	basey = ob->y;
-
-	ob->x = (basex + xmove);
-	ob->y = (basey + ymove);
+	ob->x = basex + xmove;
+	ob->y = basey + ymove;
 
 	if (TryMove(ob))
 	{
@@ -2822,7 +2817,7 @@ bool ClipMove(
 		}
 	}
 
-	ob->x = (basex + xmove);
+	ob->x = basex + xmove;
 	ob->y = basey;
 
 	if (TryMove(ob))
@@ -2831,7 +2826,7 @@ bool ClipMove(
 	}
 
 	ob->x = basex;
-	ob->y = (basey + ymove);
+	ob->y = basey + ymove;
 
 
 	if (TryMove(ob))
@@ -2845,44 +2840,40 @@ bool ClipMove(
 	return true;
 }
 
-
-/*
-===================
-=
-= Thrust
-=
-===================
-*/
 void Thrust(
 	std::int16_t angle,
-	std::int32_t speed)
+	double speed)
 {
+	constexpr auto max_speed = 2.0 * MINDIST;
+
 	extern TravelTable travel_table_;
-	objtype dumb;
-	std::int32_t xmove, ymove;
-	std::uint16_t offset, *map[2];
-	std::int16_t dx, dy;
+
+	std::uint16_t offset;
+	std::uint16_t* map[2];
+	std::int16_t dx;
+	std::int16_t dy;
 	std::int16_t dangle;
 	bool ignore_map1;
 
 	thrustspeed += speed;
+
 	//
 	// moving bounds speed
 	//
-	if (speed >= MINDIST * 2)
+	if (speed > max_speed)
 	{
-		speed = MINDIST * 2 - 1;
+		speed = max_speed;
 	}
 
-	xmove = FixedByFrac(speed, costable[angle]);
-	ymove = -FixedByFrac(speed, sintable[angle]);
+	const auto xmove = speed * costable[angle];
+	const auto ymove = -speed * sintable[angle];
 
 	ClipMove(player, xmove, ymove);
 
 	player_oldtilex = player->tilex;
 	player_oldtiley = player->tiley;
-	player->tilex = static_cast<std::uint8_t>(player->x >> TILESHIFT); // scale to tile values
-	player->tiley = static_cast<std::uint8_t>(player->y >> TILESHIFT);
+	player->tilex = static_cast<std::uint8_t>(player->x); // scale to tile values
+	player->tiley = static_cast<std::uint8_t>(player->y);
 
 	player->areanumber = GetAreaNumber(player->tilex, player->tiley);
 	areabyplayer[player->areanumber] = true;
@@ -2898,41 +2889,51 @@ void Thrust(
 
 	switch (*map[0])
 	{
-	case DOORTRIGGERTILE:
-		dx = *map[1] >> 8; // x
-		dy = *map[1] & 255; // y
-		if (OperateSmartSwitch(dx, dy, ST_TOGGLE, false))
-		{ // Operate & Check for removeal
-			*map[0] = AREATILE + player->areanumber;    // Remove switch
-		}
-		ignore_map1 = true;
-		break;
+		case DOORTRIGGERTILE:
+			dx = *map[1] >> 8; // x
+			dy = *map[1] & 255; // y
 
-	case SMART_OFF_TRIGGER:
-	case SMART_ON_TRIGGER:
-		dx = *map[1] >> 8;
-		dy = *map[1] & 255;
-		OperateSmartSwitch(dx, dy, static_cast<std::int8_t>((*map[0]) - SMART_OFF_TRIGGER), false);
-		ignore_map1 = true;
-		break;
+			if (OperateSmartSwitch(dx, dy, ST_TOGGLE, false))
+			{
+				// Operate & Check for removeal
+				*map[0] = AREATILE + player->areanumber;    // Remove switch
+			}
 
-	case WINTIGGERTILE:
-		playstate = ex_victorious;
-		dumb.x = ((std::int32_t)gamestate.wintilex << TILESHIFT) + TILEGLOBAL / 2;
-		dumb.y = ((std::int32_t)gamestate.wintiley << TILESHIFT) + TILEGLOBAL / 2;
-		dumb.flags = 0;
-		dangle = CalcAngle(player, &dumb);
-		RotateView(dangle, 2);
-		if (!assets_info.is_ps())
-		{
-			RunBlakeRun();
-		}
-		ignore_map1 = true;
-		break;
+			ignore_map1 = true;
+			break;
 
-	default:
-		ignore_map1 = false;
-		break;
+		case SMART_OFF_TRIGGER:
+		case SMART_ON_TRIGGER:
+			dx = *map[1] >> 8;
+			dy = *map[1] & 255;
+			OperateSmartSwitch(dx, dy, static_cast<std::int8_t>((*map[0]) - SMART_OFF_TRIGGER), false);
+			ignore_map1 = true;
+			break;
+
+		case WINTIGGERTILE:
+			playstate = ex_victorious;
+
+			{
+				objtype dumb;
+				dumb.x = gamestate.wintilex + 0.5;
+				dumb.y = gamestate.wintiley + 0.5;
+				dumb.flags = 0;
+				dangle = CalcAngle(player, &dumb);
+			}
+
+			RotateView(dangle, 2);
+
+			if (!assets_info.is_ps())
+			{
+				RunBlakeRun();
+			}
+
+			ignore_map1 = true;
+			break;
+
+		default:
+			ignore_map1 = false;
+			break;
 	}
 
 	if (!ignore_map1)
@@ -2941,17 +2942,17 @@ void Thrust(
 		//
 
 		offset = *(map[1] + 1); // 'offset' used as temp...
+
 		switch (*map[1])
 		{
-		case 0xFE00:
-			TopColor = offset & 0xFF00;
-			TopColor |= TopColor >> 8;
-			BottomColor = offset & 0xFF;
-			BottomColor |= BottomColor << 8;
-			break;
+			case 0xFE00:
+				TopColor = offset & 0xFF00;
+				TopColor |= TopColor >> 8;
+				BottomColor = offset & 0xFF;
+				BottomColor |= BottomColor << 8;
+				break;
 		}
 	}
-
 }
 
 bool GAN_HiddenArea;
@@ -3218,8 +3219,8 @@ void Cmd_Use(
 
 					player->tilex = (iconnum >> 8);
 					player->tiley = iconnum & 0xff;
-					player->x = ((std::int32_t)player->tilex << TILESHIFT) + TILEGLOBAL / 2;
-					player->y = ((std::int32_t)player->tiley << TILESHIFT) + TILEGLOBAL / 2;
+					player->x = player->tilex + 0.5;
+					player->y = player->tiley + 0.5;
 
 					DrawWarpIn();
 					break;
@@ -3252,22 +3253,21 @@ void Cmd_Use(
 			}
 		}
 	}
-	else if (!interrogate_delay)
+	else if (interrogate_delay == 0)
 	{
-		const int INTERROGATEDIST = MINACTORDIST;
+		constexpr auto INTERROGATEDIST = MINACTORDIST;
 		const std::int8_t MDIST = 2;
 		const std::int16_t INTG_ANGLE = 45;
 
-		std::int8_t x, y;
-		objtype* intg_ob = nullptr, *ob;
-		std::int32_t dx, dy, dist, intg_dist = INTERROGATEDIST + 1;
+		objtype* intg_ob = nullptr;
+		auto intg_dist = INTERROGATEDIST;
 
-		for (y = -MDIST; y < MDIST + 1; y++)
+		for (auto y = -MDIST; y < MDIST + 1; ++y)
 		{
-			for (x = -MDIST; x < MDIST + 1; x++)
+			for (auto x = -MDIST; x < MDIST + 1; ++x)
 			{
-				auto dst_x = player->tilex + x;
-				auto dst_y = player->tiley + y;
+				const auto dst_x = player->tilex + x;
+				const auto dst_y = player->tiley + y;
 
 				// Don't check outside of the map plane:
 				if (dst_x < 0 || dst_y < 0 || dst_x > 63 || dst_y > 63)
@@ -3275,23 +3275,19 @@ void Cmd_Use(
 					continue;
 				}
 
-				if ((!tilemap[dst_x][dst_y]) &&
-					(actorat[dst_x][dst_y] >= objlist))
-				{
-					ob = actorat[dst_x][dst_y];
-				}
-				else
+				if (!(tilemap[dst_x][dst_y] == 0 && actorat[dst_x][dst_y] >= objlist))
 				{
 					continue;
 				}
-				dx = player->x - ob->x;
-				dx = LABS(dx);
-				dy = player->y - ob->y;
-				dy = LABS(dy);
-				dist = dx < dy ? dx : dy;
-				if ((ob->obclass == gen_scientistobj) &&
-					((ob->flags & (FL_FRIENDLY | FL_VISIBLE)) == (FL_FRIENDLY | FL_VISIBLE)) &&
-					(dist < intg_dist))
+
+				const auto ob = actorat[dst_x][dst_y];
+				const auto dx = std::abs(player->x - ob->x);
+				const auto dy = std::abs(player->y - ob->y);
+				const auto dist = dx < dy ? dx : dy;
+
+				if (ob->obclass == gen_scientistobj &&
+					(ob->flags & (FL_FRIENDLY | FL_VISIBLE)) == (FL_FRIENDLY | FL_VISIBLE) &&
+					dist < intg_dist)
 				{
 					if ((ob->flags & FL_ATTACKMODE) != 0)
 					{
@@ -3299,10 +3295,11 @@ void Cmd_Use(
 					}
 					else
 					{
-						std::int16_t angle = CalcAngle(player, ob);
+						auto angle = CalcAngle(player, ob);
 
-						angle = ABS(player->angle - angle);
-						if (angle > INTG_ANGLE / 2)
+						angle = std::abs(player->angle - angle);
+
+						if (angle > (INTG_ANGLE / 2))
 						{
 							continue;
 						}
@@ -3314,7 +3311,7 @@ void Cmd_Use(
 			}
 		}
 
-		if (intg_ob)
+		if (intg_ob != nullptr)
 		{
 			if (Interrogate(intg_ob))
 			{
@@ -3351,7 +3348,7 @@ void Cmd_Use(
 	{
 		if (tryDetonator)
 		{
-			if ((!tryDetonatorDelay) && gamestate.plasma_detonators)
+			if (!tryDetonatorDelay && gamestate.plasma_detonators != 0)
 			{
 				TryDropPlasmaDetonator();
 				tryDetonatorDelay = 60;
@@ -3975,7 +3972,7 @@ int ps_input_floor()
 
 	old_player = *player;
 	player->angle = 90;
-	player->x = (static_cast<std::int32_t>(32) << TILESHIFT) + (TILEGLOBAL / 2);
+	player->x = 32.5;
 	player->y = player->x;
 
 	ov_buffer.resize(4096);
@@ -4814,8 +4811,8 @@ void SpawnPlayer(
 
 	player->areanumber = GetAreaNumber(player->tilex, player->tiley);
 
-	player->x = ((std::int32_t)tilex << TILESHIFT) + TILEGLOBAL / 2;
-	player->y = ((std::int32_t)tiley << TILESHIFT) + TILEGLOBAL / 2;
+	player->x = tilex + 0.5;
+	player->y = tiley + 0.5;
 	player->state = &s_player;
 	player->angle = (1 - dir) * 90;
 	if (player->angle < 0)
@@ -4873,8 +4870,8 @@ void GunAttack(
 	const auto theta_cos = std::cos(theta);
 	const auto theta_sin = std::sin(theta);
 
-	const auto x_1 = bstone::FixedPoint{player->x}.to_double();
-	const auto y_1 = (MAPSIZE - 1) - bstone::FixedPoint{player->y}.to_double();
+	const auto x_1 = player->x;
+	const auto y_1 = (MAPSIZE - 1) - player->y;
 
 	//
 	// find potential targets
@@ -4898,8 +4895,8 @@ void GunAttack(
 				continue;
 			}
 
-			const auto x_0 = bstone::FixedPoint{check->x}.to_double();
-			const auto y_0 = (MAPSIZE - 1) - bstone::FixedPoint{check->y}.to_double();
+			const auto x_0 = check->x;
+			const auto y_0 = (MAPSIZE - 1) - check->y;
 
 			const auto dx_0_1 = x_0 - x_1;
 			const auto dy_0_1 = y_0 - y_1;
@@ -5042,8 +5039,8 @@ void T_Attack(
 
 	ControlMovement(ob);
 
-	player->tilex = static_cast<std::uint8_t>(player->x >> TILESHIFT); // scale to tile values
-	player->tiley = static_cast<std::uint8_t>(player->y >> TILESHIFT);
+	player->tilex = static_cast<std::uint8_t>(player->x); // scale to tile values
+	player->tiley = static_cast<std::uint8_t>(player->y);
 
 	//
 	// change frame and fire
@@ -5335,8 +5332,8 @@ void T_Player(
 	ControlMovement(ob);
 	HandleWeaponBounce();
 
-	player->tilex = static_cast<std::uint8_t>(player->x >> TILESHIFT); // scale to tile values
-	player->tiley = static_cast<std::uint8_t>(player->y >> TILESHIFT);
+	player->tilex = static_cast<std::uint8_t>(player->x); // scale to tile values
+	player->tiley = static_cast<std::uint8_t>(player->y);
 
 	try_to_grab_bonus_items();
 }
@@ -5345,16 +5342,13 @@ void RunBlakeRun()
 {
 	vid_is_hud = true;
 
-	const fixed BLAKE_SPEED = MOVESCALE * 50;
-
-	std::int32_t xmove, ymove;
-	objtype* blake;
-	std::int16_t startx, starty, dx, dy;
+	constexpr auto BLAKE_SPEED = MOVESCALE * 50;
 
 	// Spawn Blake and set pointer.
 	//
 	SpawnPatrol(en_blake, player->tilex, player->tiley, static_cast<std::int16_t>(player->dir >> 1));
-	blake = new_actor;
+
+	auto blake = new_actor;
 
 	// Blake object starts one tile behind player object.
 	//
@@ -5382,21 +5376,24 @@ void RunBlakeRun()
 
 	// Align Blake on the middle of the tile.
 	//
-	blake->x = ((std::int32_t)blake->tilex << TILESHIFT) + TILEGLOBAL / 2;
-	blake->y = ((std::int32_t)blake->tiley << TILESHIFT) + TILEGLOBAL / 2;
-	blake->tilex = static_cast<std::uint8_t>(blake->x >> TILESHIFT);
-	startx = blake->tilex;
-	blake->tiley = static_cast<std::uint8_t>(blake->y >> TILESHIFT);
-	starty = blake->tiley;
+	blake->x = blake->tilex + 0.5;
+	blake->y = blake->tiley + 0.5;
+	blake->tilex = static_cast<std::uint8_t>(blake->x);
+	auto startx = static_cast<int>(blake->tilex);
+	blake->tiley = static_cast<std::uint8_t>(blake->y);
+	auto starty = static_cast<int>(blake->tiley);
 
 	// Run, Blake, Run!
 	//
+	int dx;
+	int dy;
+
 	do
 	{
 		// Calc movement in X and Y directions.
 		//
-		xmove = FixedByFrac(BLAKE_SPEED, costable[player->angle]);
-		ymove = -FixedByFrac(BLAKE_SPEED, sintable[player->angle]);
+		const auto xmove = BLAKE_SPEED * costable[player->angle];
+		const auto ymove = -BLAKE_SPEED * sintable[player->angle];
 
 		// Move, animate, and redraw.
 		//
@@ -5404,24 +5401,23 @@ void RunBlakeRun()
 		{
 			break;
 		}
+
 		DoActor(blake);
 		ThreeDRefresh();
 
 		// Calc new tile X/Y.
 		//
-		blake->tilex = static_cast<std::uint8_t>(blake->x >> TILESHIFT);
-		blake->tiley = static_cast<std::uint8_t>(blake->y >> TILESHIFT);
+		blake->tilex = static_cast<std::uint8_t>(blake->x);
+		blake->tiley = static_cast<std::uint8_t>(blake->y);
 
 		// Evaluate distance from start.
 		//
-		dx = blake->tilex - startx;
-		dx = ABS(dx);
-		dy = blake->tiley - starty;
-		dy = ABS(dy);
+		dx = std::abs(blake->tilex - startx);
+		dy = std::abs(blake->tiley - starty);
 
 		// BBi
 		in_handle_events();
-	} while ((dx < 6) && (dy < 6));
+	} while (dx < 6 && dy < 6);
 
 	vid_is_hud = false;
 }
@@ -5523,9 +5519,14 @@ void SW_HandleStatic(
 	case bo_clip2:
 		if (assets_info.is_ps())
 		{
-			SpawnCusExplosion((((fixed)tilex) << TILESHIFT) + 0x7FFF,
-				(((fixed)tiley) << TILESHIFT) + 0x7FFF,
-				SPR_CLIP_EXP1, 7, 30 + (US_RndT() & 0x27), explosionobj);
+			SpawnCusExplosion(
+				tilex + 0.5,
+				tiley + 0.5,
+				SPR_CLIP_EXP1,
+				7,
+				30 + (US_RndT() & 0x27),
+				explosionobj
+			);
 		}
 		stat->shapenum = -1;
 		stat->itemnumber = bo_nothing;
@@ -5740,24 +5741,26 @@ bool OperateSmartSwitch(
 //
 // ==========================================================================
 
-#define wb_MaxPoint ((std::int32_t)10 << TILESHIFT)
-#define wb_MidPoint ((std::int32_t)6 << TILESHIFT)
-#define wb_MinPoint ((std::int32_t)2 << TILESHIFT)
-#define wb_MaxGoalDist (wb_MaxPoint - wb_MidPoint)
+constexpr auto wb_MaxPoint = 10.0;
+constexpr auto wb_MidPoint = 6.0;
+constexpr auto wb_MinPoint = 2.0;
+constexpr auto wb_MaxGoalDist = wb_MaxPoint - wb_MidPoint;
 
-#define wb_MaxOffset (wb_MaxPoint + ((std::int32_t)2 << TILESHIFT))
-#define wb_MinOffset (wb_MinPoint - ((std::int32_t)2 << TILESHIFT))
+constexpr auto wb_MaxOffset = wb_MaxPoint + 2.0;
+constexpr auto wb_MinOffset = wb_MinPoint - 2.0;
 
-extern fixed bounceOffset;
+extern double bounceOffset;
 
-fixed bounceVel, bounceDest;
+double bounceVel;
+double bounceDest;
 std::int16_t bounceOk;
 
 void InitWeaponBounce()
 {
 	bounceOffset = wb_MidPoint;
 	bounceDest = wb_MaxPoint;
-	bounceVel = bounceOk = 0;
+	bounceVel = 0;
+	bounceOk = 0;
 }
 
 void HandleWeaponBounce()
@@ -5770,23 +5773,24 @@ void HandleWeaponBounce()
 	{
 		if (bounceOffset < bounceDest)
 		{
-			bounceVel += (sintable[bounceSpeed] + 1) >> 1;
+			bounceVel += sintable[bounceSpeed] / 2.0;
 			bounceOffset += bounceVel;
+
 			if (bounceOffset > bounceDest)
 			{
 				bounceDest = wb_MinPoint;
-				bounceVel >>= 2;
+				bounceVel /= 4.0;
 			}
 		}
 		else if (bounceOffset > bounceDest)
 		{
-			bounceVel -= sintable[bounceSpeed] >> 2;
+			bounceVel -= sintable[bounceSpeed] / 4.0;
 			bounceOffset += bounceVel;
 
 			if (bounceOffset < bounceDest)
 			{
 				bounceDest = wb_MaxPoint;
-				bounceVel >>= 2;
+				bounceVel /= 4.0;
 			}
 		}
 	}
@@ -5794,7 +5798,8 @@ void HandleWeaponBounce()
 	{
 		if (bounceOffset > wb_MidPoint)
 		{
-			bounceOffset -= ((std::int32_t)2 << TILESHIFT);
+			bounceOffset -= 2.0;
+
 			if (bounceOffset < wb_MidPoint)
 			{
 				bounceOffset = wb_MidPoint;
@@ -5802,7 +5807,8 @@ void HandleWeaponBounce()
 		}
 		else if (bounceOffset < wb_MidPoint)
 		{
-			bounceOffset += ((std::int32_t)2 << TILESHIFT);
+			bounceOffset += 2.0;
+
 			if (bounceOffset > wb_MidPoint)
 			{
 				bounceOffset = wb_MidPoint;
@@ -5832,12 +5838,12 @@ void try_to_grab_bonus_items()
 {
 	const auto item_radius = 0.25;
 	const auto item_tile_offset = 0.5;
-	const auto player_radius = 0.5;
+	const auto player_radius = PLAYERSIZE;
 	const auto min_distance = item_radius + player_radius;
 	const auto min_sqr_distance = min_distance * min_distance;
 
-	const auto player_x = bstone::FixedPoint{player->x}.to_double();
-	const auto player_y = bstone::FixedPoint{player->y}.to_double();
+	const auto player_x = player->x;
+	const auto player_y = player->y;
 
 	for (auto item = statobjlist.data(); item != laststatobj; ++item)
 	{
@@ -5867,7 +5873,7 @@ void try_to_grab_bonus_items()
 }
 
 
-fixed player_get_weapon_bounce_offset()
+double player_get_weapon_bounce_offset()
 {
 	return bounceOffset;
 }

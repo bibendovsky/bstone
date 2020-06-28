@@ -56,7 +56,6 @@ Free Software Foundation, Inc.,
 
 
 extern SpanStart spanstart;
-extern StepScale stepscale;
 extern BaseDist basedist;
 extern PlaneYLookup planeylookup;
 extern MirrorOfs mirrorofs;
@@ -958,27 +957,18 @@ void find_contents()
 =
 ==================
 */
-
-const float radtoint = static_cast<float>(FINEANGLES / 2 / PI);
-
-
 void BuildTables()
 {
-	std::int16_t i;
-	float angle, anglestep;
-	double tang;
-	fixed value;
-
-
 	//
 	// calculate fine tangents
 	//
 
-	for (i = 0; i < FINEANGLES / 8; i++)
+	for (auto i = 0; i < (FINEANGLES / 8); ++i)
 	{
-		tang = tan((i + 0.5) / radtoint);
-		finetangent[i] = static_cast<std::int32_t>(tang * TILEGLOBAL);
-		finetangent[FINEANGLES / 4 - 1 - i] = static_cast<std::int32_t>(1 / tang * TILEGLOBAL);
+		const auto tang = std::tan((i + 0.5) / radtoint);
+
+		finetangent[i] = tang;
+		finetangent[(FINEANGLES / 4) - 1 - i] = 1.0 / tang;
 	}
 
 	//
@@ -989,16 +979,20 @@ void BuildTables()
 	// bits 16-30 should be 0
 	//
 
-	angle = 0.0F;
-	anglestep = static_cast<float>(PI / 2 / ANGLEQUAD);
-	for (i = 0; i <= ANGLEQUAD; i++)
+	auto angle = 0.0;
+	auto anglestep = PI / 2.0 / ANGLEQUAD;
+
+	for (auto i = 0; i <= ANGLEQUAD; ++i)
 	{
-		value = static_cast<fixed>(GLOBAL1 * sin(static_cast<double>(angle)));
-		sintable[i] =
-			sintable[i + ANGLES] =
-			sintable[ANGLES / 2 - i] = value;
-		sintable[ANGLES - i] =
-			sintable[ANGLES / 2 + i] = value | 0x80000000l;
+		const auto value = std::sin(angle);
+
+		sintable[i] = value;
+		sintable[i + ANGLES] = value;
+		sintable[ANGLES / 2 - i] = value;
+
+		sintable[ANGLES - i] = -value;
+		sintable[ANGLES / 2 + i] = -value;
+
 		angle += anglestep;
 	}
 
@@ -1027,9 +1021,6 @@ void SetupWalls()
 
 	SpanStart().swap(spanstart);
 	spanstart.resize(k_half_height);
-
-	StepScale().swap(stepscale);
-	stepscale.resize(k_half_height);
 
 	BaseDist().swap(basedist);
 	basedist.resize(k_half_height);

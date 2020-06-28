@@ -25,12 +25,17 @@ Free Software Foundation, Inc.,
 #include <cmath>
 #include <cstring>
 
+#include <algorithm>
+#include <array>
+
 #include "audio.h"
 #include "id_ca.h"
 #include "id_heads.h"
 #include "id_sd.h"
 #include "id_us.h"
 #include "id_vl.h"
+
+#include "bstone_math.h"
 
 
 // 3d_def.h stuff
@@ -145,15 +150,15 @@ objtype* SLIDE_TEMP(
 }
 
 void SpawnExplosion(
-	const fixed x,
-	const fixed y)
+	const double x,
+	const double y)
 {
 	SpawnCusExplosion(x, y, SPR_EXPLOSION_1, 4, 5, explosionobj);
 }
 
 void SpawnFlash(
-	const fixed x,
-	const fixed y)
+	const double x,
+	const double y)
 {
 	SpawnCusExplosion(x, y, SPR_EXPLOSION_1, 4, 5, deadobj);
 }
@@ -185,8 +190,8 @@ std::int16_t CalcAngle(
 
 bool ClipMove(
 	objtype* ob,
-	std::int32_t xmove,
-	std::int32_t ymove);
+	const double xmove,
+	const double ymove);
 
 void DisplaySwitchOperateMsg(
 	int coords);
@@ -243,18 +248,18 @@ void T_Security(
 
 #define BFG_SHOT_STOPS (1)
 
-#define SPDPATROL (512)
-#define SPDPROJ (7168)
-#define PROJCHECKSIZE (0x8000L) // scan for actor range
-#define PROJWALLSIZE (0x2000L) // collision with wall range
+constexpr auto SPDPATROL = bstone::math::fixed_to_floating(512);
+constexpr auto SPDPROJ = bstone::math::fixed_to_floating(7168);
 
-#define PROJECTILESIZE (0xC000L)
+constexpr auto PROJCHECKSIZE = bstone::math::fixed_to_floating(0x8000); // scan for actor range
+constexpr auto PROJWALLSIZE = bstone::math::fixed_to_floating(0x2000); // collision with wall range
+constexpr auto PROJECTILESIZE = bstone::math::fixed_to_floating(0xC000);
 
 #define SEEK_TURN_DELAY (30) // tics
 
 #define CLOSE_RANGE (1) // Tiles
 
-#define ALIENSPEED (SPDPATROL)
+constexpr auto ALIENSPEED = SPDPATROL;
 #define ALIENAMMOINIT (30 + (US_RndT() % 60))
 
 #define GR_DAMAGE (40 + (US_RndT() & 0x7F)) // 20 & ... 0x3F
@@ -1002,8 +1007,8 @@ void T_SmartThought(
 
 bool ProjectileTryMove(
 	objtype* ob,
-	fixed deltax,
-	fixed deltay);
+	const double deltax,
+	const double deltay);
 
 void T_Projectile(
 	objtype* ob);
@@ -1238,7 +1243,7 @@ void SpawnOffsetObj(
 		new_actor->trydir = static_cast<dirtype>(dir_which);
 		new_actor->flags &= ~FL_SOLID;
 		new_actor->temp1 = SPR_ELECTRO_SPHERE_ROAM1;
-		new_actor->speed = 3096;
+		new_actor->speed = bstone::math::fixed_to_floating(3096);
 		new_actor->lighting = NO_SHADING; // NO shading
 		NewState(new_actor, &s_ofs_bounce);
 		SphereStartDir(new_actor);
@@ -1735,19 +1740,14 @@ void CheckForcedMove(
 void T_OfsBounce(
 	objtype* ob)
 {
-	std::int16_t oldtx, oldty;
-	std::int32_t move, dx, dy, dist;
-
 	// Should Electro-Sphere decrease player's health?
 	//
 
-	dx = player->x - ob->x;
-	dx = LABS(dx);
-	dy = player->y - ob->y;
-	dy = LABS(dy);
-	dist = dx > dy ? dx : dy;
+	const auto dx = std::abs(player->x - ob->x);
+	const auto dy = std::abs(player->y - ob->y);
+	const auto dist = dx > dy ? dx : dy;
 
-	if (dist < TILEGLOBAL)
+	if (dist < 1.0)
 	{
 		sd_play_actor_sound(ELECARCDAMAGESND, ob, bstone::ActorChannel::weapon);
 
@@ -1760,6 +1760,7 @@ void T_OfsBounce(
 	if (ob->dir == nodir)
 	{
 		SphereStartDir(ob);
+
 		if (ob->dir == nodir)
 		{
 			return;
@@ -1768,9 +1769,9 @@ void T_OfsBounce(
 
 	// Make actor bounce around the map!
 	//
-	move = ob->speed * tics;
+	auto move = ob->speed * tics;
 
-	while (move)
+	while (move != 0.0)
 	{
 		// Can actor move without reaching destination tile?
 		//
@@ -1782,92 +1783,95 @@ void T_OfsBounce(
 
 		// Align actor on destination tile.
 		//
-		ob->x = ((std::int32_t)ob->tilex << TILESHIFT) + TILEGLOBAL / 2;
-		ob->y = ((std::int32_t)ob->tiley << TILESHIFT) + TILEGLOBAL / 2;
+		ob->x = ob->tilex + 0.5;
+		ob->y = ob->tiley + 0.5;
 
 		// Decrement move distance and reset distance to next tile.
 		//
 		move -= ob->distance;
-		ob->distance = TILEGLOBAL;
+		ob->distance = 1.0;
 
 		// Can actor continue moving in current direction?
 		//
-		oldtx = ob->tilex;
-		oldty = ob->tiley;
+		auto oldtx = ob->tilex;
+		auto oldty = ob->tiley;
+
 		if (!TryWalk(ob, true))
 		{
-			bool check_opposite = false;
+			auto check_opposite = false;
 
 			// Restore tilex/tiley
 			//
-			ob->tilex = static_cast<std::uint8_t>(oldtx);
-			ob->tiley = static_cast<std::uint8_t>(oldty);
+			ob->tilex = oldtx;
+			ob->tiley = oldty;
 
 			// Direction change is based on current direction.
 			//
 			switch (ob->dir)
 			{
-			case northeast:
-			case northwest:
-			case southeast:
-			case southwest:
-				if (ob->trydir != static_cast<dirtype>(en_diagsphere))
-				{
-					if (!MoveTrappedDiag(ob))
+				case northeast:
+				case northwest:
+				case southeast:
+				case southwest:
+					if (ob->trydir != static_cast<dirtype>(en_diagsphere))
 					{
-						SphereStartDir(ob);
+						if (!MoveTrappedDiag(ob))
+						{
+							SphereStartDir(ob);
+						}
+						continue;
 					}
-					continue;
-				}
 
-				ob->dir = static_cast<dirtype>((ob->dir + 2) % 8); // Try 90 degrees to the left
-				if (TryWalk(ob, false))
-				{
+					ob->dir = static_cast<dirtype>((ob->dir + 2) % 8); // Try 90 degrees to the left
+
+					if (TryWalk(ob, false))
+					{
+						break;
+					}
+
+					ob->dir = opposite[ob->dir]; // Try 90 degrees to the right
+
+					if (TryWalk(ob, false))
+					{
+						break;
+					}
+
+					ob->dir = static_cast<dirtype>((ob->dir + 2) % 8); // Back to original direction..
+					// Must be in a corner...
+
+					check_opposite = true;
 					break;
-				}
 
-				ob->dir = opposite[ob->dir]; // Try 90 degrees to the right
-				if (TryWalk(ob, false))
-				{
+				case north:
+				case south:
+					if (ob->trydir != static_cast<dirtype>(en_vertsphere))
+					{
+						if (!MoveTrappedDiag(ob))
+						{
+							SphereStartDir(ob);
+						}
+						continue;
+					}
+
+					check_opposite = true;
 					break;
-				}
 
-				ob->dir = static_cast<dirtype>((ob->dir + 2) % 8); // Back to original direction..
-				// Must be in a corner...
-
-				check_opposite = true;
-				break;
-
-			case north:
-			case south:
-				if (ob->trydir != static_cast<dirtype>(en_vertsphere))
-				{
-					if (!MoveTrappedDiag(ob))
+				case east:
+				case west:
+					if (ob->trydir != static_cast<dirtype>(en_horzsphere))
 					{
-						SphereStartDir(ob);
+						if (!MoveTrappedDiag(ob))
+						{
+							SphereStartDir(ob);
+						}
+						continue;
 					}
-					continue;
-				}
 
-				check_opposite = true;
-				break;
+					check_opposite = true;
+					break;
 
-			case east:
-			case west:
-				if (ob->trydir != static_cast<dirtype>(en_horzsphere))
-				{
-					if (!MoveTrappedDiag(ob))
-					{
-						SphereStartDir(ob);
-					}
-					continue;
-				}
-
-				check_opposite = true;
-				break;
-
-			default:
-				break;
+				default:
+					break;
 			}
 
 			// Check opposite direction?
@@ -1890,10 +1894,12 @@ void T_OfsBounce(
 		}
 		else
 		{
-			std::int8_t orgx = ob->tilex, orgy = ob->tiley;
+			const auto orgx = ob->tilex;
+			const auto orgy = ob->tiley;
 
-			ob->tilex = static_cast<std::uint8_t>(oldtx);
-			ob->tiley = static_cast<std::uint8_t>(oldty);
+			ob->tilex = oldtx;
+			ob->tiley = oldty;
+
 			if (!MoveTrappedDiag(ob))
 			{
 				ob->tilex = orgx;
@@ -2037,8 +2043,8 @@ void SpawnHiddenOfs(
 	nevermark = false;
 	new_actor->tilex = 0;
 	new_actor->tiley = 0;
-	new_actor->x = TILEGLOBAL / 2;
-	new_actor->y = TILEGLOBAL / 2;
+	new_actor->x = 0.5;
+	new_actor->y = 0.5;
 }
 
 // ---------------------------------------------------------------------------
@@ -2077,8 +2083,8 @@ objtype* FindHiddenOfs(
 objtype* MoveHiddenOfs(
 	classtype which_class,
 	classtype new_class,
-	fixed x,
-	fixed y)
+	const double x,
+	const double y)
 {
 	auto obj = FindHiddenOfs(which_class);
 
@@ -2087,8 +2093,8 @@ objtype* MoveHiddenOfs(
 		obj->obclass = new_class;
 		obj->x = x;
 		obj->y = y;
-		obj->tilex = static_cast<std::uint8_t>(x >> TILESHIFT);
-		obj->tiley = static_cast<std::uint8_t>(y >> TILESHIFT);
+		obj->tilex = static_cast<std::uint8_t>(x);
+		obj->tiley = static_cast<std::uint8_t>(y);
 		obj->areanumber = GetAreaNumber(obj->tilex, obj->tiley);
 
 		return obj;
@@ -2204,78 +2210,75 @@ void T_SmartThought(
 {
 	const auto& assets_info = AssetsInfo{};
 
-	std::int32_t dx, dy;
-
 	switch (obj->obclass)
 	{
-	case green_oozeobj:
-	case black_oozeobj:
-	case green2_oozeobj:
-	case black2_oozeobj:
-	{
-		if (((US_RndT() & 7) == 7) &&
-			ofs_anim_t::get_curframe(obj) == 2 &&
-			obj->tilex == player->tilex &&
-			obj->tiley == player->tiley)
+		case green_oozeobj:
+		case black_oozeobj:
+		case green2_oozeobj:
+		case black2_oozeobj:
 		{
-			TakeDamage(4, obj);
-		}
-	}
-	break;
-
-	case arc_barrierobj:
-		if (BARRIER_STATE(obj) == bt_DISABLED)
-		{
-			return;
-		}
-
-		if (US_RndT() < 0x10)
-		{
-			dx = player->x - obj->x;
-			dx = LABS(dx);
-			dy = player->y - obj->y;
-			dy = LABS(dy);
-
-			if (dy <= 0x16000 && dx <= 0x16000)
+			if (((US_RndT() & 7) == 7) &&
+				ofs_anim_t::get_curframe(obj) == 2 &&
+				obj->tilex == player->tilex &&
+				obj->tiley == player->tiley)
 			{
-				sd_play_actor_sound(
-					ELECARCDAMAGESND, obj, bstone::ActorChannel::weapon);
-
 				TakeDamage(4, obj);
 			}
 		}
+		break;
 
-	case post_barrierobj:
-		//
-		// Check for Turn offs
-		//
-		if ((std::uint16_t)obj->temp2 != 0xffff)
-		{
-			const auto barrier_index = gamestate.get_barrier_index(obj->temp2);
-
-			if (!gamestate.barrier_table[barrier_index].on)
+		case arc_barrierobj:
+			if (BARRIER_STATE(obj) == bt_DISABLED)
 			{
-				ToggleBarrier(obj);
+				return;
 			}
-		}
-		break;
 
-	case volatiletransportobj:
-	case floatingbombobj:
-		if (obj->lighting)
-		{
-			// Slowly inc back to
-
-			obj->lighting += static_cast<std::int8_t>(ofs_anim_t::get_curframe(obj));
-			if (obj->lighting > 0)
+			if (US_RndT() < 0x10)
 			{
-				obj->lighting = 0;
-			}
-		}
-		break;
+				constexpr auto min_distance = bstone::math::fixed_to_floating(0x16000);
 
-	default:
-		break;
+				const auto dx = std::abs(player->x - obj->x);
+				const auto dy = std::abs(player->y - obj->y);
+
+				if (dy <= min_distance && dx <= min_distance)
+				{
+					sd_play_actor_sound(ELECARCDAMAGESND, obj, bstone::ActorChannel::weapon);
+
+					TakeDamage(4, obj);
+				}
+			}
+
+		case post_barrierobj:
+			//
+			// Check for Turn offs
+			//
+			if ((std::uint16_t)obj->temp2 != 0xffff)
+			{
+				const auto barrier_index = gamestate.get_barrier_index(obj->temp2);
+
+				if (!gamestate.barrier_table[barrier_index].on)
+				{
+					ToggleBarrier(obj);
+				}
+			}
+			break;
+
+		case volatiletransportobj:
+		case floatingbombobj:
+			if (obj->lighting)
+			{
+				// Slowly inc back to
+
+				obj->lighting += static_cast<std::int8_t>(ofs_anim_t::get_curframe(obj));
+				if (obj->lighting > 0)
+				{
+					obj->lighting = 0;
+				}
+			}
+			break;
+
+		default:
+			break;
 	}
 
 	if (ofs_anim_t::get_animtype(obj) != 0)
@@ -2287,80 +2290,82 @@ void T_SmartThought(
 		{
 			switch (obj->obclass)
 			{
-			case morphing_spider_mutantobj:
-			case morphing_reptilian_warriorobj:
-			case morphing_mutanthuman2obj:
-				dx = obj->obclass - morphing_spider_mutantobj;
-				obj->temp1 = MorphEndShapes[dx];
-
-				sd_play_actor_sound(
-					MorphSounds[dx], obj, bstone::ActorChannel::voice);
-
-				obj->obclass = static_cast<classtype>(MorphClass[dx]);
-				obj->hitpoints = get_start_hit_point(MorphClass[dx] - rentacopobj);
-				obj->flags &= ~FL_FAKE_STATIC;
-				obj->flags |= FL_PROJ_TRANSPARENT | FL_SHOOTABLE;
-				NewState(obj, &s_ofs_chase1);
-				break;
-
-			case podeggobj:
-				obj->flags |= FL_SHOOTABLE;
-				obj->obclass = podobj;
-				obj->temp1 = SPR_POD_WALK1;
-				NewState(obj, &s_ofs_chase1);
-				obj->hitpoints = get_start_hit_point(en_pod);
-				break;
-
-			case rotating_cubeobj:
-				if (assets_info.is_aog_full())
-				{
-					if (obj->temp1 == SPR_VITAL_OUCH)
+				case morphing_spider_mutantobj:
+				case morphing_reptilian_warriorobj:
+				case morphing_mutanthuman2obj:
 					{
-						InitSmartSpeedAnim(obj, SPR_VITAL_STAND, 0, 0, at_NONE, ad_FWD, 0);
+						auto dx = obj->obclass - morphing_spider_mutantobj;
+						obj->temp1 = MorphEndShapes[dx];
+
+						sd_play_actor_sound(MorphSounds[dx], obj, bstone::ActorChannel::voice);
+
+						obj->obclass = static_cast<classtype>(MorphClass[dx]);
+						obj->hitpoints = get_start_hit_point(MorphClass[dx] - rentacopobj);
+
+						obj->flags &= ~FL_FAKE_STATIC;
+						obj->flags |= FL_PROJ_TRANSPARENT | FL_SHOOTABLE;
+						NewState(obj, &s_ofs_chase1);
 					}
-					else if (obj->temp1 == SPR_VITAL_DIE_8)
-					{
-						InitSmartSpeedAnim(obj, SPR_VITAL_DEAD_1, 0, 2, at_CYCLE, ad_FWD, 16);
+					break;
 
-						if (get_remaining_generators() == 0)
+				case podeggobj:
+					obj->flags |= FL_SHOOTABLE;
+					obj->obclass = podobj;
+					obj->temp1 = SPR_POD_WALK1;
+					NewState(obj, &s_ofs_chase1);
+					obj->hitpoints = get_start_hit_point(en_pod);
+					break;
+
+				case rotating_cubeobj:
+					if (assets_info.is_aog_full())
+					{
+						if (obj->temp1 == SPR_VITAL_OUCH)
 						{
-							obj->ammo = 1;
+							InitSmartSpeedAnim(obj, SPR_VITAL_STAND, 0, 0, at_NONE, ad_FWD, 0);
+						}
+						else if (obj->temp1 == SPR_VITAL_DIE_8)
+						{
+							InitSmartSpeedAnim(obj, SPR_VITAL_DEAD_1, 0, 2, at_CYCLE, ad_FWD, 16);
+
+							if (get_remaining_generators() == 0)
+							{
+								obj->ammo = 1;
+							}
 						}
 					}
-				}
-				else if (assets_info.is_ps())
-				{
-					DISPLAY_TIMED_MSG(pd_floorunlocked, MP_FLOOR_UNLOCKED, MT_GENERAL);
-					sd_play_player_sound(ROLL_SCORESND, bstone::ActorChannel::item);
+					else if (assets_info.is_ps())
+					{
+						DISPLAY_TIMED_MSG(pd_floorunlocked, MP_FLOOR_UNLOCKED, MT_GENERAL);
+						sd_play_player_sound(ROLL_SCORESND, bstone::ActorChannel::item);
+						obj->lighting = 0;
+					}
+					break;
+
+				case inertobj:
+				case fixup_inertobj:
+				case scan_wait_alienobj:
+				case lcan_wait_alienobj:
+				case gurney_waitobj:
+					break;
+
+				case gold_morphobj:
+					//
+					// Game completed!
+					//
+					playstate = ex_victorious;
+					obj->state = nullptr;  // Mark to be removed.
+					break;
+
+
+				case volatiletransportobj:
+				case floatingbombobj:
+					NewState(obj, &s_scout_dead);
 					obj->lighting = 0;
-				}
-				break;
+					return;
 
-			case inertobj:
-			case fixup_inertobj:
-			case scan_wait_alienobj:
-			case lcan_wait_alienobj:
-			case gurney_waitobj:
-				break;
-
-			case gold_morphobj:
-				//
-				// Game completed!
-				//
-				playstate = ex_victorious;
-				obj->state = nullptr;  // Mark to be removed.
-				break;
-
-
-			case volatiletransportobj:
-			case floatingbombobj:
-				NewState(obj, &s_scout_dead);
-				obj->lighting = 0;
-				return;
-
-			default:
-				obj->state = nullptr;  // Mark to be removed.
-				break;
+				default:
+					obj->state = nullptr;  // Mark to be removed.
+					break;
 			}
 		}
 
@@ -2399,103 +2404,103 @@ void T_SmartThought(
 		{
 			switch (obj->obclass)
 			{
-			case doorexplodeobj:
-				if (!obj->temp2)
-				{
-					std::int16_t avail, total, i;
-
-					// Make sure that there are at least DR_MIN_STATICS
-
-					avail = MAXSTATS;
-					total = static_cast<std::int16_t>(laststatobj - &statobjlist[0]);
-					for (i = 0; i < total; i++)
+				case doorexplodeobj:
+					if (!obj->temp2)
 					{
-						if (statobjlist[i].shapenum != -1)
+						std::int16_t avail, total, i;
+
+						// Make sure that there are at least DR_MIN_STATICS
+
+						avail = MAXSTATS;
+						total = static_cast<std::int16_t>(laststatobj - &statobjlist[0]);
+						for (i = 0; i < total; i++)
 						{
-							avail--;
+							if (statobjlist[i].shapenum != -1)
+							{
+								avail--;
+							}
+						}
+
+						if ((avail > DR_MIN_STATICS) && (US_RndT() & 1))
+						{
+							static_cast<void>(SpawnStatic(obj->tilex, obj->tiley, DOOR_RUBBLE_STATNUM));
 						}
 					}
+					break;
 
-					if ((avail > DR_MIN_STATICS) && (US_RndT() & 1))
+				case explosionobj:
+					if (!obj->temp2)
 					{
-						static_cast<void>(SpawnStatic(obj->tilex, obj->tiley, DOOR_RUBBLE_STATNUM));
+						ExplodeRadius(obj, 20, true);
+						MakeAlertNoise(obj);
+						obj->temp2 = 1;
 					}
-				}
-				break;
+					break;
 
-			case explosionobj:
-				if (!obj->temp2)
-				{
-					ExplodeRadius(obj, 20, true);
-					MakeAlertNoise(obj);
-					obj->temp2 = 1;
-				}
-				break;
+				case pd_explosionobj:
+					if (!obj->temp2)
+					{
+						ExplodeRadius(obj, PLASMA_DETONATOR_DAMAGE, true);
+						MakeAlertNoise(obj);
+						obj->temp2 = 1;
+					}
 
-			case pd_explosionobj:
-				if (!obj->temp2)
-				{
-					ExplodeRadius(obj, PLASMA_DETONATOR_DAMAGE, true);
-					MakeAlertNoise(obj);
-					obj->temp2 = 1;
-				}
+				case bfg_explosionobj:
+					if (!obj->temp2)
+					{
+						ExplodeRadius(obj, BFG_DAMAGE, true);
+						MakeAlertNoise(obj);
+						obj->temp2 = 1;
+					}
+					break;
 
-			case bfg_explosionobj:
-				if (!obj->temp2)
-				{
-					ExplodeRadius(obj, BFG_DAMAGE, true);
-					MakeAlertNoise(obj);
-					obj->temp2 = 1;
-				}
-				break;
-
-			case gurney_waitobj:
+				case gurney_waitobj:
 // FIXME
 // Remove this or convert the reserved actor into real one.
 #if 0
-				if (obj->temp2)
-				{
-					RemoveObj(ui16_to_actor(obj->temp2));
-				}
+					if (obj->temp2)
+					{
+						RemoveObj(ui16_to_actor(obj->temp2));
+					}
 #endif
 
-				SpawnOffsetObj(en_gurney, obj->tilex, obj->tiley);
-				NewState(obj, &s_ofs_static);
-				// obj->obclass = fixup_inertobj;
-				break;
+					SpawnOffsetObj(en_gurney, obj->tilex, obj->tiley);
+					NewState(obj, &s_ofs_static);
+					// obj->obclass = fixup_inertobj;
+					break;
 
-			case scan_wait_alienobj:
+				case scan_wait_alienobj:
 // FIXME
 // Remove this or convert the reserved actor into real one.
 #if 0
-				if (obj->temp2)
-				{
-					RemoveObj(ui16_to_actor(obj->temp2));
-				}
+					if (obj->temp2)
+					{
+						RemoveObj(ui16_to_actor(obj->temp2));
+					}
 #endif
 
-				SpawnOffsetObj(en_scan_alien, obj->tilex, obj->tiley);
-				NewState(obj, &s_ofs_static);
-				// obj->obclass = fixup_inertobj;
-				break;
+					SpawnOffsetObj(en_scan_alien, obj->tilex, obj->tiley);
+					NewState(obj, &s_ofs_static);
+					// obj->obclass = fixup_inertobj;
+					break;
 
-			case lcan_wait_alienobj:
+				case lcan_wait_alienobj:
 // FIXME
 // Remove this or convert the reserved actor into real one.
 #if 0
-				if (obj->temp2)
-				{
-					RemoveObj(ui16_to_actor(obj->temp2));
-				}
+					if (obj->temp2)
+					{
+						RemoveObj(ui16_to_actor(obj->temp2));
+					}
 #endif
 
-				SpawnOffsetObj(en_lcan_alien, obj->tilex, obj->tiley);
-				NewState(obj, &s_ofs_static);
-				// obj->obclass = fixup_inertobj;
-				break;
+					SpawnOffsetObj(en_lcan_alien, obj->tilex, obj->tiley);
+					NewState(obj, &s_ofs_static);
+					// obj->obclass = fixup_inertobj;
+					break;
 
-			default:
-				break;
+				default:
+					break;
 			}
 		}
 
@@ -2503,31 +2508,31 @@ void T_SmartThought(
 		{
 			switch (obj->obclass)
 			{
-			case volatiletransportobj:
-				if (!(obj->flags & FL_INTERROGATED))
-				{
-					if (US_RndT() < 0x7f)
+				case volatiletransportobj:
+					if (!(obj->flags & FL_INTERROGATED))
 					{
-						usedummy = true;
-						SpawnOffsetObj(en_green_ooze, obj->tilex, obj->tiley);
-						new_actor->x = obj->x + (US_RndT() << 7);
-						new_actor->y = obj->y + (US_RndT() << 7);
-						new_actor->tilex = static_cast<std::uint8_t>(new_actor->x >> TILESHIFT);
-						new_actor->tiley = static_cast<std::uint8_t>(new_actor->y >> TILESHIFT);
-						usedummy = false;
+						if (US_RndT() < 0x7f)
+						{
+							usedummy = true;
+							SpawnOffsetObj(en_green_ooze, obj->tilex, obj->tiley);
+							new_actor->x = obj->x + (0.5 * US_RndT() / 255.0);
+							new_actor->y = obj->y + (0.5 * US_RndT() / 255.0);
+							new_actor->tilex = static_cast<std::uint8_t>(new_actor->x);
+							new_actor->tiley = static_cast<std::uint8_t>(new_actor->y);
+							usedummy = false;
+						}
 					}
-				}
 
-			case floatingbombobj:
-				if (!(obj->flags & FL_INTERROGATED))
-				{
-					T_ExplodeDamage(obj);
-					obj->flags |= FL_INTERROGATED;
-				}
-				break;
+				case floatingbombobj:
+					if (!(obj->flags & FL_INTERROGATED))
+					{
+						T_ExplodeDamage(obj);
+						obj->flags |= FL_INTERROGATED;
+					}
+					break;
 
-			default:
-				break;
+				default:
+					break;
 			}
 		}
 	}
@@ -3307,200 +3312,201 @@ void T_BarrierShutdown(
 void T_BarrierTransition(
 	objtype* obj)
 {
-	fixed dx, dy;
-
 	switch (BARRIER_STATE(obj))
 	{
-		//
-		// ON/CLOSED POSITION
-		//
-	case bt_ON:
-		//
-		// Check for cycle barrier.
-		//
-		if ((std::uint16_t)obj->temp2 == 0xFFFF)
-		{
-			if (obj->temp3 < tics)
+			//
+			// ON/CLOSED POSITION
+			//
+		case bt_ON:
+			//
+			// Check for cycle barrier.
+			//
+			if ((std::uint16_t)obj->temp2 == 0xFFFF)
 			{
-				ToggleBarrier(obj);
+				if (obj->temp3 < tics)
+				{
+					ToggleBarrier(obj);
+				}
+				else
+				{
+					obj->temp3 -= tics;
+				}
 			}
 			else
 			{
-				obj->temp3 -= tics;
-			}
-		}
-		else
-		{
-			const auto barrier_index = gamestate.get_barrier_index(obj->temp2);
+				const auto barrier_index = gamestate.get_barrier_index(obj->temp2);
 
-			if (!gamestate.barrier_table[barrier_index].on)
-			{
-				ToggleBarrier(obj);
-			}
-		}
-		break;
-
-
-		//
-		// OFF/OPEN POSITION
-		//
-	case bt_OFF:
-		//
-		// Check for cycle barrier.
-		//
-		if ((std::uint16_t)obj->temp2 == 0xFFFF)
-		{
-			if (obj->temp3 < tics)
-			{
-				ToggleBarrier(obj);
-			}
-			else
-			{
-				obj->temp3 -= tics;
-			}
-		}
-		else
-		{
-			const auto barrier_index = gamestate.get_barrier_index(obj->temp2);
-
-			if (gamestate.barrier_table[barrier_index].on)
-			{
-				ToggleBarrier(obj);
-			}
-		}
-		break;
-
-		//
-		// CLOSING/TURNING ON
-		//
-	case bt_CLOSING:
-		// Check for damaging the player
-
-		dx = player->x - obj->x;
-		dx = LABS(dx);
-		dy = player->y - obj->y;
-		dy = LABS(dy);
-
-		if (dy <= 0x17FFF && dx <= 0x17FFF)
-		{
-			if (dy <= 0x7FFF && dx <= 0x7FFF)
-			{
-				TakeDamage(2, obj);
+				if (!gamestate.barrier_table[barrier_index].on)
+				{
+					ToggleBarrier(obj);
+				}
 			}
 			break;
-		}
 
-		if (obj->temp3 < tics)
-		{
-			obj->temp3 = VPOST_BARRIER_SPEED;
-			obj->temp1++;
 
-			if (obj->temp1 > 7)
+			//
+			// OFF/OPEN POSITION
+			//
+		case bt_OFF:
+			//
+			// Check for cycle barrier.
+			//
+			if ((std::uint16_t)obj->temp2 == 0xFFFF)
 			{
-				obj->temp1 = 7; // Errors...
-
-			}
-			switch (obj->temp1)
-			{
-			case 3:
-				// Closed enough to be solid
-				//
-
-				obj->flags |= (FL_SOLID | FL_FAKE_STATIC);
-				obj->flags &= ~(FL_NEVERMARK | FL_NONMARK);
-				break;
-
-			case 7:
-				// Fully closed dude!
-				//
-
-				BARRIER_STATE(obj) = bt_ON;
-				//
-				// Check for cycle barrier.
-				//
-				if ((std::uint16_t)obj->temp2 == 0xFFFF)
+				if (obj->temp3 < tics)
 				{
-					obj->temp3 = VPOST_WAIT_DELAY;
+					ToggleBarrier(obj);
 				}
-				break;
-			}
-		}
-		else
-		{
-			obj->temp3 -= tics;
-		}
-
-		// Check to see if to was toggled
-
-		if ((std::uint16_t)obj->temp2 != 0xFFFF)
-		{
-			const auto barrier_index = gamestate.get_barrier_index(obj->temp2);
-
-			if (!gamestate.barrier_table[barrier_index].on)
-			{
-				ToggleBarrier(obj);
-			}
-		}
-		break;
-
-		//
-		// OPENING/TURNNING OFF
-		//
-	case bt_OPENING:
-		if (obj->temp3 < tics)
-		{
-			obj->temp3 = VPOST_BARRIER_SPEED;
-			obj->temp1--;
-
-			if (obj->temp1 < 0)
-			{
-				obj->temp1 = 0; // Errors...
-
-
-			}
-			switch (obj->temp1)
-			{
-			case 2:
-				//
-				// Open enough not to be solid.
-
-				obj->flags &= ~(FL_SOLID | FL_FAKE_STATIC);
-				obj->flags |= (FL_NEVERMARK | FL_NONMARK);
-				break;
-
-			case 0:
-				// Fully Open dude!
-				//
-
-				BARRIER_STATE(obj) = bt_OFF;
-
-				//
-				// Check for cycle barrier.
-				//
-				if ((std::uint16_t)obj->temp2 == 0xFFFF)
+				else
 				{
-					obj->temp3 = VPOST_WAIT_DELAY;
+					obj->temp3 -= tics;
 				}
-				break;
 			}
-		}
-		else
-		{
-			obj->temp3 -= tics;
-		}
-
-		// Check to see if to was toggled
-
-		if ((std::uint16_t)obj->temp2 != 0xFFFF)
-		{
-			const auto barrier_index = gamestate.get_barrier_index(obj->temp2);
-
-			if (gamestate.barrier_table[barrier_index].on)
+			else
 			{
-				ToggleBarrier(obj);
+				const auto barrier_index = gamestate.get_barrier_index(obj->temp2);
+
+				if (gamestate.barrier_table[barrier_index].on)
+				{
+					ToggleBarrier(obj);
+				}
 			}
-		}
-		break;
+			break;
+
+			//
+			// CLOSING/TURNING ON
+			//
+		case bt_CLOSING:
+			// Check for damaging the player
+
+			{
+				const auto dx = std::abs(player->x - obj->x);
+				const auto dy = std::abs(player->y - obj->y);
+
+				constexpr auto check_distance = bstone::math::fixed_to_floating(0x18000);
+				constexpr auto min_distance = bstone::math::fixed_to_floating(0x8000);
+
+				if (dy <= check_distance && dx <= check_distance)
+				{
+					if (dy <= min_distance && dx <= min_distance)
+					{
+						TakeDamage(2, obj);
+					}
+					break;
+				}
+			}
+
+			if (obj->temp3 < tics)
+			{
+				obj->temp3 = VPOST_BARRIER_SPEED;
+				obj->temp1++;
+
+				if (obj->temp1 > 7)
+				{
+					obj->temp1 = 7; // Errors...
+
+				}
+				switch (obj->temp1)
+				{
+				case 3:
+					// Closed enough to be solid
+					//
+
+					obj->flags |= (FL_SOLID | FL_FAKE_STATIC);
+					obj->flags &= ~(FL_NEVERMARK | FL_NONMARK);
+					break;
+
+				case 7:
+					// Fully closed dude!
+					//
+
+					BARRIER_STATE(obj) = bt_ON;
+					//
+					// Check for cycle barrier.
+					//
+					if ((std::uint16_t)obj->temp2 == 0xFFFF)
+					{
+						obj->temp3 = VPOST_WAIT_DELAY;
+					}
+					break;
+				}
+			}
+			else
+			{
+				obj->temp3 -= tics;
+			}
+
+			// Check to see if to was toggled
+
+			if ((std::uint16_t)obj->temp2 != 0xFFFF)
+			{
+				const auto barrier_index = gamestate.get_barrier_index(obj->temp2);
+
+				if (!gamestate.barrier_table[barrier_index].on)
+				{
+					ToggleBarrier(obj);
+				}
+			}
+			break;
+
+			//
+			// OPENING/TURNNING OFF
+			//
+		case bt_OPENING:
+			if (obj->temp3 < tics)
+			{
+				obj->temp3 = VPOST_BARRIER_SPEED;
+				obj->temp1--;
+
+				if (obj->temp1 < 0)
+				{
+					obj->temp1 = 0; // Errors...
+
+
+				}
+				switch (obj->temp1)
+				{
+					case 2:
+						//
+						// Open enough not to be solid.
+
+						obj->flags &= ~(FL_SOLID | FL_FAKE_STATIC);
+						obj->flags |= (FL_NEVERMARK | FL_NONMARK);
+						break;
+
+					case 0:
+						// Fully Open dude!
+						//
+
+						BARRIER_STATE(obj) = bt_OFF;
+
+						//
+						// Check for cycle barrier.
+						//
+						if ((std::uint16_t)obj->temp2 == 0xFFFF)
+						{
+							obj->temp3 = VPOST_WAIT_DELAY;
+						}
+						break;
+				}
+			}
+			else
+			{
+				obj->temp3 -= tics;
+			}
+
+			// Check to see if to was toggled
+
+			if ((std::uint16_t)obj->temp2 != 0xFFFF)
+			{
+				const auto barrier_index = gamestate.get_barrier_index(obj->temp2);
+
+				if (gamestate.barrier_table[barrier_index].on)
+				{
+					ToggleBarrier(obj);
+				}
+			}
+			break;
 	}
 }
 
@@ -4018,8 +4024,6 @@ void T_LiquidStand(
 void T_SwatWound(
 	objtype* ob)
 {
-	std::int32_t dx, dy;
-
 	if (ob->state == &s_swatunwounded4)
 	{
 		ob->flags |= FL_SOLID | FL_SHOOTABLE;
@@ -4037,12 +4041,10 @@ void T_SwatWound(
 
 		ob->temp2 = 0;
 
-		dx = player->x - ob->x;
-		dx = LABS(dx);
-		dy = player->y - ob->y;
-		dy = LABS(dy);
+		const auto dx = std::abs(player->x - ob->x);
+		const auto dy = std::abs(player->y - ob->y);
 
-		if (dy > TILEGLOBAL || dx > TILEGLOBAL)
+		if (dy > 1.0 || dx > 1.0)
 		{
 			ob->flags |= FL_SOLID | FL_SHOOTABLE;
 			NewState(ob, &s_swatunwounded1);
@@ -4379,7 +4381,7 @@ void SpawnPatrol(
 	new_actor->obclass = static_cast<classtype>(rentacopobj + which);
 	new_actor->dir = static_cast<dirtype>(dir << 1);
 	new_actor->hitpoints = get_start_hit_point(which);
-	new_actor->distance = 0;
+	new_actor->distance = 0.0;
 	if (new_actor->obclass != blakeobj)
 	{
 		new_actor->flags |= FL_SHOOTABLE | FL_SOLID;
@@ -4635,30 +4637,33 @@ void T_Stand(
 void T_Chase(
 	objtype* ob)
 {
-	std::int32_t move;
-	std::int16_t dx, dy, dist, chance;
-	bool nearattack = false;
-
 	ob->flags &= ~FL_LOCKED_STATE;
 
-	if (ob->flags & (FL_STATIONARY | FL_BARRIER_DAMAGE))
+	if ((ob->flags & (FL_STATIONARY | FL_BARRIER_DAMAGE)) != 0)
 	{
 		return;
 	}
 
-	if (ob->ammo)
+	if (ob->ammo != 0)
 	{
 		if (CheckLine(ob, player) && (!PlayerInvisable))
-		{ // got a shot at player?
-			dx = static_cast<std::int16_t>(abs(ob->tilex - player->tilex));
-			dy = static_cast<std::int16_t>(abs(ob->tiley - player->tiley));
-			dist = dx > dy ? dx : dy;
-			if (!dist)
+		{
+			auto nearattack = false;
+
+			// got a shot at player?
+			const auto dx = abs(ob->tilex - player->tilex);
+			const auto dy = abs(ob->tiley - player->tiley);
+
+			auto dist = dx > dy ? dx : dy;
+
+			if (dist == 0)
 			{
 				dist = 1;
 			}
 
-			if (dist == 1 && ob->distance < 0x4000)
+			constexpr auto near_attack_min_distance = bstone::math::fixed_to_floating(0x4000);
+
+			if (dist == 1 && ob->distance < near_attack_min_distance)
 			{
 				nearattack = true;
 			}
@@ -4667,64 +4672,6 @@ void T_Chase(
 			//
 			switch (ob->obclass)
 			{
-			case mutant_human1obj:
-			case genetic_guardobj:
-			case gurneyobj:
-			case podobj:
-			case mutant_human2obj:
-			case scan_alienobj:
-			case lcan_alienobj:
-			case spider_mutantobj:
-			case breather_beastobj:
-			case cyborg_warriorobj:
-			case reptilian_warriorobj:
-			case acid_dragonobj:
-			case mech_guardianobj:
-			case gold_morphobj:
-			case final_boss1obj:
-			case final_boss2obj:
-			case final_boss3obj:
-			case final_boss4obj:
-				// Check for mode change
-				//
-				if (ob->ammo > tics)
-				{
-					ob->ammo -= static_cast<std::uint8_t>(tics);
-				}
-				else
-				{
-					ChangeShootMode(ob);
-
-					// Move half as far when doing near attacks...
-					//
-					if (!(ob->flags & FL_SHOOTMODE))
-					{
-						ob->ammo >>= 1;
-					}
-				}
-				break;
-
-			default:
-				break;
-			}
-
-			if (nearattack)
-			{
-				// Always shoot when in SHOOTMODE -- Never shoot when not!
-				//
-				if (ob->flags & FL_SHOOTMODE)
-				{
-					chance = 300;
-				}
-				else
-				{
-					chance = 0;
-				}
-			}
-			else
-			{
-				switch (ob->obclass)
-				{
 				case mutant_human1obj:
 				case genetic_guardobj:
 				case gurneyobj:
@@ -4743,25 +4690,85 @@ void T_Chase(
 				case final_boss2obj:
 				case final_boss3obj:
 				case final_boss4obj:
-					// Always shoot when in SHOOTMODE -- Never shoot when not!
+					// Check for mode change
 					//
-					if (ob->flags & FL_SHOOTMODE)
+					if (ob->ammo > tics)
 					{
-						chance = 300;
+						ob->ammo -= static_cast<std::uint8_t>(tics);
 					}
 					else
 					{
-						chance = 0;
+						ChangeShootMode(ob);
+
+						// Move half as far when doing near attacks...
+						//
+						if ((ob->flags & FL_SHOOTMODE) == 0)
+						{
+							ob->ammo >>= 1;
+						}
 					}
 					break;
 
 				default:
-					chance = (tics << 4) / dist;
 					break;
+			}
+
+			auto chance = 0;
+
+			if (nearattack)
+			{
+				// Always shoot when in SHOOTMODE -- Never shoot when not!
+				//
+				if ((ob->flags & FL_SHOOTMODE) != 0)
+				{
+					chance = 300;
+				}
+				else
+				{
+					chance = 0;
+				}
+			}
+			else
+			{
+				switch (ob->obclass)
+				{
+					case mutant_human1obj:
+					case genetic_guardobj:
+					case gurneyobj:
+					case podobj:
+					case mutant_human2obj:
+					case scan_alienobj:
+					case lcan_alienobj:
+					case spider_mutantobj:
+					case breather_beastobj:
+					case cyborg_warriorobj:
+					case reptilian_warriorobj:
+					case acid_dragonobj:
+					case mech_guardianobj:
+					case gold_morphobj:
+					case final_boss1obj:
+					case final_boss2obj:
+					case final_boss3obj:
+					case final_boss4obj:
+						// Always shoot when in SHOOTMODE -- Never shoot when not!
+						//
+						if ((ob->flags & FL_SHOOTMODE) != 0)
+						{
+							chance = 300;
+						}
+						else
+						{
+							chance = 0;
+						}
+						break;
+
+					default:
+						chance = (tics << 4) / dist;
+						break;
 				}
 			}
 
-			if ((US_RndT() < chance) && (ob->ammo) && (!(ob->flags & FL_INTERROGATED)))
+			if (US_RndT() < chance && ob->ammo != 0 && (ob->flags & FL_INTERROGATED) == 0)
 			{
 				DoAttack(ob);
 				return;
@@ -4777,13 +4784,13 @@ void T_Chase(
 	{
 		switch (ob->obclass)
 		{
-		case floatingbombobj:
-			SelectChaseDir(ob);
-			break;
+			case floatingbombobj:
+				SelectChaseDir(ob);
+				break;
 
-		default:
-			SelectDodgeDir(ob);
-			break;
+			default:
+				SelectDodgeDir(ob);
+				break;
 		}
 
 		if (ob->dir == nodir)
@@ -4792,21 +4799,25 @@ void T_Chase(
 		}
 	}
 
-	move = ob->speed * tics;
+	auto move = ob->speed * tics;
 
-	while (move)
+	while (move != 0.0)
 	{
-		if (ob->distance < 0)
+		if (ob->distance < 0.0)
 		{
 			//
 			// waiting for a door to open
 			//
-			OpenDoor(static_cast<std::int16_t>(-ob->distance - 1));
-			if (doorobjlist[-ob->distance - 1].action != dr_open)
+			const auto door_index = static_cast<std::int16_t>(-static_cast<int>(ob->distance) - 1);
+
+			OpenDoor(door_index);
+
+			if (doorobjlist[door_index].action != dr_open)
 			{
 				return;
 			}
-			ob->distance = TILEGLOBAL; // go ahead, the door is now opoen
+
+			ob->distance = 1.0; // go ahead, the door is now opoen
 		}
 
 		if (move < ob->distance)
@@ -4822,20 +4833,20 @@ void T_Chase(
 		//
 		// fix position to account for round off during moving
 		//
-		ob->x = ((std::int32_t)ob->tilex << TILESHIFT) + TILEGLOBAL / 2;
-		ob->y = ((std::int32_t)ob->tiley << TILESHIFT) + TILEGLOBAL / 2;
+		ob->x = ob->tilex + 0.5;
+		ob->y = ob->tiley + 0.5;
 
 		move -= ob->distance;
 
 		switch (ob->obclass)
 		{
-		case floatingbombobj:
-			SelectChaseDir(ob);
-			break;
+			case floatingbombobj:
+				SelectChaseDir(ob);
+				break;
 
-		default:
-			SelectDodgeDir(ob);
-			break;
+			default:
+				SelectDodgeDir(ob);
+				break;
 		}
 
 		if (ob->dir == nodir)
@@ -5001,7 +5012,7 @@ dirtype SelectPathDir(
 
 	// Reset move distance and try to walk/turn.
 	//
-	ob->distance = TILEGLOBAL;
+	ob->distance = 1.0;
 	if (ob->flags & FL_RANDOM_TURN)
 	{
 		RandomTurn = US_RndT() > 180;
@@ -5075,34 +5086,32 @@ exit_func:;
 void T_Path(
 	objtype* ob)
 {
-	std::int32_t move;
-
-	if (ob->flags & FL_STATIONARY)
+	if ((ob->flags & FL_STATIONARY) != 0)
 	{
 		return;
 	}
 
 	switch (ob->obclass)
 	{
-	case volatiletransportobj:
-		break;
+		case volatiletransportobj:
+			break;
 
-	default:
-		if ((!(ob->flags & FL_FRIENDLY)) || madenoise)
-		{
-			if (SightPlayer(ob))
+		default:
+			if ((ob->flags & FL_FRIENDLY) == 0 || madenoise)
+			{
+				if (SightPlayer(ob))
+				{
+					return;
+				}
+			}
+
+#if LOOK_FOR_DEAD_GUYS
+			if (LookForDeadGuys(ob))
 			{
 				return;
 			}
-		}
-
-#if LOOK_FOR_DEAD_GUYS
-		if (LookForDeadGuys(ob))
-		{
-			return;
-		}
 #endif
-		break;
+			break;
 	}
 
 	if (ob->dir == nodir)
@@ -5113,19 +5122,24 @@ void T_Path(
 		}
 	}
 
-	move = ob->speed * tics;
-	while (move)
+	auto move = ob->speed * tics;
+
+	while (move != 0.0)
 	{
-		if (ob->distance < 0)
+		if (ob->distance < 0.0)
 		{
 			// Actor waiting for door to open
 			//
-			OpenDoor(static_cast<std::int16_t>(-ob->distance - 1));
-			if (doorobjlist[-ob->distance - 1].action != dr_open)
+			const auto door_index = static_cast<std::int16_t>(-static_cast<int>(ob->distance) - 1);
+
+			OpenDoor(door_index);
+
+			if (doorobjlist[door_index].action != dr_open)
 			{
 				return;
 			}
-			ob->distance = TILEGLOBAL; // go ahead, the door is now opoen
+
+			ob->distance = 1.0; // go ahead, the door is now opoen
 		}
 
 		if (move < ob->distance)
@@ -5139,8 +5153,8 @@ void T_Path(
 			Quit("Actor walked out of map.");
 		}
 
-		ob->x = ((std::int32_t)ob->tilex << TILESHIFT) + TILEGLOBAL / 2;
-		ob->y = ((std::int32_t)ob->tiley << TILESHIFT) + TILEGLOBAL / 2;
+		ob->x = ob->tilex + 0.5;
+		ob->y = ob->tiley + 0.5;
 		move -= ob->distance;
 
 		if (SelectPathDir(ob) == nodir)
@@ -5278,9 +5292,10 @@ void T_Shoot(
 
 			}
 		}
+
 		if (thrustspeed >= RUNSPEED)
 		{
-			if (ob->flags & FL_VISIBLE)
+			if ((ob->flags & FL_VISIBLE) != 0)
 			{
 				hitchance = 160 - dist * 16; // player can see to dodge
 			}
@@ -5291,7 +5306,7 @@ void T_Shoot(
 		}
 		else
 		{
-			if (ob->flags & FL_VISIBLE)
+			if ((ob->flags & FL_VISIBLE) != 0)
 			{
 				hitchance = 256 - dist * 16; // player can see to dodge
 			}
@@ -5383,50 +5398,40 @@ void T_Shade(
 void T_Hit(
 	objtype* ob)
 {
-	std::int32_t dx, dy;
-	std::int16_t hitchance, damage;
-
+	std::int16_t hitchance;
+	std::int16_t damage;
 
 	switch (ob->obclass)
 	{
-	case scan_alienobj:
-	case lcan_alienobj:
-	case podobj:
-		hitchance = 220; // Higher - Better Chance (255 max!)
-		damage = (US_RndT() >> 3) | 1;
-		sd_play_actor_sound(CLAWATTACKSND, ob, bstone::ActorChannel::weapon);
-		break;
+		case scan_alienobj:
+		case lcan_alienobj:
+		case podobj:
+			hitchance = 220; // Higher - Better Chance (255 max!)
+			damage = (US_RndT() >> 3) | 1;
+			sd_play_actor_sound(CLAWATTACKSND, ob, bstone::ActorChannel::weapon);
+			break;
 
-	case genetic_guardobj:
-	case mutant_human2obj:
-		hitchance = 220; // Higher - Better Chance (255 max!)
-		damage = (US_RndT() >> 3) | 1;
-		sd_play_actor_sound(PUNCHATTACKSND, ob, bstone::ActorChannel::weapon);
-		break;
+		case genetic_guardobj:
+		case mutant_human2obj:
+			hitchance = 220; // Higher - Better Chance (255 max!)
+			damage = (US_RndT() >> 3) | 1;
+			sd_play_actor_sound(PUNCHATTACKSND, ob, bstone::ActorChannel::weapon);
+			break;
 
-	default:
-		hitchance = 200; // Higher - Better Chance (255 max!)
-		damage = US_RndT() >> 4;
-		break;
-
+		default:
+			hitchance = 200; // Higher - Better Chance (255 max!)
+			damage = US_RndT() >> 4;
+			break;
 	}
 
 	MakeAlertNoise(ob);
 
-	dx = player->x - ob->x;
-	if (dx < 0)
-	{
-		dx = -dx;
-	}
-	dx -= TILEGLOBAL;
+	const auto dx = std::abs(player->x - ob->x) - 1.0;
+
 	if (dx <= MINACTORDIST)
 	{
-		dy = player->y - ob->y;
-		if (dy < 0)
-		{
-			dy = -dy;
-		}
-		dy -= TILEGLOBAL;
+		const auto dy = std::abs(player->y - ob->y) - 1.0;
+
 		if (dy <= MINACTORDIST)
 		{
 			if (US_RndT() < hitchance)
@@ -5436,8 +5441,6 @@ void T_Hit(
 			}
 		}
 	}
-
-	return;
 }
 
 
@@ -5605,7 +5608,7 @@ void T_GoldMorphWait(
 void T_GoldMorph(
 	objtype* obj)
 {
-	obj->speed = ALIENSPEED << 2;
+	obj->speed = ALIENSPEED * 4;
 	obj->ammo = ALIENAMMOINIT;
 	obj->flags |= FL_PROJ_TRANSPARENT | FL_NO_SLIDE | FL_SHOOTABLE | FL_SOLID;
 	obj->flags2 = FL2_BFGSHOT_SOLID | FL2_BFG_SHOOTABLE;
@@ -5747,10 +5750,28 @@ void A_Scout_Alert(
 void T_ExplodeScout(
 	objtype* obj)
 {
-	SpawnExplosion(obj->x + 0x4000 + (US_RndT() << 5), obj->y + 0x4000 + (US_RndT() << 5));
-	SpawnExplosion(obj->x - 0x4000 - (US_RndT() << 5), obj->y + 0x4000 + (US_RndT() << 5));
-	SpawnExplosion(obj->x - 0x4000 - (US_RndT() << 5), obj->y - 0x4000 - (US_RndT() << 5));
-	SpawnExplosion(obj->x + 0x4000 + (US_RndT() << 5), obj->y - 0x4000 - (US_RndT() << 5));
+	constexpr auto base_offset = bstone::math::fixed_to_floating(0x4000);
+
+	constexpr auto rnd_offset_count = 8;
+	using RndOffsets = std::array<double, rnd_offset_count>;
+
+	RndOffsets rnd_offsets;
+
+	std::generate(
+		rnd_offsets.begin(),
+		rnd_offsets.end(),
+		[]()
+		{
+			constexpr auto rnd_max_offset = bstone::math::fixed_to_floating(0x2000);
+
+			return rnd_max_offset * US_RndT() / 255.0;
+		}
+	);
+
+	SpawnExplosion(obj->x + base_offset + rnd_offsets[0], obj->y + base_offset + rnd_offsets[1]);
+	SpawnExplosion(obj->x - base_offset - rnd_offsets[2], obj->y + base_offset + rnd_offsets[3]);
+	SpawnExplosion(obj->x - base_offset - rnd_offsets[4], obj->y - base_offset - rnd_offsets[5]);
+	SpawnExplosion(obj->x + base_offset + rnd_offsets[6], obj->y - base_offset - rnd_offsets[7]);
 }
 
 void T_ExplodeDamage(
@@ -5849,28 +5870,40 @@ void T_PainThink(
 //
 // ==========================================================================
 
-// -------------------------------------------------------------------------
-// SpawnCusExplosion() - Spawns an explosion at a given x & y.
-// -------------------------------------------------------------------------
+// Spawns an explosion at a given x & y.
 void SpawnCusExplosion(
-	fixed x,
-	fixed y,
+	const double x,
+	const double y,
 	std::uint16_t StartFrame,
 	std::uint16_t NumFrames,
 	std::uint16_t Delay,
 	std::uint16_t Class)
 {
-	std::int16_t tilex = x >> TILESHIFT, tiley = y >> TILESHIFT;
+	const auto tilex = static_cast<std::int16_t>(x);
+	const auto tiley = static_cast<std::int16_t>(y);
 
-	usedummy = nevermark = true;
+	usedummy = true;
+	nevermark = true;
 	SpawnNewObj(tilex, tiley, &s_ofs_smart_anim);
-	usedummy = nevermark = false;
+
+	usedummy = false;
+	nevermark = false;
 	new_actor->x = x;
 	new_actor->y = y;
 	new_actor->flags = FL_OFFSET_STATES | FL_NONMARK | FL_NEVERMARK;
 	new_actor->obclass = static_cast<classtype>(Class);
 	new_actor->lighting = NO_SHADING;
-	InitAnim(new_actor, StartFrame, 0, static_cast<std::uint8_t>(NumFrames), at_ONCE, ad_FWD, (US_RndT() & 0x7), Delay);
+
+	InitAnim(
+		new_actor,
+		StartFrame,
+		0, static_cast<std::uint8_t>(NumFrames),
+		at_ONCE,
+		ad_FWD,
+		(US_RndT() & 0x7),
+		Delay
+	);
+
 	A_DeathScream(new_actor);
 	MakeAlertNoise(new_actor);
 }
@@ -5928,24 +5961,22 @@ void T_SteamObj(
 bool CheckPosition(
 	objtype* ob)
 {
-	std::int16_t x, y, xl, yl, xh, yh;
-	objtype* check;
+	const auto xl = static_cast<int>(ob->x - PLAYERSIZE);
+	const auto yl = static_cast<int>(ob->y - PLAYERSIZE);
 
-	xl = (ob->x - PLAYERSIZE) >> TILESHIFT;
-	yl = (ob->y - PLAYERSIZE) >> TILESHIFT;
-
-	xh = (ob->x + PLAYERSIZE) >> TILESHIFT;
-	yh = (ob->y + PLAYERSIZE) >> TILESHIFT;
+	const auto xh = static_cast<int>(ob->x + PLAYERSIZE);
+	const auto yh = static_cast<int>(ob->y + PLAYERSIZE);
 
 	//
 	// check for solid walls
 	//
-	for (y = yl; y <= yh; y++)
+	for (auto y = yl; y <= yh; y++)
 	{
-		for (x = xl; x <= xh; x++)
+		for (auto x = xl; x <= xh; x++)
 		{
-			check = actorat[x][y];
-			if (check && check < objlist)
+			const auto check = actorat[x][y];
+
+			if (check != nullptr && check < objlist)
 			{
 				return false;
 			}
@@ -6037,7 +6068,9 @@ void T_Seek(
 		{
 			dist = dx > dy ? dx : dy;
 
-			if (!dist || (dist == 1 && ob->distance < 0x4000))
+			constexpr auto min_distance = bstone::math::fixed_to_floating(0x4000);
+
+			if (!dist || (dist == 1 && ob->distance < min_distance))
 			{
 				chance = 300;
 			}
@@ -6081,129 +6114,131 @@ void SpawnProjectile(
 {
 	std::int16_t angle_adj = 0;
 	std::uint16_t temp = 0;
-	fixed x, y;
 
-	x = shooter->x;
-	y = shooter->y;
+	const auto tile_x = static_cast<std::uint8_t>(shooter->x);
+	const auto tile_y = static_cast<std::uint8_t>(shooter->y);
 
-	usedummy = nevermark = true;
+	usedummy = true;
+	nevermark = true;
+
 	switch (class_type)
 	{
-	case spider_mutantshotobj:
-	case acid_dragonshotobj:
-	case final_boss4shotobj:
-		SpawnNewObj(x >> TILESHIFT, y >> TILESHIFT, &s_ofs_random);
+		case spider_mutantshotobj:
+		case acid_dragonshotobj:
+		case final_boss4shotobj:
+			SpawnNewObj(tile_x, tile_y, &s_ofs_random);
 
-		sd_play_actor_sound(
-			SPITATTACKSND, new_actor, bstone::ActorChannel::voice);
+			sd_play_actor_sound(SPITATTACKSND, new_actor, bstone::ActorChannel::voice);
 
-		new_actor->speed = SPDPROJ;
-		angle_adj = 1 - (US_RndT() & 3);
-		new_actor->temp1 = BossShotShapes[class_type - spider_mutantshotobj];
-		new_actor->flags = FL_OFFSET_STATES | FL_PROJ_CHECK_TRANSPARENT | FL_STORED_OBJPTR;
-		new_actor->temp3 = actor_to_ui16(shooter);
+			new_actor->speed = SPDPROJ;
+			angle_adj = 1 - (US_RndT() & 3);
+			new_actor->temp1 = BossShotShapes[class_type - spider_mutantshotobj];
+			new_actor->flags = FL_OFFSET_STATES | FL_PROJ_CHECK_TRANSPARENT | FL_STORED_OBJPTR;
+			new_actor->temp3 = actor_to_ui16(shooter);
+			break;
 
-		break;
-
-	case mut_hum1shotobj:
-	case goldmorphshotobj:
-	case electroshotobj:
-	case final_boss2shotobj:
-		SpawnNewObj(x >> TILESHIFT, y >> TILESHIFT, &s_ofs_shot1);
-
-		sd_play_actor_sound(
-			ELECTSHOTSND, new_actor, bstone::ActorChannel::voice);
-
-		new_actor->speed = SPDPROJ;
-		angle_adj = 1 - (US_RndT() & 3);
-		new_actor->temp1 = SPR_ELEC_SHOT1;
-		new_actor->flags = FL_OFFSET_STATES | FL_PROJ_CHECK_TRANSPARENT | FL_STORED_OBJPTR;
-		new_actor->temp3 = actor_to_ui16(shooter);
-
-		switch (class_type)
-		{
-		case final_boss2shotobj:
+		case mut_hum1shotobj:
 		case goldmorphshotobj:
-			new_actor->temp1 = SPR_MGOLD_SHOT1;
-
 		case electroshotobj:
+		case final_boss2shotobj:
+			SpawnNewObj(tile_x, tile_y, &s_ofs_shot1);
+
+			sd_play_actor_sound(ELECTSHOTSND, new_actor, bstone::ActorChannel::voice);
+
+			new_actor->speed = SPDPROJ;
+			angle_adj = 1 - (US_RndT() & 3);
+			new_actor->temp1 = SPR_ELEC_SHOT1;
+			new_actor->flags = FL_OFFSET_STATES | FL_PROJ_CHECK_TRANSPARENT | FL_STORED_OBJPTR;
+			new_actor->temp3 = actor_to_ui16(shooter);
+
+			switch (class_type)
+			{
+				case final_boss2shotobj:
+				case goldmorphshotobj:
+					new_actor->temp1 = SPR_MGOLD_SHOT1;
+
+				case electroshotobj:
+					new_actor->lighting = NO_SHADING;
+
+				default:
+					break;
+			}
+
+			break;
+
+		case lcanshotobj:
+		case podshotobj:
+			temp = SPR_SPIT3_1 - SPR_SPIT1_1;
+
+		case scanshotobj:
+		case dogshotobj:
+			SpawnNewObj(tile_x, tile_y, &s_liquid_shot);
+
+			sd_play_actor_sound(SPITATTACKSND, new_actor, bstone::ActorChannel::voice);
+
+			new_actor->temp2 = SPR_SPIT1_1 + temp;
+			new_actor->flags = FL_OFFSET_STATES | FL_PROJ_CHECK_TRANSPARENT | FL_STORED_OBJPTR;
+			new_actor->speed = SPDPROJ + (US_RndT() / 65'536.0);
+			angle_adj = 2 - (US_RndT() % 5);
+			new_actor->temp3 = actor_to_ui16(shooter);
+			break;
+
+		case liquidshotobj:
+			SpawnNewObj(tile_x, tile_y, &s_liquid_shot);
+			new_actor->temp2 = SPR_LIQUID_SHOT_FLY_1;
+			new_actor->flags = FL_OFFSET_STATES | FL_PROJ_CHECK_TRANSPARENT | FL_STORED_OBJPTR;
+			new_actor->speed = SPDPROJ + (US_RndT() / 65'536.0);
+			angle_adj = 2 - (US_RndT() % 5);
+			new_actor->s_tilex = 0;
+			new_actor->s_tiley = 0;
+			new_actor->temp3 = actor_to_ui16(shooter);
+			break;
+
+		case grenadeobj:
+			SpawnNewObj(tile_x, tile_y, &s_ofs_random);
+			new_actor->speed = SPDPROJ * (1.0 + (0.5 * US_RndT() / 255.0));
+			new_actor->angle = player->angle + 1 - (US_RndT() & 3);
+			new_actor->temp1 = grenade_shapes[0];
+			new_actor->flags = FL_OFFSET_STATES; // |FL_PROJ_CHECK_TRANSPARENT;
+			new_actor->lighting = NO_SHADING; // no shading
+
+			// Store off start tile x & y
+
+			new_actor->s_tilex = tile_x;
+			new_actor->s_tiley = tile_y;
+			break;
+
+		case bfg_shotobj:
+			SpawnNewObj(tile_x, tile_y, &s_ofs_random);
+			new_actor->speed = SPDPROJ * (1.0 + (US_RndT() / 255.0));
+			new_actor->angle = player->angle + 1 - (US_RndT() & 3);
+			new_actor->temp1 = SPR_BFG_WEAPON_SHOT2;
+			new_actor->flags = FL_OFFSET_STATES;
 			new_actor->lighting = NO_SHADING;
+
+			// Store off start tile x & y
+
+			new_actor->s_tilex = tile_x;
+			new_actor->s_tiley = tile_y;
+			break;
 
 		default:
 			break;
-		}
-		break;
-
-	case lcanshotobj:
-	case podshotobj:
-		temp = SPR_SPIT3_1 - SPR_SPIT1_1;
-
-	case scanshotobj:
-	case dogshotobj:
-		SpawnNewObj(x >> TILESHIFT, y >> TILESHIFT, &s_liquid_shot);
-
-		sd_play_actor_sound(
-			SPITATTACKSND, new_actor, bstone::ActorChannel::voice);
-
-		new_actor->temp2 = SPR_SPIT1_1 + temp;
-		new_actor->flags = FL_OFFSET_STATES | FL_PROJ_CHECK_TRANSPARENT | FL_STORED_OBJPTR;
-		new_actor->speed = SPDPROJ + US_RndT();
-		angle_adj = 2 - (US_RndT() % 5);
-		new_actor->temp3 = actor_to_ui16(shooter);
-		break;
-
-	case liquidshotobj:
-		SpawnNewObj(x >> TILESHIFT, y >> TILESHIFT, &s_liquid_shot);
-		new_actor->temp2 = SPR_LIQUID_SHOT_FLY_1;
-		new_actor->flags = FL_OFFSET_STATES | FL_PROJ_CHECK_TRANSPARENT | FL_STORED_OBJPTR;
-		new_actor->speed = SPDPROJ + US_RndT();
-		angle_adj = 2 - (US_RndT() % 5);
-		new_actor->s_tilex = new_actor->s_tiley = 0;
-		new_actor->temp3 = actor_to_ui16(shooter);
-		break;
-
-	case grenadeobj:
-		SpawnNewObj(x >> TILESHIFT, y >> TILESHIFT, &s_ofs_random);
-		new_actor->speed = SPDPROJ + Random(SPDPROJ >> 1);
-		new_actor->angle = player->angle + 1 - (US_RndT() & 3);
-		new_actor->temp1 = grenade_shapes[0];
-		new_actor->flags = FL_OFFSET_STATES; // |FL_PROJ_CHECK_TRANSPARENT;
-		new_actor->lighting = NO_SHADING; // no shading
-
-		// Store off start tile x & y
-
-		new_actor->s_tilex = static_cast<std::uint8_t>(x >> TILESHIFT);
-		new_actor->s_tiley = static_cast<std::uint8_t>(y >> TILESHIFT);
-		break;
-
-	case bfg_shotobj:
-		SpawnNewObj(x >> TILESHIFT, y >> TILESHIFT, &s_ofs_random);
-		new_actor->speed = SPDPROJ + Random(SPDPROJ);
-		new_actor->angle = player->angle + 1 - (US_RndT() & 3);
-		new_actor->temp1 = SPR_BFG_WEAPON_SHOT2;
-		new_actor->flags = FL_OFFSET_STATES;
-		new_actor->lighting = NO_SHADING;
-
-		// Store off start tile x & y
-
-		new_actor->s_tilex = static_cast<std::uint8_t>(x >> TILESHIFT);
-		new_actor->s_tiley = static_cast<std::uint8_t>(y >> TILESHIFT);
-		break;
-
-	default:
-		break;
 	}
 
-	usedummy = nevermark = false;
+	usedummy = false;
+	nevermark = false;
+
 	if (new_actor == &dummyobj)
 	{
 		return;
 	}
 
-	new_actor->x = x;
-	new_actor->y = y;
+	new_actor->x = shooter->x;
+	new_actor->y = shooter->y;
 	new_actor->active = ac_yes;
 	new_actor->obclass = class_type;
+
 	if (class_type != grenadeobj && class_type != bfg_shotobj)
 	{
 		new_actor->angle = CalcAngle(new_actor, player) + angle_adj;
@@ -6230,10 +6265,9 @@ void SpawnProjectile(
 	//
 	if (class_type == grenadeobj || class_type == bfg_shotobj)
 	{
-		std::int32_t deltax, deltay;
-
-		deltax = FixedByFrac(mindist + (mindist >> 3), costable[new_actor->angle]);
-		deltay = -FixedByFrac(mindist + (mindist >> 3), sintable[new_actor->angle]);
+		constexpr auto distance = 9.0 * MINDIST / 8.0;
+		const auto deltax = distance * costable[new_actor->angle];
+		const auto deltay = -distance * sintable[new_actor->angle];
 
 		new_actor->x += deltax;
 		new_actor->y += deltay;
@@ -6243,101 +6277,93 @@ void SpawnProjectile(
 objtype* proj_check;
 std::uint8_t proj_wall;
 
-// ---------------------------------------------------------------------------
-// ProjectileTryMove()
 //
 //  deltax - 'X' distance to travel
-//       deltay - 'Y' distance to travel
-//       distance - vectoral distance of travel
+//  deltay - 'Y' distance to travel
+//  distance - vectoral distance of travel
 //
-// ---------------------------------------------------------------------------
 bool ProjectileTryMove(
 	objtype* ob,
-	fixed deltax,
-	fixed deltay)
+	const double deltax,
+	const double deltay)
 {
-#define PROJECTILE_MAX_STEP PROJWALLSIZE
-
-	std::uint16_t xl, yl, xh, yh, x, y, steps;
-	std::int16_t ydist, xdist;
+	constexpr auto PROJECTILE_MAX_STEP = PROJWALLSIZE;
 
 	proj_wall = 0;
-	steps = tics;
+
 	//
 	// Move that lil' projectile
 	//
 
-	while (steps)
+	for (auto steps = tics; steps != 0; --steps)
 	{
 		ob->x += deltax;
 		ob->y += deltay;
 
-		steps--;
+		const auto xl = static_cast<int>(ob->x - PROJECTILE_MAX_STEP);
+		const auto yl = static_cast<int>(ob->y - PROJECTILE_MAX_STEP);
 
-		xl = (ob->x - PROJECTILE_MAX_STEP) >> TILESHIFT;
-		yl = (ob->y - PROJECTILE_MAX_STEP) >> TILESHIFT;
-
-		xh = (ob->x + PROJECTILE_MAX_STEP) >> TILESHIFT;
-		yh = (ob->y + PROJECTILE_MAX_STEP) >> TILESHIFT;
+		const auto xh = static_cast<int>(ob->x + PROJECTILE_MAX_STEP);
+		const auto yh = static_cast<int>(ob->y + PROJECTILE_MAX_STEP);
 
 
 		// Check for solid walls and actors.
 		//
 
-		for (y = yl; y <= yh; y++)
+		for (auto y = yl; y <= yh; ++y)
 		{
-			for (x = xl; x <= xh; x++)
+			for (auto x = xl; x <= xh; ++x)
 			{
-				if ((proj_check = actorat[x][y]) != nullptr)
+				proj_check = actorat[x][y];
+
+				if (proj_check != nullptr)
 				{
 					if (proj_check < objlist)
 					{
-						if (proj_check == (objtype*)1 && tilemap[x][y] == 0)
+						if (proj_check == reinterpret_cast<objtype*>(1) && tilemap[x][y] == 0)
 						{
 							// We have a static!
 							//
 							// Test for collision radius using CENTER of static
 							// NOT tile size boundries
 
-							ydist = static_cast<std::int16_t>((y << TILESHIFT) + 0x7FFF - ob->y);
-							ydist = ABS(ydist);
+							const auto ydist = std::abs(y + 0.5 - ob->y);
+							const auto xdist = std::abs(x + 0.5 - ob->x);
 
-							xdist = static_cast<std::int16_t>((x << TILESHIFT) + 0x7FFF - ob->x);
-							xdist = ABS(xdist);
-
-							if ((std::uint16_t)xdist < PROJCHECKSIZE && (std::uint16_t)ydist < PROJCHECKSIZE)
+							if (xdist < PROJCHECKSIZE && ydist < PROJCHECKSIZE)
 							{
-								proj_check = nullptr;
 								proj_wall = 0;
-								ob->tilex = static_cast<std::uint8_t>(ob->x >> TILESHIFT);
-								ob->tiley = static_cast<std::uint8_t>(ob->y >> TILESHIFT);
+								proj_check = nullptr;
+								ob->tilex = static_cast<std::uint8_t>(ob->x);
+								ob->tiley = static_cast<std::uint8_t>(ob->y);
+
 								return false;
 							}
-
 						}
 						else
 						{
 							// We have a wall!
 
-							proj_wall = static_cast<std::uint8_t>(
-								reinterpret_cast<std::size_t>(proj_check));
-
+							proj_wall = static_cast<std::uint8_t>(reinterpret_cast<std::size_t>(proj_check));
 							proj_check = nullptr;
-							ob->tilex = static_cast<std::uint8_t>(ob->x >> TILESHIFT);
-							ob->tiley = static_cast<std::uint8_t>(ob->y >> TILESHIFT);
+							ob->tilex = static_cast<std::uint8_t>(ob->x);
+							ob->tiley = static_cast<std::uint8_t>(ob->y);
+
 							return false;
 						}
 					}
 					else if (proj_check < &objlist[MAXACTORS])
 					{
-						if ((ob->flags & FL_PROJ_CHECK_TRANSPARENT) && (proj_check->flags & FL_PROJ_TRANSPARENT))
+						if ((ob->flags & FL_PROJ_CHECK_TRANSPARENT) != 0 &&
+							(proj_check->flags & FL_PROJ_TRANSPARENT) != 0)
 						{
 							break;
 						}
-						else if (proj_check->flags & FL_SOLID)
+						else if ((proj_check->flags & FL_SOLID) != 0)
 						{
-							ob->tilex = static_cast<std::uint8_t>(ob->x >> TILESHIFT);
-							ob->tiley = static_cast<std::uint8_t>(ob->y >> TILESHIFT);
+							ob->tilex = static_cast<std::uint8_t>(ob->x);
+							ob->tiley = static_cast<std::uint8_t>(ob->y);
+
 							return false;
 						}
 					}
@@ -6352,17 +6378,12 @@ bool ProjectileTryMove(
 void T_Projectile(
 	objtype* ob)
 {
-	std::int32_t deltax, deltay;
-	std::int16_t damage = 0;
-	std::int32_t speed;
-	objtype* attacker;
-
 	// Move this object.
 	//
-	speed = ob->speed;
+	const auto speed = ob->speed;
 
-	deltax = FixedByFrac(speed, costable[ob->angle]);
-	deltay = -FixedByFrac(speed, sintable[ob->angle]);
+	auto deltax = speed * costable[ob->angle];
+	auto deltay = -speed * sintable[ob->angle];
 
 
 	// Did movement hit anything solid.
@@ -6374,132 +6395,119 @@ void T_Projectile(
 	{
 		switch (ob->obclass)
 		{
-		case spider_mutantshotobj:
-			InitSmartSpeedAnim(ob, SPR_BOSS1_EXP1, 0, 2, at_ONCE, ad_FWD, 5);
-			return;
-			break;
-
-		case acid_dragonshotobj:
-			InitSmartSpeedAnim(ob, SPR_BOSS5_EXP1, 0, 2, at_ONCE, ad_FWD, 5);
-			return;
-			break;
-
-		case mut_hum1shotobj:
-		case electroshotobj: // Explode on walls
-			InitSmartSpeedAnim(ob, SPR_ELEC_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
-			return;
-			break;
-
-		case final_boss2shotobj:
-		case goldmorphshotobj:
-			InitSmartSpeedAnim(ob, SPR_MGOLD_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
-			return;
-			break;
-
-		case final_boss4shotobj:
-			InitSmartSpeedAnim(ob, SPR_BOSS10_SPIT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
-			return;
-			break;
-
-		case lcanshotobj: // Explode on walls
-		case podshotobj:
-			InitSmartSpeedAnim(ob, SPR_SPIT_EXP3_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
-			return;
-			break;
-
-		case scanshotobj: // Explode on walls
-		case dogshotobj:
-			InitSmartSpeedAnim(ob, SPR_SPIT_EXP1_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
-			return;
-			break;
-
-
-		case liquidshotobj: // Explode on walls
-			InitSmartSpeedAnim(ob, SPR_LIQUID_SHOT_BURST_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
-			return;
-			break;
-
-		case grenadeobj:
-			// Hit actor - Hurt 'Em!
-			if (proj_check)
-			{
-				if (proj_check->flags & FL_SHOOTABLE)
-				{
-					DamageActor(proj_check, GR_DAMAGE, ob);
-				}
-			}
-
-			//
-			// Start Anim, Sound, and mark as exploded...
-			//
-
-			ob->obclass = gr_explosionobj;
-			InitSmartSpeedAnim(ob, SPR_EXPLOSION_1, 0, 4, at_ONCE, ad_FWD, 3 + (US_RndT() & 7));
-			A_DeathScream(ob);
-			return;
-			break;
-
-		case bfg_shotobj:
-
-#if BFG_SHOT_STOPS
-			//
-			// Check to see if a collison has already occurred at this
-			// tilex and tiley
-			//
-			if (ob->s_tilex == ob->tilex && ob->s_tiley == ob->tiley)
-			{
+			case spider_mutantshotobj:
+				InitSmartSpeedAnim(ob, SPR_BOSS1_EXP1, 0, 2, at_ONCE, ad_FWD, 5);
 				return;
-			}
 
-			ob->s_tilex = ob->tilex;
-			ob->s_tilex = ob->tilex;
-#endif
+			case acid_dragonshotobj:
+				InitSmartSpeedAnim(ob, SPR_BOSS5_EXP1, 0, 2, at_ONCE, ad_FWD, 5);
+				return;
 
-			if (proj_wall & 0x80)
-			{
-				TryBlastDoor(proj_wall & (~0x80));
-			}
+			case mut_hum1shotobj:
+			case electroshotobj: // Explode on walls
+				InitSmartSpeedAnim(ob, SPR_ELEC_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
+				return;
 
-			if (proj_check)
-			{
+			case final_boss2shotobj:
+			case goldmorphshotobj:
+				InitSmartSpeedAnim(ob, SPR_MGOLD_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
+				return;
+
+			case final_boss4shotobj:
+				InitSmartSpeedAnim(ob, SPR_BOSS10_SPIT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
+				return;
+
+			case lcanshotobj: // Explode on walls
+			case podshotobj:
+				InitSmartSpeedAnim(ob, SPR_SPIT_EXP3_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 3));
+				return;
+
+			case scanshotobj: // Explode on walls
+			case dogshotobj:
+				InitSmartSpeedAnim(ob, SPR_SPIT_EXP1_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
+				return;
+
+			case liquidshotobj: // Explode on walls
+				InitSmartSpeedAnim(ob, SPR_LIQUID_SHOT_BURST_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
+				return;
+
+			case grenadeobj:
 				// Hit actor - Hurt 'Em!
-
-				if (proj_check->flags2 & FL2_BFG_SHOOTABLE)
+				if (proj_check != nullptr)
 				{
-					// Damage that actor
-
-					DamageActor(proj_check, BFG_DAMAGE >> 1, ob); // bfg_damage>>3
-
-					// Stop on actors that you don't kill.
-
+					if ((proj_check->flags & FL_SHOOTABLE) != 0)
+					{
+						DamageActor(proj_check, GR_DAMAGE, ob);
+					}
 				}
+
+				//
+				// Start Anim, Sound, and mark as exploded...
+				//
+
+				ob->obclass = gr_explosionobj;
+				InitSmartSpeedAnim(ob, SPR_EXPLOSION_1, 0, 4, at_ONCE, ad_FWD, 3 + (US_RndT() & 7));
+				A_DeathScream(ob);
+				return;
+
+			case bfg_shotobj:
 
 #if BFG_SHOT_STOPS
-				if (proj_check->flags2 & FL2_BFGSHOT_SOLID)
-				{
-					goto BlowIt;
-				}
-
-				if (proj_check->flags & FL_DEADGUY)
+				//
+				// Check to see if a collison has already occurred at this
+				// tilex and tiley
+				//
+				if (ob->s_tilex == ob->tilex && ob->s_tiley == ob->tiley)
 				{
 					return;
 				}
+
+				ob->s_tilex = ob->tilex;
+				ob->s_tilex = ob->tilex;
 #endif
-			}
+
+				if ((proj_wall & 0x80) != 0)
+				{
+					TryBlastDoor(proj_wall & (~0x80));
+				}
+
+				if (proj_check != nullptr)
+				{
+					// Hit actor - Hurt 'Em!
+
+					if ((proj_check->flags2 & FL2_BFG_SHOOTABLE) != 0)
+					{
+						// Damage that actor
+						DamageActor(proj_check, BFG_DAMAGE >> 1, ob); // bfg_damage>>3
+
+						// Stop on actors that you don't kill.
+					}
+
+#if BFG_SHOT_STOPS
+					if ((proj_check->flags2 & FL2_BFGSHOT_SOLID) != 0)
+					{
+						goto BlowIt;
+					}
+
+					if ((proj_check->flags & FL_DEADGUY) != 0)
+					{
+						return;
+					}
+#endif
+				}
 
 
-		BlowIt:
-			//
-			// Start Anim, Sound, and mark as exploded...
-			//
-			ob->obclass = bfg_explosionobj;
-			InitAnim(ob, SPR_BFG_EXP1, 0, 7, at_ONCE, ad_FWD, (US_RndT() & 7), 5);
-			A_DeathScream(ob);
-			return;
-			break;
+			BlowIt:
+				//
+				// Start Anim, Sound, and mark as exploded...
+				//
+				ob->obclass = bfg_explosionobj;
+				InitAnim(ob, SPR_BFG_EXP1, 0, 7, at_ONCE, ad_FWD, (US_RndT() & 7), 5);
+				A_DeathScream(ob);
+				return;
 
-		default:
-			break;
+			default:
+				break;
 		}
 	}
 
@@ -6509,20 +6517,21 @@ void T_Projectile(
 	{
 		// Determine distance from player.
 		//
-		deltax = ob->x - player->x;
-		deltax = LABS(deltax);
-		deltay = ob->y - player->y;
-		deltay = LABS(deltay);
+		deltax = std::abs(ob->x - player->x);
+		deltay = std::abs(ob->y - player->y);
 
 		if (deltax < PROJECTILESIZE && deltay < PROJECTILESIZE)
 		{
-			deltax = FixedByFrac(PROJECTILESIZE, costable[ob->angle]);
-			deltay = -FixedByFrac(PROJECTILESIZE, sintable[ob->angle]);
+			deltax = PROJECTILESIZE * costable[ob->angle];
+			deltay = -PROJECTILESIZE * sintable[ob->angle];
 
 			ob->x -= deltax;
 			ob->y -= deltay;
 
-			if (ob->flags & FL_STORED_OBJPTR)
+			auto damage = std::int16_t{};
+			objtype* attacker = nullptr;
+
+			if ((ob->flags & FL_STORED_OBJPTR) != 0)
 			{
 				attacker = ui16_to_actor(ob->temp3);
 			}
@@ -6533,52 +6542,52 @@ void T_Projectile(
 
 			switch (ob->obclass)
 			{
-			case mut_hum1shotobj:
-			case electroshotobj:
-				damage = (US_RndT() >> 5);
-				InitSmartSpeedAnim(ob, SPR_ELEC_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 3 + (US_RndT() & 7));
-				break;
+				case mut_hum1shotobj:
+				case electroshotobj:
+					damage = (US_RndT() >> 5);
+					InitSmartSpeedAnim(ob, SPR_ELEC_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 3 + (US_RndT() & 7));
+					break;
 
-			case final_boss4shotobj:
-				damage = (US_RndT() >> 4);
-				InitSmartSpeedAnim(ob, SPR_BOSS10_SPIT_EXP1, 0, 1, at_ONCE, ad_FWD, 3 + (US_RndT() & 3));
-				break;
+				case final_boss4shotobj:
+					damage = (US_RndT() >> 4);
+					InitSmartSpeedAnim(ob, SPR_BOSS10_SPIT_EXP1, 0, 1, at_ONCE, ad_FWD, 3 + (US_RndT() & 3));
+					break;
 
-			case goldmorphshotobj:
-			case final_boss2shotobj:
-				damage = (US_RndT() >> 4);
-				InitSmartSpeedAnim(ob, SPR_MGOLD_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
-				break;
+				case goldmorphshotobj:
+				case final_boss2shotobj:
+					damage = (US_RndT() >> 4);
+					InitSmartSpeedAnim(ob, SPR_MGOLD_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
+					break;
 
-			case lcanshotobj:
-			case podshotobj:
-				damage = (US_RndT() >> 4);
-				InitSmartSpeedAnim(ob, SPR_SPIT_EXP3_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
-				break;
+				case lcanshotobj:
+				case podshotobj:
+					damage = (US_RndT() >> 4);
+					InitSmartSpeedAnim(ob, SPR_SPIT_EXP3_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
+					break;
 
-			case scanshotobj:
-			case dogshotobj:
-				damage = (US_RndT() >> 4);
-				InitSmartSpeedAnim(ob, SPR_SPIT_EXP1_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
-				break;
+				case scanshotobj:
+				case dogshotobj:
+					damage = (US_RndT() >> 4);
+					InitSmartSpeedAnim(ob, SPR_SPIT_EXP1_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
+					break;
 
-			case liquidshotobj:
-				damage = (US_RndT() >> 4);
-				InitSmartSpeedAnim(ob, SPR_LIQUID_SHOT_BURST_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
-				break;
+				case liquidshotobj:
+					damage = (US_RndT() >> 4);
+					InitSmartSpeedAnim(ob, SPR_LIQUID_SHOT_BURST_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
+					break;
 
-			case spider_mutantshotobj:
-				damage = (US_RndT() >> 4);
-				InitSmartSpeedAnim(ob, SPR_BOSS1_EXP1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
-				break;
+				case spider_mutantshotobj:
+					damage = (US_RndT() >> 4);
+					InitSmartSpeedAnim(ob, SPR_BOSS1_EXP1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
+					break;
 
-			case acid_dragonshotobj:
-				damage = (US_RndT() >> 4);
-				InitSmartSpeedAnim(ob, SPR_BOSS5_EXP1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
-				break;
+				case acid_dragonshotobj:
+					damage = (US_RndT() >> 4);
+					InitSmartSpeedAnim(ob, SPR_BOSS5_EXP1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
+					break;
 
-			default:
-				break;
+				default:
+					break;
 			}
 
 			TakeDamage(damage, attacker);
@@ -6588,8 +6597,8 @@ void T_Projectile(
 
 	// Align tile coordinates on boundaries.
 	//
-	ob->tilex = static_cast<std::uint8_t>(ob->x >> TILESHIFT);
-	ob->tiley = static_cast<std::uint8_t>(ob->y >> TILESHIFT);
+	ob->tilex = static_cast<std::uint8_t>(ob->x);
+	ob->tiley = static_cast<std::uint8_t>(ob->y);
 }
 
 
@@ -6731,8 +6740,12 @@ void ExplodeFill(
 					// out of them...
 					//
 				default:
-					if (!assets_info.is_ps() || (assets_info.is_ps() && !(proj_check->flags2 & FL2_CLOAKED)))
+					if (!assets_info.is_ps() ||
+						(assets_info.is_ps() && (proj_check->flags2 & FL2_CLOAKED) == 0))
+					{
 						SpawnFlash(proj_check->x, proj_check->y);
+					}
+
 					DamageActor(proj_check, ff_damage, ff_obj);
 					break;
 				}
@@ -6838,39 +6851,29 @@ std::int16_t CalcAngle(
 	objtype* from_obj,
 	objtype* to_obj)
 {
-	std::int32_t deltax, deltay, from_x, from_y, to_x, to_y;
-	float angle;
-	std::int16_t iangle;
-
-	from_x = from_obj->x;
-	from_y = from_obj->y;
-
-	to_x = to_obj->x;
-	to_y = to_obj->y;
-
 	// Calculate deltas from "from_obj" to "to_obj".
 	//
 
-	deltax = to_x - from_x;
-	deltay = from_y - to_y;
+	const auto deltax = to_obj->x - from_obj->x;
+	const auto deltay = from_obj->y - to_obj->y;
 
-	if (!(deltax | deltay))
+	if (deltax == 0.0 && deltay == 0.0)
 	{
 		return 1;
 	}
 
 	// Calc Arc Tan from Obj1 to Obj2 - Returns radians
 
-	angle = static_cast<float>(atan2(static_cast<double>(deltay), static_cast<double>(deltax)));
+	auto angle = std::atan2(deltay, deltax);
 
-	if (angle < 0)
+	if (angle < 0.0)
 	{
-		angle = static_cast<float>(m_pi() * 2 + angle);
+		angle += 2.0 * PI;
 	}
 
 	// Convert rads to degs
 
-	iangle = static_cast<std::int16_t>(angle / (m_pi() * 2) * ANGLES);
+	const auto iangle = static_cast<std::int16_t>(angle / (2.0 * PI) * ANGLES);
 
 	return iangle;
 }
@@ -6878,30 +6881,27 @@ std::int16_t CalcAngle(
 void T_BlowBack(
 	objtype* obj)
 {
-#define SLIDE_SPEED 0x2000
-
-	std::uint16_t dist_table[] = {0x1000, // wp_autocharge,
+	static const std::uint16_t dist_table[] =
+	{
+		0x1000, // wp_autocharge,
 		0x2000, // wp_pistol,
 		0x3000, // wp_burst_rifle,
 		0x4000, // wp_ion_cannon,
 		0x5000, // wp_grenade,
 	};
 
-	std::int32_t deltax, deltay;
-	std::uint16_t dist;
-	objtype* killer;
-
-	if (obj->flags & FL_NO_SLIDE)
+	if ((obj->flags & FL_NO_SLIDE) != 0)
 	{
 		return;
 	}
 
-	if (!(obj->flags & FL_SLIDE_INIT))
+	if ((obj->flags & FL_SLIDE_INIT) == 0)
 	{
 		// Check for NULL ptr
 
-		killer = (objtype*)SLIDE_TEMP(obj);
-		if (!killer)
+		auto killer = SLIDE_TEMP(obj);
+
+		if (killer == nullptr)
 		{
 			obj->flags |= FL_NO_SLIDE;
 			return;
@@ -6909,45 +6909,55 @@ void T_BlowBack(
 
 		obj->angle = CalcAngle(killer, obj);
 
-		if ((killer = SLIDE_TEMP(obj)) == player)
+		killer = SLIDE_TEMP(obj);
+
+		if (killer == player)
 		{
-			*((std::uint16_t*)&obj->hitpoints) = dist_table[static_cast<int>(gamestate.weapon)];
+			reinterpret_cast<std::uint16_t&>(obj->hitpoints) =
+				dist_table[static_cast<int>(gamestate.weapon)];
 		}
 		else
 		{
-			*((std::uint16_t*)&obj->hitpoints) = dist_table[wp_grenade];
+			reinterpret_cast<std::uint16_t&>(obj->hitpoints) =
+				dist_table[wp_grenade];
 		}
 
 		obj->flags |= FL_SLIDE_INIT;
 	}
 
-	if ((std::uint16_t)obj->hitpoints > SLIDE_SPEED)
+
+	constexpr auto SLIDE_SPEED = 0x2000;
+
+	std::uint16_t dist;
+
+	if (static_cast<std::uint16_t>(obj->hitpoints) > SLIDE_SPEED)
 	{
 		dist = SLIDE_SPEED;
-		*((std::uint16_t*)&obj->hitpoints) -= SLIDE_SPEED;
+		reinterpret_cast<std::uint16_t&>(obj->hitpoints) -= SLIDE_SPEED;
 	}
 	else
 	{
-		dist = (std::uint16_t)obj->hitpoints;
+		dist = static_cast<std::uint16_t>(obj->hitpoints);
 		obj->flags |= FL_NO_SLIDE; // Stop any more sliding
 	}
 
-	deltax = FixedByFrac(dist, costable[obj->angle]); // Optomize - Store in actor
-	deltay = -FixedByFrac(dist, sintable[obj->angle]); //
+	const auto dist_f = bstone::math::fixed_to_floating(dist);
+	const auto deltax = dist_f * costable[obj->angle]; // Optomize - Store in actor
+	const auto deltay = -dist_f * sintable[obj->angle]; //
 
 	if (ClipMove(obj, deltax, deltay))
 	{
 		obj->flags |= FL_NO_SLIDE;
 	}
 
-	obj->tilex = static_cast<std::uint8_t>(obj->x >> TILESHIFT);
-	obj->tiley = static_cast<std::uint8_t>(obj->y >> TILESHIFT);
+	obj->tilex = static_cast<std::uint8_t>(obj->x);
+	obj->tiley = static_cast<std::uint8_t>(obj->y);
 
-	if (obj->flags & FL_NO_SLIDE)
+	if ((obj->flags & FL_NO_SLIDE) != 0)
 	{
 		// Set actor WHERE IT SLID in actorat[], IF there's a door!
 		//
-		if (tilemap[obj->tilex][obj->tiley] & 0x80)
+		if ((tilemap[obj->tilex][obj->tiley] & 0x80) != 0)
 		{
 			actorat[obj->tilex][obj->tiley] = obj;
 			obj->flags &= ~FL_NEVERMARK;

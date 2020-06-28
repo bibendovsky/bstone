@@ -31,6 +31,8 @@ Free Software Foundation, Inc.,
 #include "id_us.h"
 #include "id_vl.h"
 
+#include "bstone_math.h"
+
 
 void OpenDoor(
 	std::int16_t door);
@@ -100,7 +102,7 @@ bool TryWalk(
 
 void MoveObj(
 	objtype* ob,
-	std::int32_t move);
+	const double move);
 
 void KillActor(
 	objtype* ob);
@@ -144,8 +146,8 @@ void SpawnNewObj(
 
 	new_actor->tilex = static_cast<std::uint8_t>(tilex);
 	new_actor->tiley = static_cast<std::uint8_t>(tiley);
-	new_actor->x = ((std::int32_t)tilex << TILESHIFT) + TILEGLOBAL / 2;
-	new_actor->y = ((std::int32_t)tiley << TILESHIFT) + TILEGLOBAL / 2;
+	new_actor->x = tilex + 0.5;
+	new_actor->y = tiley + 0.5;
 	new_actor->dir = new_actor->trydir = nodir;
 
 	if (!nevermark)
@@ -493,7 +495,7 @@ bool TryWalk(
 	}
 
 	ob->areanumber = GetAreaNumber(ob->tilex, ob->tiley);
-	ob->distance = TILEGLOBAL;
+	ob->distance = 1.0;
 	return true;
 }
 
@@ -806,70 +808,64 @@ void GetCornerSeek(
 
 extern std::int32_t last_objy;
 
-/*
-=================
-=
-= MoveObj
-=
-= Moves ob be move global units in ob->dir direction
-= Actors are not allowed to move inside the player
-= Does NOT check to see if the move is tile map valid
-=
-= ob->x = adjusted for new position
-= ob->y
-=
-=================
-*/
+//
+// Moves ob be move global units in ob->dir direction
+// Actors are not allowed to move inside the player
+// Does NOT check to see if the move is tile map valid
+//
+// ob->x = adjusted for new position
+// ob->y
+//
 void MoveObj(
 	objtype* ob,
-	std::int32_t move)
+	const double move)
 {
-	std::int32_t sign_x = 0;
-	std::int32_t sign_y = 0;
+	auto sign_x = 0;
+	auto sign_y = 0;
 
 	switch (ob->dir)
 	{
-	case north:
-		sign_y = -1;
-		break;
+		case north:
+			sign_y = -1;
+			break;
 
-	case northeast:
-		sign_x = 1;
-		sign_y = -1;
-		break;
+		case northeast:
+			sign_x = 1;
+			sign_y = -1;
+			break;
 
-	case east:
-		sign_x = 1;
-		break;
+		case east:
+			sign_x = 1;
+			break;
 
-	case southeast:
-		sign_x = 1;
-		sign_y = 1;
-		break;
+		case southeast:
+			sign_x = 1;
+			sign_y = 1;
+			break;
 
-	case south:
-		sign_y = 1;
-		break;
+		case south:
+			sign_y = 1;
+			break;
 
-	case southwest:
-		sign_x = -1;
-		sign_y = 1;
-		break;
+		case southwest:
+			sign_x = -1;
+			sign_y = 1;
+			break;
 
-	case west:
-		sign_x = -1;
-		break;
+		case west:
+			sign_x = -1;
+			break;
 
-	case northwest:
-		sign_x = -1;
-		sign_y = -1;
-		break;
+		case northwest:
+			sign_x = -1;
+			sign_y = -1;
+			break;
 
-	case nodir:
-		return;
+		case nodir:
+			return;
 
-	default:
-		Quit("Illegal direction passed.");
+		default:
+			Quit("Illegal direction passed.");
 	}
 
 	ob->x += sign_x * move;
@@ -882,8 +878,8 @@ void MoveObj(
 		ob->areanumber < NUMAREAS &&
 		areabyplayer[ob->areanumber])
 	{
-		auto dx = std::abs(ob->x - player->x);
-		auto dy = std::abs(ob->y - player->y);
+		const auto dx = std::abs(ob->x - player->x);
+		const auto dy = std::abs(ob->y - player->y);
 
 		if (!(dx > MINACTORDIST || dy > MINACTORDIST))
 		{
@@ -898,6 +894,7 @@ void MoveObj(
 			ob->y += sign_y * move;
 
 			PlayerIsBlocking(ob);
+
 			return;
 		}
 	}
@@ -998,8 +995,8 @@ void KillActor(
 	bool deadguy = true;
 	classtype clas;
 
-	tilex = ob->x >> TILESHIFT; // drop item on center
-	tiley = ob->y >> TILESHIFT;
+	tilex = static_cast<std::int16_t>(ob->x); // drop item on center
+	tiley = static_cast<std::int16_t>(ob->y);
 
 	ob->flags &= ~(FL_FRIENDLY | FL_SHOOTABLE);
 	clas = ob->obclass;
@@ -1736,82 +1733,79 @@ bool CheckLine(
 	objtype* from_obj,
 	objtype* to_obj)
 {
-	std::int16_t x1, y1, xt1, yt1, x2, y2, xt2, yt2;
-	std::int16_t x, y;
-	std::int16_t xdist, ydist, xstep, ystep;
-	std::int16_t partial, delta;
-	std::int32_t ltemp;
-	std::int16_t xfrac, yfrac, deltafrac;
-	std::uint16_t value, intercept;
-
-
-
-	x1 = static_cast<std::int16_t>(from_obj->x >> UNSIGNEDSHIFT); // 1/256 tile precision
-	y1 = static_cast<std::int16_t>(from_obj->y >> UNSIGNEDSHIFT);
-	xt1 = x1 >> 8;
-	yt1 = y1 >> 8;
+	const auto x1 = bstone::math::floating_to_fixed(from_obj->x) >> UNSIGNEDSHIFT; // 1/256 tile precision
+	const auto y1 = bstone::math::floating_to_fixed(from_obj->y) >> UNSIGNEDSHIFT;
+	const auto xt1 = x1 >> 8;
+	const auto yt1 = y1 >> 8;
 
 	//      x2 = plux;
 	//      y2 = pluy;
 
-	x2 = static_cast<std::int16_t>(to_obj->x >> UNSIGNEDSHIFT);
-	y2 = static_cast<std::int16_t>(to_obj->y >> UNSIGNEDSHIFT);
-	xt2 = to_obj->tilex;
-	yt2 = to_obj->tiley;
+	const auto x2 = bstone::math::floating_to_fixed(to_obj->x) >> UNSIGNEDSHIFT;
+	const auto y2 = bstone::math::floating_to_fixed(to_obj->y) >> UNSIGNEDSHIFT;
+	auto xt2 = to_obj->tilex;
+	auto yt2 = to_obj->tiley;
 
-
-	xdist = static_cast<std::int16_t>(abs(xt2 - xt1));
-
-	if (xdist > 0)
+	if (abs(xt2 - xt1) > 0)
 	{
+		auto xstep = 0;
+		auto ystep = 0;
+		auto partial = 0;
+
 		if (xt2 > xt1)
 		{
-			partial = 256 - (x1 & 0xff);
+			partial = 256 - (x1 & 0xFF);
 			xstep = 1;
 		}
 		else
 		{
-			partial = x1 & 0xff;
+			partial = x1 & 0xFF;
 			xstep = -1;
 		}
 
-		deltafrac = static_cast<std::int16_t>(abs(x2 - x1));
-		if (!deltafrac)
+		auto deltafrac = abs(x2 - x1);
+
+		if (deltafrac == 0)
 		{
 			deltafrac = 1;
 		}
-		delta = y2 - y1;
-		ltemp = ((std::int32_t)delta << 8) / deltafrac;
-		if (ltemp > 0x7fffl)
+
+		const auto delta = y2 - y1;
+		const auto ltemp = (delta << 8) / deltafrac;
+
+		if (ltemp > 0x7FFF)
 		{
-			ystep = 0x7fff;
+			ystep = 0x7FFF;
 		}
-		else if (ltemp < -0x7fffl)
+		else if (ltemp < -0x7FFF)
 		{
-			ystep = -0x7fff;
+			ystep = -0x7FFF;
 		}
 		else
 		{
-			ystep = static_cast<std::int16_t>(ltemp);
+			ystep = ltemp;
 		}
-		yfrac = y1 + ((static_cast<std::int32_t>(ystep) * partial) >> 8);
 
-		x = xt1 + xstep;
+		auto yfrac = y1 + ((ystep * partial) >> 8);
+
+		auto x = xt1 + xstep;
 		xt2 += xstep;
+
 		do
 		{
-			y = yfrac >> 8;
+			auto y = yfrac >> 8;
 			yfrac += ystep;
 
-			value = (std::uint16_t)tilemap[x][y];
+			auto value = tilemap[x][y];
+
 			x += xstep;
 
-			if (!value)
+			if (value == 0)
 			{
 				continue;
 			}
 
-			if (value < 128 || value > 256)
+			if (value < 128 || (value & 0xC0) == 0xC0)
 			{
 				return false;
 			}
@@ -1820,68 +1814,74 @@ bool CheckLine(
 			// see if the door is open enough
 			//
 			value &= ~0x80;
-			intercept = yfrac - ystep / 2;
+			std::uint16_t intercept = yfrac - ystep / 2;
 
-			if (intercept > doorposition[value])
+			if (intercept > bstone::math::floating_to_fixed(doorposition[value]))
 			{
 				return false;
 			}
-
 		} while (x != xt2);
 	}
 
-	ydist = static_cast<std::int16_t>(abs(yt2 - yt1));
-
-	if (ydist > 0)
+	if (abs(yt2 - yt1) > 0)
 	{
+		auto xstep = 0;
+		auto ystep = 0;
+		auto partial = 0;
+
 		if (yt2 > yt1)
 		{
-			partial = 256 - (y1 & 0xff);
+			partial = 256 - (y1 & 0xFF);
 			ystep = 1;
 		}
 		else
 		{
-			partial = y1 & 0xff;
+			partial = y1 & 0xFF;
 			ystep = -1;
 		}
 
-		deltafrac = static_cast<std::int16_t>(abs(y2 - y1));
-		if (!deltafrac)
+		auto deltafrac = abs(y2 - y1);
+
+		if (deltafrac == 0)
 		{
 			deltafrac = 1;
 		}
-		delta = x2 - x1;
-		ltemp = ((std::int32_t)delta << 8) / deltafrac;
-		if (ltemp > 0x7fffl)
+
+		const auto delta = x2 - x1;
+		const auto ltemp = (delta << 8) / deltafrac;
+
+		if (ltemp > 0x7FFF)
 		{
-			xstep = 0x7fff;
+			xstep = 0x7FFF;
 		}
-		else if (ltemp < -0x7fffl)
+		else if (ltemp < -0x7FFF)
 		{
-			xstep = -0x7fff;
+			xstep = -0x7FFF;
 		}
 		else
 		{
-			xstep = static_cast<std::int16_t>(ltemp);
+			xstep = ltemp;
 		}
-		xfrac = x1 + (((std::int32_t)xstep * partial) >> 8);
 
-		y = yt1 + ystep;
+		auto xfrac = x1 + ((xstep * partial) >> 8);
+
+		auto y = yt1 + ystep;
 		yt2 += ystep;
+
 		do
 		{
-			x = xfrac >> 8;
+			auto x = xfrac >> 8;
 			xfrac += xstep;
 
-			value = (std::uint16_t)tilemap[x][y];
+			auto value = tilemap[x][y];
 			y += ystep;
 
-			if (!value)
+			if (value == 0)
 			{
 				continue;
 			}
 
-			if (value < 128 || value > 256)
+			if (value < 128 || (value & 0xC0) == 0xC0)
 			{
 				return false;
 			}
@@ -1890,9 +1890,9 @@ bool CheckLine(
 			// see if the door is open enough
 			//
 			value &= ~0x80;
-			intercept = xfrac - xstep / 2;
+			std::uint16_t intercept = xfrac - xstep / 2;
 
-			if (intercept > doorposition[value])
+			if (intercept > bstone::math::floating_to_fixed(doorposition[value]))
 			{
 				return false;
 			}
@@ -1902,27 +1902,17 @@ bool CheckLine(
 	return true;
 }
 
-/*
-================
-=
-= CheckSight
-=
-= Checks a straight line between player and current object
-=
-= If the sight is ok, check alertness and angle to see if they notice
-=
-= returns true if the player has been spoted
-=
-================
-*/
+//
+// Checks a straight line between player and current object
+//
+// If the sight is ok, check alertness and angle to see if they notice
+//
+// returns true if the player has been spoted
+//
 bool CheckSight(
 	objtype* from_obj,
 	objtype* to_obj)
 {
-	const int MINSIGHT = 0x18000L;
-
-	std::int32_t deltax, deltay;
-
 	//
 	// don't bother tracing a line if the area isn't connected to the player's
 	//
@@ -1934,11 +1924,12 @@ bool CheckSight(
 	//
 	// if the player is real close, sight is automatic
 	//
-	deltax = to_obj->x - from_obj->x;
-	deltay = to_obj->y - from_obj->y;
+	const auto deltax = std::abs(to_obj->x - from_obj->x);
+	const auto deltay = std::abs(to_obj->y - from_obj->y);
 
+	constexpr auto MINSIGHT = bstone::math::fixed_to_floating(0x18000);
 
-	if (deltax > -MINSIGHT && deltax < MINSIGHT && deltay > -MINSIGHT && deltay < MINSIGHT)
+	if (deltax <= MINSIGHT && deltay <= MINSIGHT)
 	{
 		return true;
 	}
@@ -1948,36 +1939,36 @@ bool CheckSight(
 	//
 	switch (from_obj->dir)
 	{
-	case north:
-		if (deltay > 0)
-		{
-			return false;
-		}
-		break;
+		case north:
+			if (deltay > 0.0)
+			{
+				return false;
+			}
+			break;
 
-	case east:
-		if (deltax < 0)
-		{
-			return false;
-		}
-		break;
+		case east:
+			if (deltax < 0.0)
+			{
+				return false;
+			}
+			break;
 
-	case south:
-		if (deltay < 0)
-		{
-			return false;
-		}
-		break;
+		case south:
+			if (deltay < 0.0)
+			{
+				return false;
+			}
+			break;
 
-	case west:
-		if (deltax > 0)
-		{
-			return false;
-		}
-		break;
+		case west:
+			if (deltax > 0.0)
+			{
+				return false;
+			}
+			break;
 
-	default:
-		break;
+		default:
+			break;
 	}
 
 	//
@@ -2338,10 +2329,6 @@ bool CheckView(
 	objtype* from_obj,
 	objtype* to_obj)
 {
-	std::int32_t deltax, deltay;
-	std::int16_t angle;
-	float fangle;
-
 	//
 	// don't bother tracing a line if the area isn't connected to the player's
 	//
@@ -2351,24 +2338,24 @@ bool CheckView(
 		return false;
 	}
 
-	deltax = from_obj->x - to_obj->x;
-	deltay = to_obj->y - from_obj->y;
+	const auto deltax = from_obj->x - to_obj->x;
+	const auto deltay = to_obj->y - from_obj->y;
 
+	auto fangle = std::atan2(deltay, deltax); // returns -pi to pi
 
-	fangle = static_cast<float>(atan2(static_cast<double>(deltay), static_cast<double>(deltax))); // returns -pi to pi
-	if (fangle < 0)
+	if (fangle < 0.0)
 	{
-		fangle = static_cast<float>(m_pi() * 2 + fangle);
+		fangle += 2.0 * m_pi();
 	}
 
-	angle = static_cast<std::int16_t>(fangle / (m_pi() * 2) * ANGLES + 23);
+	auto angle = static_cast<int>(fangle / (2.0 * m_pi()) * ANGLES + 23);
 
 	if (angle > 360)
 	{
 		angle = 360;
 	}
 
-	if ((angle <= AdjAngleTable[1][from_obj->dir]) || (angle >= AdjAngleTable[0][from_obj->dir]))
+	if (angle <= AdjAngleTable[1][from_obj->dir] || angle >= AdjAngleTable[0][from_obj->dir])
 	{
 		return false;
 	}
@@ -2639,7 +2626,7 @@ bool LookForGoodies(
 std::uint16_t CheckRunChase(
 	objtype* ob)
 {
-	const int RUNAWAY_SPEED = 1000;
+	constexpr auto RUNAWAY_SPEED = bstone::math::fixed_to_floating(1000);
 
 	std::uint16_t RunReason = 0;
 
@@ -2768,7 +2755,7 @@ bool PlayerIsBlocking(
 	ob->tilex += opp_off[ob->dir][0];
 	ob->tiley += opp_off[ob->dir][1];
 	ob->dir = opposite[ob->dir];
-	ob->distance = TILEGLOBAL - ob->distance;
+	ob->distance = 1.0 - ob->distance;
 	return true;
 }
 

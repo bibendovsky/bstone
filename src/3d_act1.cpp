@@ -32,6 +32,9 @@ Free Software Foundation, Inc.,
 #include "id_vl.h"
 
 
+static constexpr auto door_step = 1.0 / 64.0;
+
+
 // ===========================================================================
 //
 // PROTOTYPES
@@ -697,9 +700,16 @@ void ExplodeStatics(
 				case bo_clip:
 				case bo_clip2:
 					remove = true;
-					SpawnCusExplosion((((fixed)spot->tilex) << TILESHIFT) + 0x7FFF,
-						(((fixed)spot->tiley) << TILESHIFT) + 0x7FFF,
-						SPR_CLIP_EXP1, 7, 3 + (US_RndT() & 0x3), explosionobj);
+
+					SpawnCusExplosion(
+						spot->tilex + 0.5,
+						spot->tiley + 0.5,
+						SPR_CLIP_EXP1,
+						7,
+						3 + (US_RndT() & 0x3),
+						explosionobj
+					);
+
 					break;
 				}
 
@@ -753,7 +763,7 @@ std::int16_t doornum;
 
 // leading edge of door 0=closed, 0xffff = fully open
  // !!! Used in saved game.
-std::uint16_t doorposition[MAXDOORS];
+DoorPositions doorposition;
 
  // !!! Used in saved game.
 AreaConnect areaconnect;
@@ -825,7 +835,7 @@ void SpawnDoor(
 		Quit("Too many doors in level.");
 	}
 
-	doorposition[doornum] = 0; // doors start out fully closed
+	doorposition[doornum] = 0.0; // doors start out fully closed
 	lastdoorobj->tilex = static_cast<std::uint8_t>(tilex);
 	lastdoorobj->tiley = static_cast<std::uint8_t>(tiley);
 	lastdoorobj->vertical = vertical;
@@ -1020,22 +1030,29 @@ void CloseDoor(
 	{
 		if (player->tiley == tiley)
 		{
-			if (((player->x + MINDIST) >> TILESHIFT) == tilex)
+			if (static_cast<int>(player->x + MINDIST) == tilex)
 			{
 				return;
 			}
-			if (((player->x - MINDIST) >> TILESHIFT) == tilex)
+
+			if (static_cast<int>(player->x - MINDIST) == tilex)
 			{
 				return;
 			}
 		}
+
 		check = get_actor_near_door(tilex - 1, tiley);
-		if (check && ((check->x + MINDIST) >> TILESHIFT) == tilex)
+
+		if (check != nullptr &&
+			static_cast<int>(check->x + MINDIST) == tilex)
 		{
 			return;
 		}
+
 		check = get_actor_near_door(tilex + 1, tiley);
-		if (check && ((check->x - MINDIST) >> TILESHIFT) == tilex)
+
+		if (check != nullptr &&
+			static_cast<int>(check->x - MINDIST) == tilex)
 		{
 			return;
 		}
@@ -1044,22 +1061,29 @@ void CloseDoor(
 	{
 		if (player->tilex == tilex)
 		{
-			if (((player->y + MINDIST) >> TILESHIFT) == tiley)
+			if (static_cast<int>(player->y + MINDIST) == tiley)
 			{
 				return;
 			}
-			if (((player->y - MINDIST) >> TILESHIFT) == tiley)
+
+			if (static_cast<int>(player->y - MINDIST) == tiley)
 			{
 				return;
 			}
 		}
+
 		check = get_actor_near_door(tilex, tiley - 1);
-		if (check && ((check->y + MINDIST) >> TILESHIFT) == tiley)
+
+		if (check != nullptr &&
+			static_cast<int>(check->y + MINDIST) == tiley)
 		{
 			return;
 		}
+
 		check = get_actor_near_door(tilex, tiley + 1);
-		if (check && ((check->y - MINDIST) >> TILESHIFT) == tiley)
+
+		if (check != nullptr &&
+			static_cast<int>(check->y - MINDIST) == tiley)
 		{
 			return;
 		}
@@ -1271,7 +1295,7 @@ void BlockDoorOpen(
 {
 	doorobjlist[door].action = dr_jammed;
 	doorobjlist[door].ticcount = 0;
-	doorposition[door] = 0xFFFF;
+	doorposition[door] = 1.0;
 	doorobjlist[door].lock = kt_none;
 	doorobjlist[door].flags &= ~DR_BLASTABLE;
 
@@ -1295,14 +1319,20 @@ void TryBlastDoor(
 		break;
 
 	default:
-		if (doorposition[static_cast<int>(door)] < 0x7fff &&
+		if (doorposition[static_cast<int>(door)] < 0.5 &&
 			doorobjlist[static_cast<int>(door)].action != dr_jammed &&
 			doorobjlist[static_cast<int>(door)].lock == kt_none)
 		{
 			BlockDoorOpen(door);
-			SpawnCusExplosion((((fixed)doorobjlist[static_cast<int>(door)].tilex) << TILESHIFT) + 0x7FFF,
-				(((fixed)doorobjlist[static_cast<int>(door)].tiley) << TILESHIFT) + 0x7FFF,
-				SPR_EXPLOSION_1, 4, 3, doorexplodeobj);
+
+			SpawnCusExplosion(
+				doorobjlist[static_cast<int>(door)].tilex + 0.5,
+				doorobjlist[static_cast<int>(door)].tiley + 0.5,
+				SPR_EXPLOSION_1,
+				4,
+				3,
+				doorexplodeobj
+			);
 		}
 		break;
 	}
@@ -1337,7 +1367,8 @@ void DropPlasmaDetonator()
 		plasma_detonator_reserveobj,
 		plasma_detonatorobj,
 		player->x,
-		player->y);
+		player->y
+	);
 
 	if (obj)
 	{
@@ -1482,13 +1513,11 @@ std::int16_t TransformAreas(
 void DoorOpening(
 	std::int16_t door)
 {
-	std::int16_t area1;
-	std::int32_t position;
+	auto position = doorposition[door];
 
-	position = doorposition[door];
-	if (!position)
+	if (position <= 0.0)
 	{
-		area1 = TransformAreas(doorobjlist[door].tilex, doorobjlist[door].tiley, 1);
+		const auto area1 = TransformAreas(doorobjlist[door].tilex, doorobjlist[door].tiley, 1);
 
 		if (areabyplayer[area1])
 		{
@@ -1512,19 +1541,20 @@ void DoorOpening(
 	//
 	// slide the door by an adaptive amount
 	//
-	position += tics << 10;
-	if (position >= 0xffff)
+	position += tics * door_step;
+
+	if (position >= 1.0)
 	{
 		//
 		// door is all the way open
 		//
-		position = 0xffff;
+		position = 1.0;
 		doorobjlist[door].ticcount = 0;
 		doorobjlist[door].action = dr_open;
 		actorat[doorobjlist[door].tilex][doorobjlist[door].tiley] = 0;
 	}
 
-	doorposition[door] = static_cast<std::uint16_t>(position);
+	doorposition[door] = position;
 
 	vid_hw_on_move_door(door);
 }
@@ -1532,11 +1562,8 @@ void DoorOpening(
 void DoorClosing(
 	std::int16_t door)
 {
-	std::int32_t position;
-	std::int16_t tilex, tiley;
-
-	tilex = doorobjlist[door].tilex;
-	tiley = doorobjlist[door].tiley;
+	const auto tilex = doorobjlist[door].tilex;
+	const auto tiley = doorobjlist[door].tiley;
 
 	if ((actorat[tilex][tiley] != reinterpret_cast<objtype*>(static_cast<std::size_t>(door | 0x80))) ||
 		(player->tilex == tilex && player->tiley == tiley))
@@ -1546,20 +1573,21 @@ void DoorClosing(
 		return;
 	}
 
-	position = doorposition[door];
+	auto position = doorposition[door];
 
 	//
 	// slide the door by an adaptive amount
 	//
-	position -= tics << 10;
-	if (position <= 0)
+	position -= tics * door_step;
+
+	if (position <= 0.0)
 	{
-		position = 0;
+		position = 0.0;
 		doorobjlist[door].action = dr_closed;
 		TransformAreas(doorobjlist[door].tilex, doorobjlist[door].tiley, -1);
 	}
 
-	doorposition[door] = static_cast<std::uint16_t>(position);
+	doorposition[door] = position;
 
 	vid_hw_on_move_door(door);
 }
@@ -1608,12 +1636,18 @@ void MoveDoors()
 =============================================================================
 */
 
+static constexpr auto pwall_state_first_step = 1.0 / 64.0;
+static constexpr auto pwall_state_step = 1.0 / 16.0;
+
+static constexpr auto pwall_pos_end = 63.0 / 64.0;
+
+
 // !!! Used in saved game.
-std::uint16_t pwallstate;
+double pwallstate;
 
 // amount a pushable wall has been moved (0-63)
 // !!! Used in saved game.
-std::uint16_t pwallpos;
+double pwallpos;
 
 // !!! Used in saved game.
 std::uint16_t pwallx = 0;
@@ -1633,71 +1667,73 @@ void PushWall(
 	std::int16_t checky,
 	std::int16_t dir)
 {
-	std::int16_t oldtile;
-
-	if (pwallstate)
+	if (pwallstate != 0.0)
 	{
 		return;
 	}
 
 	TransformAreas(static_cast<std::int8_t>(checkx), static_cast<std::int8_t>(checky), 1);
 
-	oldtile = tilemap[checkx][checky];
-	if (!oldtile)
+	const auto oldtile = tilemap[checkx][checky];
+
+	if (oldtile == 0)
 	{
 		return;
 	}
 
 	switch (dir)
 	{
-	case di_north:
-		if (actorat[checkx][checky - 1])
-		{
-			return;
-		}
+		case di_north:
+			if (actorat[checkx][checky - 1] != nullptr)
+			{
+				return;
+			}
 
-		tilemap[checkx][checky - 1] = static_cast<std::uint8_t>(oldtile);
-		actorat[checkx][checky - 1] = reinterpret_cast<objtype*>(oldtile);
-		break;
+			tilemap[checkx][checky - 1] = oldtile;
+			actorat[checkx][checky - 1] = reinterpret_cast<objtype*>(oldtile);
+			break;
 
-	case di_east:
-		if (actorat[checkx + 1][checky])
-		{
-			return;
-		}
+		case di_east:
+			if (actorat[checkx + 1][checky] != nullptr)
+			{
+				return;
+			}
 
-		tilemap[checkx + 1][checky] = static_cast<std::uint8_t>(oldtile);
-		actorat[checkx + 1][checky] = reinterpret_cast<objtype*>(oldtile);
-		break;
+			tilemap[checkx + 1][checky] = oldtile;
+			actorat[checkx + 1][checky] = reinterpret_cast<objtype*>(oldtile);
+			break;
 
-	case di_south:
-		if (actorat[checkx][checky + 1])
-		{
-			return;
-		}
+		case di_south:
+			if (actorat[checkx][checky + 1] != nullptr)
+			{
+				return;
+			}
 
-		tilemap[checkx][checky + 1] = static_cast<std::uint8_t>(oldtile);
-		actorat[checkx][checky + 1] = reinterpret_cast<objtype*>(oldtile);
-		break;
+			tilemap[checkx][checky + 1] = oldtile;
+			actorat[checkx][checky + 1] = reinterpret_cast<objtype*>(oldtile);
+			break;
 
-	case di_west:
-		if (actorat[checkx - 1][checky])
-		{
-			return;
-		}
+		case di_west:
+			if (actorat[checkx - 1][checky] != nullptr)
+			{
+				return;
+			}
 
-		tilemap[checkx - 1][checky] = static_cast<std::uint8_t>(oldtile);
-		actorat[checkx - 1][checky] = reinterpret_cast<objtype*>(oldtile);
-		break;
+			tilemap[checkx - 1][checky] = oldtile;
+			actorat[checkx - 1][checky] = reinterpret_cast<objtype*>(oldtile);
+			break;
+
+		default:
+				Quit("Invalid pushwall direction.");
 	}
 
 	pwalldist = 2;
 	pwallx = checkx;
 	pwally = checky;
 	pwalldir = dir;
-	pwallstate = 1;
-	pwallpos = 0;
-	tilemap[pwallx][pwally] |= 0xc0;
+	pwallstate = pwall_state_first_step;
+	pwallpos = 0.0;
+	tilemap[pwallx][pwally] |= 0xC0;
 	mapsegs[1][farmapylookup[pwally] + pwallx] = 0; // remove P tile info
 
 	sd_play_wall_sound(PUSHWALLSND);
@@ -1705,21 +1741,21 @@ void PushWall(
 
 void MovePWalls()
 {
-	if (pwallstate == 0)
+	if (pwallstate == 0.0)
 	{
 		return;
 	}
 
-	const auto oldblock = pwallstate / 128;
+	const auto oldblock = static_cast<int>(0.5 * pwallstate);
+	pwallstate += tics * pwall_state_step;
+	const auto newblock = static_cast<int>(0.5 * pwallstate);
 
-	pwallstate += tics * 4;
-
-	if ((pwallstate / 128) != oldblock)
+	if (newblock != oldblock)
 	{
 		--pwalldist;
 
 		// block crossed into a new block
-		const auto oldtile = tilemap[pwallx][pwally] & 63;
+		const auto oldtile = static_cast<std::uint8_t>(tilemap[pwallx][pwally] & 63);
 
 		//
 		// the tile can now be walked into
@@ -1751,25 +1787,24 @@ void MovePWalls()
 
 		switch (pwalldir)
 		{
-		case di_north:
-			next_dy = -1;
-			break;
+			case di_north:
+				next_dy = -1;
+				break;
 
-		case di_east:
-			next_dx = 1;
-			break;
+			case di_east:
+				next_dx = 1;
+				break;
 
-		case di_south:
-			next_dy = 1;
-			break;
+			case di_south:
+				next_dy = 1;
+				break;
 
-		case di_west:
-			next_dx = -1;
-			break;
+			case di_west:
+				next_dx = -1;
+				break;
 
-		default:
-			Quit("Invalid pushwall direction.");
-			break;
+			default:
+				Quit("Invalid pushwall direction.");
 		}
 
 		if (pwalldist == 0)
@@ -1777,15 +1812,15 @@ void MovePWalls()
 			//
 			// the block has been pushed two tiles
 			//
-			pwallstate = 0;
-			pwallpos = 0;
+			pwallstate = 0.0;
+			pwallpos = 0.0;
 
 			pwallx += next_dx;
 			pwally += next_dy;
 
 			vid_hw_on_step_pushwall(old_x, old_y);
 
-			pwallpos = 63;
+			pwallpos = pwall_pos_end;
 
 			return;
 		}
@@ -1801,10 +1836,10 @@ void MovePWalls()
 
 			auto& next_actorat = actorat[next_x][next_y];
 
-			if (next_actorat)
+			if (next_actorat != nullptr)
 			{
-				pwallstate = 0;
-				pwallpos = 63;
+				pwallstate = 0.0;
+				pwallpos = pwall_pos_end;
 
 				vid_hw_on_step_pushwall(pwallx, pwally);
 
@@ -1818,14 +1853,14 @@ void MovePWalls()
 				return;
 			}
 
-			tilemap[next_x][next_y] = static_cast<std::uint8_t>(oldtile);
+			tilemap[next_x][next_y] = oldtile;
 			next_actorat = reinterpret_cast<objtype*>(static_cast<std::uintptr_t>(oldtile));
 
 			tilemap[pwallx][pwally] = static_cast<std::uint8_t>(oldtile | 0xC0);
 		}
 	}
 
-	pwallpos = (pwallstate / 2) & 63;
+	pwallpos = get_fractional(0.5 * pwallstate);
 
 	vid_hw_on_move_pushwall();
 }
@@ -2256,8 +2291,9 @@ void CheckSpawnEA()
 		// Actor is released if it's in player's view   OR
 		// a random chance to release whether it can be seen or not.
 		//
-		temp.x = ((fixed)temp.tilex << TILESHIFT) + ((fixed)TILEGLOBAL / 2);
-		temp.y = ((fixed)temp.tiley << TILESHIFT) + ((fixed)TILEGLOBAL / 2);
+		temp.x = temp.tilex + 0.5;
+		temp.y = temp.tiley + 0.5;
+
 		if ((!CheckSight(player, &temp)) && (US_RndT() < 200))
 		{
 			continue;
@@ -2359,8 +2395,9 @@ void FindNewGoldieSpawnSite()
 		// Setup x,y in temp obj and see if obj is in player's view.
 		//
 
-		temp.x = ((fixed)temp.tilex << TILESHIFT) + ((fixed)TILEGLOBAL / 2);
-		temp.y = ((fixed)temp.tiley << TILESHIFT) + ((fixed)TILEGLOBAL / 2);
+		temp.x = temp.tilex + 0.5;
+		temp.y = temp.tiley + 0.5;
+
 		if (!CheckSight(player, &temp))
 		{
 			continue;

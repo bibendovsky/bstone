@@ -49,6 +49,7 @@ Free Software Foundation, Inc.,
 #include "bstone_endian.h"
 #include "bstone_file_system.h"
 #include "bstone_logger.h"
+#include "bstone_math.h"
 #include "bstone_memory_stream.h"
 #include "bstone_ps_fizzle_fx.h"
 #include "bstone_sha1.h"
@@ -157,7 +158,7 @@ void NewGame(
 bstone::ClArgs g_args;
 
 
-#define FOCALLENGTH (0x5700L) // in global coordinates
+constexpr auto FOCALLENGTH = bstone::math::fixed_to_floating(0x5700); // in global coordinates
 #define VIEWGLOBAL 0x10000 // globals visible flush to wall
 
 #define VIEWWIDTH (256) // size of view window
@@ -210,15 +211,13 @@ std::int16_t dirangle[9] = {
 //
 // projection variables
 //
-fixed focallength;
+double focallength;
 int screenofs;
 int viewwidth;
 int viewheight;
 int centerx;
-int scale_;
-int maxslope;
-int heightnumerator;
-int minheightdiv;
+double scale_;
+double heightnumerator;
 
 
 bool startgame;
@@ -8221,7 +8220,7 @@ bool LoadLevel(
 
 	update_normalshade();
 
-	pwallstate = 0;
+	pwallstate = 0.0;
 
 	std::string chunk_name = "LV" + bstone::StringHelper::octet_to_hex_string(level_index);
 
@@ -8452,18 +8451,42 @@ bool LoadLevel(
 		}
 
 		//
-		archiver->read_uint16_array(doorposition, MAXDOORS);
+		{
+			using DoorPositionsU16 = std::array<std::uint16_t, MAXDOORS>;
+			DoorPositionsU16 door_positions_u16;
+
+			archiver->read_uint16_array(door_positions_u16.data(), MAXDOORS);
+
+			std::transform(
+				door_positions_u16.cbegin(),
+				door_positions_u16.cend(),
+				doorposition.begin(),
+				[](const auto item)
+				{
+					return item / 65'535.0;
+				}
+			);
+		}
 
 		for (int i = 0; i < MAXDOORS; ++i)
 		{
 			doorobjlist[i].unarchive(archiver.get());
 		}
 
-		pwallstate = archiver->read_uint16();
+		{
+			const auto pwallstate_u16 = archiver->read_uint16();
+			pwallstate = pwallstate_u16 / 128.0;
+		}
+
 		pwallx = archiver->read_uint16();
 		pwally = archiver->read_uint16();
 		pwalldir = archiver->read_int16();
-		pwallpos = archiver->read_uint16();
+
+		{
+			const auto pwallpos_u16 = archiver->read_uint16();
+			pwallpos = pwallpos_u16 / 64.0;
+		}
+
 		pwalldist = archiver->read_int16();
 		archiver->read_uint8_array(&travel_table_[0][0], MAPSIZE * MAPSIZE);
 		ConHintList.unarchive(archiver.get());
@@ -8501,7 +8524,7 @@ bool LoadLevel(
 		//
 		// TODO Archive mapsegs[1] into saved game?
 		//
-		if (pwallstate != 0)
+		if (pwallstate != 0.0)
 		{
 			auto& tile_object = mapsegs[1][(MAPSIZE * pwally) + pwallx];
 
@@ -8777,18 +8800,42 @@ bool SaveLevel(
 
 	//
 
-	archiver->write_uint16_array(doorposition, MAXDOORS);
+	{
+		using DoorPositionsU16 = std::array<std::uint16_t, MAXDOORS>;
+		DoorPositionsU16 door_positions_u16;
+
+		std::transform(
+			doorposition.cbegin(),
+			doorposition.cend(),
+			door_positions_u16.begin(),
+			[](const auto item)
+			{
+				return static_cast<std::uint16_t>(item * 65'535.0);
+			}
+		);
+
+		archiver->write_uint16_array(door_positions_u16.data(), MAXDOORS);
+	}
 
 	for (int i = 0; i < MAXDOORS; ++i)
 	{
 		doorobjlist[i].archive(archiver.get());
 	}
 
-	archiver->write_uint16(pwallstate);
+	{
+		const auto pwallstate_u16 = static_cast<std::uint16_t>(pwallstate * 128.0);
+		archiver->write_uint16(pwallstate_u16);
+	}
+
 	archiver->write_uint16(pwallx);
 	archiver->write_uint16(pwally);
 	archiver->write_int16(pwalldir);
-	archiver->write_uint16(pwallpos);
+
+	{
+		const auto pwallpos_u16 = static_cast<std::uint16_t>(pwallpos * 64.0);
+		archiver->write_uint16(pwallpos_u16);
+	}
+
 	archiver->write_int16(pwalldist);
 	archiver->write_uint8_array(&travel_table_[0][0], MAPSIZE * MAPSIZE);
 	ConHintList.archive(archiver.get());
@@ -9393,7 +9440,7 @@ void CleanUpDoors_N_Actors()
 
 					doorobjlist[door].ticcount = 0;
 					doorobjlist[door].action = dr_open;
-					doorposition[door] = 0xFFFF;
+					doorposition[door] = 1.0;
 				}
 			}
 		}
@@ -9412,8 +9459,8 @@ void ClearNClose()
 {
 	int tx = 0;
 	int ty = 0;
-	int p_x = (player->x >> TILESHIFT) & 0xFF;
-	int p_y = (player->y >> TILESHIFT) & 0xFF;
+	int p_x = static_cast<int>(player->x) & 0xFF;
+	int p_y = static_cast<int>(player->y) & 0xFF;
 
 	// Locate the door.
 	//
@@ -9437,7 +9484,7 @@ void ClearNClose()
 		int door_index = tilemap[tx][ty] & 63;
 
 		doorobjlist[door_index].action = dr_closed; // this door is closed!
-		doorposition[door_index] = 0; // draw it closed!
+		doorposition[door_index] = 0.0; // draw it closed!
 
 		// make it solid!
 		actorat[tx][ty] = reinterpret_cast<objtype*>(static_cast<std::size_t>(door_index | 0x80));
@@ -9551,34 +9598,23 @@ void ShutdownId()
 	CA_Shutdown();
 }
 
-/*
-====================
-=
-= CalcProjection
-=
-= Uses focallength
-=
-====================
-*/
 void CalcProjection(
-	std::int32_t focal)
+	const double focal)
 {
 	focallength = focal;
-	const auto facedist = static_cast<double>(focal + MINDIST);
-	const auto halfview = viewwidth / 2; // half view in pixels
+	const auto facedist = focallength + MINDIST;
 
 	//
 	// calculate scale value for vertical height calculations
 	// and sprite x calculations
 	//
-	scale_ = static_cast<int>(halfview * facedist / (VIEWGLOBAL / 2) / vga_wide_scale);
+	scale_ = (viewwidth * facedist) / vga_wide_scale;
 
 	//
 	// divide heightnumerator by a posts distance to get the posts height for
 	// the heightbuffer.  The pixel height is height>>2
 	//
-	heightnumerator = (TILEGLOBAL * scale_) / 64;
-	minheightdiv = (heightnumerator / 0x7FFF) + 1;
+	heightnumerator = scale_ / 64.0;
 
 	//
 	// calculate the angle offset from view angle of each pixel's ray
@@ -9587,27 +9623,18 @@ void CalcProjection(
 	pixelangle.clear();
 	pixelangle.resize(vga_width);
 
+	const auto halfview = viewwidth / 2; // half view in pixels
+
 	for (int i = 0; i < halfview; ++i)
 	{
 		// start 1/2 pixel over, so viewangle bisects two middle pixels
-		const auto tang =
-			vga_wide_scale *
-			(static_cast<double>(i) / static_cast<double>(viewwidth)) *
-			(static_cast<double>(VIEWGLOBAL) / facedist);
-
+		const auto tang = (vga_wide_scale * i) / (viewwidth * facedist);
 		const auto angle = std::atan(tang);
 		const auto intang = static_cast<int>(angle * radtoint);
 
 		pixelangle[halfview - 1 - i] = intang;
 		pixelangle[halfview + i] = -intang;
 	}
-
-	//
-	// if a point's abs(y/x) is greater than maxslope, the point is outside
-	// the view area
-	//
-	maxslope = finetangent[pixelangle[0]];
-	maxslope /= 256;
 }
 
 bool DoMovie(
@@ -10066,23 +10093,21 @@ void objtype::archive(
 
 	archiver->write_uint32(flags);
 	archiver->write_uint16(flags2);
-	archiver->write_int32(distance);
+	archiver->write_int32(bstone::math::floating_to_fixed(distance));
 	archiver->write_uint8(static_cast<std::uint8_t>(dir));
 	archiver->write_uint8(static_cast<std::uint8_t>(trydir));
-	archiver->write_int32(x);
-	archiver->write_int32(y);
+	archiver->write_int32(bstone::math::floating_to_fixed(x));
+	archiver->write_int32(bstone::math::floating_to_fixed(y));
 	archiver->write_uint8(s_tilex);
 	archiver->write_uint8(s_tiley);
 	// viewx
 	// viewheight
-	// transx
-	// transy
 	archiver->write_int16(hitpoints);
 	archiver->write_uint8(ammo);
 	archiver->write_int8(lighting);
 	archiver->write_uint16(linc);
 	archiver->write_int16(angle);
-	archiver->write_int32(speed);
+	archiver->write_int32(bstone::math::floating_to_fixed(speed));
 	archiver->write_int16(temp1);
 	archiver->write_int16(temp2);
 	archiver->write_uint16(temp3);
@@ -10103,23 +10128,21 @@ void objtype::unarchive(
 
 	flags = archiver->read_uint32();
 	flags2 = archiver->read_uint16();
-	distance = archiver->read_int32();
+	distance = bstone::math::fixed_to_floating(archiver->read_int32());
 	dir = static_cast<dirtype>(archiver->read_uint8());
 	trydir = static_cast<dirtype>(archiver->read_uint8());
-	x = archiver->read_int32();
-	y = archiver->read_int32();
+	x = bstone::math::fixed_to_floating(archiver->read_int32());
+	y = bstone::math::fixed_to_floating(archiver->read_int32());
 	s_tilex = archiver->read_uint8();
 	s_tiley = archiver->read_uint8();
 	viewx = {};
 	viewheight = {};
-	transx = {};
-	transy = {};
 	hitpoints = archiver->read_int16();
 	ammo = archiver->read_uint8();
 	lighting = archiver->read_int8();
 	linc = archiver->read_uint16();
 	angle = archiver->read_int16();
-	speed = archiver->read_int32();
+	speed = bstone::math::fixed_to_floating(archiver->read_int32());
 	temp1 = archiver->read_int16();
 	temp2 = archiver->read_int16();
 	temp3 = archiver->read_uint16();
@@ -10770,5 +10793,19 @@ dirtype operator++(
 double m_pi()
 {
 	return 3.14159265358979323846;
+}
+
+
+double get_integral(
+	const double value) noexcept
+{
+	return std::trunc(value);
+}
+
+double get_fractional(
+	const double value) noexcept
+{
+	double integral;
+	return std::modf(value, &integral);
 }
 // BBi
