@@ -296,7 +296,6 @@ target_sources(
 		id_us.h
 		id_vh.h
 		id_vl.h
-		jam_io.h
 		jm_cio.h
 		jm_lzh.h
 		jm_tp.h
