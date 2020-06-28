@@ -424,7 +424,6 @@ target_sources(
 		id_us_1.cpp
 		id_vh.cpp
 		id_vl.cpp
-		jm_cio.cpp
 		jm_free.cpp
 		jm_lzh.cpp
 		jm_tp.cpp

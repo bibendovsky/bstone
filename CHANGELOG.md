@@ -1,6 +1,11 @@
 # BStone changelog
 
 
+## [1.2.7] - 2020-??-??
+### Fixed
+- Extraction of compressed texts.
+
+
 ## [1.2.6] - 2020-06-18
 ### Added
 - Option `snd_resampling_interpolation` to specify interpolation method for resampling.
