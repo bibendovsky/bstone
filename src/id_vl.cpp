@@ -3038,7 +3038,7 @@ void hw_create_vertex_input(
 
 void hw_update_player_direction()
 {
-	hw_player_angle_rad_ = player->angle * (bstone::math::pi() / 180.0);
+	hw_player_angle_rad_ = bstone::math::deg_to_rad(player->angle);
 
 	hw_view_direction_.x = std::cos(hw_player_angle_rad_);
 	hw_view_direction_.y = -std::sin(hw_player_angle_rad_);
@@ -4948,7 +4948,7 @@ void hw_calculate_camera_parameters()
 	const auto ref_r_ratio = static_cast<double>(vga_ref_height_4x3) / static_cast<double>(vga_ref_width);
 
 	const auto half_hfov_deg = hw_ref_camera_hfov_deg / 2.0;
-	const auto half_hfov_rad = (bstone::math::pi() / 180.0) * half_hfov_deg;
+	const auto half_hfov_rad = bstone::math::deg_to_rad(half_hfov_deg);
 	const auto tan_half_hfov_rad = std::tan(half_hfov_rad);
 	const auto half_vfov_rad = tan_half_hfov_rad * ref_r_ratio;
 
@@ -4957,7 +4957,7 @@ void hw_calculate_camera_parameters()
 	hw_camera_vfov_rad = vfov_rad;
 
 	// Degrees.
-	const auto half_vfov_deg = half_vfov_rad * (180.0 / bstone::math::pi());
+	const auto half_vfov_deg = bstone::math::rad_to_deg(half_vfov_rad);
 	const auto vfov_deg = 2.0 * half_vfov_deg;
 	hw_camera_vfov_deg = vfov_deg;
 
@@ -6781,7 +6781,7 @@ int hw_calculate_actor_anim_rotation(
 	const auto view_dir_y = -bs_actor.y + player->y;
 
 	const auto view_angle_rad = std::atan2(view_dir_y, view_dir_x);
-	const auto view_angle = static_cast<int>((180.0 * view_angle_rad) / bstone::math::pi());
+	const auto view_angle = bstone::math::rad_to_deg(view_angle_rad);
 
 	if (dir == nodir)
 	{
@@ -6805,11 +6805,11 @@ int hw_calculate_actor_anim_rotation(
 	if ((bs_actor.state->flags & SF_PAINFRAME) != 0)
 	{
 		// 2 rotation pain frame
-		return 4 * (target_angle / (ANGLES / 2)); // seperated by 3 (art layout...)
+		return static_cast<int>(4 * (target_angle / (ANGLES / 2))); // seperated by 3 (art layout...)
 
 	}
 
-	return target_angle / (ANGLES / 8);
+	return static_cast<int>(target_angle / (ANGLES / 8));
 }
 
 int hw_get_bs_actor_sprite_id(

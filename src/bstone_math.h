@@ -46,6 +46,19 @@ constexpr double pi()
 }
 
 
+constexpr double deg_to_rad(
+	const double angle_deg)
+{
+	return angle_deg * pi() / 180.0;
+}
+
+constexpr double rad_to_deg(
+	const double angle_rad)
+{
+	return angle_rad * 180.0 / pi();
+}
+
+
 constexpr double fixed_to_floating(
 	const int value)
 {
