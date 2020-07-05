@@ -227,8 +227,6 @@ constexpr auto MINACTORDIST = bstone::math::fixed_to_floating(0x10000); // minim
 #define NUMLATCHPICS (100)
 
 
-#define PI (3.141592653589793238462643383279)
-
 #define GLOBAL1 (1L << 16)
 #define TILEGLOBAL (GLOBAL1)
 #define TILESHIFT (16L)
@@ -2887,7 +2885,7 @@ extern std::int16_t TITLE_LOOP_MUSIC;
 extern std::string data_dir_;
 extern std::string mod_dir_;
 
-constexpr auto radtoint = static_cast<double>(FINEANGLES) / 2.0 / PI;
+constexpr auto radtoint = static_cast<double>(FINEANGLES) / 2.0 / bstone::math::pi();
 
 extern std::int16_t starting_level;
 extern std::int16_t starting_episode;
@@ -3990,9 +3988,6 @@ void InitSmartAnim(
 	std::uint8_t MaxOfs,
 	animtype_t AnimType,
 	animdir_t AnimDir);
-
-
-double m_pi();
 
 
 void sys_sleep_for(

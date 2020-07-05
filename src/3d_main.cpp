@@ -10790,11 +10790,6 @@ dirtype operator++(
 	return result;
 }
 
-double m_pi()
-{
-	return 3.14159265358979323846;
-}
-
 
 double get_integral(
 	const double value) noexcept

@@ -980,7 +980,7 @@ void BuildTables()
 	//
 
 	auto angle = 0.0;
-	auto anglestep = PI / 2.0 / ANGLEQUAD;
+	auto anglestep = bstone::math::pi() / 2.0 / ANGLEQUAD;
 
 	for (auto i = 0; i <= ANGLEQUAD; ++i)
 	{

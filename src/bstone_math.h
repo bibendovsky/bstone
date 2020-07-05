@@ -40,6 +40,12 @@ namespace math
 {
 
 
+constexpr double pi()
+{
+	return 3.14159265358979323846;
+}
+
+
 constexpr double fixed_to_floating(
 	const int value)
 {

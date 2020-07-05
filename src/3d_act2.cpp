@@ -6868,12 +6868,12 @@ std::int16_t CalcAngle(
 
 	if (angle < 0.0)
 	{
-		angle += 2.0 * PI;
+		angle += 2.0 * bstone::math::pi();
 	}
 
 	// Convert rads to degs
 
-	const auto iangle = static_cast<std::int16_t>(angle / (2.0 * PI) * ANGLES);
+	const auto iangle = static_cast<std::int16_t>(angle / (2.0 * bstone::math::pi()) * ANGLES);
 
 	return iangle;
 }

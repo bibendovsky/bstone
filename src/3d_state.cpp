@@ -2345,10 +2345,10 @@ bool CheckView(
 
 	if (fangle < 0.0)
 	{
-		fangle += 2.0 * m_pi();
+		fangle += 2.0 * bstone::math::pi();
 	}
 
-	auto angle = static_cast<int>(fangle / (2.0 * m_pi()) * ANGLES + 23);
+	auto angle = static_cast<int>(fangle / (2.0 * bstone::math::pi()) * ANGLES + 23);
 
 	if (angle > 360)
 	{

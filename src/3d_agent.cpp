@@ -618,7 +618,7 @@ void ControlMovement(
 		const auto x = -strafe_value * MOVESCALE;
 		const auto y = -controly * (controly < 0 ? MOVESCALE : BACKMOVESCALE);
 
-		const auto angle_delta = 90 - static_cast<int>((180.0 * std::atan2(y, x)) / m_pi());
+		const auto angle_delta = 90 - static_cast<int>((180.0 * std::atan2(y, x)) / bstone::math::pi());
 		const auto angle = clamp_angle(ob->angle + angle_delta);
 		const auto value = std::abs(y);
 
@@ -4865,7 +4865,7 @@ void GunAttack(
 
 	static const auto object_radius = 0.5;
 
-	const auto theta = (player->angle * m_pi()) / 180.0;
+	const auto theta = (player->angle * bstone::math::pi()) / 180.0;
 
 	const auto theta_cos = std::cos(theta);
 	const auto theta_sin = std::sin(theta);
