@@ -27,8 +27,6 @@ Free Software Foundation, Inc.,
 //
 
 
-#include "bstone_precompiled.h"
-
 #include "bstone_audio_sample_converter.h"
 
 #include <algorithm>

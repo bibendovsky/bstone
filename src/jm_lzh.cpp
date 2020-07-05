@@ -47,8 +47,6 @@ Free Software Foundation, Inc.,
 // ---------------------------------------------------------------------------
 
 
-#include "bstone_precompiled.h"
-
 #include <array>
 #include <memory>
 #include <string>

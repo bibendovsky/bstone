@@ -26,8 +26,6 @@ Free Software Foundation, Inc.,
 // Multi-threaded task manager.
 //
 
-#include "bstone_precompiled.h"
-
 #include "bstone_mt_task_mgr.h"
 
 #include <algorithm>

@@ -22,7 +22,7 @@ message(STATUS "[${PROJECT_NAME}] v${BSTONE_VERSION}")
 #
 option(BSTONE_USE_STATIC_LINKING "Link build statically." OFF)
 option(BSTONE_PANDORA "Build for Pandora." OFF)
-option(BSTONE_USE_PCH "Use precompiled headers." OFF)
+option(BSTONE_USE_PCH "Use precompiled headers if available." ON)
 option(BSTONE_USE_MULTI_PROCESS_COMPILATION "Use multi-process compilation." ON)
 
 
@@ -86,14 +86,6 @@ endif ()
 #
 # Target compile definitions.
 #
-if (BSTONE_USE_PCH)
-	target_compile_definitions(
-		${PROJECT_NAME}
-		PRIVATE
-			BSTONE_USE_PCH
-	)
-endif ()
-
 if (MSVC)
 	target_compile_definitions(
 		${PROJECT_NAME}
@@ -117,15 +109,6 @@ endif ()
 # Target compile options.
 #
 if (MSVC)
-	if (BSTONE_USE_PCH)
-		target_compile_options(
-			${PROJECT_NAME}
-			PRIVATE
-				-Yubstone_precompiled.h
-				-FIbstone_precompiled.h
-		)
-	endif ()
-
 	if (BSTONE_USE_STATIC_LINKING)
 		target_compile_options(
 			${PROJECT_NAME}
@@ -218,6 +201,14 @@ if (BSTONE_PANDORA)
 	)
 endif ()
 
+
+if (NOT (${CMAKE_VERSION} VERSION_LESS "3.16.0"))
+	target_precompile_headers(
+		${PROJECT_NAME}
+		PRIVATE
+			bstone_precompiled.h
+	)
+endif ()
 
 #
 # Target sources.
@@ -459,7 +450,6 @@ target_sources(
 		bstone_mt_task_mgr.cpp
 		bstone_opl3.cpp
 		bstone_pcm_audio_decoder.cpp
-		bstone_precompiled.cpp
 		bstone_ps_fizzle_fx.cpp
 		bstone_rgb8.cpp
 		bstone_sha1.cpp
@@ -479,19 +469,6 @@ if (WIN32)
 		PRIVATE
 			sys/win32/bstone_win32.rc
 			sys/win32/bstone_win32_registry.cpp
-	)
-endif ()
-
-
-#
-# Source properties.
-#
-if (MSVC AND BSTONE_USE_PCH)
-	set_source_files_properties(
-		bstone_precompiled.cpp
-		PROPERTIES
-			# Precompiled Header (Create)
-			COMPILE_FLAGS -Yc
 	)
 endif ()
 
