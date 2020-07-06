@@ -424,7 +424,7 @@ CP_iteminfo NewItems = {NM_X, NM_Y, 4, 1, 0, 16, {60, -2, 105, 16, 1}};
 CP_iteminfo SwitchItems = {MENU_X, 0, 0, 0, 0, 9, {87, -1, 132, 7, 1}};
 
 // BBi
-CP_iteminfo video_items = {MENU_X, MENU_Y + 30, 3, 0, 0, 9, {77, -1, 154, 7, 1}};
+CP_iteminfo video_items = {MENU_X, MENU_Y + 30, 4, 0, 0, 9, {77, -1, 154, 7, 1}};
 CP_iteminfo video_mode_items = {MENU_X, MENU_Y + 10, 8, 0, 0, 9, {77, -1, 154, 7, 1}};
 CP_iteminfo texturing_items = {MENU_X, MENU_Y + 10, 9, 0, 0, 9, {77, -1, 154, 7, 1}};
 CP_iteminfo switches2_items = {MENU_X, MENU_Y + 30, 2, 0, 0, 9, {87, -1, 132, 7, 1}};

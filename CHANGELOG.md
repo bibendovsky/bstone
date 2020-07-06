@@ -8,6 +8,7 @@
 - Player radius for item pickup.
 - Missing test for pushwall in CheckLine.
 - Fix sfx turning off when in-game sounds paused.
+- Show option "Game Options -> Video -> Stretch UI".
 
 ### Changed
 - Replaced almost all fixed-point arithmetic with a floating-point one.
