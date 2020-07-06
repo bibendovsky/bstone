@@ -7,6 +7,7 @@
 - Same texture for door type BIO.
 - Player radius for item pickup.
 - Missing test for pushwall in CheckLine.
+- Fix sfx turning off when in-game sounds paused.
 
 ### Changed
 - Replaced almost all fixed-point arithmetic with a floating-point one.

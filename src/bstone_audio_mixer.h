@@ -143,7 +143,7 @@ public:
 
 	virtual bool stop_music() = 0;
 
-	virtual bool stop_all_sfx() = 0;
+	virtual bool stop_pausable_sfx() = 0;
 
 	virtual bool pause_all_sfx(
 		const bool is_pause) = 0;

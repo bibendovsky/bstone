@@ -157,7 +157,7 @@ public:
 
 	bool stop_music() override;
 
-	bool stop_all_sfx() override;
+	bool stop_pausable_sfx() override;
 
 	bool pause_all_sfx(
 		const bool is_pause) override;
@@ -277,7 +277,7 @@ private:
 	{
 		play,
 		stop_music,
-		stop_all_sfx,
+		stop_pausable_sfx,
 		resampling,
 	}; // CommandType
 
@@ -408,7 +408,7 @@ private:
 
 	void handle_stop_music_command();
 
-	void handle_stop_all_sfx_command();
+	void handle_stop_pausable_sfx_command();
 
 	bool initialize_cache_item(
 		const Command& command,
@@ -1113,7 +1113,7 @@ bool AudioMixerImpl::stop_music()
 	return true;
 }
 
-bool AudioMixerImpl::stop_all_sfx()
+bool AudioMixerImpl::stop_pausable_sfx()
 {
 	if (!is_initialized())
 	{
@@ -1121,7 +1121,7 @@ bool AudioMixerImpl::stop_all_sfx()
 	}
 
 	auto command = Command{};
-	command.command_ = CommandType::stop_all_sfx;
+	command.command_ = CommandType::stop_pausable_sfx;
 
 	MtLockGuard guard_lock{mt_commands_lock_};
 
@@ -1476,7 +1476,23 @@ void AudioMixerImpl::mix_samples()
 
 	const auto music_count = (is_music_playing() ? 1 : 0);
 
-	is_any_sfx_playing_ = ((sounds_.size() - music_count) > 0);
+	if (!is_sfx_paused)
+	{
+		is_any_sfx_playing_ = ((static_cast<int>(sounds_.size()) - music_count) > 0);
+	}
+	else
+	{
+		const auto unpausable_count = static_cast<int>(std::count_if(
+			sounds_.cbegin(),
+			sounds_.cend(),
+			[](const Sound& item)
+			{
+				return item.actor_channel == ActorChannel::unpausable;
+			}
+		));
+
+		is_any_sfx_playing_ = (unpausable_count - music_count) > 0;
+	}
 }
 
 void AudioMixerImpl::handle_resampling()
@@ -1598,6 +1614,10 @@ void AudioMixerImpl::handle_commands()
 			handle_stop_music_command();
 			break;
 
+		case CommandType::stop_pausable_sfx:
+			handle_stop_pausable_sfx_command();
+			break;
+
 		case CommandType::resampling:
 			has_resampling = true;
 			command_resampling = command.resampling_;
@@ -1701,14 +1721,16 @@ void AudioMixerImpl::handle_stop_music_command()
 	}
 }
 
-void AudioMixerImpl::handle_stop_all_sfx_command()
+void AudioMixerImpl::handle_stop_pausable_sfx_command()
 {
 	is_any_sfx_playing_ = false;
 
 	sounds_.remove_if(
 		[](const Sound& sound)
 		{
-			return sound.type != SoundType::adlib_music;
+			return
+				sound.type != SoundType::adlib_music &&
+				sound.actor_channel != ActorChannel::unpausable;
 		}
 	);
 }
