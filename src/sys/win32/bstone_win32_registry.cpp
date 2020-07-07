@@ -27,8 +27,6 @@ Free Software Foundation, Inc.,
 //
 
 
-#include "bstone_precompiled.h"
-
 #include "bstone_win32_registry.h"
 
 #ifndef NOMINMAX

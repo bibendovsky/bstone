@@ -125,7 +125,6 @@ void VWL_MeasureString(
 	int* height,
 	fontstruct* font);
 
-void VH_UpdateScreen();
 void ClearMemory();
 
 void draw_wall_ui(

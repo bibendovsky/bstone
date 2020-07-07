@@ -38,8 +38,6 @@ Free Software Foundation, Inc.,
 #define NUM_TILES (PMSpriteStart)
 
 
-void VH_UpdateScreen();
-
 void TakeDamage(
 	std::int16_t points,
 	objtype* attacker);
@@ -218,7 +216,7 @@ void ShowMap()
 
 	old_player = *player;
 	player->angle = 90;
-	player->x = player->y = ((std::int32_t)32 << TILESHIFT) + (TILEGLOBAL / 2);
+	player->x = player->y = 32.5;
 
 	US_CenterWindow(20, 11);
 
@@ -688,15 +686,15 @@ bool DebugKeys()
 		US_CenterWindow(18, 5);
 
 		US_Print("X: ");
-		US_PrintUnsigned(player->x >> TILESHIFT);
+		US_PrintUnsigned(static_cast<unsigned int>(player->x));
 		US_Print(" (");
-		US_PrintUnsigned(player->x);
+		US_PrintF64(player->x);
 		US_Print(")");
 
 		US_Print("\nY: ");
-		US_PrintUnsigned(player->y >> TILESHIFT);
+		US_PrintUnsigned(static_cast<unsigned int>(player->y));
 		US_Print(" (");
-		US_PrintUnsigned(player->y);
+		US_PrintF64(player->y);
 		US_Print(")");
 
 		US_Print("\nA: ");

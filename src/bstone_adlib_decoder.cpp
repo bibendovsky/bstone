@@ -27,8 +27,6 @@ Free Software Foundation, Inc.,
 //
 
 
-#include "bstone_precompiled.h"
-
 #include "bstone_adlib_decoder.h"
 
 #include "bstone_opl3.h"

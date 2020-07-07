@@ -67,10 +67,6 @@ Free Software Foundation, Inc.,
 #include "bstone_logger.h"
 
 
-#define VW_UpdateScreen() VH_UpdateScreen()
-void VH_UpdateScreen();
-
-
 // Global variables
 
 std::atomic_uint TimeCount; // Global time in ticks
@@ -213,6 +209,13 @@ void US_PrintUnsigned(
 	std::uint32_t n)
 {
 	auto buffer = std::to_string(n);
+	US_Print(buffer.c_str());
+}
+
+void US_PrintF64(
+	const double f64)
+{
+	const auto& buffer = std::to_string(f64);
 	US_Print(buffer.c_str());
 }
 

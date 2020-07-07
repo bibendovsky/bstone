@@ -371,7 +371,7 @@ bool sd_sound_playing()
 // If a sound is playing, stops it.
 void sd_stop_sound()
 {
-	sd_mixer_->stop_all_sfx();
+	sd_mixer_->stop_pausable_sfx();
 }
 
 // Waits until the current sound is done playing.

@@ -166,6 +166,9 @@ void US_CPrintLine(const char* s);
 void US_Print(const char* s);
 void US_PrintUnsigned(std::uint32_t n);
 
+void US_PrintF64(
+	const double f64);
+
 bool US_LineInput(
 	std::int16_t x,
 	std::int16_t y,

@@ -26,9 +26,10 @@ Free Software Foundation, Inc.,
 #include "id_pm.h"
 #include "id_vl.h"
 
+#include "bstone_math.h"
+
 
 #define MAXVIEWHEIGHT (200)
-#define  GAMESTATE_TEST (1)
 
 
 void MapLSRow();
@@ -39,7 +40,6 @@ std::uint16_t CeilingTile = 126, FloorTile = 126;
 void(*MapRowPtr)();
 
 SpanStart spanstart;
-StepScale stepscale;
 BaseDist basedist;
 PlaneYLookup planeylookup;
 MirrorOfs mirrorofs;
@@ -50,8 +50,8 @@ extern const std::uint8_t* shadingtable;
 
 int halfheight = 0;
 
-fixed psin;
-fixed pcos;
+double psin;
+double pcos;
 
 fixed FixedMul(
 	fixed a,
@@ -87,12 +87,12 @@ void DrawSpans(
 
 	mr_rowofs = mirrorofs[height];
 
-	mr_xstep = psin / (2 * height);
-	mr_ystep = pcos / (2 * height);
+	mr_xstep = bstone::math::floating_to_fixed(psin / (2 * height));
+	mr_ystep = bstone::math::floating_to_fixed(pcos / (2 * height));
 
-	auto length = basedist[height];
-	auto startxfrac = viewx + FixedMul(length, pcos);
-	auto startyfrac = viewy - FixedMul(length, psin);
+	const auto length = basedist[height];
+	const auto startxfrac = bstone::math::floating_to_fixed(viewx + (length * pcos));
+	const auto startyfrac = bstone::math::floating_to_fixed(viewy - (length * psin));
 
 	if (!gp_no_shading_)
 	{
@@ -118,24 +118,10 @@ void DrawSpans(
 	mr_dest = toprow + x1;
 	mr_count = x2 - x1 + 1;
 
-#if GAMESTATE_TEST
 	if (mr_count > 0)
 	{
 		MapRowPtr();
 	}
-#else
-	if (mr_count > 0)
-	{
-		if (!gp_no_shading_)
-		{
-			MapLSRow();
-		}
-		else
-		{
-			MapRow();
-		}
-	}
-#endif
 }
 
 void SetPlaneViewSize()
@@ -149,11 +135,10 @@ void SetPlaneViewSize()
 	{
 		planeylookup[y] = (halfheight - 1 - y) * vga_width;
 		mirrorofs[y] = (y * 2 + 1) * vga_width;
-		stepscale[y] = y * GLOBAL1 / 32;
 
 		if (y > 0)
 		{
-			basedist[y] = GLOBAL1 / 2 * scale_ / y;
+			basedist[y] = 1.0 / 2.0 * scale_ / y;
 		}
 	}
 
@@ -189,18 +174,7 @@ void DrawPlanes()
 	}
 
 	psin = viewsin;
-
-	if (psin < 0)
-	{
-		psin = -(psin & 0xFFFF);
-	}
-
 	pcos = viewcos;
-
-	if (pcos < 0)
-	{
-		pcos = -(pcos & 0xFFFF);
-	}
 
 	auto lastheight_d = static_cast<double>(halfheight);
 

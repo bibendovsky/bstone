@@ -24,7 +24,6 @@ Free Software Foundation, Inc.,
 
 #include "3d_def.h"
 #include "id_vl.h"
-#include "bstone_fixed_point.h"
 #include "bstone_sprite.h"
 #include "bstone_sprite_cache.h"
 
@@ -82,7 +81,7 @@ void SetupScaling(
 
 extern bool useBounceOffset;
 
-int bounceOffset = 0;
+double bounceOffset = 0.0;
 
 void generic_scale_shape(
 	const int xcenter,
@@ -118,7 +117,6 @@ void generic_scale_shape(
 		return;
 	}
 
-
 	constexpr auto dimension = bstone::Sprite::dimension;
 
 	constexpr auto mid_bob = 6;
@@ -128,7 +126,7 @@ void generic_scale_shape(
 
 	const auto bounce_offset_n =
 		use_bobbing ?
-		bounceOffset / 0x10000 :
+		static_cast<int>(bounceOffset) :
 		0;
 
 	const auto bob_offset =
@@ -174,13 +172,13 @@ void generic_scale_shape(
 	auto y2 = y1 + ((sprite_height * height) / dimension);
 
 
-	const auto tx_delta = bstone::FixedPoint{dimension, 0} / height;
+	const auto tx_delta = static_cast<double>(dimension) / static_cast<double>(height);
 
-	auto tx_column = bstone::FixedPoint{};
+	auto tx_column = 0.0;
 
 	if (x1 < 0)
 	{
-		tx_column += tx_delta * (-x1);
+		tx_column -= tx_delta * x1;
 		x1 = 0;
 	}
 
@@ -194,7 +192,7 @@ void generic_scale_shape(
 		return;
 	}
 
-	auto tx_row_begin = bstone::FixedPoint{};
+	auto tx_row_begin = 0.0;
 
 	if (y1 < vga_3d_view_top_y)
 	{
@@ -245,13 +243,13 @@ void generic_scale_shape(
 			continue;
 		}
 
-		const auto column_index = tx_column.get_int();
+		const auto column_index = static_cast<int>(tx_column);
 		const auto column = sprite_ptr->get_column(column_index);
 		auto tx_row = tx_row_begin;
 
 		for (int y = y1; y < y2; ++y)
 		{
-			const auto row_index = tx_row.get_int();
+			const auto row_index = static_cast<int>(tx_row);
 			const auto sprite_color = column[row_index];
 
 			if (sprite_color < 0)

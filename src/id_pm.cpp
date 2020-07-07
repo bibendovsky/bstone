@@ -107,12 +107,12 @@ void PM_Shutdown()
 void* PM_GetPage(
 	int page_number)
 {
-	if (page_number >= ChunksInFile)
+	if (page_number < 0 || page_number >= ChunksInFile)
 	{
-		Quit("Invalid page request.");
+		Quit("Page number out of range.");
 	}
 
-	std::uint32_t offset = chunks_offsets[page_number];
+	const auto offset = chunks_offsets[page_number];
 
 	if (offset == 0)
 	{

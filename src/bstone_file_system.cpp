@@ -22,8 +22,6 @@ Free Software Foundation, Inc.,
 */
 
 
-#include "bstone_precompiled.h"
-
 #include "bstone_file_system.h"
 
 #ifdef _WIN32

@@ -51,7 +51,6 @@ Free Software Foundation, Inc.,
 #include "id_heads.h"
 #include "id_in.h"
 #include "id_sd.h"
-#include "id_vh.h"
 #include "id_vl.h"
 
 
@@ -105,6 +104,8 @@ KeyboardDef KbdDefs = {
 ControlType Controls[MaxPlayers];
 
 std::uint32_t MouseDownCount;
+
+bool allcaps = false;
 
 Bindings in_bindings;
 bool in_is_mouse_grabbed = false;
@@ -1054,13 +1055,13 @@ static void in_handle_window(
 	case SDL_WINDOWEVENT_FOCUS_GAINED:
 		reset_state = true;
 
-		vl_minimize_fullscreen_window(false);
-
 		if (in_last_is_mouse_grabbed)
 		{
 			in_last_is_mouse_grabbed = in_grab_mouse(true);
 		}
+
 		sd_mute(false);
+
 		break;
 
 	case SDL_WINDOWEVENT_FOCUS_LOST:
@@ -1068,7 +1069,7 @@ static void in_handle_window(
 		in_last_is_mouse_grabbed = in_is_mouse_grabbed;
 		static_cast<void>(in_grab_mouse(false));
 		sd_mute(true);
-		vl_minimize_fullscreen_window(true);
+
 		break;
 	}
 

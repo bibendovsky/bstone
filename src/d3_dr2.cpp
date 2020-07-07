@@ -29,6 +29,12 @@ Free Software Foundation, Inc.,
 //
 
 
+#include <cassert>
+#include <cmath>
+
+#include <array>
+
+
 #include "3d_def.h"
 #include "id_vl.h"
 
@@ -47,7 +53,8 @@ void HitHorizPWall();
 void HitVertPWall();
 
 
-extern int finetangent[FINEANGLES / 4];
+
+extern FineTangent finetangent;
 extern int viewwidth;
 extern TileMap tilemap;
 extern SpotVis spotvis;
@@ -57,12 +64,12 @@ extern int focaltx;
 extern int focalty;
 extern int viewtx;
 extern int viewty;
-extern int viewx;
-extern int viewy;
-extern int xpartialup;
-extern int xpartialdown;
-extern int ypartialup;
-extern int ypartialdown;
+extern double viewx;
+extern double viewy;
+extern double xpartialup;
+extern double xpartialdown;
+extern double ypartialup;
+extern double ypartialdown;
 extern int tilehit;
 extern int pixx;
 extern WallHeight wallheight;
@@ -70,41 +77,43 @@ extern int xtile;
 extern int ytile;
 extern int xtilestep;
 extern int ytilestep;
-extern int xintercept;
-extern int yintercept;
-extern int xstep;
-extern int ystep;
-extern std::uint16_t doorposition[MAXDOORS];
-extern std::uint16_t pwallpos;
+extern double xintercept;
+extern double yintercept;
+double xstep;
+double ystep;
+extern DoorPositions doorposition;
+extern double pwallpos;
 
 
-static int partial_by_step(
-	int step,
-	int partial)
+double get_integral_1(
+	const double value) noexcept
 {
-	int fracs = ((static_cast<unsigned int>(step) & 0xFFFF) * partial) >> 16;
-	int ints = (step >> 16) * partial;
-	return ints + fracs + (step < 0 ? 1 : 0);
+	return value < 0.0 ? std::floor(value) : std::trunc(value);
 }
 
+double get_fractional_1(
+	const double value) noexcept
+{
+	double integral;
+	return std::modf(1.0 + value, &integral);
+}
 
 void AsmRefresh()
 {
-	int h_op;
-	int v_op;
-	int xpartial;
-	int ypartial;
-	int doorpos;
-	int intercept;
+	double xpartial;
+	double ypartial;
+	double intercept;
 	int intercept_h; // high part of intercept
-	int intercept_l; // low part of intercept
-	int xs; // temporary xspot
+	double intercept_l; // low part of intercept
+	int xs_x; // temporary xspot (x)
+	int xs_y; // temporary xspot (y)
 	int xt; // temporary xtile
-	int xint; // temporary xintercept
+	double xint; // temporary xintercept
 	int xint_h; // high part of temporary xintercept
-	int ys; // temporary yspot
+	int ys_x; // temporary yspot (x)
+	int ys_y; // temporary yspot (y)
 	int yt; // temporary ytile
-	int yint; // temporary yintercept
+	double yint; // temporary yintercept
 	int yint_h; // high part of temporary yintercept
 
 	vid_hw_clear_wall_render_list();
@@ -132,9 +141,6 @@ pixxloop:
 		xtilestep = 1;
 		ytilestep = 1;
 
-		h_op = 1;
-		v_op = 1;
-
 		xstep = finetangent[angle - DEG270];
 		ystep = finetangent[DEG360 - 1 - angle];
 
@@ -145,9 +151,6 @@ pixxloop:
 	{
 		xtilestep = -1;
 		ytilestep = 1;
-
-		h_op = -1;
-		v_op = 1;
 
 		xstep = -finetangent[DEG270 - 1 - angle];
 		ystep = finetangent[angle - DEG180];
@@ -160,9 +163,6 @@ pixxloop:
 		xtilestep = -1;
 		ytilestep = -1;
 
-		h_op = -1;
-		v_op = -1;
-
 		xstep = -finetangent[angle - DEG90];
 		ystep = -finetangent[DEG180 - 1 - angle];
 
@@ -173,9 +173,6 @@ pixxloop:
 	{
 		xtilestep = 1;
 		ytilestep = -1;
-
-		h_op = 1;
-		v_op = -1;
 
 		xstep = finetangent[DEG90 - 1 - angle];
 		ystep = -finetangent[angle];
@@ -189,23 +186,23 @@ pixxloop:
 	// initialise variables for intersection testing
 	//
 
-	yintercept = viewy + partial_by_step(ystep, xpartial);
-	yint_h = yintercept >> 16;
+	yintercept = viewy + (ystep * xpartial);
+	yint_h = static_cast<int>(yintercept);
 
 	xtile = focaltx + xtilestep;
-	xs = (xtile << 6) + yint_h;
+	xs_x = xtile;
+	xs_y = yint_h;
 
-	xint = viewx + partial_by_step(xstep, ypartial);
-	xint_h = xint >> 16;
-	xintercept &= 0xFFFF0000;
-	xintercept |= xint & 0xFFFF;
+	xint = viewx + (xstep * ypartial);
+	xint_h = static_cast<int>(get_integral_1(xint));
+
+	xintercept = get_fractional_1(xint);
 
 	yt = focalty + ytilestep;
-	ys = (xint_h << 6) + yt;
+	ys_x = xint_h;
+	ys_y = yt;
 
 	xt = xtile;
-	yint_h = yintercept >> 16;
-
 
 	//
 	// trace along this angle until we hit a wall
@@ -219,17 +216,16 @@ pixxloop:
 
 vertcheck:
 
-	if ((v_op < 0 && yint_h <= yt) || (v_op > 0 && yint_h >= yt))
+	if ((ytilestep < 0 && yint_h <= yt) || (ytilestep > 0 && yint_h >= yt))
 	{
 		goto horizentry;
 	}
 
 vertentry:
 
-	if (tilemap[xs / MAPSIZE][xs % MAPSIZE] != 0)
+	if (tilemap[xs_x][xs_y] != 0)
 	{
-		tilehit &= 0xFF00;
-		tilehit |= tilemap[xs / MAPSIZE][xs % MAPSIZE];
+		tilehit = tilemap[xs_x][xs_y];
 
 		if ((tilehit & 0x80) != 0)
 		{
@@ -241,8 +237,7 @@ vertentry:
 
 			xtile = xt;
 
-			yintercept &= 0xFFFF;
-			yintercept |= yint_h << 16;
+			yintercept = yint_h + get_fractional(yintercept);
 
 			if ((tilehit & 0x40) != 0)
 			{
@@ -250,10 +245,10 @@ vertentry:
 				// hit a sliding vertical wall
 				//
 
-				intercept = (ystep * pwallpos) >> 6;
-				yint = (intercept & 0xFFFF) + (yintercept & 0xFFFF);
-				intercept_l = yint & 0xFFFF;
-				intercept_h = (intercept >> 16) + yint_h + (yint >> 16);
+				intercept = ystep * pwallpos;
+				yint = get_fractional(intercept) + get_fractional(yintercept);
+				intercept_l = get_fractional_1(yint);
+				intercept_h = yint_h + static_cast<int>(intercept + get_integral_1(yint));
 
 				if (yint_h == intercept_h)
 				{
@@ -261,8 +256,8 @@ vertentry:
 					// draw the pushable wall at the new height
 					//
 
-					yintercept = (intercept_h << 16) | intercept_l;
-					xintercept = xt << 16;
+					yintercept = intercept_h + intercept_l;
+					xintercept = xt;
 
 					HitVertPWall();
 
@@ -271,13 +266,11 @@ vertentry:
 			}
 			else
 			{
-				doorpos = tilehit & 0x7F;
+				intercept = yintercept + (0.5 * ystep);
+				intercept_l = get_fractional(intercept);
+				intercept_h = static_cast<int>(intercept);
 
-				intercept = yintercept + (ystep >> 1);
-				intercept_l = intercept & 0xFFFF;
-				intercept_h = intercept >> 16;
-
-				if ((yintercept >> 16) == intercept_h)
+				if (static_cast<int>(yintercept) == intercept_h)
 				{
 					//
 					// the trace hit the door plane at pixel position,
@@ -286,21 +279,20 @@ vertentry:
 					// draw the door
 					//
 
-					bool skip_draw = false;
+					const auto doorpos = tilehit & 0x7F;
+					auto skip_draw = false;
 
 #ifndef W3D
-					if (intercept_l < 0x8000)
+					if (intercept_l < 0.5)
 					{
-						if (intercept_l >
-							(0x7FFF - (doorposition[doorpos] >> 1)))
+						if (intercept_l > (0.5 - (0.5 * doorposition[doorpos])))
 						{
 							skip_draw = true;
 						}
 					}
 					else
 					{
-						if (intercept_l <
-							((doorposition[doorpos] >> 1) + 0x8000))
+						if (intercept_l < ((0.5 * doorposition[doorpos]) + 0.5))
 						{
 							skip_draw = true;
 						}
@@ -318,10 +310,8 @@ vertentry:
 						// draw the trek door
 						//
 
-						yintercept &= 0xFFFF0000;
-						yintercept |= intercept_l;
-
-						xintercept = (xtile << 16) | 0x8000;
+						yintercept = intercept_l + get_integral(yintercept);
+						xintercept = xtile + 0.5;
 
 						HitVertDoor();
 
@@ -336,15 +326,14 @@ vertentry:
 			//
 
 			xt = xtile;
-			yint_h = yintercept >> 16;
+			yint_h = static_cast<int>(yintercept);
 		}
 		else
 		{
-			xintercept = xt << 16;
+			xintercept = xt;
 			xtile = xt;
 
-			yintercept &= 0xFFFF;
-			yintercept |= yint_h << 16;
+			yintercept = yint_h + get_fractional(yintercept);
 			ytile = yint_h;
 
 			HitVertWall();
@@ -353,20 +342,19 @@ vertentry:
 		}
 	}
 
-	spotvis[xs / MAPSIZE][xs % MAPSIZE] = 1;
+	spotvis[xs_x][xs_y] = 1;
 
 	xt += xtilestep;
 
-	yint = (yintercept & 0xFFFF) + (ystep & 0xFFFF);
-	yintercept &= 0xFFFF0000;
-	yintercept |= yint & 0xFFFF;
+	yint = get_fractional(yintercept) + get_fractional(ystep);
+	yintercept = get_integral(yintercept) + get_fractional_1(yint);
 
-	yint_h += (ystep >> 16) + (yint >> 16);
+	yint_h += static_cast<int>(ystep + get_integral_1(yint));
 
-	xs = (xt << 6) + yint_h;
+	xs_x = xt;
+	xs_y = yint_h;
 
 	goto vertcheck;
-
 
 
 	//
@@ -375,17 +363,16 @@ vertentry:
 
 horizcheck:
 
-	if ((h_op > 0 && xint_h >= xt) || (h_op < 0 && xint_h <= xt))
+	if ((xtilestep > 0 && xint_h >= xt) || (xtilestep < 0 && xint_h <= xt))
 	{
 		goto vertentry;
 	}
 
 horizentry:
 
-	if (tilemap[ys / MAPSIZE][ys % MAPSIZE] != 0)
+	if (tilemap[ys_x][ys_y] != 0)
 	{
-		tilehit &= 0xFF00;
-		tilehit |= tilemap[ys / MAPSIZE][ys % MAPSIZE];
+		tilehit = tilemap[ys_x][ys_y];
 
 		if ((tilehit & 0x80) != 0)
 		{
@@ -397,8 +384,7 @@ horizentry:
 
 			xtile = xt;
 
-			yintercept &= 0xFFFF;
-			yintercept |= yint_h << 16;
+			yintercept = yint_h + get_fractional(yintercept);
 
 			if ((tilehit & 0x40) != 0)
 			{
@@ -406,10 +392,10 @@ horizentry:
 				// hit a sliding horizontal wall
 				//
 
-				intercept = (xstep * pwallpos) >> 6;
-				xint = (intercept & 0xFFFF) + (xintercept & 0xFFFF);
-				intercept_l = xint & 0xFFFF;
-				intercept_h = (intercept >> 16) + xint_h + (xint >> 16);
+				intercept = xstep * pwallpos;
+				xint = get_fractional(intercept) + get_fractional(xintercept);
+				intercept_l = get_fractional_1(xint);
+				intercept_h = xint_h + static_cast<int>(intercept + get_integral_1(xint));
 
 				if (xint_h == intercept_h)
 				{
@@ -417,8 +403,8 @@ horizentry:
 					// draw the pushable wall at the new height
 					//
 
-					xintercept = (intercept_h << 16) | intercept_l;
-					yintercept = yt << 16;
+					xintercept = intercept_h + intercept_l;
+					yintercept = yt;
 
 					HitHorizPWall();
 
@@ -427,12 +413,10 @@ horizentry:
 			}
 			else
 			{
-				doorpos = tilehit & 0x7F;
-
-				intercept = xstep >> 1;
-				xint = (intercept & 0xFFFF) + (xintercept & 0xFFFF);
-				intercept_l = xint & 0xFFFF;
-				intercept_h = (intercept >> 16) + xint_h + (xint >> 16);
+				intercept = 0.5 * xstep;
+				xint = get_fractional(intercept) + get_fractional(xintercept);
+				intercept_l = get_fractional_1(xint);
+				intercept_h = xint_h + static_cast<int>(intercept + get_integral_1(xint));
 
 				if (xint_h == intercept_h)
 				{
@@ -443,21 +427,21 @@ horizentry:
 					// draw the door
 					//
 
-					bool skip_draw = false;
+					const auto doorpos = tilehit & 0x7F;
+
+					auto skip_draw = false;
 
 #ifndef W3D
-					if (intercept_l < 0x8000)
+					if (intercept_l < 0.5)
 					{
-						if (intercept_l >
-							(0x7FFF - (doorposition[doorpos] >> 1)))
+						if (intercept_l > (0.5 - (0.5 * doorposition[doorpos])))
 						{
 							skip_draw = true;
 						}
 					}
 					else
 					{
-						if (intercept_l <
-							((doorposition[doorpos] >> 1) + 0x8000))
+						if (intercept_l < ((0.5 * doorposition[doorpos]) + 0.5))
 						{
 							skip_draw = true;
 						}
@@ -475,8 +459,8 @@ horizentry:
 						// draw the trek door
 						//
 
-						xintercept = (xint_h << 16) | intercept_l;
-						yintercept = (yt << 16) | 0x8000;
+						xintercept = xint_h + intercept_l;
+						yintercept = yt + 0.5;
 
 						HitHorizDoor();
 
@@ -492,15 +476,14 @@ horizentry:
 			//
 
 			xt = xtile;
-			yint_h = yintercept >> 16;
+			yint_h = static_cast<int>(yintercept);
 		}
 		else
 		{
-			xintercept &= 0xFFFF;
-			xintercept |= xint_h << 16;
+			xintercept = xint_h + get_fractional(xintercept);
 			xtile = xint_h;
 
-			yintercept = yt << 16;
+			yintercept = yt;
 			ytile = yt;
 
 			HitHorizWall();
@@ -509,16 +492,17 @@ horizentry:
 		}
 	}
 
-	spotvis[ys / MAPSIZE][ys % MAPSIZE] = 1;
+	spotvis[ys_x][ys_y] = 1;
 
 	yt += ytilestep;
 
-	xint = (xintercept & 0xFFFF) + (xstep & 0xFFFF);
-	xintercept &= 0xFFFF0000;
-	xintercept |= xint & 0xFFFF;
-	xint_h += (xstep >> 16) + (xint >> 16);
+	xint = get_fractional(xintercept) + get_fractional(xstep);
+	xintercept = get_integral(xintercept) + get_fractional_1(xint);
 
-	ys = (xint_h << 6) + yt;
+	xint_h += static_cast<int>(xstep + get_integral_1(xint));
+
+	ys_x = xint_h;
+	ys_y = yt;
 
 	goto horizcheck;
 

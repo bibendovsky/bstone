@@ -27,8 +27,6 @@ Free Software Foundation, Inc.,
 //
 
 
-#include "bstone_precompiled.h"
-
 #include "bstone_sdl2_exception.h"
 
 #include "SDL_error.h"

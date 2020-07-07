@@ -22,6 +22,7 @@ Free Software Foundation, Inc.,
 */
 
 
+#include <cassert>
 #include <cstring>
 
 #include "gfxv.h"
@@ -33,8 +34,9 @@ Free Software Foundation, Inc.,
 #include "id_us.h"
 #include "id_vh.h"
 #include "id_vl.h"
-#include "bstone_fixed_point.h"
+
 #include "bstone_generic_fizzle_fx.h"
+#include "bstone_math.h"
 
 
 #define MASKABLE_DOORS (0)
@@ -162,7 +164,7 @@ struct star_t
 // the door is the last picture before the sprites
 #define DOORWALL (PMSpriteStart - (NUMDOORTYPES))
 
-#define ACTORSIZE (0x4000)
+constexpr auto ACTORSIZE = bstone::math::fixed_to_floating(0x4000);
 
 
 void DrawRadar();
@@ -212,33 +214,27 @@ std::int32_t framecount;
 
 WallHeight wallheight;
 
-fixed mindist = MINDIST;
-
 
 //
 // math tables
 //
 std::vector<int> pixelangle;
-int finetangent[FINEANGLES / 4];
-int sintable[ANGLES + (ANGLES / 4) + 1];
-int* costable = &sintable[ANGLES / 4];
+FineTangent finetangent;
+double sintable[ANGLES + (ANGLES / 4) + 1];
+double* costable = &sintable[ANGLES / 4];
 
 //
 // refresh variables
 //
-int viewx;
-int viewy; // the focal point
+double viewx;
+double viewy; // the focal point
 int viewangle;
-int viewsin;
-int viewcos;
+double viewsin;
+double viewcos;
 
 char thetile[64];
 std::uint8_t* mytile;
 
-
-fixed FixedByFrac(
-	fixed a,
-	fixed b);
 
 void TransformActor(
 	objtype* ob);
@@ -270,12 +266,10 @@ int viewty;
 
 int midangle;
 int angle;
-int xpartial;
-int ypartial;
-int xpartialup;
-int xpartialdown;
-int ypartialup;
-int ypartialdown;
+double xpartialup;
+double xpartialdown;
+double ypartialup;
+double ypartialdown;
 int xinttile;
 int yinttile;
 
@@ -286,10 +280,8 @@ int xtile;
 int ytile;
 int xtilestep;
 int ytilestep;
-int xintercept;
-int yintercept;
-int xstep;
-int ystep;
+double xintercept;
+double yintercept;
 
 std::int16_t horizwall[MAXWALLTILES];
 std::int16_t vertwall[MAXWALLTILES];
@@ -322,43 +314,6 @@ static const std::uint8_t* last_texture_data = nullptr;
 /*
 ========================
 =
-= FixedByFrac
-=
-= multiply a 16/16 bit, 2's complement fixed point number by a 16 bit
-= fraction, passed as a signed magnitude 32 bit number
-=
-========================
-*/
-fixed FixedByFrac(
-	fixed a,
-	fixed b)
-{
-	int b_sign;
-	std::uint32_t ub;
-	std::int32_t fracs;
-	std::int32_t ints;
-	std::int32_t result;
-
-	b_sign = (b < 0) ? -1 : 1;
-
-	if (b_sign < 0)
-	{
-		a = -a;
-		b_sign = -b_sign;
-	}
-
-	ub = (std::uint32_t)b & 0xFFFF;
-	fracs = (((std::uint32_t)a & 0xFFFF) * ub) >> 16;
-	ints = (a >> 16) * ub;
-	result = ints + fracs;
-	result *= b_sign;
-
-	return result;
-}
-
-/*
-========================
-=
 = TransformActor
 =
 = Takes paramaters:
@@ -377,52 +332,40 @@ fixed FixedByFrac(
 void TransformActor(
 	objtype* ob)
 {
-	fixed gx, gy, gxt, gyt, nx, ny;
-	std::int32_t temp;
-	std::int32_t q;
-	std::int32_t r;
-
 	//
 	// translate point to view centered coordinates
 	//
-	gx = ob->x - viewx;
-	gy = ob->y - viewy;
+	const auto gx = ob->x - viewx;
+	const auto gy = ob->y - viewy;
 
 	//
 	// calculate newx
 	//
-	gxt = FixedByFrac(gx, viewcos);
-	gyt = FixedByFrac(gy, viewsin);
-	nx = gxt - gyt - ACTORSIZE; // fudge the shape forward a bit, because
+	const auto gxt1 = gx * viewcos;
+	const auto gyt1 = gy * viewsin;
+	const auto nx = gxt1 - gyt1 - ACTORSIZE; // fudge the shape forward a bit, because
 	// the midpoint could put parts of the shape
 	// into an adjacent wall
 
-//
-// calculate newy
-//
-	gxt = FixedByFrac(gx, viewsin);
-	gyt = FixedByFrac(gy, viewcos);
-	ny = gyt + gxt;
+	//
+	// calculate newy
+	//
+	const auto gxt2 = gx * viewsin;
+	const auto gyt2 = gy * viewcos;
+	const auto ny = gyt2 + gxt2;
 
 	//
 	// calculate perspective ratio
 	//
-	ob->transx = nx;
-	ob->transy = ny;
-
-	if (nx < mindist)
-	{ // too close, don't overflow the divide
+	if (nx < MINDIST)
+	{
+		// too close, don't overflow the divide
 		ob->viewheight = 0;
 		return;
 	}
 
-	ob->viewx = static_cast<std::int16_t>(centerx + ny * scale_ / nx); // DEBUG: use assembly divide
-
-	q = (heightnumerator / (nx >> 8)) & 0xFFFF;
-	r = (heightnumerator % (nx >> 8)) & 0xFFFF;
-	temp = (r << 16) | q;
-
-	ob->viewheight = static_cast<std::uint16_t>(temp);
+	ob->viewx = static_cast<std::int16_t>(centerx + (ny * scale_ / nx));
+	ob->viewheight = static_cast<std::uint16_t>(256.0 * heightnumerator / nx);
 }
 
 /*
@@ -449,42 +392,33 @@ void TransformTile(
 	std::int16_t* dispx,
 	std::int16_t* dispheight)
 {
-	fixed gx;
-	fixed gy;
-	fixed gxt;
-	fixed gyt;
-	fixed nx;
-	fixed ny;
-
-	std::int32_t temp;
-	std::int32_t q;
-	std::int32_t r;
-
 	//
 	// translate point to view centered coordinates
 	//
-	gx = ((std::int32_t)tx << TILESHIFT) + 0x8000 - viewx;
-	gy = ((std::int32_t)ty << TILESHIFT) + 0x8000 - viewy;
+	const auto gx = tx - viewx + 0.5;
+	const auto gy = ty - viewy + 0.5;
 
 	//
 	// calculate newx
 	//
-	gxt = FixedByFrac(gx, viewcos);
-	gyt = FixedByFrac(gy, viewsin);
-	nx = gxt - gyt - 0x2000; // 0x2000 is size of object
+	constexpr auto object_size = bstone::math::fixed_to_floating(0x2000);
+
+	auto gxt = gx * viewcos;
+	auto gyt = gy * viewsin;
+	const auto nx = gxt - gyt - object_size;
 
 	//
 	// calculate newy
 	//
-	gxt = FixedByFrac(gx, viewsin);
-	gyt = FixedByFrac(gy, viewcos);
-	ny = gyt + gxt;
+	gxt = gx * viewsin;
+	gyt = gy * viewcos;
+	const auto ny = gyt + gxt;
 
 
 	//
 	// calculate perspective ratio
 	//
-	if (nx < mindist)
+	if (nx < MINDIST)
 	{
 		// too close, don't overflow the divide
 		*dispheight = 0;
@@ -492,13 +426,8 @@ void TransformTile(
 		return;
 	}
 
-	*dispx = static_cast<std::int16_t>(centerx + ((ny * scale_) / nx)); // DEBUG: use assembly divide
-
-	q = (heightnumerator / (nx >> 8)) & 0xFFFF;
-	r = (heightnumerator % (nx >> 8)) & 0xFFFF;
-	temp = (r << 16) | q;
-
-	*dispheight = static_cast<std::int16_t>(temp);
+	*dispx = static_cast<std::int16_t>(centerx + (ny * scale_ / nx));
+	*dispheight = static_cast<std::int16_t>(256.0 * heightnumerator / nx);
 }
 
 /*
@@ -512,22 +441,15 @@ void TransformTile(
 */
 double CalcHeight()
 {
-	int gx = xintercept - viewx;
-	const auto gxt = static_cast<double>(FixedByFrac(gx, viewcos));
+	const auto gx = xintercept - viewx;
+	const auto gxt = gx * viewcos;
 
-	int gy = yintercept - viewy;
-	const auto gyt = static_cast<double>(FixedByFrac(gy, viewsin));
+	const auto gy = yintercept - viewy;
+	const auto gyt = gy * viewsin;
 
-	//
-	// calculate perspective ratio (heightnumerator/(nx>>8))
-	//
-
-	const auto min_nx = 0.00001;
-	const auto min_result = 8.0;
-
-	const auto nx = std::max(gxt - gyt, min_nx);
-
-	const auto result = std::max((256.0 * static_cast<double>(heightnumerator)) / nx, min_result);
+	constexpr auto min_result = 8.0;
+	const auto nx = std::max(gxt - gyt, min_fixed_floating);
+	const auto result = std::max((256.0 * heightnumerator) / nx, min_result);
 
 	return result;
 }
@@ -611,27 +533,19 @@ std::uint16_t DoorJams[] = {
 	SPACE_JAM, // dr_space
 };
 
-/*
-====================
-=
-= HitVertWall
-=
-= tilehit bit 7 is 0, because it's not a door tile
-= if bit 6 is 1 and the adjacent tile is a door tile, use door side pic
-=
-====================
-*/
+// tilehit bit 7 is 0, because it's not a door tile
+// if bit 6 is 1 and the adjacent tile is a door tile, use door side pic
 void HitVertWall()
 {
-	std::int16_t wallpic;
-	std::uint16_t texture;
+	auto texture_d = get_fractional(yintercept);
 
-	texture = (yintercept >> 4) & 0xfc0;
-	if (xtilestep == -1)
+	if (xtilestep < 0)
 	{
-		texture = 0xfc0 - texture;
-		xintercept += TILEGLOBAL;
+		texture_d = 1.0 - texture_d;
+		xintercept += 1.0;
 	}
+
+	const auto texture = static_cast<int>(texture_d * 4'096.0) & 0xFC0;
 
 	wallheight[pixx] = CalcHeight();
 
@@ -648,31 +562,32 @@ void HitVertWall()
 	{
 		// new wall
 
-		if (lastside != -1)
-		{ // if not the first scaled post
+		if (lastside >= 0)
+		{
+			// if not the first scaled post
 			ScalePost();
 		}
 
-		lastside = true;
+		lastside = 1;
 		lastintercept = xtile;
-
 		lasttilehit = tilehit;
 		postx = pixx;
 
-		if (tilehit & 0x40)
+		auto wallpic = 0;
+
+		if ((tilehit & 0x40) != 0)
 		{
 			// check for adjacent doors
 			//
 
-			ytile = yintercept >> TILESHIFT;
+			ytile = static_cast<int>(yintercept);
 
-			auto door_index = tilemap[xtile - xtilestep][ytile];
+			const auto door_index = tilemap[xtile - xtilestep][ytile];
 
 			if ((door_index & 0x80) != 0 && (door_index & 0xC0) != 0xC0)
 			{
-				auto door = doorobjlist[door_index & 0x3F];
-
-				wallpic = static_cast<std::int16_t>(DOORWALL + DoorJamsShade[door.type]);
+				const auto& door = doorobjlist[door_index & 0x3F];
+				wallpic = DOORWALL + DoorJamsShade[door.type];
 			}
 			else
 			{
@@ -684,7 +599,7 @@ void HitVertWall()
 			wallpic = vertwall[tilehit];
 		}
 
-		last_texture_data = (const std::uint8_t*)PM_GetPage(wallpic);
+		last_texture_data = static_cast<const std::uint8_t*>(PM_GetPage(wallpic));
 		last_texture_offset = texture;
 		postsource = &last_texture_data[last_texture_offset];
 	}
@@ -692,30 +607,23 @@ void HitVertWall()
 	vid_hw_add_wall_render_item(xtile, ytile);
 }
 
-/*
-====================
-=
-= HitHorizWall
-=
-= tilehit bit 7 is 0, because it's not a door tile
-= if bit 6 is 1 and the adjacent tile is a door tile, use door side pic
-=
-====================
-*/
+// tilehit bit 7 is 0, because it's not a door tile
+// if bit 6 is 1 and the adjacent tile is a door tile, use door side pic
 void HitHorizWall()
 {
-	std::int16_t wallpic;
-	std::uint16_t texture;
+	auto texture_d = get_fractional(xintercept);
 
-	texture = (xintercept >> 4) & 0xfc0;
-	if (ytilestep == -1)
+	if (ytilestep < 0)
 	{
-		yintercept += TILEGLOBAL;
+		yintercept += 1.0;
 	}
 	else
 	{
-		texture = 0xfc0 - texture;
+		texture_d = 1.0 - texture_d;
 	}
+
+	const auto texture = static_cast<int>(texture_d * 4'096.0) & 0xFC0;
+
 	wallheight[pixx] = CalcHeight();
 
 	if (lastside == 0 && lastintercept == ytile && lasttilehit == tilehit)
@@ -730,29 +638,31 @@ void HitHorizWall()
 	else
 	{
 		// new wall
-		if (lastside != -1)
-		{ // if not the first scaled post
+		if (lastside >= 0)
+		{
+			// if not the first scaled post
 			ScalePost();
 		}
 
 		lastside = 0;
 		lastintercept = ytile;
-
 		lasttilehit = tilehit;
 		postx = pixx;
 
-		if (tilehit & 0x40)
-		{ // check for adjacent doors
+		auto wallpic = 0;
 
-			xtile = xintercept >> TILESHIFT;
+		if ((tilehit & 0x40) != 0)
+		{
+			// check for adjacent doors
+
+			xtile = static_cast<int>(xintercept);
 
 			auto door_index = tilemap[xtile][ytile - ytilestep];
 
 			if ((door_index & 0x80) != 0 && (door_index & 0xC0) != 0xC0)
 			{
-				auto door = doorobjlist[door_index & 0x3F];
-
-				wallpic = static_cast<std::int16_t>(DOORWALL + DoorJams[door.type]);
+				const auto& door = doorobjlist[door_index & 0x3F];
+				wallpic = DOORWALL + DoorJams[door.type];
 			}
 			else
 			{
@@ -764,7 +674,7 @@ void HitHorizWall()
 			wallpic = horizwall[tilehit];
 		}
 
-		last_texture_data = (const std::uint8_t*)PM_GetPage(wallpic);
+		last_texture_data = static_cast<const std::uint8_t*>(PM_GetPage(wallpic));
 		last_texture_offset = texture;
 		postsource = &last_texture_data[last_texture_offset];
 	}
@@ -772,30 +682,117 @@ void HitHorizWall()
 	vid_hw_add_wall_render_item(xtile, ytile);
 }
 
+static int get_door_page_number(
+	const int door_index,
+	const bool is_vertical)
+{
+	auto doorpage = DOORWALL + is_vertical;
+	auto lockable = true;
+
+	const auto is_forward =
+		(!is_vertical && player->tiley > doorobjlist[door_index].tiley) ||
+		(is_vertical && player->tilex > doorobjlist[door_index].tilex);
+
+	switch (doorobjlist[door_index].type)
+	{
+		case dr_normal:
+			doorpage += L_METAL;
+			break;
+
+		case dr_elevator:
+			doorpage += L_ELEVATOR;
+			break;
+
+		case dr_prison:
+			doorpage += L_PRISON;
+			break;
+
+		case dr_space:
+			doorpage += L_SPACE;
+			break;
+
+		case dr_bio:
+			doorpage += L_BIO;
+			break;
+
+		case dr_high_security:
+			doorpage += L_HIGH_SECURITY;
+			break;
+
+		case dr_oneway_up:
+		case dr_oneway_left:
+			if (is_forward)
+			{
+				doorpage += L_ENTER_ONLY;
+			}
+			else
+			{
+				doorpage += NOEXIT;
+				lockable = false;
+			}
+
+			break;
+
+		case dr_oneway_right:
+		case dr_oneway_down:
+			if (is_forward)
+			{
+				doorpage += NOEXIT;
+				lockable = false;
+			}
+			else
+			{
+				doorpage += L_ENTER_ONLY;
+			}
+
+			break;
+
+		case dr_office:
+			doorpage += L_HIGH_TECH;
+			break;
+
+		default:
+			Quit("Unsupported door type.");
+	}
+
+
+	//
+	// If door is unlocked, Inc shape ptr to unlocked door shapes
+	//
+
+	if (lockable && doorobjlist[door_index].lock == kt_none)
+	{
+		doorpage += UL_METAL;
+	}
+
+	return doorpage;
+}
+
 void HitHorizDoor()
 {
-	std::uint16_t texture;
-	std::uint16_t doorpage = static_cast<std::uint16_t>(-1);
-	std::uint16_t xint;
-	bool lockable = true;
-
-	int door_index = tilehit & 0x7F;
+	const auto door_index = tilehit & 0x7F;
 
 	if (doorobjlist[door_index].action == dr_jammed)
 	{
 		return;
 	}
 
-	xint = xintercept & 0xFFFF;
+	const auto door_half_position = 0.5 * doorposition[door_index];
 
-	if (xint > 0x7FFF)
+	auto texture_d = get_fractional(xintercept);
+
+	if (texture_d > 0.5)
 	{
-		texture = ((xint - (std::uint16_t)(doorposition[door_index] >> 1)) >> 4) & 0xFC0;
+		texture_d -= door_half_position;
 	}
 	else
 	{
-		texture = ((xint + (std::uint16_t)(doorposition[door_index] >> 1)) >> 4) & 0xFC0;
+		texture_d += door_half_position;
 	}
+
+	texture_d *= 4'096.0;
+
+	const auto texture = static_cast<int>(texture_d) & 0xFC0;
 
 	wallheight[pixx] = CalcHeight();
 
@@ -814,7 +811,7 @@ void HitHorizDoor()
 	}
 	else
 	{
-		if (lastside != -1) // if not the first scaled post
+		if (lastside >= 0) // if not the first scaled post
 #if MASKABLE_DOORS
 		{
 			ScaleMPost();
@@ -831,74 +828,9 @@ void HitHorizDoor()
 		lasttilehit = tilehit;
 		postx = pixx;
 
-		switch (doorobjlist[door_index].type)
-		{
-		case dr_normal:
-			doorpage = static_cast<std::int16_t>(DOORWALL + L_METAL);
-			break;
+		const auto doorpage = get_door_page_number(door_index, false);
 
-		case dr_elevator:
-			doorpage = static_cast<std::int16_t>(DOORWALL + L_ELEVATOR);
-			break;
-
-		case dr_prison:
-			doorpage = static_cast<std::int16_t>(DOORWALL + L_PRISON);
-			break;
-
-		case dr_space:
-			doorpage = static_cast<std::int16_t>(DOORWALL + L_SPACE);
-			break;
-
-		case dr_bio:
-			doorpage = static_cast<std::int16_t>(DOORWALL + L_BIO);
-			break;
-
-		case dr_high_security:
-			doorpage = static_cast<std::int16_t>(DOORWALL + L_HIGH_SECURITY); // Reverse View
-			break;
-
-		case dr_oneway_up:
-		case dr_oneway_left:
-			if (player->tiley > doorobjlist[door_index].tiley)
-			{
-				doorpage = static_cast<std::int16_t>(DOORWALL + L_ENTER_ONLY); // normal view
-			}
-			else
-			{
-				doorpage = static_cast<std::int16_t>(DOORWALL + NOEXIT); // Reverse View
-				lockable = false;
-			}
-			break;
-
-		case dr_oneway_right:
-		case dr_oneway_down:
-			if (player->tiley > doorobjlist[door_index].tiley)
-			{
-				doorpage = static_cast<std::int16_t>(DOORWALL + NOEXIT); // normal view
-				lockable = false;
-			}
-			else
-			{
-				doorpage = static_cast<std::int16_t>(DOORWALL + L_ENTER_ONLY); // Reverse View
-			}
-			break;
-
-		case dr_office:
-			doorpage = static_cast<std::int16_t>(DOORWALL + L_HIGH_TECH);
-			break;
-		}
-
-
-		//
-		// If door is unlocked, Inc shape ptr to unlocked door shapes
-		//
-
-		if (lockable && doorobjlist[door_index].lock == kt_none)
-		{
-			doorpage += UL_METAL;
-		}
-
-		last_texture_data = (const std::uint8_t*)PM_GetPage(doorpage);
+		last_texture_data = static_cast<const std::uint8_t*>(PM_GetPage(doorpage));
 		last_texture_offset = texture;
 		postsource = &last_texture_data[last_texture_offset];
 	}
@@ -909,27 +841,29 @@ void HitHorizDoor()
 
 void HitVertDoor()
 {
-	std::uint16_t texture;
-	std::uint16_t doorpage = static_cast<std::uint16_t>(DOORWALL);
-	std::uint16_t yint;
-	bool lockable = true;
-
-	int door_index = tilehit & 0x7F;
+	const auto door_index = tilehit & 0x7F;
 
 	if (doorobjlist[door_index].action == dr_jammed)
 	{
 		return;
 	}
 
-	yint = yintercept & 0xFFFF;
-	if (yint > 0x7FFF)
+	const auto door_half_position = 0.5 * doorposition[door_index];
+
+	auto texture_d = get_fractional(yintercept);
+
+	if (texture_d > 0.5)
 	{
-		texture = ((yint - (std::uint16_t)(doorposition[door_index] >> 1)) >> 4) & 0xFC0;
+		texture_d -= door_half_position;
 	}
 	else
 	{
-		texture = ((yint + (std::uint16_t)(doorposition[door_index] >> 1)) >> 4) & 0xFC0;
+		texture_d += door_half_position;
 	}
+
+	texture_d *= 4'096.0;
+
+	const auto texture = static_cast<int>(texture_d) & 0xFC0;
 
 	wallheight[pixx] = CalcHeight();
 
@@ -948,7 +882,7 @@ void HitVertDoor()
 	}
 	else
 	{
-		if (lastside != -1) // if not the first scaled post
+		if (lastside >= 0) // if not the first scaled post
 #if MASKABLE_DOORS
 		{
 			ScaleMPost();
@@ -965,75 +899,9 @@ void HitVertDoor()
 		lasttilehit = tilehit;
 		postx = pixx;
 
-		switch (doorobjlist[door_index].type)
-		{
-		case dr_normal:
-			doorpage = static_cast<std::int16_t>(DOORWALL + L_METAL_SHADE);
-			break;
+		const auto doorpage = get_door_page_number(door_index, true);
 
-		case dr_elevator:
-			doorpage = static_cast<std::int16_t>(DOORWALL + L_ELEVATOR_SHADE);
-			break;
-
-		case dr_prison:
-			doorpage = static_cast<std::int16_t>(DOORWALL + L_PRISON_SHADE);
-			break;
-
-		case dr_space:
-			doorpage = static_cast<std::int16_t>(DOORWALL + L_SPACE_SHADE);
-			break;
-
-		case dr_bio:
-			doorpage = static_cast<std::int16_t>(DOORWALL + L_BIO);
-			break;
-
-		case dr_high_security:
-			doorpage = static_cast<std::int16_t>(DOORWALL + L_HIGH_SECURITY_SHADE);
-			break;
-
-		case dr_oneway_left:
-		case dr_oneway_up:
-			if (player->tilex > doorobjlist[door_index].tilex)
-			{
-				doorpage = static_cast<std::int16_t>(DOORWALL + L_ENTER_ONLY_SHADE); // Reverse View
-			}
-			else
-			{
-				doorpage = static_cast<std::int16_t>(DOORWALL + NOEXIT_SHADE); // Normal view
-				lockable = false;
-			}
-			break;
-
-		case dr_oneway_right:
-		case dr_oneway_down:
-			if (player->tilex > doorobjlist[door_index].tilex)
-			{
-				doorpage = static_cast<std::int16_t>(DOORWALL + NOEXIT_SHADE); // Reverse View
-				lockable = false;
-			}
-			else
-			{
-				doorpage = static_cast<std::int16_t>(DOORWALL + L_ENTER_ONLY_SHADE); // Normal View
-			}
-			break;
-
-
-		case dr_office:
-			doorpage = static_cast<std::int16_t>(DOORWALL + L_HIGH_TECH_SHADE);
-			break;
-
-		}
-
-		//
-		// If door is unlocked, Inc shape ptr to unlocked door shapes
-		//
-
-		if (lockable && doorobjlist[door_index].lock == kt_none)
-		{
-			doorpage += UL_METAL;
-		}
-
-		last_texture_data = (const std::uint8_t*)PM_GetPage(doorpage);
+		last_texture_data = static_cast<const std::uint8_t*>(PM_GetPage(doorpage));
 		last_texture_offset = texture;
 		postsource = &last_texture_data[last_texture_offset];
 	}
@@ -1042,31 +910,22 @@ void HitVertDoor()
 	vid_hw_add_door_render_item(bs_door.tilex, bs_door.tiley);
 }
 
-/*
-====================
-=
-= HitHorizPWall
-=
-= A pushable wall in action has been hit
-=
-====================
-*/
+// A pushable wall in action has been hit
 void HitHorizPWall()
 {
-	std::int16_t wallpic;
-	std::uint16_t texture, offset;
+	auto texture_d = get_fractional(xintercept);
 
-	texture = (xintercept >> 4) & 0xfc0;
-	offset = pwallpos << 10;
-	if (ytilestep == -1)
+	if (ytilestep < 0)
 	{
-		yintercept += TILEGLOBAL - offset;
+		yintercept += 1.0 - pwallpos;
 	}
 	else
 	{
-		texture = 0xfc0 - texture;
-		yintercept += offset;
+		texture_d = 1.0 - texture_d;
+		yintercept += pwallpos;
 	}
+
+	const auto texture = static_cast<int>(texture_d * 4'096.0) & 0xFC0;
 
 	wallheight[pixx] = CalcHeight();
 
@@ -1082,17 +941,17 @@ void HitHorizPWall()
 	else
 	{
 		// new wall
-		if (lastside != -1)
-		{ // if not the first scaled post
+		if (lastside >= 0)
+		{
+			// if not the first scaled post
 			ScalePost();
 		}
 
 		lasttilehit = tilehit;
 		postx = pixx;
 
-		wallpic = horizwall[tilehit & 63];
-
-		last_texture_data = (const std::uint8_t*)PM_GetPage(wallpic);
+		const auto wallpic = horizwall[tilehit & 63];
+		last_texture_data = static_cast<const std::uint8_t*>(PM_GetPage(wallpic));
 		last_texture_offset = texture;
 		postsource = &last_texture_data[last_texture_offset];
 	}
@@ -1100,31 +959,22 @@ void HitHorizPWall()
 	vid_hw_add_pushwall_render_item(pwallx, pwally);
 }
 
-/*
-====================
-=
-= HitVertPWall
-=
-= A pushable wall in action has been hit
-=
-====================
-*/
+// A pushable wall in action has been hit
 void HitVertPWall()
 {
-	std::int16_t wallpic;
-	std::uint16_t texture, offset;
+	auto texture_d = get_fractional(yintercept);
 
-	texture = (yintercept >> 4) & 0xfc0;
-	offset = pwallpos << 10;
-	if (xtilestep == -1)
+	if (xtilestep < 0)
 	{
-		xintercept += TILEGLOBAL - offset;
-		texture = 0xfc0 - texture;
+		xintercept += 1.0 - pwallpos;
+		texture_d = 1.0 - texture_d;
 	}
 	else
 	{
-		xintercept += offset;
+		xintercept += pwallpos;
 	}
+
+	const auto texture = static_cast<int>(texture_d * 4'096.0) & 0xFC0;
 
 	wallheight[pixx] = CalcHeight();
 
@@ -1140,17 +990,17 @@ void HitVertPWall()
 	else
 	{
 		// new wall
-		if (lastside != -1)
-		{ // if not the first scaled post
+		if (lastside >= 0)
+		{
+			// if not the first scaled post
 			ScalePost();
 		}
 
 		lasttilehit = tilehit;
 		postx = pixx;
 
-		wallpic = vertwall[tilehit & 63];
-
-		last_texture_data = (const std::uint8_t*)PM_GetPage(wallpic);
+		const auto wallpic = vertwall[tilehit & 63];
+		last_texture_data = static_cast<const std::uint8_t*>(PM_GetPage(wallpic));
 		last_texture_offset = texture;
 		postsource = &last_texture_data[last_texture_offset];
 	}
@@ -1374,7 +1224,7 @@ void hw_draw_sprites()
 
 			TransformActor(obj);
 
-			if (obj->viewheight == 0)
+			if (obj->viewheight <= 0)
 			{
 				continue; // too close or far away
 			}
@@ -1452,7 +1302,7 @@ void DrawScaleds()
 
 		TransformTile(statptr->tilex, statptr->tiley, &visptr->viewx, &visptr->viewheight);
 
-		if (!visptr->viewheight)
+		if (visptr->viewheight <= 0)
 		{
 			continue; // to close to the object
 		}
@@ -1520,7 +1370,7 @@ void DrawScaleds()
 
 			TransformActor(obj);
 
-			if (!obj->viewheight)
+			if (obj->viewheight <= 0)
 			{
 				continue; // too close or far away
 			}
@@ -1741,19 +1591,19 @@ void WallRefresh()
 	midangle = viewangle * (FINEANGLES / ANGLES);
 	viewsin = sintable[viewangle];
 	viewcos = costable[viewangle];
-	viewx = player->x - FixedByFrac(focallength, viewcos);
-	viewy = player->y + FixedByFrac(focallength, viewsin);
+	viewx = player->x - (focallength * viewcos);
+	viewy = player->y + (focallength * viewsin);
 
-	focaltx = viewx >> TILESHIFT;
-	focalty = viewy >> TILESHIFT;
+	focaltx = static_cast<int>(viewx);
+	focalty = static_cast<int>(viewy);
 
-	viewtx = player->x >> TILESHIFT;
-	viewty = player->y >> TILESHIFT;
+	viewtx = static_cast<int>(player->x);
+	viewty = static_cast<int>(player->y);
 
-	xpartialdown = viewx & (TILEGLOBAL - 1);
-	xpartialup = static_cast<std::uint16_t>(TILEGLOBAL - xpartialdown);
-	ypartialdown = viewy & (TILEGLOBAL - 1);
-	ypartialup = static_cast<std::uint16_t>(TILEGLOBAL - ypartialdown);
+	xpartialdown = get_fractional(viewx);
+	xpartialup = 1.0 - xpartialdown;
+	ypartialdown = get_fractional(viewy);
+	ypartialup = 1.0 - ypartialdown;
 
 	lastside = -1; // the first pixel is on a new wall
 
@@ -2038,81 +1888,68 @@ void ShowOverhead(
 	radius /= zoom;
 
 	int player_angle = player->angle;
-	int player_x = player->x;
-	int player_y = player->y;
+	auto player_x = player->x;
+	auto player_y = player->y;
 
 	if ((flags & OV_WHOLE_MAP) != 0)
 	{
 		player_angle = 90;
-		player_x = ((std::int32_t)32 << TILESHIFT) + (TILEGLOBAL / 2);
+		player_x = 32.5;
 		player_y = player_x;
 	}
 
 	// Get sin/cos values
 	//
-	int psin = sintable[player_angle];
-	int pcos = costable[player_angle];
+	const auto psin = sintable[player_angle];
+	const auto pcos = costable[player_angle];
 
 	// Convert radius to fixed integer and calc rotation.
 	//
-	int dx = radius << TILESHIFT;
-	int dy = dx;
+	const auto dx = static_cast<double>(radius);
+	const auto dy = dx;
 
-	int baselmx = player_x + (FixedByFrac(dx, pcos) - FixedByFrac(dy, psin));
-	int baselmy = player_y - (FixedByFrac(dx, psin) + FixedByFrac(dy, pcos));
-
-	// Carmack's sin/cos tables use one's complement for negative numbers --
-	// convert it to two's complement!
-	//
-	if ((pcos & 0x80000000) != 0)
-	{
-		pcos = -(pcos & 0xFFFF);
-	}
-
-	if ((psin & 0x80000000) != 0)
-	{
-		psin = -(psin & 0xFFFF);
-	}
+	auto baselmx = player_x + ((dx * pcos) - (dy * psin));
+	auto baselmy = player_y - ((dx * psin) + (dy * pcos));
 
 	// Get x/y increment values.
 	//
-	int xinc = -pcos;
-	int yinc = psin;
+	const auto xinc = -pcos;
+	const auto yinc = psin;
 
-	int diameter = radius * 2;
+	const auto diameter = static_cast<int>(radius * 2.0);
 
 	const auto is_show_all = ((flags & OV_SHOWALL) != 0);
 
 	// Draw rotated radar.
 	//
 
-	for (int x = 0; x < diameter; ++x)
+	for (auto x = 0; x < diameter; ++x)
 	{
-		int lmx = baselmx;
-		int lmy = baselmy;
+		auto lmx = baselmx;
+		auto lmy = baselmy;
 
-		for (int y = 0; y < diameter; ++y)
+		for (auto y = 0; y < diameter; ++y)
 		{
 			std::uint8_t color = 0x00;
-			bool go_to_draw = false;
+			auto go_to_draw = false;
 
 			if (snow)
 			{
 				color = 0x42 + (rndtable[rndindex] & 3);
-				rndindex++;
+				rndindex += 1;
 				go_to_draw = true;
 			}
 
 			// Don't evaluate if point is outside of map.
 			//
-			int mx = 0;
-			int my = 0;
+			auto mx = 0;
+			auto my = 0;
 
 			if (!go_to_draw)
 			{
 				color = UNMAPPED_COLOR;
-				mx = lmx >> 16;
-				my = lmy >> 16;
+				mx = static_cast<int>(lmx);
+				my = static_cast<int>(lmy);
 
 				if (mx < 0 || mx > 63 || my < 0 || my > 63)
 				{
@@ -2138,10 +1975,10 @@ void ShowOverhead(
 				{
 					// What's at this map location?
 					//
-					std::uint8_t tile = tilemap[mx][my];
-					std::uint8_t door = tile & 0x3F;
+					const auto tile = tilemap[mx][my];
+					const auto door = tile & 0x3F;
 
-					bool check_for_hidden_area = false;
+					auto check_for_hidden_area = false;
 
 					// Evaluate wall or floor?
 					//

@@ -1,6 +1,20 @@
 # BStone changelog
 
 
+## [1.2.7] - 2020-07-07
+### Fixed
+- Extraction of compressed texts.
+- Same texture for door type BIO.
+- Player radius for item pickup.
+- Missing test for pushwall in CheckLine.
+- Fix sfx turning off when in-game sounds paused.
+- Show option "Game Options -> Video -> Stretch UI".
+
+### Changed
+- Replaced almost all fixed-point arithmetic with a floating-point one.
+- Relay on CMake's PCH support if available.
+
+
 ## [1.2.6] - 2020-06-18
 ### Added
 - Option `snd_resampling_interpolation` to specify interpolation method for resampling.

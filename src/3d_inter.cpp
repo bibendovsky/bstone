@@ -36,8 +36,6 @@ Free Software Foundation, Inc.,
 #include "gfxv.h"
 
 
-void VH_UpdateScreen();
-
 void CA_CacheScreen(
 	std::int16_t chunk);
 
@@ -345,7 +343,7 @@ std::uint16_t Random(
 {
 	std::uint16_t returnval;
 
-	if (Max)
+	if (Max != 0)
 	{
 		if (Max > 255)
 		{

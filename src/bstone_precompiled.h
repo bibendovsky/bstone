@@ -31,9 +31,6 @@ Free Software Foundation, Inc.,
 #define BSTONE_PRECOMPILED_INCLUDED
 
 
-#ifdef BSTONE_USE_PCH
-
-
 #include <cassert>
 #include <cctype>
 #include <cmath>
@@ -93,9 +90,6 @@ Free Software Foundation, Inc.,
 #include "bstone_ren_3d_limits.h"
 
 #include "bstone_rgb8.h"
-
-
-#endif // BSTONE_USE_PCH
 
 
 #endif // BSTONE_PRECOMPILED_INCLUDED

@@ -47,137 +47,127 @@ Free Software Foundation, Inc.,
 // ---------------------------------------------------------------------------
 
 
+#include <array>
 #include <memory>
+#include <string>
 
-#include "jm_cio.h"
 #include "jm_lzh.h"
 
-
-// ===========================================================================
-//
-// SWITCHES
-//
-// NOTE : Make sure the appropriate switches are set in SOFT.c for Softlib
-//                       archive support.
-//
-// ===========================================================================
+#include "bstone_exception.h"
 
 
-#define INCLUDE_LZH_COMP 1
-#define INCLUDE_LZH_DECOMP 1
+namespace
+{
 
 
-// ===========================================================================
-//
-// DEFINES
-//
-// ===========================================================================
+class LzhEncoderException :
+	public bstone::Exception
+{
+public:
+	explicit LzhEncoderException(
+		const char* const message)
+		:
+		Exception{get_prefix() + message}
+	{
+	}
 
 
-#define EXIT_OK (0)
-#define EXIT_FAILED (-1)
+private:
+	static const std::string& get_prefix()
+	{
+		static const auto result = std::string{"[LZH_ENCODER] "};
+		return result;
+	}
+}; // LzhEncoderException
 
-/* LZSS Parameters */
-
-#define N (4096) /* Size of string buffer */
-#define F (30) /* Size of look-ahead buffer */
-#define THRESHOLD (2)
-#define NIL (N) /* End of tree's node  */
-
-/* Huffman coding parameters */
-
-#define N_CHAR (256 - THRESHOLD + F) /* character code (= 0..N_CHAR-1) */
-#define T ((N_CHAR * 2) - 1) /* Size of table */
-#define R (T - 1) /* root position */
-#define MAX_FREQ (0x8000) /* update when cumulative frequency */
-/* reaches to this value */
-
-
-// ==========================================================================
-//
-// LOCAL PROTOTYPES
-//
-// ==========================================================================
+class LzhDecoderException :
+	public bstone::Exception
+{
+public:
+	explicit LzhDecoderException(
+		const char* const message)
+		:
+		Exception{get_prefix() + message}
+	{
+	}
 
 
-static void StartHuff();
-static void reconst();
+private:
+	static const std::string& get_prefix()
+	{
+		static const auto result = std::string{"[LZH_DECODER] "};
+		return result;
+	}
+}; // LzhDecoderException
 
-static void update(
+
+// LZSS Parameters
+
+constexpr auto N = static_cast<std::int16_t>(4096); // Size of string buffer
+constexpr auto F = static_cast<std::int16_t>(30); // Size of look-ahead buffer
+constexpr auto THRESHOLD = static_cast<std::int16_t>(2);
+constexpr auto NIL = static_cast<std::int16_t>(N); // End of tree's node
+
+// Huffman coding parameters
+
+constexpr auto N_CHAR = static_cast<std::int16_t>(256 - THRESHOLD + F); // character code (= 0..N_CHAR-1)
+constexpr auto T = static_cast<std::int16_t>((N_CHAR * 2) - 1); // Size of table
+constexpr auto R = static_cast<std::int16_t>(T - 1); // root position
+
+// update when cumulative frequency
+// reaches to this value
+constexpr auto MAX_FREQ = static_cast<std::uint16_t>(0x8000);
+
+
+void StartHuff();
+
+void reconst();
+
+void update(
 	std::int16_t c);
 
+// Deleting node from the tree
+void DeleteNode(
+	std::int16_t p);
 
-static void DeleteNode(
-	std::int16_t p); /* Deleting node from the tree */
+// Inserting node to the tree
+void InsertNode(
+	std::int16_t r);
 
-static void InsertNode(
-	std::int16_t r); /* Inserting node to the tree */
+// Initializing tree
+void InitTree();
 
-static void InitTree(); /* Initializing tree */
-
-static void Putcode(
-	void*& outfile_ptr,
+void Putcode(
+	std::uint8_t*& buffer,
 	std::int16_t l,
 	std::uint16_t c);
 
-static void EncodeChar(
-	void*& outfile_ptr,
+void EncodeChar(
+	std::uint8_t*& buffer,
 	std::uint16_t c);
 
-static void EncodePosition(
-	void*& outfile_ptr,
+void EncodePosition(
+	std::uint8_t*& buffer,
 	std::uint16_t c);
 
-static void EncodeEnd(
-	void*& outfile_ptr);
+void EncodeEnd(
+	std::uint8_t*& buffer);
 
-static std::int16_t GetByte(
-	const void*& infile_ptr,
-	std::uint32_t* CompressLength);
+std::int16_t GetByte(
+	const std::uint8_t*& buffer,
+	int& length);
 
-static std::int16_t GetBit(
-	const void*& infile_ptr,
-	std::uint32_t* CompressLength);
+std::int16_t GetBit(
+	const std::uint8_t*& buffer,
+	int& length);
 
-static std::int16_t DecodeChar(
-	const void*& infile_ptr,
-	std::uint32_t* CompressLength);
+std::int16_t DecodeChar(
+	const std::uint8_t*& buffer,
+	int& length);
 
-static std::int16_t DecodePosition(
-	const void*& infile_ptr,
-	std::uint32_t* CompressLength);
-
-
-// ==========================================================================
-//
-// USER AVAILABLE VECTORS
-//
-// ==========================================================================
-
-// ---------------------------------------------------------------------------
-//
-// LZHUFF DISPLAY VECTORS
-//
-// These vectors allow you to hook up any form of display you desire for
-// displaying the compression/decompression status.
-//
-// These routines are called inside of the compression/decompression routines
-// and pass the original size of data and current position within that
-// data.  This allows for any kind of "% Done" messages.
-//
-// Your functions MUST have the following parameters in this order...
-//
-//   void VectorRoutine(unsigned long OriginalSize,unsigned long CurPosition)
-//
-//
-
-#if INCLUDE_LZH_COMP
-void(*LZH_CompressDisplayVector)(std::uint32_t, std::uint32_t) = nullptr;
-#endif
-
-#if INCLUDE_LZH_DECOMP
-void(*LZH_DecompressDisplayVector)(std::uint32_t, std::uint32_t) = nullptr;
-#endif
+std::int16_t DecodePosition(
+	const std::uint8_t*& buffer,
+	int& length);
 
 
 // ===========================================================================
@@ -185,45 +175,43 @@ void(*LZH_DecompressDisplayVector)(std::uint32_t, std::uint32_t) = nullptr;
 // GLOBAL VARIABLES
 //
 // ===========================================================================
-/* pointing children nodes (son[], son[] + 1)*/
+
+// pointing children nodes (son[], son[] + 1)
 
 std::uint16_t code;
 std::uint16_t len;
 
-std::uint32_t textsize = 0;
-std::uint32_t codesize = 0;
-std::uint32_t printcount = 0;
-std::uint32_t datasize;
+int textsize;
+int codesize;
+int datasize;
 
-std::int16_t son[T];
+std::array<std::int16_t, T> son;
 
 //
 // pointing parent nodes.
 // area [T..(T + N_CHAR - 1)] are pointers for leaves
 //
 
-std::int16_t prnt[T + N_CHAR];
+std::array<std::int16_t, T + N_CHAR> prnt;
 
-std::uint16_t freq[T + 1]; /* cumulative freq table */
+std::array<std::uint16_t, T + 1> freq; // cumulative freq table
 
-std::uint8_t text_buf[N + F - 1];
+std::array<std::uint8_t, N + F - 1> text_buf;
 
 
 //
 // COMPRESSION VARIABLES
 //
 
-#if INCLUDE_LZH_COMP
+std::array<std::int16_t, N + 1> lson;
+std::array<std::int16_t, N + 257> rson;
+std::array<std::int16_t, N + 1> dad;
 
-static std::int16_t lson[N + 1];
-static std::int16_t rson[N + 257];
-static std::int16_t dad[N + 1];
+std::int16_t match_position;
+std::int16_t match_length;
 
-static std::int16_t match_position;
-static std::int16_t match_length;
-
-std::uint16_t putbuf = 0;
-std::uint16_t putlen = 0;
+std::uint16_t putbuf;
+std::uint16_t putlen;
 
 //
 // Tables for encoding/decoding upper 6 bits of
@@ -234,7 +222,7 @@ std::uint16_t putlen = 0;
 // encoder table
 //
 
-std::uint8_t p_len[64] =
+const std::array<std::uint8_t, 64> p_len =
 {
 	0x03, 0x04, 0x04, 0x04, 0x05, 0x05, 0x05, 0x05,
 	0x05, 0x05, 0x05, 0x05, 0x06, 0x06, 0x06, 0x06,
@@ -246,7 +234,8 @@ std::uint8_t p_len[64] =
 	0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08
 };
 
-std::uint8_t p_code[64] = {
+const std::array<std::uint8_t, 64> p_code =
+{
 	0x00, 0x20, 0x30, 0x40, 0x50, 0x58, 0x60, 0x68,
 	0x70, 0x78, 0x80, 0x88, 0x90, 0x94, 0x98, 0x9C,
 	0xA0, 0xA4, 0xA8, 0xAC, 0xB0, 0xB4, 0xB8, 0xBC,
@@ -256,7 +245,6 @@ std::uint8_t p_code[64] = {
 	0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7,
 	0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
 };
-#endif
 
 
 //
@@ -268,9 +256,7 @@ std::uint8_t p_code[64] = {
 // decoder table
 //
 
-#if INCLUDE_LZH_DECOMP
-
-std::uint8_t d_code[256] =
+const std::array<std::uint8_t, 256> d_code =
 {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -306,7 +292,7 @@ std::uint8_t d_code[256] =
 	0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F,
 };
 
-std::uint8_t d_len[256] =
+const std::array<std::uint8_t, 256> d_len =
 {
 	0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03,
 	0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03,
@@ -342,10 +328,8 @@ std::uint8_t d_len[256] =
 	0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08,
 };
 
-std::uint16_t getbuf = 0;
-std::uint16_t getlen = 0;
-
-#endif
+std::uint16_t getbuf;
+std::uint16_t getlen;
 
 
 // ===========================================================================
@@ -354,124 +338,99 @@ std::uint16_t getlen = 0;
 //
 // ===========================================================================
 
-bool LZH_Startup()
+// initialize freq tree
+void StartHuff()
 {
-	return true;
-}
-
-void LZH_Shutdown()
-{
-}
-
-/* initialize freq tree */
-static void StartHuff()
-{
-	std::int16_t i;
-	std::int16_t j;
-
-	for (i = 0; i < N_CHAR; i++)
+	for (std::int16_t i = 0; i < N_CHAR; ++i)
 	{
 		freq[i] = 1;
 		son[i] = i + T;
 		prnt[i + T] = i;
 	}
-	i = 0;
-	j = N_CHAR;
-	while (j <= R)
+
+	for (std::int16_t i = 0, j = N_CHAR; j <= R; i += 2, ++j)
 	{
 		freq[j] = freq[i] + freq[i + 1];
 		son[j] = i;
 		prnt[i] = prnt[i + 1] = j;
-		i += 2;
-		j++;
 	}
-	freq[T] = 0xffff;
+
+	freq[T] = 0xFFFF;
 	prnt[R] = 0;
 
-	printcount = 0;
-
-	putbuf = putlen = match_position = match_length = 0;
+	putbuf = 0;
+	putlen = 0;
+	match_position = 0;
+	match_length = 0;
 }
 
-/* reconstruct freq tree */
-static void reconst()
+// reconstruct freq tree
+void reconst()
 {
-	std::int16_t i;
-	std::int16_t j;
-	std::int16_t k;
+	// halven cumulative freq for leaf nodes
 
-	std::uint16_t f;
-	std::uint16_t l;
-
-	/* halven cumulative freq for leaf nodes */
-
-	j = 0;
-
-	for (i = 0; i < T; i++)
 	{
-		if (son[i] >= T)
+		std::int16_t j = 0;
+
+		for (std::int16_t i = 0; i < T; ++i)
 		{
-			freq[j] = (freq[i] + 1) / 2;
-			son[j] = son[i];
-			j++;
+			if (son[i] >= T)
+			{
+				freq[j] = (freq[i] + 1) / 2;
+				son[j] = son[i];
+				++j;
+			}
 		}
 	}
 
-	/* make a tree : first, connect children nodes */
+	// make a tree : first, connect children nodes
 
-	for (i = 0, j = N_CHAR; j < T; i += 2, j++)
+	for (std::int16_t i = 0, j = N_CHAR; j < T; i += 2, ++j)
 	{
-		k = i + 1;
-		f = freq[j] = freq[i] + freq[k];
+		std::int16_t k = i + 1;
+		std::uint16_t f = freq[i] + freq[k];
 
-		for (k = j - 1; f < freq[k]; k--)
+		freq[j] = f;
+
+		for (k = j - 1; f < freq[k]; --k)
 		{
 		}
 
-		k++;
-		l = (j - k) * 2;
+		++k;
 
-		std::uninitialized_copy_n(
-			&freq[k],
-			l,
-			&freq[k + 1]
-		);
+		std::uint16_t l = (j - k) * 2;
+
+		std::uninitialized_copy_n(freq.cbegin() + k, l, freq.begin() + k + 1);
 
 		freq[k] = f;
 
-		std::uninitialized_copy_n(
-			&son[k],
-			l,
-			&son[k + 1]
-		);
+		std::uninitialized_copy_n(son.cbegin() + k, l, son.begin() + k + 1);
 
 		son[k] = i;
 	}
 
-	/* connect parent nodes */
+	// connect parent nodes
 
-	for (i = 0; i < T; i++)
+	for (std::int16_t i = 0; i < T; ++i)
 	{
-		if ((k = son[i]) >= T)
+		std::int16_t k = son[i];
+
+		if (k >= T)
 		{
 			prnt[k] = i;
 		}
 		else
 		{
-			prnt[k] = prnt[k + 1] = i;
+			prnt[k] = i;
+			prnt[k + 1] = i;
 		}
 	}
 }
 
 // update freq tree
-static void update(
+void update(
 	std::int16_t c)
 {
-	std::int16_t i;
-	std::int16_t j;
-	std::int16_t k;
-	std::int16_t l;
-
 	if (freq[R] == MAX_FREQ)
 	{
 		reconst();
@@ -481,33 +440,39 @@ static void update(
 
 	do
 	{
-		k = ++freq[c];
+		const std::int16_t k = ++freq[c];
 
 		//
 		// swap nodes to keep the tree freq-ordered
 		//
 
-		if (k > freq[l = c + 1])
+		std::int16_t l = c + 1;
+
+		if (k > freq[l])
 		{
 			while (k > freq[++l])
 			{
 			}
 
-			l--;
+			--l;
 			freq[c] = freq[l];
 			freq[l] = k;
 
-			i = son[c];
+			const std::int16_t i = son[c];
+
 			prnt[i] = l;
+
 			if (i < T)
 			{
 				prnt[i + 1] = l;
 			}
 
-			j = son[l];
+			const std::int16_t j = son[l];
+
 			son[l] = i;
 
 			prnt[j] = c;
+
 			if (j < T)
 			{
 				prnt[j + 1] = c;
@@ -517,7 +482,9 @@ static void update(
 
 			c = l;
 		}
-	} while ((c = prnt[c]) != 0);       /* do it until reaching the root */
+
+		c = prnt[c];
+	} while (c != 0); // do it until reaching the root
 }
 
 
@@ -528,17 +495,17 @@ static void update(
 // ===========================================================================
 
 
-#if INCLUDE_LZH_COMP
-static void DeleteNode(
-	std::int16_t p) /* Deleting node from the tree */
+// Deleting node from the tree
+void DeleteNode(
+	std::int16_t p)
 {
-	std::int16_t q;
-
 	if (dad[p] == NIL)
 	{
-		return; /* unregistered */
-
+		return; // unregistered
 	}
+
+	std::int16_t q;
+
 	if (rson[p] == NIL)
 	{
 		q = lson[p];
@@ -550,6 +517,7 @@ static void DeleteNode(
 	else
 	{
 		q = lson[p];
+
 		if (rson[q] != NIL)
 		{
 			do
@@ -581,22 +549,19 @@ static void DeleteNode(
 	dad[p] = NIL;
 }
 
-/* Inserting node to the tree */
-static void InsertNode(
+// Inserting node to the tree
+void InsertNode(
 	std::int16_t r)
 {
-	std::int16_t i;
-	std::int16_t p;
-	std::int16_t cmp;
-	std::uint8_t* key;
-	std::uint16_t c;
+	std::int16_t cmp = 1;
+	auto key = &text_buf[r];
+	std::int16_t p = N + 1 + key[0];
 
-	cmp = 1;
-	key = &text_buf[r];
-	p = N + 1 + key[0];
-	rson[r] = lson[r] = NIL;
+	rson[r] = NIL;
+	lson[r] = NIL;
 	match_length = 0;
-	for (;; )
+
+	for ( ; ; )
 	{
 		if (cmp >= 0)
 		{
@@ -608,6 +573,7 @@ static void InsertNode(
 			{
 				rson[p] = r;
 				dad[r] = p;
+
 				return;
 			}
 		}
@@ -621,14 +587,18 @@ static void InsertNode(
 			{
 				lson[p] = r;
 				dad[r] = p;
+
 				return;
 			}
 		}
 
+		std::int16_t i;
 
-		for (i = 1; i < F; i++)
+		for (i = 1; i < F; ++i)
 		{
-			if ((cmp = key[i] - text_buf[p + i]) != 0)
+			cmp = key[i] - text_buf[p + i];
+
+			if (cmp != 0)
 			{
 				break;
 			}
@@ -639,7 +609,9 @@ static void InsertNode(
 			if (i > match_length)
 			{
 				match_position = ((r - p) & (N - 1)) - 1;
-				if ((match_length = i) >= F)
+				match_length = i;
+
+				if (match_length >= F)
 				{
 					break;
 				}
@@ -647,7 +619,9 @@ static void InsertNode(
 
 			if (i == match_length)
 			{
-				if ((c = ((r - p) & (N - 1)) - 1) < match_position)
+				std::uint16_t c = ((r - p) & (N - 1)) - 1;
+
+				if (c < match_position)
 				{
 					match_position = c;
 				}
@@ -670,28 +644,27 @@ static void InsertNode(
 		lson[dad[p]] = r;
 	}
 
-	dad[p] = NIL; /* remove p */
+	dad[p] = NIL; // remove p
 }
 
-/* Initializing tree */
-static void InitTree()
+// Initializing tree
+void InitTree()
 {
-	std::int16_t i;
-
-	for (i = N + 1; i <= N + 256; i++)
+	for (std::int16_t i = N + 1; i <= N + 256; ++i)
 	{
-		rson[i] = NIL; /* root */
+		rson[i] = NIL; // root
 
 	}
-	for (i = 0; i < N; i++)
+
+	for (std::int16_t i = 0; i < N; ++i)
 	{
-		dad[i] = NIL; /* node */
+		dad[i] = NIL; // node
 	}
 }
 
 // output c bits
-static void Putcode(
-	void*& outfile_ptr,
+void Putcode(
+	std::uint8_t*& buffer,
 	std::int16_t l,
 	std::uint16_t c)
 {
@@ -701,13 +674,14 @@ static void Putcode(
 
 	if (putlen >= 8)
 	{
-		CIO_WritePtr(outfile_ptr, putbuf >> 8);
+		*buffer++ = putbuf >> 8;
 		++codesize;
 
 		putlen -= 8;
+
 		if (putlen >= 8)
 		{
-			CIO_WritePtr(outfile_ptr, static_cast<std::uint8_t>(putbuf));
+			*buffer++ = static_cast<std::uint8_t>(putbuf);
 			++codesize;
 
 			putlen -= 8;
@@ -720,19 +694,15 @@ static void Putcode(
 	}
 }
 
-static void EncodeChar(
-	void*& outfile_ptr,
+void EncodeChar(
+	std::uint8_t*& buffer,
 	std::uint16_t c)
 {
-	std::uint16_t i;
-	std::int16_t j;
-	std::int16_t k;
+	std::uint16_t i = 0;
+	std::int16_t j = 0;
+	std::int16_t k = prnt[c + T];
 
-	i = 0;
-	j = 0;
-	k = prnt[c + T];
-
-	/// search connections from leaf node to the root
+	// search connections from leaf node to the root
 
 	do
 	{
@@ -751,43 +721,41 @@ static void EncodeChar(
 		k = prnt[k];
 	} while (k != R);
 
-	Putcode(outfile_ptr, j, i);
+	Putcode(buffer, j, i);
 
 	code = i;
 	len = j;
+
 	update(c);
 }
 
-static void EncodePosition(
-	void*& outfile_ptr,
+void EncodePosition(
+	std::uint8_t*& buffer,
 	std::uint16_t c)
 {
-	std::uint16_t i;
-
 	//
 	// output upper 6 bits with encoding
 	//
 
-	i = c >> 6;
-	Putcode(outfile_ptr, p_len[i], static_cast<std::uint16_t>(p_code[i]) << 8);
+	const std::uint16_t i = c >> 6;
+	Putcode(buffer, p_len[i], static_cast<std::uint16_t>(p_code[i]) << 8);
 
 	//
 	// output lower 6 bits directly
 	//
 
-	Putcode(outfile_ptr, 6, (c & 0x3F) << 10);
+	Putcode(buffer, 6, (c & 0x3F) << 10);
 }
 
-static void EncodeEnd(
-	void*& outfile_ptr)
+void EncodeEnd(
+	std::uint8_t*& buffer)
 {
 	if (putlen != 0)
 	{
-		CIO_WritePtr(outfile_ptr, putbuf >> 8);
+		*buffer++ = putbuf >> 8;
 		++codesize;
 	}
 }
-#endif
 
 
 // ===========================================================================
@@ -797,22 +765,21 @@ static void EncodeEnd(
 // ===========================================================================
 
 
-#if INCLUDE_LZH_DECOMP
 // ---------------------------------------------------------------------------
 // GetByte
 // ---------------------------------------------------------------------------
-static std::int16_t GetByte(
-	const void*& infile_ptr,
-	std::uint32_t* CompressLength)
+std::int16_t GetByte(
+	const std::uint8_t*& buffer,
+	int& length)
 {
 	std::uint16_t i;
 
 	while (getlen <= 8)
 	{
-		if (*CompressLength)
+		if (length != 0)
 		{
-			i = CIO_ReadPtr(infile_ptr);
-			(*CompressLength)--;
+			i = *buffer++;
+			--length;
 		}
 		else
 		{
@@ -826,21 +793,22 @@ static std::int16_t GetByte(
 	i = getbuf;
 	getbuf <<= 8;
 	getlen -= 8;
+
 	return i >> 8;
 }
 
-static std::int16_t GetBit(
-	const void*& infile_ptr,
-	std::uint32_t* CompressLength)
+std::int16_t GetBit(
+	const std::uint8_t*& buffer,
+	int& length)
 {
 	std::int16_t i;
 
 	while (getlen <= 8)
 	{
-		if (*CompressLength)
+		if (length != 0)
 		{
-			i = CIO_ReadPtr(infile_ptr);
-			(*CompressLength)--;
+			i = *buffer++;
+			--length;
 		}
 		else
 		{
@@ -854,63 +822,62 @@ static std::int16_t GetBit(
 	i = getbuf;
 	getbuf <<= 1;
 	--getlen;
+
 	return i < 0;
 }
 
-static std::int16_t DecodeChar(
-	const void*& infile_ptr,
-	std::uint32_t* CompressLength)
+std::int16_t DecodeChar(
+	const std::uint8_t*& buffer,
+	int& length)
 {
-	std::uint16_t c;
+	std::uint16_t c = son[R];
 
-	c = son[R];
-
-	/*
-	* start searching tree from the root to leaves.
-	* choose node #(son[]) if input bit == 0
-	* else choose #(son[]+1) (input bit == 1)
-	*/
+	//
+	// start searching tree from the root to leaves.
+	// choose node #(son[]) if input bit == 0
+	// else choose #(son[]+1) (input bit == 1)
+	//
 
 	while (c < T)
 	{
-		c += GetBit(infile_ptr, CompressLength);
+		c += GetBit(buffer, length);
 		c = son[c];
 	}
 
 	c -= T;
 	update(c);
+
 	return c;
 }
 
-static std::int16_t DecodePosition(
-	const void*& infile_ptr,
-	std::uint32_t* CompressLength)
+std::int16_t DecodePosition(
+	const std::uint8_t*& buffer,
+	int& length)
 {
-	std::uint16_t i;
-	std::uint16_t j;
-	std::uint16_t c;
-
 	//
 	// decode upper 6 bits from given table
 	//
 
-	i = GetByte(infile_ptr, CompressLength);
-	c = static_cast<std::uint16_t>(d_code[i]) << 6;
-	j = d_len[i];
+	std::uint16_t i = GetByte(buffer, length);
+	const std::uint16_t c = static_cast<std::uint16_t>(d_code[i]) << 6;
+	std::uint16_t j = d_len[i];
 
 	//
 	// input lower 6 bits directly
 	//
 
 	j -= 2;
-	while (j--)
+
+	while (j-- != 0)
 	{
-		i = (i << 1) + GetBit(infile_ptr, CompressLength);
+		i = (i << 1) + GetBit(buffer, length);
 	}
 
 	return c | (i & 0x3F);
 }
-#endif
+
+
+} // namespace
 
 
 // ===========================================================================
@@ -921,126 +888,138 @@ static std::int16_t DecodePosition(
 //
 // ===========================================================================
 
-#if INCLUDE_LZH_DECOMP
 int LZH_Decompress(
-	const void* infile,
-	void* outfile,
-	std::uint32_t OriginalLength,
-	std::uint32_t CompressLength)
+	const std::uint8_t* in_buffer,
+	std::uint8_t* out_buffer,
+	int uncompressed_length,
+	int compress_length)
 {
-	std::int16_t i;
-	std::int16_t j;
-	std::int16_t k;
-	std::int16_t r;
-	std::int16_t c;
-	std::int32_t count;
+	if (uncompressed_length < 0)
+	{
+		throw LzhDecoderException{"Uncompressed length out of range."};
+	}
 
-	datasize = textsize = OriginalLength;
-	getbuf = 0;
-	getlen = 0;
+	if (compress_length < 0)
+	{
+		throw LzhDecoderException{"Compressed length out of range."};
+	}
 
-	if (textsize == 0)
+	if (uncompressed_length == 0 || compress_length == 0)
 	{
 		return 0;
 	}
 
+	if (in_buffer == nullptr)
+	{
+		throw LzhDecoderException{"Null input buffer."};
+	}
+
+	if (out_buffer == nullptr)
+	{
+		throw LzhDecoderException{"Null output buffer."};
+	}
+
+	datasize = uncompressed_length;
+	textsize = uncompressed_length;
+	getbuf = 0;
+	getlen = 0;
+
 	StartHuff();
-	for (i = 0; i < N - F; i++)
+
+	for (std::int16_t i = 0; i < N - F; ++i)
 	{
 		text_buf[i] = ' ';
 	}
 
-	r = N - F;
+	std::int16_t r = N - F;
 
-	for (count = 0; count < static_cast<std::int32_t>(textsize); )
+	int count = 0;
+
+	while (count < textsize)
 	{
-		c = DecodeChar(infile, &CompressLength);
+		std::int16_t c = DecodeChar(in_buffer, compress_length);
 
 		if (c < 256)
 		{
-			CIO_WritePtr(outfile, static_cast<std::uint8_t>(c));
+			*out_buffer++ = static_cast<std::uint8_t>(c);
 
 			datasize--; // Dec # of bytes to write
 
 			text_buf[r++] = static_cast<std::uint8_t>(c);
 			r &= (N - 1);
-			count++; // inc count of bytes written
+			++count; // inc count of bytes written
 		}
 		else
 		{
-			i = (r - DecodePosition(infile, &CompressLength) - 1) & (N - 1);
+			const std::int16_t i = (r - DecodePosition(in_buffer, compress_length) - 1) & (N - 1);
 
-			j = c - 255 + THRESHOLD;
+			const std::int16_t j = c - 255 + THRESHOLD;
 
-			for (k = 0; k < j; k++)
+			for (std::int16_t k = 0; k < j; ++k)
 			{
 				c = text_buf[(i + k) & (N - 1)];
 
-				CIO_WritePtr(outfile, static_cast<std::uint8_t>(c));
+				*out_buffer++ = static_cast<std::uint8_t>(c);
 
-				datasize--; // dec count of bytes to write
+				--datasize; // dec count of bytes to write
 
 				text_buf[r++] = static_cast<std::uint8_t>(c);
 				r &= (N - 1);
-				count++; // inc count of bytes written
+				++count; // inc count of bytes written
 			}
 		}
-
-		if (LZH_DecompressDisplayVector && (count > static_cast<std::int32_t>(printcount)))
-		{
-			LZH_DecompressDisplayVector(OriginalLength, OriginalLength - datasize);
-			printcount += 1024;
-		}
-	}
-
-	if (LZH_DecompressDisplayVector)
-	{
-		LZH_DecompressDisplayVector(OriginalLength, OriginalLength);
 	}
 
 	return count;
 }
-#endif
 
-#if INCLUDE_LZH_COMP
 int LZH_Compress(
-	const void* infile,
-	void* outfile,
-	std::uint32_t DataLength)
+	const std::uint8_t* in_buffer,
+	std::uint8_t* out_buffer,
+	int in_length)
 {
-	std::int16_t i;
-	std::int16_t c;
-	std::int16_t length;
-	std::int16_t r;
-	std::int16_t s;
-	std::int16_t last_match_length;
+	if (in_length < 0)
+	{
+		throw LzhEncoderException{"Data length out of range."};
+	}
 
-	textsize = DataLength;
-
-	if (textsize == 0)
+	if (in_length == 0)
 	{
 		return 0;
 	}
 
+	if (in_buffer == nullptr)
+	{
+		throw LzhEncoderException{"Null input buffer."};
+	}
+
+	if (out_buffer == nullptr)
+	{
+		throw LzhEncoderException{"Null output buffer."};
+	}
+
 	getbuf = 0;
 	getlen = 0;
-	textsize = 0; /* rewind and rescan */
+	textsize = 0; // rewind and rescan
 	codesize = 0;
 	datasize = 0; // Init our counter of ReadData...
+
 	StartHuff();
 	InitTree();
 
-	s = 0;
-	r = N - F;
+	std::int16_t s = 0;
+	std::int16_t r = N - F;
 
-	for (i = s; i < r; i++)
+	for (std::int16_t i = s; i < r; ++i)
 	{
 		text_buf[i] = ' ';
 	}
 
-	for (length = 0; length < F && (DataLength > datasize); length++)
+	std::int16_t length;
+
+	for (length = 0; length < F && (in_length > datasize); ++length)
 	{
-		c = CIO_ReadPtr(infile);
+		std::int16_t c = *in_buffer++;
 
 		datasize++; // Dec num of bytes to compress
 		text_buf[r + length] = static_cast<std::uint8_t>(c);
@@ -1048,7 +1027,7 @@ int LZH_Compress(
 
 	textsize = length;
 
-	for (i = 1; i <= F; i++)
+	for (std::int16_t i = 1; i <= F; ++i)
 	{
 		InsertNode(r - i);
 	}
@@ -1065,21 +1044,23 @@ int LZH_Compress(
 		if (match_length <= THRESHOLD)
 		{
 			match_length = 1;
-			EncodeChar(outfile, text_buf[r]);
+			EncodeChar(out_buffer, text_buf[r]);
 		}
 		else
 		{
-			EncodeChar(outfile, 255 - THRESHOLD + match_length);
-			EncodePosition(outfile, match_position);
+			EncodeChar(out_buffer, 255 - THRESHOLD + match_length);
+			EncodePosition(out_buffer, match_position);
 		}
 
-		last_match_length = match_length;
+		const std::int16_t last_match_length = match_length;
 
-		for (i = 0; i < last_match_length && (DataLength > datasize); i++)
+		std::int16_t i;
+
+		for (i = 0; i < last_match_length && (in_length > datasize); ++i)
 		{
-			c = CIO_ReadPtr(infile);
+			const std::int16_t c = *in_buffer++;
 
-			datasize++;
+			++datasize;
 
 			DeleteNode(s);
 			text_buf[s] = static_cast<std::uint8_t>(c);
@@ -1091,36 +1072,25 @@ int LZH_Compress(
 
 			s = (s + 1) & (N - 1);
 			r = (r + 1) & (N - 1);
+
 			InsertNode(r);
 		}
-
-		if (LZH_CompressDisplayVector && ((textsize += i) > printcount))
-		{
-			LZH_CompressDisplayVector(DataLength, datasize);
-			printcount += 1024;
-		}
-
 
 		while (i++ < last_match_length)
 		{
 			DeleteNode(s);
+
 			s = (s + 1) & (N - 1);
 			r = (r + 1) & (N - 1);
-			if (--length)
+
+			if (--length != 0)
 			{
 				InsertNode(r);
 			}
 		}
-
 	} while (length > 0);
 
-	EncodeEnd(outfile);
-
-	if (LZH_CompressDisplayVector)
-	{
-		LZH_CompressDisplayVector(DataLength, DataLength);
-	}
+	EncodeEnd(out_buffer);
 
 	return codesize;
 }
-#endif

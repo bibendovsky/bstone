@@ -29,8 +29,6 @@ Free Software Foundation, Inc.,
 //
 
 
-#include "bstone_precompiled.h"
-
 #include "bstone_detail_ren_3d_gl_buffer.h"
 
 #include "bstone_exception.h"

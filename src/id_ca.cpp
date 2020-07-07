@@ -44,6 +44,7 @@ loaded into the data segment
 #include <memory>
 
 #include "audio.h"
+#include "jm_cio.h"
 #include "jm_lzh.h"
 #include "id_heads.h"
 #include "id_pm.h"
@@ -52,11 +53,13 @@ loaded into the data segment
 #include "id_vl.h"
 #include "gfxv.h"
 
+#include "bstone_binary_reader.h"
 #include "bstone_binary_writer.h"
 #include "bstone_endian.h"
 #include "bstone_exception.h"
 #include "bstone_file_system.h"
 #include "bstone_logger.h"
+#include "bstone_memory_stream.h"
 #include "bstone_rgb_palette.h"
 #include "bstone_sdl2_types.h"
 #include "bstone_sha1.h"
@@ -3315,29 +3318,12 @@ public:
 
 
 private:
-	enum class CompressionType :
-		std::uint16_t
-	{
-		none = 0,
-		lzw = 1,
-		lzh = 2,
-	}; // CompressionType
-
 	struct TextNumber
 	{
 		bool is_compressed_;
 		int number_;
 	}; // TextNumber
 
-#pragma pack(push, 1)
-	struct CompressedHeader
-	{
-		char name_id_[4];
-		std::uint32_t uncompressed_size_;
-		CompressionType compression_type_;
-		std::uint32_t compressed_size_;
-	}; // CompressedHeader
-#pragma pack(pop)
 
 	using TextNumbers = std::vector<TextNumber>;
 	using Buffer = std::vector<std::uint8_t>;
@@ -3348,6 +3334,10 @@ private:
 
 
 	void initialize_text();
+
+	CompHeader_t deserialize_header(
+		const int number,
+		const std::uint8_t* const data);
 
 	void extract_text(
 		const std::string& dst_dir,
@@ -3375,6 +3365,9 @@ void TextExtractor::extract_text(
 
 void TextExtractor::initialize_text()
 {
+	const auto& assets_info = AssetsInfo{};
+	const auto is_compressed = assets_info.is_aog_sw_v2_x() || assets_info.is_ps();
+
 	text_numbers_.reserve(50);
 
 	text_numbers_.emplace_back(TextNumber{false, INFORMANT_HINTS});
@@ -3393,10 +3386,10 @@ void TextExtractor::initialize_text()
 	text_numbers_.emplace_back(TextNumber{false, BRIEF_W6});
 	text_numbers_.emplace_back(TextNumber{false, BRIEF_I6});
 	text_numbers_.emplace_back(TextNumber{false, LEVEL_DESCS});
-	text_numbers_.emplace_back(TextNumber{true, POWERBALLTEXT});
-	text_numbers_.emplace_back(TextNumber{true, TICSTEXT});
-	text_numbers_.emplace_back(TextNumber{true, MUSICTEXT});
-	text_numbers_.emplace_back(TextNumber{true, RADARTEXT});
+	text_numbers_.emplace_back(TextNumber{is_compressed, POWERBALLTEXT});
+	text_numbers_.emplace_back(TextNumber{is_compressed, TICSTEXT});
+	text_numbers_.emplace_back(TextNumber{is_compressed, MUSICTEXT});
+	text_numbers_.emplace_back(TextNumber{is_compressed, RADARTEXT});
 	text_numbers_.emplace_back(TextNumber{false, HELPTEXT});
 	text_numbers_.emplace_back(TextNumber{false, SAGATEXT});
 	text_numbers_.emplace_back(TextNumber{false, LOSETEXT});
@@ -3447,6 +3440,36 @@ void TextExtractor::initialize_text()
 	text_numbers_.erase(text_numbers_.begin(), non_zero_number_it);
 }
 
+CompHeader_t TextExtractor::deserialize_header(
+	const int number,
+	const std::uint8_t* const data)
+{
+	auto stream = bstone::MemoryStream
+	{
+		CompHeader_t::class_size,
+		0,
+		data
+	};
+
+	auto reader = bstone::BinaryReader{&stream};
+
+	auto result = CompHeader_t{};
+
+	reader.read(result.NameId, 4);
+	result.OriginalLen = bstone::Endian::little(reader.read_u32());
+	result.CompType = static_cast<ct_TYPES>(bstone::Endian::little(reader.read_u16()));
+	result.CompressLen = bstone::Endian::little(reader.read_u32());
+
+	const auto four_cc = std::string{result.NameId, 4};
+
+	if (four_cc != JAMP)
+	{
+		throw TextExtractorException{number, "Unsupported FOURCC."};
+	}
+
+	return result;
+}
+
 void TextExtractor::extract_text(
 	const std::string& dst_dir,
 	const TextNumber& text_number)
@@ -3460,39 +3483,37 @@ void TextExtractor::extract_text(
 
 	if (text_number.is_compressed_)
 	{
-		constexpr auto max_uncompressed_size = 256;
+		constexpr auto header_size = CompHeader_t::class_size;
 
-		const auto header_size = sizeof(CompressedHeader);
-		const auto compressed_header = reinterpret_cast<CompressedHeader*>(text_data);
-		const auto pure_data_size = text_size - header_size;
-
-		if (text_size <= header_size ||
-			compressed_header->compressed_size_ > pure_data_size ||
-			compressed_header->uncompressed_size_ > max_uncompressed_size)
+		if (text_size < header_size)
 		{
-			throw TextExtractorException{number, "Damaged compression header."};
+			throw TextExtractorException{number, "Header too small."};
 		}
 
-		if (compressed_header->compression_type_ != CompressionType::lzh)
+		constexpr auto max_uncompressed_size = 4'096;
+
+		const auto compressed_header = deserialize_header(number, text_data);
+		const auto pure_data_size = text_size - header_size;
+
+		if (compressed_header.CompressLen > static_cast<std::uint32_t>(pure_data_size) ||
+			compressed_header.OriginalLen > max_uncompressed_size)
+		{
+			throw TextExtractorException{number, "Length(s) out of range."};
+		}
+
+		if (compressed_header.CompType != ct_LZH)
 		{
 			throw TextExtractorException{number, "Expected LZH compression type."};
 		}
 
-		buffer_.resize(compressed_header->uncompressed_size_);
-
-		if (!LZH_Startup())
-		{
-			throw TextExtractorException{number, "Failed to initialized LZH decoder."};
-		}
+		buffer_.resize(compressed_header.OriginalLen);
 
 		const auto decoded_size = LZH_Decompress(
-			reinterpret_cast<const char*>(text_data) + header_size,
+			text_data + header_size,
 			buffer_.data(),
-			compressed_header->uncompressed_size_,
-			compressed_header->compressed_size_
+			compressed_header.OriginalLen,
+			compressed_header.CompressLen
 		);
-
-		LZH_Shutdown();
 
 		buffer_.resize(decoded_size);
 

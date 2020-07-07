@@ -35,7 +35,12 @@ Free Software Foundation, Inc.,
 
 #include "movie.h"
 
+#include "bstone_math.h"
 #include "bstone_mt_task_mgr.h"
+
+
+constexpr auto min_fixed = 1;
+constexpr auto min_fixed_floating = bstone::math::fixed_to_floating(min_fixed);
 
 
 namespace bstone
@@ -127,6 +132,9 @@ case gen_scientistobj
 =============================================================================
 */
 
+constexpr auto MINDIST = bstone::math::fixed_to_floating(0x5800);
+
+
 #define OV_ACTORS (0x0001)
 #define OV_SHOWALL (0x0002)
 #define OV_KEYS (0x0004)
@@ -207,19 +215,17 @@ constexpr auto MAXACTORS = 200; // max number of nazis, etc / map
 
 #define MAX_EXTRA_LIVES (4)
 
-#define RUNSPEED (6000)
+constexpr auto RUNSPEED = bstone::math::fixed_to_floating(6000);
 
 #define HEIGHTRATIO (0.41)
 #define TOP_STRIP_HEIGHT (16) // Pix height of top strip.
 
-#define PLAYERSIZE (MINDIST) // player radius
-#define MINACTORDIST (0x10000L) // minimum dist from player center
+constexpr auto PLAYERSIZE = MINDIST; // player radius
+constexpr auto MINACTORDIST = bstone::math::fixed_to_floating(0x10000); // minimum dist from player center
 // to any actor center
 
 #define NUMLATCHPICS (100)
 
-
-#define PI (3.141592657)
 
 #define GLOBAL1 (1L << 16)
 #define TILEGLOBAL (GLOBAL1)
@@ -229,8 +235,6 @@ constexpr auto MAXACTORS = 200; // max number of nazis, etc / map
 #define ANGLES (360) // must be divisable by 4
 #define ANGLEQUAD (ANGLES / 4)
 #define FINEANGLES (3600)
-
-#define MINDIST (0x5800L)
 
 #define MAPSIZE (64) // maps are 64*64 max
 #define NORTH (0)
@@ -2200,7 +2204,7 @@ struct objtype
 
 	// if negative, wait for that door to open
 	// !!! Used in saved game.
-	std::int32_t distance;
+	double distance;
 
 	// !!! Used in saved game.
 	dirtype dir;
@@ -2210,10 +2214,10 @@ struct objtype
 	dirtype trydir;
 
 	// !!! Used in saved game.
-	fixed x;
+	double x;
 
 	// !!! Used in saved game.
-	fixed y;
+	double y;
 
 	// !!! Used in saved game.
 	std::uint8_t s_tilex;
@@ -2225,11 +2229,6 @@ struct objtype
 	std::int16_t viewx;
 
 	std::uint16_t viewheight;
-
-	fixed transx;
-
-	// in global coord
-	fixed transy;
 
 	// FIXME
 	// In original code it also used to store a 16-bit pointer to object.
@@ -2250,7 +2249,7 @@ struct objtype
 	std::int16_t angle;
 
 	// !!! Used in saved game.
-	std::int32_t speed;
+	double speed;
 
 	// !!! Used in saved game.
 	std::int16_t temp1;
@@ -2886,7 +2885,7 @@ extern std::int16_t TITLE_LOOP_MUSIC;
 extern std::string data_dir_;
 extern std::string mod_dir_;
 
-extern const float radtoint; // = (float)FINEANGLES/2/PI;
+constexpr auto radtoint = static_cast<double>(FINEANGLES) / 2.0 / bstone::math::pi();
 
 extern std::int16_t starting_level;
 extern std::int16_t starting_episode;
@@ -2921,15 +2920,18 @@ const int default_mouse_sensitivity = 27;
 // math tables
 //
 extern std::vector<int> pixelangle;
-extern int finetangent[FINEANGLES / 4];
-extern int sintable[];
-extern int* costable;
+
+using FineTangent = std::array<double, FINEANGLES / 4>;
+extern FineTangent finetangent;
+
+extern double sintable[];
+extern double* costable;
 
 //
 // derived constants
 //
-extern int scale_;
-extern int heightnumerator;
+extern double scale_;
+extern double heightnumerator;
 
 extern bool ShowQuickMsg;
 
@@ -3173,24 +3175,23 @@ extern bool fizzlein;
 
 using SpanStart = std::vector<int>;
 using StepScale = std::vector<int>;
-using BaseDist = std::vector<int>;
+using BaseDist = std::vector<double>;
 using PlaneYLookup = std::vector<int>;
 using MirrorOfs = std::vector<int>;
 using WallHeight = std::vector<double>;
 
 extern WallHeight wallheight;
 
-extern fixed focallength;
-extern fixed mindist;
+extern double focallength;
 
 //
 // refresh variables
 //
-extern int viewx;
-extern int viewy; // the focal point
+extern double viewx;
+extern double viewy; // the focal point
 extern int viewangle;
-extern int viewsin;
-extern int viewcos;
+extern double viewsin;
+extern double viewcos;
 
 extern const std::uint8_t* postsource;
 extern int postx;
@@ -3202,14 +3203,10 @@ extern int posty;
 extern std::int16_t horizwall[];
 extern std::int16_t vertwall[];
 
-extern std::uint16_t pwallpos;
+extern double pwallpos;
 
 extern bool cloaked_shape;
 
-
-fixed FixedByFrac(
-	fixed a,
-	fixed b);
 
 void BuildTables();
 
@@ -3290,7 +3287,7 @@ void SelectDodgeDir(
 
 void MoveObj(
 	objtype* ob,
-	std::int32_t move);
+	const double move);
 
 void KillActor(
 	objtype* ob);
@@ -3363,7 +3360,7 @@ extern classtype LastInfoAttacker;
 //
 // player state info
 //
-extern std::int32_t thrustspeed;
+extern double thrustspeed;
 extern std::uint16_t plux;
 extern std::uint16_t pluy; // player coordinates scaled to unsigned
 extern bool PlayerInvisable;
@@ -3481,7 +3478,8 @@ extern doorobj_t doorobjlist[MAXDOORS];
 extern doorobj_t* lastdoorobj;
 extern std::int16_t doornum;
 
-extern std::uint16_t doorposition[MAXDOORS];
+using DoorPositions = std::array<double, MAXDOORS>;
+extern DoorPositions doorposition;
 
 using SubAreaConnect = std::array<std::uint8_t, NUMAREAS>;
 using AreaConnect = std::array<SubAreaConnect, NUMAREAS>;
@@ -3490,8 +3488,8 @@ extern AreaConnect areaconnect;
 using AreaByPlayer = std::bitset<NUMAREAS>;
 extern AreaByPlayer areabyplayer;
 
-extern std::uint16_t pwallstate;
-extern std::uint16_t pwallpos; // amount a pushable wall has been moved (0-63)
+extern double pwallstate;
+extern double pwallpos; // amount a pushable wall has been moved (0-63)
 extern std::uint16_t pwallx;
 extern std::uint16_t pwally;
 extern std::int16_t pwalldir;
@@ -3745,8 +3743,8 @@ void SpawnOffsetObj(
 	std::int16_t tiley);
 
 void SpawnCusExplosion(
-	fixed x,
-	fixed y,
+	const double x,
+	const double y,
 	std::uint16_t StartFrame,
 	std::uint16_t NumFrames,
 	std::uint16_t Delay,
@@ -3784,8 +3782,8 @@ void SpawnHiddenOfs(
 objtype* MoveHiddenOfs(
 	classtype which_class,
 	classtype new1,
-	fixed x,
-	fixed y);
+	const double x,
+	const double y);
 
 void DropCargo(
 	objtype* obj);
@@ -3992,9 +3990,6 @@ void InitSmartAnim(
 	animdir_t AnimDir);
 
 
-double m_pi();
-
-
 void sys_sleep_for(
 	const int milliseconds);
 
@@ -4024,7 +4019,7 @@ int actor_calculate_rotation(
 
 int player_get_weapon_sprite_id();
 
-fixed player_get_weapon_bounce_offset();
+double player_get_weapon_bounce_offset();
 
 PaletteShiftInfo palette_shift_get_info();
 
@@ -4035,6 +4030,13 @@ void cfg_file_write_entry(
 
 std::uint16_t get_start_hit_point(
 	const int index);
+
+
+double get_integral(
+	const double value) noexcept;
+
+double get_fractional(
+	const double value) noexcept;
 // BBi
 
 
