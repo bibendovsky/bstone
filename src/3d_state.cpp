@@ -1924,12 +1924,12 @@ bool CheckSight(
 	//
 	// if the player is real close, sight is automatic
 	//
-	const auto deltax = std::abs(to_obj->x - from_obj->x);
-	const auto deltay = std::abs(to_obj->y - from_obj->y);
+	const auto deltax = to_obj->x - from_obj->x;
+	const auto deltay = to_obj->y - from_obj->y;
 
 	constexpr auto MINSIGHT = bstone::math::fixed_to_floating(0x18000);
 
-	if (deltax <= MINSIGHT && deltay <= MINSIGHT)
+	if (std::abs(deltax) <= MINSIGHT && std::abs(deltay) <= MINSIGHT)
 	{
 		return true;
 	}
