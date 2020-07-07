@@ -1,7 +1,7 @@
 # BStone changelog
 
 
-## [1.2.7] - 2020-??-??
+## [1.2.7] - 2020-07-07
 ### Fixed
 - Extraction of compressed texts.
 - Same texture for door type BIO.
@@ -12,6 +12,7 @@
 
 ### Changed
 - Replaced almost all fixed-point arithmetic with a floating-point one.
+- Relay on CMake's PCH support if available.
 
 
 ## [1.2.6] - 2020-06-18

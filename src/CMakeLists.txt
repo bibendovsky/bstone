@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
-project(bstone VERSION 1.2.6 LANGUAGES CXX)
+project(bstone VERSION 1.2.7 LANGUAGES CXX)
 
 
 #
