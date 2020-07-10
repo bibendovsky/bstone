@@ -1,6 +1,11 @@
 # BStone changelog
 
 
+## [1.2.8] - 2020-07-10
+### Fixed
+- Disabled episodes 5 and 6 in static build.
+
+
 ## [1.2.7] - 2020-07-07
 ### Fixed
 - Extraction of compressed texts.
