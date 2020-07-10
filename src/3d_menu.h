@@ -169,5 +169,7 @@ void ShadowPrint(
 void CP_ViewScores(
 	std::int16_t temp1);
 
+void menu_enable_all_episodes();
+
 
 #endif // BSTONE_3D_MENU_INCLUDED

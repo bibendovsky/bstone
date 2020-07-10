@@ -6203,4 +6203,13 @@ void MenuFadeIn()
 {
 	VL_FadeIn(0, 255, vgapal, 10);
 }
+
+void menu_enable_all_episodes()
+{
+	for (auto i = 1; i < 6; ++i)
+	{
+		NewEmenu[i].active = AT_ENABLED;
+		EpisodeSelect[i] = 1;
+	}
+}
 // BBi
