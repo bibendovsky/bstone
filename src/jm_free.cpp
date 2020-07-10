@@ -1227,21 +1227,13 @@ void CAL_SetupMapFile()
 
 // --------------------- Other general functions ------------------------
 
-extern CP_itemtype NewEmenu[];
-extern std::int16_t EpisodeSelect[];
-
-
 void CheckForEpisodes()
 {
 	const auto& assets_info = AssetsInfo{};
 
 	if (assets_info.is_aog_full())
 	{
-		for (int i = 1; i < 6; ++i)
-		{
-			NewEmenu[i].active = AT_ENABLED;
-			EpisodeSelect[i] = 1;
-		}
+		menu_enable_all_episodes();
 	}
 }
 
