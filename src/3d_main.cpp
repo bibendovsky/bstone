@@ -7514,6 +7514,8 @@ void set_config_defaults()
 
 	mouseadjustment = default_mouse_sensitivity;
 
+	sd_is_sound_enabled_ = true;
+	sd_is_music_enabled_ = true;
 	sd_sfx_volume_ = sd_default_sfx_volume;
 	sd_music_volume_ = sd_default_music_volume;
 
