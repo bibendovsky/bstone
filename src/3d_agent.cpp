@@ -260,6 +260,7 @@ std::uint16_t player_oldtiley;
 
 // BBi
 extern bstone::MemoryStream g_playtemp;
+bool is_select_floor = false;
 
 
 /*
@@ -3067,6 +3068,43 @@ std::uint8_t ValidAreaTile(
 =============================================================================
 */
 
+void select_floor()
+{
+	is_select_floor = false;
+
+	const auto new_floor = InputFloor();
+
+	if (new_floor != -1 && new_floor != gamestate.mapon)
+	{
+		const auto& assets_info = AssetsInfo{};
+		const auto is_ps = assets_info.is_ps();
+
+		if (is_ps)
+		{
+			gamestuff.level[gamestate.mapon].ptilex = player->tilex;
+			gamestuff.level[gamestate.mapon].ptiley = player->tiley;
+
+			auto angle = player->angle - 180;
+
+			if (angle < 0)
+			{
+				angle += ANGLES;
+			}
+
+			gamestuff.level[gamestate.mapon].pangle = static_cast<std::int16_t>(angle);
+		}
+
+		playstate = is_ps ? ex_transported : ex_completed;
+
+		gamestate.lastmapon = gamestate.mapon;
+		gamestate.mapon = static_cast<std::int16_t>(new_floor - 1);
+	}
+	else
+	{
+		DrawPlayScreen(false);
+	}
+}
+
 void Cmd_Fire()
 {
 	if (noShots)
@@ -3166,90 +3204,59 @@ void Cmd_Use(
 			{
 				// Test for 'display elevator buttons'
 				//
-			case TRANSPORTERTILE:
-			{
-				const auto new_floor = InputFloor();
+				case TRANSPORTERTILE:
+					is_select_floor = true;
+					break;
 
-				if (new_floor != -1 && new_floor != gamestate.mapon)
-				{
-					const auto is_ps = assets_info.is_ps();
-
-					if (is_ps)
+				case DIRECTTRANSPORTTILE:
+					switch (iconnum & 0xff00)
 					{
-						gamestuff.level[gamestate.mapon].ptilex = player->tilex;
-						gamestuff.level[gamestate.mapon].ptiley = player->tiley;
+					case 0xf400:
+						playstate = ex_transported;
+						gamestate.lastmapon = gamestate.mapon;
+						gamestate.mapon = (iconnum & 0xff) - 1;
+						break;
 
-						auto angle = player->angle - 180;
+					default:
+						// Stay in current level warp to new location
 
-						if (angle < 0)
-						{
-							angle += ANGLES;
-						}
+						playstate = ex_transported;
+						Warped();
+						playstate = ex_stillplaying;
 
-						gamestuff.level[gamestate.mapon].pangle = static_cast<std::int16_t>(angle);
+						player->tilex = (iconnum >> 8);
+						player->tiley = iconnum & 0xff;
+						player->x = player->tilex + 0.5;
+						player->y = player->tiley + 0.5;
+
+						DrawWarpIn();
+						break;
 					}
+					break;
 
-					playstate = is_ps ? ex_transported : ex_completed;
+					//
+					// Test for Wall Switch Activation
+					//
+				case OFF_SWITCH:
+				case ON_SWITCH:
+					ActivateWallSwitch(iconnum, checkx, checky);
+					break;
 
-					gamestate.lastmapon = gamestate.mapon;
-					gamestate.mapon = static_cast<std::int16_t>(new_floor - 1);
-				}
-				else
-				{
-					DrawPlayScreen(false);
-				}
-			}
-			break;
 
-			case DIRECTTRANSPORTTILE:
-				switch (iconnum & 0xff00)
-				{
-				case 0xf400:
-					playstate = ex_transported;
-					gamestate.lastmapon = gamestate.mapon;
-					gamestate.mapon = (iconnum & 0xff) - 1;
+					// Test for Concession Machines
+					//
+
+				case FOODTILE:
+				case SODATILE:
+					OperateConcession(static_cast<std::uint16_t>(reinterpret_cast<std::size_t>(actorat[checkx][checky])));
 					break;
 
 				default:
-					// Stay in current level warp to new location
-
-					playstate = ex_transported;
-					Warped();
-					playstate = ex_stillplaying;
-
-					player->tilex = (iconnum >> 8);
-					player->tiley = iconnum & 0xff;
-					player->x = player->tilex + 0.5;
-					player->y = player->tiley + 0.5;
-
-					DrawWarpIn();
+					if (assets_info.is_ps())
+					{
+						tryDetonator = true;
+					}
 					break;
-				}
-				break;
-
-				//
-				// Test for Wall Switch Activation
-				//
-			case OFF_SWITCH:
-			case ON_SWITCH:
-				ActivateWallSwitch(iconnum, checkx, checky);
-				break;
-
-
-				// Test for Concession Machines
-				//
-
-			case FOODTILE:
-			case SODATILE:
-				OperateConcession(static_cast<std::uint16_t>(reinterpret_cast<std::size_t>(actorat[checkx][checky])));
-				break;
-
-			default:
-				if (assets_info.is_ps())
-				{
-					tryDetonator = true;
-				}
-				break;
 			}
 		}
 	}
@@ -4201,7 +4208,12 @@ int InputFloor()
 	}
 	else
 	{
-		return ps_input_floor();
+		const auto old_vid_is_hud = vid_is_hud;
+		vid_is_hud = false;
+		const auto result = ps_input_floor();
+		vid_is_hud = old_vid_is_hud;
+
+		return result;
 	}
 }
 
