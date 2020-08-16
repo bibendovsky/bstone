@@ -3105,11 +3105,11 @@ void Died()
 	sd_wait_sound_done();
 	StopMusic();
 
-	gamestate.lives--;
+	gamestate.lives -= 1;
 
-	if (gamestate.lives > -1)
+	if (gamestate.lives >= 0)
 	{
-		old_gamestate.lives -= 1;
+		old_gamestate.lives = gamestate.lives;
 		gamestate = old_gamestate;
 
 		gamestuff = old_gamestuff;
