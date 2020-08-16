@@ -58,6 +58,8 @@ void MovePWalls();
 void ConnectAreas();
 void UpdateSoundLoc();
 
+void select_floor();
+
 
 /*
 =============================================================================
@@ -2005,6 +2007,7 @@ think:
 
 
 extern bool ShowQuickMsg;
+extern bool is_select_floor;
 
 
 void PlayLoop()
@@ -2089,6 +2092,11 @@ void PlayLoop()
 		gamestate.TimeCount += tics;
 
 		UpdateSoundLoc();               // JAB
+
+		if (is_select_floor)
+		{
+			select_floor();
+		}
 
 		if (screenfaded & !playstate)
 		{

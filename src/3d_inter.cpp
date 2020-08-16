@@ -183,6 +183,16 @@ void PreloadGraphics()
 
 		vid_set_ui_mask_3d(false);
 	}
+	else
+	{
+		VWB_Bar(
+			0,
+			ref_3d_view_top_y - ref_3d_margin,
+			vga_ref_width,
+			ref_3d_view_height + 2 * ref_3d_margin,
+			0
+		);
+	}
 
 	VW_FadeIn();
 
