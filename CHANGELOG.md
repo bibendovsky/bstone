@@ -1,6 +1,16 @@
 # BStone changelog
 
 
+## [1.2.9] - 2020-??-??
+### Added
+- Option `vid_filler_color_index` to select filler color.
+
+### Fixed
+- Enable sfx and music by default for first startup.
+- Lives counter.
+- Input floor panel visual glitches.
+
+
 ## [1.2.8] - 2020-07-10
 ### Fixed
 - Disabled episodes 5 and 6 in static build.

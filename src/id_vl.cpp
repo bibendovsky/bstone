@@ -38,6 +38,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_hw_texture_mgr.h"
 #include "bstone_logger.h"
+#include "bstone_math.h"
 #include "bstone_mod_value.h"
 #include "bstone_mt_task_mgr.h"
 #include "bstone_ren_3d_cmd_buffer.h"
@@ -221,9 +222,6 @@ std::array<SDL_Rect, 2> sw_filler_ui_rects_;
 std::array<SDL_Rect, 4> sw_filler_hud_rects_;
 SDL_Rect sw_screen_dst_rect_;
 auto sw_filler_color_ = SDL_Color{};
-
-const auto sw_ref_filler_color = SDL_Color{0x00, 0x28, 0x50, 0xFF};
-const auto filler_color_index = 0xE8;
 
 
 struct CalculateScreenSizeInputParam
@@ -437,6 +435,13 @@ const std::string& vid_get_texture_upscale_filter_key_name()
 const std::string& vid_get_texture_upscale_xbrz_degree_key_name()
 {
 	static const auto result = std::string{"vid_texture_upscale_xbrz_degree"};
+
+	return result;
+}
+
+const std::string& vid_get_filler_color_index_name()
+{
+	static const auto result = std::string{"vid_filler_color_index"};
 
 	return result;
 }
@@ -890,6 +895,12 @@ void vid_cl_read_texture_upscale_xbrz_degree()
 	vid_cl_read_int(vid_get_texture_upscale_xbrz_degree_key_name(), vid_cfg_.texture_upscale_xbrz_degree_);
 }
 
+void vid_cl_read_filler_color_index()
+{
+	vid_cl_read_int(vid_get_filler_color_index_name(), vid_cfg_.filler_color_index);
+	vid_cfg_.filler_color_index = vid_clamp_filler_color_index(vid_cfg_.filler_color_index);
+}
+
 const std::string& vid_get_vid_string()
 {
 	static const auto result = std::string{"[VID]"};
@@ -1068,6 +1079,7 @@ void vid_cl_read()
 	vid_cl_read_aa_degree();
 	vid_cl_read_texture_upscale_filter();
 	vid_cl_read_texture_upscale_xbrz_degree();
+	vid_cl_read_filler_color_index();
 }
 
 void vid_cfg_read()
@@ -1562,6 +1574,14 @@ void sw_initialize_palette()
 		bstone::RgbPalette::get_max_color_count());
 }
 
+void sw_apply_filler_color_index()
+{
+	sw_filler_color_.r = static_cast<Uint8>((255 * vgapal[(vid_cfg_.filler_color_index * 3) + 0]) / 63);
+	sw_filler_color_.g = static_cast<Uint8>((255 * vgapal[(vid_cfg_.filler_color_index * 3) + 1]) / 63);
+	sw_filler_color_.b = static_cast<Uint8>((255 * vgapal[(vid_cfg_.filler_color_index * 3) + 2]) / 63);
+	sw_filler_color_.a = 0xFF;
+}
+
 void sw_calculate_dimensions()
 {
 	auto src_param = vid_create_screen_size_param();
@@ -1712,14 +1732,7 @@ void sw_calculate_dimensions()
 		vid_dimensions_.screen_bottom_filler_height_,
 	};
 
-	// Filler color.
-	sw_filler_color_ = SDL_Color
-	{
-		static_cast<Uint8>((255 * vgapal[(filler_color_index * 3) + 0]) / 63),
-		static_cast<Uint8>((255 * vgapal[(filler_color_index * 3) + 1]) / 63),
-		static_cast<Uint8>((255 * vgapal[(filler_color_index * 3) + 2]) / 63),
-		0xFF,
-	};
+	sw_apply_filler_color_index();
 
 	// Screen destination rect.
 
@@ -3806,9 +3819,9 @@ void hw_create_2d_fillers_vb()
 	);
 
 	const auto& filler_color = hw_vga_color_to_rgba_8(
-		vgapal[(filler_color_index * 3) + 0],
-		vgapal[(filler_color_index * 3) + 1],
-		vgapal[(filler_color_index * 3) + 2]
+		vgapal[(vid_cfg_.filler_color_index * 3) + 0],
+		vgapal[(vid_cfg_.filler_color_index * 3) + 1],
+		vgapal[(vid_cfg_.filler_color_index * 3) + 2]
 	);
 
 	const auto left_left_f = static_cast<float>(0.0F);
@@ -4258,10 +4271,11 @@ void hw_initialize_2d()
 	hw_create_ui_ib();
 	hw_create_ui_vb();
 	hw_create_ui_vi();
+
 	hw_create_2d_fillers_ib();
 	hw_create_2d_fillers_vb();
-
 	hw_create_2d_fillers_vi();
+
 	hw_create_ui_texture();
 	hw_create_black_1x1_2d_texture();
 	hw_create_white_1x1_2d_texture();
@@ -11648,6 +11662,17 @@ void hw_update_samplers()
 	hw_update_player_weapon_sampler();
 }
 
+void hw_apply_filler_color_index()
+{
+	hw_destroy_2d_fillers_vi();
+	hw_destroy_2d_fillers_ib();
+	hw_destroy_2d_fillers_vb();
+
+	hw_create_2d_fillers_ib();
+	hw_create_2d_fillers_vb();
+	hw_create_2d_fillers_vi();
+}
+
 void hw_uninitialize_video()
 {
 	hw_uninitialize_command_buffers();
@@ -12804,6 +12829,17 @@ void vid_cfg_read_hw_texture_upscale_xbrz_factor(
 	}
 }
 
+void vid_cfg_read_filler_color_index(
+	const std::string& value_string)
+{
+	int value = 0;
+
+	if (bstone::StringHelper::string_to_int(value_string, value))
+	{
+		vid_cfg_.filler_color_index = vid_clamp_filler_color_index(value);
+	}
+}
+
 bool vid_cfg_parse_key_value(
 	const std::string& key_string,
 	const std::string& value_string)
@@ -12870,6 +12906,10 @@ bool vid_cfg_parse_key_value(
 	else if (key_string == vid_get_texture_upscale_xbrz_degree_key_name())
 	{
 		vid_cfg_read_hw_texture_upscale_xbrz_factor(value_string);
+	}
+	else if (key_string == vid_get_filler_color_index_name())
+	{
+		vid_cfg_read_filler_color_index(value_string);
 	}
 	else
 	{
@@ -13082,6 +13122,12 @@ void vid_cfg_write(
 		vid_get_3d_texture_anisotropy_key_name(),
 		std::to_string(vid_cfg_.d3_texture_anisotropy_)
 	);
+
+	cfg_file_write_entry(
+		text_writer,
+		vid_get_filler_color_index_name(),
+		std::to_string(vid_cfg_.filler_color_index)
+	);
 }
 
 void vid_cfg_set_defaults()
@@ -13113,6 +13159,8 @@ void vid_cfg_set_defaults()
 
 	vid_cfg_.texture_upscale_kind_ = bstone::HwTextureMgrUpscaleFilterKind::none;
 	vid_cfg_.texture_upscale_xbrz_degree_ = 0;
+
+	vid_cfg_.filler_color_index = 0;
 }
 
 VidCfg& vid_cfg_get()
@@ -13917,6 +13965,24 @@ void vid_apply_upscale()
 	if (vid_is_hw_)
 	{
 		hw_apply_texture_upscale();
+	}
+}
+
+int vid_clamp_filler_color_index(
+	int filler_color_index) noexcept
+{
+	return bstone::math::clamp(filler_color_index, 0, 255);
+}
+
+void vid_apply_filler_color()
+{
+	if (vid_is_hw_)
+	{
+		hw_apply_filler_color_index();
+	}
+	else
+	{
+		sw_apply_filler_color_index();
 	}
 }
 

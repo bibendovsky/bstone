@@ -364,6 +364,11 @@ Notes:
   Values: [`2`..`32`]  
   Default: `1`
 
+* `--vid_filler_color_index value`  
+  Sets a color for screen bars.  
+  Values: [`0`..`255`]  
+  Default: `0`
+
 * `--snd_is_disabled value`  
   Enables or disables audio subsystem.  
   Values: `0` (disable) or `1` (enable)  
