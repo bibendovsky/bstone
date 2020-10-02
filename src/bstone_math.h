@@ -62,13 +62,13 @@ constexpr double rad_to_deg(
 constexpr double fixed_to_floating(
 	const int value)
 {
-	return (value >> 16) + ((value & 0xFFFF) / 65'536.0);
+	return static_cast<double>(value) / static_cast<double>(1 << 16);
 }
 
 constexpr int floating_to_fixed(
 	const double value)
 {
-	return static_cast<int>(value * 65'536.0);
+	return static_cast<int>(value * (1 << 16));
 }
 
 
