@@ -84,6 +84,8 @@ struct VidCfg
 
 	bstone::HwTextureMgrUpscaleFilterKind texture_upscale_kind_;
 	int texture_upscale_xbrz_degree_;
+
+	int filler_color_index;
 }; // VidCfg
 
 struct VideoModeCfg
@@ -438,6 +440,11 @@ void vid_apply_3d_image_filter();
 void vid_apply_mipmap_filter();
 
 void vid_apply_upscale();
+
+int vid_clamp_filler_color_index(
+	int filler_color_index) noexcept;
+
+void vid_apply_filler_color();
 
 
 #endif // BSTONE_ID_VL_INCLUDED
