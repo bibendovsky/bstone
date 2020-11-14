@@ -1,9 +1,10 @@
 # BStone changelog
 
 
-## [1.2.9] - 2020-??-??
+## [1.2.9] - 2020-11-14
 ### Added
 - Option `vid_filler_color_index` to select filler color.
+- [Windows] File information resource.
 
 ### Fixed
 - Enable sfx and music by default for first startup.
