@@ -62,6 +62,11 @@ configure_file(
 	"${PROJECT_BINARY_DIR}/bstone_version_.h"
 )
 
+configure_file(
+	"${PROJECT_SOURCE_DIR}/sys/win32/bstone_win32.rc.in"
+	"${PROJECT_BINARY_DIR}/sys/win32/bstone_win32.rc"
+)
+
 
 #
 # Target properties.
@@ -344,6 +349,7 @@ if (WIN32)
 	target_sources(
 		${PROJECT_NAME}
 		PRIVATE
+			sys/win32/bstone_win32_rc.h
 			sys/win32/bstone_win32_registry.h
 	)
 endif ()
@@ -467,7 +473,7 @@ if (WIN32)
 	target_sources(
 		${PROJECT_NAME}
 		PRIVATE
-			sys/win32/bstone_win32.rc
+			"${PROJECT_BINARY_DIR}/sys/win32/bstone_win32.rc"
 			sys/win32/bstone_win32_registry.cpp
 	)
 endif ()
