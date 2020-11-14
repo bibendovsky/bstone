@@ -1,7 +1,7 @@
 BStone
 ======
 
-A source port of Blake Stone: Aliens Of Gold and Blake Stone: Planet Strike.
+Unofficial source port for Blake Stone series (Aliens Of Gold and Planet Strike).
 
 
 Contents
@@ -57,7 +57,7 @@ For an original source code license see file "Blake Stone source code license.do
 2 - Overview
 ============
 
-BStone is a source port of "Blake Stone" game series: "Aliens Of Gold" and "Planet Strike".
+BStone is unofficial source port for "Blake Stone" game series: "Aliens Of Gold" and "Planet Strike".
 
 Features:
 * High resolution vanilla rendering
@@ -99,7 +99,7 @@ See [README-PSVITA.md](README-PSVITA.md) for details about the source port on PS
 ============
 
 - Put addon's files into separate directory. Do not overwrite any original files!
-- Run with command line option `--mod_dir` to pointo to this directory (i.e. `bstone.exe --mod_dir addon1`).
+- Run with command line option `--mod_dir` to point to this directory (i.e. `bstone.exe --mod_dir addon1`).
 
 
 4 - Required assets
@@ -140,7 +140,6 @@ Supported services:
 
 - [Steam](http://store.steampowered.com)  
   Windows only.  
-  "The Apogee Throwback Pack" supported as well as separated titles.
 
 
 5 - Profile
@@ -363,6 +362,11 @@ Notes:
   Applicable only for 3D-rendering.  
   Values: [`2`..`32`]  
   Default: `1`
+
+* `--vid_filler_color_index value`  
+  Sets a color for screen bars.  
+  Values: [`0`..`255`]  
+  Default: `0`
 
 * `--snd_is_disabled value`  
   Enables or disables audio subsystem.  
