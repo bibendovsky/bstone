@@ -5793,7 +5793,6 @@ void cp_video(
 		{
 			case mvl_mode:
 			case mvl_texturing:
-			case mvl_filler_color:
 				video_draw_menu();
 				MenuFadeIn();
 				WaitKeyUp();
@@ -5817,6 +5816,13 @@ void cp_video(
 			ShootSnd();
 			video_draw_switch(video_items.curpos);
 			VL_RefreshScreen();
+			break;
+
+		case mvl_filler_color:
+			sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::unpausable);
+			video_draw_menu();
+			MenuFadeIn();
+			WaitKeyUp();
 			break;
 
 		default:
@@ -6393,8 +6399,6 @@ void filler_color_routine(
 		draw_filler_color_cell(configuration.filler_color_index, is_highlighted);
 
 		VW_UpdateScreen();
-
-		//TicDelay(21);
 
 		highlight_counter += 1;
 
