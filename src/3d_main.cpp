@@ -187,6 +187,7 @@ std::int16_t starting_episode;
 std::int16_t starting_level;
 std::int16_t starting_difficulty;
 
+bool is_data_dir_custom_ = false;
 std::string data_dir_;
 std::string mod_dir_;
 
@@ -10060,6 +10061,7 @@ void InitDestPath()
 	}
 	else
 	{
+		is_data_dir_custom_ = true;
 		data_dir_ = requested_data_dir;
 	}
 
