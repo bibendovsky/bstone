@@ -2882,6 +2882,7 @@ extern std::int16_t TITLE_LOOP_MUSIC;
     "Try deleting some files from your hard disk.\n\n"
 
 
+extern bool is_data_dir_custom_;
 extern std::string data_dir_;
 extern std::string mod_dir_;
 
