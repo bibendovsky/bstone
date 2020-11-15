@@ -832,27 +832,24 @@ void find_contents()
 
 	// Paths to search.
 	//
-	const auto& working_full_dir = bstone::file_system::append_path_separator(
-		bstone::file_system::get_working_dir());
-
-	const auto& data_full_dir = bstone::file_system::append_path_separator(
-		data_dir_.empty() ? working_full_dir : bstone::file_system::resolve_path(data_dir_));
-
 	auto search_paths = SearchPaths{};
 
-	if (data_full_dir != working_full_dir)
+	if (is_data_dir_custom_)
 	{
-		add_search_path("custom dir", data_full_dir, search_paths);
+		add_search_path("custom dir", data_dir_, search_paths);
 	}
 	else
 	{
 		{
+			const auto working_full_dir = bstone::file_system::append_path_separator(
+				bstone::file_system::get_working_dir());
+
 			add_search_path("working dir", working_full_dir, search_paths);
 		}
 
 		{
-			const auto& source_name = std::string{"GOG"};
-			const auto& content_path = bstone::make_content_path(bstone::ContentPathProvider::gog);
+			const auto source_name = std::string{"GOG"};
+			const auto content_path = bstone::make_content_path(bstone::ContentPathProvider::gog);
 
 			if (!content_path.aog_.empty())
 			{
@@ -866,8 +863,8 @@ void find_contents()
 		}
 
 		{
-			const auto& source_name = std::string{"Steam"};
-			const auto& content_path = bstone::make_content_path(bstone::ContentPathProvider::steam);
+			const auto source_name = std::string{"Steam"};
+			const auto content_path = bstone::make_content_path(bstone::ContentPathProvider::steam);
 
 			if (!content_path.aog_.empty())
 			{
