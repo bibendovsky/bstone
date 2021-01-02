@@ -6099,7 +6099,7 @@ void hw_refresh_2d()
 		// Draw the quad.
 		//
 		{
-			const auto index_offset = (vid_cfg_.is_ui_stretched_
+			const auto index_offset = (vid_cfg_.is_ui_stretched_ || vid_hw_is_draw_3d_
 				?
 				hw_2d_stretched_index_offset_
 				:
@@ -7344,7 +7344,7 @@ void hw_refresh_3d()
 
 	command_buffer->enable(false);
 
-	if (!vid_hw_is_draw_3d_)
+	if (!vid_hw_is_draw_3d_ || screenfaded)
 	{
 		return;
 	}
@@ -12119,7 +12119,8 @@ void vl_hw_fade_in(
 	const int step_count)
 {
 	hw_2d_fade_is_enabled_ = true;
-
+	screenfaded = false;
+	
 	VL_SetPalette(0, 256, palette);
 
 	hw_2d_fade_color_.a_ = 0xFF;
@@ -12153,8 +12154,6 @@ void vl_hw_fade_in(
 	}
 
 	hw_2d_fade_is_enabled_ = false;
-
-	screenfaded = false;
 }
 
 void VL_FadeIn(
