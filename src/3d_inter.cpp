@@ -160,7 +160,7 @@ void DisplayPrepingMsg(
 	//
 	const auto old_vid_is_hud = vid_is_hud;
 
-	vid_is_hud = true;
+	vid_is_hud = false;
 
 	VW_UpdateScreen();
 	if (screenfaded)
@@ -193,21 +193,6 @@ void PreloadGraphics()
 			0
 		);
 	}
-
-	VW_FadeIn();
-
-	// BBi No delay
-#if 0
-	IN_UserInput(70);
-#endif
-
-	if (playstate != ex_transported)
-	{
-		VW_FadeOut();
-	}
-
-	DrawPlayBorder();
-	VW_UpdateScreen();
 
 	vid_is_hud = old_vid_is_hud;
 }
