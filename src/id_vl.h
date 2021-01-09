@@ -86,6 +86,8 @@ struct VidCfg
 	int texture_upscale_xbrz_degree_;
 
 	int filler_color_index;
+
+	bool is_external_textures_enabled_;
 }; // VidCfg
 
 struct VideoModeCfg
@@ -445,6 +447,8 @@ int vid_clamp_filler_color_index(
 	int filler_color_index) noexcept;
 
 void vid_apply_filler_color();
+
+void vid_apply_external_textures();
 
 
 #endif // BSTONE_ID_VL_INCLUDED
