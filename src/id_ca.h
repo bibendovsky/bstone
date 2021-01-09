@@ -130,6 +130,9 @@ public:
 		const std::string& levels_hash);
 
 
+	const std::string& get_base_path_name() const noexcept;
+
+
 	int get_gfx_header_offset_count() const;
 
 	bool are_modded_levels() const;
@@ -189,6 +192,7 @@ private:
 	static AssetsCRefStrings base_names_;
 	static AssetsBaseNameToHashMap base_name_to_hash_map_;
 	static std::string levels_hash_;
+	static std::string base_path_name_;
 	static int gfx_header_offset_count_;
 	static bool are_modded_levels_;
 	static int episode_count_;
@@ -421,6 +425,19 @@ void ca_extract_texts(
 
 void ca_extract_all(
 	const std::string& destination_dir);
+
+
+void ca_make_resource_path_name(
+	const std::string& resource_name,
+	std::string& path_name);
+
+void ca_make_sprite_resource_path_name(
+	int sprite_id,
+	std::string& path_name);
+
+void ca_make_wall_resource_path_name(
+	int wall_id,
+	std::string& path_name);
 
 
 #endif // BSTONE_ID_CA_INCLUDED

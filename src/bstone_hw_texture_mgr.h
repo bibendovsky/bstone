@@ -92,6 +92,9 @@ public:
 		const HwTextureMgrUpscaleFilterKind upscale_filter_kind,
 		const int upscale_filter_degree) = 0;
 
+	virtual void enable_external_textures(
+		bool is_enable) = 0;
+
 
 	virtual void begin_cache() = 0;
 

@@ -36,10 +36,13 @@ Free Software Foundation, Inc.,
 
 #include "xbrz.h"
 
+#include "id_ca.h"
 #include "id_pm.h"
 #include "id_vl.h"
 
 #include "bstone_exception.h"
+#include "bstone_file_system.h"
+#include "bstone_file_stream.h"
 #include "bstone_missing_sprite_64x64_image.h"
 #include "bstone_missing_wall_64x64_image.h"
 #include "bstone_mt_task_mgr.h"
@@ -47,7 +50,9 @@ Free Software Foundation, Inc.,
 #include "bstone_ren_3d.h"
 #include "bstone_ren_3d_limits.h"
 #include "bstone_rgb_palette.h"
+#include "bstone_rgb8.h"
 #include "bstone_sprite_cache.h"
+#include "bstone_image_decoder.h"
 
 #include "bstone_detail_ren_3d_utils.h"
 
@@ -275,6 +280,9 @@ public:
 		const HwTextureMgrUpscaleFilterKind upscale_filter,
 		const int upscale_filter_factor) override;
 
+	void enable_external_textures(
+		bool is_enable) override;
+
 
 	void begin_cache() override;
 
@@ -399,6 +407,14 @@ private:
 
 	using Solid1x1Items = std::array<Solid1x1Item, static_cast<std::size_t>(HwTextureMgrSolid1x1Id::count_)>;
 
+	struct ExternalImageProbeItem
+	{
+		std::string file_name_extension;
+		ImageDecoder* image_decoder;
+	}; // ExternalImageProbeItem
+
+	using ExternalImageProbeItems = std::vector<ExternalImageProbeItem>;
+
 
 	Ren3dPtr renderer_;
 	SpriteCachePtr sprite_cache_;
@@ -425,6 +441,15 @@ private:
 
 	detail::XbrzTasks xbrz_tasks_;
 	detail::XbrzTaskPtrs xbrz_task_ptrs_;
+
+	bool is_external_textures_enabled_{};
+	FileStream image_file_stream_;
+	Buffer image_buffer_;
+	Rgba8Buffer image_buffer_rgba8_;
+	ImageDecodeUPtr bmp_image_decoder_;
+	ImageDecodeUPtr png_image_decoder_;
+	ExternalImageProbeItems image_probe_items_;
+	std::string image_path_name_;
 
 
 	static void validate_upscale_filter(
@@ -468,6 +493,8 @@ private:
 
 	void recreate_indexed_resources();
 
+	void recreate_sprites_and_walls();
+
 	void uninitialize();
 
 	void initialize(
@@ -501,6 +528,10 @@ private:
 
 	void create_missing_wall_texture();
 
+
+	Texture2dItem create_from_external_image(
+		int id,
+		ImageKind kind);
 
 	Texture2dItem wall_create_texture(
 		const int wall_id);
@@ -666,6 +697,35 @@ void HwTextureMgrImpl::recreate_indexed_resources()
 	}
 }
 
+void HwTextureMgrImpl::recreate_sprites_and_walls()
+{
+	// Sprites.
+	//
+	for (auto& sprite_item : sprite_map_)
+	{
+		const auto sprite_id = sprite_item.first;
+		auto& texture_2d_item = sprite_item.second;
+
+		auto new_texture_2d_item = sprite_create_texture(sprite_id);
+		new_texture_2d_item.generation_id_ = generation_id_;
+
+		texture_2d_item = std::move(new_texture_2d_item);
+	}
+
+	// Walls.
+	//
+	for (auto& wall_item : wall_map_)
+	{
+		const auto wall_id = wall_item.first;
+		auto& texture_2d_item = wall_item.second;
+
+		auto new_texture_2d_item = wall_create_texture(wall_id);
+		new_texture_2d_item.generation_id_ = generation_id_;
+
+		texture_2d_item = std::move(new_texture_2d_item);
+	}
+}
+
 int HwTextureMgrImpl::get_min_upscale_filter_degree(
 	const HwTextureMgrUpscaleFilterKind upscale_filter_kind) const
 {
@@ -709,6 +769,19 @@ void HwTextureMgrImpl::set_upscale_filter(
 	upscale_filter_factor_ = clamped_upscale_filter_factor;
 
 	recreate_indexed_resources();
+}
+
+void HwTextureMgrImpl::enable_external_textures(
+	bool is_enable)
+{
+	if (is_external_textures_enabled_ == is_enable)
+	{
+		return;
+	}
+
+	is_external_textures_enabled_ = is_enable;
+
+	recreate_sprites_and_walls();
 }
 
 void HwTextureMgrImpl::begin_cache()
@@ -1600,6 +1673,102 @@ void HwTextureMgrImpl::create_missing_wall_texture()
 	missing_wall_texture_2d_item_ = std::move(texture_2d_item);
 }
 
+HwTextureMgrImpl::Texture2dItem HwTextureMgrImpl::create_from_external_image(
+	int id,
+	ImageKind kind)
+{
+	if (id < 0 || id > 99'999'999)
+	{
+		throw HwTextureManagerException{"Id out of range."};
+	}
+
+	using PathNameMaker = void (*)(
+		int wall_id,
+		std::string& path_name);
+
+	auto path_name_maker = PathNameMaker{};
+
+	switch (kind)
+	{
+		case ImageKind::sprite:
+			path_name_maker = ca_make_sprite_resource_path_name;
+			break;
+
+		case ImageKind::wall:
+			path_name_maker = ca_make_wall_resource_path_name;
+			break;
+
+		default:
+			throw HwTextureManagerException{"Unsupported image kind."};
+	}
+
+	path_name_maker(id, image_path_name_);
+
+	for (const auto& image_probe_item : image_probe_items_)
+	{
+		file_system::replace_extension(image_path_name_, image_probe_item.file_name_extension);
+
+		if (!image_file_stream_.open(image_path_name_))
+		{
+			continue;
+		}
+
+		const auto image_file_size = image_file_stream_.get_size();
+
+		if (image_file_size <= 0)
+		{
+			continue;
+		}
+
+		if (image_buffer_.size() < image_file_size)
+		{
+			image_buffer_.resize(image_file_size);
+		}
+
+		const auto image_to_read_size = static_cast<int>(image_file_size);
+		const auto image_read_result = image_file_stream_.read(image_buffer_.data(), image_to_read_size);
+
+		if (image_read_result != image_to_read_size)
+		{
+			continue;
+		}
+
+		auto width = 0;
+		auto height = 0;
+
+		try
+		{
+			image_probe_item.image_decoder->decode(
+				image_buffer_.data(),
+				image_read_result,
+				width,
+				height,
+				image_buffer_rgba8_
+			);
+
+			auto param = Texture2dProperties{};
+			param.image_pixel_format_ = Ren3dPixelFormat::rgba_8_unorm;
+			param.width_ = width;
+			param.height_ = height;
+			param.is_generate_mipmaps_ = true;
+			param.mipmap_count_ = detail::Ren3dUtils::calculate_mipmap_count(param.width_, param.height_);
+			param.rgba_8_pixels_ = image_buffer_rgba8_.data();
+
+			auto texture_2d_item = create_texture(param);
+
+			update_mipmaps(texture_2d_item.properties_, texture_2d_item.texture_2d_);
+
+			return texture_2d_item;
+		}
+		catch (const std::exception& ex)
+		{
+			continue;
+		}
+	}
+
+	return Texture2dItem{};
+}
+
 HwTextureMgrImpl::Texture2dItem HwTextureMgrImpl::wall_create_texture(
 	const int wall_id)
 {
@@ -1608,6 +1777,16 @@ HwTextureMgrImpl::Texture2dItem HwTextureMgrImpl::wall_create_texture(
 	if (!indexed_pixels)
 	{
 		throw HwTextureManagerException{"Null data."};
+	}
+
+	if (is_external_textures_enabled_)
+	{
+		auto external_texture_2d_item = create_from_external_image(wall_id, ImageKind::wall);
+
+		if (external_texture_2d_item.texture_2d_)
+		{
+			return external_texture_2d_item;
+		}
 	}
 
 	auto param = Texture2dProperties{};
@@ -1640,6 +1819,16 @@ HwTextureMgrImpl::Texture2dItem HwTextureMgrImpl::sprite_create_texture(
 	if (!sprite->is_initialized())
 	{
 		throw HwTextureManagerException{"Sprite #" + std::to_string(sprite_id) + " not initialized."};
+	}
+
+	if (is_external_textures_enabled_)
+	{
+		auto external_texture_2d_item = create_from_external_image(sprite_id, ImageKind::sprite);
+
+		if (external_texture_2d_item.texture_2d_)
+		{
+			return external_texture_2d_item;
+		}
 	}
 
 	auto param = Texture2dProperties{};
@@ -1689,6 +1878,15 @@ void HwTextureMgrImpl::initialize_internal(
 	sprite_map_.reserve(max_sprites);
 
 	upscale_filter_factor_ = upscale_filter_clamp_factor(upscale_filter_kind_, upscale_filter_factor_);
+
+	bmp_image_decoder_ = make_image_decoder(ImageDecoderType::bmp);
+	png_image_decoder_ = make_image_decoder(ImageDecoderType::png);
+
+	image_probe_items_ = ExternalImageProbeItems
+	{
+		ExternalImageProbeItem{".png", png_image_decoder_.get()},
+		ExternalImageProbeItem{".bmp", bmp_image_decoder_.get()},
+	};
 }
 
 void HwTextureMgrImpl::purge_cache(

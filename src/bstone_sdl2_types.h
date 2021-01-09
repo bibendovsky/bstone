@@ -74,6 +74,8 @@ using SdlTextureUPtr = SdlUPtr<SDL_Texture, SDL_DestroyTexture>;
 using SdlRendererPtr = SDL_Renderer*;
 using SdlRendererUPtr = SdlUPtr<SDL_Renderer, SDL_DestroyRenderer>;
 
+using SdlRwOpsUPtr = SdlUPtr<SDL_RWops, SDL_FreeRW>;
+
 
 } //  bstone
 

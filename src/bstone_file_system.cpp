@@ -122,6 +122,18 @@ public:
 	}
 }; // RenameException
 
+class ReplaceExtensionException :
+	public Exception
+{
+public:
+	explicit ReplaceExtensionException(
+		const char* message)
+		:
+		Exception{std::string{"[REPLACE_EXTENSION] "} + message}
+	{
+	}
+}; // RenameException
+
 
 } // detail
 
@@ -187,6 +199,36 @@ std::string append_path(
 
 		return result;
 	}
+}
+
+void replace_extension(
+	std::string& path_name,
+	const std::string& new_extension)
+{
+	if (path_name.empty() || new_extension.empty())
+	{
+		return;
+	}
+
+	if (new_extension.front() != '.')
+	{
+		throw detail::ReplaceExtensionException{"An extension should start with a dot."};
+	}
+
+	const auto separator_pos = path_name.find_last_of("\\/");
+	const auto dot_pos = path_name.find('.', separator_pos);
+
+	if (dot_pos != std::string::npos)
+	{
+		if (dot_pos == 0 || dot_pos == (path_name.size() - 1))
+		{
+			return;
+		}
+
+		path_name.resize(dot_pos);
+	}
+
+	path_name += new_extension;
 }
 
 std::string get_working_dir()
