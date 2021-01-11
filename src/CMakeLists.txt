@@ -193,6 +193,7 @@ target_include_directories(
 		.
 		dosbox
 		lib/glm
+		lib/stb
 		lib/xbrz
 		sys/win32
 		${PROJECT_BINARY_DIR}
@@ -343,6 +344,9 @@ target_sources(
 		bstone_unique_resource.h
 		bstone_uptr_resource_list.h
 		bstone_version.h
+		bstone_image_decoder.h
+		bstone_stb_image_decoder.h
+		bstone_bmp_image_decoder.h
 )
 
 if (WIN32)
@@ -467,6 +471,9 @@ target_sources(
 		bstone_text_reader.cpp
 		bstone_text_writer.cpp
 		bstone_version.cpp
+		bstone_image_decoder.cpp
+		bstone_stb_image_decoder.cpp
+		bstone_bmp_image_decoder.cpp
 )
 
 if (WIN32)

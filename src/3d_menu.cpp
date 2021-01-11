@@ -428,7 +428,7 @@ CP_iteminfo SwitchItems = {MENU_X, 0, 0, 0, 0, 9, {87, -1, 132, 7, 1}};
 // BBi
 CP_iteminfo video_items = {MENU_X, MENU_Y + 30, 5, 0, 0, 9, {77, -1, 154, 7, 1}};
 CP_iteminfo video_mode_items = {MENU_X, MENU_Y + 10, 8, 0, 0, 9, {77, -1, 154, 7, 1}};
-CP_iteminfo texturing_items = {MENU_X, MENU_Y + 10, 9, 0, 0, 9, {77, -1, 154, 7, 1}};
+CP_iteminfo texturing_items = {MENU_X, MENU_Y + 10, 7, 0, 0, 9, {77, -1, 154, 7, 1}};
 CP_iteminfo switches2_items = {MENU_X, MENU_Y + 30, 2, 0, 0, 9, {87, -1, 132, 7, 1}};
 CP_iteminfo resampling_items = {MENU_X, MENU_Y + 30, 3, 0, 0, 9, {77, -1, 154, 7, 1}};
 // BBi
@@ -579,27 +579,23 @@ CP_itemtype video_mode_menu[] =
 enum class TexturingMenuIndices
 {
 	anisotropy,
-	separator_1,
 	image_2d_filter,
-	separator_2,
 	image_3d_filter,
 	mipmap_3d_filter,
-	separator_3,
 	upscale_filter,
 	upscale_degree,
+	external_textures,
 }; // TexturingMenuIndices
 
 CP_itemtype texturing_menu[] =
 {
 	{AT_ENABLED, "ANISOTROPY", nullptr},
-	{AT_DISABLED, "", nullptr},
 	{AT_ENABLED, "2D IMAGE FILTER", nullptr},
-	{AT_DISABLED, "", nullptr},
 	{AT_ENABLED, "3D IMAGE FILTER", nullptr},
 	{AT_ENABLED, "3D MIPMAP FILTER", nullptr},
-	{AT_DISABLED, "", nullptr},
 	{AT_ENABLED, "UPSCALE FILTER", nullptr},
 	{AT_ENABLED, "UPSCALE DEGREE", nullptr},
+	{AT_ENABLED, "EXTERNAL TEXTURES", nullptr},
 };
 
 void video_menu_mode_routine(
@@ -5389,14 +5385,12 @@ void texturing_draw_descriptions(
 	static const char* instructions[] =
 	{
 		"SELECTS DEGREE OF ANISOTROPY FOR 3D ELEMENTS",
-		"",
 		"SELECTS IMAGE FILTER FOR 2D ELEMENTS",
-		"",
 		"SELECTS IMAGE FILTER FOR 3D ELEMENTS",
 		"SELECTS MIPMAP FILTER FOR 3D ELEMENTS",
-		"",
 		"SELECTS UPSCALE FILTER FOR 8-BIT TEXTURES",
 		"SELECTS DEGREE OF UPSCALE",
+		"TOGGLES USE OF EXTERNAL TEXTURES",
 	};
 
 	fontnumber = 2;
@@ -5557,6 +5551,20 @@ void texturing_draw_switch(
 						&texturing_items,
 						texturing_menu,
 						upscale_degree_string
+					);
+
+					continue;
+				}
+
+				case static_cast<int>(TexturingMenuIndices::external_textures):
+				{
+					const auto external_textures_string = (vid_cfg.is_external_textures_enabled_ ? "ON" : "OFF");
+
+					draw_carousel(
+						i,
+						&texturing_items,
+						texturing_menu,
+						external_textures_string
 					);
 
 					continue;
@@ -5739,6 +5747,23 @@ void texturing_upscale_degree_carousel(
 	TicDelay(20);
 }
 
+void texturing_external_textures_carousel(
+	const int item_index,
+	const bool is_left,
+	const bool is_right)
+{
+	auto& vid_cfg = vid_cfg_get();
+
+	vid_cfg.is_external_textures_enabled_ = !vid_cfg.is_external_textures_enabled_;
+
+	vid_apply_external_textures();
+
+	texturing_update_menu();
+	texturing_draw_switch(item_index);
+
+	TicDelay(20);
+}
+
 void texturing_routine(
 	const std::int16_t index)
 {
@@ -5761,6 +5786,8 @@ void texturing_routine(
 		texturing_upscale_filter_carousel;
 	texturing_menu[static_cast<int>(TexturingMenuIndices::upscale_degree)].carousel_func_ =
 		texturing_upscale_degree_carousel;
+	texturing_menu[static_cast<int>(TexturingMenuIndices::external_textures)].carousel_func_ =
+		texturing_external_textures_carousel;
 
 	auto& configuration = vid_cfg_get();
 

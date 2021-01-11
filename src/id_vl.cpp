@@ -446,6 +446,13 @@ const std::string& vid_get_filler_color_index_name()
 	return result;
 }
 
+const std::string& vid_get_external_textures_name()
+{
+	static const auto result = std::string{"vid_external_textures"};
+
+	return result;
+}
+
 int vid_align_dimension(
 	const int dimension)
 {
@@ -901,6 +908,17 @@ void vid_cl_read_filler_color_index()
 	vid_cfg_.filler_color_index = vid_clamp_filler_color_index(vid_cfg_.filler_color_index);
 }
 
+void vid_cl_read_external_textures()
+{
+	auto int_value = -1;
+	vid_cl_read_int(vid_get_external_textures_name(), int_value);
+
+	if (int_value >= 0)
+	{
+		vid_cfg_.is_external_textures_enabled_ = (int_value != 0);
+	}
+}
+
 const std::string& vid_get_vid_string()
 {
 	static const auto result = std::string{"[VID]"};
@@ -1062,6 +1080,7 @@ void vid_cl_read()
 
 	is_already_read = true;
 
+	vid_cl_read_external_textures();
 	vid_cl_read_is_windowed();
 	vid_cl_read_is_positioned();
 	vid_cl_read_windowed_x();
@@ -11673,6 +11692,36 @@ void hw_apply_filler_color_index()
 	hw_create_2d_fillers_vi();
 }
 
+void hw_destroy_external_textures_resources()
+{
+	hw_flooring_textured_t2d_ = nullptr;
+	hw_ceiling_textured_t2d_ = nullptr;
+}
+
+void hw_create_external_textures_resources()
+{
+	if (FloorTile > 0)
+	{
+		hw_flooring_textured_t2d_ = hw_texture_manager_->get_wall(FloorTile);
+	}
+
+	if (CeilingTile > 0)
+	{
+		hw_ceiling_textured_t2d_ = hw_texture_manager_->get_wall(CeilingTile);
+	}
+}
+
+void hw_apply_external_textures()
+{
+	vid_log();
+	vid_log("Applying external textures.");
+
+
+	hw_destroy_external_textures_resources();
+	hw_texture_manager_->enable_external_textures(vid_cfg_.is_external_textures_enabled_);
+	hw_create_external_textures_resources();
+}
+
 void hw_uninitialize_video()
 {
 	hw_uninitialize_command_buffers();
@@ -11742,6 +11791,7 @@ void hw_initialize_video()
 
 	vid_is_hw_ = true;
 
+	hw_apply_external_textures();
 	hw_apply_texture_upscale();
 
 	const auto window_title = vid_get_window_title_for_renderer();
@@ -12839,6 +12889,17 @@ void vid_cfg_read_filler_color_index(
 	}
 }
 
+void vid_cfg_read_external_textures(
+	const std::string& value_string)
+{
+	int value = 0;
+
+	if (bstone::StringHelper::string_to_int(value_string, value))
+	{
+		vid_cfg_.is_external_textures_enabled_ = (value != 0);
+	}
+}
+
 bool vid_cfg_parse_key_value(
 	const std::string& key_string,
 	const std::string& value_string)
@@ -12909,6 +12970,10 @@ bool vid_cfg_parse_key_value(
 	else if (key_string == vid_get_filler_color_index_name())
 	{
 		vid_cfg_read_filler_color_index(value_string);
+	}
+	else if (key_string == vid_get_external_textures_name())
+	{
+		vid_cfg_read_external_textures(value_string);
 	}
 	else
 	{
@@ -13127,6 +13192,12 @@ void vid_cfg_write(
 		vid_get_filler_color_index_name(),
 		std::to_string(vid_cfg_.filler_color_index)
 	);
+
+	cfg_file_write_entry(
+		text_writer,
+		vid_get_external_textures_name(),
+		std::to_string(vid_cfg_.is_external_textures_enabled_)
+	);
 }
 
 void vid_cfg_set_defaults()
@@ -13160,6 +13231,8 @@ void vid_cfg_set_defaults()
 	vid_cfg_.texture_upscale_xbrz_degree_ = 0;
 
 	vid_cfg_.filler_color_index = 0;
+
+	vid_cfg_.is_external_textures_enabled_ = false;
 }
 
 VidCfg& vid_cfg_get()
@@ -13983,6 +14056,16 @@ void vid_apply_filler_color()
 	{
 		sw_apply_filler_color_index();
 	}
+}
+
+void vid_apply_external_textures()
+{
+	if (!vid_is_hw_)
+	{
+		return;
+	}
+
+	hw_apply_external_textures();
 }
 
 bool operator==(
