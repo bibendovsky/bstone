@@ -202,4 +202,12 @@ extern std::int16_t THEME_MUS;
 extern std::int16_t LASTMUSIC;
 
 
+enum class AudioDriverType
+{
+	auto_detect,
+	r2_sdl,
+	r3_openal,
+}; // AudioDriverType
+
+
 #endif // BSTONE_AUDIO_INCLUDED

@@ -143,6 +143,10 @@ const int sd_default_music_volume = 5;
 extern int sd_sfx_volume_;
 extern int sd_music_volume_;
 
+extern AudioDriverType sd_audio_driver_type;
+extern std::string sd_oal_library;
+extern std::string sd_oal_device_name;
+
 
 void sd_play_sound(
 	const int sound_index,
