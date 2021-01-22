@@ -143,6 +143,13 @@ enum MenuVideoLables
 // BBi
 
 
+void draw_carousel(
+	const int item_index,
+	CP_iteminfo* item_i,
+	CP_itemtype* items,
+	const std::string& text);
+
+
 namespace
 {
 
@@ -417,7 +424,7 @@ extern bool refresh_screen;
 
 CP_iteminfo MainItems = {MENU_X, MENU_Y, 12, MM_NEW_MISSION, 0, 9, {77, 1, 154, 9, 1}};
 CP_iteminfo GopItems = {MENU_X, MENU_Y + 25, 6, 0, 0, 9, {77, 1, 154, 9, 1}};
-CP_iteminfo SndItems = {SM_X, SM_Y, 3, 0, 0, 8, {87, -1, 144, 7, 1}};
+CP_iteminfo SndItems = {SM_X, SM_Y, 4, 0, 0, 8, {87, -1, 144, 7, 1}};
 CP_iteminfo LSItems = {LSM_X, LSM_Y, 10, 0, 0, 8, {86, -1, 144, 8, 1}};
 CP_iteminfo CtlItems = {CTL_X, CTL_Y, 3, -1, 0, 9, {87, 1, 174, 9, 1}};
 CP_iteminfo CusItems = {CST_X, CST_Y + 7, 6, -1, 0, 15, {54, -1, 203, 7, 1}};
@@ -473,6 +480,7 @@ CP_itemtype SndMenu[] =
 	{AT_ENABLED, "SOUND EFFECTS", 0},
 	{AT_ENABLED, "BACKGROUND MUSIC", 0},
 	{AT_ENABLED, "RESAMPLING", cp_resampling},
+	{AT_ENABLED, "DRIVER", 0},
 };
 
 CP_itemtype CtlMenu[] = {
@@ -2671,9 +2679,76 @@ void DrawSwitchDescription(
 	US_PrintCentered(instr[which]);
 }
 
+struct SoundDriverItem
+{
+	AudioDriverType type{};
+	std::string name{};
+}; // SoundDriverItem
+
+constexpr auto sound_driver_count = 3;
+
+const SoundDriverItem sound_drivers[sound_driver_count] =
+{
+	SoundDriverItem{AudioDriverType::auto_detect, "AUTO-DETECT"},
+	SoundDriverItem{AudioDriverType::r2_sdl, "2D (SDL)"},
+	SoundDriverItem{AudioDriverType::r3_openal, "3D (OPENAL)"},
+};
+
+auto sound_driver_index = 0;
+
+void initialize_sound_driver_index()
+{
+	switch (sd_audio_driver_type)
+	{
+		case AudioDriverType::r2_sdl:
+			sound_driver_index = 1;
+			break;
+
+		case AudioDriverType::r3_openal:
+			sound_driver_index = 2;
+			break;
+
+		case AudioDriverType::auto_detect:
+		default:
+			sound_driver_index = 0;
+			break;
+	}
+}
+
+void sound_driver_carousel(
+	const int item_index,
+	const bool is_left,
+	const bool is_right)
+{
+	const auto delta = (is_left ? -1 : (is_right ? 1 : 0));
+
+	sound_driver_index += delta;
+
+	if (sound_driver_index < 0)
+	{
+		sound_driver_index = sound_driver_count - 1;
+	}
+	else if (sound_driver_index >= sound_driver_count)
+	{
+		sound_driver_index = 0;
+	}
+
+	sd_audio_driver_type = sound_drivers[sound_driver_index].type;
+	sd_shutdown();
+	sd_startup();
+
+	DrawSoundMenu();
+	DrawAllSoundLights(item_index);
+
+	TicDelay(20);
+}
+
 void CP_Sound(
 	std::int16_t)
 {
+	initialize_sound_driver_index();
+	SndMenu[3].carousel_func_ = sound_driver_carousel;
+
 	std::int16_t which;
 
 	CA_CacheScreen(BACKGROUND_SCREENPIC);
@@ -2772,11 +2847,6 @@ void DrawAllSoundLights(
 
 	for (i = 0; i < SndItems.amount; i++)
 	{
-		if (i > 1)
-		{
-			break;
-		}
-
 		if (SndMenu[i].string[0])
 		{
 			Shape = C_NOTSELECTEDPIC;
@@ -2808,6 +2878,18 @@ void DrawAllSoundLights(
 					++Shape;
 				}
 				break;
+
+			case 2:
+				continue;
+
+			case 3:
+				draw_carousel(
+					i,
+					&SndItems,
+					SndMenu,
+					sound_drivers[sound_driver_index].name
+				);
+				continue;
 
 			default:
 				break;

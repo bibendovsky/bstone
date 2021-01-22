@@ -28,6 +28,8 @@ Free Software Foundation, Inc.,
 
 #include <memory>
 
+#include "audio.h"
+
 #include "bstone_audio_decoder.h"
 #include "bstone_opl3.h"
 
@@ -185,6 +187,7 @@ using AudioMixerUPtr = std::unique_ptr<AudioMixer>;
 
 
 AudioMixerUPtr make_audio_mixer(
+	AudioDriverType audio_driver_type,
 	MtTaskMgr* const mt_task_manager);
 
 

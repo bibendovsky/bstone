@@ -1514,8 +1514,6 @@ void InitGame()
 	// build some tables
 	//
 
-	InitDigiMap();
-
 	for (i = 0; i < MAPSIZE; i++)
 	{
 		nearmapylookup[i] = &tilemap[0][0] + MAPSIZE * i;

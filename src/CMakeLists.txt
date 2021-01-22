@@ -193,6 +193,7 @@ target_include_directories(
 		.
 		dosbox
 		lib/glm
+		lib/openal_soft/include/AL
 		lib/stb
 		lib/xbrz
 		sys/win32
@@ -347,6 +348,15 @@ target_sources(
 		bstone_image_decoder.h
 		bstone_stb_image_decoder.h
 		bstone_bmp_image_decoder.h
+		bstone_dynamic_loader.h
+		bstone_not_null.h
+		bstone_oal_audio_mixer.h
+		bstone_oal_loader.h
+		bstone_oal_resource.h
+		bstone_oal_source.h
+		bstone_oal_symbols.h
+		bstone_sdl2_audio_mixer.h
+		bstone_sdl2_dynamic_loader.h
 )
 
 if (WIN32)
@@ -474,6 +484,15 @@ target_sources(
 		bstone_image_decoder.cpp
 		bstone_stb_image_decoder.cpp
 		bstone_bmp_image_decoder.cpp
+		bstone_dynamic_loader.cpp
+		bstone_not_null.cpp
+		bstone_oal_audio_mixer.cpp
+		bstone_oal_loader.cpp
+		bstone_oal_resource.cpp
+		bstone_oal_source.cpp
+		bstone_oal_symbols.cpp
+		bstone_sdl2_audio_mixer.cpp
+		bstone_sdl2_dynamic_loader.cpp
 )
 
 if (WIN32)

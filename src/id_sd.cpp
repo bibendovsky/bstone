@@ -37,6 +37,9 @@ Free Software Foundation, Inc.,
 #include "bstone_text_writer.h"
 
 
+void InitDigiMap();
+
+
 std::uint16_t sd_start_pc_sounds_ = STARTPCSOUNDS;
 std::uint16_t sd_start_al_sounds_ = STARTADLIBSOUNDS;
 
@@ -78,6 +81,10 @@ static bool sd_lpf_ = true;
 
 int sd_sfx_volume_ = sd_default_sfx_volume;
 int sd_music_volume_ = sd_default_music_volume;
+
+AudioDriverType sd_audio_driver_type = AudioDriverType::auto_detect;
+std::string sd_oal_library = std::string{};
+std::string sd_oal_device_name = std::string{};
 
 
 void sd_cfg_parse_cl();
@@ -150,6 +157,8 @@ void sd_setup_digi()
 	{
 		sd_digi_map_[i] = -1;
 	}
+
+	InitDigiMap();
 }
 
 // Determines if there's an AdLib (or SoundBlaster emulating an AdLib) present
@@ -282,40 +291,50 @@ void sd_startup()
 
 		sd_cfg_parse_cl();
 
-		sd_mixer_ = bstone::make_audio_mixer(mt_task_manager_);
-
-		auto param = bstone::AudioMixerInitParam{};
-		param.opl3_type_ = bstone::Opl3Type::dbopl;
-		param.dst_rate_ = snd_rate;
-		param.mix_size_ms_ = snd_mix_size;
-		param.resampling_interpolation_ = sd_interpolation_;
-		param.resampling_lpf_ = sd_lpf_;
-
-		if (sd_mixer_->initialize(param))
+		try
 		{
-			sd_log("Channel count: " + std::to_string(sd_mixer_->get_channel_count()));
-			sd_log("Sample rate: " + std::to_string(sd_mixer_->get_rate()) + " Hz");
-			sd_log("Mix size: " + std::to_string(sd_mixer_->get_mix_size_ms()) + " ms");
-			sd_log("Effects volume: " + std::to_string(sd_sfx_volume_) + " / " + std::to_string(sd_max_volume));
-			sd_log("Music volume: " + std::to_string(sd_music_volume_) + " / " + std::to_string(sd_max_volume));
-			sd_log("OPL3 type: " + sd_get_opl3_long_name(sd_mixer_->get_opl3_type()));
+			sd_mixer_ = bstone::make_audio_mixer(sd_audio_driver_type, mt_task_manager_);
 
-			sd_log("Resampling interpolation: " +
-				sd_get_resampling_interpolation_long_name(sd_mixer_->get_resampling_interpolation()));
+			auto param = bstone::AudioMixerInitParam{};
+			param.opl3_type_ = bstone::Opl3Type::dbopl;
+			param.dst_rate_ = snd_rate;
+			param.mix_size_ms_ = snd_mix_size;
+			param.resampling_interpolation_ = sd_interpolation_;
+			param.resampling_lpf_ = sd_lpf_;
 
-			sd_log("Resampling low-pass filter: " +
-				sd_get_resampling_lpf_long_name(sd_mixer_->get_resampling_lpf()));
+			if (sd_mixer_->initialize(param))
+			{
+				sd_log("Channel count: " + std::to_string(sd_mixer_->get_channel_count()));
+				sd_log("Sample rate: " + std::to_string(sd_mixer_->get_rate()) + " Hz");
+				sd_log("Mix size: " + std::to_string(sd_mixer_->get_mix_size_ms()) + " ms");
+				sd_log("Effects volume: " + std::to_string(sd_sfx_volume_) + " / " + std::to_string(sd_max_volume));
+				sd_log("Music volume: " + std::to_string(sd_music_volume_) + " / " + std::to_string(sd_max_volume));
+				sd_log("OPL3 type: " + sd_get_opl3_long_name(sd_mixer_->get_opl3_type()));
+
+				sd_log("Resampling interpolation: " +
+					sd_get_resampling_interpolation_long_name(sd_mixer_->get_resampling_interpolation()));
+
+				sd_log("Resampling low-pass filter: " +
+					sd_get_resampling_lpf_long_name(sd_mixer_->get_resampling_lpf()));
+			}
+			else
+			{
+				sd_log_error("Failed to initialize mixer.");
+			}
 		}
-		else
+		catch (const std::exception& ex)
 		{
-			sd_log_error("Failed to initialize mixer.");
+			sd_log_error(std::string{"Failed to initialize mixer: "} + ex.what());
 		}
 	}
 	else
 	{
 		sd_log("Audio subsystem disabled.");
 
-		sd_mixer_->uninitialize();
+		if (sd_mixer_)
+		{
+			sd_mixer_->uninitialize();
+		}
 	}
 
 	sd_setup_digi();
@@ -344,7 +363,10 @@ void sd_shutdown()
 		return;
 	}
 
-	sd_mixer_->uninitialize();
+	if (sd_mixer_)
+	{
+		sd_mixer_->uninitialize();
+	}
 
 	// Free music data
 	for (int i = 0; i < LASTMUSIC; ++i)
@@ -358,7 +380,7 @@ void sd_shutdown()
 // Returns the sound number that's playing, or 0 if no sound is playing
 bool sd_sound_playing()
 {
-	if (sd_is_sound_enabled_)
+	if (sd_is_sound_enabled_ && sd_mixer_)
 	{
 		return sd_mixer_->is_any_sfx_playing();
 	}
@@ -371,7 +393,10 @@ bool sd_sound_playing()
 // If a sound is playing, stops it.
 void sd_stop_sound()
 {
-	sd_mixer_->stop_pausable_sfx();
+	if (sd_mixer_)
+	{
+		sd_mixer_->stop_pausable_sfx();
+	}
 }
 
 // Waits until the current sound is done playing.
@@ -386,15 +411,21 @@ void sd_wait_sound_done()
 // Turns on the sequencer.
 void sd_music_on()
 {
-	sd_sq_active_ = true;
-	sd_mixer_->play_adlib_music(sd_music_index_, sd_sq_hack_, sd_sq_hack_len_);
+	if (sd_mixer_)
+	{
+		sd_sq_active_ = true;
+		sd_mixer_->play_adlib_music(sd_music_index_, sd_sq_hack_, sd_sq_hack_len_);
+	}
 }
 
 // Turns off the sequencer and any playing notes.
 void sd_music_off()
 {
-	sd_sq_active_ = false;
-	sd_mixer_->stop_music();
+	if (sd_mixer_)
+	{
+		sd_sq_active_ = false;
+		sd_mixer_->stop_music();
+	}
 }
 
 // Starts playing the music pointed to.
@@ -478,6 +509,11 @@ void sd_play_sound(
 		Quit("Uncached sound.");
 	}
 
+	if (!sd_mixer_)
+	{
+		return;
+	}
+
 	int priority = bstone::Endian::little(sound->priority);
 
 	const auto sfx_info = sd_get_sfx_info(sound_index);
@@ -559,18 +595,33 @@ void sd_play_wall_sound(
 
 void sd_update_positions()
 {
-	sd_mixer_->update_positions();
+	if (sd_mixer_)
+	{
+		sd_mixer_->update_positions();
+	}
 }
 
 bool sd_is_player_channel_playing(
 	const bstone::ActorChannel channel)
 {
-	return sd_mixer_->is_player_channel_playing(channel);
+	if (sd_mixer_)
+	{
+		return sd_mixer_->is_player_channel_playing(channel);
+	}
+	else
+	{
+		return false;
+	}
 }
 
 void sd_set_sfx_volume(
 	const int volume)
 {
+	if (!sd_mixer_)
+	{
+		return;
+	}
+
 	auto new_volume = volume;
 
 	if (new_volume < sd_min_volume)
@@ -589,6 +640,11 @@ void sd_set_sfx_volume(
 void sd_set_music_volume(
 	const int volume)
 {
+	if (!sd_mixer_)
+	{
+		return;
+	}
+
 	auto new_volume = volume;
 
 	if (new_volume < sd_min_volume)
@@ -607,19 +663,28 @@ void sd_set_music_volume(
 void sd_mute(
 	const bool mute)
 {
-	sd_mixer_->set_mute(mute);
+	if (sd_mixer_)
+	{
+		sd_mixer_->set_mute(mute);
+	}
 }
 
 void sd_pause_sfx(
 	const bool is_pause)
 {
-	sd_mixer_->pause_all_sfx(is_pause);
+	if (sd_mixer_)
+	{
+		sd_mixer_->pause_all_sfx(is_pause);
+	}
 }
 
 void sd_pause_music(
 	const bool is_pause)
 {
-	sd_mixer_->pause_music(is_pause);
+	if (sd_mixer_)
+	{
+		sd_mixer_->pause_music(is_pause);
+	}
 }
 
 int sd_get_adlib_music_data_size(
@@ -690,7 +755,7 @@ void sd_cfg_set_resampling_low_pass_filter(
 
 void sd_apply_resampling()
 {
-	if (!sd_has_audio_)
+	if (!sd_has_audio_ || !sd_mixer_)
 	{
 		return;
 	}
@@ -710,13 +775,48 @@ void sd_apply_resampling()
 
 	sd_log("Resampling low-pass filter: " +
 		sd_get_resampling_lpf_long_name(sd_mixer_->get_resampling_lpf()));
-
 }
 
 void sd_cfg_set_defaults()
 {
 	sd_interpolation_ = bstone::AudioDecoderInterpolationType::linear;
 	sd_lpf_ = true;
+}
+
+const std::string sd_cfg_get_2d_sdl_name()
+{
+	static const auto result = std::string{"2d_sdl"};
+	return result;
+}
+
+const std::string sd_cfg_get_3d_openal_name()
+{
+	static const auto result = std::string{"3d_openal"};
+	return result;
+}
+
+const std::string sd_cfg_get_auto_detect_name()
+{
+	static const auto result = std::string{"auto-detect"};
+	return result;
+}
+
+const std::string sd_cfg_get_driver_name()
+{
+	static const auto result = std::string{"snd_driver"};
+	return result;
+}
+
+const std::string sd_cfg_get_oal_library_name()
+{
+	static const auto result = std::string{"snd_oal_library"};
+	return result;
+}
+
+const std::string sd_cfg_get_oal_device_name_name()
+{
+	static const auto result = std::string{"snd_oal_device_name"};
+	return result;
 }
 
 const std::string sd_cfg_get_zoh_name()
@@ -771,6 +871,33 @@ bool sd_cfg_parse_key_value(
 
 		return true;
 	}
+	else if (key_string == sd_cfg_get_driver_name())
+	{
+		if (value_string == sd_cfg_get_2d_sdl_name())
+		{
+			sd_audio_driver_type = AudioDriverType::r2_sdl;
+		}
+		else if (value_string == sd_cfg_get_3d_openal_name())
+		{
+			sd_audio_driver_type = AudioDriverType::r3_openal;
+		}
+		else
+		{
+			sd_audio_driver_type = AudioDriverType::auto_detect;
+		}
+
+		return true;
+	}
+	else if (key_string == sd_cfg_get_oal_library_name())
+	{
+		sd_oal_library = value_string;
+		return true;
+	}
+	else if (key_string == sd_cfg_get_oal_device_name_name())
+	{
+		sd_oal_device_name = value_string;
+		return true;
+	}
 
 	return false;
 }
@@ -793,6 +920,34 @@ void sd_cfg_parse_cl()
 		{
 			sd_cfg_parse_key_value(sd_cfg_get_resampling_lpf_name(), value_string);
 		}
+	}
+
+	if (g_args.has_option(sd_cfg_get_driver_name()))
+	{
+		const auto value_string = g_args.get_option_value(sd_cfg_get_driver_name());
+
+		if (value_string == sd_cfg_get_2d_sdl_name())
+		{
+			sd_audio_driver_type = AudioDriverType::r2_sdl;
+		}
+		else if (value_string == sd_cfg_get_3d_openal_name())
+		{
+			sd_audio_driver_type = AudioDriverType::r3_openal;
+		}
+		else
+		{
+			sd_audio_driver_type = AudioDriverType::auto_detect;
+		}
+	}
+
+	if (g_args.has_option(sd_cfg_get_oal_library_name()))
+	{
+		sd_oal_library = g_args.get_option_value(sd_cfg_get_oal_library_name());
+	}
+
+	if (g_args.has_option(sd_cfg_get_oal_device_name_name()))
+	{
+		sd_oal_device_name = g_args.get_option_value(sd_cfg_get_oal_device_name_name());
 	}
 }
 
@@ -829,6 +984,43 @@ void sd_cfg_write(
 		text_writer,
 		sd_cfg_get_resampling_lpf_name(),
 		std::to_string(sd_lpf_)
+	);
+
+	{
+		auto value_string = std::string{};
+
+		switch (sd_audio_driver_type)
+		{
+			case AudioDriverType::r2_sdl:
+				value_string = sd_cfg_get_2d_sdl_name();
+				break;
+
+			case AudioDriverType::r3_openal:
+				value_string = sd_cfg_get_3d_openal_name();
+				break;
+
+			default:
+				value_string = sd_cfg_get_auto_detect_name();
+				break;
+		}
+
+		cfg_file_write_entry(
+			text_writer,
+			sd_cfg_get_driver_name(),
+			value_string
+		);
+	}
+
+	cfg_file_write_entry(
+		text_writer,
+		sd_cfg_get_oal_library_name(),
+		sd_oal_library
+	);
+
+	cfg_file_write_entry(
+		text_writer,
+		sd_cfg_get_oal_device_name_name(),
+		sd_oal_device_name
 	);
 }
 // BBi
