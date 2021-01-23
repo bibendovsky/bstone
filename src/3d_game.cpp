@@ -3422,7 +3422,10 @@ restartgame:
 		case ex_secretlevel:
 		case ex_warped:
 			ClearMemory();
+// FIXME
+#if 0
 			gamestate.mapon++;
+#endif
 			old_gamestate = gamestate;
 			old_gamestuff = gamestuff;
 			ClearNClose();
