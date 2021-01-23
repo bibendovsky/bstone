@@ -3097,7 +3097,12 @@ void select_floor()
 		playstate = is_ps ? ex_transported : ex_completed;
 
 		gamestate.lastmapon = gamestate.mapon;
+// FIXME
+#if 0
 		gamestate.mapon = static_cast<std::int16_t>(new_floor - 1);
+#else
+		gamestate.mapon = static_cast<std::int16_t>(new_floor);
+#endif
 	}
 	else
 	{
@@ -3214,7 +3219,12 @@ void Cmd_Use(
 					case 0xf400:
 						playstate = ex_transported;
 						gamestate.lastmapon = gamestate.mapon;
+// FIXME
+#if 0
 						gamestate.mapon = (iconnum & 0xff) - 1;
+#else
+						gamestate.mapon = iconnum & 0xff;
+#endif
 						break;
 
 					default:
