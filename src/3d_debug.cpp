@@ -893,7 +893,12 @@ bool DebugKeys()
 			const auto max_warp_level = assets_info.get_levels_per_episode() - 1;
 			const auto level = atoi(string);
 
+// FIXME
+#if 0
 			if (level > -1 && level <= max_warp_level)
+#else
+			if (level >= 0 && level <= max_warp_level)
+#endif
 			{
 				if (mapheaderseg[level].name[0] != '\0')
 				{
@@ -906,7 +911,12 @@ bool DebugKeys()
 						BONUS_SHOWN = 0;
 					}
 
+// FIXME
+#if 0
 					gamestate.mapon = static_cast<std::int16_t>(level - 1);
+#else
+					gamestate.mapon = static_cast<std::int16_t>(level);
+#endif
 				}
 			}
 		}
