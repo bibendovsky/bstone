@@ -113,16 +113,57 @@ void BmpImageDecoder::decode(
 		Sdl2EnsureResult{SDL_LockSurface(sdl_src_surface.get())};
 	}
 
+	if (SDL_ISPIXELFORMAT_INDEXED(sdl_src_surface->format->format))
+	{
+		decode_paletted(sdl_src_surface.get(), dst_pixel_format, dst_buffer);
+	}
+	else
+	{
+		decode_non_paletted(sdl_src_surface.get(), dst_pixel_format, dst_buffer);
+	}
+}
+
+void BmpImageDecoder::decode_non_paletted(
+	SDL_Surface* src_sdl_surface,
+	SDL_PixelFormatEnum dst_sdl_pixel_format,
+	Rgba8Buffer& dst_buffer)
+{
 	Sdl2EnsureResult{SDL_ConvertPixels(
-		sdl_src_surface->w,
-		sdl_src_surface->h,
-		sdl_src_surface->format->format,
-		sdl_src_surface->pixels,
-		sdl_src_surface->pitch,
-		dst_pixel_format,
+		src_sdl_surface->w,
+		src_sdl_surface->h,
+		src_sdl_surface->format->format,
+		src_sdl_surface->pixels,
+		src_sdl_surface->pitch,
+		dst_sdl_pixel_format,
 		dst_buffer.data(),
-		4 * dst_width
+		4 * src_sdl_surface->w
 	)};
+}
+
+void BmpImageDecoder::decode_paletted(
+	SDL_Surface* src_sdl_surface,
+	SDL_PixelFormatEnum dst_sdl_pixel_format,
+	Rgba8Buffer& dst_buffer)
+{
+	const auto dst_sdl_surface = SdlSurfaceUPtr{SDL_ConvertSurfaceFormat(src_sdl_surface, dst_sdl_pixel_format, 0)};
+
+	Sdl2EnsureResult{dst_sdl_surface.get()};
+
+	if (dst_sdl_surface->pitch != (4 * src_sdl_surface->w))
+	{
+		throw BmpImageDecoderException{"Unsupported pitch value."};
+	}
+
+	if (SDL_MUSTLOCK(dst_sdl_surface.get()))
+	{
+		Sdl2EnsureResult{SDL_LockSurface(dst_sdl_surface.get())};
+	}
+
+	std::uninitialized_copy_n(
+		static_cast<const Rgba8*>(dst_sdl_surface->pixels),
+		src_sdl_surface->w * src_sdl_surface->h,
+		dst_buffer.data()
+	);
 }
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

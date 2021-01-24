@@ -28,6 +28,8 @@ Free Software Foundation, Inc.,
 
 #include "bstone_image_decoder.h"
 
+#include "SDL.h"
+
 
 namespace bstone
 {
@@ -45,6 +47,18 @@ public:
 		int& dst_width,
 		int& dst_height,
 		Rgba8Buffer& dst_buffer) override;
+
+
+private:
+	static void decode_non_paletted(
+		SDL_Surface* src_sdl_surface,
+		SDL_PixelFormatEnum dst_sdl_pixel_format,
+		Rgba8Buffer& dst_buffer);
+
+	static void decode_paletted(
+		SDL_Surface* src_sdl_surface,
+		SDL_PixelFormatEnum dst_sdl_pixel_format,
+		Rgba8Buffer& dst_buffer);
 }; // BmpImageDecoder
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
