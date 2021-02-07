@@ -3088,8 +3088,6 @@ void AudioExtractor::initialize_sfx()
 	}
 
 	sd_setup_extracting();
-
-	InitDigiMap();
 }
 
 void AudioExtractor::write_adlib_sfx(
