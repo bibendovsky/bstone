@@ -295,11 +295,17 @@ bool has_content(
 	const AssetsCRefStrings& base_names,
 	const std::string& extension)
 {
+	auto file_stream = bstone::FileStream{};
+
 	for (const auto& base_name : base_names)
 	{
-		const auto& path = bstone::file_system::append_path(search_path.path_, base_name.get() + extension);
+		const auto is_resource_open = ca_open_resource_non_fatal(
+			base_name.get(),
+			extension,
+			file_stream
+		);
 
-		if (!bstone::file_system::has_file(path))
+		if (!is_resource_open)
 		{
 			return false;
 		}
