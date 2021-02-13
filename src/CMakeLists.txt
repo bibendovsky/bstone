@@ -209,7 +209,7 @@ if (BSTONE_PANDORA)
 endif ()
 
 
-if (NOT (${CMAKE_VERSION} VERSION_LESS "3.16.0"))
+if (BSTONE_USE_PCH AND NOT (${CMAKE_VERSION} VERSION_LESS "3.16.0"))
 	target_precompile_headers(
 		${PROJECT_NAME}
 		PRIVATE
