@@ -125,7 +125,7 @@ void BmpImageDecoder::decode(
 
 void BmpImageDecoder::decode_non_paletted(
 	SDL_Surface* src_sdl_surface,
-	SDL_PixelFormatEnum dst_sdl_pixel_format,
+	Uint32 dst_sdl_pixel_format,
 	Rgba8Buffer& dst_buffer)
 {
 	Sdl2EnsureResult{SDL_ConvertPixels(
@@ -142,7 +142,7 @@ void BmpImageDecoder::decode_non_paletted(
 
 void BmpImageDecoder::decode_paletted(
 	SDL_Surface* src_sdl_surface,
-	SDL_PixelFormatEnum dst_sdl_pixel_format,
+	Uint32 dst_sdl_pixel_format,
 	Rgba8Buffer& dst_buffer)
 {
 	const auto dst_sdl_surface = SdlSurfaceUPtr{SDL_ConvertSurfaceFormat(src_sdl_surface, dst_sdl_pixel_format, 0)};
