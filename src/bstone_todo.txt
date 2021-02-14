@@ -1,9 +1,0 @@
-Grab/Ungrab mouse input
-Joystick???
-Resolve FIXME tasks
-Disable carrying keys between floors
-Clear input state on focus gain
-Replace "memcpy" with assignment where it's possible.
-README: Replace link to AoG downloads with link to product.
-README: Add links to releases (to match homepage content).
-README: Links to images? (to match homepage content).
