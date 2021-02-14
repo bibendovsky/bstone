@@ -119,6 +119,10 @@ try
 	initialize_sfx();
 	initialize_thread();
 
+	interpolation_ = AudioDecoderInterpolationType::none;
+	is_lpf_ = false;
+	is_mute_ = false;
+
 	is_initialized_ = true;
 
 	return true;

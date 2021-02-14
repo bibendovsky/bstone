@@ -233,7 +233,7 @@ const std::string& sd_get_opl3_long_name(
 const std::string& sd_get_resampling_interpolation_long_name(
 	const bstone::AudioDecoderInterpolationType interpolation_type)
 {
-	static const auto unknown = std::string{"???"};
+	static const auto unknown = std::string{"none"};
 	static const auto zoh = std::string{"Zero-Order Hold"};
 	static const auto linear = std::string{"Linear"};
 
@@ -245,6 +245,7 @@ const std::string& sd_get_resampling_interpolation_long_name(
 		case bstone::AudioDecoderInterpolationType::linear:
 			return linear;
 
+		case bstone::AudioDecoderInterpolationType::none:
 		default:
 			return unknown;
 	}
