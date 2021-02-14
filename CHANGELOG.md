@@ -1,6 +1,22 @@
 # BStone changelog
 
 
+## [1.2.10] - 2021-02-14
+### Added
+- Support for external textures (bmp, png).
+- Configuration for external textures (`vid_external_textures`).
+- OpenAL 3D audio driver.
+- Configuration for OpenAL driver (`snd_driver`, `snd_oal_library`, `snd_oal_device_name`).
+
+### Fixed
+- Search path with provided `data_dir`.
+- Double fading on new game or load game when using hw renderer (Emile Belanger, @emileb).
+- Fade whole screen when in widescreen and 3D view is showing (Emile Belanger, @emileb).
+- Next map number for level transition.
+- Support for lowercase resource file names.
+- [CMake] Always enabled precompiled headers.
+
+
 ## [1.2.9] - 2020-11-14
 ### Added
 - Option `vid_filler_color_index` to select filler color.

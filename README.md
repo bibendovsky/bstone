@@ -16,25 +16,33 @@ Contents
    3.3. Addons
 4. Required assets
 5. Profile
-6. Compiling  
-   6.1. Generic instructions for Linux-based system or build environment (MinGW)
-7. Command-line options
-8. Cheat key
-9. Debug keys
-10. Third party use
-11. Credits
-12. Links  
-    12.1. Essentials  
-    12.2. General  
-    12.3. Add-ons for Aliens Of Gold (full)  
-    12.4. Add-ons for Planet Strike
+6. Audio  
+   6.1 OpenAL driver
+7. External textures  
+   7.1 Aspect ratio  
+   7.2 Transparency  
+   7.3 Naming conventions  
+   7.4 Supported file formats  
+   7.5 File format search order
+8. Compiling  
+   8.1. Generic instructions for Linux-based system or build environment (MinGW)
+9. Command-line options
+10. Cheat key
+11. Debug keys
+12. Third party use
+13. Credits
+14. Links  
+    14.1. Essentials  
+    14.2. General  
+    14.3. Add-ons for Aliens Of Gold (full)  
+    14.4. Add-ons for Planet Strike
 
 
 1 - Disclaimer
 ==============
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC  
-Copyright (c) 2013-2020 Boris I. Bendovsky (<bibendovsky@hotmail.com>)
+Copyright (c) 2013-2021 Boris I. Bendovsky (<bibendovsky@hotmail.com>)
 
 This program is free software; you can redistribute it and/or  
 modify it under the terms of the GNU General Public License  
@@ -62,7 +70,10 @@ BStone is unofficial source port for "Blake Stone" game series: "Aliens Of Gold"
 Features:
 * High resolution vanilla rendering
 * 3D-rendering
+* Upscale texture filter
+* Support for external textures
 * Allows to customize control bindings
+* 3D-audio
 * Separate volume control of sound effects and music
 
 Supported games:
@@ -129,6 +140,7 @@ Legend:
 * AOG - Aliens Of Gold (full)
 * PS - Planet Strike
 
+Both all lowercase and all uppercase (default) file names are supported.
 
 The port auto-detect assets of some digital distribution services.
 Note that option `--data_dir` disables auto-detection.
@@ -164,7 +176,94 @@ Where `<game>` is:
 * `ps` - Planet Strike
 
 
-6 - Compiling
+6 - Audio
+=========
+
+Provides default stereo driver and optional 3D one.  
+Use option `GAME OPTIONS - SOUND - DRIVER` to change the driver.
+
+
+6.1 - OpenAL driver
+===================
+
+Supports any OpenAL v1.1 compatible implementation (Creative Labs, OpenAL Soft, etc.).  
+Implementation driver should be available system wide (i.e., via `oalinst.exe`) or should be placed along with port's binary.  
+Expected driver name is `OpenAL32.dll` on Windows or `libopenal.so` on non-Windows system.  
+Set configuration string `snd_oal_library` to use another name.
+
+The port uses default device name.  
+Set configuration string `snd_oal_device_name` to open specific device.
+
+
+7 - External textures
+=====================
+
+Allows to replace stocked textures with custom ones.
+
+Supported targets: wall, sprite, flooring, ceiling.
+
+Option `GAME OPTIONS - VIDEO - TEXTURING - EXTERNAL TEXTURES` enables or disables them on the fly.  
+WARNING Changing the option may take some time if the dimensions of loaded textures are high.
+
+
+7.1 - Aspect ratio
+==================
+
+Both vanilla games ran only in a 320x200 video mode. On monitors, widely available at the time, this video mode took up the entire screen, which had a 4:3 physical aspect ratio. This meant that the 320x200 display, with a 16:10 logical ratio, was stretched vertically - each pixel was 20% taller than it was wide.
+
+In-game graphics have been specifically designed for the 320x200 resolution as stretched to a 4:3 physical aspect ratio.
+
+The port stretches the geometry (world, objects) vertically by 20%.
+That means if you created a wall or sprite texture, for example, with physical dimensions 1024x1024 it will be rendered as 1024x1228, i.e. stretched.
+
+Flooring and ceiling textures has always 1:1 aspect ratio.
+
+TLDR
+- Design wall, sprite, HUD element or screen images in 1:1.2 aspect ratio (i.e. 1280x1536), but export for the game in 1:1 aspect ratio (i.e. 1024x1024).
+- Design flooring or ceiling image in 1:1 aspect ratio (i.e. 1280x1280), and export for the game in 1:1 aspect ratio (i.e. 1024x1024) too.
+
+
+7.2 - Transparency
+==================
+
+Images with alpha channel should be exported as [*premultiplied*](http://en.wikipedia.org/wiki/Alpha_compositing).
+
+
+7.3 - Naming conventions
+========================
+
+All letters *should be* lower case.
+
+"Aliens Of Gold" resources are goes into `aog` directory.
+"Planet Strike" resources are goes into `ps` directory.
+
+Sprite name format: `sprite_xxxxxxxx.ext`.
+Wall name format: `wall_xxxxxxxx.ext`.
+
+Where:
+- `xxxxxxxx` - an internal decimal number of the sprite padded with zero on the left. For "Aliens Of Gold" those internal numbers are based on version `2.1`.
+- `.ext` - file name extension.
+
+Examples:
+- `aog/sprite_00000034.bmp` - "Aliens Of Gold" yellow key card sprite in BMP format.
+- `aog/wall_00000088.png` - "Aliens Of Gold" turned on south-north switch wall in PNG format.
+
+
+7.4 - Supported file formats
+============================
+
+- [Windows BMP](http://wikipedia.org/wiki/BMP_file_format)
+- [PNG](http://wikipedia.org/wiki/Portable_Network_Graphics)
+
+
+7.5 -  File format search order
+===============================
+
+1. PNG
+2. BMP
+
+
+8 - Compiling
 =============
 
 Minimum requirements:
@@ -187,8 +286,7 @@ CMake variables:
   Enables build for Open Pandora.
 
 * `BSTONE_USE_PCH`  
-  If enabled utilizes precompiled headers to speed up the compilation.  
-  Note: Visual C++ only
+  If enabled utilizes precompiled headers to speed up the compilation.
 
 * `BSTONE_USE_STATIC_LINKING`  
   If enabled links modules statically to avoid dependency on system and custom libraries at run-time.
@@ -204,7 +302,7 @@ Notes:
 * Use `ON` value to enable option and value `OFF` to disable option.
 
 
-6.1 - Generic instructions for Linux-based system or build environment (MinGW)
+8.1 - Generic instructions for Linux-based system or build environment (MinGW)
 =============================================================================
 
 1. Install minimum required software described above.
@@ -222,7 +320,7 @@ Notes:
 6. On success you will find executable and text files in the directory `~/bstone-x.y.z/build/install`.
 
 
-7 - Command-line options
+9 - Command-line options
 ========================
 
 * `--version`  
@@ -368,6 +466,11 @@ Notes:
   Values: [`0`..`255`]  
   Default: `0`
 
+* `--vid_external_textures value`  
+  Toggles external textures.  
+  Values: `0` (disable), `1` (enable).  
+  Default: `0`
+
 * `--snd_is_disabled value`  
   Enables or disables audio subsystem.  
   Values: `0` (disable) or `1` (enable)  
@@ -394,6 +497,20 @@ Notes:
   PCM audio only.  
   Values: `0` (disable) or `1` (enable)  
   Default: `1`
+
+* `--snd_driver value`  
+  Specifies the audio driver to use.  
+  Values: `auto-detect`, `2d_sdl` (2D SDL), `3d_openal` (3D OpenAL)  
+  Default: `auto-detect`  
+  Auto-detect order: `3d_openal`, `2d_sdl`
+
+* `--snd_oal_library value`  
+  Specifies OpenAL driver's name.  
+  Default: "" (`OpenAL32.dll` on Windows and `libopenal.so` on non-Windows system).
+
+* `--snd_oal_device_name value`  
+  Specifies OpenAL device name.  
+  Default: ""
 
 * `--calculate_hashes`  
   Calculates hashes (SHA-1) of all resource files and outputs them into the log.
@@ -426,15 +543,15 @@ Notes:
   Extracts all resources (walls, sprites, etc.) into existing directory `dir`.
 
 
-8 - Cheat key
-=============
+10 - Cheat key
+==============
 
 <kbd>J</kbd> <kbd>A</kbd> <kbd>M</kbd> <kbd>Enter</kbd>  
 Press specified keys sequentially. Shows message "NOW you're jammin'!!", and gives to you all keys, all weapons and restores health to 100% but zeroes score points. Not available in shareware version.
 
 
-9 - Debug keys
-==============
+11 - Debug keys
+===============
 
 Add option `--cheats` to enable these keys.
 
@@ -518,24 +635,31 @@ Add option `--cheats` to enable these keys.
   Dumps information into the log about remaining bonus items and enemies.
 
 
-10 - Third party use
+12 - Third party use
 ====================
 
 * [SDL (Simple DirectMedia Library)](http://libsdl.org/)  
-  See file `COPYING-SDL2.txt` for license information.
+  See file `src/lib/sdl/COPYING.txt` for license information.
 
 * [DOSBox](http://dosbox.com/)  
   See file `src/dosbox/COPYING` for license information.  
-  Note: The source port uses only OPL emulation code.
+  Note: The port uses OPL emulation code only.
 
 * [GLM (OpenGL Mathematics)](http://glm.g-truc.net/)  
   See file `src/lib/glm/copying.txt` for license information.
 
+* [OpenAL Soft](http://openal-soft.org/)  
+  See file `src\lib\openal_soft\COPYING` for license information.  
+  Note: The port uses public headers only.
+
+* [stb_image](http://nothings.org/stb)  
+  See file `src\lib\stb\LICENSE` for license information.
+
 * [xBRZ](http://sourceforge.net/projects/xbrz/)  
-  See directory `src/lib/xbrz` for license information (`License.txt`) and essential changes made by the port (`bstone_changelog.txt`).  
+  See directory `src/lib/xbrz` for license information (`License.txt`) and essential changes made for the port (`bstone_changelog.txt`).
 
 
-11 - Credits
+13 - Credits
 ============
 
 * [id Software](http://www.idsoftware.com/)  
@@ -556,16 +680,18 @@ Add option `--cheats` to enable these keys.
 * Various contributors for providing fixies, ideas, etc.
 
 
-12 - Links
+14 - Links
 ==========
 
-12.1 - Essentials
+
+14.1 - Essentials
 =================
 
 * [Home page](http://bibendovsky.github.io/bstone/)
 * [Precompiled binaries and their source code](http://github.com/bibendovsky/bstone/releases)
 
-12.1 - General
+
+14.1 - General
 ==============
 
 * [Blake Stone: Aliens Of Gold official site](http://legacy.3drealms.com/blake/index.html)
@@ -574,14 +700,16 @@ Add option `--cheats` to enable these keys.
 * [Original source code](http://bibendovsky.github.io/bstone/files/official/Blake%20Stone%20Planet%20Strike%20Source%20Code.rar)
 * [Repacked shareware Blake Stone: Aliens Of Gold (v3.0)](http://bibendovsky.github.io/bstone/files/official/repack/bs_aog_v3_0_sw.zip)
 
-12.2 - Add-ons for Aliens Of Gold (full)
+
+14.2 - Add-ons for Aliens Of Gold (full)
 ========================================
 
 * Add-on [BSE90](http://bibendovsky.github.io/bstone/files/community/aog/bse90.zip) by ack
 * Add-on [GUYSTONE](http://bibendovsky.github.io/bstone/files/community/aog/guystone.zip) by Guy Brys
 * Ling's Blake Stone [Levels](http://bibendovsky.github.io/bstone/files/community/aog/lingstone.zip) by Ling Yan Li
 
-12.3 - Add-ons for Planet Strike
+
+14.3 - Add-ons for Planet Strike
 ================================
 
 * Add-on [BSE24](http://bibendovsky.github.io/bstone/files/community/ps/bse24.zip) by ack
