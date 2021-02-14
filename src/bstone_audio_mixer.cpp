@@ -50,25 +50,6 @@ AudioMixerUPtr make_audio_mixer(
 {
 	switch (audio_driver_type)
 	{
-		case AudioDriverType::auto_detect:
-			try
-			{
-				return std::make_unique<OalAudioMixer>(mt_task_manager);
-			}
-			catch (...)
-			{
-			}
-
-			try
-			{
-				return std::make_unique<Sdl2AudioMixer>(mt_task_manager);
-			}
-			catch (...)
-			{
-			}
-
-			throw MakeAudioMixerException{"Failed to initialize any driver."};
-
 		case AudioDriverType::r2_sdl:
 			return std::make_unique<Sdl2AudioMixer>(mt_task_manager);
 

@@ -259,6 +259,37 @@ const std::string& sd_get_resampling_lpf_long_name(
 	return is_enabled ? on : off;
 }
 
+bool sd_initialize_driver(
+	AudioDriverType audio_driver_type,
+	int sample_rate,
+	int mix_size_ms)
+try
+{
+	auto sd_mixer = bstone::make_audio_mixer(audio_driver_type, mt_task_manager_);
+
+	auto param = bstone::AudioMixerInitParam{};
+	param.opl3_type_ = bstone::Opl3Type::dbopl;
+	param.dst_rate_ = sample_rate;
+	param.mix_size_ms_ = mix_size_ms;
+	param.resampling_interpolation_ = sd_interpolation_;
+	param.resampling_lpf_ = sd_lpf_;
+
+	if (sd_mixer->initialize(param))
+	{
+		sd_mixer_.swap(sd_mixer);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+catch (const std::exception& ex)
+{
+	sd_log_error(std::string{"Failed to initialize mixer: "} + ex.what());
+	return false;
+}
+
 void sd_startup()
 {
 	if (sd_started_)
@@ -291,40 +322,49 @@ void sd_startup()
 
 		sd_cfg_parse_cl();
 
-		try
+		auto is_driver_initialized = false;
+
+		switch (sd_audio_driver_type)
 		{
-			sd_mixer_ = bstone::make_audio_mixer(sd_audio_driver_type, mt_task_manager_);
+			case AudioDriverType::r2_sdl:
+				is_driver_initialized = sd_initialize_driver(sd_audio_driver_type, snd_rate, snd_mix_size);
+				break;
 
-			auto param = bstone::AudioMixerInitParam{};
-			param.opl3_type_ = bstone::Opl3Type::dbopl;
-			param.dst_rate_ = snd_rate;
-			param.mix_size_ms_ = snd_mix_size;
-			param.resampling_interpolation_ = sd_interpolation_;
-			param.resampling_lpf_ = sd_lpf_;
+			case AudioDriverType::r3_openal:
+				is_driver_initialized = sd_initialize_driver(sd_audio_driver_type, snd_rate, snd_mix_size);
+				break;
 
-			if (sd_mixer_->initialize(param))
-			{
-				sd_log("Channel count: " + std::to_string(sd_mixer_->get_channel_count()));
-				sd_log("Sample rate: " + std::to_string(sd_mixer_->get_rate()) + " Hz");
-				sd_log("Mix size: " + std::to_string(sd_mixer_->get_mix_size_ms()) + " ms");
-				sd_log("Effects volume: " + std::to_string(sd_sfx_volume_) + " / " + std::to_string(sd_max_volume));
-				sd_log("Music volume: " + std::to_string(sd_music_volume_) + " / " + std::to_string(sd_max_volume));
-				sd_log("OPL3 type: " + sd_get_opl3_long_name(sd_mixer_->get_opl3_type()));
-
-				sd_log("Resampling interpolation: " +
-					sd_get_resampling_interpolation_long_name(sd_mixer_->get_resampling_interpolation()));
-
-				sd_log("Resampling low-pass filter: " +
-					sd_get_resampling_lpf_long_name(sd_mixer_->get_resampling_lpf()));
-			}
-			else
-			{
-				sd_log_error("Failed to initialize mixer.");
-			}
+			case AudioDriverType::auto_detect:
+			default:
+				if (sd_initialize_driver(AudioDriverType::r3_openal, snd_rate, snd_mix_size))
+				{
+					is_driver_initialized = true;
+				}
+				else if (sd_initialize_driver(AudioDriverType::r2_sdl, snd_rate, snd_mix_size))
+				{
+					is_driver_initialized = true;
+				}
+				break;
 		}
-		catch (const std::exception& ex)
+
+		if (is_driver_initialized)
 		{
-			sd_log_error(std::string{"Failed to initialize mixer: "} + ex.what());
+			sd_log("Channel count: " + std::to_string(sd_mixer_->get_channel_count()));
+			sd_log("Sample rate: " + std::to_string(sd_mixer_->get_rate()) + " Hz");
+			sd_log("Mix size: " + std::to_string(sd_mixer_->get_mix_size_ms()) + " ms");
+			sd_log("Effects volume: " + std::to_string(sd_sfx_volume_) + " / " + std::to_string(sd_max_volume));
+			sd_log("Music volume: " + std::to_string(sd_music_volume_) + " / " + std::to_string(sd_max_volume));
+			sd_log("OPL3 type: " + sd_get_opl3_long_name(sd_mixer_->get_opl3_type()));
+
+			sd_log("Resampling interpolation: " +
+				sd_get_resampling_interpolation_long_name(sd_mixer_->get_resampling_interpolation()));
+
+			sd_log("Resampling low-pass filter: " +
+				sd_get_resampling_lpf_long_name(sd_mixer_->get_resampling_lpf()));
+		}
+		else
+		{
+			sd_log_error("Failed to initialize mixer.");
 		}
 	}
 	else
