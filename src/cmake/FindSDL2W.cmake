@@ -1,9 +1,8 @@
 #[[
 
-CMake wrapper for SDL2 module.
+SDL2W - CMake wrapper for SDL2.
 
-
-Copyright (c) 2018-2020 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors.
+Copyright (c) 2018-2021 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -41,7 +40,7 @@ Targets:
 
 cmake_minimum_required (VERSION 3.1.3 FATAL_ERROR)
 
-set (SDL2W_VERSION "1.0.3")
+set (SDL2W_VERSION "1.0.4")
 message (STATUS "[SDL2W] Version: ${SDL2W_VERSION}")
 
 set (SDL2W_TMP_TARGET "${CMAKE_FIND_PACKAGE_NAME}::${CMAKE_FIND_PACKAGE_NAME}")
@@ -297,16 +296,22 @@ endforeach ()
 foreach (SDL2W_TMP_INCLUDE_DIR IN LISTS SDL2W_TMP_SDL2_INC_DIRS)
 	set (SDL2W_TMP_SDL_VERSION_H ${SDL2W_TMP_INCLUDE_DIR}/SDL_version.h)
 
-	# Convert POSIX path to Windows one (MinGW)
+	# [MSYS2] Convert POSIX path to Windows one.
 	#
 	if (MINGW)
+		unset (SDL2W_TMP_SDL_VERSION_H_MSYS2)
+
 		execute_process (
 			COMMAND "sh" "-c" "cmd //c echo ${SDL2W_TMP_SDL_VERSION_H}"
 			TIMEOUT 7
-			OUTPUT_VARIABLE SDL2W_TMP_SDL_VERSION_H
+			OUTPUT_VARIABLE SDL2W_TMP_SDL_VERSION_H_MSYS2
 			ERROR_QUIET
 			OUTPUT_STRIP_TRAILING_WHITESPACE
 		)
+
+		if (SDL2W_TMP_SDL_VERSION_H_MSYS2 MATCHES "SDL_version\\.h$")
+			set (SDL2W_TMP_SDL_VERSION_H ${SDL2W_TMP_SDL_VERSION_H_MSYS2})
+		endif ()
 	endif ()
 
 	# Extract version.
@@ -395,7 +400,11 @@ foreach (SDL2W_TMP_INCLUDE_DIR IN LISTS SDL2W_TMP_SDL2_INC_DIRS)
 	endif ()
 endforeach ()
 
-message (STATUS "[SDL2W] Found SDL version: ${SDL2W_TMP_VERSION_STRING}")
+if (SDL2W_TMP_VERSION_STRING)
+	message (STATUS "[SDL2W] Found SDL version: ${SDL2W_TMP_VERSION_STRING}")
+else ()
+	message (FATAL_ERROR "[SDL2W] Failed to detect SDL version.")
+endif ()
 
 
 # Default handler.
