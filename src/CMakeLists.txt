@@ -23,14 +23,14 @@ Free Software Foundation, Inc.,
 
 
 cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
-project(bstone VERSION 1.2.10 LANGUAGES CXX)
+project(bstone VERSION 1.2.11 LANGUAGES CXX)
 
 
 #
 # Version.
 #
 set(BSTONE_VERSION_CORE "${PROJECT_VERSION}")
-set(BSTONE_VERSION_PRE_RELEASE "")
+set(BSTONE_VERSION_PRE_RELEASE "b.1")
 
 if (BSTONE_VERSION_PRE_RELEASE STREQUAL "")
 	set(BSTONE_VERSION "${BSTONE_VERSION_CORE}")
