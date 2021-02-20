@@ -300,6 +300,7 @@ bool has_content(
 	for (const auto& base_name : base_names)
 	{
 		const auto is_resource_open = ca_open_resource_non_fatal(
+			search_path.path_,
 			base_name.get(),
 			extension,
 			file_stream
