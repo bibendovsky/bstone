@@ -50,11 +50,6 @@ option(BSTONE_USE_PCH "Use precompiled headers if available." ON)
 option(BSTONE_USE_MULTI_PROCESS_COMPILATION "Use multi-process compilation." ON)
 
 
-#
-# Modules.
-#
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
-
 # SDL2W
 #
 set(BSTONE_SDL2_COMPONENTS "")
