@@ -31,6 +31,7 @@ Free Software Foundation, Inc.,
 #include "id_pm.h"
 #include "id_us.h"
 #include "id_vh.h"
+#include "id_vl.h"
 
 #include "bstone_logger.h"
 
@@ -212,23 +213,28 @@ void CountTotals()
 
 void ShowMap()
 {
-	objtype old_player;
-
-	old_player = *player;
+	const auto old_player = *player;
 	player->angle = 90;
-	player->x = player->y = 32.5;
+	player->x = player->y = MAPSIZE + 0.5;
 
 	US_CenterWindow(20, 11);
 
 	US_CPrint("CURRENT MAP\n\n ");
 
-	auto old_flags = ExtraRadarFlags;
-	ExtraRadarFlags |= OV_ACTORS | OV_PUSHWALLS;
+	const auto old_flags = ExtraRadarFlags;
 
+	const auto old_vid_is_3d = vid_is_3d;
+	const auto old_vid_is_hud = vid_is_hud;
+	vid_is_3d = false;
+	vid_is_hud = false;
+
+	ExtraRadarFlags |= OV_ACTORS | OV_PUSHWALLS;
 	ShowOverhead(160 - 32, py, 32, 0, OV_ACTORS | OV_SHOWALL | OV_KEYS | OV_PUSHWALLS);
 	VW_UpdateScreen();
-
 	ExtraRadarFlags = old_flags;
+
+	vid_is_3d = old_vid_is_3d;
+	vid_is_hud = old_vid_is_hud;
 
 	*player = old_player;
 	IN_Ack();
