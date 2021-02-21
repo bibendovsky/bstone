@@ -513,8 +513,16 @@ statobj_t* UseReservedStatic(
 	// place it
 	//
 
-	switch (type)
+	const auto assets_info = AssetsInfo{};
+
+	switch (itemtype)
 	{
+	case bo_plasma_detonator:
+		if (!assets_info.is_ps())
+		{
+			break;
+		}
+
 	case bo_green_key:
 	case bo_gold_key:
 	case bo_red_key:
