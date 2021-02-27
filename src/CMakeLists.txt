@@ -48,6 +48,7 @@ option(BSTONE_USE_STATIC_LINKING "Link build statically." OFF)
 option(BSTONE_PANDORA "Build for Pandora." OFF)
 option(BSTONE_USE_PCH "Use precompiled headers if available." ON)
 option(BSTONE_USE_MULTI_PROCESS_COMPILATION "Use multi-process compilation." ON)
+option(BSTONE_MORE_COMPILER_WARNINGS "Enables more compiler warnings." OFF)
 
 
 # SDL2W
@@ -132,6 +133,15 @@ endif ()
 #
 # Target compile options.
 #
+if (BSTONE_MORE_COMPILER_WARNINGS)
+	target_compile_options(
+		${PROJECT_NAME}
+		PRIVATE
+			$<$<CXX_COMPILER_ID:MSVC>:/W4>
+			$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -pedantic>
+	)
+endif ()
+
 if (MSVC)
 	if (BSTONE_USE_STATIC_LINKING)
 		target_compile_options(
