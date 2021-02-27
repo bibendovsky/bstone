@@ -669,7 +669,7 @@ void CA_LoadAllSounds()
 
 	for (int i = 0; i < NUMSOUNDS; ++i)
 	{
-		CA_CacheAudioChunk(start++);
+		CA_CacheAudioChunk(static_cast<std::int16_t>(start++));
 	}
 
 	old_is_sound_enabled = sd_is_sound_enabled_;
@@ -1087,7 +1087,7 @@ void CA_CannotOpen(
 void UNCACHEGRCHUNK(
 	int chunk)
 {
-	grsegs[chunk] = std::move(GrSegment{});
+	grsegs[chunk] = GrSegment{};
 
 	grneeded[chunk] &= ~ca_levelbit;
 }
@@ -1293,8 +1293,6 @@ void ca_calculate_hashes()
 {
 	bstone::logger_->write();
 	bstone::logger_->write("Calculating resource hashes...");
-
-	auto sha1 = bstone::Sha1{};
 
 	for (const auto& base_name : Assets::get_base_names())
 	{
@@ -2410,7 +2408,7 @@ void ImageExtractor::set_palette(
 	const Palette& palette)
 {
 	assert(sdl_surface);
-	assert(palette.size() == bstone::RgbPalette::get_max_color_count());
+	assert(palette.size() == static_cast<std::size_t>(bstone::RgbPalette::get_max_color_count()));
 	assert(sdl_surface->format);
 	assert(sdl_surface->format->palette);
 	assert(sdl_surface->format->palette->ncolors == bstone::RgbPalette::get_max_color_count());
@@ -2610,8 +2608,6 @@ bool ImageExtractor::save_image(
 	const int image_index,
 	bstone::SdlSurfacePtr sdl_surface)
 {
-	const auto image_index_digits = 8;
-
 	const auto& wall_index_string = ca_make_padded_asset_number_string(image_index);
 
 	const auto& file_name = bstone::file_system::append_path(
@@ -2895,14 +2891,14 @@ bool AudioExtractor::write_wav_header(
 	result &= writer.write_u32(bstone::Endian::big(0x57415645)); // "WAVE"
 	result &= writer.write_u32(bstone::Endian::big(0x666D7420)); // "fmt "
 	result &= writer.write_u32(bstone::Endian::little(16)); // Format size.
-	result &= writer.write_u16(bstone::Endian::little(audio_format)); // Audio format.
-	result &= writer.write_u16(bstone::Endian::little(channel_count)); // Channel count.
+	result &= writer.write_u16(bstone::Endian::little(static_cast<std::uint16_t>(audio_format))); // Audio format.
+	result &= writer.write_u16(bstone::Endian::little(static_cast<std::uint16_t>(channel_count))); // Channel count.
 	result &= writer.write_u32(bstone::Endian::little(sample_rate)); // Sample rate.
-	result &= writer.write_u32(bstone::Endian::little(byte_rate)); // Byte rate.
-	result &= writer.write_u16(bstone::Endian::little(block_align)); // Block align.
-	result &= writer.write_u16(bstone::Endian::little(bit_depth)); // Bits per sample.
+	result &= writer.write_u32(bstone::Endian::little(static_cast<std::uint32_t>(byte_rate))); // Byte rate.
+	result &= writer.write_u16(bstone::Endian::little(static_cast<std::uint16_t>(block_align))); // Block align.
+	result &= writer.write_u16(bstone::Endian::little(static_cast<std::uint16_t>(bit_depth))); // Bits per sample.
 	result &= writer.write_u32(bstone::Endian::big(0x64617461)); // "data"
-	result &= writer.write_u32(bstone::Endian::little(data_size)); // Data size.
+	result &= writer.write_u32(bstone::Endian::little(static_cast<std::uint32_t>(data_size))); // Data size.
 
 	return result;
 }
@@ -2972,7 +2968,7 @@ void AudioExtractor::extract_music(
 	const int number)
 {
 	const auto music_index = STARTMUSIC + number;
-	CA_CacheAudioChunk(music_index);
+	CA_CacheAudioChunk(static_cast<std::int16_t>(music_index));
 
 	const auto& number_string = ca_make_padded_asset_number_string(number);
 
@@ -3084,7 +3080,7 @@ void AudioExtractor::initialize_sfx()
 {
 	for (int i = 0; i < NUMSOUNDS; ++i)
 	{
-		CA_CacheAudioChunk(STARTADLIBSOUNDS + i);
+		CA_CacheAudioChunk(static_cast<std::int16_t>(STARTADLIBSOUNDS + i));
 	}
 
 	sd_setup_extracting();
@@ -3496,7 +3492,7 @@ void TextExtractor::extract_text(
 {
 	const auto number = text_number.number_;
 
-	CA_CacheGrChunk(number);
+	CA_CacheGrChunk(static_cast<std::int16_t>(number));
 
 	auto text_data = grsegs[number].data();
 	auto text_size = grsegs_sizes_[number];

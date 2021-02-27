@@ -1053,7 +1053,7 @@ void HwTextureMgrImpl::validate_upscale_filter(
 	{
 		case HwTextureMgrUpscaleFilterKind::none:
 		case HwTextureMgrUpscaleFilterKind::xbrz:
-			return;
+			break;
 
 		default:
 			throw HwTextureManagerException{"Unsupported upscale filter kind."};
@@ -1278,7 +1278,7 @@ void HwTextureMgrImpl::upscale_xbrz(
 {
 	const auto area = properties.width_ * properties.height_;
 
-	if (mipmap_buffer_.size() < area)
+	if (mipmap_buffer_.size() < static_cast<std::size_t>(area))
 	{
 		mipmap_buffer_.clear();
 		mipmap_buffer_.resize(area);
@@ -1286,7 +1286,7 @@ void HwTextureMgrImpl::upscale_xbrz(
 
 	const auto upscale_area = properties.upscale_width_ * properties.upscale_height_;
 
-	if (upscale_buffer_.size() < upscale_area)
+	if (upscale_buffer_.size() < static_cast<std::size_t>(upscale_area))
 	{
 		upscale_buffer_.clear();
 		upscale_buffer_.resize(upscale_area);
@@ -1720,9 +1720,9 @@ HwTextureMgrImpl::Texture2dItem HwTextureMgrImpl::create_from_external_image(
 			continue;
 		}
 
-		if (image_buffer_.size() < image_file_size)
+		if (image_buffer_.size() < static_cast<std::size_t>(image_file_size))
 		{
-			image_buffer_.resize(image_file_size);
+			image_buffer_.resize(static_cast<std::size_t>(image_file_size));
 		}
 
 		const auto image_to_read_size = static_cast<int>(image_file_size);

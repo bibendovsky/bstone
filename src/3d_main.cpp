@@ -7496,6 +7496,11 @@ bool parse_config_line(
 		const auto index1_end_bracket = full_name.find(']', index0_end_bracket + 1);
 		const auto has_index1 = (index1_begin_bracket != full_name.npos && index1_end_bracket != full_name.npos);
 
+		if (!has_index1)
+		{
+			return false;
+		}
+
 		const auto index1_string = full_name.substr(index1_begin_bracket + 1, index1_end_bracket - index1_begin_bracket);
 
 		if (!bstone::StringHelper::string_to_int(index1_string, index1))
@@ -7838,44 +7843,6 @@ const std::string& get_scan_code_name(
 	return it->second;
 }
 
-void write_x_scan_config(
-	const ScanCodes& scan_codes,
-	const std::string& name_prefix,
-	bstone::TextWriter& writer)
-{
-	auto line = std::string{};
-
-	auto counter = 0;
-
-	for (const auto scan_code : scan_codes)
-	{
-		const auto scan_code_name = get_scan_code_name(scan_code);
-
-		line = name_prefix + "[" + std::to_string(counter) + "] \"" + scan_code_name + "\"\n";
-		writer.write(line);
-
-		counter += 1;
-	}
-}
-
-void write_buttons_config(
-	const Buttons& buttons,
-	const std::string& name_prefix,
-	bstone::TextWriter& writer)
-{
-	auto line = std::string{};
-
-	auto counter = 0;
-
-	for (const auto button : buttons)
-	{
-		line = name_prefix + "[" + std::to_string(counter) + "] \"" + std::to_string(button) + "\"\n";
-		writer.write(line);
-
-		counter += 1;
-	}
-}
-
 void write_bindings_config(
 	const std::string& name_prefix,
 	bstone::TextWriter& writer)
@@ -7977,9 +7944,9 @@ void archive_bitset(
 	bstone::Archiver& archiver)
 {
 	constexpr auto byte_count = (TBitCount + 7) / 8;
-	using Buffer = std::array<std::uint8_t, byte_count>;
+	using BitsetBuffer = std::array<std::uint8_t, byte_count>;
 
-	auto buffer = Buffer{};
+	auto buffer = BitsetBuffer{};
 
 	for (decltype(TBitCount) i = 0; i < TBitCount; ++i)
 	{
@@ -8001,9 +7968,9 @@ void unarchive_bitset(
 	bstone::Archiver& archiver)
 {
 	constexpr auto byte_count = (TBitCount + 7) / 8;
-	using Buffer = std::array<std::uint8_t, byte_count>;
+	using BitsetBuffer = std::array<std::uint8_t, byte_count>;
 
-	auto buffer = Buffer{};
+	auto buffer = BitsetBuffer{};
 	archiver.read_uint8_array(buffer.data(), static_cast<int>(buffer.size()));
 
 	for (decltype(TBitCount) i = 0; i < TBitCount; ++i)
@@ -10093,7 +10060,7 @@ void objtype::archive(
 	archiver->write_uint8(static_cast<std::uint8_t>(obclass));
 
 	const auto state_index = get_state_index(state);
-	archiver->write_int16(state_index);
+	archiver->write_int16(static_cast<std::int16_t>(state_index));
 
 	archiver->write_uint32(flags);
 	archiver->write_uint16(flags2);

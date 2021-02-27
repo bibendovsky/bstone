@@ -1789,7 +1789,7 @@ bool CheckLine(
 		auto yfrac = y1 + ((ystep * partial) >> 8);
 
 		auto x = xt1 + xstep;
-		xt2 += xstep;
+		xt2 += static_cast<std::uint8_t>(xstep);
 
 		do
 		{
@@ -1814,7 +1814,7 @@ bool CheckLine(
 			// see if the door is open enough
 			//
 			value &= ~0x80;
-			std::uint16_t intercept = yfrac - ystep / 2;
+			std::uint16_t intercept = static_cast<std::uint16_t>(yfrac - ystep / 2);
 
 			if (intercept > bstone::math::floating_to_fixed(doorposition[value]))
 			{
@@ -1866,7 +1866,7 @@ bool CheckLine(
 		auto xfrac = x1 + ((xstep * partial) >> 8);
 
 		auto y = yt1 + ystep;
-		yt2 += ystep;
+		yt2 += static_cast<std::uint8_t>(ystep);
 
 		do
 		{
@@ -1890,7 +1890,7 @@ bool CheckLine(
 			// see if the door is open enough
 			//
 			value &= ~0x80;
-			std::uint16_t intercept = xfrac - xstep / 2;
+			std::uint16_t intercept = static_cast<std::uint16_t>(xfrac - xstep / 2);
 
 			if (intercept > bstone::math::floating_to_fixed(doorposition[value]))
 			{

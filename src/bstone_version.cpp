@@ -45,6 +45,6 @@ const std::string& Version::get_string()
 }
 
 
-}; // bstone
+} // bstone
 
 

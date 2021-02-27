@@ -340,8 +340,6 @@ void initialize_songs()
 
 const int BASEMOVE = 35;
 const int RUNMOVE = 70;
-const int BASETURN = 35;
-const int RUNTURN = 70;
 
 
 void cycle_weapon(
@@ -351,7 +349,7 @@ void cycle_weapon(
 
 	while (true)
 	{
-		weapon_index += direction;
+		weapon_index += static_cast<std::int8_t>(direction);
 
 		if (weapon_index < wp_autocharge)
 		{

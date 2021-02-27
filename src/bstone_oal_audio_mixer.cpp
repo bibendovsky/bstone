@@ -1212,8 +1212,6 @@ void OalAudioMixer::initialize_sfx_voices()
 
 	sfx_voices_.resize(max_sfx_voice_count);
 
-	auto index = 0;
-
 	auto param = OalSourceInitParam{};
 	param.mix_sample_rate = dst_rate_;
 	param.mix_sample_count = mix_sample_count_;
@@ -1851,7 +1849,7 @@ OalSourceSample OalAudioMixer::scale_sample(
 		new_sample = +32'767;
 	}
 
-	return new_sample;
+	return static_cast<OalSourceSample>(new_sample);
 }
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

@@ -929,7 +929,7 @@ void Ren3dGl::submit_set_scissor_box(
 void Ren3dGl::submit_set_texture(
 	const Ren3dSetTextureCmd& command)
 {
-	context_->set_texture_2d(static_cast<const Ren3dGlTexture2dPtr>(command.texture_2d_));
+	context_->set_texture_2d(static_cast<Ren3dGlTexture2dPtr>(command.texture_2d_));
 }
 
 void Ren3dGl::submit_set_sampler(
@@ -941,13 +941,13 @@ void Ren3dGl::submit_set_sampler(
 void Ren3dGl::submit_set_vertex_input(
 	const Ren3dSetVertexInputCmd& command)
 {
-	context_->set_vertex_input(static_cast<const Ren3dGlVertexInputPtr>(command.vertex_input_));
+	context_->set_vertex_input(static_cast<Ren3dGlVertexInputPtr>(command.vertex_input_));
 }
 
 void Ren3dGl::submit_set_shader_stage(
 	const Ren3dSetShaderStageCmd& command)
 {
-	context_->set_shader_stage(static_cast<const Ren3dGlShaderStagePtr>(command.shader_stage_));
+	context_->set_shader_stage(static_cast<Ren3dGlShaderStagePtr>(command.shader_stage_));
 }
 
 void Ren3dGl::submit_set_int32_uniform(

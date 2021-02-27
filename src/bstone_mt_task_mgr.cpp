@@ -556,7 +556,7 @@ void MtTaskMgrImpl::initialize_threads()
 		mt_thread.is_failed_ = false;
 		mt_thread.exception_ = nullptr;
 
-		mt_thread.thread_ = std::move(std::thread{&MtTaskMgrImpl::mt_thread_func, this, &mt_thread});
+		mt_thread.thread_ = std::thread{&MtTaskMgrImpl::mt_thread_func, this, &mt_thread};
 	}
 }
 

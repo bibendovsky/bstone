@@ -489,9 +489,9 @@ void Ren3dUtils::set_window_mode(
 
 	if (is_windowed_changed)
 	{
-		const Uint32 sdl_window_flags = (param.is_windowed_ ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
+		const Uint32 sdl_fullscreen_flags = (param.is_windowed_ ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
 
-		const auto sdl_result = SDL_SetWindowFullscreen(sdl_window, sdl_window_flags);
+		const auto sdl_result = SDL_SetWindowFullscreen(sdl_window, sdl_fullscreen_flags);
 
 		if (sdl_result != 0)
 		{
@@ -734,7 +734,7 @@ void Ren3dUtils::indexed_to_rgba_8(
 		throw Ren3dUtilsIndexedToRgba8Exception{"Null indexed pixels."};
 	}
 
-	if (param.rgba_8_buffer_->size() < (param.width_ * param.height_))
+	if (param.rgba_8_buffer_->size() < static_cast<std::size_t>((param.width_ * param.height_)))
 	{
 		throw Ren3dUtilsIndexedToRgba8Exception{"Bitmap buffer too small."};
 	}
@@ -792,7 +792,7 @@ void Ren3dUtils::indexed_npot_to_rgba_8_pot(
 		throw Ren3dUtilsIndexedNpotToRgba8PotException{"Null indexed pixels."};
 	}
 
-	if (param.rgba_8_buffer_->size() < (param.actual_width_ * param.actual_height_))
+	if (param.rgba_8_buffer_->size() < static_cast<std::size_t>((param.actual_width_ * param.actual_height_)))
 	{
 		throw Ren3dUtilsIndexedNpotToRgba8PotException{"Indexed bitmap buffer too small."};
 	}

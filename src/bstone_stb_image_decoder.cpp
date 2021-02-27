@@ -179,7 +179,7 @@ void StbImageDecoder::decode(
 
 	const auto dst_area = dst_width * dst_height;
 
-	if (dst_buffer.size() < dst_area)
+	if (dst_buffer.size() < static_cast<std::size_t>(dst_area))
 	{
 		dst_buffer.resize(dst_area);
 	}

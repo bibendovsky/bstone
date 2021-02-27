@@ -204,10 +204,6 @@ void UpdateTravelTable();
 // player interface stuff
 //
 
-star_t* firststar;
-star_t* laststar;
-
-
 std::int32_t lasttimecount;
 std::int32_t frameon;
 std::int32_t framecount;
@@ -1810,8 +1806,6 @@ static bool show_pwalls_on_automap(
 	const int y,
 	const bool is_show_all)
 {
-	const auto& assets_info = AssetsInfo{};
-
 	if (tilemap[x][y] == 0)
 	{
 		return false;

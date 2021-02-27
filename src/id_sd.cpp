@@ -412,7 +412,7 @@ void sd_shutdown()
 	// Free music data
 	for (int i = 0; i < LASTMUSIC; ++i)
 	{
-		audiosegs[STARTMUSIC + i] = std::move(AudioSegment{});
+		audiosegs[STARTMUSIC + i] = AudioSegment{};
 	}
 
 	sd_started_ = false;

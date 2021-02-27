@@ -273,7 +273,7 @@ void Ren3dGlVertexInputImpl::assign_regular_attribute(
 {
 	auto gl_component_count = GLint{};
 	auto gl_component_format = GLenum{};
-	auto gl_is_normalized = GLenum{};
+	auto gl_is_normalized = GLboolean{};
 
 	switch (attribute_description.format_)
 	{

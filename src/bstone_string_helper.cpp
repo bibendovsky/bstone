@@ -145,7 +145,7 @@ std::string StringHelper::octet_to_hex_string(
 			static_cast<char>('0' + low_nibble) :
 			static_cast<char>('A' + low_nibble - 0xA));
 
-	auto&& level_number_string = std::string{high_nibble_char, low_nibble_char};
+	const auto level_number_string = std::string{high_nibble_char, low_nibble_char};
 
 	return level_number_string;
 }

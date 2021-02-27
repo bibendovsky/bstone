@@ -537,8 +537,6 @@ FoundContent find_assets(
 	const Game game,
 	const SearchPath& search_path)
 {
-	const auto& assets = Assets{};
-
 	switch (game)
 	{
 		case Game::aog:
@@ -719,8 +717,6 @@ void set_assets_info(
 void log_found_content(
 	const FoundContent& found_content)
 {
-	const auto& assets_info = AssetsInfo{};
-
 	static const auto aog_title = std::string{"Aliens Of Gold"};
 	static const auto aog_sw_title = std::string{"Aliens Of Gold (shareware)"};
 	static const auto ps_title = std::string{"Planet Strike"};
@@ -1345,7 +1341,7 @@ void PreDemo()
 	//
 	UNCACHEGRCHUNK(APOGEEPALETTE);
 
-	audiosegs[STARTMUSIC + APOGFNFM_MUS] = std::move(AudioSegment{});
+	audiosegs[STARTMUSIC + APOGFNFM_MUS] = AudioSegment{};
 
 	if (assets_info.is_ps())
 	{

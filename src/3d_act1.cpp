@@ -1823,8 +1823,8 @@ void MovePWalls()
 			pwallstate = 0.0;
 			pwallpos = 0.0;
 
-			pwallx += next_dx;
-			pwally += next_dy;
+			pwallx += static_cast<std::uint16_t>(next_dx);
+			pwally += static_cast<std::uint16_t>(next_dy);
 
 			vid_hw_on_step_pushwall(old_x, old_y);
 
@@ -1902,7 +1902,7 @@ void InitMsgCache(
 	std::uninitialized_fill_n(
 		reinterpret_cast<std::uint8_t*>(mList),
 		listSize,
-		0
+		std::uint8_t{}
 	);
 }
 

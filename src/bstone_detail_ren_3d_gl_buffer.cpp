@@ -223,7 +223,6 @@ int Ren3dGlBufferImpl::get_size() const noexcept
 void Ren3dGlBufferImpl::set(
 	const bool is_set)
 {
-	const auto buffer = (is_set ? this : nullptr);
 	const auto gl_name = (is_set ? buffer_resource_.get() : 0);
 
 	glBindBuffer(gl_target_, gl_name);

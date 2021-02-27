@@ -581,7 +581,7 @@ void ControlMovement(
 		anglefrac -= angleunits * ANGLESCALE;
 		ob->angle -= static_cast<std::int16_t>(angleunits);
 
-		ob->angle = clamp_angle(ob->angle);
+		ob->angle = static_cast<std::int16_t>(clamp_angle(ob->angle));
 
 		if (gamestate.turn_around != 0)
 		{
@@ -2233,17 +2233,6 @@ std::int16_t DrawShape(
 	pisType shapetype)
 {
 	std::int16_t width = 0;
-	std::uint16_t shade;
-
-	//
-	// If Image is Cloaked... Shade the image
-	//
-	if (LastInfoAttacker_Cloaked)
-	{
-		shade = 35; // 63 == BLACK | 0 == NO SHADING
-	}
-	else
-		shade = 0;
 
 	switch (shapetype)
 	{
@@ -3314,7 +3303,7 @@ void Cmd_Use(
 					{
 						auto angle = CalcAngle(player, ob);
 
-						angle = std::abs(player->angle - angle);
+						angle = static_cast<std::int16_t>(std::abs(player->angle - angle));
 
 						if (angle > (INTG_ANGLE / 2))
 						{

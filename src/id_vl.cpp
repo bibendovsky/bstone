@@ -926,13 +926,6 @@ const std::string& vid_get_vid_string()
 	return result;
 }
 
-const std::string& vid_get_hw_string()
-{
-	static const auto result = std::string{"[HW]"};
-
-	return result;
-}
-
 [[noreturn]]
 void vid_throw_sdl_error(
 	const std::string& message_prefix)
@@ -973,34 +966,9 @@ void vid_quit(
 	Quit(vid_get_vid_string() + ' ' + error_message);
 }
 
-[[noreturn]]
-void vid_quit_with_sdl_error(
-	const std::string& error_message)
-{
-	auto message = std::string{};
-	message += vid_get_vid_string() + ' ' + error_message;
-
-	const auto sdl_error_message = SDL_GetError();
-
-	if (sdl_error_message != nullptr)
-	{
-		message += ' ';
-		message += sdl_error_message;
-	}
-
-	Quit(std::move(message));
-}
-
 void vid_log()
 {
 	bstone::logger_->write();
-}
-
-void vid_log(
-	const bstone::LoggerMessageKind message_kind,
-	const std::string& message)
-{
-	bstone::logger_->write(message_kind, vid_get_vid_string() + ' ' + message);
 }
 
 void vid_log(
@@ -1028,18 +996,6 @@ void vid_log_error(
 		bstone::LoggerMessageKind::error,
 		vid_get_vid_string() + ' ' + message
 	);
-}
-
-void vid_log_error(
-	const std::string& required_message,
-	const std::string& optional_message)
-{
-	vid_log_error(required_message);
-
-	if (!optional_message.empty())
-	{
-		vid_log_error(optional_message);
-	}
 }
 
 [[noreturn]]
@@ -1099,11 +1055,6 @@ void vid_cl_read()
 	vid_cl_read_texture_upscale_filter();
 	vid_cl_read_texture_upscale_xbrz_degree();
 	vid_cl_read_filler_color_index();
-}
-
-void vid_cfg_read()
-{
-	vid_cl_read();
 }
 
 const std::string& vid_to_string(
@@ -1397,7 +1348,10 @@ void sw_initialize_renderer()
 
 			const auto sdl_result = SDL_GetRenderDriverInfo(i, &info);
 
-			vid_log(std::to_string(i + 1) + ". " + info.name);
+			if (sdl_result == 0)
+			{
+				vid_log(std::to_string(i + 1) + ". " + info.name);
+			}
 		}
 	}
 
@@ -1809,7 +1763,7 @@ void sw_destroy_ui_texture()
 
 void sw_uninitialize_vga_buffer()
 {
-	sw_vga_buffer_ = std::move(VgaBuffer{});
+	sw_vga_buffer_ = VgaBuffer{};
 
 	vga_memory = nullptr;
 }
@@ -2112,14 +2066,11 @@ const auto hw_map_height_f = 1.0F;
 template<typename T>
 constexpr auto hw_tile_dimension = static_cast<T>(1);
 
-constexpr auto hw_tile_dimension_i = hw_tile_dimension<int>;
 constexpr auto hw_tile_dimension_f = hw_tile_dimension<float>;
-constexpr auto hw_tile_dimension_d = hw_tile_dimension<double>;
 
 template<typename T>
 constexpr auto hw_tile_half_dimension = hw_tile_dimension<T> / static_cast<T>(2);
 
-constexpr auto hw_tile_half_dimension_f = hw_tile_half_dimension<float>;
 constexpr auto hw_tile_half_dimension_d = hw_tile_half_dimension<double>;
 
 
@@ -2142,10 +2093,6 @@ constexpr auto hw_vertices_per_door = hw_sides_per_door * hw_vertices_per_door_h
 constexpr auto hw_indices_per_door_half = 6;
 constexpr auto hw_indices_per_door = 2 * hw_indices_per_door_half;
 constexpr auto hw_indices_per_door_side = 2 * hw_indices_per_door;
-
-constexpr auto hw_max_door_sides_vertices = MAXDOORS * hw_vertices_per_door;
-constexpr auto hw_max_door_sides_indices = MAXDOORS * hw_indices_per_door_side;
-
 
 constexpr auto hw_max_sprites = MAXSTATS + MAXACTORS;
 
@@ -2787,26 +2734,10 @@ int hw_get_static_index(
 	return static_cast<int>(&bs_static - statobjlist.data());
 }
 
-HwSprite& hw_get_static(
-	const statobj_t& bs_static)
-{
-	const auto bs_static_index = hw_get_static_index(bs_static);
-
-	return hw_statics_[bs_static_index];
-}
-
 int hw_get_actor_index(
 	const objtype& bs_actor)
 {
 	return static_cast<int>(&bs_actor - objlist);
-}
-
-HwSprite& hw_get_actor(
-	const objtype& bs_actor)
-{
-	const auto bs_actor_index = hw_get_actor_index(bs_actor);
-
-	return hw_actors_[bs_actor_index];
 }
 
 constexpr int hw_encode_xy(
@@ -2814,15 +2745,6 @@ constexpr int hw_encode_xy(
 	const int y)
 {
 	return (x << 8) | y;
-}
-
-constexpr void hw_decode_xy(
-	const int xy,
-	int& x,
-	int& y)
-{
-	x = (xy >> 8) & 0xFF;
-	y = xy & 0xFF;
 }
 
 HwVertexColor hw_vga_color_to_rgba_8(
@@ -2930,12 +2852,6 @@ void hw_destroy_vertex_input(
 	bstone::Ren3dVertexInputUPtr& vertex_input)
 {
 	vertex_input = nullptr;
-}
-
-void hw_destroy_texture_2d(
-	bstone::Ren3dTexture2dPtr& texture_2d)
-{
-	texture_2d = nullptr;
 }
 
 template<
@@ -6148,56 +6064,6 @@ void hw_refresh_2d()
 	command_buffer->end_write();
 }
 
-bool hw_dbg_is_tile_vertex_visible(
-	const int x,
-	const int y)
-{
-	const auto& wall_direction = glm::dvec2
-	{
-		hw_player_position_[0] - static_cast<double>(x),
-		hw_player_position_[1] - static_cast<double>(y)
-	};
-
-	const auto cosine_between_directions = glm::dot(
-		wall_direction, hw_view_direction_);
-
-	if (cosine_between_directions >= 0.0)
-	{
-		return false;
-	}
-
-	return true;
-}
-
-bool hw_dbg_is_tile_visible(
-	const int x,
-	const int y)
-{
-	const auto delta = hw_tile_dimension_i;
-
-	if (hw_dbg_is_tile_vertex_visible(x + 0, y + 0))
-	{
-		return true;
-	}
-
-	if (hw_dbg_is_tile_vertex_visible(x + delta, y + 0))
-	{
-		return true;
-	}
-
-	if (hw_dbg_is_tile_vertex_visible(x + delta, y + delta))
-	{
-		return true;
-	}
-
-	if (hw_dbg_is_tile_vertex_visible(x + 0, y + delta))
-	{
-		return true;
-	}
-
-	return false;
-}
-
 void hw_render_walls()
 {
 	if (hw_wall_count_ <= 0)
@@ -6486,70 +6352,6 @@ void hw_render_pushwalls()
 	hw_pushwall_side_draw_item_count_ = draw_side_index;
 }
 
-bool hw_dbg_is_door_vertex_visible(
-	const double x,
-	const double y)
-{
-	const auto& wall_direction = glm::dvec2
-	{
-		hw_player_position_[0] - x,
-		hw_player_position_[1] - y
-	};
-
-	const auto cosine_between_directions = glm::dot(
-		wall_direction, hw_view_direction_);
-
-	if (cosine_between_directions >= 0.0)
-	{
-		return false;
-	}
-
-	return true;
-}
-
-bool hw_dbg_is_door_visible(
-	const doorobj_t& door)
-{
-	if (door.vertical)
-	{
-		const auto x = static_cast<double>(door.tilex) + hw_tile_half_dimension_d;
-
-		const auto y_0 = static_cast<double>(door.tiley);
-
-		if (hw_dbg_is_door_vertex_visible(x, y_0))
-		{
-			return true;
-		}
-
-		const auto y_1 = y_0 + hw_tile_dimension_d;
-
-		if (hw_dbg_is_door_vertex_visible(x, y_1))
-		{
-			return true;
-		}
-	}
-	else
-	{
-		const auto y = static_cast<double>(door.tiley) + hw_tile_half_dimension_d;
-
-		const auto x_0 = static_cast<double>(door.tilex);
-
-		if (hw_dbg_is_door_vertex_visible(x_0, y))
-		{
-			return true;
-		}
-
-		const auto x_1 = x_0 + hw_tile_dimension_d;
-
-		if (hw_dbg_is_door_vertex_visible(x_1, y))
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
 void hw_render_doors()
 {
 	if (hw_door_count_ == 0)
@@ -6715,41 +6517,6 @@ void hw_render_doors()
 	}
 
 	hw_door_draw_item_count_ = draw_side_index;
-}
-
-bool hw_calculate_fog(
-	const int sprite_lighting)
-{
-	if (gp_no_shading_)
-	{
-		return false;
-	}
-
-	if (sprite_lighting == NO_SHADING)
-	{
-		return false;
-	}
-
-	const auto shade_index = shade_max + sprite_lighting;
-
-	if (shade_index <= 0)
-	{
-		return false;
-	}
-
-	const auto start_wall_height = (normalshade * shade_index) / (63.0 * vga_height_scale);
-
-	if (start_wall_height <= 1.0)
-	{
-		return false;
-	}
-
-	const auto height_num = heightnumerator / vga_height_scale;
-	const auto start_wall_distance = (32.0 * height_num) / start_wall_height;
-	const auto wall_height_step = normalshade / (8.0 * vga_height_scale);
-	const auto fog_delta = static_cast<float>(wall_height_step * normalshade_div);
-
-	return true;
 }
 
 void hw_update_cloaked_actor(
@@ -6935,11 +6702,6 @@ void hw_orient_sprite(
 	};
 
 	auto direction = hw_player_position_ - sprite_origin;
-
-	const auto cosinus_between_directions = glm::dot(
-		hw_view_direction_,
-		direction
-	);
 
 	sprite.flags_.is_visible_ = true;
 
@@ -8642,17 +8404,12 @@ void hw_translate_pushwall_side(
 	};
 
 
-	auto is_vertical = false;
-
 	switch (side_direction)
 	{
 	case di_north:
 	case di_south:
-		break;
-
 	case di_east:
 	case di_west:
-		is_vertical = true;
 		break;
 
 	default:
@@ -8936,8 +8693,6 @@ void hw_update_quad_vertices(
 	// Back face order:
 	//    bottom-right -> bottom-left -> top-left -> top-right
 	//
-
-	using VertexOrder = std::array<int, 4>;
 
 	const auto axis_index = (flags.is_vertical_ ? 1 : 0);
 
@@ -9276,16 +9031,6 @@ void hw_uninitialize_sprites()
 	hw_uninitialize_sprites_vi();
 	hw_uninitialize_sprites_ib();
 	hw_uninitialize_sprites_vb();
-}
-
-void hw_dbg_update_actors()
-{
-	for (auto bs_actor = player->next; bs_actor; bs_actor = bs_actor->next)
-	{
-		const auto bs_actor_index = bs_actor - objlist;
-
-		hw_update_actor(bs_actor_index);
-	}
 }
 
 void hw_map_sprite(
@@ -10963,8 +10708,6 @@ void hw_precache_flicker_light()
 
 void hw_precache_crate_content()
 {
-	const auto& assets_info = AssetsInfo{};
-
 	hw_precache_chicken_leg();
 	hw_precache_ham();
 
@@ -12680,8 +12423,6 @@ const std::string& vid_filter_to_string(
 
 		default:
 			Quit("Invalid filter.");
-
-			return vid_get_empty_string();
 	}
 }
 

@@ -446,14 +446,14 @@ CP_itemtype MainMenu[] = {
 	{AT_READIT, "ORDERING INFO", CP_OrderingInfo},
 	{AT_READIT, "INSTRUCTIONS", CP_ReadThis},
 	{AT_ENABLED, "STORY", CP_BlakeStoneSaga},
-	{AT_DISABLED, "", 0},
+	{AT_DISABLED, "", nullptr},
 	{AT_ENABLED, "GAME OPTIONS", CP_GameOptions},
 	{AT_ENABLED, "HIGH SCORES", CP_ViewScores},
 	{AT_ENABLED, "LOAD MISSION", reinterpret_cast<void(*)(std::int16_t)>(CP_LoadGame)},
 	{AT_DISABLED, "SAVE MISSION", reinterpret_cast<void(*)(std::int16_t)>(CP_SaveGame)},
-	{AT_DISABLED, "", 0},
+	{AT_DISABLED, "", nullptr},
 	{AT_ENABLED, "BACK TO DEMO", CP_ExitOptions},
-	{AT_ENABLED, "LOGOFF", 0}
+	{AT_ENABLED, "LOGOFF", nullptr}
 };
 
 CP_itemtype GopMenu[] = {
@@ -2738,7 +2738,7 @@ void sound_driver_carousel(
 	sd_startup();
 
 	DrawSoundMenu();
-	DrawAllSoundLights(item_index);
+	DrawAllSoundLights(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -3874,11 +3874,11 @@ std::int16_t HandleMenu(
 			//
 			case dir_West:
 			{
-				auto routine = items[which].carousel_func_;
+				auto carousel_func = items[which].carousel_func_;
 
-				if (routine)
+				if (carousel_func)
 				{
-					routine(which, true, false);
+					carousel_func(which, true, false);
 				}
 
 				break;
@@ -3888,11 +3888,11 @@ std::int16_t HandleMenu(
 			//
 			case dir_East:
 			{
-				auto routine = items[which].carousel_func_;
+				auto carousel_func = items[which].carousel_func_;
 
-				if (routine)
+				if (carousel_func)
 				{
-					routine(which, false, true);
+					carousel_func(which, false, true);
 				}
 
 				break;
@@ -4118,8 +4118,6 @@ void WaitKeyUp()
 void ReadAnyControl(
 	ControlInfo* ci)
 {
-	bool mouseactive = false;
-
 	IN_ReadControl(0, ci);
 
 	//
@@ -4156,23 +4154,19 @@ void ReadAnyControl(
 		if (mousey < -DELTA_THRESHOLD)
 		{
 			ci->dir = dir_North;
-			mouseactive = true;
 		}
 		else if (mousey > DELTA_THRESHOLD)
 		{
 			ci->dir = dir_South;
-			mouseactive = true;
 		}
 
 		if (mousex < -DELTA_THRESHOLD)
 		{
 			ci->dir = dir_West;
-			mouseactive = true;
 		}
 		else if (mousex > DELTA_THRESHOLD)
 		{
 			ci->dir = dir_East;
-			mouseactive = true;
 		}
 
 		int buttons = IN_MouseButtons();
@@ -4183,7 +4177,6 @@ void ReadAnyControl(
 			ci->button1 = buttons & 2;
 			ci->button2 = buttons & 4;
 			ci->button3 = false;
-			mouseactive = true;
 		}
 	}
 }
@@ -4844,8 +4837,8 @@ void draw_carousel(
 
 	const auto carousel_text_x = left_arrow_x + arrow_width + 2;
 
-	WindowX = carousel_text_x;
-	WindowY = item_i->y + (item_index * max_height);
+	WindowX = static_cast<std::int16_t>(carousel_text_x);
+	WindowY = static_cast<std::int16_t>(item_i->y + (item_index * max_height));
 
 	PrintX = WindowX;
 	PrintY = WindowY;
@@ -5115,8 +5108,6 @@ void video_mode_draw_switch(
 {
 	std::uint16_t Shape;
 
-	auto& configuration = vid_cfg_get();
-
 	const auto renderer_kind = menu_video_mode_renderer_kinds_[menu_video_mode_renderer_index_];
 	const auto& renderer_kind_string = menu_video_mode_renderer_kind_get_string(renderer_kind);
 
@@ -5236,7 +5227,7 @@ void video_menu_mode_renderer_carousel(
 	menu_video_mode_update_apply_button();
 
 	video_mode_update_menu();
-	video_mode_draw_switch(item_index);
+	video_mode_draw_switch(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -5265,7 +5256,7 @@ void video_menu_mode_window_size_carousel(
 	menu_video_mode_update_apply_button();
 
 	video_mode_update_menu();
-	video_mode_draw_switch(item_index);
+	video_mode_draw_switch(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -5305,7 +5296,7 @@ void video_menu_mode_window_aa_kind_carousel(
 	menu_video_mode_update_apply_button();
 
 	video_mode_update_menu();
-	video_mode_draw_switch(item_index);
+	video_mode_draw_switch(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -5340,7 +5331,7 @@ void video_menu_mode_window_aa_factor_carousel(
 	menu_video_mode_update_apply_button();
 
 	video_mode_update_menu();
-	video_mode_draw_switch(item_index);
+	video_mode_draw_switch(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -5354,8 +5345,6 @@ void video_menu_mode_routine(
 	video_mode_draw_menu();
 	MenuFadeIn();
 	WaitKeyUp();
-
-	auto& configuration = vid_cfg_get();
 
 	video_mode_menu[0].carousel_func_ = video_menu_mode_renderer_carousel;
 	video_mode_menu[1].carousel_func_ = video_menu_mode_window_size_carousel;
@@ -5653,7 +5642,7 @@ void texturing_draw_switch(
 				}
 
 				default:
-					continue;
+					break;
 			}
 
 			VWB_DrawPic(
@@ -5699,7 +5688,7 @@ void texturing_anisotropy_carousel(
 	vid_apply_anisotropy();
 
 	texturing_update_menu();
-	texturing_draw_switch(item_index);
+	texturing_draw_switch(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -5732,7 +5721,7 @@ void texturing_2d_image_filter_carousel(
 	vid_apply_2d_image_filter();
 
 	texturing_update_menu();
-	texturing_draw_switch(item_index);
+	texturing_draw_switch(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -5747,7 +5736,7 @@ void texturing_3d_image_filter_carousel(
 	vid_apply_3d_image_filter();
 
 	texturing_update_menu();
-	texturing_draw_switch(item_index);
+	texturing_draw_switch(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -5762,7 +5751,7 @@ void texturing_3d_mipmap_filter_carousel(
 	vid_apply_mipmap_filter();
 
 	texturing_update_menu();
-	texturing_draw_switch(item_index);
+	texturing_draw_switch(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -5786,7 +5775,7 @@ void texturing_upscale_filter_carousel(
 	vid_apply_upscale();
 
 	texturing_update_menu();
-	texturing_draw_switch(item_index);
+	texturing_draw_switch(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -5824,7 +5813,7 @@ void texturing_upscale_degree_carousel(
 	vid_apply_upscale();
 
 	texturing_update_menu();
-	texturing_draw_switch(item_index);
+	texturing_draw_switch(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -5841,7 +5830,7 @@ void texturing_external_textures_carousel(
 	vid_apply_external_textures();
 
 	texturing_update_menu();
-	texturing_draw_switch(item_index);
+	texturing_draw_switch(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -5870,8 +5859,6 @@ void texturing_routine(
 		texturing_upscale_degree_carousel;
 	texturing_menu[static_cast<int>(TexturingMenuIndices::external_textures)].carousel_func_ =
 		texturing_external_textures_carousel;
-
-	auto& configuration = vid_cfg_get();
 
 	do
 	{
@@ -6246,7 +6233,7 @@ void resampling_interpolation_carousel(
 	update_resampling_apply_state();
 
 	update_resampling_menu();
-	draw_resampling_switch(item_index);
+	draw_resampling_switch(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -6262,7 +6249,7 @@ void resampling_lpf_carousel(
 	update_resampling_apply_state();
 
 	update_resampling_menu();
-	draw_resampling_switch(item_index);
+	draw_resampling_switch(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -6330,7 +6317,7 @@ void draw_filler_color_menu()
 
 		for (auto w = 0; w < 16; ++w)
 		{
-			VL_Bar(x, y, filler_cell_width, filler_cell_height, color_index++);
+			VL_Bar(x, y, filler_cell_width, filler_cell_height, static_cast<std::uint8_t>(color_index++));
 
 			x += filler_cell_width;
 		}
@@ -6407,7 +6394,7 @@ void draw_filler_color_cell(
 	const auto x = filler_cells_x + (cell_x * filler_cell_width);
 	const auto y = filler_cells_y + (cell_y * filler_cell_height);
 
-	VL_Bar(x, y, filler_cell_width, filler_cell_height, color_index);
+	VL_Bar(x, y, filler_cell_width, filler_cell_height, static_cast<std::uint8_t>(color_index));
 
 	if (is_highlighted)
 	{
