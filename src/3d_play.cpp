@@ -214,7 +214,7 @@ Songs songs;
 
 void initialize_songs()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (!assets_info.is_ps())
 	{
@@ -432,7 +432,7 @@ void PollKeyboardButtons()
 		buttonstate[bt_ready_grenade] = true;
 	}
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
 	{
@@ -705,7 +705,7 @@ namespace
 
 void check_heart_beat_key()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (!assets_info.is_aog())
 	{
@@ -759,7 +759,7 @@ void CheckKeys()
 	// SECRET CHEAT CODE: 'JAM'
 	//
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (!assets_info.is_aog_sw())
 	{
@@ -1211,7 +1211,7 @@ void CheckMusicToggle()
 	{
 		bool toggle = M_KeyReleased;
 
-		const auto& assets_info = AssetsInfo{};
+		const auto& assets_info = get_assets_info();
 
 		if (!assets_info.is_aog_sw())
 		{
@@ -1269,7 +1269,7 @@ void PopupAutoMap(
 {
 	vid_is_hud = true;
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	const std::int16_t BASE_X = (assets_info.is_ps() ? 64 : 40);
 	const std::int16_t BASE_Y = 44;
@@ -1580,7 +1580,7 @@ void StartMusic(
 
 	sd_music_off();
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (!assets_info.is_ps())
 	{
@@ -2145,7 +2145,7 @@ void ShowQuickInstructions()
 {
 	ShowQuickMsg = false;
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (demoplayback ||
 		(assets_info.is_ps() && (gamestate.mapon > 0)))

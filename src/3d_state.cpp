@@ -1001,7 +1001,7 @@ void KillActor(
 	ob->flags &= ~(FL_FRIENDLY | FL_SHOOTABLE);
 	clas = ob->obclass;
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	switch (clas)
 	{
@@ -1442,7 +1442,7 @@ void DamageActor(
 		return;
 	}
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	switch (ob->obclass)
 	{

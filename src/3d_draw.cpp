@@ -1168,7 +1168,7 @@ void hw_draw_sprites()
 
 	vid_hw_clear_actor_render_list();
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	for (auto obj = player->next; obj; obj = obj->next)
 	{
@@ -1371,7 +1371,7 @@ void DrawScaleds()
 				continue; // too close or far away
 			}
 
-			const auto& assets_info = AssetsInfo{};
+			const auto& assets_info = get_assets_info();
 
 			if (assets_info.is_ps() &&
 				(obj->flags2 & (FL2_CLOAKED | FL2_DAMAGE_CLOAK)) == FL2_CLOAKED)
@@ -1472,7 +1472,7 @@ WeaponScale weaponscale;
 
 void initialize_weapon_constants()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	NUMWEAPONS = assets_info.is_ps() ? 7 : 6;
 
@@ -1510,7 +1510,7 @@ void DrawPlayerWeapon()
 
 		if (shapenum != 0)
 		{
-			const auto& assets_info = AssetsInfo{};
+			const auto& assets_info = get_assets_info();
 
 			const auto height = assets_info.is_aog() ? 128 : 88;
 
@@ -1742,7 +1742,7 @@ void ThreeDRefresh()
 
 	bufferofs = 0;
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
 	{
@@ -1857,7 +1857,7 @@ void ShowOverhead(
 	int zoom,
 	int flags)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	const std::uint8_t PWALL_COLOR = 0xF6;
 	const std::uint8_t PLAYER_COLOR = 0xF0;

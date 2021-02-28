@@ -206,7 +206,7 @@ void OpenMapFile()
 		CA_CannotOpen(fname);
 	}
 #else
-	ca_open_resource(Assets::get_map_data_base_name(), maphandle);
+	ca_open_resource(AssetsResourceType::maptemp, maphandle);
 #endif
 }
 
@@ -218,7 +218,7 @@ void CloseMapFile()
 void OpenAudioFile()
 {
 #ifndef AUDIOHEADERLINKED
-	ca_open_resource(Assets::get_audio_data_base_name(), audiohandle);
+	ca_open_resource(AssetsResourceType::audiot, audiohandle);
 #else
 	// TODO Remove or fix
 	if ((audiohandle = open("AUDIO."EXTENSION,
@@ -1125,40 +1125,18 @@ std::string ca_load_script(
 
 void initialize_ca_constants()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	const auto total_level_count = assets_info.get_episode_count() * assets_info.get_levels_per_episode();
 
 	mapheaderseg.resize(total_level_count);
 }
 
-bool ca_is_resource_exists(
-	const std::string& file_name)
-{
-	const auto path = data_dir_ + file_name;
-
-	auto is_open = false;
-
-	is_open = bstone::FileStream::is_exists(path);
-
-	if (!is_open)
-	{
-		auto&& file_name_lc = bstone::StringHelper::to_lower_ascii(file_name);
-		const auto path_lc = data_dir_ + file_name_lc;
-
-		is_open = bstone::FileStream::is_exists(path_lc);
-	}
-
-	return is_open;
-}
-
 bool ca_open_resource_non_fatal(
 	const std::string& data_dir,
-	const std::string& file_name_without_ext,
-	const std::string& file_extension,
+	const std::string& file_name,
 	bstone::FileStream& file_stream)
 {
-	const auto file_name = file_name_without_ext + file_extension;
 	const auto path = bstone::file_system::append_path(data_dir, file_name);
 
 	auto is_open = false;
@@ -1177,14 +1155,12 @@ bool ca_open_resource_non_fatal(
 }
 
 bool ca_open_resource_non_fatal(
-	const std::string& file_name_without_ext,
-	const std::string& file_extension,
+	const std::string& file_name,
 	bstone::FileStream& file_stream)
 {
 	if (!mod_dir_.empty())
 	{
-		const auto mod_dir_result = ca_open_resource_non_fatal(
-			mod_dir_, file_name_without_ext, file_extension, file_stream);
+		const auto mod_dir_result = ca_open_resource_non_fatal(mod_dir_, file_name, file_stream);
 
 		if (mod_dir_result)
 		{
@@ -1192,23 +1168,23 @@ bool ca_open_resource_non_fatal(
 		}
 	}
 
-	const auto data_dir_result = ca_open_resource_non_fatal(
-		data_dir_, file_name_without_ext, file_extension, file_stream);
+	const auto data_dir_result = ca_open_resource_non_fatal(data_dir_, file_name, file_stream);
 
 	return data_dir_result;
 }
 
 void ca_open_resource(
-	const std::string& file_name_without_ext,
+	AssetsResourceType assets_resource_type,
 	bstone::FileStream& file_stream)
 {
-	auto assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
+	const auto& assets_resource = assets_info.find_resource(assets_resource_type);
 
-	const auto is_open = ca_open_resource_non_fatal(file_name_without_ext, assets_info.get_extension(), file_stream);
+	const auto is_open = ca_open_resource_non_fatal(assets_resource.file_name, file_stream);
 
 	if (!is_open)
 	{
-		const auto path = data_dir_ + file_name_without_ext + assets_info.get_extension();
+		const auto path = data_dir_ + assets_resource.file_name;
 
 		CA_CannotOpen(path);
 	}
@@ -1261,12 +1237,11 @@ std::string ca_calculate_hash(
 }
 
 std::string ca_calculate_hash(
-	const std::string& base_name,
-	const std::string& extension)
+	const std::string& file_name)
 {
 	auto file_stream = bstone::FileStream{};
 
-	if (!ca_open_resource_non_fatal(base_name, extension, file_stream))
+	if (!ca_open_resource_non_fatal(file_name, file_stream))
 	{
 		return {};
 	}
@@ -1276,12 +1251,11 @@ std::string ca_calculate_hash(
 
 std::string ca_calculate_hash(
 	const std::string& data_dir,
-	const std::string& base_name,
-	const std::string& extension)
+	const std::string& file_name)
 {
 	auto file_stream = bstone::FileStream{};
 
-	if (!ca_open_resource_non_fatal(data_dir, base_name, extension, file_stream))
+	if (!ca_open_resource_non_fatal(data_dir, file_name, file_stream))
 	{
 		return {};
 	}
@@ -1289,44 +1263,35 @@ std::string ca_calculate_hash(
 	return ca_calculate_hash(file_stream);
 }
 
+std::string ca_calculate_hash(
+	const std::string& data_dir,
+	AssetsResourceType assets_resource_type)
+{
+	const auto& assets_info = get_assets_info();
+	const auto& assets_resource = assets_info.find_resource(assets_resource_type);
+
+	return ca_calculate_hash(data_dir, assets_resource.file_name);
+}
+
 void ca_calculate_hashes()
 {
 	bstone::logger_->write();
 	bstone::logger_->write("Calculating resource hashes...");
 
-	for (const auto& base_name : Assets::get_base_names())
+	const auto& assets_info = get_assets_info();
+
+	for (const auto& resource : assets_info.get_resources())
 	{
-		for (const auto& extension : Assets::get_extensions())
+		const auto& sha1_string = ca_calculate_hash(resource.file_name);
+
+		if (sha1_string.empty())
 		{
-			const auto& sha1_string = ca_calculate_hash(base_name, extension);
-
-			if (sha1_string.empty())
-			{
-				continue;
-			}
-
-			bstone::logger_->write(base_name.get() + extension.get() + ": " + sha1_string);
+			continue;
 		}
+
+		bstone::logger_->write(std::string{resource.file_name} + ": " + sha1_string);
 	}
 }
-
-
-std::string AssetsInfo::empty_extension_;
-
-AssetsVersion AssetsInfo::version_;
-AssetsCRefString AssetsInfo::extension_ = empty_extension_;
-AssetsCRefStrings AssetsInfo::base_names_;
-AssetsBaseNameToHashMap AssetsInfo::base_name_to_hash_map_;
-int AssetsInfo::gfx_header_offset_count_;
-std::string AssetsInfo::levels_hash_;
-std::string AssetsInfo::base_path_name_;
-bool AssetsInfo::are_modded_levels_;
-int AssetsInfo::episode_count_;
-int AssetsInfo::levels_per_episode_;
-int AssetsInfo::stats_levels_per_episode_;
-int AssetsInfo::total_levels_;
-int AssetsInfo::barrier_switches_per_level_;
-int AssetsInfo::max_barrier_switches_per_level_bits_;
 
 
 AssetsVersion AssetsInfo::get_version() const
@@ -1454,63 +1419,42 @@ void AssetsInfo::set_version(
 	}
 }
 
-const std::string& AssetsInfo::get_extension() const
-{
-	return extension_;
-}
-
-void AssetsInfo::set_extension(
-	const std::string& extension)
-{
-	extension_ = extension;
-}
-
-const AssetsCRefStrings& AssetsInfo::get_base_names() const
-{
-	return base_names_;
-}
-
-void AssetsInfo::set_base_names(
-	const AssetsCRefStrings& base_names)
-{
-	base_names_ = base_names;
-}
-
-const AssetsBaseNameToHashMap& AssetsInfo::get_base_name_to_hash_map() const
-{
-	return base_name_to_hash_map_;
-}
-
-void AssetsInfo::set_base_name_to_hash_map(
-	const AssetsBaseNameToHashMap& base_name_to_hash_map)
-{
-	base_name_to_hash_map_ = base_name_to_hash_map;
-}
-
 const std::string& AssetsInfo::get_levels_hash_string() const
 {
 	return levels_hash_;
+}
+
+const AssetsResources& AssetsInfo::get_resources() const noexcept
+{
+	return resources_;
+}
+
+void AssetsInfo::set_resources(
+	const AssetsResources& resources) noexcept
+{
+	resources_ = resources;
+}
+
+const AssetsResource& AssetsInfo::find_resource(
+	AssetsResourceType resource_type) const
+{
+	for (const auto& resource : resources_)
+	{
+		if (resource.type == resource_type)
+		{
+			return resource;
+		}
+	}
+
+	const auto resource_type_string = std::string{get_resource_type_string(resource_type)};
+
+	Quit("Resource of type \"" + resource_type_string + "\" not found.");
 }
 
 void AssetsInfo::set_levels_hash(
 	const std::string& levels_hash)
 {
 	levels_hash_ = levels_hash;
-
-	static const auto all_levels_hashes = AssetsCRefStrings
-	{
-		Assets::get_aog_full_v1_0_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
-		Assets::get_aog_full_v2_0_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
-		Assets::get_aog_full_v2_1_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
-		Assets::get_aog_full_v3_0_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
-
-		Assets::get_aog_sw_v1_0_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
-		Assets::get_aog_sw_v2_0_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
-		Assets::get_aog_sw_v2_1_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
-		Assets::get_aog_sw_v3_0_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
-
-		Assets::get_ps_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
-	}; // all_levels_hashes
 
 	are_modded_levels_ = !Assets::are_official_levels(levels_hash_);
 }
@@ -1679,468 +1623,476 @@ int AssetsInfo::secret_floor_get_index(
 	}
 }
 
-
-const std::string& Assets::get_audio_header_base_name()
+const char* AssetsInfo::get_resource_type_string(
+	AssetsResourceType resource_type) noexcept
 {
-	static const auto audio_header_base_name = std::string{"AUDIOHED"};
-
-	return audio_header_base_name;
-}
-
-const std::string& Assets::get_audio_data_base_name()
-{
-	static const auto audio_data_base_name = std::string{"AUDIOT"};
-
-	return audio_data_base_name;
-}
-
-const std::string& Assets::get_map_header_base_name()
-{
-	static const auto map_header_base_name = std::string{"MAPHEAD"};
-
-	return map_header_base_name;
-}
-
-const std::string& Assets::get_map_data_base_name()
-{
-	static const auto map_data_base_name = std::string{"MAPTEMP"};
-
-	return map_data_base_name;
-}
-
-const std::string& Assets::get_gfx_dictionary_base_name()
-{
-	static const auto gfx_dictionary_base_name = std::string{"VGADICT"};
-
-	return gfx_dictionary_base_name;
-}
-
-const std::string& Assets::get_gfx_header_base_name()
-{
-	static const auto gfx_header_base_name = std::string{"VGAHEAD"};
-
-	return gfx_header_base_name;
-}
-
-const std::string& Assets::get_gfx_data_base_name()
-{
-	static const auto gfx_data_base_name = std::string{"VGAGRAPH"};
-
-	return gfx_data_base_name;
-}
-
-const std::string& Assets::get_page_file_base_name()
-{
-	static const auto page_file_base_name = std::string{"VSWAP"};
-
-	return page_file_base_name;
-}
-
-const std::string& Assets::get_episode_6_fmv_base_name()
-{
-	static const auto episode_6_fmv_base_name = std::string{"EANIM"};
-
-	return episode_6_fmv_base_name;
-}
-
-const std::string& Assets::get_episode_3_5_fmv_base_name()
-{
-	static const auto episode_3_5_fmv_base_name = std::string{"GANIM"};
-
-	return episode_3_5_fmv_base_name;
-}
-
-const std::string& Assets::get_intro_fmv_base_name()
-{
-	static const auto get_intro_fmv_base_name = std::string{"IANIM"};
-
-	return get_intro_fmv_base_name;
-}
-
-const std::string& Assets::get_episode_2_4_fmv_base_name()
-{
-	static const auto get_episode_2_4_fmv_base_name = std::string{"SANIM"};
-
-	return get_episode_2_4_fmv_base_name;
-}
-
-const std::string& Assets::get_aog_sw_extension()
-{
-	static const auto get_aog_sw_extension = std::string{".BS1"};
-
-	return get_aog_sw_extension;
-}
-
-const std::string& Assets::get_aog_full_extension()
-{
-	static const auto get_aog_full_extension = std::string{".BS6"};
-
-	return get_aog_full_extension;
-}
-
-const std::string& Assets::get_ps_extension()
-{
-	static const auto get_ps_extension = std::string{".VSI"};
-
-	return get_ps_extension;
-}
-
-const AssetsCRefStrings& Assets::get_extensions()
-{
-	static const auto extensions = AssetsCRefStrings
+	switch (resource_type)
 	{
-		get_aog_sw_extension(),
-		get_aog_full_extension(),
-		get_ps_extension(),
-	}; // extensions
+		case AssetsResourceType::audiohed:
+			return "audiohed";
 
-	return extensions;
+		case AssetsResourceType::audiot:
+			return "audiot";
+
+		case AssetsResourceType::eanim:
+			return "eanim";
+
+		case AssetsResourceType::ganim:
+			return "ganim";
+
+		case AssetsResourceType::ianim:
+			return "ianim";
+
+		case AssetsResourceType::maphead:
+			return "maphead";
+
+		case AssetsResourceType::maptemp:
+			return "maptemp";
+
+		case AssetsResourceType::sanim:
+			return "sanim";
+
+		case AssetsResourceType::vgadict:
+			return "vgadict";
+
+		case AssetsResourceType::vgagraph:
+			return "vgagraph";
+
+		case AssetsResourceType::vgahead:
+			return "vgahead";
+
+		case AssetsResourceType::vswap:
+			return "vswap";
+
+		case AssetsResourceType::none:
+		default:
+			return "???";
+	}
 }
 
-const AssetsCRefStrings& Assets::get_base_names()
+AssetsInfo& get_assets_info()
 {
-	static const auto base_names = AssetsCRefStrings
-	{
-		get_audio_header_base_name(),
-		get_audio_data_base_name(),
-
-		get_map_header_base_name(),
-		get_map_data_base_name(),
-
-		get_gfx_dictionary_base_name(),
-		get_gfx_header_base_name(),
-		get_gfx_data_base_name(),
-
-		get_page_file_base_name(),
-
-		get_episode_6_fmv_base_name(),
-		get_episode_3_5_fmv_base_name(),
-		get_intro_fmv_base_name(),
-		get_episode_2_4_fmv_base_name(),
-	}; // base_names
-
-	return base_names;
-}
-
-const AssetsCRefStrings& Assets::get_aog_sw_base_names()
-{
-	static const auto aog_sw_base_names = AssetsCRefStrings
-	{
-		get_audio_header_base_name(),
-		get_audio_data_base_name(),
-
-		get_map_header_base_name(),
-		get_map_data_base_name(),
-
-		get_gfx_dictionary_base_name(),
-		get_gfx_header_base_name(),
-		get_gfx_data_base_name(),
-
-		get_page_file_base_name(),
-
-		get_intro_fmv_base_name(),
-		get_episode_2_4_fmv_base_name(),
-	}; // aog_sw_base_names
-
-	return aog_sw_base_names;
-}
-
-const AssetsCRefStrings& Assets::get_aog_full_base_names()
-{
-	static const auto aog_full_base_names = AssetsCRefStrings
-	{
-		get_audio_header_base_name(),
-		get_audio_data_base_name(),
-
-		get_map_header_base_name(),
-		get_map_data_base_name(),
-
-		get_gfx_dictionary_base_name(),
-		get_gfx_header_base_name(),
-		get_gfx_data_base_name(),
-
-		get_page_file_base_name(),
-
-		get_episode_6_fmv_base_name(),
-		get_episode_3_5_fmv_base_name(),
-		get_intro_fmv_base_name(),
-		get_episode_2_4_fmv_base_name(),
-	}; // aog_full_base_names
-
-	return aog_full_base_names;
-}
-
-const AssetsCRefStrings& Assets::get_ps_base_names()
-{
-	static const auto ps_base_names = AssetsCRefStrings
-	{
-		get_audio_header_base_name(),
-		get_audio_data_base_name(),
-
-		get_map_header_base_name(),
-		get_map_data_base_name(),
-
-		get_gfx_dictionary_base_name(),
-		get_gfx_header_base_name(),
-		get_gfx_data_base_name(),
-
-		get_page_file_base_name(),
-
-		get_episode_6_fmv_base_name(),
-		get_intro_fmv_base_name(),
-	}; // ps_base_names
-
-	return ps_base_names;
-}
-
-
-const AssetsBaseNameToHashMap& Assets::get_aog_sw_v1_0_base_name_to_hash_map()
-{
-	static auto aog_sw_v1_0_base_name_to_hash_map = AssetsBaseNameToHashMap
-	{
-		{get_audio_header_base_name(), "0c3de403b524107809fa9308b730d60e8e41ba93"},
-		{get_audio_data_base_name(), "3d4e8b62aa4683671027513ad9720f76f176ba5b"},
-
-		{get_map_header_base_name(), "55b9eb9ed555b0f249c2cefd54ecc3f511bfcd55"},
-		{get_map_data_base_name(), "293464e7143ff7e6faf5f5b20799e76a394d65bf"},
-
-		{get_gfx_dictionary_base_name(), "b54d48d35d095e27a3c9130cfa59ed9c4f05abe7"},
-		{get_gfx_header_base_name(), "cc44c362e9e2c9f7b9fb2e4ba31331dde42a1e96"},
-		{get_gfx_data_base_name(), "d1fa19131281d30787125f946881652be876f57a"},
-
-		{get_page_file_base_name(), "37412ca9139562fc31330d72470822de4d9ceb4a"},
-
-		{get_intro_fmv_base_name(), "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
-		{get_episode_2_4_fmv_base_name(), "22bf818465da0f32eef9611de936cba9966b14aa"},
-	}; // aog_sw_v1_0_base_name_to_hash_map
-
-	return aog_sw_v1_0_base_name_to_hash_map;
-}
-
-const AssetsBaseNameToHashMap& Assets::get_aog_sw_v2_0_base_name_to_hash_map()
-{
-	static auto aog_sw_v2_0_base_name_to_hash_map = AssetsBaseNameToHashMap
-	{
-		{get_audio_header_base_name(), "0c3de403b524107809fa9308b730d60e8e41ba93"},
-		{get_audio_data_base_name(), "3d4e8b62aa4683671027513ad9720f76f176ba5b"},
-
-		{get_map_header_base_name(), "04a8e4e7c360f6033dc70f7b09edbc4a6447e462"},
-		{get_map_data_base_name(), "bbb3cd6ab3e742eada427862504eba06437036d0"},
-
-		{get_gfx_dictionary_base_name(), "058fe0b59c7aa020bf4e7509103892d4c7459aa6"},
-		{get_gfx_header_base_name(), "6c0e273df7fd3940c038fc20a5bdfb81cd50e7ef"},
-		{get_gfx_data_base_name(), "e14b6172b6ab7568d3736f087f07a0df5eac5dad"},
-
-		{get_page_file_base_name(), "dbde907ba1110bef445d6daae283c4520d6951b4"},
-
-		{get_intro_fmv_base_name(), "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
-		{get_episode_2_4_fmv_base_name(), "22bf818465da0f32eef9611de936cba9966b14aa"},
-	}; // aog_sw_v2_0_base_name_to_hash_map
-
-	return aog_sw_v2_0_base_name_to_hash_map;
-}
-
-const AssetsBaseNameToHashMap& Assets::get_aog_sw_v2_1_base_name_to_hash_map()
-{
-	static auto aog_sw_v2_1_base_name_to_hash_map = AssetsBaseNameToHashMap
-	{
-		{get_audio_header_base_name(), "e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2"},
-		{get_audio_data_base_name(), "b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25"},
-
-		{get_map_header_base_name(), "04a8e4e7c360f6033dc70f7b09edbc4a6447e462"},
-		{get_map_data_base_name(), "bbb3cd6ab3e742eada427862504eba06437036d0"},
-
-		{get_gfx_dictionary_base_name(), "ed1ab61ad2529e046f966d9c1627508f76693ef8"},
-		{get_gfx_header_base_name(), "0635a4a2b823eef2904ed1d590d98362fb16621d"},
-		{get_gfx_data_base_name(), "b59cbe3793b4612b06254ece48bf8e961ab6f528"},
-
-		{get_page_file_base_name(), "dbde907ba1110bef445d6daae283c4520d6951b4"},
-
-		{get_intro_fmv_base_name(), "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
-		{get_episode_2_4_fmv_base_name(), "22bf818465da0f32eef9611de936cba9966b14aa"},
-	}; // aog_sw_v2_1_base_name_to_hash_map
-
-	return aog_sw_v2_1_base_name_to_hash_map;
-}
-
-const AssetsBaseNameToHashMap& Assets::get_aog_sw_v3_0_base_name_to_hash_map()
-{
-	static auto aog_sw_v3_0_base_name_to_hash_map = AssetsBaseNameToHashMap
-	{
-		{get_audio_header_base_name(), "e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2"},
-		{get_audio_data_base_name(), "b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25"},
-
-		{get_map_header_base_name(), "04a8e4e7c360f6033dc70f7b09edbc4a6447e462"},
-		{get_map_data_base_name(), "bbb3cd6ab3e742eada427862504eba06437036d0"},
-
-		{get_gfx_dictionary_base_name(), "537676ddcafeee415c22bb9d00097b25bc7e13c5"},
-		{get_gfx_header_base_name(), "e7fb8f241b8fa94739c3bd09ea05c1afc7bbfc95"},
-		{get_gfx_data_base_name(), "9f9f4c40c9637af472ce5e1a360e51364c3a418a"},
-
-		{get_page_file_base_name(), "dbde907ba1110bef445d6daae283c4520d6951b4"},
-
-		{get_intro_fmv_base_name(), "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
-		{get_episode_2_4_fmv_base_name(), "22bf818465da0f32eef9611de936cba9966b14aa"},
-	}; // aog_sw_v3_0_base_name_to_hash_map
-
-	return aog_sw_v3_0_base_name_to_hash_map;
-}
-
-
-const AssetsBaseNameToHashMap& Assets::get_aog_full_v1_0_base_name_to_hash_map()
-{
-	static auto aog_full_v1_0_base_name_to_hash_map = AssetsBaseNameToHashMap
-	{
-		{get_audio_header_base_name(), "e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2"},
-		{get_audio_data_base_name(), "b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25"},
-
-		{get_map_header_base_name(), "6f19a144d8985e90f096fc1c67ade58e9051235c"},
-		{get_map_data_base_name(), "4d00c5f5c843f99a266bd938648192a6eff17b5a"},
-
-		{get_gfx_dictionary_base_name(), "d4f81ace1701a7338d43ce07723c2adaafdc837c"},
-		{get_gfx_header_base_name(), "639ec9e7a81ad83fc5b5c557cf4fc5fa28b9676b"},
-		{get_gfx_data_base_name(), "02dc27d4810e3ffa26540b310eac6091f5e16de0"},
-
-		{get_page_file_base_name(), "0a700732ccbc72f95318a6226a7e1ad78ac713bb"},
-
-		{get_episode_6_fmv_base_name(), "af5af59ad7ed17517d87b3ece3c0cac23ade535b"},
-		{get_episode_3_5_fmv_base_name(), "9b2418a1a1f34abdcf6fcd9ed3344a49912c9b5e"},
-		{get_intro_fmv_base_name(), "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
-		{get_episode_2_4_fmv_base_name(), "22bf818465da0f32eef9611de936cba9966b14aa"},
-	}; // aog_full_v1_0_base_name_to_hash_map
-
-	return aog_full_v1_0_base_name_to_hash_map;
-}
-
-const AssetsBaseNameToHashMap& Assets::get_aog_full_v2_0_base_name_to_hash_map()
-{
-	static auto aog_full_v2_0_base_name_to_hash_map = AssetsBaseNameToHashMap
-	{
-		{get_audio_header_base_name(), "e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2"},
-		{get_audio_data_base_name(), "b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25"},
-
-		{get_map_header_base_name(), "028f624e150f84ffc8336336cb0ecea0932cc22d"},
-		{get_map_data_base_name(), "8b48e7eb859382a4c84948c5a62899194288e853"},
-
-		{get_gfx_dictionary_base_name(), "e83b690836c9edf9ef60f6189b8384fb2319b735"},
-		{get_gfx_header_base_name(), "48b18caa86151610957b64b207cf2a2977ef7d57"},
-		{get_gfx_data_base_name(), "67a679e3b107db8685ba5ff1643a38f9291b00bf"},
-
-		{get_page_file_base_name(), "6fcc6e007b02b2e55892cfa7acfd42966ef9c9fb"},
-
-		{get_episode_6_fmv_base_name(), "af5af59ad7ed17517d87b3ece3c0cac23ade535b"},
-		{get_episode_3_5_fmv_base_name(), "9b2418a1a1f34abdcf6fcd9ed3344a49912c9b5e"},
-		{get_intro_fmv_base_name(), "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
-		{get_episode_2_4_fmv_base_name(), "22bf818465da0f32eef9611de936cba9966b14aa"},
-	}; // aog_full_v2_0_base_name_to_hash_map
-
-	return aog_full_v2_0_base_name_to_hash_map;
-}
-
-const AssetsBaseNameToHashMap& Assets::get_aog_full_v2_1_base_name_to_hash_map()
-{
-	static auto aog_full_v2_1_base_name_to_hash_map = AssetsBaseNameToHashMap
-	{
-		{get_audio_header_base_name(), "e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2"},
-		{get_audio_data_base_name(), "b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25"},
-
-		{get_map_header_base_name(), "028f624e150f84ffc8336336cb0ecea0932cc22d"},
-		{get_map_data_base_name(), "8b48e7eb859382a4c84948c5a62899194288e853"},
-
-		{get_gfx_dictionary_base_name(), "e4ae3ef9a3ac158a832092b7b5487227337c6f13"},
-		{get_gfx_header_base_name(), "1a3864cd12de4b8fd6be023b73d2d79e91b9018d"},
-		{get_gfx_data_base_name(), "6868e6cc4f8cb9160a218c5bce680a11f64c675a"},
-
-		{get_page_file_base_name(), "6fcc6e007b02b2e55892cfa7acfd42966ef9c9fb"},
-
-		{get_episode_6_fmv_base_name(), "af5af59ad7ed17517d87b3ece3c0cac23ade535b"},
-		{get_episode_3_5_fmv_base_name(), "9b2418a1a1f34abdcf6fcd9ed3344a49912c9b5e"},
-		{get_intro_fmv_base_name(), "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
-		{get_episode_2_4_fmv_base_name(), "22bf818465da0f32eef9611de936cba9966b14aa"},
-	}; // aog_full_v2_1_base_name_to_hash_map
-
-	return aog_full_v2_1_base_name_to_hash_map;
-}
-
-const AssetsBaseNameToHashMap& Assets::get_aog_full_v3_0_base_name_to_hash_map()
-{
-	static auto aog_full_v3_0_base_name_to_hash_map = AssetsBaseNameToHashMap
-	{
-		{get_audio_header_base_name(), "e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2"},
-		{get_audio_data_base_name(), "b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25"},
-
-		{get_map_header_base_name(), "028f624e150f84ffc8336336cb0ecea0932cc22d"},
-		{get_map_data_base_name(), "8b48e7eb859382a4c84948c5a62899194288e853"},
-
-		{get_gfx_dictionary_base_name(), "60da35e506d57753f83cca5f232a76dd1cf074ba"},
-		{get_gfx_header_base_name(), "ff165ca5924d738853587a7e4ab1cd239e10e359"},
-		{get_gfx_data_base_name(), "001037fafdff124befb5437c563d0b9c613b3c00"},
-
-		{get_page_file_base_name(), "6fcc6e007b02b2e55892cfa7acfd42966ef9c9fb"},
-
-		{get_episode_6_fmv_base_name(), "af5af59ad7ed17517d87b3ece3c0cac23ade535b"},
-		{get_episode_3_5_fmv_base_name(), "9b2418a1a1f34abdcf6fcd9ed3344a49912c9b5e"},
-		{get_intro_fmv_base_name(), "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
-		{get_episode_2_4_fmv_base_name(), "22bf818465da0f32eef9611de936cba9966b14aa"},
-	}; // aog_full_v3_0_base_name_to_hash_map
-
-	return aog_full_v3_0_base_name_to_hash_map;
-}
-
-
-const AssetsBaseNameToHashMap& Assets::get_ps_base_name_to_hash_map()
-{
-	static auto ps_base_name_to_hash_map = AssetsBaseNameToHashMap
-	{
-		{get_audio_header_base_name(), "2ed9a587926b2b455f8176788f595d03f6359171"},
-		{get_audio_data_base_name(), "ecac8a800c5d021c8b68d170066c8859df9bd79a"},
-
-		{get_map_header_base_name(), "c3fb0a9b81e0240d12c952fe5b57b78c1108aa48"},
-		{get_map_data_base_name(), "acd03031d526eeaee64072518adf6814f96e2a37"},
-
-		{get_gfx_dictionary_base_name(), "061692d166f68d7e0b81568725439078cc728f33"},
-		{get_gfx_header_base_name(), "ad5fed9de5d1d82145df3ff2286e4bc62cb80e2a"},
-		{get_gfx_data_base_name(), "e619a3e6245f79888da5436df138d63204d2caba"},
-
-		{get_page_file_base_name(), "4113ce83c42e69dc5cb20de79f41971a100f876e"},
-
-		{get_episode_6_fmv_base_name(), "b668330e56ceb069c1b972cefddd8a3d618a14af"},
-		{get_intro_fmv_base_name(), "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
-	}; // ps_base_name_to_hash_map
-
-	return ps_base_name_to_hash_map;
+	static auto assets_info = AssetsInfo{};
+	return assets_info;
 }
 
 bool Assets::are_official_levels(
 	const std::string& levels_hash)
 {
-	static const auto all_levels_hashes = AssetsCRefStrings
+	for (const auto& resource : get_all_resources())
 	{
-		Assets::get_aog_full_v1_0_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
-		Assets::get_aog_full_v2_0_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
-		Assets::get_aog_full_v2_1_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
-		Assets::get_aog_full_v3_0_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
-
-		Assets::get_aog_sw_v1_0_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
-		Assets::get_aog_sw_v2_0_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
-		Assets::get_aog_sw_v2_1_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
-		Assets::get_aog_sw_v3_0_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
-
-		Assets::get_ps_base_name_to_hash_map().at(Assets::get_map_data_base_name()),
-	}; // all_levels_hashes
-
-	const auto result = std::any_of(
-		all_levels_hashes.cbegin(),
-		all_levels_hashes.cend(),
-		[&](const std::string& item)
-	{
-		return item == levels_hash;
+		return resource.hash_string == levels_hash;
 	}
-	);
 
-	return result;
+	return false;
 }
 
+const AssetsResources& Assets::get_aog_sw_v1_0_resources()
+{
+	static const AssetsResource resources[] =
+	{
+		AssetsResource{AssetsResourceType::audiohed, get_audiohed_bs1(), "0c3de403b524107809fa9308b730d60e8e41ba93"},
+		AssetsResource{AssetsResourceType::audiot, get_audiot_bs1(), "3d4e8b62aa4683671027513ad9720f76f176ba5b"},
+		AssetsResource{AssetsResourceType::ianim, get_ianim_bs1(), "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
+		AssetsResource{AssetsResourceType::maphead, get_maphead_bs1(), "55b9eb9ed555b0f249c2cefd54ecc3f511bfcd55"},
+		AssetsResource{AssetsResourceType::maptemp, get_maptemp_bs1(), "293464e7143ff7e6faf5f5b20799e76a394d65bf"},
+		AssetsResource{AssetsResourceType::sanim, get_sanim_bs1(), "22bf818465da0f32eef9611de936cba9966b14aa"},
+		AssetsResource{AssetsResourceType::vgadict, get_vgadict_bs1(), "b54d48d35d095e27a3c9130cfa59ed9c4f05abe7"},
+		AssetsResource{AssetsResourceType::vgagraph, get_vgagraph_bs1(), "d1fa19131281d30787125f946881652be876f57a"},
+		AssetsResource{AssetsResourceType::vgahead, get_vgahead_bs1(), "cc44c362e9e2c9f7b9fb2e4ba31331dde42a1e96"},
+		AssetsResource{AssetsResourceType::vswap, get_vswap_bs1(), "37412ca9139562fc31330d72470822de4d9ceb4a"},
+	};
+
+	static const auto assets_resources = AssetsResources{resources};
+
+	return assets_resources;
+}
+
+const AssetsResources& Assets::get_aog_sw_v2_0_resources()
+{
+	static const AssetsResource resources[] =
+	{
+		AssetsResource{AssetsResourceType::audiohed, get_audiohed_bs1(), "0c3de403b524107809fa9308b730d60e8e41ba93"},
+		AssetsResource{AssetsResourceType::audiot, get_audiot_bs1(), "3d4e8b62aa4683671027513ad9720f76f176ba5b"},
+		AssetsResource{AssetsResourceType::ianim, get_ianim_bs1(), "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
+		AssetsResource{AssetsResourceType::maphead, get_maphead_bs1(), "04a8e4e7c360f6033dc70f7b09edbc4a6447e462"},
+		AssetsResource{AssetsResourceType::maptemp, get_maptemp_bs1(), "bbb3cd6ab3e742eada427862504eba06437036d0"},
+		AssetsResource{AssetsResourceType::sanim, get_sanim_bs1(), "22bf818465da0f32eef9611de936cba9966b14aa"},
+		AssetsResource{AssetsResourceType::vgadict, get_vgadict_bs1(), "058fe0b59c7aa020bf4e7509103892d4c7459aa6"},
+		AssetsResource{AssetsResourceType::vgagraph, get_vgagraph_bs1(), "e14b6172b6ab7568d3736f087f07a0df5eac5dad"},
+		AssetsResource{AssetsResourceType::vgahead, get_vgahead_bs1(), "6c0e273df7fd3940c038fc20a5bdfb81cd50e7ef"},
+		AssetsResource{AssetsResourceType::vswap, get_vswap_bs1(), "dbde907ba1110bef445d6daae283c4520d6951b4"},
+	};
+
+	static const auto assets_resources = AssetsResources{resources};
+
+	return assets_resources;
+}
+
+const AssetsResources& Assets::get_aog_sw_v2_1_resources()
+{
+	static const AssetsResource resources[] =
+	{
+		AssetsResource{AssetsResourceType::audiohed, get_audiohed_bs1(), "e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2"},
+		AssetsResource{AssetsResourceType::audiot, get_audiot_bs1(), "b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25"},
+		AssetsResource{AssetsResourceType::ianim, get_ianim_bs1(), "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
+		AssetsResource{AssetsResourceType::maphead, get_maphead_bs1(), "04a8e4e7c360f6033dc70f7b09edbc4a6447e462"},
+		AssetsResource{AssetsResourceType::maptemp, get_maptemp_bs1(), "bbb3cd6ab3e742eada427862504eba06437036d0"},
+		AssetsResource{AssetsResourceType::sanim, get_sanim_bs1(), "22bf818465da0f32eef9611de936cba9966b14aa"},
+		AssetsResource{AssetsResourceType::vgadict, get_vgadict_bs1(), "ed1ab61ad2529e046f966d9c1627508f76693ef8"},
+		AssetsResource{AssetsResourceType::vgagraph, get_vgagraph_bs1(), "b59cbe3793b4612b06254ece48bf8e961ab6f528"},
+		AssetsResource{AssetsResourceType::vgahead, get_vgahead_bs1(), "0635a4a2b823eef2904ed1d590d98362fb16621d"},
+		AssetsResource{AssetsResourceType::vswap, get_vswap_bs1(), "dbde907ba1110bef445d6daae283c4520d6951b4"},
+	};
+
+	static const auto assets_resources = AssetsResources{resources};
+
+	return assets_resources;
+}
+
+const AssetsResources& Assets::get_aog_sw_v3_0_resources()
+{
+	static const AssetsResource resources[] =
+	{
+		AssetsResource{AssetsResourceType::audiohed, get_audiohed_bs1(), "e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2"},
+		AssetsResource{AssetsResourceType::audiot, get_audiot_bs1(), "b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25"},
+		AssetsResource{AssetsResourceType::ianim, get_ianim_bs1(), "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
+		AssetsResource{AssetsResourceType::maphead, get_maphead_bs1(), "04a8e4e7c360f6033dc70f7b09edbc4a6447e462"},
+		AssetsResource{AssetsResourceType::maptemp, get_maptemp_bs1(), "bbb3cd6ab3e742eada427862504eba06437036d0"},
+		AssetsResource{AssetsResourceType::sanim, get_sanim_bs1(), "22bf818465da0f32eef9611de936cba9966b14aa"},
+		AssetsResource{AssetsResourceType::vgadict, get_vgadict_bs1(), "537676ddcafeee415c22bb9d00097b25bc7e13c5"},
+		AssetsResource{AssetsResourceType::vgagraph, get_vgagraph_bs1(), "9f9f4c40c9637af472ce5e1a360e51364c3a418a"},
+		AssetsResource{AssetsResourceType::vgahead, get_vgahead_bs1(), "e7fb8f241b8fa94739c3bd09ea05c1afc7bbfc95"},
+		AssetsResource{AssetsResourceType::vswap, get_vswap_bs1(), "dbde907ba1110bef445d6daae283c4520d6951b4"},
+	};
+
+	static const auto assets_resources = AssetsResources{resources};
+
+	return assets_resources;
+}
+
+const AssetsResources& Assets::get_aog_full_v1_0_resources()
+{
+	static const AssetsResource resources[] =
+	{
+		AssetsResource{AssetsResourceType::audiohed, get_audiohed_bs6(), "e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2"},
+		AssetsResource{AssetsResourceType::audiot, get_audiot_bs6(), "b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25"},
+		AssetsResource{AssetsResourceType::eanim, get_eanim_bs6(), "af5af59ad7ed17517d87b3ece3c0cac23ade535b"},
+		AssetsResource{AssetsResourceType::ganim, get_ganim_bs6(), "9b2418a1a1f34abdcf6fcd9ed3344a49912c9b5e"},
+		AssetsResource{AssetsResourceType::ianim, get_ianim_bs6(), "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
+		AssetsResource{AssetsResourceType::maphead, get_maphead_bs6(), "6f19a144d8985e90f096fc1c67ade58e9051235c"},
+		AssetsResource{AssetsResourceType::maptemp, get_maptemp_bs6(), "4d00c5f5c843f99a266bd938648192a6eff17b5a"},
+		AssetsResource{AssetsResourceType::sanim, get_sanim_bs6(), "22bf818465da0f32eef9611de936cba9966b14aa"},
+		AssetsResource{AssetsResourceType::vgadict, get_vgadict_bs6(), "d4f81ace1701a7338d43ce07723c2adaafdc837c"},
+		AssetsResource{AssetsResourceType::vgagraph, get_vgagraph_bs6(), "02dc27d4810e3ffa26540b310eac6091f5e16de0"},
+		AssetsResource{AssetsResourceType::vgahead, get_vgahead_bs6(), "639ec9e7a81ad83fc5b5c557cf4fc5fa28b9676b"},
+		AssetsResource{AssetsResourceType::vswap, get_vswap_bs6(), "0a700732ccbc72f95318a6226a7e1ad78ac713bb"},
+	};
+
+	static const auto assets_resources = AssetsResources{resources};
+
+	return assets_resources;
+}
+
+const AssetsResources& Assets::get_aog_full_v2_0_resources()
+{
+	static const AssetsResource resources[] =
+	{
+		AssetsResource{AssetsResourceType::audiohed, get_audiohed_bs6(), "e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2"},
+		AssetsResource{AssetsResourceType::audiot, get_audiot_bs6(), "b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25"},
+		AssetsResource{AssetsResourceType::eanim, get_eanim_bs6(), "af5af59ad7ed17517d87b3ece3c0cac23ade535b"},
+		AssetsResource{AssetsResourceType::ganim, get_ganim_bs6(), "9b2418a1a1f34abdcf6fcd9ed3344a49912c9b5e"},
+		AssetsResource{AssetsResourceType::ianim, get_ianim_bs6(), "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
+		AssetsResource{AssetsResourceType::maphead, get_maphead_bs6(), "028f624e150f84ffc8336336cb0ecea0932cc22d"},
+		AssetsResource{AssetsResourceType::maptemp, get_maptemp_bs6(), "8b48e7eb859382a4c84948c5a62899194288e853"},
+		AssetsResource{AssetsResourceType::sanim, get_sanim_bs6(), "22bf818465da0f32eef9611de936cba9966b14aa"},
+		AssetsResource{AssetsResourceType::vgadict, get_vgadict_bs6(), "e83b690836c9edf9ef60f6189b8384fb2319b735"},
+		AssetsResource{AssetsResourceType::vgagraph, get_vgagraph_bs6(), "67a679e3b107db8685ba5ff1643a38f9291b00bf"},
+		AssetsResource{AssetsResourceType::vgahead, get_vgahead_bs6(), "48b18caa86151610957b64b207cf2a2977ef7d57"},
+		AssetsResource{AssetsResourceType::vswap, get_vswap_bs6(), "6fcc6e007b02b2e55892cfa7acfd42966ef9c9fb"},
+	};
+
+	static const auto assets_resources = AssetsResources{resources};
+
+	return assets_resources;
+}
+
+const AssetsResources& Assets::get_aog_full_v2_1_resources()
+{
+	static const AssetsResource resources[] =
+	{
+		AssetsResource{AssetsResourceType::audiohed, get_audiohed_bs6(), "e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2"},
+		AssetsResource{AssetsResourceType::audiot, get_audiot_bs6(), "b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25"},
+		AssetsResource{AssetsResourceType::eanim, get_eanim_bs6(), "af5af59ad7ed17517d87b3ece3c0cac23ade535b"},
+		AssetsResource{AssetsResourceType::ganim, get_ganim_bs6(), "9b2418a1a1f34abdcf6fcd9ed3344a49912c9b5e"},
+		AssetsResource{AssetsResourceType::ianim, get_ianim_bs6(), "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
+		AssetsResource{AssetsResourceType::maphead, get_maphead_bs6(), "028f624e150f84ffc8336336cb0ecea0932cc22d"},
+		AssetsResource{AssetsResourceType::maptemp, get_maptemp_bs6(), "8b48e7eb859382a4c84948c5a62899194288e853"},
+		AssetsResource{AssetsResourceType::sanim, get_sanim_bs6(), "22bf818465da0f32eef9611de936cba9966b14aa"},
+		AssetsResource{AssetsResourceType::vgadict, get_vgadict_bs6(), "e4ae3ef9a3ac158a832092b7b5487227337c6f13"},
+		AssetsResource{AssetsResourceType::vgagraph, get_vgagraph_bs6(), "6868e6cc4f8cb9160a218c5bce680a11f64c675a"},
+		AssetsResource{AssetsResourceType::vgahead, get_vgahead_bs6(), "1a3864cd12de4b8fd6be023b73d2d79e91b9018d"},
+		AssetsResource{AssetsResourceType::vswap, get_vswap_bs6(), "6fcc6e007b02b2e55892cfa7acfd42966ef9c9fb"},
+	};
+
+	static const auto assets_resources = AssetsResources{resources};
+
+	return assets_resources;
+}
+
+const AssetsResources& Assets::get_aog_full_v3_0_resources()
+{
+	static const AssetsResource resources[] =
+	{
+		AssetsResource{AssetsResourceType::audiohed, get_audiohed_bs6(), "e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2"},
+		AssetsResource{AssetsResourceType::audiot, get_audiot_bs6(), "b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25"},
+		AssetsResource{AssetsResourceType::eanim, get_eanim_bs6(), "af5af59ad7ed17517d87b3ece3c0cac23ade535b"},
+		AssetsResource{AssetsResourceType::ganim, get_ganim_bs6(), "9b2418a1a1f34abdcf6fcd9ed3344a49912c9b5e"},
+		AssetsResource{AssetsResourceType::ianim, get_ianim_bs6(), "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
+		AssetsResource{AssetsResourceType::maphead, get_maphead_bs6(), "028f624e150f84ffc8336336cb0ecea0932cc22d"},
+		AssetsResource{AssetsResourceType::maptemp, get_maptemp_bs6(), "8b48e7eb859382a4c84948c5a62899194288e853"},
+		AssetsResource{AssetsResourceType::sanim, get_sanim_bs6(), "22bf818465da0f32eef9611de936cba9966b14aa"},
+		AssetsResource{AssetsResourceType::vgadict, get_vgadict_bs6(), "60da35e506d57753f83cca5f232a76dd1cf074ba"},
+		AssetsResource{AssetsResourceType::vgagraph, get_vgagraph_bs6(), "001037fafdff124befb5437c563d0b9c613b3c00"},
+		AssetsResource{AssetsResourceType::vgahead, get_vgahead_bs6(), "ff165ca5924d738853587a7e4ab1cd239e10e359"},
+		AssetsResource{AssetsResourceType::vswap, get_vswap_bs6(), "6fcc6e007b02b2e55892cfa7acfd42966ef9c9fb"},
+	};
+
+	static const auto assets_resources = AssetsResources{resources};
+
+	return assets_resources;
+}
+
+const AssetsResources& Assets::get_ps_resources()
+{
+	static const AssetsResource resources[] =
+	{
+		AssetsResource{AssetsResourceType::audiohed, get_audiohed_vsi(), "2ed9a587926b2b455f8176788f595d03f6359171"},
+		AssetsResource{AssetsResourceType::audiot, get_audiot_vsi(), "ecac8a800c5d021c8b68d170066c8859df9bd79a"},
+		AssetsResource{AssetsResourceType::eanim, get_eanim_vsi(), "b668330e56ceb069c1b972cefddd8a3d618a14af"},
+		AssetsResource{AssetsResourceType::ianim, get_ianim_vsi(), "ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd"},
+		AssetsResource{AssetsResourceType::maphead, get_maphead_vsi(), "c3fb0a9b81e0240d12c952fe5b57b78c1108aa48"},
+		AssetsResource{AssetsResourceType::maptemp, get_maptemp_vsi(), "acd03031d526eeaee64072518adf6814f96e2a37"},
+		AssetsResource{AssetsResourceType::vgadict, get_vgadict_vsi(), "061692d166f68d7e0b81568725439078cc728f33"},
+		AssetsResource{AssetsResourceType::vgagraph, get_vgagraph_vsi(), "e619a3e6245f79888da5436df138d63204d2caba"},
+		AssetsResource{AssetsResourceType::vgahead, get_vgahead_vsi(), "ad5fed9de5d1d82145df3ff2286e4bc62cb80e2a"},
+		AssetsResource{AssetsResourceType::vswap, get_vswap_vsi(), "4113ce83c42e69dc5cb20de79f41971a100f876e"},
+	};
+
+	static const auto assets_resources = AssetsResources{resources};
+
+	return assets_resources;
+}
+
+const AssetsResources& Assets::get_all_resources()
+{
+	static const auto all_resources = make_all_resources();
+
+	static const auto all_assets_resources = AssetsResources{
+		all_resources.data(),
+		static_cast<AssetsResources::Size>(all_resources.size())
+	};
+
+	return all_assets_resources;
+}
+
+// -------------------------------------------------------------------------
+// Aliens Of Gold (shareware)
+
+const char* Assets::get_audiohed_bs1() noexcept
+{
+	return "AUDIOHED.BS1";
+}
+
+const char* Assets::get_audiot_bs1() noexcept
+{
+	return "AUDIOT.BS1";
+}
+
+const char* Assets::get_ianim_bs1() noexcept
+{
+	return "IANIM.BS1";
+}
+
+const char* Assets::get_maphead_bs1() noexcept
+{
+	return "MAPHEAD.BS1";
+}
+
+const char* Assets::get_maptemp_bs1() noexcept
+{
+	return "MAPTEMP.BS1";
+}
+
+const char* Assets::get_sanim_bs1() noexcept
+{
+	return "SANIM.BS1";
+}
+
+const char* Assets::get_vgadict_bs1() noexcept
+{
+	return "VGADICT.BS1";
+}
+
+const char* Assets::get_vgagraph_bs1() noexcept
+{
+	return "VGAGRAPH.BS1";
+}
+
+const char* Assets::get_vgahead_bs1() noexcept
+{
+	return "VGAHEAD.BS1";
+}
+
+const char* Assets::get_vswap_bs1() noexcept
+{
+	return "VSWAP.BS1";
+}
+
+// Aliens Of Gold (shareware)
+// -------------------------------------------------------------------------
+
+// -------------------------------------------------------------------------
+// Aliens Of Gold (full)
+
+const char* Assets::get_audiohed_bs6() noexcept
+{
+	return "AUDIOHED.BS6";
+}
+
+const char* Assets::get_audiot_bs6() noexcept
+{
+	return "AUDIOT.BS6";
+}
+
+const char* Assets::get_eanim_bs6() noexcept
+{
+	return "EANIM.BS6";
+}
+
+const char* Assets::get_ganim_bs6() noexcept
+{
+	return "GANIM.BS6";
+}
+
+const char* Assets::get_ianim_bs6() noexcept
+{
+	return "IANIM.BS6";
+}
+
+const char* Assets::get_maphead_bs6() noexcept
+{
+	return "MAPHEAD.BS6";
+}
+
+const char* Assets::get_maptemp_bs6() noexcept
+{
+	return "MAPTEMP.BS6";
+}
+
+const char* Assets::get_sanim_bs6() noexcept
+{
+	return "SANIM.BS6";
+}
+
+const char* Assets::get_vgadict_bs6() noexcept
+{
+	return "VGADICT.BS6";
+}
+
+const char* Assets::get_vgagraph_bs6() noexcept
+{
+	return "VGAGRAPH.BS6";
+}
+
+const char* Assets::get_vgahead_bs6() noexcept
+{
+	return "VGAHEAD.BS6";
+}
+
+const char* Assets::get_vswap_bs6() noexcept
+{
+	return "VSWAP.BS6";
+}
+
+// Aliens Of Gold (full)
+// -------------------------------------------------------------------------
+
+// -------------------------------------------------------------------------
+// Planet Strike
+
+const char* Assets::get_audiohed_vsi() noexcept
+{
+	return "AUDIOHED.VSI";
+}
+
+const char* Assets::get_audiot_vsi() noexcept
+{
+	return "AUDIOT.VSI";
+}
+
+const char* Assets::get_eanim_vsi() noexcept
+{
+	return "EANIM.VSI";
+}
+
+const char* Assets::get_ianim_vsi() noexcept
+{
+	return "IANIM.VSI";
+}
+
+const char* Assets::get_maphead_vsi() noexcept
+{
+	return "MAPHEAD.VSI";
+}
+
+const char* Assets::get_maptemp_vsi() noexcept
+{
+	return "MAPTEMP.VSI";
+}
+
+const char* Assets::get_vgadict_vsi() noexcept
+{
+	return "VGADICT.VSI";
+}
+
+const char* Assets::get_vgagraph_vsi() noexcept
+{
+	return "VGAGRAPH.VSI";
+}
+
+const char* Assets::get_vgahead_vsi() noexcept
+{
+	return "VGAHEAD.VSI";
+}
+
+const char* Assets::get_vswap_vsi() noexcept
+{
+	return "VSWAP.VSI";
+}
+
+// Planet Strike
+// -------------------------------------------------------------------------
+
+Assets::AllResources Assets::make_all_resources()
+{
+	auto all_resources = AllResources{};
+	all_resources.reserve(40);
+
+	all_resources.insert(all_resources.end(), get_aog_sw_v1_0_resources().begin(), get_aog_sw_v1_0_resources().end());
+	all_resources.insert(all_resources.end(), get_aog_sw_v2_0_resources().begin(), get_aog_sw_v2_0_resources().end());
+	all_resources.insert(all_resources.end(), get_aog_sw_v2_1_resources().begin(), get_aog_sw_v2_1_resources().end());
+	all_resources.insert(all_resources.end(), get_aog_sw_v3_0_resources().begin(), get_aog_sw_v3_0_resources().end());
+
+	all_resources.insert(all_resources.end(), get_aog_full_v1_0_resources().begin(), get_aog_full_v1_0_resources().end());
+	all_resources.insert(all_resources.end(), get_aog_full_v2_0_resources().begin(), get_aog_full_v2_0_resources().end());
+	all_resources.insert(all_resources.end(), get_aog_full_v2_1_resources().begin(), get_aog_full_v2_1_resources().end());
+	all_resources.insert(all_resources.end(), get_aog_full_v3_0_resources().begin(), get_aog_full_v3_0_resources().end());
+
+	all_resources.insert(all_resources.end(), get_ps_resources().begin(), get_ps_resources().end());
+
+	return all_resources;
+}
 
 // ==========================================================================
 // ImageExtractor
@@ -3381,7 +3333,7 @@ void TextExtractor::extract_text(
 
 void TextExtractor::initialize_text()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 	const auto is_compressed = assets_info.is_aog_sw_v2_x() || assets_info.is_ps();
 
 	text_numbers_.reserve(50);
@@ -3696,7 +3648,7 @@ void ca_make_resource_path_name(
 
 	path_name = (mod_dir_.empty() ? data_dir_ : mod_dir_);
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 	path_name = bstone::file_system::append_path(path_name, assets_info.get_base_path_name());
 	path_name = bstone::file_system::append_path(path_name, resource_name);
 }
@@ -3705,7 +3657,7 @@ void ca_make_sprite_resource_path_name(
 	int sprite_id,
 	std::string& path_name)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog_sw())
 	{

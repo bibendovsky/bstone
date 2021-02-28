@@ -92,7 +92,7 @@ StatInfos statinfo;
 
 void initialize_static_info_constants()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	statinfo =
 	{
@@ -309,7 +309,7 @@ statobj_t* SpawnStatic(
 	std::int16_t tiley,
 	std::int16_t type)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	statobj_t* spot;
 
@@ -513,7 +513,7 @@ statobj_t* UseReservedStatic(
 	// place it
 	//
 
-	const auto assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	switch (itemtype)
 	{
@@ -671,7 +671,7 @@ void ExplodeStatics(
 	std::int16_t tilex,
 	std::int16_t tiley)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (!assets_info.is_ps())
 	{
@@ -988,7 +988,7 @@ objtype* get_actor_near_door(
 	int tile_x,
 	int tile_y)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog())
 	{
@@ -2112,7 +2112,7 @@ const char* const OutOrder = "\r\r   FOOD UNIT MACHINE\r    IS OUT OF ORDER.^XX"
 void OperateConcession(
 	std::uint16_t concession)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	con_mCacheInfo* ci;
 	bool ok = false;

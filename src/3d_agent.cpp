@@ -455,7 +455,7 @@ void T_Stand(
 */
 void CheckWeaponChange()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	const int n = assets_info.is_ps() ? wp_bfg_cannon : wp_grenade;
 
@@ -937,7 +937,7 @@ void DrawHealth()
 
 void DrawHealthNum()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (!assets_info.is_ps())
 	{
@@ -1028,7 +1028,7 @@ void TakeDamage(
 				{
 					LastInfoAttacker = attacker->obclass;
 
-					const auto& assets_info = AssetsInfo{};
+					const auto& assets_info = get_assets_info();
 
 					if (assets_info.is_ps())
 					{
@@ -1226,7 +1226,7 @@ void DrawKeyPics()
 {
 	DrawKeyPics_COUNT -= 1;
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog())
 	{
@@ -1322,7 +1322,7 @@ void DrawWeaponPic()
 		return;
 	}
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	LatchDrawPic(
 		assets_info.is_ps() ? 31 : 22,
@@ -1425,7 +1425,7 @@ void DrawAmmoNum()
 		return;
 	}
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	fontnumber = 2;
 	fontcolor = 0x9D;
@@ -1443,7 +1443,7 @@ void DrawAmmoNum()
 
 void DrawGAmmoNum()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (gamestate.ammo < 100)
 	{
@@ -1485,7 +1485,7 @@ void DrawAmmoPic()
 
 void DrawAmmoMsg()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	int x = (assets_info.is_ps() ? 30 : 29);
 
@@ -1525,7 +1525,7 @@ void UpdateAmmoMsg()
 
 void DrawAmmoGuage()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	DrawLedStrip(assets_info.is_ps() ? 243 : 234, 155, gamestate.ammo_leds, NUM_AMMO_SEGS);
 }
@@ -1565,7 +1565,7 @@ void UpdateRadarGuage()
 
 void DrawRadarGuage()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (!assets_info.is_ps())
 	{
@@ -1609,7 +1609,7 @@ void DrawLedStrip(
 		amount = max;
 	}
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	int width = (assets_info.is_ps() ? 5 : 11);
 
@@ -1650,7 +1650,7 @@ void GiveAmmo(
 
 	DrawAmmo(false);
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
 	{
@@ -1681,7 +1681,7 @@ void GiveAmmo(
 // ---------------------------------------------------------------------------
 void ComputeAvailWeapons()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	//
 	// Determine what ammo ammounts we have avail
@@ -1818,7 +1818,7 @@ bool DisplayInfoMsg(
 {
 	if (Priority >= LastMsgPri)
 	{
-		const auto& assets_info = AssetsInfo{};
+		const auto& assets_info = get_assets_info();
 
 		if (Priority == MP_max_val)
 		{ // "System" msgs
@@ -1960,7 +1960,7 @@ void DisplayNoMoMsgs()
 	status_message += std::to_string(gamestate.tokens);
 	status_message.resize(default_msg_length, ' ');
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	auto is_level_locked = true;
 
@@ -2373,7 +2373,7 @@ void UpdateStatusBar()
 		DrawHealthNum();
 	}
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (!assets_info.is_ps())
 	{
@@ -2447,7 +2447,7 @@ void GetBonus(
 	case bo_green_key:
 	case bo_gold_key:
 	{
-		const auto& assets_info = AssetsInfo{};
+		const auto& assets_info = get_assets_info();
 
 		std::uint16_t keynum = 0;
 
@@ -2875,7 +2875,7 @@ void Thrust(
 
 	// Check for trigger tiles.
 	//
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	switch (*map[0])
 	{
@@ -3065,7 +3065,7 @@ void select_floor()
 
 	if (new_floor != -1 && new_floor != gamestate.mapon)
 	{
-		const auto& assets_info = AssetsInfo{};
+		const auto& assets_info = get_assets_info();
 		const auto is_ps = assets_info.is_ps();
 
 		if (is_ps)
@@ -3175,7 +3175,7 @@ void Cmd_Use(
 
 	// Test for a pushable wall
 	//
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (iconnum == PUSHABLETILE)
 	{
@@ -3571,7 +3571,7 @@ const int TOV_Y = 132;
 
 int aog_input_floor()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	static const std::string messages[4] =
 	{
@@ -3935,7 +3935,7 @@ int aog_input_floor()
 
 int ps_input_floor()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	const auto RADAR_FLAGS = OV_KEYS;
 	const auto MAX_TELEPORTS = 20;
@@ -4199,7 +4199,7 @@ int ps_input_floor()
 
 int InputFloor()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog())
 	{
@@ -4404,7 +4404,7 @@ std::int16_t ShowStats(
 
 	// Show OVERALL FLOOR ratio.
 	//
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	by += (assets_info.is_ps() ? 13 : 12);
 	floor = p1 + p2 + p3;
@@ -4802,7 +4802,7 @@ void SpawnPlayer(
 	std::int16_t tiley,
 	std::int16_t dir)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
 	{
@@ -5056,7 +5056,7 @@ void T_Attack(
 	//
 	// change frame and fire
 	//
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	gamestate.attackcount -= tics;
 	if (gamestate.attackcount <= 0)
@@ -5309,7 +5309,7 @@ void T_Player(
 		UpdateAmmoMsg();
 	}
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
 	{
@@ -5522,7 +5522,7 @@ void SW_HandleStatic(
 	std::uint16_t tilex,
 	std::uint16_t tiley)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	switch (stat->itemnumber)
 	{

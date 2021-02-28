@@ -152,7 +152,7 @@ PiShapeInfos piShapeTable;
 
 void initialize_tp_shape_table()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (false)
 	{
@@ -1790,7 +1790,7 @@ PiAnimationInfos piAnimTable;
 
 void initialize_tp_animation_table()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog_sw())
 	{

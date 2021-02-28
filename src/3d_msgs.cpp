@@ -759,7 +759,7 @@ ActorMessages ActorInfoMsg =
 
 void initialize_messages()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
 	{

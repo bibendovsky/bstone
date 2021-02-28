@@ -361,7 +361,7 @@ void log_bonus_stuff()
 
 void log_enemy_stuff()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	bstone::logger_->write();
 	bstone::logger_->write("<<<<<<<<");
@@ -758,7 +758,7 @@ bool DebugKeys()
 		HealSelf(99);
 		GiveToken(5);
 
-		const auto& assets_info = AssetsInfo{};
+		const auto& assets_info = get_assets_info();
 
 		const auto n = static_cast<int>(assets_info.is_ps() ? wp_bfg_cannon : wp_grenade);
 
@@ -832,7 +832,7 @@ bool DebugKeys()
 		VW_UpdateScreen();
 		IN_Ack();
 
-		const auto& assets_info = AssetsInfo{};
+		const auto& assets_info = get_assets_info();
 		const auto stats_levels_per_episode = assets_info.get_stats_levels_per_episode();
 
 		for (auto i = 0; i < stats_levels_per_episode; ++i)
@@ -894,7 +894,7 @@ bool DebugKeys()
 
 		if (!esc && string[0] != '\0')
 		{
-			const auto& assets_info = AssetsInfo{};
+			const auto& assets_info = get_assets_info();
 
 			const auto max_warp_level = assets_info.get_levels_per_episode() - 1;
 			const auto level = atoi(string);

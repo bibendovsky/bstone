@@ -658,7 +658,7 @@ void vid_calculate_vga_dimensions()
 
 std::string vid_get_game_name_and_game_version_string()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	auto title = std::string{"Blake Stone"};
 
@@ -5273,7 +5273,7 @@ void hw_create_player_weapon_vi()
 
 void hw_update_player_weapon_model_matrix()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	const auto aog_scale = 128.0 / 64.0;
 	const auto ps_scale = 88.0 / 64.0;
@@ -7132,7 +7132,7 @@ void hw_refresh_3d()
 
 	const auto is_shading = (!gp_no_shading_);
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	hw_update_3d_fade();
 
@@ -9233,7 +9233,7 @@ void hw_precache_explosion()
 // Clip Explosion.
 void hw_precache_clip_explosion()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
 	{
@@ -9271,7 +9271,7 @@ void hw_precache_flying_grenade()
 
 void hw_precache_anti_plasma_cannon_explosion()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
 	{
@@ -9288,7 +9288,7 @@ void hw_precache_anti_plasma_cannon_explosion()
 
 void hw_precache_anti_plasma_cannon_shot()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
 	{
@@ -9304,7 +9304,7 @@ void hw_precache_anti_plasma_cannon_shot()
 // A rubble.
 void hw_precache_rubble()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
 	{
@@ -9365,7 +9365,7 @@ void hw_precache_yellow_access_card()
 // Green Access Card (AOG).
 void hw_precache_green_access_card()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog())
 	{
@@ -9382,7 +9382,7 @@ void hw_precache_blue_access_card()
 // Golden Access Card (AOG).
 void hw_precache_golden_access_card()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog())
 	{
@@ -9393,7 +9393,7 @@ void hw_precache_golden_access_card()
 // Small yellow box (PS).
 void hw_precache_small_yellow_box()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
 	{
@@ -9440,7 +9440,7 @@ void hw_precache_plasma_discharge_unit_weapon()
 // Anti-Plasma Cannon.
 void hw_precache_anti_plasma_cannon_weapon()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
 	{
@@ -9861,7 +9861,7 @@ void hw_precache_experimental_mutant_human()
 	hw_cache_sprite(SPR_MUTHUM2_SPIT3);
 
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
 	{
@@ -10172,7 +10172,7 @@ void hw_precache_dr_goldfire()
 	hw_cache_sprite(SPR_GOLD_WARP5);
 
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
 	{
@@ -10235,7 +10235,7 @@ void hw_precache_morphed_dr_goldfire()
 // Volatile Material Transport.
 void hw_precache_volatile_material_transport()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog_sw())
 	{
@@ -10306,7 +10306,7 @@ void hw_precache_perscan_drone()
 	hw_cache_sprite(SPR_FSCOUT_W1_7);
 	hw_cache_sprite(SPR_FSCOUT_W1_8);
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (!assets_info.is_aog_sw())
 	{
@@ -10367,7 +10367,7 @@ void hw_precache_security_cube_explosion()
 // Security Cube.
 void hw_precache_security_cube_or_projection_generator()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog())
 	{
@@ -10827,7 +10827,7 @@ void hw_precache_pipe_and_steam()
 
 void hw_precache_special_stuff()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog())
 	{
@@ -10916,7 +10916,7 @@ void hw_precache_player_weapon_plasma_discharge_unit()
 
 void hw_precache_player_weapon_anti_plasma_cannon()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (!assets_info.is_ps())
 	{
@@ -13184,7 +13184,7 @@ void vid_hw_on_update_wall_switch(
 
 	if (wall_it == hw_xy_wall_map_.cend())
 	{
-		const auto& assets_info = AssetsInfo{};
+		const auto& assets_info = get_assets_info();
 
 		if (assets_info.is_aog())
 		{

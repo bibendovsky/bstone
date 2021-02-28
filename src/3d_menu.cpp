@@ -667,7 +667,7 @@ static const std::string& get_saved_game_base_name()
 	{
 		is_initialized = true;
 
-		const auto& assets_info = AssetsInfo{};
+		const auto& assets_info = get_assets_info();
 
 		base_name = "bstone_";
 
@@ -1761,7 +1761,7 @@ void US_ControlPanel(
 	};
 
 	// BBi
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	menu_background_color = (
 		(assets_info.is_aog_sw_v3_0() | assets_info.is_aog_full_v3_0()) ?
@@ -2169,7 +2169,7 @@ void CP_NewGame(
 	DrawMenuTitle("Difficulty Level");
 	DrawInstructions(IT_STANDARD);
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 firstpart:
 
@@ -2658,7 +2658,7 @@ void DrawSwitchDescription(
 		"TOGGLES <TAB>/<SHIFT+TAB> FUNCTIONS",
 	};
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	fontnumber = 2;
 
@@ -3542,7 +3542,7 @@ void DrawOutline(
 
 void SetupControlPanel()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	// BBi
 	SwitchItems.amount = (assets_info.is_ps() ? 7 : 9);
@@ -3954,7 +3954,7 @@ std::int16_t HandleMenu(
 			//
 			// ALREADY IN A GAME?
 			//
-			const auto& assets_info = AssetsInfo{};
+			const auto& assets_info = get_assets_info();
 
 			if (assets_info.is_ps() && ingame && ((items + which)->routine == CP_NewGame))
 			{
@@ -4487,7 +4487,7 @@ void ExitGame()
 {
 	VW_FadeOut();
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog_sw_v3_0() && !g_no_intro_outro && !g_no_screens)
 	{
@@ -5938,7 +5938,7 @@ void draw_switch2_description(
 		"TOGGLES FADE IN/OUT EFFECT",
 	};
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	fontnumber = 2;
 
@@ -6084,7 +6084,7 @@ void draw_resampling_description(
 		"APPLIES CHANGES"
 	};
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	fontnumber = 2;
 
@@ -6513,7 +6513,7 @@ void filler_color_routine(
 
 void MenuFadeOut()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog())
 	{

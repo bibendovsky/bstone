@@ -745,7 +745,7 @@ std::uint16_t MorphClass[] = {
 
 void initialize_hit_point_table()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	starthitpoints = (assets_info.is_aog() ? &aog_start_hit_points : &ps_start_hit_points);
 }
@@ -763,7 +763,7 @@ std::uint16_t get_start_hit_point(
 
 void initialize_boss_constants()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	BossShotShapes = {
 		SPR_BOSS1_PROJ1,
@@ -1091,7 +1091,7 @@ void SpawnOffsetObj(
 	std::int16_t tilex,
 	std::int16_t tiley)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	enemy_t dir_which = en_rentacop;
 
@@ -1429,7 +1429,7 @@ void initialize_grenade_shape_constants()
 void T_OfsThink(
 	objtype* obj)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	std::int8_t dx, dy, dist;
 	std::int8_t oldofs, ofs = 0;
@@ -2208,7 +2208,7 @@ statetype s_ofs_smart_anim2 = {0, 0, 1, T_SmartThought, nullptr, &s_ofs_smart_an
 void T_SmartThought(
 	objtype* obj)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	switch (obj->obclass)
 	{
@@ -2751,7 +2751,7 @@ void DisplaySwitchOperateMsg(
 		message = "\r\r DEACTIVATING BARRIER";
 	}
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (!assets_info.is_ps())
 	{
@@ -2787,7 +2787,7 @@ std::uint16_t UpdateBarrierTable(
 	const int y,
 	const bool on_off)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (level >= assets_info.get_levels_per_episode())
 	{
@@ -2868,7 +2868,7 @@ std::uint16_t ScanBarrierTable(
 	std::uint8_t x,
 	std::uint8_t y)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 	const auto max_switches = assets_info.get_barrier_switches_per_level();
 
 	const auto level = gamestate.mapon;
@@ -2966,7 +2966,7 @@ std::int16_t CheckAndConnect(
 // --------------------------------------------------------------------------
 void ConnectBarriers()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	const auto max_switcher = assets_info.get_barrier_switches_per_level();
 	const auto level = gamestate.mapon;
@@ -3025,7 +3025,7 @@ void SpawnBarrier(
 	std::int16_t tiley,
 	bool OnOff)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	nevermark = !OnOff;
 	SpawnNewObj(tilex, tiley, &s_ofs_stand);
@@ -3158,7 +3158,7 @@ void TurnPostOn(
 void ToggleBarrier(
 	objtype* obj)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	switch (BARRIER_STATE(obj))
 	{
@@ -4058,7 +4058,7 @@ void SpawnStand(
 	std::int16_t tiley,
 	std::int16_t dir)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	std::uint16_t ammo = 8;
 
@@ -4220,7 +4220,7 @@ void CheckForSpecialTile(
 	// Check and handle special tiles... Only one per actor... now!
 	//
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	map = &mapsegs[0][farmapylookup[tiley] + tilex];
 
@@ -4306,7 +4306,7 @@ void SpawnPatrol(
 	std::int16_t tiley,
 	std::int16_t dir)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	std::int16_t ammo = 8;
 
@@ -4407,7 +4407,7 @@ void SpawnPatrol(
 void A_DeathScream(
 	objtype* ob)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	switch (ob->obclass)
 	{
@@ -4563,7 +4563,7 @@ void A_DeathScream(
 void DropCargo(
 	objtype* obj)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (!assets_info.is_ps())
 	{
@@ -4869,7 +4869,7 @@ void ChangeShootMode(
 		ob->flags |= FL_SHOOTMODE;
 		ob->ammo = 1 + (US_RndT() % 2);
 
-		const auto& assets_info = AssetsInfo{};
+		const auto& assets_info = get_assets_info();
 
 		if (assets_info.is_ps() && ob->obclass == gold_morphobj)
 		{
@@ -5194,7 +5194,7 @@ void T_Shoot(
 		break;
 	}
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	switch (ob->obclass)
 	{
@@ -6656,7 +6656,7 @@ void ExplodeFill(
 	std::int8_t tx,
 	std::int8_t ty)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	std::int8_t bx = tx - ff_obj->tilex + EX_RADIUS;
 	std::int8_t by = ty - ff_obj->tiley + EX_RADIUS;

@@ -1412,7 +1412,7 @@ std::int16_t SPR_BFG_EXP8 = 0;
 
 void initialize_sprites()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog_sw())
 	{
@@ -4857,7 +4857,7 @@ std::int16_t TITLE_LOOP_MUSIC = 0;
 
 void initialize_audio_constants()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog())
 	{
@@ -5281,7 +5281,7 @@ std::int16_t DECOY4 = 0;
 
 void initialize_gfxv_contants()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (false)
 	{
@@ -7104,7 +7104,7 @@ void InitSmartAnim(
 	animtype_t AnimType,
 	animdir_t AnimDir)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	InitSmartSpeedAnim(
 		obj,
@@ -7131,7 +7131,7 @@ static const std::string& get_score_file_name()
 
 		auto game_type_string = std::string{};
 
-		auto assets_info = AssetsInfo{};
+		const auto& assets_info = get_assets_info();
 
 		if (assets_info.is_aog_sw())
 		{
@@ -7226,7 +7226,7 @@ void read_high_scores()
 
 static void write_high_scores()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.get_version() == AssetsVersion::none)
 	{
@@ -8010,7 +8010,7 @@ void NewGame(
 	std::int16_t difficulty,
 	std::int16_t episode)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	InitPlaytemp();
 	playstate = ex_stillplaying;
@@ -8174,7 +8174,7 @@ bool LoadLevel(
 
 	auto mod = -1;
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog())
 	{
@@ -8872,7 +8872,7 @@ static const std::string& get_saved_game_version_string()
 
 		version_string = "bstone: ";
 
-		const auto& assets_info = AssetsInfo{};
+		const auto& assets_info = get_assets_info();
 
 		if (assets_info.is_aog_sw())
 		{
@@ -9081,7 +9081,7 @@ bool LoadTheGame(
 			const auto& levels_hash = bstone::Sha1{levels_hash_digest};
 			const auto& levels_hash_string = levels_hash.to_string();
 
-			const auto& assets_info = AssetsInfo{};
+			const auto& assets_info = get_assets_info();
 
 			if (assets_info.get_levels_hash_string() != levels_hash_string)
 			{
@@ -9234,7 +9234,7 @@ bool SaveTheGame(
 
 		// Levels hash.
 		//
-		const auto& assets_info = AssetsInfo{};
+		const auto& assets_info = get_assets_info();
 		const auto& levels_hash_string = assets_info.get_levels_hash_string();
 		const auto& levels_hash = bstone::Sha1{levels_hash_string};
 		const auto& levels_digest = levels_hash.get_digest();
@@ -9700,7 +9700,7 @@ void DemoLoop()
 	bool breakit;
 	auto is_first_time = true;
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	while (true)
 	{
@@ -10362,7 +10362,7 @@ fargametype::fargametype()
 
 void fargametype::initialize()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 	const auto level_count_per_episode = assets_info.get_levels_per_episode();
 
 	level.resize(level_count_per_episode);
@@ -10378,7 +10378,7 @@ void fargametype::clear()
 void fargametype::archive(
 	bstone::ArchiverPtr archiver) const
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 	const auto levels_per_episode = assets_info.get_levels_per_episode();
 
 	for (int i = 0; i < levels_per_episode; ++i)
@@ -10390,7 +10390,7 @@ void fargametype::archive(
 void fargametype::unarchive(
 	bstone::ArchiverPtr archiver)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 	const auto levels_per_episode = assets_info.get_levels_per_episode();
 
 	for (int i = 0; i < levels_per_episode; ++i)
@@ -10534,7 +10534,7 @@ void gametype::initialize()
 	wintiley = {};
 
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 	const auto switches_per_level = assets_info.get_barrier_switches_per_level();
 	const auto levels_per_episode = assets_info.get_levels_per_episode();
 	const auto switches_per_episode = switches_per_level * levels_per_episode;
@@ -10555,7 +10555,7 @@ void gametype::initialize_barriers()
 int gametype::get_barrier_group_offset(
 	const int level) const
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (level < 0 || level >= assets_info.get_levels_per_episode())
 	{
@@ -10574,7 +10574,7 @@ int gametype::get_barrier_index(
 	auto index = 0;
 	decode_barrier_index(code, level, index);
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 	const auto max_switches = assets_info.get_barrier_switches_per_level();
 
 	return (level * max_switches) + index;
@@ -10584,7 +10584,7 @@ int gametype::encode_barrier_index(
 	const int level,
 	const int index) const
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (index < 0 || index >= assets_info.get_barrier_switches_per_level())
 	{
@@ -10620,7 +10620,7 @@ void gametype::decode_barrier_index(
 		Quit("[BARR_DEC_IDX] Invalid code.");
 	}
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog())
 	{

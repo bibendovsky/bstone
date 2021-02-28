@@ -53,7 +53,7 @@ public:
 private:
 	struct Descriptor
 	{
-		AssetsCRefString file_base_name_;
+		AssetsResourceType assets_resource_type;
 
 		std::int8_t repeat_count_;
 		std::int8_t tick_delay_;
@@ -207,10 +207,10 @@ const Movie::Descriptor& Movie::get_descriptor(
 {
 	static const auto descriptors = Descriptors
 	{{
-		{Assets::get_intro_fmv_base_name(), 1, 3}, // intro
-		{Assets::get_episode_6_fmv_base_name(), 1, 3}, // final
-		{Assets::get_episode_2_4_fmv_base_name(), 1, 3}, // final_2
-		{Assets::get_episode_3_5_fmv_base_name(), 1, 3}, // final_3
+		{AssetsResourceType::ianim, 1, 3}, // intro
+		{AssetsResourceType::eanim, 1, 3}, // final
+		{AssetsResourceType::sanim, 1, 3}, // final_2
+		{AssetsResourceType::ganim, 1, 3}, // final_3
 	}}; // descriptors
 
 	return descriptors[movie_id];
@@ -521,7 +521,7 @@ bool Movie::play(
 	// Start the anim process
 	//
 
-	ca_open_resource(descriptor.file_base_name_, file_stream_);
+	ca_open_resource(descriptor.assets_resource_type, file_stream_);
 
 	if (!file_stream_.is_open())
 	{

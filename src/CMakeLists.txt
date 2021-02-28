@@ -386,6 +386,7 @@ target_sources(
 		bstone_oal_symbols.h
 		bstone_sdl2_audio_mixer.h
 		bstone_sdl2_dynamic_loader.h
+		bstone_span.h
 )
 
 if (WIN32)
