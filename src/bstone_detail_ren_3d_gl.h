@@ -96,6 +96,11 @@ public:
 		const int aa_value) override;
 
 
+	void read_pixels_rgb8(
+		void* buffer,
+		bool& is_flipped_vertically) override;
+
+
 	void present() override;
 
 
@@ -221,6 +226,8 @@ private:
 	void blit_framebuffers();
 
 	void bind_framebuffers();
+
+	void bind_framebuffers_for_read_pixels();
 
 
 	void disable_aa();

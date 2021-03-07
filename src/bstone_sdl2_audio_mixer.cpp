@@ -135,19 +135,6 @@ bool Sdl2AudioMixer::Sound::is_audible() const
 // SetResamplingMtTask
 //
 
-Sdl2AudioMixer::SetResamplingMtTask::SetResamplingMtTask()
-	:
-	cache_item_{},
-	interpolation_{},
-	is_lpf_{},
-	is_completed_{},
-	is_failed_{},
-	exception_ptr_{}
-{
-}
-
-Sdl2AudioMixer::SetResamplingMtTask::~SetResamplingMtTask() = default;
-
 void Sdl2AudioMixer::SetResamplingMtTask::execute()
 {
 	auto is_invalid = false;
@@ -216,9 +203,11 @@ std::exception_ptr Sdl2AudioMixer::SetResamplingMtTask::get_exception_ptr() cons
 }
 
 void Sdl2AudioMixer::SetResamplingMtTask::set_failed(
-	const std::exception_ptr exception_ptr)
+	std::exception_ptr exception_ptr)
 {
+	is_completed_ = true;
 	is_failed_ = true;
+	exception_ptr_ = exception_ptr;
 }
 
 void Sdl2AudioMixer::SetResamplingMtTask::initialize(

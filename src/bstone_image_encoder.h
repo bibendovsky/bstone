@@ -22,65 +22,58 @@ Free Software Foundation, Inc.,
 */
 
 
-#ifndef BSTONE_STRING_HELPER_INCLUDED
-#define BSTONE_STRING_HELPER_INCLUDED
+#ifndef BSTONE_IMAGE_ENCODER_INCLUDED
+#define BSTONE_IMAGE_ENCODER_INCLUDED
 
 
-#include <string>
+#include <cstdint>
+
+#include <memory>
 
 
 namespace bstone
 {
 
 
-struct StringHelper final
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+class ImageEncoder
 {
 public:
-	static std::string to_lower_ascii(
-		const std::string& string);
+	ImageEncoder() noexcept;
+
+	virtual ~ImageEncoder();
 
 
-	static bool string_to_int(
-		const std::string& string,
-		int& int_value);
+	virtual void encode_24(
+		const std::uint8_t* src_buffer,
+		int src_width,
+		int src_height,
+		std::uint8_t* dst_buffer,
+		int dst_buffer_max_size,
+		int& dst_size) = 0;
+}; // ImageEncoder
 
-	static bool string_to_int16(
-		const std::string& string,
-		std::int16_t& int16_value);
-
-	static bool string_to_uint16(
-		const std::string& string,
-		std::uint16_t& uint16_value);
-
-
-	static std::string octet_to_hex_string(
-		const int octet);
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
-	template<
-		typename T
-	>
-	static std::string make_left_padded_with_zero(
-		T value,
-		int max_length)
-	{
-		auto string = std::to_string(value);
-		const auto pad_size = max_length - static_cast<int>(string.size());
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-		if (pad_size > 0)
-		{
-			string.insert(0, pad_size, '0');
-		}
+enum class ImageEncoderType
+{
+	none,
+	png,
+}; // ImageEncoderType
 
-		return string;
-	}
+using ImageEncodeUPtr = std::unique_ptr<ImageEncoder>;
 
+ImageEncodeUPtr make_image_encoder(
+	ImageEncoderType image_encoder_type);
 
-	const std::string& get_empty() const;
-}; // StringHelper
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 } // bstone
 
 
-#endif // !BSTONE_STRING_HELPER_INCLUDED
+#endif // !BSTONE_IMAGE_ENCODER_INCLUDED

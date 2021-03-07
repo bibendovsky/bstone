@@ -22,65 +22,52 @@ Free Software Foundation, Inc.,
 */
 
 
-#ifndef BSTONE_STRING_HELPER_INCLUDED
-#define BSTONE_STRING_HELPER_INCLUDED
+#ifndef BSTONE_ATOMIC_FLAG_INCLUDED
+#define BSTONE_ATOMIC_FLAG_INCLUDED
 
 
-#include <string>
+#include <atomic>
 
 
 namespace bstone
 {
 
 
-struct StringHelper final
+class AtomicFlag
 {
 public:
-	static std::string to_lower_ascii(
-		const std::string& string);
+	AtomicFlag() noexcept;
+
+	AtomicFlag(
+		bool value) noexcept;
+
+	AtomicFlag(
+		const AtomicFlag& rhs);
+
+	void operator=(
+		bool value) noexcept;
+
+	AtomicFlag& operator=(
+		const AtomicFlag& rhs) = delete;
 
 
-	static bool string_to_int(
-		const std::string& string,
-		int& int_value);
+	bool is_set() const noexcept;
 
-	static bool string_to_int16(
-		const std::string& string,
-		std::int16_t& int16_value);
-
-	static bool string_to_uint16(
-		const std::string& string,
-		std::uint16_t& uint16_value);
+	void set(
+		bool value) noexcept;
 
 
-	static std::string octet_to_hex_string(
-		const int octet);
+	operator bool() const noexcept;
 
 
-	template<
-		typename T
-	>
-	static std::string make_left_padded_with_zero(
-		T value,
-		int max_length)
-	{
-		auto string = std::to_string(value);
-		const auto pad_size = max_length - static_cast<int>(string.size());
+private:
+	using Flag = std::atomic_bool;
 
-		if (pad_size > 0)
-		{
-			string.insert(0, pad_size, '0');
-		}
-
-		return string;
-	}
-
-
-	const std::string& get_empty() const;
-}; // StringHelper
+	Flag flag_{};
+}; // AtomicFlag
 
 
 } // bstone
 
 
-#endif // !BSTONE_STRING_HELPER_INCLUDED
+#endif // !BSTONE_ATOMIC_FLAG_INCLUDED

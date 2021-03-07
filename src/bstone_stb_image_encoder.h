@@ -22,65 +22,52 @@ Free Software Foundation, Inc.,
 */
 
 
-#ifndef BSTONE_STRING_HELPER_INCLUDED
-#define BSTONE_STRING_HELPER_INCLUDED
+#ifndef BSTONE_STB_IMAGE_ENCODER_INCLUDED
+#define BSTONE_STB_IMAGE_ENCODER_INCLUDED
 
 
-#include <string>
+#include "bstone_image_encoder.h"
 
 
 namespace bstone
 {
 
 
-struct StringHelper final
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+class StbImageEncoder :
+	public ImageEncoder
 {
 public:
-	static std::string to_lower_ascii(
-		const std::string& string);
+	void encode_24(
+		const std::uint8_t* src_buffer,
+		int src_width,
+		int src_height,
+		std::uint8_t* dst_buffer,
+		int max_dst_buffer_size,
+		int& dst_size) override;
 
 
-	static bool string_to_int(
-		const std::string& string,
-		int& int_value);
-
-	static bool string_to_int16(
-		const std::string& string,
-		std::int16_t& int16_value);
-
-	static bool string_to_uint16(
-		const std::string& string,
-		std::uint16_t& uint16_value);
+private:
+	std::uint8_t* dst_buffer_{};
+	int size_{};
+	int max_size_{};
 
 
-	static std::string octet_to_hex_string(
-		const int octet);
+	static void stb_write_func_proxy(
+		void* context,
+		void* data,
+		int size);
 
+	void stb_write_func(
+		void* data,
+		int size);
+}; // StbImageEncoder
 
-	template<
-		typename T
-	>
-	static std::string make_left_padded_with_zero(
-		T value,
-		int max_length)
-	{
-		auto string = std::to_string(value);
-		const auto pad_size = max_length - static_cast<int>(string.size());
-
-		if (pad_size > 0)
-		{
-			string.insert(0, pad_size, '0');
-		}
-
-		return string;
-	}
-
-
-	const std::string& get_empty() const;
-}; // StringHelper
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 } // bstone
 
 
-#endif // !BSTONE_STRING_HELPER_INCLUDED
+#endif // !BSTONE_STB_IMAGE_ENCODER_INCLUDED

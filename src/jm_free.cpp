@@ -1571,6 +1571,7 @@ void freed_main()
 	bstone::logger_->write("Data path: \"" + data_dir_ + "\"");
 	bstone::logger_->write("Mod path: \"" + mod_dir_ + "\"");
 	bstone::logger_->write("Profile path: \"" + get_profile_dir() + "\"");
+	bstone::logger_->write("Screenshot path: \"" + get_screenshot_dir() + "\"");
 
 	// BBi
 	{

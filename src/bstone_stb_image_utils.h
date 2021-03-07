@@ -22,65 +22,33 @@ Free Software Foundation, Inc.,
 */
 
 
-#ifndef BSTONE_STRING_HELPER_INCLUDED
-#define BSTONE_STRING_HELPER_INCLUDED
+#ifndef BSTONE_STB_IMAGE_UTILS_INCLUDED
+#define BSTONE_STB_IMAGE_UTILS_INCLUDED
 
 
-#include <string>
+#include <cstddef>
 
 
 namespace bstone
 {
 
 
-struct StringHelper final
-{
-public:
-	static std::string to_lower_ascii(
-		const std::string& string);
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+void* cpp_malloc(
+	std::size_t size) noexcept;
 
-	static bool string_to_int(
-		const std::string& string,
-		int& int_value);
+void cpp_free(
+	void* ptr) noexcept;
 
-	static bool string_to_int16(
-		const std::string& string,
-		std::int16_t& int16_value);
+void* cpp_realloc(
+	void* ptr,
+	std::size_t new_size) noexcept;
 
-	static bool string_to_uint16(
-		const std::string& string,
-		std::uint16_t& uint16_value);
-
-
-	static std::string octet_to_hex_string(
-		const int octet);
-
-
-	template<
-		typename T
-	>
-	static std::string make_left_padded_with_zero(
-		T value,
-		int max_length)
-	{
-		auto string = std::to_string(value);
-		const auto pad_size = max_length - static_cast<int>(string.size());
-
-		if (pad_size > 0)
-		{
-			string.insert(0, pad_size, '0');
-		}
-
-		return string;
-	}
-
-
-	const std::string& get_empty() const;
-}; // StringHelper
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 } // bstone
 
 
-#endif // !BSTONE_STRING_HELPER_INCLUDED
+#endif // !BSTONE_STB_IMAGE_UTILS_INCLUDED

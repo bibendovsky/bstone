@@ -10691,6 +10691,26 @@ const std::string& get_profile_dir()
 	return profile_dir;
 }
 
+const std::string& get_screenshot_dir()
+{
+	static auto is_initialized = false;
+	static auto screenshot_dir = std::string{};
+
+	if (!is_initialized)
+	{
+		is_initialized = true;
+
+		screenshot_dir = g_args.get_option_value("screenshot_dir");
+
+		if (screenshot_dir.empty())
+		{
+			screenshot_dir = get_profile_dir();
+		}
+	}
+
+	return screenshot_dir;
+}
+
 const std::string& get_default_data_dir()
 {
 	static std::string result;
