@@ -22,8 +22,8 @@ Free Software Foundation, Inc.,
 */
 
 
-#ifndef BSTONE_STRING_HELPER_INCLUDED
-#define BSTONE_STRING_HELPER_INCLUDED
+#ifndef BSTONE_TIME_INCLUDED
+#define BSTONE_TIME_INCLUDED
 
 
 #include <string>
@@ -33,54 +33,33 @@ namespace bstone
 {
 
 
-struct StringHelper final
+struct DateTime
 {
-public:
-	static std::string to_lower_ascii(
-		const std::string& string);
+	int year{};
+	int month{}; // [1..12]
+	int day{}; // [1..31]
+
+	int hours{};
+	int minutes{};
+	int seconds{};
+	int milliseconds{};
+}; // DateTime
+
+enum class DateTimeStringFormat
+{
+	none,
+	screenshot_file_name,
+}; // DateTimeStringFormat
 
 
-	static bool string_to_int(
-		const std::string& string,
-		int& int_value);
+DateTime make_local_date_time();
 
-	static bool string_to_int16(
-		const std::string& string,
-		std::int16_t& int16_value);
-
-	static bool string_to_uint16(
-		const std::string& string,
-		std::uint16_t& uint16_value);
-
-
-	static std::string octet_to_hex_string(
-		const int octet);
-
-
-	template<
-		typename T
-	>
-	static std::string make_left_padded_with_zero(
-		T value,
-		int max_length)
-	{
-		auto string = std::to_string(value);
-		const auto pad_size = max_length - static_cast<int>(string.size());
-
-		if (pad_size > 0)
-		{
-			string.insert(0, pad_size, '0');
-		}
-
-		return string;
-	}
-
-
-	const std::string& get_empty() const;
-}; // StringHelper
+std::string make_local_date_time_string(
+	const DateTime& date_time,
+	DateTimeStringFormat format);
 
 
 } // bstone
 
 
-#endif // !BSTONE_STRING_HELPER_INCLUDED
+#endif // !BSTONE_TIME_INCLUDED

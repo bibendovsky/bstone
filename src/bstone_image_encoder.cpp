@@ -22,25 +22,12 @@ Free Software Foundation, Inc.,
 */
 
 
-#include "bstone_stb_image_decoder.h"
+#include "bstone_image_encoder.h"
 
-#include <cassert>
-
-#include <algorithm>
-#include <memory>
-
-
-#include "bstone_stb_image_utils.h"
-
-#define STB_IMAGE_IMPLEMENTATION
-#define STBI_MALLOC bstone::cpp_malloc
-#define STBI_FREE bstone::cpp_free
-#define STBI_REALLOC bstone::cpp_realloc
-#define STBI_NO_STDIO
-#define STBI_ONLY_PNG
-#include "stb_image.h"
+#include <string>
 
 #include "bstone_exception.h"
+#include "bstone_stb_image_encoder.h"
 
 
 namespace bstone
@@ -49,71 +36,43 @@ namespace bstone
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-namespace detail
-{
+ImageEncoder::ImageEncoder() noexcept = default;
 
-
-class StbImageDecoderException :
-	public Exception
-{
-public:
-	explicit StbImageDecoderException(
-		const char* message)
-		:
-		Exception{std::string{"[STB_IMAGE_DECODER] "} + message}
-	{
-	}
-}; // StbImageDecoderException
-
-
-} // detail
+ImageEncoder::~ImageEncoder() = default;
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-void StbImageDecoder::decode(
-	const void* src_data,
-	int src_data_size,
-	int& dst_width,
-	int& dst_height,
-	Rgba8Buffer& dst_buffer)
+class ImageEncoderException :
+	public Exception
 {
-	dst_width = 0;
-	dst_height = 0;
-
-	auto stb_comp = 0;
-
-	const auto stb_bytes = stbi_load_from_memory(
-		static_cast<const stbi_uc*>(src_data),
-		src_data_size,
-		&dst_width,
-		&dst_height,
-		&stb_comp,
-		4
-	);
-
-	if (stb_bytes == nullptr)
+public:
+	explicit ImageEncoderException(
+		const char* message)
+		:
+		Exception{std::string{"[IMAGE_ENCODER] "} + message}
 	{
-		const auto message = stbi_failure_reason();
-		throw detail::StbImageDecoderException{message};
 	}
+}; // ImageEncoderException
 
-	const auto dst_area = dst_width * dst_height;
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-	if (dst_buffer.size() < static_cast<std::size_t>(dst_area))
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+ImageEncodeUPtr make_image_encoder(
+	ImageEncoderType image_encoder_type)
+{
+	switch (image_encoder_type)
 	{
-		dst_buffer.resize(dst_area);
+		case ImageEncoderType::png:
+			return std::make_unique<StbImageEncoder>();
+
+		default:
+			throw ImageEncoderException{"Unsupported image encoder type."};
 	}
-
-	std::uninitialized_copy_n(
-		reinterpret_cast<const Rgba8*>(stb_bytes),
-		dst_area,
-		dst_buffer.begin()
-	);
-
-	STBI_FREE(stb_bytes);
 }
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

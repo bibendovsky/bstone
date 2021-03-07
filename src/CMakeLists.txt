@@ -332,6 +332,7 @@ target_sources(
 		bstone_adlib_decoder.h
 		bstone_archiver.h
 		bstone_atomic.h
+		bstone_atomic_flag.h
 		bstone_audio_decoder.h
 		bstone_audio_mixer.h
 		bstone_audio_sample_converter.h
@@ -370,12 +371,15 @@ target_sources(
 		bstone_string_helper.h
 		bstone_text_reader.h
 		bstone_text_writer.h
+		bstone_time.h
 		bstone_un_value.h
 		bstone_unique_resource.h
 		bstone_uptr_resource_list.h
 		bstone_version.h
 		bstone_image_decoder.h
-		bstone_stb_image_decoder.h
+		bstone_image_encoder.h
+		bstone_stb_image_encoder.h
+		bstone_stb_image_utils.h
 		bstone_bmp_image_decoder.h
 		bstone_dynamic_loader.h
 		bstone_not_null.h
@@ -476,13 +480,14 @@ target_sources(
 		bstone_adlib_music_decoder.cpp
 		bstone_adlib_sfx_decoder.cpp
 		bstone_archiver.cpp
-		bstone_content_path.cpp
+		bstone_atomic_flag.cpp
 		bstone_audio_decoder.cpp
 		bstone_audio_mixer.cpp
 		bstone_audio_sample_converter.cpp
 		bstone_binary_reader.cpp
 		bstone_binary_writer.cpp
 		bstone_cl_args.cpp
+		bstone_content_path.cpp
 		bstone_crc32.cpp
 		bstone_dosbox_dbopl.cpp
 		bstone_encoding.cpp
@@ -510,9 +515,13 @@ target_sources(
 		bstone_string_helper.cpp
 		bstone_text_reader.cpp
 		bstone_text_writer.cpp
+		bstone_time.cpp
 		bstone_version.cpp
 		bstone_image_decoder.cpp
+		bstone_image_encoder.cpp
 		bstone_stb_image_decoder.cpp
+		bstone_stb_image_encoder.cpp
+		bstone_stb_image_utils.cpp
 		bstone_bmp_image_decoder.cpp
 		bstone_dynamic_loader.cpp
 		bstone_not_null.cpp

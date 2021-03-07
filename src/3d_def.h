@@ -3998,6 +3998,8 @@ void sys_default_sleep_for();
 
 const std::string& get_profile_dir();
 
+const std::string& get_screenshot_dir();
+
 void update_normalshade();
 
 int door_get_track_texture_id(

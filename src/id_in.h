@@ -266,6 +266,8 @@ enum BindingId
 	e_bi_cycle_previous_weapon,
 	e_bi_cycle_next_weapon,
 
+	e_bi_take_screenshot,
+
 	e_bi_last_entry,
 }; // BindingId
 

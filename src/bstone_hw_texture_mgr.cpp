@@ -40,6 +40,7 @@ Free Software Foundation, Inc.,
 #include "id_pm.h"
 #include "id_vl.h"
 
+#include "bstone_atomic_flag.h"
 #include "bstone_exception.h"
 #include "bstone_file_system.h"
 #include "bstone_file_stream.h"
@@ -94,11 +95,6 @@ class XbrzTask final :
 	public MtTask
 {
 public:
-	XbrzTask();
-
-	~XbrzTask() override;
-
-
 	void execute() override;
 
 
@@ -112,7 +108,7 @@ public:
 	std::exception_ptr get_exception_ptr() const noexcept override;
 
 	void set_failed(
-		const std::exception_ptr exception_ptr) override;
+		std::exception_ptr exception_ptr) override;
 
 
 	void initialize(
@@ -126,18 +122,18 @@ public:
 
 
 private:
-	bool is_completed_;
-	bool is_failed_;
-	std::exception_ptr exception_ptr_;
+	AtomicFlag is_completed_{};
+	AtomicFlag is_failed_{};
+	std::exception_ptr exception_ptr_{};
 
 
-	int factor_;
-	int first_index_;
-	int last_index_;
-	int src_width_;
-	int src_height_;
-	const std::uint32_t* src_colors_;
-	std::uint32_t* dst_colors_;
+	int factor_{};
+	int first_index_{};
+	int last_index_{};
+	int src_width_{};
+	int src_height_{};
+	const std::uint32_t* src_colors_{};
+	std::uint32_t* dst_colors_{};
 }; // XbrzTask
 
 using XbrzTaskPtr = XbrzTask*;
@@ -145,23 +141,6 @@ using XbrzTaskPtr = XbrzTask*;
 using XbrzTasks = std::vector<XbrzTask>;
 using XbrzTaskPtrs = std::vector<MtTaskPtr>;
 
-
-XbrzTask::XbrzTask()
-	:
-	is_completed_{},
-	is_failed_{},
-	exception_ptr_{},
-	factor_{},
-	first_index_{},
-	last_index_{},
-	src_width_{},
-	src_height_{},
-	src_colors_{},
-	dst_colors_{}
-{
-}
-
-XbrzTask::~XbrzTask() = default;
 
 void XbrzTask::execute()
 {
@@ -206,7 +185,7 @@ std::exception_ptr XbrzTask::get_exception_ptr() const noexcept
 }
 
 void XbrzTask::set_failed(
-	const std::exception_ptr exception_ptr)
+	std::exception_ptr exception_ptr)
 {
 	if (is_completed_)
 	{
@@ -1329,7 +1308,7 @@ void HwTextureMgrImpl::upscale_xbrz(
 		lines_remain += lines_per_slice;
 	}
 
-	if (slice_count > 1 && mt_task_manager_->has_concurrency())
+	if (slice_count > 1)
 	{
 		xbrz_tasks_.clear();
 		xbrz_tasks_.reserve(slice_count + 1);

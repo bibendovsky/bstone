@@ -504,6 +504,31 @@ void Ren3dGl::set_anti_aliasing(
 	}
 }
 
+void Ren3dGl::read_pixels_rgb8(
+	void* buffer,
+	bool& is_flipped_vertically)
+{
+	is_flipped_vertically = true;
+
+	assert(buffer);
+
+	bind_framebuffers_for_read_pixels();
+
+	glReadPixels(
+		0,
+		0,
+		screen_width_,
+		screen_height_,
+		GL_RGB,
+		GL_UNSIGNED_BYTE,
+		buffer
+	);
+
+	Ren3dGlError::ensure();
+
+	bind_framebuffers();
+}
+
 void Ren3dGl::present()
 {
 	blit_framebuffers();
@@ -831,6 +856,16 @@ void Ren3dGl::bind_framebuffers()
 	}
 
 	bind_framebuffer(GL_FRAMEBUFFER, msaa_fbo_.get());
+}
+
+void Ren3dGl::bind_framebuffers_for_read_pixels()
+{
+	if (!msaa_fbo_)
+	{
+		return;
+	}
+
+	bind_framebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Ren3dGl::disable_aa()

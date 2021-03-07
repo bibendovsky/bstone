@@ -36,6 +36,9 @@ Free Software Foundation, Inc.,
 #include "id_vh.h"
 #include "id_vl.h"
 
+#include "bstone_atomic_flag.h"
+#include "bstone_file_stream.h"
+#include "bstone_file_system.h"
 #include "bstone_hw_texture_mgr.h"
 #include "bstone_logger.h"
 #include "bstone_math.h"
@@ -46,9 +49,11 @@ Free Software Foundation, Inc.,
 #include "bstone_ren_3d_mgr.h"
 #include "bstone_hw_shader_registry.h"
 #include "bstone_sdl2_types.h"
+#include "bstone_image_encoder.h"
 #include "bstone_sprite.h"
 #include "bstone_sprite_cache.h"
 #include "bstone_string_helper.h"
+#include "bstone_time.h"
 #include "bstone_text_writer.h"
 #include "bstone_version.h"
 
@@ -95,8 +100,216 @@ namespace
 {
 
 
+void vid_log(
+	const std::string& message);
+
+void vid_log_error(
+	const std::string& message);
+
 void hw_refresh();
 void sw_refresh_screen();
+
+using ScreenshotBuffer = std::unique_ptr<std::uint8_t[]>;
+
+
+void vid_schedule_save_screenshot_task(
+	int width,
+	int height,
+	int stride_in_bytes,
+	ScreenshotBuffer&& src_buffer,
+	bool is_flipped_vertically);
+
+
+// --------------------------------------------------------------------------
+
+class SaveScreenshotMtTask final :
+	public bstone::MtTask
+{
+public:
+	// ----------------------------------------------------------------------
+	// MtTask
+
+	void execute() override;
+
+
+	bool is_completed() const noexcept override;
+
+	void set_completed() override;
+
+
+	bool is_failed() const noexcept override;
+
+	std::exception_ptr get_exception_ptr() const noexcept override;
+
+	void set_failed(
+		std::exception_ptr exception_ptr) override;
+
+	// MtTask
+	// ----------------------------------------------------------------------
+
+
+	void reset(
+		int width,
+		int height,
+		int stride_in_bytes,
+		ScreenshotBuffer&& src_buffer,
+		bool is_flipped_vertically);
+
+
+private:
+	bstone::AtomicFlag is_completed_{true};
+	bstone::AtomicFlag is_failed_{};
+	std::exception_ptr exception_ptr_{};
+
+	int width_{};
+	int height_{};
+	int stride_in_bytes_{};
+	ScreenshotBuffer src_buffer_{};
+	bool is_flipped_vertically_{};
+}; // SaveScreenshotMtTask
+
+
+void SaveScreenshotMtTask::execute()
+try
+{
+	if (is_flipped_vertically_)
+	{
+		auto row_buffer = std::make_unique<std::uint8_t[]>(stride_in_bytes_);
+		auto tmp_row = row_buffer.get();
+
+		const auto half_height = height_ / 2;
+
+		auto src_row = src_buffer_.get();
+		auto dst_row = src_row + (stride_in_bytes_ * (height_ - 1));
+
+		for (auto h = 0; h < half_height; ++h)
+		{
+			std::uninitialized_copy_n(src_row, stride_in_bytes_, tmp_row);
+			std::uninitialized_copy_n(dst_row, stride_in_bytes_, src_row);
+			std::uninitialized_copy_n(tmp_row, stride_in_bytes_, dst_row);
+
+			src_row += stride_in_bytes_;
+			dst_row -= stride_in_bytes_;
+		}
+	}
+
+	const auto max_dst_buffer_size = stride_in_bytes_ * height_;
+	auto dst_buffer = std::make_unique<std::uint8_t[]>(max_dst_buffer_size);
+	auto image_encoder = bstone::make_image_encoder(bstone::ImageEncoderType::png);
+
+	auto dst_buffer_size = 0;
+
+	image_encoder->encode_24(
+		src_buffer_.get(),
+		width_,
+		height_,
+		dst_buffer.get(),
+		max_dst_buffer_size,
+		dst_buffer_size
+	);
+
+	const auto date_time = bstone::make_local_date_time();
+
+	const auto date_time_string = bstone::make_local_date_time_string(
+		date_time,
+		bstone::DateTimeStringFormat::screenshot_file_name
+	);
+
+	const auto& assets_info = get_assets_info();
+
+	auto game_string = std::string{};
+
+	if (assets_info.is_aog())
+	{
+		game_string = "aog";
+	}
+	else if (assets_info.is_aog_sw())
+	{
+		game_string = "aog_sw";
+	}
+	else if (assets_info.is_ps())
+	{
+		game_string = "ps";
+	}
+
+	const auto file_name = "bstone_" + game_string + "_sshot_" + date_time_string + ".png";
+
+	const auto& profile_dir = get_screenshot_dir();
+
+	const auto path = bstone::file_system::append_path(profile_dir, file_name);
+
+	{
+		auto file_stream = bstone::FileStream{path, bstone::StreamOpenMode::write};
+
+		if (!file_stream.is_open())
+		{
+			throw bstone::Exception{"Failed to open a file \"" + path + "\"."};
+		}
+
+		file_stream.write(dst_buffer.get(), dst_buffer_size);
+	}
+
+	vid_log("Saved a screenshot \"" + path + "\".");
+}
+catch (const std::exception& ex)
+{
+	vid_log_error("Failed to save a screenshot.");
+	vid_log_error(ex.what());
+}
+
+bool SaveScreenshotMtTask::is_completed() const noexcept
+{
+	return is_completed_;
+}
+
+void SaveScreenshotMtTask::set_completed()
+{
+	is_completed_ = true;
+}
+
+bool SaveScreenshotMtTask::is_failed() const noexcept
+{
+	return is_failed_;
+}
+
+std::exception_ptr SaveScreenshotMtTask::get_exception_ptr() const noexcept
+{
+	return exception_ptr_;
+}
+
+void SaveScreenshotMtTask::set_failed(
+	std::exception_ptr exception_ptr)
+{
+	is_completed_ = true;
+	is_failed_ = true;
+	exception_ptr_ = exception_ptr;
+}
+
+void SaveScreenshotMtTask::reset(
+	int width,
+	int height,
+	int stride_in_bytes,
+	ScreenshotBuffer&& src_buffer,
+	bool is_flipped_vertically)
+{
+	is_completed_ = false;
+	is_failed_ = false;
+	exception_ptr_ = nullptr;
+
+	width_ = width;
+	height_ = height;
+	stride_in_bytes_ = stride_in_bytes;
+	src_buffer_ = std::move(src_buffer);
+	is_flipped_vertically_ = is_flipped_vertically;
+}
+
+constexpr auto max_screenshot_tasks = 16;
+
+using SaveScreenshotMtTasks = std::array<SaveScreenshotMtTask, max_screenshot_tasks>;
+
+auto vid_save_screenshot_mt_tasks = SaveScreenshotMtTasks{};
+
+// --------------------------------------------------------------------------
 
 
 /*
@@ -2041,6 +2254,33 @@ void sw_apply_widescreen()
 	sw_update_viewport();
 }
 
+void sw_take_screenshot(
+	int width,
+	int height,
+	int stride_in_bytes,
+	ScreenshotBuffer&& src_pixels)
+{
+	const auto sdl_read_pixles_result = SDL_RenderReadPixels(
+		sw_renderer_.get(),
+		nullptr,
+		SDL_PIXELFORMAT_RGB24,
+		src_pixels.get(),
+		stride_in_bytes
+	);
+
+	if (sdl_read_pixles_result != 0)
+	{
+		vid_throw_sdl_error();
+	}
+
+	vid_schedule_save_screenshot_task(
+		width,
+		height,
+		stride_in_bytes,
+		std::move(src_pixels),
+		false
+	);
+}
 
 // ==========================================================================
 // Hardware accelerated renderer (HW).
@@ -11544,6 +11784,25 @@ void hw_initialize_video()
 	in_grab_mouse(true);
 }
 
+void hw_take_screenshot(
+	int width,
+	int height,
+	int stride_in_bytes,
+	ScreenshotBuffer&& src_pixels)
+{
+	auto is_flipped_vertically = false;
+
+	hw_renderer_->read_pixels_rgb8(src_pixels.get(), is_flipped_vertically);
+
+	vid_schedule_save_screenshot_task(
+		width,
+		height,
+		stride_in_bytes,
+		std::move(src_pixels),
+		is_flipped_vertically
+	);
+}
+
 //
 // Hardware accelerated renderer (HW).
 // ==========================================================================
@@ -11603,6 +11862,36 @@ std::string vid_get_window_title_for_renderer()
 	result += ']';
 
 	return result;
+}
+
+void vid_schedule_save_screenshot_task(
+	int width,
+	int height,
+	int stride_in_bytes,
+	ScreenshotBuffer&& src_buffer,
+	bool is_flipped_vertically)
+{
+	for (auto& task : vid_save_screenshot_mt_tasks)
+	{
+		if (task.is_completed())
+		{
+			task.reset(
+				width,
+				height,
+				stride_in_bytes,
+				std::move(src_buffer),
+				is_flipped_vertically
+			);
+
+			bstone::MtTaskPtr tasks_ptr[] = {&task};
+
+			mt_task_manager_->add_tasks(tasks_ptr, 1);
+
+			return;
+		}
+	}
+
+	vid_log_error("No more screenshot tasks available.");
 }
 
 
@@ -13807,6 +14096,29 @@ void vid_apply_external_textures()
 	}
 
 	hw_apply_external_textures();
+}
+
+void vid_take_screenshot()
+try
+{
+	const auto width = vid_cfg_.windowed_width_;
+	const auto height = vid_cfg_.windowed_height_;
+	const auto stride_in_bytes = (((3 * width) + 3) / 4) * 4;
+	auto src_rgb8_pixels = std::make_unique<std::uint8_t[]>(stride_in_bytes * height);
+
+	if (vid_is_hw_)
+	{
+		hw_take_screenshot(width, height, stride_in_bytes, std::move(src_rgb8_pixels));
+	}
+	else
+	{
+		sw_take_screenshot(width, height, stride_in_bytes, std::move(src_rgb8_pixels));
+	}
+}
+catch (const std::exception& ex)
+{
+	vid_log_error("Failed to take a screenshot.");
+	vid_log_error(ex.what());
 }
 
 bool operator==(

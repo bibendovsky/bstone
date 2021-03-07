@@ -22,65 +22,50 @@ Free Software Foundation, Inc.,
 */
 
 
-#ifndef BSTONE_STRING_HELPER_INCLUDED
-#define BSTONE_STRING_HELPER_INCLUDED
-
-
-#include <string>
+#include "bstone_atomic_flag.h"
 
 
 namespace bstone
 {
 
 
-struct StringHelper final
+AtomicFlag::AtomicFlag() noexcept = default;
+
+AtomicFlag::AtomicFlag(
+	bool value) noexcept
+	:
+	flag_{value}
 {
-public:
-	static std::string to_lower_ascii(
-		const std::string& string);
+}
 
+AtomicFlag::AtomicFlag(
+	const AtomicFlag& rhs)
+	:
+	flag_{rhs}
+{
+}
 
-	static bool string_to_int(
-		const std::string& string,
-		int& int_value);
+void AtomicFlag::operator=(
+	bool value) noexcept
+{
+	set(value);
+}
 
-	static bool string_to_int16(
-		const std::string& string,
-		std::int16_t& int16_value);
+bool AtomicFlag::is_set() const noexcept
+{
+	return flag_.load(std::memory_order_acquire);
+}
 
-	static bool string_to_uint16(
-		const std::string& string,
-		std::uint16_t& uint16_value);
+void AtomicFlag::set(
+	bool value) noexcept
+{
+	flag_.store(value, std::memory_order_release);
+}
 
-
-	static std::string octet_to_hex_string(
-		const int octet);
-
-
-	template<
-		typename T
-	>
-	static std::string make_left_padded_with_zero(
-		T value,
-		int max_length)
-	{
-		auto string = std::to_string(value);
-		const auto pad_size = max_length - static_cast<int>(string.size());
-
-		if (pad_size > 0)
-		{
-			string.insert(0, pad_size, '0');
-		}
-
-		return string;
-	}
-
-
-	const std::string& get_empty() const;
-}; // StringHelper
+AtomicFlag::operator bool() const noexcept
+{
+	return is_set();
+}
 
 
 } // bstone
-
-
-#endif // !BSTONE_STRING_HELPER_INCLUDED

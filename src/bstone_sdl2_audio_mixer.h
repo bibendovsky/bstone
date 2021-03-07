@@ -37,6 +37,7 @@ Free Software Foundation, Inc.,
 
 #include "SDL_audio.h"
 
+#include "bstone_atomic_flag.h"
 #include "bstone_audio_decoder.h"
 #include "bstone_mt_task_mgr.h"
 
@@ -263,15 +264,10 @@ private:
 	using Commands = std::vector<Command>;
 
 
-	class SetResamplingMtTask :
+	class SetResamplingMtTask final :
 		public MtTask
 	{
 	public:
-		SetResamplingMtTask();
-
-		~SetResamplingMtTask() override;
-
-
 		void execute() override;
 
 
@@ -285,7 +281,7 @@ private:
 		std::exception_ptr get_exception_ptr() const noexcept override;
 
 		void set_failed(
-			const std::exception_ptr exception_ptr) override;
+			std::exception_ptr exception_ptr) override;
 
 
 		void initialize(
@@ -295,14 +291,14 @@ private:
 
 
 	private:
-		CacheItem* cache_item_;
-		AudioDecoderInterpolationType interpolation_;
-		bool is_lpf_;
+		CacheItem* cache_item_{};
+		AudioDecoderInterpolationType interpolation_{};
+		bool is_lpf_{};
 
-		bool is_completed_;
-		bool is_failed_;
+		AtomicFlag is_completed_{};
+		AtomicFlag is_failed_{};
 
-		std::exception_ptr exception_ptr_;
+		std::exception_ptr exception_ptr_{};
 	}; // SetResamplingMtTask
 
 	using SetResamplingMtTasks = std::vector<SetResamplingMtTask>;
