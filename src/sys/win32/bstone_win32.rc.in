@@ -1,5 +1,8 @@
 #include "bstone_win32_rc.h"
 
+#if !${BSTONE_MSVC}
+1 RT_MANIFEST "bstone_win32_mingw.manifest"
+#endif
 
 101 ICON "bstone_icon.ico"
 

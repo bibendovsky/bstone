@@ -450,7 +450,7 @@ void vid_apply_filler_color();
 
 void vid_apply_external_textures();
 
-void vid_take_screenshot();
+void vid_schedule_take_screenshot();
 
 
 #endif // BSTONE_ID_VL_INCLUDED

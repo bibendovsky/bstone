@@ -22,7 +22,7 @@ Free Software Foundation, Inc.,
 ]]
 
 
-cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.4.0 FATAL_ERROR)
 project(bstone VERSION 1.2.11 LANGUAGES CXX)
 
 
@@ -69,6 +69,15 @@ find_package(Threads REQUIRED)
 
 
 #
+# Constants.
+#
+if (MSVC)
+	set (BSTONE_MSVC "1")
+else ()
+	set (BSTONE_MSVC "0")
+endif ()
+
+#
 # Target.
 #
 add_executable(${PROJECT_NAME} "")
@@ -82,10 +91,12 @@ configure_file(
 	"${PROJECT_BINARY_DIR}/bstone_version_.h"
 )
 
-configure_file(
-	"${PROJECT_SOURCE_DIR}/sys/win32/bstone_win32.rc.in"
-	"${PROJECT_BINARY_DIR}/sys/win32/bstone_win32.rc"
-)
+if (WIN32)
+	configure_file(
+		"${PROJECT_SOURCE_DIR}/sys/win32/bstone_win32.rc.in"
+		"${PROJECT_BINARY_DIR}/sys/win32/bstone_win32.rc"
+	)
+endif ()
 
 
 #
@@ -399,6 +410,7 @@ if (WIN32)
 		PRIVATE
 			sys/win32/bstone_win32_rc.h
 			sys/win32/bstone_win32_registry.h
+			$<$<CXX_COMPILER_ID:MSVC>:sys/win32/bstone_win32_msvc.manifest>
 	)
 endif ()
 

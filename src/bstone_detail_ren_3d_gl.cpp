@@ -504,7 +504,7 @@ void Ren3dGl::set_anti_aliasing(
 	}
 }
 
-void Ren3dGl::read_pixels_rgb8(
+void Ren3dGl::read_pixels_rgb_888(
 	void* buffer,
 	bool& is_flipped_vertically)
 {
@@ -513,6 +513,9 @@ void Ren3dGl::read_pixels_rgb8(
 	assert(buffer);
 
 	bind_framebuffers_for_read_pixels();
+
+	glReadBuffer(GL_BACK);
+	Ren3dGlError::ensure();
 
 	glReadPixels(
 		0,

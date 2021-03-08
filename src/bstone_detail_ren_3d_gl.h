@@ -96,7 +96,7 @@ public:
 		const int aa_value) override;
 
 
-	void read_pixels_rgb8(
+	void read_pixels_rgb_888(
 		void* buffer,
 		bool& is_flipped_vertically) override;
 
