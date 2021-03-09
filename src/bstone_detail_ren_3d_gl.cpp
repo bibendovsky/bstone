@@ -516,7 +516,7 @@ void Ren3dGl::read_pixels_rgb_888(
 
 	glReadBuffer(GL_BACK);
 	Ren3dGlError::ensure();
-
+  
 	glReadPixels(
 		0,
 		0,

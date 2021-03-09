@@ -730,6 +730,8 @@ static char in_keyboard_map_to_char(
 	return '\0';
 }
 
+static auto in_is_take_screenshot_key_pressed = false;
+
 static void in_handle_keyboard(
 	const SDL_KeyboardEvent& e)
 {
@@ -1088,6 +1090,8 @@ static void in_handle_window(
 
 void in_handle_events()
 {
+	in_is_take_screenshot_key_pressed = false;
+
 	SDL_Event e;
 
 	SDL_PumpEvents();
@@ -1128,6 +1132,11 @@ void in_handle_events()
 		case SDL_QUIT:
 			Quit();
 		}
+	}
+
+	if (in_is_take_screenshot_key_pressed)
+	{
+		vid_take_screenshot();
 	}
 }
 // BBi
