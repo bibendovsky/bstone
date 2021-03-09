@@ -1231,7 +1231,7 @@ void Ren3dUtils::create_window_set_gl_attributes(
 std::uint32_t Ren3dUtils::create_window_sdl_flags(
 	const Ren3dUtilsCreateWindowParam& param)
 {
-	auto flags = Uint32{};
+	auto flags = Uint32{SDL_WINDOW_ALLOW_HIGHDPI};
 
 	if (param.window_.is_visible_)
 	{

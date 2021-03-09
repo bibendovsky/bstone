@@ -21,3 +21,7 @@
 #ifndef VFT2_DRV_SYSTEM
 #define VFT2_DRV_SYSTEM 0x00000007L
 #endif // !VFT2_DRV_SYSTEM
+
+#ifndef RT_MANIFEST
+#define RT_MANIFEST 24
+#endif // !RT_MANIFEST

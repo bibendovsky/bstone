@@ -758,7 +758,7 @@ static void in_handle_keyboard(
 
 		if (take_screenshot_binding[0] == key || take_screenshot_binding[1] == key)
 		{
-			in_is_take_screenshot_key_pressed = true;
+			vid_schedule_take_screenshot();
 		}
 	}
 

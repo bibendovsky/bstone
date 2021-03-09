@@ -112,11 +112,16 @@ void sw_refresh_screen();
 using ScreenshotBuffer = std::unique_ptr<std::uint8_t[]>;
 
 
+auto vid_is_take_screenshot_scheduled = false;
+
+
+void vid_take_screenshot();
+
 void vid_schedule_save_screenshot_task(
 	int width,
 	int height,
-	int stride_in_bytes,
-	ScreenshotBuffer&& src_buffer,
+	int stride_rgb_888,
+	ScreenshotBuffer&& src_pixels_rgb_888,
 	bool is_flipped_vertically);
 
 
@@ -151,8 +156,8 @@ public:
 	void reset(
 		int width,
 		int height,
-		int stride_in_bytes,
-		ScreenshotBuffer&& src_buffer,
+		int stride_rgb_888,
+		ScreenshotBuffer&& src_pixels_rgb_888,
 		bool is_flipped_vertically);
 
 
@@ -163,8 +168,8 @@ private:
 
 	int width_{};
 	int height_{};
-	int stride_in_bytes_{};
-	ScreenshotBuffer src_buffer_{};
+	int stride_rgb_888_{};
+	ScreenshotBuffer src_pixels_rgb_888_{};
 	bool is_flipped_vertically_{};
 }; // SaveScreenshotMtTask
 
@@ -172,48 +177,14 @@ private:
 void SaveScreenshotMtTask::execute()
 try
 {
-	if (is_flipped_vertically_)
-	{
-		auto row_buffer = std::make_unique<std::uint8_t[]>(stride_in_bytes_);
-		auto tmp_row = row_buffer.get();
-
-		const auto half_height = height_ / 2;
-
-		auto src_row = src_buffer_.get();
-		auto dst_row = src_row + (stride_in_bytes_ * (height_ - 1));
-
-		for (auto h = 0; h < half_height; ++h)
-		{
-			std::uninitialized_copy_n(src_row, stride_in_bytes_, tmp_row);
-			std::uninitialized_copy_n(dst_row, stride_in_bytes_, src_row);
-			std::uninitialized_copy_n(tmp_row, stride_in_bytes_, dst_row);
-
-			src_row += stride_in_bytes_;
-			dst_row -= stride_in_bytes_;
-		}
-	}
-
-	const auto max_dst_buffer_size = stride_in_bytes_ * height_;
-	auto dst_buffer = std::make_unique<std::uint8_t[]>(max_dst_buffer_size);
-	auto image_encoder = bstone::make_image_encoder(bstone::ImageEncoderType::png);
-
-	auto dst_buffer_size = 0;
-
-	image_encoder->encode_24(
-		src_buffer_.get(),
-		width_,
-		height_,
-		dst_buffer.get(),
-		max_dst_buffer_size,
-		dst_buffer_size
-	);
-
 	const auto date_time = bstone::make_local_date_time();
 
 	const auto date_time_string = bstone::make_local_date_time_string(
 		date_time,
 		bstone::DateTimeStringFormat::screenshot_file_name
 	);
+
+	const auto& screenshot_dir = get_screenshot_dir();
 
 	const auto& assets_info = get_assets_info();
 
@@ -234,9 +205,45 @@ try
 
 	const auto file_name = "bstone_" + game_string + "_sshot_" + date_time_string + ".png";
 
-	const auto& profile_dir = get_screenshot_dir();
+	const auto path = bstone::file_system::append_path(screenshot_dir, file_name);
 
-	const auto path = bstone::file_system::append_path(profile_dir, file_name);
+	vid_log("Taking screenshot \"" + path + "\".");
+
+	if (is_flipped_vertically_)
+	{
+		auto row_buffer = std::make_unique<std::uint8_t[]>(stride_rgb_888_);
+		auto tmp_row = row_buffer.get();
+
+		const auto half_height = height_ / 2;
+
+		auto src_row = src_pixels_rgb_888_.get();
+		auto dst_row = src_row + (stride_rgb_888_ * (height_ - 1));
+
+		for (auto h = 0; h < half_height; ++h)
+		{
+			std::uninitialized_copy_n(src_row, stride_rgb_888_, tmp_row);
+			std::uninitialized_copy_n(dst_row, stride_rgb_888_, src_row);
+			std::uninitialized_copy_n(tmp_row, stride_rgb_888_, dst_row);
+
+			src_row += stride_rgb_888_;
+			dst_row -= stride_rgb_888_;
+		}
+	}
+
+	const auto max_dst_buffer_size = stride_rgb_888_ * height_;
+	auto dst_buffer = std::make_unique<std::uint8_t[]>(max_dst_buffer_size);
+	auto image_encoder = bstone::make_image_encoder(bstone::ImageEncoderType::png);
+
+	auto dst_buffer_size = 0;
+
+	image_encoder->encode_24(
+		src_pixels_rgb_888_.get(),
+		width_,
+		height_,
+		dst_buffer.get(),
+		max_dst_buffer_size,
+		dst_buffer_size
+	);
 
 	{
 		auto file_stream = bstone::FileStream{path, bstone::StreamOpenMode::write};
@@ -248,8 +255,6 @@ try
 
 		file_stream.write(dst_buffer.get(), dst_buffer_size);
 	}
-
-	vid_log("Saved a screenshot \"" + path + "\".");
 }
 catch (const std::exception& ex)
 {
@@ -288,8 +293,8 @@ void SaveScreenshotMtTask::set_failed(
 void SaveScreenshotMtTask::reset(
 	int width,
 	int height,
-	int stride_in_bytes,
-	ScreenshotBuffer&& src_buffer,
+	int stride_rgb_888,
+	ScreenshotBuffer&& src_pixels_rgb_888,
 	bool is_flipped_vertically)
 {
 	is_completed_ = false;
@@ -298,8 +303,8 @@ void SaveScreenshotMtTask::reset(
 
 	width_ = width;
 	height_ = height;
-	stride_in_bytes_ = stride_in_bytes;
-	src_buffer_ = std::move(src_buffer);
+	stride_rgb_888_ = stride_rgb_888;
+	src_pixels_rgb_888_ = std::move(src_pixels_rgb_888);
 	is_flipped_vertically_ = is_flipped_vertically;
 }
 
@@ -1514,6 +1519,7 @@ void sw_create_window()
 
 	auto window_flags = Uint32{
 		SDL_WINDOW_HIDDEN |
+		SDL_WINDOW_ALLOW_HIGHDPI |
 		0
 	};
 
@@ -1740,10 +1746,11 @@ void sw_update_palette(
 
 void sw_update_viewport()
 {
-	auto sdl_result = SDL_RenderSetLogicalSize(
-		sw_renderer_.get(),
-		vid_dimensions_.window_width_,
-		vid_dimensions_.window_height_);
+	auto sdl_viewport = SDL_Rect{};
+	sdl_viewport.w = vid_dimensions_.window_width_;
+	sdl_viewport.h = vid_dimensions_.window_height_;
+
+	auto sdl_result = SDL_RenderSetViewport(sw_renderer_.get(), &sdl_viewport);
 
 	if (sdl_result != 0)
 	{
@@ -2239,6 +2246,11 @@ void sw_refresh_screen()
 		}
 	}
 
+	if (vid_is_take_screenshot_scheduled)
+	{
+		vid_take_screenshot();
+	}
+
 	// Present
 	//
 	SDL_RenderPresent(sw_renderer_.get());
@@ -2257,18 +2269,18 @@ void sw_apply_widescreen()
 void sw_take_screenshot(
 	int width,
 	int height,
-	int stride_in_bytes,
-	ScreenshotBuffer&& src_pixels)
+	int stride_rgb_888,
+	ScreenshotBuffer&& src_pixels_rgb_888)
 {
-	const auto sdl_read_pixles_result = SDL_RenderReadPixels(
+	const auto sdl_read_pixles_rgb_888_result = SDL_RenderReadPixels(
 		sw_renderer_.get(),
 		nullptr,
 		SDL_PIXELFORMAT_RGB24,
-		src_pixels.get(),
-		stride_in_bytes
+		src_pixels_rgb_888.get(),
+		stride_rgb_888
 	);
 
-	if (sdl_read_pixles_result != 0)
+	if (sdl_read_pixles_rgb_888_result != 0)
 	{
 		vid_throw_sdl_error();
 	}
@@ -2276,8 +2288,8 @@ void sw_take_screenshot(
 	vid_schedule_save_screenshot_task(
 		width,
 		height,
-		stride_in_bytes,
-		std::move(src_pixels),
+		stride_rgb_888,
+		std::move(src_pixels_rgb_888),
 		false
 	);
 }
@@ -7964,6 +7976,11 @@ void hw_refresh()
 		static_cast<int>(hw_command_buffers_.size())
 	);
 
+	if (vid_is_take_screenshot_scheduled)
+	{
+		vid_take_screenshot();
+	}
+
 	hw_renderer_->present();
 
 	vid_hw_is_draw_3d_ = false;
@@ -11787,18 +11804,18 @@ void hw_initialize_video()
 void hw_take_screenshot(
 	int width,
 	int height,
-	int stride_in_bytes,
-	ScreenshotBuffer&& src_pixels)
+	int stride_rgb_888,
+	ScreenshotBuffer&& src_pixels_rgb_888)
 {
 	auto is_flipped_vertically = false;
 
-	hw_renderer_->read_pixels_rgb8(src_pixels.get(), is_flipped_vertically);
+	hw_renderer_->read_pixels_rgb_888(src_pixels_rgb_888.get(), is_flipped_vertically);
 
 	vid_schedule_save_screenshot_task(
 		width,
 		height,
-		stride_in_bytes,
-		std::move(src_pixels),
+		stride_rgb_888,
+		std::move(src_pixels_rgb_888),
 		is_flipped_vertically
 	);
 }
@@ -11867,8 +11884,8 @@ std::string vid_get_window_title_for_renderer()
 void vid_schedule_save_screenshot_task(
 	int width,
 	int height,
-	int stride_in_bytes,
-	ScreenshotBuffer&& src_buffer,
+	int stride_rgb_888,
+	ScreenshotBuffer&& src_pixels_rgb_888,
 	bool is_flipped_vertically)
 {
 	for (auto& task : vid_save_screenshot_mt_tasks)
@@ -11878,8 +11895,8 @@ void vid_schedule_save_screenshot_task(
 			task.reset(
 				width,
 				height,
-				stride_in_bytes,
-				std::move(src_buffer),
+				stride_rgb_888,
+				std::move(src_pixels_rgb_888),
 				is_flipped_vertically
 			);
 
@@ -11892,6 +11909,41 @@ void vid_schedule_save_screenshot_task(
 	}
 
 	vid_log_error("No more screenshot tasks available.");
+}
+
+void vid_take_screenshot()
+try
+{
+	vid_is_take_screenshot_scheduled = false;
+
+	const auto width = vid_cfg_.windowed_width_;
+	const auto height = vid_cfg_.windowed_height_;
+	const auto stride_rgb_888 = (((3 * width) + 3) / 4) * 4;
+	auto src_rgb_888_pixels = std::make_unique<std::uint8_t[]>(stride_rgb_888 * height);
+
+	if (vid_is_hw_)
+	{
+		hw_take_screenshot(
+			width,
+			height,
+			stride_rgb_888,
+			std::move(src_rgb_888_pixels)
+		);
+	}
+	else
+	{
+		sw_take_screenshot(
+			width,
+			height,
+			stride_rgb_888,
+			std::move(src_rgb_888_pixels)
+		);
+	}
+}
+catch (const std::exception& ex)
+{
+	vid_log_error("Failed to take a screenshot.");
+	vid_log_error(ex.what());
 }
 
 
@@ -14098,27 +14150,9 @@ void vid_apply_external_textures()
 	hw_apply_external_textures();
 }
 
-void vid_take_screenshot()
-try
+void vid_schedule_take_screenshot()
 {
-	const auto width = vid_cfg_.windowed_width_;
-	const auto height = vid_cfg_.windowed_height_;
-	const auto stride_in_bytes = (((3 * width) + 3) / 4) * 4;
-	auto src_rgb8_pixels = std::make_unique<std::uint8_t[]>(stride_in_bytes * height);
-
-	if (vid_is_hw_)
-	{
-		hw_take_screenshot(width, height, stride_in_bytes, std::move(src_rgb8_pixels));
-	}
-	else
-	{
-		sw_take_screenshot(width, height, stride_in_bytes, std::move(src_rgb8_pixels));
-	}
-}
-catch (const std::exception& ex)
-{
-	vid_log_error("Failed to take a screenshot.");
-	vid_log_error(ex.what());
+	vid_is_take_screenshot_scheduled = true;
 }
 
 bool operator==(

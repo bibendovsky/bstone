@@ -144,7 +144,7 @@ public:
 		const int aa_value) = 0;
 
 
-	virtual void read_pixels_rgb8(
+	virtual void read_pixels_rgb_888(
 		void* buffer,
 		bool& is_flipped_vertically) = 0;
 
