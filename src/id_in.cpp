@@ -1136,7 +1136,7 @@ void in_handle_events()
 
 	if (in_is_take_screenshot_key_pressed)
 	{
-		vid_take_screenshot();
+		vid_schedule_take_screenshot();
 	}
 }
 // BBi
