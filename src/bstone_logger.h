@@ -57,14 +57,14 @@ enum class LoggerMessageKind
 class Logger
 {
 public:
-	Logger();
+	Logger() noexcept;
 
 	virtual ~Logger();
 
 
 	// Writes a message of the specified kind.
 	virtual void write(
-		const LoggerMessageKind message_kind,
+		LoggerMessageKind message_kind,
 		const std::string& message) = 0;
 
 	// Write a new line.
