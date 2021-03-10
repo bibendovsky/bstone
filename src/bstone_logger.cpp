@@ -30,6 +30,7 @@ Free Software Foundation, Inc.,
 #include "bstone_logger.h"
 
 #include <iostream>
+#include <mutex>
 
 #include "SDL_messagebox.h"
 
@@ -53,13 +54,9 @@ LoggerPtr logger_ = nullptr;
 // Logger
 //
 
-Logger::Logger()
-{
-}
+Logger::Logger() noexcept = default;
 
-Logger::~Logger()
-{
-}
+Logger::~Logger() = default;
 
 //
 // Logger
@@ -70,23 +67,15 @@ Logger::~Logger()
 // DefaultLogger
 //
 
-class DefaultLogger :
+class DefaultLogger final :
 	public Logger
 {
 public:
 	DefaultLogger();
 
-	DefaultLogger(
-		const DefaultLogger& rhs) = delete;
-
-	DefaultLogger(
-		DefaultLogger&& rhs);
-
-	~DefaultLogger() override;
-
 
 	void write(
-		const LoggerMessageKind message_kind,
+		LoggerMessageKind message_kind,
 		const std::string& message) override;
 
 	void write() override;
@@ -105,78 +94,66 @@ public:
 
 
 private:
-	bool is_file_stream_initialized_;
-	std::string message_;
-	FileStream file_stream_;
+	using Mutex = std::mutex;
+	using MutexLock = std::lock_guard<Mutex>;
+
+
+	Mutex mutex_{};
+	std::string file_name_{};
+	std::string message_{};
+	FileStream file_stream_{};
 
 
 	void initialize();
-
-	void uninitialize();
 }; // DefaultLogger
 
 
 DefaultLogger::DefaultLogger()
-	:
-	is_file_stream_initialized_{},
-	message_{},
-	file_stream_{}
 {
 	initialize();
 }
 
-DefaultLogger::DefaultLogger(
-	DefaultLogger&& rhs)
-	:
-	is_file_stream_initialized_{std::move(rhs.is_file_stream_initialized_)},
-	message_{std::move(rhs.message_)},
-	file_stream_{std::move(rhs.file_stream_)}
-{
-}
-
-DefaultLogger::~DefaultLogger()
-{
-	uninitialize();
-}
-
 void DefaultLogger::write(
-	const LoggerMessageKind message_kind,
+	LoggerMessageKind message_kind,
 	const std::string& message)
 {
+	MutexLock mutex_lock{mutex_};
+
 	auto is_critical = false;
 
 	switch (message_kind)
 	{
-	case LoggerMessageKind::information:
-		message_.clear();
-		break;
+		case LoggerMessageKind::information:
+			message_.clear();
+			break;
 
-	case LoggerMessageKind::warning:
-		message_ = "WARNING: ";
-		break;
+		case LoggerMessageKind::warning:
+			message_ = "WARNING: ";
+			break;
 
-	case LoggerMessageKind::error:
-		message_ = "ERROR: ";
-		break;
+		case LoggerMessageKind::error:
+			message_ = "ERROR: ";
+			break;
 
-	case LoggerMessageKind::critical_error:
-		is_critical = true;
-		message_ = "CRITICAL: ";
-		break;
+		case LoggerMessageKind::critical_error:
+			is_critical = true;
+			message_ = "CRITICAL: ";
+			break;
 
-	default:
-		throw std::runtime_error("Invalid message type.");
+		default:
+			throw std::runtime_error("Invalid message type.");
 	}
 
 	message_ += message;
 
 	std::cout << message_ << std::endl;
 
-	if (is_file_stream_initialized_)
+	if (file_stream_.open(file_name_, StreamOpenMode::read_write))
 	{
+		file_stream_.seek(0, StreamSeekOrigin::end);
 		static_cast<void>(file_stream_.write_string(message_));
 		static_cast<void>(file_stream_.write_octet('\n'));
-		static_cast<void>(file_stream_.flush());
+		file_stream_.close();
 	}
 
 	if (is_critical)
@@ -192,9 +169,7 @@ void DefaultLogger::write(
 
 void DefaultLogger::write()
 {
-	static auto empty_message = std::string{""};
-
-	write(LoggerMessageKind::information, empty_message);
+	write(LoggerMessageKind::information, "");
 }
 
 void DefaultLogger::write(
@@ -223,29 +198,28 @@ void DefaultLogger::write_critical(
 
 void DefaultLogger::initialize()
 {
-	const auto& profile_dir = get_profile_dir();
-	const auto& log_path = profile_dir + "bstone_log.txt";
-
-	is_file_stream_initialized_ = file_stream_.open(log_path, StreamOpenMode::write);
-
-	if (!is_file_stream_initialized_)
 	{
-		std::cout << "ERROR: Failed to open a log file." << std::endl;
-		std::cout << "ERROR: File: \"" << log_path << "\"." << std::endl;
-	}
+		MutexLock mutex_lock{mutex_};
 
-	message_.reserve(1024);
+		const auto& profile_dir = get_profile_dir();
+		file_name_ = profile_dir + "bstone_log.txt";
+
+		{
+			const auto is_file_open = file_stream_.open(file_name_, StreamOpenMode::write);
+
+			if (!is_file_open)
+			{
+				std::cout << "ERROR: Failed to open a log file." << std::endl;
+				std::cout << "ERROR: File: \"" << file_name_ << "\"." << std::endl;
+			}
+		}
+
+		message_.reserve(1024);
+	}
 
 	write("BStone v" + bstone::Version::get_string());
 	write("==========");
 	write();
-}
-
-void DefaultLogger::uninitialize()
-{
-	is_file_stream_initialized_ = false;
-	message_.clear();
-	file_stream_.close();
 }
 
 //
