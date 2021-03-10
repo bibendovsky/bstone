@@ -4537,28 +4537,28 @@ void hw_create_flooring_vb()
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = HwVertexPosition{0.0F, 0.0F, 0.0F};
-			vertex.uv_ = HwVertexTextureCoordinates{0.0F, 0.0F};
+			vertex.uv_ = HwVertexTextureCoordinates{0.0F, map_dimension_f};
 		}
 
 		// Bottom-right.
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = HwVertexPosition{0.0F, map_dimension_f, 0.0F};
-			vertex.uv_ = HwVertexTextureCoordinates{map_dimension_f, 0.0F};
+			vertex.uv_ = HwVertexTextureCoordinates{0.0F, 0.0F};
 		}
 
 		// Top-right.
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = HwVertexPosition{map_dimension_f, map_dimension_f, 0.0F};
-			vertex.uv_ = HwVertexTextureCoordinates{map_dimension_f, map_dimension_f};
+			vertex.uv_ = HwVertexTextureCoordinates{map_dimension_f, 0.0F};
 		}
 
 		// Top-left.
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = HwVertexPosition{map_dimension_f, 0.0F, 0.0F};
-			vertex.uv_ = HwVertexTextureCoordinates{0.0F, map_dimension_f};
+			vertex.uv_ = HwVertexTextureCoordinates{map_dimension_f, map_dimension_f};
 		}
 
 		hw_update_vertex_buffer(
@@ -4692,28 +4692,28 @@ void hw_create_ceiling_vb()
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = HwVertexPosition{0.0F, 0.0F, hw_map_height_f};
-			vertex.uv_ = HwVertexTextureCoordinates{0.0F, 0.0F};
+			vertex.uv_ = HwVertexTextureCoordinates{0.0F, hw_map_dimension_f};
 		}
 
 		// Bottom-right.
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = HwVertexPosition{0.0F, hw_map_dimension_f, hw_map_height_f};
-			vertex.uv_ = HwVertexTextureCoordinates{hw_map_dimension_f, 0.0F};
+			vertex.uv_ = HwVertexTextureCoordinates{0.0F, 0.0F};
 		}
 
 		// Top-right.
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = HwVertexPosition{hw_map_dimension_f, hw_map_dimension_f, hw_map_height_f};
-			vertex.uv_ = HwVertexTextureCoordinates{hw_map_dimension_f, hw_map_dimension_f};
+			vertex.uv_ = HwVertexTextureCoordinates{hw_map_dimension_f, 0.0F};
 		}
 
 		// Top-left.
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = HwVertexPosition{hw_map_dimension_f, 0.0F, hw_map_height_f};
-			vertex.uv_ = HwVertexTextureCoordinates{0.0F, hw_map_dimension_f};
+			vertex.uv_ = HwVertexTextureCoordinates{hw_map_dimension_f, hw_map_dimension_f};
 		}
 
 		hw_update_vertex_buffer(
