@@ -3968,6 +3968,7 @@ extern bool g_quit_on_escape;
 extern bool g_no_intro_outro;
 extern bool g_no_screens; // overrides "g_no_intro_outro" via command line
 extern bool g_no_fade_in_or_out;
+extern bool g_no_weapon_bobbing;
 
 
 extern bstone::MtTaskMgr* mt_task_manager_;

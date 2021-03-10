@@ -130,6 +130,7 @@ enum sw2_labels
 {
 	SW2_NO_INTRO_OUTRO,
 	SW2_NO_FADE_IN_OR_OUT,
+	SW2_NO_WEAPON_BOBBING,
 }; // sw2_labels
 
 enum MenuVideoLables
@@ -436,7 +437,7 @@ CP_iteminfo SwitchItems = {MENU_X, 0, 0, 0, 0, 9, {87, -1, 132, 7, 1}};
 CP_iteminfo video_items = {MENU_X, MENU_Y + 30, 5, 0, 0, 9, {77, -1, 154, 7, 1}};
 CP_iteminfo video_mode_items = {MENU_X, MENU_Y + 10, 8, 0, 0, 9, {77, -1, 154, 7, 1}};
 CP_iteminfo texturing_items = {MENU_X, MENU_Y + 10, 7, 0, 0, 9, {77, -1, 154, 7, 1}};
-CP_iteminfo switches2_items = {MENU_X, MENU_Y + 30, 2, 0, 0, 9, {87, -1, 132, 7, 1}};
+CP_iteminfo switches2_items = {MENU_X, MENU_Y + 30, 3, 0, 0, 9, {87, -1, 132, 7, 1}};
 CP_iteminfo resampling_items = {MENU_X, MENU_Y + 30, 3, 0, 0, 9, {77, -1, 154, 7, 1}};
 // BBi
 
@@ -507,6 +508,7 @@ CP_itemtype switch2_menu[] =
 {
 	{AT_ENABLED, "SKIP INTRO/OUTRO", 0},
 	{AT_ENABLED, "SKIP FADE IN/OUT EFFECT", 0},
+	{AT_ENABLED, "NO WEAPON BOBBING", 0},
 };
 
 CP_itemtype resampling_menu[] =
@@ -5937,6 +5939,7 @@ void draw_switch2_description(
 	{
 		"TOGGLES INTRO/OUTRO",
 		"TOGGLES FADE IN/OUT EFFECT",
+		"TOGGLES WEAPON BOBBING",
 	};
 
 	const auto& assets_info = get_assets_info();
@@ -5999,6 +6002,13 @@ void draw_all_switch2_lights(
 					shape += 1;
 				}
 				break;
+
+			case SW2_NO_WEAPON_BOBBING:
+				if (g_no_weapon_bobbing)
+				{
+					shape += 1;
+				}
+				break;
 			}
 
 			VWB_DrawPic(switches2_items.x - 16, switches2_items.y + (i * switches2_items.y_spacing) - 1, shape);
@@ -6048,6 +6058,12 @@ void cp_switches2(
 
 		case SW2_NO_FADE_IN_OR_OUT:
 			g_no_fade_in_or_out = !g_no_fade_in_or_out;
+			ShootSnd();
+			draw_switch2_menu();
+			break;
+
+		case SW2_NO_WEAPON_BOBBING:
+			g_no_weapon_bobbing = !g_no_weapon_bobbing;
 			ShootSnd();
 			draw_switch2_menu();
 			break;

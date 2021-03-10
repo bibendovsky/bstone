@@ -1514,7 +1514,7 @@ void DrawPlayerWeapon()
 
 			const auto height = assets_info.is_aog() ? 128 : 88;
 
-			useBounceOffset = assets_info.is_ps();
+			useBounceOffset = !g_no_weapon_bobbing && assets_info.is_ps();
 			scale_player_weapon(shapenum, height);
 			useBounceOffset = false;
 		}
