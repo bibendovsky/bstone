@@ -265,6 +265,9 @@ bool g_no_screens = false; // overrides "g_no_intro_outro" via command line
 static const bool default_g_no_fade_in_or_out = false;
 bool g_no_fade_in_or_out = default_g_no_fade_in_or_out;
 
+static constexpr auto default_g_no_weapon_bobbing = false;
+bool g_no_weapon_bobbing = default_g_no_weapon_bobbing;
+
 constexpr int sg_area_connect_bitmap_size = ((NUMAREAS * NUMAREAS) + 7) / 8;
 using SgAreaConnectBitmap = std::array<std::uint8_t, sg_area_connect_bitmap_size>;
 
@@ -7296,6 +7299,7 @@ const auto gp_quit_on_escape_name = "gp_quit_on_escape";
 const auto gp_no_intro_outro_name = "gp_no_intro_outro";
 const auto am_is_rotated_name = "am_is_rotated";
 const auto gp_no_fade_in_or_out_name = "gp_no_fade_in_or_out";
+const auto gp_no_weapon_bobbing_name = "gp_no_weapon_bobbing";
 
 
 class ScanCodeHash
@@ -7785,6 +7789,15 @@ void read_text_config()
 							g_no_fade_in_or_out = (value != 0);
 						}
 					}
+					else if (key_string == gp_no_weapon_bobbing_name)
+					{
+						int value;
+
+						if (bstone::StringHelper::string_to_int(value_string, value))
+						{
+							g_no_weapon_bobbing = (value != 0);
+						}
+					}
 				}
 			}
 		}
@@ -7914,6 +7927,7 @@ void write_text_config()
 	write_config_entry(writer, gp_quit_on_escape_name, g_quit_on_escape);
 	write_config_entry(writer, gp_no_intro_outro_name, g_no_intro_outro);
 	write_config_entry(writer, gp_no_fade_in_or_out_name, g_no_fade_in_or_out);
+	write_config_entry(writer, gp_no_weapon_bobbing_name, g_no_weapon_bobbing);
 
 	writer.write("\n// Auto-map\n");
 	write_config_entry(writer, am_is_rotated_name, g_rotated_automap);

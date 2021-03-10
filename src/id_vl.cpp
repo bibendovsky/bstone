@@ -5535,7 +5535,8 @@ void hw_update_player_weapon_model_matrix()
 
 	const auto translate_x = 0.5 * static_cast<double>(vid_dimensions_.screen_viewport_width_);
 
-	const auto bounce_offset = (assets_info.is_aog() ? 0.0 : -player_get_weapon_bounce_offset());
+	const auto is_bobbing_enabled = (!g_no_weapon_bobbing && assets_info.is_ps());
+	const auto bounce_offset = (is_bobbing_enabled ? -player_get_weapon_bounce_offset() : 0.0);
 	const auto translate_y = vga_height_scale * bounce_offset;
 
 	const auto translate_v = glm::vec3
