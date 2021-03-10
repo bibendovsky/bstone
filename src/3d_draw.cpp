@@ -2084,11 +2084,11 @@ int door_get_track_texture_id(
 
 	if (door.vertical)
 	{
-		result += DoorJamsShade[door.type];
+		result += DoorJams[door.type];
 	}
 	else
 	{
-		result += DoorJams[door.type];
+		result += DoorJamsShade[door.type];
 	}
 
 	return result;
