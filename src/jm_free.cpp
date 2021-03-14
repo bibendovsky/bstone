@@ -565,7 +565,6 @@ const FoundContent* choose_content(
 	{
 		sdl_buttons.emplace_back();
 		auto& sdl_button = sdl_buttons.back();
-		sdl_button.flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT;
 		sdl_button.buttonid = button_id++;
 		sdl_button.text = get_content_acronym(found_content.game_);
 	}
@@ -573,6 +572,7 @@ const FoundContent* choose_content(
 	{
 		sdl_buttons.emplace_back();
 		auto& sdl_button = sdl_buttons.back();
+		sdl_button.flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT;
 		sdl_button.buttonid = -1;
 		sdl_button.text = "Cancel";
 	}
