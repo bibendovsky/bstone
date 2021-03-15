@@ -146,8 +146,6 @@ void PreloadUpdate(
 	std::uint16_t current,
 	std::uint16_t total);
 
-void OpenAudioFile();
-
 void CleanUpDoors_N_Actors();
 
 void NewGame(
@@ -4811,9 +4809,6 @@ void initialize_states()
 	s_terrot_die5.shapenum = SPR_TERROT_DEAD;
 }
 
-
-std::int16_t NUMSNDCHUNKS = 0;
-
 std::int16_t S2100A_MUS = 0;
 std::int16_t GOLDA_MUS = 0;
 std::int16_t DRKHALLA_MUS = 0;
@@ -4864,15 +4859,11 @@ void initialize_audio_constants()
 
 	if (assets_info.is_aog())
 	{
-		NUMSNDCHUNKS = 319;
-
 		THEME_MUS = 16;
 		LASTMUSIC = 19;
 	}
 	else
 	{
-		NUMSNDCHUNKS = 321;
-
 		THEME_MUS = 20;
 		LASTMUSIC = 21;
 	}
@@ -4917,8 +4908,6 @@ void initialize_audio_constants()
 	MOURNING_MUS = 17;
 	SERPENT_MUS = 18;
 	HISCORE_MUS = 19;
-
-	audiosegs.resize(NUMSNDCHUNKS);
 
 	if (assets_info.is_ps())
 	{
@@ -9629,7 +9618,6 @@ bool DoMovie(
 
 	ClearMemory();
 	UnCacheLump(STARTFONT, STARTFONT + NUMFONT);
-	CA_LoadAllSounds();
 
 	const auto palette = static_cast<const std::uint8_t*>(raw_palette);
 
@@ -9749,12 +9737,10 @@ void DemoLoop()
 					//
 					if (assets_info.is_aog())
 					{
-						CA_CacheAudioChunk(STARTMUSIC + MEETINGA_MUS);
 						sd_start_music(MEETINGA_MUS);
 					}
 					else
 					{
-						CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
 						sd_start_music(TITLE_LOOP_MUSIC);
 					}
 				}
@@ -9892,12 +9878,10 @@ void DemoLoop()
 				//
 				if (!assets_info.is_aog())
 				{
-					CA_CacheAudioChunk(STARTMUSIC + MENUSONG);
 					sd_start_music(MENUSONG);
 				}
 				else
 				{
-					CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
 					sd_start_music(TITLE_LOOP_MUSIC);
 				}
 			}

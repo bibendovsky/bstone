@@ -44,7 +44,6 @@ loaded into the data segment
 #include <algorithm>
 #include <memory>
 
-#include "audio.h"
 #include "jm_cio.h"
 #include "jm_lzh.h"
 #include "id_heads.h"
@@ -54,6 +53,8 @@ loaded into the data segment
 #include "id_vl.h"
 #include "gfxv.h"
 
+#include "bstone_audio_content_mgr.h"
+#include "bstone_audio_extractor.h"
 #include "bstone_binary_reader.h"
 #include "bstone_binary_writer.h"
 #include "bstone_endian.h"
@@ -85,7 +86,6 @@ std::int16_t mapon;
 
 MapSegments mapsegs;
 MapHeaderSegments mapheaderseg;
-AudioSegments audiosegs;
 GrSegments grsegs;
 GrSegmentSizes grsegs_sizes_;
 
@@ -94,7 +94,6 @@ std::uint8_t ca_levelbit, ca_levelnum;
 
 std::int16_t profilehandle, debughandle;
 
-void InitDigiMap();
 
 /*
 =============================================================================
@@ -110,8 +109,6 @@ extern std::uint8_t CGAdict;
 extern std::uint8_t EGAdict;
 extern std::uint8_t maphead;
 extern std::uint8_t mapdict;
-extern std::uint8_t audiohead;
-extern std::uint8_t audiodict;
 
 
 void CA_CannotOpen(
@@ -119,28 +116,17 @@ void CA_CannotOpen(
 
 GrStarts grstarts; // array of offsets in egagraph, -1 for sparse
 
-AudioStarts audiostarts; // array of offsets in audio / audiot
-
 #ifdef GRHEADERLINKED
 huffnode* grhuffman;
 #else
 huffnode grhuffman[255];
 #endif
 
-#ifdef AUDIOHEADERLINKED
-huffnode* audiohuffman;
-#else
-huffnode audiohuffman[255];
-#endif
-
 bstone::FileStream grhandle; // handle to EGAGRAPH
 bstone::FileStream maphandle; // handle to MAPTEMP / GAMEMAPS
-bstone::FileStream audiohandle; // handle to AUDIOT / AUDIO
 
 std::int32_t chunkcomplen;
 std::int32_t chunkexplen;
-
-bool old_is_sound_enabled;
 
 static Buffer ca_buffer;
 
@@ -149,13 +135,9 @@ static const int BUFFERSIZE = 0x10000;
 
 // BBi
 std::string ca_make_padded_asset_number_string(
-	const int number)
+	int number)
 {
-	constexpr auto max_padded_numer_string_length = 8;
-
-	auto result = std::to_string(number);
-	result.insert(0, max_padded_numer_string_length - result.size(), '0');
-	return result;
+	return bstone::StringHelper::make_left_padded_with_zero(number, 8);
 }
 
 void CAL_CarmackExpand(
@@ -215,24 +197,6 @@ void CloseMapFile()
 	maphandle.close();
 }
 
-void OpenAudioFile()
-{
-#ifndef AUDIOHEADERLINKED
-	ca_open_resource(AssetsResourceType::audiot, audiohandle);
-#else
-	// TODO Remove or fix
-	if ((audiohandle = open("AUDIO."EXTENSION,
-		O_RDONLY | O_BINARY, S_IREAD)) == -1)
-	{
-		CA_ERROR(SETUPAUDIO_CANT_OPEN);
-	}
-#endif
-}
-
-void CloseAudioFile()
-{
-	audiohandle.close();
-}
 
 /*
 ============================
@@ -532,7 +496,6 @@ void CA_Shutdown()
 
 	CloseMapFile();
 	CloseGrFile();
-	CloseAudioFile();
 }
 
 /*
@@ -553,126 +516,12 @@ void CA_Startup()
 
 	CAL_SetupMapFile();
 	CAL_SetupGrFile();
-	CAL_SetupAudioFile();
 
 	mapon = -1;
 	ca_levelbit = 1;
 	ca_levelnum = 0;
 
 	ca_buffer.reserve(BUFFERSIZE);
-}
-
-/*
-======================
-=
-= CA_CacheAudioChunk
-=
-======================
-*/
-void CA_CacheAudioChunk(
-	std::int16_t chunk)
-{
-	std::int32_t pos;
-	std::int32_t compressed;
-#ifdef AUDIOHEADERLINKED
-	std::int32_t expanded;
-	memptr bigbufferseg;
-	std::uint8_t* source;
-#endif
-
-	if (!audiosegs[chunk].empty())
-	{
-		return; // already in memory
-	}
-
-	//
-	// load the chunk into a buffer, either the miscbuffer if it fits, or allocate
-	// a larger buffer
-	//
-	pos = audiostarts[chunk];
-	compressed = audiostarts[chunk + 1] - pos;
-
-	OpenAudioFile();
-
-	audiohandle.set_position(pos);
-
-#ifndef AUDIOHEADERLINKED
-
-	audiosegs[chunk].resize(compressed);
-	audiohandle.read(audiosegs[chunk].data(), compressed);
-
-#else
-
-	if (compressed <= BUFFERSIZE)
-	{
-		CA_FarRead(audiohandle, bufferseg, compressed);
-		source = bufferseg;
-	}
-	else
-	{
-		MM_GetPtr(&bigbufferseg, compressed);
-		if (mmerror)
-		{
-			CloseAudioFile();
-			return;
-		}
-		MM_SetLock(&bigbufferseg, true);
-		CA_FarRead(audiohandle, bigbufferseg, compressed);
-		source = bigbufferseg;
-	}
-
-	expanded = *(std::int32_t*)source;
-	source += 4; // skip over length
-	MM_GetPtr(&(memptr)audiosegs[chunk], expanded);
-	if (mmerror)
-	{
-		goto done;
-	}
-	CAL_HuffExpand(source, audiosegs[chunk], expanded, audiohuffman, false);
-
-done:
-	if (compressed > BUFFERSIZE)
-	{
-		MM_FreePtr(&bigbufferseg);
-	}
-#endif
-
-	CloseAudioFile();
-}
-
-/*
-======================
-=
-= CA_LoadAllSounds
-=
-= Purges all sounds, then loads all new ones (mode switch)
-=
-======================
-*/
-void CA_LoadAllSounds()
-{
-	auto start = 0;
-
-	if (old_is_sound_enabled)
-	{
-		start = STARTADLIBSOUNDS;
-	}
-
-	if (sd_is_sound_enabled_)
-	{
-		start = STARTADLIBSOUNDS;
-	}
-	else
-	{
-		return;
-	}
-
-	for (int i = 0; i < NUMSOUNDS; ++i)
-	{
-		CA_CacheAudioChunk(static_cast<std::int16_t>(start++));
-	}
-
-	old_is_sound_enabled = sd_is_sound_enabled_;
 }
 
 // ===========================================================================
@@ -2686,542 +2535,6 @@ void ca_extract_sprites(
 	images_extractor.extract_sprites(destination_dir);
 }
 
-// ==========================================================================
-// AudioExtractor
-//
-
-class AudioExtractorException :
-	public bstone::Exception
-{
-public:
-	explicit AudioExtractorException(
-		const char* const message)
-		:
-		bstone::Exception{std::string{"[DBG_MUS_DMPR] "} + message}
-	{
-	}
-}; // AudioExtractorException
-
-class AudioExtractorTrackException :
-	public bstone::Exception
-{
-public:
-	explicit AudioExtractorTrackException(
-		const int track_number,
-		const char* const message)
-		:
-		bstone::Exception{std::string{"[DBG_MUS_DMPR][TRK #"} + std::to_string(track_number) + "] " + message}
-	{
-	}
-
-	explicit AudioExtractorTrackException(
-		const int track_number,
-		const std::string& message)
-		:
-		bstone::Exception{std::string{"[DBG_MUS_DMPR][TRK #"} + std::to_string(track_number) + "] " + message}
-	{
-	}
-}; // AudioExtractorTrackException
-
-
-class AudioExtractor
-{
-public:
-	AudioExtractor();
-
-	void extract_music(
-		const std::string& destination_dir);
-
-	void extract_sfx(
-		const std::string& destination_dir);
-
-
-private:
-	static constexpr auto wav_prefix_size = 44;
-
-
-	using Sample = std::int16_t;
-	using MusicNumbers = std::vector<int>;
-	using DecodeBuffer = std::vector<Sample>;
-
-	AssetsInfo assets_info_;
-
-	MusicNumbers music_numbers_;
-	DecodeBuffer decode_buffer_;
-
-
-	bool write_wav_header(
-		const int data_size,
-		const int bit_depth,
-		const int sample_rate,
-		bstone::Stream& stream);
-
-	void initialize_music();
-
-	void extract_music(
-		const std::string& destination_dir,
-		const int number);
-
-	void initialize_sfx();
-
-	void write_adlib_sfx(
-		const int number,
-		const SfxInfo& sfx_info,
-		bstone::Stream& stream);
-
-	void write_pcm_sfx(
-		const int number,
-		const SfxInfo& sfx_info,
-		bstone::Stream& stream);
-
-	void extract_sfx(
-		const std::string& destination_dir,
-		const int number);
-}; // AudioExtractor
-
-
-AudioExtractor::AudioExtractor()
-	:
-	assets_info_{},
-	music_numbers_{},
-	decode_buffer_{}
-{
-	decode_buffer_.resize(bstone::opl3_fixed_frequency);
-}
-
-void AudioExtractor::extract_music(
-	const std::string& destination_dir)
-{
-	initialize_music();
-
-	bstone::logger_->write("File count: " + std::to_string(music_numbers_.size()));
-
-	for (const auto music_number : music_numbers_)
-	{
-		extract_music(destination_dir, music_number);
-	}
-}
-
-void AudioExtractor::extract_sfx(
-	const std::string& destination_dir)
-{
-	initialize_sfx();
-
-	bstone::logger_->write("File count: " + std::to_string(NUMSOUNDS));
-
-	for (int i = 0; i < NUMSOUNDS; ++i)
-	{
-		extract_sfx(destination_dir, i);
-	}
-}
-
-bool AudioExtractor::write_wav_header(
-	const int data_size,
-	const int bit_depth,
-	const int sample_rate,
-	bstone::Stream& stream)
-{
-	const auto aligned_data_size = ((data_size + 1) / 2) * 2;
-	const auto wav_size = aligned_data_size + wav_prefix_size;
-
-	const auto audio_format = 1; // PCM
-	const auto channel_count = 1;
-	const auto byte_depth = bit_depth / 8;
-	const auto byte_rate = sample_rate * channel_count * byte_depth;
-	const auto block_align = channel_count * byte_depth;
-
-	auto writer = bstone::BinaryWriter{&stream};
-
-	auto result = true;
-
-	result &= writer.write_u32(bstone::Endian::big(0x52494646)); // "RIFF"
-
-	// riff_chunk_size = = "file size" - "chunk id" + "chunk size".
-	const auto riff_chunk_size = static_cast<std::uint32_t>(wav_size - 4 - 4);
-	result &= writer.write_u32(bstone::Endian::little(riff_chunk_size)); // Chunk size.
-
-	result &= writer.write_u32(bstone::Endian::big(0x57415645)); // "WAVE"
-	result &= writer.write_u32(bstone::Endian::big(0x666D7420)); // "fmt "
-	result &= writer.write_u32(bstone::Endian::little(16)); // Format size.
-	result &= writer.write_u16(bstone::Endian::little(static_cast<std::uint16_t>(audio_format))); // Audio format.
-	result &= writer.write_u16(bstone::Endian::little(static_cast<std::uint16_t>(channel_count))); // Channel count.
-	result &= writer.write_u32(bstone::Endian::little(sample_rate)); // Sample rate.
-	result &= writer.write_u32(bstone::Endian::little(static_cast<std::uint32_t>(byte_rate))); // Byte rate.
-	result &= writer.write_u16(bstone::Endian::little(static_cast<std::uint16_t>(block_align))); // Block align.
-	result &= writer.write_u16(bstone::Endian::little(static_cast<std::uint16_t>(bit_depth))); // Bits per sample.
-	result &= writer.write_u32(bstone::Endian::big(0x64617461)); // "data"
-	result &= writer.write_u32(bstone::Endian::little(static_cast<std::uint32_t>(data_size))); // Data size.
-
-	return result;
-}
-
-void AudioExtractor::initialize_music()
-{
-	if (LASTMUSIC <= 0 || STARTMUSIC <= 0)
-	{
-		throw AudioExtractorException{"Assets information not initialized."};
-	}
-
-	music_numbers_.reserve(LASTMUSIC + 1);
-
-	music_numbers_.emplace_back(APOGFNFM_MUS);
-	music_numbers_.emplace_back(THEME_MUS);
-
-	if (assets_info_.is_aog())
-	{
-		music_numbers_.emplace_back(S2100A_MUS);
-		music_numbers_.emplace_back(GOLDA_MUS);
-		//music_numbers_.emplace_back(APOGFNFM_MUS);
-		music_numbers_.emplace_back(DRKHALLA_MUS);
-		music_numbers_.emplace_back(FREEDOMA_MUS);
-		music_numbers_.emplace_back(GENEFUNK_MUS);
-		music_numbers_.emplace_back(TIMEA_MUS);
-		music_numbers_.emplace_back(HIDINGA_MUS);
-		music_numbers_.emplace_back(INCNRATN_MUS);
-		music_numbers_.emplace_back(JUNGLEA_MUS);
-		music_numbers_.emplace_back(LEVELA_MUS);
-		music_numbers_.emplace_back(MEETINGA_MUS);
-		music_numbers_.emplace_back(STRUTA_MUS);
-		music_numbers_.emplace_back(RACSHUFL_MUS);
-		music_numbers_.emplace_back(RUMBAA_MUS);
-		music_numbers_.emplace_back(SEARCHNA_MUS);
-		music_numbers_.emplace_back(THEWAYA_MUS);
-		music_numbers_.emplace_back(INTRIGEA_MUS);
-	}
-
-	if (assets_info_.is_ps())
-	{
-		music_numbers_.emplace_back(CATACOMB_MUS);
-		music_numbers_.emplace_back(STICKS_MUS);
-		music_numbers_.emplace_back(PLOT_MUS);
-		music_numbers_.emplace_back(CIRCLES_MUS);
-		music_numbers_.emplace_back(LASTLAFF_MUS);
-		music_numbers_.emplace_back(TOHELL_MUS);
-		music_numbers_.emplace_back(FORTRESS_MUS);
-		music_numbers_.emplace_back(GIVING_MUS);
-		music_numbers_.emplace_back(HARTBEAT_MUS);
-		music_numbers_.emplace_back(LURKING_MUS);
-		music_numbers_.emplace_back(MAJMIN_MUS);
-		music_numbers_.emplace_back(VACCINAP_MUS);
-		music_numbers_.emplace_back(DARKNESS_MUS);
-		music_numbers_.emplace_back(MONASTRY_MUS);
-		music_numbers_.emplace_back(TOMBP_MUS);
-		music_numbers_.emplace_back(TIME_MUS);
-		music_numbers_.emplace_back(MOURNING_MUS);
-		music_numbers_.emplace_back(SERPENT_MUS);
-		music_numbers_.emplace_back(HISCORE_MUS);
-	}
-
-	std::sort(music_numbers_.begin(), music_numbers_.end());
-}
-
-void AudioExtractor::extract_music(
-	const std::string& destination_dir,
-	const int number)
-{
-	const auto music_index = STARTMUSIC + number;
-	CA_CacheAudioChunk(static_cast<std::int16_t>(music_index));
-
-	const auto& number_string = ca_make_padded_asset_number_string(number);
-
-	const auto& file_name = bstone::file_system::append_path(
-		destination_dir,
-		"music_" + number_string + ".wav"
-	);
-
-	auto file_stream = bstone::FileStream{file_name, bstone::StreamOpenMode::write};
-
-	if (!file_stream.is_open())
-	{
-		throw AudioExtractorTrackException{number, "Failed to open \"" + file_name + "\" for writing."};
-	}
-
-	auto audio_decoder = bstone::make_audio_decoder(
-		bstone::AudioDecoderType::adlib_music,
-		bstone::Opl3Type::dbopl
-	);
-
-	if (!audio_decoder)
-	{
-		throw AudioExtractorTrackException{number, "Failed to create AdLib music decoder."};
-	}
-
-	const auto music_data = audiosegs[music_index].data();
-	const auto music_data_size = sd_get_adlib_music_data_size(music_data);
-
-	auto param = bstone::AudioDecoderInitParam{};
-	param.src_raw_data_ = music_data;
-	param.src_raw_size_ = music_data_size;
-	param.dst_rate_ = bstone::opl3_fixed_frequency;
-
-	if (!audio_decoder->initialize(param))
-	{
-		throw AudioExtractorTrackException{number, "Failed to initialize AdLib music decoder."};
-	}
-
-	if (!file_stream.set_position(wav_prefix_size))
-	{
-		throw AudioExtractorTrackException{number, "I/O error on \"" + file_name + "\"."};
-	}
-
-	constexpr auto sample_size = static_cast<int>(sizeof(Sample));
-	constexpr auto bit_depth = sample_size * 8;
-
-	auto data_size = 0;
-	auto sample_count = 0;
-	auto abs_max_sample = 0;
-
-	while (true)
-	{
-		const auto decoded_count = audio_decoder->decode(
-			bstone::opl3_fixed_frequency,
-			decode_buffer_.data()
-		);
-
-		if (decoded_count == 0)
-		{
-			break;
-		}
-
-		for (int i = 0; i < decoded_count; ++i)
-		{
-			const auto sample = static_cast<int>(decode_buffer_[i]);
-
-			abs_max_sample = std::max(std::abs(sample), abs_max_sample);
-		}
-
-		const auto decoded_size = decoded_count * sample_size;
-
-		if (!file_stream.write(decode_buffer_.data(), decoded_size))
-		{
-			throw AudioExtractorTrackException{number, "I/O error on \"" + file_name + "\"."};
-		}
-
-		data_size += decoded_size;
-		sample_count += decoded_count;
-	}
-
-	if (!file_stream.set_position(0))
-	{
-		throw AudioExtractorTrackException{number, "I/O error on \"" + file_name + "\"."};
-	}
-
-	if (!write_wav_header(data_size, bit_depth, bstone::opl3_fixed_frequency, file_stream))
-	{
-		throw AudioExtractorTrackException{number, "I/O error on \"" + file_name + "\"."};
-	}
-
-	const auto volume_factor = 32'768.0 / abs_max_sample;
-	const auto volume_factor_string = (data_size > 0 ? std::to_string(volume_factor) : "-");
-
-	auto sha1 = bstone::Sha1{};
-	sha1.process(music_data, music_data_size);
-	sha1.finish();
-	const auto sha1_string = (data_size > 0 ? sha1.to_string() : "-");
-
-	bstone::logger_->write(
-		"Track " + std::to_string(number) + ". " +
-			"Sample rate: " + std::to_string(bstone::opl3_fixed_frequency) + ". " +
-			"Sample count: " + std::to_string(sample_count) + ". " +
-			"SHA1: " + sha1_string + ". " +
-			"Volume factor: " + volume_factor_string + "."
-	);
-}
-
-void AudioExtractor::initialize_sfx()
-{
-	for (int i = 0; i < NUMSOUNDS; ++i)
-	{
-		CA_CacheAudioChunk(static_cast<std::int16_t>(STARTADLIBSOUNDS + i));
-	}
-
-	sd_setup_extracting();
-}
-
-void AudioExtractor::write_adlib_sfx(
-	const int number,
-	const SfxInfo& sfx_info,
-	bstone::Stream& stream)
-{
-	auto audio_decoder = bstone::make_audio_decoder(
-		bstone::AudioDecoderType::adlib_sfx,
-		bstone::Opl3Type::dbopl
-	);
-
-	if (!audio_decoder)
-	{
-		throw AudioExtractorTrackException{number, "Failed to create AdLib music decoder."};
-	}
-
-	auto param = bstone::AudioDecoderInitParam{};
-	param.src_raw_data_ = sfx_info.data_;
-	param.src_raw_size_ = sfx_info.size_;
-	param.dst_rate_ = bstone::opl3_fixed_frequency;
-
-	if (!audio_decoder->initialize(param))
-	{
-		throw AudioExtractorTrackException{number, "Failed to initialize AdLib music decoder."};
-	}
-
-	if (!stream.set_position(wav_prefix_size))
-	{
-		throw AudioExtractorTrackException{number, "Seek I/O error."};
-	}
-
-	constexpr auto sample_size = static_cast<int>(sizeof(Sample));
-	constexpr auto bit_depth = sample_size * 8;
-
-	auto data_size = 0;
-	auto sample_count = 0;
-	auto abs_max_sample = 0;
-
-	while (true)
-	{
-		const auto decoded_count = audio_decoder->decode(
-			bstone::opl3_fixed_frequency,
-			decode_buffer_.data()
-		);
-
-		if (decoded_count == 0)
-		{
-			break;
-		}
-
-		for (int i = 0; i < decoded_count; ++i)
-		{
-			const auto sample = static_cast<int>(decode_buffer_[i]);
-
-			abs_max_sample = std::max(std::abs(sample), abs_max_sample);
-		}
-
-		const auto decoded_size = decoded_count * sample_size;
-
-		if (!stream.write(decode_buffer_.data(), decoded_size))
-		{
-			throw AudioExtractorTrackException{number, "Write I/O error."};
-		}
-
-		data_size += decoded_size;
-		sample_count += decoded_count;
-	}
-
-	if (!stream.set_position(0))
-	{
-		throw AudioExtractorTrackException{number, "Seek I/O error."};
-	}
-
-	if (!write_wav_header(data_size, bit_depth, bstone::opl3_fixed_frequency, stream))
-	{
-		throw AudioExtractorTrackException{number, "Write I/O error."};
-	}
-
-	const auto volume_factor = 32'768.0 / abs_max_sample;
-	const auto volume_factor_string = (data_size > 0 ? std::to_string(volume_factor) : "-");
-
-	auto sha1 = bstone::Sha1{};
-	sha1.process(sfx_info.data_, sfx_info.size_);
-	sha1.finish();
-	const auto sha1_string = (data_size > 0 ? sha1.to_string() : "-");
-
-	bstone::logger_->write(
-		"Track " + std::to_string(number) + ". " +
-			"Sample rate: " + std::to_string(bstone::opl3_fixed_frequency) + ". " +
-			"Sample count: " + std::to_string(sample_count) + ". " +
-			"SHA1: " + sha1_string + ". " +
-			"Volume factor: " + volume_factor_string + "."
-	);
-}
-
-void AudioExtractor::write_pcm_sfx(
-	const int number,
-	const SfxInfo& sfx_info,
-	bstone::Stream& stream)
-{
-	constexpr auto sample_size = 1;
-	constexpr auto bit_depth = sample_size * 8;
-	const auto data_size = (sfx_info.data_ ? sfx_info.size_ : 0);
-
-	if (!write_wav_header(data_size, bit_depth, bstone::audio_decoder_pcm_fixed_frequency, stream))
-	{
-		throw AudioExtractorTrackException{number, "Write I/O error."};
-	}
-
-	if (!stream.write(sfx_info.data_, data_size))
-	{
-		throw AudioExtractorTrackException{number, "Write I/O error."};
-	}
-
-	if ((data_size % 2) != 0)
-	{
-		if (!stream.write_octet(0))
-		{
-			throw AudioExtractorTrackException{number, "Write I/O error."};
-		}
-	}
-
-	auto abs_max_sample = 0;
-
-	if (data_size > 0)
-	{
-		const auto pcm_u8_data = static_cast<const std::uint8_t*>(sfx_info.data_);
-
-		for (int i = 0; i < data_size; ++i)
-		{
-			abs_max_sample = std::max(std::abs(pcm_u8_data[i] - 128), abs_max_sample);
-		}
-	}
-
-	const auto volume_factor = 128.0 / abs_max_sample;
-	const auto volume_factor_string = (data_size > 0 ? std::to_string(volume_factor) : "-");
-
-	auto sha1 = bstone::Sha1{};
-	sha1.process(sfx_info.data_, data_size);
-	sha1.finish();
-	const auto sha1_string = (data_size > 0 ? sha1.to_string() : "-");
-
-	bstone::logger_->write(
-		"Track " + std::to_string(number) + ". " +
-			"Sample rate: " + std::to_string(bstone::audio_decoder_pcm_fixed_frequency) + ". " +
-			"Sample count: " + std::to_string(data_size) + ". " +
-			"SHA1: " + sha1_string + ". " +
-			"Volume factor: " + volume_factor_string + "."
-	);
-}
-
-void AudioExtractor::extract_sfx(
-	const std::string& destination_dir,
-	const int number)
-{
-	const auto& sfx_info = sd_get_sfx_info(number);
-
-	const auto& number_string = ca_make_padded_asset_number_string(number);
-
-	const auto& file_name = bstone::file_system::append_path(
-		destination_dir,
-		"sfx_" + number_string + ".wav"
-	);
-
-	auto file_stream = bstone::FileStream{file_name, bstone::StreamOpenMode::write};
-
-	if (!file_stream.is_open())
-	{
-		throw AudioExtractorTrackException{number, "Failed to open \"" + file_name + "\" for writing."};
-	}
-
-	if (sfx_info.is_digitized_)
-	{
-		write_pcm_sfx(number, sfx_info, file_stream);
-	}
-	else
-	{
-		write_adlib_sfx(number, sfx_info, file_stream);
-	}
-}
-
-//
-// AudioExtractor
-// ==========================================================================
-
 void ca_extract_music(
 	const std::string& destination_dir)
 {
@@ -3230,8 +2543,11 @@ void ca_extract_music(
 	bstone::logger_->write("Extracting music.");
 	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
 
-	auto audio_extractor = AudioExtractor{};
-	audio_extractor.extract_music(bstone::file_system::normalize_path(destination_dir));
+	auto audio_content_mgr = bstone::make_audio_content_mgr();
+	auto audio_extractor = bstone::make_audio_extractor(audio_content_mgr.get());
+
+	const auto normalized_dst_dir = bstone::file_system::normalize_path(destination_dir);
+	audio_extractor->extract_music(normalized_dst_dir);
 
 	bstone::logger_->write(">>> ================");
 }
@@ -3244,8 +2560,11 @@ void ca_extract_sfx(
 	bstone::logger_->write("Extracting sfx.");
 	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
 
-	auto audio_extractor = AudioExtractor{};
-	audio_extractor.extract_sfx(bstone::file_system::normalize_path(destination_dir));
+	auto audio_content_mgr = bstone::make_audio_content_mgr();
+	auto audio_extractor = bstone::make_audio_extractor(audio_content_mgr.get());
+
+	const auto normalized_dst_dir = bstone::file_system::normalize_path(destination_dir);
+	audio_extractor->extract_sfx(normalized_dst_dir);
 
 	bstone::logger_->write(">>> ================");
 }

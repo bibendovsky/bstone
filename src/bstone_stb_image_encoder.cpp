@@ -25,6 +25,7 @@ Free Software Foundation, Inc.,
 #include "bstone_stb_image_encoder.h"
 
 #include <cassert>
+#include <cstdio>
 
 #include <algorithm>
 #include <memory>

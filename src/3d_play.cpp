@@ -836,8 +836,6 @@ void CheckKeys()
 					sd_enable_sound(false);
 				}
 
-				CA_LoadAllSounds();
-
 				is_enabled = true;
 			}
 
@@ -1602,11 +1600,6 @@ void StartMusic(
 
 			musicchunk = songs[map_number];
 		}
-	}
-
-	if (audiosegs[STARTMUSIC + musicchunk].empty())
-	{
-		CA_CacheAudioChunk(static_cast<std::int16_t>(STARTMUSIC + musicchunk));
 	}
 
 	{

@@ -81,7 +81,6 @@ void InitRedShifts();
 void CAL_OptimizeNodes(
 	huffnode* table);
 
-void OpenAudioFile();
 void ReadConfig();
 void read_high_scores();
 
@@ -102,93 +101,6 @@ void initialize_messages();
 void initialize_ca_constants();
 
 void sd_setup_digi();
-
-
-static std::uint8_t wolfdigimap[] = {
-	// These first sounds are in the upload version
-
-	ATKIONCANNONSND, 0,
-	ATKCHARGEDSND, 1,
-	ATKBURSTRIFLESND, 2,
-	ATKGRENADESND, 46,
-
-	OPENDOORSND, 3,
-	CLOSEDOORSND, 4,
-	HTECHDOOROPENSND, 5,
-	HTECHDOORCLOSESND, 6,
-
-	INFORMANTDEATHSND, 7,
-	SCIENTISTHALTSND, 19,
-	SCIENTISTDEATHSND, 20,
-
-	GOLDSTERNHALTSND, 8,
-	GOLDSTERNLAUGHSND, 24,
-
-	HALTSND, 9, // Rent-A-Cop 1st sighting
-	RENTDEATH1SND, 10, // Rent-A-Cop Death
-
-	EXPLODE1SND, 11,
-
-	GGUARDHALTSND, 12,
-	GGUARDDEATHSND, 17,
-
-	PROHALTSND, 16,
-	PROGUARDDEATHSND, 13,
-
-	BLUEBOYDEATHSND, 18,
-	BLUEBOYHALTSND, 51,
-
-	SWATHALTSND, 22,
-	SWATDIESND, 47,
-
-	SCANHALTSND, 15,
-	SCANDEATHSND, 23,
-
-	PODHATCHSND, 26,
-	PODHALTSND, 50,
-	PODDEATHSND, 49,
-
-	ELECTSHOTSND, 27,
-
-	DOGBOYHALTSND, 14,
-	DOGBOYDEATHSND, 21,
-	ELECARCDAMAGESND, 25,
-	ELECAPPEARSND, 28,
-	ELECDIESND, 29,
-
-	INFORMDEATH2SND, 39, // Informant Death #2
-	RENTDEATH2SND, 34, // Rent-A-Cop Death #2
-	PRODEATH2SND, 42, // PRO Death #2
-	SWATDEATH2SND, 48, // SWAT Death #2
-	SCIDEATH2SND, 53, // Gen. Sci Death #2
-
-	LIQUIDDIESND, 30,
-
-	GURNEYSND, 31,
-	GURNEYDEATHSND, 41,
-
-	WARPINSND, 32,
-	WARPOUTSND, 33,
-
-	EXPLODE2SND, 35,
-
-	LCANHALTSND, 36,
-	LCANDEATHSND, 37,
-
-	// RENTDEATH3SND, 38, // Rent-A-Cop Death #3
-	INFORMDEATH3SND, 40, // Informant Death #3
-	PRODEATH3SND, 43, // PRO Death #3
-	SWATDEATH3SND, 52, // Swat Guard #3
-	SCIDEATH3SND, 54, // Gen. Sci Death #3
-
-	LCANBREAKSND, 44,
-	SCANBREAKSND, 45,
-	CLAWATTACKSND, 56,
-	SPITATTACKSND, 55,
-	PUNCHATTACKSND, 57,
-
-	LASTSOUND,
-};
 
 
 extern const std::uint8_t colormap[16896];
@@ -990,42 +902,6 @@ void SetupWalls()
 	mirrorofs.resize(k_half_height);
 }
 
-void InitDigiMap()
-{
-	char* map;
-
-	for (map = reinterpret_cast<char*>(wolfdigimap); *map != LASTSOUND; map += 2)
-	{
-		sd_digi_map_[static_cast<int>(map[0])] = map[1];
-	}
-}
-
-void CAL_SetupAudioFile()
-{
-	bstone::FileStream handle;
-
-	//
-	// load maphead.ext (offsets and tileinfo for map file)
-	//
-#ifndef AUDIOHEADERLINKED
-	ca_open_resource(AssetsResourceType::audiohed, handle);
-	auto length = static_cast<std::int32_t>(handle.get_size());
-	audiostarts.resize(length / 4);
-	handle.read(audiostarts.data(), length);
-	handle.close();
-#else
-	// TODO Remove or fix
-	audiohuffman = (huffnode*)&audiodict;
-	CAL_OptimizeNodes(audiohuffman);
-	audiostarts = (std::int32_t*)FP_SEG(&audiohead);
-#endif
-
-	//
-	// open the data file
-	//
-	OpenAudioFile();
-}
-
 void CAL_SetupGrFile()
 {
 	if (!check_vgahead_offset_count())
@@ -1255,10 +1131,6 @@ void PreDemo()
 	//
 	CA_CacheScreen(APOGEEPIC);
 
-	// Load and start music
-	//
-	CA_CacheAudioChunk(STARTMUSIC + APOGFNFM_MUS);
-
 	sd_start_music(APOGFNFM_MUS);
 
 	// Cache and set palette.  AND  Fade it in!
@@ -1297,8 +1169,6 @@ void PreDemo()
 	//
 	UNCACHEGRCHUNK(APOGEEPALETTE);
 
-	audiosegs[STARTMUSIC + APOGFNFM_MUS] = AudioSegment{};
-
 	if (assets_info.is_ps())
 	{
 		// Do A Blue Flash!
@@ -1315,7 +1185,6 @@ void PreDemo()
 
 	// Load and start music
 	//
-	CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
 	sd_start_music(TITLE_LOOP_MUSIC);
 
 	// Show JAM logo

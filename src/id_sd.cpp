@@ -29,24 +29,13 @@ Free Software Foundation, Inc.,
 #include "id_heads.h"
 #include "id_pm.h"
 
+#include "bstone_audio_content_mgr.h"
 #include "bstone_audio_mixer.h"
 #include "bstone_endian.h"
 #include "bstone_logger.h"
 #include "bstone_memory_binary_reader.h"
 #include "bstone_string_helper.h"
 #include "bstone_text_writer.h"
-
-
-void InitDigiMap();
-
-
-std::uint16_t sd_start_pc_sounds_ = STARTPCSOUNDS;
-std::uint16_t sd_start_al_sounds_ = STARTADLIBSOUNDS;
-
-auto sd_base_index_ = 0;
-
-std::int16_t sd_last_sound_ = LASTSOUND;
-std::int16_t sd_digi_map_[LASTSOUND];
 
 
 // Global variables
@@ -59,19 +48,23 @@ bool sd_is_music_enabled_ = false;
 
 static bool sd_started_;
 
-using SdDigiList = std::vector<std::uint16_t>;
-SdDigiList sd_digi_list_;
 
 // AdLib variables
 
 bool sd_sq_active_;
-std::uint16_t* sd_sq_hack_;
-std::uint16_t sd_sq_hack_len_;
 bool sd_sq_played_once_;
 
 // Internal routines
 
 // BBi
+
+namespace {
+
+
+bstone::AudioContentMgrUPtr audio_content_mgr{};
+
+
+} // namespace
 
 static int sd_music_index_ = -1;
 static bstone::AudioMixerUPtr sd_mixer_;
@@ -122,45 +115,6 @@ void sd_log_error(
 }
 
 
-//
-// Stuff for digitized sounds
-//
-
-void sd_setup_digi()
-{
-	const std::uint16_t* p;
-	int pg;
-	int i;
-
-	p = static_cast<const std::uint16_t*>(PM_GetPage(ChunksInFile - 1));
-	pg = PMSoundStart;
-	for (i = 0; i < static_cast<int>(PMPageSize / (2 * 2)); ++i)
-	{
-		if (pg >= ChunksInFile - 1)
-		{
-			break;
-		}
-		pg += (bstone::Endian::little(p[1]) + (PMPageSize - 1)) / PMPageSize;
-		p += 2;
-	}
-	sd_digi_list_.resize(i * 2);
-
-	const std::uint16_t* src_list = static_cast<const std::uint16_t*>(
-		PM_GetPage(ChunksInFile - 1));
-
-	for (auto j = 0; j < (i * 2); ++j)
-	{
-		sd_digi_list_[j] = bstone::Endian::little(src_list[j]);
-	}
-
-	for (i = 0; i < sd_last_sound_; i++)
-	{
-		sd_digi_map_[i] = -1;
-	}
-
-	InitDigiMap();
-}
-
 // Determines if there's an AdLib (or SoundBlaster emulating an AdLib) present
 static bool sd_detect_ad_lib()
 {
@@ -193,7 +147,6 @@ bool sd_enable_sound(
 		is_enabled = false;
 	}
 
-	sd_base_index_ = sd_start_al_sounds_;
 	sd_is_sound_enabled_ = is_enabled;
 
 	if (is_enabled)
@@ -362,6 +315,8 @@ void sd_startup()
 
 			sd_log("Resampling low-pass filter: " +
 				sd_get_resampling_lpf_long_name(sd_mixer_->get_resampling_lpf()));
+
+			audio_content_mgr = bstone::make_audio_content_mgr();
 		}
 		else
 		{
@@ -376,12 +331,11 @@ void sd_startup()
 		{
 			sd_mixer_->uninitialize();
 		}
+
+		audio_content_mgr = nullptr;
 	}
 
-	sd_setup_digi();
-
 	sd_started_ = true;
-
 
 	if (sd_has_audio_)
 	{
@@ -409,11 +363,7 @@ void sd_shutdown()
 		sd_mixer_->uninitialize();
 	}
 
-	// Free music data
-	for (int i = 0; i < LASTMUSIC; ++i)
-	{
-		audiosegs[STARTMUSIC + i] = AudioSegment{};
-	}
+	audio_content_mgr = nullptr;
 
 	sd_started_ = false;
 }
@@ -455,7 +405,10 @@ void sd_music_on()
 	if (sd_mixer_)
 	{
 		sd_sq_active_ = true;
-		sd_mixer_->play_adlib_music(sd_music_index_, sd_sq_hack_, sd_sq_hack_len_);
+
+		const auto& audio_chunk = audio_content_mgr->get_adlib_music_chunk(sd_music_index_);
+
+		sd_mixer_->play_adlib_music(sd_music_index_, audio_chunk.data, audio_chunk.data_size);
 	}
 }
 
@@ -481,14 +434,6 @@ void sd_start_music(
 	{
 		sd_music_index_ = index;
 
-		const auto music_data = reinterpret_cast<std::uint16_t*>(
-			audiosegs[STARTMUSIC + index].data());
-
-		const auto length = sd_get_adlib_music_data_size(music_data);
-
-		sd_sq_hack_ = music_data;
-		sd_sq_hack_len_ = static_cast<std::uint16_t>(length);
-
 		sd_set_music_volume(sd_music_volume_);
 
 		sd_music_on();
@@ -507,86 +452,71 @@ void sd_play_sound(
 	const bstone::ActorType actor_type,
 	const bstone::ActorChannel actor_channel)
 {
-	if (sound_index < 0)
+	if (!sd_mixer_ || !sd_is_sound_enabled_)
 	{
 		return;
 	}
 
-	if (!sd_is_sound_enabled_)
+	const auto& audio_chunk = audio_content_mgr->get_sfx_chunk(sound_index);
+
+	if (!audio_chunk.data)
 	{
 		return;
 	}
 
-	int actor_index = -1;
+	auto actor_index = -1;
 
 	if (actor)
 	{
 		switch (actor_type)
 		{
-		case bstone::ActorType::actor:
-			actor_index = static_cast<int>(
-				static_cast<const objtype*>(actor) - objlist);
-			break;
+			case bstone::ActorType::actor:
+				actor_index = static_cast<int>(static_cast<const objtype*>(actor) - objlist);
+				break;
 
-		case bstone::ActorType::door:
-			actor_index = static_cast<int>(
-				static_cast<const doorobj_t*>(actor) - doorobjlist);
-			break;
+			case bstone::ActorType::door:
+				actor_index = static_cast<int>(static_cast<const doorobj_t*>(actor) - doorobjlist);
+				break;
 
-		default:
-			return;
+			default:
+				return;
 		}
 	}
 
-	const auto sound = reinterpret_cast<SoundCommon*>(audiosegs[sd_base_index_ + sound_index].data());
+	const auto priority = audio_content_mgr->get_sfx_priority(sound_index);
 
-	if (!sound)
+	switch (audio_chunk.type)
 	{
-		return;
-	}
+		case AudioChunkType::adlib_sfx:
+			sd_mixer_->play_adlib_sound(
+				sound_index,
+				priority,
+				audio_chunk.data,
+				audio_chunk.data_size,
+				actor_index,
+				actor_type,
+				actor_channel
+			);
 
-	if (sd_is_sound_enabled_ && !sound)
-	{
-		Quit("Uncached sound.");
-	}
+			break;
 
-	if (!sd_mixer_)
-	{
-		return;
-	}
+		case AudioChunkType::digitized:
+			sd_mixer_->play_pcm_sound(
+				sound_index,
+				priority,
+				audio_chunk.data,
+				audio_chunk.data_size,
+				actor_index,
+				actor_type,
+				actor_channel
+			);
 
-	int priority = bstone::Endian::little(sound->priority);
+			break;
 
-	const auto sfx_info = sd_get_sfx_info(sound_index);
-
-	if (!sfx_info.data_ || sfx_info.size_ <= 0)
-	{
-		return;
-	}
-
-	if (sfx_info.is_digitized_)
-	{
-		sd_mixer_->play_pcm_sound(
-			sfx_info.digi_index_,
-			priority,
-			sfx_info.data_,
-			sfx_info.size_,
-			actor_index,
-			actor_type,
-			actor_channel
-		);
-	}
-	else
-	{
-		sd_mixer_->play_adlib_sound(
-			sound_index,
-			priority,
-			sfx_info.data_,
-			sfx_info.size_,
-			actor_index,
-			actor_type,
-			actor_channel
-		);
+		case AudioChunkType::adlib_music:
+		case AudioChunkType::pc_speaker:
+		default:
+			break;
 	}
 }
 
@@ -599,7 +529,8 @@ void sd_play_actor_sound(
 		sound_index,
 		actor,
 		bstone::ActorType::actor,
-		actor_channel);
+		actor_channel
+	);
 }
 
 void sd_play_player_sound(
@@ -610,7 +541,8 @@ void sd_play_player_sound(
 		sound_index,
 		player,
 		bstone::ActorType::actor,
-		actor_channel);
+		actor_channel
+	);
 }
 
 void sd_play_door_sound(
@@ -621,7 +553,8 @@ void sd_play_door_sound(
 		sound_index,
 		door,
 		bstone::ActorType::door,
-		bstone::ActorChannel::voice);
+		bstone::ActorChannel::voice
+	);
 }
 
 void sd_play_wall_sound(
@@ -631,7 +564,8 @@ void sd_play_wall_sound(
 		sound_index,
 		nullptr,
 		bstone::ActorType::wall,
-		bstone::ActorChannel::voice);
+		bstone::ActorChannel::voice
+	);
 }
 
 void sd_update_positions()
@@ -726,50 +660,6 @@ void sd_pause_music(
 	{
 		sd_mixer_->pause_music(is_pause);
 	}
-}
-
-int sd_get_adlib_music_data_size(
-	const void* const raw_music_data)
-{
-	return bstone::Endian::little(reinterpret_cast<const std::uint16_t*>(raw_music_data)[0]) + 2;
-}
-
-SfxInfo sd_get_sfx_info(
-	const int sfx_number)
-{
-	auto result = SfxInfo{};
-
-	if (sfx_number >= 0 && sfx_number < NUMSOUNDS)
-	{
-		const auto digi_index = sd_digi_map_[sfx_number];
-
-		if (digi_index >= 0)
-		{
-			const auto digi_page = sd_digi_list_[(2 * digi_index) + 0];
-
-			result.is_digitized_ = true;
-			result.digi_index_ = digi_index;
-			result.data_ = PM_GetSoundPage(digi_page);
-			result.size_ = sd_digi_list_[(2 * digi_index) + 1];
-		}
-		else
-		{
-			const auto start_index = sd_start_al_sounds_ + sfx_number;
-
-			result.is_digitized_ = false;
-			result.digi_index_ = -1;
-			result.data_ = audiosegs[sd_base_index_ + sfx_number].data();
-			result.size_ = audiostarts[start_index + 1] - audiostarts[start_index];
-		}
-	}
-
-	return result;
-}
-
-void sd_setup_extracting()
-{
-	sd_setup_digi();
-	sd_base_index_ = sd_start_al_sounds_;
 }
 
 bstone::AudioDecoderInterpolationType sd_get_resampling_interpolation() noexcept

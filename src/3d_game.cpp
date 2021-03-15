@@ -2677,12 +2677,6 @@ void SetupGameLevel()
 		}
 	}
 
-	//
-	// have the caching manager load and purge stuff to make sure all marks
-	// are in memory
-	//
-	CA_LoadAllSounds();
-
 	if (assets_info.is_aog())
 	{
 		if (!is_red_key_present &&

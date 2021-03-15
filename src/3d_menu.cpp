@@ -2774,11 +2774,6 @@ void CP_Sound(
 			sd_wait_sound_done();
 			sd_enable_sound(!sd_is_sound_enabled_);
 
-			if (sd_is_sound_enabled_)
-			{
-				CA_LoadAllSounds();
-			}
-
 			DrawSoundMenu();
 
 			if (sd_is_sound_enabled_)
@@ -3558,11 +3553,7 @@ void SetupControlPanel()
 
 	WindowH = 200;
 
-	if (!ingame)
-	{
-		CA_LoadAllSounds();
-	}
-	else
+	if (ingame)
 	{
 		MainMenu[MM_SAVE_MISSION].active = AT_ENABLED;
 	}
@@ -4357,7 +4348,6 @@ void StartCPMusic(
 
 	sd_music_off();
 	chunk = song;
-	CA_CacheAudioChunk(static_cast<std::int16_t>(STARTMUSIC + chunk));
 	sd_start_music(chunk);
 }
 
@@ -4460,7 +4450,6 @@ void ShowPromo()
 
 	// Load and start music
 	//
-	CA_CacheAudioChunk(STARTMUSIC + PROMO_MUSIC);
 	sd_start_music(PROMO_MUSIC);
 
 	// Show promo screen 1

@@ -344,7 +344,9 @@ target_sources(
 		bstone_archiver.h
 		bstone_atomic.h
 		bstone_atomic_flag.h
+		bstone_audio_content_mgr.h
 		bstone_audio_decoder.h
+		bstone_audio_extractor.h
 		bstone_audio_mixer.h
 		bstone_audio_sample_converter.h
 		bstone_binary_reader.h
@@ -493,7 +495,9 @@ target_sources(
 		bstone_adlib_sfx_decoder.cpp
 		bstone_archiver.cpp
 		bstone_atomic_flag.cpp
+		bstone_audio_content_mgr.cpp
 		bstone_audio_decoder.cpp
+		bstone_audio_extractor.cpp
 		bstone_audio_mixer.cpp
 		bstone_audio_sample_converter.cpp
 		bstone_binary_reader.cpp

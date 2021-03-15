@@ -206,8 +206,6 @@ private:
 	int levels_per_episode_{};
 	int stats_levels_per_episode_{};
 	int total_levels_{};
-	int min_secret_level_index_{};
-	int max_secret_level_index_{};
 	int barrier_switches_per_level_{};
 	int max_barrier_switches_per_level_bits_{};
 }; // AssetsInfo
@@ -342,9 +340,6 @@ private:
 
 // ===========================================================================
 
-using AudioSegment = Buffer;
-using AudioSegments = std::vector<AudioSegment>;
-
 using GrSegment = Buffer;
 using GrSegments = std::vector<GrSegment>;
 
@@ -363,7 +358,6 @@ using MapSegments = std::array<MapSegment, MAPPLANES>;
 extern MapSegments mapsegs;
 
 extern MapHeaderSegments mapheaderseg;
-extern AudioSegments audiosegs;
 extern GrSegments grsegs;
 extern GrSegmentSizes grsegs_sizes_;
 
@@ -377,8 +371,6 @@ extern std::int16_t profilehandle, debughandle;
 using GrStarts = std::vector<std::int32_t>;
 extern GrStarts grstarts; // array of offsets in egagraph, -1 for sparse
 
-using AudioStarts = std::vector<std::int32_t>;
-extern AudioStarts audiostarts; // array of offsets in audio / audiot
 //
 // hooks for custom cache dialogs
 //
@@ -390,7 +382,6 @@ extern void(*finishcachebox)();
 
 extern bstone::FileStream grhandle;
 extern bstone::FileStream maphandle;
-extern bstone::FileStream audiohandle;
 
 extern std::int32_t chunkcomplen;
 extern std::int32_t chunkexplen;
@@ -413,10 +404,6 @@ void CA_RLEWexpand(
 void CA_Startup();
 void CA_Shutdown();
 
-void CA_CacheAudioChunk(
-	std::int16_t chunk);
-void CA_LoadAllSounds();
-
 void CA_UpLevel();
 void CA_DownLevel();
 
@@ -429,7 +416,6 @@ void CA_CacheMap(
 
 void CA_CacheMarks();
 
-void CAL_SetupAudioFile();
 void CAL_SetupGrFile();
 void CAL_SetupMapFile();
 

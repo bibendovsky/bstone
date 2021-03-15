@@ -82,27 +82,12 @@ struct Instrument
 	std::uint8_t unused[3];
 }; // Instrument
 
-struct MusicGroup
-{
-	std::uint16_t length;
-	std::uint16_t values[1];
-}; // MusicGroup
-
-struct SfxInfo
-{
-	bool is_digitized_;
-	int digi_index_;
-	const void* data_;
-	int size_;
-}; // SfxInfo
-
 
 // Global variables
 
 extern bool sd_has_audio_;
 extern bool sd_is_sound_enabled_;
 extern bool sd_is_music_enabled_;
-extern std::int16_t sd_digi_map_[];
 
 extern bool sd_sq_active_;
 extern bool sd_sq_played_once_;
@@ -189,14 +174,6 @@ void sd_pause_sfx(
 
 void sd_pause_music(
 	const bool is_pause);
-
-int sd_get_adlib_music_data_size(
-	const void* const raw_music_data);
-
-SfxInfo sd_get_sfx_info(
-	const int sfx_number);
-
-void sd_setup_extracting();
 
 
 bstone::AudioDecoderInterpolationType sd_get_resampling_interpolation() noexcept;

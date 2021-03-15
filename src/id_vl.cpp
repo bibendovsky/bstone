@@ -26,6 +26,7 @@ Free Software Foundation, Inc.,
 
 #include <algorithm>
 #include <chrono>
+#include <unordered_map>
 #include <unordered_set>
 
 #include "glm/gtc/matrix_transform.hpp"

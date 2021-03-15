@@ -29,17 +29,7 @@ Free Software Foundation, Inc.,
 #include <cstdint>
 
 
-//
-// Base offsets
-//
-const std::int16_t STARTPCSOUNDS = 0;
-const std::int16_t STARTADLIBSOUNDS = 100;
-const std::int16_t STARTDIGISOUNDS = 200;
-const std::int16_t STARTMUSIC = 300;
-
-const std::int16_t NUMSOUNDS = 100;
-
-extern std::int16_t NUMSNDCHUNKS;
+constexpr auto NUMSOUNDS = 100;
 
 
 //
@@ -202,12 +192,38 @@ extern std::int16_t THEME_MUS;
 extern std::int16_t LASTMUSIC;
 
 
-enum class AudioDriverType
+enum class AudioDriverType :
+	int
 {
 	auto_detect,
 	r2_sdl,
 	r3_openal,
 }; // AudioDriverType
+
+enum class AudioSfxType :
+	int
+{
+	adlib = 1,
+	pc_speaker = 2,
+}; // AudioResourceType
+
+enum class AudioChunkType :
+	int
+{
+	adlib_music = 1,
+	adlib_sfx = 2,
+	pc_speaker = 3,
+	digitized = 4,
+}; // AudioResourceType
+
+struct AudioChunk
+{
+	const std::uint8_t* data{};
+	int data_size{};
+	AudioChunkType type{};
+	int index{};
+	int audio_index{};
+}; // AudioChunk
 
 
 #endif // BSTONE_AUDIO_INCLUDED
