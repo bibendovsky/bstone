@@ -1341,6 +1341,8 @@ bool OalAudioMixer::mix_music_mix_buffer()
 		}
 		else
 		{
+			sd_sq_played_once_ = true;
+
 			if (!audio_decoder->rewind())
 			{
 				return false;
