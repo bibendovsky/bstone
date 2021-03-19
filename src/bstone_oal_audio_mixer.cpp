@@ -1494,9 +1494,13 @@ OalAudioMixer::SfxVoice* OalAudioMixer::find_free_sfx_voice(
 
 			if (sfx_voice.actor_type == actor_type &&
 				sfx_voice.actor_index == actor_index &&
-				sfx_voice.actor_channel == actor_channel &&
-				sfx_voice.priority <= priority)
+				sfx_voice.actor_channel == actor_channel)
 			{
+				if (sfx_voice.priority > priority)
+				{
+					return nullptr;
+				}
+
 				sfx_voice.is_active = false;
 				sfx_voice.oal_source.stop();
 
