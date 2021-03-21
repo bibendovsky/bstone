@@ -825,7 +825,7 @@ bool Sdl2AudioMixer::is_music_playing() const
 	return is_music_playing_;
 }
 
-bool Sdl2AudioMixer::is_any_sfx_playing() const
+bool Sdl2AudioMixer::is_any_unpausable_sfx_playing() const
 {
 	if (!is_initialized())
 	{

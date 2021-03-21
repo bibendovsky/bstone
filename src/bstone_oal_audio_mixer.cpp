@@ -665,7 +665,7 @@ catch (...)
 	return false;
 }
 
-bool OalAudioMixer::is_any_sfx_playing() const
+bool OalAudioMixer::is_any_unpausable_sfx_playing() const
 try
 {
 	if (!is_initialized())
@@ -677,7 +677,8 @@ try
 
 	for (auto& sfx_voice : sfx_voices_)
 	{
-		if (sfx_voice.is_active)
+		if (sfx_voice.is_active &&
+			sfx_voice.actor_channel == ActorChannel::unpausable)
 		{
 			return true;
 		}

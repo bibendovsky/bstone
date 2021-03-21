@@ -374,11 +374,11 @@ void sd_shutdown()
 }
 
 // Returns the sound number that's playing, or 0 if no sound is playing
-bool sd_sound_playing()
+bool sd_is_any_unpausable_sound_playing()
 {
 	if (sd_is_sound_enabled_ && sd_mixer_)
 	{
-		return sd_mixer_->is_any_sfx_playing();
+		return sd_mixer_->is_any_unpausable_sfx_playing();
 	}
 	else
 	{
@@ -398,7 +398,7 @@ void sd_stop_sound()
 // Waits until the current sound is done playing.
 void sd_wait_sound_done()
 {
-	while (sd_sound_playing())
+	while (sd_is_any_unpausable_sound_playing())
 	{
 		sys_default_sleep_for();
 	}

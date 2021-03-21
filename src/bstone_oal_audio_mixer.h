@@ -146,7 +146,7 @@ public:
 
 	bool is_music_playing() const override;
 
-	bool is_any_sfx_playing() const override;
+	bool is_any_unpausable_sfx_playing() const override;
 
 	bool is_player_channel_playing(
 		ActorChannel channel) const override;
