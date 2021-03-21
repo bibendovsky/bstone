@@ -24,6 +24,8 @@ Free Software Foundation, Inc.,
 
 #include <cassert>
 
+#include <algorithm>
+
 #include "audio.h"
 #include "id_ca.h"
 #include "id_sd.h"
@@ -86,6 +88,7 @@ public:
 
 
 private:
+	static constexpr auto pc_speaker_rate = 48'000;
 	static constexpr auto wav_prefix_size = 44;
 
 
@@ -151,12 +154,19 @@ private:
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+decltype(AudioExtractorImpl::pc_speaker_rate) constexpr AudioExtractorImpl::pc_speaker_rate;
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 AudioExtractorImpl::AudioExtractorImpl(
 	AudioContentMgr* audio_content_mgr)
 	:
 	audio_content_mgr_{audio_content_mgr}
 {
-	decode_buffer_.resize(bstone::opl3_fixed_frequency);
+	decode_buffer_.resize(std::max(bstone::opl3_fixed_frequency, pc_speaker_rate));
 }
 
 void AudioExtractorImpl::extract_music(
@@ -228,15 +238,23 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(
 	bstone::Stream& stream)
 {
 	auto audio_decoder_type = AudioDecoderType{};
+	auto dst_rate = 0;
 
 	switch (audio_chunk.type)
 	{
 		case AudioChunkType::adlib_music:
 			audio_decoder_type = AudioDecoderType::adlib_music;
+			dst_rate = bstone::opl3_fixed_frequency;
 			break;
 
 		case AudioChunkType::adlib_sfx:
 			audio_decoder_type = AudioDecoderType::adlib_sfx;
+			dst_rate = bstone::opl3_fixed_frequency;
+			break;
+
+		case AudioChunkType::pc_speaker:
+			audio_decoder_type = AudioDecoderType::pc_speaker;
+			dst_rate = pc_speaker_rate;
 			break;
 
 		default:
@@ -247,17 +265,17 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(
 
 	if (!audio_decoder)
 	{
-		throw AudioExtractorException{"Failed to create AdLib decoder."};
+		throw AudioExtractorException{"Failed to create decoder."};
 	}
 
 	auto param = bstone::AudioDecoderInitParam{};
 	param.src_raw_data_ = audio_chunk.data;
 	param.src_raw_size_ = audio_chunk.data_size;
-	param.dst_rate_ = bstone::opl3_fixed_frequency;
+	param.dst_rate_ = dst_rate;
 
 	if (!audio_decoder->initialize(param))
 	{
-		throw AudioExtractorException{"Failed to initialize AdLib decoder."};
+		throw AudioExtractorException{"Failed to initialize decoder."};
 	}
 
 	if (!stream.set_position(wav_prefix_size))
@@ -275,7 +293,7 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(
 	while (true)
 	{
 		const auto decoded_count = audio_decoder->decode(
-			bstone::opl3_fixed_frequency,
+			dst_rate,
 			decode_buffer_.data()
 		);
 
@@ -314,7 +332,7 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(
 
 	const auto volume_factor = 32'767.0 / abs_max_sample;
 
-	bstone::logger_->write("\tSample rate: " + std::to_string(bstone::opl3_fixed_frequency));
+	bstone::logger_->write("\tSample rate: " + std::to_string(dst_rate));
 	bstone::logger_->write("\tSample count: " + std::to_string(sample_count));
 	bstone::logger_->write("\tVolume factor: " + std::to_string(volume_factor));
 }
@@ -457,12 +475,6 @@ void AudioExtractorImpl::extract_decoded_audio_chunk(
 	const std::string& dst_dir,
 	const AudioChunk& audio_chunk)
 {
-	if (audio_chunk.type == AudioChunkType::pc_speaker)
-	{
-		// TODO
-		return;
-	}
-
 	const auto file_name = make_file_name(audio_chunk, ExtensionType::wav);
 
 	logger_->write(file_name);
@@ -481,15 +493,13 @@ void AudioExtractorImpl::extract_decoded_audio_chunk(
 	{
 		case AudioChunkType::adlib_music:
 		case AudioChunkType::adlib_sfx:
+		case AudioChunkType::pc_speaker:
 			write_non_digitized_audio_chunk(audio_chunk, file_stream);
 			break;
 
 		case AudioChunkType::digitized:
 			write_digitized_audio_chunk(audio_chunk, file_stream);
 			break;
-
-		case AudioChunkType::pc_speaker:
-			// TODO
 
 		default:
 			throw AudioExtractorException{"Unsupported audio chunk type."};

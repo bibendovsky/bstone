@@ -371,6 +371,7 @@ target_sources(
 		bstone_mt_queue_1r1w.h
 		bstone_mt_task_mgr.h
 		bstone_opl3.h
+		bstone_pc_speaker_audio_decoder.h
 		bstone_precompiled.h
 		bstone_ps_fizzle_fx.h
 		bstone_ref_values.h
@@ -520,6 +521,7 @@ target_sources(
 		bstone_memory_stream.cpp
 		bstone_mt_task_mgr.cpp
 		bstone_opl3.cpp
+		bstone_pc_speaker_audio_decoder.cpp
 		bstone_pcm_audio_decoder.cpp
 		bstone_ps_fizzle_fx.cpp
 		bstone_rgb8.cpp

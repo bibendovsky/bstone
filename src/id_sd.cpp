@@ -63,6 +63,9 @@ namespace {
 
 bstone::AudioContentMgrUPtr audio_content_mgr{};
 
+auto sd_sfx_type = AudioSfxType::adlib;
+auto sd_is_sfx_digitized = true;
+
 
 } // namespace
 
@@ -317,6 +320,8 @@ void sd_startup()
 				sd_get_resampling_lpf_long_name(sd_mixer_->get_resampling_lpf()));
 
 			audio_content_mgr = bstone::make_audio_content_mgr();
+			audio_content_mgr->set_sfx_type(sd_sfx_type);
+			audio_content_mgr->set_is_sfx_digitized(sd_is_sfx_digitized);
 		}
 		else
 		{
@@ -500,6 +505,19 @@ void sd_play_sound(
 
 			break;
 
+		case AudioChunkType::pc_speaker:
+			sd_mixer_->play_pc_speaker_sound(
+				sound_index,
+				priority,
+				audio_chunk.data,
+				audio_chunk.data_size,
+				actor_index,
+				actor_type,
+				actor_channel
+			);
+
+			break;
+
 		case AudioChunkType::digitized:
 			sd_mixer_->play_pcm_sound(
 				sound_index,
@@ -514,7 +532,6 @@ void sd_play_sound(
 			break;
 
 		case AudioChunkType::adlib_music:
-		case AudioChunkType::pc_speaker:
 		default:
 			break;
 	}
@@ -684,6 +701,16 @@ void sd_cfg_set_resampling_low_pass_filter(
 	sd_lpf_ = is_enabled;
 }
 
+void apply_digitized_sfx()
+{
+	if (!audio_content_mgr)
+	{
+		return;
+	}
+
+	audio_content_mgr->set_is_sfx_digitized(sd_is_sfx_digitized);
+}
+
 void sd_apply_resampling()
 {
 	if (!sd_has_audio_ || !sd_mixer_)
@@ -708,69 +735,129 @@ void sd_apply_resampling()
 		sd_get_resampling_lpf_long_name(sd_mixer_->get_resampling_lpf()));
 }
 
+AudioSfxType sd_cfg_get_sfx_type() noexcept
+{
+	return sd_sfx_type;
+}
+
+void sd_cfg_set_sfx_type(
+	AudioSfxType sfx_type)
+{
+	sd_sfx_type = sfx_type;
+}
+
+void sd_apply_sfx_type()
+{
+	if (!audio_content_mgr)
+	{
+		return;
+	}
+
+	audio_content_mgr->set_sfx_type(sd_sfx_type);
+}
+
+bool sd_cfg_get_is_sfx_digitized() noexcept
+{
+	return sd_is_sfx_digitized;
+}
+
+void sd_cfg_set_is_sfx_digitized(
+	bool is_sfx_digitized)
+{
+	sd_is_sfx_digitized = is_sfx_digitized;
+}
+
 void sd_cfg_set_defaults()
 {
 	sd_interpolation_ = bstone::AudioDecoderInterpolationType::linear;
 	sd_lpf_ = true;
+
+	sd_sfx_type = AudioSfxType::adlib;
+	sd_is_sfx_digitized = true;
+
 }
 
-const std::string sd_cfg_get_2d_sdl_name()
+const std::string& sd_cfg_get_2d_sdl_name()
 {
 	static const auto result = std::string{"2d_sdl"};
 	return result;
 }
 
-const std::string sd_cfg_get_3d_openal_name()
+const std::string& sd_cfg_get_3d_openal_name()
 {
 	static const auto result = std::string{"3d_openal"};
 	return result;
 }
 
-const std::string sd_cfg_get_auto_detect_name()
+const std::string& sd_cfg_get_auto_detect_name()
 {
 	static const auto result = std::string{"auto-detect"};
 	return result;
 }
 
-const std::string sd_cfg_get_driver_name()
+const std::string& sd_cfg_get_driver_name()
 {
 	static const auto result = std::string{"snd_driver"};
 	return result;
 }
 
-const std::string sd_cfg_get_oal_library_name()
+const std::string& sd_cfg_get_oal_library_name()
 {
 	static const auto result = std::string{"snd_oal_library"};
 	return result;
 }
 
-const std::string sd_cfg_get_oal_device_name_name()
+const std::string& sd_cfg_get_oal_device_name_name()
 {
 	static const auto result = std::string{"snd_oal_device_name"};
 	return result;
 }
 
-const std::string sd_cfg_get_zoh_name()
+const std::string& sd_cfg_get_zoh_name()
 {
 	static const auto result = std::string{"zoh"};
 	return result;
 }
 
-const std::string sd_cfg_get_linear_name()
+const std::string& sd_cfg_get_linear_name()
 {
 	static const auto result = std::string{"linear"};
 	return result;
 }
 
-const std::string sd_cfg_get_resampling_interpolation_name()
+const std::string& sd_cfg_get_resampling_interpolation_name()
 {
 	static const auto result = std::string{"snd_resampling_interpolation"};
 	return result;
 }
 
-const std::string sd_cfg_get_resampling_lpf_name()
+const std::string& sd_cfg_get_resampling_lpf_name()
 {
 	static const auto result = std::string{"snd_resampling_lpf"};
+	return result;
+}
+
+const std::string& sd_cfg_get_adlib_name()
+{
+	static const auto result = std::string{"adlib"};
+	return result;
+}
+
+const std::string& sd_cfg_get_pc_speaker_name()
+{
+	static const auto result = std::string{"pc_speaker"};
+	return result;
+}
+
+const std::string& sd_cfg_get_sfx_type_name()
+{
+	static const auto result = std::string{"snd_sfx_type"};
+	return result;
+}
+
+const std::string& sd_cfg_get_is_sfx_digitized_name()
+{
+	static const auto result = std::string{"snd_is_sfx_digitized"};
 	return result;
 }
 
@@ -829,6 +916,38 @@ bool sd_cfg_parse_key_value(
 		sd_oal_device_name = value_string;
 		return true;
 	}
+	else if (key_string == sd_cfg_get_sfx_type_name())
+	{
+		auto sfx_type = AudioSfxType{};
+
+		if (value_string == sd_cfg_get_adlib_name())
+		{
+			sfx_type = AudioSfxType::adlib;
+		}
+		else if (value_string == sd_cfg_get_pc_speaker_name())
+		{
+			sfx_type = AudioSfxType::pc_speaker;
+		}
+		else
+		{
+			sfx_type = AudioSfxType::adlib;
+		}
+
+		sd_cfg_set_sfx_type(sfx_type);
+
+		return true;
+	}
+	else if (key_string == sd_cfg_get_is_sfx_digitized_name())
+	{
+		int value = 0;
+
+		if (bstone::StringHelper::string_to_int(value_string, value))
+		{
+			sd_cfg_set_is_sfx_digitized(value != 0);
+		}
+
+		return true;
+	}
 
 	return false;
 }
@@ -879,6 +998,26 @@ void sd_cfg_parse_cl()
 	if (g_args.has_option(sd_cfg_get_oal_device_name_name()))
 	{
 		sd_oal_device_name = g_args.get_option_value(sd_cfg_get_oal_device_name_name());
+	}
+
+	if (g_args.has_option(sd_cfg_get_sfx_type_name()))
+	{
+		const auto value_string = g_args.get_option_value(sd_cfg_get_sfx_type_name());
+
+		if (!value_string.empty())
+		{
+			sd_cfg_parse_key_value(sd_cfg_get_sfx_type_name(), value_string);
+		}
+	}
+
+	if (g_args.has_option(sd_cfg_get_is_sfx_digitized_name()))
+	{
+		const auto value_string = g_args.get_option_value(sd_cfg_get_is_sfx_digitized_name());
+
+		if (!value_string.empty())
+		{
+			sd_cfg_parse_key_value(sd_cfg_get_is_sfx_digitized_name(), value_string);
+		}
 	}
 }
 
@@ -952,6 +1091,34 @@ void sd_cfg_write(
 		text_writer,
 		sd_cfg_get_oal_device_name_name(),
 		sd_oal_device_name
+	);
+
+	{
+		auto value_string = std::string{};
+
+		switch (sd_sfx_type)
+		{
+			case AudioSfxType::pc_speaker:
+				value_string = sd_cfg_get_pc_speaker_name();
+				break;
+
+			case AudioSfxType::adlib:
+			default:
+				value_string = sd_cfg_get_adlib_name();
+				break;
+		}
+
+		cfg_file_write_entry(
+			text_writer,
+			sd_cfg_get_sfx_type_name(),
+			value_string
+		);
+	}
+
+	cfg_file_write_entry(
+		text_writer,
+		sd_cfg_get_is_sfx_digitized_name(),
+		sd_is_sfx_digitized ? "1" : "0"
 	);
 }
 // BBi

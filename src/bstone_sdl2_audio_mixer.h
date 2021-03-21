@@ -96,6 +96,16 @@ public:
 		const ActorChannel actor_channel = ActorChannel::voice) override;
 
 	// Negative index of an actor defines a non-positional sound.
+	bool play_pc_speaker_sound(
+		const int sound_index,
+		const int priority,
+		const void* const data,
+		const int data_size,
+		const int actor_index = -1,
+		const ActorType actor_type = ActorType::none,
+		const ActorChannel actor_channel = ActorChannel::voice) override;
+
+	// Negative index of an actor defines a non-positional sound.
 	bool play_pcm_sound(
 		const int sound_index,
 		const int priority,
@@ -324,6 +334,7 @@ private:
 	std::atomic_bool mt_is_music_paused_;
 	Cache adlib_music_cache_;
 	Cache adlib_sfx_cache_;
+	Cache pc_speaker_sfx_cache_;
 	Cache pcm_cache_;
 	Positions mt_positions_;
 	Positions positions_;

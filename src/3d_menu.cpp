@@ -425,7 +425,7 @@ extern bool refresh_screen;
 
 CP_iteminfo MainItems = {MENU_X, MENU_Y, 12, MM_NEW_MISSION, 0, 9, {77, 1, 154, 9, 1}};
 CP_iteminfo GopItems = {MENU_X, MENU_Y + 25, 6, 0, 0, 9, {77, 1, 154, 9, 1}};
-CP_iteminfo SndItems = {SM_X, SM_Y, 4, 0, 0, 8, {87, -1, 144, 7, 1}};
+CP_iteminfo SndItems = {SM_X, SM_Y, 6, 0, 0, 8, {87, -1, 144, 7, 1}};
 CP_iteminfo LSItems = {LSM_X, LSM_Y, 10, 0, 0, 8, {86, -1, 144, 8, 1}};
 CP_iteminfo CtlItems = {CTL_X, CTL_Y, 3, -1, 0, 9, {87, 1, 174, 9, 1}};
 CP_iteminfo CusItems = {CST_X, CST_Y + 7, 6, -1, 0, 15, {54, -1, 203, 7, 1}};
@@ -479,6 +479,8 @@ CP_itemtype GopMenu[] = {
 CP_itemtype SndMenu[] =
 {
 	{AT_ENABLED, "SOUND EFFECTS", 0},
+	{AT_ENABLED, "SFX TYPE", 0},
+	{AT_ENABLED, "DIGITIZED SFX", 0},
 	{AT_ENABLED, "BACKGROUND MUSIC", 0},
 	{AT_ENABLED, "RESAMPLING", cp_resampling},
 	{AT_ENABLED, "DRIVER", 0},
@@ -2697,6 +2699,50 @@ const SoundDriverItem sound_drivers[sound_driver_count] =
 	SoundDriverItem{AudioDriverType::r3_openal, "3D (OPENAL)"},
 };
 
+void digitized_sfx_carousel(
+	int item_index,
+	bool is_left,
+	bool is_right)
+{
+	const auto old_sfx_type = sd_cfg_get_sfx_type();
+
+	auto new_sfx_type = AudioSfxType{};
+
+	switch (old_sfx_type)
+	{
+		case AudioSfxType::adlib:
+			new_sfx_type = AudioSfxType::pc_speaker;
+			break;
+
+		case AudioSfxType::pc_speaker:
+		default:
+			new_sfx_type = AudioSfxType::adlib;
+			break;
+	}
+
+	sd_cfg_set_sfx_type(new_sfx_type);
+	sd_apply_sfx_type();
+
+	DrawSoundMenu();
+	DrawAllSoundLights(static_cast<std::int16_t>(item_index));
+
+	TicDelay(20);
+}
+
+const char* get_sfx_type_string(
+	AudioSfxType sfx_type)
+{
+	switch (sfx_type)
+	{
+		case AudioSfxType::pc_speaker:
+			return "PC SPEAKER";
+
+		case AudioSfxType::adlib:
+		default:
+			return "ADLIB";
+	}
+}
+
 auto sound_driver_index = 0;
 
 void initialize_sound_driver_index()
@@ -2750,7 +2796,8 @@ void CP_Sound(
 	std::int16_t)
 {
 	initialize_sound_driver_index();
-	SndMenu[3].carousel_func_ = sound_driver_carousel;
+	SndMenu[1].carousel_func_ = digitized_sfx_carousel;
+	SndMenu[5].carousel_func_ = sound_driver_carousel;
 
 	std::int16_t which;
 
@@ -2783,7 +2830,15 @@ void CP_Sound(
 
 			break;
 
-		case 1:
+		case 2:
+			sd_wait_sound_done();
+			sd_cfg_set_is_sfx_digitized(!sd_cfg_get_is_sfx_digitized());
+			apply_digitized_sfx();
+			DrawSoundMenu();
+			ShootSnd();
+			break;
+
+		case 3:
 			sd_enable_music(!sd_is_music_enabled_);
 
 			if (sd_is_music_enabled_)
@@ -2796,7 +2851,7 @@ void CP_Sound(
 
 			break;
 
-		case 2:
+		case 4:
 			MenuFadeIn();
 			DrawSoundMenu();
 			break;
@@ -2826,7 +2881,7 @@ void DrawSoundMenu()
 	if (!sd_has_audio_)
 	{
 		SndMenu[0].active = AT_DISABLED;
-		SndMenu[1].active = AT_DISABLED;
+		SndMenu[3].active = AT_DISABLED;
 	}
 
 	fontnumber = 2;
@@ -2871,16 +2926,32 @@ void DrawAllSoundLights(
 				break;
 
 			case 1:
+				draw_carousel(
+					i,
+					&SndItems,
+					SndMenu,
+					get_sfx_type_string(sd_cfg_get_sfx_type())
+				);
+				continue;
+
+			case 2:
+				if (sd_cfg_get_is_sfx_digitized())
+				{
+					++Shape;
+				}
+				break;
+
+			case 3:
 				if (sd_is_music_enabled_)
 				{
 					++Shape;
 				}
 				break;
 
-			case 2:
+			case 4:
 				continue;
 
-			case 3:
+			case 5:
 				draw_carousel(
 					i,
 					&SndItems,
@@ -2890,7 +2961,7 @@ void DrawAllSoundLights(
 				continue;
 
 			default:
-				break;
+				continue;
 			}
 
 			VWB_DrawPic(SndItems.x - 16, SndItems.y + i * SndItems.y_spacing - 1, Shape);
