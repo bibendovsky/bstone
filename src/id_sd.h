@@ -116,7 +116,7 @@ bool sd_enable_sound(
 bool sd_enable_music(
 	const bool enable);
 
-bool sd_sound_playing();
+bool sd_is_any_unpausable_sound_playing();
 
 
 // BBi

@@ -175,7 +175,7 @@ public:
 
 	virtual bool is_music_playing() const = 0;
 
-	virtual bool is_any_sfx_playing() const = 0;
+	virtual bool is_any_unpausable_sfx_playing() const = 0;
 
 	virtual bool is_player_channel_playing(
 		const ActorChannel channel) const = 0;

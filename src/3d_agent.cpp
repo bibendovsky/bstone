@@ -4518,7 +4518,7 @@ std::uint8_t ShowRatio(
 	{
 		sd_play_player_sound(STATS2SND, bstone::ActorChannel::item);
 
-		while (sd_sound_playing() && LastScan == ScanCode::sc_none)
+		while (sd_is_any_unpausable_sound_playing() && LastScan == ScanCode::sc_none)
 		{
 			in_handle_events();
 		}
