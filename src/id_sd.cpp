@@ -73,7 +73,7 @@ static int sd_music_index_ = -1;
 static bstone::AudioMixerUPtr sd_mixer_;
 
 static bstone::AudioDecoderInterpolationType sd_interpolation_ = bstone::AudioDecoderInterpolationType::linear;
-static bool sd_lpf_ = true;
+static bool sd_lpf_ = false;
 
 int sd_sfx_volume_ = sd_default_sfx_volume;
 int sd_music_volume_ = sd_default_music_volume;
