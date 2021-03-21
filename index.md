@@ -24,18 +24,19 @@ Contents
    7.3 Naming conventions  
    7.4 Supported file formats  
    7.5 File format search order
-8. Compiling  
-   8.1. Generic instructions for Linux-based system or build environment (MinGW)
-9. Command-line options
-10. Cheat key
-11. Debug keys
-12. Third party use
-13. Credits
-14. Links  
-    14.1. Essentials  
-    14.2. General  
-    14.3. Add-ons for Aliens Of Gold (full)  
-    14.4. Add-ons for Planet Strike
+8. Taking screenshots
+9. Compiling  
+   9.1. Generic instructions for Linux-based system or build environment (MinGW)
+10. Command-line options
+11. Cheat key
+12. Debug keys
+13. Third party use
+14. Credits
+15. Links  
+    15.1. Essentials  
+    15.2. General  
+    15.3. Add-ons for Aliens Of Gold (full)  
+    15.4. Add-ons for Planet Strike
 
 
 1 - Disclaimer
@@ -102,7 +103,7 @@ See [README-PSVITA.md](README-PSVITA.md) for details about the source port on PS
 =======================
 
 - Download the latest release.
-- Extract it into the directory with game files.
+- Extract it into the directory with game files (*.BS1 / *.BS6 / *.VSI).
 - Run `bstone.exe` to play.
 
 
@@ -263,7 +264,18 @@ Examples:
 2. BMP
 
 
-8 - Compiling
+8 - Taking screenshots
+======================
+
+Default key is <kbd>F5</kbd>.  
+Use menu to modify bindings.
+
+Taken screenshots are placed in the profile directory.
+
+Supported format: [PNG](http://wikipedia.org/wiki/Portable_Network_Graphics)
+
+
+9 - Compiling
 =============
 
 Minimum requirements:
@@ -272,7 +284,7 @@ Minimum requirements:
   * [GCC 5.0](http://gcc.gnu.org)
   * [Clang 3.4](http://clang.llvm.org)
   * [MSVC (VS 2017 15.0)](http://visualstudio.microsoft.com)
-* [CMake 3.1.3](http://cmake.org/)
+* [CMake 3.4.0](http://cmake.org/)
 * [SDL v2.0.4](http://libsdl.org/)
 
 CMake variables:
@@ -294,6 +306,9 @@ CMake variables:
 * `BSTONE_USE_MULTI_PROCESS_COMPILATION`  
   Enables multi-process compilation if supported.
 
+* `BSTONE_MORE_COMPILER_WARNINGS`  
+  Enables more compilation warnings.
+
 * `SDL2W_SDL2_DIR`  
   Defines directory with SDL2 CMake configuration file or with official SDL2 development Windows build.
 
@@ -302,7 +317,7 @@ Notes:
 * Use `ON` value to enable option and value `OFF` to disable option.
 
 
-8.1 - Generic instructions for Linux-based system or build environment (MinGW)
+9.1 - Generic instructions for Linux-based system or build environment (MinGW)
 =============================================================================
 
 1. Install minimum required software described above.
@@ -312,15 +327,15 @@ Notes:
 3. Make directory `~/bstone-x.y.z/build` current.
 
 4. Generate Makefile.  
-`cmake ../src -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~/bstone-x.y.z/build/install`
+`cmake ../.. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~/bstone-x.y.z/build/install`
 
 5. Build and install:
-`make install`
+`cmake --build . --target install`
 
 6. On success you will find executable and text files in the directory `~/bstone-x.y.z/build/install`.
 
 
-9 - Command-line options
+10 - Command-line options
 ========================
 
 * `--version`  
@@ -512,6 +527,17 @@ Notes:
   Specifies OpenAL device name.  
   Default: ""
 
+* `--snd_sfx_type value`  
+  Specifies SFX type.  
+  Values: `adlib` (AdLib) or `pc_speaker` (PC Speaker)  
+  Default: `adlib`
+
+* `--snd_is_sfx_digitized value`  
+  Toggles SFX digitization.  
+  If enabled overrides AdLib / PC Speaker SFX audio chunk if such one is available in `AUDIOT.*` file.  
+  Values: `0` (disable) or `1` (enable)  
+  Default: `1`
+
 * `--calculate_hashes`  
   Calculates hashes (SHA-1) of all resource files and outputs them into the log.
 
@@ -529,11 +555,13 @@ Notes:
 
 * `--extract_music dir`  
   Extracts music resources into existing directory `dir`.  
-  Supported file format: [WAV](http://en.wikipedia.org/wiki/WAV)
+  Supported file format: [WAV](http://en.wikipedia.org/wiki/WAV)  
+  Supported file format: data (unprocessed)
 
 * `--extract_sfx dir`  
   Extracts sfx resources into existing directory `dir`.  
-  Supported file format: [WAV](http://en.wikipedia.org/wiki/WAV)
+  Supported file format: [WAV](http://en.wikipedia.org/wiki/WAV)  
+  Supported file format: data (unprocessed)
 
 * `--extract_texts dir`  
   Extracts text resources into existing directory `dir`.  
@@ -543,14 +571,14 @@ Notes:
   Extracts all resources (walls, sprites, etc.) into existing directory `dir`.
 
 
-10 - Cheat key
+11 - Cheat key
 ==============
 
 <kbd>J</kbd> <kbd>A</kbd> <kbd>M</kbd> <kbd>Enter</kbd>  
 Press specified keys sequentially. Shows message "NOW you're jammin'!!", and gives to you all keys, all weapons and restores health to 100% but zeroes score points. Not available in shareware version.
 
 
-11 - Debug keys
+12 - Debug keys
 ===============
 
 Add option `--cheats` to enable these keys.
@@ -635,7 +663,7 @@ Add option `--cheats` to enable these keys.
   Dumps information into the log about remaining bonus items and enemies.
 
 
-12 - Third party use
+13 - Third party use
 ====================
 
 * [SDL (Simple DirectMedia Library)](http://libsdl.org/)  
@@ -652,14 +680,14 @@ Add option `--cheats` to enable these keys.
   See file `src\lib\openal_soft\COPYING` for license information.  
   Note: The port uses public headers only.
 
-* [stb_image](http://nothings.org/stb)  
+* [stb_image / stb_image_write](http://github.com/nothings/stb)  
   See file `src\lib\stb\LICENSE` for license information.
 
 * [xBRZ](http://sourceforge.net/projects/xbrz/)  
   See directory `src/lib/xbrz` for license information (`License.txt`) and essential changes made for the port (`bstone_changelog.txt`).
 
 
-13 - Credits
+14 - Credits
 ============
 
 * [id Software](http://www.idsoftware.com/)  
@@ -680,18 +708,18 @@ Add option `--cheats` to enable these keys.
 * Various contributors for providing fixies, ideas, etc.
 
 
-14 - Links
+15 - Links
 ==========
 
 
-14.1 - Essentials
+15.1 - Essentials
 =================
 
 * [Home page](http://bibendovsky.github.io/bstone/)
 * [Precompiled binaries and their source code](http://github.com/bibendovsky/bstone/releases)
 
 
-14.1 - General
+15.1 - General
 ==============
 
 * [Blake Stone: Aliens Of Gold official site](http://legacy.3drealms.com/blake/index.html)
@@ -701,7 +729,7 @@ Add option `--cheats` to enable these keys.
 * [Repacked shareware Blake Stone: Aliens Of Gold (v3.0)](http://bibendovsky.github.io/bstone/files/official/repack/bs_aog_v3_0_sw.zip)
 
 
-14.2 - Add-ons for Aliens Of Gold (full)
+15.2 - Add-ons for Aliens Of Gold (full)
 ========================================
 
 * Add-on [BSE90](http://bibendovsky.github.io/bstone/files/community/aog/bse90.zip) by ack
@@ -709,7 +737,7 @@ Add option `--cheats` to enable these keys.
 * Ling's Blake Stone [Levels](http://bibendovsky.github.io/bstone/files/community/aog/lingstone.zip) by Ling Yan Li
 
 
-14.3 - Add-ons for Planet Strike
+15.3 - Add-ons for Planet Strike
 ================================
 
 * Add-on [BSE24](http://bibendovsky.github.io/bstone/files/community/ps/bse24.zip) by ack
