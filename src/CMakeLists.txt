@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 cmake_minimum_required(VERSION 3.4.0 FATAL_ERROR)
-project(bstone VERSION 1.2.11 LANGUAGES CXX)
+project(bstone VERSION 1.2.12 LANGUAGES CXX)
 
 
 #
