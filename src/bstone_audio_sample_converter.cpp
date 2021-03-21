@@ -44,11 +44,11 @@ std::int16_t AudioSampleConverter::u8_to_s16(
 	if (sample_s8 < 0)
 	{
 		// (value * 32'768) / 128;
-		return sample_s8 * 256;
+		return static_cast<std::int16_t>(sample_s8 * 256);
 	}
 	else if (sample_s8 > 0)
 	{
-		return (sample_s8 * 32'767) / 127;
+		return static_cast<std::int16_t>((sample_s8 * 32'767) / 127);
 	}
 	else
 	{

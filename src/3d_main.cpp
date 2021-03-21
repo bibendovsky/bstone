@@ -146,8 +146,6 @@ void PreloadUpdate(
 	std::uint16_t current,
 	std::uint16_t total);
 
-void OpenAudioFile();
-
 void CleanUpDoors_N_Actors();
 
 void NewGame(
@@ -264,6 +262,9 @@ bool g_no_screens = false; // overrides "g_no_intro_outro" via command line
 // Disables animated fade in/out effect.
 static const bool default_g_no_fade_in_or_out = false;
 bool g_no_fade_in_or_out = default_g_no_fade_in_or_out;
+
+static constexpr auto default_g_no_weapon_bobbing = false;
+bool g_no_weapon_bobbing = default_g_no_weapon_bobbing;
 
 constexpr int sg_area_connect_bitmap_size = ((NUMAREAS * NUMAREAS) + 7) / 8;
 using SgAreaConnectBitmap = std::array<std::uint8_t, sg_area_connect_bitmap_size>;
@@ -1412,7 +1413,7 @@ std::int16_t SPR_BFG_EXP8 = 0;
 
 void initialize_sprites()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog_sw())
 	{
@@ -4808,9 +4809,6 @@ void initialize_states()
 	s_terrot_die5.shapenum = SPR_TERROT_DEAD;
 }
 
-
-std::int16_t NUMSNDCHUNKS = 0;
-
 std::int16_t S2100A_MUS = 0;
 std::int16_t GOLDA_MUS = 0;
 std::int16_t DRKHALLA_MUS = 0;
@@ -4857,19 +4855,15 @@ std::int16_t TITLE_LOOP_MUSIC = 0;
 
 void initialize_audio_constants()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog())
 	{
-		NUMSNDCHUNKS = 319;
-
 		THEME_MUS = 16;
 		LASTMUSIC = 19;
 	}
 	else
 	{
-		NUMSNDCHUNKS = 321;
-
 		THEME_MUS = 20;
 		LASTMUSIC = 21;
 	}
@@ -4914,8 +4908,6 @@ void initialize_audio_constants()
 	MOURNING_MUS = 17;
 	SERPENT_MUS = 18;
 	HISCORE_MUS = 19;
-
-	audiosegs.resize(NUMSNDCHUNKS);
 
 	if (assets_info.is_ps())
 	{
@@ -5281,7 +5273,7 @@ std::int16_t DECOY4 = 0;
 
 void initialize_gfxv_contants()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (false)
 	{
@@ -7104,7 +7096,7 @@ void InitSmartAnim(
 	animtype_t AnimType,
 	animdir_t AnimDir)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	InitSmartSpeedAnim(
 		obj,
@@ -7131,7 +7123,7 @@ static const std::string& get_score_file_name()
 
 		auto game_type_string = std::string{};
 
-		auto assets_info = AssetsInfo{};
+		const auto& assets_info = get_assets_info();
 
 		if (assets_info.is_aog_sw())
 		{
@@ -7226,7 +7218,7 @@ void read_high_scores()
 
 static void write_high_scores()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.get_version() == AssetsVersion::none)
 	{
@@ -7296,6 +7288,7 @@ const auto gp_quit_on_escape_name = "gp_quit_on_escape";
 const auto gp_no_intro_outro_name = "gp_no_intro_outro";
 const auto am_is_rotated_name = "am_is_rotated";
 const auto gp_no_fade_in_or_out_name = "gp_no_fade_in_or_out";
+const auto gp_no_weapon_bobbing_name = "gp_no_weapon_bobbing";
 
 
 class ScanCodeHash
@@ -7495,6 +7488,11 @@ bool parse_config_line(
 		const auto index1_begin_bracket = full_name.find('[', index0_end_bracket + 1);
 		const auto index1_end_bracket = full_name.find(']', index0_end_bracket + 1);
 		const auto has_index1 = (index1_begin_bracket != full_name.npos && index1_end_bracket != full_name.npos);
+
+		if (!has_index1)
+		{
+			return false;
+		}
 
 		const auto index1_string = full_name.substr(index1_begin_bracket + 1, index1_end_bracket - index1_begin_bracket);
 
@@ -7780,6 +7778,15 @@ void read_text_config()
 							g_no_fade_in_or_out = (value != 0);
 						}
 					}
+					else if (key_string == gp_no_weapon_bobbing_name)
+					{
+						int value;
+
+						if (bstone::StringHelper::string_to_int(value_string, value))
+						{
+							g_no_weapon_bobbing = (value != 0);
+						}
+					}
 				}
 			}
 		}
@@ -7836,44 +7843,6 @@ const std::string& get_scan_code_name(
 	}
 
 	return it->second;
-}
-
-void write_x_scan_config(
-	const ScanCodes& scan_codes,
-	const std::string& name_prefix,
-	bstone::TextWriter& writer)
-{
-	auto line = std::string{};
-
-	auto counter = 0;
-
-	for (const auto scan_code : scan_codes)
-	{
-		const auto scan_code_name = get_scan_code_name(scan_code);
-
-		line = name_prefix + "[" + std::to_string(counter) + "] \"" + scan_code_name + "\"\n";
-		writer.write(line);
-
-		counter += 1;
-	}
-}
-
-void write_buttons_config(
-	const Buttons& buttons,
-	const std::string& name_prefix,
-	bstone::TextWriter& writer)
-{
-	auto line = std::string{};
-
-	auto counter = 0;
-
-	for (const auto button : buttons)
-	{
-		line = name_prefix + "[" + std::to_string(counter) + "] \"" + std::to_string(button) + "\"\n";
-		writer.write(line);
-
-		counter += 1;
-	}
 }
 
 void write_bindings_config(
@@ -7947,6 +7916,7 @@ void write_text_config()
 	write_config_entry(writer, gp_quit_on_escape_name, g_quit_on_escape);
 	write_config_entry(writer, gp_no_intro_outro_name, g_no_intro_outro);
 	write_config_entry(writer, gp_no_fade_in_or_out_name, g_no_fade_in_or_out);
+	write_config_entry(writer, gp_no_weapon_bobbing_name, g_no_weapon_bobbing);
 
 	writer.write("\n// Auto-map\n");
 	write_config_entry(writer, am_is_rotated_name, g_rotated_automap);
@@ -7977,9 +7947,9 @@ void archive_bitset(
 	bstone::Archiver& archiver)
 {
 	constexpr auto byte_count = (TBitCount + 7) / 8;
-	using Buffer = std::array<std::uint8_t, byte_count>;
+	using BitsetBuffer = std::array<std::uint8_t, byte_count>;
 
-	auto buffer = Buffer{};
+	auto buffer = BitsetBuffer{};
 
 	for (decltype(TBitCount) i = 0; i < TBitCount; ++i)
 	{
@@ -8001,9 +7971,9 @@ void unarchive_bitset(
 	bstone::Archiver& archiver)
 {
 	constexpr auto byte_count = (TBitCount + 7) / 8;
-	using Buffer = std::array<std::uint8_t, byte_count>;
+	using BitsetBuffer = std::array<std::uint8_t, byte_count>;
 
-	auto buffer = Buffer{};
+	auto buffer = BitsetBuffer{};
 	archiver.read_uint8_array(buffer.data(), static_cast<int>(buffer.size()));
 
 	for (decltype(TBitCount) i = 0; i < TBitCount; ++i)
@@ -8043,7 +8013,7 @@ void NewGame(
 	std::int16_t difficulty,
 	std::int16_t episode)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	InitPlaytemp();
 	playstate = ex_stillplaying;
@@ -8207,7 +8177,7 @@ bool LoadLevel(
 
 	auto mod = -1;
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog())
 	{
@@ -8905,7 +8875,7 @@ static const std::string& get_saved_game_version_string()
 
 		version_string = "bstone: ";
 
-		const auto& assets_info = AssetsInfo{};
+		const auto& assets_info = get_assets_info();
 
 		if (assets_info.is_aog_sw())
 		{
@@ -9114,7 +9084,7 @@ bool LoadTheGame(
 			const auto& levels_hash = bstone::Sha1{levels_hash_digest};
 			const auto& levels_hash_string = levels_hash.to_string();
 
-			const auto& assets_info = AssetsInfo{};
+			const auto& assets_info = get_assets_info();
 
 			if (assets_info.get_levels_hash_string() != levels_hash_string)
 			{
@@ -9267,7 +9237,7 @@ bool SaveTheGame(
 
 		// Levels hash.
 		//
-		const auto& assets_info = AssetsInfo{};
+		const auto& assets_info = get_assets_info();
 		const auto& levels_hash_string = assets_info.get_levels_hash_string();
 		const auto& levels_hash = bstone::Sha1{levels_hash_string};
 		const auto& levels_digest = levels_hash.get_digest();
@@ -9648,7 +9618,6 @@ bool DoMovie(
 
 	ClearMemory();
 	UnCacheLump(STARTFONT, STARTFONT + NUMFONT);
-	CA_LoadAllSounds();
 
 	const auto palette = static_cast<const std::uint8_t*>(raw_palette);
 
@@ -9733,7 +9702,7 @@ void DemoLoop()
 	bool breakit;
 	auto is_first_time = true;
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	while (true)
 	{
@@ -9768,12 +9737,10 @@ void DemoLoop()
 					//
 					if (assets_info.is_aog())
 					{
-						CA_CacheAudioChunk(STARTMUSIC + MEETINGA_MUS);
 						sd_start_music(MEETINGA_MUS);
 					}
 					else
 					{
-						CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
 						sd_start_music(TITLE_LOOP_MUSIC);
 					}
 				}
@@ -9911,12 +9878,10 @@ void DemoLoop()
 				//
 				if (!assets_info.is_aog())
 				{
-					CA_CacheAudioChunk(STARTMUSIC + MENUSONG);
 					sd_start_music(MENUSONG);
 				}
 				else
 				{
-					CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
 					sd_start_music(TITLE_LOOP_MUSIC);
 				}
 			}
@@ -10093,7 +10058,7 @@ void objtype::archive(
 	archiver->write_uint8(static_cast<std::uint8_t>(obclass));
 
 	const auto state_index = get_state_index(state);
-	archiver->write_int16(state_index);
+	archiver->write_int16(static_cast<std::int16_t>(state_index));
 
 	archiver->write_uint32(flags);
 	archiver->write_uint16(flags2);
@@ -10395,7 +10360,7 @@ fargametype::fargametype()
 
 void fargametype::initialize()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 	const auto level_count_per_episode = assets_info.get_levels_per_episode();
 
 	level.resize(level_count_per_episode);
@@ -10411,7 +10376,7 @@ void fargametype::clear()
 void fargametype::archive(
 	bstone::ArchiverPtr archiver) const
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 	const auto levels_per_episode = assets_info.get_levels_per_episode();
 
 	for (int i = 0; i < levels_per_episode; ++i)
@@ -10423,7 +10388,7 @@ void fargametype::archive(
 void fargametype::unarchive(
 	bstone::ArchiverPtr archiver)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 	const auto levels_per_episode = assets_info.get_levels_per_episode();
 
 	for (int i = 0; i < levels_per_episode; ++i)
@@ -10567,7 +10532,7 @@ void gametype::initialize()
 	wintiley = {};
 
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 	const auto switches_per_level = assets_info.get_barrier_switches_per_level();
 	const auto levels_per_episode = assets_info.get_levels_per_episode();
 	const auto switches_per_episode = switches_per_level * levels_per_episode;
@@ -10588,7 +10553,7 @@ void gametype::initialize_barriers()
 int gametype::get_barrier_group_offset(
 	const int level) const
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (level < 0 || level >= assets_info.get_levels_per_episode())
 	{
@@ -10607,7 +10572,7 @@ int gametype::get_barrier_index(
 	auto index = 0;
 	decode_barrier_index(code, level, index);
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 	const auto max_switches = assets_info.get_barrier_switches_per_level();
 
 	return (level * max_switches) + index;
@@ -10617,7 +10582,7 @@ int gametype::encode_barrier_index(
 	const int level,
 	const int index) const
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (index < 0 || index >= assets_info.get_barrier_switches_per_level())
 	{
@@ -10653,7 +10618,7 @@ void gametype::decode_barrier_index(
 		Quit("[BARR_DEC_IDX] Invalid code.");
 	}
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog())
 	{
@@ -10722,6 +10687,26 @@ const std::string& get_profile_dir()
 	}
 
 	return profile_dir;
+}
+
+const std::string& get_screenshot_dir()
+{
+	static auto is_initialized = false;
+	static auto screenshot_dir = std::string{};
+
+	if (!is_initialized)
+	{
+		is_initialized = true;
+
+		screenshot_dir = g_args.get_option_value("screenshot_dir");
+
+		if (screenshot_dir.empty())
+		{
+			screenshot_dir = get_profile_dir();
+		}
+	}
+
+	return screenshot_dir;
 }
 
 const std::string& get_default_data_dir()

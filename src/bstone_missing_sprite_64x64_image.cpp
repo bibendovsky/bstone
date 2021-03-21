@@ -2089,7 +2089,7 @@ const MissingSpriteImage& get_missing_sprite_image()
 	};
 
 	return result;
-};
+}
 
 
 } // bstone

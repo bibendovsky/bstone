@@ -27,10 +27,10 @@ Free Software Foundation, Inc.,
 
 
 #include <memory>
-#include <unordered_map>
 
 #include "3d_def.h"
 #include "bstone_file_stream.h"
+#include "bstone_span.h"
 
 
 const int MAPPLANES = 2;
@@ -71,16 +71,31 @@ struct mapfiletype
 }; // mapfiletype
 
 
-using AssetsCRefString = std::reference_wrapper<const std::string>;
+enum class AssetsResourceType
+{
+	none,
+	audiohed,
+	audiot,
+	eanim,
+	ganim,
+	ianim,
+	maphead,
+	maptemp,
+	sanim,
+	vgadict,
+	vgagraph,
+	vgahead,
+	vswap,
+}; // AssetsResourceType
 
-using AssetsCRefStrings = std::vector<AssetsCRefString>;
+struct AssetsResource
+{
+	AssetsResourceType type{};
+	const char* file_name{};
+	const char* hash_string{};
+}; // AssetsResource
 
-using AssetsBaseNameToHashMap = std::unordered_map<
-	AssetsCRefString,
-	std::string,
-	std::hash<std::string>,
-	std::equal_to<std::string>>;
-
+using AssetsResources = bstone::Span<const AssetsResource>;
 
 enum class AssetsVersion
 {
@@ -106,22 +121,13 @@ public:
 		const AssetsVersion version);
 
 
-	const std::string& get_extension() const;
+	const AssetsResources& get_resources() const noexcept;
 
-	void set_extension(
-		const std::string& extension);
+	void set_resources(
+		const AssetsResources& resources) noexcept;
 
-
-	const AssetsCRefStrings& get_base_names() const;
-
-	void set_base_names(
-		const AssetsCRefStrings& base_names);
-
-
-	const AssetsBaseNameToHashMap& get_base_name_to_hash_map() const;
-
-	void set_base_name_to_hash_map(
-		const AssetsBaseNameToHashMap& base_name_to_hash_map);
+	const AssetsResource& find_resource(
+		AssetsResourceType resource_type) const;
 
 
 	const std::string& get_levels_hash_string() const;
@@ -186,94 +192,153 @@ public:
 
 
 private:
-	static std::string empty_extension_;
-	static AssetsVersion version_;
-	static AssetsCRefString extension_;
-	static AssetsCRefStrings base_names_;
-	static AssetsBaseNameToHashMap base_name_to_hash_map_;
-	static std::string levels_hash_;
-	static std::string base_path_name_;
-	static int gfx_header_offset_count_;
-	static bool are_modded_levels_;
-	static int episode_count_;
-	static int levels_per_episode_;
-	static int stats_levels_per_episode_;
-	static int total_levels_;
-	static int min_secret_level_index_;
-	static int max_secret_level_index_;
-	static int barrier_switches_per_level_;
-	static int max_barrier_switches_per_level_bits_;
+	static const char* get_resource_type_string(
+		AssetsResourceType resource_type) noexcept;
+
+
+	AssetsVersion version_{};
+	AssetsResources resources_{};
+	std::string levels_hash_{};
+	std::string base_path_name_{};
+	int gfx_header_offset_count_{};
+	bool are_modded_levels_{};
+	int episode_count_{};
+	int levels_per_episode_{};
+	int stats_levels_per_episode_{};
+	int total_levels_{};
+	int barrier_switches_per_level_{};
+	int max_barrier_switches_per_level_bits_{};
 }; // AssetsInfo
 
 
-struct Assets
+AssetsInfo& get_assets_info();
+
+
+class Assets
 {
+public:
 	static constexpr auto max_size = 4000000;
-
-
-	static const std::string& get_audio_header_base_name();
-	static const std::string& get_audio_data_base_name();
-
-	static const std::string& get_map_header_base_name();
-	static const std::string& get_map_data_base_name();
-
-	static const std::string& get_gfx_dictionary_base_name();
-	static const std::string& get_gfx_header_base_name();
-	static const std::string& get_gfx_data_base_name();
-
-	static const std::string& get_page_file_base_name();
-
-	static const std::string& get_episode_6_fmv_base_name();
-	static const std::string& get_episode_3_5_fmv_base_name();
-	static const std::string& get_intro_fmv_base_name();
-	static const std::string& get_episode_2_4_fmv_base_name();
-
-	static const std::string& get_aog_sw_extension();
-	static const std::string& get_aog_full_extension();
-	static const std::string& get_ps_extension();
-
-
-	static const AssetsCRefStrings& get_extensions();
-
-	static const AssetsCRefStrings& get_base_names();
-
-
-	static const AssetsCRefStrings& get_aog_sw_base_names();
-
-	static const AssetsCRefStrings& get_aog_full_base_names();
-
-	static const AssetsCRefStrings& get_ps_base_names();
-
-
-	static const AssetsBaseNameToHashMap& get_aog_sw_v1_0_base_name_to_hash_map();
-
-	static const AssetsBaseNameToHashMap& get_aog_sw_v2_0_base_name_to_hash_map();
-
-	static const AssetsBaseNameToHashMap& get_aog_sw_v2_1_base_name_to_hash_map();
-
-	static const AssetsBaseNameToHashMap& get_aog_sw_v3_0_base_name_to_hash_map();
-
-
-	static const AssetsBaseNameToHashMap& get_aog_full_v1_0_base_name_to_hash_map();
-
-	static const AssetsBaseNameToHashMap& get_aog_full_v2_0_base_name_to_hash_map();
-
-	static const AssetsBaseNameToHashMap& get_aog_full_v2_1_base_name_to_hash_map();
-
-	static const AssetsBaseNameToHashMap& get_aog_full_v3_0_base_name_to_hash_map();
-
-
-	static const AssetsBaseNameToHashMap& get_ps_base_name_to_hash_map();
 
 
 	static bool are_official_levels(
 		const std::string& levels_hash);
+
+
+	static const AssetsResources& get_aog_sw_v1_0_resources();
+
+	static const AssetsResources& get_aog_sw_v2_0_resources();
+
+	static const AssetsResources& get_aog_sw_v2_1_resources();
+
+	static const AssetsResources& get_aog_sw_v3_0_resources();
+
+
+	static const AssetsResources& get_aog_full_v1_0_resources();
+
+	static const AssetsResources& get_aog_full_v2_0_resources();
+
+	static const AssetsResources& get_aog_full_v2_1_resources();
+
+	static const AssetsResources& get_aog_full_v3_0_resources();
+
+
+	static const AssetsResources& get_ps_resources();
+
+
+	static const AssetsResources& get_all_resources();
+
+
+private:
+	// -------------------------------------------------------------------------
+	// Aliens Of Gold (shareware)
+
+	static const char* get_audiohed_bs1() noexcept;
+
+	static const char* get_audiot_bs1() noexcept;
+
+	static const char* get_ianim_bs1() noexcept;
+
+	static const char* get_maphead_bs1() noexcept;
+
+	static const char* get_maptemp_bs1() noexcept;
+
+	static const char* get_sanim_bs1() noexcept;
+
+	static const char* get_vgadict_bs1() noexcept;
+
+	static const char* get_vgagraph_bs1() noexcept;
+
+	static const char* get_vgahead_bs1() noexcept;
+
+	static const char* get_vswap_bs1() noexcept;
+
+	// Aliens Of Gold (shareware)
+	// -------------------------------------------------------------------------
+
+
+	// -------------------------------------------------------------------------
+	// Aliens Of Gold (full)
+
+	static const char* get_audiohed_bs6() noexcept;
+
+	static const char* get_audiot_bs6() noexcept;
+
+	static const char* get_eanim_bs6() noexcept;
+
+	static const char* get_ganim_bs6() noexcept;
+
+	static const char* get_ianim_bs6() noexcept;
+
+	static const char* get_maphead_bs6() noexcept;
+
+	static const char* get_maptemp_bs6() noexcept;
+
+	static const char* get_sanim_bs6() noexcept;
+
+	static const char* get_vgadict_bs6() noexcept;
+
+	static const char* get_vgagraph_bs6() noexcept;
+
+	static const char* get_vgahead_bs6() noexcept;
+
+	static const char* get_vswap_bs6() noexcept;
+
+	// Aliens Of Gold (full)
+	// -------------------------------------------------------------------------
+
+	// -------------------------------------------------------------------------
+	// Planet Strike
+
+	static const char* get_audiohed_vsi() noexcept;
+
+	static const char* get_audiot_vsi() noexcept;
+
+	static const char* get_eanim_vsi() noexcept;
+
+	static const char* get_ianim_vsi() noexcept;
+
+	static const char* get_maphead_vsi() noexcept;
+
+	static const char* get_maptemp_vsi() noexcept;
+
+	static const char* get_vgadict_vsi() noexcept;
+
+	static const char* get_vgagraph_vsi() noexcept;
+
+	static const char* get_vgahead_vsi() noexcept;
+
+	static const char* get_vswap_vsi() noexcept;
+
+	// Planet Strike
+	// -------------------------------------------------------------------------
+
+
+	using AllResources = std::vector<AssetsResource>;
+
+	static AllResources make_all_resources();
 }; // Assets
 
 // ===========================================================================
-
-using AudioSegment = Buffer;
-using AudioSegments = std::vector<AudioSegment>;
 
 using GrSegment = Buffer;
 using GrSegments = std::vector<GrSegment>;
@@ -293,7 +358,6 @@ using MapSegments = std::array<MapSegment, MAPPLANES>;
 extern MapSegments mapsegs;
 
 extern MapHeaderSegments mapheaderseg;
-extern AudioSegments audiosegs;
 extern GrSegments grsegs;
 extern GrSegmentSizes grsegs_sizes_;
 
@@ -307,8 +371,6 @@ extern std::int16_t profilehandle, debughandle;
 using GrStarts = std::vector<std::int32_t>;
 extern GrStarts grstarts; // array of offsets in egagraph, -1 for sparse
 
-using AudioStarts = std::vector<std::int32_t>;
-extern AudioStarts audiostarts; // array of offsets in audio / audiot
 //
 // hooks for custom cache dialogs
 //
@@ -320,7 +382,6 @@ extern void(*finishcachebox)();
 
 extern bstone::FileStream grhandle;
 extern bstone::FileStream maphandle;
-extern bstone::FileStream audiohandle;
 
 extern std::int32_t chunkcomplen;
 extern std::int32_t chunkexplen;
@@ -343,10 +404,6 @@ void CA_RLEWexpand(
 void CA_Startup();
 void CA_Shutdown();
 
-void CA_CacheAudioChunk(
-	std::int16_t chunk);
-void CA_LoadAllSounds();
-
 void CA_UpLevel();
 void CA_DownLevel();
 
@@ -359,7 +416,6 @@ void CA_CacheMap(
 
 void CA_CacheMarks();
 
-void CAL_SetupAudioFile();
 void CAL_SetupGrFile();
 void CAL_SetupMapFile();
 
@@ -380,28 +436,26 @@ std::string ca_load_script(
 	int chunk_id,
 	bool strip_xx = false);
 
-bool ca_is_resource_exists(
-	const std::string& file_name);
-
 bool ca_open_resource_non_fatal(
 	const std::string& data_dir,
-	const std::string& file_name_without_ext,
-	const std::string& file_extension,
+	const std::string& file_name,
 	bstone::FileStream& file_stream);
 
 bool ca_open_resource_non_fatal(
-	const std::string& file_name_without_ext,
-	const std::string& file_extension,
+	const std::string& file_name,
 	bstone::FileStream& file_stream);
 
 void ca_open_resource(
-	const std::string& file_name_without_ext,
+	AssetsResourceType assets_resource_type,
 	bstone::FileStream& file_stream);
 
 std::string ca_calculate_hash(
 	const std::string& data_dir,
-	const std::string& base_name,
-	const std::string& extension);
+	const std::string& file_name);
+
+std::string ca_calculate_hash(
+	const std::string& data_dir,
+	AssetsResourceType assets_resource_type);
 
 void ca_calculate_hashes();
 

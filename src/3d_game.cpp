@@ -228,7 +228,7 @@ void ScanInfoPlane()
 	bool gottextures = false;
 	bool gotcolors = false;
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	detonators_spawned = 0;
 
@@ -2290,7 +2290,7 @@ void SetupGameLevel()
 	//
 	// load the level
 	//
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	CA_CacheMap(static_cast<std::int16_t>(
 		gamestate.mapon + assets_info.get_levels_per_episode() * gamestate.episode));
@@ -2677,12 +2677,6 @@ void SetupGameLevel()
 		}
 	}
 
-	//
-	// have the caching manager load and purge stuff to make sure all marks
-	// are in memory
-	//
-	CA_LoadAllSounds();
-
 	if (assets_info.is_aog())
 	{
 		if (!is_red_key_present &&
@@ -2850,7 +2844,7 @@ void ShadowPrintLocationText(
 
 	// Print LOCATION info...
 	//
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	switch (type)
 	{
@@ -3508,7 +3502,7 @@ restartgame:
 
 			if (playstate == ex_victorious)
 			{
-				const auto& assets_info = AssetsInfo{};
+				const auto& assets_info = get_assets_info();
 
 				if (!assets_info.is_ps())
 				{
@@ -3586,7 +3580,7 @@ static void fix_level_inplace()
 		return;
 	}
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.are_modded_levels())
 	{

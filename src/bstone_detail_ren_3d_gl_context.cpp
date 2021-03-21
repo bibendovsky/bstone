@@ -633,7 +633,7 @@ void Ren3dGlContextImpl::set_blending_defaults()
 //
 
 class Ren3dGlContextFactoryException :
-	Exception
+	public Exception
 {
 public:
 	explicit Ren3dGlContextFactoryException(

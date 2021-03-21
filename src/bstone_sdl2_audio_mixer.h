@@ -37,6 +37,7 @@ Free Software Foundation, Inc.,
 
 #include "SDL_audio.h"
 
+#include "bstone_atomic_flag.h"
 #include "bstone_audio_decoder.h"
 #include "bstone_mt_task_mgr.h"
 
@@ -95,6 +96,16 @@ public:
 		const ActorChannel actor_channel = ActorChannel::voice) override;
 
 	// Negative index of an actor defines a non-positional sound.
+	bool play_pc_speaker_sound(
+		const int sound_index,
+		const int priority,
+		const void* const data,
+		const int data_size,
+		const int actor_index = -1,
+		const ActorType actor_type = ActorType::none,
+		const ActorChannel actor_channel = ActorChannel::voice) override;
+
+	// Negative index of an actor defines a non-positional sound.
 	bool play_pcm_sound(
 		const int sound_index,
 		const int priority,
@@ -131,7 +142,7 @@ public:
 
 	bool is_music_playing() const override;
 
-	bool is_any_sfx_playing() const override;
+	bool is_any_unpausable_sfx_playing() const override;
 
 	bool is_player_channel_playing(
 		const ActorChannel channel) const override;
@@ -263,15 +274,10 @@ private:
 	using Commands = std::vector<Command>;
 
 
-	class SetResamplingMtTask :
+	class SetResamplingMtTask final :
 		public MtTask
 	{
 	public:
-		SetResamplingMtTask();
-
-		~SetResamplingMtTask() override;
-
-
 		void execute() override;
 
 
@@ -285,7 +291,7 @@ private:
 		std::exception_ptr get_exception_ptr() const noexcept override;
 
 		void set_failed(
-			const std::exception_ptr exception_ptr) override;
+			std::exception_ptr exception_ptr) override;
 
 
 		void initialize(
@@ -295,14 +301,14 @@ private:
 
 
 	private:
-		CacheItem* cache_item_;
-		AudioDecoderInterpolationType interpolation_;
-		bool is_lpf_;
+		CacheItem* cache_item_{};
+		AudioDecoderInterpolationType interpolation_{};
+		bool is_lpf_{};
 
-		bool is_completed_;
-		bool is_failed_;
+		AtomicFlag is_completed_{};
+		AtomicFlag is_failed_{};
 
-		std::exception_ptr exception_ptr_;
+		std::exception_ptr exception_ptr_{};
 	}; // SetResamplingMtTask
 
 	using SetResamplingMtTasks = std::vector<SetResamplingMtTask>;
@@ -328,6 +334,7 @@ private:
 	std::atomic_bool mt_is_music_paused_;
 	Cache adlib_music_cache_;
 	Cache adlib_sfx_cache_;
+	Cache pc_speaker_sfx_cache_;
 	Cache pcm_cache_;
 	Positions mt_positions_;
 	Positions positions_;

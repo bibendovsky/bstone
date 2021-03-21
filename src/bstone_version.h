@@ -44,7 +44,7 @@ struct Version
 }; // Version
 
 
-}; // bstone
+} // bstone
 
 
 #endif // !BSTONE_VERSION_INCLUDED

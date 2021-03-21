@@ -58,7 +58,7 @@ public:
 
 
 	explicit MtSpinFlag(
-		const int spin_count = default_spin_count);
+		int spin_count = default_spin_count);
 
 	MtSpinFlag(
 		const MtSpinFlag& that) = delete;
@@ -97,7 +97,7 @@ class MtTaskQueue
 {
 public:
 	explicit MtTaskQueue(
-		const int size);
+		int size);
 
 	MtTaskQueue(
 		const MtTaskQueue& that) = delete;
@@ -107,11 +107,11 @@ public:
 
 
 	void push(
-		const MtTaskPtr mt_task);
+		MtTaskPtr mt_task);
 
 	void push(
-		MtTaskPtr* const mt_tasks,
-		const int mt_task_count);
+		MtTaskPtr* mt_tasks,
+		int mt_task_count);
 
 	bool pop(
 		MtTaskPtr& mt_task) noexcept;
@@ -147,7 +147,7 @@ class MtTaskMgrImplException :
 {
 public:
 	explicit MtTaskMgrImplException(
-		const char* const message)
+		const char* message)
 		:
 		Exception{message}
 	{
@@ -163,27 +163,29 @@ public:
 // MtTaskMgrImpl
 //
 
-class MtTaskMgrImpl :
+class MtTaskMgrImpl final :
 	public MtTaskMgr
 {
 public:
 	MtTaskMgrImpl(
-		const int concurrency_reserve,
-		const int max_task_count);
+		int thread_reserve_count,
+		int max_task_count);
 
 	~MtTaskMgrImpl() override;
 
 
-	int get_max_concurrency() const noexcept override;
+	int get_max_threads() const noexcept override;
 
-	int get_concurrency() const noexcept override;
+	int get_thread_count() const noexcept override;
 
-	bool has_concurrency() const noexcept override;
 
+	void add_tasks(
+		MtTaskPtr* mt_tasks,
+		int mt_task_count) override;
 
 	void add_tasks_and_wait_for_added(
-		MtTaskPtr* const mt_tasks,
-		const int mt_task_count) override;
+		MtTaskPtr* mt_tasks,
+		int mt_task_count) override;
 
 
 private:
@@ -200,8 +202,8 @@ private:
 	using MtThreads = std::vector<MtThread>;
 
 
-	int concurrency_max_;
-	int concurrency_;
+	int max_threads_;
+	int thread_count_;
 	int concurrency_reserve_;
 
 	std::atomic_bool mt_is_quit_;
@@ -248,7 +250,7 @@ namespace detail
 //
 
 MtSpinFlag::MtSpinFlag(
-	const int spin_count)
+	int spin_count)
 	:
 	spin_count_{spin_count},
 	flag_{}
@@ -286,7 +288,7 @@ void MtSpinFlag::unlock() noexcept
 //
 
 MtTaskQueue::MtTaskQueue(
-	const int size)
+	int size)
 	:
 	size_{},
 	mt_read_index_{},
@@ -304,7 +306,7 @@ MtTaskQueue::MtTaskQueue(
 }
 
 void MtTaskQueue::push(
-	const MtTaskPtr mt_task)
+	MtTaskPtr mt_task)
 {
 	if (!mt_task)
 	{
@@ -329,8 +331,8 @@ void MtTaskQueue::push(
 }
 
 void MtTaskQueue::push(
-	MtTaskPtr* const mt_tasks,
-	const int mt_task_count)
+	MtTaskPtr* mt_tasks,
+	int mt_task_count)
 {
 	if (!mt_tasks)
 	{
@@ -443,11 +445,11 @@ MtTaskMgr::~MtTaskMgr() = default;
 //
 
 MtTaskMgrImpl::MtTaskMgrImpl(
-	const int concurrency_reserve,
-	const int max_task_count)
+	int concurrency_reserve,
+	int max_task_count)
 	:
-	concurrency_max_{},
-	concurrency_{},
+	max_threads_{},
+	thread_count_{},
 	concurrency_reserve_{concurrency_reserve},
 	mt_is_quit_{},
 	mt_task_queue_{max_task_count},
@@ -461,26 +463,28 @@ MtTaskMgrImpl::~MtTaskMgrImpl()
 	uninitialize();
 }
 
-int MtTaskMgrImpl::get_max_concurrency() const noexcept
+int MtTaskMgrImpl::get_max_threads() const noexcept
 {
-	return concurrency_max_;
+	return max_threads_;
 }
 
-int MtTaskMgrImpl::get_concurrency() const noexcept
+int MtTaskMgrImpl::get_thread_count() const noexcept
 {
-	return concurrency_;
+	return thread_count_;
 }
 
-bool MtTaskMgrImpl::has_concurrency() const noexcept
+void MtTaskMgrImpl::add_tasks(
+	MtTaskPtr* mt_tasks,
+	int mt_task_count)
 {
-	return concurrency_ > 1;
+	mt_task_queue_.push(mt_tasks, mt_task_count);
 }
 
 void MtTaskMgrImpl::add_tasks_and_wait_for_added(
-	MtTaskPtr* const mt_tasks,
-	const int mt_task_count)
+	MtTaskPtr* mt_tasks,
+	int mt_task_count)
 {
-	mt_task_queue_.push(mt_tasks, mt_task_count);
+	add_tasks(mt_tasks, mt_task_count);
 
 	auto is_quit = false;
 	auto is_completed = false;
@@ -522,41 +526,36 @@ void MtTaskMgrImpl::add_tasks_and_wait_for_added(
 
 void MtTaskMgrImpl::initialize_concurrency()
 {
-	concurrency_max_ = static_cast<int>(std::thread::hardware_concurrency());
+	max_threads_ = static_cast<int>(std::thread::hardware_concurrency());
 
 	if (concurrency_reserve_ < 0)
 	{
 		throw MtTaskMgrImplException{"Concurrency reserve out of range."};
 	}
 
-	concurrency_ = concurrency_max_ - concurrency_reserve_;
+	thread_count_ = max_threads_ - concurrency_reserve_;
 
-	if (concurrency_ <= 0)
+	if (thread_count_ <= 0)
 	{
-		concurrency_ = 1;
+		thread_count_ = 1;
 	}
 
-	if (concurrency_ > concurrency_max_)
+	if (thread_count_ > max_threads_)
 	{
-		concurrency_ = concurrency_max_;
+		thread_count_ = max_threads_;
 	}
 }
 
 void MtTaskMgrImpl::initialize_threads()
 {
-	if (!has_concurrency())
-	{
-		return;
-	}
-
-	mt_threads_.resize(concurrency_);
+	mt_threads_.resize(thread_count_);
 
 	for (auto& mt_thread : mt_threads_)
 	{
 		mt_thread.is_failed_ = false;
 		mt_thread.exception_ = nullptr;
 
-		mt_thread.thread_ = std::move(std::thread{&MtTaskMgrImpl::mt_thread_func, this, &mt_thread});
+		mt_thread.thread_ = std::thread{&MtTaskMgrImpl::mt_thread_func, this, &mt_thread};
 	}
 }
 
@@ -570,14 +569,11 @@ void MtTaskMgrImpl::uninitialize()
 {
 	mt_is_quit_.store(true, std::memory_order_release);
 
-	if (has_concurrency())
+	for (auto& mt_thread : mt_threads_)
 	{
-		for (auto& mt_thread : mt_threads_)
+		if (mt_thread.thread_.joinable())
 		{
-			if (mt_thread.thread_.joinable())
-			{
-				mt_thread.thread_.join();
-			}
+			mt_thread.thread_.join();
 		}
 	}
 }
@@ -637,10 +633,10 @@ void MtTaskMgrImpl::mt_thread_func(
 
 
 MtTaskMgrUPtr make_mt_task_manager(
-	const int concurrency_reserve,
-	const int max_task_count)
+	int thread_reserve_count,
+	int max_task_count)
 {
-	return std::make_unique<MtTaskMgrImpl>(concurrency_reserve, max_task_count);
+	return std::make_unique<MtTaskMgrImpl>(thread_reserve_count, max_task_count);
 }
 
 

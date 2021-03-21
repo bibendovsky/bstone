@@ -57,6 +57,25 @@ public:
 		const int octet);
 
 
+	template<
+		typename T
+	>
+	static std::string make_left_padded_with_zero(
+		T value,
+		int max_length)
+	{
+		auto string = std::to_string(value);
+		const auto pad_size = max_length - static_cast<int>(string.size());
+
+		if (pad_size > 0)
+		{
+			string.insert(0, pad_size, '0');
+		}
+
+		return string;
+	}
+
+
 	const std::string& get_empty() const;
 }; // StringHelper
 

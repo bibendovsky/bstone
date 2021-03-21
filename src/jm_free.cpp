@@ -81,7 +81,6 @@ void InitRedShifts();
 void CAL_OptimizeNodes(
 	huffnode* table);
 
-void OpenAudioFile();
 void ReadConfig();
 void read_high_scores();
 
@@ -104,93 +103,6 @@ void initialize_ca_constants();
 void sd_setup_digi();
 
 
-static std::uint8_t wolfdigimap[] = {
-	// These first sounds are in the upload version
-
-	ATKIONCANNONSND, 0,
-	ATKCHARGEDSND, 1,
-	ATKBURSTRIFLESND, 2,
-	ATKGRENADESND, 46,
-
-	OPENDOORSND, 3,
-	CLOSEDOORSND, 4,
-	HTECHDOOROPENSND, 5,
-	HTECHDOORCLOSESND, 6,
-
-	INFORMANTDEATHSND, 7,
-	SCIENTISTHALTSND, 19,
-	SCIENTISTDEATHSND, 20,
-
-	GOLDSTERNHALTSND, 8,
-	GOLDSTERNLAUGHSND, 24,
-
-	HALTSND, 9, // Rent-A-Cop 1st sighting
-	RENTDEATH1SND, 10, // Rent-A-Cop Death
-
-	EXPLODE1SND, 11,
-
-	GGUARDHALTSND, 12,
-	GGUARDDEATHSND, 17,
-
-	PROHALTSND, 16,
-	PROGUARDDEATHSND, 13,
-
-	BLUEBOYDEATHSND, 18,
-	BLUEBOYHALTSND, 51,
-
-	SWATHALTSND, 22,
-	SWATDIESND, 47,
-
-	SCANHALTSND, 15,
-	SCANDEATHSND, 23,
-
-	PODHATCHSND, 26,
-	PODHALTSND, 50,
-	PODDEATHSND, 49,
-
-	ELECTSHOTSND, 27,
-
-	DOGBOYHALTSND, 14,
-	DOGBOYDEATHSND, 21,
-	ELECARCDAMAGESND, 25,
-	ELECAPPEARSND, 28,
-	ELECDIESND, 29,
-
-	INFORMDEATH2SND, 39, // Informant Death #2
-	RENTDEATH2SND, 34, // Rent-A-Cop Death #2
-	PRODEATH2SND, 42, // PRO Death #2
-	SWATDEATH2SND, 48, // SWAT Death #2
-	SCIDEATH2SND, 53, // Gen. Sci Death #2
-
-	LIQUIDDIESND, 30,
-
-	GURNEYSND, 31,
-	GURNEYDEATHSND, 41,
-
-	WARPINSND, 32,
-	WARPOUTSND, 33,
-
-	EXPLODE2SND, 35,
-
-	LCANHALTSND, 36,
-	LCANDEATHSND, 37,
-
-	// RENTDEATH3SND, 38, // Rent-A-Cop Death #3
-	INFORMDEATH3SND, 40, // Informant Death #3
-	PRODEATH3SND, 43, // PRO Death #3
-	SWATDEATH3SND, 52, // Swat Guard #3
-	SCIDEATH3SND, 54, // Gen. Sci Death #3
-
-	LCANBREAKSND, 44,
-	SCANBREAKSND, 45,
-	CLAWATTACKSND, 56,
-	SPITATTACKSND, 55,
-	PUNCHATTACKSND, 57,
-
-	LASTSOUND,
-};
-
-
 extern const std::uint8_t colormap[16896];
 const std::uint8_t* lightsource;
 
@@ -208,12 +120,11 @@ namespace
 
 int get_vgahead_offset_count()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
+	const auto& assets_resource = assets_info.find_resource(AssetsResourceType::vgahead);
 
 	auto file_stream = bstone::FileStream{};
-	const auto& base_name = Assets::get_gfx_header_base_name();
-	const auto& file_extension = assets_info.get_extension();
-	const auto is_open = ca_open_resource_non_fatal(base_name, file_extension, file_stream);
+	const auto is_open = ca_open_resource_non_fatal(assets_resource.file_name, file_stream);
 
 	if (!is_open)
 	{
@@ -232,7 +143,7 @@ int get_vgahead_offset_count()
 
 bool check_vgahead_offset_count()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 	const auto offset_count = get_vgahead_offset_count();
 	return offset_count == assets_info.get_gfx_header_offset_count();
 }
@@ -290,18 +201,17 @@ void add_search_path(
 	search_path.path_ = path;
 }
 
-bool has_content(
+bool has_resources(
 	const SearchPath& search_path,
-	const AssetsCRefStrings& base_names,
-	const std::string& extension)
+	const AssetsResources& assets_resources)
 {
 	auto file_stream = bstone::FileStream{};
 
-	for (const auto& base_name : base_names)
+	for (const auto& assets_resource : assets_resources)
 	{
 		const auto is_resource_open = ca_open_resource_non_fatal(
-			base_name.get(),
-			extension,
+			search_path.path_,
+			assets_resource.file_name,
 			file_stream
 		);
 
@@ -316,34 +226,21 @@ bool has_content(
 
 bool has_content(
 	const SearchPath& search_path,
-	const AssetsCRefStrings& base_names,
-	const std::string& extension,
-	const AssetsBaseNameToHashMap& hash_map)
+	const AssetsResources& assets_resources)
 {
-	if (!has_content(search_path, base_names, extension))
+	if (!has_resources(search_path, assets_resources))
 	{
 		return false;
 	}
 
-	for (const auto& base_name : base_names)
+	for (const auto& assets_resource : assets_resources)
 	{
 		const auto& hash = ca_calculate_hash(
 			search_path.path_,
-			base_name,
-			extension
+			assets_resource.file_name
 		);
 
-		if (hash.empty())
-		{
-			return false;
-		}
-
-		if (hash_map.count(base_name) != 1)
-		{
-			return false;
-		}
-
-		if (hash_map.at(base_name) != hash)
+		if (hash != assets_resource.hash_string)
 		{
 			return false;
 		}
@@ -365,9 +262,7 @@ FoundContent find_aog_content(
 	{
 		const auto is_match = has_content(
 			search_path,
-			assets.get_aog_full_base_names(),
-			assets.get_aog_full_extension(),
-			assets.get_aog_full_v2_1_base_name_to_hash_map()
+			assets.get_aog_full_v2_1_resources()
 		);
 
 		if (is_match)
@@ -381,9 +276,7 @@ FoundContent find_aog_content(
 	{
 		const auto is_match = has_content(
 			search_path,
-			assets.get_aog_full_base_names(),
-			assets.get_aog_full_extension(),
-			assets.get_aog_full_v3_0_base_name_to_hash_map()
+			assets.get_aog_full_v3_0_resources()
 		);
 
 		if (is_match)
@@ -397,9 +290,7 @@ FoundContent find_aog_content(
 	{
 		const auto is_match = has_content(
 			search_path,
-			assets.get_aog_full_base_names(),
-			assets.get_aog_full_extension(),
-			assets.get_aog_full_v2_0_base_name_to_hash_map()
+			assets.get_aog_full_v2_0_resources()
 		);
 
 		if (is_match)
@@ -413,9 +304,7 @@ FoundContent find_aog_content(
 	{
 		const auto is_match = has_content(
 			search_path,
-			assets.get_aog_full_base_names(),
-			assets.get_aog_full_extension(),
-			assets.get_aog_full_v1_0_base_name_to_hash_map()
+			assets.get_aog_full_v1_0_resources()
 		);
 
 		if (is_match)
@@ -441,9 +330,7 @@ FoundContent find_aog_sw_content(
 	{
 		const auto is_match = has_content(
 			search_path,
-			assets.get_aog_sw_base_names(),
-			assets.get_aog_sw_extension(),
-			assets.get_aog_sw_v2_1_base_name_to_hash_map()
+			assets.get_aog_sw_v2_1_resources()
 		);
 
 		if (is_match)
@@ -457,9 +344,7 @@ FoundContent find_aog_sw_content(
 	{
 		const auto is_match = has_content(
 			search_path,
-			assets.get_aog_sw_base_names(),
-			assets.get_aog_sw_extension(),
-			assets.get_aog_sw_v3_0_base_name_to_hash_map()
+			assets.get_aog_sw_v3_0_resources()
 		);
 
 		if (is_match)
@@ -473,9 +358,7 @@ FoundContent find_aog_sw_content(
 	{
 		const auto is_match = has_content(
 			search_path,
-			assets.get_aog_sw_base_names(),
-			assets.get_aog_sw_extension(),
-			assets.get_aog_sw_v2_0_base_name_to_hash_map()
+			assets.get_aog_sw_v2_0_resources()
 		);
 
 		if (is_match)
@@ -489,9 +372,7 @@ FoundContent find_aog_sw_content(
 	{
 		const auto is_match = has_content(
 			search_path,
-			assets.get_aog_sw_base_names(),
-			assets.get_aog_sw_extension(),
-			assets.get_aog_sw_v1_0_base_name_to_hash_map()
+			assets.get_aog_sw_v1_0_resources()
 		);
 
 		if (is_match)
@@ -516,9 +397,7 @@ FoundContent find_ps_content(
 	{
 		const auto is_match = has_content(
 			search_path,
-			assets.get_ps_base_names(),
-			assets.get_ps_extension(),
-			assets.get_ps_base_name_to_hash_map()
+			assets.get_ps_resources()
 		);
 
 		if (is_match)
@@ -536,8 +415,6 @@ FoundContent find_assets(
 	const Game game,
 	const SearchPath& search_path)
 {
-	const auto& assets = Assets{};
-
 	switch (game)
 	{
 		case Game::aog:
@@ -600,7 +477,6 @@ const FoundContent* choose_content(
 	{
 		sdl_buttons.emplace_back();
 		auto& sdl_button = sdl_buttons.back();
-		sdl_button.flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT;
 		sdl_button.buttonid = button_id++;
 		sdl_button.text = get_content_acronym(found_content.game_);
 	}
@@ -608,6 +484,7 @@ const FoundContent* choose_content(
 	{
 		sdl_buttons.emplace_back();
 		auto& sdl_button = sdl_buttons.back();
+		sdl_button.flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT;
 		sdl_button.buttonid = -1;
 		sdl_button.text = "Cancel";
 	}
@@ -643,30 +520,27 @@ void set_assets_info(
 	const FoundContent& found_content)
 {
 	const auto& assets = Assets{};
-	auto assets_info = AssetsInfo{};
+	auto& assets_info = get_assets_info();
 
 	switch (found_content.game_)
 	{
 		case Game::aog:
-			assets_info.set_base_names(assets.get_aog_full_base_names());
-			assets_info.set_extension(assets.get_aog_full_extension());
-
 			switch (found_content.version_)
 			{
 				case AssetsVersion::aog_full_v1_0:
-					assets_info.set_base_name_to_hash_map(assets.get_aog_full_v1_0_base_name_to_hash_map());
+					assets_info.set_resources(assets.get_aog_full_v1_0_resources());
 					break;
 
 				case AssetsVersion::aog_full_v2_0:
-					assets_info.set_base_name_to_hash_map(assets.get_aog_full_v2_0_base_name_to_hash_map());
+					assets_info.set_resources(assets.get_aog_full_v2_0_resources());
 					break;
 
 				case AssetsVersion::aog_full_v2_1:
-					assets_info.set_base_name_to_hash_map(assets.get_aog_full_v2_1_base_name_to_hash_map());
+					assets_info.set_resources(assets.get_aog_full_v2_1_resources());
 					break;
 
 				case AssetsVersion::aog_full_v3_0:
-					assets_info.set_base_name_to_hash_map(assets.get_aog_full_v3_0_base_name_to_hash_map());
+					assets_info.set_resources(assets.get_aog_full_v3_0_resources());
 					break;
 
 				default:
@@ -676,25 +550,22 @@ void set_assets_info(
 			break;
 
 		case Game::aog_sw:
-			assets_info.set_base_names(assets.get_aog_sw_base_names());
-			assets_info.set_extension(assets.get_aog_sw_extension());
-
 			switch (found_content.version_)
 			{
 				case AssetsVersion::aog_sw_v1_0:
-					assets_info.set_base_name_to_hash_map(assets.get_aog_sw_v1_0_base_name_to_hash_map());
+					assets_info.set_resources(assets.get_aog_sw_v1_0_resources());
 					break;
 
 				case AssetsVersion::aog_sw_v2_0:
-					assets_info.set_base_name_to_hash_map(assets.get_aog_sw_v2_0_base_name_to_hash_map());
+					assets_info.set_resources(assets.get_aog_sw_v2_0_resources());
 					break;
 
 				case AssetsVersion::aog_sw_v2_1:
-					assets_info.set_base_name_to_hash_map(assets.get_aog_sw_v2_1_base_name_to_hash_map());
+					assets_info.set_resources(assets.get_aog_sw_v2_1_resources());
 					break;
 
 				case AssetsVersion::aog_sw_v3_0:
-					assets_info.set_base_name_to_hash_map(assets.get_aog_sw_v3_0_base_name_to_hash_map());
+					assets_info.set_resources(assets.get_aog_sw_v3_0_resources());
 					break;
 
 				default:
@@ -703,9 +574,7 @@ void set_assets_info(
 			break;
 
 		case Game::ps:
-			assets_info.set_base_names(assets.get_ps_base_names());
-			assets_info.set_extension(assets.get_ps_extension());
-			assets_info.set_base_name_to_hash_map(assets.get_ps_base_name_to_hash_map());
+			assets_info.set_resources(assets.get_ps_resources());
 			break;
 
 		default:
@@ -718,8 +587,6 @@ void set_assets_info(
 void log_found_content(
 	const FoundContent& found_content)
 {
-	const auto& assets_info = AssetsInfo{};
-
 	static const auto aog_title = std::string{"Aliens Of Gold"};
 	static const auto aog_sw_title = std::string{"Aliens Of Gold (shareware)"};
 	static const auto ps_title = std::string{"Planet Strike"};
@@ -1035,42 +902,6 @@ void SetupWalls()
 	mirrorofs.resize(k_half_height);
 }
 
-void InitDigiMap()
-{
-	char* map;
-
-	for (map = reinterpret_cast<char*>(wolfdigimap); *map != LASTSOUND; map += 2)
-	{
-		sd_digi_map_[static_cast<int>(map[0])] = map[1];
-	}
-}
-
-void CAL_SetupAudioFile()
-{
-	bstone::FileStream handle;
-
-	//
-	// load maphead.ext (offsets and tileinfo for map file)
-	//
-#ifndef AUDIOHEADERLINKED
-	ca_open_resource(Assets::get_audio_header_base_name(), handle);
-	auto length = static_cast<std::int32_t>(handle.get_size());
-	audiostarts.resize(length / 4);
-	handle.read(audiostarts.data(), length);
-	handle.close();
-#else
-	// TODO Remove or fix
-	audiohuffman = (huffnode*)&audiodict;
-	CAL_OptimizeNodes(audiohuffman);
-	audiostarts = (std::int32_t*)FP_SEG(&audiohead);
-#endif
-
-	//
-	// open the data file
-	//
-	OpenAudioFile();
-}
-
 void CAL_SetupGrFile()
 {
 	if (!check_vgahead_offset_count())
@@ -1084,7 +915,7 @@ void CAL_SetupGrFile()
 	// load ???dict.ext (huffman dictionary for graphics files)
 	//
 
-	ca_open_resource(Assets::get_gfx_dictionary_base_name(), handle);
+	ca_open_resource(AssetsResourceType::vgadict, handle);
 	handle.read(&grhuffman, sizeof(grhuffman));
 
 	//
@@ -1094,13 +925,13 @@ void CAL_SetupGrFile()
 
 	grstarts.resize((grstarts_size + 3) / 4);
 
-	ca_open_resource(Assets::get_gfx_header_base_name(), handle);
+	ca_open_resource(AssetsResourceType::vgahead, handle);
 	handle.read(grstarts.data(), grstarts_size);
 
 	//
 	// Open the graphics file, leaving it open until the game is finished
 	//
-	ca_open_resource(Assets::get_gfx_data_base_name(), grhandle);
+	ca_open_resource(AssetsResourceType::vgagraph, grhandle);
 
 	//
 	// load the pic and sprite headers into the arrays in the data segment
@@ -1122,14 +953,13 @@ void CAL_SetupGrFile()
 
 static void cal_setup_map_data_file()
 {
-	auto assets_info = AssetsInfo{};
+	auto& assets_info = get_assets_info();
 
 	auto has_mod = false;
 
 	if (!mod_dir_.empty())
 	{
-		const auto& modded_hash = ca_calculate_hash(
-			mod_dir_, Assets::get_map_data_base_name(), assets_info.get_extension());
+		const auto& modded_hash = ca_calculate_hash(mod_dir_, AssetsResourceType::maptemp);
 
 		if (!modded_hash.empty())
 		{
@@ -1148,9 +978,8 @@ static void cal_setup_map_data_file()
 
 	if (!has_mod)
 	{
-		const auto& official_hash = assets_info.get_base_name_to_hash_map().at(Assets::get_map_data_base_name());
-
-		assets_info.set_levels_hash(official_hash);
+		const auto& assets_resource = assets_info.find_resource(AssetsResourceType::maptemp);
+		assets_info.set_levels_hash(assets_resource.hash_string);
 	}
 
 	OpenMapFile();
@@ -1170,7 +999,7 @@ void CAL_SetupMapFile()
 	// load maphead.ext (offsets and tileinfo for map file)
 	//
 
-	ca_open_resource(Assets::get_map_header_base_name(), handle);
+	ca_open_resource(AssetsResourceType::maphead, handle);
 	handle.read(&header.RLEWtag, sizeof(header.RLEWtag));
 	handle.read(&header.headeroffsets, sizeof(header.headeroffsets));
 
@@ -1179,7 +1008,7 @@ void CAL_SetupMapFile()
 	//
 	// load all map header
 	//
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	const auto total_levels = assets_info.get_total_levels();
 
@@ -1232,7 +1061,7 @@ void CAL_SetupMapFile()
 
 void CheckForEpisodes()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog_full())
 	{
@@ -1256,7 +1085,7 @@ void PreDemo()
 
 	VL_SetPaletteIntensity(0, 255, vgapal, 0);
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog_full())
 	{
@@ -1302,10 +1131,6 @@ void PreDemo()
 	//
 	CA_CacheScreen(APOGEEPIC);
 
-	// Load and start music
-	//
-	CA_CacheAudioChunk(STARTMUSIC + APOGFNFM_MUS);
-
 	sd_start_music(APOGFNFM_MUS);
 
 	// Cache and set palette.  AND  Fade it in!
@@ -1344,8 +1169,6 @@ void PreDemo()
 	//
 	UNCACHEGRCHUNK(APOGEEPALETTE);
 
-	audiosegs[STARTMUSIC + APOGFNFM_MUS] = std::move(AudioSegment{});
-
 	if (assets_info.is_ps())
 	{
 		// Do A Blue Flash!
@@ -1362,7 +1185,6 @@ void PreDemo()
 
 	// Load and start music
 	//
-	CA_CacheAudioChunk(STARTMUSIC + TITLE_LOOP_MUSIC);
 	sd_start_music(TITLE_LOOP_MUSIC);
 
 	// Show JAM logo
@@ -1618,6 +1440,7 @@ void freed_main()
 	bstone::logger_->write("Data path: \"" + data_dir_ + "\"");
 	bstone::logger_->write("Mod path: \"" + mod_dir_ + "\"");
 	bstone::logger_->write("Profile path: \"" + get_profile_dir() + "\"");
+	bstone::logger_->write("Screenshot path: \"" + get_screenshot_dir() + "\"");
 
 	// BBi
 	{

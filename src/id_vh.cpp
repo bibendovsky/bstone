@@ -73,9 +73,9 @@ void VW_DrawPropString(
 
 	int string_length = static_cast<int>(strlen(string));
 
-	for (int c = 0; c < string_length; ++c)
+	for (int i_ch = 0; i_ch < string_length; ++i_ch)
 	{
-		std::uint8_t ch = string[c];
+		std::uint8_t ch = string[i_ch];
 		int width = font->width[ch];
 
 		const std::uint8_t* source =
@@ -359,18 +359,18 @@ void VW_Hlin(
 	int x,
 	int z,
 	int y,
-	std::uint8_t c)
+	std::uint8_t color)
 {
-	VL_Hlin(x, y, z - x + 1, c);
+	VL_Hlin(x, y, z - x + 1, color);
 }
 
 void VW_Vlin(
 	int y,
 	int z,
 	int x,
-	std::uint8_t c)
+	std::uint8_t color)
 {
-	VL_Vlin(x, y, z - y + 1, c);
+	VL_Vlin(x, y, z - y + 1, color);
 }
 
 void VW_WaitVBL(

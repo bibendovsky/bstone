@@ -65,6 +65,7 @@ enum class SoundType
 	none,
 	adlib_music,
 	adlib_sfx,
+	pc_speaker_sfx,
 	pcm,
 }; // SoundType
 
@@ -128,6 +129,16 @@ public:
 		const ActorChannel actor_channel = ActorChannel::voice) = 0;
 
 	// Negative index of an actor defines a non-positional sound.
+	virtual bool play_pc_speaker_sound(
+		const int sound_index,
+		const int priority,
+		const void* const data,
+		const int data_size,
+		const int actor_index = -1,
+		const ActorType actor_type = ActorType::none,
+		const ActorChannel actor_channel = ActorChannel::voice) = 0;
+
+	// Negative index of an actor defines a non-positional sound.
 	virtual bool play_pcm_sound(
 		const int sound_index,
 		const int priority,
@@ -164,7 +175,7 @@ public:
 
 	virtual bool is_music_playing() const = 0;
 
-	virtual bool is_any_sfx_playing() const = 0;
+	virtual bool is_any_unpausable_sfx_playing() const = 0;
 
 	virtual bool is_player_channel_playing(
 		const ActorChannel channel) const = 0;

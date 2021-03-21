@@ -504,6 +504,34 @@ void Ren3dGl::set_anti_aliasing(
 	}
 }
 
+void Ren3dGl::read_pixels_rgb_888(
+	void* buffer,
+	bool& is_flipped_vertically)
+{
+	is_flipped_vertically = true;
+
+	assert(buffer);
+
+	bind_framebuffers_for_read_pixels();
+
+	glReadBuffer(GL_BACK);
+	Ren3dGlError::ensure();
+  
+	glReadPixels(
+		0,
+		0,
+		screen_width_,
+		screen_height_,
+		GL_RGB,
+		GL_UNSIGNED_BYTE,
+		buffer
+	);
+
+	Ren3dGlError::ensure();
+
+	bind_framebuffers();
+}
+
 void Ren3dGl::present()
 {
 	blit_framebuffers();
@@ -833,6 +861,16 @@ void Ren3dGl::bind_framebuffers()
 	bind_framebuffer(GL_FRAMEBUFFER, msaa_fbo_.get());
 }
 
+void Ren3dGl::bind_framebuffers_for_read_pixels()
+{
+	if (!msaa_fbo_)
+	{
+		return;
+	}
+
+	bind_framebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void Ren3dGl::disable_aa()
 {
 	aa_kind_ = Ren3dAaKind::none;
@@ -929,7 +967,7 @@ void Ren3dGl::submit_set_scissor_box(
 void Ren3dGl::submit_set_texture(
 	const Ren3dSetTextureCmd& command)
 {
-	context_->set_texture_2d(static_cast<const Ren3dGlTexture2dPtr>(command.texture_2d_));
+	context_->set_texture_2d(static_cast<Ren3dGlTexture2dPtr>(command.texture_2d_));
 }
 
 void Ren3dGl::submit_set_sampler(
@@ -941,13 +979,13 @@ void Ren3dGl::submit_set_sampler(
 void Ren3dGl::submit_set_vertex_input(
 	const Ren3dSetVertexInputCmd& command)
 {
-	context_->set_vertex_input(static_cast<const Ren3dGlVertexInputPtr>(command.vertex_input_));
+	context_->set_vertex_input(static_cast<Ren3dGlVertexInputPtr>(command.vertex_input_));
 }
 
 void Ren3dGl::submit_set_shader_stage(
 	const Ren3dSetShaderStageCmd& command)
 {
-	context_->set_shader_stage(static_cast<const Ren3dGlShaderStagePtr>(command.shader_stage_));
+	context_->set_shader_stage(static_cast<Ren3dGlShaderStagePtr>(command.shader_stage_));
 }
 
 void Ren3dGl::submit_set_int32_uniform(

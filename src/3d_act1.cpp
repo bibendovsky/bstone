@@ -92,7 +92,7 @@ StatInfos statinfo;
 
 void initialize_static_info_constants()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	statinfo =
 	{
@@ -309,7 +309,7 @@ statobj_t* SpawnStatic(
 	std::int16_t tiley,
 	std::int16_t type)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	statobj_t* spot;
 
@@ -513,8 +513,16 @@ statobj_t* UseReservedStatic(
 	// place it
 	//
 
-	switch (type)
+	const auto& assets_info = get_assets_info();
+
+	switch (itemtype)
 	{
+	case bo_plasma_detonator:
+		if (!assets_info.is_ps())
+		{
+			break;
+		}
+
 	case bo_green_key:
 	case bo_gold_key:
 	case bo_red_key:
@@ -663,7 +671,7 @@ void ExplodeStatics(
 	std::int16_t tilex,
 	std::int16_t tiley)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (!assets_info.is_ps())
 	{
@@ -980,7 +988,7 @@ objtype* get_actor_near_door(
 	int tile_x,
 	int tile_y)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog())
 	{
@@ -1815,8 +1823,8 @@ void MovePWalls()
 			pwallstate = 0.0;
 			pwallpos = 0.0;
 
-			pwallx += next_dx;
-			pwally += next_dy;
+			pwallx += static_cast<std::uint16_t>(next_dx);
+			pwally += static_cast<std::uint16_t>(next_dy);
 
 			vid_hw_on_step_pushwall(old_x, old_y);
 
@@ -1894,7 +1902,7 @@ void InitMsgCache(
 	std::uninitialized_fill_n(
 		reinterpret_cast<std::uint8_t*>(mList),
 		listSize,
-		0
+		std::uint8_t{}
 	);
 }
 
@@ -2104,7 +2112,7 @@ const char* const OutOrder = "\r\r   FOOD UNIT MACHINE\r    IS OUT OF ORDER.^XX"
 void OperateConcession(
 	std::uint16_t concession)
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	con_mCacheInfo* ci;
 	bool ok = false;

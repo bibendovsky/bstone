@@ -130,7 +130,8 @@ void Sprite::initialize(
 
 		while (end != 0)
 		{
-			const auto pixels_offset = static_cast<int>(bstone::Endian::little(commands[i_command++]));
+			i_command += 1; // pixels offset
+
 			const auto start = bstone::Endian::little(commands[i_command++]) / 2;
 
 			if (top < 0 || start < top)

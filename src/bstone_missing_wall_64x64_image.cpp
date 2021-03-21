@@ -2089,7 +2089,7 @@ const MissingWallImage& get_missing_wall_image()
 	};
 
 	return result;
-};
+}
 
 
 } // bstone

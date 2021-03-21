@@ -730,6 +730,8 @@ static char in_keyboard_map_to_char(
 	return '\0';
 }
 
+static auto in_is_take_screenshot_key_pressed = false;
+
 static void in_handle_keyboard(
 	const SDL_KeyboardEvent& e)
 {
@@ -750,6 +752,13 @@ static void in_handle_keyboard(
 		if (grab_mouse_binding[0] == key || grab_mouse_binding[1] == key)
 		{
 			in_grab_mouse(!in_is_mouse_grabbed);
+		}
+
+		const auto& take_screenshot_binding = in_bindings[e_bi_take_screenshot];
+
+		if (take_screenshot_binding[0] == key || take_screenshot_binding[1] == key)
+		{
+			vid_schedule_take_screenshot();
 		}
 	}
 
@@ -1081,6 +1090,8 @@ static void in_handle_window(
 
 void in_handle_events()
 {
+	in_is_take_screenshot_key_pressed = false;
+
 	SDL_Event e;
 
 	SDL_PumpEvents();
@@ -1121,6 +1132,11 @@ void in_handle_events()
 		case SDL_QUIT:
 			Quit();
 		}
+	}
+
+	if (in_is_take_screenshot_key_pressed)
+	{
+		vid_schedule_take_screenshot();
 	}
 }
 // BBi
@@ -1496,6 +1512,8 @@ void in_set_default_bindings()
 	in_bindings[e_bi_pause][1] = ScanCode::sc_pause;
 
 	in_bindings[e_bi_grab_mouse][0] = ScanCode::sc_u;
+
+	in_bindings[e_bi_take_screenshot][0] = ScanCode::sc_f5;
 }
 
 bool in_is_binding_pressed(

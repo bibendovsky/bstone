@@ -415,7 +415,6 @@ int PcmDecoder::decode_upsampled(
 	const int dst_count,
 	TDst* const dst_data)
 {
-	const auto u8_to_xx = detail::PcmDecoderSampleConverter<std::uint8_t, TDst>{};
 	const auto u8_to_f64 = detail::PcmDecoderSampleConverter<std::uint8_t, double>{};
 	const auto f64_to_xx = detail::PcmDecoderSampleConverter<double, TDst>{};
 

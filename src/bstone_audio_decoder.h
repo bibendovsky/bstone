@@ -47,10 +47,10 @@ constexpr auto audio_decoder_pcm_fixed_frequency = 7'000;
 
 enum class AudioDecoderType
 {
-	none,
-	adlib_music,
-	adlib_sfx,
-	pcm,
+	adlib_music = 1,
+	adlib_sfx = 2,
+	pcm = 3,
+	pc_speaker = 4,
 }; // AudioDecoderType
 
 enum class AudioDecoderInterpolationType

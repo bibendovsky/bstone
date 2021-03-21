@@ -50,10 +50,9 @@ std::uint32_t* chunks_offsets = nullptr;
 } // namespace
 
 
-static void open_page_file(
-	const std::string& file_name)
+void open_page_file()
 {
-	ca_open_resource(file_name, PageFile);
+	ca_open_resource(AssetsResourceType::vswap, PageFile);
 
 	const auto file_length = PageFile.get_size();
 
@@ -88,7 +87,7 @@ static void open_page_file(
 void PM_Startup()
 {
 	PM_Shutdown();
-	open_page_file(Assets::get_page_file_base_name());
+	open_page_file();
 }
 
 void PM_Shutdown()

@@ -130,6 +130,7 @@ enum sw2_labels
 {
 	SW2_NO_INTRO_OUTRO,
 	SW2_NO_FADE_IN_OR_OUT,
+	SW2_NO_WEAPON_BOBBING,
 }; // sw2_labels
 
 enum MenuVideoLables
@@ -424,7 +425,7 @@ extern bool refresh_screen;
 
 CP_iteminfo MainItems = {MENU_X, MENU_Y, 12, MM_NEW_MISSION, 0, 9, {77, 1, 154, 9, 1}};
 CP_iteminfo GopItems = {MENU_X, MENU_Y + 25, 6, 0, 0, 9, {77, 1, 154, 9, 1}};
-CP_iteminfo SndItems = {SM_X, SM_Y, 4, 0, 0, 8, {87, -1, 144, 7, 1}};
+CP_iteminfo SndItems = {SM_X, SM_Y, 6, 0, 0, 8, {87, -1, 144, 7, 1}};
 CP_iteminfo LSItems = {LSM_X, LSM_Y, 10, 0, 0, 8, {86, -1, 144, 8, 1}};
 CP_iteminfo CtlItems = {CTL_X, CTL_Y, 3, -1, 0, 9, {87, 1, 174, 9, 1}};
 CP_iteminfo CusItems = {CST_X, CST_Y + 7, 6, -1, 0, 15, {54, -1, 203, 7, 1}};
@@ -436,7 +437,7 @@ CP_iteminfo SwitchItems = {MENU_X, 0, 0, 0, 0, 9, {87, -1, 132, 7, 1}};
 CP_iteminfo video_items = {MENU_X, MENU_Y + 30, 5, 0, 0, 9, {77, -1, 154, 7, 1}};
 CP_iteminfo video_mode_items = {MENU_X, MENU_Y + 10, 8, 0, 0, 9, {77, -1, 154, 7, 1}};
 CP_iteminfo texturing_items = {MENU_X, MENU_Y + 10, 7, 0, 0, 9, {77, -1, 154, 7, 1}};
-CP_iteminfo switches2_items = {MENU_X, MENU_Y + 30, 2, 0, 0, 9, {87, -1, 132, 7, 1}};
+CP_iteminfo switches2_items = {MENU_X, MENU_Y + 30, 3, 0, 0, 9, {87, -1, 132, 7, 1}};
 CP_iteminfo resampling_items = {MENU_X, MENU_Y + 30, 3, 0, 0, 9, {77, -1, 154, 7, 1}};
 // BBi
 
@@ -446,14 +447,14 @@ CP_itemtype MainMenu[] = {
 	{AT_READIT, "ORDERING INFO", CP_OrderingInfo},
 	{AT_READIT, "INSTRUCTIONS", CP_ReadThis},
 	{AT_ENABLED, "STORY", CP_BlakeStoneSaga},
-	{AT_DISABLED, "", 0},
+	{AT_DISABLED, "", nullptr},
 	{AT_ENABLED, "GAME OPTIONS", CP_GameOptions},
 	{AT_ENABLED, "HIGH SCORES", CP_ViewScores},
 	{AT_ENABLED, "LOAD MISSION", reinterpret_cast<void(*)(std::int16_t)>(CP_LoadGame)},
 	{AT_DISABLED, "SAVE MISSION", reinterpret_cast<void(*)(std::int16_t)>(CP_SaveGame)},
-	{AT_DISABLED, "", 0},
+	{AT_DISABLED, "", nullptr},
 	{AT_ENABLED, "BACK TO DEMO", CP_ExitOptions},
-	{AT_ENABLED, "LOGOFF", 0}
+	{AT_ENABLED, "LOGOFF", nullptr}
 };
 
 CP_itemtype GopMenu[] = {
@@ -478,6 +479,8 @@ CP_itemtype GopMenu[] = {
 CP_itemtype SndMenu[] =
 {
 	{AT_ENABLED, "SOUND EFFECTS", 0},
+	{AT_ENABLED, "SFX TYPE", 0},
+	{AT_ENABLED, "DIGITIZED SFX", 0},
 	{AT_ENABLED, "BACKGROUND MUSIC", 0},
 	{AT_ENABLED, "RESAMPLING", cp_resampling},
 	{AT_ENABLED, "DRIVER", 0},
@@ -507,6 +510,7 @@ CP_itemtype switch2_menu[] =
 {
 	{AT_ENABLED, "SKIP INTRO/OUTRO", 0},
 	{AT_ENABLED, "SKIP FADE IN/OUT EFFECT", 0},
+	{AT_ENABLED, "NO WEAPON BOBBING", 0},
 };
 
 CP_itemtype resampling_menu[] =
@@ -667,7 +671,7 @@ static const std::string& get_saved_game_base_name()
 	{
 		is_initialized = true;
 
-		const auto& assets_info = AssetsInfo{};
+		const auto& assets_info = get_assets_info();
 
 		base_name = "bstone_";
 
@@ -901,6 +905,7 @@ static BindsItems binds = {
 	{"MISC", 0, nullptr, },
 	{"PAUSE", 0, &in_bindings[e_bi_pause], },
 	{"(UN)GRAB MOUSE", 0, &in_bindings[e_bi_grab_mouse], },
+	{"TAKE SCREENSHOT", 0, &in_bindings[e_bi_take_screenshot], },
 }; // binds
 
 
@@ -1761,7 +1766,7 @@ void US_ControlPanel(
 	};
 
 	// BBi
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	menu_background_color = (
 		(assets_info.is_aog_sw_v3_0() | assets_info.is_aog_full_v3_0()) ?
@@ -2169,7 +2174,7 @@ void CP_NewGame(
 	DrawMenuTitle("Difficulty Level");
 	DrawInstructions(IT_STANDARD);
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 firstpart:
 
@@ -2658,7 +2663,7 @@ void DrawSwitchDescription(
 		"TOGGLES <TAB>/<SHIFT+TAB> FUNCTIONS",
 	};
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	fontnumber = 2;
 
@@ -2693,6 +2698,50 @@ const SoundDriverItem sound_drivers[sound_driver_count] =
 	SoundDriverItem{AudioDriverType::r2_sdl, "2D (SDL)"},
 	SoundDriverItem{AudioDriverType::r3_openal, "3D (OPENAL)"},
 };
+
+void digitized_sfx_carousel(
+	int item_index,
+	bool is_left,
+	bool is_right)
+{
+	const auto old_sfx_type = sd_cfg_get_sfx_type();
+
+	auto new_sfx_type = AudioSfxType{};
+
+	switch (old_sfx_type)
+	{
+		case AudioSfxType::adlib:
+			new_sfx_type = AudioSfxType::pc_speaker;
+			break;
+
+		case AudioSfxType::pc_speaker:
+		default:
+			new_sfx_type = AudioSfxType::adlib;
+			break;
+	}
+
+	sd_cfg_set_sfx_type(new_sfx_type);
+	sd_apply_sfx_type();
+
+	DrawSoundMenu();
+	DrawAllSoundLights(static_cast<std::int16_t>(item_index));
+
+	TicDelay(20);
+}
+
+const char* get_sfx_type_string(
+	AudioSfxType sfx_type)
+{
+	switch (sfx_type)
+	{
+		case AudioSfxType::pc_speaker:
+			return "PC SPEAKER";
+
+		case AudioSfxType::adlib:
+		default:
+			return "ADLIB";
+	}
+}
 
 auto sound_driver_index = 0;
 
@@ -2738,7 +2787,7 @@ void sound_driver_carousel(
 	sd_startup();
 
 	DrawSoundMenu();
-	DrawAllSoundLights(item_index);
+	DrawAllSoundLights(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -2747,7 +2796,8 @@ void CP_Sound(
 	std::int16_t)
 {
 	initialize_sound_driver_index();
-	SndMenu[3].carousel_func_ = sound_driver_carousel;
+	SndMenu[1].carousel_func_ = digitized_sfx_carousel;
+	SndMenu[5].carousel_func_ = sound_driver_carousel;
 
 	std::int16_t which;
 
@@ -2771,11 +2821,6 @@ void CP_Sound(
 			sd_wait_sound_done();
 			sd_enable_sound(!sd_is_sound_enabled_);
 
-			if (sd_is_sound_enabled_)
-			{
-				CA_LoadAllSounds();
-			}
-
 			DrawSoundMenu();
 
 			if (sd_is_sound_enabled_)
@@ -2785,7 +2830,15 @@ void CP_Sound(
 
 			break;
 
-		case 1:
+		case 2:
+			sd_wait_sound_done();
+			sd_cfg_set_is_sfx_digitized(!sd_cfg_get_is_sfx_digitized());
+			apply_digitized_sfx();
+			DrawSoundMenu();
+			ShootSnd();
+			break;
+
+		case 3:
 			sd_enable_music(!sd_is_music_enabled_);
 
 			if (sd_is_music_enabled_)
@@ -2798,7 +2851,7 @@ void CP_Sound(
 
 			break;
 
-		case 2:
+		case 4:
 			MenuFadeIn();
 			DrawSoundMenu();
 			break;
@@ -2828,7 +2881,7 @@ void DrawSoundMenu()
 	if (!sd_has_audio_)
 	{
 		SndMenu[0].active = AT_DISABLED;
-		SndMenu[1].active = AT_DISABLED;
+		SndMenu[3].active = AT_DISABLED;
 	}
 
 	fontnumber = 2;
@@ -2873,16 +2926,32 @@ void DrawAllSoundLights(
 				break;
 
 			case 1:
+				draw_carousel(
+					i,
+					&SndItems,
+					SndMenu,
+					get_sfx_type_string(sd_cfg_get_sfx_type())
+				);
+				continue;
+
+			case 2:
+				if (sd_cfg_get_is_sfx_digitized())
+				{
+					++Shape;
+				}
+				break;
+
+			case 3:
 				if (sd_is_music_enabled_)
 				{
 					++Shape;
 				}
 				break;
 
-			case 2:
+			case 4:
 				continue;
 
-			case 3:
+			case 5:
 				draw_carousel(
 					i,
 					&SndItems,
@@ -2892,7 +2961,7 @@ void DrawAllSoundLights(
 				continue;
 
 			default:
-				break;
+				continue;
 			}
 
 			VWB_DrawPic(SndItems.x - 16, SndItems.y + i * SndItems.y_spacing - 1, Shape);
@@ -3542,7 +3611,7 @@ void DrawOutline(
 
 void SetupControlPanel()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	// BBi
 	SwitchItems.amount = (assets_info.is_ps() ? 7 : 9);
@@ -3555,11 +3624,7 @@ void SetupControlPanel()
 
 	WindowH = 200;
 
-	if (!ingame)
-	{
-		CA_LoadAllSounds();
-	}
-	else
+	if (ingame)
 	{
 		MainMenu[MM_SAVE_MISSION].active = AT_ENABLED;
 	}
@@ -3874,11 +3939,11 @@ std::int16_t HandleMenu(
 			//
 			case dir_West:
 			{
-				auto routine = items[which].carousel_func_;
+				auto carousel_func = items[which].carousel_func_;
 
-				if (routine)
+				if (carousel_func)
 				{
-					routine(which, true, false);
+					carousel_func(which, true, false);
 				}
 
 				break;
@@ -3888,11 +3953,11 @@ std::int16_t HandleMenu(
 			//
 			case dir_East:
 			{
-				auto routine = items[which].carousel_func_;
+				auto carousel_func = items[which].carousel_func_;
 
-				if (routine)
+				if (carousel_func)
 				{
-					routine(which, false, true);
+					carousel_func(which, false, true);
 				}
 
 				break;
@@ -3954,7 +4019,7 @@ std::int16_t HandleMenu(
 			//
 			// ALREADY IN A GAME?
 			//
-			const auto& assets_info = AssetsInfo{};
+			const auto& assets_info = get_assets_info();
 
 			if (assets_info.is_ps() && ingame && ((items + which)->routine == CP_NewGame))
 			{
@@ -4118,8 +4183,6 @@ void WaitKeyUp()
 void ReadAnyControl(
 	ControlInfo* ci)
 {
-	bool mouseactive = false;
-
 	IN_ReadControl(0, ci);
 
 	//
@@ -4156,23 +4219,19 @@ void ReadAnyControl(
 		if (mousey < -DELTA_THRESHOLD)
 		{
 			ci->dir = dir_North;
-			mouseactive = true;
 		}
 		else if (mousey > DELTA_THRESHOLD)
 		{
 			ci->dir = dir_South;
-			mouseactive = true;
 		}
 
 		if (mousex < -DELTA_THRESHOLD)
 		{
 			ci->dir = dir_West;
-			mouseactive = true;
 		}
 		else if (mousex > DELTA_THRESHOLD)
 		{
 			ci->dir = dir_East;
-			mouseactive = true;
 		}
 
 		int buttons = IN_MouseButtons();
@@ -4183,7 +4242,6 @@ void ReadAnyControl(
 			ci->button1 = buttons & 2;
 			ci->button2 = buttons & 4;
 			ci->button3 = false;
-			mouseactive = true;
 		}
 	}
 }
@@ -4361,7 +4419,6 @@ void StartCPMusic(
 
 	sd_music_off();
 	chunk = song;
-	CA_CacheAudioChunk(static_cast<std::int16_t>(STARTMUSIC + chunk));
 	sd_start_music(chunk);
 }
 
@@ -4464,7 +4521,6 @@ void ShowPromo()
 
 	// Load and start music
 	//
-	CA_CacheAudioChunk(STARTMUSIC + PROMO_MUSIC);
 	sd_start_music(PROMO_MUSIC);
 
 	// Show promo screen 1
@@ -4494,7 +4550,7 @@ void ExitGame()
 {
 	VW_FadeOut();
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog_sw_v3_0() && !g_no_intro_outro && !g_no_screens)
 	{
@@ -4844,8 +4900,8 @@ void draw_carousel(
 
 	const auto carousel_text_x = left_arrow_x + arrow_width + 2;
 
-	WindowX = carousel_text_x;
-	WindowY = item_i->y + (item_index * max_height);
+	WindowX = static_cast<std::int16_t>(carousel_text_x);
+	WindowY = static_cast<std::int16_t>(item_i->y + (item_index * max_height));
 
 	PrintX = WindowX;
 	PrintY = WindowY;
@@ -5115,8 +5171,6 @@ void video_mode_draw_switch(
 {
 	std::uint16_t Shape;
 
-	auto& configuration = vid_cfg_get();
-
 	const auto renderer_kind = menu_video_mode_renderer_kinds_[menu_video_mode_renderer_index_];
 	const auto& renderer_kind_string = menu_video_mode_renderer_kind_get_string(renderer_kind);
 
@@ -5236,7 +5290,7 @@ void video_menu_mode_renderer_carousel(
 	menu_video_mode_update_apply_button();
 
 	video_mode_update_menu();
-	video_mode_draw_switch(item_index);
+	video_mode_draw_switch(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -5265,7 +5319,7 @@ void video_menu_mode_window_size_carousel(
 	menu_video_mode_update_apply_button();
 
 	video_mode_update_menu();
-	video_mode_draw_switch(item_index);
+	video_mode_draw_switch(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -5305,7 +5359,7 @@ void video_menu_mode_window_aa_kind_carousel(
 	menu_video_mode_update_apply_button();
 
 	video_mode_update_menu();
-	video_mode_draw_switch(item_index);
+	video_mode_draw_switch(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -5340,7 +5394,7 @@ void video_menu_mode_window_aa_factor_carousel(
 	menu_video_mode_update_apply_button();
 
 	video_mode_update_menu();
-	video_mode_draw_switch(item_index);
+	video_mode_draw_switch(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -5354,8 +5408,6 @@ void video_menu_mode_routine(
 	video_mode_draw_menu();
 	MenuFadeIn();
 	WaitKeyUp();
-
-	auto& configuration = vid_cfg_get();
 
 	video_mode_menu[0].carousel_func_ = video_menu_mode_renderer_carousel;
 	video_mode_menu[1].carousel_func_ = video_menu_mode_window_size_carousel;
@@ -5653,7 +5705,7 @@ void texturing_draw_switch(
 				}
 
 				default:
-					continue;
+					break;
 			}
 
 			VWB_DrawPic(
@@ -5699,7 +5751,7 @@ void texturing_anisotropy_carousel(
 	vid_apply_anisotropy();
 
 	texturing_update_menu();
-	texturing_draw_switch(item_index);
+	texturing_draw_switch(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -5732,7 +5784,7 @@ void texturing_2d_image_filter_carousel(
 	vid_apply_2d_image_filter();
 
 	texturing_update_menu();
-	texturing_draw_switch(item_index);
+	texturing_draw_switch(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -5747,7 +5799,7 @@ void texturing_3d_image_filter_carousel(
 	vid_apply_3d_image_filter();
 
 	texturing_update_menu();
-	texturing_draw_switch(item_index);
+	texturing_draw_switch(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -5762,7 +5814,7 @@ void texturing_3d_mipmap_filter_carousel(
 	vid_apply_mipmap_filter();
 
 	texturing_update_menu();
-	texturing_draw_switch(item_index);
+	texturing_draw_switch(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -5786,7 +5838,7 @@ void texturing_upscale_filter_carousel(
 	vid_apply_upscale();
 
 	texturing_update_menu();
-	texturing_draw_switch(item_index);
+	texturing_draw_switch(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -5824,7 +5876,7 @@ void texturing_upscale_degree_carousel(
 	vid_apply_upscale();
 
 	texturing_update_menu();
-	texturing_draw_switch(item_index);
+	texturing_draw_switch(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -5841,7 +5893,7 @@ void texturing_external_textures_carousel(
 	vid_apply_external_textures();
 
 	texturing_update_menu();
-	texturing_draw_switch(item_index);
+	texturing_draw_switch(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -5870,8 +5922,6 @@ void texturing_routine(
 		texturing_upscale_degree_carousel;
 	texturing_menu[static_cast<int>(TexturingMenuIndices::external_textures)].carousel_func_ =
 		texturing_external_textures_carousel;
-
-	auto& configuration = vid_cfg_get();
 
 	do
 	{
@@ -5949,9 +5999,10 @@ void draw_switch2_description(
 	{
 		"TOGGLES INTRO/OUTRO",
 		"TOGGLES FADE IN/OUT EFFECT",
+		"TOGGLES WEAPON BOBBING",
 	};
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	fontnumber = 2;
 
@@ -6011,6 +6062,13 @@ void draw_all_switch2_lights(
 					shape += 1;
 				}
 				break;
+
+			case SW2_NO_WEAPON_BOBBING:
+				if (g_no_weapon_bobbing)
+				{
+					shape += 1;
+				}
+				break;
 			}
 
 			VWB_DrawPic(switches2_items.x - 16, switches2_items.y + (i * switches2_items.y_spacing) - 1, shape);
@@ -6063,6 +6121,12 @@ void cp_switches2(
 			ShootSnd();
 			draw_switch2_menu();
 			break;
+
+		case SW2_NO_WEAPON_BOBBING:
+			g_no_weapon_bobbing = !g_no_weapon_bobbing;
+			ShootSnd();
+			draw_switch2_menu();
+			break;
 		}
 	} while (which >= 0);
 
@@ -6097,7 +6161,7 @@ void draw_resampling_description(
 		"APPLIES CHANGES"
 	};
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	fontnumber = 2;
 
@@ -6246,7 +6310,7 @@ void resampling_interpolation_carousel(
 	update_resampling_apply_state();
 
 	update_resampling_menu();
-	draw_resampling_switch(item_index);
+	draw_resampling_switch(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -6262,7 +6326,7 @@ void resampling_lpf_carousel(
 	update_resampling_apply_state();
 
 	update_resampling_menu();
-	draw_resampling_switch(item_index);
+	draw_resampling_switch(static_cast<std::int16_t>(item_index));
 
 	TicDelay(20);
 }
@@ -6330,7 +6394,7 @@ void draw_filler_color_menu()
 
 		for (auto w = 0; w < 16; ++w)
 		{
-			VL_Bar(x, y, filler_cell_width, filler_cell_height, color_index++);
+			VL_Bar(x, y, filler_cell_width, filler_cell_height, static_cast<std::uint8_t>(color_index++));
 
 			x += filler_cell_width;
 		}
@@ -6407,7 +6471,7 @@ void draw_filler_color_cell(
 	const auto x = filler_cells_x + (cell_x * filler_cell_width);
 	const auto y = filler_cells_y + (cell_y * filler_cell_height);
 
-	VL_Bar(x, y, filler_cell_width, filler_cell_height, color_index);
+	VL_Bar(x, y, filler_cell_width, filler_cell_height, static_cast<std::uint8_t>(color_index));
 
 	if (is_highlighted)
 	{
@@ -6526,7 +6590,7 @@ void filler_color_routine(
 
 void MenuFadeOut()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog())
 	{

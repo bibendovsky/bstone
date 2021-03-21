@@ -30,94 +30,17 @@ Free Software Foundation, Inc.,
 #include <memory>
 
 
-void* cpp_malloc(
-	std::size_t size) noexcept;
-
-void cpp_free(
-	void* ptr) noexcept;
-
-void* cpp_realloc(
-	void* ptr,
-	std::size_t new_size) noexcept;
-
+#include "bstone_stb_image_utils.h"
 
 #define STB_IMAGE_IMPLEMENTATION
-#define STBI_MALLOC cpp_malloc
-#define STBI_FREE cpp_free
-#define STBI_REALLOC cpp_realloc
+#define STBI_MALLOC bstone::cpp_malloc
+#define STBI_FREE bstone::cpp_free
+#define STBI_REALLOC bstone::cpp_realloc
 #define STBI_NO_STDIO
 #define STBI_ONLY_PNG
 #include "stb_image.h"
 
 #include "bstone_exception.h"
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-void* cpp_malloc(
-	std::size_t size) noexcept
-{
-	auto block = new (std::nothrow) char[sizeof(std::size_t) + size];
-
-	if (block == nullptr)
-	{
-		return nullptr;
-	}
-
-	auto header = reinterpret_cast<std::size_t*>(block);
-	*header = size;
-
-	return header + 1;
-}
-
-void cpp_free(
-	void* ptr) noexcept
-{
-	if (ptr == nullptr)
-	{
-		return;
-	}
-
-	delete[] reinterpret_cast<char*>(static_cast<std::size_t*>(ptr) - 1);
-}
-
-void* cpp_realloc(
-	void* ptr,
-	std::size_t new_size) noexcept
-{
-	if (ptr == nullptr)
-	{
-		return cpp_malloc(new_size);
-	}
-
-	const auto old_size = (reinterpret_cast<std::size_t*>(ptr))[-1];
-
-	if (old_size >= new_size)
-	{
-		return ptr;
-	}
-
-	auto new_data = cpp_malloc(new_size);
-
-	if (new_data == nullptr)
-	{
-		return nullptr;
-	}
-
-	const auto old_data = static_cast<const char*>(ptr);
-
-	std::uninitialized_copy_n(
-		old_data,
-		std::min(old_size, new_size),
-		static_cast<char*>(new_data)
-	);
-
-	cpp_free(ptr);
-
-	return new_data;
-}
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 namespace bstone
@@ -179,7 +102,7 @@ void StbImageDecoder::decode(
 
 	const auto dst_area = dst_width * dst_height;
 
-	if (dst_buffer.size() < dst_area)
+	if (dst_buffer.size() < static_cast<std::size_t>(dst_area))
 	{
 		dst_buffer.resize(dst_area);
 	}

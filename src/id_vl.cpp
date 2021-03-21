@@ -26,6 +26,7 @@ Free Software Foundation, Inc.,
 
 #include <algorithm>
 #include <chrono>
+#include <unordered_map>
 #include <unordered_set>
 
 #include "glm/gtc/matrix_transform.hpp"
@@ -36,6 +37,9 @@ Free Software Foundation, Inc.,
 #include "id_vh.h"
 #include "id_vl.h"
 
+#include "bstone_atomic_flag.h"
+#include "bstone_file_stream.h"
+#include "bstone_file_system.h"
 #include "bstone_hw_texture_mgr.h"
 #include "bstone_logger.h"
 #include "bstone_math.h"
@@ -46,9 +50,11 @@ Free Software Foundation, Inc.,
 #include "bstone_ren_3d_mgr.h"
 #include "bstone_hw_shader_registry.h"
 #include "bstone_sdl2_types.h"
+#include "bstone_image_encoder.h"
 #include "bstone_sprite.h"
 #include "bstone_sprite_cache.h"
 #include "bstone_string_helper.h"
+#include "bstone_time.h"
 #include "bstone_text_writer.h"
 #include "bstone_version.h"
 
@@ -95,8 +101,221 @@ namespace
 {
 
 
+void vid_log(
+	const std::string& message);
+
+void vid_log_error(
+	const std::string& message);
+
 void hw_refresh();
 void sw_refresh_screen();
+
+using ScreenshotBuffer = std::unique_ptr<std::uint8_t[]>;
+
+
+auto vid_is_take_screenshot_scheduled = false;
+
+
+void vid_take_screenshot();
+
+void vid_schedule_save_screenshot_task(
+	int width,
+	int height,
+	int stride_rgb_888,
+	ScreenshotBuffer&& src_pixels_rgb_888,
+	bool is_flipped_vertically);
+
+
+// --------------------------------------------------------------------------
+
+class SaveScreenshotMtTask final :
+	public bstone::MtTask
+{
+public:
+	// ----------------------------------------------------------------------
+	// MtTask
+
+	void execute() override;
+
+
+	bool is_completed() const noexcept override;
+
+	void set_completed() override;
+
+
+	bool is_failed() const noexcept override;
+
+	std::exception_ptr get_exception_ptr() const noexcept override;
+
+	void set_failed(
+		std::exception_ptr exception_ptr) override;
+
+	// MtTask
+	// ----------------------------------------------------------------------
+
+
+	void reset(
+		int width,
+		int height,
+		int stride_rgb_888,
+		ScreenshotBuffer&& src_pixels_rgb_888,
+		bool is_flipped_vertically);
+
+
+private:
+	bstone::AtomicFlag is_completed_{true};
+	bstone::AtomicFlag is_failed_{};
+	std::exception_ptr exception_ptr_{};
+
+	int width_{};
+	int height_{};
+	int stride_rgb_888_{};
+	ScreenshotBuffer src_pixels_rgb_888_{};
+	bool is_flipped_vertically_{};
+}; // SaveScreenshotMtTask
+
+
+void SaveScreenshotMtTask::execute()
+try
+{
+	const auto date_time = bstone::make_local_date_time();
+
+	const auto date_time_string = bstone::make_local_date_time_string(
+		date_time,
+		bstone::DateTimeStringFormat::screenshot_file_name
+	);
+
+	const auto& screenshot_dir = get_screenshot_dir();
+
+	const auto& assets_info = get_assets_info();
+
+	auto game_string = std::string{};
+
+	if (assets_info.is_aog())
+	{
+		game_string = "aog";
+	}
+	else if (assets_info.is_aog_sw())
+	{
+		game_string = "aog_sw";
+	}
+	else if (assets_info.is_ps())
+	{
+		game_string = "ps";
+	}
+
+	const auto file_name = "bstone_" + game_string + "_sshot_" + date_time_string + ".png";
+
+	const auto path = bstone::file_system::append_path(screenshot_dir, file_name);
+
+	vid_log("Taking screenshot \"" + path + "\".");
+
+	if (is_flipped_vertically_)
+	{
+		auto row_buffer = std::make_unique<std::uint8_t[]>(stride_rgb_888_);
+		auto tmp_row = row_buffer.get();
+
+		const auto half_height = height_ / 2;
+
+		auto src_row = src_pixels_rgb_888_.get();
+		auto dst_row = src_row + (stride_rgb_888_ * (height_ - 1));
+
+		for (auto h = 0; h < half_height; ++h)
+		{
+			std::uninitialized_copy_n(src_row, stride_rgb_888_, tmp_row);
+			std::uninitialized_copy_n(dst_row, stride_rgb_888_, src_row);
+			std::uninitialized_copy_n(tmp_row, stride_rgb_888_, dst_row);
+
+			src_row += stride_rgb_888_;
+			dst_row -= stride_rgb_888_;
+		}
+	}
+
+	const auto max_dst_buffer_size = stride_rgb_888_ * height_;
+	auto dst_buffer = std::make_unique<std::uint8_t[]>(max_dst_buffer_size);
+	auto image_encoder = bstone::make_image_encoder(bstone::ImageEncoderType::png);
+
+	auto dst_buffer_size = 0;
+
+	image_encoder->encode_24(
+		src_pixels_rgb_888_.get(),
+		width_,
+		height_,
+		dst_buffer.get(),
+		max_dst_buffer_size,
+		dst_buffer_size
+	);
+
+	{
+		auto file_stream = bstone::FileStream{path, bstone::StreamOpenMode::write};
+
+		if (!file_stream.is_open())
+		{
+			throw bstone::Exception{"Failed to open a file \"" + path + "\"."};
+		}
+
+		file_stream.write(dst_buffer.get(), dst_buffer_size);
+	}
+}
+catch (const std::exception& ex)
+{
+	vid_log_error("Failed to save a screenshot.");
+	vid_log_error(ex.what());
+}
+
+bool SaveScreenshotMtTask::is_completed() const noexcept
+{
+	return is_completed_;
+}
+
+void SaveScreenshotMtTask::set_completed()
+{
+	is_completed_ = true;
+}
+
+bool SaveScreenshotMtTask::is_failed() const noexcept
+{
+	return is_failed_;
+}
+
+std::exception_ptr SaveScreenshotMtTask::get_exception_ptr() const noexcept
+{
+	return exception_ptr_;
+}
+
+void SaveScreenshotMtTask::set_failed(
+	std::exception_ptr exception_ptr)
+{
+	is_completed_ = true;
+	is_failed_ = true;
+	exception_ptr_ = exception_ptr;
+}
+
+void SaveScreenshotMtTask::reset(
+	int width,
+	int height,
+	int stride_rgb_888,
+	ScreenshotBuffer&& src_pixels_rgb_888,
+	bool is_flipped_vertically)
+{
+	is_completed_ = false;
+	is_failed_ = false;
+	exception_ptr_ = nullptr;
+
+	width_ = width;
+	height_ = height;
+	stride_rgb_888_ = stride_rgb_888;
+	src_pixels_rgb_888_ = std::move(src_pixels_rgb_888);
+	is_flipped_vertically_ = is_flipped_vertically;
+}
+
+constexpr auto max_screenshot_tasks = 16;
+
+using SaveScreenshotMtTasks = std::array<SaveScreenshotMtTask, max_screenshot_tasks>;
+
+auto vid_save_screenshot_mt_tasks = SaveScreenshotMtTasks{};
+
+// --------------------------------------------------------------------------
 
 
 /*
@@ -658,7 +877,7 @@ void vid_calculate_vga_dimensions()
 
 std::string vid_get_game_name_and_game_version_string()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	auto title = std::string{"Blake Stone"};
 
@@ -926,13 +1145,6 @@ const std::string& vid_get_vid_string()
 	return result;
 }
 
-const std::string& vid_get_hw_string()
-{
-	static const auto result = std::string{"[HW]"};
-
-	return result;
-}
-
 [[noreturn]]
 void vid_throw_sdl_error(
 	const std::string& message_prefix)
@@ -973,34 +1185,9 @@ void vid_quit(
 	Quit(vid_get_vid_string() + ' ' + error_message);
 }
 
-[[noreturn]]
-void vid_quit_with_sdl_error(
-	const std::string& error_message)
-{
-	auto message = std::string{};
-	message += vid_get_vid_string() + ' ' + error_message;
-
-	const auto sdl_error_message = SDL_GetError();
-
-	if (sdl_error_message != nullptr)
-	{
-		message += ' ';
-		message += sdl_error_message;
-	}
-
-	Quit(std::move(message));
-}
-
 void vid_log()
 {
 	bstone::logger_->write();
-}
-
-void vid_log(
-	const bstone::LoggerMessageKind message_kind,
-	const std::string& message)
-{
-	bstone::logger_->write(message_kind, vid_get_vid_string() + ' ' + message);
 }
 
 void vid_log(
@@ -1028,18 +1215,6 @@ void vid_log_error(
 		bstone::LoggerMessageKind::error,
 		vid_get_vid_string() + ' ' + message
 	);
-}
-
-void vid_log_error(
-	const std::string& required_message,
-	const std::string& optional_message)
-{
-	vid_log_error(required_message);
-
-	if (!optional_message.empty())
-	{
-		vid_log_error(optional_message);
-	}
 }
 
 [[noreturn]]
@@ -1099,11 +1274,6 @@ void vid_cl_read()
 	vid_cl_read_texture_upscale_filter();
 	vid_cl_read_texture_upscale_xbrz_degree();
 	vid_cl_read_filler_color_index();
-}
-
-void vid_cfg_read()
-{
-	vid_cl_read();
 }
 
 const std::string& vid_to_string(
@@ -1350,6 +1520,7 @@ void sw_create_window()
 
 	auto window_flags = Uint32{
 		SDL_WINDOW_HIDDEN |
+		SDL_WINDOW_ALLOW_HIGHDPI |
 		0
 	};
 
@@ -1397,7 +1568,10 @@ void sw_initialize_renderer()
 
 			const auto sdl_result = SDL_GetRenderDriverInfo(i, &info);
 
-			vid_log(std::to_string(i + 1) + ". " + info.name);
+			if (sdl_result == 0)
+			{
+				vid_log(std::to_string(i + 1) + ". " + info.name);
+			}
 		}
 	}
 
@@ -1573,10 +1747,11 @@ void sw_update_palette(
 
 void sw_update_viewport()
 {
-	auto sdl_result = SDL_RenderSetLogicalSize(
-		sw_renderer_.get(),
-		vid_dimensions_.window_width_,
-		vid_dimensions_.window_height_);
+	auto sdl_viewport = SDL_Rect{};
+	sdl_viewport.w = vid_dimensions_.window_width_;
+	sdl_viewport.h = vid_dimensions_.window_height_;
+
+	auto sdl_result = SDL_RenderSetViewport(sw_renderer_.get(), &sdl_viewport);
 
 	if (sdl_result != 0)
 	{
@@ -1809,7 +1984,7 @@ void sw_destroy_ui_texture()
 
 void sw_uninitialize_vga_buffer()
 {
-	sw_vga_buffer_ = std::move(VgaBuffer{});
+	sw_vga_buffer_ = VgaBuffer{};
 
 	vga_memory = nullptr;
 }
@@ -2072,6 +2247,11 @@ void sw_refresh_screen()
 		}
 	}
 
+	if (vid_is_take_screenshot_scheduled)
+	{
+		vid_take_screenshot();
+	}
+
 	// Present
 	//
 	SDL_RenderPresent(sw_renderer_.get());
@@ -2087,6 +2267,33 @@ void sw_apply_widescreen()
 	sw_update_viewport();
 }
 
+void sw_take_screenshot(
+	int width,
+	int height,
+	int stride_rgb_888,
+	ScreenshotBuffer&& src_pixels_rgb_888)
+{
+	const auto sdl_read_pixles_rgb_888_result = SDL_RenderReadPixels(
+		sw_renderer_.get(),
+		nullptr,
+		SDL_PIXELFORMAT_RGB24,
+		src_pixels_rgb_888.get(),
+		stride_rgb_888
+	);
+
+	if (sdl_read_pixles_rgb_888_result != 0)
+	{
+		vid_throw_sdl_error();
+	}
+
+	vid_schedule_save_screenshot_task(
+		width,
+		height,
+		stride_rgb_888,
+		std::move(src_pixels_rgb_888),
+		false
+	);
+}
 
 // ==========================================================================
 // Hardware accelerated renderer (HW).
@@ -2112,14 +2319,11 @@ const auto hw_map_height_f = 1.0F;
 template<typename T>
 constexpr auto hw_tile_dimension = static_cast<T>(1);
 
-constexpr auto hw_tile_dimension_i = hw_tile_dimension<int>;
 constexpr auto hw_tile_dimension_f = hw_tile_dimension<float>;
-constexpr auto hw_tile_dimension_d = hw_tile_dimension<double>;
 
 template<typename T>
 constexpr auto hw_tile_half_dimension = hw_tile_dimension<T> / static_cast<T>(2);
 
-constexpr auto hw_tile_half_dimension_f = hw_tile_half_dimension<float>;
 constexpr auto hw_tile_half_dimension_d = hw_tile_half_dimension<double>;
 
 
@@ -2142,10 +2346,6 @@ constexpr auto hw_vertices_per_door = hw_sides_per_door * hw_vertices_per_door_h
 constexpr auto hw_indices_per_door_half = 6;
 constexpr auto hw_indices_per_door = 2 * hw_indices_per_door_half;
 constexpr auto hw_indices_per_door_side = 2 * hw_indices_per_door;
-
-constexpr auto hw_max_door_sides_vertices = MAXDOORS * hw_vertices_per_door;
-constexpr auto hw_max_door_sides_indices = MAXDOORS * hw_indices_per_door_side;
-
 
 constexpr auto hw_max_sprites = MAXSTATS + MAXACTORS;
 
@@ -2787,26 +2987,10 @@ int hw_get_static_index(
 	return static_cast<int>(&bs_static - statobjlist.data());
 }
 
-HwSprite& hw_get_static(
-	const statobj_t& bs_static)
-{
-	const auto bs_static_index = hw_get_static_index(bs_static);
-
-	return hw_statics_[bs_static_index];
-}
-
 int hw_get_actor_index(
 	const objtype& bs_actor)
 {
 	return static_cast<int>(&bs_actor - objlist);
-}
-
-HwSprite& hw_get_actor(
-	const objtype& bs_actor)
-{
-	const auto bs_actor_index = hw_get_actor_index(bs_actor);
-
-	return hw_actors_[bs_actor_index];
 }
 
 constexpr int hw_encode_xy(
@@ -2814,15 +2998,6 @@ constexpr int hw_encode_xy(
 	const int y)
 {
 	return (x << 8) | y;
-}
-
-constexpr void hw_decode_xy(
-	const int xy,
-	int& x,
-	int& y)
-{
-	x = (xy >> 8) & 0xFF;
-	y = xy & 0xFF;
 }
 
 HwVertexColor hw_vga_color_to_rgba_8(
@@ -2930,12 +3105,6 @@ void hw_destroy_vertex_input(
 	bstone::Ren3dVertexInputUPtr& vertex_input)
 {
 	vertex_input = nullptr;
-}
-
-void hw_destroy_texture_2d(
-	bstone::Ren3dTexture2dPtr& texture_2d)
-{
-	texture_2d = nullptr;
 }
 
 template<
@@ -4369,28 +4538,28 @@ void hw_create_flooring_vb()
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = HwVertexPosition{0.0F, 0.0F, 0.0F};
-			vertex.uv_ = HwVertexTextureCoordinates{0.0F, 0.0F};
+			vertex.uv_ = HwVertexTextureCoordinates{0.0F, map_dimension_f};
 		}
 
 		// Bottom-right.
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = HwVertexPosition{0.0F, map_dimension_f, 0.0F};
-			vertex.uv_ = HwVertexTextureCoordinates{map_dimension_f, 0.0F};
+			vertex.uv_ = HwVertexTextureCoordinates{0.0F, 0.0F};
 		}
 
 		// Top-right.
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = HwVertexPosition{map_dimension_f, map_dimension_f, 0.0F};
-			vertex.uv_ = HwVertexTextureCoordinates{map_dimension_f, map_dimension_f};
+			vertex.uv_ = HwVertexTextureCoordinates{map_dimension_f, 0.0F};
 		}
 
 		// Top-left.
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = HwVertexPosition{map_dimension_f, 0.0F, 0.0F};
-			vertex.uv_ = HwVertexTextureCoordinates{0.0F, map_dimension_f};
+			vertex.uv_ = HwVertexTextureCoordinates{map_dimension_f, map_dimension_f};
 		}
 
 		hw_update_vertex_buffer(
@@ -4524,28 +4693,28 @@ void hw_create_ceiling_vb()
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = HwVertexPosition{0.0F, 0.0F, hw_map_height_f};
-			vertex.uv_ = HwVertexTextureCoordinates{0.0F, 0.0F};
+			vertex.uv_ = HwVertexTextureCoordinates{0.0F, hw_map_dimension_f};
 		}
 
 		// Bottom-right.
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = HwVertexPosition{0.0F, hw_map_dimension_f, hw_map_height_f};
-			vertex.uv_ = HwVertexTextureCoordinates{hw_map_dimension_f, 0.0F};
+			vertex.uv_ = HwVertexTextureCoordinates{0.0F, 0.0F};
 		}
 
 		// Top-right.
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = HwVertexPosition{hw_map_dimension_f, hw_map_dimension_f, hw_map_height_f};
-			vertex.uv_ = HwVertexTextureCoordinates{hw_map_dimension_f, hw_map_dimension_f};
+			vertex.uv_ = HwVertexTextureCoordinates{hw_map_dimension_f, 0.0F};
 		}
 
 		// Top-left.
 		{
 			auto& vertex = vertices[vertex_index++];
 			vertex.xyz_ = HwVertexPosition{hw_map_dimension_f, 0.0F, hw_map_height_f};
-			vertex.uv_ = HwVertexTextureCoordinates{0.0F, hw_map_dimension_f};
+			vertex.uv_ = HwVertexTextureCoordinates{hw_map_dimension_f, hw_map_dimension_f};
 		}
 
 		hw_update_vertex_buffer(
@@ -5357,7 +5526,7 @@ void hw_create_player_weapon_vi()
 
 void hw_update_player_weapon_model_matrix()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	const auto aog_scale = 128.0 / 64.0;
 	const auto ps_scale = 88.0 / 64.0;
@@ -5367,7 +5536,8 @@ void hw_update_player_weapon_model_matrix()
 
 	const auto translate_x = 0.5 * static_cast<double>(vid_dimensions_.screen_viewport_width_);
 
-	const auto bounce_offset = (assets_info.is_aog() ? 0.0 : -player_get_weapon_bounce_offset());
+	const auto is_bobbing_enabled = (!g_no_weapon_bobbing && assets_info.is_ps());
+	const auto bounce_offset = (is_bobbing_enabled ? -player_get_weapon_bounce_offset() : 0.0);
 	const auto translate_y = vga_height_scale * bounce_offset;
 
 	const auto translate_v = glm::vec3
@@ -6148,56 +6318,6 @@ void hw_refresh_2d()
 	command_buffer->end_write();
 }
 
-bool hw_dbg_is_tile_vertex_visible(
-	const int x,
-	const int y)
-{
-	const auto& wall_direction = glm::dvec2
-	{
-		hw_player_position_[0] - static_cast<double>(x),
-		hw_player_position_[1] - static_cast<double>(y)
-	};
-
-	const auto cosine_between_directions = glm::dot(
-		wall_direction, hw_view_direction_);
-
-	if (cosine_between_directions >= 0.0)
-	{
-		return false;
-	}
-
-	return true;
-}
-
-bool hw_dbg_is_tile_visible(
-	const int x,
-	const int y)
-{
-	const auto delta = hw_tile_dimension_i;
-
-	if (hw_dbg_is_tile_vertex_visible(x + 0, y + 0))
-	{
-		return true;
-	}
-
-	if (hw_dbg_is_tile_vertex_visible(x + delta, y + 0))
-	{
-		return true;
-	}
-
-	if (hw_dbg_is_tile_vertex_visible(x + delta, y + delta))
-	{
-		return true;
-	}
-
-	if (hw_dbg_is_tile_vertex_visible(x + 0, y + delta))
-	{
-		return true;
-	}
-
-	return false;
-}
-
 void hw_render_walls()
 {
 	if (hw_wall_count_ <= 0)
@@ -6486,70 +6606,6 @@ void hw_render_pushwalls()
 	hw_pushwall_side_draw_item_count_ = draw_side_index;
 }
 
-bool hw_dbg_is_door_vertex_visible(
-	const double x,
-	const double y)
-{
-	const auto& wall_direction = glm::dvec2
-	{
-		hw_player_position_[0] - x,
-		hw_player_position_[1] - y
-	};
-
-	const auto cosine_between_directions = glm::dot(
-		wall_direction, hw_view_direction_);
-
-	if (cosine_between_directions >= 0.0)
-	{
-		return false;
-	}
-
-	return true;
-}
-
-bool hw_dbg_is_door_visible(
-	const doorobj_t& door)
-{
-	if (door.vertical)
-	{
-		const auto x = static_cast<double>(door.tilex) + hw_tile_half_dimension_d;
-
-		const auto y_0 = static_cast<double>(door.tiley);
-
-		if (hw_dbg_is_door_vertex_visible(x, y_0))
-		{
-			return true;
-		}
-
-		const auto y_1 = y_0 + hw_tile_dimension_d;
-
-		if (hw_dbg_is_door_vertex_visible(x, y_1))
-		{
-			return true;
-		}
-	}
-	else
-	{
-		const auto y = static_cast<double>(door.tiley) + hw_tile_half_dimension_d;
-
-		const auto x_0 = static_cast<double>(door.tilex);
-
-		if (hw_dbg_is_door_vertex_visible(x_0, y))
-		{
-			return true;
-		}
-
-		const auto x_1 = x_0 + hw_tile_dimension_d;
-
-		if (hw_dbg_is_door_vertex_visible(x_1, y))
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
 void hw_render_doors()
 {
 	if (hw_door_count_ == 0)
@@ -6715,41 +6771,6 @@ void hw_render_doors()
 	}
 
 	hw_door_draw_item_count_ = draw_side_index;
-}
-
-bool hw_calculate_fog(
-	const int sprite_lighting)
-{
-	if (gp_no_shading_)
-	{
-		return false;
-	}
-
-	if (sprite_lighting == NO_SHADING)
-	{
-		return false;
-	}
-
-	const auto shade_index = shade_max + sprite_lighting;
-
-	if (shade_index <= 0)
-	{
-		return false;
-	}
-
-	const auto start_wall_height = (normalshade * shade_index) / (63.0 * vga_height_scale);
-
-	if (start_wall_height <= 1.0)
-	{
-		return false;
-	}
-
-	const auto height_num = heightnumerator / vga_height_scale;
-	const auto start_wall_distance = (32.0 * height_num) / start_wall_height;
-	const auto wall_height_step = normalshade / (8.0 * vga_height_scale);
-	const auto fog_delta = static_cast<float>(wall_height_step * normalshade_div);
-
-	return true;
 }
 
 void hw_update_cloaked_actor(
@@ -6935,11 +6956,6 @@ void hw_orient_sprite(
 	};
 
 	auto direction = hw_player_position_ - sprite_origin;
-
-	const auto cosinus_between_directions = glm::dot(
-		hw_view_direction_,
-		direction
-	);
 
 	sprite.flags_.is_visible_ = true;
 
@@ -7370,7 +7386,7 @@ void hw_refresh_3d()
 
 	const auto is_shading = (!gp_no_shading_);
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	hw_update_3d_fade();
 
@@ -7961,6 +7977,11 @@ void hw_refresh()
 		hw_command_buffers_.data(),
 		static_cast<int>(hw_command_buffers_.size())
 	);
+
+	if (vid_is_take_screenshot_scheduled)
+	{
+		vid_take_screenshot();
+	}
 
 	hw_renderer_->present();
 
@@ -8642,17 +8663,12 @@ void hw_translate_pushwall_side(
 	};
 
 
-	auto is_vertical = false;
-
 	switch (side_direction)
 	{
 	case di_north:
 	case di_south:
-		break;
-
 	case di_east:
 	case di_west:
-		is_vertical = true;
 		break;
 
 	default:
@@ -8936,8 +8952,6 @@ void hw_update_quad_vertices(
 	// Back face order:
 	//    bottom-right -> bottom-left -> top-left -> top-right
 	//
-
-	using VertexOrder = std::array<int, 4>;
 
 	const auto axis_index = (flags.is_vertical_ ? 1 : 0);
 
@@ -9278,16 +9292,6 @@ void hw_uninitialize_sprites()
 	hw_uninitialize_sprites_vb();
 }
 
-void hw_dbg_update_actors()
-{
-	for (auto bs_actor = player->next; bs_actor; bs_actor = bs_actor->next)
-	{
-		const auto bs_actor_index = bs_actor - objlist;
-
-		hw_update_actor(bs_actor_index);
-	}
-}
-
 void hw_map_sprite(
 	const HwSpriteKind sprite_kind,
 	int vertex_index,
@@ -9488,7 +9492,7 @@ void hw_precache_explosion()
 // Clip Explosion.
 void hw_precache_clip_explosion()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
 	{
@@ -9526,7 +9530,7 @@ void hw_precache_flying_grenade()
 
 void hw_precache_anti_plasma_cannon_explosion()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
 	{
@@ -9543,7 +9547,7 @@ void hw_precache_anti_plasma_cannon_explosion()
 
 void hw_precache_anti_plasma_cannon_shot()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
 	{
@@ -9559,7 +9563,7 @@ void hw_precache_anti_plasma_cannon_shot()
 // A rubble.
 void hw_precache_rubble()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
 	{
@@ -9620,7 +9624,7 @@ void hw_precache_yellow_access_card()
 // Green Access Card (AOG).
 void hw_precache_green_access_card()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog())
 	{
@@ -9637,7 +9641,7 @@ void hw_precache_blue_access_card()
 // Golden Access Card (AOG).
 void hw_precache_golden_access_card()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog())
 	{
@@ -9648,7 +9652,7 @@ void hw_precache_golden_access_card()
 // Small yellow box (PS).
 void hw_precache_small_yellow_box()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
 	{
@@ -9695,7 +9699,7 @@ void hw_precache_plasma_discharge_unit_weapon()
 // Anti-Plasma Cannon.
 void hw_precache_anti_plasma_cannon_weapon()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
 	{
@@ -10116,7 +10120,7 @@ void hw_precache_experimental_mutant_human()
 	hw_cache_sprite(SPR_MUTHUM2_SPIT3);
 
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
 	{
@@ -10427,7 +10431,7 @@ void hw_precache_dr_goldfire()
 	hw_cache_sprite(SPR_GOLD_WARP5);
 
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
 	{
@@ -10490,7 +10494,7 @@ void hw_precache_morphed_dr_goldfire()
 // Volatile Material Transport.
 void hw_precache_volatile_material_transport()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog_sw())
 	{
@@ -10561,7 +10565,7 @@ void hw_precache_perscan_drone()
 	hw_cache_sprite(SPR_FSCOUT_W1_7);
 	hw_cache_sprite(SPR_FSCOUT_W1_8);
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (!assets_info.is_aog_sw())
 	{
@@ -10622,7 +10626,7 @@ void hw_precache_security_cube_explosion()
 // Security Cube.
 void hw_precache_security_cube_or_projection_generator()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog())
 	{
@@ -10963,8 +10967,6 @@ void hw_precache_flicker_light()
 
 void hw_precache_crate_content()
 {
-	const auto& assets_info = AssetsInfo{};
-
 	hw_precache_chicken_leg();
 	hw_precache_ham();
 
@@ -11084,7 +11086,7 @@ void hw_precache_pipe_and_steam()
 
 void hw_precache_special_stuff()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog())
 	{
@@ -11173,7 +11175,7 @@ void hw_precache_player_weapon_plasma_discharge_unit()
 
 void hw_precache_player_weapon_anti_plasma_cannon()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (!assets_info.is_ps())
 	{
@@ -11801,6 +11803,25 @@ void hw_initialize_video()
 	in_grab_mouse(true);
 }
 
+void hw_take_screenshot(
+	int width,
+	int height,
+	int stride_rgb_888,
+	ScreenshotBuffer&& src_pixels_rgb_888)
+{
+	auto is_flipped_vertically = false;
+
+	hw_renderer_->read_pixels_rgb_888(src_pixels_rgb_888.get(), is_flipped_vertically);
+
+	vid_schedule_save_screenshot_task(
+		width,
+		height,
+		stride_rgb_888,
+		std::move(src_pixels_rgb_888),
+		is_flipped_vertically
+	);
+}
+
 //
 // Hardware accelerated renderer (HW).
 // ==========================================================================
@@ -11860,6 +11881,71 @@ std::string vid_get_window_title_for_renderer()
 	result += ']';
 
 	return result;
+}
+
+void vid_schedule_save_screenshot_task(
+	int width,
+	int height,
+	int stride_rgb_888,
+	ScreenshotBuffer&& src_pixels_rgb_888,
+	bool is_flipped_vertically)
+{
+	for (auto& task : vid_save_screenshot_mt_tasks)
+	{
+		if (task.is_completed())
+		{
+			task.reset(
+				width,
+				height,
+				stride_rgb_888,
+				std::move(src_pixels_rgb_888),
+				is_flipped_vertically
+			);
+
+			bstone::MtTaskPtr tasks_ptr[] = {&task};
+
+			mt_task_manager_->add_tasks(tasks_ptr, 1);
+
+			return;
+		}
+	}
+
+	vid_log_error("No more screenshot tasks available.");
+}
+
+void vid_take_screenshot()
+try
+{
+	vid_is_take_screenshot_scheduled = false;
+
+	const auto width = vid_cfg_.windowed_width_;
+	const auto height = vid_cfg_.windowed_height_;
+	const auto stride_rgb_888 = (((3 * width) + 3) / 4) * 4;
+	auto src_rgb_888_pixels = std::make_unique<std::uint8_t[]>(stride_rgb_888 * height);
+
+	if (vid_is_hw_)
+	{
+		hw_take_screenshot(
+			width,
+			height,
+			stride_rgb_888,
+			std::move(src_rgb_888_pixels)
+		);
+	}
+	else
+	{
+		sw_take_screenshot(
+			width,
+			height,
+			stride_rgb_888,
+			std::move(src_rgb_888_pixels)
+		);
+	}
+}
+catch (const std::exception& ex)
+{
+	vid_log_error("Failed to take a screenshot.");
+	vid_log_error(ex.what());
 }
 
 
@@ -12680,8 +12766,6 @@ const std::string& vid_filter_to_string(
 
 		default:
 			Quit("Invalid filter.");
-
-			return vid_get_empty_string();
 	}
 }
 
@@ -13443,7 +13527,7 @@ void vid_hw_on_update_wall_switch(
 
 	if (wall_it == hw_xy_wall_map_.cend())
 	{
-		const auto& assets_info = AssetsInfo{};
+		const auto& assets_info = get_assets_info();
 
 		if (assets_info.is_aog())
 		{
@@ -14066,6 +14150,11 @@ void vid_apply_external_textures()
 	}
 
 	hw_apply_external_textures();
+}
+
+void vid_schedule_take_screenshot()
+{
+	vid_is_take_screenshot_scheduled = true;
 }
 
 bool operator==(

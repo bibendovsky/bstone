@@ -135,19 +135,6 @@ bool Sdl2AudioMixer::Sound::is_audible() const
 // SetResamplingMtTask
 //
 
-Sdl2AudioMixer::SetResamplingMtTask::SetResamplingMtTask()
-	:
-	cache_item_{},
-	interpolation_{},
-	is_lpf_{},
-	is_completed_{},
-	is_failed_{},
-	exception_ptr_{}
-{
-}
-
-Sdl2AudioMixer::SetResamplingMtTask::~SetResamplingMtTask() = default;
-
 void Sdl2AudioMixer::SetResamplingMtTask::execute()
 {
 	auto is_invalid = false;
@@ -216,9 +203,11 @@ std::exception_ptr Sdl2AudioMixer::SetResamplingMtTask::get_exception_ptr() cons
 }
 
 void Sdl2AudioMixer::SetResamplingMtTask::set_failed(
-	const std::exception_ptr exception_ptr)
+	std::exception_ptr exception_ptr)
 {
+	is_completed_ = true;
 	is_failed_ = true;
+	exception_ptr_ = exception_ptr;
 }
 
 void Sdl2AudioMixer::SetResamplingMtTask::initialize(
@@ -361,6 +350,7 @@ bool Sdl2AudioMixer::initialize(
 
 		adlib_music_cache_.resize(LASTMUSIC);
 		adlib_sfx_cache_.resize(NUMSOUNDS);
+		pc_speaker_sfx_cache_.resize(NUMSOUNDS);
 		pcm_cache_.resize(NUMSOUNDS);
 
 		const auto max_commands = get_max_commands();
@@ -421,6 +411,7 @@ void Sdl2AudioMixer::uninitialize()
 	mt_is_music_paused_.store(false, std::memory_order_release);
 	adlib_music_cache_.clear();
 	adlib_sfx_cache_.clear();
+	pc_speaker_sfx_cache_.clear();
 	pcm_cache_.clear();
 	player_channels_state_ = 0;
 	is_music_playing_ = false;
@@ -491,6 +482,18 @@ bool Sdl2AudioMixer::play_adlib_sound(
 	const ActorChannel actor_channel)
 {
 	return play_sound(SoundType::adlib_sfx, priority, sound_index, data, data_size, actor_index, actor_type, actor_channel);
+}
+
+bool Sdl2AudioMixer::play_pc_speaker_sound(
+	const int sound_index,
+	const int priority,
+	const void* const data,
+	const int data_size,
+	const int actor_index,
+	const ActorType actor_type,
+	const ActorChannel actor_channel)
+{
+	return play_sound(SoundType::pc_speaker_sfx, priority, sound_index, data, data_size, actor_index, actor_type, actor_channel);
 }
 
 bool Sdl2AudioMixer::play_pcm_sound(
@@ -822,7 +825,7 @@ bool Sdl2AudioMixer::is_music_playing() const
 	return is_music_playing_;
 }
 
-bool Sdl2AudioMixer::is_any_sfx_playing() const
+bool Sdl2AudioMixer::is_any_unpausable_sfx_playing() const
 {
 	if (!is_initialized())
 	{
@@ -923,7 +926,9 @@ void Sdl2AudioMixer::mix_samples()
 	while (sound_it != sound_end_it)
 	{
 		if (is_sfx_paused &&
-			(sound_it->type == SoundType::adlib_sfx || sound_it->type == SoundType::pcm) &&
+			(sound_it->type == SoundType::pc_speaker_sfx ||
+				sound_it->type == SoundType::adlib_sfx ||
+				sound_it->type == SoundType::pcm) &&
 			sound_it->actor_channel != ActorChannel::unpausable)
 		{
 			++sound_it;
@@ -1735,6 +1740,9 @@ Sdl2AudioMixer::CacheItem* Sdl2AudioMixer::get_cache_item(
 	case SoundType::adlib_sfx:
 		return &adlib_sfx_cache_[sound_index];
 
+	case SoundType::pc_speaker_sfx:
+		return &pc_speaker_sfx_cache_[sound_index];
+
 	case SoundType::pcm:
 		return &pcm_cache_[sound_index];
 
@@ -1785,6 +1793,9 @@ AudioDecoderUPtr Sdl2AudioMixer::create_decoder_by_sound_type(
 	case SoundType::adlib_sfx:
 		return make_audio_decoder(AudioDecoderType::adlib_sfx, opl3_type_);
 
+	case SoundType::pc_speaker_sfx:
+		return make_audio_decoder(AudioDecoderType::pc_speaker, opl3_type_);
+
 	case SoundType::pcm:
 		return make_audio_decoder(AudioDecoderType::pcm, opl3_type_);
 
@@ -1800,6 +1811,7 @@ bool Sdl2AudioMixer::is_sound_type_valid(
 	{
 	case SoundType::adlib_music:
 	case SoundType::adlib_sfx:
+	case SoundType::pc_speaker_sfx:
 	case SoundType::pcm:
 		return true;
 
@@ -1818,6 +1830,7 @@ bool Sdl2AudioMixer::is_sound_index_valid(
 		return sound_index >= 0 && sound_index < LASTMUSIC;
 
 	case SoundType::adlib_sfx:
+	case SoundType::pc_speaker_sfx:
 	case SoundType::pcm:
 		return sound_index >= 0 && sound_index < NUMSOUNDS;
 

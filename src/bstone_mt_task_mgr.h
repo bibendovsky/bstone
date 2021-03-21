@@ -64,7 +64,7 @@ public:
 	virtual std::exception_ptr get_exception_ptr() const noexcept = 0;
 
 	virtual void set_failed(
-		const std::exception_ptr exception_ptr) = 0;
+		std::exception_ptr exception_ptr) = 0;
 }; // MtTask
 
 using MtTaskPtr = MtTask*;
@@ -88,16 +88,18 @@ public:
 	virtual ~MtTaskMgr();
 
 
-	virtual int get_max_concurrency() const noexcept = 0;
+	virtual int get_max_threads() const noexcept = 0;
 
-	virtual int get_concurrency() const noexcept = 0;
+	virtual int get_thread_count() const noexcept = 0;
 
-	virtual bool has_concurrency() const noexcept = 0;
 
+	virtual void add_tasks(
+		MtTaskPtr* tasks,
+		int task_count) = 0;
 
 	virtual void add_tasks_and_wait_for_added(
-		MtTaskPtr* const tasks,
-		const int task_count) = 0;
+		MtTaskPtr* tasks,
+		int task_count) = 0;
 }; // MtTaskMgr
 
 
@@ -109,8 +111,8 @@ using MtTaskMgrUPtr = std::unique_ptr<MtTaskMgr>;
 
 
 MtTaskMgrUPtr make_mt_task_manager(
-	const int concurrency_reserve,
-	const int max_task_count);
+	int concurrency_reserve,
+	int max_task_count);
 
 
 } // bstone

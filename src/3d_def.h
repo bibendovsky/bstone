@@ -3968,6 +3968,7 @@ extern bool g_quit_on_escape;
 extern bool g_no_intro_outro;
 extern bool g_no_screens; // overrides "g_no_intro_outro" via command line
 extern bool g_no_fade_in_or_out;
+extern bool g_no_weapon_bobbing;
 
 
 extern bstone::MtTaskMgr* mt_task_manager_;
@@ -3997,6 +3998,8 @@ void sys_sleep_for(
 void sys_default_sleep_for();
 
 const std::string& get_profile_dir();
+
+const std::string& get_screenshot_dir();
 
 void update_normalshade();
 

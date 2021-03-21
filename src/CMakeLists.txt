@@ -22,8 +22,8 @@ Free Software Foundation, Inc.,
 ]]
 
 
-cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
-project(bstone VERSION 1.2.10 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.4.0 FATAL_ERROR)
+project(bstone VERSION 1.2.11 LANGUAGES CXX)
 
 
 #
@@ -48,12 +48,8 @@ option(BSTONE_USE_STATIC_LINKING "Link build statically." OFF)
 option(BSTONE_PANDORA "Build for Pandora." OFF)
 option(BSTONE_USE_PCH "Use precompiled headers if available." ON)
 option(BSTONE_USE_MULTI_PROCESS_COMPILATION "Use multi-process compilation." ON)
+option(BSTONE_MORE_COMPILER_WARNINGS "Enables more compiler warnings." OFF)
 
-
-#
-# Modules.
-#
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 # SDL2W
 #
@@ -73,6 +69,15 @@ find_package(Threads REQUIRED)
 
 
 #
+# Constants.
+#
+if (MSVC)
+	set (BSTONE_MSVC "1")
+else ()
+	set (BSTONE_MSVC "0")
+endif ()
+
+#
 # Target.
 #
 add_executable(${PROJECT_NAME} "")
@@ -86,10 +91,12 @@ configure_file(
 	"${PROJECT_BINARY_DIR}/bstone_version_.h"
 )
 
-configure_file(
-	"${PROJECT_SOURCE_DIR}/sys/win32/bstone_win32.rc.in"
-	"${PROJECT_BINARY_DIR}/sys/win32/bstone_win32.rc"
-)
+if (WIN32)
+	configure_file(
+		"${PROJECT_SOURCE_DIR}/sys/win32/bstone_win32.rc.in"
+		"${PROJECT_BINARY_DIR}/sys/win32/bstone_win32.rc"
+	)
+endif ()
 
 
 #
@@ -137,6 +144,15 @@ endif ()
 #
 # Target compile options.
 #
+if (BSTONE_MORE_COMPILER_WARNINGS)
+	target_compile_options(
+		${PROJECT_NAME}
+		PRIVATE
+			$<$<CXX_COMPILER_ID:MSVC>:/W4>
+			$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -pedantic>
+	)
+endif ()
+
 if (MSVC)
 	if (BSTONE_USE_STATIC_LINKING)
 		target_compile_options(
@@ -327,7 +343,10 @@ target_sources(
 		bstone_adlib_decoder.h
 		bstone_archiver.h
 		bstone_atomic.h
+		bstone_atomic_flag.h
+		bstone_audio_content_mgr.h
 		bstone_audio_decoder.h
+		bstone_audio_extractor.h
 		bstone_audio_mixer.h
 		bstone_audio_sample_converter.h
 		bstone_binary_reader.h
@@ -352,6 +371,7 @@ target_sources(
 		bstone_mt_queue_1r1w.h
 		bstone_mt_task_mgr.h
 		bstone_opl3.h
+		bstone_pc_speaker_audio_decoder.h
 		bstone_precompiled.h
 		bstone_ps_fizzle_fx.h
 		bstone_ref_values.h
@@ -365,12 +385,15 @@ target_sources(
 		bstone_string_helper.h
 		bstone_text_reader.h
 		bstone_text_writer.h
+		bstone_time.h
 		bstone_un_value.h
 		bstone_unique_resource.h
 		bstone_uptr_resource_list.h
 		bstone_version.h
 		bstone_image_decoder.h
-		bstone_stb_image_decoder.h
+		bstone_image_encoder.h
+		bstone_stb_image_encoder.h
+		bstone_stb_image_utils.h
 		bstone_bmp_image_decoder.h
 		bstone_dynamic_loader.h
 		bstone_not_null.h
@@ -381,6 +404,7 @@ target_sources(
 		bstone_oal_symbols.h
 		bstone_sdl2_audio_mixer.h
 		bstone_sdl2_dynamic_loader.h
+		bstone_span.h
 )
 
 if (WIN32)
@@ -389,6 +413,7 @@ if (WIN32)
 		PRIVATE
 			sys/win32/bstone_win32_rc.h
 			sys/win32/bstone_win32_registry.h
+			$<$<CXX_COMPILER_ID:MSVC>:sys/win32/bstone_win32_msvc.manifest>
 	)
 endif ()
 
@@ -470,13 +495,16 @@ target_sources(
 		bstone_adlib_music_decoder.cpp
 		bstone_adlib_sfx_decoder.cpp
 		bstone_archiver.cpp
-		bstone_content_path.cpp
+		bstone_atomic_flag.cpp
+		bstone_audio_content_mgr.cpp
 		bstone_audio_decoder.cpp
+		bstone_audio_extractor.cpp
 		bstone_audio_mixer.cpp
 		bstone_audio_sample_converter.cpp
 		bstone_binary_reader.cpp
 		bstone_binary_writer.cpp
 		bstone_cl_args.cpp
+		bstone_content_path.cpp
 		bstone_crc32.cpp
 		bstone_dosbox_dbopl.cpp
 		bstone_encoding.cpp
@@ -493,6 +521,7 @@ target_sources(
 		bstone_memory_stream.cpp
 		bstone_mt_task_mgr.cpp
 		bstone_opl3.cpp
+		bstone_pc_speaker_audio_decoder.cpp
 		bstone_pcm_audio_decoder.cpp
 		bstone_ps_fizzle_fx.cpp
 		bstone_rgb8.cpp
@@ -504,9 +533,13 @@ target_sources(
 		bstone_string_helper.cpp
 		bstone_text_reader.cpp
 		bstone_text_writer.cpp
+		bstone_time.cpp
 		bstone_version.cpp
 		bstone_image_decoder.cpp
+		bstone_image_encoder.cpp
 		bstone_stb_image_decoder.cpp
+		bstone_stb_image_encoder.cpp
+		bstone_stb_image_utils.cpp
 		bstone_bmp_image_decoder.cpp
 		bstone_dynamic_loader.cpp
 		bstone_not_null.cpp

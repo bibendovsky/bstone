@@ -214,7 +214,7 @@ Songs songs;
 
 void initialize_songs()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (!assets_info.is_ps())
 	{
@@ -340,8 +340,6 @@ void initialize_songs()
 
 const int BASEMOVE = 35;
 const int RUNMOVE = 70;
-const int BASETURN = 35;
-const int RUNTURN = 70;
 
 
 void cycle_weapon(
@@ -351,7 +349,7 @@ void cycle_weapon(
 
 	while (true)
 	{
-		weapon_index += direction;
+		weapon_index += static_cast<std::int8_t>(direction);
 
 		if (weapon_index < wp_autocharge)
 		{
@@ -434,7 +432,7 @@ void PollKeyboardButtons()
 		buttonstate[bt_ready_grenade] = true;
 	}
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
 	{
@@ -707,7 +705,7 @@ namespace
 
 void check_heart_beat_key()
 {
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (!assets_info.is_aog())
 	{
@@ -761,7 +759,7 @@ void CheckKeys()
 	// SECRET CHEAT CODE: 'JAM'
 	//
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (!assets_info.is_aog_sw())
 	{
@@ -837,8 +835,6 @@ void CheckKeys()
 				{
 					sd_enable_sound(false);
 				}
-
-				CA_LoadAllSounds();
 
 				is_enabled = true;
 			}
@@ -1213,7 +1209,7 @@ void CheckMusicToggle()
 	{
 		bool toggle = M_KeyReleased;
 
-		const auto& assets_info = AssetsInfo{};
+		const auto& assets_info = get_assets_info();
 
 		if (!assets_info.is_aog_sw())
 		{
@@ -1271,7 +1267,7 @@ void PopupAutoMap(
 {
 	vid_is_hud = true;
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	const std::int16_t BASE_X = (assets_info.is_ps() ? 64 : 40);
 	const std::int16_t BASE_Y = 44;
@@ -1582,7 +1578,7 @@ void StartMusic(
 
 	sd_music_off();
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (!assets_info.is_ps())
 	{
@@ -1604,11 +1600,6 @@ void StartMusic(
 
 			musicchunk = songs[map_number];
 		}
-	}
-
-	if (audiosegs[STARTMUSIC + musicchunk].empty())
-	{
-		CA_CacheAudioChunk(static_cast<std::int16_t>(STARTMUSIC + musicchunk));
 	}
 
 	{
@@ -2147,7 +2138,7 @@ void ShowQuickInstructions()
 {
 	ShowQuickMsg = false;
 
-	const auto& assets_info = AssetsInfo{};
+	const auto& assets_info = get_assets_info();
 
 	if (demoplayback ||
 		(assets_info.is_ps() && (gamestate.mapon > 0)))

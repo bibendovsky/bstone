@@ -535,7 +535,6 @@ void Ren3dGlShaderStageImpl::get_vars(
 		GLchar* const name);
 
 	bool is_attribute = false;
-	bool is_uniform = false;
 	auto gl_count_enum = GLenum{};
 	auto gl_max_length_enum = GLenum{};
 	auto gl_info_function = GlInfoFunction{};
@@ -550,7 +549,6 @@ void Ren3dGlShaderStageImpl::get_vars(
 			break;
 
 		case Ren3dShaderVarKind::uniform:
-			is_uniform = true;
 			gl_count_enum = GL_ACTIVE_UNIFORMS;
 			gl_max_length_enum = GL_ACTIVE_UNIFORM_MAX_LENGTH;
 			gl_info_function = glGetActiveUniform;
