@@ -1,6 +1,37 @@
 # BStone changelog
 
 
+## [1.2.11] - 2021-03-21
+### Added
+- [CMake] Root CMakeLists.txt.
+- [CMake] Add option `BSTONE_MORE_COMPILER_WARNINGS` for more compiler warnings.
+- Bindings to take screenshots (default <kbd>F5</kbd>).
+- Option to control weapon bobbing (actual for Planet Strike only).
+- PC Speaker SFX.
+- Option `snd_sfx_type` to switch between AdLib and PC Speaker audio.
+- Option `snd_is_sfx_digitized` to toggle SFX digitization.
+- Extracting unprocessed audio (*.data).
+- Extracting PC Speaker audio.
+
+### Changed
+- [CMake] Minimum supported version is 3.4.0.
+- Audio low-pass filtering is disabled by default.
+
+### Fixed
+- Compiling under non-MSYS MinGW.
+- Content search.
+- Show dropped important items (keys, etc.) on auto-map.
+- Don't draw the scene for "show full map" cheat.
+- Reduce compiling warnings.
+- Make the application DPI aware.
+- [OAL] Discard sounds with lower priority on same actor's channel.
+- [OAL] Fix hangs on changing audio settings when any world's sound playing.
+- [HWR] Mismatched texture for door track.
+- [HWR] Flooring / Ceiling texture direction.
+- Non-readable log file while application is running.
+- Item flags for message box.
+
+
 ## [1.2.10] - 2021-02-14
 ### Added
 - Support for external textures (bmp, png).
