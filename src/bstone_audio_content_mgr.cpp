@@ -82,8 +82,8 @@ public:
 		AudioSfxType sfx_type) override;
 
 
-	void allow_digitized_sfx(
-		bool is_allow) noexcept override;
+	void set_is_sfx_digitized(
+		bool is_enabled) noexcept override;
 
 
 	int get_chunk_count() const noexcept override;
@@ -121,7 +121,7 @@ private:
 
 	AudioSfxType sfx_type_{};
 	int sfx_chunk_base_index_{};
-	bool is_digitized_sfx_allowed_{};
+	bool is_sfx_digitized_{};
 	AudiotData audiot_data_{};
 	AudioChunks audio_chunks_{};
 
@@ -174,10 +174,10 @@ void AudioContentMgrImpl::set_sfx_type(
 	sfx_chunk_base_index_ = sfx_chunk_base_index;
 }
 
-void AudioContentMgrImpl::allow_digitized_sfx(
-	bool is_allow) noexcept
+void AudioContentMgrImpl::set_is_sfx_digitized(
+	bool is_enabled) noexcept
 {
-	is_digitized_sfx_allowed_ = is_allow;
+	is_sfx_digitized_ = is_enabled;
 }
 
 int AudioContentMgrImpl::get_chunk_count() const noexcept
@@ -204,7 +204,7 @@ const AudioChunk& AudioContentMgrImpl::get_sfx_chunk(
 		throw AudioContentMgrException{"SFX chunk number out of range."};
 	}
 
-	if (is_digitized_sfx_allowed_)
+	if (is_sfx_digitized_)
 	{
 		const auto& digitized_sfx_chunk = audio_chunks_[digitized_sfx_chunk_base_index + sfx_chunk_number];
 
@@ -256,7 +256,7 @@ void AudioContentMgrImpl::initialize()
 
 	set_sfx_type(AudioSfxType::adlib);
 
-	is_digitized_sfx_allowed_ = true;
+	is_sfx_digitized_ = true;
 }
 
 AudioContentMgrImpl::AudiotData AudioContentMgrImpl::load_audiot_data()

@@ -53,7 +53,7 @@ public:
 		AudioSfxType sfx_type) = 0;
 
 
-	virtual void allow_digitized_sfx(
+	virtual void set_is_sfx_digitized(
 		bool is_allow) noexcept = 0;
 
 

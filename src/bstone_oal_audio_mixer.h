@@ -100,6 +100,16 @@ public:
 		ActorChannel actor_channel = ActorChannel::voice) override;
 
 	// Negative index of an actor defines a non-positional sound.
+	bool play_pc_speaker_sound(
+		int sound_index,
+		int priority,
+		const void* data,
+		int data_size,
+		int actor_index = -1,
+		ActorType actor_type = ActorType::none,
+		ActorChannel actor_channel = ActorChannel::voice) override;
+
+	// Negative index of an actor defines a non-positional sound.
 	bool play_pcm_sound(
 		int sound_index,
 		int priority,
@@ -159,6 +169,7 @@ private:
 	using OalStrings = std::vector<OalString>;
 
 	using SfxAdLibSounds = std::array<OalSourceCachingSound, NUMSOUNDS>;
+	using SfxPcSpeakerSounds = std::array<OalSourceCachingSound, NUMSOUNDS>;
 
 	struct SfxPosition
 	{
@@ -253,6 +264,7 @@ private:
 	mutable SfxMutex sfx_mutex_{};
 	SfxVoices sfx_voices_{};
 	SfxAdLibSounds sfx_adlib_sounds_{};
+	SfxPcSpeakerSounds sfx_pc_speaker_sounds_{};
 	float sfx_volume_{};
 
 	SfxActorPositions sfx_actor_positions_{};
@@ -272,6 +284,17 @@ private:
 	bool is_quit_thread_{};
 	Mutex thread_mutex_{};
 	Thread thread_{};
+
+
+	bool play_sfx_sound(
+		AudioSfxType sfx_type,
+		int sound_index,
+		int priority,
+		const void* data,
+		int data_size,
+		int actor_index,
+		ActorType actor_type,
+		ActorChannel actor_channel);
 
 
 	void make_al_context_current();
@@ -330,6 +353,8 @@ private:
 
 	void initialize_sfx_adlib_sounds();
 
+	void initialize_sfx_pc_speaker_sounds();
+
 	void initialize_sfx_voices();
 
 	void initialize_sfx_positions();
@@ -342,6 +367,9 @@ private:
 	void decode_adlib_sound(
 		OalSourceCachingSound& adlib_sound,
 		int volume_scale);
+
+	void decode_pc_speaker_sound(
+		OalSourceCachingSound& pc_speaker_sound);
 
 	void mix_sfx_voice(
 		SfxVoice& sfx_voice);

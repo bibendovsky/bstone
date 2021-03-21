@@ -255,106 +255,42 @@ bool OalAudioMixer::play_adlib_sound(
 	ActorChannel actor_channel)
 try
 {
-	if (!is_initialized())
-	{
-		return false;
-	}
-
-	if (sound_index < 0 || sound_index >= NUMSOUNDS)
-	{
-		return false;
-	}
-
-	if (!data || data_size <= 0)
-	{
-		return false;
-	}
-
-	const auto sfx_mutex_guard = MutexUniqueLock{sfx_mutex_};
-
-	auto& sfx_adlib_sound = sfx_adlib_sounds_[sound_index];
-
-	if (!sfx_adlib_sound.is_initialized)
-	{
-		auto audio_decoder_param = AudioDecoderInitParam{};
-		audio_decoder_param.src_raw_data_ = data;
-		audio_decoder_param.src_raw_size_ = data_size;
-		audio_decoder_param.dst_rate_ = dst_rate_;
-		audio_decoder_param.resampler_interpolation_ = AudioDecoderInterpolationType::zoh;
-		audio_decoder_param.resampler_lpf_ = false;
-
-		auto audio_decoder = sfx_adlib_sound.audio_decoder.get();
-
-		if (!audio_decoder->initialize(audio_decoder_param))
-		{
-			return false;
-		}
-
-		auto sample_count = audio_decoder->get_dst_length_in_samples();
-
-		if (sample_count <= 0)
-		{
-			return false;
-		}
-
-		sfx_adlib_sound.is_initialized = true;
-		sfx_adlib_sound.is_decoded = false;
-		sfx_adlib_sound.sample_offset = 0;
-		sfx_adlib_sound.sample_count = sample_count;
-		sfx_adlib_sound.samples.resize(sample_count);
-	}
-
-	const auto sfx_voice = find_free_sfx_voice(
+	return play_sfx_sound(
+		AudioSfxType::adlib,
+		sound_index,
 		priority,
-		actor_type,
+		data,
+		data_size,
 		actor_index,
+		actor_type,
 		actor_channel
 	);
+}
+catch (...)
+{
+	return false;
+}
 
-	if (!sfx_voice)
-	{
-		return false;
-	}
-
-	const auto is_2d = is_2d_sfx(actor_type, actor_index);
-
-	if (sfx_adlib_sound.is_decoded)
-	{
-		const auto adlib_data_size = static_cast<int>(sfx_adlib_sound.sample_count * sizeof(OalSourceSample));
-
-		auto source_param = OalSourceOpenStaticParam{};
-		source_param.is_2d = is_2d;
-		source_param.is_8_bit = false;
-		source_param.sample_rate = dst_rate_;
-		source_param.data = sfx_adlib_sound.samples.data();
-		source_param.data_size = adlib_data_size;
-
-		sfx_voice->oal_source.open(source_param);
-	}
-	else
-	{
-		auto source_param = OalSourceOpenStreamingParam{};
-		source_param.is_2d = is_2d;
-		source_param.is_looping = false;
-		source_param.sample_rate = dst_rate_;
-		source_param.caching_sound = &sfx_adlib_sound;
-
-		sfx_voice->oal_source.open(source_param);
-	}
-
-	auto& oal_source = sfx_voice->oal_source;
-	oal_source.set_volume(sfx_volume_);
-	set_sfx_position(oal_source, actor_type, actor_index);
-	set_sfx_reference_distance(oal_source);
-	oal_source.play();
-
-	sfx_voice->is_active = true;
-	sfx_voice->priority = priority;
-	sfx_voice->actor_type = actor_type;
-	sfx_voice->actor_index = actor_index;
-	sfx_voice->actor_channel = actor_channel;
-
-	return true;
+bool OalAudioMixer::play_pc_speaker_sound(
+	int sound_index,
+	int priority,
+	const void* data,
+	int data_size,
+	int actor_index,
+	ActorType actor_type,
+	ActorChannel actor_channel)
+try
+{
+	return play_sfx_sound(
+		AudioSfxType::pc_speaker,
+		sound_index,
+		priority,
+		data,
+		data_size,
+		actor_index,
+		actor_type,
+		actor_channel
+	);
 }
 catch (...)
 {
@@ -813,6 +749,122 @@ int OalAudioMixer::get_max_commands() const
 	return 0;
 }
 
+bool OalAudioMixer::play_sfx_sound(
+	AudioSfxType sfx_type,
+	int sound_index,
+	int priority,
+	const void* data,
+	int data_size,
+	int actor_index,
+	ActorType actor_type,
+	ActorChannel actor_channel)
+{
+	if (!is_initialized())
+	{
+		return false;
+	}
+
+	if (sound_index < 0 || sound_index >= NUMSOUNDS)
+	{
+		return false;
+	}
+
+	if (!data || data_size <= 0)
+	{
+		return false;
+	}
+
+	const auto sfx_mutex_guard = MutexUniqueLock{sfx_mutex_};
+
+	auto& sfx_sound = (
+		sfx_type == AudioSfxType::adlib ?
+		sfx_adlib_sounds_[sound_index] :
+		sfx_pc_speaker_sounds_[sound_index]
+	);
+
+	if (!sfx_sound.is_initialized)
+	{
+		auto audio_decoder_param = AudioDecoderInitParam{};
+		audio_decoder_param.src_raw_data_ = data;
+		audio_decoder_param.src_raw_size_ = data_size;
+		audio_decoder_param.dst_rate_ = dst_rate_;
+		audio_decoder_param.resampler_interpolation_ = AudioDecoderInterpolationType::zoh;
+		audio_decoder_param.resampler_lpf_ = false;
+
+		auto audio_decoder = sfx_sound.audio_decoder.get();
+
+		if (!audio_decoder->initialize(audio_decoder_param))
+		{
+			return false;
+		}
+
+		auto sample_count = audio_decoder->get_dst_length_in_samples();
+
+		if (sample_count <= 0)
+		{
+			return false;
+		}
+
+		sfx_sound.is_initialized = true;
+		sfx_sound.is_decoded = false;
+		sfx_sound.sample_offset = 0;
+		sfx_sound.sample_count = sample_count;
+		sfx_sound.samples.resize(sample_count);
+	}
+
+	const auto sfx_voice = find_free_sfx_voice(
+		priority,
+		actor_type,
+		actor_index,
+		actor_channel
+	);
+
+	if (!sfx_voice)
+	{
+		return false;
+	}
+
+	const auto is_2d = is_2d_sfx(actor_type, actor_index);
+
+	if (sfx_sound.is_decoded)
+	{
+		const auto decoded_data_size = static_cast<int>(sfx_sound.sample_count * sizeof(OalSourceSample));
+
+		auto source_param = OalSourceOpenStaticParam{};
+		source_param.is_2d = is_2d;
+		source_param.is_8_bit = false;
+		source_param.sample_rate = dst_rate_;
+		source_param.data = sfx_sound.samples.data();
+		source_param.data_size = decoded_data_size;
+
+		sfx_voice->oal_source.open(source_param);
+	}
+	else
+	{
+		auto source_param = OalSourceOpenStreamingParam{};
+		source_param.is_2d = is_2d;
+		source_param.is_looping = false;
+		source_param.sample_rate = dst_rate_;
+		source_param.caching_sound = &sfx_sound;
+
+		sfx_voice->oal_source.open(source_param);
+	}
+
+	auto& oal_source = sfx_voice->oal_source;
+	oal_source.set_volume(sfx_volume_);
+	set_sfx_position(oal_source, actor_type, actor_index);
+	set_sfx_reference_distance(oal_source);
+	oal_source.play();
+
+	sfx_voice->is_active = true;
+	sfx_voice->priority = priority;
+	sfx_voice->actor_type = actor_type;
+	sfx_voice->actor_index = actor_index;
+	sfx_voice->actor_channel = actor_channel;
+
+	return true;
+}
+
 void OalAudioMixer::make_al_context_current()
 {
 	const auto al_result = oal_symbols_->alcMakeContextCurrent(oal_context_resource_.get());
@@ -1195,7 +1247,21 @@ void OalAudioMixer::initialize_sfx_adlib_sounds()
 
 		if (!sfx_adlib_sound.audio_decoder)
 		{
-			throw OalAudioMixerException{"Failed to create SFX audio decoder."};
+			throw OalAudioMixerException{"Failed to create SFX AdLib audio decoder."};
+		}
+	}
+}
+
+void OalAudioMixer::initialize_sfx_pc_speaker_sounds()
+{
+	for (auto& sfx_pc_speaker_sound : sfx_pc_speaker_sounds_)
+	{
+		sfx_pc_speaker_sound.is_initialized = false;
+		sfx_pc_speaker_sound.audio_decoder = make_audio_decoder(AudioDecoderType::pc_speaker, opl3_type_);
+
+		if (!sfx_pc_speaker_sound.audio_decoder)
+		{
+			throw OalAudioMixerException{"Failed to create SFX PC Speaker audio decoder."};
 		}
 	}
 }
@@ -1244,6 +1310,7 @@ void OalAudioMixer::initialize_sfx_positions()
 void OalAudioMixer::initialize_sfx()
 {
 	initialize_sfx_adlib_sounds();
+	initialize_sfx_pc_speaker_sounds();
 	initialize_sfx_voices();
 	initialize_sfx_positions();
 }
@@ -1253,6 +1320,11 @@ void OalAudioMixer::uninitialize_sfx()
 	for (auto& sfx_adlib_sound : sfx_adlib_sounds_)
 	{
 		sfx_adlib_sound.audio_decoder = nullptr;
+	}
+
+	for (auto& sfx_pc_speaker_sound : sfx_pc_speaker_sounds_)
+	{
+		sfx_pc_speaker_sound.audio_decoder = nullptr;
 	}
 
 	sfx_voices_.clear();
@@ -1290,6 +1362,35 @@ void OalAudioMixer::decode_adlib_sound(
 	{
 		adlib_sound.is_decoded = true;
 		adlib_sound.sample_count = adlib_sound.sample_offset;
+	}
+}
+
+void OalAudioMixer::decode_pc_speaker_sound(
+	OalSourceCachingSound& pc_speaker_sound)
+{
+	if (!pc_speaker_sound.is_initialized || pc_speaker_sound.is_decoded)
+	{
+		return;
+	}
+
+	const auto remain_count = pc_speaker_sound.sample_count - pc_speaker_sound.sample_offset;
+
+	if (remain_count == 0)
+	{
+		pc_speaker_sound.is_decoded = true;
+		return;
+	}
+
+	const auto sample_count = std::min(remain_count, oal_source_max_streaming_buffers * dst_rate_);
+	const auto samples = &pc_speaker_sound.samples[pc_speaker_sound.sample_offset];
+	const auto decoded_count = pc_speaker_sound.audio_decoder->decode(sample_count, samples);
+
+	pc_speaker_sound.sample_offset += decoded_count;
+
+	if (decoded_count <= sample_count)
+	{
+		pc_speaker_sound.is_decoded = true;
+		pc_speaker_sound.sample_count = pc_speaker_sound.sample_offset;
 	}
 }
 
@@ -1429,6 +1530,15 @@ void OalAudioMixer::thread_func()
 		{
 			const auto sfx_mutex_guard = MutexUniqueLock{sfx_mutex_};
 
+			for (auto& sfx_pc_speaker_sound : sfx_pc_speaker_sounds_)
+			{
+				decode_pc_speaker_sound(sfx_pc_speaker_sound);
+			}
+		}
+
+		{
+			const auto sfx_mutex_guard = MutexUniqueLock{sfx_mutex_};
+
 			for (auto& sfx_voice : sfx_voices_)
 			{
 				mix_sfx_voice(sfx_voice);
@@ -1492,7 +1602,8 @@ OalAudioMixer::SfxVoice* OalAudioMixer::find_free_sfx_voice(
 				free_sfx = &sfx_voice;
 			}
 
-			if (sfx_voice.actor_type == actor_type &&
+			if (sfx_voice.is_active &&
+				sfx_voice.actor_type == actor_type &&
 				sfx_voice.actor_index == actor_index &&
 				sfx_voice.actor_channel == actor_channel)
 			{

@@ -187,6 +187,23 @@ bool sd_cfg_get_resampling_low_pass_filter() noexcept;
 void sd_cfg_set_resampling_low_pass_filter(
 	const bool is_enabled);
 
+
+AudioSfxType sd_cfg_get_sfx_type() noexcept;
+
+void sd_cfg_set_sfx_type(
+	AudioSfxType sfx_type);
+
+void sd_apply_sfx_type();
+
+
+bool sd_cfg_get_is_sfx_digitized() noexcept;
+
+void sd_cfg_set_is_sfx_digitized(
+	bool is_sfx_digitized);
+
+void apply_digitized_sfx();
+
+
 void sd_apply_resampling();
 
 void sd_cfg_set_defaults();

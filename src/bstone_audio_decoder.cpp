@@ -29,6 +29,8 @@ Free Software Foundation, Inc.,
 
 #include "bstone_audio_decoder.h"
 
+#include "bstone_pc_speaker_audio_decoder.h"
+
 
 namespace bstone
 {
@@ -64,6 +66,9 @@ AudioDecoderUPtr make_audio_decoder(
 
 		case AudioDecoderType::pcm:
 			return detail::make_pcm_audio_decoder();
+
+		case AudioDecoderType::pc_speaker:
+			return std::make_unique<PcSpeakerAudioDecoder>();
 
 		default:
 			return nullptr;
