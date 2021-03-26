@@ -37,13 +37,13 @@ Free Software Foundation, Inc.,
 #include "xbrz.h"
 
 #include "id_ca.h"
-#include "id_pm.h"
 #include "id_vl.h"
 
 #include "bstone_atomic_flag.h"
 #include "bstone_exception.h"
 #include "bstone_file_system.h"
 #include "bstone_file_stream.h"
+#include "bstone_globals.h"
 #include "bstone_missing_sprite_64x64_image.h"
 #include "bstone_missing_wall_64x64_image.h"
 #include "bstone_mt_task_mgr.h"
@@ -1751,7 +1751,7 @@ HwTextureMgrImpl::Texture2dItem HwTextureMgrImpl::create_from_external_image(
 HwTextureMgrImpl::Texture2dItem HwTextureMgrImpl::wall_create_texture(
 	const int wall_id)
 {
-	const auto indexed_pixels = static_cast<const std::uint8_t*>(PM_GetPage(wall_id));
+	const auto indexed_pixels = bstone::globals::page_mgr->get(wall_id);
 
 	if (!indexed_pixels)
 	{

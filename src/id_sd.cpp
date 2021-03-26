@@ -27,11 +27,11 @@ Free Software Foundation, Inc.,
 #include "audio.h"
 #include "id_ca.h"
 #include "id_heads.h"
-#include "id_pm.h"
 
 #include "bstone_audio_content_mgr.h"
 #include "bstone_audio_mixer.h"
 #include "bstone_endian.h"
+#include "bstone_globals.h"
 #include "bstone_logger.h"
 #include "bstone_memory_binary_reader.h"
 #include "bstone_string_helper.h"
@@ -319,7 +319,7 @@ void sd_startup()
 			sd_log("Resampling low-pass filter: " +
 				sd_get_resampling_lpf_long_name(sd_mixer_->get_resampling_lpf()));
 
-			audio_content_mgr = bstone::make_audio_content_mgr();
+			audio_content_mgr = bstone::make_audio_content_mgr(bstone::globals::page_mgr.get());
 			audio_content_mgr->set_sfx_type(sd_sfx_type);
 			audio_content_mgr->set_is_sfx_digitized(sd_is_sfx_digitized);
 		}

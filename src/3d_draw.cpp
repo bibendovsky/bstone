@@ -29,13 +29,13 @@ Free Software Foundation, Inc.,
 #include "id_ca.h"
 #include "id_heads.h"
 #include "id_in.h"
-#include "id_pm.h"
 #include "id_sd.h"
 #include "id_us.h"
 #include "id_vh.h"
 #include "id_vl.h"
 
 #include "bstone_generic_fizzle_fx.h"
+#include "bstone_globals.h"
 #include "bstone_math.h"
 
 
@@ -162,7 +162,12 @@ struct star_t
 */
 
 // the door is the last picture before the sprites
-#define DOORWALL (PMSpriteStart - (NUMDOORTYPES))
+static int get_door_page_base_index()
+{
+	return bstone::globals::page_mgr->get_wall_count() - NUMDOORTYPES;
+}
+
+#define DOORWALL get_door_page_base_index()
 
 constexpr auto ACTORSIZE = bstone::math::fixed_to_floating(0x4000);
 
@@ -595,7 +600,7 @@ void HitVertWall()
 			wallpic = vertwall[tilehit];
 		}
 
-		last_texture_data = static_cast<const std::uint8_t*>(PM_GetPage(wallpic));
+		last_texture_data = bstone::globals::page_mgr->get(wallpic);
 		last_texture_offset = texture;
 		postsource = &last_texture_data[last_texture_offset];
 	}
@@ -670,7 +675,7 @@ void HitHorizWall()
 			wallpic = horizwall[tilehit];
 		}
 
-		last_texture_data = static_cast<const std::uint8_t*>(PM_GetPage(wallpic));
+		last_texture_data = bstone::globals::page_mgr->get(wallpic);
 		last_texture_offset = texture;
 		postsource = &last_texture_data[last_texture_offset];
 	}
@@ -826,7 +831,7 @@ void HitHorizDoor()
 
 		const auto doorpage = get_door_page_number(door_index, false);
 
-		last_texture_data = static_cast<const std::uint8_t*>(PM_GetPage(doorpage));
+		last_texture_data = bstone::globals::page_mgr->get(doorpage);
 		last_texture_offset = texture;
 		postsource = &last_texture_data[last_texture_offset];
 	}
@@ -897,7 +902,7 @@ void HitVertDoor()
 
 		const auto doorpage = get_door_page_number(door_index, true);
 
-		last_texture_data = static_cast<const std::uint8_t*>(PM_GetPage(doorpage));
+		last_texture_data = bstone::globals::page_mgr->get(doorpage);
 		last_texture_offset = texture;
 		postsource = &last_texture_data[last_texture_offset];
 	}
@@ -947,7 +952,7 @@ void HitHorizPWall()
 		postx = pixx;
 
 		const auto wallpic = horizwall[tilehit & 63];
-		last_texture_data = static_cast<const std::uint8_t*>(PM_GetPage(wallpic));
+		last_texture_data = bstone::globals::page_mgr->get(wallpic);
 		last_texture_offset = texture;
 		postsource = &last_texture_data[last_texture_offset];
 	}
@@ -996,7 +1001,7 @@ void HitVertPWall()
 		postx = pixx;
 
 		const auto wallpic = vertwall[tilehit & 63];
-		last_texture_data = static_cast<const std::uint8_t*>(PM_GetPage(wallpic));
+		last_texture_data = bstone::globals::page_mgr->get(wallpic);
 		last_texture_offset = texture;
 		postsource = &last_texture_data[last_texture_offset];
 	}

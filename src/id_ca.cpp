@@ -47,7 +47,6 @@ loaded into the data segment
 #include "jm_cio.h"
 #include "jm_lzh.h"
 #include "id_heads.h"
-#include "id_pm.h"
 #include "id_sd.h"
 #include "id_vh.h"
 #include "id_vl.h"
@@ -60,6 +59,7 @@ loaded into the data segment
 #include "bstone_endian.h"
 #include "bstone_exception.h"
 #include "bstone_file_system.h"
+#include "bstone_globals.h"
 #include "bstone_logger.h"
 #include "bstone_memory_stream.h"
 #include "bstone_rgb_palette.h"
@@ -2122,11 +2122,13 @@ void ImageExtractor::extract_vga_palette(
 void ImageExtractor::extract_walls(
 	const std::string& destination_dir)
 {
+	const auto wall_count = bstone::globals::page_mgr->get_wall_count();
+
 	bstone::logger_->write();
 	bstone::logger_->write("<<< ================");
 	bstone::logger_->write("Extracting walls.");
 	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
-	bstone::logger_->write("File count: " + std::to_string(PMSpriteStart));
+	bstone::logger_->write("File count: " + std::to_string(wall_count));
 
 	if (!is_initialized_)
 	{
@@ -2139,7 +2141,7 @@ void ImageExtractor::extract_walls(
 
 	set_palette(sdl_surface_64x64x8_.get(), vga_palette_);
 
-	for (int i = 0; i < PMSpriteStart; ++i)
+	for (int i = 0; i < wall_count; ++i)
 	{
 		extract_wall(i);
 	}
@@ -2150,7 +2152,7 @@ void ImageExtractor::extract_walls(
 void ImageExtractor::extract_sprites(
 	const std::string& destination_dir)
 {
-	sprite_count_ = ChunksInFile - PMSpriteStart - 1;
+	sprite_count_ = bstone::globals::page_mgr->get_sprite_count();
 
 	if (sprite_count_ < 0)
 	{
@@ -2434,14 +2436,7 @@ bool ImageExtractor::save_image(
 bool ImageExtractor::extract_wall(
 	const int wall_index)
 {
-	if (wall_index < 0 && wall_index >= PMSpriteStart)
-	{
-		bstone::logger_->write_error("Wall index out of range.");
-
-		return false;
-	}
-
-	const auto wall_page = static_cast<const std::uint8_t*>(PM_GetPage(wall_index));
+	const auto wall_page = bstone::globals::page_mgr->get(wall_index);
 
 	if (!wall_page)
 	{
@@ -2543,7 +2538,7 @@ void ca_extract_music(
 	bstone::logger_->write("Extracting music.");
 	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
 
-	auto audio_content_mgr = bstone::make_audio_content_mgr();
+	auto audio_content_mgr = bstone::make_audio_content_mgr(bstone::globals::page_mgr.get());
 	auto audio_extractor = bstone::make_audio_extractor(audio_content_mgr.get());
 
 	const auto normalized_dst_dir = bstone::file_system::normalize_path(destination_dir);
@@ -2560,7 +2555,7 @@ void ca_extract_sfx(
 	bstone::logger_->write("Extracting sfx.");
 	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
 
-	auto audio_content_mgr = bstone::make_audio_content_mgr();
+	auto audio_content_mgr = bstone::make_audio_content_mgr(bstone::globals::page_mgr.get());
 	auto audio_extractor = bstone::make_audio_extractor(audio_content_mgr.get());
 
 	const auto normalized_dst_dir = bstone::file_system::normalize_path(destination_dir);

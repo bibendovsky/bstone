@@ -28,15 +28,20 @@ Free Software Foundation, Inc.,
 #include "id_ca.h"
 #include "id_heads.h"
 #include "id_in.h"
-#include "id_pm.h"
 #include "id_us.h"
 #include "id_vh.h"
 #include "id_vl.h"
 
+#include "bstone_globals.h"
 #include "bstone_logger.h"
 
 
-#define NUM_TILES (PMSpriteStart)
+static int get_wall_page_count()
+{
+	return bstone::globals::page_mgr->get_wall_count();
+}
+
+#define NUM_TILES get_wall_page_count()
 
 
 void TakeDamage(

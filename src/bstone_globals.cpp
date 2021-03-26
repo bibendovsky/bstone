@@ -22,26 +22,17 @@ Free Software Foundation, Inc.,
 */
 
 
-#ifndef BSTONE_ID_PM_INCLUDED
-#define BSTONE_ID_PM_INCLUDED
+#include "bstone_globals.h"
 
 
-const int PMPageSize = 4096;
+namespace bstone
+{
+namespace globals
+{
 
 
-extern int ChunksInFile;
-extern int PMSpriteStart;
-extern int PMSoundStart;
+PageMgrUPtr page_mgr{};
 
 
-void PM_Startup();
-void PM_Shutdown();
-void* PM_GetPage(
-	int page_number);
-void* PM_GetSoundPage(
-	int page_number);
-void* PM_GetSpritePage(
-	int page_number);
-
-
-#endif // BSTONE_ID_PM_INCLUDED
+} // globals
+} // bstone
