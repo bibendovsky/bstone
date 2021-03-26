@@ -108,7 +108,6 @@ Free Software Foundation, Inc.,
 #include "id_heads.h"
 #include "id_in.h"
 #include "id_vl.h"
-#include "id_pm.h"
 #include "id_sd.h"
 #include "id_us.h"
 #include "id_vh.h"
@@ -116,6 +115,8 @@ Free Software Foundation, Inc.,
 #include "gfxv.h"
 #include "3d_menu.h"
 #include "jm_tp.h"
+
+#include "bstone_globals.h"
 #include "bstone_sprite.h"
 
 
@@ -3090,7 +3091,9 @@ std::int16_t TP_DrawShape(
 	{
 	case pis_scwall:
 		TP_CacheIn(ct_scaled, 0);
-		addr = PM_GetPage(shapenum);
+
+		// FIXME const
+		addr = const_cast<std::uint8_t*>(bstone::globals::page_mgr->get(shapenum));
 
 		draw_wall_ui(
 			x,

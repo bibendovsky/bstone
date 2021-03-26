@@ -37,7 +37,6 @@ Free Software Foundation, Inc.,
 #include "id_ca.h"
 #include "id_heads.h"
 #include "id_in.h"
-#include "id_pm.h"
 #include "id_sd.h"
 #include "id_us.h"
 #include "id_vh.h"
@@ -48,6 +47,7 @@ Free Software Foundation, Inc.,
 #include "bstone_archiver.h"
 #include "bstone_endian.h"
 #include "bstone_file_system.h"
+#include "bstone_globals.h"
 #include "bstone_logger.h"
 #include "bstone_math.h"
 #include "bstone_memory_stream.h"
@@ -9565,10 +9565,11 @@ void ShutdownId()
 {
 	US_Shutdown();
 	sd_shutdown();
-	PM_Shutdown();
 	IN_Shutdown();
 	VW_Shutdown();
 	CA_Shutdown();
+
+	bstone::globals::page_mgr = nullptr;
 }
 
 void CalcProjection(

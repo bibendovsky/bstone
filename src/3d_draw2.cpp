@@ -23,10 +23,10 @@ Free Software Foundation, Inc.,
 
 
 #include "3d_def.h"
-#include "id_pm.h"
 #include "id_vl.h"
 
 #include "bstone_math.h"
+#include "bstone_globals.h"
 
 
 #define MAXVIEWHEIGHT (200)
@@ -142,7 +142,7 @@ void SetPlaneViewSize()
 		}
 	}
 
-	src = static_cast<const std::uint8_t*>(PM_GetPage(CeilingTile));
+	src = bstone::globals::page_mgr->get(CeilingTile);
 	dest = planepics;
 
 	for (int x = 0; x < 4096; ++x)
@@ -151,7 +151,7 @@ void SetPlaneViewSize()
 		dest += 2;
 	}
 
-	src = static_cast<const std::uint8_t*>(PM_GetPage(FloorTile));
+	src = bstone::globals::page_mgr->get(FloorTile);
 	dest = planepics + 1;
 
 	for (int x = 0; x < 4096; ++x)

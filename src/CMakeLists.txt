@@ -329,7 +329,6 @@ target_sources(
 		id_ca.h
 		id_heads.h
 		id_in.h
-		id_pm.h
 		id_sd.h
 		id_us.h
 		id_vh.h
@@ -361,6 +360,7 @@ target_sources(
 		bstone_fizzle_fx.h
 		bstone_format_string.h
 		bstone_generic_fizzle_fx.h
+		bstone_globals.h
 		bstone_content_path.h
 		bstone_logger.h
 		bstone_low_pass_filter.h
@@ -371,6 +371,7 @@ target_sources(
 		bstone_mt_queue_1r1w.h
 		bstone_mt_task_mgr.h
 		bstone_opl3.h
+		bstone_page_mgr.h
 		bstone_pc_speaker_audio_decoder.h
 		bstone_precompiled.h
 		bstone_ps_fizzle_fx.h
@@ -476,7 +477,6 @@ target_sources(
 		d3_dr2.cpp
 		id_ca.cpp
 		id_in.cpp
-		id_pm.cpp
 		id_sd.cpp
 		id_us.cpp
 		id_us_1.cpp
@@ -514,6 +514,7 @@ target_sources(
 		bstone_fizzle_fx.cpp
 		bstone_format_string.cpp
 		bstone_generic_fizzle_fx.cpp
+		bstone_globals.cpp
 		bstone_gog_content_path.cpp
 		bstone_logger.cpp
 		bstone_low_pass_filter.cpp
@@ -521,6 +522,7 @@ target_sources(
 		bstone_memory_stream.cpp
 		bstone_mt_task_mgr.cpp
 		bstone_opl3.cpp
+		bstone_page_mgr.cpp
 		bstone_pc_speaker_audio_decoder.cpp
 		bstone_pcm_audio_decoder.cpp
 		bstone_ps_fizzle_fx.cpp

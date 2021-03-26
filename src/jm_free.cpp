@@ -41,7 +41,6 @@ Free Software Foundation, Inc.,
 #include "id_ca.h"
 #include "id_heads.h"
 #include "id_in.h"
-#include "id_pm.h"
 #include "id_sd.h"
 #include "id_us.h"
 #include "id_vh.h"
@@ -49,6 +48,7 @@ Free Software Foundation, Inc.,
 #include "3d_menu.h"
 #include "gfxv.h"
 
+#include "bstone_globals.h"
 #include "bstone_logger.h"
 #include "bstone_version.h"
 #include "bstone_content_path.h"
@@ -1324,7 +1324,7 @@ void InitGame()
 	std::uint16_t* blockstart;
 
 	CA_Startup();
-	PM_Startup();
+	bstone::globals::page_mgr = bstone::make_page_mgr();
 
 	check_for_extract_options();
 

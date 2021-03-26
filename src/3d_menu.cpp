@@ -32,7 +32,6 @@ Free Software Foundation, Inc.,
 #include "audio.h"
 #include "id_ca.h"
 #include "id_heads.h"
-#include "id_pm.h"
 #include "id_sd.h"
 #include "id_us.h"
 #include "id_vh.h"
@@ -2445,8 +2444,6 @@ void ChangeSwaps()
 	WindowH = 200;
 	Message(Computing);
 
-	PM_Shutdown();
-	PM_Startup();
 	ClearMemory();
 	ControlPanelAlloc();
 

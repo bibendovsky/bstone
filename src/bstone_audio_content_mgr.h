@@ -32,6 +32,8 @@ Free Software Foundation, Inc.,
 
 #include "audio.h"
 
+#include "bstone_page_mgr.h"
+
 
 namespace bstone
 {
@@ -81,7 +83,8 @@ public:
 
 using AudioContentMgrUPtr = std::unique_ptr<AudioContentMgr>;
 
-AudioContentMgrUPtr make_audio_content_mgr();
+AudioContentMgrUPtr make_audio_content_mgr(
+	PageMgr* page_mgr);
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
