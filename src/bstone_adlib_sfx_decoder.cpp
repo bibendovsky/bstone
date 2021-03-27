@@ -125,10 +125,7 @@ AdlibSfxDecoder::AdlibSfxDecoder(
 {
 }
 
-AdlibSfxDecoder::~AdlibSfxDecoder()
-{
-	uninitialize_internal();
-}
+AdlibSfxDecoder::~AdlibSfxDecoder() = default;
 
 bool AdlibSfxDecoder::initialize(
 	const AudioDecoderInitParam& param)
@@ -268,11 +265,6 @@ int AdlibSfxDecoder::decode(
 
 void AdlibSfxDecoder::uninitialize_internal()
 {
-	if (emulator_)
-	{
-		emulator_->reset();
-	}
-
 	reader_.close();
 	instrument_ = {};
 	commands_count_ = {};
