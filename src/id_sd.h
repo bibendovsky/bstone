@@ -176,12 +176,6 @@ void sd_pause_music(
 	const bool is_pause);
 
 
-bstone::AudioDecoderInterpolationType sd_get_resampling_interpolation() noexcept;
-
-void sd_cfg_set_resampling_interpolation(
-	const bstone::AudioDecoderInterpolationType interpolation_type);
-
-
 bool sd_cfg_get_resampling_low_pass_filter() noexcept;
 
 void sd_cfg_set_resampling_low_pass_filter(

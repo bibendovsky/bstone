@@ -354,7 +354,7 @@ const std::string& Ren3dGl::get_description() const noexcept
 }
 
 void Ren3dGl::fbo_deleter(
-	const GLuint& gl_name) noexcept
+	GLuint gl_name) noexcept
 {
 	const auto gl_function = (glDeleteFramebuffers ? glDeleteFramebuffers : glDeleteFramebuffersEXT);
 	gl_function(1, &gl_name);
@@ -362,7 +362,7 @@ void Ren3dGl::fbo_deleter(
 }
 
 void Ren3dGl::rbo_deleter(
-	const GLuint& gl_name) noexcept
+	GLuint gl_name) noexcept
 {
 	const auto gl_function = (glDeleteRenderbuffers ? glDeleteRenderbuffers : glDeleteRenderbuffersEXT);
 	gl_function(1, &gl_name);

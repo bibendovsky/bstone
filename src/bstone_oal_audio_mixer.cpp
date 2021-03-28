@@ -69,12 +69,7 @@ public:
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-OalAudioMixer::OalAudioMixer(
-	MtTaskMgr* mt_task_manager)
-	:
-	mt_task_manager_{mt_task_manager}
-{
-}
+OalAudioMixer::OalAudioMixer() = default;
 
 OalAudioMixer::~OalAudioMixer()
 {
@@ -119,7 +114,6 @@ try
 	initialize_sfx();
 	initialize_thread();
 
-	interpolation_ = AudioDecoderInterpolationType::none;
 	is_lpf_ = false;
 	is_mute_ = false;
 
@@ -191,11 +185,6 @@ float OalAudioMixer::get_music_volume() const
 	return music_volume_;
 }
 
-AudioDecoderInterpolationType OalAudioMixer::get_resampling_interpolation() const noexcept
-{
-	return interpolation_;
-}
-
 bool OalAudioMixer::get_resampling_lpf() const noexcept
 {
 	return is_lpf_;
@@ -220,8 +209,6 @@ try
 	audio_decoder_param.src_raw_data_ = data;
 	audio_decoder_param.src_raw_size_ = data_size;
 	audio_decoder_param.dst_rate_ = dst_rate_;
-	audio_decoder_param.resampler_interpolation_ = AudioDecoderInterpolationType::zoh;
-	audio_decoder_param.resampler_lpf_ = false;
 
 	if (!music_adlib_sound_.audio_decoder->initialize(audio_decoder_param))
 	{
@@ -363,8 +350,7 @@ catch (...)
 	return false;
 }
 
-bool OalAudioMixer::set_resampling(
-	bstone::AudioDecoderInterpolationType interpolation,
+bool OalAudioMixer::set_resampling_low_pass_filter(
 	bool low_pass_filter)
 {
 	if (!is_initialized())
@@ -372,21 +358,7 @@ bool OalAudioMixer::set_resampling(
 		return false;
 	}
 
-	auto new_interpolation = interpolation;
-
-	switch (interpolation)
-	{
-		case bstone::AudioDecoderInterpolationType::zoh:
-		case bstone::AudioDecoderInterpolationType::linear:
-			break;
-
-		default:
-			new_interpolation = bstone::AudioDecoderInterpolationType::linear;
-			break;
-	}
-
-	if (new_interpolation == interpolation_ &&
-		low_pass_filter == is_lpf_)
+	if (low_pass_filter == is_lpf_)
 	{
 		return true;
 	}
@@ -789,8 +761,6 @@ bool OalAudioMixer::play_sfx_sound(
 		audio_decoder_param.src_raw_data_ = data;
 		audio_decoder_param.src_raw_size_ = data_size;
 		audio_decoder_param.dst_rate_ = dst_rate_;
-		audio_decoder_param.resampler_interpolation_ = AudioDecoderInterpolationType::zoh;
-		audio_decoder_param.resampler_lpf_ = false;
 
 		auto audio_decoder = sfx_sound.audio_decoder.get();
 

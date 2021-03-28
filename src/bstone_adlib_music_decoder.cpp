@@ -71,11 +71,6 @@ public:
 
 	int get_dst_length_in_samples() const noexcept override;
 
-	bool set_resampling(
-		const AudioDecoderInterpolationType interpolation_type,
-		const bool lpf,
-		const bool lpf_flush_samples) override;
-
 	// Returns a number of calls per second of
 	// original interrupt routine.
 	static int get_tick_rate();
@@ -221,14 +216,6 @@ bool AdlibMusicDecoder::rewind()
 int AdlibMusicDecoder::get_dst_length_in_samples() const noexcept
 {
 	return dst_length_in_samples_;
-}
-
-bool AdlibMusicDecoder::set_resampling(
-	const AudioDecoderInterpolationType interpolation_type,
-	const bool lpf,
-	const bool lpf_flush_samples)
-{
-	return false;
 }
 
 int AdlibMusicDecoder::decode(

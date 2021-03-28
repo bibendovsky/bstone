@@ -64,9 +64,6 @@ AudioDecoderUPtr make_audio_decoder(
 		case AudioDecoderType::adlib_sfx:
 			return detail::make_adlib_sfx_audio_decoder(opl3_type);
 
-		case AudioDecoderType::pcm:
-			return detail::make_pcm_audio_decoder();
-
 		case AudioDecoderType::pc_speaker:
 			return std::make_unique<PcSpeakerAudioDecoder>();
 

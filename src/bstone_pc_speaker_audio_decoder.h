@@ -65,11 +65,6 @@ public:
 
 	int get_dst_length_in_samples() const noexcept override;
 
-	bool set_resampling(
-		AudioDecoderInterpolationType interpolation_type,
-		bool lpf,
-		bool lpf_flush_samples) override;
-
 
 private:
 	static constexpr auto min_src_size = 6;

@@ -72,7 +72,6 @@ auto sd_is_sfx_digitized = true;
 static int sd_music_index_ = -1;
 static bstone::AudioMixerUPtr sd_mixer_;
 
-static bstone::AudioDecoderInterpolationType sd_interpolation_ = bstone::AudioDecoderInterpolationType::linear;
 static bool sd_lpf_ = false;
 
 int sd_sfx_volume_ = sd_default_sfx_volume;
@@ -186,27 +185,6 @@ const std::string& sd_get_opl3_long_name(
 	}
 }
 
-const std::string& sd_get_resampling_interpolation_long_name(
-	const bstone::AudioDecoderInterpolationType interpolation_type)
-{
-	static const auto unknown = std::string{"none"};
-	static const auto zoh = std::string{"Zero-Order Hold"};
-	static const auto linear = std::string{"Linear"};
-
-	switch (interpolation_type)
-	{
-		case bstone::AudioDecoderInterpolationType::zoh:
-			return zoh;
-
-		case bstone::AudioDecoderInterpolationType::linear:
-			return linear;
-
-		case bstone::AudioDecoderInterpolationType::none:
-		default:
-			return unknown;
-	}
-}
-
 const std::string& sd_get_resampling_lpf_long_name(
 	const bool is_enabled)
 {
@@ -222,13 +200,12 @@ bool sd_initialize_driver(
 	int mix_size_ms)
 try
 {
-	auto sd_mixer = bstone::make_audio_mixer(audio_driver_type, mt_task_manager_);
+	auto sd_mixer = bstone::make_audio_mixer(audio_driver_type);
 
 	auto param = bstone::AudioMixerInitParam{};
 	param.opl3_type_ = bstone::Opl3Type::dbopl;
 	param.dst_rate_ = sample_rate;
 	param.mix_size_ms_ = mix_size_ms;
-	param.resampling_interpolation_ = sd_interpolation_;
 	param.resampling_lpf_ = sd_lpf_;
 
 	if (sd_mixer->initialize(param))
@@ -312,9 +289,6 @@ void sd_startup()
 			sd_log("Effects volume: " + std::to_string(sd_sfx_volume_) + " / " + std::to_string(sd_max_volume));
 			sd_log("Music volume: " + std::to_string(sd_music_volume_) + " / " + std::to_string(sd_max_volume));
 			sd_log("OPL3 type: " + sd_get_opl3_long_name(sd_mixer_->get_opl3_type()));
-
-			sd_log("Resampling interpolation: " +
-				sd_get_resampling_interpolation_long_name(sd_mixer_->get_resampling_interpolation()));
 
 			sd_log("Resampling low-pass filter: " +
 				sd_get_resampling_lpf_long_name(sd_mixer_->get_resampling_lpf()));
@@ -679,17 +653,6 @@ void sd_pause_music(
 	}
 }
 
-bstone::AudioDecoderInterpolationType sd_get_resampling_interpolation() noexcept
-{
-	return sd_interpolation_;
-}
-
-void sd_cfg_set_resampling_interpolation(
-	const bstone::AudioDecoderInterpolationType interpolation_type)
-{
-	sd_interpolation_ = interpolation_type;
-}
-
 bool sd_cfg_get_resampling_low_pass_filter() noexcept
 {
 	return sd_lpf_;
@@ -721,15 +684,12 @@ void sd_apply_resampling()
 	sd_log();
 	sd_log("Applying resample parameters.");
 
-	if (!sd_mixer_->set_resampling(sd_interpolation_, sd_lpf_))
+	if (!sd_mixer_->set_resampling_low_pass_filter(sd_lpf_))
 	{
 		sd_log_error("Failed to apply resample parameters.");
 
 		return;
 	}
-
-	sd_log("Resampling interpolation: " +
-		sd_get_resampling_interpolation_long_name(sd_mixer_->get_resampling_interpolation()));
 
 	sd_log("Resampling low-pass filter: " +
 		sd_get_resampling_lpf_long_name(sd_mixer_->get_resampling_lpf()));
@@ -769,7 +729,6 @@ void sd_cfg_set_is_sfx_digitized(
 
 void sd_cfg_set_defaults()
 {
-	sd_interpolation_ = bstone::AudioDecoderInterpolationType::linear;
 	sd_lpf_ = true;
 
 	sd_sfx_type = AudioSfxType::adlib;
@@ -813,18 +772,6 @@ const std::string& sd_cfg_get_oal_device_name_name()
 	return result;
 }
 
-const std::string& sd_cfg_get_zoh_name()
-{
-	static const auto result = std::string{"zoh"};
-	return result;
-}
-
-const std::string& sd_cfg_get_linear_name()
-{
-	static const auto result = std::string{"linear"};
-	return result;
-}
-
 const std::string& sd_cfg_get_resampling_interpolation_name()
 {
 	static const auto result = std::string{"snd_resampling_interpolation"};
@@ -865,18 +812,8 @@ bool sd_cfg_parse_key_value(
 	const std::string& key_string,
 	const std::string& value_string)
 {
-	if (key_string == sd_cfg_get_resampling_interpolation_name())
+	if (false)
 	{
-		if (value_string == sd_cfg_get_zoh_name())
-		{
-			sd_cfg_set_resampling_interpolation(bstone::AudioDecoderInterpolationType::zoh);
-		}
-		else if (value_string == sd_cfg_get_linear_name())
-		{
-			sd_cfg_set_resampling_interpolation(bstone::AudioDecoderInterpolationType::linear);
-		}
-
-		return true;
 	}
 	else if (key_string == sd_cfg_get_resampling_lpf_name())
 	{
@@ -1024,30 +961,6 @@ void sd_cfg_parse_cl()
 void sd_cfg_write(
 	bstone::TextWriter& text_writer)
 {
-	// Interpolation.
-	//
-	{
-		auto value_string = std::string{};
-
-		switch (sd_interpolation_)
-		{
-			case bstone::AudioDecoderInterpolationType::zoh:
-				value_string = sd_cfg_get_zoh_name();
-				break;
-
-			case bstone::AudioDecoderInterpolationType::linear:
-			default:
-				value_string = sd_cfg_get_linear_name();
-				break;
-		}
-
-		cfg_file_write_entry(
-			text_writer,
-			sd_cfg_get_resampling_interpolation_name(),
-			value_string
-		);
-	}
-
 	// LPF
 	//
 	cfg_file_write_entry(

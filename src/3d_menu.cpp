@@ -407,9 +407,6 @@ void cp_sound_volume(
 
 void cp_video(
 	std::int16_t);
-
-void cp_resampling(
-	std::int16_t);
 // BBi
 
 
@@ -437,7 +434,6 @@ CP_iteminfo video_items = {MENU_X, MENU_Y + 30, 5, 0, 0, 9, {77, -1, 154, 7, 1}}
 CP_iteminfo video_mode_items = {MENU_X, MENU_Y + 10, 8, 0, 0, 9, {77, -1, 154, 7, 1}};
 CP_iteminfo texturing_items = {MENU_X, MENU_Y + 10, 7, 0, 0, 9, {77, -1, 154, 7, 1}};
 CP_iteminfo switches2_items = {MENU_X, MENU_Y + 30, 3, 0, 0, 9, {87, -1, 132, 7, 1}};
-CP_iteminfo resampling_items = {MENU_X, MENU_Y + 30, 3, 0, 0, 9, {77, -1, 154, 7, 1}};
 // BBi
 
 
@@ -481,7 +477,7 @@ CP_itemtype SndMenu[] =
 	{AT_ENABLED, "SFX TYPE", 0},
 	{AT_ENABLED, "DIGITIZED SFX", 0},
 	{AT_ENABLED, "BACKGROUND MUSIC", 0},
-	{AT_ENABLED, "RESAMPLING", cp_resampling},
+	{AT_ENABLED, "RESAMPLING LOW-PASS FILTER", nullptr},
 	{AT_ENABLED, "DRIVER", 0},
 };
 
@@ -511,15 +507,6 @@ CP_itemtype switch2_menu[] =
 	{AT_ENABLED, "SKIP FADE IN/OUT EFFECT", 0},
 	{AT_ENABLED, "NO WEAPON BOBBING", 0},
 };
-
-CP_itemtype resampling_menu[] =
-{
-	{AT_ENABLED, "INTERPOLATION", 0},
-	{AT_ENABLED, "LOW-PASS FILTER", 0},
-	{AT_ENABLED, "APPLY", 0},
-};
-
-
 
 CP_itemtype NewEmenu[] = {
 	{AT_ENABLED, "MISSION 1:\n"
@@ -2849,8 +2836,10 @@ void CP_Sound(
 			break;
 
 		case 4:
-			MenuFadeIn();
+			sd_cfg_set_resampling_low_pass_filter(!sd_cfg_get_resampling_low_pass_filter());
+			sd_apply_resampling();
 			DrawSoundMenu();
+			ShootSnd();
 			break;
 
 		default:
@@ -2946,7 +2935,11 @@ void DrawAllSoundLights(
 				break;
 
 			case 4:
-				continue;
+				if (sd_cfg_get_resampling_low_pass_filter())
+				{
+					++Shape;
+				}
+				break;
 
 			case 5:
 				draw_carousel(
@@ -6132,245 +6125,6 @@ void cp_switches2(
 ///
 
 ///
-static int resampling_interpolation_;
-static std::string resampling_interpolation_string_;
-
-static bool resampling_lpf_;
-static std::string resampling_lpf_string_;
-
-void update_resampling_apply_state()
-{
-	const auto is_changed =
-		resampling_lpf_ != sd_cfg_get_resampling_low_pass_filter() ||
-		resampling_interpolation_ != static_cast<int>(sd_get_resampling_interpolation())
-	;
-
-	resampling_menu[2].active = (is_changed ? AT_ENABLED : AT_DISABLED);
-}
-
-void draw_resampling_description(
-	std::int16_t which)
-{
-	const char* instr[] =
-	{
-		"SELECTS INTERPOLATION METHOD",
-		"TOGGLES LOW-PASS FILTER",
-		"APPLIES CHANGES"
-	};
-
-	const auto& assets_info = get_assets_info();
-
-	fontnumber = 2;
-
-	WindowX = 48;
-	WindowY = (assets_info.is_ps() ? 134 : 144);
-	WindowW = 236;
-	WindowH = 8;
-
-	VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, menu_background_color);
-
-	SETFONTCOLOR(TERM_SHADOW_COLOR, TERM_BACK_COLOR);
-	US_PrintCentered(instr[which]);
-
-	WindowX--;
-	WindowY--;
-
-	SETFONTCOLOR(INSTRUCTIONS_TEXT_COLOR, TERM_BACK_COLOR);
-	US_PrintCentered(instr[which]);
-}
-
-void draw_resampling_switch(
-	std::int16_t which)
-{
-	for (int i = 0; i < resampling_items.amount; ++i)
-	{
-		if (resampling_menu[i].string[0])
-		{
-			switch (i)
-			{
-				case 0:
-					draw_carousel(
-						i,
-						&resampling_items,
-						resampling_menu,
-						resampling_interpolation_string_
-					);
-
-					break;
-
-				case 1:
-					draw_carousel(
-						i,
-						&resampling_items,
-						resampling_menu,
-						resampling_lpf_string_
-					);
-
-					break;
-
-				default:
-					break;
-			}
-		}
-	}
-
-	draw_resampling_description(which);
-}
-
-void update_resampling_menu()
-{
-	ClearMScreen();
-	DrawMenuTitle("SOUND RESAMPLING");
-
-	fontnumber = 2;
-
-	DrawMenu(&resampling_items, &resampling_menu[0]);
-	DrawInstructions(IT_STANDARD);
-}
-
-void update_resampling_interpolation_string()
-{
-	switch (resampling_interpolation_)
-	{
-		case 1:
-			resampling_interpolation_string_ = "ZOH";
-			break;
-
-		case 2:
-			resampling_interpolation_string_ = "LINEAR";
-			break;
-
-		default:
-			resampling_interpolation_string_ = "???";
-			break;
-	}
-}
-
-void update_resampling_lpf_string()
-{
-	if (resampling_lpf_)
-	{
-		resampling_lpf_string_ = "ON";
-	}
-	else
-	{
-		resampling_lpf_string_ = "OFF";
-	}
-}
-
-void draw_resampling_menu()
-{
-	resampling_interpolation_ = static_cast<int>(sd_get_resampling_interpolation());
-
-	if (resampling_interpolation_ <= 0)
-	{
-		resampling_interpolation_ = 1;
-	}
-
-	resampling_lpf_ = sd_cfg_get_resampling_low_pass_filter();
-
-	update_resampling_interpolation_string();
-	update_resampling_lpf_string();
-	update_resampling_apply_state();
-
-	CA_CacheScreen(BACKGROUND_SCREENPIC);
-
-	update_resampling_menu();
-
-	VW_UpdateScreen();
-}
-
-void resampling_interpolation_carousel(
-	const int item_index,
-	const bool is_left,
-	const bool is_right)
-{
-	if (is_left)
-	{
-		resampling_interpolation_ -= 1;
-	}
-	else if (is_right)
-	{
-		resampling_interpolation_ += 1;
-	}
-
-	if (resampling_interpolation_ <= 0)
-	{
-		resampling_interpolation_ = 2;
-	}
-	else if (resampling_interpolation_ > 2)
-	{
-		resampling_interpolation_ = 1;
-	}
-
-	update_resampling_interpolation_string();
-	update_resampling_apply_state();
-
-	update_resampling_menu();
-	draw_resampling_switch(static_cast<std::int16_t>(item_index));
-
-	TicDelay(20);
-}
-
-void resampling_lpf_carousel(
-	const int item_index,
-	const bool is_left,
-	const bool is_right)
-{
-	resampling_lpf_ = !resampling_lpf_;
-
-	update_resampling_lpf_string();
-	update_resampling_apply_state();
-
-	update_resampling_menu();
-	draw_resampling_switch(static_cast<std::int16_t>(item_index));
-
-	TicDelay(20);
-}
-
-void cp_resampling(
-	std::int16_t)
-{
-	CA_CacheScreen(BACKGROUND_SCREENPIC);
-	draw_resampling_menu();
-	MenuFadeIn();
-	WaitKeyUp();
-
-	resampling_menu[0].carousel_func_ = resampling_interpolation_carousel;
-	resampling_menu[1].carousel_func_ = resampling_lpf_carousel;
-
-	auto which = 0;
-
-	do
-	{
-		which = HandleMenu(&resampling_items, &resampling_menu[0], draw_resampling_switch);
-
-		switch (which)
-		{
-			case 2:
-				sd_cfg_set_resampling_interpolation(
-					static_cast<bstone::AudioDecoderInterpolationType>(resampling_interpolation_)
-				);
-				sd_cfg_set_resampling_low_pass_filter(resampling_lpf_);
-				sd_apply_resampling();
-
-				ShootSnd();
-				draw_resampling_menu();
-
-				break;
-
-			default:
-				break;
-		}
-	} while (which >= 0);
-
-	MenuFadeOut();
-}
-///
-
-
-///
-
 constexpr auto filler_cell_width = 9;
 constexpr auto filler_cell_height = 8;
 constexpr auto filler_cells_x = (vga_ref_width - (16 * filler_cell_width)) / 2;

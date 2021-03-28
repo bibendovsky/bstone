@@ -111,7 +111,7 @@ private:
 	Ren3dShaderKind kind_;
 
 	static void shader_deleter(
-		const GLuint& gl_name) noexcept;
+		GLuint gl_name) noexcept;
 
 	using ShaderResource = UniqueResource<GLuint, shader_deleter>;
 
@@ -220,7 +220,7 @@ Ren3dShaderKind Ren3dGlShaderImpl::get_kind() const noexcept
 }
 
 void Ren3dGlShaderImpl::shader_deleter(
-	const GLuint& gl_name) noexcept
+	GLuint gl_name) noexcept
 {
 	glDeleteShader(gl_name);
 	Ren3dGlError::ensure_debug();

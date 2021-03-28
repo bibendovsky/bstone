@@ -140,14 +140,6 @@ int PcSpeakerAudioDecoder::get_dst_length_in_samples() const noexcept
 	return total_sample_count_;
 }
 
-bool PcSpeakerAudioDecoder::set_resampling(
-	AudioDecoderInterpolationType,
-	bool,
-	bool)
-{
-	return true;
-}
-
 int PcSpeakerAudioDecoder::make_pit_frequency(
 	int command)
 {

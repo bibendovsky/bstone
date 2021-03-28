@@ -129,13 +129,13 @@ public:
 
 private:
 	static void fbo_deleter(
-		const GLuint& gl_name) noexcept;
+		GLuint gl_name) noexcept;
 
 	using FboResource = UniqueResource<GLuint, fbo_deleter>;
 
 
 	static void rbo_deleter(
-		const GLuint& gl_name) noexcept;
+		GLuint gl_name) noexcept;
 
 	using RboResource = UniqueResource<GLuint, rbo_deleter>;
 
