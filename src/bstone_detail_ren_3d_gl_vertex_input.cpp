@@ -102,7 +102,7 @@ private:
 	Ren3dVertexAttribDescrs attrib_descrs_;
 
 	static void vao_deleter(
-		const GLuint& gl_name) noexcept;
+		GLuint gl_name) noexcept;
 
 	using VaoResource = UniqueResource<GLuint, vao_deleter>;
 	VaoResource vao_resource_;
@@ -210,7 +210,7 @@ void Ren3dGlVertexInputImpl::bind()
 }
 
 void Ren3dGlVertexInputImpl::vao_deleter(
-	const GLuint& gl_name) noexcept
+	GLuint gl_name) noexcept
 {
 	glDeleteVertexArrays(1, &gl_name);
 	Ren3dGlError::ensure_debug();

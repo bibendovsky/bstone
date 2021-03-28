@@ -28,6 +28,8 @@ Free Software Foundation, Inc.,
 
 #include "bstone_audio_mixer.h"
 
+#include <cstdint>
+
 #include <atomic>
 #include <deque>
 #include <list>
@@ -39,7 +41,8 @@ Free Software Foundation, Inc.,
 
 #include "bstone_atomic_flag.h"
 #include "bstone_audio_decoder.h"
-#include "bstone_mt_task_mgr.h"
+#include "bstone_low_pass_filter.h"
+#include "bstone_sdl2_types.h"
 
 
 namespace bstone
@@ -50,10 +53,7 @@ class Sdl2AudioMixer final :
 	public AudioMixer
 {
 public:
-	Sdl2AudioMixer(
-		MtTaskMgr* const mt_task_manager);
-
-	~Sdl2AudioMixer() override;
+	Sdl2AudioMixer();
 
 
 	// Note: Mix size in milliseconds.
@@ -75,8 +75,6 @@ public:
 	float get_sfx_volume() const override;
 
 	float get_music_volume() const override;
-
-	AudioDecoderInterpolationType get_resampling_interpolation() const noexcept override;
 
 	bool get_resampling_lpf() const noexcept override;
 
@@ -115,8 +113,7 @@ public:
 		const ActorType actor_type = ActorType::none,
 		const ActorChannel actor_channel = ActorChannel::voice) override;
 
-	bool set_resampling(
-		const bstone::AudioDecoderInterpolationType interpolation,
+	bool set_resampling_low_pass_filter(
 		const bool low_pass_filter_) override;
 
 	bool update_positions() override;
@@ -179,6 +176,11 @@ private:
 		SoundType sound_type;
 		int samples_count;
 		int decoded_count;
+		int digitized_resampler_counter{};
+		int digitized_data_offset{};
+		int digitized_data_size{};
+		Sample digitized_last_sample{};
+		const std::uint8_t* digitized_data{};
 		int buffer_size_;
 		Samples samples;
 		AudioDecoderUPtr decoder;
@@ -244,7 +246,6 @@ private:
 		play,
 		stop_music,
 		stop_pausable_sfx,
-		resampling,
 	}; // CommandType
 
 	struct CommandPlay
@@ -254,103 +255,48 @@ private:
 		int data_size;
 	}; // CommandPlay
 
-	struct CommandResampling
-	{
-		AudioDecoderInterpolationType interpolation_;
-		bool low_pass_filter_;
-	}; // CommandResampling
-
 	struct Command
 	{
 		CommandType command_;
-
-		union
-		{
-			CommandPlay play_;
-			CommandResampling resampling_;
-		};
+		CommandPlay play_;
 	}; // Command
 
 	using Commands = std::vector<Command>;
 
-
-	class SetResamplingMtTask final :
-		public MtTask
-	{
-	public:
-		void execute() override;
-
-
-		bool is_completed() const noexcept override;
-
-		void set_completed() override;
-
-
-		bool is_failed() const noexcept override;
-
-		std::exception_ptr get_exception_ptr() const noexcept override;
-
-		void set_failed(
-			std::exception_ptr exception_ptr) override;
-
-
-		void initialize(
-			CacheItem* cache_item,
-			const AudioDecoderInterpolationType interpolation_,
-			const bool is_lpf_) noexcept;
-
-
-	private:
-		CacheItem* cache_item_{};
-		AudioDecoderInterpolationType interpolation_{};
-		bool is_lpf_{};
-
-		AtomicFlag is_completed_{};
-		AtomicFlag is_failed_{};
-
-		std::exception_ptr exception_ptr_{};
-	}; // SetResamplingMtTask
-
-	using SetResamplingMtTasks = std::vector<SetResamplingMtTask>;
-	using SetResamplingMtTasksPtrs = std::vector<MtTask*>;
-
-
-	MtTaskMgr* const mt_task_manager_;
-
-	bool is_initialized_;
-	Opl3Type opl3_type_;
-	int dst_rate_;
-	SDL_AudioDeviceID device_id_;
-	int mix_samples_count_;
-	Samples buffer_;
-	MixSamples mix_buffer_;
-	std::atomic_bool is_data_available_;
-	Sounds sounds_;
-	Commands commands_;
-	Commands mt_commands_;
-	MtLock mt_commands_lock_;
-	std::atomic_bool mt_is_muted_;
-	std::atomic_bool mt_is_sfx_paused_;
-	std::atomic_bool mt_is_music_paused_;
-	Cache adlib_music_cache_;
-	Cache adlib_sfx_cache_;
-	Cache pc_speaker_sfx_cache_;
-	Cache pcm_cache_;
-	Positions mt_positions_;
-	Positions positions_;
-	Indices modified_actors_indices_;
-	Indices modified_doors_indices_;
-	MtLock mt_positions_lock_;
-	std::atomic_int player_channels_state_;
-	std::atomic_bool is_music_playing_;
-	std::atomic_bool is_any_sfx_playing_;
-	std::atomic<float> sfx_volume_;
-	std::atomic<float> music_volume_;
-	int mix_size_ms_;
-	AudioDecoderInterpolationType interpolation_;
-	bool is_lpf_;
-	SetResamplingMtTasks set_resampling_mt_tasks_;
-	SetResamplingMtTasksPtrs set_resampling_mt_tasks_ptrs_;
+	bool is_initialized_{};
+	Opl3Type opl3_type_{};
+	int dst_rate_{};
+	SdlAudioDevice sdl_audio_device_{};
+	int mix_samples_count_{};
+	Samples buffer_{};
+	Samples digitized_mix_samples_{};
+	MixSamples mix_buffer_{};
+	AtomicFlag is_data_available_{};
+	Sounds sounds_{};
+	Commands commands_{};
+	Commands mt_commands_{};
+	MtLock mt_commands_lock_{};
+	AtomicFlag mt_is_muted_{};
+	AtomicFlag mt_is_sfx_paused_{};
+	AtomicFlag mt_is_music_paused_{};
+	Cache adlib_music_cache_{};
+	Cache adlib_sfx_cache_{};
+	Cache pc_speaker_sfx_cache_{};
+	Cache pcm_cache_{};
+	Positions mt_positions_{};
+	Positions positions_{};
+	Indices modified_actors_indices_{};
+	Indices modified_doors_indices_{};
+	MtLock mt_positions_lock_{};
+	std::atomic_int player_channels_state_{};
+	AtomicFlag is_music_playing_{};
+	AtomicFlag is_any_sfx_playing_{};
+	std::atomic<float> sfx_volume_{};
+	std::atomic<float> music_volume_{};
+	int mix_size_ms_{};
+	AtomicFlag is_lpf_{};
+	LowPassFilter digitized_left_lpf_{};
+	LowPassFilter digitized_right_lpf_{};
 
 
 	void callback(
@@ -361,8 +307,6 @@ private:
 
 	void mix_samples();
 
-	void handle_resampling();
-
 	void handle_commands();
 
 	void handle_play_command(
@@ -372,9 +316,16 @@ private:
 
 	void handle_stop_pausable_sfx_command();
 
+	bool initialize_digitized_cache_item(
+		const Command& command,
+		CacheItem& cache_item);
+
 	bool initialize_cache_item(
 		const Command& command,
 		CacheItem& cache_item);
+
+	bool decode_digitized_sound(
+		const Sound& sound);
 
 	bool decode_sound(
 		const Sound& sound);
@@ -427,6 +378,10 @@ private:
 	static bool is_sound_index_valid(
 		const int sound_index,
 		const SoundType sound_type);
+
+	static int calculate_digitized_sample_count(
+		int dst_sample_rate,
+		int digitized_byte_count) noexcept;
 }; // Sdl2AudioMixer
 
 

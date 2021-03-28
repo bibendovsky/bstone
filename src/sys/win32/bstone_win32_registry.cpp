@@ -62,7 +62,7 @@ public:
 
 
 void Win32RegistryKeyDeleter(
-	const HKEY& resource) noexcept
+	HKEY resource) noexcept
 {
 	RegCloseKey(resource);
 }

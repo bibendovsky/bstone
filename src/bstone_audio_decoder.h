@@ -49,16 +49,8 @@ enum class AudioDecoderType
 {
 	adlib_music = 1,
 	adlib_sfx = 2,
-	pcm = 3,
-	pc_speaker = 4,
+	pc_speaker = 3,
 }; // AudioDecoderType
-
-enum class AudioDecoderInterpolationType
-{
-	none,
-	zoh,
-	linear,
-}; // AudioDecoderInterpolationType
 
 
 struct AudioDecoderInitParam
@@ -66,8 +58,6 @@ struct AudioDecoderInitParam
 	const void* src_raw_data_;
 	int src_raw_size_;
 	int dst_rate_;
-	AudioDecoderInterpolationType resampler_interpolation_;
-	bool resampler_lpf_;
 }; // AudioDecoderInitParam
 
 
@@ -111,11 +101,6 @@ public:
 
 	// Returns a length of the audio data in samples.
 	virtual int get_dst_length_in_samples() const noexcept = 0;
-
-	virtual bool set_resampling(
-		const AudioDecoderInterpolationType interpolation_type,
-		const bool lpf,
-		const bool lpf_flush_samples) = 0;
 }; // AudioDecoder
 
 

@@ -45,16 +45,15 @@ public:
 
 
 AudioMixerUPtr make_audio_mixer(
-	AudioDriverType audio_driver_type,
-	MtTaskMgr* const mt_task_manager)
+	AudioDriverType audio_driver_type)
 {
 	switch (audio_driver_type)
 	{
 		case AudioDriverType::r2_sdl:
-			return std::make_unique<Sdl2AudioMixer>(mt_task_manager);
+			return std::make_unique<Sdl2AudioMixer>();
 
 		case AudioDriverType::r3_openal:
-			return std::make_unique<OalAudioMixer>(mt_task_manager);
+			return std::make_unique<OalAudioMixer>();
 
 		default:
 			throw MakeAudioMixerException{"Unsupported driver type."};

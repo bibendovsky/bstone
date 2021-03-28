@@ -54,8 +54,7 @@ class OalAudioMixer final :
 	public AudioMixer
 {
 public:
-	OalAudioMixer(
-		MtTaskMgr* mt_task_manager);
+	OalAudioMixer();
 
 	~OalAudioMixer() override;
 
@@ -79,8 +78,6 @@ public:
 	float get_sfx_volume() const override;
 
 	float get_music_volume() const override;
-
-	AudioDecoderInterpolationType get_resampling_interpolation() const noexcept override;
 
 	bool get_resampling_lpf() const noexcept override;
 
@@ -119,8 +116,7 @@ public:
 		ActorType actor_type = ActorType::none,
 		ActorChannel actor_channel = ActorChannel::voice) override;
 
-	bool set_resampling(
-		bstone::AudioDecoderInterpolationType interpolation,
+	bool set_resampling_low_pass_filter(
 		bool low_pass_filter) override;
 
 	bool update_positions() override;
@@ -240,14 +236,11 @@ private:
 	using Thread = std::thread;
 
 
-	MtTaskMgr* const mt_task_manager_;
-
 	bool is_initialized_{};
 	Opl3Type opl3_type_;
 	int dst_rate_;
 	int mix_sample_count_;
 	int mix_size_ms_;
-	AudioDecoderInterpolationType interpolation_;
 	bool is_lpf_;
 	bool is_mute_{};
 

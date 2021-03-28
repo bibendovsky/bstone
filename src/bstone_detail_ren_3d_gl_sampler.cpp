@@ -97,7 +97,7 @@ public:
 
 private:
 	static void sampler_deleter(
-		const GLuint& gl_name) noexcept;
+		GLuint gl_name) noexcept;
 
 	using SamplerResource = bstone::UniqueResource<GLuint, sampler_deleter>;
 
@@ -295,7 +295,7 @@ const Ren3dSamplerState& Ren3dGlSamplerImpl::get_state() const noexcept
 }
 
 void Ren3dGlSamplerImpl::sampler_deleter(
-	const GLuint& gl_name) noexcept
+	GLuint gl_name) noexcept
 {
 	glDeleteSamplers(1, &gl_name);
 	Ren3dGlError::ensure_debug();

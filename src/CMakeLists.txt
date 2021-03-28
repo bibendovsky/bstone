@@ -524,7 +524,6 @@ target_sources(
 		bstone_opl3.cpp
 		bstone_page_mgr.cpp
 		bstone_pc_speaker_audio_decoder.cpp
-		bstone_pcm_audio_decoder.cpp
 		bstone_ps_fizzle_fx.cpp
 		bstone_rgb8.cpp
 		bstone_sha1.cpp

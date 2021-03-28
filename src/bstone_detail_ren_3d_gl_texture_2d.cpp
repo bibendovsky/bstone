@@ -192,7 +192,7 @@ private:
 
 
 	static void texture_deleter(
-		const GLuint& gl_name) noexcept;
+		GLuint gl_name) noexcept;
 
 	using TextureResource = UniqueResource<GLuint, texture_deleter>;
 	TextureResource texture_resource_;
@@ -421,7 +421,7 @@ void Ren3dGlTexture2dImpl::generate_mipmaps()
 }
 
 void Ren3dGlTexture2dImpl::texture_deleter(
-	const GLuint& gl_name) noexcept
+	GLuint gl_name) noexcept
 {
 	glDeleteTextures(1, &gl_name);
 	Ren3dGlError::ensure_debug();

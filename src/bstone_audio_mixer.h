@@ -77,7 +77,6 @@ struct AudioMixerInitParam
 
 	int mix_size_ms_; // (milliseconds)
 
-	AudioDecoderInterpolationType resampling_interpolation_;
 	bool resampling_lpf_;
 }; // AudioMixerInitParam
 
@@ -108,8 +107,6 @@ public:
 	virtual float get_sfx_volume() const = 0;
 
 	virtual float get_music_volume() const = 0;
-
-	virtual AudioDecoderInterpolationType get_resampling_interpolation() const noexcept = 0;
 
 	virtual bool get_resampling_lpf() const noexcept = 0;
 
@@ -148,9 +145,8 @@ public:
 		const ActorType actor_type = ActorType::none,
 		const ActorChannel actor_channel = ActorChannel::voice) = 0;
 
-	virtual bool set_resampling(
-		const bstone::AudioDecoderInterpolationType interpolation,
-		const bool low_pass_filter_) = 0;
+	virtual bool set_resampling_low_pass_filter(
+		const bool low_pass_filter) = 0;
 
 	virtual bool update_positions() = 0;
 
@@ -198,8 +194,7 @@ using AudioMixerUPtr = std::unique_ptr<AudioMixer>;
 
 
 AudioMixerUPtr make_audio_mixer(
-	AudioDriverType audio_driver_type,
-	MtTaskMgr* const mt_task_manager);
+	AudioDriverType audio_driver_type);
 
 
 } // bstone

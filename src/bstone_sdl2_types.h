@@ -33,9 +33,9 @@ Free Software Foundation, Inc.,
 
 #include <memory>
 
-#include "SDL_render.h"
-#include "SDL_surface.h"
-#include "SDL_video.h"
+#include "SDL.h"
+
+#include "bstone_unique_resource.h"
 
 
 namespace bstone
@@ -75,6 +75,8 @@ using SdlRendererPtr = SDL_Renderer*;
 using SdlRendererUPtr = SdlUPtr<SDL_Renderer, SDL_DestroyRenderer>;
 
 using SdlRwOpsUPtr = SdlUPtr<SDL_RWops, SDL_FreeRW>;
+
+using SdlAudioDevice = UniqueResource<SDL_AudioDeviceID, SDL_CloseAudioDevice>;
 
 
 } //  bstone

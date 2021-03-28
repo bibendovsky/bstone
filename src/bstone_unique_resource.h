@@ -44,21 +44,17 @@ namespace bstone
 
 template<
 	typename TResource,
-	void (*TDeleter)(const TResource& resource) noexcept>
+	void (*TDeleter)(TResource resource)>
 class UniqueResource
 {
 public:
 	using Resource = TResource;
 
 
-	UniqueResource() noexcept
-		:
-		resource_{}
-	{
-	}
+	UniqueResource() noexcept = default;
 
 	explicit UniqueResource(
-		const Resource resource) noexcept
+		Resource resource) noexcept
 		:
 		resource_{resource}
 	{
@@ -69,8 +65,6 @@ public:
 
 	UniqueResource(
 		UniqueResource&& rhs) noexcept
-		:
-		resource_{}
 	{
 		std::swap(resource_, rhs.resource_);
 	}
@@ -113,7 +107,7 @@ public:
 	}
 
 	void reset(
-		const Resource& resource)
+		Resource resource)
 	{
 		close();
 
@@ -149,7 +143,7 @@ public:
 	}
 
 private:
-	Resource resource_;
+	Resource resource_{};
 
 
 	void close() noexcept
@@ -160,7 +154,7 @@ private:
 		}
 
 		TDeleter(resource_);
-		resource_ = {};
+		resource_ = Resource{};
 	}
 }; // Handle
 

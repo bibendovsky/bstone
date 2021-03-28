@@ -132,7 +132,7 @@ private:
 	Ren3dGlShaderPtr vertex_shader_;
 
 	static void shader_stage_deleter(
-		const GLuint& gl_name) noexcept;
+		GLuint gl_name) noexcept;
 
 	using ShaderStageResource = UniqueResource<GLuint, shader_stage_deleter>;
 
@@ -394,7 +394,7 @@ GLuint Ren3dGlShaderStageImpl::get_gl_name() const noexcept
 }
 
 void Ren3dGlShaderStageImpl::shader_stage_deleter(
-	const GLuint& gl_name) noexcept
+	GLuint gl_name) noexcept
 {
 	glDeleteProgram(gl_name);
 	Ren3dGlError::ensure_debug();

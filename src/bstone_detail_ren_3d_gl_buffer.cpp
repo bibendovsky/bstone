@@ -111,7 +111,7 @@ public:
 
 private:
 	static void buffer_deleter(
-		const GLuint& gl_name) noexcept;
+		GLuint gl_name) noexcept;
 
 	using BufferResource = UniqueResource<GLuint, buffer_deleter>;
 
@@ -266,7 +266,7 @@ void Ren3dGlBufferImpl::update(
 }
 
 void Ren3dGlBufferImpl::buffer_deleter(
-	const GLuint& gl_name) noexcept
+	GLuint gl_name) noexcept
 {
 	glDeleteBuffers(1, &gl_name);
 	Ren3dGlError::ensure_debug();
