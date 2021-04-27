@@ -130,8 +130,8 @@ enum class Ren3dPixelFormat
 
 struct Ren3dViewport
 {
-	int x_;
-	int y_;
+	int x;
+	int y;
 	int width_;
 	int height_;
 
@@ -141,8 +141,8 @@ struct Ren3dViewport
 
 struct Ren3dScissorBox
 {
-	int x_;
-	int y_;
+	int x;
+	int y;
 	int width_;
 	int height_;
 }; // Ren3dScissorBox

@@ -23,66 +23,18 @@ Free Software Foundation, Inc.,
 
 
 //
-// Base exception.
+// Index type.
 //
 
 
-#ifndef BSTONE_EXCEPTION_INCLUDED
-#define BSTONE_EXCEPTION_INCLUDED
-
-
-#include <exception>
-#include <memory>
-#include <string>
+#include <cstdint>
 
 
 namespace bstone
 {
 
 
-class Exception :
-	public std::exception
-{
-public:
-	explicit Exception(
-		const char* message) noexcept;
-
-	explicit Exception(
-		const std::string& message) noexcept;
-
-	Exception(
-		const char* context,
-		const char* message) noexcept;
-
-	Exception(
-		const Exception& rhs) noexcept;
-
-
-	const char* what() const noexcept override;
-
-
-	static std::string get_nested_message(
-		const std::exception& exception);
-
-
-private:
-	class Detail;
-
-
-	static void get_nested_message(
-		const std::exception& exception,
-		std::string& message);
-
-
-private:
-	using What = std::unique_ptr<char[]>;
-
-
-	What what_{};
-}; // Exception
+using Index = std::intptr_t;
 
 
 } // bstone
-
-
-#endif // !BSTONE_EXCEPTION_INCLUDED

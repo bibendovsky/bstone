@@ -52,7 +52,7 @@ using Ren3dGlShaderStagePtr = Ren3dGlShaderStage*;
 
 struct Ren3dGlShaderVarCreateParam
 {
-	Ren3dShaderVarKind kind_;
+	Ren3dShaderVarKind kind;
 	Ren3dShaderVarTypeId type_id_;
 	int value_size_;
 	int index_;

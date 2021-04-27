@@ -26,6 +26,7 @@ Free Software Foundation, Inc.,
 
 #include <algorithm>
 #include <functional>
+#include <stdexcept>
 #include <unordered_map>
 
 #include "SDL.h"

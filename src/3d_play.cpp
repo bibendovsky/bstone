@@ -1752,7 +1752,7 @@ void UpdatePaletteShifts()
 		red = 0;
 	}
 
-	if (vid_is_hw_)
+	if (vid_is_hw())
 	{
 		palette_shift_info_.is_bonus_shifted_ = false;
 
@@ -1819,7 +1819,7 @@ void UpdatePaletteShifts()
 
 void FinishPaletteShifts()
 {
-	if (vid_is_hw_)
+	if (vid_is_hw())
 	{
 		palette_shift_info_.is_bonus_shifted_ = false;
 		palette_shift_info_.is_damage_shifted_ = false;

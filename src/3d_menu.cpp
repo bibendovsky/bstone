@@ -27,6 +27,7 @@ Free Software Foundation, Inc.,
 
 #include <algorithm>
 #include <map>
+#include <stdexcept>
 #include <vector>
 
 #include "audio.h"
@@ -4817,7 +4818,7 @@ void video_draw_switch(
 					continue;
 
 			case mvl_widescreen:
-				if (configuration.is_widescreen_)
+				if (configuration.is_widescreen)
 				{
 					Shape++;
 				}
@@ -4926,8 +4927,8 @@ void menu_video_mode_set_windowed_size(
 	VideoModeCfg& video_mode_cfg)
 {
 	const auto& windowed_size = menu_video_mode_sizes_[menu_video_mode_sizes_index_];
-	video_mode_cfg.windowed_width_ = windowed_size.windowed_width_;
-	video_mode_cfg.windowed_height_ = windowed_size.windowed_height_;
+	video_mode_cfg.windowed_width = windowed_size.windowed_width;
+	video_mode_cfg.windowed_height = windowed_size.windowed_height;
 }
 
 void menu_video_mode_update_apply_button()
@@ -4998,7 +4999,7 @@ const std::string& menu_video_mode_renderer_kind_get_string(
 std::string menu_video_mode_size_get_string(
 	const VidWindowSize& size)
 {
-	return std::to_string(size.windowed_width_) + " X " + std::to_string(size.windowed_height_);
+	return std::to_string(size.windowed_width) + " X " + std::to_string(size.windowed_height);
 }
 
 const std::string& menu_video_mode_aa_kind_get_string(
@@ -5107,12 +5108,12 @@ void video_mode_draw_menu()
 	}
 
 	{
-		menu_video_mode_cfg_.is_windowed_ = vid_cfg.is_windowed_;
+		menu_video_mode_cfg_.is_windowed = vid_cfg.is_windowed;
 	}
 
 	{
-		menu_video_mode_cfg_.windowed_width_ = vid_cfg.windowed_width_;
-		menu_video_mode_cfg_.windowed_height_ = vid_cfg.windowed_height_;
+		menu_video_mode_cfg_.windowed_width = vid_cfg.windowed_width;
+		menu_video_mode_cfg_.windowed_height = vid_cfg.windowed_height;
 	}
 
 	{
@@ -5207,7 +5208,7 @@ void video_mode_draw_switch(
 					continue;
 
 				case 2:
-					if (menu_video_mode_cfg_.is_windowed_)
+					if (menu_video_mode_cfg_.is_windowed)
 					{
 						++Shape;
 					}
@@ -5412,7 +5413,7 @@ void video_menu_mode_routine(
 		switch (which)
 		{
 			case 2:
-				menu_video_mode_cfg_.is_windowed_ = !menu_video_mode_cfg_.is_windowed_;
+				menu_video_mode_cfg_.is_windowed = !menu_video_mode_cfg_.is_windowed;
 				menu_video_mode_update_apply_button();
 				video_mode_update_menu();
 				break;
@@ -5949,7 +5950,7 @@ void cp_video(
 
 		case mvl_widescreen:
 #ifndef __vita__
-			configuration.is_widescreen_ = !configuration.is_widescreen_;
+			configuration.is_widescreen = !configuration.is_widescreen;
 #endif
 			ShootSnd();
 			video_draw_switch(video_items.curpos);

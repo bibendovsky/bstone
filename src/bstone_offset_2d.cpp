@@ -38,7 +38,7 @@ bool operator==(
 	const Offset2d& lhs,
 	const Offset2d& rhs) noexcept
 {
-	return lhs.x_ == rhs.x_ && lhs.y_ == rhs.y_;
+	return lhs.x == rhs.x && lhs.y == rhs.y;
 }
 
 bool operator!=(

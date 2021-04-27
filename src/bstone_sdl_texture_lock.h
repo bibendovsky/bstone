@@ -23,66 +23,65 @@ Free Software Foundation, Inc.,
 
 
 //
-// Base exception.
+// SDL texture lock.
 //
 
 
-#ifndef BSTONE_EXCEPTION_INCLUDED
-#define BSTONE_EXCEPTION_INCLUDED
+#ifndef BSTONE_SDL_TEXTURE_LOCK_INCLUDED
+#define BSTONE_SDL_TEXTURE_LOCK_INCLUDED
 
 
-#include <exception>
-#include <memory>
-#include <string>
+#include "SDL_render.h"
 
 
 namespace bstone
 {
 
 
-class Exception :
-	public std::exception
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+class SdlTextureLock
 {
 public:
-	explicit Exception(
-		const char* message) noexcept;
+	explicit SdlTextureLock(
+		::SDL_Texture* sdl_texture,
+		const ::SDL_Rect* rect = nullptr);
 
-	explicit Exception(
-		const std::string& message) noexcept;
+	SdlTextureLock(
+		const SdlTextureLock& rhs) = delete;
 
-	Exception(
-		const char* context,
-		const char* message) noexcept;
+	SdlTextureLock(
+		SdlTextureLock&& rhs) noexcept;
 
-	Exception(
-		const Exception& rhs) noexcept;
+	SdlTextureLock& operator=(
+		const SdlTextureLock& rhs) = delete;
 
-
-	const char* what() const noexcept override;
+	~SdlTextureLock();
 
 
-	static std::string get_nested_message(
-		const std::exception& exception);
+	void* get_pixels() const noexcept;
+
+	template<
+		typename T
+	>
+	T get_pixels() const noexcept
+	{
+		return static_cast<T>(get_pixels());
+	}
+
+	int get_pitch() const noexcept;
 
 
 private:
-	class Detail;
+	::SDL_Texture* sdl_texture_{};
+	void* pixels_{};
+	int pitch_{};
+}; // SdlTextureLock
 
-
-	static void get_nested_message(
-		const std::exception& exception,
-		std::string& message);
-
-
-private:
-	using What = std::unique_ptr<char[]>;
-
-
-	What what_{};
-}; // Exception
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
 } // bstone
 
 
-#endif // !BSTONE_EXCEPTION_INCLUDED
+#endif // !BSTONE_SDL_TEXTURE_LOCK_INCLUDED

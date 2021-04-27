@@ -57,7 +57,7 @@ struct Ren3dShaderSource
 
 struct Ren3dCreateShaderParam
 {
-	Ren3dShaderKind kind_;
+	Ren3dShaderKind kind;
 	Ren3dShaderSource source_;
 }; // CreateParam
 

@@ -144,7 +144,7 @@ private:
 	using ShaderStages = std::list<Ren3dGlShaderStageUPtr>;
 
 
-	Ren3dKind kind_;
+	Ren3dKind kind;
 	std::string name_;
 	std::string description_;
 
@@ -152,8 +152,8 @@ private:
 	Ren3dDeviceFeatures device_features_;
 	Ren3dGlDeviceFeatures gl_device_features_;
 
-	int screen_width_;
-	int screen_height_;
+	int screen_width;
+	int screen_height;
 
 	Ren3dAaKind aa_kind_;
 	int aa_value_;

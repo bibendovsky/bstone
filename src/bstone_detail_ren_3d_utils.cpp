@@ -403,14 +403,14 @@ SdlWindowUPtr Ren3dUtils::create_window(
 
 	const auto x = (
 		param.window_.is_positioned_ ?
-			param.window_.rect_2d_.offset_.x_
+			param.window_.rect_2d_.offset_.x
 			:
 			SDL_WINDOWPOS_CENTERED
 	);
 
 	const auto y = (
 		param.window_.is_positioned_ ?
-			param.window_.rect_2d_.offset_.y_
+			param.window_.rect_2d_.offset_.y
 			:
 			SDL_WINDOWPOS_CENTERED
 	);
@@ -462,7 +462,7 @@ void Ren3dUtils::set_window_mode(
 	const auto is_current_windowed =
 		((sdl_window_flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) == 0);
 
-	const auto is_windowed_changed = (is_current_windowed != param.is_windowed_);
+	const auto is_windowed_changed = (is_current_windowed != param.is_windowed);
 
 
 	//
@@ -489,7 +489,7 @@ void Ren3dUtils::set_window_mode(
 
 	if (is_windowed_changed)
 	{
-		const Uint32 sdl_fullscreen_flags = (param.is_windowed_ ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
+		const Uint32 sdl_fullscreen_flags = (param.is_windowed ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
 
 		const auto sdl_result = SDL_SetWindowFullscreen(sdl_window, sdl_fullscreen_flags);
 
@@ -499,14 +499,14 @@ void Ren3dUtils::set_window_mode(
 		}
 	}
 
-	if (is_size_changed && param.is_windowed_)
+	if (is_size_changed && param.is_windowed)
 	{
 		SDL_SetWindowSize(sdl_window, param.rect_2d_.extent_.width_, param.rect_2d_.extent_.height_);
 
 		if (param.is_positioned_)
 		{
-			const auto x = std::max(param.rect_2d_.offset_.x_, 0);
-			const auto y = std::max(param.rect_2d_.offset_.y_, 0);
+			const auto x = std::max(param.rect_2d_.offset_.x, 0);
+			const auto y = std::max(param.rect_2d_.offset_.y, 0);
 
 			SDL_SetWindowPosition(sdl_window, x, y);
 		}
@@ -1035,8 +1035,8 @@ void Ren3dUtils::create_window_validate_param(
 	const Ren3dUtilsCreateWindowParam& param)
 {
 	if (param.window_.is_positioned_ && (
-		param.window_.rect_2d_.offset_.x_ < 0 ||
-			param.window_.rect_2d_.offset_.y_ < 0))
+		param.window_.rect_2d_.offset_.x < 0 ||
+			param.window_.rect_2d_.offset_.y < 0))
 	{
 		throw Ren3dUtilsCreateWindowException{"Invalid position."};
 	}
@@ -1233,7 +1233,7 @@ std::uint32_t Ren3dUtils::create_window_sdl_flags(
 {
 	auto flags = Uint32{SDL_WINDOW_ALLOW_HIGHDPI};
 
-	if (param.window_.is_visible_)
+	if (param.window_.is_visible)
 	{
 		flags |= SDL_WINDOW_SHOWN;
 	}

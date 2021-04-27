@@ -22,67 +22,21 @@ Free Software Foundation, Inc.,
 */
 
 
-//
-// Base exception.
-//
+#ifndef BSTONE_SW_VIDEO_INCLUDED
+#define BSTONE_SW_VIDEO_INCLUDED
 
 
-#ifndef BSTONE_EXCEPTION_INCLUDED
-#define BSTONE_EXCEPTION_INCLUDED
-
-
-#include <exception>
-#include <memory>
-#include <string>
+#include "bstone_video.h"
 
 
 namespace bstone
 {
 
 
-class Exception :
-	public std::exception
-{
-public:
-	explicit Exception(
-		const char* message) noexcept;
-
-	explicit Exception(
-		const std::string& message) noexcept;
-
-	Exception(
-		const char* context,
-		const char* message) noexcept;
-
-	Exception(
-		const Exception& rhs) noexcept;
-
-
-	const char* what() const noexcept override;
-
-
-	static std::string get_nested_message(
-		const std::exception& exception);
-
-
-private:
-	class Detail;
-
-
-	static void get_nested_message(
-		const std::exception& exception,
-		std::string& message);
-
-
-private:
-	using What = std::unique_ptr<char[]>;
-
-
-	What what_{};
-}; // Exception
+VideoUPtr make_sw_video();
 
 
 } // bstone
 
 
-#endif // !BSTONE_EXCEPTION_INCLUDED
+#endif // BSTONE_SW_VIDEO_INCLUDED
