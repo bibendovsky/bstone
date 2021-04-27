@@ -392,13 +392,13 @@ void Ren3dGlContextImpl::clear(
 void Ren3dGlContextImpl::set_viewport(
 	const Ren3dViewport& viewport)
 {
-	if (viewport_.x_ != viewport.x_ ||
-		viewport_.y_ != viewport.y_ ||
+	if (viewport_.x != viewport.x ||
+		viewport_.y != viewport.y ||
 		viewport_.width_ != viewport.width_ ||
 		viewport_.height_ != viewport.height_)
 	{
-		viewport_.x_ = viewport.x_;
-		viewport_.y_ = viewport.y_;
+		viewport_.x = viewport.x;
+		viewport_.y = viewport.y;
 		viewport_.width_ = viewport.width_;
 		viewport_.height_ = viewport.height_;
 		set_viewport_rect();
@@ -426,8 +426,8 @@ void Ren3dGlContextImpl::enable_scissor(
 void Ren3dGlContextImpl::set_scissor_box(
 	const Ren3dScissorBox& scissor_box)
 {
-	if (scissor_box_.x_ != scissor_box.x_ ||
-		scissor_box_.y_ != scissor_box.y_ ||
+	if (scissor_box_.x != scissor_box.x ||
+		scissor_box_.y != scissor_box.y ||
 		scissor_box_.width_ != scissor_box.width_ ||
 		scissor_box_.height_ != scissor_box.height_)
 	{
@@ -524,8 +524,8 @@ void Ren3dGlContextImpl::set_viewport_depth_range()
 
 void Ren3dGlContextImpl::set_viewport_defaults()
 {
-	viewport_.x_ = 0;
-	viewport_.y_ = 0;
+	viewport_.x = 0;
+	viewport_.y = 0;
 	viewport_.width_ = 0;
 	viewport_.height_ = 0;
 	set_viewport_rect();
@@ -550,8 +550,8 @@ void Ren3dGlContextImpl::set_scissor_defaults()
 	is_scissor_enabled_ = false;
 	enable_scissor();
 
-	scissor_box_.x_ = 0;
-	scissor_box_.y_ = 0;
+	scissor_box_.x = 0;
+	scissor_box_.y = 0;
 	scissor_box_.width_ = 0;
 	scissor_box_.height_ = 0;
 	set_scissor_box();

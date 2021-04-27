@@ -107,14 +107,14 @@ public:
 Ren3dGl::Ren3dGl(
 	const Ren3dCreateParam& param)
 	:
-	kind_{},
+	kind{},
 	name_{},
 	description_{},
 	device_info_{},
 	device_features_{},
 	gl_device_features_{},
-	screen_width_{},
-	screen_height_{},
+	screen_width{},
+	screen_height{},
 	aa_kind_{},
 	aa_value_{},
 	sdl_window_{},
@@ -136,15 +136,15 @@ Ren3dGl::Ren3dGl(
 			throw Ren3dGlCreateException{"Unsupported renderer kind."};
 	}
 
-	kind_ = param.renderer_kind_;
+	kind = param.renderer_kind_;
 
-	Ren3dGlUtils::probe_msaa(kind_, device_features_, gl_device_features_);
+	Ren3dGlUtils::probe_msaa(kind, device_features_, gl_device_features_);
 
 	aa_kind_ = param.aa_kind_;
 	aa_value_ = param.aa_value_;
 
 	auto window_param = Ren3dUtilsCreateWindowParam{};
-	window_param.renderer_kind_ = kind_;
+	window_param.renderer_kind_ = kind;
 	window_param.window_ = param.window_;
 	window_param.aa_kind_ = aa_kind_;
 	window_param.aa_value_ = aa_value_;
@@ -197,10 +197,10 @@ Ren3dGl::Ren3dGl(
 
 	Ren3dGlUtils::get_window_drawable_size(
 		sdl_window_.get(),
-		screen_width_,
-		screen_height_);
+		screen_width,
+		screen_height);
 
-	if (screen_width_ == 0 || screen_height_ == 0)
+	if (screen_width == 0 || screen_height == 0)
 	{
 		throw Ren3dGlCreateException{"Failed to get screen size."};
 	}
@@ -217,7 +217,7 @@ Ren3dGl::Ren3dGl(
 		throw Ren3dGlCreateException{"Failed to create an extension manager."};
 	}
 
-	switch (kind_)
+	switch (kind)
 	{
 		case Ren3dKind::gl_2_0:
 			extension_manager_->probe(Ren3dGlExtensionId::v2_0);
@@ -313,7 +313,7 @@ Ren3dGl::Ren3dGl(
 	);
 
 	context_ = Ren3dGlContextFactory::create(
-		kind_,
+		kind,
 		device_features_,
 		gl_device_features_
 	);
@@ -340,7 +340,7 @@ Ren3dGl::~Ren3dGl() = default;
 
 Ren3dKind Ren3dGl::get_kind() const noexcept
 {
-	return kind_;
+	return kind;
 }
 
 const std::string& Ren3dGl::get_name() const noexcept
@@ -371,7 +371,7 @@ void Ren3dGl::rbo_deleter(
 
 void Ren3dGl::set_name_and_description()
 {
-	switch (kind_)
+	switch (kind)
 	{
 		case Ren3dKind::gl_2_0:
 			name_ = "GL2";
@@ -409,11 +409,11 @@ void Ren3dGl::set_window_mode(
 	Ren3dUtils::set_window_mode(sdl_window_.get(), param);
 
 	const auto size_changed = (
-		screen_width_ != param.rect_2d_.extent_.width_ ||
-		screen_height_ != param.rect_2d_.extent_.height_);
+		screen_width != param.rect_2d_.extent_.width_ ||
+		screen_height != param.rect_2d_.extent_.height_);
 
-	screen_width_ = param.rect_2d_.extent_.width_;
-	screen_height_ = param.rect_2d_.extent_.height_;
+	screen_width = param.rect_2d_.extent_.width_;
+	screen_height = param.rect_2d_.extent_.height_;
 
 	if (size_changed && gl_device_features_.is_framebuffer_available_)
 	{
@@ -520,8 +520,8 @@ void Ren3dGl::read_pixels_rgb_888(
 	glReadPixels(
 		0,
 		0,
-		screen_width_,
-		screen_height_,
+		screen_width,
+		screen_height,
 		GL_RGB,
 		GL_UNSIGNED_BYTE,
 		buffer
@@ -771,8 +771,8 @@ void Ren3dGl::create_msaa_framebuffer()
 		aa_degree = device_features_.max_msaa_degree_;
 	}
 
-	create_msaa_color_rb(screen_width_, screen_height_, aa_degree);
-	create_msaa_depth_rb(screen_width_, screen_height_, aa_degree);
+	create_msaa_color_rb(screen_width, screen_height, aa_degree);
+	create_msaa_depth_rb(screen_width, screen_height, aa_degree);
 
 	msaa_fbo_ = create_framebuffer();
 	bind_framebuffer(GL_FRAMEBUFFER, msaa_fbo_.get());
@@ -843,10 +843,10 @@ void Ren3dGl::blit_framebuffers()
 	bind_framebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
 	blit_framebuffer(
-		screen_width_,
-		screen_height_,
-		screen_width_,
-		screen_height_,
+		screen_width,
+		screen_height,
+		screen_width,
+		screen_height,
 		false
 	);
 }

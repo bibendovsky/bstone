@@ -350,10 +350,13 @@ target_sources(
 		bstone_audio_sample_converter.h
 		bstone_binary_reader.h
 		bstone_binary_writer.h
+		bstone_bmp_image_decoder.h
 		bstone_cl_args.h
+		bstone_content_path.h
 		bstone_crc32.h
-		bstone_endian.h
+		bstone_dynamic_loader.h
 		bstone_encoding.h
+		bstone_endian.h
 		bstone_exception.h
 		bstone_file_stream.h
 		bstone_file_system.h
@@ -361,7 +364,10 @@ target_sources(
 		bstone_format_string.h
 		bstone_generic_fizzle_fx.h
 		bstone_globals.h
-		bstone_content_path.h
+		bstone_hw_video.h
+		bstone_image_decoder.h
+		bstone_image_encoder.h
+		bstone_index_type.h
 		bstone_logger.h
 		bstone_low_pass_filter.h
 		bstone_math.h
@@ -370,6 +376,12 @@ target_sources(
 		bstone_mod_value.h
 		bstone_mt_queue_1r1w.h
 		bstone_mt_task_mgr.h
+		bstone_not_null.h
+		bstone_oal_audio_mixer.h
+		bstone_oal_loader.h
+		bstone_oal_resource.h
+		bstone_oal_source.h
+		bstone_oal_symbols.h
 		bstone_opl3.h
 		bstone_page_mgr.h
 		bstone_pc_speaker_audio_decoder.h
@@ -379,11 +391,19 @@ target_sources(
 		bstone_rgb8.h
 		bstone_rgb_palette.h
 		bstone_scope_guard.h
+		bstone_sdl2_audio_mixer.h
+		bstone_sdl2_dynamic_loader.h
+		bstone_sdl_texture_lock.h
+		bstone_sdl_utils.h
 		bstone_sha1.h
+		bstone_span.h
 		bstone_sprite.h
 		bstone_sprite_cache.h
+		bstone_stb_image_encoder.h
+		bstone_stb_image_utils.h
 		bstone_stream.h
 		bstone_string_helper.h
+		bstone_sw_video.h
 		bstone_text_reader.h
 		bstone_text_writer.h
 		bstone_time.h
@@ -391,21 +411,7 @@ target_sources(
 		bstone_unique_resource.h
 		bstone_uptr_resource_list.h
 		bstone_version.h
-		bstone_image_decoder.h
-		bstone_image_encoder.h
-		bstone_stb_image_encoder.h
-		bstone_stb_image_utils.h
-		bstone_bmp_image_decoder.h
-		bstone_dynamic_loader.h
-		bstone_not_null.h
-		bstone_oal_audio_mixer.h
-		bstone_oal_loader.h
-		bstone_oal_resource.h
-		bstone_oal_source.h
-		bstone_oal_symbols.h
-		bstone_sdl2_audio_mixer.h
-		bstone_sdl2_dynamic_loader.h
-		bstone_span.h
+		bstone_video.h
 )
 
 if (WIN32)
@@ -503,10 +509,12 @@ target_sources(
 		bstone_audio_sample_converter.cpp
 		bstone_binary_reader.cpp
 		bstone_binary_writer.cpp
+		bstone_bmp_image_decoder.cpp
 		bstone_cl_args.cpp
 		bstone_content_path.cpp
 		bstone_crc32.cpp
 		bstone_dosbox_dbopl.cpp
+		bstone_dynamic_loader.cpp
 		bstone_encoding.cpp
 		bstone_exception.cpp
 		bstone_file_stream.cpp
@@ -516,41 +524,45 @@ target_sources(
 		bstone_generic_fizzle_fx.cpp
 		bstone_globals.cpp
 		bstone_gog_content_path.cpp
+		bstone_hw_video.cpp
+		bstone_image_decoder.cpp
+		bstone_image_encoder.cpp
+		bstone_index_type.cpp
 		bstone_logger.cpp
 		bstone_low_pass_filter.cpp
 		bstone_memory_binary_reader.cpp
 		bstone_memory_stream.cpp
 		bstone_mt_task_mgr.cpp
-		bstone_opl3.cpp
-		bstone_page_mgr.cpp
-		bstone_pc_speaker_audio_decoder.cpp
-		bstone_ps_fizzle_fx.cpp
-		bstone_rgb8.cpp
-		bstone_sha1.cpp
-		bstone_sprite.cpp
-		bstone_sprite_cache.cpp
-		bstone_steam_content_path.cpp
-		bstone_stream.cpp
-		bstone_string_helper.cpp
-		bstone_text_reader.cpp
-		bstone_text_writer.cpp
-		bstone_time.cpp
-		bstone_version.cpp
-		bstone_image_decoder.cpp
-		bstone_image_encoder.cpp
-		bstone_stb_image_decoder.cpp
-		bstone_stb_image_encoder.cpp
-		bstone_stb_image_utils.cpp
-		bstone_bmp_image_decoder.cpp
-		bstone_dynamic_loader.cpp
 		bstone_not_null.cpp
 		bstone_oal_audio_mixer.cpp
 		bstone_oal_loader.cpp
 		bstone_oal_resource.cpp
 		bstone_oal_source.cpp
 		bstone_oal_symbols.cpp
+		bstone_opl3.cpp
+		bstone_page_mgr.cpp
+		bstone_pc_speaker_audio_decoder.cpp
+		bstone_ps_fizzle_fx.cpp
+		bstone_rgb8.cpp
 		bstone_sdl2_audio_mixer.cpp
 		bstone_sdl2_dynamic_loader.cpp
+		bstone_sdl_texture_lock.cpp
+		bstone_sdl_utils.cpp
+		bstone_sha1.cpp
+		bstone_sprite.cpp
+		bstone_sprite_cache.cpp
+		bstone_stb_image_decoder.cpp
+		bstone_stb_image_encoder.cpp
+		bstone_stb_image_utils.cpp
+		bstone_steam_content_path.cpp
+		bstone_stream.cpp
+		bstone_string_helper.cpp
+		bstone_sw_video.cpp
+		bstone_text_reader.cpp
+		bstone_text_writer.cpp
+		bstone_time.cpp
+		bstone_version.cpp
+		bstone_video.cpp
 )
 
 if (WIN32)

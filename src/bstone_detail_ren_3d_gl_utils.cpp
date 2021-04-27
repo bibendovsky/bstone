@@ -1100,12 +1100,12 @@ void Ren3dGlUtils::enable_scissor(
 void Ren3dGlUtils::set_scissor_box(
 	const Ren3dScissorBox& scissor_box)
 {
-	if (scissor_box.x_ < 0)
+	if (scissor_box.x < 0)
 	{
 		throw Ren3dGlUtilsSetScissorBoxException{"Negative offset by X."};
 	}
 
-	if (scissor_box.y_ < 0)
+	if (scissor_box.y < 0)
 	{
 		throw Ren3dGlUtilsSetScissorBoxException{"Negative offset by Y."};
 	}
@@ -1121,8 +1121,8 @@ void Ren3dGlUtils::set_scissor_box(
 	}
 
 	glScissor(
-		scissor_box.x_,
-		scissor_box.y_,
+		scissor_box.x,
+		scissor_box.y,
 		scissor_box.width_,
 		scissor_box.height_
 	);
@@ -1133,12 +1133,12 @@ void Ren3dGlUtils::set_scissor_box(
 void Ren3dGlUtils::set_viewport_rect(
 	const Ren3dViewport& viewport)
 {
-	if (viewport.x_ < 0)
+	if (viewport.x < 0)
 	{
 		throw Ren3dGlUtilsSetViewportRectException{"Negative offset by X."};
 	}
 
-	if (viewport.y_ < 0)
+	if (viewport.y < 0)
 	{
 		throw Ren3dGlUtilsSetViewportRectException{"Negative offset by Y."};
 	}
@@ -1154,8 +1154,8 @@ void Ren3dGlUtils::set_viewport_rect(
 	}
 
 	glViewport(
-		viewport.x_,
-		viewport.y_,
+		viewport.x,
+		viewport.y,
 		viewport.width_,
 		viewport.height_
 	);

@@ -65,7 +65,7 @@ enum class Ren3dBufferUsageKind
 
 struct Ren3dCreateBufferParam
 {
-	Ren3dBufferKind kind_;
+	Ren3dBufferKind kind;
 	Ren3dBufferUsageKind usage_kind_;
 	int size_;
 }; // Ren3dCreateBufferParam

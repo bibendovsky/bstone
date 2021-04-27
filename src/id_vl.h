@@ -52,6 +52,9 @@ struct statobj_t;
 struct objtype;
 
 
+using VgaColor = std::array<std::uint8_t, 3>;
+using VgaPalette = std::array<VgaColor, 256>;
+
 using VgaBuffer = std::vector<std::uint8_t>;
 using UiMaskBuffer = std::array<bool, vga_ref_width * vga_ref_height>;
 
@@ -60,17 +63,17 @@ struct VidCfg
 {
 	bstone::RendererKind renderer_kind_;
 
-	bool is_windowed_;
+	bool is_windowed;
 	bool is_positioned_;
 	bool is_vsync_;
 
 	bool is_ui_stretched_;
-	bool is_widescreen_;
+	bool is_widescreen;
 
 	int windowed_x_;
 	int windowed_y_;
-	int windowed_width_;
-	int windowed_height_;
+	int windowed_width;
+	int windowed_height;
 
 	bstone::Ren3dFilterKind d2_texture_filter_;
 
@@ -93,9 +96,9 @@ struct VidCfg
 struct VideoModeCfg
 {
 	bstone::RendererKind renderer_kind_;
-	bool is_windowed_;
-	int windowed_width_;
-	int windowed_height_;
+	bool is_windowed;
+	int windowed_width;
+	int windowed_height;
 	bool is_vsync_;
 	bstone::Ren3dAaKind aa_kind_;
 	int aa_degree_;
@@ -110,12 +113,66 @@ bool operator!=(
 	const VideoModeCfg& rhs) noexcept;
 
 
-extern bool vid_is_hw_;
-
 extern std::uint8_t* vga_memory;
 
 constexpr auto vid_upscale_min_degree = 2;
 constexpr auto vid_upscale_max_degree = 6;
+
+
+struct VidLayout
+{
+	bool is_windowed;
+
+	int windowed_width;
+	int windowed_height;
+
+	int screen_width;
+	int screen_height;
+
+	int window_width;
+	int window_height;
+
+	int window_viewport_left_width;
+	int window_viewport_right_width;
+	int window_viewport_top_height;
+	int window_viewport_bottom_height;
+
+	int screen_left_filler_width;
+	int screen_right_filler_width;
+	int screen_top_filler_height;
+	int screen_bottom_filler_height;
+	int screen_width_4x3;
+
+	int screen_viewport_left_width;
+	int screen_viewport_right_width;
+	int screen_viewport_width;
+
+	int screen_viewport_top_height;
+	int screen_viewport_bottom_height;
+	int screen_viewport_height;
+}; // VidLayout
+
+extern VidLayout vid_layout_;
+
+using ScreenshotBuffer = std::unique_ptr<std::uint8_t[]>;
+
+using SdlPalette = std::array<std::uint32_t, bstone::RgbPalette::get_max_color_count()>;
+
+extern VgaBuffer vid_ui_buffer_;
+extern UiMaskBuffer vid_mask_buffer_;
+
+extern bool vid_is_take_screenshot_scheduled;
+
+struct CalculateScreenSizeInputParam
+{
+	bool is_widescreen;
+
+	int windowed_width;
+	int windowed_height;
+
+	int window_width;
+	int window_height;
+}; // CalculateScreenSizeInputParam
 
 
 // ===========================================================================
@@ -166,6 +223,10 @@ extern bool vid_is_fizzle_fade;
 
 // Is it intro/outro/you-win/etc?
 extern bool vid_is_movie;
+
+extern bstone::SpriteCache vid_sprite_cache;
+
+extern double height_compensation_factor;
 // BBi
 
 // ===========================================================================
@@ -199,24 +260,24 @@ void VL_SetPaletteIntensity(
 	int intensity);
 
 void VL_FadeOut(
-	const int start,
-	const int end,
-	const int red,
-	const int green,
-	const int blue,
-	const int steps);
+	int start,
+	int end,
+	int red,
+	int green,
+	int blue,
+	int steps);
 
 void VL_FadeIn(
-	const int start,
-	const int end,
-	const std::uint8_t* const palette,
-	const int steps);
+	int start,
+	int end,
+	const std::uint8_t* palette,
+	int steps);
 
 void VL_Plot(
 	int x,
 	int y,
 	std::uint8_t color,
-	const bool is_transparent = false);
+	bool is_transparent = false);
 
 void VL_Hlin(
 	int x,
@@ -236,7 +297,7 @@ void VL_Bar(
 	int width,
 	int height,
 	std::uint8_t color,
-	const bool is_transparent = false);
+	bool is_transparent = false);
 
 void VL_MemToLatch(
 	const std::uint8_t* source,
@@ -295,8 +356,8 @@ struct VidWindowSize
 	bool is_current_;
 	bool is_custom_;
 
-	int windowed_width_;
-	int windowed_height_;
+	int windowed_width;
+	int windowed_height;
 }; // VidWindowSize
 
 using VidWindowSizes = std::vector<VidWindowSize>;
@@ -347,34 +408,34 @@ void vid_import_ui_mask(
 	const UiMaskBuffer& src_buffer);
 
 void vid_draw_ui_sprite(
-	const int sprite_id,
-	const int center_x,
-	const int center_y,
-	const int new_side);
+	int sprite_id,
+	int center_x,
+	int center_y,
+	int new_side);
 
 void vid_hw_on_load_level();
 
 void vid_hw_on_update_wall_switch(
-	const int x,
-	const int y);
+	int x,
+	int y);
 
 void vid_hw_on_move_pushwall();
 
 void vid_hw_on_step_pushwall(
-	const int old_x,
-	const int old_y);
+	int old_x,
+	int old_y);
 
 void vid_hw_on_pushwall_to_wall(
-	const int old_x,
-	const int old_y,
-	const int new_x,
-	const int new_y);
+	int old_x,
+	int old_y,
+	int new_x,
+	int new_y);
 
 void vid_hw_on_move_door(
-	const int door_index);
+	int door_index);
 
 void vid_hw_on_update_door_lock(
-	const int door_index);
+	int door_index);
 
 void vid_hw_on_remove_static(
 	const statobj_t& bs_static);
@@ -384,49 +445,49 @@ void vid_hw_on_remove_actor(
 
 
 void vid_hw_enable_fizzle_fx(
-	const bool is_enabled);
+	bool is_enabled);
 
 void vid_hw_enable_fizzle_fx_fading(
-	const bool is_fading);
+	bool is_fading);
 
 void vid_hw_set_fizzle_fx_color_index(
-	const int color_index);
+	int color_index);
 
 void vid_hw_set_fizzle_fx_ratio(
-	const float ratio);
+	float ratio);
 
 
 void vid_hw_clear_wall_render_list();
 
 void vid_hw_add_wall_render_item(
-	const int tile_x,
-	const int tile_y);
+	int tile_x,
+	int tile_y);
 
 
 void vid_hw_clear_pushwall_render_list();
 
 void vid_hw_add_pushwall_render_item(
-	const int tile_x,
-	const int tile_y);
+	int tile_x,
+	int tile_y);
 
 
 void vid_hw_clear_door_render_list();
 
 void vid_hw_add_door_render_item(
-	const int tile_x,
-	const int tile_y);
+	int tile_x,
+	int tile_y);
 
 
 void vid_hw_clear_static_render_list();
 
 void vid_hw_add_static_render_item(
-	const int bs_static_index);
+	int bs_static_index);
 
 
 void vid_hw_clear_actor_render_list();
 
 void vid_hw_add_actor_render_item(
-	const int bs_actor_index);
+	int bs_actor_index);
 
 const bstone::Rgba8Palette& vid_hw_get_default_palette();
 
@@ -451,6 +512,48 @@ void vid_apply_filler_color();
 void vid_apply_external_textures();
 
 void vid_schedule_take_screenshot();
+
+void vid_schedule_save_screenshot_task(
+	int width,
+	int height,
+	int stride_rgb_888,
+	ScreenshotBuffer&& src_pixels_rgb_888,
+	bool is_flipped_vertically);
+
+void vid_take_screenshot();
+
+void vid_initialize_vanilla_raycaster();
+
+void vid_initialize_common();
+
+void vid_initialize_ui_buffer();
+
+std::string vid_get_window_title_for_renderer(
+	const std::string& renderer_name);
+
+std::string vid_get_game_name_and_game_version_string();
+
+CalculateScreenSizeInputParam vid_create_screen_size_param();
+
+void vid_calculate_window_elements_dimensions(
+	const CalculateScreenSizeInputParam& src_param,
+	VidLayout& dst_param);
+
+void vid_calculate_vga_dimensions();
+
+const std::string& vid_to_string(
+	bool value);
+
+std::string vid_to_string(
+	int value);
+
+const std::string& vid_to_string(
+	const bstone::Ren3dFilterKind filter_kind);
+
+const std::string& vid_to_string(
+	bstone::Ren3dKind renderer_kind);
+
+bool vid_is_hw();
 
 
 #endif // BSTONE_ID_VL_INCLUDED

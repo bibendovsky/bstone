@@ -108,7 +108,7 @@ public:
 
 
 private:
-	Ren3dShaderKind kind_;
+	Ren3dShaderKind kind;
 
 	static void shader_deleter(
 		GLuint gl_name) noexcept;
@@ -139,13 +139,13 @@ private:
 Ren3dGlShaderImpl::Ren3dGlShaderImpl(
 	const Ren3dCreateShaderParam& param)
 	:
-	kind_{},
+	kind{},
 	shader_resource_{},
 	shader_stage_{}
 {
 	validate(param);
 
-	const auto gl_kind = get_gl_kind(param.kind_);
+	const auto gl_kind = get_gl_kind(param.kind);
 
 	shader_resource_.reset(glCreateShader(gl_kind));
 
@@ -190,14 +190,14 @@ Ren3dGlShaderImpl::Ren3dGlShaderImpl(
 		throw Ren3dGlShaderImplCreateException{error_message};
 	}
 
-	kind_ = param.kind_;
+	kind = param.kind;
 }
 
 Ren3dGlShaderImpl::~Ren3dGlShaderImpl()
 {
 	if (shader_stage_)
 	{
-		switch (kind_)
+		switch (kind)
 		{
 			case Ren3dShaderKind::fragment:
 				shader_stage_->detach_fragment_shader();
@@ -216,7 +216,7 @@ Ren3dGlShaderImpl::~Ren3dGlShaderImpl()
 
 Ren3dShaderKind Ren3dGlShaderImpl::get_kind() const noexcept
 {
-	return kind_;
+	return kind;
 }
 
 void Ren3dGlShaderImpl::shader_deleter(
@@ -256,7 +256,7 @@ GLenum Ren3dGlShaderImpl::get_gl_kind(
 void Ren3dGlShaderImpl::validate(
 	const Ren3dCreateShaderParam& param)
 {
-	switch (param.kind_)
+	switch (param.kind)
 	{
 		case Ren3dShaderKind::fragment:
 		case Ren3dShaderKind::vertex:

@@ -83,7 +83,7 @@ GenericFizzleFX::~GenericFizzleFX()
 
 void GenericFizzleFX::initialize()
 {
-	if (vid_is_hw_ && !is_vanilla_only())
+	if (vid_is_hw() && !is_vanilla_only())
 	{
 		vid_hw_set_fizzle_fx_color_index(impl_->plot_color_);
 		vid_hw_enable_fizzle_fx_fading(impl_->is_transparent_);
@@ -136,7 +136,7 @@ void GenericFizzleFX::plot(
 	const int x,
 	const int y)
 {
-	if (vid_is_hw_ && !is_vanilla_only())
+	if (vid_is_hw() && !is_vanilla_only())
 	{
 		return;
 	}
@@ -155,7 +155,7 @@ void GenericFizzleFX::plot(
 
 void GenericFizzleFX::skip_to_the_end()
 {
-	if (vid_is_hw_ && !is_vanilla_only())
+	if (vid_is_hw() && !is_vanilla_only())
 	{
 		vid_hw_set_fizzle_fx_ratio(1.0F);
 

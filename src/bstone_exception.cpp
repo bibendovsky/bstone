@@ -29,23 +29,137 @@ Free Software Foundation, Inc.,
 
 #include "bstone_exception.h"
 
+#include <cassert>
+
+#include "bstone_index_type.h"
+
 
 namespace bstone
 {
 
 
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+class Exception::Detail
+{
+public:
+	static constexpr Index get_c_string_size(
+		const char* c_string) noexcept
+	{
+		assert(c_string);
+
+		auto size = Index{};
+
+		while (c_string[size] != '\0')
+		{
+			size += 1;
+		}
+
+		return size;
+	}
+}; // Exception::Detail
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 Exception::Exception(
-	const char* const message)
+	const char* message) noexcept
 	:
-	std::runtime_error{message}
+	Exception{nullptr, message}
 {
 }
 
 Exception::Exception(
-	const std::string& message)
+	const std::string& message) noexcept
 	:
-	std::runtime_error{message}
+	Exception{nullptr, message.c_str()}
 {
+}
+
+Exception::Exception(
+	const char* context,
+	const char* message) noexcept
+{
+	const auto context_size = (context ? Detail::get_c_string_size(context) : 0);
+	const auto has_contex = (context_size > 0);
+
+	const auto is_null_message = (message == nullptr);
+	const auto message_size = (!is_null_message ? Detail::get_c_string_size(message) : 0);
+	const auto has_message = (message_size > 0);
+
+	if (!has_contex && !has_message && is_null_message)
+	{
+		return;
+	}
+
+	static constexpr auto left_prefix = "[";
+	static constexpr auto left_prefix_size = Detail::get_c_string_size(left_prefix);
+
+	static constexpr auto right_prefix = "] ";
+	static constexpr auto right_prefix_size = Detail::get_c_string_size(right_prefix);
+
+	const auto what_size =
+		(
+			has_contex ?
+			left_prefix_size + context_size + right_prefix_size :
+			0
+		) +
+		message_size +
+		1
+	;
+
+	what_.reset(new (std::nothrow) char[what_size]);
+
+	if (!what_)
+	{
+		return;
+	}
+
+	auto what = what_.get();
+
+	if (has_contex)
+	{
+		what = std::uninitialized_copy_n(left_prefix, left_prefix_size, what);
+		what = std::uninitialized_copy_n(context, context_size, what);
+		what = std::uninitialized_copy_n(right_prefix, right_prefix_size, what);
+	}
+
+	if (has_message)
+	{
+		what = std::uninitialized_copy_n(message, message_size, what);
+	}
+
+	*what = '\0';
+}
+
+Exception::Exception(
+	const Exception& rhs) noexcept
+{
+	if (!rhs.what_)
+	{
+		return;
+	}
+
+	const auto rhs_what = rhs.what_.get();
+	const auto what_size = Detail::get_c_string_size(rhs_what);
+
+	what_.reset(new (std::nothrow) char[what_size]);
+
+	if (!what_)
+	{
+		return;
+	}
+
+	auto what = what_.get();
+	what = std::uninitialized_copy_n(rhs_what, what_size, what);
+	*what = '\0';
+}
+
+const char* Exception::what() const noexcept
+{
+	return what_ ? what_.get() : "[BSTONE_EXCEPTION] Generic failure.";
 }
 
 std::string Exception::get_nested_message(
@@ -81,6 +195,8 @@ void Exception::get_nested_message(
 		get_nested_message(nex, message);
 	}
 }
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 } // bstone

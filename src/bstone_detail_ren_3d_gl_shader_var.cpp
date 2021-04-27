@@ -175,7 +175,7 @@ private:
 	const Ren3dGlShaderStagePtr shader_stage_;
 	const Ren3dGlDeviceFeatures& gl_device_features_;
 
-	Ren3dShaderVarKind kind_;
+	Ren3dShaderVarKind kind;
 	Ren3dShaderVarTypeId type_id_;
 	int value_size_;
 	int index_;
@@ -207,7 +207,7 @@ Ren3dGlShaderVarImpl::Ren3dGlShaderVarImpl(
 	:
 	shader_stage_{shader_stage},
 	gl_device_features_{shader_stage->get_manager()->get_context()->get_gl_device_features()},
-	kind_{},
+	kind{},
 	type_id_{},
 	value_size_{},
 	index_{},
@@ -220,7 +220,7 @@ Ren3dGlShaderVarImpl::Ren3dGlShaderVarImpl(
 		throw Ren3dGlShaderVarCreateException{"Null shader stage."};
 	}
 
-	kind_ = param.kind_;
+	kind = param.kind;
 	type_id_ = param.type_id_;
 	value_size_ = param.value_size_;
 	index_ = param.index_;
@@ -233,7 +233,7 @@ Ren3dGlShaderVarImpl::~Ren3dGlShaderVarImpl() = default;
 
 Ren3dShaderVarKind Ren3dGlShaderVarImpl::get_kind() const noexcept
 {
-	return kind_;
+	return kind;
 }
 
 Ren3dShaderVarTypeId Ren3dGlShaderVarImpl::get_type_id() const noexcept
@@ -313,7 +313,7 @@ void Ren3dGlShaderVarImpl::set_value(
 		throw Ren3dGlShaderVarException{"Value size mismatch."};
 	}
 
-	switch (kind_)
+	switch (kind)
 	{
 		case Ren3dShaderVarKind::sampler:
 		case Ren3dShaderVarKind::uniform:

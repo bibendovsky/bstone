@@ -23,17 +23,14 @@ Free Software Foundation, Inc.,
 
 
 //
-// Page (VSWAP) manager.
+// SDL texture lock.
 //
 
 
-#ifndef BSTONE_PAGE_MANAGER_INCLUDED
-#define BSTONE_PAGE_MANAGER_INCLUDED
+#include "bstone_sdl_texture_lock.h"
 
-
-#include <cstdint>
-
-#include <memory>
+#include "bstone_exception.h"
+#include "bstone_sdl2_exception.h"
 
 
 namespace bstone
@@ -42,49 +39,71 @@ namespace bstone
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-//
-// Page (VSWAP) manager.
-//
-class PageMgr
+class SdlTextureLockException :
+	public Exception
 {
 public:
-	PageMgr() noexcept;
-
-	virtual ~PageMgr();
-
-
-	virtual int get_count() const noexcept = 0;
-
-	virtual int get_wall_count() const noexcept = 0;
-
-	virtual int get_sprite_count() const noexcept = 0;
-
-
-	virtual const std::uint8_t* get(
-		int index) const = 0;
-
-	virtual const std::uint8_t* get_audio(
-		int audio_index) const = 0;
-
-	virtual const std::uint8_t* get_last_audio() const = 0;
-
-	virtual const std::uint8_t* get_sprite(
-		int sprite_index) const = 0;
-}; // PageMgr
+	explicit SdlTextureLockException(
+		const char* message)
+		:
+		Exception{"SDL_TEXTURE_LOCK", message}
+	{
+	}
+}; // SdlTextureLockException
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-using PageMgrUPtr = std::unique_ptr<PageMgr>;
+SdlTextureLock::SdlTextureLock(
+	::SDL_Texture* sdl_texture,
+	const ::SDL_Rect* rect)
+try
+{
+	if (!sdl_texture)
+	{
+		throw SdlTextureLockException{"Null texture."};
+	}
 
-PageMgrUPtr make_page_mgr();
+	bstone::ensure_sdl_result(::SDL_LockTexture(
+		sdl_texture,
+		rect,
+		&pixels_,
+		&pitch_
+	));
+
+	sdl_texture_ = sdl_texture;
+}
+catch (...)
+{
+	std::throw_with_nested(SdlTextureLockException{"Failed to lock a texture."});
+}
+
+SdlTextureLock::SdlTextureLock(
+	SdlTextureLock&& rhs) noexcept
+	:
+	sdl_texture_{rhs.sdl_texture_}
+{
+	rhs.sdl_texture_ = nullptr;
+}
+
+SdlTextureLock::~SdlTextureLock()
+{
+	::SDL_UnlockTexture(sdl_texture_);
+}
+
+void* SdlTextureLock::get_pixels() const noexcept
+{
+	return pixels_;
+}
+
+int SdlTextureLock::get_pitch() const noexcept
+{
+	return pitch_;
+}
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
 } // bstone
-
-
-#endif // !BSTONE_PAGE_MANAGER_INCLUDED

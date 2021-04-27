@@ -41,8 +41,8 @@ namespace bstone
 
 struct Offset2d
 {
-	int x_;
-	int y_;
+	int x;
+	int y;
 }; // Offset2d
 
 //

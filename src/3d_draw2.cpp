@@ -163,7 +163,7 @@ void SetPlaneViewSize()
 
 void DrawPlanes()
 {
-	if (vid_is_hw_)
+	if (vid_is_hw())
 	{
 		return;
 	}

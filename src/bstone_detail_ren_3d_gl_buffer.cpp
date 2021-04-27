@@ -118,7 +118,7 @@ private:
 	const Ren3dGlContextPtr context_;
 	const Ren3dGlDeviceFeatures& gl_device_features_;
 
-	Ren3dBufferKind kind_;
+	Ren3dBufferKind kind;
 	Ren3dBufferUsageKind usage_kind_;
 	int size_;
 	BufferResource buffer_resource_;
@@ -153,7 +153,7 @@ Ren3dGlBufferImpl::Ren3dGlBufferImpl(
 	:
 	context_{context},
 	gl_device_features_{context_->get_gl_device_features()},
-	kind_{},
+	kind{},
 	usage_kind_{},
 	size_{},
 	buffer_resource_{},
@@ -181,10 +181,10 @@ Ren3dGlBufferImpl::Ren3dGlBufferImpl(
 		throw Ren3dGlBufferImplCreateException{"Failed to create a resource."};
 	}
 
-	kind_ = param.kind_;
+	kind = param.kind;
 	usage_kind_ = param.usage_kind_;
 	size_ = param.size_;
-	gl_target_ = gl_get_target(param.kind_);
+	gl_target_ = gl_get_target(param.kind);
 
 	const auto gl_usage = gl_get_usage(param.usage_kind_);
 
@@ -207,7 +207,7 @@ Ren3dGlBufferImpl::~Ren3dGlBufferImpl() = default;
 
 Ren3dBufferKind Ren3dGlBufferImpl::get_kind() const noexcept
 {
-	return kind_;
+	return kind;
 }
 
 Ren3dBufferUsageKind Ren3dGlBufferImpl::get_usage_kind() const noexcept
@@ -275,7 +275,7 @@ void Ren3dGlBufferImpl::buffer_deleter(
 void Ren3dGlBufferImpl::validate(
 	const Ren3dCreateBufferParam& param)
 {
-	switch (param.kind_)
+	switch (param.kind)
 	{
 		case Ren3dBufferKind::index:
 		case Ren3dBufferKind::vertex:

@@ -46,7 +46,7 @@ namespace bstone
 bool FizzleFX::present(
 	const bool trigger_fade)
 {
-	if (vid_is_hw_ && !is_vanilla_only())
+	if (vid_is_hw() && !is_vanilla_only())
 	{
 		vid_hw_enable_fizzle_fx(true);
 		vid_hw_set_fizzle_fx_ratio(0.0F);
@@ -91,7 +91,7 @@ bool FizzleFX::present(
 
 			remain_pixels = 0;
 
-			if (vid_is_hw_ && !is_vanilla_only())
+			if (vid_is_hw() && !is_vanilla_only())
 			{
 				if ((frame + 1) >= frame_count)
 				{
@@ -153,7 +153,7 @@ bool FizzleFX::present(
 		vid_is_fizzle_fade = false;
 	}
 
-	if (vid_is_hw_ && !is_vanilla_only())
+	if (vid_is_hw() && !is_vanilla_only())
 	{
 		vid_hw_enable_fizzle_fx(false);
 	}

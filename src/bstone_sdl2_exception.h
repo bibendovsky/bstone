@@ -33,8 +33,6 @@ Free Software Foundation, Inc.,
 
 #include <type_traits>
 
-#include "SDL_video.h"
-
 #include "bstone_exception.h"
 
 
@@ -42,13 +40,43 @@ namespace bstone
 {
 
 
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 class Sdl2Exception :
 	public Exception
 {
 public:
-	Sdl2Exception();
+	Sdl2Exception() noexcept;
 }; // Sdl2Exception
 
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+[[noreturn]] void throw_sdl();
+
+void ensure_sdl_result(
+	int sdl_result);
+
+template<
+	typename T
+>
+T* ensure_sdl_result(
+	T* sdl_result)
+{
+	if (!sdl_result)
+	{
+		throw_sdl();
+	}
+
+	return sdl_result;
+}
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 class Sdl2EnsureResult
 {
@@ -82,7 +110,7 @@ public:
 	{
 		if (sdl_result != 0)
 		{
-			throw Sdl2Exception{};
+			throw_sdl();
 		}
 	}
 
@@ -93,9 +121,9 @@ public:
 		explicit Sdl2EnsureResult(
 			const TPointer sdl_result)
 	{
-		if (sdl_result == nullptr)
+		if (!sdl_result)
 		{
-			throw Sdl2Exception{};
+			throw_sdl();
 		}
 	}
 
@@ -108,10 +136,12 @@ public:
 	{
 		if (!sdl_result)
 		{
-			throw Sdl2Exception{};
+			throw_sdl();
 		}
 	}
 }; // Sdl2EnsureResult
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
 } // bstone

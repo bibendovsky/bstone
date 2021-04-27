@@ -689,7 +689,7 @@ void Ren3dGlShaderStageImpl::get_vars(
 		auto name = std::string{};
 		name.assign(name_buffer.data(), static_cast<std::size_t>(gl_length));
 
-		var_param.kind_ = new_kind;
+		var_param.kind = new_kind;
 		var_param.type_id_ = unit_type_id;
 		var_param.value_size_ = value_size;
 		var_param.index_ = index;

@@ -468,7 +468,7 @@ extern const std::uint8_t* lightsource;
 
 void ScalePost()
 {
-	if (vid_is_hw_)
+	if (vid_is_hw())
 	{
 		return;
 	}
@@ -1061,7 +1061,7 @@ void vga_clear_screen(
 
 void VGAClearScreen()
 {
-	if (vid_is_hw_)
+	if (vid_is_hw())
 	{
 		return;
 	}
@@ -1264,7 +1264,7 @@ void hw_draw_sprites()
 */
 void DrawScaleds()
 {
-	if (vid_is_hw_)
+	if (vid_is_hw())
 	{
 		hw_draw_sprites();
 
@@ -1497,7 +1497,7 @@ bool useBounceOffset = false;
 
 void DrawPlayerWeapon()
 {
-	if (vid_is_hw_)
+	if (vid_is_hw())
 	{
 		return;
 	}

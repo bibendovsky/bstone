@@ -36,11 +36,34 @@ namespace bstone
 {
 
 
-Sdl2Exception::Sdl2Exception()
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Sdl2Exception::Sdl2Exception() noexcept
 	:
-	Exception{std::string{"[SDL2] "} + SDL_GetError()}
+	Exception{"SDL2", ::SDL_GetError()}
 {
 }
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+[[noreturn]] void throw_sdl()
+{
+	throw Sdl2Exception{};
+}
+
+void ensure_sdl_result(
+	int sdl_result)
+{
+	if (sdl_result != 0)
+	{
+		throw_sdl();
+	}
+}
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
 } // bstone
