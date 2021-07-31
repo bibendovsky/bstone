@@ -534,6 +534,7 @@ target_sources(
 		bstone_memory_stream.cpp
 		bstone_mt_task_mgr.cpp
 		bstone_not_null.cpp
+		bstone_nuked_opl3.cpp
 		bstone_oal_audio_mixer.cpp
 		bstone_oal_loader.cpp
 		bstone_oal_resource.cpp

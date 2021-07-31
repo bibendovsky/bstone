@@ -85,6 +85,7 @@ try
 	switch (param.opl3_type_)
 	{
 		case Opl3Type::dbopl:
+		case Opl3Type::nuked:
 			break;
 
 		default:

@@ -39,6 +39,7 @@ namespace detail
 
 
 Opl3UPtr make_dbopl_opl3();
+Opl3UPtr make_nuked_opl3();
 
 
 } // detail
@@ -51,6 +52,9 @@ Opl3UPtr make_opl3(
 	{
 		case Opl3Type::dbopl:
 			return detail::make_dbopl_opl3();
+
+		case Opl3Type::nuked:
+			return detail::make_nuked_opl3();
 
 		default:
 			return nullptr;
