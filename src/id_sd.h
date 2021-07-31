@@ -200,6 +200,13 @@ void apply_digitized_sfx();
 
 void sd_apply_resampling();
 
+
+bstone::Opl3Type sd_get_opl3_type() noexcept;
+
+void sd_set_opl3_type(
+	bstone::Opl3Type opl3_type);
+
+
 void sd_cfg_set_defaults();
 
 bool sd_cfg_parse_key_value(

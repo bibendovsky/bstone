@@ -1,6 +1,21 @@
 # BStone changelog
 
 
+## [1.2.12] - ????-??-??
+### Added
+- Support Nuked OPL3 emulator.
+- Option to control OPL3 emulator type (`snd_opl3_type`).
+
+
+### Fixed
+- Cancel strafe movement if both keys are pressed.
+- [SDL] Reduce CPU usage for digitized low-pass filtering.
+
+
+### Removed
+- Option to control audio resampling (always ZOH).
+
+
 ## [1.2.11] - 2021-03-21
 ### Added
 - [CMake] Root CMakeLists.txt.

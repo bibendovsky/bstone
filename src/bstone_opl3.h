@@ -50,8 +50,11 @@ enum class Opl3Type
 {
 	none,
 
-	// DosBox DBOPL
+	// DosBox
 	dbopl,
+
+	// Nuked
+	nuked,
 }; // Opl3Type
 
 
