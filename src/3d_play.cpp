@@ -503,20 +503,25 @@ void PollKeyboardMove()
 	{
 		if (in_is_binding_pressed(e_bi_left))
 		{
-			strafe_value = -value;
+			strafe_value -= value;
 		}
-		else if (in_is_binding_pressed(e_bi_right))
+
+		if (in_is_binding_pressed(e_bi_right))
 		{
-			strafe_value = value;
+			strafe_value += value;
 		}
 	}
-	else if (in_is_binding_pressed(e_bi_strafe_left))
+	else
 	{
-		strafe_value = -value;
-	}
-	else if (in_is_binding_pressed(e_bi_strafe_right))
-	{
-		strafe_value = value;
+		if (in_is_binding_pressed(e_bi_strafe_left))
+		{
+			strafe_value -= value;
+		}
+
+		if (in_is_binding_pressed(e_bi_strafe_right))
+		{
+			strafe_value += value;
+		}
 	}
 }
 
