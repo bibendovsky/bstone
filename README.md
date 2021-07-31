@@ -538,6 +538,11 @@ Notes:
   Values: `0` (disable) or `1` (enable)  
   Default: `1`
 
+* `--snd_opl3_type value`  
+  Specifies OPL3 emulator type.  
+  Values: `dbopl` (DOSBox) or `nuked` (Nuked)  
+  Default: `dbopl`
+
 * `--calculate_hashes`  
   Calculates hashes (SHA-1) of all resource files and outputs them into the log.
 
@@ -677,14 +682,17 @@ Add option `--cheats` to enable these keys.
   See file `src/lib/glm/copying.txt` for license information.
 
 * [OpenAL Soft](http://openal-soft.org/)  
-  See file `src\lib\openal_soft\COPYING` for license information.  
+  See file `src/lib/openal_soft/COPYING` for license information.  
   Note: The port uses public headers only.
 
 * [stb_image / stb_image_write](http://github.com/nothings/stb)  
-  See file `src\lib\stb\LICENSE` for license information.
+  See file `src/lib/stb/LICENSE` for license information.
 
 * [xBRZ](http://sourceforge.net/projects/xbrz/)  
   See directory `src/lib/xbrz` for license information (`License.txt`) and essential changes made for the port (`bstone_changelog.txt`).
+
+* [Nuked OPL3](http://github.com/nukeykt/Nuked-OPL3)  
+  See file `src/lib/nuked_opl3/LICENSE` for license information
 
 
 14 - Credits
