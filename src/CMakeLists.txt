@@ -189,6 +189,14 @@ endif ()
 
 
 #
+# Target link options.
+#
+if (MSVC)
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -DEBUG:FULL")
+endif ()
+
+
+#
 # Target link libraries.
 #
 if (BSTONE_USE_STATIC_LINKING AND (NOT WIN32 OR MINGW))
