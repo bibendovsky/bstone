@@ -851,7 +851,14 @@ OalAudioMixer::OalString OalAudioMixer::get_default_alc_device_name()
 {
 	auto default_device_name = OalString{};
 
-	const auto default_alc_device_name = oal_alc_symbols_.alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
+	if (!has_alc_enumeration_ext_ && !has_alc_enumerate_all_ext_)
+	{
+		return default_device_name;
+	}
+
+	const auto alc_enum = (has_alc_enumerate_all_ext_ ? ALC_DEFAULT_ALL_DEVICES_SPECIFIER : ALC_DEFAULT_DEVICE_SPECIFIER);
+
+	const auto default_alc_device_name = oal_alc_symbols_.alcGetString(nullptr, alc_enum);
 
 	if (default_alc_device_name)
 	{
@@ -878,9 +885,17 @@ OalAudioMixer::OalString OalAudioMixer::get_alc_device_name()
 OalAudioMixer::OalStrings OalAudioMixer::get_alc_device_names()
 {
 	auto device_names = OalStrings{};
+
+	if (!has_alc_enumeration_ext_ && !has_alc_enumerate_all_ext_)
+	{
+		return device_names;
+	}
+
 	device_names.reserve(4);
 
-	auto alc_device_names = oal_alc_symbols_.alcGetString(nullptr, ALC_DEVICE_SPECIFIER);
+	const auto alc_enum = (has_alc_enumerate_all_ext_ ? ALC_ALL_DEVICES_SPECIFIER : ALC_DEVICE_SPECIFIER);
+
+	auto alc_device_names = oal_alc_symbols_.alcGetString(nullptr, alc_enum);
 
 	if (alc_device_names)
 	{
@@ -1038,6 +1053,17 @@ int OalAudioMixer::get_max_voice_count()
 	return voice_count;
 }
 
+void OalAudioMixer::detect_alc_extensions()
+{
+	assert(oal_alc_symbols_.alcIsExtensionPresent);
+
+	has_alc_enumeration_ext_ =
+		(oal_alc_symbols_.alcIsExtensionPresent(nullptr, alc_enumeration_ext_str) != ALC_FALSE);
+
+	has_alc_enumerate_all_ext_ =
+		(oal_alc_symbols_.alcIsExtensionPresent(nullptr, alc_enumerate_all_ext_str) != ALC_FALSE);
+}
+
 void OalAudioMixer::log(
 	const OalString& string)
 {
@@ -1046,20 +1072,20 @@ void OalAudioMixer::log(
 	logger_->write(prefix + string);
 }
 
-void OalAudioMixer::log_oal_library_path_name()
+void OalAudioMixer::log_oal_library_file_name()
 {
-	log(std::string{"Default library: \""} + get_oal_default_library_path_name() + '\"');
-	log("Library: \"" + sd_oal_library + '\"');
+	log(std::string{"Default library: \""} + get_oal_default_library_file_name() + '\"');
+	log("Custom library: \"" + sd_oal_library + '\"');
 }
 
-void OalAudioMixer::log_oal_device_name()
+void OalAudioMixer::log_oal_custom_device()
 {
-	log(std::string{"Device name: \""} + sd_oal_device_name + '\"');
+	log(std::string{} + "Custom device: \"" + sd_oal_device_name + '\"');
 }
 
-void OalAudioMixer::log_oal_device_names()
+void OalAudioMixer::log_oal_devices()
 {
-	log("Device names:");
+	log("Available devices:");
 
 	const auto device_names = get_alc_device_names();
 
@@ -1069,18 +1095,18 @@ void OalAudioMixer::log_oal_device_names()
 	}
 }
 
-void OalAudioMixer::log_oal_default_device_name()
+void OalAudioMixer::log_oal_default_device()
 {
 	const auto default_device_name = get_default_alc_device_name();
 
-	log("Default device name: \"" + default_device_name + '\"');
+	log("Default device: \"" + default_device_name + '\"');
 }
 
 void OalAudioMixer::log_oal_current_device_name()
 {
 	const auto current_device_name = get_alc_device_name();
 
-	log("Current device name: \"" + current_device_name + '\"');
+	log("Current device: \"" + current_device_name + '\"');
 }
 
 void OalAudioMixer::log_oal_alc_extensions()
@@ -1122,7 +1148,7 @@ void OalAudioMixer::log_oal_al_extensions()
 	}
 }
 
-const char* OalAudioMixer::get_oal_default_library_path_name() noexcept
+const char* OalAudioMixer::get_oal_default_library_file_name() noexcept
 {
 	return
 #if _WIN32
@@ -1148,15 +1174,17 @@ void OalAudioMixer::initialize_oal(
 		al_context_attributes[1] = param.dst_rate_;
 	}
 
-	log_oal_library_path_name();
-	log_oal_device_name();
+	log_oal_library_file_name();
+	log_oal_custom_device();
 
-	oal_loader_ = make_oal_loader(!sd_oal_library.empty() ? sd_oal_library.c_str() : get_oal_default_library_path_name());
+	oal_loader_ = make_oal_loader(!sd_oal_library.empty() ? sd_oal_library.c_str() : get_oal_default_library_file_name());
 
 	oal_alc_symbols_ = oal_loader_->load_alc_symbols();
 
-	log_oal_device_names();
-	log_oal_default_device_name();
+	detect_alc_extensions();
+
+	log_oal_devices();
+	log_oal_default_device();
 
 	oal_device_resource_ = make_oal_device(
 		oal_alc_symbols_,

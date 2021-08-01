@@ -6,12 +6,14 @@
 - Support Nuked OPL3 emulator.
 - Option to control OPL3 emulator type (`snd_opl3_type`).
 
-
 ### Fixed
 - Cancel strafe movement if both keys are pressed.
 - [SDL] Reduce CPU usage for digitized low-pass filtering.
 - Option `vid_renderer` now works in command-line.
+- [OAL] Load AL symbols within context.
 
+### Changed
+- [OAL] List devices with `ALC_ENUMERATE_ALL_EXT` if available.
 
 ### Removed
 - Option to control audio resampling (always ZOH).
