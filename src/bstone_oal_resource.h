@@ -52,9 +52,9 @@ public:
 
 
 	static_assert(
-		std::is_same<Resource, ALCdevice*>::value ||
-			std::is_same<Resource, ALCcontext*>::value ||
-			std::is_same<Resource, ALuint>::value,
+		std::is_same<Resource, ::ALCdevice*>::value ||
+			std::is_same<Resource, ::ALCcontext*>::value ||
+			std::is_same<Resource, ::ALuint>::value,
 		"Unsupported resource type."
 	);
 
@@ -214,24 +214,24 @@ public:
 		const OalDeviceDeleter& rhs);
 
 	explicit OalDeviceDeleter(
-		const OalSymbols* oal_symbols) noexcept;
+		const OalAlcSymbols& oal_alc_symbols) noexcept;
 
 	void operator=(
 		OalDeviceDeleter&& rhs) noexcept;
 
 	void operator()(
-		ALCdevice* al_device) const noexcept;
+		::ALCdevice* alc_device) const noexcept;
 
 
 private:
-	const OalSymbols* oal_symbols_{};
+	const OalAlcSymbols* oal_alc_symbols_{};
 }; // OalDeviceDeleter
 
-using OalDeviceResource = OalResource<ALCdevice*, OalDeviceDeleter>;
+using OalDeviceResource = OalResource<::ALCdevice*, OalDeviceDeleter>;
 
 
 OalDeviceResource make_oal_device(
-	const OalSymbols* oal_symbols,
+	const OalAlcSymbols& oal_symbols,
 	const char* device_name);
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -248,26 +248,26 @@ public:
 		const OalContextDeleter& rhs) noexcept;
 
 	explicit OalContextDeleter(
-		const OalSymbols* oal_symbols) noexcept;
+		const OalAlcSymbols& oal_alc_symbols) noexcept;
 
 	void operator=(
 		OalContextDeleter&& rhs) noexcept;
 
 	void operator()(
-		ALCcontext* al_context) const noexcept;
+		::ALCcontext* alc_context) const noexcept;
 
 
 private:
-	const OalSymbols* oal_symbols_{};
+	const OalAlcSymbols* oal_alc_symbols_{};
 }; // OalContextDeleter
 
-using OalContextResource = OalResource<ALCcontext*, OalContextDeleter>;
+using OalContextResource = OalResource<::ALCcontext*, OalContextDeleter>;
 
 
 OalContextResource make_oal_context(
-	const OalSymbols* oal_symbols,
-	ALCdevice* al_device,
-	const ALCint* al_context_attributes);
+	const OalAlcSymbols& oal_alc_symbols,
+	::ALCdevice* al_device,
+	const ::ALCint* al_context_attributes);
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -283,24 +283,24 @@ public:
 		const OalBufferDeleter& rhs) noexcept;
 
 	explicit OalBufferDeleter(
-		const OalSymbols* oal_symbols) noexcept;
+		const OalAlSymbols& oal_al_symbols) noexcept;
 
 	void operator=(
 		OalBufferDeleter&& rhs) noexcept;
 
 	void operator()(
-		ALuint al_buffer) const noexcept;
+		::ALuint al_buffer) const noexcept;
 
 
 private:
-	const OalSymbols* oal_symbols_{};
+	const OalAlSymbols* oal_al_symbols_{};
 }; // OalBufferDeleter
 
-using OalBufferResource = OalResource<ALuint, OalBufferDeleter>;
+using OalBufferResource = OalResource<::ALuint, OalBufferDeleter>;
 
 
 OalBufferResource make_oal_buffer(
-	const OalSymbols* oal_symbols);
+	const OalAlSymbols& oal_al_symbols);
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -316,24 +316,24 @@ public:
 		const OalSourceDeleter& rhs) noexcept;
 
 	explicit OalSourceDeleter(
-		const OalSymbols* oal_symbols) noexcept;
+		const OalAlSymbols& oal_al_symbols) noexcept;
 
 	void operator=(
 		OalSourceDeleter&& rhs) noexcept;
 
 	void operator()(
-		ALuint al_source) const noexcept;
+		::ALuint al_source) const noexcept;
 
 
 private:
-	const OalSymbols* oal_symbols_{};
+	const OalAlSymbols* oal_al_symbols_{};
 }; // OalSourceDeleter
 
-using OalSourceResource = OalResource<ALuint, OalSourceDeleter>;
+using OalSourceResource = OalResource<::ALuint, OalSourceDeleter>;
 
 
 OalSourceResource make_oal_source(
-	const OalSymbols* oal_symbols);
+	const OalAlSymbols& oal_al_symbols);
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 

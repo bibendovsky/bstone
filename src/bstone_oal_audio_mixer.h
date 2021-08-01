@@ -245,7 +245,8 @@ private:
 	bool is_mute_{};
 
 	OalLoaderUPtr oal_loader_{};
-	const OalSymbols* oal_symbols_{};
+	OalAlcSymbols oal_alc_symbols_{};
+	OalAlSymbols oal_al_symbols_{};
 	OalDeviceResource oal_device_resource_{};
 	OalContextResource oal_context_resource_{};
 

@@ -40,12 +40,14 @@ namespace bstone
 class OalLoader
 {
 public:
-	OalLoader() noexcept;
+	OalLoader() noexcept = default;
 
-	virtual ~OalLoader();
+	virtual ~OalLoader() = default;
 
 
-	virtual const OalSymbols& get_symbols() const noexcept = 0;
+	virtual OalAlcSymbols load_alc_symbols() = 0;
+
+	virtual OalAlSymbols load_al_symbols() = 0;
 }; // OalLoader
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

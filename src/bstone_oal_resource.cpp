@@ -45,7 +45,7 @@ class OalResourceNullException :
 public:
 	explicit OalResourceNullException()
 		:
-		Exception{"[OAL_RESOURCE] Null value."}
+		Exception{"OAL_RESOURCE", "Null value."}
 	{
 	}
 }; // OalResourceNullException
@@ -60,35 +60,39 @@ OalDeviceDeleter::OalDeviceDeleter() noexcept = default;
 OalDeviceDeleter::OalDeviceDeleter(
 	const OalDeviceDeleter& rhs)
 	:
-	oal_symbols_{rhs.oal_symbols_}
+	oal_alc_symbols_{rhs.oal_alc_symbols_}
 {
 }
 
 OalDeviceDeleter::OalDeviceDeleter(
-	const OalSymbols* oal_symbols) noexcept
+	const OalAlcSymbols& oal_alc_symbols) noexcept
 	:
-	oal_symbols_{oal_symbols}
+	oal_alc_symbols_{&oal_alc_symbols}
 {
-	assert(oal_symbols_ != nullptr);
-	assert(oal_symbols_->alcCloseDevice != nullptr);
+	assert(oal_alc_symbols_->alcCloseDevice);
 }
 
 void OalDeviceDeleter::operator=(
 	OalDeviceDeleter&& rhs) noexcept
 {
-	oal_symbols_ = rhs.oal_symbols_;
+	oal_alc_symbols_ = rhs.oal_alc_symbols_;
 }
 
 void OalDeviceDeleter::operator()(
-	ALCdevice* al_device) const noexcept
+	::ALCdevice* alc_device) const noexcept
 {
-	assert(al_device != nullptr);
+	assert(alc_device);
 
-	assert(oal_symbols_ != nullptr);
-	assert(oal_symbols_->alcCloseDevice != nullptr);
+	assert(oal_alc_symbols_);
+	assert(oal_alc_symbols_->alcCloseDevice);
 
-	const auto al_result = oal_symbols_->alcCloseDevice(al_device);
-	assert(al_result == ALC_TRUE);
+	const auto alc_result = oal_alc_symbols_->alcCloseDevice(alc_device);
+
+#if NDEBUG
+	static_cast<void>(alc_result);
+#else
+	assert(alc_result != ALC_FALSE);
+#endif // NDEBUG
 }
 
 
@@ -99,26 +103,25 @@ public:
 	explicit OalDeviceResourceException(
 		const char* message)
 		:
-		Exception{std::string{"[OAL_DEVICE_RESOURCE] "} + message}
+		Exception{"OAL_DEVICE_RESOURCE", message}
 	{
 	}
 }; // OalDeviceResourceException
 
 OalDeviceResource make_oal_device(
-	const OalSymbols* oal_symbols,
+	const OalAlcSymbols& oal_alc_symbols,
 	const char* device_name)
 {
-	not_null<OalResourceNullException>(oal_symbols);
-	not_null<OalResourceNullException>(oal_symbols->alcOpenDevice);
+	not_null<OalResourceNullException>(oal_alc_symbols.alcOpenDevice);
 
-	const auto al_device = oal_symbols->alcOpenDevice(device_name);
+	const auto alc_device = oal_alc_symbols.alcOpenDevice(device_name);
 
-	if (al_device != nullptr)
+	if (!alc_device)
 	{
-		return OalDeviceResource{al_device, OalDeviceDeleter{oal_symbols}};
+		throw OalDeviceResourceException{"Failed to open a device."};
 	}
 
-	throw OalDeviceResourceException{"Failed to open a device."};
+	return OalDeviceResource{alc_device, OalDeviceDeleter{oal_alc_symbols}};
 }
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -131,46 +134,51 @@ OalContextDeleter::OalContextDeleter() noexcept = default;
 OalContextDeleter::OalContextDeleter(
 	const OalContextDeleter& rhs) noexcept
 	:
-	oal_symbols_{rhs.oal_symbols_}
+	oal_alc_symbols_{rhs.oal_alc_symbols_}
 {
 }
 
 OalContextDeleter::OalContextDeleter(
-	const OalSymbols* oal_symbols) noexcept
+	const OalAlcSymbols& oal_alc_symbols) noexcept
 	:
-	oal_symbols_{oal_symbols}
+	oal_alc_symbols_{&oal_alc_symbols}
 {
-	assert(oal_symbols_ != nullptr);
-	assert(oal_symbols_->alcGetCurrentContext != nullptr);
-	assert(oal_symbols_->alcMakeContextCurrent != nullptr);
-	assert(oal_symbols_->alcDestroyContext != nullptr);
+	assert(oal_alc_symbols_);
+	assert(oal_alc_symbols_->alcGetCurrentContext);
+	assert(oal_alc_symbols_->alcMakeContextCurrent);
+	assert(oal_alc_symbols_->alcDestroyContext);
 }
 
 void OalContextDeleter::operator=(
 	OalContextDeleter&& rhs) noexcept
 {
-	oal_symbols_ = rhs.oal_symbols_;
+	oal_alc_symbols_ = rhs.oal_alc_symbols_;
 }
 
 void OalContextDeleter::operator()(
-	ALCcontext* al_context) const noexcept
+	::ALCcontext* alc_context) const noexcept
 {
-	assert(al_context != nullptr);
+	assert(alc_context);
 
-	assert(oal_symbols_ != nullptr);
-	assert(oal_symbols_->alcGetCurrentContext != nullptr);
-	assert(oal_symbols_->alcMakeContextCurrent != nullptr);
-	assert(oal_symbols_->alcDestroyContext != nullptr);
+	assert(oal_alc_symbols_);
+	assert(oal_alc_symbols_->alcGetCurrentContext);
+	assert(oal_alc_symbols_->alcMakeContextCurrent);
+	assert(oal_alc_symbols_->alcDestroyContext);
 
-	const auto al_current_context = oal_symbols_->alcGetCurrentContext();
+	const auto alc_current_context = oal_alc_symbols_->alcGetCurrentContext();
 
-	if (al_current_context == al_context)
+	if (alc_current_context == alc_context)
 	{
-		const auto al_result = oal_symbols_->alcMakeContextCurrent(nullptr);
-		assert(al_result == ALC_TRUE);
+		const auto alc_result = oal_alc_symbols_->alcMakeContextCurrent(nullptr);
+
+#if NDEBUG
+		static_cast<void>(alc_result);
+#else
+		assert(alc_result != ALC_FALSE);
+#endif // NDEBUG
 	}
 
-	oal_symbols_->alcDestroyContext(al_context);
+	oal_alc_symbols_->alcDestroyContext(alc_context);
 }
 
 
@@ -181,28 +189,27 @@ public:
 	explicit OalContextResourceException(
 		const char* message)
 		:
-		Exception{std::string{"[OAL_CONTEXT_RESOURCE] "} + message}
+		Exception{"OAL_CONTEXT_RESOURCE", message}
 	{
 	}
 }; // OalContextResourceException
 
 OalContextResource make_oal_context(
-	const OalSymbols* oal_symbols,
-	ALCdevice* al_device,
-	const ALCint* al_context_attributes)
+	const OalAlcSymbols& oal_alc_symbols,
+	::ALCdevice* alc_device,
+	const ::ALCint* al_context_attributes)
 {
-	not_null<OalResourceNullException>(oal_symbols);
-	not_null<OalResourceNullException>(oal_symbols->alcCreateContext);
-	not_null<OalResourceNullException>(al_device);
+	not_null<OalResourceNullException>(oal_alc_symbols.alcCreateContext);
+	not_null<OalResourceNullException>(alc_device);
 
-	const auto al_context = oal_symbols->alcCreateContext(al_device, al_context_attributes);
+	const auto alc_context = oal_alc_symbols.alcCreateContext(alc_device, al_context_attributes);
 
-	if (al_context != nullptr)
+	if (!alc_context)
 	{
-		return OalContextResource{al_context, OalContextDeleter{oal_symbols}};
+		throw OalContextResourceException{"Failed to create a context."};
 	}
 
-	throw OalContextResourceException{"Failed to create a context."};
+	return OalContextResource{alc_context, OalContextDeleter{oal_alc_symbols}};
 }
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -215,52 +222,53 @@ OalBufferDeleter::OalBufferDeleter() noexcept = default;
 OalBufferDeleter::OalBufferDeleter(
 	const OalBufferDeleter& rhs) noexcept
 	:
-	oal_symbols_{rhs.oal_symbols_}
+	oal_al_symbols_{rhs.oal_al_symbols_}
 {
 }
 
 OalBufferDeleter::OalBufferDeleter(
-	const OalSymbols* oal_symbols) noexcept
+	const OalAlSymbols& oal_al_symbols) noexcept
 	:
-	oal_symbols_{oal_symbols}
+	oal_al_symbols_{&oal_al_symbols}
 {
-	assert(oal_symbols_ != nullptr);
-	assert(oal_symbols_->alDeleteBuffers != nullptr);
+	assert(oal_al_symbols_->alDeleteBuffers);
 }
 
 void OalBufferDeleter::operator=(
 	OalBufferDeleter&& rhs) noexcept
 {
-	oal_symbols_ = rhs.oal_symbols_;
+	oal_al_symbols_ = rhs.oal_al_symbols_;
 }
 
 void OalBufferDeleter::operator()(
-	ALuint al_buffer) const noexcept
+	::ALuint al_buffer) const noexcept
 {
-	assert(al_buffer != 0);
+	assert(al_buffer != AL_NONE);
 
-	assert(oal_symbols_ != nullptr);
-	assert(oal_symbols_->alDeleteBuffers != nullptr);
+	assert(oal_al_symbols_);
+	assert(oal_al_symbols_->alDeleteBuffers);
 
-	oal_symbols_->alDeleteBuffers(1, &al_buffer);
+	oal_al_symbols_->alDeleteBuffers(1, &al_buffer);
 }
 
 
 OalBufferResource make_oal_buffer(
-	const OalSymbols* oal_symbols)
+	const OalAlSymbols& oal_al_symbols)
 {
-	not_null<OalResourceNullException>(oal_symbols);
-	not_null<OalResourceNullException>(oal_symbols->alGenBuffers);
+	not_null<OalResourceNullException>(oal_al_symbols.alGenBuffers);
+	not_null<OalResourceNullException>(oal_al_symbols.alIsBuffer);
 
-	auto al_buffer = ALuint{};
-	oal_symbols->alGenBuffers(1, &al_buffer);
+	auto al_buffer = ::ALuint{};
+	oal_al_symbols.alGenBuffers(1, &al_buffer);
 
-	if (al_buffer != 0)
+	const auto is_al_buffer = (oal_al_symbols.alIsBuffer(al_buffer) != AL_FALSE);
+
+	if (!is_al_buffer)
 	{
-		return OalBufferResource{al_buffer, OalBufferDeleter{oal_symbols}};
+		throw OalContextResourceException{"Failed to create a buffer."};
 	}
 
-	throw OalContextResourceException{"Failed to create a buffer."};
+	return OalBufferResource{al_buffer, OalBufferDeleter{oal_al_symbols}};
 }
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -273,52 +281,53 @@ OalSourceDeleter::OalSourceDeleter() noexcept = default;
 OalSourceDeleter::OalSourceDeleter(
 	const OalSourceDeleter& rhs) noexcept
 	:
-	oal_symbols_{rhs.oal_symbols_}
+	oal_al_symbols_{rhs.oal_al_symbols_}
 {
 }
 
 OalSourceDeleter::OalSourceDeleter(
-	const OalSymbols* oal_symbols) noexcept
+	const OalAlSymbols& oal_al_symbols) noexcept
 	:
-	oal_symbols_{oal_symbols}
+	oal_al_symbols_{&oal_al_symbols}
 {
-	assert(oal_symbols_ != nullptr);
-	assert(oal_symbols_->alDeleteSources != nullptr);
+	assert(oal_al_symbols_->alDeleteSources);
 }
 
 void OalSourceDeleter::operator=(
 	OalSourceDeleter&& rhs) noexcept
 {
-	oal_symbols_ = rhs.oal_symbols_;
+	oal_al_symbols_ = rhs.oal_al_symbols_;
 }
 
 void OalSourceDeleter::operator()(
-	ALuint al_source) const noexcept
+	::ALuint al_source) const noexcept
 {
-	assert(al_source != 0);
+	assert(al_source != AL_NONE);
 
-	assert(oal_symbols_ != nullptr);
-	assert(oal_symbols_->alDeleteSources != nullptr);
+	assert(oal_al_symbols_);
+	assert(oal_al_symbols_->alDeleteSources);
 
-	oal_symbols_->alDeleteSources(1, &al_source);
+	oal_al_symbols_->alDeleteSources(1, &al_source);
 }
 
 
 OalSourceResource make_oal_source(
-	const OalSymbols* oal_symbols)
+	const OalAlSymbols& oal_al_symbols)
 {
-	not_null<OalResourceNullException>(oal_symbols);
-	not_null<OalResourceNullException>(oal_symbols->alGenSources);
+	not_null<OalResourceNullException>(oal_al_symbols.alGenSources);
+	not_null<OalResourceNullException>(oal_al_symbols.alIsSource);
 
-	auto al_source = ALuint{};
-	oal_symbols->alGenSources(1, &al_source);
+	auto al_source = ::ALuint{};
+	oal_al_symbols.alGenSources(1, &al_source);
 
-	if (al_source != 0)
+	const auto is_al_source = (oal_al_symbols.alIsSource(al_source) != AL_FALSE);
+
+	if (!is_al_source)
 	{
-		return OalSourceResource{al_source, OalSourceDeleter{oal_symbols}};
+		throw OalContextResourceException{"Failed to create a source."};
 	}
 
-	throw OalContextResourceException{"Failed to create a source."};
+	return OalSourceResource{al_source, OalSourceDeleter{oal_al_symbols}};
 }
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
