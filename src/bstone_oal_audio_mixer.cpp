@@ -531,9 +531,9 @@ try
 
 	const auto al_gain = (is_mute_ ? 0.0F : 1.0F);
 
-	static_cast<void>(oal_symbols_->alGetError());
-	oal_symbols_->alListenerf(AL_GAIN, al_gain);
-	assert(oal_symbols_->alGetError() == AL_NO_ERROR);
+	static_cast<void>(oal_al_symbols_.alGetError());
+	oal_al_symbols_.alListenerf(AL_GAIN, al_gain);
+	assert(oal_al_symbols_.alGetError() == AL_NO_ERROR);
 
 	return true;
 }
@@ -839,21 +839,19 @@ bool OalAudioMixer::play_sfx_sound(
 
 void OalAudioMixer::make_al_context_current()
 {
-	const auto al_result = oal_symbols_->alcMakeContextCurrent(oal_context_resource_.get());
+	const auto al_result = oal_alc_symbols_.alcMakeContextCurrent(oal_context_resource_.get());
 
-	if (al_result == ALC_TRUE)
+	if (al_result == ALC_FALSE)
 	{
-		return;
+		throw OalAudioMixerException{"Failed to make context current."};
 	}
-
-	throw OalAudioMixerException{"Failed to make context current."};
 }
 
 OalAudioMixer::OalString OalAudioMixer::get_default_alc_device_name()
 {
 	auto default_device_name = OalString{};
 
-	const auto default_alc_device_name = oal_symbols_->alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
+	const auto default_alc_device_name = oal_alc_symbols_.alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
 
 	if (default_alc_device_name)
 	{
@@ -867,7 +865,7 @@ OalAudioMixer::OalString OalAudioMixer::get_alc_device_name()
 {
 	auto device_name = OalString{};
 
-	const auto alc_device_name = oal_symbols_->alcGetString(oal_device_resource_.get(), ALC_DEVICE_SPECIFIER);
+	const auto alc_device_name = oal_alc_symbols_.alcGetString(oal_device_resource_.get(), ALC_DEVICE_SPECIFIER);
 
 	if (alc_device_name)
 	{
@@ -882,7 +880,7 @@ OalAudioMixer::OalStrings OalAudioMixer::get_alc_device_names()
 	auto device_names = OalStrings{};
 	device_names.reserve(4);
 
-	auto alc_device_names = oal_symbols_->alcGetString(nullptr, ALC_DEVICE_SPECIFIER);
+	auto alc_device_names = oal_alc_symbols_.alcGetString(nullptr, ALC_DEVICE_SPECIFIER);
 
 	if (alc_device_names)
 	{
@@ -952,7 +950,7 @@ OalAudioMixer::OalStrings OalAudioMixer::parse_al_token_string(
 
 OalAudioMixer::OalStrings OalAudioMixer::get_alc_extensions()
 {
-	const auto alc_extensions = oal_symbols_->alcGetString(oal_device_resource_.get(), ALC_EXTENSIONS);
+	const auto alc_extensions = oal_alc_symbols_.alcGetString(oal_device_resource_.get(), ALC_EXTENSIONS);
 	const auto extensions = parse_al_token_string(alc_extensions);
 
 	return extensions;
@@ -960,7 +958,7 @@ OalAudioMixer::OalStrings OalAudioMixer::get_alc_extensions()
 
 OalAudioMixer::OalStrings OalAudioMixer::get_al_extensions()
 {
-	const auto al_extensions = oal_symbols_->alGetString(AL_EXTENSIONS);
+	const auto al_extensions = oal_al_symbols_.alGetString(AL_EXTENSIONS);
 	const auto extensions = parse_al_token_string(al_extensions);
 
 	return extensions;
@@ -970,7 +968,7 @@ int OalAudioMixer::get_al_mixing_frequency()
 {
 	auto al_attribute_size = ALCint{};
 
-	oal_symbols_->alcGetIntegerv(
+	oal_alc_symbols_.alcGetIntegerv(
 		oal_device_resource_.get(),
 		ALC_ATTRIBUTES_SIZE,
 		1,
@@ -994,7 +992,7 @@ int OalAudioMixer::get_al_mixing_frequency()
 	using OalAttributes = std::array<OalAttribute, max_attributes>;
 	auto al_attributes = OalAttributes{};
 
-	oal_symbols_->alcGetIntegerv(
+	oal_alc_symbols_.alcGetIntegerv(
 		oal_device_resource_.get(),
 		ALC_ALL_ATTRIBUTES,
 		max_al_attributes_size,
@@ -1029,7 +1027,7 @@ int OalAudioMixer::get_max_voice_count()
 	{
 		for (auto& oal_source_resource : oal_source_resources)
 		{
-			oal_source_resource = make_oal_source(oal_symbols_);
+			oal_source_resource = make_oal_source(oal_al_symbols_);
 			voice_count += 1;
 		}
 	}
@@ -1099,15 +1097,15 @@ void OalAudioMixer::log_oal_alc_extensions()
 
 void OalAudioMixer::log_oal_al_info()
 {
-	const auto al_version = oal_symbols_->alGetString(AL_VERSION);
+	const auto al_version = oal_al_symbols_.alGetString(AL_VERSION);
 	const auto version = OalString(al_version ? al_version : "");
 	log("Version: " + version);
 
-	const auto al_renderer = oal_symbols_->alGetString(AL_RENDERER);
+	const auto al_renderer = oal_al_symbols_.alGetString(AL_RENDERER);
 	const auto renderer = OalString(al_renderer ? al_renderer : "");
 	log("Renderer: " + renderer);
 
-	const auto al_vendor = oal_symbols_->alGetString(AL_VENDOR);
+	const auto al_vendor = oal_al_symbols_.alGetString(AL_VENDOR);
 	const auto vendor = OalString(al_vendor ? al_vendor : "");
 	log("Vendor: " + vendor);
 }
@@ -1155,21 +1153,23 @@ void OalAudioMixer::initialize_oal(
 
 	oal_loader_ = make_oal_loader(!sd_oal_library.empty() ? sd_oal_library.c_str() : get_oal_default_library_path_name());
 
-	oal_symbols_ = &oal_loader_->get_symbols();
+	oal_alc_symbols_ = oal_loader_->load_alc_symbols();
 
 	log_oal_device_names();
 	log_oal_default_device_name();
 
 	oal_device_resource_ = make_oal_device(
-		oal_symbols_,
+		oal_alc_symbols_,
 		!sd_oal_device_name.empty() ? sd_oal_device_name.c_str() : nullptr
 	);
 
 	log_oal_current_device_name();
 	log_oal_alc_extensions();
 
-	oal_context_resource_ = make_oal_context(oal_symbols_, oal_device_resource_.get(), al_context_attributes);
+	oal_context_resource_ = make_oal_context(oal_alc_symbols_, oal_device_resource_.get(), al_context_attributes);
 	make_al_context_current();
+
+	oal_al_symbols_ = oal_loader_->load_al_symbols();
 
 	log_oal_al_info();
 	log_oal_al_extensions();
@@ -1192,7 +1192,7 @@ void OalAudioMixer::initialize_music_source()
 	auto param = OalSourceInitParam{};
 	param.mix_sample_rate = dst_rate_;
 	param.mix_sample_count = mix_sample_count_;
-	param.oal_symbols = oal_symbols_;
+	param.oal_al_symbols = &oal_al_symbols_;
 
 	music_source_.initialize(param);
 }
@@ -1253,7 +1253,7 @@ void OalAudioMixer::initialize_sfx_voices()
 	auto param = OalSourceInitParam{};
 	param.mix_sample_rate = dst_rate_;
 	param.mix_sample_count = mix_sample_count_;
-	param.oal_symbols = oal_symbols_;
+	param.oal_al_symbols = &oal_al_symbols_;
 
 	for (auto& sfx_voice : sfx_voices_)
 	{
@@ -1600,12 +1600,12 @@ void OalAudioMixer::set_al_listener_position(
 	float y,
 	float z)
 {
-	assert(oal_symbols_->alGetError);
-	assert(oal_symbols_->alListener3f);
+	assert(oal_al_symbols_.alGetError);
+	assert(oal_al_symbols_.alListener3f);
 
-	static_cast<void>(oal_symbols_->alGetError());
-	oal_symbols_->alListener3f(AL_POSITION, x, y, z);
-	assert(oal_symbols_->alGetError() == AL_NO_ERROR);
+	static_cast<void>(oal_al_symbols_.alGetError());
+	oal_al_symbols_.alListener3f(AL_POSITION, x, y, z);
+	assert(oal_al_symbols_.alGetError() == AL_NO_ERROR);
 }
 
 void OalAudioMixer::set_al_listener_orientation(
@@ -1622,12 +1622,12 @@ void OalAudioMixer::set_al_listener_orientation(
 		up_x, up_y, up_z,
 	};
 
-	assert(oal_symbols_->alGetError);
-	assert(oal_symbols_->alListenerfv);
+	assert(oal_al_symbols_.alGetError);
+	assert(oal_al_symbols_.alListenerfv);
 
-	static_cast<void>(oal_symbols_->alGetError());
-	oal_symbols_->alListenerfv(AL_ORIENTATION, al_orientation);
-	assert(oal_symbols_->alGetError() == AL_NO_ERROR);
+	static_cast<void>(oal_al_symbols_.alGetError());
+	oal_al_symbols_.alListenerfv(AL_ORIENTATION, al_orientation);
+	assert(oal_al_symbols_.alGetError() == AL_NO_ERROR);
 }
 
 void OalAudioMixer::update_positions_player()
