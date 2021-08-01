@@ -22,13 +22,11 @@ Free Software Foundation, Inc.,
 */
 
 
-#include "bstone_sdl2_dynamic_loader.h"
+#ifndef BSTONE_SHARED_LIBRARY_INCLUDED
+#define BSTONE_SHARED_LIBRARY_INCLUDED
 
-#include <string>
 
-#include "SDL_loadso.h"
-
-#include "bstone_sdl2_exception.h"
+#include <memory>
 
 
 namespace bstone
@@ -37,35 +35,42 @@ namespace bstone
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-Sdl2DynamicLoader::Sdl2DynamicLoader(
-	const char* shared_library_path_name)
+class SharedLibrary
 {
-	Sdl2EnsureResult{sdl2_handle_ = SDL_LoadObject(shared_library_path_name)};
-}
+public:
+	SharedLibrary() noexcept = default;
 
-Sdl2DynamicLoader::~Sdl2DynamicLoader()
-{
-	SDL_UnloadObject(sdl2_handle_);
-}
+	virtual ~SharedLibrary() = default;
 
-void* Sdl2DynamicLoader::resolve(
-	const char* symbol_name) noexcept
-{
-	return SDL_LoadFunction(sdl2_handle_, symbol_name);
-}
+
+	virtual void open(
+		const char* path) = 0;
+
+	virtual void close() noexcept = 0;
+
+	virtual bool is_open() const noexcept = 0;
+
+	virtual void* find_symbol(
+		const char* symbol_name) noexcept = 0;
+}; // SharedLibrary
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-DynamicLoaderUPtr make_dynamic_loader(
-	const char* shared_library_path_name)
-{
-	return std::make_unique<Sdl2DynamicLoader>(shared_library_path_name);
-}
+using SharedLibraryUPtr = std::unique_ptr<SharedLibrary>;
+
+
+SharedLibraryUPtr make_shared_library();
+
+SharedLibraryUPtr make_shared_library(
+	const char* path);
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 } // bstone
+
+
+#endif // !BSTONE_SHARED_LIBRARY_INCLUDED

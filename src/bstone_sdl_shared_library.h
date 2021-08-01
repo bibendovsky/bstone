@@ -22,7 +22,11 @@ Free Software Foundation, Inc.,
 */
 
 
-#include "bstone_dynamic_loader.h"
+#ifndef BSTONE_SDL2_SHARED_LIBRARY_INCLUDED
+#define BSTONE_SDL2_SHARED_LIBRARY_INCLUDED
+
+
+#include "bstone_shared_library.h"
 
 
 namespace bstone
@@ -31,11 +35,62 @@ namespace bstone
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-DynamicLoader::DynamicLoader() noexcept = default;
+class SdlSharedLibrary final :
+	public SharedLibrary
+{
+public:
+	SdlSharedLibrary() noexcept = default;
 
-DynamicLoader::~DynamicLoader() = default;
+	SdlSharedLibrary(
+		const char* path);
+
+	SdlSharedLibrary(
+		SdlSharedLibrary&& rhs) noexcept;
+
+	~SdlSharedLibrary() override;
+
+
+	// ======================================================================
+	// SharedLibrary
+
+	void open(
+		const char* path) override;
+
+	void close() noexcept override;
+
+	bool is_open() const noexcept override;
+
+	void* find_symbol(
+		const char* symbol_name) noexcept override;
+
+	// SharedLibrary
+	// ======================================================================
+
+
+private:
+	void* handle_{};
+
+
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
+
+	void open_internal(
+		const char* path);
+
+	void close_internal() noexcept;
+
+	bool is_open_internal() const noexcept;
+}; // SdlSharedLibrary
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 } // bstone
+
+
+#endif // !BSTONE_SDL2_SHARED_LIBRARY_INCLUDED
