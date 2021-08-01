@@ -227,6 +227,9 @@ private:
 	static constexpr auto adlib_sfx_volume_scale = 7;
 	static constexpr auto adlib_music_volume_scale = 6;
 
+	static constexpr auto alc_enumeration_ext_str = "ALC_ENUMERATION_EXT";
+	static constexpr auto alc_enumerate_all_ext_str = "ALC_ENUMERATE_ALL_EXT";
+
 
 	using Mutex = std::mutex;
 	using MutexUniqueLock = std::unique_lock<Mutex>;
@@ -243,6 +246,9 @@ private:
 	int mix_size_ms_;
 	bool is_lpf_;
 	bool is_mute_{};
+
+	bool has_alc_enumeration_ext_{};
+	bool has_alc_enumerate_all_ext_{};
 
 	OalLoaderUPtr oal_loader_{};
 	OalAlcSymbols oal_alc_symbols_{};
@@ -311,16 +317,19 @@ private:
 	int get_max_voice_count();
 
 
+	void detect_alc_extensions();
+
+
 	void log(
 		const OalString& string);
 
-	void log_oal_library_path_name();
+	void log_oal_library_file_name();
 
-	void log_oal_device_name();
+	void log_oal_custom_device();
 
-	void log_oal_device_names();
+	void log_oal_devices();
 
-	void log_oal_default_device_name();
+	void log_oal_default_device();
 
 	void log_oal_current_device_name();
 
@@ -330,7 +339,7 @@ private:
 
 	void log_oal_al_extensions();
 
-	static const char* get_oal_default_library_path_name() noexcept;
+	static const char* get_oal_default_library_file_name() noexcept;
 
 	void initialize_oal(
 		const AudioMixerInitParam& param);
