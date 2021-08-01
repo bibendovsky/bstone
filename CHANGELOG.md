@@ -11,6 +11,7 @@
 - [SDL] Reduce CPU usage for digitized low-pass filtering.
 - Option `vid_renderer` now works in command-line.
 - [OAL] Load AL symbols within context.
+- [OAL] List only available extensions.
 
 ### Changed
 - [OAL] List devices with `ALC_ENUMERATE_ALL_EXT` if available.
