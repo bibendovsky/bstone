@@ -1064,6 +1064,11 @@ void vid_cl_read_renderer_kind()
 
 	const auto value_string = ::g_args.get_option_value(vid_get_renderer_key_name());
 
+	if (value_string.empty())
+	{
+		return;
+	}
+
 	if (false)
 	{
 	}
