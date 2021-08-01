@@ -1058,6 +1058,39 @@ void vid_cl_read_external_textures()
 	}
 }
 
+void vid_cl_read_renderer_kind()
+{
+	auto value = bstone::RendererKind::software;
+
+	const auto value_string = ::g_args.get_option_value(vid_get_renderer_key_name());
+
+	if (false)
+	{
+	}
+	else if (value_string == vid_get_auto_detect_value_string())
+	{
+		value = bstone::RendererKind::auto_detect;
+	}
+	else if (value_string == vid_get_gl_2_0_value_string())
+	{
+		value = bstone::RendererKind::gl_2_0;
+	}
+	else if (value_string == vid_get_gl_3_2_c_value_string())
+	{
+		value = bstone::RendererKind::gl_3_2_core;
+	}
+	else if (value_string == vid_get_gles_2_0_value_string())
+	{
+		value = bstone::RendererKind::gles_2_0;
+	}
+	else
+	{
+		value = bstone::RendererKind::software;
+	}
+
+	vid_cfg_.renderer_kind_ = value;
+}
+
 const std::string& vid_get_vid_string()
 {
 	static const auto result = std::string{"[VID]"};
@@ -1144,6 +1177,7 @@ void vid_cl_read()
 
 	is_already_read = true;
 
+	vid_cl_read_renderer_kind();
 	vid_cl_read_external_textures();
 	vid_cl_read_is_windowed();
 	vid_cl_read_is_positioned();
@@ -2351,54 +2385,37 @@ void vid_write_hw_aa_kind_cfg(
 void vid_write_renderer_kind_cfg(
 	bstone::TextWriter& text_writer)
 {
+	auto value_string = std::string{};
+
 	switch (vid_cfg_.renderer_kind_)
 	{
 		case bstone::RendererKind::software:
-			cfg_file_write_entry(
-				text_writer,
-				vid_get_renderer_key_name(),
-				vid_get_software_value_string()
-			);
-
+			value_string = vid_get_software_value_string();
 			break;
 
 		case bstone::RendererKind::gl_2_0:
-			cfg_file_write_entry(
-				text_writer,
-				vid_get_renderer_key_name(),
-				vid_get_gl_2_0_value_string()
-			);
-
+			value_string = vid_get_gl_2_0_value_string();
 			break;
 
 		case bstone::RendererKind::gl_3_2_core:
-			cfg_file_write_entry(
-				text_writer,
-				vid_get_renderer_key_name(),
-				vid_get_gl_3_2_c_value_string()
-			);
-
+			value_string = vid_get_gl_3_2_c_value_string();
 			break;
 
 		case bstone::RendererKind::gles_2_0:
-			cfg_file_write_entry(
-				text_writer,
-				vid_get_renderer_key_name(),
-				vid_get_gles_2_0_value_string()
-			);
-
+			value_string = vid_get_gles_2_0_value_string();
 			break;
 
 		case bstone::RendererKind::auto_detect:
 		default:
-			cfg_file_write_entry(
-				text_writer,
-				vid_get_renderer_key_name(),
-				vid_get_auto_detect_value_string()
-			);
-
+			value_string = vid_get_auto_detect_value_string();
 			break;
 	}
+
+	cfg_file_write_entry(
+		text_writer,
+		vid_get_renderer_key_name(),
+		value_string
+	);
 }
 
 void vid_write_hw_texture_upscale_filter_kind_cfg(
