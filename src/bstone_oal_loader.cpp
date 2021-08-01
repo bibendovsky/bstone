@@ -26,7 +26,7 @@ Free Software Foundation, Inc.,
 
 #include <array>
 
-#include "bstone_dynamic_loader.h"
+#include "bstone_shared_library.h"
 #include "bstone_exception.h"
 
 
@@ -77,12 +77,12 @@ private:
 	using SharedLibraryPathNames = std::array<const char*, 2>;
 
 
-	DynamicLoaderUPtr dynamic_loader_{};
+	SharedLibraryUPtr shared_library_{};
 	OalSymbols oal_symbols_{};
 
 
 	void open_internal(
-		const char* shared_library_path_name);
+		const char* path);
 
 
 	template<
@@ -92,7 +92,7 @@ private:
 		const char* name,
 		T& symbol)
 	{
-		symbol = reinterpret_cast<T>(dynamic_loader_->resolve(name));
+		symbol = reinterpret_cast<T>(shared_library_->find_symbol(name));
 
 		if (symbol == nullptr)
 		{
@@ -120,7 +120,7 @@ const OalSymbols& OalLoaderImpl::get_symbols() const noexcept
 void OalLoaderImpl::open_internal(
 	const char* shared_library_path_name)
 {
-	dynamic_loader_ = make_dynamic_loader(shared_library_path_name);
+	shared_library_ = make_shared_library(shared_library_path_name);
 
 
 	//

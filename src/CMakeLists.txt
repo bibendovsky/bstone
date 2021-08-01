@@ -362,7 +362,7 @@ target_sources(
 		bstone_cl_args.h
 		bstone_content_path.h
 		bstone_crc32.h
-		bstone_dynamic_loader.h
+		bstone_shared_library.h
 		bstone_encoding.h
 		bstone_endian.h
 		bstone_exception.h
@@ -400,7 +400,7 @@ target_sources(
 		bstone_rgb_palette.h
 		bstone_scope_guard.h
 		bstone_sdl2_audio_mixer.h
-		bstone_sdl2_dynamic_loader.h
+		bstone_sdl_shared_library.h
 		bstone_sdl_texture_lock.h
 		bstone_sdl_utils.h
 		bstone_sha1.h
@@ -522,7 +522,7 @@ target_sources(
 		bstone_content_path.cpp
 		bstone_crc32.cpp
 		bstone_dosbox_dbopl.cpp
-		bstone_dynamic_loader.cpp
+		bstone_shared_library.cpp
 		bstone_encoding.cpp
 		bstone_exception.cpp
 		bstone_file_stream.cpp
@@ -554,7 +554,7 @@ target_sources(
 		bstone_ps_fizzle_fx.cpp
 		bstone_rgb8.cpp
 		bstone_sdl2_audio_mixer.cpp
-		bstone_sdl2_dynamic_loader.cpp
+		bstone_sdl_shared_library.cpp
 		bstone_sdl_texture_lock.cpp
 		bstone_sdl_utils.cpp
 		bstone_sha1.cpp
