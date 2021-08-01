@@ -10,6 +10,7 @@
 ### Fixed
 - Cancel strafe movement if both keys are pressed.
 - [SDL] Reduce CPU usage for digitized low-pass filtering.
+- Option `vid_renderer` now works in command-line.
 
 
 ### Removed
