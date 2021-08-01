@@ -82,7 +82,7 @@ struct OalSourceInitParam
 {
 	int mix_sample_rate{};
 	int mix_sample_count{};
-	const OalSymbols* oal_symbols{};
+	const OalAlSymbols* oal_al_symbols{};
 }; // OalSourceInitParam
 
 // --------------------------------------------------------------------------
@@ -171,7 +171,7 @@ private:
 	static constexpr auto sample_size = static_cast<int>(sizeof(OalSourceSample));
 
 
-	const OalSymbols* oal_symbols_{};
+	const OalAlSymbols* oal_al_symbols_{};
 
 	bool is_initialized_{};
 	bool is_open_{};
