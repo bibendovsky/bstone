@@ -968,7 +968,22 @@ OalAudioMixer::OalStrings OalAudioMixer::get_alc_extensions()
 	const auto alc_extensions = oal_alc_symbols_.alcGetString(oal_device_resource_.get(), ALC_EXTENSIONS);
 	const auto extensions = parse_al_token_string(alc_extensions);
 
-	return extensions;
+	auto present_extensions = OalStrings{};
+	present_extensions.reserve(extensions.size());
+
+	for (const auto& extension : extensions)
+	{
+		const auto is_present = (oal_alc_symbols_.alcIsExtensionPresent(
+			oal_device_resource_.get(),
+			extension.c_str()) != ALC_FALSE);
+
+		if (is_present)
+		{
+			present_extensions.emplace_back(extension);
+		}
+	}
+
+	return present_extensions;
 }
 
 OalAudioMixer::OalStrings OalAudioMixer::get_al_extensions()
@@ -976,7 +991,20 @@ OalAudioMixer::OalStrings OalAudioMixer::get_al_extensions()
 	const auto al_extensions = oal_al_symbols_.alGetString(AL_EXTENSIONS);
 	const auto extensions = parse_al_token_string(al_extensions);
 
-	return extensions;
+	auto present_extensions = OalStrings{};
+	present_extensions.reserve(extensions.size());
+
+	for (const auto& extension : extensions)
+	{
+		const auto is_present = (oal_al_symbols_.alIsExtensionPresent(extension.c_str()) != AL_FALSE);
+
+		if (is_present)
+		{
+			present_extensions.emplace_back(extension);
+		}
+	}
+
+	return present_extensions;
 }
 
 int OalAudioMixer::get_al_mixing_frequency()
