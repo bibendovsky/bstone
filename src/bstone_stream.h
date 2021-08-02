@@ -59,12 +59,12 @@ enum class StreamOpenMode
 class Stream
 {
 public:
-	Stream();
+	Stream() noexcept = default;
 
-	virtual ~Stream();
+	virtual ~Stream() = default;
 
 
-	virtual void close();
+	virtual void close() = 0;
 
 	virtual bool is_open() const = 0;
 
@@ -74,18 +74,18 @@ public:
 	// Sets a new size of the stream.
 	// Returns false on error or if the stream is not seekable.
 	virtual bool set_size(
-		const std::int64_t size) = 0;
+		std::int64_t size) = 0;
 
 	// Returns a new position or a negative value on error.
 	virtual std::int64_t seek(
-		const std::int64_t offset,
-		const StreamSeekOrigin origin) = 0;
+		std::int64_t offset,
+		StreamSeekOrigin origin) = 0;
 
 	// Skips a number of octets forward if count is positive or
 	// backward otherwise.
 	// Returns a negative value on error.
 	virtual std::int64_t skip(
-		const int count);
+		int count);
 
 	// Returns a current position or a negative value on error.
 	virtual std::int64_t get_position();
@@ -101,13 +101,13 @@ public:
 	//    - "false" otherwise.
 	//
 	virtual bool set_position(
-		const std::int64_t position);
+		std::int64_t position);
 
 	// Reads a specified number of octets and returns an actual
 	// read number of octets.
 	virtual int read(
 		void* buffer,
-		const int count) = 0;
+		int count) = 0;
 
 	//
 	// Writes octet data into the stream.
@@ -122,7 +122,7 @@ public:
 	//
 	virtual bool write(
 		const void* buffer,
-		const int count) = 0;
+		int count) = 0;
 
 	// Reads a one octet and returns it.
 	// Returns a negative value on error.
@@ -139,7 +139,7 @@ public:
 	//    - "false" otherwise.
 	//
 	virtual bool write_octet(
-		const std::uint8_t value);
+		std::uint8_t value);
 
 	// Writes a string without a terminator
 	virtual bool write_string(
@@ -185,7 +185,7 @@ public:
 	// an another stream using internal buffer.
 	bool copy_to(
 		Stream* dst_stream,
-		const int buffer_size = 0);
+		int buffer_size = 0);
 
 
 	//

@@ -29,23 +29,12 @@ Free Software Foundation, Inc.,
 #include "bstone_un_value.h"
 
 
-namespace bstone {
-
-
-Stream::Stream()
+namespace bstone
 {
-}
 
-Stream::~Stream()
-{
-}
-
-void Stream::close()
-{
-}
 
 std::int64_t Stream::skip(
-	const int count)
+	int count)
 {
 	return seek(count, StreamSeekOrigin::current);
 }
@@ -56,7 +45,7 @@ std::int64_t Stream::get_position()
 }
 
 bool Stream::set_position(
-	const std::int64_t position)
+	std::int64_t position)
 {
 	return seek(position, StreamSeekOrigin::begin) >= 0;
 }
@@ -76,7 +65,7 @@ int Stream::read_octet()
 }
 
 bool Stream::write_octet(
-	const std::uint8_t value)
+	std::uint8_t value)
 {
 	return write(&value, 1);
 }
@@ -89,7 +78,7 @@ bool Stream::write_string(
 
 bool Stream::copy_to(
 	Stream* dst_stream,
-	const int buffer_size)
+	int buffer_size)
 {
 	if (!dst_stream)
 	{

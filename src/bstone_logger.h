@@ -57,9 +57,9 @@ enum class LoggerMessageKind
 class Logger
 {
 public:
-	Logger() noexcept;
+	Logger() noexcept = default;
 
-	virtual ~Logger();
+	virtual ~Logger() = default;
 
 
 	// Writes a message of the specified kind.

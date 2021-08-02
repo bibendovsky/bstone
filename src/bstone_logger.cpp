@@ -51,19 +51,6 @@ LoggerPtr logger_ = nullptr;
 
 
 // ==========================================================================
-// Logger
-//
-
-Logger::Logger() noexcept = default;
-
-Logger::~Logger() = default;
-
-//
-// Logger
-// ==========================================================================
-
-
-// ==========================================================================
 // DefaultLogger
 //
 
@@ -119,47 +106,51 @@ void DefaultLogger::write(
 {
 	MutexLock mutex_lock{mutex_};
 
+	auto is_warning_or_error = false;
 	auto is_critical = false;
+
+	message_.clear();
 
 	switch (message_kind)
 	{
 		case LoggerMessageKind::information:
-			message_.clear();
 			break;
 
 		case LoggerMessageKind::warning:
-			message_ = "WARNING: ";
+			is_warning_or_error = true;
+			message_ += "[WARNING] ";
 			break;
 
 		case LoggerMessageKind::error:
-			message_ = "ERROR: ";
+			is_warning_or_error = true;
+			message_ += "[ERROR] ";
 			break;
 
 		case LoggerMessageKind::critical_error:
+			is_warning_or_error = true;
 			is_critical = true;
-			message_ = "CRITICAL: ";
+			message_ += "[CRITICAL] ";
 			break;
 
 		default:
-			throw std::runtime_error("Invalid message type.");
+			return;
 	}
 
 	message_ += message;
 
-	std::cout << message_ << std::endl;
+	(is_warning_or_error ? std::cerr : std::cout) << message_ << std::endl;
 
-	if (file_stream_.open(file_name_, StreamOpenMode::read_write))
+	if (file_stream_.is_open())
 	{
-		file_stream_.seek(0, StreamSeekOrigin::end);
 		static_cast<void>(file_stream_.write_string(message_));
 		static_cast<void>(file_stream_.write_octet('\n'));
-		file_stream_.close();
+		file_stream_.flush();
 	}
 
 	if (is_critical)
 	{
-		static_cast<void>(SDL_ShowSimpleMessageBox(
-			SDL_MESSAGEBOX_ERROR,
+		static_cast<void>(::SDL_ShowSimpleMessageBox(
+			::SDL_MESSAGEBOX_ERROR,
 			get_message_box_title().c_str(),
 			message_.c_str(),
 			nullptr)
@@ -209,8 +200,8 @@ void DefaultLogger::initialize()
 
 			if (!is_file_open)
 			{
-				std::cout << "ERROR: Failed to open a log file." << std::endl;
-				std::cout << "ERROR: File: \"" << file_name_ << "\"." << std::endl;
+				std::cerr << "[ERROR] Failed to open a log file." << std::endl;
+				std::cerr << "[ERROR] File: \"" << file_name_ << "\"." << std::endl;
 			}
 		}
 

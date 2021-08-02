@@ -43,27 +43,27 @@ class FileStream final :
 	public Stream
 {
 public:
-	FileStream();
+	FileStream() noexcept = default;
 
 	FileStream(
 		const std::string& file_name,
-		const StreamOpenMode open_mode = StreamOpenMode::read);
+		StreamOpenMode open_mode = StreamOpenMode::read);
 
 	FileStream(
 		const FileStream& rhs) = delete;
 
 	FileStream(
-		FileStream&& rhs);
+		FileStream&& rhs) noexcept;
 
 	FileStream& operator=(
 		const FileStream& rhs) = delete;
 
-	virtual ~FileStream();
+	~FileStream() override;
 
 
 	bool open(
 		const std::string& file_name,
-		const StreamOpenMode open_mode = StreamOpenMode::read);
+		StreamOpenMode open_mode = StreamOpenMode::read);
 
 	void close() override;
 
@@ -72,19 +72,19 @@ public:
 	std::int64_t get_size() override;
 
 	bool set_size(
-		const std::int64_t size) override;
+		std::int64_t size) override;
 
 	std::int64_t seek(
-		const std::int64_t offset,
-		const StreamSeekOrigin origin) override;
+		std::int64_t offset,
+		StreamSeekOrigin origin) override;
 
 	int read(
 		void* buffer,
-		const int count) override;
+		int count) override;
 
 	bool write(
 		const void* buffer,
-		const int count) override;
+		int count) override;
 
 	bool flush() override;
 
@@ -100,10 +100,10 @@ public:
 
 
 private:
-	void* context_;
-	bool is_readable_;
-	bool is_seekable_;
-	bool is_writable_;
+	void* context_{};
+	bool is_readable_{};
+	bool is_seekable_{};
+	bool is_writable_{};
 
 
 	void close_internal();
