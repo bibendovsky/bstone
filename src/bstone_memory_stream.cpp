@@ -34,7 +34,7 @@ namespace bstone
 
 MemoryStream::MemoryStream(
 	const int initial_capacity,
-	const StreamOpenMode open_mode)
+	const StreamOpenMode open_mode) noexcept
 	:
 	is_open_{},
 	is_readable_{},
@@ -53,7 +53,7 @@ MemoryStream::MemoryStream(
 	const int buffer_size,
 	const int buffer_offset,
 	const std::uint8_t* buffer,
-	const StreamOpenMode open_mode)
+	const StreamOpenMode open_mode) noexcept
 	:
 	is_open_{},
 	is_readable_{},
@@ -69,7 +69,7 @@ MemoryStream::MemoryStream(
 }
 
 MemoryStream::MemoryStream(
-	MemoryStream&& rhs)
+	MemoryStream&& rhs) noexcept
 	:
 	is_open_{std::move(rhs.is_open_)},
 	is_readable_{std::move(rhs.is_readable_)},
@@ -91,7 +91,7 @@ MemoryStream::~MemoryStream()
 
 bool MemoryStream::open(
 	const int initial_capacity,
-	const StreamOpenMode open_mode)
+	const StreamOpenMode open_mode) noexcept
 {
 	close_internal();
 
@@ -139,7 +139,7 @@ bool MemoryStream::open(
 	const int buffer_size,
 	const int buffer_offset,
 	const std::uint8_t* buffer,
-	const StreamOpenMode open_mode)
+	const StreamOpenMode open_mode) noexcept
 {
 	close_internal();
 
@@ -188,23 +188,23 @@ bool MemoryStream::open(
 	return true;
 }
 
-void MemoryStream::close()
+void MemoryStream::close() noexcept
 {
 	close_internal();
 }
 
-bool MemoryStream::is_open() const
+bool MemoryStream::is_open() const noexcept
 {
 	return is_open_;
 }
 
-std::int64_t MemoryStream::get_size()
+std::int64_t MemoryStream::get_size() noexcept
 {
 	return size_;
 }
 
 bool MemoryStream::set_size(
-	const std::int64_t size)
+	const std::int64_t size) noexcept
 {
 	if (!is_open_)
 	{
@@ -244,7 +244,7 @@ bool MemoryStream::set_size(
 
 std::int64_t MemoryStream::seek(
 	const std::int64_t offset,
-	const StreamSeekOrigin origin)
+	const StreamSeekOrigin origin) noexcept
 {
 	if (!is_open_)
 	{
@@ -277,14 +277,14 @@ std::int64_t MemoryStream::seek(
 	return position_;
 }
 
-std::int64_t MemoryStream::get_position()
+std::int64_t MemoryStream::get_position() noexcept
 {
 	return position_;
 }
 
 int MemoryStream::read(
 	void* buffer,
-	const int count)
+	const int count) noexcept
 {
 	if (!is_open_)
 	{
@@ -324,7 +324,7 @@ int MemoryStream::read(
 
 bool MemoryStream::write(
 	const void* buffer,
-	const int count)
+	const int count) noexcept
 {
 	if (!is_open_)
 	{
@@ -378,39 +378,39 @@ bool MemoryStream::write(
 	return true;
 }
 
-bool MemoryStream::flush()
+bool MemoryStream::flush() noexcept
 {
 	return is_open_;
 }
 
-bool MemoryStream::is_readable() const
+bool MemoryStream::is_readable() const noexcept
 {
 	return is_open_ && is_readable_;
 }
 
-bool MemoryStream::is_seekable() const
+bool MemoryStream::is_seekable() const noexcept
 {
 	return is_open_;
 }
 
-bool MemoryStream::is_writable() const
+bool MemoryStream::is_writable() const noexcept
 {
 	return is_open_ && is_writable_;
 }
 
-std::uint8_t* MemoryStream::get_data()
+std::uint8_t* MemoryStream::get_data() noexcept
 {
 	return buffer_;
 }
 
-const std::uint8_t* MemoryStream::get_data() const
+const std::uint8_t* MemoryStream::get_data() const noexcept
 {
 	return buffer_;
 }
 
 bool MemoryStream::remove_block(
 	const std::int64_t offset,
-	const int count)
+	const int count) noexcept
 {
 	if (!is_open_)
 	{
@@ -446,7 +446,7 @@ bool MemoryStream::remove_block(
 	return true;
 }
 
-void MemoryStream::close_internal()
+void MemoryStream::close_internal() noexcept
 {
 	is_open_ = false;
 	is_readable_ = false;

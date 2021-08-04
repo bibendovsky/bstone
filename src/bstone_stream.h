@@ -64,31 +64,31 @@ public:
 	virtual ~Stream() = default;
 
 
-	virtual void close() = 0;
+	virtual void close() noexcept = 0;
 
-	virtual bool is_open() const = 0;
+	virtual bool is_open() const noexcept = 0;
 
 	// Returns a size of the stream or a negative value on error.
-	virtual std::int64_t get_size() = 0;
+	virtual std::int64_t get_size() noexcept = 0;
 
 	// Sets a new size of the stream.
 	// Returns false on error or if the stream is not seekable.
 	virtual bool set_size(
-		std::int64_t size) = 0;
+		std::int64_t size) noexcept = 0;
 
 	// Returns a new position or a negative value on error.
 	virtual std::int64_t seek(
 		std::int64_t offset,
-		StreamSeekOrigin origin) = 0;
+		StreamSeekOrigin origin) noexcept = 0;
 
 	// Skips a number of octets forward if count is positive or
 	// backward otherwise.
 	// Returns a negative value on error.
 	virtual std::int64_t skip(
-		int count);
+		int count) noexcept;
 
 	// Returns a current position or a negative value on error.
-	virtual std::int64_t get_position();
+	virtual std::int64_t get_position() noexcept;
 
 	//
 	// Moves stream's pointer to a new position.
@@ -101,13 +101,13 @@ public:
 	//    - "false" otherwise.
 	//
 	virtual bool set_position(
-		std::int64_t position);
+		std::int64_t position) noexcept;
 
 	// Reads a specified number of octets and returns an actual
 	// read number of octets.
 	virtual int read(
 		void* buffer,
-		int count) = 0;
+		int count) noexcept = 0;
 
 	//
 	// Writes octet data into the stream.
@@ -122,11 +122,11 @@ public:
 	//
 	virtual bool write(
 		const void* buffer,
-		int count) = 0;
+		int count) noexcept = 0;
 
 	// Reads a one octet and returns it.
 	// Returns a negative value on error.
-	virtual int read_octet();
+	virtual int read_octet() noexcept;
 
 	//
 	// Writes exactly one octet into the stream.
@@ -139,11 +139,11 @@ public:
 	//    - "false" otherwise.
 	//
 	virtual bool write_octet(
-		std::uint8_t value);
+		std::uint8_t value) noexcept;
 
 	// Writes a string without a terminator
 	virtual bool write_string(
-		const std::string& string);
+		const std::string& string) noexcept;
 
 	//
 	// Flushes the buffers.
@@ -152,7 +152,7 @@ public:
 	//    - "true" on success.
 	//    - "false" otherwise.
 	//
-	virtual bool flush() = 0;
+	virtual bool flush() noexcept = 0;
 
 	//
 	// Indicates the stream is readable.
@@ -161,7 +161,7 @@ public:
 	//    - "true" if stream is readable.
 	//    - "false" otherwise.
 	//
-	virtual bool is_readable() const = 0;
+	virtual bool is_readable() const noexcept = 0;
 
 	//
 	// Indicates the stream is seekable.
@@ -170,7 +170,7 @@ public:
 	//    - "true" if stream is seekable.
 	//    - "false" otherwise.
 	//
-	virtual bool is_seekable() const = 0;
+	virtual bool is_seekable() const noexcept = 0;
 
 	//
 	// Indicates the stream is writable.
@@ -179,13 +179,13 @@ public:
 	//    - "true" if stream is writable.
 	//    - "false" otherwise.
 	//
-	virtual bool is_writable() const = 0;
+	virtual bool is_writable() const noexcept = 0;
 
 	// Copies the stream from a current position to
 	// an another stream using internal buffer.
 	bool copy_to(
 		Stream* dst_stream,
-		int buffer_size = 0);
+		int buffer_size = 0) noexcept;
 
 
 	//
@@ -194,7 +194,7 @@ public:
 	// Returns:
 	//    - Default buffer size.
 	//
-	static int get_default_copy_buffer_size();
+	static int get_default_copy_buffer_size() noexcept;
 }; // Stream
 
 

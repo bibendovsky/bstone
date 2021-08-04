@@ -43,11 +43,11 @@ class FileStream final :
 	public Stream
 {
 public:
-	FileStream() noexcept = default;
+	FileStream() noexcept;
 
 	FileStream(
 		const std::string& file_name,
-		StreamOpenMode open_mode = StreamOpenMode::read);
+		StreamOpenMode open_mode = StreamOpenMode::read) noexcept;
 
 	FileStream(
 		const FileStream& rhs) = delete;
@@ -63,50 +63,59 @@ public:
 
 	bool open(
 		const std::string& file_name,
-		StreamOpenMode open_mode = StreamOpenMode::read);
+		StreamOpenMode open_mode = StreamOpenMode::read) noexcept;
 
-	void close() override;
+	void close() noexcept override;
 
-	bool is_open() const override;
+	bool is_open() const noexcept override;
 
-	std::int64_t get_size() override;
+	std::int64_t get_size() noexcept override;
 
 	bool set_size(
-		std::int64_t size) override;
+		std::int64_t size) noexcept override;
 
 	std::int64_t seek(
 		std::int64_t offset,
-		StreamSeekOrigin origin) override;
+		StreamSeekOrigin origin) noexcept override;
 
 	int read(
 		void* buffer,
-		int count) override;
+		int count) noexcept override;
 
 	bool write(
 		const void* buffer,
-		int count) override;
+		int count) noexcept override;
 
-	bool flush() override;
+	bool flush() noexcept override;
 
-	bool is_readable() const override;
+	bool is_readable() const noexcept override;
 
-	bool is_seekable() const override;
+	bool is_seekable() const noexcept override;
 
-	bool is_writable() const override;
+	bool is_writable() const noexcept override;
 
 
 	static bool is_exists(
-		const std::string& file_name);
+		const std::string& file_name) noexcept;
 
 
 private:
-	void* context_{};
+#ifdef _WIN32
+	void* handle_{};
+#else
+	int handle_{};
+#endif // _WIN32
+
 	bool is_readable_{};
 	bool is_seekable_{};
 	bool is_writable_{};
 
 
-	void close_internal();
+	bool is_open_internal() const noexcept;
+
+	void close_handle() noexcept;
+
+	void close_internal() noexcept;
 }; // FileStream
 
 
