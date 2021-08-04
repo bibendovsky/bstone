@@ -48,19 +48,19 @@ class MemoryStream final :
 public:
 	MemoryStream(
 		const int initial_capacity = 0,
-		const StreamOpenMode open_mode = StreamOpenMode::read_write);
+		const StreamOpenMode open_mode = StreamOpenMode::read_write) noexcept;
 
 	MemoryStream(
 		const int buffer_size,
 		const int buffer_offset,
 		const std::uint8_t* buffer,
-		const StreamOpenMode open_mode = StreamOpenMode::read);
+		const StreamOpenMode open_mode = StreamOpenMode::read) noexcept;
 
 	MemoryStream(
 		const MemoryStream& rhs) = delete;
 
 	MemoryStream(
-		MemoryStream&& rhs);
+		MemoryStream&& rhs) noexcept;
 
 	MemoryStream& operator=(
 		const MemoryStream& rhs) = delete;
@@ -70,52 +70,52 @@ public:
 
 	bool open(
 		const int initial_capacity = 0,
-		const StreamOpenMode open_mode = StreamOpenMode::read_write);
+		const StreamOpenMode open_mode = StreamOpenMode::read_write) noexcept;
 
 	bool open(
 		const int buffer_size,
 		const int buffer_offset,
 		const std::uint8_t* buffer,
-		const StreamOpenMode open_mode = StreamOpenMode::read);
+		const StreamOpenMode open_mode = StreamOpenMode::read) noexcept;
 
-	void close() override;
+	void close() noexcept override;
 
-	bool is_open() const override;
+	bool is_open() const noexcept override;
 
-	std::int64_t get_size() override;
+	std::int64_t get_size() noexcept override;
 
 	bool set_size(
-		const std::int64_t size) override;
+		const std::int64_t size) noexcept override;
 
 	std::int64_t seek(
 		const std::int64_t offset,
-		const StreamSeekOrigin origin) override;
+		const StreamSeekOrigin origin) noexcept override;
 
-	std::int64_t get_position() override;
+	std::int64_t get_position() noexcept override;
 
 	int read(
 		void* buffer,
-		const int count) override;
+		const int count) noexcept override;
 
 	bool write(
 		const void* buffer,
-		const int count) override;
+		const int count) noexcept override;
 
-	bool flush() override;
+	bool flush() noexcept override;
 
-	bool is_readable() const override;
+	bool is_readable() const noexcept override;
 
-	bool is_seekable() const override;
+	bool is_seekable() const noexcept override;
 
-	bool is_writable() const override;
+	bool is_writable() const noexcept override;
 
-	std::uint8_t* get_data();
+	std::uint8_t* get_data() noexcept;
 
-	const std::uint8_t* get_data() const;
+	const std::uint8_t* get_data() const noexcept;
 
 	bool remove_block(
 		const std::int64_t offset,
-		const int count);
+		const int count) noexcept;
 
 
 private:
@@ -133,7 +133,7 @@ private:
 	Buffer int_buffer_;
 
 
-	void close_internal();
+	void close_internal() noexcept;
 }; // Stream
 
 

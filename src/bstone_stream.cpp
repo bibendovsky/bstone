@@ -34,23 +34,23 @@ namespace bstone
 
 
 std::int64_t Stream::skip(
-	int count)
+	int count) noexcept
 {
 	return seek(count, StreamSeekOrigin::current);
 }
 
-std::int64_t Stream::get_position()
+std::int64_t Stream::get_position() noexcept
 {
 	return seek(0, StreamSeekOrigin::current);
 }
 
 bool Stream::set_position(
-	std::int64_t position)
+	std::int64_t position) noexcept
 {
 	return seek(position, StreamSeekOrigin::begin) >= 0;
 }
 
-int Stream::read_octet()
+int Stream::read_octet() noexcept
 {
 	std::uint8_t value;
 
@@ -65,20 +65,20 @@ int Stream::read_octet()
 }
 
 bool Stream::write_octet(
-	std::uint8_t value)
+	std::uint8_t value) noexcept
 {
 	return write(&value, 1);
 }
 
 bool Stream::write_string(
-	const std::string& string)
+	const std::string& string) noexcept
 {
 	return write(string.c_str(), static_cast<int>(string.length()));
 }
 
 bool Stream::copy_to(
 	Stream* dst_stream,
-	int buffer_size)
+	int buffer_size) noexcept
 {
 	if (!dst_stream)
 	{
@@ -112,7 +112,7 @@ bool Stream::copy_to(
 	return true;
 }
 
-int Stream::get_default_copy_buffer_size()
+int Stream::get_default_copy_buffer_size() noexcept
 {
 	return 4096;
 }
