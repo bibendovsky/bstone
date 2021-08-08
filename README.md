@@ -9,34 +9,36 @@ Contents
 
 1. Disclaimer
 2. Overview  
-   2.1. Overview (PS Vita)
-3. Installation  
-   3.1. Windows (GOG / Steam)  
-   3.2. Windows (Generic)  
-   3.3. Addons
-4. Required assets
-5. Profile
-6. Audio  
-   6.1 OpenAL driver
-7. External textures  
-   7.1 Aspect ratio  
-   7.2 Transparency  
-   7.3 Naming conventions  
-   7.4 Supported file formats  
-   7.5 File format search order
-8. Taking screenshots
-9. Compiling  
-   9.1. Generic instructions for Linux-based system or build environment (MinGW)
-10. Command-line options
-11. Cheat key
-12. Debug keys
-13. Third party use
-14. Credits
-15. Links  
-    15.1. Essentials  
-    15.2. General  
-    15.3. Add-ons for Aliens Of Gold (full)  
-    15.4. Add-ons for Planet Strike
+   2.1 Overview (PS Vita)
+3. Known issues  
+   3.1 Windows
+4. Installation  
+   4.1 Windows (GOG / Steam)  
+   4.2 Windows (Generic)  
+   4.3 Addons
+5. Required assets
+6. Profile
+7. Audio  
+   7.1 OpenAL driver
+8. External textures  
+   8.1 Aspect ratio  
+   8.2 Transparency  
+   8.3 Naming conventions  
+   8.4 Supported file formats  
+   8.5 File format search order
+9. Taking screenshots
+10. Compiling  
+   10.1. Generic instructions for Linux-based system or build environment (MinGW)
+11. Command-line options
+12. Cheat key
+13. Debug keys
+14. Third party use
+15. Credits
+16. Links  
+    16.1. Essentials  
+    16.2. General  
+    16.3. Add-ons for Aliens Of Gold (full)  
+    16.4. Add-ons for Planet Strike
 
 
 1 - Disclaimer
@@ -87,11 +89,21 @@ Supported games:
 See [README-PSVITA.md](README-PSVITA.md) for details about the source port on PS Vita.
 
 
-3 - Installation
+3 - Known issues
+================
+
+3.1 - Windows
+=============
+
+*Problem:* OpenAL runtime v1.9.9 causes a (crash)[http://github.com/bibendovsky/bstone/issues/375] in non-MinGW-W64 build.  
+*Solution:* Update the (OpenAL runtime)[http://openal.org/].
+
+
+4 - Installation
 ================
 
 
-3.1 - Windows (GOG / Steam)
+4.1 - Windows (GOG / Steam)
 ===========================
 
 - Download the latest release.
@@ -99,7 +111,7 @@ See [README-PSVITA.md](README-PSVITA.md) for details about the source port on PS
 - Run `bstone.exe` to play.
 
 
-3.2 - Windows (generic)
+4.2 - Windows (generic)
 =======================
 
 - Download the latest release.
@@ -107,14 +119,14 @@ See [README-PSVITA.md](README-PSVITA.md) for details about the source port on PS
 - Run `bstone.exe` to play.
 
 
-3.3 - Addons
+4.3 - Addons
 ============
 
 - Put addon's files into separate directory. Do not overwrite any original files!
 - Run with command line option `--mod_dir` to point to this directory (i.e. `bstone.exe --mod_dir addon1`).
 
 
-4 - Required assets
+5 - Required assets
 ===================
 
 Since all titles are not free (except shareware) you have to own a copy of the game in order to play.
@@ -155,7 +167,7 @@ Supported services:
   Windows only.  
 
 
-5 - Profile
+6 - Profile
 ===========
 
 Configuration file, saved game files, etc. are stored in user's profile. The path to those files depends on platform. To override the path use `--profile_dir` option.
@@ -177,14 +189,14 @@ Where `<game>` is:
 * `ps` - Planet Strike
 
 
-6 - Audio
+7 - Audio
 =========
 
 Provides default stereo driver and optional 3D one.  
 Use option `GAME OPTIONS - SOUND - DRIVER` to change the driver.
 
 
-6.1 - OpenAL driver
+7.1 - OpenAL driver
 ===================
 
 Supports any OpenAL v1.1 compatible implementation (Creative Labs, OpenAL Soft, etc.).  
@@ -196,7 +208,7 @@ The port uses default device name.
 Set configuration string `snd_oal_device_name` to open specific device.
 
 
-7 - External textures
+8 - External textures
 =====================
 
 Allows to replace stocked textures with custom ones.
@@ -207,7 +219,7 @@ Option `GAME OPTIONS - VIDEO - TEXTURING - EXTERNAL TEXTURES` enables or disable
 WARNING Changing the option may take some time if the dimensions of loaded textures are high.
 
 
-7.1 - Aspect ratio
+8.1 - Aspect ratio
 ==================
 
 Both vanilla games ran only in a 320x200 video mode. On monitors, widely available at the time, this video mode took up the entire screen, which had a 4:3 physical aspect ratio. This meant that the 320x200 display, with a 16:10 logical ratio, was stretched vertically - each pixel was 20% taller than it was wide.
@@ -224,13 +236,13 @@ TLDR
 - Design flooring or ceiling image in 1:1 aspect ratio (i.e. 1280x1280), and export for the game in 1:1 aspect ratio (i.e. 1024x1024) too.
 
 
-7.2 - Transparency
+8.2 - Transparency
 ==================
 
 Images with alpha channel should be exported as [*premultiplied*](http://en.wikipedia.org/wiki/Alpha_compositing).
 
 
-7.3 - Naming conventions
+8.3 - Naming conventions
 ========================
 
 All letters *should be* lower case.
@@ -250,21 +262,21 @@ Examples:
 - `aog/wall_00000088.png` - "Aliens Of Gold" turned on south-north switch wall in PNG format.
 
 
-7.4 - Supported file formats
+8.4 - Supported file formats
 ============================
 
 - [Windows BMP](http://wikipedia.org/wiki/BMP_file_format)
 - [PNG](http://wikipedia.org/wiki/Portable_Network_Graphics)
 
 
-7.5 -  File format search order
+8.5 -  File format search order
 ===============================
 
 1. PNG
 2. BMP
 
 
-8 - Taking screenshots
+9 - Taking screenshots
 ======================
 
 Default key is <kbd>F5</kbd>.  
@@ -275,7 +287,7 @@ Taken screenshots are placed in the profile directory.
 Supported format: [PNG](http://wikipedia.org/wiki/Portable_Network_Graphics)
 
 
-9 - Compiling
+10 - Compiling
 =============
 
 Minimum requirements:
@@ -317,7 +329,7 @@ Notes:
 * Use `ON` value to enable option and value `OFF` to disable option.
 
 
-9.1 - Generic instructions for Linux-based system or build environment (MinGW)
+10.1 - Generic instructions for Linux-based system or build environment (MinGW)
 =============================================================================
 
 1. Install minimum required software described above.
@@ -335,7 +347,7 @@ Notes:
 6. On success you will find executable and text files in the directory `~/bstone-x.y.z/build/install`.
 
 
-10 - Command-line options
+11 - Command-line options
 ========================
 
 * `--version`  
@@ -576,14 +588,14 @@ Notes:
   Extracts all resources (walls, sprites, etc.) into existing directory `dir`.
 
 
-11 - Cheat key
+12 - Cheat key
 ==============
 
 <kbd>J</kbd> <kbd>A</kbd> <kbd>M</kbd> <kbd>Enter</kbd>  
 Press specified keys sequentially. Shows message "NOW you're jammin'!!", and gives to you all keys, all weapons and restores health to 100% but zeroes score points. Not available in shareware version.
 
 
-12 - Debug keys
+13 - Debug keys
 ===============
 
 Add option `--cheats` to enable these keys.
@@ -668,7 +680,7 @@ Add option `--cheats` to enable these keys.
   Dumps information into the log about remaining bonus items and enemies.
 
 
-13 - Third party use
+14 - Third party use
 ====================
 
 * [SDL (Simple DirectMedia Library)](http://libsdl.org/)  
@@ -695,7 +707,7 @@ Add option `--cheats` to enable these keys.
   See file `src/lib/nuked_opl3/LICENSE` for license information
 
 
-14 - Credits
+15 - Credits
 ============
 
 * [id Software](http://www.idsoftware.com/)  
@@ -716,18 +728,18 @@ Add option `--cheats` to enable these keys.
 * Various contributors for providing fixies, ideas, etc.
 
 
-15 - Links
+16 - Links
 ==========
 
 
-15.1 - Essentials
+16.1 - Essentials
 =================
 
 * [Home page](http://bibendovsky.github.io/bstone/)
 * [Precompiled binaries and their source code](http://github.com/bibendovsky/bstone/releases)
 
 
-15.1 - General
+16.1 - General
 ==============
 
 * [Blake Stone: Aliens Of Gold official site](http://legacy.3drealms.com/blake/index.html)
@@ -737,7 +749,7 @@ Add option `--cheats` to enable these keys.
 * [Repacked shareware Blake Stone: Aliens Of Gold (v3.0)](http://bibendovsky.github.io/bstone/files/official/repack/bs_aog_v3_0_sw.zip)
 
 
-15.2 - Add-ons for Aliens Of Gold (full)
+16.2 - Add-ons for Aliens Of Gold (full)
 ========================================
 
 * Add-on [BSE90](http://bibendovsky.github.io/bstone/files/community/aog/bse90.zip) by ack
@@ -745,7 +757,7 @@ Add option `--cheats` to enable these keys.
 * Ling's Blake Stone [Levels](http://bibendovsky.github.io/bstone/files/community/aog/lingstone.zip) by Ling Yan Li
 
 
-15.3 - Add-ons for Planet Strike
+16.3 - Add-ons for Planet Strike
 ================================
 
 * Add-on [BSE24](http://bibendovsky.github.io/bstone/files/community/ps/bse24.zip) by ack
