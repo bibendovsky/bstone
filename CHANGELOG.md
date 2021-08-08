@@ -5,6 +5,7 @@
 ### Added
 - Support Nuked OPL3 emulator.
 - Option to control OPL3 emulator type (`snd_opl3_type`).
+- [README] "Known issues" section.
 
 ### Fixed
 - Cancel strafe movement if both keys are pressed.
