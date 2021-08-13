@@ -9999,13 +9999,9 @@ int main(
 	{
 		quit_message = ex.what();
 	}
-	catch (const std::exception& ex)
-	{
-		quit_message = bstone::Exception::get_nested_message(ex);
-	}
 	catch (...)
 	{
-		quit_message = "Unhandled exception";
+		quit_message = bstone::get_nested_message();
 	}
 
 	if (!quit_message.empty())
