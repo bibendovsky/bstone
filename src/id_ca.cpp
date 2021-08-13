@@ -709,7 +709,7 @@ void CA_CacheMap(
 {
 	if (mapheaderseg[mapnum].name[0] == '\0')
 	{
-		Quit("There are no assets for level index " + std::to_string(mapnum) + '.');
+		::fail("There are no assets for level index " + std::to_string(mapnum) + '.');
 	}
 
 	std::int32_t pos;
@@ -780,7 +780,7 @@ void CA_UpLevel()
 {
 	if (ca_levelnum == 7)
 	{
-		Quit("Up past level 7.");
+		::fail("Up past level 7.");
 	}
 
 	ca_levelbit <<= 1;
@@ -801,7 +801,7 @@ void CA_DownLevel()
 {
 	if (!ca_levelnum)
 	{
-		Quit("Down past level 0.");
+		::fail("Down past level 0.");
 	}
 
 	ca_levelbit >>= 1;
@@ -931,7 +931,7 @@ void CA_CacheMarks()
 void CA_CannotOpen(
 	const std::string& string)
 {
-	Quit("Can't open " + string + "!\n");
+	::fail("Can't open " + string + "!\n");
 }
 
 void UNCACHEGRCHUNK(
@@ -962,7 +962,7 @@ std::string ca_load_script(
 
 	if (length == 0)
 	{
-		Quit("Invalid script.");
+		::fail("Invalid script.");
 	}
 
 	if (strip_xx)
@@ -1200,7 +1200,7 @@ void AssetsInfo::set_version(
 		}
 		else
 		{
-			Quit("No assets information.");
+			::fail("No assets information.");
 		}
 	}
 
@@ -1215,7 +1215,7 @@ void AssetsInfo::set_version(
 		}
 		else
 		{
-			Quit("No assets information.");
+			::fail("No assets information.");
 		}
 	}
 
@@ -1230,7 +1230,7 @@ void AssetsInfo::set_version(
 		}
 		else
 		{
-			Quit("No assets information.");
+			::fail("No assets information.");
 		}
 	}
 
@@ -1247,7 +1247,7 @@ void AssetsInfo::set_version(
 		}
 		else
 		{
-			Quit("No assets information.");
+			::fail("No assets information.");
 		}
 	}
 
@@ -1264,7 +1264,7 @@ void AssetsInfo::set_version(
 		}
 		else
 		{
-			Quit("No assets information.");
+			::fail("No assets information.");
 		}
 	}
 }
@@ -1298,7 +1298,7 @@ const AssetsResource& AssetsInfo::find_resource(
 
 	const auto resource_type_string = std::string{get_resource_type_string(resource_type)};
 
-	Quit("Resource of type \"" + resource_type_string + "\" not found.");
+	::fail("Resource of type \"" + resource_type_string + "\" not found.");
 }
 
 void AssetsInfo::set_levels_hash(
@@ -1437,7 +1437,7 @@ bool AssetsInfo::is_secret_level(
 	}
 	else
 	{
-		Quit("No assets information.");
+		::fail("No assets information.");
 	}
 }
 
@@ -1469,7 +1469,7 @@ int AssetsInfo::secret_floor_get_index(
 	}
 	else
 	{
-		Quit("No assets information.");
+		::fail("No assets information.");
 	}
 }
 

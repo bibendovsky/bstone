@@ -503,7 +503,7 @@ void Movie::handle_page(
 		break;
 
 	default:
-		Quit("Unrecognized anim code.");
+		::fail("Unrecognized anim code.");
 	}
 }
 
@@ -528,30 +528,23 @@ bool Movie::play(
 		return false;
 	}
 
-	try
+	archiver_->initialize(&file_stream_);
+
+	while (repeat_count_ && !is_exit_)
 	{
-		archiver_->initialize(&file_stream_);
-
-		while (repeat_count_ && !is_exit_)
+		while (!is_exit_)
 		{
-			while (!is_exit_)
+			if (!get_frame())
 			{
-				if (!get_frame())
-				{
-					break;
-				}
-
-				handle_page(descriptor);
+				break;
 			}
 
-			--repeat_count_;
-
-			flag_ = Flag::skip;
+			handle_page(descriptor);
 		}
-	}
-	catch (const bstone::ArchiverException& ex)
-	{
-		Quit(ex.what());
+
+		--repeat_count_;
+
+		flag_ = Flag::skip;
 	}
 
 	uninitialize();

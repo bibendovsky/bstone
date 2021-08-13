@@ -3532,7 +3532,7 @@ bool Interrogate(
 
 		if (msg.size() > static_cast<std::string::size_type>(MSG_BUFFER_LEN))
 		{
-			Quit("Interrogation message too long.");
+			::fail("Interrogation message too long.");
 		}
 
 		DisplayInfoMsg(msg.c_str(), MP_INTERROGATE, DISPLAY_MSG_STD_TIME * 2, MT_GENERAL);

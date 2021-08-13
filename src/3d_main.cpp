@@ -66,35 +66,6 @@ int _newlib_heap_size_user = 192 * 1024 * 1024;
 #endif
 
 
-// ==========================================================================
-// QuitException
-//
-
-QuitException::QuitException()
-	:
-	Exception{""}
-{
-}
-
-QuitException::QuitException(
-	const char* const message)
-	:
-	Exception{message}
-{
-}
-
-QuitException::QuitException(
-	const std::string& message)
-	:
-	Exception{message}
-{
-}
-
-//
-// QuitException
-// ==========================================================================
-
-
 namespace
 {
 
@@ -9684,19 +9655,19 @@ void pre_quit()
 	ShutdownId();
 }
 
-[[noreturn]] void Quit()
+[[noreturn]]
+void fail(
+	const std::string& message)
+{
+	throw bstone::Exception{message.c_str()};
+}
+
+[[noreturn]]
+void Quit()
 {
 	pre_quit();
 
 	throw QuitException{};
-}
-
-[[noreturn]] void Quit(
-	const std::string& message)
-{
-	pre_quit();
-
-	throw QuitException{message};
 }
 
 void DemoLoop()
@@ -9973,7 +9944,8 @@ int main(
 	auto logger = logger_factory.create();
 	bstone::logger_ = logger.get();
 
-	auto quit_message = std::string{};
+	auto is_failed = false;
+	auto error_message = std::string{};
 
 	try
 	{
@@ -9988,25 +9960,27 @@ int main(
 
 		if (sdl_result != 0)
 		{
-			Quit("Failed to initialize SDL: " + std::string{SDL_GetError()});
+			::fail("Failed to initialize SDL: " + std::string{SDL_GetError()});
 		}
 
 		freed_main();
 
 		DemoLoop();
 	}
-	catch (const QuitException& ex)
+	catch (const QuitException&)
 	{
-		quit_message = ex.what();
 	}
 	catch (...)
 	{
-		quit_message = bstone::get_nested_message();
+		is_failed = true;
+		error_message = bstone::get_nested_message();
 	}
 
-	if (!quit_message.empty())
+	pre_quit();
+
+	if (is_failed)
 	{
-		bstone::logger_->write_critical(quit_message);
+		bstone::logger_->write_critical(error_message);
 
 		return 1;
 	}
@@ -10555,7 +10529,7 @@ int gametype::get_barrier_group_offset(
 
 	if (level < 0 || level >= assets_info.get_levels_per_episode())
 	{
-		Quit("[BRR_GRP_IDX] Level index out of range.");
+		::fail("[BRR_GRP_IDX] Level index out of range.");
 	}
 
 	const auto switches_per_level = assets_info.get_barrier_switches_per_level();
@@ -10584,14 +10558,14 @@ int gametype::encode_barrier_index(
 
 	if (index < 0 || index >= assets_info.get_barrier_switches_per_level())
 	{
-		Quit("[BARR_ENC_IDX] Barrier index out of range.");
+		::fail("[BARR_ENC_IDX] Barrier index out of range.");
 	}
 
 	if (assets_info.is_aog())
 	{
 		if (level < 0 || level >= assets_info.get_levels_per_episode())
 		{
-			Quit("[BARR_ENC_IDX] Level index out of range.");
+			::fail("[BARR_ENC_IDX] Level index out of range.");
 		}
 
 		const auto switch_index_bits = assets_info.get_max_barrier_switches_per_level_bits();
@@ -10613,7 +10587,7 @@ void gametype::decode_barrier_index(
 {
 	if (code < 0)
 	{
-		Quit("[BARR_DEC_IDX] Invalid code.");
+		::fail("[BARR_DEC_IDX] Invalid code.");
 	}
 
 	const auto& assets_info = get_assets_info();
@@ -10635,12 +10609,12 @@ void gametype::decode_barrier_index(
 
 	if (level < 0 || level >= assets_info.get_levels_per_episode())
 	{
-		Quit("[BARR_DEC_IDX] Level index out of range.");
+		::fail("[BARR_DEC_IDX] Level index out of range.");
 	}
 
 	if (index < 0 || index >= assets_info.get_barrier_switches_per_level())
 	{
-		Quit("[BARR_DEC_IDX] Barrier index out of range.");
+		::fail("[BARR_DEC_IDX] Barrier index out of range.");
 	}
 }
 

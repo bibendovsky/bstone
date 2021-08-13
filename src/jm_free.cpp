@@ -427,7 +427,7 @@ FoundContent find_assets(
 			return find_ps_content(search_path);
 
 		default:
-			Quit("Unsupported game.");
+			::fail("Unsupported game.");
 	}
 }
 
@@ -446,7 +446,7 @@ const char* get_content_acronym(
 			return "PS";
 
 		default:
-			Quit("Unsupported game.");
+			::fail("Unsupported game.");
 	}
 }
 
@@ -455,7 +455,7 @@ const FoundContent* choose_content(
 {
 	if (found_contents.empty())
 	{
-		Quit("No content.");
+		::fail("No content.");
 	}
 
 	if (found_contents.size() == 1)
@@ -505,7 +505,7 @@ const FoundContent* choose_content(
 	if (sdl_result != 0)
 	{
 		const auto sdl_error = SDL_GetError();
-		Quit(std::string{"Failed to show message box. "} + sdl_error);
+		::fail(std::string{"Failed to show message box. "} + sdl_error);
 	}
 
 	if (selected_button_id < 0)
@@ -544,7 +544,7 @@ void set_assets_info(
 					break;
 
 				default:
-					Quit("Unsupported game version.");
+					::fail("Unsupported game version.");
 			}
 
 			break;
@@ -569,7 +569,7 @@ void set_assets_info(
 					break;
 
 				default:
-					Quit("Unsupported game version.");
+					::fail("Unsupported game version.");
 			}
 			break;
 
@@ -578,7 +578,7 @@ void set_assets_info(
 			break;
 
 		default:
-			Quit("Unsupported game.");
+			::fail("Unsupported game.");
 	}
 
 	assets_info.set_version(found_content.version_);
@@ -646,7 +646,7 @@ void log_found_content(
 			break;
 
 		default:
-			Quit("Unsupported version.");
+			::fail("Unsupported version.");
 	}
 
 	auto name_and_version = std::string{"\"Blake Stone: "};
@@ -677,7 +677,7 @@ void find_contents()
 
 	if (forced_game_count > 1)
 	{
-		Quit("Multiple game modes defined.");
+		::fail("Multiple game modes defined.");
 	}
 
 	auto games_to_find = Games{};
@@ -787,7 +787,7 @@ void find_contents()
 
 	if (found_contents.empty())
 	{
-		Quit("Content not found.");
+		::fail("Content not found.");
 	}
 
 	const auto content = choose_content(found_contents);
@@ -906,7 +906,7 @@ void CAL_SetupGrFile()
 {
 	if (!check_vgahead_offset_count())
 	{
-		Quit("Mismatch GFX header offset count.");
+		::fail("Mismatch GFX header offset count.");
 	}
 
 	bstone::FileStream handle;
@@ -969,7 +969,7 @@ static void cal_setup_map_data_file()
 
 			if (are_official_levels && modded_hash != assets_info.get_levels_hash_string())
 			{
-				Quit("Mismatch official levels are not allowed in the mod directory.");
+				::fail("Mismatch official levels are not allowed in the mod directory.");
 			}
 
 			assets_info.set_levels_hash(modded_hash);
@@ -1191,7 +1191,7 @@ void PreDemo()
 	//
 	if (!DoMovie(MovieId::intro))
 	{
-		Quit("JAM animation (IANIM.xxx) does not exist.");
+		::fail("JAM animation (IANIM.xxx) does not exist.");
 	}
 
 	// ---------------------

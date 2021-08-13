@@ -276,7 +276,7 @@ void US_CPrintLine(
 
 	if (w > WindowW)
 	{
-		Quit("String exceeds width.");
+		::fail("String exceeds width.");
 	}
 	px = static_cast<std::int16_t>(WindowX + ((WindowW - w) / 2));
 	py = PrintY;
@@ -742,7 +742,7 @@ void US_Startup()
 
 	if (sys_timer_id == 0)
 	{
-		Quit("Failed to add a timer.");
+		::fail("Failed to add a timer.");
 	}
 	// BBi
 

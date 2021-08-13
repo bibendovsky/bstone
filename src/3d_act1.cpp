@@ -353,7 +353,7 @@ statobj_t* SpawnStatic(
 	case bo_gold_key:
 		if (assets_info.is_ps())
 		{
-			Quit("Green/Gold key (AOG) at (" + std::to_string(tilex) + ", " + std::to_string(tiley) + ").");
+			::fail("Green/Gold key (AOG) at (" + std::to_string(tilex) + ", " + std::to_string(tiley) + ").");
 		}
 		travel_table_[tilex][tiley] |= TT_KEYS;
 		spot->flags = FL_BONUS;
@@ -363,7 +363,7 @@ statobj_t* SpawnStatic(
 	case bo_plasma_detonator:
 		if (!assets_info.is_ps())
 		{
-			Quit("Plasma detonator (PS) at (" + std::to_string(tilex) + ", " + std::to_string(tiley) + ").");
+			::fail("Plasma detonator (PS) at (" + std::to_string(tilex) + ", " + std::to_string(tiley) + ").");
 		}
 		travel_table_[tilex][tiley] |= TT_KEYS;
 		spot->flags = FL_BONUS;
@@ -417,7 +417,7 @@ statobj_t* SpawnStatic(
 
 	if (spot == (statobjlist.data() + MAXSTATS))
 	{
-		Quit("Too many static objects.");
+		::fail("Too many static objects.");
 	}
 
 	return result;
@@ -435,7 +435,7 @@ statobj_t* ReserveStatic()
 
 	if (!spot)
 	{
-		Quit("Too many static objects.");
+		::fail("Too many static objects.");
 	}
 
 	// Mark as Used.
@@ -489,7 +489,7 @@ statobj_t* UseReservedStatic(
 
 	if (!spot)
 	{
-		Quit("Count not find a reserved static at location (0, 0) with shape #1.");
+		::fail("Count not find a reserved static at location (0, 0) with shape #1.");
 	}
 
 	//
@@ -500,7 +500,7 @@ statobj_t* UseReservedStatic(
 	{
 		if (statinfo[type].picnum == -1)
 		{ // End of Static List...
-			Quit("Couldn't find type.");
+			::fail("Couldn't find type.");
 		}
 
 		if (statinfo[type].type == itemtype)
@@ -601,7 +601,7 @@ void PlaceItemType(
 	{
 		if (statinfo[type].picnum == -1)
 		{ // end of list
-			Quit("Couldn't find type.");
+			::fail("Couldn't find type.");
 		}
 		if (statinfo[type].type == itemtype)
 		{
@@ -840,7 +840,7 @@ void SpawnDoor(
 
 	if (doornum == 64)
 	{
-		Quit("Too many doors in level.");
+		::fail("Too many doors in level.");
 	}
 
 	doorposition[doornum] = 0.0; // doors start out fully closed
@@ -1105,7 +1105,7 @@ void CloseDoor(
 
 	if (area >= NUMAREAS)
 	{
-		Quit("[CLOSE_DOOR] Area number out of range.");
+		::fail("[CLOSE_DOOR] Area number out of range.");
 	}
 
 	if (areabyplayer[area])
@@ -1389,7 +1389,7 @@ void DropPlasmaDetonator()
 		return;
 	}
 
-	Quit("Could not find Fision/Plasma Detonator reserve object.");
+	::fail("Could not find Fision/Plasma Detonator reserve object.");
 }
 
 // --------------------------------------------------------------------------
@@ -1426,7 +1426,7 @@ void TryDropPlasmaDetonator()
 
 	if (!obj)
 	{
-		Quit("Cound not find security cube - Need to have one pal!");
+		::fail("Cound not find security cube - Need to have one pal!");
 	}
 
 	if (obj->areanumber != player->areanumber)
@@ -1492,7 +1492,7 @@ std::int16_t TransformAreas(
 	}
 	else
 	{
-		Quit("Invalid linkable area.");
+		::fail("Invalid linkable area.");
 	}
 
 	// Define the two areas...
@@ -1500,13 +1500,13 @@ std::int16_t TransformAreas(
 	area1 = GetAreaNumber(static_cast<std::int8_t>(tilex + xofs), static_cast<std::int8_t>(tiley + yofs));
 	if (area1 >= NUMAREAS)
 	{
-		Quit("Area1 out of table range.");
+		::fail("Area1 out of table range.");
 	}
 
 	area2 = GetAreaNumber(static_cast<std::int8_t>(tilex - xofs), static_cast<std::int8_t>(tiley - yofs));
 	if (area2 >= NUMAREAS)
 	{
-		Quit("Area2 out of table range.");
+		::fail("Area2 out of table range.");
 	}
 
 	// Connect these two areas.
@@ -1732,7 +1732,7 @@ void PushWall(
 			break;
 
 		default:
-				Quit("Invalid pushwall direction.");
+			::fail("Invalid pushwall direction.");
 	}
 
 	pwalldist = 2;
@@ -1812,7 +1812,7 @@ void MovePWalls()
 				break;
 
 			default:
-				Quit("Invalid pushwall direction.");
+				::fail("Invalid pushwall direction.");
 		}
 
 		if (pwalldist == 0)
@@ -1975,7 +1975,7 @@ std::int16_t LoadMsg(
 
 		if (!Message)
 		{
-			Quit("Invalid 'Cached Message' number");
+			::fail("Invalid 'Cached Message' number");
 		}
 
 		Message += 3;           // Bump to start of next Message
@@ -1992,7 +1992,7 @@ std::int16_t LoadMsg(
 	//
 	if ((EndOfMsg = strstr(Message, msg_xx)) == nullptr)
 	{
-		Quit("Invalid 'Cached Message' number");
+		::fail("Invalid 'Cached Message' number");
 	}
 	EndOfMsg += 3;
 
@@ -2007,7 +2007,7 @@ std::int16_t LoadMsg(
 
 		if (pos >= MaxMsgLen)
 		{
-			Quit("Cached Hint Message is to Long for allocated space.");
+			::fail("Cached Hint Message is to Long for allocated space.");
 		}
 
 		Message++;
@@ -2043,7 +2043,7 @@ void SpawnConcession(
 
 	if (ConHintList.NumMsgs >= MAXCONCESSIONS)
 	{
-		Quit("Too many concession machines in level.");
+		::fail("Too many concession machines in level.");
 	}
 
 	if (credits != PUSHABLETILE)
@@ -2063,7 +2063,7 @@ void SpawnConcession(
 	//
 	if (++ConHintList.NumMsgs > MAX_CACHE_MSGS)
 	{
-		Quit("(CONCESSIONS) Too many 'cached msgs' loaded.");
+		::fail("[CONCESSIONS] Too many 'cached msgs' loaded.");
 	}
 
 	actorat[static_cast<int>(tilex)][static_cast<int>(tiley)] = reinterpret_cast<objtype*>(ConHintList.NumMsgs);
