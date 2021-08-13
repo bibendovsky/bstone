@@ -61,25 +61,15 @@ public:
 	const char* what() const noexcept override;
 
 
-	static std::string get_nested_message(
-		const std::exception& exception);
-
-
-private:
-	class Detail;
-
-
-	static void get_nested_message(
-		const std::exception& exception,
-		std::string& message);
-
-
 private:
 	using What = std::unique_ptr<char[]>;
 
 
 	What what_{};
 }; // Exception
+
+
+std::string get_nested_message();
 
 
 } // bstone
