@@ -60,7 +60,7 @@ public:
 	explicit StbImageDecoderException(
 		const char* message)
 		:
-		Exception{std::string{"[STB_IMAGE_DECODER] "} + message}
+		Exception{"STB_IMAGE_DECODER", message}
 	{
 	}
 }; // StbImageDecoderException

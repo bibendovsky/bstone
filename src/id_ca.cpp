@@ -2576,7 +2576,7 @@ public:
 	explicit TextExtractorException(
 		const std::string& message)
 		:
-		Exception{std::string{"[DBG_TXT_DMPR] "} + message}
+		Exception{"DBG_TXT_DMPR", message.c_str()}
 	{
 	}
 
@@ -2584,7 +2584,7 @@ public:
 		const int number,
 		const std::string& message)
 		:
-		Exception{std::string{"[DBG_TXT_DMPR][Text #"} + std::to_string(number) + "] " + message}
+		Exception{"DBG_TXT_DMPR", (std::string{} + "[Text #" + std::to_string(number) + "] " + message).c_str()}
 	{
 	}
 }; // TextExtractorException
@@ -2865,7 +2865,7 @@ public:
 	explicit CaResourceException(
 		const char* message)
 		:
-		bstone::Exception{std::string{"[CA_RESOURCE] "} + message}
+		bstone::Exception{"CA_RESOURCE", message}
 	{
 	}
 }; // CaResourceException

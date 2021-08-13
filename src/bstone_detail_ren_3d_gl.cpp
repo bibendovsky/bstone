@@ -67,9 +67,9 @@ class Ren3dGlCreateException :
 {
 public:
 	explicit Ren3dGlCreateException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_INIT] "} + message}
+		Exception{"REN_3D_GL_INIT", message}
 	{
 	}
 }; // Ren3dGlCreateException
@@ -88,9 +88,9 @@ class Ren3dGlException :
 {
 public:
 	explicit Ren3dGlException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL] "} +message}
+		Exception{"REN_3D_GL", message}
 	{
 	}
 }; // Ren3dGlException

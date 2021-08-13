@@ -51,9 +51,9 @@ class Ren3dGlVertexInputMgrImplCreateException :
 {
 public:
 	explicit Ren3dGlVertexInputMgrImplCreateException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_VTX_INP_MGR_INIT] "} + message}
+		Exception{"REN_3D_GL_VTX_INP_MGR_INIT", message}
 	{
 	}
 }; // Ren3dGlVertexInputMgrImplCreateException
@@ -72,9 +72,9 @@ class Ren3dGlVertexInputMgrImplException :
 {
 public:
 	explicit Ren3dGlVertexInputMgrImplException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_VTX_INP_MGR] "} + message}
+		Exception{"REN_3D_GL_VTX_INP_MGR", message}
 	{
 	}
 }; // Ren3dGlVertexInputMgrImplException

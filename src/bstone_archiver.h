@@ -46,9 +46,7 @@ class ArchiverException :
 {
 public:
 	explicit ArchiverException(
-		const char* const message);
-
-	virtual ~ArchiverException();
+		const char* message);
 }; // ArchiverException
 
 

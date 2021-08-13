@@ -51,9 +51,9 @@ class Ren3dMgrImplException :
 {
 public:
 	explicit Ren3dMgrImplException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_MGR] "} + message}
+		Exception{"REN_3D_MGR", message}
 	{
 	}
 }; // Ren3dMgrImplException

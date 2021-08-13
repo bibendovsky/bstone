@@ -53,7 +53,7 @@ public:
 	explicit ImageDecoderException(
 		const char* message)
 		:
-		Exception{std::string{"[IMAGE_DECODER] "} + message}
+		Exception{"IMAGE_DECODER", message}
 	{
 	}
 }; // ImageDecoderException

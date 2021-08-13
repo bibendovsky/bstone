@@ -57,9 +57,9 @@ class Ren3dGlSamplerImplCreateException :
 {
 public:
 	explicit Ren3dGlSamplerImplCreateException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_SMPLR_INIT] "} +  message}
+		Exception{"REN_3D_SMPLR_INIT", message}
 	{
 	}
 }; // Ren3dGlSamplerImplCreateException

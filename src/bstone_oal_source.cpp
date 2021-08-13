@@ -48,7 +48,7 @@ public:
 	explicit OalSourceException(
 		const char* message)
 		:
-		Exception{std::string{"[OAL_SOURCE] "} + message}
+		Exception{"OAL_SOURCE", message}
 	{
 	}
 }; // OalSourceException

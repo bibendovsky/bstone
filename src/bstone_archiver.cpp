@@ -38,13 +38,11 @@ namespace bstone
 
 
 ArchiverException::ArchiverException(
-	const char* const message)
+	const char* message)
 	:
-	Exception{message}
+	Exception{"ARCHIVER", message}
 {
 }
-
-ArchiverException::~ArchiverException() = default;
 
 
 namespace

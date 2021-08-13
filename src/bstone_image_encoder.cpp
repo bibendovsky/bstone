@@ -52,7 +52,7 @@ public:
 	explicit ImageEncoderException(
 		const char* message)
 		:
-		Exception{std::string{"[IMAGE_ENCODER] "} + message}
+		Exception{"IMAGE_ENCODER", message}
 	{
 	}
 }; // ImageEncoderException

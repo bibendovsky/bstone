@@ -153,9 +153,9 @@ class AddSearchPathException :
 {
 public:
 	explicit AddSearchPathException(
-		const char* const message)
+		const char* message)
 		:
-		bstone::Exception{std::string{"[ADD_SEARCH_PATH] "} + message}
+		bstone::Exception{"ADD_SEARCH_PATH", message}
 	{
 	}
 }; // AddSearchPathException

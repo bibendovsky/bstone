@@ -49,12 +49,12 @@ void Crc32::update(
 {
 	if (!data)
 	{
-		throw std::runtime_error("Null data.");
+		throw bstone::Exception{"CRC32", "Null data."};
 	}
 
 	if (size < 0)
 	{
-		throw std::runtime_error("Negative size.");
+		throw bstone::Exception{"CRC32", "Negative size."};
 	}
 
 	if (size == 0)

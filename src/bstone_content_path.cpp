@@ -50,9 +50,9 @@ class AssetPathException :
 {
 public:
 	explicit AssetPathException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[CONTENT_PATH] "} + message}
+		Exception{"CONTENT_PATH", message}
 	{
 	}
 }; // AssetPathException

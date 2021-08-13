@@ -56,7 +56,7 @@ class GlErrorNullException :
 public:
 	explicit GlErrorNullException()
 		:
-		Exception{"[GL_ERR] Null \"glGetError\"."}
+		Exception{"GL_ERR", "Null \"glGetError\"."}
 	{
 	}
 }; // GlErrorCodeException
@@ -77,7 +77,7 @@ public:
 	explicit GlErrorCodeException(
 		const GLenum gl_error_code)
 		:
-		Exception{get_message(gl_error_code)}
+		Exception{"GL_ERR", get_message(gl_error_code).c_str()}
 	{
 	}
 
@@ -137,7 +137,7 @@ private:
 		const GLenum gl_error_code)
 	{
 		return
-			std::string{"[GL_ERR] "} +
+			std::string{} +
 			get_gl_error_code_name_string(gl_error_code) +
 			" (" +
 			get_gl_enum_number_string(gl_error_code) +

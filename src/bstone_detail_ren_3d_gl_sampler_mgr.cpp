@@ -53,9 +53,9 @@ class Ren3dGlSamplerMgrImplException :
 {
 public:
 	explicit Ren3dGlSamplerMgrImplException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_SMPLR_MGR] "} + message}
+		Exception{"REN_3D_GL_SMPLR_MGR", message}
 	{
 	}
 }; // Ren3dGlSamplerMgrImplException
@@ -74,9 +74,9 @@ class Ren3dGlSamplerMgrImplCreateException :
 {
 public:
 	explicit Ren3dGlSamplerMgrImplCreateException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_SMPLR_MGR_INIT] "} + message}
+		Exception{"REN_3D_GL_SMPLR_MGR_INIT", message}
 	{
 	}
 }; // Ren3dGlSamplerMgrImplCreateException

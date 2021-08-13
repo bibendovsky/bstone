@@ -63,7 +63,7 @@ public:
 	explicit AudioExtractorException(
 		const std::string& message)
 		:
-		bstone::Exception{"[AUDIO_EXTRACTOR] " + message}
+		bstone::Exception{"AUDIO_EXTRACTOR", message.c_str()}
 	{
 	}
 }; // AudioExtractorException

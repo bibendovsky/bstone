@@ -57,9 +57,9 @@ class Ren3dGlExtensionMgrImplGlVersionException :
 {
 public:
 	explicit Ren3dGlExtensionMgrImplGlVersionException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[GL_VER] "} + message}
+		Exception{"GL_VER", message}
 	{
 	}
 }; // Ren3dGlExtensionMgrImplGlVersionException
@@ -69,9 +69,9 @@ class Ren3dGlExtensionMgrImplException :
 {
 public:
 	explicit Ren3dGlExtensionMgrImplException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[GL_EXT_MGR] "} + message}
+		Exception{"GL_EXT_MGR", message}
 	{
 	}
 }; // Ren3dGlExtensionMgrImplException
@@ -81,9 +81,9 @@ class Ren3dGlExtensionMgrImplMissingSymbolException :
 {
 public:
 	explicit Ren3dGlExtensionMgrImplMissingSymbolException(
-		const char* const symbol_name)
+		const char* symbol_name)
 		:
-		Exception{std::string{"[GL_EXT_MGR] ["} + symbol_name + "] Symbol not found."}
+		Exception{"GL_EXT_MGR", (std::string{} + symbol_name + "] Symbol not found.").c_str()}
 	{
 	}
 }; // Ren3dGlExtensionMgrImplMissingSymbolException

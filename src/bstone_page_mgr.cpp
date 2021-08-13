@@ -61,7 +61,7 @@ public:
 	explicit PageMgrException(
 		const char* message)
 		:
-		Exception{std::string{} + "[BSTONE_PAGE_MGR] " + message}
+		Exception{"BSTONE_PAGE_MGR", message}
 	{
 	}
 }; // PageMgrException

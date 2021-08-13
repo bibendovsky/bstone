@@ -54,9 +54,9 @@ struct Ren3dGlBufferImplException :
 	public Exception
 {
 	explicit Ren3dGlBufferImplException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[GL_BUF] "} + message}
+		Exception{"GL_BUF", message}
 	{
 	}
 }; // Ren3dGlBufferImplException
@@ -66,9 +66,9 @@ struct Ren3dGlBufferImplCreateException :
 	public Exception
 {
 	explicit Ren3dGlBufferImplCreateException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[GL_BUF_INIT] "} + message}
+		Exception{"GL_BUF_INIT", message}
 	{
 	}
 }; // Ren3dGlBufferImplCreateException
@@ -79,7 +79,7 @@ struct Ren3dGlBufferImplUpdateException :
 	explicit Ren3dGlBufferImplUpdateException(
 		const char* const message)
 		:
-		Exception{std::string{"[GL_BUF_UPD] "} + message}
+		Exception{"GL_BUF_UPD", message}
 	{
 	}
 }; // Ren3dGlBufferImplUpdateException

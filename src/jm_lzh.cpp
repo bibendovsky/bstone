@@ -65,18 +65,10 @@ class LzhEncoderException :
 {
 public:
 	explicit LzhEncoderException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{get_prefix() + message}
+		Exception{"LZH_ENCODER", message}
 	{
-	}
-
-
-private:
-	static const std::string& get_prefix()
-	{
-		static const auto result = std::string{"[LZH_ENCODER] "};
-		return result;
 	}
 }; // LzhEncoderException
 
@@ -87,16 +79,8 @@ public:
 	explicit LzhDecoderException(
 		const char* const message)
 		:
-		Exception{get_prefix() + message}
+		Exception{"LZH_DECODER", message}
 	{
-	}
-
-
-private:
-	static const std::string& get_prefix()
-	{
-		static const auto result = std::string{"[LZH_DECODER] "};
-		return result;
 	}
 }; // LzhDecoderException
 

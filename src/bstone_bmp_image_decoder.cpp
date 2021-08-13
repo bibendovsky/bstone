@@ -51,7 +51,7 @@ public:
 	explicit BmpImageDecoderException(
 		const char* message)
 		:
-		Exception{std::string{"[BMP_IMAGE_DECODER] "} + message}
+		Exception{"BMP_IMAGE_DECODER", message}
 	{
 	}
 }; // BmpImageDecoderException

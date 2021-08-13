@@ -56,7 +56,7 @@ public:
 	explicit StbImageEncoderException(
 		const char* message)
 		:
-		Exception{std::string{"[STB_IMAGE_ENCODER] "} + message}
+		Exception{"STB_IMAGE_ENCODER", message}
 	{
 	}
 }; // StbImageEncoderException
