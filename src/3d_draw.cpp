@@ -753,7 +753,7 @@ static int get_door_page_number(
 			break;
 
 		default:
-			Quit("Unsupported door type.");
+			::fail("Unsupported door type.");
 	}
 
 
@@ -2184,7 +2184,7 @@ void door_get_page_numbers_for_caching(
 		break;
 
 	default:
-		Quit("Invalid door type.");
+		::fail("Invalid door type.");
 	}
 }
 
@@ -2273,9 +2273,7 @@ void door_get_page_numbers(
 		front_face_page_number = 0;
 		back_face_page_number = 0;
 
-		Quit("Invalid door type.");
-
-		break;
+		::fail("Invalid door type.");
 	}
 
 	if (is_lockable)

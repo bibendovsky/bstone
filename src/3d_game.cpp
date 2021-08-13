@@ -212,7 +212,7 @@ void INVALID_ACTOR_ERR(
 	const int x,
 	const int y)
 {
-	Quit("Invalid actor at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+	::fail("Invalid actor at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 }
 
 
@@ -258,7 +258,7 @@ void ScanInfoPlane()
 			case SMART_ON_TRIGGER:
 				if (!assets_info.is_ps())
 				{
-					Quit("Smart trigger (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					::fail("Smart trigger (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 				continue;
 
@@ -306,13 +306,13 @@ void ScanInfoPlane()
 				CeilingTile = START_TEXTURES + ((tile & 0xff00) >> 8);
 				if (CeilingTile > NUM_TILES - 1)
 				{
-					Quit("Ceiling tile/texture is out of range.");
+					::fail("Ceiling tile/texture is out of range.");
 				}
 
 				FloorTile = START_TEXTURES + (tile & 0xff);
 				if (FloorTile > NUM_TILES - 1)
 				{
-					Quit("Floor tile/texture is out of range.");
+					::fail("Floor tile/texture is out of range.");
 				}
 
 				gottextures = true;
@@ -361,7 +361,7 @@ void ScanInfoPlane()
 
 				if (++st->NumMsgs > MAX_CACHE_MSGS)
 				{
-					Quit("(INFORMANTS) Too many \"cached msgs\" loaded.");
+					::fail("[INFORMANTS] Too many \"cached msgs\" loaded.");
 				}
 
 				ci->areanumber = GetAreaNumber(static_cast<std::int8_t>(x), static_cast<std::int8_t>(y));
@@ -458,7 +458,7 @@ void ScanInfoPlane()
 			case 30: // Yellow Puddle
 				if (assets_info.is_aog_sw())
 				{
-					Quit("Yellow puddle (AOG full/PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					::fail("Yellow puddle (AOG full/PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 				static_cast<void>(SpawnStatic(x, y, tile - 23));
 				break;
@@ -466,7 +466,7 @@ void ScanInfoPlane()
 			case 71: // BFG Weapon
 				if (!assets_info.is_ps())
 				{
-					Quit("BFG (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					::fail("BFG (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 				static_cast<void>(SpawnStatic(x, y, tile - 23));
 				break;
@@ -595,7 +595,7 @@ void ScanInfoPlane()
 			case 486: // Plasma Detonator
 				if (!assets_info.is_ps())
 				{
-					Quit("Plasma detonator (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					::fail("Plasma detonator (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				SpawnHiddenOfs(en_plasma_detonator_reserve, x, y); // Spawn a reserve
@@ -696,7 +696,7 @@ void ScanInfoPlane()
 			case 139:
 				if (!assets_info.is_ps())
 				{
-					Quit("Switchable arc barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					::fail("Switchable arc barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				//
@@ -716,7 +716,7 @@ void ScanInfoPlane()
 			case 562: // Off
 				if (!assets_info.is_ps())
 				{
-					Quit("Switchable post barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					::fail("Switchable post barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				SpawnBarrier(en_vpost_barrier, x, y, (tile - 562) != 0);
@@ -739,7 +739,7 @@ void ScanInfoPlane()
 			case 565:
 				if (!assets_info.is_ps())
 				{
-					Quit("Cyclic post barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					::fail("Cyclic post barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				SpawnBarrier(en_vpost_barrier, x, y, 0);
@@ -756,7 +756,7 @@ void ScanInfoPlane()
 			case 425: // Off
 				if (!assets_info.is_ps())
 				{
-					Quit("Spike barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					::fail("Spike barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				SpawnBarrier(en_vspike_barrier, x, y, (tile - 425) != 0);
@@ -779,7 +779,7 @@ void ScanInfoPlane()
 			case 428:
 				if (!assets_info.is_ps())
 				{
-					Quit("Cyclic spike barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					::fail("Cyclic spike barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 				SpawnBarrier(en_vspike_barrier, x, y, 0);
 				break;
@@ -809,7 +809,7 @@ void ScanInfoPlane()
 				{
 					if (GoldsternInfo.SpawnCnt == GOLDIE_MAX_SPAWNS)
 					{
-						Quit("Too many Dr. Goldfire Spawn sites in level.");
+						::fail("Too many Dr. Goldfire Spawn sites in level.");
 					}
 					GoldsternInfo.flags = GS_FIRSTTIME;
 					if (gamestate.mapon == 9)
@@ -839,19 +839,19 @@ void ScanInfoPlane()
 			case 141:
 				if (!assets_info.is_ps())
 				{
-					Quit("Goldstern spawn (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					::fail("Goldstern spawn (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				if (!loadedgame)
 				{
 					if (GoldsternInfo.GoldSpawned)
 					{
-						Quit("Too many FAST Goldfire spawn sites in map.");
+						::fail("Too many FAST Goldfire spawn sites in map.");
 					}
 
 					if (GoldsternInfo.SpawnCnt == GOLDIE_MAX_SPAWNS)
 					{
-						Quit("Too many Dr. Goldfire Spawn sites in level.");
+						::fail("Too many Dr. Goldfire Spawn sites in level.");
 					}
 
 					GoldieList[GoldsternInfo.SpawnCnt].tilex = static_cast<std::uint8_t>(x);
@@ -1209,7 +1209,7 @@ void ScanInfoPlane()
 			case 313:
 				if (!assets_info.is_ps())
 				{
-					Quit("Black ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					::fail("Black ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				if (gamestate.difficulty < gd_hard)
@@ -1220,7 +1220,7 @@ void ScanInfoPlane()
 			case 295:
 				if (!assets_info.is_ps())
 				{
-					Quit("Black ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					::fail("Black ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				if (gamestate.difficulty < gd_medium)
@@ -1231,7 +1231,7 @@ void ScanInfoPlane()
 			case 277:
 				if (!assets_info.is_ps())
 				{
-					Quit("Black ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					::fail("Black ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				SpawnOffsetObj(en_black2_ooze, x, y);
@@ -1245,7 +1245,7 @@ void ScanInfoPlane()
 			case 322:
 				if (!assets_info.is_ps())
 				{
-					Quit("Green ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					::fail("Green ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				if (gamestate.difficulty < gd_hard)
@@ -1256,7 +1256,7 @@ void ScanInfoPlane()
 			case 304:
 				if (!assets_info.is_ps())
 				{
-					Quit("Green ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					::fail("Green ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				if (gamestate.difficulty < gd_medium)
@@ -1267,7 +1267,7 @@ void ScanInfoPlane()
 			case 286:
 				if (!assets_info.is_ps())
 				{
-					Quit("Green ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					::fail("Green ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 				}
 
 				SpawnOffsetObj(en_green2_ooze, x, y);
@@ -2306,7 +2306,7 @@ void SetupGameLevel()
 
 	if (mapwidth != 64 || mapheight != 64)
 	{
-		Quit("Map not 64 x 64.");
+		::fail("Map not 64 x 64.");
 	}
 
 	// BBi
@@ -2412,7 +2412,7 @@ void SetupGameLevel()
 				{
 					if (is_wintile_found)
 					{
-						Quit("Multiple \"wintile\"s on level.");
+						::fail("Multiple \"wintile\"s on level.");
 					}
 
 					is_wintile_found = true;
@@ -2555,7 +2555,7 @@ void SetupGameLevel()
 					}
 					if (NumEAWalls++ == MAXEAWALLS)
 					{
-						Quit("Too many Electro-Alien walls in level.");
+						::fail("Too many Electro-Alien walls in level.");
 					}
 					break;
 
@@ -2689,7 +2689,7 @@ void SetupGameLevel()
 			gamestate.mapon < 10 &&
 			gamestuff.level[gamestate.mapon + 1].locked)
 		{
-			Quit("No red key on floor " + std::to_string(gamestate.mapon) + ".");
+			::fail("No red key on floor " + std::to_string(gamestate.mapon) + ".");
 		}
 
 		if (assets_info.is_aog_full() &&
@@ -2697,7 +2697,7 @@ void SetupGameLevel()
 			gamestate.mapon == 9 &&
 			!is_projection_generator_present)
 		{
-			Quit("No projection generator(s) on floor 10 episode 6.");
+			::fail("No projection generator(s) on floor 10 episode 6.");
 		}
 	}
 	else
@@ -2710,7 +2710,7 @@ void SetupGameLevel()
 			!detonators_spawned &&
 			gamestuff.level[gamestate.mapon + 1].locked)
 		{
-			Quit("No Fision/Plasma Detonator on level.");
+			::fail("No Fision/Plasma Detonator on level.");
 		}
 	}
 }

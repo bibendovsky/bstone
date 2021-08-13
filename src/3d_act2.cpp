@@ -1221,7 +1221,7 @@ void SpawnOffsetObj(
 		new_actor->flags &= ~(FL_SOLID | FL_SHOOTABLE);
 		if (detonators_spawned++)
 		{
-			Quit("Too many Fission/Plasma Detonators are placed in this map! You can only have one!");
+			::fail("Too many Fission/Plasma Detonators are placed in this map! You can only have one!");
 		}
 		break;
 
@@ -2063,7 +2063,7 @@ objtype* FindHiddenOfs(
 
 	if (!obj)
 	{
-		Quit("Unable to find a \"Hidden Actor\" at location (0, 0).");
+		::fail("Unable to find a \"Hidden Actor\" at location (0, 0).");
 	}
 
 	return obj;
@@ -2791,13 +2791,13 @@ std::uint16_t UpdateBarrierTable(
 
 	if (level >= assets_info.get_levels_per_episode())
 	{
-		Quit("[BARR_UPD_TBL] Level index out of range.");
+		::fail("[BARR_UPD_TBL] Level index out of range.");
 	}
 
 	if (x <= 0 || x >= (MAPSIZE - 1) ||
 		y <= 0 || y >= (MAPSIZE - 1))
 	{
-		Quit("[BARR_UPD_TBL] Coordinates out of range.");
+		::fail("[BARR_UPD_TBL] Coordinates out of range.");
 	}
 
 
@@ -2831,7 +2831,7 @@ std::uint16_t UpdateBarrierTable(
 		}
 	}
 
-	Quit("[BARR_UPD_TBL] Too many barrier switches.");
+	::fail("[BARR_UPD_TBL] Too many barrier switches.");
 }
 
 
@@ -2989,7 +2989,7 @@ void ConnectBarriers()
 			{
 				if (assets_info.is_ps())
 				{
-					Quit("A barrier switch was not connect to any barriers.");
+					::fail("A barrier switch was not connect to any barriers.");
 				}
 			}
 		}
@@ -5150,7 +5150,7 @@ void T_Path(
 
 		if (ob->tilex > MAPSIZE || ob->tiley > MAPSIZE)
 		{
-			Quit("Actor walked out of map.");
+			::fail("Actor walked out of map.");
 		}
 
 		ob->x = ob->tilex + 0.5;

@@ -2060,7 +2060,7 @@ const std::string& vid_filter_to_string(
 			return vid_get_linear_value_string();
 
 		default:
-			Quit("Invalid filter.");
+			::fail("Invalid filter.");
 	}
 }
 

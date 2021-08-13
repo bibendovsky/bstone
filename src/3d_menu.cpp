@@ -974,7 +974,7 @@ void binds_initialize_menu()
 
 	if (!has_bindings)
 	{
-		Quit("No bindings.");
+		::fail("No bindings.");
 	}
 
 	binds_names.clear();
@@ -5063,7 +5063,7 @@ const std::string& menu_video_mode_renderer_kind_get_string(
 			return gles_2_0_string;
 
 		default:
-			Quit("Unsupported renderer kind.");
+			::fail("Unsupported renderer kind.");
 	}
 }
 
@@ -5088,7 +5088,7 @@ const std::string& menu_video_mode_aa_kind_get_string(
 			return msaa_string;
 
 		default:
-			Quit("Unsupported AA kind.");
+			::fail("Unsupported AA kind.");
 	}
 }
 
@@ -5154,7 +5154,7 @@ void video_mode_draw_menu()
 
 		if (menu_video_mode_renderer_kinds_.empty())
 		{
-			Quit("Empty renderer kind list.");
+			::fail("Empty renderer kind list.");
 		}
 
 		const auto renderer_kind_it = std::find(
@@ -5530,7 +5530,7 @@ const std::string& texturing_filter_to_string(
 			return linear_string;
 
 		default:
-			Quit("Unsupported filter.");
+			::fail("Unsupported filter.");
 	}
 }
 
@@ -5832,7 +5832,7 @@ void texturing_filter_carousel(
 			break;
 
 		default:
-			Quit("Unsupported filter.");
+			::fail("Unsupported filter.");
 	}
 }
 

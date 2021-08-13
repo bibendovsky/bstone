@@ -33,18 +33,7 @@ Free Software Foundation, Inc.,
 #include "bstone_exception.h"
 
 
-class QuitException :
-	public bstone::Exception
-{
-public:
-	QuitException();
-
-	explicit QuitException(
-		const char* const message);
-
-	explicit QuitException(
-		const std::string& message);
-}; // QuitException
+struct QuitException{};
 
 
 //
@@ -84,10 +73,12 @@ extern Update update;
 extern bstone::ClArgs g_args;
 
 
-[[noreturn]] void Quit();
-
-[[noreturn]] void Quit(
+[[noreturn]]
+void fail(
 	const std::string& message);
+
+[[noreturn]]
+void Quit();
 // BBi
 
 

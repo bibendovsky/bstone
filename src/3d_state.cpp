@@ -865,7 +865,7 @@ void MoveObj(
 			return;
 
 		default:
-			Quit("Illegal direction passed.");
+			::fail("Illegal direction passed.");
 	}
 
 	ob->x += sign_x * move;

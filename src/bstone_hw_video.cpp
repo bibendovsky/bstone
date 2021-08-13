@@ -493,7 +493,7 @@ public:
 
 			if (assets_info.is_aog())
 			{
-				Quit("Expected wall at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+				::fail("Expected wall at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
 			}
 			else
 			{
@@ -556,7 +556,7 @@ public:
 
 		if (old_pushwall_it == xy_pushwall_map_.cend())
 		{
-			Quit("Pushwall not found.");
+			::fail("Pushwall not found.");
 
 			return;
 		}
@@ -610,7 +610,7 @@ public:
 
 		if (map_it == xy_door_map_.cend())
 		{
-			Quit("Door mapping not found.");
+			::fail("Door mapping not found.");
 		}
 
 		auto& door = xy_door_map_[xy];
@@ -639,7 +639,7 @@ public:
 
 		if (map_it == xy_door_map_.cend())
 		{
-			Quit("Door mapping not found.");
+			::fail("Door mapping not found.");
 		}
 
 		auto& door = xy_door_map_[xy];
@@ -730,7 +730,7 @@ private:
 	static void fail(
 		const std::string& message)
 	{
-		::Quit("[VIDHW] " + message);
+		::fail("[VIDHW] " + message);
 	}
 
 	static void log(
@@ -1433,7 +1433,7 @@ bstone::Ren3dMipmapMode cfg_texture_mipmap_filter_to_renderer(
 			return bstone::Ren3dMipmapMode::linear;
 
 		default:
-			Quit("Invalid mipmap mode.");
+			::fail("Invalid mipmap mode.");
 	}
 }
 
@@ -1787,7 +1787,7 @@ void create_shader(
 			break;
 
 		default:
-			Quit("Unsupported shader kind.");
+			::fail("Unsupported shader kind.");
 	}
 
 	shader = renderer_->create_shader(param);
@@ -6914,7 +6914,7 @@ void map_xy_to_xwall(
 
 	if (map.find(xy) != map.cend())
 	{
-		Quit("Wall mapping already exist.");
+		::fail("Wall mapping already exist.");
 	}
 
 	map[xy] = Wall{};
@@ -7003,7 +7003,7 @@ void build_walls()
 			break;
 
 		default:
-			Quit("Invalid direction.");
+			::fail("Invalid direction.");
 		}
 	}
 

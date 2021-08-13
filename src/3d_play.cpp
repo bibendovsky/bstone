@@ -1491,7 +1491,7 @@ void GetNewActor()
 		}
 		else
 		{
-			Quit("No free spots in objlist.");
+			::fail("No free spots in objlist.");
 		}
 	}
 	else
@@ -1534,7 +1534,7 @@ void RemoveObj(
 
 	if (gone == player)
 	{
-		Quit("Tried to remove the player.");
+		::fail("Tried to remove the player.");
 	}
 
 	vid_hw_on_remove_actor(*gone);
