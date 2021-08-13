@@ -53,9 +53,9 @@ class Win32RegistryKeyException :
 {
 public:
 	explicit Win32RegistryKeyException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[WIN32_REG_KEY] "} + message}
+		Exception{"WIN32_REG_KEY", message}
 	{
 	}
 }; // Win32RegistryKeyException

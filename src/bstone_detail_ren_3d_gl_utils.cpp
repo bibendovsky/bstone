@@ -63,9 +63,9 @@ class Ren3dGlUtilsException :
 {
 public:
 	explicit Ren3dGlUtilsException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_UTL] "} + message}
+		Exception{"REN_3D_GL_UTL", message}
 	{
 	}
 }; // Ren3dGlUtilsException
@@ -83,9 +83,9 @@ class Ren3dGlUtilsCreateCtxException :
 {
 public:
 	explicit Ren3dGlUtilsCreateCtxException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_UTL_MK_CTX_INIT] "} + message}
+		Exception{"REN_3D_GL_UTL_MK_CTX_INIT", message}
 	{
 	}
 }; // Ren3dGlUtilsCreateCtxException
@@ -103,9 +103,9 @@ class Ren3dGlUtilsGetWndDrawSizeException :
 {
 public:
 	explicit Ren3dGlUtilsGetWndDrawSizeException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_UTL_GET_WND_DRW_SZ] "} + message}
+		Exception{"REN_3D_GL_UTL_GET_WND_DRW_SZ", message}
 	{
 	}
 }; // Ren3dGlUtilsGetWndDrawSizeException
@@ -123,9 +123,9 @@ class Ren3dGlUtilsGetWndMsaaException :
 {
 public:
 	explicit Ren3dGlUtilsGetWndMsaaException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_UTL_GET_WND_MSAA] "} + message}
+		Exception{"REN_3D_GL_UTL_GET_WND_MSAA", message}
 	{
 	}
 }; // Ren3dGlUtilsGetWndMsaaException
@@ -143,9 +143,9 @@ class Ren3dGlUtilsGenMipmapException :
 {
 public:
 	explicit Ren3dGlUtilsGenMipmapException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_UTL_GEN_MIPMAP] "} + message}
+		Exception{"REN_3D_GL_UTL_GEN_MIPMAP", message}
 	{
 	}
 }; // Ren3dGlUtilsGenMipmapException
@@ -163,9 +163,9 @@ class Ren3dGlUtilsGetVsyncException :
 {
 public:
 	explicit Ren3dGlUtilsGetVsyncException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_UTL_GET_VSYNC] "} + message}
+		Exception{"REN_3D_GL_UTL_GET_VSYNC", message}
 	{
 	}
 }; // Ren3dGlUtilsGetVsyncException
@@ -183,9 +183,9 @@ class Ren3dGlUtilsSetScissorBoxException :
 {
 public:
 	explicit Ren3dGlUtilsSetScissorBoxException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_UTL_SET_SCISS_BOX] "} + message}
+		Exception{"REN_3D_GL_UTL_SET_SCISS_BOX", message}
 	{
 	}
 }; // Ren3dGlUtilsSetScissorBoxException
@@ -203,9 +203,9 @@ class Ren3dGlUtilsSetViewportRectException :
 {
 public:
 	explicit Ren3dGlUtilsSetViewportRectException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_UTL_SET_VIEWPORT_RECT] "} + message}
+		Exception{"REN_3D_GL_UTL_SET_VIEWPORT_RECT", message}
 	{
 	}
 }; // Ren3dGlUtilsSetViewportRectException
@@ -223,9 +223,9 @@ class Ren3dGlUtilsSetViewportDepthRngException :
 {
 public:
 	explicit Ren3dGlUtilsSetViewportDepthRngException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_UTL_SET_VIEWPORT_DPTH_RNG] "} + message}
+		Exception{"REN_3D_GL_UTL_SET_VIEWPORT_DPTH_RNG", message}
 	{
 	}
 }; // Ren3dGlUtilsSetViewportDepthRngException
@@ -243,9 +243,9 @@ class Ren3dGlUtilsSetCullingModeException :
 {
 public:
 	explicit Ren3dGlUtilsSetCullingModeException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_UTL_SET_CULL_MODE] "} + message}
+		Exception{"REN_3D_GL_UTL_SET_CULL_MODE", message}
 	{
 	}
 }; // Ren3dGlUtilsSetCullingModeException
@@ -263,9 +263,9 @@ class Ren3dGlUtilsSetCullingFaceException :
 {
 public:
 	explicit Ren3dGlUtilsSetCullingFaceException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_UTL_SET_CULL_FACE] "} + message}
+		Exception{"REN_3D_GL_UTL_SET_CULL_FACE", message}
 	{
 	}
 }; // Ren3dGlUtilsSetCullingFaceException
@@ -283,9 +283,9 @@ class Ren3dGlUtilsSetRenFeaturesException :
 {
 public:
 	explicit Ren3dGlUtilsSetRenFeaturesException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_UTL_SET_REN_FEATS] "} + message}
+		Exception{"REN_3D_GL_UTL_SET_REN_FEATS", message}
 	{
 	}
 }; // Ren3dGlUtilsSetRenFeaturesException
@@ -303,9 +303,9 @@ class Ren3dGlUtilsGetMagFilterException :
 {
 public:
 	explicit Ren3dGlUtilsGetMagFilterException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_UTL_GET_MAG_FLTR] "} + message}
+		Exception{"REN_3D_GL_UTL_GET_MAG_FLTR", message}
 	{
 	}
 }; // Ren3dGlUtilsGetMagFilterException
@@ -323,9 +323,9 @@ class Ren3dGlUtilsGetMinFilterException :
 {
 public:
 	explicit Ren3dGlUtilsGetMinFilterException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_UTL_GET_MIN_FLTR] "} + message}
+		Exception{"REN_3D_GL_UTL_GET_MIN_FLTR", message}
 	{
 	}
 }; // Ren3dGlUtilsGetMinFilterException
@@ -343,9 +343,9 @@ class Ren3dGlUtilsGetAddrModeException :
 {
 public:
 	explicit Ren3dGlUtilsGetAddrModeException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_UTL_GET_ADDR_MODE] "} + message}
+		Exception{"REN_3D_GL_UTL_GET_ADDR_MODE", message}
 	{
 	}
 }; // Ren3dGlUtilsGetAddrModeException
@@ -363,9 +363,9 @@ class Ren3dGlUtilsGetWrapAxisException :
 {
 public:
 	explicit Ren3dGlUtilsGetWrapAxisException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_UTL_GET_WRAP_AXIS] "} + message}
+		Exception{"REN_3D_GL_UTL_GET_WRAP_AXIS", message}
 	{
 	}
 }; // Ren3dGlUtilsGetWrapAxisException
@@ -383,9 +383,9 @@ class Ren3dGlUtilsGetFboMaxMsaaException :
 {
 public:
 	explicit Ren3dGlUtilsGetFboMaxMsaaException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_UTL_GET_FBO_MAX_MSAA] "} + message}
+		Exception{"REN_3D_GL_UTL_GET_FBO_MAX_MSAA", message}
 	{
 	}
 }; // Ren3dGlUtilsGetFboMaxMsaaException

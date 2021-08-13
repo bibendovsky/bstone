@@ -59,7 +59,7 @@ public:
 	explicit OalAudioMixerException(
 		const char* message)
 		:
-		Exception{std::string{"[OAL_AUDIO_MIXER] "} + message}
+		Exception{"OAL_AUDIO_MIXER", message}
 	{
 	}
 }; // OalAudioMixerException

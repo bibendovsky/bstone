@@ -49,9 +49,9 @@ class Ren3dCmdBufferImplInitException :
 {
 public:
 	explicit Ren3dCmdBufferImplInitException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_CMD_BUF_INIT] "} + message}
+		Exception{"REN_3D_CMD_BUF_INIT", message}
 	{
 	}
 }; // Ren3dCmdBufferImplInitException
@@ -70,9 +70,9 @@ class Ren3dCmdBufferImplReadException :
 {
 public:
 	explicit Ren3dCmdBufferImplReadException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_CMD_BUF_READ] "} +message}
+		Exception{"REN_3D_CMD_BUF_READ", message}
 	{
 	}
 }; // Ren3dCmdBufferImplReadException
@@ -91,9 +91,9 @@ class Ren3dCmdBufferImplWriteException :
 {
 public:
 	explicit Ren3dCmdBufferImplWriteException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_CMD_BUF_WRITE] "} +message}
+		Exception{"REN_3D_CMD_BUF_WRITE", message}
 	{
 	}
 }; // Ren3dCmdBufferImplWriteException

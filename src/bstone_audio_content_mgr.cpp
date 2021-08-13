@@ -57,7 +57,7 @@ public:
 	explicit AudioContentMgrException(
 		const char* message)
 		:
-		Exception{std::string{} + "[AUDIO_CONTENT_MGR] " + message}
+		Exception{"AUDIO_CONTENT_MGR", message}
 	{
 	}
 }; // AudioContentMgrException

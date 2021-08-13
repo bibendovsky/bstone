@@ -7111,7 +7111,7 @@ static const std::string& get_score_file_name()
 		}
 		else
 		{
-			throw std::runtime_error("Invalid game type.");
+			throw bstone::Exception("GET_SCORE_FILE_NAME", "Invalid game type.");
 		}
 
 		file_name = "bstone_" + game_type_string + "_high_scores";
@@ -8369,7 +8369,7 @@ bool LoadLevel(
 
 		if (laststatobj_index > MAXSTATS)
 		{
-			throw "Last static index out of range.";
+			throw bstone::Exception{"LOAD_LEVEL", "Last static index out of range."};
 		}
 
 		if (laststatobj_index < 0)
@@ -8863,7 +8863,7 @@ static const std::string& get_saved_game_version_string()
 		}
 		else
 		{
-			throw std::runtime_error("Invalid game type.");
+			throw bstone::Exception{"GET_SAVED_GAME_VERSION_STRING", "Invalid game type."};
 		}
 
 		version_string +=

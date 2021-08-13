@@ -57,9 +57,9 @@ class Ren3dGlShaderVarException :
 {
 public:
 	explicit Ren3dGlShaderVarException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_SHDR_VAR] "} + message}
+		Exception{"REN_3D_SHDR_VAR", message}
 	{
 	}
 }; // Ren3dGlShaderVarException
@@ -78,9 +78,9 @@ class Ren3dGlShaderVarCreateException :
 {
 public:
 	explicit Ren3dGlShaderVarCreateException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_SHDR_VAR_INIT] "} + message}
+		Exception{"REN_3D_SHDR_VAR_INIT", message}
 	{
 	}
 }; // Ren3dGlShaderVarCreateException

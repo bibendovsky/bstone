@@ -74,14 +74,14 @@ class GetWorkingDirException :
 public:
 	GetWorkingDirException()
 		:
-		Exception{"[FS_GET_WORKING_DIR] Failed to get."}
+		Exception{"FS_GET_WORKING_DIR", "Failed to get."}
 	{
 	}
 
 	explicit GetWorkingDirException(
 		const char* const message)
 		:
-		Exception{std::string{"[FS_GET_WORKING_DIR] "} + message}
+		Exception{"FS_GET_WORKING_DIR", message}
 	{
 	}
 }; // GetWorkingDirException
@@ -92,14 +92,14 @@ class ResolvePathException :
 public:
 	ResolvePathException()
 		:
-		Exception{"[FS_RESOLVE_PATH] Failed to get."}
+		Exception{"FS_RESOLVE_PATH", "Failed to get."}
 	{
 	}
 
 	explicit ResolvePathException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[FS_RESOLVE_PATH] "} + message}
+		Exception{"FS_RESOLVE_PATH", message}
 	{
 	}
 }; // ResolvePathException
@@ -110,14 +110,14 @@ class RenameException :
 public:
 	RenameException()
 		:
-		Exception{"[FS_RENAME] Failed to rename."}
+		Exception{"FS_RENAME", "Failed to rename."}
 	{
 	}
 
 	explicit RenameException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[RESOLVE_PATH] "} + message}
+		Exception{"RESOLVE_PATH", message}
 	{
 	}
 }; // RenameException
@@ -129,7 +129,7 @@ public:
 	explicit ReplaceExtensionException(
 		const char* message)
 		:
-		Exception{std::string{"[REPLACE_EXTENSION] "} + message}
+		Exception{"REPLACE_EXTENSION", message}
 	{
 	}
 }; // RenameException

@@ -54,7 +54,7 @@ public:
 	explicit Utf8ToUtf16Exception(
 		const std::exception& std_exception)
 		:
-		Exception{std::string{"[UTF8_TO_UTF16] "} + std_exception.what()}
+		Exception{"UTF8_TO_UTF16", std_exception.what()}
 	{
 	}
 }; // Utf8ToUtf16Exception
@@ -66,7 +66,7 @@ public:
 	explicit Utf16ToUtf8Exception(
 		const std::exception& std_exception)
 		:
-		Exception{std::string{"[UTF16_TO_UTF8] "} + std_exception.what()}
+		Exception{"UTF16_TO_UTF8", std_exception.what()}
 	{
 	}
 }; // Utf16ToUtf8Exception

@@ -55,9 +55,9 @@ class Ren3dUtilsCreateWindowException :
 {
 public:
 	explicit Ren3dUtilsCreateWindowException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_UTL_CREATE_WND] "} + message}
+		Exception{"REN_3D_UTL_CREATE_WND", message}
 	{
 	}
 }; // Ren3dUtilsCreateWindowException
@@ -75,9 +75,9 @@ class Ren3dUtilsSetWindowModeException :
 {
 public:
 	explicit Ren3dUtilsSetWindowModeException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_UTL_SET_WND_MODE] "} + message}
+		Exception{"REN_3D_UTL_SET_WND_MODE", message}
 	{
 	}
 }; // Ren3dUtilsSetWindowModeException
@@ -95,9 +95,9 @@ class Ren3dUtilsShowWindowException :
 {
 public:
 	explicit Ren3dUtilsShowWindowException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_UTL_SHOW_WND] "} + message}
+		Exception{"REN_3D_UTL_SHOW_WND", message}
 	{
 	}
 }; // Ren3dUtilsShowWindowException
@@ -115,9 +115,9 @@ class Ren3dUtilsSetWindowTitleException :
 {
 public:
 	explicit Ren3dUtilsSetWindowTitleException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_UTL_SET_WND_TITLE] "} + message}
+		Exception{"REN_3D_UTL_SET_WND_TITLE", message}
 	{
 	}
 }; // Ren3dUtilsSetWindowTitleException
@@ -135,9 +135,9 @@ class Ren3dUtilsRendererInitException :
 {
 public:
 	explicit Ren3dUtilsRendererInitException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_UTL_RENDER_INIT] "} + message}
+		Exception{"REN_3D_UTL_RENDER_INIT", message}
 	{
 	}
 }; // Ren3dUtilsRendererInitException
@@ -155,9 +155,9 @@ class Ren3dUtilsBufferInitException :
 {
 public:
 	explicit Ren3dUtilsBufferInitException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_UTL_BUFFER_INIT] "} + message}
+		Exception{"REN_3D_UTL_BUFFER_INIT", message}
 	{
 	}
 }; // Ren3dUtilsBufferInitException
@@ -175,9 +175,9 @@ class Ren3dUtilsBufferUpdateException :
 {
 public:
 	explicit Ren3dUtilsBufferUpdateException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_UTL_BUFFER_UPD] "} + message}
+		Exception{"REN_3D_UTL_BUFFER_UPD", message}
 	{
 	}
 }; // Ren3dUtilsBufferUpdateException
@@ -195,9 +195,9 @@ class Ren3dUtilsVertexInputCreateException :
 {
 public:
 	explicit Ren3dUtilsVertexInputCreateException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_UTL_VTX_INPUT_INIT] "} + message}
+		Exception{"REN_3D_UTL_VTX_INPUT_INIT", message}
 	{
 	}
 }; // Ren3dUtilsVertexInputCreateException
@@ -215,9 +215,9 @@ class Ren3dUtilsIndexedToRgba8Exception :
 {
 public:
 	explicit Ren3dUtilsIndexedToRgba8Exception(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_UTL_IDXED_TO_RGBA8] "} + message}
+		Exception{"REN_3D_UTL_IDXED_TO_RGBA8", message}
 	{
 	}
 }; // Ren3dUtilsIndexedToRgba8Exception
@@ -235,9 +235,9 @@ class Ren3dUtilsIndexedNpotToRgba8PotException :
 {
 public:
 	explicit Ren3dUtilsIndexedNpotToRgba8PotException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_UTL_IDXED_NPOT_TO_RGBA8_POT] "} + message}
+		Exception{"REN_3D_UTL_IDXED_NPOT_TO_RGBA8_POT", message}
 	{
 	}
 }; // Ren3dUtilsIndexedNpotToRgba8PotException
@@ -255,9 +255,9 @@ class Ren3dUtilsIndexedSpriteToRgba8PotException :
 {
 public:
 	explicit Ren3dUtilsIndexedSpriteToRgba8PotException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_UTL_IDXED_SPR_TO_RGBA8_POT] "} + message}
+		Exception{"REN_3D_UTL_IDXED_SPR_TO_RGBA8_POT", message}
 	{
 	}
 }; // Ren3dUtilsIndexedSpriteToRgba8PotException
@@ -275,9 +275,9 @@ class Ren3dUtilsRgba8NpotToRgba8PotException :
 {
 public:
 	explicit Ren3dUtilsRgba8NpotToRgba8PotException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_UTL_RGBA8_NPOT_TO_RGBA8_POT] "} + message}
+		Exception{"REN_3D_UTL_RGBA8_NPOT_TO_RGBA8_POT", message}
 	{
 	}
 }; // Ren3dUtilsRgba8NpotToRgba8PotException
@@ -295,9 +295,9 @@ class Ren3dUtilsBuildMipmapException :
 {
 public:
 	explicit Ren3dUtilsBuildMipmapException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_UTL_BUILD_MIPMAP] "} + message}
+		Exception{"REN_3D_UTL_BUILD_MIPMAP", message}
 	{
 	}
 }; // Ren3dUtilsBuildMipmapException
@@ -315,9 +315,9 @@ class Ren3dUtilsCalcMipmapCountException :
 {
 public:
 	explicit Ren3dUtilsCalcMipmapCountException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_UTL_CALC_MIPMAP_CNT] "} + message}
+		Exception{"REN_3D_UTL_CALC_MIPMAP_CNT", message}
 	{
 	}
 }; // Ren3dUtilsCalcMipmapCountException

@@ -57,26 +57,24 @@ class Ren3dGlShaderImplCreateException :
 {
 public:
 	explicit Ren3dGlShaderImplCreateException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{get_prefix() + message}
+		Exception{get_prefix(), message}
 	{
 	}
 
 	explicit Ren3dGlShaderImplCreateException(
 		const std::string& message)
 		:
-		Exception{get_prefix() + message}
+		Exception{get_prefix(), message.c_str()}
 	{
 	}
 
 
 private:
-	static const std::string& get_prefix()
+	constexpr const char* get_prefix() noexcept
 	{
-		static const auto prefix = std::string{"[REN_3D_SHDR_INIT] "};
-
-		return prefix;
+		return "REN_3D_SHDR_INIT";
 	}
 }; // Ren3dGlShaderImplCreateException
 

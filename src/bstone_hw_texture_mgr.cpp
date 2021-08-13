@@ -73,7 +73,7 @@ public:
 	explicit HwTextureManagerException(
 		const std::string& message)
 		:
-		Exception{std::string{"[HW_TEX_MGR] "} +message}
+		Exception{"HW_TEX_MGR", message.c_str()}
 	{
 	}
 }; // HwTextureManagerException

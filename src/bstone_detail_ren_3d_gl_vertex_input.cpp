@@ -59,9 +59,9 @@ class Ren3dGlVertexInputImplCreateException :
 {
 public:
 	explicit Ren3dGlVertexInputImplCreateException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_VRTX_INPT_INIT] "} + message}
+		Exception{"REN_3D_GL_VRTX_INPT_INIT", message}
 	{
 	}
 }; // Ren3dGlVertexInputImplCreateException

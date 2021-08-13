@@ -637,9 +637,9 @@ class Ren3dGlContextFactoryException :
 {
 public:
 	explicit Ren3dGlContextFactoryException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_CTX_FACTORY] "} + message}
+		Exception{"REN_3D_GL_CTX_FACTORY", message}
 	{
 	}
 }; // Ren3dGlContextFactoryException

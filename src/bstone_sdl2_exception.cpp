@@ -40,7 +40,7 @@ namespace bstone
 
 Sdl2Exception::Sdl2Exception() noexcept
 	:
-	Exception{"SDL2", ::SDL_GetError()}
+	Exception{"SDL", ::SDL_GetError()}
 {
 }
 

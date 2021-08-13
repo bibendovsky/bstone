@@ -54,9 +54,9 @@ class Ren3dGlTextureMgrImplCreateException :
 {
 public:
 	explicit Ren3dGlTextureMgrImplCreateException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_TEX_MGR_INIT] "} + message}
+		Exception{"REN_3D_GL_TEX_MGR_INIT", message}
 	{
 	}
 }; // Ren3dGlTextureMgrImplCreateException

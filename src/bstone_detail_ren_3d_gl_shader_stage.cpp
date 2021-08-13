@@ -63,7 +63,7 @@ public:
 	explicit Ren3dGlShaderStageImplCreateException(
 		const std::string& message)
 		:
-		Exception{std::string{"[REN_3D_GL_SHDR_STAGE_INIT] "} + message}
+		Exception{"REN_3D_GL_SHDR_STAGE_INIT", message.c_str()}
 	{
 	}
 }; // Ren3dGlShaderStageImplCreateException

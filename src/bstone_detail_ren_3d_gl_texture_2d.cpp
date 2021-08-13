@@ -60,9 +60,9 @@ class Ren3dGlTexture2dImplCreateException :
 {
 public:
 	explicit Ren3dGlTexture2dImplCreateException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_T2D_INIT] "} + message}
+		Exception{"REN_3D_GL_T2D_INIT", message}
 	{
 	}
 }; // Ren3dGlTexture2dImplCreateException
@@ -81,9 +81,9 @@ class Ren3dGlTexture2dImplUpdateException :
 {
 public:
 	explicit Ren3dGlTexture2dImplUpdateException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_T2D_UPD] "} + message}
+		Exception{"REN_3D_GL_T2D_UPD", message}
 	{
 	}
 }; // Ren3dGlTexture2dImplUpdateException
@@ -102,9 +102,9 @@ class Ren3dGlTexture2dImplException :
 {
 public:
 	explicit Ren3dGlTexture2dImplException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[REN_3D_GL_T2D] "} + message}
+		Exception{"REN_3D_GL_T2D", message}
 	{
 	}
 }; // Ren3dGlTexture2dImplException

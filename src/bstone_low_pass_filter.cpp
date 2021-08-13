@@ -43,9 +43,9 @@ class LowPassFilterException :
 {
 public:
 	explicit LowPassFilterException(
-		const char* const message)
+		const char* message)
 		:
-		Exception{std::string{"[AUDIO_LPF] "} + message}
+		Exception{"AUDIO_LPF", message}
 	{
 	}
 }; // LowPassFilterException
