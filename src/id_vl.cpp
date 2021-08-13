@@ -231,7 +231,7 @@ try
 
 		if (!file_stream.is_open())
 		{
-			throw bstone::Exception{"Failed to open a file \"" + path + "\"."};
+			throw bstone::Exception{("Failed to open a file \"" + path + "\".").c_str()};
 		}
 
 		file_stream.write(dst_buffer.get(), dst_buffer_size);
@@ -1127,7 +1127,7 @@ void vid_throw_sdl_error(
 		error_message = "Generic SDL error.";
 	}
 
-	throw bstone::Exception{error_message};
+	throw bstone::Exception{error_message.c_str()};
 }
 
 [[noreturn]]

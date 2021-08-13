@@ -25,7 +25,8 @@ Free Software Foundation, Inc.,
 #include "bstone_crc32.h"
 
 #include <array>
-#include <stdexcept>
+
+#include "bstone_exception.h"
 
 
 namespace bstone

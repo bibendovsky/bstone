@@ -47,9 +47,6 @@ public:
 	explicit Exception(
 		const char* message) noexcept;
 
-	explicit Exception(
-		const std::string& message) noexcept;
-
 	Exception(
 		const char* context,
 		const char* message) noexcept;

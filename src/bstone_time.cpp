@@ -47,7 +47,7 @@ public:
 	explicit LocalDateTimeException(
 		const char* message)
 		:
-		Exception{std::string{"MAKE_LOCAL_DATE_TIME"} + message}
+		Exception{"MAKE_LOCAL_DATE_TIME", message}
 	{
 	}
 }; // LocalDateTimeException
@@ -59,7 +59,7 @@ public:
 	explicit LocalDateTimeStringException(
 		const char* message)
 		:
-		Exception{std::string{"MAKE_LOCAL_DATE_TIME_STRING"} + message}
+		Exception{"MAKE_LOCAL_DATE_TIME_STRING", message}
 	{
 	}
 }; // LocalDateTimeStringException

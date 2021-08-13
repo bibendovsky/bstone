@@ -80,13 +80,6 @@ Exception::Exception(
 }
 
 Exception::Exception(
-	const std::string& message) noexcept
-	:
-	Exception{nullptr, message.c_str()}
-{
-}
-
-Exception::Exception(
 	const char* context,
 	const char* message) noexcept
 {
