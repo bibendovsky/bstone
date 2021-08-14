@@ -3,3 +3,4 @@
 - Revise AOG compatibility.
 - Throwable `Ren3dGlError` functions should not be used inside `noexcept` function.
 - Split `Ren3dGlUtils::get_window_msaa_value`.
+- Don't use virtual methods for uninitialization in `HwTextureMgr`.
