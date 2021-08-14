@@ -52,65 +52,23 @@ namespace detail
 
 
 // =========================================================================
-// Ren3dGlTexture2dImplCreateException
+// Ren3dGlTexture2dException
 //
 
-class Ren3dGlTexture2dImplCreateException :
+class Ren3dGlTexture2dException :
 	public Exception
 {
 public:
-	explicit Ren3dGlTexture2dImplCreateException(
+	explicit Ren3dGlTexture2dException(
 		const char* message)
 		:
-		Exception{"REN_3D_GL_T2D_INIT", message}
+		Exception{"REN_3D_GL_TEXTURE_2D", message}
 	{
 	}
-}; // Ren3dGlTexture2dImplCreateException
+}; // Ren3dGlTexture2dException
 
 //
-// Ren3dGlTexture2dImplCreateException
-// =========================================================================
-
-
-// =========================================================================
-// Ren3dGlTexture2dImplUpdateException
-//
-
-class Ren3dGlTexture2dImplUpdateException :
-	public Exception
-{
-public:
-	explicit Ren3dGlTexture2dImplUpdateException(
-		const char* message)
-		:
-		Exception{"REN_3D_GL_T2D_UPD", message}
-	{
-	}
-}; // Ren3dGlTexture2dImplUpdateException
-
-//
-// Ren3dGlTexture2dImplUpdateException
-// =========================================================================
-
-
-// =========================================================================
-// Ren3dGlTexture2dImplException
-//
-
-class Ren3dGlTexture2dImplException :
-	public Exception
-{
-public:
-	explicit Ren3dGlTexture2dImplException(
-		const char* message)
-		:
-		Exception{"REN_3D_GL_T2D", message}
-	{
-	}
-}; // Ren3dGlTexture2dImplException
-
-//
-// Ren3dGlTexture2dImplException
+// Ren3dGlTexture2dException
 // =========================================================================
 
 
@@ -157,6 +115,15 @@ private:
 	int mipmap_count_;
 
 	Ren3dSamplerState sampler_state_;
+
+
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
 
 
 	void validate(
@@ -210,6 +177,7 @@ private:
 Ren3dGlTexture2dImpl::Ren3dGlTexture2dImpl(
 	const Ren3dGlTextureMgrPtr texture_manager,
 	const Ren3dCreateTexture2dParam& param)
+try
 	:
 	texture_manager_{texture_manager},
 	device_features_{texture_manager_->get_context()->get_device_features()},
@@ -239,7 +207,7 @@ Ren3dGlTexture2dImpl::Ren3dGlTexture2dImpl(
 			break;
 
 		default:
-			throw Ren3dGlTexture2dImplCreateException{"Unsupported image format."};
+			fail("Unsupported image format.");
 	}
 
 	width_ = param.width_;
@@ -250,14 +218,14 @@ Ren3dGlTexture2dImpl::Ren3dGlTexture2dImpl(
 
 	if (mipmap_count_ > max_mipmap_count)
 	{
-		throw Ren3dGlTexture2dImplCreateException{"Mipmap count out of range."};
+		fail("Mipmap count out of range.");
 	}
 
 	// TODO Disable when OpenGL ES 2.0 won't be supported.
 #if 1
 	if (mipmap_count_ > 1 && mipmap_count_ != max_mipmap_count)
 	{
-		throw Ren3dGlTexture2dImplCreateException{"Mismatch mipmap count."};
+		fail("Mismatch mipmap count.");
 	}
 #endif
 
@@ -278,7 +246,7 @@ Ren3dGlTexture2dImpl::Ren3dGlTexture2dImpl(
 
 	if (!texture_resource_)
 	{
-		throw Ren3dGlTexture2dImplCreateException{"Failed to create an object."};
+		fail("Failed to create an object.");
 	}
 
 	if (!gl_device_features_.is_dsa_available_)
@@ -355,17 +323,22 @@ Ren3dGlTexture2dImpl::Ren3dGlTexture2dImpl(
 		}
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 Ren3dGlTexture2dImpl::~Ren3dGlTexture2dImpl() = default;
 
 void Ren3dGlTexture2dImpl::update(
 	const Ren3dTexture2dUpdateParam& param)
+try
 {
 	validate(param);
 
 	if (param.mipmap_level_ >= mipmap_count_)
 	{
-		throw Ren3dGlTexture2dImplUpdateException{"Mipmap level out of range."};
+		fail("Mipmap level out of range.");
 	}
 
 	if (!gl_device_features_.is_dsa_available_)
@@ -391,17 +364,22 @@ void Ren3dGlTexture2dImpl::update(
 
 	upload_mipmap(param.mipmap_level_, mipmap_width, mipmap_height, param.image_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlTexture2dImpl::generate_mipmaps()
+try
 {
 	if (mipmap_count_ <= 1)
 	{
-		throw Ren3dGlTexture2dImplException{"Base mipmap."};
+		fail("Base mipmap.");
 	}
 
 	if (!device_features_.is_mipmap_available_)
 	{
-		throw Ren3dGlTexture2dImplException{"Mipmap generation not available."};
+		fail("Mipmap generation not available.");
 	}
 
 	if (gl_device_features_.is_dsa_available_)
@@ -419,6 +397,10 @@ void Ren3dGlTexture2dImpl::generate_mipmaps()
 			gl_device_features_);
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlTexture2dImpl::texture_deleter(
 	GLuint gl_name) noexcept
@@ -427,8 +409,23 @@ void Ren3dGlTexture2dImpl::texture_deleter(
 	Ren3dGlError::ensure_debug();
 }
 
+[[noreturn]]
+void Ren3dGlTexture2dImpl::fail(
+	const char* message)
+{
+	throw Ren3dGlTexture2dException{message};
+}
+
+[[noreturn]]
+void Ren3dGlTexture2dImpl::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(Ren3dGlTexture2dException{message});
+}
+
 void Ren3dGlTexture2dImpl::validate(
 	const Ren3dCreateTexture2dParam& param)
+try
 {
 	switch (param.pixel_format_)
 	{
@@ -436,44 +433,58 @@ void Ren3dGlTexture2dImpl::validate(
 			break;
 
 		default:
-			throw Ren3dGlTexture2dImplCreateException{"Invalid pixel format."};
+			fail("Invalid pixel format.");
 	}
 
 	if (param.width_ <= 0)
 	{
-		throw Ren3dGlTexture2dImplCreateException{"Invalid width."};
+		fail("Invalid width.");
 	}
 
 	if (param.height_ <= 0)
 	{
-		throw Ren3dGlTexture2dImplCreateException{"Invalid height."};
+		fail("Invalid height.");
 	}
 
 	if (param.mipmap_count_ <= 0)
 	{
-		throw Ren3dGlTexture2dImplCreateException{"Invalid mipmap count."};
+		fail("Invalid mipmap count.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGlTexture2dImpl::validate(
 	const Ren3dTexture2dUpdateParam& param)
+try
 {
 	if (param.mipmap_level_ < 0 ||
 		param.mipmap_level_ >= Ren3dLimits::max_mipmap_count)
 	{
-		throw Ren3dGlTexture2dImplUpdateException{"Mipmap level out of range."};
+		fail("Mipmap level out of range.");
 	}
 
 	if (!param.image_)
 	{
-		throw Ren3dGlTexture2dImplUpdateException{"Null image data."};
+		fail("Null image data.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGlTexture2dImpl::bind()
+try
 {
 	glBindTexture(GL_TEXTURE_2D, texture_resource_.get());
 	Ren3dGlError::ensure_debug();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGlTexture2dImpl::upload_mipmap(
@@ -481,6 +492,7 @@ void Ren3dGlTexture2dImpl::upload_mipmap(
 	const int width,
 	const int height,
 	const void* const src_data)
+try
 {
 	if (gl_device_features_.is_dsa_available_)
 	{
@@ -515,8 +527,13 @@ void Ren3dGlTexture2dImpl::upload_mipmap(
 		Ren3dGlError::ensure_debug();
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlTexture2dImpl::set()
+try
 {
 	bind();
 
@@ -527,8 +544,13 @@ void Ren3dGlTexture2dImpl::set()
 		update_sampler_state(sampler_state);
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlTexture2dImpl::set_mag_filter()
+try
 {
 	const auto gl_mag_filter = Ren3dGlUtils::get_mag_filter(sampler_state_.mag_filter_);
 
@@ -543,8 +565,13 @@ void Ren3dGlTexture2dImpl::set_mag_filter()
 		Ren3dGlError::ensure_debug();
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlTexture2dImpl::set_min_filter()
+try
 {
 	const auto gl_min_filter = Ren3dGlUtils::get_min_filter(
 		sampler_state_.min_filter_,
@@ -562,10 +589,15 @@ void Ren3dGlTexture2dImpl::set_min_filter()
 		Ren3dGlError::ensure_debug();
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlTexture2dImpl::set_address_mode(
 	const Ren3dTextureAxis texture_axis,
 	const Ren3dAddressMode address_mode)
+try
 {
 	const auto gl_wrap_axis = Ren3dGlUtils::get_texture_wrap_axis(texture_axis);
 	const auto gl_address_mode = Ren3dGlUtils::get_address_mode(address_mode);
@@ -581,18 +613,33 @@ void Ren3dGlTexture2dImpl::set_address_mode(
 		Ren3dGlError::ensure_debug();
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlTexture2dImpl::set_address_mode_u()
+try
 {
 	set_address_mode(Ren3dTextureAxis::u, sampler_state_.address_mode_u_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlTexture2dImpl::set_address_mode_v()
+try
 {
 	set_address_mode(Ren3dTextureAxis::v, sampler_state_.address_mode_v_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlTexture2dImpl::set_anisotropy()
+try
 {
 	if (!device_features_.is_anisotropy_available_)
 	{
@@ -623,9 +670,14 @@ void Ren3dGlTexture2dImpl::set_anisotropy()
 		Ren3dGlError::ensure_debug();
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlTexture2dImpl::update_sampler_state(
 	const Ren3dSamplerState& new_sampler_state)
+try
 {
 	auto is_modified = false;
 
@@ -724,8 +776,13 @@ void Ren3dGlTexture2dImpl::update_sampler_state(
 		}
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlTexture2dImpl::set_sampler_state_defaults()
+try
 {
 	sampler_state_.mag_filter_ = Ren3dFilterKind::nearest;
 	set_mag_filter();
@@ -742,6 +799,10 @@ void Ren3dGlTexture2dImpl::set_sampler_state_defaults()
 
 	sampler_state_.anisotropy_ = Ren3dLimits::min_anisotropy_off;
 	set_anisotropy();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 //

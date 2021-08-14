@@ -43,23 +43,23 @@ namespace bstone
 
 
 // ==========================================================================
-// Ren3dMgrImplException
+// Ren3dMgrException
 //
 
-class Ren3dMgrImplException :
+class Ren3dMgrException :
 	public Exception
 {
 public:
-	explicit Ren3dMgrImplException(
+	explicit Ren3dMgrException(
 		const char* message)
 		:
 		Exception{"REN_3D_MGR", message}
 	{
 	}
-}; // Ren3dMgrImplException
+}; // Ren3dMgrException
 
 //
-// Ren3dMgrImplException
+// Ren3dMgrException
 // ==========================================================================
 
 
@@ -67,14 +67,14 @@ public:
 // Ren3dMgrImpl
 //
 
-class Ren3dMgrImpl :
+class Ren3dMgrImpl final :
 	public Ren3dMgr
 {
 public:
-	Ren3dMgrImpl();
+	Ren3dMgrImpl() noexcept;
 
 	Ren3dMgrImpl(
-		Ren3dMgrImpl&& rhs);
+		Ren3dMgrImpl&& rhs) noexcept;
 
 	~Ren3dMgrImpl() override;
 
@@ -87,11 +87,20 @@ private:
 	detail::Ren3dGlUPtr gl_renderer_;
 
 
-	void initialize();
+	[[noreturn]]
+	static void fail(
+		const char* message);
 
-	void uninitialize();
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
 
-	void uninitialize_renderers();
+
+	void initialize() noexcept;
+
+	void uninitialize() noexcept;
+
+	void uninitialize_renderers() noexcept;
 }; // Ren3dMgrImpl
 
 //
@@ -103,7 +112,7 @@ private:
 // Ren3dMgrImpl
 //
 
-Ren3dMgrImpl::Ren3dMgrImpl()
+Ren3dMgrImpl::Ren3dMgrImpl() noexcept
 	:
 	gl_renderer_{}
 {
@@ -111,7 +120,7 @@ Ren3dMgrImpl::Ren3dMgrImpl()
 }
 
 Ren3dMgrImpl::Ren3dMgrImpl(
-	Ren3dMgrImpl&& rhs)
+	Ren3dMgrImpl&& rhs) noexcept
 	:
 	gl_renderer_{std::move(rhs.gl_renderer_)}
 {
@@ -122,25 +131,40 @@ Ren3dMgrImpl::~Ren3dMgrImpl()
 	uninitialize();
 }
 
-void Ren3dMgrImpl::initialize()
+[[noreturn]]
+void Ren3dMgrImpl::fail(
+	const char* message)
+{
+	throw Ren3dMgrException{message};
+}
+
+[[noreturn]]
+void Ren3dMgrImpl::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(Ren3dMgrException{message});
+}
+
+void Ren3dMgrImpl::initialize() noexcept
 {
 	detail::Ren3dGlUtils::load_library();
 }
 
-void Ren3dMgrImpl::uninitialize()
+void Ren3dMgrImpl::uninitialize() noexcept
 {
 	uninitialize_renderers();
 
 	detail::Ren3dGlUtils::unload_library();
 }
 
-void Ren3dMgrImpl::uninitialize_renderers()
+void Ren3dMgrImpl::uninitialize_renderers() noexcept
 {
 	gl_renderer_ = nullptr;
 }
 
 Ren3dPtr Ren3dMgrImpl::renderer_initialize(
 	const Ren3dCreateParam& param)
+try
 {
 	uninitialize_renderers();
 
@@ -168,8 +192,12 @@ Ren3dPtr Ren3dMgrImpl::renderer_initialize(
 #endif // BSTONE_REN_3D_TEST_NO_GL
 
 		default:
-			throw Ren3dMgrImplException{"Unsupported renderer kind."};
+			fail("Unsupported renderer kind.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 //

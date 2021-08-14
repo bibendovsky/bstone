@@ -59,27 +59,6 @@ namespace detail
 
 
 // ==========================================================================
-// Ren3dGlCreateException
-//
-
-class Ren3dGlCreateException :
-	public Exception
-{
-public:
-	explicit Ren3dGlCreateException(
-		const char* message)
-		:
-		Exception{"REN_3D_GL_INIT", message}
-	{
-	}
-}; // Ren3dGlCreateException
-
-//
-// Ren3dGlCreateException
-// ==========================================================================
-
-
-// ==========================================================================
 // Ren3dGlException
 //
 
@@ -106,6 +85,7 @@ public:
 
 Ren3dGl::Ren3dGl(
 	const Ren3dCreateParam& param)
+try
 	:
 	kind{},
 	name_{},
@@ -133,7 +113,7 @@ Ren3dGl::Ren3dGl(
 			break;
 
 		default:
-			throw Ren3dGlCreateException{"Unsupported renderer kind."};
+			fail("Unsupported renderer kind.");
 	}
 
 	kind = param.renderer_kind_;
@@ -202,7 +182,7 @@ Ren3dGl::Ren3dGl(
 
 	if (screen_width == 0 || screen_height == 0)
 	{
-		throw Ren3dGlCreateException{"Failed to get screen size."};
+		fail("Failed to get screen size.");
 	}
 
 	if (aa_kind_ == Ren3dAaKind::ms && device_features_.is_msaa_render_to_window_)
@@ -214,7 +194,7 @@ Ren3dGl::Ren3dGl(
 
 	if (extension_manager_ == nullptr)
 	{
-		throw Ren3dGlCreateException{"Failed to create an extension manager."};
+		fail("Failed to create an extension manager.");
 	}
 
 	switch (kind)
@@ -224,7 +204,7 @@ Ren3dGl::Ren3dGl(
 
 			if (!extension_manager_->has(Ren3dGlExtensionId::v2_0))
 			{
-				throw Ren3dGlCreateException{"Failed to load OpenGL 2.0 symbols."};
+				fail("Failed to load OpenGL 2.0 symbols.");
 			}
 
 			break;
@@ -234,7 +214,7 @@ Ren3dGl::Ren3dGl(
 
 			if (!extension_manager_->has(Ren3dGlExtensionId::v3_2_core))
 			{
-				throw Ren3dGlCreateException{"Failed to load OpenGL 3.2 core symbols."};
+				fail("Failed to load OpenGL 3.2 core symbols.");
 			}
 
 			break;
@@ -244,13 +224,13 @@ Ren3dGl::Ren3dGl(
 
 			if (!extension_manager_->has(Ren3dGlExtensionId::es_v2_0))
 			{
-				throw Ren3dGlCreateException{"Failed to load OpenGL ES 2.0 symbols."};
+				fail("Failed to load OpenGL ES 2.0 symbols.");
 			}
 
 			break;
 
 		default:
-			throw Ren3dGlCreateException{"Unsupported renderer kind."};
+			fail("Unsupported renderer kind.");
 	}
 
 	Ren3dGlUtils::set_renderer_features(device_features_);
@@ -302,7 +282,7 @@ Ren3dGl::Ren3dGl(
 
 	if (device_features_.max_vertex_input_locations_ <= 0)
 	{
-		throw Ren3dGlCreateException{"No vertex input locations."};
+		fail("No vertex input locations.");
 	}
 
 	Ren3dGlUtils::probe_vsync(device_features_);
@@ -335,6 +315,10 @@ Ren3dGl::Ren3dGl(
 	context_->clear(Rgba8{});
 	present();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 Ren3dGl::~Ren3dGl() = default;
 
@@ -351,6 +335,20 @@ const std::string& Ren3dGl::get_name() const noexcept
 const std::string& Ren3dGl::get_description() const noexcept
 {
 	return description_;
+}
+
+[[noreturn]]
+void Ren3dGl::fail(
+	const char* message)
+{
+	throw Ren3dGlException{message};
+}
+
+[[noreturn]]
+void Ren3dGl::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(Ren3dGlException{message});
 }
 
 void Ren3dGl::fbo_deleter(
@@ -370,6 +368,7 @@ void Ren3dGl::rbo_deleter(
 }
 
 void Ren3dGl::set_name_and_description()
+try
 {
 	switch (kind)
 	{
@@ -389,8 +388,12 @@ void Ren3dGl::set_name_and_description()
 			break;
 
 		default:
-			throw Ren3dGlCreateException{"Unsupported renderer kind."};
+			fail("Unsupported renderer kind.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 const Ren3dDeviceFeatures& Ren3dGl::get_device_features() const noexcept
@@ -405,6 +408,7 @@ const Ren3dDeviceInfo& Ren3dGl::get_device_info() const noexcept
 
 void Ren3dGl::set_window_mode(
 	const Ren3dSetWindowModeParam& param)
+try
 {
 	Ren3dUtils::set_window_mode(sdl_window_.get(), param);
 
@@ -421,17 +425,31 @@ void Ren3dGl::set_window_mode(
 		create_msaa_framebuffer();
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGl::set_window_title(
 	const std::string& title_utf8)
+try
 {
 	Ren3dUtils::set_window_title(sdl_window_.get(), title_utf8);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGl::show_window(
 	const bool is_visible)
+try
 {
 	Ren3dUtils::show_window(sdl_window_.get(), is_visible);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 bool Ren3dGl::get_vsync() const noexcept
@@ -446,26 +464,32 @@ bool Ren3dGl::get_vsync() const noexcept
 
 void Ren3dGl::enable_vsync(
 	const bool is_enabled)
+try
 {
 	if (!device_features_.is_vsync_available_)
 	{
-		throw Ren3dGlException{"Not available."};
+		fail("Not available.");
 	}
 
 	if (device_features_.is_vsync_requires_restart_)
 	{
-		throw Ren3dGlException{"Requires restart."};
+		fail("Requires restart.");
 	}
 
 	if (!Ren3dGlUtils::enable_vsync(is_enabled))
 	{
-		throw Ren3dGlException{"Not supported."};
+		fail("Not supported.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGl::set_anti_aliasing(
 	const Ren3dAaKind aa_kind,
 	const int aa_value)
+try
 {
 	switch (aa_kind)
 	{
@@ -474,7 +498,7 @@ void Ren3dGl::set_anti_aliasing(
 			break;
 
 		default:
-			throw Ren3dGlException{"Invalid anti-aliasing kind."};
+			fail("Invalid anti-aliasing kind.");
 	}
 
 	auto clamped_aa_value = aa_value;
@@ -500,13 +524,18 @@ void Ren3dGl::set_anti_aliasing(
 			return;
 
 		default:
-			throw Ren3dGlException{"Invalid anti-aliasing kind."};
+			fail("Invalid anti-aliasing kind.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGl::read_pixels_rgb_888(
 	void* buffer,
 	bool& is_flipped_vertically)
+try
 {
 	is_flipped_vertically = true;
 
@@ -531,8 +560,13 @@ void Ren3dGl::read_pixels_rgb_888(
 
 	bind_framebuffers();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGl::present()
+try
 {
 	blit_framebuffers();
 
@@ -542,48 +576,83 @@ void Ren3dGl::present()
 
 	bind_framebuffers();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 Ren3dBufferUPtr Ren3dGl::create_buffer(
 	const Ren3dCreateBufferParam& param)
+try
 {
 	return context_->create_buffer(param);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 Ren3dVertexInputUPtr Ren3dGl::create_vertex_input(
 	const Ren3dCreateVertexInputParam& param)
+try
 {
 	return context_->get_vertex_input_manager()->create(param);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 Ren3dShaderUPtr Ren3dGl::create_shader(
 	const Ren3dCreateShaderParam& param)
+try
 {
 	return context_->create_shader(param);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 Ren3dShaderStageUPtr Ren3dGl::create_shader_stage(
 	const Ren3dCreateShaderStageParam& param)
+try
 {
 	return context_->get_shader_stage_manager()->create(param);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 Ren3dTexture2dUPtr Ren3dGl::create_texture_2d(
 	const Ren3dCreateTexture2dParam& param)
+try
 {
 	return context_->get_texture_manager()->create(param);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 Ren3dSamplerUPtr Ren3dGl::create_sampler(
 	const Ren3dCreateSamplerParam& param)
+try
 {
 	return context_->get_sampler_manager()->create(param);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 Ren3dGl::RboResource Ren3dGl::create_renderbuffer()
+try
 {
 	if (!gl_device_features_.is_framebuffer_available_)
 	{
-		throw Ren3dGlException{"Framebuffer not available."};
+		fail("Framebuffer not available.");
 	}
 
 	const auto gl_function = (gl_device_features_.is_framebuffer_ext_ ? glGenRenderbuffersEXT : glGenRenderbuffers);
@@ -596,26 +665,36 @@ Ren3dGl::RboResource Ren3dGl::create_renderbuffer()
 
 	if (!rbo_resource)
 	{
-		throw Ren3dGlException{"Failed to create OpenGL renderbuffer object."};
+		fail("Failed to create OpenGL renderbuffer object.");
 	}
 
 	return rbo_resource;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGl::bind_renderbuffer(
 	const GLuint gl_renderbuffer_name)
+try
 {
 	const auto gl_func = (gl_device_features_.is_framebuffer_ext_ ? glBindRenderbufferEXT : glBindRenderbuffer);
 
 	gl_func(GL_RENDERBUFFER, gl_renderbuffer_name);
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 Ren3dGl::FboResource Ren3dGl::create_framebuffer()
+try
 {
 	if (!gl_device_features_.is_framebuffer_available_)
 	{
-		throw Ren3dGlException{"Framebuffer not available."};
+		fail("Framebuffer not available.");
 	}
 
 	const auto gl_func = (gl_device_features_.is_framebuffer_ext_ ? glGenFramebuffersEXT : glGenFramebuffers);
@@ -628,15 +707,20 @@ Ren3dGl::FboResource Ren3dGl::create_framebuffer()
 
 	if (!fbo_resource)
 	{
-		throw Ren3dGlException{"Failed to create OpenGL framebuffer object."};
+		fail("Failed to create OpenGL framebuffer object.");
 	}
 
 	return fbo_resource;
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGl::bind_framebuffer(
 	const GLenum gl_target,
 	const GLuint gl_name)
+try
 {
 	assert(gl_device_features_.is_framebuffer_available_);
 
@@ -645,6 +729,10 @@ void Ren3dGl::bind_framebuffer(
 	gl_func(gl_target, gl_name);
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGl::blit_framebuffer(
 	const int src_width,
@@ -652,6 +740,7 @@ void Ren3dGl::blit_framebuffer(
 	const int dst_width,
 	const int dst_height,
 	const bool is_linear_filter)
+try
 {
 	assert(src_width > 0);
 	assert(src_height > 0);
@@ -683,12 +772,17 @@ void Ren3dGl::blit_framebuffer(
 
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 Ren3dGl::RboResource Ren3dGl::create_renderbuffer(
 	const int width,
 	const int height,
 	const int sample_count,
 	const GLenum gl_internal_format)
+try
 {
 	assert(width > 0);
 	assert(height > 0);
@@ -713,46 +807,81 @@ Ren3dGl::RboResource Ren3dGl::create_renderbuffer(
 
 	return rbo_resource;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGl::destroy_msaa_color_rb()
+try
 {
 	msaa_color_rb_.reset();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGl::destroy_msaa_depth_rb()
+try
 {
 	msaa_depth_rb_.reset();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGl::destroy_msaa_fbo()
+try
 {
 	msaa_fbo_.reset();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGl::destroy_msaa_framebuffer()
+try
 {
 	destroy_msaa_fbo();
 	destroy_msaa_color_rb();
 	destroy_msaa_depth_rb();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGl::create_msaa_color_rb(
 	const int width,
 	const int height,
 	const int sample_count)
+try
 {
 	msaa_color_rb_ = create_renderbuffer(width, height, sample_count, GL_RGBA8);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGl::create_msaa_depth_rb(
 	const int width,
 	const int height,
 	const int sample_count)
+try
 {
 	msaa_depth_rb_ = create_renderbuffer(width, height, sample_count, GL_DEPTH_COMPONENT);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGl::create_msaa_framebuffer()
+try
 {
 	auto aa_degree = aa_value_;
 
@@ -807,18 +936,28 @@ void Ren3dGl::create_msaa_framebuffer()
 
 	if (framebuffer_status != GL_FRAMEBUFFER_COMPLETE)
 	{
-		throw Ren3dGlException{"Incomplete framebuffer object."};
+		fail("Incomplete framebuffer object.");
 	}
 
 	bind_framebuffer(GL_FRAMEBUFFER, 0);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGl::destroy_framebuffers()
+try
 {
 	destroy_msaa_framebuffer();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGl::create_framebuffers()
+try
 {
 	if (!gl_device_features_.is_framebuffer_available_)
 	{
@@ -827,8 +966,13 @@ void Ren3dGl::create_framebuffers()
 
 	create_msaa_framebuffer();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGl::blit_framebuffers()
+try
 {
 	if (!msaa_fbo_)
 	{
@@ -850,8 +994,13 @@ void Ren3dGl::blit_framebuffers()
 		false
 	);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGl::bind_framebuffers()
+try
 {
 	if (!msaa_fbo_)
 	{
@@ -860,8 +1009,13 @@ void Ren3dGl::bind_framebuffers()
 
 	bind_framebuffer(GL_FRAMEBUFFER, msaa_fbo_.get());
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGl::bind_framebuffers_for_read_pixels()
+try
 {
 	if (!msaa_fbo_)
 	{
@@ -870,8 +1024,13 @@ void Ren3dGl::bind_framebuffers_for_read_pixels()
 
 	bind_framebuffer(GL_FRAMEBUFFER, 0);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGl::disable_aa()
+try
 {
 	aa_kind_ = Ren3dAaKind::none;
 
@@ -883,18 +1042,23 @@ void Ren3dGl::disable_aa()
 	destroy_msaa_framebuffer();
 	create_msaa_framebuffer();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGl::set_msaa(
 	const int aa_value)
+try
 {
 	if (device_features_.is_msaa_requires_restart_)
 	{
-		throw Ren3dGlException{"Requires restart."};
+		fail("Requires restart.");
 	}
 
 	if (!gl_device_features_.is_framebuffer_available_)
 	{
-		throw Ren3dGlException{"Framebuffer not available."};
+		fail("Framebuffer not available.");
 	}
 
 	if (aa_kind_ == Ren3dAaKind::ms && aa_value_ == aa_value)
@@ -909,153 +1073,253 @@ void Ren3dGl::set_msaa(
 
 	create_framebuffers();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGl::submit_clear(
 	const Ren3dClearCmd& command)
+try
 {
 	context_->clear(command.clear_.color_);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGl::submit_culling(
 	const Ren3dEnableCullingCmd& command)
+try
 {
 	context_->enable_culling(command.is_enable_);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGl::submit_enable_depth_test(
 	const Ren3dEnableDepthTestCmd& command)
+try
 {
 	context_->enable_depth_test(command.is_enable_);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGl::submit_enable_depth_write(
 	const Ren3dEnableDepthWriteCmd& command)
+try
 {
 	context_->enable_depth_write(command.is_enable_);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGl::submit_set_viewport(
 	const Ren3dSetViewportCmd& command)
+try
 {
 	context_->set_viewport(command.viewport_);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGl::submit_enable_blending(
 	const Ren3dEnableBlendingCmd& command)
+try
 {
 	context_->enable_blending(command.is_enable_);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGl::submit_set_blending_func(
 	const Ren3dSetBlendingFuncCmd& command)
+try
 {
 	context_->set_blending_func(command.blending_func_);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGl::submit_enable_scissor(
 	const Ren3dEnableScissorCmd& command)
+try
 {
 	context_->enable_scissor(command.is_enable_);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGl::submit_set_scissor_box(
 	const Ren3dSetScissorBoxCmd& command)
+try
 {
 	context_->set_scissor_box(command.scissor_box_);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGl::submit_set_texture(
 	const Ren3dSetTextureCmd& command)
+try
 {
 	context_->set_texture_2d(static_cast<Ren3dGlTexture2dPtr>(command.texture_2d_));
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGl::submit_set_sampler(
 	const Ren3dSetSamplerCmd& command)
+try
 {
 	context_->set_sampler(static_cast<Ren3dGlSamplerPtr>(command.sampler_));
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGl::submit_set_vertex_input(
 	const Ren3dSetVertexInputCmd& command)
+try
 {
 	context_->set_vertex_input(static_cast<Ren3dGlVertexInputPtr>(command.vertex_input_));
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGl::submit_set_shader_stage(
 	const Ren3dSetShaderStageCmd& command)
+try
 {
 	context_->set_shader_stage(static_cast<Ren3dGlShaderStagePtr>(command.shader_stage_));
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGl::submit_set_int32_uniform(
 	const Ren3dSetInt32UniformCmd& command)
+try
 {
 	if (!command.var_)
 	{
-		throw Ren3dGlException{"Null variable."};
+		fail("Null variable.");
 	}
 
 	command.var_->set_int32(command.value_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGl::submit_set_float32_uniform(
 	const Ren3dSetFloat32UniformCmd& command)
+try
 {
 	if (!command.var_)
 	{
-		throw Ren3dGlException{"Null variable."};
+		fail("Null variable.");
 	}
 
 	command.var_->set_float32(command.value_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGl::submit_set_vec2_uniform(
 	const Ren3dSetVec2UniformCmd& command)
+try
 {
 	if (!command.var_)
 	{
-		throw Ren3dGlException{"Null variable."};
+		fail("Null variable.");
 	}
 
 	command.var_->set_vec2(command.value_.data());
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGl::submit_set_vec4_uniform(
 	const Ren3dSetVec4UniformCmd& command)
+try
 {
 	if (!command.var_)
 	{
-		throw Ren3dGlException{"Null variable."};
+		fail("Null variable.");
 	}
 
 	command.var_->set_vec4(command.value_.data());
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGl::submit_set_mat4_uniform(
 	const Ren3dSetMat4UniformCmd& command)
+try
 {
 	if (!command.var_)
 	{
-		throw Ren3dGlException{"Null variable."};
+		fail("Null variable.");
 	}
 
 	command.var_->set_mat4(command.value_.data());
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGl::submit_set_sampler_2d_uniform(
 	const Ren3dSetSampler2dUniformCmd& command)
+try
 {
 	if (!command.var_)
 	{
-		throw Ren3dGlException{"Null variable."};
+		fail("Null variable.");
 	}
 
 	command.var_->set_sampler_2d(command.value_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGl::submit_draw_indexed(
 	const Ren3dDrawIndexedCmd& command)
+try
 {
 	const auto& param = command.draw_indexed_;
 
@@ -1084,12 +1348,12 @@ void Ren3dGl::submit_draw_indexed(
 			break;
 
 		default:
-			throw Ren3dGlException{"Unsupported primitive topology."};
+			fail("Unsupported primitive topology.");
 	}
 
 	if (param.vertex_count_ < 0)
 	{
-		throw Ren3dGlException{"Vertex count out of range."};
+		fail("Vertex count out of range.");
 	}
 
 	if (param.vertex_count_ == 0)
@@ -1105,17 +1369,17 @@ void Ren3dGl::submit_draw_indexed(
 			break;
 
 		default:
-			throw Ren3dGlException{"Unsupported index value byte depth."};
+			fail("Unsupported index value byte depth.");
 	}
 
 	if (param.index_buffer_offset_ < 0)
 	{
-		throw Ren3dGlException{"Offset to indices out of range."};
+		fail("Offset to indices out of range.");
 	}
 
 	if (param.index_offset_ < 0)
 	{
-		throw Ren3dGlException{"Index offset out of range."};
+		fail("Index offset out of range.");
 	}
 
 	// Vertex input.
@@ -1124,7 +1388,7 @@ void Ren3dGl::submit_draw_indexed(
 
 	if (!vertex_input)
 	{
-		throw Ren3dGlException{"Null current vertex input."};
+		fail("Null current vertex input.");
 	}
 
 	context_->get_vertex_input_manager()->set(vertex_input);
@@ -1147,7 +1411,7 @@ void Ren3dGl::submit_draw_indexed(
 
 	if (!index_buffer)
 	{
-		throw Ren3dGlException{"Null index buffer."};
+		fail("Null index buffer.");
 	}
 
 	const auto index_buffer_offset = param.index_buffer_offset_ + (param.index_offset_ * param.index_byte_depth_);
@@ -1169,19 +1433,24 @@ void Ren3dGl::submit_draw_indexed(
 
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGl::submit_commands(
 	Ren3dCmdBufferPtr* const command_buffers,
 	const int command_buffer_count)
+try
 {
 	if (command_buffer_count < 0)
 	{
-		throw Ren3dGlException{"Command buffer count out of range."};
+		fail("Command buffer count out of range.");
 	}
 
 	if (command_buffer_count > 0 && !command_buffers)
 	{
-		throw Ren3dGlException{"Null command buffers."};
+		fail("Null command buffers.");
 	}
 
 	for (int i = 0; i < command_buffer_count; ++i)
@@ -1190,7 +1459,7 @@ void Ren3dGl::submit_commands(
 
 		if (!command_buffer)
 		{
-			throw Ren3dGlException{"Null command buffer."};
+			fail("Null command buffer.");
 		}
 
 		if (!command_buffer->is_enabled())
@@ -1289,12 +1558,16 @@ void Ren3dGl::submit_commands(
 				break;
 
 			default:
-				throw Ren3dGlException{"Unsupported command id."};
+				fail("Unsupported command id.");
 			}
 		}
 
 		command_buffer->end_read();
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 //

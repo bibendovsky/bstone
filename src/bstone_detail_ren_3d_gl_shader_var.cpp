@@ -70,23 +70,28 @@ public:
 
 
 // ==========================================================================
-// Ren3dGlShaderVarCreateException
-//
 
-class Ren3dGlShaderVarCreateException :
-	public Exception
+namespace
 {
-public:
-	explicit Ren3dGlShaderVarCreateException(
-		const char* message)
-		:
-		Exception{"REN_3D_SHDR_VAR_INIT", message}
-	{
-	}
-}; // Ren3dGlShaderVarCreateException
 
-//
-// Ren3dGlShaderVarCreateException
+
+[[noreturn]]
+void fail(
+	const char* message)
+{
+	throw Ren3dGlShaderVarException{message};
+}
+
+[[noreturn]]
+void fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(Ren3dGlShaderVarException{message});
+}
+
+
+} // namespace
+
 // ==========================================================================
 
 
@@ -96,6 +101,7 @@ public:
 
 int Ren3dGlShaderVar::get_unit_size(
 	const Ren3dShaderVarTypeId type_id)
+try
 {
 	switch (type_id)
 	{
@@ -117,8 +123,12 @@ int Ren3dGlShaderVar::get_unit_size(
 			return 4 * 4 * 4;
 
 		default:
-			throw Ren3dGlShaderVarException{"Unsupported type."};
+			fail("Unsupported type.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 //
@@ -204,6 +214,7 @@ private:
 Ren3dGlShaderVarImpl::Ren3dGlShaderVarImpl(
 	const Ren3dGlShaderStagePtr shader_stage,
 	const Ren3dGlShaderVarCreateParam& param)
+try
 	:
 	shader_stage_{shader_stage},
 	gl_device_features_{shader_stage->get_manager()->get_context()->get_gl_device_features()},
@@ -217,7 +228,7 @@ Ren3dGlShaderVarImpl::Ren3dGlShaderVarImpl(
 {
 	if (!shader_stage_)
 	{
-		throw Ren3dGlShaderVarCreateException{"Null shader stage."};
+		fail("Null shader stage.");
 	}
 
 	kind = param.kind;
@@ -227,6 +238,10 @@ Ren3dGlShaderVarImpl::Ren3dGlShaderVarImpl(
 	name_ = param.name_;
 	input_index_ = param.input_index_;
 	gl_location_ = param.gl_location_;
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 Ren3dGlShaderVarImpl::~Ren3dGlShaderVarImpl() = default;
@@ -258,59 +273,90 @@ int Ren3dGlShaderVarImpl::get_input_index() const noexcept
 
 void Ren3dGlShaderVarImpl::set_int32(
 	const std::int32_t value)
+try
 {
 	set_value(Ren3dShaderVarTypeId::int32, &value);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGlShaderVarImpl::set_float32(
 	const float value)
+try
 {
 	set_value(Ren3dShaderVarTypeId::float32, &value);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGlShaderVarImpl::set_vec2(
 	const float* const value)
+try
 {
 	set_value(Ren3dShaderVarTypeId::vec2, value);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGlShaderVarImpl::set_vec4(
 	const float* const value)
+try
 {
 	set_value(Ren3dShaderVarTypeId::vec4, value);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGlShaderVarImpl::set_mat4(
 	const float* const value)
+try
 {
 	set_value(Ren3dShaderVarTypeId::mat4, value);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGlShaderVarImpl::set_sampler_2d(
 	const std::int32_t value)
+try
 {
 	set_value(Ren3dShaderVarTypeId::sampler2d, &value);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGlShaderVarImpl::set_value(
 	const Ren3dShaderVarTypeId type_id,
 	const void* const value_data)
+try
 {
 	if (type_id != type_id_)
 	{
-		throw Ren3dGlShaderVarException{"Mismatch type."};
+		fail("Mismatch type.");
 	}
 
 	if (!value_data)
 	{
-		throw Ren3dGlShaderVarException{"Null value data."};
+		fail("Null value data.");
 	}
 
 	const auto value_size = get_unit_size(type_id);
 
 	if (value_size != value_size_)
 	{
-		throw Ren3dGlShaderVarException{"Value size mismatch."};
+		fail("Value size mismatch.");
 	}
 
 	switch (kind)
@@ -320,7 +366,7 @@ void Ren3dGlShaderVarImpl::set_value(
 			break;
 
 		default:
-			throw Ren3dGlShaderVarException{"Changing vertex attribute not supported."};
+			fail("Changing vertex attribute not supported.");
 	}
 
 
@@ -331,9 +377,14 @@ void Ren3dGlShaderVarImpl::set_value(
 
 	set_value(value_data);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlShaderVarImpl::set_value(
 	const void* const value_data)
+try
 {
 	auto shader_stage_gl_name = GLuint{};
 
@@ -498,8 +549,12 @@ void Ren3dGlShaderVarImpl::set_value(
 			break;
 
 		default:
-			throw Ren3dGlShaderVarException{"Unsupported type."};
+			fail("Unsupported type.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 //

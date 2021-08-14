@@ -45,44 +45,23 @@ namespace detail
 
 
 // ==========================================================================
-// Ren3dGlSamplerMgrImplException
+// Ren3dGlSamplerMgrException
 //
 
-class Ren3dGlSamplerMgrImplException :
+class Ren3dGlSamplerMgrException :
 	public Exception
 {
 public:
-	explicit Ren3dGlSamplerMgrImplException(
+	explicit Ren3dGlSamplerMgrException(
 		const char* message)
 		:
 		Exception{"REN_3D_GL_SMPLR_MGR", message}
 	{
 	}
-}; // Ren3dGlSamplerMgrImplException
+}; // Ren3dGlSamplerMgrException
 
 //
-// Ren3dGlSamplerMgrImplException
-// ==========================================================================
-
-
-// ==========================================================================
-// Ren3dGlSamplerMgrImplCreateException
-//
-
-class Ren3dGlSamplerMgrImplCreateException :
-	public Exception
-{
-public:
-	explicit Ren3dGlSamplerMgrImplCreateException(
-		const char* message)
-		:
-		Exception{"REN_3D_GL_SMPLR_MGR_INIT", message}
-	{
-	}
-}; // Ren3dGlSamplerMgrImplCreateException
-
-//
-// Ren3dGlSamplerMgrImplCreateException
+// Ren3dGlSamplerMgrException
 // ==========================================================================
 
 
@@ -120,6 +99,15 @@ private:
 	Ren3dGlSamplerPtr current_sampler_;
 
 
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
+
+
 	void initialize_default_sampler();
 
 	void set();
@@ -136,6 +124,7 @@ private:
 
 Ren3dGlSamplerMgrImpl::Ren3dGlSamplerMgrImpl(
 	const Ren3dGlContextPtr context)
+try
 	:
 	context_{context},
 	device_features_{context_->get_device_features()},
@@ -144,12 +133,16 @@ Ren3dGlSamplerMgrImpl::Ren3dGlSamplerMgrImpl(
 {
 	if (!context_)
 	{
-		throw Ren3dGlSamplerMgrImplCreateException{"Null OpenGL state."};
+		fail("Null OpenGL state.");
 	}
 
 	initialize_default_sampler();
 
 	current_sampler_ = default_sampler_.get();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 Ren3dGlSamplerMgrImpl::~Ren3dGlSamplerMgrImpl() = default;
@@ -195,19 +188,43 @@ const Ren3dSamplerState& Ren3dGlSamplerMgrImpl::get_current_state() const noexce
 	return current_sampler_->get_state();
 }
 
+[[noreturn]]
+void Ren3dGlSamplerMgrImpl::fail(
+	const char* message)
+{
+	throw Ren3dGlSamplerMgrException{message};
+}
+
+[[noreturn]]
+void Ren3dGlSamplerMgrImpl::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(Ren3dGlSamplerMgrException{message});
+}
+
 void Ren3dGlSamplerMgrImpl::initialize_default_sampler()
+try
 {
 	const auto param = Ren3dCreateSamplerParam{};
 
 	default_sampler_ = Ren3dGlSamplerFactory::create(context_, param);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlSamplerMgrImpl::set()
+try
 {
 	if (device_features_.is_sampler_available_)
 	{
 		current_sampler_->set();
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 //

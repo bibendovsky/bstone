@@ -91,13 +91,13 @@ public:
 
 
 	static float deg_to_rad(
-		const float angle_deg);
+		const float angle_deg) noexcept;
 
 	static bool is_pot_value(
-		const int value);
+		const int value) noexcept;
 
 	static int find_nearest_pot_value(
-		const int value);
+		const int value) noexcept;
 
 	static int calculate_mipmap_count(
 		const int width,
@@ -179,7 +179,13 @@ public:
 
 
 private:
-	Ren3dUtils();
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
 
 
 	static void create_window_validate_param(
@@ -192,47 +198,47 @@ private:
 		const Ren3dUtilsCreateWindowParam& param);
 
 	static std::uint32_t create_window_sdl_flags(
-		const Ren3dUtilsCreateWindowParam& param);
+		const Ren3dUtilsCreateWindowParam& param) noexcept;
 
 
 	// Indexed (row major, has no alpha) -> RGBA
 	static void indexed_to_rgba_8_rm_na(
-		const IndexedToRgba8Param& param);
+		const IndexedToRgba8Param& param) noexcept;
 
 	// Indexed (row major, has alpha) -> RGBA
 	static void indexed_to_rgba_8_rm_ha(
-		const IndexedToRgba8Param& param);
+		const IndexedToRgba8Param& param) noexcept;
 
 	// Indexed (column major, has no alpha) -> RGBA
 	static void indexed_to_rgba_8_cm_na(
-		const IndexedToRgba8Param& param);
+		const IndexedToRgba8Param& param) noexcept;
 
 	// Indexed (column major, has alpha) -> RGBA
 	static void indexed_to_rgba_8_cm_ha(
-		const IndexedToRgba8Param& param);
+		const IndexedToRgba8Param& param) noexcept;
 
 
 	// Indexed (row major, has no alpha) -> RGBA POT
 	static void indexed_npot_to_rgba_8_rm_na(
-		const IndexedToRgba8Param& param);
+		const IndexedToRgba8Param& param) noexcept;
 
 	// Indexed (row major, has alpha) -> RGBA POT
 	static void indexed_npot_to_rgba_8_rm_ha(
-		const IndexedToRgba8Param& param);
+		const IndexedToRgba8Param& param) noexcept;
 
 	// Indexed (column major, has no alpha) -> RGBA POT
 	static void indexed_npot_to_rgba_8_cm_na(
-		const IndexedToRgba8Param& param);
+		const IndexedToRgba8Param& param) noexcept;
 
 	// Indexed (column major, has alpha) -> RGBA POT
 	static void indexed_npot_to_rgba_8_cm_ha(
-		const IndexedToRgba8Param& param);
+		const IndexedToRgba8Param& param) noexcept;
 
 
 	static void build_mipmap_1(
 		const int previous_dimension,
 		const Rgba8CPtr src_colors,
-		const Rgba8Ptr dst_colors);
+		const Rgba8Ptr dst_colors) noexcept;
 
 
 	// Averages two colors and premultiplies alpha.

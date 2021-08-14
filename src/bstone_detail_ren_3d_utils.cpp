@@ -47,283 +47,23 @@ namespace detail
 
 
 // ==========================================================================
-// Ren3dUtilsCreateWindowException
+// Ren3dUtilsException
 //
 
-class Ren3dUtilsCreateWindowException :
+class Ren3dUtilsException :
 	public Exception
 {
 public:
-	explicit Ren3dUtilsCreateWindowException(
+	explicit Ren3dUtilsException(
 		const char* message)
 		:
-		Exception{"REN_3D_UTL_CREATE_WND", message}
+		Exception{"REN_3D_UTILS", message}
 	{
 	}
-}; // Ren3dUtilsCreateWindowException
+}; // Ren3dUtilsException
 
 //
-// Ren3dUtilsCreateWindowException
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dUtilsSetWindowModeException
-//
-
-class Ren3dUtilsSetWindowModeException :
-	public Exception
-{
-public:
-	explicit Ren3dUtilsSetWindowModeException(
-		const char* message)
-		:
-		Exception{"REN_3D_UTL_SET_WND_MODE", message}
-	{
-	}
-}; // Ren3dUtilsSetWindowModeException
-
-//
-// Ren3dUtilsSetWindowModeException
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dUtilsShowWindowException
-//
-
-class Ren3dUtilsShowWindowException :
-	public Exception
-{
-public:
-	explicit Ren3dUtilsShowWindowException(
-		const char* message)
-		:
-		Exception{"REN_3D_UTL_SHOW_WND", message}
-	{
-	}
-}; // Ren3dUtilsShowWindowException
-
-//
-// Ren3dUtilsShowWindowException
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dUtilsSetWindowTitleException
-//
-
-class Ren3dUtilsSetWindowTitleException :
-	public Exception
-{
-public:
-	explicit Ren3dUtilsSetWindowTitleException(
-		const char* message)
-		:
-		Exception{"REN_3D_UTL_SET_WND_TITLE", message}
-	{
-	}
-}; // Ren3dUtilsSetWindowTitleException
-
-//
-// Ren3dUtilsSetWindowTitleException
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dUtilsRendererInitException
-//
-
-class Ren3dUtilsRendererInitException :
-	public Exception
-{
-public:
-	explicit Ren3dUtilsRendererInitException(
-		const char* message)
-		:
-		Exception{"REN_3D_UTL_RENDER_INIT", message}
-	{
-	}
-}; // Ren3dUtilsRendererInitException
-
-//
-// Ren3dUtilsRendererInitException
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dUtilsBufferInitException
-//
-
-class Ren3dUtilsBufferInitException :
-	public Exception
-{
-public:
-	explicit Ren3dUtilsBufferInitException(
-		const char* message)
-		:
-		Exception{"REN_3D_UTL_BUFFER_INIT", message}
-	{
-	}
-}; // Ren3dUtilsBufferInitException
-
-//
-// Ren3dUtilsBufferInitException
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dUtilsBufferUpdateException
-//
-
-class Ren3dUtilsBufferUpdateException :
-	public Exception
-{
-public:
-	explicit Ren3dUtilsBufferUpdateException(
-		const char* message)
-		:
-		Exception{"REN_3D_UTL_BUFFER_UPD", message}
-	{
-	}
-}; // Ren3dUtilsBufferUpdateException
-
-//
-// Ren3dUtilsBufferUpdateException
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dUtilsVertexInputCreateException
-//
-
-class Ren3dUtilsVertexInputCreateException :
-	public Exception
-{
-public:
-	explicit Ren3dUtilsVertexInputCreateException(
-		const char* message)
-		:
-		Exception{"REN_3D_UTL_VTX_INPUT_INIT", message}
-	{
-	}
-}; // Ren3dUtilsVertexInputCreateException
-
-//
-// Ren3dUtilsVertexInputCreateException
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dUtilsIndexedToRgba8Exception
-//
-
-class Ren3dUtilsIndexedToRgba8Exception :
-	public Exception
-{
-public:
-	explicit Ren3dUtilsIndexedToRgba8Exception(
-		const char* message)
-		:
-		Exception{"REN_3D_UTL_IDXED_TO_RGBA8", message}
-	{
-	}
-}; // Ren3dUtilsIndexedToRgba8Exception
-
-//
-// Ren3dUtilsIndexedToRgba8Exception
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dUtilsIndexedNpotToRgba8PotException
-//
-
-class Ren3dUtilsIndexedNpotToRgba8PotException :
-	public Exception
-{
-public:
-	explicit Ren3dUtilsIndexedNpotToRgba8PotException(
-		const char* message)
-		:
-		Exception{"REN_3D_UTL_IDXED_NPOT_TO_RGBA8_POT", message}
-	{
-	}
-}; // Ren3dUtilsIndexedNpotToRgba8PotException
-
-//
-// Ren3dUtilsIndexedNpotToRgba8PotException
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dUtilsIndexedSpriteToRgba8PotException
-//
-
-class Ren3dUtilsIndexedSpriteToRgba8PotException :
-	public Exception
-{
-public:
-	explicit Ren3dUtilsIndexedSpriteToRgba8PotException(
-		const char* message)
-		:
-		Exception{"REN_3D_UTL_IDXED_SPR_TO_RGBA8_POT", message}
-	{
-	}
-}; // Ren3dUtilsIndexedSpriteToRgba8PotException
-
-//
-// Ren3dUtilsIndexedSpriteToRgba8PotException
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dUtilsRgba8NpotToRgba8PotException
-//
-
-class Ren3dUtilsRgba8NpotToRgba8PotException :
-	public Exception
-{
-public:
-	explicit Ren3dUtilsRgba8NpotToRgba8PotException(
-		const char* message)
-		:
-		Exception{"REN_3D_UTL_RGBA8_NPOT_TO_RGBA8_POT", message}
-	{
-	}
-}; // Ren3dUtilsRgba8NpotToRgba8PotException
-
-//
-// Ren3dUtilsIndexedSpriteToRgba8PotException
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dUtilsBuildMipmapException
-//
-
-class Ren3dUtilsBuildMipmapException :
-	public Exception
-{
-public:
-	explicit Ren3dUtilsBuildMipmapException(
-		const char* message)
-		:
-		Exception{"REN_3D_UTL_BUILD_MIPMAP", message}
-	{
-	}
-}; // Ren3dUtilsBuildMipmapException
-
-//
-// Ren3dUtilsBuildMipmapException
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dUtilsBuildMipmapException
-//
-
-class Ren3dUtilsCalcMipmapCountException :
-	public Exception
-{
-public:
-	explicit Ren3dUtilsCalcMipmapCountException(
-		const char* message)
-		:
-		Exception{"REN_3D_UTL_CALC_MIPMAP_CNT", message}
-	{
-	}
-}; // Ren3dUtilsCalcMipmapCountException
-
-//
-// Ren3dUtilsCalcMipmapCountException
+// Ren3dUtilsException
 // ==========================================================================
 
 
@@ -332,13 +72,13 @@ public:
 //
 
 float Ren3dUtils::deg_to_rad(
-	const float angle_deg)
+	const float angle_deg) noexcept
 {
 	return angle_deg * pi_over_180;
 }
 
 bool Ren3dUtils::is_pot_value(
-		const int value)
+	const int value) noexcept
 {
 	const auto nearest_value = find_nearest_pot_value(value);
 
@@ -346,7 +86,7 @@ bool Ren3dUtils::is_pot_value(
 }
 
 int Ren3dUtils::find_nearest_pot_value(
-	const int value)
+	const int value) noexcept
 {
 	for (int i = 0; i < 32; ++i)
 	{
@@ -364,6 +104,7 @@ int Ren3dUtils::find_nearest_pot_value(
 int Ren3dUtils::calculate_mipmap_count(
 	const int width,
 	const int height)
+try
 {
 	//
 	// mipmap_count = [log2(max(width, height))] + 1
@@ -371,12 +112,12 @@ int Ren3dUtils::calculate_mipmap_count(
 
 	if (width <= 0)
 	{
-		throw Ren3dUtilsCalcMipmapCountException("Width out of range.");
+		fail("Width out of range.");
 	}
 
 	if (height <= 0)
 	{
-		throw Ren3dUtilsCalcMipmapCountException("Height out of range.");
+		fail("Height out of range.");
 	}
 
 	auto log_2 = 0;
@@ -392,9 +133,14 @@ int Ren3dUtils::calculate_mipmap_count(
 
 	return result;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 SdlWindowUPtr Ren3dUtils::create_window(
 	const Ren3dUtilsCreateWindowParam& param)
+try
 {
 	create_window_validate_param(param);
 	create_window_set_gl_attributes(param);
@@ -424,35 +170,33 @@ SdlWindowUPtr Ren3dUtils::create_window(
 		sdl_flags
 	)};
 
-	try
-	{
-		Sdl2EnsureResult{sdl_window};
-	}
-	catch (const std::exception&)
-	{
-		std::throw_with_nested(Ren3dUtilsCreateWindowException{"Failed."});
-	}
+	Sdl2EnsureResult{sdl_window};
 
 	return sdl_window;
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dUtils::set_window_mode(
 	SdlWindowPtr sdl_window,
 	const Ren3dSetWindowModeParam& param)
+try
 {
 	if (!sdl_window)
 	{
-		throw Ren3dUtilsSetWindowModeException{"Null window."};
+		fail("Null window.");
 	}
 
 	if (param.rect_2d_.extent_.height_ <= 0)
 	{
-		throw Ren3dUtilsSetWindowModeException{"Height out of range."};
+		fail("Height out of range.");
 	}
 
 	if (param.rect_2d_.extent_.width_ <= 0)
 	{
-		throw Ren3dUtilsSetWindowModeException{"Width out of range."};
+		fail("Width out of range.");
 	}
 
 
@@ -473,7 +217,7 @@ void Ren3dUtils::set_window_mode(
 
 	if (current_width <= 0 || current_height <= 0)
 	{
-		throw Ren3dUtilsSetWindowModeException{"Failed to get current window size."};
+		fail("Failed to get current window size.");
 	}
 
 	const auto is_size_changed = (
@@ -495,7 +239,7 @@ void Ren3dUtils::set_window_mode(
 
 		if (sdl_result != 0)
 		{
-			throw Ren3dUtilsSetWindowModeException{"Failed to change fullscreen mode."};
+			fail("Failed to change fullscreen mode.");
 		}
 	}
 
@@ -516,35 +260,50 @@ void Ren3dUtils::set_window_mode(
 		}
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dUtils::show_window(
 	SdlWindowPtr sdl_window,
 	const bool is_visible)
+try
 {
 	if (!sdl_window)
 	{
-		throw Ren3dUtilsShowWindowException{"Null window."};
+		fail("Null window.");
 	}
 
 	const auto sdl_function = (is_visible ? SDL_ShowWindow : SDL_HideWindow);
 
 	sdl_function(sdl_window);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dUtils::set_window_title(
 	const SdlWindowPtr sdl_window,
 	const std::string& title_utf8)
+try
 {
 	if (!sdl_window)
 	{
-		throw Ren3dUtilsSetWindowTitleException{"Null window."};
+		fail("Null window.");
 	}
 
 	SDL_SetWindowTitle(sdl_window, title_utf8.c_str());
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dUtils::validate_initialize_param(
 	const Ren3dCreateParam& param)
+try
 {
 	switch (param.renderer_kind_)
 	{
@@ -554,17 +313,17 @@ void Ren3dUtils::validate_initialize_param(
 		break;
 
 	default:
-		throw Ren3dUtilsRendererInitException{"Unsupported renderer kind."};
+		fail("Unsupported renderer kind.");
 	}
 
 	if (param.window_.rect_2d_.extent_.width_ <= 0)
 	{
-		throw Ren3dUtilsRendererInitException{"Invalid window width."};
+		fail("Invalid window width.");
 	}
 
 	if (param.window_.rect_2d_.extent_.height_ <= 0)
 	{
-		throw Ren3dUtilsRendererInitException{"Invalid window height."};
+		fail("Invalid window height.");
 	}
 
 	switch (param.aa_kind_)
@@ -574,12 +333,17 @@ void Ren3dUtils::validate_initialize_param(
 			break;
 
 		default:
-			throw Ren3dUtilsRendererInitException{"Invalid antialiasing kind."};
+			fail("Invalid antialiasing kind.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dUtils::validate_buffer_create_param(
 	const Ren3dCreateBufferParam& param)
+try
 {
 	switch (param.usage_kind_)
 	{
@@ -589,36 +353,46 @@ void Ren3dUtils::validate_buffer_create_param(
 			break;
 
 		default:
-			throw Ren3dUtilsBufferInitException{"Invalid usage kind."};
+			fail("Invalid usage kind.");
 	}
 
 	if (param.size_ <= 0)
 	{
-		throw Ren3dUtilsBufferInitException{"Invalid size."};
+		fail("Invalid size.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dUtils::validate_buffer_update_param(
 	const Ren3dUpdateBufferParam& param)
+try
 {
 	if (param.offset_ < 0)
 	{
-		throw Ren3dUtilsBufferUpdateException{"Invalid offset."};
+		fail("Invalid offset.");
 	}
 
 	if (param.size_ <= 0)
 	{
-		throw Ren3dUtilsBufferUpdateException{"Invalid count."};
+		fail("Invalid count.");
 	}
 
 	if (!param.data_)
 	{
-		throw Ren3dUtilsBufferUpdateException{"Null indices."};
+		fail("Null indices.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dUtils::vertex_input_validate_format(
 	const Ren3dVertexAttribFormat attribute_format)
+try
 {
 	switch (attribute_format)
 	{
@@ -628,24 +402,29 @@ void Ren3dUtils::vertex_input_validate_format(
 			return;
 
 		default:
-			throw Ren3dUtilsVertexInputCreateException{"Unsupported vertex input attribute format."};
+			fail("Unsupported vertex input attribute format.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dUtils::vertex_input_validate_param(
 	const int max_locations,
 	const Ren3dCreateVertexInputParam& param)
+try
 {
 	if (max_locations < 0)
 	{
-		throw Ren3dUtilsVertexInputCreateException{"Maximum location count out of range."};
+		fail("Maximum location count out of range.");
 	}
 
 	if (param.index_buffer_)
 	{
 		if (param.index_buffer_->get_kind() != Ren3dBufferKind::index)
 		{
-			throw Ren3dUtilsVertexInputCreateException{"Non-index buffer."};
+			fail("Non-index buffer.");
 		}
 	}
 
@@ -668,14 +447,14 @@ void Ren3dUtils::vertex_input_validate_param(
 
 		if (location < 0 || location >= max_locations)
 		{
-			throw Ren3dUtilsVertexInputCreateException{"Location out of range."};
+			fail("Location out of range.");
 		}
 
 		const auto has_location = (used_locations.find(location) != used_locations.cend());
 
 		if (has_location)
 		{
-			throw Ren3dUtilsVertexInputCreateException{"Duplicate location."};
+			fail("Duplicate location.");
 		}
 
 		used_locations.insert(location);
@@ -690,12 +469,12 @@ void Ren3dUtils::vertex_input_validate_param(
 		//
 		if (!attribute_description.vertex_buffer_)
 		{
-			throw Ren3dUtilsVertexInputCreateException{"Null vertex buffer."};
+			fail("Null vertex buffer.");
 		}
 
 		if (attribute_description.vertex_buffer_->get_kind() != Ren3dBufferKind::vertex)
 		{
-			throw Ren3dUtilsVertexInputCreateException{"Non-vertex buffer."};
+			fail("Non-vertex buffer.");
 		}
 
 
@@ -703,7 +482,7 @@ void Ren3dUtils::vertex_input_validate_param(
 		//
 		if (attribute_description.offset_ < 0)
 		{
-			throw Ren3dUtilsVertexInputCreateException{"Invalid offset."};
+			fail("Invalid offset.");
 		}
 
 
@@ -711,32 +490,37 @@ void Ren3dUtils::vertex_input_validate_param(
 		//
 		if (attribute_description.stride_ < 0)
 		{
-			throw Ren3dUtilsVertexInputCreateException{"Invalid stride."};
+			fail("Invalid stride.");
 		}
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dUtils::indexed_to_rgba_8(
 	const IndexedToRgba8Param& param)
+try
 {
 	if (param.width_ <= 0)
 	{
-		throw Ren3dUtilsIndexedToRgba8Exception{"Width out of range."};
+		fail("Width out of range.");
 	}
 
 	if (param.height_ <= 0)
 	{
-		throw Ren3dUtilsIndexedToRgba8Exception{"Height out of range."};
+		fail("Height out of range.");
 	}
 
 	if (!param.indexed_pixels_)
 	{
-		throw Ren3dUtilsIndexedToRgba8Exception{"Null indexed pixels."};
+		fail("Null indexed pixels.");
 	}
 
 	if (param.rgba_8_buffer_->size() < static_cast<std::size_t>((param.width_ * param.height_)))
 	{
-		throw Ren3dUtilsIndexedToRgba8Exception{"Bitmap buffer too small."};
+		fail("Bitmap buffer too small.");
 	}
 
 	const auto is_column_major = param.indexed_is_column_major_;
@@ -760,41 +544,46 @@ void Ren3dUtils::indexed_to_rgba_8(
 	}
 	else
 	{
-		throw Ren3dUtilsIndexedToRgba8Exception{"Unsupported values combination."};
+		fail("Unsupported values combination.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dUtils::indexed_npot_to_rgba_8_pot(
 	const IndexedToRgba8Param& param)
+try
 {
 	if (param.width_ <= 0)
 	{
-		throw Ren3dUtilsIndexedNpotToRgba8PotException{"Width out of range."};
+		fail("Width out of range.");
 	}
 
 	if (param.height_ <= 0)
 	{
-		throw Ren3dUtilsIndexedNpotToRgba8PotException{"Height out of range."};
+		fail("Height out of range.");
 	}
 
 	if (param.actual_width_ <= 0)
 	{
-		throw Ren3dUtilsIndexedNpotToRgba8PotException{"Actual width out of range."};
+		fail("Actual width out of range.");
 	}
 
 	if (param.actual_height_ <= 0)
 	{
-		throw Ren3dUtilsIndexedNpotToRgba8PotException{"Actual height out of range."};
+		fail("Actual height out of range.");
 	}
 
 	if (!param.indexed_pixels_)
 	{
-		throw Ren3dUtilsIndexedNpotToRgba8PotException{"Null indexed pixels."};
+		fail("Null indexed pixels.");
 	}
 
 	if (param.rgba_8_buffer_->size() < static_cast<std::size_t>((param.actual_width_ * param.actual_height_)))
 	{
-		throw Ren3dUtilsIndexedNpotToRgba8PotException{"Indexed bitmap buffer too small."};
+		fail("Indexed bitmap buffer too small.");
 	}
 
 	const auto is_column_major = param.indexed_is_column_major_;
@@ -818,12 +607,17 @@ void Ren3dUtils::indexed_npot_to_rgba_8_pot(
 	}
 	else
 	{
-		throw Ren3dUtilsIndexedNpotToRgba8PotException{"Unsupported values combination."};
+		fail("Unsupported values combination.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dUtils::indexed_to_rgba_8_pot(
 	const IndexedToRgba8Param& param)
+try
 {
 	const auto is_npot = (
 		param.width_ != param.actual_width_ ||
@@ -839,15 +633,20 @@ void Ren3dUtils::indexed_to_rgba_8_pot(
 		indexed_npot_to_rgba_8_pot(param);
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dUtils::indexed_sprite_to_rgba_8_pot(
 	const Sprite& indexed_sprite,
 	const Rgba8Palette& indexed_palette,
 	Rgba8Buffer& texture_buffer)
+try
 {
 	if (!indexed_sprite.is_initialized())
 	{
-		throw Ren3dUtilsIndexedSpriteToRgba8PotException{"Indexed sprite not initialized."};
+		fail("Indexed sprite not initialized.");
 	}
 
 	const auto left = indexed_sprite.get_left();
@@ -894,6 +693,10 @@ void Ren3dUtils::indexed_sprite_to_rgba_8_pot(
 		}
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dUtils::rgba_8_npot_to_rgba_8_pot(
 	const int width,
@@ -902,30 +705,31 @@ void Ren3dUtils::rgba_8_npot_to_rgba_8_pot(
 	const int actual_height,
 	const Rgba8* const rgba_8_pixels,
 	Rgba8Buffer& texture_buffer)
+try
 {
 	if (width <= 0)
 	{
-		throw Ren3dUtilsRgba8NpotToRgba8PotException{"Width out of range."};
+		fail("Width out of range.");
 	}
 
 	if (height <= 0)
 	{
-		throw Ren3dUtilsRgba8NpotToRgba8PotException{"Height out of range."};
+		fail("Height out of range.");
 	}
 
 	if (actual_width <= 0)
 	{
-		throw Ren3dUtilsRgba8NpotToRgba8PotException{"Actual width out of range."};
+		fail("Actual width out of range.");
 	}
 
 	if (actual_height <= 0)
 	{
-		throw Ren3dUtilsRgba8NpotToRgba8PotException{"Actual height out of range."};
+		fail("Actual height out of range.");
 	}
 
 	if (!rgba_8_pixels)
 	{
-		throw Ren3dUtilsRgba8NpotToRgba8PotException{"Null RGBA pixels."};
+		fail("Null RGBA pixels.");
 	}
 
 	const auto src_du_f = static_cast<double>(width) / static_cast<double>(actual_width);
@@ -957,36 +761,41 @@ void Ren3dUtils::rgba_8_npot_to_rgba_8_pot(
 		src_v_d += src_dv_f;
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dUtils::build_mipmap(
 	const int previous_width,
 	const int previous_height,
 	const Rgba8CPtr src_colors,
 	const Rgba8Ptr dst_colors)
+try
 {
 	if (previous_width <= 0)
 	{
-		throw Ren3dUtilsBuildMipmapException{"Previous width out of range."};
+		fail("Previous width out of range.");
 	}
 
 	if (previous_height <= 0)
 	{
-		throw Ren3dUtilsBuildMipmapException{"Previous height out of range."};
+		fail("Previous height out of range.");
 	}
 
 	if (previous_width == 1 && previous_height == 1)
 	{
-		throw Ren3dUtilsBuildMipmapException{"No more mipmap to build."};
+		fail("No more mipmap to build.");
 	}
 
 	if (!src_colors)
 	{
-		throw Ren3dUtilsBuildMipmapException{"Null source colors."};
+		fail("Null source colors.");
 	}
 
 	if (!dst_colors)
 	{
-		throw Ren3dUtilsBuildMipmapException{"Null target colors."};
+		fail("Null target colors.");
 	}
 
 	if (previous_width == 1)
@@ -1030,26 +839,50 @@ void Ren3dUtils::build_mipmap(
 		src_colors_1 += previous_width;
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
+
+[[noreturn]]
+void Ren3dUtils::fail(
+	const char* message)
+{
+	throw Ren3dUtilsException{message};
+}
+
+[[noreturn]]
+void Ren3dUtils::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(Ren3dUtilsException{message});
+}
 
 void Ren3dUtils::create_window_validate_param(
 	const Ren3dUtilsCreateWindowParam& param)
+try
 {
 	if (param.window_.is_positioned_ && (
 		param.window_.rect_2d_.offset_.x < 0 ||
 			param.window_.rect_2d_.offset_.y < 0))
 	{
-		throw Ren3dUtilsCreateWindowException{"Invalid position."};
+		fail("Invalid position.");
 	}
 
 	if (param.window_.rect_2d_.extent_.width_ <= 0 ||
 		param.window_.rect_2d_.extent_.height_ <= 0)
 	{
-		throw Ren3dUtilsCreateWindowException{"Invalid dimensions."};
+		fail("Invalid dimensions.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dUtils::create_window_set_gl_profile_and_version(
 	const Ren3dKind renderer_kind)
+try
 {
 	auto sdl_profile_mask = 0;
 	auto sdl_version_major = 0;
@@ -1076,7 +909,7 @@ void Ren3dUtils::create_window_set_gl_profile_and_version(
 			break;
 
 		default:
-			throw Ren3dUtilsCreateWindowException{"Unsupported 3D-renderer kind."};
+			fail("Unsupported 3D-renderer kind.");
 	}
 
 	{
@@ -1087,7 +920,7 @@ void Ren3dUtils::create_window_set_gl_profile_and_version(
 
 		if (sdl_result != 0)
 		{
-			throw Ren3dUtilsCreateWindowException{"Failed to set OpenGL context core profile attribute."};
+			fail("Failed to set OpenGL context core profile attribute.");
 		}
 	}
 
@@ -1099,7 +932,7 @@ void Ren3dUtils::create_window_set_gl_profile_and_version(
 
 		if (sdl_result != 0)
 		{
-			throw Ren3dUtilsCreateWindowException{"Failed to set OpenGL context major version attribute."};
+			fail("Failed to set OpenGL context major version attribute.");
 		}
 	}
 
@@ -1111,13 +944,18 @@ void Ren3dUtils::create_window_set_gl_profile_and_version(
 
 		if (sdl_result != 0)
 		{
-			throw Ren3dUtilsCreateWindowException{"Failed to set OpenGL context minor version attribute."};
+			fail("Failed to set OpenGL context minor version attribute.");
 		}
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dUtils::create_window_set_gl_attributes(
 	const Ren3dUtilsCreateWindowParam& param)
+try
 {
 	SDL_GL_ResetAttributes();
 
@@ -1132,14 +970,14 @@ void Ren3dUtils::create_window_set_gl_attributes(
 
 				if (sdl_result != 0)
 				{
-					throw Ren3dUtilsCreateWindowException{"Failed to set multisample buffer count."};
+					fail("Failed to set multisample buffer count.");
 				}
 
 				sdl_result = SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, param.aa_value_);
 
 				if (sdl_result != 0)
 				{
-					throw Ren3dUtilsCreateWindowException{"Failed to set multisample sample count."};
+					fail("Failed to set multisample sample count.");
 				}
 			}
 
@@ -1152,14 +990,14 @@ void Ren3dUtils::create_window_set_gl_attributes(
 
 			if (sdl_result != 0)
 			{
-				throw Ren3dUtilsCreateWindowException{"Failed to set multisample buffer count."};
+				fail("Failed to set multisample buffer count.");
 			}
 
 			sdl_result = SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
 
 			if (sdl_result != 0)
 			{
-				throw Ren3dUtilsCreateWindowException{"Failed to set multisample sample count."};
+				fail("Failed to set multisample sample count.");
 			}
 
 			break;
@@ -1170,7 +1008,7 @@ void Ren3dUtils::create_window_set_gl_attributes(
 
 		if (sdl_result != 0)
 		{
-			throw Ren3dUtilsCreateWindowException{"Failed to set a red bit depth."};
+			fail("Failed to set a red bit depth.");
 		}
 	}
 
@@ -1179,7 +1017,7 @@ void Ren3dUtils::create_window_set_gl_attributes(
 
 		if (sdl_result != 0)
 		{
-			throw Ren3dUtilsCreateWindowException{"Failed to set a green bit depth."};
+			fail("Failed to set a green bit depth.");
 		}
 	}
 
@@ -1188,7 +1026,7 @@ void Ren3dUtils::create_window_set_gl_attributes(
 
 		if (sdl_result != 0)
 		{
-			throw Ren3dUtilsCreateWindowException{"Failed to set a blue bit depth."};
+			fail("Failed to set a blue bit depth.");
 		}
 	}
 
@@ -1197,7 +1035,7 @@ void Ren3dUtils::create_window_set_gl_attributes(
 
 		if (sdl_result != 0)
 		{
-			throw Ren3dUtilsCreateWindowException{"Failed to set an alpha bit depth."};
+			fail("Failed to set an alpha bit depth.");
 		}
 	}
 
@@ -1206,7 +1044,7 @@ void Ren3dUtils::create_window_set_gl_attributes(
 
 		if (sdl_result != 0)
 		{
-			throw Ren3dUtilsCreateWindowException{"Failed to set an accelerated visual."};
+			fail("Failed to set an accelerated visual.");
 		}
 	}
 
@@ -1221,15 +1059,19 @@ void Ren3dUtils::create_window_set_gl_attributes(
 
 		if (sdl_result != 0)
 		{
-			throw Ren3dUtilsCreateWindowException{"Failed to set depth buffer bit depth."};
+			fail("Failed to set depth buffer bit depth.");
 		}
 	}
 
 	create_window_set_gl_profile_and_version(param.renderer_kind_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 std::uint32_t Ren3dUtils::create_window_sdl_flags(
-	const Ren3dUtilsCreateWindowParam& param)
+	const Ren3dUtilsCreateWindowParam& param) noexcept
 {
 	auto flags = Uint32{SDL_WINDOW_ALLOW_HIGHDPI};
 
@@ -1269,7 +1111,7 @@ std::uint32_t Ren3dUtils::create_window_sdl_flags(
 
 // Indexed (row major, has no alpha) -> RGBA
 void Ren3dUtils::indexed_to_rgba_8_rm_na(
-	const IndexedToRgba8Param& param)
+	const IndexedToRgba8Param& param) noexcept
 {
 	auto src_pixels = param.indexed_pixels_;
 	const auto& src_palette = *param.indexed_palette_;
@@ -1286,7 +1128,7 @@ void Ren3dUtils::indexed_to_rgba_8_rm_na(
 
 // Indexed (row major, has alpha) -> RGBA
 void Ren3dUtils::indexed_to_rgba_8_rm_ha(
-	const IndexedToRgba8Param& param)
+	const IndexedToRgba8Param& param) noexcept
 {
 	auto src_pixels = param.indexed_pixels_;
 	const auto& src_palette = *param.indexed_palette_;
@@ -1313,7 +1155,7 @@ void Ren3dUtils::indexed_to_rgba_8_rm_ha(
 
 // Indexed (column major, has no alpha) -> RGBA
 void Ren3dUtils::indexed_to_rgba_8_cm_na(
-	const IndexedToRgba8Param& param)
+	const IndexedToRgba8Param& param) noexcept
 {
 	const auto& src_palette = *param.indexed_palette_;
 
@@ -1334,7 +1176,7 @@ void Ren3dUtils::indexed_to_rgba_8_cm_na(
 
 // Indexed (column major, has alpha) -> RGBA
 void Ren3dUtils::indexed_to_rgba_8_cm_ha(
-	const IndexedToRgba8Param& param)
+	const IndexedToRgba8Param& param) noexcept
 {
 	const auto& src_palette = *param.indexed_palette_;
 
@@ -1364,7 +1206,7 @@ void Ren3dUtils::indexed_to_rgba_8_cm_ha(
 
 // Indexed (row major, has no alpha) -> RGBA POT
 void Ren3dUtils::indexed_npot_to_rgba_8_rm_na(
-	const IndexedToRgba8Param& param)
+	const IndexedToRgba8Param& param) noexcept
 {
 	const auto src_du_f = static_cast<double>(param.width_) / static_cast<double>(param.actual_width_);
 	const auto src_dv_f = static_cast<double>(param.height_) / static_cast<double>(param.actual_height_);
@@ -1405,7 +1247,7 @@ void Ren3dUtils::indexed_npot_to_rgba_8_rm_na(
 
 // Indexed (row major, has alpha) -> RGBA POT
 void Ren3dUtils::indexed_npot_to_rgba_8_rm_ha(
-	const IndexedToRgba8Param& param)
+	const IndexedToRgba8Param& param) noexcept
 {
 	const auto src_du_f = static_cast<double>(param.width_) / static_cast<double>(param.actual_width_);
 	const auto src_dv_f = static_cast<double>(param.height_) / static_cast<double>(param.actual_height_);
@@ -1455,7 +1297,7 @@ void Ren3dUtils::indexed_npot_to_rgba_8_rm_ha(
 
 // Indexed (column major, has no alpha) -> RGBA POT
 void Ren3dUtils::indexed_npot_to_rgba_8_cm_na(
-	const IndexedToRgba8Param& param)
+	const IndexedToRgba8Param& param) noexcept
 {
 	const auto src_du_f = static_cast<double>(param.width_) / static_cast<double>(param.actual_width_);
 	const auto src_dv_f = static_cast<double>(param.height_) / static_cast<double>(param.actual_height_);
@@ -1496,7 +1338,7 @@ void Ren3dUtils::indexed_npot_to_rgba_8_cm_na(
 
 // Indexed (column major, has alpha) -> RGBA POT
 void Ren3dUtils::indexed_npot_to_rgba_8_cm_ha(
-	const IndexedToRgba8Param& param)
+	const IndexedToRgba8Param& param) noexcept
 {
 	const auto src_du_f = static_cast<double>(param.width_) / static_cast<double>(param.actual_width_);
 	const auto src_dv_f = static_cast<double>(param.height_) / static_cast<double>(param.actual_height_);
@@ -1547,7 +1389,7 @@ void Ren3dUtils::indexed_npot_to_rgba_8_cm_ha(
 void Ren3dUtils::build_mipmap_1(
 	const int previous_dimension,
 	const Rgba8CPtr src_colors,
-	const Rgba8Ptr dst_colors)
+	const Rgba8Ptr dst_colors) noexcept
 {
 	const auto dimension = previous_dimension / 2;
 

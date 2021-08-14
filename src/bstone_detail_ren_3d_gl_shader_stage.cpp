@@ -53,23 +53,23 @@ namespace detail
 
 
 // ==========================================================================
-// Ren3dGlShaderStageImplCreateException
+// Ren3dGlShaderStageException
 //
 
-class Ren3dGlShaderStageImplCreateException :
+class Ren3dGlShaderStageException :
 	public Exception
 {
 public:
-	explicit Ren3dGlShaderStageImplCreateException(
-		const std::string& message)
+	explicit Ren3dGlShaderStageException(
+		const char* message)
 		:
-		Exception{"REN_3D_GL_SHDR_STAGE_INIT", message.c_str()}
+		Exception{"REN_3D_GL_SHADER_STAGE", message}
 	{
 	}
-}; // Ren3dGlShaderStageImplCreateException
+}; // Ren3dGlShaderStageException
 
 //
-// Ren3dGlShaderStageImplCreateException
+// Ren3dGlShaderStageException
 // ==========================================================================
 
 
@@ -95,25 +95,25 @@ public:
 
 
 	Ren3dShaderVarPtr find_var(
-		const std::string& name) override;
+		const std::string& name) noexcept override;
 
 	Ren3dShaderInt32VarPtr find_int32_var(
-		const std::string& name) override;
+		const std::string& name) noexcept override;
 
 	Ren3dShaderFloat32VarPtr find_float32_var(
-		const std::string& name) override;
+		const std::string& name) noexcept override;
 
 	Ren3dShaderVec2VarPtr find_vec2_var(
-		const std::string& name) override;
+		const std::string& name) noexcept override;
 
 	Ren3dShaderVec4VarPtr find_vec4_var(
-		const std::string& name) override;
+		const std::string& name) noexcept override;
 
 	Ren3dShaderMat4VarPtr find_mat4_var(
-		const std::string& name) override;
+		const std::string& name) noexcept override;
 
 	Ren3dShaderSampler2dVarPtr find_sampler_2d_var(
-		const std::string& name) override;
+		const std::string& name) noexcept override;
 
 
 	void detach_fragment_shader() override;
@@ -130,6 +130,16 @@ private:
 
 	Ren3dGlShaderPtr fragment_shader_;
 	Ren3dGlShaderPtr vertex_shader_;
+
+
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
+
 
 	static void shader_stage_deleter(
 		GLuint gl_name) noexcept;
@@ -168,7 +178,7 @@ private:
 		const Ren3dShaderStageInputBindings& input_bindings);
 
 	Ren3dShaderVarPtr find_var_internal(
-		const std::string& name)
+		const std::string& name) noexcept
 	{
 		const auto end_it = shader_vars_.end();
 
@@ -192,7 +202,7 @@ private:
 	template<typename T>
 	T* find_var_internal(
 		const Ren3dShaderVarTypeId type_id,
-		const std::string& name)
+		const std::string& name) noexcept
 	{
 		const auto end_it = shader_vars_.end();
 
@@ -226,6 +236,7 @@ private:
 Ren3dGlShaderStageImpl::Ren3dGlShaderStageImpl(
 	const Ren3dGlShaderStageMgrPtr shader_stage_manager,
 	const Ren3dCreateShaderStageParam& param)
+try
 	:
 	shader_stage_manager_{shader_stage_manager},
 	fragment_shader_{},
@@ -235,7 +246,7 @@ Ren3dGlShaderStageImpl::Ren3dGlShaderStageImpl(
 {
 	if (!shader_stage_manager_)
 	{
-		throw Ren3dGlShaderStageImplCreateException{"Null shader stage manager."};
+		fail("Null shader stage manager.");
 	}
 
 	validate(param);
@@ -244,7 +255,7 @@ Ren3dGlShaderStageImpl::Ren3dGlShaderStageImpl(
 
 	if (!shader_stage_resource_)
 	{
-		throw Ren3dGlShaderStageImplCreateException{"Failed to create an object."};
+		fail("Failed to create an object.");
 	}
 
 	const auto fragment_shader = static_cast<Ren3dGlShaderPtr>(param.fragment_shader_);
@@ -277,7 +288,7 @@ Ren3dGlShaderStageImpl::Ren3dGlShaderStageImpl(
 			error_message += gl_log;
 		}
 
-		throw Ren3dGlShaderStageImplCreateException{error_message};
+		fail(error_message.c_str());
 	}
 
 	const auto var_count = get_var_count(shader_stage_resource_.get());
@@ -292,6 +303,10 @@ Ren3dGlShaderStageImpl::Ren3dGlShaderStageImpl(
 
 	fragment_shader_ = static_cast<Ren3dGlShaderPtr>(param.fragment_shader_);
 	vertex_shader_ = static_cast<Ren3dGlShaderPtr>(param.vertex_shader_);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 Ren3dGlShaderStageImpl::~Ren3dGlShaderStageImpl()
@@ -313,19 +328,24 @@ Ren3dGlShaderStageMgrPtr Ren3dGlShaderStageImpl::get_manager() const noexcept
 }
 
 void Ren3dGlShaderStageImpl::set()
+try
 {
 	glUseProgram(shader_stage_resource_.get());
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 Ren3dShaderVarPtr Ren3dGlShaderStageImpl::find_var(
-	const std::string& name)
+	const std::string& name) noexcept
 {
 	return find_var_internal(name);
 }
 
 Ren3dShaderInt32VarPtr Ren3dGlShaderStageImpl::find_int32_var(
-	const std::string& name)
+	const std::string& name) noexcept
 {
 	return find_var_internal<Ren3dShaderVarInt32>(
 		Ren3dShaderVarTypeId::int32,
@@ -334,7 +354,7 @@ Ren3dShaderInt32VarPtr Ren3dGlShaderStageImpl::find_int32_var(
 }
 
 Ren3dShaderFloat32VarPtr Ren3dGlShaderStageImpl::find_float32_var(
-	const std::string& name)
+	const std::string& name) noexcept
 {
 	return find_var_internal<Ren3dShaderVarFloat32>(
 		Ren3dShaderVarTypeId::float32,
@@ -343,7 +363,7 @@ Ren3dShaderFloat32VarPtr Ren3dGlShaderStageImpl::find_float32_var(
 }
 
 Ren3dShaderVec2VarPtr Ren3dGlShaderStageImpl::find_vec2_var(
-	const std::string& name)
+	const std::string& name) noexcept
 {
 	return find_var_internal<Ren3dShaderVarVec2>(
 		Ren3dShaderVarTypeId::vec2,
@@ -352,7 +372,7 @@ Ren3dShaderVec2VarPtr Ren3dGlShaderStageImpl::find_vec2_var(
 }
 
 Ren3dShaderVec4VarPtr Ren3dGlShaderStageImpl::find_vec4_var(
-	const std::string& name)
+	const std::string& name) noexcept
 {
 	return find_var_internal<Ren3dShaderVarVec4>(
 		Ren3dShaderVarTypeId::vec4,
@@ -361,7 +381,7 @@ Ren3dShaderVec4VarPtr Ren3dGlShaderStageImpl::find_vec4_var(
 }
 
 Ren3dShaderMat4VarPtr Ren3dGlShaderStageImpl::find_mat4_var(
-	const std::string& name)
+	const std::string& name) noexcept
 {
 	return find_var_internal<Ren3dShaderVarMat4>(
 		Ren3dShaderVarTypeId::mat4,
@@ -370,7 +390,7 @@ Ren3dShaderMat4VarPtr Ren3dGlShaderStageImpl::find_mat4_var(
 }
 
 Ren3dShaderSampler2dVarPtr Ren3dGlShaderStageImpl::find_sampler_2d_var(
-	const std::string& name)
+	const std::string& name) noexcept
 {
 	return find_var_internal<Ren3dShaderVarSampler2d>(
 		Ren3dShaderVarTypeId::sampler2d,
@@ -379,18 +399,42 @@ Ren3dShaderSampler2dVarPtr Ren3dGlShaderStageImpl::find_sampler_2d_var(
 }
 
 void Ren3dGlShaderStageImpl::detach_fragment_shader()
+try
 {
 	fragment_shader_ = nullptr;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlShaderStageImpl::detach_vertex_shader()
+try
 {
 	vertex_shader_ = nullptr;
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 GLuint Ren3dGlShaderStageImpl::get_gl_name() const noexcept
 {
 	return shader_stage_resource_.get();
+}
+
+[[noreturn]]
+void Ren3dGlShaderStageImpl::fail(
+	const char* message)
+{
+	throw Ren3dGlShaderStageException{message};
+}
+
+[[noreturn]]
+void Ren3dGlShaderStageImpl::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(Ren3dGlShaderStageException{message});
 }
 
 void Ren3dGlShaderStageImpl::shader_stage_deleter(
@@ -403,24 +447,30 @@ void Ren3dGlShaderStageImpl::shader_stage_deleter(
 void Ren3dGlShaderStageImpl::validate(
 	const Ren3dShaderKind shader_kind,
 	const Ren3dShaderPtr shader)
+try
 {
 	if (!shader)
 	{
-		throw Ren3dGlShaderStageImplCreateException{"Null shader."};
+		fail("Null shader.");
 	}
 
 	if (shader->get_kind() != shader_kind)
 	{
-		throw Ren3dGlShaderStageImplCreateException{"Shader kind mismatch."};
+		fail("Shader kind mismatch.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGlShaderStageImpl::validate(
 	const Ren3dShaderStageInputBindings& input_bindings)
+try
 {
 	if (input_bindings.empty())
 	{
-		throw Ren3dGlShaderStageImplCreateException{"No input bindings."};
+		fail("No input bindings.");
 	}
 
 	// Check for duplicate names.
@@ -449,7 +499,7 @@ void Ren3dGlShaderStageImpl::validate(
 
 		if (name_set.size() != input_bindings.size())
 		{
-			throw Ren3dGlShaderStageImplCreateException{"Duplicate name."};
+			fail("Duplicate name.");
 		}
 	}
 
@@ -468,7 +518,7 @@ void Ren3dGlShaderStageImpl::validate(
 
 		if (name_set.size() != input_bindings.size())
 		{
-			throw Ren3dGlShaderStageImplCreateException{"Duplicate index."};
+			fail("Duplicate index.");
 		}
 	}
 
@@ -479,23 +529,33 @@ void Ren3dGlShaderStageImpl::validate(
 		{
 			if (input_binding.index_ < 0)
 			{
-				throw Ren3dGlShaderStageImplCreateException{"Negative index."};
+				fail("Negative index.");
 			}
 		}
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlShaderStageImpl::validate(
 	const Ren3dCreateShaderStageParam& param)
+try
 {
 	validate(Ren3dShaderKind::fragment, param.fragment_shader_);
 	validate(Ren3dShaderKind::vertex, param.vertex_shader_);
 	validate(param.input_bindings_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlShaderStageImpl::set_input_bindings(
 	const GLuint gl_name,
 	const Ren3dShaderStageInputBindings& input_bindings)
+try
 {
 	for (const auto& input_binding : input_bindings)
 	{
@@ -503,9 +563,14 @@ void Ren3dGlShaderStageImpl::set_input_bindings(
 		Ren3dGlError::ensure_debug();
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 int Ren3dGlShaderStageImpl::get_var_count(
 	const GLuint gl_name)
+try
 {
 	auto gl_vertex_attribute_count = GLint{};
 	glGetProgramiv(gl_name, GL_ACTIVE_ATTRIBUTES, &gl_vertex_attribute_count);
@@ -519,11 +584,16 @@ int Ren3dGlShaderStageImpl::get_var_count(
 
 	return result;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlShaderStageImpl::get_vars(
 	const Ren3dShaderVarKind kind,
 	const GLuint gl_name,
 	ShaderVars& shader_vars)
+try
 {
 	using GlInfoFunction = void (APIENTRYP)(
 		const GLuint program,
@@ -555,7 +625,7 @@ void Ren3dGlShaderStageImpl::get_vars(
 			break;
 
 		default:
-			throw Ren3dGlShaderStageImplCreateException{"Unsupported variable kind."};
+			fail("Unsupported variable kind.");
 	}
 
 	auto gl_count = GLint{};
@@ -600,7 +670,7 @@ void Ren3dGlShaderStageImpl::get_vars(
 
 		if (gl_length <= 0)
 		{
-			throw Ren3dGlShaderStageImplCreateException{"Empty name."};
+			fail("Empty name.");
 		}
 
 		auto unit_count = 0;
@@ -612,7 +682,7 @@ void Ren3dGlShaderStageImpl::get_vars(
 				break;
 
 			default:
-				throw Ren3dGlShaderStageImplCreateException{"Unsupported unit count."};
+				fail("Unsupported unit count.");
 		}
 
 		bool is_sampler = false;
@@ -650,7 +720,7 @@ void Ren3dGlShaderStageImpl::get_vars(
 				break;
 
 			default:
-				throw Ren3dGlShaderStageImplCreateException{"Unsupported unit type."};
+				fail("Unsupported unit type.");
 		}
 
 		auto input_index = GLint{};
@@ -663,7 +733,7 @@ void Ren3dGlShaderStageImpl::get_vars(
 
 			if (input_index < 0)
 			{
-				throw Ren3dGlShaderStageImplCreateException{"Vertex attribute not found."};
+				fail("Vertex attribute not found.");
 			}
 
 			gl_location = -1;
@@ -677,7 +747,7 @@ void Ren3dGlShaderStageImpl::get_vars(
 
 			if (gl_location < 0)
 			{
-				throw Ren3dGlShaderStageImplCreateException{"Uniform not found."};
+				fail("Uniform not found.");
 			}
 		}
 
@@ -702,9 +772,14 @@ void Ren3dGlShaderStageImpl::get_vars(
 		shader_vars.emplace_back(std::move(var));
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlShaderStageImpl::check_input_bindings(
 	const Ren3dShaderStageInputBindings& input_bindings)
+try
 {
 	for (const auto& input_binding : input_bindings)
 	{
@@ -712,14 +787,18 @@ void Ren3dGlShaderStageImpl::check_input_bindings(
 
 		if (!vertex_attribute)
 		{
-			throw Ren3dGlShaderStageImplCreateException{"Vertex attribute not found."};
+			fail("Vertex attribute not found.");
 		}
 
 		if (vertex_attribute->get_kind() != Ren3dShaderVarKind::attribute)
 		{
-			throw Ren3dGlShaderStageImplCreateException{"Not a vertex attribute."};
+			fail("Not a vertex attribute.");
 		}
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 //

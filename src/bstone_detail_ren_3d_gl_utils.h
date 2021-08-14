@@ -50,13 +50,13 @@ namespace detail
 class Ren3dGlUtils
 {
 public:
-	static void load_library();
+	static void load_library() noexcept;
 
 	static void unload_library() noexcept;
 
 
 	static void* resolve_symbol(
-		const char* const symbol);
+		const char* const symbol) noexcept;
 
 
 	static SdlGlContextUPtr create_context(
@@ -75,7 +75,7 @@ public:
 		int& height);
 
 
-	static Ren3dGlContextKind get_context_kind();
+	static Ren3dGlContextKind get_context_kind() noexcept;
 
 
 	static void probe_msaa(
@@ -147,7 +147,7 @@ public:
 	static bool get_vsync();
 
 	static bool enable_vsync(
-		const bool is_enabled);
+		const bool is_enabled) noexcept;
 
 
 	static void probe_buffer_storage(
@@ -166,7 +166,7 @@ public:
 
 
 	static void swap_window(
-		SdlWindowPtr sdl_window);
+		SdlWindowPtr sdl_window) noexcept;
 
 
 	static void set_viewport_rect(
@@ -236,6 +236,15 @@ public:
 
 
 private:
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
+
+
 	static GLenum get_blending_factor(
 		const Ren3dBlendingFactor factor);
 

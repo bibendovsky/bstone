@@ -44,6 +44,23 @@ namespace detail
 
 
 // ==========================================================================
+
+class Ren3dGlShaderStageMgrException :
+	public Exception
+{
+public:
+	explicit Ren3dGlShaderStageMgrException(
+		const char* message)
+		:
+		Exception{"REN_3D_GL_SHADER_STAGE_MGR", message}
+	{
+	}
+}; // Ren3dGlShaderStageMgrException
+
+// ==========================================================================
+
+
+// ==========================================================================
 // Ren3dGlShaderStageMgrImpl
 //
 
@@ -52,7 +69,7 @@ class Ren3dGlShaderStageMgrImpl final :
 {
 public:
 	Ren3dGlShaderStageMgrImpl(
-		const Ren3dGlContextPtr context);
+		const Ren3dGlContextPtr context) noexcept;
 
 	~Ren3dGlShaderStageMgrImpl() override;
 
@@ -69,6 +86,15 @@ public:
 
 private:
 	const Ren3dGlContextPtr context_;
+
+
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
 }; // Ren3dGlShaderStageMgrImpl
 
 //
@@ -81,7 +107,7 @@ private:
 //
 
 Ren3dGlShaderStageMgrImpl::Ren3dGlShaderStageMgrImpl(
-	const Ren3dGlContextPtr context)
+	const Ren3dGlContextPtr context) noexcept
 	:
 	context_{context}
 {
@@ -96,12 +122,18 @@ Ren3dGlContextPtr Ren3dGlShaderStageMgrImpl::get_context() const noexcept
 
 Ren3dShaderStageUPtr Ren3dGlShaderStageMgrImpl::create(
 	const Ren3dCreateShaderStageParam& param)
+try
 {
 	return Ren3dGlShaderStageFactory::create(this, param);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGlShaderStageMgrImpl::set(
 	const Ren3dShaderStagePtr shader_stage)
+try
 {
 	if (shader_stage)
 	{
@@ -112,6 +144,24 @@ void Ren3dGlShaderStageMgrImpl::set(
 		glUseProgram(0);
 		Ren3dGlError::ensure_debug();
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
+
+[[noreturn]]
+void Ren3dGlShaderStageMgrImpl::fail(
+	const char* message)
+{
+	throw Ren3dGlShaderStageMgrException{message};
+}
+
+[[noreturn]]
+void Ren3dGlShaderStageMgrImpl::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(Ren3dGlShaderStageMgrException{message});
 }
 
 //

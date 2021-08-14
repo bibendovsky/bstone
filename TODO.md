@@ -1,3 +1,5 @@
 - [HWR] Fix Z-fighting.
 - Replace vid_throw_sdl_error with Sdl2EnsureResult.
 - Revise AOG compatibility.
+- Throwable `Ren3dGlError` functions should not be used inside `noexcept` function.
+- Split `Ren3dGlUtils::get_window_msaa_value`.
