@@ -52,41 +52,17 @@ namespace detail
 {
 
 
-class Ren3dGlExtensionMgrImplGlVersionException :
+class Ren3dGlExtensionMgrException :
 	public Exception
 {
 public:
-	explicit Ren3dGlExtensionMgrImplGlVersionException(
+	explicit Ren3dGlExtensionMgrException(
 		const char* message)
 		:
-		Exception{"GL_VER", message}
+		Exception{"REN_3D_GL_EXT_MGR", message}
 	{
 	}
-}; // Ren3dGlExtensionMgrImplGlVersionException
-
-class Ren3dGlExtensionMgrImplException :
-	public Exception
-{
-public:
-	explicit Ren3dGlExtensionMgrImplException(
-		const char* message)
-		:
-		Exception{"GL_EXT_MGR", message}
-	{
-	}
-}; // Ren3dGlExtensionMgrImplException
-
-class Ren3dGlExtensionMgrImplMissingSymbolException :
-	public Exception
-{
-public:
-	explicit Ren3dGlExtensionMgrImplMissingSymbolException(
-		const char* symbol_name)
-		:
-		Exception{"GL_EXT_MGR", (std::string{} + symbol_name + "] Symbol not found.").c_str()}
-	{
-	}
-}; // Ren3dGlExtensionMgrImplMissingSymbolException
+}; // Ren3dGlExtensionMgrException
 
 
 // ==========================================================================
@@ -150,6 +126,15 @@ private:
 	Ren3dGlVersion glsl_version_;
 
 
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
+
+
 	static GlSymbolRegistry& get_gl_symbol_registry();
 
 	static void clear_gl_symbols();
@@ -158,7 +143,7 @@ private:
 
 
 	static bool has_gl_symbol(
-		const GlSymbolPtrs& gl_symbol_ptrs);
+		const GlSymbolPtrs& gl_symbol_ptrs) noexcept;
 
 
 	static GlSymbolPtrs& get_essentials_gl_symbol_ptrs();
@@ -229,6 +214,7 @@ private:
 
 
 Ren3dGlExtensionMgrImpl::Ren3dGlExtensionMgrImpl()
+try
 	:
 	context_kind_{},
 	extension_names_{},
@@ -244,6 +230,10 @@ Ren3dGlExtensionMgrImpl::Ren3dGlExtensionMgrImpl()
 	get_names();
 
 	initialize_registry();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 Ren3dGlExtensionMgrImpl::~Ren3dGlExtensionMgrImpl() = default;
@@ -276,8 +266,13 @@ const Ren3dGlVersion& Ren3dGlExtensionMgrImpl::get_glsl_version() const noexcept
 
 void Ren3dGlExtensionMgrImpl::probe(
 	const Ren3dGlExtensionId extension_id)
+try
 {
 	probe_generic(extension_id);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 bool Ren3dGlExtensionMgrImpl::has(
@@ -299,7 +294,22 @@ bool Ren3dGlExtensionMgrImpl::operator[](
 	return has(extension_id);
 }
 
+[[noreturn]]
+void Ren3dGlExtensionMgrImpl::fail(
+	const char* message)
+{
+	throw Ren3dGlExtensionMgrException{message};
+}
+
+[[noreturn]]
+void Ren3dGlExtensionMgrImpl::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(Ren3dGlExtensionMgrException{message});
+}
+
 Ren3dGlExtensionMgrImpl::GlSymbolRegistry& Ren3dGlExtensionMgrImpl::get_gl_symbol_registry()
+try
 {
 	static auto gl_symbol_registry = GlSymbolRegistry
 	{
@@ -1182,8 +1192,13 @@ Ren3dGlExtensionMgrImpl::GlSymbolRegistry& Ren3dGlExtensionMgrImpl::get_gl_symbo
 
 	return gl_symbol_registry;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlExtensionMgrImpl::clear_gl_symbols()
+try
 {
 	auto& gl_symbol_registry = get_gl_symbol_registry();
 
@@ -1192,8 +1207,13 @@ void Ren3dGlExtensionMgrImpl::clear_gl_symbols()
 		*gl_symbol_item.first = nullptr;
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlExtensionMgrImpl::resolve_gl_symbols()
+try
 {
 	auto& gl_symbol_registry = get_gl_symbol_registry();
 
@@ -1202,9 +1222,13 @@ void Ren3dGlExtensionMgrImpl::resolve_gl_symbols()
 		*gl_symbol_item.first = Ren3dGlUtils::resolve_symbol(gl_symbol_item.second);
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 bool Ren3dGlExtensionMgrImpl::has_gl_symbol(
-	const GlSymbolPtrs& gl_symbol_ptrs)
+	const GlSymbolPtrs& gl_symbol_ptrs) noexcept
 {
 	return std::all_of(
 		gl_symbol_ptrs.cbegin(),
@@ -1217,6 +1241,7 @@ bool Ren3dGlExtensionMgrImpl::has_gl_symbol(
 }
 
 Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_essentials_gl_symbol_ptrs()
+try
 {
 	static auto gl_symbols = GlSymbolPtrs
 	{
@@ -1226,8 +1251,13 @@ Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_essentials_g
 
 	return gl_symbols;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_v2_0_gl_symbol_ptrs()
+try
 {
 	static auto gl_symbols = GlSymbolPtrs
 	{
@@ -1780,8 +1810,13 @@ Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_v2_0_gl_symb
 
 	return gl_symbols;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_v3_2_core_gl_symbol_ptrs()
+try
 {
 	static auto gl_symbols = GlSymbolPtrs
 	{
@@ -2105,8 +2140,13 @@ Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_v3_2_core_gl
 
 	return gl_symbols;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_es_v2_0_gl_symbol_ptrs()
+try
 {
 	static auto gl_symbols = GlSymbolPtrs
 	{
@@ -2256,8 +2296,13 @@ Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_es_v2_0_gl_s
 
 	return gl_symbols;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_arb_buffer_storage_gl_symbol_ptrs()
+try
 {
 	static auto gl_symbols = GlSymbolPtrs
 	{
@@ -2266,8 +2311,13 @@ Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_arb_buffer_s
 
 	return gl_symbols;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_arb_direct_state_access_gl_symbol_ptrs()
+try
 {
 	static auto gl_symbols = GlSymbolPtrs
 	{
@@ -2372,8 +2422,13 @@ Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_arb_direct_s
 
 	return gl_symbols;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_arb_framebuffer_object_gl_symbol_ptrs()
+try
 {
 	static auto gl_symbols = GlSymbolPtrs
 	{
@@ -2401,8 +2456,13 @@ Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_arb_framebuf
 
 	return gl_symbols;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_arb_sampler_objects_gl_symbol_ptrs()
+try
 {
 	static auto gl_symbols = GlSymbolPtrs
 	{
@@ -2424,8 +2484,13 @@ Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_arb_sampler_
 
 	return gl_symbols;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_arb_separate_shader_objects_gl_symbol_ptrs()
+try
 {
 	static auto gl_symbols = GlSymbolPtrs
 	{
@@ -2494,8 +2559,13 @@ Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_arb_separate
 
 	return gl_symbols;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_arb_vertex_array_object_gl_symbol_ptrs()
+try
 {
 	static auto gl_symbols = GlSymbolPtrs
 	{
@@ -2507,8 +2577,13 @@ Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_arb_vertex_a
 
 	return gl_symbols;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_ext_framebuffer_blit_gl_symbol_ptrs()
+try
 {
 	static auto gl_symbols = GlSymbolPtrs
 	{
@@ -2517,8 +2592,13 @@ Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_ext_framebuf
 
 	return gl_symbols;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_ext_framebuffer_multisample_gl_symbol_ptrs()
+try
 {
 	static auto gl_symbols = GlSymbolPtrs
 	{
@@ -2527,8 +2607,13 @@ Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_ext_framebuf
 
 	return gl_symbols;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_ext_framebuffer_object_gl_symbol_ptrs()
+try
 {
 	static auto gl_symbols = GlSymbolPtrs
 	{
@@ -2552,6 +2637,10 @@ Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_ext_framebuf
 	};
 
 	return gl_symbols;
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 const std::string& Ren3dGlExtensionMgrImpl::get_empty_extension_name() noexcept
@@ -2580,6 +2669,7 @@ int Ren3dGlExtensionMgrImpl::get_extension_index(
 }
 
 void Ren3dGlExtensionMgrImpl::initialize_registry()
+try
 {
 	registry_.clear();
 	registry_.resize(static_cast<int>(Ren3dGlExtensionId::count_));
@@ -2737,13 +2827,18 @@ void Ren3dGlExtensionMgrImpl::initialize_registry()
 		registry_item.gl_symbol_ptrs_ = nullptr;
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 int Ren3dGlExtensionMgrImpl::parse_version_number(
 	const std::string& string)
+try
 {
 	if (string.empty())
 	{
-		throw Ren3dGlExtensionMgrImplGlVersionException{"Expected a digit."};
+		fail("Expected a digit.");
 	}
 
 	constexpr auto max_digit_count = 10;
@@ -2757,7 +2852,7 @@ int Ren3dGlExtensionMgrImpl::parse_version_number(
 
 		if (digit_count > max_digit_count)
 		{
-			throw Ren3dGlExtensionMgrImplGlVersionException{"Too many digits."};
+			fail("Too many digits.");
 		}
 
 		switch (ch)
@@ -2776,16 +2871,21 @@ int Ren3dGlExtensionMgrImpl::parse_version_number(
 				break;
 
 			default:
-				throw Ren3dGlExtensionMgrImplGlVersionException{"Non-digit character."};
+				fail("Non-digit character.");
 		}
 	}
 
 	return number;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlExtensionMgrImpl::parse_version(
 	const std::string& version_string,
 	Ren3dGlVersion& gl_version)
+try
 {
 	static const auto digits = std::string{"0123456789"};
 	static const auto gles_prefix = std::string{"OpenGL ES "};
@@ -2794,7 +2894,7 @@ void Ren3dGlExtensionMgrImpl::parse_version(
 
 	if (digits_pos == std::string::npos)
 	{
-		throw Ren3dGlExtensionMgrImplGlVersionException{"Unsupported format."};
+		fail("Unsupported format.");
 	}
 
 	if (digits_pos > 0)
@@ -2805,7 +2905,7 @@ void Ren3dGlExtensionMgrImpl::parse_version(
 		}
 		else
 		{
-			throw Ren3dGlExtensionMgrImplGlVersionException{"Unsupported prefix."};
+			fail("Unsupported prefix.");
 		}
 	}
 
@@ -2816,7 +2916,7 @@ void Ren3dGlExtensionMgrImpl::parse_version(
 
 	if (first_dot_pos == std::string::npos)
 	{
-		throw Ren3dGlExtensionMgrImplGlVersionException{"Expected the dot separator."};
+		fail("Expected the dot separator.");
 	}
 
 	const auto second_dot_pos = version_string.rfind('.', vendor_info_pos);
@@ -2871,54 +2971,74 @@ void Ren3dGlExtensionMgrImpl::parse_version(
 		gl_version.vendor_ = version_string.substr(vendor_info_pos + 1);
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlExtensionMgrImpl::get_version(
 	const GLenum version_enum,
 	Ren3dGlVersion& gl_version)
+try
 {
 	if (!glGetString)
 	{
-		throw Ren3dGlExtensionMgrImplGlVersionException{"Null \"glGetString\"."};
+		fail("Null \"glGetString\".");
 	}
 
 	const auto gl_version_string = reinterpret_cast<const char*>(glGetString(version_enum));
 
 	if (!gl_version_string)
 	{
-		throw Ren3dGlExtensionMgrImplGlVersionException{"Null version string."};
+		fail("Null version string.");
 	}
 
 	const auto version_string = std::string{gl_version_string};
 
 	parse_version(version_string, gl_version);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlExtensionMgrImpl::get_version()
+try
 {
 	get_version(GL_VERSION, gl_version_);
 	get_version(GL_SHADING_LANGUAGE_VERSION, glsl_version_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlExtensionMgrImpl::get_context_attributes()
+try
 {
 	context_kind_ = Ren3dGlUtils::get_context_kind();
 
 	if (context_kind_ == Ren3dGlContextKind::invalid)
 	{
-		throw Ren3dGlExtensionMgrImplException{"Invalid context kind."};
+		fail("Invalid context kind.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGlExtensionMgrImpl::get_names_from_multiple_strings()
+try
 {
 	if (!glGetIntegerv)
 	{
-		throw Ren3dGlExtensionMgrImplMissingSymbolException{"glGetIntegerv"};
+		fail("Null \"glGetIntegerv\".");
 	}
 
 	if (!glGetStringi)
 	{
-		throw Ren3dGlExtensionMgrImplMissingSymbolException{"glGetStringi"};
+		fail("Null \"glGetStringi\".");
 	}
 
 	auto gl_extension_count = GLint{};
@@ -2939,18 +3059,23 @@ void Ren3dGlExtensionMgrImpl::get_names_from_multiple_strings()
 
 		if (!extension_name)
 		{
-			throw Ren3dGlExtensionMgrImplException{"Null extension name."};
+			fail("Null extension name.");
 		}
 
 		extension_names_[i] = reinterpret_cast<const char*>(extension_name);
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlExtensionMgrImpl::get_names_from_one_string()
+try
 {
 	if (!glGetString)
 	{
-		throw Ren3dGlExtensionMgrImplMissingSymbolException{"glGetString"};
+		fail("Null \"glGetString\".");
 	}
 
 	const auto gl_extensions_c_string = glGetString(GL_EXTENSIONS);
@@ -2958,7 +3083,7 @@ void Ren3dGlExtensionMgrImpl::get_names_from_one_string()
 
 	if (!gl_extensions_c_string)
 	{
-		throw Ren3dGlExtensionMgrImplException{"Null extensions string."};
+		fail("Null extensions string.");
 	}
 
 	const auto gl_extensions_std_string = std::string
@@ -2981,8 +3106,13 @@ void Ren3dGlExtensionMgrImpl::get_names_from_one_string()
 		std::istream_iterator<std::string>{}
 	);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlExtensionMgrImpl::get_names()
+try
 {
 	if (gl_version_.major_ >= 3)
 	{
@@ -2995,15 +3125,20 @@ void Ren3dGlExtensionMgrImpl::get_names()
 
 	std::sort(extension_names_.begin(), extension_names_.end());
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlExtensionMgrImpl::probe_generic(
 	const Ren3dGlExtensionId extension_id)
+try
 {
 	const auto extension_index = get_extension_index(extension_id);
 
 	if (extension_index < 0)
 	{
-		throw Ren3dGlExtensionMgrImplException{"Invalid extension id."};
+		fail("Invalid extension id.");
 	}
 
 	auto& registry_item = registry_[extension_index];
@@ -3017,7 +3152,7 @@ void Ren3dGlExtensionMgrImpl::probe_generic(
 
 	if (registry_item.is_virtual_ && !registry_item.gl_symbol_ptrs_)
 	{
-		throw Ren3dGlExtensionMgrImplException{"Expected symbol pointer for virtual extension."};
+		fail("Expected symbol pointer for virtual extension.");
 	}
 
 	if (!registry_item.is_virtual_)
@@ -3048,6 +3183,10 @@ void Ren3dGlExtensionMgrImpl::probe_generic(
 	}
 
 	registry_item.is_available_ = true;
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 //

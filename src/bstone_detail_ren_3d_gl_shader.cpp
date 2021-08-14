@@ -49,37 +49,23 @@ namespace detail
 
 
 // ==========================================================================
-// Ren3dGlShaderImplCreateException
+// Ren3dGlShaderException
 //
 
-class Ren3dGlShaderImplCreateException :
+class Ren3dGlShaderException :
 	public Exception
 {
 public:
-	explicit Ren3dGlShaderImplCreateException(
+	explicit Ren3dGlShaderException(
 		const char* message)
 		:
-		Exception{get_prefix(), message}
+		Exception{"REN_3D_GL_SHADER", message}
 	{
 	}
-
-	explicit Ren3dGlShaderImplCreateException(
-		const std::string& message)
-		:
-		Exception{get_prefix(), message.c_str()}
-	{
-	}
-
-
-private:
-	constexpr const char* get_prefix() noexcept
-	{
-		return "REN_3D_SHDR_INIT";
-	}
-}; // Ren3dGlShaderImplCreateException
+}; // Ren3dGlShaderException
 
 //
-// Ren3dGlShaderImplCreateException
+// Ren3dGlShaderException
 // ==========================================================================
 
 
@@ -107,6 +93,16 @@ public:
 
 private:
 	Ren3dShaderKind kind;
+
+
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
+
 
 	static void shader_deleter(
 		GLuint gl_name) noexcept;
@@ -136,6 +132,7 @@ private:
 
 Ren3dGlShaderImpl::Ren3dGlShaderImpl(
 	const Ren3dCreateShaderParam& param)
+try
 	:
 	kind{},
 	shader_resource_{},
@@ -149,7 +146,7 @@ Ren3dGlShaderImpl::Ren3dGlShaderImpl(
 
 	if (!shader_resource_)
 	{
-		throw Ren3dGlShaderImplCreateException{"Failed to create an object."};
+		fail("Failed to create an object.");
 	}
 
 	const char* const strings[] =
@@ -185,10 +182,14 @@ Ren3dGlShaderImpl::Ren3dGlShaderImpl(
 			error_message += gl_log;
 		}
 
-		throw Ren3dGlShaderImplCreateException{error_message};
+		fail(error_message.c_str());
 	}
 
 	kind = param.kind;
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 Ren3dGlShaderImpl::~Ren3dGlShaderImpl()
@@ -217,6 +218,20 @@ Ren3dShaderKind Ren3dGlShaderImpl::get_kind() const noexcept
 	return kind;
 }
 
+[[noreturn]]
+void Ren3dGlShaderImpl::fail(
+	const char* message)
+{
+	throw Ren3dGlShaderException{message};
+}
+
+[[noreturn]]
+void Ren3dGlShaderImpl::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(Ren3dGlShaderException{message});
+}
+
 void Ren3dGlShaderImpl::shader_deleter(
 	GLuint gl_name) noexcept
 {
@@ -237,6 +252,7 @@ void Ren3dGlShaderImpl::attach_to_shader_stage(
 
 GLenum Ren3dGlShaderImpl::get_gl_kind(
 	const Ren3dShaderKind kind)
+try
 {
 	switch (kind)
 	{
@@ -247,12 +263,17 @@ GLenum Ren3dGlShaderImpl::get_gl_kind(
 			return GL_VERTEX_SHADER;
 
 		default:
-			throw Ren3dGlShaderImplCreateException{"Invalid kind."};
+			fail("Invalid kind.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGlShaderImpl::validate(
 	const Ren3dCreateShaderParam& param)
+try
 {
 	switch (param.kind)
 	{
@@ -261,18 +282,22 @@ void Ren3dGlShaderImpl::validate(
 			break;
 
 		default:
-			throw Ren3dGlShaderImplCreateException{"Invalid kind."};
+			fail("Invalid kind.");
 	}
 
 	if (param.source_.data_ == nullptr)
 	{
-		throw Ren3dGlShaderImplCreateException{"Null source data."};
+		fail("Null source data.");
 	}
 
 	if (param.source_.size_ <= 0)
 	{
-		throw Ren3dGlShaderImplCreateException{"Empty source data."};
+		fail("Empty source data.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 //

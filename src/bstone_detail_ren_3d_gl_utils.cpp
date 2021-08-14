@@ -65,7 +65,7 @@ public:
 	explicit Ren3dGlUtilsException(
 		const char* message)
 		:
-		Exception{"REN_3D_GL_UTL", message}
+		Exception{"REN_3D_GL_UTILS", message}
 	{
 	}
 }; // Ren3dGlUtilsException
@@ -74,332 +74,12 @@ public:
 // Ren3dGlUtilsException
 // ==========================================================================
 
-// ==========================================================================
-// Ren3dGlUtilsCreateCtxException
-//
-
-class Ren3dGlUtilsCreateCtxException :
-	public Exception
-{
-public:
-	explicit Ren3dGlUtilsCreateCtxException(
-		const char* message)
-		:
-		Exception{"REN_3D_GL_UTL_MK_CTX_INIT", message}
-	{
-	}
-}; // Ren3dGlUtilsCreateCtxException
-
-//
-// Ren3dGlUtilsCreateCtxException
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dGlUtilsGetWndDrawSizeException
-//
-
-class Ren3dGlUtilsGetWndDrawSizeException :
-	public Exception
-{
-public:
-	explicit Ren3dGlUtilsGetWndDrawSizeException(
-		const char* message)
-		:
-		Exception{"REN_3D_GL_UTL_GET_WND_DRW_SZ", message}
-	{
-	}
-}; // Ren3dGlUtilsGetWndDrawSizeException
-
-//
-// Ren3dGlUtilsGetWndDrawSizeException
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dGlUtilsGetWndMsaaException
-//
-
-class Ren3dGlUtilsGetWndMsaaException :
-	public Exception
-{
-public:
-	explicit Ren3dGlUtilsGetWndMsaaException(
-		const char* message)
-		:
-		Exception{"REN_3D_GL_UTL_GET_WND_MSAA", message}
-	{
-	}
-}; // Ren3dGlUtilsGetWndMsaaException
-
-//
-// Ren3dGlUtilsGetWndMsaaException
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dGlUtilsGenMipmapException
-//
-
-class Ren3dGlUtilsGenMipmapException :
-	public Exception
-{
-public:
-	explicit Ren3dGlUtilsGenMipmapException(
-		const char* message)
-		:
-		Exception{"REN_3D_GL_UTL_GEN_MIPMAP", message}
-	{
-	}
-}; // Ren3dGlUtilsGenMipmapException
-
-//
-// Ren3dGlUtilsGenMipmapException
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dGlUtilsGetVsyncException
-//
-
-class Ren3dGlUtilsGetVsyncException :
-	public Exception
-{
-public:
-	explicit Ren3dGlUtilsGetVsyncException(
-		const char* message)
-		:
-		Exception{"REN_3D_GL_UTL_GET_VSYNC", message}
-	{
-	}
-}; // Ren3dGlUtilsGetVsyncException
-
-//
-// Ren3dGlUtilsGetVsyncException
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dGlUtilsSetScissorBoxException
-//
-
-class Ren3dGlUtilsSetScissorBoxException :
-	public Exception
-{
-public:
-	explicit Ren3dGlUtilsSetScissorBoxException(
-		const char* message)
-		:
-		Exception{"REN_3D_GL_UTL_SET_SCISS_BOX", message}
-	{
-	}
-}; // Ren3dGlUtilsSetScissorBoxException
-
-//
-// Ren3dGlUtilsSetScissorBoxException
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dGlUtilsSetViewportRectException
-//
-
-class Ren3dGlUtilsSetViewportRectException :
-	public Exception
-{
-public:
-	explicit Ren3dGlUtilsSetViewportRectException(
-		const char* message)
-		:
-		Exception{"REN_3D_GL_UTL_SET_VIEWPORT_RECT", message}
-	{
-	}
-}; // Ren3dGlUtilsSetViewportRectException
-
-//
-// Ren3dGlUtilsSetViewportRectException
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dGlUtilsSetViewportDepthRngException
-//
-
-class Ren3dGlUtilsSetViewportDepthRngException :
-	public Exception
-{
-public:
-	explicit Ren3dGlUtilsSetViewportDepthRngException(
-		const char* message)
-		:
-		Exception{"REN_3D_GL_UTL_SET_VIEWPORT_DPTH_RNG", message}
-	{
-	}
-}; // Ren3dGlUtilsSetViewportDepthRngException
-
-//
-// Ren3dGlUtilsSetViewportDepthRngException
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dGlUtilsSetCullingModeException
-//
-
-class Ren3dGlUtilsSetCullingModeException :
-	public Exception
-{
-public:
-	explicit Ren3dGlUtilsSetCullingModeException(
-		const char* message)
-		:
-		Exception{"REN_3D_GL_UTL_SET_CULL_MODE", message}
-	{
-	}
-}; // Ren3dGlUtilsSetCullingModeException
-
-//
-// Ren3dGlUtilsSetCullingModeException
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dGlUtilsSetCullingFaceException
-//
-
-class Ren3dGlUtilsSetCullingFaceException :
-	public Exception
-{
-public:
-	explicit Ren3dGlUtilsSetCullingFaceException(
-		const char* message)
-		:
-		Exception{"REN_3D_GL_UTL_SET_CULL_FACE", message}
-	{
-	}
-}; // Ren3dGlUtilsSetCullingFaceException
-
-//
-// Ren3dGlUtilsSetCullingFaceException
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dGlUtilsSetRenFeaturesException
-//
-
-class Ren3dGlUtilsSetRenFeaturesException :
-	public Exception
-{
-public:
-	explicit Ren3dGlUtilsSetRenFeaturesException(
-		const char* message)
-		:
-		Exception{"REN_3D_GL_UTL_SET_REN_FEATS", message}
-	{
-	}
-}; // Ren3dGlUtilsSetRenFeaturesException
-
-//
-// Ren3dGlUtilsSetRenFeaturesException
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dGlUtilsGetMagFilterException
-//
-
-class Ren3dGlUtilsGetMagFilterException :
-	public Exception
-{
-public:
-	explicit Ren3dGlUtilsGetMagFilterException(
-		const char* message)
-		:
-		Exception{"REN_3D_GL_UTL_GET_MAG_FLTR", message}
-	{
-	}
-}; // Ren3dGlUtilsGetMagFilterException
-
-//
-// Ren3dGlUtilsGetMagFilterException
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dGlUtilsGetMinFilterException
-//
-
-class Ren3dGlUtilsGetMinFilterException :
-	public Exception
-{
-public:
-	explicit Ren3dGlUtilsGetMinFilterException(
-		const char* message)
-		:
-		Exception{"REN_3D_GL_UTL_GET_MIN_FLTR", message}
-	{
-	}
-}; // Ren3dGlUtilsGetMinFilterException
-
-//
-// Ren3dGlUtilsGetMinFilterException
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dGlUtilsGetAddrModeException
-//
-
-class Ren3dGlUtilsGetAddrModeException :
-	public Exception
-{
-public:
-	explicit Ren3dGlUtilsGetAddrModeException(
-		const char* message)
-		:
-		Exception{"REN_3D_GL_UTL_GET_ADDR_MODE", message}
-	{
-	}
-}; // Ren3dGlUtilsGetAddrModeException
-
-//
-// Ren3dGlUtilsGetAddrModeException
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dGlUtilsGetWrapAxisException
-//
-
-class Ren3dGlUtilsGetWrapAxisException :
-	public Exception
-{
-public:
-	explicit Ren3dGlUtilsGetWrapAxisException(
-		const char* message)
-		:
-		Exception{"REN_3D_GL_UTL_GET_WRAP_AXIS", message}
-	{
-	}
-}; // Ren3dGlUtilsGetWrapAxisException
-
-//
-// Ren3dGlUtilsGetWrapAxisException
-// ==========================================================================
-
-// ==========================================================================
-// Ren3dGlUtilsGetFboMaxMsaaException
-//
-
-class Ren3dGlUtilsGetFboMaxMsaaException :
-	public Exception
-{
-public:
-	explicit Ren3dGlUtilsGetFboMaxMsaaException(
-		const char* message)
-		:
-		Exception{"REN_3D_GL_UTL_GET_FBO_MAX_MSAA", message}
-	{
-	}
-}; // Ren3dGlUtilsGetFboMaxMsaaException
-
-//
-// Ren3dGlUtilsGetFboMaxMsaaException
-// ==========================================================================
-
 
 // ==========================================================================
 // Ren3dGlUtils
 //
 
-void Ren3dGlUtils::load_library()
+void Ren3dGlUtils::load_library() noexcept
 {
 	static_cast<void>(SDL_GL_LoadLibrary(nullptr));
 }
@@ -410,35 +90,34 @@ void Ren3dGlUtils::unload_library() noexcept
 }
 
 void* Ren3dGlUtils::resolve_symbol(
-	const char* const symbol)
+	const char* const symbol) noexcept
 {
 	return SDL_GL_GetProcAddress(symbol);
 }
 
 SdlGlContextUPtr Ren3dGlUtils::create_context(
 	SdlWindowPtr sdl_window)
+try
 {
 	if (!sdl_window)
 	{
-		throw Ren3dGlUtilsCreateCtxException{"Null window."};
+		fail("Null window.");
 	}
 
-	try
-	{
-		auto sdl_gl_context = SdlGlContextUPtr{SDL_GL_CreateContext(sdl_window)};
-		Sdl2EnsureResult{sdl_gl_context};
-		return sdl_gl_context;
-	}
-	catch (const std::exception&)
-	{
-		std::throw_with_nested(Ren3dGlUtilsCreateCtxException{"Failed."});
-	}
+	auto sdl_gl_context = SdlGlContextUPtr{SDL_GL_CreateContext(sdl_window)};
+	Sdl2EnsureResult{sdl_gl_context};
+	return sdl_gl_context;
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGlUtils::create_window_and_context(
 	const Ren3dUtilsCreateWindowParam& param,
 	SdlWindowUPtr& sdl_window,
 	SdlGlContextUPtr& sdl_gl_context)
+try
 {
 	auto sdl_window_result = Ren3dUtils::create_window(param);
 	auto sdl_gl_context_result = create_context(sdl_window_result.get());
@@ -446,36 +125,38 @@ void Ren3dGlUtils::create_window_and_context(
 	sdl_window = std::move(sdl_window_result);
 	sdl_gl_context = std::move(sdl_gl_context_result);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlUtils::get_window_drawable_size(
 	SdlWindowPtr sdl_window,
 	int& width,
 	int& height)
+try
 {
 	width = 0;
 	height = 0;
 
 	if (!sdl_window)
 	{
-		throw Ren3dGlUtilsGetWndDrawSizeException{"Null window."};
+		fail("Null window.");
 	}
 
 	SDL_GL_GetDrawableSize(sdl_window, &width, &height);
 
 	if (width <= 0 || height <= 0)
 	{
-		try
-		{
-			throw Sdl2Exception{};
-		}
-		catch (const std::exception&)
-		{
-			std::throw_with_nested(Ren3dGlUtilsGetWndDrawSizeException{"Failed"});
-		}
+		fail("Invalid drawable dimensions.");
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
-Ren3dGlContextKind Ren3dGlUtils::get_context_kind()
+Ren3dGlContextKind Ren3dGlUtils::get_context_kind() noexcept
 {
 	auto sdl_attribute = 0;
 
@@ -508,6 +189,7 @@ Ren3dGlContextKind Ren3dGlUtils::get_context_kind()
 int Ren3dGlUtils::clamp_anisotropy_degree(
 	const int anisotropy_value,
 	const Ren3dDeviceFeatures& device_features)
+try
 {
 	auto clamped_value = anisotropy_value;
 
@@ -526,114 +208,123 @@ int Ren3dGlUtils::clamp_anisotropy_degree(
 
 	return clamped_value;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 int Ren3dGlUtils::get_window_max_msaa(
 	const Ren3dKind renderer_kind)
+try
 {
-	try
+	auto window_param = Ren3dUtilsCreateWindowParam{};
+	window_param.renderer_kind_ = renderer_kind;
+	window_param.window_.is_borderless_ = true;
+	window_param.window_.rect_2d_.extent_.width_ = 1;
+	window_param.window_.rect_2d_.extent_.height_ = 1;
+	window_param.aa_kind_ = Ren3dAaKind::ms;
+
+	auto max_msaa = Ren3dLimits::min_aa_off;
+
+	for (int i = Ren3dLimits::min_aa_on; i <= Ren3dLimits::max_aa; i *= 2)
 	{
-		auto window_param = Ren3dUtilsCreateWindowParam{};
-		window_param.renderer_kind_ = renderer_kind;
-		window_param.window_.is_borderless_ = true;
-		window_param.window_.rect_2d_.extent_.width_ = 1;
-		window_param.window_.rect_2d_.extent_.height_ = 1;
-		window_param.aa_kind_ = Ren3dAaKind::ms;
-
-		auto max_msaa = Ren3dLimits::min_aa_off;
-
-		for (int i = Ren3dLimits::min_aa_on; i <= Ren3dLimits::max_aa; i *= 2)
-		{
-			window_param.aa_value_ = i;
-
-			auto sdl_window = SdlWindowUPtr{};
-			auto sdl_gl_context = SdlGlContextUPtr{};
-
-			create_window_and_context(window_param, sdl_window, sdl_gl_context);
-
-			auto sdl_sample_count = 0;
-
-			const auto sdl_result = SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &sdl_sample_count);
-
-			if (sdl_result != 0)
-			{
-				break;
-			}
-
-			if (sdl_sample_count > 0)
-			{
-				max_msaa = std::max(i, max_msaa);
-			}
-			else
-			{
-				break;
-			}
-		}
-
-		return max_msaa;
-	}
-	catch (const Exception&)
-	{
-		return Ren3dLimits::min_aa_off;
-	}
-}
-
-int Ren3dGlUtils::get_fbo_max_msaa(
-	const Ren3dKind renderer_kind,
-	Ren3dDeviceFeatures& device_features,
-	Ren3dGlDeviceFeatures& gl_device_features)
-{
-	try
-	{
-		auto window_param = Ren3dUtilsCreateWindowParam{};
-		window_param.renderer_kind_ = renderer_kind;
-		window_param.window_.is_borderless_ = true;
-		window_param.window_.rect_2d_.extent_.width_ = 1;
-		window_param.window_.rect_2d_.extent_.height_ = 1;
+		window_param.aa_value_ = i;
 
 		auto sdl_window = SdlWindowUPtr{};
 		auto sdl_gl_context = SdlGlContextUPtr{};
 
 		create_window_and_context(window_param, sdl_window, sdl_gl_context);
 
-		auto extension_manager = Ren3dGlExtensionMgrFactory::create();
+		auto sdl_sample_count = 0;
 
-		extension_manager->probe(Ren3dGlExtensionId::essentials);
+		const auto sdl_result = SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &sdl_sample_count);
 
-		if (!extension_manager->has(Ren3dGlExtensionId::essentials))
+		if (sdl_result != 0)
 		{
-			throw Ren3dGlUtilsGetFboMaxMsaaException{"Essential functions not available."};
+			break;
 		}
 
-		Ren3dGlUtils::probe_framebuffer(
-			extension_manager.get(),
-			gl_device_features
-		);
-
-		if (!gl_device_features.is_framebuffer_available_)
+		if (sdl_sample_count > 0)
 		{
-			return Ren3dLimits::min_aa_off;
+			max_msaa = std::max(i, max_msaa);
 		}
-
-
-		const auto gl_enum = (gl_device_features.is_framebuffer_ext_ ? GL_MAX_SAMPLES_EXT : GL_MAX_SAMPLES);
-
-		auto gl_value = GLint{};
-
-		glGetIntegerv(gl_enum, &gl_value);
-		Ren3dGlError::ensure_debug();
-
-		return gl_value;
+		else
+		{
+			break;
+		}
 	}
-	catch (const Exception&)
+
+	return max_msaa;
+}
+catch (const Exception&)
+{
+	return Ren3dLimits::min_aa_off;
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
+
+int Ren3dGlUtils::get_fbo_max_msaa(
+	const Ren3dKind renderer_kind,
+	Ren3dDeviceFeatures& device_features,
+	Ren3dGlDeviceFeatures& gl_device_features)
+try
+{
+	auto window_param = Ren3dUtilsCreateWindowParam{};
+	window_param.renderer_kind_ = renderer_kind;
+	window_param.window_.is_borderless_ = true;
+	window_param.window_.rect_2d_.extent_.width_ = 1;
+	window_param.window_.rect_2d_.extent_.height_ = 1;
+
+	auto sdl_window = SdlWindowUPtr{};
+	auto sdl_gl_context = SdlGlContextUPtr{};
+
+	create_window_and_context(window_param, sdl_window, sdl_gl_context);
+
+	auto extension_manager = Ren3dGlExtensionMgrFactory::create();
+
+	extension_manager->probe(Ren3dGlExtensionId::essentials);
+
+	if (!extension_manager->has(Ren3dGlExtensionId::essentials))
+	{
+		fail("Essential functions not available.");
+	}
+
+	Ren3dGlUtils::probe_framebuffer(
+		extension_manager.get(),
+		gl_device_features
+	);
+
+	if (!gl_device_features.is_framebuffer_available_)
 	{
 		return Ren3dLimits::min_aa_off;
 	}
+
+
+	const auto gl_enum = (gl_device_features.is_framebuffer_ext_ ? GL_MAX_SAMPLES_EXT : GL_MAX_SAMPLES);
+
+	auto gl_value = GLint{};
+
+	glGetIntegerv(gl_enum, &gl_value);
+	Ren3dGlError::ensure_debug();
+
+	return gl_value;
+}
+catch (const Exception&)
+{
+	return Ren3dLimits::min_aa_off;
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGlUtils::probe_msaa(
 	const Ren3dKind renderer_kind,
 	Ren3dDeviceFeatures& device_features,
 	Ren3dGlDeviceFeatures& gl_device_features)
+try
 {
 	device_features.is_msaa_available_ = false;
 	device_features.is_msaa_render_to_window_ = false;
@@ -676,6 +367,10 @@ void Ren3dGlUtils::probe_msaa(
 		device_features.is_msaa_requires_restart_ = true;
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 int Ren3dGlUtils::get_window_msaa_value()
 {
@@ -690,9 +385,9 @@ int Ren3dGlUtils::get_window_msaa_value()
 			return 0;
 		}
 	}
-	catch (const std::exception&)
+	catch (...)
 	{
-		std::throw_with_nested(Ren3dGlUtilsGetWndMsaaException{"Failed to get multisample buffer count."});
+		fail_nested("Failed to get multisample buffer count.");
 	}
 
 	try
@@ -703,13 +398,14 @@ int Ren3dGlUtils::get_window_msaa_value()
 
 		return sdl_sample_count;
 	}
-	catch (const std::exception&)
+	catch (...)
 	{
-		std::throw_with_nested(Ren3dGlUtilsGetWndMsaaException{"Failed to get multisample sample count."});
+		fail_nested("Failed to get multisample sample count.");
 	}
 }
 
 int Ren3dGlUtils::get_max_anisotropy_degree()
+try
 {
 	auto gl_max_value = GLfloat{};
 
@@ -724,11 +420,16 @@ int Ren3dGlUtils::get_max_anisotropy_degree()
 
 	return static_cast<int>(gl_max_value);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlUtils::set_anisotropy_degree(
 	const GLenum gl_target,
 	const Ren3dDeviceFeatures& device_features,
 	const int anisotropy_value)
+try
 {
 	if (!device_features.is_anisotropy_available_)
 	{
@@ -742,10 +443,15 @@ void Ren3dGlUtils::set_anisotropy_degree(
 	glTexParameterf(gl_target, GL_TEXTURE_MAX_ANISOTROPY, gl_value);
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlUtils::probe_anisotropy(
 	Ren3dGlExtensionMgrPtr extension_manager,
 	Ren3dDeviceFeatures& device_features)
+try
 {
 	device_features.is_anisotropy_available_ = false;
 	device_features.max_anisotropy_degree_ = Ren3dLimits::min_anisotropy_off;
@@ -773,10 +479,15 @@ void Ren3dGlUtils::probe_anisotropy(
 	}
 #endif // !BSTONE_REN_3D_TEST_NO_ANISOTROPY
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlUtils::probe_npot(
 	Ren3dGlExtensionMgrPtr extension_manager,
 	Ren3dDeviceFeatures& device_features)
+try
 {
 	device_features.is_npot_available_ = false;
 
@@ -802,11 +513,16 @@ void Ren3dGlUtils::probe_npot(
 	}
 #endif //!BSTONE_REN_3D_TEST_POT_ONLY
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlUtils::probe_mipmap(
 	Ren3dGlExtensionMgrPtr extension_manager,
 	Ren3dDeviceFeatures& device_features,
 	Ren3dGlDeviceFeatures& gl_device_features)
+try
 {
 	device_features.is_mipmap_available_ = false;
 	gl_device_features.is_mipmap_ext_ = false;
@@ -839,15 +555,20 @@ void Ren3dGlUtils::probe_mipmap(
 	}
 #endif // !BSTONE_REN_3D_TEST_SW_MIPMAP
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlUtils::generate_mipmap(
 	const GLenum gl_target,
 	const Ren3dDeviceFeatures& device_features,
 	const Ren3dGlDeviceFeatures& gl_device_features)
+try
 {
 	if (!device_features.is_mipmap_available_)
 	{
-		throw Ren3dGlUtilsGenMipmapException{"Not available."};
+		fail("Not available.");
 	}
 
 	switch (gl_target)
@@ -856,7 +577,7 @@ void Ren3dGlUtils::generate_mipmap(
 			break;
 
 		default:
-			throw Ren3dGlUtilsGenMipmapException{"Unsupported texture target."};
+			fail("Unsupported texture target.");
 	}
 
 	const auto gl_function = (gl_device_features.is_mipmap_ext_ ? glGenerateMipmapEXT : glGenerateMipmap);
@@ -864,10 +585,15 @@ void Ren3dGlUtils::generate_mipmap(
 	gl_function(gl_target);
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlUtils::probe_framebuffer(
 	Ren3dGlExtensionMgrPtr extension_manager,
 	Ren3dGlDeviceFeatures& gl_device_features)
+try
 {
 	gl_device_features.is_framebuffer_available_ = false;
 	gl_device_features.is_framebuffer_ext_ = false;
@@ -901,10 +627,15 @@ void Ren3dGlUtils::probe_framebuffer(
 	}
 #endif // !BSTONE_RENDERER_TEST_3D_DEFAULT_FRAMEBUFFER
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlUtils::probe_sampler(
 	Ren3dGlExtensionMgrPtr extension_manager,
 	Ren3dDeviceFeatures& device_features)
+try
 {
 	device_features.is_sampler_available_ = false;
 
@@ -917,11 +648,16 @@ void Ren3dGlUtils::probe_sampler(
 	}
 #endif // !BSTONE_REN_3D_TEST_SW_SAMPLER
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlUtils::set_sampler_anisotropy(
 	const GLenum gl_sampler,
 	const Ren3dDeviceFeatures& device_features,
 	const int anisotropy_value)
+try
 {
 	if (!device_features.is_sampler_available_ ||
 		!device_features.is_anisotropy_available_)
@@ -936,10 +672,15 @@ void Ren3dGlUtils::set_sampler_anisotropy(
 	glSamplerParameterf(gl_sampler, GL_TEXTURE_MAX_ANISOTROPY, gl_value);
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlUtils::probe_vao(
 	Ren3dGlExtensionMgrPtr extension_manager,
 	Ren3dGlDeviceFeatures& gl_device_features)
+try
 {
 	gl_device_features.is_vao_available_ = false;
 
@@ -966,9 +707,14 @@ void Ren3dGlUtils::probe_vao(
 	}
 #endif // !BSTONE_REN_3D_TEST_GL_NO_VAO
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlUtils::probe_max_vertex_arrays(
 	Ren3dDeviceFeatures& device_features)
+try
 {
 	auto gl_count = GLint{};
 
@@ -982,9 +728,14 @@ void Ren3dGlUtils::probe_max_vertex_arrays(
 		device_features.max_vertex_input_locations_ = gl_count;
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlUtils::probe_vsync(
 	Ren3dDeviceFeatures& device_features)
+try
 {
 	device_features.is_vsync_available_ = false;
 	device_features.is_vsync_requires_restart_ = false;
@@ -999,8 +750,13 @@ void Ren3dGlUtils::probe_vsync(
 	}
 #endif // !BSTONE_REN_3D_TEST_NO_SWAP_INTERVAL
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 bool Ren3dGlUtils::get_vsync()
+try
 {
 	const auto sdl_result = SDL_GL_GetSwapInterval();
 
@@ -1014,12 +770,16 @@ bool Ren3dGlUtils::get_vsync()
 			return true;
 
 		default:
-			throw Ren3dGlUtilsGetVsyncException{"Unsupported swap interval value."};
+			fail("Unsupported swap interval value.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 bool Ren3dGlUtils::enable_vsync(
-	const bool is_enabled)
+	const bool is_enabled) noexcept
 {
 	const auto sdl_result = SDL_GL_SetSwapInterval(is_enabled);
 
@@ -1029,6 +789,7 @@ bool Ren3dGlUtils::enable_vsync(
 void Ren3dGlUtils::probe_buffer_storage(
 	const Ren3dGlExtensionMgrPtr extension_manager,
 	Ren3dGlDeviceFeatures& gl_device_features)
+try
 {
 	gl_device_features.is_buffer_storage_available_ = false;
 
@@ -1041,10 +802,15 @@ void Ren3dGlUtils::probe_buffer_storage(
 	}
 #endif // !BSTONE_REN_3D_TEST_GL_NO_BUFFER_STORAGE
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlUtils::probe_dsa(
 	const Ren3dGlExtensionMgrPtr extension_manager,
 	Ren3dGlDeviceFeatures& gl_device_features)
+try
 {
 	gl_device_features.is_dsa_available_ = false;
 
@@ -1057,10 +823,15 @@ void Ren3dGlUtils::probe_dsa(
 	}
 #endif // !BSTONE_REN_3D_TEST_GL_NO_DSA
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlUtils::probe_sso(
 	const Ren3dGlExtensionMgrPtr extension_manager,
 	Ren3dGlDeviceFeatures& gl_device_features)
+try
 {
 	gl_device_features.is_sso_available_ = false;
 
@@ -1073,9 +844,13 @@ void Ren3dGlUtils::probe_sso(
 	}
 #endif // !BSTONE_REN_3D_TEST_GL_NO_SSO
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlUtils::swap_window(
-	SdlWindowPtr sdl_window)
+	SdlWindowPtr sdl_window) noexcept
 {
 	assert(sdl_window != nullptr);
 
@@ -1084,6 +859,7 @@ void Ren3dGlUtils::swap_window(
 
 void Ren3dGlUtils::enable_scissor(
 	const bool is_enabled)
+try
 {
 	if (is_enabled)
 	{
@@ -1096,28 +872,33 @@ void Ren3dGlUtils::enable_scissor(
 		Ren3dGlError::ensure_debug();
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlUtils::set_scissor_box(
 	const Ren3dScissorBox& scissor_box)
+try
 {
 	if (scissor_box.x < 0)
 	{
-		throw Ren3dGlUtilsSetScissorBoxException{"Negative offset by X."};
+		fail("Negative offset by X.");
 	}
 
 	if (scissor_box.y < 0)
 	{
-		throw Ren3dGlUtilsSetScissorBoxException{"Negative offset by Y."};
+		fail("Negative offset by Y.");
 	}
 
 	if (scissor_box.width_ < 0)
 	{
-		throw Ren3dGlUtilsSetScissorBoxException{"Negative width."};
+		fail("Negative width.");
 	}
 
 	if (scissor_box.height_ < 0)
 	{
-		throw Ren3dGlUtilsSetScissorBoxException{"Negative height."};
+		fail("Negative height.");
 	}
 
 	glScissor(
@@ -1129,28 +910,33 @@ void Ren3dGlUtils::set_scissor_box(
 
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlUtils::set_viewport_rect(
 	const Ren3dViewport& viewport)
+try
 {
 	if (viewport.x < 0)
 	{
-		throw Ren3dGlUtilsSetViewportRectException{"Negative offset by X."};
+		fail("Negative offset by X.");
 	}
 
 	if (viewport.y < 0)
 	{
-		throw Ren3dGlUtilsSetViewportRectException{"Negative offset by Y."};
+		fail("Negative offset by Y.");
 	}
 
 	if (viewport.width_ < 0)
 	{
-		throw Ren3dGlUtilsSetViewportRectException{"Negative width."};
+		fail("Negative width.");
 	}
 
 	if (viewport.height_ < 0)
 	{
-		throw Ren3dGlUtilsSetViewportRectException{"Negative height."};
+		fail("Negative height.");
 	}
 
 	glViewport(
@@ -1162,19 +948,24 @@ void Ren3dGlUtils::set_viewport_rect(
 
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlUtils::set_viewport_depth_range(
 	const Ren3dViewport& viewport,
 	const Ren3dGlDeviceFeatures& gl_device_features)
+try
 {
 	if (viewport.min_depth_ < 0.0F || viewport.min_depth_ > 1.0F)
 	{
-		throw Ren3dGlUtilsSetViewportDepthRngException{"Minimum depth out of range."};
+		fail("Minimum depth out of range.");
 	}
 
 	if (viewport.max_depth_ < 0.0F || viewport.max_depth_ > 1.0F)
 	{
-		throw Ren3dGlUtilsSetViewportDepthRngException{"Maximum depth out of range."};
+		fail("Maximum depth out of range.");
 	}
 
 	const auto is_es = (gl_device_features.context_kind_ == Ren3dGlContextKind::es);
@@ -1190,18 +981,28 @@ void Ren3dGlUtils::set_viewport_depth_range(
 		Ren3dGlError::ensure_debug();
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlUtils::enable_culling(
 	const bool is_enable)
+try
 {
 	const auto gl_function = (is_enable ? glEnable : glDisable);
 
 	gl_function(GL_CULL_FACE);
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlUtils::set_culling_face(
 	const Ren3dCullingFace culling_face)
+try
 {
 	auto gl_culling_face = GLenum{};
 
@@ -1216,15 +1017,20 @@ void Ren3dGlUtils::set_culling_face(
 		break;
 
 	default:
-		throw Ren3dGlUtilsSetCullingFaceException{"Unsupported front face."};
+		fail("Unsupported front face.");
 	}
 
 	glFrontFace(gl_culling_face);
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlUtils::set_culling_mode(
 	const Ren3dCullingMode culling_mode)
+try
 {
 	auto gl_culling_mode = GLenum{};
 
@@ -1243,40 +1049,60 @@ void Ren3dGlUtils::set_culling_mode(
 		break;
 
 	default:
-		throw Ren3dGlUtilsSetCullingModeException{"Unsupported culling mode."};
+		fail("Unsupported culling mode.");
 	}
 
 	glCullFace(gl_culling_mode);
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlUtils::enable_depth_test(
 	const bool is_enable)
+try
 {
 	const auto gl_function = (is_enable ? glEnable : glDisable);
 
 	gl_function(GL_DEPTH_TEST);
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlUtils::enable_depth_write(
 	const bool is_enable)
+try
 {
 	glDepthMask(is_enable);
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlUtils::enable_blending(
 	const bool is_enable)
+try
 {
 	const auto gl_function = (is_enable ? glEnable : glDisable);
 
 	gl_function(GL_BLEND);
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlUtils::set_blending_func(
 	const Ren3dBlendingFunc& blending_func)
+try
 {
 	auto gl_src_factor = get_blending_factor(blending_func.src_factor_);
 	auto gl_dst_factor = get_blending_factor(blending_func.dst_factor_);
@@ -1284,9 +1110,14 @@ void Ren3dGlUtils::set_blending_func(
 	glBlendFunc(gl_src_factor, gl_dst_factor);
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 GLenum Ren3dGlUtils::index_buffer_get_element_type_by_byte_depth(
 	const int byte_depth)
+try
 {
 	switch (byte_depth)
 	{
@@ -1300,14 +1131,17 @@ GLenum Ren3dGlUtils::index_buffer_get_element_type_by_byte_depth(
 		return GL_UNSIGNED_INT;
 
 	default:
-		assert(!"Invalid byte depth.");
-
-		return GL_NONE;
+		fail("Invalid byte depth.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGlUtils::set_renderer_features(
 	Ren3dDeviceFeatures& device_features)
+try
 {
 	// Max texture dimension.
 	//
@@ -1317,7 +1151,7 @@ void Ren3dGlUtils::set_renderer_features(
 
 	if (gl_texture_dimension == 0)
 	{
-		throw Ren3dGlUtilsSetRenFeaturesException{"Failed to get maximum texture dimension."};
+		fail("Failed to get maximum texture dimension.");
 	}
 
 
@@ -1330,7 +1164,7 @@ void Ren3dGlUtils::set_renderer_features(
 
 	if (gl_viewport_dimensions[0] == 0 || gl_viewport_dimensions[1] == 0)
 	{
-		throw Ren3dGlUtilsSetRenFeaturesException{"Failed to get viewport dimensions."};
+		fail("Failed to get viewport dimensions.");
 	}
 
 
@@ -1341,8 +1175,13 @@ void Ren3dGlUtils::set_renderer_features(
 	device_features.max_viewport_width_ = gl_viewport_dimensions[0];
 	device_features.max_viewport_height_ = gl_viewport_dimensions[1];
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 Ren3dDeviceInfo Ren3dGlUtils::get_device_info()
+try
 {
 	auto result = Ren3dDeviceInfo{};
 
@@ -1387,10 +1226,15 @@ Ren3dDeviceInfo Ren3dGlUtils::get_device_info()
 	//
 	return result;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 std::string Ren3dGlUtils::get_log(
 	const bool is_shader,
 	const GLuint gl_name)
+try
 {
 	const auto gl_info_function = (is_shader ? glGetShaderInfoLog : glGetProgramInfoLog);
 	const auto gl_size_function = (is_shader ? glGetShaderiv : glGetProgramiv);
@@ -1419,9 +1263,14 @@ std::string Ren3dGlUtils::get_log(
 
 	return result;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 GLenum Ren3dGlUtils::get_mag_filter(
 	const Ren3dFilterKind mag_filter)
+try
 {
 	switch (mag_filter)
 	{
@@ -1432,13 +1281,18 @@ GLenum Ren3dGlUtils::get_mag_filter(
 		return GL_LINEAR;
 
 	default:
-		throw Ren3dGlUtilsGetMagFilterException{"Unsupported magnification filter."};
+		fail("Unsupported magnification filter.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 GLenum Ren3dGlUtils::get_min_filter(
 	const Ren3dFilterKind min_filter,
 	const Ren3dMipmapMode mipmap_mode)
+try
 {
 	switch (mipmap_mode)
 	{
@@ -1452,7 +1306,7 @@ GLenum Ren3dGlUtils::get_min_filter(
 			return GL_LINEAR;
 
 		default:
-			throw Ren3dGlUtilsGetMinFilterException{"Unsupported minification filter."};
+			fail("Unsupported minification filter.");
 		}
 
 		break;
@@ -1467,7 +1321,7 @@ GLenum Ren3dGlUtils::get_min_filter(
 			return GL_LINEAR_MIPMAP_NEAREST;
 
 		default:
-			throw Ren3dGlUtilsGetMinFilterException{"Unsupported minification mipmap filter."};
+			fail("Unsupported minification mipmap filter.");
 		}
 
 		break;
@@ -1482,18 +1336,23 @@ GLenum Ren3dGlUtils::get_min_filter(
 			return GL_LINEAR_MIPMAP_LINEAR;
 
 		default:
-			throw Ren3dGlUtilsGetMinFilterException{"Unsupported minification mipmap filter."};
+			fail("Unsupported minification mipmap filter.");
 		}
 
 		break;
 
 	default:
-		throw Ren3dGlUtilsGetMinFilterException{"Unsupported mipmap mode."};
+		fail("Unsupported mipmap mode.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 GLenum Ren3dGlUtils::get_address_mode(
 	const Ren3dAddressMode address_mode)
+try
 {
 	switch (address_mode)
 	{
@@ -1504,12 +1363,17 @@ GLenum Ren3dGlUtils::get_address_mode(
 		return GL_REPEAT;
 
 	default:
-		throw Ren3dGlUtilsGetAddrModeException{"Unsupported address mode."};
+		fail("Unsupported address mode.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 GLenum Ren3dGlUtils::get_texture_wrap_axis(
 	const Ren3dTextureAxis texture_axis)
+try
 {
 	switch (texture_axis)
 	{
@@ -1520,12 +1384,31 @@ GLenum Ren3dGlUtils::get_texture_wrap_axis(
 			return GL_TEXTURE_WRAP_T;
 
 		default:
-			throw Ren3dGlUtilsGetWrapAxisException{"Unsupported texture axis."};
+			fail("Unsupported texture axis.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
+
+[[noreturn]]
+void Ren3dGlUtils::fail(
+	const char* message)
+{
+	throw Ren3dGlUtilsException{message};
+}
+
+[[noreturn]]
+void Ren3dGlUtils::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(Ren3dGlUtilsException{message});
 }
 
 GLenum Ren3dGlUtils::get_blending_factor(
 	const Ren3dBlendingFactor factor)
+try
 {
 	switch (factor)
 	{
@@ -1545,8 +1428,12 @@ GLenum Ren3dGlUtils::get_blending_factor(
 			return GL_ONE_MINUS_SRC_ALPHA;
 
 		default:
-			return GL_NONE;
+			fail("Invalid blending factor.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 //

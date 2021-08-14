@@ -128,6 +128,15 @@ public:
 
 
 private:
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
+
+
 	static void fbo_deleter(
 		GLuint gl_name) noexcept;
 

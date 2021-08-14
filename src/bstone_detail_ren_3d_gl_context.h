@@ -192,12 +192,17 @@ using Ren3dGlContextUPtr = std::unique_ptr<Ren3dGlContext>;
 // Ren3dGlContextFactory
 //
 
-struct Ren3dGlContextFactory
+class Ren3dGlContextFactory
 {
+public:
 	static Ren3dGlContextUPtr create(
 		const Ren3dKind renderer_kind,
 		const Ren3dDeviceFeatures& device_features,
 		const Ren3dGlDeviceFeatures& gl_device_features);
+
+
+private:
+	class Detail;
 }; // Ren3dGlContextFactory
 
 

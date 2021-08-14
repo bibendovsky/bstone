@@ -43,44 +43,23 @@ namespace detail
 
 
 // ==========================================================================
-// Ren3dGlVertexInputMgrImplCreateException
+// Ren3dGlVertexInputMgrException
 //
 
-class Ren3dGlVertexInputMgrImplCreateException :
+class Ren3dGlVertexInputMgrException :
 	public Exception
 {
 public:
-	explicit Ren3dGlVertexInputMgrImplCreateException(
-		const char* message)
-		:
-		Exception{"REN_3D_GL_VTX_INP_MGR_INIT", message}
-	{
-	}
-}; // Ren3dGlVertexInputMgrImplCreateException
-
-//
-// Ren3dGlVertexInputMgrImplCreateException
-// ==========================================================================
-
-
-// ==========================================================================
-// Ren3dGlVertexInputMgrImplException
-//
-
-class Ren3dGlVertexInputMgrImplException :
-	public Exception
-{
-public:
-	explicit Ren3dGlVertexInputMgrImplException(
+	explicit Ren3dGlVertexInputMgrException(
 		const char* message)
 		:
 		Exception{"REN_3D_GL_VTX_INP_MGR", message}
 	{
 	}
-}; // Ren3dGlVertexInputMgrImplException
+}; // Ren3dGlVertexInputMgrException
 
 //
-// Ren3dGlVertexInputMgrImplException
+// Ren3dGlVertexInputMgrException
 // ==========================================================================
 
 
@@ -116,6 +95,15 @@ private:
 	Ren3dGlVertexInputUPtr default_vertex_input_;
 
 
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
+
+
 	void initialize_default_vertex_input();
 }; // Ren3dGlVertexInputMgrImpl
 
@@ -130,16 +118,21 @@ private:
 
 Ren3dGlVertexInputMgrImpl::Ren3dGlVertexInputMgrImpl(
 	const Ren3dGlContextPtr context)
+try
 	:
 	context_{context},
 	default_vertex_input_{}
 {
 	if (!context_)
 	{
-		throw Ren3dGlVertexInputMgrImplCreateException{"Null context."};
+		fail("Null context.");
 	}
 
 	initialize_default_vertex_input();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 Ren3dGlVertexInputMgrImpl::~Ren3dGlVertexInputMgrImpl() = default;
@@ -151,34 +144,68 @@ Ren3dGlContextPtr Ren3dGlVertexInputMgrImpl::get_context() const noexcept
 
 Ren3dVertexInputUPtr Ren3dGlVertexInputMgrImpl::create(
 	const Ren3dCreateVertexInputParam& param)
+try
 {
 	return Ren3dGlVertexInputFactory::create(this, param);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGlVertexInputMgrImpl::set(
 	const Ren3dVertexInputPtr vertex_input)
+try
 {
 	if (!vertex_input)
 	{
-		throw Ren3dGlVertexInputMgrImplException{"Null vertex input."};
+		fail("Null vertex input.");
 	}
 
 	static_cast<Ren3dGlVertexInputPtr>(vertex_input)->bind();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlVertexInputMgrImpl::bind_default_vao()
+try
 {
 	if (default_vertex_input_)
 	{
 		default_vertex_input_->bind_vao();
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
+
+[[noreturn]]
+void Ren3dGlVertexInputMgrImpl::fail(
+	const char* message)
+{
+	throw Ren3dGlVertexInputMgrException{message};
+}
+
+[[noreturn]]
+void Ren3dGlVertexInputMgrImpl::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(Ren3dGlVertexInputMgrException{message});
+}
 
 void Ren3dGlVertexInputMgrImpl::initialize_default_vertex_input()
+try
 {
 	const auto param = Ren3dCreateVertexInputParam{};
 	default_vertex_input_ = Ren3dGlVertexInputFactory::create(this, param);;
 	bind_default_vao();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 //

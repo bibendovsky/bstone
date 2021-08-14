@@ -51,23 +51,23 @@ namespace detail
 
 
 // =========================================================================
-// Ren3dGlVertexInputImplCreateException
+// Ren3dGlVertexInputException
 //
 
-class Ren3dGlVertexInputImplCreateException :
+class Ren3dGlVertexInputException :
 	public Exception
 {
 public:
-	explicit Ren3dGlVertexInputImplCreateException(
+	explicit Ren3dGlVertexInputException(
 		const char* message)
 		:
-		Exception{"REN_3D_GL_VRTX_INPT_INIT", message}
+		Exception{"REN_3D_GL_VERTEX_INPUT", message}
 	{
 	}
-}; // Ren3dGlVertexInputImplCreateException
+}; // Ren3dGlVertexInputException
 
 //
-// Ren3dGlVertexInputImplCreateException
+// Ren3dGlVertexInputException
 // =========================================================================
 
 
@@ -108,6 +108,15 @@ private:
 	VaoResource vao_resource_;
 
 
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
+
+
 	void initialize_vao();
 
 	void enable_attrib_array(
@@ -138,6 +147,7 @@ private:
 Ren3dGlVertexInputImpl::Ren3dGlVertexInputImpl(
 	const Ren3dGlVertexInputMgrPtr vertex_input_manager,
 	const Ren3dCreateVertexInputParam& param)
+try
 	:
 	manager_{vertex_input_manager},
 	device_features_{vertex_input_manager->get_context()->get_device_features()},
@@ -161,13 +171,17 @@ Ren3dGlVertexInputImpl::Ren3dGlVertexInputImpl(
 
 	if (is_location_out_of_range)
 	{
-		throw Ren3dGlVertexInputImplCreateException{"Location out of range."};
+		fail("Location out of range.");
 	}
 
 	index_buffer_ = static_cast<Ren3dGlBufferPtr>(param.index_buffer_);
 	attrib_descrs_ = param.attrib_descrs_;
 
 	initialize_vao();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 Ren3dGlVertexInputImpl::~Ren3dGlVertexInputImpl()
@@ -176,12 +190,17 @@ Ren3dGlVertexInputImpl::~Ren3dGlVertexInputImpl()
 }
 
 void Ren3dGlVertexInputImpl::bind_vao()
+try
 {
 	if (vao_resource_)
 	{
 		glBindVertexArray(vao_resource_.get());
 		Ren3dGlError::ensure_debug();
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 Ren3dBufferPtr Ren3dGlVertexInputImpl::get_index_buffer() const noexcept
@@ -190,6 +209,7 @@ Ren3dBufferPtr Ren3dGlVertexInputImpl::get_index_buffer() const noexcept
 }
 
 void Ren3dGlVertexInputImpl::bind()
+try
 {
 	if (vao_resource_)
 	{
@@ -208,6 +228,10 @@ void Ren3dGlVertexInputImpl::bind()
 		bind_internal();
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlVertexInputImpl::vao_deleter(
 	GLuint gl_name) noexcept
@@ -216,7 +240,22 @@ void Ren3dGlVertexInputImpl::vao_deleter(
 	Ren3dGlError::ensure_debug();
 }
 
+[[noreturn]]
+void Ren3dGlVertexInputImpl::fail(
+	const char* message)
+{
+	throw Ren3dGlVertexInputException{message};
+}
+
+[[noreturn]]
+void Ren3dGlVertexInputImpl::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(Ren3dGlVertexInputException{message});
+}
+
 void Ren3dGlVertexInputImpl::initialize_vao()
+try
 {
 	if (gl_device_features_.is_vao_available_)
 	{
@@ -228,7 +267,7 @@ void Ren3dGlVertexInputImpl::initialize_vao()
 
 		if (!vao_resource_)
 		{
-			throw Ren3dGlVertexInputImplCreateException{"Failed to create VAO."};
+			fail("Failed to create VAO.");
 		}
 
 		bind_vao();
@@ -247,18 +286,28 @@ void Ren3dGlVertexInputImpl::initialize_vao()
 		}
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlVertexInputImpl::enable_attrib_array(
 	const int index,
 	const bool is_enable)
+try
 {
 	const auto gl_func = (is_enable ? glEnableVertexAttribArray : glDisableVertexAttribArray);
 	gl_func(index);
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlVertexInputImpl::assign_default_attribute(
 	const Ren3dVertexAttribDescr& attribute_description)
+try
 {
 	glVertexAttrib4fv(
 		attribute_description.location_,
@@ -267,9 +316,14 @@ void Ren3dGlVertexInputImpl::assign_default_attribute(
 
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlVertexInputImpl::assign_regular_attribute(
 	const Ren3dVertexAttribDescr& attribute_description)
+try
 {
 	auto gl_component_count = GLint{};
 	auto gl_component_format = GLenum{};
@@ -294,7 +348,7 @@ void Ren3dGlVertexInputImpl::assign_regular_attribute(
 			break;
 
 		default:
-			throw Ren3dGlVertexInputImplCreateException{"Invalid format."};
+			fail("Invalid format.");
 	}
 
 	enable_attrib_array(attribute_description.location_, true);
@@ -318,9 +372,14 @@ void Ren3dGlVertexInputImpl::assign_regular_attribute(
 
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlVertexInputImpl::assign_attribute(
 	const Ren3dVertexAttribDescr& attribute_description)
+try
 {
 	if (attribute_description.is_default_)
 	{
@@ -331,8 +390,13 @@ void Ren3dGlVertexInputImpl::assign_attribute(
 		assign_regular_attribute(attribute_description);
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlVertexInputImpl::bind_internal()
+try
 {
 	if (index_buffer_)
 	{
@@ -362,6 +426,10 @@ void Ren3dGlVertexInputImpl::bind_internal()
 			enable_attrib_array(i, false);
 		}
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 //

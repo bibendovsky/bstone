@@ -76,25 +76,25 @@ public:
 
 
 	virtual Ren3dShaderVarPtr find_var(
-		const std::string& name) = 0;
+		const std::string& name) noexcept = 0;
 
 	virtual Ren3dShaderInt32VarPtr find_int32_var(
-		const std::string& name) = 0;
+		const std::string& name) noexcept = 0;
 
 	virtual Ren3dShaderFloat32VarPtr find_float32_var(
-		const std::string& name) = 0;
+		const std::string& name) noexcept = 0;
 
 	virtual Ren3dShaderVec2VarPtr find_vec2_var(
-		const std::string& name) = 0;
+		const std::string& name) noexcept = 0;
 
 	virtual Ren3dShaderVec4VarPtr find_vec4_var(
-		const std::string& name) = 0;
+		const std::string& name) noexcept = 0;
 
 	virtual Ren3dShaderMat4VarPtr find_mat4_var(
-		const std::string& name) = 0;
+		const std::string& name) noexcept = 0;
 
 	virtual Ren3dShaderSampler2dVarPtr find_sampler_2d_var(
-		const std::string& name) = 0;
+		const std::string& name) noexcept = 0;
 }; // Ren3dShaderStage
 
 using Ren3dShaderStagePtr = Ren3dShaderStage*;

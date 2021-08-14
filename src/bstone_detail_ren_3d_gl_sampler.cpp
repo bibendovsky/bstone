@@ -49,23 +49,23 @@ namespace detail
 
 
 // =========================================================================
-// Ren3dGlSamplerImplCreateException
+// Ren3dGlSamplerException
 //
 
-class Ren3dGlSamplerImplCreateException :
+class Ren3dGlSamplerException :
 	public Exception
 {
 public:
-	explicit Ren3dGlSamplerImplCreateException(
+	explicit Ren3dGlSamplerException(
 		const char* message)
 		:
-		Exception{"REN_3D_SMPLR_INIT", message}
+		Exception{"REN_3D_GL_SAMPLER", message}
 	{
 	}
-}; // Ren3dGlSamplerImplCreateException
+}; // Ren3dGlSamplerException
 
 //
-// Ren3dGlSamplerImplCreateException
+// Ren3dGlSamplerException
 // =========================================================================
 
 
@@ -96,6 +96,15 @@ public:
 
 
 private:
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
+
+
 	static void sampler_deleter(
 		GLuint gl_name) noexcept;
 
@@ -137,13 +146,14 @@ private:
 Ren3dGlSamplerImpl::Ren3dGlSamplerImpl(
 	Ren3dGlContextPtr context,
 	const Ren3dCreateSamplerParam& param)
+try
 	:
 	context_{context},
 	state_{}
 {
 	if (!context_)
 	{
-		throw Ren3dGlSamplerImplCreateException{"Null context."};
+		fail("Null context.");
 	}
 
 	const auto& device_features = context_->get_device_features();
@@ -170,16 +180,21 @@ Ren3dGlSamplerImpl::Ren3dGlSamplerImpl(
 
 		if (!sampler_resource_)
 		{
-			throw Ren3dGlSamplerImplCreateException{"Failed to create an object."};
+			fail("Failed to create an object.");
 		}
 	}
 
 	set_initial_state();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 Ren3dGlSamplerImpl::~Ren3dGlSamplerImpl() = default;
 
 void Ren3dGlSamplerImpl::set()
+try
 {
 	if (!sampler_resource_)
 	{
@@ -189,9 +204,14 @@ void Ren3dGlSamplerImpl::set()
 	glBindSampler(0, sampler_resource_.get());
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlSamplerImpl::update(
 	const Ren3dSamplerUpdateParam& param)
+try
 {
 	auto is_modified = false;
 
@@ -288,10 +308,28 @@ void Ren3dGlSamplerImpl::update(
 		}
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 const Ren3dSamplerState& Ren3dGlSamplerImpl::get_state() const noexcept
 {
 	return state_;
+}
+
+[[noreturn]]
+void Ren3dGlSamplerImpl::fail(
+	const char* message)
+{
+	throw Ren3dGlSamplerException{message};
+}
+
+[[noreturn]]
+void Ren3dGlSamplerImpl::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(Ren3dGlSamplerException{message});
 }
 
 void Ren3dGlSamplerImpl::sampler_deleter(
@@ -302,24 +340,35 @@ void Ren3dGlSamplerImpl::sampler_deleter(
 }
 
 void Ren3dGlSamplerImpl::set_mag_filter()
+try
 {
 	const auto gl_mag_filter = Ren3dGlUtils::get_mag_filter(state_.mag_filter_);
 
 	glSamplerParameteri(sampler_resource_.get(), GL_TEXTURE_MAG_FILTER, gl_mag_filter);
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlSamplerImpl::set_min_filter()
+try
 {
 	const auto gl_min_filter = Ren3dGlUtils::get_min_filter(state_.min_filter_, state_.mipmap_mode_);
 
 	glSamplerParameteri(sampler_resource_.get(), GL_TEXTURE_MIN_FILTER, gl_min_filter);
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlSamplerImpl::set_address_mode(
 	const Ren3dTextureAxis texture_axis,
 	const Ren3dAddressMode address_mode)
+try
 {
 	const auto gl_wrap_axis = Ren3dGlUtils::get_texture_wrap_axis(texture_axis);
 	const auto gl_address_mode = Ren3dGlUtils::get_address_mode(address_mode);
@@ -327,18 +376,33 @@ void Ren3dGlSamplerImpl::set_address_mode(
 	glSamplerParameteri(sampler_resource_.get(), gl_wrap_axis, gl_address_mode);
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlSamplerImpl::set_address_mode_u()
+try
 {
 	set_address_mode(Ren3dTextureAxis::u, state_.address_mode_u_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlSamplerImpl::set_address_mode_v()
+try
 {
 	set_address_mode(Ren3dTextureAxis::v, state_.address_mode_v_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlSamplerImpl::set_anisotropy()
+try
 {
 	Ren3dGlUtils::set_sampler_anisotropy(
 		sampler_resource_.get(),
@@ -346,8 +410,13 @@ void Ren3dGlSamplerImpl::set_anisotropy()
 		state_.anisotropy_
 	);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlSamplerImpl::set_initial_state()
+try
 {
 	if (!sampler_resource_)
 	{
@@ -359,6 +428,10 @@ void Ren3dGlSamplerImpl::set_initial_state()
 	set_address_mode_u();
 	set_address_mode_v();
 	set_anisotropy();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 //

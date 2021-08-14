@@ -56,6 +56,24 @@ namespace detail
 
 
 // ==========================================================================
+// Ren3dGlContextException
+
+class Ren3dGlContextException :
+	public Exception
+{
+public:
+	explicit Ren3dGlContextException(
+		const char* message)
+		:
+		Exception{"REN_3D_GL_CTX", message}
+	{
+	}
+}; // Ren3dGlContextException
+// Ren3dGlContextException
+// ==========================================================================
+
+
+// ==========================================================================
 // Ren3dGlContextImpl
 //
 
@@ -181,6 +199,15 @@ private:
 	Ren3dGlShaderStagePtr shader_stage_;
 
 
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
+
+
 	void set_max_mipmap_quality();
 
 
@@ -240,6 +267,7 @@ private:
 Ren3dGlContextImpl::Ren3dGlContextImpl(
 	const Ren3dDeviceFeatures& device_features,
 	const Ren3dGlDeviceFeatures& gl_device_features)
+try
 	:
 	device_features_{device_features},
 	gl_device_features_{gl_device_features},
@@ -272,10 +300,29 @@ Ren3dGlContextImpl::Ren3dGlContextImpl(
 	set_depth_defaults();
 	set_blending_defaults();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 Ren3dGlContextImpl::~Ren3dGlContextImpl() = default;
 
+[[noreturn]]
+void Ren3dGlContextImpl::fail(
+	const char* message)
+{
+	throw Ren3dGlContextException{message};
+}
+
+[[noreturn]]
+void Ren3dGlContextImpl::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(Ren3dGlContextException{message});
+}
+
 void Ren3dGlContextImpl::set_max_mipmap_quality()
+try
 {
 	if (!device_features_.is_mipmap_available_)
 	{
@@ -290,6 +337,10 @@ void Ren3dGlContextImpl::set_max_mipmap_quality()
 	glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 const Ren3dDeviceFeatures& Ren3dGlContextImpl::get_device_features() const noexcept
 {
@@ -303,8 +354,13 @@ const Ren3dGlDeviceFeatures& Ren3dGlContextImpl::get_gl_device_features() const 
 
 Ren3dGlBufferUPtr Ren3dGlContextImpl::create_buffer(
 	const Ren3dCreateBufferParam& param)
+try
 {
 	return Ren3dGlBufferFactory::create(this, param);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 Ren3dGlSamplerMgrPtr Ren3dGlContextImpl::get_sampler_manager() const noexcept
@@ -324,8 +380,13 @@ Ren3dGlVertexInputMgrPtr Ren3dGlContextImpl::get_vertex_input_manager() const no
 
 Ren3dGlShaderUPtr Ren3dGlContextImpl::create_shader(
 	const Ren3dCreateShaderParam& param)
+try
 {
 	return Ren3dGlShaderFactory::create(param);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 Ren3dGlShaderStageMgrPtr Ren3dGlContextImpl::get_shader_stage_manager() const noexcept
@@ -391,6 +452,7 @@ void Ren3dGlContextImpl::clear(
 
 void Ren3dGlContextImpl::set_viewport(
 	const Ren3dViewport& viewport)
+try
 {
 	if (viewport_.x != viewport.x ||
 		viewport_.y != viewport.y ||
@@ -412,9 +474,14 @@ void Ren3dGlContextImpl::set_viewport(
 		set_viewport_depth_range();
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlContextImpl::enable_scissor(
 	const bool is_enable)
+try
 {
 	if (is_scissor_enabled_ != is_enable)
 	{
@@ -422,9 +489,14 @@ void Ren3dGlContextImpl::enable_scissor(
 		enable_scissor();
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlContextImpl::set_scissor_box(
 	const Ren3dScissorBox& scissor_box)
+try
 {
 	if (scissor_box_.x != scissor_box.x ||
 		scissor_box_.y != scissor_box.y ||
@@ -435,9 +507,14 @@ void Ren3dGlContextImpl::set_scissor_box(
 		set_scissor_box();
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlContextImpl::enable_culling(
 	const bool is_enable)
+try
 {
 	if (is_culling_enabled_ != is_enable)
 	{
@@ -445,9 +522,14 @@ void Ren3dGlContextImpl::enable_culling(
 		enable_culling();
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlContextImpl::enable_depth_test(
 	const bool is_enable)
+try
 {
 	if (is_depth_test_enabled_ != is_enable)
 	{
@@ -455,9 +537,14 @@ void Ren3dGlContextImpl::enable_depth_test(
 		enable_depth_test();
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlContextImpl::enable_depth_write(
 	const bool is_enable)
+try
 {
 	if (is_depth_write_enabled_ != is_enable)
 	{
@@ -465,10 +552,14 @@ void Ren3dGlContextImpl::enable_depth_write(
 		enable_depth_write();
 	}
 }
-
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlContextImpl::enable_blending(
 	const bool is_enable)
+try
 {
 	if (is_blending_enabled_ != is_enable)
 	{
@@ -476,9 +567,14 @@ void Ren3dGlContextImpl::enable_blending(
 		enable_blending();
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlContextImpl::set_blending_func(
 	const Ren3dBlendingFunc& blending_func)
+try
 {
 	if (blending_func_.src_factor_ != blending_func.src_factor_ ||
 		blending_func_.dst_factor_ != blending_func.dst_factor_)
@@ -487,8 +583,13 @@ void Ren3dGlContextImpl::set_blending_func(
 		set_blending_func();
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlContextImpl::set_clear_color()
+try
 {
 	glClearColor(
 		static_cast<float>(clear_color_.r_) / 255.0F,
@@ -499,30 +600,55 @@ void Ren3dGlContextImpl::set_clear_color()
 
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlContextImpl::clear()
+try
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlContextImpl::set_clear_defaults()
+try
 {
 	clear_color_ = {};
 	set_clear_color();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlContextImpl::set_viewport_rect()
+try
 {
 	Ren3dGlUtils::set_viewport_rect(viewport_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlContextImpl::set_viewport_depth_range()
+try
 {
 	Ren3dGlUtils::set_viewport_depth_range(viewport_, gl_device_features_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlContextImpl::set_viewport_defaults()
+try
 {
 	viewport_.x = 0;
 	viewport_.y = 0;
@@ -534,18 +660,33 @@ void Ren3dGlContextImpl::set_viewport_defaults()
 	viewport_.max_depth_ = 1.0F;
 	set_viewport_depth_range();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlContextImpl::enable_scissor()
+try
 {
 	Ren3dGlUtils::enable_scissor(is_scissor_enabled_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlContextImpl::set_scissor_box()
+try
 {
 	Ren3dGlUtils::set_scissor_box(scissor_box_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlContextImpl::set_scissor_defaults()
+try
 {
 	is_scissor_enabled_ = false;
 	enable_scissor();
@@ -556,23 +697,43 @@ void Ren3dGlContextImpl::set_scissor_defaults()
 	scissor_box_.height_ = 0;
 	set_scissor_box();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlContextImpl::enable_culling()
+try
 {
 	Ren3dGlUtils::enable_culling(is_culling_enabled_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlContextImpl::set_culling_face()
+try
 {
 	Ren3dGlUtils::set_culling_face(culling_face_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlContextImpl::set_culling_mode()
+try
 {
 	Ren3dGlUtils::set_culling_mode(culling_mode_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlContextImpl::set_culling_defaults()
+try
 {
 	is_culling_enabled_ = false;
 	enable_culling();
@@ -583,18 +744,33 @@ void Ren3dGlContextImpl::set_culling_defaults()
 	culling_mode_ = Ren3dCullingMode::back;
 	set_culling_mode();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlContextImpl::enable_depth_test()
+try
 {
 	Ren3dGlUtils::enable_depth_test(is_depth_test_enabled_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlContextImpl::enable_depth_write()
+try
 {
 	Ren3dGlUtils::enable_depth_write(is_depth_write_enabled_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlContextImpl::set_depth_defaults()
+try
 {
 	is_depth_test_enabled_ = false;
 	enable_depth_test();
@@ -602,18 +778,33 @@ void Ren3dGlContextImpl::set_depth_defaults()
 	is_depth_write_enabled_ = false;
 	enable_depth_write();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlContextImpl::enable_blending()
+try
 {
 	Ren3dGlUtils::enable_blending(is_blending_enabled_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlContextImpl::set_blending_func()
+try
 {
 	Ren3dGlUtils::set_blending_func(blending_func_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlContextImpl::set_blending_defaults()
+try
 {
 	is_blending_enabled_ = false;
 	enable_blending();
@@ -621,6 +812,10 @@ void Ren3dGlContextImpl::set_blending_defaults()
 	blending_func_.src_factor_ = Ren3dBlendingFactor::src_alpha;
 	blending_func_.dst_factor_ = Ren3dBlendingFactor::one_minus_src_alpha;
 	set_blending_func();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 //
@@ -645,10 +840,29 @@ public:
 }; // Ren3dGlContextFactoryException
 
 
+class Ren3dGlContextFactory::Detail
+{
+public:
+	[[noreturn]]
+	static void fail(
+		const char* message)
+	{
+		throw Ren3dGlContextFactoryException{message};
+	}
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message)
+	{
+		std::throw_with_nested(Ren3dGlContextFactoryException{message});
+	}
+}; // Ren3dGlContextFactory::Detail
+
 Ren3dGlContextUPtr Ren3dGlContextFactory::create(
 	const Ren3dKind renderer_kind,
 	const Ren3dDeviceFeatures& device_features,
 	const Ren3dGlDeviceFeatures& gl_device_features)
+try
 {
 	switch (renderer_kind)
 	{
@@ -658,8 +872,12 @@ Ren3dGlContextUPtr Ren3dGlContextFactory::create(
 			return std::make_unique<Ren3dGlContextImpl>(device_features, gl_device_features);
 
 		default:
-			throw Ren3dGlContextFactoryException{"Unsupported renderer kind."};
+			Detail::fail("Unsupported renderer kind.");
 	}
+}
+catch (...)
+{
+	Detail::fail_nested(__func__);
 }
 
 //

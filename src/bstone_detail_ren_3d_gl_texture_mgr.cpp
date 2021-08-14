@@ -46,23 +46,23 @@ namespace detail
 
 
 // ==========================================================================
-// Ren3dGlTextureMgrImplCreateException
+// Ren3dGlTextureMgrException
 //
 
-class Ren3dGlTextureMgrImplCreateException :
+class Ren3dGlTextureMgrException :
 	public Exception
 {
 public:
-	explicit Ren3dGlTextureMgrImplCreateException(
+	explicit Ren3dGlTextureMgrException(
 		const char* message)
 		:
-		Exception{"REN_3D_GL_TEX_MGR_INIT", message}
+		Exception{"REN_3D_GL_TEXTURE_MGR", message}
 	{
 	}
-}; // Ren3dGlTextureMgrImplCreateException
+}; // Ren3dGlTextureMgrException
 
 //
-// Ren3dGlTextureMgrImplCreateException
+// Ren3dGlTextureMgrException
 // ==========================================================================
 
 
@@ -95,6 +95,15 @@ private:
 	const Ren3dGlContextPtr context_;
 
 
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
+
+
 	void unbind();
 }; // Ren3dGlTextureMgrImpl
 
@@ -109,15 +118,20 @@ private:
 
 Ren3dGlTextureMgrImpl::Ren3dGlTextureMgrImpl(
 	const Ren3dGlContextPtr context)
+try
 	:
 	context_{context}
 {
 	if (!context_)
 	{
-		throw Ren3dGlTextureMgrImplCreateException{"Null context."};
+		throw Ren3dGlTextureMgrException{"Null context."};
 	}
 
 	unbind();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 Ren3dGlTextureMgrImpl::~Ren3dGlTextureMgrImpl() = default;
@@ -129,12 +143,18 @@ Ren3dGlContextPtr Ren3dGlTextureMgrImpl::get_context() const noexcept
 
 Ren3dTexture2dUPtr Ren3dGlTextureMgrImpl::create(
 	const Ren3dCreateTexture2dParam& param)
+try
 {
 	return Ren3dGlTexture2dFactory::create(this, param);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGlTextureMgrImpl::set(
 	const Ren3dGlTexture2dPtr texture_2d)
+try
 {
 	if (texture_2d)
 	{
@@ -145,11 +165,34 @@ void Ren3dGlTextureMgrImpl::set(
 		unbind();
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
+
+[[noreturn]]
+void Ren3dGlTextureMgrImpl::fail(
+	const char* message)
+{
+	throw Ren3dGlTextureMgrException{message};
+}
+
+[[noreturn]]
+void Ren3dGlTextureMgrImpl::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(Ren3dGlTextureMgrException{message});
+}
 
 void Ren3dGlTextureMgrImpl::unbind()
+try
 {
 	glBindTexture(GL_TEXTURE_2D, 0);
 	Ren3dGlError::ensure_debug();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 //

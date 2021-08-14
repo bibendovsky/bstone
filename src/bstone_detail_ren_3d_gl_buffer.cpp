@@ -50,39 +50,16 @@ namespace detail
 // Ren3dGlBufferImpl
 //
 
-struct Ren3dGlBufferImplException :
+struct Ren3dGlBufferException :
 	public Exception
 {
-	explicit Ren3dGlBufferImplException(
+	explicit Ren3dGlBufferException(
 		const char* message)
 		:
 		Exception{"GL_BUF", message}
 	{
 	}
-}; // Ren3dGlBufferImplException
-
-
-struct Ren3dGlBufferImplCreateException :
-	public Exception
-{
-	explicit Ren3dGlBufferImplCreateException(
-		const char* message)
-		:
-		Exception{"GL_BUF_INIT", message}
-	{
-	}
-}; // Ren3dGlBufferImplCreateException
-
-struct Ren3dGlBufferImplUpdateException :
-	public Exception
-{
-	explicit Ren3dGlBufferImplUpdateException(
-		const char* const message)
-		:
-		Exception{"GL_BUF_UPD", message}
-	{
-	}
-}; // Ren3dGlBufferImplUpdateException
+}; // Ren3dGlBufferException
 
 
 class Ren3dGlBufferImpl final :
@@ -110,6 +87,15 @@ public:
 
 
 private:
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
+
+
 	static void buffer_deleter(
 		GLuint gl_name) noexcept;
 
@@ -150,6 +136,7 @@ private:
 Ren3dGlBufferImpl::Ren3dGlBufferImpl(
 	const Ren3dGlContextPtr context,
 	const Ren3dCreateBufferParam& param)
+try
 	:
 	context_{context},
 	gl_device_features_{context_->get_gl_device_features()},
@@ -178,7 +165,7 @@ Ren3dGlBufferImpl::Ren3dGlBufferImpl(
 
 	if (!buffer_resource_)
 	{
-		throw Ren3dGlBufferImplCreateException{"Failed to create a resource."};
+		fail("Failed to create a resource.");
 	}
 
 	kind = param.kind;
@@ -202,6 +189,10 @@ Ren3dGlBufferImpl::Ren3dGlBufferImpl(
 		Ren3dGlError::ensure_debug();
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 Ren3dGlBufferImpl::~Ren3dGlBufferImpl() = default;
 
@@ -222,15 +213,21 @@ int Ren3dGlBufferImpl::get_size() const noexcept
 
 void Ren3dGlBufferImpl::set(
 	const bool is_set)
+try
 {
 	const auto gl_name = (is_set ? buffer_resource_.get() : 0);
 
 	glBindBuffer(gl_target_, gl_name);
 	Ren3dGlError::ensure_debug();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void Ren3dGlBufferImpl::update(
 	const Ren3dUpdateBufferParam& param)
+try
 {
 	validate(param);
 
@@ -264,6 +261,24 @@ void Ren3dGlBufferImpl::update(
 		Ren3dGlError::ensure_debug();
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
+
+[[noreturn]]
+void Ren3dGlBufferImpl::fail(
+	const char* message)
+{
+	throw Ren3dGlBufferException{message};
+}
+
+[[noreturn]]
+void Ren3dGlBufferImpl::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(Ren3dGlBufferException{message});
+}
 
 void Ren3dGlBufferImpl::buffer_deleter(
 	GLuint gl_name) noexcept
@@ -274,6 +289,7 @@ void Ren3dGlBufferImpl::buffer_deleter(
 
 void Ren3dGlBufferImpl::validate(
 	const Ren3dCreateBufferParam& param)
+try
 {
 	switch (param.kind)
 	{
@@ -282,7 +298,7 @@ void Ren3dGlBufferImpl::validate(
 			break;
 
 		default:
-			throw Ren3dGlBufferImplCreateException{"Unsupported kind."};
+			fail("Unsupported kind.");
 	}
 
 	switch (param.usage_kind_)
@@ -293,51 +309,61 @@ void Ren3dGlBufferImpl::validate(
 			break;
 
 		default:
-			throw Ren3dGlBufferImplCreateException{"Unsupported usage kind."};
+			fail("Unsupported usage kind.");
 	}
 
 	if (param.size_ <= 0)
 	{
-		throw Ren3dGlBufferImplCreateException{"Size out of range."};
+		fail("Size out of range.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void Ren3dGlBufferImpl::validate(
 	const Ren3dUpdateBufferParam& param)
+try
 {
 	if (param.offset_ < 0)
 	{
-		throw Ren3dGlBufferImplUpdateException{"Offset out of range."};
+		fail("Offset out of range.");
 	}
 
 	if (param.size_ < 0)
 	{
-		throw Ren3dGlBufferImplUpdateException{"Size out of range."};
+		fail("Size out of range.");
 	}
 
 	if (param.offset_ > size_)
 	{
-		throw Ren3dGlBufferImplUpdateException{"Offset out of range."};
+		fail("Offset out of range.");
 	}
 
 	if (param.size_ > size_)
 	{
-		throw Ren3dGlBufferImplUpdateException{"Size out of range."};
+		fail("Size out of range.");
 	}
 
 	if ((param.offset_ + param.size_) > size_)
 	{
-		throw Ren3dGlBufferImplUpdateException{"End offset out of range."};
+		fail("End offset out of range.");
 	}
 
 	if (param.size_ > 0 && !param.data_)
 	{
-		throw Ren3dGlBufferImplUpdateException{"Null data."};
+		fail("Null data.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 GLenum Ren3dGlBufferImpl::gl_get_target(
 	const Ren3dBufferKind kind)
+try
 {
 	switch (kind)
 	{
@@ -348,12 +374,17 @@ GLenum Ren3dGlBufferImpl::gl_get_target(
 			return GL_ARRAY_BUFFER;
 
 		default:
-			throw Ren3dGlBufferImplException{"Unsupported kind."};
+			fail("Unsupported kind.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 GLenum Ren3dGlBufferImpl::gl_get_usage(
 	const Ren3dBufferUsageKind usage_kind)
+try
 {
 	switch (usage_kind)
 	{
@@ -367,8 +398,12 @@ GLenum Ren3dGlBufferImpl::gl_get_usage(
 			return GL_DYNAMIC_DRAW;
 
 		default:
-			throw Ren3dGlBufferImplException{"Unsupported usage kind."};
+			fail("Unsupported usage kind.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 //
