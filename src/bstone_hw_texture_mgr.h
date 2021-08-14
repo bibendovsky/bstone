@@ -126,7 +126,7 @@ public:
 
 	virtual void update_ui() = 0;
 
-	virtual Ren3dTexture2dPtr get_ui() const = 0;
+	virtual Ren3dTexture2dPtr get_ui() const noexcept = 0;
 
 
 	virtual void destroy_solid_1x1(
