@@ -1,5 +1,7 @@
 - [HWR] Fix Z-fighting.
-- Replace vid_throw_sdl_error with Sdl2EnsureResult.
 - Revise AOG compatibility.
-- Don't use virtual methods for uninitialization in `HwTextureMgr`.
 - Make logger exception safe.
+- Mark all constructors of classes derived from bstone::Exception as noexcept.
+- Use default constructors as much as possible - init fields at declaration.
+- If possible don't use default destructor in class derived from interface.
+- Don't define default interface destructor outside a class.

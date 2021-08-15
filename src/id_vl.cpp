@@ -43,6 +43,7 @@ Free Software Foundation, Inc.,
 #include "bstone_logger.h"
 #include "bstone_mt_task_mgr.h"
 #include "bstone_ren_3d_limits.h"
+#include "bstone_sdl2_exception.h"
 #include "bstone_sprite_cache.h"
 #include "bstone_string_helper.h"
 #include "bstone_sw_video.h"
@@ -1103,39 +1104,6 @@ const std::string& vid_get_vid_string()
 	return result;
 }
 
-[[noreturn]]
-void vid_throw_sdl_error(
-	const std::string& message_prefix)
-{
-	auto error_message = vid_get_vid_string();
-	error_message += ' ';
-
-	if (!message_prefix.empty())
-	{
-		error_message += message_prefix;
-		error_message += ' ';
-	}
-
-	const auto sdl_error_message = SDL_GetError();
-
-	if (sdl_error_message)
-	{
-		error_message = sdl_error_message;
-	}
-	else
-	{
-		error_message = "Generic SDL error.";
-	}
-
-	throw bstone::Exception{error_message.c_str()};
-}
-
-[[noreturn]]
-void vid_throw_sdl_error()
-{
-	vid_throw_sdl_error(vid_get_empty_string());
-}
-
 void vid_log()
 {
 	bstone::logger_->write();
@@ -1163,12 +1131,7 @@ void vid_get_current_display_mode()
 {
 	vid_log("Getting display mode.");
 
-	const auto sdl_result = SDL_GetDesktopDisplayMode(0, &vid_display_mode_);
-
-	if (sdl_result != 0)
-	{
-		vid_throw_sdl_error();
-	}
+	bstone::Sdl2EnsureResult{SDL_GetDesktopDisplayMode(0, &vid_display_mode_)};
 }
 
 void vid_cl_read()
