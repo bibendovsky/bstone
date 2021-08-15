@@ -37,9 +37,9 @@ namespace bstone
 class AudioExtractor
 {
 public:
-	AudioExtractor() noexcept;
+	AudioExtractor() noexcept = default;
 
-	virtual ~AudioExtractor();
+	virtual ~AudioExtractor() = default;
 
 
 	virtual void extract_music(

@@ -76,11 +76,9 @@ struct Ren3dCreateVertexInputParam
 
 class Ren3dVertexInput
 {
-protected:
-	Ren3dVertexInput() = default;
-
-
 public:
+	Ren3dVertexInput() noexcept = default;
+
 	virtual ~Ren3dVertexInput() = default;
 }; // Ren3dVertexInput
 

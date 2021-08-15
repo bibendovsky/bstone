@@ -70,11 +70,9 @@ struct Ren3dSamplerUpdateParam
 
 class Ren3dSampler
 {
-protected:
-	Ren3dSampler() = default;
-
-
 public:
+	Ren3dSampler() noexcept = default;
+
 	virtual ~Ren3dSampler() = default;
 
 

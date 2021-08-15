@@ -70,11 +70,9 @@ enum class HwTextureMgrUpscaleFilterKind
 
 class HwTextureMgr
 {
-protected:
-	HwTextureMgr() = default;
-
-
 public:
+	HwTextureMgr() noexcept = default;
+
 	virtual ~HwTextureMgr() = default;
 
 

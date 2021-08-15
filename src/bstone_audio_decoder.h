@@ -67,7 +67,7 @@ struct AudioDecoderInitParam
 class AudioDecoder
 {
 public:
-	AudioDecoder() = default;
+	AudioDecoder() noexcept = default;
 
 	virtual ~AudioDecoder() = default;
 

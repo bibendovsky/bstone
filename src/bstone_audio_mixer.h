@@ -84,7 +84,7 @@ struct AudioMixerInitParam
 class AudioMixer
 {
 public:
-	AudioMixer() = default;
+	AudioMixer() noexcept = default;
 
 	virtual ~AudioMixer() = default;
 

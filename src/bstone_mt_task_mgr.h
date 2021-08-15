@@ -44,11 +44,10 @@ namespace bstone
 
 class MtTask
 {
-protected:
-	MtTask();
-
 public:
-	virtual ~MtTask();
+	MtTask() noexcept = default;
+
+	virtual ~MtTask() = default;
 
 
 	virtual void execute() = 0;
@@ -80,12 +79,10 @@ using MtTaskPtr = MtTask*;
 
 class MtTaskMgr
 {
-protected:
-	MtTaskMgr();
-
-
 public:
-	virtual ~MtTaskMgr();
+	MtTaskMgr() noexcept = default;
+
+	virtual ~MtTaskMgr() = default;
 
 
 	virtual int get_max_threads() const noexcept = 0;

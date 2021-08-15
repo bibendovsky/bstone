@@ -193,11 +193,9 @@ struct Ren3dCreateCmdBufferParam
 
 class Ren3dCmdBuffer
 {
-protected:
-	Ren3dCmdBuffer() = default;
-
-
 public:
+	Ren3dCmdBuffer() noexcept = default;
+
 	virtual ~Ren3dCmdBuffer() = default;
 
 

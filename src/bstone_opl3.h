@@ -67,7 +67,7 @@ using Opl3UPtr = std::unique_ptr<Opl3>;
 class Opl3
 {
 public:
-	Opl3() = default;
+	Opl3() noexcept = default;
 
 	virtual ~Opl3() = default;
 

@@ -67,11 +67,9 @@ struct Ren3dCreateShaderStageParam
 
 class Ren3dShaderStage
 {
-protected:
-	Ren3dShaderStage() = default;
-
-
 public:
+	Ren3dShaderStage() noexcept = default;
+
 	virtual ~Ren3dShaderStage() = default;
 
 

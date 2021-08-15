@@ -95,11 +95,9 @@ enum class Ren3dGlExtensionId
 
 class Ren3dGlExtensionMgr
 {
-protected:
-	Ren3dGlExtensionMgr() = default;
-
-
 public:
+	Ren3dGlExtensionMgr() noexcept = default;
+
 	virtual ~Ren3dGlExtensionMgr() = default;
 
 

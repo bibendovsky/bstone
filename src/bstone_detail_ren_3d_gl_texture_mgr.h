@@ -56,11 +56,9 @@ using Ren3dGlTexture2dPtr = Ren3dGlTexture2d*;
 
 class Ren3dGlTextureMgr
 {
-protected:
-	Ren3dGlTextureMgr() = default;
-
-
 public:
+	Ren3dGlTextureMgr() noexcept = default;
+
 	virtual ~Ren3dGlTextureMgr() = default;
 
 

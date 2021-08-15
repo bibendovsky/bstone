@@ -85,7 +85,7 @@ struct Win32RegistryKeyStringValueResult
 class Win32RegistryKey
 {
 public:
-	Win32RegistryKey() = default;
+	Win32RegistryKey() noexcept = default;
 
 	virtual ~Win32RegistryKey() = default;
 

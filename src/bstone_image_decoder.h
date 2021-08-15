@@ -40,9 +40,9 @@ namespace bstone
 class ImageDecoder
 {
 public:
-	ImageDecoder();
+	ImageDecoder() noexcept = default;
 
-	virtual ~ImageDecoder();
+	virtual ~ImageDecoder() = default;
 
 
 	virtual void decode(

@@ -44,11 +44,9 @@ namespace bstone
 
 class Ren3dMgr
 {
-protected:
-	Ren3dMgr() = default;
-
-
 public:
+	Ren3dMgr() noexcept = default;
+
 	virtual ~Ren3dMgr() = default;
 
 

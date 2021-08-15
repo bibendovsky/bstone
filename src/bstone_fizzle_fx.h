@@ -38,7 +38,7 @@ namespace bstone
 class FizzleFX
 {
 public:
-	FizzleFX() = default;
+	FizzleFX() noexcept = default;
 
 	FizzleFX(
 		const FizzleFX& rhs) = delete;
