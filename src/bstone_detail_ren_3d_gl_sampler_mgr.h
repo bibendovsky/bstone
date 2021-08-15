@@ -52,11 +52,9 @@ using Ren3dGlContextPtr = Ren3dGlContext*;
 
 class Ren3dGlSamplerMgr
 {
-protected:
-	Ren3dGlSamplerMgr() = default;
-
-
 public:
+	Ren3dGlSamplerMgr() noexcept = default;
+
 	virtual ~Ren3dGlSamplerMgr() = default;
 
 

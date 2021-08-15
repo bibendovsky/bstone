@@ -64,11 +64,9 @@ struct Ren3dTexture2dUpdateParam
 
 class Ren3dTexture2d
 {
-protected:
-	Ren3dTexture2d() = default;
-
-
 public:
+	Ren3dTexture2d() noexcept = default;
+
 	virtual ~Ren3dTexture2d() = default;
 
 

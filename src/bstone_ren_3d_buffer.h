@@ -80,11 +80,9 @@ struct Ren3dUpdateBufferParam
 
 class Ren3dBuffer
 {
-protected:
-	Ren3dBuffer() = default;
-
-
 public:
+	Ren3dBuffer() noexcept = default;
+
 	virtual ~Ren3dBuffer() = default;
 
 

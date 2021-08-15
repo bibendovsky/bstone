@@ -64,11 +64,9 @@ struct Ren3dCreateShaderParam
 
 class Ren3dShader
 {
-protected:
-	Ren3dShader() = default;
-
-
 public:
+	Ren3dShader() noexcept = default;
+
 	virtual ~Ren3dShader() = default;
 
 

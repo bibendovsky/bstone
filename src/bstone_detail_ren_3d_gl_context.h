@@ -97,7 +97,7 @@ using Ren3dGlShaderStageMgrPtr = Ren3dGlShaderStageMgr*;
 class Ren3dGlContext
 {
 public:
-	Ren3dGlContext() = default;
+	Ren3dGlContext() noexcept = default;
 
 	virtual ~Ren3dGlContext() = default;
 

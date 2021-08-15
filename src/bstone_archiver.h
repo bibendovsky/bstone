@@ -53,7 +53,7 @@ public:
 class Archiver
 {
 public:
-	Archiver() = default;
+	Archiver() noexcept = default;
 
 	virtual ~Archiver() = default;
 

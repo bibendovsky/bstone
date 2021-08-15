@@ -104,13 +104,12 @@ struct Ren3dDrawIndexedParam
 
 class Ren3d
 {
-protected:
-	Ren3d() = default;
+public:
+	Ren3d() noexcept = default;
 
 	virtual ~Ren3d() = default;
 
 
-public:
 	virtual Ren3dKind get_kind() const noexcept = 0;
 
 	virtual const std::string& get_name() const noexcept = 0;

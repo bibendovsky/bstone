@@ -66,13 +66,12 @@ enum class Ren3dShaderVarTypeId
 
 class Ren3dShaderVar
 {
-protected:
-	Ren3dShaderVar() = default;
+public:
+	Ren3dShaderVar() noexcept = default;
 
 	virtual ~Ren3dShaderVar() = default;
 
 
-public:
 	virtual Ren3dShaderVarKind get_kind() const noexcept = 0;
 
 	virtual Ren3dShaderVarTypeId get_type_id() const noexcept = 0;
@@ -98,13 +97,12 @@ using Ren3dShaderVarPtr = Ren3dShaderVar*;
 class Ren3dShaderVarInt32 :
 	public virtual Ren3dShaderVar
 {
-protected:
-	Ren3dShaderVarInt32() = default;
+public:
+	Ren3dShaderVarInt32() noexcept = default;
 
 	virtual ~Ren3dShaderVarInt32() = default;
 
 
-public:
 	virtual void set_int32(
 		const std::int32_t value) = 0;
 }; // Ren3dShaderVarInt32
@@ -123,13 +121,12 @@ using Ren3dShaderInt32VarPtr = Ren3dShaderVarInt32*;
 class Ren3dShaderVarFloat32 :
 	public virtual Ren3dShaderVar
 {
-protected:
-	Ren3dShaderVarFloat32() = default;
+public:
+	Ren3dShaderVarFloat32() noexcept = default;
 
 	virtual ~Ren3dShaderVarFloat32() = default;
 
 
-public:
 	virtual void set_float32(
 		const float value) = 0;
 }; // Ren3dShaderVarFloat32
@@ -148,13 +145,12 @@ using Ren3dShaderFloat32VarPtr = Ren3dShaderVarFloat32*;
 class Ren3dShaderVarVec2 :
 	public virtual Ren3dShaderVar
 {
-protected:
-	Ren3dShaderVarVec2() = default;
+public:
+	Ren3dShaderVarVec2() noexcept = default;
 
 	virtual ~Ren3dShaderVarVec2() = default;
 
 
-public:
 	virtual void set_vec2(
 		const float* const value) = 0;
 }; // Ren3dShaderVarVec2
@@ -173,13 +169,12 @@ using Ren3dShaderVec2VarPtr = Ren3dShaderVarVec2*;
 class Ren3dShaderVarVec4 :
 	public virtual Ren3dShaderVar
 {
-protected:
-	Ren3dShaderVarVec4() = default;
+public:
+	Ren3dShaderVarVec4() noexcept = default;
 
 	virtual ~Ren3dShaderVarVec4() = default;
 
 
-public:
 	virtual void set_vec4(
 		const float* const value) = 0;
 }; // Ren3dShaderVarVec4
@@ -198,13 +193,12 @@ using Ren3dShaderVec4VarPtr = Ren3dShaderVarVec4*;
 class Ren3dShaderVarMat4 :
 	public virtual Ren3dShaderVar
 {
-protected:
-	Ren3dShaderVarMat4() = default;
+public:
+	Ren3dShaderVarMat4() noexcept = default;
 
 	virtual ~Ren3dShaderVarMat4() = default;
 
 
-public:
 	virtual void set_mat4(
 		const float* const value) = 0;
 }; // Ren3dShaderVarMat4
@@ -223,13 +217,12 @@ using Ren3dShaderMat4VarPtr = Ren3dShaderVarMat4*;
 class Ren3dShaderVarSampler2d :
 	public virtual Ren3dShaderVar
 {
-protected:
-	Ren3dShaderVarSampler2d() = default;
+public:
+	Ren3dShaderVarSampler2d() noexcept = default;
 
 	virtual ~Ren3dShaderVarSampler2d() = default;
 
 
-public:
 	virtual void set_sampler_2d(
 		const std::int32_t value) = 0;
 }; // Ren3dShaderVarSampler2d

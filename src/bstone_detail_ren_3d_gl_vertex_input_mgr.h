@@ -52,11 +52,9 @@ using Ren3dGlContextPtr = Ren3dGlContext*;
 
 class Ren3dGlVertexInputMgr
 {
-protected:
-	Ren3dGlVertexInputMgr() = default;
-
-
 public:
+	Ren3dGlVertexInputMgr() noexcept = default;
+
 	virtual ~Ren3dGlVertexInputMgr() = default;
 
 
