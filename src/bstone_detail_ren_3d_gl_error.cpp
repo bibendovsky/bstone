@@ -162,13 +162,6 @@ void Ren3dGlError::ensure()
 		throw GlErrorNullException{};
 	}
 
-	static auto counter = 0;
-
-	if ((counter++) == 1000)
-	{
-		throw GlErrorCodeException{0x500};
-	}
-
 	const auto gl_error_code = glGetError();
 
 	if (gl_error_code != GL_NO_ERROR)
@@ -182,6 +175,17 @@ void Ren3dGlError::ensure_debug()
 #if _DEBUG
 	ensure();
 #endif // _DEBUG
+}
+
+void Ren3dGlError::ensure_assert() noexcept
+{
+	assert(glGetError);
+
+#ifndef NDEBUG
+	const auto error_code = glGetError();
+#endif // !NDEBUG
+
+	assert(error_code == GL_NO_ERROR);
 }
 
 //

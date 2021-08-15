@@ -441,7 +441,7 @@ void Ren3dGlShaderStageImpl::shader_stage_deleter(
 	GLuint gl_name) noexcept
 {
 	glDeleteProgram(gl_name);
-	Ren3dGlError::ensure_debug();
+	Ren3dGlError::ensure_assert();
 }
 
 void Ren3dGlShaderStageImpl::validate(

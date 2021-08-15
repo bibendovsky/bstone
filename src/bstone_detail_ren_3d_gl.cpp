@@ -356,7 +356,7 @@ void Ren3dGl::fbo_deleter(
 {
 	const auto gl_function = (glDeleteFramebuffers ? glDeleteFramebuffers : glDeleteFramebuffersEXT);
 	gl_function(1, &gl_name);
-	Ren3dGlError::ensure_debug();
+	Ren3dGlError::ensure_assert();
 }
 
 void Ren3dGl::rbo_deleter(
@@ -364,7 +364,7 @@ void Ren3dGl::rbo_deleter(
 {
 	const auto gl_function = (glDeleteRenderbuffers ? glDeleteRenderbuffers : glDeleteRenderbuffersEXT);
 	gl_function(1, &gl_name);
-	Ren3dGlError::ensure_debug();
+	Ren3dGlError::ensure_assert();
 }
 
 void Ren3dGl::set_name_and_description()

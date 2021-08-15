@@ -336,7 +336,7 @@ void Ren3dGlSamplerImpl::sampler_deleter(
 	GLuint gl_name) noexcept
 {
 	glDeleteSamplers(1, &gl_name);
-	Ren3dGlError::ensure_debug();
+	Ren3dGlError::ensure_assert();
 }
 
 void Ren3dGlSamplerImpl::set_mag_filter()

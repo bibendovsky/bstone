@@ -284,7 +284,7 @@ void Ren3dGlBufferImpl::buffer_deleter(
 	GLuint gl_name) noexcept
 {
 	glDeleteBuffers(1, &gl_name);
-	Ren3dGlError::ensure_debug();
+	Ren3dGlError::ensure_assert();
 }
 
 void Ren3dGlBufferImpl::validate(
