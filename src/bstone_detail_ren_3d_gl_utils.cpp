@@ -43,7 +43,7 @@ Free Software Foundation, Inc.,
 #include "bstone_exception.h"
 #include "bstone_ren_3d_limits.h"
 #include "bstone_ren_3d_tests.h"
-#include "bstone_sdl2_exception.h"
+#include "bstone_sdl_exception.h"
 
 #include "bstone_detail_ren_3d_gl_error.h"
 
@@ -105,7 +105,7 @@ try
 	}
 
 	auto sdl_gl_context = SdlGlContextUPtr{SDL_GL_CreateContext(sdl_window)};
-	Sdl2EnsureResult{sdl_gl_context};
+	SdlEnsureResult{sdl_gl_context};
 	return sdl_gl_context;
 }
 catch (...)
@@ -377,7 +377,7 @@ try
 {
 	auto sdl_buffer_count = 0;
 
-	Sdl2EnsureResult{SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &sdl_buffer_count)};
+	SdlEnsureResult{SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &sdl_buffer_count)};
 
 	return sdl_buffer_count;
 }
@@ -391,7 +391,7 @@ try
 {
 	auto sdl_sample_count = 0;
 
-	Sdl2EnsureResult{SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &sdl_sample_count)};
+	SdlEnsureResult{SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &sdl_sample_count)};
 
 	return sdl_sample_count;
 }

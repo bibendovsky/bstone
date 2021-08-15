@@ -43,7 +43,7 @@ Free Software Foundation, Inc.,
 #include "bstone_logger.h"
 #include "bstone_mt_task_mgr.h"
 #include "bstone_ren_3d_limits.h"
-#include "bstone_sdl2_exception.h"
+#include "bstone_sdl_exception.h"
 #include "bstone_sprite_cache.h"
 #include "bstone_string_helper.h"
 #include "bstone_sw_video.h"
@@ -1131,7 +1131,7 @@ void vid_get_current_display_mode()
 {
 	vid_log("Getting display mode.");
 
-	bstone::Sdl2EnsureResult{SDL_GetDesktopDisplayMode(0, &vid_display_mode_)};
+	bstone::SdlEnsureResult{SDL_GetDesktopDisplayMode(0, &vid_display_mode_)};
 }
 
 void vid_cl_read()

@@ -161,7 +161,7 @@ static ScanCode in_keyboard_map_to_bstone(
 {
 	static_cast<void>(key_mod);
 
-	// FIXME There is no reliable way to check for numlock state in SDL2.
+	// FIXME There is no reliable way to check for numlock state in SDL.
 	bool is_numlock_active = true;
 
 	switch (key_code)

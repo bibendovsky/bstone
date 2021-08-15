@@ -22,8 +22,8 @@ Free Software Foundation, Inc.,
 */
 
 
-#ifndef BSTONE_SDL2_AUDIO_MIXER_INCLUDED
-#define BSTONE_SDL2_AUDIO_MIXER_INCLUDED
+#ifndef BSTONE_SDL_AUDIO_MIXER_INCLUDED
+#define BSTONE_SDL_AUDIO_MIXER_INCLUDED
 
 
 #include "bstone_audio_mixer.h"
@@ -42,18 +42,18 @@ Free Software Foundation, Inc.,
 #include "bstone_atomic_flag.h"
 #include "bstone_audio_decoder.h"
 #include "bstone_low_pass_filter.h"
-#include "bstone_sdl2_types.h"
+#include "bstone_sdl_types.h"
 
 
 namespace bstone
 {
 
 
-class Sdl2AudioMixer final :
+class SdlAudioMixer final :
 	public AudioMixer
 {
 public:
-	Sdl2AudioMixer();
+	SdlAudioMixer();
 
 
 	// Note: Mix size in milliseconds.
@@ -382,10 +382,10 @@ private:
 	static int calculate_digitized_sample_count(
 		int dst_sample_rate,
 		int digitized_byte_count) noexcept;
-}; // Sdl2AudioMixer
+}; // SdlAudioMixer
 
 
 } // bstone
 
 
-#endif // !BSTONE_SDL2_AUDIO_MIXER_INCLUDED
+#endif // !BSTONE_SDL_AUDIO_MIXER_INCLUDED

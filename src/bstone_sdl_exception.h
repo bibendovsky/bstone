@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_SDL2_EXCEPTION_INCLUDED
-#define BSTONE_SDL2_EXCEPTION_INCLUDED
+#ifndef BSTONE_SDL_EXCEPTION_INCLUDED
+#define BSTONE_SDL_EXCEPTION_INCLUDED
 
 
 #include <utility>
@@ -65,7 +65,7 @@ T* ensure_sdl_result(
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-class Sdl2EnsureResult
+class SdlEnsureResult
 {
 private:
 	template<typename T>
@@ -92,7 +92,7 @@ public:
 		typename TInt,
 		std::enable_if_t<std::is_same<TInt, int>::value, int> = 0
 	>
-		explicit Sdl2EnsureResult(
+		explicit SdlEnsureResult(
 			const TInt sdl_result)
 	{
 		if (sdl_result != 0)
@@ -105,7 +105,7 @@ public:
 		typename TPointer,
 		std::enable_if_t<std::is_pointer<TPointer>::value, int> = 0
 	>
-		explicit Sdl2EnsureResult(
+		explicit SdlEnsureResult(
 			const TPointer sdl_result)
 	{
 		if (!sdl_result)
@@ -118,7 +118,7 @@ public:
 		typename TBoolable,
 		std::enable_if_t<HasOperatorBool<TBoolable>::value, int> = 0
 	>
-	explicit Sdl2EnsureResult(
+	explicit SdlEnsureResult(
 		const TBoolable& sdl_result)
 	{
 		if (!sdl_result)
@@ -126,7 +126,7 @@ public:
 			fail_sdl();
 		}
 	}
-}; // Sdl2EnsureResult
+}; // SdlEnsureResult
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -134,4 +134,4 @@ public:
 } // bstone
 
 
-#endif // !BSTONE_SDL2_EXCEPTION_INCLUDED
+#endif // !BSTONE_SDL_EXCEPTION_INCLUDED

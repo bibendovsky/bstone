@@ -38,7 +38,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_exception.h"
 #include "bstone_logger.h"
-#include "bstone_sdl2_exception.h"
+#include "bstone_sdl_exception.h"
 #include "bstone_sdl_texture_lock.h"
 #include "bstone_sdl_utils.h"
 #include "bstone_video.h"

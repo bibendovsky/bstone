@@ -36,7 +36,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_exception.h"
 #include "bstone_ren_3d_limits.h"
-#include "bstone_sdl2_exception.h"
+#include "bstone_sdl_exception.h"
 #include "bstone_sprite.h"
 
 
@@ -170,7 +170,7 @@ try
 		sdl_flags
 	)};
 
-	Sdl2EnsureResult{sdl_window};
+	SdlEnsureResult{sdl_window};
 
 	return sdl_window;
 }

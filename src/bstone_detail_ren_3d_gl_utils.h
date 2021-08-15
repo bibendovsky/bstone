@@ -33,7 +33,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_DETAIL_REN_3D_GL_UTILS_INCLUDED
 
 
-#include "bstone_sdl2_types.h"
+#include "bstone_sdl_types.h"
 
 #include "bstone_detail_ren_3d_gl_api.h"
 #include "bstone_detail_ren_3d_gl_device_features.h"

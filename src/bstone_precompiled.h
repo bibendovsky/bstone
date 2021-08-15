@@ -82,7 +82,7 @@ Free Software Foundation, Inc.,
 #include "bstone_mt_task_mgr.h"
 
 #include "bstone_rect_2d.h"
-#include "bstone_sdl2_types.h"
+#include "bstone_sdl_types.h"
 
 #include "bstone_ren_3d.h"
 #include "bstone_ren_3d_tests.h"

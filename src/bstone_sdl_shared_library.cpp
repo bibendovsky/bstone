@@ -33,7 +33,7 @@ Free Software Foundation, Inc.,
 #include "SDL_loadso.h"
 
 #include "bstone_exception.h"
-#include "bstone_sdl2_exception.h"
+#include "bstone_sdl_exception.h"
 
 
 namespace bstone
@@ -135,7 +135,7 @@ void SdlSharedLibrary::open_internal(
 
 	try
 	{
-		Sdl2EnsureResult{handle_ = ::SDL_LoadObject(path)};
+		SdlEnsureResult{handle_ = ::SDL_LoadObject(path)};
 	}
 	catch (...)
 	{

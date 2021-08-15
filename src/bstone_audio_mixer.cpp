@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_oal_audio_mixer.h"
-#include "bstone_sdl2_audio_mixer.h"
+#include "bstone_sdl_audio_mixer.h"
 
 #include "bstone_exception.h"
 #include "bstone_logger.h"
@@ -51,7 +51,7 @@ AudioMixerUPtr make_audio_mixer(
 	switch (audio_driver_type)
 	{
 		case AudioDriverType::r2_sdl:
-			return std::make_unique<Sdl2AudioMixer>();
+			return std::make_unique<SdlAudioMixer>();
 
 		case AudioDriverType::r3_openal:
 			return std::make_unique<OalAudioMixer>();

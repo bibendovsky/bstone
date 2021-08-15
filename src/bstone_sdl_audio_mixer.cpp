@@ -22,7 +22,7 @@ Free Software Foundation, Inc.,
 */
 
 
-#include "bstone_sdl2_audio_mixer.h"
+#include "bstone_sdl_audio_mixer.h"
 
 #include <cassert>
 #include <cmath>
@@ -86,7 +86,7 @@ namespace bstone
 {
 
 
-Sdl2AudioMixer::CacheItem::CacheItem()
+SdlAudioMixer::CacheItem::CacheItem()
 	:
 	is_active{},
 	is_invalid{},
@@ -98,12 +98,12 @@ Sdl2AudioMixer::CacheItem::CacheItem()
 {
 }
 
-bool Sdl2AudioMixer::CacheItem::is_decoded() const
+bool SdlAudioMixer::CacheItem::is_decoded() const
 {
 	return decoded_count == samples_count;
 }
 
-void Sdl2AudioMixer::Positions::initialize()
+void SdlAudioMixer::Positions::initialize()
 {
 	player = {};
 
@@ -116,7 +116,7 @@ void Sdl2AudioMixer::Positions::initialize()
 	wall = {};
 }
 
-void Sdl2AudioMixer::Positions::fixed_copy_to(
+void SdlAudioMixer::Positions::fixed_copy_to(
 	Positions& target)
 {
 	player = target.player;
@@ -127,14 +127,14 @@ void Sdl2AudioMixer::Positions::fixed_copy_to(
 	wall = target.wall;
 }
 
-bool Sdl2AudioMixer::Sound::is_audible() const
+bool SdlAudioMixer::Sound::is_audible() const
 {
 	return left_volume > 0.0F || right_volume > 0.0F;
 }
 
-Sdl2AudioMixer::Sdl2AudioMixer() = default;
+SdlAudioMixer::SdlAudioMixer() = default;
 
-bool Sdl2AudioMixer::initialize(
+bool SdlAudioMixer::initialize(
 	const AudioMixerInitParam& param)
 {
 	uninitialize();
@@ -255,7 +255,7 @@ bool Sdl2AudioMixer::initialize(
 	return is_succeed;
 }
 
-void Sdl2AudioMixer::uninitialize()
+void SdlAudioMixer::uninitialize()
 {
 	is_initialized_ = false;
 
@@ -285,47 +285,47 @@ void Sdl2AudioMixer::uninitialize()
 	mix_size_ms_ = 0;
 }
 
-bool Sdl2AudioMixer::is_initialized() const
+bool SdlAudioMixer::is_initialized() const
 {
 	return is_initialized_;
 }
 
-Opl3Type Sdl2AudioMixer::get_opl3_type() const
+Opl3Type SdlAudioMixer::get_opl3_type() const
 {
 	return opl3_type_;
 }
 
-int Sdl2AudioMixer::get_rate() const
+int SdlAudioMixer::get_rate() const
 {
 	return dst_rate_;
 }
 
-int Sdl2AudioMixer::get_channel_count() const
+int SdlAudioMixer::get_channel_count() const
 {
 	return get_max_channels();
 }
 
-int Sdl2AudioMixer::get_mix_size_ms() const
+int SdlAudioMixer::get_mix_size_ms() const
 {
 	return mix_size_ms_;
 }
 
-float Sdl2AudioMixer::get_sfx_volume() const
+float SdlAudioMixer::get_sfx_volume() const
 {
 	return sfx_volume_.load(std::memory_order_acquire);
 }
 
-float Sdl2AudioMixer::get_music_volume() const
+float SdlAudioMixer::get_music_volume() const
 {
 	return music_volume_.load(std::memory_order_acquire);
 }
 
-bool Sdl2AudioMixer::get_resampling_lpf() const noexcept
+bool SdlAudioMixer::get_resampling_lpf() const noexcept
 {
 	return is_lpf_;
 }
 
-bool Sdl2AudioMixer::play_adlib_music(
+bool SdlAudioMixer::play_adlib_music(
 	const int music_index,
 	const void* const data,
 	const int data_size)
@@ -333,7 +333,7 @@ bool Sdl2AudioMixer::play_adlib_music(
 	return play_sound(SoundType::adlib_music, 0, music_index, data, data_size);
 }
 
-bool Sdl2AudioMixer::play_adlib_sound(
+bool SdlAudioMixer::play_adlib_sound(
 	const int sound_index,
 	const int priority,
 	const void* const data,
@@ -345,7 +345,7 @@ bool Sdl2AudioMixer::play_adlib_sound(
 	return play_sound(SoundType::adlib_sfx, priority, sound_index, data, data_size, actor_index, actor_type, actor_channel);
 }
 
-bool Sdl2AudioMixer::play_pc_speaker_sound(
+bool SdlAudioMixer::play_pc_speaker_sound(
 	const int sound_index,
 	const int priority,
 	const void* const data,
@@ -357,7 +357,7 @@ bool Sdl2AudioMixer::play_pc_speaker_sound(
 	return play_sound(SoundType::pc_speaker_sfx, priority, sound_index, data, data_size, actor_index, actor_type, actor_channel);
 }
 
-bool Sdl2AudioMixer::play_pcm_sound(
+bool SdlAudioMixer::play_pcm_sound(
 	const int sound_index,
 	const int priority,
 	const void* const data,
@@ -369,7 +369,7 @@ bool Sdl2AudioMixer::play_pcm_sound(
 	return play_sound(SoundType::pcm, priority, sound_index, data, data_size, actor_index, actor_type, actor_channel);
 }
 
-bool Sdl2AudioMixer::set_resampling_low_pass_filter(
+bool SdlAudioMixer::set_resampling_low_pass_filter(
 	const bool low_pass_filter)
 {
 	if (!is_initialized())
@@ -388,7 +388,7 @@ bool Sdl2AudioMixer::set_resampling_low_pass_filter(
 	return true;
 }
 
-bool Sdl2AudioMixer::update_positions()
+bool SdlAudioMixer::update_positions()
 {
 	if (!is_initialized())
 	{
@@ -553,7 +553,7 @@ bool Sdl2AudioMixer::update_positions()
 	return true;
 }
 
-bool Sdl2AudioMixer::stop_music()
+bool SdlAudioMixer::stop_music()
 {
 	if (!is_initialized())
 	{
@@ -570,7 +570,7 @@ bool Sdl2AudioMixer::stop_music()
 	return true;
 }
 
-bool Sdl2AudioMixer::stop_pausable_sfx()
+bool SdlAudioMixer::stop_pausable_sfx()
 {
 	if (!is_initialized())
 	{
@@ -587,7 +587,7 @@ bool Sdl2AudioMixer::stop_pausable_sfx()
 	return true;
 }
 
-bool Sdl2AudioMixer::pause_all_sfx(
+bool SdlAudioMixer::pause_all_sfx(
 	const bool is_paused)
 {
 	if (!is_initialized())
@@ -600,7 +600,7 @@ bool Sdl2AudioMixer::pause_all_sfx(
 	return true;
 }
 
-bool Sdl2AudioMixer::pause_music(
+bool SdlAudioMixer::pause_music(
 	const bool is_paused)
 {
 	if (!is_initialized())
@@ -613,7 +613,7 @@ bool Sdl2AudioMixer::pause_music(
 	return true;
 }
 
-bool Sdl2AudioMixer::set_mute(
+bool SdlAudioMixer::set_mute(
 	const bool is_mute)
 {
 	if (!is_initialized())
@@ -626,7 +626,7 @@ bool Sdl2AudioMixer::set_mute(
 	return true;
 }
 
-bool Sdl2AudioMixer::set_sfx_volume(
+bool SdlAudioMixer::set_sfx_volume(
 	const float volume)
 {
 	if (!is_initialized())
@@ -639,7 +639,7 @@ bool Sdl2AudioMixer::set_sfx_volume(
 	return true;
 }
 
-bool Sdl2AudioMixer::set_music_volume(
+bool SdlAudioMixer::set_music_volume(
 	const float volume)
 {
 	if (!is_initialized())
@@ -652,7 +652,7 @@ bool Sdl2AudioMixer::set_music_volume(
 	return true;
 }
 
-bool Sdl2AudioMixer::is_music_playing() const
+bool SdlAudioMixer::is_music_playing() const
 {
 	if (!is_initialized())
 	{
@@ -662,7 +662,7 @@ bool Sdl2AudioMixer::is_music_playing() const
 	return is_music_playing_;
 }
 
-bool Sdl2AudioMixer::is_any_unpausable_sfx_playing() const
+bool SdlAudioMixer::is_any_unpausable_sfx_playing() const
 {
 	if (!is_initialized())
 	{
@@ -672,43 +672,43 @@ bool Sdl2AudioMixer::is_any_unpausable_sfx_playing() const
 	return is_any_sfx_playing_;
 }
 
-bool Sdl2AudioMixer::is_player_channel_playing(
+bool SdlAudioMixer::is_player_channel_playing(
 	const ActorChannel channel) const
 {
 	return (player_channels_state_ & (1 << static_cast<int>(channel))) != 0;
 }
 
-int Sdl2AudioMixer::get_min_rate() const
+int SdlAudioMixer::get_min_rate() const
 {
 	return 11'025;
 }
 
-int Sdl2AudioMixer::get_default_rate() const
+int SdlAudioMixer::get_default_rate() const
 {
 	return 44'100;
 }
 
-int Sdl2AudioMixer::get_min_mix_size_ms() const
+int SdlAudioMixer::get_min_mix_size_ms() const
 {
 	return 20;
 }
 
-int Sdl2AudioMixer::get_default_mix_size_ms() const
+int SdlAudioMixer::get_default_mix_size_ms() const
 {
 	return 40;
 }
 
-int Sdl2AudioMixer::get_max_channels() const
+int SdlAudioMixer::get_max_channels() const
 {
 	return 2;
 }
 
-int Sdl2AudioMixer::get_max_commands() const
+int SdlAudioMixer::get_max_commands() const
 {
 	return 192;
 }
 
-void Sdl2AudioMixer::callback(
+void SdlAudioMixer::callback(
 	std::uint8_t* dst_data,
 	const int dst_length)
 {
@@ -724,7 +724,7 @@ void Sdl2AudioMixer::callback(
 	is_data_available_ = false;
 }
 
-void Sdl2AudioMixer::mix()
+void SdlAudioMixer::mix()
 {
 	handle_commands();
 
@@ -735,7 +735,7 @@ void Sdl2AudioMixer::mix()
 	}
 }
 
-void Sdl2AudioMixer::mix_samples()
+void SdlAudioMixer::mix_samples()
 {
 	if (sounds_.empty())
 	{
@@ -969,7 +969,7 @@ void Sdl2AudioMixer::mix_samples()
 	}
 }
 
-void Sdl2AudioMixer::handle_commands()
+void SdlAudioMixer::handle_commands()
 {
 	{
 		MtLockGuard guard_lock{mt_commands_lock_};
@@ -1018,7 +1018,7 @@ void Sdl2AudioMixer::handle_commands()
 	commands_.clear();
 }
 
-void Sdl2AudioMixer::handle_play_command(
+void SdlAudioMixer::handle_play_command(
 	const Command& command)
 {
 	auto cache_item = command.play_.sound.cache;
@@ -1085,7 +1085,7 @@ void Sdl2AudioMixer::handle_play_command(
 	set_player_channel_state(sound, true);
 }
 
-void Sdl2AudioMixer::handle_stop_music_command()
+void SdlAudioMixer::handle_stop_music_command()
 {
 	is_music_playing_ = false;
 
@@ -1103,7 +1103,7 @@ void Sdl2AudioMixer::handle_stop_music_command()
 	}
 }
 
-void Sdl2AudioMixer::handle_stop_pausable_sfx_command()
+void SdlAudioMixer::handle_stop_pausable_sfx_command()
 {
 	is_any_sfx_playing_ = false;
 
@@ -1117,7 +1117,7 @@ void Sdl2AudioMixer::handle_stop_pausable_sfx_command()
 	);
 }
 
-bool Sdl2AudioMixer::initialize_digitized_cache_item(
+bool SdlAudioMixer::initialize_digitized_cache_item(
 	const Command& command,
 	CacheItem& cache_item)
 {
@@ -1137,7 +1137,7 @@ bool Sdl2AudioMixer::initialize_digitized_cache_item(
 	return true;
 }
 
-bool Sdl2AudioMixer::initialize_cache_item(
+bool SdlAudioMixer::initialize_cache_item(
 	const Command& command,
 	CacheItem& cache_item)
 {
@@ -1191,7 +1191,7 @@ bool Sdl2AudioMixer::initialize_cache_item(
 	return true;
 }
 
-bool Sdl2AudioMixer::decode_digitized_sound(
+bool SdlAudioMixer::decode_digitized_sound(
 	const Sound& sound)
 {
 	auto cache_item = sound.cache;
@@ -1229,7 +1229,7 @@ bool Sdl2AudioMixer::decode_digitized_sound(
 	return true;
 }
 
-bool Sdl2AudioMixer::decode_sound(
+bool SdlAudioMixer::decode_sound(
 	const Sound& sound)
 {
 	auto cache_item = sound.cache;
@@ -1307,7 +1307,7 @@ bool Sdl2AudioMixer::decode_sound(
 	return true;
 }
 
-void Sdl2AudioMixer::spatialize_sound(
+void SdlAudioMixer::spatialize_sound(
 	Sound& sound)
 {
 	sound.left_volume = 1.0F;
@@ -1396,7 +1396,7 @@ void Sdl2AudioMixer::spatialize_sound(
 	sound.right_volume = right / 9.0F;
 }
 
-void Sdl2AudioMixer::spatialize_sounds()
+void SdlAudioMixer::spatialize_sounds()
 {
 	if (sounds_.empty())
 	{
@@ -1411,7 +1411,7 @@ void Sdl2AudioMixer::spatialize_sounds()
 	}
 }
 
-bool Sdl2AudioMixer::play_sound(
+bool SdlAudioMixer::play_sound(
 	const SoundType sound_type,
 	const int priority,
 	const int sound_index,
@@ -1484,41 +1484,41 @@ bool Sdl2AudioMixer::play_sound(
 	return true;
 }
 
-void Sdl2AudioMixer::lock()
+void SdlAudioMixer::lock()
 {
 	SDL_LockAudioDevice(sdl_audio_device_.get());
 }
 
-void Sdl2AudioMixer::unlock()
+void SdlAudioMixer::unlock()
 {
 	SDL_UnlockAudioDevice(sdl_audio_device_.get());
 }
 
-void Sdl2AudioMixer::callback_proxy(
+void SdlAudioMixer::callback_proxy(
 	void* user_data,
 	std::uint8_t* dst_data,
 	const int dst_length)
 {
 	assert(user_data);
 
-	auto mixer = static_cast<Sdl2AudioMixer*>(user_data);
+	auto mixer = static_cast<SdlAudioMixer*>(user_data);
 
 	mixer->mix();
 	mixer->callback(dst_data, dst_length);
 }
 
-int Sdl2AudioMixer::mix_proxy(
+int SdlAudioMixer::mix_proxy(
 	void* user_data)
 {
 	assert(user_data);
 
-	auto mixer = static_cast<Sdl2AudioMixer*>(user_data);
+	auto mixer = static_cast<SdlAudioMixer*>(user_data);
 	mixer->mix();
 
 	return 0;
 }
 
-int Sdl2AudioMixer::calculate_mix_samples_count(
+int SdlAudioMixer::calculate_mix_samples_count(
 	const int dst_rate,
 	const int mix_size_ms)
 {
@@ -1540,7 +1540,7 @@ int Sdl2AudioMixer::calculate_mix_samples_count(
 	return actual_count;
 }
 
-Sdl2AudioMixer::CacheItem* Sdl2AudioMixer::get_cache_item(
+SdlAudioMixer::CacheItem* SdlAudioMixer::get_cache_item(
 	const SoundType sound_type,
 	const int sound_index)
 {
@@ -1568,7 +1568,7 @@ Sdl2AudioMixer::CacheItem* Sdl2AudioMixer::get_cache_item(
 	}
 }
 
-void Sdl2AudioMixer::set_player_channel_state(
+void SdlAudioMixer::set_player_channel_state(
 	const Sound& sound,
 	const bool state)
 {
@@ -1599,7 +1599,7 @@ void Sdl2AudioMixer::set_player_channel_state(
 	}
 }
 
-AudioDecoderUPtr Sdl2AudioMixer::create_decoder_by_sound_type(
+AudioDecoderUPtr SdlAudioMixer::create_decoder_by_sound_type(
 	const SoundType sound_type) const
 {
 	switch (sound_type)
@@ -1618,7 +1618,7 @@ AudioDecoderUPtr Sdl2AudioMixer::create_decoder_by_sound_type(
 	}
 }
 
-bool Sdl2AudioMixer::is_sound_type_valid(
+bool SdlAudioMixer::is_sound_type_valid(
 	const SoundType sound_type)
 {
 	switch (sound_type)
@@ -1634,7 +1634,7 @@ bool Sdl2AudioMixer::is_sound_type_valid(
 	}
 }
 
-bool Sdl2AudioMixer::is_sound_index_valid(
+bool SdlAudioMixer::is_sound_index_valid(
 	const int sound_index,
 	const SoundType sound_type)
 {
@@ -1653,7 +1653,7 @@ bool Sdl2AudioMixer::is_sound_index_valid(
 	}
 }
 
-int Sdl2AudioMixer::calculate_digitized_sample_count(
+int SdlAudioMixer::calculate_digitized_sample_count(
 	int dst_sample_rate,
 	int digitized_byte_count) noexcept
 {
