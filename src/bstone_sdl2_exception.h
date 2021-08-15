@@ -31,30 +31,14 @@ Free Software Foundation, Inc.,
 #define BSTONE_SDL2_EXCEPTION_INCLUDED
 
 
-#include <type_traits>
-
-#include "bstone_exception.h"
-
-
 namespace bstone
 {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-class Sdl2Exception :
-	public Exception
-{
-public:
-	Sdl2Exception() noexcept;
-}; // Sdl2Exception
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-[[noreturn]] void throw_sdl();
+[[noreturn]]
+void fail_sdl();
 
 void ensure_sdl_result(
 	int sdl_result);
@@ -67,7 +51,7 @@ T* ensure_sdl_result(
 {
 	if (!sdl_result)
 	{
-		throw_sdl();
+		fail_sdl();
 	}
 
 	return sdl_result;
@@ -110,7 +94,7 @@ public:
 	{
 		if (sdl_result != 0)
 		{
-			throw_sdl();
+			fail_sdl();
 		}
 	}
 
@@ -123,7 +107,7 @@ public:
 	{
 		if (!sdl_result)
 		{
-			throw_sdl();
+			fail_sdl();
 		}
 	}
 
@@ -136,7 +120,7 @@ public:
 	{
 		if (!sdl_result)
 		{
-			throw_sdl();
+			fail_sdl();
 		}
 	}
 }; // Sdl2EnsureResult
