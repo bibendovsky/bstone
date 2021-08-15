@@ -372,36 +372,49 @@ catch (...)
 	fail_nested(__func__);
 }
 
-int Ren3dGlUtils::get_window_msaa_value()
+int Ren3dGlUtils::get_window_msaa_value_buffers()
+try
 {
-	try
+	auto sdl_buffer_count = 0;
+
+	Sdl2EnsureResult{SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &sdl_buffer_count)};
+
+	return sdl_buffer_count;
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
+
+int Ren3dGlUtils::get_window_msaa_value_samples()
+try
+{
+	auto sdl_sample_count = 0;
+
+	Sdl2EnsureResult{SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &sdl_sample_count)};
+
+	return sdl_sample_count;
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
+
+int Ren3dGlUtils::get_window_msaa_value()
+try
+{
+	const auto buffer_count = get_window_msaa_value_buffers();
+
+	if (buffer_count <= 0)
 	{
-		auto sdl_buffer_count = 0;
-
-		Sdl2EnsureResult{SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &sdl_buffer_count)};
-
-		if (sdl_buffer_count <= 0)
-		{
-			return 0;
-		}
-	}
-	catch (...)
-	{
-		fail_nested("Failed to get multisample buffer count.");
+		return 0;
 	}
 
-	try
-	{
-		auto sdl_sample_count = 0;
-
-		Sdl2EnsureResult{SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &sdl_sample_count)};
-
-		return sdl_sample_count;
-	}
-	catch (...)
-	{
-		fail_nested("Failed to get multisample sample count.");
-	}
+	return get_window_msaa_value_samples();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 int Ren3dGlUtils::get_max_anisotropy_degree()
