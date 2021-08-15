@@ -36,6 +36,7 @@ Free Software Foundation, Inc.,
 #include "id_vh.h"
 #include "id_vl.h"
 
+#include "bstone_exception.h"
 #include "bstone_logger.h"
 #include "bstone_sdl2_exception.h"
 #include "bstone_sdl_texture_lock.h"
@@ -54,7 +55,7 @@ class SwVideoException :
 {
 public:
 	explicit SwVideoException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"SW_VIDEO", message}
 	{

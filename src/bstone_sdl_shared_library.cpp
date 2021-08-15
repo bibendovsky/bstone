@@ -47,7 +47,7 @@ class SdlSharedLibraryException :
 {
 public:
 	explicit SdlSharedLibraryException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"SDL_SHARED_LIBRARY", message}
 	{

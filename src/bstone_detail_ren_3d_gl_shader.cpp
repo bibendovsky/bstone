@@ -57,7 +57,7 @@ class Ren3dGlShaderException :
 {
 public:
 	explicit Ren3dGlShaderException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"REN_3D_GL_SHADER", message}
 	{

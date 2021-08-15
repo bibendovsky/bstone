@@ -147,9 +147,9 @@ class MtTaskMgrImplException :
 {
 public:
 	explicit MtTaskMgrImplException(
-		const char* message)
+		const char* message) noexcept
 		:
-		Exception{message}
+		Exception{"MT_TASK_MGR", message}
 	{
 	}
 }; // MtTaskMgrImplException

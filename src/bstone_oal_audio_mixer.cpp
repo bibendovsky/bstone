@@ -57,7 +57,7 @@ class OalAudioMixerException :
 {
 public:
 	explicit OalAudioMixerException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"OAL_AUDIO_MIXER", message}
 	{

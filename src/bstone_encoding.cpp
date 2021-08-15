@@ -52,7 +52,7 @@ class Utf8ToUtf16Exception :
 {
 public:
 	explicit Utf8ToUtf16Exception(
-		const std::exception& std_exception)
+		const std::exception& std_exception) noexcept
 		:
 		Exception{"UTF8_TO_UTF16", std_exception.what()}
 	{
@@ -64,7 +64,7 @@ class Utf16ToUtf8Exception :
 {
 public:
 	explicit Utf16ToUtf8Exception(
-		const std::exception& std_exception)
+		const std::exception& std_exception) noexcept
 		:
 		Exception{"UTF16_TO_UTF8", std_exception.what()}
 	{

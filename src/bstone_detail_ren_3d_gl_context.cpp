@@ -63,7 +63,7 @@ class Ren3dGlContextException :
 {
 public:
 	explicit Ren3dGlContextException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"REN_3D_GL_CTX", message}
 	{
@@ -832,7 +832,7 @@ class Ren3dGlContextFactoryException :
 {
 public:
 	explicit Ren3dGlContextFactoryException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"REN_3D_GL_CTX_FACTORY", message}
 	{

@@ -50,7 +50,7 @@ class Ren3dGlShaderStageMgrException :
 {
 public:
 	explicit Ren3dGlShaderStageMgrException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"REN_3D_GL_SHADER_STAGE_MGR", message}
 	{

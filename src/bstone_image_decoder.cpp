@@ -51,7 +51,7 @@ class ImageDecoderException :
 {
 public:
 	explicit ImageDecoderException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"IMAGE_DECODER", message}
 	{

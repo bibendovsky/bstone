@@ -53,7 +53,7 @@ class Ren3dGlSamplerMgrException :
 {
 public:
 	explicit Ren3dGlSamplerMgrException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"REN_3D_GL_SMPLR_MGR", message}
 	{

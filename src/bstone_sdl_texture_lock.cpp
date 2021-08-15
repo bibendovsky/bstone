@@ -44,7 +44,7 @@ class SdlTextureLockException :
 {
 public:
 	explicit SdlTextureLockException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"SDL_TEXTURE_LOCK", message}
 	{

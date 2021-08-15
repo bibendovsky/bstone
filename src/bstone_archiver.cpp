@@ -38,7 +38,7 @@ namespace bstone
 
 
 ArchiverException::ArchiverException(
-	const char* message)
+	const char* message) noexcept
 	:
 	Exception{"ARCHIVER", message}
 {

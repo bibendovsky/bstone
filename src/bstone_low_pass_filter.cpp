@@ -43,7 +43,7 @@ class LowPassFilterException :
 {
 public:
 	explicit LowPassFilterException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"AUDIO_LPF", message}
 	{

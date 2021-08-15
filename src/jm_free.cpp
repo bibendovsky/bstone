@@ -153,7 +153,7 @@ class AddSearchPathException :
 {
 public:
 	explicit AddSearchPathException(
-		const char* message)
+		const char* message) noexcept
 		:
 		bstone::Exception{"ADD_SEARCH_PATH", message}
 	{

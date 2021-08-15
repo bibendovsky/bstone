@@ -73,7 +73,7 @@ class HwTextureMgrXbrzTaskException :
 {
 public:
 	explicit HwTextureMgrXbrzTaskException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"HW_TEXTURE_MGR_XBRZ_TASK", message}
 	{
@@ -271,7 +271,7 @@ class HwTextureMgrException :
 {
 public:
 	explicit HwTextureMgrException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"HW_TEXTURE_MGR", message}
 	{

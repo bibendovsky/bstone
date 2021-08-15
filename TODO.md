@@ -1,7 +1,13 @@
 - [HWR] Fix Z-fighting.
 - Revise AOG compatibility.
 - Make logger exception safe.
-- Mark all constructors of classes derived from bstone::Exception as noexcept.
 - Use default constructors as much as possible - init fields at declaration.
 - If possible don't use default destructor in class derived from interface.
 - Don't define default interface destructor outside a class.
+- Accept only C-string in Exception class constructor.
+- Rename strings `SDL2` to `SDL`.
+- Use functions `fail` and `fail_nested` instead of `throw`.
+- Use global namespace for WinAPI and other symbols.
+- Remove `const` before non-pointer or non-reference function parameter.
+- Remove `Exception` constructor with only one string parameter.
+- Don't use exceptions from `<stdexcept>`.

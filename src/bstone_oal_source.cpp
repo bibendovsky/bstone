@@ -46,7 +46,7 @@ class OalSourceException :
 {
 public:
 	explicit OalSourceException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"OAL_SOURCE", message}
 	{

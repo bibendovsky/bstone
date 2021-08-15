@@ -61,7 +61,7 @@ class Ren3dGlShaderStageException :
 {
 public:
 	explicit Ren3dGlShaderStageException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"REN_3D_GL_SHADER_STAGE", message}
 	{

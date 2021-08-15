@@ -61,7 +61,7 @@ class AudioExtractorException :
 {
 public:
 	explicit AudioExtractorException(
-		const std::string& message)
+		const std::string& message) noexcept
 		:
 		bstone::Exception{"AUDIO_EXTRACTOR", message.c_str()}
 	{

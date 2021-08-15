@@ -49,7 +49,7 @@ class Ren3dCmdBufferException :
 {
 public:
 	explicit Ren3dCmdBufferException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"REN_3D_CMD_BUFFER", message}
 	{

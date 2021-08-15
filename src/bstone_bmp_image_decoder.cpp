@@ -49,7 +49,7 @@ class BmpImageDecoderException :
 {
 public:
 	explicit BmpImageDecoderException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"BMP_IMAGE_DECODER", message}
 	{

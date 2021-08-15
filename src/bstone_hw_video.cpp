@@ -66,7 +66,7 @@ class HwVideoException :
 {
 public:
 	explicit HwVideoException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"HW_VIDEO", message}
 	{

@@ -53,7 +53,7 @@ class Win32RegistryKeyException :
 {
 public:
 	explicit Win32RegistryKeyException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"WIN32_REG_KEY", message}
 	{

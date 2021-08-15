@@ -50,7 +50,7 @@ class ImageEncoderException :
 {
 public:
 	explicit ImageEncoderException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"IMAGE_ENCODER", message}
 	{
