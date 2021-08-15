@@ -4,11 +4,11 @@
 #define VS_FFI_FILEFLAGSMASK 0x0000003FL
 #endif // !VS_FFI_FILEFLAGSMASK
 
-#ifdef _DEBUG
-#define VER_DBG 1
-#else // _DEBUG
+#ifdef NDEBUG
 #define VER_DBG 0
-#endif // _DEBUG
+#else // NDEBUG
+#define VER_DBG 1
+#endif // NDEBUG
 
 #ifndef VOS_NT
 #define VOS_NT 0x00040000L

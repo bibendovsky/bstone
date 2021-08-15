@@ -170,7 +170,7 @@ bool Sdl2AudioMixer::initialize(
 	mix_samples_count_ = calculate_mix_samples_count(dst_rate_, mix_size_ms_);
 
 	constexpr auto lpf_order =
-#if NDEBUG
+#ifdef NDEBUG
 		80
 #else
 		40

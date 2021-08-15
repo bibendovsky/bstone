@@ -88,7 +88,7 @@ void OalDeviceDeleter::operator()(
 
 	const auto alc_result = oal_alc_symbols_->alcCloseDevice(alc_device);
 
-#if NDEBUG
+#ifdef NDEBUG
 	static_cast<void>(alc_result);
 #else
 	assert(alc_result != ALC_FALSE);
@@ -171,7 +171,7 @@ void OalContextDeleter::operator()(
 	{
 		const auto alc_result = oal_alc_symbols_->alcMakeContextCurrent(nullptr);
 
-#if NDEBUG
+#ifdef NDEBUG
 		static_cast<void>(alc_result);
 #else
 		assert(alc_result != ALC_FALSE);

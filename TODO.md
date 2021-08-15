@@ -4,4 +4,3 @@
 - Split `Ren3dGlUtils::get_window_msaa_value`.
 - Don't use virtual methods for uninitialization in `HwTextureMgr`.
 - Make logger exception safe.
-- Use standard `NDEBUG` instead of non-standard `_DEBUG`.
