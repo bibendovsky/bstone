@@ -957,8 +957,8 @@ private:
 		int tile_y)
 	try
 	{
-		if (tile_x <= 0 || tile_x >= MAPSIZE ||
-			tile_y <= 0 || tile_y >= MAPSIZE)
+		if (tile_x < 0 || tile_x >= MAPSIZE ||
+			tile_y < 0 || tile_y >= MAPSIZE)
 		{
 			fail("Tile coordinates out of range.");
 		}
