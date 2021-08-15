@@ -63,21 +63,21 @@ public:
 
 	void write(
 		LoggerMessageKind message_kind,
-		const std::string& message) override;
+		const std::string& message) noexcept override;
 
-	void write() override;
+	void write() noexcept override;
 
 	void write(
-		const std::string& message) override;
+		const std::string& message) noexcept override;
 
 	void write_warning(
-		const std::string& message) override;
+		const std::string& message) noexcept override;
 
 	void write_error(
-		const std::string& message) override;
+		const std::string& message) noexcept override;
 
 	void write_critical(
-		const std::string& message) override;
+		const std::string& message) noexcept override;
 
 
 private:
@@ -102,7 +102,8 @@ DefaultLogger::DefaultLogger()
 
 void DefaultLogger::write(
 	LoggerMessageKind message_kind,
-	const std::string& message)
+	const std::string& message) noexcept
+try
 {
 	MutexLock mutex_lock{mutex_};
 
@@ -157,32 +158,37 @@ void DefaultLogger::write(
 		);
 	}
 }
+catch (...)
+{
+	std::cerr << "Write failed." << std::endl;
+	std::cerr << message.c_str() << std::endl;
+}
 
-void DefaultLogger::write()
+void DefaultLogger::write() noexcept
 {
 	write(LoggerMessageKind::information, "");
 }
 
 void DefaultLogger::write(
-	const std::string& message)
+	const std::string& message) noexcept
 {
 	write(LoggerMessageKind::information, message);
 }
 
 void DefaultLogger::write_warning(
-	const std::string& message)
+	const std::string& message) noexcept
 {
 	write(LoggerMessageKind::warning, message);
 }
 
 void DefaultLogger::write_error(
-	const std::string& message)
+	const std::string& message) noexcept
 {
 	write(LoggerMessageKind::error, message);
 }
 
 void DefaultLogger::write_critical(
-	const std::string& message)
+	const std::string& message) noexcept
 {
 	write(LoggerMessageKind::critical_error, message);
 }
