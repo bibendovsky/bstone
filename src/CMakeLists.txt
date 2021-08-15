@@ -53,13 +53,13 @@ option(BSTONE_MORE_COMPILER_WARNINGS "Enables more compiler warnings." OFF)
 
 # SDL2W
 #
-set(BSTONE_SDL2_COMPONENTS "")
+set(BSTONE_SDL_COMPONENTS "")
 
 if (BSTONE_USE_STATIC_LINKING)
-	set(BSTONE_SDL2_COMPONENTS "${BSTONE_SDL2_COMPONENTS};static")
+	set(BSTONE_SDL_COMPONENTS "${BSTONE_SDL_COMPONENTS};static")
 endif ()
 
-find_package(SDL2W 2.0.4 REQUIRED COMPONENTS ${BSTONE_SDL2_COMPONENTS})
+find_package(SDL2W 2.0.4 REQUIRED COMPONENTS ${BSTONE_SDL_COMPONENTS})
 
 # Threads
 #
@@ -289,8 +289,8 @@ target_sources(
 		bstone_missing_sprite_64x64_image.h
 		bstone_missing_wall_64x64_image.h
 		bstone_renderer_kind.h
-		bstone_sdl2_exception.h
-		bstone_sdl2_types.h
+		bstone_sdl_exception.h
+		bstone_sdl_types.h
 
 		bstone_ren_3d.h
 		bstone_ren_3d_buffer.h
@@ -399,7 +399,7 @@ target_sources(
 		bstone_rgb8.h
 		bstone_rgb_palette.h
 		bstone_scope_guard.h
-		bstone_sdl2_audio_mixer.h
+		bstone_sdl_audio_mixer.h
 		bstone_sdl_shared_library.h
 		bstone_sdl_texture_lock.h
 		bstone_sdl_utils.h
@@ -448,7 +448,7 @@ target_sources(
 		bstone_missing_sprite_64x64_image.cpp
 		bstone_missing_wall_64x64_image.cpp
 		bstone_ren_3d_mgr.cpp
-		bstone_sdl2_exception.cpp
+		bstone_sdl_exception.cpp
 
 		bstone_ren_3d_cmd_buffer.cpp
 
@@ -553,7 +553,7 @@ target_sources(
 		bstone_pc_speaker_audio_decoder.cpp
 		bstone_ps_fizzle_fx.cpp
 		bstone_rgb8.cpp
-		bstone_sdl2_audio_mixer.cpp
+		bstone_sdl_audio_mixer.cpp
 		bstone_sdl_shared_library.cpp
 		bstone_sdl_texture_lock.cpp
 		bstone_sdl_utils.cpp
@@ -632,7 +632,7 @@ install(
 	FILES
 		lib/sdl/COPYING.txt
 	DESTINATION "."
-	RENAME bstone_sdl2_license.txt
+	RENAME bstone_sdl_license.txt
 )
 
 install(

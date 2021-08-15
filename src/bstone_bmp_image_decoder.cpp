@@ -34,8 +34,8 @@ Free Software Foundation, Inc.,
 
 #include "bstone_endian.h"
 #include "bstone_exception.h"
-#include "bstone_sdl2_types.h"
-#include "bstone_sdl2_exception.h"
+#include "bstone_sdl_types.h"
+#include "bstone_sdl_exception.h"
 
 
 namespace bstone
@@ -110,7 +110,7 @@ void BmpImageDecoder::decode(
 
 	if (SDL_MUSTLOCK(sdl_src_surface.get()))
 	{
-		Sdl2EnsureResult{SDL_LockSurface(sdl_src_surface.get())};
+		SdlEnsureResult{SDL_LockSurface(sdl_src_surface.get())};
 	}
 
 	if (SDL_ISPIXELFORMAT_INDEXED(sdl_src_surface->format->format))
@@ -128,7 +128,7 @@ void BmpImageDecoder::decode_non_paletted(
 	Uint32 dst_sdl_pixel_format,
 	Rgba8Buffer& dst_buffer)
 {
-	Sdl2EnsureResult{SDL_ConvertPixels(
+	SdlEnsureResult{SDL_ConvertPixels(
 		src_sdl_surface->w,
 		src_sdl_surface->h,
 		src_sdl_surface->format->format,
@@ -147,7 +147,7 @@ void BmpImageDecoder::decode_paletted(
 {
 	const auto dst_sdl_surface = SdlSurfaceUPtr{SDL_ConvertSurfaceFormat(src_sdl_surface, dst_sdl_pixel_format, 0)};
 
-	Sdl2EnsureResult{dst_sdl_surface.get()};
+	SdlEnsureResult{dst_sdl_surface.get()};
 
 	if (dst_sdl_surface->pitch != (4 * src_sdl_surface->w))
 	{
@@ -156,7 +156,7 @@ void BmpImageDecoder::decode_paletted(
 
 	if (SDL_MUSTLOCK(dst_sdl_surface.get()))
 	{
-		Sdl2EnsureResult{SDL_LockSurface(dst_sdl_surface.get())};
+		SdlEnsureResult{SDL_LockSurface(dst_sdl_surface.get())};
 	}
 
 	std::uninitialized_copy_n(

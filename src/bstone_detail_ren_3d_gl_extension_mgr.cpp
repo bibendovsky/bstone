@@ -40,7 +40,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_exception.h"
 #include "bstone_ren_3d_tests.h"
-#include "bstone_sdl2_types.h"
+#include "bstone_sdl_types.h"
 
 #include "bstone_detail_ren_3d_gl_error.h"
 #include "bstone_detail_ren_3d_gl_utils.h"

@@ -64,7 +64,7 @@ loaded into the data segment
 #include "bstone_logger.h"
 #include "bstone_memory_stream.h"
 #include "bstone_rgb_palette.h"
-#include "bstone_sdl2_types.h"
+#include "bstone_sdl_types.h"
 #include "bstone_sha1.h"
 #include "bstone_sprite_cache.h"
 #include "bstone_string_helper.h"

@@ -4,7 +4,6 @@
 - If possible don't use default destructor in class derived from interface.
 - Don't define default interface destructor outside a class.
 - Accept only C-string in Exception class constructor.
-- Rename strings `SDL2` to `SDL`.
 - Use functions `fail` and `fail_nested` instead of `throw`.
 - Use global namespace for WinAPI and other symbols.
 - Remove `const` before non-pointer or non-reference function parameter.

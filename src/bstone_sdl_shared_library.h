@@ -22,8 +22,8 @@ Free Software Foundation, Inc.,
 */
 
 
-#ifndef BSTONE_SDL2_SHARED_LIBRARY_INCLUDED
-#define BSTONE_SDL2_SHARED_LIBRARY_INCLUDED
+#ifndef BSTONE_SDL_SHARED_LIBRARY_INCLUDED
+#define BSTONE_SDL_SHARED_LIBRARY_INCLUDED
 
 
 #include "bstone_shared_library.h"
@@ -93,4 +93,4 @@ private:
 } // bstone
 
 
-#endif // !BSTONE_SDL2_SHARED_LIBRARY_INCLUDED
+#endif // !BSTONE_SDL_SHARED_LIBRARY_INCLUDED

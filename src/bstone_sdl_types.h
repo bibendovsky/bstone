@@ -23,12 +23,12 @@ Free Software Foundation, Inc.,
 
 
 //
-// SDL2 types.
+// SDL types.
 //
 
 
-#ifndef BSTONE_SDL2_TYPES_INCLUDED
-#define BSTONE_SDL2_TYPES_INCLUDED
+#ifndef BSTONE_SDL_TYPES_INCLUDED
+#define BSTONE_SDL_TYPES_INCLUDED
 
 
 #include <memory>
@@ -82,4 +82,4 @@ using SdlAudioDevice = UniqueResource<SDL_AudioDeviceID, SDL_CloseAudioDevice>;
 } //  bstone
 
 
-#endif // !BSTONE_SDL2_TYPES_INCLUDED
+#endif // !BSTONE_SDL_TYPES_INCLUDED

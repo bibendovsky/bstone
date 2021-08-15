@@ -37,7 +37,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_ren_3d.h"
 #include "bstone_rgb_palette.h"
-#include "bstone_sdl2_types.h"
+#include "bstone_sdl_types.h"
 #include "bstone_sprite.h"
 
 
