@@ -1,6 +1,5 @@
 - [HWR] Fix Z-fighting.
 - Replace vid_throw_sdl_error with Sdl2EnsureResult.
 - Revise AOG compatibility.
-- Split `Ren3dGlUtils::get_window_msaa_value`.
 - Don't use virtual methods for uninitialization in `HwTextureMgr`.
 - Make logger exception safe.

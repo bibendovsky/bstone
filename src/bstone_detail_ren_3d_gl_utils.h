@@ -83,6 +83,10 @@ public:
 		Ren3dDeviceFeatures& device_features,
 		Ren3dGlDeviceFeatures& gl_device_features);
 
+	static int get_window_msaa_value_buffers();
+
+	static int get_window_msaa_value_samples();
+
 	static int get_window_msaa_value();
 
 
