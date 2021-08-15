@@ -272,7 +272,7 @@ void CheckHighScore(
 
 
 	// Check for cheaters
-#if NDEBUG
+#ifdef NDEBUG
 	if (DebugOk)
 	{
 		sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);

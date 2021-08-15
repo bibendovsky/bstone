@@ -172,9 +172,9 @@ void Ren3dGlError::ensure()
 
 void Ren3dGlError::ensure_debug()
 {
-#if _DEBUG
+#ifndef NDEBUG
 	ensure();
-#endif // _DEBUG
+#endif // !NDEBUG
 }
 
 void Ren3dGlError::ensure_assert() noexcept

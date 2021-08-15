@@ -32,7 +32,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_REN_3D_TESTS_INCLUDED
 
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 
 // Use textures with power-of-two dimensions.
 //#define BSTONE_REN_3D_TEST_POT_ONLY
@@ -76,7 +76,7 @@ Free Software Foundation, Inc.,
 // No OpenGL ES 2.0.
 //#define BSTONE_REN_3D_TEST_NO_GLES_2_0
 
-#endif // _DEBUG
+#endif // !NDEBUG
 
 
 #endif // !BSTONE_REN_3D_TESTS_INCLUDED

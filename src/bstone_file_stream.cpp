@@ -778,7 +778,7 @@ void FileStream::close_handle() noexcept
 #ifdef _WIN32
 	const auto win32_result = ::CloseHandle(static_cast<::HANDLE>(handle_));
 
-#if NDEBUG
+#ifdef NDEBUG
 	static_cast<void>(win32_result);
 #else
 	assert(win32_result != 0);
@@ -786,7 +786,7 @@ void FileStream::close_handle() noexcept
 #else
 	const auto posix_result = ::close(handle_);
 
-#if NDEBUG
+#ifdef NDEBUG
 	static_cast<void>(posix_result);
 #else
 	assert(posix_result == 0);

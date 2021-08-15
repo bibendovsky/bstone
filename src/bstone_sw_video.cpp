@@ -1046,7 +1046,7 @@ void SwVideo::create_window()
 		0
 	};
 
-#if NDEBUG
+#ifdef NDEBUG
 	if (!vid_cfg_get().is_windowed)
 	{
 		window_flags |= ::SDL_WINDOW_FULLSCREEN_DESKTOP;
