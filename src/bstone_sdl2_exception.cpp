@@ -31,6 +31,8 @@ Free Software Foundation, Inc.,
 
 #include "SDL_error.h"
 
+#include "bstone_exception.h"
+
 
 namespace bstone
 {
@@ -38,18 +40,24 @@ namespace bstone
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-Sdl2Exception::Sdl2Exception() noexcept
-	:
-	Exception{"SDL", ::SDL_GetError()}
+class Sdl2Exception :
+	public Exception
 {
-}
+public:
+	Sdl2Exception() noexcept
+		:
+		Exception{"SDL", ::SDL_GetError()}
+	{
+	}
+}; // Sdl2Exception
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-[[noreturn]] void throw_sdl()
+[[noreturn]]
+void fail_sdl()
 {
 	throw Sdl2Exception{};
 }
@@ -59,7 +67,7 @@ void ensure_sdl_result(
 {
 	if (sdl_result != 0)
 	{
-		throw_sdl();
+		fail_sdl();
 	}
 }
 

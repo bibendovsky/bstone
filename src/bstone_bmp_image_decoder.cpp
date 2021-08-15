@@ -86,14 +86,14 @@ void BmpImageDecoder::decode(
 
 	if (sdl_rw_ops == nullptr)
 	{
-		throw Sdl2Exception{};
+		fail_sdl();
 	}
 
 	const auto sdl_src_surface = SdlSurfaceUPtr{SDL_LoadBMP_RW(sdl_rw_ops, true)};
 
 	if (sdl_src_surface == nullptr)
 	{
-		throw Sdl2Exception{};
+		fail_sdl();
 	}
 
 	dst_width = sdl_src_surface->w;
