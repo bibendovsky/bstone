@@ -336,7 +336,7 @@ void VL_ScreenToMem(
 // BBi
 void vid_cfg_set_defaults();
 
-VidCfg& vid_cfg_get();
+VidCfg& vid_cfg_get() noexcept;
 
 bool vid_cfg_parse_key_value(
 	const std::string& key_string,
@@ -533,13 +533,13 @@ std::string vid_get_window_title_for_renderer(
 
 std::string vid_get_game_name_and_game_version_string();
 
-CalculateScreenSizeInputParam vid_create_screen_size_param();
+CalculateScreenSizeInputParam vid_create_screen_size_param() noexcept;
 
 void vid_calculate_window_elements_dimensions(
 	const CalculateScreenSizeInputParam& src_param,
-	VidLayout& dst_param);
+	VidLayout& dst_param) noexcept;
 
-void vid_calculate_vga_dimensions();
+void vid_calculate_vga_dimensions() noexcept;
 
 const std::string& vid_to_string(
 	bool value);

@@ -31,7 +31,6 @@ Free Software Foundation, Inc.,
 
 #include <cassert>
 
-#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -212,8 +211,6 @@ std::string get_nested_message()
 	{
 		message_size += message.size() + 1;
 	}
-
-	std::reverse(messages.begin(), messages.end());
 
 	auto result = std::string{};
 	result.reserve(message_size);

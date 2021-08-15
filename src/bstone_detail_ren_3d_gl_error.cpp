@@ -162,6 +162,13 @@ void Ren3dGlError::ensure()
 		throw GlErrorNullException{};
 	}
 
+	static auto counter = 0;
+
+	if ((counter++) == 1000)
+	{
+		throw GlErrorCodeException{0x500};
+	}
+
 	const auto gl_error_code = glGetError();
 
 	if (gl_error_code != GL_NO_ERROR)

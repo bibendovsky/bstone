@@ -3325,7 +3325,7 @@ extern int shade_max;
 
 
 void SetupScaling(
-	int maxscaleheight);
+	int maxscaleheight) noexcept;
 
 void ScaleShape(
 	int xcenter,
@@ -4001,7 +4001,7 @@ const std::string& get_profile_dir();
 
 const std::string& get_screenshot_dir();
 
-void update_normalshade();
+void update_normalshade() noexcept;
 
 int door_get_track_texture_id(
 	const doorobj_t& door);
@@ -4025,7 +4025,7 @@ int player_get_weapon_sprite_id();
 
 double player_get_weapon_bounce_offset();
 
-PaletteShiftInfo palette_shift_get_info();
+PaletteShiftInfo palette_shift_get_info() noexcept;
 
 void cfg_file_write_entry(
 	bstone::TextWriter& writer,
