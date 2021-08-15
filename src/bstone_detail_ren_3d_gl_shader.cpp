@@ -236,7 +236,7 @@ void Ren3dGlShaderImpl::shader_deleter(
 	GLuint gl_name) noexcept
 {
 	glDeleteShader(gl_name);
-	Ren3dGlError::ensure_debug();
+	Ren3dGlError::ensure_assert();
 }
 
 GLuint Ren3dGlShaderImpl::get_gl_name() const noexcept

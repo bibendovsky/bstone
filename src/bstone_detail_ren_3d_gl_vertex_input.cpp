@@ -237,7 +237,7 @@ void Ren3dGlVertexInputImpl::vao_deleter(
 	GLuint gl_name) noexcept
 {
 	glDeleteVertexArrays(1, &gl_name);
-	Ren3dGlError::ensure_debug();
+	Ren3dGlError::ensure_assert();
 }
 
 [[noreturn]]

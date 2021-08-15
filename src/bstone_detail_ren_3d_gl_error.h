@@ -54,6 +54,11 @@ struct Ren3dGlError
 	// Throws an exception on OpenGL error for debug build.
 	//
 	static void ensure_debug();
+
+	//
+	// Asserts if there was any OpenGL error.
+	//
+	static void ensure_assert() noexcept;
 }; // Ren3dGlError
 
 //

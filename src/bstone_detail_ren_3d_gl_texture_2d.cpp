@@ -221,7 +221,7 @@ try
 		fail("Mipmap count out of range.");
 	}
 
-	// TODO Disable when OpenGL ES 2.0 won't be supported.
+// TODO Disable when OpenGL ES 2.0 won't be supported.
 #if 1
 	if (mipmap_count_ > 1 && mipmap_count_ != max_mipmap_count)
 	{
@@ -406,7 +406,7 @@ void Ren3dGlTexture2dImpl::texture_deleter(
 	GLuint gl_name) noexcept
 {
 	glDeleteTextures(1, &gl_name);
-	Ren3dGlError::ensure_debug();
+	Ren3dGlError::ensure_assert();
 }
 
 [[noreturn]]
