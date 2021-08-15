@@ -72,14 +72,14 @@ class GetWorkingDirException :
 	public Exception
 {
 public:
-	GetWorkingDirException()
+	GetWorkingDirException() noexcept
 		:
 		Exception{"FS_GET_WORKING_DIR", "Failed to get."}
 	{
 	}
 
 	explicit GetWorkingDirException(
-		const char* const message)
+		const char* const message) noexcept
 		:
 		Exception{"FS_GET_WORKING_DIR", message}
 	{
@@ -90,14 +90,14 @@ class ResolvePathException :
 	public Exception
 {
 public:
-	ResolvePathException()
+	ResolvePathException() noexcept
 		:
 		Exception{"FS_RESOLVE_PATH", "Failed to get."}
 	{
 	}
 
 	explicit ResolvePathException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"FS_RESOLVE_PATH", message}
 	{
@@ -108,14 +108,14 @@ class RenameException :
 	public Exception
 {
 public:
-	RenameException()
+	RenameException() noexcept
 		:
 		Exception{"FS_RENAME", "Failed to rename."}
 	{
 	}
 
 	explicit RenameException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"RESOLVE_PATH", message}
 	{
@@ -127,7 +127,7 @@ class ReplaceExtensionException :
 {
 public:
 	explicit ReplaceExtensionException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"REPLACE_EXTENSION", message}
 	{

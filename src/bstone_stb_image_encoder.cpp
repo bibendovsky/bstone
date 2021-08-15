@@ -54,7 +54,7 @@ class StbImageEncoderException :
 {
 public:
 	explicit StbImageEncoderException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"STB_IMAGE_ENCODER", message}
 	{

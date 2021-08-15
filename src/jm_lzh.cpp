@@ -65,7 +65,7 @@ class LzhEncoderException :
 {
 public:
 	explicit LzhEncoderException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"LZH_ENCODER", message}
 	{
@@ -77,7 +77,7 @@ class LzhDecoderException :
 {
 public:
 	explicit LzhDecoderException(
-		const char* const message)
+		const char* const message) noexcept
 		:
 		Exception{"LZH_DECODER", message}
 	{

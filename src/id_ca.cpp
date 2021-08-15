@@ -2574,7 +2574,7 @@ class TextExtractorException :
 {
 public:
 	explicit TextExtractorException(
-		const std::string& message)
+		const std::string& message) noexcept
 		:
 		Exception{"DBG_TXT_DMPR", message.c_str()}
 	{
@@ -2863,7 +2863,7 @@ class CaResourceException :
 {
 public:
 	explicit CaResourceException(
-		const char* message)
+		const char* message) noexcept
 		:
 		bstone::Exception{"CA_RESOURCE", message}
 	{

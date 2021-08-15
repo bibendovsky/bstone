@@ -67,7 +67,7 @@ class Ren3dGlException :
 {
 public:
 	explicit Ren3dGlException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"REN_3D_GL", message}
 	{

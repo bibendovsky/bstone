@@ -54,7 +54,7 @@ class Ren3dGlTextureMgrException :
 {
 public:
 	explicit Ren3dGlTextureMgrException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"REN_3D_GL_TEXTURE_MGR", message}
 	{

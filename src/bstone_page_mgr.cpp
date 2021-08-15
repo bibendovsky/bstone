@@ -59,7 +59,7 @@ class PageMgrException :
 {
 public:
 	explicit PageMgrException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"BSTONE_PAGE_MGR", message}
 	{

@@ -45,7 +45,7 @@ class OalLoaderException :
 {
 public:
 	explicit OalLoaderException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"OAL_LOADER", message}
 	{

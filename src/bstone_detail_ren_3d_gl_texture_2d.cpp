@@ -60,7 +60,7 @@ class Ren3dGlTexture2dException :
 {
 public:
 	explicit Ren3dGlTexture2dException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"REN_3D_GL_TEXTURE_2D", message}
 	{

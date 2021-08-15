@@ -55,7 +55,7 @@ class Ren3dUtilsException :
 {
 public:
 	explicit Ren3dUtilsException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"REN_3D_UTILS", message}
 	{

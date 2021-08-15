@@ -31,6 +31,9 @@ Free Software Foundation, Inc.,
 #define BSTONE_SDL2_EXCEPTION_INCLUDED
 
 
+#include <utility>
+
+
 namespace bstone
 {
 

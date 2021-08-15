@@ -51,7 +51,7 @@ class Ren3dGlVertexInputMgrException :
 {
 public:
 	explicit Ren3dGlVertexInputMgrException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"REN_3D_GL_VTX_INP_MGR", message}
 	{

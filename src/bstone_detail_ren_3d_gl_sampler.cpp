@@ -57,7 +57,7 @@ class Ren3dGlSamplerException :
 {
 public:
 	explicit Ren3dGlSamplerException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"REN_3D_GL_SAMPLER", message}
 	{

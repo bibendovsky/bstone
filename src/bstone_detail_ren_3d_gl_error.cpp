@@ -31,6 +31,8 @@ Free Software Foundation, Inc.,
 
 #include "bstone_detail_ren_3d_gl_error.h"
 
+#include <cassert>
+
 #include <iomanip>
 #include <string>
 #include <sstream>
@@ -54,7 +56,7 @@ class GlErrorNullException :
 	public Exception
 {
 public:
-	explicit GlErrorNullException()
+	explicit GlErrorNullException() noexcept
 		:
 		Exception{"GL_ERR", "Null \"glGetError\"."}
 	{

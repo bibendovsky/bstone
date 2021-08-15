@@ -37,7 +37,8 @@ class MakeAudioMixerException :
 {
 public:
 	explicit MakeAudioMixerException(
-		const std::string& message) :
+		const std::string& message) noexcept
+		:
 		Exception{"MAKE_AUDIO_MIXER", message.c_str()}
 	{
 	}

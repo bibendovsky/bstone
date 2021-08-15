@@ -50,7 +50,7 @@ class AssetPathException :
 {
 public:
 	explicit AssetPathException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"CONTENT_PATH", message}
 	{

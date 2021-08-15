@@ -43,7 +43,7 @@ class OalResourceNullException :
 	public Exception
 {
 public:
-	explicit OalResourceNullException()
+	explicit OalResourceNullException() noexcept
 		:
 		Exception{"OAL_RESOURCE", "Null value."}
 	{
@@ -101,7 +101,7 @@ class OalDeviceResourceException :
 {
 public:
 	explicit OalDeviceResourceException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"OAL_DEVICE_RESOURCE", message}
 	{
@@ -187,7 +187,7 @@ class OalContextResourceException :
 {
 public:
 	explicit OalContextResourceException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"OAL_CONTEXT_RESOURCE", message}
 	{

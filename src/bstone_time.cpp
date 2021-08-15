@@ -45,7 +45,7 @@ class LocalDateTimeException :
 {
 public:
 	explicit LocalDateTimeException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"MAKE_LOCAL_DATE_TIME", message}
 	{
@@ -57,7 +57,7 @@ class LocalDateTimeStringException :
 {
 public:
 	explicit LocalDateTimeStringException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"MAKE_LOCAL_DATE_TIME_STRING", message}
 	{

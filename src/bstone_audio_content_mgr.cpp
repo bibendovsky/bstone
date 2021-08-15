@@ -55,7 +55,7 @@ class AudioContentMgrException :
 {
 public:
 	explicit AudioContentMgrException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"AUDIO_CONTENT_MGR", message}
 	{

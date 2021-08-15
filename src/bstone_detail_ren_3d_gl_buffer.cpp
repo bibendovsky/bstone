@@ -54,7 +54,7 @@ struct Ren3dGlBufferException :
 	public Exception
 {
 	explicit Ren3dGlBufferException(
-		const char* message)
+		const char* message) noexcept
 		:
 		Exception{"GL_BUF", message}
 	{
