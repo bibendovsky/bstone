@@ -2179,7 +2179,7 @@ void CleanDrawPlayBorder()
 	DrawPlayBorder();
 }
 
-PaletteShiftInfo palette_shift_get_info()
+PaletteShiftInfo palette_shift_get_info() noexcept
 {
 	return palette_shift_info_;
 }

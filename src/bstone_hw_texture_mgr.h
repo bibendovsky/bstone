@@ -129,6 +129,9 @@ public:
 	virtual Ren3dTexture2dPtr get_ui() const noexcept = 0;
 
 
+	virtual void try_destroy_solid_1x1(
+		const HwTextureMgrSolid1x1Id id) noexcept = 0;
+
 	virtual void destroy_solid_1x1(
 		const HwTextureMgrSolid1x1Id id) = 0;
 

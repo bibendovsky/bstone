@@ -89,12 +89,12 @@ public:
 	void get_palette(
 		int offset,
 		int count,
-		std::uint8_t* vga_palette) override;
+		std::uint8_t* vga_palette) const override;
 
 	void fill_palette(
 		int r,
 		int g,
-		int b) override;
+		int b) noexcept override;
 
 	void set_palette(
 		int offset,
@@ -125,7 +125,7 @@ public:
 	// HW
 	//
 
-	const bstone::Rgba8Palette& get_default_palette() override;
+	const bstone::Rgba8Palette& get_default_palette() const noexcept override;
 
 	void enable_fizzle_fx(
 		bool is_enabled) override;
@@ -139,30 +139,30 @@ public:
 	void set_fizzle_fx_ratio(
 		float ratio) override;
 
-	void clear_wall_render_list() override;
+	void clear_wall_render_list() noexcept override;
 
 	void add_wall_render_item(
 		int tile_x,
 		int tile_y) override;
 
-	void clear_pushwall_render_list() override;
+	void clear_pushwall_render_list() noexcept override;
 
 	void add_pushwall_render_item(
 		int tile_x,
 		int tile_y) override;
 
-	void clear_door_render_list() override;
+	void clear_door_render_list() noexcept override;
 
 	void add_door_render_item(
 		int tile_x,
 		int tile_y) override;
 
-	void clear_static_render_list() override;
+	void clear_static_render_list() noexcept override;
 
 	void add_static_render_item(
 		int bs_static_index) override;
 
-	void clear_actor_render_list() override;
+	void clear_actor_render_list() noexcept override;
 
 	void add_actor_render_item(
 		int bs_actor_index) override;
@@ -544,7 +544,7 @@ void SwVideo::present()
 void SwVideo::get_palette(
 	int offset,
 	int count,
-	std::uint8_t* vga_palette)
+	std::uint8_t* vga_palette) const
 {
 	assert(offset >= 0);
 	assert(count >= 0);
@@ -563,7 +563,7 @@ void SwVideo::get_palette(
 void SwVideo::fill_palette(
 	int r,
 	int g,
-	int b)
+	int b) noexcept
 {
 	for (auto& vga_color : vga_palette_)
 	{
@@ -748,7 +748,7 @@ void SwVideo::fade_in(
 // HW
 //
 
-const bstone::Rgba8Palette& SwVideo::get_default_palette()
+const bstone::Rgba8Palette& SwVideo::get_default_palette() const noexcept
 {
 	return default_palette_;
 }
@@ -777,7 +777,7 @@ void SwVideo::set_fizzle_fx_ratio(
 	static_cast<void>(ratio);
 }
 
-void SwVideo::clear_wall_render_list()
+void SwVideo::clear_wall_render_list() noexcept
 {
 }
 
@@ -789,7 +789,7 @@ void SwVideo::add_wall_render_item(
 	static_cast<void>(tile_y);
 }
 
-void SwVideo::clear_pushwall_render_list()
+void SwVideo::clear_pushwall_render_list() noexcept
 {
 }
 
@@ -801,7 +801,7 @@ void SwVideo::add_pushwall_render_item(
 	static_cast<void>(tile_y);
 }
 
-void SwVideo::clear_door_render_list()
+void SwVideo::clear_door_render_list() noexcept
 {
 }
 
@@ -813,7 +813,7 @@ void SwVideo::add_door_render_item(
 	static_cast<void>(tile_y);
 }
 
-void SwVideo::clear_static_render_list()
+void SwVideo::clear_static_render_list() noexcept
 {
 }
 
@@ -823,7 +823,7 @@ void SwVideo::add_static_render_item(
 	static_cast<void>(bs_static_index);
 }
 
-void SwVideo::clear_actor_render_list()
+void SwVideo::clear_actor_render_list() noexcept
 {
 }
 

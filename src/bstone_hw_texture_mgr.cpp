@@ -353,6 +353,9 @@ public:
 	Ren3dTexture2dPtr get_ui() const noexcept override;
 
 
+	void try_destroy_solid_1x1(
+		const HwTextureMgrSolid1x1Id id) noexcept override;
+
 	void destroy_solid_1x1(
 		const HwTextureMgrSolid1x1Id id) override;
 
@@ -598,6 +601,9 @@ private:
 		const IdToTexture2dMap& map) const noexcept;
 
 	void solid_1x1_destroy_all() noexcept;
+
+	static int solid_1x1_try_get_index(
+		const HwTextureMgrSolid1x1Id id) noexcept;
 
 	static int solid_1x1_get_index(
 		const HwTextureMgrSolid1x1Id id);
@@ -1068,6 +1074,20 @@ catch (...)
 Ren3dTexture2dPtr HwTextureMgrImpl::get_ui() const noexcept
 {
 	return ui_t2d_item_.texture_2d_.get();
+}
+
+void HwTextureMgrImpl::try_destroy_solid_1x1(
+	const HwTextureMgrSolid1x1Id id) noexcept
+{
+	const auto index = solid_1x1_try_get_index(id);
+
+	if (index < 0)
+	{
+		return;
+	}
+
+	auto& item = solid_1x1_items_[index];
+	item.clear();
 }
 
 void HwTextureMgrImpl::destroy_solid_1x1(
@@ -2221,6 +2241,25 @@ void HwTextureMgrImpl::solid_1x1_destroy_all() noexcept
 		const auto id = static_cast<HwTextureMgrSolid1x1Id>(i);
 
 		destroy_solid_1x1(id);
+	}
+}
+
+int HwTextureMgrImpl::solid_1x1_try_get_index(
+	const HwTextureMgrSolid1x1Id id) noexcept
+{
+	switch (id)
+	{
+		case HwTextureMgrSolid1x1Id::black:
+		case HwTextureMgrSolid1x1Id::white:
+		case HwTextureMgrSolid1x1Id::fade_2d:
+		case HwTextureMgrSolid1x1Id::fade_3d:
+		case HwTextureMgrSolid1x1Id::flooring:
+		case HwTextureMgrSolid1x1Id::ceiling:
+			return static_cast<int>(id);
+
+		default:
+			assert(!"Invalid solid 1x1 texture id.");
+			return -1;
 	}
 }
 

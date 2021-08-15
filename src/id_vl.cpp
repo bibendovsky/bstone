@@ -588,7 +588,7 @@ const std::string& vid_get_external_textures_name()
 }
 
 int vid_align_dimension(
-	int dimension)
+	int dimension) noexcept
 {
 	const auto alignment = 2;
 
@@ -660,7 +660,7 @@ void vid_cfg_adjust_window_position()
 
 void vid_calculate_window_elements_dimensions(
 	const CalculateScreenSizeInputParam& src_param,
-	VidLayout& dst_param)
+	VidLayout& dst_param) noexcept
 {
 	dst_param.windowed_width = src_param.windowed_width;
 	dst_param.windowed_height = src_param.windowed_height;
@@ -746,7 +746,7 @@ void vid_calculate_window_elements_dimensions(
 }
 
 
-CalculateScreenSizeInputParam vid_create_screen_size_param()
+CalculateScreenSizeInputParam vid_create_screen_size_param() noexcept
 {
 	auto window_width = (
 		vid_cfg_.is_windowed ?
@@ -780,7 +780,7 @@ CalculateScreenSizeInputParam vid_create_screen_size_param()
 	return result;
 }
 
-void vid_calculate_vga_dimensions()
+void vid_calculate_vga_dimensions() noexcept
 {
 	vga_width = vid_layout_.screen_viewport_width;
 	vga_height = vid_align_dimension((10 * vid_layout_.screen_height) / 12);
@@ -2597,7 +2597,7 @@ void vid_cfg_set_defaults()
 	vid_cfg_.is_external_textures_enabled_ = false;
 }
 
-VidCfg& vid_cfg_get()
+VidCfg& vid_cfg_get() noexcept
 {
 	return vid_cfg_;
 }

@@ -66,12 +66,12 @@ public:
 	virtual void get_palette(
 		int offset,
 		int count,
-		std::uint8_t* vga_palette) = 0;
+		std::uint8_t* vga_palette) const = 0;
 
 	virtual void fill_palette(
 		int r,
 		int g,
-		int b) = 0;
+		int b) noexcept = 0;
 
 	virtual void set_palette(
 		int offset,
@@ -102,7 +102,7 @@ public:
 	// HW
 	//
 
-	virtual const bstone::Rgba8Palette& get_default_palette() = 0;
+	virtual const bstone::Rgba8Palette& get_default_palette() const noexcept = 0;
 
 	virtual void enable_fizzle_fx(
 		bool is_enabled) = 0;
@@ -116,30 +116,30 @@ public:
 	virtual void set_fizzle_fx_ratio(
 		float ratio) = 0;
 
-	virtual void clear_wall_render_list() = 0;
+	virtual void clear_wall_render_list() noexcept = 0;
 
 	virtual void add_wall_render_item(
 		int tile_x,
 		int tile_y) = 0;
 
-	virtual void clear_pushwall_render_list() = 0;
+	virtual void clear_pushwall_render_list() noexcept = 0;
 
 	virtual void add_pushwall_render_item(
 		int tile_x,
 		int tile_y) = 0;
 
-	virtual void clear_door_render_list() = 0;
+	virtual void clear_door_render_list() noexcept = 0;
 
 	virtual void add_door_render_item(
 		int tile_x,
 		int tile_y) = 0;
 
-	virtual void clear_static_render_list() = 0;
+	virtual void clear_static_render_list() noexcept = 0;
 
 	virtual void add_static_render_item(
 		int bs_static_index) = 0;
 
-	virtual void clear_actor_render_list() = 0;
+	virtual void clear_actor_render_list() noexcept = 0;
 
 	virtual void add_actor_render_item(
 		int bs_actor_index) = 0;
