@@ -34,6 +34,8 @@ Free Software Foundation, Inc.,
 #include "id_sd.h"
 #include "id_vl.h"
 
+#include "bstone_exception.h"
+
 
 void IN_StartAck();
 bool IN_CheckAck();
@@ -41,6 +43,19 @@ bool IN_CheckAck();
 
 namespace bstone
 {
+
+
+class FizzleFXException :
+	public Exception
+{
+public:
+	explicit FizzleFXException(
+		const char* message) noexcept
+		:
+		Exception{"FIZZLE_FX", message}
+	{
+	}
+}; // FizzleFXException
 
 
 bool FizzleFX::present(
@@ -162,43 +177,94 @@ bool FizzleFX::present(
 }
 
 bool FizzleFX::is_abortable() const
+try
 {
-	throw "Not implemented.";
+	fail_not_implemented();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 bool FizzleFX::is_vanilla_only() const
+try
 {
-	throw "Not implemented.";
+	fail_not_implemented();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 int FizzleFX::get_frame_count() const
+try
 {
-	throw "Not implemented.";
+	fail_not_implemented();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 int FizzleFX::get_y() const
+try
 {
-	throw "Not implemented.";
+	fail_not_implemented();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 int FizzleFX::get_height() const
+try
 {
-	throw "Not implemented.";
+	fail_not_implemented();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void FizzleFX::plot(
 	const int x,
 	const int y)
+try
 {
 	static_cast<void>(x);
 	static_cast<void>(y);
 
-	throw "Not implemented.";
+	fail_not_implemented();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void FizzleFX::skip_to_the_end()
+try
 {
-	throw "Not implemented.";
+	fail_not_implemented();
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
+
+void FizzleFX::fail_not_implemented()
+try
+{
+	throw FizzleFXException{"Not implemented."};
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
+
+void FizzleFX::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(FizzleFXException{message});
 }
 
 

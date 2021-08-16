@@ -68,6 +68,28 @@ public:
 
 } // detail
 
+
+namespace
+{
+
+
+[[noreturn]]
+void fail(
+	const char* message)
+{
+	throw detail::StbImageDecoderException{message};
+}
+
+[[noreturn]]
+void fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(detail::StbImageDecoderException{message});
+}
+
+
+}
+
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
@@ -79,6 +101,7 @@ void StbImageDecoder::decode(
 	int& dst_width,
 	int& dst_height,
 	Rgba8Buffer& dst_buffer)
+try
 {
 	dst_width = 0;
 	dst_height = 0;
@@ -94,10 +117,9 @@ void StbImageDecoder::decode(
 		4
 	);
 
-	if (stb_bytes == nullptr)
+	if (!stb_bytes)
 	{
-		const auto message = stbi_failure_reason();
-		throw detail::StbImageDecoderException{message};
+		fail(stbi_failure_reason());
 	}
 
 	const auto dst_area = dst_width * dst_height;
@@ -114,6 +136,10 @@ void StbImageDecoder::decode(
 	);
 
 	STBI_FREE(stb_bytes);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

@@ -57,11 +57,11 @@ private:
 	static void stb_write_func_proxy(
 		void* context,
 		void* data,
-		int size);
+		int size) noexcept;
 
 	void stb_write_func(
 		void* data,
-		int size);
+		int size) noexcept;
 }; // StbImageEncoder
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

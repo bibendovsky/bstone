@@ -39,19 +39,21 @@ public:
 	using Value = std::uint32_t;
 
 
-	Crc32();
+	Crc32() noexcept;
 
 
-	void reset();
+	void reset() noexcept;
 
-	Value get_value() const;
+	Value get_value() const noexcept;
 
 	void update(
-		const void* const data,
-		const int size);
+		const void* data,
+		int size);
 
 
-	template<typename T>
+	template<
+		typename T
+	>
 	void update(
 		const T& value)
 	{
@@ -60,7 +62,16 @@ public:
 
 
 private:
-	Value value_;
+	Value value_{};
+
+
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
 }; // Crc32
 
 

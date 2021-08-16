@@ -121,6 +121,11 @@ private:
 	AudioChunks audio_chunks_{};
 
 
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+
 	void initialize();
 
 	AudiotData load_audiot_data();
@@ -166,7 +171,7 @@ void AudioContentMgrImpl::set_sfx_type(
 			break;
 
 		default:
-			throw AudioContentMgrException{"Unsupported SFX type."};
+			fail("Unsupported SFX type.");
 	}
 
 	sfx_chunk_base_index_ = sfx_chunk_base_index;
@@ -188,7 +193,7 @@ const AudioChunk& AudioContentMgrImpl::get_chunk(
 {
 	if (chunk_number < 0 || chunk_number >= get_chunk_count())
 	{
-		throw AudioContentMgrException{"Chunk number out of range."};
+		fail("Chunk number out of range.");
 	}
 
 	return audio_chunks_[chunk_number];
@@ -199,7 +204,7 @@ const AudioChunk& AudioContentMgrImpl::get_sfx_chunk(
 {
 	if (sfx_chunk_number < 0 || sfx_chunk_number >= max_sfx_sounds)
 	{
-		throw AudioContentMgrException{"SFX chunk number out of range."};
+		fail("SFX chunk number out of range.");
 	}
 
 	if (is_sfx_digitized_)
@@ -220,7 +225,7 @@ int AudioContentMgrImpl::get_sfx_priority(
 {
 	if (sfx_chunk_number < 0 || sfx_chunk_number >= max_sfx_sounds)
 	{
-		throw AudioContentMgrException{"SFX chunk number out of range."};
+		fail("SFX chunk number out of range.");
 	}
 
 	const auto& audio_chunk = audio_chunks_[sfx_chunk_base_index_ + sfx_chunk_number];
@@ -237,10 +242,17 @@ const AudioChunk& AudioContentMgrImpl::get_adlib_music_chunk(
 
 	if (adlib_music_chunk_id < 0 || adlib_music_chunk_id >= music_chunk_count)
 	{
-		throw AudioContentMgrException{"Music chunk number out of range."};
+		fail("Music chunk number out of range.");
 	}
 
 	return audio_chunks_[adlib_music_chunk_base_index + adlib_music_chunk_id];
+}
+
+[[noreturn]]
+void AudioContentMgrImpl::fail(
+	const char* message)
+{
+	throw AudioContentMgrException{message};
 }
 
 void AudioContentMgrImpl::initialize()
@@ -270,7 +282,7 @@ AudioContentMgrImpl::AudiotData AudioContentMgrImpl::load_audiot_data()
 
 	if (read_audiot_size != audiot_size)
 	{
-		throw AudioContentMgrException{"Failed to read audio data file."};
+		fail("Failed to read audio data file.");
 	}
 
 	return audiot_data;
@@ -287,7 +299,7 @@ AudioContentMgrImpl::AudioChunks AudioContentMgrImpl::make_audio_chunks(
 
 	if ((audiohed_size % audiohed_item_size) != 0)
 	{
-		throw AudioContentMgrException{"Invalid audio TOC file size."};
+		fail("Invalid audio TOC file size.");
 	}
 
 	const auto audiohed_count = audiohed_size / audiohed_item_size;
@@ -295,7 +307,7 @@ AudioContentMgrImpl::AudioChunks AudioContentMgrImpl::make_audio_chunks(
 
 	if (audio_chunk_count <= adlib_music_chunk_base_index)
 	{
-		throw AudioContentMgrException{"Invalid audio chunk count."};
+		fail("Invalid audio chunk count.");
 	}
 
 	using Audiohed = std::vector<std::int32_t>;
@@ -306,7 +318,7 @@ AudioContentMgrImpl::AudioChunks AudioContentMgrImpl::make_audio_chunks(
 
 	if (read_audiohed_size != audiohed_size)
 	{
-		throw AudioContentMgrException{"Failed to read audio TOC file."};
+		fail("Failed to read audio TOC file.");
 	}
 
 	if (Endian::is_big())

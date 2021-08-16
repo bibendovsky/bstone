@@ -68,18 +68,19 @@ void BmpImageDecoder::decode(
 	int& dst_width,
 	int& dst_height,
 	Rgba8Buffer& dst_buffer)
+try
 {
 	dst_width = 0;
 	dst_height = 0;
 
 	if (src_data == nullptr)
 	{
-		throw BmpImageDecoderException{"Null source data."};
+		fail("Null source data.");
 	}
 
 	if (src_data_size <= 0)
 	{
-		throw BmpImageDecoderException{"Source data size out of range."};
+		fail("Source data size out of range.");
 	}
 
 	const auto sdl_rw_ops = SDL_RWFromConstMem(src_data, src_data_size);
@@ -122,11 +123,30 @@ void BmpImageDecoder::decode(
 		decode_non_paletted(sdl_src_surface.get(), dst_pixel_format, dst_buffer);
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
+
+[[noreturn]]
+void BmpImageDecoder::fail(
+	const char* message)
+{
+	throw BmpImageDecoderException{message};
+}
+
+[[noreturn]]
+void BmpImageDecoder::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(BmpImageDecoderException{message});
+}
 
 void BmpImageDecoder::decode_non_paletted(
 	SDL_Surface* src_sdl_surface,
 	Uint32 dst_sdl_pixel_format,
 	Rgba8Buffer& dst_buffer)
+try
 {
 	SdlEnsureResult{SDL_ConvertPixels(
 		src_sdl_surface->w,
@@ -139,11 +159,16 @@ void BmpImageDecoder::decode_non_paletted(
 		4 * src_sdl_surface->w
 	)};
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void BmpImageDecoder::decode_paletted(
 	SDL_Surface* src_sdl_surface,
 	Uint32 dst_sdl_pixel_format,
 	Rgba8Buffer& dst_buffer)
+try
 {
 	const auto dst_sdl_surface = SdlSurfaceUPtr{SDL_ConvertSurfaceFormat(src_sdl_surface, dst_sdl_pixel_format, 0)};
 
@@ -151,7 +176,7 @@ void BmpImageDecoder::decode_paletted(
 
 	if (dst_sdl_surface->pitch != (4 * src_sdl_surface->w))
 	{
-		throw BmpImageDecoderException{"Unsupported pitch value."};
+		fail("Unsupported pitch value.");
 	}
 
 	if (SDL_MUSTLOCK(dst_sdl_surface.get()))
@@ -164,6 +189,10 @@ void BmpImageDecoder::decode_paletted(
 		src_sdl_surface->w * src_sdl_surface->h,
 		dst_buffer.data()
 	);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

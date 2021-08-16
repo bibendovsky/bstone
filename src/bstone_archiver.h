@@ -61,13 +61,9 @@ public:
 	virtual void initialize(
 		StreamPtr stream) = 0;
 
-	virtual void uninitialize() = 0;
+	virtual void uninitialize() noexcept = 0;
 
-	virtual bool is_initialized() const = 0;
-
-
-	virtual void throw_exception(
-		const char* const message) const = 0;
+	virtual bool is_initialized() const noexcept = 0;
 
 
 	virtual bool read_bool() = 0;
@@ -184,6 +180,11 @@ using ArchiverUPtr = std::unique_ptr<Archiver>;
 
 
 ArchiverUPtr make_archiver();
+
+
+[[noreturn]]
+void archiver_fail(
+	const char* message);
 
 
 } // bstone

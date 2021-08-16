@@ -49,17 +49,6 @@ namespace
 {
 
 
-class ArchiverExceptionImpl final :
-	public ArchiverException
-{
-public:
-	ArchiverExceptionImpl(
-		const char* const message);
-
-	~ArchiverExceptionImpl() override;
-}; // ArchiverException
-
-
 class ArchiverImpl final :
 	public Archiver
 {
@@ -72,13 +61,9 @@ public:
 	void initialize(
 		StreamPtr stream) override;
 
-	void uninitialize() override;
+	void uninitialize() noexcept override;
 
-	bool is_initialized() const override;
-
-
-	void throw_exception(
-		const char* const message) const override;
+	bool is_initialized() const noexcept override;
 
 
 	bool read_bool() override;
@@ -201,18 +186,28 @@ private:
 	Buffer buffer_;
 
 
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
+
+
 	template<typename T>
 	T read_integer(
 		const bool is_checksum = false)
+	try
 	{
 		if (!is_initialized_)
 		{
-			throw ArchiverExceptionImpl{"Not initialized."};
+			fail("Not initialized.");
 		}
 
 		if (!is_stream_readable_)
 		{
-			throw ArchiverExceptionImpl{"Stream is not readable."};
+			fail("Stream is not readable.");
 		}
 
 		constexpr auto value_size = static_cast<int>(sizeof(T));
@@ -223,7 +218,7 @@ private:
 
 		if (read_result != value_size)
 		{
-			throw ArchiverExceptionImpl{"Failed to read an integer value."};
+			fail("Failed to read an integer value.");
 		}
 
 		if (!is_checksum)
@@ -235,20 +230,25 @@ private:
 
 		return result;
 	}
+	catch (...)
+	{
+		fail_nested(__func__);
+	}
 
 	template<typename T>
 	void write_integer(
 		const T integer_value,
 		const bool is_checksum = false)
+	try
 	{
 		if (!is_initialized_)
 		{
-			throw ArchiverExceptionImpl{"Not initialized."};
+			fail("Not initialized.");
 		}
 
 		if (!is_stream_writable_)
 		{
-			throw ArchiverExceptionImpl{"Stream is not writable."};
+			fail("Stream is not writable.");
 		}
 
 		constexpr auto value_size = static_cast<int>(sizeof(T));
@@ -264,34 +264,38 @@ private:
 
 		if (!write_result)
 		{
-			throw ArchiverExceptionImpl{"Failed to write an integer value."};
+			fail("Failed to write an integer value.");
 		}
 	}
-
+	catch (...)
+	{
+		fail_nested(__func__);
+	}
 
 	template<typename T>
 	void read_integer_array(
 		T* items,
 		const int item_count)
+	try
 	{
 		if (!is_initialized_)
 		{
-			throw ArchiverExceptionImpl{"Not initialized."};
+			fail("Not initialized.");
 		}
 
 		if (!items)
 		{
-			throw ArchiverExceptionImpl{"Null items."};
+			fail("Null items.");
 		}
 
 		if (item_count <= 0)
 		{
-			throw ArchiverExceptionImpl{"Item count out of range."};
+			fail("Item count out of range.");
 		}
 
 		if (!is_stream_readable_)
 		{
-			throw ArchiverExceptionImpl{"Stream is not readable."};
+			fail("Stream is not readable.");
 		}
 
 		constexpr auto value_size = static_cast<int>(sizeof(T));
@@ -301,7 +305,7 @@ private:
 
 		if (read_result != items_size)
 		{
-			throw ArchiverExceptionImpl{"Failed to read an array of integer values."};
+			fail("Failed to read an array of integer values.");
 		}
 
 		if (Endian::should_be_swapped<T>())
@@ -314,30 +318,35 @@ private:
 
 		crc32_.update(items, items_size);
 	}
+	catch (...)
+	{
+		fail_nested(__func__);
+	}
 
 	template<typename T>
 	void write_integer_array(
 		const T* const items,
 		const int item_count)
+	try
 	{
 		if (!is_initialized_)
 		{
-			throw ArchiverExceptionImpl{"Not initialized."};
+			fail("Not initialized.");
 		}
 
 		if (!items)
 		{
-			throw ArchiverExceptionImpl{"Null items."};
+			fail("Null items.");
 		}
 
 		if (item_count <= 0)
 		{
-			throw ArchiverExceptionImpl{"Item count out of range."};
+			fail("Item count out of range.");
 		}
 
 		if (!is_stream_writable_)
 		{
-			throw ArchiverExceptionImpl{"Stream is not writable."};
+			fail("Stream is not writable.");
 		}
 
 		constexpr auto value_size = static_cast<int>(sizeof(T));
@@ -363,7 +372,7 @@ private:
 
 			if (!write_result)
 			{
-				throw ArchiverExceptionImpl{"Failed to write an array of integer values."};
+				fail("Failed to write an array of integer values.");
 			}
 		}
 		else
@@ -372,9 +381,13 @@ private:
 
 			if (!write_result)
 			{
-				throw ArchiverExceptionImpl{"Failed to write an array of integer values."};
+				fail("Failed to write an array of integer values.");
 			}
 		}
+	}
+	catch (...)
+	{
+		fail_nested(__func__);
 	}
 }; // ArchiverImpl
 
@@ -392,20 +405,21 @@ ArchiverImpl::ArchiverImpl()
 
 void ArchiverImpl::initialize(
 	StreamPtr stream)
+try
 {
 	if (is_initialized_)
 	{
-		throw ArchiverExceptionImpl{"Already initialized."};
+		fail("Already initialized.");
 	}
 
 	if (!stream)
 	{
-		throw ArchiverExceptionImpl{"Null stream."};
+		fail("Null stream.");
 	}
 
 	if (!stream->is_open())
 	{
-		throw ArchiverExceptionImpl{"Stream is not open."};
+		fail("Stream is not open.");
 	}
 
 
@@ -416,8 +430,12 @@ void ArchiverImpl::initialize(
 	stream_ = stream;
 	buffer_.clear();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
-void ArchiverImpl::uninitialize()
+void ArchiverImpl::uninitialize() noexcept
 {
 	is_initialized_ = false;
 	is_stream_readable_ = false;
@@ -427,245 +445,380 @@ void ArchiverImpl::uninitialize()
 	buffer_.clear();
 }
 
-bool ArchiverImpl::is_initialized() const
+bool ArchiverImpl::is_initialized() const noexcept
 {
 	return is_initialized_;
 }
 
-void ArchiverImpl::throw_exception(
-	const char* const message) const
-{
-	throw ArchiverExceptionImpl{message};
-}
-
 bool ArchiverImpl::read_bool()
+try
 {
 	const auto value_uint8 = read_integer<std::uint8_t>();
 
 	return value_uint8 != 0;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 char ArchiverImpl::read_char()
+try
 {
 	const auto value_char = read_integer<char>();
 
 	return value_char;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 std::int8_t ArchiverImpl::read_int8()
+try
 {
 	const auto value_int8 = read_integer<std::int8_t>();
 
 	return value_int8;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 std::uint8_t ArchiverImpl::read_uint8()
+try
 {
 	const auto value_uint8 = read_integer<std::uint8_t>();
 
 	return value_uint8;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 std::int16_t ArchiverImpl::read_int16()
+try
 {
 	const auto value_int16 = read_integer<std::int16_t>();
 
 	return value_int16;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 std::uint16_t ArchiverImpl::read_uint16()
+try
 {
 	const auto value_uint16 = read_integer<std::uint16_t>();
 
 	return value_uint16;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 std::int32_t ArchiverImpl::read_int32()
+try
 {
 	const auto value_int32 = read_integer<std::int32_t>();
 
 	return value_int32;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 std::uint32_t ArchiverImpl::read_uint32()
+try
 {
 	const auto value_uint32 = read_integer<std::uint32_t>();
 
 	return value_uint32;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void ArchiverImpl::read_char_array(
 	char* items,
 	const int item_count)
+try
 {
 	read_integer_array(items, item_count);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void ArchiverImpl::read_int8_array(
 	std::int8_t* items_int8,
 	const int item_count)
+try
 {
 	read_integer_array(items_int8, item_count);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void ArchiverImpl::read_uint8_array(
 	std::uint8_t* items_uint8,
 	const int item_count)
+try
 {
 	read_integer_array(items_uint8, item_count);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void ArchiverImpl::read_int16_array(
 	std::int16_t* items_int16,
 	const int item_count)
+try
 {
 	read_integer_array(items_int16, item_count);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void ArchiverImpl::read_uint16_array(
 	std::uint16_t* items_uint16,
 	const int item_count)
+try
 {
 	read_integer_array(items_uint16, item_count);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void ArchiverImpl::read_string(
 	const int max_string_length,
 	char* const string,
 	int& string_length)
+try
 {
 	if (max_string_length <= 0)
 	{
-		throw ArchiverExceptionImpl{"Maximum string length out of range."};
+		fail("Maximum string length out of range.");
 	}
 
 	if (!string)
 	{
-		throw ArchiverExceptionImpl{"Null string."};
+		fail("Null string.");
 	}
 
 	const auto archived_string_length = read_integer<std::int32_t>();
 
 	if (archived_string_length < 0 || archived_string_length > max_string_length)
 	{
-		throw ArchiverExceptionImpl{"Archived string length out of range."};
+		fail("Archived string length out of range.");
 	}
 
 	const auto read_result = stream_->read(string, archived_string_length);
 
 	if (read_result != archived_string_length)
 	{
-		throw ArchiverExceptionImpl{"Failed to read string data."};
+		fail("Failed to read string data.");
 	}
 
 	string_length = archived_string_length;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void ArchiverImpl::read_checksum()
+try
 {
 	const auto checksum = read_integer<std::uint32_t>(true);
 
 	if (checksum != crc32_.get_value())
 	{
-		throw ArchiverExceptionImpl{"Checksum mismatch."};
+		fail("Checksum mismatch.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void ArchiverImpl::write_bool(
 	const bool value_bool)
+try
 {
 	write_integer<std::uint8_t>(value_bool);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void ArchiverImpl::write_char(
 	const char value_char)
+try
 {
 	write_integer(value_char);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void ArchiverImpl::write_int8(
 	const std::int8_t value_int8)
+try
 {
 	write_integer(value_int8);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void ArchiverImpl::write_uint8(
 	const std::uint8_t value_uint8)
+try
 {
 	write_integer(value_uint8);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void ArchiverImpl::write_int16(
 	const std::int16_t value_int16)
+try
 {
 	write_integer(value_int16);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void ArchiverImpl::write_uint16(
 	const std::uint16_t value_uint16)
+try
 {
 	write_integer(value_uint16);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void ArchiverImpl::write_int32(
 	const std::int32_t value_int32)
+try
 {
 	write_integer(value_int32);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void ArchiverImpl::write_uint32(
 	const std::uint32_t value_uint32)
+try
 {
 	write_integer(value_uint32);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void ArchiverImpl::write_char_array(
 	const char* const items_char,
 	const int item_count)
+try
 {
 	write_integer_array(items_char, item_count);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void ArchiverImpl::write_int8_array(
 	const std::int8_t* const items_int8,
 	const int item_count)
+try
 {
 	write_integer_array(items_int8, item_count);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void ArchiverImpl::write_uint8_array(
 	const std::uint8_t* const items_uint8,
 	const int item_count)
+try
 {
 	write_integer_array(items_uint8, item_count);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void ArchiverImpl::write_int16_array(
 	const std::int16_t* const items_int16,
 	const int item_count)
+try
 {
 	write_integer_array(items_int16, item_count);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void ArchiverImpl::write_uint16_array(
 	const std::uint16_t* const items_uint16,
 	const int item_count)
+try
 {
 	write_integer_array(items_uint16, item_count);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void ArchiverImpl::write_string(
 	const char* const string,
 	const int string_length)
+try
 {
 	if (!string)
 	{
-		throw ArchiverExceptionImpl{"Null string."};
+		fail("Null string.");
 	}
 
 	if (string_length < 0)
 	{
-		throw ArchiverExceptionImpl{"String length out of range."};
+		fail("String length out of range.");
 	}
 
 	write_integer<std::int32_t>(string_length);
@@ -679,26 +832,39 @@ void ArchiverImpl::write_string(
 
 	if (!write_result)
 	{
-		throw ArchiverExceptionImpl{"Failed to write string data."};
+		fail("Failed to write string data.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void ArchiverImpl::write_checksum()
+try
 {
 	const auto checksum = crc32_.get_value();
 
 	write_integer<std::int32_t>(checksum, true);
 }
-
-
-ArchiverExceptionImpl::ArchiverExceptionImpl(
-	const char* const message)
-	:
-	ArchiverException{message}
+catch (...)
 {
+	fail_nested(__func__);
 }
 
-ArchiverExceptionImpl::~ArchiverExceptionImpl() = default;
+[[noreturn]]
+void ArchiverImpl::fail(
+	const char* message)
+{
+	throw ArchiverException{message};
+}
+
+[[noreturn]]
+void ArchiverImpl::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(ArchiverException{message});
+}
 
 
 } // namespace
@@ -707,6 +873,14 @@ ArchiverExceptionImpl::~ArchiverExceptionImpl() = default;
 ArchiverUPtr make_archiver()
 {
 	return std::make_unique<ArchiverImpl>();
+}
+
+
+[[noreturn]]
+void archiver_fail(
+	const char* message)
+{
+	throw ArchiverException{message};
 }
 
 

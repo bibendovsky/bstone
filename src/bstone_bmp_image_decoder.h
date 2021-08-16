@@ -50,6 +50,15 @@ public:
 
 
 private:
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
+
+
 	static void decode_non_paletted(
 		SDL_Surface* src_sdl_surface,
 		Uint32 dst_sdl_pixel_format,

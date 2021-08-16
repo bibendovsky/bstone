@@ -111,6 +111,15 @@ private:
 	PagePtrs pages_ptrs_{};
 
 
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
+
+
 	void load_vswap();
 }; // PageMgrImpl
 
@@ -144,14 +153,14 @@ const std::uint8_t* PageMgrImpl::get(
 {
 	if (index < 0 || index >= count_)
 	{
-		throw PageMgrException{"Page index out of range."};
+		fail("Page index out of range.");
 	}
 
 	const auto page_ptr = pages_ptrs_[index];
 
 	if (!page_ptr)
 	{
-		throw PageMgrException{"Sparse page."};
+		fail("Sparse page.");
 	}
 
 	return page_ptr;
@@ -162,7 +171,7 @@ const std::uint8_t* PageMgrImpl::get_audio(
 {
 	if (audio_index < 0 || audio_index >= audio_count_)
 	{
-		throw PageMgrException{"Audio page index out of range."};
+		fail("Audio page index out of range.");
 	}
 
 	return get(audio_base_index_ + audio_index);
@@ -178,10 +187,24 @@ const std::uint8_t* PageMgrImpl::get_sprite(
 {
 	if (sprite_index < 0 || sprite_index >= sprite_count_)
 	{
-		throw PageMgrException{"Sprite page index out of range."};
+		fail("Sprite page index out of range.");
 	}
 
 	return get(sprite_base_index_ + sprite_index);
+}
+
+[[noreturn]]
+void PageMgrImpl::fail(
+	const char* message)
+{
+	throw PageMgrException{message};
+}
+
+[[noreturn]]
+void PageMgrImpl::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(PageMgrException{message});
 }
 
 void PageMgrImpl::load_vswap()
@@ -195,14 +218,14 @@ void PageMgrImpl::load_vswap()
 
 	if (!vswap_file.is_open())
 	{
-		throw PageMgrException{"Failed to open VSWAP."};
+		fail("Failed to open VSWAP.");
 	}
 
 	const auto file_size = vswap_file.get_size();
 
 	if (file_size < page_size || file_size > max_vswap_size)
 	{
-		throw PageMgrException{"File size out of range."};
+		fail("File size out of range.");
 	}
 
 	const auto vswap_size = static_cast<int>(file_size);
@@ -214,7 +237,7 @@ void PageMgrImpl::load_vswap()
 
 	if (vswap_file.read(pages_bytes, vswap_size) != vswap_size)
 	{
-		throw PageMgrException{"Page read error."};
+		fail("Page read error.");
 	}
 
 	const auto u16_elements = reinterpret_cast<const std::uint16_t*>(pages_bytes);

@@ -72,6 +72,21 @@ public:
 	}
 }; // LzhEncoderException
 
+[[noreturn]]
+void lzh_encoder_fail(
+	const char* message)
+{
+	throw LzhEncoderException{message};
+}
+
+[[noreturn]]
+void lzh_encoder_fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(LzhEncoderException{message});
+}
+
+
 class LzhDecoderException :
 	public bstone::Exception
 {
@@ -83,6 +98,20 @@ public:
 	{
 	}
 }; // LzhDecoderException
+
+[[noreturn]]
+void lzh_decoder_fail(
+	const char* message)
+{
+	throw LzhDecoderException{message};
+}
+
+[[noreturn]]
+void lzh_decoder_fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(LzhDecoderException{message});
+}
 
 
 // LZSS Parameters
@@ -877,15 +906,16 @@ int LZH_Decompress(
 	std::uint8_t* out_buffer,
 	int uncompressed_length,
 	int compress_length)
+try
 {
 	if (uncompressed_length < 0)
 	{
-		throw LzhDecoderException{"Uncompressed length out of range."};
+		lzh_decoder_fail("Uncompressed length out of range.");
 	}
 
 	if (compress_length < 0)
 	{
-		throw LzhDecoderException{"Compressed length out of range."};
+		lzh_decoder_fail("Compressed length out of range.");
 	}
 
 	if (uncompressed_length == 0 || compress_length == 0)
@@ -895,12 +925,12 @@ int LZH_Decompress(
 
 	if (in_buffer == nullptr)
 	{
-		throw LzhDecoderException{"Null input buffer."};
+		lzh_decoder_fail("Null input buffer.");
 	}
 
 	if (out_buffer == nullptr)
 	{
-		throw LzhDecoderException{"Null output buffer."};
+		lzh_decoder_fail("Null output buffer.");
 	}
 
 	datasize = uncompressed_length;
@@ -956,15 +986,20 @@ int LZH_Decompress(
 
 	return count;
 }
+catch (...)
+{
+	lzh_decoder_fail_nested(__func__);
+}
 
 int LZH_Compress(
 	const std::uint8_t* in_buffer,
 	std::uint8_t* out_buffer,
 	int in_length)
+try
 {
 	if (in_length < 0)
 	{
-		throw LzhEncoderException{"Data length out of range."};
+		lzh_encoder_fail("Data length out of range.");
 	}
 
 	if (in_length == 0)
@@ -974,12 +1009,12 @@ int LZH_Compress(
 
 	if (in_buffer == nullptr)
 	{
-		throw LzhEncoderException{"Null input buffer."};
+		lzh_encoder_fail("Null input buffer.");
 	}
 
 	if (out_buffer == nullptr)
 	{
-		throw LzhEncoderException{"Null output buffer."};
+		lzh_encoder_fail("Null output buffer.");
 	}
 
 	getbuf = 0;
@@ -1077,4 +1112,8 @@ int LZH_Compress(
 	EncodeEnd(out_buffer);
 
 	return codesize;
+}
+catch (...)
+{
+	lzh_encoder_fail_nested(__func__);
 }

@@ -67,6 +67,15 @@ private:
 
 
 	Cache cache_;
+
+
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
 }; // SpriteCache
 
 using SpriteCachePtr = SpriteCache*;

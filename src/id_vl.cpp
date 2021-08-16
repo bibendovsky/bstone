@@ -107,6 +107,34 @@ namespace
 {
 
 
+class VideoException :
+	public bstone::Exception
+{
+public:
+	explicit VideoException(
+		const char* message) noexcept
+		:
+		bstone::Exception{"VIDEO", message}
+	{
+	}
+}; // VideoException
+
+
+[[noreturn]]
+void fail(
+	const char* message)
+{
+	throw VideoException{message};
+}
+
+[[noreturn]]
+void fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(VideoException{message});
+}
+
+
 // --------------------------------------------------------------------------
 
 class SaveScreenshotMtTask final :
@@ -232,7 +260,7 @@ try
 
 		if (!file_stream.is_open())
 		{
-			throw bstone::Exception{("Failed to open a file \"" + path + "\".").c_str()};
+			fail(("Failed to open a file \"" + path + "\".").c_str());
 		}
 
 		file_stream.write(dst_buffer.get(), dst_buffer_size);
@@ -1198,7 +1226,7 @@ const std::string& vid_to_string(
 			return vid_get_linear_value_string();
 
 		default:
-			throw bstone::Exception{"Unsupported renderer filter kind."};
+			fail("Unsupported renderer filter kind.");
 	}
 }
 
@@ -1214,7 +1242,7 @@ const std::string& vid_to_string(
 			return vid_get_none_value_string();
 
 		default:
-			throw bstone::Exception{"Unsupported anti-aliasing kind."};
+			fail("Unsupported anti-aliasing kind.");
 	}
 }
 
@@ -1244,7 +1272,7 @@ const std::string& vid_to_string(
 
 
 		default:
-			throw bstone::Exception{"Unsupported renderer kind."};
+			fail("Unsupported renderer kind.");
 	}
 }
 
@@ -1268,7 +1296,7 @@ const std::string& vid_to_string(
 
 
 		default:
-			throw bstone::Exception{"Unsupported renderer kind."};
+			fail("Unsupported renderer kind.");
 	}
 }
 
@@ -1284,7 +1312,7 @@ const std::string& vid_to_string(
 			return vid_get_xbrz_value_string();
 
 		default:
-			throw bstone::Exception{"Unsupported texture upscale filter kind."};
+			fail("Unsupported texture upscale filter kind.");
 	}
 }
 

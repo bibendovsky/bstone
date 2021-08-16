@@ -30,27 +30,49 @@ Free Software Foundation, Inc.,
 #include <utility>
 
 #include "bstone_exception.h"
-#include "bstone_not_null.h"
 
 
 namespace bstone
 {
 
 
+namespace
+{
+
+
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-class OalResourceNullException :
+class OalResourceException :
 	public Exception
 {
 public:
-	explicit OalResourceNullException() noexcept
+	explicit OalResourceException(
+		const char* message) noexcept
 		:
-		Exception{"OAL_RESOURCE", "Null value."}
+		Exception{"OAL_RESOURCE", message}
 	{
 	}
-}; // OalResourceNullException
+}; // OalResourceException
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+[[noreturn]]
+void fail(
+	const char* message)
+{
+	throw OalResourceException{message};
+}
+
+[[noreturn]]
+void fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(OalResourceException{message});
+}
+
+
+} // namespace
 
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -111,17 +133,25 @@ public:
 OalDeviceResource make_oal_device(
 	const OalAlcSymbols& oal_alc_symbols,
 	const char* device_name)
+try
 {
-	not_null<OalResourceNullException>(oal_alc_symbols.alcOpenDevice);
+	if (!oal_alc_symbols.alcOpenDevice)
+	{
+		fail("Null \"alcOpenDevice\".");
+	}
 
 	const auto alc_device = oal_alc_symbols.alcOpenDevice(device_name);
 
 	if (!alc_device)
 	{
-		throw OalDeviceResourceException{"Failed to open a device."};
+		fail("Failed to open a device.");
 	}
 
 	return OalDeviceResource{alc_device, OalDeviceDeleter{oal_alc_symbols}};
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -182,34 +212,34 @@ void OalContextDeleter::operator()(
 }
 
 
-class OalContextResourceException :
-	public Exception
-{
-public:
-	explicit OalContextResourceException(
-		const char* message) noexcept
-		:
-		Exception{"OAL_CONTEXT_RESOURCE", message}
-	{
-	}
-}; // OalContextResourceException
-
 OalContextResource make_oal_context(
 	const OalAlcSymbols& oal_alc_symbols,
 	::ALCdevice* alc_device,
 	const ::ALCint* al_context_attributes)
+try
 {
-	not_null<OalResourceNullException>(oal_alc_symbols.alcCreateContext);
-	not_null<OalResourceNullException>(alc_device);
+	if (!oal_alc_symbols.alcCreateContext)
+	{
+		fail("Null \"alcCreateContext\".");
+	}
+
+	if (!alc_device)
+	{
+		fail("Null device.");
+	}
 
 	const auto alc_context = oal_alc_symbols.alcCreateContext(alc_device, al_context_attributes);
 
 	if (!alc_context)
 	{
-		throw OalContextResourceException{"Failed to create a context."};
+		fail("Failed to create a context.");
 	}
 
 	return OalContextResource{alc_context, OalContextDeleter{oal_alc_symbols}};
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -254,9 +284,17 @@ void OalBufferDeleter::operator()(
 
 OalBufferResource make_oal_buffer(
 	const OalAlSymbols& oal_al_symbols)
+try
 {
-	not_null<OalResourceNullException>(oal_al_symbols.alGenBuffers);
-	not_null<OalResourceNullException>(oal_al_symbols.alIsBuffer);
+	if (!oal_al_symbols.alGenBuffers)
+	{
+		fail("Null \"alGenBuffers\".");
+	}
+
+	if (!oal_al_symbols.alIsBuffer)
+	{
+		fail("Null \"alIsBuffer\".");
+	}
 
 	auto al_buffer = ::ALuint{};
 	oal_al_symbols.alGenBuffers(1, &al_buffer);
@@ -265,10 +303,14 @@ OalBufferResource make_oal_buffer(
 
 	if (!is_al_buffer)
 	{
-		throw OalContextResourceException{"Failed to create a buffer."};
+		fail("Failed to create a buffer.");
 	}
 
 	return OalBufferResource{al_buffer, OalBufferDeleter{oal_al_symbols}};
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -313,9 +355,17 @@ void OalSourceDeleter::operator()(
 
 OalSourceResource make_oal_source(
 	const OalAlSymbols& oal_al_symbols)
+try
 {
-	not_null<OalResourceNullException>(oal_al_symbols.alGenSources);
-	not_null<OalResourceNullException>(oal_al_symbols.alIsSource);
+	if (!oal_al_symbols.alGenSources)
+	{
+		fail("Null \"alGenSources\".");
+	}
+
+	if (!oal_al_symbols.alIsSource)
+	{
+		fail("Null \"alIsSource\".");
+	}
 
 	auto al_source = ::ALuint{};
 	oal_al_symbols.alGenSources(1, &al_source);
@@ -324,10 +374,14 @@ OalSourceResource make_oal_source(
 
 	if (!is_al_source)
 	{
-		throw OalContextResourceException{"Failed to create a source."};
+		fail("Failed to create a source.");
 	}
 
 	return OalSourceResource{al_source, OalSourceDeleter{oal_al_symbols}};
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

@@ -148,17 +148,40 @@ bool check_vgahead_offset_count()
 	return offset_count == assets_info.get_gfx_header_offset_count();
 }
 
-class AddSearchPathException :
+
+namespace
+{
+
+
+class SearchPathException :
 	public bstone::Exception
 {
 public:
-	explicit AddSearchPathException(
+	explicit SearchPathException(
 		const char* message) noexcept
 		:
-		bstone::Exception{"ADD_SEARCH_PATH", message}
+		bstone::Exception{"SEARCH_PATH", message}
 	{
 	}
-}; // AddSearchPathException
+}; // SearchPathException
+
+[[noreturn]]
+void fail(
+	const char* message)
+{
+	throw SearchPathException{message};
+}
+
+[[noreturn]]
+void fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(SearchPathException{message});
+}
+
+
+} // namespace
+
 
 struct SearchPath
 {
@@ -184,21 +207,26 @@ void add_search_path(
 	const std::string& source_name,
 	const std::string& path,
 	SearchPaths& search_paths)
+try
 {
 	if (source_name.empty())
 	{
-		throw AddSearchPathException{"Empty source name."};
+		fail("Empty source name.");
 	}
 
 	if (path.empty())
 	{
-		throw AddSearchPathException{"Empty path."};
+		fail("Empty path.");
 	}
 
 	search_paths.emplace_back();
 	auto& search_path = search_paths.back();
 	search_path.source_name_ = source_name;
 	search_path.path_ = path;
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 bool has_resources(

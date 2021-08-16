@@ -47,6 +47,10 @@ namespace bstone
 {
 
 
+namespace
+{
+
+
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 class StbImageEncoderException :
@@ -64,6 +68,24 @@ public:
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
+[[noreturn]]
+void fail(
+	const char* message)
+{
+	throw StbImageEncoderException{message};
+}
+
+[[noreturn]]
+void fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(StbImageEncoderException{message});
+}
+
+
+} // namespace
+
+
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 void StbImageEncoder::encode_24(
@@ -73,25 +95,26 @@ void StbImageEncoder::encode_24(
 	std::uint8_t* dst_buffer,
 	int max_dst_buffer_size,
 	int& dst_size)
+try
 {
 	if (!src_buffer)
 	{
-		throw StbImageEncoderException{"Null src buffer."};
+		fail("Null src buffer.");
 	}
 
 	if (src_width <= 0 || src_height <= 0)
 	{
-		throw StbImageEncoderException{"Dimensions are out of range."};
+		fail("Dimensions are out of range.");
 	}
 
 	if (!dst_buffer)
 	{
-		throw StbImageEncoderException{"Null dst buffer."};
+		fail("Null dst buffer.");
 	}
 
 	if (max_dst_buffer_size <= 0)
 	{
-		throw StbImageEncoderException{"Max dst buffer size out of range."};
+		fail("Max dst buffer size out of range.");
 	}
 
 	dst_size = 0;
@@ -114,33 +137,37 @@ void StbImageEncoder::encode_24(
 
 	if (!stbiw_result)
 	{
-		throw StbImageEncoderException{"STBIW failed."};
+		fail("STBIW failed.");
 	}
 
 	if (size_ <= 0)
 	{
-		throw StbImageEncoderException{"Empty image."};
+		fail("Empty image.");
 	}
 
 	if (size_ > max_size_)
 	{
-		throw StbImageEncoderException{"Not enough room in dst buffer."};
+		fail("Not enough room in dst buffer.");
 	}
 
 	dst_size = size_;
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void StbImageEncoder::stb_write_func_proxy(
 	void* context,
 	void* data,
-	int size)
+	int size) noexcept
 {
 	static_cast<StbImageEncoder*>(context)->stb_write_func(data, size);
 }
 
 void StbImageEncoder::stb_write_func(
 	void* data,
-	int size)
+	int size) noexcept
 {
 	if (!data || size <= 0 || size > max_size_)
 	{

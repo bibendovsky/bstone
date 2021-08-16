@@ -723,6 +723,20 @@ int OalAudioMixer::get_max_commands() const
 	return 0;
 }
 
+[[noreturn]]
+void OalAudioMixer::fail(
+	const char* message)
+{
+	throw OalAudioMixerException{message};
+}
+
+[[noreturn]]
+void OalAudioMixer::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(OalAudioMixerException{message});
+}
+
 bool OalAudioMixer::play_sfx_sound(
 	AudioSfxType sfx_type,
 	int sound_index,
@@ -843,7 +857,7 @@ void OalAudioMixer::make_al_context_current()
 
 	if (al_result == ALC_FALSE)
 	{
-		throw OalAudioMixerException{"Failed to make context current."};
+		fail("Failed to make context current.");
 	}
 }
 
@@ -1023,7 +1037,7 @@ int OalAudioMixer::get_al_mixing_frequency()
 
 	if (al_attribute_size <= 0 || al_attribute_size > max_al_attributes_size)
 	{
-		throw OalAudioMixerException{"Attributes size out of range."};
+		fail("Attributes size out of range.");
 	}
 
 	struct OalAttribute
@@ -1055,7 +1069,7 @@ int OalAudioMixer::get_al_mixing_frequency()
 		}
 	}
 
-	throw OalAudioMixerException{"No such attribute."};
+	fail("No such attribute.");
 }
 
 int OalAudioMixer::get_max_voice_count()
@@ -1275,7 +1289,7 @@ void OalAudioMixer::initialize_sfx_adlib_sounds()
 
 		if (!sfx_adlib_sound.audio_decoder)
 		{
-			throw OalAudioMixerException{"Failed to create SFX AdLib audio decoder."};
+			fail("Failed to create SFX AdLib audio decoder.");
 		}
 	}
 }
@@ -1289,7 +1303,7 @@ void OalAudioMixer::initialize_sfx_pc_speaker_sounds()
 
 		if (!sfx_pc_speaker_sound.audio_decoder)
 		{
-			throw OalAudioMixerException{"Failed to create SFX PC Speaker audio decoder."};
+			fail("Failed to create SFX PC Speaker audio decoder.");
 		}
 	}
 }

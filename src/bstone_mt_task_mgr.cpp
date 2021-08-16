@@ -80,6 +80,15 @@ private:
 
 	volatile int spin_count_;
 	Flag flag_;
+
+
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
 }; // MtSpinFlag
 
 using MtSpinFlagLock = std::unique_lock<MtSpinFlag>;
@@ -128,6 +137,15 @@ private:
 	MtIndex mt_write_index_;
 	MtSpinFlag mt_spin_flag_;
 	Items items_;
+
+
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
 }; // MtTaskQueue
 
 //
@@ -212,6 +230,15 @@ private:
 	MtThreads mt_threads_;
 
 
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
+
+
 	void initialize_concurrency();
 
 	void initialize_threads();
@@ -245,20 +272,42 @@ namespace detail
 {
 
 
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+class MtSpinFlagException :
+	public Exception
+{
+public:
+	explicit MtSpinFlagException(
+		const char* message)
+		:
+		Exception{"MT_SPIN_FLAG", message}
+	{
+	}
+}; // MtSpinFlagException
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
 // ==========================================================================
 // MtSpinFlag
 //
 
 MtSpinFlag::MtSpinFlag(
 	int spin_count)
+try
 	:
 	spin_count_{spin_count},
 	flag_{}
 {
 	if (spin_count_ < 0)
 	{
-		throw MtTaskMgrImplException{"Spin count out of range."};
+		fail("Spin count out of range.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 MtSpinFlag::~MtSpinFlag() = default;
@@ -278,9 +327,40 @@ void MtSpinFlag::unlock() noexcept
 	flag_.clear(std::memory_order_release);
 }
 
+[[noreturn]]
+void MtSpinFlag::fail(
+	const char* message)
+{
+	throw MtSpinFlagException{message};
+}
+
+[[noreturn]]
+void MtSpinFlag::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(MtSpinFlagException{message});
+}
+
 //
 // MtSpinFlag
 // ==========================================================================
+
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+class MtTaskQueueException :
+	public Exception
+{
+public:
+	explicit MtTaskQueueException(
+		const char* message)
+		:
+		Exception{"MT_TASK_QUEUE", message}
+	{
+	}
+}; // MtTaskQueueException
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 // ==========================================================================
@@ -298,7 +378,7 @@ MtTaskQueue::MtTaskQueue(
 {
 	if (size <= 0)
 	{
-		throw MtTaskMgrImplException{"Max size out of range."};
+		fail("Max size out of range.");
 	}
 
 	size_ = static_cast<Index>(size);
@@ -310,7 +390,7 @@ void MtTaskQueue::push(
 {
 	if (!mt_task)
 	{
-		throw MtTaskMgrImplException{"Null task."};
+		fail("Null task.");
 	}
 
 	MtSpinFlagLock flag_lock{mt_spin_flag_};
@@ -322,7 +402,7 @@ void MtTaskQueue::push(
 
 	if (read_index == new_write_index)
 	{
-		throw MtTaskMgrImplException{"Queue overflow."};
+		fail("Queue overflow.");
 	}
 
 	items_[write_index] = mt_task;
@@ -336,12 +416,12 @@ void MtTaskQueue::push(
 {
 	if (!mt_tasks)
 	{
-		throw MtTaskMgrImplException{"Null task list."};
+		fail("Null task list.");
 	}
 
 	if (mt_task_count <= 0)
 	{
-		throw MtTaskMgrImplException{"Task count out of range."};
+		fail("Task count out of range.");
 	}
 
 	const auto has_null = std::any_of(
@@ -355,7 +435,7 @@ void MtTaskQueue::push(
 
 	if (has_null)
 	{
-		throw MtTaskMgrImplException{"Null task."};
+		fail("Null task.");
 	}
 
 	MtSpinFlagLock flag_lock{mt_spin_flag_};
@@ -372,7 +452,7 @@ void MtTaskQueue::push(
 
 		if (read_index == new_write_index)
 		{
-			throw MtTaskMgrImplException{"Queue overflow."};
+			fail("Queue overflow.");
 		}
 
 		items_[write_index] = mt_tasks[i];
@@ -406,9 +486,40 @@ bool MtTaskQueue::pop(
 	return true;
 }
 
+[[noreturn]]
+void MtTaskQueue::fail(
+	const char* message)
+{
+	throw MtTaskQueueException{message};
+}
+
+[[noreturn]]
+void MtTaskQueue::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(MtTaskQueueException{message});
+}
+
 //
 // MtTaskQueue
 // ==========================================================================
+
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+class MtTaskMgrException :
+	public Exception
+{
+public:
+	explicit MtTaskMgrException(
+		const char* message)
+		:
+		Exception{"MT_TASK_MGR", message}
+	{
+	}
+}; // MtTaskMgrException
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 } // detail
@@ -498,13 +609,27 @@ void MtTaskMgrImpl::add_tasks_and_wait_for_added(
 	}
 }
 
+[[noreturn]]
+void MtTaskMgrImpl::fail(
+	const char* message)
+{
+	throw MtTaskMgrImplException{message};
+}
+
+[[noreturn]]
+void MtTaskMgrImpl::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(MtTaskMgrImplException{message});
+}
+
 void MtTaskMgrImpl::initialize_concurrency()
 {
 	max_threads_ = static_cast<int>(std::thread::hardware_concurrency());
 
 	if (concurrency_reserve_ < 0)
 	{
-		throw MtTaskMgrImplException{"Concurrency reserve out of range."};
+		fail("Concurrency reserve out of range.");
 	}
 
 	thread_count_ = max_threads_ - concurrency_reserve_;

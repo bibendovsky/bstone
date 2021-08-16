@@ -68,71 +68,32 @@ char get_separator() noexcept
 }
 
 
-class GetWorkingDirException :
+class FileSystemException :
 	public Exception
 {
 public:
-	GetWorkingDirException() noexcept
-		:
-		Exception{"FS_GET_WORKING_DIR", "Failed to get."}
-	{
-	}
-
-	explicit GetWorkingDirException(
+	explicit FileSystemException(
 		const char* const message) noexcept
 		:
-		Exception{"FS_GET_WORKING_DIR", message}
+		Exception{"FILE_SYSTEM", message}
 	{
 	}
-}; // GetWorkingDirException
+}; // FileSystemException
 
-class ResolvePathException :
-	public Exception
+
+[[noreturn]]
+void fail(
+	const char* message)
 {
-public:
-	ResolvePathException() noexcept
-		:
-		Exception{"FS_RESOLVE_PATH", "Failed to get."}
-	{
-	}
+	throw FileSystemException{message};
+}
 
-	explicit ResolvePathException(
-		const char* message) noexcept
-		:
-		Exception{"FS_RESOLVE_PATH", message}
-	{
-	}
-}; // ResolvePathException
-
-class RenameException :
-	public Exception
+[[noreturn]]
+void fail_nested(
+	const char* message)
 {
-public:
-	RenameException() noexcept
-		:
-		Exception{"FS_RENAME", "Failed to rename."}
-	{
-	}
-
-	explicit RenameException(
-		const char* message) noexcept
-		:
-		Exception{"RESOLVE_PATH", message}
-	{
-	}
-}; // RenameException
-
-class ReplaceExtensionException :
-	public Exception
-{
-public:
-	explicit ReplaceExtensionException(
-		const char* message) noexcept
-		:
-		Exception{"REPLACE_EXTENSION", message}
-	{
-	}
-}; // RenameException
+	std::throw_with_nested(FileSystemException{message});
+}
 
 
 } // detail
@@ -204,6 +165,7 @@ std::string append_path(
 void replace_extension(
 	std::string& path_name,
 	const std::string& new_extension)
+try
 {
 	if (path_name.empty() || new_extension.empty())
 	{
@@ -212,7 +174,7 @@ void replace_extension(
 
 	if (new_extension.front() != '.')
 	{
-		throw detail::ReplaceExtensionException{"An extension should start with a dot."};
+		detail::fail("An extension should start with a dot.");
 	}
 
 	const auto separator_pos = path_name.find_last_of("\\/");
@@ -230,15 +192,20 @@ void replace_extension(
 
 	path_name += new_extension;
 }
+catch (...)
+{
+	detail::fail_nested(__func__);
+}
 
 std::string get_working_dir()
+try
 {
 #if _WIN32
 	const auto utf16_string_size = GetCurrentDirectoryW(0, nullptr);
 
 	if (utf16_string_size == 0)
 	{
-		throw detail::GetWorkingDirException{};
+		detail::fail("GetCurrentDirectoryW");
 	}
 
 	auto utf16_dir = std::u16string{};
@@ -251,7 +218,7 @@ std::string get_working_dir()
 
 	if (win32_result == 0)
 	{
-		throw detail::GetWorkingDirException{};
+		detail::fail("GetCurrentDirectoryW");
 	}
 
 	utf16_dir.resize(win32_result);
@@ -262,7 +229,7 @@ std::string get_working_dir()
 
 	if (max_size <= 0)
 	{
-		throw detail::GetWorkingDirException{"Unknown max path length."};
+		detail::fail("Unknown max path length.");
 	}
 
 	constexpr auto initial_size = 256;
@@ -288,17 +255,17 @@ std::string get_working_dir()
 				break;
 
 			case EACCES:
-				throw detail::GetWorkingDirException{"No access."};
+				detail::fail("No access.");
 
 			default:
-				throw detail::GetWorkingDirException{};
+				detail::fail("Generic error.");
 		}
 
 		size += size_delta;
 
 		if (size > max_size)
 		{
-			throw detail::GetWorkingDirException{"Path too long."};
+			detail::fail("Path too long.");
 		}
 	}
 
@@ -307,13 +274,18 @@ std::string get_working_dir()
 	return result;
 #endif // _WIN32
 }
+catch (...)
+{
+	detail::fail_nested(__func__);
+}
 
 std::string resolve_path(
 	const std::string& path)
+try
 {
 	if (path.empty())
 	{
-		throw detail::ResolvePathException{"Empty path."};
+		detail::fail("Empty path.");
 	}
 
 #ifdef _WIN32
@@ -328,7 +300,7 @@ std::string resolve_path(
 
 	if (utf16_full_path_size == 0)
 	{
-		throw detail::ResolvePathException{};
+		detail::fail("GetFullPathNameW");
 	}
 
 	auto utf16_full_path = std::u16string{};
@@ -343,7 +315,7 @@ std::string resolve_path(
 
 	if (win32_result == 0)
 	{
-		throw detail::ResolvePathException{};
+		detail::fail("GetFullPathNameW");
 	}
 
 	utf16_full_path.resize(win32_result);
@@ -354,7 +326,7 @@ std::string resolve_path(
 
 	if (max_size <= 0)
 	{
-		throw detail::ResolvePathException{"Unknown max path length."};
+		detail::fail("Unknown max path length.");
 	}
 
 	auto result = std::string{};
@@ -364,13 +336,17 @@ std::string resolve_path(
 
 	if (posix_result == nullptr)
 	{
-		throw detail::ResolvePathException{};
+		detail::fail("realpath");
 	}
 
 	result.resize(std::string::traits_type::length(result.c_str()));
 
 	return result;
 #endif // _WIN32
+}
+catch (...)
+{
+	detail::fail_nested(__func__);
 }
 
 bool has_file(
@@ -416,15 +392,16 @@ bool has_file(
 void rename(
 	const std::string& old_path,
 	const std::string& new_path)
+try
 {
 	if (old_path.empty())
 	{
-		throw detail::RenameException{"Empty old path."};
+		detail::fail("Empty old path.");
 	}
 
 	if (new_path.empty())
 	{
-		throw detail::RenameException{"Empty new path."};
+		detail::fail("Empty new path.");
 	}
 
 #if _WIN32
@@ -439,16 +416,20 @@ void rename(
 
 	if (win32_move_file_result == FALSE)
 	{
-		throw detail::RenameException{};
+		detail::fail("MoveFileExW");
 	}
 #else
 	const auto posix_rename_result = ::rename(old_path.c_str(), new_path.c_str());
 
 	if (posix_rename_result != 0)
 	{
-		throw detail::RenameException{};
+		detail::fail("rename");
 	}
 #endif // _WIN32
+}
+catch (...)
+{
+	detail::fail_nested(__func__);
 }
 
 

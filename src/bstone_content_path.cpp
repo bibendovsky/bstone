@@ -45,6 +45,13 @@ AssetPath make_gog_content_path();
 AssetPath make_steam_content_path();
 
 
+} // detail
+
+
+namespace
+{
+
+
 class AssetPathException :
 	public Exception
 {
@@ -58,11 +65,27 @@ public:
 }; // AssetPathException
 
 
-} // detail
+[[noreturn]]
+void fail(
+	const char* message)
+{
+	throw AssetPathException{message};
+}
+
+[[noreturn]]
+void fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(AssetPathException{message});
+}
+
+
+} // namespace
 
 
 AssetPath make_content_path(
 	const ContentPathProvider type)
+try
 {
 	switch (type)
 	{
@@ -73,8 +96,12 @@ AssetPath make_content_path(
 			return detail::make_steam_content_path();
 
 		default:
-			throw detail::AssetPathException{"Unsupported provider."};
+			fail("Unsupported provider.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 

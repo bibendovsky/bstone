@@ -76,12 +76,12 @@ void OalSource::initialize(
 
 	if (param.mix_sample_rate <= 0)
 	{
-		throw OalSourceException{"Mix sample rate out of range."};
+		fail("Mix sample rate out of range.");
 	}
 
 	if (param.mix_sample_count <= 0)
 	{
-		throw OalSourceException{"Mix sample count out of range."};
+		fail("Mix sample count out of range.");
 	}
 
 	oal_al_symbols_ = not_null<OalSourceNullException>(param.oal_al_symbols);
@@ -124,14 +124,14 @@ void OalSource::open(
 
 	if (param.sample_rate <= 0)
 	{
-		throw OalSourceException{"Sample rate out of range."};
+		fail("Sample rate out of range.");
 	}
 
 	not_null<OalSourceNullException>(param.data);
 
 	if (param.data_size < 0)
 	{
-		throw OalSourceException{"Data size out of range."};
+		fail("Data size out of range.");
 	}
 
 	is_2d_ = param.is_2d;
@@ -160,18 +160,18 @@ void OalSource::open(
 
 	if (param.sample_rate <= 0)
 	{
-		throw OalSourceException{"Sample rate out of range."};
+		fail("Sample rate out of range.");
 	}
 
 	if (!((param.caching_sound && !param.uncaching_sound) ||
 		(!param.caching_sound && param.uncaching_sound)))
 	{
-		throw OalSourceException{"Caching and uncaching sounds are mutual exclusive."};
+		fail("Caching and uncaching sounds are mutual exclusive.");
 	}
 
 	if (param.is_looping && streaming_caching_sound_)
 	{
-		throw OalSourceException{"Looping caching sound not supported."};
+		fail("Looping caching sound not supported.");
 	}
 
 	const auto al_queued_buffer_count = get_al_queued_buffer_count();
@@ -371,6 +371,20 @@ void OalSource::close()
 	}
 }
 
+[[noreturn]]
+void OalSource::fail(
+	const char* message)
+{
+	throw OalSourceException{message};
+}
+
+[[noreturn]]
+void OalSource::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(OalSourceException{message});
+}
+
 void OalSource::initialize_al_resources()
 {
 	static_al_buffer_resource_ = make_oal_buffer(*oal_al_symbols_);
@@ -387,7 +401,7 @@ void OalSource::ensure_is_initialized() const
 {
 	if (!is_initialized_)
 	{
-		throw OalSourceException{"Not initialized."};
+		fail("Not initialized.");
 	}
 }
 
@@ -395,7 +409,7 @@ void OalSource::ensure_is_open() const
 {
 	if (!is_open_)
 	{
-		throw OalSourceException{"Not open."};
+		fail("Not open.");
 	}
 }
 
@@ -403,7 +417,7 @@ void OalSource::ensure_is_started() const
 {
 	if (!is_started_)
 	{
-		throw OalSourceException{"Not started."};
+		fail("Not started.");
 	}
 }
 

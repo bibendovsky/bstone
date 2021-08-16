@@ -124,7 +124,7 @@ try
 {
 	if (!context_)
 	{
-		throw Ren3dGlTextureMgrException{"Null context."};
+		fail("Null context.");
 	}
 
 	unbind();
