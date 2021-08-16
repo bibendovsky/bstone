@@ -88,6 +88,15 @@ protected:
 
 	// Presents the final stage of the effect.
 	virtual void skip_to_the_end() = 0;
+
+
+private:
+	[[noreturn]]
+	static void fail_not_implemented();
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
 }; // FizzleFX
 
 

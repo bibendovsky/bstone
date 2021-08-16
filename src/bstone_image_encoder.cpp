@@ -34,6 +34,10 @@ namespace bstone
 {
 
 
+namespace
+{
+
+
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 class ImageEncoderException :
@@ -51,10 +55,29 @@ public:
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
+[[noreturn]]
+void fail(
+	const char* message)
+{
+	throw ImageEncoderException{message};
+}
+
+[[noreturn]]
+void fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(ImageEncoderException{message});
+}
+
+
+} // namespace
+
+
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ImageEncodeUPtr make_image_encoder(
 	ImageEncoderType image_encoder_type)
+try
 {
 	switch (image_encoder_type)
 	{
@@ -62,8 +85,12 @@ ImageEncodeUPtr make_image_encoder(
 			return std::make_unique<StbImageEncoder>();
 
 		default:
-			throw ImageEncoderException{"Unsupported image encoder type."};
+			fail("Unsupported image encoder type.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

@@ -286,6 +286,15 @@ private:
 	Thread thread_{};
 
 
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
+
+
 	bool play_sfx_sound(
 		AudioSfxType sfx_type,
 		int sound_index,

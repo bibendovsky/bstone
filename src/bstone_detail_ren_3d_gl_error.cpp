@@ -49,108 +49,102 @@ namespace detail
 
 
 // ==========================================================================
-// GlErrorCodeException
+// GlErrorException
 //
 
-class GlErrorNullException :
+class GlErrorException :
 	public Exception
 {
 public:
-	explicit GlErrorNullException() noexcept
+	explicit GlErrorException(
+		const char* message) noexcept
 		:
-		Exception{"GL_ERR", "Null \"glGetError\"."}
+		Exception{"GL_ERROR", message}
 	{
 	}
-}; // GlErrorCodeException
+}; // GlErrorException
 
 //
-// GlErrorCodeException
+// GlErrorException
 // ==========================================================================
 
 
-// ==========================================================================
-// GlErrorCodeException
-//
-
-class GlErrorCodeException :
-	public Exception
+[[noreturn]]
+void fail(
+	const char* message)
 {
-public:
-	explicit GlErrorCodeException(
-		const GLenum gl_error_code)
-		:
-		Exception{"GL_ERR", get_message(gl_error_code).c_str()}
+	throw GlErrorException{message};
+}
+
+[[noreturn]]
+void fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(GlErrorException{message});
+}
+
+
+const char* gl_error_code_get_name(
+	GLenum gl_error_code) noexcept
+{
+	switch (gl_error_code)
 	{
+		case GL_INVALID_ENUM:
+			return "GL_INVALID_ENUM";
+
+		case GL_INVALID_VALUE:
+			return "GL_INVALID_VALUE";
+
+		case GL_INVALID_OPERATION:
+			return "GL_INVALID_OPERATION";
+
+		case GL_STACK_OVERFLOW:
+			return "GL_STACK_OVERFLOW";
+
+		case GL_STACK_UNDERFLOW:
+			return "GL_STACK_UNDERFLOW";
+
+		case GL_OUT_OF_MEMORY:
+			return "GL_OUT_OF_MEMORY";
+
+		case GL_INVALID_FRAMEBUFFER_OPERATION:
+			return "GL_INVALID_FRAMEBUFFER_OPERATION";
+
+		case GL_CONTEXT_LOST:
+			return "GL_CONTEXT_LOST";
+
+		default:
+			return "???";
 	}
+}
 
+std::string gl_error_code_get_code_string(
+	GLenum gl_error_code)
+{
+	auto oss = std::ostringstream{};
 
-private:
-	static const char* get_gl_error_code_name_string(
-		const GLenum gl_error_code) noexcept
-	{
-		switch (gl_error_code)
-		{
-			case GL_INVALID_ENUM:
-				return "GL_INVALID_ENUM";
+	oss <<
+		"0x" <<
+		std::setw(4) <<
+		std::setfill('0') <<
+		std::hex <<
+		static_cast<int>(gl_error_code)
+	;
 
-			case GL_INVALID_VALUE:
-				return "GL_INVALID_VALUE";
+	return oss.str();
+}
 
-			case GL_INVALID_OPERATION:
-				return "GL_INVALID_OPERATION";
-
-			case GL_STACK_OVERFLOW:
-				return "GL_STACK_OVERFLOW";
-
-			case GL_STACK_UNDERFLOW:
-				return "GL_STACK_UNDERFLOW";
-
-			case GL_OUT_OF_MEMORY:
-				return "GL_OUT_OF_MEMORY";
-
-			case GL_INVALID_FRAMEBUFFER_OPERATION:
-				return "GL_INVALID_FRAMEBUFFER_OPERATION";
-
-			case GL_CONTEXT_LOST:
-				return "GL_CONTEXT_LOST";
-
-			default:
-				return "???";
-		}
-	}
-
-	static std::string get_gl_enum_number_string(
-		const GLenum gl_error_code)
-	{
-		auto oss = std::ostringstream{};
-
-		oss <<
-			"0x" <<
-			std::setw(4) <<
-			std::setfill('0') <<
-			std::hex <<
-			static_cast<int>(gl_error_code)
-		;
-
-		return oss.str();
-	}
-
-	static std::string get_message(
-		const GLenum gl_error_code)
-	{
-		return
-			std::string{} +
-			get_gl_error_code_name_string(gl_error_code) +
-			" (" +
-			get_gl_enum_number_string(gl_error_code) +
-			")."
-		;
-	}
-}; // GlErrorCodeException
-
-//
-// GlErrorCodeException
-// ==========================================================================
+std::string gl_error_code_get_message(
+	GLenum gl_error_code)
+{
+	return
+		std::string{} +
+		gl_error_code_get_name(gl_error_code) +
+		" (" +
+		gl_error_code_get_code_string(gl_error_code) +
+		")."
+	;
+}
 
 
 // ==========================================================================
@@ -158,26 +152,41 @@ private:
 //
 
 void Ren3dGlError::ensure()
+try
 {
 	if (!glGetError)
 	{
-		throw GlErrorNullException{};
+		fail("Null \"glGetError\".");
 	}
 
 	const auto gl_error_code = glGetError();
 
 	if (gl_error_code != GL_NO_ERROR)
 	{
-		throw GlErrorCodeException{gl_error_code};
+		const auto message = gl_error_code_get_message(gl_error_code);
+		fail(message.c_str());
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
+#ifdef NDEBUG
 void Ren3dGlError::ensure_debug()
 {
-#ifndef NDEBUG
-	ensure();
-#endif // !NDEBUG
 }
+#else
+void Ren3dGlError::ensure_debug()
+try
+{
+	ensure();
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
+#endif // NDEBUG
 
 void Ren3dGlError::ensure_assert() noexcept
 {

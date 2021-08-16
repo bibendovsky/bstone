@@ -43,7 +43,6 @@ loaded into the data segment
 #include <array>
 #include <algorithm>
 #include <memory>
-#include <stdexcept>
 
 #include "jm_cio.h"
 #include "jm_lzh.h"
@@ -2576,18 +2575,42 @@ public:
 	explicit TextExtractorException(
 		const std::string& message) noexcept
 		:
-		Exception{"DBG_TXT_DMPR", message.c_str()}
-	{
-	}
-
-	explicit TextExtractorException(
-		const int number,
-		const std::string& message)
-		:
-		Exception{"DBG_TXT_DMPR", (std::string{} + "[Text #" + std::to_string(number) + "] " + message).c_str()}
+		Exception{"TEXT_EXTRACTOR", message.c_str()}
 	{
 	}
 }; // TextExtractorException
+
+
+namespace
+{
+
+
+[[noreturn]]
+void text_extractor_fail(
+	const char* message)
+{
+	throw TextExtractorException{message};
+}
+
+[[noreturn]]
+void text_extractor_fail(
+	int number,
+	const char* message)
+{
+	const auto error_message = std::string{} + "[Text #" + std::to_string(number) + "] " + message;
+
+	text_extractor_fail(error_message.c_str());
+}
+
+[[noreturn]]
+void text_extractor_fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(TextExtractorException{message});
+}
+
+
+} // namespace
 
 
 class TextExtractor
@@ -2717,7 +2740,7 @@ void TextExtractor::initialize_text()
 
 	if (non_zero_number_it == text_numbers_.end())
 	{
-		throw TextExtractorException{"Empty list."};
+		text_extractor_fail("Empty list.");
 	}
 
 	text_numbers_.erase(text_numbers_.begin(), non_zero_number_it);
@@ -2747,7 +2770,7 @@ CompHeader_t TextExtractor::deserialize_header(
 
 	if (four_cc != JAMP)
 	{
-		throw TextExtractorException{number, "Unsupported FOURCC."};
+		text_extractor_fail(number, "Unsupported FOURCC.");
 	}
 
 	return result;
@@ -2770,7 +2793,7 @@ void TextExtractor::extract_text(
 
 		if (text_size < header_size)
 		{
-			throw TextExtractorException{number, "Header too small."};
+			text_extractor_fail(number, "Header too small.");
 		}
 
 		constexpr auto max_uncompressed_size = 4'096;
@@ -2781,12 +2804,12 @@ void TextExtractor::extract_text(
 		if (compressed_header.CompressLen > static_cast<std::uint32_t>(pure_data_size) ||
 			compressed_header.OriginalLen > max_uncompressed_size)
 		{
-			throw TextExtractorException{number, "Length(s) out of range."};
+			text_extractor_fail(number, "Length(s) out of range.");
 		}
 
 		if (compressed_header.CompType != ct_LZH)
 		{
-			throw TextExtractorException{number, "Expected LZH compression type."};
+			text_extractor_fail(number, "Expected LZH compression type.");
 		}
 
 		buffer_.resize(compressed_header.OriginalLen);
@@ -2819,12 +2842,12 @@ void TextExtractor::extract_text(
 
 	if (!file_stream.is_open())
 	{
-		throw TextExtractorException{number, "Failed to open \"" + file_name + "\" for writing."};
+		text_extractor_fail(number, ("Failed to open \"" + file_name + "\" for writing.").c_str());
 	}
 
 	if (!file_stream.write(text_data, text_size))
 	{
-		throw TextExtractorException{number, "Write I/O error."};
+		text_extractor_fail(number, "Write I/O error.");
 	}
 }
 
@@ -2858,6 +2881,10 @@ void ca_extract_all(
 }
 
 
+namespace
+{
+
+
 class CaResourceException :
 	public bstone::Exception
 {
@@ -2869,6 +2896,24 @@ public:
 	{
 	}
 }; // CaResourceException
+
+
+[[noreturn]]
+void ca_resource_fail(
+	const char* message)
+{
+	throw CaResourceException{message};
+}
+
+[[noreturn]]
+void ca_resource_fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(CaResourceException{message});
+}
+
+
+} // namespace
 
 
 int ca_map_aog_sw_sprite_id_to_aog_full(
@@ -2955,10 +3000,11 @@ int ca_map_aog_sw_sprite_id_to_aog_full(
 void ca_make_resource_path_name(
 	const std::string& resource_name,
 	std::string& path_name)
+try
 {
 	if (resource_name.empty())
 	{
-		throw CaResourceException{"Empty name."};
+		ca_resource_fail("Empty name.");
 	}
 
 	path_name = (mod_dir_.empty() ? data_dir_ : mod_dir_);
@@ -2966,6 +3012,10 @@ void ca_make_resource_path_name(
 	const auto& assets_info = get_assets_info();
 	path_name = bstone::file_system::append_path(path_name, assets_info.get_base_path_name());
 	path_name = bstone::file_system::append_path(path_name, resource_name);
+}
+catch (...)
+{
+	ca_resource_fail_nested(__func__);
 }
 
 void ca_make_sprite_resource_path_name(

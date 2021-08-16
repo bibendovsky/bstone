@@ -47,6 +47,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_archiver.h"
 #include "bstone_endian.h"
+#include "bstone_exception.h"
 #include "bstone_file_system.h"
 #include "bstone_globals.h"
 #include "bstone_logger.h"
@@ -77,6 +78,34 @@ struct CycleInfo
 	std::uint8_t firstreg;
 	std::uint8_t lastreg;
 }; // CycleInfo
+
+
+class MainException :
+	public bstone::Exception
+{
+public:
+	explicit MainException(
+		const char* message) noexcept
+		:
+		bstone::Exception{"MAIN", message}
+	{
+	}
+}; // MainException
+
+
+[[noreturn]]
+void fail(
+	const char* message)
+{
+	throw MainException{message};
+}
+
+[[noreturn]]
+void fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(MainException{message});
+}
 
 
 } // namespace
@@ -7085,6 +7114,7 @@ bstone::MemoryStream g_playtemp;
 static bool is_config_loaded = false;
 
 static const std::string& get_score_file_name()
+try
 {
 	static auto file_name = std::string{};
 	static auto is_initialized = false;
@@ -7111,13 +7141,17 @@ static const std::string& get_score_file_name()
 		}
 		else
 		{
-			throw bstone::Exception("GET_SCORE_FILE_NAME", "Invalid game type.");
+			fail("Invalid game type.");
 		}
 
 		file_name = "bstone_" + game_type_string + "_high_scores";
 	}
 
 	return file_name;
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 static void set_default_high_scores()
@@ -8132,6 +8166,7 @@ std::int8_t LS_total = -1;
 
 bool LoadLevel(
 	int level_index)
+try
 {
 	extern bool ForceLoadDefault;
 
@@ -8317,7 +8352,7 @@ bool LoadLevel(
 
 		if (actor_count < 1 || actor_count >= MAXACTORS)
 		{
-			throw bstone::ArchiverException{"Actor count out of range."};
+			bstone::archiver_fail("Actor count out of range.");
 		}
 
 		InitActorList();
@@ -8369,7 +8404,7 @@ bool LoadLevel(
 
 		if (laststatobj_index > MAXSTATS)
 		{
-			throw bstone::Exception{"LOAD_LEVEL", "Last static index out of range."};
+			fail("Last static index out of range.");
 		}
 
 		if (laststatobj_index < 0)
@@ -8529,9 +8564,14 @@ bool LoadLevel(
 
 	return is_succeed;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 bool SaveLevel(
 	int level_index)
+try
 {
 	WindowY = 181;
 
@@ -8654,7 +8694,7 @@ bool SaveLevel(
 
 				if (value < -32'768 || value > 32'767)
 				{
-					throw bstone::ArchiverException{"'actorat' value out of range."};
+					bstone::archiver_fail("'actorat' value out of range.");
 				}
 
 				archiver->write_int16(static_cast<std::int16_t>(value));
@@ -8816,6 +8856,10 @@ bool SaveLevel(
 
 	return true;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 int DeleteChunk(
 	bstone::MemoryStream& stream,
@@ -8837,6 +8881,7 @@ int DeleteChunk(
 }
 
 static const std::string& get_saved_game_version_string()
+try
 {
 	static auto version_string = std::string{};
 	static auto is_initialized = false;
@@ -8863,7 +8908,7 @@ static const std::string& get_saved_game_version_string()
 		}
 		else
 		{
-			throw bstone::Exception{"GET_SAVED_GAME_VERSION_STRING", "Invalid game type."};
+			fail("Invalid game type.");
 		}
 
 		version_string +=
@@ -8874,6 +8919,10 @@ static const std::string& get_saved_game_version_string()
 	}
 
 	return version_string;
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 static bool LoadCompressedChunk(
@@ -8941,6 +8990,7 @@ static bool LoadCompressedChunk(
 
 bool LoadTheGame(
 	const std::string& file_name)
+try
 {
 	bool is_succeed = true;
 
@@ -9061,7 +9111,7 @@ bool LoadTheGame(
 			if (assets_info.get_levels_hash_string() != levels_hash_string)
 			{
 				bstone::logger_->write_error("LOAD: Levels hash mismatch.");
-				archiver->throw_exception("Levels hash mismatch.");
+				bstone::archiver_fail("Levels hash mismatch.");
 			}
 
 			gamestate.unarchive(archiver.get());
@@ -9175,6 +9225,10 @@ bool LoadTheGame(
 	}
 
 	return is_succeed;
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 bool SaveTheGame(
@@ -9659,7 +9713,7 @@ void pre_quit()
 void fail(
 	const std::string& message)
 {
-	throw bstone::Exception{message.c_str()};
+	throw MainException{message.c_str()};
 }
 
 [[noreturn]]
@@ -9960,7 +10014,7 @@ int main(
 
 		if (sdl_result != 0)
 		{
-			::fail("Failed to initialize SDL: " + std::string{SDL_GetError()});
+			fail("Failed to initialize SDL: " + std::string{SDL_GetError()});
 		}
 
 		freed_main();
@@ -10529,7 +10583,7 @@ int gametype::get_barrier_group_offset(
 
 	if (level < 0 || level >= assets_info.get_levels_per_episode())
 	{
-		::fail("[BRR_GRP_IDX] Level index out of range.");
+		fail("[BRR_GRP_IDX] Level index out of range.");
 	}
 
 	const auto switches_per_level = assets_info.get_barrier_switches_per_level();
@@ -10558,14 +10612,14 @@ int gametype::encode_barrier_index(
 
 	if (index < 0 || index >= assets_info.get_barrier_switches_per_level())
 	{
-		::fail("[BARR_ENC_IDX] Barrier index out of range.");
+		fail("[BARR_ENC_IDX] Barrier index out of range.");
 	}
 
 	if (assets_info.is_aog())
 	{
 		if (level < 0 || level >= assets_info.get_levels_per_episode())
 		{
-			::fail("[BARR_ENC_IDX] Level index out of range.");
+			fail("[BARR_ENC_IDX] Level index out of range.");
 		}
 
 		const auto switch_index_bits = assets_info.get_max_barrier_switches_per_level_bits();
@@ -10587,7 +10641,7 @@ void gametype::decode_barrier_index(
 {
 	if (code < 0)
 	{
-		::fail("[BARR_DEC_IDX] Invalid code.");
+		fail("[BARR_DEC_IDX] Invalid code.");
 	}
 
 	const auto& assets_info = get_assets_info();
@@ -10609,12 +10663,12 @@ void gametype::decode_barrier_index(
 
 	if (level < 0 || level >= assets_info.get_levels_per_episode())
 	{
-		::fail("[BARR_DEC_IDX] Level index out of range.");
+		fail("[BARR_DEC_IDX] Level index out of range.");
 	}
 
 	if (index < 0 || index >= assets_info.get_barrier_switches_per_level())
 	{
-		::fail("[BARR_DEC_IDX] Barrier index out of range.");
+		fail("[BARR_DEC_IDX] Barrier index out of range.");
 	}
 }
 

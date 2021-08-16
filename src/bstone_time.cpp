@@ -40,6 +40,10 @@ namespace bstone
 {
 
 
+namespace
+{
+
+
 class LocalDateTimeException :
 	public Exception
 {
@@ -47,25 +51,32 @@ public:
 	explicit LocalDateTimeException(
 		const char* message) noexcept
 		:
-		Exception{"MAKE_LOCAL_DATE_TIME", message}
+		Exception{"LOCAL_DATE_TIME", message}
 	{
 	}
 }; // LocalDateTimeException
 
-class LocalDateTimeStringException :
-	public Exception
+
+[[noreturn]]
+void fail(
+	const char* message)
 {
-public:
-	explicit LocalDateTimeStringException(
-		const char* message) noexcept
-		:
-		Exception{"MAKE_LOCAL_DATE_TIME_STRING", message}
-	{
-	}
-}; // LocalDateTimeStringException
+	throw LocalDateTimeException{message};
+}
+
+[[noreturn]]
+void fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(LocalDateTimeException{message});
+}
+
+
+} // namespace
 
 
 DateTime make_local_date_time()
+try
 {
 #if _WIN32
 	SYSTEMTIME win32_date_time;
@@ -89,7 +100,7 @@ DateTime make_local_date_time()
 
 	if (clock_gettime_result != 0)
 	{
-		throw LocalDateTimeException{"Failed to get clock time."};
+		fail("Failed to get clock time.");
 	}
 
 	struct ::tm posix_tm;
@@ -98,7 +109,7 @@ DateTime make_local_date_time()
 
 	if (!localtime_r_result)
 	{
-		throw LocalDateTimeException{"Failed to get local time."};
+		fail("Failed to get local time.");
 	}
 
 	const auto milliseconds = static_cast<int>(posix_tp.tv_nsec / 1'000'000);
@@ -115,11 +126,15 @@ DateTime make_local_date_time()
 	return date_time;
 #endif // _WIN32
 }
-
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 // YYYYMMDD_hhmmss_sss
 std::string make_local_date_time_string_screenshot_file_name(
 	const DateTime& date_time)
+try
 {
 	auto date_time_string = std::string{};
 	date_time_string.reserve(19);
@@ -135,10 +150,15 @@ std::string make_local_date_time_string_screenshot_file_name(
 
 	return date_time_string;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 std::string make_local_date_time_string(
 	const DateTime& date_time,
 	DateTimeStringFormat format)
+try
 {
 	switch (format)
 	{
@@ -146,8 +166,12 @@ std::string make_local_date_time_string(
 			return make_local_date_time_string_screenshot_file_name(date_time);
 
 		default:
-			throw LocalDateTimeStringException{"Unsupported format."};
+			fail("Unsupported format.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 

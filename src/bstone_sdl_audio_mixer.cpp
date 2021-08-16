@@ -37,6 +37,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_audio_decoder.h"
 #include "bstone_audio_sample_converter.h"
+#include "bstone_exception.h"
 
 
 constexpr auto ATABLEMAX = 15;
@@ -84,6 +85,26 @@ const std::uint8_t lefttable[ATABLEMAX][ATABLEMAX * 2] =
 
 namespace bstone
 {
+
+
+namespace
+{
+
+
+class SdlAudioMixerException :
+	public Exception
+{
+public:
+	explicit SdlAudioMixerException(
+		const char* message) noexcept
+		:
+		Exception{"SDL_AUDIO_MIXER", message}
+	{
+	}
+}; // SdlAudioMixerException
+
+
+} // namespace
 
 
 SdlAudioMixer::CacheItem::CacheItem()
@@ -706,6 +727,18 @@ int SdlAudioMixer::get_max_channels() const
 int SdlAudioMixer::get_max_commands() const
 {
 	return 192;
+}
+
+[[noreturn]]
+void SdlAudioMixer::fail(
+	const char* message)
+{
+}
+
+[[noreturn]]
+void SdlAudioMixer::fail_nested(
+	const char* message)
+{
 }
 
 void SdlAudioMixer::callback(
@@ -1463,7 +1496,7 @@ bool SdlAudioMixer::play_sound(
 		break;
 
 	default:
-		throw std::runtime_error("Invalid actor channel.");
+		fail("Invalid actor channel.");
 	}
 
 	auto command = Command{};

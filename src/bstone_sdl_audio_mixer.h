@@ -299,6 +299,15 @@ private:
 	LowPassFilter digitized_right_lpf_{};
 
 
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
+
+
 	void callback(
 		std::uint8_t* dst_data,
 		const int dst_length);

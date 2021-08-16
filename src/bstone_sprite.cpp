@@ -29,14 +29,34 @@ Free Software Foundation, Inc.,
 
 #include "bstone_sprite.h"
 
-#include <stdexcept>
 #include <memory>
 
 #include "bstone_endian.h"
+#include "bstone_exception.h"
 
 
 namespace bstone
 {
+
+
+namespace
+{
+
+
+class SpriteException :
+	public Exception
+{
+public:
+	explicit SpriteException(
+		const char* message) noexcept
+		:
+		Exception{"SPRITE", message}
+	{
+	}
+}; // SpriteException
+
+
+} // namespace
 
 
 Sprite::Sprite()
@@ -97,7 +117,7 @@ void Sprite::initialize(
 
 	if (!raw_data)
 	{
-		throw std::runtime_error{"No raw data."};
+		fail("No raw data.");
 	}
 
 	const auto values_16 = static_cast<const std::uint16_t*>(raw_data);
@@ -108,7 +128,7 @@ void Sprite::initialize(
 
 	if (left > right || left >= dimension || right >= dimension)
 	{
-		throw std::runtime_error{"Invalid edge values."};
+		fail("Invalid edge values.");
 	}
 
 	const auto commands_offsets = &values_16[2];
@@ -241,6 +261,20 @@ const std::int16_t* Sprite::get_column(
 const std::int16_t* Sprite::get_data() const
 {
 	return image_.data();
+}
+
+[[noreturn]]
+void Sprite::fail(
+	const char* message)
+{
+	throw SpriteException{message};
+}
+
+[[noreturn]]
+void Sprite::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(SpriteException{message});
 }
 
 

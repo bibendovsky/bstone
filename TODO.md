@@ -2,7 +2,6 @@
 - Revise AOG compatibility.
 - If possible don't use default destructor in class derived from interface.
 - If possible don't define destructor with all initialized fields at declaration.
-- Use functions `fail` and `fail_nested` instead of `throw`.
 - Use global namespace for WinAPI and other symbols.
 - Remove `const` before non-pointer or non-reference function parameter.
 - Remove `Exception` constructor with only one string parameter.
@@ -10,3 +9,6 @@
 - Replace `Factory` structure with `make` function.
 - Mark interface implementations as `final`.
 - Remove `not_null`.
+- Remove `bstone_uptr_resource_list`.
+- Remove `bstone_mt_queue_1r1w`.
+- Namespace `detail` to anonymous one.

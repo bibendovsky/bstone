@@ -37,6 +37,10 @@ namespace bstone
 {
 
 
+namespace
+{
+
+
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 class SdlTextureLockException :
@@ -54,6 +58,24 @@ public:
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
+[[noreturn]]
+void fail(
+	const char* message)
+{
+	throw SdlTextureLockException{message};
+}
+
+[[noreturn]]
+void fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(SdlTextureLockException{message});
+}
+
+
+} // namespace
+
+
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 SdlTextureLock::SdlTextureLock(
@@ -63,7 +85,7 @@ try
 {
 	if (!sdl_texture)
 	{
-		throw SdlTextureLockException{"Null texture."};
+		fail("Null texture.");
 	}
 
 	bstone::ensure_sdl_result(::SDL_LockTexture(
@@ -77,7 +99,7 @@ try
 }
 catch (...)
 {
-	std::throw_with_nested(SdlTextureLockException{"Failed to lock a texture."});
+	fail_nested("Failed to lock a texture.");
 }
 
 SdlTextureLock::SdlTextureLock(

@@ -43,6 +43,7 @@ Free Software Foundation, Inc.,
 #include "jm_lzh.h"
 #include "jm_tp.h"
 
+#include "bstone_exception.h"
 #include "bstone_scope_guard.h"
 #include "bstone_ren_3d_limits.h"
 
@@ -153,6 +154,34 @@ void draw_carousel(
 
 namespace
 {
+
+
+class MenuException :
+	public bstone::Exception
+{
+public:
+	explicit MenuException(
+		const char* message) noexcept
+		:
+		Exception{"MENU", message}
+	{
+	}
+}; // MenuException
+
+
+[[noreturn]]
+void fail(
+	const char* message)
+{
+	throw MenuException{message};
+}
+
+[[noreturn]]
+void fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(MenuException{message});
+}
 
 
 std::int16_t COAL_FONT()
@@ -651,6 +680,7 @@ static std::uint8_t menu_background_color = 0x00;
 
 
 static const std::string& get_saved_game_base_name()
+try
 {
 	static auto base_name = std::string();
 	static auto is_initialized = false;
@@ -677,13 +707,17 @@ static const std::string& get_saved_game_base_name()
 		}
 		else
 		{
-			throw bstone::Exception{"GET_SAVED_GAME_BASE_NAME", "Invalid game type."};
+			fail("Invalid game type.");
 		}
 
 		base_name += "_saved_game_";
 	}
 
 	return base_name;
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -974,7 +1008,7 @@ void binds_initialize_menu()
 
 	if (!has_bindings)
 	{
-		::fail("No bindings.");
+		fail("No bindings.");
 	}
 
 	binds_names.clear();
@@ -5063,7 +5097,7 @@ const std::string& menu_video_mode_renderer_kind_get_string(
 			return gles_2_0_string;
 
 		default:
-			::fail("Unsupported renderer kind.");
+			fail("Unsupported renderer kind.");
 	}
 }
 
@@ -5088,7 +5122,7 @@ const std::string& menu_video_mode_aa_kind_get_string(
 			return msaa_string;
 
 		default:
-			::fail("Unsupported AA kind.");
+			fail("Unsupported AA kind.");
 	}
 }
 
@@ -5154,7 +5188,7 @@ void video_mode_draw_menu()
 
 		if (menu_video_mode_renderer_kinds_.empty())
 		{
-			::fail("Empty renderer kind list.");
+			fail("Empty renderer kind list.");
 		}
 
 		const auto renderer_kind_it = std::find(
@@ -5530,7 +5564,7 @@ const std::string& texturing_filter_to_string(
 			return linear_string;
 
 		default:
-			::fail("Unsupported filter.");
+			fail("Unsupported filter.");
 	}
 }
 
@@ -5832,7 +5866,7 @@ void texturing_filter_carousel(
 			break;
 
 		default:
-			::fail("Unsupported filter.");
+			fail("Unsupported filter.");
 	}
 }
 

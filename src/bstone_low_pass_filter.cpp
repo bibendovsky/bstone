@@ -45,68 +45,68 @@ public:
 	explicit LowPassFilterException(
 		const char* message) noexcept
 		:
-		Exception{"AUDIO_LPF", message}
+		Exception{"LOW_PASS_FILTER", message}
 	{
 	}
 }; // LowPassFilterException
 
 
-LowPassFilter::LowPassFilter()
-	:
-	length_{},
-	half_length_{},
-	left_length_{},
-	weights_{},
-	samples_{}
-{
-}
+LowPassFilter::LowPassFilter() noexcept = default;
 
 LowPassFilter::LowPassFilter(
-	const int filter_order,
-	const int cut_off_frequency,
-	const int sampling_frequency)
-	:
-	LowPassFilter{}
+	int filter_order,
+	int cut_off_frequency,
+	int sampling_frequency)
+try
 {
 	initialize(filter_order, cut_off_frequency, sampling_frequency);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void LowPassFilter::initialize(
-	const int filter_order,
-	const int cut_off_frequency,
-	const int sampling_frequency)
+	int filter_order,
+	int cut_off_frequency,
+	int sampling_frequency)
+try
 {
 	if (filter_order < 1)
 	{
-		throw LowPassFilterException{"Filter order out of range."};
+		fail("Filter order out of range.");
 	}
 
 	if (cut_off_frequency <= 0)
 	{
-		throw LowPassFilterException{"Cut off frequency out of range."};
+		fail("Cut off frequency out of range.");
 	}
 
 	if (sampling_frequency <= 0)
 	{
-		throw LowPassFilterException{"Sampling frequency out of range."};
+		fail("Sampling frequency out of range.");
 	}
 
 	if (cut_off_frequency > (sampling_frequency / 2))
 	{
-		throw LowPassFilterException{"Cut off frequency out of range."};
+		fail("Cut off frequency out of range.");
 	}
 
 	initialize_weights(filter_order, cut_off_frequency, sampling_frequency);
 
 	apply_hann_weights();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 double LowPassFilter::process_sample(
-	const double sample)
+	double sample) noexcept
 {
 	// Shift samples to the right.
 	//
-	for (int i = length_ - 2; i >= 0; --i)
+	for (auto i = length_ - 2; i >= 0; --i)
 	{
 		samples_[i + 1] = samples_[i];
 	}
@@ -119,7 +119,7 @@ double LowPassFilter::process_sample(
 	//
 	auto result = 0.0;
 
-	for (int i = 0; i < half_length_; ++i)
+	for (auto i = 0; i < half_length_; ++i)
 	{
 		result += (samples_[i] + samples_[length_ - 1 - i]) * weights_[i];
 	}
@@ -132,9 +132,23 @@ double LowPassFilter::process_sample(
 	return result;
 }
 
-void LowPassFilter::reset_samples()
+void LowPassFilter::reset_samples() noexcept
 {
 	std::uninitialized_fill(samples_.begin(), samples_.end(), 0.0);
+}
+
+[[noreturn]]
+void LowPassFilter::fail(
+	const char* message)
+{
+	throw LowPassFilterException{message};
+}
+
+[[noreturn]]
+void LowPassFilter::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(LowPassFilterException{message});
 }
 
 double LowPassFilter::get_pi() noexcept
@@ -143,9 +157,9 @@ double LowPassFilter::get_pi() noexcept
 }
 
 void LowPassFilter::initialize_weights(
-	const int filter_order,
-	const int cut_off_frequency,
-	const int sampling_frequency)
+	int filter_order,
+	int cut_off_frequency,
+	int sampling_frequency)
 {
 	// Filter length.
 	length_ = filter_order + 1;
@@ -177,12 +191,12 @@ void LowPassFilter::initialize_weights(
 	}
 }
 
-void LowPassFilter::apply_hann_weights()
+void LowPassFilter::apply_hann_weights() noexcept
 {
 	const auto order = length_ - 1;
 	const auto pi_2_div_order = (2.0 * get_pi()) / order;
 
-	for (int i = 0; i < left_length_; ++i)
+	for (auto i = 0; i < left_length_; ++i)
 	{
 		const auto w = 0.5 * (1.0 - std::cos(i * pi_2_div_order));
 

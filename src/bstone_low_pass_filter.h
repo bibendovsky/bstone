@@ -39,26 +39,26 @@ namespace bstone
 {
 
 
-class LowPassFilter
+class LowPassFilter final
 {
 public:
-	LowPassFilter();
+	LowPassFilter() noexcept;
 
 	LowPassFilter(
-		const int filter_order,
-		const int cut_off_frequency,
-		const int sampling_frequency);
+		int filter_order,
+		int cut_off_frequency,
+		int sampling_frequency);
 
 
 	void initialize(
-		const int filter_order,
-		const int cut_off_frequency,
-		const int sampling_frequency);
+		int filter_order,
+		int cut_off_frequency,
+		int sampling_frequency);
 
 	double process_sample(
-		const double sample);
+		double sample) noexcept;
 
-	void reset_samples();
+	void reset_samples() noexcept;
 
 
 private:
@@ -66,21 +66,30 @@ private:
 	using Samples = std::vector<double>;
 
 
-	int length_;
-	int half_length_;
-	int left_length_;
-	Weights weights_;
-	Samples samples_;
+	int length_{};
+	int half_length_{};
+	int left_length_{};
+	Weights weights_{};
+	Samples samples_{};
+
+
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
 
 
 	static double get_pi() noexcept;
 
 	void initialize_weights(
-		const int filter_order,
-		const int cut_off_frequency,
-		const int sampling_frequency);
+		int filter_order,
+		int cut_off_frequency,
+		int sampling_frequency);
 
-	void apply_hann_weights();
+	void apply_hann_weights() noexcept;
 }; // LowPassFilter
 
 

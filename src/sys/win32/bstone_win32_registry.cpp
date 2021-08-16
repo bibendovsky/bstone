@@ -61,6 +61,21 @@ public:
 }; // Win32RegistryKeyException
 
 
+[[noreturn]]
+void win32_registry_key_fail(
+	const char* message)
+{
+	throw Win32RegistryKeyException{message};
+}
+
+[[noreturn]]
+void win32_registry_key_fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(Win32RegistryKeyException{message});
+}
+
+
 void Win32RegistryKeyDeleter(
 	HKEY resource) noexcept
 {
@@ -159,11 +174,11 @@ Win32RegistryKeyStringValueResult Win32RegistryKeyImpl::get_string(
 	return Win32RegistryKeyStringValueResult{utf16_to_utf8(value_utf16)};
 }
 
-
 Win32RegistryKeyUPtr make_win32_registry_key(
 	const Win32RegistryViewType view_type,
 	const Win32RegistryRootKeyType root_key_type,
 	const std::string& sub_key_name_utf8)
+try
 {
 	auto win32_access = DWORD{KEY_READ};
 
@@ -177,7 +192,7 @@ Win32RegistryKeyUPtr make_win32_registry_key(
 			break;
 
 		default:
-			throw Win32RegistryKeyException{"Unsupported view type."};
+			win32_registry_key_fail("Unsupported view type.");
 	}
 
 	auto win32_root_key = HKEY{};
@@ -189,12 +204,12 @@ Win32RegistryKeyUPtr make_win32_registry_key(
 			break;
 
 		default:
-			throw Win32RegistryKeyException{"Unsupported root key type."};
+			win32_registry_key_fail("Unsupported root key type.");
 	}
 
 	if (sub_key_name_utf8.empty())
 	{
-		throw Win32RegistryKeyException{"Empty sub-key name."};
+		win32_registry_key_fail("Empty sub-key name.");
 	}
 
 	const auto& sub_key_name_utf16 = utf8_to_utf16(sub_key_name_utf8);
@@ -217,6 +232,10 @@ Win32RegistryKeyUPtr make_win32_registry_key(
 	}
 
 	return std::make_unique<Win32RegistryKeyImpl>(std::move(win32_key_resource));
+}
+catch (...)
+{
+	win32_registry_key_fail_nested(__func__);
 }
 
 

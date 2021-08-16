@@ -100,6 +100,11 @@ private:
 	DecodeBuffer decode_buffer_{};
 
 
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+
 	bool write_wav_header(
 		int data_size,
 		int bit_depth,
@@ -184,6 +189,13 @@ void AudioExtractorImpl::extract_sfx(
 	extract_audio_chunks(dst_dir, audio_chunk_filter);
 }
 
+[[noreturn]]
+void AudioExtractorImpl::fail(
+	const char* message)
+{
+	throw AudioExtractorException{message};
+}
+
 bool AudioExtractorImpl::write_wav_header(
 	int data_size,
 	int bit_depth,
@@ -249,14 +261,14 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(
 			break;
 
 		default:
-			throw AudioExtractorException{"Unsupported audio chunk type."};
+			fail("Unsupported audio chunk type.");
 	}
 
 	auto audio_decoder = bstone::make_audio_decoder(audio_decoder_type, Opl3Type::dbopl);
 
 	if (!audio_decoder)
 	{
-		throw AudioExtractorException{"Failed to create decoder."};
+		fail("Failed to create decoder.");
 	}
 
 	auto param = bstone::AudioDecoderInitParam{};
@@ -266,12 +278,12 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(
 
 	if (!audio_decoder->initialize(param))
 	{
-		throw AudioExtractorException{"Failed to initialize decoder."};
+		fail("Failed to initialize decoder.");
 	}
 
 	if (!stream.set_position(wav_prefix_size))
 	{
-		throw AudioExtractorException{"Seek error."};
+		fail("Seek error.");
 	}
 
 	constexpr auto sample_size = static_cast<int>(sizeof(Sample));
@@ -304,7 +316,7 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(
 
 		if (!stream.write(decode_buffer_.data(), decoded_size))
 		{
-			throw AudioExtractorException{"Write error."};
+			fail("Write error.");
 		}
 
 		data_size += decoded_size;
@@ -313,12 +325,12 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(
 
 	if (!stream.set_position(0))
 	{
-		throw AudioExtractorException{"Seek error."};
+		fail("Seek error.");
 	}
 
 	if (!write_wav_header(data_size, bit_depth, bstone::opl3_fixed_frequency, stream))
 	{
-		throw AudioExtractorException{"Write error."};
+		fail("Write error.");
 	}
 
 	const auto volume_factor = 32'767.0 / abs_max_sample;
@@ -338,19 +350,19 @@ void AudioExtractorImpl::write_digitized_audio_chunk(
 
 	if (!write_wav_header(data_size, bit_depth, bstone::audio_decoder_pcm_fixed_frequency, stream))
 	{
-		throw AudioExtractorException{"Write error."};
+		fail("Write error.");
 	}
 
 	if (!stream.write(audio_chunk.data, data_size))
 	{
-		throw AudioExtractorException{"Write error."};
+		fail("Write error.");
 	}
 
 	if ((data_size % 2) != 0)
 	{
 		if (!stream.write_octet(0))
 		{
-			throw AudioExtractorException{"Write error."};
+			fail("Write error.");
 		}
 	}
 
@@ -391,7 +403,7 @@ const char* AudioExtractorImpl::make_file_name_prefix(
 			return "sfx_digitized";
 
 		default:
-			throw AudioExtractorException{"Unsupported audio chunk type."};
+			fail("Unsupported audio chunk type.");
 	}
 }
 
@@ -407,7 +419,7 @@ const char* AudioExtractorImpl::make_file_extension(
 			return ".wav";
 
 		default:
-			throw AudioExtractorException{"Unsupported extension type."};
+			fail("Unsupported extension type.");
 	}
 }
 
@@ -445,14 +457,14 @@ void AudioExtractorImpl::extract_raw_audio_chunk(
 
 	if (!file_stream.is_open())
 	{
-		throw AudioExtractorException{"Failed to open a file for writing."};
+		fail("Failed to open a file for writing.");
 	}
 
 	const auto is_written = file_stream.write(audio_chunk.data, audio_chunk.data_size);
 
 	if (!is_written)
 	{
-		throw AudioExtractorException{"Write error."};
+		fail("Write error.");
 	}
 
 	auto sha1 = Sha1{};
@@ -476,7 +488,7 @@ void AudioExtractorImpl::extract_decoded_audio_chunk(
 
 	if (!file_stream.is_open())
 	{
-		throw AudioExtractorException{"Failed to open a file for writing."};
+		fail("Failed to open a file for writing.");
 	}
 
 
@@ -493,7 +505,7 @@ void AudioExtractorImpl::extract_decoded_audio_chunk(
 			break;
 
 		default:
-			throw AudioExtractorException{"Unsupported audio chunk type."};
+			fail("Unsupported audio chunk type.");
 	}
 }
 

@@ -35,6 +35,10 @@ namespace bstone
 {
 
 
+namespace
+{
+
+
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 class ImageDecoderException :
@@ -52,10 +56,29 @@ public:
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
+[[noreturn]]
+void fail(
+	const char* message)
+{
+	throw ImageDecoderException{message};
+}
+
+[[noreturn]]
+void fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(ImageDecoderException{message});
+}
+
+
+} // namespace
+
+
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ImageDecodeUPtr make_image_decoder(
 	ImageDecoderType image_decoder_type)
+try
 {
 	switch (image_decoder_type)
 	{
@@ -66,8 +89,12 @@ ImageDecodeUPtr make_image_decoder(
 			return std::make_unique<StbImageDecoder>();
 
 		default:
-			throw ImageDecoderException{"Unsupported image decoder type."};
+			fail("Unsupported image decoder type.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
