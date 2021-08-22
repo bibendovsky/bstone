@@ -382,9 +382,7 @@ target_sources(
 		bstone_memory_binary_reader.h
 		bstone_memory_stream.h
 		bstone_mod_value.h
-		bstone_mt_queue_1r1w.h
 		bstone_mt_task_mgr.h
-		bstone_not_null.h
 		bstone_oal_audio_mixer.h
 		bstone_oal_loader.h
 		bstone_oal_resource.h
@@ -417,7 +415,6 @@ target_sources(
 		bstone_time.h
 		bstone_un_value.h
 		bstone_unique_resource.h
-		bstone_uptr_resource_list.h
 		bstone_version.h
 		bstone_video.h
 )
@@ -541,7 +538,6 @@ target_sources(
 		bstone_memory_binary_reader.cpp
 		bstone_memory_stream.cpp
 		bstone_mt_task_mgr.cpp
-		bstone_not_null.cpp
 		bstone_nuked_opl3.cpp
 		bstone_oal_audio_mixer.cpp
 		bstone_oal_loader.cpp
