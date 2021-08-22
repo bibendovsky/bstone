@@ -8,7 +8,4 @@
 - Don't use exceptions from `<stdexcept>`.
 - Replace `Factory` structure with `make` function.
 - Mark interface implementations as `final`.
-- Remove `not_null`.
-- Remove `bstone_uptr_resource_list`.
-- Remove `bstone_mt_queue_1r1w`.
 - Namespace `detail` to anonymous one.

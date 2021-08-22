@@ -32,7 +32,6 @@ Free Software Foundation, Inc.,
 #include <numeric>
 
 #include "bstone_exception.h"
-#include "bstone_not_null.h"
 
 
 namespace bstone
@@ -53,17 +52,6 @@ public:
 	}
 }; // OalSourceException
 
-class OalSourceNullException :
-	public OalSourceException
-{
-public:
-	explicit OalSourceNullException()
-		:
-		OalSourceException{"Null value."}
-	{
-	}
-}; // OalSourceNullException
-
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
@@ -71,6 +59,7 @@ public:
 
 void OalSource::initialize(
 	const OalSourceInitParam& param)
+try
 {
 	uninitialize();
 
@@ -84,7 +73,12 @@ void OalSource::initialize(
 		fail("Mix sample count out of range.");
 	}
 
-	oal_al_symbols_ = not_null<OalSourceNullException>(param.oal_al_symbols);
+	if (!param.oal_al_symbols)
+	{
+		fail("Null AL symbols.");
+	}
+
+	oal_al_symbols_ = param.oal_al_symbols;
 
 	streaming_mix_sample_count_ = param.mix_sample_count;
 	streaming_mix_buffer_.resize(streaming_mix_sample_count_ * sample_size);
@@ -92,6 +86,10 @@ void OalSource::initialize(
 	initialize_al_resources();
 
 	is_initialized_ = true;
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 bool OalSource::is_initialized() const noexcept
@@ -117,6 +115,7 @@ void OalSource::uninitialize()
 
 void OalSource::open(
 	const OalSourceOpenStaticParam& param)
+try
 {
 	ensure_is_initialized();
 
@@ -127,7 +126,10 @@ void OalSource::open(
 		fail("Sample rate out of range.");
 	}
 
-	not_null<OalSourceNullException>(param.data);
+	if (!param.data)
+	{
+		fail("Null data.");
+	}
 
 	if (param.data_size < 0)
 	{
@@ -149,6 +151,10 @@ void OalSource::open(
 	is_started_ = false;
 	is_paused_ = false;
 	is_finished_ = false;
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void OalSource::open(
