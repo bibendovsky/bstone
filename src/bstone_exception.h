@@ -44,9 +44,6 @@ class Exception :
 	public std::exception
 {
 public:
-	explicit Exception(
-		const char* message) noexcept;
-
 	Exception(
 		const char* context,
 		const char* message) noexcept;

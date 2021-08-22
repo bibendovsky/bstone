@@ -4,8 +4,6 @@
 - If possible don't define destructor with all initialized fields at declaration.
 - Use global namespace for WinAPI and other symbols.
 - Remove `const` before non-pointer or non-reference function parameter.
-- Remove `Exception` constructor with only one string parameter.
-- Don't use exceptions from `<stdexcept>`.
 - Replace `Factory` structure with `make` function.
 - Mark interface implementations as `final`.
 - Namespace `detail` to anonymous one.

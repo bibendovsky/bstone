@@ -72,13 +72,6 @@ static constexpr Index get_c_string_size(
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 Exception::Exception(
-	const char* message) noexcept
-	:
-	Exception{nullptr, message}
-{
-}
-
-Exception::Exception(
 	const char* context,
 	const char* message) noexcept
 {
