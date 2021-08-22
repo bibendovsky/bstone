@@ -393,33 +393,28 @@ Notes:
 
   Default: `auto_detect`
 
-* `--vid_is_windowed value`  
-  Starts up the game in windowed mode or in fake fullscreen otherwise.  
-  Values: `0` (fake fullscreen) or `1` (windowed)  
-  Default: `1`
-
-* `--vid_windowed_width width`  
-  Specifies window width for windowed mode.  
+* `--vid_width width`  
+  Specifies window width.  
   Minimum width: `320`  
   Default width: `640`
 
-* `--vid_windowed_height height`  
-  Specifies window height for windowed mode.  
+* `--vid_height height`  
+  Specifies window height.  
   Minimum height: `240`  
   Default height: `480`
 
-* `--vid_windowed_x offset`  
+* `--vid_x offset`  
   Sets a horizontal offset from the left side of the desktop screen.  
   Applicable for positionable window only.  
   Default: `0`
 
-* `--vid_windowed_y offset`  
+* `--vid_y offset`  
   Sets a vertical offset from the top side of the desktop screen.  
   Applicable for positionable window only.  
   Default: `0`
 
 * `--vid_is_positioned value`  
-  Centers a windowed window on the desktop or moves it in the specified position.  
+  Centers a window on the desktop or moves it in the specified position.  
   Values: `0` (centered) or `1` (positioned)  
   Default: `0`
 

@@ -603,9 +603,9 @@ void SwVideo::apply_window_mode()
 	vid_initialize_vanilla_raycaster();
 
 	auto param = bstone::Ren3dSetWindowModeParam{};
-	param.is_windowed = vid_cfg_get().is_windowed;
-	param.rect_2d_.extent_.width_ = vid_cfg_get().windowed_width;
-	param.rect_2d_.extent_.height_ = vid_cfg_get().windowed_height;
+	param.is_native = vid_is_native_mode();
+	param.rect_2d_.extent_.width_ = vid_cfg_get().width;
+	param.rect_2d_.extent_.height_ = vid_cfg_get().height;
 	bstone::detail::Ren3dUtils::set_window_mode(window_.get(), param);
 
 	vid_initialize_common();
@@ -1027,32 +1027,25 @@ void SwVideo::create_window()
 	log("Creating window.");
 
 
-	int window_x;
-	int window_y;
+	const auto& vid_cfg = vid_cfg_get();
 
-	if (vid_cfg_get().is_positioned_)
+	const auto is_native_mode = vid_is_native_mode();
+
+	auto window_x = SDL_WINDOWPOS_CENTERED;
+	auto window_y = SDL_WINDOWPOS_CENTERED;
+
+	if (!is_native_mode && vid_cfg.is_positioned_)
 	{
-		window_x = vid_cfg_get().windowed_x_;
-		window_y = vid_cfg_get().windowed_y_;
-	}
-	else
-	{
-		window_x = SDL_WINDOWPOS_CENTERED;
-		window_y = SDL_WINDOWPOS_CENTERED;
+		window_x = vid_cfg.x;
+		window_y = vid_cfg.y;
 	}
 
-	auto window_flags = ::Uint32{
+	const ::Uint32 window_flags =
 		::SDL_WINDOW_SHOWN |
 		::SDL_WINDOW_ALLOW_HIGHDPI |
+		(is_native_mode ? ::SDL_WINDOW_FULLSCREEN_DESKTOP : ::SDL_WindowFlags{}) |
 		0
-	};
-
-#ifdef NDEBUG
-	if (!vid_cfg_get().is_windowed)
-	{
-		window_flags |= ::SDL_WINDOW_FULLSCREEN_DESKTOP;
-	}
-#endif // NDEBUG
+	;
 
 	const auto title = vid_get_game_name_and_game_version_string();
 

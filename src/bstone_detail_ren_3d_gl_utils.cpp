@@ -144,7 +144,7 @@ try
 		fail("Null window.");
 	}
 
-	SDL_GL_GetDrawableSize(sdl_window, &width, &height);
+	::SDL_GL_GetDrawableSize(sdl_window, &width, &height);
 
 	if (width <= 0 || height <= 0)
 	{
@@ -219,6 +219,7 @@ try
 {
 	auto window_param = Ren3dUtilsCreateWindowParam{};
 	window_param.renderer_kind_ = renderer_kind;
+	window_param.window_.is_native_ = false;
 	window_param.window_.is_borderless_ = true;
 	window_param.window_.rect_2d_.extent_.width_ = 1;
 	window_param.window_.rect_2d_.extent_.height_ = 1;
@@ -273,6 +274,7 @@ try
 {
 	auto window_param = Ren3dUtilsCreateWindowParam{};
 	window_param.renderer_kind_ = renderer_kind;
+	window_param.window_.is_native_ = false;
 	window_param.window_.is_borderless_ = true;
 	window_param.window_.rect_2d_.extent_.width_ = 1;
 	window_param.window_.rect_2d_.extent_.height_ = 1;

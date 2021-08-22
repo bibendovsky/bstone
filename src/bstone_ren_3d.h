@@ -55,8 +55,8 @@ using Ren3dCmdBufferPtr = Ren3dCmdBuffer*;
 struct Ren3dCreateWindowParam
 {
 	bool is_visible;
+	bool is_native_;
 	bool is_borderless_;
-	bool is_fake_fullscreen_;
 	bool is_positioned_;
 
 	Rect2d rect_2d_;
@@ -66,7 +66,7 @@ struct Ren3dCreateWindowParam
 
 struct Ren3dSetWindowModeParam
 {
-	bool is_windowed;
+	bool is_native;
 	bool is_positioned_;
 
 	Rect2d rect_2d_;
