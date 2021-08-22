@@ -7,3 +7,4 @@
 - Replace `Factory` structure with `make` function.
 - Mark interface implementations as `final`.
 - Namespace `detail` to anonymous one.
+- Remove underscore suffix for public fields.

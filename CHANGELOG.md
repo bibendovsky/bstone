@@ -16,9 +16,15 @@
 
 ### Changed
 - [OAL] List devices with `ALC_ENUMERATE_ALL_EXT` if available.
+- [VIDEO] Rename `vid_windowed_x` to `vid_x`.
+- [VIDEO] Rename `vid_windowed_y` to `vid_y`.
+- [VIDEO] Rename `vid_windowed_width` to `vid_width`.
+- [VIDEO] Rename `vid_windowed_height` to `vid_height`.
 
 ### Removed
 - Option to control audio resampling (always ZOH).
+- Option `vid_is_windowed`.
+- Exclusive fullscreen mode.
 
 
 ## [1.2.11] - 2021-03-21

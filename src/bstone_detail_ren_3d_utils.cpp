@@ -201,19 +201,16 @@ try
 
 
 	//
-	const auto sdl_window_flags = SDL_GetWindowFlags(sdl_window);
-
-	const auto is_current_windowed =
-		((sdl_window_flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) == 0);
-
-	const auto is_windowed_changed = (is_current_windowed != param.is_windowed);
+	const auto sdl_window_flags = ::SDL_GetWindowFlags(sdl_window);
+	const auto is_current_native = ((sdl_window_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0);
+	const auto is_native_changed = (is_current_native != param.is_native);
 
 
 	//
 	int current_width = 0;
 	int current_height = 0;
 
-	SDL_GetWindowSize(sdl_window, &current_width, &current_height);
+	::SDL_GetWindowSize(sdl_window, &current_width, &current_height);
 
 	if (current_width <= 0 || current_height <= 0)
 	{
@@ -226,38 +223,36 @@ try
 
 
 	//
-	if (!is_windowed_changed && !is_size_changed)
+	if (!is_native_changed && !is_size_changed)
 	{
 		return;
 	}
 
-	if (is_windowed_changed)
+	if (is_native_changed && !param.is_native)
 	{
-		const Uint32 sdl_fullscreen_flags = (param.is_windowed ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
-
-		const auto sdl_result = SDL_SetWindowFullscreen(sdl_window, sdl_fullscreen_flags);
-
-		if (sdl_result != 0)
-		{
-			fail("Failed to change fullscreen mode.");
-		}
+		ensure_sdl_result(::SDL_SetWindowFullscreen(sdl_window, 0));
 	}
 
-	if (is_size_changed && param.is_windowed)
+	if (is_size_changed)
 	{
-		SDL_SetWindowSize(sdl_window, param.rect_2d_.extent_.width_, param.rect_2d_.extent_.height_);
+		::SDL_SetWindowSize(sdl_window, param.rect_2d_.extent_.width_, param.rect_2d_.extent_.height_);
 
 		if (param.is_positioned_)
 		{
 			const auto x = std::max(param.rect_2d_.offset_.x, 0);
 			const auto y = std::max(param.rect_2d_.offset_.y, 0);
 
-			SDL_SetWindowPosition(sdl_window, x, y);
+			::SDL_SetWindowPosition(sdl_window, x, y);
 		}
 		else
 		{
-			SDL_SetWindowPosition(sdl_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+			::SDL_SetWindowPosition(sdl_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 		}
+	}
+
+	if (is_native_changed && param.is_native)
+	{
+		ensure_sdl_result(::SDL_SetWindowFullscreen(sdl_window, ::SDL_WINDOW_FULLSCREEN_DESKTOP));
 	}
 }
 catch (...)
@@ -1084,7 +1079,7 @@ std::uint32_t Ren3dUtils::create_window_sdl_flags(
 		flags |= SDL_WINDOW_HIDDEN;
 	}
 
-	if (param.window_.is_fake_fullscreen_)
+	if (param.window_.is_native_)
 	{
 		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 	}

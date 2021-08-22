@@ -31,6 +31,7 @@ Free Software Foundation, Inc.,
 #include <array>
 #include <vector>
 
+#include "bstone_extent_2d.h"
 #include "bstone_ref_values.h"
 #include "bstone_renderer_kind.h"
 #include "bstone_ren_3d_types.h"
@@ -63,17 +64,16 @@ struct VidCfg
 {
 	bstone::RendererKind renderer_kind_;
 
-	bool is_windowed;
 	bool is_positioned_;
 	bool is_vsync_;
 
 	bool is_ui_stretched_;
 	bool is_widescreen;
 
-	int windowed_x_;
-	int windowed_y_;
-	int windowed_width;
-	int windowed_height;
+	int x;
+	int y;
+	int width;
+	int height;
 
 	bstone::Ren3dFilterKind d2_texture_filter_;
 
@@ -96,9 +96,8 @@ struct VidCfg
 struct VideoModeCfg
 {
 	bstone::RendererKind renderer_kind_;
-	bool is_windowed;
-	int windowed_width;
-	int windowed_height;
+	int width;
+	int height;
 	bool is_vsync_;
 	bstone::Ren3dAaKind aa_kind_;
 	int aa_degree_;
@@ -121,10 +120,8 @@ constexpr auto vid_upscale_max_degree = 6;
 
 struct VidLayout
 {
-	bool is_windowed;
-
-	int windowed_width;
-	int windowed_height;
+	int width;
+	int height;
 
 	int screen_width;
 	int screen_height;
@@ -167,8 +164,8 @@ struct CalculateScreenSizeInputParam
 {
 	bool is_widescreen;
 
-	int windowed_width;
-	int windowed_height;
+	int width;
+	int height;
 
 	int window_width;
 	int window_height;
@@ -356,8 +353,8 @@ struct VidWindowSize
 	bool is_current_;
 	bool is_custom_;
 
-	int windowed_width;
-	int windowed_height;
+	int width;
+	int height;
 }; // VidWindowSize
 
 using VidWindowSizes = std::vector<VidWindowSize>;
@@ -554,6 +551,8 @@ const std::string& vid_to_string(
 	bstone::Ren3dKind renderer_kind);
 
 bool vid_is_hw();
+
+bool vid_is_native_mode() noexcept;
 
 
 #endif // BSTONE_ID_VL_INCLUDED

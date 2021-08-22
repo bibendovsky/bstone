@@ -461,7 +461,7 @@ CP_iteminfo SwitchItems = {MENU_X, 0, 0, 0, 0, 9, {87, -1, 132, 7, 1}};
 
 // BBi
 CP_iteminfo video_items = {MENU_X, MENU_Y + 30, 5, 0, 0, 9, {77, -1, 154, 7, 1}};
-CP_iteminfo video_mode_items = {MENU_X, MENU_Y + 10, 8, 0, 0, 9, {77, -1, 154, 7, 1}};
+CP_iteminfo video_mode_items = {MENU_X, MENU_Y + 10, 7, 0, 0, 9, {77, -1, 154, 7, 1}};
 CP_iteminfo texturing_items = {MENU_X, MENU_Y + 10, 7, 0, 0, 9, {77, -1, 154, 7, 1}};
 CP_iteminfo switches2_items = {MENU_X, MENU_Y + 30, 3, 0, 0, 9, {87, -1, 132, 7, 1}};
 // BBi
@@ -596,8 +596,7 @@ CP_itemtype CusMenu[] = {
 CP_itemtype video_mode_menu[] =
 {
 	{AT_ENABLED, "RENDERER", nullptr},
-	{AT_ENABLED, "WINDOWED SIZE", nullptr},
-	{AT_ENABLED, "IS WINDOWED", nullptr},
+	{AT_ENABLED, "WINDOW SIZE", nullptr},
 	{AT_ENABLED, "VSYNC", nullptr},
 	{AT_ENABLED, "ANTI-ALIASING TYPE", nullptr},
 	{AT_ENABLED, "ANTI-ALIASING DEGREE", nullptr},
@@ -5032,15 +5031,15 @@ void menu_video_mode_set_windowed_size(
 	VideoModeCfg& video_mode_cfg)
 {
 	const auto& windowed_size = menu_video_mode_sizes_[menu_video_mode_sizes_index_];
-	video_mode_cfg.windowed_width = windowed_size.windowed_width;
-	video_mode_cfg.windowed_height = windowed_size.windowed_height;
+	video_mode_cfg.width = windowed_size.width;
+	video_mode_cfg.height = windowed_size.height;
 }
 
 void menu_video_mode_update_apply_button()
 {
 	const auto is_modified = (menu_video_mode_cfg_ != menu_video_mode_cfg_saved_);
 
-	video_mode_menu[7].active = (is_modified ? AT_ENABLED : AT_DISABLED);
+	video_mode_menu[6].active = (is_modified ? AT_ENABLED : AT_DISABLED);
 }
 
 int menu_video_mode_aa_factor_adjust(
@@ -5104,7 +5103,7 @@ const std::string& menu_video_mode_renderer_kind_get_string(
 std::string menu_video_mode_size_get_string(
 	const VidWindowSize& size)
 {
-	return std::to_string(size.windowed_width) + " X " + std::to_string(size.windowed_height);
+	return std::to_string(size.width) + " X " + std::to_string(size.height);
 }
 
 const std::string& menu_video_mode_aa_kind_get_string(
@@ -5140,7 +5139,6 @@ void draw_video_mode_descriptions(
 	{
 		"SELECTS THE RENDERER",
 		"SELECTS WINDOW SIZE FOR WINDOWED MODE",
-		"TOGGLES BETWEEN FAKE FULLSCREEN AND WINDOWED",
 		"TOGGLES VERTICAL SYNCHRONIZATION",
 		"SELECTS ANTI-ALIASING KIND",
 		"SELECTS ANTI-ALIASING DEGREE",
@@ -5213,12 +5211,8 @@ void video_mode_draw_menu()
 	}
 
 	{
-		menu_video_mode_cfg_.is_windowed = vid_cfg.is_windowed;
-	}
-
-	{
-		menu_video_mode_cfg_.windowed_width = vid_cfg.windowed_width;
-		menu_video_mode_cfg_.windowed_height = vid_cfg.windowed_height;
+		menu_video_mode_cfg_.width = vid_cfg.width;
+		menu_video_mode_cfg_.height = vid_cfg.height;
 	}
 
 	{
@@ -5313,14 +5307,6 @@ void video_mode_draw_switch(
 					continue;
 
 				case 2:
-					if (menu_video_mode_cfg_.is_windowed)
-					{
-						++Shape;
-					}
-
-					break;
-
-				case 3:
 					if (menu_video_mode_cfg_.is_vsync_)
 					{
 						++Shape;
@@ -5328,7 +5314,7 @@ void video_mode_draw_switch(
 
 					break;
 
-				case 4:
+				case 3:
 					draw_carousel(
 						i,
 						&video_mode_items,
@@ -5338,7 +5324,7 @@ void video_mode_draw_switch(
 
 					continue;
 
-				case 5:
+				case 4:
 					draw_carousel(
 						i,
 						&video_mode_items,
@@ -5508,8 +5494,8 @@ void video_menu_mode_routine(
 	video_mode_menu[0].carousel_func_ = video_menu_mode_renderer_carousel;
 	video_mode_menu[1].carousel_func_ = video_menu_mode_window_size_carousel;
 
-	video_mode_menu[4].carousel_func_ = video_menu_mode_window_aa_kind_carousel;
-	video_mode_menu[5].carousel_func_ = video_menu_mode_window_aa_factor_carousel;
+	video_mode_menu[3].carousel_func_ = video_menu_mode_window_aa_kind_carousel;
+	video_mode_menu[4].carousel_func_ = video_menu_mode_window_aa_factor_carousel;
 
 	do
 	{
@@ -5518,18 +5504,12 @@ void video_menu_mode_routine(
 		switch (which)
 		{
 			case 2:
-				menu_video_mode_cfg_.is_windowed = !menu_video_mode_cfg_.is_windowed;
-				menu_video_mode_update_apply_button();
-				video_mode_update_menu();
-				break;
-
-			case 3:
 				menu_video_mode_cfg_.is_vsync_ = !menu_video_mode_cfg_.is_vsync_;
 				menu_video_mode_update_apply_button();
 				video_mode_update_menu();
 				break;
 
-			case 7:
+			case 6:
 				if (menu_video_mode_cfg_ != menu_video_mode_cfg_saved_)
 				{
 					menu_video_mode_cfg_saved_ = menu_video_mode_cfg_;
