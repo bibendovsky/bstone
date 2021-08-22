@@ -483,13 +483,6 @@ const std::string& vid_get_renderer_key_name()
 	return result;
 }
 
-const std::string& vid_get_is_windowed_key_name()
-{
-	static const auto result = std::string{"vid_is_windowed"};
-
-	return result;
-}
-
 const std::string& vid_get_is_positioned_key_name()
 {
 	static const auto result = std::string{"vid_is_positioned"};
@@ -497,30 +490,30 @@ const std::string& vid_get_is_positioned_key_name()
 	return result;
 }
 
-const std::string& vid_get_windowed_x_key_name()
+const std::string& vid_get_x_key_name()
 {
-	static const auto result = std::string{"vid_windowed_x"};
+	static const auto result = std::string{"vid_x"};
 
 	return result;
 }
 
-const std::string& vid_get_windowed_y_key_name()
+const std::string& vid_get_y_key_name()
 {
-	static const auto result = std::string{"vid_windowed_y"};
+	static const auto result = std::string{"vid_y"};
 
 	return result;
 }
 
-const std::string& vid_get_windowed_width_key_name()
+const std::string& vid_get_width_key_name()
 {
-	static const auto result = std::string{"vid_windowed_width"};
+	static const auto result = std::string{"vid_width"};
 
 	return result;
 }
 
-const std::string& vid_get_windowed_height_key_name()
+const std::string& vid_get_height_key_name()
 {
-	static const auto result = std::string{"vid_windowed_height"};
+	static const auto result = std::string{"vid_height"};
 
 	return result;
 }
@@ -643,7 +636,7 @@ void vid_cfg_fix_window_dimension(
 void vid_cfg_fix_window_width()
 {
 	vid_cfg_fix_window_dimension(
-		vid_cfg_.windowed_width,
+		vid_cfg_.width,
 		vga_ref_width,
 		vid_display_mode_.w
 	);
@@ -652,7 +645,7 @@ void vid_cfg_fix_window_width()
 void vid_cfg_fix_window_height()
 {
 	vid_cfg_fix_window_dimension(
-		vid_cfg_.windowed_height,
+		vid_cfg_.height,
 		vga_ref_height_4x3,
 		vid_display_mode_.h
 	);
@@ -666,8 +659,8 @@ void vid_cfg_fix_window_size()
 
 void vid_cfg_adjust_window_position()
 {
-	auto window_x = vid_cfg_.windowed_x_;
-	auto window_y = vid_cfg_.windowed_y_;
+	auto window_x = vid_cfg_.x;
+	auto window_y = vid_cfg_.y;
 
 	if (window_x < 0)
 	{
@@ -679,8 +672,8 @@ void vid_cfg_adjust_window_position()
 		window_y = 0;
 	}
 
-	vid_cfg_.windowed_x_ = window_x;
-	vid_cfg_.windowed_y_ = window_y;
+	vid_cfg_.x = window_x;
+	vid_cfg_.y = window_y;
 }
 
 
@@ -691,8 +684,8 @@ void vid_calculate_window_elements_dimensions(
 	const CalculateScreenSizeInputParam& src_param,
 	VidLayout& dst_param) noexcept
 {
-	dst_param.windowed_width = src_param.windowed_width;
-	dst_param.windowed_height = src_param.windowed_height;
+	dst_param.width = src_param.width;
+	dst_param.height = src_param.height;
 
 	const auto window_width = src_param.window_width;
 	const auto window_height = src_param.window_height;
@@ -777,34 +770,22 @@ void vid_calculate_window_elements_dimensions(
 
 CalculateScreenSizeInputParam vid_create_screen_size_param() noexcept
 {
-	auto window_width = (
-		vid_cfg_.is_windowed ?
-		vid_cfg_.windowed_width :
-		vid_display_mode_.w
-	);
-
-	auto window_height = (
-		vid_cfg_.is_windowed ?
-		vid_cfg_.windowed_height :
-		vid_display_mode_.h
-	);
-
-	if (window_width < vga_ref_width)
+	if (vid_cfg_.width < vga_ref_width)
 	{
-		window_width = vga_ref_width;
+		vid_cfg_.width = vga_ref_width;
 	}
 
-	if (window_height < vga_ref_height_4x3)
+	if (vid_cfg_.height < vga_ref_height_4x3)
 	{
-		window_height = vga_ref_height_4x3;
+		vid_cfg_.height = vga_ref_height_4x3;
 	}
 
 	auto result = CalculateScreenSizeInputParam{};
 	result.is_widescreen = vid_cfg_.is_widescreen;
-	result.windowed_width = vid_cfg_.windowed_width;
-	result.windowed_height = vid_cfg_.windowed_height;
-	result.window_width = window_width;
-	result.window_height = window_height;
+	result.width = vid_cfg_.width;
+	result.height = vid_cfg_.height;
+	result.window_width = vid_cfg_.width;
+	result.window_height = vid_cfg_.height;
 
 	return result;
 }
@@ -938,11 +919,6 @@ void vid_cl_read_int(
 	value = int_value;
 }
 
-void vid_cl_read_is_windowed()
-{
-	vid_cl_read_bool(vid_get_is_windowed_key_name(), vid_cfg_.is_windowed);
-}
-
 void vid_cl_read_is_positioned()
 {
 	vid_cl_read_bool(vid_get_is_positioned_key_name(), vid_cfg_.is_positioned_);
@@ -950,22 +926,22 @@ void vid_cl_read_is_positioned()
 
 void vid_cl_read_windowed_x()
 {
-	vid_cl_read_int(vid_get_windowed_x_key_name(), vid_cfg_.windowed_x_);
+	vid_cl_read_int(vid_get_x_key_name(), vid_cfg_.x);
 }
 
 void vid_cl_read_windowed_y()
 {
-	vid_cl_read_int(vid_get_windowed_y_key_name(), vid_cfg_.windowed_y_);
+	vid_cl_read_int(vid_get_y_key_name(), vid_cfg_.y);
 }
 
-void vid_cl_read_windowed_width()
+void vid_cl_read_width()
 {
-	vid_cl_read_int(vid_get_windowed_width_key_name(), vid_cfg_.windowed_width);
+	vid_cl_read_int(vid_get_width_key_name(), vid_cfg_.width);
 }
 
-void vid_cl_read_windowed_height()
+void vid_cl_read_height()
 {
-	vid_cl_read_int(vid_get_windowed_height_key_name(), vid_cfg_.windowed_height);
+	vid_cl_read_int(vid_get_height_key_name(), vid_cfg_.height);
 }
 
 void vid_cl_read_is_vsync()
@@ -1159,7 +1135,7 @@ void vid_get_current_display_mode()
 {
 	vid_log("Getting display mode.");
 
-	bstone::SdlEnsureResult{SDL_GetDesktopDisplayMode(0, &vid_display_mode_)};
+	bstone::SdlEnsureResult{::SDL_GetCurrentDisplayMode(0, &vid_display_mode_)};
 }
 
 void vid_cl_read()
@@ -1175,12 +1151,11 @@ void vid_cl_read()
 
 	vid_cl_read_renderer_kind();
 	vid_cl_read_external_textures();
-	vid_cl_read_is_windowed();
 	vid_cl_read_is_positioned();
 	vid_cl_read_windowed_x();
 	vid_cl_read_windowed_y();
-	vid_cl_read_windowed_width();
-	vid_cl_read_windowed_height();
+	vid_cl_read_width();
+	vid_cl_read_height();
 	vid_cl_read_is_vsync();
 	vid_cl_read_is_ui_stretched();
 	vid_cl_read_is_widescreen();
@@ -1338,12 +1313,11 @@ void vid_log_common_configuration()
 
 	vid_log("Renderer: " + vid_to_string(vid_cfg_.renderer_kind_));
 
-	vid_log("Is windowed: " + vid_to_string(vid_cfg_.is_windowed));
 	vid_log("Window positioned: " + vid_to_string(vid_cfg_.is_positioned_));
-	vid_log("Windowed x: " + vid_to_string(vid_cfg_.windowed_x_));
-	vid_log("Windowed y: " + vid_to_string(vid_cfg_.windowed_y_));
-	vid_log("Windowed width: " + vid_to_string(vid_cfg_.windowed_width));
-	vid_log("Windowed height: " + vid_to_string(vid_cfg_.windowed_height));
+	vid_log("Windowed x: " + vid_to_string(vid_cfg_.x));
+	vid_log("Windowed y: " + vid_to_string(vid_cfg_.y));
+	vid_log("Windowed width: " + vid_to_string(vid_cfg_.width));
+	vid_log("Windowed height: " + vid_to_string(vid_cfg_.height));
 
 	vid_log("UI stretched: " + vid_to_string(vid_cfg_.is_ui_stretched_));
 	vid_log("Widescreen: " + vid_to_string(vid_cfg_.is_widescreen));
@@ -1452,8 +1426,8 @@ try
 {
 	vid_is_take_screenshot_scheduled = false;
 
-	const auto width = vid_cfg_.windowed_width;
-	const auto height = vid_cfg_.windowed_height;
+	const auto width = vid_cfg_.width;
+	const auto height = vid_cfg_.height;
 	const auto stride_rgb_888 = (((3 * width) + 3) / 4) * 4;
 	auto src_rgb_888_pixels = std::make_unique<std::uint8_t[]>(stride_rgb_888 * height);
 
@@ -2091,7 +2065,7 @@ void vid_cfg_read_width(
 
 	if (bstone::StringHelper::string_to_int(value_string, value))
 	{
-		vid_cfg_.windowed_width = value;
+		vid_cfg_.width = value;
 	}
 }
 
@@ -2102,18 +2076,7 @@ void vid_cfg_read_height(
 
 	if (bstone::StringHelper::string_to_int(value_string, value))
 	{
-		vid_cfg_.windowed_height = value;
-	}
-}
-
-void vid_cfg_read_is_windowed(
-	const std::string& value_string)
-{
-	int value = 0;
-
-	if (bstone::StringHelper::string_to_int(value_string, value))
-	{
-		vid_cfg_.is_windowed = (value != 0);
+		vid_cfg_.height = value;
 	}
 }
 
@@ -2281,19 +2244,15 @@ bool vid_cfg_parse_key_value(
 	{
 		vid_cfg_read_renderer_kind(value_string);
 	}
-	else if (key_string == vid_get_is_windowed_key_name())
-	{
-		vid_cfg_read_is_windowed(value_string);
-	}
 	else if (key_string == vid_get_is_vsync_key_name())
 	{
 		vid_cfg_read_vsync(value_string);
 	}
-	else if (key_string == vid_get_windowed_width_key_name())
+	else if (key_string == vid_get_width_key_name())
 	{
 		vid_cfg_read_width(value_string);
 	}
-	else if (key_string == vid_get_windowed_height_key_name())
+	else if (key_string == vid_get_height_key_name())
 	{
 		vid_cfg_read_height(value_string);
 	}
@@ -2448,38 +2407,32 @@ void vid_cfg_write(
 
 	cfg_file_write_entry(
 		text_writer,
-		vid_get_is_windowed_key_name(),
-		std::to_string(vid_cfg_.is_windowed)
-	);
-
-	cfg_file_write_entry(
-		text_writer,
 		vid_get_is_positioned_key_name(),
 		std::to_string(vid_cfg_.is_positioned_)
 	);
 
 	cfg_file_write_entry(
 		text_writer,
-		vid_get_windowed_x_key_name(),
-		std::to_string(vid_cfg_.windowed_x_)
+		vid_get_x_key_name(),
+		std::to_string(vid_cfg_.x)
 	);
 
 	cfg_file_write_entry(
 		text_writer,
-		vid_get_windowed_y_key_name(),
-		std::to_string(vid_cfg_.windowed_y_)
+		vid_get_y_key_name(),
+		std::to_string(vid_cfg_.y)
 	);
 
 	cfg_file_write_entry(
 		text_writer,
-		vid_get_windowed_width_key_name(),
-		std::to_string(vid_cfg_.windowed_width)
+		vid_get_width_key_name(),
+		std::to_string(vid_cfg_.width)
 	);
 
 	cfg_file_write_entry(
 		text_writer,
-		vid_get_windowed_height_key_name(),
-		std::to_string(vid_cfg_.windowed_height)
+		vid_get_height_key_name(),
+		std::to_string(vid_cfg_.height)
 	);
 
 	cfg_file_write_entry(
@@ -2559,12 +2512,11 @@ void vid_cfg_set_defaults()
 
 	vid_cfg_.renderer_kind_ = bstone::RendererKind::auto_detect;
 
-	vid_cfg_.is_windowed = true;
 	vid_cfg_.is_positioned_ = false;
-	vid_cfg_.windowed_x_ = 0;
-	vid_cfg_.windowed_y_ = 0;
-	vid_cfg_.windowed_width = default_window_width;
-	vid_cfg_.windowed_height = default_window_height;
+	vid_cfg_.x = 0;
+	vid_cfg_.y = 0;
+	vid_cfg_.width = default_window_width;
+	vid_cfg_.height = default_window_height;
 	vid_cfg_.is_vsync_ = true;
 
 	vid_cfg_.is_ui_stretched_ = false;
@@ -2634,7 +2586,7 @@ const VidWindowSizes& vid_get_window_size_list()
 				result.cend(),
 				[&](const auto& item)
 				{
-					return item.windowed_width == sdl_mode.w && item.windowed_height == sdl_mode.h;
+					return item.width == sdl_mode.w && item.height == sdl_mode.h;
 				}
 			);
 
@@ -2642,13 +2594,13 @@ const VidWindowSizes& vid_get_window_size_list()
 			{
 				result.emplace_back();
 				auto& window_size = result.back();
-				window_size.windowed_width = sdl_mode.w;
-				window_size.windowed_height = sdl_mode.h;
+				window_size.width = sdl_mode.w;
+				window_size.height = sdl_mode.h;
 
 				//
 				const auto is_current =
-					sdl_mode.w == vid_layout_.windowed_width &&
-					sdl_mode.h == vid_layout_.windowed_height;
+					sdl_mode.w == vid_layout_.width &&
+					sdl_mode.h == vid_layout_.height;
 
 				window_size.is_current_ = is_current;
 
@@ -2659,8 +2611,8 @@ const VidWindowSizes& vid_get_window_size_list()
 
 				//
 				const auto is_custom =
-					sdl_mode.w == vid_cfg_.windowed_width &&
-					sdl_mode.h == vid_cfg_.windowed_height;
+					sdl_mode.w == vid_cfg_.width &&
+					sdl_mode.h == vid_cfg_.height;
 
 				window_size.is_custom_ = is_custom;
 
@@ -2677,12 +2629,12 @@ const VidWindowSizes& vid_get_window_size_list()
 		result.end(),
 		[](const auto& lhs, const auto& rhs)
 		{
-			if (lhs.windowed_width != rhs.windowed_width)
+			if (lhs.width != rhs.width)
 			{
-				return lhs.windowed_width < rhs.windowed_width;
+				return lhs.width < rhs.width;
 			}
 
-			return lhs.windowed_height < rhs.windowed_height;
+			return lhs.height < rhs.height;
 		}
 	);
 
@@ -2690,8 +2642,8 @@ const VidWindowSizes& vid_get_window_size_list()
 	{
 		result.emplace_back();
 		auto& window_size = result.back();
-		window_size.windowed_width = vid_cfg_.windowed_width;
-		window_size.windowed_height = vid_cfg_.windowed_height;
+		window_size.width = vid_cfg_.width;
+		window_size.height = vid_cfg_.height;
 
 		window_size.is_current_ = true;
 		window_size.is_custom_ = true;
@@ -2954,16 +2906,9 @@ void vid_apply_video_mode(
 		is_restart = true;
 	}
 
-	const auto is_window_modified = (
-		vid_cfg_.is_windowed != video_mode_cfg.is_windowed ||
-		(
-			video_mode_cfg.is_windowed &&
-			(
-				vid_cfg_.windowed_width != video_mode_cfg.windowed_width ||
-				vid_cfg_.windowed_height != video_mode_cfg.windowed_height
-			)
-		)
-	);
+	const auto is_window_modified =
+		vid_cfg_.width != video_mode_cfg.width ||
+		vid_cfg_.height != video_mode_cfg.height;
 
 	const auto is_vsync_modified = (vid_cfg_.is_vsync_ != video_mode_cfg.is_vsync_);
 
@@ -2972,9 +2917,8 @@ void vid_apply_video_mode(
 		vid_cfg_.aa_degree_ != video_mode_cfg.aa_degree_);
 
 	vid_cfg_.renderer_kind_ = video_mode_cfg.renderer_kind_;
-	vid_cfg_.is_windowed = video_mode_cfg.is_windowed;
-	vid_cfg_.windowed_width = video_mode_cfg.windowed_width;
-	vid_cfg_.windowed_height = video_mode_cfg.windowed_height;
+	vid_cfg_.width = video_mode_cfg.width;
+	vid_cfg_.height = video_mode_cfg.height;
 	vid_cfg_.is_vsync_ = video_mode_cfg.is_vsync_;
 	vid_cfg_.aa_kind_ = video_mode_cfg.aa_kind_;
 	vid_cfg_.aa_degree_ = video_mode_cfg.aa_degree_;
@@ -3057,9 +3001,8 @@ bool operator==(
 {
 	return
 		lhs.renderer_kind_ == rhs.renderer_kind_ &&
-		lhs.is_windowed == rhs.is_windowed &&
-		lhs.windowed_width == rhs.windowed_width &&
-		lhs.windowed_height == rhs.windowed_height &&
+		lhs.width == rhs.width &&
+		lhs.height == rhs.height &&
 		lhs.is_vsync_ == rhs.is_vsync_ &&
 		lhs.aa_kind_ == rhs.aa_kind_ &&
 		lhs.aa_degree_ == rhs.aa_degree_;
@@ -3075,5 +3018,16 @@ bool operator!=(
 bool vid_is_hw()
 {
 	return ::g_video && ::g_video->is_hardware();
+}
+
+bool vid_is_native_mode() noexcept
+{
+#ifdef NDEBUG
+	return
+		vid_display_mode_.w == vid_cfg_.width &&
+		vid_display_mode_.h == vid_cfg_.height;
+#else
+	return false;
+#endif // NDEBUG
 }
 // BBi

@@ -403,7 +403,7 @@ public:
 		vid_initialize_vanilla_raycaster();
 
 		auto param = bstone::Ren3dSetWindowModeParam{};
-		param.is_windowed = vid_cfg_get().is_windowed;
+		param.is_native = vid_is_native_mode();
 		param.rect_2d_.extent_.width_ = vid_layout_.window_width;
 		param.rect_2d_.extent_.height_ = vid_layout_.window_height;
 		renderer_->set_window_mode(param);
@@ -2597,16 +2597,11 @@ private:
 
 		param.window_.rect_2d_.extent_.width_ = vid_layout_.window_width;
 		param.window_.rect_2d_.extent_.height_ = vid_layout_.window_height;
-
-		if (!vid_cfg_get().is_windowed)
-		{
-			param.window_.is_borderless_ = true;
-			param.window_.is_fake_fullscreen_ = true;
-		}
-
+		param.window_.is_native_ = vid_is_native_mode();
+		param.window_.is_borderless_ = false;
 		param.window_.is_positioned_ = vid_cfg_get().is_positioned_;
-		param.window_.rect_2d_.offset_.x = vid_cfg_get().windowed_x_;
-		param.window_.rect_2d_.offset_.y = vid_cfg_get().windowed_y_;
+		param.window_.rect_2d_.offset_.x = vid_cfg_get().x;
+		param.window_.rect_2d_.offset_.y = vid_cfg_get().y;
 
 		param.window_.title_ = title;
 
