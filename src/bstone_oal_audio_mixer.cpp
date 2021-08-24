@@ -111,6 +111,9 @@ try
 
 	mix_sample_count_ = static_cast<int>((dst_rate_ * mix_size_ms_) / 1'000L);
 
+	initialize_command_queue();
+	initialize_sfx_position_queue();
+
 	initialize_music();
 	initialize_sfx();
 	initialize_thread();
@@ -197,34 +200,23 @@ bool OalAudioMixer::play_adlib_music(
 	int data_size)
 try
 {
+	static_cast<void>(music_index);
+
 	if (!data || data_size <= 0)
 	{
 		return false;
 	}
 
-	const auto music_mutex_guard = MutexUniqueLock{music_mutex_};
+	auto command = Command{};
+	command.id = CommandId::play_music;
 
-	music_source_.close();
+	auto& command_param = command.param.play_music;
+	command_param.data = data;
+	command_param.data_size = data_size;
 
-	auto audio_decoder_param = AudioDecoderInitParam{};
-	audio_decoder_param.src_raw_data_ = data;
-	audio_decoder_param.src_raw_size_ = data_size;
-	audio_decoder_param.dst_rate_ = dst_rate_;
+	const auto command_mutex_guard = MutexUniqueLock{command_queue_mutex_};
 
-	if (!music_adlib_sound_.audio_decoder->initialize(audio_decoder_param))
-	{
-		return false;
-	}
-
-	auto source_param = OalSourceOpenStreamingParam{};
-	source_param.is_2d = true;
-	source_param.is_looping = true;
-	source_param.sample_rate = dst_rate_;
-	source_param.uncaching_sound = &music_adlib_sound_;
-
-	music_source_.open(source_param);
-	music_source_.set_volume(music_volume_);
-	music_source_.play();
+	command_queue_.push(command);
 
 	return true;
 }
@@ -295,56 +287,16 @@ bool OalAudioMixer::play_pcm_sound(
 	ActorChannel actor_channel)
 try
 {
-	if (!is_initialized())
-	{
-		return false;
-	}
-
-	if (sound_index < 0 || sound_index >= NUMSOUNDS)
-	{
-		return false;
-	}
-
-	if (!data || data_size <= 0)
-	{
-		return false;
-	}
-
-	const auto sfx_mutex_guard = MutexUniqueLock{sfx_mutex_};
-
-	const auto sfx_voice = find_free_sfx_voice(
+	return play_sfx_sound(
+		AudioSfxType::pcm,
+		sound_index,
 		priority,
-		actor_type,
+		data,
+		data_size,
 		actor_index,
+		actor_type,
 		actor_channel
 	);
-
-	if (!sfx_voice)
-	{
-		return false;
-	}
-
-	auto source_param = OalSourceOpenStaticParam{};
-	source_param.is_2d = is_2d_sfx(actor_type, actor_index);
-	source_param.is_8_bit = true;
-	source_param.sample_rate = audio_decoder_pcm_fixed_frequency;
-	source_param.data = data;
-	source_param.data_size = data_size;
-
-	auto& oal_source = sfx_voice->oal_source;
-	oal_source.open(source_param);
-	oal_source.set_volume(sfx_volume_);
-	set_sfx_position(oal_source, actor_type, actor_index);
-	set_sfx_reference_distance(oal_source);
-	oal_source.play();
-
-	sfx_voice->is_active = true;
-	sfx_voice->priority = priority;
-	sfx_voice->actor_type = actor_type;
-	sfx_voice->actor_index = actor_index;
-	sfx_voice->actor_channel = actor_channel;
-
-	return true;
 }
 catch (...)
 {
@@ -382,13 +334,10 @@ try
 
 	apply_positions_player();
 
-	if (!sfx_actor_modified_position_indices_.empty() ||
-		!sfx_door_modified_position_indices_.empty() ||
-		!is_sfx_pushwall_position_modified_)
 	{
-		const auto sfx_mutex_guard = MutexUniqueLock{sfx_mutex_};
+		const auto sfx_position_queue_guard = MutexUniqueLock{sfx_position_queue_mutex_};
 
-		apply_positions();
+		enqueue_positions();
 	}
 
 	return true;
@@ -406,9 +355,12 @@ try
 		return false;
 	}
 
-	const auto music_mutex_guard = MutexUniqueLock{music_mutex_};
+	auto command = Command{};
+	command.id = CommandId::stop_music;
 
-	music_source_.close();
+	const auto command_mutex_guard = MutexUniqueLock{command_queue_mutex_};
+
+	command_queue_.push(command);
 
 	return true;
 }
@@ -425,17 +377,12 @@ try
 		return false;
 	}
 
-	const auto sfx_mutex_guard = MutexUniqueLock{sfx_mutex_};
+	auto command = Command{};
+	command.id = CommandId::stop_pausable_sfx;
 
-	for (auto& sfx_voice : sfx_voices_)
-	{
-		if (!sfx_voice.is_active || sfx_voice.actor_channel != ActorChannel::unpausable)
-		{
-			continue;
-		}
+	const auto command_mutex_guard = MutexUniqueLock{command_queue_mutex_};
 
-		sfx_voice.oal_source.stop();
-	}
+	command_queue_.push(command);
 
 	return true;
 }
@@ -453,26 +400,14 @@ try
 		return false;
 	}
 
-	const auto sfx_mutex_guard = MutexUniqueLock{sfx_mutex_};
+	auto command = Command{};
+	command.id = CommandId::pause_all_sfx;
 
-	for (auto& sfx_voice : sfx_voices_)
-	{
-		if (!sfx_voice.is_active)
-		{
-			continue;
-		}
+	command.param.pause_all_sfx.is_pause = is_paused;
 
-		auto& oal_source = sfx_voice.oal_source;
+	const auto command_mutex_guard = MutexUniqueLock{command_queue_mutex_};
 
-		if (is_paused)
-		{
-			oal_source.pause();
-		}
-		else
-		{
-			oal_source.resume();
-		}
-	}
+	command_queue_.push(command);
 
 	return true;
 }
@@ -490,21 +425,14 @@ try
 		return false;
 	}
 
-	const auto music_mutex_guard = MutexUniqueLock{music_mutex_};
+	auto command = Command{};
+	command.id = CommandId::pause_music;
 
-	if (!music_source_.is_open())
-	{
-		return false;
-	}
+	command.param.pause_music.is_pause = is_paused;
 
-	if (is_paused)
-	{
-		music_source_.pause();
-	}
-	else
-	{
-		music_source_.resume();
-	}
+	const auto command_mutex_guard = MutexUniqueLock{command_queue_mutex_};
+
+	command_queue_.push(command);
 
 	return true;
 }
@@ -551,8 +479,6 @@ try
 		return false;
 	}
 
-	const auto sfx_mutex_guard = MutexUniqueLock{sfx_mutex_};
-
 	if (sfx_volume_ == volume)
 	{
 		return true;
@@ -560,22 +486,14 @@ try
 
 	sfx_volume_ = volume;
 
-	for (auto& sfx_voice : sfx_voices_)
-	{
-		if (!sfx_voice.is_active)
-		{
-			continue;
-		}
+	auto command = Command{};
+	command.id = CommandId::set_sfx_volume;
 
-		auto& oal_source = sfx_voice.oal_source;
+	command.param.set_sfx_volume.volume = volume;
 
-		if (!oal_source.is_open())
-		{
-			continue;
-		}
+	const auto command_mutex_guard = MutexUniqueLock{command_queue_mutex_};
 
-		oal_source.set_volume(sfx_volume_);
-	}
+	command_queue_.push(command);
 
 	return true;
 }
@@ -593,8 +511,6 @@ try
 		return false;
 	}
 
-	const auto music_mutex_guard = MutexUniqueLock{music_mutex_};
-
 	if (music_volume_ == volume)
 	{
 		return true;
@@ -602,10 +518,14 @@ try
 
 	music_volume_ = volume;
 
-	if (music_source_.is_open())
-	{
-		music_source_.set_volume(music_volume_);
-	}
+	auto command = Command{};
+	command.id = CommandId::set_music_volume;
+
+	command.param.set_music_volume.volume = volume;
+
+	const auto command_mutex_guard = MutexUniqueLock{command_queue_mutex_};
+
+	command_queue_.push(command);
 
 	return true;
 }
@@ -622,16 +542,9 @@ try
 		return false;
 	}
 
-	const auto music_mutex_guard = MutexUniqueLock{music_mutex_};
+	const auto stat_guard = MutexUniqueLock{stat_mutex_};
 
-	if (music_source_.is_open() && music_source_.is_playing())
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return stat_music_is_playing_;
 }
 catch (...)
 {
@@ -646,18 +559,9 @@ try
 		return false;
 	}
 
-	const auto sfx_mutex_guard = MutexUniqueLock{sfx_mutex_};
+	const auto stat_guard = MutexUniqueLock{stat_mutex_};
 
-	for (auto& sfx_voice : sfx_voices_)
-	{
-		if (sfx_voice.is_active &&
-			sfx_voice.actor_channel == ActorChannel::unpausable)
-		{
-			return true;
-		}
-	}
-
-	return false;
+	return stat_unpausable_sfx_count_ > 0;
 }
 catch (...)
 {
@@ -673,20 +577,16 @@ try
 		return false;
 	}
 
-	const auto sfx_mutex_guard = MutexUniqueLock{sfx_mutex_};
+	const auto channel_number = static_cast<std::size_t>(channel);
 
-	for (auto& sfx_voice : sfx_voices_)
+	if (channel_number >= static_cast<std::size_t>(ActorChannel::count_))
 	{
-		if (sfx_voice.is_active &&
-			sfx_voice.actor_index == 0 &&
-			sfx_voice.actor_type == ActorType::actor &&
-			sfx_voice.actor_channel == channel)
-		{
-			return true;
-		}
+		return false;
 	}
 
-	return false;
+	const auto stat_guard = MutexUniqueLock{stat_mutex_};
+
+	return stat_player_channels_[channel_number] > 0;
 }
 catch (...)
 {
@@ -720,7 +620,7 @@ int OalAudioMixer::get_max_channels() const
 
 int OalAudioMixer::get_max_commands() const
 {
-	return 0;
+	return max_commands;
 }
 
 [[noreturn]]
@@ -762,91 +662,22 @@ bool OalAudioMixer::play_sfx_sound(
 		return false;
 	}
 
-	const auto sfx_mutex_guard = MutexUniqueLock{sfx_mutex_};
+	auto command = Command{};
+	command.id = CommandId::play_sfx;
 
-	auto& sfx_sound = (
-		sfx_type == AudioSfxType::adlib ?
-		sfx_adlib_sounds_[sound_index] :
-		sfx_pc_speaker_sounds_[sound_index]
-	);
+	auto& command_param = command.param.play_sfx;
+	command_param.sfx_type = sfx_type;
+	command_param.sound_index = sound_index;
+	command_param.priority = priority;
+	command_param.data = data;
+	command_param.data_size = data_size;
+	command_param.actor_index = actor_index;
+	command_param.actor_type = actor_type;
+	command_param.actor_channel = actor_channel;
 
-	if (!sfx_sound.is_initialized)
-	{
-		auto audio_decoder_param = AudioDecoderInitParam{};
-		audio_decoder_param.src_raw_data_ = data;
-		audio_decoder_param.src_raw_size_ = data_size;
-		audio_decoder_param.dst_rate_ = dst_rate_;
+	const auto command_mutex_guard = MutexUniqueLock{command_queue_mutex_};
 
-		auto audio_decoder = sfx_sound.audio_decoder.get();
-
-		if (!audio_decoder->initialize(audio_decoder_param))
-		{
-			return false;
-		}
-
-		auto sample_count = audio_decoder->get_dst_length_in_samples();
-
-		if (sample_count <= 0)
-		{
-			return false;
-		}
-
-		sfx_sound.is_initialized = true;
-		sfx_sound.is_decoded = false;
-		sfx_sound.sample_offset = 0;
-		sfx_sound.sample_count = sample_count;
-		sfx_sound.samples.resize(sample_count);
-	}
-
-	const auto sfx_voice = find_free_sfx_voice(
-		priority,
-		actor_type,
-		actor_index,
-		actor_channel
-	);
-
-	if (!sfx_voice)
-	{
-		return false;
-	}
-
-	const auto is_2d = is_2d_sfx(actor_type, actor_index);
-
-	if (sfx_sound.is_decoded)
-	{
-		const auto decoded_data_size = static_cast<int>(sfx_sound.sample_count * sizeof(OalSourceSample));
-
-		auto source_param = OalSourceOpenStaticParam{};
-		source_param.is_2d = is_2d;
-		source_param.is_8_bit = false;
-		source_param.sample_rate = dst_rate_;
-		source_param.data = sfx_sound.samples.data();
-		source_param.data_size = decoded_data_size;
-
-		sfx_voice->oal_source.open(source_param);
-	}
-	else
-	{
-		auto source_param = OalSourceOpenStreamingParam{};
-		source_param.is_2d = is_2d;
-		source_param.is_looping = false;
-		source_param.sample_rate = dst_rate_;
-		source_param.caching_sound = &sfx_sound;
-
-		sfx_voice->oal_source.open(source_param);
-	}
-
-	auto& oal_source = sfx_voice->oal_source;
-	oal_source.set_volume(sfx_volume_);
-	set_sfx_position(oal_source, actor_type, actor_index);
-	set_sfx_reference_distance(oal_source);
-	oal_source.play();
-
-	sfx_voice->is_active = true;
-	sfx_voice->priority = priority;
-	sfx_voice->actor_type = actor_type;
-	sfx_voice->actor_index = actor_index;
-	sfx_voice->actor_channel = actor_channel;
+	command_queue_.push(command);
 
 	return true;
 }
@@ -954,6 +785,7 @@ OalAudioMixer::OalStrings OalAudioMixer::parse_al_token_string(
 			{
 				case '\0':
 					is_parsed = true;
+					break;
 
 				case ' ':
 					if (al_token != al_token_begin)
@@ -1247,6 +1079,24 @@ void OalAudioMixer::initialize_oal(
 	dst_rate_ = get_al_mixing_frequency();
 }
 
+void OalAudioMixer::initialize_command_queue()
+{
+	command_queue_.clear();
+	command_queue_.set_capacity(max_commands);
+
+	mt_command_queue_.clear();
+	mt_command_queue_.set_capacity(max_commands);
+}
+
+void OalAudioMixer::initialize_sfx_position_queue()
+{
+	sfx_position_queue_.clear();
+	sfx_position_queue_.set_capacity(max_sfx_positions);
+
+	mt_sfx_position_queue_.clear();
+	mt_sfx_position_queue_.set_capacity(max_sfx_positions);
+}
+
 void OalAudioMixer::initialize_music_adlib_sound()
 {
 	music_adlib_sound_.is_initialized = true;
@@ -1337,11 +1187,11 @@ void OalAudioMixer::initialize_sfx_positions()
 {
 	sfx_player_ = SfxPlayer{};
 
-	sfx_actor_positions_ = SfxActorPositions{};
+	sfx_bs_actor_positions_ = SfxActorPositions{};
 	sfx_door_positions_ = SfxDoorPositions{};
 
 	sfx_actor_modified_position_indices_.clear();
-	sfx_actor_modified_position_indices_.reserve(sfx_actor_positions_.size());
+	sfx_actor_modified_position_indices_.reserve(sfx_bs_actor_positions_.size());
 
 	sfx_door_modified_position_indices_.clear();
 	sfx_door_modified_position_indices_.reserve(sfx_door_positions_.size());
@@ -1370,6 +1220,383 @@ void OalAudioMixer::uninitialize_sfx()
 	}
 
 	sfx_voices_.clear();
+}
+
+void OalAudioMixer::on_music_start()
+{
+	const auto stat_guard = MutexUniqueLock{stat_mutex_};
+	stat_music_is_playing_ = true;
+}
+
+void OalAudioMixer::on_music_stop()
+{
+	const auto stat_guard = MutexUniqueLock{stat_mutex_};
+	stat_music_is_playing_ = false;
+}
+
+void OalAudioMixer::on_sfx_start(
+	const SfxVoice& sfx_voice)
+{
+	if (sfx_voice.actor_channel == ActorChannel::unpausable)
+	{
+		const auto stat_guard = MutexUniqueLock{stat_mutex_};
+		assert(stat_unpausable_sfx_count_ >= 0);
+		stat_unpausable_sfx_count_ += 1;
+	}
+
+	if (sfx_voice.actor_index == 0 && sfx_voice.actor_type == ActorType::actor)
+	{
+		const auto channel_number = static_cast<std::size_t>(sfx_voice.actor_channel);
+
+		const auto stat_guard = MutexUniqueLock{stat_mutex_};
+		auto& stat_channel = stat_player_channels_[channel_number];
+		assert(stat_channel >= 0);
+		stat_channel += 1;
+	}
+}
+
+void OalAudioMixer::on_sfx_stop(
+	const SfxVoice& sfx_voice)
+{
+	if (sfx_voice.actor_channel == ActorChannel::unpausable)
+	{
+		const auto stat_guard = MutexUniqueLock{stat_mutex_};
+
+		if (stat_unpausable_sfx_count_ > 0)
+		{
+			stat_unpausable_sfx_count_ -= 1;
+		}
+	}
+
+	if (sfx_voice.actor_index == 0 && sfx_voice.actor_type == ActorType::actor)
+	{
+		const auto channel_number = static_cast<std::size_t>(sfx_voice.actor_channel);
+
+		const auto stat_guard = MutexUniqueLock{stat_mutex_};
+		auto& stat_channel = stat_player_channels_[channel_number];
+
+		if (stat_channel > 0)
+		{
+			stat_channel -= 1;
+		}
+	}
+}
+
+void OalAudioMixer::handle_play_music_command(
+	const PlayMusicCommandParam& param)
+{
+	const auto music_mutex_guard = MutexUniqueLock{music_mutex_};
+
+	music_source_.close();
+
+	auto audio_decoder_param = AudioDecoderInitParam{};
+	audio_decoder_param.src_raw_data_ = param.data;
+	audio_decoder_param.src_raw_size_ = param.data_size;
+	audio_decoder_param.dst_rate_ = dst_rate_;
+
+	if (!music_adlib_sound_.audio_decoder->initialize(audio_decoder_param))
+	{
+		return;
+	}
+
+	auto source_param = OalSourceOpenStreamingParam{};
+	source_param.is_2d = true;
+	source_param.is_looping = true;
+	source_param.sample_rate = dst_rate_;
+	source_param.uncaching_sound = &music_adlib_sound_;
+
+	music_source_.open(source_param);
+	music_source_.set_volume(music_volume_);
+	music_source_.play();
+
+	on_music_start();
+}
+
+void OalAudioMixer::handle_play_sfx_command(
+	const PlaySfxCommandParam& param)
+{
+	SfxVoice* sfx_voice = nullptr;
+
+	if (param.sfx_type == AudioSfxType::pcm)
+	{
+		sfx_voice = find_free_sfx_voice(
+			param.priority,
+			param.actor_type,
+			param.actor_index,
+			param.actor_channel
+		);
+
+		if (!sfx_voice)
+		{
+			return;
+		}
+
+		auto source_param = OalSourceOpenStaticParam{};
+		source_param.is_2d = is_2d_sfx(param.actor_type, param.actor_index);
+		source_param.is_8_bit = true;
+		source_param.sample_rate = audio_decoder_pcm_fixed_frequency;
+		source_param.data = param.data;
+		source_param.data_size = param.data_size;
+
+		auto& oal_source = sfx_voice->oal_source;
+		oal_source.open(source_param);
+		oal_source.set_volume(sfx_volume_);
+		set_sfx_position(oal_source, param.actor_type, param.actor_index);
+		set_sfx_reference_distance(oal_source);
+		oal_source.play();
+
+		sfx_voice->is_active = true;
+		sfx_voice->priority = param.priority;
+		sfx_voice->actor_type = param.actor_type;
+		sfx_voice->actor_index = param.actor_index;
+		sfx_voice->actor_channel = param.actor_channel;
+	}
+	else
+	{
+		auto& sfx_sound = (
+			param.sfx_type == AudioSfxType::adlib ?
+			sfx_adlib_sounds_[param.sound_index] :
+			sfx_pc_speaker_sounds_[param.sound_index]
+		);
+
+		if (!sfx_sound.is_initialized)
+		{
+			auto audio_decoder_param = AudioDecoderInitParam{};
+			audio_decoder_param.src_raw_data_ = param.data;
+			audio_decoder_param.src_raw_size_ = param.data_size;
+			audio_decoder_param.dst_rate_ = dst_rate_;
+
+			auto audio_decoder = sfx_sound.audio_decoder.get();
+
+			if (!audio_decoder->initialize(audio_decoder_param))
+			{
+				return;
+			}
+
+			auto sample_count = audio_decoder->get_dst_length_in_samples();
+
+			if (sample_count <= 0)
+			{
+				return;
+			}
+
+			sfx_sound.is_initialized = true;
+			sfx_sound.is_decoded = false;
+			sfx_sound.sample_offset = 0;
+			sfx_sound.sample_count = sample_count;
+			sfx_sound.samples.resize(sample_count);
+		}
+
+		sfx_voice = find_free_sfx_voice(
+			param.priority,
+			param.actor_type,
+			param.actor_index,
+			param.actor_channel
+		);
+
+		if (!sfx_voice)
+		{
+			return;
+		}
+
+		const auto is_2d = is_2d_sfx(param.actor_type, param.actor_index);
+
+		if (sfx_sound.is_decoded)
+		{
+			const auto decoded_data_size = static_cast<int>(sfx_sound.sample_count * sizeof(OalSourceSample));
+
+			auto source_param = OalSourceOpenStaticParam{};
+			source_param.is_2d = is_2d;
+			source_param.is_8_bit = false;
+			source_param.sample_rate = dst_rate_;
+			source_param.data = sfx_sound.samples.data();
+			source_param.data_size = decoded_data_size;
+
+			sfx_voice->oal_source.open(source_param);
+		}
+		else
+		{
+			auto source_param = OalSourceOpenStreamingParam{};
+			source_param.is_2d = is_2d;
+			source_param.is_looping = false;
+			source_param.sample_rate = dst_rate_;
+			source_param.caching_sound = &sfx_sound;
+
+			sfx_voice->oal_source.open(source_param);
+		}
+
+		auto& oal_source = sfx_voice->oal_source;
+		oal_source.set_volume(sfx_volume_);
+		set_sfx_position(oal_source, param.actor_type, param.actor_index);
+		set_sfx_reference_distance(oal_source);
+		oal_source.play();
+
+		sfx_voice->is_active = true;
+		sfx_voice->priority = param.priority;
+		sfx_voice->actor_type = param.actor_type;
+		sfx_voice->actor_index = param.actor_index;
+		sfx_voice->actor_channel = param.actor_channel;
+	}
+
+	on_sfx_start(*sfx_voice);
+}
+
+void OalAudioMixer::handle_pause_music_command(
+	const PauseMusicCommandParam& param)
+{
+	const auto music_mutex_guard = MutexUniqueLock{music_mutex_};
+
+	if (!music_source_.is_open())
+	{
+		return;
+	}
+
+	if (param.is_pause)
+	{
+		music_source_.pause();
+	}
+	else
+	{
+		music_source_.resume();
+	}
+}
+
+void OalAudioMixer::handle_stop_music_command()
+{
+	const auto music_mutex_guard = MutexUniqueLock{music_mutex_};
+
+	music_source_.close();
+
+	on_music_stop();
+}
+
+void OalAudioMixer::handle_set_music_volume_command(
+	const SetMusicVolumeCommandParam& param)
+{
+	const auto music_mutex_guard = MutexUniqueLock{music_mutex_};
+
+	if (music_source_.is_open())
+	{
+		music_source_.set_volume(param.volume);
+	}
+}
+
+void OalAudioMixer::handle_stop_pausable_sfx_command()
+{
+	for (auto& sfx_voice : sfx_voices_)
+	{
+		if (!sfx_voice.is_active || sfx_voice.actor_channel != ActorChannel::unpausable)
+		{
+			continue;
+		}
+
+		sfx_voice.oal_source.stop();
+	}
+}
+
+void OalAudioMixer::handle_pause_all_sfx_command(
+	const PauseAllSfxCommandParam& param)
+{
+	for (auto& sfx_voice : sfx_voices_)
+	{
+		if (!sfx_voice.is_active)
+		{
+			continue;
+		}
+
+		auto& oal_source = sfx_voice.oal_source;
+
+		if (param.is_pause)
+		{
+			oal_source.pause();
+		}
+		else
+		{
+			oal_source.resume();
+		}
+	}
+}
+
+void OalAudioMixer::handle_set_sfx_volume_command(
+	const SetSfxVolumeCommandParam& param)
+{
+	for (auto& sfx_voice : sfx_voices_)
+	{
+		if (!sfx_voice.is_active)
+		{
+			continue;
+		}
+
+		auto& oal_source = sfx_voice.oal_source;
+
+		if (!oal_source.is_open())
+		{
+			continue;
+		}
+
+		oal_source.set_volume(param.volume);
+	}
+}
+
+void OalAudioMixer::handle_commands()
+{
+	{
+		const auto command_queue_guard = MutexUniqueLock{command_queue_mutex_};
+		bstone::swap(command_queue_, mt_command_queue_);
+	}
+
+	while (!mt_command_queue_.is_empty())
+	{
+		is_any_command_handled_ = true;
+
+		const auto command = mt_command_queue_.get_front();
+		mt_command_queue_.pop();
+
+		switch (command.id)
+		{
+			case CommandId::play_music:
+				handle_play_music_command(command.param.play_music);
+				break;
+
+			case CommandId::play_sfx:
+				handle_play_sfx_command(command.param.play_sfx);
+				break;
+
+			case CommandId::pause_music:
+				handle_pause_music_command(command.param.pause_music);
+				break;
+
+			case CommandId::stop_music:
+				handle_stop_music_command();
+				break;
+
+			case CommandId::set_music_volume:
+				handle_set_music_volume_command(command.param.set_music_volume);
+				break;
+
+			case CommandId::stop_pausable_sfx:
+				handle_stop_pausable_sfx_command();
+				break;
+
+			case CommandId::pause_all_sfx:
+				handle_pause_all_sfx_command(command.param.pause_all_sfx);
+				break;
+
+			case CommandId::set_sfx_volume:
+				handle_set_sfx_volume_command(command.param.set_sfx_volume);
+				break;
+
+			default:
+				assert(!"Invalid command id.");
+				break;
+		}
+	}
+}
+
+void OalAudioMixer::handle_positions()
+{
+	const auto sfx_position_queue_guard = MutexUniqueLock{sfx_position_queue_mutex_};
+	bstone::swap(sfx_position_queue_, mt_sfx_position_queue_);
 }
 
 void OalAudioMixer::decode_adlib_sound(
@@ -1405,6 +1632,8 @@ void OalAudioMixer::decode_adlib_sound(
 		adlib_sound.is_decoded = true;
 		adlib_sound.sample_count = adlib_sound.sample_offset;
 	}
+
+	is_any_sfx_decoded_ = true;
 }
 
 void OalAudioMixer::decode_pc_speaker_sound(
@@ -1434,6 +1663,8 @@ void OalAudioMixer::decode_pc_speaker_sound(
 		pc_speaker_sound.is_decoded = true;
 		pc_speaker_sound.sample_count = pc_speaker_sound.sample_offset;
 	}
+
+	is_any_sfx_decoded_ = true;
 }
 
 void OalAudioMixer::mix_sfx_voice(
@@ -1451,6 +1682,40 @@ void OalAudioMixer::mix_sfx_voice(
 	if (oal_source.is_finished())
 	{
 		sfx_voice.is_active = false;
+
+		on_sfx_stop(sfx_voice);
+	}
+
+	if (oal_source.is_anything_decoded())
+	{
+		is_any_sfx_decoded_ = true;
+	}
+
+	if (!sfx_voice.is_active)
+	{
+		return;
+	}
+
+	constexpr auto al_position_y = static_cast<float>(default_oal_position_y * meters_per_unit);
+
+	for (const auto& sfx_position : mt_sfx_position_queue_)
+	{
+		if (sfx_voice.actor_type != sfx_position.actor_type ||
+			sfx_voice.actor_index != sfx_position.actor_index)
+		{
+			continue;
+		}
+
+		is_any_sfx_position_handled_ = true;
+
+		const auto al_position_x = static_cast<float>(sfx_position.x);
+		const auto al_position_z = static_cast<float>(sfx_position.y);
+
+		oal_source.set_position(
+			al_position_x,
+			al_position_y,
+			al_position_z
+		);
 	}
 }
 
@@ -1520,6 +1785,8 @@ bool OalAudioMixer::mix_music_mix_buffers()
 
 void OalAudioMixer::mix_music()
 {
+	is_any_music_decoded_ = false;
+
 	if (!music_adlib_sound_.is_initialized || !music_source_.is_open())
 	{
 		return;
@@ -1528,6 +1795,8 @@ void OalAudioMixer::mix_music()
 	if (!mix_music_mix_buffers())
 	{
 		music_source_.close();
+		on_music_stop();
+
 		return;
 	}
 
@@ -1536,6 +1805,12 @@ void OalAudioMixer::mix_music()
 	if (music_source_.is_finished())
 	{
 		music_source_.close();
+		on_music_stop();
+	}
+
+	if (music_source_.is_anything_decoded())
+	{
+		is_any_music_decoded_ = true;
 	}
 }
 
@@ -1560,40 +1835,40 @@ void OalAudioMixer::thread_func()
 			}
 		}
 
-		{
-			const auto sfx_mutex_guard = MutexUniqueLock{sfx_mutex_};
+		is_any_command_handled_ = false;
+		is_any_sfx_position_handled_ = false;
+		is_any_sfx_decoded_ = false;
+		is_any_music_decoded_ = false;
 
-			for (auto& sfx_adlib_sound : sfx_adlib_sounds_)
-			{
-				decode_adlib_sound(sfx_adlib_sound, adlib_sfx_volume_scale);
-			}
+		handle_commands();
+		handle_positions();
+
+		for (auto& sfx_adlib_sound : sfx_adlib_sounds_)
+		{
+			decode_adlib_sound(sfx_adlib_sound, adlib_sfx_volume_scale);
 		}
 
+		for (auto& sfx_pc_speaker_sound : sfx_pc_speaker_sounds_)
 		{
-			const auto sfx_mutex_guard = MutexUniqueLock{sfx_mutex_};
-
-			for (auto& sfx_pc_speaker_sound : sfx_pc_speaker_sounds_)
-			{
-				decode_pc_speaker_sound(sfx_pc_speaker_sound);
-			}
+			decode_pc_speaker_sound(sfx_pc_speaker_sound);
 		}
 
+		for (auto& sfx_voice : sfx_voices_)
 		{
-			const auto sfx_mutex_guard = MutexUniqueLock{sfx_mutex_};
-
-			for (auto& sfx_voice : sfx_voices_)
-			{
-				mix_sfx_voice(sfx_voice);
-			}
+			mix_sfx_voice(sfx_voice);
 		}
 
+		mix_music();
+
+		mt_sfx_position_queue_.clear();
+
+		if (!(is_any_command_handled_ ||
+			is_any_sfx_position_handled_ ||
+			is_any_sfx_decoded_ ||
+			is_any_music_decoded_))
 		{
-			const auto music_mutex_guard = MutexUniqueLock{music_mutex_};
-
-			mix_music();
+			std::this_thread::sleep_for(delay);
 		}
-
-		std::this_thread::sleep_for(delay);
 	}
 }
 
@@ -1656,6 +1931,8 @@ OalAudioMixer::SfxVoice* OalAudioMixer::find_free_sfx_voice(
 
 				sfx_voice.is_active = false;
 				sfx_voice.oal_source.stop();
+
+				on_sfx_stop(sfx_voice);
 
 				return &sfx_voice;
 			}
@@ -1726,7 +2003,7 @@ void OalAudioMixer::update_positions_actors()
 	for (auto i = 1; i < MAXACTORS; ++i)
 	{
 		const auto& bs_actor = objlist[i];
-		auto& sfx_actor = sfx_actor_positions_[i];
+		auto& sfx_actor = sfx_bs_actor_positions_[i];
 
 		if (sfx_actor.x != bs_actor.x ||
 			sfx_actor.y != bs_actor.y)
@@ -1785,7 +2062,7 @@ void OalAudioMixer::apply_positions_player()
 	}
 
 	const auto al_position_x = static_cast<float>(sfx_player_.view_x * meters_per_unit);
-	const auto al_position_y = static_cast<float>(default_position_y * meters_per_unit);
+	const auto al_position_y = static_cast<float>(default_oal_position_y * meters_per_unit);
 	const auto al_position_z = static_cast<float>((sfx_player_.view_y - MAPSIZE) * meters_per_unit);
 
 	set_al_listener_position(al_position_x, al_position_y, al_position_z);
@@ -1847,62 +2124,96 @@ void OalAudioMixer::apply_pushwall_position(
 		return;
 	}
 
-	set_sfx_pushwall_position(sfx_voice.oal_source, sfx_voice.actor_index);
+	set_sfx_pushwall_position(sfx_voice.oal_source);
 }
 
-void OalAudioMixer::apply_positions_actors()
+void OalAudioMixer::enqueue_positions_actors()
 {
-	if (sfx_actor_modified_position_indices_.empty())
+	for (const auto sfx_actor_index : sfx_actor_modified_position_indices_)
 	{
-		return;
-	}
+		const auto& sfx_bs_position = sfx_bs_actor_positions_[sfx_actor_index];
 
-	for (auto& sfx_voice : sfx_voices_)
-	{
-		apply_actor_position(sfx_voice);
+		auto sfx_position = SfxPosition{};
+		sfx_position.actor_type = ActorType::actor;
+		sfx_position.actor_index = sfx_actor_index;
+		sfx_position.x = sfx_bs_position.x * meters_per_unit;
+		sfx_position.y = (sfx_bs_position.y - MAPSIZE) * meters_per_unit;
+
+		sfx_position_queue_.push(sfx_position);
 	}
 }
 
-void OalAudioMixer::apply_positions_doors()
+void OalAudioMixer::enqueue_positions_doors()
 {
-	if (sfx_actor_modified_position_indices_.empty())
+	for (const auto sfx_actor_index : sfx_door_modified_position_indices_)
 	{
-		return;
-	}
+		const auto& sfx_bs_position = sfx_door_positions_[sfx_actor_index];
 
-	for (auto& sfx_voice : sfx_voices_)
-	{
-		apply_door_position(sfx_voice);
+		auto sfx_position = SfxPosition{};
+		sfx_position.actor_type = ActorType::door;
+		sfx_position.actor_index = sfx_actor_index;
+		sfx_position.x = (sfx_bs_position.x + 0.5) * meters_per_unit;
+		sfx_position.y = (sfx_bs_position.y - MAPSIZE + 0.5) * meters_per_unit;
+
+		sfx_position_queue_.push(sfx_position);
 	}
 }
 
-void OalAudioMixer::apply_positions_pushwall()
+void OalAudioMixer::enqueue_positions_pushwall()
 {
 	if (!is_sfx_pushwall_position_modified_)
 	{
 		return;
 	}
 
-	for (auto& sfx_voice : sfx_voices_)
+	auto x = sfx_pushwall_.x + 0.5;
+	auto y = sfx_pushwall_.y + 0.5;
+
+	switch (::pwalldir)
 	{
-		apply_pushwall_position(sfx_voice);
+		case di_east:
+			x += sfx_pushwall_.offset;
+			break;
+
+		case di_north:
+			y -= sfx_pushwall_.offset;
+			break;
+
+		case di_south:
+			y += sfx_pushwall_.offset;
+			break;
+
+		case di_west:
+			x -= sfx_pushwall_.offset;
+			break;
+
+		default:
+			break;
 	}
+
+	auto sfx_position = SfxPosition{};
+	sfx_position.actor_type = ActorType::wall;
+	sfx_position.actor_index = -1;
+	sfx_position.x = x * meters_per_unit;
+	sfx_position.y = (y - MAPSIZE) * meters_per_unit;
+
+	sfx_position_queue_.push(sfx_position);
 }
 
-void OalAudioMixer::apply_positions()
+void OalAudioMixer::enqueue_positions()
 {
-	apply_positions_actors();
-	apply_positions_doors();
-	apply_positions_pushwall();
+	enqueue_positions_actors();
+	enqueue_positions_doors();
+	enqueue_positions_pushwall();
 }
 
 void OalAudioMixer::set_sfx_actor_position(
 	OalSource& oal_source,
 	int actor_index)
 {
-	const auto& sfx_position = sfx_actor_positions_[actor_index];
+	const auto& sfx_position = sfx_bs_actor_positions_[actor_index];
 	const auto al_position_x = static_cast<float>(sfx_position.x * meters_per_unit);
-	const auto al_position_y = static_cast<float>(default_position_y * meters_per_unit);
+	const auto al_position_y = static_cast<float>(default_oal_position_y * meters_per_unit);
 	const auto al_position_z = static_cast<float>((sfx_position.y - MAPSIZE) * meters_per_unit);
 
 	oal_source.set_position(al_position_x, al_position_y, al_position_z);
@@ -1914,15 +2225,14 @@ void OalAudioMixer::set_sfx_door_position(
 {
 	const auto& sfx_position = sfx_door_positions_[actor_index];
 	const auto al_position_x = static_cast<float>((sfx_position.x + 0.5) * meters_per_unit);
-	const auto al_position_y = static_cast<float>(default_position_y * meters_per_unit);
+	const auto al_position_y = static_cast<float>(default_oal_position_y * meters_per_unit);
 	const auto al_position_z = static_cast<float>((sfx_position.y - MAPSIZE + 0.5) * meters_per_unit);
 
 	oal_source.set_position(al_position_x, al_position_y, al_position_z);
 }
 
 void OalAudioMixer::set_sfx_pushwall_position(
-	OalSource& oal_source,
-	int actor_index)
+	OalSource& oal_source)
 {
 	auto x = sfx_pushwall_.x + 0.5;
 	auto y = sfx_pushwall_.y + 0.5;
@@ -1950,7 +2260,7 @@ void OalAudioMixer::set_sfx_pushwall_position(
 	}
 
 	const auto al_position_x = static_cast<float>(x * meters_per_unit);
-	const auto al_position_y = static_cast<float>(default_position_y * meters_per_unit);
+	const auto al_position_y = static_cast<float>(default_oal_position_y * meters_per_unit);
 	const auto al_position_z = static_cast<float>((y - MAPSIZE) * meters_per_unit);
 
 	oal_source.set_position(al_position_x, al_position_y, al_position_z);
@@ -1979,7 +2289,7 @@ void OalAudioMixer::set_sfx_position(
 			break;
 
 		case ActorType::wall:
-			set_sfx_pushwall_position(oal_source, actor_index);
+			set_sfx_pushwall_position(oal_source);
 			break;
 
 		default:

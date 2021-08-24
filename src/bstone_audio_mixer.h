@@ -58,6 +58,8 @@ enum class ActorChannel
 	no_way,
 	interrogation,
 	unpausable,
+
+	count_
 }; // ActorChannel
 
 enum class SoundType

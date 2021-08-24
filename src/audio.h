@@ -205,6 +205,7 @@ enum class AudioSfxType :
 {
 	adlib = 1,
 	pc_speaker = 2,
+	pcm = 3,
 }; // AudioResourceType
 
 enum class AudioChunkType :
