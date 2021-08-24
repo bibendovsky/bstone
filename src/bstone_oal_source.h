@@ -135,6 +135,8 @@ public:
 
 	bool is_finished() const;
 
+	bool is_anything_decoded() const;
+
 	void set_volume(
 		float volume);
 
@@ -181,6 +183,7 @@ private:
 	bool is_started_{};
 	bool is_paused_{};
 	mutable bool is_finished_{};
+	bool is_anything_decoded_{};
 
 	OalBufferResource static_al_buffer_resource_{};
 

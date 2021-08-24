@@ -39,9 +39,11 @@ Free Software Foundation, Inc.,
 #include "audio.h"
 
 #include "bstone_audio_decoder.h"
+#include "bstone_circular_queue.h"
 #include "bstone_oal_source.h"
 #include "bstone_oal_loader.h"
 #include "bstone_oal_resource.h"
+#include "bstone_spinlock.h"
 
 
 namespace bstone
@@ -161,14 +163,25 @@ public:
 
 
 private:
+	using Mutex = Spinlock;
+	using MutexUniqueLock = std::unique_lock<Mutex>;
+
 	using OalString = std::string;
 	using OalStrings = std::vector<OalString>;
 
 	using SfxAdLibSounds = std::array<OalSourceCachingSound, NUMSOUNDS>;
 	using SfxPcSpeakerSounds = std::array<OalSourceCachingSound, NUMSOUNDS>;
 
+	struct SfxBsPosition
+	{
+		double x{};
+		double y{};
+	}; // SfxBsPosition
+
 	struct SfxPosition
 	{
+		ActorType actor_type{};
+		int actor_index{};
 		double x{};
 		double y{};
 	}; // SfxPosition
@@ -190,8 +203,8 @@ private:
 		double offset{};
 	}; // SfxPushwall
 
-	using SfxActorPositions = std::array<SfxPosition, MAXACTORS>;
-	using SfxDoorPositions = std::array<SfxPosition, MAXDOORS>;
+	using SfxActorPositions = std::array<SfxBsPosition, MAXACTORS>;
+	using SfxDoorPositions = std::array<SfxBsPosition, MAXDOORS>;
 	using SfxModifiedPositionIndices = std::unordered_set<int>;
 
 	struct SfxVoice
@@ -208,6 +221,88 @@ private:
 
 	using SfxVoices = std::vector<SfxVoice>;
 
+	using VoiceMutex = Spinlock;
+
+
+	enum class CommandId
+	{
+		none,
+
+		play_music,
+		play_sfx,
+
+		pause_music,
+		stop_music,
+		set_music_volume,
+
+		stop_pausable_sfx,
+		pause_all_sfx,
+		set_sfx_volume,
+	}; // CommandId
+
+	struct PlayMusicCommandParam
+	{
+		const void* data{};
+		int data_size{};
+	}; // PlayMusicCommandParam
+
+	struct PlaySfxCommandParam
+	{
+		AudioSfxType sfx_type{};
+		int sound_index{};
+		int priority{};
+		const void* data{};
+		int data_size{};
+		int actor_index{};
+		ActorType actor_type{};
+		ActorChannel actor_channel{};
+	}; // PlaySfxCommandParam
+
+	struct PauseMusicCommandParam
+	{
+		bool is_pause{};
+	}; // PauseMusicCommandParam
+
+	struct SetMusicVolumeCommandParam
+	{
+		float volume{};
+	}; // SetMusicVolumeCommandParam
+
+	struct PauseAllSfxCommandParam
+	{
+		bool is_pause{};
+	}; // PauseAllSfxCommandParam
+
+	struct SetSfxVolumeCommandParam
+	{
+		float volume{};
+	}; // SetSfxVolumeCommandParam
+
+	union CommandParam
+	{
+		PlayMusicCommandParam play_music;
+		PlaySfxCommandParam play_sfx;
+		PauseMusicCommandParam pause_music;
+		SetMusicVolumeCommandParam set_music_volume;
+		PauseAllSfxCommandParam pause_all_sfx;
+		SetSfxVolumeCommandParam set_sfx_volume;
+	}; // CommandParam
+
+	struct Command
+	{
+		CommandId id{};
+		CommandParam param{};
+	}; // Command
+
+	using CommandQueue = CircularQueue<Command>;
+	using CommandQueueMutex = Mutex;
+
+	using SfxPositionQueue = CircularQueue<SfxPosition>;
+	using SfxPositionQueueMutex = Mutex;
+
+	using StatMutex = Mutex;
+	using PlayerChannelsStats = std::array<int, static_cast<std::size_t>(ActorChannel::count_)>;
+
 
 	static constexpr auto min_mix_size_ms = 20;
 	static constexpr auto max_mix_size_ms = 40;
@@ -216,13 +311,17 @@ private:
 	static constexpr auto min_thread_delay_ms = min_mix_size_ms / 2;
 	static_assert(min_thread_delay_ms > 1, "Mix size out of range.");
 
+	static constexpr auto max_commands = 256;
+
+	static constexpr auto max_sfx_positions = 2 * (MAXACTORS + MAXDOORS + MAXWALLTILES);
+
 	static constexpr auto sfx_voices_limit = 255;
 	static constexpr auto music_voices_limit = 1;
 	static constexpr auto voices_limit = sfx_voices_limit + music_voices_limit;
 
 	static constexpr auto meters_per_unit = 1.0;
 	static constexpr auto default_reference_distance = 1.0;
-	static constexpr auto default_position_y = 0.5;
+	static constexpr auto default_oal_position_y = 0.5;
 
 	static constexpr auto adlib_sfx_volume_scale = 7;
 	static constexpr auto adlib_music_volume_scale = 6;
@@ -230,9 +329,6 @@ private:
 	static constexpr auto alc_enumeration_ext_str = "ALC_ENUMERATION_EXT";
 	static constexpr auto alc_enumerate_all_ext_str = "ALC_ENUMERATE_ALL_EXT";
 
-
-	using Mutex = std::mutex;
-	using MutexUniqueLock = std::unique_lock<Mutex>;
 	using MusicMutex = Mutex;
 	using SfxMutex = Mutex;
 
@@ -256,18 +352,25 @@ private:
 	OalDeviceResource oal_device_resource_{};
 	OalContextResource oal_context_resource_{};
 
+	CommandQueueMutex command_queue_mutex_{};
+	CommandQueue command_queue_{};
+	CommandQueue mt_command_queue_{};
+
+	SfxPositionQueueMutex sfx_position_queue_mutex_{};
+	SfxPositionQueue sfx_position_queue_{};
+	SfxPositionQueue mt_sfx_position_queue_{};
+
 	mutable MusicMutex music_mutex_{};
 	OalSourceUncachingSound music_adlib_sound_{};
 	OalSource music_source_{};
 	float music_volume_{};
 
-	mutable SfxMutex sfx_mutex_{};
 	SfxVoices sfx_voices_{};
 	SfxAdLibSounds sfx_adlib_sounds_{};
 	SfxPcSpeakerSounds sfx_pc_speaker_sounds_{};
 	float sfx_volume_{};
 
-	SfxActorPositions sfx_actor_positions_{};
+	SfxActorPositions sfx_bs_actor_positions_{};
 	SfxDoorPositions sfx_door_positions_{};
 
 	bool is_sfx_player_position_modified_{};
@@ -280,10 +383,19 @@ private:
 	bool is_sfx_pushwall_position_modified_{};
 	SfxPushwall sfx_pushwall_{};
 
+	mutable StatMutex stat_mutex_{};
+	bool stat_music_is_playing_{};
+	int stat_unpausable_sfx_count_{};
+	PlayerChannelsStats stat_player_channels_{};
 
 	bool is_quit_thread_{};
 	Mutex thread_mutex_{};
 	Thread thread_{};
+
+	bool is_any_command_handled_{};
+	bool is_any_sfx_position_handled_{};
+	bool is_any_sfx_decoded_{};
+	bool is_any_music_decoded_{};
 
 
 	[[noreturn]]
@@ -354,6 +466,11 @@ private:
 		const AudioMixerInitParam& param);
 
 
+	void initialize_command_queue();
+
+	void initialize_sfx_position_queue();
+
+
 	void initialize_music_adlib_sound();
 
 	void initialize_music_source();
@@ -374,6 +491,45 @@ private:
 	void initialize_sfx();
 
 	void uninitialize_sfx();
+
+
+	void on_music_start();
+
+	void on_music_stop();
+
+
+	void on_sfx_start(
+		const SfxVoice& sfx_voice);
+
+	void on_sfx_stop(
+		const SfxVoice& sfx_voice);
+
+
+	void handle_play_music_command(
+		const PlayMusicCommandParam& param);
+
+	void handle_play_sfx_command(
+		const PlaySfxCommandParam& param);
+
+	void handle_pause_music_command(
+		const PauseMusicCommandParam& param);
+
+	void handle_stop_music_command();
+
+	void handle_set_music_volume_command(
+		const SetMusicVolumeCommandParam& param);
+
+	void handle_stop_pausable_sfx_command();
+
+	void handle_pause_all_sfx_command(
+		const PauseAllSfxCommandParam& param);
+
+	void handle_set_sfx_volume_command(
+		const SetSfxVolumeCommandParam& param);
+
+	void handle_commands();
+
+	void handle_positions();
 
 
 	void decode_adlib_sound(
@@ -441,13 +597,13 @@ private:
 	void apply_pushwall_position(
 		SfxVoice& sfx_voice);
 
-	void apply_positions_actors();
+	void enqueue_positions_actors();
 
-	void apply_positions_doors();
+	void enqueue_positions_doors();
 
-	void apply_positions_pushwall();
+	void enqueue_positions_pushwall();
 
-	void apply_positions();
+	void enqueue_positions();
 
 	void set_sfx_actor_position(
 		OalSource& oal_source,
@@ -458,8 +614,7 @@ private:
 		int actor_index);
 
 	void set_sfx_pushwall_position(
-		OalSource& oal_source,
-		int actor_index);
+		OalSource& oal_source);
 
 	void set_sfx_position(
 		OalSource& oal_source,

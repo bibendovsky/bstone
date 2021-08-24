@@ -43,6 +43,7 @@ loaded into the data segment
 #include <array>
 #include <algorithm>
 #include <memory>
+#include <stdexcept>
 
 #include "jm_cio.h"
 #include "jm_lzh.h"

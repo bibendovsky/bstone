@@ -359,6 +359,7 @@ target_sources(
 		bstone_binary_reader.h
 		bstone_binary_writer.h
 		bstone_bmp_image_decoder.h
+		bstone_circular_queue.h
 		bstone_cl_args.h
 		bstone_content_path.h
 		bstone_crc32.h
@@ -403,6 +404,7 @@ target_sources(
 		bstone_sdl_utils.h
 		bstone_sha1.h
 		bstone_span.h
+		bstone_spinlock.h
 		bstone_sprite.h
 		bstone_sprite_cache.h
 		bstone_stb_image_encoder.h
@@ -515,6 +517,7 @@ target_sources(
 		bstone_binary_reader.cpp
 		bstone_binary_writer.cpp
 		bstone_bmp_image_decoder.cpp
+		bstone_circular_queue.cpp
 		bstone_cl_args.cpp
 		bstone_content_path.cpp
 		bstone_crc32.cpp
@@ -554,6 +557,7 @@ target_sources(
 		bstone_sdl_texture_lock.cpp
 		bstone_sdl_utils.cpp
 		bstone_sha1.cpp
+		bstone_spinlock.cpp
 		bstone_sprite.cpp
 		bstone_sprite_cache.cpp
 		bstone_stb_image_decoder.cpp
