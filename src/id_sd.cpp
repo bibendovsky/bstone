@@ -345,6 +345,7 @@ void sd_shutdown()
 	if (sd_mixer_)
 	{
 		sd_mixer_->uninitialize();
+		sd_mixer_ = nullptr;
 	}
 
 	audio_content_mgr = nullptr;
