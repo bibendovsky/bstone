@@ -733,12 +733,14 @@ int SdlAudioMixer::get_max_commands() const
 void SdlAudioMixer::fail(
 	const char* message)
 {
+	throw SdlAudioMixerException{message};
 }
 
 [[noreturn]]
 void SdlAudioMixer::fail_nested(
 	const char* message)
 {
+	std::throw_with_nested(SdlAudioMixerException{message});
 }
 
 void SdlAudioMixer::callback(
