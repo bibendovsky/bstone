@@ -8489,11 +8489,7 @@ try
 		//
 		archiver->read_checksum();
 	}
-	catch (const bstone::ArchiverException&)
-	{
-		is_succeed = false;
-	}
-	catch (const char*)
+	catch (...)
 	{
 		is_succeed = false;
 	}

@@ -8,4 +8,3 @@
 - Mark interface implementations as `final`.
 - Namespace `detail` to anonymous one.
 - Remove underscore suffix for public fields.
-- Don't use standard exceptions (<stdexcept>).

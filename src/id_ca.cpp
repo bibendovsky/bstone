@@ -42,8 +42,8 @@ loaded into the data segment
 
 #include <array>
 #include <algorithm>
+#include <exception>
 #include <memory>
-#include <stdexcept>
 
 #include "jm_cio.h"
 #include "jm_lzh.h"
@@ -2467,7 +2467,7 @@ bool ImageExtractor::extract_sprite(
 	{
 		sprite = sprite_cache_.cache(cache_sprite_index);
 	}
-	catch (const std::runtime_error& ex)
+	catch (const std::exception& ex)
 	{
 		auto error_message = "Failed to cache a sprite #" + std::to_string(sprite_index) + ". ";
 		error_message += ex.what();
