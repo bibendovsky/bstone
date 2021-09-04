@@ -13,6 +13,7 @@
 - Option `vid_renderer` now works in command-line.
 - [OAL] Load AL symbols within context.
 - [OAL] List only available extensions.
+- Fix crash after changing audio driver via the menu.
 
 ### Changed
 - [OAL] List devices with `ALC_ENUMERATE_ALL_EXT` if available.
