@@ -879,10 +879,6 @@ public:
 	void apply_texture_upscale() override
 	try
 	{
-		log("");
-		log("Applying texture upscale.");
-
-
 		destroy_texture_upscale_resources();
 
 		texture_mgr_->set_upscale_filter(
@@ -900,9 +896,6 @@ public:
 	void apply_external_textures() override
 	try
 	{
-		log("");
-		log("Applying external textures.");
-
 		destroy_external_textures_resources();
 		texture_mgr_->enable_external_textures(vid_cfg_get().is_external_textures_enabled_);
 		create_external_textures_resources();
@@ -980,12 +973,6 @@ private:
 		const std::string& message)
 	{
 		log(bstone::LoggerMessageKind::information, message);
-	}
-
-	static void log_warning(
-		const std::string& message)
-	{
-		log(bstone::LoggerMessageKind::warning, message);
 	}
 
 	static void log_error(
@@ -2483,8 +2470,6 @@ private:
 	void initialize_uniforms()
 	try
 	{
-		log("Initializing shader variables.");
-
 		initialize_model_mat_uniform();
 		initialize_view_mat_uniform();
 		initialize_projection_mat_uniform();
@@ -2506,9 +2491,6 @@ private:
 	void initialize_program()
 	try
 	{
-		log("");
-		log("Initializing shader program.");
-
 		create_fragment_shader();
 		create_vertex_shader();
 		create_shader_stage();
@@ -2647,9 +2629,14 @@ private:
 
 				return;
 			}
-			catch (const bstone::Exception& ex)
+			catch (...)
 			{
-				log_error(ex.what());
+				const auto messages = bstone::extract_exception_messages();
+
+				for (const auto& message : messages)
+				{
+					log_error(message);
+				}
 			}
 		}
 
@@ -2668,8 +2655,6 @@ private:
 	void create_ui_ib()
 	try
 	{
-		log("Creating UI index buffer.");
-
 		ui_ib_ = create_index_buffer(
 			bstone::Ren3dBufferUsageKind::draw_static,
 			1,
@@ -2711,8 +2696,6 @@ private:
 	void create_ui_vi()
 	try
 	{
-		log("Creating UI vertex input.");
-
 		create_vertex_input<Vertex>(
 			ui_ib_,
 			ui_vb_,
@@ -2795,8 +2778,6 @@ private:
 	void create_ui_vb()
 	try
 	{
-		log("Creating UI vertex buffer.");
-
 		ui_vb_ = create_vertex_buffer<Vertex>(
 			bstone::Ren3dBufferUsageKind::draw_static,
 			r2_vertex_count_
@@ -2825,8 +2806,6 @@ private:
 	void create_2d_fillers_ib()
 	try
 	{
-		log("Creating 2D filler index buffer.");
-
 		r2_fillers_ib_ = create_index_buffer(
 			bstone::Ren3dBufferUsageKind::draw_static,
 			1,
@@ -2887,8 +2866,6 @@ private:
 	void create_2d_fillers_vb()
 	try
 	{
-		log("Creating 2D filler vertex buffer.");
-
 		r2_fillers_vb_ = create_vertex_buffer<Vertex>(
 			bstone::Ren3dBufferUsageKind::draw_static,
 			r2_fillers_vertex_count_
@@ -3245,8 +3222,6 @@ private:
 	void create_2d_fillers_vi()
 	try
 	{
-		log("Creating 2D filler vertex input.");
-
 		create_vertex_input<Vertex>(
 			r2_fillers_ib_,
 			r2_fillers_vb_,
@@ -3271,8 +3246,6 @@ private:
 	void create_black_1x1_2d_texture()
 	try
 	{
-		log("Creating 2D 1x1 black texture.");
-
 		texture_mgr_->create_solid_1x1(bstone::HwTextureMgrSolid1x1Id::black);
 		r2_black_t2d_1x1_ = texture_mgr_->get_solid_1x1(bstone::HwTextureMgrSolid1x1Id::black);
 	}
@@ -3294,8 +3267,6 @@ private:
 	void create_white_1x1_2d_texture()
 	try
 	{
-		log("Creating 2D 1x1 white texture.");
-
 		texture_mgr_->create_solid_1x1(bstone::HwTextureMgrSolid1x1Id::white);
 		r2_white_t2d_1x1_ = texture_mgr_->get_solid_1x1(bstone::HwTextureMgrSolid1x1Id::white);
 	}
@@ -3317,8 +3288,6 @@ private:
 	void create_fade_1x1_2d_texture()
 	try
 	{
-		log("Creating 2D 1x1 fade texture.");
-
 		texture_mgr_->create_solid_1x1(bstone::HwTextureMgrSolid1x1Id::fade_2d);
 		r2_fade_t2d_ = texture_mgr_->get_solid_1x1(bstone::HwTextureMgrSolid1x1Id::fade_2d);
 	}
@@ -3341,8 +3310,6 @@ private:
 	void create_ui_texture()
 	try
 	{
-		log("Creating UI texture.");
-
 		texture_mgr_->create_ui(vid_ui_buffer_.data(), vid_mask_buffer_.data(), &palette_);
 		ui_t2d_ = texture_mgr_->get_ui();
 	}
@@ -3371,9 +3338,6 @@ private:
 	void initialize_2d()
 	try
 	{
-		log("");
-		log("Initializing 2D resources.");
-
 		create_ui_ib();
 		create_ui_vb();
 		create_ui_vi();
@@ -3400,8 +3364,6 @@ private:
 	void create_flooring_ib()
 	try
 	{
-		log("Creating 3D flooring index buffer.");
-
 		const auto index_count = 6;
 
 		{
@@ -3442,8 +3404,6 @@ private:
 	void create_flooring_vb()
 	try
 	{
-		log("Creating 3D flooring vertex buffer.");
-
 		const auto vertex_count = 4;
 
 		{
@@ -3511,8 +3471,6 @@ private:
 	void create_flooring_vi()
 	try
 	{
-		log("Creating 3D flooring vertex input.");
-
 		create_vertex_input<FlooringVertex>(
 			flooring_ib_,
 			flooring_vb_,
@@ -3536,8 +3494,6 @@ private:
 	void create_solid_flooring_texture_2d()
 	try
 	{
-		log("Creating 3D flooring 1x1 solid texture.");
-
 		texture_mgr_->create_solid_1x1(bstone::HwTextureMgrSolid1x1Id::flooring);
 		flooring_solid_t2d_ = texture_mgr_->get_solid_1x1(bstone::HwTextureMgrSolid1x1Id::flooring);
 	}
@@ -3561,9 +3517,6 @@ private:
 	void initialize_flooring()
 	try
 	{
-		log("");
-		log("Initializing 3D flooring.");
-
 		create_flooring_ib();
 		create_flooring_vb();
 		create_flooring_vi();
@@ -3582,8 +3535,6 @@ private:
 	void create_ceiling_ib()
 	try
 	{
-		log("Creating 3D ceiling index buffer.");
-
 		const auto index_count = 6;
 
 		{
@@ -3624,8 +3575,6 @@ private:
 	void create_ceiling_vb()
 	try
 	{
-		log("Creating 3D ceiling vertex buffer.");
-
 		const auto vertex_count = 4;
 
 		{
@@ -3691,8 +3640,6 @@ private:
 	void create_ceiling_vi()
 	try
 	{
-		log("Creating 3D ceiling vertex input.");
-
 		create_vertex_input<CeilingVertex>(
 			ceiling_ib_,
 			ceiling_vb_,
@@ -3727,9 +3674,6 @@ private:
 	void initialize_ceiling()
 	try
 	{
-		log("");
-		log("Initializing 3D ceiling.");
-
 		create_ceiling_ib();
 		create_ceiling_vb();
 		create_ceiling_vi();
@@ -3755,8 +3699,6 @@ private:
 	void create_walls_ib()
 	try
 	{
-		log("Creating wall index buffer.");
-
 		const auto index_count = wall_side_count_ * indices_per_wall_side;
 
 		wall_sides_ib_ = create_index_buffer(
@@ -3782,8 +3724,6 @@ private:
 	void create_walls_vb()
 	try
 	{
-		log("Creating wall vertex buffer.");
-
 		const auto vertex_count = wall_side_count_ * vertices_per_wall_side;
 
 		wall_sides_vb_ = create_vertex_buffer<WallVertex>(
@@ -3804,8 +3744,6 @@ private:
 	void create_walls_vi()
 	try
 	{
-		log("Creating wall vertex input.");
-
 		create_vertex_input<WallVertex>(
 			wall_sides_ib_,
 			wall_sides_vb_,
@@ -3824,9 +3762,6 @@ private:
 	void initialize_walls()
 	try
 	{
-		log("");
-		log("Initializing walls.");
-
 		xy_wall_map_.reserve(wall_count_);
 
 		walls_to_render_.clear();
@@ -3874,8 +3809,6 @@ private:
 	void create_pushwalls_ib()
 	try
 	{
-		log("Creating pushwall index buffer.");
-
 		const auto index_count = pushwall_side_count_ * indices_per_wall_side;
 
 		pushwall_sides_ib_ = create_index_buffer(
@@ -3902,8 +3835,6 @@ private:
 	void create_pushwalls_vb()
 	try
 	{
-		log("Creating pushwall vertex buffer.");
-
 		const auto vertex_count = pushwall_side_count_ * vertices_per_wall_side;
 
 		pushwall_sides_vb_ = create_vertex_buffer<PushwallVertex>(
@@ -3924,8 +3855,6 @@ private:
 	void create_pushwalls_vi()
 	try
 	{
-		log("Creating pushwall vertex input.");
-
 		create_vertex_input<PushwallVertex>(
 			pushwall_sides_ib_,
 			pushwall_sides_vb_,
@@ -3944,9 +3873,6 @@ private:
 	void initialize_pushwalls()
 	try
 	{
-		log("");
-		log("Initializing pushwalls.");
-
 		xy_pushwall_map_.reserve(pushwall_count_);
 
 		pushwall_to_wall_vbi_.clear();
@@ -4001,8 +3927,6 @@ private:
 	void create_door_sides_ib()
 	try
 	{
-		log("Creating door index buffer.");
-
 		const auto index_count = door_count_ * indices_per_door_side;
 
 		door_sides_ib_ = create_index_buffer(
@@ -4031,8 +3955,6 @@ private:
 	void create_door_sides_vb()
 	try
 	{
-		log("Creating door vertex buffer.");
-
 		const auto vertex_count = door_count_ * indices_per_door_side;
 
 		door_sides_vb_ = create_vertex_buffer<DoorVertex>(
@@ -4058,8 +3980,6 @@ private:
 	void create_door_sides_vi()
 	try
 	{
-		log("Creating door vertex input.");
-
 		create_vertex_input<DoorVertex>(
 			door_sides_ib_,
 			door_sides_vb_,
@@ -4073,9 +3993,6 @@ private:
 	void initialize_door_sides()
 	try
 	{
-		log("");
-		log("Initializing doors.");
-
 		xy_door_map_.reserve(door_count_);
 
 		const auto max_draw_item_count = door_count_ * door_halves_per_door;
@@ -4339,8 +4256,6 @@ private:
 	void create_ui_sampler()
 	try
 	{
-		log("Creating UI sampler.");
-
 		update_ui_sampler_state();
 
 		auto param = bstone::Ren3dCreateSamplerParam{};
@@ -4406,8 +4321,6 @@ private:
 	void create_sprite_sampler()
 	try
 	{
-		log("Creating sprite sampler.");
-
 		update_sprite_sampler_state();
 
 		auto param = bstone::Ren3dCreateSamplerParam{};
@@ -4473,8 +4386,6 @@ private:
 	void create_wall_sampler()
 	try
 	{
-		log("Creating wall side sampler.");
-
 		update_wall_sampler_state();
 
 		auto param = bstone::Ren3dCreateSamplerParam{};
@@ -4552,8 +4463,6 @@ private:
 	void create_player_weapon_ib()
 	try
 	{
-		log("Creating player's weapon index buffer.");
-
 		player_weapon_ib_ = create_index_buffer(
 			bstone::Ren3dBufferUsageKind::draw_static,
 			1,
@@ -4596,8 +4505,6 @@ private:
 	void create_player_weapon_vb()
 	try
 	{
-		log("Creating player's weapon vertex buffer.");
-
 		player_weapon_vb_ = create_vertex_buffer<PlayerWeaponVertex>(
 			bstone::Ren3dBufferUsageKind::draw_static,
 			vertices_per_sprite
@@ -4616,8 +4523,6 @@ private:
 	void create_player_weapon_vi()
 	try
 	{
-		log("Creating player's weapon vertex input.");
-
 		create_vertex_input<PlayerWeaponVertex>(
 			player_weapon_ib_,
 			player_weapon_vb_,
@@ -4727,8 +4632,6 @@ private:
 	void create_player_weapon_sampler()
 	try
 	{
-		log("Creating player's weapon sampler.");
-
 		update_player_weapon_sampler_state();
 
 		auto param = bstone::Ren3dCreateSamplerParam{};
@@ -4752,9 +4655,6 @@ private:
 	void initialize_player_weapon()
 	try
 	{
-		log("");
-		log("Initializing player's weapon.");
-
 		create_player_weapon_ib();
 		create_player_weapon_vb();
 		create_player_weapon_vi();
@@ -4780,8 +4680,6 @@ private:
 	void create_fade_sampler()
 	try
 	{
-		log("Creating fade sampler.");
-
 		auto param = bstone::Ren3dCreateSamplerParam{};
 		param.state_.min_filter_ = bstone::Ren3dFilterKind::nearest;
 		param.state_.mag_filter_ = bstone::Ren3dFilterKind::nearest;
@@ -4815,9 +4713,6 @@ private:
 	void initialize_samplers()
 	try
 	{
-		log("");
-		log("Initializing samplers.");
-
 		create_ui_sampler();
 		create_sprite_sampler();
 		create_wall_sampler();
@@ -4835,8 +4730,6 @@ private:
 
 	void create_command_buffers() noexcept
 	{
-		log("Initializing command buffers.");
-
 		command_buffers_[0] = common_command_buffer_.get();
 		command_buffers_[1] = r3_command_buffer_.get();
 		command_buffers_[2] = r2_command_buffer_.get();
@@ -4850,8 +4743,6 @@ private:
 	void create_common_command_buffer()
 	try
 	{
-		log("Creating common command buffer.");
-
 		auto param = bstone::Ren3dCreateCmdBufferParam{};
 		param.initial_size_ = common_command_buffer_initial_size;
 		param.resize_delta_size_ = common_command_buffer_resize_delta_size;
@@ -4871,8 +4762,6 @@ private:
 	void create_2d_command_buffer()
 	try
 	{
-		log("Creating 2D command buffer.");
-
 		auto param = bstone::Ren3dCreateCmdBufferParam{};
 		param.initial_size_ = r2_command_buffer_initial_size;
 		param.resize_delta_size_ = r2_command_buffer_resize_delta_size;
@@ -4892,8 +4781,6 @@ private:
 	void create_3d_command_buffer()
 	try
 	{
-		log("Creating 3D command buffer.");
-
 		auto param = bstone::Ren3dCreateCmdBufferParam{};
 		param.initial_size_ = r3_command_buffer_initial_size;
 		param.resize_delta_size_ = r3_command_buffer_resize_delta_size;
@@ -4916,9 +4803,6 @@ private:
 	void initialize_command_buffers()
 	try
 	{
-		log("");
-		log("Initializing command buffers.");
-
 		create_common_command_buffer();
 		create_3d_command_buffer();
 		create_2d_command_buffer();
@@ -4937,8 +4821,6 @@ private:
 	void create_3d_fade_ib()
 	try
 	{
-		log("Creating 3D fade index buffer.");
-
 		r3_fade_ib_ = create_index_buffer(
 			bstone::Ren3dBufferUsageKind::draw_static,
 			1,
@@ -4958,8 +4840,6 @@ private:
 	void create_3d_fade_vb()
 	try
 	{
-		log("Creating 3D fade vertex buffer.");
-
 		r3_fade_vb_ = create_vertex_buffer<FadeVertex>(
 			bstone::Ren3dBufferUsageKind::draw_static,
 			4
@@ -4978,8 +4858,6 @@ private:
 	void create_3d_fade_vi()
 	try
 	{
-		log("Creating 3D fade vertex input.");
-
 		create_vertex_input<FadeVertex>(
 			r3_fade_ib_,
 			r3_fade_vb_,
@@ -5077,8 +4955,6 @@ private:
 	void create_3d_fade_texture_2d()
 	try
 	{
-		log("Create 3D fade texture.");
-
 		texture_mgr_->create_solid_1x1(bstone::HwTextureMgrSolid1x1Id::fade_3d);
 		r3_fade_t2d_ = texture_mgr_->get_solid_1x1(bstone::HwTextureMgrSolid1x1Id::fade_3d);
 	}
@@ -5103,9 +4979,6 @@ private:
 	void create_texture_manager()
 	try
 	{
-		log("");
-		log("Creating texture manager.");
-
 		texture_mgr_ = bstone::HwTextureMgrFactory::create(
 			renderer_,
 			&vid_sprite_cache,
@@ -5120,9 +4993,6 @@ private:
 	void initialize_3d_fade()
 	try
 	{
-		log("");
-		log("Initializing 3D fade.");
-
 		create_3d_fade_ib();
 		create_3d_fade_vb();
 		create_3d_fade_vi();
@@ -8556,8 +8426,6 @@ private:
 	void initialize_sprites_ibi()
 	try
 	{
-		log("Creating sprite index buffer.");
-
 		const auto index_count = max_sprites_indices;
 
 		sprites_ib_ = create_index_buffer(
@@ -8583,8 +8451,6 @@ private:
 	void initialize_sprites_vb()
 	try
 	{
-		log("Creating sprite vertex buffer.");
-
 		const auto vertex_count = max_sprites_vertices;
 
 		sprites_vb_ = create_vertex_buffer<SpriteVertex>(
@@ -8613,8 +8479,6 @@ private:
 	void initialize_sprites_vi()
 	try
 	{
-		log("Creating sprite vertex input.");
-
 		create_vertex_input<SpriteVertex>(
 			sprites_ib_,
 			sprites_vb_,
@@ -8654,8 +8518,6 @@ private:
 	void initialize_sprites()
 	try
 	{
-		log("Initializing sprites.");
-
 		sprites_draw_count_ = 0;
 		sprites_draw_list_.clear();
 		sprites_draw_list_.resize(max_sprites);
@@ -11588,9 +11450,6 @@ private:
 	void precache_resources()
 	try
 	{
-		log("");
-		log("Precaching resources.");
-
 		texture_mgr_->begin_cache();
 
 		precache_flooring();
@@ -11690,15 +11549,8 @@ private:
 	void initialize_video()
 	try
 	{
-		log("");
-		log("Initializing hardware accelerated video system.");
-
-		log("Initializing task manager.");
-
 		set_samplers_default_states();
 		set_player_weapon_sampler_default_state();
-
-		log("Creating renderer manager.");
 
 		renderer_mgr_ = bstone::Ren3dMgrFactory::create();
 

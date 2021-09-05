@@ -161,42 +161,56 @@ const char* Exception::what() const noexcept
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-std::string get_nested_message()
+namespace
 {
-	using Messages = std::vector<std::string>;
 
 
-	static void (*extract_message)(
-		Messages& messages) = [](
-			Messages& messages)
+void extract_exception_messages(
+	ExceptionMessages& messages)
+{
+	try
 	{
+		std::rethrow_exception(std::current_exception());
+	}
+	catch (const std::exception& ex)
+	{
+		messages.emplace_back(ex.what());
+
 		try
 		{
-			std::rethrow_exception(std::current_exception());
-		}
-		catch (const std::exception& ex)
-		{
-			messages.emplace_back(ex.what());
-
-			try
-			{
-				std::rethrow_if_nested(ex);
-			}
-			catch (...)
-			{
-				extract_message(messages);
-			}
+			std::rethrow_if_nested(ex);
 		}
 		catch (...)
 		{
-			messages.emplace_back("[BSTONE_EXCEPTION] Generic error.");
+			extract_exception_messages(messages);
 		}
-	};
+	}
+	catch (...)
+	{
+		messages.emplace_back("[BSTONE_EXCEPTION] Generic failure.");
+	}
+}
 
-	auto messages = Messages{};
-	messages.reserve(16);
 
-	extract_message(messages);
+} // namespace
+
+
+ExceptionMessages extract_exception_messages()
+{
+	auto messages = ExceptionMessages{};
+	extract_exception_messages(messages);
+
+	return messages;
+}
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+std::string get_nested_message()
+{
+	auto messages = extract_exception_messages();
 
 	auto message_size = std::string::size_type{};
 
