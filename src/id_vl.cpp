@@ -266,10 +266,16 @@ try
 		file_stream.write(dst_buffer.get(), dst_buffer_size);
 	}
 }
-catch (const std::exception& ex)
+catch (...)
 {
 	vid_log_error("Failed to save a screenshot.");
-	vid_log_error(ex.what());
+
+	const auto messages = bstone::extract_exception_messages();
+
+	for (const auto& message : messages)
+	{
+		vid_log_error(message);
+	}
 }
 
 bool SaveScreenshotMtTask::is_completed() const noexcept
@@ -620,7 +626,7 @@ int vid_align_dimension(
 void vid_cfg_fix_window_dimension(
 	int& dimension,
 	int min_value,
-	int default_value)
+	int default_value) noexcept
 {
 	if (dimension <= 0)
 	{
@@ -633,7 +639,7 @@ void vid_cfg_fix_window_dimension(
 	}
 }
 
-void vid_cfg_fix_window_width()
+void vid_cfg_fix_window_width() noexcept
 {
 	vid_cfg_fix_window_dimension(
 		vid_cfg_.width,
@@ -642,7 +648,7 @@ void vid_cfg_fix_window_width()
 	);
 }
 
-void vid_cfg_fix_window_height()
+void vid_cfg_fix_window_height() noexcept
 {
 	vid_cfg_fix_window_dimension(
 		vid_cfg_.height,
@@ -651,13 +657,13 @@ void vid_cfg_fix_window_height()
 	);
 }
 
-void vid_cfg_fix_window_size()
+void vid_cfg_fix_window_size() noexcept
 {
 	vid_cfg_fix_window_width();
 	vid_cfg_fix_window_height();
 }
 
-void vid_cfg_adjust_window_position()
+void vid_cfg_adjust_window_position() noexcept
 {
 	auto window_x = vid_cfg_.x;
 	auto window_y = vid_cfg_.y;
@@ -806,6 +812,7 @@ void vid_calculate_vga_dimensions() noexcept
 }
 
 std::string vid_get_game_name_and_game_version_string()
+try
 {
 	const auto& assets_info = get_assets_info();
 
@@ -876,10 +883,19 @@ std::string vid_get_game_name_and_game_version_string()
 
 	return title;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 std::string vid_get_port_version_string()
+try
 {
 	return "BStone v" + bstone::Version::get_string();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 
@@ -890,6 +906,7 @@ namespace
 void vid_cl_read_bool(
 	const std::string& option_name,
 	bool& value)
+try
 {
 	int int_value;
 
@@ -902,10 +919,15 @@ void vid_cl_read_bool(
 
 	value = (int_value != 0);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cl_read_int(
 	const std::string& option_name,
 	int& value)
+try
 {
 	int int_value;
 
@@ -918,50 +940,95 @@ void vid_cl_read_int(
 
 	value = int_value;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cl_read_is_positioned()
+try
 {
 	vid_cl_read_bool(vid_get_is_positioned_key_name(), vid_cfg_.is_positioned_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cl_read_windowed_x()
+try
 {
 	vid_cl_read_int(vid_get_x_key_name(), vid_cfg_.x);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cl_read_windowed_y()
+try
 {
 	vid_cl_read_int(vid_get_y_key_name(), vid_cfg_.y);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cl_read_width()
+try
 {
 	vid_cl_read_int(vid_get_width_key_name(), vid_cfg_.width);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cl_read_height()
+try
 {
 	vid_cl_read_int(vid_get_height_key_name(), vid_cfg_.height);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cl_read_is_vsync()
+try
 {
 	vid_cl_read_bool(vid_get_is_vsync_key_name(), vid_cfg_.is_vsync_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cl_read_is_ui_stretched()
+try
 {
 	vid_cl_read_bool(vid_get_is_ui_stretched_key_name(), vid_cfg_.is_ui_stretched_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cl_read_is_widescreen()
+try
 {
 	vid_cl_read_bool(vid_get_is_widescreen_key_name(), vid_cfg_.is_widescreen);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void vid_cl_read_renderer_filter_kind(
 	const std::string& value_string,
 	bstone::Ren3dFilterKind& filter_kind)
+try
 {
 	if (false)
 	{
@@ -975,34 +1042,59 @@ void vid_cl_read_renderer_filter_kind(
 		filter_kind = bstone::Ren3dFilterKind::linear;
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cl_read_2d_texture_filter()
+try
 {
 	const auto& value_string = g_args.get_option_value(vid_get_2d_texture_filter_key_name());
 
 	vid_cl_read_renderer_filter_kind(value_string, vid_cfg_.d2_texture_filter_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cl_read_3d_texture_image_filter()
+try
 {
 	const auto& value_string = g_args.get_option_value(vid_get_3d_texture_image_filter_key_name());
 
 	vid_cl_read_renderer_filter_kind(value_string, vid_cfg_.d3_texture_image_filter_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cl_read_3d_texture_mipmap_filter()
+try
 {
 	const auto& value_string = g_args.get_option_value(vid_get_3d_texture_mipmap_filter_key_name());
 
 	vid_cl_read_renderer_filter_kind(value_string, vid_cfg_.d3_texture_mipmap_filter_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cl_read_3d_texture_anisotropy()
+try
 {
 	vid_cl_read_int(vid_get_3d_texture_anisotropy_key_name(), vid_cfg_.d3_texture_anisotropy_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cl_read_aa_kind()
+try
 {
 	const auto& value_string = g_args.get_option_value(vid_get_aa_kind_key_name());
 
@@ -1018,13 +1110,23 @@ void vid_cl_read_aa_kind()
 		vid_cfg_.aa_kind_ = bstone::Ren3dAaKind::ms;
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cl_read_aa_degree()
+try
 {
 	vid_cl_read_int(vid_get_aa_degree_key_name(), vid_cfg_.aa_degree_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cl_read_texture_upscale_filter()
+try
 {
 	const auto& value_string = g_args.get_option_value(vid_get_texture_upscale_filter_key_name());
 
@@ -1040,19 +1142,34 @@ void vid_cl_read_texture_upscale_filter()
 		vid_cfg_.texture_upscale_kind_ = bstone::HwTextureMgrUpscaleFilterKind::xbrz;
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cl_read_texture_upscale_xbrz_degree()
+try
 {
 	vid_cl_read_int(vid_get_texture_upscale_xbrz_degree_key_name(), vid_cfg_.texture_upscale_xbrz_degree_);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cl_read_filler_color_index()
+try
 {
 	vid_cl_read_int(vid_get_filler_color_index_name(), vid_cfg_.filler_color_index);
 	vid_cfg_.filler_color_index = vid_clamp_filler_color_index(vid_cfg_.filler_color_index);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cl_read_external_textures()
+try
 {
 	auto int_value = -1;
 	vid_cl_read_int(vid_get_external_textures_name(), int_value);
@@ -1062,8 +1179,13 @@ void vid_cl_read_external_textures()
 		vid_cfg_.is_external_textures_enabled_ = (int_value != 0);
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cl_read_renderer_kind()
+try
 {
 	auto value = bstone::RendererKind::software;
 
@@ -1100,6 +1222,10 @@ void vid_cl_read_renderer_kind()
 
 	vid_cfg_.renderer_kind_ = value;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 const std::string& vid_get_vid_string()
 {
@@ -1132,13 +1258,17 @@ void vid_log_error(
 }
 
 void vid_get_current_display_mode()
+try
 {
-	vid_log("Getting display mode.");
-
 	bstone::SdlEnsureResult{::SDL_GetCurrentDisplayMode(0, &vid_display_mode_)};
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void vid_cl_read()
+try
 {
 	static auto is_already_read = false;
 
@@ -1169,6 +1299,10 @@ void vid_cl_read()
 	vid_cl_read_texture_upscale_xbrz_degree();
 	vid_cl_read_filler_color_index();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 
 } // namespace
@@ -1185,12 +1319,18 @@ const std::string& vid_to_string(
 
 std::string vid_to_string(
 	int value)
+try
 {
 	return std::to_string(value);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 const std::string& vid_to_string(
 	const bstone::Ren3dFilterKind filter_kind)
+try
 {
 	switch (filter_kind)
 	{
@@ -1204,9 +1344,14 @@ const std::string& vid_to_string(
 			fail("Unsupported renderer filter kind.");
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 const std::string& vid_to_string(
 	const bstone::Ren3dAaKind aa_kind)
+try
 {
 	switch (aa_kind)
 	{
@@ -1220,9 +1365,14 @@ const std::string& vid_to_string(
 			fail("Unsupported anti-aliasing kind.");
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 const std::string& vid_to_string(
 	bstone::RendererKind renderer_kind)
+try
 {
 	static const auto gl_2_0_string = std::string{"OpenGL 2.0"};
 	static const auto gl_3_2_core_string = std::string{"OpenGL 3.2 core"};
@@ -1250,9 +1400,14 @@ const std::string& vid_to_string(
 			fail("Unsupported renderer kind.");
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 const std::string& vid_to_string(
 	bstone::Ren3dKind renderer_kind)
+try
 {
 	static const auto gl_2_0_string = std::string{"OpenGL 2.0"};
 	static const auto gl_3_2_core_string = std::string{"OpenGL 3.2 core"};
@@ -1274,9 +1429,14 @@ const std::string& vid_to_string(
 			fail("Unsupported renderer kind.");
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 const std::string& vid_to_string(
 	bstone::HwTextureMgrUpscaleFilterKind upscale_filter_kind)
+try
 {
 	switch (upscale_filter_kind)
 	{
@@ -1290,13 +1450,21 @@ const std::string& vid_to_string(
 			fail("Unsupported texture upscale filter kind.");
 	}
 }
-
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_initialize_vanilla_raycaster()
+try
 {
 	SetupWalls();
 	NewViewSize();
 	SetPlaneViewSize();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 
@@ -1343,6 +1511,7 @@ void vid_log_common_configuration()
 
 
 void vid_initialize_common()
+try
 {
 	vid_get_current_display_mode();
 	vid_cfg_adjust_window_position();
@@ -1350,12 +1519,21 @@ void vid_initialize_common()
 
 	vid_log_common_configuration();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_initialize_ui_buffer()
+try
 {
 	const auto area = vga_ref_width * vga_ref_height;
 
 	vid_ui_buffer_.resize(area);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 
@@ -1371,6 +1549,7 @@ auto g_video = bstone::VideoUPtr{};
 
 std::string vid_get_window_title_for_renderer(
 	const std::string& renderer_name)
+try
 {
 	const auto game_name_and_game_version_string = vid_get_game_name_and_game_version_string();
 	const auto port_version_string = vid_get_port_version_string();
@@ -1390,6 +1569,10 @@ std::string vid_get_window_title_for_renderer(
 
 	return result;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_schedule_save_screenshot_task(
 	int width,
@@ -1397,6 +1580,7 @@ void vid_schedule_save_screenshot_task(
 	int stride_rgb_888,
 	ScreenshotBuffer&& src_pixels_rgb_888,
 	bool is_flipped_vertically)
+try
 {
 	for (auto& task : vid_save_screenshot_mt_tasks)
 	{
@@ -1419,6 +1603,10 @@ void vid_schedule_save_screenshot_task(
 	}
 
 	vid_log_error("No more screenshot tasks available.");
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void vid_take_screenshot()
@@ -1450,6 +1638,7 @@ namespace
 
 
 void vid_check_vsync()
+try
 {
 	using Clock = std::chrono::steady_clock;
 
@@ -1479,6 +1668,10 @@ void vid_check_vsync()
 
 	vid_has_vsync = (duration_ms >= min_expected_duration_ms);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 
 } // namespace
@@ -1505,6 +1698,7 @@ void VL_WaitVBL(
 
 // BBi Moved from jm_free.cpp
 void VL_Startup()
+try
 {
 	::g_video = nullptr;
 
@@ -1556,6 +1750,10 @@ void VL_Startup()
 
 	vid_get_window_size_list();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 // BBi
 
 void VL_Shutdown()
@@ -1579,24 +1777,39 @@ void VL_FillPalette(
 	std::uint8_t red,
 	std::uint8_t green,
 	std::uint8_t blue)
+try
 {
 	::g_video->fill_palette(red, green, blue);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void VL_SetPalette(
 	int first,
 	int count,
 	const std::uint8_t* palette)
+try
 {
 	::g_video->set_palette(first, count, palette);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void VL_GetPalette(
 	int first,
 	int count,
 	std::uint8_t* palette)
+try
 {
 	::g_video->get_palette(first, count, palette);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 // Fades the current palette to the given color in the given number of steps.
@@ -1607,6 +1820,7 @@ void VL_FadeOut(
 	int green,
 	int blue,
 	int steps)
+try
 {
 	assert(start >= 0);
 	assert(end >= 0);
@@ -1618,12 +1832,17 @@ void VL_FadeOut(
 
 	::g_video->fade_out(start, end, red, green, blue, steps);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void VL_FadeIn(
 	int start,
 	int end,
 	const std::uint8_t* palette,
 	int steps)
+try
 {
 	assert(start >= 0);
 	assert(end >= 0);
@@ -1633,12 +1852,17 @@ void VL_FadeIn(
 
 	::g_video->fade_in(start, end, palette, steps);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void VL_SetPaletteIntensity(
 	int start,
 	int end,
 	const std::uint8_t* palette,
 	int intensity)
+try
 {
 	auto palette1 = ::VgaPalette{};
 
@@ -1680,6 +1904,10 @@ void VL_SetPaletteIntensity(
 		start,
 		end - start + 1,
 		&palette1[0][0]);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 /*
@@ -1919,8 +2147,13 @@ void JM_VGALinearFill(
 }
 
 void VL_RefreshScreen()
+try
 {
 	::g_video->present();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 int vl_get_offset(
@@ -1942,8 +2175,13 @@ std::uint8_t vl_get_pixel(
 }
 
 void vl_update_widescreen()
+try
 {
 	::g_video->apply_widescreen();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void vid_set_ui_mask(
@@ -1983,8 +2221,13 @@ void vid_set_ui_mask_3d(
 }
 
 void vid_clear_3d()
+try
 {
 	::g_video->clear_vga_buffer();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void vid_export_ui(
@@ -2015,6 +2258,7 @@ void vid_import_ui_mask(
 
 const std::string& vid_filter_to_string(
 	bstone::Ren3dFilterKind filter)
+try
 {
 	switch (filter)
 	{
@@ -2028,9 +2272,14 @@ const std::string& vid_filter_to_string(
 			::fail("Invalid filter.");
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cfg_read_renderer_kind(
 	const std::string& value_string)
+try
 {
 	if (false)
 	{
@@ -2057,9 +2306,14 @@ void vid_cfg_read_renderer_kind(
 		vid_cfg_.renderer_kind_ = bstone::RendererKind::gles_2_0;
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cfg_read_width(
 	const std::string& value_string)
+try
 {
 	int value = 0;
 
@@ -2068,9 +2322,14 @@ void vid_cfg_read_width(
 		vid_cfg_.width = value;
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cfg_read_height(
 	const std::string& value_string)
+try
 {
 	int value = 0;
 
@@ -2079,9 +2338,14 @@ void vid_cfg_read_height(
 		vid_cfg_.height = value;
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cfg_read_vsync(
 	const std::string& value_string)
+try
 {
 	int value = 0;
 
@@ -2090,9 +2354,14 @@ void vid_cfg_read_vsync(
 		vid_cfg_.is_vsync_ = (value != 0);
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cfg_read_is_widescreen(
 	const std::string& value_string)
+try
 {
 	int value = 0;
 
@@ -2101,9 +2370,14 @@ void vid_cfg_read_is_widescreen(
 		vid_cfg_.is_widescreen = (value != 0);
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cfg_read_is_ui_stretched(
 	const std::string& value_string)
+try
 {
 	int value = 0;
 
@@ -2112,9 +2386,14 @@ void vid_cfg_read_is_ui_stretched(
 		vid_cfg_.is_ui_stretched_ = (value != 0);
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cfg_read_hw_2d_texture_filter(
 	const std::string& value_string)
+try
 {
 	if (value_string == vid_get_nearest_value_string())
 	{
@@ -2125,9 +2404,14 @@ void vid_cfg_read_hw_2d_texture_filter(
 		vid_cfg_.d2_texture_filter_ = bstone::Ren3dFilterKind::linear;
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cfg_read_hw_3d_texture_image_filter(
 	const std::string& value_string)
+try
 {
 	if (value_string == vid_get_nearest_value_string())
 	{
@@ -2138,9 +2422,14 @@ void vid_cfg_read_hw_3d_texture_image_filter(
 		vid_cfg_.d3_texture_image_filter_ = bstone::Ren3dFilterKind::linear;
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cfg_read_hw_3d_texture_mipmap_filter(
 	const std::string& value_string)
+try
 {
 	if (value_string == vid_get_nearest_value_string())
 	{
@@ -2151,9 +2440,14 @@ void vid_cfg_read_hw_3d_texture_mipmap_filter(
 		vid_cfg_.d3_texture_mipmap_filter_ = bstone::Ren3dFilterKind::linear;
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cfg_read_hw_3d_texture_anisotropy(
 	const std::string& value_string)
+try
 {
 	int value = 0;
 
@@ -2162,9 +2456,14 @@ void vid_cfg_read_hw_3d_texture_anisotropy(
 		vid_cfg_.d3_texture_anisotropy_ = value;
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cfg_read_hw_aa_kind(
 	const std::string& value_string)
+try
 {
 	if (value_string == vid_get_msaa_value_string())
 	{
@@ -2175,9 +2474,14 @@ void vid_cfg_read_hw_aa_kind(
 		vid_cfg_.aa_kind_ = bstone::Ren3dAaKind::none;
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cfg_read_hw_aa_value(
 	const std::string& value_string)
+try
 {
 	int value = 0;
 
@@ -2186,9 +2490,14 @@ void vid_cfg_read_hw_aa_value(
 		vid_cfg_.aa_degree_ = value;
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cfg_read_hw_texture_upscale_filter(
 	const std::string& value_string)
+try
 {
 	if (value_string == vid_get_none_value_string())
 	{
@@ -2199,9 +2508,14 @@ void vid_cfg_read_hw_texture_upscale_filter(
 		vid_cfg_.texture_upscale_kind_ = bstone::HwTextureMgrUpscaleFilterKind::xbrz;
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cfg_read_hw_texture_upscale_xbrz_factor(
 	const std::string& value_string)
+try
 {
 	int value = 0;
 
@@ -2210,9 +2524,14 @@ void vid_cfg_read_hw_texture_upscale_xbrz_factor(
 		vid_cfg_.texture_upscale_xbrz_degree_ = value;
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cfg_read_filler_color_index(
 	const std::string& value_string)
+try
 {
 	int value = 0;
 
@@ -2221,9 +2540,14 @@ void vid_cfg_read_filler_color_index(
 		vid_cfg_.filler_color_index = vid_clamp_filler_color_index(value);
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cfg_read_external_textures(
 	const std::string& value_string)
+try
 {
 	int value = 0;
 
@@ -2232,10 +2556,15 @@ void vid_cfg_read_external_textures(
 		vid_cfg_.is_external_textures_enabled_ = (value != 0);
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 bool vid_cfg_parse_key_value(
 	const std::string& key_string,
 	const std::string& value_string)
+try
 {
 	if (false)
 	{
@@ -2311,9 +2640,14 @@ bool vid_cfg_parse_key_value(
 
 	return true;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_write_hw_aa_kind_cfg(
 	bstone::TextWriter& text_writer)
+try
 {
 	switch (vid_cfg_.aa_kind_)
 	{
@@ -2336,9 +2670,14 @@ void vid_write_hw_aa_kind_cfg(
 			break;
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_write_renderer_kind_cfg(
 	bstone::TextWriter& text_writer)
+try
 {
 	auto value_string = std::string{};
 
@@ -2372,9 +2711,14 @@ void vid_write_renderer_kind_cfg(
 		value_string
 	);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_write_hw_texture_upscale_filter_kind_cfg(
 	bstone::TextWriter& text_writer)
+try
 {
 	switch (vid_cfg_.texture_upscale_kind_)
 	{
@@ -2397,9 +2741,14 @@ void vid_write_hw_texture_upscale_filter_kind_cfg(
 			break;
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cfg_write(
 	bstone::TextWriter& text_writer)
+try
 {
 	text_writer.write("\n// Video\n");
 
@@ -2505,6 +2854,10 @@ void vid_cfg_write(
 		std::to_string(vid_cfg_.is_external_textures_enabled_)
 	);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_cfg_set_defaults()
 {
@@ -2561,6 +2914,7 @@ const VidRendererKinds& vid_get_available_renderer_kinds()
 }
 
 const VidWindowSizes& vid_get_window_size_list()
+try
 {
 	static auto result = VidWindowSizes{};
 
@@ -2651,12 +3005,17 @@ const VidWindowSizes& vid_get_window_size_list()
 
 	return result;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_draw_ui_sprite(
 	int sprite_id,
 	int center_x,
 	int center_y,
 	int new_side)
+try
 {
 	constexpr auto dimension = bstone::Sprite::dimension;
 
@@ -2715,29 +3074,53 @@ void vid_draw_ui_sprite(
 		}
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_hw_on_load_level()
+try
 {
 	::g_video->on_load_level();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void vid_hw_on_update_wall_switch(
 	int x,
 	int y)
+try
 {
 	::g_video->on_update_wall_switch(x, y);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_hw_on_move_pushwall()
+try
 {
 	::g_video->on_move_pushwall();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void vid_hw_on_step_pushwall(
 	int old_x,
 	int old_y)
+try
 {
 	::g_video->on_step_pushwall(old_x, old_y);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void vid_hw_on_pushwall_to_wall(
@@ -2745,138 +3128,254 @@ void vid_hw_on_pushwall_to_wall(
 	int old_y,
 	int new_x,
 	int new_y)
+try
 {
 	::g_video->on_pushwall_to_wall(old_x, old_y, new_x, new_y);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void vid_hw_on_move_door(
 	int door_index)
+try
 {
 	::g_video->on_move_door(door_index);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void vid_hw_on_update_door_lock(
 	int bs_door_index)
+try
 {
 	::g_video->on_update_door_lock(bs_door_index);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void vid_hw_on_remove_static(
 	const statobj_t& bs_static)
+try
 {
 	::g_video->on_remove_static(bs_static);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void vid_hw_on_remove_actor(
 	const objtype& bs_actor)
+try
 {
 	::g_video->on_remove_actor(bs_actor);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void vid_hw_enable_fizzle_fx(
 	bool is_enabled)
+try
 {
 	::g_video->enable_fizzle_fx(is_enabled);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void vid_hw_enable_fizzle_fx_fading(
 	bool is_fading)
+try
 {
 	::g_video->enable_fizzle_fx_fading(is_fading);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void vid_hw_set_fizzle_fx_color_index(
 	int color_index)
+try
 {
 	::g_video->set_fizzle_fx_color_index(color_index);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void vid_hw_set_fizzle_fx_ratio(
 	float ratio)
+try
 {
 	::g_video->set_fizzle_fx_ratio(ratio);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_hw_clear_wall_render_list()
+try
 {
 	::g_video->clear_wall_render_list();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void vid_hw_add_wall_render_item(
 	int tile_x,
 	int tile_y)
+try
 {
 	::g_video->add_wall_render_item(tile_x, tile_y);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_hw_clear_pushwall_render_list()
+try
 {
 	::g_video->clear_pushwall_render_list();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void vid_hw_add_pushwall_render_item(
 	int tile_x,
 	int tile_y)
+try
 {
 	::g_video->add_pushwall_render_item(tile_x, tile_y);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_hw_clear_door_render_list()
+try
 {
 	::g_video->clear_door_render_list();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void vid_hw_add_door_render_item(
 	int tile_x,
 	int tile_y)
+try
 {
 	::g_video->add_door_render_item(tile_x, tile_y);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_hw_clear_static_render_list()
+try
 {
 	::g_video->clear_static_render_list();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void vid_hw_add_static_render_item(
 	int bs_static_index)
+try
 {
 	::g_video->add_static_render_item(bs_static_index);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_hw_clear_actor_render_list()
+try
 {
 	::g_video->clear_actor_render_list();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void vid_hw_add_actor_render_item(
 	int bs_actor_index)
+try
 {
 	::g_video->add_actor_render_item(bs_actor_index);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 const bstone::Rgba8Palette& vid_hw_get_default_palette()
+try
 {
 	return ::g_video->get_default_palette();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_apply_window_mode()
+try
 {
 	::g_video->apply_window_mode();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_apply_vsync()
+try
 {
 	::g_video->apply_vsync();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_apply_msaa()
+try
 {
 	::g_video->apply_msaa();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void vid_apply_video_mode(
 	const VideoModeCfg& video_mode_cfg)
+try
 {
 	auto is_restart = false;
 
@@ -2948,46 +3447,90 @@ void vid_apply_video_mode(
 		vid_apply_msaa();
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_apply_anisotropy()
+try
 {
 	::g_video->update_samplers();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void vid_apply_2d_image_filter()
+try
 {
 	::g_video->update_samplers();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void vid_apply_3d_image_filter()
+try
 {
 	::g_video->update_samplers();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void vid_apply_mipmap_filter()
+try
 {
 	::g_video->update_samplers();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_apply_upscale()
+try
 {
 	::g_video->apply_texture_upscale();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 int vid_clamp_filler_color_index(
 	int filler_color_index) noexcept
+try
 {
 	return bstone::math::clamp(filler_color_index, 0, 255);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_apply_filler_color()
+try
 {
 	::g_video->apply_filler_color_index();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void vid_apply_external_textures()
+try
 {
 	::g_video->apply_external_textures();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void vid_schedule_take_screenshot()
