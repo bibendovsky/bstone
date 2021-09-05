@@ -31,6 +31,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_EXCEPTION_INCLUDED
 
 
+#include <deque>
 #include <exception>
 #include <memory>
 #include <string>
@@ -39,6 +40,8 @@ Free Software Foundation, Inc.,
 namespace bstone
 {
 
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 class Exception :
 	public std::exception
@@ -62,8 +65,18 @@ private:
 	What what_{};
 }; // Exception
 
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+using ExceptionMessages = std::deque<std::string>;
+
+ExceptionMessages extract_exception_messages();
 
 std::string get_nested_message();
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 } // bstone
