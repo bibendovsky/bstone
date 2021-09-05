@@ -63,7 +63,7 @@ public:
 }; // SwVideoException
 
 
-class SwVideo :
+class SwVideo final :
 	public Video
 {
 public:
@@ -218,6 +218,15 @@ private:
 	static constexpr auto log_prefix = "[VIDSW] ";
 
 
+	[[noreturn]]
+	static void fail(
+		const char* message);
+
+	[[noreturn]]
+	static void fail_nested(
+		const char* message);
+
+
 	static void log(
 		bstone::LoggerMessageKind message_type,
 		const std::string& message);
@@ -226,9 +235,6 @@ private:
 		const std::string& message);
 
 	static void log_warning(
-		const std::string& message);
-
-	static void log_error(
 		const std::string& message);
 
 
@@ -272,7 +278,7 @@ private:
 
 	void calculate_dimensions();
 
-	void uninitialize_vga_buffer();
+	void uninitialize_vga_buffer() noexcept;
 
 	void update_palette_from_vga(
 		int offset,
@@ -316,8 +322,13 @@ private:
 // ==========================================================================
 
 SwVideo::SwVideo()
+try
 {
 	initialize_video();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 SwVideo::~SwVideo()
@@ -331,6 +342,7 @@ bool SwVideo::is_hardware() const noexcept
 }
 
 std::string SwVideo::get_renderer_name()
+try
 {
 	auto sdl_renderer_info = ::SDL_RendererInfo{};
 
@@ -346,6 +358,10 @@ std::string SwVideo::get_renderer_name()
 
 	return result;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void SwVideo::clear_vga_buffer()
 {
@@ -357,13 +373,19 @@ void SwVideo::clear_vga_buffer()
 }
 
 void SwVideo::apply_widescreen()
+try
 {
 	screen_texture_ = nullptr;
+
 	uninitialize_vga_buffer();
 	calculate_dimensions();
 	initialize_vga_buffer();
 	create_screen_texture();
 	update_viewport();
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void SwVideo::take_screenshot(
@@ -371,6 +393,7 @@ void SwVideo::take_screenshot(
 	int height,
 	int stride_rgb_888,
 	::ScreenshotBuffer&& src_pixels_rgb_888)
+try
 {
 	bstone::ensure_sdl_result(::SDL_RenderReadPixels(
 		renderer_.get(),
@@ -388,8 +411,13 @@ void SwVideo::take_screenshot(
 		false
 	);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void SwVideo::present()
+try
 {
 	// HUD+3D stuff
 	//
@@ -541,11 +569,16 @@ void SwVideo::present()
 	//
 	::SDL_RenderPresent(renderer_.get());
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void SwVideo::get_palette(
 	int offset,
 	int count,
 	std::uint8_t* vga_palette) const
+try
 {
 	assert(offset >= 0);
 	assert(count >= 0);
@@ -559,6 +592,10 @@ void SwVideo::get_palette(
 		count,
 		dst_vga_palette.begin()
 	);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void SwVideo::fill_palette(
@@ -580,6 +617,7 @@ void SwVideo::set_palette(
 	int offset,
 	int count,
 	const std::uint8_t* vga_palette)
+try
 {
 	assert(offset >= 0);
 	assert(count >= 0);
@@ -596,8 +634,13 @@ void SwVideo::set_palette(
 
 	update_palette_from_vga(offset, count);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void SwVideo::apply_window_mode()
+try
 {
 	calculate_dimensions();
 	vid_initialize_vanilla_raycaster();
@@ -613,13 +656,22 @@ void SwVideo::apply_window_mode()
 	initialize_textures();
 	initialize_vga_buffer();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void SwVideo::apply_filler_color_index()
+try
 {
 	filler_color_.r = static_cast<::Uint8>((255 * vgapal[(vid_cfg_get().filler_color_index * 3) + 0]) / 63);
 	filler_color_.g = static_cast<::Uint8>((255 * vgapal[(vid_cfg_get().filler_color_index * 3) + 1]) / 63);
 	filler_color_.b = static_cast<::Uint8>((255 * vgapal[(vid_cfg_get().filler_color_index * 3) + 2]) / 63);
 	filler_color_.a = 0xFF;
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void SwVideo::fade_out(
@@ -629,6 +681,7 @@ void SwVideo::fade_out(
 	int green,
 	int blue,
 	int steps)
+try
 {
 	if (!g_no_fade_in_or_out)
 	{
@@ -687,12 +740,17 @@ void SwVideo::fade_out(
 
 	screenfaded = true;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void SwVideo::fade_in(
 	int start,
 	int end,
 	const std::uint8_t* palette,
 	int steps)
+try
 {
 	if (!g_no_fade_in_or_out)
 	{
@@ -744,6 +802,10 @@ void SwVideo::fade_in(
 	}
 
 	screenfaded = false;
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 // HW
@@ -922,6 +984,20 @@ const bstone::Ren3dDeviceFeatures& SwVideo::get_device_features() const noexcept
 //
 // HW
 
+[[noreturn]]
+void SwVideo::fail(
+	const char* message)
+{
+	throw SwVideoException{message};
+}
+
+[[noreturn]]
+void SwVideo::fail_nested(
+	const char* message)
+{
+	std::throw_with_nested(SwVideoException{message});
+}
+
 void SwVideo::log(
 	bstone::LoggerMessageKind message_type,
 	const std::string& message)
@@ -941,17 +1017,9 @@ void SwVideo::log_warning(
 	log(bstone::LoggerMessageKind::warning, message);
 }
 
-void SwVideo::log_error(
-	const std::string& message)
-{
-	log(bstone::LoggerMessageKind::error, message);
-}
-
 void SwVideo::initialize_video()
+try
 {
-	log("");
-	log("Initializing software accelerated video system.");
-
 	vid_initialize_common();
 	calculate_dimensions();
 
@@ -970,24 +1038,39 @@ void SwVideo::initialize_video()
 	::SDL_ShowWindow(window_.get());
 	in_grab_mouse(true);
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void SwVideo::set_draw_color(
 	std::uint8_t r,
 	std::uint8_t g,
 	std::uint8_t b)
+try
 {
 	bstone::ensure_sdl_result(::SDL_SetRenderDrawColor(renderer_.get(), r, g, b, 0xFF));
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void SwVideo::clear_rendering_target()
+try
 {
 	bstone::ensure_sdl_result(::SDL_RenderClear(renderer_.get()));
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void SwVideo::copy_texture_to_rendering_target(
 	::SDL_Texture* sdl_texture,
 	const ::SDL_Rect* src_rect,
 	const ::SDL_Rect* dst_rect)
+try
 {
 	bstone::ensure_sdl_result(::SDL_RenderCopy(
 		renderer_.get(),
@@ -996,37 +1079,55 @@ void SwVideo::copy_texture_to_rendering_target(
 		dst_rect
 	));
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void SwVideo::enable_texture_blending(
 	::SDL_Texture* sdl_texture,
 	bool is_enable)
+try
 {
 	const auto sdl_mode = (is_enable ? ::SDL_BLENDMODE_BLEND : ::SDL_BLENDMODE_NONE);
 
 	bstone::ensure_sdl_result(::SDL_SetTextureBlendMode(sdl_texture, sdl_mode));
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void SwVideo::fill_rects(
 	::SDL_Rect* rects,
 	int rect_count)
+try
 {
 	bstone::ensure_sdl_result(::SDL_RenderFillRects(renderer_.get(), rects, rect_count));
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void SwVideo::initialize_vga_buffer()
+try
 {
 	const auto area = 2 * ::vga_width * ::vga_height;
 
+	sw_vga_buffer_.swap(::VgaBuffer{});
 	sw_vga_buffer_.resize(area);
 
 	vga_memory = sw_vga_buffer_.data();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void SwVideo::create_window()
+try
 {
-	log("Creating window.");
-
-
 	const auto& vid_cfg = vid_cfg_get();
 
 	const auto is_native_mode = vid_is_native_mode();
@@ -1060,12 +1161,14 @@ void SwVideo::create_window()
 
 	bstone::sdl::fill_window_black(window_.get());
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void SwVideo::initialize_renderer()
+try
 {
-	log("");
-	log("Initializing renderer.");
-
 	{
 		log("Available renderer drivers:");
 
@@ -1086,21 +1189,13 @@ void SwVideo::initialize_renderer()
 	const char* renderer_driver = nullptr;
 
 	{
-		if (!vid_cfg_get().is_vsync_)
-		{
-			log("Skipping VSync.");
-		}
-		else
+		if (vid_cfg_get().is_vsync_)
 		{
 			renderer_flags = ::SDL_RENDERER_PRESENTVSYNC;
-
-			log("Using VSync.");
 		}
 	}
 
 	{
-		log("Creating renderer.");
-
 		renderer_ = bstone::SdlRendererUPtr{bstone::ensure_sdl_result(::SDL_CreateRenderer(
 			window_.get(),
 			-1,
@@ -1112,8 +1207,6 @@ void SwVideo::initialize_renderer()
 	auto renderer_info = ::SDL_RendererInfo{};
 
 	{
-		log("Quering renderer for information.");
-
 		bstone::ensure_sdl_result(::SDL_GetRendererInfo(
 			renderer_.get(),
 			&renderer_info));
@@ -1138,8 +1231,6 @@ void SwVideo::initialize_renderer()
 	auto pixel_format = ::Uint32{::SDL_PIXELFORMAT_UNKNOWN};
 
 	{
-		log("Looking up for a texture pixel format.");
-
 		const auto format_count = renderer_info.num_texture_formats;
 
 		for (auto i = decltype(format_count){}; i < format_count; ++i)
@@ -1167,16 +1258,17 @@ void SwVideo::initialize_renderer()
 		const auto pixel_format_name = ::SDL_GetPixelFormatName(::SDL_PIXELFORMAT_ARGB8888);
 		log(std::string{"Pixel format: \""} + pixel_format_name + '\"');
 
-		log("Allocating a texture pixel format.");
-
 		texture_pixel_format_ = bstone::SdlPixelFormatUPtr{bstone::ensure_sdl_result(::SDL_AllocFormat(pixel_format))};
 	}
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void SwVideo::create_screen_texture()
+try
 {
-	log("Creating screen texture.");
-
 	screen_texture_ = bstone::SdlTextureUPtr{bstone::ensure_sdl_result(::SDL_CreateTexture(
 		renderer_.get(),
 		texture_pixel_format_->format,
@@ -1185,11 +1277,14 @@ void SwVideo::create_screen_texture()
 		vga_height
 	))};
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void SwVideo::create_ui_texture()
+try
 {
-	log("Creating UI texture.");
-
 	ui_texture_ = bstone::SdlTextureUPtr{bstone::ensure_sdl_result(::SDL_CreateTexture(
 		renderer_.get(),
 		texture_pixel_format_->format,
@@ -1198,23 +1293,34 @@ void SwVideo::create_ui_texture()
 		vga_ref_height
 	))};
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void SwVideo::initialize_textures()
+try
 {
-	log("");
-	log("Initializing textures.");
-
 	create_screen_texture();
 	create_ui_texture();
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 void SwVideo::update_viewport()
+try
 {
 	auto sdl_viewport = ::SDL_Rect{};
 	sdl_viewport.w = vid_layout_.window_width;
 	sdl_viewport.h = vid_layout_.window_height;
 
 	bstone::ensure_sdl_result(::SDL_RenderSetViewport(renderer_.get(), &sdl_viewport));
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void SwVideo::initialize_palette()
@@ -1395,9 +1501,9 @@ void SwVideo::calculate_dimensions()
 	};
 }
 
-void SwVideo::uninitialize_vga_buffer()
+void SwVideo::uninitialize_vga_buffer() noexcept
 {
-	sw_vga_buffer_ = ::VgaBuffer{};
+	sw_vga_buffer_.clear();
 
 	vga_memory = nullptr;
 }
