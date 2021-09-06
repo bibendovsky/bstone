@@ -180,11 +180,11 @@ void OalSource::open(
 		fail("Looping caching sound not supported.");
 	}
 
-	const auto al_queued_buffer_count = get_al_queued_buffer_count();
+	const auto al_processed_buffer_count = get_al_processed_buffer_count();
 
-	if (al_queued_buffer_count != 0)
+	if (al_processed_buffer_count != 0)
 	{
-		unqueue_al_buffers(al_queued_buffer_count, streaming_al_queue_.data());
+		unqueue_al_buffers(al_processed_buffer_count, streaming_al_queue_.data());
 	}
 
 	is_2d_ = param.is_2d;
@@ -468,18 +468,18 @@ void OalSource::al_stop()
 	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
-int OalSource::get_al_queued_buffer_count() const
+int OalSource::get_al_processed_buffer_count() const
 {
-	auto al_queued_buffer_count = ALint{};
+	auto al_buffer_count = ALint{};
 
 	assert(oal_al_symbols_->alGetError);
 	assert(oal_al_symbols_->alGetSourcei);
 
 	static_cast<void>(oal_al_symbols_->alGetError());
-	oal_al_symbols_->alGetSourcei(al_source_resource_.get(), AL_BUFFERS_QUEUED, &al_queued_buffer_count);
+	oal_al_symbols_->alGetSourcei(al_source_resource_.get(), AL_BUFFERS_PROCESSED, &al_buffer_count);
 	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 
-	return al_queued_buffer_count;
+	return al_buffer_count;
 }
 
 void OalSource::enqueue_al_buffer(
