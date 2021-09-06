@@ -31,6 +31,8 @@ Free Software Foundation, Inc.,
 
 #include <cassert>
 
+#include <utility>
+
 #include "3d_def.h"
 #include "id_in.h"
 #include "id_vh.h"
@@ -1115,7 +1117,7 @@ try
 {
 	const auto area = 2 * ::vga_width * ::vga_height;
 
-	sw_vga_buffer_.swap(::VgaBuffer{});
+	sw_vga_buffer_ = std::move(::VgaBuffer{});
 	sw_vga_buffer_.resize(area);
 
 	vga_memory = sw_vga_buffer_.data();
