@@ -227,7 +227,7 @@ private:
 
 	void al_stop();
 
-	int get_al_queued_buffer_count() const;
+	int get_al_processed_buffer_count() const;
 
 	void enqueue_al_buffer(
 		ALuint al_buffer);
