@@ -72,8 +72,6 @@ auto sd_is_sfx_digitized = true;
 static int sd_music_index_ = -1;
 static bstone::AudioMixerUPtr sd_mixer_;
 
-static bool sd_lpf_ = false;
-
 int sd_sfx_volume_ = sd_default_sfx_volume;
 int sd_music_volume_ = sd_default_music_volume;
 
@@ -211,7 +209,6 @@ try
 	param.opl3_type_ = sd_opl3_type_;
 	param.dst_rate_ = sample_rate;
 	param.mix_size_ms_ = mix_size_ms;
-	param.resampling_lpf_ = sd_lpf_;
 
 	if (sd_mixer->initialize(param))
 	{
@@ -294,9 +291,6 @@ void sd_startup()
 			sd_log("Effects volume: " + std::to_string(sd_sfx_volume_) + " / " + std::to_string(sd_max_volume));
 			sd_log("Music volume: " + std::to_string(sd_music_volume_) + " / " + std::to_string(sd_max_volume));
 			sd_log("OPL3 type: " + sd_get_opl3_long_name(sd_mixer_->get_opl3_type()));
-
-			sd_log("Resampling low-pass filter: " +
-				sd_get_resampling_lpf_long_name(sd_mixer_->get_resampling_lpf()));
 
 			audio_content_mgr = bstone::make_audio_content_mgr(bstone::globals::page_mgr.get());
 			audio_content_mgr->set_sfx_type(sd_sfx_type);
@@ -659,17 +653,6 @@ void sd_pause_music(
 	}
 }
 
-bool sd_cfg_get_resampling_low_pass_filter() noexcept
-{
-	return sd_lpf_;
-}
-
-void sd_cfg_set_resampling_low_pass_filter(
-	const bool is_enabled)
-{
-	sd_lpf_ = is_enabled;
-}
-
 void apply_digitized_sfx()
 {
 	if (!audio_content_mgr)
@@ -678,27 +661,6 @@ void apply_digitized_sfx()
 	}
 
 	audio_content_mgr->set_is_sfx_digitized(sd_is_sfx_digitized);
-}
-
-void sd_apply_resampling()
-{
-	if (!sd_has_audio_ || !sd_mixer_)
-	{
-		return;
-	}
-
-	sd_log();
-	sd_log("Applying resample parameters.");
-
-	if (!sd_mixer_->set_resampling_low_pass_filter(sd_lpf_))
-	{
-		sd_log_error("Failed to apply resample parameters.");
-
-		return;
-	}
-
-	sd_log("Resampling low-pass filter: " +
-		sd_get_resampling_lpf_long_name(sd_mixer_->get_resampling_lpf()));
 }
 
 AudioSfxType sd_cfg_get_sfx_type() noexcept
@@ -759,8 +721,6 @@ void sd_set_opl3_type(
 
 void sd_cfg_set_defaults()
 {
-	sd_lpf_ = true;
-
 	sd_sfx_type = AudioSfxType::adlib;
 	sd_is_sfx_digitized = true;
 
@@ -800,18 +760,6 @@ const std::string& sd_cfg_get_oal_library_name()
 const std::string& sd_cfg_get_oal_device_name_name()
 {
 	static const auto result = std::string{"snd_oal_device_name"};
-	return result;
-}
-
-const std::string& sd_cfg_get_resampling_interpolation_name()
-{
-	static const auto result = std::string{"snd_resampling_interpolation"};
-	return result;
-}
-
-const std::string& sd_cfg_get_resampling_lpf_name()
-{
-	static const auto result = std::string{"snd_resampling_lpf"};
 	return result;
 }
 
@@ -863,17 +811,6 @@ bool sd_cfg_parse_key_value(
 {
 	if (false)
 	{
-	}
-	else if (key_string == sd_cfg_get_resampling_lpf_name())
-	{
-		int value = 0;
-
-		if (bstone::StringHelper::string_to_int(value_string, value))
-		{
-			sd_cfg_set_resampling_low_pass_filter(value != 0);
-		}
-
-		return true;
 	}
 	else if (key_string == sd_cfg_get_driver_name())
 	{
@@ -951,24 +888,6 @@ bool sd_cfg_parse_key_value(
 
 void sd_cfg_parse_cl()
 {
-	{
-		const auto& value_string = g_args.get_option_value(sd_cfg_get_resampling_interpolation_name());
-
-		if (!value_string.empty())
-		{
-			sd_cfg_parse_key_value(sd_cfg_get_resampling_interpolation_name(), value_string);
-		}
-	}
-
-	{
-		const auto& value_string = g_args.get_option_value(sd_cfg_get_resampling_lpf_name());
-
-		if (!value_string.empty())
-		{
-			sd_cfg_parse_key_value(sd_cfg_get_resampling_lpf_name(), value_string);
-		}
-	}
-
 	if (g_args.has_option(sd_cfg_get_driver_name()))
 	{
 		const auto value_string = g_args.get_option_value(sd_cfg_get_driver_name());
@@ -1031,14 +950,6 @@ void sd_cfg_parse_cl()
 void sd_cfg_write(
 	bstone::TextWriter& text_writer)
 {
-	// LPF
-	//
-	cfg_file_write_entry(
-		text_writer,
-		sd_cfg_get_resampling_lpf_name(),
-		std::to_string(sd_lpf_)
-	);
-
 	{
 		auto value_string = std::string{};
 

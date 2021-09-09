@@ -451,7 +451,7 @@ extern bool refresh_screen;
 
 CP_iteminfo MainItems = {MENU_X, MENU_Y, 12, MM_NEW_MISSION, 0, 9, {77, 1, 154, 9, 1}};
 CP_iteminfo GopItems = {MENU_X, MENU_Y + 25, 6, 0, 0, 9, {77, 1, 154, 9, 1}};
-CP_iteminfo SndItems = {SM_X, SM_Y, 7, 0, 0, 8, {87, -1, 144, 7, 1}};
+CP_iteminfo SndItems = {SM_X, SM_Y, 6, 0, 0, 8, {87, -1, 144, 7, 1}};
 CP_iteminfo LSItems = {LSM_X, LSM_Y, 10, 0, 0, 8, {86, -1, 144, 8, 1}};
 CP_iteminfo CtlItems = {CTL_X, CTL_Y, 3, -1, 0, 9, {87, 1, 174, 9, 1}};
 CP_iteminfo CusItems = {CST_X, CST_Y + 7, 6, -1, 0, 15, {54, -1, 203, 7, 1}};
@@ -507,7 +507,6 @@ CP_itemtype SndMenu[] =
 	{AT_ENABLED, "SFX TYPE", 0},
 	{AT_ENABLED, "DIGITIZED SFX", 0},
 	{AT_ENABLED, "BACKGROUND MUSIC", 0},
-	{AT_ENABLED, "RESAMPLING LOW-PASS FILTER", nullptr},
 	{AT_ENABLED, "DRIVER", 0},
 	{AT_ENABLED, "OPL3 TYPE", 0},
 };
@@ -2876,8 +2875,8 @@ void CP_Sound(
 	initialize_sound_driver_index();
 	initialize_sound_opl3_type_index();
 	SndMenu[1].carousel_func_ = digitized_sfx_carousel;
-	SndMenu[5].carousel_func_ = sound_driver_carousel;
-	SndMenu[6].carousel_func_ = sound_opl3_type_carousel;
+	SndMenu[4].carousel_func_ = sound_driver_carousel;
+	SndMenu[5].carousel_func_ = sound_opl3_type_carousel;
 
 	std::int16_t which;
 
@@ -2929,13 +2928,6 @@ void CP_Sound(
 			DrawSoundMenu();
 			ShootSnd();
 
-			break;
-
-		case 4:
-			sd_cfg_set_resampling_low_pass_filter(!sd_cfg_get_resampling_low_pass_filter());
-			sd_apply_resampling();
-			DrawSoundMenu();
-			ShootSnd();
 			break;
 
 		default:
@@ -3031,13 +3023,6 @@ void DrawAllSoundLights(
 				break;
 
 			case 4:
-				if (sd_cfg_get_resampling_low_pass_filter())
-				{
-					++Shape;
-				}
-				break;
-
-			case 5:
 				draw_carousel(
 					i,
 					&SndItems,
@@ -3046,7 +3031,7 @@ void DrawAllSoundLights(
 				);
 				continue;
 
-			case 6:
+			case 5:
 				draw_carousel(
 					i,
 					&SndItems,

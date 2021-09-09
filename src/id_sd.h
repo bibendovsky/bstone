@@ -176,12 +176,6 @@ void sd_pause_music(
 	const bool is_pause);
 
 
-bool sd_cfg_get_resampling_low_pass_filter() noexcept;
-
-void sd_cfg_set_resampling_low_pass_filter(
-	const bool is_enabled);
-
-
 AudioSfxType sd_cfg_get_sfx_type() noexcept;
 
 void sd_cfg_set_sfx_type(
@@ -196,9 +190,6 @@ void sd_cfg_set_is_sfx_digitized(
 	bool is_sfx_digitized);
 
 void apply_digitized_sfx();
-
-
-void sd_apply_resampling();
 
 
 bstone::Opl3Type sd_get_opl3_type() noexcept;

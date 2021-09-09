@@ -81,8 +81,6 @@ public:
 
 	float get_music_volume() const override;
 
-	bool get_resampling_lpf() const noexcept override;
-
 	bool play_adlib_music(
 		int music_index,
 		const void* data,
@@ -117,9 +115,6 @@ public:
 		int actor_index = -1,
 		ActorType actor_type = ActorType::none,
 		ActorChannel actor_channel = ActorChannel::voice) override;
-
-	bool set_resampling_low_pass_filter(
-		bool low_pass_filter) override;
 
 	bool update_positions() override;
 
@@ -340,7 +335,6 @@ private:
 	int dst_rate_;
 	int mix_sample_count_;
 	int mix_size_ms_;
-	bool is_lpf_;
 	bool is_mute_{};
 
 	bool has_alc_enumeration_ext_{};

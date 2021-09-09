@@ -190,26 +190,6 @@ bool SdlAudioMixer::initialize(
 
 	mix_samples_count_ = calculate_mix_samples_count(dst_rate_, mix_size_ms_);
 
-	constexpr auto lpf_order =
-#ifdef NDEBUG
-		80
-#else
-		40
-#endif // NDEBUG
-	;
-
-	digitized_left_lpf_.initialize(
-		lpf_order,
-		audio_decoder_pcm_fixed_frequency / 2,
-		dst_rate_
-	);
-
-	digitized_right_lpf_.initialize(
-		lpf_order,
-		audio_decoder_pcm_fixed_frequency / 2,
-		dst_rate_
-	);
-
 	auto src_spec = SDL_AudioSpec{};
 	src_spec.freq = dst_rate_;
 	src_spec.format = AUDIO_F32SYS;
@@ -263,8 +243,6 @@ bool SdlAudioMixer::initialize(
 		positions_.initialize();
 		modified_actors_indices_.reserve(MAXACTORS);
 		modified_doors_indices_.reserve(MAXDOORS);
-
-		is_lpf_ = param.resampling_lpf_;
 
 		SDL_PauseAudioDevice(sdl_audio_device_.get(), 0);
 	}
@@ -341,11 +319,6 @@ float SdlAudioMixer::get_music_volume() const
 	return music_volume_.load(std::memory_order_acquire);
 }
 
-bool SdlAudioMixer::get_resampling_lpf() const noexcept
-{
-	return is_lpf_;
-}
-
 bool SdlAudioMixer::play_adlib_music(
 	const int music_index,
 	const void* const data,
@@ -388,25 +361,6 @@ bool SdlAudioMixer::play_pcm_sound(
 	const ActorChannel actor_channel)
 {
 	return play_sound(SoundType::pcm, priority, sound_index, data, data_size, actor_index, actor_type, actor_channel);
-}
-
-bool SdlAudioMixer::set_resampling_low_pass_filter(
-	const bool low_pass_filter)
-{
-	if (!is_initialized())
-	{
-		return false;
-	}
-
-	if (low_pass_filter == is_lpf_)
-	{
-		return true;
-	}
-
-
-	is_lpf_ = low_pass_filter;
-
-	return true;
 }
 
 bool SdlAudioMixer::update_positions()
@@ -795,7 +749,6 @@ void SdlAudioMixer::mix_samples()
 
 	const auto is_sfx_paused = mt_is_sfx_paused_;
 	const auto is_music_paused = mt_is_music_paused_;
-	const auto is_lpf = is_lpf_;
 
 	while (sound_it != sound_end_it)
 	{
@@ -869,7 +822,7 @@ void SdlAudioMixer::mix_samples()
 			decode_count = std::min(remain_count, mix_samples_count_);
 		}
 
-		auto& mix_buffer = ((!is_digitized || (is_digitized && !is_lpf)) ? mix_buffer_ : digitized_mix_samples_);
+		auto& mix_buffer = (is_digitized ? digitized_mix_samples_ : mix_buffer_);
 
 		const auto base_offset = (is_adlib_music ? 0 : sound_it->decode_offset);
 
@@ -924,24 +877,6 @@ void SdlAudioMixer::mix_samples()
 		}
 
 		++sound_it;
-	}
-
-	if (is_lpf)
-	{
-		for (auto i = 0; i < mix_samples_count_; ++i)
-		{
-			const auto left_index = (2 * i) + 0;
-			const auto right_index = left_index + 1;
-
-			const auto left_sample = digitized_mix_samples_[left_index];
-			const auto right_sample = digitized_mix_samples_[right_index];
-
-			const auto lpf_left_sample = digitized_left_lpf_.process_sample(left_sample);
-			const auto lpf_right_sample = digitized_right_lpf_.process_sample(right_sample);
-
-			mix_buffer_[left_index] += static_cast<Sample>(lpf_left_sample);
-			mix_buffer_[right_index] += static_cast<Sample>(lpf_right_sample);
-		}
 	}
 
 	const auto max_mix_sample_it = std::max_element(

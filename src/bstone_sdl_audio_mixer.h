@@ -41,7 +41,6 @@ Free Software Foundation, Inc.,
 
 #include "bstone_atomic_flag.h"
 #include "bstone_audio_decoder.h"
-#include "bstone_low_pass_filter.h"
 #include "bstone_sdl_types.h"
 
 
@@ -75,8 +74,6 @@ public:
 	float get_sfx_volume() const override;
 
 	float get_music_volume() const override;
-
-	bool get_resampling_lpf() const noexcept override;
 
 	bool play_adlib_music(
 		const int music_index,
@@ -112,9 +109,6 @@ public:
 		const int actor_index = -1,
 		const ActorType actor_type = ActorType::none,
 		const ActorChannel actor_channel = ActorChannel::voice) override;
-
-	bool set_resampling_low_pass_filter(
-		const bool low_pass_filter_) override;
 
 	bool update_positions() override;
 
@@ -294,9 +288,6 @@ private:
 	std::atomic<float> sfx_volume_{};
 	std::atomic<float> music_volume_{};
 	int mix_size_ms_{};
-	AtomicFlag is_lpf_{};
-	LowPassFilter digitized_left_lpf_{};
-	LowPassFilter digitized_right_lpf_{};
 
 
 	[[noreturn]]

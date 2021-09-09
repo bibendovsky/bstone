@@ -78,8 +78,6 @@ struct AudioMixerInitParam
 	int dst_rate_;
 
 	int mix_size_ms_; // (milliseconds)
-
-	bool resampling_lpf_;
 }; // AudioMixerInitParam
 
 
@@ -109,8 +107,6 @@ public:
 	virtual float get_sfx_volume() const = 0;
 
 	virtual float get_music_volume() const = 0;
-
-	virtual bool get_resampling_lpf() const noexcept = 0;
 
 	virtual bool play_adlib_music(
 		const int music_index,
@@ -146,9 +142,6 @@ public:
 		const int actor_index = -1,
 		const ActorType actor_type = ActorType::none,
 		const ActorChannel actor_channel = ActorChannel::voice) = 0;
-
-	virtual bool set_resampling_low_pass_filter(
-		const bool low_pass_filter) = 0;
 
 	virtual bool update_positions() = 0;
 
