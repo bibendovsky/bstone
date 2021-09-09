@@ -23,9 +23,9 @@
 - [VIDEO] Rename `vid_windowed_height` to `vid_height`.
 
 ### Removed
-- Option to control audio resampling (always ZOH).
 - Option `vid_is_windowed`.
 - Exclusive fullscreen mode.
+- Resampling low-pass filter and it's options (`snd_resampling_interpolation`, `snd_resampling_lpf`).
 
 
 ## [1.2.11] - 2021-03-21

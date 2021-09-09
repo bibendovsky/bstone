@@ -118,7 +118,6 @@ try
 	initialize_sfx();
 	initialize_thread();
 
-	is_lpf_ = false;
 	is_mute_ = false;
 
 	is_initialized_ = true;
@@ -187,11 +186,6 @@ float OalAudioMixer::get_sfx_volume() const
 float OalAudioMixer::get_music_volume() const
 {
 	return music_volume_;
-}
-
-bool OalAudioMixer::get_resampling_lpf() const noexcept
-{
-	return is_lpf_;
 }
 
 bool OalAudioMixer::play_adlib_music(
@@ -301,22 +295,6 @@ try
 catch (...)
 {
 	return false;
-}
-
-bool OalAudioMixer::set_resampling_low_pass_filter(
-	bool low_pass_filter)
-{
-	if (!is_initialized())
-	{
-		return false;
-	}
-
-	if (low_pass_filter == is_lpf_)
-	{
-		return true;
-	}
-
-	return true;
 }
 
 bool OalAudioMixer::update_positions()

@@ -508,18 +508,6 @@ Notes:
   Default: `40`  
   Minimum: `20`
 
-* `--snd_resampling_interpolation value`  
-  Specifies interpolation method for sample-rate conversion.  
-  PCM audio only.  
-  Values: `zoh` ([zero-order hold](http://wikipedia.org/wiki/Zero-order_hold)) or `linear`  
-  Default: `linear`
-
-* `--snd_resampling_lpf value`  
-  Toggles low-pass filter for sample-rate conversion.  
-  PCM audio only.  
-  Values: `0` (disable) or `1` (enable)  
-  Default: `1`
-
 * `--snd_driver value`  
   Specifies the audio driver to use.  
   Values: `auto-detect`, `2d_sdl` (2D SDL), `3d_openal` (3D OpenAL)  
