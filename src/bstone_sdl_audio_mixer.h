@@ -155,6 +155,9 @@ private:
 	using Sample = float;
 	using Samples = std::vector<Sample>;
 
+	using S16Sample = std::int16_t;
+	using S16Samples = std::vector<S16Sample>;
+
 	using MixSample = float;
 	using MixSamples = std::vector<MixSample>;
 
@@ -263,6 +266,7 @@ private:
 	SdlAudioDevice sdl_audio_device_{};
 	int mix_samples_count_{};
 	Samples buffer_{};
+	S16Samples s16_samples_{};
 	Samples digitized_mix_samples_{};
 	MixSamples mix_buffer_{};
 	AtomicFlag is_data_available_{};

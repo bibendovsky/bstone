@@ -104,57 +104,6 @@ int PcSpeakerAudioDecoder::decode(
 	int dst_count,
 	std::int16_t* dst_data)
 {
-	auto output_samples = OutputSamples{};
-	output_samples.is_s16 = true;
-	output_samples.s16 = dst_data;
-
-	return decode(output_samples, dst_count);
-}
-
-int PcSpeakerAudioDecoder::decode(
-	int dst_count,
-	float* dst_data)
-{
-	auto output_samples = OutputSamples{};
-	output_samples.is_s16 = false;
-	output_samples.f32 = dst_data;
-
-	return decode(output_samples, dst_count);
-}
-
-bool PcSpeakerAudioDecoder::rewind()
-{
-	if (!is_initialized_)
-	{
-		return false;
-	}
-
-	command_offset_ = 0;
-	is_finished_ = false;
-
-	return true;
-}
-
-int PcSpeakerAudioDecoder::get_dst_length_in_samples() const noexcept
-{
-	return total_sample_count_;
-}
-
-int PcSpeakerAudioDecoder::make_pit_frequency(
-	int command)
-{
-	assert(command >= min_command && command <= max_command);
-
-	const auto divisor = command * 60;
-	const auto pit_frequency = pit_clock_frequency / divisor;
-
-	return pit_frequency;
-}
-
-int PcSpeakerAudioDecoder::decode(
-	const OutputSamples& output_samples,
-	int max_samples)
-{
 	if (!is_initialized_ || is_finished_)
 	{
 		return 0;
@@ -164,7 +113,7 @@ int PcSpeakerAudioDecoder::decode(
 
 	while (true)
 	{
-		if (sample_offset >= max_samples)
+		if (sample_offset >= dst_count)
 		{
 			break;
 		}
@@ -207,16 +156,8 @@ int PcSpeakerAudioDecoder::decode(
 			pit_signal_level_ = 1 - pit_signal_level_;
 		}
 
-		if (output_samples.is_s16)
-		{
-			const auto sample = (pit_signal_level_ == 0 ? -32'768 : 32'767); // [0, 1] => [-32768, +32767]
-			output_samples.s16[sample_offset] = static_cast<std::int16_t>(sample);
-		}
-		else
-		{
-			const auto sample = static_cast<float>((2 * pit_signal_level_) - 1); // [0, 1] => [-1, +1]
-			output_samples.f32[sample_offset] = sample;
-		}
+		const auto sample = (pit_signal_level_ == 0 ? -32'768 : 32'767); // [0, 1] => [-32768, +32767]
+		dst_data[sample_offset] = static_cast<std::int16_t>(sample);
 
 		sample_offset += 1;
 
@@ -225,6 +166,35 @@ int PcSpeakerAudioDecoder::decode(
 	}
 
 	return sample_offset;
+}
+
+bool PcSpeakerAudioDecoder::rewind()
+{
+	if (!is_initialized_)
+	{
+		return false;
+	}
+
+	command_offset_ = 0;
+	is_finished_ = false;
+
+	return true;
+}
+
+int PcSpeakerAudioDecoder::get_dst_length_in_samples() const noexcept
+{
+	return total_sample_count_;
+}
+
+int PcSpeakerAudioDecoder::make_pit_frequency(
+	int command)
+{
+	assert(command >= min_command && command <= max_command);
+
+	const auto divisor = command * 60;
+	const auto pit_frequency = pit_clock_frequency / divisor;
+
+	return pit_frequency;
 }
 
 

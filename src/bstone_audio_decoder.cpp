@@ -46,8 +46,6 @@ AudioDecoderUPtr make_adlib_music_audio_decoder(
 AudioDecoderUPtr make_adlib_sfx_audio_decoder(
 	const Opl3Type opl3_type);
 
-AudioDecoderUPtr make_pcm_audio_decoder();
-
 
 } // detail
 
