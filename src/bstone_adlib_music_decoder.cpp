@@ -63,10 +63,6 @@ public:
 		const int dst_count,
 		std::int16_t* const dst_data) override;
 
-	int decode(
-		const int dst_count,
-		float* const dst_data) override;
-
 	bool rewind() override;
 
 	int get_dst_length_in_samples() const noexcept override;
@@ -91,11 +87,6 @@ private:
 
 
 	void uninitialize_internal();
-
-	template<typename T>
-	int decode(
-		const int dst_count,
-		T* const dst_data);
 }; // AdlibMusicDecoder
 
 
@@ -189,13 +180,6 @@ void AdlibMusicDecoder::uninitialize()
 	uninitialize_internal();
 }
 
-int AdlibMusicDecoder::decode(
-	const int dst_count,
-	float* const dst_data)
-{
-	return decode<float>(dst_count, dst_data);
-}
-
 bool AdlibMusicDecoder::rewind()
 {
 	if (!emulator_->reset())
@@ -221,36 +205,6 @@ int AdlibMusicDecoder::get_dst_length_in_samples() const noexcept
 int AdlibMusicDecoder::decode(
 	const int dst_count,
 	std::int16_t* const dst_data)
-{
-	return decode<std::int16_t>(dst_count, dst_data);
-}
-
-int AdlibMusicDecoder::get_tick_rate()
-{
-	return 700;
-}
-
-void AdlibMusicDecoder::uninitialize_internal()
-{
-	if (emulator_)
-	{
-		emulator_->reset();
-	}
-
-	is_initialized_ = {};
-	reader_.close();
-	commands_count_ = {};
-	command_index_ = {};
-	samples_per_tick_ = {};
-	remains_count_ = {};
-
-	dst_length_in_samples_ = {};
-}
-
-template<typename T>
-int AdlibMusicDecoder::decode(
-	const int dst_count,
-	T* const dst_data)
 {
 	if (!is_initialized_)
 	{
@@ -315,6 +269,28 @@ int AdlibMusicDecoder::decode(
 	}
 
 	return decoded_samples_count;
+}
+
+int AdlibMusicDecoder::get_tick_rate()
+{
+	return 700;
+}
+
+void AdlibMusicDecoder::uninitialize_internal()
+{
+	if (emulator_)
+	{
+		emulator_->reset();
+	}
+
+	is_initialized_ = {};
+	reader_.close();
+	commands_count_ = {};
+	command_index_ = {};
+	samples_per_tick_ = {};
+	remains_count_ = {};
+
+	dst_length_in_samples_ = {};
 }
 
 

@@ -57,10 +57,6 @@ public:
 		int dst_count,
 		std::int16_t* dst_data) override;
 
-	int decode(
-		int dst_count,
-		float* dst_data) override;
-
 	bool rewind() override;
 
 	int get_dst_length_in_samples() const noexcept override;
@@ -73,18 +69,6 @@ private:
 	static constexpr auto min_command = 1;
 	static constexpr auto max_command = 254;
 	static constexpr auto pit_clock_frequency = 1'193'180;
-
-
-	struct OutputSamples
-	{
-		bool is_s16;
-
-		union
-		{
-			std::int16_t* s16;
-			float* f32;
-		};
-	}; // OutputSamples
 
 
 	int dst_sample_rate_{};
@@ -104,10 +88,6 @@ private:
 
 	static int make_pit_frequency(
 		int command);
-
-	int decode(
-		const OutputSamples& output_samples,
-		int max_samples);
 }; // PcSpeakerAudioDecoder
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

@@ -63,10 +63,6 @@ public:
 		const int dst_count,
 		std::int16_t* const dst_data) override;
 
-	int decode(
-		const int dst_count,
-		float* const dst_data) override;
-
 	bool rewind() override;
 
 	int get_dst_length_in_samples() const noexcept override;
@@ -96,11 +92,6 @@ private:
 
 	// Returns an original size of an AdLibSound structure.
 	static int get_header_size();
-
-	template<typename T>
-	int decode(
-		const int dst_count,
-		T* const dst_data);
 }; // AdlibDecoder
 
 
@@ -240,43 +231,6 @@ int AdlibSfxDecoder::decode(
 	const int dst_count,
 	std::int16_t* const dst_data)
 {
-	return decode<std::int16_t>(dst_count, dst_data);
-}
-
-int AdlibSfxDecoder::decode(
-	const int dst_count,
-	float* const dst_data)
-{
-	return decode<float>(dst_count, dst_data);
-}
-
-void AdlibSfxDecoder::uninitialize_internal()
-{
-	reader_.close();
-	instrument_ = {};
-	commands_count_ = {};
-	command_index_ = {};
-	samples_per_tick_ = {};
-	remains_count_ = {};
-	hf_ = {};
-	dst_length_in_samples_ = {};
-}
-
-int AdlibSfxDecoder::get_tick_rate()
-{
-	return 140;
-}
-
-int AdlibSfxDecoder::get_header_size()
-{
-	return 23;
-}
-
-template<typename T>
-int AdlibSfxDecoder::decode(
-	const int dst_count,
-	T* const dst_data)
-{
 	if (!is_initialized_)
 	{
 		return 0;
@@ -341,6 +295,28 @@ int AdlibSfxDecoder::decode(
 	}
 
 	return decoded_samples_count;
+}
+
+void AdlibSfxDecoder::uninitialize_internal()
+{
+	reader_.close();
+	instrument_ = {};
+	commands_count_ = {};
+	command_index_ = {};
+	samples_per_tick_ = {};
+	remains_count_ = {};
+	hf_ = {};
+	dst_length_in_samples_ = {};
+}
+
+int AdlibSfxDecoder::get_tick_rate()
+{
+	return 140;
+}
+
+int AdlibSfxDecoder::get_header_size()
+{
+	return 23;
 }
 
 

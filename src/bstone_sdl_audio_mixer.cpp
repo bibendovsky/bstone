@@ -226,6 +226,7 @@ bool SdlAudioMixer::initialize(
 		const auto total_samples = get_max_channels() * mix_samples_count_;
 
 		buffer_.resize(total_samples);
+		s16_samples_.resize(total_samples);
 		digitized_mix_samples_.resize(total_samples);
 		mix_buffer_.resize(total_samples);
 
@@ -1247,9 +1248,20 @@ bool SdlAudioMixer::decode_sound(
 
 		cache_item->buffer_size_ = cache_item->decoder->decode(
 			remain_count,
-			cache_item->samples.data());
+			s16_samples_.data()
+		);
 
-		cache_item->decoded_count += cache_item->buffer_size_;
+		if (cache_item->buffer_size_ > 0)
+		{
+			std::transform(
+				s16_samples_.cbegin(),
+				s16_samples_.cbegin() + cache_item->buffer_size_,
+				cache_item->samples.begin(),
+				AudioSampleConverter::s16_to_f32
+			);
+
+			cache_item->decoded_count += cache_item->buffer_size_;
+		}
 
 		return true;
 	}
@@ -1270,9 +1282,20 @@ bool SdlAudioMixer::decode_sound(
 
 	const auto actual_count = cache_item->decoder->decode(
 		planned_count,
-		&cache_item->samples[cache_item->decoded_count]);
+		s16_samples_.data()
+	);
 
-	cache_item->decoded_count += actual_count;
+	if (actual_count > 0)
+	{
+		std::transform(
+			s16_samples_.cbegin(),
+			s16_samples_.cbegin() + actual_count,
+			cache_item->samples.begin() + cache_item->decoded_count,
+			AudioSampleConverter::s16_to_f32
+		);
+
+		cache_item->decoded_count += actual_count;
+	}
 
 	return true;
 }
