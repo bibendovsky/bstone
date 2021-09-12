@@ -4559,7 +4559,7 @@ void CheckPause()
 		switch (SoundStatus)
 		{
 		case 0:
-			sd_music_on();
+			sd_music_on(true);
 			break;
 
 		case 1:

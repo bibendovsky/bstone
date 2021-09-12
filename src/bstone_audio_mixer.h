@@ -111,7 +111,8 @@ public:
 	virtual bool play_adlib_music(
 		const int music_index,
 		const void* const data,
-		const int data_size) = 0;
+		const int data_size,
+		bool is_looping) = 0;
 
 	// Negative index of an actor defines a non-positional sound.
 	virtual bool play_adlib_sound(
