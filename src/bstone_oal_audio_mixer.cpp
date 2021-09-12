@@ -191,7 +191,8 @@ float OalAudioMixer::get_music_volume() const
 bool OalAudioMixer::play_adlib_music(
 	int music_index,
 	const void* data,
-	int data_size)
+	int data_size,
+	bool is_looping)
 try
 {
 	static_cast<void>(music_index);
@@ -207,6 +208,7 @@ try
 	auto& command_param = command.param.play_music;
 	command_param.data = data;
 	command_param.data_size = data_size;
+	command_param.is_looping = is_looping;
 
 	const auto command_mutex_guard = MutexUniqueLock{command_queue_mutex_};
 
@@ -1277,6 +1279,8 @@ void OalAudioMixer::handle_play_music_command(
 		return;
 	}
 
+	is_music_looping_ = param.is_looping;
+
 	auto source_param = OalSourceOpenStreamingParam{};
 	source_param.is_2d = true;
 	source_param.is_looping = true;
@@ -1727,9 +1731,7 @@ bool OalAudioMixer::mix_music_mix_buffer()
 		}
 		else
 		{
-			sd_sq_played_once_ = true;
-
-			if (!audio_decoder->rewind())
+			if (!is_music_looping_ || !audio_decoder->rewind())
 			{
 				return false;
 			}

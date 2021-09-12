@@ -52,7 +52,6 @@ static bool sd_started_;
 // AdLib variables
 
 bool sd_sq_active_;
-bool sd_sq_played_once_;
 
 // Internal routines
 
@@ -360,6 +359,18 @@ bool sd_is_any_unpausable_sound_playing()
 	}
 }
 
+bool sd_is_music_playing()
+{
+	if (sd_is_music_enabled_ && sd_mixer_)
+	{
+		return sd_mixer_->is_music_playing();
+	}
+	else
+	{
+		return false;
+	}
+}
+
 // If a sound is playing, stops it.
 void sd_stop_sound()
 {
@@ -379,7 +390,8 @@ void sd_wait_sound_done()
 }
 
 // Turns on the sequencer.
-void sd_music_on()
+void sd_music_on(
+	bool is_looping)
 {
 	if (sd_mixer_)
 	{
@@ -387,7 +399,7 @@ void sd_music_on()
 
 		const auto& audio_chunk = audio_content_mgr->get_adlib_music_chunk(sd_music_index_);
 
-		sd_mixer_->play_adlib_music(sd_music_index_, audio_chunk.data, audio_chunk.data_size);
+		sd_mixer_->play_adlib_music(sd_music_index_, audio_chunk.data, audio_chunk.data_size, is_looping);
 	}
 }
 
@@ -403,11 +415,10 @@ void sd_music_off()
 
 // Starts playing the music pointed to.
 void sd_start_music(
-	const int index)
+	const int index,
+	bool is_looping)
 {
 	sd_music_off();
-
-	sd_sq_played_once_ = false;
 
 	if (sd_is_music_enabled_)
 	{
@@ -415,11 +426,7 @@ void sd_start_music(
 
 		sd_set_music_volume(sd_music_volume_);
 
-		sd_music_on();
-	}
-	else
-	{
-		sd_sq_played_once_ = true;
+		sd_music_on(is_looping);
 	}
 }
 

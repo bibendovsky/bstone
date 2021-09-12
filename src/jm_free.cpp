@@ -1159,7 +1159,7 @@ void PreDemo()
 	//
 	CA_CacheScreen(APOGEEPIC);
 
-	sd_start_music(APOGFNFM_MUS);
+	sd_start_music(APOGFNFM_MUS, false);
 
 	// Cache and set palette.  AND  Fade it in!
 	//
@@ -1182,7 +1182,7 @@ void PreDemo()
 	if (sd_is_music_enabled_)
 	{
 		IN_StartAck();
-		while ((!sd_sq_played_once_) && (!IN_CheckAck()))
+		while (sd_is_music_playing() && (!IN_CheckAck()))
 		{
 		}
 	}
@@ -1190,6 +1190,8 @@ void PreDemo()
 	{
 		IN_UserInput(TickBase * 6);
 	}
+
+	::IN_ClearKeysDown();
 
 	sd_music_off();
 
@@ -1214,6 +1216,8 @@ void PreDemo()
 	// Load and start music
 	//
 	sd_start_music(TITLE_LOOP_MUSIC);
+
+	::IN_ClearKeysDown();
 
 	// Show JAM logo
 	//

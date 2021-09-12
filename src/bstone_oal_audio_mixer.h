@@ -84,7 +84,8 @@ public:
 	bool play_adlib_music(
 		int music_index,
 		const void* data,
-		int data_size) override;
+		int data_size,
+		bool is_looping) override;
 
 	// Negative index of an actor defines a non-positional sound.
 	bool play_adlib_sound(
@@ -239,6 +240,7 @@ private:
 	{
 		const void* data{};
 		int data_size{};
+		bool is_looping{};
 	}; // PlayMusicCommandParam
 
 	struct PlaySfxCommandParam
@@ -358,6 +360,7 @@ private:
 	OalSourceUncachingSound music_adlib_sound_{};
 	OalSource music_source_{};
 	float music_volume_{};
+	bool is_music_looping_{};
 
 	SfxVoices sfx_voices_{};
 	SfxAdLibSounds sfx_adlib_sounds_{};

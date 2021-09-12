@@ -42,8 +42,6 @@ Free Software Foundation, Inc.,
 
 constexpr auto ATABLEMAX = 15;
 
-extern bool sd_sq_played_once_;
-
 const std::uint8_t righttable[ATABLEMAX][ATABLEMAX * 2] =
 {
 	{8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 6, 0, 0, 0, 0, 0, 1, 3, 5, 8, 8, 8, 8, 8, 8, 8, 8},
@@ -323,9 +321,20 @@ float SdlAudioMixer::get_music_volume() const
 bool SdlAudioMixer::play_adlib_music(
 	const int music_index,
 	const void* const data,
-	const int data_size)
+	const int data_size,
+	bool is_looping)
 {
-	return play_sound(SoundType::adlib_music, 0, music_index, data, data_size);
+	return play_sound(
+		SoundType::adlib_music,
+		0,
+		music_index,
+		data,
+		data_size,
+		-1,
+		ActorType::none,
+		ActorChannel::voice,
+		is_looping
+	);
 }
 
 bool SdlAudioMixer::play_adlib_sound(
@@ -337,7 +346,17 @@ bool SdlAudioMixer::play_adlib_sound(
 	const ActorType actor_type,
 	const ActorChannel actor_channel)
 {
-	return play_sound(SoundType::adlib_sfx, priority, sound_index, data, data_size, actor_index, actor_type, actor_channel);
+	return play_sound(
+		SoundType::adlib_sfx,
+		priority,
+		sound_index,
+		data,
+		data_size,
+		actor_index,
+		actor_type,
+		actor_channel,
+		false
+	);
 }
 
 bool SdlAudioMixer::play_pc_speaker_sound(
@@ -349,7 +368,17 @@ bool SdlAudioMixer::play_pc_speaker_sound(
 	const ActorType actor_type,
 	const ActorChannel actor_channel)
 {
-	return play_sound(SoundType::pc_speaker_sfx, priority, sound_index, data, data_size, actor_index, actor_type, actor_channel);
+	return play_sound(
+		SoundType::pc_speaker_sfx,
+		priority,
+		sound_index,
+		data,
+		data_size,
+		actor_index,
+		actor_type,
+		actor_channel,
+		false
+	);
 }
 
 bool SdlAudioMixer::play_pcm_sound(
@@ -361,7 +390,17 @@ bool SdlAudioMixer::play_pcm_sound(
 	const ActorType actor_type,
 	const ActorChannel actor_channel)
 {
-	return play_sound(SoundType::pcm, priority, sound_index, data, data_size, actor_index, actor_type, actor_channel);
+	return play_sound(
+		SoundType::pcm,
+		priority,
+		sound_index,
+		data,
+		data_size,
+		actor_index,
+		actor_type,
+		actor_channel,
+		false
+	);
 }
 
 bool SdlAudioMixer::update_positions()
@@ -851,9 +890,7 @@ void SdlAudioMixer::mix_samples()
 
 				if (sound_it->type == SoundType::adlib_music)
 				{
-					sd_sq_played_once_ = true;
-
-					if (cache_item->decoder->rewind())
+					if (sound_it->is_looping && cache_item->decoder->rewind())
 					{
 						cache_item->decoded_count = 0;
 						cache_item->buffer_size_ = 0;
@@ -1412,7 +1449,8 @@ bool SdlAudioMixer::play_sound(
 	const int data_size,
 	const int actor_index,
 	const ActorType actor_type,
-	const ActorChannel actor_channel)
+	const ActorChannel actor_channel,
+	bool is_looping)
 {
 	if (!is_initialized())
 	{
@@ -1463,6 +1501,7 @@ bool SdlAudioMixer::play_sound(
 	command.command_ = CommandType::play;
 	command.play_.sound.type = sound_type;
 	command.play_.sound.priority = priority;
+	command.play_.sound.is_looping = is_looping;
 	command.play_.sound.cache = get_cache_item(sound_type, sound_index);
 	command.play_.sound.actor_index = actor_index;
 	command.play_.sound.actor_type = actor_type;

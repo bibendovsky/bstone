@@ -90,7 +90,6 @@ extern bool sd_is_sound_enabled_;
 extern bool sd_is_music_enabled_;
 
 extern bool sd_sq_active_;
-extern bool sd_sq_played_once_;
 
 
 // Function prototypes
@@ -104,9 +103,11 @@ void sd_stop_sound();
 void sd_wait_sound_done();
 
 void sd_start_music(
-	const int index);
+	const int index,
+	bool is_looping = true);
 
-void sd_music_on();
+void sd_music_on(
+	bool is_looping);
 
 void sd_music_off();
 
@@ -117,6 +118,8 @@ bool sd_enable_music(
 	const bool enable);
 
 bool sd_is_any_unpausable_sound_playing();
+
+bool sd_is_music_playing();
 
 
 // BBi

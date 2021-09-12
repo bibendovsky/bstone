@@ -78,7 +78,8 @@ public:
 	bool play_adlib_music(
 		const int music_index,
 		const void* const data,
-		const int data_size) override;
+		const int data_size,
+		bool is_looping) override;
 
 	// Negative index of an actor defines a non-positional sound.
 	bool play_adlib_sound(
@@ -225,6 +226,7 @@ private:
 	{
 		SoundType type;
 		int priority;
+		bool is_looping;
 		CacheItem* cache;
 		int decode_offset;
 		int actor_index;
@@ -345,9 +347,10 @@ private:
 		const int priority,
 		const void* const data,
 		const int data_size,
-		const int actor_index = -1,
-		const ActorType actor_type = ActorType::none,
-		const ActorChannel actor_channel = ActorChannel::voice);
+		const int actor_index,
+		const ActorType actor_type,
+		const ActorChannel actor_channel,
+		bool is_looping);
 
 	CacheItem* get_cache_item(
 		const SoundType sound_type,
