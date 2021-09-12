@@ -1529,8 +1529,6 @@ void OalAudioMixer::handle_commands()
 
 	while (!mt_command_queue_.is_empty())
 	{
-		is_any_command_handled_ = true;
-
 		const auto command = mt_command_queue_.get_front();
 		mt_command_queue_.pop();
 
@@ -1614,8 +1612,6 @@ void OalAudioMixer::decode_adlib_sound(
 		adlib_sound.is_decoded = true;
 		adlib_sound.sample_count = adlib_sound.sample_offset;
 	}
-
-	is_any_sfx_decoded_ = true;
 }
 
 void OalAudioMixer::decode_pc_speaker_sound(
@@ -1645,8 +1641,6 @@ void OalAudioMixer::decode_pc_speaker_sound(
 		pc_speaker_sound.is_decoded = true;
 		pc_speaker_sound.sample_count = pc_speaker_sound.sample_offset;
 	}
-
-	is_any_sfx_decoded_ = true;
 }
 
 void OalAudioMixer::mix_sfx_voice(
@@ -1668,11 +1662,6 @@ void OalAudioMixer::mix_sfx_voice(
 		on_sfx_stop(sfx_voice);
 	}
 
-	if (oal_source.is_anything_decoded())
-	{
-		is_any_sfx_decoded_ = true;
-	}
-
 	if (!sfx_voice.is_active)
 	{
 		return;
@@ -1687,8 +1676,6 @@ void OalAudioMixer::mix_sfx_voice(
 		{
 			continue;
 		}
-
-		is_any_sfx_position_handled_ = true;
 
 		const auto al_position_x = static_cast<float>(sfx_position.x);
 		const auto al_position_z = static_cast<float>(sfx_position.y);
@@ -1765,8 +1752,6 @@ bool OalAudioMixer::mix_music_mix_buffers()
 
 void OalAudioMixer::mix_music()
 {
-	is_any_music_decoded_ = false;
-
 	if (!music_adlib_sound_.is_initialized || !music_source_.is_open())
 	{
 		return;
@@ -1787,11 +1772,6 @@ void OalAudioMixer::mix_music()
 		music_source_.close();
 		on_music_stop();
 	}
-
-	if (music_source_.is_anything_decoded())
-	{
-		is_any_music_decoded_ = true;
-	}
 }
 
 void OalAudioMixer::initialize_thread()
@@ -1802,7 +1782,7 @@ void OalAudioMixer::initialize_thread()
 
 void OalAudioMixer::thread_func()
 {
-	constexpr auto delay = std::chrono::milliseconds{min_thread_delay_ms};
+	constexpr auto sleep_delay = std::chrono::milliseconds{1};
 
 	while (true)
 	{
@@ -1814,11 +1794,6 @@ void OalAudioMixer::thread_func()
 				return;
 			}
 		}
-
-		is_any_command_handled_ = false;
-		is_any_sfx_position_handled_ = false;
-		is_any_sfx_decoded_ = false;
-		is_any_music_decoded_ = false;
 
 		handle_commands();
 		handle_positions();
@@ -1842,13 +1817,7 @@ void OalAudioMixer::thread_func()
 
 		mt_sfx_position_queue_.clear();
 
-		if (!(is_any_command_handled_ ||
-			is_any_sfx_position_handled_ ||
-			is_any_sfx_decoded_ ||
-			is_any_music_decoded_))
-		{
-			std::this_thread::sleep_for(delay);
-		}
+		std::this_thread::sleep_for(sleep_delay);
 	}
 }
 
