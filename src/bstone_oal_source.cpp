@@ -248,11 +248,6 @@ bool OalSource::is_finished() const
 	return is_finished_;
 }
 
-bool OalSource::is_anything_decoded() const
-{
-	return is_anything_decoded_;
-}
-
 void OalSource::set_volume(
 	float volume)
 {
@@ -356,8 +351,6 @@ void OalSource::stop()
 void OalSource::mix()
 {
 	ensure_is_started();
-
-	is_anything_decoded_ = false;
 
 	if (is_paused_ || is_finished_)
 	{
@@ -785,8 +778,6 @@ void OalSource::streaming_mix()
 
 		buffer_index += 1;
 		al_queue_size += 1;
-
-		is_anything_decoded_ = true;
 	}
 
 	if (al_queue_size == 0)

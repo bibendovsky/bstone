@@ -305,9 +305,6 @@ private:
 	static constexpr auto max_mix_size_ms = 40;
 	static_assert(max_mix_size_ms > min_mix_size_ms, "Mix size out of range.");
 
-	static constexpr auto min_thread_delay_ms = min_mix_size_ms / 2;
-	static_assert(min_thread_delay_ms > 1, "Mix size out of range.");
-
 	static constexpr auto max_commands = 256;
 
 	static constexpr auto max_sfx_positions = 2 * (MAXACTORS + MAXDOORS + MAXWALLTILES);
@@ -388,11 +385,6 @@ private:
 	bool is_quit_thread_{};
 	Mutex thread_mutex_{};
 	Thread thread_{};
-
-	bool is_any_command_handled_{};
-	bool is_any_sfx_position_handled_{};
-	bool is_any_sfx_decoded_{};
-	bool is_any_music_decoded_{};
 
 
 	[[noreturn]]
