@@ -161,8 +161,8 @@ bool sd_enable_music(
 	const bool enable)
 {
 	sd_music_off();
-
 	sd_is_music_enabled_ = enable;
+	sd_set_music_volume(sd_music_volume_);
 
 	return enable;
 }
@@ -324,6 +324,7 @@ void sd_startup()
 		if (sd_is_music_enabled_)
 		{
 			sd_enable_music(true);
+			sd_music_on(true);
 		}
 	}
 }
@@ -393,7 +394,7 @@ void sd_wait_sound_done()
 void sd_music_on(
 	bool is_looping)
 {
-	if (sd_mixer_)
+	if (sd_mixer_ && sd_music_index_ >= 0)
 	{
 		sd_sq_active_ = true;
 
