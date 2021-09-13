@@ -2539,8 +2539,8 @@ void ca_extract_music(
 	bstone::logger_->write("Extracting music.");
 	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
 
-	auto audio_content_mgr = bstone::make_audio_content_mgr(bstone::globals::page_mgr.get());
-	auto audio_extractor = bstone::make_audio_extractor(audio_content_mgr.get());
+	auto audio_content_mgr = bstone::make_audio_content_mgr(*bstone::globals::page_mgr);
+	auto audio_extractor = bstone::make_audio_extractor(*audio_content_mgr);
 
 	const auto normalized_dst_dir = bstone::file_system::normalize_path(destination_dir);
 	audio_extractor->extract_music(normalized_dst_dir);
@@ -2556,8 +2556,8 @@ void ca_extract_sfx(
 	bstone::logger_->write("Extracting sfx.");
 	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
 
-	auto audio_content_mgr = bstone::make_audio_content_mgr(bstone::globals::page_mgr.get());
-	auto audio_extractor = bstone::make_audio_extractor(audio_content_mgr.get());
+	auto audio_content_mgr = bstone::make_audio_content_mgr(*bstone::globals::page_mgr);
+	auto audio_extractor = bstone::make_audio_extractor(*audio_content_mgr);
 
 	const auto normalized_dst_dir = bstone::file_system::normalize_path(destination_dir);
 	audio_extractor->extract_sfx(normalized_dst_dir);

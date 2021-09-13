@@ -348,6 +348,8 @@ target_sources(
 		movie.h
 
 		bstone_adlib_decoder.h
+		bstone_adlib_music_decoder.h
+		bstone_adlib_sfx_decoder.h
 		bstone_archiver.h
 		bstone_atomic.h
 		bstone_atomic_flag.h
@@ -355,14 +357,20 @@ target_sources(
 		bstone_audio_decoder.h
 		bstone_audio_extractor.h
 		bstone_audio_mixer.h
+		bstone_audio_mixer_utils.h
+		bstone_audio_mixer_validator.h
+		bstone_audio_mixer_voice_handle.h
+		bstone_audio_mixer_voice_handle_mgr.h
 		bstone_audio_sample_converter.h
 		bstone_binary_reader.h
 		bstone_binary_writer.h
+		bstone_bitwise.h
 		bstone_bmp_image_decoder.h
 		bstone_circular_queue.h
 		bstone_cl_args.h
 		bstone_content_path.h
 		bstone_crc32.h
+		bstone_dosbox_dbopl.h
 		bstone_shared_library.h
 		bstone_encoding.h
 		bstone_endian.h
@@ -380,10 +388,14 @@ target_sources(
 		bstone_logger.h
 		bstone_low_pass_filter.h
 		bstone_math.h
+		bstone_memory.h
 		bstone_memory_binary_reader.h
+		bstone_memory_pool.h
+		bstone_memory_resource.h
 		bstone_memory_stream.h
 		bstone_mod_value.h
 		bstone_mt_task_mgr.h
+		bstone_nuked_opl3.h
 		bstone_oal_audio_mixer.h
 		bstone_oal_loader.h
 		bstone_oal_resource.h
@@ -392,6 +404,7 @@ target_sources(
 		bstone_opl3.h
 		bstone_page_mgr.h
 		bstone_pc_speaker_audio_decoder.h
+		bstone_pcm_audio_decoder.h
 		bstone_precompiled.h
 		bstone_ps_fizzle_fx.h
 		bstone_ref_values.h
@@ -419,6 +432,7 @@ target_sources(
 		bstone_unique_resource.h
 		bstone_version.h
 		bstone_video.h
+		bstone_voice_group.h
 )
 
 if (WIN32)
@@ -513,9 +527,14 @@ target_sources(
 		bstone_audio_decoder.cpp
 		bstone_audio_extractor.cpp
 		bstone_audio_mixer.cpp
+		bstone_audio_mixer_utils.cpp
+		bstone_audio_mixer_validator.cpp
+		bstone_audio_mixer_voice_handle.cpp
+		bstone_audio_mixer_voice_handle_mgr.cpp
 		bstone_audio_sample_converter.cpp
 		bstone_binary_reader.cpp
 		bstone_binary_writer.cpp
+		bstone_bitwise.cpp
 		bstone_bmp_image_decoder.cpp
 		bstone_circular_queue.cpp
 		bstone_cl_args.cpp
@@ -538,7 +557,10 @@ target_sources(
 		bstone_index_type.cpp
 		bstone_logger.cpp
 		bstone_low_pass_filter.cpp
+		bstone_memory.cpp
 		bstone_memory_binary_reader.cpp
+		bstone_memory_pool.cpp
+		bstone_memory_resource.cpp
 		bstone_memory_stream.cpp
 		bstone_mt_task_mgr.cpp
 		bstone_nuked_opl3.cpp
@@ -550,6 +572,7 @@ target_sources(
 		bstone_opl3.cpp
 		bstone_page_mgr.cpp
 		bstone_pc_speaker_audio_decoder.cpp
+		bstone_pcm_audio_decoder.cpp
 		bstone_ps_fizzle_fx.cpp
 		bstone_rgb8.cpp
 		bstone_sdl_audio_mixer.cpp
@@ -572,6 +595,7 @@ target_sources(
 		bstone_time.cpp
 		bstone_version.cpp
 		bstone_video.cpp
+		bstone_voice_group.cpp
 )
 
 if (WIN32)

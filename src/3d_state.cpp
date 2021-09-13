@@ -1006,8 +1006,7 @@ void KillActor(
 	switch (clas)
 	{
 	case podeggobj:
-		sd_play_actor_sound(PODHATCHSND, ob, bstone::ActorChannel::voice);
-
+		sd_play_actor_voice_sound(PODHATCHSND, *ob);
 		InitSmartSpeedAnim(ob, SPR_POD_HATCH1, 0, 2, at_ONCE, ad_FWD, assets_info.is_aog() ? 45 : 7);
 		KeepSolid = true;
 
@@ -1101,9 +1100,7 @@ void KillActor(
 
 	case gold_morphobj:
 		GoldsternInfo.flags = GS_NO_MORE;
-
-		sd_play_actor_sound(PODDEATHSND, ob, bstone::ActorChannel::voice);
-
+		sd_play_actor_voice_sound(PODDEATHSND, *ob);
 		ob->flags |= FL_OFFSET_STATES;
 		InitAnim(ob, SPR_GOLD_DEATH1, 0, 4, at_ONCE, ad_FWD, 25, 9);
 		break;
@@ -1240,8 +1237,7 @@ void KillActor(
 		break;
 
 	case final_boss2obj:
-		sd_play_actor_sound(PODDEATHSND, ob, bstone::ActorChannel::voice);
-
+		sd_play_actor_voice_sound(PODDEATHSND, *ob);
 		InitAnim(ob, SPR_BOSS8_DIE1, 0, 4, at_ONCE, ad_FWD, 25, 9);
 		break;
 
@@ -1584,7 +1580,7 @@ void DamageActor(
 			{
 				if (!assets_info.is_aog_sw())
 				{
-					sd_play_actor_sound(SWATDEATH2SND, ob, bstone::ActorChannel::voice);
+					sd_play_actor_voice_sound(SWATDEATH2SND, *ob);
 				}
 
 				NewState(ob, &s_swatwounded1);
@@ -2008,37 +2004,32 @@ void FirstSighting(
 			return;
 		}
 
-		sd_play_actor_sound(SCOUT_ALERTSND, ob, bstone::ActorChannel::voice);
-
+		sd_play_actor_voice_sound(SCOUT_ALERTSND, *ob);
 		NewState(ob, &s_scout_run);
 		ob->speed *= 3; // Haul Ass
 		break;
 
 
 	case goldsternobj:
-		sd_play_actor_sound(GOLDSTERNHALTSND, ob, bstone::ActorChannel::voice);
-
+		sd_play_actor_voice_sound(GOLDSTERNHALTSND, *ob);
 		NewState(ob, &s_goldchase1);
 		ob->speed *= 3; // go faster when chasing player
 		break;
 
 	case rentacopobj:
-		sd_play_actor_sound(HALTSND, ob, bstone::ActorChannel::voice);
-
+		sd_play_actor_voice_sound(HALTSND, *ob);
 		NewState(ob, &s_rent_chase1);
 		ob->speed *= 3; // go faster when chasing player
 		break;
 
 	case gen_scientistobj:
-		sd_play_actor_sound(SCIENTISTHALTSND, ob, bstone::ActorChannel::voice);
-
+		sd_play_actor_voice_sound(SCIENTISTHALTSND, *ob);
 		NewState(ob, &s_ofcchase1);
 		ob->speed *= 3; // go faster when chasing player
 		break;
 
 	case swatobj:
-		sd_play_actor_sound(SWATHALTSND, ob, bstone::ActorChannel::voice);
-
+		sd_play_actor_voice_sound(SWATHALTSND, *ob);
 		NewState(ob, &s_swatchase1);
 		ob->speed *= 3; // go faster when chasing player
 		break;
@@ -2048,8 +2039,7 @@ void FirstSighting(
 	case genetic_guardobj:
 	case final_boss4obj:
 	case final_boss2obj:
-		sd_play_actor_sound(GGUARDHALTSND, ob, bstone::ActorChannel::voice);
-
+		sd_play_actor_voice_sound(GGUARDHALTSND, *ob);
 		NewState(ob, &s_ofs_chase1);
 		ob->speed *= 3; // go faster when chasing player
 		break;
@@ -2060,15 +2050,13 @@ void FirstSighting(
 	case mutant_human1obj:
 	case final_boss3obj:
 	case final_boss1obj:
-		sd_play_actor_sound(BLUEBOYHALTSND, ob, bstone::ActorChannel::voice);
-
+		sd_play_actor_voice_sound(BLUEBOYHALTSND, *ob);
 		NewState(ob, &s_ofs_chase1);
 		ob->speed *= 2; // go faster when chasing player
 		break;
 
 	case mutant_human2obj:
-		sd_play_actor_sound(DOGBOYHALTSND, ob, bstone::ActorChannel::voice);
-
+		sd_play_actor_voice_sound(DOGBOYHALTSND, *ob);
 		NewState(ob, &s_ofs_chase1);
 		ob->speed *= 2; // go faster when chasing player
 		break;
@@ -2079,30 +2067,26 @@ void FirstSighting(
 
 	case spider_mutantobj:
 	case scan_alienobj:
-		sd_play_actor_sound(SCANHALTSND, ob, bstone::ActorChannel::voice);
-
+		sd_play_actor_voice_sound(SCANHALTSND, *ob);
 		NewState(ob, &s_ofs_chase1);
 		ob->speed *= 3; // go faster when chasing player
 		break;
 
 	case lcan_alienobj:
-		sd_play_actor_sound(LCANHALTSND, ob, bstone::ActorChannel::voice);
-
+		sd_play_actor_voice_sound(LCANHALTSND, *ob);
 		NewState(ob, &s_ofs_chase1);
 		ob->speed *= 3; // go faster when chasing player
 		break;
 
 	case gurneyobj:
-		sd_play_actor_sound(GURNEYSND, ob, bstone::ActorChannel::voice);
-
+		sd_play_actor_voice_sound(GURNEYSND, *ob);
 		NewState(ob, &s_ofs_chase1);
 		ob->speed *= 3; // go faster when chasing player
 		break;
 
 	case acid_dragonobj:
 	case podobj:
-		sd_play_actor_sound(PODHALTSND, ob, bstone::ActorChannel::voice);
-
+		sd_play_actor_voice_sound(PODHALTSND, *ob);
 		NewState(ob, &s_ofs_chase1);
 		ob->speed *= 2;
 		break;
@@ -2125,15 +2109,13 @@ void FirstSighting(
 		break;
 
 	case proguardobj:
-		sd_play_actor_sound(PROHALTSND, ob, bstone::ActorChannel::voice);
-
+		sd_play_actor_voice_sound(PROHALTSND, *ob);
 		NewState(ob, &s_prochase1);
 		ob->speed *= 4; // go faster when chasing player
 		break;
 
 	case hang_terrotobj:
-		sd_play_actor_sound(TURRETSND, ob, bstone::ActorChannel::voice);
-
+		sd_play_actor_voice_sound(TURRETSND, *ob);
 		NewState(ob, &s_terrot_seek1);
 		break;
 

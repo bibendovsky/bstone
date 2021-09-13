@@ -1238,8 +1238,7 @@ void CheckMusicToggle()
 			if (!sd_has_audio_)
 			{
 				DISPLAY_TIMED_MSG(NoAdLibCard, MP_BONUS, MT_GENERAL);
-
-				sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
+				sd_play_player_no_way_sound(NOWAYSND);
 				return;
 			}
 			else if (sd_is_music_enabled_)
@@ -2025,14 +2024,15 @@ void PlayLoop()
 	buttonstate.reset();
 	ClearPaletteShifts();
 	ForceUpdateStatusBar();
-
 	in_clear_mouse_deltas();
-
 	tics = 1; // for first time through
+
 	if (demoplayback)
 	{
 		IN_StartAck();
 	}
+
+	sd_reset_r3_position_cache();
 
 	do
 	{

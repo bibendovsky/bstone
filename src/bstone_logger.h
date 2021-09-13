@@ -99,6 +99,8 @@ struct LoggerFactory
 
 extern LoggerPtr logger_;
 
+void log_exception() noexcept;
+
 
 } // bstone
 

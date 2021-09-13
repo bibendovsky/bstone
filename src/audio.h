@@ -192,24 +192,21 @@ extern std::int16_t THEME_MUS;
 extern std::int16_t LASTMUSIC;
 
 
-enum class AudioDriverType :
-	int
+enum class AudioDriverType
 {
 	auto_detect,
 	r2_sdl,
 	r3_openal,
 }; // AudioDriverType
 
-enum class AudioSfxType :
-	int
+enum class AudioSfxType
 {
 	adlib = 1,
 	pc_speaker = 2,
 	pcm = 3,
 }; // AudioResourceType
 
-enum class AudioChunkType :
-	int
+enum class AudioChunkType
 {
 	adlib_music = 1,
 	adlib_sfx = 2,
@@ -219,11 +216,11 @@ enum class AudioChunkType :
 
 struct AudioChunk
 {
-	const std::uint8_t* data{};
-	int data_size{};
-	AudioChunkType type{};
-	int index{};
-	int audio_index{};
+	const std::uint8_t* data;
+	int data_size;
+	AudioChunkType type;
+	int index;
+	int audio_index;
 }; // AudioChunk
 
 

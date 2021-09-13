@@ -896,7 +896,7 @@ void DrawHealthMonitor()
 
 			if (g_heart_beat_sound)
 			{
-				sd_play_player_sound(H_BEATSND, bstone::ActorChannel::item);
+				sd_play_player_item_sound(H_BEATSND);
 			}
 		}
 		else
@@ -1668,7 +1668,7 @@ void GiveAmmo(
 		DrawWeapon();
 	}
 
-	sd_play_player_sound(GETAMMOSND, bstone::ActorChannel::item);
+	sd_play_player_item_sound(GETAMMOSND);
 }
 
 
@@ -1772,7 +1772,7 @@ void GiveToken(
 		gamestate.tokens = MAX_TOKENS;
 	}
 
-	sd_play_player_sound(GOTTOKENSND, bstone::ActorChannel::item);
+	sd_play_player_item_sound(GOTTOKENSND);
 }
 
 
@@ -2487,21 +2487,18 @@ void GetBonus(
 		}
 
 		GiveKey(keynum);
-
-		sd_play_player_sound(GETKEYSND, bstone::ActorChannel::item);
-
+		sd_play_player_item_sound(GETKEYSND);
 		travel_table_[check->tilex][check->tiley] &= ~TT_KEYS;
 		break;
 	}
 
 	case bo_money_bag:
-		sd_play_player_sound(BONUS1SND, bstone::ActorChannel::item);
+		sd_play_player_item_sound(BONUS1SND);
 		givepoints = true;
 		break;
 
 	case bo_loot:
-		sd_play_player_sound(BONUS2SND, bstone::ActorChannel::item);
-
+		sd_play_player_item_sound(BONUS2SND);
 		givepoints = true;
 		break;
 
@@ -2510,13 +2507,13 @@ void GetBonus(
 	case bo_gold2:
 	case bo_gold3:
 	case bo_gold:
-		sd_play_player_sound(BONUS3SND, bstone::ActorChannel::item);
+		sd_play_player_item_sound(BONUS3SND);
 		givepoints = true;
 		break;
 
 
 	case bo_bonus:
-		sd_play_player_sound(BONUS4SND, bstone::ActorChannel::item);
+		sd_play_player_item_sound(BONUS4SND);
 		givepoints = true;
 		break;
 
@@ -2537,9 +2534,7 @@ void GetBonus(
 			return;
 		}
 
-		sd_play_player_sound(static_health[check->itemnumber - bo_fullheal][1],
-			bstone::ActorChannel::item);
-
+		sd_play_player_item_sound(static_health[check->itemnumber - bo_fullheal][1]);
 		HealSelf(static_health[check->itemnumber - bo_fullheal][0]);
 		check->flags &= ~FL_BONUS;
 		shapenum = static_health[check->itemnumber - bo_fullheal][2];
@@ -2572,32 +2567,32 @@ void GetBonus(
 	case bo_plasma_detonator:
 		travel_table_[check->tilex][check->tiley] &= ~TT_KEYS;
 		GivePlasmaDetonator(1);
-		sd_play_player_sound(GETDETONATORSND, bstone::ActorChannel::item);
+		sd_play_player_item_sound(GETDETONATORSND);
 		break;
 
 	case bo_pistol:
-		sd_play_player_sound(GETPISTOLSND, bstone::ActorChannel::item);
 		GiveWeapon(wp_pistol);
+		sd_play_player_item_sound(GETPISTOLSND);
 		break;
 
 	case bo_burst_rifle:
-		sd_play_player_sound(GETBURSTRIFLESND, bstone::ActorChannel::item);
 		GiveWeapon(wp_burst_rifle);
+		sd_play_player_item_sound(GETBURSTRIFLESND);
 		break;
 
 	case bo_ion_cannon:
-		sd_play_player_sound(GETIONCANNONSND, bstone::ActorChannel::item);
 		GiveWeapon(wp_ion_cannon);
+		sd_play_player_item_sound(GETIONCANNONSND);
 		break;
 
 	case bo_grenade:
-		sd_play_player_sound(GETCANNONSND, bstone::ActorChannel::item);
 		GiveWeapon(wp_grenade);
+		sd_play_player_item_sound(GETCANNONSND);
 		break;
 
 	case bo_bfg_cannon:
-		sd_play_player_sound(GETCANNONSND, bstone::ActorChannel::item);
 		GiveWeapon(wp_bfg_cannon);
+		sd_play_player_item_sound(GETCANNONSND);
 		break;
 
 	case bo_coin:
@@ -2626,9 +2621,7 @@ void GetBonus(
 			return;
 		}
 		gamestate.rpower += RADAR_PAK_VALUE;
-
-		sd_play_player_sound(RADAR_POWERUPSND, bstone::ActorChannel::item);
-
+		sd_play_player_item_sound(RADAR_POWERUPSND);
 		UpdateRadarGuage();
 		break;
 	}
@@ -2801,9 +2794,9 @@ bool ClipMove(
 
 	if (!g_no_wall_hit_sound)
 	{
-		if (!sd_is_player_channel_playing(bstone::ActorChannel::hit_wall))
+		if (!sd_is_player_hit_wall_sound_playing())
 		{
-			sd_play_player_sound(HITWALLSND, bstone::ActorChannel::hit_wall);
+			sd_play_player_hit_wall_sound(HITWALLSND);
 		}
 	}
 
@@ -3536,8 +3529,7 @@ bool Interrogate(
 		}
 
 		DisplayInfoMsg(msg.c_str(), MP_INTERROGATE, DISPLAY_MSG_STD_TIME * 2, MT_GENERAL);
-
-		sd_play_player_sound(INTERROGATESND, bstone::ActorChannel::interrogation);
+		sd_play_player_interrogation_sound(INTERROGATESND);
 	}
 
 	return rt_value;
@@ -3753,8 +3745,7 @@ int aog_input_floor()
 
 		if (target_level >= 1 && target_level != gamestate.mapon)
 		{
-			sd_play_player_sound(ELEV_BUTTONSND, bstone::ActorChannel::item);
-
+			sd_play_player_item_sound(ELEV_BUTTONSND);
 			draw_button = true;
 			is_button_pressed = true;
 			button_index = target_level - 1;
@@ -4045,9 +4036,9 @@ int ps_input_floor()
 		{
 			if (locked)
 			{
-				if (!sd_is_player_channel_playing(bstone::ActorChannel::no_way))
+				if (!sd_is_player_no_way_sound_playing())
 				{
-					sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
+					sd_play_player_no_way_sound(NOWAYSND);
 				}
 			}
 			else
@@ -4507,7 +4498,7 @@ std::uint8_t ShowRatio(
 		{
 			if (!(loop % 2))
 			{
-				sd_play_player_sound(STATS1SND, bstone::ActorChannel::item);
+				sd_play_player_item_sound(STATS1SND);
 			}
 			VW_WaitVBL(1);
 			VW_UpdateScreen();
@@ -4516,9 +4507,9 @@ std::uint8_t ShowRatio(
 
 	if (!show_stats_quick && numbars)
 	{
-		sd_play_player_sound(STATS2SND, bstone::ActorChannel::item);
+		sd_play_player_item_sound(STATS2SND);
 
-		while (sd_is_any_unpausable_sound_playing() && LastScan == ScanCode::sc_none)
+		while (sd_is_playing_any_ui_sound() && LastScan == ScanCode::sc_none)
 		{
 			in_handle_events();
 		}
@@ -4584,10 +4575,8 @@ void B_GAliFunc()
 
 void B_EManFunc()
 {
-	sd_play_player_sound(EXTRA_MANSND, bstone::ActorChannel::item);
-
+	sd_play_player_item_sound(EXTRA_MANSND);
 	fontnumber = 2;
-
 	LatchDrawPic(0, 0, TOP_STATUSBARPIC);
 	ShadowPrintLocationText(sp_normal);
 }
@@ -4685,9 +4674,7 @@ void DisplayPinballBonus()
 			{
 				// Start this bonus!
 				//
-
-				sd_play_player_sound(ROLL_SCORESND, bstone::ActorChannel::item);
-
+				sd_play_player_item_sound(ROLL_SCORESND);
 				DisplayInfoMsg(PinballBonus[loop].BonusText, MP_PINBALL_BONUS, 7 * 60, MT_BONUS);
 			}
 
@@ -4852,22 +4839,20 @@ void GunAttack(
 	{
 	case wp_autocharge:
 		skip = true;
-		sd_play_player_sound(ATKAUTOCHARGESND, bstone::ActorChannel::weapon);
-
+		sd_play_player_weapon_sound(ATKAUTOCHARGESND);
 		break;
 
 	case wp_pistol:
 		skip = true;
-		sd_play_player_sound(ATKCHARGEDSND, bstone::ActorChannel::weapon);
-
+		sd_play_player_weapon_sound(ATKCHARGEDSND);
 		break;
 
 	case wp_burst_rifle:
-		sd_play_player_sound(ATKBURSTRIFLESND, bstone::ActorChannel::weapon);
+		sd_play_player_weapon_sound(ATKBURSTRIFLESND);
 		break;
 
 	case wp_ion_cannon:
-		sd_play_player_sound(ATKIONCANNONSND, bstone::ActorChannel::weapon);
+		sd_play_player_weapon_sound(ATKIONCANNONSND);
 		break;
 
 	default:
@@ -5223,8 +5208,7 @@ void T_Attack(
 					}
 				}
 
-				sd_play_player_sound(ATKGRENADESND, bstone::ActorChannel::weapon);
-
+				sd_play_player_weapon_sound(ATKGRENADESND);
 				SpawnProjectile(ob, grenadeobj);
 				MakeAlertNoise(ob);
 			}
@@ -5268,8 +5252,7 @@ void T_Attack(
 					}
 				}
 
-				sd_play_player_sound(ATKIONCANNONSND, bstone::ActorChannel::weapon);
-
+				sd_play_player_weapon_sound(ATKIONCANNONSND);
 				SpawnProjectile(ob, bfg_shotobj);
 				MakeAlertNoise(ob);
 			}
@@ -5331,7 +5314,7 @@ void T_Player(
 
 		if (play_hit_wall_sound)
 		{
-			sd_play_player_sound(HITWALLSND, bstone::ActorChannel::hit_wall);
+			sd_play_player_hit_wall_sound(HITWALLSND);
 		}
 	}
 

@@ -52,7 +52,7 @@ public:
 	explicit PageMgrException(
 		const char* message) noexcept
 		:
-		Exception{"BSTONE_PAGE_MGR", message}
+		Exception{"PAGE_MGR", message}
 	{
 	}
 }; // PageMgrException

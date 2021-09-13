@@ -21,50 +21,32 @@ Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-
 #ifndef BSTONE_OAL_LOADER_INCLUDED
 #define BSTONE_OAL_LOADER_INCLUDED
 
-
 #include <memory>
-
 #include "bstone_oal_symbols.h"
-
 
 namespace bstone
 {
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 class OalLoader
 {
 public:
 	OalLoader() noexcept = default;
-
 	virtual ~OalLoader() = default;
 
-
-	virtual OalAlcSymbols load_alc_symbols() = 0;
-
-	virtual OalAlSymbols load_al_symbols() = 0;
+	virtual void load_alc_symbols(OalAlSymbols& al_symbols) = 0;
+	virtual void load_al_symbols(OalAlSymbols& al_symbols) = 0;
+	virtual void load_efx_symbols(OalAlSymbols& al_symbols) = 0;
 }; // OalLoader
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// ==========================================================================
 
 using OalLoaderUPtr = std::unique_ptr<OalLoader>;
 
-
-OalLoaderUPtr make_oal_loader(
-	const char* shared_library_path_name);
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
+OalLoaderUPtr make_oal_loader(const char* shared_library_path);
 
 } // bstone
-
 
 #endif // !BSTONE_OAL_LOADER_INCLUDED

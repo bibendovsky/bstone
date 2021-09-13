@@ -21,54 +21,32 @@ Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-
 #ifndef BSTONE_SPINLOCK_INCLUDED
 #define BSTONE_SPINLOCK_INCLUDED
 
-
 #include <atomic>
-
 
 namespace bstone
 {
-
 
 class Spinlock
 {
 public:
 	Spinlock() noexcept;
-
-	Spinlock(
-		const Spinlock& rhs) noexcept;
-
-	Spinlock(
-		Spinlock&& rhs) noexcept;
-
-	Spinlock& operator=(
-		const Spinlock& rhs) noexcept;
-
-	Spinlock& operator=(
-		Spinlock&& rhs) noexcept;
-
+	Spinlock(Spinlock&& rhs) noexcept;
+	void operator=(Spinlock&& rhs) noexcept;
 	~Spinlock();
 
-
 	bool try_lock() noexcept;
-
 	void lock() noexcept;
-
 	void unlock() noexcept;
-
 
 private:
 	using Flag = std::atomic_flag;
 
-
 	Flag flag_{};
 }; // Spinlock
 
-
 } // bstone
-
 
 #endif // !BSTONE_SPINLOCK_INCLUDED

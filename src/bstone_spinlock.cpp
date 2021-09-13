@@ -21,36 +21,24 @@ Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-
 #include "bstone_spinlock.h"
 
+#include <cassert>
+#include <tuple>
 
 namespace bstone
 {
 
-
 Spinlock::Spinlock() noexcept = default;
 
-Spinlock::Spinlock(
-	const Spinlock& rhs) noexcept
+Spinlock::Spinlock(Spinlock&& rhs) noexcept
 {
+	std::ignore = rhs;
 }
 
-Spinlock::Spinlock(
-	Spinlock&& rhs) noexcept
+void Spinlock::operator=(Spinlock&& rhs) noexcept
 {
-}
-
-Spinlock& Spinlock::operator=(
-	const Spinlock& rhs) noexcept
-{
-	return *this;
-}
-
-Spinlock& Spinlock::operator=(
-	Spinlock&& rhs) noexcept
-{
-	return *this;
+	std::ignore = rhs;
 }
 
 Spinlock::~Spinlock() = default;
@@ -71,6 +59,5 @@ void Spinlock::unlock() noexcept
 {
 	flag_.clear(std::memory_order_release);
 }
-
 
 } // bstone

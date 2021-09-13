@@ -21,370 +21,292 @@ Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-
 #include "bstone_oal_resource.h"
 
-
 #include <cassert>
-
+#include <tuple>
 #include <utility>
-
 #include "bstone_exception.h"
 
 
 namespace bstone
 {
 
-
 namespace
 {
 
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-class OalResourceException :
-	public Exception
+class OalResourceException : public Exception
 {
 public:
-	explicit OalResourceException(
-		const char* message) noexcept
+	explicit OalResourceException(const char* message) noexcept
 		:
 		Exception{"OAL_RESOURCE", message}
 	{
 	}
 }; // OalResourceException
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// ==========================================================================
 
-
-[[noreturn]]
-void fail(
-	const char* message)
+[[noreturn]] void fail(const char* message)
 {
 	throw OalResourceException{message};
 }
 
-[[noreturn]]
-void fail_nested(
-	const char* message)
+[[noreturn]] void fail_nested(const char* message)
 {
 	std::throw_with_nested(OalResourceException{message});
 }
 
-
 } // namespace
 
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// ==========================================================================
 
 OalDeviceDeleter::OalDeviceDeleter() noexcept = default;
 
-OalDeviceDeleter::OalDeviceDeleter(
-	const OalDeviceDeleter& rhs)
+OalDeviceDeleter::OalDeviceDeleter(const OalDeviceDeleter& rhs)
 	:
-	oal_alc_symbols_{rhs.oal_alc_symbols_}
+	al_symbols_{rhs.al_symbols_}
 {
 }
 
-OalDeviceDeleter::OalDeviceDeleter(
-	const OalAlcSymbols& oal_alc_symbols) noexcept
+OalDeviceDeleter::OalDeviceDeleter(const OalAlSymbols& al_symbols) noexcept
 	:
-	oal_alc_symbols_{&oal_alc_symbols}
+	al_symbols_{&al_symbols}
 {
-	assert(oal_alc_symbols_->alcCloseDevice);
+	assert(al_symbols_->alcCloseDevice);
 }
 
-void OalDeviceDeleter::operator=(
-	OalDeviceDeleter&& rhs) noexcept
+void OalDeviceDeleter::operator=(OalDeviceDeleter&& rhs) noexcept
 {
-	oal_alc_symbols_ = rhs.oal_alc_symbols_;
+	al_symbols_ = rhs.al_symbols_;
 }
 
-void OalDeviceDeleter::operator()(
-	::ALCdevice* alc_device) const noexcept
+void OalDeviceDeleter::operator()(ALCdevice* alc_device) const noexcept
 {
 	assert(alc_device);
-
-	assert(oal_alc_symbols_);
-	assert(oal_alc_symbols_->alcCloseDevice);
-
-	const auto alc_result = oal_alc_symbols_->alcCloseDevice(alc_device);
-
+	assert(al_symbols_);
+	assert(al_symbols_->alcCloseDevice);
+	const auto alc_result = al_symbols_->alcCloseDevice(alc_device);
 #ifdef NDEBUG
-	static_cast<void>(alc_result);
+	std::ignore = alc_result;
 #else
-	assert(alc_result != ALC_FALSE);
+	assert(alc_result == ALC_TRUE);
 #endif // NDEBUG
 }
 
-
-class OalDeviceResourceException :
-	public Exception
+class OalDeviceResourceException : public Exception
 {
 public:
-	explicit OalDeviceResourceException(
-		const char* message) noexcept
+	explicit OalDeviceResourceException(const char* message) noexcept
 		:
 		Exception{"OAL_DEVICE_RESOURCE", message}
 	{
 	}
 }; // OalDeviceResourceException
 
-OalDeviceResource make_oal_device(
-	const OalAlcSymbols& oal_alc_symbols,
-	const char* device_name)
+OalDeviceResource make_oal_device(const OalAlSymbols& al_symbols, const char* device_name)
 try
 {
-	if (!oal_alc_symbols.alcOpenDevice)
+	if (!al_symbols.alcOpenDevice)
 	{
 		fail("Null \"alcOpenDevice\".");
 	}
 
-	const auto alc_device = oal_alc_symbols.alcOpenDevice(device_name);
+	const auto al_device = al_symbols.alcOpenDevice(device_name);
 
-	if (!alc_device)
+	if (!al_device)
 	{
 		fail("Failed to open a device.");
 	}
 
-	return OalDeviceResource{alc_device, OalDeviceDeleter{oal_alc_symbols}};
+	return OalDeviceResource{al_device, OalDeviceDeleter{al_symbols}};
 }
 catch (...)
 {
 	fail_nested(__func__);
 }
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// ==========================================================================
 
 OalContextDeleter::OalContextDeleter() noexcept = default;
 
-OalContextDeleter::OalContextDeleter(
-	const OalContextDeleter& rhs) noexcept
+OalContextDeleter::OalContextDeleter(const OalContextDeleter& rhs) noexcept
 	:
-	oal_alc_symbols_{rhs.oal_alc_symbols_}
+	al_symbols_{rhs.al_symbols_}
 {
 }
 
-OalContextDeleter::OalContextDeleter(
-	const OalAlcSymbols& oal_alc_symbols) noexcept
+OalContextDeleter::OalContextDeleter(const OalAlSymbols& al_symbols) noexcept
 	:
-	oal_alc_symbols_{&oal_alc_symbols}
+	al_symbols_{&al_symbols}
 {
-	assert(oal_alc_symbols_);
-	assert(oal_alc_symbols_->alcGetCurrentContext);
-	assert(oal_alc_symbols_->alcMakeContextCurrent);
-	assert(oal_alc_symbols_->alcDestroyContext);
+	assert(al_symbols_);
+	assert(al_symbols_->alcGetCurrentContext);
+	assert(al_symbols_->alcMakeContextCurrent);
+	assert(al_symbols_->alcDestroyContext);
 }
 
-void OalContextDeleter::operator=(
-	OalContextDeleter&& rhs) noexcept
+void OalContextDeleter::operator=(OalContextDeleter&& rhs) noexcept
 {
-	oal_alc_symbols_ = rhs.oal_alc_symbols_;
+	al_symbols_ = rhs.al_symbols_;
 }
 
-void OalContextDeleter::operator()(
-	::ALCcontext* alc_context) const noexcept
+void OalContextDeleter::operator()(ALCcontext* al_context) const noexcept
 {
-	assert(alc_context);
-
-	assert(oal_alc_symbols_);
-	assert(oal_alc_symbols_->alcGetCurrentContext);
-	assert(oal_alc_symbols_->alcMakeContextCurrent);
-	assert(oal_alc_symbols_->alcDestroyContext);
-
-	const auto alc_current_context = oal_alc_symbols_->alcGetCurrentContext();
-
-	if (alc_current_context == alc_context)
-	{
-		const auto alc_result = oal_alc_symbols_->alcMakeContextCurrent(nullptr);
-
+	assert(al_context);
+	assert(al_symbols_);
+	assert(al_symbols_->alcMakeContextCurrent);
+	assert(al_symbols_->alcDestroyContext);
+	const auto make_current_result = al_symbols_->alcMakeContextCurrent(nullptr);
 #ifdef NDEBUG
-		static_cast<void>(alc_result);
+	std::ignore = make_current_result;
 #else
-		assert(alc_result != ALC_FALSE);
+	assert(make_current_result == ALC_TRUE);
 #endif // NDEBUG
-	}
-
-	oal_alc_symbols_->alcDestroyContext(alc_context);
+	al_symbols_->alcDestroyContext(al_context);
 }
 
-
-OalContextResource make_oal_context(
-	const OalAlcSymbols& oal_alc_symbols,
-	::ALCdevice* alc_device,
-	const ::ALCint* al_context_attributes)
+OalContextResource make_oal_context(const OalAlSymbols& al_symbols, ALCdevice& al_device, const ALCint* al_context_attributes)
 try
 {
-	if (!oal_alc_symbols.alcCreateContext)
+	if (!al_symbols.alcCreateContext)
 	{
 		fail("Null \"alcCreateContext\".");
 	}
 
-	if (!alc_device)
-	{
-		fail("Null device.");
-	}
+	const auto al_context = al_symbols.alcCreateContext(&al_device, al_context_attributes);
 
-	const auto alc_context = oal_alc_symbols.alcCreateContext(alc_device, al_context_attributes);
-
-	if (!alc_context)
+	if (!al_context)
 	{
 		fail("Failed to create a context.");
 	}
 
-	return OalContextResource{alc_context, OalContextDeleter{oal_alc_symbols}};
+	return OalContextResource{al_context, OalContextDeleter{al_symbols}};
 }
 catch (...)
 {
 	fail_nested(__func__);
 }
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// ==========================================================================
 
 OalBufferDeleter::OalBufferDeleter() noexcept = default;
 
-OalBufferDeleter::OalBufferDeleter(
-	const OalBufferDeleter& rhs) noexcept
+OalBufferDeleter::OalBufferDeleter(const OalBufferDeleter& rhs) noexcept
 	:
-	oal_al_symbols_{rhs.oal_al_symbols_}
+	al_symbols_{rhs.al_symbols_}
 {
 }
 
-OalBufferDeleter::OalBufferDeleter(
-	const OalAlSymbols& oal_al_symbols) noexcept
+OalBufferDeleter::OalBufferDeleter(const OalAlSymbols& al_symbols) noexcept
 	:
-	oal_al_symbols_{&oal_al_symbols}
+	al_symbols_{&al_symbols}
 {
-	assert(oal_al_symbols_->alDeleteBuffers);
+	assert(al_symbols_->alDeleteBuffers);
 }
 
-void OalBufferDeleter::operator=(
-	OalBufferDeleter&& rhs) noexcept
+void OalBufferDeleter::operator=(OalBufferDeleter&& rhs) noexcept
 {
-	oal_al_symbols_ = rhs.oal_al_symbols_;
+	al_symbols_ = rhs.al_symbols_;
 }
 
-void OalBufferDeleter::operator()(
-	::ALuint al_buffer) const noexcept
+void OalBufferDeleter::operator()(ALuint al_buffer) const noexcept
 {
 	assert(al_buffer != AL_NONE);
+	assert(al_symbols_);
+	assert(al_symbols_->alDeleteBuffers);
 
-	assert(oal_al_symbols_);
-	assert(oal_al_symbols_->alDeleteBuffers);
-
-	oal_al_symbols_->alDeleteBuffers(1, &al_buffer);
+	al_symbols_->alDeleteBuffers(1, &al_buffer);
 }
 
-
-OalBufferResource make_oal_buffer(
-	const OalAlSymbols& oal_al_symbols)
+OalBufferResource make_oal_buffer(const OalAlSymbols& al_symbols)
 try
 {
-	if (!oal_al_symbols.alGenBuffers)
+	if (!al_symbols.alGenBuffers)
 	{
 		fail("Null \"alGenBuffers\".");
 	}
 
-	if (!oal_al_symbols.alIsBuffer)
+	if (!al_symbols.alIsBuffer)
 	{
 		fail("Null \"alIsBuffer\".");
 	}
 
-	auto al_buffer = ::ALuint{};
-	oal_al_symbols.alGenBuffers(1, &al_buffer);
+	auto al_buffer = ALuint{};
+	al_symbols.alGenBuffers(1, &al_buffer);
 
-	const auto is_al_buffer = (oal_al_symbols.alIsBuffer(al_buffer) != AL_FALSE);
+	const auto is_al_buffer = (al_symbols.alIsBuffer(al_buffer) == AL_TRUE);
 
 	if (!is_al_buffer)
 	{
 		fail("Failed to create a buffer.");
 	}
 
-	return OalBufferResource{al_buffer, OalBufferDeleter{oal_al_symbols}};
+	return OalBufferResource{al_buffer, OalBufferDeleter{al_symbols}};
 }
 catch (...)
 {
 	fail_nested(__func__);
 }
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// ==========================================================================
 
 OalSourceDeleter::OalSourceDeleter() noexcept = default;
 
-OalSourceDeleter::OalSourceDeleter(
-	const OalSourceDeleter& rhs) noexcept
+OalSourceDeleter::OalSourceDeleter(const OalSourceDeleter& rhs) noexcept
 	:
-	oal_al_symbols_{rhs.oal_al_symbols_}
+	al_symbols_{rhs.al_symbols_}
 {
 }
 
-OalSourceDeleter::OalSourceDeleter(
-	const OalAlSymbols& oal_al_symbols) noexcept
+OalSourceDeleter::OalSourceDeleter(const OalAlSymbols& al_symbols) noexcept
 	:
-	oal_al_symbols_{&oal_al_symbols}
+	al_symbols_{&al_symbols}
 {
-	assert(oal_al_symbols_->alDeleteSources);
+	assert(al_symbols_->alDeleteSources);
 }
 
-void OalSourceDeleter::operator=(
-	OalSourceDeleter&& rhs) noexcept
+void OalSourceDeleter::operator=(OalSourceDeleter&& rhs) noexcept
 {
-	oal_al_symbols_ = rhs.oal_al_symbols_;
+	al_symbols_ = rhs.al_symbols_;
 }
 
-void OalSourceDeleter::operator()(
-	::ALuint al_source) const noexcept
+void OalSourceDeleter::operator()(ALuint al_source) const noexcept
 {
 	assert(al_source != AL_NONE);
+	assert(al_symbols_);
+	assert(al_symbols_->alDeleteSources);
 
-	assert(oal_al_symbols_);
-	assert(oal_al_symbols_->alDeleteSources);
-
-	oal_al_symbols_->alDeleteSources(1, &al_source);
+	al_symbols_->alDeleteSources(1, &al_source);
 }
 
-
-OalSourceResource make_oal_source(
-	const OalAlSymbols& oal_al_symbols)
+OalSourceResource make_oal_source(const OalAlSymbols& al_symbols)
 try
 {
-	if (!oal_al_symbols.alGenSources)
+	if (!al_symbols.alGenSources)
 	{
 		fail("Null \"alGenSources\".");
 	}
 
-	if (!oal_al_symbols.alIsSource)
+	if (!al_symbols.alIsSource)
 	{
 		fail("Null \"alIsSource\".");
 	}
 
-	auto al_source = ::ALuint{};
-	oal_al_symbols.alGenSources(1, &al_source);
-
-	const auto is_al_source = (oal_al_symbols.alIsSource(al_source) != AL_FALSE);
+	auto al_source = ALuint{};
+	al_symbols.alGenSources(1, &al_source);
+	const auto is_al_source = (al_symbols.alIsSource(al_source) == AL_TRUE);
 
 	if (!is_al_source)
 	{
 		fail("Failed to create a source.");
 	}
 
-	return OalSourceResource{al_source, OalSourceDeleter{oal_al_symbols}};
+	return OalSourceResource{al_source, OalSourceDeleter{al_symbols}};
 }
 catch (...)
 {
 	fail_nested(__func__);
 }
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
 
 } // bstone

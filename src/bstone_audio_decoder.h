@@ -21,37 +21,29 @@ Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-
 //
 // Audio decoder interface.
 //
 
-
 #ifndef BSTONE_AUDIO_DECODER_INCLUDED
 #define BSTONE_AUDIO_DECODER_INCLUDED
 
-
 #include <cstdint>
-
 #include <memory>
-
 #include "bstone_opl3.h"
-
 
 namespace bstone
 {
 
-
-constexpr auto audio_decoder_pcm_fixed_frequency = 7'000;
-
+constexpr auto audio_decoder_w3d_pcm_frequency = 7'000;
 
 enum class AudioDecoderType
 {
 	adlib_music = 1,
 	adlib_sfx = 2,
 	pc_speaker = 3,
+	pcm = 4,
 }; // AudioDecoderType
-
 
 struct AudioDecoderInitParam
 {
@@ -60,6 +52,7 @@ struct AudioDecoderInitParam
 	int dst_rate_;
 }; // AudioDecoderInitParam
 
+// ==========================================================================
 
 //
 // Audio decoder interface.
@@ -68,14 +61,11 @@ class AudioDecoder
 {
 public:
 	AudioDecoder() noexcept = default;
-
 	virtual ~AudioDecoder() = default;
-
 
 	// Initializes the instance.
 	// Returns false on error.
-	virtual bool initialize(
-		const AudioDecoderInitParam& param) = 0;
+	virtual bool initialize(const AudioDecoderInitParam& param) = 0;
 
 	// Uninitializes the instance.
 	virtual void uninitialize() = 0;
@@ -86,9 +76,7 @@ public:
 
 	// Decodes specified number of samples into a provided buffer.
 	// Returns a number of decoded samples.
-	virtual int decode(
-		const int dst_count,
-		std::int16_t* const dst_data) = 0;
+	virtual int decode(int dst_count, std::int16_t* dst_data) = 0;
 
 	// Sets decoding position to the beginning.
 	virtual bool rewind() = 0;
@@ -97,16 +85,12 @@ public:
 	virtual int get_dst_length_in_samples() const noexcept = 0;
 }; // AudioDecoder
 
+// ==========================================================================
 
 using AudioDecoderUPtr = std::unique_ptr<AudioDecoder>;
 
-
-AudioDecoderUPtr make_audio_decoder(
-	const AudioDecoderType audio_decoder_type,
-	const Opl3Type opl3_type);
-
+AudioDecoderUPtr make_audio_decoder(const AudioDecoderType audio_decoder_type, const Opl3Type opl3_type);
 
 } // bstone
-
 
 #endif // !BSTONE_AUDIO_DECODER_INCLUDED

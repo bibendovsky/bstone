@@ -21,142 +21,61 @@ Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-
 #ifndef BSTONE_OAL_AUDIO_MIXER_INCLUDED
 #define BSTONE_OAL_AUDIO_MIXER_INCLUDED
 
-
-#include "bstone_audio_mixer.h"
-
 #include <array>
+#include <atomic>
 #include <mutex>
 #include <string>
 #include <thread>
 #include <unordered_set>
 #include <vector>
-
 #include "3d_def.h"
 #include "audio.h"
-
 #include "bstone_audio_decoder.h"
-#include "bstone_circular_queue.h"
-#include "bstone_oal_source.h"
+#include "bstone_audio_mixer.h"
+#include "bstone_audio_mixer_voice_handle_mgr.h"
 #include "bstone_oal_loader.h"
 #include "bstone_oal_resource.h"
+#include "bstone_oal_source.h"
 #include "bstone_spinlock.h"
-
 
 namespace bstone
 {
 
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-class OalAudioMixer final :
-	public AudioMixer
+class OalAudioMixer final : public AudioMixer
 {
 public:
-	OalAudioMixer();
-
+	OalAudioMixer(const AudioMixerInitParam& param);
 	~OalAudioMixer() override;
 
-
-	// Note: Mix size in milliseconds.
-	bool initialize(
-		const AudioMixerInitParam& param) override;
-
-	void uninitialize() override;
-
-	bool is_initialized() const override;
-
 	Opl3Type get_opl3_type() const override;
-
 	int get_rate() const override;
-
 	int get_channel_count() const override;
-
 	int get_mix_size_ms() const override;
 
-	float get_sfx_volume() const override;
+	void suspend_state() override;
+	void resume_state() override;
 
-	float get_music_volume() const override;
+	void set_mute(bool value) override;
+	void set_distance_model(AudioMixerDistanceModel distance_model) override;
 
-	bool play_adlib_music(
-		int music_index,
-		const void* data,
-		int data_size,
-		bool is_looping) override;
+	void set_listener_meters_per_unit(double meters_per_unit) override;
+	void set_listener_r3_position(const AudioMixerListenerR3Position& r3_position) override;
+	void set_listener_r3_orientation(const AudioMixerListenerR3Orientation& r3_orientation) override;
 
-	// Negative index of an actor defines a non-positional sound.
-	bool play_adlib_sound(
-		int sound_index,
-		int priority,
-		const void* data,
-		int data_size,
-		int actor_index = -1,
-		ActorType actor_type = ActorType::none,
-		ActorChannel actor_channel = ActorChannel::voice) override;
+	AudioMixerVoiceHandle play_sound(const AudioMixerPlaySoundParam& param) override;
 
-	// Negative index of an actor defines a non-positional sound.
-	bool play_pc_speaker_sound(
-		int sound_index,
-		int priority,
-		const void* data,
-		int data_size,
-		int actor_index = -1,
-		ActorType actor_type = ActorType::none,
-		ActorChannel actor_channel = ActorChannel::voice) override;
+	bool is_voice_playing(AudioMixerVoiceHandle voice_handle) const override;
 
-	// Negative index of an actor defines a non-positional sound.
-	bool play_pcm_sound(
-		int sound_index,
-		int priority,
-		const void* data,
-		int data_size,
-		int actor_index = -1,
-		ActorType actor_type = ActorType::none,
-		ActorChannel actor_channel = ActorChannel::voice) override;
+	void pause_voice(AudioMixerVoiceHandle voice_handle) override;
+	void resume_voice(AudioMixerVoiceHandle voice_handle) override;
+	void stop_voice(AudioMixerVoiceHandle voice_handle) override;
 
-	bool update_positions() override;
-
-	bool stop_music() override;
-
-	bool stop_pausable_sfx() override;
-
-	bool pause_all_sfx(
-		bool is_pause) override;
-
-	bool pause_music(
-		bool is_pause) override;
-
-	bool set_mute(
-		bool value) override;
-
-	bool set_sfx_volume(
-		float volume) override;
-
-	bool set_music_volume(
-		float volume) override;
-
-	bool is_music_playing() const override;
-
-	bool is_any_unpausable_sfx_playing() const override;
-
-	bool is_player_channel_playing(
-		ActorChannel channel) const override;
-
-	int get_min_rate() const override;
-
-	int get_default_rate() const override;
-
-	int get_min_mix_size_ms() const override;
-
-	int get_default_mix_size_ms() const override;
-
-	int get_max_channels() const override;
-
-	int get_max_commands() const override;
-
+	void set_voice_gain(AudioMixerVoiceHandle voice_handle, double gain) override;
+	void set_voice_r3_attenuation(AudioMixerVoiceHandle voice_handle, const AudioMixerVoiceR3Attenuation& r3_attenuation) override;
+	void set_voice_r3_position(AudioMixerVoiceHandle voice_handle, const AudioMixerVoiceR3Position& r3_position) override;
 
 private:
 	using Mutex = Spinlock;
@@ -167,462 +86,321 @@ private:
 
 	using SfxAdLibSounds = std::array<OalSourceCachingSound, NUMSOUNDS>;
 	using SfxPcSpeakerSounds = std::array<OalSourceCachingSound, NUMSOUNDS>;
+	using SfxPcmSounds = std::array<OalSourceCachingSound, NUMSOUNDS>;
 
-	struct SfxBsPosition
+	struct Voice
 	{
-		double x{};
-		double y{};
-	}; // SfxBsPosition
+		int index;
+		bool is_active;
+		bool is_r3;
+		bool is_looping;
+		bool is_music;
 
-	struct SfxPosition
-	{
-		ActorType actor_type{};
-		int actor_index{};
-		double x{};
-		double y{};
-	}; // SfxPosition
+		AudioMixerVoiceR3Attenuation r3_attenuation;
+		AudioMixerVoiceR3Position r3_position;
 
-	struct SfxPlayer
-	{
-		double view_x{};
-		double view_y{};
+		OalSource oal_source;
+		AudioMixerVoiceHandle handle;
+	}; // Voice
 
-		double view_cos{};
-		double view_sin{};
-	}; // SfxPlayer
-
-	struct SfxPushwall
-	{
-		int direction{};
-		int x{};
-		int y{};
-		double offset{};
-	}; // SfxPushwall
-
-	using SfxActorPositions = std::array<SfxBsPosition, MAXACTORS>;
-	using SfxDoorPositions = std::array<SfxBsPosition, MAXDOORS>;
-	using SfxModifiedPositionIndices = std::unordered_set<int>;
-
-	struct SfxVoice
-	{
-		int index{};
-		bool is_active{};
-		OalSource oal_source{};
-
-		int priority{};
-		ActorType actor_type{};
-		int actor_index{};
-		ActorChannel actor_channel{};
-	}; // SfxVoice
-
-	using SfxVoices = std::vector<SfxVoice>;
-
+	using Voices = std::vector<Voice>;
 	using VoiceMutex = Spinlock;
 
-
-	enum class CommandId
+	enum class CommandType
 	{
 		none,
 
 		play_music,
 		play_sfx,
 
-		pause_music,
-		stop_music,
-		set_music_volume,
+		set_mute,
+		set_distance_model,
 
-		stop_pausable_sfx,
-		pause_all_sfx,
-		set_sfx_volume,
-	}; // CommandId
+		set_listener_meters_per_unit,
+		set_listener_r3_position,
+		set_listener_r3_orientation,
+
+		pause_voice,
+		resume_voice,
+		stop_voice,
+
+		set_voice_gain,
+		set_voice_r3_attenuation,
+		set_voice_r3_position,
+	}; // CommandType
 
 	struct PlayMusicCommandParam
 	{
-		const void* data{};
-		int data_size{};
-		bool is_looping{};
+		const void* data;
+		int data_size;
+		bool is_looping;
+		AudioMixerVoiceHandle voice_handle;
 	}; // PlayMusicCommandParam
 
 	struct PlaySfxCommandParam
 	{
-		AudioSfxType sfx_type{};
-		int sound_index{};
-		int priority{};
-		const void* data{};
-		int data_size{};
-		int actor_index{};
-		ActorType actor_type{};
-		ActorChannel actor_channel{};
+		SoundType sound_type;
+		bool is_r3;
+		int sound_index;
+		const void* data;
+		int data_size;
+		AudioMixerVoiceHandle voice_handle;
 	}; // PlaySfxCommandParam
 
-	struct PauseMusicCommandParam
+	struct SetMuteCommandParam
 	{
-		bool is_pause{};
-	}; // PauseMusicCommandParam
+		bool is_mute;
+	}; // SetMuteCommandParam
 
-	struct SetMusicVolumeCommandParam
+	struct SetDistanceModelCommandParam
 	{
-		float volume{};
-	}; // SetMusicVolumeCommandParam
+		AudioMixerDistanceModel distance_model;
+	}; // SetDistanceModelCommandParam
 
-	struct PauseAllSfxCommandParam
+	struct SetListenerMetersPerUnitCommandParam
 	{
-		bool is_pause{};
-	}; // PauseAllSfxCommandParam
+		double meters_per_unit;
+	}; // SetListenerMetersPerUnitCommandParam
 
-	struct SetSfxVolumeCommandParam
+	struct SetListenerR3PositionCommandParam
 	{
-		float volume{};
-	}; // SetSfxVolumeCommandParam
+		AudioMixerListenerR3Position r3_position;
+	}; // SetListenerR3PositionCommandParam
+
+	struct SetListenerR3OrientationCommandParam
+	{
+		AudioMixerListenerR3Orientation r3_orientation;
+	}; // SetListenerR3OrientationCommandParam
+
+	struct PauseVoiceCommandParam
+	{
+		AudioMixerVoiceHandle handle;
+	}; // PauseVoiceCommandParam
+
+	struct ResumeVoiceCommandParam
+	{
+		AudioMixerVoiceHandle handle;
+	}; // ResumeVoiceCommandParam
+
+	struct StopVoiceCommandParam
+	{
+		AudioMixerVoiceHandle handle;
+	}; // StopVoiceCommandParam
+
+	struct SetVoiceGainCommandParam
+	{
+		AudioMixerVoiceHandle handle;
+		double gain;
+	}; // SetVoiceGainCommandParam
+
+	struct SetVoiceR3AttenuationCommandParam
+	{
+		AudioMixerVoiceHandle handle;
+		AudioMixerVoiceR3Attenuation attributes;
+	}; // SetVoiceR3AttenuationCommandParam
+
+	struct SetVoiceR3PositionCommandParam
+	{
+		AudioMixerVoiceHandle handle;
+		AudioMixerVoiceR3Position position;
+	}; // SetVoiceR3PositionCommandParam
 
 	union CommandParam
 	{
 		PlayMusicCommandParam play_music;
 		PlaySfxCommandParam play_sfx;
-		PauseMusicCommandParam pause_music;
-		SetMusicVolumeCommandParam set_music_volume;
-		PauseAllSfxCommandParam pause_all_sfx;
-		SetSfxVolumeCommandParam set_sfx_volume;
+
+		SetMuteCommandParam set_mute;
+		SetDistanceModelCommandParam set_distance_model;
+
+		SetListenerMetersPerUnitCommandParam set_listener_meters_per_unit;
+		SetListenerR3PositionCommandParam set_listener_r3_position;
+		SetListenerR3OrientationCommandParam set_listener_r3_orientation;
+
+		PauseVoiceCommandParam pause_voice;
+		ResumeVoiceCommandParam resume_voice;
+		StopVoiceCommandParam stop_voice;
+
+		SetVoiceGainCommandParam set_voice_gain;
+		SetVoiceR3AttenuationCommandParam set_voice_r3_attenuation;
+		SetVoiceR3PositionCommandParam set_voice_r3_position;
 	}; // CommandParam
 
 	struct Command
 	{
-		CommandId id{};
-		CommandParam param{};
+		CommandType type;
+		CommandParam param;
 	}; // Command
 
-	using CommandQueue = CircularQueue<Command>;
+	using Commands = std::vector<Command>;
 	using CommandQueueMutex = Mutex;
 
-	using SfxPositionQueue = CircularQueue<SfxPosition>;
-	using SfxPositionQueueMutex = Mutex;
-
-	using StatMutex = Mutex;
-	using PlayerChannelsStats = std::array<int, static_cast<std::size_t>(ActorChannel::count_)>;
-
+	static constexpr auto commands_min_capacity = 1'024;
 
 	static constexpr auto min_mix_size_ms = 20;
 	static constexpr auto max_mix_size_ms = 40;
 	static_assert(max_mix_size_ms > min_mix_size_ms, "Mix size out of range.");
 
-	static constexpr auto max_commands = 256;
-
-	static constexpr auto max_sfx_positions = 2 * (MAXACTORS + MAXDOORS + MAXWALLTILES);
-
 	static constexpr auto sfx_voices_limit = 255;
 	static constexpr auto music_voices_limit = 1;
 	static constexpr auto voices_limit = sfx_voices_limit + music_voices_limit;
 
-	static constexpr auto meters_per_unit = 1.0;
-	static constexpr auto default_reference_distance = 1.0;
-	static constexpr auto default_oal_position_y = 0.5;
-
-	static constexpr auto adlib_sfx_volume_scale = 7;
-	static constexpr auto adlib_music_volume_scale = 6;
+	static constexpr auto adlib_sfx_gain_scale = 7;
+	static constexpr auto adlib_music_gain_scale = 6;
 
 	static constexpr auto alc_enumeration_ext_str = "ALC_ENUMERATION_EXT";
 	static constexpr auto alc_enumerate_all_ext_str = "ALC_ENUMERATE_ALL_EXT";
 
-	using MusicMutex = Mutex;
-	using SfxMutex = Mutex;
-
 	using Thread = std::thread;
+	using VoiceHandleMgr = AudioMixerVoiceHandleMgr<Voice>;
 
-
-	bool is_initialized_{};
 	Opl3Type opl3_type_;
 	int dst_rate_;
 	int mix_sample_count_;
 	int mix_size_ms_;
 	bool is_mute_{};
+	AudioMixerDistanceModel distance_model_{};
+	double listener_meters_per_unit_{};
+	AudioMixerListenerR3Position listener_r3_position_{};
+	AudioMixerListenerR3Orientation listener_r3_orientation_{};
 
 	bool has_alc_enumeration_ext_{};
 	bool has_alc_enumerate_all_ext_{};
+	bool has_efx_meters_per_unit_{};
+
+	ALenum al_meters_per_unit_enum_{};
 
 	OalLoaderUPtr oal_loader_{};
-	OalAlcSymbols oal_alc_symbols_{};
-	OalAlSymbols oal_al_symbols_{};
+	OalAlSymbols al_symbols_{};
 	OalDeviceResource oal_device_resource_{};
 	OalContextResource oal_context_resource_{};
 
-	CommandQueueMutex command_queue_mutex_{};
-	CommandQueue command_queue_{};
-	CommandQueue mt_command_queue_{};
+	VoiceHandleMgr voice_handle_mgr_{};
 
-	SfxPositionQueueMutex sfx_position_queue_mutex_{};
-	SfxPositionQueue sfx_position_queue_{};
-	SfxPositionQueue mt_sfx_position_queue_{};
+	CommandQueueMutex commands_mutex_{};
+	Commands commands_{};
+	Commands mt_commands_{};
 
-	mutable MusicMutex music_mutex_{};
 	OalSourceUncachingSound music_adlib_sound_{};
-	OalSource music_source_{};
-	float music_volume_{};
-	bool is_music_looping_{};
 
-	SfxVoices sfx_voices_{};
 	SfxAdLibSounds sfx_adlib_sounds_{};
 	SfxPcSpeakerSounds sfx_pc_speaker_sounds_{};
-	float sfx_volume_{};
+	SfxPcmSounds sfx_pcm_sounds_{};
 
-	SfxActorPositions sfx_bs_actor_positions_{};
-	SfxDoorPositions sfx_door_positions_{};
-
-	bool is_sfx_player_position_modified_{};
-	SfxPlayer sfx_player_{};
-
-	SfxModifiedPositionIndices sfx_actor_modified_position_indices_{};
-
-	SfxModifiedPositionIndices sfx_door_modified_position_indices_{};
-
-	bool is_sfx_pushwall_position_modified_{};
-	SfxPushwall sfx_pushwall_{};
-
-	mutable StatMutex stat_mutex_{};
-	bool stat_music_is_playing_{};
-	int stat_unpausable_sfx_count_{};
-	PlayerChannelsStats stat_player_channels_{};
+	Voices voices_{};
 
 	bool is_quit_thread_{};
 	Mutex thread_mutex_{};
 	Thread thread_{};
 
+	std::atomic_bool is_state_suspended_{};
 
-	[[noreturn]]
-	static void fail(
-		const char* message);
+	[[noreturn]] static void fail(const char* message);
+	[[noreturn]] static void fail_nested(const char* message);
 
-	[[noreturn]]
-	static void fail_nested(
-		const char* message);
-
-
-	bool play_sfx_sound(
-		AudioSfxType sfx_type,
-		int sound_index,
-		int priority,
-		const void* data,
-		int data_size,
-		int actor_index,
-		ActorType actor_type,
-		ActorChannel actor_channel);
-
+	int get_min_rate() const noexcept;
+	int get_min_mix_size_ms() const noexcept;
+	int get_default_mix_size_ms() const noexcept;
+	int get_max_channels() const noexcept;
 
 	void make_al_context_current();
 
 	OalStrings get_alc_device_names();
-
 	OalString get_default_alc_device_name();
-
 	OalString get_alc_device_name();
 
-	OalStrings parse_al_token_string(
-		const char* al_token_string);
-
+	OalStrings parse_al_token_string(const char* al_token_string);
 	OalStrings get_alc_extensions();
-
 	OalStrings get_al_extensions();
 
 	int get_al_mixing_frequency();
-
 	int get_max_voice_count();
 
-
 	void detect_alc_extensions();
+	
+	void detect_efx_features();
 
-
-	void log(
-		const OalString& string);
-
+	void log(const OalString& string);
 	void log_oal_library_file_name();
-
 	void log_oal_custom_device();
-
 	void log_oal_devices();
-
 	void log_oal_default_device();
-
 	void log_oal_current_device_name();
-
 	void log_oal_alc_extensions();
-
 	void log_oal_al_info();
-
 	void log_oal_al_extensions();
 
 	static const char* get_oal_default_library_file_name() noexcept;
 
-	void initialize_oal(
-		const AudioMixerInitParam& param);
-
-
+	void initialize_oal(const AudioMixerInitParam& param);
+	void initialize_distance_model();
+	void initialize_listener_meters_per_unit();
+	void initialize_listener_r3_position();
+	void initialize_listener_r3_orientation();
+	void initialize_voice_handles();
 	void initialize_command_queue();
-
-	void initialize_sfx_position_queue();
-
-
+	void initialize_voices();
 	void initialize_music_adlib_sound();
-
-	void initialize_music_source();
-
 	void initialize_music();
-
 	void uninitialize_music();
-
-
 	void initialize_sfx_adlib_sounds();
-
 	void initialize_sfx_pc_speaker_sounds();
-
-	void initialize_sfx_voices();
-
-	void initialize_sfx_positions();
-
+	void initialize_sfx_pcm_sounds();
 	void initialize_sfx();
-
 	void uninitialize_sfx();
 
+	void on_music_stop(Voice& voice);
+	void on_sfx_stop(const Voice& voice);
 
-	void on_music_start();
+	AudioMixerVoiceHandle play_adlib_music_internal(const void* data, int data_size, bool is_looping);
+	AudioMixerVoiceHandle play_sfx_sound_internal(SoundType sound_type, int sound_index, const void* data, int data_size, bool is_positional);
 
-	void on_music_stop();
-
-
-	void on_sfx_start(
-		const SfxVoice& sfx_voice);
-
-	void on_sfx_stop(
-		const SfxVoice& sfx_voice);
-
-
-	void handle_play_music_command(
-		const PlayMusicCommandParam& param);
-
-	void handle_play_sfx_command(
-		const PlaySfxCommandParam& param);
-
-	void handle_pause_music_command(
-		const PauseMusicCommandParam& param);
-
-	void handle_stop_music_command();
-
-	void handle_set_music_volume_command(
-		const SetMusicVolumeCommandParam& param);
-
-	void handle_stop_pausable_sfx_command();
-
-	void handle_pause_all_sfx_command(
-		const PauseAllSfxCommandParam& param);
-
-	void handle_set_sfx_volume_command(
-		const SetSfxVolumeCommandParam& param);
-
+	void handle_play_music_command(const PlayMusicCommandParam& param);
+	void handle_play_sfx_command(const PlaySfxCommandParam& param);
+	void handle_set_mute_command(const SetMuteCommandParam& param);
+	void handle_set_distance_model_command(const SetDistanceModelCommandParam& param);
+	void handle_set_listener_meters_per_unit_command(const SetListenerMetersPerUnitCommandParam& param);
+	void handle_set_listener_r3_position_command(const SetListenerR3PositionCommandParam& param);
+	void handle_set_listener_r3_orientation_command(const SetListenerR3OrientationCommandParam& param);
+	void handle_set_voice_pause_command(AudioMixerVoiceHandle voice_handle, bool is_pause);
+	void handle_pause_voice_command(const PauseVoiceCommandParam& param);
+	void handle_resume_voice_command(const ResumeVoiceCommandParam& param);
+	void handle_stop_voice_command(const StopVoiceCommandParam& param);
+	void handle_set_voice_gain_command(const SetVoiceGainCommandParam& param);
+	void handle_set_voice_r3_attenuation_command(const SetVoiceR3AttenuationCommandParam& param);
+	void handle_set_voice_r3_position_command(const SetVoiceR3PositionCommandParam& param);
 	void handle_commands();
 
-	void handle_positions();
+	void decode_adlib_sound(OalSourceCachingSound& adlib_sound, int gain_scale);
+	void decode_pc_speaker_sound(OalSourceCachingSound& pc_speaker_sound);
+	void decode_pcm_sound(OalSourceCachingSound& pcm_sound);
 
-
-	void decode_adlib_sound(
-		OalSourceCachingSound& adlib_sound,
-		int volume_scale);
-
-	void decode_pc_speaker_sound(
-		OalSourceCachingSound& pc_speaker_sound);
-
-	void mix_sfx_voice(
-		SfxVoice& sfx_voice);
-
-	bool mix_music_mix_buffer();
-
-	bool mix_music_mix_buffers();
-
-	void mix_music();
+	void mix_sfx_voice(Voice& voice);
+	bool mix_music_mix_buffer(Voice& voice);
+	bool mix_music_mix_buffers(Voice& voice);
+	void mix_music(Voice& voice);
 
 	void initialize_thread();
-
 	void thread_func();
 
+	Voice* find_free_voice() noexcept;
+	Voice* find_music_voice() noexcept;
 
-	static bool is_2d_sfx(
-		ActorType actor_type,
-		int actor_index);
+	void set_al_distance_model(ALenum al_distance_model);
+	void set_distance_model();
 
-	SfxVoice* find_free_sfx_voice(
-		int priority,
-		ActorType actor_type,
-		int actor_index,
-		ActorChannel actor_channel);
+	void set_al_meters_per_unit(double meters_per_unit);
+	void set_meters_per_unit();
 
-	void set_al_listener_position(
-		float x,
-		float y,
-		float z);
+	void set_al_listener_r3_position(double x, double y, double z);
+	void set_listener_r3_position();
 
-	void set_al_listener_orientation(
-		float at_x,
-		float at_y,
-		float at_z,
-		float up_x,
-		float up_y,
-		float up_z);
+	void set_al_listener_orientation(double at_x, double at_y, double at_z, double up_x, double up_y, double up_z);
+	void set_listener_r3_orientation();
 
-
-	void update_positions_player();
-
-	void update_positions_actors();
-
-	void update_positions_doors();
-
-	void update_positions_pushwall();
-
-
-	void apply_positions_player();
-
-	void apply_actor_position(
-		SfxVoice& sfx_voice);
-
-	void apply_door_position(
-		SfxVoice& sfx_voice);
-
-	void apply_pushwall_position(
-		SfxVoice& sfx_voice);
-
-	void enqueue_positions_actors();
-
-	void enqueue_positions_doors();
-
-	void enqueue_positions_pushwall();
-
-	void enqueue_positions();
-
-	void set_sfx_actor_position(
-		OalSource& oal_source,
-		int actor_index);
-
-	void set_sfx_door_position(
-		OalSource& oal_source,
-		int actor_index);
-
-	void set_sfx_pushwall_position(
-		OalSource& oal_source);
-
-	void set_sfx_position(
-		OalSource& oal_source,
-		ActorType actor_type,
-		int actor_index);
-
-	void set_sfx_reference_distance(
-		OalSource& oal_source);
-
-
-	static OalSourceSample scale_sample(
-		OalSourceSample sample,
-		int scalar) noexcept;
+	static OalSourceSample scale_sample(OalSourceSample sample, int scalar) noexcept;
 }; // OalAudioMixer
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
 } // bstone
-
 
 #endif // !BSTONE_OAL_AUDIO_MIXER_INCLUDED
