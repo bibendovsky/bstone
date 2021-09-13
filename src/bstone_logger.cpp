@@ -237,5 +237,67 @@ LoggerUPtr LoggerFactory::create()
 // LoggerFactory
 // ==========================================================================
 
+namespace
+{
+
+void log_exception_internal(std::string& message_buffer)
+{
+	try
+	{
+		std::rethrow_exception(std::current_exception());
+	}
+	catch (const std::exception& ex)
+	{
+		const auto nex = dynamic_cast<const std::nested_exception*>(&ex);
+
+		if (nex && nex->nested_ptr())
+		{
+			try
+			{
+				nex->rethrow_nested();
+			}
+			catch (...)
+			{
+				log_exception_internal(message_buffer);
+			}
+		}
+
+		if (!message_buffer.empty())
+		{
+			message_buffer += '\n';
+		}
+
+		message_buffer += ex.what();
+	}
+	catch (...)
+	{
+		if (!message_buffer.empty())
+		{
+			message_buffer += '\n';
+		}
+
+		message_buffer += "Non-standard exception.";
+	}
+}
+
+} // namespace
+
+void log_exception() noexcept
+try
+{
+	auto message_buffer = std::string{};
+	message_buffer.reserve(1'024);
+	log_exception_internal(message_buffer);
+}
+catch (const std::exception& ex)
+{
+	logger_->write_error(__func__);
+	logger_->write_error(ex.what());
+}
+catch (...)
+{
+	logger_->write_error(__func__);
+	logger_->write_error("Non-standard exception.");
+}
 
 } // bstone

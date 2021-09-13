@@ -21,7 +21,6 @@ Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-
 //
 // Low-pass filter.
 //
@@ -29,42 +28,26 @@ Free Software Foundation, Inc.,
 // http://www.labbookpages.co.uk/audio/firWindowing.html
 //
 
-
 #include <vector>
-
 #include "bstone_exception.h"
-
 
 namespace bstone
 {
-
 
 class LowPassFilter final
 {
 public:
 	LowPassFilter() noexcept;
+	LowPassFilter(int filter_order, int cut_off_frequency, int sampling_frequency);
 
-	LowPassFilter(
-		int filter_order,
-		int cut_off_frequency,
-		int sampling_frequency);
+	void initialize(int filter_order, int cut_off_frequency, int sampling_frequency);
 
-
-	void initialize(
-		int filter_order,
-		int cut_off_frequency,
-		int sampling_frequency);
-
-	double process_sample(
-		double sample) noexcept;
-
+	double process_sample(double sample) noexcept;
 	void reset_samples() noexcept;
-
 
 private:
 	using Weights = std::vector<double>;
 	using Samples = std::vector<double>;
-
 
 	int length_{};
 	int half_length_{};
@@ -72,25 +55,13 @@ private:
 	Weights weights_{};
 	Samples samples_{};
 
-
-	[[noreturn]]
-	static void fail(
-		const char* message);
-
-	[[noreturn]]
-	static void fail_nested(
-		const char* message);
-
+	[[noreturn]] static void fail(const char* message);
+	[[noreturn]] static void fail_nested(const char* message);
 
 	static double get_pi() noexcept;
 
-	void initialize_weights(
-		int filter_order,
-		int cut_off_frequency,
-		int sampling_frequency);
-
+	void initialize_weights(int filter_order, int cut_off_frequency, int sampling_frequency);
 	void apply_hann_weights() noexcept;
 }; // LowPassFilter
-
 
 } // bstone

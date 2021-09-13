@@ -692,7 +692,7 @@ static char in_keyboard_map_to_char(
 
 
 	//
-	// Keys which depends on Caps Lock & L/R Shift
+	// Keys which depends on Caps MutexLock & L/R Shift
 	//
 
 	switch (key_code)

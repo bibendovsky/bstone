@@ -37,6 +37,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_math.h"
 #include "bstone_mt_task_mgr.h"
+#include "bstone_audio_mixer_voice_handle.h"
 
 
 constexpr auto min_fixed = 1;
@@ -2157,6 +2158,8 @@ struct doorobj_t
 	// !!! Used in saved game.
 	std::uint8_t areanumber[2];
 
+	bstone::AudioMixerVoiceHandle voice_handle;
+
 
 	void archive(
 		bstone::ArchiverPtr archiver) const;
@@ -2265,6 +2268,9 @@ struct objtype
 	// Since our code is at least 32-bit we are using an index of object.
 	// !!! Used in saved game.
 	std::uint16_t temp3; // holds 'last door used' by 'smart' actors
+
+	bstone::AudioMixerVoiceHandle voice_voice_handle;
+	bstone::AudioMixerVoiceHandle weapon_voice_handle;
 
 	objtype* next;
 	objtype* prev;

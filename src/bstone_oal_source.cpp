@@ -21,44 +21,31 @@ Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-
 #include "bstone_oal_source.h"
 
 #include <cassert>
-
 #include <algorithm>
 #include <iterator>
 #include <memory>
 #include <numeric>
-
 #include "bstone_exception.h"
-
 
 namespace bstone
 {
 
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-class OalSourceException :
-	public Exception
+class OalSourceException : public Exception
 {
 public:
-	explicit OalSourceException(
-		const char* message) noexcept
+	explicit OalSourceException(const char* message) noexcept
 		:
 		Exception{"OAL_SOURCE", message}
 	{
 	}
 }; // OalSourceException
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// ==========================================================================
 
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-void OalSource::initialize(
-	const OalSourceInitParam& param)
+void OalSource::initialize(const OalSourceInitParam& param)
 try
 {
 	uninitialize();
@@ -79,12 +66,9 @@ try
 	}
 
 	oal_al_symbols_ = param.oal_al_symbols;
-
 	streaming_mix_sample_count_ = param.mix_sample_count;
 	streaming_mix_buffer_.resize(streaming_mix_sample_count_ * sample_size);
-
 	initialize_al_resources();
-
 	is_initialized_ = true;
 }
 catch (...)
@@ -100,11 +84,8 @@ bool OalSource::is_initialized() const noexcept
 void OalSource::uninitialize()
 {
 	close();
-
 	is_initialized_ = false;
-
 	al_source_resource_.reset();
-
 	static_al_buffer_resource_.reset();
 
 	for (auto& streaming_al_buffer_resource : streaming_al_buffer_resources_)
@@ -113,12 +94,10 @@ void OalSource::uninitialize()
 	}
 }
 
-void OalSource::open(
-	const OalSourceOpenStaticParam& param)
+void OalSource::open(const OalSourceOpenStaticParam& param)
 try
 {
 	ensure_is_initialized();
-
 	close();
 
 	if (param.sample_rate <= 0)
@@ -136,11 +115,13 @@ try
 		fail("Data size out of range.");
 	}
 
-	is_2d_ = param.is_2d;
+	is_3d_ = param.is_3d;
 
 	set_al_relative();
-	set_default_al_position();
-	set_default_al_velocity();
+	set_al_default_position();
+	set_al_default_reference_distance();
+	set_al_default_max_distance();
+	set_al_default_rolloff_factor();
 
 	detach_static_al_buffer();
 	set_static_al_buffer_data(param);
@@ -157,11 +138,9 @@ catch (...)
 	fail_nested(__func__);
 }
 
-void OalSource::open(
-	const OalSourceOpenStreamingParam& param)
+void OalSource::open(const OalSourceOpenStreamingParam& param)
 {
 	ensure_is_initialized();
-
 	close();
 
 	if (param.sample_rate <= 0)
@@ -169,8 +148,7 @@ void OalSource::open(
 		fail("Sample rate out of range.");
 	}
 
-	if (!((param.caching_sound && !param.uncaching_sound) ||
-		(!param.caching_sound && param.uncaching_sound)))
+	if (!((param.caching_sound && !param.uncaching_sound) || (!param.caching_sound && param.uncaching_sound)))
 	{
 		fail("Caching and uncaching sounds are mutual exclusive.");
 	}
@@ -187,7 +165,7 @@ void OalSource::open(
 		unqueue_al_buffers(al_processed_buffer_count, streaming_al_queue_.data());
 	}
 
-	is_2d_ = param.is_2d;
+	is_3d_ = param.is_3d;
 	is_looping_ = param.is_looping;
 	streaming_sample_rate_ = param.sample_rate;
 	streaming_caching_sound_ = param.caching_sound;
@@ -195,15 +173,10 @@ void OalSource::open(
 	streaming_caching_sample_offset_ = 0;
 	streaming_caching_sample_count_ = (streaming_caching_sound_ ? streaming_caching_sound_->sample_count : 0);
 
-	streaming_mix_oal_buffer_func_ = (
-		streaming_uncaching_sound_ ?
-		&OalSource::streaming_mix_uncaching_sound :
-		&OalSource::streaming_mix_caching_sound
-	);
+	streaming_mix_oal_buffer_func_ = (streaming_uncaching_sound_ ? &OalSource::streaming_mix_uncaching_sound : &OalSource::streaming_mix_caching_sound);
 
 	set_al_relative();
-	set_default_al_position();
-	set_default_al_velocity();
+	set_al_default_position();
 
 	detach_static_al_buffer();
 	set_streaming_al_buffer_defaults();
@@ -248,8 +221,7 @@ bool OalSource::is_finished() const
 	return is_finished_;
 }
 
-void OalSource::set_volume(
-	float volume)
+void OalSource::set_gain(double gain)
 {
 	ensure_is_open();
 
@@ -257,26 +229,32 @@ void OalSource::set_volume(
 	assert(oal_al_symbols_->alSourcef);
 
 	static_cast<void>(oal_al_symbols_->alGetError());
-	oal_al_symbols_->alSourcef(al_source_resource_.get(), AL_GAIN, volume);
+	oal_al_symbols_->alSourcef(al_source_resource_.get(), AL_GAIN, static_cast<ALfloat>(gain));
 	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
-void OalSource::set_position(
-	float x,
-	float y,
-	float z)
+void OalSource::set_position(double x, double y, double z)
 {
 	ensure_is_open();
-
 	set_al_position(x, y, z);
 }
 
-void OalSource::set_reference_distance(
-	float reference_distance)
+void OalSource::set_reference_distance(double reference_distance)
 {
 	ensure_is_open();
-
 	set_al_reference_distance(reference_distance);
+}
+
+void OalSource::set_max_distance(double max_distance)
+{
+	ensure_is_open();
+	set_al_max_distance(max_distance);
+}
+
+void OalSource::set_rolloff_factor(double roll_off_factor)
+{
+	ensure_is_open();
+	set_al_rolloff_factor(roll_off_factor);
 }
 
 void OalSource::play()
@@ -377,16 +355,12 @@ void OalSource::close()
 	}
 }
 
-[[noreturn]]
-void OalSource::fail(
-	const char* message)
+[[noreturn]] void OalSource::fail(const char* message)
 {
 	throw OalSourceException{message};
 }
 
-[[noreturn]]
-void OalSource::fail_nested(
-	const char* message)
+[[noreturn]] void OalSource::fail_nested(const char* message)
 {
 	std::throw_with_nested(OalSourceException{message});
 }
@@ -475,8 +449,7 @@ int OalSource::get_al_processed_buffer_count() const
 	return al_buffer_count;
 }
 
-void OalSource::enqueue_al_buffer(
-	ALuint al_buffer)
+void OalSource::enqueue_al_buffer(ALuint al_buffer)
 {
 	assert(al_buffer != 0);
 
@@ -488,9 +461,7 @@ void OalSource::enqueue_al_buffer(
 	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
-void OalSource::unqueue_al_buffers(
-	int buffer_count,
-	ALuint* al_buffer_names)
+void OalSource::unqueue_al_buffers(int buffer_count, ALuint* al_buffer_names)
 {
 	assert(buffer_count >= 0 && buffer_count <= oal_source_max_streaming_buffers);
 	assert(al_buffer_names);
@@ -509,55 +480,68 @@ void OalSource::set_al_relative()
 	assert(oal_al_symbols_->alSourcei);
 
 	static_cast<void>(oal_al_symbols_->alGetError());
-	oal_al_symbols_->alSourcei(al_source_resource_.get(), AL_SOURCE_RELATIVE, is_2d_);
+	oal_al_symbols_->alSourcei(al_source_resource_.get(), AL_SOURCE_RELATIVE, is_3d_ ? AL_FALSE : AL_TRUE);
 	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
-void OalSource::set_al_position(
-	ALfloat x,
-	ALfloat y,
-	ALfloat z)
+void OalSource::set_al_position(double x, double y, double z)
 {
 	assert(oal_al_symbols_->alGetError);
 	assert(oal_al_symbols_->alSource3f);
 
 	static_cast<void>(oal_al_symbols_->alGetError());
-	oal_al_symbols_->alSource3f(al_source_resource_.get(), AL_POSITION, x, y, z);
+	oal_al_symbols_->alSource3f(al_source_resource_.get(), AL_POSITION, static_cast<ALfloat>(x), static_cast<ALfloat>(y), static_cast<ALfloat>(z));
 	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
-void OalSource::set_default_al_position()
+void OalSource::set_al_default_position()
 {
-	set_al_position(0.0F, 0.0F, 0.0F);
+	set_al_position(0.0, 0.0, 0.0);
 }
 
-void OalSource::set_al_velocity(
-	ALfloat x,
-	ALfloat y,
-	ALfloat z)
-{
-	assert(oal_al_symbols_->alGetError);
-	assert(oal_al_symbols_->alSource3f);
-
-	static_cast<void>(oal_al_symbols_->alGetError());
-	oal_al_symbols_->alSource3f(al_source_resource_.get(), AL_VELOCITY, x, y, z);
-	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
-}
-
-void OalSource::set_default_al_velocity()
-{
-	set_al_velocity(0.0F, 0.0F, 0.0F);
-}
-
-void OalSource::set_al_reference_distance(
-	ALfloat reference_distance)
+void OalSource::set_al_reference_distance(double reference_distance)
 {
 	assert(oal_al_symbols_->alGetError);
 	assert(oal_al_symbols_->alSourcef);
 
 	static_cast<void>(oal_al_symbols_->alGetError());
-	oal_al_symbols_->alSourcef(al_source_resource_.get(), AL_REFERENCE_DISTANCE, reference_distance);
+	oal_al_symbols_->alSourcef(al_source_resource_.get(), AL_REFERENCE_DISTANCE, static_cast<ALfloat>(reference_distance));
 	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+}
+
+void OalSource::set_al_default_reference_distance()
+{
+	set_al_reference_distance(1.0);
+}
+
+void OalSource::set_al_max_distance(double max_distance)
+{
+	assert(oal_al_symbols_->alGetError);
+	assert(oal_al_symbols_->alSourcef);
+
+	static_cast<void>(oal_al_symbols_->alGetError());
+	oal_al_symbols_->alSourcef(al_source_resource_.get(), AL_MAX_DISTANCE, static_cast<ALfloat>(max_distance));
+	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+}
+
+void OalSource::set_al_default_max_distance()
+{
+	set_al_max_distance(FLT_MAX);
+}
+
+void OalSource::set_al_rolloff_factor(double roll_off_factor)
+{
+	assert(oal_al_symbols_->alGetError);
+	assert(oal_al_symbols_->alSourcef);
+
+	static_cast<void>(oal_al_symbols_->alGetError());
+	oal_al_symbols_->alSourcef(al_source_resource_.get(), AL_ROLLOFF_FACTOR, static_cast<ALfloat>(roll_off_factor));
+	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+}
+
+void OalSource::set_al_default_rolloff_factor()
+{
+	set_al_rolloff_factor(1.0);
 }
 
 void OalSource::attach_static_al_buffer()
@@ -566,13 +550,7 @@ void OalSource::attach_static_al_buffer()
 	assert(oal_al_symbols_->alSourcei);
 
 	static_cast<void>(oal_al_symbols_->alGetError());
-
-	oal_al_symbols_->alSourcei(
-		al_source_resource_.get(),
-		AL_BUFFER,
-		static_cast<ALint>(static_al_buffer_resource_.get())
-	);
-
+	oal_al_symbols_->alSourcei(al_source_resource_.get(), AL_BUFFER, static_cast<ALint>(static_al_buffer_resource_.get()));
 	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
@@ -586,29 +564,17 @@ void OalSource::detach_static_al_buffer()
 	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
-void OalSource::set_static_al_buffer_data(
-	const OalSourceOpenStaticParam& param)
+void OalSource::set_static_al_buffer_data(const OalSourceOpenStaticParam& param)
 {
 	assert(oal_al_symbols_->alGetError);
 	assert(oal_al_symbols_->alBufferData);
 
 	static_cast<void>(oal_al_symbols_->alGetError());
-
-	oal_al_symbols_->alBufferData(
-		static_al_buffer_resource_.get(),
-		param.is_8_bit ? AL_FORMAT_MONO8 : AL_FORMAT_MONO16,
-		param.data,
-		param.data_size,
-		param.sample_rate
-	);
-
+	oal_al_symbols_->alBufferData(static_al_buffer_resource_.get(), AL_FORMAT_MONO16, param.data, param.data_size, param.sample_rate);
 	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
-void OalSource::set_streaming_al_buffer_data(
-	ALint al_buffer,
-	int sample_count,
-	OalSourceSample* samples)
+void OalSource::set_streaming_al_buffer_data(ALint al_buffer, int sample_count, OalSourceSample* samples)
 {
 	assert(al_buffer != 0);
 	assert(sample_count > 0);
@@ -618,29 +584,17 @@ void OalSource::set_streaming_al_buffer_data(
 	assert(oal_al_symbols_->alBufferData);
 
 	const auto buffer_size = sample_count * sample_size;
-
 	static_cast<void>(oal_al_symbols_->alGetError());
-
-	oal_al_symbols_->alBufferData(
-		al_buffer,
-		AL_FORMAT_MONO16,
-		samples,
-		buffer_size,
-		streaming_sample_rate_
-	);
-
+	oal_al_symbols_->alBufferData(al_buffer, AL_FORMAT_MONO16, samples, buffer_size, streaming_sample_rate_);
 	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
-void OalSource::set_streaming_al_buffer_data(
-	ALint al_buffer)
+void OalSource::set_streaming_al_buffer_data(ALint al_buffer)
 {
 	set_streaming_al_buffer_data(al_buffer, streaming_mix_sample_count_, streaming_mix_buffer_.data());
 }
 
-void OalSource::set_streaming_al_buffer_data(
-	ALint al_buffer,
-	int sample_count)
+void OalSource::set_streaming_al_buffer_data(ALint al_buffer, int sample_count)
 {
 	set_streaming_al_buffer_data(al_buffer, sample_count, streaming_mix_buffer_.data());
 }
@@ -653,7 +607,6 @@ void OalSource::set_streaming_al_buffer_defaults()
 	{
 		const auto al_buffer = streaming_al_buffer_resources_[i].get();
 		streaming_al_queue_[i] = al_buffer;
-
 		set_streaming_al_buffer_data(al_buffer);
 	}
 }
@@ -680,8 +633,7 @@ void OalSource::static_mix()
 	}
 }
 
-bool OalSource::streaming_mix_uncaching_sound(
-	ALuint al_buffer)
+bool OalSource::streaming_mix_uncaching_sound(ALuint al_buffer)
 {
 	if (streaming_uncaching_sound_->queue_size <= 0)
 	{
@@ -689,7 +641,6 @@ bool OalSource::streaming_mix_uncaching_sound(
 	}
 
 	streaming_uncaching_sound_->queue_size -= 1;
-
 	const auto streaming_max_mix_sample_count = oal_source_max_streaming_buffers * streaming_mix_sample_count_;
 
 	if (streaming_uncaching_sound_->read_sample_offset >= streaming_max_mix_sample_count)
@@ -697,21 +648,13 @@ bool OalSource::streaming_mix_uncaching_sound(
 		streaming_uncaching_sound_->read_sample_offset = 0;
 	}
 
-	set_streaming_al_buffer_data(
-		al_buffer,
-		streaming_mix_sample_count_,
-		&streaming_uncaching_sound_->samples[streaming_uncaching_sound_->read_sample_offset]
-	);
-
+	set_streaming_al_buffer_data(al_buffer, streaming_mix_sample_count_, &streaming_uncaching_sound_->samples[streaming_uncaching_sound_->read_sample_offset]);
 	streaming_uncaching_sound_->read_sample_offset += streaming_mix_sample_count_;
-
 	enqueue_al_buffer(al_buffer);
-
 	return true;
 }
 
-bool OalSource::streaming_mix_caching_sound(
-	ALuint al_buffer)
+bool OalSource::streaming_mix_caching_sound(ALuint al_buffer)
 {
 	const auto remain_sample_count = streaming_caching_sample_count_ - streaming_caching_sample_offset_;
 
@@ -722,16 +665,9 @@ bool OalSource::streaming_mix_caching_sound(
 
 	const auto sample_count = std::min(remain_sample_count, streaming_mix_sample_count_);
 
-	set_streaming_al_buffer_data(
-		al_buffer,
-		sample_count,
-		&streaming_caching_sound_->samples[streaming_caching_sample_offset_]
-	);
-
+	set_streaming_al_buffer_data(al_buffer, sample_count, &streaming_caching_sound_->samples[streaming_caching_sample_offset_]);
 	enqueue_al_buffer(al_buffer);
-
 	streaming_caching_sample_offset_ += sample_count;
-
 	return true;
 }
 
@@ -754,11 +690,7 @@ void OalSource::streaming_mix()
 
 		if (al_mixed_size != oal_source_max_streaming_buffers)
 		{
-			std::rotate(
-				streaming_al_queue_.begin(),
-				std::next(streaming_al_queue_.begin(), al_mixed_size),
-				streaming_al_queue_.end()
-			);
+			std::rotate(streaming_al_queue_.begin(), std::next(streaming_al_queue_.begin(), al_mixed_size), streaming_al_queue_.end());
 		}
 
 		al_queue_size -= al_mixed_size;
@@ -796,8 +728,5 @@ void OalSource::streaming_mix()
 			break;
 	}
 }
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
 
 } // bstone

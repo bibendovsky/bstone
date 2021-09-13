@@ -44,47 +44,36 @@ Free Software Foundation, Inc.,
 namespace bstone
 {
 
+namespace
+{
 
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-class AudioExtractorException :
-	public bstone::Exception
+class AudioExtractorException : public bstone::Exception
 {
 public:
-	explicit AudioExtractorException(
-		const std::string& message) noexcept
+	explicit AudioExtractorException(const std::string& message) noexcept
 		:
 		bstone::Exception{"AUDIO_EXTRACTOR", message.c_str()}
 	{
 	}
 }; // AudioExtractorException
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+} // namespace
 
+// ==========================================================================
 
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-class AudioExtractorImpl :
-	public AudioExtractor
+class AudioExtractorImpl final : public AudioExtractor
 {
 public:
-	AudioExtractorImpl(
-		AudioContentMgr* audio_content_mgr);
+	AudioExtractorImpl(AudioContentMgr& audio_content_mgr);
 
-	void extract_music(
-		const std::string& dst_dir) override;
-
-	void extract_sfx(
-		const std::string& dst_dir) override;
-
+	void extract_music(const std::string& dst_dir) override;
+	void extract_sfx(const std::string& dst_dir) override;
 
 private:
 	static constexpr auto pc_speaker_rate = 48'000;
 	static constexpr auto wav_prefix_size = 44;
 
-
-	using AudioChunkFilter = bool (*)(
-		const AudioChunk& audio_chunk);
+	using AudioChunkFilter = bool (*)(const AudioChunk& audio_chunk);
 
 	using Sample = std::int16_t;
 	using MusicNumbers = std::vector<int>;
@@ -96,80 +85,42 @@ private:
 		wav,
 	}; // ExtensionType
 
-	AudioContentMgr* audio_content_mgr_{};
+	AudioContentMgr& audio_content_mgr_;
 	DecodeBuffer decode_buffer_{};
 
+	[[noreturn]] static void fail(const char* message);
 
-	[[noreturn]]
-	static void fail(
-		const char* message);
+	bool write_wav_header(int data_size, int bit_depth, int sample_rate, bstone::Stream& stream);
+	void write_non_digitized_audio_chunk(const AudioChunk& sfx_info, bstone::Stream& stream);
+	void write_digitized_audio_chunk(const AudioChunk& sfx_info, bstone::Stream& stream);
 
+	static const char* make_file_name_prefix(AudioChunkType audio_chunk_type);
+	static const char* make_file_extension(ExtensionType extension_type);
+	static std::string make_number_string(int number);
+	static std::string make_file_name(const AudioChunk& audio_chunk, ExtensionType extension_type);
 
-	bool write_wav_header(
-		int data_size,
-		int bit_depth,
-		int sample_rate,
-		bstone::Stream& stream);
-
-	void write_non_digitized_audio_chunk(
-		const AudioChunk& sfx_info,
-		bstone::Stream& stream);
-
-	void write_digitized_audio_chunk(
-		const AudioChunk& sfx_info,
-		bstone::Stream& stream);
-
-	static const char* make_file_name_prefix(
-		AudioChunkType audio_chunk_type);
-
-	static const char* make_file_extension(
-		ExtensionType extension_type);
-
-	static std::string make_number_string(
-		int number);
-
-	static std::string make_file_name(
-		const AudioChunk& audio_chunk,
-		ExtensionType extension_type);
-
-	void extract_raw_audio_chunk(
-		const std::string& dst_dir,
-		const AudioChunk& audio_chunk);
-
-	void extract_decoded_audio_chunk(
-		const std::string& dst_dir,
-		const AudioChunk& audio_chunk);
-
-	void extract_audio_chunks(
-		const std::string& dst_dir,
-		const AudioChunkFilter audio_chunk_filter);
+	void extract_raw_audio_chunk(const std::string& dst_dir, const AudioChunk& audio_chunk);
+	void extract_decoded_audio_chunk(const std::string& dst_dir, const AudioChunk& audio_chunk);
+	void extract_audio_chunks(const std::string& dst_dir, const AudioChunkFilter audio_chunk_filter);
 }; // AudioExtractorImpl
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// --------------------------------------------------------------------------
 
 decltype(AudioExtractorImpl::pc_speaker_rate) constexpr AudioExtractorImpl::pc_speaker_rate;
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// --------------------------------------------------------------------------
 
 AudioExtractorImpl::AudioExtractorImpl(
-	AudioContentMgr* audio_content_mgr)
+	AudioContentMgr& audio_content_mgr)
 	:
 	audio_content_mgr_{audio_content_mgr}
 {
 	decode_buffer_.resize(std::max(bstone::opl3_fixed_frequency, pc_speaker_rate));
 }
 
-void AudioExtractorImpl::extract_music(
-	const std::string& dst_dir)
+void AudioExtractorImpl::extract_music(const std::string& dst_dir)
 {
-	const auto audio_chunk_filter = [](
-		const AudioChunk& audio_chunk) noexcept
+	const auto audio_chunk_filter = [](const AudioChunk& audio_chunk) noexcept
 	{
 		return audio_chunk.type == AudioChunkType::adlib_music && audio_chunk.data;
 	};
@@ -177,11 +128,9 @@ void AudioExtractorImpl::extract_music(
 	extract_audio_chunks(dst_dir, audio_chunk_filter);
 }
 
-void AudioExtractorImpl::extract_sfx(
-	const std::string& dst_dir)
+void AudioExtractorImpl::extract_sfx(const std::string& dst_dir)
 {
-	const auto audio_chunk_filter = [](
-		const AudioChunk& audio_chunk) noexcept
+	const auto audio_chunk_filter = [](const AudioChunk& audio_chunk) noexcept
 	{
 		return audio_chunk.type != AudioChunkType::adlib_music && audio_chunk.data;
 	};
@@ -190,37 +139,26 @@ void AudioExtractorImpl::extract_sfx(
 }
 
 [[noreturn]]
-void AudioExtractorImpl::fail(
-	const char* message)
+void AudioExtractorImpl::fail(const char* message)
 {
 	throw AudioExtractorException{message};
 }
 
-bool AudioExtractorImpl::write_wav_header(
-	int data_size,
-	int bit_depth,
-	int sample_rate,
-	bstone::Stream& stream)
+bool AudioExtractorImpl::write_wav_header(int data_size, int bit_depth, int sample_rate, bstone::Stream& stream)
 {
 	const auto aligned_data_size = ((data_size + 1) / 2) * 2;
 	const auto wav_size = aligned_data_size + wav_prefix_size;
-
 	const auto audio_format = 1; // PCM
 	const auto channel_count = 1;
 	const auto byte_depth = bit_depth / 8;
 	const auto byte_rate = sample_rate * channel_count * byte_depth;
 	const auto block_align = channel_count * byte_depth;
-
 	auto writer = bstone::BinaryWriter{&stream};
-
 	auto result = true;
-
 	result &= writer.write_u32(bstone::Endian::big(0x52494646)); // "RIFF"
-
 	// riff_chunk_size = = "file size" - "chunk id" + "chunk size".
 	const auto riff_chunk_size = static_cast<std::uint32_t>(wav_size - 4 - 4);
 	result &= writer.write_u32(bstone::Endian::little(riff_chunk_size)); // Chunk size.
-
 	result &= writer.write_u32(bstone::Endian::big(0x57415645)); // "WAVE"
 	result &= writer.write_u32(bstone::Endian::big(0x666D7420)); // "fmt "
 	result &= writer.write_u32(bstone::Endian::little(16)); // Format size.
@@ -232,13 +170,10 @@ bool AudioExtractorImpl::write_wav_header(
 	result &= writer.write_u16(bstone::Endian::little(static_cast<std::uint16_t>(bit_depth))); // Bits per sample.
 	result &= writer.write_u32(bstone::Endian::big(0x64617461)); // "data"
 	result &= writer.write_u32(bstone::Endian::little(static_cast<std::uint32_t>(data_size))); // Data size.
-
 	return result;
 }
 
-void AudioExtractorImpl::write_non_digitized_audio_chunk(
-	const AudioChunk& audio_chunk,
-	bstone::Stream& stream)
+void AudioExtractorImpl::write_non_digitized_audio_chunk(const AudioChunk& audio_chunk, bstone::Stream& stream)
 {
 	auto audio_decoder_type = AudioDecoderType{};
 	auto dst_rate = 0;
@@ -295,10 +230,7 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(
 
 	while (true)
 	{
-		const auto decoded_count = audio_decoder->decode(
-			dst_rate,
-			decode_buffer_.data()
-		);
+		const auto decoded_count = audio_decoder->decode(dst_rate, decode_buffer_.data());
 
 		if (decoded_count == 0)
 		{
@@ -308,7 +240,6 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(
 		for (auto i = 0; i < decoded_count; ++i)
 		{
 			const auto sample = static_cast<int>(decode_buffer_[i]);
-
 			abs_max_sample = std::max(std::abs(sample), abs_max_sample);
 		}
 
@@ -340,15 +271,13 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(
 	bstone::logger_->write("\tVolume factor: " + std::to_string(volume_factor));
 }
 
-void AudioExtractorImpl::write_digitized_audio_chunk(
-	const AudioChunk& audio_chunk,
-	bstone::Stream& stream)
+void AudioExtractorImpl::write_digitized_audio_chunk(const AudioChunk& audio_chunk, bstone::Stream& stream)
 {
 	constexpr auto sample_size = 1;
 	constexpr auto bit_depth = sample_size * 8;
 	const auto data_size = audio_chunk.data_size;
 
-	if (!write_wav_header(data_size, bit_depth, bstone::audio_decoder_pcm_fixed_frequency, stream))
+	if (!write_wav_header(data_size, bit_depth, bstone::audio_decoder_w3d_pcm_frequency, stream))
 	{
 		fail("Write error.");
 	}
@@ -380,79 +309,53 @@ void AudioExtractorImpl::write_digitized_audio_chunk(
 
 	const auto volume_factor = 127.0 / abs_max_sample;
 
-	bstone::logger_->write("\tSample rate: " + std::to_string(bstone::audio_decoder_pcm_fixed_frequency));
+	bstone::logger_->write("\tSample rate: " + std::to_string(bstone::audio_decoder_w3d_pcm_frequency));
 	bstone::logger_->write("\tSample count: " + std::to_string(data_size));
 	bstone::logger_->write("\tVolume factor: " + std::to_string(volume_factor));
 }
 
-const char* AudioExtractorImpl::make_file_name_prefix(
-	AudioChunkType audio_chunk_type)
+const char* AudioExtractorImpl::make_file_name_prefix(AudioChunkType audio_chunk_type)
 {
 	switch (audio_chunk_type)
 	{
-		case AudioChunkType::adlib_music:
-			return "music_adlib";
-
-		case AudioChunkType::adlib_sfx:
-			return "sfx_adlib";
-
-		case AudioChunkType::pc_speaker:
-			return "sfx_pc_speaker";
-
-		case AudioChunkType::digitized:
-			return "sfx_digitized";
-
-		default:
-			fail("Unsupported audio chunk type.");
+		case AudioChunkType::adlib_music: return "music_adlib";
+		case AudioChunkType::adlib_sfx: return "sfx_adlib";
+		case AudioChunkType::pc_speaker: return "sfx_pc_speaker";
+		case AudioChunkType::digitized: return "sfx_digitized";
+		default: fail("Unsupported audio chunk type.");
 	}
 }
 
-const char* AudioExtractorImpl::make_file_extension(
-	ExtensionType extension_type)
+const char* AudioExtractorImpl::make_file_extension(ExtensionType extension_type)
 {
 	switch (extension_type)
 	{
-		case ExtensionType::data:
-			return ".data";
-
-		case ExtensionType::wav:
-			return ".wav";
-
-		default:
-			fail("Unsupported extension type.");
+		case ExtensionType::data: return ".data";
+		case ExtensionType::wav: return ".wav";
+		default: fail("Unsupported extension type.");
 	}
 }
 
-std::string AudioExtractorImpl::make_number_string(
-	int number)
+std::string AudioExtractorImpl::make_number_string(int number)
 {
 	assert(number >= 0);
-
 	return StringHelper::make_left_padded_with_zero(number, 8);
 }
 
-std::string AudioExtractorImpl::make_file_name(
-	const AudioChunk& audio_chunk,
-	ExtensionType extension_type)
+std::string AudioExtractorImpl::make_file_name(const AudioChunk& audio_chunk, ExtensionType extension_type)
 {
 	const auto file_name_prefix = make_file_name_prefix(audio_chunk.type);
 	const auto number_string = make_number_string(audio_chunk.audio_index);
 	const auto file_extension = make_file_extension(extension_type);
 	const auto file_name = std::string{} + file_name_prefix + '_' + number_string + file_extension;
-
 	return file_name;
 }
 
-void AudioExtractorImpl::extract_raw_audio_chunk(
-	const std::string& dst_dir,
-	const AudioChunk& audio_chunk)
+void AudioExtractorImpl::extract_raw_audio_chunk(const std::string& dst_dir, const AudioChunk& audio_chunk)
 {
 	const auto file_name = make_file_name(audio_chunk, ExtensionType::data);
-
 	logger_->write(file_name);
-
 	const auto dst_file_name = file_system::append_path(dst_dir, file_name);
-
 	auto file_stream = FileStream{dst_file_name, StreamOpenMode::write};
 
 	if (!file_stream.is_open())
@@ -474,23 +377,17 @@ void AudioExtractorImpl::extract_raw_audio_chunk(
 	logger_->write("\tSHA1: " + sha1.to_string());
 }
 
-void AudioExtractorImpl::extract_decoded_audio_chunk(
-	const std::string& dst_dir,
-	const AudioChunk& audio_chunk)
+void AudioExtractorImpl::extract_decoded_audio_chunk(const std::string& dst_dir, const AudioChunk& audio_chunk)
 {
 	const auto file_name = make_file_name(audio_chunk, ExtensionType::wav);
-
 	logger_->write(file_name);
-
 	const auto dst_file_name = file_system::append_path(dst_dir, file_name);
-
 	auto file_stream = FileStream{dst_file_name, StreamOpenMode::write};
 
 	if (!file_stream.is_open())
 	{
 		fail("Failed to open a file for writing.");
 	}
-
 
 	switch (audio_chunk.type)
 	{
@@ -509,15 +406,13 @@ void AudioExtractorImpl::extract_decoded_audio_chunk(
 	}
 }
 
-void AudioExtractorImpl::extract_audio_chunks(
-	const std::string& dst_dir,
-	const AudioChunkFilter audio_chunk_filter)
+void AudioExtractorImpl::extract_audio_chunks(const std::string& dst_dir, const AudioChunkFilter audio_chunk_filter)
 {
-	const auto audio_chunk_count = audio_content_mgr_->get_chunk_count();
+	const auto audio_chunk_count = audio_content_mgr_.get_chunk_count();
 
 	for (auto i = 0; i < audio_chunk_count; ++i)
 	{
-		const auto& audio_chunk = audio_content_mgr_->get_chunk(i);
+		const auto& audio_chunk = audio_content_mgr_.get_chunk(i);
 
 		if (audio_chunk_filter(audio_chunk))
 		{
@@ -527,20 +422,11 @@ void AudioExtractorImpl::extract_audio_chunks(
 	}
 }
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// ==========================================================================
 
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-AudioExtractorUPtr make_audio_extractor(
-	AudioContentMgr* audio_content_mgr)
+AudioExtractorUPtr make_audio_extractor(AudioContentMgr& audio_content_mgr)
 {
-	assert(audio_content_mgr);
-
 	return std::make_unique<AudioExtractorImpl>(audio_content_mgr);
 }
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
 
 } // bstone

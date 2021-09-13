@@ -24,42 +24,25 @@ Free Software Foundation, Inc.,
 
 #include <memory>
 #include <string>
-
 #include "bstone_audio_content_mgr.h"
-
 
 namespace bstone
 {
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 class AudioExtractor
 {
 public:
 	AudioExtractor() noexcept = default;
-
 	virtual ~AudioExtractor() = default;
 
-
-	virtual void extract_music(
-		const std::string& dst_dir) = 0;
-
-	virtual void extract_sfx(
-		const std::string& dst_dir) = 0;
+	virtual void extract_music(const std::string& dst_dir) = 0;
+	virtual void extract_sfx(const std::string& dst_dir) = 0;
 }; // AudioExtractor
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// ==========================================================================
 
 using AudioExtractorUPtr = std::unique_ptr<AudioExtractor>;
 
-AudioExtractorUPtr make_audio_extractor(
-	AudioContentMgr* audio_content_mgr);
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
+AudioExtractorUPtr make_audio_extractor(AudioContentMgr& audio_content_mgr);
 
 } // bstone

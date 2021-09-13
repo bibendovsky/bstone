@@ -21,45 +21,30 @@ Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-
 //
 // OPL3 emulator interface.
 //
 
-
 #include "bstone_opl3.h"
-
+#include "bstone_dosbox_dbopl.h"
+#include "bstone_nuked_opl3.h"
 
 namespace bstone
 {
 
-
-namespace detail
-{
-
-
-Opl3UPtr make_dbopl_opl3();
-Opl3UPtr make_nuked_opl3();
-
-
-} // detail
-
-
-Opl3UPtr make_opl3(
-	const Opl3Type opl3_type)
+Opl3UPtr make_opl3(Opl3Type opl3_type)
 {
 	switch (opl3_type)
 	{
 		case Opl3Type::dbopl:
-			return detail::make_dbopl_opl3();
+			return make_dbopl_opl3();
 
 		case Opl3Type::nuked:
-			return detail::make_nuked_opl3();
+			return make_nuked_opl3();
 
 		default:
 			return nullptr;
 	}
 }
-
 
 } // bstone

@@ -2765,8 +2765,7 @@ void TP_HandleCodes()
 			// BELL -------------------------------------------------------------
 			//
 		case TP_CNVT_CODE('B', 'E'):
-			sd_play_player_sound(TERM_BEEPSND, bstone::ActorChannel::item);
-
+			sd_play_player_item_sound(TERM_BEEPSND);
 			sd_wait_sound_done();
 			break;
 
@@ -2881,7 +2880,7 @@ void TP_HandleCodes()
 			if ((temp < LASTSOUND))
 			{
 				TP_CacheIn(ct_scaled, 0);
-				sd_play_player_sound(temp, bstone::ActorChannel::item);
+				sd_play_player_item_sound(temp);
 			}
 			first_ch += 2;
 			break;
@@ -3522,7 +3521,7 @@ bool TP_SlowPrint(
 		{
 			if (*string != ' ')
 			{
-				sd_play_player_sound(TERM_TYPESND, bstone::ActorChannel::item);
+				sd_play_player_item_sound(TERM_TYPESND);
 			}
 		}
 
