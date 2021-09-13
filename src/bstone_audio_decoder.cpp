@@ -21,54 +21,40 @@ Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-
 //
 // Audio decoder interface.
 //
 
-
 #include "bstone_audio_decoder.h"
-
+#include <cassert>
 #include "bstone_pc_speaker_audio_decoder.h"
-
+#include "bstone_pcm_audio_decoder.h"
+#include "bstone_adlib_music_decoder.h"
+#include "bstone_adlib_sfx_decoder.h"
 
 namespace bstone
 {
 
-
-namespace detail
-{
-
-
-AudioDecoderUPtr make_adlib_music_audio_decoder(
-	const Opl3Type opl3_type);
-
-AudioDecoderUPtr make_adlib_sfx_audio_decoder(
-	const Opl3Type opl3_type);
-
-
-} // detail
-
-
-AudioDecoderUPtr make_audio_decoder(
-	const AudioDecoderType audio_decoder_type,
-	const Opl3Type opl3_type)
+AudioDecoderUPtr make_audio_decoder(const AudioDecoderType audio_decoder_type, const Opl3Type opl3_type)
 {
 	switch (audio_decoder_type)
 	{
 		case AudioDecoderType::adlib_music:
-			return detail::make_adlib_music_audio_decoder(opl3_type);
+			return make_adlib_music_audio_decoder(opl3_type);
 
 		case AudioDecoderType::adlib_sfx:
-			return detail::make_adlib_sfx_audio_decoder(opl3_type);
+			return make_adlib_sfx_audio_decoder(opl3_type);
 
 		case AudioDecoderType::pc_speaker:
-			return std::make_unique<PcSpeakerAudioDecoder>();
+			return make_pc_speaker_audio_decoder();
+
+		case AudioDecoderType::pcm:
+			return make_pcm_audio_decoder();
 
 		default:
+			assert(false && "Unknown audio decoder type.");
 			return nullptr;
 	}
 }
-
 
 } // bstone

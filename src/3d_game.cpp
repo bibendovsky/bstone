@@ -3027,9 +3027,7 @@ void DrawWarpIn()
 
 	ShadowPrintLocationText(sp_normal);
 	UpdateStatusBar();
-
-	sd_play_player_sound(WARPINSND, bstone::ActorChannel::item);
-
+	sd_play_player_item_sound(WARPINSND);
 	fizzlein = true;
 
 	ThreeDRefresh();
@@ -3059,9 +3057,7 @@ void Warped()
 	RotateView(iangle, 2);
 
 	IN_ClearKeysDown();
-
-	sd_play_player_sound(WARPINSND, bstone::ActorChannel::item);
-
+	sd_play_player_item_sound(WARPINSND);
 	bstone::GenericFizzleFX fizzle(
 		BLACK,
 		true);
@@ -3089,9 +3085,7 @@ void Died()
 	std::int16_t iangle;
 
 	gamestate.weapon = -1; // take away weapon
-
-	sd_play_player_sound(PLAYERDEATHSND, bstone::ActorChannel::voice);
-
+	sd_play_player_voice_sound(PLAYERDEATHSND);
 	iangle = CalcAngle(player, killerobj);
 
 	RotateView(iangle, DEATHROTATE);
@@ -3503,9 +3497,7 @@ restartgame:
 #endif
 
 				UNCACHEGRCHUNK(STARTFONT + 1);
-
-				sd_play_player_sound(BONUS1SND, bstone::ActorChannel::item);
-
+				sd_play_player_item_sound(BONUS1SND);
 				sd_wait_sound_done();
 				IN_UserInput(5 * 60);
 				ClearMemory();

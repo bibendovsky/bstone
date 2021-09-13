@@ -825,6 +825,28 @@ namespace
 {
 
 
+void menu_play_sound(
+	int sound_index)
+{
+	sd_play_ui_sound(sound_index);
+}
+
+void menu_play_esc_pressed_sound()
+{
+	menu_play_sound(ESCPRESSEDSND);
+}
+
+void menu_play_no_way_sound()
+{
+	menu_play_sound(NOWAYSND);
+}
+
+void menu_play_move_gun_1_sound()
+{
+	menu_play_sound(MOVEGUN1SND);
+}
+
+
 using BindsNames = std::map<ScanCode, const char*>;
 
 
@@ -1458,7 +1480,7 @@ void binds_draw_menu()
 				if (Keyboard[ScanCode::sc_escape])
 				{
 					quit = true;
-					sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::unpausable);
+					menu_play_esc_pressed_sound();
 				}
 				else if (LastScan != ScanCode::sc_none)
 				{
@@ -1471,7 +1493,7 @@ void binds_draw_menu()
 					}
 					else
 					{
-						sd_play_player_sound(NOWAYSND, bstone::ActorChannel::unpausable);
+						menu_play_no_way_sound();
 					}
 				}
 			}
@@ -1666,7 +1688,7 @@ void binds_draw_menu()
 			if (handle_escape)
 			{
 				handle_escape = false;
-				sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::unpausable);
+				menu_play_esc_pressed_sound();
 				break;
 			}
 		}
@@ -2213,7 +2235,7 @@ firstpart:
 			default:
 				if (!EpisodeSelect[which])
 				{
-					sd_play_player_sound(NOWAYSND, bstone::ActorChannel::unpausable);
+					menu_play_no_way_sound();
 					CacheMessage(READTHIS_TEXT);
 					IN_ClearKeysDown();
 					IN_Ack();
@@ -3102,6 +3124,7 @@ std::int16_t CP_LoadGame(
 
 		if (SaveGamesAvail[which])
 		{
+			sd_reset_r3_position_cache();
 			auto name = get_saved_game_base_name();
 			name += static_cast<char>('0' + which);
 
@@ -3130,6 +3153,7 @@ restart:
 
 		if (which >= 0 && SaveGamesAvail[which])
 		{
+			sd_reset_r3_position_cache();
 			ShootSnd();
 
 			auto name = get_saved_game_base_name();
@@ -3348,7 +3372,7 @@ std::int16_t CP_SaveGame(
 
 				PrintLSEntry(which, HIGHLIGHT_TEXT_COLOR);
 				VW_UpdateScreen();
-				sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::unpausable);
+				menu_play_esc_pressed_sound();
 				continue;
 			}
 
@@ -3494,7 +3518,7 @@ void MouseSensitivity(
 				mouseadjustment -= 1;
 				DrawMousePos();
 				VW_UpdateScreen();
-				sd_play_player_sound(MOVEGUN1SND, bstone::ActorChannel::unpausable);
+				menu_play_move_gun_1_sound();
 
 				while (Keyboard[ScanCode::sc_left_arrow])
 				{
@@ -3512,7 +3536,7 @@ void MouseSensitivity(
 				mouseadjustment += 1;
 				DrawMousePos();
 				VW_UpdateScreen();
-				sd_play_player_sound(MOVEGUN1SND, bstone::ActorChannel::unpausable);
+				menu_play_move_gun_1_sound();
 
 				while (Keyboard[ScanCode::sc_right_arrow])
 				{
@@ -3541,11 +3565,11 @@ void MouseSensitivity(
 	if (exit == 2)
 	{
 		mouseadjustment = oldMA;
-		sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::unpausable);
+		menu_play_esc_pressed_sound();
 	}
 	else
 	{
-		sd_play_player_sound(SHOOTSND, bstone::ActorChannel::unpausable);
+		ShootSnd();
 	}
 
 	WaitKeyUp();
@@ -4117,8 +4141,7 @@ std::int16_t HandleMenu(
 		return which;
 
 	case 2:
-		sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::unpausable);
-
+		menu_play_esc_pressed_sound();
 		return -1;
 	}
 
@@ -4390,9 +4413,7 @@ std::int16_t Confirm(
 	}
 
 	IN_ClearKeysDown();
-
-	sd_play_player_sound(whichsnd[xit], bstone::ActorChannel::unpausable);
-
+	menu_play_sound(whichsnd[xit]);
 	FREEFONT(STARTFONT + fontnumber);
 
 	return xit;
@@ -4590,7 +4611,7 @@ void DrawMenuGun(
 
 void ShootSnd()
 {
-	sd_play_player_sound(SHOOTSND, bstone::ActorChannel::unpausable);
+	sd_play_ui_sound(SHOOTSND);
 }
 
 void ShowPromo()
@@ -4807,7 +4828,7 @@ void cp_sound_volume(
 			if (old_volumes[0] != *volumes[0])
 			{
 				sd_set_sfx_volume(sd_sfx_volume_);
-				sd_play_player_sound(MOVEGUN1SND, bstone::ActorChannel::unpausable);
+				menu_play_move_gun_1_sound();
 			}
 
 			if (old_volumes[1] != *volumes[1])
@@ -4826,8 +4847,7 @@ void cp_sound_volume(
 		quit = (ci.button1 || Keyboard[ScanCode::sc_escape]);
 	}
 
-	sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::unpausable);
-
+	menu_play_esc_pressed_sound();
 	WaitKeyUp();
 	MenuFadeOut();
 }
@@ -6039,7 +6059,7 @@ void cp_video(
 			break;
 
 		case mvl_filler_color:
-			sd_play_player_sound(ESCPRESSEDSND, bstone::ActorChannel::unpausable);
+			menu_play_esc_pressed_sound();
 			video_draw_menu();
 			MenuFadeIn();
 			WaitKeyUp();

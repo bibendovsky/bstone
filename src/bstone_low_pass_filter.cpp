@@ -21,42 +21,35 @@ Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-
 //
 // Low-pass filter.
 //
 
-
 #include "bstone_low_pass_filter.h"
-
 #include <cmath>
-
 #include <algorithm>
-
 
 namespace bstone
 {
 
+namespace
+{
 
-class LowPassFilterException :
-	public Exception
+class LowPassFilterException : public Exception
 {
 public:
-	explicit LowPassFilterException(
-		const char* message) noexcept
+	explicit LowPassFilterException(const char* message) noexcept
 		:
 		Exception{"LOW_PASS_FILTER", message}
 	{
 	}
 }; // LowPassFilterException
 
+} // namespace
 
 LowPassFilter::LowPassFilter() noexcept = default;
 
-LowPassFilter::LowPassFilter(
-	int filter_order,
-	int cut_off_frequency,
-	int sampling_frequency)
+LowPassFilter::LowPassFilter(int filter_order, int cut_off_frequency, int sampling_frequency)
 try
 {
 	initialize(filter_order, cut_off_frequency, sampling_frequency);
@@ -66,10 +59,7 @@ catch (...)
 	fail_nested(__func__);
 }
 
-void LowPassFilter::initialize(
-	int filter_order,
-	int cut_off_frequency,
-	int sampling_frequency)
+void LowPassFilter::initialize(int filter_order, int cut_off_frequency, int sampling_frequency)
 try
 {
 	if (filter_order < 1)
@@ -93,7 +83,6 @@ try
 	}
 
 	initialize_weights(filter_order, cut_off_frequency, sampling_frequency);
-
 	apply_hann_weights();
 }
 catch (...)
@@ -101,8 +90,7 @@ catch (...)
 	fail_nested(__func__);
 }
 
-double LowPassFilter::process_sample(
-	double sample) noexcept
+double LowPassFilter::process_sample(double sample) noexcept
 {
 	// Shift samples to the right.
 	//
@@ -137,16 +125,12 @@ void LowPassFilter::reset_samples() noexcept
 	std::uninitialized_fill(samples_.begin(), samples_.end(), 0.0);
 }
 
-[[noreturn]]
-void LowPassFilter::fail(
-	const char* message)
+[[noreturn]] void LowPassFilter::fail(const char* message)
 {
 	throw LowPassFilterException{message};
 }
 
-[[noreturn]]
-void LowPassFilter::fail_nested(
-	const char* message)
+[[noreturn]] void LowPassFilter::fail_nested(const char* message)
 {
 	std::throw_with_nested(LowPassFilterException{message});
 }
@@ -156,18 +140,13 @@ double LowPassFilter::get_pi() noexcept
 	return 3.141'592'653'589'793'238'462'643'383'280;
 }
 
-void LowPassFilter::initialize_weights(
-	int filter_order,
-	int cut_off_frequency,
-	int sampling_frequency)
+void LowPassFilter::initialize_weights(int filter_order, int cut_off_frequency, int sampling_frequency)
 {
-	// Filter length.
+	// Filter's length.
 	length_ = filter_order + 1;
-
-	// Filter half length.
+	// Filter's half length.
 	half_length_ = length_ / 2;
-
-	// Filter half length with a peak.
+	// Filter's half length with a peak.
 	left_length_ = (length_ + 1) / 2;
 
 	weights_.resize(left_length_);
@@ -203,6 +182,5 @@ void LowPassFilter::apply_hann_weights() noexcept
 		weights_[i] *= w;
 	}
 }
-
 
 } // bstone

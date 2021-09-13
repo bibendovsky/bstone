@@ -275,8 +275,7 @@ void CheckHighScore(
 #ifdef NDEBUG
 	if (DebugOk)
 	{
-		sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
-
+		sd_play_player_no_way_sound(NOWAYSND);
 		return;
 	}
 #endif // NDEBUG

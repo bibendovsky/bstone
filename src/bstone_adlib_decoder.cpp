@@ -21,25 +21,19 @@ Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-
 //
 // AdLib audio decoder common tasks.
 //
 
-
 #include "bstone_adlib_decoder.h"
-
 #include "bstone_opl3.h"
-
 
 namespace bstone
 {
 namespace adlib
 {
 
-
-bool initialize_registers(
-	Opl3* opl3)
+bool initialize_registers(Opl3* opl3)
 {
 	if (!opl3)
 	{
@@ -57,21 +51,17 @@ bool initialize_registers(
 
 	constexpr auto al_effects = 0xBD;
 	opl3->write(al_effects, 0x00);
-
 	static const auto zero_instrument = Instrument{};
 	return set_instrument(opl3, zero_instrument);
 }
 
-bool set_instrument(
-	Opl3* opl3,
-	const Instrument& instrument)
+bool set_instrument(Opl3* opl3, const Instrument& instrument)
 {
 	// Carrier.
 	constexpr auto c = 3;
 
 	// Modifier.
 	constexpr auto m = 0;
-
 
 	// Operator stuff.
 	//
@@ -81,26 +71,22 @@ bool set_instrument(
 	constexpr auto al_attack = 0x60;
 	constexpr auto al_sus = 0x80;
 	constexpr auto al_wave = 0xE0;
-
+	constexpr auto al_feed_con = 0xC0;
 
 	opl3->write(0xBD, 0);
-
-	opl3->write(m + al_char, instrument.m_char_);
-	opl3->write(m + al_scale, instrument.m_scale_);
-	opl3->write(m + al_attack, instrument.m_attack_);
-	opl3->write(m + al_sus, instrument.m_sus_);
-	opl3->write(m + al_wave, instrument.m_wave_);
-	opl3->write(c + al_char, instrument.c_char_);
-	opl3->write(c + al_scale, instrument.c_scale_);
-	opl3->write(c + al_attack, instrument.c_attack_);
-	opl3->write(c + al_sus, instrument.c_sus_);
-	opl3->write(c + al_wave, instrument.c_wave_);
-
+	opl3->write(m + al_char, instrument.m_char);
+	opl3->write(m + al_scale, instrument.m_scale);
+	opl3->write(m + al_attack, instrument.m_attack);
+	opl3->write(m + al_sus, instrument.m_sus);
+	opl3->write(m + al_wave, instrument.m_wave);
+	opl3->write(c + al_char, instrument.c_char);
+	opl3->write(c + al_scale, instrument.c_scale);
+	opl3->write(c + al_attack, instrument.c_attack);
+	opl3->write(c + al_sus, instrument.c_sus);
+	opl3->write(c + al_wave, instrument.c_wave);
 	opl3->write(al_feed_con, 0);
-
 	return true;
 }
-
 
 } // adlib
 } // bstone

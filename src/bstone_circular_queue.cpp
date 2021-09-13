@@ -40,7 +40,7 @@ public:
 	explicit CircularQueueException(
 		const char* message) noexcept
 		:
-		Exception{"BSTONE_CIRCULAR_QUEUE", message}
+		Exception{"CIRCULAR_QUEUE", message}
 	{
 	}
 }; // CircularQueueException

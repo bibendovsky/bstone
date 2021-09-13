@@ -9201,9 +9201,7 @@ try
 			WindowH = 168;
 
 			Message(message);
-
-			sd_play_player_sound(NOWAYSND, bstone::ActorChannel::no_way);
-
+			sd_play_player_no_way_sound(NOWAYSND);
 			WindowX = old_wx;
 			WindowY = old_wy;
 			WindowW = old_ww;

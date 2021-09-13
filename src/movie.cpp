@@ -391,9 +391,7 @@ void Movie::handle_page(
 		//
 
 		const auto sound_chunk = bstone::Endian::little(*reinterpret_cast<const std::uint16_t*>(frame));
-
-		sd_play_player_sound(sound_chunk, bstone::ActorChannel::item);
-
+		sd_play_player_item_sound(sound_chunk);
 		buffer_ptr_ += blk.recsize;
 	}
 	break;

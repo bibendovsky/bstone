@@ -21,66 +21,52 @@ Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-
 //
 // AdLib audio decoder common tasks.
 //
 
-
 #ifndef BSTONE_ADLIB_DECODER_INCLUDED
 #define BSTONE_ADLIB_DECODER_INCLUDED
-
 
 namespace bstone
 {
 
-
 class Opl3;
-
 
 namespace adlib
 {
-
 
 // Channel stuff.
 //
 
 constexpr auto al_freq_l = 0xA0;
 constexpr auto al_freq_h = 0xB0;
-constexpr auto al_feed_con = 0xC0;
-
 
 struct Instrument
 {
-	int m_char_;
-	int c_char_;
-	int m_scale_;
-	int c_scale_;
-	int m_attack_;
-	int c_attack_;
-	int m_sus_;
-	int c_sus_;
-	int m_wave_;
-	int c_wave_;
+	int m_char;
+	int c_char;
+	int m_scale;
+	int c_scale;
+	int m_attack;
+	int c_attack;
+	int m_sus;
+	int c_sus;
+	int m_wave;
+	int c_wave;
 }; // Instrument
-
 
 //
 // Initializes OPL3 emulator's registries.
 //
-bool initialize_registers(
-	Opl3* opl3);
+bool initialize_registers(Opl3* opl3);
 
 //
 // Initializes OPL3 emulator instrument's registries.
 //
-bool set_instrument(
-	Opl3* opl3,
-	const Instrument& instrument);
-
+bool set_instrument(Opl3* opl3, const Instrument& instrument);
 
 } // adlib
 } // bstone
-
 
 #endif // !BSTONE_ADLIB_DECODER_INCLUDED
