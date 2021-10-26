@@ -10,6 +10,7 @@
 ### Fixed
 - Cancel strafe movement if both keys are pressed.
 - [SDL] Reduce CPU usage for digitized low-pass filtering.
+- [SDL] Error "Renderer already associated with window".
 - Option `vid_renderer` now works in command-line.
 - [OAL] Load AL symbols within context.
 - [OAL] List only available extensions.
