@@ -2393,10 +2393,11 @@ void SetupGameLevel()
 	LastInfoAttacker = nothing;
 
 	// BBi
-	bool is_red_key_present = false;
-	bool is_projection_generator_present = false;
+	auto aog_has_red_key = false;
+	auto aog_has_projection_generator = false;
 
-	auto is_wintile_found = false;
+	auto aog_exit_wall_count = 0;
+	auto has_win_tile = false;
 	// BBi
 
 	for (y = 0; y < mapheight; y++)
@@ -2406,20 +2407,21 @@ void SetupGameLevel()
 			tile = *map++;
 			lock = static_cast<keytype>(*map1);
 
-			if (y <= 63 && x <= 63 && tile == 30)
+			// [AOG] Middle Shuttle / Exit wall.
+			if (assets_info.is_aog() && tile == 30)
 			{
-				if (assets_info.is_aog() && gamestate.episode < 5 && gamestate.mapon == 9)
+				aog_exit_wall_count += 1;
+
+				if (aog_exit_wall_count == 1)
 				{
-					if (is_wintile_found)
-					{
-						::fail("Multiple \"wintile\"s on level.");
-					}
-
-					is_wintile_found = true;
-
 					gamestate.wintilex = x;
 					gamestate.wintiley = y;
 				}
+			}
+
+			if (tile == WINTIGGERTILE)
+			{
+				has_win_tile = true;
 			}
 
 			if (tile >= 88 && tile <= 105)
@@ -2598,14 +2600,14 @@ void SetupGameLevel()
 			}
 
 			// BBi
-			if (map1[0] == 55)
+			if (map1[0] == 55 && assets_info.is_aog())
 			{
-				is_red_key_present = true;
+				aog_has_red_key = true;
 			}
 
-			if (map1[0] == 177)
+			if (map1[0] == 177 && assets_info.is_aog_full())
 			{
-				is_projection_generator_present = true;
+				aog_has_projection_generator = true;
 			}
 
 			switch (map1[0])
@@ -2613,7 +2615,7 @@ void SetupGameLevel()
 			case 445:
 			case 463:
 			case 481:
-				is_red_key_present = true;
+				aog_has_red_key = true;
 				break;
 
 			default:
@@ -2622,6 +2624,14 @@ void SetupGameLevel()
 			// BBi
 
 			map1++;
+		}
+	}
+
+	if (assets_info.is_aog())
+	{
+		if (has_win_tile && aog_exit_wall_count != 1)
+		{
+			::fail("Wintile requires a single middle Shuttle / Exit wall.");
 		}
 	}
 
@@ -2684,7 +2694,7 @@ void SetupGameLevel()
 
 	if (assets_info.is_aog())
 	{
-		if (!is_red_key_present &&
+		if (!aog_has_red_key &&
 			gamestate.mapon > 0 &&
 			gamestate.mapon < 10 &&
 			gamestuff.level[gamestate.mapon + 1].locked)
@@ -2695,7 +2705,7 @@ void SetupGameLevel()
 		if (assets_info.is_aog_full() &&
 			gamestate.episode == 5 &&
 			gamestate.mapon == 9 &&
-			!is_projection_generator_present)
+			!aog_has_projection_generator)
 		{
 			::fail("No projection generator(s) on floor 10 episode 6.");
 		}

@@ -15,6 +15,7 @@
 - [OAL] Load AL symbols within context.
 - [OAL] List only available extensions.
 - Fix crash after changing audio driver via the menu.
+- [AOG] Conditions to complete the episode.
 
 ### Changed
 - [OAL] List devices with `ALC_ENUMERATE_ALL_EXT` if available.
