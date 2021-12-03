@@ -16,6 +16,7 @@
 - [OAL] List only available extensions.
 - Fix crash after changing audio driver via the menu.
 - [AOG] Conditions to complete the episode.
+- Render 3D scene behind "You are jamming" cheat message box.
 
 ### Changed
 - [OAL] List devices with `ALC_ENUMERATE_ALL_EXT` if available.
