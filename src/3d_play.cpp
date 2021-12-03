@@ -900,12 +900,17 @@ void CheckKeys()
 			ClearMemory();
 			ClearSplitVWB();
 
-			// BBi
+// BBi
 #if 0
 			VW_ScreenToScreen(PAGE1START, bufferofs, 320, 160);
 #endif
 
+			const auto old_vid_is_hud = ::vid_is_hud;
+			::vid_is_hud = true;
+
 			Message("\n NOW you're jammin'!! \n");
+
+			::vid_is_hud = old_vid_is_hud;
 
 			IN_ClearKeysDown();
 			IN_Ack();
