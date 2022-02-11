@@ -3123,15 +3123,18 @@ void Died()
 
 		gamestuff = old_gamestuff;
 
-#if 0
-		gamestate.health = 100;
-		gamestate.weapons = 1 << wp_autocharge;
-		gamestate.weapon = gamestate.chosenweapon = wp_autocharge;
+		if (get_assets_info().is_aog())
+		{
+			gamestate.health = 100;
+			gamestate.weapons = 1 << wp_autocharge;
+			gamestate.weapon = wp_autocharge;
+			gamestate.chosenweapon = wp_autocharge;
 
-		gamestate.ammo = STARTAMMO;
-		gamestate.attackframe = gamestate.attackcount =
+			gamestate.ammo = STARTAMMO;
+			gamestate.attackframe = 0;
+			gamestate.attackcount = 0;
 			gamestate.weaponframe = 0;
-#endif
+		}
 
 		DrawHealth();
 		DrawKeys();
