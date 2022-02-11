@@ -17,6 +17,7 @@
 - Fix crash after changing audio driver via the menu.
 - [AOG] Conditions to complete the episode.
 - Render 3D scene behind "You are jamming" cheat message box.
+- [AOG] Current weapons, weapons, ammo and attack state on die with available extra live(s).
 
 ### Changed
 - [OAL] List devices with `ALC_ENUMERATE_ALL_EXT` if available.
