@@ -72,7 +72,7 @@ public:
 }; // Utf16ToUtf8Exception
 
 
-#if _USING_V110_SDK71_
+#ifdef _USING_V110_SDK71_
 using WStringConverter = std::wstring_convert<std::codecvt_utf8_utf16<std::uint16_t>, std::uint16_t>;
 #else
 using WStringConverter = std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>;
@@ -117,7 +117,7 @@ std::string utf16_to_utf8(
 {
 	try
 	{
-#if _USING_V110_SDK71_
+#ifdef _USING_V110_SDK71_
 		const auto& uint16_string = std::basic_string<std::uint16_t>(
 			reinterpret_cast<const std::uint16_t*>(utf16_string.c_str()),
 			utf16_string.size()

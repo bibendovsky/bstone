@@ -85,11 +85,6 @@ struct SdR3PositionCacheItem
 using SdR3PositionCache = std::vector<SdR3PositionCacheItem>;
 SdR3PositionCache sd_r3_position_cache{};
 
-[[noreturn]] void sd_fail(const char* message)
-{
-	throw SdException{message};
-}
-
 [[noreturn]] void sd_fail_nested(const char* message)
 {
 	std::throw_with_nested(SdException{message});

@@ -46,11 +46,6 @@ public:
 	}
 }; // AudioMixerException
 
-[[noreturn]] void audio_mixer_fail(const char* message)
-{
-	throw AudioMixerException{message};
-}
-
 [[noreturn]] void audio_mixer_fail_nested(const char* message)
 {
 	std::throw_with_nested(AudioMixerException{message});
