@@ -1531,7 +1531,10 @@ bool Assets::are_official_levels(
 {
 	for (const auto& resource : get_all_resources())
 	{
-		return resource.hash_string == levels_hash;
+		if (resource.hash_string == levels_hash)
+		{
+			return true;
+		}
 	}
 
 	return false;
