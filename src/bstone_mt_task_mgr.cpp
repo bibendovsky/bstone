@@ -37,66 +37,14 @@ Free Software Foundation, Inc.,
 #include <vector>
 
 #include "bstone_exception.h"
+#include "bstone_spinlock.h"
 
 
 namespace bstone
 {
 
-
 namespace detail
 {
-
-
-// ==========================================================================
-// MtSpinFlag
-//
-
-class MtSpinFlag
-{
-public:
-	static constexpr int default_spin_count = 4096;
-
-
-	explicit MtSpinFlag(
-		int spin_count = default_spin_count);
-
-	MtSpinFlag(
-		const MtSpinFlag& that) = delete;
-
-	MtSpinFlag& operator=(
-		const MtSpinFlag& that) = delete;
-
-	~MtSpinFlag();
-
-
-	void lock() noexcept;
-
-	void unlock() noexcept;
-
-
-private:
-	using Flag = std::atomic_flag;
-
-
-	volatile int spin_count_;
-	Flag flag_;
-
-
-	[[noreturn]]
-	static void fail(
-		const char* message);
-
-	[[noreturn]]
-	static void fail_nested(
-		const char* message);
-}; // MtSpinFlag
-
-using MtSpinFlagLock = std::unique_lock<MtSpinFlag>;
-
-//
-// MtSpinFlag
-// ==========================================================================
-
 
 // ==========================================================================
 // MtTaskQueue
@@ -130,12 +78,12 @@ private:
 	using Items = std::vector<MtTaskPtr>;
 	using Index = unsigned int;
 	using MtIndex = std::atomic<Index>;
-
+	using MtSpinFlagLock = std::unique_lock<Spinlock>;
 
 	Index size_;
 	MtIndex mt_read_index_;
 	MtIndex mt_write_index_;
-	MtSpinFlag mt_spin_flag_;
+	Spinlock mt_spin_flag_;
 	Items items_;
 
 
@@ -287,63 +235,6 @@ public:
 }; // MtSpinFlagException
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// ==========================================================================
-// MtSpinFlag
-//
-
-MtSpinFlag::MtSpinFlag(
-	int spin_count)
-try
-	:
-	spin_count_{spin_count},
-	flag_{}
-{
-	if (spin_count_ < 0)
-	{
-		fail("Spin count out of range.");
-	}
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-MtSpinFlag::~MtSpinFlag() = default;
-
-void MtSpinFlag::lock() noexcept
-{
-	while (flag_.test_and_set(std::memory_order_acquire))
-	{
-		for (int i = 0; i < spin_count_; ++i)
-		{
-		}
-	}
-}
-
-void MtSpinFlag::unlock() noexcept
-{
-	flag_.clear(std::memory_order_release);
-}
-
-[[noreturn]]
-void MtSpinFlag::fail(
-	const char* message)
-{
-	throw MtSpinFlagException{message};
-}
-
-[[noreturn]]
-void MtSpinFlag::fail_nested(
-	const char* message)
-{
-	std::throw_with_nested(MtSpinFlagException{message});
-}
-
-//
-// MtSpinFlag
-// ==========================================================================
 
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
