@@ -540,18 +540,18 @@ void PollMouseMove()
 		is_running = !is_running;
 	}
 
-	const auto move_scale = 1.0F + (mouseadjustment / 6.0F);
+	const auto move_scale = 1.0 + (mouseadjustment / 6.0);
 
-	auto delta_x = static_cast<float>(mousexmove);
-	auto delta_y = static_cast<float>(mouseymove);
+	auto delta_x = static_cast<double>(mousexmove);
+	auto delta_y = static_cast<double>(mouseymove);
 
 	if (is_running)
 	{
-		delta_x *= 1.5F;
-		delta_y *= 5.0F;
+		delta_x *= 1.5;
+		delta_y *= 5.0;
 	}
 
-	delta_y = 0.0F;
+	delta_y = 0.0;
 
 	delta_x *= move_scale;
 	delta_y *= move_scale;

@@ -405,13 +405,6 @@ namespace
 SDL_DisplayMode vid_display_mode_;
 
 
-const std::string& vid_get_empty_string()
-{
-	static const auto result = std::string{};
-
-	return result;
-}
-
 const std::string& vid_get_nearest_value_string()
 {
 	static const auto result = std::string{"nearest"};

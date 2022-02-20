@@ -2606,13 +2606,6 @@ void text_extractor_fail(
 	text_extractor_fail(error_message.c_str());
 }
 
-[[noreturn]]
-void text_extractor_fail_nested(
-	const char* message)
-{
-	std::throw_with_nested(TextExtractorException{message});
-}
-
 
 } // namespace
 

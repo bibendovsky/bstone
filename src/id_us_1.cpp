@@ -54,6 +54,7 @@ Free Software Foundation, Inc.,
 #include <cstring>
 
 #include <atomic>
+#include <tuple>
 
 #include "SDL_timer.h"
 
@@ -111,14 +112,10 @@ namespace
 SDL_TimerID sys_timer_id;
 
 
-Uint32 sys_timer_callback(
-	Uint32 interval,
-	void* param)
+Uint32 sys_timer_callback(Uint32 interval, void* param) noexcept
 {
-	static_cast<void>(param);
-
+	std::ignore = param;
 	++TimeCount;
-
 	return interval;
 }
 

@@ -665,19 +665,19 @@ bool FileStream::write(
 
 	if (win32_result == 0)
 	{
-		return 0;
+		return false;
 	}
 
-	return static_cast<int>(win32_number_of_bytes_written);
+	return win32_number_of_bytes_written == static_cast<DWORD>(count);
 #else
 	const auto posix_result = ::write(handle_, buffer, static_cast<size_t>(count));
 
 	if (posix_result == -1)
 	{
-		return 0;
+		return false;
 	}
 
-	return static_cast<int>(posix_result);
+	return posix_result == count;
 #endif // _WIN32
 }
 

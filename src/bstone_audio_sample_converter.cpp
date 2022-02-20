@@ -56,11 +56,11 @@ float AudioSampleConverter::u8_to_f32(std::uint8_t u8_sample) noexcept
 
 	if (sample_s8 < 0)
 	{
-		return sample_s8 / 128.0F;
+		return static_cast<float>(sample_s8) / 128.0F;
 	}
 	else if (sample_s8 > 0)
 	{
-		return sample_s8 / 127.0F;
+		return static_cast<float>(sample_s8) / 127.0F;
 	}
 	else
 	{
