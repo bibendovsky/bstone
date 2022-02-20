@@ -1811,7 +1811,7 @@ void US_ControlPanel(
 	const auto& assets_info = get_assets_info();
 
 	menu_background_color = (
-		(assets_info.is_aog_sw_v3_0() | assets_info.is_aog_full_v3_0()) ?
+		(assets_info.is_aog_sw_v3_0() || assets_info.is_aog_full_v3_0()) ?
 		0x04 :
 		TERM_BACK_COLOR);
 
