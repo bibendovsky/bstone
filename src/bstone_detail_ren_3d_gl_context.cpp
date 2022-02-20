@@ -171,32 +171,32 @@ private:
 	const Ren3dDeviceFeatures& device_features_;
 	const Ren3dGlDeviceFeatures& gl_device_features_;
 
-	Rgba8 clear_color_;
+	Rgba8 clear_color_{};
 
-	Ren3dViewport viewport_;
+	Ren3dViewport viewport_{};
 
-	bool is_scissor_enabled_;
-	Ren3dScissorBox scissor_box_;
+	bool is_scissor_enabled_{};
+	Ren3dScissorBox scissor_box_{};
 
-	bool is_culling_enabled_;
-	Ren3dCullingFace culling_face_;
-	Ren3dCullingMode culling_mode_;
+	bool is_culling_enabled_{};
+	Ren3dCullingFace culling_face_{};
+	Ren3dCullingMode culling_mode_{};
 
-	bool is_depth_test_enabled_;
-	bool is_depth_write_enabled_;
+	bool is_depth_test_enabled_{};
+	bool is_depth_write_enabled_{};
 
-	bool is_blending_enabled_;
-	Ren3dBlendingFunc blending_func_;
+	bool is_blending_enabled_{};
+	Ren3dBlendingFunc blending_func_{};
 
-	Ren3dGlVertexInputMgrUPtr vertex_input_manager_;
-	Ren3dGlSamplerMgrUPtr sampler_manager_;
-	Ren3dGlTextureMgrUPtr texture_manager_;
-	Ren3dGlShaderStageMgrUPtr shader_stage_manager_;
+	Ren3dGlVertexInputMgrUPtr vertex_input_manager_{};
+	Ren3dGlSamplerMgrUPtr sampler_manager_{};
+	Ren3dGlTextureMgrUPtr texture_manager_{};
+	Ren3dGlShaderStageMgrUPtr shader_stage_manager_{};
 
-	Ren3dGlSamplerPtr sampler_;
-	Ren3dGlTexture2dPtr texture_2d_;
-	Ren3dGlVertexInputPtr vertex_input_;
-	Ren3dGlShaderStagePtr shader_stage_;
+	Ren3dGlSamplerPtr sampler_{};
+	Ren3dGlTexture2dPtr texture_2d_{};
+	Ren3dGlVertexInputPtr vertex_input_{};
+	Ren3dGlShaderStagePtr shader_stage_{};
 
 
 	[[noreturn]]
@@ -270,27 +270,13 @@ Ren3dGlContextImpl::Ren3dGlContextImpl(
 try
 	:
 	device_features_{device_features},
-	gl_device_features_{gl_device_features},
-	clear_color_{},
-	viewport_{},
-	is_scissor_enabled_{},
-	scissor_box_{},
-	is_culling_enabled_{},
-	culling_face_{},
-	culling_mode_{},
-	is_depth_test_enabled_{},
-	is_depth_write_enabled_{},
-	is_blending_enabled_{},
-	blending_func_{},
-	vertex_input_manager_{Ren3dGlVertexInputMgrFactory::create(this)},
-	sampler_manager_{Ren3dGlSamplerMgrFactory::create(this)},
-	texture_manager_{Ren3dGlTextureMgrFactory::create(this)},
-	shader_stage_manager_{Ren3dGlShaderStageMgrFactory::create(this)},
-	sampler_{},
-	texture_2d_{},
-	vertex_input_{},
-	shader_stage_{}
+	gl_device_features_{gl_device_features}
 {
+	vertex_input_manager_ = Ren3dGlVertexInputMgrFactory::create(this);
+	sampler_manager_ = Ren3dGlSamplerMgrFactory::create(this);
+	texture_manager_ = Ren3dGlTextureMgrFactory::create(this);
+	shader_stage_manager_ = Ren3dGlShaderStageMgrFactory::create(this);
+
 	set_max_mipmap_quality();
 
 	set_clear_defaults();
