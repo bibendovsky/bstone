@@ -2099,7 +2099,7 @@ void PlayLoop()
 			select_floor();
 		}
 
-		if (screenfaded & !playstate)
+		if (screenfaded && !playstate)
 		{
 			VW_FadeIn();
 		}
