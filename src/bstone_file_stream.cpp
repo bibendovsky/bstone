@@ -21,14 +21,11 @@ Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-
 //
 // File stream.
 //
 
-
 #include "bstone_file_stream.h"
-
 
 #ifdef _WIN32
 #include <windows.h>
@@ -36,23 +33,17 @@ Free Software Foundation, Inc.,
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-
-static_assert(sizeof(::off_t) >= sizeof(std::int64_t), "Unsupported file size type.");
 #endif // _WIN32
 
 #include <cassert>
-
 #include <memory>
 #include <utility>
-
 
 namespace bstone
 {
 
-
 namespace
 {
-
 
 const auto file_stream_invalid_handle =
 #ifdef _WIN32
@@ -62,236 +53,93 @@ const auto file_stream_invalid_handle =
 #endif // _WIN32
 ;
 
-
 #if _WIN32
-bool win32_is_utf8() noexcept
-{
-	static const auto result = (::GetACP() == CP_UTF8);
-	return result;
-}
-
-int win32_get_utf8_to_utf16_size(
-	const char* u8_string,
-	int u8_string_size) noexcept
+int win32_get_utf8_to_utf16_size(const char* u8_string, int u8_string_size) noexcept
 {
 	assert(u8_string);
 	assert(u8_string_size > 0);
-
-	::WCHAR buffer;
-
-	return ::MultiByteToWideChar(
-		CP_UTF8,
-		0,
-		u8_string,
-		u8_string_size,
-		&buffer,
-		0
-	);
+	WCHAR buffer;
+	return MultiByteToWideChar(CP_UTF8, 0, u8_string, u8_string_size, &buffer, 0);
 }
 
-int win32_utf8_to_utf16(
-	const char* u8_string,
-	int u8_string_size,
-	::LPWSTR u16_string,
-	int u16_string_size) noexcept
+int win32_utf8_to_utf16(const char* u8_string, int u8_string_size, LPWSTR u16_string, int u16_string_size) noexcept
 {
 	assert(u8_string);
 	assert(u8_string_size > 0);
 	assert(u16_string);
 	assert(u16_string_size > 0);
-
-	return ::MultiByteToWideChar(
-		CP_UTF8,
-		0,
-		u8_string,
-		u8_string_size,
-		u16_string,
-		u16_string_size
-	);
+	return MultiByteToWideChar(CP_UTF8, 0, u8_string, u8_string_size, u16_string, u16_string_size);
 }
 
 
-::HANDLE win32_create_file_utf16_convert_and_call(
-	::LPCSTR lpFileName,
-	int lpFileName_size,
-	::LPWSTR u16_lpFileName,
-	int u16_lpFileName_size,
-	::DWORD dwDesiredAccess,
-	::DWORD dwShareMode,
-	::DWORD dwCreationDisposition)
+HANDLE win32_create_file_utf16_convert_and_call(LPCSTR lpFileName, int lpFileName_size, LPWSTR u16_lpFileName, int u16_lpFileName_size, DWORD dwDesiredAccess, DWORD dwShareMode, DWORD dwCreationDisposition)
 {
-	const auto u16_nul_index = win32_utf8_to_utf16(
-		lpFileName,
-		lpFileName_size,
-		u16_lpFileName,
-		u16_lpFileName_size
-	);
-
+	const auto u16_nul_index = win32_utf8_to_utf16(lpFileName, lpFileName_size, u16_lpFileName, u16_lpFileName_size);
 	u16_lpFileName[u16_nul_index] = L'\0';
-
-	return ::CreateFileW(
-		u16_lpFileName,
-		dwDesiredAccess,
-		dwShareMode,
-		nullptr,
-		dwCreationDisposition,
-		FILE_ATTRIBUTE_NORMAL,
-		nullptr
-	);
+	return CreateFileW(u16_lpFileName, dwDesiredAccess, dwShareMode, nullptr, dwCreationDisposition, FILE_ATTRIBUTE_NORMAL, nullptr);
 }
 
-::HANDLE win32_create_file_utf16_static(
-	::LPCSTR lpFileName,
-	int lpFileName_size,
-	int u16_lpFileName_size,
-	::DWORD dwDesiredAccess,
-	::DWORD dwShareMode,
-	::DWORD dwCreationDisposition)
+HANDLE win32_create_file_utf16_static(LPCSTR lpFileName, int lpFileName_size, int u16_lpFileName_size, DWORD dwDesiredAccess, DWORD dwShareMode, DWORD dwCreationDisposition)
 {
-	::WCHAR u16_buffer[MAX_PATH + 1];
-
-	return win32_create_file_utf16_convert_and_call(
-		lpFileName,
-		lpFileName_size,
-		u16_buffer,
-		u16_lpFileName_size,
-		dwDesiredAccess,
-		dwShareMode,
-		dwCreationDisposition
-	);
+	WCHAR u16_buffer[MAX_PATH + 1];
+	return win32_create_file_utf16_convert_and_call(lpFileName, lpFileName_size, u16_buffer, u16_lpFileName_size, dwDesiredAccess, dwShareMode, dwCreationDisposition);
 }
 
-::HANDLE win32_create_file_utf16_dynamic(
-	::LPCSTR lpFileName,
-	int lpFileName_size,
-	int u16_lpFileName_size,
-	::DWORD dwDesiredAccess,
-	::DWORD dwShareMode,
-	::DWORD dwCreationDisposition)
+HANDLE win32_create_file_utf16_dynamic(LPCSTR lpFileName, int lpFileName_size, int u16_lpFileName_size, DWORD dwDesiredAccess, DWORD dwShareMode, DWORD dwCreationDisposition)
 {
-	auto u16_buffer = std::make_unique<::WCHAR[]>(u16_lpFileName_size + 1);
-
-	return win32_create_file_utf16_convert_and_call(
-		lpFileName,
-		lpFileName_size,
-		u16_buffer.get(),
-		u16_lpFileName_size,
-		dwDesiredAccess,
-		dwShareMode,
-		dwCreationDisposition
-	);
+	auto u16_buffer = std::make_unique<WCHAR[]>(u16_lpFileName_size + 1);
+	return win32_create_file_utf16_convert_and_call(lpFileName, lpFileName_size, u16_buffer.get(), u16_lpFileName_size, dwDesiredAccess, dwShareMode, dwCreationDisposition);
 }
 
-::HANDLE win32_create_file_utf16(
-	::LPCSTR lpFileName,
-	int lpFileName_size,
-	::DWORD dwDesiredAccess,
-	::DWORD dwShareMode,
-	::DWORD dwCreationDisposition)
+HANDLE win32_create_file_utf16(LPCSTR lpFileName, int lpFileName_size, DWORD dwDesiredAccess, DWORD dwShareMode, DWORD dwCreationDisposition)
 {
 	const auto u16_file_name_size = win32_get_utf8_to_utf16_size(lpFileName, lpFileName_size);
 
 	if (u16_file_name_size <= MAX_PATH)
 	{
-		return win32_create_file_utf16_static(
-			lpFileName,
-			lpFileName_size,
-			u16_file_name_size,
-			dwDesiredAccess,
-			dwShareMode,
-			dwCreationDisposition
-		);
+		return win32_create_file_utf16_static(lpFileName, lpFileName_size, u16_file_name_size, dwDesiredAccess, dwShareMode, dwCreationDisposition);
 	}
 	else
 	{
-		return win32_create_file_utf16_dynamic(
-			lpFileName,
-			lpFileName_size,
-			u16_file_name_size,
-			dwDesiredAccess,
-			dwShareMode,
-			dwCreationDisposition
-		);
+		return win32_create_file_utf16_dynamic(lpFileName, lpFileName_size, u16_file_name_size, dwDesiredAccess, dwShareMode, dwCreationDisposition);
 	}
 }
 
-
-::DWORD win32_get_file_attributes_utf16_convert_and_call(
-	::LPCSTR lpFileName,
-	int lpFileName_size,
-	::LPWSTR u16_lpFileName,
-	int u16_lpFileName_size)
+DWORD win32_get_file_attributes_utf16_convert_and_call(LPCSTR lpFileName, int lpFileName_size, LPWSTR u16_lpFileName, int u16_lpFileName_size)
 {
-	const auto u16_nul_index = win32_utf8_to_utf16(
-		lpFileName,
-		lpFileName_size,
-		u16_lpFileName,
-		u16_lpFileName_size
-	);
-
+	const auto u16_nul_index = win32_utf8_to_utf16(lpFileName, lpFileName_size, u16_lpFileName, u16_lpFileName_size);
 	u16_lpFileName[u16_nul_index] = L'\0';
-
-	return ::GetFileAttributesW(u16_lpFileName);
+	return GetFileAttributesW(u16_lpFileName);
 }
 
-::DWORD win32_get_file_attributes_utf16_static(
-	::LPCSTR lpFileName,
-	int lpFileName_size,
-	int u16_lpFileName_size)
+DWORD win32_get_file_attributes_utf16_static(LPCSTR lpFileName, int lpFileName_size, int u16_lpFileName_size)
 {
-	::WCHAR u16_buffer[MAX_PATH + 1];
-
-	return win32_get_file_attributes_utf16_convert_and_call(
-		lpFileName,
-		lpFileName_size,
-		u16_buffer,
-		u16_lpFileName_size
-	);
+	WCHAR u16_buffer[MAX_PATH + 1];
+	return win32_get_file_attributes_utf16_convert_and_call(lpFileName, lpFileName_size, u16_buffer, u16_lpFileName_size);
 }
 
-::DWORD win32_get_file_attributes_utf16_dynamic(
-	::LPCSTR lpFileName,
-	int lpFileName_size,
-	int u16_lpFileName_size)
+DWORD win32_get_file_attributes_utf16_dynamic(LPCSTR lpFileName, int lpFileName_size, int u16_lpFileName_size)
 {
-	auto u16_buffer = std::make_unique<::WCHAR[]>(u16_lpFileName_size + 1);
-
-	return win32_get_file_attributes_utf16_convert_and_call(
-		lpFileName,
-		lpFileName_size,
-		u16_buffer.get(),
-		u16_lpFileName_size
-	);
+	auto u16_buffer = std::make_unique<WCHAR[]>(u16_lpFileName_size + 1);
+	return win32_get_file_attributes_utf16_convert_and_call(lpFileName, lpFileName_size, u16_buffer.get(), u16_lpFileName_size);
 }
 
-::DWORD win32_get_file_attributes_utf16(
-	::LPCSTR lpFileName,
-	int lpFileName_size)
+DWORD win32_get_file_attributes_utf16(LPCSTR lpFileName, int lpFileName_size)
 {
 	const auto u16_file_name_size = win32_get_utf8_to_utf16_size(lpFileName, lpFileName_size);
 
 	if (u16_file_name_size <= MAX_PATH)
 	{
-		return win32_get_file_attributes_utf16_static(
-			lpFileName,
-			lpFileName_size,
-			u16_file_name_size
-		);
+		return win32_get_file_attributes_utf16_static(lpFileName, lpFileName_size, u16_file_name_size);
 	}
 	else
 	{
-		return win32_get_file_attributes_utf16_dynamic(
-			lpFileName,
-			lpFileName_size,
-			u16_file_name_size
-		);
+		return win32_get_file_attributes_utf16_dynamic(lpFileName, lpFileName_size, u16_file_name_size);
 	}
 }
 #endif // _WIN32
 
-
 } // namespace
-
 
 FileStream::FileStream() noexcept
 	:
@@ -299,17 +147,14 @@ FileStream::FileStream() noexcept
 {
 }
 
-FileStream::FileStream(
-	const std::string& file_name,
-	StreamOpenMode open_mode) noexcept
+FileStream::FileStream(const std::string& file_name, StreamOpenMode open_mode) noexcept
 	:
 	FileStream{}
 {
 	static_cast<void>(open(file_name, open_mode));
 }
 
-FileStream::FileStream(
-	FileStream&& rhs) noexcept
+FileStream::FileStream(FileStream&& rhs) noexcept
 	:
 	FileStream{}
 {
@@ -327,9 +172,7 @@ FileStream::~FileStream()
 	}
 }
 
-bool FileStream::open(
-	const std::string& file_name,
-	StreamOpenMode open_mode) noexcept
+bool FileStream::open(const std::string& file_name, StreamOpenMode open_mode) noexcept
 {
 	close_internal();
 
@@ -343,9 +186,9 @@ bool FileStream::open(
 	auto is_writable = false;
 	auto is_accept_already_exists = false;
 
-	auto win32_desired_access = ::DWORD{};
-	constexpr auto win32_share_mode = ::DWORD{FILE_SHARE_READ};
-	auto win32_creation_disposition = ::DWORD{};
+	auto win32_desired_access = DWORD{};
+	constexpr auto win32_share_mode = DWORD{FILE_SHARE_READ};
+	auto win32_creation_disposition = DWORD{};
 
 	switch (open_mode)
 	{
@@ -374,37 +217,15 @@ bool FileStream::open(
 			return false;
 	}
 
-	auto win32_handle = ::HANDLE{};
+	auto win32_handle = HANDLE{};
 
-	if (win32_is_utf8())
-	{
-		win32_handle = ::CreateFileA(
-			file_name.c_str(),
-			win32_desired_access,
-			win32_share_mode,
-			nullptr,
-			win32_creation_disposition,
-			FILE_ATTRIBUTE_NORMAL,
-			nullptr
-		);
-	}
-	else
-	{
-		win32_handle = win32_create_file_utf16(
-			file_name.c_str(),
-			static_cast<int>(file_name.size()),
-			win32_desired_access,
-			win32_share_mode,
-			win32_creation_disposition
-		);
-	}
+	win32_handle = win32_create_file_utf16(file_name.c_str(), static_cast<int>(file_name.size()), win32_desired_access, win32_share_mode, win32_creation_disposition);
 
 	if (win32_handle == INVALID_HANDLE_VALUE)
 	{
-		const auto win32_last_error = ::GetLastError();
+		const auto win32_last_error = GetLastError();
 
-		if (!(is_accept_already_exists &&
-			win32_last_error == ERROR_ALREADY_EXISTS))
+		if (!(is_accept_already_exists && win32_last_error == ERROR_ALREADY_EXISTS))
 		{
 			return false;
 		}
@@ -447,14 +268,12 @@ bool FileStream::open(
 		return false;
 	}
 
-	struct ::stat posix_stat;
-
-	const auto fstat_result = ::fstat(posix_handle, &posix_stat);
+	struct stat posix_stat;
+	const auto fstat_result = fstat(posix_handle, &posix_stat);
 
 	if (fstat_result != 0 || !S_ISREG(posix_stat.st_mode))
 	{
 		static_cast<void>(::close(posix_handle));
-
 		return false;
 	}
 
@@ -478,29 +297,26 @@ bool FileStream::is_open() const noexcept
 	return is_open_internal();
 }
 
-std::int64_t FileStream::get_size() noexcept
+int FileStream::get_size() noexcept
 {
 	if (!is_open_internal())
 	{
 		return 0;
 	}
 
-
 #ifdef _WIN32
-	::LARGE_INTEGER win32_size;
+	LARGE_INTEGER win32_size;
+	const auto win32_result = GetFileSizeEx(handle_, &win32_size);
 
-	const auto win32_result = ::GetFileSizeEx(handle_, &win32_size);
-
-	if (win32_result == 0)
+	if (win32_result == FALSE)
 	{
 		return 0;
 	}
 
-	return win32_size.QuadPart;
+	return static_cast<int>(win32_size.QuadPart);
 #else
-	struct ::stat posix_stat;
-
-	const auto fstat_result = ::fstat(handle_, &posix_stat);
+	struct stat posix_stat;
+	const auto fstat_result = fstat(handle_, &posix_stat);
 
 	if (fstat_result != 0)
 	{
@@ -511,17 +327,12 @@ std::int64_t FileStream::get_size() noexcept
 #endif // _WIN32
 }
 
-bool FileStream::set_size(
-	std::int64_t size) noexcept
+bool FileStream::set_size(int) noexcept
 {
-	static_cast<void>(size);
-
 	return false;
 }
 
-std::int64_t FileStream::seek(
-	std::int64_t offset,
-	StreamSeekOrigin origin) noexcept
+int FileStream::seek(int offset, StreamSeekOrigin origin) noexcept
 {
 	if (!is_open_internal())
 	{
@@ -534,7 +345,7 @@ std::int64_t FileStream::seek(
 	}
 
 #ifdef _WIN32
-	auto win32_move_method = ::DWORD{};
+	auto win32_move_method = DWORD{};
 
 	switch (origin)
 	{
@@ -554,24 +365,17 @@ std::int64_t FileStream::seek(
 			return -1;
 	}
 
-	::LARGE_INTEGER win32_distance_to_move;
+	LARGE_INTEGER win32_distance_to_move;
 	win32_distance_to_move.QuadPart = offset;
+	LARGE_INTEGER win32_new_file_pointer;
+	const auto win32_result = SetFilePointerEx(handle_, win32_distance_to_move, &win32_new_file_pointer, win32_move_method);
 
-	::LARGE_INTEGER win32_new_file_pointer;
-
-	const auto win32_result = ::SetFilePointerEx(
-		handle_,
-		win32_distance_to_move,
-		&win32_new_file_pointer,
-		win32_move_method
-	);
-
-	if (win32_result == 0)
+	if (win32_result == FALSE)
 	{
 		return -1;
 	}
 
-	return win32_new_file_pointer.QuadPart;
+	return static_cast<int>(win32_new_file_pointer.QuadPart);
 #else
 	auto posix_whence = 0;
 
@@ -593,36 +397,29 @@ std::int64_t FileStream::seek(
 			return -1;
 	}
 
-	const auto posix_result = ::lseek(handle_, offset, posix_whence);
+	const auto posix_result = lseek(handle_, offset, posix_whence);
+
+	if (posix_result < 0)
+	{
+		return -1;
+	}
 
 	return posix_result;
 #endif // _WIN32
 }
 
-int FileStream::read(
-	void* buffer,
-	int count) noexcept
+int FileStream::read(void* buffer, int count) noexcept
 {
-	if (!is_open_internal() ||
-		!is_readable_ ||
-		!buffer ||
-		count < 0)
+	if (!is_open_internal() || !is_readable_ || !buffer || count < 0)
 	{
 		return 0;
 	}
 
 #ifdef _WIN32
-	::DWORD win32_number_of_bytes_read;
+	DWORD win32_number_of_bytes_read;
+	const auto win32_result = ReadFile(handle_, buffer, static_cast<DWORD>(count), &win32_number_of_bytes_read, nullptr);
 
-	const auto win32_result = ::ReadFile(
-		handle_,
-		buffer,
-		static_cast<::DWORD>(count),
-		&win32_number_of_bytes_read,
-		nullptr
-	);
-
-	if (win32_result == 0)
+	if (win32_result == FALSE)
 	{
 		return 0;
 	}
@@ -640,30 +437,18 @@ int FileStream::read(
 #endif // _WIN32
 }
 
-bool FileStream::write(
-	const void* buffer,
-	int count) noexcept
+bool FileStream::write(const void* buffer, int count) noexcept
 {
-	if (!is_open_internal() ||
-		!is_writable_ ||
-		count < 0 ||
-		!buffer)
+	if (!is_open_internal() || !is_writable_ || count < 0 || !buffer)
 	{
 		return false;
 	}
 
 #ifdef _WIN32
-	::DWORD win32_number_of_bytes_written;
+	DWORD win32_number_of_bytes_written;
+	const auto win32_result = WriteFile(handle_, buffer, static_cast<DWORD>(count), &win32_number_of_bytes_written, nullptr);
 
-	const auto win32_result = ::WriteFile(
-		handle_,
-		buffer,
-		static_cast<::DWORD>(count),
-		&win32_number_of_bytes_written,
-		nullptr
-	);
-
-	if (win32_result == 0)
+	if (win32_result == FALSE)
 	{
 		return false;
 	}
@@ -689,16 +474,16 @@ bool FileStream::flush() noexcept
 	}
 
 #ifdef _WIN32
-	const auto win32_result = ::FlushFileBuffers(handle_);
+	const auto win32_result = FlushFileBuffers(handle_);
 
-	if (win32_result == 0)
+	if (win32_result == FALSE)
 	{
 		return false;
 	}
 
 	return true;
 #else
-	const auto posix_result = ::fsync(handle_);
+	const auto posix_result = fsync(handle_);
 
 	if (posix_result != 0)
 	{
@@ -724,8 +509,7 @@ bool FileStream::is_writable() const noexcept
 	return is_open_internal() && is_writable_;
 }
 
-bool FileStream::is_exists(
-	const std::string& file_name) noexcept
+bool FileStream::is_exists(const std::string& file_name) noexcept
 {
 	if (file_name.empty())
 	{
@@ -733,31 +517,17 @@ bool FileStream::is_exists(
 	}
 
 #ifdef _WIN32
-	auto win32_file_attributes = ::DWORD{};
+	const auto win32_file_attributes = win32_get_file_attributes_utf16(file_name.c_str(), static_cast<int>(file_name.size()));
 
-	if (win32_is_utf8())
-	{
-		win32_file_attributes = ::GetFileAttributesA(file_name.c_str());
-	}
-	else
-	{
-		win32_file_attributes = win32_get_file_attributes_utf16(
-			file_name.c_str(),
-			static_cast<int>(file_name.size())
-		);
-	}
-
-	if (win32_file_attributes == INVALID_FILE_ATTRIBUTES ||
-		(win32_file_attributes & FILE_ATTRIBUTE_NORMAL) == 0)
+	if (win32_file_attributes == INVALID_FILE_ATTRIBUTES || (win32_file_attributes & FILE_ATTRIBUTE_NORMAL) == 0)
 	{
 		return false;
 	}
 
 	return true;
 #else
-	struct ::stat posix_stat;
-
-	const auto posix_result = ::stat(file_name.c_str(), &posix_stat);
+	struct stat posix_stat;
+	const auto posix_result = stat(file_name.c_str(), &posix_stat);
 
 	if (posix_result != 0 || !S_ISREG(posix_stat.st_mode))
 	{
@@ -776,12 +546,12 @@ bool FileStream::is_open_internal() const noexcept
 void FileStream::close_handle() noexcept
 {
 #ifdef _WIN32
-	const auto win32_result = ::CloseHandle(static_cast<::HANDLE>(handle_));
+	const auto win32_result = CloseHandle(static_cast<HANDLE>(handle_));
 
 #ifdef NDEBUG
 	static_cast<void>(win32_result);
 #else
-	assert(win32_result != 0);
+	assert(win32_result != FALSE);
 #endif // NDEBUG
 #else
 	const auto posix_result = ::close(handle_);
@@ -808,6 +578,5 @@ void FileStream::close_internal() noexcept
 	is_seekable_ = false;
 	is_writable_ = false;
 }
-
 
 } // bstone

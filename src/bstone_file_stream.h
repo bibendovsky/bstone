@@ -21,83 +21,43 @@ Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-
 //
 // File stream.
 //
-
 
 #ifndef BSTONE_FILE_STREAM_INCLUDED
 #define BSTONE_FILE_STREAM_INCLUDED
 
-
 #include "bstone_stream.h"
-
 
 namespace bstone
 {
 
-
 // File stream.
-class FileStream final :
-	public Stream
+class FileStream final : public Stream
 {
 public:
 	FileStream() noexcept;
-
-	FileStream(
-		const std::string& file_name,
-		StreamOpenMode open_mode = StreamOpenMode::read) noexcept;
-
-	FileStream(
-		const FileStream& rhs) = delete;
-
-	FileStream(
-		FileStream&& rhs) noexcept;
-
-	FileStream& operator=(
-		const FileStream& rhs) = delete;
-
+	FileStream(const std::string& file_name, StreamOpenMode open_mode = StreamOpenMode::read) noexcept;
+	FileStream(const FileStream& rhs) = delete;
+	FileStream(FileStream&& rhs) noexcept;
+	FileStream& operator=(const FileStream& rhs) = delete;
 	~FileStream() override;
 
-
-	bool open(
-		const std::string& file_name,
-		StreamOpenMode open_mode = StreamOpenMode::read) noexcept;
-
+	bool open(const std::string& file_name, StreamOpenMode open_mode = StreamOpenMode::read) noexcept;
 	void close() noexcept override;
-
 	bool is_open() const noexcept override;
-
-	std::int64_t get_size() noexcept override;
-
-	bool set_size(
-		std::int64_t size) noexcept override;
-
-	std::int64_t seek(
-		std::int64_t offset,
-		StreamSeekOrigin origin) noexcept override;
-
-	int read(
-		void* buffer,
-		int count) noexcept override;
-
-	bool write(
-		const void* buffer,
-		int count) noexcept override;
-
+	int get_size() noexcept override;
+	bool set_size(int size) noexcept override;
+	int seek(int offset, StreamSeekOrigin origin) noexcept override;
+	int read(void* buffer, int count) noexcept override;
+	bool write(const void* buffer, int count) noexcept override;
 	bool flush() noexcept override;
-
 	bool is_readable() const noexcept override;
-
 	bool is_seekable() const noexcept override;
-
 	bool is_writable() const noexcept override;
 
-
-	static bool is_exists(
-		const std::string& file_name) noexcept;
-
+	static bool is_exists(const std::string& file_name) noexcept;
 
 private:
 #ifdef _WIN32
@@ -110,16 +70,11 @@ private:
 	bool is_seekable_{};
 	bool is_writable_{};
 
-
 	bool is_open_internal() const noexcept;
-
 	void close_handle() noexcept;
-
 	void close_internal() noexcept;
 }; // FileStream
 
-
 } // bstone
-
 
 #endif // BSTONE_FILE_STREAM_INCLUDED

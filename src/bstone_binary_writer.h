@@ -21,106 +21,61 @@ Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-
 #ifndef BSTONE_BINARY_WRITER_INCLUDED
 #define BSTONE_BINARY_WRITER_INCLUDED
 
-
 #include "bstone_stream.h"
-
 
 namespace bstone
 {
 
-
 class BinaryWriter final
 {
 public:
-	BinaryWriter(
-		Stream* stream = nullptr);
+	BinaryWriter(Stream* stream = nullptr);
+	BinaryWriter(BinaryWriter&& rhs);
+	BinaryWriter(const BinaryWriter& that) = delete;
+	BinaryWriter& operator=(const BinaryWriter& that) = delete;
 
-	BinaryWriter(
-		BinaryWriter&& rhs);
-
-	BinaryWriter(
-		const BinaryWriter& that) = delete;
-
-	BinaryWriter& operator=(
-		const BinaryWriter& that) = delete;
-
-
-	bool open(
-		Stream* stream);
-
+	bool open(Stream* stream);
 	// Closes the writer but stream.
 	void close();
-
 	bool is_open() const;
-
 	// Writes a signed 8-bit integer value.
-	bool write_s8(
-		const std::int8_t value);
-
+	bool write_s8(std::int8_t value);
 	// Writes an unsigned 8-bit integer value.
-	bool write_u8(
-		const std::uint8_t value);
-
+	bool write_u8(std::uint8_t value);
 	// Writes a signed 16-bit integer value.
-	bool write_s16(
-		const std::int16_t value);
-
+	bool write_s16(std::int16_t value);
 	// Writes an unsigned 16-bit integer value.
-	bool write_u16(
-		const std::uint16_t value);
-
+	bool write_u16(std::uint16_t value);
 	// Writes a signed 32-bit integer value.
-	bool write_s32(
-		const std::int32_t value);
-
+	bool write_s32(std::int32_t value);
 	// Writes an unsigned 32-bit integer value.
-	bool write_u32(
-		const std::uint32_t value);
-
+	bool write_u32(std::uint32_t value);
 	// Writes a signed 64-bit integer value.
-	bool write_s64(
-		const std::int64_t value);
-
+	bool write_s64(std::int64_t value);
 	// Writes an unsigned 64-bit integer value.
-	bool write_u64(
-		const std::uint64_t value);
-
+	bool write_u64(std::uint64_t value);
 	// Writes a 32-bit float-point value.
-	bool write_r32(
-		const float value);
-
+	bool write_r32(float value);
 	// Writes a 64-bit float-point value.
-	bool write_r64(
-		const double value);
-
-	bool write(
-		const void* buffer,
-		const int count);
-
+	bool write_r64(double value);
+	bool write(const void* buffer, int count);
 	// Writes a string prepended with signed 32-bit (little-endian) length.
-	bool write(
-		const std::string& string);
+	bool write(const std::string& string);
 
 	// Skips a number of octets forward if count is positive or
 	// backward otherwise.
 	// Returns false on error.
-	bool skip(
-		const int count);
-
+	bool skip(int count);
 	// Returns a current position.
-	std::int64_t get_position() const;
-
+	int get_position() const;
 	// Sets a current position to a specified one.
-	bool set_position(
-		const std::int64_t position);
+	bool set_position(int position);
 
 	template<typename T>
-	bool write(
-		const T& value)
+	bool write(const T& value)
 	{
 		if (!is_open())
 		{
@@ -131,8 +86,7 @@ public:
 	}
 
 	template<typename T, std::size_t N>
-	bool write(
-		const T(&value)[N])
+	bool write(const T (&value)[N])
 	{
 		if (!is_open())
 		{
@@ -142,13 +96,10 @@ public:
 		return stream_->write(value, N * sizeof(T));
 	}
 
-
 private:
-	Stream* stream_;
+	Stream* stream_{};
 }; // BinaryWriter
 
-
 } // bstone
-
 
 #endif // BSTONE_BINARY_WRITER_INCLUDED

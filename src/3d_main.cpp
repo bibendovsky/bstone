@@ -8595,7 +8595,7 @@ try
 	// leave four bytes for chunk size
 	g_playtemp.skip(4);
 
-	std::int64_t beg_offset = g_playtemp.get_position();
+	const auto beg_offset = g_playtemp.get_position();
 
 	auto archiver = bstone::make_archiver();
 	archiver->initialize(&g_playtemp);
@@ -8839,8 +8839,8 @@ try
 	//
 	archiver->write_checksum();
 
-	std::int64_t end_offset = g_playtemp.get_position();
-	std::int32_t chunk_size = static_cast<std::int32_t>(end_offset - beg_offset);
+	const auto end_offset = g_playtemp.get_position();
+	const auto chunk_size = static_cast<std::int32_t>(end_offset - beg_offset);
 
 	// Write chunk size, set file size, and close file
 	//
@@ -8867,7 +8867,7 @@ int DeleteChunk(
 
 	if (chunk_size > 0)
 	{
-		std::int64_t offset = stream.get_position() - 8;
+		const auto offset = stream.get_position() - 8;
 		int count = chunk_size + 8;
 
 		stream.remove_block(offset, count);

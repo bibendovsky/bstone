@@ -21,24 +21,17 @@ Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-
 //
 // A base class for streams.
 //
 
-
 #ifndef BSTONE_STREAM_INCLUDED
 #define BSTONE_STREAM_INCLUDED
 
-
-#include <cstdint>
-
 #include <string>
-
 
 namespace bstone
 {
-
 
 enum class StreamSeekOrigin
 {
@@ -54,41 +47,33 @@ enum class StreamOpenMode
 	read_write,
 }; // StreamOpenMode
 
-
 // A base class for streams.
 class Stream
 {
 public:
 	Stream() noexcept = default;
-
 	virtual ~Stream() = default;
 
-
 	virtual void close() noexcept = 0;
-
 	virtual bool is_open() const noexcept = 0;
 
 	// Returns a size of the stream or a negative value on error.
-	virtual std::int64_t get_size() noexcept = 0;
+	virtual int get_size() noexcept = 0;
 
 	// Sets a new size of the stream.
 	// Returns false on error or if the stream is not seekable.
-	virtual bool set_size(
-		std::int64_t size) noexcept = 0;
+	virtual bool set_size(int size) noexcept = 0;
 
 	// Returns a new position or a negative value on error.
-	virtual std::int64_t seek(
-		std::int64_t offset,
-		StreamSeekOrigin origin) noexcept = 0;
+	virtual int seek(int offset, StreamSeekOrigin origin) noexcept = 0;
 
 	// Skips a number of octets forward if count is positive or
 	// backward otherwise.
 	// Returns a negative value on error.
-	virtual std::int64_t skip(
-		int count) noexcept;
+	virtual int skip(int count) noexcept;
 
 	// Returns a current position or a negative value on error.
-	virtual std::int64_t get_position() noexcept;
+	virtual int get_position() noexcept;
 
 	//
 	// Moves stream's pointer to a new position.
@@ -100,14 +85,11 @@ public:
 	//    - "true" on success.
 	//    - "false" otherwise.
 	//
-	virtual bool set_position(
-		std::int64_t position) noexcept;
+	virtual bool set_position(int position) noexcept;
 
 	// Reads a specified number of octets and returns an actual
 	// read number of octets.
-	virtual int read(
-		void* buffer,
-		int count) noexcept = 0;
+	virtual int read(void* buffer, int count) noexcept = 0;
 
 	//
 	// Writes octet data into the stream.
@@ -120,9 +102,7 @@ public:
 	//    - "true" on success.
 	//    - "false" otherwise.
 	//
-	virtual bool write(
-		const void* buffer,
-		int count) noexcept = 0;
+	virtual bool write(const void* buffer, int count) noexcept = 0;
 
 	// Reads a one octet and returns it.
 	// Returns a negative value on error.
@@ -138,12 +118,10 @@ public:
 	//    - "true" on success.
 	//    - "false" otherwise.
 	//
-	virtual bool write_octet(
-		std::uint8_t value) noexcept;
+	virtual bool write_octet(unsigned char value) noexcept;
 
 	// Writes a string without a terminator
-	virtual bool write_string(
-		const std::string& string) noexcept;
+	virtual bool write_string(const std::string& string) noexcept;
 
 	//
 	// Flushes the buffers.
@@ -183,9 +161,7 @@ public:
 
 	// Copies the stream from a current position to
 	// an another stream using internal buffer.
-	bool copy_to(
-		Stream* dst_stream,
-		int buffer_size = 0) noexcept;
+	bool copy_to(Stream* dst_stream, int buffer_size = 0) noexcept;
 
 
 	//
@@ -199,6 +175,5 @@ public:
 
 
 } // bstone
-
 
 #endif // BSTONE_STREAM_INCLUDED

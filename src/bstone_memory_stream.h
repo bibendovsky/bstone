@@ -21,123 +21,77 @@ Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-
 //
 // A memory stream.
 //
-
 
 #ifndef BSTONE_MEMORY_STREAM_INCLUDED
 #define BSTONE_MEMORY_STREAM_INCLUDED
 
-
 #include <vector>
-
 #include "bstone_stream.h"
 #include "bstone_un_value.h"
-
 
 namespace bstone
 {
 
-
 // A memory stream.
-class MemoryStream final :
-	public Stream
+class MemoryStream final : public Stream
 {
 public:
-	MemoryStream(
-		const int initial_capacity = 0,
-		const StreamOpenMode open_mode = StreamOpenMode::read_write) noexcept;
+	MemoryStream(int initial_capacity = 0, StreamOpenMode open_mode = StreamOpenMode::read_write) noexcept;
 
 	MemoryStream(
-		const int buffer_size,
-		const int buffer_offset,
-		const std::uint8_t* buffer,
-		const StreamOpenMode open_mode = StreamOpenMode::read) noexcept;
+		int buffer_size,
+		int buffer_offset,
+		const unsigned char* buffer,
+		StreamOpenMode open_mode = StreamOpenMode::read) noexcept;
 
-	MemoryStream(
-		const MemoryStream& rhs) = delete;
-
-	MemoryStream(
-		MemoryStream&& rhs) noexcept;
-
-	MemoryStream& operator=(
-		const MemoryStream& rhs) = delete;
-
+	MemoryStream(const MemoryStream& rhs) = delete;
+	MemoryStream(MemoryStream&& rhs) noexcept;
+	MemoryStream& operator=(const MemoryStream& rhs) = delete;
 	virtual ~MemoryStream();
 
+	bool open(int initial_capacity = 0,StreamOpenMode open_mode = StreamOpenMode::read_write) noexcept;
 
 	bool open(
-		const int initial_capacity = 0,
-		const StreamOpenMode open_mode = StreamOpenMode::read_write) noexcept;
-
-	bool open(
-		const int buffer_size,
-		const int buffer_offset,
-		const std::uint8_t* buffer,
-		const StreamOpenMode open_mode = StreamOpenMode::read) noexcept;
+		int buffer_size,
+		int buffer_offset,
+		const unsigned char* buffer,
+		StreamOpenMode open_mode = StreamOpenMode::read) noexcept;
 
 	void close() noexcept override;
-
 	bool is_open() const noexcept override;
-
-	std::int64_t get_size() noexcept override;
-
-	bool set_size(
-		const std::int64_t size) noexcept override;
-
-	std::int64_t seek(
-		const std::int64_t offset,
-		const StreamSeekOrigin origin) noexcept override;
-
-	std::int64_t get_position() noexcept override;
-
-	int read(
-		void* buffer,
-		const int count) noexcept override;
-
-	bool write(
-		const void* buffer,
-		const int count) noexcept override;
-
+	int get_size() noexcept override;
+	bool set_size(int size) noexcept override;
+	int seek(int offset, StreamSeekOrigin origin) noexcept override;
+	int get_position() noexcept override;
+	int read(void* buffer, int count) noexcept override;
+	bool write(const void* buffer, int count) noexcept override;
 	bool flush() noexcept override;
-
 	bool is_readable() const noexcept override;
-
 	bool is_seekable() const noexcept override;
-
 	bool is_writable() const noexcept override;
-
-	std::uint8_t* get_data() noexcept;
-
-	const std::uint8_t* get_data() const noexcept;
-
-	bool remove_block(
-		const std::int64_t offset,
-		const int count) noexcept;
-
+	unsigned char* get_data() noexcept;
+	const unsigned char* get_data() const noexcept;
+	bool remove_block(int offset, int count) noexcept;
 
 private:
 	using Buffer = std::vector<UnValue<std::uint8_t>>;
 
-
-	bool is_open_;
-	bool is_readable_;
-	bool is_writable_;
-	std::int64_t position_;
-	std::int64_t size_;
-	std::int64_t ext_size_;
-	std::uint8_t* buffer_;
-	std::uint8_t* ext_buffer_;
-	Buffer int_buffer_;
-
+	bool is_open_{};
+	bool is_readable_{};
+	bool is_writable_{};
+	int position_{};
+	int size_{};
+	int ext_size_{};
+	unsigned char* buffer_{};
+	unsigned char* ext_buffer_{};
+	Buffer int_buffer_{};
 
 	void close_internal() noexcept;
 }; // Stream
 
-
 } // bstone
-
 
 #endif // !BSTONE_MEMORY_STREAM_INCLUDED
