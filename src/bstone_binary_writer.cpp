@@ -21,34 +21,24 @@ Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-
+#include <utility>
 #include "bstone_binary_writer.h"
-
 #include "bstone_endian.h"
-
 
 namespace bstone
 {
 
-
-BinaryWriter::BinaryWriter(
-	Stream* stream)
-	:
-	stream_{}
+BinaryWriter::BinaryWriter(Stream* stream)
 {
 	static_cast<void>(open(stream));
 }
 
-BinaryWriter::BinaryWriter(
-	BinaryWriter&& rhs)
-	:
-	stream_{std::move(rhs.stream_)}
+BinaryWriter::BinaryWriter(BinaryWriter&& rhs)
 {
-	rhs.stream_ = nullptr;
+	std::swap(stream_, rhs.stream_);
 }
 
-bool BinaryWriter::open(
-	Stream* stream)
+bool BinaryWriter::open(Stream* stream)
 {
 	close();
 
@@ -63,7 +53,6 @@ bool BinaryWriter::open(
 	}
 
 	stream_ = stream;
-
 	return true;
 }
 
@@ -77,69 +66,57 @@ bool BinaryWriter::is_open() const
 	return stream_ != nullptr;
 }
 
-bool BinaryWriter::write_s8(
-	const std::int8_t value)
+bool BinaryWriter::write_s8(std::int8_t value)
 {
 	return write(value);
 }
 
-bool BinaryWriter::write_u8(
-	const std::uint8_t value)
+bool BinaryWriter::write_u8(std::uint8_t value)
 {
 	return write(value);
 }
 
-bool BinaryWriter::write_s16(
-	const std::int16_t value)
+bool BinaryWriter::write_s16(std::int16_t value)
 {
 	return write(value);
 }
 
-bool BinaryWriter::write_u16(
-	const std::uint16_t value)
+bool BinaryWriter::write_u16(std::uint16_t value)
 {
 	return write(value);
 }
 
-bool BinaryWriter::write_s32(
-	const std::int32_t value)
+bool BinaryWriter::write_s32(std::int32_t value)
 {
 	return write(value);
 }
 
-bool BinaryWriter::write_u32(
-	const std::uint32_t value)
+bool BinaryWriter::write_u32(std::uint32_t value)
 {
 	return write(value);
 }
 
-bool BinaryWriter::write_s64(
-	const std::int64_t value)
+bool BinaryWriter::write_s64(std::int64_t value)
 {
 	return write(value);
 }
 
-bool BinaryWriter::write_u64(
-	const std::uint64_t value)
+bool BinaryWriter::write_u64(std::uint64_t value)
 {
 	return write(value);
 }
 
-bool BinaryWriter::write_r32(
-	const float value)
+bool BinaryWriter::write_r32(float value)
 {
 	return write(value);
 }
 
-bool BinaryWriter::write_r64(
-	const double value)
+bool BinaryWriter::write_r64(double value)
 {
 	return write(value);
 }
 
-bool BinaryWriter::write(
-	const void* buffer,
-	const int count)
+bool BinaryWriter::write(const void* buffer, int count)
 {
 	if (!is_open())
 	{
@@ -149,21 +126,16 @@ bool BinaryWriter::write(
 	return stream_->write(buffer, count);
 }
 
-bool BinaryWriter::write(
-	const std::string& string)
+bool BinaryWriter::write(const std::string& string)
 {
 	const auto length = static_cast<std::int32_t>(string.length());
-
-	bool is_succeed = true;
-
+	auto is_succeed = true;
 	is_succeed &= write_s32(bstone::Endian::little(length));
 	is_succeed &= write(string.c_str(), length);
-
 	return is_succeed;
 }
 
-bool BinaryWriter::skip(
-	const int count)
+bool BinaryWriter::skip(int count)
 {
 	if (!is_open())
 	{
@@ -173,7 +145,7 @@ bool BinaryWriter::skip(
 	return stream_->skip(count) >= 0;
 }
 
-std::int64_t BinaryWriter::get_position() const
+int BinaryWriter::get_position() const
 {
 	if (!is_open())
 	{
@@ -183,8 +155,7 @@ std::int64_t BinaryWriter::get_position() const
 	return stream_->get_position();
 }
 
-bool BinaryWriter::set_position(
-	const std::int64_t position)
+bool BinaryWriter::set_position(int position)
 {
 	if (!is_open())
 	{
@@ -193,6 +164,5 @@ bool BinaryWriter::set_position(
 
 	return stream_->set_position(position);
 }
-
 
 } // bstone

@@ -21,67 +21,39 @@ Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-
 #include "bstone_memory_stream.h"
-
 #include <algorithm>
 #include <memory>
-
+#include <utility>
 
 namespace bstone
 {
 
-
-MemoryStream::MemoryStream(
-	const int initial_capacity,
-	const StreamOpenMode open_mode) noexcept
-	:
-	is_open_{},
-	is_readable_{},
-	is_writable_{},
-	position_{},
-	size_{},
-	ext_size_{},
-	buffer_{},
-	ext_buffer_{},
-	int_buffer_{}
+MemoryStream::MemoryStream(int initial_capacity, StreamOpenMode open_mode) noexcept
 {
 	static_cast<void>(open(initial_capacity, open_mode));
 }
 
 MemoryStream::MemoryStream(
-	const int buffer_size,
-	const int buffer_offset,
-	const std::uint8_t* buffer,
-	const StreamOpenMode open_mode) noexcept
-	:
-	is_open_{},
-	is_readable_{},
-	is_writable_{},
-	position_{},
-	size_{},
-	ext_size_{},
-	buffer_{},
-	ext_buffer_{},
-	int_buffer_{}
+	int buffer_size,
+	int buffer_offset,
+	const unsigned char* buffer,
+	StreamOpenMode open_mode) noexcept
 {
 	static_cast<void>(open(buffer_size, buffer_offset, buffer, open_mode));
 }
 
-MemoryStream::MemoryStream(
-	MemoryStream&& rhs) noexcept
-	:
-	is_open_{std::move(rhs.is_open_)},
-	is_readable_{std::move(rhs.is_readable_)},
-	is_writable_{std::move(rhs.is_writable_)},
-	position_{std::move(rhs.position_)},
-	size_{std::move(rhs.size_)},
-	ext_size_{std::move(rhs.ext_size_)},
-	buffer_{std::move(rhs.buffer_)},
-	ext_buffer_{std::move(rhs.ext_buffer_)},
-	int_buffer_{std::move(rhs.int_buffer_)}
+MemoryStream::MemoryStream(MemoryStream&& rhs) noexcept
 {
-	rhs.is_open_ = false;
+	std::swap(is_open_, rhs.is_open_);
+	std::swap(is_readable_, rhs.is_readable_);
+	std::swap(is_writable_, rhs.is_writable_);
+	std::swap(position_, rhs.position_);
+	std::swap(size_, rhs.size_);
+	std::swap(ext_size_, rhs.ext_size_);
+	std::swap(buffer_, rhs.buffer_);
+	std::swap(ext_buffer_, rhs.ext_buffer_);
+	int_buffer_.swap(rhs.int_buffer_);
 }
 
 MemoryStream::~MemoryStream()
@@ -89,35 +61,31 @@ MemoryStream::~MemoryStream()
 	close_internal();
 }
 
-bool MemoryStream::open(
-	const int initial_capacity,
-	const StreamOpenMode open_mode) noexcept
+bool MemoryStream::open(int initial_capacity, StreamOpenMode open_mode) noexcept
 {
 	close_internal();
-
 
 	auto is_readable = false;
 	auto is_writable = false;
 
 	switch (open_mode)
 	{
-	case StreamOpenMode::read:
-		is_readable = true;
-		break;
+		case StreamOpenMode::read:
+			is_readable = true;
+			break;
 
-	case StreamOpenMode::write:
-		is_writable = true;
-		break;
+		case StreamOpenMode::write:
+			is_writable = true;
+			break;
 
-	case StreamOpenMode::read_write:
-		is_readable = true;
-		is_writable = true;
-		break;
+		case StreamOpenMode::read_write:
+			is_readable = true;
+			is_writable = true;
+			break;
 
-	default:
-		return false;
+		default:
+			return false;
 	}
-
 
 	auto capacity = initial_capacity;
 
@@ -127,19 +95,17 @@ bool MemoryStream::open(
 	}
 
 	int_buffer_.reserve(capacity);
-
 	is_open_ = true;
 	is_readable_ = is_readable;
 	is_writable_ = is_writable;
-
 	return true;
 }
 
 bool MemoryStream::open(
-	const int buffer_size,
-	const int buffer_offset,
-	const std::uint8_t* buffer,
-	const StreamOpenMode open_mode) noexcept
+	int buffer_size,
+	int buffer_offset,
+	const unsigned char* buffer,
+	StreamOpenMode open_mode) noexcept
 {
 	close_internal();
 
@@ -153,38 +119,35 @@ bool MemoryStream::open(
 		return false;
 	}
 
-
 	auto is_readable = false;
 	auto is_writable = false;
 
 	switch (open_mode)
 	{
-	case StreamOpenMode::read:
-		is_readable = true;
-		break;
+		case StreamOpenMode::read:
+			is_readable = true;
+			break;
 
-	case StreamOpenMode::write:
-		is_writable = true;
-		break;
+		case StreamOpenMode::write:
+			is_writable = true;
+			break;
 
-	case StreamOpenMode::read_write:
-		is_readable = true;
-		is_writable = true;
-		break;
+		case StreamOpenMode::read_write:
+			is_readable = true;
+			is_writable = true;
+			break;
 
-	default:
-		return false;
+		default:
+			return false;
 	}
-
 
 	is_open_ = true;
 	is_readable_ = is_readable;
 	is_writable_ = is_writable;
 	size_ = buffer_size;
 	ext_size_ = buffer_size;
-	buffer_ = const_cast<std::uint8_t*>(&buffer[buffer_offset]);
+	buffer_ = const_cast<unsigned char*>(&buffer[buffer_offset]);
 	ext_buffer_ = buffer_;
-
 	return true;
 }
 
@@ -198,13 +161,12 @@ bool MemoryStream::is_open() const noexcept
 	return is_open_;
 }
 
-std::int64_t MemoryStream::get_size() noexcept
+int MemoryStream::get_size() noexcept
 {
 	return size_;
 }
 
-bool MemoryStream::set_size(
-	const std::int64_t size) noexcept
+bool MemoryStream::set_size(int size) noexcept
 {
 	if (!is_open_)
 	{
@@ -227,12 +189,11 @@ bool MemoryStream::set_size(
 	}
 
 	int_buffer_.resize(static_cast<std::size_t>(size));
-
 	size_ = size;
 
 	if (size_ > 0)
 	{
-		buffer_ = reinterpret_cast<std::uint8_t*>(&int_buffer_[0]);
+		buffer_ = reinterpret_cast<unsigned char*>(&int_buffer_[0]);
 	}
 	else
 	{
@@ -242,9 +203,7 @@ bool MemoryStream::set_size(
 	return true;
 }
 
-std::int64_t MemoryStream::seek(
-	const std::int64_t offset,
-	const StreamSeekOrigin origin) noexcept
+int MemoryStream::seek(int offset, StreamSeekOrigin origin) noexcept
 {
 	if (!is_open_)
 	{
@@ -253,20 +212,20 @@ std::int64_t MemoryStream::seek(
 
 	switch (origin)
 	{
-	case StreamSeekOrigin::begin:
-		position_ = offset;
-		break;
+		case StreamSeekOrigin::begin:
+			position_ = offset;
+			break;
 
-	case StreamSeekOrigin::current:
-		position_ += offset;
-		break;
+		case StreamSeekOrigin::current:
+			position_ += offset;
+			break;
 
-	case StreamSeekOrigin::end:
-		position_ = size_ + offset;
-		break;
+		case StreamSeekOrigin::end:
+			position_ = size_ + offset;
+			break;
 
-	default:
-		return -1;
+		default:
+			return -1;
 	}
 
 	if (position_ < 0)
@@ -277,14 +236,12 @@ std::int64_t MemoryStream::seek(
 	return position_;
 }
 
-std::int64_t MemoryStream::get_position() noexcept
+int MemoryStream::get_position() noexcept
 {
 	return position_;
 }
 
-int MemoryStream::read(
-	void* buffer,
-	const int count) noexcept
+int MemoryStream::read(void* buffer, int count) noexcept
 {
 	if (!is_open_)
 	{
@@ -313,18 +270,13 @@ int MemoryStream::read(
 		return 0;
 	}
 
-	auto read_count = static_cast<int>(std::min(static_cast<std::int64_t>(count), remain));
-
-	std::uninitialized_copy_n(&buffer_[position_], read_count, static_cast<std::uint8_t*>(buffer));
-
+	auto read_count = static_cast<int>(std::min(count, remain));
+	std::uninitialized_copy_n(&buffer_[position_], read_count, static_cast<unsigned char*>(buffer));
 	position_ += read_count;
-
 	return read_count;
 }
 
-bool MemoryStream::write(
-	const void* buffer,
-	const int count) noexcept
+bool MemoryStream::write(const void* buffer, int count) noexcept
 {
 	if (!is_open_)
 	{
@@ -358,9 +310,8 @@ bool MemoryStream::write(
 		if (new_size > size_)
 		{
 			int_buffer_.resize(static_cast<std::size_t>(new_size));
-
 			size_ = new_size;
-			buffer_ = reinterpret_cast<std::uint8_t*>(&int_buffer_[0]);
+			buffer_ = reinterpret_cast<unsigned char*>(&int_buffer_[0]);
 		}
 	}
 	else
@@ -371,10 +322,8 @@ bool MemoryStream::write(
 		}
 	}
 
-	std::uninitialized_copy_n(static_cast<const std::uint8_t*>(buffer), count, &buffer_[position_]);
-
+	std::uninitialized_copy_n(static_cast<const unsigned char*>(buffer), count, &buffer_[position_]);
 	position_ += count;
-
 	return true;
 }
 
@@ -403,14 +352,12 @@ std::uint8_t* MemoryStream::get_data() noexcept
 	return buffer_;
 }
 
-const std::uint8_t* MemoryStream::get_data() const noexcept
+const unsigned char* MemoryStream::get_data() const noexcept
 {
 	return buffer_;
 }
 
-bool MemoryStream::remove_block(
-	const std::int64_t offset,
-	const int count) noexcept
+bool MemoryStream::remove_block(int offset, int count) noexcept
 {
 	if (!is_open_)
 	{
@@ -438,11 +385,8 @@ bool MemoryStream::remove_block(
 	}
 
 	const auto where_it = int_buffer_.begin() + static_cast<std::intptr_t>(offset);
-
 	int_buffer_.erase(where_it, where_it + count);
-
 	size_ -= count;
-
 	return true;
 }
 
@@ -458,6 +402,5 @@ void MemoryStream::close_internal() noexcept
 	ext_buffer_ = nullptr;
 	int_buffer_ = {};
 }
-
 
 } // bstone

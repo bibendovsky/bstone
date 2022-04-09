@@ -21,34 +21,24 @@ Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-
+#include <utility>
 #include "bstone_binary_reader.h"
-
 #include "bstone_endian.h"
-
 
 namespace bstone
 {
 
-
-BinaryReader::BinaryReader(
-	Stream* stream)
-	:
-	stream_{}
+BinaryReader::BinaryReader(Stream* stream)
 {
 	static_cast<void>(open(stream));
 }
 
-BinaryReader::BinaryReader(
-	BinaryReader&& rhs)
-	:
-	stream_{std::move(rhs.stream_)}
+BinaryReader::BinaryReader(BinaryReader&& rhs)
 {
-	rhs.stream_ = nullptr;
+	std::swap(stream_, rhs.stream_);
 }
 
-bool BinaryReader::open(
-	Stream* stream)
+bool BinaryReader::open(Stream* stream)
 {
 	close();
 
@@ -63,7 +53,6 @@ bool BinaryReader::open(
 	}
 
 	stream_ = stream;
-
 	return true;
 }
 
@@ -127,14 +116,13 @@ double BinaryReader::read_r64()
 	return read<double>();
 }
 
-std::string BinaryReader::read_string(
-	const int max_length)
+std::string BinaryReader::read_string(int max_length)
 {
 	const auto length = bstone::Endian::little(read_s32());
 
 	if (max_length >= 0 && length > max_length)
 	{
-		return {};
+		return std::string{};
 	}
 
 	std::string string(length, '\0');
@@ -150,9 +138,7 @@ std::string BinaryReader::read_string(
 	return string;
 }
 
-bool BinaryReader::read(
-	void* buffer,
-	const int count)
+bool BinaryReader::read(void* buffer, int count)
 {
 	if (!is_open())
 	{
@@ -162,8 +148,7 @@ bool BinaryReader::read(
 	return stream_->read(buffer, count) == count;
 }
 
-bool BinaryReader::skip(
-	const int count)
+bool BinaryReader::skip(int count)
 {
 	if (!is_open())
 	{
@@ -173,7 +158,7 @@ bool BinaryReader::skip(
 	return stream_->skip(count) >= 0;
 }
 
-std::int64_t BinaryReader::get_position() const
+int BinaryReader::get_position() const
 {
 	if (!is_open())
 	{
@@ -183,8 +168,7 @@ std::int64_t BinaryReader::get_position() const
 	return stream_->get_position();
 }
 
-bool BinaryReader::set_position(
-	std::int64_t position)
+bool BinaryReader::set_position(int position)
 {
 	if (!is_open())
 	{
@@ -193,6 +177,5 @@ bool BinaryReader::set_position(
 
 	return stream_->set_position(position);
 }
-
 
 } // bstone

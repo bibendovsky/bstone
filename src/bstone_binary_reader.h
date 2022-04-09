@@ -21,85 +21,54 @@ Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-
 #ifndef BSTONE_BINARY_READER_INCLUDED
 #define BSTONE_BINARY_READER_INCLUDED
 
-
 #include "bstone_stream.h"
-
 
 namespace bstone
 {
 
-
 class BinaryReader
 {
 public:
-	BinaryReader(
-		Stream* stream = nullptr);
+	BinaryReader(Stream* stream = nullptr);
+	BinaryReader(BinaryReader&& rhs);
+	BinaryReader(const BinaryReader& rhs) = delete;
+	BinaryReader& operator=(const BinaryReader& rhs) = delete;
 
-	BinaryReader(
-		BinaryReader&& rhs);
-
-	BinaryReader(
-		const BinaryReader& rhs) = delete;
-
-	BinaryReader& operator=(
-		const BinaryReader& rhs) = delete;
-
-
-	bool open(
-		Stream* stream);
-
+	bool open(Stream* stream);
 	// Closes the reader but stream.
 	void close();
-
 	bool is_open() const;
-
 	// Reads a signed 8-bit integer value.
 	std::int8_t read_s8();
-
 	// Reads an unsigned 8-bit integer value.
 	std::uint8_t read_u8();
-
 	// Reads a signed 16-bit integer value.
 	std::int16_t read_s16();
-
 	// Reads an unsigned 16-bit integer value.
 	std::uint16_t read_u16();
-
 	// Reads a signed 32-bit integer value.
 	std::int32_t read_s32();
-
 	// Reads an unsigned 32-bit integer value.
 	std::uint32_t read_u32();
-
 	// Reads a signed 64-bit integer value.
 	std::int64_t read_s64();
-
 	// Reads an unsigned 64-bit integer value.
 	std::uint64_t read_u64();
-
 	// Reads a 32-bit float-point value.
 	float read_r32();
-
 	// Reads a 64-bit float-point value.
 	double read_r64();
-
 	// Reads a string prepended with signed 32-bit (little-endian) length.
 	// Returns empty string on error or when max length reached.
-	std::string read_string(
-		const int max_length = -1);
+	std::string read_string(int max_length = -1);
 
-	bool read(
-		void* buffer,
-		const int count);
-
+	bool read(void* buffer, int count);
 
 	template<typename T>
-	bool read(
-		T& value)
+	bool read(T& value)
 	{
 		if (!is_open())
 		{
@@ -110,8 +79,7 @@ public:
 	}
 
 	template<typename T, std::size_t N>
-	bool read(
-		T(&value)[N])
+	bool read(T (&value)[N])
 	{
 		if (!is_open())
 		{
@@ -124,19 +92,16 @@ public:
 	// Skips a number of octets forward if count is positive or
 	// backward otherwise.
 	// Returns false on error.
-	bool skip(
-		const int count);
+	bool skip(int count);
 
 	// Returns a current position.
-	std::int64_t get_position() const;
+	int get_position() const;
 
 	// Sets a current position to a specified one.
-	bool set_position(
-		const std::int64_t position);
+	bool set_position(int position);
 
 private:
-	Stream* stream_;
-
+	Stream* stream_{};
 
 	template<typename T>
 	T read()
@@ -157,8 +122,6 @@ private:
 	}
 }; // BinaryReader
 
-
 } // bstone
-
 
 #endif // BSTONE_BINARY_READER_INCLUDED
