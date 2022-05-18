@@ -41,6 +41,7 @@ Free Software Foundation, Inc.,
 #include "id_vh.h"
 #include "id_vl.h"
 
+#include "bstone_door.h"
 #include "bstone_hw_shader_registry.h"
 #include "bstone_logger.h"
 #include "bstone_mod_value.h"
@@ -816,14 +817,7 @@ public:
 		}
 
 		auto& door = xy_door_map_[xy];
-
-		auto front_face_page_number = 0;
-		auto back_face_page_number = 0;
-
-		door_get_page_numbers(bs_door, front_face_page_number, back_face_page_number);
-
-		door.sides[0].texture_id = front_face_page_number;
-		door.sides[1].texture_id = back_face_page_number;
+		door_get_page_numbers(bs_door, door.sides[0].texture_id, door.sides[1].texture_id);
 	}
 	catch (...)
 	{
@@ -944,6 +938,81 @@ private:
 		std::throw_with_nested(HwVideoException{message});
 	}
 
+	void door_get_page_numbers(
+		const doorobj_t& door,
+		int& front_face_page_number,
+		int& back_face_page_number)
+	{
+		front_face_page_number = DOORWALL + door.vertical;
+		back_face_page_number = DOORWALL + door.vertical;
+
+		auto is_one_way = false;
+		const auto is_unlocked = (door.lock == kt_none);
+
+		switch (door.type)
+		{
+			case dr_normal:
+				front_face_page_number += L_METAL;
+				break;
+
+			case dr_elevator:
+				front_face_page_number += L_ELEVATOR;
+				break;
+
+			case dr_prison:
+				front_face_page_number += L_PRISON;
+				break;
+
+			case dr_space:
+				front_face_page_number += L_SPACE;
+				break;
+
+			case dr_bio:
+				front_face_page_number += L_BIO;
+				break;
+
+			case dr_high_security:
+				front_face_page_number += L_HIGH_SECURITY;
+				break;
+
+			case dr_office:
+				front_face_page_number += L_HIGH_TECH;
+				break;
+
+			case dr_oneway_up:
+				is_one_way = true;
+				front_face_page_number += L_ENTER_ONLY + (is_unlocked ? UL_METAL : 0);
+				back_face_page_number += NOEXIT;
+				break;
+
+			case dr_oneway_left:
+				is_one_way = true;
+				front_face_page_number += NOEXIT;
+				back_face_page_number += L_ENTER_ONLY + (is_unlocked ? UL_METAL : 0);
+				break;
+
+			case dr_oneway_right:
+				is_one_way = true;
+				front_face_page_number += L_ENTER_ONLY + (is_unlocked ? UL_METAL : 0);
+				back_face_page_number += NOEXIT;
+				break;
+
+			case dr_oneway_down:
+				is_one_way = true;
+				front_face_page_number += NOEXIT;
+				back_face_page_number += L_ENTER_ONLY + (is_unlocked ? UL_METAL : 0);
+				break;
+
+			default:
+				fail("Invalid door type.");
+		}
+
+		if (!is_one_way)
+		{
+			front_face_page_number += (is_unlocked ? UL_METAL : 0);
+			back_face_page_number = front_face_page_number;
+		}
+	}
 
 	static void validate_tile_xy(
 		int tile_x,
@@ -7295,23 +7364,72 @@ private:
 		const doorobj_t& door)
 	try
 	{
-		auto horizontal_locked_page_number = 0;
-		auto horizontal_unlocked_page_number = 0;
-		auto vertical_locked_page_number = 0;
-		auto vertical_unlocked_page_number = 0;
+		switch (door.type)
+		{
+			case dr_normal:
+				precache_door_side(DOORWALL + L_METAL);
+				precache_door_side(DOORWALL + L_METAL + UL_METAL);
+				precache_door_side(DOORWALL + L_METAL_SHADE);
+				precache_door_side(DOORWALL + L_METAL_SHADE + UL_METAL);
+				break;
 
-		door_get_page_numbers_for_caching(
-			door,
-			horizontal_locked_page_number,
-			horizontal_unlocked_page_number,
-			vertical_locked_page_number,
-			vertical_unlocked_page_number
-		);
+			case dr_elevator:
+				precache_door_side(DOORWALL + L_ELEVATOR);
+				precache_door_side(DOORWALL + L_ELEVATOR + UL_METAL);
+				precache_door_side(DOORWALL + L_ELEVATOR_SHADE);
+				precache_door_side(DOORWALL + L_ELEVATOR_SHADE + UL_METAL);
+				break;
 
-		precache_door_side(horizontal_locked_page_number);
-		precache_door_side(horizontal_unlocked_page_number);
-		precache_door_side(vertical_locked_page_number);
-		precache_door_side(vertical_unlocked_page_number);
+			case dr_prison:
+				precache_door_side(DOORWALL + L_PRISON);
+				precache_door_side(DOORWALL + L_PRISON + UL_METAL);
+				precache_door_side(DOORWALL + L_PRISON_SHADE);
+				precache_door_side(DOORWALL + L_PRISON_SHADE + UL_METAL);
+				break;
+
+			case dr_space:
+				precache_door_side(DOORWALL + L_SPACE);
+				precache_door_side(DOORWALL + L_SPACE + UL_METAL);
+				precache_door_side(DOORWALL + L_SPACE_SHADE);
+				precache_door_side(DOORWALL + L_SPACE_SHADE + UL_METAL);
+				break;
+
+			case dr_bio:
+				precache_door_side(DOORWALL + L_BIO);
+				precache_door_side(DOORWALL + L_BIO + UL_METAL);
+				precache_door_side(DOORWALL + L_BIO_SHADE);
+				precache_door_side(DOORWALL + L_BIO_SHADE + UL_METAL);
+				break;
+
+			case dr_high_security:
+				precache_door_side(DOORWALL + L_HIGH_SECURITY);
+				precache_door_side(DOORWALL + L_HIGH_SECURITY + UL_METAL);
+				precache_door_side(DOORWALL + L_HIGH_SECURITY_SHADE);
+				precache_door_side(DOORWALL + L_HIGH_SECURITY_SHADE + UL_METAL);
+				break;
+
+			case dr_office:
+				precache_door_side(DOORWALL + L_HIGH_TECH);
+				precache_door_side(DOORWALL + L_HIGH_TECH + UL_METAL);
+				precache_door_side(DOORWALL + L_HIGH_TECH_SHADE);
+				precache_door_side(DOORWALL + L_HIGH_TECH_SHADE + UL_METAL);
+				break;
+
+			case dr_oneway_up:
+			case dr_oneway_left:
+			case dr_oneway_right:
+			case dr_oneway_down:
+				precache_door_side(DOORWALL + L_ENTER_ONLY);
+				precache_door_side(DOORWALL + L_ENTER_ONLY + UL_METAL);
+				precache_door_side(DOORWALL + L_ENTER_ONLY_SHADE);
+				precache_door_side(DOORWALL + L_ENTER_ONLY_SHADE + UL_METAL);
+				precache_door_side(DOORWALL + NOEXIT);
+				precache_door_side(DOORWALL + NOEXIT_SHADE);
+				break;
+
+			default:
+				fail("Invalid door type.");
+		}
 	}
 	catch (...)
 	{
@@ -8359,14 +8477,7 @@ private:
 		vertex_index = door.vertex_index;
 
 		map_door_side(door.sides.front(), vertex_index, vb_buffer);
-
-		auto front_face_page_number = 0;
-		auto back_face_page_number = 0;
-
-		door_get_page_numbers(bs_door, front_face_page_number, back_face_page_number);
-
-		door.sides[0].texture_id = front_face_page_number;
-		door.sides[1].texture_id = back_face_page_number;
+		door_get_page_numbers(bs_door, door.sides[0].texture_id, door.sides[1].texture_id);
 	}
 	catch (...)
 	{
