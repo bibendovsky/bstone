@@ -370,6 +370,7 @@ target_sources(
 		bstone_cl_args.h
 		bstone_content_path.h
 		bstone_crc32.h
+		bstone_door.h
 		bstone_dosbox_dbopl.h
 		bstone_shared_library.h
 		bstone_encoding.h
