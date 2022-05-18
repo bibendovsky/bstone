@@ -126,14 +126,14 @@ void initialize_static_info_constants()
 		{SPR_STAT_24, bo_pistol}, // PISTOL SPR4V
 		{SPR_STAT_25, block}, // Statue
 
-		{SPR_STAT_31, bo_clip}, // Charge Unit
+		{assets_info.is_ps() ? SPR_STAT_31 : SPR_STAT_26, bo_clip}, // Charge Unit
 
 		{SPR_STAT_27, bo_burst_rifle}, // Auto-Burst Rifle
 		{SPR_STAT_28, bo_ion_cannon}, // Particle Charged ION
 		{SPR_STAT_29, bo_firstaid}, // First Aid
 		{SPR_VSPIKE8, block}, // Static VSPIKE
 
-		{SPR_STAT_26, bo_clip2}, // Big Charge pack/clip
+		{assets_info.is_ps() ? SPR_STAT_26 : SPR_STAT_31, bo_clip2}, // Big Charge pack/clip
 
 		{SPR_STAT_32, bo_red_key}, // Red Key SPR5V
 		{SPR_STAT_33, bo_yellow_key}, // Yellow Key
