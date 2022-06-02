@@ -1432,7 +1432,6 @@ void T_OfsThink(
 	const auto& assets_info = get_assets_info();
 
 	std::int8_t dx, dy, dist;
-	std::int8_t oldofs, ofs = 0;
 
 	switch (obj->obclass)
 	{
@@ -1580,14 +1579,19 @@ void T_OfsThink(
 		break;
 
 	case electrosphereobj:
-		oldofs = static_cast<std::int8_t>(obj->temp1 - SPR_ELECTRO_SPHERE_ROAM1);
-		ofs = US_RndT() & 3;
-		if (ofs == oldofs)
 		{
-			ofs = (ofs + 1) & 3;
+			const auto max_frames = (assets_info.is_aog() ? 3 : 4);
+			const auto oldofs = obj->temp1 - SPR_ELECTRO_SPHERE_ROAM1;
+			auto ofs = US_RndT() % max_frames;
+
+			if (ofs == oldofs)
+			{
+				ofs = (ofs + 1) % max_frames;
+			}
+
+			obj->temp1 = SPR_ELECTRO_SPHERE_ROAM1 + ofs;
+			break;
 		}
-		obj->temp1 = SPR_ELECTRO_SPHERE_ROAM1 + ofs;
-		break;
 
 	case podobj:
 		if (obj->flags & FL_VISIBLE)
