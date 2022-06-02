@@ -9180,21 +9180,11 @@ private:
 		fail_nested(__func__);
 	}
 
-	// Partial Charge Pack.
-	void precache_partial_charge_pack()
+	// Partial / Full Charge Pack.
+	void precache_charge_packs()
 	try
 	{
 		cache_sprite(SPR_STAT_26);
-	}
-	catch (...)
-	{
-		fail_nested(__func__);
-	}
-
-	// Charge Pack.
-	void precache_charge_pack()
-	try
-	{
 		cache_sprite(SPR_STAT_31);
 	}
 	catch (...)
@@ -9391,7 +9381,7 @@ private:
 		// Goodies.
 		//
 		precache_slow_fire_protector();
-		precache_partial_charge_pack();
+		precache_charge_packs();
 		precache_coin_1();
 	}
 	catch (...)
@@ -9489,7 +9479,7 @@ private:
 
 		// Goodies.
 		//
-		precache_partial_charge_pack();
+		precache_charge_packs();
 		precache_coin_1();
 	}
 	catch (...)
@@ -9651,7 +9641,7 @@ private:
 		// Goodies.
 		//
 		precache_rapid_assault_weapon();
-		precache_partial_charge_pack();
+		precache_charge_packs();
 		precache_coin_1();
 	}
 	catch (...)
@@ -9684,7 +9674,7 @@ private:
 		// Goodies.
 		//
 		precache_slow_fire_protector();
-		precache_partial_charge_pack();
+		precache_charge_packs();
 	}
 	catch (...)
 	{
@@ -9717,7 +9707,7 @@ private:
 
 		// Goodies.
 		//
-		precache_partial_charge_pack();
+		precache_charge_packs();
 	}
 	catch (...)
 	{
@@ -9899,7 +9889,7 @@ private:
 		// Goodies.
 		//
 		precache_slow_fire_protector();
-		precache_partial_charge_pack();
+		precache_charge_packs();
 	}
 	catch (...)
 	{
@@ -10039,7 +10029,7 @@ private:
 		// Goodies.
 		//
 		precache_rapid_assault_weapon();
-		precache_partial_charge_pack();
+		precache_charge_packs();
 		precache_coin_1();
 	}
 	catch (...)
@@ -10781,7 +10771,7 @@ private:
 		precache_chicken_leg();
 		precache_ham();
 
-		precache_charge_pack();
+		precache_charge_packs();
 
 		precache_slow_fire_protector();
 		precache_rapid_assault_weapon();
