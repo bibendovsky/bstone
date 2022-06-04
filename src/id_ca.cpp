@@ -1974,6 +1974,14 @@ public:
 private:
 	using Palette = std::vector<SDL_Color>;
 
+	using SdlPixelFormatType =
+#if SDL_VERSION_ATLEAST(2, 0, 10)
+		SDL_PixelFormatEnum
+#else
+		Uint32
+#endif
+	;
+
 
 	bool is_initialized_;
 	int sprite_count_;
@@ -1993,7 +2001,7 @@ private:
 		int height,
 		int bit_depth);
 #else
-	static SDL_PixelFormatEnum get_sdl_pixel_format_enum_32() noexcept;
+	static SdlPixelFormatType get_sdl_pixel_format_enum_32() noexcept;
 
 	static bstone::SdlSurfaceUPtr make_sdl_surface(
 		int width,
@@ -2241,7 +2249,7 @@ bstone::SdlSurfaceUPtr ImageExtractor::make_sdl_surface(
 	return sdl_surface;
 }
 #else
-SDL_PixelFormatEnum ImageExtractor::get_sdl_pixel_format_enum_32() noexcept
+auto ImageExtractor::get_sdl_pixel_format_enum_32() noexcept -> SdlPixelFormatType
 {
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
 	return SDL_PIXELFORMAT_ABGR8888;
