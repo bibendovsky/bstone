@@ -64,40 +64,39 @@ public:
 	void initialize(
 		const void* raw_data);
 
-	void uninitialize();
+	void uninitialize() noexcept;
 
 
 	// Returns true if sprite is initialized.
-	bool is_initialized() const;
+	bool is_initialized() const noexcept;
 
 	// Return an offset by x of the left edge.
-	int get_left() const;
+	int get_left() const noexcept;
 
 	// Return an offset by x of the right edge.
-	int get_right() const;
+	int get_right() const noexcept;
 
 	// Return an offset by y of the top edge.
-	int get_top() const;
+	int get_top() const noexcept;
 
 	// Return an offset by y of the bottm edge.
-	int get_bottom() const;
+	int get_bottom() const noexcept;
 
 	// Returns a width of the sprite.
-	int get_width() const;
+	int get_width() const noexcept;
 
 	// Returns a height of the sprite.
-	int get_height() const;
+	int get_height() const noexcept;
 
 	// Returns a pointer to the column data.
 	//
 	// Note: Negative value means transparency.
-	const std::int16_t* get_column(
-		const int index) const;
+	const std::int16_t* get_column(int index) const noexcept;
 
 	// Returns a pointer to the columns.
 	//
 	// Note: Negative value means transparency.
-	const std::int16_t* get_data() const;
+	const std::int16_t* get_data() const noexcept;
 
 
 private:

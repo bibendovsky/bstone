@@ -43,24 +43,17 @@ namespace bstone
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-class Exception :
-	public std::exception
+class Exception : public std::exception
 {
 public:
-	Exception(
-		const char* context,
-		const char* message) noexcept;
-
-	Exception(
-		const Exception& rhs) noexcept;
-
+	Exception(const char* context, const char* message) noexcept;
+	Exception(const Exception& rhs) noexcept;
+	~Exception() override;
 
 	const char* what() const noexcept override;
 
-
 private:
 	using What = std::unique_ptr<char[]>;
-
 
 	What what_{};
 }; // Exception

@@ -1950,48 +1950,49 @@ Assets::AllResources Assets::make_all_resources()
 
 // ==========================================================================
 // ImageExtractor
-//
 
 class ImageExtractor
 {
 public:
-	bool is_initialized() const;
+	ImageExtractor();
 
-	bool initialize();
-
-	void uninitialize();
-
-	void extract_vga_palette(
-		const std::string& destination_dir);
-
-	void extract_walls(
-		const std::string& destination_dir);
-
-	void extract_sprites(
-		const std::string& destination_dir);
-
+	void extract_vga_palette(const std::string& destination_dir);
+	void extract_walls(const std::string& destination_dir);
+	void extract_sprites(const std::string& destination_dir);
 
 private:
+	class Exception : public bstone::Exception
+	{
+	public:
+		explicit Exception(const char* message)
+			:
+			bstone::Exception{"BSTONE_IMAGE_EXTRACTOR", message}
+		{}
+
+		~Exception() override = default;
+	};
+
 	using Palette = std::vector<SDL_Color>;
 
-	using SdlPixelFormatType =
 #if SDL_VERSION_ATLEAST(2, 0, 10)
-		SDL_PixelFormatEnum
+	using SdlPixelFormatType = SDL_PixelFormatEnum;
 #else
-		Uint32
+	using SdlPixelFormatType = Uint32;
 #endif
-	;
 
+	int sprite_count_{};
+	bstone::SdlSurfaceUPtr sdl_surface_16x16x8_{};
+	bstone::SdlSurfaceUPtr sdl_surface_64x64x8_{};
+	bstone::SdlSurfaceUPtr sdl_surface_64x64x32_{};
+	std::string destination_dir_{};
+	std::string destination_path_{};
+	bstone::SpriteCache sprite_cache_{};
+	Palette vga_palette_{};
 
-	bool is_initialized_;
-	int sprite_count_;
-	bstone::SdlSurfaceUPtr sdl_surface_16x16x8_;
-	bstone::SdlSurfaceUPtr sdl_surface_64x64x8_;
-	bstone::SdlSurfaceUPtr sdl_surface_64x64x32_;
-	std::string destination_dir_;
-	std::string destination_path_;
-	bstone::SpriteCache sprite_cache_;
-	Palette vga_palette_;
+	[[noreturn]] static void fail(const char* message);
+	[[noreturn]] static void fail_nested(const char* message);
+
+	void save_bmp(bstone::SdlSurfacePtr sdl_surface, const std::string& path);
 
 	static void check_sdl_surface_not_null(bstone::SdlSurfaceUPtr& sdl_surface);
 
@@ -2016,146 +2017,69 @@ private:
 	static bstone::SdlSurfaceUPtr make_sdl_surface_8(int width, int height);
 	static bstone::SdlSurfaceUPtr make_sdl_surface_32(int width, int height);
 
-	void set_palette(
-		bstone::SdlSurfacePtr sdl_surface,
-		const std::uint8_t* const vga_palette);
-
-	void set_palette(
-		bstone::SdlSurfacePtr sdl_surface,
-		const Palette& palette);
-
-	void uninitialize_vga_palette();
+	void set_palette(bstone::SdlSurfacePtr sdl_surface, const std::uint8_t* vga_palette) noexcept;
+	void set_palette(bstone::SdlSurfacePtr sdl_surface, const Palette& palette) noexcept;
 
 	void initialize_vga_palette();
+	void initialize_surface_16x16x8();
+	void initialize_surface_64x64x8();
+	void initialize_surface_64x64x32();
 
-	void uninitialize_surface_64x64x8();
+	void convert_wall_page_into_surface(const std::uint8_t* src_indices) noexcept;
+	void convert_sprite_page_into_surface(const bstone::Sprite& sprite) noexcept;
 
-	bool initialize_surface_16x16x8();
+	void save_image(const std::string& name_prefix, int image_index, bstone::SdlSurfacePtr sdl_surface);
 
-	void uninitialize_surface_16x16x8();
-
-	bool initialize_surface_64x64x8();
-
-	void uninitialize_surface_64x64x32();
-
-	bool initialize_surface_64x64x32();
-
-	void convert_wall_page_into_surface(
-		const std::uint8_t* const src_indices);
-
-	void convert_sprite_page_into_surface(
-		const bstone::Sprite& sprite);
-
-	bool save_image(
-		const std::string& name_prefix,
-		const int image_index,
-		bstone::SdlSurfacePtr sdl_surface);
-
-	bool extract_wall(
-		const int wall_index);
-
-	bool extract_sprite(
-		const int sprite_index);
+	void extract_wall(int wall_index);
+	void extract_sprite(const int sprite_index);
 }; // ImageExtractor
 
-
-bool ImageExtractor::is_initialized() const
+ImageExtractor::ImageExtractor()
 {
-	return is_initialized_;
-}
-
-bool ImageExtractor::initialize()
-{
-	if (!initialize_surface_16x16x8())
-	{
-		return false;
-	}
-
-	if (!initialize_surface_64x64x8())
-	{
-		return false;
-	}
-
-	if (!initialize_surface_64x64x32())
-	{
-		return false;
-	}
-
+	initialize_surface_16x16x8();
+	initialize_surface_64x64x8();
+	initialize_surface_64x64x32();
 	initialize_vga_palette();
-
-	is_initialized_ = true;
-
-	return true;
 }
 
-void ImageExtractor::uninitialize()
-{
-	is_initialized_ = false;
-
-	uninitialize_surface_64x64x8();
-	uninitialize_surface_64x64x32();
-	uninitialize_vga_palette();
-}
-
-void ImageExtractor::extract_vga_palette(
-	const std::string& destination_dir)
+void ImageExtractor::extract_vga_palette(const std::string& destination_dir)
 {
 	bstone::logger_->write();
 	bstone::logger_->write("<<< ================");
 	bstone::logger_->write("Extracting VGA palette.");
 	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
 
-	if (!is_initialized_)
-	{
-		bstone::logger_->write_error("Not initialized.");
-
-		return;
-	}
-
 	destination_dir_ = bstone::file_system::normalize_path(destination_dir);
-
 	set_palette(sdl_surface_16x16x8_.get(), vga_palette_);
-
 	const auto pitch = sdl_surface_16x16x8_->pitch;
-
 	auto dst_indices = static_cast<std::uint8_t*>(sdl_surface_16x16x8_->pixels);
-
 	auto src_index = std::uint8_t{};
 
-	for (int h = 0; h < 16; ++h)
+	for (auto h = 0; h < 16; ++h)
 	{
-		for (int w = 0; w < 16; ++w)
+		for (auto w = 0; w < 16; ++w)
 		{
 			const auto dst_index = (h * pitch) + w;
-
 			dst_indices[dst_index] = src_index;
-
 			src_index += 1;
 		}
 	}
 
-	const auto& file_name = bstone::file_system::append_path(
-		destination_dir_,
-		"vga_palette.bmp"
-	);
-
+	const auto& file_name = bstone::file_system::append_path(destination_dir_, "vga_palette.bmp");
 	const auto sdl_result = SDL_SaveBMP(sdl_surface_16x16x8_.get(), file_name.c_str());
 
 	if (sdl_result != 0)
 	{
 		auto error_message = "Failed to save VGA palette into \"" + file_name + "\". ";
 		error_message += SDL_GetError();
-
 		bstone::logger_->write_error(error_message);
-
 		return;
 	}
 
 	bstone::logger_->write(">>> ================");
 }
 
-void ImageExtractor::extract_walls(
-	const std::string& destination_dir)
+void ImageExtractor::extract_walls(const std::string& destination_dir)
 {
 	const auto wall_count = bstone::globals::page_mgr->get_wall_count();
 
@@ -2165,18 +2089,10 @@ void ImageExtractor::extract_walls(
 	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
 	bstone::logger_->write("File count: " + std::to_string(wall_count));
 
-	if (!is_initialized_)
-	{
-		bstone::logger_->write_error("Not initialized.");
-
-		return;
-	}
-
 	destination_dir_ = bstone::file_system::normalize_path(destination_dir);
-
 	set_palette(sdl_surface_64x64x8_.get(), vga_palette_);
 
-	for (int i = 0; i < wall_count; ++i)
+	for (auto i = 0; i < wall_count; ++i)
 	{
 		extract_wall(i);
 	}
@@ -2184,8 +2100,7 @@ void ImageExtractor::extract_walls(
 	bstone::logger_->write(">>> ================");
 }
 
-void ImageExtractor::extract_sprites(
-	const std::string& destination_dir)
+void ImageExtractor::extract_sprites(const std::string& destination_dir)
 {
 	sprite_count_ = bstone::globals::page_mgr->get_sprite_count();
 
@@ -2200,16 +2115,9 @@ void ImageExtractor::extract_sprites(
 	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
 	bstone::logger_->write("File count: " + std::to_string(sprite_count_));
 
-	if (!is_initialized_)
-	{
-		bstone::logger_->write_error("Not initialized.");
-
-		return;
-	}
-
 	destination_dir_ = bstone::file_system::normalize_path(destination_dir);
 
-	for (int i = 0; i < sprite_count_; ++i)
+	for (auto i = 0; i < sprite_count_; ++i)
 	{
 		extract_sprite(i);
 	}
@@ -2217,7 +2125,36 @@ void ImageExtractor::extract_sprites(
 	bstone::logger_->write(">>> ================");
 }
 
+[[noreturn]] void ImageExtractor::fail(const char* message)
+{
+	throw Exception{message};
+}
+
+[[noreturn]] void ImageExtractor::fail_nested(const char* message)
+{
+	std::throw_with_nested(Exception{message});
+}
+
+void ImageExtractor::save_bmp(bstone::SdlSurfacePtr sdl_surface, const std::string& path)
+try
+{
+	const auto sdl_result = SDL_SaveBMP(sdl_surface, path.c_str());
+
+	if (sdl_result == 0)
+	{
+		return;
+	}
+
+	const auto error_message = std::string{} + "Failed to save an image \"" + path + "\". " + SDL_GetError();
+	fail(error_message.c_str());
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
+
 void ImageExtractor::check_sdl_surface_not_null(bstone::SdlSurfaceUPtr& sdl_surface)
+try
 {
 	if (sdl_surface != nullptr)
 	{
@@ -2225,7 +2162,11 @@ void ImageExtractor::check_sdl_surface_not_null(bstone::SdlSurfaceUPtr& sdl_surf
 	}
 
 	const auto error_message = std::string{} + "Failed to create SDL surface. " + SDL_GetError();
-	bstone::logger_->write_error(error_message);
+	fail(error_message.c_str());
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 #if !defined(BSTONE_CA_FORCE_SDL_LESS_2_0_5) && SDL_VERSION_ATLEAST(2, 0, 5)
@@ -2233,6 +2174,7 @@ bstone::SdlSurfaceUPtr ImageExtractor::make_sdl_surface(
 	int width,
 	int height,
 	int bit_depth)
+try
 {
 	assert(width > 0);
 	assert(height > 0);
@@ -2247,6 +2189,10 @@ bstone::SdlSurfaceUPtr ImageExtractor::make_sdl_surface(
 		sdl_pixel_format)};
 	check_sdl_surface_not_null(sdl_surface);
 	return sdl_surface;
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 #else
 auto ImageExtractor::get_sdl_pixel_format_enum_32() noexcept -> SdlPixelFormatType
@@ -2266,6 +2212,7 @@ bstone::SdlSurfaceUPtr ImageExtractor::make_sdl_surface(
 	Uint32 g_mask,
 	Uint32 b_mask,
 	Uint32 a_mask)
+try
 {
 	assert(width > 0);
 	assert(height > 0);
@@ -2283,9 +2230,14 @@ bstone::SdlSurfaceUPtr ImageExtractor::make_sdl_surface(
 	check_sdl_surface_not_null(sdl_surface);
 	return sdl_surface;
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 #endif
 
 bstone::SdlSurfaceUPtr ImageExtractor::make_sdl_surface_8(int width, int height)
+try
 {
 	assert(width > 0);
 	assert(height > 0);
@@ -2295,8 +2247,13 @@ bstone::SdlSurfaceUPtr ImageExtractor::make_sdl_surface_8(int width, int height)
 	return make_sdl_surface(width, height, 8, 0, 0, 0, 0);
 #endif
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
 bstone::SdlSurfaceUPtr ImageExtractor::make_sdl_surface_32(int width, int height)
+try
 {
 	assert(width > 0);
 	assert(height > 0);
@@ -2321,17 +2278,18 @@ bstone::SdlSurfaceUPtr ImageExtractor::make_sdl_surface_32(int width, int height
 	if (to_masks_result == SDL_FALSE)
 	{
 		const auto error_message = std::string{} + "Failed to convert SDL pixel format enum to masks. " + SDL_GetError();
-		bstone::logger_->write_error(error_message);
-		return bstone::SdlSurfaceUPtr{};
+		fail(error_message.c_str());
 	}
 
 	return make_sdl_surface(width, height, bpp, r_mask, g_mask, b_mask, a_mask);
 #endif
 }
+catch (...)
+{
+	fail_nested(__func__);
+}
 
-void ImageExtractor::set_palette(
-	bstone::SdlSurfacePtr sdl_surface,
-	const std::uint8_t* const vga_palette)
+void ImageExtractor::set_palette(bstone::SdlSurfacePtr sdl_surface, const std::uint8_t* const vga_palette) noexcept
 {
 	assert(sdl_surface);
 	assert(vga_palette);
@@ -2353,9 +2311,7 @@ void ImageExtractor::set_palette(
 	}
 }
 
-void ImageExtractor::set_palette(
-	bstone::SdlSurfacePtr sdl_surface,
-	const Palette& palette)
+void ImageExtractor::set_palette(bstone::SdlSurfacePtr sdl_surface, const Palette& palette) noexcept
 {
 	assert(sdl_surface);
 	assert(palette.size() == static_cast<std::size_t>(bstone::RgbPalette::get_max_color_count()));
@@ -2366,22 +2322,17 @@ void ImageExtractor::set_palette(
 	std::uninitialized_copy_n(
 		palette.cbegin(),
 		bstone::RgbPalette::get_max_color_count(),
-		sdl_surface->format->palette->colors
-	);
-}
-
-void ImageExtractor::uninitialize_vga_palette()
-{
-	vga_palette_.clear();
+		sdl_surface->format->palette->colors);
 }
 
 void ImageExtractor::initialize_vga_palette()
+try
 {
 	vga_palette_.resize(bstone::RgbPalette::get_max_color_count());
 
 	const auto src_colors = vgapal;
 
-	for (int i = 0; i < bstone::RgbPalette::get_max_color_count(); ++i)
+	for (auto i = 0; i < bstone::RgbPalette::get_max_color_count(); ++i)
 	{
 		const auto src_color = src_colors + (i * 3);
 		auto& dst_color = vga_palette_[i];
@@ -2392,86 +2343,78 @@ void ImageExtractor::initialize_vga_palette()
 		dst_color.a = 255;
 	}
 }
-
-void ImageExtractor::uninitialize_surface_64x64x8()
+catch (...)
 {
-	sdl_surface_64x64x8_ = nullptr;
+	fail_nested(__func__);
 }
 
-bool ImageExtractor::initialize_surface_16x16x8()
+void ImageExtractor::initialize_surface_16x16x8()
+try
 {
 	sdl_surface_16x16x8_ = make_sdl_surface_8(16, 16);
-	return sdl_surface_16x16x8_ != nullptr;
 }
-
-void ImageExtractor::uninitialize_surface_16x16x8()
+catch (...)
 {
-	sdl_surface_16x16x8_ = nullptr;
+	fail_nested(__func__);
 }
 
-bool ImageExtractor::initialize_surface_64x64x8()
+void ImageExtractor::initialize_surface_64x64x8()
+try
 {
 	sdl_surface_64x64x8_ = make_sdl_surface_8(64, 64);
-	return sdl_surface_64x64x8_ != nullptr;
 }
-
-void ImageExtractor::uninitialize_surface_64x64x32()
+catch (...)
 {
-	sdl_surface_64x64x32_ = nullptr;
+	fail_nested(__func__);
 }
 
-bool ImageExtractor::initialize_surface_64x64x32()
+void ImageExtractor::initialize_surface_64x64x32()
+try
 {
 	sdl_surface_64x64x32_ = make_sdl_surface_32(64, 64);
-	return sdl_surface_64x64x32_ != nullptr;
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
-void ImageExtractor::convert_wall_page_into_surface(
-	const std::uint8_t* const src_indices)
+void ImageExtractor::convert_wall_page_into_surface(const std::uint8_t* src_indices) noexcept
 {
 	assert(src_indices);
-
 	const auto pitch = sdl_surface_64x64x8_->pitch;
-
 	auto dst_indices = static_cast<std::uint8_t*>(sdl_surface_64x64x8_->pixels);
-
 	auto src_index = 0;
 
-	for (int w = 0; w < 64; ++w)
+	for (auto w = 0; w < 64; ++w)
 	{
-		for (int h = 0; h < 64; ++h)
+		for (auto h = 0; h < 64; ++h)
 		{
 			const auto dst_index = (h * pitch) + w;
-
 			dst_indices[dst_index] = src_indices[src_index];
-
-			++src_index;
+			src_index += 1;
 		}
 	}
 }
 
-void ImageExtractor::convert_sprite_page_into_surface(
-	const bstone::Sprite& sprite)
+void ImageExtractor::convert_sprite_page_into_surface(const bstone::Sprite& sprite) noexcept
 {
 	const auto pitch = sdl_surface_64x64x32_->pitch / 4;
-
 	auto dst_colors = static_cast<SDL_Color*>(sdl_surface_64x64x32_->pixels);
-
 	const auto left = sprite.get_left();
 	const auto right = sprite.get_right();
 	const auto top = sprite.get_top();
 	const auto bottom = sprite.get_bottom();
 
-	for (int w = 0; w < 64; ++w)
+	for (auto w = 0; w < 64; ++w)
 	{
-		const std::int16_t* column = nullptr;
+		auto column = static_cast<const std::int16_t*>(nullptr);
 
 		if (w >= left && w <= right)
 		{
 			column = sprite.get_column(w - left);
 		}
 
-		for (int h = 0; h < 64; ++h)
+		for (auto h = 0; h < 64; ++h)
 		{
 			auto dst_color = SDL_Color{};
 
@@ -2486,133 +2429,81 @@ void ImageExtractor::convert_sprite_page_into_surface(
 			}
 
 			const auto dst_index = (h * pitch) + w;
-
 			dst_colors[dst_index] = dst_color;
 		}
 	}
 }
 
-bool ImageExtractor::save_image(
+void ImageExtractor::save_image(
 	const std::string& name_prefix,
-	const int image_index,
+	int image_index,
 	bstone::SdlSurfacePtr sdl_surface)
+try
 {
 	const auto& wall_index_string = ca_make_padded_asset_number_string(image_index);
 
 	const auto& file_name = bstone::file_system::append_path(
 		destination_dir_,
-		name_prefix + wall_index_string + ".bmp"
-	);
+		name_prefix + wall_index_string + ".bmp");
 
-	const auto sdl_result = SDL_SaveBMP(sdl_surface, file_name.c_str());
-
-	if (sdl_result != 0)
-	{
-		auto error_message = "Failed to save an image into \"" + file_name + "\". ";
-		error_message += SDL_GetError();
-
-		bstone::logger_->write_error(error_message);
-
-		return false;
-	}
-
-	return true;
+	save_bmp(sdl_surface, file_name);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
-bool ImageExtractor::extract_wall(
-	const int wall_index)
+void ImageExtractor::extract_wall(int wall_index)
+try
 {
 	const auto wall_page = bstone::globals::page_mgr->get(wall_index);
 
-	if (!wall_page)
+	if (wall_page == nullptr)
 	{
-		bstone::logger_->write_error("No wall page #" + std::to_string(wall_index) + ".");
-
-		return false;
+		const auto error_message = std::string{} + "No wall page #" + std::to_string(wall_index) + ".";
+		fail(error_message.c_str());
 	}
 
 	convert_wall_page_into_surface(wall_page);
-
-	if (!save_image("wall_", wall_index, sdl_surface_64x64x8_.get()))
-	{
-		return false;
-	}
-
-	return true;
+	save_image("wall_", wall_index, sdl_surface_64x64x8_.get());
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
-bool ImageExtractor::extract_sprite(
-	const int sprite_index)
+void ImageExtractor::extract_sprite(int sprite_index)
+try
 {
 	const auto cache_sprite_index = sprite_index + 1;
-
-	auto sprite = bstone::SpriteCPtr{};
-
-	try
-	{
-		sprite = sprite_cache_.cache(cache_sprite_index);
-	}
-	catch (const std::exception& ex)
-	{
-		auto error_message = "Failed to cache a sprite #" + std::to_string(sprite_index) + ". ";
-		error_message += ex.what();
-
-		bstone::logger_->write_error(error_message);
-
-		return false;
-	}
-
+	const auto sprite = sprite_cache_.cache(cache_sprite_index);
 	convert_sprite_page_into_surface(*sprite);
-
-	if (!save_image("sprite_", cache_sprite_index, sdl_surface_64x64x32_.get()))
-	{
-		return false;
-	}
-
-	return true;
+	save_image("sprite_", cache_sprite_index, sdl_surface_64x64x32_.get());
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
-//
 // ImageExtractor
 // ==========================================================================
 
 
-void ca_extract_vga_palette(
-	const std::string& destination_dir)
+void ca_extract_vga_palette(const std::string& destination_dir)
 {
 	auto images_extractor = ImageExtractor{};
-
-	if (!images_extractor.initialize())
-	{
-		return;
-	}
-
 	images_extractor.extract_vga_palette(destination_dir);
 }
 
-void ca_extract_walls(
-	const std::string& destination_dir)
+void ca_extract_walls(const std::string& destination_dir)
 {
 	auto images_extractor = ImageExtractor{};
-
-	if (!images_extractor.initialize())
-	{
-		return;
-	}
-
 	images_extractor.extract_walls(destination_dir);
 }
 
-void ca_extract_sprites(
-	const std::string& destination_dir)
+void ca_extract_sprites(const std::string& destination_dir)
 {
 	auto images_extractor = ImageExtractor{};
-
-	if (!images_extractor.initialize())
-	{
-		return;
-	}
-
 	images_extractor.extract_sprites(destination_dir);
 }
 

@@ -151,6 +151,8 @@ Exception::Exception(
 	*what = '\0';
 }
 
+Exception::~Exception() = default;
+
 const char* Exception::what() const noexcept
 {
 	return what_ ? what_.get() : "[BSTONE_EXCEPTION] Generic failure.";
