@@ -34,6 +34,7 @@ loaded into the data segment
 =============================================================================
 */
 
+//#define BSTONE_CA_FORCE_SDL_LESS_2_0_5
 
 #include "id_ca.h"
 
@@ -1984,6 +1985,28 @@ private:
 	bstone::SpriteCache sprite_cache_;
 	Palette vga_palette_;
 
+	static void check_sdl_surface_not_null(bstone::SdlSurfaceUPtr& sdl_surface);
+
+#if !defined(BSTONE_CA_FORCE_SDL_LESS_2_0_5) && SDL_VERSION_ATLEAST(2, 0, 5)
+	static bstone::SdlSurfaceUPtr make_sdl_surface(
+		int width,
+		int height,
+		int bit_depth);
+#else
+	static SDL_PixelFormatEnum get_sdl_pixel_format_enum_32() noexcept;
+
+	static bstone::SdlSurfaceUPtr make_sdl_surface(
+		int width,
+		int height,
+		int bit_depth,
+		Uint32 r_mask,
+		Uint32 g_mask,
+		Uint32 b_mask,
+		Uint32 a_mask);
+#endif
+
+	static bstone::SdlSurfaceUPtr make_sdl_surface_8(int width, int height);
+	static bstone::SdlSurfaceUPtr make_sdl_surface_32(int width, int height);
 
 	void set_palette(
 		bstone::SdlSurfacePtr sdl_surface,
@@ -2186,6 +2209,118 @@ void ImageExtractor::extract_sprites(
 	bstone::logger_->write(">>> ================");
 }
 
+void ImageExtractor::check_sdl_surface_not_null(bstone::SdlSurfaceUPtr& sdl_surface)
+{
+	if (sdl_surface != nullptr)
+	{
+		return;
+	}
+
+	const auto error_message = std::string{} + "Failed to create SDL surface. " + SDL_GetError();
+	bstone::logger_->write_error(error_message);
+}
+
+#if !defined(BSTONE_CA_FORCE_SDL_LESS_2_0_5) && SDL_VERSION_ATLEAST(2, 0, 5)
+bstone::SdlSurfaceUPtr ImageExtractor::make_sdl_surface(
+	int width,
+	int height,
+	int bit_depth)
+{
+	assert(width > 0);
+	assert(height > 0);
+	assert(bit_depth == 8 || bit_depth == 32);
+
+	const auto sdl_pixel_format = (bit_depth == 8 ? SDL_PIXELFORMAT_INDEX8 : SDL_PIXELFORMAT_RGBA32);
+	auto sdl_surface = bstone::SdlSurfaceUPtr{SDL_CreateRGBSurfaceWithFormat(
+		0,
+		width,
+		height,
+		bit_depth,
+		sdl_pixel_format)};
+	check_sdl_surface_not_null(sdl_surface);
+	return sdl_surface;
+}
+#else
+SDL_PixelFormatEnum ImageExtractor::get_sdl_pixel_format_enum_32() noexcept
+{
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+	return SDL_PIXELFORMAT_ABGR8888;
+#else // SDL_BYTEORDER == SDL_LIL_ENDIAN
+	return SDL_PIXELFORMAT_RGBA8888;
+#endif // SDL_BYTEORDER == SDL_LIL_ENDIAN
+}
+
+bstone::SdlSurfaceUPtr ImageExtractor::make_sdl_surface(
+	int width,
+	int height,
+	int bit_depth,
+	Uint32 r_mask,
+	Uint32 g_mask,
+	Uint32 b_mask,
+	Uint32 a_mask)
+{
+	assert(width > 0);
+	assert(height > 0);
+	assert(bit_depth == 8 || bit_depth == 32);
+
+	auto sdl_surface = bstone::SdlSurfaceUPtr{SDL_CreateRGBSurface(
+		0,
+		width,
+		height,
+		bit_depth,
+		r_mask,
+		g_mask,
+		b_mask,
+		a_mask)};
+	check_sdl_surface_not_null(sdl_surface);
+	return sdl_surface;
+}
+#endif
+
+bstone::SdlSurfaceUPtr ImageExtractor::make_sdl_surface_8(int width, int height)
+{
+	assert(width > 0);
+	assert(height > 0);
+#if !defined(BSTONE_CA_FORCE_SDL_LESS_2_0_5) && SDL_VERSION_ATLEAST(2, 0, 5)
+	return make_sdl_surface(width, height, 8);
+#else
+	return make_sdl_surface(width, height, 8, 0, 0, 0, 0);
+#endif
+}
+
+bstone::SdlSurfaceUPtr ImageExtractor::make_sdl_surface_32(int width, int height)
+{
+	assert(width > 0);
+	assert(height > 0);
+
+#if !defined(BSTONE_CA_FORCE_SDL_LESS_2_0_5) && SDL_VERSION_ATLEAST(2, 0, 5)
+	return make_sdl_surface(width, height, 32);
+#else
+	int bpp;
+	Uint32 r_mask;
+	Uint32 g_mask;
+	Uint32 b_mask;
+	Uint32 a_mask;
+	const auto sdl_format_enum = get_sdl_pixel_format_enum_32();
+	const auto to_masks_result = SDL_PixelFormatEnumToMasks(
+		sdl_format_enum,
+		&bpp,
+		&r_mask,
+		&g_mask,
+		&b_mask,
+		&a_mask);
+
+	if (to_masks_result == SDL_FALSE)
+	{
+		const auto error_message = std::string{} + "Failed to convert SDL pixel format enum to masks. " + SDL_GetError();
+		bstone::logger_->write_error(error_message);
+		return bstone::SdlSurfaceUPtr{};
+	}
+
+	return make_sdl_surface(width, height, bpp, r_mask, g_mask, b_mask, a_mask);
+#endif
+}
+
 void ImageExtractor::set_palette(
 	bstone::SdlSurfacePtr sdl_surface,
 	const std::uint8_t* const vga_palette)
@@ -2257,27 +2392,8 @@ void ImageExtractor::uninitialize_surface_64x64x8()
 
 bool ImageExtractor::initialize_surface_16x16x8()
 {
-	auto sdl_surface = SDL_CreateRGBSurfaceWithFormat(
-		0, // flags
-		16, // width
-		16, // height
-		8, // depth
-		SDL_PIXELFORMAT_INDEX8 // format
-	);
-
-	if (!sdl_surface)
-	{
-		auto error_message = std::string{"Failed to create SDL surface 16x16x8bit. "};
-		error_message += SDL_GetError();
-
-		bstone::logger_->write_error(error_message);
-
-		return false;
-	}
-
-	sdl_surface_16x16x8_ = bstone::SdlSurfaceUPtr{sdl_surface};
-
-	return true;
+	sdl_surface_16x16x8_ = make_sdl_surface_8(16, 16);
+	return sdl_surface_16x16x8_ != nullptr;
 }
 
 void ImageExtractor::uninitialize_surface_16x16x8()
@@ -2287,27 +2403,8 @@ void ImageExtractor::uninitialize_surface_16x16x8()
 
 bool ImageExtractor::initialize_surface_64x64x8()
 {
-	auto sdl_surface = SDL_CreateRGBSurfaceWithFormat(
-		0, // flags
-		64, // width
-		64, // height
-		8, // depth
-		SDL_PIXELFORMAT_INDEX8 // format
-	);
-
-	if (!sdl_surface)
-	{
-		auto error_message = std::string{"Failed to create SDL surface 64x64x8bit. "};
-		error_message += SDL_GetError();
-
-		bstone::logger_->write_error(error_message);
-
-		return false;
-	}
-
-	sdl_surface_64x64x8_ = bstone::SdlSurfaceUPtr{sdl_surface};
-
-	return true;
+	sdl_surface_64x64x8_ = make_sdl_surface_8(64, 64);
+	return sdl_surface_64x64x8_ != nullptr;
 }
 
 void ImageExtractor::uninitialize_surface_64x64x32()
@@ -2317,31 +2414,8 @@ void ImageExtractor::uninitialize_surface_64x64x32()
 
 bool ImageExtractor::initialize_surface_64x64x32()
 {
-	auto sdl_surface = SDL_CreateRGBSurfaceWithFormat(
-		0, // flags
-		64, // width
-		64, // height
-		32, // depth
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-		SDL_PIXELFORMAT_ABGR8888 // format
-#else // SDL_BYTEORDER == SDL_LIL_ENDIAN
-		SDL_PIXELFORMAT_RGBA8888 // format
-#endif // SDL_BYTEORDER == SDL_LIL_ENDIAN
-	);
-
-	if (!sdl_surface)
-	{
-		auto error_message = std::string{"Failed to create SDL surface 64x64x8bit. "};
-		error_message += SDL_GetError();
-
-		bstone::logger_->write_error(error_message);
-
-		return false;
-	}
-
-	sdl_surface_64x64x32_ = bstone::SdlSurfaceUPtr{sdl_surface};
-
-	return true;
+	sdl_surface_64x64x32_ = make_sdl_surface_32(64, 64);
+	return sdl_surface_64x64x32_ != nullptr;
 }
 
 void ImageExtractor::convert_wall_page_into_surface(
