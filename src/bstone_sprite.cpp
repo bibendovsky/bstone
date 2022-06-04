@@ -210,55 +210,54 @@ void Sprite::initialize(
 	bottom_ = bottom - 1;
 }
 
-void Sprite::uninitialize()
+void Sprite::uninitialize() noexcept
 {
 	left_ = 0;
 	right_ = 0;
 	image_ = {};
 }
 
-bool Sprite::is_initialized() const
+bool Sprite::is_initialized() const noexcept
 {
 	return !image_.empty();
 }
 
-int Sprite::get_left() const
+int Sprite::get_left() const noexcept
 {
 	return left_;
 }
 
-int Sprite::get_right() const
+int Sprite::get_right() const noexcept
 {
 	return right_;
 }
 
-int Sprite::get_top() const
+int Sprite::get_top() const noexcept
 {
 	return top_;
 }
 
-int Sprite::get_bottom() const
+int Sprite::get_bottom() const noexcept
 {
 	return bottom_;
 }
 
-int Sprite::get_width() const
+int Sprite::get_width() const noexcept
 {
 	return (right_ - left_) + 1;
 }
 
-int Sprite::get_height() const
+int Sprite::get_height() const noexcept
 {
 	return (bottom_ - top_) + 1;
 }
 
-const std::int16_t* Sprite::get_column(
-	const int index) const
+const std::int16_t* Sprite::get_column(int index) const noexcept
 {
 	return &image_[index * get_height()];
 }
 
-const std::int16_t* Sprite::get_data() const
+const std::int16_t* Sprite::get_data() const noexcept
 {
 	return image_.data();
 }
