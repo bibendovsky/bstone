@@ -2870,6 +2870,14 @@ struct GoldsternInfo_t
 		bstone::ArchiverPtr archiver);
 }; // GoldsternInfo_t
 
+struct PlayerWarp
+{
+	int tilex;
+	int tiley;
+	dirtype dir;
+};
+
+extern PlayerWarp player_warp;
 
 /*
 =============================================================================
@@ -2912,6 +2920,9 @@ extern std::int16_t dirangle[9];
 extern bool startgame;
 extern bool loadedgame;
 extern int mouseadjustment;
+
+extern int last_map_tile_x;
+extern int last_map_tile_y;
 
 // BBi
 const int min_mouse_sensitivity = 0;
