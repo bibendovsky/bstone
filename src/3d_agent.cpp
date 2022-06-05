@@ -3129,6 +3129,7 @@ void Cmd_Use(
 	std::uint8_t static interrogate_delay = 0;
 
 	bool tryDetonator = false;
+	auto is_horizontal = false;
 
 	// Find which cardinal direction the player is facing
 	//
@@ -3137,6 +3138,7 @@ void Cmd_Use(
 		checkx = player->tilex + 1;
 		checky = player->tiley;
 		dir = di_east;
+		is_horizontal = true;
 	}
 	else if (player->angle < 3 * ANGLES / 8)
 	{
@@ -3149,6 +3151,7 @@ void Cmd_Use(
 		checkx = player->tilex - 1;
 		checky = player->tiley;
 		dir = di_west;
+		is_horizontal = true;
 	}
 	else
 	{
@@ -3192,7 +3195,7 @@ void Cmd_Use(
 				// Test for 'display elevator buttons'
 				//
 				case TRANSPORTERTILE:
-					is_select_floor = true;
+					is_select_floor = assets_info.is_aog() ? is_horizontal : true;
 					break;
 
 				case DIRECTTRANSPORTTILE:
