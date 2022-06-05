@@ -146,6 +146,8 @@ std::int8_t NumEAWalls;
 tilecoord_t GoldieList[GOLDIE_MAX_SPAWNS];
 GoldsternInfo_t GoldsternInfo;
 
+PlayerWarp player_warp;
+
 extern std::uint16_t scan_value;
 
 int NUMWEAPONS = 0;
@@ -452,7 +454,15 @@ void ScanInfoPlane()
 			case 20:
 			case 21:
 			case 22:
-				SpawnPlayer(x, y, NORTH + tile - 19);
+				if (assets_info.is_aog() && playstate == ex_transported)
+				{
+					SpawnPlayer(player_warp.tilex, player_warp.tiley, (1 - (player_warp.dir >> 1)) & 3);
+				}
+				else
+				{
+					SpawnPlayer(x, y, NORTH + tile - 19);
+				}
+
 				break;
 
 			case 30: // Yellow Puddle
@@ -3315,6 +3325,8 @@ restartgame:
 	DrawPlayScreen(true);
 
 	died = false;
+	const auto& assets_info = get_assets_info();
+
 	do
 	{
 		extern std::int16_t pickquick;
@@ -3421,8 +3433,20 @@ restartgame:
 		case ex_transported: // Same as ex_completed
 			Warped();
 
+			if (assets_info.is_aog())
+			{
+				player_warp.tilex = player->tilex;
+				player_warp.tiley = player->tiley;
+				player_warp.dir = player->dir;
+			}
+
 		case ex_completed:
 		case ex_secretlevel:
+			if (assets_info.is_aog())
+			{
+				last_map_tile_x = player->tilex;
+				last_map_tile_y = player->tiley;
+			}
 		case ex_warped:
 			ClearMemory();
 // FIXME

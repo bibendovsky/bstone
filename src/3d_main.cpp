@@ -192,6 +192,8 @@ std::string mod_dir_;
 
 void InitPlaytemp();
 
+int last_map_tile_x = -1;
+int last_map_tile_y = -1;
 
 std::uint16_t TopColor;
 std::uint16_t BottomColor;
@@ -8068,6 +8070,8 @@ void NewGame(
 	pickquick = 0;
 
 	// BBi
+	last_map_tile_x = -1;
+	last_map_tile_y = -1;
 	g_playtemp.set_position(0);
 	g_playtemp.set_size(0);
 	// BBi
@@ -8161,6 +8165,126 @@ int NextChunk(
 	return 0;
 }
 
+void AlignPlayerOnTransporter()
+{
+	player->tilex = player_warp.tilex;
+	player->tiley = player_warp.tiley;
+	player->x = player->tilex + 0.5;
+	player->y = player->tiley + 0.5;
+	player->dir = player_warp.dir;
+	player->angle = player_warp.dir * 45;
+}
+
+void AlignPlayerInElevator()
+{
+	if (last_map_tile_x < 0 || last_map_tile_y < 0 || playstate == ex_transported)
+	{
+		return;
+	}
+
+	auto tilex = 0;
+	auto origtilex = last_map_tile_x;
+	auto origtiley = last_map_tile_y;
+
+	if ((tilemap[origtilex + 1][origtiley] & 63) != TRANSPORTERTILE &&
+		(tilemap[origtilex - 1][origtiley] & 63) != TRANSPORTERTILE)
+	{
+		if ((tilemap[origtilex - 2][origtiley] & 63) != TRANSPORTERTILE)
+		{
+			for (tilex = origtilex - 1; tilex != 0; --tilex)
+			{
+				if ((tilemap[tilex][origtiley] & 63) != TRANSPORTERTILE)
+				{
+					continue;
+				}
+
+				if ((tilemap[tilex - 1][origtiley - 1] & 63) == TRANSPORTERTILE ||
+					(tilemap[tilex - 1][origtiley + 1] & 63) == TRANSPORTERTILE)
+				{
+					tilex -= 1;
+				}
+				else
+				{
+					tilex += 1;
+				}
+				break;
+			}
+		}
+
+		if ((tilemap[origtilex + 2][origtiley] & 63) != TRANSPORTERTILE && tilex == 0)
+		{
+			for (tilex = origtilex + 1; tilex < MAPSIZE; ++tilex)
+			{
+				if ((tilemap[tilex][origtiley] & 63) != TRANSPORTERTILE)
+				{
+					continue;
+				}
+
+				if ((tilemap[tilex + 1][origtiley - 1] & 63) == TRANSPORTERTILE ||
+					(tilemap[tilex + 1][origtiley + 1] & 63) == TRANSPORTERTILE)
+				{
+					tilex += 1;
+				}
+				else
+				{
+					tilex -= 1;
+				}
+
+				break;
+			}
+		}
+	}
+
+	if (tilex == 0)
+	{
+		tilex = last_map_tile_x;
+	}
+
+	if (tilex < MAPSIZE)
+	{
+		if ((tilemap[tilex + 1][origtiley + 1] & 0x80) != 0)
+		{
+			origtiley += 1;
+			tilex -= 1;
+			player->dir = northeast;
+		}
+		else if ((tilemap[tilex + 1][origtiley - 1] & 0x80) != 0)
+		{
+			origtiley -= 1;
+			tilex -= 1;
+			player->dir = northeast;
+		}
+		else if ((tilemap[tilex - 1][origtiley + 1] & 0x80) != 0)
+		{
+			origtiley += 1;
+			tilex += 1;
+			player->dir = northwest;
+		}
+		else if ((tilemap[tilex - 1][origtiley - 1] & 0x80) != 0)
+		{
+			origtiley -= 1;
+			tilex += 1;
+			player->dir = northwest;
+		}
+	}
+	else
+	{
+		tilex = origtilex;
+	}
+
+	player->x = tilex + 0.5;
+	player->y = origtiley + 0.5;
+	player->angle = (1 - player->dir) * 90;
+
+	if (player->angle < 0)
+	{
+		player->angle += 360;
+	}
+
+	last_map_tile_x = -1;
+	last_map_tile_y = -1;
+}
+
 std::int8_t LS_current = -1;
 std::int8_t LS_total = -1;
 
@@ -8209,6 +8333,12 @@ try
 	if ((FindChunk(&g_playtemp, chunk_name) == 0) || ForceLoadDefault)
 	{
 		SetupGameLevel();
+
+		if (assets_info.is_aog())
+		{
+			AlignPlayerInElevator();
+		}
+
 		vid_hw_on_load_level();
 
 		gamestate.turn_around = 0;
@@ -8507,6 +8637,18 @@ try
 			if (tile_object == PUSHABLETILE)
 			{
 				tile_object = 0;
+			}
+		}
+
+		if (assets_info.is_aog())
+		{
+			if (playstate == ex_transported)
+			{
+				AlignPlayerOnTransporter();
+			}
+			else
+			{
+				AlignPlayerInElevator();
 			}
 		}
 
@@ -9162,6 +9304,9 @@ try
 		//
 		FreeMusic();
 		StartMusic(false);
+
+		last_map_tile_x = -1;
+		last_map_tile_y = -1;
 
 		is_succeed = LoadLevel(0xFF);
 
