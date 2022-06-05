@@ -20,6 +20,7 @@
 - Fix checking if the level is official.
 - Use SDL 2.0.5+ functions only if available.
 - [AOG] Interact with elevator controls on east-west side only.
+- [AOG] Match transporting behavior between floors to original.
 
 ### Changed
 - [OAL] List devices with `ALC_ENUMERATE_ALL_EXT` if available.
