@@ -19,6 +19,7 @@
 - Render 3D scene behind "You are jamming" cheat message box.
 - Fix checking if the level is official.
 - Use SDL 2.0.5+ functions only if available.
+- [AOG] Interact with elevator controls on east-west side only.
 
 ### Changed
 - [OAL] List devices with `ALC_ENUMERATE_ALL_EXT` if available.
