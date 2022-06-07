@@ -21,6 +21,9 @@
 - Use SDL 2.0.5+ functions only if available.
 - [AOG] Interact with elevator controls on east-west side only.
 - [AOG] Match transporting behavior between floors to original.
+- [HWR] Render enter-only door size without lock as unlocked.
+- [AOG] Reverse textures for charge packs.
+- [AOG] Render `ouch` frame only on damage for Plasma Sphere.
 
 ### Changed
 - [OAL] List devices with `ALC_ENUMERATE_ALL_EXT` if available.
@@ -28,6 +31,7 @@
 - [VIDEO] Rename `vid_windowed_y` to `vid_y`.
 - [VIDEO] Rename `vid_windowed_width` to `vid_width`.
 - [VIDEO] Rename `vid_windowed_height` to `vid_height`.
+- Limit stream I/O to 32 bit.
 
 ### Removed
 - Option `vid_is_windowed`.
