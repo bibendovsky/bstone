@@ -46,6 +46,7 @@ class SdlAudioMixer final : public AudioMixer
 {
 public:
 	SdlAudioMixer(const AudioMixerInitParam& param);
+	~SdlAudioMixer();
 
 	Opl3Type get_opl3_type() const override;
 	int get_rate() const override;

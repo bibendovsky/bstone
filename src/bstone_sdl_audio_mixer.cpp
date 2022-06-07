@@ -171,6 +171,11 @@ catch (...)
 	fail_nested(__func__);
 }
 
+SdlAudioMixer::~SdlAudioMixer()
+{
+	SDL_PauseAudioDevice(sdl_audio_device_.get(), SDL_TRUE);
+}
+
 Opl3Type SdlAudioMixer::get_opl3_type() const
 {
 	return opl3_type_;
@@ -1242,9 +1247,9 @@ void SdlAudioMixer::callback_proxy(void* user_data, std::uint8_t* dst_data, int 
 try
 {
 	assert(user_data);
-	auto mixer = static_cast<SdlAudioMixer*>(user_data);
-	mixer->mix();
-	mixer->callback(dst_data, dst_length);
+	auto& mixer = *static_cast<SdlAudioMixer*>(user_data);
+	mixer.mix();
+	mixer.callback(dst_data, dst_length);
 }
 catch (...)
 {
