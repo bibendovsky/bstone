@@ -179,6 +179,8 @@ void DrawAmmoGuage();
 void GetBonus(
 	statobj_t* check);
 
+void ClearPaletteShifts();
+
 
 /*
 =============================================================================
@@ -3085,6 +3087,7 @@ void select_floor()
 #else
 		gamestate.mapon = static_cast<std::int16_t>(new_floor);
 #endif
+		ClearPaletteShifts();
 	}
 	else
 	{
