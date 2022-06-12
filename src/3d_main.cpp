@@ -120,6 +120,8 @@ void VL_LatchToScreen(
 
 const std::string& get_default_data_dir();
 
+void ClearPaletteShifts();
+
 /*
 =============================================================================
 
@@ -9317,6 +9319,7 @@ try
 	if (is_succeed)
 	{
 		ShowQuickMsg = false;
+		ClearPaletteShifts();
 	}
 	else
 	{
