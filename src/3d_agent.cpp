@@ -3902,7 +3902,8 @@ int aog_input_floor()
 		if (draw_stats)
 		{
 			draw_stats = false;
-
+			fontnumber = 2;
+			fontcolor = 0xAF;
 			static_cast<void>(ShowStats(
 				167,
 				ref_top_bar_height + 76,

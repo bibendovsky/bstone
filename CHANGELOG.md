@@ -25,6 +25,7 @@
 - [AOG] Reverse textures for charge packs.
 - [AOG] Render `ouch` frame only on damage for Plasma Sphere.
 - Clear damage effects after loading the game, etc.
+- [AOG] Fix "N/A" font size and color in the floor input panel.
 
 ### Changed
 - [OAL] List devices with `ALC_ENUMERATE_ALL_EXT` if available.
