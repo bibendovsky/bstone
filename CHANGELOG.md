@@ -24,6 +24,7 @@
 - [HWR] Render enter-only door size without lock as unlocked.
 - [AOG] Reverse textures for charge packs.
 - [AOG] Render `ouch` frame only on damage for Plasma Sphere.
+- Clear damage effects after loading the game, etc.
 
 ### Changed
 - [OAL] List devices with `ALC_ENUMERATE_ALL_EXT` if available.
