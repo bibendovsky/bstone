@@ -46,6 +46,26 @@ AssetPath make_gog_content_path()
 	result.provider_ = ContentPathProvider::gog;
 
 #ifdef _WIN32
+	const auto get_registry_key = [](const std::string& subkey_name) -> Win32RegistryKeyUPtr
+	{
+		auto win32_registry_key = Win32RegistryKeyUPtr{};
+
+		win32_registry_key = make_win32_registry_key(
+			Win32RegistryViewType::wow64_64,
+			Win32RegistryRootKeyType::machine,
+			subkey_name);
+
+		if (!win32_registry_key)
+		{
+			win32_registry_key = make_win32_registry_key(
+				Win32RegistryViewType::wow64_32,
+				Win32RegistryRootKeyType::machine,
+				subkey_name);
+		}
+
+		return win32_registry_key;
+	};
+
 	static const auto value_name = std::string{"path"};
 
 	static const auto sub_key_base_name = std::string{"SOFTWARE\\GOG.com\\Games\\"};
@@ -54,15 +74,11 @@ AssetPath make_gog_content_path()
 
 	// AOG
 	{
-		auto win32_registry_key = make_win32_registry_key(
-			Win32RegistryViewType::wow64_32,
-			Win32RegistryRootKeyType::machine,
-			aog_sub_key_name
-		);
+		const auto win32_registry_key = get_registry_key(aog_sub_key_name);
 
 		if (win32_registry_key)
 		{
-			const auto& string_result = win32_registry_key->get_string(value_name);
+			const auto string_result = win32_registry_key->get_string(value_name);
 
 			if (string_result)
 			{
@@ -73,15 +89,11 @@ AssetPath make_gog_content_path()
 
 	// PS
 	{
-		auto win32_registry_key = make_win32_registry_key(
-			Win32RegistryViewType::wow64_32,
-			Win32RegistryRootKeyType::machine,
-			ps_sub_key_name
-		);
+		const auto win32_registry_key = get_registry_key(ps_sub_key_name);
 
 		if (win32_registry_key)
 		{
-			const auto& string_result = win32_registry_key->get_string(value_name);
+			const auto string_result = win32_registry_key->get_string(value_name);
 
 			if (string_result)
 			{
