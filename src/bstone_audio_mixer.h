@@ -57,13 +57,12 @@ constexpr auto audio_mixer_max_gain = 1.0;
 constexpr auto audio_mixer_default_gain = audio_mixer_max_gain;
 
 constexpr auto audio_mixer_min_min_distance = 0.0;
-constexpr auto audio_mixer_default_min_distance = 1.0;
+constexpr auto audio_mixer_default_min_distance = 0.0;
 
-constexpr auto audio_mixer_min_max_distance = 0.0;
-constexpr auto audio_mixer_default_max_distance = 1'000'000'000.0;
+constexpr auto audio_mixer_default_max_distance = 0.0;
 
 constexpr auto audio_mixer_min_rolloff_factor = 0.0;
-constexpr auto audio_mixer_default_rolloff_factor = 1.0;
+constexpr auto audio_mixer_default_rolloff_factor = 0.0;
 
 enum class SoundType
 {
@@ -81,7 +80,7 @@ enum class AudioMixerDistanceModel
 	linear_clamped,
 }; // AudioMixerDistanceModel
 
-constexpr auto audio_mixer_default_distance_model = AudioMixerDistanceModel::inverse_clamped;
+constexpr auto audio_mixer_default_distance_model = AudioMixerDistanceModel::none;
 
 struct AudioMixerR3Vector
 {

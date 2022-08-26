@@ -109,6 +109,17 @@ auto sd_player_hit_wall_voice_handle = bstone::AudioMixerVoiceHandle{};
 auto sd_player_no_way_voice_handle = bstone::AudioMixerVoiceHandle{};
 auto sd_player_interrogation_voice_handle = bstone::AudioMixerVoiceHandle{};
 
+constexpr bstone::AudioMixerVoiceR3Attenuation sd_make_default_r3_attenuation() noexcept
+{
+	auto r3_attenuation = bstone::AudioMixerVoiceR3Attenuation{};
+	r3_attenuation.min_distance = 2.0;
+	r3_attenuation.max_distance = 8.0;
+	r3_attenuation.rolloff_factor = 0.9;
+	return r3_attenuation;
+}
+
+constexpr auto sd_default_voice_r3_attenuation = sd_make_default_r3_attenuation();
+
 } // namespace
 
 
@@ -244,6 +255,8 @@ try
 	param.mix_size_ms = mix_size_ms;
 	param.max_voices = max_voices;
 	auto sd_mixer = bstone::make_audio_mixer(param);
+
+	sd_mixer->set_distance_model(bstone::AudioMixerDistanceModel::linear_clamped);
 
 	auto voice_group_mgr = bstone::make_voice_group(*sd_mixer);
 
@@ -588,6 +601,7 @@ bstone::AudioMixerVoiceHandle sd_play_positional_sfx_sound(int sound_index, bsto
 	
 	if (voice_handle.is_valid())
 	{
+		sd_mixer_->set_voice_r3_attenuation(voice_handle, sd_default_voice_r3_attenuation);
 		sd_mixer_->set_voice_r3_position(voice_handle, r3_position);
 		voice_group.add_voice(voice_handle);
 	}
