@@ -48,6 +48,26 @@ AssetPath make_steam_content_path()
 	result.provider_ = ContentPathProvider::steam;
 
 #ifdef _WIN32
+	const auto get_registry_key = [](const std::string& subkey_name) -> Win32RegistryKeyUPtr
+	{
+		auto win32_registry_key = Win32RegistryKeyUPtr{};
+
+		win32_registry_key = make_win32_registry_key(
+			Win32RegistryViewType::wow64_64,
+			Win32RegistryRootKeyType::machine,
+			subkey_name);
+
+		if (!win32_registry_key)
+		{
+			win32_registry_key = make_win32_registry_key(
+				Win32RegistryViewType::wow64_32,
+				Win32RegistryRootKeyType::machine,
+				subkey_name);
+		}
+
+		return win32_registry_key;
+	};
+
 	static const auto value_name = std::string{"InstallLocation"};
 
 	static const auto sub_key_base_name = std::string{
@@ -59,20 +79,15 @@ AssetPath make_steam_content_path()
 
 	// AOG
 	{
-		auto win32_registry_key = make_win32_registry_key(
-			Win32RegistryViewType::system,
-			Win32RegistryRootKeyType::machine,
-			aog_sub_key_name
-		);
+		const auto win32_registry_key = get_registry_key(aog_sub_key_name);
 
 		if (win32_registry_key)
 		{
-			const auto& string_result = win32_registry_key->get_string(value_name);
+			const auto string_result = win32_registry_key->get_string(value_name);
 
 			if (string_result)
 			{
 				static const auto aog_sub_dir = std::string{"Blake Stone - Aliens of Gold"};
-
 				result.aog_ = bstone::file_system::append_path(string_result.value_, aog_sub_dir);
 			}
 		}
@@ -80,20 +95,15 @@ AssetPath make_steam_content_path()
 
 	// PS
 	{
-		auto win32_registry_key = make_win32_registry_key(
-			Win32RegistryViewType::system,
-			Win32RegistryRootKeyType::machine,
-			ps_sub_key_name
-		);
+		const auto win32_registry_key = get_registry_key(ps_sub_key_name);
 
 		if (win32_registry_key)
 		{
-			const auto& string_result = win32_registry_key->get_string(value_name);
+			const auto string_result = win32_registry_key->get_string(value_name);
 
 			if (string_result)
 			{
 				static const auto ps_sub_dir = std::string{"Blake Stone - Planet Strike"};
-
 				result.ps_ = bstone::file_system::append_path(string_result.value_, ps_sub_dir);
 			}
 		}
@@ -101,15 +111,11 @@ AssetPath make_steam_content_path()
 
 	// The Apogee Throwback Pack
 	{
-		auto win32_registry_key = make_win32_registry_key(
-			Win32RegistryViewType::system,
-			Win32RegistryRootKeyType::machine,
-			tatp_sub_key_name
-		);
+		const auto win32_registry_key = get_registry_key(tatp_sub_key_name);
 
 		if (win32_registry_key)
 		{
-			const auto& string_result = win32_registry_key->get_string(value_name);
+			const auto string_result = win32_registry_key->get_string(value_name);
 
 			if (string_result)
 			{
@@ -118,14 +124,12 @@ AssetPath make_steam_content_path()
 				if (result.aog_.empty())
 				{
 					static const auto aog_dir = std::string{"Blake Stone"};
-
 					result.aog_ = file_system::append_path(base_path, aog_dir);
 				}
 
 				if (result.ps_.empty())
 				{
 					static const auto ps_dir = std::string{"Planet Strike"};
-
 					result.ps_ = file_system::append_path(base_path, ps_dir);
 				}
 			}

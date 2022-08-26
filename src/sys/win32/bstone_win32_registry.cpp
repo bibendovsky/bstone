@@ -191,6 +191,10 @@ try
 			win32_access |= KEY_WOW64_32KEY;
 			break;
 
+		case Win32RegistryViewType::wow64_64:
+			win32_access |= KEY_WOW64_64KEY;
+			break;
+
 		default:
 			win32_registry_key_fail("Unsupported view type.");
 	}
