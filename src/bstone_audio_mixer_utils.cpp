@@ -86,7 +86,7 @@ void AudioMixerUtils::spatialize_voice_2_0(
 	double& left_gain,
 	double& right_gain) noexcept
 {
-	if (voice_r3_attenuation.min_distance == voice_r3_attenuation.max_distance || voice_r3_attenuation.roll_off_factor == 0.0)
+	if (voice_r3_attenuation.min_distance == voice_r3_attenuation.max_distance || voice_r3_attenuation.rolloff_factor == 0.0)
 	{
 		left_gain = 0.5 * audio_mixer_max_gain;
 		right_gain = 0.5 * audio_mixer_max_gain;
@@ -100,12 +100,12 @@ void AudioMixerUtils::spatialize_voice_2_0(
 	{
 		case AudioMixerDistanceModel::inverse_clamped:
 			distance = bstone::math::clamp(distance, voice_r3_attenuation.min_distance, voice_r3_attenuation.max_distance);
-			attenuation = voice_r3_attenuation.min_distance / (voice_r3_attenuation.min_distance + (voice_r3_attenuation.roll_off_factor * (distance - voice_r3_attenuation.min_distance)));
+			attenuation = voice_r3_attenuation.min_distance / (voice_r3_attenuation.min_distance + (voice_r3_attenuation.rolloff_factor * (distance - voice_r3_attenuation.min_distance)));
 			break;
 
 		case AudioMixerDistanceModel::linear_clamped:
 			distance = bstone::math::clamp(distance, voice_r3_attenuation.min_distance, voice_r3_attenuation.max_distance);
-			attenuation = 1.0 - ((voice_r3_attenuation.roll_off_factor * (distance - voice_r3_attenuation.min_distance)) / (voice_r3_attenuation.max_distance - voice_r3_attenuation.min_distance));
+			attenuation = 1.0 - ((voice_r3_attenuation.rolloff_factor * (distance - voice_r3_attenuation.min_distance)) / (voice_r3_attenuation.max_distance - voice_r3_attenuation.min_distance));
 			break;
 
 		default:

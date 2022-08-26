@@ -88,7 +88,7 @@ AudioMixerVoiceR3Attenuation audio_mixer_make_default_voice_attenuation() noexce
 	auto result = AudioMixerVoiceR3Attenuation{};
 	result.min_distance = audio_mixer_default_min_distance;
 	result.max_distance = audio_mixer_default_max_distance;
-	result.roll_off_factor = audio_mixer_default_rolloff_factor;
+	result.rolloff_factor = audio_mixer_default_rolloff_factor;
 	return result;
 }
 
@@ -149,7 +149,7 @@ bool operator!=(const AudioMixerListenerR3Orientation& lhs, const AudioMixerList
 
 bool operator==(const AudioMixerVoiceR3Attenuation& lhs, const AudioMixerVoiceR3Attenuation& rhs) noexcept
 {
-	return lhs.min_distance == rhs.min_distance && lhs.max_distance == rhs.max_distance && lhs.roll_off_factor == rhs.roll_off_factor;
+	return lhs.min_distance == rhs.min_distance && lhs.max_distance == rhs.max_distance && lhs.rolloff_factor == rhs.rolloff_factor;
 }
 
 bool operator!=(const AudioMixerVoiceR3Attenuation& lhs, const AudioMixerVoiceR3Attenuation& rhs) noexcept
