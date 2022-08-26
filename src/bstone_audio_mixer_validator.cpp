@@ -49,6 +49,7 @@ try
 {
 	switch (distance_model)
 	{
+		case AudioMixerDistanceModel::none:
 		case AudioMixerDistanceModel::inverse_clamped:
 		case AudioMixerDistanceModel::linear_clamped:
 			break;
@@ -96,14 +97,9 @@ try
 		fail("Min distance out of range.");
 	}
 
-	if (r3_attenuation.max_distance < audio_mixer_min_max_distance)
-	{
-		fail("Max distance out of range.");
-	}
-
 	if (r3_attenuation.max_distance < r3_attenuation.min_distance)
 	{
-		fail("Max distance less than the min one.");
+		fail("Max distance out of range.");
 	}
 
 	if (r3_attenuation.rolloff_factor < audio_mixer_min_rolloff_factor)

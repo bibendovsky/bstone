@@ -86,7 +86,9 @@ void AudioMixerUtils::spatialize_voice_2_0(
 	double& left_gain,
 	double& right_gain) noexcept
 {
-	if (voice_r3_attenuation.min_distance == voice_r3_attenuation.max_distance || voice_r3_attenuation.rolloff_factor == 0.0)
+	if (distance_model == AudioMixerDistanceModel::none ||
+		voice_r3_attenuation.min_distance == voice_r3_attenuation.max_distance ||
+		voice_r3_attenuation.rolloff_factor == 0.0)
 	{
 		left_gain = 0.5 * audio_mixer_max_gain;
 		right_gain = 0.5 * audio_mixer_max_gain;
@@ -110,7 +112,9 @@ void AudioMixerUtils::spatialize_voice_2_0(
 
 		default:
 			assert(false && "Unknown distance model.");
-			break;
+			left_gain = 0.5 * audio_mixer_max_gain;
+			right_gain = 0.5 * audio_mixer_max_gain;
+			return;
 	}
 
 	attenuation = bstone::math::clamp(attenuation, audio_mixer_min_gain, audio_mixer_max_gain);
