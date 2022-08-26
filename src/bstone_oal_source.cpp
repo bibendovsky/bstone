@@ -251,10 +251,10 @@ void OalSource::set_max_distance(double max_distance)
 	set_al_max_distance(max_distance);
 }
 
-void OalSource::set_rolloff_factor(double roll_off_factor)
+void OalSource::set_rolloff_factor(double rolloff_factor)
 {
 	ensure_is_open();
-	set_al_rolloff_factor(roll_off_factor);
+	set_al_rolloff_factor(rolloff_factor);
 }
 
 void OalSource::play()
@@ -529,13 +529,13 @@ void OalSource::set_al_default_max_distance()
 	set_al_max_distance(FLT_MAX);
 }
 
-void OalSource::set_al_rolloff_factor(double roll_off_factor)
+void OalSource::set_al_rolloff_factor(double rolloff_factor)
 {
 	assert(oal_al_symbols_->alGetError);
 	assert(oal_al_symbols_->alSourcef);
 
 	static_cast<void>(oal_al_symbols_->alGetError());
-	oal_al_symbols_->alSourcef(al_source_resource_.get(), AL_ROLLOFF_FACTOR, static_cast<ALfloat>(roll_off_factor));
+	oal_al_symbols_->alSourcef(al_source_resource_.get(), AL_ROLLOFF_FACTOR, static_cast<ALfloat>(rolloff_factor));
 	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 

@@ -106,7 +106,7 @@ try
 		fail("Max distance less than the min one.");
 	}
 
-	if (r3_attenuation.roll_off_factor < audio_mixer_min_rolloff_factor)
+	if (r3_attenuation.rolloff_factor < audio_mixer_min_rolloff_factor)
 	{
 		fail("Rolloff factor out of range.");
 	}

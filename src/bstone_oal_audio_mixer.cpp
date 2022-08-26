@@ -1208,7 +1208,7 @@ void OalAudioMixer::handle_play_sfx_command(const PlaySfxCommandParam& param)
 		voice->r3_position = audio_mixer_make_default_voice_r3_position();
 		voice->oal_source.set_reference_distance(voice->r3_attenuation.min_distance);
 		voice->oal_source.set_max_distance(voice->r3_attenuation.max_distance);
-		voice->oal_source.set_rolloff_factor(voice->r3_attenuation.roll_off_factor);
+		voice->oal_source.set_rolloff_factor(voice->r3_attenuation.rolloff_factor);
 		voice->oal_source.set_position(voice->r3_position.x, voice->r3_position.y, voice->r3_position.z);
 	}
 
@@ -1349,7 +1349,7 @@ void OalAudioMixer::handle_set_voice_r3_attenuation_command(const SetVoiceR3Atte
 	voice->r3_attenuation = param.attributes;
 	voice->oal_source.set_reference_distance(voice->r3_attenuation.min_distance);
 	voice->oal_source.set_max_distance(voice->r3_attenuation.max_distance);
-	voice->oal_source.set_rolloff_factor(voice->r3_attenuation.roll_off_factor);
+	voice->oal_source.set_rolloff_factor(voice->r3_attenuation.rolloff_factor);
 }
 
 void OalAudioMixer::handle_set_voice_r3_position_command(const SetVoiceR3PositionCommandParam& param)

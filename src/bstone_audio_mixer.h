@@ -136,7 +136,7 @@ struct AudioMixerVoiceR3Attenuation
 {
 	double min_distance;
 	double max_distance;
-	double roll_off_factor;
+	double rolloff_factor;
 }; // AudioMixerVoiceR3Attenuation
 
 AudioMixerVoiceR3Attenuation audio_mixer_make_default_voice_attenuation() noexcept;
