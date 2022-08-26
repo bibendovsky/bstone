@@ -43,6 +43,7 @@ enum class Win32RegistryViewType
 {
 	system,
 	wow64_32,
+	wow64_64,
 }; // Win32RegistryViewType
 
 
