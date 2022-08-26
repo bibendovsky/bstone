@@ -202,6 +202,11 @@ void OalAudioMixer::set_distance_model(AudioMixerDistanceModel distance_model)
 try
 {
 	AudioMixerValidator::validate_distance_model(distance_model);
+	auto command = Command{};
+	command.type = CommandType::set_distance_model;
+	command.param.set_distance_model.distance_model = distance_model;
+	const auto commands_lock = MutexUniqueLock{commands_mutex_};
+	commands_.emplace_back(command);
 }
 catch (...)
 {
@@ -1750,6 +1755,10 @@ void OalAudioMixer::set_distance_model()
 
 	switch (distance_model_)
 	{
+		case AudioMixerDistanceModel::none:
+			al_distance_model = AL_NONE;
+			break;
+
 		case AudioMixerDistanceModel::inverse_clamped:
 			al_distance_model = AL_INVERSE_DISTANCE_CLAMPED;
 			break;
