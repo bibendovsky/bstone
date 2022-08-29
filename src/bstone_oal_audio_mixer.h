@@ -61,7 +61,6 @@ public:
 	void set_mute(bool value) override;
 	void set_distance_model(AudioMixerDistanceModel distance_model) override;
 
-	void set_listener_meters_per_unit(double meters_per_unit) override;
 	void set_listener_r3_position(const AudioMixerListenerR3Position& r3_position) override;
 	void set_listener_r3_orientation(const AudioMixerListenerR3Orientation& r3_orientation) override;
 
@@ -116,7 +115,6 @@ private:
 		set_mute,
 		set_distance_model,
 
-		set_listener_meters_per_unit,
 		set_listener_r3_position,
 		set_listener_r3_orientation,
 
@@ -156,11 +154,6 @@ private:
 	{
 		AudioMixerDistanceModel distance_model;
 	}; // SetDistanceModelCommandParam
-
-	struct SetListenerMetersPerUnitCommandParam
-	{
-		double meters_per_unit;
-	}; // SetListenerMetersPerUnitCommandParam
 
 	struct SetListenerR3PositionCommandParam
 	{
@@ -213,7 +206,6 @@ private:
 		SetMuteCommandParam set_mute;
 		SetDistanceModelCommandParam set_distance_model;
 
-		SetListenerMetersPerUnitCommandParam set_listener_meters_per_unit;
 		SetListenerR3PositionCommandParam set_listener_r3_position;
 		SetListenerR3OrientationCommandParam set_listener_r3_orientation;
 
@@ -260,15 +252,11 @@ private:
 	int mix_size_ms_;
 	bool is_mute_{};
 	AudioMixerDistanceModel distance_model_{};
-	double listener_meters_per_unit_{};
 	AudioMixerListenerR3Position listener_r3_position_{};
 	AudioMixerListenerR3Orientation listener_r3_orientation_{};
 
 	bool has_alc_enumeration_ext_{};
 	bool has_alc_enumerate_all_ext_{};
-	bool has_efx_meters_per_unit_{};
-
-	ALenum al_meters_per_unit_enum_{};
 
 	OalLoaderUPtr oal_loader_{};
 	OalAlSymbols al_symbols_{};
@@ -318,8 +306,6 @@ private:
 
 	void detect_alc_extensions();
 	
-	void detect_efx_features();
-
 	void log(const OalString& string);
 	void log_oal_library_file_name();
 	void log_oal_custom_device();
@@ -334,7 +320,6 @@ private:
 
 	void initialize_oal(const AudioMixerInitParam& param);
 	void initialize_distance_model();
-	void initialize_listener_meters_per_unit();
 	void initialize_listener_r3_position();
 	void initialize_listener_r3_orientation();
 	void initialize_voice_handles();
@@ -359,7 +344,6 @@ private:
 	void handle_play_sfx_command(const PlaySfxCommandParam& param);
 	void handle_set_mute_command(const SetMuteCommandParam& param);
 	void handle_set_distance_model_command(const SetDistanceModelCommandParam& param);
-	void handle_set_listener_meters_per_unit_command(const SetListenerMetersPerUnitCommandParam& param);
 	void handle_set_listener_r3_position_command(const SetListenerR3PositionCommandParam& param);
 	void handle_set_listener_r3_orientation_command(const SetListenerR3OrientationCommandParam& param);
 	void handle_set_voice_pause_command(AudioMixerVoiceHandle voice_handle, bool is_pause);
@@ -388,9 +372,6 @@ private:
 
 	void set_al_distance_model(ALenum al_distance_model);
 	void set_distance_model();
-
-	void set_al_meters_per_unit(double meters_per_unit);
-	void set_meters_per_unit();
 
 	void set_al_listener_r3_position(double x, double y, double z);
 	void set_listener_r3_position();

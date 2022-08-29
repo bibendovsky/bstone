@@ -94,7 +94,6 @@ try
 	mix_sample_count_ = static_cast<int>((dst_rate_ * mix_size_ms_) / 1'000L);
 
 	initialize_distance_model();
-	initialize_listener_meters_per_unit();
 	initialize_listener_r3_position();
 	initialize_listener_r3_orientation();
 	initialize_voice_handles();
@@ -205,22 +204,6 @@ try
 	auto command = Command{};
 	command.type = CommandType::set_distance_model;
 	command.param.set_distance_model.distance_model = distance_model;
-	const auto commands_lock = MutexUniqueLock{commands_mutex_};
-	commands_.emplace_back(command);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-void OalAudioMixer::set_listener_meters_per_unit(double meters_per_unit)
-try
-{
-	AudioMixerValidator::validate_listener_meters_per_unit(meters_per_unit);
-	auto command = Command{};
-	command.type = CommandType::set_listener_meters_per_unit;
-	auto& command_param = command.param.set_listener_meters_per_unit;
-	command_param.meters_per_unit = meters_per_unit;
 	const auto commands_lock = MutexUniqueLock{commands_mutex_};
 	commands_.emplace_back(command);
 }
@@ -695,46 +678,6 @@ void OalAudioMixer::detect_alc_extensions()
 	has_alc_enumerate_all_ext_ = (al_symbols_.alcIsExtensionPresent(nullptr, alc_enumerate_all_ext_str) != ALC_FALSE);
 }
 
-void OalAudioMixer::detect_efx_features()
-{
-	log("Checking for EFX.");
-
-	const auto has_efx = (al_symbols_.alcIsExtensionPresent(oal_device_resource_.get(), ALC_EXT_EFX_NAME) == ALC_TRUE);
-
-	if (!has_efx)
-	{
-		log("No EFX extension.");
-		return;
-	}
-
-	al_meters_per_unit_enum_ = al_symbols_.alcGetEnumValue(oal_device_resource_.get(), "AL_METERS_PER_UNIT");
-
-	if (al_meters_per_unit_enum_ == AL_NONE)
-	{
-		log("No AL_METERS_PER_UNIT enum.");
-		return;
-	}
-
-	try
-	{
-		oal_loader_->load_efx_symbols(al_symbols_);
-	}
-	catch (...)
-	{
-		log("Does not have all symbols.");
-		return;
-	}
-
-	std::ignore = al_symbols_.alGetError();
-	al_symbols_.alListenerf(AL_METERS_PER_UNIT, AL_DEFAULT_METERS_PER_UNIT);
-	has_efx_meters_per_unit_ = (al_symbols_.alGetError() == AL_NO_ERROR);
-
-	if (!has_efx_meters_per_unit_)
-	{
-		log("Does not support AL_METERS_PER_UNIT.");
-	}
-}
-
 void OalAudioMixer::log(const OalString& string)
 {
 	static const auto prefix = OalString{"[SND_OAL] "};
@@ -857,20 +800,12 @@ void OalAudioMixer::initialize_oal(const AudioMixerInitParam& param)
 	log_oal_al_extensions();
 
 	dst_rate_ = get_al_mixing_frequency();
-
-	detect_efx_features();
 }
 
 void OalAudioMixer::initialize_distance_model()
 {
 	distance_model_ = audio_mixer_default_distance_model;
 	set_distance_model();
-}
-
-void OalAudioMixer::initialize_listener_meters_per_unit()
-{
-	listener_meters_per_unit_ = audio_mixer_default_meters_per_units;
-	set_meters_per_unit();
 }
 
 void OalAudioMixer::initialize_listener_r3_position()
@@ -1250,17 +1185,6 @@ void OalAudioMixer::handle_set_distance_model_command(const SetDistanceModelComm
 	set_distance_model();
 }
 
-void OalAudioMixer::handle_set_listener_meters_per_unit_command(const SetListenerMetersPerUnitCommandParam& param)
-{
-	if (listener_meters_per_unit_ == param.meters_per_unit)
-	{
-		return;
-	}
-
-	listener_meters_per_unit_ = param.meters_per_unit;
-	set_meters_per_unit();
-}
-
 void OalAudioMixer::handle_set_listener_r3_position_command(const SetListenerR3PositionCommandParam& param)
 {
 	if (listener_r3_position_ == param.r3_position)
@@ -1372,16 +1296,7 @@ void OalAudioMixer::handle_set_voice_r3_position_command(const SetVoiceR3Positio
 	}
 
 	voice->r3_position = param.position;
-
-	if (has_efx_meters_per_unit_)
-	{
-		voice->oal_source.set_position(param.position.x, param.position.y, param.position.z);
-	}
-	else
-	{
-		const auto r3_position = voice->r3_position * listener_meters_per_unit_;
-		voice->oal_source.set_position(r3_position.x, r3_position.y, r3_position.z);
-	}
+	voice->oal_source.set_position(param.position.x, param.position.y, param.position.z);
 }
 
 void OalAudioMixer::handle_commands()
@@ -1419,10 +1334,6 @@ void OalAudioMixer::handle_commands()
 
 			case CommandType::set_distance_model:
 				handle_set_distance_model_command(command.param.set_distance_model);
-				break;
-
-			case CommandType::set_listener_meters_per_unit:
-				handle_set_listener_meters_per_unit_command(command.param.set_listener_meters_per_unit);
 				break;
 
 			case CommandType::set_listener_r3_position:
@@ -1774,36 +1685,6 @@ void OalAudioMixer::set_distance_model()
 	set_al_distance_model(al_distance_model);
 }
 
-void OalAudioMixer::set_al_meters_per_unit(double meters_per_unit)
-{
-	static_cast<void>(al_symbols_.alGetError());
-	al_symbols_.alListenerf(AL_METERS_PER_UNIT, static_cast<ALfloat>(meters_per_unit));
-	assert(al_symbols_.alGetError() == AL_NO_ERROR);
-}
-
-void OalAudioMixer::set_meters_per_unit()
-{
-	if (has_efx_meters_per_unit_)
-	{
-		set_al_meters_per_unit(listener_meters_per_unit_);
-		return;
-	}
-
-	const auto listener_r3_position = listener_r3_position_ * listener_meters_per_unit_;
-	set_al_listener_r3_position(listener_r3_position.x, listener_r3_position.y, listener_r3_position.z);
-
-	for (auto& voice : voices_)
-	{
-		if (!voice.is_active || voice.is_music || !voice.is_r3)
-		{
-			continue;
-		}
-
-		const auto voice_r3_position = voice.r3_position * listener_meters_per_unit_;
-		voice.oal_source.set_position(voice_r3_position.x, voice_r3_position.y, voice_r3_position.z);
-	}
-}
-
 void OalAudioMixer::set_al_listener_r3_position(double x, double y, double z)
 {
 	assert(al_symbols_.alGetError);
@@ -1816,15 +1697,7 @@ void OalAudioMixer::set_al_listener_r3_position(double x, double y, double z)
 
 void OalAudioMixer::set_listener_r3_position()
 {
-	if (has_efx_meters_per_unit_)
-	{
-		set_al_listener_r3_position(listener_r3_position_.x, listener_r3_position_.y, listener_r3_position_.z);
-	}
-	else
-	{
-		const auto listener_r3_position = listener_r3_position_ * listener_meters_per_unit_;
-		set_al_listener_r3_position(listener_r3_position.x, listener_r3_position.y, listener_r3_position.z);
-	}
+	set_al_listener_r3_position(listener_r3_position_.x, listener_r3_position_.y, listener_r3_position_.z);
 }
 
 void OalAudioMixer::set_al_listener_orientation(double at_x, double at_y, double at_z, double up_x, double up_y, double up_z)

@@ -63,19 +63,6 @@ catch (...)
 	fail_nested(__func__);
 }
 
-void AudioMixerValidator::validate_listener_meters_per_unit(double meters_per_unit)
-try
-{
-	if (meters_per_unit <= 0.0)
-	{
-		fail("Meters per unit out of range.");
-	}
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
 void AudioMixerValidator::validate_gain(double gain)
 try
 {
