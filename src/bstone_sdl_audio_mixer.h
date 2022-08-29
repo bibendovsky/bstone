@@ -59,7 +59,6 @@ public:
 	void set_mute(bool value) override;
 	void set_distance_model(AudioMixerDistanceModel distance_model) override;
 
-	void set_listener_meters_per_unit(double meters_per_unit) override;
 	void set_listener_r3_position(const AudioMixerListenerR3Position& r3_position) override;
 	void set_listener_r3_orientation(const AudioMixerListenerR3Orientation& r3_orientation) override;
 
@@ -144,7 +143,6 @@ private:
 		set_mute,
 		set_distance_model,
 
-		set_listener_meters_per_unit,
 		set_listener_r3_position,
 		set_listener_r3_orientation,
 
@@ -177,11 +175,6 @@ private:
 	{
 		AudioMixerDistanceModel distance_model;
 	}; // SetDistanceModelCommandParam
-
-	struct SetListenerMetersPerUnitCommandParam
-	{
-		double meters_per_unit;
-	}; // SetListenerMetersPerUnitCommandParam
 
 	struct SetListenerR3PositionCommandParam
 	{
@@ -233,7 +226,6 @@ private:
 		SetMuteCommandParam set_mute;
 		SetDistanceModelCommandParam set_distance_model;
 
-		SetListenerMetersPerUnitCommandParam set_listener_meters_per_unit;
 		SetListenerR3PositionCommandParam set_listener_r3_position;
 		SetListenerR3OrientationCommandParam set_listener_r3_orientation;
 
@@ -275,13 +267,11 @@ private:
 	int mix_size_ms_{};
 	bool is_mute_{};
 	AudioMixerDistanceModel distance_model_{};
-	double listener_meters_per_unit_{};
 	AudioMixerListenerR3Position listener_r3_position_{};
 	AudioMixerListenerR3Position listener_r3_position_cache_{};
 	AudioMixerListenerR3Orientation listener_r3_orientation_{};
 	AudioMixerListenerR3Orientation listener_r3_orientation_cache_{};
 	bool is_distance_model_changed_;
-	bool is_meters_per_unit_changed_;
 	bool is_listener_r3_position_changed_;
 	bool is_listener_r3_orientation_changed_;
 	std::atomic_bool is_state_suspended_{};
@@ -297,7 +287,6 @@ private:
 
 	void initialize_mute();
 	void initialize_distance_model();
-	void initialize_listener_meters_per_unit();
 	void initialize_listener_r3_position();
 	void initialize_listener_r3_orientation();
 	void initialize_voice_handles();
@@ -311,7 +300,6 @@ private:
 	void handle_set_mute_command(const SetMuteCommandParam& param) noexcept;
 	void handle_set_distance_model_command(const SetDistanceModelCommandParam& param) noexcept;
 
-	void handle_set_listener_meters_per_unit_command(const SetListenerMetersPerUnitCommandParam& param) noexcept;
 	void handle_set_listener_r3_position_command(const SetListenerR3PositionCommandParam& param) noexcept;
 	void handle_set_listener_r3_orientation_command(const SetListenerR3OrientationCommandParam& param) noexcept;
 
