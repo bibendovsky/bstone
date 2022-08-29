@@ -44,10 +44,8 @@ struct AudioMixerUtils
 	//    - All positions are expected in meters.
 	//    - Listener's orientation should be normalized.
 	static void spatialize_voice_2_0(
-		AudioMixerDistanceModel distance_model,
 		const AudioMixerListenerR3Position& listener_r3_position,
 		const AudioMixerListenerR3Orientation& listener_r3_orientation,
-		const AudioMixerVoiceR3Attenuation& voice_r3_attenuation,
 		const AudioMixerVoiceR3Position& voice_r3_position,
 		double& left_gain,
 		double& right_gain) noexcept;
