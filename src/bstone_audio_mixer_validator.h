@@ -32,9 +32,7 @@ namespace bstone
 class AudioMixerValidator
 {
 public:
-	static void validate_distance_model(AudioMixerDistanceModel distance_model);
 	static void validate_gain(double gain);
-	static void validate_voice_r3_attenuation(const AudioMixerVoiceR3Attenuation& voice_r3_attenuation);
 
 private:
 	[[noreturn]] static void fail(const char* message);
