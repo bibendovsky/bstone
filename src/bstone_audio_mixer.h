@@ -50,8 +50,6 @@ Free Software Foundation, Inc.,
 namespace bstone
 {
 
-constexpr auto audio_mixer_default_meters_per_units = 1.0;
-
 constexpr auto audio_mixer_min_gain = 0.0;
 constexpr auto audio_mixer_max_gain = 1.0;
 constexpr auto audio_mixer_default_gain = audio_mixer_max_gain;
@@ -180,7 +178,6 @@ public:
 	virtual void set_mute(bool is_mute) = 0;
 	virtual void set_distance_model(AudioMixerDistanceModel distance_model) = 0;
 
-	virtual void set_listener_meters_per_unit(double meters_per_unit) = 0;
 	virtual void set_listener_r3_position(const AudioMixerListenerR3Position& r3_position) = 0;
 	virtual void set_listener_r3_orientation(const AudioMixerListenerR3Orientation& r3_orientation) = 0;
 

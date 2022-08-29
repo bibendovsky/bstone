@@ -158,7 +158,6 @@ try
 
 	initialize_mute();
 	initialize_distance_model();
-	initialize_listener_meters_per_unit();
 	initialize_listener_r3_position();
 	initialize_listener_r3_orientation();
 	initialize_voice_handles();
@@ -264,21 +263,6 @@ void SdlAudioMixer::resume_state()
 try
 {
 	is_state_suspended_.store(false, std::memory_order_release);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-void SdlAudioMixer::set_listener_meters_per_unit(double meters_per_unit)
-try
-{
-	AudioMixerValidator::validate_listener_meters_per_unit(meters_per_unit);
-	auto command = Command{};
-	command.type = CommandType::set_listener_meters_per_unit;
-	command.param.set_listener_meters_per_unit.meters_per_unit = meters_per_unit;
-	MtLockGuard guard_lock{mt_commands_lock_};
-	mt_commands_.push_back(command);
 }
 catch (...)
 {
@@ -458,12 +442,6 @@ void SdlAudioMixer::initialize_mute()
 void SdlAudioMixer::initialize_distance_model()
 {
 	distance_model_ = audio_mixer_default_distance_model;
-}
-
-void SdlAudioMixer::initialize_listener_meters_per_unit()
-{
-	is_meters_per_unit_changed_ = true;
-	listener_meters_per_unit_ = audio_mixer_default_meters_per_units;
 }
 
 void SdlAudioMixer::initialize_listener_r3_position()
@@ -676,15 +654,6 @@ void SdlAudioMixer::handle_set_distance_model_command(const SetDistanceModelComm
 	distance_model_ = param.distance_model;
 }
 
-void SdlAudioMixer::handle_set_listener_meters_per_unit_command(const SetListenerMetersPerUnitCommandParam& param) noexcept
-{
-	if (listener_meters_per_unit_ != param.meters_per_unit)
-	{
-		is_meters_per_unit_changed_ = true;
-		listener_meters_per_unit_ = param.meters_per_unit;
-	}
-}
-
 void SdlAudioMixer::handle_set_listener_r3_position_command(const SetListenerR3PositionCommandParam& param) noexcept
 {
 	if (listener_r3_position_ != param.r3_position)
@@ -826,10 +795,6 @@ void SdlAudioMixer::handle_commands()
 
 			case CommandType::set_distance_model:
 				handle_set_distance_model_command(command.param.set_distance_model);
-				break;
-
-			case CommandType::set_listener_meters_per_unit:
-				handle_set_listener_meters_per_unit_command(command.param.set_listener_meters_per_unit);
 				break;
 
 			case CommandType::set_listener_r3_position:
@@ -1142,7 +1107,6 @@ void SdlAudioMixer::spatialize_voice(Voice& voice)
 	}
 
 	if (!is_distance_model_changed_ &&
-		!is_meters_per_unit_changed_ &&
 		!is_listener_r3_position_changed_ &&
 		!is_listener_r3_orientation_changed_ &&
 		!voice.is_r3_position_changed &&
@@ -1151,9 +1115,9 @@ void SdlAudioMixer::spatialize_voice(Voice& voice)
 		return;
 	}
 
-	if (voice.is_r3_attenuation_changed || voice.is_r3_position_changed || is_meters_per_unit_changed_)
+	if (voice.is_r3_attenuation_changed || voice.is_r3_position_changed)
 	{
-		voice.r3_position_cache = voice.r3_position * listener_meters_per_unit_;
+		voice.r3_position_cache = voice.r3_position;
 	}
 
 	voice.is_r3_attenuation_changed = false;
@@ -1171,9 +1135,9 @@ void SdlAudioMixer::spatialize_voice(Voice& voice)
 
 void SdlAudioMixer::spatialize_voices()
 {
-	if (is_meters_per_unit_changed_ || is_listener_r3_position_changed_)
+	if (is_listener_r3_position_changed_)
 	{
-		listener_r3_position_cache_ = listener_r3_position_ * listener_meters_per_unit_;
+		listener_r3_position_cache_ = listener_r3_position_;
 	}
 
 	if (is_listener_r3_orientation_changed_)
@@ -1188,7 +1152,6 @@ void SdlAudioMixer::spatialize_voices()
 	}
 
 	is_distance_model_changed_ = false;
-	is_meters_per_unit_changed_ = false;
 	is_listener_r3_position_changed_ = false;
 	is_listener_r3_orientation_changed_ = false;
 }

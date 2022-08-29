@@ -33,7 +33,6 @@ class AudioMixerValidator
 {
 public:
 	static void validate_distance_model(AudioMixerDistanceModel distance_model);
-	static void validate_listener_meters_per_unit(double meters_per_unit);
 	static void validate_gain(double gain);
 	static void validate_voice_r3_attenuation(const AudioMixerVoiceR3Attenuation& voice_r3_attenuation);
 
