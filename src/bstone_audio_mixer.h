@@ -26,14 +26,6 @@ Free Software Foundation, Inc.,
 //   - Coordinate system:
 //     X points right, Y points up, Z - points towards the listener.
 //
-//   - Inverse distance clamped model:
-//     d = clamp(d, d_min, d_max)
-//     gain = d_min / (d_min + rof * (d - d_min))
-//
-//   - Linear distance clamped model:
-//     d = clamp(d, d_min, d_max)
-//     gain = 1 - rof * (d - d_min) / (d_max - d_min);
-//
 //   - `R2` or `r2` means `2D`.
 //   - `R3` or `r3` means `3D`.
 //
@@ -54,14 +46,6 @@ constexpr auto audio_mixer_min_gain = 0.0;
 constexpr auto audio_mixer_max_gain = 1.0;
 constexpr auto audio_mixer_default_gain = audio_mixer_max_gain;
 
-constexpr auto audio_mixer_min_min_distance = 0.0;
-constexpr auto audio_mixer_default_min_distance = 0.0;
-
-constexpr auto audio_mixer_default_max_distance = 0.0;
-
-constexpr auto audio_mixer_min_rolloff_factor = 0.0;
-constexpr auto audio_mixer_default_rolloff_factor = 0.0;
-
 enum class SoundType
 {
 	none,
@@ -70,15 +54,6 @@ enum class SoundType
 	pc_speaker_sfx,
 	pcm,
 }; // SoundType
-
-enum class AudioMixerDistanceModel
-{
-	none,
-	inverse_clamped,
-	linear_clamped,
-}; // AudioMixerDistanceModel
-
-constexpr auto audio_mixer_default_distance_model = AudioMixerDistanceModel::none;
 
 struct AudioMixerR3Vector
 {
@@ -129,15 +104,6 @@ struct AudioMixerVoiceR3Position : AudioMixerR3Vector
 
 AudioMixerVoiceR3Position audio_mixer_make_default_voice_r3_position() noexcept;
 
-struct AudioMixerVoiceR3Attenuation
-{
-	double min_distance;
-	double max_distance;
-	double rolloff_factor;
-}; // AudioMixerVoiceR3Attenuation
-
-AudioMixerVoiceR3Attenuation audio_mixer_make_default_voice_attenuation() noexcept;
-
 struct AudioMixerInitParam
 {
 	AudioDriverType audio_driver_type;
@@ -176,7 +142,6 @@ public:
 	virtual void resume_state() = 0;
 
 	virtual void set_mute(bool is_mute) = 0;
-	virtual void set_distance_model(AudioMixerDistanceModel distance_model) = 0;
 
 	virtual void set_listener_r3_position(const AudioMixerListenerR3Position& r3_position) = 0;
 	virtual void set_listener_r3_orientation(const AudioMixerListenerR3Orientation& r3_orientation) = 0;
@@ -190,7 +155,6 @@ public:
 	virtual void stop_voice(AudioMixerVoiceHandle voice_handle) = 0;
 
 	virtual void set_voice_gain(AudioMixerVoiceHandle voice_handle, double gain) = 0;
-	virtual void set_voice_r3_attenuation(AudioMixerVoiceHandle voice_handle, const AudioMixerVoiceR3Attenuation& r3_attenuation) = 0;
 	virtual void set_voice_r3_position(AudioMixerVoiceHandle voice_handle, const AudioMixerVoiceR3Position& r3_position) = 0;
 }; // AudioMixer
 
@@ -209,11 +173,6 @@ bool operator!=(const AudioMixerR3Vector& lhs, const AudioMixerR3Vector& rhs) no
 
 bool operator==(const AudioMixerListenerR3Orientation& lhs, const AudioMixerListenerR3Orientation& rhs) noexcept;
 bool operator!=(const AudioMixerListenerR3Orientation& lhs, const AudioMixerListenerR3Orientation& rhs) noexcept;
-
-// --------------------------------------------------------------------------
-
-bool operator==(const AudioMixerVoiceR3Attenuation& lhs, const AudioMixerVoiceR3Attenuation& rhs) noexcept;
-bool operator!=(const AudioMixerVoiceR3Attenuation& lhs, const AudioMixerVoiceR3Attenuation& rhs) noexcept;
 
 // --------------------------------------------------------------------------
 

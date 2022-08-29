@@ -157,7 +157,6 @@ try
 	mt_commands_.reserve(commands_reserve);
 
 	initialize_mute();
-	initialize_distance_model();
 	initialize_listener_r3_position();
 	initialize_listener_r3_orientation();
 	initialize_voice_handles();
@@ -201,21 +200,6 @@ try
 	auto command = Command{};
 	command.type = CommandType::set_mute;
 	command.param.set_mute.is_mute = is_mute;
-	MtLockGuard guard_lock{mt_commands_lock_};
-	mt_commands_.push_back(command);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-void SdlAudioMixer::set_distance_model(AudioMixerDistanceModel distance_model)
-try
-{
-	AudioMixerValidator::validate_distance_model(distance_model);
-	auto command = Command{};
-	command.type = CommandType::set_distance_model;
-	command.param.set_distance_model.distance_model = distance_model;
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
 }
@@ -380,29 +364,6 @@ catch (...)
 	fail_nested(__func__);
 }
 
-void SdlAudioMixer::set_voice_r3_attenuation(AudioMixerVoiceHandle voice_handle, const AudioMixerVoiceR3Attenuation& r3_attenuation)
-try
-{
-	AudioMixerValidator::validate_voice_r3_attenuation(r3_attenuation);
-
-	if (!voice_handle.is_valid())
-	{
-		return;
-	}
-
-	auto command = Command{};
-	command.type = CommandType::set_voice_r3_attenuation;
-	command.param.set_voice_r3_attenuation.handle = voice_handle;
-	command.param.set_voice_r3_attenuation.attributes = r3_attenuation;
-
-	MtLockGuard guard_lock{mt_commands_lock_};
-	mt_commands_.push_back(command);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
 void SdlAudioMixer::set_voice_r3_position(AudioMixerVoiceHandle voice_handle, const AudioMixerVoiceR3Position& r3_position)
 try
 {
@@ -437,11 +398,6 @@ catch (...)
 void SdlAudioMixer::initialize_mute()
 {
 	is_mute_ = false;
-}
-
-void SdlAudioMixer::initialize_distance_model()
-{
-	distance_model_ = audio_mixer_default_distance_model;
 }
 
 void SdlAudioMixer::initialize_listener_r3_position()
@@ -643,17 +599,6 @@ void SdlAudioMixer::handle_set_mute_command(const SetMuteCommandParam& param) no
 	is_mute_ = param.is_mute;
 }
 
-void SdlAudioMixer::handle_set_distance_model_command(const SetDistanceModelCommandParam& param) noexcept
-{
-	if (distance_model_ == param.distance_model)
-	{
-		return;
-	}
-
-	is_distance_model_changed_ = true;
-	distance_model_ = param.distance_model;
-}
-
 void SdlAudioMixer::handle_set_listener_r3_position_command(const SetListenerR3PositionCommandParam& param) noexcept
 {
 	if (listener_r3_position_ != param.r3_position)
@@ -720,22 +665,6 @@ void SdlAudioMixer::handle_set_voice_gain_command(const SetVoiceGainCommandParam
 	voice->gain = param.gain;
 }
 
-void SdlAudioMixer::handle_set_voice_r3_attenuation_command(const SetVoiceR3AttenuationCommandParam& param)
-{
-	auto voice = voice_handle_mgr_.get_voice(param.handle);
-
-	if (!voice ||
-		!voice->is_r3 ||
-		voice->r3_attenuation == param.attributes)
-	{
-		return;
-	}
-
-	voice->is_r3_attenuation_changed = true;
-	voice->r3_attenuation = param.attributes;
-	voice->r3_attenuation_cache = voice->r3_attenuation;
-}
-
 void SdlAudioMixer::handle_set_voice_r3_position_command(const SetVoiceR3PositionCommandParam& param)
 {
 	auto voice = voice_handle_mgr_.get_voice(param.handle);
@@ -793,10 +722,6 @@ void SdlAudioMixer::handle_commands()
 				handle_set_mute_command(command.param.set_mute);
 				break;
 
-			case CommandType::set_distance_model:
-				handle_set_distance_model_command(command.param.set_distance_model);
-				break;
-
 			case CommandType::set_listener_r3_position:
 				handle_set_listener_r3_position_command(command.param.set_listener_r3_position);
 				break;
@@ -819,10 +744,6 @@ void SdlAudioMixer::handle_commands()
 
 			case CommandType::set_voice_gain:
 				handle_set_voice_gain_command(command.param.set_voice_gain);
-				break;
-
-			case CommandType::set_voice_r3_attenuation:
-				handle_set_voice_r3_attenuation_command(command.param.set_voice_r3_attenuation);
 				break;
 
 			case CommandType::set_voice_r3_position:
@@ -888,7 +809,6 @@ void SdlAudioMixer::handle_play_sound_command(const Command& command)
 	voice->is_r3 = play_sound_param.is_r3;
 	voice->is_looping = play_sound_param.is_looping;
 	voice->is_paused = false;
-	voice->is_r3_attenuation_changed = voice->is_r3;
 	voice->is_r3_position_changed = voice->is_r3;
 	voice->cache = play_sound_param.cache;
 	voice->decode_offset = 0;
@@ -896,8 +816,6 @@ void SdlAudioMixer::handle_play_sound_command(const Command& command)
 	voice->left_gain = 0.5 * voice->gain;
 	voice->right_gain = 0.5 * voice->gain;
 	voice->handle = play_sound_param.handle;
-	voice->r3_attenuation = audio_mixer_make_default_voice_attenuation();
-	voice->r3_attenuation_cache = voice->r3_attenuation;
 	voice->r3_position = audio_mixer_make_default_voice_r3_position();
 	voice->r3_position_cache = voice->r3_position;
 	voice->is_active = true;
@@ -1106,28 +1024,23 @@ void SdlAudioMixer::spatialize_voice(Voice& voice)
 		return;
 	}
 
-	if (!is_distance_model_changed_ &&
-		!is_listener_r3_position_changed_ &&
+	if (!is_listener_r3_position_changed_ &&
 		!is_listener_r3_orientation_changed_ &&
-		!voice.is_r3_position_changed &&
-		!voice.is_r3_attenuation_changed)
+		!voice.is_r3_position_changed)
 	{
 		return;
 	}
 
-	if (voice.is_r3_attenuation_changed || voice.is_r3_position_changed)
+	if (voice.is_r3_position_changed)
 	{
 		voice.r3_position_cache = voice.r3_position;
 	}
 
-	voice.is_r3_attenuation_changed = false;
 	voice.is_r3_position_changed = false;
 
 	AudioMixerUtils::spatialize_voice_2_0(
-		distance_model_,
 		listener_r3_position_cache_,
 		listener_r3_orientation_cache_,
-		voice.r3_attenuation_cache,
 		voice.r3_position_cache,
 		voice.left_gain,
 		voice.right_gain);
@@ -1151,7 +1064,6 @@ void SdlAudioMixer::spatialize_voices()
 		spatialize_voice(voice);
 	}
 
-	is_distance_model_changed_ = false;
 	is_listener_r3_position_changed_ = false;
 	is_listener_r3_orientation_changed_ = false;
 }

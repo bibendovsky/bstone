@@ -93,7 +93,6 @@ try
 
 	mix_sample_count_ = static_cast<int>((dst_rate_ * mix_size_ms_) / 1'000L);
 
-	initialize_distance_model();
 	initialize_listener_r3_position();
 	initialize_listener_r3_orientation();
 	initialize_voice_handles();
@@ -195,21 +194,6 @@ void OalAudioMixer::suspend_state()
 void OalAudioMixer::resume_state()
 {
 	is_state_suspended_.store(false, std::memory_order_release);
-}
-
-void OalAudioMixer::set_distance_model(AudioMixerDistanceModel distance_model)
-try
-{
-	AudioMixerValidator::validate_distance_model(distance_model);
-	auto command = Command{};
-	command.type = CommandType::set_distance_model;
-	command.param.set_distance_model.distance_model = distance_model;
-	const auto commands_lock = MutexUniqueLock{commands_mutex_};
-	commands_.emplace_back(command);
-}
-catch (...)
-{
-	fail_nested(__func__);
 }
 
 void OalAudioMixer::set_listener_r3_position(const AudioMixerListenerR3Position& r3_position)
@@ -380,29 +364,6 @@ try
 	auto& command_param = command.param.set_voice_gain;
 	command_param.handle = voice_handle;
 	command_param.gain = gain;
-	const auto commands_lock = MutexUniqueLock{commands_mutex_};
-	commands_.emplace_back(command);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-void OalAudioMixer::set_voice_r3_attenuation(AudioMixerVoiceHandle voice_handle, const AudioMixerVoiceR3Attenuation& r3_attenuation)
-try
-{
-	AudioMixerValidator::validate_voice_r3_attenuation(r3_attenuation);
-
-	if (!voice_handle.is_valid())
-	{
-		return;
-	}
-
-	auto command = Command{};
-	command.type = CommandType::set_voice_r3_attenuation;
-	auto& command_param = command.param.set_voice_r3_attenuation;
-	command_param.handle = voice_handle;
-	command_param.attributes = r3_attenuation;
 	const auto commands_lock = MutexUniqueLock{commands_mutex_};
 	commands_.emplace_back(command);
 }
@@ -802,12 +763,6 @@ void OalAudioMixer::initialize_oal(const AudioMixerInitParam& param)
 	dst_rate_ = get_al_mixing_frequency();
 }
 
-void OalAudioMixer::initialize_distance_model()
-{
-	distance_model_ = audio_mixer_default_distance_model;
-	set_distance_model();
-}
-
 void OalAudioMixer::initialize_listener_r3_position()
 {
 	listener_r3_position_ = audio_mixer_make_default_listener_r3_position();
@@ -1144,11 +1099,7 @@ void OalAudioMixer::handle_play_sfx_command(const PlaySfxCommandParam& param)
 
 	if (voice->is_r3)
 	{
-		voice->r3_attenuation = audio_mixer_make_default_voice_attenuation();
 		voice->r3_position = audio_mixer_make_default_voice_r3_position();
-		voice->oal_source.set_reference_distance(voice->r3_attenuation.min_distance);
-		voice->oal_source.set_max_distance(voice->r3_attenuation.max_distance);
-		voice->oal_source.set_rolloff_factor(voice->r3_attenuation.rolloff_factor);
 		voice->oal_source.set_position(voice->r3_position.x, voice->r3_position.y, voice->r3_position.z);
 	}
 
@@ -1172,17 +1123,6 @@ void OalAudioMixer::handle_set_mute_command(const SetMuteCommandParam& param)
 	static_cast<void>(al_symbols_.alGetError());
 	al_symbols_.alListenerf(AL_GAIN, al_gain);
 	assert(al_symbols_.alGetError() == AL_NO_ERROR);
-}
-
-void OalAudioMixer::handle_set_distance_model_command(const SetDistanceModelCommandParam& param)
-{
-	if (distance_model_ == param.distance_model)
-	{
-		return;
-	}
-
-	distance_model_ = param.distance_model;
-	set_distance_model();
 }
 
 void OalAudioMixer::handle_set_listener_r3_position_command(const SetListenerR3PositionCommandParam& param)
@@ -1261,26 +1201,6 @@ void OalAudioMixer::handle_set_voice_gain_command(const SetVoiceGainCommandParam
 	voice->oal_source.set_gain(param.gain);
 }
 
-void OalAudioMixer::handle_set_voice_r3_attenuation_command(const SetVoiceR3AttenuationCommandParam& param)
-{
-	const auto voice = voice_handle_mgr_.get_voice(param.handle);
-
-	if (!voice || !voice->is_active)
-	{
-		return;
-	}
-
-	if (voice->r3_attenuation == param.attributes)
-	{
-		return;
-	}
-
-	voice->r3_attenuation = param.attributes;
-	voice->oal_source.set_reference_distance(voice->r3_attenuation.min_distance);
-	voice->oal_source.set_max_distance(voice->r3_attenuation.max_distance);
-	voice->oal_source.set_rolloff_factor(voice->r3_attenuation.rolloff_factor);
-}
-
 void OalAudioMixer::handle_set_voice_r3_position_command(const SetVoiceR3PositionCommandParam& param)
 {
 	auto voice = voice_handle_mgr_.get_voice(param.handle);
@@ -1332,10 +1252,6 @@ void OalAudioMixer::handle_commands()
 				handle_set_mute_command(command.param.set_mute);
 				break;
 
-			case CommandType::set_distance_model:
-				handle_set_distance_model_command(command.param.set_distance_model);
-				break;
-
 			case CommandType::set_listener_r3_position:
 				handle_set_listener_r3_position_command(command.param.set_listener_r3_position);
 				break;
@@ -1358,10 +1274,6 @@ void OalAudioMixer::handle_commands()
 
 			case CommandType::set_voice_gain:
 				handle_set_voice_gain_command(command.param.set_voice_gain);
-				break;
-
-			case CommandType::set_voice_r3_attenuation:
-				handle_set_voice_r3_attenuation_command(command.param.set_voice_r3_attenuation);
 				break;
 
 			case CommandType::set_voice_r3_position:
@@ -1651,38 +1563,6 @@ OalAudioMixer::Voice* OalAudioMixer::find_music_voice() noexcept
 	}
 
 	return nullptr;
-}
-
-void OalAudioMixer::set_al_distance_model(ALenum al_distance_model)
-{
-	static_cast<void>(al_symbols_.alGetError());
-	al_symbols_.alDistanceModel(al_distance_model);
-	assert(al_symbols_.alGetError() == AL_NO_ERROR);
-}
-
-void OalAudioMixer::set_distance_model()
-{
-	auto al_distance_model = ALenum{};
-
-	switch (distance_model_)
-	{
-		case AudioMixerDistanceModel::none:
-			al_distance_model = AL_NONE;
-			break;
-
-		case AudioMixerDistanceModel::inverse_clamped:
-			al_distance_model = AL_INVERSE_DISTANCE_CLAMPED;
-			break;
-
-		case AudioMixerDistanceModel::linear_clamped:
-			al_distance_model = AL_LINEAR_DISTANCE_CLAMPED;
-			break;
-
-		default:
-			fail("Unknown distance model.");
-	}
-
-	set_al_distance_model(al_distance_model);
 }
 
 void OalAudioMixer::set_al_listener_r3_position(double x, double y, double z)

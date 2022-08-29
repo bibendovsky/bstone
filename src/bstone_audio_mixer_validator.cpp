@@ -44,54 +44,12 @@ public:
 
 // ==========================================================================
 
-void AudioMixerValidator::validate_distance_model(AudioMixerDistanceModel distance_model)
-try
-{
-	switch (distance_model)
-	{
-		case AudioMixerDistanceModel::none:
-		case AudioMixerDistanceModel::inverse_clamped:
-		case AudioMixerDistanceModel::linear_clamped:
-			break;
-
-		default:
-			fail("Unknown distance model.");
-	}
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
 void AudioMixerValidator::validate_gain(double gain)
 try
 {
 	if (gain < audio_mixer_min_gain || gain > audio_mixer_max_gain)
 	{
 		fail("Gain out of range.");
-	}
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-void AudioMixerValidator::validate_voice_r3_attenuation(const AudioMixerVoiceR3Attenuation& r3_attenuation)
-try
-{
-	if (r3_attenuation.min_distance < audio_mixer_min_min_distance)
-	{
-		fail("Min distance out of range.");
-	}
-
-	if (r3_attenuation.max_distance < r3_attenuation.min_distance)
-	{
-		fail("Max distance out of range.");
-	}
-
-	if (r3_attenuation.rolloff_factor < audio_mixer_min_rolloff_factor)
-	{
-		fail("Rolloff factor out of range.");
 	}
 }
 catch (...)

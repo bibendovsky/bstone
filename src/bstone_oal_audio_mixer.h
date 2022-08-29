@@ -59,7 +59,6 @@ public:
 	void resume_state() override;
 
 	void set_mute(bool value) override;
-	void set_distance_model(AudioMixerDistanceModel distance_model) override;
 
 	void set_listener_r3_position(const AudioMixerListenerR3Position& r3_position) override;
 	void set_listener_r3_orientation(const AudioMixerListenerR3Orientation& r3_orientation) override;
@@ -73,7 +72,6 @@ public:
 	void stop_voice(AudioMixerVoiceHandle voice_handle) override;
 
 	void set_voice_gain(AudioMixerVoiceHandle voice_handle, double gain) override;
-	void set_voice_r3_attenuation(AudioMixerVoiceHandle voice_handle, const AudioMixerVoiceR3Attenuation& r3_attenuation) override;
 	void set_voice_r3_position(AudioMixerVoiceHandle voice_handle, const AudioMixerVoiceR3Position& r3_position) override;
 
 private:
@@ -95,7 +93,6 @@ private:
 		bool is_looping;
 		bool is_music;
 
-		AudioMixerVoiceR3Attenuation r3_attenuation;
 		AudioMixerVoiceR3Position r3_position;
 
 		OalSource oal_source;
@@ -113,7 +110,6 @@ private:
 		play_sfx,
 
 		set_mute,
-		set_distance_model,
 
 		set_listener_r3_position,
 		set_listener_r3_orientation,
@@ -123,7 +119,6 @@ private:
 		stop_voice,
 
 		set_voice_gain,
-		set_voice_r3_attenuation,
 		set_voice_r3_position,
 	}; // CommandType
 
@@ -149,11 +144,6 @@ private:
 	{
 		bool is_mute;
 	}; // SetMuteCommandParam
-
-	struct SetDistanceModelCommandParam
-	{
-		AudioMixerDistanceModel distance_model;
-	}; // SetDistanceModelCommandParam
 
 	struct SetListenerR3PositionCommandParam
 	{
@@ -186,12 +176,6 @@ private:
 		double gain;
 	}; // SetVoiceGainCommandParam
 
-	struct SetVoiceR3AttenuationCommandParam
-	{
-		AudioMixerVoiceHandle handle;
-		AudioMixerVoiceR3Attenuation attributes;
-	}; // SetVoiceR3AttenuationCommandParam
-
 	struct SetVoiceR3PositionCommandParam
 	{
 		AudioMixerVoiceHandle handle;
@@ -204,7 +188,6 @@ private:
 		PlaySfxCommandParam play_sfx;
 
 		SetMuteCommandParam set_mute;
-		SetDistanceModelCommandParam set_distance_model;
 
 		SetListenerR3PositionCommandParam set_listener_r3_position;
 		SetListenerR3OrientationCommandParam set_listener_r3_orientation;
@@ -214,7 +197,6 @@ private:
 		StopVoiceCommandParam stop_voice;
 
 		SetVoiceGainCommandParam set_voice_gain;
-		SetVoiceR3AttenuationCommandParam set_voice_r3_attenuation;
 		SetVoiceR3PositionCommandParam set_voice_r3_position;
 	}; // CommandParam
 
@@ -251,7 +233,6 @@ private:
 	int mix_sample_count_;
 	int mix_size_ms_;
 	bool is_mute_{};
-	AudioMixerDistanceModel distance_model_{};
 	AudioMixerListenerR3Position listener_r3_position_{};
 	AudioMixerListenerR3Orientation listener_r3_orientation_{};
 
@@ -319,7 +300,6 @@ private:
 	static const char* get_oal_default_library_file_name() noexcept;
 
 	void initialize_oal(const AudioMixerInitParam& param);
-	void initialize_distance_model();
 	void initialize_listener_r3_position();
 	void initialize_listener_r3_orientation();
 	void initialize_voice_handles();
@@ -343,7 +323,6 @@ private:
 	void handle_play_music_command(const PlayMusicCommandParam& param);
 	void handle_play_sfx_command(const PlaySfxCommandParam& param);
 	void handle_set_mute_command(const SetMuteCommandParam& param);
-	void handle_set_distance_model_command(const SetDistanceModelCommandParam& param);
 	void handle_set_listener_r3_position_command(const SetListenerR3PositionCommandParam& param);
 	void handle_set_listener_r3_orientation_command(const SetListenerR3OrientationCommandParam& param);
 	void handle_set_voice_pause_command(AudioMixerVoiceHandle voice_handle, bool is_pause);
@@ -351,7 +330,6 @@ private:
 	void handle_resume_voice_command(const ResumeVoiceCommandParam& param);
 	void handle_stop_voice_command(const StopVoiceCommandParam& param);
 	void handle_set_voice_gain_command(const SetVoiceGainCommandParam& param);
-	void handle_set_voice_r3_attenuation_command(const SetVoiceR3AttenuationCommandParam& param);
 	void handle_set_voice_r3_position_command(const SetVoiceR3PositionCommandParam& param);
 	void handle_commands();
 
@@ -369,9 +347,6 @@ private:
 
 	Voice* find_free_voice() noexcept;
 	Voice* find_music_voice() noexcept;
-
-	void set_al_distance_model(ALenum al_distance_model);
-	void set_distance_model();
 
 	void set_al_listener_r3_position(double x, double y, double z);
 	void set_listener_r3_position();

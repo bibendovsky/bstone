@@ -57,7 +57,6 @@ public:
 	void resume_state() override;
 
 	void set_mute(bool value) override;
-	void set_distance_model(AudioMixerDistanceModel distance_model) override;
 
 	void set_listener_r3_position(const AudioMixerListenerR3Position& r3_position) override;
 	void set_listener_r3_orientation(const AudioMixerListenerR3Orientation& r3_orientation) override;
@@ -71,7 +70,6 @@ public:
 	void stop_voice(AudioMixerVoiceHandle voice_handle) override;
 
 	void set_voice_gain(AudioMixerVoiceHandle voice_handle, double gain) override;
-	void set_voice_r3_attenuation(AudioMixerVoiceHandle voice_handle, const AudioMixerVoiceR3Attenuation& r3_attenuation) override;
 	void set_voice_r3_position(AudioMixerVoiceHandle voice_handle, const AudioMixerVoiceR3Position& r3_position) override;
 
 private:
@@ -118,7 +116,6 @@ private:
 		bool is_r3;
 		bool is_looping;
 		bool is_paused;
-		bool is_r3_attenuation_changed;
 		bool is_r3_position_changed;
 		CacheItem* cache;
 		int decode_offset;
@@ -126,8 +123,6 @@ private:
 		double left_gain;
 		double right_gain;
 		AudioMixerVoiceHandle handle;
-		AudioMixerVoiceR3Attenuation r3_attenuation;
-		AudioMixerVoiceR3Attenuation r3_attenuation_cache;
 		AudioMixerVoiceR3Position r3_position;
 		AudioMixerVoiceR3Position r3_position_cache;
 
@@ -141,7 +136,6 @@ private:
 		play_sound,
 
 		set_mute,
-		set_distance_model,
 
 		set_listener_r3_position,
 		set_listener_r3_orientation,
@@ -151,7 +145,6 @@ private:
 		stop_voice,
 
 		set_voice_gain,
-		set_voice_r3_attenuation,
 		set_voice_r3_position,
 	}; // CommandType
 
@@ -170,11 +163,6 @@ private:
 	{
 		bool is_mute;
 	}; // SetMuteCommandParam
-
-	struct SetDistanceModelCommandParam
-	{
-		AudioMixerDistanceModel distance_model;
-	}; // SetDistanceModelCommandParam
 
 	struct SetListenerR3PositionCommandParam
 	{
@@ -207,12 +195,6 @@ private:
 		double gain;
 	}; // SetVoiceGainCommandParam
 
-	struct SetVoiceR3AttenuationCommandParam
-	{
-		AudioMixerVoiceHandle handle;
-		AudioMixerVoiceR3Attenuation attributes;
-	}; // SetVoiceR3AttenuationCommandParam
-
 	struct SetVoiceR3PositionCommandParam
 	{
 		AudioMixerVoiceHandle handle;
@@ -224,7 +206,6 @@ private:
 		PlaySoundCommandParam play_sound;
 
 		SetMuteCommandParam set_mute;
-		SetDistanceModelCommandParam set_distance_model;
 
 		SetListenerR3PositionCommandParam set_listener_r3_position;
 		SetListenerR3OrientationCommandParam set_listener_r3_orientation;
@@ -234,7 +215,6 @@ private:
 		StopVoiceCommandParam stop_voice;
 
 		SetVoiceGainCommandParam set_voice_gain;
-		SetVoiceR3AttenuationCommandParam set_voice_r3_attenuation;
 		SetVoiceR3PositionCommandParam set_voice_r3_position;
 	}; // CommandParam
 
@@ -266,12 +246,10 @@ private:
 	Cache pcm_cache_{};
 	int mix_size_ms_{};
 	bool is_mute_{};
-	AudioMixerDistanceModel distance_model_{};
 	AudioMixerListenerR3Position listener_r3_position_{};
 	AudioMixerListenerR3Position listener_r3_position_cache_{};
 	AudioMixerListenerR3Orientation listener_r3_orientation_{};
 	AudioMixerListenerR3Orientation listener_r3_orientation_cache_{};
-	bool is_distance_model_changed_;
 	bool is_listener_r3_position_changed_;
 	bool is_listener_r3_orientation_changed_;
 	std::atomic_bool is_state_suspended_{};
@@ -286,7 +264,6 @@ private:
 	int get_max_channels() const noexcept;
 
 	void initialize_mute();
-	void initialize_distance_model();
 	void initialize_listener_r3_position();
 	void initialize_listener_r3_orientation();
 	void initialize_voice_handles();
@@ -298,7 +275,6 @@ private:
 	void mix_samples();
 
 	void handle_set_mute_command(const SetMuteCommandParam& param) noexcept;
-	void handle_set_distance_model_command(const SetDistanceModelCommandParam& param) noexcept;
 
 	void handle_set_listener_r3_position_command(const SetListenerR3PositionCommandParam& param) noexcept;
 	void handle_set_listener_r3_orientation_command(const SetListenerR3OrientationCommandParam& param) noexcept;
@@ -307,7 +283,6 @@ private:
 	void handle_resume_voice_command(const ResumeVoiceCommandParam& param);
 	void handle_stop_voice_command(const StopVoiceCommandParam& param);
 	void handle_set_voice_gain_command(const SetVoiceGainCommandParam& param);
-	void handle_set_voice_r3_attenuation_command(const SetVoiceR3AttenuationCommandParam& param);
 	void handle_set_voice_r3_position_command(const SetVoiceR3PositionCommandParam& param);
 	void handle_commands();
 

@@ -83,15 +83,6 @@ AudioMixerVoiceR3Position audio_mixer_make_default_voice_r3_position() noexcept
 	return AudioMixerVoiceR3Position{};
 }
 
-AudioMixerVoiceR3Attenuation audio_mixer_make_default_voice_attenuation() noexcept
-{
-	auto result = AudioMixerVoiceR3Attenuation{};
-	result.min_distance = audio_mixer_default_min_distance;
-	result.max_distance = audio_mixer_default_max_distance;
-	result.rolloff_factor = audio_mixer_default_rolloff_factor;
-	return result;
-}
-
 // ==========================================================================
 
 AudioMixerUPtr make_audio_mixer(const AudioMixerInitParam& param)
@@ -141,18 +132,6 @@ bool operator==(const AudioMixerListenerR3Orientation& lhs, const AudioMixerList
 }
 
 bool operator!=(const AudioMixerListenerR3Orientation& lhs, const AudioMixerListenerR3Orientation& rhs) noexcept
-{
-	return !(lhs == rhs);
-}
-
-// --------------------------------------------------------------------------
-
-bool operator==(const AudioMixerVoiceR3Attenuation& lhs, const AudioMixerVoiceR3Attenuation& rhs) noexcept
-{
-	return lhs.min_distance == rhs.min_distance && lhs.max_distance == rhs.max_distance && lhs.rolloff_factor == rhs.rolloff_factor;
-}
-
-bool operator!=(const AudioMixerVoiceR3Attenuation& lhs, const AudioMixerVoiceR3Attenuation& rhs) noexcept
 {
 	return !(lhs == rhs);
 }
