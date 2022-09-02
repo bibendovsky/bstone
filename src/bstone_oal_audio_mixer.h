@@ -59,6 +59,7 @@ public:
 	void resume_state() override;
 
 	void set_mute(bool value) override;
+	void set_gain(double gain) override;
 
 	void set_listener_r3_position(const AudioMixerListenerR3Position& r3_position) override;
 	void set_listener_r3_orientation(const AudioMixerListenerR3Orientation& r3_orientation) override;
@@ -110,6 +111,7 @@ private:
 		play_sfx,
 
 		set_mute,
+		set_gain,
 
 		set_listener_r3_position,
 		set_listener_r3_orientation,
@@ -144,6 +146,11 @@ private:
 	{
 		bool is_mute;
 	}; // SetMuteCommandParam
+
+	struct SetGainCommandParam
+	{
+		double gain;
+	};
 
 	struct SetListenerR3PositionCommandParam
 	{
@@ -188,6 +195,7 @@ private:
 		PlaySfxCommandParam play_sfx;
 
 		SetMuteCommandParam set_mute;
+		SetGainCommandParam set_gain;
 
 		SetListenerR3PositionCommandParam set_listener_r3_position;
 		SetListenerR3OrientationCommandParam set_listener_r3_orientation;
@@ -233,6 +241,7 @@ private:
 	int mix_sample_count_;
 	int mix_size_ms_;
 	bool is_mute_{};
+	double gain_{};
 	AudioMixerListenerR3Position listener_r3_position_{};
 	AudioMixerListenerR3Orientation listener_r3_orientation_{};
 
@@ -300,6 +309,8 @@ private:
 	static const char* get_oal_default_library_file_name() noexcept;
 
 	void initialize_oal(const AudioMixerInitParam& param);
+	void initialize_is_mute() noexcept;
+	void initialize_gain() noexcept;
 	void initialize_listener_r3_position();
 	void initialize_listener_r3_orientation();
 	void initialize_voice_handles();
@@ -320,9 +331,12 @@ private:
 	AudioMixerVoiceHandle play_adlib_music_internal(const void* data, int data_size, bool is_looping);
 	AudioMixerVoiceHandle play_sfx_sound_internal(SoundType sound_type, int sound_index, const void* data, int data_size, bool is_positional);
 
+	void update_al_gain();
+
 	void handle_play_music_command(const PlayMusicCommandParam& param);
 	void handle_play_sfx_command(const PlaySfxCommandParam& param);
 	void handle_set_mute_command(const SetMuteCommandParam& param);
+	void handle_set_gain_command(const SetGainCommandParam& param);
 	void handle_set_listener_r3_position_command(const SetListenerR3PositionCommandParam& param);
 	void handle_set_listener_r3_orientation_command(const SetListenerR3OrientationCommandParam& param);
 	void handle_set_voice_pause_command(AudioMixerVoiceHandle voice_handle, bool is_pause);

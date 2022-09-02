@@ -156,7 +156,8 @@ try
 	commands_.reserve(commands_reserve);
 	mt_commands_.reserve(commands_reserve);
 
-	initialize_mute();
+	initialize_is_mute();
+	initialize_gain();
 	initialize_listener_r3_position();
 	initialize_listener_r3_orientation();
 	initialize_voice_handles();
@@ -200,6 +201,22 @@ try
 	auto command = Command{};
 	command.type = CommandType::set_mute;
 	command.param.set_mute.is_mute = is_mute;
+	MtLockGuard guard_lock{mt_commands_lock_};
+	mt_commands_.push_back(command);
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
+
+void SdlAudioMixer::set_gain(double gain)
+try
+{
+	AudioMixerValidator::validate_gain(gain);
+
+	auto command = Command{};
+	command.type = CommandType::set_gain;
+	command.param.set_gain.gain = gain;
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
 }
@@ -395,9 +412,14 @@ catch (...)
 	std::throw_with_nested(SdlAudioMixerException{message});
 }
 
-void SdlAudioMixer::initialize_mute()
+void SdlAudioMixer::initialize_is_mute()
 {
 	is_mute_ = false;
+}
+
+void SdlAudioMixer::initialize_gain()
+{
+	gain_ = audio_mixer_max_gain;
 }
 
 void SdlAudioMixer::initialize_listener_r3_position()
@@ -567,8 +589,7 @@ void SdlAudioMixer::mix_samples()
 
 	if (max_mix_sample_it != mix_buffer_.cend())
 	{
-		constexpr auto max_mix_sample_value = 1.0F;
-
+		const auto max_mix_sample_value = gain_;
 		const auto max_mix_sample = std::abs(*max_mix_sample_it);
 
 		if (max_mix_sample <= max_mix_sample_value)
@@ -580,13 +601,13 @@ void SdlAudioMixer::mix_samples()
 		}
 		else
 		{
-			const auto scalar = 1.0F / max_mix_sample;
+			const auto scalar = max_mix_sample_value / max_mix_sample;
 
 			std::transform(
 				mix_buffer_.cbegin(),
 				mix_buffer_.cend(),
 				buffer_.begin(),
-				[scalar](const auto item)
+				[scalar](const auto& item)
 				{
 					return static_cast<Sample>(item * scalar);
 				});
@@ -597,6 +618,11 @@ void SdlAudioMixer::mix_samples()
 void SdlAudioMixer::handle_set_mute_command(const SetMuteCommandParam& param) noexcept
 {
 	is_mute_ = param.is_mute;
+}
+
+void SdlAudioMixer::handle_set_gain_command(const SetGainCommandParam& param) noexcept
+{
+	gain_ = param.gain;
 }
 
 void SdlAudioMixer::handle_set_listener_r3_position_command(const SetListenerR3PositionCommandParam& param) noexcept
@@ -720,6 +746,10 @@ void SdlAudioMixer::handle_commands()
 
 			case CommandType::set_mute:
 				handle_set_mute_command(command.param.set_mute);
+				break;
+
+			case CommandType::set_gain:
+				handle_set_gain_command(command.param.set_gain);
 				break;
 
 			case CommandType::set_listener_r3_position:

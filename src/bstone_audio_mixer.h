@@ -142,6 +142,7 @@ public:
 	virtual void resume_state() = 0;
 
 	virtual void set_mute(bool is_mute) = 0;
+	virtual void set_gain(double gain) = 0;
 
 	virtual void set_listener_r3_position(const AudioMixerListenerR3Position& r3_position) = 0;
 	virtual void set_listener_r3_orientation(const AudioMixerListenerR3Orientation& r3_orientation) = 0;
