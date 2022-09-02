@@ -57,6 +57,7 @@ public:
 	void resume_state() override;
 
 	void set_mute(bool value) override;
+	void set_gain(double gain) override;
 
 	void set_listener_r3_position(const AudioMixerListenerR3Position& r3_position) override;
 	void set_listener_r3_orientation(const AudioMixerListenerR3Orientation& r3_orientation) override;
@@ -136,6 +137,7 @@ private:
 		play_sound,
 
 		set_mute,
+		set_gain,
 
 		set_listener_r3_position,
 		set_listener_r3_orientation,
@@ -163,6 +165,11 @@ private:
 	{
 		bool is_mute;
 	}; // SetMuteCommandParam
+
+	struct SetGainCommandParam
+	{
+		double gain;
+	};
 
 	struct SetListenerR3PositionCommandParam
 	{
@@ -206,6 +213,7 @@ private:
 		PlaySoundCommandParam play_sound;
 
 		SetMuteCommandParam set_mute;
+		SetGainCommandParam set_gain;
 
 		SetListenerR3PositionCommandParam set_listener_r3_position;
 		SetListenerR3OrientationCommandParam set_listener_r3_orientation;
@@ -246,6 +254,7 @@ private:
 	Cache pcm_cache_{};
 	int mix_size_ms_{};
 	bool is_mute_{};
+	double gain_{};
 	AudioMixerListenerR3Position listener_r3_position_{};
 	AudioMixerListenerR3Position listener_r3_position_cache_{};
 	AudioMixerListenerR3Orientation listener_r3_orientation_{};
@@ -263,7 +272,8 @@ private:
 	int get_default_mix_size_ms() const noexcept;
 	int get_max_channels() const noexcept;
 
-	void initialize_mute();
+	void initialize_is_mute();
+	void initialize_gain();
 	void initialize_listener_r3_position();
 	void initialize_listener_r3_orientation();
 	void initialize_voice_handles();
@@ -275,6 +285,7 @@ private:
 	void mix_samples();
 
 	void handle_set_mute_command(const SetMuteCommandParam& param) noexcept;
+	void handle_set_gain_command(const SetGainCommandParam& param) noexcept;
 
 	void handle_set_listener_r3_position_command(const SetListenerR3PositionCommandParam& param) noexcept;
 	void handle_set_listener_r3_orientation_command(const SetListenerR3OrientationCommandParam& param) noexcept;
