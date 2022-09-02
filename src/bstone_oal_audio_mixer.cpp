@@ -93,6 +93,9 @@ try
 
 	mix_sample_count_ = static_cast<int>((dst_rate_ * mix_size_ms_) / 1'000L);
 
+	initialize_is_mute();
+	initialize_gain();
+	update_al_gain();
 	initialize_listener_r3_position();
 	initialize_listener_r3_orientation();
 	initialize_voice_handles();
@@ -194,6 +197,24 @@ void OalAudioMixer::suspend_state()
 void OalAudioMixer::resume_state()
 {
 	is_state_suspended_.store(false, std::memory_order_release);
+}
+
+void OalAudioMixer::set_gain(double gain)
+try
+{
+	AudioMixerValidator::validate_gain(gain);
+
+	auto command = Command{};
+	command.type = CommandType::set_gain;
+	auto& command_param = command.param.set_gain;
+	command_param.gain = gain;
+
+	const auto commands_lock = MutexUniqueLock{commands_mutex_};
+	commands_.emplace_back(command);
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void OalAudioMixer::set_listener_r3_position(const AudioMixerListenerR3Position& r3_position)
@@ -763,6 +784,16 @@ void OalAudioMixer::initialize_oal(const AudioMixerInitParam& param)
 	dst_rate_ = get_al_mixing_frequency();
 }
 
+void OalAudioMixer::initialize_is_mute() noexcept
+{
+	is_mute_ = false;
+}
+
+void OalAudioMixer::initialize_gain() noexcept
+{
+	gain_ = audio_mixer_max_gain;
+}
+
 void OalAudioMixer::initialize_listener_r3_position()
 {
 	listener_r3_position_ = audio_mixer_make_default_listener_r3_position();
@@ -952,6 +983,15 @@ AudioMixerVoiceHandle OalAudioMixer::play_sfx_sound_internal(SoundType sound_typ
 	return voice_handle;
 }
 
+void OalAudioMixer::update_al_gain()
+{
+	const auto al_gain = (is_mute_ ? 0.0F : static_cast<ALfloat>(gain_));
+
+	static_cast<void>(al_symbols_.alGetError());
+	al_symbols_.alListenerf(AL_GAIN, al_gain);
+	assert(al_symbols_.alGetError() == AL_NO_ERROR);
+}
+
 void OalAudioMixer::handle_play_music_command(const PlayMusicCommandParam& param)
 {
 	auto is_started = false;
@@ -1118,11 +1158,13 @@ void OalAudioMixer::handle_set_mute_command(const SetMuteCommandParam& param)
 	}
 
 	is_mute_ = param.is_mute;
-	const auto al_gain = (is_mute_ ? 0.0F : 1.0F);
+	update_al_gain();
+}
 
-	static_cast<void>(al_symbols_.alGetError());
-	al_symbols_.alListenerf(AL_GAIN, al_gain);
-	assert(al_symbols_.alGetError() == AL_NO_ERROR);
+void OalAudioMixer::handle_set_gain_command(const SetGainCommandParam& param)
+{
+	gain_ = param.gain;
+	update_al_gain();
 }
 
 void OalAudioMixer::handle_set_listener_r3_position_command(const SetListenerR3PositionCommandParam& param)
