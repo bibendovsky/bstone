@@ -202,7 +202,7 @@ std::int8_t ExpCrateShapes[] = {
 
 void UpdateSoundLoc()
 {
-	sd_update_positions();
+	sd_update();
 }
 
 

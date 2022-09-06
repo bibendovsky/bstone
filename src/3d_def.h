@@ -35,9 +35,10 @@ Free Software Foundation, Inc.,
 
 #include "movie.h"
 
+#include "bstone_audio_mixer_voice_handle.h"
 #include "bstone_math.h"
 #include "bstone_mt_task_mgr.h"
-#include "bstone_audio_mixer_voice_handle.h"
+#include "bstone_voice.h"
 
 
 constexpr auto min_fixed = 1;
@@ -2158,7 +2159,7 @@ struct doorobj_t
 	// !!! Used in saved game.
 	std::uint8_t areanumber[2];
 
-	bstone::AudioMixerVoiceHandle voice_handle;
+	bstone::Voice voice;
 
 
 	void archive(
@@ -2269,8 +2270,8 @@ struct objtype
 	// !!! Used in saved game.
 	std::uint16_t temp3; // holds 'last door used' by 'smart' actors
 
-	bstone::AudioMixerVoiceHandle voice_voice_handle;
-	bstone::AudioMixerVoiceHandle weapon_voice_handle;
+	bstone::Voice voice_voice;
+	bstone::Voice weapon_voice;
 
 	objtype* next;
 	objtype* prev;
