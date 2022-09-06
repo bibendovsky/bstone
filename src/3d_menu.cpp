@@ -1797,13 +1797,13 @@ void US_ControlPanel(
 	ScanCode scancode)
 {
 	is_full_menu_active = (scancode != ScanCode::sc_f7 && scancode != ScanCode::sc_f10);
-	sd_pause_sfx(true);
+	sd_pause_scene_sfx(true);
 
 	auto guard_flag = bstone::ScopeGuard{
 		[&]()
 		{
 			is_full_menu_active = false;
-			sd_pause_sfx(false);
+			sd_pause_scene_sfx(false);
 		}
 	};
 
@@ -3124,7 +3124,6 @@ std::int16_t CP_LoadGame(
 
 		if (SaveGamesAvail[which])
 		{
-			sd_reset_r3_position_cache();
 			auto name = get_saved_game_base_name();
 			name += static_cast<char>('0' + which);
 
@@ -3153,7 +3152,6 @@ restart:
 
 		if (which >= 0 && SaveGamesAvail[which])
 		{
-			sd_reset_r3_position_cache();
 			ShootSnd();
 
 			auto name = get_saved_game_base_name();

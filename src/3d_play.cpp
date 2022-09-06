@@ -972,14 +972,14 @@ void CheckKeys()
 		fontnumber = 4;
 		BMAmsg(PAUSED_MSG);
 
-		sd_pause_sfx(true);
+		sd_pause_scene_sfx(true);
 		sd_pause_music(true);
 
 		IN_ClearKeysDown();
 		IN_Ack();
 		IN_ClearKeysDown();
 
-		sd_pause_sfx(false);
+		sd_pause_scene_sfx(false);
 		sd_pause_music(false);
 
 		fontnumber = 2;
@@ -1128,9 +1128,9 @@ void CheckKeys()
 
 	if (in_is_binding_pressed(e_bi_stats))
 	{
-		sd_pause_sfx(true);
+		sd_pause_scene_sfx(true);
 		PopupAutoMap(Keyboard[ScanCode::sc_left_shift] || Keyboard[ScanCode::sc_right_shift]);
-		sd_pause_sfx(false);
+		sd_pause_scene_sfx(false);
 	}
 
 	if (Keyboard[ScanCode::sc_back_quote])
@@ -2031,8 +2031,6 @@ void PlayLoop()
 	{
 		IN_StartAck();
 	}
-
-	sd_reset_r3_position_cache();
 
 	do
 	{

@@ -433,6 +433,7 @@ target_sources(
 		bstone_unique_resource.h
 		bstone_version.h
 		bstone_video.h
+		bstone_voice.h		
 		bstone_voice_group.h
 )
 

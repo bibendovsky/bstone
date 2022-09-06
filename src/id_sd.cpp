@@ -33,6 +33,7 @@ Free Software Foundation, Inc.,
 #include "bstone_exception.h"
 #include "bstone_globals.h"
 #include "bstone_logger.h"
+#include "bstone_math.h"
 #include "bstone_memory_binary_reader.h"
 #include "bstone_scope_guard.h"
 #include "bstone_string_helper.h"
@@ -61,10 +62,8 @@ bool sd_sq_active_;
 
 // Internal routines
 
-// BBi
 
-namespace
-{
+namespace {
 
 class SdException : public bstone::Exception
 {
@@ -72,18 +71,8 @@ public:
 	explicit SdException(const char* message) noexcept
 		:
 		Exception{"SD", message}
-	{
-	}
+	{}
 }; // SdException
-
-struct SdR3PositionCacheItem
-{
-	double x;
-	double y;
-}; // SdR3PositionCacheItem
-
-using SdR3PositionCache = std::vector<SdR3PositionCacheItem>;
-SdR3PositionCache sd_r3_position_cache{};
 
 [[noreturn]] void sd_fail_nested(const char* message)
 {
@@ -95,19 +84,20 @@ bstone::AudioContentMgrUPtr audio_content_mgr{};
 auto sd_sfx_type = AudioSfxType::adlib;
 auto sd_is_sfx_digitized = true;
 
-auto sd_master_voice_group = static_cast<bstone::VoiceGroup*>(nullptr);
-auto sd_ui_sfx_voice_group = static_cast<bstone::VoiceGroup*>(nullptr);
-auto sd_scene_sfx_voice_group = static_cast<bstone::VoiceGroup*>(nullptr);
-auto sd_music_voice_group = static_cast<bstone::VoiceGroup*>(nullptr);
-auto sd_player_voice_group = static_cast<bstone::VoiceGroup*>(nullptr);
-auto sd_voice_group_mgr = bstone::VoiceGroupUPtr{};
+auto sd_music_voice_group_ = bstone::VoiceGroupUPtr{};
+auto sd_ui_sfx_voice_group_ = bstone::VoiceGroupUPtr{};
+auto sd_scene_sfx_voice_group_ = bstone::VoiceGroupUPtr{};
 
-auto sd_pwall_voice_handle = bstone::AudioMixerVoiceHandle{};
+auto sd_music_voice_ = bstone::Voice{};
+auto sd_ui_sfx_voice_ = bstone::Voice{};
+auto sd_pwall_voice_ = bstone::Voice{};
 
-auto sd_player_item_voice_handle = bstone::AudioMixerVoiceHandle{};
-auto sd_player_hit_wall_voice_handle = bstone::AudioMixerVoiceHandle{};
-auto sd_player_no_way_voice_handle = bstone::AudioMixerVoiceHandle{};
-auto sd_player_interrogation_voice_handle = bstone::AudioMixerVoiceHandle{};
+auto sd_player_item_voice_ = bstone::Voice{};
+auto sd_player_hit_wall_voice_ = bstone::Voice{};
+auto sd_player_no_way_voice_ = bstone::Voice{};
+auto sd_player_interrogation_voice_ = bstone::Voice{};
+
+auto sd_listener_r3_position_ = bstone::AudioMixerR3Vector{};
 
 } // namespace
 
@@ -211,31 +201,40 @@ const std::string& sd_get_opl3_long_name(const bstone::Opl3Type opl3_type)
 
 	switch (opl3_type)
 	{
-		case bstone::Opl3Type::dbopl:
-			return dosbox_dbopl;
-
-		case bstone::Opl3Type::nuked:
-			return nuked_opl3;
-
-		default:
-			return unknown;
+		case bstone::Opl3Type::dbopl: return dosbox_dbopl;
+		case bstone::Opl3Type::nuked: return nuked_opl3;
+		default: return unknown;
 	}
 }
 
-const std::string& sd_get_resampling_lpf_long_name(bool is_enabled)
+namespace {
+
+void sd_initialize_voice(bstone::Voice& voice)
 {
-	static const auto on = std::string{"On"};
-	static const auto off = std::string{"Off"};
-	return is_enabled ? on : off;
+	voice.handle.reset();
+	voice.gain = bstone::audio_mixer_max_gain;
 }
 
-namespace
+void sd_initialize_voices()
 {
+	sd_initialize_voice(sd_music_voice_);
+
+	sd_initialize_voice(sd_ui_sfx_voice_);
+	sd_initialize_voice(sd_pwall_voice_);
+
+	sd_initialize_voice(sd_player_item_voice_);
+	sd_initialize_voice(sd_player_hit_wall_voice_);
+	sd_initialize_voice(sd_player_no_way_voice_);
+	sd_initialize_voice(sd_player_interrogation_voice_);
+}
 
 void sd_make_mixer(AudioDriverType audio_driver_type, int sample_rate, int mix_size_ms)
 try
 {
 	sd_mixer_ = nullptr;
+	sd_music_voice_group_ = nullptr;
+	sd_ui_sfx_voice_group_ = nullptr;
+	sd_scene_sfx_voice_group_ = nullptr;
 
 	auto param = bstone::AudioMixerInitParam{};
 	param.audio_driver_type = audio_driver_type;
@@ -245,18 +244,14 @@ try
 	param.max_voices = max_voices;
 	auto sd_mixer = bstone::make_audio_mixer(param);
 
-	auto voice_group_mgr = bstone::make_voice_group(*sd_mixer);
-
-	sd_master_voice_group = voice_group_mgr.get();
-	sd_master_voice_group->set_gain(1.0);
-
-	sd_ui_sfx_voice_group = &sd_master_voice_group->add_group();
-	sd_scene_sfx_voice_group = &sd_master_voice_group->add_group();
-	sd_music_voice_group = &sd_master_voice_group->add_group();
-	sd_player_voice_group = &sd_master_voice_group->add_group();
+	auto music_voice_group = bstone::make_voice_group(*sd_mixer);
+	auto ui_sfx_voice_group = bstone::make_voice_group(*sd_mixer);
+	auto scene_sfx_voice_group = bstone::make_voice_group(*sd_mixer);
 
 	sd_mixer_.swap(sd_mixer);
-	sd_voice_group_mgr.swap(voice_group_mgr);
+	sd_music_voice_group_.swap(music_voice_group);
+	sd_ui_sfx_voice_group_.swap(ui_sfx_voice_group);
+	sd_scene_sfx_voice_group_.swap(scene_sfx_voice_group);
 }
 catch (...)
 {
@@ -285,13 +280,11 @@ void sd_startup()
 
 		{
 			const auto& snd_rate_string = g_args.get_option_value("snd_rate");
-
 			static_cast<void>(bstone::StringHelper::string_to_int(snd_rate_string, snd_rate));
 		}
 
 		{
 			const auto& snd_mix_size_string = g_args.get_option_value("snd_mix_size");
-
 			static_cast<void>(bstone::StringHelper::string_to_int(snd_mix_size_string, snd_mix_size));
 		}
 
@@ -370,6 +363,8 @@ void sd_startup()
 
 	if (sd_has_audio_)
 	{
+		sd_initialize_voices();
+
 		if (sd_is_sound_enabled_)
 		{
 			sd_enable_sound(true);
@@ -392,49 +387,59 @@ void sd_shutdown()
 
 	sd_mixer_ = nullptr;
 	audio_content_mgr = nullptr;
+
+	sd_music_voice_group_ = nullptr;
+	sd_ui_sfx_voice_group_ = nullptr;
+	sd_scene_sfx_voice_group_ = nullptr;
+
 	sd_started_ = false;
 }
 
 bool sd_is_playing_any_ui_sound()
 {
-	if (!sd_is_sound_enabled_ || !sd_mixer_ || !sd_scene_sfx_voice_group)
+	if (sd_mixer_ == nullptr || !sd_is_sound_enabled_ || sd_ui_sfx_voice_group_ == nullptr)
 	{
 		return false;
 	}
 
-	return sd_scene_sfx_voice_group->is_any_playing();
+	return sd_ui_sfx_voice_group_->is_any_playing();
 }
 
 bool sd_is_music_playing()
 {
-	if (!sd_mixer_ || !sd_is_music_enabled_)
+	if (sd_mixer_ == nullptr || !sd_is_music_enabled_)
 	{
 		return false;
 	}
 
-	return sd_music_voice_group->is_any_playing();
+	return sd_music_voice_group_->is_any_playing();
 }
 
 // If a sound is playing, stops it.
 void sd_stop_sound()
 {
-	if (!sd_mixer_ || !sd_is_music_enabled_)
+	if (sd_mixer_ == nullptr || !sd_is_music_enabled_)
 	{
 		return;
 	}
 
-	sd_scene_sfx_voice_group->stop();
+	sd_music_voice_group_->stop();
+	sd_ui_sfx_voice_group_->stop();
+	sd_scene_sfx_voice_group_->stop();
 }
 
 // Waits until the current sound is done playing.
 void sd_wait_sound_done()
 {
-	if (!sd_is_sound_enabled_ || !sd_mixer_ || !sd_ui_sfx_voice_group || !sd_scene_sfx_voice_group)
+	if (sd_mixer_ == nullptr ||
+		!sd_is_sound_enabled_ ||
+		sd_ui_sfx_voice_group_ == nullptr ||
+		sd_scene_sfx_voice_group_ == nullptr)
 	{
 		return;
 	}
 
-	while (sd_ui_sfx_voice_group->is_any_playing() || sd_scene_sfx_voice_group->is_any_playing())
+	while (sd_ui_sfx_voice_group_->is_any_playing() || sd_scene_sfx_voice_group_->is_any_playing())
 	{
 		sys_default_sleep_for();
 	}
@@ -443,16 +448,16 @@ void sd_wait_sound_done()
 // Turns on the sequencer.
 void sd_music_on(bool is_looping)
 {
-	if (!sd_mixer_ || !sd_is_sound_enabled_ || sd_music_index_ < 0)
+	if (sd_mixer_ == nullptr || !sd_is_sound_enabled_ || sd_music_index_ < 0)
 	{
 		return;
 	}
 
 	sd_sq_active_ = true;
+	sd_music_voice_group_->stop();
 
 	const auto& audio_chunk = audio_content_mgr->get_adlib_music_chunk(sd_music_index_);
 
-	sd_music_voice_group->stop();
 	auto play_sound_param = bstone::AudioMixerPlaySoundParam{};
 	play_sound_param.sound_type = bstone::SoundType::adlib_music;
 	play_sound_param.sound_index = 0;
@@ -460,20 +465,20 @@ void sd_music_on(bool is_looping)
 	play_sound_param.data_size = audio_chunk.data_size;
 	play_sound_param.is_looping = is_looping;
 	play_sound_param.is_r3 = false;
-	const auto voice_handle = sd_mixer_->play_sound(play_sound_param);
-	sd_music_voice_group->add_voice(voice_handle);
+	sd_music_voice_.handle = sd_mixer_->play_sound(play_sound_param);
+	sd_music_voice_group_->add_voice(sd_music_voice_);
 }
 
 // Turns off the sequencer and any playing notes.
 void sd_music_off()
 {
-	if (!sd_mixer_ || !sd_is_sound_enabled_)
+	if (sd_mixer_ == nullptr || !sd_is_sound_enabled_)
 	{
 		return;
 	}
 
 	sd_sq_active_ = false;
-	sd_music_voice_group->stop();
+	sd_music_voice_group_->stop();
 }
 
 // Starts playing the music pointed to.
@@ -489,24 +494,62 @@ void sd_start_music(int index, bool is_looping)
 	}
 }
 
-// BBi
+namespace {
 
-void sd_stop_voice(bstone::AudioMixerVoiceHandle& voice_handle, bstone::VoiceGroup& voice_group)
+double sd_calculate_voice_r3_attenuation(const bstone::AudioMixerVoiceR3Position& voice_r3_position)
 {
-	voice_group.remove_voice(voice_handle);
-	sd_mixer_->stop_voice(voice_handle);
-	voice_handle.reset();
+	const auto distance = bstone::AudioMixerUtils::get_distance(
+		sd_listener_r3_position_,
+		voice_r3_position);
+
+	if (distance > 7.0)
+	{
+		return 2988.0 / 32768.0;
+	}
+	else if (distance > 6.0)
+	{
+		return 5436.0 / 32768.0;
+	}
+	else if (distance > 5.0)
+	{
+		return 7332.0 / 32768.0;
+	}
+	else if (distance > 4.0)
+	{
+		return 9892.0 / 32768.0;
+	}
+	else if (distance > 3.0)
+	{
+		return 15676.0 / 32768.0;
+	}
+	else if (distance > 2.0)
+	{
+		return 21146.0 / 32768.0;
+	}
+	else if (distance > 1.0)
+	{
+		return 28528.0 / 32768.0;
+	}
+	else
+	{
+		return 1.0;
+	}
 }
 
-bstone::AudioMixerVoiceHandle sd_play_non_positional_sfx_sound(int sound_index, bstone::VoiceGroup& voice_group)
+}
+
+void sd_play_non_positional_sfx_sound(
+	int sound_index,
+	bstone::Voice& voice,
+	bstone::VoiceGroup& voice_group)
 {
-	auto result = bstone::AudioMixerVoiceHandle{};
+	voice_group.stop_and_remove_voice(voice);
 
 	const auto& audio_chunk = audio_content_mgr->get_sfx_chunk(sound_index);
 
-	if (!audio_chunk.data || audio_chunk.data_size == 0)
+	if (audio_chunk.data == nullptr || audio_chunk.data_size == 0)
 	{
-		return result;
+		return;
 	}
 
 	auto sound_type = bstone::SoundType::none;
@@ -536,25 +579,29 @@ bstone::AudioMixerVoiceHandle sd_play_non_positional_sfx_sound(int sound_index, 
 	play_sound_param.data_size = audio_chunk.data_size;
 	play_sound_param.is_looping = false;
 	play_sound_param.is_r3 = false;
-	const auto voice_handle = sd_mixer_->play_sound(play_sound_param);
+	voice.handle = sd_mixer_->play_sound(play_sound_param);
+	voice.gain = bstone::audio_mixer_max_gain;
 
-	if (voice_handle.is_valid())
+	if (!voice.handle.is_valid())
 	{
-		voice_group.add_voice(voice_handle);
+		return;
 	}
 
-	return voice_handle;
+	voice_group.add_voice(voice);
 }
 
-bstone::AudioMixerVoiceHandle sd_play_positional_sfx_sound(int sound_index, bstone::VoiceGroup& voice_group, const bstone::AudioMixerVoiceR3Position& r3_position)
+void sd_play_positional_sfx_sound(
+	int sound_index,
+	bstone::Voice& voice,
+	bstone::VoiceGroup& voice_group,
+	const bstone::AudioMixerVoiceR3Position& r3_position)
 {
-	auto result = bstone::AudioMixerVoiceHandle{};
-
+	voice_group.stop_voice(voice);
 	const auto& audio_chunk = audio_content_mgr->get_sfx_chunk(sound_index);
 
 	if (!audio_chunk.data || audio_chunk.data_size == 0)
 	{
-		return result;
+		return;
 	}
 
 	auto sound_type = bstone::SoundType::none;
@@ -584,164 +631,200 @@ bstone::AudioMixerVoiceHandle sd_play_positional_sfx_sound(int sound_index, bsto
 	play_sound_param.data_size = audio_chunk.data_size;
 	play_sound_param.is_looping = false;
 	play_sound_param.is_r3 = true;
-	const auto voice_handle = sd_mixer_->play_sound(play_sound_param);
+	voice.handle = sd_mixer_->play_sound(play_sound_param);
 	
-	if (voice_handle.is_valid())
+	if (!voice.handle.is_valid())
 	{
-		sd_mixer_->set_voice_r3_position(voice_handle, r3_position);
-		voice_group.add_voice(voice_handle);
+		return;
 	}
 
-	return voice_handle;
+	voice_group.add_voice(voice);
+	sd_mixer_->set_voice_r3_position(voice.handle, r3_position);
+	const auto gain = sd_calculate_voice_r3_attenuation(r3_position);
+	voice_group.set_voice_gain(voice, gain);
 }
 
 void sd_update_listener_r3_position()
 {
-	const auto listener_r3_position = bstone::AudioMixerUtils::make_r3_position_from_w3d_coords(player->x, player->y, 0.5);
-	sd_mixer_->set_listener_r3_position(bstone::AudioMixerListenerR3Position{listener_r3_position});
+	sd_listener_r3_position_ = bstone::AudioMixerUtils::make_r3_position_from_w3d_coords(
+		player->x,
+		player->y,
+		0.5);
+
+	sd_mixer_->set_listener_r3_position(bstone::AudioMixerListenerR3Position{sd_listener_r3_position_});
 }
 
 void sd_update_listener_r3_orientation()
 {
-	const auto listener_r3_orientation = bstone::AudioMixerUtils::make_listener_r3_orientation_from_w3d_view(viewcos, viewsin);
+	const auto listener_r3_orientation = bstone::AudioMixerUtils::make_listener_r3_orientation_from_w3d_view(
+		viewcos,
+		viewsin);
+
 	sd_mixer_->set_listener_r3_orientation(listener_r3_orientation);
 }
 
 void sd_play_ui_sound(int sound_index)
 {
-	sd_play_non_positional_sfx_sound(sound_index, *sd_ui_sfx_voice_group);
+	sd_play_non_positional_sfx_sound(sound_index, sd_ui_sfx_voice_, *sd_ui_sfx_voice_group_);
 }
 
-namespace
-{
+namespace {
 
 bstone::AudioMixerVoiceR3Position make_r3_position_from_actor(const objtype& actor)
 {
 	const auto x = actor.x;
 	const auto y = actor.y;
-	const auto z = 0.5;
+	constexpr auto z = 0.5;
 	return bstone::AudioMixerUtils::make_r3_position_from_w3d_coords(x, y, z);
 }
 
-void sd_play_actor_sound(int sound_index, objtype& actor, bstone::VoiceGroup& voice_group, bstone::AudioMixerVoiceHandle& voice_handle)
+void sd_play_actor_sound(
+	int sound_index,
+	objtype& actor,
+	bstone::Voice& voice,
+	bstone::VoiceGroup& voice_group)
 {
 	const auto r3_position = make_r3_position_from_actor(actor);
-	voice_handle = sd_play_positional_sfx_sound(sound_index, voice_group, r3_position);
+	sd_play_positional_sfx_sound(sound_index, voice, voice_group, r3_position);
 }
 
 } // namespace
 
 void sd_play_actor_voice_sound(int sound_index, objtype& actor)
 {
-	if (!sd_mixer_ || !sd_is_sound_enabled_)
+	if (sd_mixer_ == nullptr || !sd_is_sound_enabled_)
 	{
 		return;
 	}
 
-	sd_play_actor_sound(sound_index, actor, *sd_scene_sfx_voice_group, actor.voice_voice_handle);
+	sd_play_actor_sound(sound_index, actor, actor.voice_voice, *sd_scene_sfx_voice_group_);
 }
 
 void sd_play_actor_weapon_sound(int sound_index, objtype& actor)
 {
-	if (!sd_mixer_ || !sd_is_sound_enabled_)
+	if (sd_mixer_ == nullptr || !sd_is_sound_enabled_)
 	{
 		return;
 	}
 
-	sd_play_actor_sound(sound_index, actor, *sd_scene_sfx_voice_group, actor.weapon_voice_handle);
+	sd_play_actor_sound(sound_index, actor, actor.weapon_voice, *sd_scene_sfx_voice_group_);
 }
 
-namespace
-{
+namespace {
 
-void sd_play_player_sound(int sound_index, bstone::AudioMixerVoiceHandle& voice_handle)
+void sd_play_player_sound(int sound_index, bstone::Voice& voice)
 {
-	sd_stop_voice(voice_handle, *sd_scene_sfx_voice_group);
-	voice_handle = sd_play_non_positional_sfx_sound(sound_index, *sd_scene_sfx_voice_group);
+	sd_scene_sfx_voice_group_->stop_voice(voice);
+	sd_play_non_positional_sfx_sound(sound_index, voice, *sd_scene_sfx_voice_group_);
 }
 
 } // namespace
 
 void sd_play_player_voice_sound(int sound_index)
 {
-	if (!sd_mixer_ || !sd_is_sound_enabled_ || !player)
+	if (sd_mixer_ == nullptr || !sd_is_sound_enabled_ || player == nullptr)
 	{
 		return;
 	}
 
-	sd_play_player_sound(sound_index, player->voice_voice_handle);
+	sd_play_player_sound(sound_index, player->voice_voice);
 }
 
 void sd_play_player_weapon_sound(int sound_index)
 {
-	if (!sd_mixer_ || !sd_is_sound_enabled_ || !player)
+	if (sd_mixer_ == nullptr || !sd_is_sound_enabled_ || player == nullptr)
 	{
 		return;
 	}
 
-	sd_play_player_sound(sound_index, player->weapon_voice_handle);
+	sd_play_player_sound(sound_index, player->weapon_voice);
 }
 
 void sd_play_player_item_sound(int sound_index)
 {
-	if (!sd_mixer_ || !sd_is_sound_enabled_)
+	if (sd_mixer_ == nullptr || !sd_is_sound_enabled_)
 	{
 		return;
 	}
 
-	sd_play_player_sound(sound_index, sd_player_item_voice_handle);
+	sd_play_player_sound(sound_index, sd_player_item_voice_);
 }
 
 void sd_play_player_hit_wall_sound(int sound_index)
 {
-	if (!sd_mixer_ || !sd_is_sound_enabled_)
+	if (sd_mixer_ == nullptr || !sd_is_sound_enabled_)
 	{
 		return;
 	}
 
-	sd_play_player_sound(sound_index, sd_player_hit_wall_voice_handle);
+	sd_play_player_sound(sound_index, sd_player_hit_wall_voice_);
 }
 
 void sd_play_player_no_way_sound(int sound_index)
 {
-	if (!sd_mixer_ || !sd_is_sound_enabled_)
+	if (sd_mixer_ == nullptr || !sd_is_sound_enabled_)
 	{
 		return;
 	}
 
-	sd_play_player_sound(sound_index, sd_player_no_way_voice_handle);
+	sd_play_player_sound(sound_index, sd_player_no_way_voice_);
 }
 
 void sd_play_player_interrogation_sound(int sound_index)
 {
-	if (!sd_mixer_ || !sd_is_sound_enabled_)
+	if (sd_mixer_ == nullptr || !sd_is_sound_enabled_)
 	{
 		return;
 	}
 
-	sd_play_player_sound(sound_index, sd_player_interrogation_voice_handle);
+	sd_play_player_sound(sound_index, sd_player_interrogation_voice_);
+}
+
+namespace {
+
+bstone::AudioMixerVoiceR3Position sd_make_door_r3_position(const doorobj_t& bs_door) noexcept
+{
+	auto x = bs_door.tilex + 0.5;
+	auto y = bs_door.tiley + 0.5;
+	constexpr auto z = 0.5;
+	return bstone::AudioMixerUtils::make_r3_position_from_w3d_coords(x, y, z);
+}
+
+void sd_update_door(doorobj_t& bs_door)
+{
+	const auto r3_position = sd_make_door_r3_position(bs_door);
+	const auto gain = sd_calculate_voice_r3_attenuation(r3_position);
+	sd_scene_sfx_voice_group_->set_voice_gain(bs_door.voice, gain);
+}
+
+void sd_update_doors()
+{
+	for (auto& bs_door : doorobjlist)
+	{
+		sd_update_door(bs_door);
+	}
+}
+
 }
 
 void sd_play_door_sound(int sound_index, doorobj_t& door)
 {
-	if (!sd_mixer_ || !sd_is_sound_enabled_)
+	if (sd_mixer_ == nullptr || !sd_is_sound_enabled_)
 	{
 		return;
 	}
 
-	sd_stop_voice(door.voice_handle, *sd_scene_sfx_voice_group);
-	const auto r3_position = bstone::AudioMixerUtils::make_r3_position_from_w3d_coords(door.tilex + 0.5, door.tiley + 0.5, 0.5);
-	door.voice_handle = sd_play_positional_sfx_sound(sound_index, *sd_scene_sfx_voice_group, r3_position);
+	const auto r3_position = sd_make_door_r3_position(door);
+	sd_play_positional_sfx_sound(sound_index, door.voice, *sd_scene_sfx_voice_group_, r3_position);
 }
 
-namespace
-{
+namespace {
 
 bstone::AudioMixerVoiceR3Position sd_make_pwall_r3_position() noexcept
 {
 	auto x = pwallx + 0.5;
 	auto y = pwally + 0.5;
-	const auto z = 0.5;
+	constexpr auto z = 0.5;
 
 	switch (pwalldir)
 	{
@@ -770,70 +853,54 @@ bstone::AudioMixerVoiceR3Position sd_make_pwall_r3_position() noexcept
 
 void sd_update_pwall()
 {
-	if (!sd_mixer_ || !sd_is_sound_enabled_ || !sd_pwall_voice_handle.is_valid())
+	if (sd_mixer_ == nullptr || !sd_is_sound_enabled_)
 	{
 		return;
 	}
 
 	const auto r3_position = sd_make_pwall_r3_position();
-	sd_mixer_->set_voice_r3_position(sd_pwall_voice_handle, r3_position);
+	sd_mixer_->set_voice_r3_position(sd_pwall_voice_.handle, r3_position);
+
+	const auto gain = sd_calculate_voice_r3_attenuation(r3_position);
+	sd_scene_sfx_voice_group_->set_voice_gain(sd_pwall_voice_, gain);
 }
 
 } // namespace
 
 void sd_play_pwall_sound(int sound_index)
 {
-	if (!sd_mixer_ || !sd_is_sound_enabled_)
+	if (sd_mixer_ == nullptr || !sd_is_sound_enabled_)
 	{
 		return;
 	}
 
-	sd_stop_voice(sd_pwall_voice_handle, *sd_scene_sfx_voice_group);
 	const auto r3_position = sd_make_pwall_r3_position();
-	sd_pwall_voice_handle = sd_play_positional_sfx_sound(sound_index, *sd_scene_sfx_voice_group, r3_position);
+	sd_play_positional_sfx_sound(sound_index, sd_pwall_voice_, *sd_scene_sfx_voice_group_, r3_position);
 }
 
-namespace
-{
+namespace {
 
-void sd_update_actor_r3_positions()
+void sd_update_actors()
 {
-	if (sd_r3_position_cache.empty())
-	{
-		return;
-	}
-
 	constexpr auto z = 0.5;
 
 	for (auto actor = player->next; actor; actor = actor->next)
 	{
-		const auto actor_index = actor - objlist;
-		auto& cache_item = sd_r3_position_cache[actor_index];
-
-		if (cache_item.x == actor->x && cache_item.y == actor->y)
-		{
-			continue;
-		}
-
-		cache_item.x = actor->x;
-		cache_item.y = actor->y;
 		const auto r3_position = bstone::AudioMixerUtils::make_r3_position_from_w3d_coords(actor->x, actor->y, z);
-		sd_mixer_->set_voice_r3_position(actor->voice_voice_handle, r3_position);
-		sd_mixer_->set_voice_r3_position(actor->weapon_voice_handle, r3_position);
+		sd_mixer_->set_voice_r3_position(actor->voice_voice.handle, r3_position);
+		sd_mixer_->set_voice_r3_position(actor->weapon_voice.handle, r3_position);
+
+		const auto gain = sd_calculate_voice_r3_attenuation(r3_position);
+		sd_scene_sfx_voice_group_->set_voice_gain(actor->voice_voice, gain);
+		sd_scene_sfx_voice_group_->set_voice_gain(actor->weapon_voice, gain);
 	}
 }
 
 } // namespace
 
-void sd_reset_r3_position_cache()
+void sd_update()
 {
-	sd_r3_position_cache.clear();
-	sd_r3_position_cache.resize(MAXACTORS);
-}
-
-void sd_update_positions()
-{
-	if (!sd_mixer_ || !sd_is_sound_enabled_)
+	if (sd_mixer_ == nullptr || !sd_is_sound_enabled_)
 	{
 		return;
 	}
@@ -843,48 +910,49 @@ void sd_update_positions()
 		[]()
 		{
 			sd_mixer_->resume_state();
-		}};
+		}
+	};
 
 	sd_mixer_->suspend_state();
-	sd_update_pwall();
-	sd_update_actor_r3_positions();
 	sd_update_listener_r3_position();
 	sd_update_listener_r3_orientation();
+	sd_update_pwall();
+	sd_update_doors();
+	sd_update_actors();
 }
 
-namespace
-{
+namespace {
 
-bool sd_is_player_sound_playing(bstone::AudioMixerVoiceHandle voice_handle)
+bool sd_is_player_sound_playing(bstone::Voice& voice)
 {
-	return sd_mixer_->is_voice_playing(voice_handle);
+	return sd_mixer_->is_voice_playing(voice.handle);
 }
 
 } // namespace
 
 bool sd_is_player_hit_wall_sound_playing()
 {
-	if (!sd_mixer_ || !sd_is_sound_enabled_)
+	if (sd_mixer_ == nullptr || !sd_is_sound_enabled_)
 	{
 		return false;
 	}
 
-	return sd_is_player_sound_playing(sd_player_hit_wall_voice_handle);
+	return sd_is_player_sound_playing(sd_player_hit_wall_voice_);
 }
 
 bool sd_is_player_no_way_sound_playing()
 {
-	if (!sd_mixer_ || !sd_is_sound_enabled_)
+	if (sd_mixer_ == nullptr || !sd_is_sound_enabled_)
 	{
 		return false;
 	}
 
-	return sd_is_player_sound_playing(sd_player_no_way_voice_handle);
+	return sd_is_player_sound_playing(sd_player_no_way_voice_);
 }
 
 void sd_set_sfx_volume(int volume)
 {
-	if (!sd_mixer_)
+	if (sd_mixer_ == nullptr)
 	{
 		return;
 	}
@@ -902,36 +970,25 @@ void sd_set_sfx_volume(int volume)
 	}
 
 	const auto gain = static_cast<double>(new_volume) / static_cast<double>(sd_max_volume);
-	sd_ui_sfx_voice_group->set_gain(gain);
-	sd_scene_sfx_voice_group->set_gain(gain);
+	sd_ui_sfx_voice_group_->set_gain(gain);
+	sd_scene_sfx_voice_group_->set_gain(gain);
 }
 
 void sd_set_music_volume(int volume)
 {
-	if (!sd_mixer_)
+	if (sd_mixer_ == nullptr)
 	{
 		return;
 	}
 
-	auto new_volume = volume;
-
-	if (new_volume < sd_min_volume)
-	{
-		new_volume = sd_min_volume;
-	}
-
-	if (new_volume > sd_max_volume)
-	{
-		new_volume = sd_max_volume;
-	}
-
+	const auto new_volume = bstone::math::clamp(volume, sd_min_volume, sd_max_volume);
 	const auto gain = static_cast<double>(new_volume) / static_cast<double>(sd_max_volume);
-	sd_music_voice_group->set_gain(gain);
+	sd_music_voice_group_->set_gain(gain);
 }
 
 void sd_mute(bool mute)
 {
-	if (!sd_mixer_ || !sd_is_sound_enabled_)
+	if (sd_mixer_ == nullptr || !sd_is_sound_enabled_)
 	{
 		return;
 	}
@@ -939,43 +996,43 @@ void sd_mute(bool mute)
 	sd_mixer_->set_mute(mute);
 }
 
-void sd_pause_sfx(bool is_pause)
+void sd_pause_scene_sfx(bool is_pause)
 {
-	if (!sd_mixer_ || !sd_is_sound_enabled_)
+	if (sd_mixer_ == nullptr || !sd_is_sound_enabled_)
 	{
 		return;
 	}
 
 	if (is_pause)
 	{
-		sd_scene_sfx_voice_group->pause();
+		sd_scene_sfx_voice_group_->pause();
 	}
 	else
 	{
-		sd_scene_sfx_voice_group->resume();
+		sd_scene_sfx_voice_group_->resume();
 	}
 }
 
 void sd_pause_music(bool is_pause)
 {
-	if (!sd_mixer_ || !sd_is_sound_enabled_)
+	if (sd_mixer_ == nullptr || !sd_is_sound_enabled_)
 	{
 		return;
 	}
 
 	if (is_pause)
 	{
-		sd_music_voice_group->pause();
+		sd_music_voice_group_->pause();
 	}
 	else
 	{
-		sd_music_voice_group->resume();
+		sd_music_voice_group_->resume();
 	}
 }
 
 void apply_digitized_sfx()
 {
-	if (!audio_content_mgr)
+	if (audio_content_mgr == nullptr)
 	{
 		return;
 	}
@@ -1028,6 +1085,7 @@ void sd_set_opl3_type(bstone::Opl3Type opl3_type)
 			{
 				sd_opl3_type_ = opl3_type;
 			}
+
 			break;
 
 		default:
@@ -1350,4 +1408,3 @@ void sd_cfg_write(bstone::TextWriter& text_writer)
 		);
 	}
 }
-// BBi

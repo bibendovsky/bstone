@@ -121,8 +121,7 @@ void sd_play_player_interrogation_sound(int sound_index);
 void sd_play_door_sound(int sound_index, doorobj_t& door);
 void sd_play_pwall_sound(int sound_index);
 
-void sd_reset_r3_position_cache();
-void sd_update_positions();
+void sd_update();
 
 bool sd_is_player_hit_wall_sound_playing();
 bool sd_is_player_no_way_sound_playing();
@@ -131,7 +130,7 @@ void sd_set_sfx_volume(int volume);
 void sd_set_music_volume(int volume);
 
 void sd_mute(bool mute);
-void sd_pause_sfx(bool is_pause);
+void sd_pause_scene_sfx(bool is_pause);
 void sd_pause_music(bool is_pause);
 
 AudioSfxType sd_cfg_get_sfx_type() noexcept;
