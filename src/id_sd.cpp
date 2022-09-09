@@ -81,6 +81,8 @@ public:
 
 bstone::AudioContentMgrUPtr audio_content_mgr{};
 
+auto sd_use_voice_output_gains_ = false;
+
 auto sd_sfx_type = AudioSfxType::adlib;
 auto sd_is_sfx_digitized = true;
 
@@ -96,6 +98,12 @@ auto sd_player_item_voice_ = bstone::Voice{};
 auto sd_player_hit_wall_voice_ = bstone::Voice{};
 auto sd_player_no_way_voice_ = bstone::Voice{};
 auto sd_player_interrogation_voice_ = bstone::Voice{};
+
+auto sd_player_x_ = 0.0;
+auto sd_player_y_ = 0.0;
+
+auto sd_viewsin_ = 0.0;
+auto sd_viewcos_ = 0.0;
 
 auto sd_listener_r3_position_ = bstone::AudioMixerR3Vector{};
 
@@ -211,8 +219,10 @@ namespace {
 
 void sd_initialize_voice(bstone::Voice& voice)
 {
+	voice.use_output_gains = false;
 	voice.handle.reset();
 	voice.gain = bstone::audio_mixer_max_gain;
+	voice.output_gains.fill(1.0);
 }
 
 void sd_initialize_voices()
@@ -243,11 +253,13 @@ try
 	param.mix_size_ms = mix_size_ms;
 	param.max_voices = max_voices;
 	auto sd_mixer = bstone::make_audio_mixer(param);
+	const auto use_voice_output_gains = sd_mixer->can_set_voice_output_gains();
 
 	auto music_voice_group = bstone::make_voice_group(*sd_mixer);
 	auto ui_sfx_voice_group = bstone::make_voice_group(*sd_mixer);
 	auto scene_sfx_voice_group = bstone::make_voice_group(*sd_mixer);
 
+	sd_use_voice_output_gains_ = use_voice_output_gains;
 	sd_mixer_.swap(sd_mixer);
 	sd_music_voice_group_.swap(music_voice_group);
 	sd_ui_sfx_voice_group_.swap(ui_sfx_voice_group);
@@ -392,6 +404,7 @@ void sd_shutdown()
 	sd_ui_sfx_voice_group_ = nullptr;
 	sd_scene_sfx_voice_group_ = nullptr;
 
+	sd_use_voice_output_gains_ = false;
 	sd_started_ = false;
 }
 
@@ -496,44 +509,90 @@ void sd_start_music(int index, bool is_looping)
 
 namespace {
 
-double sd_calculate_voice_r3_attenuation(const bstone::AudioMixerVoiceR3Position& voice_r3_position)
-{
-	const auto distance = bstone::AudioMixerUtils::get_distance(
-		sd_listener_r3_position_,
-		voice_r3_position);
+constexpr auto ATABLEMAX = 15;
 
-	if (distance > 7.0)
-	{
-		return 2988.0 / 32768.0;
-	}
-	else if (distance > 6.0)
-	{
-		return 5436.0 / 32768.0;
-	}
-	else if (distance > 5.0)
-	{
-		return 7332.0 / 32768.0;
-	}
-	else if (distance > 4.0)
-	{
-		return 9892.0 / 32768.0;
-	}
-	else if (distance > 3.0)
-	{
-		return 15676.0 / 32768.0;
-	}
-	else if (distance > 2.0)
-	{
-		return 21146.0 / 32768.0;
-	}
-	else if (distance > 1.0)
-	{
-		return 28528.0 / 32768.0;
-	}
-	else
-	{
-		return 1.0;
-	}
+int righttable[ATABLEMAX][ATABLEMAX * 2] =
+{
+	{8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 6, 0, 0, 0, 0, 0, 1, 3, 5, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 6, 4, 0, 0, 0, 0, 0, 2, 4, 6, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 6, 6, 4, 1, 0, 0, 0, 1, 2, 4, 6, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 6, 5, 4, 2, 1, 0, 1, 2, 3, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 6, 5, 4, 3, 2, 2, 3, 3, 5, 6, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 6, 6, 5, 4, 4, 4, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 6, 6, 5, 5, 5, 6, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 6, 6, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8}
+};
+
+int lefttable[ATABLEMAX][ATABLEMAX * 2] =
+{
+	{8, 8, 8, 8, 8, 8, 8, 8, 5, 3, 1, 0, 0, 0, 0, 0, 6, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 6, 4, 2, 0, 0, 0, 0, 0, 4, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 6, 4, 2, 1, 0, 0, 0, 1, 4, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 3, 2, 1, 0, 1, 2, 4, 5, 6, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 6, 5, 3, 3, 2, 2, 3, 4, 5, 6, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 6, 5, 4, 4, 4, 4, 5, 6, 6, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 6, 6, 5, 5, 5, 6, 6, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 6, 6, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8}
+};
+
+void sd_calculate_w3d_indices(
+	double emitter_x,
+	double emitter_y,
+	int& w3d_left_index,
+	int& w3d_right_index)
+{
+	const auto gx = emitter_x - sd_player_x_;
+	const auto gy = emitter_y - sd_player_y_;
+
+	const auto xt_c = gx * sd_viewcos_;
+	const auto yt_s = gy * sd_viewsin_;
+	const auto x = bstone::math::clamp(std::abs(static_cast<int>(xt_c - yt_s)), 0, ATABLEMAX - 1);
+
+	const auto xt_s = gx * sd_viewsin_;
+	const auto yt_c = gy * sd_viewcos_;
+	const auto y = bstone::math::clamp(static_cast<int>(yt_c + xt_s), -ATABLEMAX, ATABLEMAX - 1);
+
+	w3d_left_index = lefttable[x][y + ATABLEMAX];
+	w3d_right_index = righttable[x][y + ATABLEMAX];
+}
+
+void sd_calculate_voice_gain(
+	const bstone::AudioMixerVoiceR3Position& voice_r3_position,
+	bstone::Voice& voice)
+{
+	int w3d_left_index;
+	int w3d_right_index;
+	sd_calculate_w3d_indices(voice_r3_position.x, voice_r3_position.z, w3d_left_index, w3d_right_index);
+
+	const auto index = (w3d_left_index + w3d_right_index) / 2.0;
+	const auto gain = 1.0 - (index / 9.0);
+	voice.gain = gain;
+}
+
+void sd_calculate_voice_output_gains(
+	const bstone::AudioMixerVoiceR3Position& voice_r3_position,
+	bstone::Voice& voice)
+{
+	int w3d_left_index;
+	int w3d_right_index;
+	sd_calculate_w3d_indices(voice_r3_position.x, voice_r3_position.z, w3d_left_index, w3d_right_index);
+
+	voice.output_gains[0] = 1.0 - (w3d_left_index / 9.0);
+	voice.output_gains[1] = 1.0 - (w3d_right_index / 9.0);
 }
 
 }
@@ -579,8 +638,8 @@ void sd_play_non_positional_sfx_sound(
 	play_sound_param.data_size = audio_chunk.data_size;
 	play_sound_param.is_looping = false;
 	play_sound_param.is_r3 = false;
+	voice.use_output_gains = sd_use_voice_output_gains_;
 	voice.handle = sd_mixer_->play_sound(play_sound_param);
-	voice.gain = bstone::audio_mixer_max_gain;
 
 	if (!voice.handle.is_valid())
 	{
@@ -588,6 +647,18 @@ void sd_play_non_positional_sfx_sound(
 	}
 
 	voice_group.add_voice(voice);
+
+	if (sd_use_voice_output_gains_)
+	{
+		voice.output_gains.fill(bstone::audio_mixer_max_gain);
+		sd_mixer_->enable_set_voice_output_gains(voice.handle, true);
+		voice_group.set_voice_output_gains(voice);
+	}
+	else
+	{
+		voice.gain = bstone::audio_mixer_max_gain;
+		voice_group.set_voice_gain(voice);
+	}
 }
 
 void sd_play_positional_sfx_sound(
@@ -631,6 +702,7 @@ void sd_play_positional_sfx_sound(
 	play_sound_param.data_size = audio_chunk.data_size;
 	play_sound_param.is_looping = false;
 	play_sound_param.is_r3 = true;
+	voice.use_output_gains = sd_use_voice_output_gains_;
 	voice.handle = sd_mixer_->play_sound(play_sound_param);
 	
 	if (!voice.handle.is_valid())
@@ -639,28 +711,50 @@ void sd_play_positional_sfx_sound(
 	}
 
 	voice_group.add_voice(voice);
-	sd_mixer_->set_voice_r3_position(voice.handle, r3_position);
-	const auto gain = sd_calculate_voice_r3_attenuation(r3_position);
-	voice_group.set_voice_gain(voice, gain);
+
+	if (sd_use_voice_output_gains_)
+	{
+		sd_mixer_->enable_set_voice_output_gains(voice.handle, true);
+		sd_calculate_voice_output_gains(r3_position, voice);
+		voice_group.set_voice_output_gains(voice);
+	}
+	else
+	{
+		sd_calculate_voice_gain(r3_position, voice);
+		voice_group.set_voice_gain(voice);
+		sd_mixer_->set_voice_r3_position(voice.handle, r3_position);
+	}
 }
 
 void sd_update_listener_r3_position()
 {
+	sd_player_x_ = player->x;
+	sd_player_y_ = player->y;
+
 	sd_listener_r3_position_ = bstone::AudioMixerUtils::make_r3_position_from_w3d_coords(
-		player->x,
-		player->y,
+		sd_player_x_,
+		sd_player_y_,
 		0.5);
 
-	sd_mixer_->set_listener_r3_position(bstone::AudioMixerListenerR3Position{sd_listener_r3_position_});
+	if (!sd_use_voice_output_gains_)
+	{
+		sd_mixer_->set_listener_r3_position(bstone::AudioMixerListenerR3Position{sd_listener_r3_position_});
+	}
 }
 
 void sd_update_listener_r3_orientation()
 {
-	const auto listener_r3_orientation = bstone::AudioMixerUtils::make_listener_r3_orientation_from_w3d_view(
-		viewcos,
-		viewsin);
+	sd_viewcos_ = viewcos;
+	sd_viewsin_ = viewsin;
 
-	sd_mixer_->set_listener_r3_orientation(listener_r3_orientation);
+	const auto listener_r3_orientation = bstone::AudioMixerUtils::make_listener_r3_orientation_from_w3d_view(
+		sd_viewcos_,
+		sd_viewsin_);
+
+	if (!sd_use_voice_output_gains_)
+	{
+		sd_mixer_->set_listener_r3_orientation(listener_r3_orientation);
+	}
 }
 
 void sd_play_ui_sound(int sound_index)
@@ -752,7 +846,9 @@ void sd_play_player_item_sound(int sound_index)
 
 void sd_play_player_hit_wall_sound(int sound_index)
 {
-	if (sd_mixer_ == nullptr || !sd_is_sound_enabled_)
+	if (sd_mixer_ == nullptr ||
+		!sd_is_sound_enabled_ ||
+		sd_mixer_->is_voice_playing(sd_player_hit_wall_voice_.handle))
 	{
 		return;
 	}
@@ -793,8 +889,17 @@ bstone::AudioMixerVoiceR3Position sd_make_door_r3_position(const doorobj_t& bs_d
 void sd_update_door(doorobj_t& bs_door)
 {
 	const auto r3_position = sd_make_door_r3_position(bs_door);
-	const auto gain = sd_calculate_voice_r3_attenuation(r3_position);
-	sd_scene_sfx_voice_group_->set_voice_gain(bs_door.voice, gain);
+
+	if (sd_use_voice_output_gains_)
+	{
+		sd_calculate_voice_output_gains(r3_position, bs_door.voice);
+		sd_scene_sfx_voice_group_->set_voice_output_gains(bs_door.voice);
+	}
+	else
+	{
+		sd_calculate_voice_gain(r3_position, bs_door.voice);
+		sd_scene_sfx_voice_group_->set_voice_gain(bs_door.voice);
+	}
 }
 
 void sd_update_doors()
@@ -861,8 +966,16 @@ void sd_update_pwall()
 	const auto r3_position = sd_make_pwall_r3_position();
 	sd_mixer_->set_voice_r3_position(sd_pwall_voice_.handle, r3_position);
 
-	const auto gain = sd_calculate_voice_r3_attenuation(r3_position);
-	sd_scene_sfx_voice_group_->set_voice_gain(sd_pwall_voice_, gain);
+	if (sd_use_voice_output_gains_)
+	{
+		sd_calculate_voice_output_gains(r3_position, sd_pwall_voice_);
+		sd_scene_sfx_voice_group_->set_voice_output_gains(sd_pwall_voice_);
+	}
+	else
+	{
+		sd_calculate_voice_gain(r3_position, sd_pwall_voice_);
+		sd_scene_sfx_voice_group_->set_voice_gain(sd_pwall_voice_);
+	}
 }
 
 } // namespace
@@ -890,9 +1003,20 @@ void sd_update_actors()
 		sd_mixer_->set_voice_r3_position(actor->voice_voice.handle, r3_position);
 		sd_mixer_->set_voice_r3_position(actor->weapon_voice.handle, r3_position);
 
-		const auto gain = sd_calculate_voice_r3_attenuation(r3_position);
-		sd_scene_sfx_voice_group_->set_voice_gain(actor->voice_voice, gain);
-		sd_scene_sfx_voice_group_->set_voice_gain(actor->weapon_voice, gain);
+		if (sd_use_voice_output_gains_)
+		{
+			sd_calculate_voice_output_gains(r3_position, actor->voice_voice);
+			actor->weapon_voice.output_gains = actor->voice_voice.output_gains;
+			sd_scene_sfx_voice_group_->set_voice_output_gains(actor->voice_voice);
+			sd_scene_sfx_voice_group_->set_voice_output_gains(actor->weapon_voice);
+		}
+		else
+		{
+			sd_calculate_voice_gain(r3_position, actor->voice_voice);
+			actor->weapon_voice.output_gains = actor->voice_voice.output_gains;
+			sd_scene_sfx_voice_group_->set_voice_gain(actor->voice_voice);
+			sd_scene_sfx_voice_group_->set_voice_gain(actor->weapon_voice);
+		}
 	}
 }
 

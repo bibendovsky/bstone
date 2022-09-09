@@ -21,25 +21,17 @@ Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-#ifndef BSTONE_AUDIO_MIXER_VALIDATOR_INCLUDED
-#define BSTONE_AUDIO_MIXER_VALIDATOR_INCLUDED
+#ifndef BSTONE_AUDIO_MIXER_OUTPUT_GAINS_INCLUDED
+#define BSTONE_AUDIO_MIXER_OUTPUT_GAINS_INCLUDED
 
-#include "bstone_audio_mixer.h"
+#include <array>
 
-namespace bstone
-{
+namespace bstone {
 
-class AudioMixerValidator
-{
-public:
-	static void validate_gain(double gain);
-	static void validate_output_gains(const AudioMixerOutputGains& output_gains);
+constexpr auto audio_mixer_max_channels = 2;
 
-private:
-	[[noreturn]] static void fail(const char* message);
-	[[noreturn]] static void fail_nested(const char* message);
-}; // AudioMixerValidator
+using AudioMixerOutputGains = std::array<double, audio_mixer_max_channels>;
 
 } // bstone
 
-#endif // !BSTONE_AUDIO_MIXER_VALIDATOR_INCLUDED
+#endif // !BSTONE_AUDIO_MIXER_OUTPUT_GAINS_INCLUDED

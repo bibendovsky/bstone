@@ -75,6 +75,14 @@ public:
 	void set_voice_gain(AudioMixerVoiceHandle voice_handle, double gain) override;
 	void set_voice_r3_position(AudioMixerVoiceHandle voice_handle, const AudioMixerVoiceR3Position& r3_position) override;
 
+	bool can_set_voice_output_gains() const override;
+	void enable_set_voice_output_gains(
+		AudioMixerVoiceHandle voice_handle,
+		bool is_enable) override;
+	void set_voice_output_gains(
+		AudioMixerVoiceHandle voice_handle,
+		AudioMixerOutputGains& output_gains) override;
+
 private:
 	using Mutex = Spinlock;
 	using MutexUniqueLock = std::unique_lock<Mutex>;
@@ -274,6 +282,7 @@ private:
 	std::atomic_bool is_state_suspended_{};
 
 	[[noreturn]] static void fail(const char* message);
+	[[noreturn]] static void fail_unsupported();
 	[[noreturn]] static void fail_nested(const char* message);
 
 	int get_min_rate() const noexcept;
@@ -309,6 +318,7 @@ private:
 	static const char* get_oal_default_library_file_name() noexcept;
 
 	void initialize_oal(const AudioMixerInitParam& param);
+	void initialize_distance_model();
 	void initialize_is_mute() noexcept;
 	void initialize_gain() noexcept;
 	void initialize_listener_r3_position();
