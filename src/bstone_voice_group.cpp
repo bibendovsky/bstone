@@ -1,4 +1,5 @@
 #include <cassert>
+#include <algorithm>
 #include <unordered_set>
 #include "bstone_exception.h"
 #include "bstone_audio_mixer_validator.h"
@@ -101,10 +102,20 @@ catch (...)
 	fail_nested(__func__);
 }
 
-void VoiceGroup::set_voice_gain(Voice& voice, double gain)
+void VoiceGroup::set_voice_gain(const Voice& voice)
 try
 {
-	do_set_voice_gain(voice, gain);
+	do_set_voice_gain(voice);
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
+
+void VoiceGroup::set_voice_output_gains(const Voice& voice)
+try
+{
+	do_set_voice_output_gains(voice);
 }
 catch (...)
 {
@@ -132,8 +143,6 @@ private:
 	VoiceSet voice_set_{};
 	double gain_{};
 
-	void set_voice_gain(const Voice& voice);
-
 	bool do_is_any_playing() override;
 	void do_set_gain(double gain) override;
 	void do_pause() override;
@@ -143,7 +152,8 @@ private:
 	void do_add_voice(Voice& voice) override;
 	void do_stop_and_remove_voice(Voice& voice) override;
 	void do_stop_voice(Voice& voice) override;
-	void do_set_voice_gain(Voice&, double gain) override;
+	void do_set_voice_gain(const Voice&) override;
+	void do_set_voice_output_gains(const Voice& voice) override;
 };
 
 // --------------------------------------------------------------------------
@@ -153,12 +163,6 @@ VoiceGroupImpl::VoiceGroupImpl(AudioMixer& audio_mixer)
 	audio_mixer_{&audio_mixer},
 	gain_{audio_mixer_max_gain}
 {}
-
-void VoiceGroupImpl::set_voice_gain(const Voice& voice)
-{
-	const auto effective_gain = voice.gain * gain_;
-	audio_mixer_->set_voice_gain(voice.handle, effective_gain);
-}
 
 bool VoiceGroupImpl::do_is_any_playing()
 {
@@ -178,17 +182,11 @@ bool VoiceGroupImpl::do_is_any_playing()
 void VoiceGroupImpl::do_set_gain(double gain)
 {
 	AudioMixerValidator::validate_gain(gain);
-
-	if (gain_ == gain)
-	{
-		return;
-	}
-
 	gain_ = gain;
 
 	for (const auto& voice : voice_set_)
 	{
-		set_voice_gain(*voice);
+		voice->use_output_gains ? do_set_voice_output_gains(*voice) : do_set_voice_gain(*voice);
 	}
 }
 
@@ -237,12 +235,28 @@ void VoiceGroupImpl::do_stop_voice(Voice& voice)
 	do_stop_and_remove_voice(voice);
 }
 
-void VoiceGroupImpl::do_set_voice_gain(Voice& voice, double gain)
+void VoiceGroupImpl::do_set_voice_gain(const Voice& voice)
 {
-	AudioMixerValidator::validate_gain(gain);
-	voice.gain = gain;
+	AudioMixerValidator::validate_gain(voice.gain);
 	const auto effective_gain = voice.gain * gain_;
 	audio_mixer_->set_voice_gain(voice.handle, effective_gain);
+}
+
+void VoiceGroupImpl::do_set_voice_output_gains(const Voice& voice)
+{
+	AudioMixerOutputGains effective_output_gains;
+
+	std::transform(
+		voice.output_gains.cbegin(),
+		voice.output_gains.cend(),
+		effective_output_gains.begin(),
+		[this](const double& src_gain)
+		{
+			return src_gain * gain_;
+		}
+	);
+
+	audio_mixer_->set_voice_output_gains(voice.handle, effective_output_gains);
 }
 
 } // namespace

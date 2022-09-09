@@ -93,6 +93,7 @@ try
 
 	mix_sample_count_ = static_cast<int>((dst_rate_ * mix_size_ms_) / 1'000L);
 
+	initialize_distance_model();
 	initialize_is_mute();
 	initialize_gain();
 	update_al_gain();
@@ -414,9 +415,43 @@ catch (...)
 	fail_nested(__func__);
 }
 
+bool OalAudioMixer::can_set_voice_output_gains() const
+{
+	return false;
+}
+
+void OalAudioMixer::enable_set_voice_output_gains(
+	AudioMixerVoiceHandle,
+	bool)
+try
+{
+	fail_unsupported();
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
+
+void OalAudioMixer::set_voice_output_gains(
+	AudioMixerVoiceHandle,
+	AudioMixerOutputGains&)
+try
+{
+	fail_unsupported();
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
+
 [[noreturn]] void OalAudioMixer::fail(const char* message)
 {
 	throw OalAudioMixerException{message};
+}
+
+[[noreturn]] void OalAudioMixer::fail_unsupported()
+{
+	fail("Not supported.");
 }
 
 [[noreturn]] void OalAudioMixer::fail_nested(const char* message)
@@ -782,6 +817,12 @@ void OalAudioMixer::initialize_oal(const AudioMixerInitParam& param)
 	log_oal_al_extensions();
 
 	dst_rate_ = get_al_mixing_frequency();
+}
+
+void OalAudioMixer::initialize_distance_model()
+{
+	assert(al_symbols_.alDistanceModel != nullptr);
+	al_symbols_.alDistanceModel(AL_NONE);
 }
 
 void OalAudioMixer::initialize_is_mute() noexcept

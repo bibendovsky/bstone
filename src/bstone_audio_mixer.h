@@ -36,6 +36,7 @@ Free Software Foundation, Inc.,
 #include <memory>
 #include <utility>
 #include "audio.h"
+#include "bstone_audio_mixer_output_gains.h"
 #include "bstone_audio_mixer_voice_handle.h"
 #include "bstone_opl3.h"
 
@@ -157,6 +158,14 @@ public:
 
 	virtual void set_voice_gain(AudioMixerVoiceHandle voice_handle, double gain) = 0;
 	virtual void set_voice_r3_position(AudioMixerVoiceHandle voice_handle, const AudioMixerVoiceR3Position& r3_position) = 0;
+
+	virtual bool can_set_voice_output_gains() const = 0;
+	virtual void enable_set_voice_output_gains(
+		AudioMixerVoiceHandle voice_handle,
+		bool is_enable) = 0;
+	virtual void set_voice_output_gains(
+		AudioMixerVoiceHandle voice_handle,
+		AudioMixerOutputGains& output_gains) = 0;
 }; // AudioMixer
 
 // ==========================================================================

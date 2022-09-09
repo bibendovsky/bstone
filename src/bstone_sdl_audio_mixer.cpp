@@ -73,11 +73,6 @@ bool SdlAudioMixer::CacheItem::is_decoded() const noexcept
 	return decoded_count == samples_count;
 }
 
-bool SdlAudioMixer::Voice::is_audible() const noexcept
-{
-	return left_gain > 0.0 || right_gain > 0.0;
-}
-
 SdlAudioMixer::SdlAudioMixer(const AudioMixerInitParam& param)
 try
 {
@@ -402,6 +397,59 @@ catch (...)
 	fail_nested(__func__);
 }
 
+bool SdlAudioMixer::can_set_voice_output_gains() const
+{
+	return true;
+}
+
+void SdlAudioMixer::enable_set_voice_output_gains(
+	AudioMixerVoiceHandle voice_handle,
+	bool is_enable)
+try
+{
+	if (!voice_handle.is_valid())
+	{
+		return;
+	}
+
+	auto command = Command{};
+	command.type = CommandType::enable_set_voice_output_gains;
+	command.param.enable_set_voice_output_gains.handle = voice_handle;
+	command.param.enable_set_voice_output_gains.is_enable = is_enable;
+
+	MtLockGuard guard_lock{mt_commands_lock_};
+	mt_commands_.push_back(command);
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
+
+void SdlAudioMixer::set_voice_output_gains(
+	AudioMixerVoiceHandle voice_handle,
+	AudioMixerOutputGains& output_gains)
+try
+{
+	if (!voice_handle.is_valid())
+	{
+		return;
+	}
+
+	AudioMixerValidator::validate_output_gains(output_gains);
+
+	auto command = Command{};
+	command.type = CommandType::set_voice_output_gains;
+	command.param.set_voice_output_gains.handle = voice_handle;
+	command.param.set_voice_output_gains.output_gains = output_gains;
+
+	MtLockGuard guard_lock{mt_commands_lock_};
+	mt_commands_.push_back(command);
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
+
 [[noreturn]] void SdlAudioMixer::fail(const char* message)
 {
 	throw SdlAudioMixerException{message};
@@ -493,12 +541,7 @@ void SdlAudioMixer::mix_samples()
 			continue;
 		}
 
-		if (!voice.is_audible())
-		{
-			continue;
-		}
-
-		auto gain_scale = voice.gain;
+		auto gain_scale = (voice.is_custom_output_gains ? 1.0 : voice.gain);
 
 		switch (voice.type)
 		{
@@ -529,12 +572,13 @@ void SdlAudioMixer::mix_samples()
 
 		auto& mix_buffer = mix_buffer_;
 		const auto base_offset = (is_adlib_music ? 0 : voice.decode_offset);
+		const auto& gains = (voice.is_custom_output_gains ? voice.custom_output_gains : voice.output_gains);
 
 		for (int i = 0; i < decode_count; ++i)
 		{
 			const auto sample = gain_scale * cache_item->samples[base_offset + i];
-			const auto left_sample = static_cast<Sample>(voice.left_gain * sample);
-			const auto right_sample = static_cast<Sample>(voice.right_gain * sample);
+			const auto left_sample = static_cast<Sample>(gains[0] * sample);
+			const auto right_sample = static_cast<Sample>(gains[1] * sample);
 
 			mix_buffer[(2 * i) + 0] += left_sample;
 			mix_buffer[(2 * i) + 1] += right_sample;
@@ -706,6 +750,30 @@ void SdlAudioMixer::handle_set_voice_r3_position_command(const SetVoiceR3Positio
 	voice->is_r3_position_changed = true;
 }
 
+void SdlAudioMixer::handle_enable_set_voice_output_gains_command(const EnableSetVoiceOutputGainsCommandParam& param)
+{
+	auto voice = voice_handle_mgr_.get_voice(param.handle);
+
+	if (voice == nullptr)
+	{
+		return;
+	}
+
+	voice->is_custom_output_gains = param.is_enable;
+}
+
+void SdlAudioMixer::handle_set_voice_output_gains_command(const SetVoiceOutputGainsCommandParam& param)
+{
+	auto voice = voice_handle_mgr_.get_voice(param.handle);
+
+	if (voice == nullptr)
+	{
+		return;
+	}
+
+	voice->custom_output_gains = param.output_gains;
+}
+
 void SdlAudioMixer::handle_commands()
 {
 	if (is_state_suspended_.load(std::memory_order_acquire))
@@ -780,6 +848,14 @@ void SdlAudioMixer::handle_commands()
 				handle_set_voice_r3_position_command(command.param.set_voice_r3_position);
 				break;
 
+			case CommandType::enable_set_voice_output_gains:
+				handle_enable_set_voice_output_gains_command(command.param.enable_set_voice_output_gains);
+				break;
+
+			case CommandType::set_voice_output_gains:
+				handle_set_voice_output_gains_command(command.param.set_voice_output_gains);
+				break;
+
 			default:
 				assert(false && "Unknown command.");
 				break;
@@ -840,11 +916,12 @@ void SdlAudioMixer::handle_play_sound_command(const Command& command)
 	voice->is_looping = play_sound_param.is_looping;
 	voice->is_paused = false;
 	voice->is_r3_position_changed = voice->is_r3;
+	voice->is_custom_output_gains = false;
 	voice->cache = play_sound_param.cache;
 	voice->decode_offset = 0;
 	voice->gain = audio_mixer_default_gain;
-	voice->left_gain = 0.5 * voice->gain;
-	voice->right_gain = 0.5 * voice->gain;
+	voice->output_gains.fill(audio_mixer_max_gain * 0.5 * voice->gain);
+	voice->custom_output_gains.fill(audio_mixer_max_gain * 0.5);
 	voice->handle = play_sound_param.handle;
 	voice->r3_position = audio_mixer_make_default_voice_r3_position();
 	voice->r3_position_cache = voice->r3_position;
@@ -1049,7 +1126,7 @@ bool SdlAudioMixer::decode_voice(const Voice& voice)
 
 void SdlAudioMixer::spatialize_voice(Voice& voice)
 {
-	if (!voice.is_active || !voice.is_r3)
+	if (!voice.is_active || !voice.is_r3 || voice.is_custom_output_gains)
 	{
 		return;
 	}
@@ -1072,8 +1149,8 @@ void SdlAudioMixer::spatialize_voice(Voice& voice)
 		listener_r3_position_cache_,
 		listener_r3_orientation_cache_,
 		voice.r3_position_cache,
-		voice.left_gain,
-		voice.right_gain);
+		voice.output_gains[0],
+		voice.output_gains[1]);
 }
 
 void SdlAudioMixer::spatialize_voices()

@@ -21,6 +21,7 @@ Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
+#include <algorithm>
 #include "bstone_audio_mixer_validator.h"
 #include "bstone_exception.h"
 
@@ -50,6 +51,28 @@ try
 	if (gain < audio_mixer_min_gain || gain > audio_mixer_max_gain)
 	{
 		fail("Gain out of range.");
+	}
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
+
+void AudioMixerValidator::validate_output_gains(const AudioMixerOutputGains& output_gains)
+try
+{
+	const auto is_invalid = std::any_of(
+		output_gains.cbegin(),
+		output_gains.cend(),
+		[](const double& gain)
+		{
+			return gain < audio_mixer_min_gain || gain > audio_mixer_max_gain;
+		}
+	);
+
+	if (is_invalid)
+	{
+		fail("Output gain out of range.");
 	}
 }
 catch (...)
