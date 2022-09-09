@@ -73,6 +73,14 @@ public:
 	void set_voice_gain(AudioMixerVoiceHandle voice_handle, double gain) override;
 	void set_voice_r3_position(AudioMixerVoiceHandle voice_handle, const AudioMixerVoiceR3Position& r3_position) override;
 
+	bool can_set_voice_output_gains() const override;
+	void enable_set_voice_output_gains(
+		AudioMixerVoiceHandle voice_handle,
+		bool is_enable) override;
+	void set_voice_output_gains(
+		AudioMixerVoiceHandle voice_handle,
+		AudioMixerOutputGains& output_gains) override;
+
 private:
 	using Sample = float;
 	using Samples = std::vector<Sample>;
@@ -118,16 +126,15 @@ private:
 		bool is_looping;
 		bool is_paused;
 		bool is_r3_position_changed;
+		bool is_custom_output_gains;
 		CacheItem* cache;
 		int decode_offset;
 		double gain;
-		double left_gain;
-		double right_gain;
+		AudioMixerOutputGains output_gains;
+		AudioMixerOutputGains custom_output_gains;
 		AudioMixerVoiceHandle handle;
 		AudioMixerVoiceR3Position r3_position;
 		AudioMixerVoiceR3Position r3_position_cache;
-
-		bool is_audible() const noexcept;
 	}; // Voice
 
 	using Voices = std::vector<Voice>;
@@ -148,6 +155,9 @@ private:
 
 		set_voice_gain,
 		set_voice_r3_position,
+
+		enable_set_voice_output_gains,
+		set_voice_output_gains,
 	}; // CommandType
 
 	struct PlaySoundCommandParam
@@ -208,6 +218,18 @@ private:
 		AudioMixerVoiceR3Position position;
 	}; // SetVoiceR3PositionCommandParam
 
+	struct EnableSetVoiceOutputGainsCommandParam
+	{
+		AudioMixerVoiceHandle handle;
+		bool is_enable;
+	};
+
+	struct SetVoiceOutputGainsCommandParam
+	{
+		AudioMixerVoiceHandle handle;
+		AudioMixerOutputGains output_gains;
+	};
+
 	union CommandParam
 	{
 		PlaySoundCommandParam play_sound;
@@ -224,6 +246,9 @@ private:
 
 		SetVoiceGainCommandParam set_voice_gain;
 		SetVoiceR3PositionCommandParam set_voice_r3_position;
+
+		EnableSetVoiceOutputGainsCommandParam enable_set_voice_output_gains;
+		SetVoiceOutputGainsCommandParam set_voice_output_gains;
 	}; // CommandParam
 
 	struct Command
@@ -295,6 +320,8 @@ private:
 	void handle_stop_voice_command(const StopVoiceCommandParam& param);
 	void handle_set_voice_gain_command(const SetVoiceGainCommandParam& param);
 	void handle_set_voice_r3_position_command(const SetVoiceR3PositionCommandParam& param);
+	void handle_enable_set_voice_output_gains_command(const EnableSetVoiceOutputGainsCommandParam& param);
+	void handle_set_voice_output_gains_command(const SetVoiceOutputGainsCommandParam& param);
 	void handle_commands();
 
 	void handle_play_sound_command(const Command& command);

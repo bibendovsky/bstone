@@ -357,6 +357,7 @@ target_sources(
 		bstone_audio_decoder.h
 		bstone_audio_extractor.h
 		bstone_audio_mixer.h
+		bstone_audio_mixer_output_gains.h
 		bstone_audio_mixer_utils.h
 		bstone_audio_mixer_validator.h
 		bstone_audio_mixer_voice_handle.h
