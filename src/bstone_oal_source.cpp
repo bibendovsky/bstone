@@ -153,9 +153,9 @@ void OalSource::open(const OalSourceOpenStreamingParam& param)
 		fail("Caching and uncaching sounds are mutual exclusive.");
 	}
 
-	if (param.is_looping && streaming_caching_sound_)
+	if (param.is_looping && param.caching_sound != nullptr)
 	{
-		fail("Looping caching sound not supported.");
+		fail("Looping the caching sound not supported.");
 	}
 
 	const auto al_processed_buffer_count = get_al_processed_buffer_count();
