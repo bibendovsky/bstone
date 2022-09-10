@@ -1662,6 +1662,7 @@ try
 
 		case HwTextureMgrUpscaleFilterKind::xbrz:
 			upscale_xbrz(properties);
+			break;
 
 		default:
 			fail("Invalid upscale filter type.");

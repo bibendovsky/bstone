@@ -1508,6 +1508,12 @@ private:
 
 	bool is_draw_3d_{};
 
+	R2Vbi r2_vertices_{};
+
+	bstone::Ren3dDeviceFeatures device_features_{};
+	bstone::Ren3dMgrUPtr renderer_mgr_{};
+	bstone::Ren3dPtr renderer_{};
+
 	bstone::Ren3dSamplerState ui_sampler_state_{};
 	bstone::Ren3dSamplerUPtr ui_sampler_{};
 
@@ -1521,13 +1527,6 @@ private:
 	bstone::Ren3dSamplerUPtr player_weapon_sampler_{};
 
 	bstone::Ren3dSamplerUPtr fade_sampler_{};
-
-
-	R2Vbi r2_vertices_{};
-
-	bstone::Ren3dDeviceFeatures device_features_{};
-	bstone::Ren3dMgrUPtr renderer_mgr_{};
-	bstone::Ren3dPtr renderer_{};
 
 	bstone::HwTextureMgrUPtr texture_mgr_{};
 
