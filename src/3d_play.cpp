@@ -34,6 +34,7 @@ Free Software Foundation, Inc.,
 #include "id_vl.h"
 #include "3d_menu.h"
 #include "gfxv.h"
+#include "bstone_scope_guard.h"
 
 
 void UpdateRadarGuage();
@@ -1284,7 +1285,9 @@ void PopupAutoMap(
 	ThreeDRefresh();
 	ThreeDRefresh();
 
-	sd_stop_sound();
+	sd_pause_scene_sfx(true);
+	const auto unmute_scene_sfx_on_scope_exit = [](){ sd_pause_scene_sfx(false); };
+
 	ClearMemory();
 	CacheDrawPic(BASE_X, BASE_Y, AUTOMAPPIC);
 
