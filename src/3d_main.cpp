@@ -9783,7 +9783,7 @@ bool DoMovie(
 	const MovieId movie,
 	const void* const raw_palette)
 {
-	sd_stop_sound();
+	sd_stop_sfx_sound();
 
 	ClearMemory();
 	UnCacheLump(STARTFONT, STARTFONT + NUMFONT);
@@ -9792,7 +9792,7 @@ bool DoMovie(
 
 	const auto result = movie_play(movie, palette ? palette : vgapal);
 
-	sd_stop_sound();
+	sd_stop_sfx_sound();
 	ClearMemory();
 	LoadFonts();
 

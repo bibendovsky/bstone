@@ -4657,7 +4657,7 @@ void ExitGame()
 	}
 
 	sd_music_off();
-	sd_stop_sound();
+	sd_stop_sfx_sound();
 	Quit();
 }
 

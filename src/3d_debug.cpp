@@ -31,9 +31,11 @@ Free Software Foundation, Inc.,
 #include "id_us.h"
 #include "id_vh.h"
 #include "id_vl.h"
+#include "id_sd.h"
 
 #include "bstone_globals.h"
 #include "bstone_logger.h"
+#include "bstone_scope_guard.h"
 
 
 static int get_wall_page_count()
@@ -597,8 +599,21 @@ void log_stuff()
 
 bool DebugKeys()
 {
+	auto unmute_scene_sfx = false;
+
 	if (Keyboard[ScanCode::sc_l])
 	{
+		sd_pause_scene_sfx(true);
+		unmute_scene_sfx = true;
+
+		const auto unmute_scene_sfx_scope_guard = [&unmute_scene_sfx]()
+		{
+			if (unmute_scene_sfx)
+			{
+				sd_pause_scene_sfx(false);
+			}
+		};
+
 		log_stuff();
 		return true;
 	}
@@ -607,6 +622,8 @@ bool DebugKeys()
 	{
 		// A = Show Actors on AutoMap
 		//
+		sd_pause_scene_sfx(true);
+		unmute_scene_sfx = true;
 
 		ExtraRadarFlags ^= OV_ACTORS;
 		US_CenterWindow(24, 3);
@@ -630,6 +647,8 @@ bool DebugKeys()
 	{
 		// K = Map Content totals
 		//
+		sd_pause_scene_sfx(true);
+		unmute_scene_sfx = true;
 
 		CountTotals();
 
@@ -639,6 +658,8 @@ bool DebugKeys()
 	{
 		// C = count objects
 		//
+		sd_pause_scene_sfx(true);
+		unmute_scene_sfx = true;
 
 		CountObjects();
 
@@ -648,6 +669,8 @@ bool DebugKeys()
 	{
 		// R = show full map
 		//
+		sd_pause_scene_sfx(true);
+		unmute_scene_sfx = true;
 
 		ShowMap();
 
@@ -657,6 +680,8 @@ bool DebugKeys()
 	{
 		// D = Dumb/Blind Objects (Player Invisable)
 		//
+		sd_pause_scene_sfx(true);
+		unmute_scene_sfx = true;
 
 		US_CenterWindow(19, 3);
 		PlayerInvisable = !PlayerInvisable;
@@ -679,6 +704,8 @@ bool DebugKeys()
 	{
 		// E = Win Mission
 		//
+		sd_pause_scene_sfx(true);
+		unmute_scene_sfx = true;
 
 		US_CenterWindow(19, 3);
 		US_PrintCentered("Instant Winner!");
@@ -693,6 +720,8 @@ bool DebugKeys()
 	{
 		// F = facing spot
 		//
+		sd_pause_scene_sfx(true);
+		unmute_scene_sfx = true;
 
 		US_CenterWindow(18, 5);
 
@@ -724,6 +753,8 @@ bool DebugKeys()
 	{
 		// G = god mode
 		//
+		sd_pause_scene_sfx(true);
+		unmute_scene_sfx = true;
 
 		US_CenterWindow(12, 2);
 
@@ -756,6 +787,8 @@ bool DebugKeys()
 	{
 		// I = item cheat
 		//
+		sd_pause_scene_sfx(true);
+		unmute_scene_sfx = true;
 
 		US_CenterWindow(12, 3);
 		US_PrintCentered("Free items!");
@@ -793,6 +826,8 @@ bool DebugKeys()
 	{
 		// M = memory info
 		//
+		sd_pause_scene_sfx(true);
+		unmute_scene_sfx = true;
 
 		DebugMemory();
 
@@ -809,6 +844,8 @@ bool DebugKeys()
 	{
 		// O = Show Push Walls
 		//
+		sd_pause_scene_sfx(true);
+		unmute_scene_sfx = true;
 
 		ExtraRadarFlags ^= OV_PUSHWALLS;
 		US_CenterWindow(24, 3);
@@ -831,6 +868,8 @@ bool DebugKeys()
 	{
 		// Unlock All Floors
 		//
+		sd_pause_scene_sfx(true);
+		unmute_scene_sfx = true;
 
 		US_CenterWindow(24, 3);
 		US_PrintCentered("Unlock All Floors!");
@@ -851,6 +890,8 @@ bool DebugKeys()
 	{
 		// S = slow motion
 		//
+		sd_pause_scene_sfx(true);
+		unmute_scene_sfx = true;
 
 		singlestep = !singlestep;
 		US_CenterWindow(18, 3);
@@ -873,6 +914,8 @@ bool DebugKeys()
 	{
 		// W = warp to level
 		//
+		sd_pause_scene_sfx(true);
+		unmute_scene_sfx = true;
 
 		ForceLoadDefault =
 			Keyboard[ScanCode::sc_left_shift] |

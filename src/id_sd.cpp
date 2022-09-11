@@ -175,7 +175,7 @@ bool sd_enable_sound(bool enable)
 {
 	auto is_enabled = enable;
 
-	sd_stop_sound();
+	sd_stop_sfx_sound();
 
 	if (is_enabled && !sd_has_audio_)
 	{
@@ -429,14 +429,13 @@ bool sd_is_music_playing()
 }
 
 // If a sound is playing, stops it.
-void sd_stop_sound()
+void sd_stop_sfx_sound()
 {
 	if (sd_mixer_ == nullptr || !sd_is_music_enabled_)
 	{
 		return;
 	}
 
-	sd_music_voice_group_->stop();
 	sd_ui_sfx_voice_group_->stop();
 	sd_scene_sfx_voice_group_->stop();
 }

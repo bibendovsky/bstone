@@ -84,7 +84,7 @@ extern bool sd_sq_active_;
 
 void sd_startup();
 void sd_shutdown();
-void sd_stop_sound();
+void sd_stop_sfx_sound();
 void sd_wait_sound_done();
 void sd_start_music(int index, bool is_looping = true);
 void sd_music_on(bool is_looping);
