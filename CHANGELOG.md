@@ -9,35 +9,37 @@
 
 ### Fixed
 - Cancel strafe movement if both keys are pressed.
-- [SDL] Reduce CPU usage for digitized low-pass filtering.
-- [SDL] Error "Renderer already associated with window".
-- Option `vid_renderer` now works in command-line.
-- [OAL] Load AL symbols within context.
-- [OAL] List only available extensions.
-- Fix crash after changing audio driver via the menu.
-- [AOG] Conditions to complete the episode.
-- Render 3D scene behind "You are jamming" cheat message box.
+- Clear damage effects after loading the game, etc.
+- Fix GOG / Steam content detection.
 - Fix checking if the level is official.
+- Fix crash after changing audio driver via the menu.
+- Match audio attenuation to vanilla as close as possible.
+- Option `vid_renderer` now works in command-line.
+- Render 3D scene behind "You are jamming" cheat message box.
 - Use SDL 2.0.5+ functions only if available.
+- [AOG] Conditions to complete the episode.
+- [AOG] Fix "N/A" font size and color in the floor input panel.
 - [AOG] Interact with elevator controls on east-west side only.
 - [AOG] Match transporting behavior between floors to original.
-- [HWR] Render enter-only door size without lock as unlocked.
-- [AOG] Reverse textures for charge packs.
 - [AOG] Render `ouch` frame only on damage for Plasma Sphere.
-- Clear damage effects after loading the game, etc.
-- [AOG] Fix "N/A" font size and color in the floor input panel.
+- [AOG] Reverse textures for charge packs.
+- [HWR] Render enter-only door size without lock as unlocked.
+- [OAL] List only available extensions.
+- [OAL] Load AL symbols within context.
+- [SDL] Error "Renderer already associated with window".
+- [SDL] Reduce CPU usage for digitized low-pass filtering.
 
 ### Changed
+- Limit stream I/O to 32 bit.
 - [OAL] List devices with `ALC_ENUMERATE_ALL_EXT` if available.
+- [VIDEO] Rename `vid_windowed_height` to `vid_height`.
+- [VIDEO] Rename `vid_windowed_width` to `vid_width`.
 - [VIDEO] Rename `vid_windowed_x` to `vid_x`.
 - [VIDEO] Rename `vid_windowed_y` to `vid_y`.
-- [VIDEO] Rename `vid_windowed_width` to `vid_width`.
-- [VIDEO] Rename `vid_windowed_height` to `vid_height`.
-- Limit stream I/O to 32 bit.
 
 ### Removed
-- Option `vid_is_windowed`.
 - Exclusive fullscreen mode.
+- Option `vid_is_windowed`.
 - Resampling low-pass filter and it's options (`snd_resampling_interpolation`, `snd_resampling_lpf`).
 
 
