@@ -339,7 +339,7 @@ Notes:
 3. Make directory `~/bstone-x.y.z/build` current.
 
 4. Generate Makefile.  
-`cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~/bstone-x.y.z/build/install`
+`cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=~/bstone-x.y.z/build/install ..`
 
 5. Build and install:
 `cmake --build . --target install`
