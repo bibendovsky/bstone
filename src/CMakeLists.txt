@@ -82,6 +82,12 @@ endif ()
 #
 add_executable(${PROJECT_NAME} "")
 
+add_custom_command(
+	TARGET ${PROJECT_NAME}
+	POST_BUILD
+	COMMAND $<$<CONFIG:RELEASE>:${CMAKE_STRIP}> $<$<CONFIG:RELEASE>:$<TARGET_FILE:${PROJECT_NAME}>>
+	VERBATIM)
+
 
 #
 # Configure files.
