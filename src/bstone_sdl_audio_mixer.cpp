@@ -570,18 +570,21 @@ void SdlAudioMixer::mix_samples()
 			decode_count = std::min(remain_count, mix_samples_count_);
 		}
 
-		auto& mix_buffer = mix_buffer_;
-		const auto base_offset = (is_adlib_music ? 0 : voice.decode_offset);
-		const auto& gains = (voice.is_custom_output_gains ? voice.custom_output_gains : voice.output_gains);
-
-		for (int i = 0; i < decode_count; ++i)
+		if (!is_mute_)
 		{
-			const auto sample = gain_scale * cache_item->samples[base_offset + i];
-			const auto left_sample = static_cast<Sample>(gains[0] * sample);
-			const auto right_sample = static_cast<Sample>(gains[1] * sample);
+			auto& mix_buffer = mix_buffer_;
+			const auto base_offset = (is_adlib_music ? 0 : voice.decode_offset);
+			const auto& gains = (voice.is_custom_output_gains ? voice.custom_output_gains : voice.output_gains);
 
-			mix_buffer[(2 * i) + 0] += left_sample;
-			mix_buffer[(2 * i) + 1] += right_sample;
+			for (int i = 0; i < decode_count; ++i)
+			{
+				const auto sample = gain_scale * cache_item->samples[base_offset + i];
+				const auto left_sample = static_cast<Sample>(gains[0] * sample);
+				const auto right_sample = static_cast<Sample>(gains[1] * sample);
+
+				mix_buffer[(2 * i) + 0] += left_sample;
+				mix_buffer[(2 * i) + 1] += right_sample;
+			}
 		}
 
 		if (!is_adlib_music)
@@ -623,38 +626,41 @@ void SdlAudioMixer::mix_samples()
 		}
 	}
 
-	const auto max_mix_sample_it = std::max_element(
-		mix_buffer_.cbegin(),
-		mix_buffer_.cend(),
-		[](const auto lhs, const auto rhs)
-		{
-			return std::abs(lhs) < std::abs(rhs);
-		});
-
-	if (max_mix_sample_it != mix_buffer_.cend())
+	if (!is_mute_)
 	{
-		const auto max_mix_sample_value = gain_;
-		const auto max_mix_sample = std::abs(*max_mix_sample_it);
+		const auto max_mix_sample_it = std::max_element(
+			mix_buffer_.cbegin(),
+			mix_buffer_.cend(),
+			[](const auto lhs, const auto rhs)
+			{
+				return std::abs(lhs) < std::abs(rhs);
+			});
 
-		if (max_mix_sample <= max_mix_sample_value)
+		if (max_mix_sample_it != mix_buffer_.cend())
 		{
-			std::uninitialized_copy(
-				mix_buffer_.cbegin(),
-				mix_buffer_.cend(),
-				buffer_.begin());
-		}
-		else
-		{
-			const auto scalar = max_mix_sample_value / max_mix_sample;
+			const auto max_mix_sample_value = gain_;
+			const auto max_mix_sample = std::abs(*max_mix_sample_it);
 
-			std::transform(
-				mix_buffer_.cbegin(),
-				mix_buffer_.cend(),
-				buffer_.begin(),
-				[scalar](const auto& item)
-				{
-					return static_cast<Sample>(item * scalar);
-				});
+			if (max_mix_sample <= max_mix_sample_value)
+			{
+				std::uninitialized_copy(
+					mix_buffer_.cbegin(),
+					mix_buffer_.cend(),
+					buffer_.begin());
+			}
+			else
+			{
+				const auto scalar = max_mix_sample_value / max_mix_sample;
+
+				std::transform(
+					mix_buffer_.cbegin(),
+					mix_buffer_.cend(),
+					buffer_.begin(),
+					[scalar](const auto& item)
+					{
+						return static_cast<Sample>(item * scalar);
+					});
+			}
 		}
 	}
 }
