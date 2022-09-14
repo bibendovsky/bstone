@@ -46,7 +46,7 @@ message(STATUS "[${PROJECT_NAME}] v${BSTONE_VERSION}")
 #
 option(BSTONE_USE_STATIC_LINKING "Link build statically." OFF)
 option(BSTONE_PANDORA "Build for Pandora." OFF)
-option(BSTONE_USE_PCH "Use precompiled headers if available." ON)
+option(BSTONE_USE_PCH "Use precompiled headers if available." OFF)
 option(BSTONE_USE_MULTI_PROCESS_COMPILATION "Use multi-process compilation." ON)
 option(BSTONE_MORE_COMPILER_WARNINGS "Enables more compiler warnings." OFF)
 
