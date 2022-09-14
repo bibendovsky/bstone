@@ -128,15 +128,18 @@ endif ()
 #
 # Target compile definitions.
 #
-if (MSVC)
-	target_compile_definitions(
-		${PROJECT_NAME}
-		PRIVATE
-			_CRT_SECURE_NO_WARNINGS
-			_SCL_SECURE_NO_WARNINGS
-			_BIND_TO_CURRENT_VCLIBS_VERSION=1
-	)
-endif ()
+target_compile_definitions(
+	${PROJECT_NAME}
+	PRIVATE
+		$<$<BOOL:${WIN32}>:UNICODE>
+		$<$<BOOL:${WIN32}>:_UNICODE>
+		$<$<BOOL:${WIN32}>:_CRT_SECURE_NO_WARNINGS>
+		$<$<BOOL:${WIN32}>:_SCL_SECURE_NO_WARNINGS>
+		$<$<BOOL:${WIN32}>:_BIND_TO_CURRENT_VCLIBS_VERSION=1>
+		$<$<BOOL:${WIN32}>:NTDDI_VERSION=0x05010000>
+		$<$<BOOL:${WIN32}>:_WIN32_WINNT=0x0501>
+		$<$<BOOL:${WIN32}>:WINVER=0x0501>
+)
 
 if (BSTONE_PANDORA)
 	target_compile_definitions(
