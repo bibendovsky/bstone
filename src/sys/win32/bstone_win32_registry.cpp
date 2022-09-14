@@ -43,6 +43,13 @@ Free Software Foundation, Inc.,
 #include "bstone_exception.h"
 #include "bstone_unique_resource.h"
 
+#ifndef KEY_WOW64_64KEY
+#define KEY_WOW64_64KEY 0x0100
+#endif
+
+#ifndef KEY_WOW64_32KEY
+#define KEY_WOW64_32KEY 0x0200
+#endif
 
 namespace bstone
 {
