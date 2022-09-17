@@ -1,4 +1,5 @@
-# BStone changelog
+# BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
+# Changelog
 
 
 ## [1.2.12] - ????-??-??
