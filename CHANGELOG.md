@@ -2,7 +2,7 @@
 # Changelog
 
 
-## [1.2.12] - ????-??-??
+## [1.2.12] - 2022-09-18
 ### Added
 - Support Nuked OPL3 emulator.
 - Option to control OPL3 emulator type (`snd_opl3_type`).
