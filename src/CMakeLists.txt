@@ -7,14 +7,14 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 
 cmake_minimum_required(VERSION 3.4.0 FATAL_ERROR)
-project(bstone VERSION 1.2.12 LANGUAGES CXX)
+project(bstone VERSION 1.2.13 LANGUAGES CXX)
 
 
 #
 # Version.
 #
 set(BSTONE_VERSION_CORE "${PROJECT_VERSION}")
-set(BSTONE_VERSION_PRE_RELEASE "")
+set(BSTONE_VERSION_PRE_RELEASE "wip")
 
 if (BSTONE_VERSION_PRE_RELEASE STREQUAL "")
 	set(BSTONE_VERSION "${BSTONE_VERSION_CORE}")
