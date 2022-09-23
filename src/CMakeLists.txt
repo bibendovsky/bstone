@@ -198,7 +198,9 @@ if (BSTONE_USE_STATIC_LINKING AND (NOT WIN32 OR MINGW))
 	target_link_libraries(
 		${PROJECT_NAME}
 		PRIVATE
-			-static
+			$<$<CXX_COMPILER_ID:Clang>:-static>
+			$<$<CXX_COMPILER_ID:GNU>:-static-libgcc>
+			$<$<CXX_COMPILER_ID:GNU>:-static-libstdc++>
 	)
 endif ()
 
