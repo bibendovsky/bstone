@@ -16,7 +16,7 @@ SPDX-License-Identifier: MIT
 #include <type_traits>
 #include <utility>
 
-#include "bstone_index_type.h"
+#include "bstone_int.h"
 
 
 namespace bstone
@@ -58,9 +58,9 @@ public:
 
 	CircularQueueIterator(
 		Element* elements,
-		Index capacity,
-		Index size,
-		Index index) noexcept
+		Int capacity,
+		Int size,
+		Int index) noexcept
 		:
 		elements_{elements},
 		capacity_{capacity},
@@ -129,9 +129,9 @@ public:
 
 private:
 	Element* elements_{};
-	Index capacity_{};
-	Index size_{};
-	Index index_{};
+	Int capacity_{};
+	Int size_{};
+	Int index_{};
 }; // CircularQueueIterator
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -196,12 +196,12 @@ public:
 	}
 
 
-	Index get_capacity() const noexcept
+	Int get_capacity() const noexcept
 	{
 		return capacity_;
 	}
 
-	Index get_size() const noexcept
+	Int get_size() const noexcept
 	{
 		return size_;
 	}
@@ -239,7 +239,7 @@ public:
 	}
 
 	void set_capacity(
-		Index capacity)
+		Int capacity)
 	{
 		assert(capacity >= 0);
 
@@ -361,14 +361,14 @@ private:
 
 	Storage storage_{};
 
-	Index capacity_{};
-	Index size_{};
-	Index front_index_{};
-	Index back_index_{};
+	Int capacity_{};
+	Int size_{};
+	Int front_index_{};
+	Int back_index_{};
 
 
 	Element* get_ptr(
-		Index index) noexcept
+		Int index) noexcept
 	{
 		assert(index >= 0 && index < capacity_);
 
@@ -386,8 +386,8 @@ private:
 		back_index_ = capacity_ - 1;
 	}
 
-	Index increment_index(
-		Index index) noexcept
+	Int increment_index(
+		Int index) noexcept
 	{
 		return (index + 1) % capacity_;
 	}

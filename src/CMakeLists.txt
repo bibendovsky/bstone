@@ -383,7 +383,7 @@ target_sources(
 		bstone_hw_video.h
 		bstone_image_decoder.h
 		bstone_image_encoder.h
-		bstone_index_type.h
+		bstone_int.h
 		bstone_logger.h
 		bstone_low_pass_filter.h
 		bstone_math.h
@@ -554,7 +554,7 @@ target_sources(
 		bstone_hw_video.cpp
 		bstone_image_decoder.cpp
 		bstone_image_encoder.cpp
-		bstone_index_type.cpp
+		bstone_int.cpp
 		bstone_logger.cpp
 		bstone_low_pass_filter.cpp
 		bstone_memory.cpp

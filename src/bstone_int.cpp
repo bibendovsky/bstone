@@ -4,10 +4,6 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
+// Fundamental integer types.
 
-//
-// Index type.
-//
-
-
-#include "bstone_index_type.h"
+#include "bstone_int.h"

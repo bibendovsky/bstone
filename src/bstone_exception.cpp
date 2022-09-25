@@ -17,7 +17,7 @@ SPDX-License-Identifier: MIT
 #include <string>
 #include <vector>
 
-#include "bstone_index_type.h"
+#include "bstone_int.h"
 
 
 namespace bstone
@@ -30,12 +30,12 @@ namespace
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-static constexpr Index get_c_string_size(
+static constexpr Int get_c_string_size(
 	const char* string) noexcept
 {
 	assert(string);
 
-	auto size = Index{};
+	auto size = Int{};
 
 	while (string[size] != '\0')
 	{
