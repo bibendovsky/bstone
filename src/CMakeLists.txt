@@ -364,10 +364,11 @@ target_sources(
 		bstone_binary_writer.h
 		bstone_bitwise.h
 		bstone_bmp_image_decoder.h
+		bstone_c_str.h
 		bstone_circular_queue.h
 		bstone_cl_args.h
 		bstone_content_path.h
-		bstone_crc32.h
+		bstone_crc32.h	
 		bstone_door.h
 		bstone_dosbox_dbopl.h
 		bstone_shared_library.h
@@ -423,6 +424,7 @@ target_sources(
 		bstone_stb_image_utils.h
 		bstone_stream.h
 		bstone_string_helper.h
+		bstone_string_view.h
 		bstone_sw_video.h
 		bstone_text_reader.h
 		bstone_text_writer.h
@@ -540,6 +542,7 @@ target_sources(
 		bstone_cl_args.cpp
 		bstone_content_path.cpp
 		bstone_crc32.cpp
+		bstone_c_str.cpp
 		bstone_dosbox_dbopl.cpp
 		bstone_shared_library.cpp
 		bstone_encoding.cpp
@@ -589,6 +592,7 @@ target_sources(
 		bstone_steam_content_path.cpp
 		bstone_stream.cpp
 		bstone_string_helper.cpp
+		bstone_string_view.cpp
 		bstone_sw_video.cpp
 		bstone_text_reader.cpp
 		bstone_text_writer.cpp
