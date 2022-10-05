@@ -44,6 +44,7 @@ public:
 		int stride_rgb_888,
 		::ScreenshotBuffer&& src_pixels_rgb_888) = 0;
 
+	virtual void vsync_present() = 0;
 	virtual void present() = 0;
 
 

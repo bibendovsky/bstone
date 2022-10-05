@@ -122,6 +122,23 @@ public:
 		fail_nested(__func__);
 	}
 
+	void vsync_present() override
+	try
+	{
+		if (renderer_ == nullptr)
+		{
+			return;
+		}
+
+		auto command_buffers = vsync_command_buffer_.get();
+		renderer_->submit_commands(&command_buffers, 1);
+		renderer_->present();
+	}
+	catch (...)
+	{
+		fail_nested(__func__);
+	}
+
 	void present() override
 	try
 	{
@@ -1517,6 +1534,7 @@ private:
 	bstone::Rgba8Palette palette_{};
 	bstone::Rgba8Palette default_palette_{};
 
+	bstone::Ren3dCmdBufferUPtr vsync_command_buffer_{};
 	bstone::Ren3dCmdBufferUPtr common_command_buffer_{};
 	bstone::Ren3dCmdBufferUPtr r2_command_buffer_{};
 	bstone::Ren3dCmdBufferUPtr r3_command_buffer_{};
@@ -4792,6 +4810,31 @@ private:
 		common_command_buffer_ = nullptr;
 	}
 
+	void create_vsync_command_buffer()
+	try
+	{
+		auto param = bstone::Ren3dCreateCmdBufferParam{};
+		param.initial_size_ = 32;
+		param.resize_delta_size_ = 0;
+		vsync_command_buffer_ = bstone::Ren3dCmdBufferFactory::create(param);
+
+		vsync_command_buffer_->begin_write();
+		auto& command = *vsync_command_buffer_->write_clear();
+		command.clear_.color_ = bstone::Rgba8{};
+		vsync_command_buffer_->end_write();
+
+		vsync_command_buffer_->enable(true);
+	}
+	catch (...)
+	{
+		fail_nested(__func__);
+	}
+
+	void destroy_vsync_command_buffer() noexcept
+	{
+		vsync_command_buffer_ = nullptr;
+	}
+
 	void create_common_command_buffer()
 	try
 	{
@@ -4846,6 +4889,7 @@ private:
 
 	void uninitialize_command_buffers() noexcept
 	{
+		destroy_vsync_command_buffer();
 		destroy_3d_command_buffer();
 		destroy_2d_command_buffer();
 		destroy_common_command_buffer();
@@ -4855,6 +4899,7 @@ private:
 	void initialize_command_buffers()
 	try
 	{
+		create_vsync_command_buffer();
 		create_common_command_buffer();
 		create_3d_command_buffer();
 		create_2d_command_buffer();

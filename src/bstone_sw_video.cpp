@@ -69,6 +69,7 @@ public:
 		int stride_rgb_888,
 		::ScreenshotBuffer&& src_pixels_rgb_888) override;
 
+	void vsync_present() override;
 	void present() override;
 
 
@@ -395,6 +396,23 @@ try
 		std::move(src_pixels_rgb_888),
 		false
 	);
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
+
+void SwVideo::vsync_present()
+try
+{
+	// Clear all
+	//
+	set_draw_color(0x00, 0x00, 0x00);
+	clear_rendering_target();
+
+	// Present
+	//
+	::SDL_RenderPresent(renderer_.get());
 }
 catch (...)
 {

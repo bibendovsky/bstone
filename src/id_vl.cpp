@@ -1633,7 +1633,7 @@ try
 
 	for (int i = 0; i < draw_count; ++i)
 	{
-		::g_video->present();
+		::g_video->vsync_present();
 	}
 
 	const auto after_timestamp = Clock::now();
