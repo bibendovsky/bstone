@@ -63,6 +63,8 @@ public:
 	std::throw_with_nested(SdException{message});
 }
 
+auto sd_music_is_looping_ = true;
+
 bstone::AudioContentMgrUPtr audio_content_mgr{};
 
 auto sd_use_voice_output_gains_ = false;
@@ -157,31 +159,23 @@ static bool sd_detect_ad_lib()
 
 bool sd_enable_sound(bool enable)
 {
-	auto is_enabled = enable;
-
 	sd_stop_sfx_sound();
 
-	if (is_enabled && !sd_has_audio_)
+	if (enable && !sd_has_audio_)
 	{
-		is_enabled = false;
+		enable = false;
 	}
 
-	sd_is_sound_enabled_ = is_enabled;
-
-	if (is_enabled)
-	{
-		sd_set_sfx_volume(sd_sfx_volume_);
-	}
-
-	return is_enabled;
+	sd_is_sound_enabled_ = enable;
+	sd_set_sfx_volume();
+	return enable;
 }
 
 bool sd_enable_music(bool enable)
 {
 	sd_music_off();
 	sd_is_music_enabled_ = enable;
-	sd_set_music_volume(sd_music_volume_);
-
+	sd_set_music_volume();
 	return enable;
 }
 
@@ -361,16 +355,10 @@ void sd_startup()
 	{
 		sd_initialize_voices();
 
-		if (sd_is_sound_enabled_)
-		{
-			sd_enable_sound(true);
-		}
+		sd_enable_sound(sd_is_sound_enabled_);
 
-		if (sd_is_music_enabled_)
-		{
-			sd_enable_music(true);
-			sd_music_on(true);
-		}
+		sd_enable_music(sd_is_music_enabled_);
+		sd_music_on(sd_music_is_looping_);
 	}
 }
 
@@ -415,7 +403,7 @@ bool sd_is_music_playing()
 // If a sound is playing, stops it.
 void sd_stop_sfx_sound()
 {
-	if (sd_mixer_ == nullptr || !sd_is_music_enabled_)
+	if (sd_mixer_ == nullptr || !sd_is_sound_enabled_)
 	{
 		return;
 	}
@@ -444,10 +432,12 @@ void sd_wait_sound_done()
 // Turns on the sequencer.
 void sd_music_on(bool is_looping)
 {
-	if (sd_mixer_ == nullptr || !sd_is_sound_enabled_ || sd_music_index_ < 0)
+	if (sd_mixer_ == nullptr || !sd_is_music_enabled_ || sd_music_index_ < 0)
 	{
 		return;
 	}
+
+	sd_music_is_looping_ = is_looping;
 
 	sd_sq_active_ = true;
 	sd_music_voice_group_->stop();
@@ -468,7 +458,7 @@ void sd_music_on(bool is_looping)
 // Turns off the sequencer and any playing notes.
 void sd_music_off()
 {
-	if (sd_mixer_ == nullptr || !sd_is_sound_enabled_)
+	if (sd_mixer_ == nullptr || !sd_is_music_enabled_)
 	{
 		return;
 	}
@@ -481,11 +471,11 @@ void sd_music_off()
 void sd_start_music(int index, bool is_looping)
 {
 	sd_music_off();
+	sd_set_music_volume();
+	sd_music_index_ = index;
 
 	if (sd_is_music_enabled_)
 	{
-		sd_music_index_ = index;
-		sd_set_music_volume(sd_music_volume_);
 		sd_music_on(is_looping);
 	}
 }
@@ -1057,39 +1047,30 @@ bool sd_is_player_no_way_sound_playing()
 	return sd_is_player_sound_playing(sd_player_no_way_voice_);
 }
 
-void sd_set_sfx_volume(int volume)
+void sd_set_sfx_volume()
 {
 	if (sd_mixer_ == nullptr)
 	{
 		return;
 	}
 
-	auto new_volume = volume;
-
-	if (new_volume < sd_min_volume)
-	{
-		new_volume = sd_min_volume;
-	}
-
-	if (new_volume > sd_max_volume)
-	{
-		new_volume = sd_max_volume;
-	}
-
-	const auto gain = static_cast<double>(new_volume) / static_cast<double>(sd_max_volume);
+	const auto volume = (sd_is_sound_enabled_ ? sd_sfx_volume_ : sd_min_volume);
+	const auto clamped_volume = bstone::math::clamp(volume, sd_min_volume, sd_max_volume);
+	const auto gain = static_cast<double>(clamped_volume) / static_cast<double>(sd_max_volume);
 	sd_ui_sfx_voice_group_->set_gain(gain);
 	sd_scene_sfx_voice_group_->set_gain(gain);
 }
 
-void sd_set_music_volume(int volume)
+void sd_set_music_volume()
 {
 	if (sd_mixer_ == nullptr)
 	{
 		return;
 	}
 
-	const auto new_volume = bstone::math::clamp(volume, sd_min_volume, sd_max_volume);
-	const auto gain = static_cast<double>(new_volume) / static_cast<double>(sd_max_volume);
+	const auto volume = (sd_is_music_enabled_ ? sd_music_volume_ : sd_min_volume);
+	const auto clamped_volume = bstone::math::clamp(volume, sd_min_volume, sd_max_volume);
+	const auto gain = static_cast<double>(clamped_volume) / static_cast<double>(sd_max_volume);
 	sd_music_voice_group_->set_gain(gain);
 }
 

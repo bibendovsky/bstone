@@ -110,8 +110,8 @@ void sd_update();
 bool sd_is_player_hit_wall_sound_playing();
 bool sd_is_player_no_way_sound_playing();
 
-void sd_set_sfx_volume(int volume);
-void sd_set_music_volume(int volume);
+void sd_set_sfx_volume();
+void sd_set_music_volume();
 
 void sd_mute(bool mute);
 void sd_pause_scene_sfx(bool is_pause);

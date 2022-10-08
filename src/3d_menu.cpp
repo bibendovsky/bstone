@@ -4809,13 +4809,13 @@ void cp_sound_volume(
 
 			if (old_volumes[0] != *volumes[0])
 			{
-				sd_set_sfx_volume(sd_sfx_volume_);
+				sd_set_sfx_volume();
 				menu_play_move_gun_1_sound();
 			}
 
 			if (old_volumes[1] != *volumes[1])
 			{
-				sd_set_music_volume(sd_music_volume_);
+				sd_set_music_volume();
 			}
 		}
 
