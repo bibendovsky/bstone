@@ -194,14 +194,23 @@ endif ()
 #
 # Target link libraries.
 #
-if (BSTONE_USE_STATIC_LINKING AND (NOT WIN32 OR MINGW))
-	target_link_libraries(
-		${PROJECT_NAME}
-		PRIVATE
-			$<$<CXX_COMPILER_ID:Clang>:-static>
-			$<$<CXX_COMPILER_ID:GNU>:-static-libgcc>
-			$<$<CXX_COMPILER_ID:GNU>:-static-libstdc++>
-	)
+if (BSTONE_USE_STATIC_LINKING)
+	if (WIN32)
+		target_link_libraries(
+			${PROJECT_NAME}
+			PRIVATE
+				$<$<CXX_COMPILER_ID:Clang>:-static>
+				$<$<CXX_COMPILER_ID:GNU>:-static>
+		)
+	else ()
+		target_link_libraries(
+			${PROJECT_NAME}
+			PRIVATE
+				$<$<CXX_COMPILER_ID:Clang>:-static>
+				$<$<CXX_COMPILER_ID:GNU>:-static-libgcc>
+				$<$<CXX_COMPILER_ID:GNU>:-static-libstdc++>
+		)
+	endif ()
 endif ()
 
 target_link_libraries(
