@@ -438,6 +438,7 @@ target_sources(
 		bstone_text_reader.h
 		bstone_text_writer.h
 		bstone_time.h
+		bstone_type_traits.h
 		bstone_un_value.h
 		bstone_unique_resource.h
 		bstone_version.h

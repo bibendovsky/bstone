@@ -4,100 +4,185 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-
 #ifndef BSTONE_SPAN_INCLUDED
 #define BSTONE_SPAN_INCLUDED
 
-
 #include <cassert>
-#include <cstdint>
+#include <type_traits>
+#include <bstone_int.h>
+#include <bstone_type_traits.h>
 
+namespace bstone {
 
-namespace bstone
-{
-
-
-template<
-	typename T
->
+template<typename T>
 class Span
 {
 public:
-	using Size = std::intptr_t;
+	using Item = T;
 
+	static constexpr auto item_size = static_cast<Int>(sizeof(Item));
 
-	constexpr Span() noexcept
-	{
-	}
+	constexpr Span() noexcept = default;
 
-	template<
-		Size USize
-	>
-	constexpr Span(
-		T (&array)[USize]) noexcept
+	constexpr Span(Item* items, Int size) noexcept
 		:
-		pointer_{array},
-		size_{USize}
-	{
-		assert(pointer_);
-		assert(size_ >= 0);
-	}
-
-	constexpr Span(
-		T* pointer,
-		Size size) noexcept
-		:
-		pointer_{pointer},
+		data_{items},
 		size_{size}
 	{
-		assert(pointer_);
-		assert(size_ >= 0);
+		assert(is_empty() || (!is_empty() && has_data()));
 	}
 
-	constexpr const T* begin() const noexcept
+	template<Int USize>
+	constexpr Span(Item (&array)[USize]) noexcept
+		:
+		Span{array, USize}
+	{}
+
+	constexpr Span(const Span&) noexcept = default;
+	constexpr Span& operator=(const Span&) noexcept = default;
+
+	constexpr Item* get_data() const noexcept
 	{
-		return pointer_;
+		return data_;
 	}
 
-	constexpr const T* end() const noexcept
+	constexpr Int get_size() const noexcept
 	{
-		return pointer_ + size_;
+		return size_;
 	}
 
-	constexpr T* begin() noexcept
+	constexpr bool has_data() const noexcept
 	{
-		return pointer_;
+		return get_data() != nullptr;
 	}
 
-	constexpr T* end() noexcept
+	constexpr bool is_empty() const noexcept
 	{
-		return pointer_ + size_;
+		return get_size() == 0;
 	}
 
-	constexpr const T& operator[](
-		Size index) const noexcept
+	constexpr Int get_bytes_size() const noexcept
 	{
-		assert(index >= 0 && index < size_);
-
-		return pointer_[index];
+		return item_size * get_size();
 	}
 
-	constexpr T& operator[](
-		Size index) noexcept
+	constexpr Item* begin() const noexcept
 	{
-		assert(index >= 0 && index < size_);
-
-		return pointer_[index];
+		return get_data();
 	}
 
+	constexpr Item* end() const noexcept
+	{
+		return begin() + get_size();
+	}
+
+	constexpr const Item& get_front() const noexcept
+	{
+		assert(has_data());
+		assert(!is_empty());
+		return *(begin());
+	}
+
+	constexpr Item& get_front() noexcept
+	{
+		return const_cast<Item&>(as_const(*this).get_front());
+	}
+
+	constexpr const Item& get_back() const noexcept
+	{
+		assert(has_data());
+		assert(!is_empty());
+		return *(end() - 1);
+	}
+
+	constexpr Item& get_back() noexcept
+	{
+		return const_cast<Item&>(as_const(*this).get_back());
+	}
+
+	constexpr Span get_subspan(Int offset, Int size) const noexcept
+	{
+		assert(offset >= 0);
+		assert(size >= 0);
+		assert((offset + size) <= get_size());
+		return Span{get_data() + offset, size};
+	}
+
+	constexpr Span get_subspan(Int offset) const noexcept
+	{
+		return get_subspan(offset, get_size() - offset);
+	}
+
+	template<typename UItem = Item, std::enable_if_t<!std::is_const<UItem>::value, int> = 0>
+	constexpr operator Span<const UItem>() const noexcept
+	{
+		return Span<const UItem>{get_data(), get_size()};
+	}
+
+	constexpr Item& operator[](Int index) const noexcept
+	{
+		assert(has_data());
+		assert(index >= 0 && index < get_size());
+		return get_data()[index];
+	}
 
 private:
-	T* pointer_{};
-	Size size_{};
+	Item* data_{};
+	Int size_{};
 }; // Span
 
+// ==========================================================================
 
-} // bstone
+namespace detail {
 
+template<typename T>
+struct SpanToBytes
+{
+	using ItemType = std::conditional_t<std::is_const<T>::value, const UInt8, UInt8>;
+	using SpanType = Span<ItemType>;
+};
+
+} // namespace detail
+
+template<typename T>
+inline auto as_bytes(Span<T> span) noexcept
+{
+	return typename detail::SpanToBytes<T>::SpanType
+	{
+		reinterpret_cast<typename detail::SpanToBytes<T>::ItemType*>(
+			span.get_data()),
+			span.get_bytes_size()
+	};
+}
+
+// ==========================================================================
+
+template<typename T, Int TSize>
+inline constexpr auto make_span(T (&array)[TSize]) noexcept
+{
+	return Span<T>{array};
+}
+
+template<typename T>
+inline constexpr auto make_span(T* data, Int size) noexcept
+{
+	return Span<T>{data, size};
+}
+
+// ==========================================================================
+
+template<typename T, Int TSize>
+inline constexpr auto make_bytes_span(T (&array)[TSize]) noexcept
+{
+	return as_bytes(Span<T>{array});
+}
+
+template<typename T>
+inline constexpr auto make_bytes_span(T* data, Int size) noexcept
+{
+	return as_bytes(Span<T>{data, size});
+}
+
+} // namespace bstone
 
 #endif // !BSTONE_SPAN_INCLUDED
