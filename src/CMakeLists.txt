@@ -357,6 +357,7 @@ target_sources(
 		bstone_adlib_music_decoder.h
 		bstone_adlib_sfx_decoder.h
 		bstone_archiver.h
+		bstone_ascii.h
 		bstone_atomic.h
 		bstone_atomic_flag.h
 		bstone_audio_content_mgr.h
@@ -375,6 +376,7 @@ target_sources(
 		bstone_bmp_image_decoder.h
 		bstone_c_str.h
 		bstone_circular_queue.h
+		bstone_char_conv.h
 		bstone_cl_args.h
 		bstone_content_path.h
 		bstone_crc32.h	
@@ -383,6 +385,7 @@ target_sources(
 		bstone_shared_library.h
 		bstone_encoding.h
 		bstone_endian.h
+		bstone_enum_flags.h
 		bstone_exception.h
 		bstone_file_stream.h
 		bstone_file_system.h
@@ -549,6 +552,7 @@ target_sources(
 		bstone_bitwise.cpp
 		bstone_bmp_image_decoder.cpp
 		bstone_circular_queue.cpp
+		bstone_char_conv.cpp
 		bstone_cl_args.cpp
 		bstone_content_path.cpp
 		bstone_crc32.cpp
