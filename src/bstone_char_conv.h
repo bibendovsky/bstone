@@ -16,6 +16,7 @@ SPDX-License-Identifier: MIT
 #include <bstone_span.h>
 
 namespace bstone {
+namespace char_conv {
 
 namespace detail {
 
@@ -508,6 +509,7 @@ inline constexpr TValue from_chars(
 	return detail::FromCharsIntegralFromUnsigned<TValue, Unsigned>{}(u_value, has_minus_sign);
 }
 
+} // namespace char_conv
 } // namespace bstone
 
 #endif // !BSTONE_CHAR_CONV_INCLUDED

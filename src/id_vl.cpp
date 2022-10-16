@@ -30,11 +30,250 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_sdl_exception.h"
 #include "bstone_sprite_cache.h"
 #include "bstone_string_helper.h"
+#include "bstone_string_view.h"
 #include "bstone_sw_video.h"
 #include "bstone_text_writer.h"
 #include "bstone_time.h"
 #include "bstone_version.h"
 
+
+namespace {
+
+// Common names.
+
+constexpr auto vid_none_string = bstone::StringView{"none"};
+constexpr auto vid_nearest_string = bstone::StringView{"nearest"};
+constexpr auto vid_linear_string = bstone::StringView{"linear"};
+
+// vid_renderer
+
+constexpr auto vid_renderer_cvar_name = bstone::StringView{"vid_renderer"};
+constexpr auto vid_renderer_auto_detect_value = bstone::StringView{"auto-detect"};
+constexpr auto vid_renderer_software_value = bstone::StringView{"software"};
+constexpr auto vid_renderer_gl_2_0_value = bstone::StringView{"gl_2_0"};
+constexpr auto vid_renderer_gl_3_2_c_value = bstone::StringView{"gl_3_2_c"};
+constexpr auto vid_renderer_gles_2_0_value = bstone::StringView{"gles_2_0"};
+
+auto vid_renderer_cvar = bstone::CVar{
+	bstone::CVarStringTag{},
+	vid_renderer_cvar_name,
+	vid_renderer_auto_detect_value,
+	{
+		vid_renderer_auto_detect_value,
+		vid_renderer_software_value,
+		vid_renderer_gl_2_0_value,
+		vid_renderer_gl_3_2_c_value,
+		vid_renderer_gles_2_0_value,
+	}};
+
+// vid_positioned
+
+constexpr auto vid_positioned_cvar_name = bstone::StringView{"vid_is_positioned"};
+constexpr auto vid_positioned_default = false;
+
+auto vid_positioned_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	vid_positioned_cvar_name,
+	vid_positioned_default};
+
+// vid_x
+
+constexpr auto vid_x_cvar_name = bstone::StringView{"vid_x"};
+constexpr auto vid_x_default = 0;
+
+auto vid_x_cvar = bstone::CVar{
+	bstone::CVarInt32Tag{},
+	vid_x_cvar_name,
+	vid_x_default};
+
+// vid_y
+
+constexpr auto vid_y_cvar_name = bstone::StringView{"vid_y"};
+constexpr auto vid_y_default = 0;
+
+auto vid_y_cvar = bstone::CVar{
+	bstone::CVarInt32Tag{},
+	vid_y_cvar_name,
+	vid_y_default};
+
+// vid_width
+
+constexpr auto vid_width_cvar_name = bstone::StringView{"vid_width"};
+constexpr auto vid_width_default = 0;
+
+auto vid_width_cvar = bstone::CVar{
+	bstone::CVarInt32Tag{},
+	vid_width_cvar_name,
+	vid_width_default};
+
+// vid_height
+
+constexpr auto vid_height_cvar_name = bstone::StringView{"vid_height"};
+constexpr auto vid_height_default = 0;
+
+auto vid_height_cvar = bstone::CVar{
+	bstone::CVarInt32Tag{},
+	vid_height_cvar_name,
+	vid_height_default};
+
+// vid_vsync
+
+constexpr auto vid_vsync_cvar_name = bstone::StringView{"vid_is_vsync"};
+constexpr auto vid_vsync_default = true;
+
+auto vid_vsync_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	vid_vsync_cvar_name,
+	vid_vsync_default};
+
+// vid_ui_stretched
+
+constexpr auto vid_ui_stretched_cvar_name = bstone::StringView{"vid_is_ui_stretched"};
+constexpr auto vid_ui_stretched_default = false;
+
+auto vid_ui_stretched_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	vid_ui_stretched_cvar_name,
+	vid_ui_stretched_default};
+
+// vid_widescreen
+
+constexpr auto vid_widescreen_cvar_name = bstone::StringView{"vid_is_widescreen"};
+constexpr auto vid_widescreen_default = false;
+
+auto vid_widescreen_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	vid_widescreen_cvar_name,
+	vid_widescreen_default};
+
+// vid_aa_type
+
+constexpr auto vid_aa_type_cvar_name = bstone::StringView{"vid_aa_kind"};
+constexpr auto vid_aa_type_msaa_value = bstone::StringView{"msaa"};
+
+auto vid_aa_type_cvar = bstone::CVar{
+	bstone::CVarStringTag{},
+	vid_aa_type_cvar_name,
+	vid_none_string,
+	{
+		vid_none_string,
+		vid_aa_type_msaa_value,
+	}};
+
+// vid_aa_degree
+
+constexpr auto vid_aa_degree_cvar_name = bstone::StringView{"vid_aa_degree"};
+constexpr auto vid_aa_degree_min = 0;
+constexpr auto vid_aa_degree_max = 32;
+constexpr auto vid_aa_degree_default = vid_aa_degree_min;
+
+auto vid_aa_degree_cvar = bstone::CVar{
+	bstone::CVarInt32Tag{},
+	vid_aa_degree_cvar_name,
+	vid_aa_degree_default,
+	vid_aa_degree_min,
+	vid_aa_degree_max};
+
+// vid_texture_upscale_filter
+
+constexpr auto vid_texture_upscale_filter_cvar_name = bstone::StringView{"vid_texture_upscale_filter"};
+constexpr auto vid_texture_upscale_filter_xbrz_value = bstone::StringView{"xbrz"};
+
+auto vid_texture_upscale_filter_cvar = bstone::CVar{
+	bstone::CVarStringTag{},
+	vid_texture_upscale_filter_cvar_name,
+	vid_none_string,
+	{
+		vid_none_string,
+		vid_texture_upscale_filter_xbrz_value,
+	}};
+
+// vid_texture_upscale_xbrz_degree
+
+constexpr auto vid_texture_upscale_xbrz_degree_cvar_name = bstone::StringView{"vid_texture_upscale_xbrz_degree"};
+constexpr auto vid_texture_upscale_xbrz_degree_default = 0;
+
+auto vid_texture_upscale_xbrz_degree_cvar = bstone::CVar{
+	bstone::CVarInt32Tag{},
+	vid_texture_upscale_xbrz_degree_cvar_name,
+	vid_texture_upscale_xbrz_degree_default};
+
+// vid_2d_texture_filter
+
+constexpr auto vid_2d_texture_filter_cvar_name = bstone::StringView{"vid_2d_texture_filter"};
+
+auto vid_2d_texture_filter_cvar = bstone::CVar{
+	bstone::CVarStringTag{},
+	vid_2d_texture_filter_cvar_name,
+	vid_nearest_string,
+	{
+		vid_nearest_string,
+		vid_linear_string,
+	}};
+
+// vid_3d_texture_image_filter
+
+constexpr auto vid_3d_texture_image_filter_cvar_name = bstone::StringView{"vid_3d_texture_image_filter"};
+
+auto vid_3d_texture_image_filter_cvar = bstone::CVar{
+	bstone::CVarStringTag{},
+	vid_3d_texture_image_filter_cvar_name,
+	vid_nearest_string,
+	{
+		vid_nearest_string,
+		vid_linear_string,
+	}};
+
+// vid_3d_texture_mipmap_filter
+
+constexpr auto vid_3d_texture_mipmap_filter_cvar_name = bstone::StringView{"vid_3d_texture_mipmap_filter"};
+
+auto vid_3d_texture_mipmap_filter_cvar = bstone::CVar{
+	bstone::CVarStringTag{},
+	vid_3d_texture_mipmap_filter_cvar_name,
+	vid_nearest_string,
+	{
+		vid_nearest_string,
+		vid_linear_string,
+	}};
+
+// vid_3d_texture_anisotropy
+
+constexpr auto vid_3d_texture_anisotropy_cvar_name = bstone::StringView{"vid_3d_texture_anisotropy"};
+constexpr auto vid_3d_texture_anisotropy_min = 0;
+constexpr auto vid_3d_texture_anisotropy_max = 16;
+constexpr auto vid_3d_texture_anisotropy_default = vid_3d_texture_anisotropy_min;
+
+auto vid_3d_texture_anisotropy_cvar = bstone::CVar{
+	bstone::CVarInt32Tag{},
+	vid_3d_texture_anisotropy_cvar_name,
+	vid_3d_texture_anisotropy_default,
+	vid_3d_texture_anisotropy_min,
+	vid_3d_texture_anisotropy_max};
+
+// vid_filler_color_index
+
+constexpr auto vid_filler_color_index_cvar_name = bstone::StringView{"vid_filler_color_index"};
+constexpr auto vid_filler_color_index_default = 0;
+
+auto vid_filler_color_index_cvar = bstone::CVar{
+	bstone::CVarInt32Tag{},
+	vid_filler_color_index_cvar_name,
+	vid_filler_color_index_default,
+	0,
+	255};
+
+// vid_external_textures
+
+constexpr auto vid_external_textures_cvar_name = bstone::StringView{"vid_external_textures"};
+constexpr auto vid_external_textures_default = false;
+
+auto vid_external_textures_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	vid_external_textures_cvar_name,
+	vid_external_textures_default};
+
+} // namespace
 
 extern bool is_full_menu_active;
 
@@ -875,6 +1114,28 @@ catch (...)
 	fail_nested(__func__);
 }
 
+void vid_initialize_cvars(bstone::CVarMgr& cvar_mgr)
+{
+	cvar_mgr.add(vid_renderer_cvar);
+	cvar_mgr.add(vid_positioned_cvar);
+	cvar_mgr.add(vid_x_cvar);
+	cvar_mgr.add(vid_y_cvar);
+	cvar_mgr.add(vid_width_cvar);
+	cvar_mgr.add(vid_height_cvar);
+	cvar_mgr.add(vid_vsync_cvar);
+	cvar_mgr.add(vid_ui_stretched_cvar);
+	cvar_mgr.add(vid_widescreen_cvar);
+	cvar_mgr.add(vid_aa_type_cvar);
+	cvar_mgr.add(vid_aa_degree_cvar);
+	cvar_mgr.add(vid_texture_upscale_filter_cvar);
+	cvar_mgr.add(vid_texture_upscale_xbrz_degree_cvar);
+	cvar_mgr.add(vid_2d_texture_filter_cvar);
+	cvar_mgr.add(vid_3d_texture_image_filter_cvar);
+	cvar_mgr.add(vid_3d_texture_mipmap_filter_cvar);
+	cvar_mgr.add(vid_3d_texture_anisotropy_cvar);
+	cvar_mgr.add(vid_filler_color_index_cvar);
+	cvar_mgr.add(vid_external_textures_cvar);
+}
 
 namespace
 {

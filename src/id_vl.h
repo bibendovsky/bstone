@@ -21,6 +21,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_ren_3d_types.h"
 #include "bstone_rgb_palette.h"
 #include "bstone_hw_texture_mgr.h"
+#include "bstone_cvar_mgr.h"
 
 
 namespace bstone
@@ -314,7 +315,7 @@ void VL_ScreenToMem(
 	int x,
 	int y);
 
-// BBi
+void vid_initialize_cvars(bstone::CVarMgr& cvar_mgr);
 void vid_cfg_set_defaults();
 
 VidCfg& vid_cfg_get() noexcept;

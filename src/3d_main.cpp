@@ -9722,6 +9722,7 @@ void ShutdownId()
 	CA_Shutdown();
 
 	bstone::globals::page_mgr = nullptr;
+	bstone::globals::cvar_mgr = nullptr;
 }
 
 void CalcProjection(
@@ -10078,7 +10079,6 @@ void DrawCreditsPage()
 	TP_LoadScript(nullptr, &pi, CREDITSTEXT);
 	TP_Presenter(&pi);
 }
-
 
 int main(
 	int argc,

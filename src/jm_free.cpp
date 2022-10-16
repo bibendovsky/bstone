@@ -1446,6 +1446,9 @@ void freed_main()
 		Quit();
 	}
 
+	bstone::globals::cvar_mgr = bstone::make_cvar_mgr(bstone::globals::max_cvars);
+	vid_initialize_cvars(*bstone::globals::cvar_mgr);
+
 	// Setup for APOGEECD thingie.
 	//
 	InitDestPath();

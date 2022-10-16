@@ -8,6 +8,7 @@ SPDX-License-Identifier: MIT
 #include <bstone_exception.h>
 
 namespace bstone {
+namespace char_conv {
 
 namespace {
 
@@ -115,4 +116,5 @@ namespace detail {
 
 } // namespace detail
 
+} // namespace char_conv
 } // namespace bstone
