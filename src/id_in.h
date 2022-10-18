@@ -32,6 +32,8 @@ void TranslateTouchEvent(SDL_Event *ev);
 void TranslateAnalogEvent(SDL_Event *ev);
 #endif
 
+#include "bstone_cvar_mgr.h"
+
 #define MaxPlayers 4
 #define MaxKbds 2
 #define NumCodes 128
@@ -343,6 +345,8 @@ extern bool allcaps;
 #define IN_KeyDown(code) (Keyboard[(code)])
 #define IN_ClearKey(code) { Keyboard[code] = false; \
                             if (code == LastScan) { LastScan = ScanCode::sc_none; } }
+
+void in_initialize_cvars(bstone::CVarMgr& cvar_mgr);
 
 // DEBUG - put names in prototypes
 void IN_Startup();

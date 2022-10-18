@@ -9,8 +9,8 @@ SPDX-License-Identifier: MIT
 
 #include <cassert>
 #include <type_traits>
-#include <bstone_int.h>
-#include <bstone_type_traits.h>
+#include "bstone_int.h"
+#include "bstone_type_traits.h"
 
 namespace bstone {
 

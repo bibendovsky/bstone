@@ -19,6 +19,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <string>
 #include "bstone_audio_decoder.h"
 #include "bstone_audio_mixer.h"
+#include "bstone_cvar_mgr.h"
 
 namespace bstone
 {
@@ -66,6 +67,7 @@ extern bool sd_sq_active_;
 
 // Function prototypes
 
+void sd_initialize_cvars(bstone::CVarMgr& cvar_mgr);
 void sd_startup();
 void sd_shutdown();
 void sd_stop_sfx_sound();

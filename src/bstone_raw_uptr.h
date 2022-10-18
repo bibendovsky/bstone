@@ -8,7 +8,7 @@ SPDX-License-Identifier: MIT
 #define BSTONE_RAW_UPTR_INCLUDED
 
 #include <cstddef>
-#include <bstone_int.h>
+#include "bstone_int.h"
 
 namespace bstone {
 

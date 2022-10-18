@@ -20,8 +20,10 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "movie.h"
 
 #include "bstone_audio_mixer_voice_handle.h"
+#include "bstone_cvar_mgr.h"
 #include "bstone_math.h"
 #include "bstone_mt_task_mgr.h"
+#include "bstone_string_view.h"
 #include "bstone_voice.h"
 
 
@@ -4019,6 +4021,11 @@ PaletteShiftInfo palette_shift_get_info() noexcept;
 
 void cfg_file_write_entry(
 	bstone::TextWriter& writer,
+	bstone::StringView key,
+	bstone::StringView value);
+
+void cfg_file_write_entry(
+	bstone::TextWriter& writer,
 	const std::string& key_string,
 	const std::string& value_string);
 
@@ -4031,6 +4038,9 @@ double get_integral(
 
 double get_fractional(
 	const double value) noexcept;
+
+void gp_initialize_cvars(bstone::CVarMgr& cvar_mgr);
+void am_initialize_cvars(bstone::CVarMgr& cvar_mgr);
 // BBi
 
 

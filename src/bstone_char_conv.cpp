@@ -4,8 +4,8 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-#include <bstone_char_conv.h>
-#include <bstone_exception.h>
+#include "bstone_char_conv.h"
+#include "bstone_exception.h"
 
 namespace bstone {
 namespace char_conv {

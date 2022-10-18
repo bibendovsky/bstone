@@ -85,19 +85,22 @@ try
 {
 	validate_name(name);
 
-	const auto values_end_iter = values.end();
-
-	const auto found_value_iter = std::find_if(
-		values.begin(),
-		values_end_iter,
-		[default_value](const StringView& value)
-		{
-			return default_value == value;
-		});
-
-	if (found_value_iter == values_end_iter)
+	if (values.size() > 0)
 	{
-		fail("Default value out of range.");
+		const auto values_end_iter = values.end();
+
+		const auto found_value_iter = std::find_if(
+			values.begin(),
+			values_end_iter,
+			[default_value](const StringView& value)
+			{
+				return default_value == value;
+			});
+
+		if (found_value_iter == values_end_iter)
+		{
+			fail("Default value out of range.");
+		}
 	}
 
 	type_ = CVarType::string;

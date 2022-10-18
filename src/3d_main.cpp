@@ -7545,6 +7545,29 @@ ScanCode get_scan_code_by_name(
 	return it->first;
 }
 
+bool try_to_deserialize_cvar(const std::string& key, const std::string& value)
+try
+{
+	const auto cvar = bstone::globals::cvar_mgr->find(bstone::StringView{
+		key.data(),
+		static_cast<bstone::Int>(key.size())});
+
+	if (cvar == nullptr)
+	{
+		return false;
+	}
+
+	cvar->set_string(bstone::StringView{
+		value.data(),
+		static_cast<bstone::Int>(value.size())});
+
+	return true;
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
+
 void read_text_config()
 {
 	is_config_loaded = true;
@@ -7572,6 +7595,8 @@ void read_text_config()
 
 				if (parse_config_line(line, key_string, index0, index1, value_string))
 				{
+					try_to_deserialize_cvar(key_string, value_string);
+
 					if (vid_cfg_parse_key_value(key_string, value_string))
 					{
 					}
@@ -7799,6 +7824,24 @@ void ReadConfig()
 
 void cfg_file_write_entry(
 	bstone::TextWriter& writer,
+	bstone::StringView key,
+	bstone::StringView value)
+{
+	const auto key_string = std::string{key.get_data(), static_cast<std::size_t>(key.get_size())};
+	auto entry_string = std::string{};
+	entry_string += key_string;
+	entry_string += " \"";
+	entry_string.append(value.get_data(), value.get_size());
+	entry_string += " \"\n";
+
+	if (!writer.write(entry_string))
+	{
+		bstone::logger_->write_warning("Failed to write setting \"" + key_string + "\".");
+	}
+}
+
+void cfg_file_write_entry(
+	bstone::TextWriter& writer,
 	const std::string& key_string,
 	const std::string& value_string)
 {
@@ -7878,11 +7921,20 @@ void write_text_config()
 	bstone::MemoryStream memory_stream{memory_stream_initial_size, bstone::StreamOpenMode::write};
 	auto writer = bstone::TextWriter{&memory_stream};
 
-
 	writer.write("// BStone configuration file\n");
 	writer.write("// WARNING! This is auto-generated file.\n");
 	writer.write("\n");
 
+	const auto cvars = bstone::globals::cvar_mgr->get_all();
+
+	for (const auto& cvar : cvars)
+	{
+		const auto key = cvar->get_name();
+		const auto value = cvar->get_string();
+		cfg_file_write_entry(writer, key, value);
+	}
+
+#if 0
 	vid_cfg_write(writer);
 
 	writer.write("\n// Audio\n");
@@ -7895,10 +7947,12 @@ void write_text_config()
 	writer.write("\n// Input\n");
 	write_config_entry(writer, in_mouse_sensitivity_name, mouseadjustment);
 	write_config_entry(writer, in_is_mouse_enabled_name, mouseenabled);
+#endif
 
 	writer.write("\n// Input bindings\n");
 	write_bindings_config(in_binding_name, writer);
 
+#if 0
 	writer.write("\n// Gameplay\n");
 	write_config_entry(writer, gp_is_ceiling_solid_name, gp_is_ceiling_solid_);
 	write_config_entry(writer, gp_is_flooring_solid_name, gp_is_flooring_solid_);
@@ -7914,7 +7968,7 @@ void write_text_config()
 
 	writer.write("\n// Auto-map\n");
 	write_config_entry(writer, am_is_rotated_name, g_rotated_automap);
-
+#endif
 
 	const auto stream_size = static_cast<int>(memory_stream.get_size());
 	const auto stream_data = memory_stream.get_data();
@@ -10944,4 +10998,153 @@ double get_fractional(
 	double integral;
 	return std::modf(value, &integral);
 }
+
+namespace {
+
+// gp_solid_floor
+
+constexpr auto gp_solid_floor_cvar_name = bstone::StringView{"gp_is_flooring_solid"};
+constexpr auto gp_solid_floor_cvar_default = false;
+
+auto gp_solid_floor_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	gp_solid_floor_cvar_name,
+	gp_solid_floor_cvar_default};
+
+// gp_solid_ceiling
+
+constexpr auto gp_solid_ceiling_cvar_name = bstone::StringView{"gp_is_ceiling_solid"};
+constexpr auto gp_solid_ceiling_cvar_default = false;
+
+auto gp_solid_ceiling_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	gp_solid_ceiling_cvar_name,
+	gp_solid_ceiling_cvar_default};
+
+// gp_shading
+
+constexpr auto gp_shading_cvar_name = bstone::StringView{"gp_no_shading"};
+constexpr auto gp_shading_cvar_default = true;
+
+auto gp_shading_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	gp_shading_cvar_name,
+	gp_shading_cvar_default};
+
+// gp_attacker_info
+
+constexpr auto gp_attacker_info_cvar_name = bstone::StringView{"gp_hide_attacker_info"};
+constexpr auto gp_attacker_info_cvar_default = true;
+
+auto gp_attacker_info_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	gp_attacker_info_cvar_name,
+	gp_attacker_info_cvar_default};
+
+// gp_always_run
+
+constexpr auto gp_always_run_cvar_name = bstone::StringView{"gp_is_always_run"};
+constexpr auto gp_always_run_cvar_default = false;
+
+auto gp_always_run_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	gp_always_run_cvar_name,
+	gp_always_run_cvar_default};
+
+// gp_wall_hit_sound
+
+constexpr auto gp_wall_hit_sound_cvar_name = bstone::StringView{"gp_no_wall_hit_sfx"};
+constexpr auto gp_wall_hit_sound_cvar_default = false;
+
+auto gp_wall_hit_sound_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	gp_wall_hit_sound_cvar_name,
+	gp_wall_hit_sound_cvar_default};
+
+// gp_heart_beat_sound
+
+constexpr auto gp_heart_beat_sound_cvar_name = bstone::StringView{"gp_use_heart_beat_sfx"};
+constexpr auto gp_heart_beat_sound_cvar_default = false;
+
+auto gp_heart_beat_sound_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	gp_heart_beat_sound_cvar_name,
+	gp_heart_beat_sound_cvar_default};
+
+// gp_quit_on_esc
+
+constexpr auto gp_quit_on_esc_cvar_name = bstone::StringView{"gp_quit_on_escape"};
+constexpr auto gp_quit_on_esc_cvar_default = true;
+
+auto gp_quit_on_esc_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	gp_quit_on_esc_cvar_name,
+	gp_quit_on_esc_cvar_default};
+
+// gp_intro_outro
+
+constexpr auto gp_intro_outro_cvar_name = bstone::StringView{"gp_no_intro_outro"};
+constexpr auto gp_intro_outro_cvar_default = true;
+
+auto gp_intro_outro_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	gp_intro_outro_cvar_name,
+	gp_intro_outro_cvar_default};
+
+// gp_fading
+
+constexpr auto gp_fading_cvar_name = bstone::StringView{"gp_no_fade_in_or_out"};
+constexpr auto gp_fading_cvar_default = true;
+
+auto gp_fading_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	gp_fading_cvar_name,
+	gp_fading_cvar_default};
+
+// gp_weapon_bobbing
+
+constexpr auto gp_weapon_bobbing_cvar_name = bstone::StringView{"gp_no_weapon_bobbing"};
+constexpr auto gp_weapon_bobbing_cvar_default = true;
+
+auto gp_weapon_bobbing_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	gp_weapon_bobbing_cvar_name,
+	gp_weapon_bobbing_cvar_default};
+
+} // namespace
+
+void gp_initialize_cvars(bstone::CVarMgr& cvar_mgr)
+{
+	cvar_mgr.add(gp_solid_floor_cvar);
+	cvar_mgr.add(gp_solid_ceiling_cvar);
+	cvar_mgr.add(gp_shading_cvar);
+	cvar_mgr.add(gp_attacker_info_cvar);
+	cvar_mgr.add(gp_always_run_cvar);
+	cvar_mgr.add(gp_wall_hit_sound_cvar);
+	cvar_mgr.add(gp_heart_beat_sound_cvar);
+	cvar_mgr.add(gp_quit_on_esc_cvar);
+	cvar_mgr.add(gp_intro_outro_cvar);
+	cvar_mgr.add(gp_fading_cvar);
+	cvar_mgr.add(gp_weapon_bobbing_cvar);
+}
+
+namespace {
+
+// am_rotatable
+
+constexpr auto am_rotatable_cvar_name = bstone::StringView{"am_is_rotated"};
+constexpr auto am_rotatable_cvar_default = true;
+
+auto am_rotatable_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	am_rotatable_cvar_name,
+	am_rotatable_cvar_default};
+
+} // namespace
+
+void am_initialize_cvars(bstone::CVarMgr& cvar_mgr)
+{
+	cvar_mgr.add(am_rotatable_cvar);
+}
+
 // BBi

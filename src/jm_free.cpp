@@ -1438,6 +1438,43 @@ static void output_version()
 	);
 }
 
+namespace {
+
+void deserialize_cvars_from_cli(const bstone::ClArgs& args, bstone::CVarMgr& cvar_mgr)
+{
+	const auto arg_count = args.get_count();
+
+	for (auto i = decltype(arg_count){}; i < arg_count; ++i)
+	{
+		const auto& key_string = args.get_argument(i);
+
+		if (key_string.empty() ||
+			key_string.size() <= 2 ||
+			key_string[0] != '-' ||
+			key_string[1] != '-')
+		{
+			continue;
+		}
+
+		const auto cvar = cvar_mgr.find(bstone::StringView{
+			key_string.data() + 2,
+			static_cast<bstone::Int>(key_string.size() - 2)});
+
+		if (cvar == nullptr)
+		{
+			continue;
+		}
+
+		const auto& value_string = args.get_argument(i + 1);
+
+		cvar->set_string(bstone::StringView{
+			value_string.data(),
+			static_cast<bstone::Int>(value_string.size())});
+	}
+}
+
+} // namespace
+
 void freed_main()
 {
 	if (g_args.has_option("version"))
@@ -1448,6 +1485,10 @@ void freed_main()
 
 	bstone::globals::cvar_mgr = bstone::make_cvar_mgr(bstone::globals::max_cvars);
 	vid_initialize_cvars(*bstone::globals::cvar_mgr);
+	sd_initialize_cvars(*bstone::globals::cvar_mgr);
+	gp_initialize_cvars(*bstone::globals::cvar_mgr);
+	am_initialize_cvars(*bstone::globals::cvar_mgr);
+	deserialize_cvars_from_cli(g_args, *bstone::globals::cvar_mgr);
 
 	// Setup for APOGEECD thingie.
 	//

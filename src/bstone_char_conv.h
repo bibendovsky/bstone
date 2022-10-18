@@ -10,10 +10,10 @@ SPDX-License-Identifier: MIT
 #include <cassert>
 #include <limits>
 #include <type_traits>
-#include <bstone_ascii.h>
-#include <bstone_enum_flags.h>
-#include <bstone_int.h>
-#include <bstone_span.h>
+#include "bstone_ascii.h"
+#include "bstone_enum_flags.h"
+#include "bstone_int.h"
+#include "bstone_span.h"
 
 namespace bstone {
 namespace char_conv {

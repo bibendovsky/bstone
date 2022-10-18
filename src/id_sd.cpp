@@ -107,6 +107,142 @@ std::string sd_oal_library = std::string{};
 std::string sd_oal_device_name = std::string{};
 bstone::Opl3Type sd_opl3_type_ = bstone::Opl3Type::dbopl;
 
+namespace {
+
+constexpr auto snd_auto_detect_string = bstone::StringView{"auto-detect"};
+
+// snd_driver
+
+constexpr auto snd_driver_cvar_name = bstone::StringView{"snd_driver"};
+constexpr auto snd_driver_cvar_2d_sdl = bstone::StringView{"2d_sdl"};
+constexpr auto snd_driver_cvar_3d_openal = bstone::StringView{"3d_openal"};
+
+auto snd_driver_cvar = bstone::CVar{
+	bstone::CVarStringTag{},
+	snd_driver_cvar_name,
+	snd_auto_detect_string,
+	{
+		snd_auto_detect_string,
+		snd_driver_cvar_2d_sdl,
+		snd_driver_cvar_3d_openal,
+	}};
+
+// snd_oal_library
+
+constexpr auto snd_oal_library_cvar_name = bstone::StringView{"snd_oal_library"};
+
+auto snd_oal_library_cvar = bstone::CVar{
+	bstone::CVarStringTag{},
+	snd_oal_library_cvar_name,
+	bstone::StringView{}};
+
+// snd_oal_device_name
+
+constexpr auto snd_oal_device_name_cvar_name = bstone::StringView{"snd_oal_device_name"};
+
+auto snd_oal_device_name_cvar = bstone::CVar{
+	bstone::CVarStringTag{},
+	snd_oal_device_name_cvar_name,
+	bstone::StringView{}};
+
+// snd_opl3_type
+
+constexpr auto snd_opl3_type_cvar_name = bstone::StringView{"snd_opl3_type"};
+constexpr auto snd_opl3_type_cvar_dbopl = bstone::StringView{"dbopl"};
+constexpr auto snd_opl3_type_cvar_nuked = bstone::StringView{"nuked"};
+
+auto snd_opl3_type_cvar = bstone::CVar{
+	bstone::CVarStringTag{},
+	snd_opl3_type_cvar_name,
+	snd_opl3_type_cvar_dbopl,
+	{
+		snd_opl3_type_cvar_dbopl,
+		snd_opl3_type_cvar_nuked,
+	}};
+
+// snd_sfx
+
+constexpr auto snd_sfx_cvar_name = bstone::StringView{"snd_is_sfx_enabled"};
+constexpr auto snd_sfx_cvar_default = true;
+
+auto snd_sfx_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	snd_sfx_cvar_name,
+	snd_sfx_cvar_default};
+
+// snd_sfx_type
+
+constexpr auto snd_sfx_type_cvar_name = bstone::StringView{"snd_sfx_type"};
+constexpr auto snd_sfx_type_cvar_pc_speaker = bstone::StringView{"pc_speaker"};
+constexpr auto snd_sfx_type_cvar_adlib = bstone::StringView{"adlib"};
+
+auto snd_sfx_type_cvar = bstone::CVar{
+	bstone::CVarStringTag{},
+	snd_sfx_type_cvar_name,
+	snd_sfx_type_cvar_adlib,
+	{
+		snd_sfx_type_cvar_adlib,
+		snd_sfx_type_cvar_pc_speaker,
+	}};
+
+// snd_sfx_digitized
+
+constexpr auto snd_sfx_digitized_cvar_name = bstone::StringView{"snd_is_sfx_digitized"};
+constexpr auto snd_sfx_digitized_cvar_default = true;
+
+auto snd_sfx_digitized_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	snd_sfx_digitized_cvar_name,
+	snd_sfx_digitized_cvar_default};
+
+// snd_sfx_volume
+
+constexpr auto snd_sfx_volume_cvar_name = bstone::StringView{"snd_sfx_volume"};
+
+auto snd_sfx_volume_cvar = bstone::CVar{
+	bstone::CVarInt32Tag{},
+	snd_sfx_volume_cvar_name,
+	sd_default_sfx_volume,
+	sd_min_volume,
+	sd_max_volume};
+
+// snd_music
+
+constexpr auto snd_music_cvar_name = bstone::StringView{"snd_is_music_enabled"};
+constexpr auto snd_music_cvar_default = true;
+
+auto snd_music_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	snd_music_cvar_name,
+	snd_music_cvar_default};
+
+// snd_music_volume
+
+constexpr auto snd_music_volume_cvar_name = bstone::StringView{"snd_music_volume"};
+
+auto snd_music_volume_cvar = bstone::CVar{
+	bstone::CVarInt32Tag{},
+	snd_music_volume_cvar_name,
+	sd_default_music_volume,
+	sd_min_volume,
+	sd_max_volume};
+
+} // namespace
+
+void sd_initialize_cvars(bstone::CVarMgr& cvar_mgr)
+{
+	cvar_mgr.add(snd_driver_cvar);
+	cvar_mgr.add(snd_oal_library_cvar);
+	cvar_mgr.add(snd_oal_device_name_cvar);
+	cvar_mgr.add(snd_opl3_type_cvar);
+	cvar_mgr.add(snd_sfx_cvar);
+	cvar_mgr.add(snd_sfx_type_cvar);
+	cvar_mgr.add(snd_sfx_digitized_cvar);
+	cvar_mgr.add(snd_sfx_volume_cvar);
+	cvar_mgr.add(snd_music_cvar);
+	cvar_mgr.add(snd_music_volume_cvar);
+}
+
 void sd_cfg_parse_cl();
 
 const std::string& sd_get_snd_string()
