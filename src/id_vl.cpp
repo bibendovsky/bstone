@@ -163,16 +163,14 @@ auto vid_aa_type_cvar = bstone::CVar{
 // vid_aa_degree
 
 constexpr auto vid_aa_degree_cvar_name = bstone::StringView{"vid_aa_degree"};
-constexpr auto vid_aa_degree_cvar_min = vid_min_aa;
-constexpr auto vid_aa_degree_cvar_max = vid_max_aa;
-constexpr auto vid_aa_degree_cvar_default = vid_aa_degree_cvar_min;
+constexpr auto vid_aa_degree_cvar_values = {vid_min_aa, 4, 8, 16, vid_max_aa};
+constexpr auto vid_aa_degree_cvar_default = vid_min_aa;
 
 auto vid_aa_degree_cvar = bstone::CVar{
 	bstone::CVarInt32Tag{},
 	vid_aa_degree_cvar_name,
 	vid_aa_degree_cvar_default,
-	vid_aa_degree_cvar_min,
-	vid_aa_degree_cvar_max};
+	vid_aa_degree_cvar_values};
 
 // vid_texture_upscale_filter
 

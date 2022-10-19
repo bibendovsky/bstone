@@ -8,6 +8,7 @@ SPDX-License-Identifier: MIT
 #include <exception>
 #include <limits>
 #include <utility>
+#include <unordered_set>
 #include "bstone_algorithm.h"
 #include "bstone_ascii.h"
 #include "bstone_char_conv.h"
@@ -38,33 +39,26 @@ CVar::CVar(
 	Int32 default_value,
 	Int32 min_value,
 	Int32 max_value)
-try
-{
-	validate_name(name);
+	:
+	CVar{
+		CVarInt32Tag{},
+		name,
+		default_value,
+		std::numeric_limits<Int32>::min(),
+		std::numeric_limits<Int32>::max(),
+		{}}
+{}
 
-	if (min_value > max_value)
-	{
-		fail("Min int32 value out of range.");
-	}
-
-	if (default_value < min_value || default_value > max_value)
-	{
-		fail("Default int32 value out of range.");
-	}
-
-	type_ = CVarType::int32;
-	name_ = name;
-
-	int32_default_value_ = default_value;
-	int32_min_value_ = min_value;
-	int32_max_value_ = max_value;
-	int32_value_ = int32_default_value_;
-	set_string_from_int32();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+CVar::CVar(CVarInt32Tag, StringView name, Int32 default_value, std::initializer_list<Int32> values)
+	:
+	CVar{
+		CVarInt32Tag{},
+		name,
+		default_value,
+		std::numeric_limits<Int32>::min(),
+		std::numeric_limits<Int32>::max(),
+		values}
+{}
 
 CVar::CVar(CVarInt32Tag, StringView name, Int32 default_value)
 	:
@@ -73,7 +67,8 @@ CVar::CVar(CVarInt32Tag, StringView name, Int32 default_value)
 		name,
 		default_value,
 		std::numeric_limits<Int32>::min(),
-		std::numeric_limits<Int32>::max()}
+		std::numeric_limits<Int32>::max(),
+		{}}
 {}
 
 CVar::CVar(
@@ -166,37 +161,49 @@ try
 	switch (type_)
 	{
 		case CVarType::int32:
-			value = algorithm::clamp(value, int32_min_value_, int32_max_value_);
-
-			if (int32_value_ == value)
-			{
-				return;
-			}
-
-			int32_value_ = value;
-			set_string_from_int32();
-			break;
-
 		case CVarType::string:
-			value = algorithm::clamp(value, int32_min_value_, int32_max_value_);
-
-			if (int32_value_ == value)
-			{
-				return;
-			}
-
-			int32_value_ = value;
-			set_string_from_int32();
-			ensure_string();
 			break;
 
 		default:
 			fail_unknown_type();
 	}
+
+	if (int32_values_.empty())
+	{
+		value = algorithm::clamp(value, int32_min_value_, int32_max_value_);
+	}
+	else
+	{
+		const auto int32_values_end_iter = int32_values_.cend();
+		const auto value_iter = std::find(int32_values_.cbegin(), int32_values_end_iter, value);
+
+		if (value_iter == int32_values_end_iter)
+		{
+			value = int32_default_value_;
+		}
+	}
+
+	if (int32_value_ == value)
+	{
+		return;
+	}
+
+	int32_value_ = value;
+	set_string_from_int32();
+
+	if (type_ == CVarType::string)
+	{
+		ensure_string();
+	}
 }
 catch (...)
 {
 	fail_nested(__func__);
+}
+
+CVarInt32Values CVar::get_int32_values() const noexcept
+{
+	return CVarInt32Values{int32_values_.data(), static_cast<Int>(int32_values_.size())};
 }
 
 StringView CVar::get_string() const noexcept
@@ -214,6 +221,11 @@ void CVar::set_string(StringView value)
 	string_value_ = value;
 	ensure_string();
 	set_int32_from_string();
+}
+
+CVarStringValues CVar::get_string_values() const noexcept
+{
+	return CVarStringValues{string_values_.data(), static_cast<Int>(string_values_.size())};
 }
 
 void CVar::swap(CVar& rhs)
@@ -280,6 +292,64 @@ try
 	{
 		fail("Expected at least one underscore or alpha character for name.");
 	}
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
+
+CVar::CVar(
+	CVarInt32Tag,
+	StringView name,
+	Int32 default_value,
+	Int32 min_value,
+	Int32 max_value,
+	std::initializer_list<Int32> values)
+try
+{
+	validate_name(name);
+
+	const auto value_count = values.size();
+
+	if (value_count > 0)
+	{
+		using UniqueValues = std::unordered_set<Int32>;
+		auto unique_values = UniqueValues{values.begin(), values.end()};
+
+		if (value_count != unique_values.size())
+		{
+			fail("Duplicate int32 values.");
+		}
+
+		const auto unique_value_iter = unique_values.find(default_value);
+
+		if (unique_value_iter == unique_values.cend())
+		{
+			fail("Default int32 value out of range.");
+		}
+	}
+	else
+	{
+		if (min_value > max_value)
+		{
+			fail("Min int32 value out of range.");
+		}
+
+		if (default_value < min_value || default_value > max_value)
+		{
+			fail("Default int32 value out of range.");
+		}
+	}
+
+	type_ = CVarType::int32;
+	name_ = name;
+
+	int32_default_value_ = default_value;
+	int32_min_value_ = min_value;
+	int32_max_value_ = max_value;
+	int32_values_ = values;
+	int32_value_ = int32_default_value_;
+	set_string_from_int32();
 }
 catch (...)
 {
