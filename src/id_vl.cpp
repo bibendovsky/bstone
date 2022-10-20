@@ -238,16 +238,14 @@ auto vid_3d_texture_mipmap_filter_cvar = bstone::CVar{
 // vid_3d_texture_anisotropy
 
 constexpr auto vid_3d_texture_anisotropy_cvar_name = bstone::StringView{"vid_3d_texture_anisotropy"};
-constexpr auto vid_3d_texture_anisotropy_cvar_min = vid_min_anisotropic;
-constexpr auto vid_3d_texture_anisotropy_cvar_max = vid_max_anisotropic;
-constexpr auto vid_3d_texture_anisotropy_cvar_default = vid_3d_texture_anisotropy_cvar_min;
+constexpr auto vid_3d_texture_anisotropy_cvar_values = {vid_min_anisotropic, 4, 8, vid_max_anisotropic};
+constexpr auto vid_3d_texture_anisotropy_cvar_default = vid_min_anisotropic;
 
 auto vid_3d_texture_anisotropy_cvar = bstone::CVar{
 	bstone::CVarInt32Tag{},
 	vid_3d_texture_anisotropy_cvar_name,
 	vid_3d_texture_anisotropy_cvar_default,
-	vid_3d_texture_anisotropy_cvar_min,
-	vid_3d_texture_anisotropy_cvar_max};
+	vid_3d_texture_anisotropy_cvar_values};
 
 // vid_filler_color_index
 

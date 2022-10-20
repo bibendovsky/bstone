@@ -8,7 +8,6 @@ SPDX-License-Identifier: MIT
 #include <exception>
 #include <limits>
 #include <utility>
-#include <unordered_set>
 #include "bstone_algorithm.h"
 #include "bstone_ascii.h"
 #include "bstone_char_conv.h"
@@ -308,22 +307,26 @@ CVar::CVar(
 try
 {
 	validate_name(name);
-
 	const auto value_count = values.size();
 
 	if (value_count > 0)
 	{
-		using UniqueValues = std::unordered_set<Int32>;
-		auto unique_values = UniqueValues{values.begin(), values.end()};
+		auto last_value = *values.begin();
+		auto found_default_value = (last_value == default_value);
 
-		if (value_count != unique_values.size())
+		for (auto i = 1; i < value_count; ++i)
 		{
-			fail("Duplicate int32 values.");
+			const auto& value = values.begin()[i];
+
+			if (value <= last_value)
+			{
+				fail("Unordered or duplicate values.");
+			}
+
+			found_default_value |= (value == default_value);
 		}
 
-		const auto unique_value_iter = unique_values.find(default_value);
-
-		if (unique_value_iter == unique_values.cend())
+		if (!found_default_value)
 		{
 			fail("Default int32 value out of range.");
 		}
