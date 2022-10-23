@@ -129,7 +129,7 @@ See [README-PSVITA.md](README-PSVITA.md) for details about the source port on PS
 5 - Required assets
 ===================
 
-Since all titles are not free (except shareware) you have to own a copy of the game in order to play.
+Since all titles except shareware are not free you have to own a copy of the game in order to play.
 
 Required files for each game:
 
@@ -147,6 +147,149 @@ Required files for each game:
 | VGAGRAPH.BS1 | VGAGRAPH.BS6 | VGAGRAPH.VSI |
 | VGAHEAD.BS1  | VGAHEAD.BS6  | VGAHEAD.VSI  |
 | VSWAP.BS1    | VSWAP.BS6    | VSWAP.VSI    |
+
+[SHA-1](https://en.wikipedia.org/wiki/SHA-1) for AOG SW v1.0:
+
+|   File name  |                  SHA-1                   |
+|--------------|------------------------------------------|
+| AUDIOHED.BS1 | 0c3de403b524107809fa9308b730d60e8e41ba93 |
+| AUDIOT.BS1   | 3d4e8b62aa4683671027513ad9720f76f176ba5b |
+| IANIM.BS1    | ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd |
+| MAPHEAD.BS1  | 55b9eb9ed555b0f249c2cefd54ecc3f511bfcd55 |
+| MAPTEMP.BS1  | 293464e7143ff7e6faf5f5b20799e76a394d65bf |
+| SANIM.BS1    | 22bf818465da0f32eef9611de936cba9966b14aa |
+| VGADICT.BS1  | b54d48d35d095e27a3c9130cfa59ed9c4f05abe7 |
+| VGAGRAPH.BS1 | d1fa19131281d30787125f946881652be876f57a |
+| VGAHEAD.BS1  | cc44c362e9e2c9f7b9fb2e4ba31331dde42a1e96 |
+| VSWAP.BS1    | 37412ca9139562fc31330d72470822de4d9ceb4a |
+
+[SHA-1](https://en.wikipedia.org/wiki/SHA-1) for AOG SW v2.0:
+
+|   File name  |                  SHA-1                   |
+|--------------|------------------------------------------|
+| AUDIOHED.BS1 | 0c3de403b524107809fa9308b730d60e8e41ba93 |
+| AUDIOT.BS1   | 3d4e8b62aa4683671027513ad9720f76f176ba5b |
+| IANIM.BS1    | ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd |
+| MAPHEAD.BS1  | 04a8e4e7c360f6033dc70f7b09edbc4a6447e462 |
+| MAPTEMP.BS1  | bbb3cd6ab3e742eada427862504eba06437036d0 |
+| SANIM.BS1    | 22bf818465da0f32eef9611de936cba9966b14aa |
+| VGADICT.BS1  | 058fe0b59c7aa020bf4e7509103892d4c7459aa6 |
+| VGAGRAPH.BS1 | e14b6172b6ab7568d3736f087f07a0df5eac5dad |
+| VGAHEAD.BS1  | 6c0e273df7fd3940c038fc20a5bdfb81cd50e7ef |
+| VSWAP.BS1    | dbde907ba1110bef445d6daae283c4520d6951b4 |
+
+[SHA-1](https://en.wikipedia.org/wiki/SHA-1) for AOG SW v2.1:
+
+|   File name  |                  SHA-1                   |
+|--------------|------------------------------------------|
+| AUDIOHED.BS1 | e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2 |
+| AUDIOT.BS1   | b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25 |
+| IANIM.BS1    | ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd |
+| MAPHEAD.BS1  | 04a8e4e7c360f6033dc70f7b09edbc4a6447e462 |
+| MAPTEMP.BS1  | bbb3cd6ab3e742eada427862504eba06437036d0 |
+| SANIM.BS1    | 22bf818465da0f32eef9611de936cba9966b14aa |
+| VGADICT.BS1  | ed1ab61ad2529e046f966d9c1627508f76693ef8 |
+| VGAGRAPH.BS1 | b59cbe3793b4612b06254ece48bf8e961ab6f528 |
+| VGAHEAD.BS1  | 0635a4a2b823eef2904ed1d590d98362fb16621d |
+| VSWAP.BS1    | dbde907ba1110bef445d6daae283c4520d6951b4 |
+
+[SHA-1](https://en.wikipedia.org/wiki/SHA-1) for AOG SW v3.0:
+
+|   File name  |                  SHA-1                   |
+|--------------|------------------------------------------|
+| AUDIOHED.BS1 | e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2 |
+| AUDIOT.BS1   | b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25 |
+| IANIM.BS1    | ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd |
+| MAPHEAD.BS1  | 04a8e4e7c360f6033dc70f7b09edbc4a6447e462 |
+| MAPTEMP.BS1  | bbb3cd6ab3e742eada427862504eba06437036d0 |
+| SANIM.BS1    | 22bf818465da0f32eef9611de936cba9966b14aa |
+| VGADICT.BS1  | 537676ddcafeee415c22bb9d00097b25bc7e13c5 |
+| VGAGRAPH.BS1 | 9f9f4c40c9637af472ce5e1a360e51364c3a418a |
+| VGAHEAD.BS1  | e7fb8f241b8fa94739c3bd09ea05c1afc7bbfc95 |
+| VSWAP.BS1    | dbde907ba1110bef445d6daae283c4520d6951b4 |
+
+[SHA-1](https://en.wikipedia.org/wiki/SHA-1) for AOG v1.0:
+
+|   File name  |                  SHA-1                   |
+|--------------|------------------------------------------|
+| AUDIOHED.BS6 | e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2 |
+| AUDIOT.BS6   | b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25 |
+| EANIM.BS6    | af5af59ad7ed17517d87b3ece3c0cac23ade535b |
+| GANIM.BS6    | 9b2418a1a1f34abdcf6fcd9ed3344a49912c9b5e |
+| IANIM.BS6    | ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd |
+| MAPHEAD.BS6  | 6f19a144d8985e90f096fc1c67ade58e9051235c |
+| MAPTEMP.BS6  | 4d00c5f5c843f99a266bd938648192a6eff17b5a |
+| SANIM.BS6    | 22bf818465da0f32eef9611de936cba9966b14aa |
+| VGADICT.BS6  | d4f81ace1701a7338d43ce07723c2adaafdc837c |
+| VGAGRAPH.BS6 | 02dc27d4810e3ffa26540b310eac6091f5e16de0 |
+| VGAHEAD.BS6  | 639ec9e7a81ad83fc5b5c557cf4fc5fa28b9676b |
+| VSWAP.BS6    | 0a700732ccbc72f95318a6226a7e1ad78ac713bb |
+
+[SHA-1](https://en.wikipedia.org/wiki/SHA-1) for AOG v2.0:
+
+|   File name  |                  SHA-1                   |
+|--------------|------------------------------------------|
+| AUDIOHED.BS6 | e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2 |
+| AUDIOT.BS6   | b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25 |
+| EANIM.BS6    | af5af59ad7ed17517d87b3ece3c0cac23ade535b |
+| GANIM.BS6    | 9b2418a1a1f34abdcf6fcd9ed3344a49912c9b5e |
+| IANIM.BS6    | ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd |
+| MAPHEAD.BS6  | 028f624e150f84ffc8336336cb0ecea0932cc22d |
+| MAPTEMP.BS6  | 8b48e7eb859382a4c84948c5a62899194288e853 |
+| SANIM.BS6    | 22bf818465da0f32eef9611de936cba9966b14aa |
+| VGADICT.BS6  | e83b690836c9edf9ef60f6189b8384fb2319b735 |
+| VGAGRAPH.BS6 | 67a679e3b107db8685ba5ff1643a38f9291b00bf |
+| VGAHEAD.BS6  | 48b18caa86151610957b64b207cf2a2977ef7d57 |
+| VSWAP.BS6    | 6fcc6e007b02b2e55892cfa7acfd42966ef9c9fb |
+
+[SHA-1](https://en.wikipedia.org/wiki/SHA-1) for AOG v2.1:
+
+|   File name  |                  SHA-1                   |
+|--------------|------------------------------------------|
+| AUDIOHED.BS6 | e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2 |
+| AUDIOT.BS6   | b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25 |
+| EANIM.BS6    | af5af59ad7ed17517d87b3ece3c0cac23ade535b |
+| GANIM.BS6    | 9b2418a1a1f34abdcf6fcd9ed3344a49912c9b5e |
+| IANIM.BS6    | ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd |
+| MAPHEAD.BS6  | 028f624e150f84ffc8336336cb0ecea0932cc22d |
+| MAPTEMP.BS6  | 8b48e7eb859382a4c84948c5a62899194288e853 |
+| SANIM.BS6    | 22bf818465da0f32eef9611de936cba9966b14aa |
+| VGADICT.BS6  | e4ae3ef9a3ac158a832092b7b5487227337c6f13 |
+| VGAGRAPH.BS6 | 6868e6cc4f8cb9160a218c5bce680a11f64c675a |
+| VGAHEAD.BS6  | 1a3864cd12de4b8fd6be023b73d2d79e91b9018d |
+| VSWAP.BS6    | 6fcc6e007b02b2e55892cfa7acfd42966ef9c9fb |
+
+[SHA-1](https://en.wikipedia.org/wiki/SHA-1) for AOG v3.0:
+
+|   File name  |                  SHA-1                   |
+|--------------|------------------------------------------|
+| AUDIOHED.BS6 | e2c101f9fd4bc7e22ddbfa3f019c9303877de4e2 |
+| AUDIOT.BS6   | b79e7afcb4e4b29e59660ec261f72ff1ab4d3a25 |
+| EANIM.BS6    | af5af59ad7ed17517d87b3ece3c0cac23ade535b |
+| GANIM.BS6    | 9b2418a1a1f34abdcf6fcd9ed3344a49912c9b5e |
+| IANIM.BS6    | ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd |
+| MAPHEAD.BS6  | 028f624e150f84ffc8336336cb0ecea0932cc22d |
+| MAPTEMP.BS6  | 8b48e7eb859382a4c84948c5a62899194288e853 |
+| SANIM.BS6    | 22bf818465da0f32eef9611de936cba9966b14aa |
+| VGADICT.BS6  | 60da35e506d57753f83cca5f232a76dd1cf074ba |
+| VGAGRAPH.BS6 | 001037fafdff124befb5437c563d0b9c613b3c00 |
+| VGAHEAD.BS6  | ff165ca5924d738853587a7e4ab1cd239e10e359 |
+| VSWAP.BS6    | 6fcc6e007b02b2e55892cfa7acfd42966ef9c9fb |
+
+[SHA-1](https://en.wikipedia.org/wiki/SHA-1) for PS:
+
+|   File name  |                  SHA-1                   |
+|--------------|------------------------------------------|
+| AUDIOHED.VSI | 2ed9a587926b2b455f8176788f595d03f6359171 |
+| AUDIOT.VSI   | ecac8a800c5d021c8b68d170066c8859df9bd79a |
+| EANIM.VSI    | b668330e56ceb069c1b972cefddd8a3d618a14af |
+| IANIM.VSI    | ba1fa5b0bc34f148deffb4977a3cd1e718e91bbd |
+| MAPHEAD.VSI  | c3fb0a9b81e0240d12c952fe5b57b78c1108aa48 |
+| MAPTEMP.VSI  | acd03031d526eeaee64072518adf6814f96e2a37 |
+| VGADICT.VSI  | 061692d166f68d7e0b81568725439078cc728f33 |
+| VGAGRAPH.VSI | e619a3e6245f79888da5436df138d63204d2caba |
+| VGAHEAD.VSI  | ad5fed9de5d1d82145df3ff2286e4bc62cb80e2a |
+| VSWAP.VSI    | 4113ce83c42e69dc5cb20de79f41971a100f876e |
 
 Legend:
 * AOG SW - Aliens Of Gold (shareware)
