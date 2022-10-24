@@ -88,8 +88,8 @@ const int sd_max_volume = 20;
 const int sd_default_sfx_volume = 10;
 const int sd_default_music_volume = 5;
 
-extern std::string sd_oal_library;
-extern std::string sd_oal_device_name;
+const std::string& sd_get_oal_library() noexcept;
+const std::string& sd_get_oal_device_name() noexcept;
 
 void sd_play_ui_sound(int sound_index);
 void sd_play_actor_voice_sound(int sound_index, objtype& actor);

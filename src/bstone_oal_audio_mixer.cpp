@@ -688,12 +688,12 @@ void OalAudioMixer::log(const OalString& string)
 void OalAudioMixer::log_oal_library_file_name()
 {
 	log(std::string{"Default library: \""} + get_oal_default_library_file_name() + '\"');
-	log("Custom library: \"" + sd_oal_library + '\"');
+	log("Custom library: \"" + sd_get_oal_library() + '\"');
 }
 
 void OalAudioMixer::log_oal_custom_device()
 {
-	log(std::string{} + "Custom device: \"" + sd_oal_device_name + '\"');
+	log(std::string{} + "Custom device: \"" + sd_get_oal_device_name() + '\"');
 }
 
 void OalAudioMixer::log_oal_devices()
@@ -780,7 +780,11 @@ void OalAudioMixer::initialize_oal(const AudioMixerInitParam& param)
 	log_oal_library_file_name();
 	log_oal_custom_device();
 
-	oal_loader_ = make_oal_loader(!sd_oal_library.empty() ? sd_oal_library.c_str() : get_oal_default_library_file_name());
+	oal_loader_ = make_oal_loader(
+		!sd_get_oal_library().empty() ?
+		sd_get_oal_library().c_str() :
+		get_oal_default_library_file_name());
+
 	oal_loader_->load_alc_symbols(al_symbols_);
 
 	detect_alc_extensions();
@@ -788,7 +792,9 @@ void OalAudioMixer::initialize_oal(const AudioMixerInitParam& param)
 	log_oal_devices();
 	log_oal_default_device();
 
-	oal_device_resource_ = make_oal_device(al_symbols_, !sd_oal_device_name.empty() ? sd_oal_device_name.c_str() : nullptr);
+	oal_device_resource_ = make_oal_device(
+		al_symbols_,
+		!sd_get_oal_device_name().empty() ? sd_get_oal_device_name().c_str() : nullptr);
 
 	log_oal_current_device_name();
 	log_oal_alc_extensions();

@@ -103,8 +103,8 @@ int sd_sfx_volume_ = sd_default_sfx_volume;
 int sd_music_volume_ = sd_default_music_volume;
 
 AudioDriverType sd_audio_driver_type = AudioDriverType::auto_detect;
-std::string sd_oal_library = std::string{};
-std::string sd_oal_device_name = std::string{};
+auto sd_oal_library_ = std::string{};
+auto sd_oal_device_name_ = std::string{};
 bstone::Opl3Type sd_opl3_type_ = bstone::Opl3Type::dbopl;
 
 namespace {
@@ -886,6 +886,16 @@ void sd_update_listener_r3_orientation()
 	}
 }
 
+const std::string& sd_get_oal_library() noexcept
+{
+	return sd_oal_library_;
+}
+
+const std::string& sd_get_oal_device_name() noexcept
+{
+	return sd_oal_device_name_;
+}
+
 void sd_play_ui_sound(int sound_index)
 {
 	sd_play_non_positional_sfx_sound(sound_index, sd_ui_sfx_voice_, *sd_ui_sfx_voice_group_);
@@ -1478,12 +1488,12 @@ bool sd_cfg_parse_key_value(const std::string& key_string, const std::string& va
 	}
 	else if (key_string == sd_cfg_get_oal_library_name())
 	{
-		sd_oal_library = value_string;
+		sd_oal_library_ = value_string;
 		return true;
 	}
 	else if (key_string == sd_cfg_get_oal_device_name_name())
 	{
-		sd_oal_device_name = value_string;
+		sd_oal_device_name_ = value_string;
 		return true;
 	}
 	else if (key_string == sd_cfg_get_sfx_type_name())
@@ -1555,12 +1565,12 @@ void sd_cfg_parse_cl()
 
 	if (g_args.has_option(sd_cfg_get_oal_library_name()))
 	{
-		sd_oal_library = g_args.get_option_value(sd_cfg_get_oal_library_name());
+		sd_oal_library_ = g_args.get_option_value(sd_cfg_get_oal_library_name());
 	}
 
 	if (g_args.has_option(sd_cfg_get_oal_device_name_name()))
 	{
-		sd_oal_device_name = g_args.get_option_value(sd_cfg_get_oal_device_name_name());
+		sd_oal_device_name_ = g_args.get_option_value(sd_cfg_get_oal_device_name_name());
 	}
 
 	if (g_args.has_option(sd_cfg_get_sfx_type_name()))
@@ -1624,13 +1634,13 @@ void sd_cfg_write(bstone::TextWriter& text_writer)
 	cfg_file_write_entry(
 		text_writer,
 		sd_cfg_get_oal_library_name(),
-		sd_oal_library
+		sd_get_oal_library()
 	);
 
 	cfg_file_write_entry(
 		text_writer,
 		sd_cfg_get_oal_device_name_name(),
-		sd_oal_device_name
+		sd_oal_device_name_
 	);
 
 	{
