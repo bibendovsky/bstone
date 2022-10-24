@@ -5166,7 +5166,7 @@ void video_mode_draw_menu()
 	DrawMenu(&video_mode_items, video_mode_menu);
 	VW_UpdateScreen();
 
-	const auto& vid_cfg = vid_cfg_get();
+	menu_video_mode_cfg_ = vid_cfg_get_video_mode();
 
 	{
 		menu_video_mode_renderer_kinds_ = vid_get_available_renderer_kinds();
@@ -5179,7 +5179,7 @@ void video_mode_draw_menu()
 		const auto renderer_kind_it = std::find(
 			menu_video_mode_renderer_kinds_.cbegin(),
 			menu_video_mode_renderer_kinds_.cend(),
-			vid_cfg.renderer_kind_
+			menu_video_mode_cfg_.renderer_kind_
 		);
 
 		if (renderer_kind_it == menu_video_mode_renderer_kinds_.cend())
@@ -5191,15 +5191,6 @@ void video_mode_draw_menu()
 			menu_video_mode_renderer_index_ = static_cast<int>(
 				renderer_kind_it - menu_video_mode_renderer_kinds_.cbegin());
 		}
-	}
-
-	{
-		menu_video_mode_cfg_.renderer_kind_ = vid_cfg.renderer_kind_;
-	}
-
-	{
-		menu_video_mode_cfg_.width = vid_cfg.width;
-		menu_video_mode_cfg_.height = vid_cfg.height;
 	}
 
 	{
@@ -5223,15 +5214,7 @@ void video_mode_draw_menu()
 		}
 	}
 
-	{
-		menu_video_mode_cfg_.is_vsync_ = vid_cfg.is_vsync_;
-	}
-
-	{
-		menu_video_mode_cfg_.aa_kind_ = vid_cfg.aa_kind_;
-		menu_video_mode_cfg_.aa_degree_ = menu_video_mode_aa_factor_adjust(vid_cfg.aa_degree_);
-	}
-
+	menu_video_mode_cfg_.aa_degree_ = menu_video_mode_aa_factor_adjust(menu_video_mode_cfg_.aa_degree_);
 	menu_video_mode_cfg_saved_ = menu_video_mode_cfg_;
 }
 

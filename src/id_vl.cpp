@@ -66,15 +66,15 @@ auto vid_renderer_cvar = bstone::CVar{
 		vid_renderer_cvar_gles_2_0,
 	}};
 
-// vid_positioned
+// vid_is_positioned
 
-constexpr auto vid_positioned_cvar_name = bstone::StringView{"vid_is_positioned"};
-constexpr auto vid_positioned_cvar_default = false;
+constexpr auto vid_is_positioned_cvar_name = bstone::StringView{"vid_is_positioned"};
+constexpr auto vid_is_positioned_cvar_default = false;
 
-auto vid_positioned_cvar = bstone::CVar{
+auto vid_is_positioned_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
-	vid_positioned_cvar_name,
-	vid_positioned_cvar_default};
+	vid_is_positioned_cvar_name,
+	vid_is_positioned_cvar_default};
 
 // vid_x
 
@@ -116,48 +116,48 @@ auto vid_height_cvar = bstone::CVar{
 	vid_height_cvar_name,
 	vid_height_cvar_default};
 
-// vid_vsync
+// vid_is_vsync
 
-constexpr auto vid_vsync_cvar_name = bstone::StringView{"vid_is_vsync"};
-constexpr auto vid_vsync_cvar_default = true;
+constexpr auto vid_is_vsync_cvar_name = bstone::StringView{"vid_is_vsync"};
+constexpr auto vid_is_vsync_cvar_default = true;
 
-auto vid_vsync_cvar = bstone::CVar{
+auto vid_is_vsync_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
-	vid_vsync_cvar_name,
-	vid_vsync_cvar_default};
+	vid_is_vsync_cvar_name,
+	vid_is_vsync_cvar_default};
 
-// vid_ui_stretched
+// vid_is_ui_stretched
 
-constexpr auto vid_ui_stretched_cvar_name = bstone::StringView{"vid_is_ui_stretched"};
-constexpr auto vid_ui_stretched_cvar_default = false;
+constexpr auto vid_is_ui_stretched_cvar_name = bstone::StringView{"vid_is_ui_stretched"};
+constexpr auto vid_is_ui_stretched_cvar_default = false;
 
-auto vid_ui_stretched_cvar = bstone::CVar{
+auto vid_is_ui_stretched_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
-	vid_ui_stretched_cvar_name,
-	vid_ui_stretched_cvar_default};
+	vid_is_ui_stretched_cvar_name,
+	vid_is_ui_stretched_cvar_default};
 
-// vid_widescreen
+// vid_is_widescreen
 
-constexpr auto vid_widescreen_cvar_name = bstone::StringView{"vid_is_widescreen"};
-constexpr auto vid_widescreen_cvar_default = false;
+constexpr auto vid_is_widescreen_cvar_name = bstone::StringView{"vid_is_widescreen"};
+constexpr auto vid_is_widescreen_cvar_default = false;
 
-auto vid_widescreen_cvar = bstone::CVar{
+auto vid_is_widescreen_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
-	vid_widescreen_cvar_name,
-	vid_widescreen_cvar_default};
+	vid_is_widescreen_cvar_name,
+	vid_is_widescreen_cvar_default};
 
-// vid_aa_type
+// vid_aa_kind
 
-constexpr auto vid_aa_type_cvar_name = bstone::StringView{"vid_aa_kind"};
-constexpr auto vid_aa_type_cvar_msaa = bstone::StringView{"msaa"};
+constexpr auto vid_aa_kind_cvar_name = bstone::StringView{"vid_aa_kind"};
+constexpr auto vid_aa_kind_cvar_msaa = bstone::StringView{"msaa"};
 
-auto vid_aa_type_cvar = bstone::CVar{
+auto vid_aa_kind_cvar = bstone::CVar{
 	bstone::CVarStringTag{},
-	vid_aa_type_cvar_name,
+	vid_aa_kind_cvar_name,
 	vid_none_string,
 	{
 		vid_none_string,
-		vid_aa_type_cvar_msaa,
+		vid_aa_kind_cvar_msaa,
 	}};
 
 // vid_aa_degree
@@ -1119,15 +1119,15 @@ catch (...)
 void vid_initialize_cvars(bstone::CVarMgr& cvar_mgr)
 {
 	cvar_mgr.add(vid_renderer_cvar);
-	cvar_mgr.add(vid_positioned_cvar);
+	cvar_mgr.add(vid_is_positioned_cvar);
 	cvar_mgr.add(vid_x_cvar);
 	cvar_mgr.add(vid_y_cvar);
 	cvar_mgr.add(vid_width_cvar);
 	cvar_mgr.add(vid_height_cvar);
-	cvar_mgr.add(vid_vsync_cvar);
-	cvar_mgr.add(vid_ui_stretched_cvar);
-	cvar_mgr.add(vid_widescreen_cvar);
-	cvar_mgr.add(vid_aa_type_cvar);
+	cvar_mgr.add(vid_is_vsync_cvar);
+	cvar_mgr.add(vid_is_ui_stretched_cvar);
+	cvar_mgr.add(vid_is_widescreen_cvar);
+	cvar_mgr.add(vid_aa_kind_cvar);
 	cvar_mgr.add(vid_aa_degree_cvar);
 	cvar_mgr.add(vid_texture_upscale_filter_cvar);
 	cvar_mgr.add(vid_texture_upscale_xbrz_degree_cvar);
@@ -3131,6 +3131,18 @@ void vid_cfg_set_defaults()
 	vid_cfg_.filler_color_index = 0;
 
 	vid_cfg_.is_external_textures_enabled_ = false;
+}
+
+VideoModeCfg vid_cfg_get_video_mode() noexcept
+{
+	auto cfg = VideoModeCfg{};
+	cfg.renderer_kind_ = vid_cfg_.renderer_kind_;
+	cfg.width = vid_cfg_.width;
+	cfg.height = vid_cfg_.height;
+	cfg.is_vsync_ = vid_cfg_.is_vsync_;
+	cfg.aa_kind_ = vid_cfg_.aa_kind_;
+	cfg.aa_degree_ = vid_cfg_.aa_degree_;
+	return cfg;
 }
 
 VidCfg& vid_cfg_get() noexcept

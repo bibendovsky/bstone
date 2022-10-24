@@ -160,15 +160,15 @@ auto snd_opl3_type_cvar = bstone::CVar{
 		snd_opl3_type_cvar_nuked,
 	}};
 
-// snd_sfx
+// snd_is_sfx_enabled
 
-constexpr auto snd_sfx_cvar_name = bstone::StringView{"snd_is_sfx_enabled"};
-constexpr auto snd_sfx_cvar_default = true;
+constexpr auto snd_is_sfx_enabled_cvar_name = bstone::StringView{"snd_is_sfx_enabled"};
+constexpr auto snd_is_sfx_enabled_cvar_default = true;
 
-auto snd_sfx_cvar = bstone::CVar{
+auto snd_is_sfx_enabled_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
-	snd_sfx_cvar_name,
-	snd_sfx_cvar_default};
+	snd_is_sfx_enabled_cvar_name,
+	snd_is_sfx_enabled_cvar_default};
 
 // snd_sfx_type
 
@@ -185,15 +185,15 @@ auto snd_sfx_type_cvar = bstone::CVar{
 		snd_sfx_type_cvar_pc_speaker,
 	}};
 
-// snd_sfx_digitized
+// snd_is_sfx_digitized
 
-constexpr auto snd_sfx_digitized_cvar_name = bstone::StringView{"snd_is_sfx_digitized"};
-constexpr auto snd_sfx_digitized_cvar_default = true;
+constexpr auto snd_is_sfx_digitized_cvar_name = bstone::StringView{"snd_is_sfx_digitized"};
+constexpr auto snd_is_sfx_digitized_cvar_default = true;
 
 auto snd_sfx_digitized_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
-	snd_sfx_digitized_cvar_name,
-	snd_sfx_digitized_cvar_default};
+	snd_is_sfx_digitized_cvar_name,
+	snd_is_sfx_digitized_cvar_default};
 
 // snd_sfx_volume
 
@@ -206,15 +206,15 @@ auto snd_sfx_volume_cvar = bstone::CVar{
 	sd_min_volume,
 	sd_max_volume};
 
-// snd_music
+// snd_is_music_enabled
 
-constexpr auto snd_music_cvar_name = bstone::StringView{"snd_is_music_enabled"};
-constexpr auto snd_music_cvar_default = true;
+constexpr auto snd_is_music_enabled_cvar_name = bstone::StringView{"snd_is_music_enabled"};
+constexpr auto snd_is_music_enabled_cvar_default = true;
 
 auto snd_music_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
-	snd_music_cvar_name,
-	snd_music_cvar_default};
+	snd_is_music_enabled_cvar_name,
+	snd_is_music_enabled_cvar_default};
 
 // snd_music_volume
 
@@ -235,7 +235,7 @@ void sd_initialize_cvars(bstone::CVarMgr& cvar_mgr)
 	cvar_mgr.add(snd_oal_library_cvar);
 	cvar_mgr.add(snd_oal_device_name_cvar);
 	cvar_mgr.add(snd_opl3_type_cvar);
-	cvar_mgr.add(snd_sfx_cvar);
+	cvar_mgr.add(snd_is_sfx_enabled_cvar);
 	cvar_mgr.add(snd_sfx_type_cvar);
 	cvar_mgr.add(snd_sfx_digitized_cvar);
 	cvar_mgr.add(snd_sfx_volume_cvar);

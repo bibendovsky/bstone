@@ -324,6 +324,8 @@ void VL_ScreenToMem(
 void vid_initialize_cvars(bstone::CVarMgr& cvar_mgr);
 void vid_cfg_set_defaults();
 
+
+VideoModeCfg vid_cfg_get_video_mode() noexcept;
 VidCfg& vid_cfg_get() noexcept;
 
 bool vid_cfg_parse_key_value(

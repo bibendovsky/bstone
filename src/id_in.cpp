@@ -115,15 +115,15 @@ static Direction DirTable[] = // Quick lookup for total direction
 
 namespace {
 
-// in_mouse
+// in_is_mouse_enabled
 
-constexpr auto in_mouse_cvar_name = bstone::StringView{"in_is_mouse_enabled"};
-constexpr auto in_mouse_cvar_default = true;
+constexpr auto in_is_mouse_enabled_cvar_name = bstone::StringView{"in_is_mouse_enabled"};
+constexpr auto in_is_mouse_enabled_cvar_default = true;
 
-auto in_mouse_cvar = bstone::CVar{
+auto in_is_mouse_enabled_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
-	in_mouse_cvar_name,
-	in_mouse_cvar_default};
+	in_is_mouse_enabled_cvar_name,
+	in_is_mouse_enabled_cvar_default};
 
 // in_mouse_sensitivity
 
@@ -143,7 +143,7 @@ auto in_mouse_sensitivity_cvar = bstone::CVar{
 
 void in_initialize_cvars(bstone::CVarMgr& cvar_mgr)
 {
-	cvar_mgr.add(in_mouse_cvar);
+	cvar_mgr.add(in_is_mouse_enabled_cvar);
 	cvar_mgr.add(in_mouse_sensitivity_cvar);
 }
 
