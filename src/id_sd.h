@@ -88,9 +88,6 @@ const int sd_max_volume = 20;
 const int sd_default_sfx_volume = 10;
 const int sd_default_music_volume = 5;
 
-extern int sd_sfx_volume_;
-extern int sd_music_volume_;
-
 extern std::string sd_oal_library;
 extern std::string sd_oal_device_name;
 
@@ -113,7 +110,12 @@ void sd_update();
 bool sd_is_player_hit_wall_sound_playing();
 bool sd_is_player_no_way_sound_playing();
 
+int sd_get_sfx_volume() noexcept;
+void sd_set_sfx_volume(int volume) noexcept;
 void sd_set_sfx_volume();
+
+int sd_get_music_volume() noexcept;
+void sd_set_music_volume(int volume) noexcept;
 void sd_set_music_volume();
 
 void sd_mute(bool mute);

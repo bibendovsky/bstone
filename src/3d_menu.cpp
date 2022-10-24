@@ -4647,7 +4647,19 @@ void ExitGame()
 
 // BBi
 int volume_index = 0;
-int* const volumes[2] = {&sd_sfx_volume_, &sd_music_volume_};
+
+struct Volume
+{
+	using Get = int (*)();
+	Get get;
+
+	using Set = void (*)(int);
+	Set set;
+};
+
+Volume const volumes[2] = {
+	{sd_get_sfx_volume, sd_set_sfx_volume},
+	{sd_get_music_volume, sd_set_music_volume}};
 
 void draw_volume_control(
 	int index,
@@ -4684,7 +4696,7 @@ void draw_volume_controls()
 {
 	for (int i = 0; i < 2; ++i)
 	{
-		draw_volume_control(i, *(volumes[i]), i == volume_index);
+		draw_volume_control(i, volumes[i].get(), i == volume_index);
 	}
 }
 
@@ -4770,11 +4782,11 @@ void cp_sound_volume(
 			break;
 
 		case dir_West:
-			if (*volumes[volume_index] > sd_min_volume)
+			if (volumes[volume_index].get() > sd_min_volume)
 			{
 				redraw_controls = true;
 				update_volumes = true;
-				--(*volumes[volume_index]);
+				volumes[volume_index].set(volumes[volume_index].get() - 1);
 				draw_volume_controls();
 				VW_UpdateScreen();
 			}
@@ -4786,11 +4798,11 @@ void cp_sound_volume(
 			break;
 
 		case dir_East:
-			if (*volumes[volume_index] < sd_max_volume)
+			if (volumes[volume_index].get() < sd_max_volume)
 			{
 				redraw_controls = true;
 				update_volumes = true;
-				++(*volumes[volume_index]);
+				volumes[volume_index].set(volumes[volume_index].get() + 1);
 			}
 
 			while (Keyboard[ScanCode::sc_right_arrow])
@@ -4807,13 +4819,13 @@ void cp_sound_volume(
 		{
 			update_volumes = false;
 
-			if (old_volumes[0] != *volumes[0])
+			if (old_volumes[0] != volumes[0].get())
 			{
 				sd_set_sfx_volume();
 				menu_play_move_gun_1_sound();
 			}
 
-			if (old_volumes[1] != *volumes[1])
+			if (old_volumes[1] != volumes[1].get())
 			{
 				sd_set_music_volume();
 			}

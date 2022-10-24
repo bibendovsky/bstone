@@ -7509,8 +7509,8 @@ void set_config_defaults()
 
 	sd_set_is_sound_enabled(true);
 	sd_set_is_music_enabled(true);
-	sd_sfx_volume_ = sd_default_sfx_volume;
-	sd_music_volume_ = sd_default_music_volume;
+	sd_set_sfx_volume(sd_default_sfx_volume);
+	sd_set_music_volume(sd_default_music_volume);
 
 	g_no_wall_hit_sound = default_no_wall_hit_sound;
 	g_always_run = default_always_run;
@@ -7627,17 +7627,17 @@ void read_text_config()
 
 						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
-							sd_sfx_volume_ = value;
+							sd_set_sfx_volume(value);
 						}
 
-						if (sd_sfx_volume_ < sd_min_volume)
+						if (sd_get_sfx_volume() < sd_min_volume)
 						{
-							sd_sfx_volume_ = sd_min_volume;
+							sd_set_sfx_volume(sd_min_volume);
 						}
 
-						if (sd_sfx_volume_ > sd_max_volume)
+						if (sd_get_sfx_volume() > sd_max_volume)
 						{
-							sd_sfx_volume_ = sd_max_volume;
+							sd_set_sfx_volume(sd_max_volume);
 						}
 					}
 					else if (key_string == snd_music_volume_name)
@@ -7646,17 +7646,17 @@ void read_text_config()
 
 						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
-							sd_music_volume_ = value;
+							sd_set_music_volume(value);
 						}
 
-						if (sd_music_volume_ < sd_min_volume)
+						if (sd_get_music_volume() < sd_min_volume)
 						{
-							sd_music_volume_ = sd_min_volume;
+							sd_set_music_volume(sd_min_volume);
 						}
 
-						if (sd_music_volume_ > sd_max_volume)
+						if (sd_get_music_volume() > sd_max_volume)
 						{
-							sd_music_volume_ = sd_max_volume;
+							sd_set_music_volume(sd_max_volume);
 						}
 					}
 					else if (key_string == in_mouse_sensitivity_name)

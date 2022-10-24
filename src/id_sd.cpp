@@ -484,8 +484,8 @@ void sd_startup()
 			sd_log("Channel count: " + std::to_string(sd_mixer_->get_channel_count()));
 			sd_log("Sample rate: " + std::to_string(sd_mixer_->get_rate()) + " Hz");
 			sd_log("Mix size: " + std::to_string(sd_mixer_->get_mix_size_ms()) + " ms");
-			sd_log("Effects volume: " + std::to_string(sd_sfx_volume_) + " / " + std::to_string(sd_max_volume));
-			sd_log("Music volume: " + std::to_string(sd_music_volume_) + " / " + std::to_string(sd_max_volume));
+			sd_log("Effects volume: " + std::to_string(sd_get_sfx_volume()) + " / " + std::to_string(sd_max_volume));
+			sd_log("Music volume: " + std::to_string(sd_get_music_volume()) + " / " + std::to_string(sd_max_volume));
 			sd_log("OPL3 type: " + sd_get_opl3_long_name(sd_mixer_->get_opl3_type()));
 
 			audio_content_mgr = bstone::make_audio_content_mgr(*bstone::globals::page_mgr);
@@ -1203,6 +1203,16 @@ bool sd_is_player_no_way_sound_playing()
 	return sd_is_player_sound_playing(sd_player_no_way_voice_);
 }
 
+int sd_get_sfx_volume() noexcept
+{
+	return sd_sfx_volume_;
+}
+
+void sd_set_sfx_volume(int volume) noexcept
+{
+	sd_sfx_volume_ = volume;
+}
+
 void sd_set_sfx_volume()
 {
 	if (sd_mixer_ == nullptr)
@@ -1210,11 +1220,21 @@ void sd_set_sfx_volume()
 		return;
 	}
 
-	const auto volume = (sd_is_sound_enabled() ? sd_sfx_volume_ : sd_min_volume);
+	const auto volume = (sd_is_sound_enabled() ? sd_get_sfx_volume() : sd_min_volume);
 	const auto clamped_volume = bstone::math::clamp(volume, sd_min_volume, sd_max_volume);
 	const auto gain = static_cast<double>(clamped_volume) / static_cast<double>(sd_max_volume);
 	sd_ui_sfx_voice_group_->set_gain(gain);
 	sd_scene_sfx_voice_group_->set_gain(gain);
+}
+
+int sd_get_music_volume() noexcept
+{
+	return sd_music_volume_;
+}
+
+void sd_set_music_volume(int volume) noexcept
+{
+	sd_music_volume_ = volume;
 }
 
 void sd_set_music_volume()
@@ -1224,7 +1244,7 @@ void sd_set_music_volume()
 		return;
 	}
 
-	const auto volume = (sd_is_music_enabled() ? sd_music_volume_ : sd_min_volume);
+	const auto volume = (sd_is_music_enabled() ? sd_get_music_volume() : sd_min_volume);
 	const auto clamped_volume = bstone::math::clamp(volume, sd_min_volume, sd_max_volume);
 	const auto gain = static_cast<double>(clamped_volume) / static_cast<double>(sd_max_volume);
 	sd_music_voice_group_->set_gain(gain);
