@@ -7508,7 +7508,7 @@ void set_config_defaults()
 	mouseadjustment = default_mouse_sensitivity;
 
 	sd_set_is_sound_enabled(true);
-	sd_is_music_enabled_ = true;
+	sd_set_is_music_enabled(true);
 	sd_sfx_volume_ = sd_default_sfx_volume;
 	sd_music_volume_ = sd_default_music_volume;
 
@@ -7618,7 +7618,7 @@ void read_text_config()
 
 						if (bstone::StringHelper::string_to_int(value_string, value))
 						{
-							sd_is_music_enabled_ = (value != 0);
+							sd_set_is_music_enabled(value != 0);
 						}
 					}
 					else if (key_string == snd_sfx_volume_name)

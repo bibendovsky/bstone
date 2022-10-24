@@ -2924,9 +2924,9 @@ void CP_Sound(
 			break;
 
 		case 3:
-			sd_enable_music(!sd_is_music_enabled_);
+			sd_enable_music(!sd_is_music_enabled());
 
-			if (sd_is_music_enabled_)
+			if (sd_is_music_enabled())
 			{
 				StartCPMusic(MENUSONG);
 			}
@@ -3022,7 +3022,7 @@ void DrawAllSoundLights(
 				break;
 
 			case 3:
-				if (sd_is_music_enabled_)
+				if (sd_is_music_enabled())
 				{
 					++Shape;
 				}

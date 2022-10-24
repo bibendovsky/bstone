@@ -1226,7 +1226,7 @@ void CheckMusicToggle()
 				sd_play_player_no_way_sound(NOWAYSND);
 				return;
 			}
-			else if (sd_is_music_enabled_)
+			else if (sd_is_music_enabled())
 			{
 				sd_enable_music(false);
 				is_enabled = false;

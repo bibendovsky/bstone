@@ -1163,7 +1163,7 @@ void PreDemo()
 
 	// Wait for end of fanfare
 	//
-	if (sd_is_music_enabled_)
+	if (sd_is_music_enabled())
 	{
 		IN_StartAck();
 		while (sd_is_music_playing() && (!IN_CheckAck()))
