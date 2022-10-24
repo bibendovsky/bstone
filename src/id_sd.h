@@ -60,7 +60,6 @@ struct Instrument
 // Global variables
 
 extern bool sd_has_audio_;
-extern bool sd_is_sound_enabled_;
 extern bool sd_is_music_enabled_;
 
 extern bool sd_sq_active_;
@@ -75,6 +74,8 @@ void sd_wait_sound_done();
 void sd_start_music(int index, bool is_looping = true);
 void sd_music_on(bool is_looping);
 void sd_music_off();
+bool sd_is_sound_enabled() noexcept;
+void sd_set_is_sound_enabled(bool is_enabled) noexcept;
 bool sd_enable_sound(const bool enable);
 bool sd_enable_music(const bool enable);
 bool sd_is_playing_any_ui_sound();

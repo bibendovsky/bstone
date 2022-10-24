@@ -2904,11 +2904,11 @@ void CP_Sound(
 			//
 		case 0:
 			sd_wait_sound_done();
-			sd_enable_sound(!sd_is_sound_enabled_);
+			sd_enable_sound(!sd_is_sound_enabled());
 
 			DrawSoundMenu();
 
-			if (sd_is_sound_enabled_)
+			if (sd_is_sound_enabled())
 			{
 				ShootSnd();
 			}
@@ -2999,7 +2999,7 @@ void DrawAllSoundLights(
 			switch (i)
 			{
 			case 0:
-				if (sd_is_sound_enabled_)
+				if (sd_is_sound_enabled())
 				{
 					++Shape;
 				}

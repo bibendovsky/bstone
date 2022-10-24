@@ -293,6 +293,16 @@ static bool sd_detect_ad_lib()
 	return snd_is_disabled_int == 0;
 }
 
+bool sd_is_sound_enabled() noexcept
+{
+	return sd_is_sound_enabled_;
+}
+
+void sd_set_is_sound_enabled(bool is_enabled) noexcept
+{
+	sd_is_sound_enabled_ = is_enabled;
+}
+
 bool sd_enable_sound(bool enable)
 {
 	sd_stop_sfx_sound();

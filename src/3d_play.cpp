@@ -806,7 +806,7 @@ void CheckKeys()
 		{
 			bool is_enabled = false;
 
-			if (sd_is_sound_enabled_)
+			if (sd_is_sound_enabled())
 			{
 				sd_wait_sound_done();
 				sd_enable_sound(false);
