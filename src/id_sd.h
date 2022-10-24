@@ -89,7 +89,6 @@ const int sd_default_music_volume = 5;
 extern int sd_sfx_volume_;
 extern int sd_music_volume_;
 
-extern AudioDriverType sd_audio_driver_type;
 extern std::string sd_oal_library;
 extern std::string sd_oal_device_name;
 
@@ -118,6 +117,9 @@ void sd_set_music_volume();
 void sd_mute(bool mute);
 void sd_pause_scene_sfx(bool is_pause);
 void sd_pause_music(bool is_pause);
+
+AudioDriverType sd_get_audio_driver_type() noexcept;
+void sd_set_audio_driver_type(AudioDriverType audio_driver_type);
 
 AudioSfxType sd_cfg_get_sfx_type() noexcept;
 void sd_cfg_set_sfx_type(AudioSfxType sfx_type);

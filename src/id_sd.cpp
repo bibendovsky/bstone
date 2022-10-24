@@ -1264,6 +1264,16 @@ void apply_digitized_sfx()
 	audio_content_mgr->set_is_sfx_digitized(sd_is_sfx_digitized);
 }
 
+AudioDriverType sd_get_audio_driver_type() noexcept
+{
+	return sd_audio_driver_type;
+}
+
+void sd_set_audio_driver_type(AudioDriverType audio_driver_type)
+{
+	sd_audio_driver_type = audio_driver_type;
+}
+
 AudioSfxType sd_cfg_get_sfx_type() noexcept
 {
 	return sd_sfx_type;

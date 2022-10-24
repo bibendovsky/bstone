@@ -2785,7 +2785,7 @@ auto sound_driver_index = 0;
 
 void initialize_sound_driver_index()
 {
-	switch (sd_audio_driver_type)
+	switch (sd_get_audio_driver_type())
 	{
 		case AudioDriverType::r2_sdl:
 			sound_driver_index = 1;
@@ -2820,7 +2820,7 @@ void sound_driver_carousel(
 		sound_driver_index = 0;
 	}
 
-	sd_audio_driver_type = sound_drivers[sound_driver_index].type;
+	sd_set_audio_driver_type(sound_drivers[sound_driver_index].type);
 	sd_shutdown();
 	sd_startup();
 
