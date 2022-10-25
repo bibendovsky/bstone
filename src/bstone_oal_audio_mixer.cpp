@@ -688,7 +688,11 @@ void OalAudioMixer::log(const OalString& string)
 void OalAudioMixer::log_oal_library_file_name()
 {
 	log(std::string{"Default library: \""} + get_oal_default_library_file_name() + '\"');
-	log("Custom library: \"" + sd_get_oal_library() + '\"');
+	const auto oal_library = sd_get_oal_library();
+	const auto oal_library_string = std::string{
+		oal_library.get_data(),
+		static_cast<std::size_t>(oal_library.get_size())};
+	log("Custom library: \"" + oal_library_string + '\"');
 }
 
 void OalAudioMixer::log_oal_custom_device()
@@ -780,11 +784,19 @@ void OalAudioMixer::initialize_oal(const AudioMixerInitParam& param)
 	log_oal_library_file_name();
 	log_oal_custom_device();
 
-	oal_loader_ = make_oal_loader(
-		!sd_get_oal_library().empty() ?
-		sd_get_oal_library().c_str() :
-		get_oal_default_library_file_name());
+	auto oal_library_string = std::string{};
+	const auto oal_library = sd_get_oal_library();
 
+	if (oal_library.is_empty())
+	{
+		oal_library_string = get_oal_default_library_file_name();
+	}
+	else
+	{
+		oal_library_string.append(oal_library.get_data(), static_cast<std::size_t>(oal_library.get_size()));
+	}
+
+	oal_loader_ = make_oal_loader(oal_library_string.c_str());
 	oal_loader_->load_alc_symbols(al_symbols_);
 
 	detect_alc_extensions();

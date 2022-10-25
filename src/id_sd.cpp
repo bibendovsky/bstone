@@ -102,7 +102,9 @@ static bstone::AudioMixerUPtr sd_mixer_;
 int sd_sfx_volume_ = sd_default_sfx_volume;
 int sd_music_volume_ = sd_default_music_volume;
 
+#if FIXMENOW
 auto sd_oal_library_ = std::string{};
+#endif
 auto sd_oal_device_name_ = std::string{};
 bstone::Opl3Type sd_opl3_type_ = bstone::Opl3Type::dbopl;
 
@@ -909,9 +911,9 @@ void sd_update_listener_r3_orientation()
 	}
 }
 
-const std::string& sd_get_oal_library() noexcept
+bstone::StringView sd_get_oal_library() noexcept
 {
-	return sd_oal_library_;
+	return snd_oal_library_cvar.get_string();
 }
 
 const std::string& sd_get_oal_device_name() noexcept
