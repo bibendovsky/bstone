@@ -7522,7 +7522,9 @@ void set_config_defaults()
 	g_no_intro_outro = default_g_no_intro_outro;
 
 	vid_cfg_set_defaults();
+#if FIXMENOW
 	sd_cfg_set_defaults();
+#endif
 }
 
 ScanCode get_scan_code_by_name(
@@ -7600,6 +7602,7 @@ void read_text_config()
 					if (vid_cfg_parse_key_value(key_string, value_string))
 					{
 					}
+#if FIXMENOW
 					else if (sd_cfg_parse_key_value(key_string, value_string))
 					{
 					}
@@ -7659,6 +7662,7 @@ void read_text_config()
 							sd_set_music_volume(sd_max_volume);
 						}
 					}
+#endif
 					else if (key_string == in_mouse_sensitivity_name)
 					{
 						int value;
@@ -7934,7 +7938,7 @@ void write_text_config()
 		cfg_file_write_entry(writer, key, value);
 	}
 
-#if 0
+#if FIXMENOW
 	vid_cfg_write(writer);
 
 	writer.write("\n// Audio\n");
@@ -7952,7 +7956,7 @@ void write_text_config()
 	writer.write("\n// Input bindings\n");
 	write_bindings_config(in_binding_name, writer);
 
-#if 0
+#if FIXMENOW
 	writer.write("\n// Gameplay\n");
 	write_config_entry(writer, gp_is_ceiling_solid_name, gp_is_ceiling_solid_);
 	write_config_entry(writer, gp_is_flooring_solid_name, gp_is_flooring_solid_);

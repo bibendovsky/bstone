@@ -102,7 +102,6 @@ static bstone::AudioMixerUPtr sd_mixer_;
 int sd_sfx_volume_ = sd_default_sfx_volume;
 int sd_music_volume_ = sd_default_music_volume;
 
-AudioDriverType sd_audio_driver_type = AudioDriverType::auto_detect;
 auto sd_oal_library_ = std::string{};
 auto sd_oal_device_name_ = std::string{};
 bstone::Opl3Type sd_opl3_type_ = bstone::Opl3Type::dbopl;
@@ -243,7 +242,9 @@ void sd_initialize_cvars(bstone::CVarMgr& cvar_mgr)
 	cvar_mgr.add(snd_music_volume_cvar);
 }
 
+#if FIXMENOW
 void sd_cfg_parse_cl();
+#endif
 
 const std::string& sd_get_snd_string()
 {
@@ -404,6 +405,24 @@ catch (...)
 	sd_fail_nested(__func__);
 }
 
+AudioDriverType sd_get_driver_type_from_cvar() noexcept
+{
+	const auto driver_sv = snd_driver_cvar.get_string();
+
+	if (driver_sv == snd_driver_cvar_2d_sdl)
+	{
+		return AudioDriverType::r2_sdl;
+		return AudioDriverType::r3_openal;
+	}
+
+	if (driver_sv == snd_driver_cvar_3d_openal)
+	{
+		return AudioDriverType::r3_openal;
+	}
+
+	return AudioDriverType::auto_detect;
+}
+
 } // namespace
 
 void sd_startup()
@@ -434,17 +453,21 @@ void sd_startup()
 			static_cast<void>(bstone::StringHelper::string_to_int(snd_mix_size_string, snd_mix_size));
 		}
 
+#if FIXMENOW
 		sd_cfg_parse_cl();
+#endif
 
 		auto is_driver_initialized = false;
 
-		switch (sd_audio_driver_type)
+		const auto driver_type = sd_get_driver_type_from_cvar();
+
+		switch (driver_type)
 		{
 			case AudioDriverType::r2_sdl:
 			case AudioDriverType::r3_openal:
 				try
 				{
-					sd_make_mixer(sd_audio_driver_type, snd_rate, snd_mix_size);
+					sd_make_mixer(driver_type, snd_rate, snd_mix_size);
 					is_driver_initialized = true;
 				}
 				catch (...)
@@ -1316,12 +1339,25 @@ void apply_digitized_sfx()
 
 AudioDriverType sd_get_audio_driver_type() noexcept
 {
-	return sd_audio_driver_type;
+	return sd_get_driver_type_from_cvar();
 }
 
 void sd_set_audio_driver_type(AudioDriverType audio_driver_type)
 {
-	sd_audio_driver_type = audio_driver_type;
+	switch (audio_driver_type)
+	{
+		case AudioDriverType::r2_sdl:
+			snd_driver_cvar.set_string(snd_driver_cvar_2d_sdl);
+			break;
+
+		case AudioDriverType::r3_openal:
+			snd_driver_cvar.set_string(snd_driver_cvar_3d_openal);
+			break;
+
+		default:
+			snd_driver_cvar.set_string(snd_auto_detect_string);
+			break;
+	}
 }
 
 AudioSfxType sd_cfg_get_sfx_type() noexcept
@@ -1378,6 +1414,7 @@ void sd_set_opl3_type(bstone::Opl3Type opl3_type)
 	}
 }
 
+#if FIXMENOW
 void sd_cfg_set_defaults()
 {
 	sd_sfx_type = AudioSfxType::adlib;
@@ -1692,3 +1729,4 @@ void sd_cfg_write(bstone::TextWriter& text_writer)
 		);
 	}
 }
+#endif
