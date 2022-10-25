@@ -104,8 +104,8 @@ int sd_music_volume_ = sd_default_music_volume;
 
 #if FIXMENOW
 auto sd_oal_library_ = std::string{};
-#endif
 auto sd_oal_device_name_ = std::string{};
+#endif
 bstone::Opl3Type sd_opl3_type_ = bstone::Opl3Type::dbopl;
 
 namespace {
@@ -916,9 +916,9 @@ bstone::StringView sd_get_oal_library() noexcept
 	return snd_oal_library_cvar.get_string();
 }
 
-const std::string& sd_get_oal_device_name() noexcept
+bstone::StringView sd_get_oal_device_name() noexcept
 {
-	return sd_oal_device_name_;
+	return snd_oal_device_name_cvar.get_string();
 }
 
 void sd_play_ui_sound(int sound_index)

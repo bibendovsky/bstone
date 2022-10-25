@@ -697,7 +697,12 @@ void OalAudioMixer::log_oal_library_file_name()
 
 void OalAudioMixer::log_oal_custom_device()
 {
-	log(std::string{} + "Custom device: \"" + sd_get_oal_device_name() + '\"');
+	auto message = std::string{};
+	message += "Custom device: \"";
+	const auto device_name = sd_get_oal_device_name();
+	message.append(device_name.get_data(), static_cast<std::size_t>(device_name.get_size()));
+	message += '"';
+	log(message);
 }
 
 void OalAudioMixer::log_oal_devices()
@@ -804,10 +809,20 @@ void OalAudioMixer::initialize_oal(const AudioMixerInitParam& param)
 	log_oal_devices();
 	log_oal_default_device();
 
-	oal_device_resource_ = make_oal_device(
-		al_symbols_,
-		!sd_get_oal_device_name().empty() ? sd_get_oal_device_name().c_str() : nullptr);
+	auto device_name_c_string = static_cast<const char*>(nullptr);
+	auto device_name_string = std::string{};
+	const auto device_name_sv = sd_get_oal_device_name();
 
+	if (!device_name_sv.is_empty())
+	{
+		device_name_string.append(
+			device_name_sv.get_data(),
+			static_cast<std::size_t>(device_name_sv.get_size()));
+
+		device_name_c_string = device_name_string.c_str();
+	}
+
+	oal_device_resource_ = make_oal_device(al_symbols_, device_name_c_string);
 	log_oal_current_device_name();
 	log_oal_alc_extensions();
 
