@@ -31,8 +31,6 @@ constexpr auto max_voices =
 
 // Global variables
 
-bool sd_has_audio_ = false;
-
 // Internal variables
 
 static bool sd_started_;
@@ -97,6 +95,36 @@ static bstone::AudioMixerUPtr sd_mixer_;
 namespace {
 
 constexpr auto snd_auto_detect_string = bstone::StringView{"auto-detect"};
+
+// snd_is_disabled
+
+constexpr auto snd_is_disabled_cvar_name = bstone::StringView{"snd_is_disabled"};
+constexpr auto snd_is_disabled_cvar_default = false;
+
+auto snd_is_disabled_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	snd_is_disabled_cvar_name,
+	snd_is_disabled_cvar_default};
+
+// snd_rate
+
+constexpr auto snd_rate_cvar_name = bstone::StringView{"snd_rate"};
+constexpr auto snd_rate_cvar_default = 0;
+
+auto snd_rate_cvar = bstone::CVar{
+	bstone::CVarInt32Tag{},
+	snd_rate_cvar_name,
+	snd_rate_cvar_default};
+
+// snd_mix_size
+
+constexpr auto snd_mix_size_cvar_name = bstone::StringView{"snd_mix_size"};
+constexpr auto snd_mix_size_cvar_default = 20;
+
+auto snd_mix_size_cvar = bstone::CVar{
+	bstone::CVarInt32Tag{},
+	snd_mix_size_cvar_name,
+	snd_mix_size_cvar_default};
 
 // snd_driver
 
@@ -218,6 +246,9 @@ auto snd_music_volume_cvar = bstone::CVar{
 
 void sd_initialize_cvars(bstone::CVarMgr& cvar_mgr)
 {
+	cvar_mgr.add(snd_is_disabled_cvar);
+	cvar_mgr.add(snd_rate_cvar);
+	cvar_mgr.add(snd_mix_size_cvar);
 	cvar_mgr.add(snd_driver_cvar);
 	cvar_mgr.add(snd_oal_library_cvar);
 	cvar_mgr.add(snd_oal_device_name_cvar);
@@ -258,26 +289,6 @@ void sd_log_error(const std::string& message)
 }
 
 
-// Determines if there's an AdLib (or SoundBlaster emulating an AdLib) present
-static bool sd_detect_ad_lib()
-{
-	const auto& snd_is_disabled_string = g_args.get_option_value("snd_is_disabled");
-
-	if (snd_is_disabled_string.empty())
-	{
-		return true;
-	}
-
-	auto snd_is_disabled_int = 0;
-
-	if (!bstone::StringHelper::string_to_int(snd_is_disabled_string, snd_is_disabled_int))
-	{
-		return true;
-	}
-
-	return snd_is_disabled_int == 0;
-}
-
 bool sd_is_sound_enabled() noexcept
 {
 	return snd_is_sfx_enabled_cvar.get_bool();
@@ -292,7 +303,7 @@ bool sd_enable_sound(bool enable)
 {
 	sd_stop_sfx_sound();
 
-	if (enable && !sd_has_audio_)
+	if (enable && !sd_has_audio())
 	{
 		enable = false;
 	}
@@ -449,24 +460,11 @@ void sd_startup()
 	sd_log("Initializing audio");
 	sd_log("------------------");
 
-	sd_has_audio_ = sd_detect_ad_lib();
-
-	if (sd_has_audio_)
+	if (sd_has_audio())
 	{
-		auto snd_rate = 0;
-		auto snd_mix_size = 0;
-
-		{
-			const auto& snd_rate_string = g_args.get_option_value("snd_rate");
-			static_cast<void>(bstone::StringHelper::string_to_int(snd_rate_string, snd_rate));
-		}
-
-		{
-			const auto& snd_mix_size_string = g_args.get_option_value("snd_mix_size");
-			static_cast<void>(bstone::StringHelper::string_to_int(snd_mix_size_string, snd_mix_size));
-		}
-
 		auto is_driver_initialized = false;
+		const auto rate = snd_rate_cvar.get_int32();
+		const auto mix_size = snd_mix_size_cvar.get_int32();
 
 		const auto driver_type = sd_get_driver_type_from_cvar();
 
@@ -476,7 +474,7 @@ void sd_startup()
 			case AudioDriverType::r3_openal:
 				try
 				{
-					sd_make_mixer(driver_type, snd_rate, snd_mix_size);
+					sd_make_mixer(driver_type, rate, mix_size);
 					is_driver_initialized = true;
 				}
 				catch (...)
@@ -490,7 +488,7 @@ void sd_startup()
 			default:
 				try
 				{
-					sd_make_mixer(AudioDriverType::r3_openal, snd_rate, snd_mix_size);
+					sd_make_mixer(AudioDriverType::r3_openal, rate, mix_size);
 					is_driver_initialized = true;
 				}
 				catch (...)
@@ -499,7 +497,7 @@ void sd_startup()
 
 					try
 					{
-						sd_make_mixer(AudioDriverType::r2_sdl, snd_rate, snd_mix_size);
+						sd_make_mixer(AudioDriverType::r2_sdl, rate, mix_size);
 						is_driver_initialized = true;
 					}
 					catch (...)
@@ -539,7 +537,7 @@ void sd_startup()
 
 	sd_started_ = true;
 
-	if (sd_has_audio_)
+	if (sd_has_audio())
 	{
 		sd_initialize_voices();
 
@@ -586,6 +584,11 @@ bool sd_is_music_playing()
 	}
 
 	return sd_music_voice_group_->is_any_playing();
+}
+
+bool sd_has_audio() noexcept
+{
+	return snd_is_disabled_cvar.get_bool();
 }
 
 // If a sound is playing, stops it.

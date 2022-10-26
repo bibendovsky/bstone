@@ -2958,7 +2958,7 @@ void DrawSoundMenu()
 	// IF NO ADLIB, NON-CHOOSENESS!
 	//
 
-	if (!sd_has_audio_)
+	if (!sd_has_audio())
 	{
 		SndMenu[0].active = AT_DISABLED;
 		SndMenu[3].active = AT_DISABLED;

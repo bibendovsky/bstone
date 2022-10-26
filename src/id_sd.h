@@ -59,8 +59,6 @@ struct Instrument
 
 // Global variables
 
-extern bool sd_has_audio_;
-
 extern bool sd_sq_active_;
 
 // Function prototypes
@@ -68,6 +66,7 @@ extern bool sd_sq_active_;
 void sd_initialize_cvars(bstone::CVarMgr& cvar_mgr);
 void sd_startup();
 void sd_shutdown();
+bool sd_has_audio() noexcept;
 void sd_stop_sfx_sound();
 void sd_wait_sound_done();
 void sd_start_music(int index, bool is_looping = true);

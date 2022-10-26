@@ -817,7 +817,7 @@ void CheckKeys()
 			{
 				ClearMemory();
 
-				if (sd_has_audio_)
+				if (sd_has_audio())
 				{
 					sd_enable_sound(true);
 				}
@@ -1220,7 +1220,7 @@ void CheckMusicToggle()
 		{
 			bool is_enabled = false;
 
-			if (!sd_has_audio_)
+			if (!sd_has_audio())
 			{
 				DISPLAY_TIMED_MSG(NoAdLibCard, MP_BONUS, MT_GENERAL);
 				sd_play_player_no_way_sound(NOWAYSND);
