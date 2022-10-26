@@ -82,7 +82,6 @@ bool sd_enable_music(const bool enable);
 bool sd_is_playing_any_ui_sound();
 bool sd_is_music_playing();
 
-// BBi
 const int sd_min_volume = 0;
 const int sd_max_volume = 20;
 const int sd_default_sfx_volume = 10;
@@ -133,13 +132,5 @@ void sd_cfg_set_is_sfx_digitized(bool is_sfx_digitized);
 void apply_digitized_sfx();
 bstone::Opl3Type sd_get_opl3_type() noexcept;
 void sd_set_opl3_type(bstone::Opl3Type opl3_type);
-#if FIXMENOW
-void sd_cfg_set_defaults();
-bool sd_cfg_parse_key_value(const std::string& key_string, const std::string& value_string);
-void sd_cfg_write(bstone::TextWriter& text_writer);
-#endif
-
-// BBi
-
 
 #endif // BSTONE_ID_SD_INCLUDED

@@ -7522,9 +7522,6 @@ void set_config_defaults()
 	g_no_intro_outro = default_g_no_intro_outro;
 
 	vid_cfg_set_defaults();
-#if FIXMENOW
-	sd_cfg_set_defaults();
-#endif
 }
 
 ScanCode get_scan_code_by_name(
@@ -7602,67 +7599,6 @@ void read_text_config()
 					if (vid_cfg_parse_key_value(key_string, value_string))
 					{
 					}
-#if FIXMENOW
-					else if (sd_cfg_parse_key_value(key_string, value_string))
-					{
-					}
-					else if (key_string == snd_is_sfx_enabled_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							sd_set_is_sound_enabled(value != 0);
-						}
-					}
-					else if (key_string == snd_is_music_enabled_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							sd_set_is_music_enabled(value != 0);
-						}
-					}
-					else if (key_string == snd_sfx_volume_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							sd_set_sfx_volume(value);
-						}
-
-						if (sd_get_sfx_volume() < sd_min_volume)
-						{
-							sd_set_sfx_volume(sd_min_volume);
-						}
-
-						if (sd_get_sfx_volume() > sd_max_volume)
-						{
-							sd_set_sfx_volume(sd_max_volume);
-						}
-					}
-					else if (key_string == snd_music_volume_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							sd_set_music_volume(value);
-						}
-
-						if (sd_get_music_volume() < sd_min_volume)
-						{
-							sd_set_music_volume(sd_min_volume);
-						}
-
-						if (sd_get_music_volume() > sd_max_volume)
-						{
-							sd_set_music_volume(sd_max_volume);
-						}
-					}
-#endif
 					else if (key_string == in_mouse_sensitivity_name)
 					{
 						int value;

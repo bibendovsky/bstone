@@ -32,8 +32,6 @@ constexpr auto max_voices =
 // Global variables
 
 bool sd_has_audio_ = false;
-bool sd_is_sound_enabled_ = false;
-bool sd_is_music_enabled_ = false;
 
 // Internal variables
 
@@ -69,9 +67,6 @@ bstone::AudioContentMgrUPtr audio_content_mgr{};
 
 auto sd_use_voice_output_gains_ = false;
 
-auto sd_sfx_type = AudioSfxType::adlib;
-auto sd_is_sfx_digitized = true;
-
 auto sd_music_voice_group_ = bstone::VoiceGroupUPtr{};
 auto sd_ui_sfx_voice_group_ = bstone::VoiceGroupUPtr{};
 auto sd_scene_sfx_voice_group_ = bstone::VoiceGroupUPtr{};
@@ -98,15 +93,6 @@ auto sd_listener_r3_position_ = bstone::AudioMixerR3Vector{};
 
 static int sd_music_index_ = -1;
 static bstone::AudioMixerUPtr sd_mixer_;
-
-int sd_sfx_volume_ = sd_default_sfx_volume;
-int sd_music_volume_ = sd_default_music_volume;
-
-#if FIXMENOW
-auto sd_oal_library_ = std::string{};
-auto sd_oal_device_name_ = std::string{};
-#endif
-bstone::Opl3Type sd_opl3_type_ = bstone::Opl3Type::dbopl;
 
 namespace {
 
@@ -191,7 +177,7 @@ auto snd_sfx_type_cvar = bstone::CVar{
 constexpr auto snd_is_sfx_digitized_cvar_name = bstone::StringView{"snd_is_sfx_digitized"};
 constexpr auto snd_is_sfx_digitized_cvar_default = true;
 
-auto snd_sfx_digitized_cvar = bstone::CVar{
+auto snd_is_sfx_digitized_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
 	snd_is_sfx_digitized_cvar_name,
 	snd_is_sfx_digitized_cvar_default};
@@ -212,7 +198,7 @@ auto snd_sfx_volume_cvar = bstone::CVar{
 constexpr auto snd_is_music_enabled_cvar_name = bstone::StringView{"snd_is_music_enabled"};
 constexpr auto snd_is_music_enabled_cvar_default = true;
 
-auto snd_music_cvar = bstone::CVar{
+auto snd_is_music_enabled_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
 	snd_is_music_enabled_cvar_name,
 	snd_is_music_enabled_cvar_default};
@@ -238,15 +224,11 @@ void sd_initialize_cvars(bstone::CVarMgr& cvar_mgr)
 	cvar_mgr.add(snd_opl3_type_cvar);
 	cvar_mgr.add(snd_is_sfx_enabled_cvar);
 	cvar_mgr.add(snd_sfx_type_cvar);
-	cvar_mgr.add(snd_sfx_digitized_cvar);
+	cvar_mgr.add(snd_is_sfx_digitized_cvar);
 	cvar_mgr.add(snd_sfx_volume_cvar);
-	cvar_mgr.add(snd_music_cvar);
+	cvar_mgr.add(snd_is_music_enabled_cvar);
 	cvar_mgr.add(snd_music_volume_cvar);
 }
-
-#if FIXMENOW
-void sd_cfg_parse_cl();
-#endif
 
 const std::string& sd_get_snd_string()
 {
@@ -298,12 +280,12 @@ static bool sd_detect_ad_lib()
 
 bool sd_is_sound_enabled() noexcept
 {
-	return sd_is_sound_enabled_;
+	return snd_is_sfx_enabled_cvar.get_bool();
 }
 
 void sd_set_is_sound_enabled(bool is_enabled) noexcept
 {
-	sd_is_sound_enabled_ = is_enabled;
+	snd_is_sfx_enabled_cvar.set_bool(is_enabled);
 }
 
 bool sd_enable_sound(bool enable)
@@ -322,12 +304,12 @@ bool sd_enable_sound(bool enable)
 
 bool sd_is_music_enabled() noexcept
 {
-	return sd_is_music_enabled_;
+	return snd_is_music_enabled_cvar.get_bool();
 }
 
 void sd_set_is_music_enabled(bool is_enabled) noexcept
 {
-	sd_is_music_enabled_ = is_enabled;
+	snd_is_music_enabled_cvar.set_bool(is_enabled);
 }
 
 bool sd_enable_music(bool enable)
@@ -336,6 +318,23 @@ bool sd_enable_music(bool enable)
 	sd_set_is_music_enabled(enable);
 	sd_set_music_volume();
 	return enable;
+}
+
+bstone::Opl3Type sd_get_opl3_type_from_cvar() noexcept
+{
+	const auto opl3_type_sv = snd_opl3_type_cvar.get_string();
+
+	if (opl3_type_sv == snd_opl3_type_cvar_dbopl)
+	{
+		return bstone::Opl3Type::dbopl;
+	}
+
+	if (opl3_type_sv == snd_opl3_type_cvar_nuked)
+	{
+		return bstone::Opl3Type::nuked;
+	}
+
+	return bstone::Opl3Type::none;
 }
 
 const std::string& sd_get_opl3_long_name(const bstone::Opl3Type opl3_type)
@@ -385,7 +384,7 @@ try
 
 	auto param = bstone::AudioMixerInitParam{};
 	param.audio_driver_type = audio_driver_type;
-	param.opl3_type = sd_opl3_type_;
+	param.opl3_type = sd_get_opl3_type_from_cvar();
 	param.dst_rate = sample_rate;
 	param.mix_size_ms = mix_size_ms;
 	param.max_voices = max_voices;
@@ -425,6 +424,18 @@ AudioDriverType sd_get_driver_type_from_cvar() noexcept
 	return AudioDriverType::auto_detect;
 }
 
+AudioSfxType sd_get_sfx_type_from_cvar() noexcept
+{
+	const auto sfx_type_sv = snd_sfx_type_cvar.get_string();
+
+	if (sfx_type_sv == snd_sfx_type_cvar_pc_speaker)
+	{
+		return AudioSfxType::pc_speaker;
+	}
+
+	return AudioSfxType::adlib;
+}
+
 } // namespace
 
 void sd_startup()
@@ -454,10 +465,6 @@ void sd_startup()
 			const auto& snd_mix_size_string = g_args.get_option_value("snd_mix_size");
 			static_cast<void>(bstone::StringHelper::string_to_int(snd_mix_size_string, snd_mix_size));
 		}
-
-#if FIXMENOW
-		sd_cfg_parse_cl();
-#endif
 
 		auto is_driver_initialized = false;
 
@@ -514,8 +521,8 @@ void sd_startup()
 			sd_log("OPL3 type: " + sd_get_opl3_long_name(sd_mixer_->get_opl3_type()));
 
 			audio_content_mgr = bstone::make_audio_content_mgr(*bstone::globals::page_mgr);
-			audio_content_mgr->set_sfx_type(sd_sfx_type);
-			audio_content_mgr->set_is_sfx_digitized(sd_is_sfx_digitized);
+			audio_content_mgr->set_sfx_type(sd_get_sfx_type_from_cvar());
+			audio_content_mgr->set_is_sfx_digitized(snd_is_sfx_digitized_cvar.get_bool());
 		}
 		else
 		{
@@ -538,7 +545,7 @@ void sd_startup()
 
 		sd_enable_sound(sd_is_sound_enabled());
 
-		sd_enable_music(sd_is_music_enabled_);
+		sd_enable_music(snd_is_music_enabled_cvar.get_bool());
 		sd_music_on(sd_music_is_looping_);
 	}
 }
@@ -1240,12 +1247,12 @@ bool sd_is_player_no_way_sound_playing()
 
 int sd_get_sfx_volume() noexcept
 {
-	return sd_sfx_volume_;
+	return snd_sfx_volume_cvar.get_int32();
 }
 
 void sd_set_sfx_volume(int volume) noexcept
 {
-	sd_sfx_volume_ = volume;
+	snd_sfx_volume_cvar.set_int32(volume);
 }
 
 void sd_set_sfx_volume()
@@ -1264,12 +1271,12 @@ void sd_set_sfx_volume()
 
 int sd_get_music_volume() noexcept
 {
-	return sd_music_volume_;
+	return snd_music_volume_cvar.get_int32();
 }
 
 void sd_set_music_volume(int volume) noexcept
 {
-	sd_music_volume_ = volume;
+	snd_music_volume_cvar.set_int32(volume);
 }
 
 void sd_set_music_volume()
@@ -1336,7 +1343,7 @@ void apply_digitized_sfx()
 		return;
 	}
 
-	audio_content_mgr->set_is_sfx_digitized(sd_is_sfx_digitized);
+	audio_content_mgr->set_is_sfx_digitized(snd_is_sfx_digitized_cvar.get_bool());
 }
 
 AudioDriverType sd_get_audio_driver_type() noexcept
@@ -1364,12 +1371,21 @@ void sd_set_audio_driver_type(AudioDriverType audio_driver_type)
 
 AudioSfxType sd_cfg_get_sfx_type() noexcept
 {
-	return sd_sfx_type;
+	return sd_get_sfx_type_from_cvar();
 }
 
 void sd_cfg_set_sfx_type(AudioSfxType sfx_type)
 {
-	sd_sfx_type = sfx_type;
+	switch (sfx_type)
+	{
+		case AudioSfxType::pc_speaker:
+			snd_sfx_type_cvar.set_string(snd_sfx_type_cvar_pc_speaker);
+			break;
+
+		default:
+			snd_sfx_type_cvar.set_string(snd_sfx_type_cvar_adlib);
+			break;
+	}
 }
 
 void sd_apply_sfx_type()
@@ -1379,22 +1395,22 @@ void sd_apply_sfx_type()
 		return;
 	}
 
-	audio_content_mgr->set_sfx_type(sd_sfx_type);
+	audio_content_mgr->set_sfx_type(sd_get_sfx_type_from_cvar());
 }
 
 bool sd_cfg_get_is_sfx_digitized() noexcept
 {
-	return sd_is_sfx_digitized;
+	return snd_is_sfx_digitized_cvar.get_bool();
 }
 
 void sd_cfg_set_is_sfx_digitized(bool is_sfx_digitized)
 {
-	sd_is_sfx_digitized = is_sfx_digitized;
+	snd_is_sfx_digitized_cvar.set_bool(is_sfx_digitized);
 }
 
 bstone::Opl3Type sd_get_opl3_type() noexcept
 {
-	return sd_opl3_type_;
+	return sd_get_opl3_type_from_cvar();
 }
 
 void sd_set_opl3_type(bstone::Opl3Type opl3_type)
@@ -1402,333 +1418,16 @@ void sd_set_opl3_type(bstone::Opl3Type opl3_type)
 	switch (opl3_type)
 	{
 		case bstone::Opl3Type::dbopl:
-		case bstone::Opl3Type::nuked:
-			if (opl3_type != sd_opl3_type_)
-			{
-				sd_opl3_type_ = opl3_type;
-			}
+			snd_opl3_type_cvar.set_string(snd_opl3_type_cvar_dbopl);
+			break;
 
+		case bstone::Opl3Type::nuked:
+			snd_opl3_type_cvar.set_string(snd_opl3_type_cvar_nuked);
 			break;
 
 		default:
 			sd_log_error("Invalid OPL3 type.");
+			snd_opl3_type_cvar.set_string(snd_opl3_type_cvar_dbopl);
 			break;
 	}
 }
-
-#if FIXMENOW
-void sd_cfg_set_defaults()
-{
-	sd_sfx_type = AudioSfxType::adlib;
-	sd_is_sfx_digitized = true;
-
-	sd_opl3_type_ = bstone::Opl3Type::dbopl;
-}
-
-const std::string& sd_cfg_get_2d_sdl_name()
-{
-	static const auto result = std::string{"2d_sdl"};
-	return result;
-}
-
-const std::string& sd_cfg_get_3d_openal_name()
-{
-	static const auto result = std::string{"3d_openal"};
-	return result;
-}
-
-const std::string& sd_cfg_get_auto_detect_name()
-{
-	static const auto result = std::string{"auto-detect"};
-	return result;
-}
-
-const std::string& sd_cfg_get_driver_name()
-{
-	static const auto result = std::string{"snd_driver"};
-	return result;
-}
-
-const std::string& sd_cfg_get_oal_library_name()
-{
-	static const auto result = std::string{"snd_oal_library"};
-	return result;
-}
-
-const std::string& sd_cfg_get_oal_device_name_name()
-{
-	static const auto result = std::string{"snd_oal_device_name"};
-	return result;
-}
-
-const std::string& sd_cfg_get_adlib_name()
-{
-	static const auto result = std::string{"adlib"};
-	return result;
-}
-
-const std::string& sd_cfg_get_pc_speaker_name()
-{
-	static const auto result = std::string{"pc_speaker"};
-	return result;
-}
-
-const std::string& sd_cfg_get_sfx_type_name()
-{
-	static const auto result = std::string{"snd_sfx_type"};
-	return result;
-}
-
-const std::string& sd_cfg_get_is_sfx_digitized_name()
-{
-	static const auto result = std::string{"snd_is_sfx_digitized"};
-	return result;
-}
-
-const std::string& sd_cfg_get_snd_opl3_type_str()
-{
-	static const auto result = std::string{"snd_opl3_type"};
-	return result;
-}
-
-const std::string& sd_cfg_get_dbopl_str()
-{
-	static const auto result = std::string{"dbopl"};
-	return result;
-}
-
-const std::string& sd_cfg_get_nuked_str()
-{
-	static const auto result = std::string{"nuked"};
-	return result;
-}
-
-bool sd_cfg_parse_key_value(const std::string& key_string, const std::string& value_string)
-{
-	if (false)
-	{
-	}
-	else if (key_string == sd_cfg_get_driver_name())
-	{
-		if (value_string == sd_cfg_get_2d_sdl_name())
-		{
-			sd_audio_driver_type = AudioDriverType::r2_sdl;
-		}
-		else if (value_string == sd_cfg_get_3d_openal_name())
-		{
-			sd_audio_driver_type = AudioDriverType::r3_openal;
-		}
-		else
-		{
-			sd_audio_driver_type = AudioDriverType::auto_detect;
-		}
-
-		return true;
-	}
-	else if (key_string == sd_cfg_get_oal_library_name())
-	{
-		sd_oal_library_ = value_string;
-		return true;
-	}
-	else if (key_string == sd_cfg_get_oal_device_name_name())
-	{
-		sd_oal_device_name_ = value_string;
-		return true;
-	}
-	else if (key_string == sd_cfg_get_sfx_type_name())
-	{
-		auto sfx_type = AudioSfxType{};
-
-		if (value_string == sd_cfg_get_adlib_name())
-		{
-			sfx_type = AudioSfxType::adlib;
-		}
-		else if (value_string == sd_cfg_get_pc_speaker_name())
-		{
-			sfx_type = AudioSfxType::pc_speaker;
-		}
-		else
-		{
-			sfx_type = AudioSfxType::adlib;
-		}
-
-		sd_cfg_set_sfx_type(sfx_type);
-
-		return true;
-	}
-	else if (key_string == sd_cfg_get_is_sfx_digitized_name())
-	{
-		int value = 0;
-
-		if (bstone::StringHelper::string_to_int(value_string, value))
-		{
-			sd_cfg_set_is_sfx_digitized(value != 0);
-		}
-
-		return true;
-	}
-	else if (key_string == sd_cfg_get_snd_opl3_type_str())
-	{
-		if (value_string == sd_cfg_get_nuked_str())
-		{
-			sd_opl3_type_ = bstone::Opl3Type::nuked;
-		}
-		else
-		{
-			sd_opl3_type_ = bstone::Opl3Type::dbopl;
-		}
-	}
-
-	return false;
-}
-
-void sd_cfg_parse_cl()
-{
-	if (g_args.has_option(sd_cfg_get_driver_name()))
-	{
-		const auto value_string = g_args.get_option_value(sd_cfg_get_driver_name());
-
-		if (value_string == sd_cfg_get_2d_sdl_name())
-		{
-			sd_audio_driver_type = AudioDriverType::r2_sdl;
-		}
-		else if (value_string == sd_cfg_get_3d_openal_name())
-		{
-			sd_audio_driver_type = AudioDriverType::r3_openal;
-		}
-		else
-		{
-			sd_audio_driver_type = AudioDriverType::auto_detect;
-		}
-	}
-
-	if (g_args.has_option(sd_cfg_get_oal_library_name()))
-	{
-		sd_oal_library_ = g_args.get_option_value(sd_cfg_get_oal_library_name());
-	}
-
-	if (g_args.has_option(sd_cfg_get_oal_device_name_name()))
-	{
-		sd_oal_device_name_ = g_args.get_option_value(sd_cfg_get_oal_device_name_name());
-	}
-
-	if (g_args.has_option(sd_cfg_get_sfx_type_name()))
-	{
-		const auto value_string = g_args.get_option_value(sd_cfg_get_sfx_type_name());
-
-		if (!value_string.empty())
-		{
-			sd_cfg_parse_key_value(sd_cfg_get_sfx_type_name(), value_string);
-		}
-	}
-
-	if (g_args.has_option(sd_cfg_get_is_sfx_digitized_name()))
-	{
-		const auto value_string = g_args.get_option_value(sd_cfg_get_is_sfx_digitized_name());
-
-		if (!value_string.empty())
-		{
-			sd_cfg_parse_key_value(sd_cfg_get_is_sfx_digitized_name(), value_string);
-		}
-	}
-
-	if (g_args.has_option(sd_cfg_get_snd_opl3_type_str()))
-	{
-		const auto value_string = g_args.get_option_value(sd_cfg_get_snd_opl3_type_str());
-
-		if (!value_string.empty())
-		{
-			sd_cfg_parse_key_value(sd_cfg_get_snd_opl3_type_str(), value_string);
-		}
-	}
-}
-
-void sd_cfg_write(bstone::TextWriter& text_writer)
-{
-	{
-		auto value_string = std::string{};
-
-		switch (sd_audio_driver_type)
-		{
-			case AudioDriverType::r2_sdl:
-				value_string = sd_cfg_get_2d_sdl_name();
-				break;
-
-			case AudioDriverType::r3_openal:
-				value_string = sd_cfg_get_3d_openal_name();
-				break;
-
-			default:
-				value_string = sd_cfg_get_auto_detect_name();
-				break;
-		}
-
-		cfg_file_write_entry(
-			text_writer,
-			sd_cfg_get_driver_name(),
-			value_string
-		);
-	}
-
-	cfg_file_write_entry(
-		text_writer,
-		sd_cfg_get_oal_library_name(),
-		sd_get_oal_library()
-	);
-
-	cfg_file_write_entry(
-		text_writer,
-		sd_cfg_get_oal_device_name_name(),
-		sd_oal_device_name_
-	);
-
-	{
-		auto value_string = std::string{};
-
-		switch (sd_sfx_type)
-		{
-			case AudioSfxType::pc_speaker:
-				value_string = sd_cfg_get_pc_speaker_name();
-				break;
-
-			case AudioSfxType::adlib:
-			default:
-				value_string = sd_cfg_get_adlib_name();
-				break;
-		}
-
-		cfg_file_write_entry(
-			text_writer,
-			sd_cfg_get_sfx_type_name(),
-			value_string
-		);
-	}
-
-	cfg_file_write_entry(
-		text_writer,
-		sd_cfg_get_is_sfx_digitized_name(),
-		sd_is_sfx_digitized ? "1" : "0"
-	);
-
-	{
-		auto value_string = std::string{};
-
-		switch (sd_opl3_type_)
-		{
-			case bstone::Opl3Type::nuked:
-				value_string = sd_cfg_get_nuked_str();
-				break;
-
-			default:
-				value_string = sd_cfg_get_dbopl_str();
-				break;
-		}
-
-		cfg_file_write_entry(
-			text_writer,
-			sd_cfg_get_snd_opl3_type_str(),
-			value_string
-		);
-	}
-}
-#endif
