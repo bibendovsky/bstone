@@ -3405,8 +3405,7 @@ void CP_Control(
 		switch (which)
 		{
 		case MOUSEENABLE:
-			mouseenabled = !mouseenabled;
-
+			in_set_is_mouse_enabled(!in_is_mouse_enabled());
 			DrawCtlScreen();
 			CusItems.curpos = -1;
 			ShootSnd();
@@ -3447,7 +3446,7 @@ void DrawMousePos()
 		ENABLED_TEXT_COLOR);
 
 	VWB_Bar(
-		74 + ((slide_width * mouseadjustment) / max_mouse_delta),
+		74 + ((slide_width * in_get_mouse_sensitivity()) / max_mouse_delta),
 		92,
 		thumb_width,
 		8,
@@ -3485,7 +3484,7 @@ void MouseSensitivity(
 	ControlInfo ci;
 	std::int16_t exit = 0;
 
-	const auto oldMA = mouseadjustment;
+	const auto oldMA = in_get_mouse_sensitivity();
 
 	DrawMouseSens();
 	do
@@ -3495,9 +3494,9 @@ void MouseSensitivity(
 		{
 		case dir_North:
 		case dir_West:
-			if (mouseadjustment > 0)
+			if (in_get_mouse_sensitivity() > 0)
 			{
-				mouseadjustment -= 1;
+				in_set_mouse_sensitivity(in_get_mouse_sensitivity() - 1);
 				DrawMousePos();
 				VW_UpdateScreen();
 				menu_play_move_gun_1_sound();
@@ -3513,9 +3512,9 @@ void MouseSensitivity(
 
 		case dir_South:
 		case dir_East:
-			if (mouseadjustment < max_mouse_sensitivity)
+			if (in_get_mouse_sensitivity() < max_mouse_sensitivity)
 			{
-				mouseadjustment += 1;
+				in_set_mouse_sensitivity(in_get_mouse_sensitivity() + 1);
 				DrawMousePos();
 				VW_UpdateScreen();
 				menu_play_move_gun_1_sound();
@@ -3546,7 +3545,7 @@ void MouseSensitivity(
 
 	if (exit == 2)
 	{
-		mouseadjustment = oldMA;
+		in_set_mouse_sensitivity(oldMA);
 		menu_play_esc_pressed_sound();
 	}
 	else
@@ -3583,14 +3582,14 @@ void DrawCtlScreen()
 		CtlMenu[1].active = AT_ENABLED;
 	}
 
-	CtlMenu[1].active = static_cast<activetypes>(mouseenabled);
+	CtlMenu[1].active = static_cast<activetypes>(in_is_mouse_enabled());
 
 	fontnumber = 4;
 	DrawMenu(&CtlItems, &CtlMenu[0]);
 
 	x = CTL_X + CtlItems.indent - 24;
 	y = CTL_Y + Y_CTL_PIC_OFS;
-	if (mouseenabled)
+	if (in_is_mouse_enabled())
 	{
 		VWB_DrawPic(x, y, C_SELECTEDPIC);
 	}
@@ -4286,7 +4285,7 @@ void ReadAnyControl(
 		ci->button3 = 0;
 	}
 
-	if (mouseenabled)
+	if (in_is_mouse_enabled())
 	{
 		int mousex;
 		int mousey;

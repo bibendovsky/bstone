@@ -348,6 +348,12 @@ extern bool allcaps;
 
 void in_initialize_cvars(bstone::CVarMgr& cvar_mgr);
 
+bool in_is_mouse_enabled() noexcept;
+void in_set_is_mouse_enabled(bool is_enabled);
+
+int in_get_mouse_sensitivity() noexcept;
+void in_set_mouse_sensitivity(int sensitivity);
+
 // DEBUG - put names in prototypes
 void IN_Startup();
 void IN_Shutdown();

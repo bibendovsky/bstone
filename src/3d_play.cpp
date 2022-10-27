@@ -110,8 +110,6 @@ Update update;
 //
 // control info
 //
-bool mouseenabled;
-
 const int viewsize = 20;
 
 ButtonHeld buttonheld;
@@ -525,7 +523,7 @@ void PollMouseMove()
 		is_running = !is_running;
 	}
 
-	const auto move_scale = 1.0 + (mouseadjustment / 6.0);
+	const auto move_scale = 1.0 + (in_get_mouse_sensitivity() / 6.0);
 
 	auto delta_x = static_cast<double>(mousexmove);
 	auto delta_y = static_cast<double>(mouseymove);
@@ -613,7 +611,7 @@ void PollControls()
 	//
 	PollKeyboardButtons();
 
-	if (mouseenabled)
+	if (in_is_mouse_enabled())
 	{
 		PollMouseButtons();
 	}
@@ -623,7 +621,7 @@ void PollControls()
 	//
 	PollKeyboardMove();
 
-	if (mouseenabled)
+	if (in_is_mouse_enabled())
 	{
 		PollMouseMove();
 	}

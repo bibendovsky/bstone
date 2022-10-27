@@ -1435,6 +1435,26 @@ std::uint8_t IN_MouseButtons()
 	return static_cast<std::uint8_t>(INL_GetMouseButtons());
 }
 
+bool in_is_mouse_enabled() noexcept
+{
+	return in_is_mouse_enabled_cvar.get_bool();
+}
+
+void in_set_is_mouse_enabled(bool is_enabled)
+{
+	in_is_mouse_enabled_cvar.set_bool(is_enabled);
+}
+
+int in_get_mouse_sensitivity() noexcept
+{
+	return in_mouse_sensitivity_cvar.get_int32();
+}
+
+void in_set_mouse_sensitivity(int sensitivity)
+{
+	in_mouse_sensitivity_cvar.set_int32(sensitivity);
+}
+
 void IN_Startup()
 {
 	if (IN_Started)

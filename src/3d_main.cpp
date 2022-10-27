@@ -210,7 +210,6 @@ double heightnumerator;
 
 bool startgame;
 bool loadedgame;
-int mouseadjustment;
 
 const std::string binary_config_file_name = "bstone_config";
 const std::string text_config_file_name = "bstone_config.txt";
@@ -7264,12 +7263,6 @@ namespace
 {
 
 
-const auto snd_is_sfx_enabled_name = "snd_is_sfx_enabled";
-const auto snd_is_music_enabled_name = "snd_is_music_enabled";
-const auto snd_sfx_volume_name = "snd_sfx_volume";
-const auto snd_music_volume_name = "snd_music_volume";
-const auto in_mouse_sensitivity_name = "in_mouse_sensitivity";
-const auto in_is_mouse_enabled_name = "in_is_mouse_enabled";
 const auto in_binding_name = "in_binding";
 const auto gp_is_ceiling_solid_name = "gp_is_ceiling_solid";
 const auto gp_is_flooring_solid_name = "gp_is_flooring_solid";
@@ -7501,11 +7494,7 @@ bool parse_config_line(
 
 void set_config_defaults()
 {
-	mouseenabled = true;
-
 	in_set_default_bindings();
-
-	mouseadjustment = default_mouse_sensitivity;
 
 	sd_set_is_sound_enabled(true);
 	sd_set_is_music_enabled(true);
@@ -7598,34 +7587,6 @@ void read_text_config()
 
 					if (vid_cfg_parse_key_value(key_string, value_string))
 					{
-					}
-					else if (key_string == in_mouse_sensitivity_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							mouseadjustment = value;
-						}
-
-						if (mouseadjustment < min_mouse_sensitivity)
-						{
-							mouseadjustment = min_mouse_sensitivity;
-						}
-
-						if (mouseadjustment > max_mouse_sensitivity)
-						{
-							mouseadjustment = max_mouse_sensitivity;
-						}
-					}
-					else if (key_string == in_is_mouse_enabled_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							mouseenabled = (value != 0);
-						}
 					}
 					else if (key_string == in_binding_name)
 					{

@@ -2906,7 +2906,6 @@ extern std::int16_t dirangle[9];
 
 extern bool startgame;
 extern bool loadedgame;
-extern int mouseadjustment;
 
 extern int last_map_tile_x;
 extern int last_map_tile_y;
@@ -3109,9 +3108,6 @@ extern std::uint16_t ExtraRadarFlags;
 //
 using ScanCodes = std::vector<ScanCode>;
 using Buttons = std::vector<std::int16_t>;
-
-
-extern bool mouseenabled;
 
 using ButtonHeld = std::bitset<NUMBUTTONS>;
 extern ButtonHeld buttonheld;
