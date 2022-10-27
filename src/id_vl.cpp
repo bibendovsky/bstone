@@ -301,7 +301,9 @@ bool vid_is_3d = false;
 bool vid_is_fizzle_fade = false;
 bool vid_is_movie = false;
 
+#if FIXMENOW
 VidCfg vid_cfg_;
+#endif
 
 bstone::SpriteCache vid_sprite_cache;
 
@@ -629,7 +631,7 @@ namespace
 
 SDL_DisplayMode vid_display_mode_;
 
-
+#if FIXMENOW
 const std::string& vid_get_nearest_value_string()
 {
 	static const auto result = std::string{"nearest"};
@@ -832,6 +834,7 @@ const std::string& vid_get_external_textures_name()
 
 	return result;
 }
+#endif
 
 int vid_align_dimension(
 	int dimension) noexcept
@@ -859,47 +862,39 @@ void vid_cfg_fix_window_dimension(
 
 void vid_cfg_fix_window_width() noexcept
 {
+	auto width = vid_cfg_get_width();
+
 	vid_cfg_fix_window_dimension(
-		vid_cfg_.width,
+		width,
 		vga_ref_width,
-		vid_display_mode_.w
-	);
+		vid_display_mode_.w);
+
+	vid_cfg_set_width(width);
 }
 
 void vid_cfg_fix_window_height() noexcept
 {
+	auto height = vid_cfg_get_height();
+
 	vid_cfg_fix_window_dimension(
-		vid_cfg_.height,
+		height,
 		vga_ref_height_4x3,
-		vid_display_mode_.h
-	);
+		vid_display_mode_.h);
+
+	vid_cfg_set_height(height);
 }
 
-void vid_cfg_fix_window_size() noexcept
+void vid_cfg_fix_window_size()
 {
 	vid_cfg_fix_window_width();
 	vid_cfg_fix_window_height();
 }
 
-void vid_cfg_adjust_window_position() noexcept
+void vid_cfg_adjust_window_position()
 {
-	auto window_x = vid_cfg_.x;
-	auto window_y = vid_cfg_.y;
-
-	if (window_x < 0)
-	{
-		window_x = 0;
-	}
-
-	if (window_y < 0)
-	{
-		window_y = 0;
-	}
-
-	vid_cfg_.x = window_x;
-	vid_cfg_.y = window_y;
+	vid_cfg_set_width(std::max(vid_cfg_get_width(), 0));
+	vid_cfg_set_height(std::max(vid_cfg_get_height(), 0));
 }
-
 
 } // namespace
 
@@ -994,23 +989,15 @@ void vid_calculate_window_elements_dimensions(
 
 CalculateScreenSizeInputParam vid_create_screen_size_param() noexcept
 {
-	if (vid_cfg_.width < vga_ref_width)
-	{
-		vid_cfg_.width = vga_ref_width;
-	}
-
-	if (vid_cfg_.height < vga_ref_height_4x3)
-	{
-		vid_cfg_.height = vga_ref_height_4x3;
-	}
+	vid_cfg_set_width(std::max(vid_cfg_get_width(), vga_ref_width));
+	vid_cfg_set_height(std::max(vid_cfg_get_height(), vga_ref_height_4x3));
 
 	auto result = CalculateScreenSizeInputParam{};
-	result.is_widescreen = vid_cfg_.is_widescreen;
-	result.width = vid_cfg_.width;
-	result.height = vid_cfg_.height;
-	result.window_width = vid_cfg_.width;
-	result.window_height = vid_cfg_.height;
-
+	result.is_widescreen = vid_cfg_is_widescreen();
+	result.width = vid_cfg_get_width();
+	result.height = vid_cfg_get_height();
+	result.window_width = vid_cfg_get_width();
+	result.window_height = vid_cfg_get_height();
 	return result;
 }
 
@@ -1143,6 +1130,7 @@ namespace
 {
 
 
+#if FIXMENOW
 void vid_cl_read_bool(
 	const std::string& option_name,
 	bool& value)
@@ -1466,6 +1454,7 @@ catch (...)
 {
 	fail_nested(__func__);
 }
+#endif
 
 const std::string& vid_get_vid_string()
 {
@@ -1507,6 +1496,7 @@ catch (...)
 	fail_nested(__func__);
 }
 
+#if FIXMENOW
 void vid_cl_read()
 try
 {
@@ -1543,7 +1533,7 @@ catch (...)
 {
 	fail_nested(__func__);
 }
-
+#endif
 
 } // namespace
 
@@ -1719,29 +1709,29 @@ void vid_log_common_configuration()
 	vid_log("Common configuration");
 	vid_log("--------------------");
 
-	vid_log("Renderer: " + vid_to_string(vid_cfg_.renderer_kind_));
+	vid_log("Renderer: " + vid_to_string(vid_cfg_get_renderer_kind()));
 
-	vid_log("Window positioned: " + vid_to_string(vid_cfg_.is_positioned_));
-	vid_log("Windowed x: " + vid_to_string(vid_cfg_.x));
-	vid_log("Windowed y: " + vid_to_string(vid_cfg_.y));
-	vid_log("Windowed width: " + vid_to_string(vid_cfg_.width));
-	vid_log("Windowed height: " + vid_to_string(vid_cfg_.height));
+	vid_log("Window positioned: " + vid_to_string(vid_cfg_is_positioned()));
+	vid_log("Windowed x: " + vid_to_string(vid_cfg_get_x()));
+	vid_log("Windowed y: " + vid_to_string(vid_cfg_get_y()));
+	vid_log("Windowed width: " + vid_to_string(vid_cfg_get_width()));
+	vid_log("Windowed height: " + vid_to_string(vid_cfg_get_height()));
 
-	vid_log("UI stretched: " + vid_to_string(vid_cfg_.is_ui_stretched_));
-	vid_log("Widescreen: " + vid_to_string(vid_cfg_.is_widescreen));
+	vid_log("UI stretched: " + vid_to_string(vid_cfg_is_ui_stretched()));
+	vid_log("Widescreen: " + vid_to_string(vid_cfg_is_widescreen()));
 
-	vid_log("2D texture filter: " + vid_to_string(vid_cfg_.d2_texture_filter_));
+	vid_log("2D texture filter: " + vid_to_string(vid_cfg_get_2d_texture_filter()));
 
-	vid_log("3D texture image filter: " + vid_to_string(vid_cfg_.d3_texture_image_filter_));
-	vid_log("3D texture mipmap filter: " + vid_to_string(vid_cfg_.d3_texture_mipmap_filter_));
+	vid_log("3D texture image filter: " + vid_to_string(vid_cfg_get_3d_texture_image_filter()));
+	vid_log("3D texture mipmap filter: " + vid_to_string(vid_cfg_get_3d_texture_mipmap_filter()));
 
-	vid_log("Texture anisotropy: " + vid_to_string(vid_cfg_.d3_texture_anisotropy_));
+	vid_log("Texture anisotropy: " + vid_to_string(vid_cfg_get_3d_texture_anisotropy()));
 
-	vid_log("Texture upscale filter: " + vid_to_string(vid_cfg_.texture_upscale_kind_));
-	vid_log("Texture upscale xBRZ factor: " + vid_to_string(vid_cfg_.texture_upscale_xbrz_degree_));
+	vid_log("Texture upscale filter: " + vid_to_string(vid_cfg_get_texture_upscale_kind()));
+	vid_log("Texture upscale xBRZ factor: " + vid_to_string(vid_cfg_get_texture_upscale_xbrz_degree()));
 
-	vid_log("Anti-aliasing kind: " + vid_to_string(vid_cfg_.aa_kind_));
-	vid_log("Anti-aliasing value: " + vid_to_string(vid_cfg_.aa_degree_));
+	vid_log("Anti-aliasing kind: " + vid_to_string(vid_cfg_get_aa_kind()));
+	vid_log("Anti-aliasing value: " + vid_to_string(vid_cfg_get_aa_degree()));
 
 	vid_log("--------------------");
 }
@@ -1854,8 +1844,8 @@ try
 {
 	vid_is_take_screenshot_scheduled = false;
 
-	const auto width = vid_cfg_.width;
-	const auto height = vid_cfg_.height;
+	const auto width = vid_cfg_get_width();
+	const auto height = vid_cfg_get_height();
 	const auto stride_rgb_888 = (((3 * width) + 3) / 4) * 4;
 	auto src_rgb_888_pixels = std::make_unique<std::uint8_t[]>(stride_rgb_888 * height);
 
@@ -1942,9 +1932,11 @@ try
 {
 	::g_video = nullptr;
 
+#if FIXMENOW
 	vid_cl_read();
+#endif
 
-	const auto is_sw = (vid_cfg_.renderer_kind_ == bstone::RendererKind::software);
+	const auto is_sw = (vid_cfg_get_renderer_kind() == bstone::RendererKind::software);
 
 	auto is_try_sw = false;
 
@@ -2424,6 +2416,169 @@ catch (...)
 	fail_nested(__func__);
 }
 
+bstone::RendererKind vid_cfg_get_renderer_kind() noexcept
+{
+}
+
+void vid_cfg_set_renderer_kind(bstone::RendererKind renderer_type)
+{
+}
+
+bool vid_cfg_is_positioned() noexcept
+{
+	return vid_is_positioned_cvar.get_bool();
+}
+
+bool vid_cfg_is_vsync() noexcept
+{
+	return vid_is_vsync_cvar.get_bool();
+}
+
+void vid_cfg_set_is_vsync(bool is_enabled)
+{
+	vid_is_vsync_cvar.set_bool(is_enabled);
+}
+
+bool vid_cfg_is_ui_stretched() noexcept
+{
+	return vid_is_ui_stretched_cvar.get_bool();
+}
+
+void vid_cfg_set_is_ui_stretched(bool is_enabled)
+{
+	vid_is_ui_stretched_cvar.set_bool(is_enabled);
+}
+
+bool vid_cfg_is_widescreen() noexcept
+{
+	return vid_is_widescreen_cvar.get_bool();
+}
+
+void vid_cfg_set_is_widescreen(bool is_enabled)
+{
+	vid_is_widescreen_cvar.set_bool(is_enabled);
+}
+
+int vid_cfg_get_x() noexcept
+{
+	return vid_x_cvar.get_int32();
+}
+
+int vid_cfg_get_y() noexcept
+{
+	return vid_y_cvar.get_int32();
+}
+
+int vid_cfg_get_width() noexcept
+{
+	return vid_width_cvar.get_int32();
+}
+
+void vid_cfg_set_width(int width)
+{
+	vid_width_cvar.set_int32(width);
+}
+
+int vid_cfg_get_height() noexcept
+{
+	return vid_height_cvar.get_int32();
+}
+
+void vid_cfg_set_height(int height)
+{
+	vid_height_cvar.set_int32(height);
+}
+
+bstone::Ren3dFilterKind vid_cfg_get_2d_texture_filter() noexcept
+{
+}
+
+void vid_cfg_set_2d_texture_filter(bstone::Ren3dFilterKind filter)
+{
+}
+
+bstone::Ren3dFilterKind vid_cfg_get_3d_texture_image_filter() noexcept
+{
+}
+
+void vid_cfg_set_3d_texture_image_filter(bstone::Ren3dFilterKind filter)
+{
+}
+
+bstone::Ren3dFilterKind vid_cfg_get_3d_texture_mipmap_filter() noexcept
+{
+}
+
+void vid_cfg_set_3d_texture_mipmap_filter(bstone::Ren3dFilterKind filter)
+{
+}
+
+int vid_cfg_get_3d_texture_anisotropy() noexcept
+{
+	return vid_3d_texture_anisotropy_cvar.get_int32();
+}
+
+void vid_cfg_set_3d_texture_anisotropy(int anisotropy)
+{
+	vid_3d_texture_anisotropy_cvar.set_int32(anisotropy);
+}
+
+bstone::Ren3dAaKind vid_cfg_get_aa_kind() noexcept
+{
+}
+
+void vid_cfg_set_aa_kind(bstone::Ren3dAaKind aa_type)
+{
+}
+
+int vid_cfg_get_aa_degree() noexcept
+{
+	return vid_aa_degree_cvar.get_int32();
+}
+
+void vid_cfg_set_aa_degree(int degree)
+{
+	vid_aa_degree_cvar.set_int32(degree);
+}
+
+bstone::HwTextureMgrUpscaleFilterKind vid_cfg_get_texture_upscale_kind() noexcept
+{
+}
+
+void vid_cfg_set_texture_upscale_kind(bstone::HwTextureMgrUpscaleFilterKind filter)
+{
+}
+
+int vid_cfg_get_texture_upscale_xbrz_degree() noexcept
+{
+	return vid_texture_upscale_xbrz_degree_cvar.get_int32();
+}
+
+void vid_cfg_set_texture_upscale_xbrz_degree(int degree)
+{
+	vid_texture_upscale_xbrz_degree_cvar.set_int32(degree);
+}
+
+int vid_cfg_get_filler_color_index() noexcept
+{
+	return vid_filler_color_index_cvar.get_int32();
+}
+
+void vid_cfg_set_filler_color_index(int index)
+{
+	vid_filler_color_index_cvar.set_bool(index);
+}
+
+bool vid_cfg_is_external_textures_enabled() noexcept
+{
+	return vid_external_textures_cvar.get_bool();
+}
+
+void vid_cfg_set_is_external_textures_enabled(bool is_enabled)
+{
+	vid_external_textures_cvar.set_bool(is_enabled);
+}
+
 void vid_set_ui_mask(
 	bool value)
 {
@@ -2517,6 +2672,7 @@ catch (...)
 	fail_nested(__func__);
 }
 
+#if FIXMENOW
 void vid_cfg_read_renderer_kind(
 	const std::string& value_string)
 try
@@ -3132,23 +3288,26 @@ void vid_cfg_set_defaults()
 
 	vid_cfg_.is_external_textures_enabled_ = false;
 }
+#endif
 
 VideoModeCfg vid_cfg_get_video_mode() noexcept
 {
 	auto cfg = VideoModeCfg{};
-	cfg.renderer_kind_ = vid_cfg_.renderer_kind_;
-	cfg.width = vid_cfg_.width;
-	cfg.height = vid_cfg_.height;
-	cfg.is_vsync_ = vid_cfg_.is_vsync_;
-	cfg.aa_kind_ = vid_cfg_.aa_kind_;
-	cfg.aa_degree_ = vid_cfg_.aa_degree_;
+	cfg.renderer_kind_ = vid_cfg_get_renderer_kind();
+	cfg.width = vid_cfg_get_width();
+	cfg.height = vid_cfg_get_height();
+	cfg.is_vsync_ = vid_cfg_is_vsync();
+	cfg.aa_kind_ = vid_cfg_get_aa_kind();
+	cfg.aa_degree_ = vid_cfg_get_aa_degree();
 	return cfg;
 }
 
+#if FIXMENOW
 VidCfg& vid_cfg_get() noexcept
 {
 	return vid_cfg_;
 }
+#endif
 
 const VidRendererKinds& vid_get_available_renderer_kinds()
 {
@@ -3217,8 +3376,8 @@ try
 
 				//
 				const auto is_custom =
-					sdl_mode.w == vid_cfg_.width &&
-					sdl_mode.h == vid_cfg_.height;
+					sdl_mode.w == vid_cfg_get_width() &&
+					sdl_mode.h == vid_cfg_get_height();
 
 				window_size.is_custom_ = is_custom;
 
@@ -3248,8 +3407,8 @@ try
 	{
 		result.emplace_back();
 		auto& window_size = result.back();
-		window_size.width = vid_cfg_.width;
-		window_size.height = vid_cfg_.height;
+		window_size.width = vid_cfg_get_width();
+		window_size.height = vid_cfg_get_height();
 
 		window_size.is_current_ = true;
 		window_size.is_custom_ = true;
@@ -3632,47 +3791,45 @@ try
 	auto is_restart = false;
 
 	if (!is_restart &&
-		vid_cfg_.renderer_kind_ != video_mode_cfg.renderer_kind_)
+		vid_cfg_get_renderer_kind() != video_mode_cfg.renderer_kind_)
 	{
 		is_restart = true;
 	}
 
 	if (!is_restart &&
-		vid_cfg_.is_vsync_ != video_mode_cfg.is_vsync_ &&
+		vid_cfg_is_vsync() != video_mode_cfg.is_vsync_ &&
 		::g_video->get_device_features().is_vsync_available_ &&
-			::g_video->get_device_features().is_vsync_requires_restart_
-	)
+			::g_video->get_device_features().is_vsync_requires_restart_)
 	{
 		is_restart = true;
 	}
 
 	if (!is_restart &&
-		(vid_cfg_.aa_kind_ != video_mode_cfg.aa_kind_ ||
-			vid_cfg_.aa_degree_ != video_mode_cfg.aa_degree_) &&
+		(vid_cfg_get_aa_kind() != video_mode_cfg.aa_kind_ ||
+			vid_cfg_get_aa_degree() != video_mode_cfg.aa_degree_) &&
 		video_mode_cfg.aa_kind_ == bstone::Ren3dAaKind::ms &&
 		::g_video->get_device_features().is_msaa_available_ &&
-		::g_video->get_device_features().is_msaa_requires_restart_
-	)
+		::g_video->get_device_features().is_msaa_requires_restart_)
 	{
 		is_restart = true;
 	}
 
 	const auto is_window_modified =
-		vid_cfg_.width != video_mode_cfg.width ||
-		vid_cfg_.height != video_mode_cfg.height;
+		vid_cfg_get_width() != video_mode_cfg.width ||
+		vid_cfg_get_height() != video_mode_cfg.height;
 
-	const auto is_vsync_modified = (vid_cfg_.is_vsync_ != video_mode_cfg.is_vsync_);
+	const auto is_vsync_modified = (vid_cfg_is_vsync() != video_mode_cfg.is_vsync_);
 
 	const auto is_aa_modified = (
-		vid_cfg_.aa_kind_ != video_mode_cfg.aa_kind_ ||
-		vid_cfg_.aa_degree_ != video_mode_cfg.aa_degree_);
+		vid_cfg_get_aa_kind() != video_mode_cfg.aa_kind_ ||
+		vid_cfg_get_aa_degree() != video_mode_cfg.aa_degree_);
 
-	vid_cfg_.renderer_kind_ = video_mode_cfg.renderer_kind_;
-	vid_cfg_.width = video_mode_cfg.width;
-	vid_cfg_.height = video_mode_cfg.height;
-	vid_cfg_.is_vsync_ = video_mode_cfg.is_vsync_;
-	vid_cfg_.aa_kind_ = video_mode_cfg.aa_kind_;
-	vid_cfg_.aa_degree_ = video_mode_cfg.aa_degree_;
+	vid_cfg_set_renderer_kind(video_mode_cfg.renderer_kind_);
+	vid_cfg_set_width(video_mode_cfg.width);
+	vid_cfg_set_height(video_mode_cfg.height);
+	vid_cfg_set_is_vsync(video_mode_cfg.is_vsync_);
+	vid_cfg_set_aa_kind(video_mode_cfg.aa_kind_);
+	vid_cfg_set_aa_degree(video_mode_cfg.aa_degree_);
 
 	if (is_restart)
 	{

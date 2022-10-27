@@ -514,7 +514,7 @@ try
 		enable_texture_blending(ui_texture_.get(), true);
 	}
 
-	if (!vid_cfg_get().is_ui_stretched_)
+	if (!vid_cfg_is_ui_stretched())
 	{
 		if (vid_is_fizzle_fade)
 		{
@@ -540,7 +540,7 @@ try
 
 	// Use filler if necessary
 	//
-	if (!vid_cfg_get().is_ui_stretched_)
+	if (!vid_cfg_is_ui_stretched())
 	{
 		const auto is_hud = vid_is_hud;
 
@@ -650,8 +650,8 @@ try
 
 	auto param = bstone::Ren3dSetWindowModeParam{};
 	param.is_native = vid_is_native_mode();
-	param.rect_2d_.extent_.width_ = vid_cfg_get().width;
-	param.rect_2d_.extent_.height_ = vid_cfg_get().height;
+	param.rect_2d_.extent_.width_ = vid_cfg_get_width();
+	param.rect_2d_.extent_.height_ = vid_cfg_get_height();
 	bstone::detail::Ren3dUtils::set_window_mode(window_.get(), param);
 
 	vid_initialize_common();
@@ -667,9 +667,9 @@ catch (...)
 void SwVideo::apply_filler_color_index()
 try
 {
-	filler_color_.r = static_cast<::Uint8>((255 * vgapal[(vid_cfg_get().filler_color_index * 3) + 0]) / 63);
-	filler_color_.g = static_cast<::Uint8>((255 * vgapal[(vid_cfg_get().filler_color_index * 3) + 1]) / 63);
-	filler_color_.b = static_cast<::Uint8>((255 * vgapal[(vid_cfg_get().filler_color_index * 3) + 2]) / 63);
+	filler_color_.r = static_cast<::Uint8>((255 * vgapal[(vid_cfg_get_filler_color_index() * 3) + 0]) / 63);
+	filler_color_.g = static_cast<::Uint8>((255 * vgapal[(vid_cfg_get_filler_color_index() * 3) + 1]) / 63);
+	filler_color_.b = static_cast<::Uint8>((255 * vgapal[(vid_cfg_get_filler_color_index() * 3) + 2]) / 63);
 	filler_color_.a = 0xFF;
 }
 catch (...)
@@ -1131,17 +1131,15 @@ catch (...)
 void SwVideo::create_window()
 try
 {
-	const auto& vid_cfg = vid_cfg_get();
-
 	const auto is_native_mode = vid_is_native_mode();
 
 	auto window_x = SDL_WINDOWPOS_CENTERED;
 	auto window_y = SDL_WINDOWPOS_CENTERED;
 
-	if (!is_native_mode && vid_cfg.is_positioned_)
+	if (!is_native_mode && vid_cfg_is_positioned())
 	{
-		window_x = vid_cfg.x;
-		window_y = vid_cfg.y;
+		window_x = vid_cfg_get_x();
+		window_y = vid_cfg_get_y();
 	}
 
 	const ::Uint32 window_flags =
@@ -1190,7 +1188,7 @@ try
 	const char* renderer_driver = nullptr;
 
 	{
-		if (vid_cfg_get().is_vsync_)
+		if (vid_cfg_is_vsync())
 		{
 			renderer_flags = ::SDL_RENDERER_PRESENTVSYNC;
 		}
@@ -1485,12 +1483,12 @@ void SwVideo::calculate_dimensions()
 	// Screen destination rect.
 
 	const auto screen_left = (
-		vid_cfg_get().is_widescreen ?
+		vid_cfg_is_widescreen() ?
 		0 :
 		vid_layout_.window_viewport_left_width + vid_layout_.screen_left_filler_width);
 
 	const auto screen_top = vid_layout_.window_viewport_top_height;
-	const auto screen_width = (vid_cfg_get().is_widescreen ? vid_layout_.screen_width : vid_layout_.screen_width_4x3);
+	const auto screen_width = (vid_cfg_is_widescreen() ? vid_layout_.screen_width : vid_layout_.screen_width_4x3);
 	const auto screen_height = vid_layout_.screen_height;
 
 	screen_dst_rect_ = ::SDL_Rect

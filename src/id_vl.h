@@ -44,7 +44,7 @@ using VgaPalette = std::array<VgaColor, 256>;
 using VgaBuffer = std::vector<std::uint8_t>;
 using UiMaskBuffer = std::array<bool, vga_ref_width * vga_ref_height>;
 
-
+#if FIXMENOW
 struct VidCfg
 {
 	bstone::RendererKind renderer_kind_;
@@ -77,6 +77,7 @@ struct VidCfg
 
 	bool is_external_textures_enabled_;
 }; // VidCfg
+#endif
 
 struct VideoModeCfg
 {
@@ -326,7 +327,9 @@ void vid_cfg_set_defaults();
 
 
 VideoModeCfg vid_cfg_get_video_mode() noexcept;
+#if FIXMENOW
 VidCfg& vid_cfg_get() noexcept;
+#endif
 
 bool vid_cfg_parse_key_value(
 	const std::string& key_string,
@@ -368,6 +371,60 @@ std::uint8_t vl_get_pixel(
 	int y);
 
 void vl_update_widescreen();
+
+
+bstone::RendererKind vid_cfg_get_renderer_kind() noexcept;
+void vid_cfg_set_renderer_kind(bstone::RendererKind renderer_type);
+
+bool vid_cfg_is_positioned() noexcept;
+
+bool vid_cfg_is_vsync() noexcept;
+void vid_cfg_set_is_vsync(bool is_enabled);
+
+bool vid_cfg_is_ui_stretched() noexcept;
+void vid_cfg_set_is_ui_stretched(bool is_enabled);
+
+bool vid_cfg_is_widescreen() noexcept;
+void vid_cfg_set_is_widescreen(bool is_enabled);
+
+int vid_cfg_get_x() noexcept;
+int vid_cfg_get_y() noexcept;
+
+int vid_cfg_get_width() noexcept;
+void vid_cfg_set_width(int width);
+
+int vid_cfg_get_height() noexcept;
+void vid_cfg_set_height(int height);
+
+bstone::Ren3dFilterKind vid_cfg_get_2d_texture_filter() noexcept;
+void vid_cfg_set_2d_texture_filter(bstone::Ren3dFilterKind filter);
+
+bstone::Ren3dFilterKind vid_cfg_get_3d_texture_image_filter() noexcept;
+void vid_cfg_set_3d_texture_image_filter(bstone::Ren3dFilterKind filter);
+
+bstone::Ren3dFilterKind vid_cfg_get_3d_texture_mipmap_filter() noexcept;
+void vid_cfg_set_3d_texture_mipmap_filter(bstone::Ren3dFilterKind filter);
+
+int vid_cfg_get_3d_texture_anisotropy() noexcept;
+void vid_cfg_set_3d_texture_anisotropy(int anisotropy);
+
+bstone::Ren3dAaKind vid_cfg_get_aa_kind() noexcept;
+void vid_cfg_set_aa_kind(bstone::Ren3dAaKind aa_type);
+
+int vid_cfg_get_aa_degree() noexcept;
+void vid_cfg_set_aa_degree(int degree);
+
+bstone::HwTextureMgrUpscaleFilterKind vid_cfg_get_texture_upscale_kind() noexcept;
+void vid_cfg_set_texture_upscale_kind(bstone::HwTextureMgrUpscaleFilterKind filter);
+
+int vid_cfg_get_texture_upscale_xbrz_degree() noexcept;
+void vid_cfg_set_texture_upscale_xbrz_degree(int degree);
+
+int vid_cfg_get_filler_color_index() noexcept;
+void vid_cfg_set_filler_color_index(int index);
+
+bool vid_cfg_is_external_textures_enabled() noexcept;
+void vid_cfg_set_is_external_textures_enabled(bool is_enabled);
 
 void vid_set_ui_mask(
 	bool value);

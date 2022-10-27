@@ -4896,8 +4896,6 @@ void video_draw_switch(
 {
 	std::uint16_t Shape;
 
-	auto& configuration = vid_cfg_get();
-
 	for (int i = 0; i < video_items.amount; i++)
 	{
 		if (video_menu[i].string[0])
@@ -4920,14 +4918,14 @@ void video_draw_switch(
 					continue;
 
 			case mvl_widescreen:
-				if (configuration.is_widescreen)
+				if (vid_cfg_is_widescreen())
 				{
 					Shape++;
 				}
 				break;
 
 			case mvl_stretch_ui:
-				if (configuration.is_ui_stretched_)
+				if (vid_cfg_is_ui_stretched())
 				{
 					Shape++;
 				}
@@ -5616,10 +5614,7 @@ void texturing_draw_menu()
 	DrawInstructions(IT_STANDARD);
 	DrawMenu(&texturing_items, texturing_menu);
 	VW_UpdateScreen();
-
-
-	auto& vid_cfg = vid_cfg_get();
-	vid_cfg.d3_texture_anisotropy_ = texturing_anisotropy_to_pot(vid_cfg.d3_texture_anisotropy_);
+	vid_cfg_set_3d_texture_anisotropy(texturing_anisotropy_to_pot(vid_cfg_get_3d_texture_anisotropy()));
 }
 
 void texturing_update_menu()
@@ -5634,8 +5629,6 @@ void texturing_draw_switch(
 	std::int16_t which)
 {
 	std::uint16_t Shape;
-
-	const auto& vid_cfg = vid_cfg_get();
 
 	for (int i = 0; i < texturing_items.amount; ++i)
 	{
@@ -5656,8 +5649,8 @@ void texturing_draw_switch(
 				case static_cast<int>(TexturingMenuIndices::anisotropy):
 				{
 					const auto anisotropy_string = (
-						vid_cfg.d3_texture_anisotropy_ > bstone::Ren3dLimits::min_anisotropy_off ?
-						std::to_string(vid_cfg.d3_texture_anisotropy_) :
+						vid_cfg_get_3d_texture_anisotropy() > bstone::Ren3dLimits::min_anisotropy_off ?
+						std::to_string(vid_cfg_get_3d_texture_anisotropy()) :
 						"OFF"
 					);
 
@@ -5673,7 +5666,8 @@ void texturing_draw_switch(
 
 				case static_cast<int>(TexturingMenuIndices::image_2d_filter):
 				{
-					const auto& image_2d_filter_string = texturing_filter_to_string(vid_cfg.d2_texture_filter_);
+					const auto& image_2d_filter_string = texturing_filter_to_string(
+						vid_cfg_get_2d_texture_filter());
 
 					draw_carousel(
 						i,
@@ -5687,7 +5681,8 @@ void texturing_draw_switch(
 
 				case static_cast<int>(TexturingMenuIndices::image_3d_filter):
 				{
-					const auto& image_3d_filter_string = texturing_filter_to_string(vid_cfg.d3_texture_image_filter_);
+					const auto& image_3d_filter_string = texturing_filter_to_string(
+						vid_cfg_get_3d_texture_image_filter());
 
 					draw_carousel(
 						i,
@@ -5701,7 +5696,8 @@ void texturing_draw_switch(
 
 				case static_cast<int>(TexturingMenuIndices::mipmap_3d_filter):
 				{
-					const auto& mipmap_3d_filter_string = texturing_filter_to_string(vid_cfg.d3_texture_mipmap_filter_);
+					const auto& mipmap_3d_filter_string = texturing_filter_to_string(
+						vid_cfg_get_3d_texture_mipmap_filter());
 
 					draw_carousel(
 						i,
@@ -5716,7 +5712,7 @@ void texturing_draw_switch(
 				case static_cast<int>(TexturingMenuIndices::upscale_filter):
 				{
 					const auto upscale_filter_string = (
-						vid_cfg.texture_upscale_kind_ == bstone::HwTextureMgrUpscaleFilterKind::none ?
+						vid_cfg_get_texture_upscale_kind() == bstone::HwTextureMgrUpscaleFilterKind::none ?
 						"NONE" :
 						"XBRZ"
 					);
@@ -5735,7 +5731,7 @@ void texturing_draw_switch(
 				{
 					const auto upscale_degree_string = std::to_string(
 						texturing_normalize_upscale_degree(
-							vid_cfg.texture_upscale_xbrz_degree_));
+							vid_cfg_get_texture_upscale_xbrz_degree()));
 
 					draw_carousel(
 						i,
@@ -5749,7 +5745,7 @@ void texturing_draw_switch(
 
 				case static_cast<int>(TexturingMenuIndices::external_textures):
 				{
-					const auto external_textures_string = (vid_cfg.is_external_textures_enabled_ ? "ON" : "OFF");
+					const auto external_textures_string = (vid_cfg_is_external_textures_enabled() ? "ON" : "OFF");
 
 					draw_carousel(
 						i,
@@ -5780,9 +5776,7 @@ void texturing_anisotropy_carousel(
 	const bool is_left,
 	const bool is_right)
 {
-	auto& vid_cfg = vid_cfg_get();
-
-	auto anisotropy = texturing_anisotropy_to_pot(vid_cfg.d3_texture_anisotropy_);
+	auto anisotropy = texturing_anisotropy_to_pot(vid_cfg_get_3d_texture_anisotropy());
 
 	if (is_left)
 	{
@@ -5803,7 +5797,7 @@ void texturing_anisotropy_carousel(
 		anisotropy = bstone::Ren3dLimits::min_anisotropy_off;
 	}
 
-	vid_cfg.d3_texture_anisotropy_ = anisotropy;
+	vid_cfg_set_3d_texture_anisotropy(anisotropy);
 
 	vid_apply_anisotropy();
 
@@ -5836,8 +5830,9 @@ void texturing_2d_image_filter_carousel(
 	const bool is_left,
 	const bool is_right)
 {
-	auto& vid_cfg = vid_cfg_get();
-	texturing_filter_carousel(vid_cfg.d2_texture_filter_);
+	auto filter = vid_cfg_get_2d_texture_filter();
+	texturing_filter_carousel(filter);
+	vid_cfg_set_2d_texture_filter(filter);
 	vid_apply_2d_image_filter();
 
 	texturing_update_menu();
@@ -5851,8 +5846,9 @@ void texturing_3d_image_filter_carousel(
 	const bool is_left,
 	const bool is_right)
 {
-	auto& vid_cfg = vid_cfg_get();
-	texturing_filter_carousel(vid_cfg.d3_texture_image_filter_);
+	auto filter = vid_cfg_get_3d_texture_image_filter();
+	texturing_filter_carousel(filter);
+	vid_cfg_set_3d_texture_image_filter(filter);
 	vid_apply_3d_image_filter();
 
 	texturing_update_menu();
@@ -5866,8 +5862,9 @@ void texturing_3d_mipmap_filter_carousel(
 	const bool is_left,
 	const bool is_right)
 {
-	auto& vid_cfg = vid_cfg_get();
-	texturing_filter_carousel(vid_cfg.d3_texture_mipmap_filter_);
+	auto filter = vid_cfg_get_3d_texture_mipmap_filter();
+	texturing_filter_carousel(filter);
+	vid_cfg_set_3d_texture_mipmap_filter(filter);
 	vid_apply_mipmap_filter();
 
 	texturing_update_menu();
@@ -5881,15 +5878,13 @@ void texturing_upscale_filter_carousel(
 	const bool is_left,
 	const bool is_right)
 {
-	auto& vid_cfg = vid_cfg_get();
-
-	if (vid_cfg.texture_upscale_kind_ == bstone::HwTextureMgrUpscaleFilterKind::none)
+	if (vid_cfg_get_texture_upscale_kind() == bstone::HwTextureMgrUpscaleFilterKind::none)
 	{
-		vid_cfg.texture_upscale_kind_ = bstone::HwTextureMgrUpscaleFilterKind::xbrz;
+		vid_cfg_set_texture_upscale_kind(bstone::HwTextureMgrUpscaleFilterKind::xbrz);
 	}
-	else if (vid_cfg.texture_upscale_kind_ == bstone::HwTextureMgrUpscaleFilterKind::xbrz)
+	else if (vid_cfg_get_texture_upscale_kind() == bstone::HwTextureMgrUpscaleFilterKind::xbrz)
 	{
-		vid_cfg.texture_upscale_kind_ = bstone::HwTextureMgrUpscaleFilterKind::none;
+		vid_cfg_set_texture_upscale_kind(bstone::HwTextureMgrUpscaleFilterKind::none);
 	}
 
 	vid_apply_upscale();
@@ -5905,9 +5900,7 @@ void texturing_upscale_degree_carousel(
 	const bool is_left,
 	const bool is_right)
 {
-	auto& vid_cfg = vid_cfg_get();
-
-	auto xbrz_degree = texturing_normalize_upscale_degree(vid_cfg.texture_upscale_xbrz_degree_);
+	auto xbrz_degree = texturing_normalize_upscale_degree(vid_cfg_get_texture_upscale_xbrz_degree());
 
 	if (is_left)
 	{
@@ -5928,7 +5921,7 @@ void texturing_upscale_degree_carousel(
 		}
 	}
 
-	vid_cfg.texture_upscale_xbrz_degree_ = xbrz_degree;
+	vid_cfg_set_texture_upscale_xbrz_degree(xbrz_degree);
 
 	vid_apply_upscale();
 
@@ -5943,9 +5936,7 @@ void texturing_external_textures_carousel(
 	const bool is_left,
 	const bool is_right)
 {
-	auto& vid_cfg = vid_cfg_get();
-
-	vid_cfg.is_external_textures_enabled_ = !vid_cfg.is_external_textures_enabled_;
+	vid_cfg_set_is_external_textures_enabled(!vid_cfg_is_external_textures_enabled());
 
 	vid_apply_external_textures();
 
@@ -5999,8 +5990,6 @@ void cp_video(
 	MenuFadeIn();
 	WaitKeyUp();
 
-	auto& configuration = vid_cfg_get();
-
 	do
 	{
 		which = HandleMenu(&video_items, video_menu, video_draw_switch);
@@ -6016,7 +6005,7 @@ void cp_video(
 
 		case mvl_widescreen:
 #ifndef __vita__
-			configuration.is_widescreen = !configuration.is_widescreen;
+			vid_cfg_set_is_widescreen(!vid_cfg_is_widescreen());
 #endif
 			ShootSnd();
 			video_draw_switch(video_items.curpos);
@@ -6028,7 +6017,7 @@ void cp_video(
 			break;
 
 		case mvl_stretch_ui:
-			configuration.is_ui_stretched_ = !configuration.is_ui_stretched_;
+			vid_cfg_set_is_ui_stretched(!vid_cfg_is_ui_stretched());
 			ShootSnd();
 			video_draw_switch(video_items.curpos);
 			VL_RefreshScreen();
@@ -6307,16 +6296,14 @@ void filler_color_routine(
 	MenuFadeIn();
 	WaitKeyUp();
 
-	auto& configuration = vid_cfg_get();
-
 	ControlInfo ci;
 
 	auto is_highlighted = false;
 	auto highlight_counter = 0;
 
 	auto is_cell_changed = true;
-	auto cell_x = configuration.filler_color_index % 16;
-	auto cell_y = configuration.filler_color_index / 16;
+	auto cell_x = vid_cfg_get_filler_color_index() % 16;
+	auto cell_y = vid_cfg_get_filler_color_index() / 16;
 
 	while (true)
 	{
@@ -6355,7 +6342,7 @@ void filler_color_routine(
 
 			is_highlighted = true;
 
-			draw_filler_color_cell(configuration.filler_color_index, false);
+			draw_filler_color_cell(vid_cfg_get_filler_color_index(), false);
 
 			if (cell_x < 0)
 			{
@@ -6375,7 +6362,7 @@ void filler_color_routine(
 				cell_y = 0;
 			}
 
-			configuration.filler_color_index = (cell_y * 16) + cell_x;
+			vid_cfg_set_filler_color_index((cell_y * 16) + cell_x);
 
 			IN_ClearKeysDown();
 
@@ -6387,7 +6374,7 @@ void filler_color_routine(
 			break;
 		}
 
-		draw_filler_color_cell(configuration.filler_color_index, is_highlighted);
+		draw_filler_color_cell(vid_cfg_get_filler_color_index(), is_highlighted);
 
 		VW_UpdateScreen();
 
