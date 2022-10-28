@@ -323,7 +323,6 @@ void VL_ScreenToMem(
 	int y);
 
 void vid_initialize_cvars(bstone::CVarMgr& cvar_mgr);
-void vid_cfg_set_defaults();
 
 
 VideoModeCfg vid_cfg_get_video_mode() noexcept;
@@ -588,17 +587,10 @@ void vid_calculate_window_elements_dimensions(
 
 void vid_calculate_vga_dimensions() noexcept;
 
-const std::string& vid_to_string(
-	bool value);
-
-std::string vid_to_string(
-	int value);
-
-const std::string& vid_to_string(
-	const bstone::Ren3dFilterKind filter_kind);
-
-const std::string& vid_to_string(
-	bstone::Ren3dKind renderer_kind);
+std::string vid_to_string(bool value);
+std::string vid_to_string(int value);
+std::string vid_to_string(const bstone::Ren3dFilterKind filter_type);
+std::string vid_to_string(bstone::Ren3dKind renderer_type);
 
 bool vid_is_hw();
 

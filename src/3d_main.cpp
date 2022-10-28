@@ -7509,8 +7509,6 @@ void set_config_defaults()
 
 	g_quit_on_escape = default_quit_on_escape;
 	g_no_intro_outro = default_g_no_intro_outro;
-
-	vid_cfg_set_defaults();
 }
 
 ScanCode get_scan_code_by_name(
@@ -7583,9 +7581,7 @@ void read_text_config()
 
 				if (parse_config_line(line, key_string, index0, index1, value_string))
 				{
-					try_to_deserialize_cvar(key_string, value_string);
-
-					if (vid_cfg_parse_key_value(key_string, value_string))
+					if (try_to_deserialize_cvar(key_string, value_string))
 					{
 					}
 					else if (key_string == in_binding_name)

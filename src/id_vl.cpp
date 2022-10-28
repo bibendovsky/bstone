@@ -1538,17 +1538,12 @@ catch (...)
 } // namespace
 
 
-const std::string& vid_to_string(
-	bool value)
+std::string vid_to_string(bool value)
 {
-	static const auto false_string = std::string{"false"};
-	static const auto true_string = std::string{"true"};
-
-	return value ? true_string : false_string;
+	return value ? "true" : "false";
 }
 
-std::string vid_to_string(
-	int value)
+std::string vid_to_string(int value)
 try
 {
 	return std::to_string(value);
@@ -1558,105 +1553,105 @@ catch (...)
 	fail_nested(__func__);
 }
 
-const std::string& vid_to_string(
-	const bstone::Ren3dFilterKind filter_kind)
+std::string vid_to_string(bstone::Ren3dFilterKind filter_type)
 try
 {
-	switch (filter_kind)
+	auto filter_type_sv = bstone::StringView{};
+
+	switch (filter_type)
 	{
 		case bstone::Ren3dFilterKind::nearest:
-			return vid_get_nearest_value_string();
+			filter_type_sv = vid_nearest_string;
+			break;
 
 		case bstone::Ren3dFilterKind::linear:
-			return vid_get_linear_value_string();
+			filter_type_sv = vid_linear_string;
+			break;
 
 		default:
-			fail("Unsupported renderer filter kind.");
+			fail("Unsupported renderer filter type.");
 	}
+
+	return std::string{filter_type_sv.get_data(), static_cast<std::size_t>(filter_type_sv.get_size())};
 }
 catch (...)
 {
 	fail_nested(__func__);
 }
 
-const std::string& vid_to_string(
-	const bstone::Ren3dAaKind aa_kind)
+std::string vid_to_string(bstone::Ren3dAaKind aa_type)
 try
 {
-	switch (aa_kind)
+	auto aa_type_sv = bstone::StringView{};
+
+	switch (aa_type)
 	{
 		case bstone::Ren3dAaKind::ms:
-			return vid_get_msaa_value_string();
+			aa_type_sv = vid_aa_kind_cvar_msaa;
+			break;
 
 		case bstone::Ren3dAaKind::none:
-			return vid_get_none_value_string();
+			aa_type_sv = vid_none_string;
+			break;
 
 		default:
-			fail("Unsupported anti-aliasing kind.");
+			fail("Unsupported anti-aliasing type.");
 	}
+
+	return std::string{aa_type_sv.get_data(), static_cast<std::size_t>(aa_type_sv.get_size())};
 }
 catch (...)
 {
 	fail_nested(__func__);
 }
 
-const std::string& vid_to_string(
-	bstone::RendererKind renderer_kind)
+std::string vid_to_string(bstone::RendererKind renderer_type)
 try
 {
-	static const auto gl_2_0_string = std::string{"OpenGL 2.0"};
-	static const auto gl_3_2_core_string = std::string{"OpenGL 3.2 core"};
-	static const auto gles_2_0_string = std::string{"OpenGL ES 2.0"};
+	auto renderer_type_sv = bstone::StringView{};
 
-	switch (renderer_kind)
+	switch (renderer_type)
 	{
 		case bstone::RendererKind::auto_detect:
-			return vid_get_auto_detect_value_string();
+			renderer_type_sv = "Auto-detect";
+			break;
 
 		case bstone::RendererKind::software:
-			return vid_get_software_value_string();
+			renderer_type_sv = "Software";
+			break;
 
 		case bstone::RendererKind::gl_2_0:
-			return gl_2_0_string;
+			renderer_type_sv = "OpenGL 2.0";
+			break;
 
 		case bstone::RendererKind::gl_3_2_core:
-			return gl_3_2_core_string;
+			renderer_type_sv = "OpenGL 3.2 core";
+			break;
 
 		case bstone::RendererKind::gles_2_0:
-			return gles_2_0_string;
-
+			renderer_type_sv = "OpenGL ES 2.0";
+			break;
 
 		default:
 			fail("Unsupported renderer kind.");
 	}
+
+	return std::string{renderer_type_sv.get_data(), static_cast<std::size_t>(renderer_type_sv.get_size())};
 }
 catch (...)
 {
 	fail_nested(__func__);
 }
 
-const std::string& vid_to_string(
-	bstone::Ren3dKind renderer_kind)
+std::string vid_to_string(bstone::Ren3dKind renderer_type)
 try
 {
-	static const auto gl_2_0_string = std::string{"OpenGL 2.0"};
-	static const auto gl_3_2_core_string = std::string{"OpenGL 3.2 core"};
-	static const auto gles_2_0_string = std::string{"OpenGL ES 2.0"};
-
-	switch (renderer_kind)
+	switch (renderer_type)
 	{
-		case bstone::Ren3dKind::gl_2_0:
-			return gl_2_0_string;
-
-		case bstone::Ren3dKind::gl_3_2_core:
-			return gl_3_2_core_string;
-
-		case bstone::Ren3dKind::gles_2_0:
-			return gles_2_0_string;
-
-
-		default:
-			fail("Unsupported renderer kind.");
+		case bstone::Ren3dKind::gl_2_0: return "OpenGL 2.0";
+		case bstone::Ren3dKind::gl_3_2_core: return "OpenGL 3.2 core";
+		case bstone::Ren3dKind::gles_2_0: return "OpenGL ES 2.0";
+		default: fail("Unsupported renderer kind.");
 	}
 }
 catch (...)
@@ -1664,21 +1659,26 @@ catch (...)
 	fail_nested(__func__);
 }
 
-const std::string& vid_to_string(
-	bstone::HwTextureMgrUpscaleFilterKind upscale_filter_kind)
+std::string vid_to_string(bstone::HwTextureMgrUpscaleFilterKind upscale_filter_type)
 try
 {
-	switch (upscale_filter_kind)
+	auto upscale_filter_type_sv = bstone::StringView{};
+
+	switch (upscale_filter_type)
 	{
 		case bstone::HwTextureMgrUpscaleFilterKind::none:
-			return vid_get_none_value_string();
+			upscale_filter_type_sv = vid_none_string;
 
 		case bstone::HwTextureMgrUpscaleFilterKind::xbrz:
-			return vid_get_xbrz_value_string();
+			upscale_filter_type_sv = vid_texture_upscale_filter_cvar_xbrz;
 
 		default:
 			fail("Unsupported texture upscale filter kind.");
 	}
+
+	return std::string{
+		upscale_filter_type_sv.get_data(),
+		static_cast<std::size_t>(upscale_filter_type_sv.get_size())};
 }
 catch (...)
 {
@@ -2418,10 +2418,59 @@ catch (...)
 
 bstone::RendererKind vid_cfg_get_renderer_kind() noexcept
 {
+	const auto renderer_sv = vid_renderer_cvar.get_string();
+
+	if (renderer_sv == vid_renderer_cvar_software)
+	{
+		return bstone::RendererKind::software;
+	}
+
+	if (renderer_sv == vid_renderer_cvar_gl_2_0)
+	{
+		return bstone::RendererKind::gl_2_0;
+	}
+
+	if (renderer_sv == vid_renderer_cvar_gl_3_2_c)
+	{
+		return bstone::RendererKind::gl_3_2_core;
+	}
+
+	if (renderer_sv == vid_renderer_cvar_gles_2_0)
+	{
+		return bstone::RendererKind::gles_2_0;
+	}
+
+	return bstone::RendererKind::auto_detect;
 }
 
 void vid_cfg_set_renderer_kind(bstone::RendererKind renderer_type)
 {
+	auto renderer_sv = bstone::StringView{};
+
+	switch (renderer_type)
+	{
+		case bstone::RendererKind::software:
+			renderer_sv = vid_renderer_cvar_software;
+			break;
+
+		case bstone::RendererKind::gl_2_0:
+			renderer_sv = vid_renderer_cvar_gl_2_0;
+			break;
+
+		case bstone::RendererKind::gl_3_2_core:
+			renderer_sv = vid_renderer_cvar_gl_3_2_c;
+			break;
+
+		case bstone::RendererKind::gles_2_0:
+			renderer_sv = vid_renderer_cvar_gles_2_0;
+			break;
+
+		default:
+			renderer_sv = vid_renderer_cvar_auto_detect;
+			break;
+	}
+
+	vid_renderer_cvar.set_string(renderer_sv);
 }
 
 bool vid_cfg_is_positioned() noexcept
@@ -2489,28 +2538,58 @@ void vid_cfg_set_height(int height)
 	vid_height_cvar.set_int32(height);
 }
 
+namespace {
+
+bstone::Ren3dFilterKind vid_get_filter_type_from_sv(bstone::StringView filter_type_sv) noexcept
+{
+	if (filter_type_sv == vid_linear_string)
+	{
+		return bstone::Ren3dFilterKind::linear;
+	}
+
+	return bstone::Ren3dFilterKind::nearest;
+}
+
+bstone::StringView vid_get_sv_from_filter_type(bstone::Ren3dFilterKind filter_type) noexcept
+{
+	if (filter_type == bstone::Ren3dFilterKind::linear)
+	{
+		return vid_linear_string;
+	}
+
+	return vid_nearest_string;
+}
+
+} // namespace
+
 bstone::Ren3dFilterKind vid_cfg_get_2d_texture_filter() noexcept
 {
+	return vid_get_filter_type_from_sv(vid_2d_texture_filter_cvar.get_string());
 }
 
 void vid_cfg_set_2d_texture_filter(bstone::Ren3dFilterKind filter)
 {
+	vid_2d_texture_filter_cvar.set_string(vid_get_sv_from_filter_type(filter));
 }
 
 bstone::Ren3dFilterKind vid_cfg_get_3d_texture_image_filter() noexcept
 {
+	return vid_get_filter_type_from_sv(vid_3d_texture_image_filter_cvar.get_string());
 }
 
 void vid_cfg_set_3d_texture_image_filter(bstone::Ren3dFilterKind filter)
 {
+	vid_3d_texture_image_filter_cvar.set_string(vid_get_sv_from_filter_type(filter));
 }
 
 bstone::Ren3dFilterKind vid_cfg_get_3d_texture_mipmap_filter() noexcept
 {
+	return vid_get_filter_type_from_sv(vid_3d_texture_mipmap_filter_cvar.get_string());
 }
 
 void vid_cfg_set_3d_texture_mipmap_filter(bstone::Ren3dFilterKind filter)
 {
+	vid_3d_texture_mipmap_filter_cvar.set_string(vid_get_sv_from_filter_type(filter));
 }
 
 int vid_cfg_get_3d_texture_anisotropy() noexcept
@@ -2525,10 +2604,30 @@ void vid_cfg_set_3d_texture_anisotropy(int anisotropy)
 
 bstone::Ren3dAaKind vid_cfg_get_aa_kind() noexcept
 {
+	if (vid_aa_kind_cvar.get_string() == vid_aa_kind_cvar_msaa)
+	{
+		return bstone::Ren3dAaKind::ms;
+	}
+
+	return bstone::Ren3dAaKind::none;
 }
 
 void vid_cfg_set_aa_kind(bstone::Ren3dAaKind aa_type)
 {
+	auto aa_type_sv = bstone::StringView{};
+
+	switch (aa_type)
+	{
+		case bstone::Ren3dAaKind::ms:
+			aa_type_sv = vid_aa_kind_cvar_msaa;
+			break;
+
+		default:
+			aa_type_sv = vid_none_string;
+			break;
+	}
+
+	vid_aa_kind_cvar.set_string(aa_type_sv);
 }
 
 int vid_cfg_get_aa_degree() noexcept
@@ -2543,10 +2642,30 @@ void vid_cfg_set_aa_degree(int degree)
 
 bstone::HwTextureMgrUpscaleFilterKind vid_cfg_get_texture_upscale_kind() noexcept
 {
+	if (vid_texture_upscale_filter_cvar.get_string() == vid_texture_upscale_filter_cvar_xbrz)
+	{
+		return bstone::HwTextureMgrUpscaleFilterKind::xbrz;
+	}
+
+	return bstone::HwTextureMgrUpscaleFilterKind::none;
 }
 
 void vid_cfg_set_texture_upscale_kind(bstone::HwTextureMgrUpscaleFilterKind filter)
 {
+	auto filter_sv = bstone::StringView{};
+
+	switch (filter)
+	{
+		case bstone::HwTextureMgrUpscaleFilterKind::xbrz:
+			filter_sv = vid_texture_upscale_filter_cvar_xbrz;
+			break;
+
+		default:
+			filter_sv = vid_none_string;
+			break;
+	}
+
+	vid_texture_upscale_filter_cvar.set_string(filter_sv);
 }
 
 int vid_cfg_get_texture_upscale_xbrz_degree() noexcept
@@ -2651,6 +2770,7 @@ void vid_import_ui_mask(
 	vid_mask_buffer_ = src_buffer;
 }
 
+#if FIXMENOW
 const std::string& vid_filter_to_string(
 	bstone::Ren3dFilterKind filter)
 try
@@ -2672,7 +2792,6 @@ catch (...)
 	fail_nested(__func__);
 }
 
-#if FIXMENOW
 void vid_cfg_read_renderer_kind(
 	const std::string& value_string)
 try
