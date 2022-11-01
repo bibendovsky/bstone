@@ -1884,7 +1884,7 @@ void US_ControlPanel(
 
 		case -1:
 			// on hit ESC on main menu
-			if (ingame && !g_quit_on_escape)
+			if (ingame && !gp_quit_on_escape())
 			{
 				// return to game if quit on escape not enabled
 				StartGame = 1;
@@ -2496,50 +2496,50 @@ void CP_Switches(
 		switch (which)
 		{
 		case SW_LIGHTING:
-			gp_no_shading_ = !gp_no_shading_;
+			gp_no_shading(!gp_no_shading());
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
 
 		case SW_REBA_ATTACK_INFO:
-			gp_hide_attacker_info_ = !gp_hide_attacker_info_;
+			gp_hide_attacker_info(!gp_hide_attacker_info());
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
 
 		case SW_CEILING:
-			gp_is_ceiling_solid_ = !gp_is_ceiling_solid_;
+			gp_is_ceiling_solid(!gp_is_ceiling_solid());
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
 
 		case SW_FLOORS:
-			gp_is_flooring_solid_ = !gp_is_flooring_solid_;
+			gp_is_flooring_solid(!gp_is_flooring_solid());
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
 
 		// BBi
 		case SW_NO_WALL_HIT_SOUND:
-			g_no_wall_hit_sound = !g_no_wall_hit_sound;
+			gp_no_wall_hit_sfx(!gp_no_wall_hit_sfx());
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
 
 		case SW_ALWAYS_RUN:
-			g_always_run = !g_always_run;
+			gp_is_always_run(!gp_is_always_run());
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
 
 		case SW_QUIT_ON_ESCAPE:
-			g_quit_on_escape = !g_quit_on_escape;
+			gp_quit_on_escape(!gp_quit_on_escape());
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
 
 		case SW_HEART_BEAT_SOUND:
-			g_heart_beat_sound = !g_heart_beat_sound;
+			gp_use_heart_beat_sfx(!gp_use_heart_beat_sfx());
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
@@ -2598,28 +2598,28 @@ void DrawAllSwitchLights(
 			switch (i)
 			{
 			case SW_LIGHTING:
-				if (!gp_no_shading_)
+				if (!gp_no_shading())
 				{
 					Shape++;
 				}
 				break;
 
 			case SW_REBA_ATTACK_INFO:
-				if (!gp_hide_attacker_info_)
+				if (!gp_hide_attacker_info())
 				{
 					Shape++;
 				}
 				break;
 
 			case SW_CEILING:
-				if (!gp_is_ceiling_solid_)
+				if (!gp_is_ceiling_solid())
 				{
 					Shape++;
 				}
 				break;
 
 			case SW_FLOORS:
-				if (!gp_is_flooring_solid_)
+				if (!gp_is_flooring_solid())
 				{
 					Shape++;
 				}
@@ -2627,28 +2627,28 @@ void DrawAllSwitchLights(
 
 			// BBi
 			case SW_NO_WALL_HIT_SOUND:
-				if (g_no_wall_hit_sound)
+				if (gp_no_wall_hit_sfx())
 				{
 					++Shape;
 				}
 				break;
 
 			case SW_ALWAYS_RUN:
-				if (g_always_run)
+				if (gp_is_always_run())
 				{
 					++Shape;
 				}
 				break;
 
 			case SW_QUIT_ON_ESCAPE:
-				if (g_quit_on_escape)
+				if (gp_quit_on_escape())
 				{
 					++Shape;
 				}
 				break;
 
 			case SW_HEART_BEAT_SOUND:
-				if (g_heart_beat_sound)
+				if (gp_use_heart_beat_sfx())
 				{
 					++Shape;
 				}
@@ -4634,7 +4634,7 @@ void ExitGame()
 
 	const auto& assets_info = get_assets_info();
 
-	if (assets_info.is_aog_sw_v3_0() && !g_no_intro_outro && !g_no_screens)
+	if (assets_info.is_aog_sw_v3_0() && !gp_no_intro_outro && !g_no_screens)
 	{
 		ShowPromo();
 	}

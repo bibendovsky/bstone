@@ -78,7 +78,7 @@ void DrawSpans(
 	const auto startxfrac = bstone::math::floating_to_fixed(viewx + (length * pcos));
 	const auto startyfrac = bstone::math::floating_to_fixed(viewy - (length * psin));
 
-	if (!gp_no_shading_)
+	if (!gp_no_shading())
 	{
 		auto i = shade_max - ((63 * height) / normalshade);
 

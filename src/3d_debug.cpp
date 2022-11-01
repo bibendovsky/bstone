@@ -97,7 +97,7 @@ void DebugMemory()
 	US_Print("\nReal Tics: ");
 	US_PrintUnsigned(realtics);
 
-	if (!gp_is_ceiling_solid_)
+	if (!gp_is_ceiling_solid())
 	{
 		US_Print("\n\nCeiling TEX: ");
 		US_PrintUnsigned(CeilingTile - START_TEXTURES);
@@ -114,7 +114,7 @@ void DebugMemory()
 		US_PrintUnsigned(BottomColor & 0xFF);
 	}
 
-	if (!gp_no_shading_)
+	if (!gp_no_shading())
 	{
 		US_Print("\nShade div: ");
 		US_PrintUnsigned(normalshade_div);
@@ -966,7 +966,7 @@ bool DebugKeys()
 		// Dec top color
 		//
 
-		if (!gp_is_ceiling_solid_)
+		if (!gp_is_ceiling_solid())
 		{
 			CeilingTile = DecRange(CeilingTile, static_cast<std::uint16_t>(NUM_TILES - 1));
 			SetPlaneViewSize(); // Init new textures
@@ -984,7 +984,7 @@ bool DebugKeys()
 		// Inc top color
 		//
 
-		if (!gp_is_ceiling_solid_)
+		if (!gp_is_ceiling_solid())
 		{
 			CeilingTile = IncRange(CeilingTile, static_cast<std::uint16_t>(NUM_TILES - 1));
 			SetPlaneViewSize(); // Init new textures
@@ -1002,7 +1002,7 @@ bool DebugKeys()
 		// Dec bottom color
 		//
 
-		if (!gp_is_flooring_solid_)
+		if (!gp_is_flooring_solid())
 		{
 			FloorTile = DecRange(FloorTile, static_cast<std::uint16_t>(NUM_TILES - 1));
 			SetPlaneViewSize(); // Init new textures
@@ -1020,7 +1020,7 @@ bool DebugKeys()
 		// Inc bottom color
 		//
 
-		if (!gp_is_flooring_solid_)
+		if (!gp_is_flooring_solid())
 		{
 			FloorTile = IncRange(FloorTile, static_cast<std::uint16_t>(NUM_TILES - 1));
 			SetPlaneViewSize(); // Init new textures
@@ -1034,7 +1034,7 @@ bool DebugKeys()
 		}
 	}
 
-	if (!gp_no_shading_)
+	if (!gp_no_shading())
 	{
 		// Shading adjustments
 		//

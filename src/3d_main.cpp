@@ -214,6 +214,7 @@ bool loadedgame;
 const std::string binary_config_file_name = "bstone_config";
 const std::string text_config_file_name = "bstone_config.txt";
 
+#if FIXMENOW
 static const bool default_gp_is_ceiling_solid = false;
 bool gp_is_ceiling_solid_ = default_gp_is_ceiling_solid;
 
@@ -253,6 +254,7 @@ bool g_no_fade_in_or_out = default_g_no_fade_in_or_out;
 
 static constexpr auto default_g_no_weapon_bobbing = false;
 bool g_no_weapon_bobbing = default_g_no_weapon_bobbing;
+#endif
 
 constexpr int sg_area_connect_bitmap_size = ((NUMAREAS * NUMAREAS) + 7) / 8;
 using SgAreaConnectBitmap = std::array<std::uint8_t, sg_area_connect_bitmap_size>;
@@ -7264,6 +7266,7 @@ namespace
 
 
 const auto in_binding_name = "in_binding";
+#if FIXMENOW
 const auto gp_is_ceiling_solid_name = "gp_is_ceiling_solid";
 const auto gp_is_flooring_solid_name = "gp_is_flooring_solid";
 const auto gp_hide_attacker_info_name = "gp_hide_attacker_info";
@@ -7276,6 +7279,7 @@ const auto gp_no_intro_outro_name = "gp_no_intro_outro";
 const auto am_is_rotated_name = "am_is_rotated";
 const auto gp_no_fade_in_or_out_name = "gp_no_fade_in_or_out";
 const auto gp_no_weapon_bobbing_name = "gp_no_weapon_bobbing";
+#endif
 
 
 class ScanCodeHash
@@ -7501,6 +7505,7 @@ void set_config_defaults()
 	sd_set_sfx_volume(sd_default_sfx_volume);
 	sd_set_music_volume(sd_default_music_volume);
 
+#if FIXMENOW
 	g_no_wall_hit_sound = default_no_wall_hit_sound;
 	g_always_run = default_always_run;
 
@@ -7509,6 +7514,7 @@ void set_config_defaults()
 
 	g_quit_on_escape = default_quit_on_escape;
 	g_no_intro_outro = default_g_no_intro_outro;
+#endif
 }
 
 ScanCode get_scan_code_by_name(
@@ -7595,6 +7601,7 @@ void read_text_config()
 							in_bindings[index0][index1] = get_scan_code_by_name(value_string);
 						}
 					}
+#if FIXMENOW
 					else if (key_string == gp_no_wall_hit_sfx_name)
 					{
 						int value;
@@ -7703,6 +7710,7 @@ void read_text_config()
 							g_no_weapon_bobbing = (value != 0);
 						}
 					}
+#endif
 				}
 			}
 		}
@@ -9826,7 +9834,7 @@ void DemoLoop()
 
 		vid_is_movie = false;
 
-		if (!g_no_intro_outro && !g_no_screens)
+		if (!gp_no_intro_outro() && !gp_no_intro_outro())
 		{
 			vid_is_movie = true;
 
@@ -10933,7 +10941,7 @@ auto gp_no_shading_cvar = bstone::CVar{
 constexpr auto gp_hide_attacker_info_cvar_name = bstone::StringView{"gp_hide_attacker_info"};
 constexpr auto gp_hide_attacker_info_cvar_default = false;
 
-auto gp_hide_attacker_info_info_cvar = bstone::CVar{
+auto gp_hide_attacker_info_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
 	gp_hide_attacker_info_cvar_name,
 	gp_hide_attacker_info_cvar_default};
@@ -11015,7 +11023,7 @@ void gp_initialize_cvars(bstone::CVarMgr& cvar_mgr)
 	cvar_mgr.add(gp_is_flooring_solid_cvar);
 	cvar_mgr.add(gp_is_ceiling_solid_cvar);
 	cvar_mgr.add(gp_no_shading_cvar);
-	cvar_mgr.add(gp_hide_attacker_info_info_cvar);
+	cvar_mgr.add(gp_hide_attacker_info_cvar);
 	cvar_mgr.add(gp_is_always_run_cvar);
 	cvar_mgr.add(gp_no_wall_hit_sfx_cvar);
 	cvar_mgr.add(gp_use_heart_beat_sfx_cvar);
@@ -11044,4 +11052,113 @@ void am_initialize_cvars(bstone::CVarMgr& cvar_mgr)
 	cvar_mgr.add(am_rotatable_cvar);
 }
 
+bool gp_is_flooring_solid() noexcept
+{
+	return gp_is_flooring_solid_cvar.get_bool();
+}
+
+void gp_is_flooring_solid(bool is_enable)
+{
+	gp_is_flooring_solid_cvar.set_bool(is_enable);
+}
+
+bool gp_is_ceiling_solid() noexcept
+{
+	return gp_is_ceiling_solid_cvar.get_bool();
+}
+
+void gp_is_ceiling_solid(bool is_enable)
+{
+	gp_is_ceiling_solid_cvar.set_bool(is_enable);
+}
+
+bool gp_no_shading() noexcept
+{
+	return gp_no_shading_cvar.get_bool();
+}
+
+void gp_no_shading(bool is_enable)
+{
+	gp_no_shading_cvar.set_bool(is_enable);
+}
+
+bool gp_hide_attacker_info() noexcept
+{
+	return gp_hide_attacker_info_cvar.get_bool();
+}
+
+void gp_hide_attacker_info(bool is_enable)
+{
+	gp_hide_attacker_info_cvar.set_bool(is_enable);
+}
+
+bool gp_is_always_run() noexcept
+{
+	return gp_is_always_run_cvar.get_bool();
+}
+
+void gp_is_always_run(bool is_enable)
+{
+	gp_is_always_run_cvar.set_bool(is_enable);
+}
+
+bool gp_no_wall_hit_sfx() noexcept
+{
+	return gp_no_wall_hit_sfx_cvar.get_bool();
+}
+
+void gp_no_wall_hit_sfx(bool is_enable)
+{
+	gp_no_wall_hit_sfx_cvar.set_bool(is_enable);
+}
+
+bool gp_use_heart_beat_sfx() noexcept
+{
+	return gp_use_heart_beat_sfx_cvar.get_bool();
+}
+
+void gp_use_heart_beat_sfx(bool is_enable)
+{
+	gp_use_heart_beat_sfx_cvar.set_bool(is_enable);
+}
+
+bool gp_quit_on_escape() noexcept
+{
+	return gp_quit_on_escape_cvar.get_bool();
+}
+
+void gp_quit_on_escape(bool is_enable)
+{
+	gp_quit_on_escape_cvar.set_bool(is_enable);
+}
+
+bool gp_no_intro_outro() noexcept
+{
+	return gp_no_intro_outro_cvar.get_bool();
+}
+
+void gp_no_intro_outro(bool is_enable)
+{
+	gp_no_intro_outro_cvar.set_bool(is_enable);
+}
+
+bool gp_no_fade_in_or_out() noexcept
+{
+	return gp_no_fade_in_or_out_cvar.get_bool();
+}
+
+void gp_no_fade_in_or_out(bool is_enable)
+{
+	gp_no_fade_in_or_out_cvar.set_bool(is_enable);
+}
+
+bool gp_no_weapon_bobbing() noexcept
+{
+	return gp_no_weapon_bobbing_cvar.get_bool();
+}
+
+void gp_no_weapon_bobbing(bool is_enable)
+{
+	gp_no_weapon_bobbing_cvar.set_bool(is_enable);
+}
 // BBi

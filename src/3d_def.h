@@ -3953,6 +3953,7 @@ doorobj_t* ui16_to_door_object(
 std::uint16_t door_object_to_ui16(
 	const doorobj_t* door_object);
 
+#if FIXMENOW
 extern bool gp_is_ceiling_solid_;
 extern bool gp_is_flooring_solid_;
 extern bool gp_hide_attacker_info_;
@@ -3969,7 +3970,40 @@ extern bool g_no_intro_outro;
 extern bool g_no_screens; // overrides "g_no_intro_outro" via command line
 extern bool g_no_fade_in_or_out;
 extern bool g_no_weapon_bobbing;
+#else
+bool gp_is_flooring_solid() noexcept;
+void gp_is_flooring_solid(bool is_enable);
 
+bool gp_is_ceiling_solid() noexcept;
+void gp_is_ceiling_solid(bool is_enable);
+
+bool gp_no_shading() noexcept;
+void gp_no_shading(bool is_enable);
+
+bool gp_hide_attacker_info() noexcept;
+void gp_hide_attacker_info(bool is_enable);
+
+bool gp_is_always_run() noexcept;
+void gp_is_always_run(bool is_enable);
+
+bool gp_no_wall_hit_sfx() noexcept;
+void gp_no_wall_hit_sfx(bool is_enable);
+
+bool gp_use_heart_beat_sfx() noexcept;
+void gp_use_heart_beat_sfx(bool is_enable);
+
+bool gp_quit_on_escape() noexcept;
+void gp_quit_on_escape(bool is_enable);
+
+bool gp_no_intro_outro() noexcept;
+void gp_no_intro_outro(bool is_enable);
+
+bool gp_no_fade_in_or_out() noexcept;
+void gp_no_fade_in_or_out(bool is_enable);
+
+bool gp_no_weapon_bobbing() noexcept;
+void gp_no_weapon_bobbing(bool is_enable);
+#endif
 
 extern bstone::MtTaskMgr* mt_task_manager_;
 

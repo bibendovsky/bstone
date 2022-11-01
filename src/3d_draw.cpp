@@ -380,7 +380,7 @@ void ScalePost()
 
 	postheight = height;
 
-	if (!gp_no_shading_)
+	if (!gp_no_shading())
 	{
 		auto i = shade_max - ((63 * height) / normalshade);
 
@@ -973,12 +973,12 @@ void VGAClearScreen()
 
 	int half_height = viewheight / 2;
 
-	if (gp_is_ceiling_solid_)
+	if (gp_is_ceiling_solid())
 	{
 		vga_clear_screen(0, half_height, TopColor);
 	}
 
-	if (gp_is_flooring_solid_)
+	if (gp_is_flooring_solid())
 	{
 		vga_clear_screen(
 			viewheight - half_height, half_height, BottomColor);
@@ -1358,7 +1358,7 @@ void DrawScaleds()
 		//
 		// draw farthest
 		//
-		if ((!gp_no_shading_ && farthest->lighting != NO_SHADING) || cloaked_shape)
+		if ((!gp_no_shading() && farthest->lighting != NO_SHADING) || cloaked_shape)
 		{
 			ScaleLSShape(farthest->viewx, farthest->shapenum, farthest->viewheight, farthest->lighting);
 		}
@@ -1422,7 +1422,7 @@ void DrawPlayerWeapon()
 
 			const auto height = assets_info.is_aog() ? 128 : 88;
 
-			useBounceOffset = !g_no_weapon_bobbing && assets_info.is_ps();
+			useBounceOffset = !gp_no_weapon_bobbing() && assets_info.is_ps();
 			scale_player_weapon(shapenum, height);
 			useBounceOffset = false;
 		}
@@ -1558,10 +1558,10 @@ void ThreeDRefresh()
 	// follow the walls from there to the right, drawwing as we go
 	//
 
-	const auto is_ceiling_textured = (!gp_is_ceiling_solid_);
-	const auto is_floor_textured = (!gp_is_flooring_solid_);
+	const auto is_ceiling_textured = (!gp_is_ceiling_solid());
+	const auto is_floor_textured = (!gp_is_flooring_solid());
 
-	if (!gp_no_shading_)
+	if (!gp_no_shading())
 	{
 		if (is_ceiling_textured && is_floor_textured)
 		{
