@@ -453,7 +453,7 @@ void PollKeyboardMove()
 {
 	bool is_running = in_is_binding_pressed(e_bi_run);
 
-	if (g_always_run)
+	if (gp_is_always_run())
 	{
 		is_running = !is_running;
 	}
@@ -518,7 +518,7 @@ void PollMouseMove()
 
 	auto is_running = in_is_binding_pressed(e_bi_run);
 
-	if (g_always_run)
+	if (gp_is_always_run())
 	{
 		is_running = !is_running;
 	}
@@ -707,10 +707,10 @@ void check_heart_beat_key()
 	{
 		if (is_key_released)
 		{
-			g_heart_beat_sound = !g_heart_beat_sound;
+			gp_use_heart_beat_sfx(!gp_use_heart_beat_sfx());
 
 			const auto& message = (
-				g_heart_beat_sound ?
+				gp_use_heart_beat_sfx() ?
 				ekg_heartbeat_enabled :
 				ekg_heartbeat_disabled);
 
@@ -1151,9 +1151,9 @@ void CheckKeys()
 	{
 		if (I_KeyReleased)
 		{
-			gp_hide_attacker_info_ = !gp_hide_attacker_info_;
+			gp_hide_attacker_info(!gp_hide_attacker_info());
 
-			if (!gp_hide_attacker_info_)
+			if (!gp_hide_attacker_info())
 			{
 				DISPLAY_TIMED_MSG(attacker_info_enabled, MP_ATTACK_INFO, MT_GENERAL);
 			}
@@ -1171,20 +1171,20 @@ void CheckKeys()
 
 	if (in_is_binding_pressed(e_bi_ceiling))
 	{
-		gp_is_ceiling_solid_ = !gp_is_ceiling_solid_;
+		gp_is_ceiling_solid(!gp_is_ceiling_solid());
 		in_reset_binding_state(e_bi_ceiling);
 	}
 
 	if (in_is_binding_pressed(e_bi_flooring))
 	{
-		gp_is_flooring_solid_ = !gp_is_flooring_solid_;
+		gp_is_flooring_solid(!gp_is_flooring_solid());
 		in_reset_binding_state(e_bi_flooring);
 	}
 
 	if (in_is_binding_pressed(e_bi_lightning))
 	{
 		in_reset_binding_state(e_bi_lightning);
-		gp_no_shading_ = !gp_no_shading_;
+		gp_no_shading(!gp_no_shading());
 	}
 
 	check_heart_beat_key();
@@ -1283,7 +1283,7 @@ void PopupAutoMap(
 			show_whole_map = !show_whole_map;
 		}
 
-		if (g_rotated_automap)
+		if (am_rotatable())
 		{
 			show_whole_map = !show_whole_map;
 		}

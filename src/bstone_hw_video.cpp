@@ -290,7 +290,7 @@ public:
 
 		r2_fade_color_ = vga_color_to_rgba_8(red, green, blue);
 
-		if (!g_no_fade_in_or_out)
+		if (!gp_no_fade_in_or_out())
 		{
 			const auto alpha = 0xFF;
 
@@ -349,7 +349,7 @@ public:
 
 		r2_fade_color_.a_ = 0xFF;
 
-		if (!g_no_fade_in_or_out)
+		if (!gp_no_fade_in_or_out())
 		{
 			const auto alpha = 0xFF;
 
@@ -4614,7 +4614,7 @@ private:
 
 		const auto translate_x = 0.5 * static_cast<double>(vid_layout_.screen_viewport_width);
 
-		const auto is_bobbing_enabled = (!g_no_weapon_bobbing && assets_info.is_ps());
+		const auto is_bobbing_enabled = (!gp_no_weapon_bobbing() && assets_info.is_ps());
 		const auto bounce_offset = (is_bobbing_enabled ? -player_get_weapon_bounce_offset() : 0.0);
 		const auto translate_y = vga_height_scale * bounce_offset;
 
@@ -6406,7 +6406,7 @@ private:
 
 				auto lighting = 0;
 
-				if (!gp_no_shading_)
+				if (!gp_no_shading())
 				{
 					const auto& sprite = *draw_item.sprite;
 
@@ -6453,7 +6453,7 @@ private:
 			{
 				// Set extra lighting.
 				//
-				if (!gp_no_shading_)
+				if (!gp_no_shading())
 				{
 					bs_lighting_ = last_lighting;
 
@@ -6602,7 +6602,7 @@ private:
 			return;
 		}
 
-		const auto is_shading = (!gp_no_shading_);
+		const auto is_shading = (!gp_no_shading());
 
 		const auto& assets_info = get_assets_info();
 
@@ -6720,7 +6720,7 @@ private:
 		// Draw flooring.
 		//
 		{
-			auto texture_2d = (!gp_is_flooring_solid_
+			auto texture_2d = (!gp_is_flooring_solid()
 				?
 				flooring_textured_t2d_
 				:
@@ -6752,7 +6752,7 @@ private:
 		// Draw ceiling.
 		//
 		{
-			auto texture_2d = (!gp_is_ceiling_solid_
+			auto texture_2d = (!gp_is_ceiling_solid()
 				?
 				ceiling_textured_t2d_
 				:

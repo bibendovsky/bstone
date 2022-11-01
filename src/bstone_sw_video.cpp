@@ -686,7 +686,7 @@ void SwVideo::fade_out(
 	int steps)
 try
 {
-	if (!g_no_fade_in_or_out)
+	if (!gp_no_fade_in_or_out())
 	{
 		auto palette1 = ::VgaPalette{};
 		auto palette2 = ::VgaPalette{};
@@ -755,7 +755,7 @@ void SwVideo::fade_in(
 	int steps)
 try
 {
-	if (!g_no_fade_in_or_out)
+	if (!gp_no_fade_in_or_out())
 	{
 		auto palette1 = ::VgaPalette{};
 		auto palette2 = ::VgaPalette{};

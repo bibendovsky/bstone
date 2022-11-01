@@ -1088,7 +1088,7 @@ extern char bc_buffer[];
 
 void PreDemo()
 {
-	if (g_no_intro_outro || g_no_screens)
+	if (gp_no_intro_outro() || gp_no_screens())
 	{
 		return;
 	}
@@ -1541,11 +1541,6 @@ void freed_main()
 
 	gamestate.initialize();
 	old_gamestate = gamestate;
-
-	if (g_args.has_option("no_screens"))
-	{
-		g_no_screens = true;
-	}
 
 	if (g_args.has_option("cheats"))
 	{

@@ -3953,24 +3953,6 @@ doorobj_t* ui16_to_door_object(
 std::uint16_t door_object_to_ui16(
 	const doorobj_t* door_object);
 
-#if FIXMENOW
-extern bool gp_is_ceiling_solid_;
-extern bool gp_is_flooring_solid_;
-extern bool gp_hide_attacker_info_;
-extern bool gp_no_shading_;
-extern bool g_no_wall_hit_sound;
-extern bool g_always_run;
-
-// BBi AOG only options
-extern bool g_heart_beat_sound;
-extern bool g_rotated_automap;
-
-extern bool g_quit_on_escape;
-extern bool g_no_intro_outro;
-extern bool g_no_screens; // overrides "g_no_intro_outro" via command line
-extern bool g_no_fade_in_or_out;
-extern bool g_no_weapon_bobbing;
-#else
 bool gp_is_flooring_solid() noexcept;
 void gp_is_flooring_solid(bool is_enable);
 
@@ -3998,12 +3980,17 @@ void gp_quit_on_escape(bool is_enable);
 bool gp_no_intro_outro() noexcept;
 void gp_no_intro_outro(bool is_enable);
 
+bool gp_no_screens() noexcept;
+void gp_no_screens(bool is_enable);
+
 bool gp_no_fade_in_or_out() noexcept;
 void gp_no_fade_in_or_out(bool is_enable);
 
 bool gp_no_weapon_bobbing() noexcept;
 void gp_no_weapon_bobbing(bool is_enable);
-#endif
+
+bool am_rotatable() noexcept;
+void am_rotatable(bool is_enable);
 
 extern bstone::MtTaskMgr* mt_task_manager_;
 

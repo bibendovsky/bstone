@@ -44,41 +44,6 @@ using VgaPalette = std::array<VgaColor, 256>;
 using VgaBuffer = std::vector<std::uint8_t>;
 using UiMaskBuffer = std::array<bool, vga_ref_width * vga_ref_height>;
 
-#if FIXMENOW
-struct VidCfg
-{
-	bstone::RendererKind renderer_kind_;
-
-	bool is_positioned_;
-	bool is_vsync_;
-
-	bool is_ui_stretched_;
-	bool is_widescreen;
-
-	int x;
-	int y;
-	int width;
-	int height;
-
-	bstone::Ren3dFilterKind d2_texture_filter_;
-
-	bstone::Ren3dFilterKind d3_texture_image_filter_;
-	bstone::Ren3dFilterKind d3_texture_mipmap_filter_;
-
-	int d3_texture_anisotropy_;
-
-	bstone::Ren3dAaKind aa_kind_;
-	int aa_degree_;
-
-	bstone::HwTextureMgrUpscaleFilterKind texture_upscale_kind_;
-	int texture_upscale_xbrz_degree_;
-
-	int filler_color_index;
-
-	bool is_external_textures_enabled_;
-}; // VidCfg
-#endif
-
 struct VideoModeCfg
 {
 	bstone::RendererKind renderer_kind_;
@@ -326,9 +291,6 @@ void vid_initialize_cvars(bstone::CVarMgr& cvar_mgr);
 
 
 VideoModeCfg vid_cfg_get_video_mode() noexcept;
-#if FIXMENOW
-VidCfg& vid_cfg_get() noexcept;
-#endif
 
 bool vid_cfg_parse_key_value(
 	const std::string& key_string,

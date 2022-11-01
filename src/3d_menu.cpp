@@ -2545,7 +2545,7 @@ void CP_Switches(
 			break;
 
 		case SW_ROTATED_AUTOMAP:
-			g_rotated_automap = !g_rotated_automap;
+			am_rotatable(!am_rotatable());
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
@@ -2655,7 +2655,7 @@ void DrawAllSwitchLights(
 				break;
 
 			case SW_ROTATED_AUTOMAP:
-				if (g_rotated_automap)
+				if (am_rotatable())
 				{
 					++Shape;
 				}
@@ -4634,7 +4634,7 @@ void ExitGame()
 
 	const auto& assets_info = get_assets_info();
 
-	if (assets_info.is_aog_sw_v3_0() && !gp_no_intro_outro && !g_no_screens)
+	if (assets_info.is_aog_sw_v3_0() && !gp_no_intro_outro() && !gp_no_screens())
 	{
 		ShowPromo();
 	}
@@ -6096,21 +6096,21 @@ void draw_all_switch2_lights(
 			switch (i)
 			{
 			case SW2_NO_INTRO_OUTRO:
-				if (g_no_intro_outro)
+				if (gp_no_intro_outro())
 				{
 					shape += 1;
 				}
 				break;
 
 			case SW2_NO_FADE_IN_OR_OUT:
-				if (g_no_fade_in_or_out)
+				if (gp_no_fade_in_or_out())
 				{
 					shape += 1;
 				}
 				break;
 
 			case SW2_NO_WEAPON_BOBBING:
-				if (g_no_weapon_bobbing)
+				if (gp_no_weapon_bobbing())
 				{
 					shape += 1;
 				}
@@ -6157,19 +6157,19 @@ void cp_switches2(
 		switch (which)
 		{
 		case SW2_NO_INTRO_OUTRO:
-			g_no_intro_outro = !g_no_intro_outro;
+			gp_no_intro_outro(!gp_no_intro_outro());
 			ShootSnd();
 			draw_switch2_menu();
 			break;
 
 		case SW2_NO_FADE_IN_OR_OUT:
-			g_no_fade_in_or_out = !g_no_fade_in_or_out;
+			gp_no_fade_in_or_out(!gp_no_fade_in_or_out());
 			ShootSnd();
 			draw_switch2_menu();
 			break;
 
 		case SW2_NO_WEAPON_BOBBING:
-			g_no_weapon_bobbing = !g_no_weapon_bobbing;
+			gp_no_weapon_bobbing(!gp_no_weapon_bobbing());
 			ShootSnd();
 			draw_switch2_menu();
 			break;
