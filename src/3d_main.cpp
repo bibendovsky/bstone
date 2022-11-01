@@ -7660,41 +7660,8 @@ void write_text_config()
 		cfg_file_write_entry(writer, key, value);
 	}
 
-#if FIXMENOW
-	vid_cfg_write(writer);
-
-	writer.write("\n// Audio\n");
-	write_config_entry(writer, snd_is_sfx_enabled_name, sd_is_sound_enabled_);
-	write_config_entry(writer, snd_is_music_enabled_name, sd_is_music_enabled_);
-	write_config_entry(writer, snd_sfx_volume_name, sd_sfx_volume_);
-	write_config_entry(writer, snd_music_volume_name, sd_music_volume_);
-	sd_cfg_write(writer);
-
-	writer.write("\n// Input\n");
-	write_config_entry(writer, in_mouse_sensitivity_name, mouseadjustment);
-	write_config_entry(writer, in_is_mouse_enabled_name, mouseenabled);
-#endif
-
 	writer.write("\n// Input bindings\n");
 	write_bindings_config(in_binding_name, writer);
-
-#if FIXMENOW
-	writer.write("\n// Gameplay\n");
-	write_config_entry(writer, gp_is_ceiling_solid_name, gp_is_ceiling_solid_);
-	write_config_entry(writer, gp_is_flooring_solid_name, gp_is_flooring_solid_);
-	write_config_entry(writer, gp_hide_attacker_info_name, gp_hide_attacker_info_);
-	write_config_entry(writer, gp_no_shading_name, gp_no_shading_);
-	write_config_entry(writer, gp_no_wall_hit_sfx_name, g_no_wall_hit_sound);
-	write_config_entry(writer, gp_is_always_run_name, g_always_run);
-	write_config_entry(writer, gp_use_heart_beat_sfx_name, g_heart_beat_sound);
-	write_config_entry(writer, gp_quit_on_escape_name, g_quit_on_escape);
-	write_config_entry(writer, gp_no_intro_outro_name, g_no_intro_outro);
-	write_config_entry(writer, gp_no_fade_in_or_out_name, g_no_fade_in_or_out);
-	write_config_entry(writer, gp_no_weapon_bobbing_name, g_no_weapon_bobbing);
-
-	writer.write("\n// Auto-map\n");
-	write_config_entry(writer, am_is_rotated_name, g_rotated_automap);
-#endif
 
 	const auto stream_size = static_cast<int>(memory_stream.get_size());
 	const auto stream_data = memory_stream.get_data();
