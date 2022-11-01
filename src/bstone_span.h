@@ -8,9 +8,11 @@ SPDX-License-Identifier: MIT
 #define BSTONE_SPAN_INCLUDED
 
 #include <cassert>
+#include <initializer_list>
 #include <type_traits>
 #include "bstone_int.h"
 #include "bstone_type_traits.h"
+#include "bstone_utility.h"
 
 namespace bstone {
 
@@ -126,6 +128,12 @@ public:
 		return get_data()[index];
 	}
 
+	constexpr void swap(Span& rhs)
+	{
+		utility::swap(data_, rhs.data_);
+		utility::swap(size_, rhs.size_);
+	}
+
 private:
 	Item* data_{};
 	Int size_{};
@@ -167,6 +175,14 @@ template<typename T>
 inline constexpr auto make_span(T* data, Int size) noexcept
 {
 	return Span<T>{data, size};
+}
+
+// ==========================================================================
+
+template<typename T>
+inline constexpr auto make_span(std::initializer_list<T> list) noexcept
+{
+	return Span<T>{list.begin(), static_cast<Int>(list.size())};
 }
 
 // ==========================================================================

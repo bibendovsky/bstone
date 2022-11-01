@@ -43,11 +43,13 @@ public:
 		Int32 min_value,
 		Int32 max_value);
 
-	// Defines int32 CVAR with a specified allowed values.
+	// Defines an int32 CVAR with a specified allowed values.
 	CVar(CVarInt32Tag, StringView name, Int32 default_value, std::initializer_list<Int32> values);
-	// Defines int32 CVAR with a maximum range.
+
+	// Defines an int32 CVAR with a maximum range.
 	CVar(CVarInt32Tag, StringView name, Int32 default_value);
 
+	// Defines a boolean CVAR.
 	CVar(CVarBoolTag, StringView name, bool default_value);
 
 	// Defines a string CVAR with any string value.
