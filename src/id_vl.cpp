@@ -39,6 +39,9 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 namespace {
 
+constexpr int default_window_width = 640;
+constexpr int default_window_height = 480;
+
 // Common names.
 
 constexpr auto vid_none_string = bstone::StringView{"none"};
@@ -631,11 +634,6 @@ Notes:
 	(3) Bottom status bar if stretch is on or filler otherwise.
 
 */
-
-
-constexpr int default_window_width = 640;
-constexpr int default_window_height = 480;
-
 
 } // namespace
 
