@@ -446,7 +446,6 @@ AudioDriverType sd_get_driver_type_from_cvar() noexcept
 	if (driver_sv == snd_driver_cvar_2d_sdl)
 	{
 		return AudioDriverType::r2_sdl;
-		return AudioDriverType::r3_openal;
 	}
 
 	if (driver_sv == snd_driver_cvar_3d_openal)
@@ -610,7 +609,7 @@ bool sd_is_music_playing()
 
 bool sd_has_audio() noexcept
 {
-	return snd_is_disabled_cvar.get_bool();
+	return !snd_is_disabled_cvar.get_bool();
 }
 
 // If a sound is playing, stops it.

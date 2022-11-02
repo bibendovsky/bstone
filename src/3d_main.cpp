@@ -9474,7 +9474,6 @@ void ShutdownId()
 	CA_Shutdown();
 
 	bstone::globals::page_mgr = nullptr;
-	bstone::globals::cvar_mgr = nullptr;
 }
 
 void CalcProjection(
@@ -9878,6 +9877,8 @@ int main(
 
 	auto is_failed = false;
 	auto error_message = std::string{};
+
+	bstone::globals::cvar_mgr = bstone::make_cvar_mgr(bstone::globals::max_cvars);
 
 	try
 	{

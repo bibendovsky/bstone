@@ -65,10 +65,10 @@ bool operator!=(
 
 extern std::uint8_t* vga_memory;
 
-constexpr auto vid_min_aa = 0;
+constexpr auto vid_min_aa = 1;
 constexpr auto vid_max_aa = 32;
 
-constexpr auto vid_min_anisotropic = 0;
+constexpr auto vid_min_anisotropic = 1;
 constexpr auto vid_max_anisotropic = 16;
 
 constexpr auto vid_upscale_min_degree = 2;

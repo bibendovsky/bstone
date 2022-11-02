@@ -112,7 +112,7 @@ auto vid_y_cvar = bstone::CVar{
 // vid_width
 
 constexpr auto vid_width_cvar_name = bstone::StringView{"vid_width"};
-constexpr auto vid_width_cvar_default = 0;
+constexpr auto vid_width_cvar_default = default_window_width;
 
 auto vid_width_cvar = bstone::CVar{
 	bstone::CVarInt32Tag{},
@@ -123,7 +123,7 @@ auto vid_width_cvar = bstone::CVar{
 // vid_height
 
 constexpr auto vid_height_cvar_name = bstone::StringView{"vid_height"};
-constexpr auto vid_height_cvar_default = 0;
+constexpr auto vid_height_cvar_default = default_window_height;
 
 auto vid_height_cvar = bstone::CVar{
 	bstone::CVarInt32Tag{},
@@ -156,7 +156,7 @@ auto vid_is_ui_stretched_cvar = bstone::CVar{
 // vid_is_widescreen
 
 constexpr auto vid_is_widescreen_cvar_name = bstone::StringView{"vid_is_widescreen"};
-constexpr auto vid_is_widescreen_cvar_default = false;
+constexpr auto vid_is_widescreen_cvar_default = true;
 
 auto vid_is_widescreen_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
