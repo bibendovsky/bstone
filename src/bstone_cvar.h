@@ -7,7 +7,6 @@ SPDX-License-Identifier: MIT
 #ifndef BSTONE_CVAR_INCLUDED
 #define BSTONE_CVAR_INCLUDED
 
-#include <initializer_list>
 #include <vector>
 #include "bstone_cvar_string.h"
 #include "bstone_int.h"
@@ -59,7 +58,7 @@ public:
 		StringView name,
 		CVarFlags flags,
 		Int32 default_value,
-		std::initializer_list<const Int32> values);
+		CVarInt32Values values);
 
 	// Defines an int32 CVAR with a maximum range.
 	CVar(CVarInt32Tag, StringView name, CVarFlags flags, Int32 default_value);
@@ -76,13 +75,14 @@ public:
 		StringView name,
 		CVarFlags flags,
 		StringView default_value,
-		std::initializer_list<const StringView> values);
+		CVarStringValues values);
 
 	CVar(const CVar& rhs) = delete;
 	CVar(CVar&& rhs) noexcept;
 	CVar& operator=(const CVar& rhs) = delete;
 	CVar& operator=(CVar&& rhs) noexcept;
 
+	CVarType get_type() const noexcept;
 	StringView get_name() const noexcept;
 	CVarFlags get_flags() const noexcept;
 
@@ -132,7 +132,7 @@ private:
 		Int32 default_value,
 		Int32 min_value,
 		Int32 max_value,
-		std::initializer_list<const Int32> values);
+		CVarInt32Values values);
 
 	void set_string_from_int32();
 	void set_int32_from_string();

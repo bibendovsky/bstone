@@ -45,6 +45,12 @@ constexpr auto vid_none_string = bstone::StringView{"none"};
 constexpr auto vid_nearest_string = bstone::StringView{"nearest"};
 constexpr auto vid_linear_string = bstone::StringView{"linear"};
 
+constexpr bstone::StringView vid_filter_strings[] =
+{
+	vid_nearest_string,
+	vid_linear_string,
+};
+
 // vid_renderer
 
 constexpr auto vid_renderer_cvar_name = bstone::StringView{"vid_renderer"};
@@ -54,18 +60,21 @@ constexpr auto vid_renderer_cvar_gl_2_0 = bstone::StringView{"gl_2_0"};
 constexpr auto vid_renderer_cvar_gl_3_2_c = bstone::StringView{"gl_3_2_c"};
 constexpr auto vid_renderer_cvar_gles_2_0 = bstone::StringView{"gles_2_0"};
 
+constexpr bstone::StringView vid_renderer_cvar_values[] =
+{
+	vid_renderer_cvar_auto_detect,
+	vid_renderer_cvar_software,
+	vid_renderer_cvar_gl_2_0,
+	vid_renderer_cvar_gl_3_2_c,
+	vid_renderer_cvar_gles_2_0,
+};
+
 auto vid_renderer_cvar = bstone::CVar{
 	bstone::CVarStringTag{},
 	vid_renderer_cvar_name,
 	bstone::CVarFlags::archive,
 	vid_renderer_cvar_auto_detect,
-	{
-		vid_renderer_cvar_auto_detect,
-		vid_renderer_cvar_software,
-		vid_renderer_cvar_gl_2_0,
-		vid_renderer_cvar_gl_3_2_c,
-		vid_renderer_cvar_gles_2_0,
-	}};
+	vid_renderer_cvar_values};
 
 // vid_is_positioned
 
@@ -160,15 +169,18 @@ auto vid_is_widescreen_cvar = bstone::CVar{
 constexpr auto vid_aa_kind_cvar_name = bstone::StringView{"vid_aa_kind"};
 constexpr auto vid_aa_kind_cvar_msaa = bstone::StringView{"msaa"};
 
+constexpr bstone::StringView vid_aa_kind_cvar_values[] =
+{
+	vid_none_string,
+	vid_aa_kind_cvar_msaa,
+};
+
 auto vid_aa_kind_cvar = bstone::CVar{
 	bstone::CVarStringTag{},
 	vid_aa_kind_cvar_name,
 	bstone::CVarFlags::archive,
 	vid_none_string,
-	{
-		vid_none_string,
-		vid_aa_kind_cvar_msaa,
-	}};
+	vid_aa_kind_cvar_values};
 
 // vid_aa_degree
 
@@ -190,15 +202,18 @@ auto vid_aa_degree_cvar = bstone::CVar{
 constexpr auto vid_texture_upscale_filter_cvar_name = bstone::StringView{"vid_texture_upscale_filter"};
 constexpr auto vid_texture_upscale_filter_cvar_xbrz = bstone::StringView{"xbrz"};
 
+constexpr bstone::StringView vid_texture_upscale_filter_cvar_values[] =
+{
+	vid_none_string,
+	vid_texture_upscale_filter_cvar_xbrz,
+};
+
 auto vid_texture_upscale_filter_cvar = bstone::CVar{
 	bstone::CVarStringTag{},
 	vid_texture_upscale_filter_cvar_name,
 	bstone::CVarFlags::archive,
 	vid_none_string,
-	{
-		vid_none_string,
-		vid_texture_upscale_filter_cvar_xbrz,
-	}};
+	vid_texture_upscale_filter_cvar_values};
 
 // vid_texture_upscale_xbrz_degree
 
@@ -220,10 +235,7 @@ auto vid_2d_texture_filter_cvar = bstone::CVar{
 	vid_2d_texture_filter_cvar_name,
 	bstone::CVarFlags::archive,
 	vid_nearest_string,
-	{
-		vid_nearest_string,
-		vid_linear_string,
-	}};
+	vid_filter_strings};
 
 // vid_3d_texture_image_filter
 
@@ -234,10 +246,7 @@ auto vid_3d_texture_image_filter_cvar = bstone::CVar{
 	vid_3d_texture_image_filter_cvar_name,
 	bstone::CVarFlags::archive,
 	vid_nearest_string,
-	{
-		vid_nearest_string,
-		vid_linear_string,
-	}};
+	vid_filter_strings};
 
 // vid_3d_texture_mipmap_filter
 
@@ -248,10 +257,7 @@ auto vid_3d_texture_mipmap_filter_cvar = bstone::CVar{
 	vid_3d_texture_mipmap_filter_cvar_name,
 	bstone::CVarFlags::archive,
 	vid_nearest_string,
-	{
-		vid_nearest_string,
-		vid_linear_string,
-	}};
+	vid_filter_strings};
 
 // vid_3d_texture_anisotropy
 
@@ -1112,9 +1118,11 @@ try
 	{
 		case bstone::HwTextureMgrUpscaleFilterKind::none:
 			upscale_filter_type_sv = vid_none_string;
+			break;
 
 		case bstone::HwTextureMgrUpscaleFilterKind::xbrz:
 			upscale_filter_type_sv = vid_texture_upscale_filter_cvar_xbrz;
+			break;
 
 		default:
 			fail("Unsupported texture upscale filter kind.");

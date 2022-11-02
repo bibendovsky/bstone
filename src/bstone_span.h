@@ -8,7 +8,6 @@ SPDX-License-Identifier: MIT
 #define BSTONE_SPAN_INCLUDED
 
 #include <cassert>
-#include <initializer_list>
 #include <type_traits>
 #include "bstone_int.h"
 #include "bstone_type_traits.h"
@@ -175,14 +174,6 @@ template<typename T>
 inline constexpr auto make_span(T* data, Int size) noexcept
 {
 	return Span<T>{data, size};
-}
-
-// ==========================================================================
-
-template<typename T>
-inline constexpr auto make_span(std::initializer_list<T> list) noexcept
-{
-	return Span<T>{list.begin(), static_cast<Int>(list.size())};
 }
 
 // ==========================================================================

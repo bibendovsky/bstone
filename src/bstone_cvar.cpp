@@ -55,7 +55,7 @@ CVar::CVar(
 	StringView name,
 	CVarFlags flags,
 	Int32 default_value,
-	std::initializer_list<const Int32> values)
+	CVarInt32Values values)
 	:
 	CVar{
 		CVarInt32Tag{},
@@ -84,12 +84,12 @@ CVar::CVar(
 	StringView name,
 	CVarFlags flags,
 	StringView default_value,
-	std::initializer_list<const StringView> values)
+	CVarStringValues values)
 try
 {
 	validate_name(name);
 
-	if (values.size() > 0)
+	if (!values.is_empty())
 	{
 		const auto values_end_iter = values.end();
 
@@ -109,12 +109,14 @@ try
 
 	type_ = CVarType::string;
 	name_ = name;
+	flags_ = flags;
+
 	int32_min_value_ = std::numeric_limits<Int32>::min();
 	int32_max_value_ = std::numeric_limits<Int32>::max();
 	int32_value_ = int32_default_value_;
 
 	string_default_value_ = default_value;
-	string_values_ = make_span(values);
+	string_values_ = values;
 	string_value_ = string_default_value_;
 	set_int32_from_string();
 }
@@ -130,7 +132,7 @@ CVar::CVar(CVarBoolTag, StringView name, CVarFlags flags, bool default_value)
 
 CVar::CVar(CVarStringTag, StringView name, CVarFlags flags, StringView default_value)
 	:
-	CVar{CVarStringTag{}, name, flags, default_value, std::initializer_list<const StringView>{}}
+	CVar{CVarStringTag{}, name, flags, default_value, CVarStringValues{}}
 {}
 
 CVar::CVar(CVar&& rhs) noexcept
@@ -142,6 +144,11 @@ CVar& CVar::operator=(CVar&& rhs) noexcept
 {
 	swap(rhs);
 	return *this;
+}
+
+CVarType CVar::get_type() const noexcept
+{
+	return type_;
 }
 
 StringView CVar::get_name() const noexcept
@@ -319,11 +326,11 @@ CVar::CVar(
 	Int32 default_value,
 	Int32 min_value,
 	Int32 max_value,
-	std::initializer_list<const Int32> values)
+	CVarInt32Values values)
 try
 {
 	validate_name(name);
-	const auto value_count = values.size();
+	const auto value_count = values.get_size();
 
 	if (value_count > 0)
 	{
@@ -367,7 +374,7 @@ try
 	int32_default_value_ = default_value;
 	int32_min_value_ = min_value;
 	int32_max_value_ = max_value;
-	int32_values_ = make_span(values);
+	int32_values_ = values;
 	int32_value_ = int32_default_value_;
 	set_string_from_int32();
 }

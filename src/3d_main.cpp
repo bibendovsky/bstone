@@ -7558,7 +7558,7 @@ void cfg_file_write_entry(
 	entry_string += key_string;
 	entry_string += " \"";
 	entry_string.append(value.get_data(), value.get_size());
-	entry_string += " \"\n";
+	entry_string += "\"\n";
 
 	if (!writer.write(entry_string))
 	{

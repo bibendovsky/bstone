@@ -135,16 +135,19 @@ constexpr auto snd_driver_cvar_name = bstone::StringView{"snd_driver"};
 constexpr auto snd_driver_cvar_2d_sdl = bstone::StringView{"2d_sdl"};
 constexpr auto snd_driver_cvar_3d_openal = bstone::StringView{"3d_openal"};
 
+constexpr bstone::StringView snd_driver_cvar_values[] =
+{
+	snd_auto_detect_string,
+	snd_driver_cvar_2d_sdl,
+	snd_driver_cvar_3d_openal,
+};
+
 auto snd_driver_cvar = bstone::CVar{
 	bstone::CVarStringTag{},
 	snd_driver_cvar_name,
 	bstone::CVarFlags::archive,
 	snd_auto_detect_string,
-	{
-		snd_auto_detect_string,
-		snd_driver_cvar_2d_sdl,
-		snd_driver_cvar_3d_openal,
-	}};
+	bstone::make_span(snd_driver_cvar_values)};
 
 // snd_oal_library
 
@@ -172,15 +175,18 @@ constexpr auto snd_opl3_type_cvar_name = bstone::StringView{"snd_opl3_type"};
 constexpr auto snd_opl3_type_cvar_dbopl = bstone::StringView{"dbopl"};
 constexpr auto snd_opl3_type_cvar_nuked = bstone::StringView{"nuked"};
 
+constexpr bstone::StringView snd_opl3_type_cvar_values[] =
+{
+	snd_opl3_type_cvar_dbopl,
+	snd_opl3_type_cvar_nuked,
+};
+
 auto snd_opl3_type_cvar = bstone::CVar{
 	bstone::CVarStringTag{},
 	snd_opl3_type_cvar_name,
 	bstone::CVarFlags::archive,
 	snd_opl3_type_cvar_dbopl,
-	{
-		snd_opl3_type_cvar_dbopl,
-		snd_opl3_type_cvar_nuked,
-	}};
+	snd_opl3_type_cvar_values};
 
 // snd_is_sfx_enabled
 
@@ -199,15 +205,18 @@ constexpr auto snd_sfx_type_cvar_name = bstone::StringView{"snd_sfx_type"};
 constexpr auto snd_sfx_type_cvar_pc_speaker = bstone::StringView{"pc_speaker"};
 constexpr auto snd_sfx_type_cvar_adlib = bstone::StringView{"adlib"};
 
+constexpr bstone::StringView snd_sfx_type_cvar_values[] =
+{
+	snd_sfx_type_cvar_adlib,
+	snd_sfx_type_cvar_pc_speaker,
+};
+
 auto snd_sfx_type_cvar = bstone::CVar{
 	bstone::CVarStringTag{},
 	snd_sfx_type_cvar_name,
 	bstone::CVarFlags::archive,
 	snd_sfx_type_cvar_adlib,
-	{
-		snd_sfx_type_cvar_adlib,
-		snd_sfx_type_cvar_pc_speaker,
-	}};
+	snd_sfx_type_cvar_values};
 
 // snd_is_sfx_digitized
 
