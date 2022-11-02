@@ -50,7 +50,12 @@ CVar::CVar(
 		{}}
 {}
 
-CVar::CVar(CVarInt32Tag, StringView name, CVarFlags flags, Int32 default_value, std::initializer_list<Int32> values)
+CVar::CVar(
+	CVarInt32Tag,
+	StringView name,
+	CVarFlags flags,
+	Int32 default_value,
+	std::initializer_list<const Int32> values)
 	:
 	CVar{
 		CVarInt32Tag{},
@@ -79,7 +84,7 @@ CVar::CVar(
 	StringView name,
 	CVarFlags flags,
 	StringView default_value,
-	std::initializer_list<StringView> values)
+	std::initializer_list<const StringView> values)
 try
 {
 	validate_name(name);
@@ -109,7 +114,7 @@ try
 	int32_value_ = int32_default_value_;
 
 	string_default_value_ = default_value;
-	string_values_ = values;
+	string_values_ = make_span(values);
 	string_value_ = string_default_value_;
 	set_int32_from_string();
 }
@@ -125,7 +130,7 @@ CVar::CVar(CVarBoolTag, StringView name, CVarFlags flags, bool default_value)
 
 CVar::CVar(CVarStringTag, StringView name, CVarFlags flags, StringView default_value)
 	:
-	CVar{CVarStringTag{}, name, flags, default_value, std::initializer_list<StringView>{}}
+	CVar{CVarStringTag{}, name, flags, default_value, std::initializer_list<const StringView>{}}
 {}
 
 CVar::CVar(CVar&& rhs) noexcept
@@ -177,14 +182,14 @@ try
 			fail_unknown_type();
 	}
 
-	if (int32_values_.empty())
+	if (int32_values_.is_empty())
 	{
 		value = algorithm::clamp(value, int32_min_value_, int32_max_value_);
 	}
 	else
 	{
-		const auto int32_values_end_iter = int32_values_.cend();
-		const auto value_iter = std::find(int32_values_.cbegin(), int32_values_end_iter, value);
+		const auto int32_values_end_iter = int32_values_.end();
+		const auto value_iter = std::find(int32_values_.begin(), int32_values_end_iter, value);
 
 		if (value_iter == int32_values_end_iter)
 		{
@@ -212,7 +217,7 @@ catch (...)
 
 CVarInt32Values CVar::get_int32_values() const noexcept
 {
-	return CVarInt32Values{int32_values_.data(), static_cast<Int>(int32_values_.size())};
+	return int32_values_;
 }
 
 StringView CVar::get_string() const noexcept
@@ -234,7 +239,7 @@ void CVar::set_string(StringView value)
 
 CVarStringValues CVar::get_string_values() const noexcept
 {
-	return CVarStringValues{string_values_.data(), static_cast<Int>(string_values_.size())};
+	return string_values_;
 }
 
 void CVar::swap(CVar& rhs)
@@ -314,7 +319,7 @@ CVar::CVar(
 	Int32 default_value,
 	Int32 min_value,
 	Int32 max_value,
-	std::initializer_list<Int32> values)
+	std::initializer_list<const Int32> values)
 try
 {
 	validate_name(name);
@@ -362,7 +367,7 @@ try
 	int32_default_value_ = default_value;
 	int32_min_value_ = min_value;
 	int32_max_value_ = max_value;
-	int32_values_ = values;
+	int32_values_ = make_span(values);
 	int32_value_ = int32_default_value_;
 	set_string_from_int32();
 }
@@ -415,7 +420,7 @@ bool CVar::has_string(StringView string)
 
 void CVar::ensure_string()
 {
-	if (string_values_.empty())
+	if (string_values_.is_empty())
 	{
 		return;
 	}

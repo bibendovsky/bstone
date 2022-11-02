@@ -7655,6 +7655,11 @@ void write_text_config()
 
 	for (const auto& cvar : cvars)
 	{
+		if ((cvar->get_flags() & bstone::CVarFlags::archive) == bstone::CVarFlags{})
+		{
+			continue;
+		}
+
 		const auto key = cvar->get_name();
 		const auto value = cvar->get_string();
 		cfg_file_write_entry(writer, key, value);

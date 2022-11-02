@@ -54,7 +54,12 @@ public:
 		Int32 max_value);
 
 	// Defines an int32 CVAR with a specified allowed values.
-	CVar(CVarInt32Tag, StringView name, CVarFlags flags, Int32 default_value, std::initializer_list<Int32> values);
+	CVar(
+		CVarInt32Tag,
+		StringView name,
+		CVarFlags flags,
+		Int32 default_value,
+		std::initializer_list<const Int32> values);
 
 	// Defines an int32 CVAR with a maximum range.
 	CVar(CVarInt32Tag, StringView name, CVarFlags flags, Int32 default_value);
@@ -71,7 +76,7 @@ public:
 		StringView name,
 		CVarFlags flags,
 		StringView default_value,
-		std::initializer_list<StringView> values);
+		std::initializer_list<const StringView> values);
 
 	CVar(const CVar& rhs) = delete;
 	CVar(CVar&& rhs) noexcept;
@@ -95,10 +100,6 @@ public:
 	void swap(CVar& rhs);
 
 private:
-	using Int32Values = std::vector<Int32>;
-	using StringValues = std::vector<StringView>;
-
-private:
 	static constexpr auto max_int32_chars = 11;
 
 private:
@@ -109,11 +110,11 @@ private:
 	Int32 int32_default_value_{};
 	Int32 int32_min_value_{};
 	Int32 int32_max_value_{};
-	Int32Values int32_values_{};
+	CVarInt32Values int32_values_{};
 	Int32 int32_value_{};
 
 	StringView string_default_value_{};
-	StringValues string_values_{};
+	CVarStringValues string_values_{};
 	CVarString string_value_{};
 
 private:
@@ -131,7 +132,7 @@ private:
 		Int32 default_value,
 		Int32 min_value,
 		Int32 max_value,
-		std::initializer_list<Int32> values);
+		std::initializer_list<const Int32> values);
 
 	void set_string_from_int32();
 	void set_int32_from_string();
