@@ -104,6 +104,7 @@ constexpr auto snd_is_disabled_cvar_default = false;
 auto snd_is_disabled_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
 	snd_is_disabled_cvar_name,
+	bstone::CVarFlags::archive,
 	snd_is_disabled_cvar_default};
 
 // snd_rate
@@ -114,6 +115,7 @@ constexpr auto snd_rate_cvar_default = 0;
 auto snd_rate_cvar = bstone::CVar{
 	bstone::CVarInt32Tag{},
 	snd_rate_cvar_name,
+	bstone::CVarFlags::none,
 	snd_rate_cvar_default};
 
 // snd_mix_size
@@ -124,6 +126,7 @@ constexpr auto snd_mix_size_cvar_default = 20;
 auto snd_mix_size_cvar = bstone::CVar{
 	bstone::CVarInt32Tag{},
 	snd_mix_size_cvar_name,
+	bstone::CVarFlags::none,
 	snd_mix_size_cvar_default};
 
 // snd_driver
@@ -135,6 +138,7 @@ constexpr auto snd_driver_cvar_3d_openal = bstone::StringView{"3d_openal"};
 auto snd_driver_cvar = bstone::CVar{
 	bstone::CVarStringTag{},
 	snd_driver_cvar_name,
+	bstone::CVarFlags::archive,
 	snd_auto_detect_string,
 	{
 		snd_auto_detect_string,
@@ -149,6 +153,7 @@ constexpr auto snd_oal_library_cvar_name = bstone::StringView{"snd_oal_library"}
 auto snd_oal_library_cvar = bstone::CVar{
 	bstone::CVarStringTag{},
 	snd_oal_library_cvar_name,
+	bstone::CVarFlags::archive,
 	bstone::StringView{}};
 
 // snd_oal_device_name
@@ -158,6 +163,7 @@ constexpr auto snd_oal_device_name_cvar_name = bstone::StringView{"snd_oal_devic
 auto snd_oal_device_name_cvar = bstone::CVar{
 	bstone::CVarStringTag{},
 	snd_oal_device_name_cvar_name,
+	bstone::CVarFlags::archive,
 	bstone::StringView{}};
 
 // snd_opl3_type
@@ -169,6 +175,7 @@ constexpr auto snd_opl3_type_cvar_nuked = bstone::StringView{"nuked"};
 auto snd_opl3_type_cvar = bstone::CVar{
 	bstone::CVarStringTag{},
 	snd_opl3_type_cvar_name,
+	bstone::CVarFlags::archive,
 	snd_opl3_type_cvar_dbopl,
 	{
 		snd_opl3_type_cvar_dbopl,
@@ -183,6 +190,7 @@ constexpr auto snd_is_sfx_enabled_cvar_default = true;
 auto snd_is_sfx_enabled_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
 	snd_is_sfx_enabled_cvar_name,
+	bstone::CVarFlags::archive,
 	snd_is_sfx_enabled_cvar_default};
 
 // snd_sfx_type
@@ -194,6 +202,7 @@ constexpr auto snd_sfx_type_cvar_adlib = bstone::StringView{"adlib"};
 auto snd_sfx_type_cvar = bstone::CVar{
 	bstone::CVarStringTag{},
 	snd_sfx_type_cvar_name,
+	bstone::CVarFlags::archive,
 	snd_sfx_type_cvar_adlib,
 	{
 		snd_sfx_type_cvar_adlib,
@@ -208,6 +217,7 @@ constexpr auto snd_is_sfx_digitized_cvar_default = true;
 auto snd_is_sfx_digitized_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
 	snd_is_sfx_digitized_cvar_name,
+	bstone::CVarFlags::archive,
 	snd_is_sfx_digitized_cvar_default};
 
 // snd_sfx_volume
@@ -217,6 +227,7 @@ constexpr auto snd_sfx_volume_cvar_name = bstone::StringView{"snd_sfx_volume"};
 auto snd_sfx_volume_cvar = bstone::CVar{
 	bstone::CVarInt32Tag{},
 	snd_sfx_volume_cvar_name,
+	bstone::CVarFlags::archive,
 	sd_default_sfx_volume,
 	sd_min_volume,
 	sd_max_volume};
@@ -229,6 +240,7 @@ constexpr auto snd_is_music_enabled_cvar_default = true;
 auto snd_is_music_enabled_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
 	snd_is_music_enabled_cvar_name,
+	bstone::CVarFlags::archive,
 	snd_is_music_enabled_cvar_default};
 
 // snd_music_volume
@@ -238,6 +250,7 @@ constexpr auto snd_music_volume_cvar_name = bstone::StringView{"snd_music_volume
 auto snd_music_volume_cvar = bstone::CVar{
 	bstone::CVarInt32Tag{},
 	snd_music_volume_cvar_name,
+	bstone::CVarFlags::archive,
 	sd_default_music_volume,
 	sd_min_volume,
 	sd_max_volume};

@@ -123,6 +123,7 @@ constexpr auto in_is_mouse_enabled_cvar_default = true;
 auto in_is_mouse_enabled_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
 	in_is_mouse_enabled_cvar_name,
+	bstone::CVarFlags::archive,
 	in_is_mouse_enabled_cvar_default};
 
 // in_mouse_sensitivity
@@ -135,6 +136,7 @@ constexpr auto in_mouse_sensitivity_cvar_default = default_mouse_sensitivity;
 auto in_mouse_sensitivity_cvar = bstone::CVar{
 	bstone::CVarInt32Tag{},
 	in_mouse_sensitivity_cvar_name,
+	bstone::CVarFlags::archive,
 	in_mouse_sensitivity_cvar_default,
 	in_mouse_sensitivity_cvar_min,
 	in_mouse_sensitivity_cvar_max};

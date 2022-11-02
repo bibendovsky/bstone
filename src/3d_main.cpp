@@ -10702,6 +10702,7 @@ constexpr auto gp_is_flooring_solid_cvar_default = false;
 auto gp_is_flooring_solid_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
 	gp_is_flooring_solid_cvar_name,
+	bstone::CVarFlags::archive,
 	gp_is_flooring_solid_cvar_default};
 
 // gp_is_ceiling_solid
@@ -10712,6 +10713,7 @@ constexpr auto gp_is_ceiling_solid_cvar_default = false;
 auto gp_is_ceiling_solid_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
 	gp_is_ceiling_solid_cvar_name,
+	bstone::CVarFlags::archive,
 	gp_is_ceiling_solid_cvar_default};
 
 // gp_no_shading
@@ -10722,6 +10724,7 @@ constexpr auto gp_no_shading_cvar_default = false;
 auto gp_no_shading_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
 	gp_no_shading_cvar_name,
+	bstone::CVarFlags::archive,
 	gp_no_shading_cvar_default};
 
 // gp_hide_attacker_info
@@ -10732,6 +10735,7 @@ constexpr auto gp_hide_attacker_info_cvar_default = false;
 auto gp_hide_attacker_info_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
 	gp_hide_attacker_info_cvar_name,
+	bstone::CVarFlags::archive,
 	gp_hide_attacker_info_cvar_default};
 
 // gp_is_always_run
@@ -10742,6 +10746,7 @@ constexpr auto gp_is_always_run_cvar_default = true;
 auto gp_is_always_run_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
 	gp_is_always_run_cvar_name,
+	bstone::CVarFlags::archive,
 	gp_is_always_run_cvar_default};
 
 // gp_no_wall_hit_sfx
@@ -10752,6 +10757,7 @@ constexpr auto gp_no_wall_hit_sfx_cvar_default = true;
 auto gp_no_wall_hit_sfx_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
 	gp_no_wall_hit_sfx_cvar_name,
+	bstone::CVarFlags::archive,
 	gp_no_wall_hit_sfx_cvar_default};
 
 // gp_use_heart_beat_sfx
@@ -10762,6 +10768,7 @@ constexpr auto gp_use_heart_beat_sfx_cvar_default = false;
 auto gp_use_heart_beat_sfx_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
 	gp_use_heart_beat_sfx_cvar_name,
+	bstone::CVarFlags::archive,
 	gp_use_heart_beat_sfx_cvar_default};
 
 // gp_quit_on_escape
@@ -10772,6 +10779,7 @@ constexpr auto gp_quit_on_escape_cvar_default = true;
 auto gp_quit_on_escape_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
 	gp_quit_on_escape_cvar_name,
+	bstone::CVarFlags::archive,
 	gp_quit_on_escape_cvar_default};
 
 // gp_no_intro_outro
@@ -10782,6 +10790,7 @@ constexpr auto gp_no_intro_outro_cvar_default = false;
 auto gp_no_intro_outro_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
 	gp_no_intro_outro_cvar_name,
+	bstone::CVarFlags::archive,
 	gp_no_intro_outro_cvar_default};
 
 // gp_no_screens
@@ -10792,6 +10801,7 @@ constexpr auto gp_no_screens_cvar_default = false;
 auto gp_no_screens_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
 	gp_no_screens_cvar_name,
+	bstone::CVarFlags::none,
 	gp_no_screens_cvar_default};
 
 // gp_no_fade_in_or_out
@@ -10802,6 +10812,7 @@ constexpr auto gp_no_fade_in_or_out_cvar_default = false;
 auto gp_no_fade_in_or_out_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
 	gp_no_fade_in_or_out_cvar_name,
+	bstone::CVarFlags::archive,
 	gp_no_fade_in_or_out_cvar_default};
 
 // gp_no_weapon_bobbing
@@ -10812,6 +10823,7 @@ constexpr auto gp_no_weapon_bobbing_cvar_default = false;
 auto gp_no_weapon_bobbing_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
 	gp_no_weapon_bobbing_cvar_name,
+	bstone::CVarFlags::archive,
 	gp_no_weapon_bobbing_cvar_default};
 
 } // namespace
@@ -10842,6 +10854,7 @@ constexpr auto am_rotatable_cvar_default = true;
 auto am_rotatable_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
 	am_rotatable_cvar_name,
+	bstone::CVarFlags::archive,
 	am_rotatable_cvar_default};
 
 } // namespace

@@ -13,6 +13,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_int.h"
 #include "bstone_span.h"
 #include "bstone_string_view.h"
+#include "bstone_enum_flags.h"
 
 namespace bstone {
 
@@ -30,6 +31,14 @@ struct CVarStringTag {};
 using CVarInt32Values = Span<const Int32>;
 using CVarStringValues = Span<const StringView>;
 
+enum class CVarFlags : unsigned int
+{
+	none = 0,
+	archive = 1U << 0,
+};
+
+BSTONE_ENABLE_ENUM_CLASS_BITWISE_OPS_FOR(CVarFlags)
+
 // Notes:
 // - The name, string's default value and string's values MUST remain valid whole CVAR's lifetime.
 class CVar
@@ -39,26 +48,28 @@ public:
 	CVar(
 		CVarInt32Tag,
 		StringView name,
+		CVarFlags flags,
 		Int32 default_value,
 		Int32 min_value,
 		Int32 max_value);
 
 	// Defines an int32 CVAR with a specified allowed values.
-	CVar(CVarInt32Tag, StringView name, Int32 default_value, std::initializer_list<Int32> values);
+	CVar(CVarInt32Tag, StringView name, CVarFlags flags, Int32 default_value, std::initializer_list<Int32> values);
 
 	// Defines an int32 CVAR with a maximum range.
-	CVar(CVarInt32Tag, StringView name, Int32 default_value);
+	CVar(CVarInt32Tag, StringView name, CVarFlags flags, Int32 default_value);
 
 	// Defines a boolean CVAR.
-	CVar(CVarBoolTag, StringView name, bool default_value);
+	CVar(CVarBoolTag, StringView name, CVarFlags flags, bool default_value);
 
 	// Defines a string CVAR with any string value.
-	CVar(CVarStringTag, StringView name, StringView default_value);
+	CVar(CVarStringTag, StringView name, CVarFlags flags, StringView default_value);
 
 	// Defines a string CVAR with a list of allowed values.
 	CVar(
 		CVarStringTag,
 		StringView name,
+		CVarFlags flags,
 		StringView default_value,
 		std::initializer_list<StringView> values);
 
@@ -68,6 +79,7 @@ public:
 	CVar& operator=(CVar&& rhs) noexcept;
 
 	StringView get_name() const noexcept;
+	CVarFlags get_flags() const noexcept;
 
 	bool get_bool() const noexcept;
 	void set_bool(bool value);
@@ -92,6 +104,7 @@ private:
 private:
 	CVarType type_{};
 	StringView name_{};
+	CVarFlags flags_{};
 
 	Int32 int32_default_value_{};
 	Int32 int32_min_value_{};
@@ -114,6 +127,7 @@ private:
 	CVar(
 		CVarInt32Tag,
 		StringView name,
+		CVarFlags flags,
 		Int32 default_value,
 		Int32 min_value,
 		Int32 max_value,

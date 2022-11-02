@@ -57,6 +57,7 @@ constexpr auto vid_renderer_cvar_gles_2_0 = bstone::StringView{"gles_2_0"};
 auto vid_renderer_cvar = bstone::CVar{
 	bstone::CVarStringTag{},
 	vid_renderer_cvar_name,
+	bstone::CVarFlags::archive,
 	vid_renderer_cvar_auto_detect,
 	{
 		vid_renderer_cvar_auto_detect,
@@ -74,6 +75,7 @@ constexpr auto vid_is_positioned_cvar_default = false;
 auto vid_is_positioned_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
 	vid_is_positioned_cvar_name,
+	bstone::CVarFlags::archive,
 	vid_is_positioned_cvar_default};
 
 // vid_x
@@ -84,6 +86,7 @@ constexpr auto vid_x_cvar_default = 0;
 auto vid_x_cvar = bstone::CVar{
 	bstone::CVarInt32Tag{},
 	vid_x_cvar_name,
+	bstone::CVarFlags::archive,
 	vid_x_cvar_default};
 
 // vid_y
@@ -94,6 +97,7 @@ constexpr auto vid_y_cvar_default = 0;
 auto vid_y_cvar = bstone::CVar{
 	bstone::CVarInt32Tag{},
 	vid_y_cvar_name,
+	bstone::CVarFlags::archive,
 	vid_y_cvar_default};
 
 // vid_width
@@ -104,6 +108,7 @@ constexpr auto vid_width_cvar_default = 0;
 auto vid_width_cvar = bstone::CVar{
 	bstone::CVarInt32Tag{},
 	vid_width_cvar_name,
+	bstone::CVarFlags::archive,
 	vid_width_cvar_default};
 
 // vid_height
@@ -114,6 +119,7 @@ constexpr auto vid_height_cvar_default = 0;
 auto vid_height_cvar = bstone::CVar{
 	bstone::CVarInt32Tag{},
 	vid_height_cvar_name,
+	bstone::CVarFlags::archive,
 	vid_height_cvar_default};
 
 // vid_is_vsync
@@ -124,6 +130,7 @@ constexpr auto vid_is_vsync_cvar_default = true;
 auto vid_is_vsync_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
 	vid_is_vsync_cvar_name,
+	bstone::CVarFlags::archive,
 	vid_is_vsync_cvar_default};
 
 // vid_is_ui_stretched
@@ -134,6 +141,7 @@ constexpr auto vid_is_ui_stretched_cvar_default = false;
 auto vid_is_ui_stretched_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
 	vid_is_ui_stretched_cvar_name,
+	bstone::CVarFlags::archive,
 	vid_is_ui_stretched_cvar_default};
 
 // vid_is_widescreen
@@ -144,6 +152,7 @@ constexpr auto vid_is_widescreen_cvar_default = false;
 auto vid_is_widescreen_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
 	vid_is_widescreen_cvar_name,
+	bstone::CVarFlags::archive,
 	vid_is_widescreen_cvar_default};
 
 // vid_aa_kind
@@ -154,6 +163,7 @@ constexpr auto vid_aa_kind_cvar_msaa = bstone::StringView{"msaa"};
 auto vid_aa_kind_cvar = bstone::CVar{
 	bstone::CVarStringTag{},
 	vid_aa_kind_cvar_name,
+	bstone::CVarFlags::archive,
 	vid_none_string,
 	{
 		vid_none_string,
@@ -170,6 +180,7 @@ constexpr auto vid_aa_degree_cvar_default = vid_aa_degree_cvar_min;
 auto vid_aa_degree_cvar = bstone::CVar{
 	bstone::CVarInt32Tag{},
 	vid_aa_degree_cvar_name,
+	bstone::CVarFlags::archive,
 	vid_aa_degree_cvar_default,
 	vid_aa_degree_cvar_min,
 	vid_aa_degree_cvar_max};
@@ -182,6 +193,7 @@ constexpr auto vid_texture_upscale_filter_cvar_xbrz = bstone::StringView{"xbrz"}
 auto vid_texture_upscale_filter_cvar = bstone::CVar{
 	bstone::CVarStringTag{},
 	vid_texture_upscale_filter_cvar_name,
+	bstone::CVarFlags::archive,
 	vid_none_string,
 	{
 		vid_none_string,
@@ -196,6 +208,7 @@ constexpr auto vid_texture_upscale_xbrz_degree_cvar_default = 0;
 auto vid_texture_upscale_xbrz_degree_cvar = bstone::CVar{
 	bstone::CVarInt32Tag{},
 	vid_texture_upscale_xbrz_degree_cvar_name,
+	bstone::CVarFlags::archive,
 	vid_texture_upscale_xbrz_degree_cvar_default};
 
 // vid_2d_texture_filter
@@ -205,6 +218,7 @@ constexpr auto vid_2d_texture_filter_cvar_name = bstone::StringView{"vid_2d_text
 auto vid_2d_texture_filter_cvar = bstone::CVar{
 	bstone::CVarStringTag{},
 	vid_2d_texture_filter_cvar_name,
+	bstone::CVarFlags::archive,
 	vid_nearest_string,
 	{
 		vid_nearest_string,
@@ -218,6 +232,7 @@ constexpr auto vid_3d_texture_image_filter_cvar_name = bstone::StringView{"vid_3
 auto vid_3d_texture_image_filter_cvar = bstone::CVar{
 	bstone::CVarStringTag{},
 	vid_3d_texture_image_filter_cvar_name,
+	bstone::CVarFlags::archive,
 	vid_nearest_string,
 	{
 		vid_nearest_string,
@@ -231,6 +246,7 @@ constexpr auto vid_3d_texture_mipmap_filter_cvar_name = bstone::StringView{"vid_
 auto vid_3d_texture_mipmap_filter_cvar = bstone::CVar{
 	bstone::CVarStringTag{},
 	vid_3d_texture_mipmap_filter_cvar_name,
+	bstone::CVarFlags::archive,
 	vid_nearest_string,
 	{
 		vid_nearest_string,
@@ -247,6 +263,7 @@ constexpr auto vid_3d_texture_anisotropy_cvar_default = vid_min_anisotropic;
 auto vid_3d_texture_anisotropy_cvar = bstone::CVar{
 	bstone::CVarInt32Tag{},
 	vid_3d_texture_anisotropy_cvar_name,
+	bstone::CVarFlags::archive,
 	vid_3d_texture_anisotropy_cvar_default,
 	vid_3d_texture_anisotropy_cvar_min,
 	vid_3d_texture_anisotropy_cvar_max};
@@ -261,6 +278,7 @@ constexpr auto vid_filler_color_index_cvar_default = vid_filler_color_index_cvar
 auto vid_filler_color_index_cvar = bstone::CVar{
 	bstone::CVarInt32Tag{},
 	vid_filler_color_index_cvar_name,
+	bstone::CVarFlags::archive,
 	vid_filler_color_index_cvar_default,
 	vid_filler_color_index_cvar_min,
 	vid_filler_color_index_cvar_max};
@@ -273,6 +291,7 @@ constexpr auto vid_external_textures_cvar_default = false;
 auto vid_external_textures_cvar = bstone::CVar{
 	bstone::CVarBoolTag{},
 	vid_external_textures_cvar_name,
+	bstone::CVarFlags::archive,
 	vid_external_textures_cvar_default};
 
 } // namespace

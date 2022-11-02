@@ -35,6 +35,7 @@ public:
 CVar::CVar(
 	CVarInt32Tag,
 	StringView name,
+	CVarFlags flags,
 	Int32 default_value,
 	Int32 min_value,
 	Int32 max_value)
@@ -42,28 +43,31 @@ CVar::CVar(
 	CVar{
 		CVarInt32Tag{},
 		name,
+		flags,
 		default_value,
 		std::numeric_limits<Int32>::min(),
 		std::numeric_limits<Int32>::max(),
 		{}}
 {}
 
-CVar::CVar(CVarInt32Tag, StringView name, Int32 default_value, std::initializer_list<Int32> values)
+CVar::CVar(CVarInt32Tag, StringView name, CVarFlags flags, Int32 default_value, std::initializer_list<Int32> values)
 	:
 	CVar{
 		CVarInt32Tag{},
 		name,
+		flags,
 		default_value,
 		std::numeric_limits<Int32>::min(),
 		std::numeric_limits<Int32>::max(),
 		values}
 {}
 
-CVar::CVar(CVarInt32Tag, StringView name, Int32 default_value)
+CVar::CVar(CVarInt32Tag, StringView name, CVarFlags flags, Int32 default_value)
 	:
 	CVar{
 		CVarInt32Tag{},
 		name,
+		flags,
 		default_value,
 		std::numeric_limits<Int32>::min(),
 		std::numeric_limits<Int32>::max(),
@@ -73,6 +77,7 @@ CVar::CVar(CVarInt32Tag, StringView name, Int32 default_value)
 CVar::CVar(
 	CVarStringTag,
 	StringView name,
+	CVarFlags flags,
 	StringView default_value,
 	std::initializer_list<StringView> values)
 try
@@ -113,14 +118,14 @@ catch (...)
 	fail_nested(__func__);
 }
 
-CVar::CVar(CVarBoolTag, StringView name, bool default_value)
+CVar::CVar(CVarBoolTag, StringView name, CVarFlags flags, bool default_value)
 	:
-	CVar{CVarInt32Tag{}, name, default_value, 0, 1}
+	CVar{CVarInt32Tag{}, name, flags, default_value, 0, 1}
 {}
 
-CVar::CVar(CVarStringTag, StringView name, StringView default_value)
+CVar::CVar(CVarStringTag, StringView name, CVarFlags flags, StringView default_value)
 	:
-	CVar{CVarStringTag{}, name, default_value, std::initializer_list<StringView>{}}
+	CVar{CVarStringTag{}, name, flags, default_value, std::initializer_list<StringView>{}}
 {}
 
 CVar::CVar(CVar&& rhs) noexcept
@@ -137,6 +142,11 @@ CVar& CVar::operator=(CVar&& rhs) noexcept
 StringView CVar::get_name() const noexcept
 {
 	return name_;
+}
+
+CVarFlags CVar::get_flags() const noexcept
+{
+	return flags_;
 }
 
 bool CVar::get_bool() const noexcept
@@ -300,6 +310,7 @@ catch (...)
 CVar::CVar(
 	CVarInt32Tag,
 	StringView name,
+	CVarFlags flags,
 	Int32 default_value,
 	Int32 min_value,
 	Int32 max_value,
@@ -346,6 +357,7 @@ try
 
 	type_ = CVarType::int32;
 	name_ = name;
+	flags_ = flags;
 
 	int32_default_value_ = default_value;
 	int32_min_value_ = min_value;
