@@ -2895,8 +2895,8 @@ bool vid_is_native_mode() noexcept
 {
 #ifdef NDEBUG
 	return
-		vid_display_mode_.w == vid_cfg_.width &&
-		vid_display_mode_.h == vid_cfg_.height;
+		vid_display_mode_.w == vid_width_cvar.get_int32() &&
+		vid_display_mode_.h == vid_height_cvar.get_int32();
 #else
 	return false;
 #endif // NDEBUG
