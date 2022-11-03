@@ -21,6 +21,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_ren_3d_types.h"
 #include "bstone_rgb_palette.h"
 #include "bstone_hw_texture_mgr.h"
+#include "bstone_cvar_mgr.h"
 
 
 namespace bstone
@@ -43,40 +44,6 @@ using VgaPalette = std::array<VgaColor, 256>;
 using VgaBuffer = std::vector<std::uint8_t>;
 using UiMaskBuffer = std::array<bool, vga_ref_width * vga_ref_height>;
 
-
-struct VidCfg
-{
-	bstone::RendererKind renderer_kind_;
-
-	bool is_positioned_;
-	bool is_vsync_;
-
-	bool is_ui_stretched_;
-	bool is_widescreen;
-
-	int x;
-	int y;
-	int width;
-	int height;
-
-	bstone::Ren3dFilterKind d2_texture_filter_;
-
-	bstone::Ren3dFilterKind d3_texture_image_filter_;
-	bstone::Ren3dFilterKind d3_texture_mipmap_filter_;
-
-	int d3_texture_anisotropy_;
-
-	bstone::Ren3dAaKind aa_kind_;
-	int aa_degree_;
-
-	bstone::HwTextureMgrUpscaleFilterKind texture_upscale_kind_;
-	int texture_upscale_xbrz_degree_;
-
-	int filler_color_index;
-
-	bool is_external_textures_enabled_;
-}; // VidCfg
-
 struct VideoModeCfg
 {
 	bstone::RendererKind renderer_kind_;
@@ -97,6 +64,12 @@ bool operator!=(
 
 
 extern std::uint8_t* vga_memory;
+
+constexpr auto vid_min_aa = 1;
+constexpr auto vid_max_aa = 32;
+
+constexpr auto vid_min_anisotropic = 1;
+constexpr auto vid_max_anisotropic = 16;
 
 constexpr auto vid_upscale_min_degree = 2;
 constexpr auto vid_upscale_max_degree = 6;
@@ -314,10 +287,10 @@ void VL_ScreenToMem(
 	int x,
 	int y);
 
-// BBi
-void vid_cfg_set_defaults();
+void vid_initialize_cvars(bstone::CVarMgr& cvar_mgr);
 
-VidCfg& vid_cfg_get() noexcept;
+
+VideoModeCfg vid_cfg_get_video_mode() noexcept;
 
 bool vid_cfg_parse_key_value(
 	const std::string& key_string,
@@ -359,6 +332,60 @@ std::uint8_t vl_get_pixel(
 	int y);
 
 void vl_update_widescreen();
+
+
+bstone::RendererKind vid_cfg_get_renderer_kind() noexcept;
+void vid_cfg_set_renderer_kind(bstone::RendererKind renderer_type);
+
+bool vid_cfg_is_positioned() noexcept;
+
+bool vid_cfg_is_vsync() noexcept;
+void vid_cfg_set_is_vsync(bool is_enabled);
+
+bool vid_cfg_is_ui_stretched() noexcept;
+void vid_cfg_set_is_ui_stretched(bool is_enabled);
+
+bool vid_cfg_is_widescreen() noexcept;
+void vid_cfg_set_is_widescreen(bool is_enabled);
+
+int vid_cfg_get_x() noexcept;
+int vid_cfg_get_y() noexcept;
+
+int vid_cfg_get_width() noexcept;
+void vid_cfg_set_width(int width);
+
+int vid_cfg_get_height() noexcept;
+void vid_cfg_set_height(int height);
+
+bstone::Ren3dFilterKind vid_cfg_get_2d_texture_filter() noexcept;
+void vid_cfg_set_2d_texture_filter(bstone::Ren3dFilterKind filter);
+
+bstone::Ren3dFilterKind vid_cfg_get_3d_texture_image_filter() noexcept;
+void vid_cfg_set_3d_texture_image_filter(bstone::Ren3dFilterKind filter);
+
+bstone::Ren3dFilterKind vid_cfg_get_3d_texture_mipmap_filter() noexcept;
+void vid_cfg_set_3d_texture_mipmap_filter(bstone::Ren3dFilterKind filter);
+
+int vid_cfg_get_3d_texture_anisotropy() noexcept;
+void vid_cfg_set_3d_texture_anisotropy(int anisotropy);
+
+bstone::Ren3dAaKind vid_cfg_get_aa_kind() noexcept;
+void vid_cfg_set_aa_kind(bstone::Ren3dAaKind aa_type);
+
+int vid_cfg_get_aa_degree() noexcept;
+void vid_cfg_set_aa_degree(int degree);
+
+bstone::HwTextureMgrUpscaleFilterKind vid_cfg_get_texture_upscale_kind() noexcept;
+void vid_cfg_set_texture_upscale_kind(bstone::HwTextureMgrUpscaleFilterKind filter);
+
+int vid_cfg_get_texture_upscale_xbrz_degree() noexcept;
+void vid_cfg_set_texture_upscale_xbrz_degree(int degree);
+
+int vid_cfg_get_filler_color_index() noexcept;
+void vid_cfg_set_filler_color_index(int index);
+
+bool vid_cfg_is_external_textures_enabled() noexcept;
+void vid_cfg_set_is_external_textures_enabled(bool is_enabled);
 
 void vid_set_ui_mask(
 	bool value);
@@ -522,17 +549,10 @@ void vid_calculate_window_elements_dimensions(
 
 void vid_calculate_vga_dimensions() noexcept;
 
-const std::string& vid_to_string(
-	bool value);
-
-std::string vid_to_string(
-	int value);
-
-const std::string& vid_to_string(
-	const bstone::Ren3dFilterKind filter_kind);
-
-const std::string& vid_to_string(
-	bstone::Ren3dKind renderer_kind);
+std::string vid_to_string(bool value);
+std::string vid_to_string(int value);
+std::string vid_to_string(const bstone::Ren3dFilterKind filter_type);
+std::string vid_to_string(bstone::Ren3dKind renderer_type);
 
 bool vid_is_hw();
 

@@ -210,50 +210,9 @@ double heightnumerator;
 
 bool startgame;
 bool loadedgame;
-int mouseadjustment;
 
 const std::string binary_config_file_name = "bstone_config";
 const std::string text_config_file_name = "bstone_config.txt";
-
-static const bool default_gp_is_ceiling_solid = false;
-bool gp_is_ceiling_solid_ = default_gp_is_ceiling_solid;
-
-static const bool default_gp_is_flooring_solid = false;
-bool gp_is_flooring_solid_ = default_gp_is_flooring_solid;
-
-static const bool default_gp_hide_attacker_info = false;
-bool gp_hide_attacker_info_ = default_gp_hide_attacker_info;
-
-static const bool default_gp_no_shading = false;
-bool gp_no_shading_ = default_gp_no_shading;
-
-static const bool default_no_wall_hit_sound = true;
-bool g_no_wall_hit_sound = default_no_wall_hit_sound;
-
-static const bool default_always_run = true;
-bool g_always_run = default_always_run;
-
-// BBi AOG only options
-static const bool default_heart_beat_sound = false;
-bool g_heart_beat_sound = default_heart_beat_sound;
-
-static const bool default_rotated_automap = false;
-bool g_rotated_automap = default_rotated_automap;
-
-static const bool default_quit_on_escape = false;
-bool g_quit_on_escape = default_quit_on_escape;
-
-static const bool default_g_no_intro_outro = false;
-bool g_no_intro_outro = default_g_no_intro_outro;
-
-bool g_no_screens = false; // overrides "g_no_intro_outro" via command line
-
-// Disables animated fade in/out effect.
-static const bool default_g_no_fade_in_or_out = false;
-bool g_no_fade_in_or_out = default_g_no_fade_in_or_out;
-
-static constexpr auto default_g_no_weapon_bobbing = false;
-bool g_no_weapon_bobbing = default_g_no_weapon_bobbing;
 
 constexpr int sg_area_connect_bitmap_size = ((NUMAREAS * NUMAREAS) + 7) / 8;
 using SgAreaConnectBitmap = std::array<std::uint8_t, sg_area_connect_bitmap_size>;
@@ -7263,27 +7222,7 @@ static void write_high_scores()
 namespace
 {
 
-
-const auto snd_is_sfx_enabled_name = "snd_is_sfx_enabled";
-const auto snd_is_music_enabled_name = "snd_is_music_enabled";
-const auto snd_sfx_volume_name = "snd_sfx_volume";
-const auto snd_music_volume_name = "snd_music_volume";
-const auto in_mouse_sensitivity_name = "in_mouse_sensitivity";
-const auto in_is_mouse_enabled_name = "in_is_mouse_enabled";
 const auto in_binding_name = "in_binding";
-const auto gp_is_ceiling_solid_name = "gp_is_ceiling_solid";
-const auto gp_is_flooring_solid_name = "gp_is_flooring_solid";
-const auto gp_hide_attacker_info_name = "gp_hide_attacker_info";
-const auto gp_no_shading_name = "gp_no_shading";
-const auto gp_no_wall_hit_sfx_name = "gp_no_wall_hit_sfx";
-const auto gp_is_always_run_name = "gp_is_always_run";
-const auto gp_use_heart_beat_sfx_name = "gp_use_heart_beat_sfx";
-const auto gp_quit_on_escape_name = "gp_quit_on_escape";
-const auto gp_no_intro_outro_name = "gp_no_intro_outro";
-const auto am_is_rotated_name = "am_is_rotated";
-const auto gp_no_fade_in_or_out_name = "gp_no_fade_in_or_out";
-const auto gp_no_weapon_bobbing_name = "gp_no_weapon_bobbing";
-
 
 class ScanCodeHash
 {
@@ -7501,28 +7440,12 @@ bool parse_config_line(
 
 void set_config_defaults()
 {
-	mouseenabled = true;
-
 	in_set_default_bindings();
 
-	mouseadjustment = default_mouse_sensitivity;
-
-	sd_is_sound_enabled_ = true;
-	sd_is_music_enabled_ = true;
-	sd_sfx_volume_ = sd_default_sfx_volume;
-	sd_music_volume_ = sd_default_music_volume;
-
-	g_no_wall_hit_sound = default_no_wall_hit_sound;
-	g_always_run = default_always_run;
-
-	g_heart_beat_sound = default_heart_beat_sound;
-	g_rotated_automap = default_rotated_automap;
-
-	g_quit_on_escape = default_quit_on_escape;
-	g_no_intro_outro = default_g_no_intro_outro;
-
-	vid_cfg_set_defaults();
-	sd_cfg_set_defaults();
+	sd_set_is_sound_enabled(true);
+	sd_set_is_music_enabled(true);
+	sd_set_sfx_volume(sd_default_sfx_volume);
+	sd_set_music_volume(sd_default_music_volume);
 }
 
 ScanCode get_scan_code_by_name(
@@ -7543,6 +7466,29 @@ ScanCode get_scan_code_by_name(
 	}
 
 	return it->first;
+}
+
+bool try_to_deserialize_cvar(const std::string& key, const std::string& value)
+try
+{
+	const auto cvar = bstone::globals::cvar_mgr->find(bstone::StringView{
+		key.data(),
+		static_cast<bstone::Int>(key.size())});
+
+	if (cvar == nullptr)
+	{
+		return false;
+	}
+
+	cvar->set_string(bstone::StringView{
+		value.data(),
+		static_cast<bstone::Int>(value.size())});
+
+	return true;
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
 void read_text_config()
@@ -7572,95 +7518,8 @@ void read_text_config()
 
 				if (parse_config_line(line, key_string, index0, index1, value_string))
 				{
-					if (vid_cfg_parse_key_value(key_string, value_string))
+					if (try_to_deserialize_cvar(key_string, value_string))
 					{
-					}
-					else if (sd_cfg_parse_key_value(key_string, value_string))
-					{
-					}
-					else if (key_string == snd_is_sfx_enabled_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							sd_is_sound_enabled_ = (value != 0);
-						}
-					}
-					else if (key_string == snd_is_music_enabled_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							sd_is_music_enabled_ = (value != 0);
-						}
-					}
-					else if (key_string == snd_sfx_volume_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							sd_sfx_volume_ = value;
-						}
-
-						if (sd_sfx_volume_ < sd_min_volume)
-						{
-							sd_sfx_volume_ = sd_min_volume;
-						}
-
-						if (sd_sfx_volume_ > sd_max_volume)
-						{
-							sd_sfx_volume_ = sd_max_volume;
-						}
-					}
-					else if (key_string == snd_music_volume_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							sd_music_volume_ = value;
-						}
-
-						if (sd_music_volume_ < sd_min_volume)
-						{
-							sd_music_volume_ = sd_min_volume;
-						}
-
-						if (sd_music_volume_ > sd_max_volume)
-						{
-							sd_music_volume_ = sd_max_volume;
-						}
-					}
-					else if (key_string == in_mouse_sensitivity_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							mouseadjustment = value;
-						}
-
-						if (mouseadjustment < min_mouse_sensitivity)
-						{
-							mouseadjustment = min_mouse_sensitivity;
-						}
-
-						if (mouseadjustment > max_mouse_sensitivity)
-						{
-							mouseadjustment = max_mouse_sensitivity;
-						}
-					}
-					else if (key_string == in_is_mouse_enabled_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							mouseenabled = (value != 0);
-						}
 					}
 					else if (key_string == in_binding_name)
 					{
@@ -7671,114 +7530,6 @@ void read_text_config()
 						if (index0 >= 0 && index0 < bindings_count && index1 >= 0 && index1 < bindings_count)
 						{
 							in_bindings[index0][index1] = get_scan_code_by_name(value_string);
-						}
-					}
-					else if (key_string == gp_no_wall_hit_sfx_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							g_no_wall_hit_sound = (value != 0);
-						}
-					}
-					else if (key_string == gp_is_always_run_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							g_always_run = (value != 0);
-						}
-					}
-					else if (key_string == gp_is_ceiling_solid_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							gp_is_ceiling_solid_ = (value != 0);
-						}
-					}
-					else if (key_string == gp_is_flooring_solid_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							gp_is_flooring_solid_ = (value != 0);
-						}
-					}
-					else if (key_string == gp_hide_attacker_info_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							gp_hide_attacker_info_ = (value != 0);
-						}
-					}
-					else if (key_string == gp_no_shading_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							gp_no_shading_ = (value != 0);
-						}
-					}
-					else if (key_string == gp_use_heart_beat_sfx_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							g_heart_beat_sound = (value != 0);
-						}
-					}
-					else if (key_string == gp_quit_on_escape_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							g_quit_on_escape = (value != 0);
-						}
-					}
-					else if (key_string == gp_no_intro_outro_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							g_no_intro_outro = (value != 0);
-						}
-					}
-					else if (key_string == am_is_rotated_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							g_rotated_automap = (value != 0);
-						}
-					}
-					else if (key_string == gp_no_fade_in_or_out_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							g_no_fade_in_or_out = (value != 0);
-						}
-					}
-					else if (key_string == gp_no_weapon_bobbing_name)
-					{
-						int value;
-
-						if (bstone::StringHelper::string_to_int(value_string, value))
-						{
-							g_no_weapon_bobbing = (value != 0);
 						}
 					}
 				}
@@ -7796,6 +7547,24 @@ void ReadConfig()
 	read_text_config();
 }
 
+
+void cfg_file_write_entry(
+	bstone::TextWriter& writer,
+	bstone::StringView key,
+	bstone::StringView value)
+{
+	const auto key_string = std::string{key.get_data(), static_cast<std::size_t>(key.get_size())};
+	auto entry_string = std::string{};
+	entry_string += key_string;
+	entry_string += " \"";
+	entry_string.append(value.get_data(), value.get_size());
+	entry_string += "\"\n";
+
+	if (!writer.write(entry_string))
+	{
+		bstone::logger_->write_warning("Failed to write setting \"" + key_string + "\".");
+	}
+}
 
 void cfg_file_write_entry(
 	bstone::TextWriter& writer,
@@ -7878,43 +7647,26 @@ void write_text_config()
 	bstone::MemoryStream memory_stream{memory_stream_initial_size, bstone::StreamOpenMode::write};
 	auto writer = bstone::TextWriter{&memory_stream};
 
-
 	writer.write("// BStone configuration file\n");
 	writer.write("// WARNING! This is auto-generated file.\n");
 	writer.write("\n");
 
-	vid_cfg_write(writer);
+	const auto cvars = bstone::globals::cvar_mgr->get_all();
 
-	writer.write("\n// Audio\n");
-	write_config_entry(writer, snd_is_sfx_enabled_name, sd_is_sound_enabled_);
-	write_config_entry(writer, snd_is_music_enabled_name, sd_is_music_enabled_);
-	write_config_entry(writer, snd_sfx_volume_name, sd_sfx_volume_);
-	write_config_entry(writer, snd_music_volume_name, sd_music_volume_);
-	sd_cfg_write(writer);
+	for (const auto& cvar : cvars)
+	{
+		if ((cvar->get_flags() & bstone::CVarFlags::archive) == bstone::CVarFlags{})
+		{
+			continue;
+		}
 
-	writer.write("\n// Input\n");
-	write_config_entry(writer, in_mouse_sensitivity_name, mouseadjustment);
-	write_config_entry(writer, in_is_mouse_enabled_name, mouseenabled);
+		const auto key = cvar->get_name();
+		const auto value = cvar->get_string();
+		cfg_file_write_entry(writer, key, value);
+	}
 
 	writer.write("\n// Input bindings\n");
 	write_bindings_config(in_binding_name, writer);
-
-	writer.write("\n// Gameplay\n");
-	write_config_entry(writer, gp_is_ceiling_solid_name, gp_is_ceiling_solid_);
-	write_config_entry(writer, gp_is_flooring_solid_name, gp_is_flooring_solid_);
-	write_config_entry(writer, gp_hide_attacker_info_name, gp_hide_attacker_info_);
-	write_config_entry(writer, gp_no_shading_name, gp_no_shading_);
-	write_config_entry(writer, gp_no_wall_hit_sfx_name, g_no_wall_hit_sound);
-	write_config_entry(writer, gp_is_always_run_name, g_always_run);
-	write_config_entry(writer, gp_use_heart_beat_sfx_name, g_heart_beat_sound);
-	write_config_entry(writer, gp_quit_on_escape_name, g_quit_on_escape);
-	write_config_entry(writer, gp_no_intro_outro_name, g_no_intro_outro);
-	write_config_entry(writer, gp_no_fade_in_or_out_name, g_no_fade_in_or_out);
-	write_config_entry(writer, gp_no_weapon_bobbing_name, g_no_weapon_bobbing);
-
-	writer.write("\n// Auto-map\n");
-	write_config_entry(writer, am_is_rotated_name, g_rotated_automap);
-
 
 	const auto stream_size = static_cast<int>(memory_stream.get_size());
 	const auto stream_data = memory_stream.get_data();
@@ -9874,7 +9626,7 @@ void DemoLoop()
 
 		vid_is_movie = false;
 
-		if (!g_no_intro_outro && !g_no_screens)
+		if (!gp_no_intro_outro() && !gp_no_intro_outro())
 		{
 			vid_is_movie = true;
 
@@ -10079,7 +9831,6 @@ void DrawCreditsPage()
 	TP_Presenter(&pi);
 }
 
-
 int main(
 	int argc,
 	char* argv[])
@@ -10126,6 +9877,8 @@ int main(
 
 	auto is_failed = false;
 	auto error_message = std::string{};
+
+	bstone::globals::cvar_mgr = bstone::make_cvar_mgr(bstone::globals::max_cvars);
 
 	try
 	{
@@ -10943,5 +10696,307 @@ double get_fractional(
 {
 	double integral;
 	return std::modf(value, &integral);
+}
+
+namespace {
+
+// gp_is_flooring_solid
+
+constexpr auto gp_is_flooring_solid_cvar_name = bstone::StringView{"gp_is_flooring_solid"};
+constexpr auto gp_is_flooring_solid_cvar_default = false;
+
+auto gp_is_flooring_solid_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	gp_is_flooring_solid_cvar_name,
+	bstone::CVarFlags::archive,
+	gp_is_flooring_solid_cvar_default};
+
+// gp_is_ceiling_solid
+
+constexpr auto gp_is_ceiling_solid_cvar_name = bstone::StringView{"gp_is_ceiling_solid"};
+constexpr auto gp_is_ceiling_solid_cvar_default = false;
+
+auto gp_is_ceiling_solid_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	gp_is_ceiling_solid_cvar_name,
+	bstone::CVarFlags::archive,
+	gp_is_ceiling_solid_cvar_default};
+
+// gp_no_shading
+
+constexpr auto gp_no_shading_cvar_name = bstone::StringView{"gp_no_shading"};
+constexpr auto gp_no_shading_cvar_default = false;
+
+auto gp_no_shading_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	gp_no_shading_cvar_name,
+	bstone::CVarFlags::archive,
+	gp_no_shading_cvar_default};
+
+// gp_hide_attacker_info
+
+constexpr auto gp_hide_attacker_info_cvar_name = bstone::StringView{"gp_hide_attacker_info"};
+constexpr auto gp_hide_attacker_info_cvar_default = false;
+
+auto gp_hide_attacker_info_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	gp_hide_attacker_info_cvar_name,
+	bstone::CVarFlags::archive,
+	gp_hide_attacker_info_cvar_default};
+
+// gp_is_always_run
+
+constexpr auto gp_is_always_run_cvar_name = bstone::StringView{"gp_is_always_run"};
+constexpr auto gp_is_always_run_cvar_default = true;
+
+auto gp_is_always_run_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	gp_is_always_run_cvar_name,
+	bstone::CVarFlags::archive,
+	gp_is_always_run_cvar_default};
+
+// gp_no_wall_hit_sfx
+
+constexpr auto gp_no_wall_hit_sfx_cvar_name = bstone::StringView{"gp_no_wall_hit_sfx"};
+constexpr auto gp_no_wall_hit_sfx_cvar_default = true;
+
+auto gp_no_wall_hit_sfx_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	gp_no_wall_hit_sfx_cvar_name,
+	bstone::CVarFlags::archive,
+	gp_no_wall_hit_sfx_cvar_default};
+
+// gp_use_heart_beat_sfx
+
+constexpr auto gp_use_heart_beat_sfx_cvar_name = bstone::StringView{"gp_use_heart_beat_sfx"};
+constexpr auto gp_use_heart_beat_sfx_cvar_default = false;
+
+auto gp_use_heart_beat_sfx_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	gp_use_heart_beat_sfx_cvar_name,
+	bstone::CVarFlags::archive,
+	gp_use_heart_beat_sfx_cvar_default};
+
+// gp_quit_on_escape
+
+constexpr auto gp_quit_on_escape_cvar_name = bstone::StringView{"gp_quit_on_escape"};
+constexpr auto gp_quit_on_escape_cvar_default = true;
+
+auto gp_quit_on_escape_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	gp_quit_on_escape_cvar_name,
+	bstone::CVarFlags::archive,
+	gp_quit_on_escape_cvar_default};
+
+// gp_no_intro_outro
+
+constexpr auto gp_no_intro_outro_cvar_name = bstone::StringView{"gp_no_intro_outro"};
+constexpr auto gp_no_intro_outro_cvar_default = false;
+
+auto gp_no_intro_outro_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	gp_no_intro_outro_cvar_name,
+	bstone::CVarFlags::archive,
+	gp_no_intro_outro_cvar_default};
+
+// gp_no_screens
+
+constexpr auto gp_no_screens_cvar_name = bstone::StringView{"no_screens"};
+constexpr auto gp_no_screens_cvar_default = false;
+
+auto gp_no_screens_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	gp_no_screens_cvar_name,
+	bstone::CVarFlags::none,
+	gp_no_screens_cvar_default};
+
+// gp_no_fade_in_or_out
+
+constexpr auto gp_no_fade_in_or_out_cvar_name = bstone::StringView{"gp_no_fade_in_or_out"};
+constexpr auto gp_no_fade_in_or_out_cvar_default = false;
+
+auto gp_no_fade_in_or_out_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	gp_no_fade_in_or_out_cvar_name,
+	bstone::CVarFlags::archive,
+	gp_no_fade_in_or_out_cvar_default};
+
+// gp_no_weapon_bobbing
+
+constexpr auto gp_no_weapon_bobbing_cvar_name = bstone::StringView{"gp_no_weapon_bobbing"};
+constexpr auto gp_no_weapon_bobbing_cvar_default = false;
+
+auto gp_no_weapon_bobbing_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	gp_no_weapon_bobbing_cvar_name,
+	bstone::CVarFlags::archive,
+	gp_no_weapon_bobbing_cvar_default};
+
+} // namespace
+
+void gp_initialize_cvars(bstone::CVarMgr& cvar_mgr)
+{
+	cvar_mgr.add(gp_is_flooring_solid_cvar);
+	cvar_mgr.add(gp_is_ceiling_solid_cvar);
+	cvar_mgr.add(gp_no_shading_cvar);
+	cvar_mgr.add(gp_hide_attacker_info_cvar);
+	cvar_mgr.add(gp_is_always_run_cvar);
+	cvar_mgr.add(gp_no_wall_hit_sfx_cvar);
+	cvar_mgr.add(gp_use_heart_beat_sfx_cvar);
+	cvar_mgr.add(gp_quit_on_escape_cvar);
+	cvar_mgr.add(gp_no_intro_outro_cvar);
+	cvar_mgr.add(gp_no_screens_cvar);
+	cvar_mgr.add(gp_no_fade_in_or_out_cvar);
+	cvar_mgr.add(gp_no_weapon_bobbing_cvar);
+}
+
+namespace {
+
+// am_rotatable
+
+constexpr auto am_rotatable_cvar_name = bstone::StringView{"am_is_rotated"};
+constexpr auto am_rotatable_cvar_default = true;
+
+auto am_rotatable_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	am_rotatable_cvar_name,
+	bstone::CVarFlags::archive,
+	am_rotatable_cvar_default};
+
+} // namespace
+
+void am_initialize_cvars(bstone::CVarMgr& cvar_mgr)
+{
+	cvar_mgr.add(am_rotatable_cvar);
+}
+
+bool gp_is_flooring_solid() noexcept
+{
+	return gp_is_flooring_solid_cvar.get_bool();
+}
+
+void gp_is_flooring_solid(bool is_enable)
+{
+	gp_is_flooring_solid_cvar.set_bool(is_enable);
+}
+
+bool gp_is_ceiling_solid() noexcept
+{
+	return gp_is_ceiling_solid_cvar.get_bool();
+}
+
+void gp_is_ceiling_solid(bool is_enable)
+{
+	gp_is_ceiling_solid_cvar.set_bool(is_enable);
+}
+
+bool gp_no_shading() noexcept
+{
+	return gp_no_shading_cvar.get_bool();
+}
+
+void gp_no_shading(bool is_enable)
+{
+	gp_no_shading_cvar.set_bool(is_enable);
+}
+
+bool gp_hide_attacker_info() noexcept
+{
+	return gp_hide_attacker_info_cvar.get_bool();
+}
+
+void gp_hide_attacker_info(bool is_enable)
+{
+	gp_hide_attacker_info_cvar.set_bool(is_enable);
+}
+
+bool gp_is_always_run() noexcept
+{
+	return gp_is_always_run_cvar.get_bool();
+}
+
+void gp_is_always_run(bool is_enable)
+{
+	gp_is_always_run_cvar.set_bool(is_enable);
+}
+
+bool gp_no_wall_hit_sfx() noexcept
+{
+	return gp_no_wall_hit_sfx_cvar.get_bool();
+}
+
+void gp_no_wall_hit_sfx(bool is_enable)
+{
+	gp_no_wall_hit_sfx_cvar.set_bool(is_enable);
+}
+
+bool gp_use_heart_beat_sfx() noexcept
+{
+	return gp_use_heart_beat_sfx_cvar.get_bool();
+}
+
+void gp_use_heart_beat_sfx(bool is_enable)
+{
+	gp_use_heart_beat_sfx_cvar.set_bool(is_enable);
+}
+
+bool gp_quit_on_escape() noexcept
+{
+	return gp_quit_on_escape_cvar.get_bool();
+}
+
+void gp_quit_on_escape(bool is_enable)
+{
+	gp_quit_on_escape_cvar.set_bool(is_enable);
+}
+
+bool gp_no_intro_outro() noexcept
+{
+	return gp_no_intro_outro_cvar.get_bool();
+}
+
+void gp_no_intro_outro(bool is_enable)
+{
+	gp_no_intro_outro_cvar.set_bool(is_enable);
+}
+
+bool gp_no_screens() noexcept
+{
+	return gp_no_screens_cvar.get_bool();
+}
+
+void gp_no_screens(bool is_enable)
+{
+	gp_no_screens_cvar.set_bool(is_enable);
+}
+
+bool gp_no_fade_in_or_out() noexcept
+{
+	return gp_no_fade_in_or_out_cvar.get_bool();
+}
+
+void gp_no_fade_in_or_out(bool is_enable)
+{
+	gp_no_fade_in_or_out_cvar.set_bool(is_enable);
+}
+
+bool gp_no_weapon_bobbing() noexcept
+{
+	return gp_no_weapon_bobbing_cvar.get_bool();
+}
+
+void gp_no_weapon_bobbing(bool is_enable)
+{
+	gp_no_weapon_bobbing_cvar.set_bool(is_enable);
+}
+
+bool am_rotatable() noexcept
+{
+	return am_rotatable_cvar.get_bool();
+}
+
+void am_rotatable(bool is_enable)
+{
+	am_rotatable_cvar.set_bool(is_enable);
 }
 // BBi

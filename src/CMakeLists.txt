@@ -356,6 +356,7 @@ target_sources(
 		bstone_adlib_decoder.h
 		bstone_adlib_music_decoder.h
 		bstone_adlib_sfx_decoder.h
+		bstone_algorithm.h
 		bstone_archiver.h
 		bstone_ascii.h
 		bstone_atomic.h
@@ -379,7 +380,10 @@ target_sources(
 		bstone_char_conv.h
 		bstone_cl_args.h
 		bstone_content_path.h
-		bstone_crc32.h	
+		bstone_crc32.h
+		bstone_cvar.h
+		bstone_cvar_mgr.h
+		bstone_cvar_string.h
 		bstone_door.h
 		bstone_dosbox_dbopl.h
 		bstone_shared_library.h
@@ -419,6 +423,7 @@ target_sources(
 		bstone_pcm_audio_decoder.h
 		bstone_precompiled.h
 		bstone_ps_fizzle_fx.h
+		bstone_raw_uptr.h
 		bstone_ref_values.h
 		bstone_rgb8.h
 		bstone_rgb_palette.h
@@ -444,10 +449,12 @@ target_sources(
 		bstone_type_traits.h
 		bstone_un_value.h
 		bstone_unique_resource.h
+		bstone_utility.h
 		bstone_version.h
 		bstone_video.h
 		bstone_voice.h		
 		bstone_voice_group.h
+		bstone_zstring_view.h
 )
 
 if (WIN32)
@@ -556,6 +563,9 @@ target_sources(
 		bstone_cl_args.cpp
 		bstone_content_path.cpp
 		bstone_crc32.cpp
+		bstone_cvar.cpp
+		bstone_cvar_mgr.cpp
+		bstone_cvar_string.cpp
 		bstone_c_str.cpp
 		bstone_dosbox_dbopl.cpp
 		bstone_shared_library.cpp
@@ -591,6 +601,7 @@ target_sources(
 		bstone_pc_speaker_audio_decoder.cpp
 		bstone_pcm_audio_decoder.cpp
 		bstone_ps_fizzle_fx.cpp
+		bstone_raw_uptr.cpp
 		bstone_rgb8.cpp
 		bstone_sdl_audio_mixer.cpp
 		bstone_sdl_shared_library.cpp
@@ -614,6 +625,7 @@ target_sources(
 		bstone_version.cpp
 		bstone_video.cpp
 		bstone_voice_group.cpp
+		bstone_zstring_view.cpp
 )
 
 if (WIN32)

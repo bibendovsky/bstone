@@ -9,8 +9,9 @@ SPDX-License-Identifier: MIT
 
 #include <cassert>
 #include <type_traits>
-#include <bstone_int.h>
-#include <bstone_type_traits.h>
+#include "bstone_int.h"
+#include "bstone_type_traits.h"
+#include "bstone_utility.h"
 
 namespace bstone {
 
@@ -124,6 +125,12 @@ public:
 		assert(has_data());
 		assert(index >= 0 && index < get_size());
 		return get_data()[index];
+	}
+
+	constexpr void swap(Span& rhs)
+	{
+		utility::swap(data_, rhs.data_);
+		utility::swap(size_, rhs.size_);
 	}
 
 private:

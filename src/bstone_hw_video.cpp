@@ -290,7 +290,7 @@ public:
 
 		r2_fade_color_ = vga_color_to_rgba_8(red, green, blue);
 
-		if (!g_no_fade_in_or_out)
+		if (!gp_no_fade_in_or_out())
 		{
 			const auto alpha = 0xFF;
 
@@ -349,7 +349,7 @@ public:
 
 		r2_fade_color_.a_ = 0xFF;
 
-		if (!g_no_fade_in_or_out)
+		if (!gp_no_fade_in_or_out())
 		{
 			const auto alpha = 0xFF;
 
@@ -854,7 +854,7 @@ public:
 	void apply_vsync() override
 	try
 	{
-		renderer_->enable_vsync(vid_cfg_get().is_vsync_);
+		renderer_->enable_vsync(vid_cfg_is_vsync());
 	}
 	catch (...)
 	{
@@ -864,7 +864,7 @@ public:
 	void apply_msaa() override
 	try
 	{
-		renderer_->set_anti_aliasing(vid_cfg_get().aa_kind_, vid_cfg_get().aa_degree_);
+		renderer_->set_anti_aliasing(vid_cfg_get_aa_kind(), vid_cfg_get_aa_degree());
 	}
 	catch (...)
 	{
@@ -877,8 +877,8 @@ public:
 		destroy_texture_upscale_resources();
 
 		texture_mgr_->set_upscale_filter(
-			vid_cfg_get().texture_upscale_kind_,
-			vid_cfg_get().texture_upscale_xbrz_degree_
+			vid_cfg_get_texture_upscale_kind(),
+			vid_cfg_get_texture_upscale_xbrz_degree()
 		);
 
 		create_texture_upscale_resources();
@@ -892,7 +892,7 @@ public:
 	try
 	{
 		destroy_external_textures_resources();
-		texture_mgr_->enable_external_textures(vid_cfg_get().is_external_textures_enabled_);
+		texture_mgr_->enable_external_textures(vid_cfg_is_external_textures_enabled());
 		create_external_textures_resources();
 	}
 	catch (...)
@@ -2638,10 +2638,10 @@ private:
 		//
 		auto param = bstone::Ren3dCreateParam{};
 
-		param.aa_kind_ = vid_cfg_get().aa_kind_;
-		param.aa_value_ = vid_cfg_get().aa_degree_;
+		param.aa_kind_ = vid_cfg_get_aa_kind();
+		param.aa_value_ = vid_cfg_get_aa_degree();
 
-		param.is_vsync_ = vid_cfg_get().is_vsync_;
+		param.is_vsync_ = vid_cfg_is_vsync();
 
 #ifdef __vita__
 		param.window_.is_visible = true;
@@ -2651,9 +2651,9 @@ private:
 		param.window_.rect_2d_.extent_.height_ = vid_layout_.window_height;
 		param.window_.is_native_ = vid_is_native_mode();
 		param.window_.is_borderless_ = false;
-		param.window_.is_positioned_ = vid_cfg_get().is_positioned_;
-		param.window_.rect_2d_.offset_.x = vid_cfg_get().x;
-		param.window_.rect_2d_.offset_.y = vid_cfg_get().y;
+		param.window_.is_positioned_ = vid_cfg_is_positioned();
+		param.window_.rect_2d_.offset_.x = vid_cfg_get_x();
+		param.window_.rect_2d_.offset_.y = vid_cfg_get_y();
 
 		param.window_.title_ = title;
 
@@ -2661,7 +2661,7 @@ private:
 
 		auto renderer_kind_list = RendererKindList{};
 
-		const auto is_auto_detect = (vid_cfg_get().renderer_kind_ == bstone::RendererKind::auto_detect);
+		const auto is_auto_detect = (vid_cfg_get_renderer_kind() == bstone::RendererKind::auto_detect);
 
 		if (is_auto_detect)
 		{
@@ -2684,7 +2684,7 @@ private:
 		}
 		else
 		{
-			renderer_kind_list = {get_renderer_kind(vid_cfg_get().renderer_kind_)};
+			renderer_kind_list = {get_renderer_kind(vid_cfg_get_renderer_kind())};
 		}
 
 		for (const auto renderer_kind : renderer_kind_list)
@@ -2942,9 +2942,9 @@ private:
 		);
 
 		const auto& filler_color = vga_color_to_rgba_8(
-			vgapal[(vid_cfg_get().filler_color_index * 3) + 0],
-			vgapal[(vid_cfg_get().filler_color_index * 3) + 1],
-			vgapal[(vid_cfg_get().filler_color_index * 3) + 2]
+			vgapal[(vid_cfg_get_filler_color_index() * 3) + 0],
+			vgapal[(vid_cfg_get_filler_color_index() * 3) + 1],
+			vgapal[(vid_cfg_get_filler_color_index() * 3) + 2]
 		);
 
 		const auto left_left_f = static_cast<float>(0.0F);
@@ -4297,8 +4297,8 @@ private:
 
 	void update_ui_sampler_state() noexcept
 	{
-		ui_sampler_state_.min_filter_ = vid_cfg_get().d2_texture_filter_;
-		ui_sampler_state_.mag_filter_ = vid_cfg_get().d2_texture_filter_;
+		ui_sampler_state_.min_filter_ = vid_cfg_get_2d_texture_filter();
+		ui_sampler_state_.mag_filter_ = vid_cfg_get_2d_texture_filter();
 	}
 
 	void update_ui_sampler()
@@ -4351,15 +4351,14 @@ private:
 	void update_sprite_sampler_state()
 	try
 	{
-		sprite_sampler_state_.min_filter_ = vid_cfg_get().d3_texture_image_filter_;
-		sprite_sampler_state_.mag_filter_ = vid_cfg_get().d3_texture_image_filter_;
+		sprite_sampler_state_.min_filter_ = vid_cfg_get_3d_texture_image_filter();
+		sprite_sampler_state_.mag_filter_ = vid_cfg_get_3d_texture_image_filter();
 
 		sprite_sampler_state_.mipmap_mode_ = cfg_texture_mipmap_filter_to_renderer(
-			vid_cfg_get().d3_texture_mipmap_filter_);
+			vid_cfg_get_3d_texture_mipmap_filter());
 
 		sprite_sampler_state_.anisotropy_ = cfg_texture_anisotropy_to_renderer(
-			vid_cfg_get().d3_texture_anisotropy_
-		);
+			vid_cfg_get_3d_texture_anisotropy());
 	}
 	catch (...)
 	{
@@ -4416,15 +4415,14 @@ private:
 	void update_wall_sampler_state()
 	try
 	{
-		wall_sampler_state_.min_filter_ = vid_cfg_get().d3_texture_image_filter_;
-		wall_sampler_state_.mag_filter_ = vid_cfg_get().d3_texture_image_filter_;
+		wall_sampler_state_.min_filter_ = vid_cfg_get_3d_texture_image_filter();
+		wall_sampler_state_.mag_filter_ = vid_cfg_get_3d_texture_image_filter();
 
 		wall_sampler_state_.mipmap_mode_ = cfg_texture_mipmap_filter_to_renderer(
-			vid_cfg_get().d3_texture_mipmap_filter_);
+			vid_cfg_get_3d_texture_mipmap_filter());
 
 		wall_sampler_state_.anisotropy_ = cfg_texture_anisotropy_to_renderer(
-			vid_cfg_get().d3_texture_anisotropy_
-		);
+			vid_cfg_get_3d_texture_anisotropy());
 	}
 	catch (...)
 	{
@@ -4616,7 +4614,7 @@ private:
 
 		const auto translate_x = 0.5 * static_cast<double>(vid_layout_.screen_viewport_width);
 
-		const auto is_bobbing_enabled = (!g_no_weapon_bobbing && assets_info.is_ps());
+		const auto is_bobbing_enabled = (!gp_no_weapon_bobbing() && assets_info.is_ps());
 		const auto bounce_offset = (is_bobbing_enabled ? -player_get_weapon_bounce_offset() : 0.0);
 		const auto translate_y = vga_height_scale * bounce_offset;
 
@@ -4673,8 +4671,8 @@ private:
 
 	void update_player_weapon_sampler_state() noexcept
 	{
-		player_weapon_sampler_state_.min_filter_ = vid_cfg_get().d3_texture_image_filter_;
-		player_weapon_sampler_state_.mag_filter_ = vid_cfg_get().d3_texture_image_filter_;
+		player_weapon_sampler_state_.min_filter_ = vid_cfg_get_3d_texture_image_filter();
+		player_weapon_sampler_state_.mag_filter_ = vid_cfg_get_3d_texture_image_filter();
 	}
 
 	void update_player_weapon_sampler()
@@ -5320,7 +5318,7 @@ private:
 
 		// Fillers.
 		//
-		if (!vid_cfg_get().is_ui_stretched_)
+		if (!vid_cfg_is_ui_stretched())
 		{
 			{
 				auto& command = *command_buffer->write_set_texture();
@@ -5388,7 +5386,7 @@ private:
 			}
 
 			{
-				const auto index_offset = (vid_cfg_get().is_ui_stretched_
+				const auto index_offset = (vid_cfg_is_ui_stretched()
 					?
 					r2_stretched_index_offset_
 					:
@@ -5455,7 +5453,7 @@ private:
 			// Draw the quad.
 			//
 			{
-				const auto index_offset = (vid_cfg_get().is_ui_stretched_ || is_draw_3d_
+				const auto index_offset = (vid_cfg_is_ui_stretched() || is_draw_3d_
 					?
 					r2_stretched_index_offset_
 					:
@@ -6408,7 +6406,7 @@ private:
 
 				auto lighting = 0;
 
-				if (!gp_no_shading_)
+				if (!gp_no_shading())
 				{
 					const auto& sprite = *draw_item.sprite;
 
@@ -6455,7 +6453,7 @@ private:
 			{
 				// Set extra lighting.
 				//
-				if (!gp_no_shading_)
+				if (!gp_no_shading())
 				{
 					bs_lighting_ = last_lighting;
 
@@ -6604,7 +6602,7 @@ private:
 			return;
 		}
 
-		const auto is_shading = (!gp_no_shading_);
+		const auto is_shading = (!gp_no_shading());
 
 		const auto& assets_info = get_assets_info();
 
@@ -6722,7 +6720,7 @@ private:
 		// Draw flooring.
 		//
 		{
-			auto texture_2d = (!gp_is_flooring_solid_
+			auto texture_2d = (!gp_is_flooring_solid()
 				?
 				flooring_textured_t2d_
 				:
@@ -6754,7 +6752,7 @@ private:
 		// Draw ceiling.
 		//
 		{
-			auto texture_2d = (!gp_is_ceiling_solid_
+			auto texture_2d = (!gp_is_ceiling_solid()
 				?
 				ceiling_textured_t2d_
 				:

@@ -8,116 +8,150 @@ SPDX-License-Identifier: MIT
 #define BSTONE_STRING_VIEW_INCLUDED
 
 #include <cassert>
-#include <type_traits>
-#include <utility>
-#include <bstone_int.h>
-#include <bstone_span.h>
+#include "bstone_c_str.h"
+#include "bstone_int.h"
+#include "bstone_span.h"
+#include "bstone_utility.h"
 
 namespace bstone {
-namespace c_str {
 
 template<typename TChar>
-inline constexpr Int get_size(const TChar* string) noexcept
+class StringViewT
 {
-	assert(string != nullptr);
+public:
+	StringViewT() = default;
 
-	const auto string_begin = string;
+	constexpr StringViewT(std::nullptr_t) = delete;
+	constexpr StringViewT(const StringViewT&) noexcept = default;
 
-	while (*string != TChar{})
+	constexpr StringViewT(const TChar* chars, Int size) noexcept
+		:
+		data_{chars},
+		size_{size}
 	{
-		++string;
+		assert(size == 0 || (size > 0 && chars != nullptr));
 	}
 
-	return string - string_begin;
-}
+	constexpr StringViewT(const TChar* chars) noexcept
+		:
+		StringViewT{chars, c_str::get_size(chars)}
+	{}
 
-// --------------------------------------------------------------------------
+	constexpr const TChar* get_data() const noexcept
+	{
+		return data_;
+	}
+
+	constexpr Int get_size() const noexcept
+	{
+		return size_;
+	}
+
+	constexpr bool is_empty() const noexcept
+	{
+		return get_size() == 0;
+	}
+
+	constexpr const TChar* begin() const noexcept
+	{
+		return get_data();
+	}
+
+	constexpr const TChar* end() const noexcept
+	{
+		return begin() + get_size();
+	}
+
+	constexpr const TChar* cbegin() const noexcept
+	{
+		return begin();
+	}
+
+	constexpr const TChar* cend() const noexcept
+	{
+		return end();
+	}
+
+	constexpr const TChar& operator[](Int index) const noexcept
+	{
+		assert(index >= 0 && index < get_size());
+		return get_data()[index];
+	}
+
+	constexpr int compare(StringViewT rhs) const noexcept
+	{
+		const auto& lhs = *this;
+		const auto lhs_size = lhs.get_size();
+		const auto rhs_size = rhs.get_size();
+		const auto size = (lhs_size < rhs_size ? lhs_size : rhs_size);
+
+		for (auto i = decltype(size){}; i < size; ++i)
+		{
+			const auto& lhs_char = lhs[i];
+			const auto& rhs_char = rhs[i];
+
+			if (lhs_char < rhs_char)
+			{
+				return -1;
+			}
+			else if (lhs_char > rhs_char)
+			{
+				return 1;
+			}
+		}
+
+		if (lhs_size < rhs_size)
+		{
+			return -1;
+		}
+		else if (lhs_size > rhs_size)
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
+	constexpr void swap(StringViewT& rhs) noexcept
+	{
+		utility::swap(data_, rhs.data_);
+	}
+
+private:
+	const TChar* data_{};
+	Int size_{};
+};
+
+// ==========================================================================
 
 template<typename TChar>
-inline constexpr Int get_size_with_null(const TChar* string) noexcept
+constexpr inline bool operator==(StringViewT<TChar> a, StringViewT<TChar> b) noexcept
 {
-	return get_size(string) + 1;
+	return a.compare(b) == 0;
+}
+
+template<typename TChar>
+constexpr inline bool operator!=(StringViewT<TChar> a, StringViewT<TChar> b) noexcept
+{
+	return !(a == b);
 }
 
 // ==========================================================================
 
-namespace detail {
+using StringView = StringViewT<char>;
+using U16StringView = StringViewT<char16_t>;
+using U32StringView = StringViewT<char32_t>;
 
-struct MakeSpanArrayTag {};
-struct MakeSpanPointerTag {};
-
-template<typename TChar, Int TSize>
-inline constexpr auto make_span(TChar (&string)[TSize], MakeSpanArrayTag) noexcept
-{
-	assert(string[TSize - 1] == TChar{});
-	return bstone::make_span(string, TSize - 1);
-}
+// ==========================================================================
 
 template<typename TChar>
-inline constexpr Span<TChar> make_span(TChar* string, MakeSpanPointerTag) noexcept
+inline constexpr auto make_span(StringViewT<TChar> string_view) noexcept
 {
-	assert(string != nullptr);
-	return bstone::make_span(string, get_size(string));
+	return Span<const TChar>{string_view.get_data(), string_view.get_size()};
 }
 
-} // namespace detail
-
-template<typename TObject>
-inline constexpr auto make_span(TObject&& object) noexcept
-{
-	using Decayed = std::decay_t<TObject>;
-
-	using Tag = std::conditional_t<
-		std::is_array<Decayed>::value,
-		detail::MakeSpanArrayTag,
-		std::conditional_t<
-			std::is_pointer<Decayed>::value,
-			detail::MakeSpanPointerTag,
-			void>>;
-
-	return detail::make_span(std::forward<TObject>(object), Tag{});
-}
-
-// --------------------------------------------------------------------------
-
-namespace detail {
-
-struct MakeSpanWithNullArrayTag {};
-struct MakeSpanWithNullPointerTag {};
-
-template<typename TChar, Int TSize>
-inline constexpr auto make_span_with_null(TChar (&string)[TSize], MakeSpanWithNullArrayTag) noexcept
-{
-	assert(string[TSize - 1] == TChar{});
-	return bstone::make_span(string, TSize);
-}
-
-template<typename TChar>
-inline constexpr Span<TChar> make_span_with_null(TChar* string, MakeSpanWithNullPointerTag) noexcept
-{
-	assert(string != nullptr);
-	return bstone::make_span(string, get_size_with_null(string));
-}
-
-} // namespace detail
-
-template<typename TObject>
-inline constexpr auto make_span_with_null(TObject&& object) noexcept
-{
-	using Decayed = std::decay_t<TObject>;
-
-	using Tag = std::conditional_t<
-		std::is_array<Decayed>::value,
-		detail::MakeSpanWithNullArrayTag,
-		std::conditional_t<
-			std::is_pointer<Decayed>::value,
-			detail::MakeSpanWithNullPointerTag,
-			void>>;
-
-	return detail::make_span_with_null(std::forward<TObject>(object), Tag{});
-}
-
-} // namespace c_str
 } // namespace bstone
 
 #endif // !BSTONE_STRING_VIEW_INCLUDED

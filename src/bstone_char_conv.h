@@ -10,12 +10,13 @@ SPDX-License-Identifier: MIT
 #include <cassert>
 #include <limits>
 #include <type_traits>
-#include <bstone_ascii.h>
-#include <bstone_enum_flags.h>
-#include <bstone_int.h>
-#include <bstone_span.h>
+#include "bstone_ascii.h"
+#include "bstone_enum_flags.h"
+#include "bstone_int.h"
+#include "bstone_span.h"
 
 namespace bstone {
+namespace char_conv {
 
 namespace detail {
 
@@ -508,6 +509,7 @@ inline constexpr TValue from_chars(
 	return detail::FromCharsIntegralFromUnsigned<TValue, Unsigned>{}(u_value, has_minus_sign);
 }
 
+} // namespace char_conv
 } // namespace bstone
 
 #endif // !BSTONE_CHAR_CONV_INCLUDED

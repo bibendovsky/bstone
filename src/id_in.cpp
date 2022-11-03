@@ -113,6 +113,42 @@ static Direction DirTable[] = // Quick lookup for total direction
 };
 
 
+namespace {
+
+// in_is_mouse_enabled
+
+constexpr auto in_is_mouse_enabled_cvar_name = bstone::StringView{"in_is_mouse_enabled"};
+constexpr auto in_is_mouse_enabled_cvar_default = true;
+
+auto in_is_mouse_enabled_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	in_is_mouse_enabled_cvar_name,
+	bstone::CVarFlags::archive,
+	in_is_mouse_enabled_cvar_default};
+
+// in_mouse_sensitivity
+
+constexpr auto in_mouse_sensitivity_cvar_name = bstone::StringView{"in_mouse_sensitivity"};
+constexpr auto in_mouse_sensitivity_cvar_min = min_mouse_sensitivity;
+constexpr auto in_mouse_sensitivity_cvar_max = max_mouse_sensitivity;
+constexpr auto in_mouse_sensitivity_cvar_default = default_mouse_sensitivity;
+
+auto in_mouse_sensitivity_cvar = bstone::CVar{
+	bstone::CVarInt32Tag{},
+	in_mouse_sensitivity_cvar_name,
+	bstone::CVarFlags::archive,
+	in_mouse_sensitivity_cvar_default,
+	in_mouse_sensitivity_cvar_min,
+	in_mouse_sensitivity_cvar_max};
+
+} // namespace
+
+void in_initialize_cvars(bstone::CVarMgr& cvar_mgr)
+{
+	cvar_mgr.add(in_is_mouse_enabled_cvar);
+	cvar_mgr.add(in_mouse_sensitivity_cvar);
+}
+
 //      Internal routines
 
 // BBi
@@ -1399,6 +1435,26 @@ bool IN_UserInput(
 std::uint8_t IN_MouseButtons()
 {
 	return static_cast<std::uint8_t>(INL_GetMouseButtons());
+}
+
+bool in_is_mouse_enabled() noexcept
+{
+	return in_is_mouse_enabled_cvar.get_bool();
+}
+
+void in_set_is_mouse_enabled(bool is_enabled)
+{
+	in_is_mouse_enabled_cvar.set_bool(is_enabled);
+}
+
+int in_get_mouse_sensitivity() noexcept
+{
+	return in_mouse_sensitivity_cvar.get_int32();
+}
+
+void in_set_mouse_sensitivity(int sensitivity)
+{
+	in_mouse_sensitivity_cvar.set_int32(sensitivity);
 }
 
 void IN_Startup()

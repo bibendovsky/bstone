@@ -688,12 +688,21 @@ void OalAudioMixer::log(const OalString& string)
 void OalAudioMixer::log_oal_library_file_name()
 {
 	log(std::string{"Default library: \""} + get_oal_default_library_file_name() + '\"');
-	log("Custom library: \"" + sd_oal_library + '\"');
+	const auto oal_library = sd_get_oal_library();
+	const auto oal_library_string = std::string{
+		oal_library.get_data(),
+		static_cast<std::size_t>(oal_library.get_size())};
+	log("Custom library: \"" + oal_library_string + '\"');
 }
 
 void OalAudioMixer::log_oal_custom_device()
 {
-	log(std::string{} + "Custom device: \"" + sd_oal_device_name + '\"');
+	auto message = std::string{};
+	message += "Custom device: \"";
+	const auto device_name = sd_get_oal_device_name();
+	message.append(device_name.get_data(), static_cast<std::size_t>(device_name.get_size()));
+	message += '"';
+	log(message);
 }
 
 void OalAudioMixer::log_oal_devices()
@@ -780,7 +789,19 @@ void OalAudioMixer::initialize_oal(const AudioMixerInitParam& param)
 	log_oal_library_file_name();
 	log_oal_custom_device();
 
-	oal_loader_ = make_oal_loader(!sd_oal_library.empty() ? sd_oal_library.c_str() : get_oal_default_library_file_name());
+	auto oal_library_string = std::string{};
+	const auto oal_library = sd_get_oal_library();
+
+	if (oal_library.is_empty())
+	{
+		oal_library_string = get_oal_default_library_file_name();
+	}
+	else
+	{
+		oal_library_string.append(oal_library.get_data(), static_cast<std::size_t>(oal_library.get_size()));
+	}
+
+	oal_loader_ = make_oal_loader(oal_library_string.c_str());
 	oal_loader_->load_alc_symbols(al_symbols_);
 
 	detect_alc_extensions();
@@ -788,8 +809,20 @@ void OalAudioMixer::initialize_oal(const AudioMixerInitParam& param)
 	log_oal_devices();
 	log_oal_default_device();
 
-	oal_device_resource_ = make_oal_device(al_symbols_, !sd_oal_device_name.empty() ? sd_oal_device_name.c_str() : nullptr);
+	auto device_name_c_string = static_cast<const char*>(nullptr);
+	auto device_name_string = std::string{};
+	const auto device_name_sv = sd_get_oal_device_name();
 
+	if (!device_name_sv.is_empty())
+	{
+		device_name_string.append(
+			device_name_sv.get_data(),
+			static_cast<std::size_t>(device_name_sv.get_size()));
+
+		device_name_c_string = device_name_string.c_str();
+	}
+
+	oal_device_resource_ = make_oal_device(al_symbols_, device_name_c_string);
 	log_oal_current_device_name();
 	log_oal_alc_extensions();
 

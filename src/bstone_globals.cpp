@@ -5,18 +5,13 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-
 #include "bstone_globals.h"
 
+namespace bstone {
+namespace globals {
 
-namespace bstone
-{
-namespace globals
-{
-
-
+CVarMgrUPtr cvar_mgr{};
 PageMgrUPtr page_mgr{};
-
 
 } // globals
 } // bstone

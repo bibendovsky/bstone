@@ -19,6 +19,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <string>
 #include "bstone_audio_decoder.h"
 #include "bstone_audio_mixer.h"
+#include "bstone_cvar_mgr.h"
 
 namespace bstone
 {
@@ -58,38 +59,35 @@ struct Instrument
 
 // Global variables
 
-extern bool sd_has_audio_;
-extern bool sd_is_sound_enabled_;
-extern bool sd_is_music_enabled_;
-
 extern bool sd_sq_active_;
 
 // Function prototypes
 
+void sd_initialize_cvars(bstone::CVarMgr& cvar_mgr);
 void sd_startup();
 void sd_shutdown();
+bool sd_has_audio() noexcept;
 void sd_stop_sfx_sound();
 void sd_wait_sound_done();
 void sd_start_music(int index, bool is_looping = true);
 void sd_music_on(bool is_looping);
 void sd_music_off();
+bool sd_is_sound_enabled() noexcept;
+void sd_set_is_sound_enabled(bool is_enabled) noexcept;
 bool sd_enable_sound(const bool enable);
+bool sd_is_music_enabled() noexcept;
+void sd_set_is_music_enabled(bool is_enabled) noexcept;
 bool sd_enable_music(const bool enable);
 bool sd_is_playing_any_ui_sound();
 bool sd_is_music_playing();
 
-// BBi
 const int sd_min_volume = 0;
 const int sd_max_volume = 20;
 const int sd_default_sfx_volume = 10;
 const int sd_default_music_volume = 5;
 
-extern int sd_sfx_volume_;
-extern int sd_music_volume_;
-
-extern AudioDriverType sd_audio_driver_type;
-extern std::string sd_oal_library;
-extern std::string sd_oal_device_name;
+bstone::StringView sd_get_oal_library() noexcept;
+bstone::StringView sd_get_oal_device_name() noexcept;
 
 void sd_play_ui_sound(int sound_index);
 void sd_play_actor_voice_sound(int sound_index, objtype& actor);
@@ -110,12 +108,20 @@ void sd_update();
 bool sd_is_player_hit_wall_sound_playing();
 bool sd_is_player_no_way_sound_playing();
 
+int sd_get_sfx_volume() noexcept;
+void sd_set_sfx_volume(int volume) noexcept;
 void sd_set_sfx_volume();
+
+int sd_get_music_volume() noexcept;
+void sd_set_music_volume(int volume) noexcept;
 void sd_set_music_volume();
 
 void sd_mute(bool mute);
 void sd_pause_scene_sfx(bool is_pause);
 void sd_pause_music(bool is_pause);
+
+AudioDriverType sd_get_audio_driver_type() noexcept;
+void sd_set_audio_driver_type(AudioDriverType audio_driver_type);
 
 AudioSfxType sd_cfg_get_sfx_type() noexcept;
 void sd_cfg_set_sfx_type(AudioSfxType sfx_type);
@@ -125,11 +131,5 @@ void sd_cfg_set_is_sfx_digitized(bool is_sfx_digitized);
 void apply_digitized_sfx();
 bstone::Opl3Type sd_get_opl3_type() noexcept;
 void sd_set_opl3_type(bstone::Opl3Type opl3_type);
-void sd_cfg_set_defaults();
-bool sd_cfg_parse_key_value(const std::string& key_string, const std::string& value_string);
-void sd_cfg_write(bstone::TextWriter& text_writer);
-
-// BBi
-
 
 #endif // BSTONE_ID_SD_INCLUDED

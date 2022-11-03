@@ -1884,7 +1884,7 @@ void US_ControlPanel(
 
 		case -1:
 			// on hit ESC on main menu
-			if (ingame && !g_quit_on_escape)
+			if (ingame && !gp_quit_on_escape())
 			{
 				// return to game if quit on escape not enabled
 				StartGame = 1;
@@ -2496,56 +2496,56 @@ void CP_Switches(
 		switch (which)
 		{
 		case SW_LIGHTING:
-			gp_no_shading_ = !gp_no_shading_;
+			gp_no_shading(!gp_no_shading());
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
 
 		case SW_REBA_ATTACK_INFO:
-			gp_hide_attacker_info_ = !gp_hide_attacker_info_;
+			gp_hide_attacker_info(!gp_hide_attacker_info());
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
 
 		case SW_CEILING:
-			gp_is_ceiling_solid_ = !gp_is_ceiling_solid_;
+			gp_is_ceiling_solid(!gp_is_ceiling_solid());
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
 
 		case SW_FLOORS:
-			gp_is_flooring_solid_ = !gp_is_flooring_solid_;
+			gp_is_flooring_solid(!gp_is_flooring_solid());
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
 
 		// BBi
 		case SW_NO_WALL_HIT_SOUND:
-			g_no_wall_hit_sound = !g_no_wall_hit_sound;
+			gp_no_wall_hit_sfx(!gp_no_wall_hit_sfx());
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
 
 		case SW_ALWAYS_RUN:
-			g_always_run = !g_always_run;
+			gp_is_always_run(!gp_is_always_run());
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
 
 		case SW_QUIT_ON_ESCAPE:
-			g_quit_on_escape = !g_quit_on_escape;
+			gp_quit_on_escape(!gp_quit_on_escape());
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
 
 		case SW_HEART_BEAT_SOUND:
-			g_heart_beat_sound = !g_heart_beat_sound;
+			gp_use_heart_beat_sfx(!gp_use_heart_beat_sfx());
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
 
 		case SW_ROTATED_AUTOMAP:
-			g_rotated_automap = !g_rotated_automap;
+			am_rotatable(!am_rotatable());
 			ShootSnd();
 			DrawSwitchMenu();
 			break;
@@ -2598,28 +2598,28 @@ void DrawAllSwitchLights(
 			switch (i)
 			{
 			case SW_LIGHTING:
-				if (!gp_no_shading_)
+				if (!gp_no_shading())
 				{
 					Shape++;
 				}
 				break;
 
 			case SW_REBA_ATTACK_INFO:
-				if (!gp_hide_attacker_info_)
+				if (!gp_hide_attacker_info())
 				{
 					Shape++;
 				}
 				break;
 
 			case SW_CEILING:
-				if (!gp_is_ceiling_solid_)
+				if (!gp_is_ceiling_solid())
 				{
 					Shape++;
 				}
 				break;
 
 			case SW_FLOORS:
-				if (!gp_is_flooring_solid_)
+				if (!gp_is_flooring_solid())
 				{
 					Shape++;
 				}
@@ -2627,35 +2627,35 @@ void DrawAllSwitchLights(
 
 			// BBi
 			case SW_NO_WALL_HIT_SOUND:
-				if (g_no_wall_hit_sound)
+				if (gp_no_wall_hit_sfx())
 				{
 					++Shape;
 				}
 				break;
 
 			case SW_ALWAYS_RUN:
-				if (g_always_run)
+				if (gp_is_always_run())
 				{
 					++Shape;
 				}
 				break;
 
 			case SW_QUIT_ON_ESCAPE:
-				if (g_quit_on_escape)
+				if (gp_quit_on_escape())
 				{
 					++Shape;
 				}
 				break;
 
 			case SW_HEART_BEAT_SOUND:
-				if (g_heart_beat_sound)
+				if (gp_use_heart_beat_sfx())
 				{
 					++Shape;
 				}
 				break;
 
 			case SW_ROTATED_AUTOMAP:
-				if (g_rotated_automap)
+				if (am_rotatable())
 				{
 					++Shape;
 				}
@@ -2785,7 +2785,7 @@ auto sound_driver_index = 0;
 
 void initialize_sound_driver_index()
 {
-	switch (sd_audio_driver_type)
+	switch (sd_get_audio_driver_type())
 	{
 		case AudioDriverType::r2_sdl:
 			sound_driver_index = 1;
@@ -2820,7 +2820,7 @@ void sound_driver_carousel(
 		sound_driver_index = 0;
 	}
 
-	sd_audio_driver_type = sound_drivers[sound_driver_index].type;
+	sd_set_audio_driver_type(sound_drivers[sound_driver_index].type);
 	sd_shutdown();
 	sd_startup();
 
@@ -2904,11 +2904,11 @@ void CP_Sound(
 			//
 		case 0:
 			sd_wait_sound_done();
-			sd_enable_sound(!sd_is_sound_enabled_);
+			sd_enable_sound(!sd_is_sound_enabled());
 
 			DrawSoundMenu();
 
-			if (sd_is_sound_enabled_)
+			if (sd_is_sound_enabled())
 			{
 				ShootSnd();
 			}
@@ -2924,9 +2924,9 @@ void CP_Sound(
 			break;
 
 		case 3:
-			sd_enable_music(!sd_is_music_enabled_);
+			sd_enable_music(!sd_is_music_enabled());
 
-			if (sd_is_music_enabled_)
+			if (sd_is_music_enabled())
 			{
 				StartCPMusic(MENUSONG);
 			}
@@ -2958,7 +2958,7 @@ void DrawSoundMenu()
 	// IF NO ADLIB, NON-CHOOSENESS!
 	//
 
-	if (!sd_has_audio_)
+	if (!sd_has_audio())
 	{
 		SndMenu[0].active = AT_DISABLED;
 		SndMenu[3].active = AT_DISABLED;
@@ -2999,7 +2999,7 @@ void DrawAllSoundLights(
 			switch (i)
 			{
 			case 0:
-				if (sd_is_sound_enabled_)
+				if (sd_is_sound_enabled())
 				{
 					++Shape;
 				}
@@ -3022,7 +3022,7 @@ void DrawAllSoundLights(
 				break;
 
 			case 3:
-				if (sd_is_music_enabled_)
+				if (sd_is_music_enabled())
 				{
 					++Shape;
 				}
@@ -3405,8 +3405,7 @@ void CP_Control(
 		switch (which)
 		{
 		case MOUSEENABLE:
-			mouseenabled = !mouseenabled;
-
+			in_set_is_mouse_enabled(!in_is_mouse_enabled());
 			DrawCtlScreen();
 			CusItems.curpos = -1;
 			ShootSnd();
@@ -3447,7 +3446,7 @@ void DrawMousePos()
 		ENABLED_TEXT_COLOR);
 
 	VWB_Bar(
-		74 + ((slide_width * mouseadjustment) / max_mouse_delta),
+		74 + ((slide_width * in_get_mouse_sensitivity()) / max_mouse_delta),
 		92,
 		thumb_width,
 		8,
@@ -3485,7 +3484,7 @@ void MouseSensitivity(
 	ControlInfo ci;
 	std::int16_t exit = 0;
 
-	const auto oldMA = mouseadjustment;
+	const auto oldMA = in_get_mouse_sensitivity();
 
 	DrawMouseSens();
 	do
@@ -3495,9 +3494,9 @@ void MouseSensitivity(
 		{
 		case dir_North:
 		case dir_West:
-			if (mouseadjustment > 0)
+			if (in_get_mouse_sensitivity() > 0)
 			{
-				mouseadjustment -= 1;
+				in_set_mouse_sensitivity(in_get_mouse_sensitivity() - 1);
 				DrawMousePos();
 				VW_UpdateScreen();
 				menu_play_move_gun_1_sound();
@@ -3513,9 +3512,9 @@ void MouseSensitivity(
 
 		case dir_South:
 		case dir_East:
-			if (mouseadjustment < max_mouse_sensitivity)
+			if (in_get_mouse_sensitivity() < max_mouse_sensitivity)
 			{
-				mouseadjustment += 1;
+				in_set_mouse_sensitivity(in_get_mouse_sensitivity() + 1);
 				DrawMousePos();
 				VW_UpdateScreen();
 				menu_play_move_gun_1_sound();
@@ -3546,7 +3545,7 @@ void MouseSensitivity(
 
 	if (exit == 2)
 	{
-		mouseadjustment = oldMA;
+		in_set_mouse_sensitivity(oldMA);
 		menu_play_esc_pressed_sound();
 	}
 	else
@@ -3583,14 +3582,14 @@ void DrawCtlScreen()
 		CtlMenu[1].active = AT_ENABLED;
 	}
 
-	CtlMenu[1].active = static_cast<activetypes>(mouseenabled);
+	CtlMenu[1].active = static_cast<activetypes>(in_is_mouse_enabled());
 
 	fontnumber = 4;
 	DrawMenu(&CtlItems, &CtlMenu[0]);
 
 	x = CTL_X + CtlItems.indent - 24;
 	y = CTL_Y + Y_CTL_PIC_OFS;
-	if (mouseenabled)
+	if (in_is_mouse_enabled())
 	{
 		VWB_DrawPic(x, y, C_SELECTEDPIC);
 	}
@@ -4286,7 +4285,7 @@ void ReadAnyControl(
 		ci->button3 = 0;
 	}
 
-	if (mouseenabled)
+	if (in_is_mouse_enabled())
 	{
 		int mousex;
 		int mousey;
@@ -4635,7 +4634,7 @@ void ExitGame()
 
 	const auto& assets_info = get_assets_info();
 
-	if (assets_info.is_aog_sw_v3_0() && !g_no_intro_outro && !g_no_screens)
+	if (assets_info.is_aog_sw_v3_0() && !gp_no_intro_outro() && !gp_no_screens())
 	{
 		ShowPromo();
 	}
@@ -4647,7 +4646,19 @@ void ExitGame()
 
 // BBi
 int volume_index = 0;
-int* const volumes[2] = {&sd_sfx_volume_, &sd_music_volume_};
+
+struct Volume
+{
+	using Get = int (*)();
+	Get get;
+
+	using Set = void (*)(int);
+	Set set;
+};
+
+Volume const volumes[2] = {
+	{sd_get_sfx_volume, sd_set_sfx_volume},
+	{sd_get_music_volume, sd_set_music_volume}};
 
 void draw_volume_control(
 	int index,
@@ -4684,7 +4695,7 @@ void draw_volume_controls()
 {
 	for (int i = 0; i < 2; ++i)
 	{
-		draw_volume_control(i, *(volumes[i]), i == volume_index);
+		draw_volume_control(i, volumes[i].get(), i == volume_index);
 	}
 }
 
@@ -4770,11 +4781,11 @@ void cp_sound_volume(
 			break;
 
 		case dir_West:
-			if (*volumes[volume_index] > sd_min_volume)
+			if (volumes[volume_index].get() > sd_min_volume)
 			{
 				redraw_controls = true;
 				update_volumes = true;
-				--(*volumes[volume_index]);
+				volumes[volume_index].set(volumes[volume_index].get() - 1);
 				draw_volume_controls();
 				VW_UpdateScreen();
 			}
@@ -4786,11 +4797,11 @@ void cp_sound_volume(
 			break;
 
 		case dir_East:
-			if (*volumes[volume_index] < sd_max_volume)
+			if (volumes[volume_index].get() < sd_max_volume)
 			{
 				redraw_controls = true;
 				update_volumes = true;
-				++(*volumes[volume_index]);
+				volumes[volume_index].set(volumes[volume_index].get() + 1);
 			}
 
 			while (Keyboard[ScanCode::sc_right_arrow])
@@ -4807,13 +4818,13 @@ void cp_sound_volume(
 		{
 			update_volumes = false;
 
-			if (old_volumes[0] != *volumes[0])
+			if (old_volumes[0] != volumes[0].get())
 			{
 				sd_set_sfx_volume();
 				menu_play_move_gun_1_sound();
 			}
 
-			if (old_volumes[1] != *volumes[1])
+			if (old_volumes[1] != volumes[1].get())
 			{
 				sd_set_music_volume();
 			}
@@ -4885,8 +4896,6 @@ void video_draw_switch(
 {
 	std::uint16_t Shape;
 
-	auto& configuration = vid_cfg_get();
-
 	for (int i = 0; i < video_items.amount; i++)
 	{
 		if (video_menu[i].string[0])
@@ -4909,14 +4918,14 @@ void video_draw_switch(
 					continue;
 
 			case mvl_widescreen:
-				if (configuration.is_widescreen)
+				if (vid_cfg_is_widescreen())
 				{
 					Shape++;
 				}
 				break;
 
 			case mvl_stretch_ui:
-				if (configuration.is_ui_stretched_)
+				if (vid_cfg_is_ui_stretched())
 				{
 					Shape++;
 				}
@@ -5166,7 +5175,7 @@ void video_mode_draw_menu()
 	DrawMenu(&video_mode_items, video_mode_menu);
 	VW_UpdateScreen();
 
-	const auto& vid_cfg = vid_cfg_get();
+	menu_video_mode_cfg_ = vid_cfg_get_video_mode();
 
 	{
 		menu_video_mode_renderer_kinds_ = vid_get_available_renderer_kinds();
@@ -5179,7 +5188,7 @@ void video_mode_draw_menu()
 		const auto renderer_kind_it = std::find(
 			menu_video_mode_renderer_kinds_.cbegin(),
 			menu_video_mode_renderer_kinds_.cend(),
-			vid_cfg.renderer_kind_
+			menu_video_mode_cfg_.renderer_kind_
 		);
 
 		if (renderer_kind_it == menu_video_mode_renderer_kinds_.cend())
@@ -5191,15 +5200,6 @@ void video_mode_draw_menu()
 			menu_video_mode_renderer_index_ = static_cast<int>(
 				renderer_kind_it - menu_video_mode_renderer_kinds_.cbegin());
 		}
-	}
-
-	{
-		menu_video_mode_cfg_.renderer_kind_ = vid_cfg.renderer_kind_;
-	}
-
-	{
-		menu_video_mode_cfg_.width = vid_cfg.width;
-		menu_video_mode_cfg_.height = vid_cfg.height;
 	}
 
 	{
@@ -5223,15 +5223,7 @@ void video_mode_draw_menu()
 		}
 	}
 
-	{
-		menu_video_mode_cfg_.is_vsync_ = vid_cfg.is_vsync_;
-	}
-
-	{
-		menu_video_mode_cfg_.aa_kind_ = vid_cfg.aa_kind_;
-		menu_video_mode_cfg_.aa_degree_ = menu_video_mode_aa_factor_adjust(vid_cfg.aa_degree_);
-	}
-
+	menu_video_mode_cfg_.aa_degree_ = menu_video_mode_aa_factor_adjust(menu_video_mode_cfg_.aa_degree_);
 	menu_video_mode_cfg_saved_ = menu_video_mode_cfg_;
 }
 
@@ -5622,10 +5614,7 @@ void texturing_draw_menu()
 	DrawInstructions(IT_STANDARD);
 	DrawMenu(&texturing_items, texturing_menu);
 	VW_UpdateScreen();
-
-
-	auto& vid_cfg = vid_cfg_get();
-	vid_cfg.d3_texture_anisotropy_ = texturing_anisotropy_to_pot(vid_cfg.d3_texture_anisotropy_);
+	vid_cfg_set_3d_texture_anisotropy(texturing_anisotropy_to_pot(vid_cfg_get_3d_texture_anisotropy()));
 }
 
 void texturing_update_menu()
@@ -5640,8 +5629,6 @@ void texturing_draw_switch(
 	std::int16_t which)
 {
 	std::uint16_t Shape;
-
-	const auto& vid_cfg = vid_cfg_get();
 
 	for (int i = 0; i < texturing_items.amount; ++i)
 	{
@@ -5662,8 +5649,8 @@ void texturing_draw_switch(
 				case static_cast<int>(TexturingMenuIndices::anisotropy):
 				{
 					const auto anisotropy_string = (
-						vid_cfg.d3_texture_anisotropy_ > bstone::Ren3dLimits::min_anisotropy_off ?
-						std::to_string(vid_cfg.d3_texture_anisotropy_) :
+						vid_cfg_get_3d_texture_anisotropy() > bstone::Ren3dLimits::min_anisotropy_off ?
+						std::to_string(vid_cfg_get_3d_texture_anisotropy()) :
 						"OFF"
 					);
 
@@ -5679,7 +5666,8 @@ void texturing_draw_switch(
 
 				case static_cast<int>(TexturingMenuIndices::image_2d_filter):
 				{
-					const auto& image_2d_filter_string = texturing_filter_to_string(vid_cfg.d2_texture_filter_);
+					const auto& image_2d_filter_string = texturing_filter_to_string(
+						vid_cfg_get_2d_texture_filter());
 
 					draw_carousel(
 						i,
@@ -5693,7 +5681,8 @@ void texturing_draw_switch(
 
 				case static_cast<int>(TexturingMenuIndices::image_3d_filter):
 				{
-					const auto& image_3d_filter_string = texturing_filter_to_string(vid_cfg.d3_texture_image_filter_);
+					const auto& image_3d_filter_string = texturing_filter_to_string(
+						vid_cfg_get_3d_texture_image_filter());
 
 					draw_carousel(
 						i,
@@ -5707,7 +5696,8 @@ void texturing_draw_switch(
 
 				case static_cast<int>(TexturingMenuIndices::mipmap_3d_filter):
 				{
-					const auto& mipmap_3d_filter_string = texturing_filter_to_string(vid_cfg.d3_texture_mipmap_filter_);
+					const auto& mipmap_3d_filter_string = texturing_filter_to_string(
+						vid_cfg_get_3d_texture_mipmap_filter());
 
 					draw_carousel(
 						i,
@@ -5722,7 +5712,7 @@ void texturing_draw_switch(
 				case static_cast<int>(TexturingMenuIndices::upscale_filter):
 				{
 					const auto upscale_filter_string = (
-						vid_cfg.texture_upscale_kind_ == bstone::HwTextureMgrUpscaleFilterKind::none ?
+						vid_cfg_get_texture_upscale_kind() == bstone::HwTextureMgrUpscaleFilterKind::none ?
 						"NONE" :
 						"XBRZ"
 					);
@@ -5741,7 +5731,7 @@ void texturing_draw_switch(
 				{
 					const auto upscale_degree_string = std::to_string(
 						texturing_normalize_upscale_degree(
-							vid_cfg.texture_upscale_xbrz_degree_));
+							vid_cfg_get_texture_upscale_xbrz_degree()));
 
 					draw_carousel(
 						i,
@@ -5755,7 +5745,7 @@ void texturing_draw_switch(
 
 				case static_cast<int>(TexturingMenuIndices::external_textures):
 				{
-					const auto external_textures_string = (vid_cfg.is_external_textures_enabled_ ? "ON" : "OFF");
+					const auto external_textures_string = (vid_cfg_is_external_textures_enabled() ? "ON" : "OFF");
 
 					draw_carousel(
 						i,
@@ -5786,9 +5776,7 @@ void texturing_anisotropy_carousel(
 	const bool is_left,
 	const bool is_right)
 {
-	auto& vid_cfg = vid_cfg_get();
-
-	auto anisotropy = texturing_anisotropy_to_pot(vid_cfg.d3_texture_anisotropy_);
+	auto anisotropy = texturing_anisotropy_to_pot(vid_cfg_get_3d_texture_anisotropy());
 
 	if (is_left)
 	{
@@ -5809,7 +5797,7 @@ void texturing_anisotropy_carousel(
 		anisotropy = bstone::Ren3dLimits::min_anisotropy_off;
 	}
 
-	vid_cfg.d3_texture_anisotropy_ = anisotropy;
+	vid_cfg_set_3d_texture_anisotropy(anisotropy);
 
 	vid_apply_anisotropy();
 
@@ -5842,8 +5830,9 @@ void texturing_2d_image_filter_carousel(
 	const bool is_left,
 	const bool is_right)
 {
-	auto& vid_cfg = vid_cfg_get();
-	texturing_filter_carousel(vid_cfg.d2_texture_filter_);
+	auto filter = vid_cfg_get_2d_texture_filter();
+	texturing_filter_carousel(filter);
+	vid_cfg_set_2d_texture_filter(filter);
 	vid_apply_2d_image_filter();
 
 	texturing_update_menu();
@@ -5857,8 +5846,9 @@ void texturing_3d_image_filter_carousel(
 	const bool is_left,
 	const bool is_right)
 {
-	auto& vid_cfg = vid_cfg_get();
-	texturing_filter_carousel(vid_cfg.d3_texture_image_filter_);
+	auto filter = vid_cfg_get_3d_texture_image_filter();
+	texturing_filter_carousel(filter);
+	vid_cfg_set_3d_texture_image_filter(filter);
 	vid_apply_3d_image_filter();
 
 	texturing_update_menu();
@@ -5872,8 +5862,9 @@ void texturing_3d_mipmap_filter_carousel(
 	const bool is_left,
 	const bool is_right)
 {
-	auto& vid_cfg = vid_cfg_get();
-	texturing_filter_carousel(vid_cfg.d3_texture_mipmap_filter_);
+	auto filter = vid_cfg_get_3d_texture_mipmap_filter();
+	texturing_filter_carousel(filter);
+	vid_cfg_set_3d_texture_mipmap_filter(filter);
 	vid_apply_mipmap_filter();
 
 	texturing_update_menu();
@@ -5887,15 +5878,13 @@ void texturing_upscale_filter_carousel(
 	const bool is_left,
 	const bool is_right)
 {
-	auto& vid_cfg = vid_cfg_get();
-
-	if (vid_cfg.texture_upscale_kind_ == bstone::HwTextureMgrUpscaleFilterKind::none)
+	if (vid_cfg_get_texture_upscale_kind() == bstone::HwTextureMgrUpscaleFilterKind::none)
 	{
-		vid_cfg.texture_upscale_kind_ = bstone::HwTextureMgrUpscaleFilterKind::xbrz;
+		vid_cfg_set_texture_upscale_kind(bstone::HwTextureMgrUpscaleFilterKind::xbrz);
 	}
-	else if (vid_cfg.texture_upscale_kind_ == bstone::HwTextureMgrUpscaleFilterKind::xbrz)
+	else if (vid_cfg_get_texture_upscale_kind() == bstone::HwTextureMgrUpscaleFilterKind::xbrz)
 	{
-		vid_cfg.texture_upscale_kind_ = bstone::HwTextureMgrUpscaleFilterKind::none;
+		vid_cfg_set_texture_upscale_kind(bstone::HwTextureMgrUpscaleFilterKind::none);
 	}
 
 	vid_apply_upscale();
@@ -5911,9 +5900,7 @@ void texturing_upscale_degree_carousel(
 	const bool is_left,
 	const bool is_right)
 {
-	auto& vid_cfg = vid_cfg_get();
-
-	auto xbrz_degree = texturing_normalize_upscale_degree(vid_cfg.texture_upscale_xbrz_degree_);
+	auto xbrz_degree = texturing_normalize_upscale_degree(vid_cfg_get_texture_upscale_xbrz_degree());
 
 	if (is_left)
 	{
@@ -5934,7 +5921,7 @@ void texturing_upscale_degree_carousel(
 		}
 	}
 
-	vid_cfg.texture_upscale_xbrz_degree_ = xbrz_degree;
+	vid_cfg_set_texture_upscale_xbrz_degree(xbrz_degree);
 
 	vid_apply_upscale();
 
@@ -5949,9 +5936,7 @@ void texturing_external_textures_carousel(
 	const bool is_left,
 	const bool is_right)
 {
-	auto& vid_cfg = vid_cfg_get();
-
-	vid_cfg.is_external_textures_enabled_ = !vid_cfg.is_external_textures_enabled_;
+	vid_cfg_set_is_external_textures_enabled(!vid_cfg_is_external_textures_enabled());
 
 	vid_apply_external_textures();
 
@@ -6005,8 +5990,6 @@ void cp_video(
 	MenuFadeIn();
 	WaitKeyUp();
 
-	auto& configuration = vid_cfg_get();
-
 	do
 	{
 		which = HandleMenu(&video_items, video_menu, video_draw_switch);
@@ -6022,7 +6005,7 @@ void cp_video(
 
 		case mvl_widescreen:
 #ifndef __vita__
-			configuration.is_widescreen = !configuration.is_widescreen;
+			vid_cfg_set_is_widescreen(!vid_cfg_is_widescreen());
 #endif
 			ShootSnd();
 			video_draw_switch(video_items.curpos);
@@ -6034,7 +6017,7 @@ void cp_video(
 			break;
 
 		case mvl_stretch_ui:
-			configuration.is_ui_stretched_ = !configuration.is_ui_stretched_;
+			vid_cfg_set_is_ui_stretched(!vid_cfg_is_ui_stretched());
 			ShootSnd();
 			video_draw_switch(video_items.curpos);
 			VL_RefreshScreen();
@@ -6113,21 +6096,21 @@ void draw_all_switch2_lights(
 			switch (i)
 			{
 			case SW2_NO_INTRO_OUTRO:
-				if (g_no_intro_outro)
+				if (gp_no_intro_outro())
 				{
 					shape += 1;
 				}
 				break;
 
 			case SW2_NO_FADE_IN_OR_OUT:
-				if (g_no_fade_in_or_out)
+				if (gp_no_fade_in_or_out())
 				{
 					shape += 1;
 				}
 				break;
 
 			case SW2_NO_WEAPON_BOBBING:
-				if (g_no_weapon_bobbing)
+				if (gp_no_weapon_bobbing())
 				{
 					shape += 1;
 				}
@@ -6174,19 +6157,19 @@ void cp_switches2(
 		switch (which)
 		{
 		case SW2_NO_INTRO_OUTRO:
-			g_no_intro_outro = !g_no_intro_outro;
+			gp_no_intro_outro(!gp_no_intro_outro());
 			ShootSnd();
 			draw_switch2_menu();
 			break;
 
 		case SW2_NO_FADE_IN_OR_OUT:
-			g_no_fade_in_or_out = !g_no_fade_in_or_out;
+			gp_no_fade_in_or_out(!gp_no_fade_in_or_out());
 			ShootSnd();
 			draw_switch2_menu();
 			break;
 
 		case SW2_NO_WEAPON_BOBBING:
-			g_no_weapon_bobbing = !g_no_weapon_bobbing;
+			gp_no_weapon_bobbing(!gp_no_weapon_bobbing());
 			ShootSnd();
 			draw_switch2_menu();
 			break;
@@ -6313,16 +6296,14 @@ void filler_color_routine(
 	MenuFadeIn();
 	WaitKeyUp();
 
-	auto& configuration = vid_cfg_get();
-
 	ControlInfo ci;
 
 	auto is_highlighted = false;
 	auto highlight_counter = 0;
 
 	auto is_cell_changed = true;
-	auto cell_x = configuration.filler_color_index % 16;
-	auto cell_y = configuration.filler_color_index / 16;
+	auto cell_x = vid_cfg_get_filler_color_index() % 16;
+	auto cell_y = vid_cfg_get_filler_color_index() / 16;
 
 	while (true)
 	{
@@ -6361,7 +6342,7 @@ void filler_color_routine(
 
 			is_highlighted = true;
 
-			draw_filler_color_cell(configuration.filler_color_index, false);
+			draw_filler_color_cell(vid_cfg_get_filler_color_index(), false);
 
 			if (cell_x < 0)
 			{
@@ -6381,7 +6362,7 @@ void filler_color_routine(
 				cell_y = 0;
 			}
 
-			configuration.filler_color_index = (cell_y * 16) + cell_x;
+			vid_cfg_set_filler_color_index((cell_y * 16) + cell_x);
 
 			IN_ClearKeysDown();
 
@@ -6393,7 +6374,7 @@ void filler_color_routine(
 			break;
 		}
 
-		draw_filler_color_cell(configuration.filler_color_index, is_highlighted);
+		draw_filler_color_cell(vid_cfg_get_filler_color_index(), is_highlighted);
 
 		VW_UpdateScreen();
 

@@ -880,7 +880,7 @@ void DrawHealthMonitor()
 		{
 			heart_picture_index = ECG_HEART_GOOD;
 
-			if (g_heart_beat_sound)
+			if (gp_use_heart_beat_sfx())
 			{
 				sd_play_player_item_sound(H_BEATSND);
 			}
@@ -1000,7 +1000,7 @@ void TakeDamage(
 {
 	LastAttacker = attacker;
 
-	if (!gp_hide_attacker_info_)
+	if (!gp_hide_attacker_info())
 	{
 		if (attacker)
 		{
@@ -2778,7 +2778,7 @@ bool ClipMove(
 		return false;
 	}
 
-	if (!g_no_wall_hit_sound)
+	if (!gp_no_wall_hit_sfx())
 	{
 		if (!sd_is_player_hit_wall_sound_playing())
 		{

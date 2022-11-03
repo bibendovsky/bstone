@@ -20,8 +20,10 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "movie.h"
 
 #include "bstone_audio_mixer_voice_handle.h"
+#include "bstone_cvar_mgr.h"
 #include "bstone_math.h"
 #include "bstone_mt_task_mgr.h"
+#include "bstone_string_view.h"
 #include "bstone_voice.h"
 
 
@@ -2904,7 +2906,6 @@ extern std::int16_t dirangle[9];
 
 extern bool startgame;
 extern bool loadedgame;
-extern int mouseadjustment;
 
 extern int last_map_tile_x;
 extern int last_map_tile_y;
@@ -3107,9 +3108,6 @@ extern std::uint16_t ExtraRadarFlags;
 //
 using ScanCodes = std::vector<ScanCode>;
 using Buttons = std::vector<std::int16_t>;
-
-
-extern bool mouseenabled;
 
 using ButtonHeld = std::bitset<NUMBUTTONS>;
 extern ButtonHeld buttonheld;
@@ -3955,23 +3953,44 @@ doorobj_t* ui16_to_door_object(
 std::uint16_t door_object_to_ui16(
 	const doorobj_t* door_object);
 
-extern bool gp_is_ceiling_solid_;
-extern bool gp_is_flooring_solid_;
-extern bool gp_hide_attacker_info_;
-extern bool gp_no_shading_;
-extern bool g_no_wall_hit_sound;
-extern bool g_always_run;
+bool gp_is_flooring_solid() noexcept;
+void gp_is_flooring_solid(bool is_enable);
 
-// BBi AOG only options
-extern bool g_heart_beat_sound;
-extern bool g_rotated_automap;
+bool gp_is_ceiling_solid() noexcept;
+void gp_is_ceiling_solid(bool is_enable);
 
-extern bool g_quit_on_escape;
-extern bool g_no_intro_outro;
-extern bool g_no_screens; // overrides "g_no_intro_outro" via command line
-extern bool g_no_fade_in_or_out;
-extern bool g_no_weapon_bobbing;
+bool gp_no_shading() noexcept;
+void gp_no_shading(bool is_enable);
 
+bool gp_hide_attacker_info() noexcept;
+void gp_hide_attacker_info(bool is_enable);
+
+bool gp_is_always_run() noexcept;
+void gp_is_always_run(bool is_enable);
+
+bool gp_no_wall_hit_sfx() noexcept;
+void gp_no_wall_hit_sfx(bool is_enable);
+
+bool gp_use_heart_beat_sfx() noexcept;
+void gp_use_heart_beat_sfx(bool is_enable);
+
+bool gp_quit_on_escape() noexcept;
+void gp_quit_on_escape(bool is_enable);
+
+bool gp_no_intro_outro() noexcept;
+void gp_no_intro_outro(bool is_enable);
+
+bool gp_no_screens() noexcept;
+void gp_no_screens(bool is_enable);
+
+bool gp_no_fade_in_or_out() noexcept;
+void gp_no_fade_in_or_out(bool is_enable);
+
+bool gp_no_weapon_bobbing() noexcept;
+void gp_no_weapon_bobbing(bool is_enable);
+
+bool am_rotatable() noexcept;
+void am_rotatable(bool is_enable);
 
 extern bstone::MtTaskMgr* mt_task_manager_;
 
@@ -4019,6 +4038,11 @@ PaletteShiftInfo palette_shift_get_info() noexcept;
 
 void cfg_file_write_entry(
 	bstone::TextWriter& writer,
+	bstone::StringView key,
+	bstone::StringView value);
+
+void cfg_file_write_entry(
+	bstone::TextWriter& writer,
 	const std::string& key_string,
 	const std::string& value_string);
 
@@ -4031,6 +4055,9 @@ double get_integral(
 
 double get_fractional(
 	const double value) noexcept;
+
+void gp_initialize_cvars(bstone::CVarMgr& cvar_mgr);
+void am_initialize_cvars(bstone::CVarMgr& cvar_mgr);
 // BBi
 
 
