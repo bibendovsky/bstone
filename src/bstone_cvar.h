@@ -9,7 +9,6 @@ SPDX-License-Identifier: MIT
 
 #include <vector>
 #include "bstone_cvar_string.h"
-#include "bstone_int.h"
 #include "bstone_span.h"
 #include "bstone_string_view.h"
 #include "bstone_enum_flags.h"
@@ -121,8 +120,6 @@ private:
 	[[noreturn]] static void fail(const char* message);
 	[[noreturn]] static void fail_unknown_type();
 	[[noreturn]] static void fail_nested(const char* message);
-
-	static void validate_name(StringView name);
 
 private:
 	CVar(

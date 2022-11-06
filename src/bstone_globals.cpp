@@ -11,6 +11,7 @@ namespace bstone {
 namespace globals {
 
 CVarMgrUPtr cvar_mgr{};
+CCmdMgrUPtr ccmd_mgr{};
 PageMgrUPtr page_mgr{};
 
 } // globals

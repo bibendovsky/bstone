@@ -9,8 +9,8 @@ SPDX-License-Identifier: MIT
 #include <limits>
 #include <utility>
 #include "bstone_algorithm.h"
-#include "bstone_ascii.h"
 #include "bstone_char_conv.h"
+#include "bstone_cvalidator.h"
 #include "bstone_cvar.h"
 #include "bstone_exception.h"
 #include "bstone_span.h"
@@ -87,7 +87,7 @@ CVar::CVar(
 	CVarStringValues values)
 try
 {
-	validate_name(name);
+	CValidator::validate_name(name);
 
 	if (!values.is_empty())
 	{
@@ -279,46 +279,6 @@ void CVar::swap(CVar& rhs)
 	std::throw_with_nested(CVarException{message});
 }
 
-void CVar::validate_name(StringView name)
-try
-{
-	if (name.is_empty())
-	{
-		fail("Empty name.");
-	}
-
-	if (ascii::is_decimal(*name.begin()))
-	{
-		fail("Name starts with a decimal digit.");
-	}
-
-	auto has_alpha_or_underscore = false;
-
-	for (const auto& ch : name)
-	{
-		if (ascii::is_lower(ch) || ascii::is_upper(ch) || ch == '_')
-		{
-			has_alpha_or_underscore = true;
-		}
-		else if (ascii::is_decimal(ch))
-		{
-		}
-		else
-		{
-			fail("Name character out of range.");
-		}
-	}
-
-	if (!has_alpha_or_underscore)
-	{
-		fail("Expected at least one underscore or alpha character for name.");
-	}
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
 CVar::CVar(
 	CVarInt32Tag,
 	StringView name,
@@ -329,7 +289,7 @@ CVar::CVar(
 	CVarInt32Values values)
 try
 {
-	validate_name(name);
+	CValidator::validate_name(name);
 	const auto value_count = values.get_size();
 
 	if (value_count > 0)

@@ -379,6 +379,10 @@ target_sources(
 		bstone_circular_queue.h
 		bstone_char_conv.h
 		bstone_cl_args.h
+		bstone_ccmd.h
+		bstone_ccmd_action.h
+		bstone_ccmd_mgr.h
+		bstone_cvalidator.h
 		bstone_content_path.h
 		bstone_crc32.h
 		bstone_cvar.h
@@ -558,6 +562,10 @@ target_sources(
 		bstone_binary_writer.cpp
 		bstone_bitwise.cpp
 		bstone_bmp_image_decoder.cpp
+		bstone_ccmd.cpp
+		bstone_ccmd_action.cpp
+		bstone_ccmd_mgr.cpp
+		bstone_cvalidator.cpp
 		bstone_circular_queue.cpp
 		bstone_char_conv.cpp
 		bstone_cl_args.cpp

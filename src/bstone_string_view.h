@@ -8,6 +8,7 @@ SPDX-License-Identifier: MIT
 #define BSTONE_STRING_VIEW_INCLUDED
 
 #include <cassert>
+#include <type_traits>
 #include "bstone_c_str.h"
 #include "bstone_int.h"
 #include "bstone_span.h"
@@ -140,9 +141,51 @@ constexpr inline bool operator!=(StringViewT<TChar> a, StringViewT<TChar> b) noe
 
 // ==========================================================================
 
+template<typename TChar>
+struct StringViewHasherT
+{
+	constexpr std::size_t operator()(StringViewT<TChar> string_view) const noexcept
+	{
+		using Unsigned = std::conditional_t<
+			sizeof(TChar) == 1,
+			UInt8,
+			std::conditional_t<
+				sizeof(TChar) == 2,
+				UInt16,
+				std::conditional_t<
+					sizeof(TChar) == 4,
+					UInt32,
+					void
+				>
+			>
+		>;
+
+		auto hash = std::size_t{};
+
+		for (const auto ch : string_view)
+		{
+			hash += static_cast<Unsigned>(ch);
+			hash += hash << 10;
+			hash ^= hash >> 6;
+		}
+
+		hash += hash << 3;
+		hash ^= hash >> 11;
+		hash += hash << 15;
+		return hash;
+	}
+};
+
+// ==========================================================================
+
 using StringView = StringViewT<char>;
+using StringViewHasher = StringViewHasherT<char>;
+
 using U16StringView = StringViewT<char16_t>;
+using U16StringViewHasher = StringViewHasherT<char16_t>;
+
 using U32StringView = StringViewT<char32_t>;
+using U32StringViewHasher = StringViewHasherT<char32_t>;
 
 // ==========================================================================
 

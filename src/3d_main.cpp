@@ -9878,6 +9878,7 @@ int main(
 	auto is_failed = false;
 	auto error_message = std::string{};
 
+	bstone::globals::ccmd_mgr = bstone::make_ccmd_mgr(bstone::globals::max_ccmds);
 	bstone::globals::cvar_mgr = bstone::make_cvar_mgr(bstone::globals::max_cvars);
 
 	try

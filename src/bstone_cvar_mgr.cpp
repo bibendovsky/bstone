@@ -18,7 +18,7 @@ namespace {
 class CVarMgrException : public Exception
 {
 public:
-	CVarMgrException(const char* message) noexcept
+	explicit CVarMgrException(const char* message) noexcept
 		:
 		Exception{"BSTONE_CVAR_MGR", message}
 	{}
@@ -42,12 +42,6 @@ public:
 	void add(CVar& cvar) override;
 
 private:
-	struct StringViewHasher
-	{
-		std::size_t operator()(StringView string_view) const noexcept;
-	};
-
-private:
 	using CVars = std::vector<CVar*>;
 	using NameToIndex = std::unordered_map<StringView, CVars::size_type, StringViewHasher>;
 
@@ -59,25 +53,6 @@ private:
 private:
 	[[noreturn]] static void fail(const char* message);
 	[[noreturn]] static void fail_nested(const char* message);
-};
-
-// --------------------------------------------------------------------------
-
-std::size_t CVarMgrImpl::StringViewHasher::operator()(StringView string_view) const noexcept
-{
-	auto hash = std::size_t{};
-
-	for (const auto ch : string_view)
-	{
-		hash += static_cast<UInt8>(ch);
-		hash += hash << 10;
-		hash ^= hash >> 6;
-	}
-
-	hash += hash << 3;
-	hash ^= hash >> 11;
-	hash += hash << 15;
-	return hash;
 };
 
 // --------------------------------------------------------------------------
@@ -118,6 +93,7 @@ try
 	if (existing_cvar != nullptr)
 	{
 		auto message = std::string{};
+		message.reserve(128);
 		message += "CVAR \"";
 		message.append(name.get_data(), name.get_size());
 		message += "\" already registered.";
@@ -143,8 +119,6 @@ catch (...)
 }
 
 // ==========================================================================
-
-using CVarMgrUPtr = std::unique_ptr<CVarMgr>;
 
 CVarMgrUPtr make_cvar_mgr(Int max_cvars)
 {
