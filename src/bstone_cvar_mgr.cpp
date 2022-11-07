@@ -10,6 +10,7 @@ SPDX-License-Identifier: MIT
 #include <unordered_map>
 #include "bstone_cvar_mgr.h"
 #include "bstone_exception.h"
+#include "bstone_string_view_hasher.h"
 
 namespace bstone {
 

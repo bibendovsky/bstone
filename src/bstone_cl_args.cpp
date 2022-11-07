@@ -4,154 +4,113 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-
 #include "bstone_cl_args.h"
-
+#include "bstone_exception.h"
 #include "bstone_string_helper.h"
 
+namespace bstone {
 
-namespace bstone
+namespace {
+
+class ClArgsException : public Exception
 {
+public:
+	explicit ClArgsException(const char* message) noexcept
+		:
+		Exception{"BSTONE_CL_ARGS", message}
+	{}
+};
 
+} // namespace
 
-ClArgs::ClArgs() :
-	args_{},
-	lc_args_{}
-{
-}
+ClArgs::ClArgs() = default;
 
-const std::string& ClArgs::operator[](
-	const int index) const
+StringView ClArgs::operator[](int index) const
 {
 	return get_argument(index);
 }
 
-void ClArgs::initialize(
-	const int argc,
-	char* const* argv)
+void ClArgs::initialize(int argc, char* const* argv)
 {
-	unintialize();
+	args_.clear();
+	args_.reserve(argc);
 
-	args_.resize(argc);
-	lc_args_.resize(argc);
-
-	for (int i = 0; i < argc; ++i)
+	for (auto i = 0; i < argc; ++i)
 	{
-		args_[i] = argv[i];
-		lc_args_[i] = StringHelper::to_lower_ascii(args_[i]);
+		args_.emplace_back(argv[i]);
 	}
 }
 
-void ClArgs::unintialize()
-{
-	args_ = {};
-	lc_args_ = {};
-}
-
-bool ClArgs::has_option(
-	const std::string& option_name) const
+bool ClArgs::has_option(StringView option_name) const
 {
 	return find_option(option_name) >= 0;
 }
 
-int ClArgs::find_option(
-	const std::string& option_name) const
+bool ClArgs::has_option(const char* option_name) const
 {
-	if (option_name.empty())
+	return has_option(StringView{option_name});
+}
+
+Int ClArgs::find_option(StringView option_name) const
+{
+	if (option_name.is_empty())
 	{
 		return -1;
 	}
 
-	const auto& string_helper = bstone::StringHelper{};
-	const auto& lc_name = string_helper.to_lower_ascii(option_name);
-	const auto arg_count = static_cast<int>(args_.size());
+	constexpr auto dash_prefix = StringView{"--"};
 
-	for (int i = 0; i < arg_count; ++i)
+	auto index = Int{};
+
+	for (const auto& arg : args_)
 	{
-		const auto index = arg_count - i - 1;
-
-		const auto& arg = args_[index];
-
-		if (arg.size() != (2 + lc_name.size()))
-		{
-			continue;
-		}
-
-		if (arg.compare(0, 2, "--") != 0)
-		{
-			continue;
-		}
-
-		if (arg.compare(2, lc_name.size(), lc_name) == 0)
+		if (arg.starts_with(dash_prefix) && arg.get_subview(dash_prefix.get_size()) == option_name)
 		{
 			return index;
 		}
+
+		index += 1;
 	}
 
 	return -1;
 }
 
-int ClArgs::find_argument(
-	const std::string& name) const
+Int ClArgs::get_count() const noexcept
 {
-	if (name.empty())
-	{
-		return -1;
-	}
-
-	const auto& string_helper = bstone::StringHelper{};
-	const auto& lc_name = string_helper.to_lower_ascii(name);
-
-	for (int i = 1; i < get_count(); ++i)
-	{
-		if (lc_name == args_[i])
-		{
-			return i;
-		}
-	}
-
-	return -1;
+	return static_cast<Int>(args_.size());
 }
 
-int ClArgs::get_count() const
-{
-	return static_cast<int>(args_.size());
-}
-
-const std::string& ClArgs::get_argument(
-	const int index) const
+StringView ClArgs::get_argument(Int index) const
 {
 	if (index < 0 || index >= get_count())
 	{
-		const auto& string_helper = bstone::StringHelper{};
-
-		return string_helper.get_empty();
+		return StringView{};
 	}
 
 	return args_[index];
 }
 
-const std::string& ClArgs::get_option_value(
-	const std::string& option_name) const
+StringView ClArgs::get_option_value(StringView option_name) const
 {
 	auto option_index = find_option(option_name);
 
 	if (option_index >= 0)
 	{
-		++option_index;
+		option_index += 1;
 	}
 
 	return get_argument(option_index);
 }
 
-void ClArgs::get_option_values(
-	const std::string& option_name,
-	std::string& value1,
-	std::string& value2) const
+StringView ClArgs::get_option_value(const char* option_name) const
 {
-	value1.clear();
-	value2.clear();
+	return get_option_value(StringView{option_name});
+}
 
+void ClArgs::get_option_values(StringView option_name, StringView& value1, StringView& value2) const
+{
+	value1 = StringView{};
+	value2 = StringView{};
 	const auto option_index = find_option(option_name);
 
 	if (option_index < 0)
@@ -163,5 +122,14 @@ void ClArgs::get_option_values(
 	value2 = get_argument(option_index + 2);
 }
 
+[[noreturn]] void ClArgs::fail(const char* message)
+{
+	throw ClArgsException{message};
+}
+
+[[noreturn]] void ClArgs::fail_nested(const char* message)
+{
+	std::throw_with_nested(ClArgsException{message});
+}
 
 } // bstone

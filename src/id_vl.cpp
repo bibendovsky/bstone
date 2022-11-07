@@ -77,7 +77,7 @@ auto vid_renderer_cvar = bstone::CVar{
 	vid_renderer_cvar_name,
 	bstone::CVarFlags::archive,
 	vid_renderer_cvar_auto_detect,
-	vid_renderer_cvar_values};
+	bstone::make_span(vid_renderer_cvar_values)};
 
 // vid_is_positioned
 
@@ -183,7 +183,7 @@ auto vid_aa_kind_cvar = bstone::CVar{
 	vid_aa_kind_cvar_name,
 	bstone::CVarFlags::archive,
 	vid_none_string,
-	vid_aa_kind_cvar_values};
+	bstone::make_span(vid_aa_kind_cvar_values)};
 
 // vid_aa_degree
 
@@ -216,7 +216,7 @@ auto vid_texture_upscale_filter_cvar = bstone::CVar{
 	vid_texture_upscale_filter_cvar_name,
 	bstone::CVarFlags::archive,
 	vid_none_string,
-	vid_texture_upscale_filter_cvar_values};
+	bstone::make_span(vid_texture_upscale_filter_cvar_values)};
 
 // vid_texture_upscale_xbrz_degree
 
@@ -238,7 +238,7 @@ auto vid_2d_texture_filter_cvar = bstone::CVar{
 	vid_2d_texture_filter_cvar_name,
 	bstone::CVarFlags::archive,
 	vid_nearest_string,
-	vid_filter_strings};
+	bstone::make_span(vid_filter_strings)};
 
 // vid_3d_texture_image_filter
 
@@ -249,7 +249,7 @@ auto vid_3d_texture_image_filter_cvar = bstone::CVar{
 	vid_3d_texture_image_filter_cvar_name,
 	bstone::CVarFlags::archive,
 	vid_nearest_string,
-	vid_filter_strings};
+	bstone::make_span(vid_filter_strings)};
 
 // vid_3d_texture_mipmap_filter
 
@@ -260,7 +260,7 @@ auto vid_3d_texture_mipmap_filter_cvar = bstone::CVar{
 	vid_3d_texture_mipmap_filter_cvar_name,
 	bstone::CVarFlags::archive,
 	vid_nearest_string,
-	vid_filter_strings};
+	bstone::make_span(vid_filter_strings)};
 
 // vid_3d_texture_anisotropy
 

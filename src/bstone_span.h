@@ -8,7 +8,6 @@ SPDX-License-Identifier: MIT
 #define BSTONE_SPAN_INCLUDED
 
 #include <cassert>
-#include <type_traits>
 #include "bstone_int.h"
 #include "bstone_type_traits.h"
 #include "bstone_utility.h"
@@ -21,30 +20,29 @@ class Span
 public:
 	using Item = T;
 
-	static constexpr auto item_size = static_cast<Int>(sizeof(Item));
-
 	constexpr Span() noexcept = default;
 
-	constexpr Span(Item* items, Int size) noexcept
+	constexpr Span(Item* items, Int size)
 		:
-		data_{items},
+		items_{items},
 		size_{size}
 	{
 		assert(is_empty() || (!is_empty() && has_data()));
 	}
 
-	template<Int USize>
-	constexpr Span(Item (&array)[USize]) noexcept
+	template<Int TSize>
+	constexpr explicit Span(Item (&array)[TSize]) noexcept
 		:
-		Span{array, USize}
+		items_{array},
+		size_{TSize}
 	{}
 
-	constexpr Span(const Span&) noexcept = default;
-	constexpr Span& operator=(const Span&) noexcept = default;
+	constexpr Span(const Span& rhs) noexcept = default;
+	constexpr Span& operator=(const Span& rhs) noexcept = default;
 
 	constexpr Item* get_data() const noexcept
 	{
-		return data_;
+		return items_;
 	}
 
 	constexpr Int get_size() const noexcept
@@ -64,7 +62,7 @@ public:
 
 	constexpr Int get_bytes_size() const noexcept
 	{
-		return item_size * get_size();
+		return get_size() * static_cast<Int>(sizeof(Item));
 	}
 
 	constexpr Item* begin() const noexcept
@@ -77,31 +75,31 @@ public:
 		return begin() + get_size();
 	}
 
-	constexpr const Item& get_front() const noexcept
+	constexpr const Item& get_front() const
 	{
 		assert(has_data());
 		assert(!is_empty());
 		return *(begin());
 	}
 
-	constexpr Item& get_front() noexcept
+	constexpr Item& get_front()
 	{
-		return const_cast<Item&>(as_const(*this).get_front());
+		return const_cast<Item&>(type_traits::as_const(*this).get_front());
 	}
 
-	constexpr const Item& get_back() const noexcept
+	constexpr const Item& get_back() const
 	{
 		assert(has_data());
 		assert(!is_empty());
 		return *(end() - 1);
 	}
 
-	constexpr Item& get_back() noexcept
+	constexpr Item& get_back()
 	{
-		return const_cast<Item&>(as_const(*this).get_back());
+		return const_cast<Item&>(type_traits::as_const(*this).get_back());
 	}
 
-	constexpr Span get_subspan(Int offset, Int size) const noexcept
+	constexpr Span get_subspan(Int offset, Int size) const
 	{
 		assert(offset >= 0);
 		assert(size >= 0);
@@ -109,60 +107,66 @@ public:
 		return Span{get_data() + offset, size};
 	}
 
-	constexpr Span get_subspan(Int offset) const noexcept
+	constexpr Span get_subspan(Int offset) const
 	{
 		return get_subspan(offset, get_size() - offset);
 	}
 
+	template<
+		typename UItem = Item,
+		std::enable_if_t<std::is_same<std::remove_const_t<UItem>, UInt8>::value, int> = 0>
+	Span to_bytes() const noexcept
+	{
+		return *this;
+	}
+
+	template<
+		typename UItem = Item,
+		std::enable_if_t<!std::is_same<std::remove_const_t<UItem>, UInt8>::value, int> = 0>
+	auto to_bytes() const noexcept
+	{
+		using UInt8Type = std::conditional_t<std::is_const<Item>::value, const UInt8, UInt8>;
+		using UInt8Ptr = std::conditional_t<std::is_const<Item>::value, const UInt8*, UInt8*>;
+		return Span<UInt8Type>{reinterpret_cast<UInt8Ptr>(get_data()), get_bytes_size()};
+	}
+
+	template<typename UItem = Item, std::enable_if_t<std::is_const<UItem>::value, int> = 0>
+	constexpr Span to_const() const noexcept
+	{
+		return *this;
+	}
+
 	template<typename UItem = Item, std::enable_if_t<!std::is_const<UItem>::value, int> = 0>
-	constexpr operator Span<const UItem>() const noexcept
+	constexpr Span<const UItem> to_const() const noexcept
 	{
 		return Span<const UItem>{get_data(), get_size()};
 	}
 
-	constexpr Item& operator[](Int index) const noexcept
+	constexpr Item& operator[](Int index) const
 	{
-		assert(has_data());
 		assert(index >= 0 && index < get_size());
+		assert(has_data());
 		return get_data()[index];
 	}
 
-	constexpr void swap(Span& rhs)
+	constexpr void swap(Span& rhs) noexcept
 	{
-		utility::swap(data_, rhs.data_);
+		utility::swap(items_, rhs.items_);
 		utility::swap(size_, rhs.size_);
 	}
 
 private:
-	Item* data_{};
+	Item* items_{};
 	Int size_{};
 }; // Span
 
 // ==========================================================================
 
-namespace detail {
-
 template<typename T>
-struct SpanToBytes
+inline constexpr auto make_span(T* items, Int size)
 {
-	using ItemType = std::conditional_t<std::is_const<T>::value, const UInt8, UInt8>;
-	using SpanType = Span<ItemType>;
-};
-
-} // namespace detail
-
-template<typename T>
-inline auto as_bytes(Span<T> span) noexcept
-{
-	return typename detail::SpanToBytes<T>::SpanType
-	{
-		reinterpret_cast<typename detail::SpanToBytes<T>::ItemType*>(
-			span.get_data()),
-			span.get_bytes_size()
-	};
+	return Span<T>{items, size};
 }
-
-// ==========================================================================
 
 template<typename T, Int TSize>
 inline constexpr auto make_span(T (&array)[TSize]) noexcept
@@ -170,24 +174,26 @@ inline constexpr auto make_span(T (&array)[TSize]) noexcept
 	return Span<T>{array};
 }
 
-template<typename T>
-inline constexpr auto make_span(T* data, Int size) noexcept
-{
-	return Span<T>{data, size};
-}
-
 // ==========================================================================
+
+template<typename T>
+inline constexpr auto make_bytes_span(T* items, Int size)
+{
+	using Type = std::remove_pointer_t<T>;
+	using UInt8Type = std::conditional_t<std::is_const<Type>::value, const UInt8, UInt8>;
+	using UInt8PtrType = std::conditional_t<std::is_const<Type>::value, const UInt8*, UInt8*>;
+
+	return Span<UInt8Type>
+	{
+		reinterpret_cast<UInt8PtrType>(items),
+		size * static_cast<Int>(sizeof(T))
+	};
+}
 
 template<typename T, Int TSize>
 inline constexpr auto make_bytes_span(T (&array)[TSize]) noexcept
 {
-	return as_bytes(Span<T>{array});
-}
-
-template<typename T>
-inline constexpr auto make_bytes_span(T* data, Int size) noexcept
-{
-	return as_bytes(Span<T>{data, size});
+	return make_bytes_span(array, TSize);
 }
 
 } // namespace bstone

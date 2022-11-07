@@ -24,27 +24,23 @@ template<typename TChar>
 class ZStringViewT
 {
 public:
-	ZStringViewT() = default;
+	ZStringViewT() noexcept = default;
 
 	constexpr ZStringViewT(std::nullptr_t) = delete;
 	constexpr ZStringViewT(const ZStringViewT&) noexcept = default;
+	constexpr ZStringViewT& operator=(const ZStringViewT&) noexcept = default;
 
-	constexpr ZStringViewT(const TChar* chars, Int size)
+	constexpr explicit ZStringViewT(const TChar* chars)
 		:
-		string_view_{chars, size}
+		string_view_{chars}
 	{
-		if (string_view_.get_data()[string_view_.get_size()] != TChar{})
+		if ((*string_view_.cend()) != TChar{})
 		{
 			detail::zstring_view_fail_non_null_terminated();
 		}
 	}
 
-	constexpr ZStringViewT(const TChar* chars)
-		:
-		ZStringViewT{chars, c_str::get_size(chars)}
-	{}
-
-	constexpr StringViewT<TChar> to_string_view() const noexcept
+	constexpr auto to_string_view() const noexcept
 	{
 		return string_view_;
 	}
@@ -84,7 +80,7 @@ public:
 		return string_view_.cend();
 	}
 
-	constexpr const TChar& operator[](Int index) const noexcept
+	constexpr const TChar& operator[](Int index) const
 	{
 		assert(index >= 0 && index <= get_size());
 		return get_data()[index];

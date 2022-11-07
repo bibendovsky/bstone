@@ -12,7 +12,6 @@ SPDX-License-Identifier: MIT
 #include <type_traits>
 #include "bstone_ascii.h"
 #include "bstone_enum_flags.h"
-#include "bstone_int.h"
 #include "bstone_span.h"
 
 namespace bstone {
@@ -359,7 +358,7 @@ struct FromCharsIntegralFromUnsigned
 	template<typename U = T, std::enable_if_t<std::is_signed<U>::value, int> = 0>
 	constexpr U operator()(TUnsigned u_value, bool is_negative) const noexcept
 	{
-		return is_negative ? -static_cast<U>(u_value) : static_cast<U>(u_value);
+		return is_negative ? (-static_cast<U>(u_value)) : static_cast<U>(u_value);
 	}
 
 	template<typename U = T, std::enable_if_t<std::is_unsigned<U>::value, int> = 0>

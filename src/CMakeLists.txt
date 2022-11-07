@@ -382,9 +382,10 @@ target_sources(
 		bstone_ccmd.h
 		bstone_ccmd_action.h
 		bstone_ccmd_mgr.h
-		bstone_cvalidator.h
+		bstone_char_hasher.h
 		bstone_content_path.h
 		bstone_crc32.h
+		bstone_cvalidator.h
 		bstone_cvar.h
 		bstone_cvar_mgr.h
 		bstone_cvar_string.h
@@ -446,6 +447,7 @@ target_sources(
 		bstone_stream.h
 		bstone_string_helper.h
 		bstone_string_view.h
+		bstone_string_view_hasher.h
 		bstone_sw_video.h
 		bstone_text_reader.h
 		bstone_text_writer.h

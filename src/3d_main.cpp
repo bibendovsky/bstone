@@ -9924,27 +9924,28 @@ int main(
 
 void InitDestPath()
 {
-	auto requested_data_dir = g_args.get_option_value("data_dir");
+	const auto requested_data_dir = g_args.get_option_value("data_dir");
 
-	if (requested_data_dir.empty())
+	if (requested_data_dir.is_empty())
 	{
 		data_dir_ = get_default_data_dir();
 	}
 	else
 	{
 		is_data_dir_custom_ = true;
-		data_dir_ = requested_data_dir;
+		data_dir_.assign(requested_data_dir.cbegin(), requested_data_dir.cend());
 	}
 
 	data_dir_ = bstone::file_system::normalize_path(
 		bstone::file_system::append_path_separator(
 			data_dir_));
 
-	static const auto& mod_dir_option_name = std::string{"mod_dir"};
+	constexpr auto mod_dir_option_name = bstone::StringView{"mod_dir"};
 
 	if (g_args.has_option(mod_dir_option_name))
 	{
-		mod_dir_ = g_args.get_option_value(mod_dir_option_name);
+		const auto value = g_args.get_option_value(mod_dir_option_name);
+		mod_dir_.assign(value.cbegin(), value.cend());
 	}
 
 	mod_dir_ = bstone::file_system::normalize_path(
@@ -10572,7 +10573,8 @@ const std::string& get_profile_dir()
 	{
 		is_initialized = true;
 
-		profile_dir = g_args.get_option_value("profile_dir");
+		const auto value = g_args.get_option_value("profile_dir");
+		profile_dir.assign(value.cbegin(), value.cend());
 
 		if (profile_dir.empty())
 		{
@@ -10604,7 +10606,8 @@ const std::string& get_screenshot_dir()
 	{
 		is_initialized = true;
 
-		screenshot_dir = g_args.get_option_value("screenshot_dir");
+		const auto value = g_args.get_option_value("screenshot_dir");
+		screenshot_dir.assign(value.cbegin(), value.cend());
 
 		if (screenshot_dir.empty())
 		{

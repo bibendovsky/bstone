@@ -347,7 +347,7 @@ void CVar::set_string_from_int32()
 try
 {
 	char chars[max_int32_chars];
-	const auto char_count = char_conv::to_chars(int32_value_, make_span(chars, max_int32_chars), 10);
+	const auto char_count = char_conv::to_chars(int32_value_, make_span(chars), 10);
 	string_value_ = StringView{chars, char_count};
 }
 catch (...)
@@ -361,7 +361,7 @@ try
 	const auto string = string_value_.get();
 
 	int32_value_ = char_conv::from_chars<Int32>(
-		make_span(string),
+		string.to_span(),
 		10,
 		char_conv::FromCharsFormat::no_prefix);
 }

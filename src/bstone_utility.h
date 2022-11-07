@@ -15,11 +15,10 @@ namespace bstone {
 namespace utility {
 
 template<typename T>
-inline static constexpr void swap(T& lhs, T& rhs)
-	noexcept(
-		noexcept(
-			std::is_nothrow_move_constructible<T>::value &&
-			std::is_nothrow_move_assignable<T>::value))
+inline constexpr void swap(T& lhs, T& rhs)
+	noexcept(noexcept(
+		std::is_nothrow_move_constructible<T>::value &&
+		std::is_nothrow_move_assignable<T>::value))
 {
 	auto temp = std::move(lhs);
 	lhs = std::move(rhs);
@@ -27,7 +26,7 @@ inline static constexpr void swap(T& lhs, T& rhs)
 }
 
 template<typename TLshIter, typename TRhsIter>
-inline static constexpr TRhsIter swap_ranges(TLshIter lhs_begin, TLshIter lhs_end, TRhsIter rhs_begin)
+inline constexpr TRhsIter swap_ranges(TLshIter lhs_begin, TLshIter lhs_end, TRhsIter rhs_begin)
 {
 	while (lhs_begin != lhs_end)
 	{
@@ -38,9 +37,12 @@ inline static constexpr TRhsIter swap_ranges(TLshIter lhs_begin, TLshIter lhs_en
 }
 
 template<typename T, std::size_t TSize>
-inline static constexpr void swap(T (&lhs)[TSize], T (&rhs)[TSize]) noexcept(noexcept(swap(*lhs, *rhs)))
+inline constexpr void swap(T (&lhs)[TSize], T (&rhs)[TSize]) noexcept(noexcept(swap(*lhs, *rhs)))
 {
-	swap_ranges(lhs, lhs + TSize, rhs);
+	for (auto i = decltype(TSize){}; i < TSize; ++i)
+	{
+		swap(lhs[i], rhs[i]);
+	}
 }
 
 } // namespace utility

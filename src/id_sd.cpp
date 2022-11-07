@@ -186,7 +186,7 @@ auto snd_opl3_type_cvar = bstone::CVar{
 	snd_opl3_type_cvar_name,
 	bstone::CVarFlags::archive,
 	snd_opl3_type_cvar_dbopl,
-	snd_opl3_type_cvar_values};
+	bstone::make_span(snd_opl3_type_cvar_values)};
 
 // snd_is_sfx_enabled
 
@@ -216,7 +216,7 @@ auto snd_sfx_type_cvar = bstone::CVar{
 	snd_sfx_type_cvar_name,
 	bstone::CVarFlags::archive,
 	snd_sfx_type_cvar_adlib,
-	snd_sfx_type_cvar_values};
+	bstone::make_span(snd_sfx_type_cvar_values)};
 
 // snd_is_sfx_digitized
 

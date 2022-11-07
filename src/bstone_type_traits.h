@@ -10,13 +10,18 @@ SPDX-License-Identifier: MIT
 #include <type_traits>
 
 namespace bstone {
+namespace type_traits {
 
 template<typename T>
-constexpr std::add_const_t<T>& as_const(T& x) noexcept
+inline constexpr std::add_const_t<T>& as_const(T& x) noexcept
 {
 	return x;
 }
 
+template<typename T>
+void as_const(const T&&) = delete;
+
+} // namespace type_traits
 } // namespace bstone
 
 #endif // !BSTONE_TYPE_TRAITS_INCLUDED

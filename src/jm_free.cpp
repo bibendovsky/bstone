@@ -1238,95 +1238,85 @@ void PreDemo()
 void check_for_extract_options()
 {
 	{
-		const auto& extract_all_option_name = std::string{"extract_all"};
+		constexpr auto extract_all_option_name_sv = bstone::StringView{"extract_all"};
 
-		if (g_args.has_option(extract_all_option_name))
+		if (g_args.has_option(extract_all_option_name_sv))
 		{
-			const auto& dst_dir = g_args.get_option_value(extract_all_option_name);
-
+			const auto dst_dir_sv = g_args.get_option_value(extract_all_option_name_sv);
+			const auto dst_dir = std::string{dst_dir_sv.cbegin(), dst_dir_sv.cend()};
 			ca_extract_all(dst_dir);
-
 			Quit();
-			return;
 		}
 	}
 
 	{
-		const auto& extract_vga_palette_option_name = std::string{"extract_vga_palette"};
+		constexpr auto extract_vga_palette_option_name_sv = bstone::StringView{"extract_vga_palette"};
 
-		if (g_args.has_option(extract_vga_palette_option_name))
+		if (g_args.has_option(extract_vga_palette_option_name_sv))
 		{
-			const auto& dst_dir = g_args.get_option_value(extract_vga_palette_option_name);
-
+			const auto dst_dir_sv = g_args.get_option_value(extract_vga_palette_option_name_sv);
+			const auto dst_dir = std::string{dst_dir_sv.cbegin(), dst_dir_sv.cend()};
 			ca_extract_vga_palette(dst_dir);
-
 			Quit();
-			return;
 		}
 	}
 
 	{
-		const auto& extract_walls_option_name = std::string{"extract_walls"};
+		constexpr auto extract_walls_option_name_sv = bstone::StringView{"extract_walls"};
 
-		if (g_args.has_option(extract_walls_option_name))
+		if (g_args.has_option(extract_walls_option_name_sv))
 		{
-			const auto& dst_dir = g_args.get_option_value(extract_walls_option_name);
-
+			const auto dst_dir_sv = g_args.get_option_value(extract_walls_option_name_sv);
+			const auto dst_dir = std::string{dst_dir_sv.cbegin(), dst_dir_sv.cend()};
 			ca_extract_walls(dst_dir);
-
 			Quit();
-			return;
 		}
 	}
 
 	{
-		const auto& extract_sprites_option_name = std::string{"extract_sprites"};
+		constexpr auto extract_sprites_option_name_sv = bstone::StringView{"extract_sprites"};
 
-		if (g_args.has_option(extract_sprites_option_name))
+		if (g_args.has_option(extract_sprites_option_name_sv))
 		{
-			const auto& dst_dir = g_args.get_option_value(extract_sprites_option_name);
-
+			const auto dst_dir_sv = g_args.get_option_value(extract_sprites_option_name_sv);
+			const auto dst_dir = std::string{dst_dir_sv.cbegin(), dst_dir_sv.cend()};
 			ca_extract_sprites(dst_dir);
-
 			Quit();
 		}
 	}
 
 	{
-		const auto& extract_musics_option_name = std::string{"extract_music"};
+		constexpr auto extract_musics_option_name_sv = bstone::StringView{"extract_music"};
 
-		if (g_args.has_option(extract_musics_option_name))
+		if (g_args.has_option(extract_musics_option_name_sv))
 		{
-			const auto& dst_dir = g_args.get_option_value(extract_musics_option_name);
-
+			const auto dst_dir_sv = g_args.get_option_value(extract_musics_option_name_sv);
+			const auto dst_dir = std::string{dst_dir_sv.cbegin(), dst_dir_sv.cend()};
 			ca_extract_music(dst_dir);
-
 			Quit();
 		}
 	}
 
 	{
-		const auto& extract_sfx_option_name = std::string{"extract_sfx"};
+		constexpr auto extract_sfx_option_name_sv = bstone::StringView{"extract_sfx"};
 
-		if (g_args.has_option(extract_sfx_option_name))
+		if (g_args.has_option(extract_sfx_option_name_sv))
 		{
-			const auto& extract_dir = g_args.get_option_value(extract_sfx_option_name);
-
+			const auto extract_dir_sv = g_args.get_option_value(extract_sfx_option_name_sv);
+			const auto extract_dir = std::string{extract_dir_sv.cbegin(), extract_dir_sv.cend()};
 			ca_extract_sfx(extract_dir);
-
 			Quit();
 		}
 	}
 
 	{
-		const auto& extract_texts_option_name = std::string{"extract_texts"};
+		constexpr auto extract_texts_option_name_sv = bstone::StringView{"extract_texts"};
 
-		if (g_args.has_option(extract_texts_option_name))
+		if (g_args.has_option(extract_texts_option_name_sv))
 		{
-			const auto& dst_dir = g_args.get_option_value(extract_texts_option_name);
-
+			const auto dst_dir_sv = g_args.get_option_value(extract_texts_option_name_sv);
+			const auto dst_dir = std::string{dst_dir_sv.cbegin(), dst_dir_sv.cend()};
 			ca_extract_texts(dst_dir);
-
 			Quit();
 		}
 	}
@@ -1446,30 +1436,26 @@ void deserialize_cvars_from_cli(const bstone::ClArgs& args, bstone::CVarMgr& cva
 
 	for (auto i = decltype(arg_count){}; i < arg_count; ++i)
 	{
-		const auto& key_string = args.get_argument(i);
+		const auto key_string = args.get_argument(i);
 
-		if (key_string.empty() ||
-			key_string.size() <= 2 ||
+		if (key_string.is_empty() ||
+			key_string.get_size() <= 2 ||
 			key_string[0] != '-' ||
 			key_string[1] != '-')
 		{
 			continue;
 		}
 
-		const auto cvar = cvar_mgr.find(bstone::StringView{
-			key_string.data() + 2,
-			static_cast<bstone::Int>(key_string.size() - 2)});
+		const auto option_name_sv = key_string.get_subview(2);
+		const auto cvar = cvar_mgr.find(option_name_sv);
 
 		if (cvar == nullptr)
 		{
 			continue;
 		}
 
-		const auto& value_string = args.get_argument(i + 1);
-
-		cvar->set_string(bstone::StringView{
-			value_string.data(),
-			static_cast<bstone::Int>(value_string.size())});
+		const auto value_sv = args.get_argument(i + 1);
+		cvar->set_string(value_sv);
 	}
 }
 
