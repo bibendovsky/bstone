@@ -27,7 +27,7 @@ class SdlException :
 	public Exception
 {
 public:
-	SdlException() noexcept
+	explicit SdlException() noexcept
 		:
 		Exception{"SDL", ::SDL_GetError()}
 	{
