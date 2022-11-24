@@ -140,7 +140,7 @@ void NewGame(
 	std::int16_t episode);
 
 
-bstone::ClArgs g_args;
+bstone::Cl g_args;
 
 
 constexpr auto FOCALLENGTH = bstone::math::fixed_to_floating(0x5700); // in global coordinates

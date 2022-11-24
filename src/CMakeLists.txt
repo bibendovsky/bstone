@@ -378,7 +378,7 @@ target_sources(
 		bstone_c_str.h
 		bstone_circular_queue.h
 		bstone_char_conv.h
-		bstone_cl_args.h
+		bstone_cl.h
 		bstone_ccmd.h
 		bstone_ccmd_action.h
 		bstone_ccmd_mgr.h
@@ -570,7 +570,7 @@ target_sources(
 		bstone_cvalidator.cpp
 		bstone_circular_queue.cpp
 		bstone_char_conv.cpp
-		bstone_cl_args.cpp
+		bstone_cl.cpp
 		bstone_content_path.cpp
 		bstone_crc32.cpp
 		bstone_cvar.cpp

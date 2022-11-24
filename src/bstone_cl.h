@@ -4,28 +4,29 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-#ifndef BSTONE_CL_ARGS_INCLUDED
-#define BSTONE_CL_ARGS_INCLUDED
+// Command-line.
+
+#ifndef BSTONE_CL_INCLUDED
+#define BSTONE_CL_INCLUDED
 
 #include <vector>
-#include "bstone_int.h"
 #include "bstone_span.h"
 #include "bstone_string_view.h"
 
 namespace bstone {
 
-using ClArgsSpan = Span<const StringView>;
+using ClArgs = Span<const StringView>;
 
-struct ClArgsOption
+struct ClOption
 {
 	StringView name{};
-	ClArgsSpan args{};
+	ClArgs args{};
 };
 
-class ClArgs
+class Cl
 {
 public:
-	ClArgs();
+	Cl();
 
 	StringView operator[](int index) const;
 
@@ -34,7 +35,7 @@ public:
 	bool has_option(StringView option_name) const;
 	bool has_option(const char* option_name) const;
 
-	Int find_option(StringView option_name) const;
+	ClOption find_option(StringView option_name) const;
 
 	Int get_count() const noexcept;
 	StringView get_argument(Int index) const;
@@ -44,14 +45,17 @@ public:
 
 private:
 	using StringViews = std::vector<StringView>;
+	using Options = std::vector<ClOption>;
 
 	StringViews args_{};
+	ClArgs params_{};
+	Options options_{};
 
 private:
 	[[noreturn]] static void fail(const char* message);
 	[[noreturn]] static void fail_nested(const char* message);
-}; // ClArgs
+};
 
 } // bstone
 
-#endif // !BSTONE_CL_ARGS_INCLUDED
+#endif // !BSTONE_CL_INCLUDED

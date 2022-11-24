@@ -1430,7 +1430,7 @@ static void output_version()
 
 namespace {
 
-void deserialize_cvars_from_cli(const bstone::ClArgs& args, bstone::CVarMgr& cvar_mgr)
+void deserialize_cvars_from_cli(const bstone::Cl& args, bstone::CVarMgr& cvar_mgr)
 {
 	const auto arg_count = args.get_count();
 

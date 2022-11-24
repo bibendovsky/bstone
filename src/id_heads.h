@@ -13,7 +13,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <array>
 
 
-#include "bstone_cl_args.h"
+#include "bstone_cl.h"
 #include "bstone_exception.h"
 
 
@@ -54,7 +54,7 @@ using Update = std::array<std::uint8_t, UPDATESIZE>;
 extern Update update;
 
 
-extern bstone::ClArgs g_args;
+extern bstone::Cl g_args;
 
 
 [[noreturn]]
