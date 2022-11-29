@@ -126,6 +126,7 @@ try
 			}
 			else
 			{
+				arg_index += 1;
 				option_arg_count += 1;
 				args_.emplace_back(arg_sv);
 			}

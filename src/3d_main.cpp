@@ -7,29 +7,22 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 
 #include <cmath>
-
 #include <algorithm>
 #include <functional>
 #include <stdexcept>
-#include <unordered_map>
-
 #include "SDL.h"
-
 #include "3d_def.h"
-#include "audio.h"
 #include "jm_lzh.h"
 #include "jm_tp.h"
 #include "id_ca.h"
 #include "id_heads.h"
-#include "id_in.h"
 #include "id_sd.h"
 #include "id_us.h"
 #include "id_vh.h"
-#include "id_vl.h"
 #include "3d_menu.h"
-#include "movie.h"
-
 #include "bstone_archiver.h"
+#include "bstone_ascii.h"
+#include "bstone_char_conv.h"
 #include "bstone_endian.h"
 #include "bstone_exception.h"
 #include "bstone_file_system.h"
@@ -42,7 +35,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_string_helper.h"
 #include "bstone_text_reader.h"
 #include "bstone_text_writer.h"
-#include "bstone_ren_3d_mgr.h"
 #include "bstone_version.h"
 
 #ifdef __vita__
@@ -7224,219 +7216,387 @@ namespace
 
 const auto in_binding_name = "in_binding";
 
-class ScanCodeHash
+class ConfigLineTokens
 {
 public:
-	std::size_t operator()(
-		const ScanCode scan_code) const
+	ConfigLineTokens(bstone::Int capacity_delta, bstone::Int initial_string_capacity)
 	{
-		return (std::hash<int>{})(static_cast<int>(scan_code));
-	}
-}; // ScanCodeHash
+		assert(capacity_delta > 0);
+		assert(initial_string_capacity > 0);
 
-const auto scan_code_name_map = std::unordered_map<ScanCode, std::string, ScanCodeHash>{
-	{ScanCode::sc_return, "return", },
-	{ScanCode::sc_escape, "escape", },
-	{ScanCode::sc_space, "space", },
-	{ScanCode::sc_minus, "minus", },
-	{ScanCode::sc_equals, "equals", },
-	{ScanCode::sc_backspace, "backspace", },
-	{ScanCode::sc_tab, "tab", },
-	{ScanCode::sc_alt, "alt", },
-	{ScanCode::sc_left_bracket, "left_bracket", },
-	{ScanCode::sc_right_bracket, "right_bracket", },
-	{ScanCode::sc_control, "control", },
-	{ScanCode::sc_caps_lock, "caps_lock", },
-	{ScanCode::sc_num_lock, "num_lock", },
-	{ScanCode::sc_scroll_lock, "scroll_lock", },
-	{ScanCode::sc_left_shift, "left_shift", },
-	{ScanCode::sc_right_shift, "right_shift", },
-	{ScanCode::sc_up_arrow, "up_arrow", },
-	{ScanCode::sc_down_arrow, "down_arrow", },
-	{ScanCode::sc_left_arrow, "left_arrow", },
-	{ScanCode::sc_right_arrow, "right_arrow", },
-	{ScanCode::sc_insert, "insert", },
-	{ScanCode::sc_delete, "delete", },
-	{ScanCode::sc_home, "home", },
-	{ScanCode::sc_end, "end", },
-	{ScanCode::sc_page_up, "page_up", },
-	{ScanCode::sc_page_down, "page_down", },
-	{ScanCode::sc_slash, "slash", },
-	{ScanCode::sc_f1, "f1", },
-	{ScanCode::sc_f2, "f2", },
-	{ScanCode::sc_f3, "f3", },
-	{ScanCode::sc_f4, "f4", },
-	{ScanCode::sc_f5, "f5", },
-	{ScanCode::sc_f6, "f6", },
-	{ScanCode::sc_f7, "f7", },
-	{ScanCode::sc_f8, "f8", },
-	{ScanCode::sc_f9, "f9", },
-	{ScanCode::sc_f10, "f10", },
-	{ScanCode::sc_f11, "f11", },
-	{ScanCode::sc_f12, "f12", },
-	{ScanCode::sc_print_screen, "print_screen", },
-	{ScanCode::sc_pause, "pause", },
-	{ScanCode::sc_back_quote, "back_quote", },
-	{ScanCode::sc_semicolon, "semicolon", },
-	{ScanCode::sc_quote, "quote", },
-	{ScanCode::sc_backslash, "backslash", },
-	{ScanCode::sc_comma, "comma", },
-	{ScanCode::sc_period, "period", },
-	{ScanCode::sc_1, "1", },
-	{ScanCode::sc_2, "2", },
-	{ScanCode::sc_3, "3", },
-	{ScanCode::sc_4, "4", },
-	{ScanCode::sc_5, "5", },
-	{ScanCode::sc_6, "6", },
-	{ScanCode::sc_7, "7", },
-	{ScanCode::sc_8, "8", },
-	{ScanCode::sc_9, "9", },
-	{ScanCode::sc_0, "0", },
-	{ScanCode::sc_a, "a", },
-	{ScanCode::sc_b, "b", },
-	{ScanCode::sc_c, "c", },
-	{ScanCode::sc_d, "d", },
-	{ScanCode::sc_e, "e", },
-	{ScanCode::sc_f, "f", },
-	{ScanCode::sc_g, "g", },
-	{ScanCode::sc_h, "h", },
-	{ScanCode::sc_i, "i", },
-	{ScanCode::sc_j, "j", },
-	{ScanCode::sc_k, "k", },
-	{ScanCode::sc_l, "l", },
-	{ScanCode::sc_m, "m", },
-	{ScanCode::sc_n, "n", },
-	{ScanCode::sc_o, "o", },
-	{ScanCode::sc_p, "p", },
-	{ScanCode::sc_q, "q", },
-	{ScanCode::sc_r, "r", },
-	{ScanCode::sc_s, "s", },
-	{ScanCode::sc_t, "t", },
-	{ScanCode::sc_u, "u", },
-	{ScanCode::sc_v, "v", },
-	{ScanCode::sc_w, "w", },
-	{ScanCode::sc_x, "x", },
-	{ScanCode::sc_y, "y", },
-	{ScanCode::sc_z, "z", },
-	{ScanCode::sc_kp_minus, "kp_minus", },
-	{ScanCode::sc_kp_plus, "kp_plus", },
-	{ScanCode::sc_mouse_left, "mouse_left", },
-	{ScanCode::sc_mouse_middle, "mouse_middle", },
-	{ScanCode::sc_mouse_right, "mouse_right", },
-	{ScanCode::sc_mouse_x1, "mouse_x1", },
-	{ScanCode::sc_mouse_x2, "mouse_x2", },
-	{ScanCode::sc_mouse_wheel_down, "mouse_wheel_down", },
-	{ScanCode::sc_mouse_wheel_up, "mouse_wheel_up", },
+		tokens_.resize(static_cast<std::size_t>(capacity_delta));
+
+		for (auto& token : tokens_)
+		{
+			token.reserve(static_cast<std::size_t>(initial_string_capacity));
+		}
+	}
+
+	bool is_empty() const noexcept
+	{
+		return size_ == 0;
+	}
+
+	void add(const std::string& token)
+	{
+		const auto new_size = size_ + 1;
+
+		if (new_size > static_cast<bstone::Int>(tokens_.size()))
+		{
+			tokens_.resize(tokens_.capacity() + static_cast<std::size_t>(capacity_delta_));
+		}
+
+		tokens_[size_].assign(token);
+		size_ = new_size;
+	}
+
+	void clear()
+	{
+		size_ = 0;
+	}
+
+	auto to_span()
+	{
+		auto token_iter = tokens_.cbegin();
+		const auto token_end_iter = token_iter + size_;
+		views_.clear();
+		views_.reserve(static_cast<std::size_t>(size_));
+
+		while (token_iter != token_end_iter)
+		{
+			views_.emplace_back(token_iter->data(), static_cast<bstone::Int>(token_iter->size()));
+			++token_iter;
+		}
+
+		return bstone::Span<const bstone::StringView>
+		{
+			views_.data(),
+			static_cast<bstone::Int>(views_.size())
+		};
+	}
+
+private:
+	using Tokens = std::vector<std::string>;
+	using Views = std::vector<bstone::StringView>;
+
+private:
+	Tokens tokens_{};
+	Views views_{};
+	bstone::Int capacity_delta_{};
+	bstone::Int size_{};
 };
 
-
-bool parse_config_line(
-	const std::string& line,
-	std::string& name,
-	int& index0,
-	int& index1,
-	std::string& value)
+class ConfigLineParserException : public bstone::Exception
 {
-	if (line.empty())
+public:
+	explicit ConfigLineParserException(const char* message) noexcept
+		:
+		bstone::Exception{"BSTONE_CONFIG_LINE_PARSER", message}
+	{}
+};
+
+class ConfigLineParser
+{
+public:
+	ConfigLineParser(bstone::Int string_buffer_capacity)
 	{
-		return false;
+		string_.reserve(static_cast<std::size_t>(string_buffer_capacity));
 	}
 
-	const auto comment_position = line.find("//");
-
-	if (comment_position != line.npos)
+	void parse(
+		bstone::Int line_number,
+		const std::string& line,
+		ConfigLineTokens& string_cache)
 	{
-		return false;
-	}
+		line_number_ = line_number;
+		column_number_ = 1;
+		string_cache.clear();
 
-
-	const auto name_end_space = line.find(' ');
-
-	if (name_end_space == line.npos)
-	{
-		return false;
-	}
-
-
-	const auto value_begin_quotes = line.find('\"', name_end_space);
-
-	if (value_begin_quotes == line.npos)
-	{
-		return false;
-	}
-
-
-	const auto value_end_quotes = line.find('\"', value_begin_quotes + 1);
-
-	if (value_end_quotes == line.npos)
-	{
-		return false;
-	}
-
-
-	const auto full_name = line.substr(0, name_end_space);
-
-	if (full_name.empty())
-	{
-		return false;
-	}
-
-	if (value_end_quotes > value_begin_quotes)
-	{
-		value = line.substr(value_begin_quotes + 1, value_end_quotes - value_begin_quotes - 1);
-	}
-	else
-	{
-		value.clear();
-	}
-
-
-	index0 = -1;
-	index1 = -1;
-	const auto index0_begin_bracket = full_name.find('[');
-	const auto index0_end_bracket = full_name.find(']');
-	const auto has_index0 = (index0_begin_bracket != full_name.npos && index0_end_bracket != full_name.npos);
-
-	if (has_index0)
-	{
-		name = full_name.substr(0, index0_begin_bracket);
-	}
-	else
-	{
-		name = full_name;
-	}
-
-	if (has_index0)
-	{
-		const auto index0_string = full_name.substr(index0_begin_bracket + 1, index0_end_bracket - index0_begin_bracket);
-
-		if (!bstone::StringHelper::string_to_int(index0_string, index0))
+		if (line.empty())
 		{
-			return false;
+			return;
+		}
+
+		line_begin_iter_ = line.data();
+		line_end_iter_ = line_begin_iter_ + line.size();
+		line_iter_ = line_begin_iter_;
+		state_ = State::skip_whitespaces;
+		is_first_ = true;
+
+		while (state_ != State::completed)
+		{
+			switch (state_)
+			{
+				case State::skip_whitespaces:
+					skip_whitespaces();
+					break;
+
+				case State::choose_token_type:
+					choose_token_type();
+					break;
+
+				case State::parse_identifier:
+					parse_identifier();
+					break;
+
+				case State::check_identifier:
+					check_identifier();
+					break;
+
+				case State::parse_argument:
+					parse_argument();
+					break;
+
+				case State::check_argument:
+					check_argument();
+					break;
+
+				case State::add_token:
+					string_cache.add(string_);
+					state_ = State::skip_whitespaces;
+					break;
+
+				case State::completed:
+					break;
+
+				default:
+					fail("Invalid state.");
+			}
 		}
 	}
 
-	if (has_index0)
+private:
+	enum class State
 	{
-		const auto index1_begin_bracket = full_name.find('[', index0_end_bracket + 1);
-		const auto index1_end_bracket = full_name.find(']', index0_end_bracket + 1);
-		const auto has_index1 = (index1_begin_bracket != full_name.npos && index1_end_bracket != full_name.npos);
+		skip_whitespaces,
+		choose_token_type,
+		parse_identifier,
+		check_identifier,
+		parse_argument,
+		check_argument,
+		add_token,
+		completed,
+	};
 
-		if (!has_index1)
+private:
+	static constexpr auto max_number_digits = 21;
+
+private:
+	bstone::Int line_number_{};
+	bstone::Int column_number_{};
+	const char* line_begin_iter_{};
+	const char* line_end_iter_{};
+	const char* line_iter_{};
+	State state_{};
+	bool is_first_{};
+	std::string string_{};
+
+private:
+	[[noreturn]] static void fail(const char* message)
+	{
+		throw ConfigLineParserException{message};
+	}
+
+	[[noreturn]] void fail_line_and_column(const char* message)
+	{
+		char line_buffer[max_number_digits];
+		const auto number_size = bstone::char_conv::to_chars(line_number_, bstone::make_span(line_buffer), 10);
+
+		char column_buffer[max_number_digits];
+		const auto column_size = bstone::char_conv::to_chars(column_number_, bstone::make_span(column_buffer), 10);
+
+		auto message_buffer = std::string{};
+		message_buffer += '[';
+		message_buffer.append(line_buffer, static_cast<std::size_t>(number_size));
+		message_buffer += ':';
+		message_buffer.append(column_buffer, static_cast<std::size_t>(column_size));
+		message_buffer += "] ";
+		message_buffer += message;
+		throw ConfigLineParserException{message_buffer.c_str()};
+	}
+
+private:
+	int peek(bstone::Int offset)
+	{
+		assert(offset >= 0);
+
+		if ((line_iter_ + offset) >= line_end_iter_)
 		{
-			return false;
+			return -1;
 		}
 
-		const auto index1_string = full_name.substr(index1_begin_bracket + 1, index1_end_bracket - index1_begin_bracket);
+		return line_iter_[offset];
+	}
 
-		if (!bstone::StringHelper::string_to_int(index1_string, index1))
+	int peek()
+	{
+		return peek(0);
+	}
+
+	void advance(bstone::Int count)
+	{
+		assert(count > 0);
+		column_number_ += count;
+		line_iter_ += count;
+	}
+
+	void advance()
+	{
+		advance(1);
+	}
+
+	void skip_whitespaces()
+	{
+		while (true)
 		{
-			return false;
+			switch (peek())
+			{
+				case -1:
+					state_ = State::completed;
+					return;
+
+				case ' ':
+				case '\t':
+					advance();
+					break;
+
+				case '/':
+					if (peek(1) == '/')
+					{
+						state_ = State::completed;
+						return;
+					}
+
+					break;
+
+				default:
+					state_ = State::choose_token_type;
+					return;
+			}
 		}
 	}
 
-	return true;
-}
+	void choose_token_type()
+	{
+		state_ = (is_first_ ? State::parse_identifier : State::parse_argument);
+		is_first_ = false;
+		string_.clear();
+	}
+
+	void parse_identifier()
+	{
+		const auto identifier_begin_iter = line_iter_;
+
+		while (true)
+		{
+			const auto ch = peek();
+
+			if (ch == -1 ||
+				ch == ' ' ||
+				ch == '\t' ||
+				(ch == '/' && peek(1) == '/'))
+			{
+				string_.assign(identifier_begin_iter, line_iter_ - identifier_begin_iter);
+				state_ = State::check_identifier;
+				return;
+			}
+			else if (ch == '_' ||
+				bstone::ascii::is_decimal(ch) ||
+				bstone::ascii::is_lower(ch) ||
+				bstone::ascii::is_upper(ch))
+			{
+				advance();
+			}
+			else
+			{
+				fail_line_and_column("Invalid character.");
+			}
+		}
+	}
+
+	void check_identifier()
+	{
+		if (string_.empty())
+		{
+			fail_line_and_column("Expected an identifier.");
+		}
+
+		const auto& first_char = string_.front();
+
+		if (first_char != '_' &&
+			!bstone::ascii::is_lower(first_char) &&
+			!bstone::ascii::is_upper(first_char))
+		{
+			fail_line_and_column("Identifier begins with digit.");
+		}
+
+		state_ = State::add_token;
+	}
+
+	void parse_argument()
+	{
+		if (peek() != '"')
+		{
+			fail_line_and_column("Expected an opening double quotes.");
+		}
+
+		advance();
+
+		while (true)
+		{
+			const auto ch = peek();
+
+			if (ch == -1)
+			{
+				fail_line_and_column("Expected a closing double quotes.");
+			}
+			else if (ch < ' ')
+			{
+				fail_line_and_column("Unsupported control character.");
+			}
+			else if (ch == '\\')
+			{
+				switch (peek(1))
+				{
+					case '\\':
+						string_.push_back('\\');
+						advance(2);
+						break;
+
+					default:
+						fail_line_and_column("Unsupported escape sequence.");
+				}
+			}
+			else if (ch == '"')
+			{
+				advance();
+				state_ = State::check_argument;
+				return;
+			}
+			else
+			{
+				string_.push_back(ch);
+				advance();
+			}
+		}
+	}
+
+	void check_argument()
+	{
+		const auto ch = peek();
+
+		if (ch != -1 &&
+			ch != ' ' &&
+			ch != '\t' &&
+			ch != '/' &&
+			peek(1) != '/')
+		{
+			fail_line_and_column("Expected whitespace, comment or end-of-line.");
+		}
+
+		state_ = State::add_token;
+	}
+};
 
 void set_config_defaults()
 {
@@ -7448,47 +7608,49 @@ void set_config_defaults()
 	sd_set_music_volume(sd_default_music_volume);
 }
 
-ScanCode get_scan_code_by_name(
-	const std::string& name)
-{
-	const auto it = std::find_if(
-		scan_code_name_map.cbegin(),
-		scan_code_name_map.cend(),
-		[&name](const auto& item)
-		{
-			return item.second == name;
-		}
-	);
-
-	if (it == scan_code_name_map.cend())
-	{
-		return ScanCode::sc_none;
-	}
-
-	return it->first;
-}
-
-bool try_to_deserialize_cvar(const std::string& key, const std::string& value)
+bool try_deserialize_cvar(bstone::Span<const bstone::StringView> tokens)
 try
 {
-	const auto cvar = bstone::globals::cvar_mgr->find(bstone::StringView{
-		key.data(),
-		static_cast<bstone::Int>(key.size())});
+	if (tokens.get_size() != 2)
+	{
+		return false;
+	}
+
+	const auto cvar = bstone::globals::cvar_mgr->find(tokens[0]);
 
 	if (cvar == nullptr)
 	{
 		return false;
 	}
 
-	cvar->set_string(bstone::StringView{
-		value.data(),
-		static_cast<bstone::Int>(value.size())});
-
+	cvar->set_string(tokens[1]);
 	return true;
 }
 catch (...)
 {
 	fail_nested(__func__);
+}
+
+bool try_deserialize_ccmd(bstone::Span<const bstone::StringView> tokens)
+try
+{
+	const auto ccmd = bstone::globals::ccmd_mgr->find(tokens[0]);
+
+	if (ccmd == nullptr)
+	{
+		return false;
+	}
+
+	ccmd->get_action()(tokens.get_subspan(1));
+	return true;
+}
+catch (const std::exception& ex)
+{
+	auto message = std::string{};
+	message += "[CFG] ";
+	message += ex.what();
+	bstone::logger_->write_warning(message);
+	return true;
 }
 
 void read_text_config()
@@ -7501,37 +7663,60 @@ void read_text_config()
 
 	bstone::FileStream stream{config_path};
 
+	auto name = bstone::StringView{};
+	auto args = std::vector<bstone::StringView>{};
+
 	if (stream.is_open())
 	{
 		auto reader = bstone::TextReader{&stream};
 
 		if (reader.is_open())
 		{
-			while (!reader.is_eos())
+			constexpr auto tokens_capacity_delta = bstone::Int{8};
+			constexpr auto string_capacity = bstone::Int{256};
+
+			auto config_line_parser = ConfigLineParser{string_capacity};
+			auto tokens = ConfigLineTokens{tokens_capacity_delta, string_capacity};
+
+			for (auto line_number = bstone::Int{1}; !reader.is_eos(); ++line_number)
 			{
 				const auto line = reader.read_line();
 
-				auto key_string = std::string{};
-				auto index0 = int{};
-				auto index1 = int{};
-				auto value_string = std::string{};
-
-				if (parse_config_line(line, key_string, index0, index1, value_string))
+				try
 				{
-					if (try_to_deserialize_cvar(key_string, value_string))
-					{
-					}
-					else if (key_string == in_binding_name)
-					{
-						static_assert(std::is_array<Bindings>::value, "Expected C-array type.");
+					config_line_parser.parse(line_number, line, tokens);
+				}
+				catch (const std::exception& ex)
+				{
+					bstone::logger_->write_warning(ex.what());
+					continue;
+				}
 
-						constexpr auto bindings_count = static_cast<int>(std::extent<Bindings, 0>::value);
+				if (tokens.is_empty())
+				{
+					continue;
+				}
 
-						if (index0 >= 0 && index0 < bindings_count && index1 >= 0 && index1 < bindings_count)
-						{
-							in_bindings[index0][index1] = get_scan_code_by_name(value_string);
-						}
-					}
+				const auto tokens_span = tokens.to_span();
+
+				if (try_deserialize_cvar(tokens_span))
+				{
+				}
+				else if (try_deserialize_ccmd(tokens_span))
+				{
+				}
+				else
+				{
+					const auto& identifier_name = tokens_span.get_front();
+					auto message = std::string{};
+					message += "[CFG] Unknown identifier \"";
+
+					message.append(
+						identifier_name.get_data(),
+						static_cast<std::size_t>(identifier_name.get_size()));
+
+					message += "\".";
+					bstone::logger_->write_warning(message);
 				}
 			}
 		}
@@ -7593,53 +7778,6 @@ void write_config_entry(
 	cfg_file_write_entry(writer, key_string, std::to_string(value_string));
 }
 
-const std::string& get_scan_code_name(
-	ScanCode scan_code)
-{
-	static const auto empty_name = std::string{};
-
-	const auto it = scan_code_name_map.find(scan_code);
-
-	if (it == scan_code_name_map.cend())
-	{
-		return empty_name;
-	}
-
-	return it->second;
-}
-
-void write_bindings_config(
-	const std::string& name_prefix,
-	bstone::TextWriter& writer)
-{
-	auto line = std::string{};
-
-	auto counter0 = 0;
-
-	for (const auto& binding : in_bindings)
-	{
-		const auto& counter0_string = std::to_string(counter0);
-
-		auto counter1 = 0;
-
-		for (const auto scan_code : binding)
-		{
-			const auto& scan_code_name = get_scan_code_name(scan_code);
-			const auto& counter1_string = std::to_string(counter1);
-
-			line = name_prefix +
-				"[" + counter0_string + "][" + counter1_string + "] \"" +
-				scan_code_name + "\"\n";
-
-			writer.write(line);
-
-			counter1 += 1;
-		}
-
-		counter0 += 1;
-	}
-}
-
 void write_text_config()
 {
 	constexpr auto memory_stream_initial_size = 4096;
@@ -7665,8 +7803,7 @@ void write_text_config()
 		cfg_file_write_entry(writer, key, value);
 	}
 
-	writer.write("\n// Input bindings\n");
-	write_bindings_config(in_binding_name, writer);
+	in_serialize_bindings(writer);
 
 	const auto stream_size = static_cast<int>(memory_stream.get_size());
 	const auto stream_data = memory_stream.get_data();

@@ -5,7 +5,6 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-
 //
 //      ID Engine
 //      ID_IN.h - Header file for Input Manager
@@ -13,10 +12,8 @@ SPDX-License-Identifier: GPL-2.0-or-later
 //      By Jason Blochowiak
 //
 
-
 #ifndef BSTONE_ID_IN_INCLUDED
 #define BSTONE_ID_IN_INCLUDED
-
 
 #ifdef  __DEBUG__
 #define __DEBUG_InputMgr__
@@ -24,15 +21,15 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <cstdint>
 #include <bitset>
-
 #ifdef __vita__
 #include "SDL.h"
 void TranslateControllerEvent(SDL_Event *ev);
 void TranslateTouchEvent(SDL_Event *ev);
 void TranslateAnalogEvent(SDL_Event *ev);
 #endif
-
+#include "bstone_ccmd_mgr.h"
 #include "bstone_cvar_mgr.h"
+#include "bstone_text_writer.h"
 
 #define MaxPlayers 4
 #define MaxKbds 2
@@ -139,7 +136,7 @@ enum class ScanCode
 
 	sc_mouse_wheel_down = 0x69,
 	sc_mouse_wheel_up = 0x6A,
-}; // ScanCode
+};
 
 #define key_None 0
 #define key_Return 0x0d
@@ -151,13 +148,12 @@ enum class ScanCode
 #define key_Delete 0x7f
 #define key_UnderScore 0x0c
 
-//      Stuff for the mouse
+// Stuff for the mouse
 #define MReset 0
 #define MButtons 3
 #define MDelta 11
 
 #define MouseInt 0x33
-
 
 enum Demo
 {
@@ -165,7 +161,7 @@ enum Demo
 	demo_Record,
 	demo_Playback,
 	demo_PlayDone
-}; // Demo
+};
 
 enum ControlType
 {
@@ -174,7 +170,7 @@ enum ControlType
 	ctrl_Keyboard1 = ctrl_Keyboard,
 	ctrl_Keyboard2,
 	ctrl_Mouse
-}; // ControlType
+};
 
 enum Motion
 {
@@ -183,7 +179,7 @@ enum Motion
 	motion_None = 0,
 	motion_Right = 1,
 	motion_Down = 1
-}; // Motion
+};
 
 enum Direction
 {
@@ -196,9 +192,8 @@ enum Direction
 	dir_West,
 	dir_NorthWest,
 	dir_None
-}; // Direction
+};
 
-// BBi
 enum BindingId
 {
 	e_bi_forward,
@@ -255,10 +250,10 @@ enum BindingId
 	e_bi_take_screenshot,
 
 	e_bi_last_entry,
-}; // BindingId
+};
 
-const int k_max_binding_keys = 2;
-const int k_max_bindings = e_bi_last_entry;
+constexpr auto k_max_binding_keys = 2;
+constexpr auto k_max_bindings = e_bi_last_entry;
 
 using Binding = ScanCode[k_max_binding_keys];
 using Bindings = Binding[k_max_bindings];
@@ -278,7 +273,7 @@ struct CursorInfo
 	Motion xaxis;
 	Motion yaxis;
 	Direction dir;
-}; //  CursorInfo
+};
 
 using ControlInfo = CursorInfo;
 
@@ -294,7 +289,7 @@ struct KeyboardDef
 	ScanCode downleft;
 	ScanCode down;
 	ScanCode downright;
-}; // KeyboardDef
+};
 
 
 // Global variables
@@ -306,14 +301,12 @@ private:
 
 
 public:
-	State::reference operator[](
-		const int index)
+	State::reference operator[](int index)
 	{
 		return state_[index];
 	}
 
-	State::reference operator[](
-		const ScanCode scan_code)
+	State::reference operator[](ScanCode scan_code)
 	{
 		return state_[static_cast<std::size_t>(scan_code)];
 	}
@@ -325,7 +318,7 @@ public:
 
 private:
 	State state_;
-}; // KeyboardState
+};
 
 extern ControlType ControlTypeUsed; // JAM - added
 extern KeyboardState Keyboard;
@@ -337,16 +330,15 @@ extern KeyboardDef KbdDefs;
 extern ControlType Controls[MaxPlayers];
 
 extern std::uint8_t* DemoBuffer;
-extern std::uint16_t DemoOffset, DemoSize;
+extern std::uint16_t DemoOffset;
+extern std::uint16_t DemoSize;
 
 extern bool allcaps;
 
 // Function prototypes
-#define IN_KeyDown(code) (Keyboard[(code)])
-#define IN_ClearKey(code) { Keyboard[code] = false; \
-                            if (code == LastScan) { LastScan = ScanCode::sc_none; } }
 
 void in_initialize_cvars(bstone::CVarMgr& cvar_mgr);
+void in_initialize_ccmds(bstone::CCmdMgr& ccmd_mgr);
 
 bool in_is_mouse_enabled() noexcept;
 void in_set_is_mouse_enabled(bool is_enabled);
@@ -355,6 +347,7 @@ int in_get_mouse_sensitivity() noexcept;
 void in_set_mouse_sensitivity(int sensitivity);
 
 // DEBUG - put names in prototypes
+
 void IN_Startup();
 void IN_Shutdown();
 
@@ -365,38 +358,21 @@ void IN_SetControlType(std::int16_t, ControlType);
 
 void IN_Ack();
 
-extern bool IN_UserInput(
-	std::uint32_t delay);
+extern bool IN_UserInput(std::uint32_t delay);
 extern char IN_WaitForASCII();
 extern const std::string& IN_GetScanName(ScanCode);
 
-
 std::uint8_t IN_MouseButtons();
 
-
-// BBi
 extern bool in_is_mouse_grabbed;
 
-bool in_grab_mouse(
-	bool grab);
-
-
+bool in_grab_mouse(bool grab);
 void in_handle_events();
-
-void in_get_mouse_deltas(
-	int& dx,
-	int& dy);
-
+void in_get_mouse_deltas(int& dx, int& dy);
 void in_clear_mouse_deltas();
-
-bool in_is_binding_pressed(
-	BindingId binding_id);
-
-void in_reset_binding_state(
-	BindingId binding_id);
-
+bool in_is_binding_pressed(BindingId binding_id);
+void in_reset_binding_state(BindingId binding_id);
 void in_reset_state();
-// BBi
-
+void in_serialize_bindings(bstone::TextWriter& text_writer);
 
 #endif // BSTONE_ID_IN_INCLUDED

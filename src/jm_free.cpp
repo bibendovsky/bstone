@@ -1473,6 +1473,8 @@ void freed_main()
 	sd_initialize_cvars(*bstone::globals::cvar_mgr);
 	gp_initialize_cvars(*bstone::globals::cvar_mgr);
 	am_initialize_cvars(*bstone::globals::cvar_mgr);
+	in_initialize_cvars(*bstone::globals::cvar_mgr);
+	in_initialize_ccmds(*bstone::globals::ccmd_mgr);
 	deserialize_cvars_from_cli(g_args, *bstone::globals::cvar_mgr);
 
 	// Setup for APOGEECD thingie.

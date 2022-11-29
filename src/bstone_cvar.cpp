@@ -45,8 +45,8 @@ CVar::CVar(
 		name,
 		flags,
 		default_value,
-		std::numeric_limits<Int32>::min(),
-		std::numeric_limits<Int32>::max(),
+		min_value,
+		max_value,
 		{}}
 {}
 
