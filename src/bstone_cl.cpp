@@ -143,6 +143,11 @@ catch (...)
 	fail_nested(__func__);
 }
 
+ClOptions Cl::get_options() const noexcept
+{
+	return bstone::make_span(options_.data(), static_cast<Int>(options_.size()));
+}
+
 bool Cl::has_option(StringView option_name) const
 {
 	return !find_option(option_name).name.is_empty();

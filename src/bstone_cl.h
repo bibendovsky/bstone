@@ -23,6 +23,8 @@ struct ClOption
 	ClArgs args{};
 };
 
+using ClOptions = Span<const ClOption>;
+
 class Cl
 {
 public:
@@ -31,6 +33,8 @@ public:
 	StringView operator[](int index) const;
 
 	void initialize(int argc, char* const* argv);
+
+	ClOptions get_options() const noexcept;
 
 	bool has_option(StringView option_name) const;
 	bool has_option(const char* option_name) const;
