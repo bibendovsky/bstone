@@ -1863,7 +1863,7 @@ private:
 
 		// Bind it.
 		//
-		in_bindings[binding_id][slot_index] = ScanCode::sc_none;
+		in_bindings[binding_id][slot_index] = scan_code;
 	}
 	catch (...)
 	{
