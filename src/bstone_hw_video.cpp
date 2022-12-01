@@ -6841,12 +6841,8 @@ private:
 
 			if (player_weapon_sprite_id > 0)
 			{
+				update_player_weapon_model_matrix();
 				const auto player_weapon_texture = texture_mgr_->get_sprite(player_weapon_sprite_id);
-
-				if (assets_info.is_ps())
-				{
-					update_player_weapon_model_matrix();
-				}
 
 				// Set model matrix.
 				//
