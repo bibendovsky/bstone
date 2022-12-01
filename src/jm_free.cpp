@@ -1333,8 +1333,6 @@ void InitGame()
 	bstone::globals::page_mgr = bstone::make_page_mgr();
 
 	check_for_extract_options();
-
-	ReadConfig();
 	read_high_scores();
 
 	sd_startup();
@@ -1432,30 +1430,26 @@ namespace {
 
 void deserialize_cvars_from_cli(const bstone::Cl& args, bstone::CVarMgr& cvar_mgr)
 {
-	const auto arg_count = args.get_count();
-
-	for (auto i = decltype(arg_count){}; i < arg_count; ++i)
+	for (const auto& option : args.get_options())
 	{
-		const auto key_string = args.get_argument(i);
-
-		if (key_string.is_empty() ||
-			key_string.get_size() <= 2 ||
-			key_string[0] != '-' ||
-			key_string[1] != '-')
-		{
-			continue;
-		}
-
-		const auto option_name_sv = key_string.get_subview(2);
-		const auto cvar = cvar_mgr.find(option_name_sv);
+		const auto cvar = cvar_mgr.find(option.name);
 
 		if (cvar == nullptr)
 		{
 			continue;
 		}
 
-		const auto value_sv = args.get_argument(i + 1);
-		cvar->set_string(value_sv);
+		if (option.args.get_size() != 1)
+		{
+			auto message = std::string{};
+			message += "Expected one argument for option \"";
+			message.append(option.name.get_data(), static_cast<std::size_t>(option.name.get_size()));
+			message += "\".";
+			bstone::logger_->write_warning(message);
+			continue;
+		}
+
+		cvar->set_string(option.args.get_front());
 	}
 }
 
@@ -1475,12 +1469,10 @@ void freed_main()
 	am_initialize_cvars(*bstone::globals::cvar_mgr);
 	in_initialize_cvars(*bstone::globals::cvar_mgr);
 	in_initialize_ccmds(*bstone::globals::ccmd_mgr);
-	deserialize_cvars_from_cli(g_args, *bstone::globals::cvar_mgr);
 
 	// Setup for APOGEECD thingie.
 	//
 	InitDestPath();
-
 	find_contents();
 
 	bstone::logger_->write();
@@ -1507,6 +1499,9 @@ void freed_main()
 	CheckForEpisodes();
 
 	// BBi
+	ReadConfig();
+	deserialize_cvars_from_cli(g_args, *bstone::globals::cvar_mgr);
+
 	initialize_sprites();
 	initialize_gfxv_contants();
 	initialize_states();
