@@ -62,7 +62,7 @@ try
 				if (next_arg_index < argc)
 				{
 					param_count += 1;
-					args_.emplace_back(StringView{argv[next_arg_index]});
+					args_.emplace_back(argv[next_arg_index]);
 				}
 
 				arg_index += 2;
@@ -114,7 +114,7 @@ try
 					if (next_arg_index < argc)
 					{
 						option_arg_count += 1;
-						args_.emplace_back(StringView{argv[next_arg_index]});
+						args_.emplace_back(argv[next_arg_index]);
 					}
 
 					arg_index += 2;
@@ -153,10 +153,12 @@ bool Cl::has_option(StringView option_name) const
 	return !find_option(option_name).name.is_empty();
 }
 
+#if FIXMENOW
 bool Cl::has_option(const char* option_name) const
 {
 	return has_option(StringView{option_name});
 }
+#endif
 
 ClOption Cl::find_option(StringView option_name) const
 {
@@ -198,10 +200,12 @@ StringView Cl::get_option_value(StringView option_name) const
 	return option.args.get_front();
 }
 
+#if FIXMENOW
 StringView Cl::get_option_value(const char* option_name) const
 {
 	return get_option_value(StringView{option_name});
 }
+#endif
 
 void Cl::get_option_values(StringView option_name, StringView& value1, StringView& value2) const
 {
