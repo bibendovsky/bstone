@@ -436,7 +436,6 @@ target_sources(
 		bstone_sdl_audio_mixer.h
 		bstone_sdl_shared_library.h
 		bstone_sdl_texture_lock.h
-		bstone_sdl_utils.h
 		bstone_sha1.h
 		bstone_span.h
 		bstone_spinlock.h
@@ -616,7 +615,6 @@ target_sources(
 		bstone_sdl_audio_mixer.cpp
 		bstone_sdl_shared_library.cpp
 		bstone_sdl_texture_lock.cpp
-		bstone_sdl_utils.cpp
 		bstone_sha1.cpp
 		bstone_spinlock.cpp
 		bstone_sprite.cpp
