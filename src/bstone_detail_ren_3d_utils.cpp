@@ -145,16 +145,14 @@ try
 			SDL_WINDOWPOS_CENTERED
 	);
 
-	auto sdl_window = SdlWindowUPtr{SDL_CreateWindow(
+	auto sdl_window = SdlWindowUPtr{sdl_ensure_result(SDL_CreateWindow(
 		param.window_.title_.c_str(),
 		x,
 		y,
 		param.window_.rect_2d_.extent_.width_,
 		param.window_.rect_2d_.extent_.height_,
 		sdl_flags
-	)};
-
-	SdlEnsureResult{sdl_window};
+	))};
 
 	return sdl_window;
 }
@@ -214,7 +212,7 @@ try
 
 	if (is_native_changed && !param.is_native)
 	{
-		ensure_sdl_result(::SDL_SetWindowFullscreen(sdl_window, 0));
+		sdl_ensure_result(::SDL_SetWindowFullscreen(sdl_window, 0));
 	}
 
 	if (is_size_changed)
@@ -236,7 +234,7 @@ try
 
 	if (is_native_changed && param.is_native)
 	{
-		ensure_sdl_result(::SDL_SetWindowFullscreen(sdl_window, ::SDL_WINDOW_FULLSCREEN_DESKTOP));
+		sdl_ensure_result(::SDL_SetWindowFullscreen(sdl_window, ::SDL_WINDOW_FULLSCREEN_DESKTOP));
 	}
 }
 catch (...)

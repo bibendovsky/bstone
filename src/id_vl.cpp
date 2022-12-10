@@ -976,7 +976,7 @@ void vid_log_error(
 void vid_get_current_display_mode()
 try
 {
-	bstone::SdlEnsureResult{::SDL_GetCurrentDisplayMode(0, &vid_display_mode_)};
+	bstone::sdl_ensure_result(::SDL_GetCurrentDisplayMode(0, &vid_display_mode_));
 }
 catch (...)
 {

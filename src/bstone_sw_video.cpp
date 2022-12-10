@@ -332,7 +332,7 @@ try
 {
 	auto sdl_renderer_info = ::SDL_RendererInfo{};
 
-	bstone::ensure_sdl_result(::SDL_GetRendererInfo(
+	bstone::sdl_ensure_result(::SDL_GetRendererInfo(
 		renderer_.get(),
 		&sdl_renderer_info
 	));
@@ -381,7 +381,7 @@ void SwVideo::take_screenshot(
 	::ScreenshotBuffer&& src_pixels_rgb_888)
 try
 {
-	bstone::ensure_sdl_result(::SDL_RenderReadPixels(
+	bstone::sdl_ensure_result(::SDL_RenderReadPixels(
 		renderer_.get(),
 		nullptr,
 		::SDL_PIXELFORMAT_RGB24,
@@ -1052,7 +1052,7 @@ void SwVideo::set_draw_color(
 	std::uint8_t b)
 try
 {
-	bstone::ensure_sdl_result(::SDL_SetRenderDrawColor(renderer_.get(), r, g, b, 0xFF));
+	bstone::sdl_ensure_result(::SDL_SetRenderDrawColor(renderer_.get(), r, g, b, 0xFF));
 }
 catch (...)
 {
@@ -1062,7 +1062,7 @@ catch (...)
 void SwVideo::clear_rendering_target()
 try
 {
-	bstone::ensure_sdl_result(::SDL_RenderClear(renderer_.get()));
+	bstone::sdl_ensure_result(::SDL_RenderClear(renderer_.get()));
 }
 catch (...)
 {
@@ -1075,7 +1075,7 @@ void SwVideo::copy_texture_to_rendering_target(
 	const ::SDL_Rect* dst_rect)
 try
 {
-	bstone::ensure_sdl_result(::SDL_RenderCopy(
+	bstone::sdl_ensure_result(::SDL_RenderCopy(
 		renderer_.get(),
 		sdl_texture,
 		src_rect,
@@ -1094,7 +1094,7 @@ try
 {
 	const auto sdl_mode = (is_enable ? ::SDL_BLENDMODE_BLEND : ::SDL_BLENDMODE_NONE);
 
-	bstone::ensure_sdl_result(::SDL_SetTextureBlendMode(sdl_texture, sdl_mode));
+	bstone::sdl_ensure_result(::SDL_SetTextureBlendMode(sdl_texture, sdl_mode));
 }
 catch (...)
 {
@@ -1106,7 +1106,7 @@ void SwVideo::fill_rects(
 	int rect_count)
 try
 {
-	bstone::ensure_sdl_result(::SDL_RenderFillRects(renderer_.get(), rects, rect_count));
+	bstone::sdl_ensure_result(::SDL_RenderFillRects(renderer_.get(), rects, rect_count));
 }
 catch (...)
 {
@@ -1151,7 +1151,7 @@ try
 
 	const auto title = vid_get_game_name_and_game_version_string();
 
-	window_ = bstone::SdlWindowUPtr{bstone::ensure_sdl_result(::SDL_CreateWindow(
+	window_ = bstone::SdlWindowUPtr{bstone::sdl_ensure_result(::SDL_CreateWindow(
 		title.c_str(),
 		window_x,
 		window_y,
@@ -1177,7 +1177,7 @@ try
 		{
 			auto info = ::SDL_RendererInfo{};
 
-			bstone::ensure_sdl_result(::SDL_GetRenderDriverInfo(i, &info));
+			bstone::sdl_ensure_result(::SDL_GetRenderDriverInfo(i, &info));
 
 			log(std::to_string(i + 1) + ". " + info.name);
 		}
@@ -1195,7 +1195,7 @@ try
 	}
 
 	{
-		renderer_ = bstone::SdlRendererUPtr{bstone::ensure_sdl_result(::SDL_CreateRenderer(
+		renderer_ = bstone::SdlRendererUPtr{bstone::sdl_ensure_result(::SDL_CreateRenderer(
 			window_.get(),
 			-1,
 			renderer_flags
@@ -1206,7 +1206,7 @@ try
 	auto renderer_info = ::SDL_RendererInfo{};
 
 	{
-		bstone::ensure_sdl_result(::SDL_GetRendererInfo(
+		bstone::sdl_ensure_result(::SDL_GetRendererInfo(
 			renderer_.get(),
 			&renderer_info));
 	}
@@ -1257,7 +1257,7 @@ try
 		const auto pixel_format_name = ::SDL_GetPixelFormatName(::SDL_PIXELFORMAT_ARGB8888);
 		log(std::string{"Pixel format: \""} + pixel_format_name + '\"');
 
-		texture_pixel_format_ = bstone::SdlPixelFormatUPtr{bstone::ensure_sdl_result(::SDL_AllocFormat(pixel_format))};
+		texture_pixel_format_ = bstone::SdlPixelFormatUPtr{bstone::sdl_ensure_result(::SDL_AllocFormat(pixel_format))};
 	}
 }
 catch (...)
@@ -1268,7 +1268,7 @@ catch (...)
 void SwVideo::create_screen_texture()
 try
 {
-	screen_texture_ = bstone::SdlTextureUPtr{bstone::ensure_sdl_result(::SDL_CreateTexture(
+	screen_texture_ = bstone::SdlTextureUPtr{bstone::sdl_ensure_result(::SDL_CreateTexture(
 		renderer_.get(),
 		texture_pixel_format_->format,
 		::SDL_TEXTUREACCESS_STREAMING,
@@ -1284,7 +1284,7 @@ catch (...)
 void SwVideo::create_ui_texture()
 try
 {
-	ui_texture_ = bstone::SdlTextureUPtr{bstone::ensure_sdl_result(::SDL_CreateTexture(
+	ui_texture_ = bstone::SdlTextureUPtr{bstone::sdl_ensure_result(::SDL_CreateTexture(
 		renderer_.get(),
 		texture_pixel_format_->format,
 		SDL_TEXTUREACCESS_STREAMING,
@@ -1315,7 +1315,7 @@ try
 	sdl_viewport.w = vid_layout_.window_width;
 	sdl_viewport.h = vid_layout_.window_height;
 
-	bstone::ensure_sdl_result(::SDL_RenderSetViewport(renderer_.get(), &sdl_viewport));
+	bstone::sdl_ensure_result(::SDL_RenderSetViewport(renderer_.get(), &sdl_viewport));
 }
 catch (...)
 {

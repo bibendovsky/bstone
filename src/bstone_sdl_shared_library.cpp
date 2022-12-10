@@ -118,7 +118,7 @@ void SdlSharedLibrary::open_internal(
 
 	try
 	{
-		SdlEnsureResult{handle_ = ::SDL_LoadObject(path)};
+		handle_ = sdl_ensure_result(::SDL_LoadObject(path));
 	}
 	catch (...)
 	{

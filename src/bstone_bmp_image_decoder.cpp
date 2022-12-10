@@ -94,7 +94,7 @@ try
 
 	if (SDL_MUSTLOCK(sdl_src_surface.get()))
 	{
-		SdlEnsureResult{SDL_LockSurface(sdl_src_surface.get())};
+		sdl_ensure_result(SDL_LockSurface(sdl_src_surface.get()));
 	}
 
 	if (SDL_ISPIXELFORMAT_INDEXED(sdl_src_surface->format->format))
@@ -131,7 +131,7 @@ void BmpImageDecoder::decode_non_paletted(
 	Rgba8Buffer& dst_buffer)
 try
 {
-	SdlEnsureResult{SDL_ConvertPixels(
+	sdl_ensure_result(SDL_ConvertPixels(
 		src_sdl_surface->w,
 		src_sdl_surface->h,
 		src_sdl_surface->format->format,
@@ -140,7 +140,7 @@ try
 		dst_sdl_pixel_format,
 		dst_buffer.data(),
 		4 * src_sdl_surface->w
-	)};
+	));
 }
 catch (...)
 {
@@ -153,9 +153,8 @@ void BmpImageDecoder::decode_paletted(
 	Rgba8Buffer& dst_buffer)
 try
 {
-	const auto dst_sdl_surface = SdlSurfaceUPtr{SDL_ConvertSurfaceFormat(src_sdl_surface, dst_sdl_pixel_format, 0)};
-
-	SdlEnsureResult{dst_sdl_surface.get()};
+	const auto dst_sdl_surface = SdlSurfaceUPtr{sdl_ensure_result(SDL_ConvertSurfaceFormat(
+		src_sdl_surface, dst_sdl_pixel_format, 0))};
 
 	if (dst_sdl_surface->pitch != (4 * src_sdl_surface->w))
 	{
@@ -164,7 +163,7 @@ try
 
 	if (SDL_MUSTLOCK(dst_sdl_surface.get()))
 	{
-		SdlEnsureResult{SDL_LockSurface(dst_sdl_surface.get())};
+		sdl_ensure_result(SDL_LockSurface(dst_sdl_surface.get()));
 	}
 
 	std::uninitialized_copy_n(

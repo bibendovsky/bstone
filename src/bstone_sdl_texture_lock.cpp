@@ -46,7 +46,7 @@ try
 		fail("Null texture.");
 	}
 
-	bstone::ensure_sdl_result(SDL_LockTexture(sdl_texture, rect, &pixels_, &pitch_));
+	bstone::sdl_ensure_result(SDL_LockTexture(sdl_texture, rect, &pixels_, &pitch_));
 	sdl_texture_ = sdl_texture;
 }
 catch (...)

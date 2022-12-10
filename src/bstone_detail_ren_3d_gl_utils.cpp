@@ -87,9 +87,7 @@ try
 		fail("Null window.");
 	}
 
-	auto sdl_gl_context = SdlGlContextUPtr{SDL_GL_CreateContext(sdl_window)};
-	SdlEnsureResult{sdl_gl_context};
-	return sdl_gl_context;
+	return SdlGlContextUPtr{sdl_ensure_result(SDL_GL_CreateContext(sdl_window))};
 }
 catch (...)
 {
@@ -361,9 +359,7 @@ int Ren3dGlUtils::get_window_msaa_value_buffers()
 try
 {
 	auto sdl_buffer_count = 0;
-
-	SdlEnsureResult{SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &sdl_buffer_count)};
-
+	sdl_ensure_result(SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &sdl_buffer_count));
 	return sdl_buffer_count;
 }
 catch (...)
@@ -375,9 +371,7 @@ int Ren3dGlUtils::get_window_msaa_value_samples()
 try
 {
 	auto sdl_sample_count = 0;
-
-	SdlEnsureResult{SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &sdl_sample_count)};
-
+	sdl_ensure_result(SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &sdl_sample_count));
 	return sdl_sample_count;
 }
 catch (...)
