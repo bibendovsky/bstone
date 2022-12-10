@@ -7768,6 +7768,42 @@ void cfg_file_write_entry(
 namespace
 {
 
+class ConfigArgNormalizeException : public bstone::Exception
+{
+public:
+	explicit ConfigArgNormalizeException(const char* message) noexcept
+		:
+		bstone::Exception{"BSTONE_CONFIG_ARG_NORMALIZE", message}
+	{}
+};
+
+void cfg_escape_argument(bstone::StringView src_arg, std::string& dst_arg)
+{
+	dst_arg.clear();
+	dst_arg.reserve(static_cast<std::size_t>(src_arg.get_size() * 2));
+
+	for (const auto& ch : src_arg)
+	{
+		if (ch < ' ')
+		{
+			throw ConfigArgNormalizeException{"Control character not allowed."};
+		}
+
+		switch (ch)
+		{
+			case '"':
+				throw ConfigArgNormalizeException{"Double quotes not allowed."};
+
+			case '\\':
+				dst_arg += "\\\\";
+				break;
+
+			default:
+				dst_arg += ch;
+				break;
+		}
+	}
+}
 
 template<typename T>
 void write_config_entry(
@@ -7789,6 +7825,9 @@ void write_text_config()
 	writer.write("// WARNING! This is auto-generated file.\n");
 	writer.write("\n");
 
+	auto normalized_value = std::string{};
+	normalized_value.reserve(256);
+
 	const auto cvars = bstone::globals::cvar_mgr->get_all();
 
 	for (const auto& cvar : cvars)
@@ -7800,7 +7839,14 @@ void write_text_config()
 
 		const auto key = cvar->get_name();
 		const auto value = cvar->get_string();
-		cfg_file_write_entry(writer, key, value);
+		cfg_escape_argument(value, normalized_value);
+
+		cfg_file_write_entry(
+			writer,
+			key,
+			bstone::StringView{
+				normalized_value.data(),
+				static_cast<bstone::Int>(normalized_value.size())});
 	}
 
 	in_serialize_bindings(writer);
