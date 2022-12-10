@@ -36,24 +36,6 @@ public:
 		span_{chars, size}
 	{}
 
-#if FIXMENOW
-	constexpr explicit StringViewT(const TChar* chars)
-		:
-		span_{chars, c_str::get_size(chars)}
-	{}
-
-	template<typename UChar>
-	constexpr explicit StringViewT(Span<UChar> span) noexcept
-		:
-		span_{span.get_data(), span.get_size()}
-	{}
-
-	constexpr StringViewT& operator=(const TChar* chars)
-	{
-		span_ = c_str::make_span(chars);
-		return *this;
-	}
-#else
 	constexpr StringViewT(const TChar* chars)
 		:
 		span_{chars, c_str::get_size(chars)}
@@ -64,7 +46,6 @@ public:
 		:
 		span_{span.get_data(), span.get_size()}
 	{}
-#endif
 
 	constexpr auto to_span() const noexcept
 	{
