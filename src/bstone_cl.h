@@ -37,18 +37,12 @@ public:
 	ClOptions get_options() const noexcept;
 
 	bool has_option(StringView option_name) const;
-#if FIXMENOW
-	bool has_option(const char* option_name) const;
-#endif
 
 	ClOption find_option(StringView option_name) const;
 
 	Int get_count() const noexcept;
 	StringView get_argument(Int index) const;
 	StringView get_option_value(StringView option_name) const;
-#if FIXMENOW
-	StringView get_option_value(const char* option_name) const;
-#endif
 	void get_option_values(StringView option_name, StringView& value1, StringView& value2) const;
 
 private:
