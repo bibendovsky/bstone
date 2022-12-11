@@ -375,4 +375,7 @@ void in_reset_binding_state(BindingId binding_id);
 void in_reset_state();
 void in_serialize_bindings(bstone::TextWriter& text_writer);
 
+void in_gc_startup();
+void in_gc_shutdown();
+
 #endif // BSTONE_ID_IN_INCLUDED

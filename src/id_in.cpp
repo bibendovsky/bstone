@@ -24,14 +24,15 @@ SPDX-License-Identifier: GPL-2.0-or-later
 //
 
 #include <cstring>
-#include "SDL_events.h"
-#include "SDL_version.h"
+#include <unordered_map>
+#include "SDL.h"
 #include "id_ca.h"
 #include "id_heads.h"
 #include "id_in.h"
 #include "id_sd.h"
 #include "id_vl.h"
 #include "bstone_char_conv.h"
+#include "bstone_logger.h"
 
 #define KeyInt 9 // The keyboard ISR number
 
@@ -753,6 +754,7 @@ void IN_Shutdown()
 
 	INL_ShutKbd();
 	INL_ShutMouse();
+	in_gc_shutdown();
 	IN_Started = false;
 }
 
@@ -803,6 +805,12 @@ void in_handle_window(const SDL_WindowEvent& e)
 	}
 }
 
+void in_gc_handle_axis(const SDL_ControllerAxisEvent& e);
+void in_gc_handle_button(const SDL_ControllerButtonEvent& e);
+void in_gc_handle_device(const SDL_ControllerDeviceEvent& e);
+void in_gc_handle_touchpad(const SDL_ControllerTouchpadEvent& e);
+void in_gc_handle_sensor(const SDL_ControllerSensorEvent& e);
+
 } // namespace
 
 void in_handle_events()
@@ -840,6 +848,29 @@ void in_handle_events()
 			case SDL_MOUSEMOTION:
 			case SDL_MOUSEWHEEL:
 				in_handle_mouse(e);
+				break;
+
+			case SDL_CONTROLLERAXISMOTION: in_gc_handle_axis(e.caxis); break;
+
+			case SDL_CONTROLLERBUTTONDOWN:
+			case SDL_CONTROLLERBUTTONUP:
+				in_gc_handle_button(e.cbutton);
+				break;
+
+			case SDL_CONTROLLERDEVICEADDED:
+			case SDL_CONTROLLERDEVICEREMOVED:
+			case SDL_CONTROLLERDEVICEREMAPPED:
+				in_gc_handle_device(e.cdevice);
+				break;
+
+			case SDL_CONTROLLERTOUCHPADDOWN:
+			case SDL_CONTROLLERTOUCHPADMOTION:
+			case SDL_CONTROLLERTOUCHPADUP:
+				in_gc_handle_touchpad(e.ctouchpad);
+				break;
+
+			case SDL_CONTROLLERSENSORUPDATE:
+				in_gc_handle_sensor(e.csensor);
 				break;
 
 			case SDL_WINDOWEVENT: in_handle_window(e.window); break;
@@ -1154,6 +1185,7 @@ void IN_Startup()
 	INL_StartKbd();
 	MousePresent = INL_StartMouse();
 
+#if FIXMENOW
 #ifdef __vita__
 	// Vita joysticks are treated separately from other kinds of joystick
 	if (!SDL_WasInit(SDL_INIT_JOYSTICK))
@@ -1163,6 +1195,9 @@ void IN_Startup()
 
 	SDL_JoystickOpen(0);
 	SDL_JoystickEventState(SDL_ENABLE);
+#endif
+#else
+	in_gc_startup();
 #endif
 
 	IN_Started = true;
@@ -1993,4 +2028,441 @@ void in_serialize_bindings(bstone::TextWriter& text_writer)
 			raw_binding_id += 1;
 		}
 	}
+}
+
+namespace {
+
+constexpr auto in_gc_unknown_string = "<UNKNOWN>";
+constexpr auto in_gc_log_prefix = "[INGC]";
+using InGcMap = std::unordered_map<SDL_JoystickID, SDL_GameController*>;
+
+auto in_gc_is_subsystem_started = false;
+auto in_gc_map = InGcMap{};
+char in_gc_number_chars[11];
+
+void in_gc_log_append_number(int number, std::string& string)
+{
+	const auto char_count = bstone::char_conv::to_chars(
+		number, bstone::make_span(in_gc_number_chars), 10);
+
+	string.append(in_gc_number_chars, static_cast<std::size_t>(char_count));
+}
+
+void in_gc_log(bstone::LoggerMessageKind message_type, const std::string& message)
+{
+	auto log_message = std::string{};
+	log_message += in_gc_log_prefix;
+	log_message += ' ';
+	log_message += message;
+	bstone::logger_->write(message_type, log_message);
+}
+
+void in_gc_log_info(const std::string& message)
+{
+	in_gc_log(bstone::LoggerMessageKind::information, message);
+}
+
+void in_gc_log_warning(const std::string& message)
+{
+	in_gc_log(bstone::LoggerMessageKind::warning, message);
+}
+
+void in_gc_log_error(const std::string& message)
+{
+	in_gc_log(bstone::LoggerMessageKind::error, message);
+}
+
+void in_gc_log_sdl_error()
+{
+	const auto sdl_error_message = SDL_GetError();
+	auto message = std::string{};
+	message += in_gc_log_prefix;
+	message += "[SDL] ";
+	message += (sdl_error_message != nullptr ? sdl_error_message : "Generic failure.");
+	bstone::logger_->write_error(message);
+}
+
+void in_gc_log_instance_id(SDL_JoystickID instance_id, std::string& log_buffer)
+{
+	log_buffer.clear();
+	log_buffer += "  Instance ID: ";
+	in_gc_log_append_number(instance_id, log_buffer);
+	in_gc_log_info(log_buffer);
+}
+
+void in_gc_log_name(SDL_GameController& game_controller, std::string& log_buffer)
+{
+	const auto name = SDL_GameControllerName(&game_controller);
+	log_buffer.clear();
+	log_buffer += "  Name: ";
+	log_buffer += (name != nullptr ? name : in_gc_unknown_string);
+	in_gc_log_info(log_buffer);
+}
+
+void in_gc_log_path(SDL_GameController& game_controller, std::string& log_buffer)
+{
+#if SDL_VERSION_ATLEAST(2, 0, 24)
+	const auto path = SDL_GameControllerPath(&game_controller);
+	log_buffer.clear();
+	log_buffer += "  Path: ";
+	log_buffer += (path != nullptr ? path : in_gc_unknown_string);
+	in_gc_log_info(log_buffer);
+#endif
+}
+
+#if SDL_VERSION_ATLEAST(2, 0, 12)
+const char* in_gc_get_type_string(SDL_GameControllerType type)
+{
+	switch (type)
+	{
+		case SDL_CONTROLLER_TYPE_XBOX360: return "XBox 360";
+		case SDL_CONTROLLER_TYPE_XBOXONE: return "XBox One";
+		case SDL_CONTROLLER_TYPE_PS3: return "PS3";
+		case SDL_CONTROLLER_TYPE_PS4: return "PS4";
+		case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO: return "Nintendo Switch Pro";
+#if SDL_VERSION_ATLEAST(2, 0, 14)
+		case SDL_CONTROLLER_TYPE_VIRTUAL: return "Virtual";
+		case SDL_CONTROLLER_TYPE_PS5: return "PS5";
+#endif
+#if SDL_VERSION_ATLEAST(2, 0, 16)
+		case SDL_CONTROLLER_TYPE_AMAZON_LUNA: return "Amazon Luna";
+		case SDL_CONTROLLER_TYPE_GOOGLE_STADIA: return "Google Stadia";
+#endif
+#if SDL_VERSION_ATLEAST(2, 24, 0)
+		case SDL_CONTROLLER_TYPE_NVIDIA_SHIELD: return "Nvidia Shield";
+
+		case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_JOYCON_LEFT:
+		case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_JOYCON_RIGHT:
+		case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_JOYCON_PAIR:
+			return "Nintendo Switch Joy-Con";
+#endif
+
+		default: return in_gc_unknown_string;
+	}
+}
+#endif
+
+void in_gc_log_type(SDL_GameController& game_controller, std::string& log_buffer)
+{
+#if SDL_VERSION_ATLEAST(2, 0, 12)
+	const auto type = SDL_GameControllerGetType(&game_controller);
+	const auto type_string = in_gc_get_type_string(type);
+	log_buffer.clear();
+	log_buffer += "  Type: ";
+	log_buffer += type_string;
+	in_gc_log_info(log_buffer);
+#endif
+}
+
+void in_gc_log_player_index(SDL_GameController& game_controller, std::string& log_buffer)
+{
+#if SDL_VERSION_ATLEAST(2, 0, 9)
+	const auto player_index = SDL_GameControllerGetPlayerIndex(&game_controller);
+	log_buffer.clear();
+	log_buffer += "  Player index: ";
+
+	if (player_index >= 0)
+	{
+		in_gc_log_append_number(player_index, log_buffer);
+	}
+	else
+	{
+		log_buffer += in_gc_unknown_string;
+	}
+
+	in_gc_log_info(log_buffer);
+#endif
+}
+
+void in_gc_log_vendor(SDL_GameController& game_controller, std::string& log_buffer)
+{
+#if SDL_VERSION_ATLEAST(2, 0, 6)
+	const auto vendor = SDL_GameControllerGetVendor(&game_controller);
+	log_buffer.clear();
+	log_buffer += "  USB vendor ID: ";
+
+	if (vendor != 0)
+	{
+		in_gc_log_append_number(vendor, log_buffer);
+	}
+	else
+	{
+		log_buffer += in_gc_unknown_string;
+	}
+
+	in_gc_log_info(log_buffer);
+#endif
+}
+
+void in_gc_log_product(SDL_GameController& game_controller, std::string& log_buffer)
+{
+#if SDL_VERSION_ATLEAST(2, 0, 6)
+	const auto product = SDL_GameControllerGetProduct(&game_controller);
+	log_buffer.clear();
+	log_buffer += "  USB product ID: ";
+
+	if (product != 0)
+	{
+		in_gc_log_append_number(product, log_buffer);
+	}
+	else
+	{
+		log_buffer += in_gc_unknown_string;
+	}
+
+	in_gc_log_info(log_buffer);
+#endif
+}
+
+void in_gc_log_product_version(SDL_GameController& game_controller, std::string& log_buffer)
+{
+#if SDL_VERSION_ATLEAST(2, 0, 6)
+	const auto product_version = SDL_GameControllerGetProductVersion(&game_controller);
+	log_buffer.clear();
+	log_buffer += "  Product version: ";
+
+	if (product_version != 0)
+	{
+		in_gc_log_append_number(product_version, log_buffer);
+	}
+	else
+	{
+		log_buffer += in_gc_unknown_string;
+	}
+
+	in_gc_log_info(log_buffer);
+#endif
+}
+
+void in_gc_log_firmware_version(SDL_GameController& game_controller, std::string& log_buffer)
+{
+#if SDL_VERSION_ATLEAST(2, 24, 0)
+	const auto firmware_version = SDL_GameControllerGetFirmwareVersion(&game_controller);
+	log_buffer.clear();
+	log_buffer += "  Firmware version: ";
+
+	if (firmware_version != 0)
+	{
+		in_gc_log_append_number(firmware_version, log_buffer);
+	}
+	else
+	{
+		log_buffer += in_gc_unknown_string;
+	}
+
+	in_gc_log_info(log_buffer);
+#endif
+}
+
+void in_gc_log_serial(SDL_GameController& game_controller, std::string& log_buffer)
+{
+#if SDL_VERSION_ATLEAST(2, 0, 14)
+	const auto serial = SDL_GameControllerGetSerial(&game_controller);
+	log_buffer.clear();
+	log_buffer += "  Serial: ";
+	log_buffer += (serial != nullptr ? serial : in_gc_unknown_string);
+	in_gc_log_info(log_buffer);
+#endif
+}
+
+void in_gc_add(int joystick_index)
+{
+	auto log_buffer = std::string{};
+	log_buffer.reserve(256);
+
+	log_buffer.clear();
+	log_buffer += "Adding controller with joystick index ";
+	in_gc_log_append_number(joystick_index, log_buffer);
+	log_buffer += '.';
+	in_gc_log_info(log_buffer);
+
+	const auto map_iter = in_gc_map.find(joystick_index);
+
+	if (map_iter != in_gc_map.cend())
+	{
+		in_gc_log_warning("Already added.");
+		return;
+	}
+
+	const auto game_controller = SDL_GameControllerOpen(joystick_index);
+
+	if (game_controller == nullptr)
+	{
+		in_gc_log_error("Failed to open a controller.");
+		return;
+	}
+
+	const auto joystick = SDL_GameControllerGetJoystick(game_controller);
+
+	if (joystick == nullptr)
+	{
+		SDL_GameControllerClose(game_controller);
+		in_gc_log_error("Failed to get a joystick object.");
+		return;
+	}
+
+	const auto joystick_id = SDL_JoystickInstanceID(joystick);
+
+	if (joystick_id < 0)
+	{
+		SDL_GameControllerClose(game_controller);
+		in_gc_log_error("Failed to get a joystick ID.");
+		return;
+	}
+
+	in_gc_map.emplace(joystick_id, game_controller);
+
+	in_gc_log_info("Added controller:");
+	log_buffer.clear();
+	in_gc_log_instance_id(joystick_id, log_buffer);
+	in_gc_log_name(*game_controller, log_buffer);
+	in_gc_log_path(*game_controller, log_buffer);
+	in_gc_log_type(*game_controller, log_buffer);
+	in_gc_log_player_index(*game_controller, log_buffer);
+	in_gc_log_vendor(*game_controller, log_buffer);
+	in_gc_log_product(*game_controller, log_buffer);
+	in_gc_log_product_version(*game_controller, log_buffer);
+	in_gc_log_firmware_version(*game_controller, log_buffer);
+	in_gc_log_serial(*game_controller, log_buffer);
+}
+
+void in_gc_remove(SDL_JoystickID joystick_id)
+{
+	auto log_buffer = std::string{};
+	log_buffer.reserve(256);
+	log_buffer += "Removing controller with instance ID ";
+	in_gc_log_append_number(joystick_id, log_buffer);
+	log_buffer += '.';
+	in_gc_log_info(log_buffer);
+
+	const auto map_iter = in_gc_map.find(joystick_id);
+
+	if (map_iter == in_gc_map.cend())
+	{
+		in_gc_log_error("Not internally registered.");
+		return;
+	}
+
+	SDL_GameControllerClose(map_iter->second);
+	in_gc_map.erase(map_iter);
+	in_gc_log_info("Removed.");
+}
+
+void in_gc_remap(SDL_JoystickID joystick_id)
+{
+	auto log_buffer = std::string{};
+	log_buffer.reserve(256);
+	log_buffer += "Remapped controller with instance ID ";
+	in_gc_log_append_number(joystick_id, log_buffer);
+	log_buffer += '.';
+	in_gc_log_info(log_buffer);
+}
+
+void in_gc_handle_axis(const SDL_ControllerAxisEvent& e)
+{
+	assert(e.type == SDL_CONTROLLERAXISMOTION);
+	// TODO
+}
+
+void in_gc_handle_button(const SDL_ControllerButtonEvent& e)
+{
+	assert(e.type == SDL_CONTROLLERBUTTONDOWN || e.type == SDL_CONTROLLERBUTTONUP);
+	// TODO
+}
+
+void in_gc_handle_device_added(const SDL_ControllerDeviceEvent& e)
+{
+	assert(e.type == SDL_CONTROLLERDEVICEADDED);
+	in_gc_add(e.which);
+}
+
+void in_gc_handle_device_removed(const SDL_ControllerDeviceEvent& e)
+{
+	assert(e.type == SDL_CONTROLLERDEVICEREMOVED);
+	in_gc_remove(e.which);
+}
+
+void in_gc_handle_device_remapped(const SDL_ControllerDeviceEvent& e)
+{
+	assert(e.type == SDL_CONTROLLERDEVICEREMAPPED);
+	in_gc_remap(e.which);
+}
+
+void in_gc_handle_device(const SDL_ControllerDeviceEvent& e)
+{
+	switch (e.type)
+	{
+		case SDL_CONTROLLERDEVICEADDED: in_gc_handle_device_added(e); break;
+		case SDL_CONTROLLERDEVICEREMOVED: in_gc_handle_device_removed(e); break;
+		case SDL_CONTROLLERDEVICEREMAPPED: in_gc_handle_device_remapped(e); break;
+		default: break;
+	}
+}
+
+void in_gc_handle_touchpad_down(const SDL_ControllerTouchpadEvent& e)
+{
+	assert(e.type == SDL_CONTROLLERTOUCHPADDOWN);
+	// TODO
+}
+
+void in_gc_handle_touchpad_motion(const SDL_ControllerTouchpadEvent& e)
+{
+	assert(e.type == SDL_CONTROLLERTOUCHPADMOTION);
+	// TODO
+}
+
+void in_gc_handle_touchpad_up(const SDL_ControllerTouchpadEvent& e)
+{
+	assert(e.type == SDL_CONTROLLERTOUCHPADUP);
+	// TODO
+}
+
+void in_gc_handle_touchpad(const SDL_ControllerTouchpadEvent& e)
+{
+	switch (e.type)
+	{
+		case SDL_CONTROLLERTOUCHPADDOWN: in_gc_handle_touchpad_down(e); break;
+		case SDL_CONTROLLERTOUCHPADMOTION: in_gc_handle_touchpad_motion(e); break;
+		case SDL_CONTROLLERTOUCHPADUP: in_gc_handle_touchpad_up(e); break;
+		default: break;
+	}
+}
+
+void in_gc_handle_sensor(const SDL_ControllerSensorEvent& e)
+{
+	assert(e.type == SDL_CONTROLLERSENSORUPDATE);
+	// TODO
+}
+
+} // namespace
+
+void in_gc_startup()
+{
+	in_gc_log_info("Starting up.");
+
+	if (in_gc_is_subsystem_started)
+	{
+		bstone::logger_->write_warning("Already started.");
+		return;
+	}
+
+	const auto sdl_result = SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER);
+
+	if (sdl_result != 0)
+	{
+		in_gc_log_sdl_error();
+		return;
+	}
+
+	in_gc_is_subsystem_started = true;
+	in_gc_log_info("Started up.");
+}
+
+void in_gc_shutdown()
+{
+	in_gc_log_info("Shutting down.");
+	in_gc_is_subsystem_started = true;
+	SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
+	in_gc_map.clear();
+	in_gc_log_info("Shutted down.");
 }
