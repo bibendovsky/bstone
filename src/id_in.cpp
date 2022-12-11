@@ -863,6 +863,7 @@ void in_handle_events()
 				in_gc_handle_device(e.cdevice);
 				break;
 
+#if SDL_VERSION_ATLEAST(2, 0, 14)
 			case SDL_CONTROLLERTOUCHPADDOWN:
 			case SDL_CONTROLLERTOUCHPADMOTION:
 			case SDL_CONTROLLERTOUCHPADUP:
@@ -872,6 +873,7 @@ void in_handle_events()
 			case SDL_CONTROLLERSENSORUPDATE:
 				in_gc_handle_sensor(e.csensor);
 				break;
+#endif
 
 			case SDL_WINDOWEVENT: in_handle_window(e.window); break;
 			case SDL_QUIT: Quit();
@@ -2399,6 +2401,7 @@ void in_gc_handle_device(const SDL_ControllerDeviceEvent& e)
 	}
 }
 
+#if SDL_VERSION_ATLEAST(2, 0, 14)
 void in_gc_handle_touchpad_down(const SDL_ControllerTouchpadEvent& e)
 {
 	assert(e.type == SDL_CONTROLLERTOUCHPADDOWN);
@@ -2433,6 +2436,7 @@ void in_gc_handle_sensor(const SDL_ControllerSensorEvent& e)
 	assert(e.type == SDL_CONTROLLERSENSORUPDATE);
 	// TODO
 }
+#endif
 
 } // namespace
 
