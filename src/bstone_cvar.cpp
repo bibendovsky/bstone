@@ -222,6 +222,16 @@ catch (...)
 	fail_nested(__func__);
 }
 
+Int32 CVar::get_int32_min() const noexcept
+{
+	return int32_min_value_;
+}
+
+Int32 CVar::get_int32_max() const noexcept
+{
+	return int32_max_value_;
+}
+
 CVarInt32Values CVar::get_int32_values() const noexcept
 {
 	return int32_values_;

@@ -90,6 +90,8 @@ public:
 
 	Int32 get_int32() const noexcept;
 	void set_int32(Int32 value);
+	Int32 get_int32_min() const noexcept;
+	Int32 get_int32_max() const noexcept;
 	CVarInt32Values get_int32_values() const noexcept;
 
 	StringView get_string() const noexcept;

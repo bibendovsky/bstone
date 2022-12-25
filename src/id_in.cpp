@@ -113,6 +113,12 @@ static Direction DirTable[] = // Quick lookup for total direction
 
 namespace {
 
+constexpr auto in_gc_min_deadzone_cvar_value = 1;
+constexpr auto in_gc_max_deadzone_cvar_value = 16;
+
+constexpr auto in_gc_default_deadzone_cvar_value = 8;
+
+
 // in_is_mouse_enabled
 
 constexpr auto in_is_mouse_enabled_cvar_name = bstone::StringView{"in_is_mouse_enabled"};
@@ -139,12 +145,109 @@ auto in_mouse_sensitivity_cvar = bstone::CVar{
 	in_mouse_sensitivity_cvar_min,
 	in_mouse_sensitivity_cvar_max};
 
+// in_gc_enabled
+
+constexpr auto in_gc_enabled_cvar_name = bstone::StringView{"in_gc_enabled"};
+constexpr auto in_gc_enabled_cvar_default = true;
+
+auto in_gc_enabled_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	in_gc_enabled_cvar_name,
+	bstone::CVarFlags::archive,
+	in_gc_enabled_cvar_default};
+
+
+// in_gc_lx_dzone
+
+constexpr auto in_gc_lx_dzone_cvar_name = bstone::StringView{"in_gc_lx_dzone"};
+
+auto in_gc_lx_dzone_cvar = bstone::CVar{
+	bstone::CVarInt32Tag{},
+	in_gc_lx_dzone_cvar_name,
+	bstone::CVarFlags::archive,
+	in_gc_default_deadzone_cvar_value,
+	in_gc_min_deadzone_cvar_value,
+	in_gc_max_deadzone_cvar_value};
+
+
+// in_gc_ly_dzone
+
+constexpr auto in_gc_ly_dzone_cvar_name = bstone::StringView{"in_gc_ly_dzone"};
+
+auto in_gc_ly_dzone_cvar = bstone::CVar{
+	bstone::CVarInt32Tag{},
+	in_gc_ly_dzone_cvar_name,
+	bstone::CVarFlags::archive,
+	in_gc_default_deadzone_cvar_value,
+	in_gc_min_deadzone_cvar_value,
+	in_gc_max_deadzone_cvar_value};
+
+
+// in_gc_rx_dzone
+
+constexpr auto in_gc_rx_dzone_cvar_name = bstone::StringView{"in_gc_rx_dzone"};
+
+auto in_gc_rx_dzone_cvar = bstone::CVar{
+	bstone::CVarInt32Tag{},
+	in_gc_rx_dzone_cvar_name,
+	bstone::CVarFlags::archive,
+	in_gc_default_deadzone_cvar_value,
+	in_gc_min_deadzone_cvar_value,
+	in_gc_max_deadzone_cvar_value};
+
+
+// in_gc_ry_dzone
+
+constexpr auto in_gc_ry_dzone_cvar_name = bstone::StringView{"in_gc_ry_dzone"};
+
+auto in_gc_ry_dzone_cvar = bstone::CVar{
+	bstone::CVarInt32Tag{},
+	in_gc_ry_dzone_cvar_name,
+	bstone::CVarFlags::archive,
+	in_gc_default_deadzone_cvar_value,
+	in_gc_min_deadzone_cvar_value,
+	in_gc_max_deadzone_cvar_value};
+
+
+// in_gc_lt_dzone
+
+constexpr auto in_gc_lt_dzone_cvar_name = bstone::StringView{"in_gc_lt_dzone"};
+
+auto in_gc_lt_dzone_cvar = bstone::CVar{
+	bstone::CVarInt32Tag{},
+	in_gc_lt_dzone_cvar_name,
+	bstone::CVarFlags::archive,
+	in_gc_default_deadzone_cvar_value,
+	in_gc_min_deadzone_cvar_value,
+	in_gc_max_deadzone_cvar_value};
+
+
+// in_gc_rt_dzone
+
+constexpr auto in_gc_rt_dzone_cvar_name = bstone::StringView{"in_gc_rt_dzone"};
+
+auto in_gc_rt_dzone_cvar = bstone::CVar{
+	bstone::CVarInt32Tag{},
+	in_gc_rt_dzone_cvar_name,
+	bstone::CVarFlags::archive,
+	in_gc_default_deadzone_cvar_value,
+	in_gc_min_deadzone_cvar_value,
+	in_gc_max_deadzone_cvar_value};
+
 } // namespace
 
 void in_initialize_cvars(bstone::CVarMgr& cvar_mgr)
 {
 	cvar_mgr.add(in_is_mouse_enabled_cvar);
 	cvar_mgr.add(in_mouse_sensitivity_cvar);
+
+	cvar_mgr.add(in_gc_enabled_cvar);
+	cvar_mgr.add(in_gc_lx_dzone_cvar);
+	cvar_mgr.add(in_gc_ly_dzone_cvar);
+	cvar_mgr.add(in_gc_rx_dzone_cvar);
+	cvar_mgr.add(in_gc_ry_dzone_cvar);
+	cvar_mgr.add(in_gc_lt_dzone_cvar);
+	cvar_mgr.add(in_gc_rt_dzone_cvar);
 }
 
 bool in_grab_mouse(bool grab)
@@ -2042,6 +2145,7 @@ auto in_gc_is_subsystem_started = false;
 auto in_gc_map = InGcMap{};
 char in_gc_number_chars[11];
 
+
 void in_gc_log_append_number(int number, std::string& string)
 {
 	const auto char_count = bstone::char_conv::to_chars(
@@ -2444,9 +2548,15 @@ void in_gc_startup()
 {
 	in_gc_log_info("Starting up.");
 
+	if (!in_gc_enabled_cvar.get_bool())
+	{
+		in_gc_log_info("Not enabled.");
+		return;
+	}
+
 	if (in_gc_is_subsystem_started)
 	{
-		bstone::logger_->write_warning("Already started.");
+		in_gc_log_warning("Already started.");
 		return;
 	}
 
@@ -2469,4 +2579,39 @@ void in_gc_shutdown()
 	SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
 	in_gc_map.clear();
 	in_gc_log_info("Shutted down.");
+}
+
+bstone::CVar& in_gc_get_enabled_cvar() noexcept
+{
+	return in_gc_enabled_cvar;
+}
+
+bstone::CVar& in_gc_get_lx_dzone_cvar() noexcept
+{
+	return in_gc_lx_dzone_cvar;
+}
+
+bstone::CVar& in_gc_get_ly_dzone_cvar() noexcept
+{
+	return in_gc_ly_dzone_cvar;
+}
+
+bstone::CVar& in_gc_get_rx_dzone_cvar() noexcept
+{
+	return in_gc_rx_dzone_cvar;
+}
+
+bstone::CVar& in_gc_get_ry_dzone_cvar() noexcept
+{
+	return in_gc_ry_dzone_cvar;
+}
+
+bstone::CVar& in_gc_get_lt_dzone_cvar() noexcept
+{
+	return in_gc_lt_dzone_cvar;
+}
+
+bstone::CVar& in_gc_get_rt_dzone_cvar() noexcept
+{
+	return in_gc_rt_dzone_cvar;
 }

@@ -378,4 +378,12 @@ void in_serialize_bindings(bstone::TextWriter& text_writer);
 void in_gc_startup();
 void in_gc_shutdown();
 
+bstone::CVar& in_gc_get_enabled_cvar() noexcept;
+bstone::CVar& in_gc_get_lx_dzone_cvar() noexcept;
+bstone::CVar& in_gc_get_ly_dzone_cvar() noexcept;
+bstone::CVar& in_gc_get_rx_dzone_cvar() noexcept;
+bstone::CVar& in_gc_get_ry_dzone_cvar() noexcept;
+bstone::CVar& in_gc_get_lt_dzone_cvar() noexcept;
+bstone::CVar& in_gc_get_rt_dzone_cvar() noexcept;
+
 #endif // BSTONE_ID_IN_INCLUDED
