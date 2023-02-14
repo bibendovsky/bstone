@@ -10,13 +10,10 @@ SPDX-License-Identifier: GPL-2.0-or-later
 // Hardware accelerated video (HW).
 //
 
-
 #include "bstone_hw_video.h"
 
 #include <unordered_map>
 #include <unordered_set>
-
-#include "glm/gtc/matrix_transform.hpp"
 
 #include "3d_def.h"
 #include "id_ca.h"
@@ -24,6 +21,11 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "id_in.h"
 #include "id_vh.h"
 #include "id_vl.h"
+
+#include "bstone_cgm_mat.h"
+#include "bstone_cgm_clip_space.h"
+#include "bstone_cgm_transform.h"
+#include "bstone_cgm_vec.h"
 
 #include "bstone_door.h"
 #include "bstone_hw_shader_registry.h"
@@ -1231,10 +1233,9 @@ private:
 		static constexpr auto stride = static_cast<int>(sizeof(T));
 	}; // VertexAttributeTraits
 
-
-	using VertexPosition = glm::vec3;
+	using VertexPosition = cgm::Vec3F;
 	using VertexColor = bstone::Rgba8;
-	using VertexTextureCoordinates = glm::vec2;
+	using VertexTextureCoordinates = cgm::Vec2F;
 
 	struct VertexXyzUv
 	{
@@ -1453,16 +1454,15 @@ private:
 	using BsLightingMod = bstone::ModValue<int>;
 	BsLightingMod bs_lighting_;
 
-	using BsViewDirectionMod = bstone::ModValue<glm::vec2>;
+	using BsViewDirectionMod = bstone::ModValue<cgm::Vec2D>;
 	BsViewDirectionMod bs_view_direction_;
 
-	using BsViewPositionMod = bstone::ModValue<glm::vec2>;
+	using BsViewPositionMod = bstone::ModValue<cgm::Vec2D>;
 	BsViewPositionMod bs_view_position_;
 
-
-	glm::mat4 r2_matrix_model_{};
-	glm::mat4 r2_matrix_view_{};
-	glm::mat4 r2_matrix_projection_{};
+	cgm::Mat4D r2_matrix_model_{};
+	cgm::Mat4D r2_matrix_view_{};
+	cgm::Mat4D r2_matrix_projection_{};
 
 
 	static constexpr auto r2_quad_count = 2;
@@ -1558,11 +1558,10 @@ private:
 	VertexColor r2_fade_color_{};
 	bstone::Ren3dTexture2dPtr r2_fade_t2d_{};
 
-
-	glm::mat4 r3_matrix_bs_to_r_{};
-	glm::mat4 r3_matrix_model_{};
-	glm::mat4 r3_matrix_view_{};
-	glm::mat4 r3_matrix_projection_{};
+	cgm::Mat4D r3_matrix_bs_to_r_{};
+	cgm::Mat4D r3_matrix_model_{};
+	cgm::Mat4D r3_matrix_view_{};
+	cgm::Mat4D r3_matrix_projection_{};
 
 
 	bstone::Ren3dBufferUPtr flooring_ib_{};
@@ -1579,10 +1578,10 @@ private:
 
 
 	double player_angle_rad_{};
-	glm::dvec2 view_direction_{};
-	glm::dvec2 player_position_{};
-	glm::dvec3 view_position_{};
 
+	cgm::Vec2D view_direction_{};
+	cgm::Vec2D player_position_{};
+	cgm::Vec3D view_position_{};
 
 	bool has_active_pushwall_{};
 	int active_pushwall_next_x_{};
@@ -1661,10 +1660,10 @@ private:
 	bstone::Ren3dBufferUPtr player_weapon_ib_{};
 	bstone::Ren3dBufferUPtr player_weapon_vb_{};
 	bstone::Ren3dVertexInputUPtr player_weapon_vi_{};
-	glm::mat4 player_weapon_model_matrix_{};
-	glm::mat4 player_weapon_view_matrix_{};
-	glm::mat4 player_weapon_projection_matrix_{};
 
+	cgm::Mat4D player_weapon_model_matrix_{};
+	cgm::Mat4D player_weapon_view_matrix_{};
+	cgm::Mat4D player_weapon_projection_matrix_{};
 
 	bool r3_fade_is_enabled_{};
 	bstone::Ren3dBufferUPtr r3_fade_ib_{};
@@ -1694,23 +1693,26 @@ private:
 	bstone::Ren3dShaderVec2VarPtr view_direction_uniform_{};
 	bstone::Ren3dShaderVec2VarPtr view_position_uniform_{};
 
-
-	static const bstone::Ren3dVec2& cast_glm_vec2(
-		const glm::vec2& glm_vec2)
+	static void convert(const cgm::Vec4F& src, Ren3dVec4& dst)
 	{
-		return reinterpret_cast<const bstone::Ren3dVec2&>(glm_vec2);
+		dst[0] = src[0];
+		dst[1] = src[1];
+		dst[2] = src[2];
+		dst[3] = src[3];
 	}
 
-	static const bstone::Ren3dVec4& cast_glm_vec4(
-		const glm::vec4& glm_vec4)
+	static void convert(const cgm::Vec2D& src, Ren3dVec2& dst)
 	{
-		return reinterpret_cast<const bstone::Ren3dVec4&>(glm_vec4);
+		dst[0] = static_cast<float>(src[0]);
+		dst[1] = static_cast<float>(src[1]);
 	}
 
-	static const bstone::Ren3dMat4& cast_glm_mat4(
-		const glm::mat4& glm_mat4)
+	static void convert(const cgm::Mat4D& src, Ren3dMat4& dst)
 	{
-		return reinterpret_cast<const bstone::Ren3dMat4&>(glm_mat4);
+		for (auto i = decltype(cgm::Mat4D::item_count){}; i < cgm::Mat4D::item_count; ++i)
+		{
+			dst[i] = static_cast<float>(src[i]);
+		}
 	}
 
 	static bstone::Ren3dMipmapMode cfg_texture_mipmap_filter_to_renderer(
@@ -1914,7 +1916,7 @@ private:
 			bstone::Ren3dVertexAttribFormat format,
 			int offset,
 			int stride,
-			const glm::vec4& default_value,
+			const cgm::Vec4F& default_value,
 			const bstone::Ren3dBufferUPtr& vertex_buffer,
 			bstone::Ren3dVertexAttribDescrs& attribute_descriptions) const
 		{
@@ -1932,7 +1934,7 @@ private:
 			description.vertex_buffer_ = nullptr;
 			description.offset_ = -1;
 			description.stride_ = -1;
-			description.default_value_ = cast_glm_vec4(default_value);
+			convert(default_value, description.default_value_);
 		}
 	}; // VertexInputAddAttribDescr
 
@@ -1946,7 +1948,7 @@ private:
 			bstone::Ren3dVertexAttribFormat format,
 			int offset,
 			int stride,
-			const glm::vec4& default_value,
+			const cgm::Vec4F& default_value,
 			const bstone::Ren3dBufferUPtr& vertex_buffer,
 			bstone::Ren3dVertexAttribDescrs& attribute_descriptions) const
 		{
@@ -1959,7 +1961,7 @@ private:
 			description.vertex_buffer_ = vertex_buffer.get();
 			description.offset_ = offset;
 			description.stride_ = stride;
-			description.default_value_ = cast_glm_vec4(default_value);
+			convert(default_value, description.default_value_);
 		}
 	}; // VertexInputAddAttribDescr
 
@@ -1969,7 +1971,7 @@ private:
 	>
 	void add_vertex_input_attrib_descr(
 		bstone::Ren3dVertexAttribFormat format,
-		const glm::vec4& default_value,
+		const cgm::Vec4F& default_value,
 		const bstone::Ren3dBufferUPtr& vertex_buffer,
 		bstone::Ren3dVertexAttribDescrs& attribute_descriptions)
 	{
@@ -2021,21 +2023,21 @@ private:
 
 		add_vertex_input_attrib_descr<TVertex, VertexAttribLocationId::position>(
 			bstone::Ren3dVertexAttribFormat::rgb_32_sfloat,
-			glm::vec4{},
+			cgm::Vec4F{},
 			vertex_buffer,
 			descriptions
 		);
 
 		add_vertex_input_attrib_descr<TVertex, VertexAttribLocationId::color>(
 			bstone::Ren3dVertexAttribFormat::rgba_8_unorm,
-			glm::vec4{1.0F, 1.0F, 1.0F, 1.0F},
+			cgm::Vec4F{1.0F, 1.0F, 1.0F, 1.0F},
 			vertex_buffer,
 			descriptions
 		);
 
 		add_vertex_input_attrib_descr<TVertex, VertexAttribLocationId::texture_coordinates>(
 			bstone::Ren3dVertexAttribFormat::rg_32_sfloat,
-			glm::vec4{},
+			cgm::Vec4F{},
 			vertex_buffer,
 			descriptions
 		);
@@ -2050,30 +2052,21 @@ private:
 	void update_player_direction() noexcept
 	{
 		player_angle_rad_ = bstone::math::deg_to_rad(player->angle);
-
-		view_direction_.x = std::cos(player_angle_rad_);
-		view_direction_.y = -std::sin(player_angle_rad_);
-
+		view_direction_ = cgm::Vec2D{std::cos(player_angle_rad_), -std::sin(player_angle_rad_)};
 		bs_view_direction_ = view_direction_;
 	}
 
 	void update_player_position() noexcept
 	{
-		player_position_.x = player->x;
-		player_position_.y = player->y;
+		player_position_[0] = player->x;
+		player_position_[1] = player->y;
 	}
 
 	void update_player_view_position() noexcept
 	{
-		const auto focal_delta = glm::dvec2
-		{
-			view_direction_.x * focallength,
-			view_direction_.y * focallength,
-		};
-
-		view_position_ = glm::dvec3{player_position_ - focal_delta, 0.5};
-
-		bs_view_position_ = view_position_;
+		const auto pos = player_position_ - (view_direction_ * focallength);
+		view_position_ = cgm::Vec3D{pos[0], pos[1], 0.5};
+		bs_view_position_ = pos;
 	}
 
 	void update_player() noexcept
@@ -4139,17 +4132,17 @@ private:
 
 	void build_2d_model_matrix() noexcept
 	{
-		r2_matrix_model_ = glm::identity<glm::mat4>();
+		r2_matrix_model_ = cgm::make_identity<cgm::Mat4D>();
 	}
 
 	void build_2d_view_matrix() noexcept
 	{
-		r2_matrix_view_ = glm::identity<glm::mat4>();
+		r2_matrix_view_ = cgm::make_identity<cgm::Mat4D>();
 	}
 
 	void build_2d_projection_matrix() noexcept
 	{
-		r2_matrix_projection_ = glm::orthoRH_NO(
+		r2_matrix_projection_ = cgm::make_ortho_rh_n1p1(
 			0.0, // left
 			static_cast<double>(vid_layout_.screen_width), // right
 			0.0, // bottom
@@ -4175,8 +4168,8 @@ private:
 
 		const auto ref_r_ratio = static_cast<double>(vga_ref_height_4x3) / static_cast<double>(vga_ref_width);
 
-		const auto half_hfov_deg = ref_camera_hfov_deg / 2.0;
-		const auto half_hfov_rad = bstone::math::deg_to_rad(half_hfov_deg);
+		constexpr auto half_hfov_deg = ref_camera_hfov_deg / 2.0;
+		constexpr auto half_hfov_rad = bstone::math::deg_to_rad(half_hfov_deg);
 		const auto tan_half_hfov_rad = std::tan(half_hfov_rad);
 		const auto half_vfov_rad = tan_half_hfov_rad * ref_r_ratio;
 
@@ -4205,27 +4198,27 @@ private:
 		// |  0 0   0   1 |
 		//
 
-		const auto m_11 = 0.0F;
-		const auto m_12 = 1.0F;
-		const auto m_13 = 0.0F;
-		const auto m_14 = 0.0F;
+		const auto m_11 = 0.0;
+		const auto m_12 = 1.0;
+		const auto m_13 = 0.0;
+		const auto m_14 = 0.0;
 
-		const auto m_21 = 0.0F;
-		const auto m_22 = 0.0F;
-		const auto m_23 = static_cast<float>(height_compensation_factor);
-		const auto m_24 = 0.0F;
+		const auto m_21 = 0.0;
+		const auto m_22 = 0.0;
+		const auto m_23 = height_compensation_factor;
+		const auto m_24 = 0.0;
 
-		const auto m_31 = -1.0F;
-		const auto m_32 = 0.0F;
-		const auto m_33 = 0.0F;
-		const auto m_34 = 0.0F;
+		const auto m_31 = -1.0;
+		const auto m_32 = 0.0;
+		const auto m_33 = 0.0;
+		const auto m_34 = 0.0;
 
-		const auto m_41 = 0.0F;
-		const auto m_42 = 0.0F;
-		const auto m_43 = 0.0F;
-		const auto m_44 = 1.0F;
+		const auto m_41 = 0.0;
+		const auto m_42 = 0.0;
+		const auto m_43 = 0.0;
+		const auto m_44 = 1.0;
 
-		r3_matrix_bs_to_r_ = glm::mat4
+		r3_matrix_bs_to_r_ = cgm::Mat4D
 		{
 			m_11, m_21, m_31, m_41,
 			m_12, m_22, m_32, m_42,
@@ -4236,34 +4229,31 @@ private:
 
 	void build_model_matrix() noexcept
 	{
-		r3_matrix_model_ = glm::identity<glm::mat4>();
+		r3_matrix_model_ = cgm::make_identity<cgm::Mat4D>();
 	}
 
 	void build_view_matrix() noexcept
 	{
 		if (!player)
 		{
-			r3_matrix_view_ = glm::identity<glm::mat4>();
-
+			r3_matrix_view_ = cgm::make_identity<cgm::Mat4D>();
 			return;
 		}
 
-		auto view_matrix = glm::identity<glm::dmat4>();
-
-		view_matrix = glm::rotate(view_matrix, player_angle_rad_, glm::dvec3{0.0, 0.0, 1.0});
-		view_matrix = glm::translate(view_matrix, -view_position_);
-
+		auto view_matrix = cgm::make_identity<cgm::Mat4D>();
+		view_matrix = cgm::rotate(view_matrix, player_angle_rad_, cgm::Vec3D{0.0, 0.0, 1.0});
+		view_matrix = cgm::translate(view_matrix, -view_position_);
 		r3_matrix_view_ = view_matrix;
 	}
 
 	void build_projection_matrix() noexcept
 	{
-		const auto perspective = glm::perspectiveFovRH_NO(
-			static_cast<float>(camera_vfov_rad_),
-			static_cast<float>(vid_layout_.screen_viewport_width),
-			static_cast<float>(vid_layout_.screen_viewport_height),
-			static_cast<float>(camera_near_distance_),
-			static_cast<float>(camera_far_distance_)
+		const auto perspective = cgm::make_perspective_vfov_rh_n1p1(
+			camera_vfov_rad_,
+			static_cast<double>(vid_layout_.screen_viewport_width),
+			static_cast<double>(vid_layout_.screen_viewport_height),
+			camera_near_distance_,
+			camera_far_distance_
 		);
 
 		r3_matrix_projection_ = perspective * r3_matrix_bs_to_r_;
@@ -4618,20 +4608,19 @@ private:
 		const auto bounce_offset = (is_bobbing_enabled ? -player_get_weapon_bounce_offset() : 0.0);
 		const auto translate_y = vga_height_scale * bounce_offset;
 
-		const auto translate_v = glm::vec3
+		const auto translate_v = cgm::Vec3D
 		{
-			static_cast<float>(translate_x),
-			static_cast<float>(height_compensation_factor * translate_y),
+			translate_x,
+			height_compensation_factor * translate_y,
 			0.0F
 		};
 
-		const auto& identity = glm::identity<glm::mat4>();
-		const auto& translate = glm::translate(identity, translate_v);
+		const auto identity = cgm::make_identity<cgm::Mat4D>();
+		const auto translate = cgm::translate(identity, translate_v);
 
-		const auto& scale = glm::scale(
+		const auto scale = cgm::scale(
 			identity,
-			glm::vec3{scalar, height_compensation_factor * scalar, 0.0F}
-		);
+			cgm::Vec3D{scalar, height_compensation_factor * scalar, 0.0F});
 
 		player_weapon_model_matrix_ = translate * scale;
 	}
@@ -4642,18 +4631,18 @@ private:
 
 	void update_player_weapon_view_matrix() noexcept
 	{
-		player_weapon_view_matrix_ = glm::identity<glm::mat4>();
+		player_weapon_view_matrix_ = cgm::make_identity<cgm::Mat4D>();
 	}
 
 	void build_player_weapon_projection_matrix() noexcept
 	{
-		const auto ortho = glm::orthoRH_NO(
-			0.0F, // left
-			static_cast<float>(vid_layout_.screen_viewport_width), // right
-			0.0F, // bottom
-			static_cast<float>(vid_layout_.screen_viewport_height), // top
-			0.0F, // zNear
-			1.0F // zFar
+		const auto ortho = cgm::make_ortho_rh_n1p1(
+			0.0, // left
+			static_cast<double>(vid_layout_.screen_viewport_width), // right
+			0.0, // bottom
+			static_cast<double>(vid_layout_.screen_viewport_height), // top
+			0.0, // zNear
+			1.0 // zFar
 		);
 
 		player_weapon_projection_matrix_ = ortho;
@@ -4994,8 +4983,8 @@ private:
 
 		auto vertex_index = 0;
 
-		const auto width_f = vid_layout_.screen_viewport_width;
-		const auto height_f = vid_layout_.screen_viewport_height;
+		const auto width_f = static_cast<float>(vid_layout_.screen_viewport_width);
+		const auto height_f = static_cast<float>(vid_layout_.screen_viewport_height);
 
 		// Bottom left.
 		{
@@ -5210,7 +5199,7 @@ private:
 
 			auto& command = *command_buffer->write_set_vec2_uniform();
 			command.var_ = view_direction_uniform_;
-			command.value_ = cast_glm_vec2(bs_view_direction_);
+			convert(bs_view_direction_, command.value_);
 		}
 
 		// Set view_position.
@@ -5221,7 +5210,7 @@ private:
 
 			auto& command = *command_buffer->write_set_vec2_uniform();
 			command.var_ = view_position_uniform_;
-			command.value_ = cast_glm_vec2(bs_view_position_);
+			convert(bs_view_position_, command.value_);
 		}
 
 		// Finalize.
@@ -5297,7 +5286,7 @@ private:
 		{
 			auto& command = *command_buffer->write_set_mat4_uniform();
 			command.var_ = model_mat_uniform_;
-			command.value_ = cast_glm_mat4(r2_matrix_model_);
+			convert(r2_matrix_model_, command.value_);
 		}
 
 		// Set view matrix.
@@ -5305,7 +5294,7 @@ private:
 		{
 			auto& command = *command_buffer->write_set_mat4_uniform();
 			command.var_ = view_mat_uniform_;
-			command.value_ = cast_glm_mat4(r2_matrix_view_);
+			convert(r2_matrix_view_, command.value_);
 		}
 
 		// Set projection matrix.
@@ -5313,7 +5302,7 @@ private:
 		{
 			auto& command = *command_buffer->write_set_mat4_uniform();
 			command.var_ = projection_mat_uniform_;
-			command.value_ = cast_glm_mat4(r2_matrix_projection_);
+			convert(r2_matrix_projection_, command.value_);
 		}
 
 		// Fillers.
@@ -6152,7 +6141,7 @@ private:
 			}
 		}
 
-		auto sprite_origin = glm::dvec2{};
+		auto sprite_origin = cgm::Vec2D{};
 
 		if (sprite.kind == SpriteKind::actor)
 		{
@@ -6173,7 +6162,7 @@ private:
 		auto bottom_left_vertex = sprite_origin;
 		auto bottom_right_vertex = sprite_origin;
 
-		const auto square_distance = glm::dot(direction, direction);
+		const auto square_distance = cgm::dot(direction, direction);
 
 		sprite.square_distance = square_distance;
 
@@ -6650,7 +6639,7 @@ private:
 		{
 			auto& command = *command_buffer->write_set_mat4_uniform();
 			command.var_ = model_mat_uniform_;
-			command.value_ = cast_glm_mat4(r3_matrix_model_);
+			convert(r3_matrix_model_, command.value_);
 		}
 
 		// Set view matrix.
@@ -6658,7 +6647,7 @@ private:
 		{
 			auto& command = *command_buffer->write_set_mat4_uniform();
 			command.var_ = view_mat_uniform_;
-			command.value_ = cast_glm_mat4(r3_matrix_view_);
+			convert(r3_matrix_view_, command.value_);
 		}
 
 		// Set projection matrix.
@@ -6666,7 +6655,7 @@ private:
 		{
 			auto& command = *command_buffer->write_set_mat4_uniform();
 			command.var_ = projection_mat_uniform_;
-			command.value_ = cast_glm_mat4(r3_matrix_projection_);
+			convert(r3_matrix_projection_, command.value_);
 		}
 
 		// Set sampler.
@@ -6835,7 +6824,7 @@ private:
 				{
 					auto& command = *command_buffer->write_set_mat4_uniform();
 					command.var_ = projection_mat_uniform_;
-					command.value_ = cast_glm_mat4(player_weapon_projection_matrix_);
+					convert(player_weapon_projection_matrix_, command.value_);
 				}
 			}
 
@@ -6849,7 +6838,7 @@ private:
 				{
 					auto& command = *command_buffer->write_set_mat4_uniform();
 					command.var_ = model_mat_uniform_;
-					command.value_ = cast_glm_mat4(player_weapon_model_matrix_);
+					convert(player_weapon_model_matrix_, command.value_);
 				}
 
 				// Set view matrix.
@@ -6857,7 +6846,7 @@ private:
 				{
 					auto& command = *command_buffer->write_set_mat4_uniform();
 					command.var_ = view_mat_uniform_;
-					command.value_ = cast_glm_mat4(player_weapon_view_matrix_);
+					convert(player_weapon_view_matrix_, command.value_);
 				}
 
 				// Set texture.
@@ -6927,7 +6916,7 @@ private:
 				{
 					auto& command = *command_buffer->write_set_mat4_uniform();
 					command.var_ = model_mat_uniform_;
-					command.value_ = cast_glm_mat4(glm::identity<glm::mat4>());
+					convert(cgm::make_identity<cgm::Mat4D>(), command.value_);
 				}
 
 				// Set view matrix.
@@ -6935,7 +6924,7 @@ private:
 				{
 					auto& command = *command_buffer->write_set_mat4_uniform();
 					command.var_ = view_mat_uniform_;
-					command.value_ = cast_glm_mat4(glm::identity<glm::mat4>());
+					convert(cgm::make_identity<cgm::Mat4D>(), command.value_);
 				}
 
 				// Enable blending.
@@ -8313,7 +8302,7 @@ private:
 	static void update_quad_vertices(
 		QuadFlags flags,
 		const VertexPosition& origin,
-		const glm::vec2& size,
+		const cgm::Vec2F& size,
 		int& vertex_index,
 		VertexBufferImageT<TVertex>& vb_buffer) noexcept
 	{
@@ -8391,9 +8380,7 @@ private:
 		flags.is_vertical = bs_door.vertical;
 
 		const auto origin_axis_index = (flags.is_vertical ? 1 : 0);
-
-		const auto size = glm::vec2{0.5F, 1.0F};
-
+		const auto size = cgm::Vec2F{0.5F, 1.0F};
 		const auto tile_center = VertexPosition{bs_door.tilex + 0.5F, bs_door.tiley + 0.5F, 0.0F};
 
 		const auto left_offset = -(0.5F + door_offset);

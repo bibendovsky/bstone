@@ -52,8 +52,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "SDL.h"
 
-#include "glm/glm.hpp"
-
 #include "bstone_cl.h"
 #include "bstone_endian.h"
 #include "bstone_exception.h"
