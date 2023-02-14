@@ -246,7 +246,6 @@ target_include_directories(
 	PRIVATE
 		.
 		dosbox
-		lib/glm
 		lib/openal_soft/include/AL
 		lib/stb
 		lib/xbrz
@@ -489,6 +488,13 @@ target_sources(
 		bstone_missing_wall_64x64_image.cpp
 		bstone_ren_3d_mgr.cpp
 		bstone_sdl_exception.cpp
+
+		bstone_cgm_mat.h
+		bstone_cgm_mat_tests.cpp
+		bstone_cgm_clip_space.h
+		bstone_cgm_transform.h
+		bstone_cgm_vec.h
+		bstone_cgm_vec_tests.cpp
 
 		bstone_ren_3d_cmd_buffer.cpp
 

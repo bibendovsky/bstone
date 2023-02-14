@@ -816,9 +816,6 @@ Add option `--cheats` to enable these keys.
   See file `src/dosbox/COPYING` for license information.  
   Note: The port uses OPL emulation code only.
 
-* [GLM (OpenGL Mathematics)](http://glm.g-truc.net/)  
-  See file `src/lib/glm/copying.txt` for license information.
-
 * [OpenAL Soft](http://openal-soft.org/)  
   See file `src/lib/openal_soft/COPYING` for license information.  
   Note: The port uses public headers only.
