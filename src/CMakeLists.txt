@@ -373,6 +373,7 @@ target_sources(
 		bstone_binary_reader.h
 		bstone_binary_writer.h
 		bstone_bitwise.h
+		bstone_bmp_image_common.h
 		bstone_bmp_image_decoder.h
 		bstone_c_str.h
 		bstone_circular_queue.h
