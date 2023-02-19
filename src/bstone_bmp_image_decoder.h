@@ -1,27 +1,17 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-
-#ifndef BSTONE_BMP_IMAGE_DECODER_INCLUDED
+#if !defined(BSTONE_BMP_IMAGE_DECODER_INCLUDED)
 #define BSTONE_BMP_IMAGE_DECODER_INCLUDED
-
 
 #include "bstone_image_decoder.h"
 
-#include "SDL.h"
+namespace bstone {
 
-
-namespace bstone
-{
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-class BmpImageDecoder :
-	public ImageDecoder
+class BmpImageDecoder : public ImageDecoder
 {
 public:
 	void decode(
@@ -30,33 +20,8 @@ public:
 		int& dst_width,
 		int& dst_height,
 		Rgba8Buffer& dst_buffer) override;
+};
 
+} // namespace bstone
 
-private:
-	[[noreturn]]
-	static void fail(
-		const char* message);
-
-	[[noreturn]]
-	static void fail_nested(
-		const char* message);
-
-
-	static void decode_non_paletted(
-		SDL_Surface* src_sdl_surface,
-		Uint32 dst_sdl_pixel_format,
-		Rgba8Buffer& dst_buffer);
-
-	static void decode_paletted(
-		SDL_Surface* src_sdl_surface,
-		Uint32 dst_sdl_pixel_format,
-		Rgba8Buffer& dst_buffer);
-}; // BmpImageDecoder
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-} // bstone
-
-
-#endif // !BSTONE_BMP_IMAGE_DECODER_INCLUDED
+#endif // BSTONE_BMP_IMAGE_DECODER_INCLUDED
