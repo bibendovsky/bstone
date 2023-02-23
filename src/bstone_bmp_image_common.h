@@ -34,6 +34,16 @@ constexpr auto bitmapv4header_size = 108; // BITMAPV4HEADER
 constexpr auto bitmapv5header_size = 124; // BITMAPV5HEADER
 
 // ==========================================================================
+// Bitmap types.
+
+constexpr auto type_bm = 0x4D42U; // "BM".
+
+// ==========================================================================
+// Plane counts.
+
+constexpr auto plane_count = 1;
+
+// ==========================================================================
 // Compression types.
 
 constexpr auto bi_rgb = 0U;
@@ -57,6 +67,14 @@ constexpr auto lcs_gm_business = 1U;
 constexpr auto lcs_gm_graphics = 2U;
 constexpr auto lcs_gm_images = 4U;
 constexpr auto lcs_gm_abs_colorimetric = 8U;
+
+// ==========================================================================
+// Functions.
+
+inline constexpr int calculate_stride(int width, int bit_depth) noexcept
+{
+	return (((width * bit_depth) + 31) / 32) * 4;
+}
 
 } // namespace bmp
 } // namespace bstone
