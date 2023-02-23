@@ -18,8 +18,6 @@ loaded into the data segment
 =============================================================================
 */
 
-//#define BSTONE_CA_FORCE_SDL_LESS_2_0_5
-
 #include "id_ca.h"
 
 #include <cassert>
@@ -42,14 +40,13 @@ loaded into the data segment
 #include "bstone_audio_extractor.h"
 #include "bstone_binary_reader.h"
 #include "bstone_binary_writer.h"
+#include "bstone_bmp_image_common.h"
 #include "bstone_endian.h"
 #include "bstone_exception.h"
 #include "bstone_file_system.h"
 #include "bstone_globals.h"
 #include "bstone_logger.h"
 #include "bstone_memory_stream.h"
-#include "bstone_rgb_palette.h"
-#include "bstone_sdl_types.h"
 #include "bstone_sha1.h"
 #include "bstone_sprite_cache.h"
 #include "bstone_string_helper.h"
@@ -1956,74 +1953,82 @@ private:
 		~Exception() override = default;
 	};
 
-	using Palette = std::vector<SDL_Color>;
+private:
+	static constexpr auto max_bit_depth = 32;
 
-#if SDL_VERSION_ATLEAST(2, 0, 10)
-	using SdlPixelFormatType = SDL_PixelFormatEnum;
-#else
-	using SdlPixelFormatType = Uint32;
-#endif
+	static constexpr auto palette_1bpp_size = 1 << 1;
+	static constexpr auto palette_4bpp_size = 1 << 4;
+	static constexpr auto palette_8bpp_size = 1 << 8;
+	static constexpr auto max_palette_size = palette_8bpp_size;
 
+	static constexpr auto max_width = 320;
+	static constexpr auto max_height = 200;
+
+	static constexpr auto wall_width = 64;
+	static constexpr auto wall_height = 64;
+
+	static constexpr auto sprite_width = bstone::Sprite::dimension;
+	static constexpr auto sprite_height = bstone::Sprite::dimension;
+
+	using Palette = std::array<std::uint32_t, max_palette_size>; // 0xAARRGGBB
+
+	using ColorBuffer = std::vector<std::uint8_t>;
+	using LineBuffer = std::array<std::uint8_t, max_width>;
+
+private:
+	static constexpr const std::uint8_t padding_bytes[3] = {};
+
+private:
 	int sprite_count_{};
-	bstone::SdlSurfaceUPtr sdl_surface_16x16x8_{};
-	bstone::SdlSurfaceUPtr sdl_surface_64x64x8_{};
-	bstone::SdlSurfaceUPtr sdl_surface_64x64x32_{};
 	std::string destination_dir_{};
 	std::string destination_path_{};
 	bstone::SpriteCache sprite_cache_{};
-	Palette vga_palette_{};
+	int width_{};
+	int height_{};
+	int area_{};
+	int bit_depth_{};
+	int palette_size_{};
+	int stride_{};
+	Palette src_palette_{};
+	Palette dst_palette_{};
+	ColorBuffer color_buffer_{};
+	LineBuffer line_buffer_{};
+	std::uint8_t* colors8_;
+	std::uint32_t* colors32_; // 0xAARRGGBB
 
+private:
 	[[noreturn]] static void fail(const char* message);
 	[[noreturn]] static void fail_nested(const char* message);
 
-	void save_bmp(bstone::SdlSurfacePtr sdl_surface, const std::string& path);
+private:
+	void initialize_colors();
+	void initialize_src_palette();
+	void remap_indexed_image();
 
-	static void check_sdl_surface_not_null(bstone::SdlSurfaceUPtr& sdl_surface);
+	void decode_default_palette() noexcept;
+	void decode_wall_page(const std::uint8_t* src_colors) noexcept;
+	void decode_sprite_page(const bstone::Sprite& sprite) noexcept;
 
-#if !defined(BSTONE_CA_FORCE_SDL_LESS_2_0_5) && SDL_VERSION_ATLEAST(2, 0, 5)
-	static bstone::SdlSurfaceUPtr make_sdl_surface(
-		int width,
-		int height,
-		int bit_depth);
-#else
-	static SdlPixelFormatType get_sdl_pixel_format_enum_32() noexcept;
+	void save_bmp_rgb_palette(bstone::BinaryWriter& binary_writer);
+	void save_bmp_rgbx_palette(bstone::BinaryWriter& binary_writer);
+	void save_bmp_palette(bstone::BinaryWriter& binary_writer);
 
-	static bstone::SdlSurfaceUPtr make_sdl_surface(
-		int width,
-		int height,
-		int bit_depth,
-		Uint32 r_mask,
-		Uint32 g_mask,
-		Uint32 b_mask,
-		Uint32 a_mask);
-#endif
+	void save_bmp_1bpp_bits(bstone::BinaryWriter& binary_writer);
+	void save_bmp_4bpp_bits(bstone::BinaryWriter& binary_writer);
+	void save_bmp_8bpp_bits(bstone::BinaryWriter& binary_writer);
+	void save_bmp_32bpp_bits(bstone::BinaryWriter& binary_writer);
 
-	static bstone::SdlSurfaceUPtr make_sdl_surface_8(int width, int height);
-	static bstone::SdlSurfaceUPtr make_sdl_surface_32(int width, int height);
-
-	void set_palette(bstone::SdlSurfacePtr sdl_surface, const std::uint8_t* vga_palette) noexcept;
-	void set_palette(bstone::SdlSurfacePtr sdl_surface, const Palette& palette) noexcept;
-
-	void initialize_vga_palette();
-	void initialize_surface_16x16x8();
-	void initialize_surface_64x64x8();
-	void initialize_surface_64x64x32();
-
-	void convert_wall_page_into_surface(const std::uint8_t* src_indices) noexcept;
-	void convert_sprite_page_into_surface(const bstone::Sprite& sprite) noexcept;
-
-	void save_image(const std::string& name_prefix, int image_index, bstone::SdlSurfacePtr sdl_surface);
+	void save_bmp(const std::string& path);
+	void save_image(const std::string& name_prefix, int image_index);
 
 	void extract_wall(int wall_index);
-	void extract_sprite(const int sprite_index);
+	void extract_sprite(int sprite_index);
 }; // ImageExtractor
 
 ImageExtractor::ImageExtractor()
 {
-	initialize_surface_16x16x8();
-	initialize_surface_64x64x8();
-	initialize_surface_64x64x32();
-	initialize_vga_palette();
+	initialize_colors();
+	initialize_src_palette();
 }
 
 void ImageExtractor::extract_vga_palette(const std::string& destination_dir)
@@ -2034,31 +2039,11 @@ void ImageExtractor::extract_vga_palette(const std::string& destination_dir)
 	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
 
 	destination_dir_ = bstone::file_system::normalize_path(destination_dir);
-	set_palette(sdl_surface_16x16x8_.get(), vga_palette_);
-	const auto pitch = sdl_surface_16x16x8_->pitch;
-	auto dst_indices = static_cast<std::uint8_t*>(sdl_surface_16x16x8_->pixels);
-	auto src_index = std::uint8_t{};
 
-	for (auto h = 0; h < 16; ++h)
-	{
-		for (auto w = 0; w < 16; ++w)
-		{
-			const auto dst_index = (h * pitch) + w;
-			dst_indices[dst_index] = src_index;
-			src_index += 1;
-		}
-	}
+	decode_default_palette();
 
-	const auto& file_name = bstone::file_system::append_path(destination_dir_, "vga_palette.bmp");
-	const auto sdl_result = SDL_SaveBMP(sdl_surface_16x16x8_.get(), file_name.c_str());
-
-	if (sdl_result != 0)
-	{
-		auto error_message = "Failed to save VGA palette into \"" + file_name + "\". ";
-		error_message += SDL_GetError();
-		bstone::logger_->write_error(error_message);
-		return;
-	}
+	const auto file_name = bstone::file_system::append_path(destination_dir_, "vga_palette.bmp");
+	save_bmp(file_name);
 
 	bstone::logger_->write(">>> ================");
 }
@@ -2074,7 +2059,6 @@ void ImageExtractor::extract_walls(const std::string& destination_dir)
 	bstone::logger_->write("File count: " + std::to_string(wall_count));
 
 	destination_dir_ = bstone::file_system::normalize_path(destination_dir);
-	set_palette(sdl_surface_64x64x8_.get(), vga_palette_);
 
 	for (auto i = 0; i < wall_count; ++i)
 	{
@@ -2119,212 +2103,29 @@ void ImageExtractor::extract_sprites(const std::string& destination_dir)
 	std::throw_with_nested(Exception{message});
 }
 
-void ImageExtractor::save_bmp(bstone::SdlSurfacePtr sdl_surface, const std::string& path)
+void ImageExtractor::initialize_colors()
 try
 {
-	const auto sdl_result = SDL_SaveBMP(sdl_surface, path.c_str());
+	color_buffer_.resize(max_width * max_height * (((max_bit_depth + 7) / 8)) * 8);
+	colors8_ = color_buffer_.data();
+	colors32_ = reinterpret_cast<std::uint32_t*>(color_buffer_.data());
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
 
-	if (sdl_result == 0)
+void ImageExtractor::initialize_src_palette()
+try
+{
+	auto src_colors = vgapal; // {0xRR, 0xGG, 0xBB}
+
+	for (auto& dst_color : src_palette_)
 	{
-		return;
-	}
-
-	const auto error_message = std::string{} + "Failed to save an image \"" + path + "\". " + SDL_GetError();
-	fail(error_message.c_str());
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-void ImageExtractor::check_sdl_surface_not_null(bstone::SdlSurfaceUPtr& sdl_surface)
-try
-{
-	if (sdl_surface != nullptr)
-	{
-		return;
-	}
-
-	const auto error_message = std::string{} + "Failed to create SDL surface. " + SDL_GetError();
-	fail(error_message.c_str());
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-#if !defined(BSTONE_CA_FORCE_SDL_LESS_2_0_5) && SDL_VERSION_ATLEAST(2, 0, 5)
-bstone::SdlSurfaceUPtr ImageExtractor::make_sdl_surface(
-	int width,
-	int height,
-	int bit_depth)
-try
-{
-	assert(width > 0);
-	assert(height > 0);
-	assert(bit_depth == 8 || bit_depth == 32);
-
-	const auto sdl_pixel_format = (bit_depth == 8 ? SDL_PIXELFORMAT_INDEX8 : SDL_PIXELFORMAT_RGBA32);
-	auto sdl_surface = bstone::SdlSurfaceUPtr{SDL_CreateRGBSurfaceWithFormat(
-		0,
-		width,
-		height,
-		bit_depth,
-		sdl_pixel_format)};
-	check_sdl_surface_not_null(sdl_surface);
-	return sdl_surface;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-#else
-auto ImageExtractor::get_sdl_pixel_format_enum_32() noexcept -> SdlPixelFormatType
-{
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-	return SDL_PIXELFORMAT_ABGR8888;
-#else // SDL_BYTEORDER == SDL_LIL_ENDIAN
-	return SDL_PIXELFORMAT_RGBA8888;
-#endif // SDL_BYTEORDER == SDL_LIL_ENDIAN
-}
-
-bstone::SdlSurfaceUPtr ImageExtractor::make_sdl_surface(
-	int width,
-	int height,
-	int bit_depth,
-	Uint32 r_mask,
-	Uint32 g_mask,
-	Uint32 b_mask,
-	Uint32 a_mask)
-try
-{
-	assert(width > 0);
-	assert(height > 0);
-	assert(bit_depth == 8 || bit_depth == 32);
-
-	auto sdl_surface = bstone::SdlSurfaceUPtr{SDL_CreateRGBSurface(
-		0,
-		width,
-		height,
-		bit_depth,
-		r_mask,
-		g_mask,
-		b_mask,
-		a_mask)};
-	check_sdl_surface_not_null(sdl_surface);
-	return sdl_surface;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-#endif
-
-bstone::SdlSurfaceUPtr ImageExtractor::make_sdl_surface_8(int width, int height)
-try
-{
-	assert(width > 0);
-	assert(height > 0);
-#if !defined(BSTONE_CA_FORCE_SDL_LESS_2_0_5) && SDL_VERSION_ATLEAST(2, 0, 5)
-	return make_sdl_surface(width, height, 8);
-#else
-	return make_sdl_surface(width, height, 8, 0, 0, 0, 0);
-#endif
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-bstone::SdlSurfaceUPtr ImageExtractor::make_sdl_surface_32(int width, int height)
-try
-{
-	assert(width > 0);
-	assert(height > 0);
-
-#if !defined(BSTONE_CA_FORCE_SDL_LESS_2_0_5) && SDL_VERSION_ATLEAST(2, 0, 5)
-	return make_sdl_surface(width, height, 32);
-#else
-	int bpp;
-	Uint32 r_mask;
-	Uint32 g_mask;
-	Uint32 b_mask;
-	Uint32 a_mask;
-	const auto sdl_format_enum = get_sdl_pixel_format_enum_32();
-	const auto to_masks_result = SDL_PixelFormatEnumToMasks(
-		sdl_format_enum,
-		&bpp,
-		&r_mask,
-		&g_mask,
-		&b_mask,
-		&a_mask);
-
-	if (to_masks_result == SDL_FALSE)
-	{
-		const auto error_message = std::string{} + "Failed to convert SDL pixel format enum to masks. " + SDL_GetError();
-		fail(error_message.c_str());
-	}
-
-	return make_sdl_surface(width, height, bpp, r_mask, g_mask, b_mask, a_mask);
-#endif
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-void ImageExtractor::set_palette(bstone::SdlSurfacePtr sdl_surface, const std::uint8_t* const vga_palette) noexcept
-{
-	assert(sdl_surface);
-	assert(vga_palette);
-	assert(sdl_surface->format);
-	assert(sdl_surface->format->palette);
-	assert(sdl_surface->format->palette->ncolors == bstone::RgbPalette::get_max_color_count());
-
-	auto& sdl_palette = *sdl_surface->format->palette;
-
-	for (int i = 0; i < bstone::RgbPalette::get_max_color_count(); ++i)
-	{
-		const auto src_color = vga_palette + (i * 3);
-		auto& dst_color = sdl_palette.colors[i];
-
-		dst_color.r = static_cast<Uint8>((255 * src_color[0]) / 63);
-		dst_color.g = static_cast<Uint8>((255 * src_color[1]) / 63);
-		dst_color.b = static_cast<Uint8>((255 * src_color[2]) / 63);
-		dst_color.a = 255;
-	}
-}
-
-void ImageExtractor::set_palette(bstone::SdlSurfacePtr sdl_surface, const Palette& palette) noexcept
-{
-	assert(sdl_surface);
-	assert(palette.size() == static_cast<std::size_t>(bstone::RgbPalette::get_max_color_count()));
-	assert(sdl_surface->format);
-	assert(sdl_surface->format->palette);
-	assert(sdl_surface->format->palette->ncolors == bstone::RgbPalette::get_max_color_count());
-
-	std::uninitialized_copy_n(
-		palette.cbegin(),
-		bstone::RgbPalette::get_max_color_count(),
-		sdl_surface->format->palette->colors);
-}
-
-void ImageExtractor::initialize_vga_palette()
-try
-{
-	vga_palette_.resize(bstone::RgbPalette::get_max_color_count());
-
-	const auto src_colors = vgapal;
-
-	for (auto i = 0; i < bstone::RgbPalette::get_max_color_count(); ++i)
-	{
-		const auto src_color = src_colors + (i * 3);
-		auto& dst_color = vga_palette_[i];
-
-		dst_color.r = static_cast<Uint8>((255 * src_color[0]) / 63);
-		dst_color.g = static_cast<Uint8>((255 * src_color[1]) / 63);
-		dst_color.b = static_cast<Uint8>((255 * src_color[2]) / 63);
-		dst_color.a = 255;
+		const auto r = (255U * (*src_colors++)) / 63U;
+		const auto g = (255U * (*src_colors++)) / 63U;
+		const auto b = (255U * (*src_colors++)) / 63U;
+		dst_color = 0xFF000000U | (r << 16) | (g << 8) | b;
 	}
 }
 catch (...)
@@ -2332,64 +2133,123 @@ catch (...)
 	fail_nested(__func__);
 }
 
-void ImageExtractor::initialize_surface_16x16x8()
-try
+void ImageExtractor::remap_indexed_image()
 {
-	sdl_surface_16x16x8_ = make_sdl_surface_8(16, 16);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+	using UsedColors = std::bitset<max_palette_size>;
+	auto used_colors = UsedColors{};
 
-void ImageExtractor::initialize_surface_64x64x8()
-try
-{
-	sdl_surface_64x64x8_ = make_sdl_surface_8(64, 64);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-void ImageExtractor::initialize_surface_64x64x32()
-try
-{
-	sdl_surface_64x64x32_ = make_sdl_surface_32(64, 64);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-void ImageExtractor::convert_wall_page_into_surface(const std::uint8_t* src_indices) noexcept
-{
-	assert(src_indices);
-	const auto pitch = sdl_surface_64x64x8_->pitch;
-	auto dst_indices = static_cast<std::uint8_t*>(sdl_surface_64x64x8_->pixels);
-	auto src_index = 0;
-
-	for (auto w = 0; w < 64; ++w)
+	for (auto i = 0; i < area_; ++i)
 	{
-		for (auto h = 0; h < 64; ++h)
+		used_colors.set(colors8_[i]);
+	}
+
+	const auto palette_size = used_colors.count();
+
+	if (static_cast<int>(palette_size) == max_palette_size)
+	{
+		// Uses all palette colors. No need to re-map.
+		//
+		bit_depth_ = 8;
+		dst_palette_ = src_palette_;
+	}
+	else
+	{
+		using IndexMap = std::array<unsigned char, max_palette_size>;
+		auto index_map = IndexMap{};
+		auto index = 0;
+
+		for (auto i = 0; i < max_palette_size; ++i)
 		{
-			const auto dst_index = (h * pitch) + w;
-			dst_indices[dst_index] = src_indices[src_index];
-			src_index += 1;
+			if (used_colors[i])
+			{
+				index_map[i] = static_cast<std::uint8_t>(index);
+				dst_palette_[index] = src_palette_[i];
+				++index;
+			}
+		}
+
+		for (auto i = 0; i < area_; ++i)
+		{
+			const auto old_index = colors8_[i];
+			const auto new_index = index_map[old_index];
+			colors8_[i] = new_index;
+		}
+
+		if (palette_size <= (1U << 1))
+		{
+			bit_depth_ = 1;
+		}
+		else if (palette_size <= (1U << 4))
+		{
+			bit_depth_ = 4;
+		}
+		else
+		{
+			bit_depth_ = 8;
 		}
 	}
+
+	palette_size_ = static_cast<int>(palette_size);
+	stride_ = bstone::bmp::calculate_stride(width_, bit_depth_);
 }
 
-void ImageExtractor::convert_sprite_page_into_surface(const bstone::Sprite& sprite) noexcept
+void ImageExtractor::decode_default_palette() noexcept
 {
-	const auto pitch = sdl_surface_64x64x32_->pitch / 4;
-	auto dst_colors = static_cast<SDL_Color*>(sdl_surface_64x64x32_->pixels);
+	width_ = 16;
+	height_ = 16;
+	area_ = width_ * height_;
+	bit_depth_ = 0;
+	palette_size_ = 0;
+	stride_ = 0;
+
+	for (auto i = 0; i < area_; ++i)
+	{
+		colors8_[i] = static_cast<std::uint8_t>(i);
+	}
+
+	remap_indexed_image();
+}
+
+void ImageExtractor::decode_wall_page(const std::uint8_t* src_colors) noexcept
+{
+	width_ = wall_width;
+	height_ = wall_height;
+	area_ = width_ * height_;
+	bit_depth_ = 0;
+	palette_size_ = 0;
+	stride_ = 0;
+
+	auto dst_colors = colors8_;
+
+	for (auto w = 0; w < width_; ++w)
+	{
+		for (auto h = 0; h < height_; ++h)
+		{
+			const auto color_index = *src_colors++;
+			const auto dst_index = (h * width_) + w;
+			dst_colors[dst_index] = color_index;
+		}
+	}
+
+	remap_indexed_image();
+}
+
+void ImageExtractor::decode_sprite_page(const bstone::Sprite& sprite) noexcept
+{
+	width_ = sprite_width;
+	height_ = sprite_height;
+	area_ = width_ * height_;
+	bit_depth_ = 32;
+	palette_size_ = 0;
+	stride_ = bstone::bmp::calculate_stride(width_, bit_depth_);
+
+	auto dst_colors = colors32_;
 	const auto left = sprite.get_left();
 	const auto right = sprite.get_right();
 	const auto top = sprite.get_top();
 	const auto bottom = sprite.get_bottom();
 
-	for (auto w = 0; w < 64; ++w)
+	for (auto w = 0; w < width_; ++w)
 	{
 		auto column = static_cast<const std::int16_t*>(nullptr);
 
@@ -2398,9 +2258,9 @@ void ImageExtractor::convert_sprite_page_into_surface(const bstone::Sprite& spri
 			column = sprite.get_column(w - left);
 		}
 
-		for (auto h = 0; h < 64; ++h)
+		for (auto h = 0; h < height_; ++h)
 		{
-			auto dst_color = SDL_Color{};
+			auto dst_color = std::uint32_t{};
 
 			if (column && h >= top && h <= bottom)
 			{
@@ -2408,20 +2268,359 @@ void ImageExtractor::convert_sprite_page_into_surface(const bstone::Sprite& spri
 
 				if (color_index >= 0)
 				{
-					dst_color = vga_palette_[color_index];
+					dst_color = src_palette_[color_index];
 				}
 			}
 
-			const auto dst_index = (h * pitch) + w;
+			const auto dst_index = (h * width_) + w;
 			dst_colors[dst_index] = dst_color;
 		}
 	}
 }
 
-void ImageExtractor::save_image(
-	const std::string& name_prefix,
-	int image_index,
-	bstone::SdlSurfacePtr sdl_surface)
+void ImageExtractor::save_bmp_rgb_palette(bstone::BinaryWriter& binary_writer)
+try
+{
+	struct Bgr
+	{
+		std::uint8_t b;
+		std::uint8_t g;
+		std::uint8_t r;
+	};
+
+	using PaletteBgr = std::array<Bgr, max_palette_size>;
+	auto palette_bgr = PaletteBgr{};
+
+	for (auto i = 0; i < palette_size_; ++i)
+	{
+		const auto& src_color = dst_palette_[i];
+		auto& dst_color = palette_bgr[i];
+		dst_color.b = src_color & 0xFFU;
+		dst_color.g = (src_color >> 8) & 0xFFU;
+		dst_color.r = (src_color >> 16) & 0xFFU;
+	}
+
+	binary_writer.write(palette_bgr.data(), 3 * palette_size_);
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
+
+void ImageExtractor::save_bmp_rgbx_palette(bstone::BinaryWriter& binary_writer)
+try
+{
+	if (bstone::Endian::is_big())
+	{
+		for (auto i = 0; i < palette_size_; ++i)
+		{
+			bstone::Endian::little(dst_palette_[i]);
+		}
+	}
+
+	binary_writer.write(dst_palette_.data(), 4 * palette_size_);
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
+
+void ImageExtractor::save_bmp_palette(bstone::BinaryWriter& binary_writer)
+try
+{
+	if (palette_size_ == (1 << bit_depth_))
+	{
+		save_bmp_rgb_palette(binary_writer);
+	}
+	else
+	{
+		save_bmp_rgbx_palette(binary_writer);
+	}
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
+
+void ImageExtractor::save_bmp_1bpp_bits(bstone::BinaryWriter& binary_writer)
+try
+{
+	constexpr auto initial_mask = 0x80U;
+
+	const auto line_size = ((width_ + 7) / 8) * 8;
+	const auto padding_size = stride_ - line_size;
+	auto src_colors = colors8_ + (width_ * (height_ - 1));
+
+	for (auto h = 0; h < height_; ++h)
+	{
+		auto mask = 0U;
+		auto line_byte = line_buffer_.data() - 1;
+
+		for (auto w = 0; w < width_; ++w)
+		{
+			if (mask == 0U)
+			{
+				mask = initial_mask;
+				*(++line_byte) = 0U;
+			}
+
+			if (src_colors[w] != 0U)
+			{
+				*line_byte |= mask;
+			}
+		}
+
+		for (auto i = 0; i < padding_size; ++i)
+		{
+			*line_byte++ = 0U;
+		}
+
+		binary_writer.write(line_buffer_.data(), line_size);
+		src_colors -= width_;
+	}
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
+
+void ImageExtractor::save_bmp_4bpp_bits(bstone::BinaryWriter& binary_writer)
+try
+{
+	auto src_colors = colors8_ + (width_ * (height_ - 1));
+
+	for (auto h = 0; h < height_; ++h)
+	{
+		std::uninitialized_fill_n(line_buffer_.begin(), stride_, 0U);
+
+		auto nibble_index = 0U;
+		auto line_byte = line_buffer_.data();
+
+		for (auto w = 0; w < width_; ++w)
+		{
+			const auto src_color = src_colors[w];
+			*line_byte |= src_color << (4 * (nibble_index ^ 1U));
+
+			if (nibble_index != 0U)
+			{
+				++line_byte;
+			}
+
+			nibble_index ^= 1U;
+		}
+
+		binary_writer.write(line_buffer_.data(), stride_);
+		src_colors -= width_;
+	}
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
+
+void ImageExtractor::save_bmp_8bpp_bits(bstone::BinaryWriter& binary_writer)
+try
+{
+	const auto padding_size = stride_ - width_;
+	auto src_colors = colors8_ + (width_ * (height_ - 1));
+
+	for (auto h = 0; h < height_; ++h)
+	{
+		binary_writer.write(src_colors, width_);
+		binary_writer.write(padding_bytes, padding_size);
+		src_colors -= width_;
+	}
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
+
+void ImageExtractor::save_bmp_32bpp_bits(bstone::BinaryWriter& binary_writer)
+try
+{
+	if (bstone::Endian::is_big())
+	{
+		for (auto i = 0; i < area_; ++i)
+		{
+			bstone::Endian::little_i(*colors32_++);
+		}
+	}
+
+	const auto bits_byte_count = stride_ * height_;
+	binary_writer.write(colors32_, bits_byte_count);
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
+
+void ImageExtractor::save_bmp(const std::string& path)
+try
+{
+	auto file_stream = bstone::FileStream{path, bstone::StreamOpenMode::write};
+	auto binary_writer = bstone::BinaryWriter{&file_stream};
+
+	const auto is_core_header =
+		palette_size_ == palette_1bpp_size ||
+		palette_size_ == palette_4bpp_size ||
+		palette_size_ == palette_8bpp_size;
+
+	const auto is_bpp32 = (bit_depth_ == 32);
+
+	const auto info_header_size =
+		is_bpp32 ? bstone::bmp::bitmapv4header_size : (
+			is_core_header ? bstone::bmp::bitmapcoreheader_size :
+				bstone::bmp::bitmapinfoheader_size);
+
+	const auto bits_offset =
+		bstone::bmp::bitmapfileheader_size +
+		info_header_size +
+		(is_bpp32 ? 0 : (palette_size_ * (is_core_header ? 3 : 4)));
+
+	const auto bits_byte_count = stride_ * height_;
+	const auto file_size = bits_offset + bits_byte_count;
+	const auto compression = (is_bpp32 ? bstone::bmp::bi_bitfields : bstone::bmp::bi_rgb);
+
+	// -------------------------------------------------------------------------
+	// BITMAPFILEHEADER
+
+	// bfType
+	binary_writer.write_u16(bstone::Endian::little(std::uint16_t{bstone::bmp::type_bm}));
+
+	// bfSize
+	binary_writer.write_u32(bstone::Endian::little(static_cast<std::uint32_t>(file_size)));
+
+	// bfReserved1
+	binary_writer.write_u16(bstone::Endian::little(std::uint16_t{0}));
+
+	// bfReserved2
+	binary_writer.write_u16(bstone::Endian::little(std::uint16_t{0}));
+
+	// bfOffBits
+	binary_writer.write_u32(bstone::Endian::little(static_cast<std::uint32_t>(bits_offset)));
+
+	// -------------------------------------------------------------------------
+	// BITMAPCOREHEADER
+
+	if (is_core_header)
+	{
+		// bcSize
+		binary_writer.write_u32(bstone::Endian::little(static_cast<std::uint32_t>(info_header_size)));
+
+		// bcWidth
+		binary_writer.write_u16(bstone::Endian::little(static_cast<std::uint16_t>(width_)));
+
+		// bcHeight
+		binary_writer.write_u16(bstone::Endian::little(static_cast<std::uint16_t>(height_)));
+
+		// bcPlanes
+		binary_writer.write_u16(bstone::Endian::little(std::uint16_t{bstone::bmp::plane_count}));
+
+		// bcBitCount
+		binary_writer.write_u16(bstone::Endian::little(static_cast<std::uint16_t>(bit_depth_)));
+	}
+
+	// -------------------------------------------------------------------------
+	// BITMAPINFOHEADER
+
+	if (!is_core_header)
+	{
+		// biSize
+		binary_writer.write_u32(bstone::Endian::little(static_cast<std::uint32_t>(info_header_size)));
+
+		// biWidth
+		binary_writer.write_s32(bstone::Endian::little(width_));
+
+		// biHeight
+		binary_writer.write_s32(bstone::Endian::little(is_bpp32 ? -height_ : height_));
+
+		// biPlanes
+		binary_writer.write_u16(bstone::Endian::little(std::uint16_t{bstone::bmp::plane_count}));
+
+		// biBitCount
+		binary_writer.write_u16(bstone::Endian::little(static_cast<std::uint16_t>(bit_depth_)));
+
+		// biCompression
+		binary_writer.write_u32(bstone::Endian::little(compression));
+
+		// biSizeImage
+		binary_writer.write_u32(bstone::Endian::little(static_cast<std::uint32_t>(bits_byte_count)));
+
+		// biXPelsPerMeter
+		binary_writer.write_s32(bstone::Endian::little(std::int32_t{0}));
+
+		// biYPelsPerMeter
+		binary_writer.write_s32(bstone::Endian::little(std::int32_t{0}));
+
+		// biClrUsed
+		binary_writer.write_u32(bstone::Endian::little(static_cast<std::uint32_t>(palette_size_)));
+
+		// biClrImportant
+		binary_writer.write_u32(bstone::Endian::little(std::uint32_t{0}));
+	}
+
+	// ----------------------------------------------------------------------
+	// BITMAPV4HEADER
+
+	if (is_bpp32)
+	{
+		constexpr std::uint8_t endpoints[bstone::bmp::ciexyztriple_size] = {};
+
+		// bV4RedMask
+		binary_writer.write_u32(bstone::Endian::little(0x00FF0000U));
+
+		// bV4GreenMask
+		binary_writer.write_u32(bstone::Endian::little(0x0000FF00U));
+
+		// bV4BlueMask
+		binary_writer.write_u32(bstone::Endian::little(0x000000FFU));
+
+		// bV4AlphaMask
+		binary_writer.write_u32(bstone::Endian::little(0xFF000000U));
+
+		// bV4CSType
+		binary_writer.write_u32(bstone::Endian::little(bstone::bmp::lcs_calibrated_rgb));
+
+		// bV4Endpoints
+		binary_writer.write(endpoints);
+
+		// bV4GammaRed
+		binary_writer.write_u32(bstone::Endian::little(0));
+
+		// bV4GammaGreen
+		binary_writer.write_u32(bstone::Endian::little(0));
+
+		// bV4GammaBlue
+		binary_writer.write_u32(bstone::Endian::little(0));
+	}
+
+	// -------------------------------------------------------------------------
+	// Palette
+
+	if (bit_depth_ <= 8)
+	{
+		save_bmp_palette(binary_writer);
+	}
+
+	// -------------------------------------------------------------------------
+	// Colors
+
+	switch (bit_depth_)
+	{
+		case 1: save_bmp_1bpp_bits(binary_writer); break;
+		case 4: save_bmp_4bpp_bits(binary_writer); break;
+		case 8: save_bmp_8bpp_bits(binary_writer); break;
+		case 32: save_bmp_32bpp_bits(binary_writer); break;
+		default: fail("Unknown bit depth.");
+	}
+}
+catch (...)
+{
+	fail_nested(__func__);
+}
+
+void ImageExtractor::save_image(const std::string& name_prefix, int image_index)
 try
 {
 	const auto& wall_index_string = ca_make_padded_asset_number_string(image_index);
@@ -2430,7 +2629,7 @@ try
 		destination_dir_,
 		name_prefix + wall_index_string + ".bmp");
 
-	save_bmp(sdl_surface, file_name);
+	save_bmp(file_name);
 }
 catch (...)
 {
@@ -2448,8 +2647,8 @@ try
 		fail(error_message.c_str());
 	}
 
-	convert_wall_page_into_surface(wall_page);
-	save_image("wall_", wall_index, sdl_surface_64x64x8_.get());
+	decode_wall_page(wall_page);
+	save_image("wall_", wall_index);
 }
 catch (...)
 {
@@ -2461,8 +2660,8 @@ try
 {
 	const auto cache_sprite_index = sprite_index + 1;
 	const auto sprite = sprite_cache_.cache(cache_sprite_index);
-	convert_sprite_page_into_surface(*sprite);
-	save_image("sprite_", cache_sprite_index, sdl_surface_64x64x32_.get());
+	decode_sprite_page(*sprite);
+	save_image("sprite_", cache_sprite_index);
 }
 catch (...)
 {

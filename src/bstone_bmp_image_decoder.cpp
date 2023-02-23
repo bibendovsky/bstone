@@ -639,10 +639,9 @@ void BmpImageDecoderImpl::import_bitmap_file_header()
 {
 	// bfType
 	//
-	constexpr auto bm_type_as_u16 = 0x4D42; // "BM" as a number.
 	const auto type = read_u16_le();
 
-	if (type != bm_type_as_u16)
+	if (type != bmp::type_bm)
 	{
 		fail("Unknown image format.");
 	}
@@ -673,7 +672,7 @@ void BmpImageDecoderImpl::import_bitmap_file_header()
 	bits_bytes_ = src_bytes_ + off_bits;
 }
 
-// Imports BITMAPINFOHEADER, BITMAPV4HEADER or BITMAPV5HEADER.
+// Imports BITMAPCOREHEADER, BITMAPINFOHEADER, BITMAPV4HEADER or BITMAPV5HEADER.
 void BmpImageDecoderImpl::import_bitmap_vx_header()
 {
 	// biSize
@@ -712,7 +711,7 @@ void BmpImageDecoderImpl::import_bitmap_vx_header()
 	//
 	const auto planes = read_u16_le();
 
-	if (planes != 1)
+	if (planes != bmp::plane_count)
 	{
 		fail("Invalid plane count.");
 	}
@@ -1020,7 +1019,7 @@ void BmpImageDecoderImpl::import_bitmap_vx_header()
 		}
 	}
 
-	const auto stride = (((width * bit_count) + 31) / 32) * 4;
+	const auto stride = bmp::calculate_stride(width, bit_count);
 
 	if (size_image == 0U)
 	{
