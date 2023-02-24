@@ -2085,7 +2085,7 @@ void ImageExtractor::extract_sprites(const std::string& destination_dir)
 
 	destination_dir_ = bstone::file_system::normalize_path(destination_dir);
 
-	for (auto i = 0; i < sprite_count_; ++i)
+	for (auto i = 1; i < sprite_count_; ++i)
 	{
 		extract_sprite(i);
 	}
@@ -2658,7 +2658,7 @@ catch (...)
 void ImageExtractor::extract_sprite(int sprite_index)
 try
 {
-	const auto cache_sprite_index = sprite_index + 1;
+	const auto cache_sprite_index = sprite_index;
 	const auto sprite = sprite_cache_.cache(cache_sprite_index);
 	decode_sprite_page(*sprite);
 	save_image("sprite_", cache_sprite_index);
