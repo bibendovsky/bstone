@@ -449,6 +449,7 @@ target_sources(
 		bstone_string_view.h
 		bstone_string_view_hasher.h
 		bstone_sw_video.h
+		bstone_text_extractor.h
 		bstone_text_reader.h
 		bstone_text_writer.h
 		bstone_time.h
@@ -636,6 +637,7 @@ target_sources(
 		bstone_string_helper.cpp
 		bstone_string_view.cpp
 		bstone_sw_video.cpp
+		bstone_text_extractor.cpp
 		bstone_text_reader.cpp
 		bstone_text_writer.cpp
 		bstone_time.cpp

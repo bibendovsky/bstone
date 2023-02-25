@@ -25,11 +25,8 @@ loaded into the data segment
 
 #include <array>
 #include <algorithm>
-#include <exception>
 #include <memory>
 
-#include "jm_cio.h"
-#include "jm_lzh.h"
 #include "id_heads.h"
 #include "id_sd.h"
 #include "id_vh.h"
@@ -51,6 +48,7 @@ loaded into the data segment
 #include "bstone_sha1.h"
 #include "bstone_sprite_cache.h"
 #include "bstone_string_helper.h"
+#include "bstone_text_extractor.h"
 
 #include "bstone_opl3.h"
 #include "bstone_audio_decoder.h"
@@ -1982,290 +1980,6 @@ void ca_extract_sfx(
 	bstone::logger_->write(">>> ================");
 }
 
-// ==========================================================================
-// TextExtractor
-//
-
-class TextExtractorException :
-	public bstone::Exception
-{
-public:
-	explicit TextExtractorException(
-		const std::string& message) noexcept
-		:
-		Exception{"TEXT_EXTRACTOR", message.c_str()}
-	{
-	}
-}; // TextExtractorException
-
-
-namespace
-{
-
-
-[[noreturn]]
-void text_extractor_fail(
-	const char* message)
-{
-	throw TextExtractorException{message};
-}
-
-[[noreturn]]
-void text_extractor_fail(
-	int number,
-	const char* message)
-{
-	const auto error_message = std::string{} + "[Text #" + std::to_string(number) + "] " + message;
-
-	text_extractor_fail(error_message.c_str());
-}
-
-
-} // namespace
-
-
-class TextExtractor
-{
-public:
-	TextExtractor();
-
-
-	void extract_text(
-		const std::string& dst_dir);
-
-
-private:
-	struct TextNumber
-	{
-		bool is_compressed_;
-		int number_;
-	}; // TextNumber
-
-
-	using TextNumbers = std::vector<TextNumber>;
-	using Buffer = std::vector<std::uint8_t>;
-
-
-	TextNumbers text_numbers_;
-	Buffer buffer_;
-
-
-	void initialize_text();
-
-	CompHeader_t deserialize_header(
-		const int number,
-		const std::uint8_t* const data);
-
-	void extract_text(
-		const std::string& dst_dir,
-		const TextNumber& number);
-}; // TextExtractor
-
-
-TextExtractor::TextExtractor()
-	:
-	text_numbers_{}
-{
-	initialize_text();
-}
-
-void TextExtractor::extract_text(
-	const std::string& dst_dir)
-{
-	bstone::logger_->write("File count: " + std::to_string(text_numbers_.size()));
-
-	for (const auto text_number : text_numbers_)
-	{
-		extract_text(dst_dir, text_number);
-	}
-}
-
-void TextExtractor::initialize_text()
-{
-	const auto& assets_info = get_assets_info();
-	const auto is_compressed = assets_info.is_aog_sw_v2_x() || assets_info.is_ps();
-
-	text_numbers_.reserve(50);
-
-	text_numbers_.emplace_back(TextNumber{false, INFORMANT_HINTS});
-	text_numbers_.emplace_back(TextNumber{false, NICE_SCIE_HINTS});
-	text_numbers_.emplace_back(TextNumber{false, MEAN_SCIE_HINTS});
-	text_numbers_.emplace_back(TextNumber{false, BRIEF_W1});
-	text_numbers_.emplace_back(TextNumber{false, BRIEF_I1});
-	text_numbers_.emplace_back(TextNumber{false, BRIEF_W2});
-	text_numbers_.emplace_back(TextNumber{false, BRIEF_I2});
-	text_numbers_.emplace_back(TextNumber{false, BRIEF_W3});
-	text_numbers_.emplace_back(TextNumber{false, BRIEF_I3});
-	text_numbers_.emplace_back(TextNumber{false, BRIEF_W4});
-	text_numbers_.emplace_back(TextNumber{false, BRIEF_I4});
-	text_numbers_.emplace_back(TextNumber{false, BRIEF_W5});
-	text_numbers_.emplace_back(TextNumber{false, BRIEF_I5});
-	text_numbers_.emplace_back(TextNumber{false, BRIEF_W6});
-	text_numbers_.emplace_back(TextNumber{false, BRIEF_I6});
-	text_numbers_.emplace_back(TextNumber{false, LEVEL_DESCS});
-	text_numbers_.emplace_back(TextNumber{is_compressed, POWERBALLTEXT});
-	text_numbers_.emplace_back(TextNumber{is_compressed, TICSTEXT});
-	text_numbers_.emplace_back(TextNumber{is_compressed, MUSICTEXT});
-	text_numbers_.emplace_back(TextNumber{is_compressed, RADARTEXT});
-	text_numbers_.emplace_back(TextNumber{false, HELPTEXT});
-	text_numbers_.emplace_back(TextNumber{false, SAGATEXT});
-	text_numbers_.emplace_back(TextNumber{false, LOSETEXT});
-	text_numbers_.emplace_back(TextNumber{false, ORDERTEXT});
-	text_numbers_.emplace_back(TextNumber{false, CREDITSTEXT});
-	text_numbers_.emplace_back(TextNumber{false, MUSTBE386TEXT});
-	text_numbers_.emplace_back(TextNumber{false, QUICK_INFO1_TEXT});
-	text_numbers_.emplace_back(TextNumber{false, QUICK_INFO2_TEXT});
-	text_numbers_.emplace_back(TextNumber{false, BADINFO_TEXT});
-	text_numbers_.emplace_back(TextNumber{false, CALJOY1_TEXT});
-	text_numbers_.emplace_back(TextNumber{false, CALJOY2_TEXT});
-	text_numbers_.emplace_back(TextNumber{false, READTHIS_TEXT});
-	text_numbers_.emplace_back(TextNumber{false, ELEVMSG0_TEXT});
-	text_numbers_.emplace_back(TextNumber{false, ELEVMSG1_TEXT});
-	text_numbers_.emplace_back(TextNumber{false, ELEVMSG4_TEXT});
-	text_numbers_.emplace_back(TextNumber{false, ELEVMSG5_TEXT});
-	text_numbers_.emplace_back(TextNumber{false, FLOORMSG_TEXT});
-	text_numbers_.emplace_back(TextNumber{false, YOUWIN_TEXT});
-	text_numbers_.emplace_back(TextNumber{false, CHANGEVIEW_TEXT});
-	text_numbers_.emplace_back(TextNumber{false, BADCHECKSUMTEXT});
-	text_numbers_.emplace_back(TextNumber{false, DIZ_ERR_TEXT});
-	text_numbers_.emplace_back(TextNumber{false, BADLEVELSTEXT});
-	text_numbers_.emplace_back(TextNumber{false, BADSAVEGAME_TEXT});
-
-	std::sort(
-		text_numbers_.begin(),
-		text_numbers_.end(),
-		[](const auto& lhs, const auto& rhs)
-		{
-			return lhs.number_ < rhs.number_;
-		}
-	);
-
-	const auto non_zero_number_it = std::find_if(
-		text_numbers_.begin(),
-		text_numbers_.end(),
-		[](const auto item)
-		{
-			return item.number_ != 0;
-		}
-	);
-
-	if (non_zero_number_it == text_numbers_.end())
-	{
-		text_extractor_fail("Empty list.");
-	}
-
-	text_numbers_.erase(text_numbers_.begin(), non_zero_number_it);
-}
-
-CompHeader_t TextExtractor::deserialize_header(
-	const int number,
-	const std::uint8_t* const data)
-{
-	auto stream = bstone::MemoryStream
-	{
-		CompHeader_t::class_size,
-		0,
-		data
-	};
-
-	auto reader = bstone::BinaryReader{&stream};
-
-	auto result = CompHeader_t{};
-
-	reader.read(result.NameId, 4);
-	result.OriginalLen = bstone::Endian::little(reader.read_u32());
-	result.CompType = static_cast<ct_TYPES>(bstone::Endian::little(reader.read_u16()));
-	result.CompressLen = bstone::Endian::little(reader.read_u32());
-
-	const auto four_cc = std::string{result.NameId, 4};
-
-	if (four_cc != JAMP)
-	{
-		text_extractor_fail(number, "Unsupported FOURCC.");
-	}
-
-	return result;
-}
-
-void TextExtractor::extract_text(
-	const std::string& dst_dir,
-	const TextNumber& text_number)
-{
-	const auto number = text_number.number_;
-
-	CA_CacheGrChunk(static_cast<std::int16_t>(number));
-
-	auto text_data = grsegs[number].data();
-	auto text_size = grsegs_sizes_[number];
-
-	if (text_number.is_compressed_)
-	{
-		constexpr auto header_size = CompHeader_t::class_size;
-
-		if (text_size < header_size)
-		{
-			text_extractor_fail(number, "Header too small.");
-		}
-
-		constexpr auto max_uncompressed_size = 4'096;
-
-		const auto compressed_header = deserialize_header(number, text_data);
-		const auto pure_data_size = text_size - header_size;
-
-		if (compressed_header.CompressLen > static_cast<std::uint32_t>(pure_data_size) ||
-			compressed_header.OriginalLen > max_uncompressed_size)
-		{
-			text_extractor_fail(number, "Length(s) out of range.");
-		}
-
-		if (compressed_header.CompType != ct_LZH)
-		{
-			text_extractor_fail(number, "Expected LZH compression type.");
-		}
-
-		buffer_.resize(compressed_header.OriginalLen);
-
-		const auto decoded_size = LZH_Decompress(
-			text_data + header_size,
-			buffer_.data(),
-			compressed_header.OriginalLen,
-			compressed_header.CompressLen
-		);
-
-		buffer_.resize(decoded_size);
-
-		text_data = buffer_.data();
-		text_size = decoded_size;
-	}
-	else
-	{
-		text_data = grsegs[number].data();
-	}
-
-	const auto& number_string = ca_make_padded_asset_number_string(number);
-
-	const auto& file_name = bstone::file_system::append_path(
-		dst_dir,
-		"text_" + number_string + ".txt"
-	);
-
-	auto file_stream = bstone::FileStream{file_name, bstone::StreamOpenMode::write};
-
-	if (!file_stream.is_open())
-	{
-		text_extractor_fail(number, ("Failed to open \"" + file_name + "\" for writing.").c_str());
-	}
-
-	if (!file_stream.write(text_data, text_size))
-	{
-		text_extractor_fail(number, "Write I/O error.");
-	}
-}
-
-//
-// TextExtractor
-// ==========================================================================
-
 void ca_extract_texts(
 	const std::string& destination_dir)
 {
@@ -2274,7 +1988,7 @@ void ca_extract_texts(
 	bstone::logger_->write("Extracting text.");
 	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
 
-	auto text_extractor = TextExtractor{};
+	auto text_extractor = bstone::TextExtractor{};
 	text_extractor.extract_text(bstone::file_system::normalize_path(destination_dir));
 
 	bstone::logger_->write(">>> ================");
