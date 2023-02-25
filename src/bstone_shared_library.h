@@ -1,59 +1,38 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-
-#ifndef BSTONE_SHARED_LIBRARY_INCLUDED
+#if !defined(BSTONE_SHARED_LIBRARY_INCLUDED)
 #define BSTONE_SHARED_LIBRARY_INCLUDED
 
-
-#include <memory>
-
-
-namespace bstone
-{
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+namespace bstone {
 
 class SharedLibrary
 {
 public:
-	SharedLibrary() noexcept = default;
+	SharedLibrary() = default;
+	SharedLibrary(const char* path);
+	SharedLibrary(const SharedLibrary&) = delete;
+	SharedLibrary(SharedLibrary&& rhs) noexcept;
+	SharedLibrary& operator=(const SharedLibrary&) = delete;
+	SharedLibrary& operator=(SharedLibrary&& rhs) = delete;
+	~SharedLibrary();
 
-	virtual ~SharedLibrary() = default;
+	void open(const char* path);
+	void* find_symbol(const char* symbol_name) noexcept;
 
+	template<typename T>
+	T find_symbol(const char* symbol_name) noexcept
+	{
+		return reinterpret_cast<T>(find_symbol(symbol_name));
+	}
 
-	virtual void open(
-		const char* path) = 0;
+private:
+	void* handle_{};
+};
 
-	virtual void close() noexcept = 0;
+} // namespace bstone
 
-	virtual bool is_open() const noexcept = 0;
-
-	virtual void* find_symbol(
-		const char* symbol_name) noexcept = 0;
-}; // SharedLibrary
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-using SharedLibraryUPtr = std::unique_ptr<SharedLibrary>;
-
-
-SharedLibraryUPtr make_shared_library();
-
-SharedLibraryUPtr make_shared_library(
-	const char* path);
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-} // bstone
-
-
-#endif // !BSTONE_SHARED_LIBRARY_INCLUDED
+#endif // BSTONE_SHARED_LIBRARY_INCLUDED

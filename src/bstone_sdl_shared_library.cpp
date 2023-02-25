@@ -1,168 +1,111 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-
-#include "bstone_sdl_shared_library.h"
-
-#include <cassert>
-
-#include <exception>
-#include <string>
 #include <utility>
-
 #include "SDL_loadso.h"
-
 #include "bstone_exception.h"
 #include "bstone_sdl_exception.h"
+#include "bstone_shared_library.h"
 
+namespace bstone {
 
-namespace bstone
-{
+namespace {
 
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-class SdlSharedLibraryException :
-	public Exception
+class SdlSharedLibraryException : public Exception
 {
 public:
-	explicit SdlSharedLibraryException(
-		const char* message) noexcept
+	explicit SdlSharedLibraryException(const char* message) noexcept
 		:
 		Exception{"SDL_SHARED_LIBRARY", message}
-	{
-	}
-}; // SdlSharedLibraryException
+	{}
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	~SdlSharedLibraryException() override = default;
+};
 
+// ==========================================================================
 
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-SdlSharedLibrary::SdlSharedLibrary(
-	const char* path)
+class SharedLibraryImpl
 {
-	assert(path && (*path) != '\0');
+public:
+	static void* open(const char* path);
+	static void close(void* handle) noexcept;
+	static bool is_open(void* handle) noexcept;
+	static void* find_symbol(void* handle, const char* symbol_name) noexcept;
 
-	open_internal(path);
+private:
+	[[noreturn]] static void fail(const char* message);
+	[[noreturn]] static void fail_nested(const char* message);
+};
+
+// --------------------------------------------------------------------------
+
+void* SharedLibraryImpl::open(const char* path)
+try
+{
+	return sdl_ensure_result(SDL_LoadObject(path));
+}
+catch (...)
+{
+	fail_nested(__func__);
 }
 
-SdlSharedLibrary::SdlSharedLibrary(
-	SdlSharedLibrary&& rhs) noexcept
+void SharedLibraryImpl::close(void* handle) noexcept
 {
-	std::swap(handle_, rhs.handle_);
+	SDL_UnloadObject(handle);
 }
 
-SdlSharedLibrary::~SdlSharedLibrary()
+bool SharedLibraryImpl::is_open(void* handle) noexcept
 {
-	close_internal();
+	return handle != nullptr;
 }
 
-// ======================================================================
-// SharedLibrary
-
-void SdlSharedLibrary::open(
-	const char* path)
+void* SharedLibraryImpl::find_symbol(void* handle, const char* symbol_name) noexcept
 {
-	assert(path && (*path) != '\0');
-
-	open_internal(path);
+	return SDL_LoadFunction(handle, symbol_name);
 }
 
-void SdlSharedLibrary::close() noexcept
-{
-	close_internal();
-}
-
-bool SdlSharedLibrary::is_open() const noexcept
-{
-	return is_open_internal();
-}
-
-void* SdlSharedLibrary::find_symbol(
-	const char* symbol_name) noexcept
-{
-	if (!is_open_internal() || !symbol_name || (*symbol_name) == '\0')
-	{
-		assert(!"Closed or null / empty symbol name.");
-		return nullptr;
-	}
-
-	return ::SDL_LoadFunction(handle_, symbol_name);
-}
-
-[[noreturn]]
-void SdlSharedLibrary::fail(
-	const char* message)
+[[noreturn]] void SharedLibraryImpl::fail(const char* message)
 {
 	throw SdlSharedLibraryException{message};
 }
 
-[[noreturn]]
-void SdlSharedLibrary::fail_nested(
-	const char* message)
+[[noreturn]] void SharedLibraryImpl::fail_nested(const char* message)
 {
 	std::throw_with_nested(SdlSharedLibraryException{message});
 }
 
-void SdlSharedLibrary::open_internal(
-	const char* path)
-{
-	if (!path || (*path) == '\0')
-	{
-		fail("Null or empty path.");
-	}
+} // namespace
 
-	try
-	{
-		handle_ = sdl_ensure_result(::SDL_LoadObject(path));
-	}
-	catch (...)
-	{
-		const auto message = std::string{} + "Failed to open shared library \"" + path + "\".";
-		fail_nested(message.c_str());
-	}
+// ==========================================================================
+
+SharedLibrary::SharedLibrary(const char* path)
+	:
+	handle_{SharedLibraryImpl::open(path)}
+{}
+
+SharedLibrary::SharedLibrary(SharedLibrary&& rhs) noexcept
+{
+	std::swap(handle_, rhs.handle_);
 }
 
-void SdlSharedLibrary::close_internal() noexcept
+SharedLibrary::~SharedLibrary()
 {
-	if (is_open_internal())
-	{
-		const auto handle = handle_;
-		handle_ = nullptr;
-
-		::SDL_UnloadObject(handle);
-	}
+	SharedLibraryImpl::close(handle_);
 }
 
-bool SdlSharedLibrary::is_open_internal() const noexcept
+void SharedLibrary::open(const char* path)
 {
-	return handle_ != nullptr;
+	SharedLibraryImpl::close(handle_);
+	handle_ = nullptr;
+	handle_ = SharedLibraryImpl::open(path);
 }
 
-// SharedLibrary
-// ======================================================================
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-SharedLibraryUPtr make_shared_library()
+void* SharedLibrary::find_symbol(const char* symbol_name) noexcept
 {
-	return std::make_unique<SdlSharedLibrary>();
+	return SharedLibraryImpl::find_symbol(handle_, symbol_name);
 }
-
-SharedLibraryUPtr make_shared_library(
-	const char* path)
-{
-	return std::make_unique<SdlSharedLibrary>(path);
-}
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
 
 } // bstone

@@ -38,7 +38,7 @@ public:
 	void load_efx_symbols(OalAlSymbols& al_symbols) override;
 
 private:
-	SharedLibraryUPtr shared_library_{};
+	SharedLibrary shared_library_{};
 
 	LPALCGETPROCADDRESS alcGetProcAddress_{};
 	LPALGETPROCADDRESS alGetProcAddress_{};
@@ -54,7 +54,7 @@ private:
 	{
 		assert(name && (*name) != '\0');
 
-		symbol = reinterpret_cast<T>(shared_library_->find_symbol(name));
+		symbol = shared_library_.find_symbol<T>(name);
 
 		if (!symbol)
 		{
@@ -280,7 +280,7 @@ catch (...)
 
 void OalLoaderImpl::open_internal(const char* shared_library_path)
 {
-	shared_library_ = make_shared_library(shared_library_path);
+	shared_library_.open(shared_library_path);
 	load_essential_symbols();
 }
 

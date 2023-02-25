@@ -436,7 +436,6 @@ target_sources(
 		bstone_rgb_palette.h
 		bstone_scope_guard.h
 		bstone_sdl_audio_mixer.h
-		bstone_sdl_shared_library.h
 		bstone_sdl_texture_lock.h
 		bstone_sha1.h
 		bstone_span.h
@@ -587,7 +586,6 @@ target_sources(
 		bstone_cvar_string.cpp
 		bstone_c_str.cpp
 		bstone_dosbox_dbopl.cpp
-		bstone_shared_library.cpp
 		bstone_encoding.cpp
 		bstone_exception.cpp
 		bstone_file_stream.cpp
