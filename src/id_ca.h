@@ -477,5 +477,6 @@ void ca_make_wall_resource_path_name(
 	int wall_id,
 	std::string& path_name);
 
+std::string ca_make_padded_asset_number_string(int number);
 
 #endif // BSTONE_ID_CA_INCLUDED
