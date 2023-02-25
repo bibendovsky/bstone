@@ -141,9 +141,9 @@ CompHeader_t TextExtractor::deserialize_header(int number, const std::uint8_t* d
 	auto result = CompHeader_t{};
 
 	reader.read(result.NameId, 4);
-	result.OriginalLen = Endian::little(reader.read_u32());
-	result.CompType = static_cast<ct_TYPES>(Endian::little(reader.read_u16()));
-	result.CompressLen = Endian::little(reader.read_u32());
+	result.OriginalLen = endian::to_little(reader.read_u32());
+	result.CompType = static_cast<ct_TYPES>(endian::to_little(reader.read_u16()));
+	result.CompressLen = endian::to_little(reader.read_u32());
 
 	const auto four_cc = std::string{result.NameId, 4};
 

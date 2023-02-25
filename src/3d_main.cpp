@@ -8032,7 +8032,7 @@ int FindChunk(
 
 			if (stream->read(&chunk_size, 4) == 4)
 			{
-				bstone::Endian::little_i(chunk_size);
+				chunk_size = bstone::endian::to_little(chunk_size);
 
 				src_chunk_name.assign(src_chunk_name_buffer, 4);
 

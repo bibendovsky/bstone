@@ -169,7 +169,7 @@ int AudioContentMgrImpl::get_sfx_priority(int chunk_number) const
 
 	const auto& audio_chunk = audio_chunks_[sfx_chunk_base_index_ + chunk_number];
 	const auto data_u16 = reinterpret_cast<const std::uint16_t*>(audio_chunk.data);
-	const auto priority = static_cast<int>(Endian::little(data_u16[2]));
+	const auto priority = static_cast<int>(endian::to_little(data_u16[2]));
 	return priority;
 }
 
@@ -248,12 +248,9 @@ AudioContentMgrImpl::AudioChunks AudioContentMgrImpl::make_audio_chunks(const Au
 		fail("Failed to read TOC audio file.");
 	}
 
-	if (Endian::is_big())
+	for (auto& audiohed_item : audiohed_data)
 	{
-		for (auto& audiohed_item : audiohed_data)
-		{
-			Endian::little_i(audiohed_item);
-		}
+		audiohed_item = endian::to_little(audiohed_item);
 	}
 
 	auto audio_chunks = AudioChunks{};
@@ -411,8 +408,8 @@ void AudioContentMgrImpl::make_digitized_sfx(AudioChunks& audio_chunks)
 	for (const auto& digitized_map_item : digitized_map)
 	{
 		const auto& digitized_info = digitized_infos[digitized_map_item.digitized_info_index];
-		const auto page_number = static_cast<int>(bstone::Endian::little(digitized_info.page_number));
-		const auto data_size = static_cast<int>(bstone::Endian::little(digitized_info.data_size));
+		const auto page_number = static_cast<int>(bstone::endian::to_little(digitized_info.page_number));
+		const auto data_size = static_cast<int>(bstone::endian::to_little(digitized_info.data_size));
 		const auto data = page_mgr_.get_audio(page_number);
 		const auto digitized_sfx_chunk_index = digitized_sfx_chunk_base_index + digitized_map_item.sfx_index;
 

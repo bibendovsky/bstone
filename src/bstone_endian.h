@@ -1,256 +1,253 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-
-//
-// Byte order (endianness) manipulation.
-//
-
-
-#ifndef BSTONE_ENDIAN_INCLUDED
+#if !defined(BSTONE_ENDIAN_INCLUDED)
 #define BSTONE_ENDIAN_INCLUDED
 
+#include <type_traits>
+#include "bstone_platform.h"
+#include "bstone_int.h"
+#include "bstone_span.h"
 
-#include <cstdint>
+#if !defined(BSTONE_LITTLE_ENDIAN)
+#	define BSTONE_LITTLE_ENDIAN 1
+#endif
 
-#include "SDL_endian.h"
+#if !defined(BSTONE_BIG_ENDIAN)
+#	define BSTONE_BIG_ENDIAN 2
+#endif
 
+#if BSTONE_LITTLE_ENDIAN <= 0 || BSTONE_BIG_ENDIAN <= 0 || BSTONE_LITTLE_ENDIAN == BSTONE_BIG_ENDIAN
+#	error Invalid endian value.
+#endif
 
-namespace bstone
-{
+#if !defined(BSTONE_ENDIAN)
 
-
-enum class EndianId
-{
-	none,
-	big,
-	little,
-
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	native = big,
-#else // SDL_BYTEORDER == SDL_BIG_ENDIAN
-	native = little,
-#endif // SDL_BYTEORDER == SDL_BIG_ENDIAN
-}; // EndianId
-
-
-namespace detail
-{
-
+#	if BSTONE_WIN32 && !BSTONE_MINGW
 
 //
-// Notes:
-//    - We are assuming CPU architecture without exotic types (i.e. 9-bit char, etc).
+// Visual C++
 //
+#		if _MSC_VER
+#			if (defined(_M_IX86) && _M_IX86 == 600) || (defined(_M_AMD64) && _M_AMD64 == 100)
+#				define BSTONE_ENDIAN BSTONE_LITTLE_ENDIAN
+#			endif
+#		endif
+
+#	else
+
+	//
+	// __BYTE_ORDER__
+	//
+#	if !defined(BSTONE_ENDIAN)
+#		if defined(__BYTE_ORDER__)
+#			if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#				define BSTONE_ENDIAN BSTONE_BIG_ENDIAN
+#			elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#				define BSTONE_ENDIAN BSTONE_LITTLE_ENDIAN
+#			else
+#				error Unsupported GNU compiler byte order.
+#			endif
+#		endif
+#	endif
+
+//
+// __BIG_ENDIAN__ / __LITTLE_ENDIAN__
+//
+#	if !defined(BSTONE_ENDIAN)
+#		if defined(__BIG_ENDIAN__)
+#			define BSTONE_ENDIAN BSTONE_BIG_ENDIAN
+#		elif defined(__LITTLE_ENDIAN__)
+#			define BSTONE_ENDIAN BSTONE_LITTLE_ENDIAN
+#		endif
+#	endif
+
+#endif
+
+#endif
+
+#if !defined(BSTONE_ENDIAN)
+#	error Undefined byte order.
+#endif
+
+namespace bstone {
+namespace endian {
+
+// ==========================================================================
+
+enum class Type
+{
+	none = 0,
+
+	little = BSTONE_LITTLE_ENDIAN,
+	big = BSTONE_BIG_ENDIAN,
+
+	native =
+#if BSTONE_ENDIAN == BSTONE_LITTLE_ENDIAN
+	little
+#endif
+#if BSTONE_ENDIAN == BSTONE_BIG_ENDIAN
+	big
+#endif
+	,
+}; // Type
+
+// ==========================================================================
+
+namespace detail {
+
 template<typename T>
-struct ShouldBeSwapped
+struct IsSupportedType
 {
-	static constexpr auto value_ = (sizeof(T) > 1);
-}; // ShouldBeSwapped
+	static constexpr auto value = std::is_integral<T>::value || std::is_enum<T>::value;
+};
 
+struct Bytes1Tag {};
+struct Bytes2Tag {};
+struct Bytes4Tag {};
+struct Bytes8Tag {};
+struct IntegralTag {};
+struct EnumTag {};
 
-class EndianSwap final
+template<typename T>
+inline constexpr T swap_bytes(T value, Bytes1Tag) noexcept
 {
-public:
-	static std::uint8_t swap(
-		const std::uint8_t value)
-	{
-		return value;
-	}
+	return value;
+}
 
-	static std::int8_t swap(
-		const std::int8_t value)
-	{
-		return value;
-	}
-
-	static std::uint16_t swap(
-		const std::uint16_t value)
-	{
-		return (value >> 8) | (value << 8);
-	}
-
-	static std::int16_t swap(
-		const std::int16_t value)
-	{
-		return static_cast<std::int16_t>(swap(static_cast<std::uint16_t>(value)));
-	}
-
-	static std::uint32_t swap(
-		const std::uint32_t value)
-	{
-		constexpr auto ooxxooxx = std::uint32_t{0x00FF00FF};
-		constexpr auto xxooxxoo = std::uint32_t{0xFF00FF00};
-
-		const auto swap16 = (value << 16) | (value >> 16);
-		return ((swap16 << 8) & xxooxxoo) | ((swap16 >> 8) & ooxxooxx);
-	}
-
-	static std::int32_t swap(
-		const std::int32_t value)
-	{
-		return static_cast<std::int32_t>(swap(static_cast<std::uint32_t>(value)));
-	}
-
-	static std::uint64_t swap(
-		const std::uint64_t value)
-	{
-		constexpr auto ooxxooxx = std::uint64_t{0x0000FFFF0000FFFF};
-		constexpr auto xxooxxoo = std::uint64_t{0xFFFF0000FFFF0000};
-
-		constexpr auto oxoxoxox = std::uint64_t{0x00FF00FF00FF00FF};
-		constexpr auto xoxoxoxo = std::uint64_t{0xFF00FF00FF00FF00};
-
-		const auto swap32 = (value << 32) | (value >> 32);
-		const auto swap16 = ((swap32 & ooxxooxx) << 16) | ((swap32 & xxooxxoo) >> 16);
-		return ((swap16 & oxoxoxox) << 8) | ((swap16 & xoxoxoxo) >> 8);
-	}
-
-	static std::int64_t swap(
-		const std::int64_t value)
-	{
-		return static_cast<std::int64_t>(swap(static_cast<std::uint64_t>(value)));
-	}
-}; // EndianSwap
-
-
-template<EndianId TId>
-struct Endian final
+template<typename T>
+inline constexpr T swap_bytes(T value, Bytes2Tag) noexcept
 {
-	// Returns swaped bytes on little-endian platform or as-is otherwise.
-	template<typename T>
-	static T big(
-		const T value) = delete;
+	const auto u16_value = static_cast<UInt16>(value);
 
-	// Swaps the bytes inplace on little-endian platform.
-	template<typename T>
-	static void big_i(
-		T& value) = delete;
+	return static_cast<T>(static_cast<UInt16>(
+		(u16_value >> 8) |
+		(u16_value << 8)));
+}
 
-	// Returns swaped bytes on big-endian platform or as-is otherwise.
-	template<typename T>
-	static T little(
-		const T value) = delete;
-
-	// Swaps the bytes inplace on big-endian platform.
-	template<typename T>
-	static void little_i(
-		T& value) = delete;
-
-	static bool is_big() = delete;
-
-	static bool is_little() = delete;
-
-	static bool should_be_swapped() = delete;
-}; // Endian
-
-
-template<>
-struct Endian<EndianId::big> final
+template<typename T>
+inline constexpr T swap_bytes(T value, Bytes4Tag) noexcept
 {
-	template<typename T>
-	static T big(
-		const T value)
-	{
-		return value;
-	}
+	const auto u32_value = static_cast<UInt32>(value);
 
-	template<typename T>
-	static void big_i(
-		T&)
-	{
-	}
+	return static_cast<T>(static_cast<UInt32>(
+		(u32_value >> 24) |
+		((u32_value >> 8) & 0x00'00'FF'00U) |
+		((u32_value << 8) & 0x00'FF'00'00U) |
+		(u32_value << 24)));
+}
 
-	template<typename T>
-	static T little(
-		const T value)
-	{
-		return detail::EndianSwap::swap(value);
-	}
-
-	template<typename T>
-	static void little_i(
-		T& value)
-	{
-		value = detail::EndianSwap::swap(value);
-	}
-
-	static constexpr bool is_big()
-	{
-		return true;
-	}
-
-	static constexpr bool is_little()
-	{
-		return false;
-	}
-
-	template<typename T>
-	static constexpr bool should_be_swapped()
-	{
-		return ShouldBeSwapped<T>::value_;
-	}
-}; // Endian
-
-
-template<>
-struct Endian<EndianId::little> final
+template<typename T>
+inline constexpr T swap_bytes(T value, Bytes8Tag) noexcept
 {
-	template<typename T>
-	static T big(
-		const T value)
+	const auto u64_value = static_cast<UInt64>(value);
+
+	return static_cast<T>(static_cast<UInt64>(
+		(u64_value >> 56) |
+		((u64_value >> 40) & 0x00'00'00'00'00'00'FF'00ULL) |
+		((u64_value >> 24) & 0x00'00'00'00'00'FF'00'00ULL) |
+		((u64_value >> 8) & 0x00'00'00'00'FF'00'00'00ULL) |
+		((u64_value << 8) & 0x00'00'00'FF'00'00'00'00ULL) |
+		((u64_value << 24) & 0x00'00'FF'00'00'00'00'00ULL) |
+		((u64_value << 40) & 0x00'FF'00'00'00'00'00'00ULL) |
+		(u64_value << 56)));
+}
+
+template<typename T>
+inline constexpr T swap_bytes(T value, IntegralTag) noexcept
+{
+	using Tag = std::conditional_t<
+		sizeof(T) == 1,
+		Bytes1Tag,
+		std::conditional_t<
+			sizeof(T) == 2,
+			Bytes2Tag,
+			std::conditional_t<
+				sizeof(T) == 4,
+				Bytes4Tag,
+				std::conditional_t<
+					sizeof(T) == 8,
+					Bytes8Tag,
+					void>>>>;
+
+	return swap_bytes(value, Tag{});
+}
+
+template<typename T>
+inline constexpr T swap_bytes(T value, EnumTag) noexcept
+{
+	return swap_bytes(static_cast<std::underlying_type_t<T>>(value), IntegralTag{});
+}
+
+} // namespace detail
+
+// ==========================================================================
+
+template<typename T>
+inline constexpr T swap_bytes(T value) noexcept
+{
+	using Tag = std::conditional_t<
+		std::is_integral<std::decay_t<T>>::value,
+		detail::IntegralTag,
+		std::conditional_t<
+			std::is_enum<std::decay_t<T>>::value,
+			detail::EnumTag,
+			void>>;
+
+	return detail::swap_bytes(value, Tag{});
+}
+
+template<typename T, std::enable_if_t<sizeof(T) == 1, int> = 0>
+inline constexpr void swap_bytes(Span<T> bytes) noexcept
+{
+	const auto size = bytes.get_size();
+	const auto half_size = size / 2;
+
+	for (auto i = decltype(half_size){}; i < half_size; ++i)
 	{
-		return detail::EndianSwap::swap(value);
+		const auto temp = bytes[i];
+		bytes[i] = bytes[size - 1 - i];
+		bytes[size - 1 - i] = temp;
 	}
+}
 
-	template<typename T>
-	static void big_i(
-		T& value)
+template<typename T, std::enable_if_t<sizeof(T) == 1, int> = 0>
+inline constexpr void swap_bytes(Span<T> bytes, Type type) noexcept
+{
+	if (type != Type::native)
 	{
-		value = detail::EndianSwap::swap(value);
+		swap_bytes(bytes);
 	}
+}
 
-	template<typename T>
-	static T little(
-		const T value)
-	{
-		return value;
-	}
+// ==========================================================================
 
-	template<typename T>
-	static void little_i(
-		T&)
-	{
-	}
+template<typename T>
+inline constexpr T to_little(T value) noexcept
+{
+#if BSTONE_ENDIAN == BSTONE_LITTLE_ENDIAN
+	return value;
+#endif // BSTONE_ENDIAN == BSTONE_LITTLE_ENDIAN
+#if BSTONE_ENDIAN == BSTONE_BIG_ENDIAN
+	return swap_bytes(value);
+#endif // BSTONE_ENDIAN == BSTONE_BIG_ENDIAN
+}
 
-	static constexpr bool is_big()
-	{
-		return false;
-	}
+template<typename T>
+inline constexpr T to_big(T value) noexcept
+{
+#if BSTONE_ENDIAN == BSTONE_LITTLE_ENDIAN
+	return swap_bytes(value);
+#endif // BSTONE_ENDIAN == BSTONE_LITTLE_ENDIAN
+#if BSTONE_ENDIAN == BSTONE_BIG_ENDIAN
+	return value;
+#endif // BSTONE_ENDIAN == BSTONE_BIG_ENDIAN
+}
 
-	static constexpr bool is_little()
-	{
-		return true;
-	}
+} // namespace endian
+} // namespace bstone
 
-	template<typename T>
-	static constexpr bool should_be_swapped()
-	{
-		return ShouldBeSwapped<T>::value_;
-	}
-}; // Endian
-
-
-} // detail
-
-
-using Endian = detail::Endian<EndianId::native>;
-
-
-} // bstone
-
-
-#endif // !BSTONE_ENDIAN_INCLUDED
+#endif // BSTONE_ENDIAN_INCLUDED

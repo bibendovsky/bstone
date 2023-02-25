@@ -69,14 +69,9 @@ private:
 
 		void endian()
 		{
-			if (bstone::Endian::is_little())
-			{
-				return;
-			}
-
-			bstone::Endian::little_i(opt);
-			bstone::Endian::little_i(offset);
-			bstone::Endian::little_i(length);
+			opt = bstone::endian::to_little(opt);
+			offset = bstone::endian::to_little(offset);
+			length = bstone::endian::to_little(length);
 		}
 	}; // AnimChunk
 
@@ -374,7 +369,7 @@ void Movie::handle_page(
 		// Sound Chunk
 		//
 
-		const auto sound_chunk = bstone::Endian::little(*reinterpret_cast<const std::uint16_t*>(frame));
+		const auto sound_chunk = bstone::endian::to_little(*reinterpret_cast<const std::uint16_t*>(frame));
 		sd_play_player_item_sound(sound_chunk);
 		buffer_ptr_ += blk.recsize;
 	}
@@ -399,7 +394,7 @@ void Movie::handle_page(
 
 	case AN_PAUSE: // Pause
 	{
-		const auto vbls = bstone::Endian::little(*reinterpret_cast<const std::uint16_t*>(frame));
+		const auto vbls = bstone::endian::to_little(*reinterpret_cast<const std::uint16_t*>(frame));
 
 		IN_UserInput(vbls);
 

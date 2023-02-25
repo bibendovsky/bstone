@@ -209,7 +209,7 @@ private:
 			crc32_.update(&value, value_size);
 		}
 
-		const auto result = (Endian::should_be_swapped<T>() ? Endian::little(value) : value);
+		const auto result = endian::to_little(value);
 
 		return result;
 	}
@@ -241,7 +241,7 @@ private:
 			crc32_.update(&integer_value, value_size);
 		}
 
-		const auto value = (Endian::should_be_swapped<T>() ? Endian::little(integer_value) : integer_value);
+		const auto value = endian::to_little(integer_value);
 
 		const auto write_result = stream_->write(&value, value_size);
 
@@ -291,12 +291,9 @@ private:
 			fail("Failed to read an array of integer values.");
 		}
 
-		if (Endian::should_be_swapped<T>())
+		for (int i_item = 0; i_item < item_count; ++i_item)
 		{
-			for (int i_item = 0; i_item < item_count; ++i_item)
-			{
-				Endian::little_i(items[i_item]);
-			}
+			items[i_item] = endian::to_little(items[i_item]);
 		}
 
 		crc32_.update(items, items_size);
@@ -337,35 +334,23 @@ private:
 
 		crc32_.update(items, items_size);
 
-		if (Endian::should_be_swapped<T>())
+		if (buffer_.size() < static_cast<std::size_t>(items_size))
 		{
-			if (buffer_.size() < static_cast<std::size_t>(items_size))
-			{
-				buffer_.resize(items_size);
-			}
-
-			auto dst_items = reinterpret_cast<T*>(buffer_.data());
-
-			for (int i_item = 0; i_item < item_count; ++i_item)
-			{
-				dst_items[i_item] = Endian::little(items[i_item]);
-			}
-
-			const auto write_result = stream_->write(dst_items, items_size);
-
-			if (!write_result)
-			{
-				fail("Failed to write an array of integer values.");
-			}
+			buffer_.resize(items_size);
 		}
-		else
-		{
-			const auto write_result = stream_->write(items, items_size);
 
-			if (!write_result)
-			{
-				fail("Failed to write an array of integer values.");
-			}
+		auto dst_items = reinterpret_cast<T*>(buffer_.data());
+
+		for (int i_item = 0; i_item < item_count; ++i_item)
+		{
+			dst_items[i_item] = endian::to_little(items[i_item]);
+		}
+
+		const auto write_result = stream_->write(dst_items, items_size);
+
+		if (!write_result)
+		{
+			fail("Failed to write an array of integer values.");
 		}
 	}
 	catch (...)
