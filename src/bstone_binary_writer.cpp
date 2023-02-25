@@ -113,7 +113,7 @@ bool BinaryWriter::write(const std::string& string)
 {
 	const auto length = static_cast<std::int32_t>(string.length());
 	auto is_succeed = true;
-	is_succeed &= write_s32(bstone::Endian::little(length));
+	is_succeed &= write_s32(bstone::endian::to_little(length));
 	is_succeed &= write(string.c_str(), length);
 	return is_succeed;
 }

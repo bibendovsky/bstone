@@ -492,7 +492,7 @@ T BmpImageDecoderImpl::generic_read_le()
 		fail("Data underflow.");
 	}
 
-	const auto result = Endian::little(*reinterpret_cast<const T*>(remain_bytes_));
+	const auto result = endian::to_little(*reinterpret_cast<const T*>(remain_bytes_));
 	remain_bytes_ += type_size;
 	return result;
 }
@@ -557,21 +557,21 @@ unsigned int BmpImageDecoderImpl::read_8bpp_u32()
 
 unsigned int BmpImageDecoderImpl::read_16bpp_u32()
 {
-	const auto result = Endian::little(*reinterpret_cast<const std::uint16_t*>(remain_bytes_));
+	const auto result = endian::to_little(*reinterpret_cast<const std::uint16_t*>(remain_bytes_));
 	remain_bytes_ += 2;
 	return result;
 }
 
 unsigned int BmpImageDecoderImpl::read_24bpp_u32()
 {
-	const auto result = Endian::little(*reinterpret_cast<const std::uint32_t*>(remain_bytes_));
+	const auto result = endian::to_little(*reinterpret_cast<const std::uint32_t*>(remain_bytes_));
 	remain_bytes_ += 3;
 	return result;
 }
 
 unsigned int BmpImageDecoderImpl::read_32bpp_u32()
 {
-	const auto result = Endian::little(*reinterpret_cast<const std::uint32_t*>(remain_bytes_));
+	const auto result = endian::to_little(*reinterpret_cast<const std::uint32_t*>(remain_bytes_));
 	remain_bytes_ += 4;
 	return result;
 }

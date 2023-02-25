@@ -101,7 +101,7 @@ bool AdlibSfxDecoder::initialize(const AudioDecoderInitParam& param)
 	emulator_->initialize(param.dst_rate_);
 	adlib::initialize_registers(emulator_.get());
 	static_cast<void>(reader_.open(param.src_raw_data_, param.src_raw_size_));
-	const auto sfx_length = static_cast<int>(bstone::Endian::little(reader_.read_s32()));
+	const auto sfx_length = static_cast<int>(bstone::endian::to_little(reader_.read_s32()));
 
 	if (sfx_length <= 0)
 	{

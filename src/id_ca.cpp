@@ -565,7 +565,7 @@ void CAL_ExpandGrChunk(
 		// everything else has an explicit size longword
 		//
 
-		expanded = bstone::Endian::little(*reinterpret_cast<std::int32_t*>(source));
+		expanded = bstone::endian::to_little(*reinterpret_cast<std::int32_t*>(source));
 		source += 4; // skip over length
 	}
 

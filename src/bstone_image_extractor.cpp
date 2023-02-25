@@ -324,12 +324,9 @@ catch (...)
 void ImageExtractor::save_bmp_rgbx_palette(BinaryWriter& binary_writer)
 try
 {
-	if (Endian::is_big())
+	for (auto i = 0; i < palette_size_; ++i)
 	{
-		for (auto i = 0; i < palette_size_; ++i)
-		{
-			Endian::little(dst_palette_[i]);
-		}
+		dst_palette_[i] = endian::to_little(dst_palette_[i]);
 	}
 
 	binary_writer.write(dst_palette_.data(), 4 * palette_size_);
@@ -453,12 +450,10 @@ catch (...)
 void ImageExtractor::save_bmp_32bpp_bits(BinaryWriter& binary_writer)
 try
 {
-	if (Endian::is_big())
+	for (auto i = 0; i < area_; ++i)
 	{
-		for (auto i = 0; i < area_; ++i)
-		{
-			Endian::little_i(*colors32_++);
-		}
+		*colors32_ = endian::to_little(*colors32_);
+		++colors32_;
 	}
 
 	const auto bits_byte_count = stride_ * height_;
@@ -500,19 +495,19 @@ try
 	// BITMAPFILEHEADER
 
 	// bfType
-	binary_writer.write_u16(Endian::little(std::uint16_t{bmp::type_bm}));
+	binary_writer.write_u16(endian::to_little(std::uint16_t{bmp::type_bm}));
 
 	// bfSize
-	binary_writer.write_u32(Endian::little(static_cast<std::uint32_t>(file_size)));
+	binary_writer.write_u32(endian::to_little(static_cast<std::uint32_t>(file_size)));
 
 	// bfReserved1
-	binary_writer.write_u16(Endian::little(std::uint16_t{0}));
+	binary_writer.write_u16(endian::to_little(std::uint16_t{0}));
 
 	// bfReserved2
-	binary_writer.write_u16(Endian::little(std::uint16_t{0}));
+	binary_writer.write_u16(endian::to_little(std::uint16_t{0}));
 
 	// bfOffBits
-	binary_writer.write_u32(Endian::little(static_cast<std::uint32_t>(bits_offset)));
+	binary_writer.write_u32(endian::to_little(static_cast<std::uint32_t>(bits_offset)));
 
 	// -------------------------------------------------------------------------
 	// BITMAPCOREHEADER
@@ -520,19 +515,19 @@ try
 	if (is_core_header)
 	{
 		// bcSize
-		binary_writer.write_u32(Endian::little(static_cast<std::uint32_t>(info_header_size)));
+		binary_writer.write_u32(endian::to_little(static_cast<std::uint32_t>(info_header_size)));
 
 		// bcWidth
-		binary_writer.write_u16(Endian::little(static_cast<std::uint16_t>(width_)));
+		binary_writer.write_u16(endian::to_little(static_cast<std::uint16_t>(width_)));
 
 		// bcHeight
-		binary_writer.write_u16(Endian::little(static_cast<std::uint16_t>(height_)));
+		binary_writer.write_u16(endian::to_little(static_cast<std::uint16_t>(height_)));
 
 		// bcPlanes
-		binary_writer.write_u16(Endian::little(std::uint16_t{bmp::plane_count}));
+		binary_writer.write_u16(endian::to_little(std::uint16_t{bmp::plane_count}));
 
 		// bcBitCount
-		binary_writer.write_u16(Endian::little(static_cast<std::uint16_t>(bit_depth_)));
+		binary_writer.write_u16(endian::to_little(static_cast<std::uint16_t>(bit_depth_)));
 	}
 
 	// -------------------------------------------------------------------------
@@ -541,37 +536,37 @@ try
 	if (!is_core_header)
 	{
 		// biSize
-		binary_writer.write_u32(Endian::little(static_cast<std::uint32_t>(info_header_size)));
+		binary_writer.write_u32(endian::to_little(static_cast<std::uint32_t>(info_header_size)));
 
 		// biWidth
-		binary_writer.write_s32(Endian::little(width_));
+		binary_writer.write_s32(endian::to_little(width_));
 
 		// biHeight
-		binary_writer.write_s32(Endian::little(is_bpp32 ? -height_ : height_));
+		binary_writer.write_s32(endian::to_little(is_bpp32 ? -height_ : height_));
 
 		// biPlanes
-		binary_writer.write_u16(Endian::little(std::uint16_t{bmp::plane_count}));
+		binary_writer.write_u16(endian::to_little(std::uint16_t{bmp::plane_count}));
 
 		// biBitCount
-		binary_writer.write_u16(Endian::little(static_cast<std::uint16_t>(bit_depth_)));
+		binary_writer.write_u16(endian::to_little(static_cast<std::uint16_t>(bit_depth_)));
 
 		// biCompression
-		binary_writer.write_u32(Endian::little(compression));
+		binary_writer.write_u32(endian::to_little(compression));
 
 		// biSizeImage
-		binary_writer.write_u32(Endian::little(static_cast<std::uint32_t>(bits_byte_count)));
+		binary_writer.write_u32(endian::to_little(static_cast<std::uint32_t>(bits_byte_count)));
 
 		// biXPelsPerMeter
-		binary_writer.write_s32(Endian::little(std::int32_t{0}));
+		binary_writer.write_s32(endian::to_little(std::int32_t{0}));
 
 		// biYPelsPerMeter
-		binary_writer.write_s32(Endian::little(std::int32_t{0}));
+		binary_writer.write_s32(endian::to_little(std::int32_t{0}));
 
 		// biClrUsed
-		binary_writer.write_u32(Endian::little(static_cast<std::uint32_t>(palette_size_)));
+		binary_writer.write_u32(endian::to_little(static_cast<std::uint32_t>(palette_size_)));
 
 		// biClrImportant
-		binary_writer.write_u32(Endian::little(std::uint32_t{0}));
+		binary_writer.write_u32(endian::to_little(std::uint32_t{0}));
 	}
 
 	// ----------------------------------------------------------------------
@@ -582,31 +577,31 @@ try
 		constexpr std::uint8_t endpoints[bmp::ciexyztriple_size] = {};
 
 		// bV4RedMask
-		binary_writer.write_u32(Endian::little(0x00FF0000U));
+		binary_writer.write_u32(endian::to_little(0x00FF0000U));
 
 		// bV4GreenMask
-		binary_writer.write_u32(Endian::little(0x0000FF00U));
+		binary_writer.write_u32(endian::to_little(0x0000FF00U));
 
 		// bV4BlueMask
-		binary_writer.write_u32(Endian::little(0x000000FFU));
+		binary_writer.write_u32(endian::to_little(0x000000FFU));
 
 		// bV4AlphaMask
-		binary_writer.write_u32(Endian::little(0xFF000000U));
+		binary_writer.write_u32(endian::to_little(0xFF000000U));
 
 		// bV4CSType
-		binary_writer.write_u32(Endian::little(bmp::lcs_calibrated_rgb));
+		binary_writer.write_u32(endian::to_little(bmp::lcs_calibrated_rgb));
 
 		// bV4Endpoints
 		binary_writer.write(endpoints);
 
 		// bV4GammaRed
-		binary_writer.write_u32(Endian::little(0));
+		binary_writer.write_u32(endian::to_little(0));
 
 		// bV4GammaGreen
-		binary_writer.write_u32(Endian::little(0));
+		binary_writer.write_u32(endian::to_little(0));
 
 		// bV4GammaBlue
-		binary_writer.write_u32(Endian::little(0));
+		binary_writer.write_u32(endian::to_little(0));
 	}
 
 	// -------------------------------------------------------------------------

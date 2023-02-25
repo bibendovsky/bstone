@@ -427,6 +427,7 @@ target_sources(
 		bstone_page_mgr.h
 		bstone_pc_speaker_audio_decoder.h
 		bstone_pcm_audio_decoder.h
+		bstone_platform.h
 		bstone_precompiled.h
 		bstone_ps_fizzle_fx.h
 		bstone_raw_uptr.h

@@ -226,9 +226,9 @@ void PageMgrImpl::load_vswap()
 
 	const auto u16_elements = reinterpret_cast<const std::uint16_t*>(pages_bytes);
 
-	count_ = bstone::Endian::little(u16_elements[0]);
-	sprite_base_index_ = bstone::Endian::little(u16_elements[1]);
-	audio_base_index_ = bstone::Endian::little(u16_elements[2]);
+	count_ = bstone::endian::to_little(u16_elements[0]);
+	sprite_base_index_ = bstone::endian::to_little(u16_elements[1]);
+	audio_base_index_ = bstone::endian::to_little(u16_elements[2]);
 
 	pages_ptrs_.resize(count_ + 1);
 
@@ -236,7 +236,7 @@ void PageMgrImpl::load_vswap()
 
 	for (auto i = 0; i <= count_; ++i)
 	{
-		const auto page_offset = bstone::Endian::little(page_offsets[i]);
+		const auto page_offset = bstone::endian::to_little(page_offsets[i]);
 
 		if (page_offset > 0)
 		{
