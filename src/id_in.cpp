@@ -31,6 +31,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "id_in.h"
 #include "id_sd.h"
 #include "id_vl.h"
+#include "bstone_ascii.h"
 #include "bstone_char_conv.h"
 
 #define KeyInt 9 // The keyboard ISR number
@@ -468,7 +469,7 @@ char in_keyboard_map_to_char(const SDL_KeyboardEvent& e)
 		case SDLK_x:
 		case SDLK_y:
 		case SDLK_z:
-			return static_cast<char>(is_caps ? SDL_toupper(key_code) : key_code);
+			return static_cast<char>(is_caps ? bstone::ascii::to_upper(key_code) : key_code);
 	}
 
 	return '\0';
