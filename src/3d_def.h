@@ -4013,8 +4013,7 @@ void InitSmartAnim(
 	animdir_t AnimDir);
 
 
-void sys_sleep_for(
-	const int milliseconds);
+void sys_sleep_for(int milliseconds);
 
 void sys_default_sleep_for();
 

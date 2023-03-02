@@ -8,8 +8,10 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <cmath>
 #include <algorithm>
+#include <chrono>
 #include <functional>
 #include <stdexcept>
+#include <thread>
 #include "SDL.h"
 #include "3d_def.h"
 #include "jm_lzh.h"
@@ -10784,10 +10786,10 @@ void gametype::decode_barrier_index(
 	}
 }
 
-void sys_sleep_for(
-	const int milliseconds)
+void sys_sleep_for(int milliseconds)
 {
-	SDL_Delay(milliseconds);
+	const auto delay_ms = std::chrono::milliseconds{milliseconds};
+	std::this_thread::sleep_for(delay_ms);
 }
 
 void sys_default_sleep_for()
