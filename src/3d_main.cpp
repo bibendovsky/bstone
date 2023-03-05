@@ -5,6 +5,7 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
+#define SDL_MAIN_HANDLED
 
 #include <cmath>
 #include <algorithm>
@@ -26,6 +27,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_ascii.h"
 #include "bstone_char_conv.h"
 #include "bstone_endian.h"
+#include "bstone_entry_point.h"
 #include "bstone_exception.h"
 #include "bstone_file_system.h"
 #include "bstone_globals.h"

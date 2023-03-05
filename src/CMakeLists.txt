@@ -216,7 +216,6 @@ endif ()
 target_link_libraries(
 	${PROJECT_NAME}
 	PRIVATE
-		SDL2W::SDL2Wmain
 		SDL2W::SDL2W
 		Threads::Threads
 )
@@ -395,6 +394,7 @@ target_sources(
 		bstone_encoding.h
 		bstone_endian.h
 		bstone_enum_flags.h
+		bstone_entry_point.h
 		bstone_exception.h
 		bstone_file_stream.h
 		bstone_file_system.h
@@ -459,7 +459,7 @@ target_sources(
 		bstone_utility.h
 		bstone_version.h
 		bstone_video.h
-		bstone_voice.h		
+		bstone_voice.h
 		bstone_voice_group.h
 		bstone_zstring_view.h
 )
@@ -587,6 +587,7 @@ target_sources(
 		bstone_c_str.cpp
 		bstone_dosbox_dbopl.cpp
 		bstone_encoding.cpp
+		bstone_entry_point.cpp
 		bstone_exception.cpp
 		bstone_file_stream.cpp
 		bstone_file_system.cpp
