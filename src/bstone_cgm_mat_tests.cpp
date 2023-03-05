@@ -102,8 +102,6 @@ private:
 	template<Int M, Int N, typename T>
 	static void make_mat(const std::array<T, M * N>& m, char (&storage)[M * N * sizeof(T)], const M4Tag)
 	{
-		assert(storage != nullptr);
-
 		new (storage) MatT<4, 4, T>(
 			m[ 0], m[ 1], m[ 2], m[ 3],
 			m[ 4], m[ 5], m[ 6], m[ 7],
@@ -178,20 +176,20 @@ private:
 	{
 		using Mat = MatT<M, N, T>;
 		const auto m = Mat{};
-		const auto& am = reinterpret_cast<const Mat::Item(&)[Mat::item_count]>(m);
-		check(std::all_of(std::cbegin(am), std::cend(am), [](const Mat::Item& x) { return x == 0; }), "zgtmofkv");
+		const auto& am = reinterpret_cast<const typename Mat::Item(&)[Mat::item_count]>(m);
+		check(std::all_of(std::cbegin(am), std::cend(am), [](const typename Mat::Item& x) { return x == 0; }), "zgtmofkv");
 	}
 
 	template<Int M, Int N, typename T>
 	void test_ctor_explicit_values()
 	{
 		using Mat = MatT<M, N, T>;
-		const auto a = make_sequence_1<Mat::row_count, Mat::column_count, Mat::Item>();
+		const auto a = make_sequence_1<Mat::row_count, Mat::column_count, typename Mat::Item>();
 		char ms[sizeof(Mat)];
 		auto& m = reinterpret_cast<Mat&>(ms);
-		make_mat<Mat::row_count, Mat::column_count, Mat::Item>(a, ms);
+		make_mat<Mat::row_count, Mat::column_count, typename Mat::Item>(a, ms);
 		const auto md = make_mat_deleter(m);
-		const auto& am = reinterpret_cast<const Mat::Item(&)[Mat::item_count]>(m);
+		const auto& am = reinterpret_cast<const typename Mat::Item(&)[Mat::item_count]>(m);
 		check(std::equal(std::cbegin(am), std::cend(am), std::cbegin(a)), "d0uh15ki");
 	}
 
@@ -199,13 +197,13 @@ private:
 	void test_copy_ctor()
 	{
 		using Mat = MatT<M, N, T>;
-		const auto a = make_sequence_1<Mat::row_count, Mat::column_count, Mat::Item>();
+		const auto a = make_sequence_1<Mat::row_count, Mat::column_count, typename Mat::Item>();
 		char m0s[sizeof(Mat)];
 		auto& m0 = reinterpret_cast<Mat&>(m0s);
-		make_mat<Mat::row_count, Mat::column_count, Mat::Item>(a, m0s);
+		make_mat<Mat::row_count, Mat::column_count, typename Mat::Item>(a, m0s);
 		const auto m0d = make_mat_deleter(m0);
 		const auto m = m0;
-		const auto& am = reinterpret_cast<const Mat::Item(&)[Mat::item_count]>(m);
+		const auto& am = reinterpret_cast<const typename Mat::Item(&)[Mat::item_count]>(m);
 		check(std::equal(std::cbegin(am), std::cend(am), std::cbegin(a)), "mqiqc7xa");
 	}
 
@@ -213,14 +211,14 @@ private:
 	void test_assignment_operator()
 	{
 		using Mat = MatT<M, N, T>;
-		const auto a = make_sequence_1<Mat::row_count, Mat::column_count, Mat::Item>();
+		const auto a = make_sequence_1<Mat::row_count, Mat::column_count, typename Mat::Item>();
 		char m0s[sizeof(Mat)];
 		auto& m0 = reinterpret_cast<Mat&>(m0s);
-		make_mat<Mat::row_count, Mat::column_count, Mat::Item>(a, m0s);
+		make_mat<Mat::row_count, Mat::column_count, typename Mat::Item>(a, m0s);
 		const auto m0d = make_mat_deleter(m0);
 		auto m = Mat{};
 		m = m0;
-		const auto& am = reinterpret_cast<const Mat::Item(&)[Mat::item_count]>(m);
+		const auto& am = reinterpret_cast<const typename Mat::Item(&)[Mat::item_count]>(m);
 		check(std::equal(std::cbegin(am), std::cend(am), std::cbegin(a)), "qkdhxc8b");
 	}
 
@@ -228,10 +226,10 @@ private:
 	void test_const_index_operator()
 	{
 		using Mat = MatT<M, N, T>;
-		const auto a = make_sequence_1<Mat::row_count, Mat::column_count, Mat::Item>();
+		const auto a = make_sequence_1<Mat::row_count, Mat::column_count, typename Mat::Item>();
 		char ms[sizeof(Mat)];
 		auto& m = reinterpret_cast<Mat&>(ms);
-		make_mat<Mat::row_count, Mat::column_count, Mat::Item>(a, ms);
+		make_mat<Mat::row_count, Mat::column_count, typename Mat::Item>(a, ms);
 		const auto md = make_mat_deleter(m);
 		check(are_equals_via_index(a, m), "1nnwph8j");
 	}
@@ -240,10 +238,10 @@ private:
 	void test_index_operator()
 	{
 		using Mat = MatT<M, N, T>;
-		const auto a = make_sequence_1<Mat::row_count, Mat::column_count, Mat::Item>();
+		const auto a = make_sequence_1<Mat::row_count, Mat::column_count, typename Mat::Item>();
 		char ms[sizeof(Mat)];
 		auto& m = reinterpret_cast<Mat&>(ms);
-		make_mat<Mat::row_count, Mat::column_count, Mat::Item>(a, ms);
+		make_mat<Mat::row_count, Mat::column_count, typename Mat::Item>(a, ms);
 		const auto md = make_mat_deleter(m);
 
 		for (auto i = decltype(Mat::item_count){}; i < Mat::item_count; ++i)

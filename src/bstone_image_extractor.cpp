@@ -39,6 +39,8 @@ public:
 
 } // namespace
 
+const std::uint8_t ImageExtractor::padding_bytes[3] = {};
+
 ImageExtractor::ImageExtractor()
 {
 	initialize_colors();

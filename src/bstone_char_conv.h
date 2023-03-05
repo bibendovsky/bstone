@@ -233,7 +233,6 @@ inline constexpr Int to_chars(
 	const auto is_minus_sign = (value < 0);
 	const auto is_uppercase_value = ((format & ToCharsFormat::uppercase_value) != ToCharsFormat{});
 
-	using Unsigned = std::make_unsigned_t<TValue>;
 	auto u_value = detail::ToCharsIntegralToUnsigned<TValue>{}(value);
 
 	auto chars_it = chars_span.begin();

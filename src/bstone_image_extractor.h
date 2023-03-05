@@ -49,7 +49,7 @@ private:
 	using LineBuffer = std::array<std::uint8_t, max_width>;
 
 private:
-	static constexpr const std::uint8_t padding_bytes[3] = {};
+	static const std::uint8_t padding_bytes[3];
 
 private:
 	int sprite_count_{};

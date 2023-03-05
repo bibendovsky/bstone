@@ -30,7 +30,7 @@ public:
 	void swap(CVarString& rhs) noexcept;
 
 private:
-	static const auto initial_capacity = Int{32};
+	static const Int initial_capacity;
 
 private:
 	RawUPtr storage_{};
