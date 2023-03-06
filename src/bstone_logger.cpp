@@ -16,9 +16,8 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <iostream>
 #include <mutex>
 
-#include "SDL_messagebox.h"
-
 #include "bstone_file_stream.h"
+#include "bstone_sys_message_box.h"
 #include "bstone_version.h"
 
 
@@ -134,12 +133,10 @@ try
 
 	if (is_critical)
 	{
-		static_cast<void>(::SDL_ShowSimpleMessageBox(
-			::SDL_MESSAGEBOX_ERROR,
+		bstone::sys::show_message_box(
 			get_message_box_title().c_str(),
 			message_.c_str(),
-			nullptr)
-		);
+			bstone::sys::MessageBoxType::error);
 	}
 }
 catch (...)

@@ -19,8 +19,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <algorithm>
 #include <iostream>
 
-#include "SDL_messagebox.h"
-
 #include "audio.h"
 #include "id_ca.h"
 #include "id_heads.h"
@@ -37,6 +35,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_version.h"
 #include "bstone_content_path.h"
 #include "bstone_file_system.h"
+#include "bstone_sys_message_box.h"
 
 
 extern SpanStart spanstart;
@@ -477,48 +476,38 @@ const FoundContent* choose_content(
 
 	bstone::logger_->write("Found multiple contents.");
 
-	using SdlButton = SDL_MessageBoxButtonData;
-	using SdlButtons = std::vector<SdlButton>;
+	using Button = bstone::sys::MessageBoxButtonDescriptor;
+	using Buttons = std::vector<Button>;
 
-	auto sdl_buttons = SdlButtons{};
-	sdl_buttons.reserve(found_contents.size() + 1);
+	auto buttons = Buttons{};
+	buttons.reserve(found_contents.size() + 1);
 
 	auto button_id = 0;
 
 	for (const auto& found_content : found_contents)
 	{
-		sdl_buttons.emplace_back();
-		auto& sdl_button = sdl_buttons.back();
-		sdl_button.buttonid = button_id++;
-		sdl_button.text = get_content_acronym(found_content.game_);
+		buttons.emplace_back();
+		auto& button = buttons.back();
+		button.id = button_id++;
+		button.text = get_content_acronym(found_content.game_);
 	}
 
 	{
-		sdl_buttons.emplace_back();
-		auto& sdl_button = sdl_buttons.back();
-		sdl_button.flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT;
-		sdl_button.buttonid = -1;
-		sdl_button.text = "Cancel";
+		buttons.emplace_back();
+		auto& button = buttons.back();
+		button.id = -1;
+		button.flags = bstone::sys::MessageBoxButtonFlags::default_for_escape_key;
+		button.text = "Cancel";
 	}
 
-	auto sdl_message_box_data = SDL_MessageBoxData{};
-	sdl_message_box_data.flags = SDL_MESSAGEBOX_INFORMATION;
-	sdl_message_box_data.title = get_message_box_title().c_str();
-	sdl_message_box_data.message = "Select content to play.";
-	sdl_message_box_data.numbuttons = static_cast<int>(sdl_buttons.size());
-	sdl_message_box_data.buttons = sdl_buttons.data();
-
-	auto selected_button_id = -1;
+	auto descriptor = bstone::sys::MessageBoxDescriptor{};
+	descriptor.type = bstone::sys::MessageBoxType::information;
+	descriptor.title = get_message_box_title().c_str();
+	descriptor.message = "Select content to play.";
+	descriptor.buttons = bstone::make_span(buttons.data(), static_cast<bstone::Int>(buttons.size())).to_const();
 
 	bstone::logger_->write("Waiting for user response.");
-
-	const auto sdl_result = SDL_ShowMessageBox(&sdl_message_box_data, &selected_button_id);
-
-	if (sdl_result != 0)
-	{
-		const auto sdl_error = SDL_GetError();
-		::fail(std::string{"Failed to show message box. "} + sdl_error);
-	}
+	const auto selected_button_id = bstone::sys::show_message_box(descriptor);
 
 	if (selected_button_id < 0)
 	{
@@ -1418,12 +1407,10 @@ static void output_version()
 
 	// Message box.
 	//
-	static_cast<void>(SDL_ShowSimpleMessageBox(
-		SDL_MESSAGEBOX_INFORMATION,
+	bstone::sys::show_message_box(
 		get_message_box_title().c_str(),
 		message.c_str(),
-		nullptr)
-	);
+		bstone::sys::MessageBoxType::information);
 }
 
 namespace {

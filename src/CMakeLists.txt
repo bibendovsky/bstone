@@ -462,6 +462,8 @@ target_sources(
 		bstone_voice.h
 		bstone_voice_group.h
 		bstone_zstring_view.h
+
+		bstone_sys_message_box.h
 )
 
 if (WIN32)
@@ -645,6 +647,8 @@ target_sources(
 		bstone_video.cpp
 		bstone_voice_group.cpp
 		bstone_zstring_view.cpp
+
+		bstone_sys_sdl_message_box.cpp
 )
 
 if (WIN32)
