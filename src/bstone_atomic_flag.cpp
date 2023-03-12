@@ -4,51 +4,34 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-
 #include "bstone_atomic_flag.h"
 
+namespace bstone {
 
-namespace bstone
-{
-
-
-AtomicFlag::AtomicFlag() noexcept = default;
-
-AtomicFlag::AtomicFlag(
-	bool value) noexcept
+AtomicFlag::AtomicFlag(bool value) noexcept
 	:
 	flag_{value}
-{
-}
+{}
 
-AtomicFlag::AtomicFlag(
-	const AtomicFlag& rhs)
+AtomicFlag::AtomicFlag(const AtomicFlag& rhs) noexcept
 	:
-	flag_{rhs}
-{
-}
+	AtomicFlag{static_cast<bool>(rhs)}
+{}
 
-void AtomicFlag::operator=(
-	bool value) noexcept
-{
-	set(value);
-}
-
-bool AtomicFlag::is_set() const noexcept
-{
-	return flag_.load(std::memory_order_acquire);
-}
-
-void AtomicFlag::set(
-	bool value) noexcept
+AtomicFlag& AtomicFlag::operator=(bool value) noexcept
 {
 	flag_.store(value, std::memory_order_release);
+	return *this;
+}
+
+AtomicFlag& AtomicFlag::operator=(const AtomicFlag& rhs) noexcept
+{
+	return *this = static_cast<bool>(rhs);
 }
 
 AtomicFlag::operator bool() const noexcept
 {
-	return is_set();
+	return flag_.load(std::memory_order_acquire);
 }
 
-
-} // bstone
+} // namespace bstone

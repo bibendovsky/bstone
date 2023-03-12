@@ -21,6 +21,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_audio_mixer_voice_handle.h"
 #include "bstone_cvar_mgr.h"
+#include "bstone_game_ticker.h"
 #include "bstone_math.h"
 #include "bstone_mt_task_mgr.h"
 #include "bstone_string_view.h"
@@ -2874,7 +2875,7 @@ extern PlayerWarp player_warp;
 =============================================================================
 */
 
-extern std::atomic_uint TimeCount; // Global time in ticks
+extern bstone::GameTicker TimeCount; // Global time in ticks
 
 extern std::int16_t TITLE_LOOP_MUSIC;
 

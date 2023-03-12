@@ -40,8 +40,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <atomic>
 #include <tuple>
 
-#include "SDL_timer.h"
-
 #include "id_heads.h"
 #include "id_in.h"
 #include "id_sd.h"
@@ -49,12 +47,13 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "id_vh.h"
 #include "id_vl.h"
 
+#include "bstone_game_ticker.h"
 #include "bstone_logger.h"
 
 
 // Global variables
 
-std::atomic_uint TimeCount; // Global time in ticks
+bstone::GameTicker TimeCount; // Global time in ticks
 
 char* abortprogram;
 std::int16_t PrintX;
@@ -87,27 +86,6 @@ void(*USL_DrawString)(const char*) = VWB_DrawPropString;
 
 SaveGame Games[MaxSaveGames];
 
-
-// BBi
-namespace
-{
-
-
-SDL_TimerID sys_timer_id;
-
-
-Uint32 sys_timer_callback(Uint32 interval, void* param) noexcept
-{
-	std::ignore = param;
-	++TimeCount;
-	return interval;
-}
-
-
-} // namespace
-// BBi
-
-
 HighScores Scores;
 
 ///////////////////////////////////////////////////////////////////////////
@@ -123,12 +101,7 @@ void US_Shutdown()
 	}
 
 	// BBi
-	if (SDL_RemoveTimer(sys_timer_id) == SDL_FALSE)
-	{
-		bstone::logger_->write_warning("Failed to remove a timer.");
-	}
-
-	sys_timer_id = 0;
+	TimeCount.close();
 	// BBi
 
 	US_Started = false;
@@ -716,15 +689,7 @@ void US_Startup()
 	}
 
 	// BBi
-	sys_timer_id = SDL_AddTimer(
-		1000 / TickBase,
-		sys_timer_callback,
-		nullptr);
-
-	if (sys_timer_id == 0)
-	{
-		::fail("Failed to add a timer.");
-	}
+	TimeCount.open(TickBase);
 	// BBi
 
 	US_InitRndT(true); // Initialize the random number generator

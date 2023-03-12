@@ -10123,7 +10123,7 @@ int main(
 
 		int sdl_result = 0;
 
-		std::uint32_t init_flags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER;
+		std::uint32_t init_flags = SDL_INIT_VIDEO | SDL_INIT_AUDIO;
 
 		sdl_result = SDL_Init(init_flags);
 

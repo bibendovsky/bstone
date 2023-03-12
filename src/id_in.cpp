@@ -1103,7 +1103,7 @@ void IN_Ack()
 ///////////////////////////////////////////////////////////////////////////
 bool IN_UserInput(std::uint32_t delay)
 {
-	auto lasttime = TimeCount.load(std::memory_order_acquire);
+	auto lasttime = static_cast<bstone::GameTicker::TickValue>(TimeCount);
 
 	IN_StartAck();
 
@@ -1115,7 +1115,7 @@ bool IN_UserInput(std::uint32_t delay)
 		{
 			return true;
 		}
-	} while ((TimeCount.load(std::memory_order_acquire) - lasttime) < delay);
+	} while ((TimeCount - lasttime) < delay);
 
 	return false;
 }
