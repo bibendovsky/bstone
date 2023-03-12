@@ -248,7 +248,7 @@ inline constexpr Int to_chars(
 		const auto next_value = u_value / base;
 		const auto digit = u_value - (next_value * base);
 		assert(digit < static_cast<decltype(digit)>(base));
-		u_value = next_value;
+		u_value = static_cast<decltype(u_value)>(next_value);
 		const auto digit_char = static_cast<TChar>(digit < 10 ? '0' + digit : 'a' + digit - 10);
 		*(chars_it++) = (is_uppercase_value ? ascii::to_upper(digit_char) : digit_char);
 

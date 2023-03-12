@@ -8,6 +8,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_ccmd_mgr.h"
 #include "bstone_cvar_mgr.h"
 #include "bstone_page_mgr.h"
+#include "bstone_sys_system_mgr.h"
 
 namespace bstone {
 namespace globals {
@@ -19,6 +20,11 @@ constexpr auto max_ccmds = 64;
 extern CCmdMgrUPtr ccmd_mgr;
 
 extern PageMgrUPtr page_mgr;
+
+extern sys::SystemMgrUPtr sys_system_mgr;
+extern sys::AudioMgrUPtr sys_audio_mgr;
+extern sys::EventMgrUPtr sys_event_mgr;
+extern sys::VideoMgrUPtr sys_video_mgr;
 
 } // globals
 } // bstone

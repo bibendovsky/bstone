@@ -24,8 +24,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 //
 
 #include <cstring>
-#include "SDL_events.h"
-#include "SDL_version.h"
+#include "SDL_mouse.h"
 #include "id_ca.h"
 #include "id_heads.h"
 #include "id_in.h"
@@ -33,6 +32,8 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "id_vl.h"
 #include "bstone_ascii.h"
 #include "bstone_char_conv.h"
+#include "bstone_globals.h"
+#include "bstone_sys_virtual_key.h"
 
 #define KeyInt 9 // The keyboard ISR number
 
@@ -92,6 +93,19 @@ bool allcaps = false;
 Bindings in_bindings;
 bool in_is_mouse_grabbed = false;
 static bool in_last_is_mouse_grabbed = false;
+
+auto in_is_lalt_pressed = false;
+auto in_is_ralt_pressed = false;
+auto in_is_lctrl_pressed = false;
+auto in_is_rctrl_pressed = false;
+auto in_is_lshift_pressed = false;
+auto in_is_rshift_pressed = false;
+auto in_is_lgui_pressed = false;
+auto in_is_rgui_pressed = false;
+
+auto in_is_caps_lock_pressed = false;
+auto in_is_scroll_lock_pressed = false;
+auto in_is_num_lock_pressed = false;
 
 /*
 =============================================================================
@@ -170,193 +184,199 @@ bool in_grab_mouse(bool grab)
 
 // Internal routines
 
+// TODO
+#if 0
+#ifdef __vita__
+auto in_mouse_dx = 0;
+auto in_mouse_dy = 0;
+#endif
+#else
+namespace {
+auto in_mouse_dx = 0;
+auto in_mouse_dy = 0;
+} // namespace
+#endif
+
 namespace {
 
-ScanCode in_keyboard_map_to_bstone(SDL_Keycode key_code, SDL_Keymod key_mod)
+ScanCode in_keyboard_map_to_bstone(bstone::sys::VirtualKey key_code)
 {
-	// FIXME There is no reliable way to check for numlock state in SDL.
-	auto is_numlock_active = true;
-
 	switch (key_code)
 	{
-		case SDLK_RETURN:
-		case SDLK_KP_ENTER:
+		case bstone::sys::vk_return:
+		case bstone::sys::vk_kp_enter:
 			return ScanCode::sc_return;
 
-		case SDLK_ESCAPE: return ScanCode::sc_escape;
+		case bstone::sys::vk_escape: return ScanCode::sc_escape;
 
-		case SDLK_SPACE:
-		case SDLK_KP_SPACE:
+		case bstone::sys::vk_space:
+		case bstone::sys::vk_kp_space:
 			return ScanCode::sc_space;
 
-		case SDLK_MINUS: return ScanCode::sc_minus;
-		case SDLK_EQUALS: return ScanCode::sc_equals;
+		case bstone::sys::vk_minus: return ScanCode::sc_minus;
+		case bstone::sys::vk_equals: return ScanCode::sc_equals;
 
-		case SDLK_BACKSPACE:
-		case SDLK_KP_BACKSPACE:
+		case bstone::sys::vk_backspace:
+		case bstone::sys::vk_kp_backspace:
 			return ScanCode::sc_backspace;
 
-		case SDLK_TAB:
-		case SDLK_KP_TAB:
+		case bstone::sys::vk_tab:
+		case bstone::sys::vk_kp_tab:
 			return ScanCode::sc_tab;
 
-		case SDLK_LALT:
-		case SDLK_RALT:
+		case bstone::sys::vk_lalt:
+		case bstone::sys::vk_ralt:
 			return ScanCode::sc_alt;
 
-		case SDLK_LEFTBRACKET:
-		case SDLK_KP_LEFTBRACE:
+		case bstone::sys::vk_lbracket:
+		case bstone::sys::vk_kp_lbrace:
 			return ScanCode::sc_left_bracket;
 
-		case SDLK_RIGHTBRACKET:
-		case SDLK_KP_RIGHTBRACE:
+		case bstone::sys::vk_rbracket:
+		case bstone::sys::vk_kp_rbrace:
 			return ScanCode::sc_right_bracket;
 
-		case SDLK_LCTRL:
-		case SDLK_RCTRL:
+		case bstone::sys::vk_lctrl:
+		case bstone::sys::vk_rctrl:
 			return ScanCode::sc_control;
 
-		case SDLK_CAPSLOCK: return ScanCode::sc_caps_lock;
-		case SDLK_NUMLOCKCLEAR: return ScanCode::sc_num_lock;
-		case SDLK_SCROLLLOCK: return ScanCode::sc_scroll_lock;
-		case SDLK_LSHIFT: return ScanCode::sc_left_shift;
-		case SDLK_RSHIFT: return ScanCode::sc_right_shift;
-		case SDLK_UP: return ScanCode::sc_up_arrow;
-		case SDLK_KP_8: return is_numlock_active ? ScanCode::sc_up_arrow : ScanCode::sc_8;
-		case SDLK_DOWN: return ScanCode::sc_down_arrow;
-		case SDLK_KP_2: return is_numlock_active ? ScanCode::sc_down_arrow : ScanCode::sc_2;
-		case SDLK_LEFT: return ScanCode::sc_left_arrow;
-		case SDLK_KP_4: return is_numlock_active ? ScanCode::sc_left_arrow : ScanCode::sc_4;
-		case SDLK_RIGHT: return ScanCode::sc_right_arrow;
-		case SDLK_KP_6: return is_numlock_active ? ScanCode::sc_right_arrow : ScanCode::sc_6;
-		case SDLK_INSERT: return ScanCode::sc_insert;
-		case SDLK_KP_0: return is_numlock_active ? ScanCode::sc_insert : ScanCode::sc_0;
-		case SDLK_DELETE: return ScanCode::sc_delete;
-		case SDLK_KP_COMMA: return is_numlock_active ? ScanCode::sc_delete : ScanCode::sc_comma;
-		case SDLK_HOME: return ScanCode::sc_home;
-		case SDLK_KP_7: return is_numlock_active ? ScanCode::sc_home : ScanCode::sc_7;
-		case SDLK_END: return ScanCode::sc_end;
-		case SDLK_KP_1: return is_numlock_active ? ScanCode::sc_end : ScanCode::sc_1;
-		case SDLK_PAGEUP: return ScanCode::sc_page_up;
-		case SDLK_KP_9: return is_numlock_active ? ScanCode::sc_page_up : ScanCode::sc_9;
-		case SDLK_PAGEDOWN: return ScanCode::sc_page_down;
-		case SDLK_KP_3: return is_numlock_active ? ScanCode::sc_page_down : ScanCode::sc_3;
+		case bstone::sys::vk_caps_lock: return ScanCode::sc_caps_lock;
+		case bstone::sys::vk_num_lock: return ScanCode::sc_num_lock;
+		case bstone::sys::vk_scroll_lock: return ScanCode::sc_scroll_lock;
+		case bstone::sys::vk_lshift: return ScanCode::sc_left_shift;
+		case bstone::sys::vk_rshift: return ScanCode::sc_right_shift;
+		case bstone::sys::vk_up: return ScanCode::sc_up_arrow;
+		case bstone::sys::vk_kp_8: return in_is_num_lock_pressed ? ScanCode::sc_up_arrow : ScanCode::sc_8;
+		case bstone::sys::vk_down: return ScanCode::sc_down_arrow;
+		case bstone::sys::vk_kp_2: return in_is_num_lock_pressed ? ScanCode::sc_down_arrow : ScanCode::sc_2;
+		case bstone::sys::vk_left: return ScanCode::sc_left_arrow;
+		case bstone::sys::vk_kp_4: return in_is_num_lock_pressed ? ScanCode::sc_left_arrow : ScanCode::sc_4;
+		case bstone::sys::vk_right: return ScanCode::sc_right_arrow;
+		case bstone::sys::vk_kp_6: return in_is_num_lock_pressed ? ScanCode::sc_right_arrow : ScanCode::sc_6;
+		case bstone::sys::vk_insert: return ScanCode::sc_insert;
+		case bstone::sys::vk_kp_0: return in_is_num_lock_pressed ? ScanCode::sc_insert : ScanCode::sc_0;
+		case bstone::sys::vk_delete: return ScanCode::sc_delete;
+		case bstone::sys::vk_kp_comma: return in_is_num_lock_pressed ? ScanCode::sc_delete : ScanCode::sc_comma;
+		case bstone::sys::vk_home: return ScanCode::sc_home;
+		case bstone::sys::vk_kp_7: return in_is_num_lock_pressed ? ScanCode::sc_home : ScanCode::sc_7;
+		case bstone::sys::vk_end: return ScanCode::sc_end;
+		case bstone::sys::vk_kp_1: return in_is_num_lock_pressed ? ScanCode::sc_end : ScanCode::sc_1;
+		case bstone::sys::vk_page_up: return ScanCode::sc_page_up;
+		case bstone::sys::vk_kp_9: return in_is_num_lock_pressed ? ScanCode::sc_page_up : ScanCode::sc_9;
+		case bstone::sys::vk_page_down: return ScanCode::sc_page_down;
+		case bstone::sys::vk_kp_3: return in_is_num_lock_pressed ? ScanCode::sc_page_down : ScanCode::sc_3;
 
-		case SDLK_SLASH:
-		case SDLK_KP_DIVIDE:
+		case bstone::sys::vk_slash:
+		case bstone::sys::vk_kp_divide:
 			return ScanCode::sc_slash;
 
-		case SDLK_BACKSLASH: return ScanCode::sc_backslash;
-		case SDLK_SEMICOLON: return ScanCode::sc_semicolon;
-		case SDLK_QUOTE: return ScanCode::sc_quote;
-		case SDLK_PERIOD: return ScanCode::sc_period;
-		case SDLK_F1: return ScanCode::sc_f1;
-		case SDLK_F2: return ScanCode::sc_f2;
-		case SDLK_F3: return ScanCode::sc_f3;
-		case SDLK_F4: return ScanCode::sc_f4;
-		case SDLK_F5: return ScanCode::sc_f5;
-		case SDLK_F6: return ScanCode::sc_f6;
-		case SDLK_F7: return ScanCode::sc_f7;
-		case SDLK_F8: return ScanCode::sc_f8;
-		case SDLK_F9: return ScanCode::sc_f9;
-		case SDLK_F10: return ScanCode::sc_f10;
-		case SDLK_F11: return ScanCode::sc_f11;
-		case SDLK_F12: return ScanCode::sc_f12;
-		case SDLK_PRINTSCREEN: return ScanCode::sc_print_screen;
-		case SDLK_PAUSE: return ScanCode::sc_pause;
-		case SDLK_BACKQUOTE: return ScanCode::sc_back_quote;
-		case SDLK_1: return ScanCode::sc_1;
-		case SDLK_2: return ScanCode::sc_2;
-		case SDLK_3: return ScanCode::sc_3;
-		case SDLK_4: return ScanCode::sc_4;
-		case SDLK_5: return ScanCode::sc_5;
-		case SDLK_6: return ScanCode::sc_6;
-		case SDLK_7: return ScanCode::sc_7;
-		case SDLK_8: return ScanCode::sc_8;
-		case SDLK_9: return ScanCode::sc_9;
-		case SDLK_0: return ScanCode::sc_0;
+		case bstone::sys::vk_backslash: return ScanCode::sc_backslash;
+		case bstone::sys::vk_semicolon: return ScanCode::sc_semicolon;
+		case bstone::sys::vk_quote: return ScanCode::sc_quote;
+		case bstone::sys::vk_period: return ScanCode::sc_period;
+		case bstone::sys::vk_f1: return ScanCode::sc_f1;
+		case bstone::sys::vk_f2: return ScanCode::sc_f2;
+		case bstone::sys::vk_f3: return ScanCode::sc_f3;
+		case bstone::sys::vk_f4: return ScanCode::sc_f4;
+		case bstone::sys::vk_f5: return ScanCode::sc_f5;
+		case bstone::sys::vk_f6: return ScanCode::sc_f6;
+		case bstone::sys::vk_f7: return ScanCode::sc_f7;
+		case bstone::sys::vk_f8: return ScanCode::sc_f8;
+		case bstone::sys::vk_f9: return ScanCode::sc_f9;
+		case bstone::sys::vk_f10: return ScanCode::sc_f10;
+		case bstone::sys::vk_f11: return ScanCode::sc_f11;
+		case bstone::sys::vk_f12: return ScanCode::sc_f12;
+		case bstone::sys::vk_prt_scr: return ScanCode::sc_print_screen;
+		case bstone::sys::vk_pause: return ScanCode::sc_pause;
+		case bstone::sys::vk_backtick: return ScanCode::sc_back_quote;
+		case bstone::sys::vk_1: return ScanCode::sc_1;
+		case bstone::sys::vk_2: return ScanCode::sc_2;
+		case bstone::sys::vk_3: return ScanCode::sc_3;
+		case bstone::sys::vk_4: return ScanCode::sc_4;
+		case bstone::sys::vk_5: return ScanCode::sc_5;
+		case bstone::sys::vk_6: return ScanCode::sc_6;
+		case bstone::sys::vk_7: return ScanCode::sc_7;
+		case bstone::sys::vk_8: return ScanCode::sc_8;
+		case bstone::sys::vk_9: return ScanCode::sc_9;
+		case bstone::sys::vk_0: return ScanCode::sc_0;
 
-		case SDLK_a:
-		case SDLK_KP_A:
+		case bstone::sys::vk_a:
+		case bstone::sys::vk_kp_a:
 			return ScanCode::sc_a;
 
-		case SDLK_b:
-		case SDLK_KP_B:
+		case bstone::sys::vk_b:
+		case bstone::sys::vk_kp_b:
 			return ScanCode::sc_b;
 
-		case SDLK_c:
-		case SDLK_KP_C:
+		case bstone::sys::vk_c:
+		case bstone::sys::vk_kp_c:
 			return ScanCode::sc_c;
 
-		case SDLK_d:
-		case SDLK_KP_D:
+		case bstone::sys::vk_d:
+		case bstone::sys::vk_kp_d:
 			return ScanCode::sc_d;
 
-		case SDLK_e:
-		case SDLK_KP_E:
+		case bstone::sys::vk_e:
+		case bstone::sys::vk_kp_e:
 			return ScanCode::sc_e;
 
-		case SDLK_f:
-		case SDLK_KP_F:
+		case bstone::sys::vk_f:
+		case bstone::sys::vk_kp_f:
 			return ScanCode::sc_f;
 
-		case SDLK_g: return ScanCode::sc_g;
-		case SDLK_h: return ScanCode::sc_h;
-		case SDLK_i: return ScanCode::sc_i;
-		case SDLK_j: return ScanCode::sc_j;
-		case SDLK_k: return ScanCode::sc_k;
-		case SDLK_l: return ScanCode::sc_l;
-		case SDLK_m: return ScanCode::sc_m;
-		case SDLK_n: return ScanCode::sc_n;
-		case SDLK_o: return ScanCode::sc_o;
-		case SDLK_p: return ScanCode::sc_p;
-		case SDLK_q: return ScanCode::sc_q;
-		case SDLK_r: return ScanCode::sc_r;
-		case SDLK_s: return ScanCode::sc_s;
-		case SDLK_t: return ScanCode::sc_t;
-		case SDLK_u: return ScanCode::sc_u;
-		case SDLK_v: return ScanCode::sc_v;
-		case SDLK_w: return ScanCode::sc_w;
-		case SDLK_x: return ScanCode::sc_x;
-		case SDLK_y: return ScanCode::sc_y;
-		case SDLK_z: return ScanCode::sc_z;
-		case SDLK_KP_MINUS: return ScanCode::sc_kp_minus;
-		case SDLK_KP_PLUS: return ScanCode::sc_kp_plus;
+		case bstone::sys::vk_g: return ScanCode::sc_g;
+		case bstone::sys::vk_h: return ScanCode::sc_h;
+		case bstone::sys::vk_i: return ScanCode::sc_i;
+		case bstone::sys::vk_j: return ScanCode::sc_j;
+		case bstone::sys::vk_k: return ScanCode::sc_k;
+		case bstone::sys::vk_l: return ScanCode::sc_l;
+		case bstone::sys::vk_m: return ScanCode::sc_m;
+		case bstone::sys::vk_n: return ScanCode::sc_n;
+		case bstone::sys::vk_o: return ScanCode::sc_o;
+		case bstone::sys::vk_p: return ScanCode::sc_p;
+		case bstone::sys::vk_q: return ScanCode::sc_q;
+		case bstone::sys::vk_r: return ScanCode::sc_r;
+		case bstone::sys::vk_s: return ScanCode::sc_s;
+		case bstone::sys::vk_t: return ScanCode::sc_t;
+		case bstone::sys::vk_u: return ScanCode::sc_u;
+		case bstone::sys::vk_v: return ScanCode::sc_v;
+		case bstone::sys::vk_w: return ScanCode::sc_w;
+		case bstone::sys::vk_x: return ScanCode::sc_x;
+		case bstone::sys::vk_y: return ScanCode::sc_y;
+		case bstone::sys::vk_z: return ScanCode::sc_z;
+		case bstone::sys::vk_kp_minus: return ScanCode::sc_kp_minus;
+		case bstone::sys::vk_kp_plus: return ScanCode::sc_kp_plus;
 		default: return ScanCode::sc_none;
 	}
 }
 
-char in_keyboard_map_to_char(const SDL_KeyboardEvent& e)
+char in_keyboard_map_to_char(const bstone::sys::KeyboardEvent& e)
 {
-	auto flags = e.keysym.mod;
 	auto is_caps = false;
-	auto is_shift = false;
-	auto key_code = e.keysym.sym;
+	auto key_code = e.key;
 
-	if ((flags & (
-		KMOD_LCTRL |
-		KMOD_RCTRL |
-		KMOD_LALT |
-		KMOD_RALT |
-		KMOD_LGUI |
-		KMOD_RGUI |
-		KMOD_MODE)) != 0)
+	if (in_is_lalt_pressed ||
+		in_is_ralt_pressed ||
+		in_is_lctrl_pressed ||
+		in_is_rctrl_pressed ||
+		in_is_lgui_pressed ||
+		in_is_rgui_pressed)
 	{
 		return '\0';
 	}
 
 	switch (key_code)
 	{
-		case SDLK_ESCAPE:
-		case SDLK_BACKSPACE:
-		case SDLK_TAB:
-		case SDLK_RETURN:
-		case SDLK_SPACE:
-		case SDLK_DELETE:
-			return static_cast<char>(key_code);
+		case bstone::sys::vk_escape: return '\x1B';
+		case bstone::sys::vk_backspace: return '\b';
+		case bstone::sys::vk_tab: return '\t';
+		case bstone::sys::vk_return: return '\n';
+		case bstone::sys::vk_space: return ' ';
+		case bstone::sys::vk_delete: return '\x7F';
+		default: break;
 	}
 
-	is_shift = ((flags & (KMOD_LSHIFT | KMOD_RSHIFT)) != 0);
+	const auto is_shift = (in_is_lshift_pressed || in_is_rshift_pressed);
 
 	if (allcaps)
 	{
@@ -364,7 +384,7 @@ char in_keyboard_map_to_char(const SDL_KeyboardEvent& e)
 	}
 	else
 	{
-		if ((flags & KMOD_CAPS) != 0)
+		if (in_is_caps_lock_pressed)
 		{
 			is_caps = !is_caps;
 		}
@@ -383,27 +403,27 @@ char in_keyboard_map_to_char(const SDL_KeyboardEvent& e)
 	{
 		switch (key_code)
 		{
-			case SDLK_1: return '!';
-			case SDLK_2: return '@';
-			case SDLK_3: return '#';
-			case SDLK_4: return '$';
-			case SDLK_5: return '%';
-			case SDLK_6: return '^';
-			case SDLK_7: return '&';
-			case SDLK_8: return '*';
-			case SDLK_9: return '(';
-			case SDLK_0: return ')';
-			case SDLK_MINUS: return '_';
-			case SDLK_EQUALS: return '+';
-			case SDLK_LEFTBRACKET: return '{';
-			case SDLK_RIGHTBRACKET: return '}';
-			case SDLK_SEMICOLON: return ':';
-			case SDLK_QUOTE: return '"';
-			case SDLK_BACKQUOTE: return '~';
-			case SDLK_BACKSLASH: return '|';
-			case SDLK_COMMA: return '<';
-			case SDLK_PERIOD: return '>';
-			case SDLK_SLASH: return '?';
+			case bstone::sys::vk_1: return '!';
+			case bstone::sys::vk_2: return '@';
+			case bstone::sys::vk_3: return '#';
+			case bstone::sys::vk_4: return '$';
+			case bstone::sys::vk_5: return '%';
+			case bstone::sys::vk_6: return '^';
+			case bstone::sys::vk_7: return '&';
+			case bstone::sys::vk_8: return '*';
+			case bstone::sys::vk_9: return '(';
+			case bstone::sys::vk_0: return ')';
+			case bstone::sys::vk_minus: return '_';
+			case bstone::sys::vk_equals: return '+';
+			case bstone::sys::vk_lbracket: return '{';
+			case bstone::sys::vk_rbracket: return '}';
+			case bstone::sys::vk_semicolon: return ':';
+			case bstone::sys::vk_quote: return '"';
+			case bstone::sys::vk_backtick: return '~';
+			case bstone::sys::vk_backslash: return '|';
+			case bstone::sys::vk_comma: return '<';
+			case bstone::sys::vk_period: return '>';
+			case bstone::sys::vk_slash: return '?';
 			default: break;
 		}
 	}
@@ -411,77 +431,91 @@ char in_keyboard_map_to_char(const SDL_KeyboardEvent& e)
 	{
 		switch (key_code)
 		{
-			case SDLK_1:
-			case SDLK_2:
-			case SDLK_3:
-			case SDLK_4:
-			case SDLK_5:
-			case SDLK_6:
-			case SDLK_7:
-			case SDLK_8:
-			case SDLK_9:
-			case SDLK_0:
-			case SDLK_MINUS:
-			case SDLK_EQUALS:
-			case SDLK_LEFTBRACKET:
-			case SDLK_RIGHTBRACKET:
-			case SDLK_SEMICOLON:
-			case SDLK_QUOTE:
-			case SDLK_BACKQUOTE:
-			case SDLK_BACKSLASH:
-			case SDLK_COMMA:
-			case SDLK_PERIOD:
-			case SDLK_SLASH:
-				return static_cast<char>(key_code);
+			case bstone::sys::vk_1: return '1';
+			case bstone::sys::vk_2: return '2';
+			case bstone::sys::vk_3: return '3';
+			case bstone::sys::vk_4: return '4';
+			case bstone::sys::vk_5: return '5';
+			case bstone::sys::vk_6: return '6';
+			case bstone::sys::vk_7: return '7';
+			case bstone::sys::vk_8: return '8';
+			case bstone::sys::vk_9: return '9';
+			case bstone::sys::vk_0: return '0';
+			case bstone::sys::vk_minus: return '-';
+			case bstone::sys::vk_equals: return '=';
+			case bstone::sys::vk_lbracket: return '[';
+			case bstone::sys::vk_rbracket: return ']';
+			case bstone::sys::vk_semicolon: return ';';
+			case bstone::sys::vk_quote: return '\'';
+			case bstone::sys::vk_backtick: return '`';
+			case bstone::sys::vk_backslash: return '\\';
+			case bstone::sys::vk_comma: return ',';
+			case bstone::sys::vk_period: return '.';
+			case bstone::sys::vk_slash: return '/';
+			default: break;
 		}
 	}
 
 
 	//
-	// Keys which depends on Caps MutexLock & L/R Shift
+	// Keys which depends on Caps Lock and Left or Right Shift.
 	//
 
 	switch (key_code)
 	{
-		case SDLK_a:
-		case SDLK_b:
-		case SDLK_c:
-		case SDLK_d:
-		case SDLK_e:
-		case SDLK_f:
-		case SDLK_g:
-		case SDLK_h:
-		case SDLK_i:
-		case SDLK_j:
-		case SDLK_k:
-		case SDLK_l:
-		case SDLK_m:
-		case SDLK_n:
-		case SDLK_o:
-		case SDLK_p:
-		case SDLK_q:
-		case SDLK_r:
-		case SDLK_s:
-		case SDLK_t:
-		case SDLK_u:
-		case SDLK_v:
-		case SDLK_w:
-		case SDLK_x:
-		case SDLK_y:
-		case SDLK_z:
-			return static_cast<char>(is_caps ? bstone::ascii::to_upper(key_code) : key_code);
+		case bstone::sys::vk_a: return is_caps ? 'A' : 'a';
+		case bstone::sys::vk_b: return is_caps ? 'B' : 'b';
+		case bstone::sys::vk_c: return is_caps ? 'C' : 'c';
+		case bstone::sys::vk_d: return is_caps ? 'D' : 'd';
+		case bstone::sys::vk_e: return is_caps ? 'E' : 'e';
+		case bstone::sys::vk_f: return is_caps ? 'F' : 'f';
+		case bstone::sys::vk_g: return is_caps ? 'G' : 'g';
+		case bstone::sys::vk_h: return is_caps ? 'H' : 'h';
+		case bstone::sys::vk_i: return is_caps ? 'I' : 'i';
+		case bstone::sys::vk_j: return is_caps ? 'J' : 'j';
+		case bstone::sys::vk_k: return is_caps ? 'K' : 'k';
+		case bstone::sys::vk_l: return is_caps ? 'L' : 'l';
+		case bstone::sys::vk_m: return is_caps ? 'M' : 'm';
+		case bstone::sys::vk_n: return is_caps ? 'N' : 'n';
+		case bstone::sys::vk_o: return is_caps ? 'O' : 'o';
+		case bstone::sys::vk_p: return is_caps ? 'P' : 'p';
+		case bstone::sys::vk_q: return is_caps ? 'Q' : 'q';
+		case bstone::sys::vk_r: return is_caps ? 'R' : 'r';
+		case bstone::sys::vk_s: return is_caps ? 'S' : 's';
+		case bstone::sys::vk_t: return is_caps ? 'T' : 't';
+		case bstone::sys::vk_u: return is_caps ? 'U' : 'u';
+		case bstone::sys::vk_v: return is_caps ? 'V' : 'v';
+		case bstone::sys::vk_w: return is_caps ? 'W' : 'w';
+		case bstone::sys::vk_x: return is_caps ? 'X' : 'x';
+		case bstone::sys::vk_y: return is_caps ? 'Y' : 'y';
+		case bstone::sys::vk_z: return is_caps ? 'Z' : 'z';
+		default: break;
 	}
 
 	return '\0';
 }
 
-auto in_is_take_screenshot_key_pressed = false;
-
-void in_handle_keyboard(const SDL_KeyboardEvent& e)
+void in_handle_keyboard(const bstone::sys::KeyboardEvent& e)
 {
-	const auto key_code = e.keysym.sym;
-	const auto key_mod = SDL_GetModState();
-	const auto key = in_keyboard_map_to_bstone(key_code, key_mod);
+	switch (e.key)
+	{
+		case bstone::sys::vk_lalt: in_is_lalt_pressed = e.is_pressed; break;
+		case bstone::sys::vk_ralt: in_is_ralt_pressed = e.is_pressed; break;
+		case bstone::sys::vk_lctrl: in_is_lctrl_pressed = e.is_pressed; break;
+		case bstone::sys::vk_rctrl: in_is_rctrl_pressed = e.is_pressed; break;
+		case bstone::sys::vk_lshift: in_is_lshift_pressed = e.is_pressed; break;
+		case bstone::sys::vk_rshift: in_is_rshift_pressed = e.is_pressed; break;
+		case bstone::sys::vk_lgui: in_is_lgui_pressed = e.is_pressed; break;
+		case bstone::sys::vk_rgui: in_is_rgui_pressed = e.is_pressed; break;
+
+		case bstone::sys::vk_caps_lock: in_is_caps_lock_pressed = e.is_pressed; break;
+		case bstone::sys::vk_scroll_lock: in_is_scroll_lock_pressed = e.is_pressed; break;
+		case bstone::sys::vk_num_lock: in_is_num_lock_pressed = e.is_pressed; break;
+
+		default: break;
+	}
+
+	const auto key = in_keyboard_map_to_bstone(e.key);
 
 	if (key == ScanCode::sc_none)
 	{
@@ -489,7 +523,7 @@ void in_handle_keyboard(const SDL_KeyboardEvent& e)
 	}
 
 	// Check for special keys
-	if (e.state == SDL_PRESSED)
+	if (e.is_pressed)
 	{
 		const auto& grab_mouse_binding = in_bindings[e_bi_grab_mouse];
 
@@ -506,17 +540,21 @@ void in_handle_keyboard(const SDL_KeyboardEvent& e)
 		}
 	}
 
-
 	auto is_pressed = false;
 
 	switch (key)
 	{
+// TODO
+#if 0
 #ifndef __vita__
 		// (vita) TranslateControllerEvent() does not currently affect the output of SDL_GetModState()
 		case ScanCode::sc_alt: is_pressed = ((key_mod & KMOD_ALT) != 0); break;
 #endif
-		case ScanCode::sc_control: is_pressed = ((key_mod & KMOD_CTRL) != 0); break;
-		default: is_pressed = (e.state == SDL_PRESSED); break;
+#else
+		case ScanCode::sc_alt: is_pressed = in_is_lalt_pressed || in_is_ralt_pressed; break;
+#endif
+		case ScanCode::sc_control: is_pressed = in_is_lctrl_pressed || in_is_rctrl_pressed; break;
+		default: is_pressed = e.is_pressed; break;
 	}
 
 	Keyboard[key] = is_pressed;
@@ -524,7 +562,7 @@ void in_handle_keyboard(const SDL_KeyboardEvent& e)
 	if (is_pressed)
 	{
 		LastScan = key;
-		char key_char = in_keyboard_map_to_char(e);
+		const auto key_char = in_keyboard_map_to_char(e);
 
 		if (key_char != '\0')
 		{
@@ -533,18 +571,18 @@ void in_handle_keyboard(const SDL_KeyboardEvent& e)
 	}
 }
 
-void in_handle_mouse_buttons( const SDL_MouseButtonEvent& e)
+void in_handle_mouse_buttons(const bstone::sys::MouseButtonEvent& e)
 {
 	auto key = ScanCode::sc_none;
-	auto is_pressed = (e.state == SDL_PRESSED);
+	auto is_pressed = e.is_pressed;
 
-	switch (e.button)
+	switch (e.button_index)
 	{
-		case SDL_BUTTON_LEFT: key = ScanCode::sc_mouse_left; break;
-		case SDL_BUTTON_MIDDLE: key = ScanCode::sc_mouse_middle; break;
-		case SDL_BUTTON_RIGHT: key = ScanCode::sc_mouse_right; break;
-		case SDL_BUTTON_X1: key = ScanCode::sc_mouse_x1; break;
-		case SDL_BUTTON_X2: key = ScanCode::sc_mouse_x2; break;
+		case bstone::sys::Mouse::left_button_index: key = ScanCode::sc_mouse_left; break;
+		case bstone::sys::Mouse::middle_button_index: key = ScanCode::sc_mouse_middle; break;
+		case bstone::sys::Mouse::right_button_index: key = ScanCode::sc_mouse_right; break;
+		case bstone::sys::Mouse::x1_button_index: key = ScanCode::sc_mouse_x1; break;
+		case bstone::sys::Mouse::x2_button_index: key = ScanCode::sc_mouse_x2; break;
 		default: break;
 	}
 
@@ -572,26 +610,12 @@ void in_handle_mouse_buttons( const SDL_MouseButtonEvent& e)
 	}
 }
 
-} // namespace
-
-#ifndef __vita__
-namespace {
-int in_mouse_dx;
-int in_mouse_dy;
-} // namespace
-#else
-int in_mouse_dx;
-int in_mouse_dy;
-#endif
-
-namespace {
-
-void in_handle_mouse_motion( const SDL_MouseMotionEvent& e)
+void in_handle_mouse_motion(const bstone::sys::MouseMotionEvent& e)
 {
 	if (in_is_mouse_grabbed)
 	{
-		in_mouse_dx += e.xrel;
-		in_mouse_dy += e.yrel;
+		in_mouse_dx += e.delta_x;
+		in_mouse_dy += e.delta_y;
 	}
 	else
 	{
@@ -600,21 +624,14 @@ void in_handle_mouse_motion( const SDL_MouseMotionEvent& e)
 	}
 }
 
-void in_handle_mouse_wheel( const SDL_MouseWheelEvent& e)
+void in_handle_mouse_wheel(const bstone::sys::MouseWheelEvent& e)
 {
 	if (!in_is_mouse_grabbed)
 	{
 		return;
 	}
 
-	auto vertical_value = e.y;
-
-#if SDL_VERSION_ATLEAST(2, 0, 4)
-	if (e.direction == SDL_MOUSEWHEEL_FLIPPED)
-	{
-		vertical_value = -vertical_value;
-	}
-#endif // SDL_VERSION_ATLEAST(2, 0, 4)
+	const auto vertical_value = (e.direction == bstone::sys::MouseWheelDirection::normal ? e.y : -e.y);
 
 	auto scan_code = ScanCode{};
 
@@ -634,20 +651,7 @@ void in_handle_mouse_wheel( const SDL_MouseWheelEvent& e)
 	}
 }
 
-void in_handle_mouse(const SDL_Event& e)
-{
-	switch (e.type)
-	{
-	case SDL_MOUSEBUTTONDOWN:
-	case SDL_MOUSEBUTTONUP:
-		in_handle_mouse_buttons(e.button);
-		break;
-
-	case SDL_MOUSEMOTION: in_handle_mouse_motion(e.motion); break;
-	case SDL_MOUSEWHEEL: in_handle_mouse_wheel(e.wheel); break;
-	default: break;
-	}
-}
+auto in_is_take_screenshot_key_pressed = false;
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -754,6 +758,7 @@ void IN_Shutdown()
 
 	INL_ShutKbd();
 	INL_ShutMouse();
+	bstone::globals::sys_event_mgr = nullptr;
 	IN_Started = false;
 }
 
@@ -771,13 +776,13 @@ void IN_ClearKeysDown()
 
 namespace {
 
-void in_handle_window(const SDL_WindowEvent& e)
+void in_handle_window(const bstone::sys::WindowEvent& e)
 {
 	auto reset_state = false;
 
-	switch (e.event)
+	switch (e.type)
 	{
-		case SDL_WINDOWEVENT_FOCUS_GAINED:
+		case bstone::sys::WindowEventType::keyboard_focus_gained:
 			reset_state = true;
 
 			if (in_last_is_mouse_grabbed)
@@ -788,7 +793,7 @@ void in_handle_window(const SDL_WindowEvent& e)
 			sd_mute(false);
 			break;
 
-		case SDL_WINDOWEVENT_FOCUS_LOST:
+		case bstone::sys::WindowEventType::keyboard_focus_lost:
 			reset_state = true;
 			in_last_is_mouse_grabbed = in_is_mouse_grabbed;
 			in_grab_mouse(false);
@@ -809,13 +814,14 @@ void in_handle_window(const SDL_WindowEvent& e)
 void in_handle_events()
 {
 	in_is_take_screenshot_key_pressed = false;
-	SDL_Event e;
-	SDL_PumpEvents();
+	auto e = bstone::sys::Event{};
 
-	while (SDL_PollEvent(&e))
+	while (bstone::globals::sys_event_mgr->poll_event(e))
 	{
 		switch (e.type)
 		{
+// TODO
+#if 0
 #ifdef __vita__
 			case SDL_JOYBUTTONDOWN:
 			case SDL_JOYBUTTONUP:
@@ -831,21 +837,32 @@ void in_handle_events()
 				TranslateAnalogEvent(&e);
 				break;
 #endif
-			case SDL_KEYDOWN:
-			case SDL_KEYUP:
-				in_handle_keyboard(e.key);
+#endif
+			case bstone::sys::EventType::keyboard:
+				in_handle_keyboard(e.data.keyboard);
 				break;
 
-			case SDL_MOUSEBUTTONDOWN:
-			case SDL_MOUSEBUTTONUP:
-			case SDL_MOUSEMOTION:
-			case SDL_MOUSEWHEEL:
-				in_handle_mouse(e);
+			case bstone::sys::EventType::mouse_motion:
+				in_handle_mouse_motion(e.data.mouse_motion);
 				break;
 
-			case SDL_WINDOWEVENT: in_handle_window(e.window); break;
-			case SDL_QUIT: Quit();
-			default: break;
+			case bstone::sys::EventType::mouse_button:
+				in_handle_mouse_buttons(e.data.mouse_button);
+				break;
+
+			case bstone::sys::EventType::mouse_wheel:
+				in_handle_mouse_wheel(e.data.mouse_wheel);
+				break;
+
+			case bstone::sys::EventType::window:
+				in_handle_window(e.data.window);
+				break;
+
+			case bstone::sys::EventType::quit:
+				Quit();
+
+			default:
+				break;
 		}
 	}
 
@@ -1155,6 +1172,8 @@ void IN_Startup()
 	INL_StartKbd();
 	MousePresent = INL_StartMouse();
 
+// TODO
+#if 0
 #ifdef __vita__
 	// Vita joysticks are treated separately from other kinds of joystick
 	if (!SDL_WasInit(SDL_INIT_JOYSTICK))
@@ -1165,6 +1184,9 @@ void IN_Startup()
 	SDL_JoystickOpen(0);
 	SDL_JoystickEventState(SDL_ENABLE);
 #endif
+#endif
+
+	bstone::globals::sys_event_mgr = bstone::globals::sys_system_mgr->make_event_mgr();
 
 	IN_Started = true;
 }
@@ -1283,6 +1305,19 @@ void in_reset_state()
 	}
 
 	in_clear_mouse_deltas();
+
+	in_is_lalt_pressed = false;
+	in_is_ralt_pressed = false;
+	in_is_lctrl_pressed = false;
+	in_is_rctrl_pressed = false;
+	in_is_lshift_pressed = false;
+	in_is_rshift_pressed = false;
+	in_is_lgui_pressed = false;
+	in_is_rgui_pressed = false;
+
+	in_is_caps_lock_pressed = false;
+	in_is_scroll_lock_pressed = false;
+	in_is_num_lock_pressed = false;
 }
 
 namespace {

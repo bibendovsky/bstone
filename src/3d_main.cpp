@@ -10018,52 +10018,6 @@ void DrawCreditsPage()
 	TP_Presenter(&pi);
 }
 
-namespace {
-
-void log_sdl_version(const SDL_version& sdl_version, bstone::StringView version_name)
-{
-	char major_chars[3];
-	const auto major_size = bstone::char_conv::to_chars(sdl_version.major, bstone::make_span(major_chars), 10);
-	char minor_chars[3];
-	const auto minor_size = bstone::char_conv::to_chars(sdl_version.minor, bstone::make_span(minor_chars), 10);
-	char patch_chars[3];
-	const auto patch_size = bstone::char_conv::to_chars(sdl_version.patch, bstone::make_span(patch_chars), 10);
-
-	auto version_string = std::string{};
-	version_string += "SDL ";
-	version_string.append(version_name.get_data(), static_cast<std::size_t>(version_name.get_size()));
-	version_string += " version: ";
-	version_string.append(major_chars, static_cast<std::size_t>(major_size));
-	version_string += '.';
-	version_string.append(minor_chars, static_cast<std::size_t>(minor_size));
-	version_string += '.';
-	version_string.append(patch_chars, static_cast<std::size_t>(patch_size));
-
-	bstone::logger_->write(version_string);
-}
-
-void log_sdl_compiled_version()
-{
-	auto sdl_version = SDL_version{};
-	SDL_VERSION(&sdl_version);
-	log_sdl_version(sdl_version, "compiled");
-}
-
-void log_sdl_linked_version()
-{
-	auto sdl_version = SDL_version{};
-	SDL_GetVersion(&sdl_version);
-	log_sdl_version(sdl_version, "linked");
-}
-
-void log_sdl_versions()
-{
-	log_sdl_compiled_version();
-	log_sdl_linked_version();
-}
-
-} // namespace
-
 int main(
 	int argc,
 	char* argv[])
@@ -10108,8 +10062,6 @@ int main(
 	auto logger = logger_factory.create();
 	bstone::logger_ = logger.get();
 
-	log_sdl_versions();
-
 	auto is_failed = false;
 	auto error_message = std::string{};
 
@@ -10121,16 +10073,33 @@ int main(
 		auto mt_task_manager = bstone::make_mt_task_manager(1, 4096);
 		mt_task_manager_ = mt_task_manager.get();
 
-		int sdl_result = 0;
+		class SysLogger final : public bstone::sys::Logger
+		{
+		public:
+			SysLogger(bstone::Logger& logger)
+				:
+				logger_{logger}
+			{}
 
 		std::uint32_t init_flags = SDL_INIT_VIDEO | SDL_INIT_AUDIO;
 
-		sdl_result = SDL_Init(init_flags);
+		private:
+			bstone::Logger& logger_;
 
-		if (sdl_result != 0)
-		{
-			fail("Failed to initialize SDL: " + std::string{SDL_GetError()});
-		}
+		private:
+			void do_log(bstone::sys::LogLevel level, const std::string& message) noexcept override
+			{
+				assert(level == bstone::sys::LogLevel::information);
+				message.empty() ? logger_.write() : logger_.write(message);
+			}
+		};
+
+		SysLogger sys_logger{*logger};
+
+		bstone::globals::sys_system_mgr = bstone::sys::make_system_mgr(sys_logger);
+		bstone::globals::sys_audio_mgr = bstone::globals::sys_system_mgr->make_audio_mgr();
+		bstone::globals::sys_event_mgr = bstone::globals::sys_system_mgr->make_event_mgr();
+		bstone::globals::sys_video_mgr = bstone::globals::sys_system_mgr->make_video_mgr();
 
 		freed_main();
 
@@ -10146,6 +10115,11 @@ int main(
 	}
 
 	pre_quit();
+
+	bstone::globals::sys_video_mgr = nullptr;
+	bstone::globals::sys_event_mgr = nullptr;
+	bstone::globals::sys_audio_mgr = nullptr;
+	bstone::globals::sys_system_mgr = nullptr;
 
 	if (is_failed)
 	{

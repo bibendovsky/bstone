@@ -1,0 +1,37 @@
+/*
+BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
+Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+SPDX-License-Identifier: MIT
+*/
+
+#if !defined(BSTONE_SYS_LOGGER_INCLUDED)
+#define BSTONE_SYS_LOGGER_INCLUDED
+
+#include <string>
+
+namespace bstone {
+namespace sys {
+
+enum class LogLevel
+{
+	none = 0,
+	information,
+};
+
+class Logger
+{
+public:
+	Logger() = default;
+	virtual ~Logger() = default;
+
+	void log_information() noexcept;
+	void log_information(const std::string& message) noexcept;
+
+private:
+	virtual void do_log(LogLevel level, const std::string& message) noexcept = 0;
+};
+
+} // namespace sys
+} // namespace bstone
+
+#endif // BSTONE_SYS_LOGGER_INCLUDED

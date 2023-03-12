@@ -12,26 +12,6 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
-namespace {
-
-class SdlMessageBoxException : public Exception
-{
-public:
-	explicit SdlMessageBoxException(const char* message)
-		:
-		Exception{"BSTONE_SYS_SDL_MESSAGE_BOX", message}
-	{}
-
-	~SdlMessageBoxException() override = default;
-};
-
-[[noreturn]] void message_box_fail(const char* message)
-{
-	throw SdlMessageBoxException{message};
-}
-
-} // namespace
-
 void show_message_box(
 	const char* title,
 	const char* message,
@@ -45,15 +25,12 @@ try
 		case MessageBoxType::error: sdl_flags |= SDL_MESSAGEBOX_ERROR; break;
 		case MessageBoxType::information: sdl_flags |= SDL_MESSAGEBOX_INFORMATION; break;
 		case MessageBoxType::warning: sdl_flags |= SDL_MESSAGEBOX_WARNING; break;
-		default: message_box_fail("Unknown type.");
+		default: BSTONE_STATIC_THROW("Unknown type.");
 	}
 
 	sdl_ensure_result(SDL_ShowSimpleMessageBox(sdl_flags, title, message, nullptr));
 }
-catch (...)
-{
-	std::throw_with_nested(__func__);
-}
+BSTONE_FUNC_STATIC_THROW_NESTED
 
 int show_message_box(const MessageBoxDescriptor& descriptor)
 try
@@ -65,14 +42,14 @@ try
 		case MessageBoxType::error: sdl_message_box_flags |= SDL_MESSAGEBOX_ERROR; break;
 		case MessageBoxType::information: sdl_message_box_flags |= SDL_MESSAGEBOX_INFORMATION; break;
 		case MessageBoxType::warning: sdl_message_box_flags |= SDL_MESSAGEBOX_WARNING; break;
-		default: message_box_fail("Unknown type.");
+		default: BSTONE_STATIC_THROW("Unknown type.");
 	}
 
 	constexpr auto max_buttons = 8;
 
 	if (descriptor.buttons.get_size() > max_buttons)
 	{
-		message_box_fail("Too many buttons.");
+		BSTONE_STATIC_THROW("Too many buttons.");
 	}
 
 	SDL_MessageBoxButtonData sdl_buttons[max_buttons];
@@ -110,10 +87,7 @@ try
 	sdl_ensure_result(SDL_ShowMessageBox(&sdl_message_box, &sdl_button_id));
 	return sdl_button_id;
 }
-catch (...)
-{
-	std::throw_with_nested(__func__);
-}
+BSTONE_FUNC_STATIC_THROW_NESTED
 
 } // namespace sys
 } // namespace bstone

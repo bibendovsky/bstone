@@ -4,34 +4,21 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-
 //
 // Base exception.
 //
 
-
-#include "bstone_exception.h"
-
 #include <cassert>
-
 #include <string>
 #include <vector>
-
+#include "bstone_exception.h"
 #include "bstone_int.h"
 
+namespace bstone {
 
-namespace bstone
-{
+namespace {
 
-
-namespace
-{
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-static constexpr Int get_c_string_size(
-	const char* string) noexcept
+static constexpr Int get_c_string_size(const char* string) noexcept
 {
 	assert(string);
 
@@ -45,20 +32,13 @@ static constexpr Int get_c_string_size(
 	return size;
 }
 
-
 } // namespace
 
+// ==========================================================================
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-Exception::Exception(
-	const char* context,
-	const char* message) noexcept
+Exception::Exception(const char* context, const char* message) noexcept
 {
-	assert(message);
+	assert(message != nullptr);
 
 	const auto has_contex = (context != nullptr);
 	const auto context_size = (has_contex ? get_c_string_size(context) : 0);
@@ -111,10 +91,9 @@ Exception::Exception(
 	*what = '\0';
 }
 
-Exception::Exception(
-	const Exception& rhs) noexcept
+Exception::Exception(const Exception& rhs) noexcept
 {
-	if (!rhs.what_)
+	if (rhs.what_ == nullptr)
 	{
 		return;
 	}
@@ -124,7 +103,7 @@ Exception::Exception(
 
 	what_.reset(new (std::nothrow) char[what_size + 1]);
 
-	if (!what_)
+	if (what_ == nullptr)
 	{
 		return;
 	}
@@ -138,24 +117,109 @@ Exception::~Exception() = default;
 
 const char* Exception::what() const noexcept
 {
-	return what_ ? what_.get() : "[BSTONE_EXCEPTION] Generic failure.";
+	return what_ != nullptr ? what_.get() : "[BSTONE_EXCEPTION] Generic failure.";
 }
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// ==========================================================================
 
+StaticException::StaticException(const char* file_name, int line, const char* function_name) noexcept
+	:
+	StaticException{file_name, line, function_name, nullptr}
+{}
 
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+StaticException::StaticException(
+	const char* file_name,
+	int line,
+	const char* function_name,
+	const char* message) noexcept
+	:
+	file_name_{file_name},
+	line_{line},
+	function_name_{function_name},
+	message_{message}
+{}
 
-namespace
+const char* StaticException::get_file_name() const noexcept
 {
+	return file_name_;
+}
 
+int StaticException::get_line() const noexcept
+{
+	return line_;
+}
 
-void extract_exception_messages(
-	ExceptionMessages& messages)
+const char* StaticException::get_function_name() const noexcept
+{
+	return function_name_;
+}
+
+const char* StaticException::get_message() const noexcept
+{
+	return message_;
+}
+
+const char* StaticException::what() const noexcept
+{
+	return message_ != nullptr ? message_ : "Generic failure.";
+}
+
+// --------------------------------------------------------------------------
+
+[[noreturn]] void static_fail(
+	const char* file_name,
+	int line,
+	const char* function_name,
+	const char* message)
+{
+	throw StaticException{file_name, line, function_name, message};
+}
+
+[[noreturn]] void static_fail_nested(
+	const char* file_name,
+	int line,
+	const char* function_name)
+{
+	std::throw_with_nested(StaticException{file_name, line, function_name});
+}
+
+// ==========================================================================
+
+namespace {
+
+void extract_exception_messages(ExceptionMessages& messages)
 {
 	try
 	{
 		std::rethrow_exception(std::current_exception());
+	}
+	catch (const StaticException& ex)
+	{
+		{
+			auto message = std::string{};
+			message.reserve(1024);
+			message += ex.get_file_name();
+			message += '(';
+			message += std::to_string(ex.get_line());
+			message += ") : ";
+
+			if (ex.get_function_name() != nullptr)
+			{
+				message += ex.get_function_name();
+				message += " : ";
+			}
+
+			messages.emplace_back(message);
+		}
+
+		try
+		{
+			std::rethrow_if_nested(ex);
+		}
+		catch (...)
+		{
+			extract_exception_messages(messages);
+		}
 	}
 	catch (const std::exception& ex)
 	{
@@ -176,7 +240,6 @@ void extract_exception_messages(
 	}
 }
 
-
 } // namespace
 
 
@@ -188,15 +251,11 @@ ExceptionMessages extract_exception_messages()
 	return messages;
 }
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// ==========================================================================
 
 std::string get_nested_message()
 {
 	auto messages = extract_exception_messages();
-
 	auto message_size = std::string::size_type{};
 
 	for (const auto& message : messages)
@@ -220,7 +279,4 @@ std::string get_nested_message()
 	return result;
 }
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-} // bstone
+} // namespace bstone
