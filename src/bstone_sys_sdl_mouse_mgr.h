@@ -4,18 +4,18 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-#include "bstone_exception.h"
-#include "bstone_sys_video_mgr.h"
+#if !defined(BSTONE_SYS_SDL_MOUSE_MGR_INCLUDED)
+#define BSTONE_SYS_SDL_MOUSE_MGR_INCLUDED
+
+#include "bstone_sys_logger.h"
+#include "bstone_sys_mouse_mgr.h"
 
 namespace bstone {
 namespace sys {
 
-MouseMgrUPtr VideoMgr::make_mouse_mgr()
-try
-{
-	return do_make_mouse_mgr();
-}
-BSTONE_FUNC_STATIC_THROW_NESTED
+MouseMgrUPtr make_sdl_mouse_mgr(Logger& logger);
 
 } // namespace sys
 } // namespace bstone
+
+#endif // BSTONE_SYS_SDL_MOUSE_MGR_INCLUDED

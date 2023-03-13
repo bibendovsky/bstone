@@ -4,32 +4,32 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-#if !defined(BSTONE_SYS_VIDEO_MGR_INCLUDED)
-#define BSTONE_SYS_VIDEO_MGR_INCLUDED
+#if !defined(BSTONE_SYS_MOUSE_MGR_INCLUDED)
+#define BSTONE_SYS_MOUSE_MGR_INCLUDED
 
 #include <memory>
-#include "bstone_sys_mouse_mgr.h"
 
 namespace bstone {
 namespace sys {
 
-class VideoMgr
+class MouseMgr
 {
 public:
-	VideoMgr() = default;
-	virtual ~VideoMgr() = default;
+	MouseMgr() = default;
+	virtual ~MouseMgr() = default;
 
-	MouseMgrUPtr make_mouse_mgr();
+	void set_relative_mode(bool is_enable);
 
 private:
-	virtual MouseMgrUPtr do_make_mouse_mgr() = 0;
+	virtual void do_set_relative_mode(bool is_enable) = 0;
 };
 
 // ==========================================================================
 
-using VideoMgrUPtr = std::unique_ptr<VideoMgr>;
+using MouseMgrUPtr = std::unique_ptr<MouseMgr>;
 
 } // namespace sys
 } // namespace bstone
 
-#endif // BSTONE_SYS_VIDEO_MGR_INCLUDED
+#endif // BSTONE_SYS_MOUSE_MGR_INCLUDED
+

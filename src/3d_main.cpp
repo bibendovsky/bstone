@@ -10116,6 +10116,7 @@ int main(
 
 	pre_quit();
 
+	bstone::globals::sys_mouse_mgr = nullptr;
 	bstone::globals::sys_video_mgr = nullptr;
 	bstone::globals::sys_event_mgr = nullptr;
 	bstone::globals::sys_audio_mgr = nullptr;

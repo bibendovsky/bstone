@@ -5,15 +5,15 @@ SPDX-License-Identifier: MIT
 */
 
 #include "bstone_exception.h"
-#include "bstone_sys_video_mgr.h"
+#include "bstone_sys_mouse_mgr.h"
 
 namespace bstone {
 namespace sys {
 
-MouseMgrUPtr VideoMgr::make_mouse_mgr()
+void MouseMgr::set_relative_mode(bool is_enable)
 try
 {
-	return do_make_mouse_mgr();
+	do_set_relative_mode(is_enable);
 }
 BSTONE_FUNC_STATIC_THROW_NESTED
 

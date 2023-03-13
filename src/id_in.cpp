@@ -24,7 +24,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 //
 
 #include <cstring>
-#include "SDL_mouse.h"
 #include "id_ca.h"
 #include "id_heads.h"
 #include "id_in.h"
@@ -168,17 +167,8 @@ bool in_grab_mouse(bool grab)
 		return grab;
 	}
 
-	const auto sdl_result = SDL_SetRelativeMouseMode(grab ? SDL_TRUE : SDL_FALSE);
-
-	if (sdl_result == 0)
-	{
-		in_is_mouse_grabbed = grab;
-	}
-	else
-	{
-		in_is_mouse_grabbed = false;
-	}
-
+	bstone::globals::sys_mouse_mgr->set_relative_mode(grab);
+	in_is_mouse_grabbed = grab;
 	return in_is_mouse_grabbed;
 }
 
@@ -758,6 +748,7 @@ void IN_Shutdown()
 
 	INL_ShutKbd();
 	INL_ShutMouse();
+	bstone::globals::sys_mouse_mgr = nullptr;
 	bstone::globals::sys_event_mgr = nullptr;
 	IN_Started = false;
 }
@@ -1187,6 +1178,7 @@ void IN_Startup()
 #endif
 
 	bstone::globals::sys_event_mgr = bstone::globals::sys_system_mgr->make_event_mgr();
+	bstone::globals::sys_mouse_mgr = bstone::globals::sys_video_mgr->make_mouse_mgr();
 
 	IN_Started = true;
 }

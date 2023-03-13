@@ -471,11 +471,13 @@ target_sources(
 		bstone_sys_virtual_key.h
 		bstone_sys_message_box.h
 		bstone_sys_mouse.h
+		bstone_sys_mouse_mgr.h
 		bstone_sys_system_mgr.h
 		bstone_sys_video_mgr.h
 
 		bstone_sys_sdl_audio_mgr.h
 		bstone_sys_sdl_event_mgr.h
+		bstone_sys_sdl_mouse_mgr.h
 		bstone_sys_sdl_video_mgr.h
 )
 
@@ -665,12 +667,15 @@ target_sources(
 		bstone_sys_audio_mgr.cpp
 		bstone_sys_event_mgr.cpp
 		bstone_sys_logger.cpp
+		bstone_sys_mouse_mgr.cpp
+		bstone_sys_sdl_event_mgr.cpp
 		bstone_sys_system_mgr.cpp
 		bstone_sys_video_mgr.cpp
 
 		bstone_sys_sdl_audio_mgr.cpp
 		bstone_sys_sdl_event_mgr.cpp
 		bstone_sys_sdl_message_box.cpp
+		bstone_sys_sdl_mouse_mgr.cpp
 		bstone_sys_sdl_system_mgr.cpp
 		bstone_sys_sdl_video_mgr.cpp
 )

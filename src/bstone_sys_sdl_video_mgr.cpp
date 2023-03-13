@@ -10,6 +10,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_exception.h"
 #include "bstone_sdl_exception.h"
 #include "bstone_sys_logger.h"
+#include "bstone_sys_sdl_mouse_mgr.h"
 #include "bstone_sys_sdl_video_mgr.h"
 
 namespace bstone {
@@ -27,6 +28,9 @@ public:
 
 private:
 	Logger& logger_;
+
+private:
+	MouseMgrUPtr do_make_mouse_mgr() override;
 
 private:
 	static void log_int(int value, std::string& message);
@@ -61,6 +65,11 @@ SdlVideoMgr::~SdlVideoMgr()
 	logger_.log_information("Shut down SDL video manager.");
 
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
+}
+
+MouseMgrUPtr SdlVideoMgr::do_make_mouse_mgr()
+{
+	return make_sdl_mouse_mgr(logger_);
 }
 
 void SdlVideoMgr::log_int(int value, std::string& message)

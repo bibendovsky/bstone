@@ -25,6 +25,7 @@ extern sys::SystemMgrUPtr sys_system_mgr;
 extern sys::AudioMgrUPtr sys_audio_mgr;
 extern sys::EventMgrUPtr sys_event_mgr;
 extern sys::VideoMgrUPtr sys_video_mgr;
+extern sys::MouseMgrUPtr sys_mouse_mgr;
 
 } // globals
 } // bstone
