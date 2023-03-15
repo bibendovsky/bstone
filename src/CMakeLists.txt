@@ -436,7 +436,6 @@ target_sources(
 		bstone_rgb8.h
 		bstone_rgb_palette.h
 		bstone_scope_guard.h
-		bstone_sdl_audio_mixer.h
 		bstone_sdl_texture_lock.h
 		bstone_sha1.h
 		bstone_span.h
@@ -450,6 +449,7 @@ target_sources(
 		bstone_string_view.h
 		bstone_string_view_hasher.h
 		bstone_sw_video.h
+		bstone_system_audio_mixer.h
 		bstone_text_extractor.h
 		bstone_text_reader.h
 		bstone_text_writer.h
@@ -465,6 +465,7 @@ target_sources(
 		bstone_zstring_view.h
 
 		bstone_sys_audio_mgr.h
+		bstone_sys_push_audio_device.h
 		bstone_sys_event.h
 		bstone_sys_event_mgr.h
 		bstone_sys_logger.h
@@ -476,6 +477,7 @@ target_sources(
 		bstone_sys_video_mgr.h
 
 		bstone_sys_sdl_audio_mgr.h
+		bstone_sys_sdl_push_audio_device.h
 		bstone_sys_sdl_event_mgr.h
 		bstone_sys_sdl_mouse_mgr.h
 		bstone_sys_sdl_video_mgr.h
@@ -640,7 +642,6 @@ target_sources(
 		bstone_ps_fizzle_fx.cpp
 		bstone_raw_uptr.cpp
 		bstone_rgb8.cpp
-		bstone_sdl_audio_mixer.cpp
 		bstone_sdl_shared_library.cpp
 		bstone_sdl_texture_lock.cpp
 		bstone_sha1.cpp
@@ -655,6 +656,7 @@ target_sources(
 		bstone_string_helper.cpp
 		bstone_string_view.cpp
 		bstone_sw_video.cpp
+		bstone_system_audio_mixer.cpp
 		bstone_text_extractor.cpp
 		bstone_text_reader.cpp
 		bstone_text_writer.cpp
@@ -665,6 +667,7 @@ target_sources(
 		bstone_zstring_view.cpp
 
 		bstone_sys_audio_mgr.cpp
+		bstone_sys_push_audio_device.cpp
 		bstone_sys_event_mgr.cpp
 		bstone_sys_logger.cpp
 		bstone_sys_mouse_mgr.cpp
@@ -673,6 +676,7 @@ target_sources(
 		bstone_sys_video_mgr.cpp
 
 		bstone_sys_sdl_audio_mgr.cpp
+		bstone_sys_sdl_push_audio_device.cpp
 		bstone_sys_sdl_event_mgr.cpp
 		bstone_sys_sdl_message_box.cpp
 		bstone_sys_sdl_mouse_mgr.cpp

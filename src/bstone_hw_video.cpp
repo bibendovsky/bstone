@@ -11692,8 +11692,6 @@ private:
 		const auto window_title = vid_get_window_title_for_renderer(renderer_->get_name());
 		renderer_->set_window_title(window_title);
 		renderer_->show_window(true);
-
-		in_grab_mouse(true);
 	}
 	catch (...)
 	{

@@ -9,5 +9,10 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
+PushAudioDeviceUPtr AudioMgr::make_audio_device(const PushAudioDeviceOpenParam& param)
+{
+	return do_make_audio_device(param);
+}
+
 } // namespace sys
 } // namespace bstone

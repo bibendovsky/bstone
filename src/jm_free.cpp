@@ -1378,6 +1378,8 @@ void InitGame()
 	InitRedShifts();
 
 	vid_is_movie = false;
+
+	in_grab_mouse(true);
 }
 
 std::uint16_t scan_atoi(

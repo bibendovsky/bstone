@@ -15,7 +15,7 @@ namespace bstone {
 
 // ==========================================================================
 
-void sdl_ensure_result(int sdl_result);
+int sdl_ensure_result(int sdl_result);
 
 template<typename T>
 T* sdl_ensure_result(T* sdl_result)

@@ -1039,7 +1039,6 @@ try
 	::SDL_SetWindowTitle(window_.get(), window_title.c_str());
 
 	::SDL_ShowWindow(window_.get());
-	in_grab_mouse(true);
 }
 catch (...)
 {

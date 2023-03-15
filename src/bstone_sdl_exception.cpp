@@ -32,12 +32,14 @@ public:
 	throw SdlException{};
 }
 
-void sdl_ensure_result(int sdl_result)
+int sdl_ensure_result(int sdl_result)
 {
 	if (sdl_result != 0)
 	{
 		fail_sdl();
 	}
+
+	return sdl_result;
 }
 
 } // namespace bstone

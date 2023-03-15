@@ -5,14 +5,13 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-#include "bstone_audio_mixer.h"
-
 #include <utility>
-#include "bstone_oal_audio_mixer.h"
-#include "bstone_sdl_audio_mixer.h"
+#include "bstone_audio_mixer.h"
 #include "bstone_exception.h"
 #include "bstone_logger.h"
 #include "bstone_memory.h"
+#include "bstone_oal_audio_mixer.h"
+#include "bstone_system_audio_mixer.h"
 
 namespace bstone
 {
@@ -74,8 +73,8 @@ try
 {
 	switch (param.audio_driver_type)
 	{
-		case AudioDriverType::r2_sdl:
-			return std::make_unique<SdlAudioMixer>(param);
+		case AudioDriverType::r2_system:
+			return std::make_unique<SystemAudioMixer>(param);
 
 		case AudioDriverType::r3_openal:
 			return std::make_unique<OalAudioMixer>(param);

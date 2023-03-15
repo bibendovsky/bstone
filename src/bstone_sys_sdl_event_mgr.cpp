@@ -55,7 +55,6 @@ try
 	:
 	logger_{logger}
 {
-	logger_.log_information();
 	logger_.log_information("<<< Start up SDL event manager.");
 
 	sdl_ensure_result(SDL_InitSubSystem(SDL_INIT_EVENTS));
@@ -66,7 +65,6 @@ BSTONE_FUNC_STATIC_THROW_NESTED
 
 SdlEventMgr::~SdlEventMgr()
 {
-	logger_.log_information();
 	logger_.log_information("Shut down SDL event manager.");
 
 	SDL_QuitSubSystem(SDL_INIT_EVENTS);

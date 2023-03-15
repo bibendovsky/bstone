@@ -34,14 +34,12 @@ try
 	:
 	logger_{logger}
 {
-	logger_.log_information();
 	logger_.log_information("Start up SDL mouse manager.");
 }
 BSTONE_FUNC_STATIC_THROW_NESTED
 
 SdlMouseMgr::~SdlMouseMgr()
 {
-	logger_.log_information();
 	logger_.log_information("Shut down SDL mouse manager.");
 }
 

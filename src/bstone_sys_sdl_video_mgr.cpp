@@ -49,7 +49,6 @@ try
 	:
 	logger_{logger}
 {
-	logger_.log_information();
 	logger_.log_information("<<< Start up SDL video manager.");
 
 	sdl_ensure_result(SDL_InitSubSystem(SDL_INIT_VIDEO));
@@ -61,7 +60,6 @@ BSTONE_FUNC_STATIC_THROW_NESTED
 
 SdlVideoMgr::~SdlVideoMgr()
 {
-	logger_.log_information();
 	logger_.log_information("Shut down SDL video manager.");
 
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
@@ -98,7 +96,6 @@ void SdlVideoMgr::log_drivers()
 	message.reserve(256);
 
 	//
-	logger_.log_information();
 	const auto current_driver = SDL_GetCurrentVideoDriver();
 
 	message.clear();
@@ -108,7 +105,6 @@ void SdlVideoMgr::log_drivers()
 	logger_.log_information(message);
 
 	//
-	logger_.log_information();
 	const auto driver_count = SDL_GetNumVideoDrivers();
 
 	if (driver_count == 0)
@@ -149,7 +145,6 @@ void SdlVideoMgr::log_displays()
 	message.reserve(256);
 
 	//
-	logger_.log_information();
 	const auto display_count = SDL_GetNumVideoDisplays();
 
 	if (display_count == 0)
@@ -166,11 +161,6 @@ void SdlVideoMgr::log_displays()
 	{
 		auto sdl_spec = SDL_AudioSpec{};
 		const auto sdl_display_name = SDL_GetDisplayName(i);
-
-		if (i != 0)
-		{
-			logger_.log_information();
-		}
 
 		//
 		message.clear();
@@ -276,8 +266,6 @@ void SdlVideoMgr::log_displays()
 			logger_.log_information(message);
 		}
 	}
-
-	logger_.log_information();
 }
 
 void SdlVideoMgr::log_info() noexcept

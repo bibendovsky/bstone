@@ -11,6 +11,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_sdl_exception.h"
 #include "bstone_sys_logger.h"
 #include "bstone_sys_sdl_audio_mgr.h"
+#include "bstone_sys_sdl_push_audio_device.h"
 
 namespace bstone {
 namespace sys {
@@ -29,6 +30,9 @@ private:
 	Logger& logger_;
 
 private:
+	PushAudioDeviceUPtr do_make_audio_device(const PushAudioDeviceOpenParam& param) override;
+
+private:
 	void log_int(int value, std::string& message);
 	void log_drivers();
 	void log_devices();
@@ -42,7 +46,6 @@ try
 	:
 	logger_{logger}
 {
-	logger_.log_information();
 	logger_.log_information("<<< Start up SDL audio manager.");
 
 	sdl_ensure_result(SDL_InitSubSystem(SDL_INIT_AUDIO));
@@ -54,10 +57,14 @@ BSTONE_FUNC_STATIC_THROW_NESTED
 
 SdlAudioMgr::~SdlAudioMgr()
 {
-	logger_.log_information();
 	logger_.log_information("Shut down SDL audio manager.");
 
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
+}
+
+PushAudioDeviceUPtr SdlAudioMgr::do_make_audio_device(const PushAudioDeviceOpenParam& param)
+{
+	return make_sdl_push_audio_device(logger_, param);
 }
 
 void SdlAudioMgr::log_int(int value, std::string& message)
@@ -69,8 +76,6 @@ void SdlAudioMgr::log_int(int value, std::string& message)
 
 void SdlAudioMgr::log_drivers()
 {
-	logger_.log_information();
-
 	const auto driver_count = SDL_GetNumAudioDrivers();
 
 	if (driver_count == 0)
@@ -98,8 +103,6 @@ void SdlAudioMgr::log_drivers()
 
 void SdlAudioMgr::log_devices()
 {
-	logger_.log_information();
-
 	const auto device_count = SDL_GetNumAudioDevices(SDL_FALSE);
 
 	if (device_count == 0)
@@ -117,11 +120,6 @@ void SdlAudioMgr::log_devices()
 	{
 		auto sdl_spec = SDL_AudioSpec{};
 		const auto sdl_device_name = SDL_GetAudioDeviceName(i, SDL_FALSE);
-
-		if (i != 0)
-		{
-			logger_.log_information("");
-		}
 
 		message.clear();
 		message += "  ";
@@ -157,8 +155,6 @@ void SdlAudioMgr::log_devices()
 				message += SDL_AUDIO_ISSIGNED(sdl_spec.format) ? "signed" : "unsigned";
 			}
 
-			logger_.log_information();
-
 			//
 			message.clear();
 			message += "  Channels: ";
@@ -167,8 +163,6 @@ void SdlAudioMgr::log_devices()
 		}
 #endif
 	}
-
-	logger_.log_information();
 }
 
 void SdlAudioMgr::log_info() noexcept

@@ -5,10 +5,9 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-#ifndef BSTONE_SDL_AUDIO_MIXER_INCLUDED
-#define BSTONE_SDL_AUDIO_MIXER_INCLUDED
+#if !defined(BSTONE_SYSTEM_AUDIO_MIXER_INCLUDED)
+#define BSTONE_SYSTEM_AUDIO_MIXER_INCLUDED
 
-#include "bstone_audio_mixer.h"
 #include <cstdint>
 #include <array>
 #include <atomic>
@@ -16,21 +15,21 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <mutex>
 #include <utility>
 #include <vector>
-#include "SDL_audio.h"
 #include "bstone_audio_decoder.h"
+#include "bstone_audio_mixer.h"
 #include "bstone_audio_mixer_voice_handle.h"
 #include "bstone_audio_mixer_voice_handle_mgr.h"
-#include "bstone_sdl_types.h"
 #include "bstone_spinlock.h"
+#include "bstone_sys_audio_mgr.h"
 
 namespace bstone
 {
 
-class SdlAudioMixer final : public AudioMixer
+class SystemAudioMixer final : public AudioMixer
 {
 public:
-	SdlAudioMixer(const AudioMixerInitParam& param);
-	~SdlAudioMixer();
+	SystemAudioMixer(const AudioMixerInitParam& param);
+	~SystemAudioMixer() override = default;
 
 	Opl3Type get_opl3_type() const override;
 	int get_rate() const override;
@@ -77,6 +76,18 @@ private:
 
 	using MtLock = std::mutex;
 	using MtLockGuard = std::lock_guard<MtLock>;
+
+	struct SysCallback final : public sys::PushAudioDeviceCallback
+	{
+	public:
+		void set_mixer(SystemAudioMixer* mixer);
+
+	private:
+		SystemAudioMixer* mixer_{};
+
+	private:
+		void do_invoke(float* samples, int sample_count) override;
+	};
 
 	class CacheItem
 	{
@@ -247,7 +258,9 @@ private:
 
 	Opl3Type opl3_type_{};
 	int dst_rate_{};
-	SdlAudioDevice sdl_audio_device_{};
+	SysCallback sys_callback_{};
+	sys::AudioMgrUPtr sys_audio_mgr_{};
+	sys::PushAudioDeviceUPtr sys_audio_device_{};
 	int mix_samples_count_{};
 	Samples buffer_{};
 	S16Samples s16_samples_{};
@@ -272,9 +285,6 @@ private:
 	bool is_listener_r3_orientation_changed_;
 	std::atomic_bool is_state_suspended_{};
 
-	[[noreturn]] static void fail(const char* message);
-	[[noreturn]] static void fail_nested(const char* message);
-
 	int get_min_rate() const noexcept;
 	int get_default_rate() const noexcept;
 	int get_min_mix_size_ms() const noexcept;
@@ -288,7 +298,7 @@ private:
 	void initialize_voice_handles();
 	void initialize_voices(int max_voices);
 
-	void callback(std::uint8_t* dst_data, int dst_length);
+	void callback(float* samples, int sample_count);
 
 	void mix();
 	void mix_samples();
@@ -320,17 +330,13 @@ private:
 
 	CacheItem* get_cache_item(SoundType sound_type, int sound_index);
 
-	void lock();
-	void unlock();
-
-	static void callback_proxy(void* user_data, std::uint8_t* dst_data, int dst_length);
 	static int calculate_mix_samples_count(int dst_rate, int mix_size_ms);
 	AudioDecoderUPtr create_decoder_by_sound_type(SoundType sound_type) const;
 	static bool is_sound_type_valid(SoundType sound_type);
 	static bool is_sound_index_valid(int sound_index, SoundType sound_type);
 	static int calculate_digitized_sample_count(int dst_sample_rate, int digitized_byte_count) noexcept;
-}; // SdlAudioMixer
+};
 
 } // bstone
 
-#endif // !BSTONE_SDL_AUDIO_MIXER_INCLUDED
+#endif // BSTONE_SYSTEM_AUDIO_MIXER_INCLUDED

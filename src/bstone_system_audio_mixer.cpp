@@ -5,42 +5,43 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-#include "bstone_sdl_audio_mixer.h"
-
 #include <cassert>
 #include <cmath>
 #include <algorithm>
 #include <mutex>
-#include "SDL_audio.h"
-#include "3d_def.h"
-#include "audio.h"
 #include "bstone_audio_decoder.h"
 #include "bstone_audio_mixer_utils.h"
 #include "bstone_audio_mixer_validator.h"
 #include "bstone_audio_sample_converter.h"
 #include "bstone_exception.h"
+#include "bstone_globals.h"
 #include "bstone_scope_guard.h"
+#include "bstone_system_audio_mixer.h"
 
-namespace bstone
-{
+namespace bstone {
 
-namespace
+void SystemAudioMixer::SysCallback::set_mixer(SystemAudioMixer* mixer)
 {
-
-class SdlAudioMixerException : public Exception
-{
-public:
-	explicit SdlAudioMixerException(const char* message) noexcept
-		:
-		Exception{"SDL_AUDIO_MIXER", message}
+	if (mixer == nullptr)
 	{
+		BSTONE_STATIC_THROW("Null mixer.");
 	}
-}; // SdlAudioMixerException
 
-} // namespace
+	mixer_ = mixer;
+}
 
+void SystemAudioMixer::SysCallback::do_invoke(float* samples, int sample_count)
+{
+	if (mixer_ == nullptr)
+	{
+		BSTONE_STATIC_THROW("Null mixer.");
+	}
 
-SdlAudioMixer::CacheItem::CacheItem()
+	mixer_->mix();
+	mixer_->callback(samples, sample_count);
+}
+
+SystemAudioMixer::CacheItem::CacheItem()
 	:
 	is_active{},
 	is_invalid{},
@@ -52,17 +53,17 @@ SdlAudioMixer::CacheItem::CacheItem()
 {
 }
 
-bool SdlAudioMixer::CacheItem::is_decoded() const noexcept
+bool SystemAudioMixer::CacheItem::is_decoded() const noexcept
 {
 	return decoded_count == samples_count;
 }
 
-SdlAudioMixer::SdlAudioMixer(const AudioMixerInitParam& param)
+SystemAudioMixer::SystemAudioMixer(const AudioMixerInitParam& param)
 try
 {
 	if (param.max_voices < 0)
 	{
-		fail("Max voice count out of range.");
+		BSTONE_STATIC_THROW("Max voice count out of range.");
 	}
 
 	switch (param.opl3_type)
@@ -72,7 +73,7 @@ try
 			break;
 
 		default:
-			fail("Unknown OPL3 type.");
+			BSTONE_STATIC_THROW("Unknown OPL3 type.");
 	}
 
 	if (param.dst_rate == 0)
@@ -93,35 +94,30 @@ try
 		mix_size_ms_ = std::max(param.mix_size_ms, get_min_mix_size_ms());
 	}
 
-	mix_samples_count_ = calculate_mix_samples_count(dst_rate_, mix_size_ms_);
-
-	auto src_spec = SDL_AudioSpec{};
-	src_spec.freq = dst_rate_;
-	src_spec.format = AUDIO_F32SYS;
-	src_spec.channels = static_cast<std::uint8_t>(get_max_channels());
-	src_spec.samples = static_cast<std::uint16_t>(mix_samples_count_);
-	src_spec.callback = callback_proxy;
-	src_spec.userdata = this;
-
-	auto dst_spec = SDL_AudioSpec{};
-
-	sdl_audio_device_.reset(SDL_OpenAudioDevice(
-		nullptr,
-		0,
-		&src_spec,
-		&dst_spec,
-		SDL_AUDIO_ALLOW_FREQUENCY_CHANGE));
-
-	if (!sdl_audio_device_)
+	if (bstone::globals::sys_system_mgr == nullptr)
 	{
-		auto error_message = std::string{};
-		error_message.reserve(1'024);
-		error_message += (SDL_GetError() ? SDL_GetError() : "Generic failure.");
-		fail(error_message.c_str());
+		BSTONE_STATIC_THROW("Null system manager.");
 	}
 
+	mix_samples_count_ = calculate_mix_samples_count(dst_rate_, mix_size_ms_);
+
+	auto sys_audio_mgr = bstone::globals::sys_system_mgr->make_audio_mgr();
+
+	sys_callback_.set_mixer(this);
+
+	auto audio_device_param = bstone::sys::PushAudioDeviceOpenParam{};
+	audio_device_param.desired_rate = dst_rate_;
+	audio_device_param.channel_count = get_max_channels();
+	audio_device_param.desired_frame_count = mix_samples_count_;
+	audio_device_param.callback = &sys_callback_;
+
+	auto audio_device = sys_audio_mgr->make_audio_device(audio_device_param);
+
+	dst_rate_ = audio_device->get_rate();
+	mix_samples_count_ = audio_device->get_frame_count();
+
 	opl3_type_ = param.opl3_type;
-	mix_samples_count_ = dst_spec.samples;
+	mix_samples_count_ = mix_samples_count_;
 	const auto total_samples = get_max_channels() * mix_samples_count_;
 	buffer_.resize(total_samples);
 	s16_samples_.resize(total_samples);
@@ -142,39 +138,34 @@ try
 	initialize_voice_handles();
 	initialize_voices(param.max_voices);
 
-	SDL_PauseAudioDevice(sdl_audio_device_.get(), 0);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+	audio_device->pause(false);
 
-SdlAudioMixer::~SdlAudioMixer()
-{
-	SDL_PauseAudioDevice(sdl_audio_device_.get(), SDL_TRUE);
+	sys_audio_mgr_.swap(sys_audio_mgr);
+	sys_audio_device_.swap(audio_device);
 }
+BSTONE_FUNC_STATIC_THROW_NESTED
 
-Opl3Type SdlAudioMixer::get_opl3_type() const
+Opl3Type SystemAudioMixer::get_opl3_type() const
 {
 	return opl3_type_;
 }
 
-int SdlAudioMixer::get_rate() const
+int SystemAudioMixer::get_rate() const
 {
 	return dst_rate_;
 }
 
-int SdlAudioMixer::get_channel_count() const
+int SystemAudioMixer::get_channel_count() const
 {
 	return get_max_channels();
 }
 
-int SdlAudioMixer::get_mix_size_ms() const
+int SystemAudioMixer::get_mix_size_ms() const
 {
 	return mix_size_ms_;
 }
 
-void SdlAudioMixer::set_mute(bool is_mute)
+void SystemAudioMixer::set_mute(bool is_mute)
 try
 {
 	auto command = Command{};
@@ -183,12 +174,9 @@ try
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_FUNC_STATIC_THROW_NESTED
 
-void SdlAudioMixer::set_gain(double gain)
+void SystemAudioMixer::set_gain(double gain)
 try
 {
 	AudioMixerValidator::validate_gain(gain);
@@ -199,57 +187,48 @@ try
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_FUNC_STATIC_THROW_NESTED
 
-int SdlAudioMixer::get_min_rate() const noexcept
+int SystemAudioMixer::get_min_rate() const noexcept
 {
 	return 11'025;
 }
 
-int SdlAudioMixer::get_default_rate() const noexcept
+int SystemAudioMixer::get_default_rate() const noexcept
 {
 	return 44'100;
 }
 
-int SdlAudioMixer::get_min_mix_size_ms() const noexcept
+int SystemAudioMixer::get_min_mix_size_ms() const noexcept
 {
 	return 20;
 }
 
-int SdlAudioMixer::get_default_mix_size_ms() const noexcept
+int SystemAudioMixer::get_default_mix_size_ms() const noexcept
 {
 	return 40;
 }
 
-int SdlAudioMixer::get_max_channels() const noexcept
+int SystemAudioMixer::get_max_channels() const noexcept
 {
 	return 2;
 }
 
-void SdlAudioMixer::suspend_state()
+void SystemAudioMixer::suspend_state()
 try
 {
 	is_state_suspended_.store(true, std::memory_order_release);
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_FUNC_STATIC_THROW_NESTED
 
-void SdlAudioMixer::resume_state()
+void SystemAudioMixer::resume_state()
 try
 {
 	is_state_suspended_.store(false, std::memory_order_release);
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_FUNC_STATIC_THROW_NESTED
 
-void SdlAudioMixer::set_listener_r3_position(const AudioMixerListenerR3Position& r3_position)
+void SystemAudioMixer::set_listener_r3_position(const AudioMixerListenerR3Position& r3_position)
 try
 {
 	auto command = Command{};
@@ -258,12 +237,9 @@ try
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_FUNC_STATIC_THROW_NESTED
 
-void SdlAudioMixer::set_listener_r3_orientation(const AudioMixerListenerR3Orientation& r3_orientation)
+void SystemAudioMixer::set_listener_r3_orientation(const AudioMixerListenerR3Orientation& r3_orientation)
 try
 {
 	auto command = Command{};
@@ -272,22 +248,16 @@ try
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_FUNC_STATIC_THROW_NESTED
 
-bool SdlAudioMixer::is_voice_playing(AudioMixerVoiceHandle voice_handle) const
+bool SystemAudioMixer::is_voice_playing(AudioMixerVoiceHandle voice_handle) const
 try
 {
 	return voice_handle_mgr_.is_valid_handle(voice_handle);
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_FUNC_STATIC_THROW_NESTED
 
-void SdlAudioMixer::pause_voice(AudioMixerVoiceHandle voice_handle)
+void SystemAudioMixer::pause_voice(AudioMixerVoiceHandle voice_handle)
 {
 	if (!voice_handle.is_valid())
 	{
@@ -302,7 +272,7 @@ void SdlAudioMixer::pause_voice(AudioMixerVoiceHandle voice_handle)
 	mt_commands_.push_back(command);
 }
 
-void SdlAudioMixer::resume_voice(AudioMixerVoiceHandle voice_handle)
+void SystemAudioMixer::resume_voice(AudioMixerVoiceHandle voice_handle)
 {
 	if (!voice_handle.is_valid())
 	{
@@ -317,7 +287,7 @@ void SdlAudioMixer::resume_voice(AudioMixerVoiceHandle voice_handle)
 	mt_commands_.push_back(command);
 }
 
-void SdlAudioMixer::stop_voice(AudioMixerVoiceHandle voice_handle)
+void SystemAudioMixer::stop_voice(AudioMixerVoiceHandle voice_handle)
 try
 {
 	if (!voice_handle.is_valid())
@@ -332,12 +302,9 @@ try
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_FUNC_STATIC_THROW_NESTED
 
-void SdlAudioMixer::set_voice_gain(AudioMixerVoiceHandle voice_handle, double gain)
+void SystemAudioMixer::set_voice_gain(AudioMixerVoiceHandle voice_handle, double gain)
 try
 {
 	AudioMixerValidator::validate_gain(gain);
@@ -355,12 +322,9 @@ try
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_FUNC_STATIC_THROW_NESTED
 
-void SdlAudioMixer::set_voice_r3_position(AudioMixerVoiceHandle voice_handle, const AudioMixerVoiceR3Position& r3_position)
+void SystemAudioMixer::set_voice_r3_position(AudioMixerVoiceHandle voice_handle, const AudioMixerVoiceR3Position& r3_position)
 try
 {
 	if (!voice_handle.is_valid())
@@ -376,17 +340,14 @@ try
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_FUNC_STATIC_THROW_NESTED
 
-bool SdlAudioMixer::can_set_voice_output_gains() const
+bool SystemAudioMixer::can_set_voice_output_gains() const
 {
 	return true;
 }
 
-void SdlAudioMixer::enable_set_voice_output_gains(
+void SystemAudioMixer::enable_set_voice_output_gains(
 	AudioMixerVoiceHandle voice_handle,
 	bool is_enable)
 try
@@ -404,12 +365,9 @@ try
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_FUNC_STATIC_THROW_NESTED
 
-void SdlAudioMixer::set_voice_output_gains(
+void SystemAudioMixer::set_voice_output_gains(
 	AudioMixerVoiceHandle voice_handle,
 	AudioMixerOutputGains& output_gains)
 try
@@ -429,68 +387,55 @@ try
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_FUNC_STATIC_THROW_NESTED
 
-[[noreturn]] void SdlAudioMixer::fail(const char* message)
-{
-	throw SdlAudioMixerException{message};
-}
-
-[[noreturn]] void SdlAudioMixer::fail_nested(const char* message)
-{
-	std::throw_with_nested(SdlAudioMixerException{message});
-}
-
-void SdlAudioMixer::initialize_is_mute()
+void SystemAudioMixer::initialize_is_mute()
 {
 	is_mute_ = false;
 }
 
-void SdlAudioMixer::initialize_gain()
+void SystemAudioMixer::initialize_gain()
 {
 	gain_ = audio_mixer_max_gain;
 }
 
-void SdlAudioMixer::initialize_listener_r3_position()
+void SystemAudioMixer::initialize_listener_r3_position()
 {
 	is_listener_r3_position_changed_ = true;
 	listener_r3_position_ = audio_mixer_make_default_listener_r3_position();
 }
 
-void SdlAudioMixer::initialize_listener_r3_orientation()
+void SystemAudioMixer::initialize_listener_r3_orientation()
 {
 	is_listener_r3_orientation_changed_ = true;
 	listener_r3_orientation_ = audio_mixer_make_default_listener_r3_orientation();
 }
 
-void SdlAudioMixer::initialize_voice_handles()
+void SystemAudioMixer::initialize_voice_handles()
 {
 	const auto capacity = static_cast<int>(commands_.size());
 	voice_handle_mgr_.set_cache_capacity(capacity);
 	voice_handle_mgr_.set_map_capacity(capacity);
 }
 
-void SdlAudioMixer::initialize_voices(int max_voices)
+void SystemAudioMixer::initialize_voices(int max_voices)
 {
 	voices_.clear();
 	voices_.resize(max_voices);
 }
 
-void SdlAudioMixer::callback(std::uint8_t* dst_data, int dst_length)
+void SystemAudioMixer::callback(float* samples, int sample_count)
 {
-	std::uninitialized_copy_n(reinterpret_cast<const std::uint8_t*>(buffer_.data()), dst_length, dst_data);
+	std::uninitialized_copy(buffer_.cbegin(), buffer_.cend(), samples);
 }
 
-void SdlAudioMixer::mix()
+void SystemAudioMixer::mix()
 {
 	handle_commands();
 	mix_samples();
 }
 
-void SdlAudioMixer::mix_samples()
+void SystemAudioMixer::mix_samples()
 {
 	spatialize_voices();
 
@@ -649,17 +594,17 @@ void SdlAudioMixer::mix_samples()
 	}
 }
 
-void SdlAudioMixer::handle_set_mute_command(const SetMuteCommandParam& param) noexcept
+void SystemAudioMixer::handle_set_mute_command(const SetMuteCommandParam& param) noexcept
 {
 	is_mute_ = param.is_mute;
 }
 
-void SdlAudioMixer::handle_set_gain_command(const SetGainCommandParam& param) noexcept
+void SystemAudioMixer::handle_set_gain_command(const SetGainCommandParam& param) noexcept
 {
 	gain_ = param.gain;
 }
 
-void SdlAudioMixer::handle_set_listener_r3_position_command(const SetListenerR3PositionCommandParam& param) noexcept
+void SystemAudioMixer::handle_set_listener_r3_position_command(const SetListenerR3PositionCommandParam& param) noexcept
 {
 	if (listener_r3_position_ != param.r3_position)
 	{
@@ -668,7 +613,7 @@ void SdlAudioMixer::handle_set_listener_r3_position_command(const SetListenerR3P
 	}
 }
 
-void SdlAudioMixer::handle_set_listener_r3_orientation_command(const SetListenerR3OrientationCommandParam& param) noexcept
+void SystemAudioMixer::handle_set_listener_r3_orientation_command(const SetListenerR3OrientationCommandParam& param) noexcept
 {
 	if (listener_r3_orientation_ != param.r3_orientation)
 	{
@@ -677,7 +622,7 @@ void SdlAudioMixer::handle_set_listener_r3_orientation_command(const SetListener
 	}
 }
 
-void SdlAudioMixer::handle_pause_voice_command(const PauseVoiceCommandParam& param)
+void SystemAudioMixer::handle_pause_voice_command(const PauseVoiceCommandParam& param)
 {
 	auto voice = voice_handle_mgr_.get_voice(param.handle);
 
@@ -689,7 +634,7 @@ void SdlAudioMixer::handle_pause_voice_command(const PauseVoiceCommandParam& par
 	voice->is_paused = true;
 }
 
-void SdlAudioMixer::handle_resume_voice_command(const ResumeVoiceCommandParam& param)
+void SystemAudioMixer::handle_resume_voice_command(const ResumeVoiceCommandParam& param)
 {
 	auto voice = voice_handle_mgr_.get_voice(param.handle);
 
@@ -701,7 +646,7 @@ void SdlAudioMixer::handle_resume_voice_command(const ResumeVoiceCommandParam& p
 	voice->is_paused = false;
 }
 
-void SdlAudioMixer::handle_stop_voice_command(const StopVoiceCommandParam& param)
+void SystemAudioMixer::handle_stop_voice_command(const StopVoiceCommandParam& param)
 {
 	auto voice = voice_handle_mgr_.get_voice_and_invalidate(param.handle);
 
@@ -713,7 +658,7 @@ void SdlAudioMixer::handle_stop_voice_command(const StopVoiceCommandParam& param
 	voice->is_active = false;
 }
 
-void SdlAudioMixer::handle_set_voice_gain_command(const SetVoiceGainCommandParam& param)
+void SystemAudioMixer::handle_set_voice_gain_command(const SetVoiceGainCommandParam& param)
 {
 	auto voice = voice_handle_mgr_.get_voice(param.handle);
 
@@ -725,7 +670,7 @@ void SdlAudioMixer::handle_set_voice_gain_command(const SetVoiceGainCommandParam
 	voice->gain = param.gain;
 }
 
-void SdlAudioMixer::handle_set_voice_r3_position_command(const SetVoiceR3PositionCommandParam& param)
+void SystemAudioMixer::handle_set_voice_r3_position_command(const SetVoiceR3PositionCommandParam& param)
 {
 	auto voice = voice_handle_mgr_.get_voice(param.handle);
 
@@ -740,7 +685,7 @@ void SdlAudioMixer::handle_set_voice_r3_position_command(const SetVoiceR3Positio
 	voice->is_r3_position_changed = true;
 }
 
-void SdlAudioMixer::handle_enable_set_voice_output_gains_command(const EnableSetVoiceOutputGainsCommandParam& param)
+void SystemAudioMixer::handle_enable_set_voice_output_gains_command(const EnableSetVoiceOutputGainsCommandParam& param)
 {
 	auto voice = voice_handle_mgr_.get_voice(param.handle);
 
@@ -752,7 +697,7 @@ void SdlAudioMixer::handle_enable_set_voice_output_gains_command(const EnableSet
 	voice->is_custom_output_gains = param.is_enable;
 }
 
-void SdlAudioMixer::handle_set_voice_output_gains_command(const SetVoiceOutputGainsCommandParam& param)
+void SystemAudioMixer::handle_set_voice_output_gains_command(const SetVoiceOutputGainsCommandParam& param)
 {
 	auto voice = voice_handle_mgr_.get_voice(param.handle);
 
@@ -764,7 +709,7 @@ void SdlAudioMixer::handle_set_voice_output_gains_command(const SetVoiceOutputGa
 	voice->custom_output_gains = param.output_gains;
 }
 
-void SdlAudioMixer::handle_commands()
+void SystemAudioMixer::handle_commands()
 {
 	if (is_state_suspended_.load(std::memory_order_acquire))
 	{
@@ -855,7 +800,7 @@ void SdlAudioMixer::handle_commands()
 	commands_.clear();
 }
 
-void SdlAudioMixer::handle_play_sound_command(const Command& command)
+void SystemAudioMixer::handle_play_sound_command(const Command& command)
 {
 	auto is_started = false;
 	auto voice = static_cast<Voice*>(nullptr);
@@ -920,7 +865,7 @@ void SdlAudioMixer::handle_play_sound_command(const Command& command)
 	is_started = true;
 }
 
-bool SdlAudioMixer::initialize_digitized_cache_item(const Command& command, CacheItem& cache_item)
+bool SystemAudioMixer::initialize_digitized_cache_item(const Command& command, CacheItem& cache_item)
 {
 	assert(!cache_item.is_active);
 	assert(command.param.play_sound.sound_type == SoundType::pcm);
@@ -938,7 +883,7 @@ bool SdlAudioMixer::initialize_digitized_cache_item(const Command& command, Cach
 	return true;
 }
 
-bool SdlAudioMixer::initialize_cache_item(const Command& command, CacheItem& cache_item)
+bool SystemAudioMixer::initialize_cache_item(const Command& command, CacheItem& cache_item)
 {
 	const auto is_adlib_music = (command.param.play_sound.sound_type == SoundType::adlib_music);
 
@@ -993,7 +938,7 @@ bool SdlAudioMixer::initialize_cache_item(const Command& command, CacheItem& cac
 	return true;
 }
 
-bool SdlAudioMixer::decode_digitized_voice(const Voice& voice)
+bool SystemAudioMixer::decode_digitized_voice(const Voice& voice)
 {
 	auto cache_item = voice.cache;
 
@@ -1029,7 +974,7 @@ bool SdlAudioMixer::decode_digitized_voice(const Voice& voice)
 	return true;
 }
 
-bool SdlAudioMixer::decode_voice(const Voice& voice)
+bool SystemAudioMixer::decode_voice(const Voice& voice)
 {
 	auto cache_item = voice.cache;
 
@@ -1114,7 +1059,7 @@ bool SdlAudioMixer::decode_voice(const Voice& voice)
 	return true;
 }
 
-void SdlAudioMixer::spatialize_voice(Voice& voice)
+void SystemAudioMixer::spatialize_voice(Voice& voice)
 {
 	if (!voice.is_active || !voice.is_r3 || voice.is_custom_output_gains)
 	{
@@ -1143,7 +1088,7 @@ void SdlAudioMixer::spatialize_voice(Voice& voice)
 		voice.output_gains[1]);
 }
 
-void SdlAudioMixer::spatialize_voices()
+void SystemAudioMixer::spatialize_voices()
 {
 	if (is_listener_r3_position_changed_)
 	{
@@ -1165,22 +1110,22 @@ void SdlAudioMixer::spatialize_voices()
 	is_listener_r3_orientation_changed_ = false;
 }
 
-AudioMixerVoiceHandle SdlAudioMixer::play_sound(const AudioMixerPlaySoundParam& param)
+AudioMixerVoiceHandle SystemAudioMixer::play_sound(const AudioMixerPlaySoundParam& param)
 try
 {
 	if (!is_sound_type_valid(param.sound_type))
 	{
-		fail("Invalid sound type.");
+		BSTONE_STATIC_THROW("Invalid sound type.");
 	}
 
 	if (!param.data)
 	{
-		fail("Null data.");
+		BSTONE_STATIC_THROW("Null data.");
 	}
 
 	if (param.data_size <= 0)
 	{
-		fail("Data size out of range.");
+		BSTONE_STATIC_THROW("Data size out of range.");
 	}
 
 	const auto voice_handle = voice_handle_mgr_.generate();
@@ -1200,34 +1145,9 @@ try
 	voice_handle_mgr_.cache(voice_handle);
 	return voice_handle;
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_FUNC_STATIC_THROW_NESTED
 
-void SdlAudioMixer::lock()
-{
-	SDL_LockAudioDevice(sdl_audio_device_.get());
-}
-
-void SdlAudioMixer::unlock()
-{
-	SDL_UnlockAudioDevice(sdl_audio_device_.get());
-}
-
-void SdlAudioMixer::callback_proxy(void* user_data, std::uint8_t* dst_data, int dst_length)
-try
-{
-	assert(user_data);
-	auto& mixer = *static_cast<SdlAudioMixer*>(user_data);
-	mixer.mix();
-	mixer.callback(dst_data, dst_length);
-}
-catch (...)
-{
-}
-
-int SdlAudioMixer::calculate_mix_samples_count(int dst_rate, int mix_size_ms)
+int SystemAudioMixer::calculate_mix_samples_count(int dst_rate, int mix_size_ms)
 {
 	const auto exact_count = (dst_rate * mix_size_ms) / 1000;
 	auto actual_count = 1;
@@ -1246,7 +1166,7 @@ int SdlAudioMixer::calculate_mix_samples_count(int dst_rate, int mix_size_ms)
 	return actual_count;
 }
 
-SdlAudioMixer::CacheItem* SdlAudioMixer::get_cache_item(SoundType sound_type, int sound_index)
+SystemAudioMixer::CacheItem* SystemAudioMixer::get_cache_item(SoundType sound_type, int sound_index)
 {
 	if (!is_sound_index_valid(sound_index, sound_type))
 	{
@@ -1263,7 +1183,7 @@ SdlAudioMixer::CacheItem* SdlAudioMixer::get_cache_item(SoundType sound_type, in
 	}
 }
 
-AudioDecoderUPtr SdlAudioMixer::create_decoder_by_sound_type(SoundType sound_type) const
+AudioDecoderUPtr SystemAudioMixer::create_decoder_by_sound_type(SoundType sound_type) const
 {
 	switch (sound_type)
 	{
@@ -1281,7 +1201,7 @@ AudioDecoderUPtr SdlAudioMixer::create_decoder_by_sound_type(SoundType sound_typ
 	}
 }
 
-bool SdlAudioMixer::is_sound_type_valid(SoundType sound_type)
+bool SystemAudioMixer::is_sound_type_valid(SoundType sound_type)
 {
 	switch (sound_type)
 	{
@@ -1296,7 +1216,7 @@ bool SdlAudioMixer::is_sound_type_valid(SoundType sound_type)
 	}
 }
 
-bool SdlAudioMixer::is_sound_index_valid(int sound_index, SoundType sound_type)
+bool SystemAudioMixer::is_sound_index_valid(int sound_index, SoundType sound_type)
 {
 	switch (sound_type)
 	{
@@ -1313,7 +1233,7 @@ bool SdlAudioMixer::is_sound_index_valid(int sound_index, SoundType sound_type)
 	}
 }
 
-int SdlAudioMixer::calculate_digitized_sample_count(int dst_sample_rate, int digitized_byte_count) noexcept
+int SystemAudioMixer::calculate_digitized_sample_count(int dst_sample_rate, int digitized_byte_count) noexcept
 {
 	assert(dst_sample_rate >= 0);
 	assert(digitized_byte_count >= 0);
@@ -1324,4 +1244,4 @@ int SdlAudioMixer::calculate_digitized_sample_count(int dst_sample_rate, int dig
 	return sample_count;
 }
 
-} // bstone
+} // namespace bstone

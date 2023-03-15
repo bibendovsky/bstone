@@ -653,9 +653,9 @@ Notes:
 
 * `--snd_driver value`  
   Specifies the audio driver to use.  
-  Values: `auto-detect`, `2d_sdl` (2D SDL), `3d_openal` (3D OpenAL)  
+  Values: `auto-detect`, `2d_system` (2D System), `3d_openal` (3D OpenAL)  
   Default: `auto-detect`  
-  Auto-detect order: `3d_openal`, `2d_sdl`
+  Auto-detect order: `3d_openal`, `2d_system`
 
 * `--snd_oal_library value`  
   Specifies OpenAL driver's name.  

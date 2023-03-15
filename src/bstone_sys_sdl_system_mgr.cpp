@@ -52,7 +52,6 @@ try
 	:
 	logger_{logger}
 {
-	logger_.log_information();
 	logger_.log_information("<<< Start up SDL system manager.");
 
 	log_versions();
@@ -64,7 +63,6 @@ BSTONE_FUNC_STATIC_THROW_NESTED
 
 SdlSystemMgr::~SdlSystemMgr()
 {
-	logger_.log_information();
 	logger_.log_information("Shut down SDL system manager.");
 
 	SDL_Quit();

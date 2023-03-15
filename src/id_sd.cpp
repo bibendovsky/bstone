@@ -132,13 +132,13 @@ auto snd_mix_size_cvar = bstone::CVar{
 // snd_driver
 
 constexpr auto snd_driver_cvar_name = bstone::StringView{"snd_driver"};
-constexpr auto snd_driver_cvar_2d_sdl = bstone::StringView{"2d_sdl"};
+constexpr auto snd_driver_cvar_2d_system = bstone::StringView{"2d_system"};
 constexpr auto snd_driver_cvar_3d_openal = bstone::StringView{"3d_openal"};
 
 constexpr bstone::StringView snd_driver_cvar_values[] =
 {
 	snd_auto_detect_string,
-	snd_driver_cvar_2d_sdl,
+	snd_driver_cvar_2d_system,
 	snd_driver_cvar_3d_openal,
 };
 
@@ -443,9 +443,9 @@ AudioDriverType sd_get_driver_type_from_cvar() noexcept
 {
 	const auto driver_sv = snd_driver_cvar.get_string();
 
-	if (driver_sv == snd_driver_cvar_2d_sdl)
+	if (driver_sv == snd_driver_cvar_2d_system)
 	{
-		return AudioDriverType::r2_sdl;
+		return AudioDriverType::r2_system;
 	}
 
 	if (driver_sv == snd_driver_cvar_3d_openal)
@@ -483,51 +483,42 @@ void sd_startup()
 
 	if (sd_has_audio())
 	{
-		auto is_driver_initialized = false;
 		const auto rate = snd_rate_cvar.get_int32();
 		const auto mix_size = snd_mix_size_cvar.get_int32();
+		const auto user_driver_type = sd_get_driver_type_from_cvar();
 
-		const auto driver_type = sd_get_driver_type_from_cvar();
+		using DriverTypes = std::vector<AudioDriverType>;
+		auto driver_types = DriverTypes{};
+		driver_types.reserve(8);
 
-		switch (driver_type)
+		if (user_driver_type == AudioDriverType::auto_detect)
 		{
-			case AudioDriverType::r2_sdl:
-			case AudioDriverType::r3_openal:
-				try
-				{
-					sd_make_mixer(driver_type, rate, mix_size);
-					is_driver_initialized = true;
-				}
-				catch (...)
-				{
-					bstone::log_exception();
-				}
+			driver_types.emplace_back(AudioDriverType::r3_openal);
+			driver_types.emplace_back(AudioDriverType::r2_system);
+		}
+		else
+		{
+			driver_types.emplace_back(user_driver_type);
+		}
 
+		auto is_driver_initialized = false;
+
+		for (const auto& driver_type : driver_types)
+		{
+			try
+			{
+				sd_make_mixer(driver_type, rate, mix_size);
+				is_driver_initialized = true;
+			}
+			catch (...)
+			{
+				bstone::log_exception();
+			}
+
+			if (is_driver_initialized)
+			{
 				break;
-
-			case AudioDriverType::auto_detect:
-			default:
-				try
-				{
-					sd_make_mixer(AudioDriverType::r3_openal, rate, mix_size);
-					is_driver_initialized = true;
-				}
-				catch (...)
-				{
-					bstone::log_exception();
-
-					try
-					{
-						sd_make_mixer(AudioDriverType::r2_sdl, rate, mix_size);
-						is_driver_initialized = true;
-					}
-					catch (...)
-					{
-						bstone::log_exception();
-					}
-				}
-
-				break;
+			}
 		}
 
 		if (is_driver_initialized)
@@ -1379,8 +1370,8 @@ void sd_set_audio_driver_type(AudioDriverType audio_driver_type)
 {
 	switch (audio_driver_type)
 	{
-		case AudioDriverType::r2_sdl:
-			snd_driver_cvar.set_string(snd_driver_cvar_2d_sdl);
+		case AudioDriverType::r2_system:
+			snd_driver_cvar.set_string(snd_driver_cvar_2d_system);
 			break;
 
 		case AudioDriverType::r3_openal:

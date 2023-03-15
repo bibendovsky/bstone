@@ -37,6 +37,7 @@
 - [VIDEO] Rename `vid_windowed_width` to `vid_width`.
 - [VIDEO] Rename `vid_windowed_x` to `vid_x`.
 - [VIDEO] Rename `vid_windowed_y` to `vid_y`.
+- [AUDIO] Rename audio driver type `2d_sdl` to `2d_system`.
 
 ### Removed
 - Exclusive fullscreen mode.

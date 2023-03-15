@@ -10097,7 +10097,6 @@ int main(
 		SysLogger sys_logger{*logger};
 
 		bstone::globals::sys_system_mgr = bstone::sys::make_system_mgr(sys_logger);
-		bstone::globals::sys_audio_mgr = bstone::globals::sys_system_mgr->make_audio_mgr();
 		bstone::globals::sys_event_mgr = bstone::globals::sys_system_mgr->make_event_mgr();
 		bstone::globals::sys_video_mgr = bstone::globals::sys_system_mgr->make_video_mgr();
 
@@ -10119,7 +10118,6 @@ int main(
 	bstone::globals::sys_mouse_mgr = nullptr;
 	bstone::globals::sys_video_mgr = nullptr;
 	bstone::globals::sys_event_mgr = nullptr;
-	bstone::globals::sys_audio_mgr = nullptr;
 	bstone::globals::sys_system_mgr = nullptr;
 
 	if (is_failed)
