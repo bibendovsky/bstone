@@ -132,14 +132,14 @@ auto snd_mix_size_cvar = bstone::CVar{
 // snd_driver
 
 constexpr auto snd_driver_cvar_name = bstone::StringView{"snd_driver"};
-constexpr auto snd_driver_cvar_2d_system = bstone::StringView{"2d_system"};
-constexpr auto snd_driver_cvar_3d_openal = bstone::StringView{"3d_openal"};
+constexpr auto snd_driver_cvar_system = bstone::StringView{"system"};
+constexpr auto snd_driver_cvar_openal = bstone::StringView{"openal"};
 
 constexpr bstone::StringView snd_driver_cvar_values[] =
 {
 	snd_auto_detect_string,
-	snd_driver_cvar_2d_system,
-	snd_driver_cvar_3d_openal,
+	snd_driver_cvar_system,
+	snd_driver_cvar_openal,
 };
 
 auto snd_driver_cvar = bstone::CVar{
@@ -443,14 +443,14 @@ AudioDriverType sd_get_driver_type_from_cvar() noexcept
 {
 	const auto driver_sv = snd_driver_cvar.get_string();
 
-	if (driver_sv == snd_driver_cvar_2d_system)
+	if (driver_sv == snd_driver_cvar_system)
 	{
-		return AudioDriverType::r2_system;
+		return AudioDriverType::system;
 	}
 
-	if (driver_sv == snd_driver_cvar_3d_openal)
+	if (driver_sv == snd_driver_cvar_openal)
 	{
-		return AudioDriverType::r3_openal;
+		return AudioDriverType::openal;
 	}
 
 	return AudioDriverType::auto_detect;
@@ -493,8 +493,8 @@ void sd_startup()
 
 		if (user_driver_type == AudioDriverType::auto_detect)
 		{
-			driver_types.emplace_back(AudioDriverType::r3_openal);
-			driver_types.emplace_back(AudioDriverType::r2_system);
+			driver_types.emplace_back(AudioDriverType::openal);
+			driver_types.emplace_back(AudioDriverType::system);
 		}
 		else
 		{
@@ -1370,12 +1370,12 @@ void sd_set_audio_driver_type(AudioDriverType audio_driver_type)
 {
 	switch (audio_driver_type)
 	{
-		case AudioDriverType::r2_system:
-			snd_driver_cvar.set_string(snd_driver_cvar_2d_system);
+		case AudioDriverType::system:
+			snd_driver_cvar.set_string(snd_driver_cvar_system);
 			break;
 
-		case AudioDriverType::r3_openal:
-			snd_driver_cvar.set_string(snd_driver_cvar_3d_openal);
+		case AudioDriverType::openal:
+			snd_driver_cvar.set_string(snd_driver_cvar_openal);
 			break;
 
 		default:

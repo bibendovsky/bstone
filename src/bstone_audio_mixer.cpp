@@ -73,10 +73,10 @@ try
 {
 	switch (param.audio_driver_type)
 	{
-		case AudioDriverType::r2_system:
+		case AudioDriverType::system:
 			return std::make_unique<SystemAudioMixer>(param);
 
-		case AudioDriverType::r3_openal:
+		case AudioDriverType::openal:
 			return std::make_unique<OalAudioMixer>(param);
 
 		default:

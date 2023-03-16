@@ -2,6 +2,12 @@
 # Changelog
 
 
+## [1.?.?] - ????-??-??
+### Changed
+- [AUDIO] Rename audio driver type `2d_sdl` to `system`.
+- [AUDIO] Rename audio driver type `3d_openal` to `openal`.
+
+
 ## [1.2.12] - 2022-09-18
 ### Added
 - Support Nuked OPL3 emulator.
@@ -37,7 +43,6 @@
 - [VIDEO] Rename `vid_windowed_width` to `vid_width`.
 - [VIDEO] Rename `vid_windowed_x` to `vid_x`.
 - [VIDEO] Rename `vid_windowed_y` to `vid_y`.
-- [AUDIO] Rename audio driver type `2d_sdl` to `2d_system`.
 
 ### Removed
 - Exclusive fullscreen mode.

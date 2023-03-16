@@ -2719,8 +2719,8 @@ constexpr auto sound_driver_count = 3;
 const SoundDriverItem sound_drivers[sound_driver_count] =
 {
 	SoundDriverItem{AudioDriverType::auto_detect, "AUTO-DETECT"},
-	SoundDriverItem{AudioDriverType::r2_system, "2D (SYSTEM)"},
-	SoundDriverItem{AudioDriverType::r3_openal, "3D (OPENAL)"},
+	SoundDriverItem{AudioDriverType::system, "SYSTEM"},
+	SoundDriverItem{AudioDriverType::openal, "OPENAL"},
 };
 
 struct SoundOpl3TypeItem
@@ -2787,11 +2787,11 @@ void initialize_sound_driver_index()
 {
 	switch (sd_get_audio_driver_type())
 	{
-		case AudioDriverType::r2_system:
+		case AudioDriverType::system:
 			sound_driver_index = 1;
 			break;
 
-		case AudioDriverType::r3_openal:
+		case AudioDriverType::openal:
 			sound_driver_index = 2;
 			break;
 

@@ -179,8 +179,8 @@ extern std::int16_t LASTMUSIC;
 enum class AudioDriverType
 {
 	auto_detect,
-	r2_system,
-	r3_openal,
+	system,
+	openal,
 }; // AudioDriverType
 
 enum class AudioSfxType
