@@ -201,12 +201,18 @@ void extract_exception_messages(ExceptionMessages& messages)
 			message += ex.get_file_name();
 			message += '(';
 			message += std::to_string(ex.get_line());
-			message += ") : ";
+			message += ')';
 
 			if (ex.get_function_name() != nullptr)
 			{
+				message += ':';
 				message += ex.get_function_name();
-				message += " : ";
+			}
+
+			if (ex.get_message() != nullptr)
+			{
+				message += ": ";
+				message += ex.get_message();
 			}
 
 			messages.emplace_back(message);

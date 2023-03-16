@@ -7,8 +7,8 @@ SPDX-License-Identifier: MIT
 #include <utility>
 #include "SDL_loadso.h"
 #include "bstone_exception.h"
-#include "bstone_sdl_exception.h"
 #include "bstone_shared_library.h"
+#include "bstone_sys_sdl_exception.h"
 
 namespace bstone {
 
@@ -45,7 +45,7 @@ private:
 void* SharedLibraryImpl::open(const char* path)
 try
 {
-	return sdl_ensure_result(SDL_LoadObject(path));
+	return sys::sdl_ensure_result(SDL_LoadObject(path));
 }
 catch (...)
 {

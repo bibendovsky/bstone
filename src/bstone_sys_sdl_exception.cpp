@@ -1,16 +1,14 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-// Ensures SDL result.
-
 #include "SDL_error.h"
-#include "bstone_exception.h"
-#include "bstone_sdl_exception.h"
+#include "bstone_sys_sdl_exception.h"
 
 namespace bstone {
+namespace sys {
 
 namespace {
 
@@ -27,19 +25,22 @@ public:
 
 // ==========================================================================
 
-[[noreturn]] void fail_sdl()
+[[noreturn]] void sdl_fail()
 {
 	throw SdlException{};
 }
 
 int sdl_ensure_result(int sdl_result)
+try
 {
 	if (sdl_result != 0)
 	{
-		fail_sdl();
+		sdl_fail();
 	}
 
 	return sdl_result;
 }
+BSTONE_STATIC_THROW_NESTED_FUNC
 
+} // namespace sys
 } // namespace bstone

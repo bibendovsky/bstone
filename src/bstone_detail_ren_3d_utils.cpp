@@ -20,7 +20,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_exception.h"
 #include "bstone_ren_3d_limits.h"
-#include "bstone_sdl_exception.h"
 #include "bstone_sprite.h"
 
 
@@ -122,55 +121,48 @@ catch (...)
 	fail_nested(__func__);
 }
 
-SdlWindowUPtr Ren3dUtils::create_window(
-	const Ren3dUtilsCreateWindowParam& param)
+sys::WindowUPtr Ren3dUtils::create_window(
+	const Ren3dUtilsCreateWindowParam& param,
+	sys::WindowMgr& window_mgr)
 try
 {
 	create_window_validate_param(param);
-	create_window_set_gl_attributes(param);
+	const auto gl_attributes = create_window_make_gl_context_attributes(param);
 
-	const auto sdl_flags = create_window_sdl_flags(param);
+	auto window_param = sys::WindowInitParam{};
 
-	const auto x = (
-		param.window_.is_positioned_ ?
-			param.window_.rect_2d_.offset_.x
-			:
-			SDL_WINDOWPOS_CENTERED
-	);
+	window_param.x =
+		param.window_.is_positioned_ ? param.window_.rect_2d_.offset_.x : sys::window_position_centered;
 
-	const auto y = (
-		param.window_.is_positioned_ ?
-			param.window_.rect_2d_.offset_.y
-			:
-			SDL_WINDOWPOS_CENTERED
-	);
+	window_param.y =
+		param.window_.is_positioned_ ? param.window_.rect_2d_.offset_.y : sys::window_position_centered;
 
-	auto sdl_window = SdlWindowUPtr{sdl_ensure_result(SDL_CreateWindow(
-		param.window_.title_.c_str(),
-		x,
-		y,
-		param.window_.rect_2d_.extent_.width_,
-		param.window_.rect_2d_.extent_.height_,
-		sdl_flags
-	))};
+	window_param.width = param.window_.rect_2d_.extent_.width_;
+	window_param.height = param.window_.rect_2d_.extent_.height_;
 
-	return sdl_window;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+	window_param.is_visible = param.window_.is_visible;
+	window_param.is_fake_fullscreen = param.window_.is_native_;
 
-void Ren3dUtils::set_window_mode(
-	SdlWindowPtr sdl_window,
-	const Ren3dSetWindowModeParam& param)
-try
-{
-	if (!sdl_window)
+	switch (param.renderer_kind_)
 	{
-		fail("Null window.");
+		case Ren3dKind::gl_2_0:
+		case Ren3dKind::gl_3_2_core:
+		case Ren3dKind::gles_2_0:
+			window_param.is_opengl = true;
+			window_param.gl_attributes = &gl_attributes;
+			break;
+
+		default:
+			break;
 	}
 
+	return window_mgr.make_window(window_param);
+}
+BSTONE_STATIC_THROW_NESTED_FUNC
+
+void Ren3dUtils::set_window_mode(sys::Window& window, const Ren3dSetWindowModeParam& param)
+try
+{
 	if (param.rect_2d_.extent_.height_ <= 0)
 	{
 		fail("Height out of range.");
@@ -181,28 +173,21 @@ try
 		fail("Width out of range.");
 	}
 
-
 	//
-	const auto sdl_window_flags = ::SDL_GetWindowFlags(sdl_window);
-	const auto is_current_native = ((sdl_window_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0);
+	const auto is_current_native = window.is_fake_fullscreen();
 	const auto is_native_changed = (is_current_native != param.is_native);
 
-
 	//
-	int current_width = 0;
-	int current_height = 0;
+	const auto current_size = window.get_size();
 
-	::SDL_GetWindowSize(sdl_window, &current_width, &current_height);
-
-	if (current_width <= 0 || current_height <= 0)
+	if (current_size.width <= 0 || current_size.height <= 0)
 	{
 		fail("Failed to get current window size.");
 	}
 
-	const auto is_size_changed = (
-		current_width != param.rect_2d_.extent_.width_ ||
-		current_height != param.rect_2d_.extent_.height_);
-
+	const auto is_size_changed =
+		current_size.width != param.rect_2d_.extent_.width_ ||
+		current_size.height != param.rect_2d_.extent_.height_;
 
 	//
 	if (!is_native_changed && !is_size_changed)
@@ -212,71 +197,31 @@ try
 
 	if (is_native_changed && !param.is_native)
 	{
-		sdl_ensure_result(::SDL_SetWindowFullscreen(sdl_window, 0));
+		window.set_fake_fullscreen(false);
 	}
 
 	if (is_size_changed)
 	{
-		::SDL_SetWindowSize(sdl_window, param.rect_2d_.extent_.width_, param.rect_2d_.extent_.height_);
+		window.set_size(sys::WindowSize{param.rect_2d_.extent_.width_, param.rect_2d_.extent_.height_});
 
 		if (param.is_positioned_)
 		{
 			const auto x = std::max(param.rect_2d_.offset_.x, 0);
 			const auto y = std::max(param.rect_2d_.offset_.y, 0);
-
-			::SDL_SetWindowPosition(sdl_window, x, y);
+			window.set_position(sys::WindowPosition{x, y});
 		}
 		else
 		{
-			::SDL_SetWindowPosition(sdl_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+			window.center();
 		}
 	}
 
 	if (is_native_changed && param.is_native)
 	{
-		sdl_ensure_result(::SDL_SetWindowFullscreen(sdl_window, ::SDL_WINDOW_FULLSCREEN_DESKTOP));
+		window.set_fake_fullscreen(true);
 	}
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-void Ren3dUtils::show_window(
-	SdlWindowPtr sdl_window,
-	const bool is_visible)
-try
-{
-	if (!sdl_window)
-	{
-		fail("Null window.");
-	}
-
-	const auto sdl_function = (is_visible ? SDL_ShowWindow : SDL_HideWindow);
-
-	sdl_function(sdl_window);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-void Ren3dUtils::set_window_title(
-	const SdlWindowPtr sdl_window,
-	const std::string& title_utf8)
-try
-{
-	if (!sdl_window)
-	{
-		fail("Null window.");
-	}
-
-	SDL_SetWindowTitle(sdl_window, title_utf8.c_str());
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void Ren3dUtils::validate_initialize_param(
 	const Ren3dCreateParam& param)
@@ -857,105 +802,21 @@ catch (...)
 	fail_nested(__func__);
 }
 
-void Ren3dUtils::create_window_set_gl_profile_and_version(
-	const Ren3dKind renderer_kind)
-try
-{
-	auto sdl_profile_mask = 0;
-	auto sdl_version_major = 0;
-	auto sdl_version_minor = 0;
-
-	switch (renderer_kind)
-	{
-		case Ren3dKind::gl_2_0:
-			sdl_profile_mask = SDL_GL_CONTEXT_PROFILE_COMPATIBILITY;
-			sdl_version_major = 2;
-			sdl_version_minor = 0;
-			break;
-
-		case Ren3dKind::gl_3_2_core:
-			sdl_profile_mask = SDL_GL_CONTEXT_PROFILE_CORE;
-			sdl_version_major = 3;
-			sdl_version_minor = 2;
-			break;
-
-		case Ren3dKind::gles_2_0:
-			sdl_profile_mask = SDL_GL_CONTEXT_PROFILE_ES;
-			sdl_version_major = 2;
-			sdl_version_minor = 0;
-			break;
-
-		default:
-			fail("Unsupported 3D-renderer kind.");
-	}
-
-	{
-		const auto sdl_result = SDL_GL_SetAttribute(
-			SDL_GL_CONTEXT_PROFILE_MASK,
-			sdl_profile_mask
-		);
-
-		if (sdl_result != 0)
-		{
-			fail("Failed to set OpenGL context core profile attribute.");
-		}
-	}
-
-	{
-		const auto sdl_result = SDL_GL_SetAttribute(
-			SDL_GL_CONTEXT_MAJOR_VERSION,
-			sdl_version_major
-		);
-
-		if (sdl_result != 0)
-		{
-			fail("Failed to set OpenGL context major version attribute.");
-		}
-	}
-
-	{
-		const auto sdl_result = SDL_GL_SetAttribute(
-			SDL_GL_CONTEXT_MINOR_VERSION,
-			sdl_version_minor
-		);
-
-		if (sdl_result != 0)
-		{
-			fail("Failed to set OpenGL context minor version attribute.");
-		}
-	}
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-void Ren3dUtils::create_window_set_gl_attributes(
+sys::GlContextAttributes Ren3dUtils::create_window_make_gl_context_attributes(
 	const Ren3dUtilsCreateWindowParam& param)
 try
 {
-	SDL_GL_ResetAttributes();
+	auto gl_attributes = sys::GlContextAttributes{};
 
-	auto sdl_result = 0;
+	gl_attributes.is_accelerated = true;
 
 	switch (param.aa_kind_)
 	{
 		case Ren3dAaKind::ms:
 			if (param.aa_value_ >= Ren3dLimits::min_aa_on)
 			{
-				sdl_result = SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-
-				if (sdl_result != 0)
-				{
-					fail("Failed to set multisample buffer count.");
-				}
-
-				sdl_result = SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, param.aa_value_);
-
-				if (sdl_result != 0)
-				{
-					fail("Failed to set multisample sample count.");
-				}
+				gl_attributes.multisample_buffer_count = 1;
+				gl_attributes.multisample_sample_count = param.aa_value_;
 			}
 
 			break;
@@ -963,128 +824,45 @@ try
 
 		case Ren3dAaKind::none:
 		default:
-			sdl_result = SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
-
-			if (sdl_result != 0)
-			{
-				fail("Failed to set multisample buffer count.");
-			}
-
-			sdl_result = SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
-
-			if (sdl_result != 0)
-			{
-				fail("Failed to set multisample sample count.");
-			}
-
 			break;
 	}
 
+	gl_attributes.red_bit_count = 8;
+	gl_attributes.green_bit_count = 8;
+	gl_attributes.blue_bit_count = 8;
+
+	if (!param.is_default_depth_buffer_disabled_)
 	{
-		sdl_result = SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-
-		if (sdl_result != 0)
-		{
-			fail("Failed to set a red bit depth.");
-		}
-	}
-
-	{
-		sdl_result = SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-
-		if (sdl_result != 0)
-		{
-			fail("Failed to set a green bit depth.");
-		}
-	}
-
-	{
-		sdl_result = SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-
-		if (sdl_result != 0)
-		{
-			fail("Failed to set a blue bit depth.");
-		}
-	}
-
-	{
-		sdl_result = SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 0);
-
-		if (sdl_result != 0)
-		{
-			fail("Failed to set an alpha bit depth.");
-		}
-	}
-
-	{
-		sdl_result = SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-
-		if (sdl_result != 0)
-		{
-			fail("Failed to set an accelerated visual.");
-		}
-	}
-
-	{
-		const auto gl_depth_size = (
-			param.is_default_depth_buffer_disabled_ ?
-			0 :
-			16
-		);
-
-		sdl_result = SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, gl_depth_size);
-
-		if (sdl_result != 0)
-		{
-			fail("Failed to set depth buffer bit depth.");
-		}
-	}
-
-	create_window_set_gl_profile_and_version(param.renderer_kind_);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-std::uint32_t Ren3dUtils::create_window_sdl_flags(
-	const Ren3dUtilsCreateWindowParam& param) noexcept
-{
-	auto flags = Uint32{SDL_WINDOW_ALLOW_HIGHDPI};
-
-	if (param.window_.is_visible)
-	{
-		flags |= SDL_WINDOW_SHOWN;
-	}
-	else
-	{
-		flags |= SDL_WINDOW_HIDDEN;
-	}
-
-	if (param.window_.is_native_)
-	{
-		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-	}
-
-	if (param.window_.is_borderless_)
-	{
-		flags |= SDL_WINDOW_BORDERLESS;
+		gl_attributes.depth_bit_count = 16;
 	}
 
 	switch (param.renderer_kind_)
 	{
 		case Ren3dKind::gl_2_0:
+			gl_attributes.profile = sys::GlContextProfile::compatibility;
+			gl_attributes.major_version = 2;
+			gl_attributes.minor_version = 0;
+			break;
+
 		case Ren3dKind::gl_3_2_core:
+			gl_attributes.profile = sys::GlContextProfile::core;
+			gl_attributes.major_version = 3;
+			gl_attributes.minor_version = 2;
+			break;
+
 		case Ren3dKind::gles_2_0:
-			flags |= SDL_WINDOW_OPENGL;
+			gl_attributes.profile = sys::GlContextProfile::es;
+			gl_attributes.major_version = 2;
+			gl_attributes.minor_version = 0;
 			break;
 
 		default:
-			break;
+			fail("Unsupported 3D-renderer kind.");
 	}
 
-	return flags;
+	return gl_attributes;
 }
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 // Indexed (row major, has no alpha) -> RGBA
 void Ren3dUtils::indexed_to_rgba_8_rm_na(

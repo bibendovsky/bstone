@@ -15,7 +15,7 @@ try
 {
 	do_invoke(samples, sample_count);
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 // ==========================================================================
 
@@ -39,7 +39,7 @@ try
 {
 	do_pause(is_pause);
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 } // namespace sys
 } // namespace bstone

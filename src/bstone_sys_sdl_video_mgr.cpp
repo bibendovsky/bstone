@@ -5,13 +5,19 @@ SPDX-License-Identifier: MIT
 */
 
 #include <cassert>
+#include <algorithm>
 #include "SDL.h"
 #include "bstone_char_conv.h"
 #include "bstone_exception.h"
-#include "bstone_sdl_exception.h"
+#include "bstone_memory_pool_1x.h"
 #include "bstone_sys_logger.h"
+#include "bstone_sys_sdl_detail.h"
+#include "bstone_sys_sdl_exception.h"
+#include "bstone_sys_sdl_gl_mgr.h"
+#include "bstone_sys_sdl_limits.h"
 #include "bstone_sys_sdl_mouse_mgr.h"
 #include "bstone_sys_sdl_video_mgr.h"
+#include "bstone_sys_sdl_window_mgr.h"
 
 namespace bstone {
 namespace sys {
@@ -26,21 +32,41 @@ public:
 	SdlVideoMgr& operator=(const SdlVideoMgr&) = delete;
 	~SdlVideoMgr() override;
 
-private:
-	Logger& logger_;
+	static void* operator new(std::size_t count);
+	static void operator delete(void* ptr) noexcept;
 
 private:
+	using DisplayModeCache = DisplayMode[limits::max_display_modes];
+
+private:
+	Logger& logger_;
+	DisplayModeCache display_mode_cache_{};
+
+private:
+	DisplayMode do_get_current_display_mode() override;
+	Span<const DisplayMode> do_get_display_modes() override;
+
+	GlMgrUPtr do_make_gl_mgr() override;
 	MouseMgrUPtr do_make_mouse_mgr() override;
+	WindowMgrUPtr do_make_window_mgr() override;
 
 private:
 	static void log_int(int value, std::string& message);
 	static void log_rect(const SDL_Rect& rect, std::string& message);
 
-	void log_drivers();
+	void log_drivers(std::string& message);
 	static void log_display_mode(const SDL_DisplayMode& mode, std::string& message);
-	void log_displays();
+	void log_displays(std::string& message);
 	void log_info() noexcept;
+
+	static DisplayMode map_display_mode(const SDL_DisplayMode& sdl_display_mode) noexcept;
 };
+
+// ==========================================================================
+
+using SdlVideoMgrPool = MemoryPool1XT<SdlVideoMgr>;
+
+SdlVideoMgrPool sdl_video_mgr_pool{};
 
 // ==========================================================================
 
@@ -56,7 +82,7 @@ try
 
 	logger_.log_information(">>> SDL video manager started up.");
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 SdlVideoMgr::~SdlVideoMgr()
 {
@@ -65,9 +91,57 @@ SdlVideoMgr::~SdlVideoMgr()
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
+void* SdlVideoMgr::operator new(std::size_t count)
+try
+{
+	return sdl_video_mgr_pool.allocate(count);
+}
+BSTONE_STATIC_THROW_NESTED_FUNC
+
+void SdlVideoMgr::operator delete(void* ptr) noexcept
+{
+	sdl_video_mgr_pool.deallocate(ptr);
+}
+
+DisplayMode SdlVideoMgr::do_get_current_display_mode()
+try
+{
+	auto sdl_display_mode = SDL_DisplayMode{};
+	sdl_ensure_result(SDL_GetCurrentDisplayMode(0, &sdl_display_mode));
+	return map_display_mode(sdl_display_mode);
+}
+BSTONE_STATIC_THROW_NESTED_FUNC
+
+Span<const DisplayMode> SdlVideoMgr::do_get_display_modes()
+try
+{
+	const auto count = std::min(SDL_GetNumDisplayModes(0), limits::max_display_modes);
+
+	auto sdl_display_mode = SDL_DisplayMode{};
+
+	for (auto i = 0; i < count; ++i)
+	{
+		sdl_ensure_result(SDL_GetDisplayMode(0, i, &sdl_display_mode));
+		display_mode_cache_[i] = map_display_mode(sdl_display_mode);
+	}
+
+	return Span<const DisplayMode>{display_mode_cache_, count};
+}
+BSTONE_STATIC_THROW_NESTED_FUNC
+
+GlMgrUPtr SdlVideoMgr::do_make_gl_mgr()
+{
+	return make_sdl_gl_mgr(logger_);
+}
+
 MouseMgrUPtr SdlVideoMgr::do_make_mouse_mgr()
 {
 	return make_sdl_mouse_mgr(logger_);
+}
+
+WindowMgrUPtr SdlVideoMgr::do_make_window_mgr()
+{
+	return make_sdl_window_mgr(logger_);
 }
 
 void SdlVideoMgr::log_int(int value, std::string& message)
@@ -90,19 +164,15 @@ void SdlVideoMgr::log_rect(const SDL_Rect& rect, std::string& message)
 	message += ')';
 }
 
-void SdlVideoMgr::log_drivers()
+void SdlVideoMgr::log_drivers(std::string& message)
 {
-	auto message = std::string{};
-	message.reserve(256);
-
 	//
 	const auto current_driver = SDL_GetCurrentVideoDriver();
 
-	message.clear();
 	message += "Current driver: \"";
 	message += (current_driver != nullptr ? current_driver : "???");
 	message += '"';
-	logger_.log_information(message);
+	detail::sdl_log_eol(message);
 
 	//
 	const auto driver_count = SDL_GetNumVideoDrivers();
@@ -110,22 +180,21 @@ void SdlVideoMgr::log_drivers()
 	if (driver_count == 0)
 	{
 		message = "No built-in drivers.";
-		logger_.log_information(message);
+		detail::sdl_log_eol(message);
 		return;
 	}
 
 	message = "Built-in drivers:";
-	logger_.log_information(message);
+	detail::sdl_log_eol(message);
 
 	for (auto i = decltype(driver_count){}; i < driver_count; ++i)
 	{
 		const auto sdl_driver_name = SDL_GetVideoDriver(i);
 
-		message.clear();
 		message += "  \"";
 		message += (sdl_driver_name != nullptr ? sdl_driver_name : "???");
 		message += '"';
-		logger_.log_information(message);
+		detail::sdl_log_eol(message);
 	}
 }
 
@@ -139,23 +208,20 @@ void SdlVideoMgr::log_display_mode(const SDL_DisplayMode& mode, std::string& mes
 	message += " Hz";
 }
 
-void SdlVideoMgr::log_displays()
+void SdlVideoMgr::log_displays(std::string& message)
 {
-	auto message = std::string{};
-	message.reserve(256);
-
 	//
 	const auto display_count = SDL_GetNumVideoDisplays();
 
 	if (display_count == 0)
 	{
 		message = "No displays.";
-		logger_.log_information(message);
+		detail::sdl_log_eol(message);
 		return;
 	}
 
 	message = "Displays:";
-	logger_.log_information(message);
+	detail::sdl_log_eol(message);
 
 	for (auto i = decltype(display_count){}; i < display_count; ++i)
 	{
@@ -163,16 +229,14 @@ void SdlVideoMgr::log_displays()
 		const auto sdl_display_name = SDL_GetDisplayName(i);
 
 		//
-		message.clear();
 		message += "  ";
 		log_int(i + 1, message);
 		message += ". \"";
 		message += (sdl_display_name != nullptr ? sdl_display_name : "???");
 		message += '"';
-		logger_.log_information(message);
+		detail::sdl_log_eol(message);
 
 		//
-		message.clear();
 		message += "  Bounds: ";
 		auto bounds = SDL_Rect{};
 
@@ -185,11 +249,10 @@ void SdlVideoMgr::log_displays()
 			message += "???";
 		}
 
-		logger_.log_information(message);
+		detail::sdl_log_eol(message);
 
 #if SDL_VERSION_ATLEAST(2, 0, 5)
 		//
-		message.clear();
 		message += "  Usable bounds: ";
 		auto usable_bounds = SDL_Rect{};
 
@@ -202,12 +265,11 @@ void SdlVideoMgr::log_displays()
 			message += "???";
 		}
 
-		logger_.log_information(message);
+		detail::sdl_log_eol(message);
 #endif
 
 #if SDL_VERSION_ATLEAST(2, 0, 9)
 		//
-		message.clear();
 		message += "  Orientation: ";
 
 		switch (SDL_GetDisplayOrientation(i))
@@ -219,13 +281,12 @@ void SdlVideoMgr::log_displays()
 			default: message += "???"; break;
 		}
 
-		logger_.log_information(message);
+		detail::sdl_log_eol(message);
 #endif
 
 		//
 		auto current_mode = SDL_DisplayMode{};
 
-		message.clear();
 		message += "  Current mode: ";
 
 		if (SDL_GetCurrentDisplayMode(i, &current_mode) == 0)
@@ -237,7 +298,7 @@ void SdlVideoMgr::log_displays()
 			message += "???";
 		}
 
-		logger_.log_information(message);
+		detail::sdl_log_eol(message);
 
 		//
 		const auto mode_count = SDL_GetNumDisplayModes(i);
@@ -245,7 +306,7 @@ void SdlVideoMgr::log_displays()
 		if (mode_count > 0)
 		{
 			message = "  Modes:";
-			logger_.log_information(message);
+			detail::sdl_log_eol(message);
 
 			for (auto j = decltype(mode_count){}; j < mode_count; ++j)
 			{
@@ -253,17 +314,16 @@ void SdlVideoMgr::log_displays()
 
 				if (SDL_GetDisplayMode(i, j, &mode) == 0)
 				{
-					message.clear();
 					message += "    ";
 					log_display_mode(mode, message);
-					logger_.log_information(message);
+					detail::sdl_log_eol(message);
 				}
 			}
 		}
 		else
 		{
 			message = "  No modes.";
-			logger_.log_information(message);
+			detail::sdl_log_eol(message);
 		}
 	}
 }
@@ -271,10 +331,24 @@ void SdlVideoMgr::log_displays()
 void SdlVideoMgr::log_info() noexcept
 try
 {
-	log_drivers();
-	log_displays();
+	auto message = std::string{};
+	message.reserve(4096);
+
+	log_drivers(message);
+	log_displays(message);
+
+	logger_.log_information(message);
 }
 catch (...) {}
+
+DisplayMode SdlVideoMgr::map_display_mode(const SDL_DisplayMode& sdl_display_mode) noexcept
+{
+	auto display_mode = DisplayMode{};
+	display_mode.width = sdl_display_mode.w;
+	display_mode.height = sdl_display_mode.h;
+	display_mode.refresh_rate = sdl_display_mode.refresh_rate;
+	return display_mode;
+}
 
 } // namespace
 
@@ -285,7 +359,7 @@ try
 {
 	return std::make_unique<SdlVideoMgr>(logger);
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 } // namespace sys
 } // namespace bstone

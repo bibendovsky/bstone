@@ -24,8 +24,9 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_exception.h"
 #include "bstone_logger.h"
-#include "bstone_sdl_exception.h"
-#include "bstone_sdl_texture_lock.h"
+#include "bstone_span.h"
+#include "bstone_sys_video_mgr.h"
+#include "bstone_sys_window_mgr.h"
 #include "bstone_video.h"
 
 #include "bstone_detail_ren_3d_utils.h"
@@ -36,7 +37,7 @@ namespace bstone
 
 
 class SwVideoException :
-	public bstone::Exception
+	public Exception
 {
 public:
 	explicit SwVideoException(
@@ -52,7 +53,7 @@ class SwVideo final :
 	public Video
 {
 public:
-	SwVideo();
+	SwVideo(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr);
 
 	~SwVideo() override;
 
@@ -67,7 +68,7 @@ public:
 		int width,
 		int height,
 		int stride_rgb_888,
-		::ScreenshotBuffer&& src_pixels_rgb_888) override;
+		ScreenshotBuffer&& src_pixels_rgb_888) override;
 
 	void vsync_present() override;
 	void present() override;
@@ -112,7 +113,7 @@ public:
 	// HW
 	//
 
-	const bstone::Rgba8Palette& get_default_palette() const noexcept override;
+	const Rgba8Palette& get_default_palette() const noexcept override;
 
 	void enable_fizzle_fx(
 		bool is_enabled) override;
@@ -194,7 +195,7 @@ public:
 
 	void update_samplers() override;
 
-	const bstone::Ren3dDeviceFeatures& get_device_features() const noexcept override;
+	const Ren3dDeviceFeatures& get_device_features() const noexcept override;
 
 	//
 	// HW
@@ -202,19 +203,11 @@ public:
 
 private:
 	static constexpr auto log_prefix = "[VIDSW] ";
-
-
-	[[noreturn]]
-	static void fail(
-		const char* message);
-
-	[[noreturn]]
-	static void fail_nested(
-		const char* message);
+	static const sys::Color opaque_black;
 
 
 	static void log(
-		bstone::LoggerMessageKind message_type,
+		LoggerMessageKind message_type,
 		const std::string& message);
 
 	static void log(
@@ -226,25 +219,14 @@ private:
 
 	void initialize_video();
 
-	void set_draw_color(
-		std::uint8_t r,
-		std::uint8_t g,
-		std::uint8_t b);
-
-	void clear_rendering_target();
-
 	void copy_texture_to_rendering_target(
-		::SDL_Texture* sdl_texture,
-		const ::SDL_Rect* src_rect,
-		const ::SDL_Rect* dst_rect);
+		sys::Texture& texture,
+		const sys::R2Rect* src_rect,
+		const sys::R2Rect* dst_rect);
 
-	void enable_texture_blending(
-		::SDL_Texture* sdl_texture,
-		bool is_enable);
+	void enable_texture_blending(sys::Texture& texture, bool is_enable);
 
-	void fill_rects(
-		::SDL_Rect* rects,
-		int rect_count);
+	void fill_rects(Span<const sys::R2Rect> rects);
 
 	void initialize_vga_buffer();
 
@@ -258,8 +240,6 @@ private:
 
 	void initialize_textures();
 
-	void update_viewport();
-
 	void initialize_palette();
 
 	void calculate_dimensions();
@@ -270,36 +250,36 @@ private:
 		int offset,
 		int count);
 
-
 private:
-	bstone::SdlWindowUPtr window_{};
-	bstone::SdlRendererUPtr renderer_{};
-	bstone::SdlPixelFormatUPtr texture_pixel_format_{};
-	bstone::SdlTextureUPtr screen_texture_{};
-	bstone::SdlTextureUPtr ui_texture_{};
-	::VgaBuffer sw_vga_buffer_{};
-	::VgaPalette vga_palette_{};
-	::SdlPalette palette_{};
-	::SDL_Rect ui_whole_src_rect_{};
-	::SDL_Rect ui_whole_dst_rect_{};
-	::SDL_Rect ui_stretched_dst_rect_{};
-	::SDL_Rect ui_top_src_rect_{};
-	::SDL_Rect ui_top_dst_rect_{};
-	::SDL_Rect ui_wide_middle_src_rect_{};
-	::SDL_Rect ui_wide_middle_dst_rect_{};
-	::SDL_Rect ui_bottom_src_rect_{};
-	::SDL_Rect ui_bottom_dst_rect_{};
-	std::array<::SDL_Rect, 2> filler_ui_rects_{};
-	std::array<::SDL_Rect, 4> filler_hud_rects_{};
-	::SDL_Rect screen_dst_rect_{};
-	::SDL_Color filler_color_{};
+	sys::VideoMgr& video_mgr_;
+	sys::WindowMgr& window_mgr_;
+	sys::WindowUPtr window_{};
+	sys::RendererUPtr renderer_{};
+	sys::TextureUPtr screen_texture_{};
+	sys::TextureUPtr ui_texture_{};
+	VgaBuffer sw_vga_buffer_{};
+	VgaPalette vga_palette_{};
+	SdlPalette palette_{};
+	sys::R2Rect ui_whole_src_rect_{};
+	sys::R2Rect ui_whole_dst_rect_{};
+	sys::R2Rect ui_stretched_dst_rect_{};
+	sys::R2Rect ui_top_src_rect_{};
+	sys::R2Rect ui_top_dst_rect_{};
+	sys::R2Rect ui_wide_middle_src_rect_{};
+	sys::R2Rect ui_wide_middle_dst_rect_{};
+	sys::R2Rect ui_bottom_src_rect_{};
+	sys::R2Rect ui_bottom_dst_rect_{};
+	std::array<sys::R2Rect, 2> filler_ui_rects_{};
+	std::array<sys::R2Rect, 4> filler_hud_rects_{};
+	sys::R2Rect screen_dst_rect_{};
+	sys::Color filler_color_{};
 
 
 	// HW
 	//
 
-	bstone::Rgba8Palette default_palette_{};
-	bstone::Ren3dDeviceFeatures device_features_{};
+	Rgba8Palette default_palette_{};
+	Ren3dDeviceFeatures device_features_{};
 
 	//
 	// HW
@@ -307,15 +287,17 @@ private:
 
 // ==========================================================================
 
-SwVideo::SwVideo()
+constexpr sys::Color SwVideo::opaque_black = sys::Color{0, 0, 0, 0xFF};
+
+SwVideo::SwVideo(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr)
 try
+	:
+	video_mgr_{video_mgr},
+	window_mgr_{window_mgr}
 {
 	initialize_video();
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 SwVideo::~SwVideo()
 {
@@ -330,31 +312,23 @@ bool SwVideo::is_hardware() const noexcept
 std::string SwVideo::get_renderer_name()
 try
 {
-	auto sdl_renderer_info = ::SDL_RendererInfo{};
-
-	bstone::sdl_ensure_result(::SDL_GetRendererInfo(
-		renderer_.get(),
-		&sdl_renderer_info
-	));
+	const auto name = renderer_->get_name();
 
 	auto result = std::string{};
+	result.reserve(128);
 	result += "software (";
-	result += sdl_renderer_info.name;
+	result += name;
 	result += ")";
-
 	return result;
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SwVideo::clear_vga_buffer()
 {
 	std::uninitialized_fill(
 		sw_vga_buffer_.begin(),
 		sw_vga_buffer_.end(),
-		::VgaBuffer::value_type{}
+		VgaBuffer::value_type{}
 	);
 }
 
@@ -367,27 +341,18 @@ try
 	calculate_dimensions();
 	initialize_vga_buffer();
 	create_screen_texture();
-	update_viewport();
+	renderer_->set_viewport();
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SwVideo::take_screenshot(
 	int width,
 	int height,
 	int stride_rgb_888,
-	::ScreenshotBuffer&& src_pixels_rgb_888)
+	ScreenshotBuffer&& src_pixels_rgb_888)
 try
 {
-	bstone::sdl_ensure_result(::SDL_RenderReadPixels(
-		renderer_.get(),
-		nullptr,
-		::SDL_PIXELFORMAT_RGB24,
-		src_pixels_rgb_888.get(),
-		stride_rgb_888
-	));
+	renderer_->read_pixels(sys::PixelFormat::r8g8b8, src_pixels_rgb_888.get(), stride_rgb_888);
 
 	vid_schedule_save_screenshot_task(
 		width,
@@ -397,27 +362,21 @@ try
 		false
 	);
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SwVideo::vsync_present()
 try
 {
 	// Clear all
 	//
-	set_draw_color(0x00, 0x00, 0x00);
-	clear_rendering_target();
+	renderer_->set_draw_color(opaque_black);
+	renderer_->clear();
 
 	// Present
 	//
-	::SDL_RenderPresent(renderer_.get());
+	renderer_->present();
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SwVideo::present()
 try
@@ -426,13 +385,13 @@ try
 	//
 	if (vid_is_hud)
 	{
-		const auto texture_lock = bstone::SdlTextureLock{screen_texture_.get()};
+		const auto texture_lock = screen_texture_->make_lock();
 
 		const auto& src_pixels = sw_vga_buffer_;
 		const auto src_pitch = vga_width;
 
-		const auto dst_pixels = texture_lock.get_pixels<std::uint32_t*>();
-		const auto dst_bytes_pitch = texture_lock.get_pitch();
+		const auto dst_pixels = texture_lock->get_pixels<std::uint32_t*>();
+		const auto dst_bytes_pitch = texture_lock->get_pitch();
 		const auto dst_pitch = dst_bytes_pitch / 4;
 
 		auto src_line_offset = 0;
@@ -457,16 +416,16 @@ try
 	// 2D stuff
 	//
 	{
-		const auto texture_lock = bstone::SdlTextureLock{ui_texture_.get()};
+		const auto texture_lock = ui_texture_->make_lock();
 
-		const auto dst_pixels = texture_lock.get_pixels<std::uint32_t*>();
-		const auto dst_bytes_pitch = texture_lock.get_pitch();
+		const auto dst_pixels = texture_lock->get_pixels<std::uint32_t*>();
+		const auto dst_bytes_pitch = texture_lock->get_pitch();
 		const auto dst_pitch = dst_bytes_pitch / 4;
 
 		auto src_line_offset = 0;
 		auto dst_line_offset = 0;
 
-		const auto alpha_0_mask = ~texture_pixel_format_->Amask;
+		const auto alpha_0_mask = 0x00FFFFFFU;
 
 		for (auto y = decltype(vga_ref_height){}; y < vga_ref_height; ++y)
 		{
@@ -496,47 +455,45 @@ try
 
 	// Clear all
 	//
-	set_draw_color(0x00, 0x00, 0x00);
-	clear_rendering_target();
-
+	renderer_->set_draw_color(opaque_black);
+	renderer_->clear();
 
 	// Copy HUD+3D stuff
 	//
 	if (vid_is_hud)
 	{
-		copy_texture_to_rendering_target(screen_texture_.get(), nullptr, &screen_dst_rect_);
+		copy_texture_to_rendering_target(*screen_texture_, nullptr, &screen_dst_rect_);
 	}
 
 	// Copy 2D stuff
 	//
 	if (vid_is_hud)
 	{
-		enable_texture_blending(ui_texture_.get(), true);
+		enable_texture_blending(*ui_texture_, true);
 	}
 
 	if (!vid_cfg_is_ui_stretched())
 	{
 		if (vid_is_fizzle_fade)
 		{
-			copy_texture_to_rendering_target(ui_texture_.get(), &ui_top_src_rect_, &ui_top_dst_rect_);
-			copy_texture_to_rendering_target(ui_texture_.get(), &ui_wide_middle_src_rect_, &ui_wide_middle_dst_rect_);
-			copy_texture_to_rendering_target(ui_texture_.get(), &ui_bottom_src_rect_, &ui_bottom_dst_rect_);
+			copy_texture_to_rendering_target(*ui_texture_, &ui_top_src_rect_, &ui_top_dst_rect_);
+			copy_texture_to_rendering_target(*ui_texture_, &ui_wide_middle_src_rect_, &ui_wide_middle_dst_rect_);
+			copy_texture_to_rendering_target(*ui_texture_, &ui_bottom_src_rect_, &ui_bottom_dst_rect_);
 		}
 		else
 		{
-			copy_texture_to_rendering_target(ui_texture_.get(), nullptr, &ui_whole_dst_rect_);
+			copy_texture_to_rendering_target(*ui_texture_, nullptr, &ui_whole_dst_rect_);
 		}
 	}
 	else
 	{
-		copy_texture_to_rendering_target(ui_texture_.get(), nullptr, &ui_stretched_dst_rect_);
+		copy_texture_to_rendering_target(*ui_texture_, nullptr, &ui_stretched_dst_rect_);
 	}
 
 	if (vid_is_hud)
 	{
-		enable_texture_blending(ui_texture_.get(), false);
+		enable_texture_blending(*ui_texture_, false);
 	}
-
 
 	// Use filler if necessary
 	//
@@ -544,22 +501,22 @@ try
 	{
 		const auto is_hud = vid_is_hud;
 
-		auto fill_color = ::SDL_Color{};
+		auto fill_color = opaque_black;
 
 		if (!vid_is_movie)
 		{
 			fill_color = filler_color_;
 		}
 
-		set_draw_color(fill_color.r, fill_color.g, fill_color.b);
+		renderer_->set_draw_color(fill_color);
 
 		if (is_hud)
 		{
-			fill_rects(filler_hud_rects_.data(), static_cast<int>(filler_hud_rects_.size()));
+			fill_rects(make_span(filler_hud_rects_.data(), static_cast<Int>(filler_hud_rects_.size())).to_const());
 		}
 		else
 		{
-			fill_rects(filler_ui_rects_.data(), static_cast<int>(filler_ui_rects_.size()));
+			fill_rects(make_span(filler_ui_rects_.data(), static_cast<Int>(filler_ui_rects_.size())).to_const());
 		}
 	}
 
@@ -570,12 +527,9 @@ try
 
 	// Present
 	//
-	::SDL_RenderPresent(renderer_.get());
+	renderer_->present();
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SwVideo::get_palette(
 	int offset,
@@ -588,7 +542,7 @@ try
 	assert((offset + count) <= 256);
 	assert(vga_palette);
 
-	auto& dst_vga_palette = *reinterpret_cast<::VgaPalette*>(vga_palette);
+	auto& dst_vga_palette = *reinterpret_cast<VgaPalette*>(vga_palette);
 
 	std::uninitialized_copy_n(
 		vga_palette_.cbegin() + offset,
@@ -596,10 +550,7 @@ try
 		dst_vga_palette.begin()
 	);
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SwVideo::fill_palette(
 	int r,
@@ -627,7 +578,7 @@ try
 	assert((offset + count) <= 256);
 	assert(vga_palette);
 
-	const auto& src_vga_palette = *reinterpret_cast<const ::VgaPalette*>(vga_palette);
+	const auto& src_vga_palette = *reinterpret_cast<const VgaPalette*>(vga_palette);
 
 	std::uninitialized_copy_n(
 		src_vga_palette.cbegin(),
@@ -637,10 +588,7 @@ try
 
 	update_palette_from_vga(offset, count);
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SwVideo::apply_window_mode()
 try
@@ -648,34 +596,28 @@ try
 	calculate_dimensions();
 	vid_initialize_vanilla_raycaster();
 
-	auto param = bstone::Ren3dSetWindowModeParam{};
+	auto param = Ren3dSetWindowModeParam{};
 	param.is_native = vid_is_native_mode();
 	param.rect_2d_.extent_.width_ = vid_cfg_get_width();
 	param.rect_2d_.extent_.height_ = vid_cfg_get_height();
-	bstone::detail::Ren3dUtils::set_window_mode(window_.get(), param);
+	detail::Ren3dUtils::set_window_mode(*window_, param);
 
 	vid_initialize_common();
 
 	initialize_textures();
 	initialize_vga_buffer();
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SwVideo::apply_filler_color_index()
 try
 {
-	filler_color_.r = static_cast<::Uint8>((255 * vgapal[(vid_cfg_get_filler_color_index() * 3) + 0]) / 63);
-	filler_color_.g = static_cast<::Uint8>((255 * vgapal[(vid_cfg_get_filler_color_index() * 3) + 1]) / 63);
-	filler_color_.b = static_cast<::Uint8>((255 * vgapal[(vid_cfg_get_filler_color_index() * 3) + 2]) / 63);
+	filler_color_.r = static_cast<std::uint8_t>((255 * vgapal[(vid_cfg_get_filler_color_index() * 3) + 0]) / 63);
+	filler_color_.g = static_cast<std::uint8_t>((255 * vgapal[(vid_cfg_get_filler_color_index() * 3) + 1]) / 63);
+	filler_color_.b = static_cast<std::uint8_t>((255 * vgapal[(vid_cfg_get_filler_color_index() * 3) + 2]) / 63);
 	filler_color_.a = 0xFF;
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SwVideo::fade_out(
 	int start,
@@ -688,8 +630,8 @@ try
 {
 	if (!gp_no_fade_in_or_out())
 	{
-		auto palette1 = ::VgaPalette{};
-		auto palette2 = ::VgaPalette{};
+		auto palette1 = VgaPalette{};
+		auto palette2 = VgaPalette{};
 
 		get_palette(0, 256, &palette1[0][0]);
 
@@ -743,10 +685,7 @@ try
 
 	screenfaded = true;
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SwVideo::fade_in(
 	int start,
@@ -757,8 +696,8 @@ try
 {
 	if (!gp_no_fade_in_or_out())
 	{
-		auto palette1 = ::VgaPalette{};
-		auto palette2 = ::VgaPalette{};
+		auto palette1 = VgaPalette{};
+		auto palette2 = VgaPalette{};
 
 		VL_GetPalette(0, 256, &palette1[0][0]);
 
@@ -806,15 +745,12 @@ try
 
 	screenfaded = false;
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 // HW
 //
 
-const bstone::Rgba8Palette& SwVideo::get_default_palette() const noexcept
+const Rgba8Palette& SwVideo::get_default_palette() const noexcept
 {
 	return default_palette_;
 }
@@ -979,7 +915,7 @@ void SwVideo::update_samplers()
 {
 }
 
-const bstone::Ren3dDeviceFeatures& SwVideo::get_device_features() const noexcept
+const Ren3dDeviceFeatures& SwVideo::get_device_features() const noexcept
 {
 	return device_features_;
 }
@@ -987,37 +923,23 @@ const bstone::Ren3dDeviceFeatures& SwVideo::get_device_features() const noexcept
 //
 // HW
 
-[[noreturn]]
-void SwVideo::fail(
-	const char* message)
-{
-	throw SwVideoException{message};
-}
-
-[[noreturn]]
-void SwVideo::fail_nested(
-	const char* message)
-{
-	std::throw_with_nested(SwVideoException{message});
-}
-
 void SwVideo::log(
-	bstone::LoggerMessageKind message_type,
+	LoggerMessageKind message_type,
 	const std::string& message)
 {
-	bstone::logger_->write(message_type, log_prefix + message);
+	logger_->write(message_type, log_prefix + message);
 }
 
 void SwVideo::log(
 	const std::string& message)
 {
-	log(bstone::LoggerMessageKind::information, message);
+	log(LoggerMessageKind::information, message);
 }
 
 void SwVideo::log_warning(
 	const std::string& message)
 {
-	log(bstone::LoggerMessageKind::warning, message);
+	log(LoggerMessageKind::warning, message);
 }
 
 void SwVideo::initialize_video()
@@ -1036,265 +958,108 @@ try
 	vid_initialize_ui_buffer();
 
 	const auto window_title = vid_get_window_title_for_renderer(get_renderer_name());
-	::SDL_SetWindowTitle(window_.get(), window_title.c_str());
-
-	::SDL_ShowWindow(window_.get());
+	window_->set_title(window_title.c_str());
+	window_->show(true);
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-void SwVideo::set_draw_color(
-	std::uint8_t r,
-	std::uint8_t g,
-	std::uint8_t b)
-try
-{
-	bstone::sdl_ensure_result(::SDL_SetRenderDrawColor(renderer_.get(), r, g, b, 0xFF));
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-void SwVideo::clear_rendering_target()
-try
-{
-	bstone::sdl_ensure_result(::SDL_RenderClear(renderer_.get()));
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SwVideo::copy_texture_to_rendering_target(
-	::SDL_Texture* sdl_texture,
-	const ::SDL_Rect* src_rect,
-	const ::SDL_Rect* dst_rect)
+	sys::Texture& texture,
+	const sys::R2Rect* src_rect,
+	const sys::R2Rect* dst_rect)
 try
 {
-	bstone::sdl_ensure_result(::SDL_RenderCopy(
-		renderer_.get(),
-		sdl_texture,
-		src_rect,
-		dst_rect
-	));
+	texture.copy(src_rect, dst_rect);
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
-void SwVideo::enable_texture_blending(
-	::SDL_Texture* sdl_texture,
-	bool is_enable)
+void SwVideo::enable_texture_blending(sys::Texture& texture, bool is_enable)
 try
 {
-	const auto sdl_mode = (is_enable ? ::SDL_BLENDMODE_BLEND : ::SDL_BLENDMODE_NONE);
-
-	bstone::sdl_ensure_result(::SDL_SetTextureBlendMode(sdl_texture, sdl_mode));
+	texture.set_blend_mode(is_enable ? sys::TextureBlendMode::blend : sys::TextureBlendMode::none);
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
-void SwVideo::fill_rects(
-	::SDL_Rect* rects,
-	int rect_count)
+void SwVideo::fill_rects(Span<const sys::R2Rect> rects)
 try
 {
-	bstone::sdl_ensure_result(::SDL_RenderFillRects(renderer_.get(), rects, rect_count));
+	renderer_->fill(rects);
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SwVideo::initialize_vga_buffer()
 try
 {
-	const auto area = 2 * ::vga_width * ::vga_height;
+	const auto area = 2 * vga_width * vga_height;
 
-	sw_vga_buffer_ = std::move(::VgaBuffer{});
+	sw_vga_buffer_ = std::move(VgaBuffer{});
 	sw_vga_buffer_.resize(area);
 
 	vga_memory = sw_vga_buffer_.data();
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SwVideo::create_window()
 try
 {
 	const auto is_native_mode = vid_is_native_mode();
+	const auto title = vid_get_game_name_and_game_version_string();
 
-	auto window_x = SDL_WINDOWPOS_CENTERED;
-	auto window_y = SDL_WINDOWPOS_CENTERED;
+	auto param = sys::WindowInitParam{};
+	param.title = title.c_str();
+	param.x = sys::window_position_centered;
+	param.y = sys::window_position_centered;
 
 	if (!is_native_mode && vid_cfg_is_positioned())
 	{
-		window_x = vid_cfg_get_x();
-		window_y = vid_cfg_get_y();
+		param.x = vid_cfg_get_x();
+		param.y = vid_cfg_get_y();
 	}
 
-	const ::Uint32 window_flags =
-		::SDL_WINDOW_SHOWN |
-		::SDL_WINDOW_ALLOW_HIGHDPI |
-		(is_native_mode ? ::SDL_WINDOW_FULLSCREEN_DESKTOP : ::SDL_WindowFlags{}) |
-		0
-	;
+	param.width = vid_cfg_get_width();
+	param.height = vid_cfg_get_height();
 
-	const auto title = vid_get_game_name_and_game_version_string();
-
-	window_ = bstone::SdlWindowUPtr{bstone::sdl_ensure_result(::SDL_CreateWindow(
-		title.c_str(),
-		window_x,
-		window_y,
-		vid_layout_.window_width,
-		vid_layout_.window_height,
-		window_flags
-	))};
+	param.is_visible = true;
+	param.is_fake_fullscreen = is_native_mode;
+	window_ = window_mgr_.make_window(param);
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SwVideo::initialize_renderer()
 try
 {
-	{
-		log("Available renderer drivers:");
+	auto renderer_param = sys::RendererInitParam{};
+	renderer_param.is_vsync = vid_cfg_is_vsync();
 
-		const auto driver_count = ::SDL_GetNumRenderDrivers();
-
-		for (auto i = decltype(driver_count){}; i < driver_count; ++i)
-		{
-			auto info = ::SDL_RendererInfo{};
-
-			bstone::sdl_ensure_result(::SDL_GetRenderDriverInfo(i, &info));
-
-			log(std::to_string(i + 1) + ". " + info.name);
-		}
-	}
-
-
-	auto renderer_flags = ::Uint32{};
-	const char* renderer_driver = nullptr;
-
-	{
-		if (vid_cfg_is_vsync())
-		{
-			renderer_flags = ::SDL_RENDERER_PRESENTVSYNC;
-		}
-	}
-
-	{
-		renderer_ = bstone::SdlRendererUPtr{bstone::sdl_ensure_result(::SDL_CreateRenderer(
-			window_.get(),
-			-1,
-			renderer_flags
-		))};
-	}
-
-
-	auto renderer_info = ::SDL_RendererInfo{};
-
-	{
-		bstone::sdl_ensure_result(::SDL_GetRendererInfo(
-			renderer_.get(),
-			&renderer_info));
-	}
-
-
-	{
-		if (renderer_driver)
-		{
-			if (::SDL_strcasecmp(renderer_driver, renderer_info.name) != 0)
-			{
-				log_warning("Mismatch renderer: \"" + std::string{renderer_info.name} + "\".");
-			}
-		}
-		else
-		{
-			log("Renderer: \"" + std::string{renderer_info.name} + "\".");
-		}
-	}
-
-
-	auto pixel_format = ::Uint32{::SDL_PIXELFORMAT_UNKNOWN};
-
-	{
-		const auto format_count = renderer_info.num_texture_formats;
-
-		for (auto i = decltype(format_count){}; i < format_count; ++i)
-		{
-			const auto format = renderer_info.texture_formats[i];
-
-			if (
-				SDL_PIXELTYPE(format) == ::SDL_PIXELTYPE_PACKED32 &&
-				SDL_PIXELLAYOUT(format) == ::SDL_PACKEDLAYOUT_8888 &&
-				SDL_ISPIXELFORMAT_ALPHA(format))
-			{
-				pixel_format = format;
-
-				break;
-			}
-		}
-
-		if (pixel_format == ::SDL_PIXELFORMAT_UNKNOWN)
-		{
-			log_warning("Falling back to a predefined pixel format.");
-
-			pixel_format = ::SDL_PIXELFORMAT_ARGB8888;
-		}
-
-		const auto pixel_format_name = ::SDL_GetPixelFormatName(::SDL_PIXELFORMAT_ARGB8888);
-		log(std::string{"Pixel format: \""} + pixel_format_name + '\"');
-
-		texture_pixel_format_ = bstone::SdlPixelFormatUPtr{bstone::sdl_ensure_result(::SDL_AllocFormat(pixel_format))};
-	}
+	renderer_ = window_->make_renderer(renderer_param);
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SwVideo::create_screen_texture()
 try
 {
-	screen_texture_ = bstone::SdlTextureUPtr{bstone::sdl_ensure_result(::SDL_CreateTexture(
-		renderer_.get(),
-		texture_pixel_format_->format,
-		::SDL_TEXTUREACCESS_STREAMING,
-		vga_width,
-		vga_height
-	))};
+	auto param = sys::TextureInitParam{};
+	param.pixel_format = sys::PixelFormat::a8r8g8b8;
+	param.access = sys::TextureAccess::streaming;
+	param.width = vga_width;
+	param.height = vga_height;
+
+	screen_texture_ = renderer_->make_texture(param);
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SwVideo::create_ui_texture()
 try
 {
-	ui_texture_ = bstone::SdlTextureUPtr{bstone::sdl_ensure_result(::SDL_CreateTexture(
-		renderer_.get(),
-		texture_pixel_format_->format,
-		SDL_TEXTUREACCESS_STREAMING,
-		vga_ref_width,
-		vga_ref_height
-	))};
+	auto param = sys::TextureInitParam{};
+	param.pixel_format = sys::PixelFormat::a8r8g8b8;
+	param.access = sys::TextureAccess::streaming;
+	param.width = vga_ref_width;
+	param.height = vga_ref_height;
+
+	ui_texture_ = renderer_->make_texture(param);
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SwVideo::initialize_textures()
 try
@@ -1302,24 +1067,7 @@ try
 	create_screen_texture();
 	create_ui_texture();
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-void SwVideo::update_viewport()
-try
-{
-	auto sdl_viewport = ::SDL_Rect{};
-	sdl_viewport.w = vid_layout_.window_width;
-	sdl_viewport.h = vid_layout_.window_height;
-
-	bstone::sdl_ensure_result(::SDL_RenderSetViewport(renderer_.get(), &sdl_viewport));
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SwVideo::initialize_palette()
 {
@@ -1338,7 +1086,7 @@ void SwVideo::calculate_dimensions()
 
 	// UI whole rect
 	//
-	ui_whole_src_rect_ = ::SDL_Rect
+	ui_whole_src_rect_ = sys::R2Rect
 	{
 		0,
 		0,
@@ -1346,7 +1094,7 @@ void SwVideo::calculate_dimensions()
 		vga_ref_height,
 	};
 
-	ui_whole_dst_rect_ = ::SDL_Rect
+	ui_whole_dst_rect_ = sys::R2Rect
 	{
 		vid_layout_.window_viewport_left_width + vid_layout_.screen_left_filler_width,
 		vid_layout_.window_viewport_top_height,
@@ -1357,7 +1105,7 @@ void SwVideo::calculate_dimensions()
 
 	// UI stretched rect
 	//
-	ui_stretched_dst_rect_ = ::SDL_Rect
+	ui_stretched_dst_rect_ = sys::R2Rect
 	{
 		vid_layout_.window_viewport_left_width,
 		vid_layout_.window_viewport_top_height,
@@ -1368,7 +1116,7 @@ void SwVideo::calculate_dimensions()
 
 	// UI top rect
 	//
-	ui_top_src_rect_ = ::SDL_Rect
+	ui_top_src_rect_ = sys::R2Rect
 	{
 		0,
 		0,
@@ -1376,7 +1124,7 @@ void SwVideo::calculate_dimensions()
 		ref_top_bar_height,
 	};
 
-	ui_top_dst_rect_ = ::SDL_Rect
+	ui_top_dst_rect_ = sys::R2Rect
 	{
 		vid_layout_.window_viewport_left_width + vid_layout_.screen_left_filler_width,
 		vid_layout_.window_viewport_top_height,
@@ -1387,7 +1135,7 @@ void SwVideo::calculate_dimensions()
 
 	// UI middle rect (stretched to full width)
 	//
-	ui_wide_middle_src_rect_ = ::SDL_Rect
+	ui_wide_middle_src_rect_ = sys::R2Rect
 	{
 		0,
 		ref_view_top_y,
@@ -1395,7 +1143,7 @@ void SwVideo::calculate_dimensions()
 		ref_view_height,
 	};
 
-	ui_wide_middle_dst_rect_ = ::SDL_Rect
+	ui_wide_middle_dst_rect_ = sys::R2Rect
 	{
 		vid_layout_.window_viewport_left_width,
 		vid_layout_.window_viewport_top_height + vid_layout_.screen_top_filler_height,
@@ -1406,7 +1154,7 @@ void SwVideo::calculate_dimensions()
 
 	// UI bottom rect
 	//
-	ui_bottom_src_rect_ = ::SDL_Rect
+	ui_bottom_src_rect_ = sys::R2Rect
 	{
 		0,
 		ref_view_bottom_y + 1,
@@ -1414,7 +1162,7 @@ void SwVideo::calculate_dimensions()
 		ref_bottom_bar_height,
 	};
 
-	ui_bottom_dst_rect_ = ::SDL_Rect
+	ui_bottom_dst_rect_ = sys::R2Rect
 	{
 		vid_layout_.window_viewport_left_width + vid_layout_.screen_left_filler_width,
 		vid_layout_.window_viewport_top_height + vid_layout_.screen_height - vid_layout_.screen_bottom_filler_height,
@@ -1424,7 +1172,7 @@ void SwVideo::calculate_dimensions()
 
 
 	// UI left bar
-	filler_ui_rects_[0] = ::SDL_Rect
+	filler_ui_rects_[0] = sys::R2Rect
 	{
 		vid_layout_.window_viewport_left_width,
 		vid_layout_.window_viewport_top_height,
@@ -1433,7 +1181,7 @@ void SwVideo::calculate_dimensions()
 	};
 
 	// UI right bar
-	filler_ui_rects_[1] = ::SDL_Rect
+	filler_ui_rects_[1] = sys::R2Rect
 	{
 		vid_layout_.window_viewport_left_width + vid_layout_.screen_width - vid_layout_.screen_left_filler_width,
 		vid_layout_.window_viewport_top_height,
@@ -1442,7 +1190,7 @@ void SwVideo::calculate_dimensions()
 	};
 
 	// HUD upper left rect
-	filler_hud_rects_[0] = ::SDL_Rect
+	filler_hud_rects_[0] = sys::R2Rect
 	{
 		vid_layout_.window_viewport_left_width,
 		vid_layout_.window_viewport_top_height,
@@ -1451,7 +1199,7 @@ void SwVideo::calculate_dimensions()
 	};
 
 	// HUD upper right rect
-	filler_hud_rects_[1] = ::SDL_Rect
+	filler_hud_rects_[1] = sys::R2Rect
 	{
 		vid_layout_.window_viewport_left_width + vid_layout_.screen_width - vid_layout_.screen_right_filler_width,
 		vid_layout_.window_viewport_top_height,
@@ -1460,7 +1208,7 @@ void SwVideo::calculate_dimensions()
 	};
 
 	// HUD lower left rect
-	filler_hud_rects_[2] = ::SDL_Rect
+	filler_hud_rects_[2] = sys::R2Rect
 	{
 		vid_layout_.window_viewport_left_width,
 		vid_layout_.window_viewport_top_height + vid_layout_.screen_height - vid_layout_.screen_bottom_filler_height,
@@ -1469,7 +1217,7 @@ void SwVideo::calculate_dimensions()
 	};
 
 	// HUD lower right rect
-	filler_hud_rects_[3] = ::SDL_Rect
+	filler_hud_rects_[3] = sys::R2Rect
 	{
 		vid_layout_.window_viewport_left_width + vid_layout_.screen_width - vid_layout_.screen_right_filler_width,
 		vid_layout_.window_viewport_top_height + vid_layout_.screen_height - vid_layout_.screen_bottom_filler_height,
@@ -1490,7 +1238,7 @@ void SwVideo::calculate_dimensions()
 	const auto screen_width = (vid_cfg_is_widescreen() ? vid_layout_.screen_width : vid_layout_.screen_width_4x3);
 	const auto screen_height = vid_layout_.screen_height;
 
-	screen_dst_rect_ = ::SDL_Rect
+	screen_dst_rect_ = sys::R2Rect
 	{
 		screen_left,
 		screen_top,
@@ -1513,24 +1261,21 @@ void SwVideo::update_palette_from_vga(
 	for (auto i = 0; i < count; ++i)
 	{
 		const auto& vga_color = vga_palette_[offset + i];
-		auto& sdl_color = palette_[offset + i];
+		auto& color = palette_[offset + i];
 
-		sdl_color = ::SDL_MapRGB(
-			texture_pixel_format_.get(),
-			(255 * vga_color[0]) / 63,
-			(255 * vga_color[1]) / 63,
-			(255 * vga_color[2]) / 63
-		);
+		color =
+			0xFF000000U |
+			((((255U * vga_color[0]) / 63U) & 0xFFU) << 16) |
+			((((255U * vga_color[1]) / 63U) & 0xFFU) << 8) |
+			(((255U * vga_color[2]) / 63U) & 0xFFU);
 	}
 }
 
 // ==========================================================================
 
-
-VideoUPtr make_sw_video()
+VideoUPtr make_sw_video(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr)
 {
-	return std::make_unique<SwVideo>();
+	return std::make_unique<SwVideo>(video_mgr, window_mgr);
 }
-
 
 } // bstone

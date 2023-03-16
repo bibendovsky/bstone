@@ -1325,8 +1325,8 @@ void InitGame()
 	read_high_scores();
 
 	sd_startup();
-	VW_Startup();
 	IN_Startup();
+	VW_Startup();
 	US_Startup();
 
 	VL_SetPalette(0, 256, vgapal);

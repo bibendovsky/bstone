@@ -15,7 +15,7 @@ try
 {
 	return do_poll_event(e);
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 } // namespace sys
 } // namespace bstone

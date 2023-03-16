@@ -21,8 +21,9 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_ren_3d.h"
 #include "bstone_rgb_palette.h"
-#include "bstone_sdl_types.h"
 #include "bstone_sprite.h"
+#include "bstone_sys_gl_context_attributes.h"
+#include "bstone_sys_window_mgr.h"
 
 
 namespace bstone
@@ -87,22 +88,12 @@ public:
 		const int width,
 		const int height);
 
-	static SdlWindowUPtr create_window(
-		const Ren3dUtilsCreateWindowParam& param);
+	static sys::WindowUPtr create_window(
+		const Ren3dUtilsCreateWindowParam& param,
+		sys::WindowMgr& window_mgr);
 
 
-	static void set_window_mode(
-		SdlWindowPtr sdl_window,
-		const Ren3dSetWindowModeParam& param);
-
-	static void show_window(
-		SdlWindowPtr sdl_window,
-		const bool is_visible);
-
-	static void set_window_title(
-		const SdlWindowPtr sdl_window,
-		const std::string& title_utf8);
-
+	static void set_window_mode(sys::Window& window, const Ren3dSetWindowModeParam& param);
 
 	static void validate_initialize_param(
 		const Ren3dCreateParam& param);
@@ -175,15 +166,8 @@ private:
 	static void create_window_validate_param(
 		const Ren3dUtilsCreateWindowParam& param);
 
-	static void create_window_set_gl_profile_and_version(
-		const Ren3dKind renderer_kind);
-
-	static void create_window_set_gl_attributes(
+	static sys::GlContextAttributes create_window_make_gl_context_attributes(
 		const Ren3dUtilsCreateWindowParam& param);
-
-	static std::uint32_t create_window_sdl_flags(
-		const Ren3dUtilsCreateWindowParam& param) noexcept;
-
 
 	// Indexed (row major, has no alpha) -> RGBA
 	static void indexed_to_rgba_8_rm_na(

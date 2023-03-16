@@ -4,43 +4,53 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
+#if !defined(_MSC_VER)
+#include <thread>
+#endif
 #include "bstone_spinlock.h"
 
-#include <cassert>
-#include <tuple>
-
-namespace bstone
-{
+namespace bstone {
 
 Spinlock::Spinlock() noexcept = default;
 
-Spinlock::Spinlock(Spinlock&& rhs) noexcept
+Spinlock::Spinlock(Spinlock&&) noexcept
 {
-	std::ignore = rhs;
 }
-
-void Spinlock::operator=(Spinlock&& rhs) noexcept
-{
-	std::ignore = rhs;
-}
-
-Spinlock::~Spinlock() = default;
 
 bool Spinlock::try_lock() noexcept
 {
-	return !flag_.test_and_set(std::memory_order_acquire);
+	// First do a relaxed load to check if lock is free in order to prevent
+    // unnecessary cache misses if someone does `while (!try_lock())`.
+	return
+		!lock_.load(std::memory_order_relaxed) &&
+		!lock_.exchange(true, std::memory_order_acquire);
 }
 
 void Spinlock::lock() noexcept
 {
-	while (flag_.test_and_set(std::memory_order_acquire))
+	while (true)
 	{
+		// Optimistically assume the lock is free on the first try.
+		if (!lock_.exchange(true, std::memory_order_acquire))
+		{
+			return;
+		}
+
+		// Wait for lock to be released without generating cache misses.
+		while (lock_.load(std::memory_order_relaxed))
+		{
+#if defined(_MSC_VER)
+			_mm_pause();
+#else
+			std::this_thread::yield();
+#endif
+		}
 	}
 }
 
 void Spinlock::unlock() noexcept
 {
-	flag_.clear(std::memory_order_release);
+	lock_.store(false, std::memory_order_release);
 }
 
-} // bstone
+} // namespace bstone

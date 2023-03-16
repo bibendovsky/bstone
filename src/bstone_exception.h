@@ -83,8 +83,8 @@ private:
 #define BSTONE_STATIC_THROW(message) static_fail(__FILE__, __LINE__, __func__, message)
 #endif
 
-#if !defined(BSTONE_FUNC_STATIC_THROW_NESTED)
-#define BSTONE_FUNC_STATIC_THROW_NESTED catch (...) { static_fail_nested(__FILE__, __LINE__, __func__); }
+#if !defined(BSTONE_STATIC_THROW_NESTED_FUNC)
+#define BSTONE_STATIC_THROW_NESTED_FUNC catch (...) { static_fail_nested(__FILE__, __LINE__, __func__); }
 #endif
 
 // ==========================================================================

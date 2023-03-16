@@ -5,22 +5,17 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-
-#ifndef BSTONE_SW_VIDEO_INCLUDED
+#if !defined(BSTONE_SW_VIDEO_INCLUDED)
 #define BSTONE_SW_VIDEO_INCLUDED
 
-
+#include "bstone_sys_video_mgr.h"
+#include "bstone_sys_window_mgr.h"
 #include "bstone_video.h"
 
+namespace bstone {
 
-namespace bstone
-{
+VideoUPtr make_sw_video(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr);
 
-
-VideoUPtr make_sw_video();
-
-
-} // bstone
-
+} // namespace bstone
 
 #endif // BSTONE_SW_VIDEO_INCLUDED

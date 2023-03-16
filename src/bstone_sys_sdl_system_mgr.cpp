@@ -8,11 +8,12 @@ SPDX-License-Identifier: MIT
 #include "SDL.h"
 #include "bstone_char_conv.h"
 #include "bstone_exception.h"
-#include "bstone_sdl_exception.h"
+#include "bstone_memory_pool_1x.h"
 #include "bstone_string_view.h"
 #include "bstone_sys_logger.h"
 #include "bstone_sys_sdl_audio_mgr.h"
 #include "bstone_sys_sdl_event_mgr.h"
+#include "bstone_sys_sdl_exception.h"
 #include "bstone_sys_sdl_video_mgr.h"
 #include "bstone_sys_system_mgr.h"
 
@@ -28,6 +29,9 @@ public:
 	SdlSystemMgr(const SdlSystemMgr&) = delete;
 	SdlSystemMgr& operator=(const SdlSystemMgr&) = delete;
 	~SdlSystemMgr() override;
+
+	static void* operator new(std::size_t count);
+	static void operator delete(void* ptr) noexcept;
 
 private:
 	Logger& logger_;
@@ -47,6 +51,12 @@ private:
 
 // ==========================================================================
 
+using SdlSystemMgrPool = MemoryPool1XT<SdlSystemMgr>;
+
+SdlSystemMgrPool sdl_system_mgr_pool{};
+
+// ==========================================================================
+
 SdlSystemMgr::SdlSystemMgr(Logger& logger)
 try
 	:
@@ -59,13 +69,25 @@ try
 
 	logger_.log_information(">>> SDL system manager started up.");
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 SdlSystemMgr::~SdlSystemMgr()
 {
 	logger_.log_information("Shut down SDL system manager.");
 
 	SDL_Quit();
+}
+
+void* SdlSystemMgr::operator new(std::size_t count)
+try
+{
+	return sdl_system_mgr_pool.allocate(count);
+}
+BSTONE_STATIC_THROW_NESTED_FUNC
+
+void SdlSystemMgr::operator delete(void* ptr) noexcept
+{
+	sdl_system_mgr_pool.deallocate(ptr);
 }
 
 AudioMgrUPtr SdlSystemMgr::do_make_audio_mgr()
@@ -141,7 +163,7 @@ try
 {
 	return std::make_unique<SdlSystemMgr>(logger);
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 } // namespace sys
 } // namespace bstone

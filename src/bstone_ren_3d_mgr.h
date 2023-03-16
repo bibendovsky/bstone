@@ -4,61 +4,37 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-
 //
 // 3D renderer manager.
 //
 
-
-#ifndef BSTONE_REN_3D_MGR_INCLUDED
+#if !defined(BSTONE_REN_3D_MGR_INCLUDED)
 #define BSTONE_REN_3D_MGR_INCLUDED
 
-
 #include "bstone_ren_3d.h"
+#include "bstone_sys_video_mgr.h"
+#include "bstone_sys_window_mgr.h"
 
-
-namespace bstone
-{
-
-
-// ==========================================================================
-// Ren3dMgr
-//
+namespace bstone {
 
 class Ren3dMgr
 {
 public:
 	Ren3dMgr() noexcept = default;
-
 	virtual ~Ren3dMgr() = default;
 
+	virtual Ren3dPtr renderer_initialize(const Ren3dCreateParam& param) = 0;
+};
 
-	virtual Ren3dPtr renderer_initialize(
-		const Ren3dCreateParam& param) = 0;
-}; // Ren3dMgr
+// ==========================================================================
 
 using Ren3dMgrUPtr = std::unique_ptr<Ren3dMgr>;
 
-//
-// Ren3dMgr
-// ==========================================================================
-
-
-// ==========================================================================
-// Ren3dMgrFactory
-//
-
 struct Ren3dMgrFactory
 {
-	static Ren3dMgrUPtr create();
-}; // Ren3dMgrFactory
+	static Ren3dMgrUPtr create(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr);
+};
 
-//
-// Ren3dMgrFactory
-// ==========================================================================
+} // namespace bstone
 
-
-} // bstone
-
-
-#endif // !BSTONE_REN_3D_MGR_INCLUDED
+#endif // BSTONE_REN_3D_MGR_INCLUDED

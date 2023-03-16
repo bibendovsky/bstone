@@ -4,202 +4,82 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-
 //
 // 3D renderer manager (implementation).
 //
 
-
-#include "bstone_ren_3d_mgr.h"
-
 #include <vector>
-
 #include "bstone_exception.h"
+#include "bstone_ren_3d_mgr.h"
 #include "bstone_ren_3d_tests.h"
-
 #include "bstone_detail_ren_3d_gl.h"
-#include "bstone_detail_ren_3d_gl_utils.h"
 
+namespace bstone {
 
-namespace bstone
-{
+namespace {
 
-
-// ==========================================================================
-// Ren3dMgrException
-//
-
-class Ren3dMgrException :
-	public Exception
+class Ren3dMgrImpl final : public Ren3dMgr
 {
 public:
-	explicit Ren3dMgrException(
-		const char* message) noexcept
-		:
-		Exception{"REN_3D_MGR", message}
-	{
-	}
-}; // Ren3dMgrException
+	Ren3dMgrImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr) noexcept;
+	~Ren3dMgrImpl() override = default;
 
-//
-// Ren3dMgrException
-// ==========================================================================
-
-
-// ==========================================================================
-// Ren3dMgrImpl
-//
-
-class Ren3dMgrImpl final :
-	public Ren3dMgr
-{
-public:
-	Ren3dMgrImpl() noexcept;
-
-	Ren3dMgrImpl(
-		Ren3dMgrImpl&& rhs) noexcept;
-
-	~Ren3dMgrImpl() override;
-
-
-	Ren3dPtr renderer_initialize(
-		const Ren3dCreateParam& param) override;
-
+	Ren3dPtr renderer_initialize(const Ren3dCreateParam& param) override;
 
 private:
-	detail::Ren3dGlUPtr gl_renderer_;
+	sys::VideoMgr& video_mgr_;
+	sys::WindowMgr& window_mgr_;
+	detail::Ren3dGlUPtr gl_renderer_{};
+};
 
+// --------------------------------------------------------------------------
 
-	[[noreturn]]
-	static void fail(
-		const char* message);
-
-	[[noreturn]]
-	static void fail_nested(
-		const char* message);
-
-
-	void initialize() noexcept;
-
-	void uninitialize() noexcept;
-
-	void uninitialize_renderers() noexcept;
-}; // Ren3dMgrImpl
-
-//
-// Ren3dMgrImpl
-// ==========================================================================
-
-
-// ==========================================================================
-// Ren3dMgrImpl
-//
-
-Ren3dMgrImpl::Ren3dMgrImpl() noexcept
+Ren3dMgrImpl::Ren3dMgrImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr) noexcept
 	:
-	gl_renderer_{}
-{
-	initialize();
-}
+	video_mgr_{video_mgr},
+	window_mgr_{window_mgr}
+{}
 
-Ren3dMgrImpl::Ren3dMgrImpl(
-	Ren3dMgrImpl&& rhs) noexcept
-	:
-	gl_renderer_{std::move(rhs.gl_renderer_)}
-{
-}
-
-Ren3dMgrImpl::~Ren3dMgrImpl()
-{
-	uninitialize();
-}
-
-[[noreturn]]
-void Ren3dMgrImpl::fail(
-	const char* message)
-{
-	throw Ren3dMgrException{message};
-}
-
-[[noreturn]]
-void Ren3dMgrImpl::fail_nested(
-	const char* message)
-{
-	std::throw_with_nested(Ren3dMgrException{message});
-}
-
-void Ren3dMgrImpl::initialize() noexcept
-{
-	detail::Ren3dGlUtils::load_library();
-}
-
-void Ren3dMgrImpl::uninitialize() noexcept
-{
-	uninitialize_renderers();
-
-	detail::Ren3dGlUtils::unload_library();
-}
-
-void Ren3dMgrImpl::uninitialize_renderers() noexcept
-{
-	gl_renderer_ = nullptr;
-}
-
-Ren3dPtr Ren3dMgrImpl::renderer_initialize(
-	const Ren3dCreateParam& param)
+Ren3dPtr Ren3dMgrImpl::renderer_initialize(const Ren3dCreateParam& param)
 try
 {
-	uninitialize_renderers();
+	gl_renderer_ = nullptr;
 
 	detail::Ren3dUtils::validate_initialize_param(param);
 
 	switch (param.renderer_kind_)
 	{
-#ifndef BSTONE_REN_3D_TEST_NO_GL
+#if !defined(BSTONE_REN_3D_TEST_NO_GL)
 
-#ifndef BSTONE_REN_3D_TEST_NO_GL_2_0
+#if !defined(BSTONE_REN_3D_TEST_NO_GL_2_0)
 		case Ren3dKind::gl_2_0:
-#endif // !BSTONE_REN_3D_TEST_NO_GL_2_0
+#endif
 
-#ifndef BSTONE_REN_3D_TEST_NO_GL_3_2_C
+#if !defined(BSTONE_REN_3D_TEST_NO_GL_3_2_C)
 		case Ren3dKind::gl_3_2_core:
-#endif // !BSTONE_REN_3D_TEST_NO_GL_3_2_C
+#endif
 
-#ifndef BSTONE_REN_3D_TEST_NO_GLES_2_0
+#if !defined(BSTONE_REN_3D_TEST_NO_GLES_2_0)
 		case Ren3dKind::gles_2_0:
-#endif // !BSTONE_REN_3D_TEST_NO_GLES_2_0
+#endif
 
-			gl_renderer_ = std::make_unique<detail::Ren3dGl>(param);
-
+			gl_renderer_ = std::make_unique<detail::Ren3dGl>(video_mgr_, window_mgr_, param);
 			return gl_renderer_.get();
 #endif // BSTONE_REN_3D_TEST_NO_GL
 
 		default:
-			fail("Unsupported renderer kind.");
+			BSTONE_STATIC_THROW("Unsupported renderer type.");
 	}
 }
-catch (...)
+BSTONE_STATIC_THROW_NESTED_FUNC
+
+} // namespace
+
+// ==========================================================================
+
+Ren3dMgrUPtr Ren3dMgrFactory::create(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr)
 {
-	fail_nested(__func__);
+	return std::make_unique<Ren3dMgrImpl>(video_mgr, window_mgr);
 }
 
-//
-// Ren3dMgrImpl
-// ==========================================================================
-
-
-// ==========================================================================
-// Ren3dMgrFactory
-//
-
-Ren3dMgrUPtr Ren3dMgrFactory::create()
-{
-	return std::make_unique<Ren3dMgrImpl>();
-}
-
-//
-// Ren3dMgrFactory
-// ==========================================================================
-
-
-} // bstone
+} // namespace bstone

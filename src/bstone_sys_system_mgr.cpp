@@ -15,21 +15,21 @@ try
 {
 	return do_make_audio_mgr();
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 EventMgrUPtr SystemMgr::make_event_mgr()
 try
 {
 	return do_make_event_mgr();
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 VideoMgrUPtr SystemMgr::make_video_mgr()
 try
 {
 	return do_make_video_mgr();
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 } // namespace sys
 } // namespace bstone

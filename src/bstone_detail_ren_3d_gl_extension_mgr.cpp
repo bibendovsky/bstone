@@ -4,83 +4,41 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-
 //
 // OpenGL extension manager (implementation).
 //
 // !!! Internal usage only !!!
 //
 
-
-#include "bstone_detail_ren_3d_gl_extension_mgr.h"
-
 #include <cassert>
-
 #include <algorithm>
 #include <iterator>
 #include <sstream>
 #include <unordered_map>
-
 #include "bstone_exception.h"
 #include "bstone_ren_3d_tests.h"
-#include "bstone_sdl_types.h"
-
 #include "bstone_detail_ren_3d_gl_error.h"
+#include "bstone_detail_ren_3d_gl_extension_mgr.h"
 #include "bstone_detail_ren_3d_gl_utils.h"
 
+namespace bstone {
+namespace detail {
 
-namespace bstone
-{
-namespace detail
-{
-
-
-class Ren3dGlExtensionMgrException :
-	public Exception
+class Ren3dGlExtensionMgrImpl final : public Ren3dGlExtensionMgr
 {
 public:
-	explicit Ren3dGlExtensionMgrException(
-		const char* message) noexcept
-		:
-		Exception{"REN_3D_GL_EXT_MGR", message}
-	{
-	}
-}; // Ren3dGlExtensionMgrException
-
-
-// ==========================================================================
-// Ren3dGlExtensionMgrImpl
-//
-
-class Ren3dGlExtensionMgrImpl final :
-	public Ren3dGlExtensionMgr
-{
-public:
-	Ren3dGlExtensionMgrImpl();
-
+	Ren3dGlExtensionMgrImpl(sys::GlMgr& gl_mgr);
 	~Ren3dGlExtensionMgrImpl() override;
 
-
 	int get_count() const noexcept override;
-
-	const std::string& get_name(
-		const int extension_index) const noexcept override;
-
+	const std::string& get_name(int extension_index) const noexcept override;
 	const Ren3dGlVersion& get_gl_version() const noexcept override;
-
 	const Ren3dGlVersion& get_glsl_version() const noexcept override;
 
+	void probe(Ren3dGlExtensionId extension_id) override;
 
-	void probe(
-		const Ren3dGlExtensionId extension_id) override;
-
-
-	bool has(
-		const Ren3dGlExtensionId extension_id) const noexcept override;
-
-	bool operator[](
-		const Ren3dGlExtensionId extension_id) const noexcept override;
-
+	bool has(Ren3dGlExtensionId extension_id) const noexcept override;
+	bool operator[](Ren3dGlExtensionId extension_id) const noexcept override;
 
 private:
 	using ExtensionNames = std::vector<std::string>;
@@ -90,134 +48,77 @@ private:
 
 	struct RegistryItem
 	{
-		bool is_virtual_;
-		bool is_probed_;
-		bool is_available_;
+		bool is_virtual{};
+		bool is_probed{};
+		bool is_available{};
 
-		std::string extension_name_;
-
-		GlSymbolPtrs* gl_symbol_ptrs_;
-	}; // RegistryItem
+		std::string extension_name{};
+		GlSymbolPtrs* gl_symbol_ptrs{};
+	};
 
 	using Registry = std::vector<RegistryItem>;
 
+private:
+	sys::GlMgr& gl_mgr_;
+	ExtensionNames extension_names_{};
+	Registry registry_{};
+	Ren3dGlVersion gl_version_{};
+	Ren3dGlVersion glsl_version_{};
 
-	Ren3dGlContextKind context_kind_;
-	ExtensionNames extension_names_;
-	Registry registry_;
-	Ren3dGlVersion gl_version_;
-	Ren3dGlVersion glsl_version_;
-
-
-	[[noreturn]]
-	static void fail(
-		const char* message);
-
-	[[noreturn]]
-	static void fail_nested(
-		const char* message);
-
-
+private:
 	static GlSymbolRegistry& get_gl_symbol_registry();
-
 	static void clear_gl_symbols();
-
-	static void resolve_gl_symbols();
-
-
-	static bool has_gl_symbol(
-		const GlSymbolPtrs& gl_symbol_ptrs) noexcept;
-
+	void resolve_gl_symbols();
+	static bool has_gl_symbol(const GlSymbolPtrs& gl_symbol_ptrs) noexcept;
 
 	static GlSymbolPtrs& get_essentials_gl_symbol_ptrs();
-
 	static GlSymbolPtrs& get_v2_0_gl_symbol_ptrs();
-
 	static GlSymbolPtrs& get_v3_2_core_gl_symbol_ptrs();
-
 	static GlSymbolPtrs& get_es_v2_0_gl_symbol_ptrs();
-
 	static GlSymbolPtrs& get_arb_buffer_storage_gl_symbol_ptrs();
-
 	static GlSymbolPtrs& get_arb_direct_state_access_gl_symbol_ptrs();
-
 	static GlSymbolPtrs& get_arb_framebuffer_object_gl_symbol_ptrs();
-
 	static GlSymbolPtrs& get_arb_sampler_objects_gl_symbol_ptrs();
-
 	static GlSymbolPtrs& get_arb_separate_shader_objects_gl_symbol_ptrs();
-
 	static GlSymbolPtrs& get_arb_vertex_array_object_gl_symbol_ptrs();
-
 	static GlSymbolPtrs& get_ext_framebuffer_blit_gl_symbol_ptrs();
-
 	static GlSymbolPtrs& get_ext_framebuffer_multisample_gl_symbol_ptrs();
-
 	static GlSymbolPtrs& get_ext_framebuffer_object_gl_symbol_ptrs();
 
-
 	static const std::string& get_empty_extension_name() noexcept;
-
 	static int get_registered_extension_count() noexcept;
-
-	static int get_extension_index(
-		const Ren3dGlExtensionId extension_id) noexcept;
-
+	static int get_extension_index(Ren3dGlExtensionId extension_id) noexcept;
 
 	void initialize_registry();
 
-
-	int parse_version_number(
-		const std::string& string);
-
-	void parse_version(
-		const std::string& version_string,
-		Ren3dGlVersion& gl_version);
-
-	void get_version(
-		const GLenum version_enum,
-		Ren3dGlVersion& gl_version);
-
+	int parse_version_number(const std::string& string);
+	void parse_version(const std::string& version_string, Ren3dGlVersion& gl_version);
+	void get_version(GLenum version_enum, Ren3dGlVersion& gl_version);
 	void get_version();
 
-
-	void get_context_attributes();
-
-
 	void get_names_from_multiple_strings();
-
 	void get_names_from_one_string();
-
 	void get_names();
 
+	void probe_generic(Ren3dGlExtensionId extension_id);
+};
 
-	void probe_generic(
-		const Ren3dGlExtensionId extension_id);
-}; // Ren3dGlExtensionMgrImpl
+// ==========================================================================
 
-
-Ren3dGlExtensionMgrImpl::Ren3dGlExtensionMgrImpl()
+Ren3dGlExtensionMgrImpl::Ren3dGlExtensionMgrImpl(sys::GlMgr& gl_mgr)
 try
 	:
-	context_kind_{},
-	extension_names_{},
-	registry_{},
-	gl_version_{},
-	glsl_version_{}
+	gl_mgr_{gl_mgr}
 {
 	clear_gl_symbols();
 	resolve_gl_symbols();
 
 	get_version();
-	get_context_attributes();
 	get_names();
 
 	initialize_registry();
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 Ren3dGlExtensionMgrImpl::~Ren3dGlExtensionMgrImpl() = default;
 
@@ -226,8 +127,7 @@ int Ren3dGlExtensionMgrImpl::get_count() const noexcept
 	return static_cast<int>(extension_names_.size());
 }
 
-const std::string& Ren3dGlExtensionMgrImpl::get_name(
-	const int extension_index) const noexcept
+const std::string& Ren3dGlExtensionMgrImpl::get_name(int extension_index) const noexcept
 {
 	if (extension_index < 0 || extension_index >= get_count())
 	{
@@ -247,19 +147,14 @@ const Ren3dGlVersion& Ren3dGlExtensionMgrImpl::get_glsl_version() const noexcept
 	return glsl_version_;
 }
 
-void Ren3dGlExtensionMgrImpl::probe(
-	const Ren3dGlExtensionId extension_id)
+void Ren3dGlExtensionMgrImpl::probe(Ren3dGlExtensionId extension_id)
 try
 {
 	probe_generic(extension_id);
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
-bool Ren3dGlExtensionMgrImpl::has(
-	const Ren3dGlExtensionId extension_id) const noexcept
+bool Ren3dGlExtensionMgrImpl::has(Ren3dGlExtensionId extension_id) const noexcept
 {
 	const auto extension_index = get_extension_index(extension_id);
 
@@ -268,27 +163,12 @@ bool Ren3dGlExtensionMgrImpl::has(
 		return false;
 	}
 
-	return registry_[extension_index].is_available_;
+	return registry_[extension_index].is_available;
 }
 
-bool Ren3dGlExtensionMgrImpl::operator[](
-	const Ren3dGlExtensionId extension_id) const noexcept
+bool Ren3dGlExtensionMgrImpl::operator[](Ren3dGlExtensionId extension_id) const noexcept
 {
 	return has(extension_id);
-}
-
-[[noreturn]]
-void Ren3dGlExtensionMgrImpl::fail(
-	const char* message)
-{
-	throw Ren3dGlExtensionMgrException{message};
-}
-
-[[noreturn]]
-void Ren3dGlExtensionMgrImpl::fail_nested(
-	const char* message)
-{
-	std::throw_with_nested(Ren3dGlExtensionMgrException{message});
 }
 
 Ren3dGlExtensionMgrImpl::GlSymbolRegistry& Ren3dGlExtensionMgrImpl::get_gl_symbol_registry()
@@ -1175,10 +1055,7 @@ try
 
 	return gl_symbol_registry;
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void Ren3dGlExtensionMgrImpl::clear_gl_symbols()
 try
@@ -1190,10 +1067,7 @@ try
 		*gl_symbol_item.first = nullptr;
 	}
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void Ren3dGlExtensionMgrImpl::resolve_gl_symbols()
 try
@@ -1202,25 +1076,20 @@ try
 
 	for (auto& gl_symbol_item : gl_symbol_registry)
 	{
-		*gl_symbol_item.first = Ren3dGlUtils::resolve_symbol(gl_symbol_item.second);
+		*gl_symbol_item.first = gl_mgr_.get_symbol(gl_symbol_item.second);
 	}
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
-bool Ren3dGlExtensionMgrImpl::has_gl_symbol(
-	const GlSymbolPtrs& gl_symbol_ptrs) noexcept
+bool Ren3dGlExtensionMgrImpl::has_gl_symbol(const GlSymbolPtrs& gl_symbol_ptrs) noexcept
 {
 	return std::all_of(
 		gl_symbol_ptrs.cbegin(),
 		gl_symbol_ptrs.cend(),
-		[](const auto item)
+		[](void** item)
 		{
-			return *item;
-		}
-	);
+			return *item != nullptr;
+		});
 }
 
 Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_essentials_gl_symbol_ptrs()
@@ -1234,10 +1103,7 @@ try
 
 	return gl_symbols;
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_v2_0_gl_symbol_ptrs()
 try
@@ -1793,10 +1659,7 @@ try
 
 	return gl_symbols;
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_v3_2_core_gl_symbol_ptrs()
 try
@@ -2123,10 +1986,7 @@ try
 
 	return gl_symbols;
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_es_v2_0_gl_symbol_ptrs()
 try
@@ -2279,25 +2139,15 @@ try
 
 	return gl_symbols;
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_arb_buffer_storage_gl_symbol_ptrs()
 try
 {
-	static auto gl_symbols = GlSymbolPtrs
-	{
-		reinterpret_cast<void**>(&glBufferStorage),
-	};
-
+	static auto gl_symbols = GlSymbolPtrs{reinterpret_cast<void**>(&glBufferStorage)};
 	return gl_symbols;
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_arb_direct_state_access_gl_symbol_ptrs()
 try
@@ -2405,10 +2255,7 @@ try
 
 	return gl_symbols;
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_arb_framebuffer_object_gl_symbol_ptrs()
 try
@@ -2439,10 +2286,7 @@ try
 
 	return gl_symbols;
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_arb_sampler_objects_gl_symbol_ptrs()
 try
@@ -2467,10 +2311,7 @@ try
 
 	return gl_symbols;
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_arb_separate_shader_objects_gl_symbol_ptrs()
 try
@@ -2542,10 +2383,7 @@ try
 
 	return gl_symbols;
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_arb_vertex_array_object_gl_symbol_ptrs()
 try
@@ -2560,40 +2398,23 @@ try
 
 	return gl_symbols;
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_ext_framebuffer_blit_gl_symbol_ptrs()
 try
 {
-	static auto gl_symbols = GlSymbolPtrs
-	{
-		reinterpret_cast<void**>(&glBlitFramebufferEXT),
-	};
-
+	static auto gl_symbols = GlSymbolPtrs{reinterpret_cast<void**>(&glBlitFramebufferEXT)};
 	return gl_symbols;
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_ext_framebuffer_multisample_gl_symbol_ptrs()
 try
 {
-	static auto gl_symbols = GlSymbolPtrs
-	{
-		reinterpret_cast<void**>(&glRenderbufferStorageMultisampleEXT),
-	};
-
+	static auto gl_symbols = GlSymbolPtrs{reinterpret_cast<void**>(&glRenderbufferStorageMultisampleEXT)};
 	return gl_symbols;
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::get_ext_framebuffer_object_gl_symbol_ptrs()
 try
@@ -2621,15 +2442,11 @@ try
 
 	return gl_symbols;
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 const std::string& Ren3dGlExtensionMgrImpl::get_empty_extension_name() noexcept
 {
 	static const auto result = std::string{};
-
 	return result;
 }
 
@@ -2638,8 +2455,7 @@ int Ren3dGlExtensionMgrImpl::get_registered_extension_count() noexcept
 	return static_cast<int>(Ren3dGlExtensionId::count_);
 }
 
-int Ren3dGlExtensionMgrImpl::get_extension_index(
-	const Ren3dGlExtensionId extension_id) noexcept
+int Ren3dGlExtensionMgrImpl::get_extension_index(Ren3dGlExtensionId extension_id) noexcept
 {
 	const auto extension_index = static_cast<int>(extension_id);
 
@@ -2659,169 +2475,165 @@ try
 
 	{
 		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::essentials)];
-		registry_item.is_virtual_ = true;
-		registry_item.is_probed_ = false;
-		registry_item.is_available_ = false;
-		registry_item.extension_name_ = "essentials";
-		registry_item.gl_symbol_ptrs_ = &get_essentials_gl_symbol_ptrs();
+		registry_item.is_virtual = true;
+		registry_item.is_probed = false;
+		registry_item.is_available = false;
+		registry_item.extension_name = "essentials";
+		registry_item.gl_symbol_ptrs = &get_essentials_gl_symbol_ptrs();
 	}
 
 	{
 		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::v2_0)];
-		registry_item.is_virtual_ = true;
-		registry_item.is_probed_ = false;
-		registry_item.is_available_ = false;
-		registry_item.extension_name_ = "v2.0";
-		registry_item.gl_symbol_ptrs_ = &get_v2_0_gl_symbol_ptrs();
+		registry_item.is_virtual = true;
+		registry_item.is_probed = false;
+		registry_item.is_available = false;
+		registry_item.extension_name = "v2.0";
+		registry_item.gl_symbol_ptrs = &get_v2_0_gl_symbol_ptrs();
 	}
 
 	{
 		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::v3_2_core)];
-		registry_item.is_virtual_ = true;
-		registry_item.is_probed_ = false;
-		registry_item.is_available_ = false;
-		registry_item.extension_name_ = "v3.2 core";
-		registry_item.gl_symbol_ptrs_ = &get_v3_2_core_gl_symbol_ptrs();
+		registry_item.is_virtual = true;
+		registry_item.is_probed = false;
+		registry_item.is_available = false;
+		registry_item.extension_name = "v3.2 core";
+		registry_item.gl_symbol_ptrs = &get_v3_2_core_gl_symbol_ptrs();
 	}
 
 	{
 		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::es_v2_0)];
-		registry_item.is_virtual_ = true;
-		registry_item.is_probed_ = false;
-		registry_item.is_available_ = false;
-		registry_item.extension_name_ = "ES v2.0";
-		registry_item.gl_symbol_ptrs_ = &get_es_v2_0_gl_symbol_ptrs();
+		registry_item.is_virtual = true;
+		registry_item.is_probed = false;
+		registry_item.is_available = false;
+		registry_item.extension_name = "ES v2.0";
+		registry_item.gl_symbol_ptrs = &get_es_v2_0_gl_symbol_ptrs();
 	}
 
 	{
 		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::arb_buffer_storage)];
-		registry_item.is_virtual_ = false;
-		registry_item.is_probed_ = false;
-		registry_item.is_available_ = false;
-		registry_item.extension_name_ = "GL_ARB_buffer_storage";
-		registry_item.gl_symbol_ptrs_ = &get_arb_buffer_storage_gl_symbol_ptrs();
+		registry_item.is_virtual = false;
+		registry_item.is_probed = false;
+		registry_item.is_available = false;
+		registry_item.extension_name = "GL_ARB_buffer_storage";
+		registry_item.gl_symbol_ptrs = &get_arb_buffer_storage_gl_symbol_ptrs();
 	}
 
 	{
 		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::arb_direct_state_access)];
-		registry_item.is_virtual_ = false;
-		registry_item.is_probed_ = false;
-		registry_item.is_available_ = false;
-		registry_item.extension_name_ = "GL_ARB_direct_state_access";
-		registry_item.gl_symbol_ptrs_ = &get_arb_direct_state_access_gl_symbol_ptrs();
+		registry_item.is_virtual = false;
+		registry_item.is_probed = false;
+		registry_item.is_available = false;
+		registry_item.extension_name = "GL_ARB_direct_state_access";
+		registry_item.gl_symbol_ptrs = &get_arb_direct_state_access_gl_symbol_ptrs();
 	}
 
 	{
 		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::arb_framebuffer_object)];
-		registry_item.is_virtual_ = false;
-		registry_item.is_probed_ = false;
-		registry_item.is_available_ = false;
-		registry_item.extension_name_ = "GL_ARB_framebuffer_object";
-		registry_item.gl_symbol_ptrs_ = &get_arb_framebuffer_object_gl_symbol_ptrs();
+		registry_item.is_virtual = false;
+		registry_item.is_probed = false;
+		registry_item.is_available = false;
+		registry_item.extension_name = "GL_ARB_framebuffer_object";
+		registry_item.gl_symbol_ptrs = &get_arb_framebuffer_object_gl_symbol_ptrs();
 	}
 
 	{
 		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::arb_texture_filter_anisotropic)];
-		registry_item.is_virtual_ = false;
-		registry_item.is_probed_ = false;
-		registry_item.is_available_ = false;
-		registry_item.extension_name_ = "GL_ARB_texture_filter_anisotropic";
-		registry_item.gl_symbol_ptrs_ = nullptr;
+		registry_item.is_virtual = false;
+		registry_item.is_probed = false;
+		registry_item.is_available = false;
+		registry_item.extension_name = "GL_ARB_texture_filter_anisotropic";
+		registry_item.gl_symbol_ptrs = nullptr;
 	}
 
 	{
 		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::arb_texture_non_power_of_two)];
-		registry_item.is_virtual_ = false;
-		registry_item.is_probed_ = false;
-		registry_item.is_available_ = false;
-		registry_item.extension_name_ = "GL_ARB_texture_non_power_of_two";
-		registry_item.gl_symbol_ptrs_ = nullptr;
+		registry_item.is_virtual = false;
+		registry_item.is_probed = false;
+		registry_item.is_available = false;
+		registry_item.extension_name = "GL_ARB_texture_non_power_of_two";
+		registry_item.gl_symbol_ptrs = nullptr;
 	}
 
 	{
 		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::arb_sampler_objects)];
-		registry_item.is_virtual_ = false;
-		registry_item.is_probed_ = false;
-		registry_item.is_available_ = false;
-		registry_item.extension_name_ = "GL_ARB_sampler_objects";
-		registry_item.gl_symbol_ptrs_ = &get_arb_sampler_objects_gl_symbol_ptrs();
+		registry_item.is_virtual = false;
+		registry_item.is_probed = false;
+		registry_item.is_available = false;
+		registry_item.extension_name = "GL_ARB_sampler_objects";
+		registry_item.gl_symbol_ptrs = &get_arb_sampler_objects_gl_symbol_ptrs();
 	}
 
 	{
 		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::arb_separate_shader_objects)];
-		registry_item.is_virtual_ = false;
-		registry_item.is_probed_ = false;
-		registry_item.is_available_ = false;
-		registry_item.extension_name_ = "GL_ARB_separate_shader_objects";
-		registry_item.gl_symbol_ptrs_ = &get_arb_separate_shader_objects_gl_symbol_ptrs();
+		registry_item.is_virtual = false;
+		registry_item.is_probed = false;
+		registry_item.is_available = false;
+		registry_item.extension_name = "GL_ARB_separate_shader_objects";
+		registry_item.gl_symbol_ptrs = &get_arb_separate_shader_objects_gl_symbol_ptrs();
 	}
 
 	{
 		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::arb_vertex_array_object)];
-		registry_item.is_virtual_ = false;
-		registry_item.is_probed_ = false;
-		registry_item.is_available_ = false;
-		registry_item.extension_name_ = "GL_ARB_vertex_array_object";
-		registry_item.gl_symbol_ptrs_ = &get_arb_vertex_array_object_gl_symbol_ptrs();
+		registry_item.is_virtual = false;
+		registry_item.is_probed = false;
+		registry_item.is_available = false;
+		registry_item.extension_name = "GL_ARB_vertex_array_object";
+		registry_item.gl_symbol_ptrs = &get_arb_vertex_array_object_gl_symbol_ptrs();
 	}
 
 	{
 		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::ext_framebuffer_blit)];
-		registry_item.is_virtual_ = false;
-		registry_item.is_probed_ = false;
-		registry_item.is_available_ = false;
-		registry_item.extension_name_ = "GL_EXT_framebuffer_blit";
-		registry_item.gl_symbol_ptrs_ = &get_ext_framebuffer_blit_gl_symbol_ptrs();
+		registry_item.is_virtual = false;
+		registry_item.is_probed = false;
+		registry_item.is_available = false;
+		registry_item.extension_name = "GL_EXT_framebuffer_blit";
+		registry_item.gl_symbol_ptrs = &get_ext_framebuffer_blit_gl_symbol_ptrs();
 	}
 
 	{
 		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::ext_framebuffer_multisample)];
-		registry_item.is_virtual_ = false;
-		registry_item.is_probed_ = false;
-		registry_item.is_available_ = false;
-		registry_item.extension_name_ = "GL_EXT_framebuffer_multisample";
-		registry_item.gl_symbol_ptrs_ = &get_ext_framebuffer_multisample_gl_symbol_ptrs();
+		registry_item.is_virtual = false;
+		registry_item.is_probed = false;
+		registry_item.is_available = false;
+		registry_item.extension_name = "GL_EXT_framebuffer_multisample";
+		registry_item.gl_symbol_ptrs = &get_ext_framebuffer_multisample_gl_symbol_ptrs();
 	}
 
 	{
 		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::ext_packed_depth_stencil)];
-		registry_item.is_virtual_ = false;
-		registry_item.is_probed_ = false;
-		registry_item.is_available_ = false;
-		registry_item.extension_name_ = "GL_EXT_packed_depth_stencil";
-		registry_item.gl_symbol_ptrs_ = nullptr;
+		registry_item.is_virtual = false;
+		registry_item.is_probed = false;
+		registry_item.is_available = false;
+		registry_item.extension_name = "GL_EXT_packed_depth_stencil";
+		registry_item.gl_symbol_ptrs = nullptr;
 	}
 
 	{
 		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::ext_texture_filter_anisotropic)];
-		registry_item.is_virtual_ = false;
-		registry_item.is_probed_ = false;
-		registry_item.is_available_ = false;
-		registry_item.extension_name_ = "GL_EXT_texture_filter_anisotropic";
-		registry_item.gl_symbol_ptrs_ = nullptr;
+		registry_item.is_virtual = false;
+		registry_item.is_probed = false;
+		registry_item.is_available = false;
+		registry_item.extension_name = "GL_EXT_texture_filter_anisotropic";
+		registry_item.gl_symbol_ptrs = nullptr;
 	}
 
 	{
 		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::oes_texture_npot)];
-		registry_item.is_virtual_ = false;
-		registry_item.is_probed_ = false;
-		registry_item.is_available_ = false;
-		registry_item.extension_name_ = "GL_OES_texture_npot";
-		registry_item.gl_symbol_ptrs_ = nullptr;
+		registry_item.is_virtual = false;
+		registry_item.is_probed = false;
+		registry_item.is_available = false;
+		registry_item.extension_name = "GL_OES_texture_npot";
+		registry_item.gl_symbol_ptrs = nullptr;
 	}
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
-int Ren3dGlExtensionMgrImpl::parse_version_number(
-	const std::string& string)
+int Ren3dGlExtensionMgrImpl::parse_version_number(const std::string& string)
 try
 {
 	if (string.empty())
 	{
-		fail("Expected a digit.");
+		BSTONE_STATIC_THROW("Expected a digit.");
 	}
 
 	constexpr auto max_digit_count = 10;
@@ -2835,7 +2647,7 @@ try
 
 		if (digit_count > max_digit_count)
 		{
-			fail("Too many digits.");
+			BSTONE_STATIC_THROW("Too many digits.");
 		}
 
 		switch (ch)
@@ -2854,20 +2666,15 @@ try
 				break;
 
 			default:
-				fail("Non-digit character.");
+				BSTONE_STATIC_THROW("Non-digit character.");
 		}
 	}
 
 	return number;
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
-void Ren3dGlExtensionMgrImpl::parse_version(
-	const std::string& version_string,
-	Ren3dGlVersion& gl_version)
+void Ren3dGlExtensionMgrImpl::parse_version(const std::string& version_string, Ren3dGlVersion& gl_version)
 try
 {
 	static const auto digits = std::string{"0123456789"};
@@ -2877,7 +2684,7 @@ try
 
 	if (digits_pos == std::string::npos)
 	{
-		fail("Unsupported format.");
+		BSTONE_STATIC_THROW("Unsupported format.");
 	}
 
 	if (digits_pos > 0)
@@ -2888,7 +2695,7 @@ try
 		}
 		else
 		{
-			fail("Unsupported prefix.");
+			BSTONE_STATIC_THROW("Unsupported prefix.");
 		}
 	}
 
@@ -2899,7 +2706,7 @@ try
 
 	if (first_dot_pos == std::string::npos)
 	{
-		fail("Expected the dot separator.");
+		BSTONE_STATIC_THROW("Expected the dot separator.");
 	}
 
 	const auto second_dot_pos = version_string.rfind('.', vendor_info_pos);
@@ -2907,30 +2714,23 @@ try
 
 	// Major.
 	//
-	const auto major_version_string_view = version_string.substr(
-		digits_pos,
-		first_dot_pos - digits_pos
-	);
-
+	const auto major_version_string_view = version_string.substr(digits_pos, first_dot_pos - digits_pos);
 	gl_version.major_ = parse_version_number(major_version_string_view);
-
 
 	// Minor.
 	//
 	const auto minor_begin_pos = first_dot_pos + 1;
-	const auto minor_end_pos = (
+
+	const auto minor_end_pos =
 		has_release ?
 		second_dot_pos :
-		(has_vendor ? vendor_info_pos : static_cast<int>(version_string.size()))
-	);
+		(has_vendor ? vendor_info_pos : static_cast<int>(version_string.size()));
 
 	const auto minor_version_string_view = version_string.substr(
 		minor_begin_pos,
-		minor_end_pos - minor_begin_pos
-	);
+		minor_end_pos - minor_begin_pos);
 
 	gl_version.minor_ = parse_version_number(minor_version_string_view);
-
 
 	// Release.
 	//
@@ -2940,12 +2740,10 @@ try
 
 		const auto release_version_str_view = version_string.substr(
 			release_begin_pos,
-			vendor_info_pos - release_begin_pos
-		);
+			vendor_info_pos - release_begin_pos);
 
 		gl_version.release_ = parse_version_number(release_version_str_view);
 	}
-
 
 	// Vendor information.
 	//
@@ -2954,36 +2752,27 @@ try
 		gl_version.vendor_ = version_string.substr(vendor_info_pos + 1);
 	}
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
-void Ren3dGlExtensionMgrImpl::get_version(
-	const GLenum version_enum,
-	Ren3dGlVersion& gl_version)
+void Ren3dGlExtensionMgrImpl::get_version(GLenum version_enum, Ren3dGlVersion& gl_version)
 try
 {
-	if (!glGetString)
+	if (glGetString == nullptr)
 	{
-		fail("Null \"glGetString\".");
+		BSTONE_STATIC_THROW("Null \"glGetString\".");
 	}
 
 	const auto gl_version_string = reinterpret_cast<const char*>(glGetString(version_enum));
 
-	if (!gl_version_string)
+	if (gl_version_string == nullptr)
 	{
-		fail("Null version string.");
+		BSTONE_STATIC_THROW("Null version string.");
 	}
 
 	const auto version_string = std::string{gl_version_string};
-
 	parse_version(version_string, gl_version);
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void Ren3dGlExtensionMgrImpl::get_version()
 try
@@ -2991,37 +2780,19 @@ try
 	get_version(GL_VERSION, gl_version_);
 	get_version(GL_SHADING_LANGUAGE_VERSION, glsl_version_);
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-void Ren3dGlExtensionMgrImpl::get_context_attributes()
-try
-{
-	context_kind_ = Ren3dGlUtils::get_context_kind();
-
-	if (context_kind_ == Ren3dGlContextKind::invalid)
-	{
-		fail("Invalid context kind.");
-	}
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void Ren3dGlExtensionMgrImpl::get_names_from_multiple_strings()
 try
 {
-	if (!glGetIntegerv)
+	if (glGetIntegerv == nullptr)
 	{
-		fail("Null \"glGetIntegerv\".");
+		BSTONE_STATIC_THROW("Null \"glGetIntegerv\".");
 	}
 
-	if (!glGetStringi)
+	if (glGetStringi == nullptr)
 	{
-		fail("Null \"glGetStringi\".");
+		BSTONE_STATIC_THROW("Null \"glGetStringi\".");
 	}
 
 	auto gl_extension_count = GLint{};
@@ -3040,33 +2811,30 @@ try
 	{
 		const auto extension_name = glGetStringi(GL_EXTENSIONS, static_cast<GLuint>(i));
 
-		if (!extension_name)
+		if (extension_name == nullptr)
 		{
-			fail("Null extension name.");
+			BSTONE_STATIC_THROW("Null extension name.");
 		}
 
 		extension_names_[i] = reinterpret_cast<const char*>(extension_name);
 	}
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void Ren3dGlExtensionMgrImpl::get_names_from_one_string()
 try
 {
-	if (!glGetString)
+	if (glGetString == nullptr)
 	{
-		fail("Null \"glGetString\".");
+		BSTONE_STATIC_THROW("Null \"glGetString\".");
 	}
 
 	const auto gl_extensions_c_string = glGetString(GL_EXTENSIONS);
 	Ren3dGlError::ensure_debug();
 
-	if (!gl_extensions_c_string)
+	if (gl_extensions_c_string == nullptr)
 	{
-		fail("Null extensions string.");
+		BSTONE_STATIC_THROW("Null extensions string.");
 	}
 
 	const auto gl_extensions_std_string = std::string
@@ -3077,8 +2845,7 @@ try
 	const auto extension_count = 1 + std::count(
 		gl_extensions_std_string.cbegin(),
 		gl_extensions_std_string.cend(),
-		' '
-	);
+		' ');
 
 	auto iss = std::istringstream{gl_extensions_std_string};
 
@@ -3086,13 +2853,9 @@ try
 
 	extension_names_.assign(
 		std::istream_iterator<std::string>{iss},
-		std::istream_iterator<std::string>{}
-	);
+		std::istream_iterator<std::string>{});
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void Ren3dGlExtensionMgrImpl::get_names()
 try
@@ -3108,44 +2871,40 @@ try
 
 	std::sort(extension_names_.begin(), extension_names_.end());
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
-void Ren3dGlExtensionMgrImpl::probe_generic(
-	const Ren3dGlExtensionId extension_id)
+void Ren3dGlExtensionMgrImpl::probe_generic(Ren3dGlExtensionId extension_id)
 try
 {
 	const auto extension_index = get_extension_index(extension_id);
 
 	if (extension_index < 0)
 	{
-		fail("Invalid extension id.");
+		BSTONE_STATIC_THROW("Invalid extension id.");
 	}
 
 	auto& registry_item = registry_[extension_index];
 
-	if (registry_item.is_probed_)
+	if (registry_item.is_probed)
 	{
 		return;
 	}
 
-	registry_item.is_probed_ = true;
+	registry_item.is_probed = true;
 
-	if (registry_item.is_virtual_ && !registry_item.gl_symbol_ptrs_)
+	if (registry_item.is_virtual && registry_item.gl_symbol_ptrs == nullptr)
 	{
-		fail("Expected symbol pointer for virtual extension.");
+		BSTONE_STATIC_THROW("Expected symbol pointer for virtual extension.");
 	}
 
-	if (!registry_item.is_virtual_)
+	if (!registry_item.is_virtual)
 	{
 		const auto has_extension_name = std::any_of(
 			extension_names_.cbegin(),
 			extension_names_.cend(),
-			[&](const auto& item)
+			[&registry_item](const std::string& item)
 			{
-				return item == registry_item.extension_name_;
+				return item == registry_item.extension_name;
 			}
 		);
 
@@ -3155,9 +2914,9 @@ try
 		}
 	}
 
-	if (registry_item.gl_symbol_ptrs_)
+	if (registry_item.gl_symbol_ptrs != nullptr)
 	{
-		const auto has_symbols = has_gl_symbol(*registry_item.gl_symbol_ptrs_);
+		const auto has_symbols = has_gl_symbol(*registry_item.gl_symbol_ptrs);
 
 		if (!has_symbols)
 		{
@@ -3165,31 +2924,16 @@ try
 		}
 	}
 
-	registry_item.is_available_ = true;
+	registry_item.is_available = true;
 }
-catch (...)
+BSTONE_STATIC_THROW_NESTED_FUNC
+
+// ==========================================================================
+
+Ren3dGlExtensionMgrUPtr Ren3dGlExtensionMgrFactory::create(sys::GlMgr& gl_mgr)
 {
-	fail_nested(__func__);
+	return std::make_unique<Ren3dGlExtensionMgrImpl>(gl_mgr);
 }
 
-//
-// Ren3dGlExtensionMgrImpl
-// ==========================================================================
-
-
-// ==========================================================================
-// Ren3dGlExtensionMgrFactory
-//
-
-Ren3dGlExtensionMgrUPtr Ren3dGlExtensionMgrFactory::create()
-{
-	return std::make_unique<Ren3dGlExtensionMgrImpl>();
-}
-
-//
-// Ren3dGlExtensionMgrFactory
-// ==========================================================================
-
-
-} // detail
-} // bstone
+} // namespace detail
+} // namespace bstone

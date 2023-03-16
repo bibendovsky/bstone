@@ -28,6 +28,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_cgm_vec.h"
 
 #include "bstone_door.h"
+#include "bstone_globals.h"
 #include "bstone_hw_shader_registry.h"
 #include "bstone_logger.h"
 #include "bstone_mod_value.h"
@@ -11662,7 +11663,7 @@ private:
 		set_samplers_default_states();
 		set_player_weapon_sampler_default_state();
 
-		renderer_mgr_ = bstone::Ren3dMgrFactory::create();
+		renderer_mgr_ = bstone::Ren3dMgrFactory::create(*globals::sys_video_mgr, *globals::sys_window_mgr);
 
 		vid_initialize_common();
 		calculate_dimensions();

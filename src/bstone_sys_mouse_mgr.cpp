@@ -15,7 +15,7 @@ try
 {
 	do_set_relative_mode(is_enable);
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 } // namespace sys
 } // namespace bstone

@@ -293,8 +293,6 @@ target_sources(
 		bstone_missing_sprite_64x64_image.h
 		bstone_missing_wall_64x64_image.h
 		bstone_renderer_kind.h
-		bstone_sdl_exception.h
-		bstone_sdl_types.h
 
 		bstone_ren_3d.h
 		bstone_ren_3d_buffer.h
@@ -355,6 +353,7 @@ target_sources(
 		bstone_adlib_music_decoder.h
 		bstone_adlib_sfx_decoder.h
 		bstone_algorithm.h
+		bstone_allocator_bitmap.h
 		bstone_archiver.h
 		bstone_ascii.h
 		bstone_atomic.h
@@ -414,6 +413,7 @@ target_sources(
 		bstone_memory.h
 		bstone_memory_binary_reader.h
 		bstone_memory_pool.h
+		bstone_memory_pool_1x.h
 		bstone_memory_resource.h
 		bstone_memory_stream.h
 		bstone_mod_value.h
@@ -436,7 +436,6 @@ target_sources(
 		bstone_rgb8.h
 		bstone_rgb_palette.h
 		bstone_scope_guard.h
-		bstone_sdl_texture_lock.h
 		bstone_sha1.h
 		bstone_span.h
 		bstone_spinlock.h
@@ -465,22 +464,45 @@ target_sources(
 		bstone_zstring_view.h
 
 		bstone_sys_audio_mgr.h
+		bstone_sys_color.h
 		bstone_sys_push_audio_device.h
 		bstone_sys_event.h
 		bstone_sys_event_mgr.h
+		bstone_sys_gl_context.h
+		bstone_sys_gl_context_attributes.h
+		bstone_sys_gl_mgr.h
 		bstone_sys_logger.h
-		bstone_sys_virtual_key.h
 		bstone_sys_message_box.h
 		bstone_sys_mouse.h
 		bstone_sys_mouse_mgr.h
+		bstone_sys_pixel_format.h
+		bstone_sys_r2_extent.h
+		bstone_sys_r2_offset.h
+		bstone_sys_r2_rect.h
+		bstone_sys_renderer.h
 		bstone_sys_system_mgr.h
+		bstone_sys_texture_lock.h
+		bstone_sys_texture.h
 		bstone_sys_video_mgr.h
+		bstone_sys_virtual_key.h
+		bstone_sys_window.h
+		bstone_sys_window_mgr.h
 
 		bstone_sys_sdl_audio_mgr.h
+		bstone_sys_sdl_detail.h
+		bstone_sys_sdl_limits.h
 		bstone_sys_sdl_push_audio_device.h
 		bstone_sys_sdl_event_mgr.h
+		bstone_sys_sdl_exception.h
+		bstone_sys_sdl_gl_context.h
+		bstone_sys_sdl_gl_mgr.h
 		bstone_sys_sdl_mouse_mgr.h
+		bstone_sys_sdl_renderer.h
+		bstone_sys_sdl_texture.h
+		bstone_sys_sdl_texture_lock.h
 		bstone_sys_sdl_video_mgr.h
+		bstone_sys_sdl_window.h
+		bstone_sys_sdl_window_mgr.h
 )
 
 if (WIN32)
@@ -509,7 +531,6 @@ target_sources(
 		bstone_missing_sprite_64x64_image.cpp
 		bstone_missing_wall_64x64_image.cpp
 		bstone_ren_3d_mgr.cpp
-		bstone_sdl_exception.cpp
 
 		bstone_cgm_mat.h
 		bstone_cgm_mat_tests.cpp
@@ -629,6 +650,7 @@ target_sources(
 		bstone_memory_resource.cpp
 		bstone_memory_stream.cpp
 		bstone_mt_task_mgr.cpp
+		bstone_nhsz_memory_pool.h
 		bstone_nuked_opl3.cpp
 		bstone_oal_audio_mixer.cpp
 		bstone_oal_loader.cpp
@@ -643,7 +665,6 @@ target_sources(
 		bstone_raw_uptr.cpp
 		bstone_rgb8.cpp
 		bstone_sdl_shared_library.cpp
-		bstone_sdl_texture_lock.cpp
 		bstone_sha1.cpp
 		bstone_spinlock.cpp
 		bstone_sprite.cpp
@@ -667,21 +688,36 @@ target_sources(
 		bstone_zstring_view.cpp
 
 		bstone_sys_audio_mgr.cpp
-		bstone_sys_push_audio_device.cpp
 		bstone_sys_event_mgr.cpp
+		bstone_sys_gl_context.cpp
+		bstone_sys_gl_mgr.cpp
 		bstone_sys_logger.cpp
 		bstone_sys_mouse_mgr.cpp
-		bstone_sys_sdl_event_mgr.cpp
+		bstone_sys_push_audio_device.cpp
+		bstone_sys_renderer.cpp
 		bstone_sys_system_mgr.cpp
+		bstone_sys_texture.cpp
+		bstone_sys_texture_lock.cpp
 		bstone_sys_video_mgr.cpp
+		bstone_sys_window.cpp
+		bstone_sys_window_mgr.cpp
 
 		bstone_sys_sdl_audio_mgr.cpp
+		bstone_sys_sdl_detail.cpp
 		bstone_sys_sdl_push_audio_device.cpp
 		bstone_sys_sdl_event_mgr.cpp
+		bstone_sys_sdl_exception.cpp
+		bstone_sys_sdl_gl_context.cpp
+		bstone_sys_sdl_gl_mgr.cpp
 		bstone_sys_sdl_message_box.cpp
 		bstone_sys_sdl_mouse_mgr.cpp
+		bstone_sys_sdl_renderer.cpp
 		bstone_sys_sdl_system_mgr.cpp
+		bstone_sys_sdl_texture.cpp
+		bstone_sys_sdl_texture_lock.cpp
 		bstone_sys_sdl_video_mgr.cpp
+		bstone_sys_sdl_window.cpp
+		bstone_sys_sdl_window_mgr.cpp
 )
 
 if (WIN32)

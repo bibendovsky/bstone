@@ -22,6 +22,10 @@ SPDX-License-Identifier: MIT
 #include "bstone_ren_3d_cmd_buffer.h"
 #include "bstone_unique_resource.h"
 
+#include "bstone_sys_gl_context.h"
+#include "bstone_sys_video_mgr.h"
+#include "bstone_sys_window_mgr.h"
+
 #include "bstone_detail_ren_3d_gl_buffer.h"
 #include "bstone_detail_ren_3d_gl_context.h"
 #include "bstone_detail_ren_3d_gl_extension_mgr.h"
@@ -40,8 +44,7 @@ class Ren3dGl final :
 	public Ren3d
 {
 public:
-	Ren3dGl(
-		const Ren3dCreateParam& param);
+	Ren3dGl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr, const Ren3dCreateParam& param);
 
 	~Ren3dGl() override;
 
@@ -150,8 +153,11 @@ private:
 	Ren3dAaKind aa_kind_;
 	int aa_value_;
 
-	SdlWindowUPtr sdl_window_;
-	SdlGlContextUPtr sdl_gl_context_;
+	sys::VideoMgr& video_mgr_;
+	sys::WindowMgr& window_mgr_;
+	sys::GlMgrUPtr gl_mgr_{};
+	sys::WindowUPtr window_{};
+	sys::GlContextUPtr gl_context_{};
 
 	Ren3dGlExtensionMgrUPtr extension_manager_;
 	Ren3dGlContextUPtr context_;

@@ -7,7 +7,7 @@ SPDX-License-Identifier: MIT
 #include <SDL_messagebox.h>
 #include "bstone_exception.h"
 #include "bstone_sys_message_box.h"
-#include "bstone_sdl_exception.h"
+#include "bstone_sys_sdl_exception.h"
 
 namespace bstone {
 namespace sys {
@@ -30,7 +30,7 @@ try
 
 	sdl_ensure_result(SDL_ShowSimpleMessageBox(sdl_flags, title, message, nullptr));
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 int show_message_box(const MessageBoxDescriptor& descriptor)
 try
@@ -87,7 +87,7 @@ try
 	sdl_ensure_result(SDL_ShowMessageBox(&sdl_message_box, &sdl_button_id));
 	return sdl_button_id;
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 } // namespace sys
 } // namespace bstone

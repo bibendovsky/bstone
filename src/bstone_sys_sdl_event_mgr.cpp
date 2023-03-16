@@ -8,9 +8,10 @@ SPDX-License-Identifier: MIT
 #include "SDL.h"
 #include "bstone_char_conv.h"
 #include "bstone_exception.h"
-#include "bstone_sdl_exception.h"
+#include "bstone_memory_pool_1x.h"
 #include "bstone_sys_logger.h"
 #include "bstone_sys_sdl_event_mgr.h"
+#include "bstone_sys_sdl_exception.h"
 
 #define BSTONE_SDL_2_0_4 SDL_VERSION_ATLEAST(2, 0, 4)
 
@@ -26,6 +27,9 @@ public:
 	SdlEventMgr(const SdlEventMgr&) = delete;
 	SdlEventMgr& operator=(const SdlEventMgr&) = delete;
 	~SdlEventMgr() override;
+
+	static void* operator new(std::size_t count);
+	static void operator delete(void* ptr) noexcept;
 
 private:
 	Logger& logger_;
@@ -50,6 +54,12 @@ private:
 
 // ==========================================================================
 
+using SdlEventMgrPool = MemoryPool1XT<SdlEventMgr>;
+
+SdlEventMgrPool sdl_event_mgr_pool{};
+
+// ==========================================================================
+
 SdlEventMgr::SdlEventMgr(Logger& logger)
 try
 	:
@@ -61,13 +71,25 @@ try
 
 	logger_.log_information(">>> SDL event manager started up.");
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 SdlEventMgr::~SdlEventMgr()
 {
 	logger_.log_information("Shut down SDL event manager.");
 
 	SDL_QuitSubSystem(SDL_INIT_EVENTS);
+}
+
+void* SdlEventMgr::operator new(std::size_t count)
+try
+{
+	return sdl_event_mgr_pool.allocate(count);
+}
+BSTONE_STATIC_THROW_NESTED_FUNC
+
+void SdlEventMgr::operator delete(void* ptr) noexcept
+{
+	sdl_event_mgr_pool.deallocate(ptr);
 }
 
 VirtualKey SdlEventMgr::map_key_code(SDL_KeyCode sdl_key_code)
@@ -430,7 +452,7 @@ try
 {
 	return std::make_unique<SdlEventMgr>(logger);
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 } // namespace sys
 } // namespace bstone

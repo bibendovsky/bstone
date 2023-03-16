@@ -21,6 +21,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_ren_3d_cmd_buffer.h"
 #include "bstone_ren_3d_limits.h"
 #include "bstone_ren_3d_tests.h"
+#include "bstone_scope_guard.h"
 
 #include "bstone_detail_ren_3d_gl_error.h"
 #include "bstone_detail_ren_3d_gl_utils.h"
@@ -66,10 +67,11 @@ public:
 // Ren3dGl
 //
 
-Ren3dGl::Ren3dGl(
-	const Ren3dCreateParam& param)
+Ren3dGl::Ren3dGl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr, const Ren3dCreateParam& param)
 try
 	:
+	video_mgr_{video_mgr},
+	window_mgr_{window_mgr},
 	kind{},
 	name_{},
 	description_{},
@@ -80,8 +82,6 @@ try
 	screen_height{},
 	aa_kind_{},
 	aa_value_{},
-	sdl_window_{},
-	sdl_gl_context_{},
 	extension_manager_{},
 	context_{},
 	msaa_fbo_{},
@@ -99,9 +99,14 @@ try
 			fail("Unsupported renderer kind.");
 	}
 
+	gl_mgr_ = video_mgr_.make_gl_mgr();
+	gl_mgr_->load_default_library();
+	// FIXMENOW
+	// Unload on exception.
+
 	kind = param.renderer_kind_;
 
-	Ren3dGlUtils::probe_msaa(kind, device_features_, gl_device_features_);
+	Ren3dGlUtils::probe_msaa(kind, *gl_mgr_, window_mgr, device_features_, gl_device_features_);
 
 	aa_kind_ = param.aa_kind_;
 	aa_value_ = param.aa_value_;
@@ -156,24 +161,18 @@ try
 		}
 	}
 
-	Ren3dGlUtils::create_window_and_context(window_param, sdl_window_, sdl_gl_context_);
+	Ren3dGlUtils::create_window_and_context(window_param, window_mgr, window_, gl_context_);
 
-	Ren3dGlUtils::get_window_drawable_size(
-		sdl_window_.get(),
-		screen_width,
-		screen_height);
-
-	if (screen_width == 0 || screen_height == 0)
-	{
-		fail("Failed to get screen size.");
-	}
+	const auto drawable_size = window_->gl_get_drawable_size();
+	screen_width = drawable_size.width;
+	screen_height = drawable_size.height;
 
 	if (aa_kind_ == Ren3dAaKind::ms && device_features_.is_msaa_render_to_window_)
 	{
-		aa_value_ = Ren3dGlUtils::get_window_msaa_value();
+		aa_value_ = Ren3dGlUtils::get_window_msaa_value(gl_context_->get_attributes());
 	}
 
-	extension_manager_ = Ren3dGlExtensionMgrFactory::create();
+	extension_manager_ = Ren3dGlExtensionMgrFactory::create(*gl_mgr_);
 
 	if (extension_manager_ == nullptr)
 	{
@@ -218,72 +217,31 @@ try
 
 	Ren3dGlUtils::set_renderer_features(device_features_);
 
-	gl_device_features_.context_kind_ = Ren3dGlUtils::get_context_kind();
+	gl_device_features_.context_kind_ = Ren3dGlUtils::get_context_kind(gl_context_->get_attributes());
 
-	Ren3dGlUtils::probe_anisotropy(
-		extension_manager_.get(),
-		device_features_
-	);
-
-	Ren3dGlUtils::probe_npot(
-		extension_manager_.get(),
-		device_features_
-	);
-
-	Ren3dGlUtils::probe_mipmap(
-		extension_manager_.get(),
-		device_features_,
-		gl_device_features_
-	);
-
-	Ren3dGlUtils::probe_framebuffer(
-		extension_manager_.get(),
-		gl_device_features_
-	);
-
-	Ren3dGlUtils::probe_sampler(
-		extension_manager_.get(),
-		device_features_
-	);
-
+	Ren3dGlUtils::probe_anisotropy(extension_manager_.get(), device_features_);
+	Ren3dGlUtils::probe_npot(extension_manager_.get(), device_features_);
+	Ren3dGlUtils::probe_mipmap(extension_manager_.get(), device_features_, gl_device_features_);
+	Ren3dGlUtils::probe_framebuffer(extension_manager_.get(), gl_device_features_ );
+	Ren3dGlUtils::probe_sampler(extension_manager_.get(), device_features_);
 	Ren3dGlUtils::probe_max_vertex_arrays(device_features_);
-
-	Ren3dGlUtils::probe_buffer_storage(
-		extension_manager_.get(),
-		gl_device_features_
-	);
-
-	Ren3dGlUtils::probe_dsa(
-		extension_manager_.get(),
-		gl_device_features_
-	);
-
-	Ren3dGlUtils::probe_sso(
-		extension_manager_.get(),
-		gl_device_features_
-	);
+	Ren3dGlUtils::probe_buffer_storage(extension_manager_.get(), gl_device_features_);
+	Ren3dGlUtils::probe_dsa(extension_manager_.get(), gl_device_features_);
+	Ren3dGlUtils::probe_sso(extension_manager_.get(), gl_device_features_ );
 
 	if (device_features_.max_vertex_input_locations_ <= 0)
 	{
 		fail("No vertex input locations.");
 	}
 
-	Ren3dGlUtils::probe_vsync(device_features_);
+	Ren3dGlUtils::probe_vsync(*gl_mgr_, device_features_);
+	Ren3dGlUtils::probe_vao(extension_manager_.get(), gl_device_features_);
 
-	Ren3dGlUtils::probe_vao(
-		extension_manager_.get(),
-		gl_device_features_
-	);
-
-	context_ = Ren3dGlContextFactory::create(
-		kind,
-		device_features_,
-		gl_device_features_
-	);
+	context_ = Ren3dGlContextFactory::create(kind, device_features_, gl_device_features_ );
 
 	if (device_features_.is_vsync_available_)
 	{
-		static_cast<void>(Ren3dGlUtils::enable_vsync(param.is_vsync_));
+		gl_mgr_->set_swap_interval(param.is_vsync_);
 	}
 
 	create_framebuffers();
@@ -298,12 +256,12 @@ try
 	context_->clear(Rgba8{});
 	present();
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
-Ren3dGl::~Ren3dGl() = default;
+Ren3dGl::~Ren3dGl()
+{
+	gl_mgr_->unload_library();
+}
 
 Ren3dKind Ren3dGl::get_kind() const noexcept
 {
@@ -393,11 +351,11 @@ void Ren3dGl::set_window_mode(
 	const Ren3dSetWindowModeParam& param)
 try
 {
-	Ren3dUtils::set_window_mode(sdl_window_.get(), param);
+	Ren3dUtils::set_window_mode(*window_, param);
 
-	const auto size_changed = (
+	const auto size_changed =
 		screen_width != param.rect_2d_.extent_.width_ ||
-		screen_height != param.rect_2d_.extent_.height_);
+		screen_height != param.rect_2d_.extent_.height_;
 
 	screen_width = param.rect_2d_.extent_.width_;
 	screen_height = param.rect_2d_.extent_.height_;
@@ -408,32 +366,21 @@ try
 		create_msaa_framebuffer();
 	}
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
-void Ren3dGl::set_window_title(
-	const std::string& title_utf8)
+void Ren3dGl::set_window_title(const std::string& title_utf8)
 try
 {
-	Ren3dUtils::set_window_title(sdl_window_.get(), title_utf8);
+	window_->set_title(title_utf8.c_str());
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
-void Ren3dGl::show_window(
-	const bool is_visible)
+void Ren3dGl::show_window(bool is_visible)
 try
 {
-	Ren3dUtils::show_window(sdl_window_.get(), is_visible);
+	window_->show(is_visible);
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 bool Ren3dGl::get_vsync() const noexcept
 {
@@ -442,11 +389,10 @@ bool Ren3dGl::get_vsync() const noexcept
 		return false;
 	}
 
-	return Ren3dGlUtils::get_vsync();
+	return gl_mgr_->get_swap_interval() == 1;
 }
 
-void Ren3dGl::enable_vsync(
-	const bool is_enabled)
+void Ren3dGl::enable_vsync(bool is_enabled)
 try
 {
 	if (!device_features_.is_vsync_available_)
@@ -459,10 +405,7 @@ try
 		fail("Requires restart.");
 	}
 
-	if (!Ren3dGlUtils::enable_vsync(is_enabled))
-	{
-		fail("Not supported.");
-	}
+	gl_mgr_->set_swap_interval(is_enabled);
 }
 catch (...)
 {
@@ -552,17 +495,11 @@ void Ren3dGl::present()
 try
 {
 	blit_framebuffers();
-
 	Ren3dGlError::ensure();
-
-	Ren3dGlUtils::swap_window(sdl_window_.get());
-
+	window_->gl_swap_buffers();
 	bind_framebuffers();
 }
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 Ren3dBufferUPtr Ren3dGl::create_buffer(
 	const Ren3dCreateBufferParam& param)

@@ -11,8 +11,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <algorithm>
 #include <chrono>
 
-#include "SDL.h"
-
 #include "id_ca.h"
 #include "id_heads.h"
 #include "id_in.h"
@@ -22,12 +20,12 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_atomic_flag.h"
 #include "bstone_file_stream.h"
 #include "bstone_file_system.h"
+#include "bstone_globals.h"
 #include "bstone_hw_video.h"
 #include "bstone_image_encoder.h"
 #include "bstone_logger.h"
 #include "bstone_mt_task_mgr.h"
 #include "bstone_ren_3d_limits.h"
-#include "bstone_sdl_exception.h"
 #include "bstone_sprite_cache.h"
 #include "bstone_string_helper.h"
 #include "bstone_string_view.h"
@@ -648,7 +646,7 @@ namespace
 {
 
 
-SDL_DisplayMode vid_display_mode_;
+bstone::sys::DisplayMode vid_display_mode_;
 
 int vid_align_dimension(
 	int dimension) noexcept
@@ -681,7 +679,7 @@ void vid_cfg_fix_window_width() noexcept
 	vid_cfg_fix_window_dimension(
 		width,
 		vga_ref_width,
-		vid_display_mode_.w);
+		vid_display_mode_.width);
 
 	vid_cfg_set_width(width);
 }
@@ -693,7 +691,7 @@ void vid_cfg_fix_window_height() noexcept
 	vid_cfg_fix_window_dimension(
 		height,
 		vga_ref_height_4x3,
-		vid_display_mode_.h);
+		vid_display_mode_.height);
 
 	vid_cfg_set_height(height);
 }
@@ -976,7 +974,7 @@ void vid_log_error(
 void vid_get_current_display_mode()
 try
 {
-	bstone::sdl_ensure_result(::SDL_GetCurrentDisplayMode(0, &vid_display_mode_));
+	vid_display_mode_ = bstone::globals::sys_video_mgr->get_current_display_mode();
 }
 catch (...)
 {
@@ -1409,7 +1407,9 @@ try
 	{
 		try
 		{
-			::g_video = bstone::make_sw_video();
+			::g_video = bstone::make_sw_video(
+				*bstone::globals::sys_video_mgr,
+				*bstone::globals::sys_window_mgr);
 		}
 		catch (const std::exception& ex)
 		{
@@ -2248,62 +2248,54 @@ try
 {
 	static auto result = VidWindowSizes{};
 
-	const auto display_index = 0;
-	const auto sdl_mode_count = SDL_GetNumDisplayModes(display_index);
+	const auto display_modes = bstone::globals::sys_video_mgr->get_display_modes();
 
 	result.clear();
-	result.reserve(sdl_mode_count);
+	result.reserve(static_cast<std::size_t>(display_modes.get_size()));
 
-	int sdl_result;
-	auto sdl_mode = SDL_DisplayMode{};
 	auto is_current_added = false;
 	auto is_custom_added = false;
 
-	for (int i = 0; i < sdl_mode_count; ++i)
+	for (const auto& display_mode : display_modes)
 	{
-		sdl_result = SDL_GetDisplayMode(display_index, i, &sdl_mode);
-
-		if (sdl_result == 0)
-		{
-			const auto is_added = std::any_of(
-				result.cbegin(),
-				result.cend(),
-				[&](const auto& item)
-				{
-					return item.width == sdl_mode.w && item.height == sdl_mode.h;
-				}
-			);
-
-			if (!is_added)
+		const auto is_added = std::any_of(
+			result.cbegin(),
+			result.cend(),
+			[&display_mode](const VidWindowSize& item)
 			{
-				result.emplace_back();
-				auto& window_size = result.back();
-				window_size.width = sdl_mode.w;
-				window_size.height = sdl_mode.h;
+				return item.width == display_mode.width && item.height == display_mode.height;
+			}
+		);
 
-				//
-				const auto is_current =
-					sdl_mode.w == vid_layout_.width &&
-					sdl_mode.h == vid_layout_.height;
+		if (!is_added)
+		{
+			result.emplace_back();
+			auto& window_size = result.back();
+			window_size.width = display_mode.width;
+			window_size.height = display_mode.height;
 
-				window_size.is_current_ = is_current;
+			//
+			const auto is_current =
+				display_mode.width == vid_layout_.width &&
+				display_mode.height == vid_layout_.height;
 
-				if (is_current)
-				{
-					is_current_added = true;
-				}
+			window_size.is_current_ = is_current;
 
-				//
-				const auto is_custom =
-					sdl_mode.w == vid_cfg_get_width() &&
-					sdl_mode.h == vid_cfg_get_height();
+			if (is_current)
+			{
+				is_current_added = true;
+			}
 
-				window_size.is_custom_ = is_custom;
+			//
+			const auto is_custom =
+				display_mode.width == vid_cfg_get_width() &&
+				display_mode.height == vid_cfg_get_height();
 
-				if (is_custom)
-				{
-					is_custom_added = true;
-				}
+			window_size.is_custom_ = is_custom;
+
+			if (is_custom)
+			{
+				is_custom_added = true;
 			}
 		}
 	}
@@ -2895,8 +2887,8 @@ bool vid_is_native_mode() noexcept
 {
 #ifdef NDEBUG
 	return
-		vid_display_mode_.w == vid_width_cvar.get_int32() &&
-		vid_display_mode_.h == vid_height_cvar.get_int32();
+		vid_display_mode_.width == vid_width_cvar.get_int32() &&
+		vid_display_mode_.height == vid_height_cvar.get_int32();
 #else
 	return false;
 #endif // NDEBUG

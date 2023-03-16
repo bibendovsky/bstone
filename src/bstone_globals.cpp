@@ -18,6 +18,7 @@ sys::SystemMgrUPtr sys_system_mgr{};
 sys::EventMgrUPtr sys_event_mgr{};
 sys::VideoMgrUPtr sys_video_mgr{};
 sys::MouseMgrUPtr sys_mouse_mgr{};
+sys::WindowMgrUPtr sys_window_mgr{};
 
 } // globals
 } // bstone

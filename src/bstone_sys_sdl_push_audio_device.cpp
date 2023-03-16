@@ -6,12 +6,15 @@ SPDX-License-Identifier: MIT
 
 #include <cassert>
 #include "SDL_audio.h"
-#include "bstone_sdl_exception.h"
+#include "bstone_memory_pool_1x.h"
+#include "bstone_sys_sdl_exception.h"
 #include "bstone_sys_sdl_push_audio_device.h"
 #include "bstone_exception.h"
 
 namespace bstone {
 namespace sys {
+
+namespace {
 
 class SdlPushAudioDevice final : public PushAudioDevice
 {
@@ -20,6 +23,9 @@ public:
 	SdlPushAudioDevice(const SdlPushAudioDevice&) = delete;
 	SdlPushAudioDevice& operator=(const SdlPushAudioDevice&) = delete;
 	~SdlPushAudioDevice() override;
+
+	static void* operator new(std::size_t count);
+	static void operator delete(void* ptr) noexcept;
 
 private:
 	Logger& logger_;
@@ -40,6 +46,12 @@ private:
 	static void SDLCALL sdl_callback(void* userdata, Uint8* stream, int len);
 	void callback(float* samples, int sample_count);
 };
+
+// ==========================================================================
+
+using SdlPushAudioDevicePool = MemoryPool1XT<SdlPushAudioDevice>;
+
+SdlPushAudioDevicePool sdl_push_audio_device_pool{};
 
 // ==========================================================================
 
@@ -86,7 +98,7 @@ try
 
 	if (sdl_audio_device_id_ <= 1)
 	{
-		fail_sdl();
+		sdl_fail();
 	}
 
 	rate_ = effective_spec.freq;
@@ -95,13 +107,25 @@ try
 
 	logger_.log_information(">>> SDL callback audio device started up.");
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 SdlPushAudioDevice::~SdlPushAudioDevice()
 {
 	logger_.log_information("Shut down SDL callback audio device.");
 
 	SDL_CloseAudioDevice(sdl_audio_device_id_);
+}
+
+void* SdlPushAudioDevice::operator new(std::size_t count)
+try
+{
+	return sdl_push_audio_device_pool.allocate(count);
+}
+BSTONE_STATIC_THROW_NESTED_FUNC
+
+void SdlPushAudioDevice::operator delete(void* ptr) noexcept
+{
+	sdl_push_audio_device_pool.deallocate(ptr);
 }
 
 int SdlPushAudioDevice::do_get_rate() const noexcept
@@ -136,7 +160,9 @@ try
 {
 	callback_->invoke(samples, sample_count);
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
+
+} // namespace
 
 // ==========================================================================
 
@@ -145,7 +171,7 @@ try
 {
 	return std::make_unique<SdlPushAudioDevice>(logger, param);
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 } // namespace sys
 } // namespace bstone

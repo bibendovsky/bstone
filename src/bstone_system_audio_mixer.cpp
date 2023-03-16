@@ -143,7 +143,7 @@ try
 	sys_audio_mgr_.swap(sys_audio_mgr);
 	sys_audio_device_.swap(audio_device);
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 Opl3Type SystemAudioMixer::get_opl3_type() const
 {
@@ -174,7 +174,7 @@ try
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SystemAudioMixer::set_gain(double gain)
 try
@@ -187,7 +187,7 @@ try
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 int SystemAudioMixer::get_min_rate() const noexcept
 {
@@ -219,14 +219,14 @@ try
 {
 	is_state_suspended_.store(true, std::memory_order_release);
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SystemAudioMixer::resume_state()
 try
 {
 	is_state_suspended_.store(false, std::memory_order_release);
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SystemAudioMixer::set_listener_r3_position(const AudioMixerListenerR3Position& r3_position)
 try
@@ -237,7 +237,7 @@ try
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SystemAudioMixer::set_listener_r3_orientation(const AudioMixerListenerR3Orientation& r3_orientation)
 try
@@ -248,14 +248,14 @@ try
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 bool SystemAudioMixer::is_voice_playing(AudioMixerVoiceHandle voice_handle) const
 try
 {
 	return voice_handle_mgr_.is_valid_handle(voice_handle);
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SystemAudioMixer::pause_voice(AudioMixerVoiceHandle voice_handle)
 {
@@ -302,7 +302,7 @@ try
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SystemAudioMixer::set_voice_gain(AudioMixerVoiceHandle voice_handle, double gain)
 try
@@ -322,7 +322,7 @@ try
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SystemAudioMixer::set_voice_r3_position(AudioMixerVoiceHandle voice_handle, const AudioMixerVoiceR3Position& r3_position)
 try
@@ -340,7 +340,7 @@ try
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 bool SystemAudioMixer::can_set_voice_output_gains() const
 {
@@ -365,7 +365,7 @@ try
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SystemAudioMixer::set_voice_output_gains(
 	AudioMixerVoiceHandle voice_handle,
@@ -387,7 +387,7 @@ try
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SystemAudioMixer::initialize_is_mute()
 {
@@ -1145,7 +1145,7 @@ try
 	voice_handle_mgr_.cache(voice_handle);
 	return voice_handle;
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 int SystemAudioMixer::calculate_mix_samples_count(int dst_rate, int mix_size_ms)
 {

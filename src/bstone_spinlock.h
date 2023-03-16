@@ -9,27 +9,25 @@ SPDX-License-Identifier: MIT
 
 #include <atomic>
 
-namespace bstone
-{
+namespace bstone {
 
 class Spinlock
 {
 public:
 	Spinlock() noexcept;
 	Spinlock(Spinlock&& rhs) noexcept;
-	void operator=(Spinlock&& rhs) noexcept;
-	~Spinlock();
+	void operator=(Spinlock&& rhs) noexcept = delete;
 
 	bool try_lock() noexcept;
 	void lock() noexcept;
 	void unlock() noexcept;
 
 private:
-	using Flag = std::atomic_flag;
+	using Lock = std::atomic_bool;
 
-	Flag flag_{};
-}; // Spinlock
+	Lock lock_{};
+};
 
-} // bstone
+} // namespace bstone
 
-#endif // !BSTONE_SPINLOCK_INCLUDED
+#endif // BSTONE_SPINLOCK_INCLUDED

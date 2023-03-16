@@ -10,12 +10,40 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
+DisplayMode VideoMgr::get_current_display_mode()
+try
+{
+	return do_get_current_display_mode();
+}
+BSTONE_STATIC_THROW_NESTED_FUNC
+
+Span<const DisplayMode> VideoMgr::get_display_modes()
+try
+{
+	return do_get_display_modes();
+}
+BSTONE_STATIC_THROW_NESTED_FUNC
+
+GlMgrUPtr VideoMgr::make_gl_mgr()
+try
+{
+	return do_make_gl_mgr();
+}
+BSTONE_STATIC_THROW_NESTED_FUNC
+
 MouseMgrUPtr VideoMgr::make_mouse_mgr()
 try
 {
 	return do_make_mouse_mgr();
 }
-BSTONE_FUNC_STATIC_THROW_NESTED
+BSTONE_STATIC_THROW_NESTED_FUNC
+
+WindowMgrUPtr VideoMgr::make_window_mgr()
+try
+{
+	return do_make_window_mgr();
+}
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 } // namespace sys
 } // namespace bstone

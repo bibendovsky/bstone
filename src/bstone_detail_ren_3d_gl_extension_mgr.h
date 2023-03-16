@@ -4,33 +4,22 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-
 //
 // OpenGL extension manager (implementation).
 //
 // !!! Internal usage only !!!
 //
 
-
-#ifndef BSTONE_DETAIL_REN_3D_GL_EXTENSION_MGR_INCLUDED
+#if !defined(BSTONE_DETAIL_REN_3D_GL_EXTENSION_MGR_INCLUDED)
 #define BSTONE_DETAIL_REN_3D_GL_EXTENSION_MGR_INCLUDED
-
 
 #include <memory>
 #include <string>
-
+#include "bstone_sys_gl_mgr.h"
 #include "bstone_detail_ren_3d_gl_version.h"
 
-
-namespace bstone
-{
-namespace detail
-{
-
-
-// ==========================================================================
-// Ren3dGlExtensionMgr
-//
+namespace bstone {
+namespace detail {
 
 enum class Ren3dGlExtensionId
 {
@@ -73,63 +62,36 @@ enum class Ren3dGlExtensionId
 
 	// Item count.
 	count_,
-}; // Ren3dGlExtensionId
-
+};
 
 class Ren3dGlExtensionMgr
 {
 public:
 	Ren3dGlExtensionMgr() noexcept = default;
-
 	virtual ~Ren3dGlExtensionMgr() = default;
 
-
 	virtual int get_count() const noexcept = 0;
-
-	virtual const std::string& get_name(
-		const int extension_index) const noexcept = 0;
-
-
+	virtual const std::string& get_name(const int extension_index) const noexcept = 0;
 	virtual const Ren3dGlVersion& get_gl_version() const noexcept = 0;
-
 	virtual const Ren3dGlVersion& get_glsl_version() const noexcept = 0;
 
+	virtual void probe(const Ren3dGlExtensionId extension_id) = 0;
 
-	virtual void probe(
-		const Ren3dGlExtensionId extension_id) = 0;
-
-
-	virtual bool has(
-		const Ren3dGlExtensionId extension_id) const noexcept = 0;
-
-	virtual bool operator[](
-		const Ren3dGlExtensionId extension_id) const noexcept = 0;
-}; // Ren3dGlExtensionMgr
+	virtual bool has(const Ren3dGlExtensionId extension_id) const noexcept = 0;
+	virtual bool operator[](const Ren3dGlExtensionId extension_id) const noexcept = 0;
+};
 
 using Ren3dGlExtensionMgrPtr = Ren3dGlExtensionMgr*;
 using Ren3dGlExtensionMgrUPtr = std::unique_ptr<Ren3dGlExtensionMgr>;
 
-//
-// Ren3dGlExtensionMgr
 // ==========================================================================
-
-
-// ==========================================================================
-// Ren3dGlExtensionMgrFactory
-//
 
 struct Ren3dGlExtensionMgrFactory
 {
-	static Ren3dGlExtensionMgrUPtr create();
-}; // Ren3dGlExtensionMgrFactory
+	static Ren3dGlExtensionMgrUPtr create(sys::GlMgr& gl_mgr);
+};
 
-//
-// Ren3dGlExtensionMgrFactory
-// ==========================================================================
+} // namespace detail
+} // namespace bstone
 
-
-} // detail
-} // bstone
-
-
-#endif // !BSTONE_DETAIL_REN_3D_GL_EXTENSION_MGR_INCLUDED
+#endif // BSTONE_DETAIL_REN_3D_GL_EXTENSION_MGR_INCLUDED
