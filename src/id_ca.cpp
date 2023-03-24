@@ -2122,9 +2122,10 @@ int ca_map_aog_sw_sprite_id_to_aog_full(
 	return map[aog_sw_sprite_id];
 }
 
-void ca_make_resource_path_name(
+void ca_make_resource_path(
 	const std::string& resource_name,
-	std::string& path_name)
+	std::string& data_path,
+	std::string& mod_path)
 try
 {
 	if (resource_name.empty())
@@ -2132,11 +2133,23 @@ try
 		ca_resource_fail("Empty name.");
 	}
 
-	path_name = (mod_dir_.empty() ? data_dir_ : mod_dir_);
-
 	const auto& assets_info = get_assets_info();
-	path_name = bstone::file_system::append_path(path_name, assets_info.get_base_path_name());
-	path_name = bstone::file_system::append_path(path_name, resource_name);
+
+	data_path.clear();
+
+	if (!data_dir_.empty())
+	{
+		data_path = bstone::file_system::append_path(data_dir_, assets_info.get_base_path_name());
+		data_path = bstone::file_system::append_path(data_path, resource_name);
+	}
+
+	mod_path.clear();
+
+	if (!mod_dir_.empty())
+	{
+		mod_path = bstone::file_system::append_path(mod_dir_, assets_info.get_base_path_name());
+		mod_path = bstone::file_system::append_path(mod_path, resource_name);
+	}
 }
 catch (...)
 {
@@ -2145,7 +2158,8 @@ catch (...)
 
 void ca_make_sprite_resource_path_name(
 	int sprite_id,
-	std::string& path_name)
+	std::string& data_path,
+	std::string& mod_path)
 {
 	const auto& assets_info = get_assets_info();
 
@@ -2154,12 +2168,15 @@ void ca_make_sprite_resource_path_name(
 		sprite_id = ca_map_aog_sw_sprite_id_to_aog_full(sprite_id);
 	}
 
-	ca_make_resource_path_name("sprite_" + ca_make_padded_asset_number_string(sprite_id), path_name);
+	const auto id_string = ca_make_padded_asset_number_string(sprite_id);
+	ca_make_resource_path("sprite_" + id_string, data_path, mod_path);
 }
 
 void ca_make_wall_resource_path_name(
 	int wall_id,
-	std::string& path_name)
+	std::string& data_path,
+	std::string& mod_path)
 {
-	ca_make_resource_path_name("wall_" + ca_make_padded_asset_number_string(wall_id), path_name);
+	const auto id_string = ca_make_padded_asset_number_string(wall_id);
+	ca_make_resource_path("wall_" + id_string, data_path, mod_path);
 }

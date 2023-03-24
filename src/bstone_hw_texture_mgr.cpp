@@ -472,7 +472,8 @@ private:
 	ImageDecodeUPtr bmp_image_decoder_;
 	ImageDecodeUPtr png_image_decoder_;
 	ExternalImageProbeItems image_probe_items_;
-	std::string image_path_name_;
+	std::string image_data_path_;
+	std::string image_mod_path_;
 
 
 	[[noreturn]]
@@ -1944,8 +1945,9 @@ try
 	}
 
 	using PathNameMaker = void (*)(
-		int wall_id,
-		std::string& path_name);
+		int id,
+		std::string& data_path,
+		std::string& mod_path);
 
 	auto path_name_maker = PathNameMaker{};
 
@@ -1963,13 +1965,25 @@ try
 			fail("Unsupported image kind.");
 	}
 
-	path_name_maker(id, image_path_name_);
+	path_name_maker(id, image_data_path_, image_mod_path_);
 
 	for (const auto& image_probe_item : image_probe_items_)
 	{
-		file_system::replace_extension(image_path_name_, image_probe_item.file_name_extension);
+		image_file_stream_.close();
 
-		if (!image_file_stream_.open(image_path_name_))
+		if (!image_file_stream_.is_open() && !image_mod_path_.empty())
+		{
+			file_system::replace_extension(image_mod_path_, image_probe_item.file_name_extension);
+			image_file_stream_.open(image_mod_path_);
+		}
+
+		if (!image_file_stream_.is_open() && !image_data_path_.empty())
+		{
+			file_system::replace_extension(image_data_path_, image_probe_item.file_name_extension);
+			image_file_stream_.open(image_data_path_);
+		}
+
+		if (!image_file_stream_.is_open())
 		{
 			continue;
 		}

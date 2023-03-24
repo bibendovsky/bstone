@@ -465,17 +465,19 @@ void ca_extract_all(
 	const std::string& destination_dir);
 
 
-void ca_make_resource_path_name(
-	const std::string& resource_name,
-	std::string& path_name);
+void ca_make_resource_path(const std::string& resource_name,
+	std::string& data_path,
+	std::string& mod_path);
 
 void ca_make_sprite_resource_path_name(
 	int sprite_id,
-	std::string& path_name);
+	std::string& data_path,
+	std::string& mod_path);
 
 void ca_make_wall_resource_path_name(
 	int wall_id,
-	std::string& path_name);
+	std::string& data_path,
+	std::string& mod_path);
 
 std::string ca_make_padded_asset_number_string(int number);
 
