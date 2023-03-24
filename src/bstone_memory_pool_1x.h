@@ -27,8 +27,9 @@ public:
 	MemoryPool1XT(MemoryPool1XT&&) noexcept = delete;
 	~MemoryPool1XT();
 
-	void* allocate(std::size_t size) override;
-	void deallocate(void* resource) noexcept override;
+private:
+	void* do_allocate(std::size_t size) override;
+	void do_deallocate(void* resource) noexcept override;
 
 private:
 	using Storage = unsigned char[object_size];
@@ -46,7 +47,7 @@ MemoryPool1XT<T>::~MemoryPool1XT()
 }
 
 template<typename T>
-void* MemoryPool1XT<T>::allocate(std::size_t size)
+void* MemoryPool1XT<T>::do_allocate(std::size_t size)
 try
 {
 	if (size != object_size)
@@ -65,7 +66,7 @@ try
 BSTONE_STATIC_THROW_NESTED_FUNC
 
 template<typename T>
-void MemoryPool1XT<T>::deallocate(void* resource) noexcept
+void MemoryPool1XT<T>::do_deallocate(void* resource) noexcept
 {
 	if (resource == nullptr)
 	{
