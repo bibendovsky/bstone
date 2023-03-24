@@ -89,7 +89,7 @@ catch (...)
 	fail_nested(__func__);
 }
 
-void* MemoryPool::allocate(std::size_t size)
+void* MemoryPool::do_allocate(std::size_t size)
 try
 {
 	const MutexLock mutex_lock{mutex_};
@@ -126,7 +126,7 @@ catch (...)
 	fail_nested(__func__);
 }
 
-void MemoryPool::deallocate(void* object) noexcept
+void MemoryPool::do_deallocate(void* object) noexcept
 {
 	if (!object)
 	{

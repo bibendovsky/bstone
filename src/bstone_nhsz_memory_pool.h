@@ -28,8 +28,9 @@ public:
 	NhszMemoryPool(const NhszMemoryPool&) = delete;
 	NhszMemoryPool& operator=(const NhszMemoryPool&) = delete;
 
-	void* allocate(std::size_t size) override;
-	void deallocate(void* resource) noexcept override;
+private:
+	void* do_allocate(std::size_t size) override;
+	void do_deallocate(void* resource) noexcept override;
 
 private:
 	static constexpr auto storage_size = object_size * max_objects;
@@ -44,7 +45,7 @@ private:
 // ==========================================================================
 
 template<typename T, std::size_t TCount>
-void* NhszMemoryPool<T, TCount>::allocate(std::size_t size)
+void* NhszMemoryPool<T, TCount>::do_allocate(std::size_t size)
 try
 {
 	if (size != object_size)
@@ -59,7 +60,7 @@ try
 BSTONE_STATIC_THROW_NESTED_FUNC
 
 template<typename T, std::size_t TCount>
-void NhszMemoryPool<T, TCount>::deallocate(void* resource) noexcept
+void NhszMemoryPool<T, TCount>::do_deallocate(void* resource) noexcept
 {
 	if (resource == nullptr)
 	{

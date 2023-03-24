@@ -37,8 +37,9 @@ public:
 	//    - Expects the pool is empty.
 	void resize(const MemoryPoolInitParam& param);
 
-	void* allocate(std::size_t size) override;
-	void deallocate(void* object) noexcept override;
+private:
+	void* do_allocate(std::size_t size) override;
+	void do_deallocate(void* object) noexcept override;
 
 private:
 	using Mutex = Spinlock;
