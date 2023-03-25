@@ -17,7 +17,7 @@ struct StringViewHasher
 	template<typename TChar>
 	constexpr std::size_t operator()(StringViewT<TChar> string_view) const
 	{
-		return CharHasher{}(string_view.to_span());
+		return CharHasher{}(make_span(string_view.get_data(), string_view.get_size()));
 	}
 };
 

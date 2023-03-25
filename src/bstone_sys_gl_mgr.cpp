@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -10,29 +10,10 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
-void GlMgr::load_default_library()
+GlSharedLibraryUPtr GlMgr::make_shared_library(const char* path)
 try
 {
-	load_library(nullptr);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
-
-void GlMgr::load_library(const char* path)
-try
-{
-	do_load_library(path);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
-
-void GlMgr::unload_library() noexcept
-{
-	do_unload_library();
-}
-
-void* GlMgr::get_symbol(const char* symbol_name)
-try
-{
-	return do_get_symbol(symbol_name);
+	return do_make_shared_library(path);
 }
 BSTONE_STATIC_THROW_NESTED_FUNC
 

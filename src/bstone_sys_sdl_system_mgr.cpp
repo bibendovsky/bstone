@@ -8,7 +8,7 @@ SPDX-License-Identifier: MIT
 #include "SDL.h"
 #include "bstone_char_conv.h"
 #include "bstone_exception.h"
-#include "bstone_memory_pool_1x.h"
+#include "bstone_single_memory_pool.h"
 #include "bstone_string_view.h"
 #include "bstone_sys_logger.h"
 #include "bstone_sys_sdl_audio_mgr.h"
@@ -30,8 +30,8 @@ public:
 	SdlSystemMgr& operator=(const SdlSystemMgr&) = delete;
 	~SdlSystemMgr() override;
 
-	static void* operator new(std::size_t count);
-	static void operator delete(void* ptr) noexcept;
+	static void* operator new(std::size_t size);
+	static void operator delete(void* ptr);
 
 private:
 	Logger& logger_;
@@ -51,8 +51,7 @@ private:
 
 // ==========================================================================
 
-using SdlSystemMgrPool = MemoryPool1XT<SdlSystemMgr>;
-
+using SdlSystemMgrPool = SingleMemoryPool<SdlSystemMgr>;
 SdlSystemMgrPool sdl_system_mgr_pool{};
 
 // ==========================================================================
@@ -78,17 +77,19 @@ SdlSystemMgr::~SdlSystemMgr()
 	SDL_Quit();
 }
 
-void* SdlSystemMgr::operator new(std::size_t count)
+void* SdlSystemMgr::operator new(std::size_t size)
 try
 {
-	return sdl_system_mgr_pool.allocate(count);
+	return sdl_system_mgr_pool.allocate(size);
 }
 BSTONE_STATIC_THROW_NESTED_FUNC
 
-void SdlSystemMgr::operator delete(void* ptr) noexcept
+void SdlSystemMgr::operator delete(void* ptr)
+try
 {
 	sdl_system_mgr_pool.deallocate(ptr);
 }
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 AudioMgrUPtr SdlSystemMgr::do_make_audio_mgr()
 {

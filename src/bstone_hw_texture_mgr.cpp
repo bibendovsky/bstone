@@ -32,14 +32,14 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_missing_wall_64x64_image.h"
 #include "bstone_mt_task_mgr.h"
 #include "bstone_ref_values.h"
-#include "bstone_ren_3d.h"
-#include "bstone_ren_3d_limits.h"
+#include "bstone_r3r.h"
+#include "bstone_r3r_limits.h"
 #include "bstone_rgb_palette.h"
 #include "bstone_rgb8.h"
 #include "bstone_sprite_cache.h"
 #include "bstone_image_decoder.h"
 
-#include "bstone_detail_ren_3d_utils.h"
+#include "bstone_r3r_utils.h"
 
 
 namespace bstone
@@ -279,7 +279,7 @@ class HwTextureMgrImpl final :
 {
 public:
 	HwTextureMgrImpl(
-		const Ren3dPtr renderer,
+		R3r* renderer,
 		const SpriteCachePtr cache_sprite,
 		const MtTaskMgrPtr mt_task_manager);
 
@@ -287,17 +287,17 @@ public:
 
 
 	int get_min_upscale_filter_degree(
-		const HwTextureMgrUpscaleFilterKind upscale_filter_kind) const override;
+		const HwTextureMgrUpscaleFilterType upscale_filter_type) const override;
 
 	int get_max_upscale_filter_degree(
-		const HwTextureMgrUpscaleFilterKind upscale_filter_kind) const override;
+		const HwTextureMgrUpscaleFilterType upscale_filter_type) const override;
 
-	HwTextureMgrUpscaleFilterKind get_upscale_filter_kind() const noexcept override;
+	HwTextureMgrUpscaleFilterType get_upscale_filter_type() const noexcept override;
 
 	int get_upscale_filter_degree() const noexcept override;
 
 	void set_upscale_filter(
-		const HwTextureMgrUpscaleFilterKind upscale_filter,
+		const HwTextureMgrUpscaleFilterType upscale_filter,
 		const int upscale_filter_factor) override;
 
 	void enable_external_textures(
@@ -314,14 +314,14 @@ public:
 	void cache_wall(
 		const int id) override;
 
-	Ren3dTexture2dPtr get_wall(
+	R3rR2Texture* get_wall(
 		const int id) const override;
 
 
 	void cache_sprite(
 		const int id) override;
 
-	Ren3dTexture2dPtr get_sprite(
+	R3rR2Texture* get_sprite(
 		const int id) const override;
 
 
@@ -334,7 +334,7 @@ public:
 
 	void update_ui() override;
 
-	Ren3dTexture2dPtr get_ui() const noexcept override;
+	R3rR2Texture* get_ui() const noexcept override;
 
 
 	void try_destroy_solid_1x1(
@@ -350,7 +350,7 @@ public:
 		const HwTextureMgrSolid1x1Id id,
 		const Rgba8 color) override;
 
-	Ren3dTexture2dPtr get_solid_1x1(
+	R3rR2Texture* get_solid_1x1(
 		const HwTextureMgrSolid1x1Id id) const override;
 
 
@@ -367,15 +367,15 @@ private:
 	static constexpr auto first_generation_id = GenerationId{1};
 
 
-	enum class ImageKind
+	enum class ImageType
 	{
 		sprite,
 		wall,
-	}; // ImageKind
+	}; // ImageType
 
-	struct Texture2dProperties
+	struct R2TextureProperties
 	{
-		Ren3dPixelFormat image_pixel_format_;
+		R3rPixelFormat image_pixel_format_;
 
 		bool is_npot_;
 
@@ -391,7 +391,7 @@ private:
 		bool is_generate_mipmaps_;
 		int mipmap_count_;
 
-		bool indexed_is_column_major_;
+		bool indexed_is_column_major;
 		const std::uint8_t* indexed_pixels_;
 		Rgba8PaletteCPtr indexed_palette_;
 		const bool* indexed_alphas_;
@@ -399,30 +399,30 @@ private:
 		SpriteCPtr indexed_sprite_;
 
 		Rgba8CPtr rgba_8_pixels_;
-	}; // Texture2dProperties
+	}; // R2TextureProperties
 
-	struct Texture2dItem
+	struct R2TextureItem
 	{
 		GenerationId generation_id_;
-		Texture2dProperties properties_;
-		Ren3dTexture2dUPtr texture_2d_;
+		R2TextureProperties properties_;
+		R3rR2TextureUPtr r2_texture_;
 
-		Texture2dItem() noexcept;
+		R2TextureItem() noexcept;
 
-		Texture2dItem(
-			Texture2dItem&& rhs) noexcept;
+		R2TextureItem(
+			R2TextureItem&& rhs) noexcept;
 
-		Texture2dItem& operator=(
-			Texture2dItem&& rhs) noexcept;
-	}; // Texture2dItem
+		R2TextureItem& operator=(
+			R2TextureItem&& rhs) noexcept;
+	}; // R2TextureItem
 
-	using IdToTexture2dMap = std::unordered_map<int, Texture2dItem>;
+	using IdToR2TextureMap = std::unordered_map<int, R2TextureItem>;
 
 	struct Solid1x1Item
 	{
 		Rgba8 color_;
-		Texture2dProperties properties_;
-		Ren3dTexture2dUPtr texture_2d_;
+		R2TextureProperties properties_;
+		R3rR2TextureUPtr r2_texture_;
 
 
 		void clear() noexcept;
@@ -439,26 +439,26 @@ private:
 	using ExternalImageProbeItems = std::vector<ExternalImageProbeItem>;
 
 
-	Ren3dPtr renderer_;
+	R3r* renderer_;
 	SpriteCachePtr sprite_cache_;
 	MtTaskMgrPtr mt_task_manager_;
 
-	HwTextureMgrUpscaleFilterKind upscale_filter_kind_;
+	HwTextureMgrUpscaleFilterType upscale_filter_type_;
 	int upscale_filter_factor_;
 
 	bool is_caching_;
 	GenerationId generation_id_;
 
-	IdToTexture2dMap wall_map_;
-	IdToTexture2dMap sprite_map_;
+	IdToR2TextureMap wall_map_;
+	IdToR2TextureMap sprite_map_;
 
-	Texture2dItem missing_sprite_texture_2d_item_;
-	Texture2dItem missing_wall_texture_2d_item_;
+	R2TextureItem missing_sprite_r2_texture_item_;
+	R2TextureItem missing_wall_r2_texture_item_;
 
-	Texture2dItem ui_t2d_item_;
+	R2TextureItem ui_t2d_item_;
 
-	detail::Ren3dUtils::Rgba8Buffer mipmap_buffer_;
-	detail::Ren3dUtils::Rgba8Buffer upscale_buffer_;
+	R3rUtils::Rgba8Buffer mipmap_buffer_;
+	R3rUtils::Rgba8Buffer upscale_buffer_;
 
 	Solid1x1Items solid_1x1_items_;
 
@@ -486,42 +486,42 @@ private:
 
 
 	static void validate_upscale_filter(
-		const HwTextureMgrUpscaleFilterKind upscale_filter_kind,
+		const HwTextureMgrUpscaleFilterType upscale_filter_type,
 		const int upscale_filter_factor);
 
 
-	void validate_image_source_texture_2d_properties(
-		const Texture2dProperties& properties);
+	void validate_image_source_r2_texture_properties(
+		const R2TextureProperties& properties);
 
-	void validate_image_pixel_format_texture_2d_properties(
-		const Texture2dProperties& properties);
+	void validate_image_pixel_format_r2_texture_properties(
+		const R2TextureProperties& properties);
 
-	void validate_dimensions_texture_2d_properties(
-		const Texture2dProperties& properties);
+	void validate_dimensions_r2_texture_properties(
+		const R2TextureProperties& properties);
 
-	void validate_mipmap_texture_2d_properties(
-		const Texture2dProperties& properties);
+	void validate_mipmap_r2_texture_properties(
+		const R2TextureProperties& properties);
 
-	void validate_common_texture_2d_properties(
-		const Texture2dProperties& properties);
+	void validate_common_r2_texture_properties(
+		const R2TextureProperties& properties);
 
-	void validate_indexed_texture_2d_properties(
-		const Texture2dProperties& properties);
+	void validate_indexed_r2_texture_properties(
+		const R2TextureProperties& properties);
 
-	void validate_indexed_sprite_texture_2d_properties(
-		const Texture2dProperties& properties);
+	void validate_indexed_sprite_r2_texture_properties(
+		const R2TextureProperties& properties);
 
-	void validate_rgba_8_texture_2d_properties(
-		const Texture2dProperties& properties);
+	void validate_rgba_8_r2_texture_properties(
+		const R2TextureProperties& properties);
 
-	void validate_source_texture_2d_properties(
-		const Texture2dProperties& properties);
+	void validate_source_r2_texture_properties(
+		const R2TextureProperties& properties);
 
-	void validate_texture_2d_properties(
-		const Texture2dProperties& properties);
+	void validate_r2_texture_properties(
+		const R2TextureProperties& properties);
 
-	void set_common_texture_2d_properties(
-		Texture2dProperties& properties);
+	void set_common_r2_texture_properties(
+		R2TextureProperties& properties);
 
 
 	void recreate_indexed_resources();
@@ -531,25 +531,25 @@ private:
 	void uninitialize() noexcept;
 
 	void initialize(
-		Ren3dPtr renderer,
+		R3r* renderer,
 		SpriteCachePtr cache_sprite);
 
 	void uninitialize_internal() noexcept;
 
 
 	void upscale_xbrz(
-		const Texture2dProperties& properties);
+		const R2TextureProperties& properties);
 
 	void upscale(
-		const Texture2dProperties& properties);
+		const R2TextureProperties& properties);
 
 
-	Texture2dItem create_texture(
-		const Texture2dProperties& properties);
+	R2TextureItem create_texture(
+		const R2TextureProperties& properties);
 
 	void update_mipmaps(
-		const Texture2dProperties& properties,
-		const Ren3dTexture2dUPtr& texture_2d);
+		const R2TextureProperties& properties,
+		const R3rR2TextureUPtr& r2_texture);
 
 
 	void destroy_missing_sprite_texture() noexcept;
@@ -562,28 +562,28 @@ private:
 	void create_missing_wall_texture();
 
 
-	Texture2dItem create_from_external_image(
+	R2TextureItem create_from_external_image(
 		int id,
-		ImageKind kind);
+		ImageType type);
 
-	Texture2dItem wall_create_texture(
+	R2TextureItem wall_create_texture(
 		const int wall_id);
 
-	Texture2dItem sprite_create_texture(
+	R2TextureItem sprite_create_texture(
 		const int sprite_id);
 
 
 	void initialize_internal(
-		Ren3dPtr renderer,
+		R3r* renderer,
 		SpriteCachePtr cache_sprite);
 
 	void purge_cache(
-		IdToTexture2dMap& map);
+		IdToR2TextureMap& map);
 
-	Ren3dTexture2dPtr get_texture_2d(
-		const ImageKind image_kind,
+	R3rR2Texture* get_r2_texture(
+		const ImageType image_type,
 		const int id,
-		const IdToTexture2dMap& map) const noexcept;
+		const IdToR2TextureMap& map) const noexcept;
 
 	void solid_1x1_destroy_all() noexcept;
 
@@ -600,42 +600,42 @@ private:
 		const HwTextureMgrSolid1x1Id id);
 
 	static int upscale_filter_get_min_factor_internal(
-		const HwTextureMgrUpscaleFilterKind upscale_filter_kind);
+		const HwTextureMgrUpscaleFilterType upscale_filter_type);
 
 	static int upscale_filter_get_max_factor_internal(
-		const HwTextureMgrUpscaleFilterKind upscale_filter_kind);
+		const HwTextureMgrUpscaleFilterType upscale_filter_type);
 
 	static int upscale_filter_clamp_factor(
-		const HwTextureMgrUpscaleFilterKind upscale_filter_kind,
+		const HwTextureMgrUpscaleFilterType upscale_filter_type,
 		const int upscale_filter_factor);
 }; // Detail
 
 using HwTextureMgrImplUPtr = std::unique_ptr<HwTextureMgrImpl>;
 
 
-HwTextureMgrImpl::Texture2dItem::Texture2dItem() noexcept
+HwTextureMgrImpl::R2TextureItem::R2TextureItem() noexcept
 	:
 	generation_id_{},
 	properties_{},
-	texture_2d_{}
+	r2_texture_{}
 {
 }
 
-HwTextureMgrImpl::Texture2dItem::Texture2dItem(
-	Texture2dItem&& rhs) noexcept
+HwTextureMgrImpl::R2TextureItem::R2TextureItem(
+	R2TextureItem&& rhs) noexcept
 	:
 	generation_id_{std::move(rhs.generation_id_)},
 	properties_{std::move(rhs.properties_)},
-	texture_2d_{std::move(rhs.texture_2d_)}
+	r2_texture_{std::move(rhs.r2_texture_)}
 {
 }
 
-HwTextureMgrImpl::Texture2dItem& HwTextureMgrImpl::Texture2dItem::operator=(
-	Texture2dItem&& rhs) noexcept
+HwTextureMgrImpl::R2TextureItem& HwTextureMgrImpl::R2TextureItem::operator=(
+	R2TextureItem&& rhs) noexcept
 {
 	std::swap(generation_id_, rhs.generation_id_);
 	std::swap(properties_, rhs.properties_);
-	std::swap(texture_2d_, rhs.texture_2d_);
+	std::swap(r2_texture_, rhs.r2_texture_);
 
 	return *this;
 }
@@ -644,11 +644,11 @@ void HwTextureMgrImpl::Solid1x1Item::clear() noexcept
 {
 	color_.reset();
 	properties_ = {};
-	texture_2d_ = nullptr;
+	r2_texture_ = nullptr;
 }
 
 HwTextureMgrImpl::HwTextureMgrImpl(
-	const Ren3dPtr renderer,
+	R3r* renderer,
 	const SpriteCachePtr cache_sprite,
 	const MtTaskMgrPtr mt_task_manager)
 try
@@ -656,14 +656,14 @@ try
 	renderer_{},
 	sprite_cache_{},
 	mt_task_manager_{mt_task_manager},
-	upscale_filter_kind_{},
+	upscale_filter_type_{},
 	upscale_filter_factor_{},
 	is_caching_{},
 	generation_id_{},
 	wall_map_{},
 	sprite_map_{},
-	missing_sprite_texture_2d_item_{},
-	missing_wall_texture_2d_item_{},
+	missing_sprite_r2_texture_item_{},
+	missing_wall_r2_texture_item_{},
 	ui_t2d_item_{},
 	mipmap_buffer_{},
 	upscale_buffer_{},
@@ -696,17 +696,17 @@ try
 	for (auto& sprite_item : sprite_map_)
 	{
 		const auto sprite_id = sprite_item.first;
-		auto& texture_2d_item = sprite_item.second;
+		auto& r2_texture_item = sprite_item.second;
 
-		if (texture_2d_item.properties_.rgba_8_pixels_)
+		if (r2_texture_item.properties_.rgba_8_pixels_)
 		{
 			continue;
 		}
 
-		auto new_texture_2d_item = sprite_create_texture(sprite_id);
-		new_texture_2d_item.generation_id_ = generation_id_;
+		auto new_r2_texture_item = sprite_create_texture(sprite_id);
+		new_r2_texture_item.generation_id_ = generation_id_;
 
-		texture_2d_item = std::move(new_texture_2d_item);
+		r2_texture_item = std::move(new_r2_texture_item);
 	}
 
 	// Walls.
@@ -714,17 +714,17 @@ try
 	for (auto& wall_item : wall_map_)
 	{
 		const auto wall_id = wall_item.first;
-		auto& texture_2d_item = wall_item.second;
+		auto& r2_texture_item = wall_item.second;
 
-		if (texture_2d_item.properties_.rgba_8_pixels_)
+		if (r2_texture_item.properties_.rgba_8_pixels_)
 		{
 			continue;
 		}
 
-		auto new_texture_2d_item = wall_create_texture(wall_id);
-		new_texture_2d_item.generation_id_ = generation_id_;
+		auto new_r2_texture_item = wall_create_texture(wall_id);
+		new_r2_texture_item.generation_id_ = generation_id_;
 
-		texture_2d_item = std::move(new_texture_2d_item);
+		r2_texture_item = std::move(new_r2_texture_item);
 	}
 
 	// UI texture.
@@ -751,12 +751,12 @@ try
 	for (auto& sprite_item : sprite_map_)
 	{
 		const auto sprite_id = sprite_item.first;
-		auto& texture_2d_item = sprite_item.second;
+		auto& r2_texture_item = sprite_item.second;
 
-		auto new_texture_2d_item = sprite_create_texture(sprite_id);
-		new_texture_2d_item.generation_id_ = generation_id_;
+		auto new_r2_texture_item = sprite_create_texture(sprite_id);
+		new_r2_texture_item.generation_id_ = generation_id_;
 
-		texture_2d_item = std::move(new_texture_2d_item);
+		r2_texture_item = std::move(new_r2_texture_item);
 	}
 
 	// Walls.
@@ -764,12 +764,12 @@ try
 	for (auto& wall_item : wall_map_)
 	{
 		const auto wall_id = wall_item.first;
-		auto& texture_2d_item = wall_item.second;
+		auto& r2_texture_item = wall_item.second;
 
-		auto new_texture_2d_item = wall_create_texture(wall_id);
-		new_texture_2d_item.generation_id_ = generation_id_;
+		auto new_r2_texture_item = wall_create_texture(wall_id);
+		new_r2_texture_item.generation_id_ = generation_id_;
 
-		texture_2d_item = std::move(new_texture_2d_item);
+		r2_texture_item = std::move(new_r2_texture_item);
 	}
 }
 catch (...)
@@ -778,10 +778,10 @@ catch (...)
 }
 
 int HwTextureMgrImpl::get_min_upscale_filter_degree(
-	const HwTextureMgrUpscaleFilterKind upscale_filter_kind) const
+	const HwTextureMgrUpscaleFilterType upscale_filter_type) const
 try
 {
-	return upscale_filter_get_min_factor_internal(upscale_filter_kind);
+	return upscale_filter_get_min_factor_internal(upscale_filter_type);
 }
 catch (...)
 {
@@ -789,19 +789,19 @@ catch (...)
 }
 
 int HwTextureMgrImpl::get_max_upscale_filter_degree(
-	const HwTextureMgrUpscaleFilterKind upscale_filter_kind) const
+	const HwTextureMgrUpscaleFilterType upscale_filter_type) const
 try
 {
-	return upscale_filter_get_max_factor_internal(upscale_filter_kind);
+	return upscale_filter_get_max_factor_internal(upscale_filter_type);
 }
 catch (...)
 {
 	fail_nested(__func__);
 }
 
-HwTextureMgrUpscaleFilterKind HwTextureMgrImpl::get_upscale_filter_kind() const noexcept
+HwTextureMgrUpscaleFilterType HwTextureMgrImpl::get_upscale_filter_type() const noexcept
 {
-	return upscale_filter_kind_;
+	return upscale_filter_type_;
 }
 
 int HwTextureMgrImpl::get_upscale_filter_degree() const noexcept
@@ -810,24 +810,24 @@ int HwTextureMgrImpl::get_upscale_filter_degree() const noexcept
 }
 
 void HwTextureMgrImpl::set_upscale_filter(
-	const HwTextureMgrUpscaleFilterKind upscale_filter_kind,
+	const HwTextureMgrUpscaleFilterType upscale_filter_type,
 	const int upscale_filter_factor)
 try
 {
 	const auto clamped_upscale_filter_factor = upscale_filter_clamp_factor(
-		upscale_filter_kind,
+		upscale_filter_type,
 		upscale_filter_factor
 	);
 
-	if (upscale_filter_kind_ == upscale_filter_kind &&
+	if (upscale_filter_type_ == upscale_filter_type &&
 		upscale_filter_factor_ == clamped_upscale_filter_factor)
 	{
 		return;
 	}
 
-	validate_upscale_filter(upscale_filter_kind, clamped_upscale_filter_factor);
+	validate_upscale_filter(upscale_filter_type, clamped_upscale_filter_factor);
 
-	upscale_filter_kind_ = upscale_filter_kind;
+	upscale_filter_type_ = upscale_filter_type;
 	upscale_filter_factor_ = clamped_upscale_filter_factor;
 
 	recreate_indexed_resources();
@@ -926,17 +926,17 @@ try
 		return;
 	}
 
-	auto texture_2d_item = wall_create_texture(id);
-	texture_2d_item.generation_id_ = generation_id_;
+	auto r2_texture_item = wall_create_texture(id);
+	r2_texture_item.generation_id_ = generation_id_;
 
-	wall_map_[id] = std::move(texture_2d_item);
+	wall_map_[id] = std::move(r2_texture_item);
 }
 catch (...)
 {
 	fail_nested(__func__);
 }
 
-Ren3dTexture2dPtr HwTextureMgrImpl::get_wall(
+R3rR2Texture* HwTextureMgrImpl::get_wall(
 	const int id) const
 try
 {
@@ -945,7 +945,7 @@ try
 		fail("Id out of range.");
 	}
 
-	return get_texture_2d(ImageKind::wall, id, wall_map_);
+	return get_r2_texture(ImageType::wall, id, wall_map_);
 }
 catch (...)
 {
@@ -970,17 +970,17 @@ try
 		return;
 	}
 
-	auto texture_2d_item = sprite_create_texture(id);
-	texture_2d_item.generation_id_ = generation_id_;
+	auto r2_texture_item = sprite_create_texture(id);
+	r2_texture_item.generation_id_ = generation_id_;
 
-	sprite_map_[id] = std::move(texture_2d_item);
+	sprite_map_[id] = std::move(r2_texture_item);
 }
 catch (...)
 {
 	fail_nested(__func__);
 }
 
-Ren3dTexture2dPtr HwTextureMgrImpl::get_sprite(
+R3rR2Texture* HwTextureMgrImpl::get_sprite(
 	const int id) const
 try
 {
@@ -989,7 +989,7 @@ try
 		fail("Sprite id out of range.");
 	}
 
-	return get_texture_2d(ImageKind::sprite, id, sprite_map_);
+	return get_r2_texture(ImageType::sprite, id, sprite_map_);
 }
 catch (...)
 {
@@ -998,7 +998,7 @@ catch (...)
 
 void HwTextureMgrImpl::destroy_ui()
 {
-	ui_t2d_item_.texture_2d_ = nullptr;
+	ui_t2d_item_.r2_texture_ = nullptr;
 }
 
 void HwTextureMgrImpl::create_ui(
@@ -1007,7 +1007,7 @@ void HwTextureMgrImpl::create_ui(
 	const Rgba8PaletteCPtr indexed_palette)
 try
 {
-	if (ui_t2d_item_.texture_2d_)
+	if (ui_t2d_item_.r2_texture_)
 	{
 		fail("UI texture already created.");
 	}
@@ -1027,8 +1027,8 @@ try
 		fail("Null indexed palette for UI texture.");
 	}
 
-	auto param = Texture2dProperties{};
-	param.image_pixel_format_ = Ren3dPixelFormat::rgba_8_unorm;
+	auto param = R2TextureProperties{};
+	param.image_pixel_format_ = R3rPixelFormat::rgba_8_unorm;
 	param.width_ = vga_ref_width;
 	param.height_ = vga_ref_height;
 	param.mipmap_count_ = 1;
@@ -1036,10 +1036,10 @@ try
 	param.indexed_palette_ = indexed_palette;
 	param.indexed_alphas_ = indexed_alphas;
 
-	auto texture_2d_item = create_texture(param);
-	update_mipmaps(texture_2d_item.properties_, texture_2d_item.texture_2d_);
+	auto r2_texture_item = create_texture(param);
+	update_mipmaps(r2_texture_item.properties_, r2_texture_item.r2_texture_);
 
-	ui_t2d_item_ = std::move(texture_2d_item);
+	ui_t2d_item_ = std::move(r2_texture_item);
 }
 catch (...)
 {
@@ -1049,16 +1049,16 @@ catch (...)
 void HwTextureMgrImpl::update_ui()
 try
 {
-	update_mipmaps(ui_t2d_item_.properties_, ui_t2d_item_.texture_2d_);
+	update_mipmaps(ui_t2d_item_.properties_, ui_t2d_item_.r2_texture_);
 }
 catch (...)
 {
 	fail_nested(__func__);
 }
 
-Ren3dTexture2dPtr HwTextureMgrImpl::get_ui() const noexcept
+R3rR2Texture* HwTextureMgrImpl::get_ui() const noexcept
 {
-	return ui_t2d_item_.texture_2d_.get();
+	return ui_t2d_item_.r2_texture_.get();
 }
 
 void HwTextureMgrImpl::try_destroy_solid_1x1(
@@ -1097,21 +1097,21 @@ try
 
 	const auto default_color = solid_1x1_get_default_color(id);
 
-	auto param = Texture2dProperties{};
-	param.image_pixel_format_ = bstone::Ren3dPixelFormat::rgba_8_unorm;
+	auto param = R2TextureProperties{};
+	param.image_pixel_format_ = bstone::R3rPixelFormat::rgba_8_unorm;
 	param.width_ = 1;
 	param.height_ = 1;
 	param.mipmap_count_ = 1;
 	param.rgba_8_pixels_ = &default_color;
 
-	auto texture_2d_item = create_texture(param);
+	auto r2_texture_item = create_texture(param);
 
 	auto& item = solid_1x1_items_[index];
 	item.color_ = default_color;
-	item.properties_ = texture_2d_item.properties_;
-	item.texture_2d_ = std::move(texture_2d_item.texture_2d_);
+	item.properties_ = r2_texture_item.properties_;
+	item.r2_texture_ = std::move(r2_texture_item.r2_texture_);
 
-	update_mipmaps(item.properties_, item.texture_2d_);
+	update_mipmaps(item.properties_, item.r2_texture_);
 }
 catch (...)
 {
@@ -1128,17 +1128,17 @@ try
 	auto& item = solid_1x1_items_[index];
 	item.color_ = color;
 
-	auto param = Ren3dTexture2dUpdateParam{};
-	param.image_ = &item.color_;
+	auto param = R3rR2TextureUpdateParam{};
+	param.image = &item.color_;
 
-	item.texture_2d_->update(param);
+	item.r2_texture_->update(param);
 }
 catch (...)
 {
 	fail_nested(__func__);
 }
 
-Ren3dTexture2dPtr HwTextureMgrImpl::get_solid_1x1(
+R3rR2Texture* HwTextureMgrImpl::get_solid_1x1(
 	const HwTextureMgrSolid1x1Id id) const
 try
 {
@@ -1149,7 +1149,7 @@ try
 		fail("Invalid solid 1x1 2D-texture id.");
 	}
 
-	return solid_1x1_items_[index].texture_2d_.get();
+	return solid_1x1_items_[index].r2_texture_.get();
 }
 catch (...)
 {
@@ -1157,7 +1157,7 @@ catch (...)
 }
 
 void HwTextureMgrImpl::initialize(
-	Ren3dPtr renderer,
+	R3r* renderer,
 	SpriteCachePtr cache_sprite)
 try
 {
@@ -1213,22 +1213,22 @@ void HwTextureMgrImpl::fail_nested(
 }
 
 void HwTextureMgrImpl::validate_upscale_filter(
-	const HwTextureMgrUpscaleFilterKind upscale_filter_kind,
+	const HwTextureMgrUpscaleFilterType upscale_filter_type,
 	const int upscale_filter_factor)
 try
 {
-	switch (upscale_filter_kind)
+	switch (upscale_filter_type)
 	{
-		case HwTextureMgrUpscaleFilterKind::none:
-		case HwTextureMgrUpscaleFilterKind::xbrz:
+		case HwTextureMgrUpscaleFilterType::none:
+		case HwTextureMgrUpscaleFilterType::xbrz:
 			break;
 
 		default:
-			fail("Unsupported upscale filter kind.");
+			fail("Unsupported upscale filter type.");
 	}
 
-	const auto min_factor = upscale_filter_get_min_factor_internal(upscale_filter_kind);
-	const auto max_factor = upscale_filter_get_max_factor_internal(upscale_filter_kind);
+	const auto min_factor = upscale_filter_get_min_factor_internal(upscale_filter_type);
+	const auto max_factor = upscale_filter_get_max_factor_internal(upscale_filter_type);
 
 	if (upscale_filter_factor < min_factor ||
 		upscale_filter_factor > max_factor)
@@ -1241,8 +1241,8 @@ catch (...)
 	fail_nested(__func__);
 }
 
-void HwTextureMgrImpl::validate_image_source_texture_2d_properties(
-	const Texture2dProperties& properties)
+void HwTextureMgrImpl::validate_image_source_r2_texture_properties(
+	const R2TextureProperties& properties)
 try
 {
 	auto source_count = 0;
@@ -1277,13 +1277,13 @@ catch (...)
 	fail_nested(__func__);
 }
 
-void HwTextureMgrImpl::validate_image_pixel_format_texture_2d_properties(
-	const Texture2dProperties& properties)
+void HwTextureMgrImpl::validate_image_pixel_format_r2_texture_properties(
+	const R2TextureProperties& properties)
 try
 {
 	switch (properties.image_pixel_format_)
 	{
-		case Ren3dPixelFormat::rgba_8_unorm:
+		case R3rPixelFormat::rgba_8_unorm:
 			return;
 
 		default:
@@ -1295,8 +1295,8 @@ catch (...)
 	fail_nested(__func__);
 }
 
-void HwTextureMgrImpl::validate_dimensions_texture_2d_properties(
-	const Texture2dProperties& properties)
+void HwTextureMgrImpl::validate_dimensions_r2_texture_properties(
+	const R2TextureProperties& properties)
 try
 {
 	if (properties.width_ <= 0)
@@ -1314,12 +1314,12 @@ catch (...)
 	fail_nested(__func__);
 }
 
-void HwTextureMgrImpl::validate_mipmap_texture_2d_properties(
-	const Texture2dProperties& properties)
+void HwTextureMgrImpl::validate_mipmap_r2_texture_properties(
+	const R2TextureProperties& properties)
 try
 {
 	if (properties.mipmap_count_ <= 0 ||
-		properties.mipmap_count_ > Ren3dLimits::max_mipmap_count)
+		properties.mipmap_count_ > R3rLimits::max_mipmap_count)
 	{
 		fail("Mipmap count out of range.");
 	}
@@ -1329,22 +1329,22 @@ catch (...)
 	fail_nested(__func__);
 }
 
-void HwTextureMgrImpl::validate_common_texture_2d_properties(
-	const Texture2dProperties& properties)
+void HwTextureMgrImpl::validate_common_r2_texture_properties(
+	const R2TextureProperties& properties)
 try
 {
-	validate_image_source_texture_2d_properties(properties);
-	validate_image_pixel_format_texture_2d_properties(properties);
-	validate_dimensions_texture_2d_properties(properties);
-	validate_mipmap_texture_2d_properties(properties);
+	validate_image_source_r2_texture_properties(properties);
+	validate_image_pixel_format_r2_texture_properties(properties);
+	validate_dimensions_r2_texture_properties(properties);
+	validate_mipmap_r2_texture_properties(properties);
 }
 catch (...)
 {
 	fail_nested(__func__);
 }
 
-void HwTextureMgrImpl::validate_indexed_texture_2d_properties(
-	const Texture2dProperties& properties)
+void HwTextureMgrImpl::validate_indexed_r2_texture_properties(
+	const R2TextureProperties& properties)
 try
 {
 	if (properties.indexed_pixels_ == nullptr)
@@ -1362,8 +1362,8 @@ catch (...)
 	fail_nested(__func__);
 }
 
-void HwTextureMgrImpl::validate_indexed_sprite_texture_2d_properties(
-	const Texture2dProperties& properties)
+void HwTextureMgrImpl::validate_indexed_sprite_r2_texture_properties(
+	const R2TextureProperties& properties)
 try
 {
 	if (properties.indexed_sprite_ == nullptr)
@@ -1381,8 +1381,8 @@ catch (...)
 	fail_nested(__func__);
 }
 
-void HwTextureMgrImpl::validate_rgba_8_texture_2d_properties(
-	const Texture2dProperties& properties)
+void HwTextureMgrImpl::validate_rgba_8_r2_texture_properties(
+	const R2TextureProperties& properties)
 try
 {
 	if (properties.rgba_8_pixels_ == nullptr)
@@ -1395,21 +1395,21 @@ catch (...)
 	fail_nested(__func__);
 }
 
-void HwTextureMgrImpl::validate_source_texture_2d_properties(
-	const Texture2dProperties& properties)
+void HwTextureMgrImpl::validate_source_r2_texture_properties(
+	const R2TextureProperties& properties)
 try
 {
 	if (properties.indexed_pixels_ != nullptr)
 	{
-		validate_indexed_texture_2d_properties(properties);
+		validate_indexed_r2_texture_properties(properties);
 	}
 	else if (properties.indexed_sprite_ != nullptr)
 	{
-		validate_indexed_sprite_texture_2d_properties(properties);
+		validate_indexed_sprite_r2_texture_properties(properties);
 	}
 	else if (properties.rgba_8_pixels_ != nullptr)
 	{
-		validate_rgba_8_texture_2d_properties(properties);
+		validate_rgba_8_r2_texture_properties(properties);
 	}
 	else
 	{
@@ -1421,20 +1421,20 @@ catch (...)
 	fail_nested(__func__);
 }
 
-void HwTextureMgrImpl::validate_texture_2d_properties(
-	const Texture2dProperties& properties)
+void HwTextureMgrImpl::validate_r2_texture_properties(
+	const R2TextureProperties& properties)
 try
 {
-	validate_common_texture_2d_properties(properties);
-	validate_source_texture_2d_properties(properties);
+	validate_common_r2_texture_properties(properties);
+	validate_source_r2_texture_properties(properties);
 }
 catch (...)
 {
 	fail_nested(__func__);
 }
 
-void HwTextureMgrImpl::set_common_texture_2d_properties(
-	Texture2dProperties& properties)
+void HwTextureMgrImpl::set_common_r2_texture_properties(
+	R2TextureProperties& properties)
 try
 {
 	const auto& device_features = renderer_->get_device_features();
@@ -1444,9 +1444,9 @@ try
 
 	if (properties.indexed_pixels_ || properties.indexed_sprite_)
 	{
-		switch (upscale_filter_kind_)
+		switch (upscale_filter_type_)
 		{
-			case HwTextureMgrUpscaleFilterKind::xbrz:
+			case HwTextureMgrUpscaleFilterType::xbrz:
 				upscale_width *= upscale_filter_factor_;
 				upscale_height *= upscale_filter_factor_;
 				break;
@@ -1459,24 +1459,24 @@ try
 	auto actual_width = upscale_width;
 	auto actual_height = upscale_height;
 
-	const auto is_width_pot = detail::Ren3dUtils::is_pot_value(actual_width);
-	const auto is_height_pot = detail::Ren3dUtils::is_pot_value(actual_height);
+	const auto is_width_pot = R3rUtils::is_pot_value(actual_width);
+	const auto is_height_pot = R3rUtils::is_pot_value(actual_height);
 
 	const auto is_npot = (!is_width_pot || !is_height_pot);
-	const auto has_hw_npot = (!is_npot || (is_npot && device_features.is_npot_available_));
+	const auto has_hw_npot = (!is_npot || (is_npot && device_features.is_npot_available));
 
 	if (has_hw_npot)
 	{
-		actual_width = std::min(actual_width, device_features.max_texture_dimension_);
-		actual_height = std::min(actual_height, device_features.max_texture_dimension_);
+		actual_width = std::min(actual_width, device_features.max_texture_dimension);
+		actual_height = std::min(actual_height, device_features.max_texture_dimension);
 	}
 	else
 	{
-		actual_width = detail::Ren3dUtils::find_nearest_pot_value(actual_width);
-		actual_width = std::min(actual_width, device_features.max_texture_dimension_);
+		actual_width = R3rUtils::find_nearest_pot_value(actual_width);
+		actual_width = std::min(actual_width, device_features.max_texture_dimension);
 
-		actual_height = detail::Ren3dUtils::find_nearest_pot_value(actual_height);
-		actual_height = std::min(actual_height, device_features.max_texture_dimension_);
+		actual_height = R3rUtils::find_nearest_pot_value(actual_height);
+		actual_height = std::min(actual_height, device_features.max_texture_dimension);
 	}
 
 	properties.upscale_width_ = upscale_width;
@@ -1489,7 +1489,7 @@ try
 
 	if (properties.mipmap_count_ > 1)
 	{
-		properties.mipmap_count_ = detail::Ren3dUtils::calculate_mipmap_count(
+		properties.mipmap_count_ = R3rUtils::calculate_mipmap_count(
 			properties.upscale_width_,
 			properties.upscale_height_
 		);
@@ -1501,7 +1501,7 @@ catch (...)
 }
 
 void HwTextureMgrImpl::upscale_xbrz(
-	const Texture2dProperties& properties)
+	const R2TextureProperties& properties)
 try
 {
 	const auto area = properties.width_ * properties.height_;
@@ -1522,20 +1522,20 @@ try
 
 	if (properties.indexed_pixels_)
 	{
-		auto param = detail::Ren3dUtils::IndexedToRgba8Param{};
-		param.width_ = properties.width_;
-		param.height_ = properties.height_;
-		param.indexed_is_column_major_ = properties.indexed_is_column_major_;
-		param.indexed_pixels_ = properties.indexed_pixels_;
-		param.indexed_palette_ = properties.indexed_palette_;
-		param.indexed_alphas_ = properties.indexed_alphas_;
-		param.rgba_8_buffer_ = &mipmap_buffer_;
+		auto param = R3rUtils::IndexedToRgba8Param{};
+		param.width = properties.width_;
+		param.height = properties.height_;
+		param.indexed_is_column_major = properties.indexed_is_column_major;
+		param.indexed_pixels = properties.indexed_pixels_;
+		param.indexed_palette = properties.indexed_palette_;
+		param.indexed_alphas = properties.indexed_alphas_;
+		param.rgba_8_buffer = &mipmap_buffer_;
 
-		detail::Ren3dUtils::indexed_to_rgba_8(param);
+		R3rUtils::indexed_to_rgba_8(param);
 	}
 	else if (properties.indexed_sprite_)
 	{
-		detail::Ren3dUtils::indexed_sprite_to_rgba_8_pot(
+		R3rUtils::indexed_sprite_to_rgba_8_pot(
 			*properties.indexed_sprite_,
 			*properties.indexed_palette_,
 			mipmap_buffer_
@@ -1631,7 +1631,7 @@ catch (...)
 }
 
 void HwTextureMgrImpl::upscale(
-	const Texture2dProperties& properties)
+	const R2TextureProperties& properties)
 try
 {
 	if (properties.upscale_width_ == properties.width_ &&
@@ -1640,12 +1640,12 @@ try
 		return;
 	}
 
-	switch (upscale_filter_kind_)
+	switch (upscale_filter_type_)
 	{
-		case HwTextureMgrUpscaleFilterKind::none:
+		case HwTextureMgrUpscaleFilterType::none:
 			break;
 
-		case HwTextureMgrUpscaleFilterKind::xbrz:
+		case HwTextureMgrUpscaleFilterType::xbrz:
 			upscale_xbrz(properties);
 			break;
 
@@ -1658,34 +1658,34 @@ catch (...)
 	fail_nested(__func__);
 }
 
-HwTextureMgrImpl::Texture2dItem HwTextureMgrImpl::create_texture(
-	const Texture2dProperties& properties)
+HwTextureMgrImpl::R2TextureItem HwTextureMgrImpl::create_texture(
+	const R2TextureProperties& properties)
 try
 {
-	validate_texture_2d_properties(properties);
+	validate_r2_texture_properties(properties);
 
 	auto new_properties = properties;
 
-	set_common_texture_2d_properties(new_properties);
+	set_common_r2_texture_properties(new_properties);
 
 	// Create texture object.
 	//
-	auto param = Ren3dCreateTexture2dParam{};
-	param.pixel_format_ = new_properties.image_pixel_format_;
-	param.width_ = new_properties.actual_width_;
-	param.height_ = new_properties.actual_height_;
-	param.mipmap_count_ = new_properties.mipmap_count_;
+	auto param = R3rR2TextureInitParam{};
+	param.pixel_format = new_properties.image_pixel_format_;
+	param.width = new_properties.actual_width_;
+	param.height = new_properties.actual_height_;
+	param.mipmap_count = new_properties.mipmap_count_;
 
-	auto texture_2d = renderer_->create_texture_2d(param);
+	auto r2_texture = renderer_->create_r2_texture(param);
 
-	update_mipmaps(new_properties, texture_2d);
+	update_mipmaps(new_properties, r2_texture);
 
 	// Return the result.
 	//
-	auto result = Texture2dItem{};
+	auto result = R2TextureItem{};
 
 	result.properties_ = new_properties;
-	result.texture_2d_ = std::move(texture_2d);
+	result.r2_texture_ = std::move(r2_texture);
 
 	return result;
 }
@@ -1695,8 +1695,8 @@ catch (...)
 }
 
 void HwTextureMgrImpl::update_mipmaps(
-	const Texture2dProperties& properties,
-	const Ren3dTexture2dUPtr& texture_2d)
+	const R2TextureProperties& properties,
+	const R3rR2TextureUPtr& r2_texture)
 try
 {
 	upscale(properties);
@@ -1707,7 +1707,7 @@ try
 
 	const auto& device_features = renderer_->get_device_features();
 
-	const auto npot_is_available = device_features.is_npot_available_;
+	const auto npot_is_available = device_features.is_npot_available;
 
 	const auto max_subbuffer_size = properties.actual_width_ * properties.actual_height_;
 
@@ -1716,7 +1716,7 @@ try
 	const auto is_manual_mipmaps =
 		properties.is_generate_mipmaps_ &&
 		properties.mipmap_count_ > 1 &&
-		!device_features.is_mipmap_available_;
+		!device_features.is_mipmap_available;
 
 	if (is_manual_mipmaps)
 	{
@@ -1743,7 +1743,7 @@ try
 	{
 		if (properties.is_npot_ && !npot_is_available)
 		{
-			detail::Ren3dUtils::rgba_8_npot_to_rgba_8_pot(
+			R3rUtils::rgba_8_npot_to_rgba_8_pot(
 				properties.upscale_width_,
 				properties.upscale_height_,
 				properties.actual_width_,
@@ -1765,7 +1765,7 @@ try
 	{
 		if (properties.is_npot_ && !npot_is_available)
 		{
-			detail::Ren3dUtils::rgba_8_npot_to_rgba_8_pot(
+			R3rUtils::rgba_8_npot_to_rgba_8_pot(
 				properties.width_,
 				properties.height_,
 				properties.actual_width_,
@@ -1785,23 +1785,23 @@ try
 	}
 	else if (properties.indexed_pixels_)
 	{
-		auto param = detail::Ren3dUtils::IndexedToRgba8Param{};
+		auto param = R3rUtils::IndexedToRgba8Param{};
 
-		param.width_ = properties.width_;
-		param.height_ = properties.height_;
-		param.actual_width_ = properties.actual_width_;
-		param.actual_height_ = properties.actual_height_;
-		param.indexed_is_column_major_ = properties.indexed_is_column_major_;
-		param.indexed_pixels_ = properties.indexed_pixels_;
-		param.indexed_palette_ = properties.indexed_palette_;
-		param.indexed_alphas_ = properties.indexed_alphas_;
-		param.rgba_8_buffer_ = &mipmap_buffer_;
+		param.width = properties.width_;
+		param.height = properties.height_;
+		param.actual_width = properties.actual_width_;
+		param.actual_height = properties.actual_height_;
+		param.indexed_is_column_major = properties.indexed_is_column_major;
+		param.indexed_pixels = properties.indexed_pixels_;
+		param.indexed_palette = properties.indexed_palette_;
+		param.indexed_alphas = properties.indexed_alphas_;
+		param.rgba_8_buffer = &mipmap_buffer_;
 
-		detail::Ren3dUtils::indexed_to_rgba_8_pot(param);
+		R3rUtils::indexed_to_rgba_8_pot(param);
 	}
 	else if (properties.indexed_sprite_)
 	{
-		detail::Ren3dUtils::indexed_sprite_to_rgba_8_pot(
+		R3rUtils::indexed_sprite_to_rgba_8_pot(
 			*properties.indexed_sprite_,
 			*properties.indexed_palette_,
 			mipmap_buffer_
@@ -1815,7 +1815,7 @@ try
 
 	if (properties.is_generate_mipmaps_ &&
 		properties.mipmap_count_ > 1 &&
-		device_features.is_mipmap_available_)
+		device_features.is_mipmap_available)
 	{
 		mipmap_count = 1;
 	}
@@ -1824,7 +1824,7 @@ try
 	{
 		if (i_mipmap > 0)
 		{
-			detail::Ren3dUtils::build_mipmap(
+			R3rUtils::build_mipmap(
 				mipmap_width,
 				mipmap_height,
 				texture_subbuffer_0,
@@ -1850,18 +1850,18 @@ try
 			std::swap(texture_subbuffer_0, texture_subbuffer_1);
 		}
 
-		auto param = Ren3dTexture2dUpdateParam{};
-		param.mipmap_level_ = i_mipmap;
-		param.image_ = texture_subbuffer_0;
+		auto param = R3rR2TextureUpdateParam{};
+		param.mipmap_level = i_mipmap;
+		param.image = texture_subbuffer_0;
 
-		texture_2d->update(param);
+		r2_texture->update(param);
 	}
 
 	if (properties.is_generate_mipmaps_ &&
 		properties.mipmap_count_ > 1 &&
-		device_features.is_mipmap_available_)
+		device_features.is_mipmap_available)
 	{
-		texture_2d->generate_mipmaps();
+		r2_texture->generate_mipmaps();
 	}
 }
 catch (...)
@@ -1871,7 +1871,7 @@ catch (...)
 
 void HwTextureMgrImpl::destroy_missing_sprite_texture() noexcept
 {
-	missing_sprite_texture_2d_item_.texture_2d_ = nullptr;
+	missing_sprite_r2_texture_item_.r2_texture_ = nullptr;
 }
 
 void HwTextureMgrImpl::create_missing_sprite_texture()
@@ -1882,20 +1882,20 @@ try
 	const auto& raw_image = get_missing_sprite_image();
 	const auto rgba_8_image = reinterpret_cast<const Rgba8*>(raw_image.data());
 
-	auto param = Texture2dProperties{};
-	param.image_pixel_format_ = Ren3dPixelFormat::rgba_8_unorm;
+	auto param = R2TextureProperties{};
+	param.image_pixel_format_ = R3rPixelFormat::rgba_8_unorm;
 	param.width_ = Sprite::dimension;
 	param.height_ = Sprite::dimension;
 	param.is_generate_mipmaps_ = true;
-	param.mipmap_count_ = detail::Ren3dUtils::calculate_mipmap_count(Sprite::dimension, Sprite::dimension);
+	param.mipmap_count_ = R3rUtils::calculate_mipmap_count(Sprite::dimension, Sprite::dimension);
 	param.rgba_8_pixels_ = rgba_8_image;
 
-	auto texture_2d_item = create_texture(param);
+	auto r2_texture_item = create_texture(param);
 
-	missing_sprite_texture_2d_item_.properties_ = texture_2d_item.properties_;
-	missing_sprite_texture_2d_item_.texture_2d_ = std::move(texture_2d_item.texture_2d_);
+	missing_sprite_r2_texture_item_.properties_ = r2_texture_item.properties_;
+	missing_sprite_r2_texture_item_.r2_texture_ = std::move(r2_texture_item.r2_texture_);
 
-	update_mipmaps(missing_sprite_texture_2d_item_.properties_, missing_sprite_texture_2d_item_.texture_2d_);
+	update_mipmaps(missing_sprite_r2_texture_item_.properties_, missing_sprite_r2_texture_item_.r2_texture_);
 }
 catch (...)
 {
@@ -1904,7 +1904,7 @@ catch (...)
 
 void HwTextureMgrImpl::destroy_missing_wall_texture() noexcept
 {
-	missing_wall_texture_2d_item_.texture_2d_ = nullptr;
+	missing_wall_r2_texture_item_.r2_texture_ = nullptr;
 }
 
 void HwTextureMgrImpl::create_missing_wall_texture()
@@ -1915,28 +1915,28 @@ try
 	const auto& raw_image = get_missing_wall_image();
 	const auto rgba_8_image = reinterpret_cast<const Rgba8*>(raw_image.data());
 
-	auto param = Texture2dProperties{};
-	param.image_pixel_format_ = Ren3dPixelFormat::rgba_8_unorm;
+	auto param = R2TextureProperties{};
+	param.image_pixel_format_ = R3rPixelFormat::rgba_8_unorm;
 	param.width_ = wall_dimension;
 	param.height_ = wall_dimension;
 	param.is_generate_mipmaps_ = true;
-	param.mipmap_count_ = detail::Ren3dUtils::calculate_mipmap_count(param.width_, param.height_);
+	param.mipmap_count_ = R3rUtils::calculate_mipmap_count(param.width_, param.height_);
 	param.rgba_8_pixels_ = rgba_8_image;
 
-	auto texture_2d_item = create_texture(param);
+	auto r2_texture_item = create_texture(param);
 
-	update_mipmaps(texture_2d_item.properties_, texture_2d_item.texture_2d_);
+	update_mipmaps(r2_texture_item.properties_, r2_texture_item.r2_texture_);
 
-	missing_wall_texture_2d_item_ = std::move(texture_2d_item);
+	missing_wall_r2_texture_item_ = std::move(r2_texture_item);
 }
 catch (...)
 {
 	fail_nested(__func__);
 }
 
-HwTextureMgrImpl::Texture2dItem HwTextureMgrImpl::create_from_external_image(
+HwTextureMgrImpl::R2TextureItem HwTextureMgrImpl::create_from_external_image(
 	int id,
-	ImageKind kind)
+	ImageType type)
 try
 {
 	if (id < 0 || id > 99'999'999)
@@ -1951,18 +1951,18 @@ try
 
 	auto path_name_maker = PathNameMaker{};
 
-	switch (kind)
+	switch (type)
 	{
-		case ImageKind::sprite:
+		case ImageType::sprite:
 			path_name_maker = ca_make_sprite_resource_path_name;
 			break;
 
-		case ImageKind::wall:
+		case ImageType::wall:
 			path_name_maker = ca_make_wall_resource_path_name;
 			break;
 
 		default:
-			fail("Unsupported image kind.");
+			fail("Unsupported image type.");
 	}
 
 	path_name_maker(id, image_data_path_, image_mod_path_);
@@ -2021,19 +2021,19 @@ try
 				image_buffer_rgba8_
 			);
 
-			auto param = Texture2dProperties{};
-			param.image_pixel_format_ = Ren3dPixelFormat::rgba_8_unorm;
+			auto param = R2TextureProperties{};
+			param.image_pixel_format_ = R3rPixelFormat::rgba_8_unorm;
 			param.width_ = width;
 			param.height_ = height;
 			param.is_generate_mipmaps_ = true;
-			param.mipmap_count_ = detail::Ren3dUtils::calculate_mipmap_count(param.width_, param.height_);
+			param.mipmap_count_ = R3rUtils::calculate_mipmap_count(param.width_, param.height_);
 			param.rgba_8_pixels_ = image_buffer_rgba8_.data();
 
-			auto texture_2d_item = create_texture(param);
+			auto r2_texture_item = create_texture(param);
 
-			update_mipmaps(texture_2d_item.properties_, texture_2d_item.texture_2d_);
+			update_mipmaps(r2_texture_item.properties_, r2_texture_item.r2_texture_);
 
-			return texture_2d_item;
+			return r2_texture_item;
 		}
 		catch (...)
 		{
@@ -2041,14 +2041,14 @@ try
 		}
 	}
 
-	return Texture2dItem{};
+	return R2TextureItem{};
 }
 catch (...)
 {
 	fail_nested(__func__);
 }
 
-HwTextureMgrImpl::Texture2dItem HwTextureMgrImpl::wall_create_texture(
+HwTextureMgrImpl::R2TextureItem HwTextureMgrImpl::wall_create_texture(
 	const int wall_id)
 try
 {
@@ -2061,36 +2061,36 @@ try
 
 	if (is_external_textures_enabled_)
 	{
-		auto external_texture_2d_item = create_from_external_image(wall_id, ImageKind::wall);
+		auto external_r2_texture_item = create_from_external_image(wall_id, ImageType::wall);
 
-		if (external_texture_2d_item.texture_2d_)
+		if (external_r2_texture_item.r2_texture_)
 		{
-			return external_texture_2d_item;
+			return external_r2_texture_item;
 		}
 	}
 
-	auto param = Texture2dProperties{};
-	param.image_pixel_format_ = Ren3dPixelFormat::rgba_8_unorm;
+	auto param = R2TextureProperties{};
+	param.image_pixel_format_ = R3rPixelFormat::rgba_8_unorm;
 	param.width_ = wall_dimension;
 	param.height_ = wall_dimension;
 	param.is_generate_mipmaps_ = true;
-	param.mipmap_count_ = detail::Ren3dUtils::calculate_mipmap_count(param.width_, param.height_);
-	param.indexed_is_column_major_ = true;
+	param.mipmap_count_ = R3rUtils::calculate_mipmap_count(param.width_, param.height_);
+	param.indexed_is_column_major = true;
 	param.indexed_pixels_ = indexed_pixels;
 	param.indexed_palette_ = &vid_hw_get_default_palette();
 
-	auto texture_2d_item = create_texture(param);
+	auto r2_texture_item = create_texture(param);
 
-	update_mipmaps(texture_2d_item.properties_, texture_2d_item.texture_2d_);
+	update_mipmaps(r2_texture_item.properties_, r2_texture_item.r2_texture_);
 
-	return texture_2d_item;
+	return r2_texture_item;
 }
 catch (...)
 {
 	fail_nested(__func__);
 }
 
-HwTextureMgrImpl::Texture2dItem HwTextureMgrImpl::sprite_create_texture(
+HwTextureMgrImpl::R2TextureItem HwTextureMgrImpl::sprite_create_texture(
 	const int sprite_id)
 try
 {
@@ -2108,28 +2108,28 @@ try
 
 	if (is_external_textures_enabled_)
 	{
-		auto external_texture_2d_item = create_from_external_image(sprite_id, ImageKind::sprite);
+		auto external_r2_texture_item = create_from_external_image(sprite_id, ImageType::sprite);
 
-		if (external_texture_2d_item.texture_2d_)
+		if (external_r2_texture_item.r2_texture_)
 		{
-			return external_texture_2d_item;
+			return external_r2_texture_item;
 		}
 	}
 
-	auto param = Texture2dProperties{};
-	param.image_pixel_format_ = Ren3dPixelFormat::rgba_8_unorm;
+	auto param = R2TextureProperties{};
+	param.image_pixel_format_ = R3rPixelFormat::rgba_8_unorm;
 	param.width_ = Sprite::dimension;
 	param.height_ = Sprite::dimension;
 	param.is_generate_mipmaps_ = true;
-	param.mipmap_count_ = detail::Ren3dUtils::calculate_mipmap_count(param.width_, param.height_);
+	param.mipmap_count_ = R3rUtils::calculate_mipmap_count(param.width_, param.height_);
 	param.indexed_sprite_ = sprite;
 	param.indexed_palette_ = &vid_hw_get_default_palette();
 
-	auto texture_2d_item = create_texture(param);
+	auto r2_texture_item = create_texture(param);
 
-	update_mipmaps(texture_2d_item.properties_, texture_2d_item.texture_2d_);
+	update_mipmaps(r2_texture_item.properties_, r2_texture_item.r2_texture_);
 
-	return texture_2d_item;
+	return r2_texture_item;
 }
 catch (...)
 {
@@ -2137,7 +2137,7 @@ catch (...)
 }
 
 void HwTextureMgrImpl::initialize_internal(
-	Ren3dPtr renderer,
+	R3r* renderer,
 	SpriteCachePtr cache_sprite)
 try
 {
@@ -2167,7 +2167,7 @@ try
 	wall_map_.reserve(max_walls);
 	sprite_map_.reserve(max_sprites);
 
-	upscale_filter_factor_ = upscale_filter_clamp_factor(upscale_filter_kind_, upscale_filter_factor_);
+	upscale_filter_factor_ = upscale_filter_clamp_factor(upscale_filter_type_, upscale_filter_factor_);
 
 	bmp_image_decoder_ = make_image_decoder(ImageDecoderType::bmp);
 	png_image_decoder_ = make_image_decoder(ImageDecoderType::png);
@@ -2184,16 +2184,16 @@ catch (...)
 }
 
 void HwTextureMgrImpl::purge_cache(
-	IdToTexture2dMap& map)
+	IdToR2TextureMap& map)
 try
 {
 	for (auto map_it = map.begin(); map_it != map.end(); )
 	{
-		auto& texture_2d_item = map_it->second;
+		auto& r2_texture_item = map_it->second;
 
-		if (texture_2d_item.generation_id_ != generation_id_)
+		if (r2_texture_item.generation_id_ != generation_id_)
 		{
-			texture_2d_item.texture_2d_ = nullptr;
+			r2_texture_item.r2_texture_ = nullptr;
 
 			map_it = map.erase(map_it);
 		}
@@ -2208,29 +2208,29 @@ catch (...)
 	fail_nested(__func__);
 }
 
-Ren3dTexture2dPtr HwTextureMgrImpl::get_texture_2d(
-	const ImageKind image_kind,
+R3rR2Texture* HwTextureMgrImpl::get_r2_texture(
+	const ImageType image_type,
 	const int id,
-	const IdToTexture2dMap& map) const noexcept
+	const IdToR2TextureMap& map) const noexcept
 {
 	auto item_it = map.find(id);
 
 	if (item_it == map.end())
 	{
-		switch (image_kind)
+		switch (image_type)
 		{
-		case ImageKind::sprite:
-			return missing_sprite_texture_2d_item_.texture_2d_.get();
+		case ImageType::sprite:
+			return missing_sprite_r2_texture_item_.r2_texture_.get();
 
-		case ImageKind::wall:
-			return missing_wall_texture_2d_item_.texture_2d_.get();
+		case ImageType::wall:
+			return missing_wall_r2_texture_item_.r2_texture_.get();
 
 		default:
 			return nullptr;
 		}
 	}
 
-	return item_it->second.texture_2d_.get();
+	return item_it->second.r2_texture_.get();
 }
 
 void HwTextureMgrImpl::solid_1x1_destroy_all() noexcept
@@ -2277,7 +2277,7 @@ try
 			return static_cast<int>(id);
 
 		default:
-			fail("Unsupported solid 1x1 texture kind.");
+			fail("Unsupported solid 1x1 texture type.");
 	}
 }
 catch (...)
@@ -2298,7 +2298,7 @@ try
 			return static_cast<int>(id);
 
 		default:
-			fail("Unsupported solid 1x1 texture kind.");
+			fail("Unsupported solid 1x1 texture type.");
 	}
 }
 catch (...)
@@ -2336,19 +2336,19 @@ catch (...)
 }
 
 int HwTextureMgrImpl::upscale_filter_get_min_factor_internal(
-	const HwTextureMgrUpscaleFilterKind upscale_filter_kind)
+	const HwTextureMgrUpscaleFilterType upscale_filter_type)
 try
 {
-	switch (upscale_filter_kind)
+	switch (upscale_filter_type)
 	{
-		case HwTextureMgrUpscaleFilterKind::none:
+		case HwTextureMgrUpscaleFilterType::none:
 			return 1;
 
-		case HwTextureMgrUpscaleFilterKind::xbrz:
+		case HwTextureMgrUpscaleFilterType::xbrz:
 			return 2;
 
 		default:
-			fail("Unsupported upscale filter kind.");
+			fail("Unsupported upscale filter type.");
 	}
 }
 catch (...)
@@ -2357,19 +2357,19 @@ catch (...)
 }
 
 int HwTextureMgrImpl::upscale_filter_get_max_factor_internal(
-	const HwTextureMgrUpscaleFilterKind upscale_filter_kind)
+	const HwTextureMgrUpscaleFilterType upscale_filter_type)
 try
 {
-	switch (upscale_filter_kind)
+	switch (upscale_filter_type)
 	{
-		case HwTextureMgrUpscaleFilterKind::none:
+		case HwTextureMgrUpscaleFilterType::none:
 			return 1;
 
-		case HwTextureMgrUpscaleFilterKind::xbrz:
+		case HwTextureMgrUpscaleFilterType::xbrz:
 			return xbrz::SCALE_FACTOR_MAX;
 
 		default:
-			fail("Unsupported upscale filter kind.");
+			fail("Unsupported upscale filter type.");
 	}
 }
 catch (...)
@@ -2378,14 +2378,14 @@ catch (...)
 }
 
 int HwTextureMgrImpl::upscale_filter_clamp_factor(
-	const HwTextureMgrUpscaleFilterKind upscale_filter_kind,
+	const HwTextureMgrUpscaleFilterType upscale_filter_type,
 	const int upscale_filter_factor)
 try
 {
 	auto result = upscale_filter_factor;
 
 
-	const auto min_result = upscale_filter_get_min_factor_internal(upscale_filter_kind);
+	const auto min_result = upscale_filter_get_min_factor_internal(upscale_filter_type);
 
 	if (result < min_result)
 	{
@@ -2393,7 +2393,7 @@ try
 	}
 
 
-	const auto max_result = upscale_filter_get_max_factor_internal(upscale_filter_kind);
+	const auto max_result = upscale_filter_get_max_factor_internal(upscale_filter_type);
 
 	if (result > max_result)
 	{
@@ -2417,7 +2417,7 @@ catch (...)
 //
 
 HwTextureMgrUPtr HwTextureMgrFactory::create(
-	const Ren3dPtr renderer,
+	R3r* renderer,
 	const SpriteCachePtr cache_sprite,
 	const MtTaskMgrPtr mt_task_manager)
 {

@@ -7,136 +7,133 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_ALLOCATOR_BITMAP_INCLUDED)
 #define BSTONE_ALLOCATOR_BITMAP_INCLUDED
 
-#include <cassert>
 #include <cstddef>
+#include <array>
+#include <stdexcept>
+#include <type_traits>
+
+#include "bstone_int.h"
 #include "bstone_exception.h"
 
 namespace bstone {
 
-template<std::size_t TSize>
+template<Int TMaxSize>
 class AllocatorBitmap
 {
+	static_assert(TMaxSize > 0, "Invalid max size.");
+
 public:
-	static constexpr auto max_size = TSize;
-	static constexpr auto bits_per_block = sizeof(std::size_t) * 8;
+	using Index = decltype(TMaxSize);
+	using Block = std::size_t;
+
+public:
+	static constexpr auto max_size = TMaxSize;
+	static constexpr auto bits_per_block = static_cast<Index>(sizeof(Block)) * 8;
 	static constexpr auto block_count = (max_size + bits_per_block - 1) / bits_per_block;
-	static constexpr auto unused_bit_count = (block_count * bits_per_block) - max_size;
+	static constexpr auto max_aligned_size = block_count * bits_per_block;
+	static constexpr auto full_block = ~Block{};
 
 public:
 	AllocatorBitmap();
-	AllocatorBitmap(const AllocatorBitmap&) = delete;
-	AllocatorBitmap& operator=(const AllocatorBitmap&) = delete;
-	~AllocatorBitmap();
 
 	bool is_empty() const noexcept;
-
-	std::size_t set_first_free();
-	void reset(std::size_t index);
+	Index set_first_free();
+	void reset(Index index);
 
 private:
-	using Bitmap = std::size_t[block_count];
+	using Bitmap = std::array<Block, block_count>;
 
-	Bitmap bitmap_;
-	std::size_t size_{};
+	struct MultiplyMaxSizeTag {};
+	struct NonMultiplyMaxSizeTag {};
 
-	void initialize() noexcept;
+private:
+	Bitmap bitmap_{};
+	Index size_{};
+
+private:
+	void ctor(MultiplyMaxSizeTag);
+	void ctor(NonMultiplyMaxSizeTag);
 };
 
-// ==========================================================================
+// --------------------------------------------------------------------------
 
-template<std::size_t TSize>
-AllocatorBitmap<TSize>::AllocatorBitmap()
+template<Int TBitCount>
+AllocatorBitmap<TBitCount>::AllocatorBitmap()
 {
-	initialize();
+	using Tag = std::conditional_t<
+		max_aligned_size == max_size, MultiplyMaxSizeTag, NonMultiplyMaxSizeTag>;
+	ctor(Tag{});
 }
 
-template<std::size_t TSize>
-AllocatorBitmap<TSize>::~AllocatorBitmap()
-{
-	assert(size_ == 0);
-}
-
-template<std::size_t TSize>
-bool AllocatorBitmap<TSize>::is_empty() const noexcept
+template<Int TBitCount>
+bool AllocatorBitmap<TBitCount>::is_empty() const noexcept
 {
 	return size_ == 0;
 }
 
-template<std::size_t TSize>
-std::size_t AllocatorBitmap<TSize>::set_first_free()
-try
+template<Int TBitCount>
+auto AllocatorBitmap<TBitCount>::set_first_free() -> Index
 {
 	if (size_ == max_size)
 	{
-		BSTONE_STATIC_THROW("Out of bits.");
+		BSTONE_STATIC_THROW("No free bit.");
 	}
 
-	for (auto i = std::size_t{}; i < block_count; ++i)
+	for (auto i_block = Index{}; i_block < max_aligned_size; ++i_block)
 	{
-		auto value = bitmap_[i];
+		auto& block = bitmap_[i_block];
 
-		if (value == std::size_t{})
+		if (block != full_block)
 		{
-			// Full block.
-			continue;
-		}
-
-		for (auto j = std::size_t{}; j < bits_per_block; ++j)
-		{
-			if ((value & 1) != 0)
+			for (auto i_bit = Index{}; i_bit < bits_per_block; ++i_bit)
 			{
-				++size_;
-				bitmap_[i] ^= std::size_t{1} << j;
-				return (i * block_count) + j;
-			}
+				const auto mask = Block{1} << i_bit;
 
-			value >>= 1;
+				if ((block & mask) == 0)
+				{
+					block |= mask;
+					++size_;
+					return (i_block * bits_per_block) + i_bit;
+				}
+			}
 		}
 	}
 
-	BSTONE_STATIC_THROW("Out of bits.");
+	BSTONE_STATIC_THROW("No free bit.");
 }
-BSTONE_STATIC_THROW_NESTED_FUNC
 
-template<std::size_t TSize>
-void AllocatorBitmap<TSize>::reset(std::size_t index)
-try
+template<Int TBitCount>
+void AllocatorBitmap<TBitCount>::reset(Index index)
 {
-	if (index > max_size)
+	if (index < 0 || index >= max_size)
 	{
 		BSTONE_STATIC_THROW("Index out of range.");
 	}
 
-	if (is_empty())
-	{
-		BSTONE_STATIC_THROW("Empty bitmap.");
-	}
-
 	const auto block_index = index / bits_per_block;
-	const auto bit_index = index - (block_index * bits_per_block);
-	auto& value = bitmap_[block_index];
-	const auto mask = std::size_t{1} << bit_index;
-	const auto is_clear = (value & mask) != 0;
+	const auto bit_index = index % bits_per_block;
+	const auto mask = Block{1} << bit_index;
 
-	if (is_clear)
+	if ((bitmap_[block_index] & mask) == 0)
 	{
-		BSTONE_STATIC_THROW("Already reseted.");
+		BSTONE_STATIC_THROW("Unset bit.");
 	}
 
-	value |= mask;
+	bitmap_[block_index] &= full_block ^ mask;
 	--size_;
 }
-BSTONE_STATIC_THROW_NESTED_FUNC
 
-template<std::size_t TSize>
-void AllocatorBitmap<TSize>::initialize() noexcept
+template<Int TBitCount>
+void AllocatorBitmap<TBitCount>::ctor(MultiplyMaxSizeTag)
+{}
+
+template<Int TBitCount>
+void AllocatorBitmap<TBitCount>::ctor(NonMultiplyMaxSizeTag)
 {
-	for (auto& block : bitmap_)
-	{
-		block = ~std::size_t{};
-	}
-
-	bitmap_[block_count - 1] >>= unused_bit_count;
+	constexpr auto unused_bit_count = max_aligned_size - max_size;
+	constexpr auto remain_bit_count = bits_per_block - unused_bit_count;
+	static_assert(remain_bit_count > 0 && remain_bit_count < bits_per_block, "Invalid remain bit count.");
+	bitmap_.back() = full_block << remain_bit_count;
 }
 
 } // namespace bstone

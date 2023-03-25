@@ -8,7 +8,7 @@ SPDX-License-Identifier: MIT
 #include "SDL_rect.h"
 #include "SDL_render.h"
 #include "bstone_exception.h"
-#include "bstone_memory_pool_1x.h"
+#include "bstone_single_memory_pool.h"
 #include "bstone_sys_sdl_detail.h"
 #include "bstone_sys_sdl_exception.h"
 #include "bstone_sys_sdl_texture.h"
@@ -20,12 +20,12 @@ namespace sys {
 namespace {
 
 static_assert(
-	sizeof(SDL_Rect) == sizeof(R2Rect) &&
-		offsetof(SDL_Rect, x) == offsetof(R2Rect, x) &&
-		offsetof(SDL_Rect, y) == offsetof(R2Rect, y) &&
-		offsetof(SDL_Rect, w) == offsetof(R2Rect, width) &&
-		offsetof(SDL_Rect, h) == offsetof(R2Rect, height),
-	"Unsupported R2Rect type.");
+	sizeof(SDL_Rect) == sizeof(R2RectI) &&
+		offsetof(SDL_Rect, x) == offsetof(R2RectI, x) &&
+		offsetof(SDL_Rect, y) == offsetof(R2RectI, y) &&
+		offsetof(SDL_Rect, w) == offsetof(R2RectI, width) &&
+		offsetof(SDL_Rect, h) == offsetof(R2RectI, height),
+	"Unsupported R2RectI type.");
 
 static_assert(
 	sizeof(SDL_Rect) == sizeof(RendererViewport) &&
@@ -57,8 +57,8 @@ public:
 	SdlRenderer& operator=(const SdlRenderer&) = delete;
 	~SdlRenderer() override;
 
-	static void* operator new(std::size_t count);
-	static void operator delete(void* ptr) noexcept;
+	static void* operator new(std::size_t size);
+	static void operator delete(void* ptr);
 
 private:
 	Logger& logger_;
@@ -71,10 +71,10 @@ private:
 
 	void do_clear() override;
 	void do_set_draw_color(Color color) override;
-	void do_fill(Span<const R2Rect> rects) override;
+	void do_fill(Span<const R2RectI> rects) override;
 	void do_present() override;
 
-	void do_read_pixels(const R2Rect* rect, PixelFormat pixel_format, void* pixels, int pitch) override;
+	void do_read_pixels(const R2RectI* rect, PixelFormat pixel_format, void* pixels, int pitch) override;
 
 	TextureUPtr do_make_texture(const TextureInitParam& param) override;
 
@@ -89,8 +89,7 @@ private:
 
 // ==========================================================================
 
-using SdlRendererPool = MemoryPool1XT<SdlRenderer>;
-
+using SdlRendererPool = SingleMemoryPool<SdlRenderer>;
 SdlRendererPool sdl_renderer_pool{};
 
 // ==========================================================================
@@ -115,17 +114,19 @@ SdlRenderer::~SdlRenderer()
 	logger_.log_information("<<< Shut down SDL renderer.");
 }
 
-void* SdlRenderer::operator new(std::size_t count)
+void* SdlRenderer::operator new(std::size_t size)
 try
 {
-	return sdl_renderer_pool.allocate(count);
+	return sdl_renderer_pool.allocate(size);
 }
 BSTONE_STATIC_THROW_NESTED_FUNC
 
-void SdlRenderer::operator delete(void* ptr) noexcept
+void SdlRenderer::operator delete(void* ptr)
+try
 {
 	sdl_renderer_pool.deallocate(ptr);
 }
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 const char* SdlRenderer::do_get_name() const
 try
@@ -157,7 +158,7 @@ try
 }
 BSTONE_STATIC_THROW_NESTED_FUNC
 
-void SdlRenderer::do_fill(Span<const R2Rect> rects)
+void SdlRenderer::do_fill(Span<const R2RectI> rects)
 try
 {
 	if (rects.get_size() > INT_MAX)
@@ -179,7 +180,7 @@ try
 }
 BSTONE_STATIC_THROW_NESTED_FUNC
 
-void SdlRenderer::do_read_pixels(const R2Rect* rect, PixelFormat pixel_format, void* pixels, int pitch)
+void SdlRenderer::do_read_pixels(const R2RectI* rect, PixelFormat pixel_format, void* pixels, int pitch)
 try
 {
 	const auto sdl_pixel_format = map_pixel_format(pixel_format);

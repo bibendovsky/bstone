@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 #include <cassert>
 #include "SDL_audio.h"
-#include "bstone_memory_pool_1x.h"
+#include "bstone_single_memory_pool.h"
 #include "bstone_sys_sdl_exception.h"
 #include "bstone_sys_sdl_push_audio_device.h"
 #include "bstone_exception.h"
@@ -24,8 +24,8 @@ public:
 	SdlPushAudioDevice& operator=(const SdlPushAudioDevice&) = delete;
 	~SdlPushAudioDevice() override;
 
-	static void* operator new(std::size_t count);
-	static void operator delete(void* ptr) noexcept;
+	static void* operator new(std::size_t size);
+	static void operator delete(void* ptr);
 
 private:
 	Logger& logger_;
@@ -49,8 +49,7 @@ private:
 
 // ==========================================================================
 
-using SdlPushAudioDevicePool = MemoryPool1XT<SdlPushAudioDevice>;
-
+using SdlPushAudioDevicePool = SingleMemoryPool<SdlPushAudioDevice>;
 SdlPushAudioDevicePool sdl_push_audio_device_pool{};
 
 // ==========================================================================
@@ -116,17 +115,19 @@ SdlPushAudioDevice::~SdlPushAudioDevice()
 	SDL_CloseAudioDevice(sdl_audio_device_id_);
 }
 
-void* SdlPushAudioDevice::operator new(std::size_t count)
+void* SdlPushAudioDevice::operator new(std::size_t size)
 try
 {
-	return sdl_push_audio_device_pool.allocate(count);
+	return sdl_push_audio_device_pool.allocate(size);
 }
 BSTONE_STATIC_THROW_NESTED_FUNC
 
-void SdlPushAudioDevice::operator delete(void* ptr) noexcept
+void SdlPushAudioDevice::operator delete(void* ptr)
+try
 {
 	sdl_push_audio_device_pool.deallocate(ptr);
 }
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 int SdlPushAudioDevice::do_get_rate() const noexcept
 {

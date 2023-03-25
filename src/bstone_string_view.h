@@ -7,10 +7,11 @@ SPDX-License-Identifier: MIT
 #ifndef BSTONE_STRING_VIEW_INCLUDED
 #define BSTONE_STRING_VIEW_INCLUDED
 
+#include <cassert>
 #include <cstddef>
 #include <algorithm>
 #include <type_traits>
-#include "bstone_c_str.h"
+#include "bstone_char_traits.h"
 #include "bstone_utility.h"
 
 namespace bstone {
@@ -25,46 +26,37 @@ template<typename TChar>
 class StringViewT
 {
 public:
-	StringViewT() noexcept = default;
+	StringViewT() = default;
+	StringViewT(const StringViewT&) = default;
+	StringViewT& operator=(const StringViewT&) = default;
 
-	constexpr StringViewT(std::nullptr_t) = delete;
-	constexpr StringViewT(const StringViewT&) noexcept = default;
-	constexpr StringViewT& operator=(const StringViewT&) noexcept = default;
+	StringViewT(std::nullptr_t) = delete;
 
 	constexpr StringViewT(const TChar* chars, Int size)
 		:
-		span_{chars, size}
+		chars_{chars},
+		size_{size}
 	{}
 
 	constexpr StringViewT(const TChar* chars)
 		:
-		span_{chars, c_str::get_size(chars)}
+		chars_{chars},
+		size_{char_traits::get_size(chars)}
 	{}
-
-	template<typename UChar>
-	constexpr StringViewT(Span<UChar> span) noexcept
-		:
-		span_{span.get_data(), span.get_size()}
-	{}
-
-	constexpr auto to_span() const noexcept
-	{
-		return span_;
-	}
 
 	constexpr const TChar* get_data() const noexcept
 	{
-		return span_.get_data();
+		return chars_;
 	}
 
 	constexpr Int get_size() const noexcept
 	{
-		return span_.get_size();
+		return size_;
 	}
 
 	constexpr bool is_empty() const noexcept
 	{
-		return span_.is_empty();
+		return get_size() == 0;
 	}
 
 	constexpr const TChar* begin() const noexcept
@@ -89,43 +81,23 @@ public:
 
 	constexpr const TChar& operator[](Int index) const
 	{
-		return span_[index];
+		assert(index >= 0 && index < get_size());
+		return get_data()[index];
+	}
+
+	constexpr const TChar& get_front() const
+	{
+		return operator[](0);
+	}
+
+	constexpr const TChar& get_back() const
+	{
+		return operator[](get_size() - 1);
 	}
 
 	constexpr int compare(StringViewT rhs) const noexcept
 	{
-		const auto& lhs = *this;
-		const auto lhs_size = lhs.get_size();
-		const auto rhs_size = rhs.get_size();
-		const auto size = (lhs_size < rhs_size ? lhs_size : rhs_size);
-
-		for (auto i = decltype(size){}; i < size; ++i)
-		{
-			const auto& lhs_char = lhs[i];
-			const auto& rhs_char = rhs[i];
-
-			if (lhs_char < rhs_char)
-			{
-				return -1;
-			}
-			else if (lhs_char > rhs_char)
-			{
-				return 1;
-			}
-		}
-
-		if (lhs_size < rhs_size)
-		{
-			return -1;
-		}
-		else if (lhs_size > rhs_size)
-		{
-			return 1;
-		}
-		else
-		{
-			return 0;
-		}
+		return char_traits::compare(get_data(), get_size(), rhs.get_data(), rhs.get_size());
 	}
 
 	constexpr bool starts_with(StringViewT substring) const noexcept
@@ -143,10 +115,10 @@ public:
 
 	constexpr bool starts_with(TChar ch) const noexcept
 	{
-		return !is_empty() && span_.get_front() == ch;
+		return !is_empty() && get_front() == ch;
 	}
 
-	constexpr bool starts_with(const TChar* chars) const noexcept
+	constexpr bool starts_with(const TChar* chars) const
 	{
 		return starts_with(StringViewT{chars});
 	}
@@ -166,10 +138,10 @@ public:
 
 	constexpr bool ends_with(TChar ch) const noexcept
 	{
-		return !is_empty() && span_.get_back() == ch;
+		return !is_empty() && get_back() == ch;
 	}
 
-	constexpr bool ends_with(const TChar* chars) const noexcept
+	constexpr bool ends_with(const TChar* chars) const
 	{
 		return ends_with(StringViewT{chars});
 	}
@@ -183,45 +155,37 @@ public:
 			detail::string_view_fail("View index out of range.");
 		}
 
-		if (size < 0)
-		{
-			detail::string_view_fail("View size out of range.");
-		}
+		assert(size >= 0);
 
-		return StringViewT{get_data() + index, (std::min)(this_size - index, size)};
+		return StringViewT{get_data() + index, std::min(this_size - index, size)};
 	}
 
 	constexpr StringViewT get_subview(Int index) const
 	{
-		const auto size = get_size();
-
-		if (index < 0 || index >= size)
-		{
-			detail::string_view_fail("View index out of range.");
-		}
-
-		return StringViewT{get_data() + index, size - index};
+		return get_subview(index, get_size());
 	}
 
 	constexpr void swap(StringViewT& rhs) noexcept
 	{
-		span_.swap(rhs.span_);
+		utility::swap(chars_, rhs.chars_);
+		utility::swap(size_, rhs.size_);
 	}
 
 private:
-	Span<const TChar> span_{};
+	const TChar* chars_{};
+	Int size_{};
 };
 
 // ==========================================================================
 
 template<typename TChar>
-constexpr inline bool operator==(StringViewT<TChar> a, StringViewT<TChar> b) noexcept
+inline constexpr bool operator==(StringViewT<TChar> a, StringViewT<TChar> b) noexcept
 {
 	return a.compare(b) == 0;
 }
 
 template<typename TChar>
-constexpr inline bool operator!=(StringViewT<TChar> a, StringViewT<TChar> b) noexcept
+inline constexpr bool operator!=(StringViewT<TChar> a, StringViewT<TChar> b) noexcept
 {
 	return !(a == b);
 }

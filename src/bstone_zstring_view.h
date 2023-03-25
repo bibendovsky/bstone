@@ -1,83 +1,70 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
 // Null-terminated string view.
 
-#ifndef BSTONE_ZSTRING_VIEW_INCLUDED
+#if !defined(BSTONE_ZSTRING_VIEW_INCLUDED)
 #define BSTONE_ZSTRING_VIEW_INCLUDED
 
 #include <cassert>
-#include "bstone_string_view.h"
+#include <cstddef>
+#include "bstone_char_traits.h"
+#include "bstone_utility.h"
 
 namespace bstone {
-
-namespace detail {
-
-[[noreturn]] void zstring_view_fail_non_null_terminated();
-
-} // namespace detail
 
 template<typename TChar>
 class ZStringViewT
 {
 public:
-	ZStringViewT() noexcept = default;
+	ZStringViewT() = default;
+	ZStringViewT(const ZStringViewT&) = default;
+	ZStringViewT& operator=(const ZStringViewT&) = default;
 
-	constexpr ZStringViewT(std::nullptr_t) = delete;
-	constexpr ZStringViewT(const ZStringViewT&) noexcept = default;
-	constexpr ZStringViewT& operator=(const ZStringViewT&) noexcept = default;
+	ZStringViewT(std::nullptr_t) = delete;
 
-	constexpr explicit ZStringViewT(const TChar* chars)
+	constexpr ZStringViewT(const TChar* chars)
 		:
-		string_view_{chars}
-	{
-		if ((*string_view_.cend()) != TChar{})
-		{
-			detail::zstring_view_fail_non_null_terminated();
-		}
-	}
-
-	constexpr auto to_string_view() const noexcept
-	{
-		return string_view_;
-	}
+		chars_{chars},
+		size_{char_traits::get_size(chars)}
+	{}
 
 	constexpr const TChar* get_data() const noexcept
 	{
-		return string_view_.get_data();
+		return chars_;
 	}
 
 	constexpr Int get_size() const noexcept
 	{
-		return string_view_.get_size();
+		return size_;
 	}
 
 	constexpr bool is_empty() const noexcept
 	{
-		return string_view_.is_empty();
+		return get_size() == 0;
 	}
 
 	constexpr const TChar* begin() const noexcept
 	{
-		return string_view_.begin();
+		return get_data();
 	}
 
 	constexpr const TChar* end() const noexcept
 	{
-		return string_view_.end();
+		return get_data() + get_size();
 	}
 
 	constexpr const TChar* cbegin() const noexcept
 	{
-		return string_view_.cbegin();
+		return begin();
 	}
 
 	constexpr const TChar* cend() const noexcept
 	{
-		return string_view_.cend();
+		return end();
 	}
 
 	constexpr const TChar& operator[](Int index) const
@@ -88,28 +75,30 @@ public:
 
 	constexpr int compare(ZStringViewT rhs) const noexcept
 	{
-		return string_view_.compare(rhs.to_string_view());
+		return char_traits::compare(get_data(), get_size(), rhs.get_data(), rhs.get_size());
 	}
 
 	constexpr void swap(ZStringViewT& rhs) noexcept
 	{
-		string_view_.swap(rhs.string_view_);
+		utility::swap(chars_, rhs.chars_);
+		utility::swap(size_, rhs.size_);
 	}
 
 private:
-	StringViewT<TChar> string_view_{};
+	const TChar* chars_{};
+	Int size_{};
 };
 
 // ==========================================================================
 
 template<typename TChar>
-constexpr inline bool operator==(ZStringViewT<TChar> a, ZStringViewT<TChar> b) noexcept
+inline constexpr bool operator==(ZStringViewT<TChar> a, ZStringViewT<TChar> b) noexcept
 {
 	return a.compare(b) == 0;
 }
 
 template<typename TChar>
-constexpr inline bool operator!=(ZStringViewT<TChar> a, ZStringViewT<TChar> b) noexcept
+inline constexpr bool operator!=(ZStringViewT<TChar> a, ZStringViewT<TChar> b) noexcept
 {
 	return !(a == b);
 }
@@ -122,4 +111,4 @@ using U32ZStringView = ZStringViewT<char32_t>;
 
 } // namespace bstone
 
-#endif // !BSTONE_ZSTRING_VIEW_INCLUDED
+#endif // BSTONE_ZSTRING_VIEW_INCLUDED

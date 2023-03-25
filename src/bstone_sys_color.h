@@ -30,6 +30,16 @@ struct Color
 	{}
 };
 
+constexpr inline bool operator==(Color lhs, Color rhs) noexcept
+{
+	return lhs.r == rhs.r && lhs.g == rhs.g && lhs.b == rhs.b && lhs.a == rhs.a;
+}
+
+constexpr inline bool operator!=(Color lhs, Color rhs) noexcept
+{
+	return !(lhs == rhs);
+}
+
 } // namespace sys
 } // namespace bstone
 

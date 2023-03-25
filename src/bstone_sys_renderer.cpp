@@ -45,7 +45,7 @@ try
 }
 BSTONE_STATIC_THROW_NESTED_FUNC
 
-void Renderer::fill(Span<const R2Rect> rects)
+void Renderer::fill(Span<const R2RectI> rects)
 try
 {
 	do_fill(rects);

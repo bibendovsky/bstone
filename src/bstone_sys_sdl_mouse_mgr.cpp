@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 #include "SDL_mouse.h"
 #include "bstone_exception.h"
-#include "bstone_memory_pool_1x.h"
+#include "bstone_single_memory_pool.h"
 #include "bstone_sys_sdl_exception.h"
 #include "bstone_sys_sdl_mouse_mgr.h"
 
@@ -21,8 +21,8 @@ public:
 	SdlMouseMgr(Logger& logger);
 	~SdlMouseMgr() override;
 
-	static void* operator new(std::size_t count);
-	static void operator delete(void* ptr) noexcept;
+	static void* operator new(std::size_t size);
+	static void operator delete(void* ptr);
 
 private:
 	Logger& logger_;
@@ -33,8 +33,7 @@ private:
 
 // ==========================================================================
 
-using SdlMouseMgrPool = MemoryPool1XT<SdlMouseMgr>;
-
+using SdlMouseMgrPool = SingleMemoryPool<SdlMouseMgr>;
 SdlMouseMgrPool sdl_mouse_mgr_pool{};
 
 // ==========================================================================
@@ -53,17 +52,19 @@ SdlMouseMgr::~SdlMouseMgr()
 	logger_.log_information("Shut down SDL mouse manager.");
 }
 
-void* SdlMouseMgr::operator new(std::size_t count)
+void* SdlMouseMgr::operator new(std::size_t size)
 try
 {
-	return sdl_mouse_mgr_pool.allocate(count);
+	return sdl_mouse_mgr_pool.allocate(size);
 }
 BSTONE_STATIC_THROW_NESTED_FUNC
 
-void SdlMouseMgr::operator delete(void* ptr) noexcept
+void SdlMouseMgr::operator delete(void* ptr)
+try
 {
 	sdl_mouse_mgr_pool.deallocate(ptr);
 }
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SdlMouseMgr::do_set_relative_mode(bool is_enable)
 {

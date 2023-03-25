@@ -14,20 +14,37 @@ namespace bstone {
 class MemoryResource
 {
 public:
-	MemoryResource() noexcept = default;
+	MemoryResource() = default;
 	virtual ~MemoryResource() = default;
 
 	void* allocate(std::size_t size);
-	void deallocate(void* resource) noexcept;
+	void deallocate(void* ptr);
 
 private:
 	virtual void* do_allocate(std::size_t size) = 0;
-	virtual void do_deallocate(void* resource) noexcept = 0;
+	virtual void do_deallocate(void* ptr) = 0;
 };
 
 // ==========================================================================
 
-MemoryResource& get_default_memory_resource() noexcept;
+class NewDeleteMemoryResource final : public MemoryResource
+{
+public:
+	NewDeleteMemoryResource() = default;
+	~NewDeleteMemoryResource() override = default;
+
+private:
+	void* do_allocate(std::size_t size) override;
+	void do_deallocate(void* ptr) override;
+};
+
+// ==========================================================================
+
+class DefaultMemoryResource
+{
+public:
+	static MemoryResource& get() noexcept;
+};
 
 } // namespace bstone
 

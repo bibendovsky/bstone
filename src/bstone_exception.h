@@ -80,11 +80,11 @@ private:
 	const char* function_name);
 
 #if !defined(BSTONE_STATIC_THROW)
-#define BSTONE_STATIC_THROW(message) static_fail(__FILE__, __LINE__, __func__, message)
+#define BSTONE_STATIC_THROW(message) bstone::static_fail(__FILE__, __LINE__, __func__, message)
 #endif
 
 #if !defined(BSTONE_STATIC_THROW_NESTED_FUNC)
-#define BSTONE_STATIC_THROW_NESTED_FUNC catch (...) { static_fail_nested(__FILE__, __LINE__, __func__); }
+#define BSTONE_STATIC_THROW_NESTED_FUNC catch (...) { bstone::static_fail_nested(__FILE__, __LINE__, __func__); }
 #endif
 
 // ==========================================================================

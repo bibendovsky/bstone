@@ -23,13 +23,13 @@ namespace bstone
 {
 
 
-enum class LoggerMessageKind
+enum class LoggerMessageType
 {
 	information,
 	warning,
 	error,
 	critical_error,
-}; // LoggerMessageKind
+}; // LoggerMessageType
 
 
 //
@@ -46,9 +46,9 @@ public:
 	virtual ~Logger() = default;
 
 
-	// Writes a message of the specified kind.
+	// Writes a message of the specified type.
 	virtual void write(
-		LoggerMessageKind message_kind,
+		LoggerMessageType message_type,
 		const std::string& message) noexcept = 0;
 
 	// Write a new line.

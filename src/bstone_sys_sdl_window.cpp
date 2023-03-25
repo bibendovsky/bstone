@@ -7,7 +7,7 @@ SPDX-License-Identifier: MIT
 #include <string>
 #include "bstone_char_conv.h"
 #include "bstone_exception.h"
-#include "bstone_memory_pool_1x.h"
+#include "bstone_single_memory_pool.h"
 #include "bstone_sys_sdl_detail.h"
 #include "bstone_sys_sdl_exception.h"
 #include "bstone_sys_sdl_gl_context.h"
@@ -37,8 +37,8 @@ public:
 	SdlWindow(Logger& logger, const WindowInitParam& param);
 	~SdlWindow() override;
 
-	static void* operator new(std::size_t count);
-	static void operator delete(void* ptr) noexcept;
+	static void* operator new(std::size_t size);
+	static void operator delete(void* ptr);
 
 private:
 	Logger& logger_;
@@ -85,8 +85,7 @@ private:
 
 // ==========================================================================
 
-using SdlWindowPool = MemoryPool1XT<SdlWindow>;
-
+using SdlWindowPool = SingleMemoryPool<SdlWindow>;
 SdlWindowPool sdl_window_pool{};
 
 // ==========================================================================
@@ -155,17 +154,19 @@ SdlWindow::~SdlWindow()
 	logger_.log_information(message);
 }
 
-void* SdlWindow::operator new(std::size_t count)
+void* SdlWindow::operator new(std::size_t size)
 try
 {
-	return sdl_window_pool.allocate(count);
+	return sdl_window_pool.allocate(size);
 }
 BSTONE_STATIC_THROW_NESTED_FUNC
 
-void SdlWindow::operator delete(void* ptr) noexcept
+void SdlWindow::operator delete(void* ptr)
+try
 {
 	sdl_window_pool.deallocate(ptr);
 }
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 const char* SdlWindow::do_get_title()
 try

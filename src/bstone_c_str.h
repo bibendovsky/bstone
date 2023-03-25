@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -16,26 +16,64 @@ namespace bstone {
 namespace c_str {
 
 template<typename TChar>
-inline constexpr Int get_size(const TChar* string)
+inline constexpr Int get_size(const TChar* chars)
 {
-	assert(string != nullptr);
+	auto i_chars = chars;
 
-	const auto string_begin = string;
-
-	while (*string != TChar{})
+	while (*i_chars != TChar{})
 	{
-		++string;
+		++i_chars;
 	}
 
-	return string - string_begin;
+	return i_chars - chars;
 }
 
 // --------------------------------------------------------------------------
 
 template<typename TChar>
-inline constexpr Int get_size_with_null(const TChar* string)
+inline constexpr Int get_size_with_null(const TChar* chars)
 {
-	return get_size(string) + 1;
+	return get_size(chars) + 1;
+}
+
+// ==========================================================================
+
+template<typename TChar>
+constexpr int compare(
+	const TChar* lhs_chars,
+	Int lhs_size,
+	const TChar* rhs_chars,
+	Int rhs_size) noexcept
+{
+	const auto size = lhs_size < rhs_size ? lhs_size : rhs_size;
+
+	for (auto i = decltype(size){}; i < size; ++i)
+	{
+		const auto& lhs_char = lhs_chars[i];
+		const auto& rhs_char = rhs_chars[i];
+
+		if (lhs_char < rhs_char)
+		{
+			return -1;
+		}
+		else if (lhs_char > rhs_char)
+		{
+			return 1;
+		}
+	}
+
+	if (lhs_size < rhs_size)
+	{
+		return -1;
+	}
+	else if (lhs_size > rhs_size)
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 // ==========================================================================

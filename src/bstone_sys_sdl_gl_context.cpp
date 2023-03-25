@@ -7,7 +7,7 @@ SPDX-License-Identifier: MIT
 #include <string>
 #include <type_traits>
 #include "bstone_exception.h"
-#include "bstone_memory_pool_1x.h"
+#include "bstone_single_memory_pool.h"
 #include "bstone_sys_sdl_detail.h"
 #include "bstone_sys_sdl_exception.h"
 #include "bstone_sys_sdl_gl_context.h"
@@ -37,8 +37,8 @@ public:
 	SdlGlContext& operator=(const SdlGlContext&) = delete;
 	~SdlGlContext() override;
 
-	static void* operator new(std::size_t count);
-	static void operator delete(void* ptr) noexcept;
+	static void* operator new(std::size_t size);
+	static void operator delete(void* ptr);
 
 private:
 	Logger& logger_;
@@ -56,8 +56,7 @@ private:
 
 // ==========================================================================
 
-using SdlGlContextPool = MemoryPool1XT<SdlGlContext>;
-
+using SdlGlContextPool = SingleMemoryPool<SdlGlContext>;
 SdlGlContextPool sdl_gl_context_pool{};
 
 // ==========================================================================
@@ -119,17 +118,19 @@ SdlGlContext::~SdlGlContext()
 	logger_.log_information(message);
 }
 
-void* SdlGlContext::operator new(std::size_t count)
+void* SdlGlContext::operator new(std::size_t size)
 try
 {
-	return sdl_gl_context_pool.allocate(count);
+	return sdl_gl_context_pool.allocate(size);
 }
 BSTONE_STATIC_THROW_NESTED_FUNC
 
-void SdlGlContext::operator delete(void* ptr) noexcept
+void SdlGlContext::operator delete(void* ptr)
+try
 {
 	sdl_gl_context_pool.deallocate(ptr);
 }
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 const GlContextAttributes& SdlGlContext::do_get_attributes() const noexcept
 {

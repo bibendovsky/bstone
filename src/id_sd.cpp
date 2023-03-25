@@ -295,19 +295,19 @@ void sd_log()
 	bstone::logger_->write();
 }
 
-void sd_log(const bstone::LoggerMessageKind message_kind, const std::string& message)
+void sd_log(const bstone::LoggerMessageType message_type, const std::string& message)
 {
-	bstone::logger_->write(message_kind, sd_get_snd_string() + ' ' + message);
+	bstone::logger_->write(message_type, sd_get_snd_string() + ' ' + message);
 }
 
 void sd_log(const std::string& message)
 {
-	bstone::logger_->write(bstone::LoggerMessageKind::information, sd_get_snd_string() + ' ' + message);
+	bstone::logger_->write(bstone::LoggerMessageType::information, sd_get_snd_string() + ' ' + message);
 }
 
 void sd_log_error(const std::string& message)
 {
-	sd_log(bstone::LoggerMessageKind::error, message);
+	sd_log(bstone::LoggerMessageType::error, message);
 }
 
 

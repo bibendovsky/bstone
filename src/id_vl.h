@@ -17,11 +17,12 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_extent_2d.h"
 #include "bstone_ref_values.h"
-#include "bstone_renderer_kind.h"
-#include "bstone_ren_3d_types.h"
+#include "bstone_renderer_type.h"
+#include "bstone_r3r_types.h"
 #include "bstone_rgb_palette.h"
 #include "bstone_hw_texture_mgr.h"
 #include "bstone_cvar_mgr.h"
+#include "bstone_string_view.h"
 
 
 namespace bstone
@@ -46,11 +47,11 @@ using UiMaskBuffer = std::array<bool, vga_ref_width * vga_ref_height>;
 
 struct VideoModeCfg
 {
-	bstone::RendererKind renderer_kind_;
+	bstone::RendererType renderer_type;
 	int width;
 	int height;
 	bool is_vsync_;
-	bstone::Ren3dAaKind aa_kind_;
+	bstone::R3rAaType aa_type;
 	int aa_degree_;
 }; // VideoModeCfg
 
@@ -300,9 +301,9 @@ void vid_cfg_write(
 	bstone::TextWriter& text_writer);
 
 
-using VidRendererKinds = std::vector<bstone::RendererKind>;
+using VidRendererTypes = std::vector<bstone::RendererType>;
 
-const VidRendererKinds& vid_get_available_renderer_kinds();
+const VidRendererTypes& vid_get_available_renderer_types();
 
 
 struct VidWindowSize
@@ -334,8 +335,8 @@ std::uint8_t vl_get_pixel(
 void vl_update_widescreen();
 
 
-bstone::RendererKind vid_cfg_get_renderer_kind() noexcept;
-void vid_cfg_set_renderer_kind(bstone::RendererKind renderer_type);
+bstone::RendererType vid_cfg_get_renderer_type() noexcept;
+void vid_cfg_set_renderer_type(bstone::RendererType renderer_type);
 
 bool vid_cfg_is_positioned() noexcept;
 
@@ -357,26 +358,26 @@ void vid_cfg_set_width(int width);
 int vid_cfg_get_height() noexcept;
 void vid_cfg_set_height(int height);
 
-bstone::Ren3dFilterKind vid_cfg_get_2d_texture_filter() noexcept;
-void vid_cfg_set_2d_texture_filter(bstone::Ren3dFilterKind filter);
+bstone::R3rFilterType vid_cfg_get_2d_texture_filter() noexcept;
+void vid_cfg_set_2d_texture_filter(bstone::R3rFilterType filter);
 
-bstone::Ren3dFilterKind vid_cfg_get_3d_texture_image_filter() noexcept;
-void vid_cfg_set_3d_texture_image_filter(bstone::Ren3dFilterKind filter);
+bstone::R3rFilterType vid_cfg_get_3d_texture_image_filter() noexcept;
+void vid_cfg_set_3d_texture_image_filter(bstone::R3rFilterType filter);
 
-bstone::Ren3dFilterKind vid_cfg_get_3d_texture_mipmap_filter() noexcept;
-void vid_cfg_set_3d_texture_mipmap_filter(bstone::Ren3dFilterKind filter);
+bstone::R3rFilterType vid_cfg_get_3d_texture_mipmap_filter() noexcept;
+void vid_cfg_set_3d_texture_mipmap_filter(bstone::R3rFilterType filter);
 
 int vid_cfg_get_3d_texture_anisotropy() noexcept;
 void vid_cfg_set_3d_texture_anisotropy(int anisotropy);
 
-bstone::Ren3dAaKind vid_cfg_get_aa_kind() noexcept;
-void vid_cfg_set_aa_kind(bstone::Ren3dAaKind aa_type);
+bstone::R3rAaType vid_cfg_get_aa_type() noexcept;
+void vid_cfg_set_aa_type(bstone::R3rAaType aa_type);
 
 int vid_cfg_get_aa_degree() noexcept;
 void vid_cfg_set_aa_degree(int degree);
 
-bstone::HwTextureMgrUpscaleFilterKind vid_cfg_get_texture_upscale_kind() noexcept;
-void vid_cfg_set_texture_upscale_kind(bstone::HwTextureMgrUpscaleFilterKind filter);
+bstone::HwTextureMgrUpscaleFilterType vid_cfg_get_texture_upscale_type() noexcept;
+void vid_cfg_set_texture_upscale_type(bstone::HwTextureMgrUpscaleFilterType filter);
 
 int vid_cfg_get_texture_upscale_xbrz_degree() noexcept;
 void vid_cfg_set_texture_upscale_xbrz_degree(int degree);
@@ -536,8 +537,7 @@ void vid_initialize_common();
 
 void vid_initialize_ui_buffer();
 
-std::string vid_get_window_title_for_renderer(
-	const std::string& renderer_name);
+std::string vid_get_window_title_for_renderer(bstone::StringView renderer_name);
 
 std::string vid_get_game_name_and_game_version_string();
 
@@ -551,8 +551,8 @@ void vid_calculate_vga_dimensions() noexcept;
 
 std::string vid_to_string(bool value);
 std::string vid_to_string(int value);
-std::string vid_to_string(const bstone::Ren3dFilterKind filter_type);
-std::string vid_to_string(bstone::Ren3dKind renderer_type);
+std::string vid_to_string(const bstone::R3rFilterType filter_type);
+std::string vid_to_string(bstone::R3rType renderer_type);
 
 bool vid_is_hw();
 

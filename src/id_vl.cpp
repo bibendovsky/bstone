@@ -25,7 +25,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_image_encoder.h"
 #include "bstone_logger.h"
 #include "bstone_mt_task_mgr.h"
-#include "bstone_ren_3d_limits.h"
+#include "bstone_r3r_limits.h"
 #include "bstone_sprite_cache.h"
 #include "bstone_string_helper.h"
 #include "bstone_string_view.h"
@@ -167,21 +167,21 @@ auto vid_is_widescreen_cvar = bstone::CVar{
 
 // vid_aa_kind
 
-constexpr auto vid_aa_kind_cvar_name = bstone::StringView{"vid_aa_kind"};
-constexpr auto vid_aa_kind_cvar_msaa = bstone::StringView{"msaa"};
+constexpr auto vid_aa_type_cvar_name = bstone::StringView{"vid_aa_kind"};
+constexpr auto vid_aa_type_cvar_msaa = bstone::StringView{"msaa"};
 
-constexpr bstone::StringView vid_aa_kind_cvar_values[] =
+constexpr bstone::StringView vid_aa_type_cvar_values[] =
 {
 	vid_none_string,
-	vid_aa_kind_cvar_msaa,
+	vid_aa_type_cvar_msaa,
 };
 
-auto vid_aa_kind_cvar = bstone::CVar{
+auto vid_aa_type_cvar = bstone::CVar{
 	bstone::CVarStringTag{},
-	vid_aa_kind_cvar_name,
+	vid_aa_type_cvar_name,
 	bstone::CVarFlags::archive,
 	vid_none_string,
-	bstone::make_span(vid_aa_kind_cvar_values)};
+	bstone::make_span(vid_aa_type_cvar_values)};
 
 // vid_aa_degree
 
@@ -926,7 +926,7 @@ void vid_initialize_cvars(bstone::CVarMgr& cvar_mgr)
 	cvar_mgr.add(vid_is_vsync_cvar);
 	cvar_mgr.add(vid_is_ui_stretched_cvar);
 	cvar_mgr.add(vid_is_widescreen_cvar);
-	cvar_mgr.add(vid_aa_kind_cvar);
+	cvar_mgr.add(vid_aa_type_cvar);
 	cvar_mgr.add(vid_aa_degree_cvar);
 	cvar_mgr.add(vid_texture_upscale_filter_cvar);
 	cvar_mgr.add(vid_texture_upscale_xbrz_degree_cvar);
@@ -957,7 +957,7 @@ void vid_log(
 	const std::string& message)
 {
 	bstone::logger_->write(
-		bstone::LoggerMessageKind::information,
+		bstone::LoggerMessageType::information,
 		vid_get_vid_string() + ' ' + message
 	);
 }
@@ -966,7 +966,7 @@ void vid_log_error(
 	const std::string& message)
 {
 	bstone::logger_->write(
-		bstone::LoggerMessageKind::error,
+		bstone::LoggerMessageType::error,
 		vid_get_vid_string() + ' ' + message
 	);
 }
@@ -999,18 +999,18 @@ catch (...)
 	fail_nested(__func__);
 }
 
-std::string vid_to_string(bstone::Ren3dFilterKind filter_type)
+std::string vid_to_string(bstone::R3rFilterType filter_type)
 try
 {
 	auto filter_type_sv = bstone::StringView{};
 
 	switch (filter_type)
 	{
-		case bstone::Ren3dFilterKind::nearest:
+		case bstone::R3rFilterType::nearest:
 			filter_type_sv = vid_nearest_string;
 			break;
 
-		case bstone::Ren3dFilterKind::linear:
+		case bstone::R3rFilterType::linear:
 			filter_type_sv = vid_linear_string;
 			break;
 
@@ -1025,18 +1025,18 @@ catch (...)
 	fail_nested(__func__);
 }
 
-std::string vid_to_string(bstone::Ren3dAaKind aa_type)
+std::string vid_to_string(bstone::R3rAaType aa_type)
 try
 {
 	auto aa_type_sv = bstone::StringView{};
 
 	switch (aa_type)
 	{
-		case bstone::Ren3dAaKind::ms:
-			aa_type_sv = vid_aa_kind_cvar_msaa;
+		case bstone::R3rAaType::ms:
+			aa_type_sv = vid_aa_type_cvar_msaa;
 			break;
 
-		case bstone::Ren3dAaKind::none:
+		case bstone::R3rAaType::none:
 			aa_type_sv = vid_none_string;
 			break;
 
@@ -1051,35 +1051,35 @@ catch (...)
 	fail_nested(__func__);
 }
 
-std::string vid_to_string(bstone::RendererKind renderer_type)
+std::string vid_to_string(bstone::RendererType renderer_type)
 try
 {
 	auto renderer_type_sv = bstone::StringView{};
 
 	switch (renderer_type)
 	{
-		case bstone::RendererKind::auto_detect:
+		case bstone::RendererType::auto_detect:
 			renderer_type_sv = "Auto-detect";
 			break;
 
-		case bstone::RendererKind::software:
+		case bstone::RendererType::software:
 			renderer_type_sv = "Software";
 			break;
 
-		case bstone::RendererKind::gl_2_0:
+		case bstone::RendererType::gl_2_0:
 			renderer_type_sv = "OpenGL 2.0";
 			break;
 
-		case bstone::RendererKind::gl_3_2_core:
+		case bstone::RendererType::gl_3_2_core:
 			renderer_type_sv = "OpenGL 3.2 core";
 			break;
 
-		case bstone::RendererKind::gles_2_0:
+		case bstone::RendererType::gles_2_0:
 			renderer_type_sv = "OpenGL ES 2.0";
 			break;
 
 		default:
-			fail("Unsupported renderer kind.");
+			fail("Unsupported renderer type.");
 	}
 
 	return std::string{renderer_type_sv.get_data(), static_cast<std::size_t>(renderer_type_sv.get_size())};
@@ -1089,15 +1089,15 @@ catch (...)
 	fail_nested(__func__);
 }
 
-std::string vid_to_string(bstone::Ren3dKind renderer_type)
+std::string vid_to_string(bstone::R3rType renderer_type)
 try
 {
 	switch (renderer_type)
 	{
-		case bstone::Ren3dKind::gl_2_0: return "OpenGL 2.0";
-		case bstone::Ren3dKind::gl_3_2_core: return "OpenGL 3.2 core";
-		case bstone::Ren3dKind::gles_2_0: return "OpenGL ES 2.0";
-		default: fail("Unsupported renderer kind.");
+		case bstone::R3rType::gl_2_0: return "OpenGL 2.0";
+		case bstone::R3rType::gl_3_2_core: return "OpenGL 3.2 core";
+		case bstone::R3rType::gles_2_0: return "OpenGL ES 2.0";
+		default: fail("Unsupported renderer type.");
 	}
 }
 catch (...)
@@ -1105,23 +1105,23 @@ catch (...)
 	fail_nested(__func__);
 }
 
-std::string vid_to_string(bstone::HwTextureMgrUpscaleFilterKind upscale_filter_type)
+std::string vid_to_string(bstone::HwTextureMgrUpscaleFilterType upscale_filter_type)
 try
 {
 	auto upscale_filter_type_sv = bstone::StringView{};
 
 	switch (upscale_filter_type)
 	{
-		case bstone::HwTextureMgrUpscaleFilterKind::none:
+		case bstone::HwTextureMgrUpscaleFilterType::none:
 			upscale_filter_type_sv = vid_none_string;
 			break;
 
-		case bstone::HwTextureMgrUpscaleFilterKind::xbrz:
+		case bstone::HwTextureMgrUpscaleFilterType::xbrz:
 			upscale_filter_type_sv = vid_texture_upscale_filter_cvar_xbrz;
 			break;
 
 		default:
-			fail("Unsupported texture upscale filter kind.");
+			fail("Unsupported texture upscale filter type.");
 	}
 
 	return std::string{
@@ -1157,7 +1157,7 @@ void vid_log_common_configuration()
 	vid_log("Common configuration");
 	vid_log("--------------------");
 
-	vid_log("Renderer: " + vid_to_string(vid_cfg_get_renderer_kind()));
+	vid_log("Renderer: " + vid_to_string(vid_cfg_get_renderer_type()));
 
 	vid_log("Window positioned: " + vid_to_string(vid_cfg_is_positioned()));
 	vid_log("Windowed x: " + vid_to_string(vid_cfg_get_x()));
@@ -1175,10 +1175,10 @@ void vid_log_common_configuration()
 
 	vid_log("Texture anisotropy: " + vid_to_string(vid_cfg_get_3d_texture_anisotropy()));
 
-	vid_log("Texture upscale filter: " + vid_to_string(vid_cfg_get_texture_upscale_kind()));
+	vid_log("Texture upscale filter: " + vid_to_string(vid_cfg_get_texture_upscale_type()));
 	vid_log("Texture upscale xBRZ factor: " + vid_to_string(vid_cfg_get_texture_upscale_xbrz_degree()));
 
-	vid_log("Anti-aliasing kind: " + vid_to_string(vid_cfg_get_aa_kind()));
+	vid_log("Anti-aliasing type: " + vid_to_string(vid_cfg_get_aa_type()));
 	vid_log("Anti-aliasing value: " + vid_to_string(vid_cfg_get_aa_degree()));
 
 	vid_log("--------------------");
@@ -1225,8 +1225,7 @@ auto g_video = bstone::VideoUPtr{};
 } // namespace
 
 
-std::string vid_get_window_title_for_renderer(
-	const std::string& renderer_name)
+std::string vid_get_window_title_for_renderer(bstone::StringView renderer_name)
 try
 {
 	const auto game_name_and_game_version_string = vid_get_game_name_and_game_version_string();
@@ -1237,10 +1236,10 @@ try
 	result += " [";
 	result += port_version_string;
 
-	if (!renderer_name.empty())
+	if (!renderer_name.is_empty())
 	{
 		result += " / ";
-		result += renderer_name;
+		result.append(renderer_name.get_data(), static_cast<std::size_t>(renderer_name.get_size()));
 	}
 
 	result += ']';
@@ -1380,7 +1379,7 @@ try
 {
 	::g_video = nullptr;
 
-	const auto is_sw = (vid_cfg_get_renderer_kind() == bstone::RendererKind::software);
+	const auto is_sw = (vid_cfg_get_renderer_type() == bstone::RendererType::software);
 
 	auto is_try_sw = false;
 
@@ -1394,11 +1393,15 @@ try
 		{
 			::g_video = bstone::make_hw_video();
 		}
-		catch (const bstone::Exception& ex)
+		catch (const std::exception&)
 		{
 			is_try_sw = true;
 
-			vid_log_error(ex.what());
+			for (const auto& error_messages : bstone::extract_exception_messages())
+			{
+				vid_log_error(error_messages.c_str());
+			}
+
 			vid_log("Falling back to software accelerated video system.");
 		}
 	}
@@ -1411,9 +1414,12 @@ try
 				*bstone::globals::sys_video_mgr,
 				*bstone::globals::sys_window_mgr);
 		}
-		catch (const std::exception& ex)
+		catch (const std::exception&)
 		{
-			vid_log_error(ex.what());
+			for (const auto& error_messages : bstone::extract_exception_messages())
+			{
+				vid_log_error(error_messages.c_str());
+			}
 
 			throw;
 		}
@@ -1862,52 +1868,52 @@ catch (...)
 	fail_nested(__func__);
 }
 
-bstone::RendererKind vid_cfg_get_renderer_kind() noexcept
+bstone::RendererType vid_cfg_get_renderer_type() noexcept
 {
 	const auto renderer_sv = vid_renderer_cvar.get_string();
 
 	if (renderer_sv == vid_renderer_cvar_software)
 	{
-		return bstone::RendererKind::software;
+		return bstone::RendererType::software;
 	}
 
 	if (renderer_sv == vid_renderer_cvar_gl_2_0)
 	{
-		return bstone::RendererKind::gl_2_0;
+		return bstone::RendererType::gl_2_0;
 	}
 
 	if (renderer_sv == vid_renderer_cvar_gl_3_2_c)
 	{
-		return bstone::RendererKind::gl_3_2_core;
+		return bstone::RendererType::gl_3_2_core;
 	}
 
 	if (renderer_sv == vid_renderer_cvar_gles_2_0)
 	{
-		return bstone::RendererKind::gles_2_0;
+		return bstone::RendererType::gles_2_0;
 	}
 
-	return bstone::RendererKind::auto_detect;
+	return bstone::RendererType::auto_detect;
 }
 
-void vid_cfg_set_renderer_kind(bstone::RendererKind renderer_type)
+void vid_cfg_set_renderer_type(bstone::RendererType renderer_type)
 {
 	auto renderer_sv = bstone::StringView{};
 
 	switch (renderer_type)
 	{
-		case bstone::RendererKind::software:
+		case bstone::RendererType::software:
 			renderer_sv = vid_renderer_cvar_software;
 			break;
 
-		case bstone::RendererKind::gl_2_0:
+		case bstone::RendererType::gl_2_0:
 			renderer_sv = vid_renderer_cvar_gl_2_0;
 			break;
 
-		case bstone::RendererKind::gl_3_2_core:
+		case bstone::RendererType::gl_3_2_core:
 			renderer_sv = vid_renderer_cvar_gl_3_2_c;
 			break;
 
-		case bstone::RendererKind::gles_2_0:
+		case bstone::RendererType::gles_2_0:
 			renderer_sv = vid_renderer_cvar_gles_2_0;
 			break;
 
@@ -1986,19 +1992,19 @@ void vid_cfg_set_height(int height)
 
 namespace {
 
-bstone::Ren3dFilterKind vid_get_filter_type_from_sv(bstone::StringView filter_type_sv) noexcept
+bstone::R3rFilterType vid_get_filter_type_from_sv(bstone::StringView filter_type_sv) noexcept
 {
 	if (filter_type_sv == vid_linear_string)
 	{
-		return bstone::Ren3dFilterKind::linear;
+		return bstone::R3rFilterType::linear;
 	}
 
-	return bstone::Ren3dFilterKind::nearest;
+	return bstone::R3rFilterType::nearest;
 }
 
-bstone::StringView vid_get_sv_from_filter_type(bstone::Ren3dFilterKind filter_type) noexcept
+bstone::StringView vid_get_sv_from_filter_type(bstone::R3rFilterType filter_type) noexcept
 {
-	if (filter_type == bstone::Ren3dFilterKind::linear)
+	if (filter_type == bstone::R3rFilterType::linear)
 	{
 		return vid_linear_string;
 	}
@@ -2008,32 +2014,32 @@ bstone::StringView vid_get_sv_from_filter_type(bstone::Ren3dFilterKind filter_ty
 
 } // namespace
 
-bstone::Ren3dFilterKind vid_cfg_get_2d_texture_filter() noexcept
+bstone::R3rFilterType vid_cfg_get_2d_texture_filter() noexcept
 {
 	return vid_get_filter_type_from_sv(vid_2d_texture_filter_cvar.get_string());
 }
 
-void vid_cfg_set_2d_texture_filter(bstone::Ren3dFilterKind filter)
+void vid_cfg_set_2d_texture_filter(bstone::R3rFilterType filter)
 {
 	vid_2d_texture_filter_cvar.set_string(vid_get_sv_from_filter_type(filter));
 }
 
-bstone::Ren3dFilterKind vid_cfg_get_3d_texture_image_filter() noexcept
+bstone::R3rFilterType vid_cfg_get_3d_texture_image_filter() noexcept
 {
 	return vid_get_filter_type_from_sv(vid_3d_texture_image_filter_cvar.get_string());
 }
 
-void vid_cfg_set_3d_texture_image_filter(bstone::Ren3dFilterKind filter)
+void vid_cfg_set_3d_texture_image_filter(bstone::R3rFilterType filter)
 {
 	vid_3d_texture_image_filter_cvar.set_string(vid_get_sv_from_filter_type(filter));
 }
 
-bstone::Ren3dFilterKind vid_cfg_get_3d_texture_mipmap_filter() noexcept
+bstone::R3rFilterType vid_cfg_get_3d_texture_mipmap_filter() noexcept
 {
 	return vid_get_filter_type_from_sv(vid_3d_texture_mipmap_filter_cvar.get_string());
 }
 
-void vid_cfg_set_3d_texture_mipmap_filter(bstone::Ren3dFilterKind filter)
+void vid_cfg_set_3d_texture_mipmap_filter(bstone::R3rFilterType filter)
 {
 	vid_3d_texture_mipmap_filter_cvar.set_string(vid_get_sv_from_filter_type(filter));
 }
@@ -2048,24 +2054,24 @@ void vid_cfg_set_3d_texture_anisotropy(int anisotropy)
 	vid_3d_texture_anisotropy_cvar.set_int32(anisotropy);
 }
 
-bstone::Ren3dAaKind vid_cfg_get_aa_kind() noexcept
+bstone::R3rAaType vid_cfg_get_aa_type() noexcept
 {
-	if (vid_aa_kind_cvar.get_string() == vid_aa_kind_cvar_msaa)
+	if (vid_aa_type_cvar.get_string() == vid_aa_type_cvar_msaa)
 	{
-		return bstone::Ren3dAaKind::ms;
+		return bstone::R3rAaType::ms;
 	}
 
-	return bstone::Ren3dAaKind::none;
+	return bstone::R3rAaType::none;
 }
 
-void vid_cfg_set_aa_kind(bstone::Ren3dAaKind aa_type)
+void vid_cfg_set_aa_type(bstone::R3rAaType aa_type)
 {
 	auto aa_type_sv = bstone::StringView{};
 
 	switch (aa_type)
 	{
-		case bstone::Ren3dAaKind::ms:
-			aa_type_sv = vid_aa_kind_cvar_msaa;
+		case bstone::R3rAaType::ms:
+			aa_type_sv = vid_aa_type_cvar_msaa;
 			break;
 
 		default:
@@ -2073,7 +2079,7 @@ void vid_cfg_set_aa_kind(bstone::Ren3dAaKind aa_type)
 			break;
 	}
 
-	vid_aa_kind_cvar.set_string(aa_type_sv);
+	vid_aa_type_cvar.set_string(aa_type_sv);
 }
 
 int vid_cfg_get_aa_degree() noexcept
@@ -2086,23 +2092,23 @@ void vid_cfg_set_aa_degree(int degree)
 	vid_aa_degree_cvar.set_int32(degree);
 }
 
-bstone::HwTextureMgrUpscaleFilterKind vid_cfg_get_texture_upscale_kind() noexcept
+bstone::HwTextureMgrUpscaleFilterType vid_cfg_get_texture_upscale_type() noexcept
 {
 	if (vid_texture_upscale_filter_cvar.get_string() == vid_texture_upscale_filter_cvar_xbrz)
 	{
-		return bstone::HwTextureMgrUpscaleFilterKind::xbrz;
+		return bstone::HwTextureMgrUpscaleFilterType::xbrz;
 	}
 
-	return bstone::HwTextureMgrUpscaleFilterKind::none;
+	return bstone::HwTextureMgrUpscaleFilterType::none;
 }
 
-void vid_cfg_set_texture_upscale_kind(bstone::HwTextureMgrUpscaleFilterKind filter)
+void vid_cfg_set_texture_upscale_type(bstone::HwTextureMgrUpscaleFilterType filter)
 {
 	auto filter_sv = bstone::StringView{};
 
 	switch (filter)
 	{
-		case bstone::HwTextureMgrUpscaleFilterKind::xbrz:
+		case bstone::HwTextureMgrUpscaleFilterType::xbrz:
 			filter_sv = vid_texture_upscale_filter_cvar_xbrz;
 			break;
 
@@ -2219,25 +2225,25 @@ void vid_import_ui_mask(
 VideoModeCfg vid_cfg_get_video_mode() noexcept
 {
 	auto cfg = VideoModeCfg{};
-	cfg.renderer_kind_ = vid_cfg_get_renderer_kind();
+	cfg.renderer_type = vid_cfg_get_renderer_type();
 	cfg.width = vid_cfg_get_width();
 	cfg.height = vid_cfg_get_height();
 	cfg.is_vsync_ = vid_cfg_is_vsync();
-	cfg.aa_kind_ = vid_cfg_get_aa_kind();
+	cfg.aa_type = vid_cfg_get_aa_type();
 	cfg.aa_degree_ = vid_cfg_get_aa_degree();
 	return cfg;
 }
 
-const VidRendererKinds& vid_get_available_renderer_kinds()
+const VidRendererTypes& vid_get_available_renderer_types()
 {
-	static const auto result = VidRendererKinds
+	static const auto result = VidRendererTypes
 	{
-		bstone::RendererKind::auto_detect,
-		bstone::RendererKind::software,
+		bstone::RendererType::auto_detect,
+		bstone::RendererType::software,
 
-		bstone::RendererKind::gl_2_0,
-		bstone::RendererKind::gl_3_2_core,
-		bstone::RendererKind::gles_2_0,
+		bstone::RendererType::gl_2_0,
+		bstone::RendererType::gl_3_2_core,
+		bstone::RendererType::gles_2_0,
 	};
 
 	return result;
@@ -2702,25 +2708,25 @@ try
 	auto is_restart = false;
 
 	if (!is_restart &&
-		vid_cfg_get_renderer_kind() != video_mode_cfg.renderer_kind_)
+		vid_cfg_get_renderer_type() != video_mode_cfg.renderer_type)
 	{
 		is_restart = true;
 	}
 
 	if (!is_restart &&
 		vid_cfg_is_vsync() != video_mode_cfg.is_vsync_ &&
-		::g_video->get_device_features().is_vsync_available_ &&
-			::g_video->get_device_features().is_vsync_requires_restart_)
+		::g_video->get_device_features().is_vsync_available &&
+			::g_video->get_device_features().is_vsync_requires_restart)
 	{
 		is_restart = true;
 	}
 
 	if (!is_restart &&
-		(vid_cfg_get_aa_kind() != video_mode_cfg.aa_kind_ ||
+		(vid_cfg_get_aa_type() != video_mode_cfg.aa_type ||
 			vid_cfg_get_aa_degree() != video_mode_cfg.aa_degree_) &&
-		video_mode_cfg.aa_kind_ == bstone::Ren3dAaKind::ms &&
-		::g_video->get_device_features().is_msaa_available_ &&
-		::g_video->get_device_features().is_msaa_requires_restart_)
+		video_mode_cfg.aa_type == bstone::R3rAaType::ms &&
+		::g_video->get_device_features().is_msaa_available &&
+		::g_video->get_device_features().is_msaa_requires_restart)
 	{
 		is_restart = true;
 	}
@@ -2732,14 +2738,14 @@ try
 	const auto is_vsync_modified = (vid_cfg_is_vsync() != video_mode_cfg.is_vsync_);
 
 	const auto is_aa_modified = (
-		vid_cfg_get_aa_kind() != video_mode_cfg.aa_kind_ ||
+		vid_cfg_get_aa_type() != video_mode_cfg.aa_type ||
 		vid_cfg_get_aa_degree() != video_mode_cfg.aa_degree_);
 
-	vid_cfg_set_renderer_kind(video_mode_cfg.renderer_kind_);
+	vid_cfg_set_renderer_type(video_mode_cfg.renderer_type);
 	vid_cfg_set_width(video_mode_cfg.width);
 	vid_cfg_set_height(video_mode_cfg.height);
 	vid_cfg_set_is_vsync(video_mode_cfg.is_vsync_);
-	vid_cfg_set_aa_kind(video_mode_cfg.aa_kind_);
+	vid_cfg_set_aa_type(video_mode_cfg.aa_type);
 	vid_cfg_set_aa_degree(video_mode_cfg.aa_degree_);
 
 	if (is_restart)
@@ -2863,11 +2869,11 @@ bool operator==(
 	const VideoModeCfg& rhs) noexcept
 {
 	return
-		lhs.renderer_kind_ == rhs.renderer_kind_ &&
+		lhs.renderer_type == rhs.renderer_type &&
 		lhs.width == rhs.width &&
 		lhs.height == rhs.height &&
 		lhs.is_vsync_ == rhs.is_vsync_ &&
-		lhs.aa_kind_ == rhs.aa_kind_ &&
+		lhs.aa_type == rhs.aa_type &&
 		lhs.aa_degree_ == rhs.aa_degree_;
 }
 

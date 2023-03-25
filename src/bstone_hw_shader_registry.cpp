@@ -37,25 +37,19 @@ int HwShaderRegistry::get_a_tx_coords_location()
 	return 2;
 }
 
-const std::string& HwShaderRegistry::get_a_position_name()
+const char* HwShaderRegistry::get_a_position_name()
 {
-	static const auto result = std::string{"a_position"};
-
-	return result;
+	return "a_position";
 }
 
-const std::string& HwShaderRegistry::get_a_color_name()
+const char* HwShaderRegistry::get_a_color_name()
 {
-	static const auto result = std::string{"a_color"};
-
-	return result;
+	return "a_color";
 }
 
-const std::string& HwShaderRegistry::get_a_tx_coords_name()
+const char* HwShaderRegistry::get_a_tx_coords_name()
 {
-	static const auto result = std::string{"a_tx_coords"};
-
-	return result;
+	return "a_tx_coords";
 }
 
 const std::string& HwShaderRegistry::get_u_model_mat_name()
@@ -135,18 +129,18 @@ const std::string& HwShaderRegistry::get_u_view_position_name()
 	return result;
 }
 
-const Ren3dShaderSource& HwShaderRegistry::get_fragment(
-	const Ren3dKind renderer_kind)
+const R3rShaderSource& HwShaderRegistry::get_fragment(
+	const R3rType renderer_type)
 {
-	switch (renderer_kind)
+	switch (renderer_type)
 	{
-		case Ren3dKind::gl_2_0:
+		case R3rType::gl_2_0:
 			return get_fragment_gl_2();
 
-		case Ren3dKind::gl_3_2_core:
+		case R3rType::gl_3_2_core:
 			return get_fragment_gl_3_2_core();
 
-		case Ren3dKind::gles_2_0:
+		case R3rType::gles_2_0:
 			return get_fragment_gles_2_0();
 
 		default:
@@ -154,18 +148,18 @@ const Ren3dShaderSource& HwShaderRegistry::get_fragment(
 	}
 }
 
-const Ren3dShaderSource& HwShaderRegistry::get_vertex(
-	const Ren3dKind renderer_kind)
+const R3rShaderSource& HwShaderRegistry::get_vertex(
+	const R3rType renderer_type)
 {
-	switch (renderer_kind)
+	switch (renderer_type)
 	{
-		case Ren3dKind::gl_2_0:
+		case R3rType::gl_2_0:
 			return get_vertex_gl_2();
 
-		case Ren3dKind::gl_3_2_core:
+		case R3rType::gl_3_2_core:
 			return get_vertex_gl_3_2_core();
 
-		case Ren3dKind::gles_2_0:
+		case R3rType::gles_2_0:
 			return get_vertex_gles_2_0();
 
 		default:
@@ -173,14 +167,14 @@ const Ren3dShaderSource& HwShaderRegistry::get_vertex(
 	}
 }
 
-const Ren3dShaderSource& HwShaderRegistry::get_empty()
+const R3rShaderSource& HwShaderRegistry::get_empty()
 {
-	static const auto result = Ren3dShaderSource{};
+	static const auto result = R3rShaderSource{};
 
 	return result;
 }
 
-const Ren3dShaderSource& HwShaderRegistry::get_fragment_gl_2()
+const R3rShaderSource& HwShaderRegistry::get_fragment_gl_2()
 {
 	static const auto source = std::string
 	{
@@ -280,7 +274,7 @@ void main()
 )FRAGMENT_SHADER"
 	};
 
-	static const auto result = Ren3dShaderSource
+	static const auto result = R3rShaderSource
 	{
 		source.c_str(),
 		static_cast<int>(source.size()),
@@ -289,7 +283,7 @@ void main()
 	return result;
 }
 
-const Ren3dShaderSource& HwShaderRegistry::get_vertex_gl_2()
+const R3rShaderSource& HwShaderRegistry::get_vertex_gl_2()
 {
 	static const auto source = std::string
 	{
@@ -325,7 +319,7 @@ void main()
 )VERTEX_SHADER"
 	};
 
-	static const auto result = Ren3dShaderSource
+	static const auto result = R3rShaderSource
 	{
 		source.c_str(),
 		static_cast<int>(source.size()),
@@ -334,7 +328,7 @@ void main()
 	return result;
 }
 
-const Ren3dShaderSource& HwShaderRegistry::get_fragment_gl_3_2_core()
+const R3rShaderSource& HwShaderRegistry::get_fragment_gl_3_2_core()
 {
 	static const auto source = std::string
 	{
@@ -437,7 +431,7 @@ void main()
 )FRAGMENT_SHADER"
 	};
 
-	static const auto result = Ren3dShaderSource
+	static const auto result = R3rShaderSource
 	{
 		source.c_str(),
 		static_cast<int>(source.size()),
@@ -446,7 +440,7 @@ void main()
 	return result;
 }
 
-const Ren3dShaderSource& HwShaderRegistry::get_vertex_gl_3_2_core()
+const R3rShaderSource& HwShaderRegistry::get_vertex_gl_3_2_core()
 {
 	static const auto source = std::string
 	{
@@ -482,7 +476,7 @@ void main()
 )VERTEX_SHADER"
 	};
 
-	static const auto result = Ren3dShaderSource
+	static const auto result = R3rShaderSource
 	{
 		source.c_str(),
 		static_cast<int>(source.size()),
@@ -491,7 +485,7 @@ void main()
 	return result;
 }
 
-const Ren3dShaderSource& HwShaderRegistry::get_fragment_gles_2_0()
+const R3rShaderSource& HwShaderRegistry::get_fragment_gles_2_0()
 {
 	static const auto source = std::string
 	{
@@ -593,7 +587,7 @@ void main()
 )FRAGMENT_SHADER"
 	};
 
-	static const auto result = Ren3dShaderSource
+	static const auto result = R3rShaderSource
 	{
 		source.c_str(),
 		static_cast<int>(source.size()),
@@ -602,7 +596,7 @@ void main()
 	return result;
 }
 
-const Ren3dShaderSource& HwShaderRegistry::get_vertex_gles_2_0()
+const R3rShaderSource& HwShaderRegistry::get_vertex_gles_2_0()
 {
 	static const auto source = std::string
 	{
@@ -638,7 +632,7 @@ void main()
 )VERTEX_SHADER"
 	};
 
-	static const auto result = Ren3dShaderSource
+	static const auto result = R3rShaderSource
 	{
 		source.c_str(),
 		static_cast<int>(source.size()),

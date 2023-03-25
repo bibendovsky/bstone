@@ -34,7 +34,7 @@ public:
 
 	virtual bool is_hardware() const noexcept = 0;
 
-	virtual std::string get_renderer_name() = 0;
+	virtual StringView get_renderer_name() = 0;
 
 	virtual void clear_vga_buffer() = 0;
 
@@ -169,7 +169,7 @@ public:
 
 	virtual void update_samplers() = 0;
 
-	virtual const bstone::Ren3dDeviceFeatures& get_device_features() const noexcept = 0;
+	virtual const bstone::R3rDeviceFeatures& get_device_features() const noexcept = 0;
 
 	//
 	// HW

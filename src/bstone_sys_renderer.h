@@ -9,8 +9,8 @@ SPDX-License-Identifier: MIT
 
 #include <memory>
 #include "bstone_span.h"
+#include "bstone_r2_rect.h"
 #include "bstone_sys_color.h"
-#include "bstone_sys_r2_rect.h"
 #include "bstone_sys_pixel_format.h"
 #include "bstone_sys_texture.h"
 
@@ -24,9 +24,9 @@ struct RendererInitParam
 
 // ==========================================================================
 
-struct RendererViewport : public R2Rect
+struct RendererViewport : public R2RectI
 {
-	using R2Rect::R2Rect;
+	using R2RectI::R2RectI;
 };
 
 // ==========================================================================
@@ -44,7 +44,7 @@ public:
 
 	void clear();
 	void set_draw_color(Color color);
-	void fill(Span<const R2Rect> rects);
+	void fill(Span<const R2RectI> rects);
 	void present();
 
 	void read_pixels(PixelFormat pixel_format, void* pixels, int pitch);
@@ -58,10 +58,10 @@ private:
 
 	virtual void do_clear() = 0;
 	virtual void do_set_draw_color(Color color) = 0;
-	virtual void do_fill(Span<const R2Rect> rects) = 0;
+	virtual void do_fill(Span<const R2RectI> rects) = 0;
 	virtual void do_present() = 0;
 
-	virtual void do_read_pixels(const R2Rect* rect, PixelFormat pixel_format, void* pixels, int pitch) = 0;
+	virtual void do_read_pixels(const R2RectI* rect, PixelFormat pixel_format, void* pixels, int pitch) = 0;
 
 	virtual TextureUPtr do_make_texture(const TextureInitParam& param) = 0;
 };

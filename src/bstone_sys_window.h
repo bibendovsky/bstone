@@ -10,9 +10,9 @@ SPDX-License-Identifier: MIT
 #include <climits>
 #include <memory>
 #include "bstone_enum_flags.h"
+#include "bstone_r2_extent.h"
+#include "bstone_r2_offset.h"
 #include "bstone_sys_gl_context.h"
-#include "bstone_sys_r2_extent.h"
-#include "bstone_sys_r2_offset.h"
 #include "bstone_sys_renderer.h"
 
 namespace bstone {
@@ -30,14 +30,14 @@ constexpr auto window_position_undefined = INT_MAX - 1;
 
 // ==========================================================================
 
-struct WindowPosition : public R2Offset
+struct WindowPosition : R2OffsetI
 {
-	using R2Offset::R2Offset;
+	using R2OffsetI::R2OffsetI;
 };
 
-struct WindowSize : public R2Extent
+struct WindowSize : public R2ExtentI
 {
-	using R2Extent::R2Extent;
+	using R2ExtentI::R2ExtentI;
 };
 
 // ==========================================================================

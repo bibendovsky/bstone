@@ -45,7 +45,7 @@ public:
 
 
 	void write(
-		LoggerMessageKind message_kind,
+		LoggerMessageType message_type,
 		const std::string& message) noexcept override;
 
 	void write() noexcept override;
@@ -84,7 +84,7 @@ DefaultLogger::DefaultLogger()
 }
 
 void DefaultLogger::write(
-	LoggerMessageKind message_kind,
+	LoggerMessageType message_type,
 	const std::string& message) noexcept
 try
 {
@@ -95,22 +95,22 @@ try
 
 	message_.clear();
 
-	switch (message_kind)
+	switch (message_type)
 	{
-		case LoggerMessageKind::information:
+		case LoggerMessageType::information:
 			break;
 
-		case LoggerMessageKind::warning:
+		case LoggerMessageType::warning:
 			is_warning_or_error = true;
 			message_ += "[WARNING] ";
 			break;
 
-		case LoggerMessageKind::error:
+		case LoggerMessageType::error:
 			is_warning_or_error = true;
 			message_ += "[ERROR] ";
 			break;
 
-		case LoggerMessageKind::critical_error:
+		case LoggerMessageType::critical_error:
 			is_warning_or_error = true;
 			is_critical = true;
 			message_ += "[CRITICAL] ";
@@ -147,31 +147,31 @@ catch (...)
 
 void DefaultLogger::write() noexcept
 {
-	write(LoggerMessageKind::information, "");
+	write(LoggerMessageType::information, "");
 }
 
 void DefaultLogger::write(
 	const std::string& message) noexcept
 {
-	write(LoggerMessageKind::information, message);
+	write(LoggerMessageType::information, message);
 }
 
 void DefaultLogger::write_warning(
 	const std::string& message) noexcept
 {
-	write(LoggerMessageKind::warning, message);
+	write(LoggerMessageType::warning, message);
 }
 
 void DefaultLogger::write_error(
 	const std::string& message) noexcept
 {
-	write(LoggerMessageKind::error, message);
+	write(LoggerMessageType::error, message);
 }
 
 void DefaultLogger::write_critical(
 	const std::string& message) noexcept
 {
-	write(LoggerMessageKind::critical_error, message);
+	write(LoggerMessageType::critical_error, message);
 }
 
 void DefaultLogger::initialize()

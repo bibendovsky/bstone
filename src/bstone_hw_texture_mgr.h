@@ -17,7 +17,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <memory>
 
-#include "bstone_ren_3d.h"
+#include "bstone_r3r.h"
 #include "bstone_rgb_palette.h"
 
 
@@ -45,11 +45,11 @@ enum class HwTextureMgrSolid1x1Id
 	count_,
 }; // HwTextureMgrSolid1x1Id
 
-enum class HwTextureMgrUpscaleFilterKind
+enum class HwTextureMgrUpscaleFilterType
 {
 	none,
 	xbrz,
-}; // HwTextureMgrUpscaleFilterKind
+}; // HwTextureMgrUpscaleFilterType
 
 
 class HwTextureMgr
@@ -61,17 +61,17 @@ public:
 
 
 	virtual int get_min_upscale_filter_degree(
-		const HwTextureMgrUpscaleFilterKind upscale_filter_kind) const = 0;
+		const HwTextureMgrUpscaleFilterType upscale_filter_type) const = 0;
 
 	virtual int get_max_upscale_filter_degree(
-		const HwTextureMgrUpscaleFilterKind upscale_filter_kind) const = 0;
+		const HwTextureMgrUpscaleFilterType upscale_filter_type) const = 0;
 
-	virtual HwTextureMgrUpscaleFilterKind get_upscale_filter_kind() const noexcept = 0;
+	virtual HwTextureMgrUpscaleFilterType get_upscale_filter_type() const noexcept = 0;
 
 	virtual int get_upscale_filter_degree() const noexcept = 0;
 
 	virtual void set_upscale_filter(
-		const HwTextureMgrUpscaleFilterKind upscale_filter_kind,
+		const HwTextureMgrUpscaleFilterType upscale_filter_type,
 		const int upscale_filter_degree) = 0;
 
 	virtual void enable_external_textures(
@@ -88,14 +88,14 @@ public:
 	virtual void cache_wall(
 		const int id) = 0;
 
-	virtual Ren3dTexture2dPtr get_wall(
+	virtual R3rR2Texture* get_wall(
 		const int id) const = 0;
 
 
 	virtual void cache_sprite(
 		const int id) = 0;
 
-	virtual Ren3dTexture2dPtr get_sprite(
+	virtual R3rR2Texture* get_sprite(
 		const int id) const = 0;
 
 
@@ -108,7 +108,7 @@ public:
 
 	virtual void update_ui() = 0;
 
-	virtual Ren3dTexture2dPtr get_ui() const noexcept = 0;
+	virtual R3rR2Texture* get_ui() const noexcept = 0;
 
 
 	virtual void try_destroy_solid_1x1(
@@ -124,7 +124,7 @@ public:
 		const HwTextureMgrSolid1x1Id id,
 		const Rgba8 color) = 0;
 
-	virtual Ren3dTexture2dPtr get_solid_1x1(
+	virtual R3rR2Texture* get_solid_1x1(
 		const HwTextureMgrSolid1x1Id id) const = 0;
 }; // HwTextureMgr
 
@@ -135,7 +135,7 @@ class HwTextureMgrFactory
 {
 public:
 	static HwTextureMgrUPtr create(
-		const Ren3dPtr renderer_3d,
+		R3r* renderer_3d,
 		const SpriteCachePtr sprite_cache,
 		const MtTaskMgrPtr task_manager);
 }; // HwTextureMgrFactory

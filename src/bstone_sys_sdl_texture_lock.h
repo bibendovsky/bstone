@@ -7,7 +7,7 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_SYS_SDL_TEXTURE_LOCK_INCLUDED)
 #define BSTONE_SYS_SDL_TEXTURE_LOCK_INCLUDED
 
-#include "bstone_sys_r2_rect.h"
+#include "bstone_r2_rect.h"
 #include "bstone_sys_sdl_texture.h"
 #include "bstone_sys_texture_lock.h"
 
@@ -16,7 +16,7 @@ struct SDL_Texture;
 namespace bstone {
 namespace sys {
 
-TextureLockUPtr make_sdl_texture_lock(SDL_Texture& sdl_texture, const R2Rect* rect);
+TextureLockUPtr make_sdl_texture_lock(SDL_Texture& sdl_texture, const R2RectI* rect);
 
 } // namespace sys
 } // namespace bstone

@@ -5,6 +5,8 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
+// Software accelerated video (SW).
+
 #if !defined(BSTONE_SW_VIDEO_INCLUDED)
 #define BSTONE_SW_VIDEO_INCLUDED
 

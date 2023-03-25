@@ -7,16 +7,10 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_SYS_GL_CONTEXT_ATTRIBUTES_INCLUDED)
 #define BSTONE_SYS_GL_CONTEXT_ATTRIBUTES_INCLUDED
 
+#include "bstone_sys_gl_context_profile.h"
+
 namespace bstone {
 namespace sys {
-
-enum class GlContextProfile
-{
-	none = 0,
-	compatibility,
-	core,
-	es,
-};
 
 struct GlContextAttributes
 {

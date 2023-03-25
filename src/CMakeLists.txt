@@ -286,50 +286,49 @@ target_sources(
 
 		bstone_extent_2d.h
 		bstone_offset_2d.h
-		bstone_rect_2d.h
+
+		bstone_r2_rect.h
+		bstone_r2_extent.h
+		bstone_r2_offset.h
 
 		bstone_hw_shader_registry.h
 		bstone_hw_texture_mgr.h
 		bstone_missing_sprite_64x64_image.h
 		bstone_missing_wall_64x64_image.h
-		bstone_renderer_kind.h
+		bstone_renderer_type.h
 
-		bstone_ren_3d.h
-		bstone_ren_3d_buffer.h
-		bstone_ren_3d_cmd_buffer.h
-		bstone_ren_3d_limits.h
-		bstone_ren_3d_mgr.h
-		bstone_ren_3d_sampler.h
-		bstone_ren_3d_shader.h
-		bstone_ren_3d_shader_stage.h
-		bstone_ren_3d_shader_var.h
-		bstone_ren_3d_tests.h
-		bstone_ren_3d_texture_2d.h
-		bstone_ren_3d_types.h
-		bstone_ren_3d_vertex_input.h
+		bstone_r3r.h
+		bstone_r3r_buffer.h
+		bstone_r3r_cmd_buffer.h
+		bstone_r3r_limits.h
+		bstone_r3r_mgr.h
+		bstone_r3r_r2_texture.h
+		bstone_r3r_sampler.h
+		bstone_r3r_shader.h
+		bstone_r3r_shader_stage.h
+		bstone_r3r_shader_var.h
+		bstone_r3r_tests.h
+		bstone_r3r_types.h
+		bstone_r3r_utils.h
+		bstone_r3r_vertex_input.h
 
-		bstone_detail_ren_3d_utils.h
-
-		bstone_detail_ren_3d_gl_api.h
-		bstone_detail_ren_3d_gl_buffer.h
-		bstone_detail_ren_3d_gl_context.h
-		bstone_detail_ren_3d_gl_context_kind.h
-		bstone_detail_ren_3d_gl_device_features.h
-		bstone_detail_ren_3d_gl_error.h
-		bstone_detail_ren_3d_gl_extension_mgr.h
-		bstone_detail_ren_3d_gl.h
-		bstone_detail_ren_3d_gl_utils.h
-		bstone_detail_ren_3d_gl_sampler.h
-		bstone_detail_ren_3d_gl_sampler_mgr.h
-		bstone_detail_ren_3d_gl_shader.h
-		bstone_detail_ren_3d_gl_shader_stage.h
-		bstone_detail_ren_3d_gl_shader_stage_mgr.h
-		bstone_detail_ren_3d_gl_shader_var.h
-		bstone_detail_ren_3d_gl_texture_2d.h
-		bstone_detail_ren_3d_gl_texture_mgr.h
-		bstone_detail_ren_3d_gl_version.h
-		bstone_detail_ren_3d_gl_vertex_input.h
-		bstone_detail_ren_3d_gl_vertex_input_mgr.h
+		bstone_gl_r3r.h
+		bstone_gl_r3r_api.h
+		bstone_gl_r3r_buffer.h
+		bstone_gl_r3r_context.h
+		bstone_gl_r3r_device_features.h
+		bstone_gl_r3r_error.h
+		bstone_gl_r3r_extension_mgr.h
+		bstone_gl_r3r_utils.h
+		bstone_gl_r3r_sampler.h
+		bstone_gl_r3r_sampler_mgr.h
+		bstone_gl_r3r_shader.h
+		bstone_gl_r3r_shader_stage.h
+		bstone_gl_r3r_shader_var.h
+		bstone_gl_r3r_r2_texture.h
+		bstone_gl_r3r_version.h
+		bstone_gl_r3r_vertex_input.h
+		bstone_gl_r3r_vertex_input_mgr.h
 
 		3d_def.h
 		3d_menu.h
@@ -376,6 +375,7 @@ target_sources(
 		bstone_c_str.h
 		bstone_circular_queue.h
 		bstone_char_conv.h
+		bstone_char_traits.h
 		bstone_cl.h
 		bstone_ccmd.h
 		bstone_ccmd_action.h
@@ -398,6 +398,7 @@ target_sources(
 		bstone_file_stream.h
 		bstone_file_system.h
 		bstone_fizzle_fx.h
+		bstone_fixed_memory_pool.h
 		bstone_format_string.h
 		bstone_game_ticker.h
 		bstone_generic_fizzle_fx.h
@@ -412,8 +413,6 @@ target_sources(
 		bstone_math.h
 		bstone_memory.h
 		bstone_memory_binary_reader.h
-		bstone_memory_pool.h
-		bstone_memory_pool_1x.h
 		bstone_memory_resource.h
 		bstone_memory_stream.h
 		bstone_mod_value.h
@@ -437,6 +436,7 @@ target_sources(
 		bstone_rgb_palette.h
 		bstone_scope_guard.h
 		bstone_sha1.h
+		bstone_single_memory_pool.h
 		bstone_span.h
 		bstone_spinlock.h
 		bstone_sprite.h
@@ -462,6 +462,7 @@ target_sources(
 		bstone_voice.h
 		bstone_voice_group.h
 		bstone_zstring_view.h
+		bstone_zstring_view_hasher.h
 
 		bstone_sys_audio_mgr.h
 		bstone_sys_color.h
@@ -470,15 +471,14 @@ target_sources(
 		bstone_sys_event_mgr.h
 		bstone_sys_gl_context.h
 		bstone_sys_gl_context_attributes.h
+		bstone_sys_gl_context_profile.h
 		bstone_sys_gl_mgr.h
+		bstone_sys_gl_shared_library.h
 		bstone_sys_logger.h
 		bstone_sys_message_box.h
 		bstone_sys_mouse.h
 		bstone_sys_mouse_mgr.h
 		bstone_sys_pixel_format.h
-		bstone_sys_r2_extent.h
-		bstone_sys_r2_offset.h
-		bstone_sys_r2_rect.h
 		bstone_sys_renderer.h
 		bstone_sys_system_mgr.h
 		bstone_sys_texture_lock.h
@@ -496,6 +496,7 @@ target_sources(
 		bstone_sys_sdl_exception.h
 		bstone_sys_sdl_gl_context.h
 		bstone_sys_sdl_gl_mgr.h
+		bstone_sys_sdl_gl_shared_library.h
 		bstone_sys_sdl_mouse_mgr.h
 		bstone_sys_sdl_renderer.h
 		bstone_sys_sdl_texture.h
@@ -530,7 +531,6 @@ target_sources(
 		bstone_hw_texture_mgr.cpp
 		bstone_missing_sprite_64x64_image.cpp
 		bstone_missing_wall_64x64_image.cpp
-		bstone_ren_3d_mgr.cpp
 
 		bstone_cgm_mat.h
 		bstone_cgm_mat_tests.cpp
@@ -539,27 +539,32 @@ target_sources(
 		bstone_cgm_vec.h
 		bstone_cgm_vec_tests.cpp
 
-		bstone_ren_3d_cmd_buffer.cpp
+		bstone_r3r.cpp
+		bstone_r3r_buffer.cpp
+		bstone_r3r_cmd_buffer.cpp
+		bstone_r3r_mgr.cpp
+		bstone_r3r_r2_texture.cpp
+		bstone_r3r_sampler.cpp
+		bstone_r3r_shader.cpp
+		bstone_r3r_shader_stage.cpp
+		bstone_r3r_shader_var.cpp
+		bstone_r3r_utils.cpp
 
-		bstone_detail_ren_3d_utils.cpp
-
-		bstone_detail_ren_3d_gl_api.cpp
-		bstone_detail_ren_3d_gl_buffer.cpp
-		bstone_detail_ren_3d_gl_context.cpp
-		bstone_detail_ren_3d_gl_error.cpp
-		bstone_detail_ren_3d_gl_extension_mgr.cpp
-		bstone_detail_ren_3d_gl.cpp
-		bstone_detail_ren_3d_gl_utils.cpp
-		bstone_detail_ren_3d_gl_sampler.cpp
-		bstone_detail_ren_3d_gl_sampler_mgr.cpp
-		bstone_detail_ren_3d_gl_shader.cpp
-		bstone_detail_ren_3d_gl_shader_stage.cpp
-		bstone_detail_ren_3d_gl_shader_stage_mgr.cpp
-		bstone_detail_ren_3d_gl_shader_var.cpp
-		bstone_detail_ren_3d_gl_texture_2d.cpp
-		bstone_detail_ren_3d_gl_texture_mgr.cpp
-		bstone_detail_ren_3d_gl_vertex_input.cpp
-		bstone_detail_ren_3d_gl_vertex_input_mgr.cpp
+		bstone_gl_r3r.cpp
+		bstone_gl_r3r_api.cpp
+		bstone_gl_r3r_buffer.cpp
+		bstone_gl_r3r_context.cpp
+		bstone_gl_r3r_error.cpp
+		bstone_gl_r3r_extension_mgr.cpp
+		bstone_gl_r3r_utils.cpp
+		bstone_gl_r3r_sampler.cpp
+		bstone_gl_r3r_sampler_mgr.cpp
+		bstone_gl_r3r_shader.cpp
+		bstone_gl_r3r_shader_stage.cpp
+		bstone_gl_r3r_shader_var.cpp
+		bstone_gl_r3r_r2_texture.cpp
+		bstone_gl_r3r_vertex_input.cpp
+		bstone_gl_r3r_vertex_input_mgr.cpp
 
 		3d_act1.cpp
 		3d_act2.cpp
@@ -646,11 +651,9 @@ target_sources(
 		bstone_low_pass_filter.cpp
 		bstone_memory.cpp
 		bstone_memory_binary_reader.cpp
-		bstone_memory_pool.cpp
 		bstone_memory_resource.cpp
 		bstone_memory_stream.cpp
 		bstone_mt_task_mgr.cpp
-		bstone_nhsz_memory_pool.h
 		bstone_nuked_opl3.cpp
 		bstone_oal_audio_mixer.cpp
 		bstone_oal_loader.cpp
@@ -685,12 +688,12 @@ target_sources(
 		bstone_version.cpp
 		bstone_video.cpp
 		bstone_voice_group.cpp
-		bstone_zstring_view.cpp
 
 		bstone_sys_audio_mgr.cpp
 		bstone_sys_event_mgr.cpp
 		bstone_sys_gl_context.cpp
 		bstone_sys_gl_mgr.cpp
+		bstone_sys_gl_shared_library.cpp
 		bstone_sys_logger.cpp
 		bstone_sys_mouse_mgr.cpp
 		bstone_sys_push_audio_device.cpp
@@ -709,6 +712,7 @@ target_sources(
 		bstone_sys_sdl_exception.cpp
 		bstone_sys_sdl_gl_context.cpp
 		bstone_sys_sdl_gl_mgr.cpp
+		bstone_sys_sdl_gl_shared_library.cpp
 		bstone_sys_sdl_message_box.cpp
 		bstone_sys_sdl_mouse_mgr.cpp
 		bstone_sys_sdl_renderer.cpp

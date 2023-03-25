@@ -5,8 +5,10 @@ SPDX-License-Identifier: MIT
 */
 
 #include "SDL_render.h"
+
+#include "bstone_fixed_memory_pool.h"
 #include "bstone_exception.h"
-#include "bstone_nhsz_memory_pool.h"
+
 #include "bstone_sys_sdl_exception.h"
 #include "bstone_sys_sdl_limits.h"
 #include "bstone_sys_sdl_texture.h"
@@ -37,8 +39,8 @@ public:
 	SdlTexture& operator=(const SdlTexture&) = delete;
 	~SdlTexture() override;
 
-	static void* operator new(std::size_t count);
-	static void operator delete(void* ptr) noexcept;
+	static void* operator new(std::size_t size);
+	static void operator delete(void* ptr);
 
 private:
 	Logger& logger_;
@@ -47,9 +49,9 @@ private:
 
 private:
 	void do_set_blend_mode(TextureBlendMode mode) override;
-	void do_copy(const R2Rect* texture_rect, const R2Rect* target_rect) override;
+	void do_copy(const R2RectI* texture_rect, const R2RectI* target_rect) override;
 
-	TextureLockUPtr do_make_lock(const R2Rect* rect) override;
+	TextureLockUPtr do_make_lock(const R2RectI* rect) override;
 
 private:
 	static SDL_BlendMode map_blend_mode(TextureBlendMode blend_mode);
@@ -60,8 +62,7 @@ private:
 
 // ==========================================================================
 
-using SdlTexturePool = NhszMemoryPool<SdlTexture, limits::max_textures>;
-
+using SdlTexturePool = FixedMemoryPool<SdlTexture, limits::max_textures>;
 SdlTexturePool sdl_texture_pool{};
 
 // ==========================================================================
@@ -88,17 +89,19 @@ SdlTexture::~SdlTexture()
 {
 }
 
-void* SdlTexture::operator new(std::size_t count)
+void* SdlTexture::operator new(std::size_t size)
 try
 {
-	return sdl_texture_pool.allocate(count);
+	return sdl_texture_pool.allocate(size);
 }
 BSTONE_STATIC_THROW_NESTED_FUNC
 
-void SdlTexture::operator delete(void* ptr) noexcept
+void SdlTexture::operator delete(void* ptr)
+try
 {
 	sdl_texture_pool.deallocate(ptr);
 }
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void SdlTexture::do_set_blend_mode(TextureBlendMode blend_mode)
 try
@@ -108,7 +111,7 @@ try
 }
 BSTONE_STATIC_THROW_NESTED_FUNC
 
-void SdlTexture::do_copy(const R2Rect* texture_rect, const R2Rect* target_rect)
+void SdlTexture::do_copy(const R2RectI* texture_rect, const R2RectI* target_rect)
 try
 {
 	sdl_ensure_result(SDL_RenderCopy(
@@ -119,7 +122,7 @@ try
 }
 BSTONE_STATIC_THROW_NESTED_FUNC
 
-TextureLockUPtr SdlTexture::do_make_lock(const R2Rect* rect)
+TextureLockUPtr SdlTexture::do_make_lock(const R2RectI* rect)
 try
 {
 	return make_sdl_texture_lock(*sdl_texture_, rect);

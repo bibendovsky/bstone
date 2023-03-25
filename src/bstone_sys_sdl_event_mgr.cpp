@@ -8,7 +8,7 @@ SPDX-License-Identifier: MIT
 #include "SDL.h"
 #include "bstone_char_conv.h"
 #include "bstone_exception.h"
-#include "bstone_memory_pool_1x.h"
+#include "bstone_single_memory_pool.h"
 #include "bstone_sys_logger.h"
 #include "bstone_sys_sdl_event_mgr.h"
 #include "bstone_sys_sdl_exception.h"
@@ -28,8 +28,8 @@ public:
 	SdlEventMgr& operator=(const SdlEventMgr&) = delete;
 	~SdlEventMgr() override;
 
-	static void* operator new(std::size_t count);
-	static void operator delete(void* ptr) noexcept;
+	static void* operator new(std::size_t size);
+	static void operator delete(void* ptr);
 
 private:
 	Logger& logger_;
@@ -54,8 +54,7 @@ private:
 
 // ==========================================================================
 
-using SdlEventMgrPool = MemoryPool1XT<SdlEventMgr>;
-
+using SdlEventMgrPool = SingleMemoryPool<SdlEventMgr>;
 SdlEventMgrPool sdl_event_mgr_pool{};
 
 // ==========================================================================
@@ -80,17 +79,19 @@ SdlEventMgr::~SdlEventMgr()
 	SDL_QuitSubSystem(SDL_INIT_EVENTS);
 }
 
-void* SdlEventMgr::operator new(std::size_t count)
+void* SdlEventMgr::operator new(std::size_t size)
 try
 {
-	return sdl_event_mgr_pool.allocate(count);
+	return sdl_event_mgr_pool.allocate(size);
 }
 BSTONE_STATIC_THROW_NESTED_FUNC
 
-void SdlEventMgr::operator delete(void* ptr) noexcept
+void SdlEventMgr::operator delete(void* ptr)
+try
 {
 	sdl_event_mgr_pool.deallocate(ptr);
 }
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 VirtualKey SdlEventMgr::map_key_code(SDL_KeyCode sdl_key_code)
 {

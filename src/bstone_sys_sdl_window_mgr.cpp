@@ -5,7 +5,7 @@ SPDX-License-Identifier: MIT
 */
 
 #include "bstone_exception.h"
-#include "bstone_memory_pool_1x.h"
+#include "bstone_single_memory_pool.h"
 #include "bstone_sys_sdl_window.h"
 #include "bstone_sys_sdl_window_mgr.h"
 
@@ -20,8 +20,8 @@ public:
 	SdlWindowMgr(Logger& logger);
 	~SdlWindowMgr() override;
 
-	static void* operator new(std::size_t count);
-	static void operator delete(void* ptr) noexcept;
+	static void* operator new(std::size_t size);
+	static void operator delete(void* ptr);
 
 private:
 	Logger& logger_;
@@ -32,8 +32,7 @@ private:
 
 // ==========================================================================
 
-using SdlWindowMgrPool = MemoryPool1XT<SdlWindowMgr>;
-
+using SdlWindowMgrPool = SingleMemoryPool<SdlWindowMgr>;
 SdlWindowMgrPool sdl_window_mgr_pool{};
 
 // ==========================================================================
@@ -50,17 +49,19 @@ SdlWindowMgr::~SdlWindowMgr()
 	logger_.log_information("Shut down SDL window manager.");
 }
 
-void* SdlWindowMgr::operator new(std::size_t count)
+void* SdlWindowMgr::operator new(std::size_t size)
 try
 {
-	return sdl_window_mgr_pool.allocate(count);
+	return sdl_window_mgr_pool.allocate(size);
 }
 BSTONE_STATIC_THROW_NESTED_FUNC
 
-void SdlWindowMgr::operator delete(void* ptr) noexcept
+void SdlWindowMgr::operator delete(void* ptr)
+try
 {
 	sdl_window_mgr_pool.deallocate(ptr);
 }
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 WindowUPtr SdlWindowMgr::do_make_window(const WindowInitParam& param)
 {

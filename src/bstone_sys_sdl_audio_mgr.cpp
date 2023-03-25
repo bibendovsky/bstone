@@ -8,7 +8,7 @@ SPDX-License-Identifier: MIT
 #include "SDL.h"
 #include "bstone_char_conv.h"
 #include "bstone_exception.h"
-#include "bstone_memory_pool_1x.h"
+#include "bstone_single_memory_pool.h"
 #include "bstone_sys_logger.h"
 #include "bstone_sys_sdl_audio_mgr.h"
 #include "bstone_sys_sdl_exception.h"
@@ -27,8 +27,8 @@ public:
 	SdlAudioMgr& operator=(const SdlAudioMgr&) = delete;
 	~SdlAudioMgr() override;
 
-	static void* operator new(std::size_t count);
-	static void operator delete(void* ptr) noexcept;
+	static void* operator new(std::size_t size);
+	static void operator delete(void* ptr);
 
 private:
 	Logger& logger_;
@@ -45,8 +45,7 @@ private:
 
 // ==========================================================================
 
-using SdlAudioMgrPool = MemoryPool1XT<SdlAudioMgr>;
-
+using SdlAudioMgrPool = SingleMemoryPool<SdlAudioMgr>;
 SdlAudioMgrPool sdl_audio_mgr_pool{};
 
 // ==========================================================================
@@ -72,17 +71,19 @@ SdlAudioMgr::~SdlAudioMgr()
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
-void* SdlAudioMgr::operator new(std::size_t count)
+void* SdlAudioMgr::operator new(std::size_t size)
 try
 {
-	return sdl_audio_mgr_pool.allocate(count);
+	return sdl_audio_mgr_pool.allocate(size);
 }
 BSTONE_STATIC_THROW_NESTED_FUNC
 
-void SdlAudioMgr::operator delete(void* ptr) noexcept
+void SdlAudioMgr::operator delete(void* ptr)
+try
 {
 	sdl_audio_mgr_pool.deallocate(ptr);
 }
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 PushAudioDeviceUPtr SdlAudioMgr::do_make_audio_device(const PushAudioDeviceOpenParam& param)
 {

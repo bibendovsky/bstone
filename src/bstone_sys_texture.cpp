@@ -17,7 +17,7 @@ try
 }
 BSTONE_STATIC_THROW_NESTED_FUNC
 
-void Texture::copy(const R2Rect* texture_rect, const R2Rect* target_rect)
+void Texture::copy(const R2RectI* texture_rect, const R2RectI* target_rect)
 try
 {
 	return do_copy(texture_rect, target_rect);
@@ -31,7 +31,7 @@ try
 }
 BSTONE_STATIC_THROW_NESTED_FUNC
 
-TextureLockUPtr Texture::make_lock(R2Rect rect)
+TextureLockUPtr Texture::make_lock(R2RectI rect)
 try
 {
 	return do_make_lock(&rect);

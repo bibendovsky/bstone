@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 #include "SDL_render.h"
 #include "bstone_exception.h"
-#include "bstone_memory_pool_1x.h"
+#include "bstone_single_memory_pool.h"
 #include "bstone_sys_sdl_exception.h"
 #include "bstone_sys_sdl_texture_lock.h"
 
@@ -16,25 +16,25 @@ namespace sys {
 namespace {
 
 static_assert(
-	sizeof(SDL_Rect) == sizeof(R2Rect) &&
-		offsetof(SDL_Rect, x) == offsetof(R2Rect, x) &&
-		offsetof(SDL_Rect, y) == offsetof(R2Rect, y) &&
-		offsetof(SDL_Rect, w) == offsetof(R2Rect, width) &&
-		offsetof(SDL_Rect, h) == offsetof(R2Rect, height),
-	"Unsupported R2Rect type.");
+	sizeof(SDL_Rect) == sizeof(R2RectI) &&
+		offsetof(SDL_Rect, x) == offsetof(R2RectI, x) &&
+		offsetof(SDL_Rect, y) == offsetof(R2RectI, y) &&
+		offsetof(SDL_Rect, w) == offsetof(R2RectI, width) &&
+		offsetof(SDL_Rect, h) == offsetof(R2RectI, height),
+	"Unsupported R2RectI type.");
 
 // ==========================================================================
 
 class SdlTextureLock final : public TextureLock
 {
 public:
-	SdlTextureLock(SDL_Texture& sdl_texture, const R2Rect* rect);
+	SdlTextureLock(SDL_Texture& sdl_texture, const R2RectI* rect);
 	SdlTextureLock(const SdlTextureLock& rhs) = delete;
 	SdlTextureLock& operator=(const SdlTextureLock& rhs) = delete;
 	~SdlTextureLock() override;
 
-	static void* operator new(std::size_t count);
-	static void operator delete(void* ptr) noexcept;
+	static void* operator new(std::size_t size);
+	static void operator delete(void* ptr);
 
 private:
 	SDL_Texture& sdl_texture_;
@@ -48,13 +48,12 @@ private:
 
 // ==========================================================================
 
-using SdlTextureLockPool = MemoryPool1XT<SdlTextureLock>;
-
+using SdlTextureLockPool = SingleMemoryPool<SdlTextureLock>;
 SdlTextureLockPool sdl_texture_lock_pool{};
 
 // ==========================================================================
 
-SdlTextureLock::SdlTextureLock(SDL_Texture& sdl_texture, const R2Rect* rect)
+SdlTextureLock::SdlTextureLock(SDL_Texture& sdl_texture, const R2RectI* rect)
 try
 	:
 	sdl_texture_{sdl_texture}
@@ -72,17 +71,19 @@ SdlTextureLock::~SdlTextureLock()
 	SDL_UnlockTexture(&sdl_texture_);
 }
 
-void* SdlTextureLock::operator new(std::size_t count)
+void* SdlTextureLock::operator new(std::size_t size)
 try
 {
-	return sdl_texture_lock_pool.allocate(count);
+	return sdl_texture_lock_pool.allocate(size);
 }
 BSTONE_STATIC_THROW_NESTED_FUNC
 
-void SdlTextureLock::operator delete(void* ptr) noexcept
+void SdlTextureLock::operator delete(void* ptr)
+try
 {
 	sdl_texture_lock_pool.deallocate(ptr);
 }
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 void* SdlTextureLock::do_get_pixels() const noexcept
 {
@@ -98,7 +99,7 @@ int SdlTextureLock::do_get_pitch() const noexcept
 
 // ==========================================================================
 
-TextureLockUPtr make_sdl_texture_lock(SDL_Texture& sdl_texture, const R2Rect* rect)
+TextureLockUPtr make_sdl_texture_lock(SDL_Texture& sdl_texture, const R2RectI* rect)
 {
 	return std::make_unique<SdlTextureLock>(sdl_texture, rect);
 }

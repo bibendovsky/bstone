@@ -4,7 +4,6 @@ Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-#include <new>
 #include "bstone_exception.h"
 #include "bstone_memory_resource.h"
 
@@ -17,48 +16,35 @@ try
 }
 BSTONE_STATIC_THROW_NESTED_FUNC
 
-void MemoryResource::deallocate(void* resource) noexcept
+void MemoryResource::deallocate(void* resource)
+try
 {
 	do_deallocate(resource);
 }
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 // ==========================================================================
 
-namespace {
-
-class DefaultMemoryResource final : public MemoryResource
+void* NewDeleteMemoryResource::do_allocate(std::size_t size)
+try
 {
-public:
-	DefaultMemoryResource() noexcept = default;
-
-private:
-	void* do_allocate(std::size_t size) override;
-	void do_deallocate(void* resource) noexcept override;
-};
-
-// --------------------------------------------------------------------------
-
-void* DefaultMemoryResource::do_allocate(std::size_t size)
-{
-	return ::operator new[](size);
+	return ::operator new(size);
 }
+BSTONE_STATIC_THROW_NESTED_FUNC
 
-void DefaultMemoryResource::do_deallocate(void* resource) noexcept
+void NewDeleteMemoryResource::do_deallocate(void* ptr)
+try
 {
-	::operator delete[](resource);
+	::operator delete(ptr);
 }
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 // ==========================================================================
 
-DefaultMemoryResource default_memory_resource{};
-
-} // namespace
-
-// ==========================================================================
-
-MemoryResource& get_default_memory_resource() noexcept
+MemoryResource& DefaultMemoryResource::get() noexcept
 {
-	return default_memory_resource;
+	static auto memory_resource = NewDeleteMemoryResource{};
+	return memory_resource;
 }
 
 } // namespace bstone

@@ -359,9 +359,10 @@ void CVar::set_int32_from_string()
 try
 {
 	const auto string = string_value_.get();
+	const auto string_span = make_span(string.get_data(), string.get_size());
 
 	int32_value_ = char_conv::from_chars<Int32>(
-		string.to_span(),
+		string_span,
 		10,
 		char_conv::FromCharsFormat::no_prefix);
 }

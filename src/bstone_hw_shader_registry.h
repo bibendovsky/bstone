@@ -17,8 +17,8 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <string>
 
-#include "bstone_ren_3d_shader.h"
-#include "bstone_ren_3d_types.h"
+#include "bstone_r3r_shader.h"
+#include "bstone_r3r_types.h"
 
 
 namespace bstone
@@ -35,11 +35,9 @@ public:
 	static int get_a_tx_coords_location();
 
 
-	static const std::string& get_a_position_name();
-
-	static const std::string& get_a_color_name();
-
-	static const std::string& get_a_tx_coords_name();
+	static const char* get_a_position_name();
+	static const char* get_a_color_name();
+	static const char* get_a_tx_coords_name();
 
 
 	static const std::string& get_u_model_mat_name();
@@ -67,27 +65,27 @@ public:
 	static const std::string& get_u_view_position_name();
 
 
-	static const Ren3dShaderSource& get_fragment(
-		const Ren3dKind renderer_kind);
+	static const R3rShaderSource& get_fragment(
+		const R3rType renderer_type);
 
-	static const Ren3dShaderSource& get_vertex(
-		const Ren3dKind renderer_kind);
+	static const R3rShaderSource& get_vertex(
+		const R3rType renderer_type);
 
 
 private:
-	static const Ren3dShaderSource& get_empty();
+	static const R3rShaderSource& get_empty();
 
-	static const Ren3dShaderSource& get_fragment_gl_2();
+	static const R3rShaderSource& get_fragment_gl_2();
 
-	static const Ren3dShaderSource& get_vertex_gl_2();
+	static const R3rShaderSource& get_vertex_gl_2();
 
-	static const Ren3dShaderSource& get_fragment_gl_3_2_core();
+	static const R3rShaderSource& get_fragment_gl_3_2_core();
 
-	static const Ren3dShaderSource& get_vertex_gl_3_2_core();
+	static const R3rShaderSource& get_vertex_gl_3_2_core();
 
-	static const Ren3dShaderSource& get_fragment_gles_2_0();
+	static const R3rShaderSource& get_fragment_gles_2_0();
 
-	static const Ren3dShaderSource& get_vertex_gles_2_0();
+	static const R3rShaderSource& get_vertex_gles_2_0();
 }; // HwShaderRegistry
 
 

@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -27,16 +27,13 @@ struct CharHasher
 				std::conditional_t<
 					sizeof(TChar) == 4,
 					UInt32,
-					void
-				>
-			>
-		>;
+					void>>>;
 
 		static_assert(!std::is_same<Unsigned, void>::value, "Unsupported char type.");
 
 		auto hash = std::size_t{};
 
-		for (const auto ch : chars)
+		for (const auto& ch : chars)
 		{
 			hash += static_cast<Unsigned>(ch);
 			hash += hash << 10;
@@ -52,4 +49,4 @@ struct CharHasher
 
 } // namespace bstone
 
-#endif // !BSTONE_CHAR_HASHER_INCLUDED
+#endif // BSTONE_CHAR_HASHER_INCLUDED

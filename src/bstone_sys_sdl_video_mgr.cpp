@@ -9,7 +9,7 @@ SPDX-License-Identifier: MIT
 #include "SDL.h"
 #include "bstone_char_conv.h"
 #include "bstone_exception.h"
-#include "bstone_memory_pool_1x.h"
+#include "bstone_single_memory_pool.h"
 #include "bstone_sys_logger.h"
 #include "bstone_sys_sdl_detail.h"
 #include "bstone_sys_sdl_exception.h"
@@ -32,8 +32,8 @@ public:
 	SdlVideoMgr& operator=(const SdlVideoMgr&) = delete;
 	~SdlVideoMgr() override;
 
-	static void* operator new(std::size_t count);
-	static void operator delete(void* ptr) noexcept;
+	static void* operator new(std::size_t size);
+	static void operator delete(void* ptr);
 
 private:
 	using DisplayModeCache = DisplayMode[limits::max_display_modes];
@@ -64,8 +64,7 @@ private:
 
 // ==========================================================================
 
-using SdlVideoMgrPool = MemoryPool1XT<SdlVideoMgr>;
-
+using SdlVideoMgrPool = SingleMemoryPool<SdlVideoMgr>;
 SdlVideoMgrPool sdl_video_mgr_pool{};
 
 // ==========================================================================
@@ -91,17 +90,19 @@ SdlVideoMgr::~SdlVideoMgr()
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
-void* SdlVideoMgr::operator new(std::size_t count)
+void* SdlVideoMgr::operator new(std::size_t size)
 try
 {
-	return sdl_video_mgr_pool.allocate(count);
+	return sdl_video_mgr_pool.allocate(size);
 }
 BSTONE_STATIC_THROW_NESTED_FUNC
 
-void SdlVideoMgr::operator delete(void* ptr) noexcept
+void SdlVideoMgr::operator delete(void* ptr)
+try
 {
 	sdl_video_mgr_pool.deallocate(ptr);
 }
+BSTONE_STATIC_THROW_NESTED_FUNC
 
 DisplayMode SdlVideoMgr::do_get_current_display_mode()
 try

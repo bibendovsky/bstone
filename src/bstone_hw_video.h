@@ -5,22 +5,17 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
+// Hardware accelerated video (HW).
 
-#ifndef BSTONE_HW_VIDEO_INCLUDED
+#if !defined(BSTONE_HW_VIDEO_INCLUDED)
 #define BSTONE_HW_VIDEO_INCLUDED
-
 
 #include "bstone_video.h"
 
-
-namespace bstone
-{
-
+namespace bstone {
 
 VideoUPtr make_hw_video();
 
-
 } // bstone
-
 
 #endif // BSTONE_HW_VIDEO_INCLUDED
