@@ -9,6 +9,7 @@ SPDX-License-Identifier: MIT
 #define BSTONE_STRING_HELPER_INCLUDED
 
 
+#include <cstdint>
 #include <string>
 
 

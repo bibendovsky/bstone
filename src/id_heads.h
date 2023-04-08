@@ -11,6 +11,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 
 #include <array>
+#include <cstdint>
 
 
 #include "bstone_cl.h"

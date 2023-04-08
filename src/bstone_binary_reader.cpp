@@ -4,6 +4,7 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
+#include <cstdint>
 #include <utility>
 #include "bstone_binary_reader.h"
 #include "bstone_endian.h"
