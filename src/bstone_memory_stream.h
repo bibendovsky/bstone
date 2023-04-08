@@ -11,6 +11,7 @@ SPDX-License-Identifier: MIT
 #ifndef BSTONE_MEMORY_STREAM_INCLUDED
 #define BSTONE_MEMORY_STREAM_INCLUDED
 
+#include <cstdint>
 #include <vector>
 #include "bstone_stream.h"
 #include "bstone_un_value.h"

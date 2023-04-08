@@ -14,6 +14,7 @@ SPDX-License-Identifier: MIT
 #define BSTONE_REN_3D_SHADER_VAR_INCLUDED
 
 
+#include <cstdint>
 #include <memory>
 #include <string>
 

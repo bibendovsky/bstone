@@ -5,6 +5,7 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
+#include <stdexcept>
 #include <utility>
 #include "bstone_audio_mixer.h"
 #include "bstone_exception.h"

@@ -7,6 +7,7 @@ SPDX-License-Identifier: MIT
 #ifndef BSTONE_BINARY_WRITER_INCLUDED
 #define BSTONE_BINARY_WRITER_INCLUDED
 
+#include <cstdint>
 #include "bstone_stream.h"
 
 namespace bstone
