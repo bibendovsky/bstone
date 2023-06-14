@@ -6,6 +6,7 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_memory_stream.h"
 #include <algorithm>
+#include <cstdint>
 #include <memory>
 #include <utility>
 

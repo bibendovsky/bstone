@@ -35,7 +35,7 @@ private:
 	Logger& logger_;
 
 private:
-	static VirtualKey map_key_code(SDL_KeyCode sdl_key_code);
+	static VirtualKey map_key_code(SDL_Keycode sdl_key_code);
 	static unsigned int map_mouse_buttons_mask(Uint32 sdl_buttons_mask);
 	static int map_mouse_button(int sdl_button);
 #if BSTONE_SDL_2_0_4
@@ -93,7 +93,7 @@ try
 }
 BSTONE_STATIC_THROW_NESTED_FUNC
 
-VirtualKey SdlEventMgr::map_key_code(SDL_KeyCode sdl_key_code)
+VirtualKey SdlEventMgr::map_key_code(SDL_Keycode sdl_key_code)
 {
 	switch (sdl_key_code)
 	{
@@ -284,7 +284,7 @@ MouseWheelDirection SdlEventMgr::map_mouse_wheel_direction(SDL_MouseWheelDirecti
 
 bool SdlEventMgr::handle_event(const SDL_KeyboardEvent& sdl_e, Event& e)
 {
-	const auto virtual_key = map_key_code(static_cast<SDL_KeyCode>(sdl_e.keysym.sym));
+	const auto virtual_key = map_key_code(static_cast<SDL_Keycode>(sdl_e.keysym.sym));
 
 	if (virtual_key == vk_none)
 	{
