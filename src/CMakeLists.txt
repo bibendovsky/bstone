@@ -277,6 +277,8 @@ target_sources(
 	PRIVATE
 		bstone_int.h
 		bstone_int.cpp
+		bstone_char_traits.cpp
+		bstone_char_traits.h
 )
 
 target_sources(
@@ -382,7 +384,6 @@ target_sources(
 		bstone_c_str.h
 		bstone_circular_queue.h
 		bstone_char_conv.h
-		bstone_char_traits.h
 		bstone_cl.h
 		bstone_ccmd.h
 		bstone_ccmd_action.h

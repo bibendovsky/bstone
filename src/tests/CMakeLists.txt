@@ -37,6 +37,7 @@ target_sources(${PROJECT_NAME}
 		../bstone_int.cpp
 		../bstone_int.h
 	PRIVATE
+		src/bstone_tests_char_traits.cpp
 		src/bstone_tests_int.cpp
 	PRIVATE
 		src/bstone_tester.cpp

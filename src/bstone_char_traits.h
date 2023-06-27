@@ -1,39 +1,53 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
+
+// Character traits.
 
 #if !defined(BSTONE_CHAR_TRAITS_INCLUDED)
 #define BSTONE_CHAR_TRAITS_INCLUDED
 
+#include <cassert>
+
 #include "bstone_int.h"
 
 namespace bstone {
-namespace char_traits {
+
+class CharTraits
+{
+public:
+	template<typename TChar>
+	static constexpr IntP get_size(const TChar* chars);
+
+	template<typename TChar>
+	static constexpr int compare(const TChar* lhs_chars, IntP lhs_size, const TChar* rhs_chars, IntP rhs_size);
+};
+
+// --------------------------------------------------------------------------
 
 template<typename TChar>
-inline constexpr IntP get_size(const TChar* chars)
+constexpr IntP CharTraits::get_size(const TChar* chars)
 {
-	auto i_chars = chars;
+	assert(chars != nullptr);
 
-	while (*i_chars != TChar{})
+	auto size = IntP{};
+
+	while (chars[size] != TChar{})
 	{
-		++i_chars;
+		++size;
 	}
 
-	return i_chars - chars;
+	return size;
 }
 
-// ==========================================================================
-
 template<typename TChar>
-inline constexpr int compare(
-	const TChar* lhs_chars,
-	IntP lhs_size,
-	const TChar* rhs_chars,
-	IntP rhs_size)
+constexpr int CharTraits::compare(const TChar* lhs_chars, IntP lhs_size, const TChar* rhs_chars, IntP rhs_size)
 {
+	assert(lhs_chars != nullptr);
+	assert(rhs_chars != nullptr);
+
 	const auto size = lhs_size < rhs_size ? lhs_size : rhs_size;
 
 	for (auto i = decltype(size){}; i < size; ++i)
@@ -65,7 +79,6 @@ inline constexpr int compare(
 	}
 }
 
-} // namespace char_traits
 } // namespace bstone
 
 #endif // BSTONE_CHAR_TRAITS_INCLUDED
