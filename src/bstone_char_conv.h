@@ -78,7 +78,7 @@ namespace detail {
 } // namespace detail
 
 template<typename TChar, typename TByte>
-inline constexpr Int hex_chars_to_bytes(Span<TChar> chars, Span<TByte> bytes)
+inline constexpr IntP hex_chars_to_bytes(Span<TChar> chars, Span<TByte> bytes)
 {
 	const auto char_count = chars.get_size();
 	const auto half_char_count = char_count / 2;
@@ -124,7 +124,7 @@ namespace detail {
 } // namespace detail
 
 template<typename TByte, typename TChar>
-inline constexpr Int bytes_to_hex_chars(Span<TByte> bytes, Span<TChar> chars)
+inline constexpr IntP bytes_to_hex_chars(Span<TByte> bytes, Span<TChar> chars)
 {
 	const auto byte_count = bytes.get_size();
 	const auto char_count = chars.get_size();
@@ -215,7 +215,7 @@ struct ToCharsIntegralToUnsigned
 } // namespace detail
 
 template<typename TValue, typename TChar>
-inline constexpr Int to_chars(
+inline constexpr IntP to_chars(
 	TValue value,
 	Span<TChar> chars_span,
 	int base,

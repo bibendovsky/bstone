@@ -30,12 +30,12 @@ public:
 	void swap(CVarString& rhs) noexcept;
 
 private:
-	static const Int initial_capacity;
+	static const IntP initial_capacity;
 
 private:
 	RawUPtr storage_{};
-	Int capacity_{};
-	Int size_{};
+	IntP capacity_{};
+	IntP size_{};
 };
 
 } // namespace bstone

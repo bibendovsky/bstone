@@ -16,7 +16,7 @@ namespace bstone {
 namespace c_str {
 
 template<typename TChar>
-inline constexpr Int get_size(const TChar* chars)
+inline constexpr IntP get_size(const TChar* chars)
 {
 	auto i_chars = chars;
 
@@ -31,7 +31,7 @@ inline constexpr Int get_size(const TChar* chars)
 // --------------------------------------------------------------------------
 
 template<typename TChar>
-inline constexpr Int get_size_with_null(const TChar* chars)
+inline constexpr IntP get_size_with_null(const TChar* chars)
 {
 	return get_size(chars) + 1;
 }
@@ -41,9 +41,9 @@ inline constexpr Int get_size_with_null(const TChar* chars)
 template<typename TChar>
 constexpr int compare(
 	const TChar* lhs_chars,
-	Int lhs_size,
+	IntP lhs_size,
 	const TChar* rhs_chars,
-	Int rhs_size) noexcept
+	IntP rhs_size) noexcept
 {
 	const auto size = lhs_size < rhs_size ? lhs_size : rhs_size;
 
@@ -83,7 +83,7 @@ namespace detail {
 struct MakeSpanArrayTag {};
 struct MakeSpanPointerTag {};
 
-template<typename TChar, Int TSize>
+template<typename TChar, IntP TSize>
 inline constexpr auto make_span(TChar (&string)[TSize], MakeSpanArrayTag)
 {
 	assert(string[TSize - 1] == TChar{});
@@ -124,7 +124,7 @@ namespace detail {
 struct MakeSpanWithNullArrayTag {};
 struct MakeSpanWithNullPointerTag {};
 
-template<typename TChar, Int TSize>
+template<typename TChar, IntP TSize>
 inline constexpr auto make_span_with_null(TChar (&string)[TSize], MakeSpanWithNullArrayTag)
 {
 	assert(string[TSize - 1] == TChar{});

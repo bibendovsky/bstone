@@ -20,15 +20,15 @@ Column-major matrix
 namespace bstone {
 namespace cgm {
 
-template<Int M, Int N, typename T>
+template<IntP M, IntP N, typename T>
 class MatT;
 
 template<typename T>
 class MatT<4, 4, T>
 {
 public:
-	static constexpr auto row_count = Int{4};
-	static constexpr auto column_count = Int{4};
+	static constexpr auto row_count = IntP{4};
+	static constexpr auto column_count = IntP{4};
 	static constexpr auto item_count = row_count * column_count;
 
 	using Item = T;
@@ -44,13 +44,13 @@ public:
 		m_{m11, m21, m31, m41, m12, m22, m32, m42, m13, m23, m33, m43, m14, m24, m34, m44}
 	{}
 
-	const Item& operator[](Int index) const
+	const Item& operator[](IntP index) const
 	{
 		assert(index >= 0 && index < item_count);
 		return m_[index];
 	}
 
-	Item& operator[](Int index)
+	Item& operator[](IntP index)
 	{
 		return const_cast<Item&>(type_traits::as_const(*this)[index]);
 	}

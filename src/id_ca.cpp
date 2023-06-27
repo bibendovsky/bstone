@@ -1724,7 +1724,7 @@ const AssetsResources& Assets::get_all_resources()
 
 	static const auto all_assets_resources = AssetsResources{
 		all_resources.data(),
-		static_cast<bstone::Int>(all_resources.size())
+		static_cast<bstone::IntP>(all_resources.size())
 	};
 
 	return all_assets_resources;

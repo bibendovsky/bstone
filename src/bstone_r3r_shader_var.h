@@ -9,6 +9,7 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_R3R_SHADER_VAR_INCLUDED)
 #define BSTONE_R3R_SHADER_VAR_INCLUDED
 
+#include <cstdint>
 #include <memory>
 #include <string>
 

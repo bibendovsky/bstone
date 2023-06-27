@@ -409,11 +409,11 @@ try
 
 		if (is_hud)
 		{
-			fill_rects(make_span(filler_hud_rects_.data(), static_cast<Int>(filler_hud_rects_.size())).to_const());
+			fill_rects(make_span(filler_hud_rects_.data(), static_cast<IntP>(filler_hud_rects_.size())).to_const());
 		}
 		else
 		{
-			fill_rects(make_span(filler_ui_rects_.data(), static_cast<Int>(filler_ui_rects_.size())).to_const());
+			fill_rects(make_span(filler_ui_rects_.data(), static_cast<IntP>(filler_ui_rects_.size())).to_const());
 		}
 	}
 
@@ -723,7 +723,7 @@ try
 
 	renderer_name_ = StringView{
 		renderer_name_buffer_.data(),
-		static_cast<Int>(renderer_name_buffer_.size())};
+		static_cast<IntP>(renderer_name_buffer_.size())};
 
 	const auto window_title = vid_get_window_title_for_renderer(renderer_name_);
 	window_->set_title(window_title.c_str());

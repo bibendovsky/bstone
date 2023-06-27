@@ -50,7 +50,7 @@ private:
 	struct V3Tag {};
 	struct V4Tag {};
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	class VecDeleter
 	{
 	public:
@@ -101,25 +101,25 @@ private:
 		fail(message);
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	static void make_vec(const std::array<T, N>& v, char (&storage)[N * sizeof(T)], const V2Tag)
 	{
 		new (storage) VecT<2, T>(v[0], v[1]);
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	static void make_vec(const std::array<T, N>& v, char (&storage)[N * sizeof(T)], const V3Tag)
 	{
 		new (storage) VecT<3, T>(v[0], v[1], v[2]);
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	static void make_vec(const std::array<T, N>& v, char (&storage)[N * sizeof(T)], const V4Tag)
 	{
 		new (storage) VecT<4, T>(v[0], v[1], v[2], v[3]);
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	static void make_vec(const std::array<T, N>& v, char (&storage)[N * sizeof(T)])
 	{
 		using Tag = std::conditional_t<
@@ -136,13 +136,13 @@ private:
 		make_vec<N, T>(v, storage, Tag{});
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	static VecDeleter<N, T> make_vec_deleter(VecT<N, T>& v)
 	{
 		return VecDeleter<N, T>{v};
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	static std::array<T, N> make_sequence_1()
 	{
 		auto a = std::array<T, N>{};
@@ -159,7 +159,7 @@ private:
 		return a;
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	static std::array<T, N> make_sequence_2()
 	{
 		auto a = std::array<T, N>{};
@@ -175,7 +175,7 @@ private:
 		return a;
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	static std::array<T, N> make_negated_sequence_1()
 	{
 		auto a = make_sequence_1<N, T>();
@@ -188,7 +188,7 @@ private:
 		return a;
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	static std::array<T, N> make_add_sequence_1_to_sequence_2()
 	{
 		auto a1 = make_sequence_1<N, T>();
@@ -198,7 +198,7 @@ private:
 		return b;
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	static std::array<T, N> make_sub_sequence_1_to_sequence_2()
 	{
 		auto a1 = make_sequence_1<N, T>();
@@ -208,7 +208,7 @@ private:
 		return b;
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	static std::array<T, N> make_multiplicated_sequence_1(T scalar)
 	{
 		auto a = make_sequence_1<N, T>();
@@ -221,7 +221,7 @@ private:
 		return a;
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	static T calculate_dot_of_sequence_1_and_sequence_2()
 	{
 		auto a1 = make_sequence_1<N, T>();
@@ -236,7 +236,7 @@ private:
 		return r;
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	static std::array<T, N> make_normalized_sequence_1()
 	{
 		auto a1 = make_sequence_1<N, T>();
@@ -259,7 +259,7 @@ private:
 		return b;
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	static T sqrt(const std::array<T, N>& x)
 	{
 		auto y = T{};
@@ -272,7 +272,7 @@ private:
 		return std::sqrt(y);
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	static bool are_equals_via_index(const std::array<T, N>& a, const VecT<N, T>& b)
 	{
 		assert(static_cast<decltype(b.item_count)>(a.size()) == b.item_count);
@@ -288,7 +288,7 @@ private:
 		return true;
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	void test_ctor()
 	{
 		using Vec = VecT<N, T>;
@@ -302,7 +302,7 @@ private:
 			"1w3fjhlm");
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	void test_ctor_explicit_values()
 	{
 		using Vec = VecT<N, T>;
@@ -315,7 +315,7 @@ private:
 		check(std::equal(std::cbegin(av), std::cend(av), std::cbegin(a)), "8hcgxo1f");
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	void test_copy_ctor()
 	{
 		using Vec = VecT<N, T>;
@@ -329,7 +329,7 @@ private:
 		check(std::equal(std::cbegin(av), std::cend(av), std::cbegin(a)), "purk597t");
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	void test_assignment_operator()
 	{
 		using Vec = VecT<N, T>;
@@ -344,7 +344,7 @@ private:
 		check(std::equal(std::cbegin(av), std::cend(av), std::cbegin(a)), "6l0aq8mj");
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	void test_const_index_operator()
 	{
 		using Vec = VecT<N, T>;
@@ -356,7 +356,7 @@ private:
 		check(are_equals_via_index<N, T>(a, v), "makxzf0e");
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	void test_index_operator()
 	{
 		using Vec = VecT<N, T>;
@@ -374,7 +374,7 @@ private:
 		check(are_equals_via_index<N, T>(a, v), "5bueqf35");
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	void test_get_magnitude()
 	{
 		using Vec = VecT<N, T>;
@@ -390,7 +390,7 @@ private:
 		check(std::abs(m - am) < e, "heqnw29b");
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	void test_equality_operator()
 	{
 		using Vec = VecT<N, T>;
@@ -409,7 +409,7 @@ private:
 		check(v1 == v2, "6oymv94n");
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	void test_inequality_operator()
 	{
 		using Vec = VecT<N, T>;
@@ -429,7 +429,7 @@ private:
 		check(v1 != v2, "7uk22jyc");
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	void test_unary_minus_operator()
 	{
 		using Vec = VecT<N, T>;
@@ -447,7 +447,7 @@ private:
 		check(std::equal(std::cbegin(av2), std::cend(av2), std::cbegin(a2)), "srwo1yqh");
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	void test_addition_operator()
 	{
 		using Vec = VecT<N, T>;
@@ -470,7 +470,7 @@ private:
 		check(std::equal(std::cbegin(av3), std::cend(av3), std::cbegin(a3)), "i9xqnqd5");
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	void test_subtraction_operator()
 	{
 		using Vec = VecT<N, T>;
@@ -493,7 +493,7 @@ private:
 		check(std::equal(std::cbegin(av3), std::cend(av3), std::cbegin(a3)), "2e8uimay");
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	void test_postfix_multiplication_operator_operator()
 	{
 		using Vec = VecT<N, T>;
@@ -510,7 +510,7 @@ private:
 		check(std::equal(std::cbegin(av2), std::cend(av2), std::cbegin(a2)), "18gvxyw6");
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	void test_prefix_multiplication_operator()
 	{
 		using Vec = VecT<N, T>;
@@ -527,7 +527,7 @@ private:
 		check(std::equal(std::cbegin(av2), std::cend(av2), std::cbegin(a2)), "orko1yd5");
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	void test_dot()
 	{
 		using Vec = VecT<N, T>;
@@ -549,7 +549,7 @@ private:
 		check(d1 == d2, "6hwwlhi2");
 	}
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	void test_normalize()
 	{
 		using Vec = VecT<N, T>;
@@ -577,7 +577,7 @@ private:
 
 	// ======================================================================
 
-	template<Int N, typename T>
+	template<IntP N, typename T>
 	void test()
 	{
 		test_ctor<N, T>();

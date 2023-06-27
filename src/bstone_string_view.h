@@ -32,7 +32,7 @@ public:
 
 	StringViewT(std::nullptr_t) = delete;
 
-	constexpr StringViewT(const TChar* chars, Int size)
+	constexpr StringViewT(const TChar* chars, IntP size)
 		:
 		chars_{chars},
 		size_{size}
@@ -49,7 +49,7 @@ public:
 		return chars_;
 	}
 
-	constexpr Int get_size() const noexcept
+	constexpr IntP get_size() const noexcept
 	{
 		return size_;
 	}
@@ -79,7 +79,7 @@ public:
 		return end();
 	}
 
-	constexpr const TChar& operator[](Int index) const
+	constexpr const TChar& operator[](IntP index) const
 	{
 		assert(index >= 0 && index < get_size());
 		return get_data()[index];
@@ -146,7 +146,7 @@ public:
 		return ends_with(StringViewT{chars});
 	}
 
-	constexpr StringViewT get_subview(Int index, Int size) const
+	constexpr StringViewT get_subview(IntP index, IntP size) const
 	{
 		const auto this_size = get_size();
 
@@ -160,7 +160,7 @@ public:
 		return StringViewT{get_data() + index, std::min(this_size - index, size)};
 	}
 
-	constexpr StringViewT get_subview(Int index) const
+	constexpr StringViewT get_subview(IntP index) const
 	{
 		return get_subview(index, get_size());
 	}
@@ -173,7 +173,7 @@ public:
 
 private:
 	const TChar* chars_{};
-	Int size_{};
+	IntP size_{};
 };
 
 // ==========================================================================

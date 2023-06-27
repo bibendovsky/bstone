@@ -148,7 +148,7 @@ SdlWindow::~SdlWindow()
 	message += "Destroy SDL window (id:";
 	detail::sdl_log_xint(sdl_window_id_, message);
 	message += "; ptr:";
-	detail::sdl_log_xint_hex(reinterpret_cast<UInt>(sdl_window_.get()), message);
+	detail::sdl_log_xint_hex(reinterpret_cast<UIntP>(sdl_window_.get()), message);
 	message += ").";
 
 	logger_.log_information(message);
@@ -406,7 +406,7 @@ void SdlWindow::log_output(std::string& message)
 	// window pointer
 	//
 	message += "  Ptr: ";
-	detail::sdl_log_xint_hex(reinterpret_cast<UInt>(sdl_window_.get()), message);
+	detail::sdl_log_xint_hex(reinterpret_cast<UIntP>(sdl_window_.get()), message);
 	detail::sdl_log_eol(message);
 
 	// window id

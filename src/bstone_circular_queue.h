@@ -58,9 +58,9 @@ public:
 
 	CircularQueueIterator(
 		Element* elements,
-		Int capacity,
-		Int size,
-		Int index) noexcept
+		IntP capacity,
+		IntP size,
+		IntP index) noexcept
 		:
 		elements_{elements},
 		capacity_{capacity},
@@ -129,9 +129,9 @@ public:
 
 private:
 	Element* elements_{};
-	Int capacity_{};
-	Int size_{};
-	Int index_{};
+	IntP capacity_{};
+	IntP size_{};
+	IntP index_{};
 }; // CircularQueueIterator
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -196,12 +196,12 @@ public:
 	}
 
 
-	Int get_capacity() const noexcept
+	IntP get_capacity() const noexcept
 	{
 		return capacity_;
 	}
 
-	Int get_size() const noexcept
+	IntP get_size() const noexcept
 	{
 		return size_;
 	}
@@ -239,7 +239,7 @@ public:
 	}
 
 	void set_capacity(
-		Int capacity)
+		IntP capacity)
 	{
 		assert(capacity >= 0);
 
@@ -361,14 +361,14 @@ private:
 
 	Storage storage_{};
 
-	Int capacity_{};
-	Int size_{};
-	Int front_index_{};
-	Int back_index_{};
+	IntP capacity_{};
+	IntP size_{};
+	IntP front_index_{};
+	IntP back_index_{};
 
 
 	Element* get_ptr(
-		Int index) noexcept
+		IntP index) noexcept
 	{
 		assert(index >= 0 && index < capacity_);
 
@@ -386,8 +386,8 @@ private:
 		back_index_ = capacity_ - 1;
 	}
 
-	Int increment_index(
-		Int index) noexcept
+	IntP increment_index(
+		IntP index) noexcept
 	{
 		return (index + 1) % capacity_;
 	}

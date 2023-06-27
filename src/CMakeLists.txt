@@ -275,6 +275,13 @@ endif ()
 target_sources(
 	${PROJECT_NAME}
 	PRIVATE
+		bstone_int.h
+		bstone_int.cpp
+)
+
+target_sources(
+	${PROJECT_NAME}
+	PRIVATE
 		dosbox/adlib.h
 		dosbox/dbopl.h
 		dosbox/dosbox.h
@@ -407,7 +414,6 @@ target_sources(
 		bstone_image_decoder.h
 		bstone_image_encoder.h
 		bstone_image_extractor.h
-		bstone_int.h
 		bstone_logger.h
 		bstone_low_pass_filter.h
 		bstone_math.h
@@ -646,7 +652,6 @@ target_sources(
 		bstone_image_decoder.cpp
 		bstone_image_encoder.cpp
 		bstone_image_extractor.cpp
-		bstone_int.cpp
 		bstone_logger.cpp
 		bstone_low_pass_filter.cpp
 		bstone_memory.cpp

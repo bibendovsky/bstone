@@ -1,12 +1,14 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-// Fundamental integer types.
+// Fixed width integer types.
 
-#include <cstddef>
+#if !defined(BSTONE_INT_INCLUDED)
+#define BSTONE_INT_INCLUDED
+
 #include <cstdint>
 
 namespace bstone {
@@ -23,9 +25,9 @@ using UInt32 = std::uint32_t;
 using Int64 = std::int64_t;
 using UInt64 = std::uint64_t;
 
-// --------------------------------------------------------------------------
+using IntP = std::intptr_t;
+using UIntP = std::uintptr_t;
 
-using Int = std::ptrdiff_t;
-using UInt = std::size_t;
+} // namespace bstone
 
-} // bstone
+#endif // BSTONE_INT_INCLUDED

@@ -15,7 +15,7 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-template<typename T, Int TMaxSize>
+template<typename T, IntP TMaxSize>
 class FixedMemoryPool final : public MemoryResource
 {
 	static_assert(TMaxSize > 0, "Invalid max size.");
@@ -55,7 +55,7 @@ private:
 
 // --------------------------------------------------------------------------
 
-template<typename T, Int TMaxSize>
+template<typename T, IntP TMaxSize>
 FixedMemoryPool<T, TMaxSize>::~FixedMemoryPool()
 {
 	if (!bitmap_.is_empty())
@@ -64,13 +64,13 @@ FixedMemoryPool<T, TMaxSize>::~FixedMemoryPool()
 	}
 }
 
-template<typename T, Int TMaxSize>
+template<typename T, IntP TMaxSize>
 auto FixedMemoryPool<T, TMaxSize>::allocate() -> Value*
 {
 	return static_cast<Value*>(do_allocate(value_size));
 }
 
-template<typename T, Int TMaxSize>
+template<typename T, IntP TMaxSize>
 void* FixedMemoryPool<T, TMaxSize>::do_allocate(std::size_t size)
 {
 	if (size != value_size)
@@ -83,7 +83,7 @@ void* FixedMemoryPool<T, TMaxSize>::do_allocate(std::size_t size)
 	return &values[index];
 }
 
-template<typename T, Int TMaxSize>
+template<typename T, IntP TMaxSize>
 void FixedMemoryPool<T, TMaxSize>::do_deallocate(void* ptr)
 {
 	if (ptr == nullptr)

@@ -1529,13 +1529,13 @@ auto in_clear_bindings_ccmd = bstone::CCmd{in_clear_bindings_sv, in_clear_bindin
 
 // --------------------------------------------------------------------------
 
-bstone::Int in_parse_binding_slot_index(bstone::StringView slot_index_name_sv)
+bstone::IntP in_parse_binding_slot_index(bstone::StringView slot_index_name_sv)
 try
 {
 	const auto slot_index_name_span = bstone::make_span(
 		slot_index_name_sv.get_data(),
 		slot_index_name_sv.get_size());
-	const auto slot_index = bstone::char_conv::from_chars<bstone::Int>(slot_index_name_span);
+	const auto slot_index = bstone::char_conv::from_chars<bstone::IntP>(slot_index_name_span);
 
 	if (slot_index < 0 || slot_index > k_max_binding_keys)
 	{
@@ -1971,7 +1971,7 @@ void in_serialize_bindings(bstone::TextWriter& text_writer)
 		char slot_index_chars[slot_index_max_chars];
 		const auto slot_index_chars_span = bstone::make_span(slot_index_chars);
 
-		auto raw_binding_id = static_cast<bstone::Int>(BindingId{});
+		auto raw_binding_id = static_cast<bstone::IntP>(BindingId{});
 
 		for (const auto& binding_slots : in_bindings)
 		{

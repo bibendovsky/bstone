@@ -18,11 +18,11 @@ namespace bstone {
 
 namespace {
 
-static constexpr Int get_c_string_size(const char* string) noexcept
+static constexpr IntP get_c_string_size(const char* string) noexcept
 {
 	assert(string);
 
-	auto size = Int{};
+	auto size = IntP{};
 
 	while (string[size] != '\0')
 	{

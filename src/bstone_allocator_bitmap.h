@@ -17,7 +17,7 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-template<Int TMaxSize>
+template<IntP TMaxSize>
 class AllocatorBitmap
 {
 	static_assert(TMaxSize > 0, "Invalid max size.");
@@ -57,7 +57,7 @@ private:
 
 // --------------------------------------------------------------------------
 
-template<Int TBitCount>
+template<IntP TBitCount>
 AllocatorBitmap<TBitCount>::AllocatorBitmap()
 {
 	using Tag = std::conditional_t<
@@ -65,13 +65,13 @@ AllocatorBitmap<TBitCount>::AllocatorBitmap()
 	ctor(Tag{});
 }
 
-template<Int TBitCount>
+template<IntP TBitCount>
 bool AllocatorBitmap<TBitCount>::is_empty() const noexcept
 {
 	return size_ == 0;
 }
 
-template<Int TBitCount>
+template<IntP TBitCount>
 auto AllocatorBitmap<TBitCount>::set_first_free() -> Index
 {
 	if (size_ == max_size)
@@ -102,7 +102,7 @@ auto AllocatorBitmap<TBitCount>::set_first_free() -> Index
 	BSTONE_STATIC_THROW("No free bit.");
 }
 
-template<Int TBitCount>
+template<IntP TBitCount>
 void AllocatorBitmap<TBitCount>::reset(Index index)
 {
 	if (index < 0 || index >= max_size)
@@ -123,11 +123,11 @@ void AllocatorBitmap<TBitCount>::reset(Index index)
 	--size_;
 }
 
-template<Int TBitCount>
+template<IntP TBitCount>
 void AllocatorBitmap<TBitCount>::ctor(MultiplyMaxSizeTag)
 {}
 
-template<Int TBitCount>
+template<IntP TBitCount>
 void AllocatorBitmap<TBitCount>::ctor(NonMultiplyMaxSizeTag)
 {
 	constexpr auto unused_bit_count = max_aligned_size - max_size;

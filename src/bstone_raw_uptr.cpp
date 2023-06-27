@@ -89,7 +89,7 @@ bool operator!=(std::nullptr_t, const RawUPtr& rhs) noexcept
 
 // ==========================================================================
 
-RawUPtr make_raw_uptr(Int size)
+RawUPtr make_raw_uptr(IntP size)
 {
 	assert(size >= 0);
 	return RawUPtr{::operator new(size)};

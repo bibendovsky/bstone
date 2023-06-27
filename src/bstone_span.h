@@ -22,7 +22,7 @@ public:
 
 	constexpr Span() noexcept = default;
 
-	constexpr Span(Item* items, Int size)
+	constexpr Span(Item* items, IntP size)
 		:
 		items_{items},
 		size_{size}
@@ -30,7 +30,7 @@ public:
 		assert(is_empty() || (!is_empty() && has_data()));
 	}
 
-	template<Int TSize>
+	template<IntP TSize>
 	constexpr explicit Span(Item (&array)[TSize]) noexcept
 		:
 		items_{array},
@@ -45,7 +45,7 @@ public:
 		return items_;
 	}
 
-	constexpr Int get_size() const noexcept
+	constexpr IntP get_size() const noexcept
 	{
 		return size_;
 	}
@@ -60,9 +60,9 @@ public:
 		return get_size() == 0;
 	}
 
-	constexpr Int get_bytes_size() const noexcept
+	constexpr IntP get_bytes_size() const noexcept
 	{
-		return get_size() * static_cast<Int>(sizeof(Item));
+		return get_size() * static_cast<IntP>(sizeof(Item));
 	}
 
 	constexpr Item* begin() const noexcept
@@ -99,7 +99,7 @@ public:
 		return const_cast<Item&>(type_traits::as_const(*this).get_back());
 	}
 
-	constexpr Span get_subspan(Int offset, Int size) const
+	constexpr Span get_subspan(IntP offset, IntP size) const
 	{
 		assert(offset >= 0);
 		assert(size >= 0);
@@ -107,7 +107,7 @@ public:
 		return Span{get_data() + offset, size};
 	}
 
-	constexpr Span get_subspan(Int offset) const
+	constexpr Span get_subspan(IntP offset) const
 	{
 		return get_subspan(offset, get_size() - offset);
 	}
@@ -142,7 +142,7 @@ public:
 		return Span<const UItem>{get_data(), get_size()};
 	}
 
-	constexpr Item& operator[](Int index) const
+	constexpr Item& operator[](IntP index) const
 	{
 		assert(index >= 0 && index < get_size());
 		assert(has_data());
@@ -157,18 +157,18 @@ public:
 
 private:
 	Item* items_{};
-	Int size_{};
+	IntP size_{};
 }; // Span
 
 // ==========================================================================
 
 template<typename T>
-inline constexpr auto make_span(T* items, Int size)
+inline constexpr auto make_span(T* items, IntP size)
 {
 	return Span<T>{items, size};
 }
 
-template<typename T, Int TSize>
+template<typename T, IntP TSize>
 inline constexpr auto make_span(T (&array)[TSize]) noexcept
 {
 	return Span<T>{array};
@@ -177,7 +177,7 @@ inline constexpr auto make_span(T (&array)[TSize]) noexcept
 // ==========================================================================
 
 template<typename T>
-inline constexpr auto make_bytes_span(T* items, Int size)
+inline constexpr auto make_bytes_span(T* items, IntP size)
 {
 	using Type = std::remove_pointer_t<T>;
 	using UInt8Type = std::conditional_t<std::is_const<Type>::value, const UInt8, UInt8>;
@@ -186,11 +186,11 @@ inline constexpr auto make_bytes_span(T* items, Int size)
 	return Span<UInt8Type>
 	{
 		reinterpret_cast<UInt8PtrType>(items),
-		size * static_cast<Int>(sizeof(T))
+		size * static_cast<IntP>(sizeof(T))
 	};
 }
 
-template<typename T, Int TSize>
+template<typename T, IntP TSize>
 inline constexpr auto make_bytes_span(T (&array)[TSize]) noexcept
 {
 	return make_bytes_span(array, TSize);

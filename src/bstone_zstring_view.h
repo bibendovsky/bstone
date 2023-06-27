@@ -37,7 +37,7 @@ public:
 		return chars_;
 	}
 
-	constexpr Int get_size() const noexcept
+	constexpr IntP get_size() const noexcept
 	{
 		return size_;
 	}
@@ -67,7 +67,7 @@ public:
 		return end();
 	}
 
-	constexpr const TChar& operator[](Int index) const
+	constexpr const TChar& operator[](IntP index) const
 	{
 		assert(index >= 0 && index <= get_size());
 		return get_data()[index];
@@ -86,7 +86,7 @@ public:
 
 private:
 	const TChar* chars_{};
-	Int size_{};
+	IntP size_{};
 };
 
 // ==========================================================================

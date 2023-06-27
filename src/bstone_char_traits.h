@@ -13,7 +13,7 @@ namespace bstone {
 namespace char_traits {
 
 template<typename TChar>
-inline constexpr Int get_size(const TChar* chars)
+inline constexpr IntP get_size(const TChar* chars)
 {
 	auto i_chars = chars;
 
@@ -30,9 +30,9 @@ inline constexpr Int get_size(const TChar* chars)
 template<typename TChar>
 inline constexpr int compare(
 	const TChar* lhs_chars,
-	Int lhs_size,
+	IntP lhs_size,
 	const TChar* rhs_chars,
-	Int rhs_size)
+	IntP rhs_size)
 {
 	const auto size = lhs_size < rhs_size ? lhs_size : rhs_size;
 

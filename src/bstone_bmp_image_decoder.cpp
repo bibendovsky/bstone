@@ -141,13 +141,13 @@ class BmpImageDecoderImpl
 public:
 	void decode(
 		const void* src_data,
-		Int src_size,
+		IntP src_size,
 		int& dst_width,
 		int& dst_height,
 		Rgba8Buffer& dst_bits);
 
 private:
-	static constexpr auto max_palette_size = Int{256};
+	static constexpr auto max_palette_size = IntP{256};
 
 	using Palette = Rgba8[max_palette_size];
 
@@ -227,7 +227,7 @@ private:
 	template<typename T>
 	T generic_read_le();
 
-	void skip_bytes(Int count);
+	void skip_bytes(IntP count);
 
 	template<typename T>
 	void skip_generic();
@@ -253,9 +253,9 @@ private:
 
 	// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-	void skip_line_padding(Int size);
+	void skip_line_padding(IntP size);
 
-	void rle_write_pixel_by_index(Int index);
+	void rle_write_pixel_by_index(IntP index);
 	void rle_write_pixel(Rgba8 color);
 	void rle_end_of_line();
 	void rle_move_cursor();
@@ -290,7 +290,7 @@ private:
 
 void BmpImageDecoderImpl::decode(
 	const void* src_data,
-	Int src_size,
+	IntP src_size,
 	int& dst_width,
 	int& dst_height,
 	Rgba8Buffer& dst_bits)
@@ -485,7 +485,7 @@ Rgba8 BmpImageDecoderImpl::a8r8g8b8_to_a8b8g8r8(const Bitfields&, unsigned int v
 template<typename T>
 T BmpImageDecoderImpl::generic_read_le()
 {
-	const auto type_size = static_cast<Int>(sizeof(T));
+	const auto type_size = static_cast<IntP>(sizeof(T));
 
 	if ((remain_bytes_end_ - remain_bytes_) < type_size)
 	{
@@ -497,7 +497,7 @@ T BmpImageDecoderImpl::generic_read_le()
 	return result;
 }
 
-void BmpImageDecoderImpl::skip_bytes(Int count)
+void BmpImageDecoderImpl::skip_bytes(IntP count)
 {
 	assert(count >= 0);
 	remain_bytes_ += count;
@@ -506,7 +506,7 @@ void BmpImageDecoderImpl::skip_bytes(Int count)
 template<typename T>
 void BmpImageDecoderImpl::skip_generic()
 {
-	constexpr auto type_size = static_cast<Int>(sizeof(T));
+	constexpr auto type_size = static_cast<IntP>(sizeof(T));
 	skip_bytes(type_size);
 }
 
@@ -581,13 +581,13 @@ void BmpImageDecoderImpl::rle_write_pixel(Rgba8 color)
 	*dst_rle_line_++ = color;
 }
 
-void BmpImageDecoderImpl::skip_line_padding(Int size)
+void BmpImageDecoderImpl::skip_line_padding(IntP size)
 {
 	assert(size >= 0 );
 	remain_bytes_ += size;
 }
 
-void BmpImageDecoderImpl::rle_write_pixel_by_index(Int index)
+void BmpImageDecoderImpl::rle_write_pixel_by_index(IntP index)
 {
 	if (dst_rle_line_ == dst_rle_line_end_)
 	{
@@ -1221,7 +1221,7 @@ void BmpImageDecoderImpl::decode_4bpp_rle()
 					const auto index = get_nibble_by_index(byte_cache, nibble_index);
 					nibble_index ^= 1U;
 
-					rle_write_pixel_by_index(static_cast<Int>(index));
+					rle_write_pixel_by_index(static_cast<IntP>(index));
 				}
 
 				// Skip a padding byte.

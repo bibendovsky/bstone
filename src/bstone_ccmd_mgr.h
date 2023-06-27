@@ -35,7 +35,7 @@ public:
 
 using CCmdMgrUPtr = std::unique_ptr<CCmdMgr>;
 
-CCmdMgrUPtr make_ccmd_mgr(Int max_ccmds);
+CCmdMgrUPtr make_ccmd_mgr(IntP max_ccmds);
 
 } // namespace bstone
 

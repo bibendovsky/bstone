@@ -464,9 +464,12 @@ CMake variables:
 * `BSTONE_MORE_COMPILER_WARNINGS`  
   Enables more compilation warnings.
 
+* `BSTONE_TESTS`  
+  Builds an application to test internal facility.  
+  Default value: OFF
+
 * `SDL2W_SDL2_DIR`  
   Defines directory with SDL2 CMake configuration file or with official SDL2 development Windows build.
-
 
 Notes:
 * Use `ON` value to enable option and value `OFF` to disable option.

@@ -35,7 +35,7 @@ public:
 
 using CVarMgrUPtr = std::unique_ptr<CVarMgr>;
 
-CVarMgrUPtr make_cvar_mgr(Int max_cvars);
+CVarMgrUPtr make_cvar_mgr(IntP max_cvars);
 
 } // namespace bstone
 

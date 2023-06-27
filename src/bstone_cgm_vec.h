@@ -20,7 +20,7 @@ A vector
 namespace bstone {
 namespace cgm {
 
-template<Int N, typename T>
+template<IntP N, typename T>
 class VecT;
 
 // ==========================================================================
@@ -40,13 +40,13 @@ public:
 		v_{v0, v1}
 	{}
 
-	constexpr const Item& operator[](Int index) const
+	constexpr const Item& operator[](IntP index) const
 	{
 		assert(index >= 0 && index < item_count);
 		return v_[index];
 	}
 
-	constexpr Item& operator[](Int index)
+	constexpr Item& operator[](IntP index)
 	{
 		return const_cast<Item&>(type_traits::as_const(*this)[index]);
 	}
@@ -79,13 +79,13 @@ public:
 		v_{v0, v1, v2}
 	{}
 
-	constexpr const Item& operator[](Int index) const
+	constexpr const Item& operator[](IntP index) const
 	{
 		assert(index >= 0 && index < item_count);
 		return v_[index];
 	}
 
-	constexpr Item& operator[](Int index)
+	constexpr Item& operator[](IntP index)
 	{
 		return const_cast<Item&>(type_traits::as_const(*this)[index]);
 	}
@@ -118,13 +118,13 @@ public:
 		v_{v0, v1, v2, v3}
 	{}
 
-	constexpr const Item& operator[](Int index) const
+	constexpr const Item& operator[](IntP index) const
 	{
 		assert(index >= 0 && index < item_count);
 		return v_[index];
 	}
 
-	constexpr Item& operator[](Int index)
+	constexpr Item& operator[](IntP index)
 	{
 		return const_cast<Item&>(type_traits::as_const(*this)[index]);
 	}
@@ -162,7 +162,7 @@ inline constexpr bool operator==(const VecT<4, T>& a, const VecT<4, T>& b)
 
 // ==========================================================================
 
-template<Int N, typename T>
+template<IntP N, typename T>
 inline constexpr bool operator!=(const VecT<N, T>& a, const VecT<N, T>& b)
 {
 	return !(a == b);
@@ -250,7 +250,7 @@ inline constexpr VecT<4, T> operator*(const VecT<4, T>& a, T s)
 
 // ==========================================================================
 
-template<Int N, typename T>
+template<IntP N, typename T>
 inline constexpr VecT<N, T> operator*(T s, const VecT<N, T>& a)
 {
 	return a * s;
@@ -278,7 +278,7 @@ inline constexpr T dot(const VecT<4, T>& a, const VecT<4, T>& b)
 
 // ==========================================================================
 
-template<Int N, typename T>
+template<IntP N, typename T>
 inline constexpr VecT<N, T> normalize(const VecT<N, T>& a)
 {
 	const auto r_magnitude = 1 / a.get_magnitude();
