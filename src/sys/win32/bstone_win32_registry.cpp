@@ -38,35 +38,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 namespace bstone
 {
 
-
-class Win32RegistryKeyException :
-	public Exception
-{
-public:
-	explicit Win32RegistryKeyException(
-		const char* message) noexcept
-		:
-		Exception{"WIN32_REG_KEY", message}
-	{
-	}
-}; // Win32RegistryKeyException
-
-
-[[noreturn]]
-void win32_registry_key_fail(
-	const char* message)
-{
-	throw Win32RegistryKeyException{message};
-}
-
-[[noreturn]]
-void win32_registry_key_fail_nested(
-	const char* message)
-{
-	std::throw_with_nested(Win32RegistryKeyException{message});
-}
-
-
 void Win32RegistryKeyDeleter(
 	HKEY resource) noexcept
 {
@@ -169,8 +140,7 @@ Win32RegistryKeyUPtr make_win32_registry_key(
 	const Win32RegistryViewType view_type,
 	const Win32RegistryRootKeyType root_key_type,
 	const std::string& sub_key_name_utf8)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	auto win32_access = DWORD{KEY_READ};
 
 	switch (view_type)
@@ -187,7 +157,7 @@ try
 			break;
 
 		default:
-			win32_registry_key_fail("Unsupported view type.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported view type.");
 	}
 
 	auto win32_root_key = HKEY{};
@@ -199,12 +169,12 @@ try
 			break;
 
 		default:
-			win32_registry_key_fail("Unsupported root key type.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported root key type.");
 	}
 
 	if (sub_key_name_utf8.empty())
 	{
-		win32_registry_key_fail("Empty sub-key name.");
+		BSTONE_THROW_STATIC_SOURCE("Empty sub-key name.");
 	}
 
 	const auto& sub_key_name_utf16 = utf8_to_utf16(sub_key_name_utf8);
@@ -227,11 +197,7 @@ try
 	}
 
 	return std::make_unique<Win32RegistryKeyImpl>(std::move(win32_key_resource));
-}
-catch (...)
-{
-	win32_registry_key_fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 
 } // bstone

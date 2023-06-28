@@ -17,14 +17,6 @@ using CCmdActionArgs = Span<const StringView>;
 
 // ==========================================================================
 
-class CCmdActionException : public Exception
-{
-public:
-	explicit CCmdActionException(const char* message) noexcept;
-};
-
-// ==========================================================================
-
 class CCmdAction
 {
 public:
@@ -36,10 +28,6 @@ public:
 
 private:
 	virtual void do_invoke(CCmdActionArgs args) = 0;
-
-private:
-	[[noreturn]] static void fail(const char* message);
-	[[noreturn]] static void fail_nested(const char* message);
 };
 
 } // namespace bstone

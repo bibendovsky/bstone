@@ -77,10 +77,6 @@ protected:
 private:
 	[[noreturn]]
 	static void fail_not_implemented();
-
-	[[noreturn]]
-	static void fail_nested(
-		const char* message);
 }; // FizzleFX
 
 

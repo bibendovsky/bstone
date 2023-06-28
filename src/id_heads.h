@@ -12,10 +12,10 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <array>
 #include <cstdint>
+#include <string>
 
 
 #include "bstone_cl.h"
-#include "bstone_exception.h"
 
 
 struct QuitException{};
@@ -57,10 +57,6 @@ extern Update update;
 
 extern bstone::Cl g_args;
 
-
-[[noreturn]]
-void fail(
-	const std::string& message);
 
 [[noreturn]]
 void Quit();

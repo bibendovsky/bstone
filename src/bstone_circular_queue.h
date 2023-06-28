@@ -16,34 +16,13 @@ SPDX-License-Identifier: MIT
 #include <type_traits>
 #include <utility>
 
+#include "bstone_exception.h"
 #include "bstone_int.h"
 
 
 namespace bstone
 {
 
-
-namespace detail
-{
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-[[noreturn]]
-void circular_queue_fail(
-	const char* message);
-
-[[noreturn]]
-void circular_queue_fail_nested(
-	const char* message);
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-} // detail
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 template<
 	typename TElement
@@ -245,7 +224,7 @@ public:
 
 		if (!is_empty())
 		{
-			detail::circular_queue_fail("Non-empty queue.");
+			BSTONE_THROW_STATIC_SOURCE("Non-empty queue.");
 		}
 
 		if (get_capacity() == capacity)
@@ -276,7 +255,7 @@ public:
 	{
 		if (get_size() == get_capacity())
 		{
-			detail::circular_queue_fail("No free elements.");
+			BSTONE_THROW_STATIC_SOURCE("No free elements.");
 		}
 
 		const auto next_back_index = increment_index(back_index_);

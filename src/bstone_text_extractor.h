@@ -22,7 +22,6 @@ public:
 	void extract_text(const std::string& dst_dir);
 
 private:
-	[[noreturn]] void fail(const char* message);
 	[[noreturn]] void fail(int number, const char* message);
 
 private:

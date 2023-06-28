@@ -10,28 +10,16 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-class CValidatorException : public Exception
-{
-public:
-	explicit CValidatorException(const char* message) noexcept
-		:
-		Exception{"BSTONE_CVALIDATOR", message}
-	{}
-};
-
-// ==========================================================================
-
 void CValidator::validate_name(StringView name)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (name.is_empty())
 	{
-		fail("Empty name.");
+		BSTONE_THROW_STATIC_SOURCE("Empty name.");
 	}
 
 	if (ascii::is_decimal(*name.begin()))
 	{
-		fail("Name starts with a decimal digit.");
+		BSTONE_THROW_STATIC_SOURCE("Name starts with a decimal digit.");
 	}
 
 	auto has_alpha_or_underscore = false;
@@ -47,27 +35,14 @@ try
 		}
 		else
 		{
-			fail("Name character out of range.");
+			BSTONE_THROW_STATIC_SOURCE("Name character out of range.");
 		}
 	}
 
 	if (!has_alpha_or_underscore)
 	{
-		fail("Expected at least one underscore or alpha character for name.");
+		BSTONE_THROW_STATIC_SOURCE("Expected at least one underscore or alpha character for name.");
 	}
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-[[noreturn]] void CValidator::fail(const char* message)
-{
-	throw CValidatorException{message};
-}
-
-[[noreturn]] void CValidator::fail_nested(const char* message)
-{
-	std::throw_with_nested(CValidatorException{message});
-}
 } // namespace bstone

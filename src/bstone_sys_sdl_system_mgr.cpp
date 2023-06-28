@@ -57,7 +57,7 @@ SdlSystemMgrPool sdl_system_mgr_pool{};
 // ==========================================================================
 
 SdlSystemMgr::SdlSystemMgr(Logger& logger)
-try
+BSTONE_BEGIN_CTOR_TRY
 	:
 	logger_{logger}
 {
@@ -67,8 +67,7 @@ try
 	sdl_ensure_result(SDL_Init(0));
 
 	logger_.log_information(">>> SDL system manager started up.");
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 SdlSystemMgr::~SdlSystemMgr()
 {
@@ -78,18 +77,14 @@ SdlSystemMgr::~SdlSystemMgr()
 }
 
 void* SdlSystemMgr::operator new(std::size_t size)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return sdl_system_mgr_pool.allocate(size);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlSystemMgr::operator delete(void* ptr)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	sdl_system_mgr_pool.deallocate(ptr);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 AudioMgrUPtr SdlSystemMgr::do_make_audio_mgr()
 {
@@ -160,11 +155,9 @@ catch (...) {}
 // ==========================================================================
 
 SystemMgrUPtr make_system_mgr(Logger& logger)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return std::make_unique<SdlSystemMgr>(logger);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace sys
 } // namespace bstone

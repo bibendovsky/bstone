@@ -11,11 +11,9 @@ namespace bstone {
 namespace sys {
 
 bool EventMgr::poll_event(Event& e)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_poll_event(e);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace sys
 } // namespace bstone

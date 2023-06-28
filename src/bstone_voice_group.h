@@ -32,9 +32,6 @@ public:
 	void set_voice_gain(const Voice& voice);
 	void set_voice_output_gains(const Voice& voice);
 
-protected:
-	[[noreturn]] static void fail_nested(const char* message);
-
 private:
 	virtual bool do_is_any_playing() = 0;
 	virtual void do_set_gain(double gain) = 0;

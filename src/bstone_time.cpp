@@ -23,44 +23,8 @@ namespace bstone
 {
 
 
-namespace
-{
-
-
-class LocalDateTimeException :
-	public Exception
-{
-public:
-	explicit LocalDateTimeException(
-		const char* message) noexcept
-		:
-		Exception{"LOCAL_DATE_TIME", message}
-	{
-	}
-}; // LocalDateTimeException
-
-
-[[noreturn]]
-void fail(
-	const char* message)
-{
-	throw LocalDateTimeException{message};
-}
-
-[[noreturn]]
-void fail_nested(
-	const char* message)
-{
-	std::throw_with_nested(LocalDateTimeException{message});
-}
-
-
-} // namespace
-
-
 DateTime make_local_date_time()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 #if _WIN32
 	SYSTEMTIME win32_date_time;
 
@@ -83,7 +47,7 @@ try
 
 	if (clock_gettime_result != 0)
 	{
-		fail("Failed to get clock time.");
+		BSTONE_THROW_STATIC_SOURCE("Failed to get clock time.");
 	}
 
 	struct ::tm posix_tm;
@@ -92,7 +56,7 @@ try
 
 	if (!localtime_r_result)
 	{
-		fail("Failed to get local time.");
+		BSTONE_THROW_STATIC_SOURCE("Failed to get local time.");
 	}
 
 	const auto milliseconds = static_cast<int>(posix_tp.tv_nsec / 1'000'000);
@@ -108,17 +72,12 @@ try
 
 	return date_time;
 #endif // _WIN32
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // YYYYMMDD_hhmmss_sss
 std::string make_local_date_time_string_screenshot_file_name(
 	const DateTime& date_time)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	auto date_time_string = std::string{};
 	date_time_string.reserve(19);
 	date_time_string += StringHelper::make_left_padded_with_zero(date_time.year, 4);
@@ -132,30 +91,21 @@ try
 	date_time_string += StringHelper::make_left_padded_with_zero(date_time.milliseconds, 3);
 
 	return date_time_string;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::string make_local_date_time_string(
 	const DateTime& date_time,
 	DateTimeStringFormat format)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	switch (format)
 	{
 		case DateTimeStringFormat::screenshot_file_name:
 			return make_local_date_time_string_screenshot_file_name(date_time);
 
 		default:
-			fail("Unsupported format.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported format.");
 	}
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 
 } // bstone

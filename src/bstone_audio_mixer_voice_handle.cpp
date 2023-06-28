@@ -11,23 +11,6 @@ SPDX-License-Identifier: MIT
 namespace bstone
 {
 
-namespace
-{
-
-class AudioMixerVoiceHandleException : public Exception
-{
-public:
-	explicit AudioMixerVoiceHandleException(const char* message) noexcept
-		:
-		Exception{"AUDIO_MIXER_VOICE_HANDLE", message}
-	{
-	}
-}; // AudioMixerVoiceHandleException
-
-} // namespace
-
-// ==========================================================================
-
 AudioMixerVoiceHandleValue AudioMixerVoiceHandle::get() const noexcept
 {
 	return value_;
@@ -44,33 +27,18 @@ void AudioMixerVoiceHandle::reset() noexcept
 }
 
 AudioMixerVoiceHandle& AudioMixerVoiceHandle::operator++()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	static constexpr auto max_value = std::numeric_limits<AudioMixerVoiceHandleValue>::max();
 
 	if (get() == max_value)
 	{
-		fail("Value overflow.");
+		BSTONE_THROW_STATIC_SOURCE("Value overflow.");
 	}
 
 	++value_;
 
 	return *this;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-[[noreturn]] void AudioMixerVoiceHandle::fail(const char* message)
-{
-	throw AudioMixerVoiceHandleException{message};
-}
-
-[[noreturn]] void AudioMixerVoiceHandle::fail_nested(const char* message)
-{
-	std::throw_with_nested(AudioMixerVoiceHandleException{message});
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 

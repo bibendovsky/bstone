@@ -3515,7 +3515,7 @@ bool Interrogate(
 
 		if (msg.size() > static_cast<std::string::size_type>(MSG_BUFFER_LEN))
 		{
-			::fail("Interrogation message too long.");
+			BSTONE_THROW_STATIC_SOURCE("Interrogation message too long.");
 		}
 
 		DisplayInfoMsg(msg.c_str(), MP_INTERROGATE, DISPLAY_MSG_STD_TIME * 2, MT_GENERAL);
@@ -4227,7 +4227,7 @@ void LoadOverheadChunk(
 			ov_stats.unarchive(archiver.get());
 			archiver->read_checksum();
 		}
-		catch (const bstone::ArchiverException&)
+		catch (const std::exception&)
 		{
 			is_succeed = false;
 		}

@@ -27,10 +27,8 @@ int R3rBuffer::get_size() const noexcept
 }
 
 void R3rBuffer::update(const R3rUpdateBufferParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_update(param);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace bstone

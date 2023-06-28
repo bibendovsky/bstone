@@ -151,8 +151,8 @@ public:
 
 	constexpr void swap(Span& rhs) noexcept
 	{
-		utility::swap(items_, rhs.items_);
-		utility::swap(size_, rhs.size_);
+		Utility::swap(items_, rhs.items_);
+		Utility::swap(size_, rhs.size_);
 	}
 
 private:

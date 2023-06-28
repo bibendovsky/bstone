@@ -28,21 +28,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 namespace bstone
 {
 
-namespace
-{
-
-class AudioExtractorException : public bstone::Exception
-{
-public:
-	explicit AudioExtractorException(const std::string& message) noexcept
-		:
-		bstone::Exception{"AUDIO_EXTRACTOR", message.c_str()}
-	{
-	}
-}; // AudioExtractorException
-
-} // namespace
-
 // ==========================================================================
 
 class AudioExtractorImpl final : public AudioExtractor
@@ -71,8 +56,6 @@ private:
 
 	AudioContentMgr& audio_content_mgr_;
 	DecodeBuffer decode_buffer_{};
-
-	[[noreturn]] static void fail(const char* message);
 
 	bool write_wav_header(int data_size, int bit_depth, int sample_rate, bstone::Stream& stream);
 	void write_non_digitized_audio_chunk(const AudioChunk& sfx_info, bstone::Stream& stream);
@@ -120,12 +103,6 @@ void AudioExtractorImpl::extract_sfx(const std::string& dst_dir)
 	};
 
 	extract_audio_chunks(dst_dir, audio_chunk_filter);
-}
-
-[[noreturn]]
-void AudioExtractorImpl::fail(const char* message)
-{
-	throw AudioExtractorException{message};
 }
 
 bool AudioExtractorImpl::write_wav_header(int data_size, int bit_depth, int sample_rate, bstone::Stream& stream)
@@ -180,14 +157,14 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(const AudioChunk& audio
 			break;
 
 		default:
-			fail("Unsupported audio chunk type.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported audio chunk type.");
 	}
 
 	auto audio_decoder = bstone::make_audio_decoder(audio_decoder_type, Opl3Type::dbopl);
 
 	if (!audio_decoder)
 	{
-		fail("Failed to create decoder.");
+		BSTONE_THROW_STATIC_SOURCE("Failed to create decoder.");
 	}
 
 	auto param = bstone::AudioDecoderInitParam{};
@@ -197,12 +174,12 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(const AudioChunk& audio
 
 	if (!audio_decoder->initialize(param))
 	{
-		fail("Failed to initialize decoder.");
+		BSTONE_THROW_STATIC_SOURCE("Failed to initialize decoder.");
 	}
 
 	if (!stream.set_position(wav_prefix_size))
 	{
-		fail("Seek error.");
+		BSTONE_THROW_STATIC_SOURCE("Seek error.");
 	}
 
 	constexpr auto sample_size = static_cast<int>(sizeof(Sample));
@@ -231,7 +208,7 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(const AudioChunk& audio
 
 		if (!stream.write(decode_buffer_.data(), decoded_size))
 		{
-			fail("Write error.");
+			BSTONE_THROW_STATIC_SOURCE("Write error.");
 		}
 
 		data_size += decoded_size;
@@ -240,12 +217,12 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(const AudioChunk& audio
 
 	if (!stream.set_position(0))
 	{
-		fail("Seek error.");
+		BSTONE_THROW_STATIC_SOURCE("Seek error.");
 	}
 
 	if (!write_wav_header(data_size, bit_depth, bstone::opl3_fixed_frequency, stream))
 	{
-		fail("Write error.");
+		BSTONE_THROW_STATIC_SOURCE("Write error.");
 	}
 
 	const auto volume_factor = 32'767.0 / abs_max_sample;
@@ -263,19 +240,19 @@ void AudioExtractorImpl::write_digitized_audio_chunk(const AudioChunk& audio_chu
 
 	if (!write_wav_header(data_size, bit_depth, bstone::audio_decoder_w3d_pcm_frequency, stream))
 	{
-		fail("Write error.");
+		BSTONE_THROW_STATIC_SOURCE("Write error.");
 	}
 
 	if (!stream.write(audio_chunk.data, data_size))
 	{
-		fail("Write error.");
+		BSTONE_THROW_STATIC_SOURCE("Write error.");
 	}
 
 	if ((data_size % 2) != 0)
 	{
 		if (!stream.write_octet(0))
 		{
-			fail("Write error.");
+			BSTONE_THROW_STATIC_SOURCE("Write error.");
 		}
 	}
 
@@ -306,7 +283,7 @@ const char* AudioExtractorImpl::make_file_name_prefix(AudioChunkType audio_chunk
 		case AudioChunkType::adlib_sfx: return "sfx_adlib";
 		case AudioChunkType::pc_speaker: return "sfx_pc_speaker";
 		case AudioChunkType::digitized: return "sfx_digitized";
-		default: fail("Unsupported audio chunk type.");
+		default: BSTONE_THROW_STATIC_SOURCE("Unsupported audio chunk type.");
 	}
 }
 
@@ -316,7 +293,7 @@ const char* AudioExtractorImpl::make_file_extension(ExtensionType extension_type
 	{
 		case ExtensionType::data: return ".data";
 		case ExtensionType::wav: return ".wav";
-		default: fail("Unsupported extension type.");
+		default: BSTONE_THROW_STATIC_SOURCE("Unsupported extension type.");
 	}
 }
 
@@ -344,14 +321,14 @@ void AudioExtractorImpl::extract_raw_audio_chunk(const std::string& dst_dir, con
 
 	if (!file_stream.is_open())
 	{
-		fail("Failed to open a file for writing.");
+		BSTONE_THROW_STATIC_SOURCE("Failed to open a file for writing.");
 	}
 
 	const auto is_written = file_stream.write(audio_chunk.data, audio_chunk.data_size);
 
 	if (!is_written)
 	{
-		fail("Write error.");
+		BSTONE_THROW_STATIC_SOURCE("Write error.");
 	}
 
 	auto sha1 = Sha1{};
@@ -370,7 +347,7 @@ void AudioExtractorImpl::extract_decoded_audio_chunk(const std::string& dst_dir,
 
 	if (!file_stream.is_open())
 	{
-		fail("Failed to open a file for writing.");
+		BSTONE_THROW_STATIC_SOURCE("Failed to open a file for writing.");
 	}
 
 	switch (audio_chunk.type)
@@ -386,7 +363,7 @@ void AudioExtractorImpl::extract_decoded_audio_chunk(const std::string& dst_dir,
 			break;
 
 		default:
-			fail("Unsupported audio chunk type.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported audio chunk type.");
 	}
 }
 

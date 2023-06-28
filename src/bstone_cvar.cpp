@@ -17,21 +17,6 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-namespace {
-
-class CVarException : public Exception
-{
-public:
-	explicit CVarException(const char* message)
-		:
-		Exception{"BSTONE_CVAR", message}
-	{}
-
-	~CVarException() override = default;
-};
-
-} // namespace
-
 CVar::CVar(
 	CVarInt32Tag,
 	StringView name,
@@ -85,8 +70,7 @@ CVar::CVar(
 	CVarFlags flags,
 	StringView default_value,
 	CVarStringValues values)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	CValidator::validate_name(name);
 
 	if (!values.is_empty())
@@ -103,7 +87,7 @@ try
 
 		if (found_value_iter == values_end_iter)
 		{
-			fail("Default value out of range.");
+			BSTONE_THROW_STATIC_SOURCE("Default value out of range.");
 		}
 	}
 
@@ -119,11 +103,7 @@ try
 	string_values_ = values;
 	string_value_ = string_default_value_;
 	set_int32_from_string();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 CVar::CVar(CVarBoolTag, StringView name, CVarFlags flags, bool default_value)
 	:
@@ -177,8 +157,7 @@ Int32 CVar::get_int32() const noexcept
 }
 
 void CVar::set_int32(Int32 value)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	switch (type_)
 	{
 		case CVarType::int32:
@@ -216,11 +195,7 @@ try
 	{
 		ensure_string();
 	}
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 CVarInt32Values CVar::get_int32_values() const noexcept
 {
@@ -251,32 +226,22 @@ CVarStringValues CVar::get_string_values() const noexcept
 
 void CVar::swap(CVar& rhs)
 {
-	utility::swap(type_, rhs.type_);
+	Utility::swap(type_, rhs.type_);
 	name_.swap(rhs.name_);
 
-	utility::swap(int32_default_value_, rhs.int32_default_value_);
-	utility::swap(int32_min_value_, rhs.int32_min_value_);
-	utility::swap(int32_max_value_, rhs.int32_max_value_);
-	utility::swap(int32_value_, rhs.int32_value_);
+	Utility::swap(int32_default_value_, rhs.int32_default_value_);
+	Utility::swap(int32_min_value_, rhs.int32_min_value_);
+	Utility::swap(int32_max_value_, rhs.int32_max_value_);
+	Utility::swap(int32_value_, rhs.int32_value_);
 
 	string_default_value_.swap(rhs.string_default_value_);
 	string_values_.swap(rhs.string_values_);
 	string_value_.swap(rhs.string_value_);
 }
 
-[[noreturn]] void CVar::fail(const char* message)
-{
-	throw CVarException{message};
-}
-
 [[noreturn]] void CVar::fail_unknown_type()
 {
-	fail("Unknown type.");
-}
-
-[[noreturn]] void CVar::fail_nested(const char* message)
-{
-	std::throw_with_nested(CVarException{message});
+	BSTONE_THROW_STATIC_SOURCE("Unknown type.");
 }
 
 CVar::CVar(
@@ -287,8 +252,7 @@ CVar::CVar(
 	Int32 min_value,
 	Int32 max_value,
 	CVarInt32Values values)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	CValidator::validate_name(name);
 	const auto value_count = values.get_size();
 
@@ -303,7 +267,7 @@ try
 
 			if (value <= last_value)
 			{
-				fail("Unordered or duplicate values.");
+				BSTONE_THROW_STATIC_SOURCE("Unordered or duplicate values.");
 			}
 
 			found_default_value |= (value == default_value);
@@ -311,19 +275,19 @@ try
 
 		if (!found_default_value)
 		{
-			fail("Default int32 value out of range.");
+			BSTONE_THROW_STATIC_SOURCE("Default int32 value out of range.");
 		}
 	}
 	else
 	{
 		if (min_value > max_value)
 		{
-			fail("Min int32 value out of range.");
+			BSTONE_THROW_STATIC_SOURCE("Min int32 value out of range.");
 		}
 
 		if (default_value < min_value || default_value > max_value)
 		{
-			fail("Default int32 value out of range.");
+			BSTONE_THROW_STATIC_SOURCE("Default int32 value out of range.");
 		}
 	}
 
@@ -337,11 +301,7 @@ try
 	int32_values_ = values;
 	int32_value_ = int32_default_value_;
 	set_string_from_int32();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void CVar::set_string_from_int32()
 try

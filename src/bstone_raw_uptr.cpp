@@ -57,7 +57,7 @@ void RawUPtr::reset() noexcept
 
 void RawUPtr::swap(RawUPtr& rhs) noexcept
 {
-	utility::swap(resource_, rhs.resource_);
+	Utility::swap(resource_, rhs.resource_);
 }
 
 void RawUPtr::deallocate(void* resource) noexcept

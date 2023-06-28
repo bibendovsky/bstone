@@ -16,21 +16,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 namespace bstone
 {
 
-namespace
-{
-
-class AudioContentMgrException : public Exception
-{
-public:
-	explicit AudioContentMgrException(const char* message) noexcept
-		:
-		Exception{"AUDIO_CONTENT_MGR", message}
-	{
-	}
-}; // AudioContentMgrException
-
-} // namespace
-
 // ==========================================================================
 
 class AudioContentMgrImpl final : public AudioContentMgr
@@ -76,8 +61,6 @@ private:
 	AudiotData audiot_data_{};
 	AudioChunks audio_chunks_{};
 
-	[[noreturn]] static void fail(const char* message);
-
 	void initialize();
 
 	AudiotData load_audiot_data();
@@ -114,7 +97,7 @@ void AudioContentMgrImpl::set_sfx_type(AudioSfxType sfx_type)
 			break;
 
 		default:
-			fail("Unsupported SFX type.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported SFX type.");
 	}
 
 	sfx_chunk_base_index_ = sfx_chunk_base_index;
@@ -134,7 +117,7 @@ const AudioChunk& AudioContentMgrImpl::get_chunk(int chunk_number) const
 {
 	if (chunk_number < 0 || chunk_number >= get_chunk_count())
 	{
-		fail("Chunk number out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Chunk number out of range.");
 	}
 
 	return audio_chunks_[chunk_number];
@@ -144,7 +127,7 @@ const AudioChunk& AudioContentMgrImpl::get_sfx_chunk(int chunk_number) const
 {
 	if (chunk_number < 0 || chunk_number >= max_sfx_sounds)
 	{
-		fail("SFX chunk number out of range.");
+		BSTONE_THROW_STATIC_SOURCE("SFX chunk number out of range.");
 	}
 
 	if (is_sfx_digitized_)
@@ -164,7 +147,7 @@ int AudioContentMgrImpl::get_sfx_priority(int chunk_number) const
 {
 	if (chunk_number < 0 || chunk_number >= max_sfx_sounds)
 	{
-		fail("SFX chunk number out of range.");
+		BSTONE_THROW_STATIC_SOURCE("SFX chunk number out of range.");
 	}
 
 	const auto& audio_chunk = audio_chunks_[sfx_chunk_base_index_ + chunk_number];
@@ -179,15 +162,10 @@ const AudioChunk& AudioContentMgrImpl::get_adlib_music_chunk(int chunk_number) c
 
 	if (chunk_number < 0 || chunk_number >= music_chunk_count)
 	{
-		fail("Music chunk number out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Music chunk number out of range.");
 	}
 
 	return audio_chunks_[adlib_music_chunk_base_index + chunk_number];
-}
-
-[[noreturn]] void AudioContentMgrImpl::fail(const char* message)
-{
-	throw AudioContentMgrException{message};
 }
 
 void AudioContentMgrImpl::initialize()
@@ -212,7 +190,7 @@ AudioContentMgrImpl::AudiotData AudioContentMgrImpl::load_audiot_data()
 
 	if (read_audiot_size != audiot_size)
 	{
-		fail("Failed to read audio data file.");
+		BSTONE_THROW_STATIC_SOURCE("Failed to read audio data file.");
 	}
 
 	return audiot_data;
@@ -227,7 +205,7 @@ AudioContentMgrImpl::AudioChunks AudioContentMgrImpl::make_audio_chunks(const Au
 
 	if ((audiohed_size % audiohed_item_size) != 0)
 	{
-		fail("Invalid TOC file size.");
+		BSTONE_THROW_STATIC_SOURCE("Invalid TOC file size.");
 	}
 
 	const auto audiohed_count = audiohed_size / audiohed_item_size;
@@ -235,7 +213,7 @@ AudioContentMgrImpl::AudioChunks AudioContentMgrImpl::make_audio_chunks(const Au
 
 	if (audio_chunk_count <= adlib_music_chunk_base_index)
 	{
-		fail("Invalid audio chunk count.");
+		BSTONE_THROW_STATIC_SOURCE("Invalid audio chunk count.");
 	}
 
 	using Audiohed = std::vector<std::int32_t>;
@@ -245,7 +223,7 @@ AudioContentMgrImpl::AudioChunks AudioContentMgrImpl::make_audio_chunks(const Au
 
 	if (read_audiohed_size != audiohed_size)
 	{
-		fail("Failed to read TOC audio file.");
+		BSTONE_THROW_STATIC_SOURCE("Failed to read TOC audio file.");
 	}
 
 	for (auto& audiohed_item : audiohed_data)

@@ -279,6 +279,10 @@ target_sources(
 		bstone_int.cpp
 		bstone_char_traits.cpp
 		bstone_char_traits.h
+		bstone_utility.cpp
+		bstone_utility.h
+		bstone_source_location.cpp
+		bstone_source_location.h
 )
 
 target_sources(
@@ -403,6 +407,7 @@ target_sources(
 		bstone_enum_flags.h
 		bstone_entry_point.h
 		bstone_exception.h
+		bstone_exception_utils.h
 		bstone_file_stream.h
 		bstone_file_system.h
 		bstone_fizzle_fx.h
@@ -463,7 +468,6 @@ target_sources(
 		bstone_type_traits.h
 		bstone_un_value.h
 		bstone_unique_resource.h
-		bstone_utility.h
 		bstone_version.h
 		bstone_video.h
 		bstone_voice.h
@@ -641,6 +645,7 @@ target_sources(
 		bstone_encoding.cpp
 		bstone_entry_point.cpp
 		bstone_exception.cpp
+		bstone_exception_utils.cpp
 		bstone_file_stream.cpp
 		bstone_file_system.cpp
 		bstone_fizzle_fx.cpp

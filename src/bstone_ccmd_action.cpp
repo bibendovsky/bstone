@@ -8,44 +8,17 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-CCmdActionException::CCmdActionException(const char* message) noexcept
-	:
-	Exception{"BSTONE_CCMD_ACTION", message}
-{}
-
-// ==========================================================================
-
 CCmdAction::CCmdAction() noexcept = default;
 CCmdAction::~CCmdAction() = default;
 
 void CCmdAction::invoke(CCmdActionArgs args)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_invoke(args);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void CCmdAction::operator()(CCmdActionArgs args)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	invoke(args);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-[[noreturn]] void CCmdAction::fail(const char* message)
-{
-	throw CCmdActionException{message};
-}
-
-[[noreturn]] void CCmdAction::fail_nested(const char* message)
-{
-	std::throw_with_nested(CCmdActionException{message});
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace bstone

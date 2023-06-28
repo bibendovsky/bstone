@@ -11,11 +11,9 @@ namespace bstone {
 namespace sys {
 
 GlSharedLibraryUPtr GlMgr::make_shared_library(const char* path)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_make_shared_library(path);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int GlMgr::get_swap_interval() noexcept
 {
@@ -23,11 +21,9 @@ int GlMgr::get_swap_interval() noexcept
 }
 
 void GlMgr::set_swap_interval(int swap_interval)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_set_swap_interval(swap_interval);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace sys
 } // namespace bstone

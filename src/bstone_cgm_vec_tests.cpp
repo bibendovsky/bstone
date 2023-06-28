@@ -28,16 +28,6 @@ namespace cgm {
 
 namespace {
 
-
-class VecTestsException : public Exception
-{
-public:
-	explicit VecTestsException(const char* message)
-		:
-		Exception{"BSTONE_VEC_TESTS", message}
-	{}
-};
-
 class VecTests
 {
 public:
@@ -86,11 +76,6 @@ private:
 		Vec* v_{};
 	};
 
-	[[noreturn]] void fail(const char* message)
-	{
-		throw new VecTestsException{message};
-	}
-
 	void check(bool condition, const char* message)
 	{
 		if (condition)
@@ -98,7 +83,7 @@ private:
 			return;
 		}
 
-		fail(message);
+		BSTONE_THROW_STATIC_SOURCE(message);
 	}
 
 	template<IntP N, typename T>

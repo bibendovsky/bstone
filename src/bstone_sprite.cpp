@@ -23,26 +23,6 @@ namespace bstone
 {
 
 
-namespace
-{
-
-
-class SpriteException :
-	public Exception
-{
-public:
-	explicit SpriteException(
-		const char* message) noexcept
-		:
-		Exception{"SPRITE", message}
-	{
-	}
-}; // SpriteException
-
-
-} // namespace
-
-
 Sprite::Sprite()
 	:
 	left_{},
@@ -101,7 +81,7 @@ void Sprite::initialize(
 
 	if (!raw_data)
 	{
-		fail("No raw data.");
+		BSTONE_THROW_STATIC_SOURCE("No raw data.");
 	}
 
 	const auto values_16 = static_cast<const std::uint16_t*>(raw_data);
@@ -112,7 +92,7 @@ void Sprite::initialize(
 
 	if (left > right || left >= dimension || right >= dimension)
 	{
-		fail("Invalid edge values.");
+		BSTONE_THROW_STATIC_SOURCE("Invalid edge values.");
 	}
 
 	const auto commands_offsets = &values_16[2];
@@ -244,20 +224,6 @@ const std::int16_t* Sprite::get_column(int index) const noexcept
 const std::int16_t* Sprite::get_data() const noexcept
 {
 	return image_.data();
-}
-
-[[noreturn]]
-void Sprite::fail(
-	const char* message)
-{
-	throw SpriteException{message};
-}
-
-[[noreturn]]
-void Sprite::fail_nested(
-	const char* message)
-{
-	std::throw_with_nested(SpriteException{message});
 }
 
 

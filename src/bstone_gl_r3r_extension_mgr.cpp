@@ -115,7 +115,7 @@ GlR3rExtensionMgrImplPool gl_r3r_extension_mgr_impl_pool{};
 // ==========================================================================
 
 GlR3rExtensionMgrImpl::GlR3rExtensionMgrImpl(sys::GlSharedLibrary& gl_shared_library)
-try
+BSTONE_BEGIN_CTOR_TRY
 	:
 	gl_shared_library_{gl_shared_library}
 {
@@ -126,24 +126,19 @@ try
 	get_names();
 
 	initialize_registry();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rExtensionMgrImpl::~GlR3rExtensionMgrImpl() = default;
 
 void* GlR3rExtensionMgrImpl::operator new(std::size_t size)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return gl_r3r_extension_mgr_impl_pool.allocate(size);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rExtensionMgrImpl::operator delete(void* ptr)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	gl_r3r_extension_mgr_impl_pool.deallocate(ptr);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int GlR3rExtensionMgrImpl::get_count() const noexcept
 {
@@ -171,11 +166,9 @@ const GlR3rVersion& GlR3rExtensionMgrImpl::get_glsl_version() const noexcept
 }
 
 void GlR3rExtensionMgrImpl::probe(GlR3rExtensionId extension_id)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	probe_generic(extension_id);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool GlR3rExtensionMgrImpl::has(GlR3rExtensionId extension_id) const noexcept
 {
@@ -195,8 +188,7 @@ bool GlR3rExtensionMgrImpl::operator[](GlR3rExtensionId extension_id) const noex
 }
 
 GlR3rExtensionMgrImpl::GlSymbolRegistry& GlR3rExtensionMgrImpl::get_gl_symbol_registry()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	static auto gl_symbol_registry = GlSymbolRegistry
 	{
 		{reinterpret_cast<void**>(&glAccum), "glAccum"},
@@ -1077,32 +1069,27 @@ try
 	};
 
 	return gl_symbol_registry;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rExtensionMgrImpl::clear_gl_symbols()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	auto& gl_symbol_registry = get_gl_symbol_registry();
 
 	for (auto& gl_symbol_item : gl_symbol_registry)
 	{
 		*gl_symbol_item.first = nullptr;
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rExtensionMgrImpl::resolve_gl_symbols()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	auto& gl_symbol_registry = get_gl_symbol_registry();
 
 	for (auto& gl_symbol_item : gl_symbol_registry)
 	{
 		*gl_symbol_item.first = gl_shared_library_.find_symbol(gl_symbol_item.second);
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool GlR3rExtensionMgrImpl::has_gl_symbol(const GlSymbolPtrs& gl_symbol_ptrs) noexcept
 {
@@ -1116,8 +1103,7 @@ bool GlR3rExtensionMgrImpl::has_gl_symbol(const GlSymbolPtrs& gl_symbol_ptrs) no
 }
 
 GlR3rExtensionMgrImpl::GlSymbolPtrs& GlR3rExtensionMgrImpl::get_essentials_gl_symbol_ptrs()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	static auto gl_symbols = GlSymbolPtrs
 	{
 		reinterpret_cast<void**>(&glGetError),
@@ -1125,12 +1111,10 @@ try
 	};
 
 	return gl_symbols;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rExtensionMgrImpl::GlSymbolPtrs& GlR3rExtensionMgrImpl::get_v2_0_gl_symbol_ptrs()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	static auto gl_symbols = GlSymbolPtrs
 	{
 		reinterpret_cast<void**>(&glAccum),
@@ -1681,12 +1665,10 @@ try
 	};
 
 	return gl_symbols;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rExtensionMgrImpl::GlSymbolPtrs& GlR3rExtensionMgrImpl::get_v3_2_core_gl_symbol_ptrs()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	static auto gl_symbols = GlSymbolPtrs
 	{
 		reinterpret_cast<void**>(&glActiveTexture),
@@ -2008,12 +1990,10 @@ try
 	};
 
 	return gl_symbols;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rExtensionMgrImpl::GlSymbolPtrs& GlR3rExtensionMgrImpl::get_es_v2_0_gl_symbol_ptrs()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	static auto gl_symbols = GlSymbolPtrs
 	{
 		reinterpret_cast<void**>(&glActiveTexture),
@@ -2161,20 +2141,16 @@ try
 	};
 
 	return gl_symbols;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rExtensionMgrImpl::GlSymbolPtrs& GlR3rExtensionMgrImpl::get_arb_buffer_storage_gl_symbol_ptrs()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	static auto gl_symbols = GlSymbolPtrs{reinterpret_cast<void**>(&glBufferStorage)};
 	return gl_symbols;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rExtensionMgrImpl::GlSymbolPtrs& GlR3rExtensionMgrImpl::get_arb_direct_state_access_gl_symbol_ptrs()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	static auto gl_symbols = GlSymbolPtrs
 	{
 		reinterpret_cast<void**>(&glBindTextureUnit),
@@ -2277,12 +2253,10 @@ try
 	};
 
 	return gl_symbols;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rExtensionMgrImpl::GlSymbolPtrs& GlR3rExtensionMgrImpl::get_arb_framebuffer_object_gl_symbol_ptrs()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	static auto gl_symbols = GlSymbolPtrs
 	{
 		reinterpret_cast<void**>(&glBindFramebuffer),
@@ -2308,12 +2282,10 @@ try
 	};
 
 	return gl_symbols;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rExtensionMgrImpl::GlSymbolPtrs& GlR3rExtensionMgrImpl::get_arb_sampler_objects_gl_symbol_ptrs()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	static auto gl_symbols = GlSymbolPtrs
 	{
 		reinterpret_cast<void**>(&glBindSampler),
@@ -2333,12 +2305,10 @@ try
 	};
 
 	return gl_symbols;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rExtensionMgrImpl::GlSymbolPtrs& GlR3rExtensionMgrImpl::get_arb_separate_shader_objects_gl_symbol_ptrs()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	static auto gl_symbols = GlSymbolPtrs
 	{
 		reinterpret_cast<void**>(&glActiveShaderProgram),
@@ -2405,12 +2375,10 @@ try
 	};
 
 	return gl_symbols;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rExtensionMgrImpl::GlSymbolPtrs& GlR3rExtensionMgrImpl::get_arb_vertex_array_object_gl_symbol_ptrs()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	static auto gl_symbols = GlSymbolPtrs
 	{
 		reinterpret_cast<void**>(&glBindVertexArray),
@@ -2420,28 +2388,22 @@ try
 	};
 
 	return gl_symbols;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rExtensionMgrImpl::GlSymbolPtrs& GlR3rExtensionMgrImpl::get_ext_framebuffer_blit_gl_symbol_ptrs()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	static auto gl_symbols = GlSymbolPtrs{reinterpret_cast<void**>(&glBlitFramebufferEXT)};
 	return gl_symbols;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rExtensionMgrImpl::GlSymbolPtrs& GlR3rExtensionMgrImpl::get_ext_framebuffer_multisample_gl_symbol_ptrs()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	static auto gl_symbols = GlSymbolPtrs{reinterpret_cast<void**>(&glRenderbufferStorageMultisampleEXT)};
 	return gl_symbols;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rExtensionMgrImpl::GlSymbolPtrs& GlR3rExtensionMgrImpl::get_ext_framebuffer_object_gl_symbol_ptrs()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	static auto gl_symbols = GlSymbolPtrs
 	{
 		reinterpret_cast<void**>(&glBindFramebufferEXT),
@@ -2464,8 +2426,7 @@ try
 	};
 
 	return gl_symbols;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const std::string& GlR3rExtensionMgrImpl::get_empty_extension_name() noexcept
 {
@@ -2491,8 +2452,7 @@ int GlR3rExtensionMgrImpl::get_extension_index(GlR3rExtensionId extension_id) no
 }
 
 void GlR3rExtensionMgrImpl::initialize_registry()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	registry_.clear();
 	registry_.resize(static_cast<int>(GlR3rExtensionId::count_));
 
@@ -2657,15 +2617,13 @@ try
 		registry_item.extension_name = "GL_OES_texture_npot";
 		registry_item.gl_symbol_ptrs = nullptr;
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int GlR3rExtensionMgrImpl::parse_version_number(const std::string& string)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (string.empty())
 	{
-		BSTONE_STATIC_THROW("Expected a digit.");
+		BSTONE_THROW_STATIC_SOURCE("Expected a digit.");
 	}
 
 	constexpr auto max_digit_count = 10;
@@ -2679,7 +2637,7 @@ try
 
 		if (digit_count > max_digit_count)
 		{
-			BSTONE_STATIC_THROW("Too many digits.");
+			BSTONE_THROW_STATIC_SOURCE("Too many digits.");
 		}
 
 		switch (ch)
@@ -2698,17 +2656,15 @@ try
 				break;
 
 			default:
-				BSTONE_STATIC_THROW("Non-digit character.");
+				BSTONE_THROW_STATIC_SOURCE("Non-digit character.");
 		}
 	}
 
 	return number;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rExtensionMgrImpl::parse_version(const std::string& version_string, GlR3rVersion& gl_version)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	static const auto digits = std::string{"0123456789"};
 	static const auto gles_prefix = std::string{"OpenGL ES "};
 
@@ -2716,7 +2672,7 @@ try
 
 	if (digits_pos == std::string::npos)
 	{
-		BSTONE_STATIC_THROW("Unsupported format.");
+		BSTONE_THROW_STATIC_SOURCE("Unsupported format.");
 	}
 
 	if (digits_pos > 0)
@@ -2727,7 +2683,7 @@ try
 		}
 		else
 		{
-			BSTONE_STATIC_THROW("Unsupported prefix.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported prefix.");
 		}
 	}
 
@@ -2738,7 +2694,7 @@ try
 
 	if (first_dot_pos == std::string::npos)
 	{
-		BSTONE_STATIC_THROW("Expected the dot separator.");
+		BSTONE_THROW_STATIC_SOURCE("Expected the dot separator.");
 	}
 
 	const auto second_dot_pos = version_string.rfind('.', vendor_info_pos);
@@ -2783,48 +2739,42 @@ try
 	{
 		gl_version.vendor = version_string.substr(vendor_info_pos + 1);
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rExtensionMgrImpl::get_version(GLenum version_enum, GlR3rVersion& gl_version)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (glGetString == nullptr)
 	{
-		BSTONE_STATIC_THROW("Null \"glGetString\".");
+		BSTONE_THROW_STATIC_SOURCE("Null \"glGetString\".");
 	}
 
 	const auto gl_version_string = reinterpret_cast<const char*>(glGetString(version_enum));
 
 	if (gl_version_string == nullptr)
 	{
-		BSTONE_STATIC_THROW("Null version string.");
+		BSTONE_THROW_STATIC_SOURCE("Null version string.");
 	}
 
 	const auto version_string = std::string{gl_version_string};
 	parse_version(version_string, gl_version);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rExtensionMgrImpl::get_version()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	get_version(GL_VERSION, gl_version_);
 	get_version(GL_SHADING_LANGUAGE_VERSION, glsl_version_);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rExtensionMgrImpl::get_names_from_multiple_strings()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (glGetIntegerv == nullptr)
 	{
-		BSTONE_STATIC_THROW("Null \"glGetIntegerv\".");
+		BSTONE_THROW_STATIC_SOURCE("Null \"glGetIntegerv\".");
 	}
 
 	if (glGetStringi == nullptr)
 	{
-		BSTONE_STATIC_THROW("Null \"glGetStringi\".");
+		BSTONE_THROW_STATIC_SOURCE("Null \"glGetStringi\".");
 	}
 
 	auto gl_extension_count = GLint{};
@@ -2845,20 +2795,18 @@ try
 
 		if (extension_name == nullptr)
 		{
-			BSTONE_STATIC_THROW("Null extension name.");
+			BSTONE_THROW_STATIC_SOURCE("Null extension name.");
 		}
 
 		extension_names_[i] = reinterpret_cast<const char*>(extension_name);
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rExtensionMgrImpl::get_names_from_one_string()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (glGetString == nullptr)
 	{
-		BSTONE_STATIC_THROW("Null \"glGetString\".");
+		BSTONE_THROW_STATIC_SOURCE("Null \"glGetString\".");
 	}
 
 	const auto gl_extensions_c_string = glGetString(GL_EXTENSIONS);
@@ -2866,7 +2814,7 @@ try
 
 	if (gl_extensions_c_string == nullptr)
 	{
-		BSTONE_STATIC_THROW("Null extensions string.");
+		BSTONE_THROW_STATIC_SOURCE("Null extensions string.");
 	}
 
 	const auto gl_extensions_std_string = std::string
@@ -2885,12 +2833,10 @@ try
 	extension_names_.assign(
 		std::istream_iterator<std::string>{iss},
 		std::istream_iterator<std::string>{});
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rExtensionMgrImpl::get_names()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (gl_version_.major >= 3)
 	{
 		get_names_from_multiple_strings();
@@ -2901,17 +2847,15 @@ try
 	}
 
 	std::sort(extension_names_.begin(), extension_names_.end());
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rExtensionMgrImpl::probe_generic(GlR3rExtensionId extension_id)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	const auto extension_index = get_extension_index(extension_id);
 
 	if (extension_index < 0)
 	{
-		BSTONE_STATIC_THROW("Invalid extension id.");
+		BSTONE_THROW_STATIC_SOURCE("Invalid extension id.");
 	}
 
 	auto& registry_item = registry_[extension_index];
@@ -2925,7 +2869,7 @@ try
 
 	if (registry_item.is_virtual && registry_item.gl_symbol_ptrs == nullptr)
 	{
-		BSTONE_STATIC_THROW("Expected symbol pointer for virtual extension.");
+		BSTONE_THROW_STATIC_SOURCE("Expected symbol pointer for virtual extension.");
 	}
 
 	if (!registry_item.is_virtual)
@@ -2956,8 +2900,7 @@ try
 	}
 
 	registry_item.is_available = true;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace
 

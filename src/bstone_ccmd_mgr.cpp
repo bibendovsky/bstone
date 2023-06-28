@@ -14,21 +14,6 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-namespace {
-
-class CCmdMgrException : public Exception
-{
-public:
-	explicit CCmdMgrException(const char* message) noexcept
-		:
-		Exception{"BSTONE_CCMD_MGR", message}
-	{}
-
-	~CCmdMgrException() override = default;
-};
-
-} // namespace
-
 class CCmdMgrImpl final : public CCmdMgr
 {
 public:
@@ -50,10 +35,6 @@ private:
 	IntP max_ccmds_{};
 	CCmds ccmds_{};
 	NameToIndex name_to_index_map_{};
-
-private:
-	[[noreturn]] static void fail(const char* message);
-	[[noreturn]] static void fail_nested(const char* message);
 };
 
 // --------------------------------------------------------------------------
@@ -81,11 +62,10 @@ CCmdMgrCCmds CCmdMgrImpl::get_all() noexcept
 }
 
 void CCmdMgrImpl::add(CCmd& ccmd)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (ccmds_.size() == static_cast<CCmds::size_type>(max_ccmds_))
 	{
-		fail("Too many CCMDs.");
+		BSTONE_THROW_STATIC_SOURCE("Too many CCMDs.");
 	}
 
 	const auto name = ccmd.get_name();
@@ -98,26 +78,12 @@ try
 		message += "CCMD \"";
 		message.append(name.get_data(), name.get_size());
 		message += "\" already registered.";
-		fail(message.c_str());
+		BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
 	}
 
 	ccmds_.emplace_back(&ccmd);
 	name_to_index_map_[name] = ccmds_.size() - 1;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-[[noreturn]] void CCmdMgrImpl::fail(const char* message)
-{
-	throw CCmdMgrException{message};
-}
-
-[[noreturn]] void CCmdMgrImpl::fail_nested(const char* message)
-{
-	std::throw_with_nested(CCmdMgrException{message});
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 

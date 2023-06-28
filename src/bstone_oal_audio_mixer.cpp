@@ -33,21 +33,8 @@ SPDX-License-Identifier: GPL-2.0-or-later
 namespace bstone
 {
 
-class OalAudioMixerException : public Exception
-{
-public:
-	explicit OalAudioMixerException(const char* message) noexcept
-		:
-		Exception{"OAL_AUDIO_MIXER", message}
-	{
-	}
-}; // OalAudioMixerException
-
-// ==========================================================================
-
 OalAudioMixer::OalAudioMixer(const AudioMixerInitParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	switch (param.opl3_type)
 	{
 		case Opl3Type::dbopl:
@@ -55,7 +42,7 @@ try
 			break;
 
 		default:
-			fail("Unknown OPL3 type.");
+			BSTONE_THROW_STATIC_SOURCE("Unknown OPL3 type.");
 	}
 
 	initialize_oal(param);
@@ -92,11 +79,7 @@ try
 	initialize_thread();
 
 	is_mute_ = false;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 OalAudioMixer::~OalAudioMixer()
 {
@@ -139,8 +122,7 @@ int OalAudioMixer::get_mix_size_ms() const
 }
 
 void OalAudioMixer::set_mute(bool is_mute)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	auto command = Command{};
 	command.type = CommandType::set_mute;
 	auto& command_param = command.param.set_mute;
@@ -148,11 +130,7 @@ try
 
 	const auto commands_lock = MutexUniqueLock{commands_mutex_};
 	commands_.emplace_back(command);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int OalAudioMixer::get_min_rate() const noexcept
 {
@@ -185,8 +163,7 @@ void OalAudioMixer::resume_state()
 }
 
 void OalAudioMixer::set_gain(double gain)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	AudioMixerValidator::validate_gain(gain);
 
 	auto command = Command{};
@@ -196,45 +173,30 @@ try
 
 	const auto commands_lock = MutexUniqueLock{commands_mutex_};
 	commands_.emplace_back(command);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalAudioMixer::set_listener_r3_position(const AudioMixerListenerR3Position& r3_position)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	auto command = Command{};
 	command.type = CommandType::set_listener_r3_position;
 	auto& command_param = command.param.set_listener_r3_position;
 	command_param.r3_position = r3_position;
 	const auto commands_lock = MutexUniqueLock{commands_mutex_};
 	commands_.emplace_back(command);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalAudioMixer::set_listener_r3_orientation(const AudioMixerListenerR3Orientation& r3_orientation)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	auto command = Command{};
 	command.type = CommandType::set_listener_r3_orientation;
 	auto& command_param = command.param.set_listener_r3_orientation;
 	command_param.r3_orientation = r3_orientation;
 	const auto commands_lock = MutexUniqueLock{commands_mutex_};
 	commands_.emplace_back(command);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 AudioMixerVoiceHandle OalAudioMixer::play_sound(const AudioMixerPlaySoundParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	auto is_music = false;
 
 	switch (param.sound_type)
@@ -249,7 +211,7 @@ try
 			break;
 
 		default:
-			fail("Unknown sound type.");
+			BSTONE_THROW_STATIC_SOURCE("Unknown sound type.");
 	}
 
 	if (is_music)
@@ -279,25 +241,15 @@ try
 
 		return play_sfx_sound_internal(param.sound_type, param.sound_index, param.data, param.data_size, param.is_r3);
 	}
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool OalAudioMixer::is_voice_playing(AudioMixerVoiceHandle voice_handle) const
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return voice_handle_mgr_.is_valid_handle(voice_handle);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalAudioMixer::pause_voice(AudioMixerVoiceHandle voice_handle)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (!voice_handle.is_valid())
 	{
 		return;
@@ -309,15 +261,10 @@ try
 	command_param.handle = voice_handle;
 	const auto commands_lock = MutexUniqueLock{commands_mutex_};
 	commands_.emplace_back(command);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalAudioMixer::resume_voice(AudioMixerVoiceHandle voice_handle)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (!voice_handle.is_valid())
 	{
 		return;
@@ -329,15 +276,10 @@ try
 	command_param.handle = voice_handle;
 	const auto commands_lock = MutexUniqueLock{commands_mutex_};
 	commands_.emplace_back(command);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalAudioMixer::stop_voice(AudioMixerVoiceHandle voice_handle)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (!voice_handle.is_valid())
 	{
 		return;
@@ -349,15 +291,10 @@ try
 	command_param.handle = voice_handle;
 	const auto commands_lock = MutexUniqueLock{commands_mutex_};
 	commands_.emplace_back(command);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalAudioMixer::set_voice_gain(AudioMixerVoiceHandle voice_handle, double gain)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	AudioMixerValidator::validate_gain(gain);
 
 	if (!voice_handle.is_valid())
@@ -372,15 +309,10 @@ try
 	command_param.gain = gain;
 	const auto commands_lock = MutexUniqueLock{commands_mutex_};
 	commands_.emplace_back(command);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalAudioMixer::set_voice_r3_position(AudioMixerVoiceHandle voice_handle, const AudioMixerVoiceR3Position& r3_position)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (!voice_handle.is_valid())
 	{
 		return;
@@ -393,11 +325,7 @@ try
 	command_param.position = r3_position;
 	const auto commands_lock = MutexUniqueLock{commands_mutex_};
 	commands_.emplace_back(command);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool OalAudioMixer::can_set_voice_output_gains() const
 {
@@ -407,40 +335,20 @@ bool OalAudioMixer::can_set_voice_output_gains() const
 void OalAudioMixer::enable_set_voice_output_gains(
 	AudioMixerVoiceHandle,
 	bool)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	fail_unsupported();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalAudioMixer::set_voice_output_gains(
 	AudioMixerVoiceHandle,
 	AudioMixerOutputGains&)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	fail_unsupported();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-[[noreturn]] void OalAudioMixer::fail(const char* message)
-{
-	throw OalAudioMixerException{message};
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 [[noreturn]] void OalAudioMixer::fail_unsupported()
 {
-	fail("Not supported.");
-}
-
-[[noreturn]] void OalAudioMixer::fail_nested(const char* message)
-{
-	std::throw_with_nested(OalAudioMixerException{message});
+	BSTONE_THROW_STATIC_SOURCE("Not supported.");
 }
 
 void OalAudioMixer::make_al_context_current()
@@ -449,7 +357,7 @@ void OalAudioMixer::make_al_context_current()
 
 	if (al_result == ALC_FALSE)
 	{
-		fail("Failed to make context current.");
+		BSTONE_THROW_STATIC_SOURCE("Failed to make context current.");
 	}
 }
 
@@ -619,7 +527,7 @@ int OalAudioMixer::get_al_mixing_frequency()
 
 	if (al_attribute_size <= 0 || al_attribute_size > max_al_attributes_size)
 	{
-		fail("Attributes size out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Attributes size out of range.");
 	}
 
 	struct OalAttribute
@@ -646,7 +554,7 @@ int OalAudioMixer::get_al_mixing_frequency()
 		}
 	}
 
-	fail("No ALC_FREQUENCY attribute.");
+	BSTONE_THROW_STATIC_SOURCE("No ALC_FREQUENCY attribute.");
 }
 
 int OalAudioMixer::get_max_voice_count()
@@ -935,7 +843,7 @@ void OalAudioMixer::initialize_sfx_adlib_sounds()
 
 		if (!sfx_adlib_sound.audio_decoder)
 		{
-			fail("Failed to create SFX AdLib audio decoder.");
+			BSTONE_THROW_STATIC_SOURCE("Failed to create SFX AdLib audio decoder.");
 		}
 	}
 }
@@ -949,7 +857,7 @@ void OalAudioMixer::initialize_sfx_pc_speaker_sounds()
 
 		if (!sfx_pc_speaker_sound.audio_decoder)
 		{
-			fail("Failed to create SFX PC Speaker audio decoder.");
+			BSTONE_THROW_STATIC_SOURCE("Failed to create SFX PC Speaker audio decoder.");
 		}
 	}
 }
@@ -963,7 +871,7 @@ void OalAudioMixer::initialize_sfx_pcm_sounds()
 
 		if (!sfx_pcm_sound.audio_decoder)
 		{
-			fail("Failed to create SFX PCM audio decoder.");
+			BSTONE_THROW_STATIC_SOURCE("Failed to create SFX PCM audio decoder.");
 		}
 	}
 }

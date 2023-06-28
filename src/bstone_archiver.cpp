@@ -12,20 +12,13 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_crc32.h"
 #include "bstone_endian.h"
+#include "bstone_exception.h"
 #include "bstone_stream.h"
 #include "bstone_un_value.h"
 
 
 namespace bstone
 {
-
-
-ArchiverException::ArchiverException(
-	const char* message) noexcept
-	:
-	Exception{"ARCHIVER", message}
-{
-}
 
 
 namespace
@@ -169,28 +162,18 @@ private:
 	Buffer buffer_;
 
 
-	[[noreturn]]
-	static void fail(
-		const char* message);
-
-	[[noreturn]]
-	static void fail_nested(
-		const char* message);
-
-
 	template<typename T>
 	T read_integer(
 		const bool is_checksum = false)
-	try
-	{
+	BSTONE_BEGIN_FUNC_TRY
 		if (!is_initialized_)
 		{
-			fail("Not initialized.");
+			BSTONE_THROW_STATIC_SOURCE("Not initialized.");
 		}
 
 		if (!is_stream_readable_)
 		{
-			fail("Stream is not readable.");
+			BSTONE_THROW_STATIC_SOURCE("Stream is not readable.");
 		}
 
 		constexpr auto value_size = static_cast<int>(sizeof(T));
@@ -201,7 +184,7 @@ private:
 
 		if (read_result != value_size)
 		{
-			fail("Failed to read an integer value.");
+			BSTONE_THROW_STATIC_SOURCE("Failed to read an integer value.");
 		}
 
 		if (!is_checksum)
@@ -212,26 +195,21 @@ private:
 		const auto result = endian::to_little(value);
 
 		return result;
-	}
-	catch (...)
-	{
-		fail_nested(__func__);
-	}
+	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 	template<typename T>
 	void write_integer(
 		const T integer_value,
 		const bool is_checksum = false)
-	try
-	{
+	BSTONE_BEGIN_FUNC_TRY
 		if (!is_initialized_)
 		{
-			fail("Not initialized.");
+			BSTONE_THROW_STATIC_SOURCE("Not initialized.");
 		}
 
 		if (!is_stream_writable_)
 		{
-			fail("Stream is not writable.");
+			BSTONE_THROW_STATIC_SOURCE("Stream is not writable.");
 		}
 
 		constexpr auto value_size = static_cast<int>(sizeof(T));
@@ -247,38 +225,33 @@ private:
 
 		if (!write_result)
 		{
-			fail("Failed to write an integer value.");
+			BSTONE_THROW_STATIC_SOURCE("Failed to write an integer value.");
 		}
-	}
-	catch (...)
-	{
-		fail_nested(__func__);
-	}
+	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 	template<typename T>
 	void read_integer_array(
 		T* items,
 		const int item_count)
-	try
-	{
+	BSTONE_BEGIN_FUNC_TRY
 		if (!is_initialized_)
 		{
-			fail("Not initialized.");
+			BSTONE_THROW_STATIC_SOURCE("Not initialized.");
 		}
 
 		if (!items)
 		{
-			fail("Null items.");
+			BSTONE_THROW_STATIC_SOURCE("Null items.");
 		}
 
 		if (item_count <= 0)
 		{
-			fail("Item count out of range.");
+			BSTONE_THROW_STATIC_SOURCE("Item count out of range.");
 		}
 
 		if (!is_stream_readable_)
 		{
-			fail("Stream is not readable.");
+			BSTONE_THROW_STATIC_SOURCE("Stream is not readable.");
 		}
 
 		constexpr auto value_size = static_cast<int>(sizeof(T));
@@ -288,7 +261,7 @@ private:
 
 		if (read_result != items_size)
 		{
-			fail("Failed to read an array of integer values.");
+			BSTONE_THROW_STATIC_SOURCE("Failed to read an array of integer values.");
 		}
 
 		for (int i_item = 0; i_item < item_count; ++i_item)
@@ -297,36 +270,31 @@ private:
 		}
 
 		crc32_.update(items, items_size);
-	}
-	catch (...)
-	{
-		fail_nested(__func__);
-	}
+	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 	template<typename T>
 	void write_integer_array(
 		const T* const items,
 		const int item_count)
-	try
-	{
+	BSTONE_BEGIN_FUNC_TRY
 		if (!is_initialized_)
 		{
-			fail("Not initialized.");
+			BSTONE_THROW_STATIC_SOURCE("Not initialized.");
 		}
 
 		if (!items)
 		{
-			fail("Null items.");
+			BSTONE_THROW_STATIC_SOURCE("Null items.");
 		}
 
 		if (item_count <= 0)
 		{
-			fail("Item count out of range.");
+			BSTONE_THROW_STATIC_SOURCE("Item count out of range.");
 		}
 
 		if (!is_stream_writable_)
 		{
-			fail("Stream is not writable.");
+			BSTONE_THROW_STATIC_SOURCE("Stream is not writable.");
 		}
 
 		constexpr auto value_size = static_cast<int>(sizeof(T));
@@ -350,13 +318,9 @@ private:
 
 		if (!write_result)
 		{
-			fail("Failed to write an array of integer values.");
+			BSTONE_THROW_STATIC_SOURCE("Failed to write an array of integer values.");
 		}
-	}
-	catch (...)
-	{
-		fail_nested(__func__);
-	}
+	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 }; // ArchiverImpl
 
 
@@ -373,21 +337,20 @@ ArchiverImpl::ArchiverImpl()
 
 void ArchiverImpl::initialize(
 	StreamPtr stream)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (is_initialized_)
 	{
-		fail("Already initialized.");
+		BSTONE_THROW_STATIC_SOURCE("Already initialized.");
 	}
 
 	if (!stream)
 	{
-		fail("Null stream.");
+		BSTONE_THROW_STATIC_SOURCE("Null stream.");
 	}
 
 	if (!stream->is_open())
 	{
-		fail("Stream is not open.");
+		BSTONE_THROW_STATIC_SOURCE("Stream is not open.");
 	}
 
 
@@ -397,11 +360,7 @@ try
 	crc32_.reset();
 	stream_ = stream;
 	buffer_.clear();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::uninitialize() noexcept
 {
@@ -419,374 +378,233 @@ bool ArchiverImpl::is_initialized() const noexcept
 }
 
 bool ArchiverImpl::read_bool()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	const auto value_uint8 = read_integer<std::uint8_t>();
 
 	return value_uint8 != 0;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 char ArchiverImpl::read_char()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	const auto value_char = read_integer<char>();
 
 	return value_char;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::int8_t ArchiverImpl::read_int8()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	const auto value_int8 = read_integer<std::int8_t>();
 
 	return value_int8;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::uint8_t ArchiverImpl::read_uint8()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	const auto value_uint8 = read_integer<std::uint8_t>();
 
 	return value_uint8;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::int16_t ArchiverImpl::read_int16()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	const auto value_int16 = read_integer<std::int16_t>();
 
 	return value_int16;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::uint16_t ArchiverImpl::read_uint16()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	const auto value_uint16 = read_integer<std::uint16_t>();
 
 	return value_uint16;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::int32_t ArchiverImpl::read_int32()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	const auto value_int32 = read_integer<std::int32_t>();
 
 	return value_int32;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::uint32_t ArchiverImpl::read_uint32()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	const auto value_uint32 = read_integer<std::uint32_t>();
 
 	return value_uint32;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::read_char_array(
 	char* items,
 	const int item_count)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	read_integer_array(items, item_count);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::read_int8_array(
 	std::int8_t* items_int8,
 	const int item_count)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	read_integer_array(items_int8, item_count);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::read_uint8_array(
 	std::uint8_t* items_uint8,
 	const int item_count)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	read_integer_array(items_uint8, item_count);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::read_int16_array(
 	std::int16_t* items_int16,
 	const int item_count)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	read_integer_array(items_int16, item_count);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::read_uint16_array(
 	std::uint16_t* items_uint16,
 	const int item_count)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	read_integer_array(items_uint16, item_count);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::read_string(
 	const int max_string_length,
 	char* const string,
 	int& string_length)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (max_string_length <= 0)
 	{
-		fail("Maximum string length out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Maximum string length out of range.");
 	}
 
 	if (!string)
 	{
-		fail("Null string.");
+		BSTONE_THROW_STATIC_SOURCE("Null string.");
 	}
 
 	const auto archived_string_length = read_integer<std::int32_t>();
 
 	if (archived_string_length < 0 || archived_string_length > max_string_length)
 	{
-		fail("Archived string length out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Archived string length out of range.");
 	}
 
 	const auto read_result = stream_->read(string, archived_string_length);
 
 	if (read_result != archived_string_length)
 	{
-		fail("Failed to read string data.");
+		BSTONE_THROW_STATIC_SOURCE("Failed to read string data.");
 	}
 
 	string_length = archived_string_length;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::read_checksum()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	const auto checksum = read_integer<std::uint32_t>(true);
 
 	if (checksum != crc32_.get_value())
 	{
-		fail("Checksum mismatch.");
+		BSTONE_THROW_STATIC_SOURCE("Checksum mismatch.");
 	}
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_bool(
 	const bool value_bool)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	write_integer<std::uint8_t>(value_bool);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_char(
 	const char value_char)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	write_integer(value_char);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_int8(
 	const std::int8_t value_int8)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	write_integer(value_int8);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_uint8(
 	const std::uint8_t value_uint8)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	write_integer(value_uint8);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_int16(
 	const std::int16_t value_int16)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	write_integer(value_int16);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_uint16(
 	const std::uint16_t value_uint16)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	write_integer(value_uint16);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_int32(
 	const std::int32_t value_int32)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	write_integer(value_int32);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_uint32(
 	const std::uint32_t value_uint32)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	write_integer(value_uint32);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_char_array(
 	const char* const items_char,
 	const int item_count)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	write_integer_array(items_char, item_count);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_int8_array(
 	const std::int8_t* const items_int8,
 	const int item_count)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	write_integer_array(items_int8, item_count);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_uint8_array(
 	const std::uint8_t* const items_uint8,
 	const int item_count)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	write_integer_array(items_uint8, item_count);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_int16_array(
 	const std::int16_t* const items_int16,
 	const int item_count)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	write_integer_array(items_int16, item_count);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_uint16_array(
 	const std::uint16_t* const items_uint16,
 	const int item_count)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	write_integer_array(items_uint16, item_count);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_string(
 	const char* const string,
 	const int string_length)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (!string)
 	{
-		fail("Null string.");
+		BSTONE_THROW_STATIC_SOURCE("Null string.");
 	}
 
 	if (string_length < 0)
 	{
-		fail("String length out of range.");
+		BSTONE_THROW_STATIC_SOURCE("String length out of range.");
 	}
 
 	write_integer<std::int32_t>(string_length);
@@ -800,39 +618,16 @@ try
 
 	if (!write_result)
 	{
-		fail("Failed to write string data.");
+		BSTONE_THROW_STATIC_SOURCE("Failed to write string data.");
 	}
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_checksum()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	const auto checksum = crc32_.get_value();
 
 	write_integer<std::int32_t>(checksum, true);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-[[noreturn]]
-void ArchiverImpl::fail(
-	const char* message)
-{
-	throw ArchiverException{message};
-}
-
-[[noreturn]]
-void ArchiverImpl::fail_nested(
-	const char* message)
-{
-	std::throw_with_nested(ArchiverException{message});
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 
 } // namespace
@@ -841,14 +636,6 @@ void ArchiverImpl::fail_nested(
 ArchiverUPtr make_archiver()
 {
 	return std::make_unique<ArchiverImpl>();
-}
-
-
-[[noreturn]]
-void archiver_fail(
-	const char* message)
-{
-	throw ArchiverException{message};
 }
 
 

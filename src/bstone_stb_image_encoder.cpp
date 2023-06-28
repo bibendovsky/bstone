@@ -29,48 +29,6 @@ SPDX-License-Identifier: MIT
 namespace bstone
 {
 
-
-namespace
-{
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-class StbImageEncoderException :
-	public Exception
-{
-public:
-	explicit StbImageEncoderException(
-		const char* message) noexcept
-		:
-		Exception{"STB_IMAGE_ENCODER", message}
-	{
-	}
-}; // StbImageEncoderException
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-[[noreturn]]
-void fail(
-	const char* message)
-{
-	throw StbImageEncoderException{message};
-}
-
-[[noreturn]]
-void fail_nested(
-	const char* message)
-{
-	std::throw_with_nested(StbImageEncoderException{message});
-}
-
-
-} // namespace
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
 void StbImageEncoder::encode_24(
 	const std::uint8_t* src_buffer,
 	int src_width,
@@ -78,26 +36,25 @@ void StbImageEncoder::encode_24(
 	std::uint8_t* dst_buffer,
 	int max_dst_buffer_size,
 	int& dst_size)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (!src_buffer)
 	{
-		fail("Null src buffer.");
+		BSTONE_THROW_STATIC_SOURCE("Null src buffer.");
 	}
 
 	if (src_width <= 0 || src_height <= 0)
 	{
-		fail("Dimensions are out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Dimensions are out of range.");
 	}
 
 	if (!dst_buffer)
 	{
-		fail("Null dst buffer.");
+		BSTONE_THROW_STATIC_SOURCE("Null dst buffer.");
 	}
 
 	if (max_dst_buffer_size <= 0)
 	{
-		fail("Max dst buffer size out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Max dst buffer size out of range.");
 	}
 
 	dst_size = 0;
@@ -120,25 +77,21 @@ try
 
 	if (!stbiw_result)
 	{
-		fail("STBIW failed.");
+		BSTONE_THROW_STATIC_SOURCE("STBIW failed.");
 	}
 
 	if (size_ <= 0)
 	{
-		fail("Empty image.");
+		BSTONE_THROW_STATIC_SOURCE("Empty image.");
 	}
 
 	if (size_ > max_size_)
 	{
-		fail("Not enough room in dst buffer.");
+		BSTONE_THROW_STATIC_SOURCE("Not enough room in dst buffer.");
 	}
 
 	dst_size = size_;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void StbImageEncoder::stb_write_func_proxy(
 	void* context,
@@ -165,8 +118,5 @@ void StbImageEncoder::stb_write_func(
 
 	size_ = size;
 }
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
 
 } // bstone

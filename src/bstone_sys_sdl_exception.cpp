@@ -10,37 +10,20 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
-namespace {
-
-class SdlException : public Exception
-{
-public:
-	explicit SdlException() noexcept
-		:
-		Exception{"SDL", SDL_GetError()}
-	{}
-};
-
-} // namespace
-
-// ==========================================================================
-
 [[noreturn]] void sdl_fail()
 {
-	throw SdlException{};
+	BSTONE_THROW_DYNAMIC_SOURCE(SDL_GetError());
 }
 
 int sdl_ensure_result(int sdl_result)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (sdl_result != 0)
 	{
 		sdl_fail();
 	}
 
 	return sdl_result;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace sys
 } // namespace bstone

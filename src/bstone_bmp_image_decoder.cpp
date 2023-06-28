@@ -125,17 +125,6 @@ q/rgba32h56.bmp
 
 namespace bstone {
 
-class BmpImageDecoderException : public Exception
-{
-public:
-	explicit BmpImageDecoderException(const char* message) noexcept
-		:
-		Exception{"BSTONE_BMP_IMAGE_DECODER", message}
-	{}
-};
-
-// ==========================================================================
-
 class BmpImageDecoderImpl
 {
 public:
@@ -198,9 +187,6 @@ private:
 	Palette palette_{};
 
 private:
-	[[noreturn]] static void fail(const char* message);
-	[[noreturn]] static void fail_nested(const char* message);
-
 	// Returns the number of 1 bits in the value of x.
 	static int popcount(unsigned int x) noexcept;
 
@@ -294,19 +280,18 @@ void BmpImageDecoderImpl::decode(
 	int& dst_width,
 	int& dst_height,
 	Rgba8Buffer& dst_bits)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	dst_width = 0;
 	dst_height = 0;
 
 	if (src_data == nullptr)
 	{
-		fail("Null source data.");
+		BSTONE_THROW_STATIC_SOURCE("Null source data.");
 	}
 
 	if (src_size < 0)
 	{
-		fail("Source data size out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Source data size out of range.");
 	}
 
 	src_bytes_ = static_cast<const unsigned char*>(src_data);
@@ -330,21 +315,7 @@ try
 
 	dst_width = width_;
 	dst_height = height_;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-[[noreturn]] void BmpImageDecoderImpl::fail(const char* message)
-{
-	throw BmpImageDecoderException{message};
-}
-
-[[noreturn]] void BmpImageDecoderImpl::fail_nested(const char* message)
-{
-	std::throw_with_nested(BmpImageDecoderException{message});
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Returns the number of 1 bits in the value of x.
 int BmpImageDecoderImpl::popcount(unsigned int x) noexcept
@@ -489,7 +460,7 @@ T BmpImageDecoderImpl::generic_read_le()
 
 	if ((remain_bytes_end_ - remain_bytes_) < type_size)
 	{
-		fail("Data underflow.");
+		BSTONE_THROW_STATIC_SOURCE("Data underflow.");
 	}
 
 	const auto result = endian::to_little(*reinterpret_cast<const T*>(remain_bytes_));
@@ -591,7 +562,7 @@ void BmpImageDecoderImpl::rle_write_pixel_by_index(IntP index)
 {
 	if (dst_rle_line_ == dst_rle_line_end_)
 	{
-		fail("RLE scan-line write overflow.");
+		BSTONE_THROW_STATIC_SOURCE("RLE scan-line write overflow.");
 	}
 
 	rle_write_pixel(palette_[index]);
@@ -603,7 +574,7 @@ void BmpImageDecoderImpl::rle_end_of_line()
 
 	if (dst_rle_bits_ < dst_bits_)
 	{
-		fail("RLE-EOL Effective position out of range.");
+		BSTONE_THROW_STATIC_SOURCE("RLE-EOL Effective position out of range.");
 	}
 
 	dst_rle_line_ = dst_rle_bits_;
@@ -617,7 +588,7 @@ void BmpImageDecoderImpl::rle_move_cursor()
 
 	if (dx > remain_width)
 	{
-		fail("RLE-DELTA X overflow.");
+		BSTONE_THROW_STATIC_SOURCE("RLE-DELTA X overflow.");
 	}
 
 	const auto dy = read_u8();
@@ -626,7 +597,7 @@ void BmpImageDecoderImpl::rle_move_cursor()
 
 	if (dst_rle_bits_ < dst_bits_)
 	{
-		fail("RLE-DELTA Y overflow.");
+		BSTONE_THROW_STATIC_SOURCE("RLE-DELTA Y overflow.");
 	}
 
 	dst_rle_bits_ -= skip_full_size;
@@ -643,7 +614,7 @@ void BmpImageDecoderImpl::import_bitmap_file_header()
 
 	if (type != bmp::type_bm)
 	{
-		fail("Unknown image format.");
+		BSTONE_THROW_STATIC_SOURCE("Unknown image format.");
 	}
 
 	// bfSize
@@ -664,7 +635,7 @@ void BmpImageDecoderImpl::import_bitmap_file_header()
 
 	if ((src_bytes_ + off_bits) > src_bytes_end_)
 	{
-		fail("Image bits offset out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Image bits offset out of range.");
 	}
 
 	// Store required properties.
@@ -686,7 +657,7 @@ void BmpImageDecoderImpl::import_bitmap_vx_header()
 
 	if (!is_vc && !is_vi && !is_v4 && !is_v5)
 	{
-		fail("Unknown version.");
+		BSTONE_THROW_STATIC_SOURCE("Unknown version.");
 	}
 
 	// biWidth
@@ -695,7 +666,7 @@ void BmpImageDecoderImpl::import_bitmap_vx_header()
 
 	if (width <= 0)
 	{
-		fail("Width out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Width out of range.");
 	}
 
 	// biHeight
@@ -704,7 +675,7 @@ void BmpImageDecoderImpl::import_bitmap_vx_header()
 
 	if (height == 0)
 	{
-		fail("Height out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Height out of range.");
 	}
 
 	// biPlanes
@@ -713,7 +684,7 @@ void BmpImageDecoderImpl::import_bitmap_vx_header()
 
 	if (planes != bmp::plane_count)
 	{
-		fail("Invalid plane count.");
+		BSTONE_THROW_STATIC_SOURCE("Invalid plane count.");
 	}
 
 	// biBitCount
@@ -731,7 +702,7 @@ void BmpImageDecoderImpl::import_bitmap_vx_header()
 				break;
 
 			default:
-				fail("Unknown bit depth.");
+				BSTONE_THROW_STATIC_SOURCE("Unknown bit depth.");
 		}
 	}
 	else
@@ -747,7 +718,7 @@ void BmpImageDecoderImpl::import_bitmap_vx_header()
 				break;
 
 			default:
-				fail("Unknown bit depth.");
+				BSTONE_THROW_STATIC_SOURCE("Unknown bit depth.");
 		}
 	}
 
@@ -767,7 +738,7 @@ void BmpImageDecoderImpl::import_bitmap_vx_header()
 			compression != bmp::bi_rle8 &&
 			compression != bmp::bi_bitfields)
 		{
-			fail("Unknown compression type.");
+			BSTONE_THROW_STATIC_SOURCE("Unknown compression type.");
 		}
 
 		// biSizeImage
@@ -776,12 +747,12 @@ void BmpImageDecoderImpl::import_bitmap_vx_header()
 
 		if (size_image > bmp::max_int32)
 		{
-			fail("Total size of image bits out of range.");
+			BSTONE_THROW_STATIC_SOURCE("Total size of image bits out of range.");
 		}
 
 		if (size_image == 0 && compression != bmp::bi_rgb && compression != bmp::bi_bitfields)
 		{
-			fail("Expected total size of image bits.");
+			BSTONE_THROW_STATIC_SOURCE("Expected total size of image bits.");
 		}
 
 		// biXPelsPerMeter
@@ -790,7 +761,7 @@ void BmpImageDecoderImpl::import_bitmap_vx_header()
 
 		if (x_pels_per_meter < 0)
 		{
-			fail("Horizontal resolution of the traget device out of range.");
+			BSTONE_THROW_STATIC_SOURCE("Horizontal resolution of the traget device out of range.");
 		}
 
 		// biYPelsPerMeter
@@ -799,7 +770,7 @@ void BmpImageDecoderImpl::import_bitmap_vx_header()
 
 		if (y_pels_per_meter < 0)
 		{
-			fail("Vertical resolution of the traget device out of range.");
+			BSTONE_THROW_STATIC_SOURCE("Vertical resolution of the traget device out of range.");
 		}
 
 		// biClrUsed
@@ -808,7 +779,7 @@ void BmpImageDecoderImpl::import_bitmap_vx_header()
 
 		if (clr_used > bmp::max_int32)
 		{
-			fail("Palette size ouf of range.");
+			BSTONE_THROW_STATIC_SOURCE("Palette size ouf of range.");
 		}
 
 		// biClrImportant
@@ -817,7 +788,7 @@ void BmpImageDecoderImpl::import_bitmap_vx_header()
 
 		if (clr_important > bmp::max_int32)
 		{
-			fail("Important color count ouf of range.");
+			BSTONE_THROW_STATIC_SOURCE("Important color count ouf of range.");
 		}
 	}
 
@@ -852,7 +823,7 @@ void BmpImageDecoderImpl::import_bitmap_vx_header()
 				break;
 
 			default:
-				fail("Unknown v5 color space.");
+				BSTONE_THROW_STATIC_SOURCE("Unknown v5 color space.");
 		}
 
 		// bV4Endpoints / bV5Endpoints
@@ -895,7 +866,7 @@ void BmpImageDecoderImpl::import_bitmap_vx_header()
 				break;
 
 			default:
-				fail("Unknown v5 rendering intent.");
+				BSTONE_THROW_STATIC_SOURCE("Unknown v5 rendering intent.");
 		}
 
 		// bV5ProfileData
@@ -948,27 +919,27 @@ void BmpImageDecoderImpl::import_bitmap_vx_header()
 
 	if (std::abs(height) > max_height)
 	{
-		fail("Image area out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Image area out of range.");
 	}
 
 	if (height < 0 && (compression == bmp::bi_rle4 || compression == bmp::bi_rle8))
 	{
-		fail("Top-down compressed image.");
+		BSTONE_THROW_STATIC_SOURCE("Top-down compressed image.");
 	}
 
 	if (compression == bmp::bi_rle4 && bit_count != 4)
 	{
-		fail("RLE4 Expected 4-bit depth.");
+		BSTONE_THROW_STATIC_SOURCE("RLE4 Expected 4-bit depth.");
 	}
 
 	if (compression == bmp::bi_rle8 && bit_count != 8)
 	{
-		fail("RLE8 Expected 8-bit depth.");
+		BSTONE_THROW_STATIC_SOURCE("RLE8 Expected 8-bit depth.");
 	}
 
 	if (clr_used > 0U && clr_important > clr_used)
 	{
-		fail("Too many important colors.");
+		BSTONE_THROW_STATIC_SOURCE("Too many important colors.");
 	}
 
 	if (clr_used > 0U)
@@ -983,7 +954,7 @@ void BmpImageDecoderImpl::import_bitmap_vx_header()
 
 		if (bits_bytes_ < (src_bytes_ + min_bits_offset))
 		{
-			fail("Palette overlaps with image bits.");
+			BSTONE_THROW_STATIC_SOURCE("Palette overlaps with image bits.");
 		}
 	}
 
@@ -991,7 +962,7 @@ void BmpImageDecoderImpl::import_bitmap_vx_header()
 	{
 		if (bit_count != 16 && bit_count != 32)
 		{
-			fail("BITFIELDS Invalid bit depth.");
+			BSTONE_THROW_STATIC_SOURCE("BITFIELDS Invalid bit depth.");
 		}
 
 		const auto red_mask_ones_count = popcount(red_mask);
@@ -1010,12 +981,12 @@ void BmpImageDecoderImpl::import_bitmap_vx_header()
 
 		if (all_mask_ones_count != rgba_ones_count)
 		{
-			fail("Invalid mask combination.");
+			BSTONE_THROW_STATIC_SOURCE("Invalid mask combination.");
 		}
 
 		if (rgba_ones_count > bit_count)
 		{
-			fail("Mask bit count overflow.");
+			BSTONE_THROW_STATIC_SOURCE("Mask bit count overflow.");
 		}
 	}
 
@@ -1025,7 +996,7 @@ void BmpImageDecoderImpl::import_bitmap_vx_header()
 	{
 		if ((bmp::max_int32 / stride) < height)
 		{
-			fail("Image dimensions too big.");
+			BSTONE_THROW_STATIC_SOURCE("Image dimensions too big.");
 		}
 
 		size_image = stride * height;
@@ -1033,12 +1004,12 @@ void BmpImageDecoderImpl::import_bitmap_vx_header()
 
 	if ((src_bytes_end_ - bits_bytes_) < size_image)
 	{
-		fail("Total size of image bits out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Total size of image bits out of range.");
 	}
 
 	if (bits_bytes_end_ > src_bytes_end_)
 	{
-		fail("Image bits are outside of the source data.");
+		BSTONE_THROW_STATIC_SOURCE("Image bits are outside of the source data.");
 	}
 
 	// ----------------------------------------------------------------------
@@ -1079,7 +1050,7 @@ void BmpImageDecoderImpl::import_bgr_palette()
 
 	if ((remain_bytes_end_ - remain_bytes_) < data_size)
 	{
-		fail("Unexpected end of BGR palette.");
+		BSTONE_THROW_STATIC_SOURCE("Unexpected end of BGR palette.");
 	}
 
 	struct Bgr
@@ -1159,7 +1130,7 @@ void BmpImageDecoderImpl::decode_1bpp()
 
 			if (index >= palette_size_)
 			{
-				fail("1-bpp color index out of range.");
+				BSTONE_THROW_STATIC_SOURCE("1-bpp color index out of range.");
 			}
 
 			*dst_bits++ = palette_[index];
@@ -1241,7 +1212,7 @@ void BmpImageDecoderImpl::decode_4bpp_rle()
 			if (static_cast<int>(color_index_0) >= palette_size_ ||
 				static_cast<int>(color_index_1) >= palette_size_)
 			{
-				fail("RLE-ENC Color index out of range.");
+				BSTONE_THROW_STATIC_SOURCE("RLE-ENC Color index out of range.");
 			}
 
 			const Rgba8 color_cache[2] = {palette_[color_index_0], palette_[color_index_1]};
@@ -1282,7 +1253,7 @@ void BmpImageDecoderImpl::decode_4bpp_uncompressed()
 
 			if (static_cast<int>(index) >= palette_size_)
 			{
-				fail("4-bpp color index out of range.");
+				BSTONE_THROW_STATIC_SOURCE("4-bpp color index out of range.");
 			}
 
 			*dst_bits++ = palette_[index];
@@ -1362,7 +1333,7 @@ void BmpImageDecoderImpl::decode_8bpp_rle()
 
 			if (index >= palette_size_)
 			{
-				fail("RLE-ENC Color index out of range.");
+				BSTONE_THROW_STATIC_SOURCE("RLE-ENC Color index out of range.");
 			}
 
 			const auto color = palette_[index];
@@ -1390,7 +1361,7 @@ void BmpImageDecoderImpl::decode_8bpp_uncompressed()
 
 			if (static_cast<int>(index) >= palette_size_)
 			{
-				fail("8-bpp color index out of range.");
+				BSTONE_THROW_STATIC_SOURCE("8-bpp color index out of range.");
 			}
 
 			*dst_bits++ = palette_[index];
@@ -1570,7 +1541,7 @@ void BmpImageDecoderImpl::decode_internal()
 		case 16: decode_16bpp(); break;
 		case 24: decode_24bpp(); break;
 		case 32: decode_32bpp(); break;
-		default: fail("Unsupported bit depth.");
+		default: BSTONE_THROW_STATIC_SOURCE("Unsupported bit depth.");
 	}
 }
 

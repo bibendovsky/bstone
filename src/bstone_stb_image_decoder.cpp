@@ -30,62 +30,13 @@ namespace bstone
 {
 
 
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-namespace detail
-{
-
-
-class StbImageDecoderException :
-	public Exception
-{
-public:
-	explicit StbImageDecoderException(
-		const char* message) noexcept
-		:
-		Exception{"STB_IMAGE_DECODER", message}
-	{
-	}
-}; // StbImageDecoderException
-
-
-} // detail
-
-
-namespace
-{
-
-
-[[noreturn]]
-void fail(
-	const char* message)
-{
-	throw detail::StbImageDecoderException{message};
-}
-
-[[noreturn]]
-void fail_nested(
-	const char* message)
-{
-	std::throw_with_nested(detail::StbImageDecoderException{message});
-}
-
-
-}
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
 void StbImageDecoder::decode(
 	const void* src_data,
 	int src_data_size,
 	int& dst_width,
 	int& dst_height,
 	Rgba8Buffer& dst_buffer)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	dst_width = 0;
 	dst_height = 0;
 
@@ -102,7 +53,7 @@ try
 
 	if (!stb_bytes)
 	{
-		fail(stbi_failure_reason());
+		BSTONE_THROW_DYNAMIC_SOURCE(stbi_failure_reason());
 	}
 
 	const auto dst_area = dst_width * dst_height;
@@ -119,11 +70,7 @@ try
 	);
 
 	STBI_FREE(stb_bytes);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 

@@ -18,19 +18,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 namespace bstone {
 
-namespace {
-
-class TextExtractorException : public Exception
-{
-public:
-	explicit TextExtractorException(const std::string& message) noexcept
-		:
-		Exception{"TEXT_EXTRACTOR", message.c_str()}
-	{}
-};
-
-} // namespace
-
 TextExtractor::TextExtractor()
 	:
 	text_numbers_{}
@@ -48,15 +35,10 @@ void TextExtractor::extract_text(const std::string& dst_dir)
 	}
 }
 
-[[noreturn]] void TextExtractor::fail(const char* message)
-{
-	throw TextExtractorException{message};
-}
-
 [[noreturn]] void TextExtractor::fail(int number, const char* message)
 {
 	const auto error_message = std::string{} + "[Text #" + std::to_string(number) + "] " + message;
-	fail(error_message.c_str());
+	BSTONE_THROW_DYNAMIC_SOURCE(error_message.c_str());
 }
 
 void TextExtractor::initialize_text()
@@ -128,7 +110,7 @@ void TextExtractor::initialize_text()
 
 	if (non_zero_number_it == text_numbers_.end())
 	{
-		fail("Empty list.");
+		BSTONE_THROW_STATIC_SOURCE("Empty list.");
 	}
 
 	text_numbers_.erase(text_numbers_.begin(), non_zero_number_it);

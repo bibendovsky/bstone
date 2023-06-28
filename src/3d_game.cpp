@@ -198,7 +198,8 @@ void INVALID_ACTOR_ERR(
 	const int x,
 	const int y)
 {
-	::fail("Invalid actor at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+	BSTONE_THROW_DYNAMIC_SOURCE(
+		("Invalid actor at (" + std::to_string(x) + ", " + std::to_string(y) + ").").c_str());
 }
 
 
@@ -244,7 +245,8 @@ void ScanInfoPlane()
 			case SMART_ON_TRIGGER:
 				if (!assets_info.is_ps())
 				{
-					::fail("Smart trigger (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					BSTONE_THROW_DYNAMIC_SOURCE(
+						("Smart trigger (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").").c_str());
 				}
 				continue;
 
@@ -292,13 +294,13 @@ void ScanInfoPlane()
 				CeilingTile = START_TEXTURES + ((tile & 0xff00) >> 8);
 				if (CeilingTile > NUM_TILES - 1)
 				{
-					::fail("Ceiling tile/texture is out of range.");
+					BSTONE_THROW_STATIC_SOURCE("Ceiling tile/texture is out of range.");
 				}
 
 				FloorTile = START_TEXTURES + (tile & 0xff);
 				if (FloorTile > NUM_TILES - 1)
 				{
-					::fail("Floor tile/texture is out of range.");
+					BSTONE_THROW_STATIC_SOURCE("Floor tile/texture is out of range.");
 				}
 
 				gottextures = true;
@@ -347,7 +349,7 @@ void ScanInfoPlane()
 
 				if (++st->NumMsgs > MAX_CACHE_MSGS)
 				{
-					::fail("[INFORMANTS] Too many \"cached msgs\" loaded.");
+					BSTONE_THROW_STATIC_SOURCE("[INFORMANTS] Too many \"cached msgs\" loaded.");
 				}
 
 				ci->areanumber = GetAreaNumber(static_cast<std::int8_t>(x), static_cast<std::int8_t>(y));
@@ -452,7 +454,9 @@ void ScanInfoPlane()
 			case 30: // Yellow Puddle
 				if (assets_info.is_aog_sw())
 				{
-					::fail("Yellow puddle (AOG full/PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					BSTONE_THROW_DYNAMIC_SOURCE(
+						("Yellow puddle (AOG full/PS) at (" +
+							std::to_string(x) + ", " + std::to_string(y) + ").").c_str());
 				}
 				static_cast<void>(SpawnStatic(x, y, tile - 23));
 				break;
@@ -460,7 +464,8 @@ void ScanInfoPlane()
 			case 71: // BFG Weapon
 				if (!assets_info.is_ps())
 				{
-					::fail("BFG (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					BSTONE_THROW_DYNAMIC_SOURCE(
+						("BFG (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").").c_str());
 				}
 				static_cast<void>(SpawnStatic(x, y, tile - 23));
 				break;
@@ -589,7 +594,9 @@ void ScanInfoPlane()
 			case 486: // Plasma Detonator
 				if (!assets_info.is_ps())
 				{
-					::fail("Plasma detonator (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					BSTONE_THROW_DYNAMIC_SOURCE(
+						("Plasma detonator (PS) at (" +
+							std::to_string(x) + ", " + std::to_string(y) + ").").c_str());
 				}
 
 				SpawnHiddenOfs(en_plasma_detonator_reserve, x, y); // Spawn a reserve
@@ -690,7 +697,8 @@ void ScanInfoPlane()
 			case 139:
 				if (!assets_info.is_ps())
 				{
-					::fail("Switchable arc barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					BSTONE_THROW_DYNAMIC_SOURCE(("Switchable arc barrier (PS) at (" +
+						std::to_string(x) + ", " + std::to_string(y) + ").").c_str());
 				}
 
 				//
@@ -710,7 +718,8 @@ void ScanInfoPlane()
 			case 562: // Off
 				if (!assets_info.is_ps())
 				{
-					::fail("Switchable post barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					BSTONE_THROW_DYNAMIC_SOURCE(("Switchable post barrier (PS) at (" +
+						std::to_string(x) + ", " + std::to_string(y) + ").").c_str());
 				}
 
 				SpawnBarrier(en_vpost_barrier, x, y, (tile - 562) != 0);
@@ -733,7 +742,8 @@ void ScanInfoPlane()
 			case 565:
 				if (!assets_info.is_ps())
 				{
-					::fail("Cyclic post barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					BSTONE_THROW_DYNAMIC_SOURCE(("Cyclic post barrier (PS) at (" +
+						std::to_string(x) + ", " + std::to_string(y) + ").").c_str());
 				}
 
 				SpawnBarrier(en_vpost_barrier, x, y, 0);
@@ -750,7 +760,8 @@ void ScanInfoPlane()
 			case 425: // Off
 				if (!assets_info.is_ps())
 				{
-					::fail("Spike barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					BSTONE_THROW_DYNAMIC_SOURCE(("Spike barrier (PS) at (" +
+						std::to_string(x) + ", " + std::to_string(y) + ").").c_str());
 				}
 
 				SpawnBarrier(en_vspike_barrier, x, y, (tile - 425) != 0);
@@ -773,7 +784,8 @@ void ScanInfoPlane()
 			case 428:
 				if (!assets_info.is_ps())
 				{
-					::fail("Cyclic spike barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					BSTONE_THROW_DYNAMIC_SOURCE(("Cyclic spike barrier (PS) at (" +
+						std::to_string(x) + ", " + std::to_string(y) + ").").c_str());
 				}
 				SpawnBarrier(en_vspike_barrier, x, y, 0);
 				break;
@@ -803,7 +815,7 @@ void ScanInfoPlane()
 				{
 					if (GoldsternInfo.SpawnCnt == GOLDIE_MAX_SPAWNS)
 					{
-						::fail("Too many Dr. Goldfire Spawn sites in level.");
+						BSTONE_THROW_STATIC_SOURCE("Too many Dr. Goldfire Spawn sites in level.");
 					}
 					GoldsternInfo.flags = GS_FIRSTTIME;
 					if (gamestate.mapon == 9)
@@ -833,19 +845,20 @@ void ScanInfoPlane()
 			case 141:
 				if (!assets_info.is_ps())
 				{
-					::fail("Goldstern spawn (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					BSTONE_THROW_DYNAMIC_SOURCE(("Goldstern spawn (PS) at (" +
+						std::to_string(x) + ", " + std::to_string(y) + ").").c_str());
 				}
 
 				if (!loadedgame)
 				{
 					if (GoldsternInfo.GoldSpawned)
 					{
-						::fail("Too many FAST Goldfire spawn sites in map.");
+						BSTONE_THROW_STATIC_SOURCE("Too many FAST Goldfire spawn sites in map.");
 					}
 
 					if (GoldsternInfo.SpawnCnt == GOLDIE_MAX_SPAWNS)
 					{
-						::fail("Too many Dr. Goldfire Spawn sites in level.");
+						BSTONE_THROW_STATIC_SOURCE("Too many Dr. Goldfire Spawn sites in level.");
 					}
 
 					GoldieList[GoldsternInfo.SpawnCnt].tilex = static_cast<std::uint8_t>(x);
@@ -1203,7 +1216,8 @@ void ScanInfoPlane()
 			case 313:
 				if (!assets_info.is_ps())
 				{
-					::fail("Black ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					BSTONE_THROW_DYNAMIC_SOURCE(("Black ooze (PS) at (" +
+						std::to_string(x) + ", " + std::to_string(y) + ").").c_str());
 				}
 
 				if (gamestate.difficulty < gd_hard)
@@ -1214,7 +1228,8 @@ void ScanInfoPlane()
 			case 295:
 				if (!assets_info.is_ps())
 				{
-					::fail("Black ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					BSTONE_THROW_DYNAMIC_SOURCE(("Black ooze (PS) at (" +
+						std::to_string(x) + ", " + std::to_string(y) + ").").c_str());
 				}
 
 				if (gamestate.difficulty < gd_medium)
@@ -1225,7 +1240,8 @@ void ScanInfoPlane()
 			case 277:
 				if (!assets_info.is_ps())
 				{
-					::fail("Black ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					BSTONE_THROW_DYNAMIC_SOURCE(("Black ooze (PS) at (" +
+						std::to_string(x) + ", " + std::to_string(y) + ").").c_str());
 				}
 
 				SpawnOffsetObj(en_black2_ooze, x, y);
@@ -1239,7 +1255,8 @@ void ScanInfoPlane()
 			case 322:
 				if (!assets_info.is_ps())
 				{
-					::fail("Green ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					BSTONE_THROW_DYNAMIC_SOURCE(("Green ooze (PS) at (" +
+						std::to_string(x) + ", " + std::to_string(y) + ").").c_str());
 				}
 
 				if (gamestate.difficulty < gd_hard)
@@ -1250,7 +1267,8 @@ void ScanInfoPlane()
 			case 304:
 				if (!assets_info.is_ps())
 				{
-					::fail("Green ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					BSTONE_THROW_DYNAMIC_SOURCE(("Green ooze (PS) at (" +
+						std::to_string(x) + ", " + std::to_string(y) + ").").c_str());
 				}
 
 				if (gamestate.difficulty < gd_medium)
@@ -1261,7 +1279,8 @@ void ScanInfoPlane()
 			case 286:
 				if (!assets_info.is_ps())
 				{
-					::fail("Green ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					BSTONE_THROW_DYNAMIC_SOURCE(("Green ooze (PS) at (" +
+						std::to_string(x) + ", " + std::to_string(y) + ").").c_str());
 				}
 
 				SpawnOffsetObj(en_green2_ooze, x, y);
@@ -2300,7 +2319,7 @@ void SetupGameLevel()
 
 	if (mapwidth != 64 || mapheight != 64)
 	{
-		::fail("Map not 64 x 64.");
+		BSTONE_THROW_STATIC_SOURCE("Map not 64 x 64.");
 	}
 
 	// BBi
@@ -2551,7 +2570,7 @@ void SetupGameLevel()
 					}
 					if (NumEAWalls++ == MAXEAWALLS)
 					{
-						::fail("Too many Electro-Alien walls in level.");
+						BSTONE_THROW_STATIC_SOURCE("Too many Electro-Alien walls in level.");
 					}
 					break;
 
@@ -2625,7 +2644,7 @@ void SetupGameLevel()
 	{
 		if (has_win_tile && aog_exit_wall_count != 1)
 		{
-			::fail("Wintile requires a single middle Shuttle / Exit wall.");
+			BSTONE_THROW_STATIC_SOURCE("Wintile requires a single middle Shuttle / Exit wall.");
 		}
 	}
 
@@ -2693,7 +2712,7 @@ void SetupGameLevel()
 			gamestate.mapon < 10 &&
 			gamestuff.level[gamestate.mapon + 1].locked)
 		{
-			::fail("No red key on floor " + std::to_string(gamestate.mapon) + ".");
+			BSTONE_THROW_DYNAMIC_SOURCE(("No red key on floor " + std::to_string(gamestate.mapon) + ".").c_str());
 		}
 
 		if (assets_info.is_aog_full() &&
@@ -2701,7 +2720,7 @@ void SetupGameLevel()
 			gamestate.mapon == 9 &&
 			!aog_has_projection_generator)
 		{
-			::fail("No projection generator(s) on floor 10 episode 6.");
+			BSTONE_THROW_STATIC_SOURCE("No projection generator(s) on floor 10 episode 6.");
 		}
 	}
 	else
@@ -2714,7 +2733,7 @@ void SetupGameLevel()
 			!detonators_spawned &&
 			gamestuff.level[gamestate.mapon + 1].locked)
 		{
-			::fail("No Fision/Plasma Detonator on level.");
+			BSTONE_THROW_STATIC_SOURCE("No Fision/Plasma Detonator on level.");
 		}
 	}
 }

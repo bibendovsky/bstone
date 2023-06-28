@@ -15,10 +15,6 @@ class CValidator
 {
 public:
 	static void validate_name(StringView name);
-
-private:
-	[[noreturn]] static void fail(const char* message);
-	[[noreturn]] static void fail_nested(const char* message);
 };
 
 } // namespace bstone

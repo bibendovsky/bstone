@@ -96,7 +96,7 @@ GlR3rShaderStageImplPool gl_r3r_shader_stage_impl_pool{};
 GlR3rShaderStageImpl::GlR3rShaderStageImpl(
 	GlR3rContext& context,
 	const R3rShaderStageInitParam& param)
-try
+BSTONE_BEGIN_CTOR_TRY
 	:
 	context_{context}
 {
@@ -106,7 +106,7 @@ try
 
 	if (shader_stage_resource_.get() == 0)
 	{
-		BSTONE_STATIC_THROW("Failed to create an object.");
+		BSTONE_THROW_STATIC_SOURCE("Failed to create an object.");
 	}
 
 	const auto fragment_shader = static_cast<GlR3rShader*>(param.fragment_shader);
@@ -141,7 +141,7 @@ try
 			error_message += gl_log;
 		}
 
-		BSTONE_STATIC_THROW(error_message.c_str());
+		BSTONE_THROW_STATIC_SOURCE(error_message.c_str());
 	}
 
 	const auto var_count = get_var_count(shader_stage_resource_.get());
@@ -156,8 +156,7 @@ try
 
 	fragment_shader_ = static_cast<GlR3rShader*>(param.fragment_shader);
 	vertex_shader_ = static_cast<GlR3rShader*>(param.vertex_shader);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rShaderStageImpl::~GlR3rShaderStageImpl()
 {
@@ -173,18 +172,14 @@ GlR3rShaderStageImpl::~GlR3rShaderStageImpl()
 }
 
 void* GlR3rShaderStageImpl::operator new(std::size_t size)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return gl_r3r_shader_stage_impl_pool.allocate(size);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rShaderStageImpl::operator delete(void* ptr)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	gl_r3r_shader_stage_impl_pool.deallocate(ptr);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rContext& GlR3rShaderStageImpl::get_context() const noexcept
 {
@@ -192,12 +187,10 @@ GlR3rContext& GlR3rShaderStageImpl::get_context() const noexcept
 }
 
 void GlR3rShaderStageImpl::set()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	glUseProgram(shader_stage_resource_.get());
 	GlR3rError::ensure_debug();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rShaderVar* GlR3rShaderStageImpl::do_find_var(const char* name) noexcept
 {
@@ -235,18 +228,14 @@ R3rShaderR2SamplerVar* GlR3rShaderStageImpl::do_find_r2_sampler_var(const char* 
 }
 
 void GlR3rShaderStageImpl::detach_fragment_shader()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	fragment_shader_ = nullptr;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rShaderStageImpl::detach_vertex_shader()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	vertex_shader_ = nullptr;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GLuint GlR3rShaderStageImpl::get_gl_name() const noexcept
 {
@@ -260,26 +249,23 @@ void GlR3rShaderStageImpl::shader_stage_deleter(GLuint gl_name) noexcept
 }
 
 void GlR3rShaderStageImpl::validate(R3rShaderType shader_type, R3rShader* shader)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (shader == nullptr)
 	{
-		BSTONE_STATIC_THROW("Null shader.");
+		BSTONE_THROW_STATIC_SOURCE("Null shader.");
 	}
 
 	if (shader->get_type() != shader_type)
 	{
-		BSTONE_STATIC_THROW("Shader type mismatch.");
+		BSTONE_THROW_STATIC_SOURCE("Shader type mismatch.");
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rShaderStageImpl::validate(R3rShaderStageInputBindings input_bindings)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (input_bindings.is_empty())
 	{
-		BSTONE_STATIC_THROW("No input bindings.");
+		BSTONE_THROW_STATIC_SOURCE("No input bindings.");
 	}
 
 	// Check for duplicate names.
@@ -296,7 +282,7 @@ try
 
 		if (name_set.size() != static_cast<std::size_t>(input_bindings.get_size()))
 		{
-			BSTONE_STATIC_THROW("Duplicate name.");
+			BSTONE_THROW_STATIC_SOURCE("Duplicate name.");
 		}
 	}
 
@@ -315,7 +301,7 @@ try
 
 		if (name_set.size() != static_cast<std::size_t>(input_bindings.get_size()))
 		{
-			BSTONE_STATIC_THROW("Duplicate index.");
+			BSTONE_THROW_STATIC_SOURCE("Duplicate index.");
 		}
 	}
 
@@ -326,38 +312,32 @@ try
 		{
 			if (input_binding.index < 0)
 			{
-				BSTONE_STATIC_THROW("Negative index.");
+				BSTONE_THROW_STATIC_SOURCE("Negative index.");
 			}
 		}
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rShaderStageImpl::validate(const R3rShaderStageInitParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	validate(R3rShaderType::fragment, param.fragment_shader);
 	validate(R3rShaderType::vertex, param.vertex_shader);
 	validate(param.input_bindings);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rShaderStageImpl::set_input_bindings(
 	GLuint gl_name,
 	R3rShaderStageInputBindings input_bindings)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	for (const auto& input_binding : input_bindings)
 	{
 		glBindAttribLocation(gl_name, input_binding.index, input_binding.name);
 		GlR3rError::ensure_debug();
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int GlR3rShaderStageImpl::get_var_count(GLuint gl_name)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	auto gl_vertex_attribute_count = GLint{};
 	glGetProgramiv(gl_name, GL_ACTIVE_ATTRIBUTES, &gl_vertex_attribute_count);
 	GlR3rError::ensure_debug();
@@ -367,12 +347,10 @@ try
 	GlR3rError::ensure_debug();
 
 	return static_cast<int>(gl_vertex_attribute_count + gl_uniform_count);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rShaderStageImpl::get_vars(R3rShaderVarType type, GLuint gl_name, ShaderVars& shader_vars)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	using GlInfoFunction = void (APIENTRYP)(
 		const GLuint program,
 		const GLuint index,
@@ -403,7 +381,7 @@ try
 			break;
 
 		default:
-			BSTONE_STATIC_THROW("Unsupported variable type.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported variable type.");
 	}
 
 	auto gl_count = GLint{};
@@ -447,7 +425,7 @@ try
 
 		if (gl_length <= 0)
 		{
-			BSTONE_STATIC_THROW("Empty name.");
+			BSTONE_THROW_STATIC_SOURCE("Empty name.");
 		}
 
 		auto unit_count = 0;
@@ -459,7 +437,7 @@ try
 				break;
 
 			default:
-				BSTONE_STATIC_THROW("Unsupported unit count.");
+				BSTONE_THROW_STATIC_SOURCE("Unsupported unit count.");
 		}
 
 		auto is_sampler = false;
@@ -479,7 +457,7 @@ try
 				unit_type_id = R3rShaderVarTypeId::sampler2d;
 				break;
 
-			default: BSTONE_STATIC_THROW("Unsupported unit type.");
+			default: BSTONE_THROW_STATIC_SOURCE("Unsupported unit type.");
 		}
 
 		auto input_index = GLint{};
@@ -492,7 +470,7 @@ try
 
 			if (input_index < 0)
 			{
-				BSTONE_STATIC_THROW("Vertex attribute not found.");
+				BSTONE_THROW_STATIC_SOURCE("Vertex attribute not found.");
 			}
 
 			gl_location = -1;
@@ -506,7 +484,7 @@ try
 
 			if (gl_location < 0)
 			{
-				BSTONE_STATIC_THROW("Uniform not found.");
+				BSTONE_THROW_STATIC_SOURCE("Uniform not found.");
 			}
 		}
 
@@ -526,28 +504,25 @@ try
 		auto var = make_gl_r3r_shader_var(*this, var_param);
 		shader_vars.emplace_back(std::move(var));
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rShaderStageImpl::check_input_bindings(R3rShaderStageInputBindings input_bindings)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	for (const auto& input_binding : input_bindings)
 	{
 		const auto vertex_attribute = find_var_internal(input_binding.name);
 
 		if (vertex_attribute == nullptr)
 		{
-			BSTONE_STATIC_THROW("Vertex attribute not found.");
+			BSTONE_THROW_STATIC_SOURCE("Vertex attribute not found.");
 		}
 
 		if (vertex_attribute->get_type() != R3rShaderVarType::attribute)
 		{
-			BSTONE_STATIC_THROW("Not a vertex attribute.");
+			BSTONE_THROW_STATIC_SOURCE("Not a vertex attribute.");
 		}
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rShaderVar* GlR3rShaderStageImpl::find_var_internal(const std::string& name) noexcept
 {

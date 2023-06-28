@@ -39,20 +39,19 @@ bool R3rUtils::is_pot_value(int value) noexcept
 }
 
 int R3rUtils::calculate_mipmap_count(int width, int height)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	//
 	// mipmap_count = [log2(max(width, height))] + 1
 	//
 
 	if (width <= 0)
 	{
-		BSTONE_STATIC_THROW("Width out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Width out of range.");
 	}
 
 	if (height <= 0)
 	{
-		BSTONE_STATIC_THROW("Height out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Height out of range.");
 	}
 
 	auto log_2 = 0;
@@ -65,14 +64,12 @@ try
 	}
 
 	return log_2 + 1;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 sys::WindowUPtr R3rUtils::create_window(
 	const R3rUtilsCreateWindowParam& param,
 	sys::WindowMgr& window_mgr)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	const auto gl_attributes = create_window_make_gl_context_attributes(param);
 
 	auto window_param = sys::WindowInitParam{};
@@ -97,20 +94,18 @@ try
 	}
 
 	return window_mgr.make_window(window_param);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rUtils::set_window_mode(sys::Window& window, const R3rUtilsSetWindowModeParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (param.size.height <= 0)
 	{
-		BSTONE_STATIC_THROW("Height out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Height out of range.");
 	}
 
 	if (param.size.width <= 0)
 	{
-		BSTONE_STATIC_THROW("Width out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Width out of range.");
 	}
 
 	//
@@ -122,7 +117,7 @@ try
 
 	if (current_size.width <= 0 || current_size.height <= 0)
 	{
-		BSTONE_STATIC_THROW("Failed to get current window size.");
+		BSTONE_THROW_STATIC_SOURCE("Failed to get current window size.");
 	}
 
 	const auto is_size_changed =
@@ -160,12 +155,10 @@ try
 	{
 		window.set_fake_fullscreen(true);
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rUtils::validate_initialize_param(const R3rInitParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	switch (param.renderer_type)
 	{
 	case R3rType::gl_2_0:
@@ -174,7 +167,7 @@ try
 		break;
 
 	default:
-		BSTONE_STATIC_THROW("Unsupported renderer type.");
+		BSTONE_THROW_STATIC_SOURCE("Unsupported renderer type.");
 	}
 
 	switch (param.aa_type)
@@ -184,14 +177,12 @@ try
 			break;
 
 		default:
-			BSTONE_STATIC_THROW("Invalid antialiasing type.");
+			BSTONE_THROW_STATIC_SOURCE("Invalid antialiasing type.");
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rUtils::validate_buffer_create_param(const R3rBufferInitParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	switch (param.usage_type)
 	{
 		case R3rBufferUsageType::draw_streaming:
@@ -200,39 +191,35 @@ try
 			break;
 
 		default:
-			BSTONE_STATIC_THROW("Invalid usage type.");
+			BSTONE_THROW_STATIC_SOURCE("Invalid usage type.");
 	}
 
 	if (param.size <= 0)
 	{
-		BSTONE_STATIC_THROW("Invalid size.");
+		BSTONE_THROW_STATIC_SOURCE("Invalid size.");
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rUtils::validate_buffer_update_param(const R3rUpdateBufferParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (param.offset < 0)
 	{
-		BSTONE_STATIC_THROW("Invalid offset.");
+		BSTONE_THROW_STATIC_SOURCE("Invalid offset.");
 	}
 
 	if (param.size <= 0)
 	{
-		BSTONE_STATIC_THROW("Invalid count.");
+		BSTONE_THROW_STATIC_SOURCE("Invalid count.");
 	}
 
 	if (param.data == nullptr)
 	{
-		BSTONE_STATIC_THROW("Null indices.");
+		BSTONE_THROW_STATIC_SOURCE("Null indices.");
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rUtils::vertex_input_validate_format(const R3rVertexAttribFormat attribute_format)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	switch (attribute_format)
 	{
 		case R3rVertexAttribFormat::rgba_8_unorm:
@@ -241,26 +228,24 @@ try
 			return;
 
 		default:
-			BSTONE_STATIC_THROW("Unsupported vertex input attribute format.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported vertex input attribute format.");
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rUtils::vertex_input_validate_param(
 	int max_locations,
 	const R3rCreateVertexInputParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (max_locations < 0)
 	{
-		BSTONE_STATIC_THROW("Maximum location count out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Maximum location count out of range.");
 	}
 
 	if (param.index_buffer)
 	{
 		if (param.index_buffer->get_type() != R3rBufferType::index)
 		{
-			BSTONE_STATIC_THROW("Non-index buffer.");
+			BSTONE_THROW_STATIC_SOURCE("Non-index buffer.");
 		}
 	}
 
@@ -283,14 +268,14 @@ try
 
 		if (location < 0 || location >= max_locations)
 		{
-			BSTONE_STATIC_THROW("Location out of range.");
+			BSTONE_THROW_STATIC_SOURCE("Location out of range.");
 		}
 
 		const auto has_location = (used_locations.find(location) != used_locations.cend());
 
 		if (has_location)
 		{
-			BSTONE_STATIC_THROW("Duplicate location.");
+			BSTONE_THROW_STATIC_SOURCE("Duplicate location.");
 		}
 
 		used_locations.insert(location);
@@ -305,12 +290,12 @@ try
 		//
 		if (!attribute_description.vertex_buffer)
 		{
-			BSTONE_STATIC_THROW("Null vertex buffer.");
+			BSTONE_THROW_STATIC_SOURCE("Null vertex buffer.");
 		}
 
 		if (attribute_description.vertex_buffer->get_type() != R3rBufferType::vertex)
 		{
-			BSTONE_STATIC_THROW("Non-vertex buffer.");
+			BSTONE_THROW_STATIC_SOURCE("Non-vertex buffer.");
 		}
 
 
@@ -318,7 +303,7 @@ try
 		//
 		if (attribute_description.offset < 0)
 		{
-			BSTONE_STATIC_THROW("Invalid offset.");
+			BSTONE_THROW_STATIC_SOURCE("Invalid offset.");
 		}
 
 
@@ -326,33 +311,31 @@ try
 		//
 		if (attribute_description.stride < 0)
 		{
-			BSTONE_STATIC_THROW("Invalid stride.");
+			BSTONE_THROW_STATIC_SOURCE("Invalid stride.");
 		}
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rUtils::indexed_to_rgba_8(const IndexedToRgba8Param& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (param.width <= 0)
 	{
-		BSTONE_STATIC_THROW("Width out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Width out of range.");
 	}
 
 	if (param.height <= 0)
 	{
-		BSTONE_STATIC_THROW("Height out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Height out of range.");
 	}
 
 	if (!param.indexed_pixels)
 	{
-		BSTONE_STATIC_THROW("Null indexed pixels.");
+		BSTONE_THROW_STATIC_SOURCE("Null indexed pixels.");
 	}
 
 	if (param.rgba_8_buffer->size() < static_cast<std::size_t>((param.width * param.height)))
 	{
-		BSTONE_STATIC_THROW("Bitmap buffer too small.");
+		BSTONE_THROW_STATIC_SOURCE("Bitmap buffer too small.");
 	}
 
 	const auto is_column_major = param.indexed_is_column_major;
@@ -376,42 +359,40 @@ try
 	}
 	else
 	{
-		BSTONE_STATIC_THROW("Unsupported values combination.");
+		BSTONE_THROW_STATIC_SOURCE("Unsupported values combination.");
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rUtils::indexed_npot_to_rgba_8_pot(const IndexedToRgba8Param& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (param.width <= 0)
 	{
-		BSTONE_STATIC_THROW("Width out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Width out of range.");
 	}
 
 	if (param.height <= 0)
 	{
-		BSTONE_STATIC_THROW("Height out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Height out of range.");
 	}
 
 	if (param.actual_width <= 0)
 	{
-		BSTONE_STATIC_THROW("Actual width out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Actual width out of range.");
 	}
 
 	if (param.actual_height <= 0)
 	{
-		BSTONE_STATIC_THROW("Actual height out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Actual height out of range.");
 	}
 
 	if (!param.indexed_pixels)
 	{
-		BSTONE_STATIC_THROW("Null indexed pixels.");
+		BSTONE_THROW_STATIC_SOURCE("Null indexed pixels.");
 	}
 
 	if (param.rgba_8_buffer->size() < static_cast<std::size_t>((param.actual_width * param.actual_height)))
 	{
-		BSTONE_STATIC_THROW("Indexed bitmap buffer too small.");
+		BSTONE_THROW_STATIC_SOURCE("Indexed bitmap buffer too small.");
 	}
 
 	const auto is_column_major = param.indexed_is_column_major;
@@ -435,14 +416,12 @@ try
 	}
 	else
 	{
-		BSTONE_STATIC_THROW("Unsupported values combination.");
+		BSTONE_THROW_STATIC_SOURCE("Unsupported values combination.");
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rUtils::indexed_to_rgba_8_pot(const IndexedToRgba8Param& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	const auto is_npot =
 		param.width != param.actual_width ||
 		param.height != param.actual_height;
@@ -455,18 +434,16 @@ try
 	{
 		indexed_npot_to_rgba_8_pot(param);
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rUtils::indexed_sprite_to_rgba_8_pot(
 	const Sprite& indexed_sprite,
 	const Rgba8Palette& indexed_palette,
 	Rgba8Buffer& texture_buffer)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (!indexed_sprite.is_initialized())
 	{
-		BSTONE_STATIC_THROW("Indexed sprite not initialized.");
+		BSTONE_THROW_STATIC_SOURCE("Indexed sprite not initialized.");
 	}
 
 	const auto left = indexed_sprite.get_left();
@@ -511,8 +488,7 @@ try
 			dst_pixels += Sprite::dimension;
 		}
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rUtils::rgba_8_npot_to_rgba_8_pot(
 	int width,
@@ -521,31 +497,30 @@ void R3rUtils::rgba_8_npot_to_rgba_8_pot(
 	int actual_height,
 	const Rgba8* rgba_8_pixels,
 	Rgba8Buffer& texture_buffer)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (width <= 0)
 	{
-		BSTONE_STATIC_THROW("Width out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Width out of range.");
 	}
 
 	if (height <= 0)
 	{
-		BSTONE_STATIC_THROW("Height out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Height out of range.");
 	}
 
 	if (actual_width <= 0)
 	{
-		BSTONE_STATIC_THROW("Actual width out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Actual width out of range.");
 	}
 
 	if (actual_height <= 0)
 	{
-		BSTONE_STATIC_THROW("Actual height out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Actual height out of range.");
 	}
 
 	if (!rgba_8_pixels)
 	{
-		BSTONE_STATIC_THROW("Null RGBA pixels.");
+		BSTONE_THROW_STATIC_SOURCE("Null RGBA pixels.");
 	}
 
 	const auto src_du_f = static_cast<double>(width) / static_cast<double>(actual_width);
@@ -570,39 +545,37 @@ try
 
 		src_v_d += src_dv_f;
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rUtils::build_mipmap(
 	int previous_width,
 	int previous_height,
 	Rgba8CPtr src_colors,
 	Rgba8Ptr dst_colors)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (previous_width <= 0)
 	{
-		BSTONE_STATIC_THROW("Previous width out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Previous width out of range.");
 	}
 
 	if (previous_height <= 0)
 	{
-		BSTONE_STATIC_THROW("Previous height out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Previous height out of range.");
 	}
 
 	if (previous_width == 1 && previous_height == 1)
 	{
-		BSTONE_STATIC_THROW("No more mipmap to build.");
+		BSTONE_THROW_STATIC_SOURCE("No more mipmap to build.");
 	}
 
 	if (!src_colors)
 	{
-		BSTONE_STATIC_THROW("Null source colors.");
+		BSTONE_THROW_STATIC_SOURCE("Null source colors.");
 	}
 
 	if (dst_colors == nullptr)
 	{
-		BSTONE_STATIC_THROW("Null target colors.");
+		BSTONE_THROW_STATIC_SOURCE("Null target colors.");
 	}
 
 	if (previous_width == 1)
@@ -640,13 +613,11 @@ try
 		src_colors_0 += previous_width;
 		src_colors_1 += previous_width;
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 sys::GlContextAttributes R3rUtils::create_window_make_gl_context_attributes(
 	const R3rUtilsCreateWindowParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	auto gl_attributes = sys::GlContextAttributes{};
 	gl_attributes.is_accelerated = true;
 
@@ -697,12 +668,11 @@ try
 			break;
 
 		default:
-			BSTONE_STATIC_THROW("Unsupported 3D renderer type.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported 3D renderer type.");
 	}
 
 	return gl_attributes;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Indexed (row major, has no alpha) -> RGBA
 void R3rUtils::indexed_to_rgba_8_rm_na(const IndexedToRgba8Param& param) noexcept

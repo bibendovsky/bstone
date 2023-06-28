@@ -45,28 +45,26 @@ SingleMemoryPool<T>::~SingleMemoryPool()
 {
 	if (is_allocated_)
 	{
-		BSTONE_STATIC_THROW("Unallocated pool.");
+		BSTONE_THROW_STATIC_SOURCE("Unallocated pool.");
 	}
 }
 
 template<typename T>
 void* SingleMemoryPool<T>::do_allocate(std::size_t size)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (size != object_size)
 	{
-		BSTONE_STATIC_THROW("Size mismatch.");
+		BSTONE_THROW_STATIC_SOURCE("Size mismatch.");
 	}
 
 	if (is_allocated_)
 	{
-		BSTONE_STATIC_THROW("Out of memory.");
+		BSTONE_THROW_STATIC_SOURCE("Out of memory.");
 	}
 
 	is_allocated_ = true;
 	return storage_;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 template<typename T>
 void SingleMemoryPool<T>::do_deallocate(void* ptr)
@@ -78,7 +76,7 @@ void SingleMemoryPool<T>::do_deallocate(void* ptr)
 
 	if (ptr != storage_)
 	{
-		BSTONE_STATIC_THROW("Invalid pointer.");
+		BSTONE_THROW_STATIC_SOURCE("Invalid pointer.");
 	}
 
 	is_allocated_ = false;

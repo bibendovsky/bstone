@@ -18,6 +18,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "id_vl.h"
 
 #include "bstone_atomic_flag.h"
+#include "bstone_exception_utils.h"
 #include "bstone_file_stream.h"
 #include "bstone_file_system.h"
 #include "bstone_globals.h"
@@ -356,36 +357,6 @@ namespace
 {
 
 
-class VideoException :
-	public bstone::Exception
-{
-public:
-	explicit VideoException(
-		const char* message) noexcept
-		:
-		bstone::Exception{"VIDEO", message}
-	{
-	}
-}; // VideoException
-
-
-[[noreturn]]
-void fail(
-	const char* message)
-{
-	throw VideoException{message};
-}
-
-[[noreturn]]
-void fail_nested(
-	const char* message)
-{
-	std::throw_with_nested(VideoException{message});
-}
-
-
-// --------------------------------------------------------------------------
-
 class SaveScreenshotMtTask final :
 	public bstone::MtTask
 {
@@ -509,7 +480,7 @@ try
 
 		if (!file_stream.is_open())
 		{
-			fail(("Failed to open a file \"" + path + "\".").c_str());
+			BSTONE_THROW_DYNAMIC_SOURCE(("Failed to open a file \"" + path + "\".").c_str());
 		}
 
 		file_stream.write(dst_buffer.get(), dst_buffer_size);
@@ -829,8 +800,7 @@ void vid_calculate_vga_dimensions() noexcept
 }
 
 std::string vid_get_game_name_and_game_version_string()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	const auto& assets_info = get_assets_info();
 
 	auto title = std::string{"Blake Stone"};
@@ -899,21 +869,12 @@ try
 	}
 
 	return title;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::string vid_get_port_version_string()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return "BStone v" + bstone::Version::get_string();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_initialize_cvars(bstone::CVarMgr& cvar_mgr)
 {
@@ -972,14 +933,9 @@ void vid_log_error(
 }
 
 void vid_get_current_display_mode()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	vid_display_mode_ = bstone::globals::sys_video_mgr->get_current_display_mode();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace
 
@@ -990,18 +946,12 @@ std::string vid_to_string(bool value)
 }
 
 std::string vid_to_string(int value)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return std::to_string(value);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::string vid_to_string(bstone::R3rFilterType filter_type)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	auto filter_type_sv = bstone::StringView{};
 
 	switch (filter_type)
@@ -1015,19 +965,14 @@ try
 			break;
 
 		default:
-			fail("Unsupported renderer filter type.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported renderer filter type.");
 	}
 
 	return std::string{filter_type_sv.get_data(), static_cast<std::size_t>(filter_type_sv.get_size())};
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::string vid_to_string(bstone::R3rAaType aa_type)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	auto aa_type_sv = bstone::StringView{};
 
 	switch (aa_type)
@@ -1041,19 +986,14 @@ try
 			break;
 
 		default:
-			fail("Unsupported anti-aliasing type.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported anti-aliasing type.");
 	}
 
 	return std::string{aa_type_sv.get_data(), static_cast<std::size_t>(aa_type_sv.get_size())};
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::string vid_to_string(bstone::RendererType renderer_type)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	auto renderer_type_sv = bstone::StringView{};
 
 	switch (renderer_type)
@@ -1079,35 +1019,25 @@ try
 			break;
 
 		default:
-			fail("Unsupported renderer type.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported renderer type.");
 	}
 
 	return std::string{renderer_type_sv.get_data(), static_cast<std::size_t>(renderer_type_sv.get_size())};
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::string vid_to_string(bstone::R3rType renderer_type)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	switch (renderer_type)
 	{
 		case bstone::R3rType::gl_2_0: return "OpenGL 2.0";
 		case bstone::R3rType::gl_3_2_core: return "OpenGL 3.2 core";
 		case bstone::R3rType::gles_2_0: return "OpenGL ES 2.0";
-		default: fail("Unsupported renderer type.");
+		default: BSTONE_THROW_STATIC_SOURCE("Unsupported renderer type.");
 	}
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::string vid_to_string(bstone::HwTextureMgrUpscaleFilterType upscale_filter_type)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	auto upscale_filter_type_sv = bstone::StringView{};
 
 	switch (upscale_filter_type)
@@ -1121,29 +1051,20 @@ try
 			break;
 
 		default:
-			fail("Unsupported texture upscale filter type.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported texture upscale filter type.");
 	}
 
 	return std::string{
 		upscale_filter_type_sv.get_data(),
 		static_cast<std::size_t>(upscale_filter_type_sv.get_size())};
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_initialize_vanilla_raycaster()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	SetupWalls();
 	NewViewSize();
 	SetPlaneViewSize();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 
 namespace
@@ -1189,30 +1110,20 @@ void vid_log_common_configuration()
 
 
 void vid_initialize_common()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	vid_get_current_display_mode();
 	vid_cfg_adjust_window_position();
 	vid_cfg_fix_window_size();
 
 	vid_log_common_configuration();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_initialize_ui_buffer()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	const auto area = vga_ref_width * vga_ref_height;
 
 	vid_ui_buffer_.resize(area);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 
 namespace
@@ -1226,8 +1137,7 @@ auto g_video = bstone::VideoUPtr{};
 
 
 std::string vid_get_window_title_for_renderer(bstone::StringView renderer_name)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	const auto game_name_and_game_version_string = vid_get_game_name_and_game_version_string();
 	const auto port_version_string = vid_get_port_version_string();
 
@@ -1245,11 +1155,7 @@ try
 	result += ']';
 
 	return result;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_schedule_save_screenshot_task(
 	int width,
@@ -1257,8 +1163,7 @@ void vid_schedule_save_screenshot_task(
 	int stride_rgb_888,
 	ScreenshotBuffer&& src_pixels_rgb_888,
 	bool is_flipped_vertically)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	for (auto& task : vid_save_screenshot_mt_tasks)
 	{
 		if (task.is_completed())
@@ -1280,11 +1185,7 @@ try
 	}
 
 	vid_log_error("No more screenshot tasks available.");
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_take_screenshot()
 try
@@ -1315,8 +1216,7 @@ namespace
 
 
 void vid_check_vsync()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	using Clock = std::chrono::steady_clock;
 
 	constexpr int draw_count = 10;
@@ -1344,11 +1244,7 @@ try
 		duration).count();
 
 	vid_has_vsync = (duration_ms >= min_expected_duration_ms);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 
 } // namespace
@@ -1375,8 +1271,7 @@ void VL_WaitVBL(
 
 // BBi Moved from jm_free.cpp
 void VL_Startup()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video = nullptr;
 
 	const auto is_sw = (vid_cfg_get_renderer_type() == bstone::RendererType::software);
@@ -1433,11 +1328,7 @@ try
 
 
 	vid_get_window_size_list();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 // BBi
 
 void VL_Shutdown()
@@ -1461,40 +1352,25 @@ void VL_FillPalette(
 	std::uint8_t red,
 	std::uint8_t green,
 	std::uint8_t blue)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->fill_palette(red, green, blue);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VL_SetPalette(
 	int first,
 	int count,
 	const std::uint8_t* palette)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->set_palette(first, count, palette);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VL_GetPalette(
 	int first,
 	int count,
 	std::uint8_t* palette)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->get_palette(first, count, palette);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Fades the current palette to the given color in the given number of steps.
 void VL_FadeOut(
@@ -1504,8 +1380,7 @@ void VL_FadeOut(
 	int green,
 	int blue,
 	int steps)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	assert(start >= 0);
 	assert(end >= 0);
 	assert(red >= 0 && red <= 0xFF);
@@ -1515,19 +1390,14 @@ try
 	assert(start <= end);
 
 	::g_video->fade_out(start, end, red, green, blue, steps);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VL_FadeIn(
 	int start,
 	int end,
 	const std::uint8_t* palette,
 	int steps)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	assert(start >= 0);
 	assert(end >= 0);
 	assert(palette != nullptr);
@@ -1535,19 +1405,14 @@ try
 	assert(start <= end);
 
 	::g_video->fade_in(start, end, palette, steps);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VL_SetPaletteIntensity(
 	int start,
 	int end,
 	const std::uint8_t* palette,
 	int intensity)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	auto palette1 = ::VgaPalette{};
 
 	auto cmap = &palette1[0][0] + (start * 3);
@@ -1588,11 +1453,7 @@ try
 		start,
 		end - start + 1,
 		&palette1[0][0]);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 /*
 =============================================================================
@@ -1831,14 +1692,9 @@ void JM_VGALinearFill(
 }
 
 void VL_RefreshScreen()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->present();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int vl_get_offset(
 	int base_offset,
@@ -1859,14 +1715,9 @@ std::uint8_t vl_get_pixel(
 }
 
 void vl_update_widescreen()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->apply_widescreen();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bstone::RendererType vid_cfg_get_renderer_type() noexcept
 {
@@ -2187,14 +2038,9 @@ void vid_set_ui_mask_3d(
 }
 
 void vid_clear_3d()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->clear_vga_buffer();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_export_ui(
 	VgaBuffer& dst_buffer)
@@ -2250,8 +2096,7 @@ const VidRendererTypes& vid_get_available_renderer_types()
 }
 
 const VidWindowSizes& vid_get_window_size_list()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	static auto result = VidWindowSizes{};
 
 	const auto display_modes = bstone::globals::sys_video_mgr->get_display_modes();
@@ -2332,19 +2177,14 @@ try
 	}
 
 	return result;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_draw_ui_sprite(
 	int sprite_id,
 	int center_x,
 	int center_y,
 	int new_side)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	constexpr auto dimension = bstone::Sprite::dimension;
 
 	const auto sprite_ptr = vid_sprite_cache.cache(
@@ -2401,310 +2241,170 @@ try
 			VL_Plot(x, y, color_index);
 		}
 	}
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_on_load_level()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->on_load_level();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_on_update_wall_switch(
 	int x,
 	int y)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->on_update_wall_switch(x, y);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_on_move_pushwall()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->on_move_pushwall();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_on_step_pushwall(
 	int old_x,
 	int old_y)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->on_step_pushwall(old_x, old_y);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_on_pushwall_to_wall(
 	int old_x,
 	int old_y,
 	int new_x,
 	int new_y)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->on_pushwall_to_wall(old_x, old_y, new_x, new_y);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_on_move_door(
 	int door_index)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->on_move_door(door_index);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_on_update_door_lock(
 	int bs_door_index)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->on_update_door_lock(bs_door_index);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_on_remove_static(
 	const statobj_t& bs_static)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->on_remove_static(bs_static);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_on_remove_actor(
 	const objtype& bs_actor)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->on_remove_actor(bs_actor);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_enable_fizzle_fx(
 	bool is_enabled)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->enable_fizzle_fx(is_enabled);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_enable_fizzle_fx_fading(
 	bool is_fading)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->enable_fizzle_fx_fading(is_fading);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_set_fizzle_fx_color_index(
 	int color_index)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->set_fizzle_fx_color_index(color_index);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_set_fizzle_fx_ratio(
 	float ratio)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->set_fizzle_fx_ratio(ratio);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_clear_wall_render_list()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->clear_wall_render_list();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_add_wall_render_item(
 	int tile_x,
 	int tile_y)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->add_wall_render_item(tile_x, tile_y);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_clear_pushwall_render_list()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->clear_pushwall_render_list();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_add_pushwall_render_item(
 	int tile_x,
 	int tile_y)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->add_pushwall_render_item(tile_x, tile_y);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_clear_door_render_list()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->clear_door_render_list();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_add_door_render_item(
 	int tile_x,
 	int tile_y)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->add_door_render_item(tile_x, tile_y);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_clear_static_render_list()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->clear_static_render_list();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_add_static_render_item(
 	int bs_static_index)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->add_static_render_item(bs_static_index);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_clear_actor_render_list()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->clear_actor_render_list();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_add_actor_render_item(
 	int bs_actor_index)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->add_actor_render_item(bs_actor_index);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const bstone::Rgba8Palette& vid_hw_get_default_palette()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return ::g_video->get_default_palette();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_apply_window_mode()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->apply_window_mode();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_apply_vsync()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->apply_vsync();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_apply_msaa()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->apply_msaa();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_apply_video_mode(
 	const VideoModeCfg& video_mode_cfg)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	auto is_restart = false;
 
 	if (!is_restart &&
@@ -2772,92 +2472,48 @@ try
 	{
 		vid_apply_msaa();
 	}
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_apply_anisotropy()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->update_samplers();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_apply_2d_image_filter()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->update_samplers();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_apply_3d_image_filter()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->update_samplers();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_apply_mipmap_filter()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->update_samplers();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_apply_upscale()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->apply_texture_upscale();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int vid_clamp_filler_color_index(
 	int filler_color_index) noexcept
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return bstone::math::clamp(filler_color_index, 0, 255);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_apply_filler_color()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->apply_filler_color_index();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_apply_external_textures()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::g_video->apply_external_textures();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_schedule_take_screenshot()
 {

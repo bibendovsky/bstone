@@ -58,18 +58,14 @@ SdlGlMgr::~SdlGlMgr()
 }
 
 void* SdlGlMgr::operator new(std::size_t size)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return sdl_gl_mgr_pool.allocate(size);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlGlMgr::operator delete(void* ptr)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	sdl_gl_mgr_pool.deallocate(ptr);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlSharedLibraryUPtr SdlGlMgr::do_make_shared_library(const char* path)
 {

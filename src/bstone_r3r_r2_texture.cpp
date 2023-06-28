@@ -12,17 +12,13 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 
 void R3rR2Texture::update(const R3rR2TextureUpdateParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_update(param);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rR2Texture::generate_mipmaps()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_generate_mipmaps();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace bstone

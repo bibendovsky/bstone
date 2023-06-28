@@ -51,34 +51,6 @@ char get_separator() noexcept
 }
 
 
-class FileSystemException :
-	public Exception
-{
-public:
-	explicit FileSystemException(
-		const char* const message) noexcept
-		:
-		Exception{"FILE_SYSTEM", message}
-	{
-	}
-}; // FileSystemException
-
-
-[[noreturn]]
-void fail(
-	const char* message)
-{
-	throw FileSystemException{message};
-}
-
-[[noreturn]]
-void fail_nested(
-	const char* message)
-{
-	std::throw_with_nested(FileSystemException{message});
-}
-
-
 } // detail
 
 
@@ -148,8 +120,7 @@ std::string append_path(
 void replace_extension(
 	std::string& path_name,
 	const std::string& new_extension)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (path_name.empty() || new_extension.empty())
 	{
 		return;
@@ -157,7 +128,7 @@ try
 
 	if (new_extension.front() != '.')
 	{
-		detail::fail("An extension should start with a dot.");
+		BSTONE_THROW_STATIC_SOURCE("An extension should start with a dot.");
 	}
 
 	const auto separator_pos = path_name.find_last_of("\\/");
@@ -174,21 +145,16 @@ try
 	}
 
 	path_name += new_extension;
-}
-catch (...)
-{
-	detail::fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::string get_working_dir()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 #if _WIN32
 	const auto utf16_string_size = GetCurrentDirectoryW(0, nullptr);
 
 	if (utf16_string_size == 0)
 	{
-		detail::fail("GetCurrentDirectoryW");
+		BSTONE_THROW_STATIC_SOURCE("GetCurrentDirectoryW");
 	}
 
 	auto utf16_dir = std::u16string{};
@@ -201,7 +167,7 @@ try
 
 	if (win32_result == 0)
 	{
-		detail::fail("GetCurrentDirectoryW");
+		BSTONE_THROW_STATIC_SOURCE("GetCurrentDirectoryW");
 	}
 
 	utf16_dir.resize(win32_result);
@@ -212,7 +178,7 @@ try
 
 	if (max_size <= 0)
 	{
-		detail::fail("Unknown max path length.");
+		BSTONE_THROW_STATIC_SOURCE("Unknown max path length.");
 	}
 
 	constexpr auto initial_size = 256;
@@ -238,17 +204,17 @@ try
 				break;
 
 			case EACCES:
-				detail::fail("No access.");
+				BSTONE_THROW_STATIC_SOURCE("No access.");
 
 			default:
-				detail::fail("Generic error.");
+				BSTONE_THROW_STATIC_SOURCE("Generic error.");
 		}
 
 		size += size_delta;
 
 		if (size > max_size)
 		{
-			detail::fail("Path too long.");
+			BSTONE_THROW_STATIC_SOURCE("Path too long.");
 		}
 	}
 
@@ -256,19 +222,14 @@ try
 
 	return result;
 #endif // _WIN32
-}
-catch (...)
-{
-	detail::fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::string resolve_path(
 	const std::string& path)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (path.empty())
 	{
-		detail::fail("Empty path.");
+		BSTONE_THROW_STATIC_SOURCE("Empty path.");
 	}
 
 #ifdef _WIN32
@@ -283,7 +244,7 @@ try
 
 	if (utf16_full_path_size == 0)
 	{
-		detail::fail("GetFullPathNameW");
+		BSTONE_THROW_STATIC_SOURCE("GetFullPathNameW");
 	}
 
 	auto utf16_full_path = std::u16string{};
@@ -298,7 +259,7 @@ try
 
 	if (win32_result == 0)
 	{
-		detail::fail("GetFullPathNameW");
+		BSTONE_THROW_STATIC_SOURCE("GetFullPathNameW");
 	}
 
 	utf16_full_path.resize(win32_result);
@@ -309,7 +270,7 @@ try
 
 	if (max_size <= 0)
 	{
-		detail::fail("Unknown max path length.");
+		BSTONE_THROW_STATIC_SOURCE("Unknown max path length.");
 	}
 
 	auto result = std::string{};
@@ -319,18 +280,14 @@ try
 
 	if (posix_result == nullptr)
 	{
-		detail::fail("realpath");
+		BSTONE_THROW_STATIC_SOURCE("realpath");
 	}
 
 	result.resize(std::string::traits_type::length(result.c_str()));
 
 	return result;
 #endif // _WIN32
-}
-catch (...)
-{
-	detail::fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool has_file(
 	const std::string& path)
@@ -375,16 +332,15 @@ bool has_file(
 void rename(
 	const std::string& old_path,
 	const std::string& new_path)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (old_path.empty())
 	{
-		detail::fail("Empty old path.");
+		BSTONE_THROW_STATIC_SOURCE("Empty old path.");
 	}
 
 	if (new_path.empty())
 	{
-		detail::fail("Empty new path.");
+		BSTONE_THROW_STATIC_SOURCE("Empty new path.");
 	}
 
 #if _WIN32
@@ -399,21 +355,17 @@ try
 
 	if (win32_move_file_result == FALSE)
 	{
-		detail::fail("MoveFileExW");
+		BSTONE_THROW_STATIC_SOURCE("MoveFileExW");
 	}
 #else
 	const auto posix_rename_result = ::rename(old_path.c_str(), new_path.c_str());
 
 	if (posix_rename_result != 0)
 	{
-		detail::fail("rename");
+		BSTONE_THROW_STATIC_SOURCE("rename");
 	}
 #endif // _WIN32
-}
-catch (...)
-{
-	detail::fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 
 } // file_system

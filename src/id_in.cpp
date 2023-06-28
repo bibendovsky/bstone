@@ -1429,18 +1429,8 @@ constexpr InBindingIdNameToIdMapItem in_binding_id_name_to_id_map[] =
 	InBindingIdNameToIdMapItem{screenshot_sv, e_bi_take_screenshot},
 };
 
-class InBindingException : public bstone::Exception
-{
-public:
-	explicit InBindingException(const char* message) noexcept
-		:
-		Exception{"BSTONE_IN_BINDING", message}
-	{}
-};
-
 BindingId in_binding_name_to_id(bstone::StringView name_sv)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	for (const auto& map_item_id : in_binding_id_name_to_id_map)
 	{
 		if (map_item_id.name_sv == name_sv)
@@ -1453,16 +1443,11 @@ try
 	message += "Unknown binding name \"";
 	message.append(name_sv.get_data(), static_cast<std::size_t>(name_sv.get_size()));
 	message += "\".";
-	throw InBindingException{message.c_str()};
-}
-catch (...)
-{
-	std::throw_with_nested(__func__);
-}
+	BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bstone::StringView in_binding_id_to_name(BindingId binding_id)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	for (const auto& map_item_id : in_binding_id_name_to_id_map)
 	{
 		if (map_item_id.binding_id == binding_id)
@@ -1471,23 +1456,10 @@ try
 		}
 	}
 
-	throw InBindingException{"Unknown binding ID."};
-}
-catch (...)
-{
-	std::throw_with_nested(__func__);
-}
+	BSTONE_THROW_STATIC_SOURCE("Unknown binding ID.");
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // --------------------------------------------------------------------------
-
-class InClearBindingsException : public bstone::Exception
-{
-public:
-	explicit InClearBindingsException(const char* message) noexcept
-		:
-		Exception{"BSTONE_IN_CLEAR_BINDINGS", message}
-	{}
-};
 
 class InClearBindingsCCmdAction final : public bstone::CCmdAction
 {
@@ -1497,30 +1469,14 @@ public:
 
 private:
 	void do_invoke(bstone::CCmdActionArgs args) override
-	try
-	{
+	BSTONE_BEGIN_FUNC_TRY
 		if (!args.is_empty())
 		{
-			fail("Too many arguments.");
+			BSTONE_THROW_STATIC_SOURCE("Too many arguments.");
 		}
 
 		in_clear_bindings();
-	}
-	catch (...)
-	{
-		fail_nested(__func__);
-	}
-
-private:
-	[[noreturn]] static void fail(const char* message)
-	{
-		throw InClearBindingsException{message};
-	}
-
-	[[noreturn]] static void fail_nested(const char* message)
-	{
-		std::throw_with_nested(InClearBindingsException{message});
-	}
+	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 };
 
 constexpr auto in_clear_bindings_sv = bstone::StringView{"in_clear_bindings"};
@@ -1530,8 +1486,7 @@ auto in_clear_bindings_ccmd = bstone::CCmd{in_clear_bindings_sv, in_clear_bindin
 // --------------------------------------------------------------------------
 
 bstone::IntP in_parse_binding_slot_index(bstone::StringView slot_index_name_sv)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	const auto slot_index_name_span = bstone::make_span(
 		slot_index_name_sv.get_data(),
 		slot_index_name_sv.get_size());
@@ -1543,26 +1498,13 @@ try
 		message += "Slot index \"";
 		message.append(slot_index_name_sv.get_data(), static_cast<std::size_t>(slot_index_name_sv.get_size()));
 		message += "\" out of range.";
-		throw InBindingException{message.c_str()};
+		BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
 	}
 
 	return slot_index;
-}
-catch (...)
-{
-	std::throw_with_nested(InBindingException{__func__});
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // --------------------------------------------------------------------------
-
-class InClearBindingException : public bstone::Exception
-{
-public:
-	explicit InClearBindingException(const char* message) noexcept
-		:
-		Exception{"BSTONE_IN_CLEAR_BINDING", message}
-	{}
-};
 
 class InClearBindingCCmdAction final : public bstone::CCmdAction
 {
@@ -1572,32 +1514,16 @@ public:
 
 private:
 	void do_invoke(bstone::CCmdActionArgs args) override
-	try
-	{
+	BSTONE_BEGIN_FUNC_TRY
 		if (args.get_size() != 2)
 		{
-			fail("Invalid argument count.");
+			BSTONE_THROW_STATIC_SOURCE("Invalid argument count.");
 		}
 
 		const auto binding_id = in_binding_name_to_id(args[0]);
 		const auto slot_index = in_parse_binding_slot_index(args[1]);
 		in_bindings[binding_id][slot_index] = ScanCode::sc_none;
-	}
-	catch (...)
-	{
-		fail_nested(__func__);
-	}
-
-private:
-	[[noreturn]] static void fail(const char* message)
-	{
-		throw InClearBindingsException{message};
-	}
-
-	[[noreturn]] static void fail_nested(const char* message)
-	{
-		std::throw_with_nested(InClearBindingsException{message});
-	}
+	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 };
 
 constexpr auto in_clear_binding_sv = bstone::StringView{"in_clear_binding"};
@@ -1812,8 +1738,7 @@ constexpr InScanCodeNameToIdMapItem in_scan_code_name_to_id_map[] =
 };
 
 ScanCode in_scan_code_name_to_id(bstone::StringView name_sv)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	for (const auto& map_item : in_scan_code_name_to_id_map)
 	{
 		if (map_item.name_sv == name_sv)
@@ -1826,16 +1751,11 @@ try
 	message += "Unknown scan code name \"";
 	message.append(name_sv.get_data(), static_cast<std::size_t>(name_sv.get_size()));
 	message += "\".";
-	throw InBindingException{message.c_str()};
-}
-catch (...)
-{
-	std::throw_with_nested(InBindingException{__func__});
-}
+	BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bstone::StringView in_scan_code_id_to_name(ScanCode scan_code)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	for (const auto& map_item : in_scan_code_name_to_id_map)
 	{
 		if (map_item.scan_code == scan_code)
@@ -1844,21 +1764,8 @@ try
 		}
 	}
 
-	throw InBindingException{"Unknown scan code name."};
-}
-catch (...)
-{
-	std::throw_with_nested(InBindingException{__func__});
-}
-
-class InBindException : public bstone::Exception
-{
-public:
-	explicit InBindException(const char* message) noexcept
-		:
-		Exception{"BSTONE_IN_BIND", message}
-	{}
-};
+	BSTONE_THROW_STATIC_SOURCE("Unknown scan code name.");
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 class InBindCCmdAction final : public bstone::CCmdAction
 {
@@ -1868,11 +1775,10 @@ public:
 
 private:
 	void do_invoke(bstone::CCmdActionArgs args) override
-	try
-	{
+	BSTONE_BEGIN_FUNC_TRY
 		if (args.get_size() != 3)
 		{
-			fail("Invalid argument count.");
+			BSTONE_THROW_STATIC_SOURCE("Invalid argument count.");
 		}
 
 		const auto scan_code = in_scan_code_name_to_id(args[0]);
@@ -1895,22 +1801,7 @@ private:
 		// Bind it.
 		//
 		in_bindings[binding_id][slot_index] = scan_code;
-	}
-	catch (...)
-	{
-		fail_nested(__func__);
-	}
-
-private:
-	[[noreturn]] static void fail(const char* message)
-	{
-		throw InBindException{message};
-	}
-
-	[[noreturn]] static void fail_nested(const char* message)
-	{
-		std::throw_with_nested(InBindException{message});
-	}
+	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 };
 
 constexpr auto in_bind_sv = bstone::StringView{"in_bind"};

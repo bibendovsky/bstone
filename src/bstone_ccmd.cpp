@@ -10,29 +10,14 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-class CCmdException : public Exception
-{
-public:
-	explicit CCmdException(const char* message) noexcept
-		:
-		Exception{"BSTONE_CCMD", message}
-	{}
-};
-
-// ==========================================================================
-
 CCmd::CCmd(StringView name, CCmdAction& action)
-try
+BSTONE_BEGIN_CTOR_TRY
 	:
 	name_{name},
 	action_{&action}
 {
 	CValidator::validate_name(name_);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 StringView CCmd::get_name() const noexcept
 {
@@ -42,16 +27,6 @@ StringView CCmd::get_name() const noexcept
 CCmdAction& CCmd::get_action() const noexcept
 {
 	return *action_;
-}
-
-[[noreturn]] void CCmd::fail(const char* message)
-{
-	throw CCmdException{message};
-}
-
-[[noreturn]] void CCmd::fail_nested(const char* message)
-{
-	std::throw_with_nested(CCmdException{message});
 }
 
 } // namespace bstone

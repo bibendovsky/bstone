@@ -142,6 +142,7 @@ void Tester::log_exception()
 
 		if (!is_empty_check)
 		{
+			assert(exception.what() != nullptr);
 			std::cerr << "[ERROR] " << exception.what() << std::endl;
 		}
 	};

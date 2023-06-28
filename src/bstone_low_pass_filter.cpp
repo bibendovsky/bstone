@@ -15,63 +15,38 @@ SPDX-License-Identifier: MIT
 namespace bstone
 {
 
-namespace
-{
-
-class LowPassFilterException : public Exception
-{
-public:
-	explicit LowPassFilterException(const char* message) noexcept
-		:
-		Exception{"LOW_PASS_FILTER", message}
-	{
-	}
-}; // LowPassFilterException
-
-} // namespace
-
 LowPassFilter::LowPassFilter() noexcept = default;
 
 LowPassFilter::LowPassFilter(int filter_order, int cut_off_frequency, int sampling_frequency)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	initialize(filter_order, cut_off_frequency, sampling_frequency);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void LowPassFilter::initialize(int filter_order, int cut_off_frequency, int sampling_frequency)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (filter_order < 1)
 	{
-		fail("Filter order out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Filter order out of range.");
 	}
 
 	if (cut_off_frequency <= 0)
 	{
-		fail("Cut off frequency out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Cut off frequency out of range.");
 	}
 
 	if (sampling_frequency <= 0)
 	{
-		fail("Sampling frequency out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Sampling frequency out of range.");
 	}
 
 	if (cut_off_frequency > (sampling_frequency / 2))
 	{
-		fail("Cut off frequency out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Cut off frequency out of range.");
 	}
 
 	initialize_weights(filter_order, cut_off_frequency, sampling_frequency);
 	apply_hann_weights();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 double LowPassFilter::process_sample(double sample) noexcept
 {
@@ -106,16 +81,6 @@ double LowPassFilter::process_sample(double sample) noexcept
 void LowPassFilter::reset_samples() noexcept
 {
 	std::uninitialized_fill(samples_.begin(), samples_.end(), 0.0);
-}
-
-[[noreturn]] void LowPassFilter::fail(const char* message)
-{
-	throw LowPassFilterException{message};
-}
-
-[[noreturn]] void LowPassFilter::fail_nested(const char* message)
-{
-	std::throw_with_nested(LowPassFilterException{message});
 }
 
 double LowPassFilter::get_pi() noexcept

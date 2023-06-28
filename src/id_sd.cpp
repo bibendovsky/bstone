@@ -45,20 +45,6 @@ bool sd_sq_active_;
 
 namespace {
 
-class SdException : public bstone::Exception
-{
-public:
-	explicit SdException(const char* message) noexcept
-		:
-		Exception{"SD", message}
-	{}
-}; // SdException
-
-[[noreturn]] void sd_fail_nested(const char* message)
-{
-	std::throw_with_nested(SdException{message});
-}
-
 auto sd_music_is_looping_ = true;
 
 bstone::AudioContentMgrUPtr audio_content_mgr{};
@@ -408,8 +394,7 @@ void sd_initialize_voices()
 }
 
 void sd_make_mixer(AudioDriverType audio_driver_type, int sample_rate, int mix_size_ms)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	sd_mixer_ = nullptr;
 	sd_music_voice_group_ = nullptr;
 	sd_ui_sfx_voice_group_ = nullptr;
@@ -433,11 +418,7 @@ try
 	sd_music_voice_group_.swap(music_voice_group);
 	sd_ui_sfx_voice_group_.swap(ui_sfx_voice_group);
 	sd_scene_sfx_voice_group_.swap(scene_sfx_voice_group);
-}
-catch (...)
-{
-	sd_fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 AudioDriverType sd_get_driver_type_from_cvar() noexcept
 {
@@ -804,7 +785,7 @@ void sd_play_non_positional_sfx_sound(
 			break;
 
 		default:
-			fail("Unknown audio chunk type.");
+			BSTONE_THROW_STATIC_SOURCE("Unknown audio chunk type.");
 	}
 
 	auto play_sound_param = bstone::AudioMixerPlaySoundParam{};
@@ -868,7 +849,7 @@ void sd_play_positional_sfx_sound(
 			break;
 
 		default:
-			fail("Unknown audio chunk type.");
+			BSTONE_THROW_STATIC_SOURCE("Unknown audio chunk type.");
 	}
 
 	auto play_sound_param = bstone::AudioMixerPlaySoundParam{};

@@ -30,9 +30,6 @@ public:
 
 private:
 	AudioMixerVoiceHandleValue value_{audio_mixer_voice_invalid_handle_value};
-
-	[[noreturn]] static void fail(const char* message);
-	[[noreturn]] static void fail_nested(const char* message);
 }; // AudioMixerVoiceHandle
 
 // ==========================================================================

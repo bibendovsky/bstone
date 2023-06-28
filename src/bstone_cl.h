@@ -52,10 +52,6 @@ private:
 	StringViews args_{};
 	ClArgs params_{};
 	Options options_{};
-
-private:
-	[[noreturn]] static void fail(const char* message);
-	[[noreturn]] static void fail_nested(const char* message);
 };
 
 } // bstone

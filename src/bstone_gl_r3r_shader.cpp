@@ -65,8 +65,7 @@ GlR3rShaderImplPool gl_r3r_shader_impl_pool{};
 // ==========================================================================
 
 GlR3rShaderImpl::GlR3rShaderImpl(const R3rShaderInitParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	validate(param);
 
 	const auto gl_type = get_gl_type(param.type);
@@ -75,7 +74,7 @@ try
 
 	if (!shader_resource_)
 	{
-		BSTONE_STATIC_THROW("Failed to create an object.");
+		BSTONE_THROW_STATIC_SOURCE("Failed to create an object.");
 	}
 
 	const char* const strings[] = {static_cast<const char*>(param.source.data)};
@@ -104,12 +103,11 @@ try
 			error_message += gl_log;
 		}
 
-		BSTONE_STATIC_THROW(error_message.c_str());
+		BSTONE_THROW_STATIC_SOURCE(error_message.c_str());
 	}
 
 	type_ = param.type;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rShaderImpl::~GlR3rShaderImpl()
 {
@@ -133,18 +131,14 @@ GlR3rShaderImpl::~GlR3rShaderImpl()
 }
 
 void* GlR3rShaderImpl::operator new(std::size_t size)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return gl_r3r_shader_impl_pool.allocate(size);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rShaderImpl::operator delete(void* ptr)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	gl_r3r_shader_impl_pool.deallocate(ptr);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rShaderType GlR3rShaderImpl::do_get_type() const noexcept
 {
@@ -168,20 +162,17 @@ void GlR3rShaderImpl::attach_to_shader_stage(GlR3rShaderStage* shader_stage)
 }
 
 GLenum GlR3rShaderImpl::get_gl_type(R3rShaderType type)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	switch (type)
 	{
 		case R3rShaderType::fragment: return GL_FRAGMENT_SHADER;
 		case R3rShaderType::vertex: return GL_VERTEX_SHADER;
-		default: BSTONE_STATIC_THROW("Invalid type.");
+		default: BSTONE_THROW_STATIC_SOURCE("Invalid type.");
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rShaderImpl::validate(const R3rShaderInitParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	switch (param.type)
 	{
 		case R3rShaderType::fragment:
@@ -189,20 +180,19 @@ try
 			break;
 
 		default:
-			BSTONE_STATIC_THROW("Invalid type.");
+			BSTONE_THROW_STATIC_SOURCE("Invalid type.");
 	}
 
 	if (param.source.data == nullptr)
 	{
-		BSTONE_STATIC_THROW("Null source data.");
+		BSTONE_THROW_STATIC_SOURCE("Null source data.");
 	}
 
 	if (param.source.size <= 0)
 	{
-		BSTONE_STATIC_THROW("Empty source data.");
+		BSTONE_THROW_STATIC_SOURCE("Empty source data.");
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 

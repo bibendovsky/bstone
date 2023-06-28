@@ -17,26 +17,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 namespace bstone
 {
 
-namespace
-{
-
-class AudioMixerException : public Exception
-{
-public:
-	explicit AudioMixerException(const char* message) noexcept
-		:
-		Exception{"AUDIO_MIXER", message}
-	{
-	}
-}; // AudioMixerException
-
-[[noreturn]] void audio_mixer_fail_nested(const char* message)
-{
-	std::throw_with_nested(AudioMixerException{message});
-}
-
-} // namespace
-
 // ==========================================================================
 
 AudioMixerListenerR3Position audio_mixer_make_default_listener_r3_position() noexcept
@@ -70,8 +50,7 @@ AudioMixerVoiceR3Position audio_mixer_make_default_voice_r3_position() noexcept
 // ==========================================================================
 
 AudioMixerUPtr make_audio_mixer(const AudioMixerInitParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	switch (param.audio_driver_type)
 	{
 		case AudioDriverType::system:
@@ -81,13 +60,9 @@ try
 			return std::make_unique<OalAudioMixer>(param);
 
 		default:
-			throw AudioMixerException{"Unsupported driver type."};
+			BSTONE_THROW_STATIC_SOURCE("Unsupported driver type.");
 	}
-}
-catch (...)
-{
-	audio_mixer_fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void AudioMixerListenerR3Position::operator=(const AudioMixerR3Vector& r3_vector) noexcept
 {

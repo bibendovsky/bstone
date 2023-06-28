@@ -5,12 +5,8 @@ SPDX-License-Identifier: MIT
 */
 
 
+#include "bstone_exception.h"
 #include "bstone_string_helper.h"
-
-
-[[noreturn]]
-void fail(
-	const std::string& message);
 
 
 namespace bstone
@@ -112,7 +108,7 @@ std::string StringHelper::octet_to_hex_string(
 {
 	if (octet < 0 || octet > 0xFF)
 	{
-		::fail("Octet value out of range: " + std::to_string(octet) + ".");
+		BSTONE_THROW_DYNAMIC_SOURCE(("Octet value out of range: " + std::to_string(octet) + ".").c_str());
 	}
 
 	const auto high_nibble = (octet >> 4) & 0xF;

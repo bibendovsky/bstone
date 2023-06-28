@@ -2816,7 +2816,7 @@ void TP_HandleCodes()
 			disp_str_num = TP_VALUE(first_ch, 2);
 			if (disp_str_num >= PI_MAX_NUM_DISP_STRS)
 			{
-				::fail("String number exceeds max array size.");
+				BSTONE_THROW_STATIC_SOURCE("String number exceeds max array size.");
 			}
 
 			old_first_ch = first_ch + 2;
@@ -3313,7 +3313,7 @@ void TP_CachePage(
 
 				if (num_anims++ == TP_MAX_ANIMS)
 				{
-					::fail("Too many anims on one page.");
+					BSTONE_THROW_STATIC_SOURCE("Too many anims on one page.");
 				}
 
 				anim = &piAnimTable[shapenum];
@@ -3546,12 +3546,12 @@ std::int32_t TP_LoadScript(
 {
 	if (filename != nullptr && filename[0] != '\0')
 	{
-		::fail("[TP] Regular file not supported.");
+		BSTONE_THROW_STATIC_SOURCE("[TP] Regular file not supported.");
 	}
 
 	if (id_cache <= 0)
 	{
-		::fail("[TP] Segment number out of range.");
+		BSTONE_THROW_STATIC_SOURCE("[TP] Segment number out of range.");
 	}
 
 	std::int32_t size;
@@ -3565,7 +3565,7 @@ std::int32_t TP_LoadScript(
 
 	if (!p)
 	{
-		::fail("Can't find the ^XX doc terminator string.");
+		BSTONE_THROW_STATIC_SOURCE("Can't find the ^XX doc terminator string.");
 	}
 
 	size = static_cast<std::int32_t>(p - static_cast<const char*>(p_i->scriptstart) - 1);
@@ -3631,7 +3631,7 @@ void TP_InitScript(
 				}
 				else
 				{
-					::fail("Too many pages in presenter.");
+					BSTONE_THROW_STATIC_SOURCE("Too many pages in presenter.");
 				}
 				break;
 			}

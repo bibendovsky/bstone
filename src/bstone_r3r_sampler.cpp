@@ -12,17 +12,13 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 
 void R3rSampler::update(const R3rSamplerUpdateParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_update(param);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSamplerState& R3rSampler::get_state() const noexcept
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_get_state();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace bstone

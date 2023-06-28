@@ -480,7 +480,7 @@ void Movie::handle_page(
 		break;
 
 	default:
-		::fail("Unrecognized anim code.");
+		BSTONE_THROW_STATIC_SOURCE("Unrecognized anim code.");
 	}
 }
 

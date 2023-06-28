@@ -849,7 +849,7 @@ void MoveObj(
 			return;
 
 		default:
-			::fail("Illegal direction passed.");
+			BSTONE_THROW_STATIC_SOURCE("Illegal direction passed.");
 	}
 
 	ob->x += sign_x * move;

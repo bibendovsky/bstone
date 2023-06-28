@@ -50,18 +50,14 @@ SdlWindowMgr::~SdlWindowMgr()
 }
 
 void* SdlWindowMgr::operator new(std::size_t size)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return sdl_window_mgr_pool.allocate(size);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlWindowMgr::operator delete(void* ptr)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	sdl_window_mgr_pool.deallocate(ptr);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 WindowUPtr SdlWindowMgr::do_make_window(const WindowInitParam& param)
 {

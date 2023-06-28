@@ -46,15 +46,6 @@ public:
 
 private:
 	Value value_{};
-
-
-	[[noreturn]]
-	static void fail(
-		const char* message);
-
-	[[noreturn]]
-	static void fail_nested(
-		const char* message);
 }; // Crc32
 
 

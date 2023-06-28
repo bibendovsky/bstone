@@ -23,10 +23,6 @@ public:
 private:
 	StringView name_{};
 	CCmdAction* action_{};
-
-private:
-	[[noreturn]] static void fail(const char* message);
-	[[noreturn]] static void fail_nested(const char* message);
 };
 
 } // namespace bstone

@@ -32,15 +32,6 @@ namespace bstone {
 
 namespace {
 
-class SwVideoException : public Exception
-{
-public:
-	explicit SwVideoException(const char* message) noexcept
-		:
-		Exception{"SW_VIDEO", message}
-	{}
-};
-
 class SwVideo final : public Video
 {
 public:
@@ -189,14 +180,13 @@ SwVideoPool sw_video_pool{};
 constexpr sys::Color SwVideo::opaque_black = sys::Color{0, 0, 0, 0xFF};
 
 SwVideo::SwVideo(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr)
-try
+BSTONE_BEGIN_CTOR_TRY
 	:
 	video_mgr_{video_mgr},
 	window_mgr_{window_mgr}
 {
 	initialize_video();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 SwVideo::~SwVideo()
 {
@@ -204,18 +194,14 @@ SwVideo::~SwVideo()
 }
 
 void* SwVideo::operator new(std::size_t size)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return sw_video_pool.allocate(size);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SwVideo::operator delete(void* ptr)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	sw_video_pool.deallocate(ptr);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool SwVideo::is_hardware() const noexcept
 {
@@ -233,8 +219,7 @@ void SwVideo::clear_vga_buffer()
 }
 
 void SwVideo::apply_widescreen()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	screen_texture_ = nullptr;
 
 	uninitialize_vga_buffer();
@@ -242,16 +227,14 @@ try
 	initialize_vga_buffer();
 	create_screen_texture();
 	renderer_->set_viewport();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SwVideo::take_screenshot(
 	int width,
 	int height,
 	int stride_rgb_888,
 	ScreenshotBuffer&& src_pixels_rgb_888)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	renderer_->read_pixels(sys::PixelFormat::r8g8b8, src_pixels_rgb_888.get(), stride_rgb_888);
 
 	vid_schedule_save_screenshot_task(
@@ -260,12 +243,10 @@ try
 		stride_rgb_888,
 		std::move(src_pixels_rgb_888),
 		false);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SwVideo::vsync_present()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	// Clear all
 	//
 	renderer_->set_draw_color(opaque_black);
@@ -274,12 +255,10 @@ try
 	// Present
 	//
 	renderer_->present();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SwVideo::present()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	// HUD+3D stuff
 	//
 	if (vid_is_hud)
@@ -425,12 +404,10 @@ try
 	// Present
 	//
 	renderer_->present();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SwVideo::get_palette(int offset, int count, std::uint8_t* vga_palette) const
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	assert(offset >= 0);
 	assert(count >= 0);
 	assert((offset + count) <= 256);
@@ -443,8 +420,7 @@ try
 		count,
 		dst_vga_palette.begin()
 	);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SwVideo::fill_palette(int r, int g, int b) noexcept
 {
@@ -459,8 +435,7 @@ void SwVideo::fill_palette(int r, int g, int b) noexcept
 }
 
 void SwVideo::set_palette(int offset, int count, const std::uint8_t* vga_palette)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	assert(offset >= 0);
 	assert(count >= 0);
 	assert((offset + count) <= 256);
@@ -474,12 +449,10 @@ try
 		vga_palette_.begin() + offset);
 
 	update_palette_from_vga(offset, count);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SwVideo::apply_window_mode()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	calculate_dimensions();
 	vid_initialize_vanilla_raycaster();
 
@@ -493,22 +466,18 @@ try
 
 	initialize_textures();
 	initialize_vga_buffer();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SwVideo::apply_filler_color_index()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	filler_color_.r = static_cast<std::uint8_t>((255 * vgapal[(vid_cfg_get_filler_color_index() * 3) + 0]) / 63);
 	filler_color_.g = static_cast<std::uint8_t>((255 * vgapal[(vid_cfg_get_filler_color_index() * 3) + 1]) / 63);
 	filler_color_.b = static_cast<std::uint8_t>((255 * vgapal[(vid_cfg_get_filler_color_index() * 3) + 2]) / 63);
 	filler_color_.a = 0xFF;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SwVideo::fade_out(int start, int end, int red, int green, int blue, int steps)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (!gp_no_fade_in_or_out())
 	{
 		auto palette1 = VgaPalette{};
@@ -565,12 +534,10 @@ try
 	}
 
 	screenfaded = true;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SwVideo::fade_in(int start, int end, const std::uint8_t* palette, int steps)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (!gp_no_fade_in_or_out())
 	{
 		auto palette1 = VgaPalette{};
@@ -621,8 +588,7 @@ try
 	}
 
 	screenfaded = false;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // HW
 //
@@ -697,8 +663,7 @@ const R3rDeviceFeatures& SwVideo::get_device_features() const noexcept
 // HW
 
 void SwVideo::initialize_video()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	vid_initialize_common();
 	calculate_dimensions();
 
@@ -728,48 +693,38 @@ try
 	const auto window_title = vid_get_window_title_for_renderer(renderer_name_);
 	window_->set_title(window_title.c_str());
 	window_->show(true);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SwVideo::copy_texture_to_rendering_target(
 	sys::Texture& texture,
 	const R2RectI* src_rect,
 	const R2RectI* dst_rect)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	texture.copy(src_rect, dst_rect);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SwVideo::enable_texture_blending(sys::Texture& texture, bool is_enable)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	texture.set_blend_mode(is_enable ? sys::TextureBlendMode::blend : sys::TextureBlendMode::none);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SwVideo::fill_rects(Span<const R2RectI> rects)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	renderer_->fill(rects);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SwVideo::initialize_vga_buffer()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	const auto area = 2 * vga_width * vga_height;
 
 	sw_vga_buffer_ = std::move(VgaBuffer{});
 	sw_vga_buffer_.resize(area);
 
 	vga_memory = sw_vga_buffer_.data();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SwVideo::create_window()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	const auto is_native_mode = vid_is_native_mode();
 	const auto title = vid_get_game_name_and_game_version_string();
 
@@ -790,22 +745,18 @@ try
 	param.is_visible = true;
 	param.is_fake_fullscreen = is_native_mode;
 	window_ = window_mgr_.make_window(param);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SwVideo::initialize_renderer()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	auto renderer_param = sys::RendererInitParam{};
 	renderer_param.is_vsync = vid_cfg_is_vsync();
 
 	renderer_ = window_->make_renderer(renderer_param);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SwVideo::create_screen_texture()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	auto param = sys::TextureInitParam{};
 	param.pixel_format = sys::PixelFormat::a8r8g8b8;
 	param.access = sys::TextureAccess::streaming;
@@ -813,12 +764,10 @@ try
 	param.height = vga_height;
 
 	screen_texture_ = renderer_->make_texture(param);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SwVideo::create_ui_texture()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	auto param = sys::TextureInitParam{};
 	param.pixel_format = sys::PixelFormat::a8r8g8b8;
 	param.access = sys::TextureAccess::streaming;
@@ -826,16 +775,13 @@ try
 	param.height = vga_ref_height;
 
 	ui_texture_ = renderer_->make_texture(param);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SwVideo::initialize_textures()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	create_screen_texture();
 	create_ui_texture();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SwVideo::initialize_palette()
 {

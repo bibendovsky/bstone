@@ -139,9 +139,6 @@ private:
 
 	OalSourceResource al_source_resource_{};
 
-	[[noreturn]] static void fail(const char* message);
-	[[noreturn]] static void fail_nested(const char* message);
-
 	void initialize_al_resources();
 
 	void ensure_is_initialized() const;

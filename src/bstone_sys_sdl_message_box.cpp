@@ -16,8 +16,7 @@ void show_message_box(
 	const char* title,
 	const char* message,
 	MessageBoxType type)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	auto sdl_flags = Uint32{};
 
 	switch (type)
@@ -25,16 +24,14 @@ try
 		case MessageBoxType::error: sdl_flags |= SDL_MESSAGEBOX_ERROR; break;
 		case MessageBoxType::information: sdl_flags |= SDL_MESSAGEBOX_INFORMATION; break;
 		case MessageBoxType::warning: sdl_flags |= SDL_MESSAGEBOX_WARNING; break;
-		default: BSTONE_STATIC_THROW("Unknown type.");
+		default: BSTONE_THROW_STATIC_SOURCE("Unknown type.");
 	}
 
 	sdl_ensure_result(SDL_ShowSimpleMessageBox(sdl_flags, title, message, nullptr));
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int show_message_box(const MessageBoxDescriptor& descriptor)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	auto sdl_message_box_flags = Uint32{};
 
 	switch (descriptor.type)
@@ -42,14 +39,14 @@ try
 		case MessageBoxType::error: sdl_message_box_flags |= SDL_MESSAGEBOX_ERROR; break;
 		case MessageBoxType::information: sdl_message_box_flags |= SDL_MESSAGEBOX_INFORMATION; break;
 		case MessageBoxType::warning: sdl_message_box_flags |= SDL_MESSAGEBOX_WARNING; break;
-		default: BSTONE_STATIC_THROW("Unknown type.");
+		default: BSTONE_THROW_STATIC_SOURCE("Unknown type.");
 	}
 
 	constexpr auto max_buttons = 8;
 
 	if (descriptor.buttons.get_size() > max_buttons)
 	{
-		BSTONE_STATIC_THROW("Too many buttons.");
+		BSTONE_THROW_STATIC_SOURCE("Too many buttons.");
 	}
 
 	SDL_MessageBoxButtonData sdl_buttons[max_buttons];
@@ -86,8 +83,7 @@ try
 	auto sdl_button_id = 0;
 	sdl_ensure_result(SDL_ShowMessageBox(&sdl_message_box, &sdl_button_id));
 	return sdl_button_id;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace sys
 } // namespace bstone

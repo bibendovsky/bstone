@@ -70,7 +70,7 @@ SdlVideoMgrPool sdl_video_mgr_pool{};
 // ==========================================================================
 
 SdlVideoMgr::SdlVideoMgr(Logger& logger)
-try
+BSTONE_BEGIN_CTOR_TRY
 	:
 	logger_{logger}
 {
@@ -80,8 +80,7 @@ try
 	log_info();
 
 	logger_.log_information(">>> SDL video manager started up.");
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 SdlVideoMgr::~SdlVideoMgr()
 {
@@ -91,31 +90,24 @@ SdlVideoMgr::~SdlVideoMgr()
 }
 
 void* SdlVideoMgr::operator new(std::size_t size)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return sdl_video_mgr_pool.allocate(size);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlVideoMgr::operator delete(void* ptr)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	sdl_video_mgr_pool.deallocate(ptr);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 DisplayMode SdlVideoMgr::do_get_current_display_mode()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	auto sdl_display_mode = SDL_DisplayMode{};
 	sdl_ensure_result(SDL_GetCurrentDisplayMode(0, &sdl_display_mode));
 	return map_display_mode(sdl_display_mode);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 Span<const DisplayMode> SdlVideoMgr::do_get_display_modes()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	const auto count = std::min(SDL_GetNumDisplayModes(0), limits::max_display_modes);
 
 	auto sdl_display_mode = SDL_DisplayMode{};
@@ -127,8 +119,7 @@ try
 	}
 
 	return Span<const DisplayMode>{display_mode_cache_, count};
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlMgrUPtr SdlVideoMgr::do_make_gl_mgr()
 {
@@ -356,11 +347,9 @@ DisplayMode SdlVideoMgr::map_display_mode(const SDL_DisplayMode& sdl_display_mod
 // ==========================================================================
 
 VideoMgrUPtr make_sdl_video_mgr(Logger& logger)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return std::make_unique<SdlVideoMgr>(logger);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace sys
 } // namespace bstone

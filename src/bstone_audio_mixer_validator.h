@@ -17,10 +17,6 @@ class AudioMixerValidator
 public:
 	static void validate_gain(double gain);
 	static void validate_output_gains(const AudioMixerOutputGains& output_gains);
-
-private:
-	[[noreturn]] static void fail(const char* message);
-	[[noreturn]] static void fail_nested(const char* message);
 }; // AudioMixerValidator
 
 } // bstone

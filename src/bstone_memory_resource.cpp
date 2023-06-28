@@ -10,34 +10,26 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 
 void* MemoryResource::allocate(std::size_t size)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_allocate(size);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void MemoryResource::deallocate(void* resource)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_deallocate(resource);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 
 void* NewDeleteMemoryResource::do_allocate(std::size_t size)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return ::operator new(size);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void NewDeleteMemoryResource::do_deallocate(void* ptr)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	::operator delete(ptr);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 

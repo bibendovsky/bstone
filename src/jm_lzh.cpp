@@ -44,60 +44,6 @@ namespace
 {
 
 
-class LzhEncoderException :
-	public bstone::Exception
-{
-public:
-	explicit LzhEncoderException(
-		const char* message) noexcept
-		:
-		Exception{"LZH_ENCODER", message}
-	{
-	}
-}; // LzhEncoderException
-
-[[noreturn]]
-void lzh_encoder_fail(
-	const char* message)
-{
-	throw LzhEncoderException{message};
-}
-
-[[noreturn]]
-void lzh_encoder_fail_nested(
-	const char* message)
-{
-	std::throw_with_nested(LzhEncoderException{message});
-}
-
-
-class LzhDecoderException :
-	public bstone::Exception
-{
-public:
-	explicit LzhDecoderException(
-		const char* const message) noexcept
-		:
-		Exception{"LZH_DECODER", message}
-	{
-	}
-}; // LzhDecoderException
-
-[[noreturn]]
-void lzh_decoder_fail(
-	const char* message)
-{
-	throw LzhDecoderException{message};
-}
-
-[[noreturn]]
-void lzh_decoder_fail_nested(
-	const char* message)
-{
-	std::throw_with_nested(LzhDecoderException{message});
-}
-
-
 // LZSS Parameters
 
 constexpr auto N = static_cast<std::int16_t>(4096); // Size of string buffer
@@ -890,16 +836,15 @@ int LZH_Decompress(
 	std::uint8_t* out_buffer,
 	int uncompressed_length,
 	int compress_length)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (uncompressed_length < 0)
 	{
-		lzh_decoder_fail("Uncompressed length out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Uncompressed length out of range.");
 	}
 
 	if (compress_length < 0)
 	{
-		lzh_decoder_fail("Compressed length out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Compressed length out of range.");
 	}
 
 	if (uncompressed_length == 0 || compress_length == 0)
@@ -909,12 +854,12 @@ try
 
 	if (in_buffer == nullptr)
 	{
-		lzh_decoder_fail("Null input buffer.");
+		BSTONE_THROW_STATIC_SOURCE("Null input buffer.");
 	}
 
 	if (out_buffer == nullptr)
 	{
-		lzh_decoder_fail("Null output buffer.");
+		BSTONE_THROW_STATIC_SOURCE("Null output buffer.");
 	}
 
 	datasize = uncompressed_length;
@@ -969,21 +914,16 @@ try
 	}
 
 	return count;
-}
-catch (...)
-{
-	lzh_decoder_fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int LZH_Compress(
 	const std::uint8_t* in_buffer,
 	std::uint8_t* out_buffer,
 	int in_length)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (in_length < 0)
 	{
-		lzh_encoder_fail("Data length out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Data length out of range.");
 	}
 
 	if (in_length == 0)
@@ -993,12 +933,12 @@ try
 
 	if (in_buffer == nullptr)
 	{
-		lzh_encoder_fail("Null input buffer.");
+		BSTONE_THROW_STATIC_SOURCE("Null input buffer.");
 	}
 
 	if (out_buffer == nullptr)
 	{
-		lzh_encoder_fail("Null output buffer.");
+		BSTONE_THROW_STATIC_SOURCE("Null output buffer.");
 	}
 
 	getbuf = 0;
@@ -1096,8 +1036,4 @@ try
 	EncodeEnd(out_buffer);
 
 	return codesize;
-}
-catch (...)
-{
-	lzh_encoder_fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED

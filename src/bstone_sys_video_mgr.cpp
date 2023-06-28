@@ -11,39 +11,29 @@ namespace bstone {
 namespace sys {
 
 DisplayMode VideoMgr::get_current_display_mode()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_get_current_display_mode();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 Span<const DisplayMode> VideoMgr::get_display_modes()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_get_display_modes();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlMgrUPtr VideoMgr::make_gl_mgr()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_make_gl_mgr();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 MouseMgrUPtr VideoMgr::make_mouse_mgr()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_make_mouse_mgr();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 WindowMgrUPtr VideoMgr::make_window_mgr()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_make_window_mgr();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace sys
 } // namespace bstone

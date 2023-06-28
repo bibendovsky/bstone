@@ -21,26 +21,6 @@ namespace bstone
 {
 
 
-namespace
-{
-
-
-class SpriteCacheException :
-	public Exception
-{
-public:
-	explicit SpriteCacheException(
-		const char* message) noexcept
-		:
-		Exception{"SPRITE_CACHE", message}
-	{
-	}
-}; // SpriteCacheException
-
-
-} // namespace
-
-
 SpriteCache::SpriteCache()
 	:
 	cache_{max_sprites}
@@ -59,14 +39,14 @@ const Sprite* SpriteCache::cache(
 {
 	if (sprite_id <= 0 || sprite_id >= max_sprites)
 	{
-		fail("Invalid sprite id.");
+		BSTONE_THROW_STATIC_SOURCE("Invalid sprite id.");
 	}
 
 	const auto sprite_data = globals::page_mgr->get_sprite(sprite_id);
 
 	if (!sprite_data)
 	{
-		fail("No sprite data.");
+		BSTONE_THROW_STATIC_SOURCE("No sprite data.");
 	}
 
 	auto& sprite = cache_[sprite_id];
@@ -77,20 +57,6 @@ const Sprite* SpriteCache::cache(
 	}
 
 	return &sprite;
-}
-
-[[noreturn]]
-void SpriteCache::fail(
-	const char* message)
-{
-	throw SpriteCacheException{message};
-}
-
-[[noreturn]]
-void SpriteCache::fail_nested(
-	const char* message)
-{
-	std::throw_with_nested(SpriteCacheException{message});
 }
 
 

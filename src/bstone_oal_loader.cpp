@@ -16,18 +16,6 @@ SPDX-License-Identifier: MIT
 namespace bstone
 {
 
-class OalLoaderException : public Exception
-{
-public:
-	explicit OalLoaderException(const char* message) noexcept
-		:
-		Exception{"OAL_LOADER", message}
-	{
-	}
-}; // OalLoaderException
-
-// ==========================================================================
-
 class OalLoaderImpl final : public OalLoader
 {
 public:
@@ -43,9 +31,6 @@ private:
 	LPALCGETPROCADDRESS alcGetProcAddress_{};
 	LPALGETPROCADDRESS alGetProcAddress_{};
 
-	[[noreturn]] static void fail(const char* message);
-	[[noreturn]] static void fail_nested(const char* message);
-
 	void load_essential_symbols();
 	void open_internal(const char* path);
 
@@ -59,7 +44,7 @@ private:
 		if (!symbol)
 		{
 			const auto message = std::string{} + "Symbol \"" + name + "\" not found.";
-			fail(message.c_str());
+			BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
 		}
 	}
 
@@ -80,7 +65,7 @@ private:
 		if (!symbol)
 		{
 			const auto message = std::string{} + acronym + " symbol \"" + name + "\" not found.";
-			fail(message.c_str());
+			BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
 		}
 	}
 
@@ -105,8 +90,7 @@ OalLoaderImpl::OalLoaderImpl(const char* shared_library_path)
 }
 
 void OalLoaderImpl::load_alc_symbols(OalAlSymbols& al_symbols)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	find_alc_symbol("alcCreateContext", al_symbols.alcCreateContext);
 	find_alc_symbol("alcMakeContextCurrent", al_symbols.alcMakeContextCurrent);
 	find_alc_symbol("alcProcessContext", al_symbols.alcProcessContext);
@@ -127,15 +111,10 @@ try
 	find_alc_symbol("alcCaptureStart", al_symbols.alcCaptureStart);
 	find_alc_symbol("alcCaptureStop", al_symbols.alcCaptureStop);
 	find_alc_symbol("alcCaptureSamples", al_symbols.alcCaptureSamples);
-}
-catch (...)
-{
-	fail_nested("Failed to load ALC symbols.");
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalLoaderImpl::load_al_symbols(OalAlSymbols& al_symbols)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	find_al_symbol("alDopplerFactor", al_symbols.alDopplerFactor);
 	find_al_symbol("alDopplerVelocity", al_symbols.alDopplerVelocity);
 	find_al_symbol("alSpeedOfSound", al_symbols.alSpeedOfSound);
@@ -209,15 +188,10 @@ try
 	find_al_symbol("alGetBufferi", al_symbols.alGetBufferi);
 	find_al_symbol("alGetBuffer3i", al_symbols.alGetBuffer3i);
 	find_al_symbol("alGetBufferiv", al_symbols.alGetBufferiv);
-}
-catch (...)
-{
-	fail_nested("Failed to load AL symbols.");
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalLoaderImpl::load_efx_symbols(OalAlSymbols& al_symbols)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	find_al_symbol("alGenEffects", al_symbols.alGenEffects);
 	find_al_symbol("alDeleteEffects", al_symbols.alDeleteEffects);
 	find_al_symbol("alIsEffect", al_symbols.alIsEffect);
@@ -251,32 +225,13 @@ try
 	find_al_symbol("alGetAuxiliaryEffectSlotiv", al_symbols.alGetAuxiliaryEffectSlotiv);
 	find_al_symbol("alGetAuxiliaryEffectSlotf", al_symbols.alGetAuxiliaryEffectSlotf);
 	find_al_symbol("alGetAuxiliaryEffectSlotfv", al_symbols.alGetAuxiliaryEffectSlotfv);
-}
-catch (...)
-{
-	fail_nested("Failed to load EFX symbols.");
-}
-
-[[noreturn]] void OalLoaderImpl::fail(const char* message)
-{
-	throw OalLoaderException{message};
-}
-
-[[noreturn]] void OalLoaderImpl::fail_nested(const char* message)
-{
-	std::throw_with_nested(OalLoaderException{message});
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalLoaderImpl::load_essential_symbols()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	find_symbol("alcGetProcAddress", alcGetProcAddress_);
 	find_symbol("alGetProcAddress", alGetProcAddress_);
-}
-catch (...)
-{
-	fail_nested("Failed to load essential symbols.");
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalLoaderImpl::open_internal(const char* shared_library_path)
 {

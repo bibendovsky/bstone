@@ -265,9 +265,7 @@ private:
 
 	std::atomic_bool is_state_suspended_{};
 
-	[[noreturn]] static void fail(const char* message);
 	[[noreturn]] static void fail_unsupported();
-	[[noreturn]] static void fail_nested(const char* message);
 
 	int get_min_rate() const noexcept;
 	int get_min_mix_size_ms() const noexcept;

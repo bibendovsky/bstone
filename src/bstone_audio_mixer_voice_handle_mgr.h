@@ -13,15 +13,11 @@ SPDX-License-Identifier: MIT
 #include <unordered_map>
 #include <unordered_set>
 #include "bstone_audio_mixer_voice_handle.h"
+#include "bstone_exception.h"
 #include "bstone_spinlock.h"
 
 namespace bstone
 {
-
-[[noreturn]] void audio_mixer_voice_handle_mgr_fail(const char* message);
-[[noreturn]] void audio_mixer_voice_handle_mgr_fail_nested(const char* message);
-
-// ==========================================================================
 
 template<typename TVoice>
 class AudioMixerVoiceHandleMgr
@@ -34,101 +30,66 @@ public:
 	}
 
 	void set_cache_capacity(int capacity)
-	try
-	{
+	BSTONE_BEGIN_FUNC_TRY
 		if (capacity < 0)
 		{
-			audio_mixer_voice_handle_mgr_fail("Capacity out of range.");
+			BSTONE_THROW_STATIC_SOURCE("Capacity out of range.");
 		}
 
 		const auto guard = MutexLock{mutex_};
 		cache_.reserve(capacity);
-	}
-	catch (...)
-	{
-		audio_mixer_voice_handle_mgr_fail_nested(__func__);
-	}
+	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 	void set_map_capacity(int capacity)
-	try
-	{
+	BSTONE_BEGIN_FUNC_TRY
 		if (capacity < 0)
 		{
-			audio_mixer_voice_handle_mgr_fail("Capacity out of range.");
+			BSTONE_THROW_STATIC_SOURCE("Capacity out of range.");
 		}
 
 		const auto guard = MutexLock{mutex_};
 		map_.reserve(capacity);
-	}
-	catch (...)
-	{
-		audio_mixer_voice_handle_mgr_fail_nested(__func__);
-	}
+	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 	AudioMixerVoiceHandle generate()
-	try
-	{
+	BSTONE_BEGIN_FUNC_TRY
 		const auto guard = MutexLock{mutex_};
 		handle_ = ++handle_;
 		return handle_;
-	}
-	catch (...)
-	{
-		audio_mixer_voice_handle_mgr_fail_nested(__func__);
-	}
+	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 	void cache(AudioMixerVoiceHandle handle)
-	try
-	{
+	BSTONE_BEGIN_FUNC_TRY
 		validate_handle(handle);
 		const auto guard = MutexLock{mutex_};
 		cache_.insert(handle);
-	}
-	catch (...)
-	{
-		audio_mixer_voice_handle_mgr_fail_nested(__func__);
-	}
+	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 	void uncache(AudioMixerVoiceHandle handle)
-	try
-	{
+	BSTONE_BEGIN_FUNC_TRY
 		const auto guard = MutexLock{mutex_};
 		cache_.erase(handle);
-	}
-	catch (...)
-	{
-		audio_mixer_voice_handle_mgr_fail_nested(__func__);
-	}
+	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 	void uncache_and_map(AudioMixerVoiceHandle handle, Voice* voice)
-	try
-	{
+	BSTONE_BEGIN_FUNC_TRY
 		validate_voice(voice);
 		const auto guard = MutexLock{mutex_};
 		const auto erased_count = cache_.erase(handle);
 
 		if (erased_count == 0)
 		{
-			audio_mixer_voice_handle_mgr_fail("Uncached handle.");
+			BSTONE_THROW_STATIC_SOURCE("Uncached handle.");
 		}
 
 		map_.emplace(handle, voice);
-	}
-	catch (...)
-	{
-		audio_mixer_voice_handle_mgr_fail_nested(__func__);
-	}
+	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 	void unmap(AudioMixerVoiceHandle handle)
-	try
-	{
+	BSTONE_BEGIN_FUNC_TRY
 		const auto guard = MutexLock{mutex_};
 		map_.erase(handle);
-	}
-	catch (...)
-	{
-		audio_mixer_voice_handle_mgr_fail_nested(__func__);
-	}
+	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 	bool is_valid_handle(AudioMixerVoiceHandle handle) const noexcept
 	{
@@ -214,7 +175,7 @@ private:
 	{
 		if (!handle.is_valid())
 		{
-			audio_mixer_voice_handle_mgr_fail("Invalid handle.");
+			BSTONE_THROW_STATIC_SOURCE("Invalid handle.");
 		}
 	}
 
@@ -222,7 +183,7 @@ private:
 	{
 		if (!voice)
 		{
-			audio_mixer_voice_handle_mgr_fail("Null voice.");
+			BSTONE_THROW_STATIC_SOURCE("Null voice.");
 		}
 	}
 }; // AudioMixerVoiceHandleMgr

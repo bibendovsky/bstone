@@ -76,7 +76,7 @@ auto AllocatorBitmap<TBitCount>::set_first_free() -> Index
 {
 	if (size_ == max_size)
 	{
-		BSTONE_STATIC_THROW("No free bit.");
+		BSTONE_THROW_STATIC_SOURCE("No free bit.");
 	}
 
 	for (auto i_block = Index{}; i_block < max_aligned_size; ++i_block)
@@ -99,7 +99,7 @@ auto AllocatorBitmap<TBitCount>::set_first_free() -> Index
 		}
 	}
 
-	BSTONE_STATIC_THROW("No free bit.");
+	BSTONE_THROW_STATIC_SOURCE("No free bit.");
 }
 
 template<IntP TBitCount>
@@ -107,7 +107,7 @@ void AllocatorBitmap<TBitCount>::reset(Index index)
 {
 	if (index < 0 || index >= max_size)
 	{
-		BSTONE_STATIC_THROW("Index out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Index out of range.");
 	}
 
 	const auto block_index = index / bits_per_block;
@@ -116,7 +116,7 @@ void AllocatorBitmap<TBitCount>::reset(Index index)
 
 	if ((bitmap_[block_index] & mask) == 0)
 	{
-		BSTONE_STATIC_THROW("Unset bit.");
+		BSTONE_THROW_STATIC_SOURCE("Unset bit.");
 	}
 
 	bitmap_[block_index] &= full_block ^ mask;

@@ -39,55 +39,43 @@ int R3rShaderVar::get_input_index() const noexcept
 // ==========================================================================
 
 void R3rShaderInt32Var::set_int32(std::int32_t value)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_set_int32(value);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 
 void R3rShaderFloat32Var::set_float32(float value)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_set_float32(value);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 
 void R3rShaderVec2Var::set_vec2(const float* value)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_set_vec2(value);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 
 void R3rShaderVec4Var::set_vec4(const float* value)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_set_vec4(value);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 
 void R3rShaderMat4Var::set_mat4(const float* value)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_set_mat4(value);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 
 void R3rShaderR2SamplerVar::set_r2_sampler(std::int32_t value)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_set_r2_sampler(value);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace bstone

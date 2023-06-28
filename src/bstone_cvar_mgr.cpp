@@ -14,21 +14,6 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-namespace {
-
-class CVarMgrException : public Exception
-{
-public:
-	explicit CVarMgrException(const char* message) noexcept
-		:
-		Exception{"BSTONE_CVAR_MGR", message}
-	{}
-
-	~CVarMgrException() override = default;
-};
-
-} // namespace
-
 class CVarMgrImpl final : public CVarMgr
 {
 public:
@@ -50,10 +35,6 @@ private:
 	IntP max_cvars_{};
 	CVars cvars_{};
 	NameToIndex name_to_index_map_{};
-
-private:
-	[[noreturn]] static void fail(const char* message);
-	[[noreturn]] static void fail_nested(const char* message);
 };
 
 // --------------------------------------------------------------------------
@@ -81,11 +62,10 @@ CVarMgrCVars CVarMgrImpl::get_all() noexcept
 }
 
 void CVarMgrImpl::add(CVar& cvar)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (cvars_.size() == static_cast<CVars::size_type>(max_cvars_))
 	{
-		fail("Too many CVARs.");
+		BSTONE_THROW_STATIC_SOURCE("Too many CVARs.");
 	}
 
 	const auto name = cvar.get_name();
@@ -98,26 +78,12 @@ try
 		message += "CVAR \"";
 		message.append(name.get_data(), name.get_size());
 		message += "\" already registered.";
-		fail(message.c_str());
+		BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
 	}
 
 	cvars_.emplace_back(&cvar);
 	name_to_index_map_[name] = cvars_.size() - 1;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-[[noreturn]] void CVarMgrImpl::fail(const char* message)
-{
-	throw CVarMgrException{message};
-}
-
-[[noreturn]] void CVarMgrImpl::fail_nested(const char* message)
-{
-	std::throw_with_nested(CVarMgrException{message});
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 

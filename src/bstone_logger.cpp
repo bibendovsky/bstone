@@ -16,6 +16,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <iostream>
 #include <mutex>
 
+#include "bstone_exception.h"
 #include "bstone_file_stream.h"
 #include "bstone_sys_message_box.h"
 #include "bstone_version.h"

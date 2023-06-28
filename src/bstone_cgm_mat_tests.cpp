@@ -28,16 +28,6 @@ namespace cgm {
 
 namespace {
 
-
-class MatTestsException : public Exception
-{
-public:
-	explicit MatTestsException(const char* message)
-		:
-		Exception{"BSTONE_MAT_TESTS", message}
-	{}
-};
-
 class MatTests
 {
 public:
@@ -84,11 +74,6 @@ private:
 		Mat* m_{};
 	};
 
-	[[noreturn]] void fail(const char* message)
-	{
-		throw new MatTestsException{message};
-	}
-
 	void check(bool condition, const char* message)
 	{
 		if (condition)
@@ -96,7 +81,7 @@ private:
 			return;
 		}
 
-		fail(message);
+		BSTONE_THROW_STATIC_SOURCE(message);
 	}
 
 	template<IntP M, IntP N, typename T>

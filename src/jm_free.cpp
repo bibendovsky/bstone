@@ -132,40 +132,6 @@ bool check_vgahead_offset_count()
 }
 
 
-namespace
-{
-
-
-class SearchPathException :
-	public bstone::Exception
-{
-public:
-	explicit SearchPathException(
-		const char* message) noexcept
-		:
-		bstone::Exception{"SEARCH_PATH", message}
-	{
-	}
-}; // SearchPathException
-
-[[noreturn]]
-void fail(
-	const char* message)
-{
-	throw SearchPathException{message};
-}
-
-[[noreturn]]
-void fail_nested(
-	const char* message)
-{
-	std::throw_with_nested(SearchPathException{message});
-}
-
-
-} // namespace
-
-
 struct SearchPath
 {
 	std::string source_name_;
@@ -190,27 +156,22 @@ void add_search_path(
 	const std::string& source_name,
 	const std::string& path,
 	SearchPaths& search_paths)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (source_name.empty())
 	{
-		fail("Empty source name.");
+		BSTONE_THROW_STATIC_SOURCE("Empty source name.");
 	}
 
 	if (path.empty())
 	{
-		fail("Empty path.");
+		BSTONE_THROW_STATIC_SOURCE("Empty path.");
 	}
 
 	search_paths.emplace_back();
 	auto& search_path = search_paths.back();
 	search_path.source_name_ = source_name;
 	search_path.path_ = path;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool has_resources(
 	const SearchPath& search_path,
@@ -438,7 +399,7 @@ FoundContent find_assets(
 			return find_ps_content(search_path);
 
 		default:
-			::fail("Unsupported game.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported game.");
 	}
 }
 
@@ -457,7 +418,7 @@ const char* get_content_acronym(
 			return "PS";
 
 		default:
-			::fail("Unsupported game.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported game.");
 	}
 }
 
@@ -466,7 +427,7 @@ const FoundContent* choose_content(
 {
 	if (found_contents.empty())
 	{
-		::fail("No content.");
+		BSTONE_THROW_STATIC_SOURCE("No content.");
 	}
 
 	if (found_contents.size() == 1)
@@ -545,7 +506,7 @@ void set_assets_info(
 					break;
 
 				default:
-					::fail("Unsupported game version.");
+					BSTONE_THROW_STATIC_SOURCE("Unsupported game version.");
 			}
 
 			break;
@@ -570,7 +531,7 @@ void set_assets_info(
 					break;
 
 				default:
-					::fail("Unsupported game version.");
+					BSTONE_THROW_STATIC_SOURCE("Unsupported game version.");
 			}
 			break;
 
@@ -579,7 +540,7 @@ void set_assets_info(
 			break;
 
 		default:
-			::fail("Unsupported game.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported game.");
 	}
 
 	assets_info.set_version(found_content.version_);
@@ -647,7 +608,7 @@ void log_found_content(
 			break;
 
 		default:
-			::fail("Unsupported version.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported version.");
 	}
 
 	auto name_and_version = std::string{"\"Blake Stone: "};
@@ -678,7 +639,7 @@ void find_contents()
 
 	if (forced_game_count > 1)
 	{
-		::fail("Multiple game modes defined.");
+		BSTONE_THROW_STATIC_SOURCE("Multiple game modes defined.");
 	}
 
 	auto games_to_find = Games{};
@@ -788,7 +749,7 @@ void find_contents()
 
 	if (found_contents.empty())
 	{
-		::fail("Content not found.");
+		BSTONE_THROW_STATIC_SOURCE("Content not found.");
 	}
 
 	const auto content = choose_content(found_contents);
@@ -907,7 +868,7 @@ void CAL_SetupGrFile()
 {
 	if (!check_vgahead_offset_count())
 	{
-		::fail("Mismatch GFX header offset count.");
+		BSTONE_THROW_STATIC_SOURCE("Mismatch GFX header offset count.");
 	}
 
 	bstone::FileStream handle;
@@ -970,7 +931,7 @@ static void cal_setup_map_data_file()
 
 			if (are_official_levels && modded_hash != assets_info.get_levels_hash_string())
 			{
-				::fail("Mismatch official levels are not allowed in the mod directory.");
+				BSTONE_THROW_STATIC_SOURCE("Mismatch official levels are not allowed in the mod directory.");
 			}
 
 			assets_info.set_levels_hash(modded_hash);
@@ -1196,7 +1157,7 @@ void PreDemo()
 	//
 	if (!DoMovie(MovieId::intro))
 	{
-		::fail("JAM animation (IANIM.xxx) does not exist.");
+		BSTONE_THROW_STATIC_SOURCE("JAM animation (IANIM.xxx) does not exist.");
 	}
 
 	// ---------------------

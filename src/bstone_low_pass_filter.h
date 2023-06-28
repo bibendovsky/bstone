@@ -38,9 +38,6 @@ private:
 	Weights weights_{};
 	Samples samples_{};
 
-	[[noreturn]] static void fail(const char* message);
-	[[noreturn]] static void fail_nested(const char* message);
-
 	static double get_pi() noexcept;
 
 	void initialize_weights(int filter_order, int cut_off_frequency, int sampling_frequency);

@@ -95,7 +95,7 @@ SdlRendererPool sdl_renderer_pool{};
 // ==========================================================================
 
 SdlRenderer::SdlRenderer(Logger& logger, SDL_Window& sdl_window, const RendererInitParam& param)
-try
+BSTONE_BEGIN_CTOR_TRY
 	:
 	logger_{logger}
 {
@@ -106,8 +106,7 @@ try
 	log_info();
 
 	logger_.log_information(">>> SDL renderer started up.");
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 SdlRenderer::~SdlRenderer()
 {
@@ -115,27 +114,21 @@ SdlRenderer::~SdlRenderer()
 }
 
 void* SdlRenderer::operator new(std::size_t size)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return sdl_renderer_pool.allocate(size);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlRenderer::operator delete(void* ptr)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	sdl_renderer_pool.deallocate(ptr);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const char* SdlRenderer::do_get_name() const
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	auto sdl_renderer_info = SDL_RendererInfo{};
 	sdl_ensure_result(SDL_GetRendererInfo(sdl_renderer_.get(), &sdl_renderer_info));
 	return sdl_renderer_info.name;
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlRenderer::do_set_viewport(const RendererViewport* viewport)
 {
@@ -145,44 +138,35 @@ void SdlRenderer::do_set_viewport(const RendererViewport* viewport)
 }
 
 void SdlRenderer::do_clear()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	sdl_ensure_result(SDL_RenderClear(sdl_renderer_.get()));
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlRenderer::do_set_draw_color(Color color)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	sdl_ensure_result(SDL_SetRenderDrawColor(sdl_renderer_.get(), color.r, color.g, color.b, color.a));
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlRenderer::do_fill(Span<const R2RectI> rects)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (rects.get_size() > INT_MAX)
 	{
-		BSTONE_STATIC_THROW("Too many rectangles.");
+		BSTONE_THROW_STATIC_SOURCE("Too many rectangles.");
 	}
 
 	sdl_ensure_result(SDL_RenderFillRects(
 		sdl_renderer_.get(),
 		reinterpret_cast<const SDL_Rect*>(rects.get_data()),
 		static_cast<int>(rects.get_size())));
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlRenderer::do_present()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	SDL_RenderPresent(sdl_renderer_.get());
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlRenderer::do_read_pixels(const R2RectI* rect, PixelFormat pixel_format, void* pixels, int pitch)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	const auto sdl_pixel_format = map_pixel_format(pixel_format);
 
 	sdl_ensure_result(SDL_RenderReadPixels(
@@ -191,26 +175,21 @@ try
 		sdl_pixel_format,
 		pixels,
 		pitch));
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 TextureUPtr SdlRenderer::do_make_texture(const TextureInitParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return make_sdl_texture(logger_, *sdl_renderer_, param);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 SDL_PixelFormatEnum SdlRenderer::map_pixel_format(PixelFormat pixel_format)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	switch (pixel_format)
 	{
 		case PixelFormat::r8g8b8: return SDL_PIXELFORMAT_RGB24;
-		default: BSTONE_STATIC_THROW("Unknown pixel format.");
+		default: BSTONE_THROW_STATIC_SOURCE("Unknown pixel format.");
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlRenderer::log_flag(const char* name, std::string& message)
 {
@@ -303,11 +282,9 @@ void SdlRenderer::log_info()
 // ==========================================================================
 
 RendererUPtr make_sdl_renderer(Logger& logger, SDL_Window& sdl_window, const RendererInitParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return std::make_unique<SdlRenderer>(logger, sdl_window, param);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace sys
 } // namespace bstone

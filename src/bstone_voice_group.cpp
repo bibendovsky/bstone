@@ -14,125 +14,55 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 namespace bstone {
 
-namespace {
-
-class VoiceGroupException : public Exception
-{
-public:
-	explicit VoiceGroupException(const char* message)
-		:
-		Exception{"VOICE_GROUP", message}
-	{}
-};
-
-} // namespace
-
-// --------------------------------------------------------------------------
-
 bool VoiceGroup::is_any_playing()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_is_any_playing();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VoiceGroup::set_gain(double gain)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_set_gain(gain);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VoiceGroup::pause()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_pause();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VoiceGroup::resume()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_resume();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VoiceGroup::stop()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_stop();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VoiceGroup::add_voice(Voice& voice)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_add_voice(voice);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VoiceGroup::stop_and_remove_voice(Voice& voice)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_stop_and_remove_voice(voice);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VoiceGroup::stop_voice(Voice& voice)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_stop_voice(voice);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VoiceGroup::set_voice_gain(const Voice& voice)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_set_voice_gain(voice);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VoiceGroup::set_voice_output_gains(const Voice& voice)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_set_voice_output_gains(voice);
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-[[noreturn]] void VoiceGroup::fail_nested(const char* message)
-{
-	std::throw_with_nested(VoiceGroupException{message});
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 

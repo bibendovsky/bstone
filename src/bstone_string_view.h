@@ -12,15 +12,10 @@ SPDX-License-Identifier: MIT
 #include <algorithm>
 #include <type_traits>
 #include "bstone_char_traits.h"
+#include "bstone_exception.h"
 #include "bstone_utility.h"
 
 namespace bstone {
-
-namespace detail {
-
-[[noreturn]] void string_view_fail(const char* message);
-
-} // namespace detail
 
 template<typename TChar>
 class StringViewT
@@ -152,7 +147,7 @@ public:
 
 		if (index < 0 || index >= this_size)
 		{
-			detail::string_view_fail("View index out of range.");
+			BSTONE_THROW_STATIC_SOURCE("View index out of range.");
 		}
 
 		assert(size >= 0);
@@ -167,8 +162,8 @@ public:
 
 	constexpr void swap(StringViewT& rhs) noexcept
 	{
-		utility::swap(chars_, rhs.chars_);
-		utility::swap(size_, rhs.size_);
+		Utility::swap(chars_, rhs.chars_);
+		Utility::swap(size_, rhs.size_);
 	}
 
 private:

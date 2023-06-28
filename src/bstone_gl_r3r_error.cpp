@@ -60,11 +60,10 @@ void gl_error_code_append(GLenum gl_code, std::string& chars)
 // ==========================================================================
 
 void GlR3rError::ensure()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (glGetError == nullptr)
 	{
-		BSTONE_STATIC_THROW("Null \"glGetError\".");
+		BSTONE_THROW_STATIC_SOURCE("Null \"glGetError\".");
 	}
 
 	auto message = std::string{};
@@ -90,21 +89,18 @@ try
 
 	if (!message.empty())
 	{
-		BSTONE_STATIC_THROW(message.c_str());
+		BSTONE_THROW_STATIC_SOURCE(message.c_str());
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 #ifdef NDEBUG
 void GlR3rError::ensure_debug()
 {}
 #else
 void GlR3rError::ensure_debug()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	ensure();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 #endif // NDEBUG
 
 void GlR3rError::ensure_assert()

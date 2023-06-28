@@ -29,19 +29,6 @@ namespace bstone
 {
 
 
-class FizzleFXException :
-	public Exception
-{
-public:
-	explicit FizzleFXException(
-		const char* message) noexcept
-		:
-		Exception{"FIZZLE_FX", message}
-	{
-	}
-}; // FizzleFXException
-
-
 bool FizzleFX::present(
 	const bool trigger_fade)
 {
@@ -161,94 +148,48 @@ bool FizzleFX::present(
 }
 
 bool FizzleFX::is_abortable() const
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	fail_not_implemented();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool FizzleFX::is_vanilla_only() const
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	fail_not_implemented();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int FizzleFX::get_frame_count() const
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	fail_not_implemented();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int FizzleFX::get_y() const
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	fail_not_implemented();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int FizzleFX::get_height() const
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	fail_not_implemented();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void FizzleFX::plot(
 	const int x,
 	const int y)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	static_cast<void>(x);
 	static_cast<void>(y);
 
 	fail_not_implemented();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void FizzleFX::skip_to_the_end()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	fail_not_implemented();
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void FizzleFX::fail_not_implemented()
-try
 {
-	throw FizzleFXException{"Not implemented."};
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-void FizzleFX::fail_nested(
-	const char* message)
-{
-	std::throw_with_nested(FizzleFXException{message});
+	BSTONE_THROW_STATIC_SOURCE("Not implemented.");
 }
 
 

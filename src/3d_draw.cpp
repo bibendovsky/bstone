@@ -656,7 +656,7 @@ static int get_door_page_number(
 			break;
 
 		default:
-			::fail("Unsupported door type.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported door type.");
 	}
 
 

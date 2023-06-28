@@ -11,11 +11,9 @@ namespace bstone {
 namespace sys {
 
 void* GlSharedLibrary::find_symbol(const char* name) noexcept
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_find_symbol(name);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace sys
 } // namespace bstone

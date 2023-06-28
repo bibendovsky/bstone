@@ -9,21 +9,6 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-namespace {
-
-class GameTickerException : public Exception
-{
-public:
-	explicit GameTickerException(const char* message)
-		:
-		Exception{"BSTONE_GAME_TICKER", message}
-	{}
-};
-
-} // namespace
-
-// ==========================================================================
-
 void GameTicker::operator=(TickValue value) noexcept
 {
 	tick_.store(value, std::memory_order_release);
@@ -35,13 +20,12 @@ GameTicker::~GameTicker()
 }
 
 void GameTicker::open(int frequency)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	close();
 
 	if (frequency < 10 || frequency > 100)
 	{
-		throw GameTickerException{"Frequency out of range."};
+		BSTONE_THROW_STATIC_SOURCE("Frequency out of range.");
 	}
 
 	interval_ = std::chrono::milliseconds{1000 / frequency};
@@ -50,11 +34,7 @@ try
 	tick_.store(TickValue{}, std::memory_order_release);
 	thread_ = Thread{&GameTicker::callback, this};
 	is_open_ = true;
-}
-catch (...)
-{
-	std::throw_with_nested(GameTickerException{__func__});
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GameTicker::close() noexcept
 {

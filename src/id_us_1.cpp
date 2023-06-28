@@ -230,7 +230,7 @@ void US_CPrintLine(
 
 	if (w > WindowW)
 	{
-		::fail("String exceeds width.");
+		BSTONE_THROW_STATIC_SOURCE("String exceeds width.");
 	}
 	px = static_cast<std::int16_t>(WindowX + ((WindowW - w) / 2));
 	py = PrintY;

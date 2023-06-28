@@ -11,25 +11,19 @@ namespace bstone {
 namespace sys {
 
 AudioMgrUPtr SystemMgr::make_audio_mgr()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_make_audio_mgr();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 EventMgrUPtr SystemMgr::make_event_mgr()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_make_event_mgr();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 VideoMgrUPtr SystemMgr::make_video_mgr()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_make_video_mgr();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace sys
 } // namespace bstone

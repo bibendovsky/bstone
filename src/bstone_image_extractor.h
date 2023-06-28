@@ -70,10 +70,6 @@ private:
 	std::uint32_t* colors32_; // 0xAARRGGBB
 
 private:
-	[[noreturn]] static void fail(const char* message);
-	[[noreturn]] static void fail_nested(const char* message);
-
-private:
 	void initialize_colors();
 	void initialize_src_palette();
 	void remap_indexed_image();

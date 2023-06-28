@@ -11,11 +11,9 @@ namespace bstone {
 namespace sys {
 
 void PushAudioDeviceCallback::invoke(float* samples, int sample_count)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_invoke(samples, sample_count);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 
@@ -35,11 +33,9 @@ int PushAudioDevice::get_frame_count() const noexcept
 }
 
 void PushAudioDevice::pause(bool is_pause)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_pause(is_pause);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace sys
 } // namespace bstone

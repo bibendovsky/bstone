@@ -80,8 +80,8 @@ public:
 
 	constexpr void swap(ZStringViewT& rhs) noexcept
 	{
-		utility::swap(chars_, rhs.chars_);
-		utility::swap(size_, rhs.size_);
+		Utility::swap(chars_, rhs.chars_);
+		Utility::swap(size_, rhs.size_);
 	}
 
 private:

@@ -17,36 +17,23 @@ SPDX-License-Identifier: GPL-2.0-or-later
 namespace bstone
 {
 
-class OalSourceException : public Exception
-{
-public:
-	explicit OalSourceException(const char* message) noexcept
-		:
-		Exception{"OAL_SOURCE", message}
-	{
-	}
-}; // OalSourceException
-
-// ==========================================================================
-
 void OalSource::initialize(const OalSourceInitParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	uninitialize();
 
 	if (param.mix_sample_rate <= 0)
 	{
-		fail("Mix sample rate out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Mix sample rate out of range.");
 	}
 
 	if (param.mix_sample_count <= 0)
 	{
-		fail("Mix sample count out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Mix sample count out of range.");
 	}
 
 	if (!param.oal_al_symbols)
 	{
-		fail("Null AL symbols.");
+		BSTONE_THROW_STATIC_SOURCE("Null AL symbols.");
 	}
 
 	oal_al_symbols_ = param.oal_al_symbols;
@@ -54,11 +41,7 @@ try
 	streaming_mix_buffer_.resize(streaming_mix_sample_count_ * sample_size);
 	initialize_al_resources();
 	is_initialized_ = true;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool OalSource::is_initialized() const noexcept
 {
@@ -79,24 +62,23 @@ void OalSource::uninitialize()
 }
 
 void OalSource::open(const OalSourceOpenStaticParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	ensure_is_initialized();
 	close();
 
 	if (param.sample_rate <= 0)
 	{
-		fail("Sample rate out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Sample rate out of range.");
 	}
 
 	if (!param.data)
 	{
-		fail("Null data.");
+		BSTONE_THROW_STATIC_SOURCE("Null data.");
 	}
 
 	if (param.data_size < 0)
 	{
-		fail("Data size out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Data size out of range.");
 	}
 
 	is_3d_ = param.is_3d;
@@ -116,11 +98,7 @@ try
 	is_started_ = false;
 	is_paused_ = false;
 	is_finished_ = false;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalSource::open(const OalSourceOpenStreamingParam& param)
 {
@@ -129,17 +107,17 @@ void OalSource::open(const OalSourceOpenStreamingParam& param)
 
 	if (param.sample_rate <= 0)
 	{
-		fail("Sample rate out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Sample rate out of range.");
 	}
 
 	if (!((param.caching_sound && !param.uncaching_sound) || (!param.caching_sound && param.uncaching_sound)))
 	{
-		fail("Caching and uncaching sounds are mutual exclusive.");
+		BSTONE_THROW_STATIC_SOURCE("Caching and uncaching sounds are mutual exclusive.");
 	}
 
 	if (param.is_looping && param.caching_sound != nullptr)
 	{
-		fail("Looping the caching sound not supported.");
+		BSTONE_THROW_STATIC_SOURCE("Looping the caching sound not supported.");
 	}
 
 	const auto al_processed_buffer_count = get_al_processed_buffer_count();
@@ -339,16 +317,6 @@ void OalSource::close()
 	}
 }
 
-[[noreturn]] void OalSource::fail(const char* message)
-{
-	throw OalSourceException{message};
-}
-
-[[noreturn]] void OalSource::fail_nested(const char* message)
-{
-	std::throw_with_nested(OalSourceException{message});
-}
-
 void OalSource::initialize_al_resources()
 {
 	static_al_buffer_resource_ = make_oal_buffer(*oal_al_symbols_);
@@ -365,7 +333,7 @@ void OalSource::ensure_is_initialized() const
 {
 	if (!is_initialized_)
 	{
-		fail("Not initialized.");
+		BSTONE_THROW_STATIC_SOURCE("Not initialized.");
 	}
 }
 
@@ -373,7 +341,7 @@ void OalSource::ensure_is_open() const
 {
 	if (!is_open_)
 	{
-		fail("Not open.");
+		BSTONE_THROW_STATIC_SOURCE("Not open.");
 	}
 }
 
@@ -381,7 +349,7 @@ void OalSource::ensure_is_started() const
 {
 	if (!is_started_)
 	{
-		fail("Not started.");
+		BSTONE_THROW_STATIC_SOURCE("Not started.");
 	}
 }
 

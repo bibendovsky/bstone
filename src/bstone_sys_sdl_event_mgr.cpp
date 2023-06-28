@@ -60,7 +60,7 @@ SdlEventMgrPool sdl_event_mgr_pool{};
 // ==========================================================================
 
 SdlEventMgr::SdlEventMgr(Logger& logger)
-try
+BSTONE_BEGIN_CTOR_TRY
 	:
 	logger_{logger}
 {
@@ -69,8 +69,7 @@ try
 	sdl_ensure_result(SDL_InitSubSystem(SDL_INIT_EVENTS));
 
 	logger_.log_information(">>> SDL event manager started up.");
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 SdlEventMgr::~SdlEventMgr()
 {
@@ -80,18 +79,14 @@ SdlEventMgr::~SdlEventMgr()
 }
 
 void* SdlEventMgr::operator new(std::size_t size)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return sdl_event_mgr_pool.allocate(size);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlEventMgr::operator delete(void* ptr)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	sdl_event_mgr_pool.deallocate(ptr);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 VirtualKey SdlEventMgr::map_key_code(SDL_Keycode sdl_key_code)
 {
@@ -449,11 +444,9 @@ bool SdlEventMgr::do_poll_event(Event& e)
 // ==========================================================================
 
 EventMgrUPtr make_sdl_event_mgr(Logger& logger)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return std::make_unique<SdlEventMgr>(logger);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace sys
 } // namespace bstone

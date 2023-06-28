@@ -91,7 +91,7 @@ GlR3rR2TextureImplPool gl_r3r_r2_texture_impl_pool{};
 // =========================================================================
 
 GlR3rR2TextureImpl::GlR3rR2TextureImpl(GlR3rContext& context, const R3rR2TextureInitParam& param)
-try
+BSTONE_BEGIN_CTOR_TRY
 	:
 	context_{context},
 	device_features_{context_.get_device_features()},
@@ -112,7 +112,7 @@ try
 			break;
 
 		default:
-			BSTONE_STATIC_THROW("Unsupported image format.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported image format.");
 	}
 
 	width_ = param.width;
@@ -123,14 +123,14 @@ try
 
 	if (mipmap_count_ > max_mipmap_count)
 	{
-		BSTONE_STATIC_THROW("Mipmap count out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Mipmap count out of range.");
 	}
 
 // TODO Disable when OpenGL ES 2.0 won't be supported.
 #if 1
 	if (mipmap_count_ > 1 && mipmap_count_ != max_mipmap_count)
 	{
-		BSTONE_STATIC_THROW("Mismatch mipmap count.");
+		BSTONE_THROW_STATIC_SOURCE("Mismatch mipmap count.");
 	}
 #endif
 
@@ -151,7 +151,7 @@ try
 
 	if (!texture_resource_)
 	{
-		BSTONE_STATIC_THROW("Failed to create an object.");
+		BSTONE_THROW_STATIC_SOURCE("Failed to create an object.");
 	}
 
 	if (!gl_device_features_.is_dsa_available)
@@ -226,33 +226,27 @@ try
 			}
 		}
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rR2TextureImpl::~GlR3rR2TextureImpl() = default;
 
 void* GlR3rR2TextureImpl::operator new(std::size_t size)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return gl_r3r_r2_texture_impl_pool.allocate(size);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::operator delete(void* ptr)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	gl_r3r_r2_texture_impl_pool.deallocate(ptr);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::do_update(const R3rR2TextureUpdateParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	validate(param);
 
 	if (param.mipmap_level >= mipmap_count_)
 	{
-		BSTONE_STATIC_THROW("Mipmap level out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Mipmap level out of range.");
 	}
 
 	if (!gl_device_features_.is_dsa_available)
@@ -277,20 +271,18 @@ try
 	}
 
 	upload_mipmap(param.mipmap_level, mipmap_width, mipmap_height, param.image);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::do_generate_mipmaps()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (mipmap_count_ <= 1)
 	{
-		BSTONE_STATIC_THROW("Base mipmap.");
+		BSTONE_THROW_STATIC_SOURCE("Base mipmap.");
 	}
 
 	if (!device_features_.is_mipmap_available)
 	{
-		BSTONE_STATIC_THROW("Mipmap generation not available.");
+		BSTONE_THROW_STATIC_SOURCE("Mipmap generation not available.");
 	}
 
 	if (gl_device_features_.is_dsa_available)
@@ -303,8 +295,7 @@ try
 		context_.bind_r2_texture(this);
 		GlR3rUtils::generate_mipmap(GL_TEXTURE_2D, device_features_, gl_device_features_);
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::texture_deleter(GLuint gl_name) noexcept
 {
@@ -313,61 +304,54 @@ void GlR3rR2TextureImpl::texture_deleter(GLuint gl_name) noexcept
 }
 
 void GlR3rR2TextureImpl::validate(const R3rR2TextureInitParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	switch (param.pixel_format)
 	{
 		case R3rPixelFormat::rgba_8_unorm:
 			break;
 
 		default:
-			BSTONE_STATIC_THROW("Invalid pixel format.");
+			BSTONE_THROW_STATIC_SOURCE("Invalid pixel format.");
 	}
 
 	if (param.width <= 0)
 	{
-		BSTONE_STATIC_THROW("Invalid width.");
+		BSTONE_THROW_STATIC_SOURCE("Invalid width.");
 	}
 
 	if (param.height <= 0)
 	{
-		BSTONE_STATIC_THROW("Invalid height.");
+		BSTONE_THROW_STATIC_SOURCE("Invalid height.");
 	}
 
 	if (param.mipmap_count <= 0)
 	{
-		BSTONE_STATIC_THROW("Invalid mipmap count.");
+		BSTONE_THROW_STATIC_SOURCE("Invalid mipmap count.");
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::validate(const R3rR2TextureUpdateParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (param.mipmap_level < 0 ||
 		param.mipmap_level >= R3rLimits::max_mipmap_count)
 	{
-		BSTONE_STATIC_THROW("Mipmap level out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Mipmap level out of range.");
 	}
 
 	if (param.image == nullptr)
 	{
-		BSTONE_STATIC_THROW("Null image data.");
+		BSTONE_THROW_STATIC_SOURCE("Null image data.");
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::bind()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	glBindTexture(GL_TEXTURE_2D, texture_resource_.get());
 	GlR3rError::ensure_debug();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::upload_mipmap(int mipmap_level, int width, int height, const void* src_data)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (gl_device_features_.is_dsa_available)
 	{
 		glTextureSubImage2D(
@@ -400,12 +384,10 @@ try
 
 		GlR3rError::ensure_debug();
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::set()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	bind();
 
 	if (!gl_device_features_.is_dsa_available)
@@ -414,12 +396,10 @@ try
 		const auto& sampler_state = sampler_manger.get_current_state();
 		update_sampler_state(sampler_state);
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::set_mag_filter()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	const auto gl_mag_filter = GlR3rUtils::get_mag_filter(sampler_state_.mag_filter);
 
 	if (gl_device_features_.is_dsa_available)
@@ -432,12 +412,10 @@ try
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_mag_filter);
 		GlR3rError::ensure_debug();
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::set_min_filter()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	const auto gl_min_filter = GlR3rUtils::get_min_filter(
 		sampler_state_.min_filter,
 		sampler_state_.mipmap_mode);
@@ -452,12 +430,10 @@ try
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_min_filter);
 		GlR3rError::ensure_debug();
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::set_address_mode(R3rTextureAxis texture_axis, R3rAddressMode address_mode)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	const auto gl_wrap_axis = GlR3rUtils::get_texture_wrap_axis(texture_axis);
 	const auto gl_address_mode = GlR3rUtils::get_address_mode(address_mode);
 
@@ -471,26 +447,20 @@ try
 		glTexParameteri(GL_TEXTURE_2D, gl_wrap_axis, gl_address_mode);
 		GlR3rError::ensure_debug();
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::set_address_mode_u()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	set_address_mode(R3rTextureAxis::u, sampler_state_.address_mode_u);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::set_address_mode_v()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	set_address_mode(R3rTextureAxis::v, sampler_state_.address_mode_v);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::set_anisotropy()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (!device_features_.is_anisotropy_available)
 	{
 		return;
@@ -519,12 +489,10 @@ try
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, gl_anisotropy);
 		GlR3rError::ensure_debug();
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::update_sampler_state(const R3rSamplerState& new_sampler_state)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	auto is_modified = false;
 
 	// Magnification filter.
@@ -621,12 +589,10 @@ try
 			set_anisotropy();
 		}
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::set_sampler_state_defaults()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	sampler_state_.mag_filter = R3rFilterType::nearest;
 	set_mag_filter();
 
@@ -642,8 +608,7 @@ try
 
 	sampler_state_.anisotropy = R3rLimits::min_anisotropy_off;
 	set_anisotropy();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 

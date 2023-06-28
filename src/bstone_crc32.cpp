@@ -16,26 +16,6 @@ namespace bstone
 {
 
 
-namespace
-{
-
-
-class Crc32Exception :
-	public Exception
-{
-public:
-	explicit Crc32Exception(
-		const char* message) noexcept
-		:
-		Exception{"CRC32", message}
-	{
-	}
-}; // Crc32Exception
-
-
-} // namespace
-
-
 Crc32::Crc32() noexcept = default;
 
 void Crc32::reset() noexcept
@@ -46,16 +26,15 @@ void Crc32::reset() noexcept
 void Crc32::update(
 	const void* data,
 	int size)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (!data)
 	{
-		fail("Null data.");
+		BSTONE_THROW_STATIC_SOURCE("Null data.");
 	}
 
 	if (size < 0)
 	{
-		fail("Negative size.");
+		BSTONE_THROW_STATIC_SOURCE("Negative size.");
 	}
 
 	if (size == 0)
@@ -133,29 +112,11 @@ try
 	}
 
 	value_ ^= 0xFFFFFFFF;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 Crc32::Value Crc32::get_value() const noexcept
 {
 	return value_;
-}
-
-[[noreturn]]
-void Crc32::fail(
-	const char* message)
-{
-	throw Crc32Exception{message};
-}
-
-[[noreturn]]
-void Crc32::fail_nested(
-	const char* message)
-{
-	std::throw_with_nested(Crc32Exception{message});
 }
 
 

@@ -11,32 +11,24 @@ namespace bstone {
 namespace sys {
 
 void Texture::set_blend_mode(TextureBlendMode mode)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_set_blend_mode(mode);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void Texture::copy(const R2RectI* texture_rect, const R2RectI* target_rect)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_copy(texture_rect, target_rect);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 TextureLockUPtr Texture::make_lock()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_make_lock(nullptr);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 TextureLockUPtr Texture::make_lock(R2RectI rect)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_make_lock(&rect);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace sys
 } // namespace bstone

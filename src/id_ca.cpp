@@ -690,7 +690,8 @@ void CA_CacheMap(
 {
 	if (mapheaderseg[mapnum].name[0] == '\0')
 	{
-		::fail("There are no assets for level index " + std::to_string(mapnum) + '.');
+		BSTONE_THROW_DYNAMIC_SOURCE(
+			("There are no assets for level index " + std::to_string(mapnum) + '.').c_str());
 	}
 
 	std::int32_t pos;
@@ -761,7 +762,7 @@ void CA_UpLevel()
 {
 	if (ca_levelnum == 7)
 	{
-		::fail("Up past level 7.");
+		BSTONE_THROW_STATIC_SOURCE("Up past level 7.");
 	}
 
 	ca_levelbit <<= 1;
@@ -782,7 +783,7 @@ void CA_DownLevel()
 {
 	if (!ca_levelnum)
 	{
-		::fail("Down past level 0.");
+		BSTONE_THROW_STATIC_SOURCE("Down past level 0.");
 	}
 
 	ca_levelbit >>= 1;
@@ -912,7 +913,7 @@ void CA_CacheMarks()
 void CA_CannotOpen(
 	const std::string& string)
 {
-	::fail("Can't open " + string + "!\n");
+	BSTONE_THROW_DYNAMIC_SOURCE(("Can't open " + string + "!\n").c_str());
 }
 
 void UNCACHEGRCHUNK(
@@ -943,7 +944,7 @@ std::string ca_load_script(
 
 	if (length == 0)
 	{
-		::fail("Invalid script.");
+		BSTONE_THROW_STATIC_SOURCE("Invalid script.");
 	}
 
 	if (strip_xx)
@@ -1181,7 +1182,7 @@ void AssetsInfo::set_version(
 		}
 		else
 		{
-			::fail("No assets information.");
+			BSTONE_THROW_STATIC_SOURCE("No assets information.");
 		}
 	}
 
@@ -1196,7 +1197,7 @@ void AssetsInfo::set_version(
 		}
 		else
 		{
-			::fail("No assets information.");
+			BSTONE_THROW_STATIC_SOURCE("No assets information.");
 		}
 	}
 
@@ -1211,7 +1212,7 @@ void AssetsInfo::set_version(
 		}
 		else
 		{
-			::fail("No assets information.");
+			BSTONE_THROW_STATIC_SOURCE("No assets information.");
 		}
 	}
 
@@ -1228,7 +1229,7 @@ void AssetsInfo::set_version(
 		}
 		else
 		{
-			::fail("No assets information.");
+			BSTONE_THROW_STATIC_SOURCE("No assets information.");
 		}
 	}
 
@@ -1245,7 +1246,7 @@ void AssetsInfo::set_version(
 		}
 		else
 		{
-			::fail("No assets information.");
+			BSTONE_THROW_STATIC_SOURCE("No assets information.");
 		}
 	}
 }
@@ -1279,7 +1280,7 @@ const AssetsResource& AssetsInfo::find_resource(
 
 	const auto resource_type_string = std::string{get_resource_type_string(resource_type)};
 
-	::fail("Resource of type \"" + resource_type_string + "\" not found.");
+	BSTONE_THROW_DYNAMIC_SOURCE(("Resource of type \"" + resource_type_string + "\" not found.").c_str());
 }
 
 void AssetsInfo::set_levels_hash(
@@ -1418,7 +1419,7 @@ bool AssetsInfo::is_secret_level(
 	}
 	else
 	{
-		::fail("No assets information.");
+		BSTONE_THROW_STATIC_SOURCE("No assets information.");
 	}
 }
 
@@ -1450,7 +1451,7 @@ int AssetsInfo::secret_floor_get_index(
 	}
 	else
 	{
-		::fail("No assets information.");
+		BSTONE_THROW_STATIC_SOURCE("No assets information.");
 	}
 }
 
@@ -2005,42 +2006,6 @@ void ca_extract_all(
 	ca_extract_texts(destination_dir);
 }
 
-
-namespace
-{
-
-
-class CaResourceException :
-	public bstone::Exception
-{
-public:
-	explicit CaResourceException(
-		const char* message) noexcept
-		:
-		bstone::Exception{"CA_RESOURCE", message}
-	{
-	}
-}; // CaResourceException
-
-
-[[noreturn]]
-void ca_resource_fail(
-	const char* message)
-{
-	throw CaResourceException{message};
-}
-
-[[noreturn]]
-void ca_resource_fail_nested(
-	const char* message)
-{
-	std::throw_with_nested(CaResourceException{message});
-}
-
-
-} // namespace
-
-
 int ca_map_aog_sw_sprite_id_to_aog_full(
 	int aog_sw_sprite_id)
 {
@@ -2126,11 +2091,10 @@ void ca_make_resource_path(
 	const std::string& resource_name,
 	std::string& data_path,
 	std::string& mod_path)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (resource_name.empty())
 	{
-		ca_resource_fail("Empty name.");
+		BSTONE_THROW_STATIC_SOURCE("Empty name.");
 	}
 
 	const auto& assets_info = get_assets_info();
@@ -2150,11 +2114,7 @@ try
 		mod_path = bstone::file_system::append_path(mod_dir_, assets_info.get_base_path_name());
 		mod_path = bstone::file_system::append_path(mod_path, resource_name);
 	}
-}
-catch (...)
-{
-	ca_resource_fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ca_make_sprite_resource_path_name(
 	int sprite_id,

@@ -14,15 +14,6 @@ namespace bstone {
 
 namespace {
 
-class ClException : public Exception
-{
-public:
-	explicit ClException(const char* message) noexcept
-		:
-		Exception{"BSTONE_CL", message}
-	{}
-};
-
 constexpr auto cl_option_prefix = StringView{"--"};
 
 } // namespace
@@ -35,8 +26,7 @@ StringView Cl::operator[](int index) const
 }
 
 void Cl::initialize(int argc, char* const* argv)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	args_.clear();
 	args_.reserve(argc);
 
@@ -137,11 +127,7 @@ try
 			option.args = ClArgs{&args_[option_args_index], option_arg_count};
 		}
 	}
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 ClOptions Cl::get_options() const noexcept
 {
@@ -216,16 +202,6 @@ void Cl::get_option_values(StringView option_name, StringView& value1, StringVie
 	{
 		value2 = option.args[1];
 	}
-}
-
-[[noreturn]] void Cl::fail(const char* message)
-{
-	throw ClException{message};
-}
-
-[[noreturn]] void Cl::fail_nested(const char* message)
-{
-	std::throw_with_nested(ClException{message});
 }
 
 } // bstone

@@ -139,40 +139,10 @@ void draw_carousel(
 namespace
 {
 
-
-class MenuException :
-	public bstone::Exception
-{
-public:
-	explicit MenuException(
-		const char* message) noexcept
-		:
-		Exception{"MENU", message}
-	{
-	}
-}; // MenuException
-
-
-[[noreturn]]
-void fail(
-	const char* message)
-{
-	throw MenuException{message};
-}
-
-[[noreturn]]
-void fail_nested(
-	const char* message)
-{
-	std::throw_with_nested(MenuException{message});
-}
-
-
 std::int16_t COAL_FONT()
 {
 	return STARTFONT + 4;
 }
-
 
 } // namespace
 
@@ -662,8 +632,7 @@ static std::uint8_t menu_background_color = 0x00;
 
 
 static const std::string& get_saved_game_base_name()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	static auto base_name = std::string();
 	static auto is_initialized = false;
 
@@ -689,18 +658,14 @@ try
 		}
 		else
 		{
-			fail("Invalid game type.");
+			BSTONE_THROW_STATIC_SOURCE("Invalid game type.");
 		}
 
 		base_name += "_saved_game_";
 	}
 
 	return base_name;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 ////////////////////////////////////////////////////////////////////
 //
@@ -1012,7 +977,7 @@ void binds_initialize_menu()
 
 	if (!has_bindings)
 	{
-		fail("No bindings.");
+		BSTONE_THROW_STATIC_SOURCE("No bindings.");
 	}
 
 	binds_names.clear();
@@ -5092,7 +5057,7 @@ const std::string& menu_video_mode_renderer_type_get_string(
 			return gles_2_0_string;
 
 		default:
-			fail("Unsupported renderer type.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported renderer type.");
 	}
 }
 
@@ -5117,7 +5082,7 @@ const std::string& menu_video_mode_aa_type_get_string(
 			return msaa_string;
 
 		default:
-			fail("Unsupported AA type.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported AA type.");
 	}
 }
 
@@ -5182,7 +5147,7 @@ void video_mode_draw_menu()
 
 		if (menu_video_mode_renderer_types_.empty())
 		{
-			fail("Empty renderer type list.");
+			BSTONE_THROW_STATIC_SOURCE("Empty renderer type list.");
 		}
 
 		const auto renderer_type_it = std::find(
@@ -5523,7 +5488,7 @@ const std::string& texturing_filter_to_string(
 			return linear_string;
 
 		default:
-			fail("Unsupported filter.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported filter.");
 	}
 }
 
@@ -5821,7 +5786,7 @@ void texturing_filter_carousel(
 			break;
 
 		default:
-			fail("Unsupported filter.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported filter.");
 	}
 }
 

@@ -147,7 +147,7 @@ GlR3rContextImplPool gl_r3r_context_impl_pool{};
 GlR3rContextImpl::GlR3rContextImpl(
 	const R3rDeviceFeatures& device_features,
 	const GlR3rDeviceFeatures& gl_device_features)
-try
+BSTONE_BEGIN_CTOR_TRY
 	:
 	device_features_{device_features},
 	gl_device_features_{gl_device_features}
@@ -163,14 +163,12 @@ try
 	set_culling_defaults();
 	set_depth_defaults();
 	set_blending_defaults();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rContextImpl::~GlR3rContextImpl() = default;
 
 void GlR3rContextImpl::set_max_mipmap_quality()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (!device_features_.is_mipmap_available)
 	{
 		return;
@@ -183,22 +181,17 @@ try
 
 	glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
 	GlR3rError::ensure_debug();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void* GlR3rContextImpl::operator new(std::size_t size)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return gl_r3r_context_impl_pool.allocate(size);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::operator delete(void* ptr)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	gl_r3r_context_impl_pool.deallocate(ptr);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rDeviceFeatures& GlR3rContextImpl::get_device_features() const noexcept
 {
@@ -211,11 +204,9 @@ const GlR3rDeviceFeatures& GlR3rContextImpl::get_gl_device_features() const noex
 }
 
 GlR3rBufferUPtr GlR3rContextImpl::create_buffer(const R3rBufferInitParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return make_gl_r3r_buffer(*this, param);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rSamplerMgr& GlR3rContextImpl::get_sampler_manager() const noexcept
 {
@@ -228,11 +219,9 @@ GlR3rVertexInputMgr& GlR3rContextImpl::get_vertex_input_manager() const noexcept
 }
 
 GlR3rShaderUPtr GlR3rContextImpl::create_shader(const R3rShaderInitParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return make_gl_r3r_shader(param);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rSampler* GlR3rContextImpl::get_sampler() const noexcept
 {
@@ -245,15 +234,12 @@ void GlR3rContextImpl::set_sampler(GlR3rSampler* sampler) noexcept
 }
 
 R3rR2TextureUPtr GlR3rContextImpl::create_r2_texture(const R3rR2TextureInitParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return make_gl_r3r_r2_texture(*this, param);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::bind_r2_texture(GlR3rR2Texture* r2_texture)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (r2_texture != nullptr)
 	{
 		r2_texture->set();
@@ -263,8 +249,7 @@ try
 		glBindTexture(GL_TEXTURE_2D, 0);
 		GlR3rError::ensure_debug();
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rR2Texture* GlR3rContextImpl::get_r2_texture() const noexcept
 {
@@ -287,15 +272,12 @@ void GlR3rContextImpl::set_vertex_input(GlR3rVertexInput* vertex_input) noexcept
 }
 
 R3rShaderStageUPtr GlR3rContextImpl::create_shader_stage(const R3rShaderStageInitParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return make_gl_r3r_shader_stage(*this, param);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::bind_shader_stage(R3rShaderStage* shader_stage)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (shader_stage != nullptr)
 	{
 		static_cast<GlR3rShaderStage*>(shader_stage)->set();
@@ -305,8 +287,7 @@ try
 		glUseProgram(0);
 		GlR3rError::ensure_debug();
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rShaderStage* GlR3rContextImpl::get_shader_stage() const noexcept
 {
@@ -330,8 +311,7 @@ void GlR3rContextImpl::clear(const sys::Color& color)
 }
 
 void GlR3rContextImpl::set_viewport(const R3rViewport& viewport)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (viewport_.x != viewport.x ||
 		viewport_.y != viewport.y ||
 		viewport_.width != viewport.width ||
@@ -351,23 +331,19 @@ try
 		viewport_.max_depth = viewport.max_depth;
 		set_viewport_depth_range();
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::enable_scissor(bool is_enable)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (is_scissor_enabled_ != is_enable)
 	{
 		is_scissor_enabled_ = is_enable;
 		enable_scissor();
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::set_scissor_box(const R3rScissorBox& scissor_box)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (scissor_box_.x != scissor_box.x ||
 		scissor_box_.y != scissor_box.y ||
 		scissor_box_.width != scissor_box.width ||
@@ -376,68 +352,56 @@ try
 		scissor_box_ = scissor_box;
 		set_scissor_box();
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::enable_culling(bool is_enable)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (is_culling_enabled_ != is_enable)
 	{
 		is_culling_enabled_ = is_enable;
 		enable_culling();
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::enable_depth_test(bool is_enable)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (is_depth_test_enabled_ != is_enable)
 	{
 		is_depth_test_enabled_ = is_enable;
 		enable_depth_test();
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::enable_depth_write(bool is_enable)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (is_depth_write_enabled_ != is_enable)
 	{
 		is_depth_write_enabled_ = is_enable;
 		enable_depth_write();
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::enable_blending(bool is_enable)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (is_blending_enabled_ != is_enable)
 	{
 		is_blending_enabled_ = is_enable;
 		enable_blending();
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::set_blending_func(const R3rBlendingFunc& blending_func)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (blending_func_.src_factor != blending_func.src_factor ||
 		blending_func_.dst_factor != blending_func.dst_factor)
 	{
 		blending_func_ = blending_func;
 		set_blending_func();
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::set_clear_color()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	glClearColor(
 		static_cast<float>(clear_color_.r) / 255.0F,
 		static_cast<float>(clear_color_.g) / 255.0F,
@@ -445,42 +409,32 @@ try
 		static_cast<float>(clear_color_.a) / 255.0F);
 
 	GlR3rError::ensure_debug();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::clear()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	GlR3rError::ensure_debug();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::set_clear_defaults()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	clear_color_ = sys::Color{};
 	set_clear_color();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::set_viewport_rect()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	GlR3rUtils::set_viewport_rect(viewport_);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::set_viewport_depth_range()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	GlR3rUtils::set_viewport_depth_range(viewport_, gl_device_features_);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::set_viewport_defaults()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	viewport_.x = 0;
 	viewport_.y = 0;
 	viewport_.width = 0;
@@ -490,26 +444,20 @@ try
 	viewport_.min_depth = 0.0F;
 	viewport_.max_depth = 1.0F;
 	set_viewport_depth_range();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::enable_scissor()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	GlR3rUtils::enable_scissor(is_scissor_enabled_);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::set_scissor_box()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	GlR3rUtils::set_scissor_box(scissor_box_);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::set_scissor_defaults()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	is_scissor_enabled_ = false;
 	enable_scissor();
 
@@ -518,33 +466,25 @@ try
 	scissor_box_.width = 0;
 	scissor_box_.height = 0;
 	set_scissor_box();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::enable_culling()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	GlR3rUtils::enable_culling(is_culling_enabled_);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::set_culling_face()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	GlR3rUtils::set_culling_face(culling_face_);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::set_culling_mode()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	GlR3rUtils::set_culling_mode(culling_mode_);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::set_culling_defaults()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	is_culling_enabled_ = false;
 	enable_culling();
 
@@ -553,59 +493,46 @@ try
 
 	culling_mode_ = R3rCullingMode::back;
 	set_culling_mode();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::enable_depth_test()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	GlR3rUtils::enable_depth_test(is_depth_test_enabled_);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::enable_depth_write()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	GlR3rUtils::enable_depth_write(is_depth_write_enabled_);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::set_depth_defaults()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	is_depth_test_enabled_ = false;
 	enable_depth_test();
 
 	is_depth_write_enabled_ = false;
 	enable_depth_write();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::enable_blending()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	GlR3rUtils::enable_blending(is_blending_enabled_);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::set_blending_func()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	GlR3rUtils::set_blending_func(blending_func_);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::set_blending_defaults()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	is_blending_enabled_ = false;
 	enable_blending();
 
 	blending_func_.src_factor = R3rBlendingFactor::src_alpha;
 	blending_func_.dst_factor = R3rBlendingFactor::one_minus_src_alpha;
 	set_blending_func();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // =========================================================================
 
@@ -615,8 +542,7 @@ GlR3rContextUPtr make_gl_r3r_context(
 	R3rType renderer_type,
 	const R3rDeviceFeatures& device_features,
 	const GlR3rDeviceFeatures& gl_device_features)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	switch (renderer_type)
 	{
 		case R3rType::gl_2_0:
@@ -625,9 +551,8 @@ try
 			return std::make_unique<GlR3rContextImpl>(device_features, gl_device_features);
 
 		default:
-			BSTONE_STATIC_THROW("Unsupported renderer type.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported renderer type.");
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace bstone

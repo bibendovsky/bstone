@@ -72,7 +72,7 @@ GlR3rBufferImplPool gl_r3r_buffer_impl_pool{};
 // =========================================================================
 
 GlR3rBufferImpl::GlR3rBufferImpl(GlR3rContext& context, const R3rBufferInitParam& param)
-try
+BSTONE_BEGIN_CTOR_TRY
 	:
 	context_{context},
 	gl_device_features_{context_.get_gl_device_features()}
@@ -96,7 +96,7 @@ try
 
 	if (buffer_resource_.get() == 0U)
 	{
-		BSTONE_STATIC_THROW("Failed to create a resource.");
+		BSTONE_THROW_STATIC_SOURCE("Failed to create a resource.");
 	}
 
 	type_ = param.type;
@@ -117,24 +117,19 @@ try
 		glBufferData(gl_target_, param.size, nullptr, gl_usage);
 		GlR3rError::ensure_debug();
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rBufferImpl::~GlR3rBufferImpl() = default;
 
 void* GlR3rBufferImpl::operator new(std::size_t size)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return gl_r3r_buffer_impl_pool.allocate(size);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rBufferImpl::operator delete(void* ptr)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	gl_r3r_buffer_impl_pool.deallocate(ptr);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rBufferType GlR3rBufferImpl::do_get_type() const noexcept
 {
@@ -152,17 +147,14 @@ int GlR3rBufferImpl::do_get_size() const noexcept
 }
 
 void GlR3rBufferImpl::set(bool is_set)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	const auto gl_name = (is_set ? buffer_resource_.get() : 0);
 	glBindBuffer(gl_target_, gl_name);
 	GlR3rError::ensure_debug();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rBufferImpl::do_update(const R3rUpdateBufferParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	validate(param);
 
 	if (param.size == 0)
@@ -182,8 +174,7 @@ try
 		glBufferSubData(gl_target_, param.offset, param.size, param.data);
 		GlR3rError::ensure_debug();
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rBufferImpl::buffer_deleter(GLuint gl_name) noexcept
 {
@@ -192,8 +183,7 @@ void GlR3rBufferImpl::buffer_deleter(GLuint gl_name) noexcept
 }
 
 void GlR3rBufferImpl::validate(const R3rBufferInitParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	switch (param.type)
 	{
 		case R3rBufferType::index:
@@ -201,7 +191,7 @@ try
 			break;
 
 		default:
-			BSTONE_STATIC_THROW("Unsupported type.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported type.");
 	}
 
 	switch (param.usage_type)
@@ -212,85 +202,76 @@ try
 			break;
 
 		default:
-			BSTONE_STATIC_THROW("Unsupported usage type.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported usage type.");
 	}
 
 	if (param.size <= 0)
 	{
-		BSTONE_STATIC_THROW("Size out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Size out of range.");
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rBufferImpl::validate(const R3rUpdateBufferParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (param.offset < 0)
 	{
-		BSTONE_STATIC_THROW("Offset out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Offset out of range.");
 	}
 
 	if (param.size < 0)
 	{
-		BSTONE_STATIC_THROW("Size out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Size out of range.");
 	}
 
 	if (param.offset > size_)
 	{
-		BSTONE_STATIC_THROW("Offset out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Offset out of range.");
 	}
 
 	if (param.size > size_)
 	{
-		BSTONE_STATIC_THROW("Size out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Size out of range.");
 	}
 
 	if ((param.offset + param.size) > size_)
 	{
-		BSTONE_STATIC_THROW("End offset out of range.");
+		BSTONE_THROW_STATIC_SOURCE("End offset out of range.");
 	}
 
 	if (param.size > 0 && param.data == nullptr)
 	{
-		BSTONE_STATIC_THROW("Null data.");
+		BSTONE_THROW_STATIC_SOURCE("Null data.");
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GLenum GlR3rBufferImpl::gl_get_target(R3rBufferType type)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	switch (type)
 	{
 		case R3rBufferType::index: return GL_ELEMENT_ARRAY_BUFFER;
 		case R3rBufferType::vertex: return GL_ARRAY_BUFFER;
-		default: BSTONE_STATIC_THROW("Unsupported type.");
+		default: BSTONE_THROW_STATIC_SOURCE("Unsupported type.");
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GLenum GlR3rBufferImpl::gl_get_usage(R3rBufferUsageType usage_type)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	switch (usage_type)
 	{
 		case R3rBufferUsageType::draw_streaming: return GL_STREAM_DRAW;
 		case R3rBufferUsageType::draw_static: return GL_STATIC_DRAW;
 		case R3rBufferUsageType::draw_dynamic: return GL_DYNAMIC_DRAW;
-		default: BSTONE_STATIC_THROW("Unsupported usage type.");
+		default: BSTONE_THROW_STATIC_SOURCE("Unsupported usage type.");
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace
 
 // =========================================================================
 
 GlR3rBufferUPtr make_gl_r3r_buffer(GlR3rContext& context, const R3rBufferInitParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return std::make_unique<GlR3rBufferImpl>(context, param);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace bstone

@@ -55,7 +55,7 @@ SdlPushAudioDevicePool sdl_push_audio_device_pool{};
 // ==========================================================================
 
 SdlPushAudioDevice::SdlPushAudioDevice(Logger& logger, const PushAudioDeviceOpenParam& param)
-try
+BSTONE_BEGIN_CTOR_TRY
 	:
 	logger_{logger}
 {
@@ -63,17 +63,17 @@ try
 
 	if (param.channel_count <= 0 || param.channel_count > 255)
 	{
-		BSTONE_STATIC_THROW("Channel count out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Channel count out of range.");
 	}
 
 	if (param.desired_frame_count <= 0 || param.desired_frame_count > 65535)
 	{
-		BSTONE_STATIC_THROW("Frame count out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Frame count out of range.");
 	}
 
 	if (param.callback == nullptr)
 	{
-		BSTONE_STATIC_THROW("Null callback.");
+		BSTONE_THROW_STATIC_SOURCE("Null callback.");
 	}
 
 	callback_ = param.callback;
@@ -105,8 +105,7 @@ try
 	frame_count_ = effective_spec.samples;
 
 	logger_.log_information(">>> SDL callback audio device started up.");
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 SdlPushAudioDevice::~SdlPushAudioDevice()
 {
@@ -116,18 +115,14 @@ SdlPushAudioDevice::~SdlPushAudioDevice()
 }
 
 void* SdlPushAudioDevice::operator new(std::size_t size)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return sdl_push_audio_device_pool.allocate(size);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlPushAudioDevice::operator delete(void* ptr)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	sdl_push_audio_device_pool.deallocate(ptr);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int SdlPushAudioDevice::do_get_rate() const noexcept
 {
@@ -157,22 +152,18 @@ void SDLCALL SdlPushAudioDevice::sdl_callback(void* userdata, Uint8* stream, int
 }
 
 void SdlPushAudioDevice::callback(float* samples, int sample_count)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	callback_->invoke(samples, sample_count);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace
 
 // ==========================================================================
 
 PushAudioDeviceUPtr make_sdl_push_audio_device(Logger& logger, const PushAudioDeviceOpenParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return std::make_unique<SdlPushAudioDevice>(logger, param);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace sys
 } // namespace bstone

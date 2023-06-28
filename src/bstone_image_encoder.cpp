@@ -12,71 +12,19 @@ SPDX-License-Identifier: MIT
 #include "bstone_exception.h"
 #include "bstone_stb_image_encoder.h"
 
-
-namespace bstone
-{
-
-
-namespace
-{
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-class ImageEncoderException :
-	public Exception
-{
-public:
-	explicit ImageEncoderException(
-		const char* message) noexcept
-		:
-		Exception{"IMAGE_ENCODER", message}
-	{
-	}
-}; // ImageEncoderException
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-[[noreturn]]
-void fail(
-	const char* message)
-{
-	throw ImageEncoderException{message};
-}
-
-[[noreturn]]
-void fail_nested(
-	const char* message)
-{
-	std::throw_with_nested(ImageEncoderException{message});
-}
-
-
-} // namespace
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+namespace bstone {
 
 ImageEncodeUPtr make_image_encoder(
 	ImageEncoderType image_encoder_type)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	switch (image_encoder_type)
 	{
 		case ImageEncoderType::png:
 			return std::make_unique<StbImageEncoder>();
 
 		default:
-			fail("Unsupported image encoder type.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported image encoder type.");
 	}
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // bstone

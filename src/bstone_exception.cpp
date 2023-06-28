@@ -4,285 +4,160 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-//
-// Base exception.
-//
+// Exception classes.
 
 #include <cassert>
-#include <string>
-#include <vector>
+
+#include <limits>
+#include <memory>
+#include <type_traits>
+
+#include "bstone_char_traits.h"
 #include "bstone_exception.h"
 #include "bstone_int.h"
+#include "bstone_utility.h"
 
 namespace bstone {
 
-namespace {
-
-static constexpr IntP get_c_string_size(const char* string) noexcept
-{
-	assert(string);
-
-	auto size = IntP{};
-
-	while (string[size] != '\0')
-	{
-		size += 1;
-	}
-
-	return size;
-}
-
-} // namespace
-
-// ==========================================================================
-
-Exception::Exception(const char* context, const char* message) noexcept
+StaticSourceException::StaticSourceException(const SourceLocation& source_location, const char* message)
+	:
+	source_location_{source_location},
+	message_{message != nullptr ? message : ""}
 {
 	assert(message != nullptr);
-
-	const auto has_contex = (context != nullptr);
-	const auto context_size = (has_contex ? get_c_string_size(context) : 0);
-
-	const auto has_message = (message != nullptr);
-	const auto message_size = (has_message ? get_c_string_size(message) : 0);
-
-	if (!has_contex && !has_message)
-	{
-		return;
-	}
-
-	constexpr auto left_prefix = "[";
-	constexpr auto left_prefix_size = get_c_string_size(left_prefix);
-
-	constexpr auto right_prefix = "] ";
-	constexpr auto right_prefix_size = get_c_string_size(right_prefix);
-
-	const auto what_size =
-		(
-			has_contex ?
-			left_prefix_size + context_size + right_prefix_size :
-			0
-		) +
-		message_size +
-		1
-	;
-
-	what_.reset(new (std::nothrow) char[what_size]);
-
-	if (!what_)
-	{
-		return;
-	}
-
-	auto what = what_.get();
-
-	if (has_contex)
-	{
-		what = std::uninitialized_copy_n(left_prefix, left_prefix_size, what);
-		what = std::uninitialized_copy_n(context, context_size, what);
-		what = std::uninitialized_copy_n(right_prefix, right_prefix_size, what);
-	}
-
-	if (has_message)
-	{
-		what = std::uninitialized_copy_n(message, message_size, what);
-	}
-
-	*what = '\0';
 }
 
-Exception::Exception(const Exception& rhs) noexcept
-{
-	if (rhs.what_ == nullptr)
-	{
-		return;
-	}
-
-	const auto rhs_what = rhs.what_.get();
-	const auto what_size = get_c_string_size(rhs_what);
-
-	what_.reset(new (std::nothrow) char[what_size + 1]);
-
-	if (what_ == nullptr)
-	{
-		return;
-	}
-
-	auto what = what_.get();
-	what = std::uninitialized_copy_n(rhs_what, what_size, what);
-	*what = '\0';
-}
-
-Exception::~Exception() = default;
-
-const char* Exception::what() const noexcept
-{
-	return what_ != nullptr ? what_.get() : "[BSTONE_EXCEPTION] Generic failure.";
-}
-
-// ==========================================================================
-
-StaticException::StaticException(const char* file_name, int line, const char* function_name) noexcept
+StaticSourceException::StaticSourceException(const SourceLocation& source_location) noexcept
 	:
-	StaticException{file_name, line, function_name, nullptr}
+	source_location_{source_location}
 {}
 
-StaticException::StaticException(
-	const char* file_name,
-	int line,
-	const char* function_name,
-	const char* message) noexcept
+StaticSourceException::StaticSourceException(const StaticSourceException& rhs) noexcept
 	:
-	file_name_{file_name},
-	line_{line},
-	function_name_{function_name},
-	message_{message}
+	source_location_{rhs.source_location_},
+	message_{rhs.message_}
 {}
 
-const char* StaticException::get_file_name() const noexcept
+StaticSourceException& StaticSourceException::operator=(const StaticSourceException& rhs) noexcept
 {
-	return file_name_;
+	source_location_ = rhs.source_location_;
+	message_ = rhs.message_;
+	return *this;
 }
 
-int StaticException::get_line() const noexcept
+const SourceLocation& StaticSourceException::get_source_location() const noexcept
 {
-	return line_;
+	return source_location_;
 }
 
-const char* StaticException::get_function_name() const noexcept
-{
-	return function_name_;
-}
-
-const char* StaticException::get_message() const noexcept
+const char* StaticSourceException::what() const noexcept
 {
 	return message_;
 }
 
-const char* StaticException::what() const noexcept
+void StaticSourceException::swap(StaticSourceException& rhs) noexcept
 {
-	return message_ != nullptr ? message_ : "Generic failure.";
+	source_location_.swap(rhs.source_location_);
+	Utility::swap(message_, rhs.message_);
 }
 
-// --------------------------------------------------------------------------
-
-[[noreturn]] void static_fail(
-	const char* file_name,
-	int line,
-	const char* function_name,
-	const char* message)
+[[noreturn]] void StaticSourceException::fail(const SourceLocation& source_location, const char* message)
 {
-	throw StaticException{file_name, line, function_name, message};
+	throw StaticSourceException{source_location, message};
 }
 
-[[noreturn]] void static_fail_nested(
-	const char* file_name,
-	int line,
-	const char* function_name)
+[[noreturn]] void StaticSourceException::fail_nested(const SourceLocation& source_location)
 {
-	std::throw_with_nested(StaticException{file_name, line, function_name});
+	std::throw_with_nested(StaticSourceException{source_location});
 }
 
 // ==========================================================================
 
-namespace {
-
-void extract_exception_messages(ExceptionMessages& messages)
+DynamicSourceException::DynamicSourceException(const SourceLocation& source_location, const char* message)
+	:
+	source_location_{source_location}
 {
-	try
+	static_assert(std::is_trivial<ControlBlock>::value, "Expected a trivial class.");
+
+	if (message == nullptr)
 	{
-		std::rethrow_exception(std::current_exception());
+		assert(false && "Null message.");
+		return;
 	}
-	catch (const StaticException& ex)
+
+	const auto message_size_with_null = CharTraits::get_size(message) + 1;
+	const auto control_block_size = static_cast<IntP>(sizeof(ControlBlock));
+	const auto storage_size = control_block_size + message_size_with_null;
+	auto storage = std::make_unique<char[]>(storage_size);
+	auto control_block = reinterpret_cast<ControlBlock*>(storage.get());
+	control_block->counter = 1;
+	control_block->message = reinterpret_cast<char*>(&control_block[1]);
+	std::uninitialized_copy_n(message, message_size_with_null, control_block->message);
+	control_block_ = reinterpret_cast<ControlBlock*>(storage.release());
+}
+
+DynamicSourceException::DynamicSourceException(const DynamicSourceException& rhs)
+	:
+	source_location_{rhs.source_location_},
+	control_block_{rhs.control_block_}
+{
+	if (control_block_ == nullptr)
 	{
-		{
-			auto message = std::string{};
-			message.reserve(1024);
-			message += ex.get_file_name();
-			message += '(';
-			message += std::to_string(ex.get_line());
-			message += ')';
-
-			if (ex.get_function_name() != nullptr)
-			{
-				message += ':';
-				message += ex.get_function_name();
-			}
-
-			if (ex.get_message() != nullptr)
-			{
-				message += ": ";
-				message += ex.get_message();
-			}
-
-			messages.emplace_back(message);
-		}
-
-		try
-		{
-			std::rethrow_if_nested(ex);
-		}
-		catch (...)
-		{
-			extract_exception_messages(messages);
-		}
+		return;
 	}
-	catch (const std::exception& ex)
-	{
-		messages.emplace_back(ex.what());
 
-		try
-		{
-			std::rethrow_if_nested(ex);
-		}
-		catch (...)
-		{
-			extract_exception_messages(messages);
-		}
-	}
-	catch (...)
+	auto& counter = control_block_->counter;
+#if !defined(NDEBUG)
+	constexpr auto max_counter_value = std::numeric_limits<Counter>::max();
+	assert(counter < max_counter_value);
+#endif
+	++counter;
+}
+
+DynamicSourceException& DynamicSourceException::operator=(const DynamicSourceException& rhs)
+{
+	auto copy = rhs;
+	copy.swap(*this);
+	return *this;
+}
+
+DynamicSourceException::~DynamicSourceException()
+{
+	if (control_block_ == nullptr)
 	{
-		messages.emplace_back("[BSTONE_EXCEPTION] Generic failure.");
+		return;
+	}
+
+	auto& counter = control_block_->counter;
+
+	assert(counter > 0);
+	--counter;
+
+	if (counter == 0)
+	{
+		delete[] reinterpret_cast<char*>(control_block_);
 	}
 }
 
-} // namespace
-
-
-ExceptionMessages extract_exception_messages()
+const SourceLocation& DynamicSourceException::get_source_location() const noexcept
 {
-	auto messages = ExceptionMessages{};
-	extract_exception_messages(messages);
-
-	return messages;
+	return source_location_;
 }
 
-// ==========================================================================
-
-std::string get_nested_message()
+const char* DynamicSourceException::what() const noexcept
 {
-	auto messages = extract_exception_messages();
-	auto message_size = std::string::size_type{};
+	return control_block_ != nullptr ? control_block_->message : "";
+}
 
-	for (const auto& message : messages)
-	{
-		message_size += message.size() + 1;
-	}
+void DynamicSourceException::swap(DynamicSourceException& rhs) noexcept
+{
+	source_location_.swap(rhs.source_location_);
+	Utility::swap(control_block_, rhs.control_block_);
+}
 
-	auto result = std::string{};
-	result.reserve(message_size);
-
-	for (const auto& message : messages)
-	{
-		if (!result.empty())
-		{
-			result += '\n';
-		}
-
-		result += message;
-	}
-
-	return result;
+[[noreturn]] void DynamicSourceException::fail(const SourceLocation& source_location, const char* message)
+{
+	throw DynamicSourceException{source_location, message};
 }
 
 } // namespace bstone

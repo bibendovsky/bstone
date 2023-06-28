@@ -14,19 +14,6 @@ namespace bstone {
 
 namespace {
 
-class SdlSharedLibraryException : public Exception
-{
-public:
-	explicit SdlSharedLibraryException(const char* message) noexcept
-		:
-		Exception{"SDL_SHARED_LIBRARY", message}
-	{}
-
-	~SdlSharedLibraryException() override = default;
-};
-
-// ==========================================================================
-
 class SharedLibraryImpl
 {
 public:
@@ -34,23 +21,14 @@ public:
 	static void close(void* handle) noexcept;
 	static bool is_open(void* handle) noexcept;
 	static void* find_symbol(void* handle, const char* symbol_name) noexcept;
-
-private:
-	[[noreturn]] static void fail(const char* message);
-	[[noreturn]] static void fail_nested(const char* message);
 };
 
 // --------------------------------------------------------------------------
 
 void* SharedLibraryImpl::open(const char* path)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return sys::sdl_ensure_result(SDL_LoadObject(path));
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SharedLibraryImpl::close(void* handle) noexcept
 {
@@ -65,16 +43,6 @@ bool SharedLibraryImpl::is_open(void* handle) noexcept
 void* SharedLibraryImpl::find_symbol(void* handle, const char* symbol_name) noexcept
 {
 	return SDL_LoadFunction(handle, symbol_name);
-}
-
-[[noreturn]] void SharedLibraryImpl::fail(const char* message)
-{
-	throw SdlSharedLibraryException{message};
-}
-
-[[noreturn]] void SharedLibraryImpl::fail_nested(const char* message)
-{
-	std::throw_with_nested(SdlSharedLibraryException{message});
 }
 
 } // namespace

@@ -12,16 +12,11 @@ SPDX-License-Identifier: MIT
 #include <type_traits>
 #include "bstone_ascii.h"
 #include "bstone_enum_flags.h"
+#include "bstone_exception.h"
 #include "bstone_span.h"
 
 namespace bstone {
 namespace char_conv {
-
-namespace detail {
-
-[[noreturn]] void fail_nibble_to_hex_char(const char* message);
-
-} // namespace detail
 
 template<typename TChar, typename TNibble>
 inline constexpr TChar nibble_to_hex_char(TNibble nibble)
@@ -36,17 +31,11 @@ inline constexpr TChar nibble_to_hex_char(TNibble nibble)
 	}
 	else
 	{
-		detail::fail_nibble_to_hex_char("Nibble out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Nibble out of range.");
 	}
 }
 
 // ==========================================================================
-
-namespace detail {
-
-[[noreturn]] void fail_hex_char_to_byte(const char* message);
-
-} // namespace detail
 
 template<typename TByte, typename TChar = char>
 inline constexpr TByte hex_char_to_byte(TChar hex_char)
@@ -65,17 +54,11 @@ inline constexpr TByte hex_char_to_byte(TChar hex_char)
 	}
 	else
 	{
-		detail::fail_hex_char_to_byte("Invalid hex character.");
+		BSTONE_THROW_STATIC_SOURCE("Invalid hex character.");
 	}
 }
 
 // ==========================================================================
-
-namespace detail {
-
-[[noreturn]] void fail_hex_chars_to_bytes(const char* message);
-
-} // namespace detail
 
 template<typename TChar, typename TByte>
 inline constexpr IntP hex_chars_to_bytes(Span<TChar> chars, Span<TByte> bytes)
@@ -86,12 +69,12 @@ inline constexpr IntP hex_chars_to_bytes(Span<TChar> chars, Span<TByte> bytes)
 
 	if (byte_count < half_char_count)
 	{
-		detail::fail_hex_chars_to_bytes("Not enough bytes.");
+		BSTONE_THROW_STATIC_SOURCE("Not enough bytes.");
 	}
 
 	if ((half_char_count * 2) != char_count)
 	{
-		detail::fail_hex_chars_to_bytes("Invalid chararacter count.");
+		BSTONE_THROW_STATIC_SOURCE("Invalid chararacter count.");
 	}
 
 	auto char_index = decltype(char_count){};
@@ -117,12 +100,6 @@ inline constexpr IntP hex_chars_to_bytes(Span<TChar> chars, Span<TByte> bytes)
 
 // ==========================================================================
 
-namespace detail {
-
-[[noreturn]] void fail_bytes_to_hex_chars(const char* message);
-
-} // namespace detail
-
 template<typename TByte, typename TChar>
 inline constexpr IntP bytes_to_hex_chars(Span<TByte> bytes, Span<TChar> chars)
 {
@@ -131,7 +108,7 @@ inline constexpr IntP bytes_to_hex_chars(Span<TByte> bytes, Span<TChar> chars)
 
 	if (char_count < (byte_count * 2))
 	{
-		detail::fail_bytes_to_hex_chars("Not enough characters.");
+		BSTONE_THROW_STATIC_SOURCE("Not enough characters.");
 	}
 
 	auto byte_index = decltype(byte_count){};
@@ -187,8 +164,6 @@ BSTONE_ENABLE_ENUM_CLASS_BITWISE_OPS_FOR(ToCharsFormat)
 
 namespace detail {
 
-[[noreturn]] void fail_to_chars(const char* message);
-
 constexpr auto max_integral_bits = 64;
 constexpr auto max_integral_prefix_size = 2;
 
@@ -225,7 +200,7 @@ inline constexpr IntP to_chars(
 
 	if (base < char_conv_min_base || base > char_conv_max_base)
 	{
-		detail::fail_to_chars("Base out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Base out of range.");
 	}
 
 	constexpr auto not_enough_space_error_message = "Not enough space.";
@@ -242,7 +217,7 @@ inline constexpr IntP to_chars(
 	{
 		if (chars_it == chars_end)
 		{
-			detail::fail_to_chars(not_enough_space_error_message);
+			BSTONE_THROW_STATIC_SOURCE(not_enough_space_error_message);
 		}
 
 		const auto next_value = u_value / base;
@@ -267,7 +242,7 @@ inline constexpr IntP to_chars(
 			case 2:
 				if ((chars_it + 2) >= chars_end)
 				{
-					detail::fail_to_chars(not_enough_space_error_message);
+					BSTONE_THROW_STATIC_SOURCE(not_enough_space_error_message);
 				}
 
 				*(chars_it++) = (is_uppercase_prefix ? 'B' : 'b');
@@ -277,7 +252,7 @@ inline constexpr IntP to_chars(
 			case 8:
 				if (chars_it == chars_end)
 				{
-					detail::fail_to_chars(not_enough_space_error_message);
+					BSTONE_THROW_STATIC_SOURCE(not_enough_space_error_message);
 				}
 
 				*(chars_it++) = '0';
@@ -286,7 +261,7 @@ inline constexpr IntP to_chars(
 			case 16:
 				if ((chars_it + 2) >= chars_end)
 				{
-					detail::fail_to_chars(not_enough_space_error_message);
+					BSTONE_THROW_STATIC_SOURCE(not_enough_space_error_message);
 				}
 
 				*(chars_it++) = (is_uppercase_prefix ? 'X' : 'x');
@@ -313,7 +288,7 @@ inline constexpr IntP to_chars(
 	{
 		if (chars_it == chars_end)
 		{
-			detail::fail_to_chars(not_enough_space_error_message);
+			BSTONE_THROW_STATIC_SOURCE(not_enough_space_error_message);
 		}
 
 		*(chars_it++) = sign;
@@ -349,8 +324,6 @@ BSTONE_ENABLE_ENUM_CLASS_BITWISE_OPS_FOR(FromCharsFormat)
 
 namespace detail {
 
-[[noreturn]] void fail_from_chars(const char* message);
-
 template<typename T, typename TUnsigned>
 struct FromCharsIntegralFromUnsigned
 {
@@ -377,12 +350,12 @@ inline constexpr TValue from_chars(
 {
 	if (chars_span.is_empty())
 	{
-		detail::fail_from_chars("Empty character sequence.");
+		BSTONE_THROW_STATIC_SOURCE("Empty character sequence.");
 	}
 
 	if (base != 0 && (base < char_conv_min_base || base > char_conv_max_base))
 	{
-		detail::fail_from_chars("Base out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Base out of range.");
 	}
 
 	auto chars_it = chars_span.begin();
@@ -394,7 +367,7 @@ inline constexpr TValue from_chars(
 	{
 		if (!std::is_signed<TValue>::value)
 		{
-			detail::fail_from_chars("Negative value for unsigned type.");
+			BSTONE_THROW_STATIC_SOURCE("Negative value for unsigned type.");
 		}
 
 		has_minus_sign = true;
@@ -441,19 +414,19 @@ inline constexpr TValue from_chars(
 	{
 		if (detected_base == 0)
 		{
-			detail::fail_from_chars("Unable to detect a base.");
+			BSTONE_THROW_STATIC_SOURCE("Unable to detect a base.");
 		}
 
 		base = detected_base;
 	}
 	else if (detected_base != 0 && detected_base != base)
 	{
-		detail::fail_from_chars("Base mismatch.");
+		BSTONE_THROW_STATIC_SOURCE("Base mismatch.");
 	}
 
 	if (chars_it == chars_end)
 	{
-		detail::fail_from_chars("No digits.");
+		BSTONE_THROW_STATIC_SOURCE("No digits.");
 	}
 
 	const auto max_value = (
@@ -487,17 +460,17 @@ inline constexpr TValue from_chars(
 		}
 		else
 		{
-			detail::fail_from_chars("Invalid digit character.");
+			BSTONE_THROW_STATIC_SOURCE("Invalid digit character.");
 		}
 
 		if (digit >= base)
 		{
-			detail::fail_from_chars("Digit character out of range.");
+			BSTONE_THROW_STATIC_SOURCE("Digit character out of range.");
 		}
 
 		if (u_value > max_prev_u_value || (u_value == max_prev_u_value && digit > max_last_digit))
 		{
-			detail::fail_from_chars("Number overflow.");
+			BSTONE_THROW_STATIC_SOURCE("Number overflow.");
 		}
 
 		u_value *= base;

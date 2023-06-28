@@ -78,7 +78,7 @@ GlR3rVertexInputImplPool gl_r3r_vertex_input_impl_pool{};
 GlR3rVertexInputImpl::GlR3rVertexInputImpl(
 	GlR3rVertexInputMgr& vertex_input_manager,
 	const R3rCreateVertexInputParam& param)
-try
+BSTONE_BEGIN_CTOR_TRY
 	:
 	manager_{vertex_input_manager},
 	device_features_{vertex_input_manager.get_context().get_device_features()},
@@ -99,15 +99,14 @@ try
 
 	if (is_location_out_of_range)
 	{
-		BSTONE_STATIC_THROW("Location out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Location out of range.");
 	}
 
 	index_buffer_ = static_cast<GlR3rBuffer*>(param.index_buffer);
 	attrib_descrs_ = param.attrib_descrs;
 
 	initialize_vao();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rVertexInputImpl::~GlR3rVertexInputImpl()
 {
@@ -115,29 +114,23 @@ GlR3rVertexInputImpl::~GlR3rVertexInputImpl()
 }
 
 void* GlR3rVertexInputImpl::operator new(std::size_t size)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return gl_r3r_vertex_input_impl_pool.allocate(size);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rVertexInputImpl::operator delete(void* ptr)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	gl_r3r_vertex_input_impl_pool.deallocate(ptr);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rVertexInputImpl::bind_vao()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (vao_resource_.get() != 0U)
 	{
 		glBindVertexArray(vao_resource_.get());
 		GlR3rError::ensure_debug();
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rBuffer* GlR3rVertexInputImpl::get_index_buffer() const noexcept
 {
@@ -145,8 +138,7 @@ R3rBuffer* GlR3rVertexInputImpl::get_index_buffer() const noexcept
 }
 
 void GlR3rVertexInputImpl::bind()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (vao_resource_.get() != 0U)
 	{
 		bind_vao();
@@ -163,8 +155,7 @@ try
 	{
 		bind_internal();
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rVertexInputImpl::vao_deleter(GLuint gl_name) noexcept
 {
@@ -173,8 +164,7 @@ void GlR3rVertexInputImpl::vao_deleter(GLuint gl_name) noexcept
 }
 
 void GlR3rVertexInputImpl::initialize_vao()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (gl_device_features_.is_vao_available)
 	{
 		auto gl_name = GLuint{};
@@ -185,7 +175,7 @@ try
 
 		if (vao_resource_.get() == 0U)
 		{
-			BSTONE_STATIC_THROW("Failed to create VAO.");
+			BSTONE_THROW_STATIC_SOURCE("Failed to create VAO.");
 		}
 
 		bind_vao();
@@ -203,29 +193,23 @@ try
 			}
 		}
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rVertexInputImpl::enable_attrib_array(int index, bool is_enable)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	const auto gl_func = (is_enable ? glEnableVertexAttribArray : glDisableVertexAttribArray);
 	gl_func(index);
 	GlR3rError::ensure_debug();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rVertexInputImpl::assign_default_attribute(const R3rVertexAttribDescr& attribute_description)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	glVertexAttrib4fv(attribute_description.location, attribute_description.default_value.data());
 	GlR3rError::ensure_debug();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rVertexInputImpl::assign_regular_attribute(const R3rVertexAttribDescr& attribute_description)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	auto gl_component_count = GLint{};
 	auto gl_component_format = GLenum{};
 	auto gl_is_normalized = GLboolean{};
@@ -249,7 +233,7 @@ try
 			break;
 
 		default:
-			BSTONE_STATIC_THROW("Invalid format.");
+			BSTONE_THROW_STATIC_SOURCE("Invalid format.");
 	}
 
 	enable_attrib_array(attribute_description.location, true);
@@ -269,12 +253,10 @@ try
 		vertex_buffer_data);
 
 	GlR3rError::ensure_debug();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rVertexInputImpl::assign_attribute(const R3rVertexAttribDescr& attribute_description)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (attribute_description.is_default)
 	{
 		assign_default_attribute(attribute_description);
@@ -283,12 +265,10 @@ try
 	{
 		assign_regular_attribute(attribute_description);
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rVertexInputImpl::bind_internal()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (index_buffer_ != nullptr)
 	{
 		index_buffer_->set(true);
@@ -317,8 +297,7 @@ try
 			enable_attrib_array(i, false);
 		}
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // =========================================================================
 

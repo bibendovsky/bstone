@@ -17,52 +17,9 @@ SPDX-License-Identifier: MIT
 namespace bstone
 {
 
-
-namespace
-{
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-class ImageDecoderException :
-	public Exception
-{
-public:
-	explicit ImageDecoderException(
-		const char* message) noexcept
-		:
-		Exception{"IMAGE_DECODER", message}
-	{
-	}
-}; // ImageDecoderException
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-[[noreturn]]
-void fail(
-	const char* message)
-{
-	throw ImageDecoderException{message};
-}
-
-[[noreturn]]
-void fail_nested(
-	const char* message)
-{
-	std::throw_with_nested(ImageDecoderException{message});
-}
-
-
-} // namespace
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
 ImageDecodeUPtr make_image_decoder(
 	ImageDecoderType image_decoder_type)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	switch (image_decoder_type)
 	{
 		case ImageDecoderType::bmp:
@@ -72,15 +29,8 @@ try
 			return std::make_unique<StbImageDecoder>();
 
 		default:
-			fail("Unsupported image decoder type.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported image decoder type.");
 	}
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // bstone

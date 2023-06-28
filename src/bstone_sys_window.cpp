@@ -11,102 +11,74 @@ namespace bstone {
 namespace sys {
 
 const char* Window::get_title()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_get_title();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void Window::set_title(const char* title)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_set_title(title);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 WindowPosition Window::get_position()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_get_position();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void Window::set_position(WindowPosition position)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_set_position(position);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void Window::center()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_set_position(WindowPosition{window_position_centered, window_position_centered});
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 WindowSize Window::get_size()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_get_size();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void Window::set_size(WindowSize size)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_set_size(size);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void Window::show(bool is_visible)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_show(is_visible);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool Window::is_fake_fullscreen()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_is_fake_fullscreen();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void Window::set_fake_fullscreen(bool is_fake_fullscreen)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_set_fake_fullscreen(is_fake_fullscreen);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlContextUPtr Window::make_gl_context()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_make_gl_context();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 WindowSize Window::gl_get_drawable_size()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_gl_get_drawable_size();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void Window::gl_swap_buffers()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_gl_swap_buffers();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 RendererUPtr Window::make_renderer(const RendererInitParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_make_renderer(param);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace sys
 } // namespace bstone

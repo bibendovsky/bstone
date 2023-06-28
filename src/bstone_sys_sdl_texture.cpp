@@ -68,7 +68,7 @@ SdlTexturePool sdl_texture_pool{};
 // ==========================================================================
 
 SdlTexture::SdlTexture(Logger& logger, SDL_Renderer& sdl_renderer, const TextureInitParam& param)
-try
+BSTONE_BEGIN_CTOR_TRY
 	:
 	logger_{logger},
 	sdl_renderer_{sdl_renderer}
@@ -82,97 +82,78 @@ try
 		sdl_access,
 		param.width,
 		param.height))};
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 SdlTexture::~SdlTexture()
 {
 }
 
 void* SdlTexture::operator new(std::size_t size)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return sdl_texture_pool.allocate(size);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlTexture::operator delete(void* ptr)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	sdl_texture_pool.deallocate(ptr);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlTexture::do_set_blend_mode(TextureBlendMode blend_mode)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	const auto sdl_blend_mode = map_blend_mode(blend_mode);
 	sdl_ensure_result(SDL_SetTextureBlendMode(sdl_texture_.get(), sdl_blend_mode));
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlTexture::do_copy(const R2RectI* texture_rect, const R2RectI* target_rect)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	sdl_ensure_result(SDL_RenderCopy(
 		&sdl_renderer_,
 		sdl_texture_.get(),
 		reinterpret_cast<const SDL_Rect*>(texture_rect),
 		reinterpret_cast<const SDL_Rect*>(target_rect)));
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 TextureLockUPtr SdlTexture::do_make_lock(const R2RectI* rect)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return make_sdl_texture_lock(*sdl_texture_, rect);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 SDL_BlendMode SdlTexture::map_blend_mode(TextureBlendMode blend_mode)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	switch (blend_mode)
 	{
 		case TextureBlendMode::none: return SDL_BLENDMODE_NONE;
 		case TextureBlendMode::blend: return SDL_BLENDMODE_BLEND;
-		default: BSTONE_STATIC_THROW("Unknown blend mode.");
+		default: BSTONE_THROW_STATIC_SOURCE("Unknown blend mode.");
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 SDL_PixelFormatEnum SdlTexture::map_pixel_format(PixelFormat pixel_format)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	switch (pixel_format)
 	{
 		case PixelFormat::a8r8g8b8: return SDL_PIXELFORMAT_ARGB8888;
-		default: BSTONE_STATIC_THROW("Unknown pixel format.");
+		default: BSTONE_THROW_STATIC_SOURCE("Unknown pixel format.");
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 SDL_TextureAccess SdlTexture::map_access(TextureAccess texture_access)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	switch (texture_access)
 	{
 		case TextureAccess::streaming: return SDL_TEXTUREACCESS_STREAMING;
-		default: BSTONE_STATIC_THROW("Unknown access.");
+		default: BSTONE_THROW_STATIC_SOURCE("Unknown access.");
 	}
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace
 
 // ==========================================================================
 
 TextureUPtr make_sdl_texture(Logger& logger, SDL_Renderer& sdl_renderer, const TextureInitParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return std::make_unique<SdlTexture>(logger, sdl_renderer, param);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace sys
 } // namespace bstone

@@ -13,8 +13,6 @@ SPDX-License-Identifier: MIT
 
 #include <memory>
 
-#include "bstone_exception.h"
-
 
 namespace bstone
 {
@@ -22,15 +20,6 @@ namespace bstone
 
 class Stream;
 using StreamPtr = Stream*;
-
-
-class ArchiverException :
-	public Exception
-{
-public:
-	explicit ArchiverException(
-		const char* message) noexcept;
-}; // ArchiverException
 
 
 class Archiver
@@ -163,11 +152,6 @@ using ArchiverUPtr = std::unique_ptr<Archiver>;
 
 
 ArchiverUPtr make_archiver();
-
-
-[[noreturn]]
-void archiver_fail(
-	const char* message);
 
 
 } // bstone

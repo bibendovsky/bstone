@@ -29,6 +29,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_endian.h"
 #include "bstone_entry_point.h"
 #include "bstone_exception.h"
+#include "bstone_exception_utils.h"
 #include "bstone_file_system.h"
 #include "bstone_globals.h"
 #include "bstone_logger.h"
@@ -60,33 +61,12 @@ struct CycleInfo
 }; // CycleInfo
 
 
-class MainException :
-	public bstone::Exception
-{
-public:
-	explicit MainException(
-		const char* message) noexcept
-		:
-		bstone::Exception{"MAIN", message}
-	{
-	}
-}; // MainException
-
-
 [[noreturn]]
 void fail(
 	const char* message)
 {
-	throw MainException{message};
+	BSTONE_THROW_DYNAMIC_SOURCE(message);
 }
-
-[[noreturn]]
-void fail_nested(
-	const char* message)
-{
-	std::throw_with_nested(MainException{message});
-}
-
 
 } // namespace
 
@@ -7057,8 +7037,7 @@ bstone::MemoryStream g_playtemp;
 static bool is_config_loaded = false;
 
 static const std::string& get_score_file_name()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	static auto file_name = std::string{};
 	static auto is_initialized = false;
 
@@ -7091,11 +7070,7 @@ try
 	}
 
 	return file_name;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 static void set_default_high_scores()
 {
@@ -7143,7 +7118,7 @@ void read_high_scores()
 
 			archiver->read_checksum();
 		}
-		catch (const bstone::ArchiverException& ex)
+		catch (const std::exception& ex)
 		{
 			is_succeed = false;
 
@@ -7207,7 +7182,7 @@ static void write_high_scores()
 
 		bstone::file_system::rename(tmp_scores_path, scores_path);
 	}
-	catch (const bstone::Exception& ex)
+	catch (const std::exception& ex)
 	{
 		bstone::logger_->write_error("Failed to archive high scores data." + std::string{ex.what()});
 	}
@@ -7288,15 +7263,6 @@ private:
 	Views views_{};
 	bstone::IntP capacity_delta_{};
 	bstone::IntP size_{};
-};
-
-class ConfigLineParserException : public bstone::Exception
-{
-public:
-	explicit ConfigLineParserException(const char* message) noexcept
-		:
-		bstone::Exception{"BSTONE_CONFIG_LINE_PARSER", message}
-	{}
 };
 
 class ConfigLineParser
@@ -7396,11 +7362,6 @@ private:
 	std::string string_{};
 
 private:
-	[[noreturn]] static void fail(const char* message)
-	{
-		throw ConfigLineParserException{message};
-	}
-
 	[[noreturn]] void fail_line_and_column(const char* message)
 	{
 		char line_buffer[max_number_digits];
@@ -7416,7 +7377,7 @@ private:
 		message_buffer.append(column_buffer, static_cast<std::size_t>(column_size));
 		message_buffer += "] ";
 		message_buffer += message;
-		throw ConfigLineParserException{message_buffer.c_str()};
+		BSTONE_THROW_DYNAMIC_SOURCE(message_buffer.c_str());
 	}
 
 private:
@@ -7613,8 +7574,7 @@ void set_config_defaults()
 }
 
 bool try_deserialize_cvar(bstone::Span<const bstone::StringView> tokens)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	if (tokens.get_size() != 2)
 	{
 		return false;
@@ -7629,11 +7589,7 @@ try
 
 	cvar->set_string(tokens[1]);
 	return true;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool try_deserialize_ccmd(bstone::Span<const bstone::StringView> tokens)
 try
@@ -7772,15 +7728,6 @@ void cfg_file_write_entry(
 namespace
 {
 
-class ConfigArgNormalizeException : public bstone::Exception
-{
-public:
-	explicit ConfigArgNormalizeException(const char* message) noexcept
-		:
-		bstone::Exception{"BSTONE_CONFIG_ARG_NORMALIZE", message}
-	{}
-};
-
 void cfg_escape_argument(bstone::StringView src_arg, std::string& dst_arg)
 {
 	dst_arg.clear();
@@ -7790,13 +7737,13 @@ void cfg_escape_argument(bstone::StringView src_arg, std::string& dst_arg)
 	{
 		if (ch < ' ')
 		{
-			throw ConfigArgNormalizeException{"Control character not allowed."};
+			BSTONE_THROW_STATIC_SOURCE("Control character not allowed.");
 		}
 
 		switch (ch)
 		{
 			case '"':
-				throw ConfigArgNormalizeException{"Double quotes not allowed."};
+				BSTONE_THROW_STATIC_SOURCE("Double quotes not allowed.");
 
 			case '\\':
 				dst_arg += "\\\\";
@@ -8215,8 +8162,7 @@ std::int8_t LS_total = -1;
 
 bool LoadLevel(
 	int level_index)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	extern bool ForceLoadDefault;
 
 	bool oldloaded = loadedgame;
@@ -8407,7 +8353,7 @@ try
 
 		if (actor_count < 1 || actor_count >= MAXACTORS)
 		{
-			bstone::archiver_fail("Actor count out of range.");
+			BSTONE_THROW_STATIC_SOURCE("Actor count out of range.");
 		}
 
 		InitActorList();
@@ -8626,16 +8572,11 @@ try
 	}
 
 	return is_succeed;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool SaveLevel(
 	int level_index)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	WindowY = 181;
 
 	// Make sure floor stats are saved!
@@ -8757,7 +8698,7 @@ try
 
 				if (value < -32'768 || value > 32'767)
 				{
-					bstone::archiver_fail("'actorat' value out of range.");
+					BSTONE_THROW_STATIC_SOURCE("'actorat' value out of range.");
 				}
 
 				archiver->write_int16(static_cast<std::int16_t>(value));
@@ -8918,11 +8859,7 @@ try
 	NewViewSize();
 
 	return true;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int DeleteChunk(
 	bstone::MemoryStream& stream,
@@ -8944,8 +8881,7 @@ int DeleteChunk(
 }
 
 static const std::string& get_saved_game_version_string()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	static auto version_string = std::string{};
 	static auto is_initialized = false;
 
@@ -8982,11 +8918,7 @@ try
 	}
 
 	return version_string;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 static bool LoadCompressedChunk(
 	const std::string& chunk_name,
@@ -9041,7 +8973,7 @@ static bool LoadCompressedChunk(
 			return false;
 		}
 	}
-	catch (const bstone::ArchiverException& ex)
+	catch (const std::exception& ex)
 	{
 		bstone::logger_->write_error("LOAD: Failed to unarchive \"" + chunk_name + "\". " + std::string{ex.what()});
 
@@ -9053,8 +8985,7 @@ static bool LoadCompressedChunk(
 
 bool LoadTheGame(
 	const std::string& file_name)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	bool is_succeed = true;
 
 	auto file_stream = bstone::FileStream{file_name};
@@ -9115,7 +9046,7 @@ try
 				bstone::logger_->write_error("LOAD: Invalid version.");
 			}
 		}
-		catch (const bstone::ArchiverException&)
+		catch (const std::exception&)
 		{
 			is_succeed = false;
 
@@ -9174,7 +9105,7 @@ try
 			if (assets_info.get_levels_hash_string() != levels_hash_string)
 			{
 				bstone::logger_->write_error("LOAD: Levels hash mismatch.");
-				bstone::archiver_fail("Levels hash mismatch.");
+				BSTONE_THROW_STATIC_SOURCE("Levels hash mismatch.");
 			}
 
 			gamestate.unarchive(archiver.get());
@@ -9185,7 +9116,7 @@ try
 
 			archiver->read_checksum();
 		}
-		catch (const bstone::ArchiverException& ex)
+		catch (const std::exception& ex)
 		{
 			is_succeed = false;
 
@@ -9290,11 +9221,7 @@ try
 	}
 
 	return is_succeed;
-}
-catch (...)
-{
-	fail_nested(__func__);
-}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool SaveTheGame(
 	const std::string& file_name,
@@ -9349,7 +9276,7 @@ bool SaveTheGame(
 
 		head_stream.set_position(0);
 	}
-	catch (const bstone::ArchiverException& ex)
+	catch (const std::exception& ex)
 	{
 		bstone::logger_->write_error("SAVE: Failed to serialize HEAD chunk. " + std::string{ex.what()});
 
@@ -9432,7 +9359,7 @@ bool SaveTheGame(
 		file_stream.close();
 		bstone::file_system::rename(tmp_file_name, file_name);
 	}
-	catch (const bstone::ArchiverException& ex)
+	catch (const std::exception& ex)
 	{
 		bstone::logger_->write_error("SAVE: Failed to write data. " + std::string{ex.what()});
 
@@ -9772,13 +9699,6 @@ void pre_quit()
 	}
 
 	ShutdownId();
-}
-
-[[noreturn]]
-void fail(
-	const std::string& message)
-{
-	throw MainException{message.c_str()};
 }
 
 [[noreturn]]

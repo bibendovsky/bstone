@@ -42,11 +42,9 @@ sys::Window& R3r::get_window() const noexcept
 }
 
 void R3r::handle_resize(sys::WindowSize new_size)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_handle_resize(new_size);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool R3r::get_vsync() const noexcept
 {
@@ -54,83 +52,61 @@ bool R3r::get_vsync() const noexcept
 }
 
 void R3r::enable_vsync(bool is_enabled)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_enable_vsync(is_enabled);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3r::set_anti_aliasing(R3rAaType aa_type, int aa_value)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_set_anti_aliasing(aa_type, aa_value);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3r::read_pixels(
 	sys::PixelFormat pixel_format,
 	void* buffer,
 	bool& is_flipped_vertically)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_read_pixels(pixel_format, buffer, is_flipped_vertically);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3r::present()
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	do_present();
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rBufferUPtr R3r::create_buffer(const R3rBufferInitParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_create_buffer(param);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rR2TextureUPtr R3r::create_r2_texture(const R3rR2TextureInitParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_create_r2_texture(param);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSamplerUPtr R3r::create_sampler(const R3rSamplerInitParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_create_sampler(param);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rVertexInputUPtr R3r::create_vertex_input(const R3rCreateVertexInputParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_create_vertex_input(param);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rShaderUPtr R3r::create_shader(const R3rShaderInitParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_create_shader(param);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rShaderStageUPtr R3r::create_shader_stage(const R3rShaderStageInitParam& param)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_create_shader_stage(param);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3r::submit_commands(Span<R3rCmdBuffer*> command_buffers)
-try
-{
+BSTONE_BEGIN_FUNC_TRY
 	return do_submit_commands(command_buffers);
-}
-BSTONE_STATIC_THROW_NESTED_FUNC
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace bstone

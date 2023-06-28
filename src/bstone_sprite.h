@@ -93,15 +93,6 @@ private:
 	int bottom_;
 
 	Image image_;
-
-
-	[[noreturn]]
-	static void fail(
-		const char* message);
-
-	[[noreturn]]
-	static void fail_nested(
-		const char* message);
 }; // Sprite
 
 using SpritePtr = Sprite*;

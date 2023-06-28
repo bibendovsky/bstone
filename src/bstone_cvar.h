@@ -117,9 +117,7 @@ private:
 	CVarString string_value_{};
 
 private:
-	[[noreturn]] static void fail(const char* message);
 	[[noreturn]] static void fail_unknown_type();
-	[[noreturn]] static void fail_nested(const char* message);
 
 private:
 	CVar(

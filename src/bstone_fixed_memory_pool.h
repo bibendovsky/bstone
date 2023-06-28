@@ -60,7 +60,7 @@ FixedMemoryPool<T, TMaxSize>::~FixedMemoryPool()
 {
 	if (!bitmap_.is_empty())
 	{
-		BSTONE_STATIC_THROW("Unallocated pool.");
+		BSTONE_THROW_STATIC_SOURCE("Unallocated pool.");
 	}
 }
 
@@ -75,7 +75,7 @@ void* FixedMemoryPool<T, TMaxSize>::do_allocate(std::size_t size)
 {
 	if (size != value_size)
 	{
-		BSTONE_STATIC_THROW("Allocation size mismatch.");
+		BSTONE_THROW_STATIC_SOURCE("Allocation size mismatch.");
 	}
 
 	const auto index = bitmap_.set_first_free();
