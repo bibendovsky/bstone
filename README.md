@@ -465,7 +465,11 @@ CMake variables:
   Enables more compilation warnings.
 
 * `BSTONE_TESTS`  
-  Builds an application to test internal facility.  
+  Builds and installs an application to test internal facility.  
+  Default value: OFF
+
+* `BSTONE_TRIM_FILE_PATHS_IN_EXE`  
+  Makes file paths in the executable relative to the source code directory.  
   Default value: OFF
 
 * `SDL2W_SDL2_DIR`  

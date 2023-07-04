@@ -56,7 +56,4 @@ target_sources(${PROJECT_NAME}
 		src/bstone_tests.cpp
 )
 
-install(
-	TARGETS ${PROJECT_NAME}
-	RUNTIME DESTINATION "."
-)
+install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ".")

@@ -72,8 +72,21 @@ add_custom_command(
 	TARGET ${PROJECT_NAME}
 	POST_BUILD
 	COMMAND $<$<CONFIG:RELEASE>:${CMAKE_STRIP}> $<$<CONFIG:RELEASE>:$<TARGET_FILE:${PROJECT_NAME}>>
-	VERBATIM)
+	VERBATIM
+)
 
+if (BSTONE_TRIM_FILE_PATHS_IN_EXE)
+	add_dependencies(${PROJECT_NAME} bstone_ltrimcs)
+
+	add_custom_command(
+		TARGET ${PROJECT_NAME} POST_BUILD
+		COMMAND
+			$<TARGET_FILE:bstone_ltrimcs>
+				$<SHELL_PATH:$<TARGET_FILE:${PROJECT_NAME}>>
+				$<SHELL_PATH:${PROJECT_SOURCE_DIR}/>
+		VERBATIM
+	)
+endif ()
 
 #
 # Configure files.
