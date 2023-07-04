@@ -15,7 +15,7 @@ A vector
 #include <cassert>
 #include <cmath>
 #include "bstone_int.h"
-#include "bstone_type_traits.h"
+#include "bstone_utility.h"
 
 namespace bstone {
 namespace cgm {
@@ -48,7 +48,7 @@ public:
 
 	constexpr Item& operator[](IntP index)
 	{
-		return const_cast<Item&>(type_traits::as_const(*this)[index]);
+		return const_cast<Item&>(Utility::as_const(*this)[index]);
 	}
 
 	constexpr Item get_magnitude() const
@@ -87,7 +87,7 @@ public:
 
 	constexpr Item& operator[](IntP index)
 	{
-		return const_cast<Item&>(type_traits::as_const(*this)[index]);
+		return const_cast<Item&>(Utility::as_const(*this)[index]);
 	}
 
 	constexpr Item get_magnitude() const
@@ -126,7 +126,7 @@ public:
 
 	constexpr Item& operator[](IntP index)
 	{
-		return const_cast<Item&>(type_traits::as_const(*this)[index]);
+		return const_cast<Item&>(Utility::as_const(*this)[index]);
 	}
 
 	constexpr Item get_magnitude() const

@@ -84,7 +84,7 @@ public:
 
 	constexpr Item& get_front()
 	{
-		return const_cast<Item&>(type_traits::as_const(*this).get_front());
+		return const_cast<Item&>(Utility::as_const(*this).get_front());
 	}
 
 	constexpr const Item& get_back() const
@@ -96,7 +96,7 @@ public:
 
 	constexpr Item& get_back()
 	{
-		return const_cast<Item&>(type_traits::as_const(*this).get_back());
+		return const_cast<Item&>(Utility::as_const(*this).get_back());
 	}
 
 	constexpr Span get_subspan(IntP offset, IntP size) const

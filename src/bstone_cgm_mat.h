@@ -13,9 +13,8 @@ Column-major matrix
 #define BSTONE_CGM_MAT_INCLUDED
 
 #include <cassert>
-#include <type_traits>
 #include "bstone_int.h"
-#include "bstone_type_traits.h"
+#include "bstone_utility.h"
 
 namespace bstone {
 namespace cgm {
@@ -52,7 +51,7 @@ public:
 
 	Item& operator[](IntP index)
 	{
-		return const_cast<Item&>(type_traits::as_const(*this)[index]);
+		return const_cast<Item&>(Utility::as_const(*this)[index]);
 	}
 
 private:

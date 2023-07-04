@@ -36,6 +36,14 @@ public:
 			swap(lhs[i], rhs[i]);
 		}
 	}
+
+	// ======================================================================
+
+	template<typename T>
+	static constexpr std::add_const_t<T>& as_const(T& x) noexcept;
+
+	template<typename T>
+	static void as_const(const T&&) = delete;
 };
 
 // --------------------------------------------------------------------------
@@ -62,6 +70,14 @@ constexpr TRhsIter Utility::swap_ranges(TLshIter lhs_begin, TLshIter lhs_end, TR
 	}
 
 	return rhs_begin;
+}
+
+// ======================================================================
+
+template<typename T>
+constexpr std::add_const_t<T>& Utility::as_const(T& x) noexcept
+{
+	return x;
 }
 
 } // namespace bstone
