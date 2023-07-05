@@ -42,6 +42,8 @@ target_sources(${PROJECT_NAME}
 		../bstone_int.h
 		../bstone_source_location.cpp
 		../bstone_source_location.h
+		../bstone_span.cpp
+		../bstone_span.h
 		../bstone_utility.cpp
 		../bstone_utility.h
 	PRIVATE
@@ -49,6 +51,7 @@ target_sources(${PROJECT_NAME}
 		src/bstone_tests_exception.cpp
 		src/bstone_tests_int.cpp
 		src/bstone_tests_source_location.cpp
+		src/bstone_tests_span.cpp
 		src/bstone_tests_utility.cpp
 	PRIVATE
 		src/bstone_tester.cpp

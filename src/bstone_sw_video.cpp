@@ -388,11 +388,11 @@ BSTONE_BEGIN_FUNC_TRY
 
 		if (is_hud)
 		{
-			fill_rects(make_span(filler_hud_rects_.data(), static_cast<IntP>(filler_hud_rects_.size())).to_const());
+			fill_rects(as_const(make_span(filler_hud_rects_.data(), static_cast<IntP>(filler_hud_rects_.size()))));
 		}
 		else
 		{
-			fill_rects(make_span(filler_ui_rects_.data(), static_cast<IntP>(filler_ui_rects_.size())).to_const());
+			fill_rects(as_const(make_span(filler_ui_rects_.data(), static_cast<IntP>(filler_ui_rects_.size()))));
 		}
 	}
 

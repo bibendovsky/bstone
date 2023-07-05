@@ -296,6 +296,8 @@ target_sources(
 		bstone_utility.h
 		bstone_source_location.cpp
 		bstone_source_location.h
+		bstone_span.cpp
+		bstone_span.h
 )
 
 target_sources(
@@ -462,7 +464,6 @@ target_sources(
 		bstone_scope_guard.h
 		bstone_sha1.h
 		bstone_single_memory_pool.h
-		bstone_span.h
 		bstone_spinlock.h
 		bstone_sprite.h
 		bstone_sprite_cache.h

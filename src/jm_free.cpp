@@ -465,7 +465,7 @@ const FoundContent* choose_content(
 	descriptor.type = bstone::sys::MessageBoxType::information;
 	descriptor.title = get_message_box_title().c_str();
 	descriptor.message = "Select content to play.";
-	descriptor.buttons = bstone::make_span(buttons.data(), static_cast<bstone::IntP>(buttons.size())).to_const();
+	descriptor.buttons = bstone::make_const_span(buttons.data(), static_cast<bstone::IntP>(buttons.size()));
 
 	bstone::logger_->write("Waiting for user response.");
 	const auto selected_button_id = bstone::sys::show_message_box(descriptor);
