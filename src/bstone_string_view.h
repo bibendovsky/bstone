@@ -36,7 +36,7 @@ public:
 	constexpr StringViewT(const TChar* chars)
 		:
 		chars_{chars},
-		size_{CharTraits::get_size(chars)}
+		size_{char_traits::get_size(chars)}
 	{}
 
 	constexpr const TChar* get_data() const noexcept
@@ -92,7 +92,7 @@ public:
 
 	constexpr int compare(StringViewT rhs) const noexcept
 	{
-		return CharTraits::compare(get_data(), get_size(), rhs.get_data(), rhs.get_size());
+		return char_traits::compare(get_data(), get_size(), rhs.get_data(), rhs.get_size());
 	}
 
 	constexpr bool starts_with(StringViewT substring) const noexcept

@@ -14,21 +14,10 @@ SPDX-License-Identifier: MIT
 #include "bstone_int.h"
 
 namespace bstone {
-
-class CharTraits
-{
-public:
-	template<typename TChar>
-	static constexpr IntP get_size(const TChar* chars);
-
-	template<typename TChar>
-	static constexpr int compare(const TChar* lhs_chars, IntP lhs_size, const TChar* rhs_chars, IntP rhs_size);
-};
-
-// --------------------------------------------------------------------------
+namespace char_traits {
 
 template<typename TChar>
-constexpr IntP CharTraits::get_size(const TChar* chars)
+inline constexpr IntP get_size(const TChar* chars)
 {
 	assert(chars != nullptr);
 
@@ -43,10 +32,10 @@ constexpr IntP CharTraits::get_size(const TChar* chars)
 }
 
 template<typename TChar>
-constexpr int CharTraits::compare(const TChar* lhs_chars, IntP lhs_size, const TChar* rhs_chars, IntP rhs_size)
+inline constexpr int compare(const TChar* lhs_chars, IntP lhs_size, const TChar* rhs_chars, IntP rhs_size)
 {
-	assert(lhs_chars != nullptr);
-	assert(rhs_chars != nullptr);
+	assert((lhs_chars == nullptr && lhs_size == 0) || (lhs_chars != nullptr && lhs_size >= 0));
+	assert((rhs_chars == nullptr && rhs_size == 0) || (rhs_chars != nullptr && rhs_size >= 0));
 
 	const auto size = lhs_size < rhs_size ? lhs_size : rhs_size;
 
@@ -79,6 +68,7 @@ constexpr int CharTraits::compare(const TChar* lhs_chars, IntP lhs_size, const T
 	}
 }
 
+} // namespace char_traits
 } // namespace bstone
 
 #endif // BSTONE_CHAR_TRAITS_INCLUDED

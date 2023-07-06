@@ -29,7 +29,7 @@ public:
 	constexpr ZStringViewT(const TChar* chars)
 		:
 		chars_{chars},
-		size_{CharTraits::get_size(chars)}
+		size_{char_traits::get_size(chars)}
 	{}
 
 	constexpr const TChar* get_data() const noexcept
@@ -75,7 +75,7 @@ public:
 
 	constexpr int compare(ZStringViewT rhs) const noexcept
 	{
-		return CharTraits::compare(get_data(), get_size(), rhs.get_data(), rhs.get_size());
+		return char_traits::compare(get_data(), get_size(), rhs.get_data(), rhs.get_size());
 	}
 
 	constexpr void swap(ZStringViewT& rhs) noexcept

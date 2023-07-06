@@ -29,15 +29,15 @@ void extract_exception_messages(ExceptionMessages& messages)
 		{
 			const auto& source_location = exception.get_source_location();
 			const auto file_name = source_location.get_file_name();
-			const auto file_name_size = CharTraits::get_size(file_name);
+			const auto file_name_size = char_traits::get_size(file_name);
 
 			const auto source_line = source_location.get_line();
 
 			const auto function_name = source_location.get_function_name();
-			const auto function_name_size = CharTraits::get_size(function_name);
+			const auto function_name_size = char_traits::get_size(function_name);
 
 			const auto what = exception.what();
-			const auto what_size = CharTraits::get_size(what);
+			const auto what_size = char_traits::get_size(what);
 
 			auto error_message = std::string{};
 			error_message.reserve(file_name_size + function_name_size + what_size + 64);

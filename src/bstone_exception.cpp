@@ -85,7 +85,7 @@ DynamicSourceException::DynamicSourceException(const SourceLocation& source_loca
 		return;
 	}
 
-	const auto message_size_with_null = CharTraits::get_size(message) + 1;
+	const auto message_size_with_null = char_traits::get_size(message) + 1;
 	const auto control_block_size = static_cast<IntP>(sizeof(ControlBlock));
 	const auto storage_size = control_block_size + message_size_with_null;
 	auto storage = std::make_unique<char[]>(storage_size);
