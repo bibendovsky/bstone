@@ -10,6 +10,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "audio.h"
 #include "id_ca.h"
 #include "id_heads.h"
+#include "bstone_algorithm.h"
 #include "bstone_audio_content_mgr.h"
 #include "bstone_audio_mixer.h"
 #include "bstone_audio_mixer_utils.h"
@@ -717,11 +718,11 @@ void sd_calculate_w3d_indices(
 
 	const auto xt_c = gx * sd_viewcos_;
 	const auto yt_s = gy * sd_viewsin_;
-	const auto x = bstone::math::clamp(std::abs(static_cast<int>(xt_c - yt_s)), 0, ATABLEMAX - 1);
+	const auto x = bstone::algorithm::clamp(std::abs(static_cast<int>(xt_c - yt_s)), 0, ATABLEMAX - 1);
 
 	const auto xt_s = gx * sd_viewsin_;
 	const auto yt_c = gy * sd_viewcos_;
-	const auto y = bstone::math::clamp(static_cast<int>(yt_c + xt_s), -ATABLEMAX, ATABLEMAX - 1);
+	const auto y = bstone::algorithm::clamp(static_cast<int>(yt_c + xt_s), -ATABLEMAX, ATABLEMAX - 1);
 
 	w3d_left_index = lefttable[x][y + ATABLEMAX];
 	w3d_right_index = righttable[x][y + ATABLEMAX];
@@ -1259,7 +1260,7 @@ void sd_set_sfx_volume()
 	}
 
 	const auto volume = (sd_is_sound_enabled() ? sd_get_sfx_volume() : sd_min_volume);
-	const auto clamped_volume = bstone::math::clamp(volume, sd_min_volume, sd_max_volume);
+	const auto clamped_volume = bstone::algorithm::clamp(volume, sd_min_volume, sd_max_volume);
 	const auto gain = static_cast<double>(clamped_volume) / static_cast<double>(sd_max_volume);
 	sd_ui_sfx_voice_group_->set_gain(gain);
 	sd_scene_sfx_voice_group_->set_gain(gain);
@@ -1283,7 +1284,7 @@ void sd_set_music_volume()
 	}
 
 	const auto volume = (sd_is_music_enabled() ? sd_get_music_volume() : sd_min_volume);
-	const auto clamped_volume = bstone::math::clamp(volume, sd_min_volume, sd_max_volume);
+	const auto clamped_volume = bstone::algorithm::clamp(volume, sd_min_volume, sd_max_volume);
 	const auto gain = static_cast<double>(clamped_volume) / static_cast<double>(sd_max_volume);
 	sd_music_voice_group_->set_gain(gain);
 }

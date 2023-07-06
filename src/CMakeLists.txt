@@ -298,6 +298,8 @@ target_sources(
 		bstone_source_location.h
 		bstone_span.cpp
 		bstone_span.h
+		bstone_algorithm.cpp
+		bstone_algorithm.h
 )
 
 target_sources(
@@ -379,7 +381,6 @@ target_sources(
 		bstone_adlib_decoder.h
 		bstone_adlib_music_decoder.h
 		bstone_adlib_sfx_decoder.h
-		bstone_algorithm.h
 		bstone_allocator_bitmap.h
 		bstone_archiver.h
 		bstone_ascii.h

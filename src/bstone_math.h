@@ -62,12 +62,6 @@ inline T gcd(T a, T b) noexcept
 	}
 }
 
-template<typename T>
-constexpr const T& clamp(const T& value, const T& min_value, const T& max_value) noexcept
-{
-	return (value < min_value) ? min_value : ((value > max_value) ? max_value : value);
-}
-
 } // math
 } // bstone
 

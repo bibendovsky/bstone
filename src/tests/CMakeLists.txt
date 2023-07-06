@@ -46,7 +46,10 @@ target_sources(${PROJECT_NAME}
 		../bstone_span.h
 		../bstone_utility.cpp
 		../bstone_utility.h
+		../bstone_algorithm.cpp
+		../bstone_algorithm.h
 	PRIVATE
+		src/bstone_tests_algorithm.cpp
 		src/bstone_tests_char_traits.cpp
 		src/bstone_tests_exception.cpp
 		src/bstone_tests_int.cpp
