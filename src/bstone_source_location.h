@@ -47,9 +47,9 @@ constexpr const char* SourceLocation::get_function_name() const noexcept
 
 constexpr void SourceLocation::swap(SourceLocation& rhs) noexcept
 {
-	Utility::swap(line_, rhs.line_);
-	Utility::swap(file_name_, rhs.file_name_);
-	Utility::swap(function_name_, rhs.function_name_);
+	bstone::swop(line_, rhs.line_);
+	bstone::swop(file_name_, rhs.file_name_);
+	bstone::swop(function_name_, rhs.function_name_);
 }
 
 // ==========================================================================

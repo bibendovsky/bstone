@@ -15,7 +15,7 @@ void test_dirxqh5kufqeux2t()
 	constexpr auto reference_2 = 67890;
 	auto a = reference_1;
 	auto b = reference_2;
-	bstone::Utility::swap(a, b);
+	bstone::swop(a, b);
 	tester.check(a == reference_2 && b == reference_1);
 }
 
@@ -25,7 +25,7 @@ void test_opzs9oj70deyvo2i()
 	int a[4] = {1, 2, 3, 4};
 	int b[4] = {5, 6, 7, 8};
 
-	bstone::Utility::swap_ranges(a, a + 4, b);
+	bstone::swop_ranges(a, a + 4, b);
 
 	tester.check(
 		a[0] == 5 && b[0] == 1 &&
@@ -40,7 +40,7 @@ void test_cxf6khrb1efyd20l()
 	int a[4] = {1, 2, 3, 4};
 	int b[4] = {5, 6, 7, 8};
 
-	bstone::Utility::swap(a, b);
+	bstone::swop(a, b);
 
 	tester.check(
 		a[0] == 5 && b[0] == 1 &&
@@ -51,20 +51,35 @@ void test_cxf6khrb1efyd20l()
 
 // ==========================================================================
 
+void test_zb0b1ipzmya72nqc()
+{
+	auto x = 1;
+	const auto xc = bstone::as_const(x);
+	tester.check(xc == x);
+}
+
+// ==========================================================================
+
 class Registrator
 {
 public:
 	Registrator()
 	{
 		register_swap();
+		register_as_const();
 	}
 
 private:
 	void register_swap()
 	{
-		tester.register_test("Utility::swap#dirxqh5kufqeux2t", test_dirxqh5kufqeux2t);
-		tester.register_test("Utility::swap_ranges#opzs9oj70deyvo2i", test_opzs9oj70deyvo2i);
-		tester.register_test("Utility::swap#cxf6khrb1efyd20l", test_cxf6khrb1efyd20l);
+		tester.register_test("swop#dirxqh5kufqeux2t", test_dirxqh5kufqeux2t);
+		tester.register_test("swop_ranges#opzs9oj70deyvo2i", test_opzs9oj70deyvo2i);
+		tester.register_test("swop#zb0b1ipzmya72nqc", test_zb0b1ipzmya72nqc);
+	}
+
+	void register_as_const()
+	{
+		tester.register_test("as_const#cxf6khrb1efyd20l", test_cxf6khrb1efyd20l);
 	}
 };
 

@@ -4,9 +4,9 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-#include <utility>
 #include "bstone_binary_writer.h"
 #include "bstone_endian.h"
+#include "bstone_utility.h"
 
 namespace bstone
 {
@@ -18,7 +18,7 @@ BinaryWriter::BinaryWriter(Stream* stream)
 
 BinaryWriter::BinaryWriter(BinaryWriter&& rhs)
 {
-	std::swap(stream_, rhs.stream_);
+	bstone::swop(stream_, rhs.stream_);
 }
 
 bool BinaryWriter::open(Stream* stream)

@@ -7,6 +7,7 @@ SPDX-License-Identifier: MIT
 #include <algorithm>
 #include <memory>
 #include "bstone_cvar_string.h"
+#include "bstone_utility.h"
 
 namespace bstone {
 
@@ -75,8 +76,8 @@ void CVarString::set(StringView string_view)
 void CVarString::swap(CVarString& rhs) noexcept
 {
 	storage_.swap(rhs.storage_);
-	std::swap(capacity_, rhs.capacity_);
-	std::swap(size_, rhs.size_);
+	bstone::swop(capacity_, rhs.capacity_);
+	bstone::swop(size_, rhs.size_);
 }
 
 } // namespace bstone

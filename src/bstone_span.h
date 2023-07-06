@@ -122,8 +122,8 @@ public:
 
 	constexpr void swap(Span& rhs) noexcept
 	{
-		Utility::swap(items_, rhs.items_);
-		Utility::swap(size_, rhs.size_);
+		bstone::swop(items_, rhs.items_);
+		bstone::swop(size_, rhs.size_);
 	}
 
 private:
@@ -157,14 +157,6 @@ template<typename T, SpanInt TSize>
 inline constexpr auto make_const_span(T (&array)[TSize]) noexcept
 {
 	return Span<const T>{array};
-}
-
-// ==========================================================================
-
-template<typename T>
-inline constexpr auto as_const(Span<T> span) noexcept
-{
-	return Span<const T>{span.get_data(), span.get_size()};
 }
 
 } // namespace bstone

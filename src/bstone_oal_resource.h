@@ -12,6 +12,7 @@ SPDX-License-Identifier: MIT
 #include "al.h"
 #include "alc.h"
 #include "bstone_oal_symbols.h"
+#include "bstone_utility.h"
 
 namespace bstone
 {
@@ -38,8 +39,8 @@ public:
 
 	OalResource(OalResource&& rhs) noexcept
 	{
-		std::swap(resource_, rhs.resource_);
-		std::swap(deleter_, rhs.deleter_);
+		bstone::swop(resource_, rhs.resource_);
+		bstone::swop(deleter_, rhs.deleter_);
 	}
 
 	template<
@@ -55,8 +56,8 @@ public:
 
 	void operator=(OalResource&& rhs) noexcept
 	{
-		std::swap(resource_, rhs.resource_);
-		std::swap(deleter_, rhs.deleter_);
+		bstone::swop(resource_, rhs.resource_);
+		bstone::swop(deleter_, rhs.deleter_);
 	}
 
 	~OalResource()

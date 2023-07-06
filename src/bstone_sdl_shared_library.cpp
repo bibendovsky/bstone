@@ -4,10 +4,10 @@ Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-#include <utility>
 #include "SDL_loadso.h"
 #include "bstone_exception.h"
 #include "bstone_shared_library.h"
+#include "bstone_utility.h"
 #include "bstone_sys_sdl_exception.h"
 
 namespace bstone {
@@ -56,7 +56,7 @@ SharedLibrary::SharedLibrary(const char* path)
 
 SharedLibrary::SharedLibrary(SharedLibrary&& rhs) noexcept
 {
-	std::swap(handle_, rhs.handle_);
+	bstone::swop(handle_, rhs.handle_);
 }
 
 SharedLibrary::~SharedLibrary()

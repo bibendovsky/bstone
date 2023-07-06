@@ -14,10 +14,10 @@ SPDX-License-Identifier: MIT
 #include <memory>
 #include <new>
 #include <type_traits>
-#include <utility>
 
 #include "bstone_exception.h"
 #include "bstone_int.h"
+#include "bstone_utility.h"
 
 
 namespace bstone
@@ -160,10 +160,10 @@ public:
 		:
 		storage_{std::move(rhs.storage_)}
 	{
-		std::swap(capacity_, rhs.capacity_);
-		std::swap(size_, rhs.size_);
-		std::swap(front_index_, rhs.front_index_);
-		std::swap(back_index_, rhs.back_index_);
+		bstone::swop(capacity_, rhs.capacity_);
+		bstone::swop(size_, rhs.size_);
+		bstone::swop(front_index_, rhs.front_index_);
+		bstone::swop(back_index_, rhs.back_index_);
 	}
 
 	CircularQueue& operator=(
@@ -316,12 +316,12 @@ public:
 	{
 		assert(std::addressof(lhs) != std::addressof(rhs));
 
-		std::swap(lhs.storage_, rhs.storage_);
+		bstone::swop(lhs.storage_, rhs.storage_);
 
-		std::swap(lhs.capacity_, rhs.capacity_);
-		std::swap(lhs.size_, rhs.size_);
-		std::swap(lhs.front_index_, rhs.front_index_);
-		std::swap(lhs.back_index_, rhs.back_index_);
+		bstone::swop(lhs.capacity_, rhs.capacity_);
+		bstone::swop(lhs.size_, rhs.size_);
+		bstone::swop(lhs.front_index_, rhs.front_index_);
+		bstone::swop(lhs.back_index_, rhs.back_index_);
 	}
 
 

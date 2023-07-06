@@ -8,7 +8,7 @@ SPDX-License-Identifier: MIT
 #include <algorithm>
 #include <cstdint>
 #include <memory>
-#include <utility>
+#include "bstone_utility.h"
 
 namespace bstone
 {
@@ -29,14 +29,14 @@ MemoryStream::MemoryStream(
 
 MemoryStream::MemoryStream(MemoryStream&& rhs) noexcept
 {
-	std::swap(is_open_, rhs.is_open_);
-	std::swap(is_readable_, rhs.is_readable_);
-	std::swap(is_writable_, rhs.is_writable_);
-	std::swap(position_, rhs.position_);
-	std::swap(size_, rhs.size_);
-	std::swap(ext_size_, rhs.ext_size_);
-	std::swap(buffer_, rhs.buffer_);
-	std::swap(ext_buffer_, rhs.ext_buffer_);
+	bstone::swop(is_open_, rhs.is_open_);
+	bstone::swop(is_readable_, rhs.is_readable_);
+	bstone::swop(is_writable_, rhs.is_writable_);
+	bstone::swop(position_, rhs.position_);
+	bstone::swop(size_, rhs.size_);
+	bstone::swop(ext_size_, rhs.ext_size_);
+	bstone::swop(buffer_, rhs.buffer_);
+	bstone::swop(ext_buffer_, rhs.ext_buffer_);
 	int_buffer_.swap(rhs.int_buffer_);
 }
 

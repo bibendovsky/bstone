@@ -20,7 +20,8 @@ SPDX-License-Identifier: MIT
 
 #include <cassert>
 #include <memory>
-#include <utility>
+
+#include "bstone_utility.h"
 
 namespace bstone
 {
@@ -141,10 +142,10 @@ FileStream::FileStream(FileStream&& rhs) noexcept
 	:
 	FileStream{}
 {
-	std::swap(handle_, rhs.handle_);
-	std::swap(is_readable_, rhs.is_readable_);
-	std::swap(is_seekable_, rhs.is_seekable_);
-	std::swap(is_writable_, rhs.is_writable_);
+	bstone::swop(handle_, rhs.handle_);
+	bstone::swop(is_readable_, rhs.is_readable_);
+	bstone::swop(is_seekable_, rhs.is_seekable_);
+	bstone::swop(is_writable_, rhs.is_writable_);
 }
 
 FileStream::~FileStream()

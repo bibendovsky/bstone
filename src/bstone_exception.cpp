@@ -58,7 +58,7 @@ const char* StaticSourceException::what() const noexcept
 void StaticSourceException::swap(StaticSourceException& rhs) noexcept
 {
 	source_location_.swap(rhs.source_location_);
-	Utility::swap(message_, rhs.message_);
+	bstone::swop(message_, rhs.message_);
 }
 
 [[noreturn]] void StaticSourceException::fail(const SourceLocation& source_location, const char* message)
@@ -152,7 +152,7 @@ const char* DynamicSourceException::what() const noexcept
 void DynamicSourceException::swap(DynamicSourceException& rhs) noexcept
 {
 	source_location_.swap(rhs.source_location_);
-	Utility::swap(control_block_, rhs.control_block_);
+	bstone::swop(control_block_, rhs.control_block_);
 }
 
 [[noreturn]] void DynamicSourceException::fail(const SourceLocation& source_location, const char* message)

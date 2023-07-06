@@ -300,24 +300,6 @@ void test_9kk9lv5xylgwq7vl()
 
 // ==========================================================================
 
-// as_const(Span<T>)
-void test_ug0bu5dheexmeg2l()
-{
-	constexpr auto value_count = 3;
-	int values[value_count] = {10, 20, 30};
-	auto span_1 = bstone::Span<int>(values);
-	const auto span = bstone::as_const(span_1);
-	const auto is_const = std::is_const<decltype(span)::Item>::value;
-
-	tester.check(
-		is_const &&
-		span.get_data() == values &&
-		span.get_size() == value_count &&
-		std::equal(values, &values[value_count], span.get_data()));
-}
-
-// ==========================================================================
-
 class Registrator
 {
 public:
@@ -326,7 +308,6 @@ public:
 		register_span();
 		register_make_span();
 		register_make_const_span();
-		register_as_const();
 	}
 
 private:
@@ -366,11 +347,6 @@ private:
 	{
 		tester.register_test("make_span#822oeqj8jv4wtetl", test_822oeqj8jv4wtetl);
 		tester.register_test("make_span#9kk9lv5xylgwq7vl", test_9kk9lv5xylgwq7vl);
-	}
-
-	void register_as_const()
-	{
-		tester.register_test("as_const#ug0bu5dheexmeg2l", test_ug0bu5dheexmeg2l);
 	}
 };
 

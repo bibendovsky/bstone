@@ -16,40 +16,8 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-class Utility
-{
-public:
-	template<typename T>
-	static constexpr void swap(T& lhs, T& rhs)
-		noexcept(noexcept(
-			std::is_nothrow_move_constructible<T>::value &&
-			std::is_nothrow_move_assignable<T>::value));
-
-	template<typename TLshIter, typename TRhsIter>
-	static constexpr TRhsIter swap_ranges(TLshIter lhs_begin, TLshIter lhs_end, TRhsIter rhs_begin);
-
-	template<typename T, std::size_t TSize>
-	static constexpr void swap(T (&lhs)[TSize], T (&rhs)[TSize]) noexcept(noexcept(swap(*lhs, *rhs)))
-	{
-		for (auto i = decltype(TSize){}; i < TSize; ++i)
-		{
-			swap(lhs[i], rhs[i]);
-		}
-	}
-
-	// ======================================================================
-
-	template<typename T>
-	static constexpr std::add_const_t<T>& as_const(T& x) noexcept;
-
-	template<typename T>
-	static void as_const(const T&&) = delete;
-};
-
-// --------------------------------------------------------------------------
-
 template<typename T>
-constexpr void Utility::swap(T& lhs, T& rhs)
+inline constexpr void swop(T& lhs, T& rhs)
 	noexcept(noexcept(
 		std::is_nothrow_move_constructible<T>::value &&
 		std::is_nothrow_move_assignable<T>::value))
@@ -60,11 +28,11 @@ constexpr void Utility::swap(T& lhs, T& rhs)
 }
 
 template<typename TLshIter, typename TRhsIter>
-constexpr TRhsIter Utility::swap_ranges(TLshIter lhs_begin, TLshIter lhs_end, TRhsIter rhs_begin)
+inline constexpr TRhsIter swop_ranges(TLshIter lhs_begin, TLshIter lhs_end, TRhsIter rhs_begin)
 {
 	while (lhs_begin != lhs_end)
 	{
-		swap(*lhs_begin, *rhs_begin);
+		bstone::swop(*lhs_begin, *rhs_begin);
 		++lhs_begin;
 		++rhs_begin;
 	}
@@ -72,13 +40,25 @@ constexpr TRhsIter Utility::swap_ranges(TLshIter lhs_begin, TLshIter lhs_end, TR
 	return rhs_begin;
 }
 
+template<typename T, std::size_t TSize>
+static constexpr void swop(T (&lhs)[TSize], T (&rhs)[TSize]) noexcept(noexcept(bstone::swop(*lhs, *rhs)))
+{
+	for (auto i = decltype(TSize){}; i < TSize; ++i)
+	{
+		bstone::swop(lhs[i], rhs[i]);
+	}
+}
+
 // ======================================================================
 
 template<typename T>
-constexpr std::add_const_t<T>& Utility::as_const(T& x) noexcept
+inline constexpr std::add_const_t<T>& as_const(T& x) noexcept
 {
 	return x;
 }
+
+template<typename T>
+inline void as_const(const T&&) = delete;
 
 } // namespace bstone
 

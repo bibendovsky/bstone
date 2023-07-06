@@ -5,9 +5,9 @@ SPDX-License-Identifier: MIT
 */
 
 #include <cstdint>
-#include <utility>
 #include "bstone_binary_reader.h"
 #include "bstone_endian.h"
+#include "bstone_utility.h"
 
 namespace bstone
 {
@@ -19,7 +19,7 @@ BinaryReader::BinaryReader(Stream* stream)
 
 BinaryReader::BinaryReader(BinaryReader&& rhs)
 {
-	std::swap(stream_, rhs.stream_);
+	bstone::swop(stream_, rhs.stream_);
 }
 
 bool BinaryReader::open(Stream* stream)

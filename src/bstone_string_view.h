@@ -162,8 +162,8 @@ public:
 
 	constexpr void swap(StringViewT& rhs) noexcept
 	{
-		Utility::swap(chars_, rhs.chars_);
-		Utility::swap(size_, rhs.size_);
+		bstone::swop(chars_, rhs.chars_);
+		bstone::swop(size_, rhs.size_);
 	}
 
 private:

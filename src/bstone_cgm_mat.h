@@ -51,7 +51,7 @@ public:
 
 	Item& operator[](IntP index)
 	{
-		return const_cast<Item&>(Utility::as_const(*this)[index]);
+		return const_cast<Item&>(::bstone::as_const(*this)[index]);
 	}
 
 private:

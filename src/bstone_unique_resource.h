@@ -17,6 +17,8 @@ SPDX-License-Identifier: MIT
 #include <algorithm>
 #include <type_traits>
 
+#include "bstone_utility.h"
+
 
 #define BSTONE_T_ENABLE_IF(...) typename std::enable_if<(__VA_ARGS__), int>::type = 0
 
@@ -49,7 +51,7 @@ public:
 	UniqueResource(
 		UniqueResource&& rhs) noexcept
 	{
-		std::swap(resource_, rhs.resource_);
+		bstone::swop(resource_, rhs.resource_);
 	}
 
 	UniqueResource& operator=(
@@ -58,7 +60,7 @@ public:
 	UniqueResource& operator=(
 		UniqueResource&& rhs) noexcept
 	{
-		std::swap(resource_, rhs.resource_);
+		bstone::swop(resource_, rhs.resource_);
 
 		return *this;
 	}
