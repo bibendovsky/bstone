@@ -4,79 +4,76 @@ Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
+// Endianness.
+
 #if !defined(BSTONE_ENDIAN_INCLUDED)
 #define BSTONE_ENDIAN_INCLUDED
 
 #include <type_traits>
-#include "bstone_platform.h"
+
 #include "bstone_int.h"
-#include "bstone_span.h"
 
 #if !defined(BSTONE_LITTLE_ENDIAN)
-#	define BSTONE_LITTLE_ENDIAN 1
+	#define BSTONE_LITTLE_ENDIAN 1
 #endif
 
 #if !defined(BSTONE_BIG_ENDIAN)
-#	define BSTONE_BIG_ENDIAN 2
+	#define BSTONE_BIG_ENDIAN 2
 #endif
 
 #if BSTONE_LITTLE_ENDIAN <= 0 || BSTONE_BIG_ENDIAN <= 0 || BSTONE_LITTLE_ENDIAN == BSTONE_BIG_ENDIAN
-#	error Invalid endian value.
+	#error Invalid endian value.
 #endif
 
 #if !defined(BSTONE_ENDIAN)
 
-#	if BSTONE_WIN32 && !BSTONE_MINGW
+	#if defined(_WIN32) && !defined(__MINGW32__)
 
-//
-// Visual C++
-//
-#		if _MSC_VER
-#			if (defined(_M_IX86) && _M_IX86 == 600) || (defined(_M_AMD64) && _M_AMD64 == 100)
-#				define BSTONE_ENDIAN BSTONE_LITTLE_ENDIAN
-#			endif
-#		endif
+		//
+		// Visual C++
+		//
+		#if _MSC_VER
+			#if (defined(_M_IX86) && _M_IX86 == 600) || (defined(_M_AMD64) && _M_AMD64 == 100)
+				#define BSTONE_ENDIAN BSTONE_LITTLE_ENDIAN
+			#endif
+		#endif
 
-#	else
+	#else
 
-	//
-	// __BYTE_ORDER__
-	//
-#	if !defined(BSTONE_ENDIAN)
-#		if defined(__BYTE_ORDER__)
-#			if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-#				define BSTONE_ENDIAN BSTONE_BIG_ENDIAN
-#			elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-#				define BSTONE_ENDIAN BSTONE_LITTLE_ENDIAN
-#			else
-#				error Unsupported GNU compiler byte order.
-#			endif
-#		endif
-#	endif
+		//
+		// __BYTE_ORDER__
+		//
+		#if !defined(BSTONE_ENDIAN)
+			#if defined(__BYTE_ORDER__)
+				#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+					#define BSTONE_ENDIAN BSTONE_BIG_ENDIAN
+				#elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+					#define BSTONE_ENDIAN BSTONE_LITTLE_ENDIAN
+				#endif
+			#endif
+		#endif
 
-//
-// __BIG_ENDIAN__ / __LITTLE_ENDIAN__
-//
-#	if !defined(BSTONE_ENDIAN)
-#		if defined(__BIG_ENDIAN__)
-#			define BSTONE_ENDIAN BSTONE_BIG_ENDIAN
-#		elif defined(__LITTLE_ENDIAN__)
-#			define BSTONE_ENDIAN BSTONE_LITTLE_ENDIAN
-#		endif
-#	endif
+		//
+		// __BIG_ENDIAN__ / __LITTLE_ENDIAN__
+		//
+		#if !defined(BSTONE_ENDIAN)
+			#if defined(__BIG_ENDIAN__)
+				#define BSTONE_ENDIAN BSTONE_BIG_ENDIAN
+			#elif defined(__LITTLE_ENDIAN__)
+				#define BSTONE_ENDIAN BSTONE_LITTLE_ENDIAN
+			#endif
+		#endif
 
-#endif
+	#endif
 
 #endif
 
 #if !defined(BSTONE_ENDIAN)
-#	error Undefined byte order.
+	#error Unknown byte order.
 #endif
 
 namespace bstone {
 namespace endian {
-
-// ==========================================================================
 
 enum class Type
 {
@@ -87,10 +84,10 @@ enum class Type
 
 	native =
 #if BSTONE_ENDIAN == BSTONE_LITTLE_ENDIAN
-	little
+		little
 #endif
 #if BSTONE_ENDIAN == BSTONE_BIG_ENDIAN
-	big
+		big
 #endif
 	,
 }; // Type
@@ -98,12 +95,6 @@ enum class Type
 // ==========================================================================
 
 namespace detail {
-
-template<typename T>
-struct IsSupportedType
-{
-	static constexpr auto value = std::is_integral<T>::value || std::is_enum<T>::value;
-};
 
 struct Bytes1Tag {};
 struct Bytes2Tag {};
@@ -123,9 +114,7 @@ inline constexpr T swap_bytes(T value, Bytes2Tag) noexcept
 {
 	const auto u16_value = static_cast<UInt16>(value);
 
-	return static_cast<T>(static_cast<UInt16>(
-		(u16_value >> 8) |
-		(u16_value << 8)));
+	return static_cast<T>(static_cast<UInt16>((u16_value >> 8) | (u16_value << 8)));
 }
 
 template<typename T>
@@ -173,18 +162,20 @@ inline constexpr T swap_bytes(T value, IntegralTag) noexcept
 					Bytes8Tag,
 					void>>>>;
 
-	return swap_bytes(value, Tag{});
+	static_assert(!std::is_same<Tag, void>::value, "Unknown integral type.");
+
+	return bstone::endian::detail::swap_bytes(value, Tag{});
 }
 
 template<typename T>
 inline constexpr T swap_bytes(T value, EnumTag) noexcept
 {
-	return swap_bytes(static_cast<std::underlying_type_t<T>>(value), IntegralTag{});
+	return bstone::endian::detail::swap_bytes(static_cast<std::underlying_type_t<T>>(value), IntegralTag{});
 }
 
 } // namespace detail
 
-// ==========================================================================
+// --------------------------------------------------------------------------
 
 template<typename T>
 inline constexpr T swap_bytes(T value) noexcept
@@ -197,30 +188,9 @@ inline constexpr T swap_bytes(T value) noexcept
 			detail::EnumTag,
 			void>>;
 
-	return detail::swap_bytes(value, Tag{});
-}
+	static_assert(!std::is_same<Tag, void>::value, "Unknown type.");
 
-template<typename T, std::enable_if_t<sizeof(T) == 1, int> = 0>
-inline constexpr void swap_bytes(Span<T> bytes) noexcept
-{
-	const auto size = bytes.get_size();
-	const auto half_size = size / 2;
-
-	for (auto i = decltype(half_size){}; i < half_size; ++i)
-	{
-		const auto temp = bytes[i];
-		bytes[i] = bytes[size - 1 - i];
-		bytes[size - 1 - i] = temp;
-	}
-}
-
-template<typename T, std::enable_if_t<sizeof(T) == 1, int> = 0>
-inline constexpr void swap_bytes(Span<T> bytes, Type type) noexcept
-{
-	if (type != Type::native)
-	{
-		swap_bytes(bytes);
-	}
+	return bstone::endian::detail::swap_bytes(value, Tag{});
 }
 
 // ==========================================================================
@@ -230,21 +200,21 @@ inline constexpr T to_little(T value) noexcept
 {
 #if BSTONE_ENDIAN == BSTONE_LITTLE_ENDIAN
 	return value;
-#endif // BSTONE_ENDIAN == BSTONE_LITTLE_ENDIAN
+#endif
 #if BSTONE_ENDIAN == BSTONE_BIG_ENDIAN
-	return swap_bytes(value);
-#endif // BSTONE_ENDIAN == BSTONE_BIG_ENDIAN
+	return bstone::endian::swap_bytes(value);
+#endif
 }
 
 template<typename T>
 inline constexpr T to_big(T value) noexcept
 {
 #if BSTONE_ENDIAN == BSTONE_LITTLE_ENDIAN
-	return swap_bytes(value);
-#endif // BSTONE_ENDIAN == BSTONE_LITTLE_ENDIAN
+	return bstone::endian::swap_bytes(value);
+#endif
 #if BSTONE_ENDIAN == BSTONE_BIG_ENDIAN
 	return value;
-#endif // BSTONE_ENDIAN == BSTONE_BIG_ENDIAN
+#endif
 }
 
 } // namespace endian

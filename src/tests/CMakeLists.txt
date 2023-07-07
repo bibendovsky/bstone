@@ -50,10 +50,13 @@ target_sources(${PROJECT_NAME}
 		../bstone_algorithm.h
 		../bstone_ascii.cpp
 		../bstone_ascii.h
+		../bstone_endian.cpp
+		../bstone_endian.h
 	PRIVATE
 		src/bstone_tests_algorithm.cpp
 		src/bstone_tests_ascii.cpp
 		src/bstone_tests_char_traits.cpp
+		src/bstone_tests_endian.cpp
 		src/bstone_tests_exception.cpp
 		src/bstone_tests_int.cpp
 		src/bstone_tests_source_location.cpp

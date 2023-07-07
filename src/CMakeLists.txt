@@ -302,6 +302,8 @@ target_sources(
 		bstone_algorithm.h
 		bstone_ascii.cpp
 		bstone_ascii.h
+		bstone_endian.cpp
+		bstone_endian.h
 )
 
 target_sources(
@@ -419,7 +421,6 @@ target_sources(
 		bstone_dosbox_dbopl.h
 		bstone_shared_library.h
 		bstone_encoding.h
-		bstone_endian.h
 		bstone_enum_flags.h
 		bstone_entry_point.h
 		bstone_exception.h
