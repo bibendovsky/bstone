@@ -402,7 +402,6 @@ target_sources(
 		bstone_bitwise.h
 		bstone_bmp_image_common.h
 		bstone_bmp_image_decoder.h
-		bstone_c_str.h
 		bstone_circular_queue.h
 		bstone_char_conv.h
 		bstone_cl.h
@@ -656,7 +655,6 @@ target_sources(
 		bstone_cvar.cpp
 		bstone_cvar_mgr.cpp
 		bstone_cvar_string.cpp
-		bstone_c_str.cpp
 		bstone_dosbox_dbopl.cpp
 		bstone_encoding.cpp
 		bstone_entry_point.cpp
