@@ -304,6 +304,8 @@ target_sources(
 		bstone_ascii.h
 		bstone_endian.cpp
 		bstone_endian.h
+		bstone_memory.cpp
+		bstone_memory.h
 )
 
 target_sources(
@@ -440,7 +442,6 @@ target_sources(
 		bstone_logger.h
 		bstone_low_pass_filter.h
 		bstone_math.h
-		bstone_memory.h
 		bstone_memory_binary_reader.h
 		bstone_memory_resource.h
 		bstone_memory_stream.h
@@ -675,7 +676,6 @@ target_sources(
 		bstone_image_extractor.cpp
 		bstone_logger.cpp
 		bstone_low_pass_filter.cpp
-		bstone_memory.cpp
 		bstone_memory_binary_reader.cpp
 		bstone_memory_resource.cpp
 		bstone_memory_stream.cpp

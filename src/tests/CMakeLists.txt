@@ -52,6 +52,8 @@ target_sources(${PROJECT_NAME}
 		../bstone_ascii.h
 		../bstone_endian.cpp
 		../bstone_endian.h
+		../bstone_memory.cpp
+		../bstone_memory.h
 	PRIVATE
 		src/bstone_tests_algorithm.cpp
 		src/bstone_tests_ascii.cpp
@@ -59,6 +61,7 @@ target_sources(${PROJECT_NAME}
 		src/bstone_tests_endian.cpp
 		src/bstone_tests_exception.cpp
 		src/bstone_tests_int.cpp
+		src/bstone_tests_memory.cpp
 		src/bstone_tests_source_location.cpp
 		src/bstone_tests_span.cpp
 		src/bstone_tests_utility.cpp
