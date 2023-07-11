@@ -308,6 +308,8 @@ target_sources(
 		bstone_memory.h
 		bstone_scope_exit.cpp
 		bstone_scope_exit.h
+		bstone_array.cpp
+		bstone_array.h
 )
 
 target_sources(

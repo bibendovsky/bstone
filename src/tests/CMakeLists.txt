@@ -58,8 +58,11 @@ target_sources(${PROJECT_NAME}
 		../bstone_memory_resource.h
 		../bstone_scope_exit.cpp
 		../bstone_scope_exit.h
+		../bstone_array.cpp
+		../bstone_array.h
 	PRIVATE
 		src/bstone_tests_algorithm.cpp
+		src/bstone_tests_array.cpp
 		src/bstone_tests_ascii.cpp
 		src/bstone_tests_char_traits.cpp
 		src/bstone_tests_endian.cpp
