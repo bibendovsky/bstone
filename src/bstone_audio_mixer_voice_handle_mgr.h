@@ -14,7 +14,6 @@ SPDX-License-Identifier: MIT
 #include <unordered_set>
 #include "bstone_audio_mixer_voice_handle.h"
 #include "bstone_exception.h"
-#include "bstone_spinlock.h"
 
 namespace bstone
 {
@@ -160,7 +159,7 @@ public:
 	}
 
 private:
-	using Mutex = Spinlock;
+	using Mutex = std::mutex;
 	using MutexLock = std::unique_lock<Mutex>;
 
 	using Cache = std::unordered_set<AudioMixerVoiceHandle, AudioMixerVoiceHandleStdHasher>;

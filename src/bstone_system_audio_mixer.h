@@ -19,7 +19,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_audio_mixer.h"
 #include "bstone_audio_mixer_voice_handle.h"
 #include "bstone_audio_mixer_voice_handle_mgr.h"
-#include "bstone_spinlock.h"
 #include "bstone_sys_audio_mgr.h"
 
 namespace bstone

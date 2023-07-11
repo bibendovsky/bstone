@@ -23,7 +23,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_oal_loader.h"
 #include "bstone_oal_resource.h"
 #include "bstone_oal_source.h"
-#include "bstone_spinlock.h"
 
 namespace bstone
 {
@@ -68,7 +67,7 @@ public:
 		AudioMixerOutputGains& output_gains) override;
 
 private:
-	using Mutex = Spinlock;
+	using Mutex = std::mutex;
 	using MutexUniqueLock = std::unique_lock<Mutex>;
 
 	using OalString = std::string;
@@ -93,7 +92,7 @@ private:
 	}; // Voice
 
 	using Voices = std::vector<Voice>;
-	using VoiceMutex = Spinlock;
+	using VoiceMutex = std::mutex;
 
 	enum class CommandType
 	{

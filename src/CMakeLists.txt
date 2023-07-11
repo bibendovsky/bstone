@@ -469,7 +469,6 @@ target_sources(
 		bstone_rgb_palette.h
 		bstone_sha1.h
 		bstone_single_memory_pool.h
-		bstone_spinlock.h
 		bstone_sprite.h
 		bstone_sprite_cache.h
 		bstone_stb_image_encoder.h
@@ -696,7 +695,6 @@ target_sources(
 		bstone_rgb8.cpp
 		bstone_sdl_shared_library.cpp
 		bstone_sha1.cpp
-		bstone_spinlock.cpp
 		bstone_sprite.cpp
 		bstone_sprite_cache.cpp
 		bstone_stb_image_decoder.cpp

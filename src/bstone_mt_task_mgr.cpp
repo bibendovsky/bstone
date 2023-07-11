@@ -20,7 +20,6 @@ SPDX-License-Identifier: MIT
 #include <vector>
 
 #include "bstone_exception.h"
-#include "bstone_spinlock.h"
 
 
 namespace bstone
@@ -61,12 +60,13 @@ private:
 	using Items = std::vector<MtTaskPtr>;
 	using Index = unsigned int;
 	using MtIndex = std::atomic<Index>;
-	using MtSpinFlagLock = std::unique_lock<Spinlock>;
+	using Mutex = std::mutex;
+	using MutexLock = std::unique_lock<Mutex>;
 
 	Index size_;
 	MtIndex mt_read_index_;
 	MtIndex mt_write_index_;
-	Spinlock mt_spin_flag_;
+	Mutex mutex_;
 	Items items_;
 }; // MtTaskQueue
 
@@ -174,7 +174,7 @@ MtTaskQueue::MtTaskQueue(
 	size_{},
 	mt_read_index_{},
 	mt_write_index_{},
-	mt_spin_flag_{},
+	mutex_{},
 	items_{}
 {
 	if (size <= 0)
@@ -194,7 +194,7 @@ void MtTaskQueue::push(
 		BSTONE_THROW_STATIC_SOURCE("Null task.");
 	}
 
-	MtSpinFlagLock flag_lock{mt_spin_flag_};
+	MutexLock flag_lock{mutex_};
 
 	const auto read_index = mt_read_index_.load(std::memory_order_acquire);
 	const auto write_index = mt_write_index_.load(std::memory_order_acquire);
@@ -239,7 +239,7 @@ void MtTaskQueue::push(
 		BSTONE_THROW_STATIC_SOURCE("Null task.");
 	}
 
-	MtSpinFlagLock flag_lock{mt_spin_flag_};
+	MutexLock flag_lock{mutex_};
 
 	const auto read_index = mt_read_index_.load(std::memory_order_acquire);
 
@@ -268,7 +268,7 @@ void MtTaskQueue::push(
 bool MtTaskQueue::pop(
 	MtTaskPtr& mt_task) noexcept
 {
-	MtSpinFlagLock flag_lock{mt_spin_flag_};
+	MutexLock flag_lock{mutex_};
 
 	const auto read_index = mt_read_index_.load(std::memory_order_acquire);
 	const auto write_index = mt_write_index_.load(std::memory_order_acquire);
