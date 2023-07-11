@@ -7,8 +7,9 @@ SPDX-License-Identifier: MIT
 #ifndef BSTONE_CVAR_STRING_INCLUDED
 #define BSTONE_CVAR_STRING_INCLUDED
 
+#include <memory>
+
 #include "bstone_int.h"
-#include "bstone_raw_uptr.h"
 #include "bstone_string_view.h"
 
 namespace bstone {
@@ -30,10 +31,13 @@ public:
 	void swap(CVarString& rhs) noexcept;
 
 private:
+	using Storage = std::unique_ptr<char[]>;
+
+private:
 	static const IntP initial_capacity;
 
 private:
-	RawUPtr storage_{};
+	Storage storage_{};
 	IntP capacity_{};
 	IntP size_{};
 };

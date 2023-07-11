@@ -54,7 +54,7 @@ CVarString& CVarString::operator=(CVarString&& rhs) noexcept
 
 StringView CVarString::get() const noexcept
 {
-	return StringView{storage_.get<const char*>(), size_};
+	return StringView{storage_.get(), size_};
 }
 
 void CVarString::set(StringView string_view)
@@ -64,12 +64,12 @@ void CVarString::set(StringView string_view)
 	if (new_size > capacity_)
 	{
 		const auto new_capacity = std::max(new_size, initial_capacity);
-		auto new_storage = make_raw_uptr(new_capacity);
+		auto new_storage = std::make_unique<char[]>(static_cast<std::size_t>(new_capacity));
 		storage_.swap(new_storage);
 		capacity_ = new_capacity;
 	}
 
-	std::uninitialized_copy_n(string_view.get_data(), new_size, storage_.get<char*>());
+	std::uninitialized_copy_n(string_view.get_data(), new_size, storage_.get());
 	size_ = new_size;
 }
 

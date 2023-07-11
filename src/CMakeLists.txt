@@ -460,7 +460,6 @@ target_sources(
 		bstone_platform.h
 		bstone_precompiled.h
 		bstone_ps_fizzle_fx.h
-		bstone_raw_uptr.h
 		bstone_ref_values.h
 		bstone_rgb8.h
 		bstone_rgb_palette.h
@@ -691,7 +690,6 @@ target_sources(
 		bstone_pc_speaker_audio_decoder.cpp
 		bstone_pcm_audio_decoder.cpp
 		bstone_ps_fizzle_fx.cpp
-		bstone_raw_uptr.cpp
 		bstone_rgb8.cpp
 		bstone_sdl_shared_library.cpp
 		bstone_sha1.cpp
