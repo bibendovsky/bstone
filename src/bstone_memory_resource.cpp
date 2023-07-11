@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -33,7 +33,7 @@ BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 
-MemoryResource& DefaultMemoryResource::get() noexcept
+MemoryResource& get_default_memory_resource() noexcept
 {
 	static auto memory_resource = NewDeleteMemoryResource{};
 	return memory_resource;
