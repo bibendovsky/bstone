@@ -306,6 +306,8 @@ target_sources(
 		bstone_endian.h
 		bstone_memory.cpp
 		bstone_memory.h
+		bstone_scope_exit.cpp
+		bstone_scope_exit.h
 )
 
 target_sources(

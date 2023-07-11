@@ -56,6 +56,8 @@ target_sources(${PROJECT_NAME}
 		../bstone_memory.h
 		../bstone_memory_resource.cpp
 		../bstone_memory_resource.h
+		../bstone_scope_exit.cpp
+		../bstone_scope_exit.h
 	PRIVATE
 		src/bstone_tests_algorithm.cpp
 		src/bstone_tests_ascii.cpp
@@ -65,6 +67,7 @@ target_sources(${PROJECT_NAME}
 		src/bstone_tests_int.cpp
 		src/bstone_tests_memory.cpp
 		src/bstone_tests_memory_resource.cpp
+		src/bstone_tests_scope_exit.cpp
 		src/bstone_tests_source_location.cpp
 		src/bstone_tests_span.cpp
 		src/bstone_tests_utility.cpp
