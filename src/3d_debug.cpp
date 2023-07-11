@@ -19,7 +19,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_globals.h"
 #include "bstone_logger.h"
-#include "bstone_scope_guard.h"
+#include "bstone_scope_exit.h"
 
 
 static int get_wall_page_count()

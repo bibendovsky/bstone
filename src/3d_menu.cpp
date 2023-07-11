@@ -28,7 +28,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "jm_tp.h"
 
 #include "bstone_exception.h"
-#include "bstone_scope_guard.h"
+#include "bstone_scope_exit.h"
 #include "bstone_r3r_limits.h"
 
 
@@ -1748,13 +1748,12 @@ void US_ControlPanel(
 	is_full_menu_active = (scancode != ScanCode::sc_f7 && scancode != ScanCode::sc_f10);
 	sd_pause_scene_sfx(true);
 
-	auto guard_flag = bstone::ScopeGuard{
+	const auto guard_flag = bstone::make_scope_exit(
 		[&]()
 		{
 			is_full_menu_active = false;
 			sd_pause_scene_sfx(false);
-		}
-	};
+		});
 
 	// BBi
 	const auto& assets_info = get_assets_info();

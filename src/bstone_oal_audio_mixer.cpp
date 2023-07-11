@@ -28,7 +28,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_oal_source.h"
 #include "bstone_oal_loader.h"
 #include "bstone_oal_resource.h"
-#include "bstone_scope_guard.h"
+#include "bstone_scope_exit.h"
 
 namespace bstone
 {
@@ -963,7 +963,7 @@ void OalAudioMixer::handle_play_music_command(const PlayMusicCommandParam& param
 	auto is_started = false;
 	auto voice = static_cast<Voice*>(nullptr);
 
-	const auto voice_handle_guard = ScopeGuard{
+	const auto voice_handle_guard = make_scope_exit(
 		[this, &param, &is_started, &voice]()
 		{
 			if (is_started && voice)
@@ -975,8 +975,7 @@ void OalAudioMixer::handle_play_music_command(const PlayMusicCommandParam& param
 			{
 				voice_handle_mgr_.uncache(param.voice_handle);
 			}
-		}
-	};
+		});
 
 	voice = find_music_voice();
 
@@ -1027,7 +1026,7 @@ void OalAudioMixer::handle_play_sfx_command(const PlaySfxCommandParam& param)
 	auto is_started = false;
 	auto voice = static_cast<Voice*>(nullptr);
 
-	const auto voice_handle_guard = ScopeGuard{
+	const auto voice_handle_guard = make_scope_exit(
 		[this, &param, &is_started, &voice]()
 		{
 			if (is_started && voice)
@@ -1038,8 +1037,7 @@ void OalAudioMixer::handle_play_sfx_command(const PlaySfxCommandParam& param)
 			{
 				voice_handle_mgr_.uncache(param.voice_handle);
 			}
-		}
-	};
+		});
 
 	auto& sfx_sound = (param.sound_type == SoundType::adlib_sfx ? sfx_adlib_sounds_[param.sound_index] : (param.sound_type == SoundType::pc_speaker_sfx ? sfx_pc_speaker_sounds_[param.sound_index] : sfx_pcm_sounds_[param.sound_index]));
 

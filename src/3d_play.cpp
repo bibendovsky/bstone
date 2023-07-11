@@ -18,7 +18,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "id_vl.h"
 #include "3d_menu.h"
 #include "gfxv.h"
-#include "bstone_scope_guard.h"
+#include "bstone_scope_exit.h"
 
 
 void UpdateRadarGuage();

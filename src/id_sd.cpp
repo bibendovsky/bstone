@@ -20,7 +20,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_logger.h"
 #include "bstone_math.h"
 #include "bstone_memory_binary_reader.h"
-#include "bstone_scope_guard.h"
+#include "bstone_scope_exit.h"
 #include "bstone_string_helper.h"
 #include "bstone_text_writer.h"
 #include "bstone_voice_group.h"
@@ -1197,13 +1197,11 @@ void sd_update()
 		return;
 	}
 
-
-	const auto mixer_state = bstone::ScopeGuard{
+	const auto mixer_state = bstone::make_scope_exit(
 		[]()
 		{
 			sd_mixer_->resume_state();
-		}
-	};
+		});
 
 	sd_mixer_->suspend_state();
 	sd_update_listener_r3_position();

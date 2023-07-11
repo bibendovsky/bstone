@@ -15,7 +15,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_audio_sample_converter.h"
 #include "bstone_exception.h"
 #include "bstone_globals.h"
-#include "bstone_scope_guard.h"
+#include "bstone_scope_exit.h"
 #include "bstone_system_audio_mixer.h"
 
 namespace bstone {
@@ -779,7 +779,7 @@ void SystemAudioMixer::handle_play_sound_command(const Command& command)
 	auto is_started = false;
 	auto voice = static_cast<Voice*>(nullptr);
 
-	const auto voice_handle_guard = ScopeGuard{
+	const auto voice_handle_guard = make_scope_exit(
 		[this, &is_started, &voice, &command]()
 		{
 			if (is_started && voice)
@@ -790,8 +790,7 @@ void SystemAudioMixer::handle_play_sound_command(const Command& command)
 			{
 				voice_handle_mgr_.uncache(command.param.play_sound.handle);
 			}
-		}
-	};
+		});
 
 	auto cache_item = command.param.play_sound.cache;
 

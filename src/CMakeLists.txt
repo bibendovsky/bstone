@@ -465,7 +465,6 @@ target_sources(
 		bstone_ref_values.h
 		bstone_rgb8.h
 		bstone_rgb_palette.h
-		bstone_scope_guard.h
 		bstone_sha1.h
 		bstone_single_memory_pool.h
 		bstone_spinlock.h
