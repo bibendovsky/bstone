@@ -18,6 +18,7 @@ Tests for a vector
 #include <cmath>
 #include <algorithm>
 #include <array>
+#include <functional>
 #include <new>
 #include <type_traits>
 #include "bstone_cgm_vec.h"
