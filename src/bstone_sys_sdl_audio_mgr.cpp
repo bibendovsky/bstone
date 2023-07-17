@@ -5,6 +5,7 @@ SPDX-License-Identifier: MIT
 */
 
 #include <cassert>
+#include <iterator>
 #include "SDL.h"
 #include "bstone_char_conv.h"
 #include "bstone_exception.h"
@@ -88,7 +89,7 @@ PushAudioDeviceUPtr SdlAudioMgr::do_make_audio_device(const PushAudioDeviceOpenP
 void SdlAudioMgr::log_int(int value, std::string& message)
 {
 	char chars[11];
-	const auto digit_count = char_conv::to_chars(value, make_span(chars), 10);
+	const auto digit_count = to_chars(value, std::begin(chars), std::end(chars)) - chars;
 	message.append(chars, static_cast<std::size_t>(digit_count));
 }
 

@@ -7,7 +7,9 @@ SPDX-License-Identifier: MIT
 // OpenGL 3D Renderer: Error Utils
 
 #include <cassert>
+#include <iterator>
 #include <string>
+#include "bstone_ascii.h"
 #include "bstone_char_conv.h"
 #include "bstone_exception.h"
 #include "bstone_gl_r3r_api.h"
@@ -45,12 +47,10 @@ void gl_error_code_append(GLenum gl_code, std::string& chars)
 	chars += gl_error_code_get_name(gl_code);
 	chars += " (0x";
 
-	const auto number_char_count = char_conv::to_chars(
-		gl_code,
-		make_span(number_chars),
-		16,
-		char_conv::ToCharsFormat::uppercase_value);
+	const auto number_char_count =
+		to_chars(gl_code, std::begin(number_chars), std::end(number_chars), 16) - number_chars;
 
+	ascii::to_upper_range(number_chars);
 	chars.append(number_chars, static_cast<std::size_t>(number_char_count));
 	chars += ')';
 }

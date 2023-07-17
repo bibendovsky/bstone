@@ -1,22 +1,23 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-#ifndef BSTONE_CHAR_CONV_INCLUDED
+#if !defined(BSTONE_CHAR_CONV_INCLUDED)
 #define BSTONE_CHAR_CONV_INCLUDED
 
 #include <cassert>
+
 #include <limits>
 #include <type_traits>
+
 #include "bstone_ascii.h"
-#include "bstone_enum_flags.h"
 #include "bstone_exception.h"
-#include "bstone_span.h"
+#include "bstone_int.h"
+#include "bstone_utility.h"
 
 namespace bstone {
-namespace char_conv {
 
 template<typename TChar, typename TNibble>
 inline constexpr TChar nibble_to_hex_char(TNibble nibble)
@@ -37,20 +38,20 @@ inline constexpr TChar nibble_to_hex_char(TNibble nibble)
 
 // ==========================================================================
 
-template<typename TByte, typename TChar = char>
-inline constexpr TByte hex_char_to_byte(TChar hex_char)
+template<typename TNibble, typename TChar>
+inline constexpr TNibble hex_char_to_nibble(TChar hex_char)
 {
 	if (ascii::is_decimal(hex_char))
 	{
-		return static_cast<TByte>(hex_char - '0');
+		return static_cast<TNibble>(hex_char - '0');
 	}
 	else if (hex_char >= 'a' && hex_char <= 'f')
 	{
-		return static_cast<TByte>(0xA + hex_char - 'a');
+		return static_cast<TNibble>(0xA + hex_char - 'a');
 	}
 	else if (hex_char >= 'A' && hex_char <= 'F')
 	{
-		return static_cast<TByte>(0xA + hex_char - 'A');
+		return static_cast<TNibble>(0xA + hex_char - 'A');
 	}
 	else
 	{
@@ -61,76 +62,100 @@ inline constexpr TByte hex_char_to_byte(TChar hex_char)
 // ==========================================================================
 
 template<typename TChar, typename TByte>
-inline constexpr IntP hex_chars_to_bytes(Span<TChar> chars, Span<TByte> bytes)
+inline constexpr TByte* hex_chars_to_bytes(
+	const TChar* chars_first,
+	const TChar* chars_last,
+	TByte* bytes_first,
+	TByte* bytes_last)
 {
-	const auto char_count = chars.get_size();
-	const auto half_char_count = char_count / 2;
-	const auto byte_count = bytes.get_size();
+	static_assert(sizeof(TByte) == 1, "Expected one-byte-size type.");
 
-	if (byte_count < half_char_count)
+	const auto char_count = chars_last - chars_first;
+
+	if (char_count < 0)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Not enough bytes.");
+		BSTONE_THROW_STATIC_SOURCE("Char count out of range.");
 	}
 
-	if ((half_char_count * 2) != char_count)
+	if ((char_count % 2) != 0)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Invalid chararacter count.");
+		BSTONE_THROW_STATIC_SOURCE("Odd char count.");
 	}
 
-	auto char_index = decltype(char_count){};
-	auto byte_index = decltype(byte_count){};
+	const auto byte_count = bytes_last - bytes_first;
 
-	while (true)
+	if (byte_count < 0)
 	{
-		if (char_index == char_count || byte_index == byte_count)
-		{
-			break;
-		}
+		BSTONE_THROW_STATIC_SOURCE("Byte count out of range.");
+	}
 
-		const auto high_nibble = hex_char_to_byte<TByte>(chars[char_index + 0]);
-		const auto low_nibble = hex_char_to_byte<TByte>(chars[char_index + 1]);
-		char_index += 2;
+	const auto char_half_count = char_count / 2;
+
+	if (byte_count < char_half_count)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Byte buffer too small.");
+	}
+
+	auto i_char = IntP{};
+
+	for (auto i_byte = IntP{}; i_byte < char_half_count; ++i_byte)
+	{
+		const auto high_nibble = bstone::hex_char_to_nibble<TByte>(chars_first[i_char++]);
+		const auto low_nibble = bstone::hex_char_to_nibble<TByte>(chars_first[i_char++]);
 		const auto byte = static_cast<TByte>((high_nibble << 4) | low_nibble);
-		bytes[byte_index] = byte;
-		byte_index += 1;
+		bytes_first[i_byte] = byte;
 	}
 
-	return byte_index;
+	return bytes_first + char_half_count;
 }
 
 // ==========================================================================
 
 template<typename TByte, typename TChar>
-inline constexpr IntP bytes_to_hex_chars(Span<TByte> bytes, Span<TChar> chars)
+inline constexpr TChar* bytes_to_hex_chars(
+	const TByte* bytes_first,
+	const TByte* bytes_last,
+	TChar* chars_first,
+	TChar* chars_last)
 {
-	const auto byte_count = bytes.get_size();
-	const auto char_count = chars.get_size();
+	static_assert(sizeof(TByte) == 1, "Expected one-byte-size type.");
 
-	if (char_count < (byte_count * 2))
+	const auto byte_count = bytes_last - bytes_first;
+
+	if (byte_count < 0)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Not enough characters.");
+		BSTONE_THROW_STATIC_SOURCE("Byte count out of range.");
 	}
 
-	auto byte_index = decltype(byte_count){};
-	auto char_index = decltype(char_count){};
+	const auto char_count = chars_last - chars_first;
 
-	while (true)
+	if (char_count < 0)
 	{
-		if (byte_index == byte_count || char_index == char_count)
-		{
-			break;
-		}
-
-		const auto byte = static_cast<unsigned int>(static_cast<std::make_unsigned_t<TByte>>(bytes[byte_index]));
-		byte_index += 1;
-		const auto char_1 = nibble_to_hex_char<TChar>((byte >> 4) & 0xF);
-		const auto char_2 = nibble_to_hex_char<TChar>(byte & 0xF);
-		chars[char_index + 0] = char_1;
-		chars[char_index + 1] = char_2;
-		char_index += 2;
+		BSTONE_THROW_STATIC_SOURCE("Char count out of range.");
 	}
 
-	return char_index;
+	if (char_count < byte_count * 2)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Char buffer too small.");
+	}
+
+	using Unsigned = std::conditional_t<
+		sizeof(TByte) >= sizeof(unsigned int),
+		std::make_unsigned_t<TByte>,
+		unsigned int>;
+
+	auto i_char = IntP{};
+
+	for (auto i_byte = IntP{}; i_byte < byte_count; ++i_byte)
+	{
+		const auto byte = static_cast<Unsigned>(static_cast<std::make_unsigned_t<TByte>>(bytes_first[i_byte]));
+		const auto char_1 = bstone::nibble_to_hex_char<TChar>((byte >> 4) & 0xF);
+		const auto char_2 = bstone::nibble_to_hex_char<TChar>(byte & 0xF);
+		chars_first[i_char++] = char_1;
+		chars_first[i_char++] = char_2;
+	}
+
+	return chars_first + i_char;
 }
 
 // ==========================================================================
@@ -140,32 +165,7 @@ constexpr auto char_conv_max_base = 36;
 
 // --------------------------------------------------------------------------
 
-enum class ToCharsFormat : unsigned int
-{
-	none = 0,
-
-	// Prefix digits for common bases.
-	// - "0b" or "0B" for base 2.
-	// - "0" for base 8.
-	// - "0x" or "0X" for base 16.
-	prefix = 1U << 0,
-
-	// Aways prefix a positive number with a plus sign.
-	plus_sign = 1U << 1,
-
-	// Uppercase prefix.
-	uppercase_prefix = 1U << 2,
-
-	// Uppercase digits.
-	uppercase_value = 1U << 3,
-};
-
-BSTONE_ENABLE_ENUM_CLASS_BITWISE_OPS_FOR(ToCharsFormat)
-
 namespace detail {
-
-constexpr auto max_integral_bits = 64;
-constexpr auto max_integral_prefix_size = 2;
 
 struct ToCharsIntegralTag {};
 
@@ -177,7 +177,7 @@ struct ToCharsIntegralToUnsigned
 	template<typename U = T, std::enable_if_t<std::is_signed<U>::value, int> = 0>
 	constexpr Unsigned operator()(U value) const noexcept
 	{
-		return static_cast<Unsigned>((value >= 0 || value == std::numeric_limits<U>::min()) ? value : -value);
+		return static_cast<Unsigned>((value >= 0 || value == (std::numeric_limits<U>::min)()) ? value : -value);
 	}
 
 	template<typename U = T, std::enable_if_t<std::is_unsigned<U>::value, int> = 0>
@@ -190,11 +190,7 @@ struct ToCharsIntegralToUnsigned
 } // namespace detail
 
 template<typename TValue, typename TChar>
-inline constexpr IntP to_chars(
-	TValue value,
-	Span<TChar> chars_span,
-	int base,
-	ToCharsFormat format = ToCharsFormat{})
+inline constexpr TChar* to_chars(TValue value, TChar* chars_first, TChar* chars_last, int base = 10)
 {
 	static_assert(std::is_integral<TValue>::value, "Expected an integral type.");
 
@@ -203,73 +199,38 @@ inline constexpr IntP to_chars(
 		BSTONE_THROW_STATIC_SOURCE("Base out of range.");
 	}
 
-	constexpr auto not_enough_space_error_message = "Not enough space.";
+	constexpr auto buffer_too_small_string = "Buffer too small.";
 
-	const auto is_minus_sign = (value < 0);
-	const auto is_uppercase_value = ((format & ToCharsFormat::uppercase_value) != ToCharsFormat{});
+	const auto is_minus_sign = value < 0;
 
 	auto u_value = detail::ToCharsIntegralToUnsigned<TValue>{}(value);
 
-	auto chars_it = chars_span.begin();
-	const auto chars_end = chars_span.end();
+	const auto max_char_count = chars_last - chars_first;
+
+	if (max_char_count < 0)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Buffer size out of range.");
+	}
+
+	auto i_char = IntP{};
 
 	while (true)
 	{
-		if (chars_it == chars_end)
+		if (i_char == max_char_count)
 		{
-			BSTONE_THROW_STATIC_SOURCE(not_enough_space_error_message);
+			BSTONE_THROW_STATIC_SOURCE(buffer_too_small_string);
 		}
 
 		const auto next_value = u_value / base;
 		const auto digit = u_value - (next_value * base);
 		assert(digit < static_cast<decltype(digit)>(base));
 		u_value = static_cast<decltype(u_value)>(next_value);
-		const auto digit_char = static_cast<TChar>(digit < 10 ? '0' + digit : 'a' + digit - 10);
-		*(chars_it++) = (is_uppercase_value ? ascii::to_upper(digit_char) : digit_char);
+		const auto digit_char = static_cast<TChar>(digit < 10 ? ('0' + digit) : ('a' + digit - 10));
+		chars_first[i_char++] = digit_char;
 
 		if (next_value == 0)
 		{
 			break;
-		}
-	}
-
-	if ((format & ToCharsFormat::prefix) != ToCharsFormat{} && value != 0)
-	{
-		const auto is_uppercase_prefix = ((format & ToCharsFormat::uppercase_prefix) != ToCharsFormat{});
-
-		switch (base)
-		{
-			case 2:
-				if ((chars_it + 2) >= chars_end)
-				{
-					BSTONE_THROW_STATIC_SOURCE(not_enough_space_error_message);
-				}
-
-				*(chars_it++) = (is_uppercase_prefix ? 'B' : 'b');
-				*(chars_it++) = '0';
-				break;
-
-			case 8:
-				if (chars_it == chars_end)
-				{
-					BSTONE_THROW_STATIC_SOURCE(not_enough_space_error_message);
-				}
-
-				*(chars_it++) = '0';
-				break;
-
-			case 16:
-				if ((chars_it + 2) >= chars_end)
-				{
-					BSTONE_THROW_STATIC_SOURCE(not_enough_space_error_message);
-				}
-
-				*(chars_it++) = (is_uppercase_prefix ? 'X' : 'x');
-				*(chars_it++) = '0';
-				break;
-
-			default:
-				break;
 		}
 	}
 
@@ -279,48 +240,28 @@ inline constexpr IntP to_chars(
 	{
 		sign = '-';
 	}
-	else if ((format & ToCharsFormat::plus_sign) != ToCharsFormat{})
-	{
-		sign = '+';
-	}
 
 	if (sign != TChar{})
 	{
-		if (chars_it == chars_end)
+		if (i_char == max_char_count)
 		{
-			BSTONE_THROW_STATIC_SOURCE(not_enough_space_error_message);
+			BSTONE_THROW_STATIC_SOURCE(buffer_too_small_string);
 		}
 
-		*(chars_it++) = sign;
+		chars_first[i_char++] = sign;
 	}
 
-	const auto char_count = chars_it - chars_span.begin();
-	auto left_chars = chars_span.begin();
-	auto right_chars = chars_span.begin() + char_count - 1;
-	const auto half_char_count = char_count / 2;
+	const auto half_char_count = i_char / 2;
 
-	for (auto i = decltype(half_char_count){}; i < half_char_count; ++i)
+	for (auto i = IntP{}; i < half_char_count; ++i)
 	{
-		const auto temp = *left_chars;
-		*(left_chars++) = *right_chars;
-		*(right_chars--) = temp;
+		bstone::swop(chars_first[i], chars_first[i_char - 1 - i]);
 	}
 
-	return char_count;
+	return chars_first + i_char;
 }
 
 // ==========================================================================
-
-enum class FromCharsFormat : unsigned int
-{
-	none = 0,
-
-	// The characters does not contain the prefix.
-	// Note, the base can not be zero.
-	no_prefix = 1U << 0,
-};
-
-BSTONE_ENABLE_ENUM_CLASS_BITWISE_OPS_FOR(FromCharsFormat)
 
 namespace detail {
 
@@ -342,15 +283,18 @@ struct FromCharsIntegralFromUnsigned
 
 } // namespace detail
 
-template<typename TValue, typename TChar>
-inline constexpr TValue from_chars(
-	Span<TChar> chars_span,
-	int base = 0,
-	FromCharsFormat format = FromCharsFormat{})
+template<typename TChar, typename TValue>
+inline constexpr const TChar* from_chars(
+	const TChar* chars_first,
+	const TChar* chars_last,
+	TValue& value,
+	int base = 10)
 {
-	if (chars_span.is_empty())
+	const auto max_char_count = chars_last - chars_first;
+
+	if (max_char_count <= 0)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Empty character sequence.");
+		BSTONE_THROW_STATIC_SOURCE("Char count out of range.");
 	}
 
 	if (base != 0 && (base < char_conv_min_base || base > char_conv_max_base))
@@ -358,12 +302,10 @@ inline constexpr TValue from_chars(
 		BSTONE_THROW_STATIC_SOURCE("Base out of range.");
 	}
 
-	auto chars_it = chars_span.begin();
-	const auto chars_end = chars_span.end();
-
+	auto i_char = IntP{};
 	auto has_minus_sign = false;
 
-	if (*chars_it == '-')
+	if (chars_first[i_char] == '-')
 	{
 		if (!std::is_signed<TValue>::value)
 		{
@@ -371,47 +313,37 @@ inline constexpr TValue from_chars(
 		}
 
 		has_minus_sign = true;
-		chars_it += 1;
+		++i_char;
 	}
-	else if (*chars_it == '+')
+	else if (chars_first[i_char] == '+')
 	{
-		chars_it += 1;
-	}
-
-	auto detected_base = 0;
-
-	if ((format & FromCharsFormat::no_prefix) == FromCharsFormat{})
-	{
-		if ((chars_it + 2) <= chars_end)
-		{
-			if (chars_it[0] == '0')
-			{
-				if (chars_it[1] == 'b' || chars_it[1] == 'B')
-				{
-					detected_base = 2;
-					chars_it += 2;
-				}
-				else if (chars_it[1] == 'x' || chars_it[1] == 'X')
-				{
-					detected_base = 16;
-					chars_it += 2;
-				}
-				else if (chars_it[1] != '0')
-				{
-					detected_base = 8;
-					chars_it += 1;
-				}
-			}
-		}
-
-		if (detected_base == 0 && chars_it < chars_end)
-		{
-			detected_base = 10;
-		}
+		++i_char;
 	}
 
 	if (base == 0)
 	{
+		auto detected_base = 0;
+
+		if (i_char + 2 <= max_char_count &&
+			chars_first[i_char + 0] == '0' &&
+			(chars_first[i_char + 1] == 'x' || chars_first[i_char + 1] == 'X'))
+		{
+			detected_base = 16;
+			i_char += 2;
+		}
+		else if (i_char + 1 <= max_char_count)
+		{
+			if (chars_first[i_char] == '0')
+			{
+				detected_base = 8;
+				++i_char;
+			}
+			else if (ascii::is_decimal(chars_first[i_char]))
+			{
+				detected_base = 10;
+			}
+		}
+
 		if (detected_base == 0)
 		{
 			BSTONE_THROW_STATIC_SOURCE("Unable to detect a base.");
@@ -419,20 +351,16 @@ inline constexpr TValue from_chars(
 
 		base = detected_base;
 	}
-	else if (detected_base != 0 && detected_base != base)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Base mismatch.");
-	}
 
-	if (chars_it == chars_end)
+	if (i_char == max_char_count)
 	{
 		BSTONE_THROW_STATIC_SOURCE("No digits.");
 	}
 
 	const auto max_value = (
 		std::is_signed<TValue>::value ?
-			(has_minus_sign ? std::numeric_limits<TValue>::min() : std::numeric_limits<TValue>::max()) :
-		std::numeric_limits<TValue>::max());
+			(has_minus_sign ? (std::numeric_limits<TValue>::min)() : (std::numeric_limits<TValue>::max)()) :
+				(std::numeric_limits<TValue>::max)());
 
 	using Unsigned = std::make_unsigned_t<TValue>;
 	const auto max_u_value = static_cast<Unsigned>(max_value);
@@ -441,9 +369,9 @@ inline constexpr TValue from_chars(
 
 	auto u_value = Unsigned{};
 
-	while (chars_it != chars_end)
+	while (i_char != max_char_count)
 	{
-		const auto digit_char = *chars_it++;
+		const auto digit_char = chars_first[i_char++];
 		auto digit = TChar{};
 
 		if (ascii::is_decimal(digit_char))
@@ -473,14 +401,14 @@ inline constexpr TValue from_chars(
 			BSTONE_THROW_STATIC_SOURCE("Number overflow.");
 		}
 
-		u_value *= base;
+		u_value *= static_cast<Unsigned>(base);
 		u_value += static_cast<Unsigned>(digit);
 	}
 
-	return detail::FromCharsIntegralFromUnsigned<TValue, Unsigned>{}(u_value, has_minus_sign);
+	value = detail::FromCharsIntegralFromUnsigned<TValue, Unsigned>{}(u_value, has_minus_sign);
+	return chars_first + i_char;
 }
 
-} // namespace char_conv
 } // namespace bstone
 
-#endif // !BSTONE_CHAR_CONV_INCLUDED
+#endif // BSTONE_CHAR_CONV_INCLUDED

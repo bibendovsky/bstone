@@ -11,6 +11,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <algorithm>
 #include <chrono>
 #include <functional>
+#include <iterator>
 #include <stdexcept>
 #include <thread>
 #include "SDL.h"
@@ -7365,10 +7366,18 @@ private:
 	[[noreturn]] void fail_line_and_column(const char* message)
 	{
 		char line_buffer[max_number_digits];
-		const auto number_size = bstone::char_conv::to_chars(line_number_, bstone::make_span(line_buffer), 10);
+
+		const auto number_size = bstone::to_chars(
+			line_number_,
+			std::begin(line_buffer),
+			std::end(line_buffer)) - line_buffer;
 
 		char column_buffer[max_number_digits];
-		const auto column_size = bstone::char_conv::to_chars(column_number_, bstone::make_span(column_buffer), 10);
+
+		const auto column_size = bstone::to_chars(
+			column_number_,
+			std::begin(column_buffer),
+			std::end(column_buffer)) - column_buffer;
 
 		auto message_buffer = std::string{};
 		message_buffer += '[';

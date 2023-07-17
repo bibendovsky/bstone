@@ -7,6 +7,7 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_SYS_SDL_DETAIL_INCLUDED)
 #define BSTONE_SYS_SDL_DETAIL_INCLUDED
 
+#include <iterator>
 #include <string>
 #include "SDL_render.h"
 #include "bstone_char_conv.h"
@@ -25,8 +26,24 @@ template<typename T>
 void sdl_log_xint(T value, int base, std::string& message)
 {
 	constexpr auto max_chars = 32;
-	char chars[max_chars];
-	const auto char_count = char_conv::to_chars(value, make_span(chars), base, char_conv::ToCharsFormat::prefix);
+	char char_buffer[max_chars];
+	auto chars = char_buffer;
+
+	switch (base)
+	{
+		case 8:
+			chars[0] = '0';
+			++chars;
+			break;
+
+		case 16:
+			chars[0] = '0';
+			chars[1] = 'x';
+			chars += 2;
+			break;
+	}
+
+	const auto char_count = to_chars(value, chars, std::end(char_buffer), base) - chars;
 	message.append(chars, static_cast<std::size_t>(char_count));
 }
 

@@ -24,6 +24,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 //
 
 #include <cstring>
+#include <iterator>
 #include "id_ca.h"
 #include "id_heads.h"
 #include "id_in.h"
@@ -1487,10 +1488,8 @@ auto in_clear_bindings_ccmd = bstone::CCmd{in_clear_bindings_sv, in_clear_bindin
 
 bstone::IntP in_parse_binding_slot_index(bstone::StringView slot_index_name_sv)
 BSTONE_BEGIN_FUNC_TRY
-	const auto slot_index_name_span = bstone::make_span(
-		slot_index_name_sv.get_data(),
-		slot_index_name_sv.get_size());
-	const auto slot_index = bstone::char_conv::from_chars<bstone::IntP>(slot_index_name_span);
+	auto slot_index = bstone::IntP{};
+	bstone::from_chars(slot_index_name_sv.cbegin(), slot_index_name_sv.cend(), slot_index);
 
 	if (slot_index < 0 || slot_index > k_max_binding_keys)
 	{
@@ -1860,7 +1859,6 @@ void in_serialize_bindings(bstone::TextWriter& text_writer)
 	{
 		constexpr auto slot_index_max_chars = 11;
 		char slot_index_chars[slot_index_max_chars];
-		const auto slot_index_chars_span = bstone::make_span(slot_index_chars);
 
 		auto raw_binding_id = static_cast<bstone::IntP>(BindingId{});
 
@@ -1876,10 +1874,10 @@ void in_serialize_bindings(bstone::TextWriter& text_writer)
 				{
 					const auto scan_code_sv = in_scan_code_id_to_name(binding_slot);
 
-					const auto slot_index_char_count = bstone::char_conv::to_chars(
+					const auto slot_index_char_count = bstone::to_chars(
 						slot_index,
-						slot_index_chars_span,
-						10);
+						std::begin(slot_index_chars),
+						std::end(slot_index_chars)) - slot_index_chars;
 
 					text_buffer.clear();
 

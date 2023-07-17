@@ -5,6 +5,7 @@ SPDX-License-Identifier: MIT
 */
 
 #include <cassert>
+#include <iterator>
 #include "SDL.h"
 #include "bstone_char_conv.h"
 #include "bstone_exception.h"
@@ -104,11 +105,16 @@ VideoMgrUPtr SdlSystemMgr::do_make_video_mgr()
 void SdlSystemMgr::log_version(const SDL_version& sdl_version, StringView version_name)
 {
 	char major_chars[3];
-	const auto major_size = char_conv::to_chars(sdl_version.major, make_span(major_chars), 10);
+	const auto major_size =
+		to_chars(sdl_version.major, std::begin(major_chars), std::end(major_chars)) - major_chars;
+
 	char minor_chars[3];
-	const auto minor_size = char_conv::to_chars(sdl_version.minor, make_span(minor_chars), 10);
+	const auto minor_size =
+		to_chars(sdl_version.minor, std::begin(minor_chars), std::end(minor_chars)) - minor_chars;
+
 	char patch_chars[3];
-	const auto patch_size = char_conv::to_chars(sdl_version.patch, make_span(patch_chars), 10);
+	const auto patch_size =
+		to_chars(sdl_version.patch, std::begin(patch_chars), std::end(patch_chars)) - patch_chars;
 
 	auto version_string = std::string{};
 	version_string.reserve(32);

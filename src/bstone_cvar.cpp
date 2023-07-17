@@ -6,6 +6,7 @@ SPDX-License-Identifier: MIT
 
 #include <algorithm>
 #include <exception>
+#include <iterator>
 #include <limits>
 #include <utility>
 #include "bstone_algorithm.h"
@@ -307,7 +308,7 @@ void CVar::set_string_from_int32()
 try
 {
 	char chars[max_int32_chars];
-	const auto char_count = char_conv::to_chars(int32_value_, make_span(chars), 10);
+	const auto char_count = to_chars(int32_value_, std::begin(chars), std::end(chars)) - chars;
 	string_value_ = StringView{chars, char_count};
 }
 catch (...)
@@ -319,12 +320,7 @@ void CVar::set_int32_from_string()
 try
 {
 	const auto string = string_value_.get();
-	const auto string_span = make_span(string.get_data(), string.get_size());
-
-	int32_value_ = char_conv::from_chars<Int32>(
-		string_span,
-		10,
-		char_conv::FromCharsFormat::no_prefix);
+	from_chars(string.cbegin(), string.cend(), int32_value_, 0);
 }
 catch (...)
 {

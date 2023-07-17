@@ -60,10 +60,13 @@ target_sources(${PROJECT_NAME}
 		../bstone_scope_exit.h
 		../bstone_array.cpp
 		../bstone_array.h
+		../bstone_char_conv.cpp
+		../bstone_char_conv.h
 	PRIVATE
 		src/bstone_tests_algorithm.cpp
 		src/bstone_tests_array.cpp
 		src/bstone_tests_ascii.cpp
+		src/bstone_tests_char_conv.cpp
 		src/bstone_tests_char_traits.cpp
 		src/bstone_tests_endian.cpp
 		src/bstone_tests_exception.cpp
