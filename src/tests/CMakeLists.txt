@@ -76,6 +76,7 @@ target_sources(${PROJECT_NAME}
 		src/bstone_tests_scope_exit.cpp
 		src/bstone_tests_source_location.cpp
 		src/bstone_tests_span.cpp
+		src/bstone_tests_unique_resource.cpp
 		src/bstone_tests_utility.cpp
 	PRIVATE
 		src/bstone_tester.cpp

@@ -39,9 +39,12 @@ private:
 	const R3rSamplerState& do_get_state() const noexcept override;
 
 private:
-	static void sampler_deleter(GLuint gl_name) noexcept;
+	struct SamplerDeleter
+	{
+		void operator()(GLuint gl_name) noexcept;
+	};
 
-	using SamplerResource = bstone::UniqueResource<GLuint, sampler_deleter>;
+	using SamplerResource = bstone::UniqueResource<GLuint, SamplerDeleter>;
 
 private:
 	GlR3rContext& context_;
@@ -97,7 +100,7 @@ BSTONE_BEGIN_CTOR_TRY
 
 		sampler_resource_.reset(gl_name);
 
-		if (!sampler_resource_)
+		if (sampler_resource_.is_empty())
 		{
 			BSTONE_THROW_STATIC_SOURCE("Failed to create an object.");
 		}
@@ -197,7 +200,7 @@ BSTONE_BEGIN_FUNC_TRY
 
 	// Commit.
 	//
-	if (is_modified && sampler_resource_)
+	if (is_modified && !sampler_resource_.is_empty())
 	{
 		if (is_mag_filter_modified)
 		{
@@ -231,7 +234,7 @@ const R3rSamplerState& GlR3rSamplerImpl::do_get_state() const noexcept
 	return state_;
 }
 
-void GlR3rSamplerImpl::sampler_deleter(GLuint gl_name) noexcept
+void GlR3rSamplerImpl::SamplerDeleter::operator()(GLuint gl_name) noexcept
 {
 	glDeleteSamplers(1, &gl_name);
 	GlR3rError::ensure_assert();

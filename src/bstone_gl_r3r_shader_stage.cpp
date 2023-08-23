@@ -56,9 +56,12 @@ private:
 private:
 	using NameBuffer = std::vector<char>;
 
-	static void shader_stage_deleter(GLuint gl_name) noexcept;
+	struct ShaderStageDeleter
+	{
+		void operator()(GLuint gl_name) noexcept;
+	};
 
-	using ShaderStageResource = UniqueResource<GLuint, shader_stage_deleter>;
+	using ShaderStageResource = UniqueResource<GLuint, ShaderStageDeleter>;
 	using ShaderVars = std::vector<GlR3rShaderVarUPtr>;
 
 private:
@@ -242,7 +245,7 @@ GLuint GlR3rShaderStageImpl::get_gl_name() const noexcept
 	return shader_stage_resource_.get();
 }
 
-void GlR3rShaderStageImpl::shader_stage_deleter(GLuint gl_name) noexcept
+void GlR3rShaderStageImpl::ShaderStageDeleter::operator()(GLuint gl_name) noexcept
 {
 	glDeleteProgram(gl_name);
 	GlR3rError::ensure_assert();

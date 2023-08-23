@@ -51,9 +51,12 @@ private:
 	GlR3rBuffer* index_buffer_{};
 	R3rVertexAttribDescrs attrib_descrs_{};
 
-	static void vao_deleter(GLuint gl_name) noexcept;
+	struct VaoDeleter
+	{
+		void operator()(GLuint gl_name) noexcept;
+	};
 
-	using VaoResource = UniqueResource<GLuint, vao_deleter>;
+	using VaoResource = UniqueResource<GLuint, VaoDeleter>;
 	VaoResource vao_resource_{};
 
 private:
@@ -157,7 +160,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rVertexInputImpl::vao_deleter(GLuint gl_name) noexcept
+void GlR3rVertexInputImpl::VaoDeleter::operator()(GLuint gl_name) noexcept
 {
 	glDeleteVertexArrays(1, &gl_name);
 	GlR3rError::ensure_assert();

@@ -310,6 +310,8 @@ target_sources(
 		bstone_scope_exit.h
 		bstone_array.cpp
 		bstone_array.h
+		bstone_unique_resource.cpp
+		bstone_unique_resource.h
 )
 
 target_sources(
@@ -485,7 +487,6 @@ target_sources(
 		bstone_time.h
 		bstone_type_traits.h
 		bstone_un_value.h
-		bstone_unique_resource.h
 		bstone_version.h
 		bstone_video.h
 		bstone_voice.h

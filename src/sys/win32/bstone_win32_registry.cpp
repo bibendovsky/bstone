@@ -38,11 +38,13 @@ SPDX-License-Identifier: GPL-2.0-or-later
 namespace bstone
 {
 
-void Win32RegistryKeyDeleter(
-	HKEY resource) noexcept
+struct Win32RegistryKeyDeleter
 {
-	RegCloseKey(resource);
-}
+	void operator()(HKEY resource) noexcept
+	{
+		RegCloseKey(resource);
+	}
+};
 
 using Win32RegistryKeyResource = UniqueResource<HKEY, Win32RegistryKeyDeleter>;
 
@@ -191,7 +193,7 @@ BSTONE_BEGIN_FUNC_TRY
 
 	auto win32_key_resource = Win32RegistryKeyResource{win32_key};
 
-	if (win32_result != ERROR_SUCCESS || !win32_key_resource)
+	if (win32_result != ERROR_SUCCESS || win32_key_resource.is_empty())
 	{
 		return nullptr;
 	}

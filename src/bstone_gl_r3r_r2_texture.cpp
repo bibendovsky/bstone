@@ -41,8 +41,12 @@ public:
 	void update_sampler_state(const R3rSamplerState& new_sampler_state) override;
 
 private:
-	static void texture_deleter(GLuint gl_name) noexcept;
-	using TextureResource = UniqueResource<GLuint, texture_deleter>;
+	struct TextureDeleter
+	{
+		void operator()(GLuint gl_name) noexcept;
+	};
+
+	using TextureResource = UniqueResource<GLuint, TextureDeleter>;
 
 private:
 	GlR3rContext& context_;
@@ -149,7 +153,7 @@ BSTONE_BEGIN_CTOR_TRY
 
 	texture_resource_.reset(gl_name);
 
-	if (!texture_resource_)
+	if (texture_resource_.is_empty())
 	{
 		BSTONE_THROW_STATIC_SOURCE("Failed to create an object.");
 	}
@@ -297,7 +301,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rR2TextureImpl::texture_deleter(GLuint gl_name) noexcept
+void GlR3rR2TextureImpl::TextureDeleter::operator()(GLuint gl_name) noexcept
 {
 	glDeleteTextures(1, &gl_name);
 	GlR3rError::ensure_assert();

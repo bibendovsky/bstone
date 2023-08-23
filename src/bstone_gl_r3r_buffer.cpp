@@ -42,9 +42,12 @@ private:
 	void set(bool is_set) override;
 
 private:
-	static void buffer_deleter(GLuint gl_name) noexcept;
+	struct BufferDeleter
+	{
+		void operator()(GLuint gl_name) const noexcept;
+	};
 
-	using BufferResource = UniqueResource<GLuint, buffer_deleter>;
+	using BufferResource = UniqueResource<GLuint, BufferDeleter>;
 
 private:
 	GlR3rContext& context_;
@@ -176,7 +179,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rBufferImpl::buffer_deleter(GLuint gl_name) noexcept
+void GlR3rBufferImpl::BufferDeleter::operator()(GLuint gl_name) const noexcept
 {
 	glDeleteBuffers(1, &gl_name);
 	GlR3rError::ensure_assert();

@@ -80,13 +80,19 @@ private:
 	void do_submit_commands(Span<R3rCmdBuffer*> command_buffers) override;
 
 private:
-	static void fbo_deleter(GLuint gl_name) noexcept;
+	struct FboDeleter
+	{
+		void operator()(GLuint gl_name) noexcept;
+	};
 
-	using FboResource = UniqueResource<GLuint, fbo_deleter>;
+	using FboResource = UniqueResource<GLuint, FboDeleter>;
 
-	static void rbo_deleter(GLuint gl_name) noexcept;
+	struct RboDeleter
+	{
+		void operator()(GLuint gl_name) noexcept;
+	};
 
-	using RboResource = UniqueResource<GLuint, rbo_deleter>;
+	using RboResource = UniqueResource<GLuint, RboDeleter>;
 
 	using Shaders = std::list<GlR3rShaderUPtr>;
 	using ShaderStages = std::list<GlR3rShaderStageUPtr>;
@@ -654,14 +660,14 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rImpl::fbo_deleter(GLuint gl_name) noexcept
+void GlR3rImpl::FboDeleter::operator()(GLuint gl_name) noexcept
 {
 	const auto gl_function = (glDeleteFramebuffers ? glDeleteFramebuffers : glDeleteFramebuffersEXT);
 	gl_function(1, &gl_name);
 	GlR3rError::ensure_assert();
 }
 
-void GlR3rImpl::rbo_deleter(GLuint gl_name) noexcept
+void GlR3rImpl::RboDeleter::operator()(GLuint gl_name) noexcept
 {
 	const auto gl_function = (glDeleteRenderbuffers ? glDeleteRenderbuffers : glDeleteRenderbuffersEXT);
 	gl_function(1, &gl_name);
@@ -720,7 +726,7 @@ BSTONE_BEGIN_FUNC_TRY
 
 	auto rbo_resource = RboResource{gl_name};
 
-	if (!rbo_resource)
+	if (rbo_resource.is_empty())
 	{
 		BSTONE_THROW_STATIC_SOURCE("Failed to create OpenGL renderbuffer object.");
 	}
@@ -750,7 +756,7 @@ BSTONE_BEGIN_FUNC_TRY
 
 	auto fbo_resource = FboResource{gl_name};
 
-	if (!fbo_resource)
+	if (fbo_resource.is_empty())
 	{
 		BSTONE_THROW_STATIC_SOURCE("Failed to create OpenGL framebuffer object.");
 	}

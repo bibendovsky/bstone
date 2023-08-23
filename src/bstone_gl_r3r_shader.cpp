@@ -43,10 +43,12 @@ public:
 private:
 	R3rShaderType type_{};
 
+	struct ShaderDeleter
+	{
+		void operator()(GLuint gl_name) noexcept;
+	};
 
-	static void shader_deleter(GLuint gl_name) noexcept;
-
-	using ShaderResource = UniqueResource<GLuint, shader_deleter>;
+	using ShaderResource = UniqueResource<GLuint, ShaderDeleter>;
 
 	ShaderResource shader_resource_{};
 	GlR3rShaderStage* shader_stage_{};
@@ -72,7 +74,7 @@ BSTONE_BEGIN_FUNC_TRY
 
 	shader_resource_.reset(glCreateShader(gl_type));
 
-	if (!shader_resource_)
+	if (shader_resource_.is_empty())
 	{
 		BSTONE_THROW_STATIC_SOURCE("Failed to create an object.");
 	}
@@ -145,7 +147,7 @@ R3rShaderType GlR3rShaderImpl::do_get_type() const noexcept
 	return type_;
 }
 
-void GlR3rShaderImpl::shader_deleter(GLuint gl_name) noexcept
+void GlR3rShaderImpl::ShaderDeleter::operator()(GLuint gl_name) noexcept
 {
 	glDeleteShader(gl_name);
 	GlR3rError::ensure_assert();
