@@ -312,6 +312,14 @@ target_sources(
 		bstone_array.h
 		bstone_unique_resource.cpp
 		bstone_unique_resource.h
+		bstone_cgm_mat.cpp
+		bstone_cgm_mat.h
+		bstone_cgm_clip_space.cpp
+		bstone_cgm_clip_space.h
+		bstone_cgm_transform.cpp
+		bstone_cgm_transform.h
+		bstone_cgm_vec.cpp
+		bstone_cgm_vec.h
 )
 
 target_sources(
@@ -561,13 +569,6 @@ target_sources(
 		bstone_hw_texture_mgr.cpp
 		bstone_missing_sprite_64x64_image.cpp
 		bstone_missing_wall_64x64_image.cpp
-
-		bstone_cgm_mat.h
-		bstone_cgm_mat_tests.cpp
-		bstone_cgm_clip_space.h
-		bstone_cgm_transform.h
-		bstone_cgm_vec.h
-		bstone_cgm_vec_tests.cpp
 
 		bstone_r3r.cpp
 		bstone_r3r_buffer.cpp

@@ -61,7 +61,17 @@ target_sources(${PROJECT_NAME}
 		../bstone_array.cpp
 		../bstone_array.h
 		../bstone_char_conv.cpp
-		../bstone_char_conv.h
+		../bstone_char_conv.cpp
+		../bstone_unique_resource.cpp
+		../bstone_unique_resource.h
+		../bstone_cgm_vec.cpp
+		../bstone_cgm_vec.h
+		../bstone_cgm_mat.cpp
+		../bstone_cgm_mat.h
+		../bstone_cgm_clip_space.cpp
+		../bstone_cgm_clip_space.h
+		../bstone_cgm_transform.cpp
+		../bstone_cgm_transform.h
 	PRIVATE
 		src/bstone_tests_algorithm.cpp
 		src/bstone_tests_array.cpp
@@ -78,6 +88,10 @@ target_sources(${PROJECT_NAME}
 		src/bstone_tests_span.cpp
 		src/bstone_tests_unique_resource.cpp
 		src/bstone_tests_utility.cpp
+		src/bstone_tests_cgm_vec.cpp
+		src/bstone_tests_cgm_mat.cpp
+		src/bstone_tests_cgm_clip_space.cpp
+		src/bstone_tests_cgm_transform.cpp
 	PRIVATE
 		src/bstone_tester.cpp
 		src/bstone_tester.h

@@ -4,9 +4,11 @@ Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
+// Computer Graphics Math - Vector.
+
 /*
-Computer Graphics Math:
-A vector
+Notes:
+  - Only integral and floating-point types are supported.
 */
 
 #if !defined(BSTONE_CGM_VEC_INCLUDED)
@@ -14,6 +16,10 @@ A vector
 
 #include <cassert>
 #include <cmath>
+
+#include <type_traits>
+#include <utility>
+
 #include "bstone_int.h"
 #include "bstone_utility.h"
 
@@ -21,141 +27,121 @@ namespace bstone {
 namespace cgm {
 
 template<IntP N, typename T>
-class VecT;
+class Vec;
 
 // ==========================================================================
 
-template<typename T>
-class VecT<2, T>
-{
-public:
-	static constexpr auto item_count = 2;
+namespace detail {
 
+template<IntP N, typename T>
+class VecBase
+{
+	static_assert(N >= 2 && N <= 4, "Unsupported dimension.");
+
+	static_assert(
+		std::is_integral<T>::value || std::is_floating_point<T>::value,
+		"Expected integer or floating-point type.");
+
+public:
+	static constexpr auto item_count = N;
+
+public:
 	using Item = T;
 
-	constexpr VecT() = default;
-
-	constexpr VecT(Item v0, Item v1)
+public:
+	template<typename... TArgs>
+	constexpr VecBase(TArgs&&... args) noexcept
 		:
-		v_{v0, v1}
+		v_{std::forward<TArgs>(args)...}
 	{}
 
-	constexpr const Item& operator[](IntP index) const
+	constexpr const Item& operator[](IntP index) const noexcept
 	{
 		assert(index >= 0 && index < item_count);
 		return v_[index];
 	}
 
-	constexpr Item& operator[](IntP index)
+	constexpr Item& operator[](IntP index) noexcept
 	{
 		return const_cast<Item&>(bstone::as_const(*this)[index]);
 	}
 
-	constexpr Item get_magnitude() const
-	{
-		return std::sqrt((v_[0] * v_[0]) + (v_[1] * v_[1]));
-	}
-
-private:
+protected:
 	using Items = Item[item_count];
 
 	Items v_{};
 };
 
-// ==========================================================================
+} // namespace detail
 
 template<typename T>
-class VecT<3, T>
+class Vec<2, T> : public detail::VecBase<2, T>
 {
 public:
-	static constexpr auto item_count = 3;
+	using Base = detail::VecBase<2, T>;
+	using typename Base::Item;
 
-	using Item = T;
+public:
+	Vec() = default;
 
-	constexpr VecT() = default;
-
-	constexpr VecT(Item v0, Item v1, Item v2)
+	constexpr Vec(Item v0, Item v1) noexcept
 		:
-		v_{v0, v1, v2}
+		Base{v0, v1}
 	{}
-
-	constexpr const Item& operator[](IntP index) const
-	{
-		assert(index >= 0 && index < item_count);
-		return v_[index];
-	}
-
-	constexpr Item& operator[](IntP index)
-	{
-		return const_cast<Item&>(bstone::as_const(*this)[index]);
-	}
-
-	constexpr Item get_magnitude() const
-	{
-		return std::sqrt((v_[0] * v_[0]) + (v_[1] * v_[1]) + (v_[2] * v_[2]));
-	}
-
-private:
-	using Items = Item[item_count];
-
-	Items v_{};
 };
 
 // ==========================================================================
 
 template<typename T>
-class VecT<4, T>
+class Vec<3, T> : public detail::VecBase<3, T>
 {
 public:
-	static constexpr auto item_count = 4;
+	using Base = detail::VecBase<3, T>;
+	using typename Base::Item;
 
-	using Item = T;
+public:
+	Vec() = default;
 
-	constexpr VecT() = default;
-
-	constexpr VecT(Item v0, Item v1, Item v2, Item v3)
+	constexpr Vec(Item v0, Item v1, Item v2) noexcept
 		:
-		v_{v0, v1, v2, v3}
+		Base{v0, v1, v2}
 	{}
-
-	constexpr const Item& operator[](IntP index) const
-	{
-		assert(index >= 0 && index < item_count);
-		return v_[index];
-	}
-
-	constexpr Item& operator[](IntP index)
-	{
-		return const_cast<Item&>(bstone::as_const(*this)[index]);
-	}
-
-	constexpr Item get_magnitude() const
-	{
-		return std::sqrt((v_[0] * v_[0]) + (v_[1] * v_[1]) + (v_[2] * v_[2]) + (v_[3] * v_[3]));
-	}
-
-private:
-	using Items = Item[item_count];
-
-	Items v_{};
 };
 
 // ==========================================================================
 
 template<typename T>
-inline constexpr bool operator==(const VecT<2, T>& a, const VecT<2, T>& b)
+class Vec<4, T> : public detail::VecBase<4, T>
+{
+public:
+	using Base = detail::VecBase<4, T>;
+	using typename Base::Item;
+
+public:
+	Vec() = default;
+
+	constexpr Vec(Item v0, Item v1, Item v2, Item v3) noexcept
+		:
+		Base{v0, v1, v2, v3}
+	{}
+};
+
+// ==========================================================================
+
+template<typename T>
+inline constexpr bool operator==(const Vec<2, T>& a, const Vec<2, T>& b) noexcept
 {
 	return a[0] == b[0] && a[1] == b[1];
 }
 
 template<typename T>
-inline constexpr bool operator==(const VecT<3, T>& a, const VecT<3, T>& b)
+inline constexpr bool operator==(const Vec<3, T>& a, const Vec<3, T>& b) noexcept
 {
 	return a[0] == b[0] && a[1] == b[1] && a[2] == b[2];
 }
 
 template<typename T>
-inline constexpr bool operator==(const VecT<4, T>& a, const VecT<4, T>& b)
+inline constexpr bool operator==(const Vec<4, T>& a, const Vec<4, T>& b) noexcept
 {
 	return a[0] == b[0] && a[1] == b[1] && a[2] == b[2] && a[3] == b[3];
 }
@@ -163,7 +149,7 @@ inline constexpr bool operator==(const VecT<4, T>& a, const VecT<4, T>& b)
 // ==========================================================================
 
 template<IntP N, typename T>
-inline constexpr bool operator!=(const VecT<N, T>& a, const VecT<N, T>& b)
+inline constexpr bool operator!=(const Vec<N, T>& a, const Vec<N, T>& b) noexcept
 {
 	return !(a == b);
 }
@@ -171,87 +157,87 @@ inline constexpr bool operator!=(const VecT<N, T>& a, const VecT<N, T>& b)
 // ==========================================================================
 
 template<typename T>
-inline constexpr VecT<2, T> operator-(const VecT<2, T>& a)
+inline constexpr Vec<2, T> operator-(const Vec<2, T>& a) noexcept
 {
-	return VecT<2, T>{-a[0], -a[1]};
+	return Vec<2, T>{-a[0], -a[1]};
 }
 
 template<typename T>
-inline constexpr VecT<3, T> operator-(const VecT<3, T>& a)
+inline constexpr Vec<3, T> operator-(const Vec<3, T>& a) noexcept
 {
-	return VecT<3, T>{-a[0], -a[1], -a[2]};
+	return Vec<3, T>{-a[0], -a[1], -a[2]};
 }
 
 template<typename T>
-inline constexpr VecT<4, T> operator-(const VecT<4, T>& a)
+inline constexpr Vec<4, T> operator-(const Vec<4, T>& a) noexcept
 {
-	return VecT<4, T>{-a[0], -a[1], -a[2], -a[3]};
-}
-
-// ==========================================================================
-
-template<typename T>
-inline constexpr VecT<2, T> operator+(const VecT<2, T>& a, const VecT<2, T>& b)
-{
-	return VecT<2, T>{a[0] + b[0], a[1] + b[1]};
-}
-
-template<typename T>
-inline constexpr VecT<3, T> operator+(const VecT<3, T>& a, const VecT<3, T>& b)
-{
-	return VecT<3, T>{a[0] + b[0], a[1] + b[1], a[2] + b[2]};
-}
-
-template<typename T>
-inline constexpr VecT<4, T> operator+(const VecT<4, T>& a, const VecT<4, T>& b)
-{
-	return VecT<4, T>{a[0] + b[0], a[1] + b[1], a[2] + b[2], a[3] + b[3]};
+	return Vec<4, T>{-a[0], -a[1], -a[2], -a[3]};
 }
 
 // ==========================================================================
 
 template<typename T>
-inline constexpr VecT<2, T> operator-(const VecT<2, T>& a, const VecT<2, T>& b)
+inline constexpr Vec<2, T> operator+(const Vec<2, T>& a, const Vec<2, T>& b) noexcept
 {
-	return VecT<2, T>{a[0] - b[0], a[1] - b[1]};
+	return Vec<2, T>{a[0] + b[0], a[1] + b[1]};
 }
 
 template<typename T>
-inline constexpr VecT<3, T> operator-(const VecT<3, T>& a, const VecT<3, T>& b)
+inline constexpr Vec<3, T> operator+(const Vec<3, T>& a, const Vec<3, T>& b) noexcept
 {
-	return VecT<3, T>{a[0] - b[0], a[1] - b[1], a[2] - b[2]};
+	return Vec<3, T>{a[0] + b[0], a[1] + b[1], a[2] + b[2]};
 }
 
 template<typename T>
-inline constexpr VecT<4, T> operator-(const VecT<4, T>& a, const VecT<4, T>& b)
+inline constexpr Vec<4, T> operator+(const Vec<4, T>& a, const Vec<4, T>& b) noexcept
 {
-	return VecT<4, T>{a[0] - b[0], a[1] - b[1], a[2] - b[2], a[3] - b[3]};
+	return Vec<4, T>{a[0] + b[0], a[1] + b[1], a[2] + b[2], a[3] + b[3]};
 }
 
 // ==========================================================================
 
 template<typename T>
-inline constexpr VecT<2, T> operator*(const VecT<2, T>& a, T s)
+inline constexpr Vec<2, T> operator-(const Vec<2, T>& a, const Vec<2, T>& b) noexcept
 {
-	return VecT<2, T>{a[0] * s, a[1] * s};
+	return Vec<2, T>{a[0] - b[0], a[1] - b[1]};
 }
 
 template<typename T>
-inline constexpr VecT<3, T> operator*(const VecT<3, T>& a, T s)
+inline constexpr Vec<3, T> operator-(const Vec<3, T>& a, const Vec<3, T>& b) noexcept
 {
-	return VecT<3, T>{a[0] * s, a[1] * s, a[2] * s};
+	return Vec<3, T>{a[0] - b[0], a[1] - b[1], a[2] - b[2]};
 }
 
 template<typename T>
-inline constexpr VecT<4, T> operator*(const VecT<4, T>& a, T s)
+inline constexpr Vec<4, T> operator-(const Vec<4, T>& a, const Vec<4, T>& b) noexcept
 {
-	return VecT<4, T>{a[0] * s, a[1] * s, a[2] * s, a[3] * s};
+	return Vec<4, T>{a[0] - b[0], a[1] - b[1], a[2] - b[2], a[3] - b[3]};
+}
+
+// ==========================================================================
+
+template<typename T>
+inline constexpr Vec<2, T> operator*(const Vec<2, T>& a, T s) noexcept
+{
+	return Vec<2, T>{a[0] * s, a[1] * s};
+}
+
+template<typename T>
+inline constexpr Vec<3, T> operator*(const Vec<3, T>& a, T s) noexcept
+{
+	return Vec<3, T>{a[0] * s, a[1] * s, a[2] * s};
+}
+
+template<typename T>
+inline constexpr Vec<4, T> operator*(const Vec<4, T>& a, T s) noexcept
+{
+	return Vec<4, T>{a[0] * s, a[1] * s, a[2] * s, a[3] * s};
 }
 
 // ==========================================================================
 
 template<IntP N, typename T>
-inline constexpr VecT<N, T> operator*(T s, const VecT<N, T>& a)
+inline constexpr Vec<N, T> operator*(T s, const Vec<N, T>& a) noexcept
 {
 	return a * s;
 }
@@ -259,41 +245,49 @@ inline constexpr VecT<N, T> operator*(T s, const VecT<N, T>& a)
 // ==========================================================================
 
 template<typename T>
-inline constexpr T dot(const VecT<2, T>& a, const VecT<2, T>& b)
+inline constexpr T dot(const Vec<2, T>& a, const Vec<2, T>& b) noexcept
 {
-	return (a[0] * b[0]) + (a[1] * b[1]);
+	return a[0] * b[0] + a[1] * b[1];
 }
 
 template<typename T>
-inline constexpr T dot(const VecT<3, T>& a, const VecT<3, T>& b)
+inline constexpr T dot(const Vec<3, T>& a, const Vec<3, T>& b) noexcept
 {
-	return (a[0] * b[0]) + (a[1] * b[1]) + (a[2] * b[2]);
+	return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 
 template<typename T>
-inline constexpr T dot(const VecT<4, T>& a, const VecT<4, T>& b)
+inline constexpr T dot(const Vec<4, T>& a, const Vec<4, T>& b) noexcept
 {
-	return (a[0] * b[0]) + (a[1] * b[1]) + (a[2] * b[2]) + (a[3] * b[3]);
+	return a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3];
 }
 
 // ==========================================================================
 
 template<IntP N, typename T>
-inline constexpr VecT<N, T> normalize(const VecT<N, T>& a)
+inline constexpr T get_magnitude(const Vec<N, T>& x) noexcept
 {
-	const auto r_magnitude = 1 / a.get_magnitude();
-	return a * r_magnitude;
+	return std::sqrt(bstone::cgm::dot(x, x));
 }
 
 // ==========================================================================
 
-using Vec2F = VecT<2, float>;
-using Vec3F = VecT<3, float>;
-using Vec4F = VecT<4, float>;
+template<IntP N, typename T>
+inline constexpr Vec<N, T> normalize(const Vec<N, T>& x) noexcept
+{
+	const auto r_magnitude = 1 / bstone::cgm::get_magnitude(x);
+	return x * r_magnitude;
+}
 
-using Vec2D = VecT<2, double>;
-using Vec3D = VecT<3, double>;
-using Vec4D = VecT<4, double>;
+// ==========================================================================
+
+using Vec2F = Vec<2, float>;
+using Vec3F = Vec<3, float>;
+using Vec4F = Vec<4, float>;
+
+using Vec2D = Vec<2, double>;
+using Vec3D = Vec<3, double>;
+using Vec4D = Vec<4, double>;
 
 } // namespace cgm
 } // namespace bstone

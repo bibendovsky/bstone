@@ -4083,12 +4083,12 @@ void HwVideo::calculate_dimensions() noexcept
 
 void HwVideo::build_2d_model_matrix() noexcept
 {
-	r2_matrix_model_ = cgm::make_identity<cgm::Mat4D>();
+	r2_matrix_model_ = cgm::Mat4D::get_identity();
 }
 
 void HwVideo::build_2d_view_matrix() noexcept
 {
-	r2_matrix_view_ = cgm::make_identity<cgm::Mat4D>();
+	r2_matrix_view_ = cgm::Mat4D::get_identity();
 }
 
 void HwVideo::build_2d_projection_matrix() noexcept
@@ -4181,18 +4181,18 @@ void HwVideo::build_bs_to_ren_matrix() noexcept
 
 void HwVideo::build_model_matrix() noexcept
 {
-	r3_matrix_model_ = cgm::make_identity<cgm::Mat4D>();
+	r3_matrix_model_ = cgm::Mat4D::get_identity();
 }
 
 void HwVideo::build_view_matrix() noexcept
 {
 	if (player == nullptr)
 	{
-		r3_matrix_view_ = cgm::make_identity<cgm::Mat4D>();
+		r3_matrix_view_ = cgm::Mat4D::get_identity();
 		return;
 	}
 
-	auto view_matrix = cgm::make_identity<cgm::Mat4D>();
+	auto view_matrix = cgm::Mat4D::get_identity();
 	view_matrix = cgm::rotate(view_matrix, player_angle_rad_, cgm::Vec3D{0.0, 0.0, 1.0});
 	view_matrix = cgm::translate(view_matrix, -view_position_);
 	r3_matrix_view_ = view_matrix;
@@ -4482,7 +4482,7 @@ BSTONE_BEGIN_FUNC_TRY
 		0.0F
 	};
 
-	const auto identity = cgm::make_identity<cgm::Mat4D>();
+	const auto identity = cgm::Mat4D::get_identity();
 	const auto translate = cgm::translate(identity, translate_v);
 	const auto scale = cgm::scale(identity, cgm::Vec3D{scalar, height_compensation_factor * scalar, 0.0F});
 	player_weapon_model_matrix_ = translate * scale;
@@ -4490,7 +4490,7 @@ BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::update_player_weapon_view_matrix() noexcept
 {
-	player_weapon_view_matrix_ = cgm::make_identity<cgm::Mat4D>();
+	player_weapon_view_matrix_ = cgm::Mat4D::get_identity();
 }
 
 void HwVideo::build_player_weapon_projection_matrix() noexcept
@@ -6538,7 +6538,7 @@ BSTONE_BEGIN_FUNC_TRY
 			{
 				auto& command = command_buffer->write_set_mat4_uniform();
 				command.var = model_mat_uniform_;
-				convert(cgm::make_identity<cgm::Mat4D>(), command.value);
+				convert(cgm::Mat4D::get_identity(), command.value);
 			}
 
 			// Set view matrix.
@@ -6546,7 +6546,7 @@ BSTONE_BEGIN_FUNC_TRY
 			{
 				auto& command = command_buffer->write_set_mat4_uniform();
 				command.var = view_mat_uniform_;
-				convert(cgm::make_identity<cgm::Mat4D>(), command.value);
+				convert(cgm::Mat4D::get_identity(), command.value);
 			}
 
 			// Enable blending.

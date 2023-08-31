@@ -4,15 +4,20 @@ Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
+// Computer Graphics Math - Clip space transformations.
+
 /*
-Computer Graphics Math:
-Clip space transformations
+Notes:
+  - Only floating-point types are supported.
 */
 
 #if !defined(BSTONE_CGM_CLIP_SPACE_INCLUDED)
 #define BSTONE_CGM_CLIP_SPACE_INCLUDED
 
 #include <cmath>
+
+#include <type_traits>
+
 #include "bstone_cgm_mat.h"
 
 namespace bstone {
@@ -34,8 +39,10 @@ Returns:
   A matrix that produces parallel projection.
 */
 template<typename T>
-inline constexpr MatT<4, 4, T> make_ortho_rh_n1p1(T l, T r, T b, T t, T n, T f)
+inline constexpr Mat<4, 4, T> make_ortho_rh_n1p1(T l, T r, T b, T t, T n, T f) noexcept
 {
+	static_assert(std::is_floating_point<T>::value, "Expected floating-point type.");
+
 	assert(l != r);
 	assert(b != t);
 	assert(n != f);
@@ -53,7 +60,7 @@ inline constexpr MatT<4, 4, T> make_ortho_rh_n1p1(T l, T r, T b, T t, T n, T f)
 	const auto _33 = -2 * r_fmn;
 	const auto _34 = -(f + n) * r_fmn;
 
-	return MatT<4, 4, T>
+	return Mat<4, 4, T>
 	{
 		_11,   0,   0, 0,
 		  0, _22,   0, 0,
@@ -74,11 +81,13 @@ Params:
   - f: Positive distance from the eye to the far clipping plane.
 */
 template<typename T>
-inline constexpr MatT<4, 4, T> make_perspective_vfov_rh_n1p1(T v, T w, T h, T n, T f)
+inline Mat<4, 4, T> make_perspective_vfov_rh_n1p1(T v, T w, T h, T n, T f) noexcept
 {
+	static_assert(std::is_floating_point<T>::value, "Expected floating-point type.");
+
 	assert(n > 0);
 	assert(f > 0);
-	assert(n != f);
+	assert(f > n);
 
 	const auto half_v = v / 2;
 	const auto height = std::cos(half_v) / std::sin(half_v);
@@ -87,9 +96,9 @@ inline constexpr MatT<4, 4, T> make_perspective_vfov_rh_n1p1(T v, T w, T h, T n,
 	const auto _11 = width;
 	const auto _22 = height;
 	const auto _33 = -(f + n) / (f - n);
-	const auto _34 = (-2 * f * n) / (f - n);
+	const auto _34 = -(2 * f * n) / (f - n);
 
-	return MatT<4, 4, T>
+	return Mat<4, 4, T>
 	{
 		_11, 0, 0,  0,
 		0, _22, 0,  0,
