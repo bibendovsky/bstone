@@ -9413,7 +9413,7 @@ void CleanUpDoors_N_Actors()
 
 			// actor is in actorat, but objtype X and Y don't match
 			if (actor > objlist &&
-				(actor->tilex != y || actor->tilex != y))
+				(actor->tilex != x || actor->tiley != y))
 			{
 				actorat[y][x] = nullptr;
 			}
