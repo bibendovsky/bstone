@@ -1268,7 +1268,7 @@ void PopupAutoMap(
 	ThreeDRefresh();
 
 	sd_pause_scene_sfx(true);
-	const auto unmute_scene_sfx_on_scope_exit = [](){ sd_pause_scene_sfx(false); };
+	const auto unmute_scene_sfx_on_scope_exit = bstone::make_scope_exit([](){ sd_pause_scene_sfx(false); });
 
 	ClearMemory();
 	CacheDrawPic(BASE_X, BASE_Y, AUTOMAPPIC);

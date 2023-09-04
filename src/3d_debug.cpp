@@ -590,13 +590,14 @@ bool DebugKeys()
 		sd_pause_scene_sfx(true);
 		unmute_scene_sfx = true;
 
-		const auto unmute_scene_sfx_scope_guard = [&unmute_scene_sfx]()
-		{
-			if (unmute_scene_sfx)
+		const auto unmute_scene_sfx_scope_guard = bstone::make_scope_exit(
+			[&unmute_scene_sfx]()
 			{
-				sd_pause_scene_sfx(false);
-			}
-		};
+				if (unmute_scene_sfx)
+				{
+					sd_pause_scene_sfx(false);
+				}
+			});
 
 		log_stuff();
 		return true;
