@@ -1014,7 +1014,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	aa_type_ = R3rAaType::ms;
-	aa_value = aa_value;
+	aa_value_ = aa_value;
 
 	destroy_framebuffers();
 	create_framebuffers();
