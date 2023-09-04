@@ -903,8 +903,8 @@ bool DebugKeys()
 		unmute_scene_sfx = true;
 
 		ForceLoadDefault =
-			Keyboard[ScanCode::sc_left_shift] |
-			Keyboard[ScanCode::sc_right_shift] |
+			Keyboard[ScanCode::sc_left_shift] ||
+			Keyboard[ScanCode::sc_right_shift] ||
 			Keyboard[ScanCode::sc_caps_lock];
 
 		US_CenterWindow(26, 5);
