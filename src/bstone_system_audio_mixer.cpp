@@ -116,7 +116,6 @@ BSTONE_BEGIN_FUNC_TRY
 	mix_samples_count_ = audio_device->get_frame_count();
 
 	opl3_type_ = param.opl3_type;
-	mix_samples_count_ = mix_samples_count_;
 	const auto total_samples = get_max_channels() * mix_samples_count_;
 	buffer_.resize(total_samples);
 	s16_samples_.resize(total_samples);
