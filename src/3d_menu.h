@@ -92,16 +92,16 @@ struct CP_itemtype
 		const bool is_left,
 		const bool is_right);
 
-	activetypes active;
-	std::string string;
+	activetypes active{AT_DISABLED};
+	std::string string{};
 
 	void (*routine)(
-		std::int16_t temp1);
+		std::int16_t temp1) = nullptr;
 
-	std::uint8_t fontnumber; // Font to print text in
-	std::uint8_t height; // Hight of text (Y_Offset from previous line)
+	std::uint8_t fontnumber{}; // Font to print text in
+	std::uint8_t height{}; // Hight of text (Y_Offset from previous line)
 
-	CarouselFunc carousel_func_;
+	CarouselFunc carousel_func_{};
 }; // CP_itemtype
 
 struct CustomCtrls

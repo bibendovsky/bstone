@@ -429,8 +429,8 @@ CP_itemtype MainMenu[] = {
 	{AT_DISABLED, "", nullptr},
 	{AT_ENABLED, "GAME OPTIONS", CP_GameOptions},
 	{AT_ENABLED, "HIGH SCORES", CP_ViewScores},
-	{AT_ENABLED, "LOAD MISSION", reinterpret_cast<void(*)(std::int16_t)>(CP_LoadGame)},
-	{AT_DISABLED, "SAVE MISSION", reinterpret_cast<void(*)(std::int16_t)>(CP_SaveGame)},
+	{AT_ENABLED, "LOAD MISSION", [](std::int16_t arg) { CP_LoadGame(arg); }},
+	{AT_DISABLED, "SAVE MISSION", [](std::int16_t arg) { CP_SaveGame(arg); }},
 	{AT_DISABLED, "", nullptr},
 	{AT_ENABLED, "BACK TO DEMO", CP_ExitOptions},
 	{AT_ENABLED, "LOGOFF", nullptr}
