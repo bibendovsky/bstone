@@ -33,8 +33,17 @@ struct LocalMemoryDeleter
 {
 	void operator()(void* block) noexcept
 	{
-		const auto result = LocalFree(block);
+		const auto local_free = [](void* block)
+		{
+			return LocalFree(block);
+		};
+
+#if defined(NDEBUG)
+		local_free(block);
+#else
+		const auto result = local_free(block);
 		assert(result == nullptr);
+#endif
 	}
 };
 
@@ -44,9 +53,19 @@ struct HeapMemoryDeleter
 {
 	void operator()(void* block) noexcept
 	{
+		const auto heap_free = [](void* block)
+		{
+			return HeapFree(g_process_heap, 0, block);
+		};
+
 		assert(g_process_heap != nullptr);
-		const auto result = HeapFree(g_process_heap, 0, block);
+
+#if defined(NDEBUG)
+		heap_free(block);
+#else
+		const auto result = heap_free(block);
 		assert(result == TRUE);
+#endif
 	}
 };
 
@@ -59,8 +78,17 @@ int get_utf16_to_utf8_size_with_null(LPCWSTR u16_string)
 
 void show_error_message_box(LPCWSTR message)
 {
-	const auto result = MessageBoxW(nullptr, message, L"BSTONE_ENTRY_POINT", MB_OK | MB_ICONERROR);
+	const auto message_box_w = [](LPCWSTR message)
+	{
+		return MessageBoxW(nullptr, message, L"BSTONE_ENTRY_POINT", MB_OK | MB_ICONERROR);
+	};
+
+#if defined(NDEBUG)
+	message_box_w(message);
+#else
+	const auto result = message_box_w(message);
 	assert(result != 0);
+#endif
 }
 
 void show_error_message_box()

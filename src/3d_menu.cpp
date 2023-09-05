@@ -2703,8 +2703,8 @@ const SoundOpl3TypeItem sound_opl3_types[sound_opl3_type_count] =
 
 void digitized_sfx_carousel(
 	int item_index,
-	bool is_left,
-	bool is_right)
+	bool,
+	bool)
 {
 	const auto old_sfx_type = sd_cfg_get_sfx_type();
 
@@ -5791,8 +5791,8 @@ void texturing_filter_carousel(
 
 void texturing_2d_image_filter_carousel(
 	const int item_index,
-	const bool is_left,
-	const bool is_right)
+	const bool,
+	const bool)
 {
 	auto filter = vid_cfg_get_2d_texture_filter();
 	texturing_filter_carousel(filter);
@@ -5807,8 +5807,8 @@ void texturing_2d_image_filter_carousel(
 
 void texturing_3d_image_filter_carousel(
 	const int item_index,
-	const bool is_left,
-	const bool is_right)
+	const bool,
+	const bool)
 {
 	auto filter = vid_cfg_get_3d_texture_image_filter();
 	texturing_filter_carousel(filter);
@@ -5823,8 +5823,8 @@ void texturing_3d_image_filter_carousel(
 
 void texturing_3d_mipmap_filter_carousel(
 	const int item_index,
-	const bool is_left,
-	const bool is_right)
+	const bool,
+	const bool)
 {
 	auto filter = vid_cfg_get_3d_texture_mipmap_filter();
 	texturing_filter_carousel(filter);
@@ -5839,8 +5839,8 @@ void texturing_3d_mipmap_filter_carousel(
 
 void texturing_upscale_filter_carousel(
 	const int item_index,
-	const bool is_left,
-	const bool is_right)
+	const bool,
+	const bool)
 {
 	if (vid_cfg_get_texture_upscale_type() == bstone::HwTextureMgrUpscaleFilterType::none)
 	{
@@ -5897,8 +5897,8 @@ void texturing_upscale_degree_carousel(
 
 void texturing_external_textures_carousel(
 	const int item_index,
-	const bool is_left,
-	const bool is_right)
+	const bool,
+	const bool)
 {
 	vid_cfg_set_is_external_textures_enabled(!vid_cfg_is_external_textures_enabled());
 
@@ -5911,7 +5911,7 @@ void texturing_external_textures_carousel(
 }
 
 void texturing_routine(
-	const std::int16_t index)
+	const std::int16_t)
 {
 	std::int16_t which;
 
@@ -6253,7 +6253,7 @@ void draw_filler_color_cell(
 }
 
 void filler_color_routine(
-	const std::int16_t index)
+	const std::int16_t)
 {
 	VL_SetPalette(0, 256, vgapal);
 	draw_filler_color_menu();

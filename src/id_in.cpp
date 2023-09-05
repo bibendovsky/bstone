@@ -886,7 +886,7 @@ void in_handle_events()
 //              player and fills in the control info struct
 //
 ///////////////////////////////////////////////////////////////////////////
-void IN_ReadControl(std::int16_t player_index, ControlInfo* control_info)
+void IN_ReadControl(std::int16_t, ControlInfo* control_info)
 {
 	in_handle_events();
 

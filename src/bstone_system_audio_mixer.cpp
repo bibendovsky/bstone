@@ -397,7 +397,7 @@ void SystemAudioMixer::initialize_voices(int max_voices)
 	voices_.resize(max_voices);
 }
 
-void SystemAudioMixer::callback(float* samples, int sample_count)
+void SystemAudioMixer::callback(float* samples, int)
 {
 	std::uninitialized_copy(buffer_.cbegin(), buffer_.cend(), samples);
 }

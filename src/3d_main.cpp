@@ -7632,7 +7632,6 @@ void read_text_config()
 
 	bstone::FileStream stream{config_path};
 
-	auto name = bstone::StringView{};
 	auto args = std::vector<bstone::StringView>{};
 
 	if (stream.is_open())

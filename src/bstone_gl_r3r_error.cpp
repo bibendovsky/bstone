@@ -105,6 +105,7 @@ try {
 
 void GlR3rError::ensure_assert()
 {
+#if !defined(NDEBUG)
 	assert(glGetError != nullptr);
 
 	auto was_any_error = false;
@@ -122,6 +123,7 @@ void GlR3rError::ensure_assert()
 	}
 
 	assert(!was_any_error);
+#endif
 }
 
 } // namespace bstone

@@ -218,7 +218,6 @@ void SdlVideoMgr::log_displays(std::string& message)
 
 	for (auto i = decltype(display_count){}; i < display_count; ++i)
 	{
-		auto sdl_spec = SDL_AudioSpec{};
 		const auto sdl_display_name = SDL_GetDisplayName(i);
 
 		//
