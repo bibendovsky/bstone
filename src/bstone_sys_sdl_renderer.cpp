@@ -101,7 +101,8 @@ try
 {
 	logger_.log_information("<<< Start up SDL renderer.");
 
-	const auto sdl_flags = Uint32{param.is_vsync ? SDL_RENDERER_PRESENTVSYNC : 0U};
+	const auto sdl_flags = static_cast<Uint32>(
+		param.is_vsync ? SDL_RENDERER_PRESENTVSYNC : SDL_RendererFlags{});
 	sdl_renderer_ = SdlRendererUPtr{sdl_ensure_result(SDL_CreateRenderer(&sdl_window, -1, sdl_flags))};
 	log_info();
 

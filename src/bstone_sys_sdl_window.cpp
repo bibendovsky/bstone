@@ -215,7 +215,8 @@ try {
 
 void SdlWindow::do_set_fake_fullscreen(bool is_fake_fullscreen)
 try {
-	const auto sdl_flags = Uint32{is_fake_fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0U};
+	const auto sdl_flags = static_cast<Uint32>(
+		is_fake_fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WindowFlags{});
 	sdl_ensure_result(SDL_SetWindowFullscreen(sdl_window_.get(), sdl_flags));
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
