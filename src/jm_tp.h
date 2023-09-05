@@ -150,15 +150,15 @@ enum pidType
 
 struct piAnimInfo
 {
-	std::int16_t baseshape;
-	std::int8_t frame;
-	std::int8_t maxframes;
-	std::int16_t delay;
-	std::int16_t maxdelay;
-	piaType animtype;
-	pidType dirtype;
-	std::int16_t x, y;
-	std::int8_t diradd;
+	std::int16_t baseshape{};
+	std::int8_t frame{};
+	std::int8_t maxframes{};
+	std::int16_t delay{};
+	std::int16_t maxdelay{};
+	piaType animtype{pia_grabscript};
+	pidType dirtype{pid_cycle};
+	std::int16_t x{}, y{};
+	std::int8_t diradd{};
 }; // piAnimInfo
 
 // -------------------------------------------------------------------------
