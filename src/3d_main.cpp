@@ -9737,7 +9737,7 @@ void DemoLoop()
 		{
 			VW_FadeOut();
 		}
-		VL_SetPaletteIntensity(0, 255, vgapal, 0);
+		VL_SetPaletteIntensity(vgapal, 0);
 
 		vid_is_movie = false;
 
@@ -9787,11 +9787,7 @@ void DemoLoop()
 					256,
 					grsegs[TITLEPALETTE].data());
 
-				VL_SetPaletteIntensity(
-					0,
-					255,
-					grsegs[TITLEPALETTE].data(),
-					0);
+				VL_SetPaletteIntensity(grsegs[TITLEPALETTE].data(), 0);
 
 				auto version_text_width = 0;
 				auto version_text_height = 0;

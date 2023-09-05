@@ -1045,7 +1045,7 @@ void PreDemo()
 
 	vid_is_movie = true;
 
-	VL_SetPaletteIntensity(0, 255, vgapal, 0);
+	VL_SetPaletteIntensity(vgapal, 0);
 
 	const auto& assets_info = get_assets_info();
 
@@ -1063,7 +1063,7 @@ void PreDemo()
 		//
 		CA_CacheGrChunk(PIRACYPALETTE);
 		VL_SetPalette(0, 256, grsegs[PIRACYPALETTE].data());
-		VL_SetPaletteIntensity(0, 255, grsegs[PIRACYPALETTE].data(), 0);
+		VL_SetPaletteIntensity(grsegs[PIRACYPALETTE].data(), 0);
 		VW_UpdateScreen();
 
 		VL_FadeOut(0, 255, 0, 0, 25, 20);
@@ -1099,7 +1099,7 @@ void PreDemo()
 	//
 	CA_CacheGrChunk(APOGEEPALETTE);
 	VL_SetPalette(0, 256, grsegs[APOGEEPALETTE].data());
-	VL_SetPaletteIntensity(0, 255, grsegs[APOGEEPALETTE].data(), 0);
+	VL_SetPaletteIntensity(grsegs[APOGEEPALETTE].data(), 0);
 	VW_UpdateScreen();
 	if (assets_info.is_aog())
 	{

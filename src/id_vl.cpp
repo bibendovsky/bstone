@@ -1408,52 +1408,29 @@ try {
 	::g_video->fade_in(start, end, palette, steps);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void VL_SetPaletteIntensity(
-	int start,
-	int end,
-	const std::uint8_t* palette,
-	int intensity)
+void VL_SetPaletteIntensity(const std::uint8_t* palette, int intensity)
 try {
-	auto palette1 = ::VgaPalette{};
+	auto new_palette = VgaPalette{};
 
-	auto cmap = &palette1[0][0] + (start * 3);
+	auto cmap = &new_palette[0][0];
 
 	intensity = 63 - intensity;
 
-	for (int loop = start; loop <= end; ++loop)
+	for (auto i = 0; i < 256; ++i)
 	{
-		int red = (*palette++) - intensity;
+		const auto red = std::max(palette[0] - intensity, 0);
+		const auto green = std::max(palette[1] - intensity, 0);
+		const auto blue = std::max(palette[2] - intensity, 0);
 
-		if (red < 0)
-		{
-			red = 0;
-		}
+		cmap[0] = static_cast<std::uint8_t>(red);
+		cmap[1] = static_cast<std::uint8_t>(green);
+		cmap[2] = static_cast<std::uint8_t>(blue);
 
-		*cmap++ = static_cast<std::uint8_t>(red);
-
-		int green = *palette++ - intensity;
-
-		if (green < 0)
-		{
-			green = 0;
-		}
-
-		*cmap++ = static_cast<std::uint8_t>(green);
-
-		int blue = *palette++ - intensity;
-
-		if (blue < 0)
-		{
-			blue = 0;
-		}
-
-		*cmap++ = static_cast<std::uint8_t>(blue);
+		palette += 3;
+		cmap += 3;
 	}
 
-	VL_SetPalette(
-		start,
-		end - start + 1,
-		&palette1[0][0]);
+	VL_SetPalette(0, 256, &new_palette[0][0]);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 /*

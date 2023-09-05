@@ -208,11 +208,7 @@ void VL_GetPalette(
 	int count,
 	std::uint8_t* palette);
 
-void VL_SetPaletteIntensity(
-	int start,
-	int end,
-	const std::uint8_t* palette,
-	int intensity);
+void VL_SetPaletteIntensity(const std::uint8_t* palette, int intensity);
 
 void VL_FadeOut(
 	int start,
