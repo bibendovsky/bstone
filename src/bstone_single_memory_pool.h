@@ -51,7 +51,7 @@ SingleMemoryPool<T>::~SingleMemoryPool()
 
 template<typename T>
 void* SingleMemoryPool<T>::do_allocate(std::size_t size)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (size != object_size)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Size mismatch.");
@@ -64,7 +64,7 @@ BSTONE_BEGIN_FUNC_TRY
 
 	is_allocated_ = true;
 	return storage_;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 template<typename T>
 void SingleMemoryPool<T>::do_deallocate(void* ptr)

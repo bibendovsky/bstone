@@ -39,7 +39,7 @@ bool R3rUtils::is_pot_value(int value) noexcept
 }
 
 int R3rUtils::calculate_mipmap_count(int width, int height)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	//
 	// mipmap_count = [log2(max(width, height))] + 1
 	//
@@ -64,12 +64,12 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	return log_2 + 1;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 sys::WindowUPtr R3rUtils::create_window(
 	const R3rUtilsCreateWindowParam& param,
 	sys::WindowMgr& window_mgr)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto gl_attributes = create_window_make_gl_context_attributes(param);
 
 	auto window_param = sys::WindowInitParam{};
@@ -94,10 +94,10 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	return window_mgr.make_window(window_param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rUtils::set_window_mode(sys::Window& window, const R3rUtilsSetWindowModeParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (param.size.height <= 0)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Height out of range.");
@@ -155,10 +155,10 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		window.set_fake_fullscreen(true);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rUtils::validate_initialize_param(const R3rInitParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (param.renderer_type)
 	{
 	case R3rType::gl_2_0:
@@ -179,10 +179,10 @@ BSTONE_BEGIN_FUNC_TRY
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Invalid antialiasing type.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rUtils::validate_buffer_create_param(const R3rBufferInitParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (param.usage_type)
 	{
 		case R3rBufferUsageType::draw_streaming:
@@ -198,10 +198,10 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		BSTONE_THROW_STATIC_SOURCE("Invalid size.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rUtils::validate_buffer_update_param(const R3rUpdateBufferParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (param.offset < 0)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Invalid offset.");
@@ -216,10 +216,10 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null indices.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rUtils::vertex_input_validate_format(const R3rVertexAttribFormat attribute_format)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (attribute_format)
 	{
 		case R3rVertexAttribFormat::rgba_8_unorm:
@@ -230,12 +230,12 @@ BSTONE_BEGIN_FUNC_TRY
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unsupported vertex input attribute format.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rUtils::vertex_input_validate_param(
 	int max_locations,
 	const R3rCreateVertexInputParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (max_locations < 0)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Maximum location count out of range.");
@@ -314,10 +314,10 @@ BSTONE_BEGIN_FUNC_TRY
 			BSTONE_THROW_STATIC_SOURCE("Invalid stride.");
 		}
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rUtils::indexed_to_rgba_8(const IndexedToRgba8Param& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (param.width <= 0)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Width out of range.");
@@ -361,10 +361,10 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		BSTONE_THROW_STATIC_SOURCE("Unsupported values combination.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rUtils::indexed_npot_to_rgba_8_pot(const IndexedToRgba8Param& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (param.width <= 0)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Width out of range.");
@@ -418,10 +418,10 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		BSTONE_THROW_STATIC_SOURCE("Unsupported values combination.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rUtils::indexed_to_rgba_8_pot(const IndexedToRgba8Param& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto is_npot =
 		param.width != param.actual_width ||
 		param.height != param.actual_height;
@@ -434,13 +434,13 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		indexed_npot_to_rgba_8_pot(param);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rUtils::indexed_sprite_to_rgba_8_pot(
 	const Sprite& indexed_sprite,
 	const Rgba8Palette& indexed_palette,
 	Rgba8Buffer& texture_buffer)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!indexed_sprite.is_initialized())
 	{
 		BSTONE_THROW_STATIC_SOURCE("Indexed sprite not initialized.");
@@ -488,7 +488,7 @@ BSTONE_BEGIN_FUNC_TRY
 			dst_pixels += Sprite::dimension;
 		}
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rUtils::rgba_8_npot_to_rgba_8_pot(
 	int width,
@@ -497,7 +497,7 @@ void R3rUtils::rgba_8_npot_to_rgba_8_pot(
 	int actual_height,
 	const Rgba8* rgba_8_pixels,
 	Rgba8Buffer& texture_buffer)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (width <= 0)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Width out of range.");
@@ -545,14 +545,14 @@ BSTONE_BEGIN_FUNC_TRY
 
 		src_v_d += src_dv_f;
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rUtils::build_mipmap(
 	int previous_width,
 	int previous_height,
 	Rgba8CPtr src_colors,
 	Rgba8Ptr dst_colors)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (previous_width <= 0)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Previous width out of range.");
@@ -613,11 +613,11 @@ BSTONE_BEGIN_FUNC_TRY
 		src_colors_0 += previous_width;
 		src_colors_1 += previous_width;
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 sys::GlContextAttributes R3rUtils::create_window_make_gl_context_attributes(
 	const R3rUtilsCreateWindowParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto gl_attributes = sys::GlContextAttributes{};
 	gl_attributes.is_accelerated = true;
 
@@ -672,7 +672,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	return gl_attributes;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Indexed (row major, has no alpha) -> RGBA
 void R3rUtils::indexed_to_rgba_8_rm_na(const IndexedToRgba8Param& param) noexcept

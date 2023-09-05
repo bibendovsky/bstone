@@ -27,7 +27,7 @@ void AudioMixerVoiceHandle::reset() noexcept
 }
 
 AudioMixerVoiceHandle& AudioMixerVoiceHandle::operator++()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	static constexpr auto max_value = std::numeric_limits<AudioMixerVoiceHandleValue>::max();
 
 	if (get() == max_value)
@@ -38,7 +38,7 @@ BSTONE_BEGIN_FUNC_TRY
 	++value_;
 
 	return *this;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 

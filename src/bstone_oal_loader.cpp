@@ -90,7 +90,7 @@ OalLoaderImpl::OalLoaderImpl(const char* shared_library_path)
 }
 
 void OalLoaderImpl::load_alc_symbols(OalAlSymbols& al_symbols)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	find_alc_symbol("alcCreateContext", al_symbols.alcCreateContext);
 	find_alc_symbol("alcMakeContextCurrent", al_symbols.alcMakeContextCurrent);
 	find_alc_symbol("alcProcessContext", al_symbols.alcProcessContext);
@@ -111,10 +111,10 @@ BSTONE_BEGIN_FUNC_TRY
 	find_alc_symbol("alcCaptureStart", al_symbols.alcCaptureStart);
 	find_alc_symbol("alcCaptureStop", al_symbols.alcCaptureStop);
 	find_alc_symbol("alcCaptureSamples", al_symbols.alcCaptureSamples);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalLoaderImpl::load_al_symbols(OalAlSymbols& al_symbols)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	find_al_symbol("alDopplerFactor", al_symbols.alDopplerFactor);
 	find_al_symbol("alDopplerVelocity", al_symbols.alDopplerVelocity);
 	find_al_symbol("alSpeedOfSound", al_symbols.alSpeedOfSound);
@@ -188,10 +188,10 @@ BSTONE_BEGIN_FUNC_TRY
 	find_al_symbol("alGetBufferi", al_symbols.alGetBufferi);
 	find_al_symbol("alGetBuffer3i", al_symbols.alGetBuffer3i);
 	find_al_symbol("alGetBufferiv", al_symbols.alGetBufferiv);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalLoaderImpl::load_efx_symbols(OalAlSymbols& al_symbols)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	find_al_symbol("alGenEffects", al_symbols.alGenEffects);
 	find_al_symbol("alDeleteEffects", al_symbols.alDeleteEffects);
 	find_al_symbol("alIsEffect", al_symbols.alIsEffect);
@@ -225,13 +225,13 @@ BSTONE_BEGIN_FUNC_TRY
 	find_al_symbol("alGetAuxiliaryEffectSlotiv", al_symbols.alGetAuxiliaryEffectSlotiv);
 	find_al_symbol("alGetAuxiliaryEffectSlotf", al_symbols.alGetAuxiliaryEffectSlotf);
 	find_al_symbol("alGetAuxiliaryEffectSlotfv", al_symbols.alGetAuxiliaryEffectSlotfv);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalLoaderImpl::load_essential_symbols()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	find_symbol("alcGetProcAddress", alcGetProcAddress_);
 	find_symbol("alGetProcAddress", alGetProcAddress_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalLoaderImpl::open_internal(const char* shared_library_path)
 {

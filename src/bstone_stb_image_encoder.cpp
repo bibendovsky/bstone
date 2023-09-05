@@ -36,7 +36,7 @@ void StbImageEncoder::encode_24(
 	std::uint8_t* dst_buffer,
 	int max_dst_buffer_size,
 	int& dst_size)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!src_buffer)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null src buffer.");
@@ -91,7 +91,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	dst_size = size_;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void StbImageEncoder::stb_write_func_proxy(
 	void* context,

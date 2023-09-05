@@ -395,7 +395,7 @@ void sd_initialize_voices()
 }
 
 void sd_make_mixer(AudioDriverType audio_driver_type, int sample_rate, int mix_size_ms)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	sd_mixer_ = nullptr;
 	sd_music_voice_group_ = nullptr;
 	sd_ui_sfx_voice_group_ = nullptr;
@@ -419,7 +419,7 @@ BSTONE_BEGIN_FUNC_TRY
 	sd_music_voice_group_.swap(music_voice_group);
 	sd_ui_sfx_voice_group_.swap(ui_sfx_voice_group);
 	sd_scene_sfx_voice_group_.swap(scene_sfx_voice_group);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 AudioDriverType sd_get_driver_type_from_cvar() noexcept
 {

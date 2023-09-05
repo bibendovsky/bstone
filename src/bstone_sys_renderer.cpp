@@ -11,49 +11,49 @@ namespace bstone {
 namespace sys {
 
 const char* Renderer::get_name() const
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_get_name();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void Renderer::set_viewport()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	do_set_viewport(nullptr);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void Renderer::set_viewport(const RendererViewport& viewport)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	do_set_viewport(&viewport);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void Renderer::clear()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	do_clear();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void Renderer::set_draw_color(Color color)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	do_set_draw_color(color);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void Renderer::fill(Span<const R2RectI> rects)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	do_fill(rects);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void Renderer::present()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	do_present();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void Renderer::read_pixels(PixelFormat pixel_format, void* pixels, int pitch)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	do_read_pixels(nullptr, pixel_format, pixels, pitch);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 TextureUPtr Renderer::make_texture(const TextureInitParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_make_texture(param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace sys
 } // namespace bstone

@@ -1518,9 +1518,9 @@ HwVideoPool hw_video_pool{};
 // ==========================================================================
 
 HwVideo::HwVideo()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	initialize_video();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 HwVideo::~HwVideo()
 {
@@ -1528,14 +1528,14 @@ HwVideo::~HwVideo()
 }
 
 void* HwVideo::operator new(std::size_t size)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return hw_video_pool.allocate(size);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::operator delete(void* ptr)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	hw_video_pool.deallocate(ptr);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool HwVideo::is_hardware() const noexcept
 {
@@ -1556,7 +1556,7 @@ void HwVideo::take_screenshot(
 	int height,
 	int stride_rgb_888,
 	ScreenshotBuffer&& src_pixels_rgb_888)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto is_flipped_vertically = false;
 
 	renderer_->read_pixels(
@@ -1571,10 +1571,10 @@ BSTONE_BEGIN_FUNC_TRY
 		std::move(src_pixels_rgb_888),
 		is_flipped_vertically
 	);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::vsync_present()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (renderer_ == nullptr)
 	{
 		return;
@@ -1583,10 +1583,10 @@ BSTONE_BEGIN_FUNC_TRY
 	auto command_buffers = vsync_command_buffer_.get();
 	renderer_->submit_commands(make_span(&command_buffers, 1));
 	renderer_->present();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::present()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (renderer_ == nullptr)
 	{
 		return;
@@ -1616,10 +1616,10 @@ BSTONE_BEGIN_FUNC_TRY
 	renderer_->present();
 
 	is_draw_3d_ = false;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::get_palette(int offset, int count, std::uint8_t* vga_palette) const
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (offset < 0)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Invalid offset.");
@@ -1647,7 +1647,7 @@ BSTONE_BEGIN_FUNC_TRY
 		count,
 		dst_vga_palette.begin()
 	);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::fill_palette(int r, int g, int b) noexcept
 {
@@ -1662,7 +1662,7 @@ void HwVideo::fill_palette(int r, int g, int b) noexcept
 }
 
 void HwVideo::set_palette(int offset, int count, const std::uint8_t* vga_palette)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (offset < 0)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Invalid offset.");
@@ -1692,10 +1692,10 @@ BSTONE_BEGIN_FUNC_TRY
 	);
 
 	update_palette_from_vga(offset, count);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::fade_out(int start, int end, int red, int green, int blue, int step_count)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	static_cast<void>(start);
 	static_cast<void>(end);
 
@@ -1738,10 +1738,10 @@ BSTONE_BEGIN_FUNC_TRY
 	r2_fade_is_enabled_ = false;
 
 	screenfaded = true;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::fade_in(int start, int end, const std::uint8_t* palette, int step_count)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	static_cast<void>(start);
 	static_cast<void>(end);
 
@@ -1781,19 +1781,19 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	r2_fade_is_enabled_ = false;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::apply_widescreen()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	calculate_dimensions();
 	SetViewSize();
 	build_projection_matrix();
 	build_player_weapon_projection_matrix();
 	update_3d_fade_vb();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::apply_window_mode()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	calculate_dimensions();
 	vid_initialize_vanilla_raycaster();
 
@@ -1816,10 +1816,10 @@ BSTONE_BEGIN_FUNC_TRY
 	initialize_player_weapon();
 
 	build_matrices();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::apply_filler_color_index()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	destroy_2d_fillers_vi();
 	destroy_2d_fillers_ib();
 	destroy_2d_fillers_vb();
@@ -1827,7 +1827,7 @@ BSTONE_BEGIN_FUNC_TRY
 	create_2d_fillers_ib();
 	create_2d_fillers_vb();
 	create_2d_fillers_vi();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const Rgba8Palette& HwVideo::get_default_palette() const noexcept
 {
@@ -1861,7 +1861,7 @@ void HwVideo::clear_wall_render_list() noexcept
 }
 
 void HwVideo::add_wall_render_item(int tile_x, int tile_y)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	validate_tile_xy(tile_x, tile_y);
 
 	const auto xy = encode_xy(tile_x, tile_y);
@@ -1885,7 +1885,7 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		walls_to_render_.insert(xy);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::clear_pushwall_render_list() noexcept
 {
@@ -1894,7 +1894,7 @@ void HwVideo::clear_pushwall_render_list() noexcept
 }
 
 void HwVideo::add_pushwall_render_item(int tile_x, int tile_y)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	validate_tile_xy(tile_x, tile_y);
 
 	const auto xy = encode_xy(tile_x, tile_y);
@@ -1906,7 +1906,7 @@ BSTONE_BEGIN_FUNC_TRY
 
 	pushwall_last_xy_to_render_at_ = xy;
 	pushwalls_to_render_.insert(xy);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::clear_door_render_list() noexcept
 {
@@ -1915,7 +1915,7 @@ void HwVideo::clear_door_render_list() noexcept
 }
 
 void HwVideo::add_door_render_item(int tile_x, int tile_y)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	validate_tile_xy(tile_x, tile_y);
 
 	const auto xy = encode_xy(tile_x, tile_y);
@@ -1928,7 +1928,7 @@ BSTONE_BEGIN_FUNC_TRY
 	door_last_xy_to_render_at_ = xy;
 
 	doors_to_render_.insert(xy);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::clear_static_render_list() noexcept
 {
@@ -1936,9 +1936,9 @@ void HwVideo::clear_static_render_list() noexcept
 }
 
 void HwVideo::add_static_render_item(int bs_static_index)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	statics_to_render_.insert(bs_static_index);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::clear_actor_render_list() noexcept
 {
@@ -1946,22 +1946,22 @@ void HwVideo::clear_actor_render_list() noexcept
 }
 
 void HwVideo::add_actor_render_item(int bs_actor_index)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	actors_to_render_.emplace(bs_actor_index);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::on_load_level()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	precache_resources();
 
 	build_pushwalls();
 	build_walls();
 	build_doors();
 	build_sprites();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::on_update_wall_switch(int x, int y)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	validate_tile_xy(x, y);
 
 	const auto xy = encode_xy(x, y);
@@ -2015,22 +2015,22 @@ BSTONE_BEGIN_FUNC_TRY
 			side.texture_id = horizontal_wall_id;
 		}
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::on_move_pushwall()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	translate_pushwall();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::on_step_pushwall(int old_x, int old_y)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	validate_tile_xy(old_x, old_y);
 
 	step_pushwall(old_x, old_y);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::on_pushwall_to_wall(int old_x, int old_y, int new_x, int new_y)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	validate_tile_xy(old_x, old_y);
 	validate_tile_xy(new_x, new_y);
 
@@ -2076,10 +2076,10 @@ BSTONE_BEGIN_FUNC_TRY
 		pushwall_to_wall_vbi_.data());
 
 	wall_vertex_count_ += vertex_index;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::on_move_door(int door_index)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto& bs_door = doorobjlist[door_index];
 	const auto xy = encode_xy(bs_door.tilex, bs_door.tiley);
 	const auto map_it = xy_door_map_.find(xy);
@@ -2101,10 +2101,10 @@ BSTONE_BEGIN_FUNC_TRY
 		old_vertex_index,
 		vertices_per_door,
 		&doors_vbi_[old_vertex_index]);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::on_update_door_lock(int bs_door_index)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto& bs_door = doorobjlist[bs_door_index];
 
 	const auto xy = encode_xy(bs_door.tilex, bs_door.tiley);
@@ -2118,34 +2118,34 @@ BSTONE_BEGIN_FUNC_TRY
 
 	auto& door = xy_door_map_[xy];
 	door_get_page_numbers(bs_door, door.sides[0].texture_id, door.sides[1].texture_id);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::on_remove_static(const statobj_t& bs_static)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto bs_static_index = get_static_index(bs_static);
 	auto& hw_static = statics_[bs_static_index];
 	hw_static = {};
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::on_remove_actor(const objtype& bs_actor)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto bs_actor_index = get_actor_index(bs_actor);
 	auto& hw_actor = actors_[bs_actor_index];
 	hw_actor = {};
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::apply_vsync()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	renderer_->enable_vsync(vid_cfg_is_vsync());
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::apply_msaa()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	renderer_->set_anti_aliasing(vid_cfg_get_aa_type(), vid_cfg_get_aa_degree());
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::apply_texture_upscale()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	destroy_texture_upscale_resources();
 
 	texture_mgr_->set_upscale_filter(
@@ -2154,22 +2154,22 @@ BSTONE_BEGIN_FUNC_TRY
 	);
 
 	create_texture_upscale_resources();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::apply_external_textures()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	destroy_external_textures_resources();
 	texture_mgr_->enable_external_textures(vid_cfg_is_external_textures_enabled());
 	create_external_textures_resources();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::update_samplers()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	update_ui_sampler();
 	update_sprite_sampler();
 	update_wall_sampler();
 	update_player_weapon_sampler();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rDeviceFeatures& HwVideo::get_device_features() const noexcept
 {
@@ -2250,13 +2250,13 @@ void HwVideo::door_get_page_numbers(const doorobj_t& door, int& front_face_page_
 }
 
 void HwVideo::validate_tile_xy(int tile_x, int tile_y)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (tile_x < 0 || tile_x >= MAPSIZE ||
 		tile_y < 0 || tile_y >= MAPSIZE)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Tile coordinates out of range.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::log(LoggerMessageType message_type, const std::string& message)
 {
@@ -2296,14 +2296,14 @@ void HwVideo::convert(const cgm::Mat4D& src, R3rMat4& dst)
 }
 
 R3rMipmapMode HwVideo::cfg_texture_mipmap_filter_to_renderer(R3rFilterType filter_type)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (filter_type)
 	{
 		case R3rFilterType::nearest: return R3rMipmapMode::nearest;
 		case R3rFilterType::linear: return R3rMipmapMode::linear;
 		default: BSTONE_THROW_STATIC_SOURCE("Invalid mipmap mode.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int HwVideo::cfg_texture_anisotropy_to_renderer(int value) noexcept
 {
@@ -2358,7 +2358,7 @@ void HwVideo::destroy_index_buffer(R3rBufferUPtr& index_buffer) noexcept
 }
 
 R3rBufferUPtr HwVideo::create_index_buffer(R3rBufferUsageType usage_type, int byte_depth, int index_count)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto index_buffer_size = index_count * byte_depth;
 
 	auto param = R3rBufferInitParam{};
@@ -2367,7 +2367,7 @@ BSTONE_BEGIN_FUNC_TRY
 	param.size = index_buffer_size;
 
 	return renderer_->create_buffer(param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 template<typename TIndex>
 void HwVideo::update_index_buffer(
@@ -2375,7 +2375,7 @@ void HwVideo::update_index_buffer(
 	int index_offset,
 	int index_count,
 	const TIndex* indices)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto byte_depth = static_cast<int>(sizeof(TIndex));
 	const auto offset = index_offset * byte_depth;
 	const auto size = index_count * byte_depth;
@@ -2386,7 +2386,7 @@ BSTONE_BEGIN_FUNC_TRY
 	param.data = indices;
 
 	index_buffer->update(param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_vertex_buffer(R3rBufferUPtr& vertex_buffer) noexcept
 {
@@ -2395,7 +2395,7 @@ void HwVideo::destroy_vertex_buffer(R3rBufferUPtr& vertex_buffer) noexcept
 
 template<typename TVertex>
 R3rBufferUPtr HwVideo::create_vertex_buffer(R3rBufferUsageType usage_type, int vertex_count)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto vertex_size = static_cast<int>(sizeof(TVertex));
 	const auto vertex_buffer_size = vertex_count * vertex_size;
 
@@ -2405,7 +2405,7 @@ BSTONE_BEGIN_FUNC_TRY
 	param.size = vertex_buffer_size;
 
 	return renderer_->create_buffer(param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 template<typename TVertex>
 void HwVideo::update_vertex_buffer(
@@ -2413,7 +2413,7 @@ void HwVideo::update_vertex_buffer(
 	int vertex_offset,
 	int vertex_count,
 	const TVertex* vertices)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto vertex_size = static_cast<int>(sizeof(TVertex));
 	const auto offset = vertex_offset * vertex_size;
 	const auto size = vertex_count * vertex_size;
@@ -2424,7 +2424,7 @@ BSTONE_BEGIN_FUNC_TRY
 	param.data = vertices;
 
 	vertex_buffer->update(param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_vertex_input(R3rVertexInputUPtr& vertex_input) noexcept
 {
@@ -2473,7 +2473,7 @@ void HwVideo::create_vertex_input(
 	const R3rBufferUPtr& index_buffer,
 	const R3rBufferUPtr& vertex_buffer,
 	R3rVertexInputUPtr& vertex_input)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto param = R3rCreateVertexInputParam{};
 	param.index_buffer = index_buffer.get();
 
@@ -2499,7 +2499,7 @@ BSTONE_BEGIN_FUNC_TRY
 		descriptions);
 
 	vertex_input = renderer_->create_vertex_input(param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::update_player_direction() noexcept
 {
@@ -2529,9 +2529,9 @@ void HwVideo::update_player() noexcept
 }
 
 void HwVideo::initialize_ui_buffer()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	vid_initialize_ui_buffer();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_shader(R3rShaderUPtr& shader) noexcept
 {
@@ -2539,7 +2539,7 @@ void HwVideo::destroy_shader(R3rShaderUPtr& shader) noexcept
 }
 
 void HwVideo::create_shader(R3rShaderType type, R3rShaderUPtr& shader)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto param = R3rShaderInitParam{};
 	param.type = type;
 
@@ -2560,7 +2560,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	shader = renderer_->create_shader(param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_fragment_shader() noexcept
 {
@@ -2568,9 +2568,9 @@ void HwVideo::destroy_fragment_shader() noexcept
 }
 
 void HwVideo::create_fragment_shader()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	create_shader(R3rShaderType::fragment, fragment_shader_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_vertex_shader() noexcept
 {
@@ -2578,9 +2578,9 @@ void HwVideo::destroy_vertex_shader() noexcept
 }
 
 void HwVideo::create_vertex_shader()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	create_shader(R3rShaderType::vertex, vertex_shader_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_shader_stage() noexcept
 {
@@ -2588,7 +2588,7 @@ void HwVideo::destroy_shader_stage() noexcept
 }
 
 void HwVideo::create_shader_stage()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const R3rShaderStageInputBinding input_bindings[]
 	{
 		{0, HwShaderRegistry::get_a_position_name()},
@@ -2602,7 +2602,7 @@ BSTONE_BEGIN_FUNC_TRY
 	param.input_bindings = make_span(input_bindings);
 
 	shader_stage_ = renderer_->create_shader_stage(param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 template<typename T>
 void HwVideo::uninitialize_uniform(T*& var) noexcept
@@ -2657,7 +2657,7 @@ void HwVideo::initialize_uniform(
 
 template<typename T>
 void HwVideo::initialize_uniform(const std::string& name, T*& var)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	using Tag = std::conditional_t<
 		std::is_same<T, R3rShaderInt32Var>::value,
 		InitializeInt32UniformTag,
@@ -2688,12 +2688,12 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		BSTONE_THROW_DYNAMIC_SOURCE(("Shader variable \"" + name + "\" not found.").c_str());
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::initialize_model_mat_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	initialize_uniform(HwShaderRegistry::get_u_model_mat_name(), model_mat_uniform_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_view_mat_uniform() noexcept
 {
@@ -2701,9 +2701,9 @@ void HwVideo::uninitialize_view_mat_uniform() noexcept
 }
 
 void HwVideo::initialize_view_mat_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	initialize_uniform(HwShaderRegistry::get_u_view_mat_name(), view_mat_uniform_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_projection_mat_uniform() noexcept
 {
@@ -2711,9 +2711,9 @@ void HwVideo::uninitialize_projection_mat_uniform() noexcept
 }
 
 void HwVideo::initialize_projection_mat_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	initialize_uniform(HwShaderRegistry::get_u_projection_mat_name(), projection_mat_uniform_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_sampler_uniform() noexcept
 {
@@ -2721,10 +2721,10 @@ void HwVideo::uninitialize_sampler_uniform() noexcept
 }
 
 void HwVideo::initialize_sampler_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	sampler_var_.set_is_modified(true);
 	initialize_uniform(HwShaderRegistry::get_u_sampler_name(), sampler_uniform_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_shading_mode_uniform() noexcept
 {
@@ -2732,10 +2732,10 @@ void HwVideo::uninitialize_shading_mode_uniform() noexcept
 }
 
 void HwVideo::initialize_shading_mode_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	shading_mode_.set_is_modified(true);
 	initialize_uniform(HwShaderRegistry::get_u_shading_mode_name(), shading_mode_uniform_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_shade_max_uniform() noexcept
 {
@@ -2743,10 +2743,10 @@ void HwVideo::uninitialize_shade_max_uniform() noexcept
 }
 
 void HwVideo::initialize_shade_max_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	bs_shade_max_.set_is_modified(true);
 	initialize_uniform(HwShaderRegistry::get_u_shade_max_name(), shade_max_uniform_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_normal_shade_uniform() noexcept
 {
@@ -2754,10 +2754,10 @@ void HwVideo::uninitialize_normal_shade_uniform() noexcept
 }
 
 void HwVideo::initialize_normal_shade_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	bs_normal_shade_.set_is_modified(true);
 	initialize_uniform(HwShaderRegistry::get_u_normal_shade_name(), normal_shade_uniform_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_height_numerator_uniform() noexcept
 {
@@ -2765,10 +2765,10 @@ void HwVideo::uninitialize_height_numerator_uniform() noexcept
 }
 
 void HwVideo::initialize_height_numerator_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	bs_height_numerator_.set_is_modified(true);
 	initialize_uniform(HwShaderRegistry::get_u_height_numerator_name(), height_numerator_uniform_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_extra_lighting_uniform() noexcept
 {
@@ -2776,10 +2776,10 @@ void HwVideo::uninitialize_extra_lighting_uniform() noexcept
 }
 
 void HwVideo::initialize_extra_lighting_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	bs_lighting_.set_is_modified(true);
 	initialize_uniform(HwShaderRegistry::get_u_extra_lighting_name(), extra_lighting_uniform_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_view_direction_uniform() noexcept
 {
@@ -2787,10 +2787,10 @@ void HwVideo::uninitialize_view_direction_uniform() noexcept
 }
 
 void HwVideo::initialize_view_direction_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	bs_view_direction_.set_is_modified(true);
 	initialize_uniform(HwShaderRegistry::get_u_view_direction_name(), view_direction_uniform_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_view_position_uniform() noexcept
 {
@@ -2798,10 +2798,10 @@ void HwVideo::uninitialize_view_position_uniform() noexcept
 }
 
 void HwVideo::initialize_view_position_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	bs_view_position_.set_is_modified(true);
 	initialize_uniform(HwShaderRegistry::get_u_view_position_name(), view_position_uniform_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_shading_uniforms() noexcept
 {
@@ -2816,7 +2816,7 @@ void HwVideo::uninitialize_shading_uniforms() noexcept
 }
 
 void HwVideo::initialize_shading_uniforms()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	initialize_sampler_uniform();
 	initialize_shading_mode_uniform();
 	initialize_shade_max_uniform();
@@ -2825,7 +2825,7 @@ BSTONE_BEGIN_FUNC_TRY
 	initialize_extra_lighting_uniform();
 	initialize_view_direction_uniform();
 	initialize_view_position_uniform();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_uniforms() noexcept
 {
@@ -2836,12 +2836,12 @@ void HwVideo::uninitialize_uniforms() noexcept
 }
 
 void HwVideo::initialize_uniforms()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	initialize_model_mat_uniform();
 	initialize_view_mat_uniform();
 	initialize_projection_mat_uniform();
 	initialize_shading_uniforms();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_program() noexcept
 {
@@ -2852,15 +2852,15 @@ void HwVideo::uninitialize_program() noexcept
 }
 
 void HwVideo::initialize_program()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	create_fragment_shader();
 	create_vertex_shader();
 	create_shader_stage();
 	initialize_uniforms();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rType HwVideo::get_renderer_type(RendererType renderer_type)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (renderer_type)
 	{
 		case RendererType::gl_2_0: return R3rType::gl_2_0;
@@ -2868,10 +2868,10 @@ BSTONE_BEGIN_FUNC_TRY
 		case RendererType::gles_2_0: return R3rType::gles_2_0;
 		default: BSTONE_THROW_STATIC_SOURCE("Unsupported renderer type.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::log_device_features()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto& device_features = renderer_->get_device_features();
 
 	log("");
@@ -2892,10 +2892,10 @@ BSTONE_BEGIN_FUNC_TRY
 	log("MSAA requires restart: " + vid_to_string(device_features.is_msaa_requires_restart));
 	log("MSAA max degree: " + vid_to_string(device_features.max_msaa_degree));
 	log("Vertex input max locations: " + vid_to_string(device_features.max_vertex_input_locations));
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::initialize_renderer()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	log("");
 	log("Initializing 3D renderer.");
 
@@ -2982,7 +2982,7 @@ BSTONE_BEGIN_FUNC_TRY
 
 	window.set_title(title.c_str());
 	window.show(true);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_ui_ib() noexcept
 {
@@ -2990,7 +2990,7 @@ void HwVideo::destroy_ui_ib() noexcept
 }
 
 void HwVideo::create_ui_ib()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	ui_ib_ = create_index_buffer(R3rBufferUsageType::draw_static, 1, r2_index_count_);
 
 	using Indices = std::array<std::uint8_t, r2_index_count_>;
@@ -3009,7 +3009,7 @@ BSTONE_BEGIN_FUNC_TRY
 	};
 
 	update_index_buffer(ui_ib_, 0, r2_index_count_, indices.data());
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_ui_vi() noexcept
 {
@@ -3017,9 +3017,9 @@ void HwVideo::destroy_ui_vi() noexcept
 }
 
 void HwVideo::create_ui_vi()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	create_vertex_input<Vertex>(ui_ib_, ui_vb_, ui_vi_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::fill_2d_vb(float left_f, float right_f, float width_f, int vertex_offset) noexcept
 {
@@ -3087,12 +3087,12 @@ void HwVideo::destroy_ui_vb() noexcept
 }
 
 void HwVideo::create_ui_vb()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	ui_vb_ = create_vertex_buffer<Vertex>(R3rBufferUsageType::draw_static, r2_vertex_count_);
 	fill_2d_vb_stretched();
 	fill_2d_vb_non_stretched();
 	update_vertex_buffer(ui_vb_, 0, r2_vertex_count_, r2_vertices_.data());
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_2d_fillers_ib() noexcept
 {
@@ -3100,7 +3100,7 @@ void HwVideo::destroy_2d_fillers_ib() noexcept
 }
 
 void HwVideo::create_2d_fillers_ib()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	r2_fillers_ib_ = create_index_buffer(R3rBufferUsageType::draw_static, 1, r2_fillers_index_count_);
 
 	using Indices = std::array<std::uint8_t, r2_fillers_index_count_>;
@@ -3139,7 +3139,7 @@ BSTONE_BEGIN_FUNC_TRY
 	};
 
 	update_index_buffer(r2_fillers_ib_, 0, r2_fillers_index_count_, indices.data());
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_2d_fillers_vb() noexcept
 {
@@ -3147,7 +3147,7 @@ void HwVideo::destroy_2d_fillers_vb() noexcept
 }
 
 void HwVideo::create_2d_fillers_vb()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	r2_fillers_vb_ = create_vertex_buffer<Vertex>(R3rBufferUsageType::draw_static, r2_fillers_vertex_count_);
 
 	const auto& filler_color = vga_color_to_rgba_8(
@@ -3482,7 +3482,7 @@ BSTONE_BEGIN_FUNC_TRY
 	// ======================================================================
 
 	update_vertex_buffer(r2_fillers_vb_, 0, r2_fillers_vertex_count_, vertices.data());
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_2d_fillers_vi() noexcept
 {
@@ -3490,9 +3490,9 @@ void HwVideo::destroy_2d_fillers_vi() noexcept
 }
 
 void HwVideo::create_2d_fillers_vi()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	create_vertex_input<Vertex>(r2_fillers_ib_, r2_fillers_vb_, r2_fillers_vi_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_black_1x1_2d_texture() noexcept
 {
@@ -3505,10 +3505,10 @@ void HwVideo::destroy_black_1x1_2d_texture() noexcept
 }
 
 void HwVideo::create_black_1x1_2d_texture()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	texture_mgr_->create_solid_1x1(HwTextureMgrSolid1x1Id::black);
 	r2_black_t2d_1x1_ = texture_mgr_->get_solid_1x1(HwTextureMgrSolid1x1Id::black);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_white_1x1_2d_texture() noexcept
 {
@@ -3521,10 +3521,10 @@ void HwVideo::destroy_white_1x1_2d_texture() noexcept
 }
 
 void HwVideo::create_white_1x1_2d_texture()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	texture_mgr_->create_solid_1x1(HwTextureMgrSolid1x1Id::white);
 	r2_white_t2d_1x1_ = texture_mgr_->get_solid_1x1(HwTextureMgrSolid1x1Id::white);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_fade_1x1_2d_texture() noexcept
 {
@@ -3537,10 +3537,10 @@ void HwVideo::destroy_fade_1x1_2d_texture() noexcept
 }
 
 void HwVideo::create_fade_1x1_2d_texture()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	texture_mgr_->create_solid_1x1(HwTextureMgrSolid1x1Id::fade_2d);
 	r2_fade_t2d_ = texture_mgr_->get_solid_1x1(HwTextureMgrSolid1x1Id::fade_2d);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_ui_texture() noexcept
 {
@@ -3554,10 +3554,10 @@ void HwVideo::destroy_ui_texture() noexcept
 }
 
 void HwVideo::create_ui_texture()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	texture_mgr_->create_ui(vid_ui_buffer_.data(), vid_mask_buffer_.data(), &palette_);
 	ui_t2d_ = texture_mgr_->get_ui();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_2d() noexcept
 {
@@ -3577,7 +3577,7 @@ void HwVideo::uninitialize_2d() noexcept
 }
 
 void HwVideo::initialize_2d()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	create_ui_ib();
 	create_ui_vb();
 	create_ui_vi();
@@ -3590,7 +3590,7 @@ BSTONE_BEGIN_FUNC_TRY
 	create_black_1x1_2d_texture();
 	create_white_1x1_2d_texture();
 	create_fade_1x1_2d_texture();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_flooring_ib() noexcept
 {
@@ -3598,7 +3598,7 @@ void HwVideo::destroy_flooring_ib() noexcept
 }
 
 void HwVideo::create_flooring_ib()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto index_count = 6;
 
 	flooring_ib_ = create_index_buffer(R3rBufferUsageType::draw_static, 1, index_count);
@@ -3612,7 +3612,7 @@ BSTONE_BEGIN_FUNC_TRY
 	};
 
 	update_index_buffer(flooring_ib_, 0, index_count, indices.data());
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_flooring_vb() noexcept
 {
@@ -3620,7 +3620,7 @@ void HwVideo::destroy_flooring_vb() noexcept
 }
 
 void HwVideo::create_flooring_vb()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto vertex_count = 4;
 
 	flooring_vb_ = create_vertex_buffer<FlooringVertex>(
@@ -3662,7 +3662,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	update_vertex_buffer(flooring_vb_, 0, vertex_count, vertices.data());
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_flooring_vi() noexcept
 {
@@ -3670,9 +3670,9 @@ void HwVideo::destroy_flooring_vi() noexcept
 }
 
 void HwVideo::create_flooring_vi()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	create_vertex_input<FlooringVertex>(flooring_ib_, flooring_vb_, flooring_vi_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_solid_flooring_r2_texture() noexcept
 {
@@ -3685,10 +3685,10 @@ void HwVideo::destroy_solid_flooring_r2_texture() noexcept
 }
 
 void HwVideo::create_solid_flooring_r2_texture()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	texture_mgr_->create_solid_1x1(HwTextureMgrSolid1x1Id::flooring);
 	flooring_solid_t2d_ = texture_mgr_->get_solid_1x1(HwTextureMgrSolid1x1Id::flooring);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_flooring() noexcept
 {
@@ -3703,12 +3703,12 @@ void HwVideo::uninitialize_flooring() noexcept
 }
 
 void HwVideo::initialize_flooring()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	create_flooring_ib();
 	create_flooring_vb();
 	create_flooring_vi();
 	create_solid_flooring_r2_texture();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_ceiling_ib() noexcept
 {
@@ -3716,7 +3716,7 @@ void HwVideo::destroy_ceiling_ib() noexcept
 }
 
 void HwVideo::create_ceiling_ib()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto index_count = 6;
 	ceiling_ib_ = create_index_buffer(R3rBufferUsageType::draw_static, 1, index_count);
 
@@ -3729,7 +3729,7 @@ BSTONE_BEGIN_FUNC_TRY
 	};
 
 	update_index_buffer(ceiling_ib_, 0, index_count, indices.data());
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_ceiling_vb() noexcept
 {
@@ -3737,7 +3737,7 @@ void HwVideo::destroy_ceiling_vb() noexcept
 }
 
 void HwVideo::create_ceiling_vb()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto vertex_count = 4;
 
 	ceiling_vb_ = create_vertex_buffer<CeilingVertex>(R3rBufferUsageType::draw_static, vertex_count);
@@ -3776,7 +3776,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	update_vertex_buffer(ceiling_vb_, 0, vertex_count, vertices.data());
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_ceiling_vi() noexcept
 {
@@ -3784,9 +3784,9 @@ void HwVideo::destroy_ceiling_vi() noexcept
 }
 
 void HwVideo::create_ceiling_vi()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	create_vertex_input<CeilingVertex>(ceiling_ib_, ceiling_vb_, ceiling_vi_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_solid_ceiling_r2_texture() noexcept
 {
@@ -3799,18 +3799,18 @@ void HwVideo::destroy_solid_ceiling_r2_texture() noexcept
 }
 
 void HwVideo::create_solid_ceiling_r2_texture()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	texture_mgr_->create_solid_1x1(HwTextureMgrSolid1x1Id::ceiling);
 	ceiling_solid_t2d_ = texture_mgr_->get_solid_1x1(HwTextureMgrSolid1x1Id::ceiling);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::initialize_ceiling()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	create_ceiling_ib();
 	create_ceiling_vb();
 	create_ceiling_vi();
 	create_solid_ceiling_r2_texture();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_ceiling() noexcept
 {
@@ -3825,13 +3825,13 @@ void HwVideo::uninitialize_ceiling() noexcept
 }
 
 void HwVideo::create_walls_ib()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto index_count = wall_side_count_ * indices_per_wall_side;
 
 	wall_sides_ib_ = create_index_buffer(R3rBufferUsageType::draw_streaming, 2, index_count);
 	wall_sides_ibi_.clear();
 	wall_sides_ibi_.resize(index_count);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_walls_ib() noexcept
 {
@@ -3840,10 +3840,10 @@ void HwVideo::destroy_walls_ib() noexcept
 }
 
 void HwVideo::create_walls_vb()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto vertex_count = wall_side_count_ * vertices_per_wall_side;
 	wall_sides_vb_ = create_vertex_buffer<WallVertex>(R3rBufferUsageType::draw_static, vertex_count);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_walls_vi() noexcept
 {
@@ -3851,9 +3851,9 @@ void HwVideo::destroy_walls_vi() noexcept
 }
 
 void HwVideo::create_walls_vi()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	create_vertex_input<WallVertex>(wall_sides_ib_, wall_sides_vb_, wall_sides_vi_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_walls_vb() noexcept
 {
@@ -3861,7 +3861,7 @@ void HwVideo::destroy_walls_vb() noexcept
 }
 
 void HwVideo::initialize_walls()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	xy_wall_map_.reserve(wall_count_);
 
 	walls_to_render_.clear();
@@ -3873,7 +3873,7 @@ BSTONE_BEGIN_FUNC_TRY
 	create_walls_ib();
 	create_walls_vb();
 	create_walls_vi();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_walls() noexcept
 {
@@ -3890,18 +3890,18 @@ void HwVideo::uninitialize_walls() noexcept
 }
 
 void HwVideo::create_pushwalls_ibi()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto index_count = pushwall_side_count_ * indices_per_wall_side;
 
 	pushwall_sides_ibi_.clear();
 	pushwall_sides_ibi_.resize(index_count);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::create_pushwalls_ib()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto index_count = pushwall_side_count_ * indices_per_wall_side;
 	pushwall_sides_ib_ = create_index_buffer(R3rBufferUsageType::draw_streaming, 2, index_count);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_pushwalls_ibi() noexcept
 {
@@ -3914,13 +3914,13 @@ void HwVideo::destroy_pushwalls_ib() noexcept
 }
 
 void HwVideo::create_pushwalls_vb()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto vertex_count = pushwall_side_count_ * vertices_per_wall_side;
 
 	pushwall_sides_vb_ = create_vertex_buffer<PushwallVertex>(
 		R3rBufferUsageType::draw_dynamic,
 		vertex_count);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_pushwalls_vi() noexcept
 {
@@ -3928,9 +3928,9 @@ void HwVideo::destroy_pushwalls_vi() noexcept
 }
 
 void HwVideo::create_pushwalls_vi()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	create_vertex_input<PushwallVertex>(pushwall_sides_ib_, pushwall_sides_vb_, pushwall_sides_vi_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_pushwalls_vb() noexcept
 {
@@ -3938,7 +3938,7 @@ void HwVideo::destroy_pushwalls_vb() noexcept
 }
 
 void HwVideo::initialize_pushwalls()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	xy_pushwall_map_.reserve(pushwall_count_);
 
 	pushwall_to_wall_vbi_.clear();
@@ -3954,7 +3954,7 @@ BSTONE_BEGIN_FUNC_TRY
 	create_pushwalls_ib();
 	create_pushwalls_vb();
 	create_pushwalls_vi();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_pushwalls() noexcept
 {
@@ -3974,18 +3974,18 @@ void HwVideo::uninitialize_pushwalls() noexcept
 }
 
 void HwVideo::create_door_sides_ibi()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto index_count = door_count_ * indices_per_door_side;
 
 	door_sides_ibi_.clear();
 	door_sides_ibi_.resize(index_count);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::create_door_sides_ib()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto index_count = door_count_ * indices_per_door_side;
 	door_sides_ib_ = create_index_buffer(R3rBufferUsageType::draw_streaming, 2, index_count);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_door_sides_ibi() noexcept
 {
@@ -3999,10 +3999,10 @@ void HwVideo::destroy_door_sides_ib() noexcept
 }
 
 void HwVideo::create_door_sides_vb()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto vertex_count = door_count_ * indices_per_door_side;
 	door_sides_vb_ = create_vertex_buffer<DoorVertex>(R3rBufferUsageType::draw_dynamic, vertex_count);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_door_sides_vb() noexcept
 {
@@ -4015,12 +4015,12 @@ void HwVideo::destroy_door_sides_vi() noexcept
 }
 
 void HwVideo::create_door_sides_vi()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	create_vertex_input<DoorVertex>(door_sides_ib_, door_sides_vb_, door_sides_vi_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::initialize_door_sides()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	xy_door_map_.reserve(door_count_);
 
 	const auto max_draw_item_count = door_count_ * door_halves_per_door;
@@ -4033,7 +4033,7 @@ BSTONE_BEGIN_FUNC_TRY
 	create_door_sides_ib();
 	create_door_sides_vb();
 	create_door_sides_vi();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_door_sides() noexcept
 {
@@ -4243,7 +4243,7 @@ void HwVideo::update_ui_sampler_state() noexcept
 }
 
 void HwVideo::update_ui_sampler()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	update_ui_sampler_state();
 
 	if (ui_sampler_ != nullptr)
@@ -4252,7 +4252,7 @@ BSTONE_BEGIN_FUNC_TRY
 		param.state = ui_sampler_state_;
 		ui_sampler_->update(param);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_ui_sampler() noexcept
 {
@@ -4260,14 +4260,14 @@ void HwVideo::destroy_ui_sampler() noexcept
 }
 
 void HwVideo::create_ui_sampler()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	update_ui_sampler_state();
 
 	auto param = R3rSamplerInitParam{};
 	param.state = ui_sampler_state_;
 
 	ui_sampler_ = renderer_->create_sampler(param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::set_sprite_sampler_default_state() noexcept
 {
@@ -4280,7 +4280,7 @@ void HwVideo::set_sprite_sampler_default_state() noexcept
 }
 
 void HwVideo::update_sprite_sampler_state()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	sprite_sampler_state_.min_filter = vid_cfg_get_3d_texture_image_filter();
 	sprite_sampler_state_.mag_filter = vid_cfg_get_3d_texture_image_filter();
 
@@ -4289,10 +4289,10 @@ BSTONE_BEGIN_FUNC_TRY
 
 	sprite_sampler_state_.anisotropy = cfg_texture_anisotropy_to_renderer(
 		vid_cfg_get_3d_texture_anisotropy());
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::update_sprite_sampler()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	update_sprite_sampler_state();
 
 	if (sprite_sampler_ != nullptr)
@@ -4301,7 +4301,7 @@ BSTONE_BEGIN_FUNC_TRY
 		param.state = sprite_sampler_state_;
 		sprite_sampler_->update(param);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_sprite_sampler() noexcept
 {
@@ -4309,14 +4309,14 @@ void HwVideo::destroy_sprite_sampler() noexcept
 }
 
 void HwVideo::create_sprite_sampler()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	update_sprite_sampler_state();
 
 	auto param = R3rSamplerInitParam{};
 	param.state = sprite_sampler_state_;
 
 	sprite_sampler_ = renderer_->create_sampler(param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::set_wall_sampler_default_state() noexcept
 {
@@ -4329,7 +4329,7 @@ void HwVideo::set_wall_sampler_default_state() noexcept
 }
 
 void HwVideo::update_wall_sampler_state()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	wall_sampler_state_.min_filter = vid_cfg_get_3d_texture_image_filter();
 	wall_sampler_state_.mag_filter = vid_cfg_get_3d_texture_image_filter();
 
@@ -4338,10 +4338,10 @@ BSTONE_BEGIN_FUNC_TRY
 
 	wall_sampler_state_.anisotropy = cfg_texture_anisotropy_to_renderer(
 		vid_cfg_get_3d_texture_anisotropy());
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::update_wall_sampler()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	update_wall_sampler_state();
 
 	if (wall_sampler_ != nullptr)
@@ -4350,7 +4350,7 @@ BSTONE_BEGIN_FUNC_TRY
 		param.state = wall_sampler_state_;
 		wall_sampler_->update(param);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_wall_sampler() noexcept
 {
@@ -4358,17 +4358,17 @@ void HwVideo::destroy_wall_sampler() noexcept
 }
 
 void HwVideo::create_wall_sampler()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	update_wall_sampler_state();
 
 	auto param = R3rSamplerInitParam{};
 	param.state = wall_sampler_state_;
 
 	wall_sampler_ = renderer_->create_sampler(param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::update_player_weapon_vb()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto vertices = PlayerWeaponVbi{};
 	vertices.resize(vertices_per_sprite);
 
@@ -4412,7 +4412,7 @@ BSTONE_BEGIN_FUNC_TRY
 	// Update vertex buffer.
 	//
 	update_vertex_buffer(player_weapon_vb_, 0, vertices_per_sprite, vertices.data());
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_player_weapon_ib() noexcept
 {
@@ -4420,12 +4420,12 @@ void HwVideo::destroy_player_weapon_ib() noexcept
 }
 
 void HwVideo::create_player_weapon_ib()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	player_weapon_ib_ = create_index_buffer(R3rBufferUsageType::draw_static, 1, indices_per_sprite);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::update_player_weapon_ib()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	using Indices = std::array<std::uint8_t, indices_per_sprite>;
 
 	auto indices = Indices
@@ -4435,7 +4435,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}; // indices
 
 	update_index_buffer(player_weapon_ib_, 0, indices_per_sprite, indices.data());
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_player_weapon_vb() noexcept
 {
@@ -4443,11 +4443,11 @@ void HwVideo::destroy_player_weapon_vb() noexcept
 }
 
 void HwVideo::create_player_weapon_vb()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	player_weapon_vb_ = create_vertex_buffer<PlayerWeaponVertex>(
 		R3rBufferUsageType::draw_static,
 		vertices_per_sprite);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_player_weapon_vi() noexcept
 {
@@ -4455,12 +4455,12 @@ void HwVideo::destroy_player_weapon_vi() noexcept
 }
 
 void HwVideo::create_player_weapon_vi()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	create_vertex_input<PlayerWeaponVertex>(player_weapon_ib_, player_weapon_vb_, player_weapon_vi_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::update_player_weapon_model_matrix()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto& assets_info = get_assets_info();
 
 	const auto aog_scale = 128.0 / 64.0;
@@ -4486,7 +4486,7 @@ BSTONE_BEGIN_FUNC_TRY
 	const auto translate = cgm::translate(identity, translate_v);
 	const auto scale = cgm::scale(identity, cgm::Vec3D{scalar, height_compensation_factor * scalar, 0.0F});
 	player_weapon_model_matrix_ = translate * scale;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::update_player_weapon_view_matrix() noexcept
 {
@@ -4524,7 +4524,7 @@ void HwVideo::update_player_weapon_sampler_state() noexcept
 }
 
 void HwVideo::update_player_weapon_sampler()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	update_player_weapon_sampler_state();
 
 	if (player_weapon_sampler_ != nullptr)
@@ -4533,7 +4533,7 @@ BSTONE_BEGIN_FUNC_TRY
 		param.state = player_weapon_sampler_state_;
 		player_weapon_sampler_->update(param);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_player_weapon_sampler() noexcept
 {
@@ -4541,13 +4541,13 @@ void HwVideo::destroy_player_weapon_sampler() noexcept
 }
 
 void HwVideo::create_player_weapon_sampler()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	update_player_weapon_sampler_state();
 
 	auto param = R3rSamplerInitParam{};
 	param.state = player_weapon_sampler_state_;
 	player_weapon_sampler_ = renderer_->create_sampler(param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_player_weapon() noexcept
 {
@@ -4558,7 +4558,7 @@ void HwVideo::uninitialize_player_weapon() noexcept
 }
 
 void HwVideo::initialize_player_weapon()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	create_player_weapon_ib();
 	create_player_weapon_vb();
 	create_player_weapon_vi();
@@ -4570,7 +4570,7 @@ BSTONE_BEGIN_FUNC_TRY
 	update_player_weapon_model_matrix();
 	update_player_weapon_view_matrix();
 	build_player_weapon_projection_matrix();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_fade_sampler() noexcept
 {
@@ -4578,7 +4578,7 @@ void HwVideo::destroy_fade_sampler() noexcept
 }
 
 void HwVideo::create_fade_sampler()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto param = R3rSamplerInitParam{};
 	param.state.min_filter = R3rFilterType::nearest;
 	param.state.mag_filter = R3rFilterType::nearest;
@@ -4587,7 +4587,7 @@ BSTONE_BEGIN_FUNC_TRY
 	param.state.address_mode_v = R3rAddressMode::repeat;
 	param.state.anisotropy = R3rLimits::min_anisotropy_off;
 	fade_sampler_ = renderer_->create_sampler(param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::set_samplers_default_states() noexcept
 {
@@ -4605,12 +4605,12 @@ void HwVideo::uninitialize_samplers() noexcept
 }
 
 void HwVideo::initialize_samplers()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	create_ui_sampler();
 	create_sprite_sampler();
 	create_wall_sampler();
 	create_fade_sampler();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_command_buffers() noexcept
 {
@@ -4630,7 +4630,7 @@ void HwVideo::destroy_common_command_buffer() noexcept
 }
 
 void HwVideo::create_vsync_command_buffer()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto param = R3rCmdBufferInitParam{};
 	param.initial_size = 32;
 	param.resize_delta = 0;
@@ -4642,7 +4642,7 @@ BSTONE_BEGIN_FUNC_TRY
 	vsync_command_buffer_->end_write();
 
 	vsync_command_buffer_->enable(true);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_vsync_command_buffer() noexcept
 {
@@ -4650,13 +4650,13 @@ void HwVideo::destroy_vsync_command_buffer() noexcept
 }
 
 void HwVideo::create_common_command_buffer()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto param = R3rCmdBufferInitParam{};
 	param.initial_size = common_command_buffer_initial_size;
 	param.resize_delta = common_command_buffer_resize_delta_size;
 
 	common_command_buffer_ = make_r3r_cmd_buffer(param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_2d_command_buffer() noexcept
 {
@@ -4664,13 +4664,13 @@ void HwVideo::destroy_2d_command_buffer() noexcept
 }
 
 void HwVideo::create_2d_command_buffer()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto param = R3rCmdBufferInitParam{};
 	param.initial_size = r2_command_buffer_initial_size;
 	param.resize_delta = r2_command_buffer_resize_delta_size;
 
 	r2_command_buffer_ = make_r3r_cmd_buffer(param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_3d_command_buffer() noexcept
 {
@@ -4678,13 +4678,13 @@ void HwVideo::destroy_3d_command_buffer() noexcept
 }
 
 void HwVideo::create_3d_command_buffer()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto param = R3rCmdBufferInitParam{};
 	param.initial_size = r3_command_buffer_initial_size;
 	param.resize_delta = r3_command_buffer_resize_delta_size;
 
 	r3_command_buffer_ = make_r3r_cmd_buffer(param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_command_buffers() noexcept
 {
@@ -4696,13 +4696,13 @@ void HwVideo::uninitialize_command_buffers() noexcept
 }
 
 void HwVideo::initialize_command_buffers()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	create_vsync_command_buffer();
 	create_common_command_buffer();
 	create_3d_command_buffer();
 	create_2d_command_buffer();
 	create_command_buffers();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_3d_fade_ib() noexcept
 {
@@ -4710,9 +4710,9 @@ void HwVideo::destroy_3d_fade_ib() noexcept
 }
 
 void HwVideo::create_3d_fade_ib()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	r3_fade_ib_ = create_index_buffer(R3rBufferUsageType::draw_static, 1, 6);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_3d_fade_vb() noexcept
 {
@@ -4720,9 +4720,9 @@ void HwVideo::destroy_3d_fade_vb() noexcept
 }
 
 void HwVideo::create_3d_fade_vb()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	r3_fade_vb_ = create_vertex_buffer<FadeVertex>(R3rBufferUsageType::draw_static, 4);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_3d_fade_vi() noexcept
 {
@@ -4730,12 +4730,12 @@ void HwVideo::destroy_3d_fade_vi() noexcept
 }
 
 void HwVideo::create_3d_fade_vi()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	create_vertex_input<FadeVertex>(r3_fade_ib_, r3_fade_vb_, r3_fade_vi_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::update_3d_fade_ib()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	using Indices = std::array<std::uint8_t, 6>;
 
 	const auto& indices = Indices
@@ -4745,10 +4745,10 @@ BSTONE_BEGIN_FUNC_TRY
 	};
 
 	update_index_buffer(r3_fade_ib_, 0, 6, indices.data());
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::update_3d_fade_vb()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto vertices = FadeVbi{};
 	vertices.resize(4);
 
@@ -4786,7 +4786,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	update_vertex_buffer<FadeVertex>(r3_fade_vb_, 0, 4, vertices.data());
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_3d_fade_r2_texture() noexcept
 {
@@ -4799,10 +4799,10 @@ void HwVideo::destroy_3d_fade_r2_texture() noexcept
 }
 
 void HwVideo::create_r3_fade_r2_texture()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	texture_mgr_->create_solid_1x1(HwTextureMgrSolid1x1Id::fade_3d);
 	r3_fade_t2d_ = texture_mgr_->get_solid_1x1(HwTextureMgrSolid1x1Id::fade_3d);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_3d_fade() noexcept
 {
@@ -4818,12 +4818,12 @@ void HwVideo::destroy_texture_manager() noexcept
 }
 
 void HwVideo::create_texture_manager()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	texture_mgr_ = HwTextureMgrFactory::create(renderer_, &vid_sprite_cache, mt_task_manager_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::initialize_3d_fade()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	create_3d_fade_ib();
 	create_3d_fade_vb();
 	create_3d_fade_vi();
@@ -4831,10 +4831,10 @@ BSTONE_BEGIN_FUNC_TRY
 
 	update_3d_fade_ib();
 	update_3d_fade_vb();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::present_common()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	sampler_var_ = 0;
 	shading_mode_ = 0;
 	bs_shade_max_ = shade_max;
@@ -4957,10 +4957,10 @@ BSTONE_BEGIN_FUNC_TRY
 	// Finalize.
 	//
 	command_buffer->end_write();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::present_2d()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	// Update 2D texture.
 	//
 	texture_mgr_->update_ui();
@@ -5201,10 +5201,10 @@ BSTONE_BEGIN_FUNC_TRY
 	// Finalize.
 	//
 	command_buffer->end_write();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::render_walls()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (wall_count_ <= 0)
 	{
 		return;
@@ -5338,10 +5338,10 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	wall_side_draw_item_count_ = draw_side_index;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::render_pushwalls()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (pushwall_count_ <= 0)
 	{
 		return;
@@ -5475,10 +5475,10 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	pushwall_side_draw_item_count_ = draw_side_index;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::render_doors()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (door_count_ == 0)
 	{
 		return;
@@ -5635,10 +5635,10 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	door_draw_item_count_ = draw_side_index;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::update_cloaked_actor(const Sprite& sprite)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!sprite.flags.is_visible)
 	{
 		return;
@@ -5686,10 +5686,10 @@ BSTONE_BEGIN_FUNC_TRY
 		auto& vertex = sprites_vbi_[vertex_index++];
 		vertex.rgba8 = vertex_color;
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int HwVideo::calculate_actor_anim_rotation(const objtype& bs_actor)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!bs_actor.state)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null state.");
@@ -5729,10 +5729,10 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	return static_cast<int>(target_angle / (ANGLES / 8));
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int HwVideo::get_bs_actor_sprite_id(const objtype& bs_actor)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (bs_actor.state == nullptr)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null state.");
@@ -5756,10 +5756,10 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	return result;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::update_actor(std::intptr_t bs_actor_index)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto& actor = actors_[bs_actor_index];
 	const auto& bs_actor = objlist[bs_actor_index];
 
@@ -5780,10 +5780,10 @@ BSTONE_BEGIN_FUNC_TRY
 		actor.x = bs_actor.x;
 		actor.y = bs_actor.y;
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::orient_sprite(Sprite& sprite)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	sprite.flags.is_visible = false;
 
 	if (sprite.bs_sprite_id <= 0)
@@ -5894,10 +5894,10 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	update_cloaked_actor(sprite);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::update_static(int bs_static_index)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto& sprite = statics_[bs_static_index];
 	const auto& bs_static = statobjlist[bs_static_index];
 	auto& hw_static = statics_[bs_static_index];
@@ -5912,10 +5912,10 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	orient_sprite(hw_static);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::render_sprites()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	// Build draw list.
 	//
 	auto draw_sprite_index = 0;
@@ -6138,10 +6138,10 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	sprites_draw_count_ = draw_sprite_index;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::update_3d_fade()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	r3_fade_is_enabled_ = false;
 
 	auto r_f = 1.0F;
@@ -6204,10 +6204,10 @@ BSTONE_BEGIN_FUNC_TRY
 	const auto rgba_8 = Rgba8{r, g, b, a};
 
 	texture_mgr_->update_solid_1x1(HwTextureMgrSolid1x1Id::fade_3d, rgba_8);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::present_3d()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto& command_buffer = r3_command_buffer_;
 
 	command_buffer->enable(false);
@@ -6610,7 +6610,7 @@ BSTONE_BEGIN_FUNC_TRY
 	// Finalize.
 	//
 	command_buffer->end_write();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool HwVideo::bs_is_activated_pushwall_tile(int tile) noexcept
 {
@@ -6706,7 +6706,7 @@ bool HwVideo::bs_is_solid_wall(int x, int y) const noexcept
 }
 
 int HwVideo::get_solid_wall_side_count(int x, int y) const
-BSTONE_BEGIN_FUNC_TRY
+try {
 	validate_tile_xy(x, y);
 
 	assert(bs_is_solid_wall(x, y));
@@ -6719,10 +6719,10 @@ BSTONE_BEGIN_FUNC_TRY
 	side_count -= bs_is_solid_wall(x - 1, y + 0); // west
 
 	return side_count;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int HwVideo::get_door_track_wall_id(int x, int y, controldir_t direction) const
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto bs_door_x = x;
 	auto bs_door_y = y;
 
@@ -6764,10 +6764,10 @@ BSTONE_BEGIN_FUNC_TRY
 	const auto& door = doorobjlist[door_index];
 
 	return door_get_track_texture_id(door);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_flooring()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	texture_mgr_->cache_wall(FloorTile);
 	flooring_textured_t2d_ = texture_mgr_->get_wall(FloorTile);
 
@@ -6781,10 +6781,10 @@ BSTONE_BEGIN_FUNC_TRY
 	);
 
 	texture_mgr_->update_solid_1x1(HwTextureMgrSolid1x1Id::flooring, renderer_color);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_ceiling()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	texture_mgr_->cache_wall(CeilingTile);
 	ceiling_textured_t2d_ = texture_mgr_->get_wall(CeilingTile);
 
@@ -6798,37 +6798,37 @@ BSTONE_BEGIN_FUNC_TRY
 	);
 
 	texture_mgr_->update_solid_1x1(HwTextureMgrSolid1x1Id::ceiling, renderer_color);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_wall(int wall_id)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	texture_mgr_->cache_wall(wall_id);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_horizontal_wall(int tile_wall)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto wall_id = horizwall[tile_wall];
 
 	precache_wall(wall_id);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_vertical_wall(int tile_wall)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto wall_id = vertwall[tile_wall];
 
 	precache_wall(wall_id);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_switches()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	precache_horizontal_wall(OFF_SWITCH);
 	precache_vertical_wall(OFF_SWITCH);
 	precache_horizontal_wall(ON_SWITCH);
 	precache_vertical_wall(ON_SWITCH);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_door_track(int x, int y)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	validate_tile_xy(x, y);
 
 	const auto tile = tilemap[x][y];
@@ -6845,10 +6845,10 @@ BSTONE_BEGIN_FUNC_TRY
 	const auto wall_id = door_get_track_texture_id(bs_door);
 
 	precache_wall(wall_id);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_walls()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto has_switch = false;
 
 	for (int y = 0; y < MAPSIZE; ++y)
@@ -6884,10 +6884,10 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		precache_switches();
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_pushwalls()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	for (int y = 0; y < MAPSIZE; ++y)
 	{
 		for (int x = 0; x < MAPSIZE; ++x)
@@ -6904,15 +6904,15 @@ BSTONE_BEGIN_FUNC_TRY
 			precache_vertical_wall(tile_wall);
 		}
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_door_side(int page_number)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	texture_mgr_->cache_wall(page_number);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_door(const doorobj_t& door)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (door.type)
 	{
 		case dr_normal:
@@ -6979,10 +6979,10 @@ BSTONE_BEGIN_FUNC_TRY
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Invalid door type.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_doors()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	door_count_ = 0;
 
 	for (auto bs_door = doorobjlist; lastdoorobj && bs_door != lastdoorobj; ++bs_door)
@@ -6991,7 +6991,7 @@ BSTONE_BEGIN_FUNC_TRY
 
 		precache_door(*bs_door);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 template<typename TVertex>
 void HwVideo::update_vertex_xyz(TVertex& vertex, const VertexPosition& xyz) noexcept
@@ -7020,7 +7020,7 @@ void HwVideo::map_wall_side(
 	Wall& wall,
 	int& vertex_index,
 	VertexBufferImageT<TVertex>& vb_buffer)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const float all_vertex_offsets[4][4] =
 	{
 		{tile_dimension_f, 0.0F, 0.0F, 0.0F,},
@@ -7153,7 +7153,7 @@ BSTONE_BEGIN_FUNC_TRY
 		update_vertex_rgba(vertex, rgba_8);
 		update_vertex_uv(vertex, uv);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 template<typename TVertex>
 void HwVideo::map_xy_to_xwall(
@@ -7163,7 +7163,7 @@ void HwVideo::map_xy_to_xwall(
 	XyWallMap& map,
 	int& vertex_index,
 	VertexBufferImageT<TVertex>& vb_buffer)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (wall_type)
 	{
 		case XyWallType::solid:
@@ -7230,10 +7230,10 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		map_wall_side(di_west, wall, vertex_index, vb_buffer);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::build_walls()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	uninitialize_walls();
 
 	// Check for moving pushwall.
@@ -7352,7 +7352,7 @@ BSTONE_BEGIN_FUNC_TRY
 	update_vertex_buffer(wall_sides_vb_, 0, vertex_count, vb_buffer.data());
 
 	walls_to_render_.reserve(wall_count_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::translate_pushwall_side(
 	float translate_x,
@@ -7361,7 +7361,7 @@ void HwVideo::translate_pushwall_side(
 	const Wall& wall,
 	int& vertex_index,
 	PushwallsVbi& vb_buffer)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const float all_vertex_offsets[4][4] =
 	{
 		{tile_dimension_f, 0.0F, 0.0F, 0.0F,},
@@ -7435,10 +7435,10 @@ BSTONE_BEGIN_FUNC_TRY
 			map_height_f,
 		};
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::translate_pushwall(const Wall& wall, int& vertex_index, PushwallsVbi& vb_buffer)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto translate_distance = static_cast<float>(pwallpos);
 
 	auto translate_x = 0.0F;
@@ -7470,10 +7470,10 @@ BSTONE_BEGIN_FUNC_TRY
 	translate_pushwall_side(translate_x, translate_y, di_east, wall, vertex_index, vb_buffer);
 	translate_pushwall_side(translate_x, translate_y, di_south, wall, vertex_index, vb_buffer);
 	translate_pushwall_side(translate_x, translate_y, di_west, wall, vertex_index, vb_buffer);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::translate_pushwall()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto xy = encode_xy(pwallx, pwally);
 	const auto wall_item_it = xy_pushwall_map_.find(xy);
 
@@ -7494,10 +7494,10 @@ BSTONE_BEGIN_FUNC_TRY
 		first_vertex_index,
 		vertex_count,
 		&pushwalls_vbi_[first_vertex_index]);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::step_pushwall(int old_x, int old_y)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto old_xy = encode_xy(old_x, old_y);
 	const auto old_wall_item_it = xy_pushwall_map_.find(old_xy);
 
@@ -7516,10 +7516,10 @@ BSTONE_BEGIN_FUNC_TRY
 	xy_pushwall_map_[new_xy] = wall;
 
 	translate_pushwall();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::build_pushwalls()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	uninitialize_pushwalls();
 
 	// Count pushwalls and their sides.
@@ -7588,7 +7588,7 @@ BSTONE_BEGIN_FUNC_TRY
 	update_vertex_buffer(pushwall_sides_vb_, 0, vertex_count, pushwalls_vbi_.data());
 
 	pushwalls_to_render_.reserve(pushwall_count_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 template<typename TVertex>
 void HwVideo::update_quad_vertices(
@@ -7694,7 +7694,7 @@ void HwVideo::map_door_side(DoorSide& door_side, int& vertex_index, DoorsVbi& vb
 }
 
 void HwVideo::map_xy_to_door(const doorobj_t& bs_door, int& vertex_index, DoorsVbi& vb_buffer)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto xy = encode_xy(bs_door.tilex, bs_door.tiley);
 	const auto map_it = xy_door_map_.find(xy);
 
@@ -7763,10 +7763,10 @@ BSTONE_BEGIN_FUNC_TRY
 
 	map_door_side(door.sides.front(), vertex_index, vb_buffer);
 	door_get_page_numbers(bs_door, door.sides[0].texture_id, door.sides[1].texture_id);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::build_doors()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	uninitialize_door_sides();
 
 	if (door_count_ == 0)
@@ -7798,16 +7798,16 @@ BSTONE_BEGIN_FUNC_TRY
 	//
 	update_vertex_buffer(door_sides_vb_, 0, vertex_count, doors_vbi_.data());
 	doors_to_render_.reserve(door_count_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::initialize_sprites_ibi()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto index_count = max_sprites_indices;
 
 	sprites_ib_ = create_index_buffer(R3rBufferUsageType::draw_streaming, 2, index_count);
 	sprites_ibi_.clear();
 	sprites_ibi_.resize(index_count);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_sprites_ib() noexcept
 {
@@ -7816,11 +7816,11 @@ void HwVideo::uninitialize_sprites_ib() noexcept
 }
 
 void HwVideo::initialize_sprites_vb()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto vertex_count = max_sprites_vertices;
 	sprites_vb_ = create_vertex_buffer<SpriteVertex>(R3rBufferUsageType::draw_streaming, vertex_count);
 	sprites_vbi_.resize(vertex_count);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_sprites_vb() noexcept
 {
@@ -7834,28 +7834,28 @@ void HwVideo::uninitialize_sprites_vi() noexcept
 }
 
 void HwVideo::initialize_sprites_vi()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	create_vertex_input<SpriteVertex>(sprites_ib_, sprites_vb_, sprites_vi_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::initialize_statics()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	statics_.resize(MAXSTATS);
 
 	statics_to_render_.clear();
 	statics_to_render_.reserve(MAXSTATS);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::initialize_actors()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	actors_.resize(MAXACTORS);
 
 	actors_to_render_.clear();
 	actors_to_render_.reserve(MAXACTORS);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::initialize_sprites()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	sprites_draw_count_ = 0;
 	sprites_draw_list_.clear();
 	sprites_draw_list_.resize(max_sprites);
@@ -7865,7 +7865,7 @@ BSTONE_BEGIN_FUNC_TRY
 	initialize_sprites_vi();
 	initialize_statics();
 	initialize_actors();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_statics() noexcept
 {
@@ -7945,42 +7945,42 @@ void HwVideo::map_static(const statobj_t& bs_static) noexcept
 }
 
 void HwVideo::cache_sprite(int bs_sprite_id)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	texture_mgr_->cache_sprite(bs_sprite_id);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_water_bowl()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_STAT_40); // Full.
 	cache_sprite(SPR_STAT_41); // Empty.
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_chicken_leg()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_STAT_42); // Intact.
 	cache_sprite(SPR_STAT_43); // Gnawed.
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_ham()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_STAT_44); // Intact.
 	cache_sprite(SPR_STAT_45); // Bone.
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_candy_bar()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_CANDY_BAR); // Intact.
 	cache_sprite(SPR_CANDY_WRAPER); // Wrapper.
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_sandwich()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_SANDWICH); // Intact.
 	cache_sprite(SPR_SANDWICH_WRAPER); // Wrapper.
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_plasma_detonator_explosion()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_DETONATOR_EXP1);
 	cache_sprite(SPR_DETONATOR_EXP2);
 	cache_sprite(SPR_DETONATOR_EXP3);
@@ -7989,18 +7989,18 @@ BSTONE_BEGIN_FUNC_TRY
 	cache_sprite(SPR_DETONATOR_EXP6);
 	cache_sprite(SPR_DETONATOR_EXP7);
 	cache_sprite(SPR_DETONATOR_EXP8);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_plasma_detonator()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_DOORBOMB);
 	cache_sprite(SPR_ALT_DOORBOMB);
 
 	precache_plasma_detonator_explosion();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_static(const statobj_t& bs_static)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto sprite_number = bs_static.shapenum;
 
 	if (false) {}
@@ -8032,10 +8032,10 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		cache_sprite(sprite_number);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_statics()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	for (auto bs_static = statobjlist.data(); laststatobj && bs_static != laststatobj; ++bs_static)
 	{
 		if (bs_static->shapenum == -1 || (bs_static->tilex == 0 && bs_static->tiley == 0))
@@ -8045,10 +8045,10 @@ BSTONE_BEGIN_FUNC_TRY
 
 		precache_static(*bs_static);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::map_actor(const objtype& bs_actor)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto bs_actor_index = get_actor_index(bs_actor);
 
 	auto vertex_index = actors_base_vertex_index;
@@ -8065,21 +8065,21 @@ BSTONE_BEGIN_FUNC_TRY
 	sprite.bs_sprite_id = get_bs_actor_sprite_id(bs_actor);
 
 	sprite.bs_object.actor = &bs_actor;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Explosion.
 void HwVideo::precache_explosion()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_EXPLOSION_1);
 	cache_sprite(SPR_EXPLOSION_2);
 	cache_sprite(SPR_EXPLOSION_3);
 	cache_sprite(SPR_EXPLOSION_4);
 	cache_sprite(SPR_EXPLOSION_5);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Clip Explosion.
 void HwVideo::precache_clip_explosion()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
@@ -8093,31 +8093,31 @@ BSTONE_BEGIN_FUNC_TRY
 		cache_sprite(SPR_CLIP_EXP7);
 		cache_sprite(SPR_CLIP_EXP8);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Grenade explosion.
 void HwVideo::precache_grenade_explosion()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_GRENADE_EXPLODE1);
 	cache_sprite(SPR_GRENADE_EXPLODE2);
 	cache_sprite(SPR_GRENADE_EXPLODE3);
 	cache_sprite(SPR_GRENADE_EXPLODE4);
 	cache_sprite(SPR_GRENADE_EXPLODE5);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Flying grenade.
 void HwVideo::precache_flying_grenade()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_GRENADE_FLY1);
 	cache_sprite(SPR_GRENADE_FLY2);
 	cache_sprite(SPR_GRENADE_FLY3);
 	cache_sprite(SPR_GRENADE_FLY4);
 
 	precache_grenade_explosion();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_anti_plasma_cannon_explosion()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
@@ -8131,10 +8131,10 @@ BSTONE_BEGIN_FUNC_TRY
 		cache_sprite(SPR_BFG_EXP7);
 		cache_sprite(SPR_BFG_EXP8);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_anti_plasma_cannon_shot()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
@@ -8146,153 +8146,153 @@ BSTONE_BEGIN_FUNC_TRY
 
 		precache_anti_plasma_cannon_explosion();
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // A rubble.
 void HwVideo::precache_rubble()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
 	{
 		cache_sprite(SPR_RUBBLE);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Toxic waste (green #1).
 void HwVideo::precache_toxic_waste_green_1()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_GREEN_OOZE1);
 	cache_sprite(SPR_GREEN_OOZE2);
 	cache_sprite(SPR_GREEN_OOZE3);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Toxic waste (green #2).
 void HwVideo::precache_toxic_waste_green_2()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_GREEN2_OOZE1);
 	cache_sprite(SPR_GREEN2_OOZE2);
 	cache_sprite(SPR_GREEN2_OOZE3);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Toxic waste (black #1).
 void HwVideo::precache_toxic_waste_black_1()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_BLACK_OOZE1);
 	cache_sprite(SPR_BLACK_OOZE2);
 	cache_sprite(SPR_BLACK_OOZE3);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Toxic waste (black #2).
 void HwVideo::precache_toxic_waste_black_2()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_BLACK2_OOZE1);
 	cache_sprite(SPR_BLACK2_OOZE2);
 	cache_sprite(SPR_BLACK2_OOZE3);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Coin (1).
 void HwVideo::precache_coin_1()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_STAT_77);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Red Access Card.
 void HwVideo::precache_red_access_card()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_STAT_32);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Yellow Access Card.
 void HwVideo::precache_yellow_access_card()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_STAT_33);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Green Access Card (AOG).
 void HwVideo::precache_green_access_card()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog())
 	{
 		cache_sprite(SPR_STAT_34);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Blue Access Card.
 void HwVideo::precache_blue_access_card()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_STAT_35);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Golden Access Card (AOG).
 void HwVideo::precache_golden_access_card()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog())
 	{
 		cache_sprite(SPR_STAT_36);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Small yellow box (PS).
 void HwVideo::precache_small_yellow_box()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
 	{
 		cache_sprite(SPR_STAT_36);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Partial / Full Charge Pack.
 void HwVideo::precache_charge_packs()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_STAT_26);
 	cache_sprite(SPR_STAT_31);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Slow Fire Protector.
 void HwVideo::precache_slow_fire_protector()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_STAT_24);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Rapid Assault Weapon.
 void HwVideo::precache_rapid_assault_weapon()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_STAT_27);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Dual Neutron Disruptor.
 void HwVideo::precache_dual_neutron_disruptor_weapon()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_STAT_28);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Plasma Discharge Unit.
 void HwVideo::precache_plasma_discharge_unit_weapon()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_STAT_46);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Anti-Plasma Cannon.
 void HwVideo::precache_anti_plasma_cannon_weapon()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_ps())
 	{
 		cache_sprite(SPR_STAT_34);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Generic alien spit (#1).
 void HwVideo::precache_generic_alien_spit_1()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_SPIT1_1);
 	cache_sprite(SPR_SPIT1_2);
 	cache_sprite(SPR_SPIT1_3);
@@ -8300,11 +8300,11 @@ BSTONE_BEGIN_FUNC_TRY
 	cache_sprite(SPR_SPIT_EXP1_1);
 	cache_sprite(SPR_SPIT_EXP1_2);
 	cache_sprite(SPR_SPIT_EXP1_3);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Generic alien spit (#2).
 void HwVideo::precache_generic_alien_spit_2()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_SPIT2_1);
 	cache_sprite(SPR_SPIT2_2);
 	cache_sprite(SPR_SPIT2_3);
@@ -8312,11 +8312,11 @@ BSTONE_BEGIN_FUNC_TRY
 	cache_sprite(SPR_SPIT_EXP2_1);
 	cache_sprite(SPR_SPIT_EXP2_2);
 	cache_sprite(SPR_SPIT_EXP2_3);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Generic alien spit (#3).
 void HwVideo::precache_generic_alien_spit_3()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_SPIT3_1);
 	cache_sprite(SPR_SPIT3_2);
 	cache_sprite(SPR_SPIT3_3);
@@ -8324,20 +8324,20 @@ BSTONE_BEGIN_FUNC_TRY
 	cache_sprite(SPR_SPIT_EXP3_1);
 	cache_sprite(SPR_SPIT_EXP3_2);
 	cache_sprite(SPR_SPIT_EXP3_3);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Electrical Shot.
 void HwVideo::precache_electrical_shot()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_ELEC_SHOT1);
 	cache_sprite(SPR_ELEC_SHOT2);
 	cache_sprite(SPR_ELEC_SHOT_EXP1);
 	cache_sprite(SPR_ELEC_SHOT_EXP2);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Sector Patrol (AOG) / Sector Guard (PS).
 void HwVideo::precache_sector_patrol_or_sector_guard()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_RENT_S_1);
 	cache_sprite(SPR_RENT_S_2);
 	cache_sprite(SPR_RENT_S_3);
@@ -8400,11 +8400,11 @@ BSTONE_BEGIN_FUNC_TRY
 	precache_slow_fire_protector();
 	precache_charge_packs();
 	precache_coin_1();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Robot Turret.
 void HwVideo::precache_robot_turret()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_TERROT_1);
 	cache_sprite(SPR_TERROT_2);
 	cache_sprite(SPR_TERROT_3);
@@ -8421,11 +8421,11 @@ BSTONE_BEGIN_FUNC_TRY
 	cache_sprite(SPR_TERROT_DIE_3);
 	cache_sprite(SPR_TERROT_DIE_4);
 	cache_sprite(SPR_TERROT_DEAD);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Bio-Technician.
 void HwVideo::precache_bio_technician()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_OFC_S_1);
 	cache_sprite(SPR_OFC_S_2);
 	cache_sprite(SPR_OFC_S_3);
@@ -8488,11 +8488,11 @@ BSTONE_BEGIN_FUNC_TRY
 	//
 	precache_charge_packs();
 	precache_coin_1();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Pod Alien.
 void HwVideo::precache_pod_alien()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_POD_WALK1);
 	cache_sprite(SPR_POD_WALK2);
 	cache_sprite(SPR_POD_WALK3);
@@ -8510,11 +8510,11 @@ BSTONE_BEGIN_FUNC_TRY
 
 
 	precache_generic_alien_spit_3();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Pod Alien Egg.
 void HwVideo::precache_pod_alien_egg()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_POD_EGG);
 	cache_sprite(SPR_POD_HATCH1);
 	cache_sprite(SPR_POD_HATCH2);
@@ -8522,11 +8522,11 @@ BSTONE_BEGIN_FUNC_TRY
 
 
 	precache_pod_alien();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // High Energy Plasma Alien.
 void HwVideo::precache_high_energy_plasma_alien()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_ELEC_APPEAR1);
 	cache_sprite(SPR_ELEC_APPEAR2);
 	cache_sprite(SPR_ELEC_APPEAR3);
@@ -8544,11 +8544,11 @@ BSTONE_BEGIN_FUNC_TRY
 
 
 	precache_electrical_shot();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Plasma Sphere.
 void HwVideo::precache_plasma_sphere()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_ELECTRO_SPHERE_ROAM1);
 	cache_sprite(SPR_ELECTRO_SPHERE_ROAM2);
 	cache_sprite(SPR_ELECTRO_SPHERE_ROAM3);
@@ -8557,11 +8557,11 @@ BSTONE_BEGIN_FUNC_TRY
 	cache_sprite(SPR_ELECTRO_SPHERE_DIE2);
 	cache_sprite(SPR_ELECTRO_SPHERE_DIE3);
 	cache_sprite(SPR_ELECTRO_SPHERE_DIE4);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Star Sentinel (AOG) / Tech Warrior (PS).
 void HwVideo::precache_star_sentinel_or_tech_warrior()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_PRO_S_1);
 	cache_sprite(SPR_PRO_S_2);
 	cache_sprite(SPR_PRO_S_3);
@@ -8625,11 +8625,11 @@ BSTONE_BEGIN_FUNC_TRY
 	precache_rapid_assault_weapon();
 	precache_charge_packs();
 	precache_coin_1();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // High-Security Genetic Guard.
 void HwVideo::precache_high_security_genetic_guard()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_GENETIC_W1);
 	cache_sprite(SPR_GENETIC_W2);
 	cache_sprite(SPR_GENETIC_W3);
@@ -8652,11 +8652,11 @@ BSTONE_BEGIN_FUNC_TRY
 	//
 	precache_slow_fire_protector();
 	precache_charge_packs();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Experimental Mech-Sentinel.
 void HwVideo::precache_experimental_mech_sentinel()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_MUTHUM1_W1);
 	cache_sprite(SPR_MUTHUM1_W2);
 	cache_sprite(SPR_MUTHUM1_W3);
@@ -8680,11 +8680,11 @@ BSTONE_BEGIN_FUNC_TRY
 	// Goodies.
 	//
 	precache_charge_packs();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Experimental Mutant Human.
 void HwVideo::precache_experimental_mutant_human()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_MUTHUM2_W1);
 	cache_sprite(SPR_MUTHUM2_W2);
 	cache_sprite(SPR_MUTHUM2_W3);
@@ -8713,11 +8713,11 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		precache_generic_alien_spit_1();
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Morphing Experimental Mutant Human.
 void HwVideo::precache_experimental_mutant_human_morphing()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_MUTHUM2_MORPH1);
 	cache_sprite(SPR_MUTHUM2_MORPH2);
 	cache_sprite(SPR_MUTHUM2_MORPH3);
@@ -8730,11 +8730,11 @@ BSTONE_BEGIN_FUNC_TRY
 
 
 	precache_experimental_mutant_human();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Large Experimental Genetic Alien.
 void HwVideo::precache_large_experimental_genetic_alien()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_LCAN_ALIEN_W1);
 	cache_sprite(SPR_LCAN_ALIEN_W2);
 	cache_sprite(SPR_LCAN_ALIEN_W3);
@@ -8754,11 +8754,11 @@ BSTONE_BEGIN_FUNC_TRY
 
 
 	precache_generic_alien_spit_3();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // A canister with large Experimental Genetic Alien.
 void HwVideo::precache_canister_with_large_experimental_genetic_alien()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_LCAN_ALIEN_READY);
 	cache_sprite(SPR_LCAN_ALIEN_B1);
 	cache_sprite(SPR_LCAN_ALIEN_B2);
@@ -8766,11 +8766,11 @@ BSTONE_BEGIN_FUNC_TRY
 	cache_sprite(SPR_LCAN_ALIEN_EMPTY);
 
 	precache_large_experimental_genetic_alien();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Small Experimental Genetic Alien.
 void HwVideo::precache_experimental_genetic_alien_small()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_SCAN_ALIEN_W1);
 	cache_sprite(SPR_SCAN_ALIEN_W2);
 	cache_sprite(SPR_SCAN_ALIEN_W3);
@@ -8790,11 +8790,11 @@ BSTONE_BEGIN_FUNC_TRY
 
 
 	precache_generic_alien_spit_1();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // A canister with small Experimental Genetic Alien.
 void HwVideo::precache_canister_with_small_experimental_genetic_alien()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_SCAN_ALIEN_READY);
 	cache_sprite(SPR_SCAN_ALIEN_B1);
 	cache_sprite(SPR_SCAN_ALIEN_B2);
@@ -8803,11 +8803,11 @@ BSTONE_BEGIN_FUNC_TRY
 
 
 	precache_experimental_genetic_alien_small();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Mutated Guard.
 void HwVideo::precache_mutated_guard()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_GURNEY_MUT_W1);
 	cache_sprite(SPR_GURNEY_MUT_W2);
 	cache_sprite(SPR_GURNEY_MUT_W3);
@@ -8827,11 +8827,11 @@ BSTONE_BEGIN_FUNC_TRY
 	//
 	precache_slow_fire_protector();
 	precache_charge_packs();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Mutated Guard (waiting).
 void HwVideo::precache_mutated_guard_waiting()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_GURNEY_MUT_READY);
 	cache_sprite(SPR_GURNEY_MUT_B1);
 	cache_sprite(SPR_GURNEY_MUT_B2);
@@ -8840,22 +8840,22 @@ BSTONE_BEGIN_FUNC_TRY
 
 
 	precache_mutated_guard();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Fluid Alien Shot.
 void HwVideo::precache_fluid_alien_shot()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_LIQUID_SHOT_FLY_1);
 	cache_sprite(SPR_LIQUID_SHOT_FLY_2);
 	cache_sprite(SPR_LIQUID_SHOT_FLY_3);
 	cache_sprite(SPR_LIQUID_SHOT_BURST_1);
 	cache_sprite(SPR_LIQUID_SHOT_BURST_2);
 	cache_sprite(SPR_LIQUID_SHOT_BURST_3);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Fluid Alien.
 void HwVideo::precache_fluid_alien()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_LIQUID_M1);
 	cache_sprite(SPR_LIQUID_M2);
 	cache_sprite(SPR_LIQUID_M3);
@@ -8875,11 +8875,11 @@ BSTONE_BEGIN_FUNC_TRY
 
 
 	precache_fluid_alien_shot();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Star Trooper (AOG) / Alien Protector (PS).
 void HwVideo::precache_star_trooper_or_alien_protector()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_SWAT_S_1);
 	cache_sprite(SPR_SWAT_S_2);
 	cache_sprite(SPR_SWAT_S_3);
@@ -8948,11 +8948,11 @@ BSTONE_BEGIN_FUNC_TRY
 	precache_rapid_assault_weapon();
 	precache_charge_packs();
 	precache_coin_1();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Dr. Goldfire.
 void HwVideo::precache_dr_goldfire()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_GOLD_S_1);
 	cache_sprite(SPR_GOLD_S_2);
 	cache_sprite(SPR_GOLD_S_3);
@@ -9029,22 +9029,22 @@ BSTONE_BEGIN_FUNC_TRY
 	// Goodies.
 	//
 	precache_golden_access_card();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Morphed Dr. Goldfire Shot.
 void HwVideo::precache_morphed_dr_goldfire_shot()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_MGOLD_SHOT1);
 	cache_sprite(SPR_MGOLD_SHOT2);
 	cache_sprite(SPR_MGOLD_SHOT3);
 	cache_sprite(SPR_MGOLD_SHOT_EXP1);
 	cache_sprite(SPR_MGOLD_SHOT_EXP2);
 	cache_sprite(SPR_MGOLD_SHOT_EXP3);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Morphed Dr. Goldfire.
 void HwVideo::precache_morphed_dr_goldfire()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_MGOLD_OUCH);
 
 	cache_sprite(SPR_GOLD_MORPH1);
@@ -9072,11 +9072,11 @@ BSTONE_BEGIN_FUNC_TRY
 	// Goodies.
 	//
 	precache_golden_access_card();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Volatile Material Transport.
 void HwVideo::precache_volatile_material_transport()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog_sw())
@@ -9135,10 +9135,10 @@ BSTONE_BEGIN_FUNC_TRY
 	//
 	precache_explosion();
 	precache_toxic_waste_green_1();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_perscan_drone()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_FSCOUT_W1_1);
 	cache_sprite(SPR_FSCOUT_W1_2);
 	cache_sprite(SPR_FSCOUT_W1_3);
@@ -9191,11 +9191,11 @@ BSTONE_BEGIN_FUNC_TRY
 
 	//
 	precache_explosion();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Security Cube Explosion.
 void HwVideo::precache_security_cube_explosion()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_CUBE_EXP1);
 	cache_sprite(SPR_CUBE_EXP2);
 	cache_sprite(SPR_CUBE_EXP3);
@@ -9204,11 +9204,11 @@ BSTONE_BEGIN_FUNC_TRY
 	cache_sprite(SPR_CUBE_EXP6);
 	cache_sprite(SPR_CUBE_EXP7);
 	cache_sprite(SPR_CUBE_EXP8);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Security Cube.
 void HwVideo::precache_security_cube_or_projection_generator()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog())
@@ -9247,22 +9247,22 @@ BSTONE_BEGIN_FUNC_TRY
 
 		precache_security_cube_explosion();
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Spider Mutant Shot.
 void HwVideo::precache_spider_mutant_shot()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_BOSS1_PROJ1);
 	cache_sprite(SPR_BOSS1_PROJ2);
 	cache_sprite(SPR_BOSS1_PROJ3);
 	cache_sprite(SPR_BOSS1_EXP1);
 	cache_sprite(SPR_BOSS1_EXP2);
 	cache_sprite(SPR_BOSS1_EXP3);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Spider Mutant.
 void HwVideo::precache_spider_mutant()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_BOSS1_W1);
 	cache_sprite(SPR_BOSS1_W2);
 	cache_sprite(SPR_BOSS1_W3);
@@ -9285,11 +9285,11 @@ BSTONE_BEGIN_FUNC_TRY
 
 
 	precache_spider_mutant_shot();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Morphing Spider Mutant.
 void HwVideo::precache_spider_mutant_morphing()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_BOSS1_MORPH1);
 	cache_sprite(SPR_BOSS1_MORPH2);
 	cache_sprite(SPR_BOSS1_MORPH3);
@@ -9302,11 +9302,11 @@ BSTONE_BEGIN_FUNC_TRY
 
 
 	precache_spider_mutant();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Breather Beast.
 void HwVideo::precache_breather_beast()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_BOSS2_W1);
 	cache_sprite(SPR_BOSS2_W2);
 	cache_sprite(SPR_BOSS2_W3);
@@ -9320,11 +9320,11 @@ BSTONE_BEGIN_FUNC_TRY
 	cache_sprite(SPR_BOSS2_DIE3);
 	cache_sprite(SPR_BOSS2_DIE4);
 	cache_sprite(SPR_BOSS2_OUCH);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Cyborg Warrior.
 void HwVideo::precache_cyborg_warrior()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_BOSS3_W1);
 	cache_sprite(SPR_BOSS3_W2);
 	cache_sprite(SPR_BOSS3_W3);
@@ -9338,11 +9338,11 @@ BSTONE_BEGIN_FUNC_TRY
 	cache_sprite(SPR_BOSS3_DIE3);
 	cache_sprite(SPR_BOSS3_DIE4);
 	cache_sprite(SPR_BOSS3_OUCH);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Reptilian Warrior.
 void HwVideo::precache_reptilian_warrior()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_BOSS4_W1);
 	cache_sprite(SPR_BOSS4_W2);
 	cache_sprite(SPR_BOSS4_W3);
@@ -9356,11 +9356,11 @@ BSTONE_BEGIN_FUNC_TRY
 	cache_sprite(SPR_BOSS4_DIE3);
 	cache_sprite(SPR_BOSS4_DIE4);
 	cache_sprite(SPR_BOSS4_OUCH);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Reptilian Warrior (morphing).
 void HwVideo::precache_reptilian_warrior_morphing()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_BOSS4_MORPH1);
 	cache_sprite(SPR_BOSS4_MORPH2);
 	cache_sprite(SPR_BOSS4_MORPH3);
@@ -9373,22 +9373,22 @@ BSTONE_BEGIN_FUNC_TRY
 
 
 	precache_reptilian_warrior();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Acid Dragon Shot.
 void HwVideo::precache_acid_dragon_shot()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_BOSS5_PROJ1);
 	cache_sprite(SPR_BOSS5_PROJ2);
 	cache_sprite(SPR_BOSS5_PROJ3);
 	cache_sprite(SPR_BOSS5_EXP1);
 	cache_sprite(SPR_BOSS5_EXP2);
 	cache_sprite(SPR_BOSS5_EXP3);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Acid Dragon.
 void HwVideo::precache_acid_dragon()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_BOSS5_W1);
 	cache_sprite(SPR_BOSS5_W2);
 	cache_sprite(SPR_BOSS5_W3);
@@ -9405,11 +9405,11 @@ BSTONE_BEGIN_FUNC_TRY
 
 
 	precache_acid_dragon_shot();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Bio-Mech Guardian.
 void HwVideo::precache_bio_mech_guardian()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_BOSS6_W1);
 	cache_sprite(SPR_BOSS6_W2);
 	cache_sprite(SPR_BOSS6_W3);
@@ -9423,11 +9423,11 @@ BSTONE_BEGIN_FUNC_TRY
 	cache_sprite(SPR_BOSS6_DIE3);
 	cache_sprite(SPR_BOSS6_DIE4);
 	cache_sprite(SPR_BOSS6_OUCH);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // The Giant Stalker.
 void HwVideo::precache_the_giant_stalker()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_BOSS7_W1);
 	cache_sprite(SPR_BOSS7_W2);
 	cache_sprite(SPR_BOSS7_W3);
@@ -9441,11 +9441,11 @@ BSTONE_BEGIN_FUNC_TRY
 	cache_sprite(SPR_BOSS7_DIE3);
 	cache_sprite(SPR_BOSS7_DIE4);
 	cache_sprite(SPR_BOSS7_OUCH);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // The Spector Demon.
 void HwVideo::precache_the_spector_demon()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_BOSS8_W1);
 	cache_sprite(SPR_BOSS8_W2);
 	cache_sprite(SPR_BOSS8_W3);
@@ -9463,11 +9463,11 @@ BSTONE_BEGIN_FUNC_TRY
 
 	//
 	precache_morphed_dr_goldfire_shot();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // The Armored Stalker.
 void HwVideo::precache_the_armored_stalker()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_BOSS9_W1);
 	cache_sprite(SPR_BOSS9_W2);
 	cache_sprite(SPR_BOSS9_W3);
@@ -9481,11 +9481,11 @@ BSTONE_BEGIN_FUNC_TRY
 	cache_sprite(SPR_BOSS9_DIE4);
 	cache_sprite(SPR_BOSS9_DEAD);
 	cache_sprite(SPR_BOSS9_OUCH);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // The Crawler Beast Shot.
 void HwVideo::precache_the_crawler_beast_shot()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_BOSS10_SPIT1);
 	cache_sprite(SPR_BOSS10_SPIT2);
 	cache_sprite(SPR_BOSS10_SPIT3);
@@ -9493,11 +9493,11 @@ BSTONE_BEGIN_FUNC_TRY
 	cache_sprite(SPR_BOSS10_SPIT_EXP1);
 	cache_sprite(SPR_BOSS10_SPIT_EXP2);
 	cache_sprite(SPR_BOSS10_SPIT_EXP3);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // The Crawler Beast.
 void HwVideo::precache_the_crawler_beast()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_BOSS10_W1);
 	cache_sprite(SPR_BOSS10_W2);
 	cache_sprite(SPR_BOSS10_W3);
@@ -9514,42 +9514,42 @@ BSTONE_BEGIN_FUNC_TRY
 
 
 	precache_the_crawler_beast_shot();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Blake Stone.
 void HwVideo::precache_blake_stone()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_BLAKE_W1);
 	cache_sprite(SPR_BLAKE_W2);
 	cache_sprite(SPR_BLAKE_W3);
 	cache_sprite(SPR_BLAKE_W4);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_vent_and_dripping_blood()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_BLOOD_DRIP1);
 	cache_sprite(SPR_BLOOD_DRIP2);
 	cache_sprite(SPR_BLOOD_DRIP3);
 	cache_sprite(SPR_BLOOD_DRIP4);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_vent_and_dripping_water()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_WATER_DRIP1);
 	cache_sprite(SPR_WATER_DRIP2);
 	cache_sprite(SPR_WATER_DRIP3);
 	cache_sprite(SPR_WATER_DRIP4);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_flicker_light()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_DECO_ARC_1);
 	cache_sprite(SPR_DECO_ARC_2);
 	cache_sprite(SPR_DECO_ARC_3);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_crate_content()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	precache_chicken_leg();
 	precache_ham();
 
@@ -9568,10 +9568,10 @@ BSTONE_BEGIN_FUNC_TRY
 	cache_sprite(SPR_STAT_50); // gold
 	cache_sprite(SPR_STAT_51); // bonus
 	cache_sprite(SPR_STAT_57); // Body Parts
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_crate_1()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_CRATE_1);
 
 
@@ -9579,10 +9579,10 @@ BSTONE_BEGIN_FUNC_TRY
 	//
 	precache_grenade_explosion();
 	precache_crate_content();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_crate_2()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_CRATE_2);
 
 
@@ -9590,10 +9590,10 @@ BSTONE_BEGIN_FUNC_TRY
 	//
 	precache_grenade_explosion();
 	precache_crate_content();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_crate_3()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_CRATE_3);
 
 
@@ -9601,26 +9601,26 @@ BSTONE_BEGIN_FUNC_TRY
 	//
 	precache_grenade_explosion();
 	precache_crate_content();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_electrical_post_barrier()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_ELEC_POST1);
 	cache_sprite(SPR_ELEC_POST2);
 	cache_sprite(SPR_ELEC_POST3);
 	cache_sprite(SPR_ELEC_POST4);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_electrical_arc_barrier()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_ELEC_ARC1);
 	cache_sprite(SPR_ELEC_ARC2);
 	cache_sprite(SPR_ELEC_ARC3);
 	cache_sprite(SPR_ELEC_ARC4);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_vertical_post_barrier()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_VPOST1);
 	cache_sprite(SPR_VPOST2);
 	cache_sprite(SPR_VPOST3);
@@ -9629,10 +9629,10 @@ BSTONE_BEGIN_FUNC_TRY
 	cache_sprite(SPR_VPOST6);
 	cache_sprite(SPR_VPOST7);
 	cache_sprite(SPR_VPOST8);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_vertical_spike_barrier()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_VSPIKE1);
 	cache_sprite(SPR_VSPIKE2);
 	cache_sprite(SPR_VSPIKE3);
@@ -9641,34 +9641,34 @@ BSTONE_BEGIN_FUNC_TRY
 	cache_sprite(SPR_VSPIKE6);
 	cache_sprite(SPR_VSPIKE7);
 	cache_sprite(SPR_VSPIKE8);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_security_light()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_SECURITY_NORMAL);
 	cache_sprite(SPR_SECURITY_ALERT);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_grate_and_steam()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_GRATE);
 	cache_sprite(SPR_STEAM_1);
 	cache_sprite(SPR_STEAM_2);
 	cache_sprite(SPR_STEAM_3);
 	cache_sprite(SPR_STEAM_4);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_pipe_and_steam()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_STEAM_PIPE);
 	cache_sprite(SPR_PIPE_STEAM_1);
 	cache_sprite(SPR_PIPE_STEAM_2);
 	cache_sprite(SPR_PIPE_STEAM_3);
 	cache_sprite(SPR_PIPE_STEAM_4);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_special_stuff()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto& assets_info = get_assets_info();
 
 	if (assets_info.is_aog())
@@ -9696,55 +9696,55 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		precache_high_energy_plasma_alien();
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_access_cards()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	precache_red_access_card();
 	precache_yellow_access_card();
 	precache_green_access_card();
 	precache_blue_access_card();
 	precache_golden_access_card();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_player_weapon_auto_charge_pistol()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_KNIFEREADY);
 	cache_sprite(SPR_KNIFEATK1);
 	cache_sprite(SPR_KNIFEATK2);
 	cache_sprite(SPR_KNIFEATK3);
 	cache_sprite(SPR_KNIFEATK4);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_player_weapon_slow_fire_protector()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_PISTOLREADY);
 	cache_sprite(SPR_PISTOLATK1);
 	cache_sprite(SPR_PISTOLATK2);
 	cache_sprite(SPR_PISTOLATK3);
 	cache_sprite(SPR_PISTOLATK4);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_player_weapon_rapid_assault_weapon()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_MACHINEGUNREADY);
 	cache_sprite(SPR_MACHINEGUNATK1);
 	cache_sprite(SPR_MACHINEGUNATK2);
 	cache_sprite(SPR_MACHINEGUNATK3);
 	cache_sprite(SPR_MACHINEGUNATK4);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_player_weapon_dual_neutron_disruptor()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_CHAINREADY);
 	cache_sprite(SPR_CHAINATK1);
 	cache_sprite(SPR_CHAINATK2);
 	cache_sprite(SPR_CHAINATK3);
 	cache_sprite(SPR_CHAINATK4);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_player_weapon_plasma_discharge_unit()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	cache_sprite(SPR_GRENADEREADY);
 	cache_sprite(SPR_GRENADEATK1);
 	cache_sprite(SPR_GRENADEATK2);
@@ -9754,10 +9754,10 @@ BSTONE_BEGIN_FUNC_TRY
 	precache_flying_grenade();
 	precache_grenade_explosion();
 	precache_explosion();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_player_weapon_anti_plasma_cannon()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto& assets_info = get_assets_info();
 
 	if (!assets_info.is_ps())
@@ -9779,26 +9779,26 @@ BSTONE_BEGIN_FUNC_TRY
 
 	precache_explosion();
 	precache_clip_explosion();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_player_weapons()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	precache_player_weapon_auto_charge_pistol();
 	precache_player_weapon_slow_fire_protector();
 	precache_player_weapon_rapid_assault_weapon();
 	precache_player_weapon_dual_neutron_disruptor();
 	precache_player_weapon_plasma_discharge_unit();
 	precache_player_weapon_anti_plasma_cannon();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_dead(const objtype& bs_actor)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto sprite_id = get_bs_actor_sprite_id(bs_actor);
 	cache_sprite(sprite_id);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_actors()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (player == nullptr)
 	{
 		return;
@@ -10143,16 +10143,16 @@ BSTONE_BEGIN_FUNC_TRY
 	precache_special_stuff();
 	precache_access_cards();
 	precache_player_weapons();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_sprites()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	precache_statics();
 	precache_actors();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::build_statics()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	uninitialize_statics();
 
 	initialize_statics();
@@ -10172,10 +10172,10 @@ BSTONE_BEGIN_FUNC_TRY
 
 		map_static(*bs_static);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::build_actors()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	uninitialize_actors();
 	initialize_actors();
 
@@ -10188,19 +10188,19 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		map_actor(*bs_actor);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::build_sprites()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	uninitialize_sprites();
 	initialize_sprites();
 
 	build_statics();
 	build_actors();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::precache_resources()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	texture_mgr_->begin_cache();
 
 	precache_flooring();
@@ -10212,7 +10212,7 @@ BSTONE_BEGIN_FUNC_TRY
 
 	texture_mgr_->end_cache();
 	texture_mgr_->purge_cache();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_texture_upscale_resources() noexcept
 {
@@ -10222,7 +10222,7 @@ void HwVideo::destroy_texture_upscale_resources() noexcept
 }
 
 void HwVideo::create_texture_upscale_resources()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	ui_t2d_ = texture_mgr_->get_ui();
 
 	if (FloorTile > 0)
@@ -10234,7 +10234,7 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		ceiling_textured_t2d_ = texture_mgr_->get_wall(CeilingTile);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_external_textures_resources() noexcept
 {
@@ -10243,7 +10243,7 @@ void HwVideo::destroy_external_textures_resources() noexcept
 }
 
 void HwVideo::create_external_textures_resources()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (FloorTile > 0)
 	{
 		flooring_textured_t2d_ = texture_mgr_->get_wall(FloorTile);
@@ -10253,7 +10253,7 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		ceiling_textured_t2d_ = texture_mgr_->get_wall(CeilingTile);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_video() noexcept
 {
@@ -10283,7 +10283,7 @@ void HwVideo::uninitialize_video() noexcept
 }
 
 void HwVideo::initialize_video()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	set_samplers_default_states();
 	set_player_weapon_sampler_default_state();
 
@@ -10318,7 +10318,7 @@ BSTONE_BEGIN_FUNC_TRY
 	const auto window_title = vid_get_window_title_for_renderer(renderer_->get_name());
 	window.set_title(window_title.c_str());
 	window.show(true);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace
 

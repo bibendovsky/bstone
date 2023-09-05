@@ -201,7 +201,7 @@ GlR3rImplPool gl_r3r_impl_pool{};
 // ==========================================================================
 
 GlR3rImpl::GlR3rImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr, const R3rInitParam& param)
-BSTONE_BEGIN_CTOR_TRY
+try
 	:
 	video_mgr_{video_mgr},
 	window_mgr_{window_mgr}
@@ -361,17 +361,17 @@ BSTONE_BEGIN_CTOR_TRY
 	//
 	context_->clear(sys::Color{});
 	present();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void* GlR3rImpl::operator new(std::size_t size)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return gl_r3r_impl_pool.allocate(size);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::operator delete(void* ptr)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	gl_r3r_impl_pool.deallocate(ptr);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rType GlR3rImpl::do_get_type() const noexcept
 {
@@ -404,7 +404,7 @@ sys::Window& GlR3rImpl::do_get_window() const noexcept
 }
 
 void GlR3rImpl::do_handle_resize(sys::WindowSize new_size)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto size_changed = screen_width_ != new_size.width || screen_height_ != new_size.height;
 
 	screen_width_ = new_size.width;
@@ -415,7 +415,7 @@ BSTONE_BEGIN_FUNC_TRY
 		destroy_msaa_framebuffer();
 		create_msaa_framebuffer();
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool GlR3rImpl::do_get_vsync() const noexcept
 {
@@ -428,7 +428,7 @@ bool GlR3rImpl::do_get_vsync() const noexcept
 }
 
 void GlR3rImpl::do_enable_vsync(bool is_enabled)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!device_features_.is_vsync_available)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Not available.");
@@ -440,10 +440,10 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	gl_mgr_->set_swap_interval(is_enabled);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::do_set_anti_aliasing(R3rAaType aa_type, int aa_value)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (aa_type)
 	{
 		case R3rAaType::none:
@@ -479,13 +479,13 @@ BSTONE_BEGIN_FUNC_TRY
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Invalid anti-aliasing type.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::do_read_pixels(
 	sys::PixelFormat pixel_format,
 	void* buffer,
 	bool& is_flipped_vertically)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	assert(buffer != nullptr);
 
 	switch (pixel_format)
@@ -506,49 +506,49 @@ BSTONE_BEGIN_FUNC_TRY
 	GlR3rError::ensure();
 
 	bind_framebuffers();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::do_present()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	blit_framebuffers();
 	GlR3rError::ensure();
 
 	window_->gl_swap_buffers();
 	bind_framebuffers();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rBufferUPtr GlR3rImpl::do_create_buffer(const R3rBufferInitParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return context_->create_buffer(param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rVertexInputUPtr GlR3rImpl::do_create_vertex_input(const R3rCreateVertexInputParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return context_->get_vertex_input_manager().create(param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rShaderUPtr GlR3rImpl::do_create_shader(const R3rShaderInitParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return context_->create_shader(param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rShaderStageUPtr GlR3rImpl::do_create_shader_stage(const R3rShaderStageInitParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return context_->create_shader_stage(param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rR2TextureUPtr GlR3rImpl::do_create_r2_texture(const R3rR2TextureInitParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return context_->create_r2_texture(param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSamplerUPtr GlR3rImpl::do_create_sampler(const R3rSamplerInitParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return context_->get_sampler_manager().create(param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::do_submit_commands(Span<R3rCmdBuffer*> command_buffers)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	for (auto command_buffer : command_buffers)
 	{
 		if (command_buffer == nullptr)
@@ -658,7 +658,7 @@ BSTONE_BEGIN_FUNC_TRY
 
 		command_buffer->end_read();
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::FboDeleter::operator()(GLuint gl_name) noexcept
 {
@@ -675,7 +675,7 @@ void GlR3rImpl::RboDeleter::operator()(GLuint gl_name) noexcept
 }
 
 void GlR3rImpl::set_device_info()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto device_info = GlR3rUtils::get_device_info();
 
 	device_name_.assign(device_info.name.cbegin(), device_info.name.cend());
@@ -685,10 +685,10 @@ BSTONE_BEGIN_FUNC_TRY
 	device_info_.name = StringView{device_name_.data(), static_cast<IntP>(device_name_.size())};
 	device_info_.vendor = StringView{device_vendor_.data(), static_cast<IntP>(device_vendor_.size())};
 	device_info_.version = StringView{device_version_.data(), static_cast<IntP>(device_version_.size())};
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::set_name_and_description()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (type_)
 	{
 		case R3rType::gl_2_0:
@@ -709,10 +709,10 @@ BSTONE_BEGIN_FUNC_TRY
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unsupported renderer type.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rImpl::RboResource GlR3rImpl::create_renderbuffer()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!gl_device_features_.is_framebuffer_available)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Framebuffer not available.");
@@ -732,17 +732,17 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	return rbo_resource;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::bind_renderbuffer(GLuint gl_renderbuffer_name)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto gl_func = (gl_device_features_.is_framebuffer_ext ? glBindRenderbufferEXT : glBindRenderbuffer);
 	gl_func(GL_RENDERBUFFER, gl_renderbuffer_name);
 	GlR3rError::ensure_debug();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rImpl::FboResource GlR3rImpl::create_framebuffer()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!gl_device_features_.is_framebuffer_available)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Framebuffer not available.");
@@ -762,16 +762,16 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	return fbo_resource;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::bind_framebuffer(GLenum gl_target, GLuint gl_name)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	assert(gl_device_features_.is_framebuffer_available);
 
 	const auto gl_func = (gl_device_features_.is_framebuffer_ext ? glBindFramebufferEXT : glBindFramebuffer);
 	gl_func(gl_target, gl_name);
 	GlR3rError::ensure_debug();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::blit_framebuffer(
 	int src_width,
@@ -779,7 +779,7 @@ void GlR3rImpl::blit_framebuffer(
 	int dst_width,
 	int dst_height,
 	bool is_linear_filter)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	assert(src_width > 0);
 	assert(src_height > 0);
 	assert(dst_width > 0);
@@ -807,14 +807,14 @@ BSTONE_BEGIN_FUNC_TRY
 		gl_filter);
 
 	GlR3rError::ensure_debug();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rImpl::RboResource GlR3rImpl::create_renderbuffer(
 	int width,
 	int height,
 	int sample_count,
 	GLenum gl_internal_format)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	assert(width > 0);
 	assert(height > 0);
 	assert(sample_count >= 0);
@@ -835,42 +835,42 @@ BSTONE_BEGIN_FUNC_TRY
 
 	bind_renderbuffer(0);
 	return rbo_resource;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::destroy_msaa_color_rb()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	msaa_color_rb_.reset();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::destroy_msaa_depth_rb()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	msaa_depth_rb_.reset();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::destroy_msaa_fbo()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	msaa_fbo_.reset();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::destroy_msaa_framebuffer()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	destroy_msaa_fbo();
 	destroy_msaa_color_rb();
 	destroy_msaa_depth_rb();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::create_msaa_color_rb(int width, int height, int sample_count)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	msaa_color_rb_ = create_renderbuffer(width, height, sample_count, GL_RGBA8);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::create_msaa_depth_rb(int width, int height, int sample_count)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	msaa_depth_rb_ = create_renderbuffer(width, height, sample_count, GL_DEPTH_COMPONENT);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::create_msaa_framebuffer()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto aa_degree = aa_value_;
 
 	if (aa_type_ == R3rAaType::none)
@@ -924,25 +924,25 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	bind_framebuffer(GL_FRAMEBUFFER, 0);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::destroy_framebuffers()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	destroy_msaa_framebuffer();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::create_framebuffers()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!gl_device_features_.is_framebuffer_available)
 	{
 		return;
 	}
 
 	create_msaa_framebuffer();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::blit_framebuffers()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (msaa_fbo_.get() == 0U)
 	{
 		return;
@@ -961,30 +961,30 @@ BSTONE_BEGIN_FUNC_TRY
 		screen_width_,
 		screen_height_,
 		false);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::bind_framebuffers()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (msaa_fbo_.get() == 0U)
 	{
 		return;
 	}
 
 	bind_framebuffer(GL_FRAMEBUFFER, msaa_fbo_.get());
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::bind_framebuffers_for_read_pixels()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (msaa_fbo_.get() == 0U)
 	{
 		return;
 	}
 
 	bind_framebuffer(GL_FRAMEBUFFER, 0);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::disable_aa()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	aa_type_ = R3rAaType::none;
 
 	if (msaa_fbo_.get() == 0U)
@@ -994,10 +994,10 @@ BSTONE_BEGIN_FUNC_TRY
 
 	destroy_msaa_framebuffer();
 	create_msaa_framebuffer();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::set_msaa(int aa_value)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (device_features_.is_msaa_requires_restart)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Requires restart.");
@@ -1018,135 +1018,135 @@ BSTONE_BEGIN_FUNC_TRY
 
 	destroy_framebuffers();
 	create_framebuffers();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::submit_clear(const R3rClearCmd& command)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	context_->clear(command.clear.color);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::submit_culling(const R3rEnableCullingCmd& command)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	context_->enable_culling(command.is_enable);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::submit_enable_depth_test(const R3rEnableDepthTestCmd& command)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	context_->enable_depth_test(command.is_enable);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::submit_enable_depth_write(const R3rEnableDepthWriteCmd& command)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	context_->enable_depth_write(command.is_enable);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::submit_set_viewport(const R3rSetViewportCmd& command)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	context_->set_viewport(command.viewport);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::submit_enable_blending(const R3rEnableBlendingCmd& command)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	context_->enable_blending(command.is_enable);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::submit_set_blending_func(const R3rSetBlendingFuncCmd& command)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	context_->set_blending_func(command.blending_func);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::submit_enable_scissor(const R3rEnableScissorCmd& command)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	context_->enable_scissor(command.is_enable);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::submit_set_scissor_box(const R3rSetScissorBoxCmd& command)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	context_->set_scissor_box(command.scissor_box);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::submit_set_texture(const R3rSetTextureCmd& command)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	context_->set_r2_texture(static_cast<GlR3rR2Texture*>(command.r2_texture));
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::submit_set_sampler(const R3rSetSamplerCmd& command)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	context_->set_sampler(static_cast<GlR3rSampler*>(command.sampler));
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::submit_set_vertex_input(const R3rSetVertexInputCmd& command)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	context_->set_vertex_input(static_cast<GlR3rVertexInput*>(command.vertex_input));
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::submit_set_shader_stage(const R3rSetShaderStageCmd& command)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	context_->set_shader_stage(static_cast<GlR3rShaderStage*>(command.shader_stage));
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::submit_set_int32_uniform(const R3rSetInt32UniformCmd& command)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (command.var == nullptr)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null variable.");
 	}
 
 	command.var->set_int32(command.value);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::submit_set_float32_uniform(const R3rSetFloat32UniformCmd& command)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (command.var == nullptr)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null variable.");
 	}
 
 	command.var->set_float32(command.value);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::submit_set_vec2_uniform(const R3rSetVec2UniformCmd& command)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (command.var == nullptr)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null variable.");
 	}
 
 	command.var->set_vec2(command.value.data());
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::submit_set_vec4_uniform(const R3rSetVec4UniformCmd& command)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (command.var == nullptr)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null variable.");
 	}
 
 	command.var->set_vec4(command.value.data());
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::submit_set_mat4_uniform(const R3rSetMat4UniformCmd& command)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (command.var == nullptr)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null variable.");
 	}
 
 	command.var->set_mat4(command.value.data());
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::submit_set_sampler_2d_uniform(const R3rSetR2SamplerUniformCmd& command)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (command.var == nullptr)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null variable.");
 	}
 
 	command.var->set_r2_sampler(command.value);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::submit_draw_indexed(const R3rDrawIndexedCmd& command)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto& param = command.draw_indexed;
 
 	auto gl_primitive_topology = GLenum{};
@@ -1260,15 +1260,15 @@ BSTONE_BEGIN_FUNC_TRY
 	);
 
 	GlR3rError::ensure_debug();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace
 
 // ==========================================================================
 
 R3rUPtr make_gl_r3r(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr, const R3rInitParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return std::make_unique<GlR3rImpl>(video_mgr, window_mgr, param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace bstone

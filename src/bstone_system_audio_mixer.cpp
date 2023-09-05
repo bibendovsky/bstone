@@ -59,7 +59,7 @@ bool SystemAudioMixer::CacheItem::is_decoded() const noexcept
 }
 
 SystemAudioMixer::SystemAudioMixer(const AudioMixerInitParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (param.max_voices < 0)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Max voice count out of range.");
@@ -140,7 +140,7 @@ BSTONE_BEGIN_FUNC_TRY
 
 	sys_audio_mgr_.swap(sys_audio_mgr);
 	sys_audio_device_.swap(audio_device);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 Opl3Type SystemAudioMixer::get_opl3_type() const
 {
@@ -163,16 +163,16 @@ int SystemAudioMixer::get_mix_size_ms() const
 }
 
 void SystemAudioMixer::set_mute(bool is_mute)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto command = Command{};
 	command.type = CommandType::set_mute;
 	command.param.set_mute.is_mute = is_mute;
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SystemAudioMixer::set_gain(double gain)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	AudioMixerValidator::validate_gain(gain);
 
 	auto command = Command{};
@@ -180,7 +180,7 @@ BSTONE_BEGIN_FUNC_TRY
 	command.param.set_gain.gain = gain;
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int SystemAudioMixer::get_min_rate() const noexcept
 {
@@ -208,37 +208,37 @@ int SystemAudioMixer::get_max_channels() const noexcept
 }
 
 void SystemAudioMixer::suspend_state()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	is_state_suspended_.store(true, std::memory_order_release);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SystemAudioMixer::resume_state()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	is_state_suspended_.store(false, std::memory_order_release);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SystemAudioMixer::set_listener_r3_position(const AudioMixerListenerR3Position& r3_position)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto command = Command{};
 	command.type = CommandType::set_listener_r3_position;
 	command.param.set_listener_r3_position.r3_position = r3_position;
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SystemAudioMixer::set_listener_r3_orientation(const AudioMixerListenerR3Orientation& r3_orientation)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto command = Command{};
 	command.type = CommandType::set_listener_r3_orientation;
 	command.param.set_listener_r3_orientation.r3_orientation = r3_orientation;
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool SystemAudioMixer::is_voice_playing(AudioMixerVoiceHandle voice_handle) const
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return voice_handle_mgr_.is_valid_handle(voice_handle);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SystemAudioMixer::pause_voice(AudioMixerVoiceHandle voice_handle)
 {
@@ -271,7 +271,7 @@ void SystemAudioMixer::resume_voice(AudioMixerVoiceHandle voice_handle)
 }
 
 void SystemAudioMixer::stop_voice(AudioMixerVoiceHandle voice_handle)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!voice_handle.is_valid())
 	{
 		return;
@@ -283,10 +283,10 @@ BSTONE_BEGIN_FUNC_TRY
 
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SystemAudioMixer::set_voice_gain(AudioMixerVoiceHandle voice_handle, double gain)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	AudioMixerValidator::validate_gain(gain);
 
 	if (!voice_handle.is_valid())
@@ -301,10 +301,10 @@ BSTONE_BEGIN_FUNC_TRY
 
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SystemAudioMixer::set_voice_r3_position(AudioMixerVoiceHandle voice_handle, const AudioMixerVoiceR3Position& r3_position)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!voice_handle.is_valid())
 	{
 		return;
@@ -317,7 +317,7 @@ BSTONE_BEGIN_FUNC_TRY
 
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool SystemAudioMixer::can_set_voice_output_gains() const
 {
@@ -327,7 +327,7 @@ bool SystemAudioMixer::can_set_voice_output_gains() const
 void SystemAudioMixer::enable_set_voice_output_gains(
 	AudioMixerVoiceHandle voice_handle,
 	bool is_enable)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!voice_handle.is_valid())
 	{
 		return;
@@ -340,12 +340,12 @@ BSTONE_BEGIN_FUNC_TRY
 
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SystemAudioMixer::set_voice_output_gains(
 	AudioMixerVoiceHandle voice_handle,
 	AudioMixerOutputGains& output_gains)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!voice_handle.is_valid())
 	{
 		return;
@@ -360,7 +360,7 @@ BSTONE_BEGIN_FUNC_TRY
 
 	MtLockGuard guard_lock{mt_commands_lock_};
 	mt_commands_.push_back(command);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SystemAudioMixer::initialize_is_mute()
 {
@@ -1083,7 +1083,7 @@ void SystemAudioMixer::spatialize_voices()
 }
 
 AudioMixerVoiceHandle SystemAudioMixer::play_sound(const AudioMixerPlaySoundParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!is_sound_type_valid(param.sound_type))
 	{
 		BSTONE_THROW_STATIC_SOURCE("Invalid sound type.");
@@ -1115,7 +1115,7 @@ BSTONE_BEGIN_FUNC_TRY
 	mt_commands_.push_back(command);
 	voice_handle_mgr_.cache(voice_handle);
 	return voice_handle;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int SystemAudioMixer::calculate_mix_samples_count(int dst_rate, int mix_size_ms)
 {

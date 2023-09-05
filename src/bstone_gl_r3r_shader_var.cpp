@@ -22,7 +22,7 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 
 int GlR3rShaderVar::get_unit_size(R3rShaderVarTypeId type_id)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (type_id)
 	{
 		case R3rShaderVarTypeId::int32:
@@ -37,7 +37,7 @@ BSTONE_BEGIN_FUNC_TRY
 
 		default: BSTONE_THROW_STATIC_SOURCE("Unsupported type.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 
@@ -94,7 +94,7 @@ GlR3rShaderVarImplPool gl_r3r_shader_var_impl_pool{};
 GlR3rShaderVarImpl::GlR3rShaderVarImpl(
 	GlR3rShaderStage& shader_stage,
 	const GlR3rShaderVarInitParam& param)
-BSTONE_BEGIN_CTOR_TRY
+try
 	:
 	shader_stage_{shader_stage},
 	gl_device_features_{shader_stage.get_context().get_gl_device_features()}
@@ -106,19 +106,19 @@ BSTONE_BEGIN_CTOR_TRY
 	name_.assign(param.name.get_data(), static_cast<std::size_t>(param.name.get_size()));
 	input_index_ = param.input_index;
 	gl_location_ = param.gl_location;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rShaderVarImpl::~GlR3rShaderVarImpl() = default;
 
 void* GlR3rShaderVarImpl::operator new(std::size_t size)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return gl_r3r_shader_var_impl_pool.allocate(size);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rShaderVarImpl::operator delete(void* ptr)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	gl_r3r_shader_var_impl_pool.deallocate(ptr);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rShaderVarType GlR3rShaderVarImpl::do_get_type() const noexcept
 {
@@ -146,37 +146,37 @@ int GlR3rShaderVarImpl::do_get_input_index() const noexcept
 }
 
 void GlR3rShaderVarImpl::do_set_int32(std::int32_t value)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	set_value(R3rShaderVarTypeId::int32, &value);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rShaderVarImpl::do_set_float32(float value)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	set_value(R3rShaderVarTypeId::float32, &value);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rShaderVarImpl::do_set_vec2(const float* value)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	set_value(R3rShaderVarTypeId::vec2, value);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rShaderVarImpl::do_set_vec4(const float* value)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	set_value(R3rShaderVarTypeId::vec4, value);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rShaderVarImpl::do_set_mat4(const float* value)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	set_value(R3rShaderVarTypeId::mat4, value);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rShaderVarImpl::do_set_r2_sampler(std::int32_t value)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	set_value(R3rShaderVarTypeId::sampler2d, &value);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rShaderVarImpl::set_value(R3rShaderVarTypeId type_id, const void* value_data)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (type_id != type_id_)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Mismatch type.");
@@ -209,10 +209,10 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	set_value(value_data);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rShaderVarImpl::set_value(const void* value_data)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto shader_stage_gl_name = GLuint{};
 
 	if (gl_device_features_.is_sso_available)
@@ -316,7 +316,7 @@ BSTONE_BEGIN_FUNC_TRY
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unsupported type.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 

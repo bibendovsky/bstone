@@ -26,13 +26,13 @@ void GlR3rUtils::create_window_and_context(
 	sys::WindowMgr& window_mgr,
 	sys::WindowUPtr& window,
 	sys::GlContextUPtr& gl_context)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	window = R3rUtils::create_window(param, window_mgr);
 	gl_context = window->make_gl_context();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int GlR3rUtils::clamp_anisotropy_degree(int anisotropy_value, const R3rDeviceFeatures& device_features)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto clamped_value = anisotropy_value;
 
 	if (clamped_value < R3rLimits::min_anisotropy_off)
@@ -49,7 +49,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	return clamped_value;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int GlR3rUtils::get_window_max_msaa(const R3rType renderer_type, sys::WindowMgr& window_mgr)
 try
@@ -83,7 +83,7 @@ try
 catch (const std::exception&)
 {
 	return R3rLimits::min_aa_off;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int GlR3rUtils::get_fbo_max_msaa(
 	const R3rType renderer_type,
@@ -126,7 +126,7 @@ try
 catch (const std::exception&)
 {
 	return R3rLimits::min_aa_off;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::probe_msaa(
 	const R3rType renderer_type,
@@ -134,7 +134,7 @@ void GlR3rUtils::probe_msaa(
 	sys::WindowMgr& window_mgr,
 	R3rDeviceFeatures& device_features,
 	GlR3rDeviceFeatures& gl_device_features)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	device_features.is_msaa_available = false;
 	device_features.is_msaa_render_to_window = false;
 	device_features.is_msaa_requires_restart = false;
@@ -173,7 +173,7 @@ BSTONE_BEGIN_FUNC_TRY
 		device_features.is_msaa_render_to_window = true;
 		device_features.is_msaa_requires_restart = true;
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int GlR3rUtils::get_window_msaa_value(const sys::GlContextAttributes& gl_attributes) noexcept
 {
@@ -186,7 +186,7 @@ int GlR3rUtils::get_window_msaa_value(const sys::GlContextAttributes& gl_attribu
 }
 
 int GlR3rUtils::get_max_anisotropy_degree()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto gl_max_value = GLfloat{};
 
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &gl_max_value);
@@ -198,13 +198,13 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	return static_cast<int>(gl_max_value);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::set_anisotropy_degree(
 	const GLenum gl_target,
 	const R3rDeviceFeatures& device_features,
 	const int anisotropy_value)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!device_features.is_anisotropy_available)
 	{
 		return;
@@ -216,12 +216,12 @@ BSTONE_BEGIN_FUNC_TRY
 
 	glTexParameterf(gl_target, GL_TEXTURE_MAX_ANISOTROPY, gl_value);
 	GlR3rError::ensure_debug();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::probe_anisotropy(
 	GlR3rExtensionMgr* extension_manager,
 	R3rDeviceFeatures& device_features)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	device_features.is_anisotropy_available = false;
 	device_features.max_anisotropy_degree = R3rLimits::min_anisotropy_off;
 
@@ -247,12 +247,12 @@ BSTONE_BEGIN_FUNC_TRY
 		device_features.max_anisotropy_degree = get_max_anisotropy_degree();
 	}
 #endif // BSTONE_R3R_TEST_NO_ANISOTROPY
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::probe_npot(
 	GlR3rExtensionMgr* extension_manager,
 	R3rDeviceFeatures& device_features)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	device_features.is_npot_available = false;
 
 #if !defined(BSTONE_R3R_TEST_POT_ONLY)
@@ -276,13 +276,13 @@ BSTONE_BEGIN_FUNC_TRY
 		}
 	}
 #endif // BSTONE_R3R_TEST_POT_ONLY
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::probe_mipmap(
 	GlR3rExtensionMgr* extension_manager,
 	R3rDeviceFeatures& device_features,
 	GlR3rDeviceFeatures& gl_device_features)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	device_features.is_mipmap_available = false;
 	gl_device_features.is_mipmap_ext = false;
 
@@ -313,13 +313,13 @@ BSTONE_BEGIN_FUNC_TRY
 		}
 	}
 #endif // BSTONE_R3R_TEST_SW_MIPMAP
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::generate_mipmap(
 	const GLenum gl_target,
 	const R3rDeviceFeatures& device_features,
 	const GlR3rDeviceFeatures& gl_device_features)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!device_features.is_mipmap_available)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Not available.");
@@ -335,12 +335,12 @@ BSTONE_BEGIN_FUNC_TRY
 
 	gl_function(gl_target);
 	GlR3rError::ensure_debug();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::probe_framebuffer(
 	GlR3rExtensionMgr* extension_manager,
 	GlR3rDeviceFeatures& gl_device_features)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	gl_device_features.is_framebuffer_available = false;
 	gl_device_features.is_framebuffer_ext = false;
 
@@ -372,12 +372,12 @@ BSTONE_BEGIN_FUNC_TRY
 		}
 	}
 #endif // BSTONE_R3R_TEST_DEFAULT_FRAMEBUFFER
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::probe_sampler(
 	GlR3rExtensionMgr* extension_manager,
 	R3rDeviceFeatures& device_features)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	device_features.is_sampler_available = false;
 
 #if !defined(BSTONE_R3R_TEST_SW_SAMPLER)
@@ -388,13 +388,13 @@ BSTONE_BEGIN_FUNC_TRY
 		device_features.is_sampler_available = true;
 	}
 #endif // BSTONE_R3R_TEST_SW_SAMPLER
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::set_sampler_anisotropy(
 	const GLenum gl_sampler,
 	const R3rDeviceFeatures& device_features,
 	const int anisotropy_value)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!device_features.is_sampler_available ||
 		!device_features.is_anisotropy_available)
 	{
@@ -407,12 +407,12 @@ BSTONE_BEGIN_FUNC_TRY
 
 	glSamplerParameterf(gl_sampler, GL_TEXTURE_MAX_ANISOTROPY, gl_value);
 	GlR3rError::ensure_debug();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::probe_vao(
 	GlR3rExtensionMgr* extension_manager,
 	GlR3rDeviceFeatures& gl_device_features)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	gl_device_features.is_vao_available = false;
 
 	if (!gl_device_features.is_vao_available)
@@ -437,10 +437,10 @@ BSTONE_BEGIN_FUNC_TRY
 		}
 	}
 #endif // BSTONE_R3R_TEST_GL_NO_VAO
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::probe_max_vertex_arrays(R3rDeviceFeatures& device_features)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto gl_count = GLint{};
 
 	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &gl_count);
@@ -452,12 +452,12 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		device_features.max_vertex_input_locations = gl_count;
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::probe_vsync(
 	sys::GlMgr& gl_mgr,
 	R3rDeviceFeatures& device_features)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	device_features.is_vsync_available = false;
 	device_features.is_vsync_requires_restart = false;
 
@@ -472,10 +472,10 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 	}
 #endif // BSTONE_R3R_TEST_NO_SWAP_INTERVAL
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool GlR3rUtils::get_vsync(sys::GlMgr& gl_mgr)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (gl_mgr.get_swap_interval())
 	{
 		case 0:
@@ -488,12 +488,12 @@ BSTONE_BEGIN_FUNC_TRY
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unsupported swap interval value.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::probe_buffer_storage(
 	GlR3rExtensionMgr* extension_manager,
 	GlR3rDeviceFeatures& gl_device_features)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	gl_device_features.is_buffer_storage_available = false;
 
 #if !defined(BSTONE_R3R_TEST_GL_NO_BUFFER_STORAGE)
@@ -504,12 +504,12 @@ BSTONE_BEGIN_FUNC_TRY
 		gl_device_features.is_buffer_storage_available = true;
 	}
 #endif // BSTONE_R3R_TEST_GL_NO_BUFFER_STORAGE
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::probe_dsa(
 	GlR3rExtensionMgr* extension_manager,
 	GlR3rDeviceFeatures& gl_device_features)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	gl_device_features.is_dsa_available = false;
 
 #if !defined(BSTONE_R3R_TEST_GL_NO_DSA)
@@ -520,12 +520,12 @@ BSTONE_BEGIN_FUNC_TRY
 		gl_device_features.is_dsa_available = true;
 	}
 #endif // !BSTONE_R3R_TEST_GL_NO_DSA
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::probe_sso(
 	GlR3rExtensionMgr* extension_manager,
 	GlR3rDeviceFeatures& gl_device_features)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	gl_device_features.is_sso_available = false;
 
 #if !defined( BSTONE_R3R_TEST_GL_NO_SSO)
@@ -536,16 +536,16 @@ BSTONE_BEGIN_FUNC_TRY
 		gl_device_features.is_sso_available = true;
 	}
 #endif // BSTONE_R3R_TEST_GL_NO_SSO
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::enable_scissor(bool is_enabled)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	(is_enabled ? glEnable : glDisable)(GL_SCISSOR_TEST);
 	GlR3rError::ensure_debug();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::set_scissor_box(const R3rScissorBox& scissor_box)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (scissor_box.x < 0)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Negative offset by X.");
@@ -573,10 +573,10 @@ BSTONE_BEGIN_FUNC_TRY
 		scissor_box.height);
 
 	GlR3rError::ensure_debug();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::set_viewport_rect(const R3rViewport& viewport)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (viewport.x < 0)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Negative offset by X.");
@@ -604,12 +604,12 @@ BSTONE_BEGIN_FUNC_TRY
 		viewport.height);
 
 	GlR3rError::ensure_debug();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::set_viewport_depth_range(
 	const R3rViewport& viewport,
 	const GlR3rDeviceFeatures& gl_device_features)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (viewport.min_depth < 0.0F || viewport.min_depth > 1.0F)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Minimum depth out of range.");
@@ -632,16 +632,16 @@ BSTONE_BEGIN_FUNC_TRY
 		glDepthRange(viewport.min_depth, viewport.max_depth);
 		GlR3rError::ensure_debug();
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::enable_culling(bool is_enable)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	(is_enable ? glEnable : glDisable)(GL_CULL_FACE);
 	GlR3rError::ensure_debug();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::set_culling_face(R3rCullingFace culling_face)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto gl_culling_face = GLenum{};
 
 	switch (culling_face)
@@ -660,10 +660,10 @@ BSTONE_BEGIN_FUNC_TRY
 
 	glFrontFace(gl_culling_face);
 	GlR3rError::ensure_debug();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::set_culling_mode(R3rCullingMode culling_mode)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto gl_culling_mode = GLenum{};
 
 	switch (culling_mode)
@@ -686,36 +686,36 @@ BSTONE_BEGIN_FUNC_TRY
 
 	glCullFace(gl_culling_mode);
 	GlR3rError::ensure_debug();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::enable_depth_test(bool is_enable)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	(is_enable ? glEnable : glDisable)(GL_DEPTH_TEST);
 	GlR3rError::ensure_debug();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::enable_depth_write(bool is_enable)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	glDepthMask(is_enable);
 	GlR3rError::ensure_debug();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::enable_blending(bool is_enable)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	(is_enable ? glEnable : glDisable)(GL_BLEND);
 	GlR3rError::ensure_debug();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::set_blending_func(const R3rBlendingFunc& blending_func)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto gl_src_factor = get_blending_factor(blending_func.src_factor);
 	auto gl_dst_factor = get_blending_factor(blending_func.dst_factor);
 	glBlendFunc(gl_src_factor, gl_dst_factor);
 	GlR3rError::ensure_debug();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GLenum GlR3rUtils::index_buffer_get_element_type_by_byte_depth(int byte_depth)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (byte_depth)
 	{
 		case 1: return GL_UNSIGNED_BYTE;
@@ -723,10 +723,10 @@ BSTONE_BEGIN_FUNC_TRY
 		case 4: return GL_UNSIGNED_INT;
 		default: BSTONE_THROW_STATIC_SOURCE("Invalid byte depth.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::set_renderer_features(R3rDeviceFeatures& device_features)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	// Max texture dimension.
 	//
 	auto gl_texture_dimension = GLint{};
@@ -756,10 +756,10 @@ BSTONE_BEGIN_FUNC_TRY
 
 	device_features.max_viewport_width = gl_viewport_dimensions[0];
 	device_features.max_viewport_height = gl_viewport_dimensions[1];
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rDeviceInfo GlR3rUtils::get_device_info()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto result = R3rDeviceInfo{};
 
 	// Name.
@@ -798,10 +798,10 @@ BSTONE_BEGIN_FUNC_TRY
 	// Result.
 	//
 	return result;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::string GlR3rUtils::get_log(bool is_shader, GLuint gl_name)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto gl_info_function = (is_shader ? glGetShaderInfoLog : glGetProgramInfoLog);
 	const auto gl_size_function = (is_shader ? glGetShaderiv : glGetProgramiv);
 
@@ -825,20 +825,20 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	return result;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GLenum GlR3rUtils::get_mag_filter(R3rFilterType mag_filter)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (mag_filter)
 	{
 		case R3rFilterType::nearest: return GL_NEAREST;
 		case R3rFilterType::linear: return GL_LINEAR;
 		default: BSTONE_THROW_STATIC_SOURCE("Unsupported magnification filter.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GLenum GlR3rUtils::get_min_filter(R3rFilterType min_filter, R3rMipmapMode mipmap_mode)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (mipmap_mode)
 	{
 		case R3rMipmapMode::none:
@@ -874,30 +874,30 @@ BSTONE_BEGIN_FUNC_TRY
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unsupported mipmap mode.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GLenum GlR3rUtils::get_address_mode(R3rAddressMode address_mode)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (address_mode)
 	{
 		case R3rAddressMode::clamp: return GL_CLAMP_TO_EDGE;
 		case R3rAddressMode::repeat: return GL_REPEAT;
 		default: BSTONE_THROW_STATIC_SOURCE("Unsupported address mode.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GLenum GlR3rUtils::get_texture_wrap_axis(R3rTextureAxis texture_axis)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (texture_axis)
 	{
 		case R3rTextureAxis::u: return GL_TEXTURE_WRAP_S;
 		case R3rTextureAxis::v: return GL_TEXTURE_WRAP_T;
 		default: BSTONE_THROW_STATIC_SOURCE("Unsupported texture axis.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GLenum GlR3rUtils::get_blending_factor(R3rBlendingFactor factor)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (factor)
 	{
 		case R3rBlendingFactor::zero: return GL_ZERO;
@@ -907,6 +907,6 @@ BSTONE_BEGIN_FUNC_TRY
 		case R3rBlendingFactor::one_minus_src_alpha: return GL_ONE_MINUS_SRC_ALPHA;
 		default: BSTONE_THROW_STATIC_SOURCE("Invalid blending factor.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace bstone

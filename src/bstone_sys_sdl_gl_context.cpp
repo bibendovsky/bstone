@@ -62,7 +62,7 @@ SdlGlContextPool sdl_gl_context_pool{};
 // ==========================================================================
 
 SdlGlContext::SdlGlContext(Logger& logger, SDL_Window& sdl_window)
-BSTONE_BEGIN_CTOR_TRY
+try
 	:
 	logger_{logger}
 {
@@ -103,7 +103,7 @@ BSTONE_BEGIN_CTOR_TRY
 	detail::sdl_log_gl_attributes(attributes_, message);
 	message += ">>> SDL OpenGL context created.";
 	logger_.log_information(message);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 SdlGlContext::~SdlGlContext()
 {
@@ -118,14 +118,14 @@ SdlGlContext::~SdlGlContext()
 }
 
 void* SdlGlContext::operator new(std::size_t size)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return sdl_gl_context_pool.allocate(size);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlGlContext::operator delete(void* ptr)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	sdl_gl_context_pool.deallocate(ptr);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const GlContextAttributes& SdlGlContext::do_get_attributes() const noexcept
 {
@@ -133,7 +133,7 @@ const GlContextAttributes& SdlGlContext::do_get_attributes() const noexcept
 }
 
 GlContextProfile SdlGlContext::map_profile(int sdl_context_profile)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (sdl_context_profile)
 	{
 		case SDL_GL_CONTEXT_PROFILE_COMPATIBILITY: return GlContextProfile::compatibility;
@@ -141,24 +141,24 @@ BSTONE_BEGIN_FUNC_TRY
 		case SDL_GL_CONTEXT_PROFILE_ES: return GlContextProfile::es;
 		default: BSTONE_THROW_STATIC_SOURCE("Unknown SDL context profile.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int SdlGlContext::get_attrib(SDL_GLattr gl_attrib)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto gl_value = 0;
 	sdl_ensure_result(SDL_GL_GetAttribute(gl_attrib, &gl_value));
 	return gl_value;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool SdlGlContext::get_attrib_bool(SDL_GLattr gl_attrib)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (get_attrib(gl_attrib))
 	{
 		case SDL_FALSE: return false;
 		case SDL_TRUE: return true;
 		default: BSTONE_THROW_STATIC_SOURCE("Invalid boolean value.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace
 

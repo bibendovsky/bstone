@@ -120,7 +120,7 @@ std::string append_path(
 void replace_extension(
 	std::string& path_name,
 	const std::string& new_extension)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (path_name.empty() || new_extension.empty())
 	{
 		return;
@@ -145,10 +145,10 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	path_name += new_extension;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::string get_working_dir()
-BSTONE_BEGIN_FUNC_TRY
+try {
 #if _WIN32
 	const auto utf16_string_size = GetCurrentDirectoryW(0, nullptr);
 
@@ -222,11 +222,11 @@ BSTONE_BEGIN_FUNC_TRY
 
 	return result;
 #endif // _WIN32
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::string resolve_path(
 	const std::string& path)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (path.empty())
 	{
 		BSTONE_THROW_STATIC_SOURCE("Empty path.");
@@ -287,7 +287,7 @@ BSTONE_BEGIN_FUNC_TRY
 
 	return result;
 #endif // _WIN32
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool has_file(
 	const std::string& path)
@@ -332,7 +332,7 @@ bool has_file(
 void rename(
 	const std::string& old_path,
 	const std::string& new_path)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (old_path.empty())
 	{
 		BSTONE_THROW_STATIC_SOURCE("Empty old path.");
@@ -365,7 +365,7 @@ BSTONE_BEGIN_FUNC_TRY
 		BSTONE_THROW_STATIC_SOURCE("rename");
 	}
 #endif // _WIN32
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 
 } // file_system

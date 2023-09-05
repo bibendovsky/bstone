@@ -34,7 +34,7 @@ AssetPath make_steam_content_path();
 
 AssetPath make_content_path(
 	const ContentPathProvider type)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (type)
 	{
 		case ContentPathProvider::gog:
@@ -46,7 +46,7 @@ BSTONE_BEGIN_FUNC_TRY
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unsupported provider.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 
 } // bstone

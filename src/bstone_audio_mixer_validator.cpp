@@ -12,15 +12,15 @@ namespace bstone
 {
 
 void AudioMixerValidator::validate_gain(double gain)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (gain < audio_mixer_min_gain || gain > audio_mixer_max_gain)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Gain out of range.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void AudioMixerValidator::validate_output_gains(const AudioMixerOutputGains& output_gains)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto is_invalid = std::any_of(
 		output_gains.cbegin(),
 		output_gains.cend(),
@@ -34,6 +34,6 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		BSTONE_THROW_STATIC_SOURCE("Output gain out of range.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // bstone

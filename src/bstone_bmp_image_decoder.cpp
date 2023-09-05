@@ -280,7 +280,7 @@ void BmpImageDecoderImpl::decode(
 	int& dst_width,
 	int& dst_height,
 	Rgba8Buffer& dst_bits)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	dst_width = 0;
 	dst_height = 0;
 
@@ -315,7 +315,7 @@ BSTONE_BEGIN_FUNC_TRY
 
 	dst_width = width_;
 	dst_height = height_;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Returns the number of 1 bits in the value of x.
 int BmpImageDecoderImpl::popcount(unsigned int x) noexcept

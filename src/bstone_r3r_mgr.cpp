@@ -16,9 +16,9 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 
 R3r* R3rMgr::renderer_initialize(const R3rInitParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_renderer_initialize(param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 
@@ -48,7 +48,7 @@ R3rMgrImpl::R3rMgrImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr) noe
 {}
 
 R3r* R3rMgrImpl::do_renderer_initialize(const R3rInitParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	gl_renderer_ = nullptr;
 
 	R3rUtils::validate_initialize_param(param);
@@ -76,15 +76,15 @@ BSTONE_BEGIN_FUNC_TRY
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unsupported renderer type.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace
 
 // ==========================================================================
 
 R3rMgrUPtr make_r3r_mgr(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return std::make_unique<R3rMgrImpl>(video_mgr, window_mgr);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace bstone

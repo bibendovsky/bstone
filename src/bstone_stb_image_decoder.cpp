@@ -36,7 +36,7 @@ void StbImageDecoder::decode(
 	int& dst_width,
 	int& dst_height,
 	Rgba8Buffer& dst_buffer)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	dst_width = 0;
 	dst_height = 0;
 
@@ -70,7 +70,7 @@ BSTONE_BEGIN_FUNC_TRY
 	);
 
 	STBI_FREE(stb_bytes);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 

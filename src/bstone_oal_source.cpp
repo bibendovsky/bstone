@@ -18,7 +18,7 @@ namespace bstone
 {
 
 void OalSource::initialize(const OalSourceInitParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	uninitialize();
 
 	if (param.mix_sample_rate <= 0)
@@ -41,7 +41,7 @@ BSTONE_BEGIN_FUNC_TRY
 	streaming_mix_buffer_.resize(streaming_mix_sample_count_ * sample_size);
 	initialize_al_resources();
 	is_initialized_ = true;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool OalSource::is_initialized() const noexcept
 {
@@ -62,7 +62,7 @@ void OalSource::uninitialize()
 }
 
 void OalSource::open(const OalSourceOpenStaticParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	ensure_is_initialized();
 	close();
 
@@ -98,7 +98,7 @@ BSTONE_BEGIN_FUNC_TRY
 	is_started_ = false;
 	is_paused_ = false;
 	is_finished_ = false;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalSource::open(const OalSourceOpenStreamingParam& param)
 {

@@ -142,7 +142,7 @@ Win32RegistryKeyUPtr make_win32_registry_key(
 	const Win32RegistryViewType view_type,
 	const Win32RegistryRootKeyType root_key_type,
 	const std::string& sub_key_name_utf8)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto win32_access = DWORD{KEY_READ};
 
 	switch (view_type)
@@ -199,7 +199,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	return std::make_unique<Win32RegistryKeyImpl>(std::move(win32_key_resource));
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 
 } // bstone

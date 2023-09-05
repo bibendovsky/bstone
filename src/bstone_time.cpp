@@ -24,7 +24,7 @@ namespace bstone
 
 
 DateTime make_local_date_time()
-BSTONE_BEGIN_FUNC_TRY
+try {
 #if _WIN32
 	SYSTEMTIME win32_date_time;
 
@@ -72,12 +72,12 @@ BSTONE_BEGIN_FUNC_TRY
 
 	return date_time;
 #endif // _WIN32
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // YYYYMMDD_hhmmss_sss
 std::string make_local_date_time_string_screenshot_file_name(
 	const DateTime& date_time)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto date_time_string = std::string{};
 	date_time_string.reserve(19);
 	date_time_string += StringHelper::make_left_padded_with_zero(date_time.year, 4);
@@ -91,12 +91,12 @@ BSTONE_BEGIN_FUNC_TRY
 	date_time_string += StringHelper::make_left_padded_with_zero(date_time.milliseconds, 3);
 
 	return date_time_string;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::string make_local_date_time_string(
 	const DateTime& date_time,
 	DateTimeStringFormat format)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (format)
 	{
 		case DateTimeStringFormat::screenshot_file_name:
@@ -105,7 +105,7 @@ BSTONE_BEGIN_FUNC_TRY
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unsupported format.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 
 } // bstone

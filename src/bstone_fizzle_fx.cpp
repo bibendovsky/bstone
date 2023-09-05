@@ -148,44 +148,44 @@ bool FizzleFX::present(
 }
 
 bool FizzleFX::is_abortable() const
-BSTONE_BEGIN_FUNC_TRY
+try {
 	fail_not_implemented();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool FizzleFX::is_vanilla_only() const
-BSTONE_BEGIN_FUNC_TRY
+try {
 	fail_not_implemented();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int FizzleFX::get_frame_count() const
-BSTONE_BEGIN_FUNC_TRY
+try {
 	fail_not_implemented();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int FizzleFX::get_y() const
-BSTONE_BEGIN_FUNC_TRY
+try {
 	fail_not_implemented();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int FizzleFX::get_height() const
-BSTONE_BEGIN_FUNC_TRY
+try {
 	fail_not_implemented();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void FizzleFX::plot(
 	const int x,
 	const int y)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	static_cast<void>(x);
 	static_cast<void>(y);
 
 	fail_not_implemented();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void FizzleFX::skip_to_the_end()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	fail_not_implemented();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void FizzleFX::fail_not_implemented()
 {

@@ -20,14 +20,14 @@ int sdl_ensure_result(int sdl_result);
 
 template<typename T>
 T* sdl_ensure_result(T* sdl_result)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (sdl_result == nullptr)
 	{
 		sdl_fail();
 	}
 
 	return sdl_result;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace sys
 } // namespace bstone

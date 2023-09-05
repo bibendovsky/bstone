@@ -16,7 +16,7 @@ void show_message_box(
 	const char* title,
 	const char* message,
 	MessageBoxType type)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto sdl_flags = Uint32{};
 
 	switch (type)
@@ -28,10 +28,10 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	sdl_ensure_result(SDL_ShowSimpleMessageBox(sdl_flags, title, message, nullptr));
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int show_message_box(const MessageBoxDescriptor& descriptor)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto sdl_message_box_flags = Uint32{};
 
 	switch (descriptor.type)
@@ -83,7 +83,7 @@ BSTONE_BEGIN_FUNC_TRY
 	auto sdl_button_id = 0;
 	sdl_ensure_result(SDL_ShowMessageBox(&sdl_message_box, &sdl_button_id));
 	return sdl_button_id;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace sys
 } // namespace bstone

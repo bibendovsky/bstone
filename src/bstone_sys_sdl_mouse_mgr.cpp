@@ -39,12 +39,12 @@ SdlMouseMgrPool sdl_mouse_mgr_pool{};
 // ==========================================================================
 
 SdlMouseMgr::SdlMouseMgr(Logger& logger)
-BSTONE_BEGIN_CTOR_TRY
+try
 	:
 	logger_{logger}
 {
 	logger_.log_information("Start up SDL mouse manager.");
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 SdlMouseMgr::~SdlMouseMgr()
 {
@@ -52,14 +52,14 @@ SdlMouseMgr::~SdlMouseMgr()
 }
 
 void* SdlMouseMgr::operator new(std::size_t size)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return sdl_mouse_mgr_pool.allocate(size);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlMouseMgr::operator delete(void* ptr)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	sdl_mouse_mgr_pool.deallocate(ptr);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlMouseMgr::do_set_relative_mode(bool is_enable)
 {

@@ -11,13 +11,13 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 
 CCmd::CCmd(StringView name, CCmdAction& action)
-BSTONE_BEGIN_CTOR_TRY
+try
 	:
 	name_{name},
 	action_{&action}
 {
 	CValidator::validate_name(name_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 StringView CCmd::get_name() const noexcept
 {

@@ -26,7 +26,7 @@ StringView Cl::operator[](int index) const
 }
 
 void Cl::initialize(int argc, char* const* argv)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	args_.clear();
 	args_.reserve(argc);
 
@@ -127,7 +127,7 @@ BSTONE_BEGIN_FUNC_TRY
 			option.args = ClArgs{&args_[option_args_index], option_arg_count};
 		}
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 ClOptions Cl::get_options() const noexcept
 {

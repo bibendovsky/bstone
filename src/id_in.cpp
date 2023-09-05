@@ -1431,7 +1431,7 @@ constexpr InBindingIdNameToIdMapItem in_binding_id_name_to_id_map[] =
 };
 
 BindingId in_binding_name_to_id(bstone::StringView name_sv)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	for (const auto& map_item_id : in_binding_id_name_to_id_map)
 	{
 		if (map_item_id.name_sv == name_sv)
@@ -1445,10 +1445,10 @@ BSTONE_BEGIN_FUNC_TRY
 	message.append(name_sv.get_data(), static_cast<std::size_t>(name_sv.get_size()));
 	message += "\".";
 	BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bstone::StringView in_binding_id_to_name(BindingId binding_id)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	for (const auto& map_item_id : in_binding_id_name_to_id_map)
 	{
 		if (map_item_id.binding_id == binding_id)
@@ -1458,7 +1458,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	BSTONE_THROW_STATIC_SOURCE("Unknown binding ID.");
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // --------------------------------------------------------------------------
 
@@ -1470,14 +1470,14 @@ public:
 
 private:
 	void do_invoke(bstone::CCmdActionArgs args) override
-	BSTONE_BEGIN_FUNC_TRY
+	try {
 		if (!args.is_empty())
 		{
 			BSTONE_THROW_STATIC_SOURCE("Too many arguments.");
 		}
 
 		in_clear_bindings();
-	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+	} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 };
 
 constexpr auto in_clear_bindings_sv = bstone::StringView{"in_clear_bindings"};
@@ -1487,7 +1487,7 @@ auto in_clear_bindings_ccmd = bstone::CCmd{in_clear_bindings_sv, in_clear_bindin
 // --------------------------------------------------------------------------
 
 bstone::IntP in_parse_binding_slot_index(bstone::StringView slot_index_name_sv)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto slot_index = bstone::IntP{};
 	bstone::from_chars(slot_index_name_sv.cbegin(), slot_index_name_sv.cend(), slot_index);
 
@@ -1501,7 +1501,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	return slot_index;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // --------------------------------------------------------------------------
 
@@ -1513,7 +1513,7 @@ public:
 
 private:
 	void do_invoke(bstone::CCmdActionArgs args) override
-	BSTONE_BEGIN_FUNC_TRY
+	try {
 		if (args.get_size() != 2)
 		{
 			BSTONE_THROW_STATIC_SOURCE("Invalid argument count.");
@@ -1522,7 +1522,7 @@ private:
 		const auto binding_id = in_binding_name_to_id(args[0]);
 		const auto slot_index = in_parse_binding_slot_index(args[1]);
 		in_bindings[binding_id][slot_index] = ScanCode::sc_none;
-	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+	} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 };
 
 constexpr auto in_clear_binding_sv = bstone::StringView{"in_clear_binding"};
@@ -1737,7 +1737,7 @@ constexpr InScanCodeNameToIdMapItem in_scan_code_name_to_id_map[] =
 };
 
 ScanCode in_scan_code_name_to_id(bstone::StringView name_sv)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	for (const auto& map_item : in_scan_code_name_to_id_map)
 	{
 		if (map_item.name_sv == name_sv)
@@ -1751,10 +1751,10 @@ BSTONE_BEGIN_FUNC_TRY
 	message.append(name_sv.get_data(), static_cast<std::size_t>(name_sv.get_size()));
 	message += "\".";
 	BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bstone::StringView in_scan_code_id_to_name(ScanCode scan_code)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	for (const auto& map_item : in_scan_code_name_to_id_map)
 	{
 		if (map_item.scan_code == scan_code)
@@ -1764,7 +1764,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	BSTONE_THROW_STATIC_SOURCE("Unknown scan code name.");
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 class InBindCCmdAction final : public bstone::CCmdAction
 {
@@ -1774,7 +1774,7 @@ public:
 
 private:
 	void do_invoke(bstone::CCmdActionArgs args) override
-	BSTONE_BEGIN_FUNC_TRY
+	try {
 		if (args.get_size() != 3)
 		{
 			BSTONE_THROW_STATIC_SOURCE("Invalid argument count.");
@@ -1800,7 +1800,7 @@ private:
 		// Bind it.
 		//
 		in_bindings[binding_id][slot_index] = scan_code;
-	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+	} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 };
 
 constexpr auto in_bind_sv = bstone::StringView{"in_bind"};

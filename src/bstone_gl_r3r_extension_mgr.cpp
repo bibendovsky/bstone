@@ -115,7 +115,7 @@ GlR3rExtensionMgrImplPool gl_r3r_extension_mgr_impl_pool{};
 // ==========================================================================
 
 GlR3rExtensionMgrImpl::GlR3rExtensionMgrImpl(sys::GlSharedLibrary& gl_shared_library)
-BSTONE_BEGIN_CTOR_TRY
+try
 	:
 	gl_shared_library_{gl_shared_library}
 {
@@ -126,19 +126,19 @@ BSTONE_BEGIN_CTOR_TRY
 	get_names();
 
 	initialize_registry();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rExtensionMgrImpl::~GlR3rExtensionMgrImpl() = default;
 
 void* GlR3rExtensionMgrImpl::operator new(std::size_t size)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return gl_r3r_extension_mgr_impl_pool.allocate(size);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rExtensionMgrImpl::operator delete(void* ptr)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	gl_r3r_extension_mgr_impl_pool.deallocate(ptr);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int GlR3rExtensionMgrImpl::get_count() const noexcept
 {
@@ -166,9 +166,9 @@ const GlR3rVersion& GlR3rExtensionMgrImpl::get_glsl_version() const noexcept
 }
 
 void GlR3rExtensionMgrImpl::probe(GlR3rExtensionId extension_id)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	probe_generic(extension_id);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool GlR3rExtensionMgrImpl::has(GlR3rExtensionId extension_id) const noexcept
 {
@@ -188,7 +188,7 @@ bool GlR3rExtensionMgrImpl::operator[](GlR3rExtensionId extension_id) const noex
 }
 
 GlR3rExtensionMgrImpl::GlSymbolRegistry& GlR3rExtensionMgrImpl::get_gl_symbol_registry()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	static auto gl_symbol_registry = GlSymbolRegistry
 	{
 		{reinterpret_cast<void**>(&glAccum), "glAccum"},
@@ -1069,27 +1069,27 @@ BSTONE_BEGIN_FUNC_TRY
 	};
 
 	return gl_symbol_registry;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rExtensionMgrImpl::clear_gl_symbols()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto& gl_symbol_registry = get_gl_symbol_registry();
 
 	for (auto& gl_symbol_item : gl_symbol_registry)
 	{
 		*gl_symbol_item.first = nullptr;
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rExtensionMgrImpl::resolve_gl_symbols()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto& gl_symbol_registry = get_gl_symbol_registry();
 
 	for (auto& gl_symbol_item : gl_symbol_registry)
 	{
 		*gl_symbol_item.first = gl_shared_library_.find_symbol(gl_symbol_item.second);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool GlR3rExtensionMgrImpl::has_gl_symbol(const GlSymbolPtrs& gl_symbol_ptrs) noexcept
 {
@@ -1103,7 +1103,7 @@ bool GlR3rExtensionMgrImpl::has_gl_symbol(const GlSymbolPtrs& gl_symbol_ptrs) no
 }
 
 GlR3rExtensionMgrImpl::GlSymbolPtrs& GlR3rExtensionMgrImpl::get_essentials_gl_symbol_ptrs()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	static auto gl_symbols = GlSymbolPtrs
 	{
 		reinterpret_cast<void**>(&glGetError),
@@ -1111,10 +1111,10 @@ BSTONE_BEGIN_FUNC_TRY
 	};
 
 	return gl_symbols;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rExtensionMgrImpl::GlSymbolPtrs& GlR3rExtensionMgrImpl::get_v2_0_gl_symbol_ptrs()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	static auto gl_symbols = GlSymbolPtrs
 	{
 		reinterpret_cast<void**>(&glAccum),
@@ -1665,10 +1665,10 @@ BSTONE_BEGIN_FUNC_TRY
 	};
 
 	return gl_symbols;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rExtensionMgrImpl::GlSymbolPtrs& GlR3rExtensionMgrImpl::get_v3_2_core_gl_symbol_ptrs()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	static auto gl_symbols = GlSymbolPtrs
 	{
 		reinterpret_cast<void**>(&glActiveTexture),
@@ -1990,10 +1990,10 @@ BSTONE_BEGIN_FUNC_TRY
 	};
 
 	return gl_symbols;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rExtensionMgrImpl::GlSymbolPtrs& GlR3rExtensionMgrImpl::get_es_v2_0_gl_symbol_ptrs()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	static auto gl_symbols = GlSymbolPtrs
 	{
 		reinterpret_cast<void**>(&glActiveTexture),
@@ -2141,16 +2141,16 @@ BSTONE_BEGIN_FUNC_TRY
 	};
 
 	return gl_symbols;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rExtensionMgrImpl::GlSymbolPtrs& GlR3rExtensionMgrImpl::get_arb_buffer_storage_gl_symbol_ptrs()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	static auto gl_symbols = GlSymbolPtrs{reinterpret_cast<void**>(&glBufferStorage)};
 	return gl_symbols;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rExtensionMgrImpl::GlSymbolPtrs& GlR3rExtensionMgrImpl::get_arb_direct_state_access_gl_symbol_ptrs()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	static auto gl_symbols = GlSymbolPtrs
 	{
 		reinterpret_cast<void**>(&glBindTextureUnit),
@@ -2253,10 +2253,10 @@ BSTONE_BEGIN_FUNC_TRY
 	};
 
 	return gl_symbols;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rExtensionMgrImpl::GlSymbolPtrs& GlR3rExtensionMgrImpl::get_arb_framebuffer_object_gl_symbol_ptrs()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	static auto gl_symbols = GlSymbolPtrs
 	{
 		reinterpret_cast<void**>(&glBindFramebuffer),
@@ -2282,10 +2282,10 @@ BSTONE_BEGIN_FUNC_TRY
 	};
 
 	return gl_symbols;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rExtensionMgrImpl::GlSymbolPtrs& GlR3rExtensionMgrImpl::get_arb_sampler_objects_gl_symbol_ptrs()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	static auto gl_symbols = GlSymbolPtrs
 	{
 		reinterpret_cast<void**>(&glBindSampler),
@@ -2305,10 +2305,10 @@ BSTONE_BEGIN_FUNC_TRY
 	};
 
 	return gl_symbols;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rExtensionMgrImpl::GlSymbolPtrs& GlR3rExtensionMgrImpl::get_arb_separate_shader_objects_gl_symbol_ptrs()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	static auto gl_symbols = GlSymbolPtrs
 	{
 		reinterpret_cast<void**>(&glActiveShaderProgram),
@@ -2375,10 +2375,10 @@ BSTONE_BEGIN_FUNC_TRY
 	};
 
 	return gl_symbols;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rExtensionMgrImpl::GlSymbolPtrs& GlR3rExtensionMgrImpl::get_arb_vertex_array_object_gl_symbol_ptrs()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	static auto gl_symbols = GlSymbolPtrs
 	{
 		reinterpret_cast<void**>(&glBindVertexArray),
@@ -2388,22 +2388,22 @@ BSTONE_BEGIN_FUNC_TRY
 	};
 
 	return gl_symbols;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rExtensionMgrImpl::GlSymbolPtrs& GlR3rExtensionMgrImpl::get_ext_framebuffer_blit_gl_symbol_ptrs()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	static auto gl_symbols = GlSymbolPtrs{reinterpret_cast<void**>(&glBlitFramebufferEXT)};
 	return gl_symbols;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rExtensionMgrImpl::GlSymbolPtrs& GlR3rExtensionMgrImpl::get_ext_framebuffer_multisample_gl_symbol_ptrs()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	static auto gl_symbols = GlSymbolPtrs{reinterpret_cast<void**>(&glRenderbufferStorageMultisampleEXT)};
 	return gl_symbols;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rExtensionMgrImpl::GlSymbolPtrs& GlR3rExtensionMgrImpl::get_ext_framebuffer_object_gl_symbol_ptrs()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	static auto gl_symbols = GlSymbolPtrs
 	{
 		reinterpret_cast<void**>(&glBindFramebufferEXT),
@@ -2426,7 +2426,7 @@ BSTONE_BEGIN_FUNC_TRY
 	};
 
 	return gl_symbols;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const std::string& GlR3rExtensionMgrImpl::get_empty_extension_name() noexcept
 {
@@ -2452,7 +2452,7 @@ int GlR3rExtensionMgrImpl::get_extension_index(GlR3rExtensionId extension_id) no
 }
 
 void GlR3rExtensionMgrImpl::initialize_registry()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	registry_.clear();
 	registry_.resize(static_cast<int>(GlR3rExtensionId::count_));
 
@@ -2617,10 +2617,10 @@ BSTONE_BEGIN_FUNC_TRY
 		registry_item.extension_name = "GL_OES_texture_npot";
 		registry_item.gl_symbol_ptrs = nullptr;
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int GlR3rExtensionMgrImpl::parse_version_number(const std::string& string)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (string.empty())
 	{
 		BSTONE_THROW_STATIC_SOURCE("Expected a digit.");
@@ -2661,10 +2661,10 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	return number;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rExtensionMgrImpl::parse_version(const std::string& version_string, GlR3rVersion& gl_version)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	static const auto digits = std::string{"0123456789"};
 	static const auto gles_prefix = std::string{"OpenGL ES "};
 
@@ -2739,10 +2739,10 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		gl_version.vendor = version_string.substr(vendor_info_pos + 1);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rExtensionMgrImpl::get_version(GLenum version_enum, GlR3rVersion& gl_version)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (glGetString == nullptr)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null \"glGetString\".");
@@ -2757,16 +2757,16 @@ BSTONE_BEGIN_FUNC_TRY
 
 	const auto version_string = std::string{gl_version_string};
 	parse_version(version_string, gl_version);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rExtensionMgrImpl::get_version()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	get_version(GL_VERSION, gl_version_);
 	get_version(GL_SHADING_LANGUAGE_VERSION, glsl_version_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rExtensionMgrImpl::get_names_from_multiple_strings()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (glGetIntegerv == nullptr)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null \"glGetIntegerv\".");
@@ -2800,10 +2800,10 @@ BSTONE_BEGIN_FUNC_TRY
 
 		extension_names_[i] = reinterpret_cast<const char*>(extension_name);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rExtensionMgrImpl::get_names_from_one_string()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (glGetString == nullptr)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null \"glGetString\".");
@@ -2833,10 +2833,10 @@ BSTONE_BEGIN_FUNC_TRY
 	extension_names_.assign(
 		std::istream_iterator<std::string>{iss},
 		std::istream_iterator<std::string>{});
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rExtensionMgrImpl::get_names()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (gl_version_.major >= 3)
 	{
 		get_names_from_multiple_strings();
@@ -2847,10 +2847,10 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	std::sort(extension_names_.begin(), extension_names_.end());
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rExtensionMgrImpl::probe_generic(GlR3rExtensionId extension_id)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto extension_index = get_extension_index(extension_id);
 
 	if (extension_index < 0)
@@ -2900,7 +2900,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	registry_item.is_available = true;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace
 

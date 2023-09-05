@@ -62,7 +62,7 @@ CVarMgrCVars CVarMgrImpl::get_all() noexcept
 }
 
 void CVarMgrImpl::add(CVar& cvar)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (cvars_.size() == static_cast<CVars::size_type>(max_cvars_))
 	{
 		BSTONE_THROW_STATIC_SOURCE("Too many CVARs.");
@@ -83,7 +83,7 @@ BSTONE_BEGIN_FUNC_TRY
 
 	cvars_.emplace_back(&cvar);
 	name_to_index_map_[name] = cvars_.size() - 1;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 

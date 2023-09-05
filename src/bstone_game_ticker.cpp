@@ -20,7 +20,7 @@ GameTicker::~GameTicker()
 }
 
 void GameTicker::open(int frequency)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	close();
 
 	if (frequency < 10 || frequency > 100)
@@ -34,7 +34,7 @@ BSTONE_BEGIN_FUNC_TRY
 	tick_.store(TickValue{}, std::memory_order_release);
 	thread_ = Thread{&GameTicker::callback, this};
 	is_open_ = true;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GameTicker::close() noexcept
 {

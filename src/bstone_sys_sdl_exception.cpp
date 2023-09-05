@@ -16,14 +16,14 @@ namespace sys {
 }
 
 int sdl_ensure_result(int sdl_result)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (sdl_result != 0)
 	{
 		sdl_fail();
 	}
 
 	return sdl_result;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace sys
 } // namespace bstone

@@ -50,7 +50,7 @@ AudioMixerVoiceR3Position audio_mixer_make_default_voice_r3_position() noexcept
 // ==========================================================================
 
 AudioMixerUPtr make_audio_mixer(const AudioMixerInitParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (param.audio_driver_type)
 	{
 		case AudioDriverType::system:
@@ -62,7 +62,7 @@ BSTONE_BEGIN_FUNC_TRY
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unsupported driver type.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void AudioMixerListenerR3Position::operator=(const AudioMixerR3Vector& r3_vector) noexcept
 {

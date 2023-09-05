@@ -67,7 +67,7 @@ GlR3rShaderImplPool gl_r3r_shader_impl_pool{};
 // ==========================================================================
 
 GlR3rShaderImpl::GlR3rShaderImpl(const R3rShaderInitParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	validate(param);
 
 	const auto gl_type = get_gl_type(param.type);
@@ -109,7 +109,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	type_ = param.type;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rShaderImpl::~GlR3rShaderImpl()
 {
@@ -133,14 +133,14 @@ GlR3rShaderImpl::~GlR3rShaderImpl()
 }
 
 void* GlR3rShaderImpl::operator new(std::size_t size)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return gl_r3r_shader_impl_pool.allocate(size);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rShaderImpl::operator delete(void* ptr)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	gl_r3r_shader_impl_pool.deallocate(ptr);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rShaderType GlR3rShaderImpl::do_get_type() const noexcept
 {
@@ -164,17 +164,17 @@ void GlR3rShaderImpl::attach_to_shader_stage(GlR3rShaderStage* shader_stage)
 }
 
 GLenum GlR3rShaderImpl::get_gl_type(R3rShaderType type)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (type)
 	{
 		case R3rShaderType::fragment: return GL_FRAGMENT_SHADER;
 		case R3rShaderType::vertex: return GL_VERTEX_SHADER;
 		default: BSTONE_THROW_STATIC_SOURCE("Invalid type.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rShaderImpl::validate(const R3rShaderInitParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (param.type)
 	{
 		case R3rShaderType::fragment:
@@ -194,7 +194,7 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		BSTONE_THROW_STATIC_SOURCE("Empty source data.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 

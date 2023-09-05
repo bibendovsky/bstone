@@ -11,7 +11,7 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 
 void CValidator::validate_name(StringView name)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (name.is_empty())
 	{
 		BSTONE_THROW_STATIC_SOURCE("Empty name.");
@@ -43,6 +43,6 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		BSTONE_THROW_STATIC_SOURCE("Expected at least one underscore or alpha character for name.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace bstone

@@ -23,234 +23,234 @@ bool R3rCmdBuffer::is_enabled() const noexcept
 }
 
 void R3rCmdBuffer::enable(bool is_enabled)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	do_enable(is_enabled);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rCmdBuffer::begin_write()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	do_begin_write();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rCmdBuffer::end_write()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	do_end_write();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rClearCmd& R3rCmdBuffer::write_clear()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_write_clear();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSetViewportCmd& R3rCmdBuffer::write_set_viewport()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_write_set_viewport();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rEnableScissorCmd& R3rCmdBuffer::write_enable_scissor()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_write_enable_scissor();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSetScissorBoxCmd& R3rCmdBuffer::write_set_scissor_box()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_write_set_scissor_box();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rEnableCullingCmd& R3rCmdBuffer::write_enable_culling()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_write_enable_culling();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rEnableDepthTestCmd& R3rCmdBuffer::write_enable_depth_test()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_write_enable_depth_test();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rEnableDepthWriteCmd& R3rCmdBuffer::write_enable_depth_write()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_write_enable_depth_write();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rEnableBlendingCmd& R3rCmdBuffer::write_enable_blending()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_write_enable_blending();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSetBlendingFuncCmd& R3rCmdBuffer::write_set_blending_func()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_write_set_blending_func();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSetTextureCmd& R3rCmdBuffer::write_set_texture()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_write_set_texture();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSetSamplerCmd& R3rCmdBuffer::write_set_sampler()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_write_set_sampler();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSetVertexInputCmd& R3rCmdBuffer::write_set_vertex_input()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_write_set_vertex_input();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSetShaderStageCmd& R3rCmdBuffer::write_set_shader_stage()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_write_set_shader_stage();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSetInt32UniformCmd& R3rCmdBuffer::write_set_i32_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_write_set_i32_uniform();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSetFloat32UniformCmd& R3rCmdBuffer::write_set_f32_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_write_set_f32_uniform();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSetVec2UniformCmd& R3rCmdBuffer::write_set_vec2_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_write_set_vec2_uniform();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSetVec4UniformCmd& R3rCmdBuffer::write_set_vec4_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_write_set_vec4_uniform();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSetMat4UniformCmd& R3rCmdBuffer::write_set_mat4_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_write_set_mat4_uniform();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSetR2SamplerUniformCmd& R3rCmdBuffer::write_set_r2_sampler_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_write_set_r2_sampler_uniform();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rDrawIndexedCmd& R3rCmdBuffer::write_draw_indexed()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_write_draw_indexed();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rCmdBuffer::begin_read()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	do_begin_read();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rCmdBuffer::end_read()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	do_end_read();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rCmdId R3rCmdBuffer::read_command_id()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_read_command_id();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rClearCmd& R3rCmdBuffer::read_clear()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_read_clear();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSetViewportCmd& R3rCmdBuffer::read_set_viewport()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_read_set_viewport();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rEnableScissorCmd& R3rCmdBuffer::read_enable_scissor()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_read_enable_scissor();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSetScissorBoxCmd& R3rCmdBuffer::read_set_scissor_box()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_read_set_scissor_box();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rEnableCullingCmd& R3rCmdBuffer::read_enable_culling()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_read_enable_culling();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rEnableDepthTestCmd& R3rCmdBuffer::read_enable_depth_test()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_read_enable_depth_test();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rEnableDepthWriteCmd& R3rCmdBuffer::read_enable_depth_write()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_read_enable_depth_write();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rEnableBlendingCmd& R3rCmdBuffer::read_enable_blending()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_read_enable_blending();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSetBlendingFuncCmd& R3rCmdBuffer::read_set_blending_func()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_read_set_blending_func();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSetTextureCmd& R3rCmdBuffer::read_set_texture()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_read_set_texture();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSetSamplerCmd& R3rCmdBuffer::read_set_sampler()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_read_set_sampler();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSetVertexInputCmd& R3rCmdBuffer::read_set_vertex_input()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_read_set_vertex_input();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSetShaderStageCmd& R3rCmdBuffer::read_set_shader_stage()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_read_set_shader_stage();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSetInt32UniformCmd& R3rCmdBuffer::read_set_int32_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_read_set_int32_uniform();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSetFloat32UniformCmd& R3rCmdBuffer::read_set_float32_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_read_set_float32_uniform();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSetVec2UniformCmd& R3rCmdBuffer::read_set_vec2_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_read_set_vec2_uniform();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSetVec4UniformCmd& R3rCmdBuffer::read_set_vec4_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_read_set_vec4_uniform();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSetMat4UniformCmd& R3rCmdBuffer::read_set_mat4_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_read_set_mat4_uniform();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSetR2SamplerUniformCmd& R3rCmdBuffer::read_set_r2_sampler_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_read_set_r2_sampler_uniform();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rDrawIndexedCmd& R3rCmdBuffer::read_draw_indexed()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_read_draw_indexed();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 namespace {
 
@@ -376,7 +376,7 @@ private:
 
 	template<typename TCommand>
 	TCommand& write(R3rCmdId command_id)
-	BSTONE_BEGIN_FUNC_TRY
+	try {
 		if (is_reading_ || !is_writing_)
 		{
 			BSTONE_THROW_STATIC_SOURCE("Invalid state.");
@@ -399,11 +399,11 @@ private:
 		++command_count_;
 
 		return *reinterpret_cast<TCommand*>(block + get_command_id_size());
-	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+	} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 	template<typename TCommand>
 	const TCommand& read()
-	BSTONE_BEGIN_FUNC_TRY
+	try {
 		if (!is_reading_ || is_writing_)
 		{
 			BSTONE_THROW_STATIC_SOURCE("Invalid state.");
@@ -419,20 +419,20 @@ private:
 		const auto& command = *reinterpret_cast<const TCommand*>(&data_[read_offset_]);
 		read_offset_ += command_size;
 		return command;
-	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+	} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 };
 
 // ==========================================================================
 
 R3rCmdBufferImpl::R3rCmdBufferImpl(const R3rCmdBufferInitParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	validate(param);
 
 	size_ = std::max(param.initial_size, get_min_initial_size());
 	resize_delta_ = std::max(param.resize_delta, get_min_resize_delta_size());
 
 	data_.resize(size_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rCmdBufferImpl::~R3rCmdBufferImpl() = default;
 
@@ -452,7 +452,7 @@ void R3rCmdBufferImpl::do_enable(bool is_enabled)
 }
 
 void R3rCmdBufferImpl::do_begin_write()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (is_reading_)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Already reading.");
@@ -466,10 +466,10 @@ BSTONE_BEGIN_FUNC_TRY
 	is_writing_ = true;
 	write_offset_ = 0;
 	command_count_ = 0;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rCmdBufferImpl::do_end_write()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (is_reading_)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Already reading.");
@@ -481,110 +481,110 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	is_writing_ = false;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rClearCmd& R3rCmdBufferImpl::do_write_clear()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return write<R3rClearCmd>(R3rCmdId::clear);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSetViewportCmd& R3rCmdBufferImpl::do_write_set_viewport()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return write<R3rSetViewportCmd>(R3rCmdId::set_viewport);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rEnableScissorCmd& R3rCmdBufferImpl::do_write_enable_scissor()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return write<R3rEnableScissorCmd>(R3rCmdId::enable_scissor);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSetScissorBoxCmd& R3rCmdBufferImpl::do_write_set_scissor_box()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return write<R3rSetScissorBoxCmd>(R3rCmdId::set_scissor_box);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rEnableCullingCmd& R3rCmdBufferImpl::do_write_enable_culling()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return write<R3rEnableCullingCmd>(R3rCmdId::enable_culling);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rEnableDepthTestCmd& R3rCmdBufferImpl::do_write_enable_depth_test()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return write<R3rEnableDepthTestCmd>(R3rCmdId::enable_depth_test);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rEnableDepthWriteCmd& R3rCmdBufferImpl::do_write_enable_depth_write()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return write<R3rEnableDepthWriteCmd>(R3rCmdId::enable_depth_write);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rEnableBlendingCmd& R3rCmdBufferImpl::do_write_enable_blending()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return write<R3rEnableBlendingCmd>(R3rCmdId::enable_blending);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSetBlendingFuncCmd& R3rCmdBufferImpl::do_write_set_blending_func()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return write<R3rSetBlendingFuncCmd>(R3rCmdId::set_blending_func);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSetTextureCmd& R3rCmdBufferImpl::do_write_set_texture()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return write<R3rSetTextureCmd>(R3rCmdId::set_texture);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSetSamplerCmd& R3rCmdBufferImpl::do_write_set_sampler()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return write<R3rSetSamplerCmd>(R3rCmdId::set_sampler);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSetVertexInputCmd& R3rCmdBufferImpl::do_write_set_vertex_input()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return write<R3rSetVertexInputCmd>(R3rCmdId::set_vertex_input);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSetShaderStageCmd& R3rCmdBufferImpl::do_write_set_shader_stage()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return write<R3rSetShaderStageCmd>(R3rCmdId::set_shader_stage);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSetInt32UniformCmd& R3rCmdBufferImpl::do_write_set_i32_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return write<R3rSetInt32UniformCmd>(R3rCmdId::set_int32_uniform);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSetFloat32UniformCmd& R3rCmdBufferImpl::do_write_set_f32_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return write<R3rSetFloat32UniformCmd>(R3rCmdId::set_float32_uniform);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSetVec2UniformCmd& R3rCmdBufferImpl::do_write_set_vec2_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return write<R3rSetVec2UniformCmd>(R3rCmdId::set_vec2_uniform);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSetVec4UniformCmd& R3rCmdBufferImpl::do_write_set_vec4_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return write<R3rSetVec4UniformCmd>(R3rCmdId::set_vec4_uniform);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSetMat4UniformCmd& R3rCmdBufferImpl::do_write_set_mat4_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return write<R3rSetMat4UniformCmd>(R3rCmdId::set_mat4_uniform);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSetR2SamplerUniformCmd& R3rCmdBufferImpl::do_write_set_r2_sampler_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return write<R3rSetR2SamplerUniformCmd>(R3rCmdId::set_r2_sampler_uniform);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rDrawIndexedCmd& R3rCmdBufferImpl::do_write_draw_indexed()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return write<R3rDrawIndexedCmd>(R3rCmdId::draw_indexed);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rCmdBufferImpl::do_begin_read()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (is_reading_)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Already reading.");
@@ -597,10 +597,10 @@ BSTONE_BEGIN_FUNC_TRY
 
 	is_reading_ = true;
 	read_offset_ = 0;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rCmdBufferImpl::do_end_read()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!is_reading_)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Not reading.");
@@ -617,115 +617,115 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	is_reading_ = false;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rCmdId R3rCmdBufferImpl::do_read_command_id()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return read<R3rCmdId>();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rClearCmd& R3rCmdBufferImpl::do_read_clear()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return read<R3rClearCmd>();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSetViewportCmd& R3rCmdBufferImpl::do_read_set_viewport()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return read<R3rSetViewportCmd>();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rEnableScissorCmd& R3rCmdBufferImpl::do_read_enable_scissor()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return read<R3rEnableScissorCmd>();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSetScissorBoxCmd& R3rCmdBufferImpl::do_read_set_scissor_box()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return read<R3rSetScissorBoxCmd>();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rEnableCullingCmd& R3rCmdBufferImpl::do_read_enable_culling()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return read<R3rEnableCullingCmd>();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rEnableDepthTestCmd& R3rCmdBufferImpl::do_read_enable_depth_test()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return read<R3rEnableDepthTestCmd>();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rEnableDepthWriteCmd& R3rCmdBufferImpl::do_read_enable_depth_write()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return read<R3rEnableDepthWriteCmd>();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rEnableBlendingCmd& R3rCmdBufferImpl::do_read_enable_blending()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return read<R3rEnableBlendingCmd>();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSetBlendingFuncCmd& R3rCmdBufferImpl::do_read_set_blending_func()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return read<R3rSetBlendingFuncCmd>();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSetTextureCmd& R3rCmdBufferImpl::do_read_set_texture()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return read<R3rSetTextureCmd>();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSetSamplerCmd& R3rCmdBufferImpl::do_read_set_sampler()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return read<R3rSetSamplerCmd>();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSetVertexInputCmd& R3rCmdBufferImpl::do_read_set_vertex_input()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return read<R3rSetVertexInputCmd>();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSetShaderStageCmd& R3rCmdBufferImpl::do_read_set_shader_stage()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return read<R3rSetShaderStageCmd>();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSetInt32UniformCmd& R3rCmdBufferImpl::do_read_set_int32_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return read<R3rSetInt32UniformCmd>();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSetFloat32UniformCmd& R3rCmdBufferImpl::do_read_set_float32_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return read<R3rSetFloat32UniformCmd>();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSetVec2UniformCmd& R3rCmdBufferImpl::do_read_set_vec2_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return read<R3rSetVec2UniformCmd>();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSetVec4UniformCmd& R3rCmdBufferImpl::do_read_set_vec4_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return read<R3rSetVec4UniformCmd>();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSetMat4UniformCmd& R3rCmdBufferImpl::do_read_set_mat4_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return read<R3rSetMat4UniformCmd>();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSetR2SamplerUniformCmd& R3rCmdBufferImpl::do_read_set_r2_sampler_uniform()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return read<R3rSetR2SamplerUniformCmd>();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rDrawIndexedCmd& R3rCmdBufferImpl::do_read_draw_indexed()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return read<R3rDrawIndexedCmd>();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rCmdBufferImpl::validate(const R3rCmdBufferInitParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (param.initial_size <= 0)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Initial size out of range.");
@@ -735,10 +735,10 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		BSTONE_THROW_STATIC_SOURCE("Resize delta out of range.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rCmdBufferImpl::resize_if_necessary(int dst_delta_size)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if ((size_ - write_offset_) >= dst_delta_size)
 	{
 		return;
@@ -752,15 +752,15 @@ BSTONE_BEGIN_FUNC_TRY
 
 	size_ += resize_delta_;
 	data_.resize(size_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 
 } // namespace
 
 R3rCmdBufferUPtr make_r3r_cmd_buffer(const R3rCmdBufferInitParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return std::make_unique<R3rCmdBufferImpl>(param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace bstone

@@ -29,7 +29,7 @@ public:
 	}
 
 	void set_cache_capacity(int capacity)
-	BSTONE_BEGIN_FUNC_TRY
+	try {
 		if (capacity < 0)
 		{
 			BSTONE_THROW_STATIC_SOURCE("Capacity out of range.");
@@ -37,10 +37,10 @@ public:
 
 		const auto guard = MutexLock{mutex_};
 		cache_.reserve(capacity);
-	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+	} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 	void set_map_capacity(int capacity)
-	BSTONE_BEGIN_FUNC_TRY
+	try {
 		if (capacity < 0)
 		{
 			BSTONE_THROW_STATIC_SOURCE("Capacity out of range.");
@@ -48,30 +48,30 @@ public:
 
 		const auto guard = MutexLock{mutex_};
 		map_.reserve(capacity);
-	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+	} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 	AudioMixerVoiceHandle generate()
-	BSTONE_BEGIN_FUNC_TRY
+	try {
 		const auto guard = MutexLock{mutex_};
 		handle_ = ++handle_;
 		return handle_;
-	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+	} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 	void cache(AudioMixerVoiceHandle handle)
-	BSTONE_BEGIN_FUNC_TRY
+	try {
 		validate_handle(handle);
 		const auto guard = MutexLock{mutex_};
 		cache_.insert(handle);
-	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+	} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 	void uncache(AudioMixerVoiceHandle handle)
-	BSTONE_BEGIN_FUNC_TRY
+	try {
 		const auto guard = MutexLock{mutex_};
 		cache_.erase(handle);
-	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+	} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 	void uncache_and_map(AudioMixerVoiceHandle handle, Voice* voice)
-	BSTONE_BEGIN_FUNC_TRY
+	try {
 		validate_voice(voice);
 		const auto guard = MutexLock{mutex_};
 		const auto erased_count = cache_.erase(handle);
@@ -82,13 +82,13 @@ public:
 		}
 
 		map_.emplace(handle, voice);
-	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+	} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 	void unmap(AudioMixerVoiceHandle handle)
-	BSTONE_BEGIN_FUNC_TRY
+	try {
 		const auto guard = MutexLock{mutex_};
 		map_.erase(handle);
-	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+	} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 	bool is_valid_handle(AudioMixerVoiceHandle handle) const noexcept
 	{

@@ -16,7 +16,7 @@ namespace bstone {
 
 ImageEncodeUPtr make_image_encoder(
 	ImageEncoderType image_encoder_type)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (image_encoder_type)
 	{
 		case ImageEncoderType::png:
@@ -25,6 +25,6 @@ BSTONE_BEGIN_FUNC_TRY
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unsupported image encoder type.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // bstone

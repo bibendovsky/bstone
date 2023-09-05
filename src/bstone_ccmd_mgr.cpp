@@ -62,7 +62,7 @@ CCmdMgrCCmds CCmdMgrImpl::get_all() noexcept
 }
 
 void CCmdMgrImpl::add(CCmd& ccmd)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (ccmds_.size() == static_cast<CCmds::size_type>(max_ccmds_))
 	{
 		BSTONE_THROW_STATIC_SOURCE("Too many CCMDs.");
@@ -83,7 +83,7 @@ BSTONE_BEGIN_FUNC_TRY
 
 	ccmds_.emplace_back(&ccmd);
 	name_to_index_map_[name] = ccmds_.size() - 1;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 

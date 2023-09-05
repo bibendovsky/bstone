@@ -12,13 +12,13 @@ CCmdAction::CCmdAction() noexcept = default;
 CCmdAction::~CCmdAction() = default;
 
 void CCmdAction::invoke(CCmdActionArgs args)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	do_invoke(args);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void CCmdAction::operator()(CCmdActionArgs args)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	invoke(args);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace bstone

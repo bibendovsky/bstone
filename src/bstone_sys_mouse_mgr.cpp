@@ -11,9 +11,9 @@ namespace bstone {
 namespace sys {
 
 void MouseMgr::set_relative_mode(bool is_enable)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	do_set_relative_mode(is_enable);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace sys
 } // namespace bstone

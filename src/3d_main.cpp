@@ -7038,7 +7038,7 @@ bstone::MemoryStream g_playtemp;
 static bool is_config_loaded = false;
 
 static const std::string& get_score_file_name()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	static auto file_name = std::string{};
 	static auto is_initialized = false;
 
@@ -7071,7 +7071,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	return file_name;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 static void set_default_high_scores()
 {
@@ -7583,7 +7583,7 @@ void set_config_defaults()
 }
 
 bool try_deserialize_cvar(bstone::Span<const bstone::StringView> tokens)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (tokens.get_size() != 2)
 	{
 		return false;
@@ -7598,7 +7598,7 @@ BSTONE_BEGIN_FUNC_TRY
 
 	cvar->set_string(tokens[1]);
 	return true;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool try_deserialize_ccmd(bstone::Span<const bstone::StringView> tokens)
 try
@@ -8171,7 +8171,7 @@ std::int8_t LS_total = -1;
 
 bool LoadLevel(
 	int level_index)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	extern bool ForceLoadDefault;
 
 	bool oldloaded = loadedgame;
@@ -8581,11 +8581,11 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	return is_succeed;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool SaveLevel(
 	int level_index)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	WindowY = 181;
 
 	// Make sure floor stats are saved!
@@ -8868,7 +8868,7 @@ BSTONE_BEGIN_FUNC_TRY
 	NewViewSize();
 
 	return true;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int DeleteChunk(
 	bstone::MemoryStream& stream,
@@ -8890,7 +8890,7 @@ int DeleteChunk(
 }
 
 static const std::string& get_saved_game_version_string()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	static auto version_string = std::string{};
 	static auto is_initialized = false;
 
@@ -8927,7 +8927,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	return version_string;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 static bool LoadCompressedChunk(
 	const std::string& chunk_name,
@@ -8994,7 +8994,7 @@ static bool LoadCompressedChunk(
 
 bool LoadTheGame(
 	const std::string& file_name)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	bool is_succeed = true;
 
 	auto file_stream = bstone::FileStream{file_name};
@@ -9230,7 +9230,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	return is_succeed;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool SaveTheGame(
 	const std::string& file_name,

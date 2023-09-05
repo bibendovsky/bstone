@@ -15,54 +15,54 @@ SPDX-License-Identifier: GPL-2.0-or-later
 namespace bstone {
 
 bool VoiceGroup::is_any_playing()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return do_is_any_playing();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VoiceGroup::set_gain(double gain)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	do_set_gain(gain);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VoiceGroup::pause()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	do_pause();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VoiceGroup::resume()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	do_resume();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VoiceGroup::stop()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	do_stop();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VoiceGroup::add_voice(Voice& voice)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	do_add_voice(voice);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VoiceGroup::stop_and_remove_voice(Voice& voice)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	do_stop_and_remove_voice(voice);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VoiceGroup::stop_voice(Voice& voice)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	do_stop_voice(voice);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VoiceGroup::set_voice_gain(const Voice& voice)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	do_set_voice_gain(voice);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VoiceGroup::set_voice_output_gains(const Voice& voice)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	do_set_voice_output_gains(voice);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 

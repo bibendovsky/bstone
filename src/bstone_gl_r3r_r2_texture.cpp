@@ -95,7 +95,7 @@ GlR3rR2TextureImplPool gl_r3r_r2_texture_impl_pool{};
 // =========================================================================
 
 GlR3rR2TextureImpl::GlR3rR2TextureImpl(GlR3rContext& context, const R3rR2TextureInitParam& param)
-BSTONE_BEGIN_CTOR_TRY
+try
 	:
 	context_{context},
 	device_features_{context_.get_device_features()},
@@ -230,22 +230,22 @@ BSTONE_BEGIN_CTOR_TRY
 			}
 		}
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rR2TextureImpl::~GlR3rR2TextureImpl() = default;
 
 void* GlR3rR2TextureImpl::operator new(std::size_t size)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return gl_r3r_r2_texture_impl_pool.allocate(size);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::operator delete(void* ptr)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	gl_r3r_r2_texture_impl_pool.deallocate(ptr);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::do_update(const R3rR2TextureUpdateParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	validate(param);
 
 	if (param.mipmap_level >= mipmap_count_)
@@ -275,10 +275,10 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	upload_mipmap(param.mipmap_level, mipmap_width, mipmap_height, param.image);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::do_generate_mipmaps()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (mipmap_count_ <= 1)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Base mipmap.");
@@ -299,7 +299,7 @@ BSTONE_BEGIN_FUNC_TRY
 		context_.bind_r2_texture(this);
 		GlR3rUtils::generate_mipmap(GL_TEXTURE_2D, device_features_, gl_device_features_);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::TextureDeleter::operator()(GLuint gl_name) noexcept
 {
@@ -308,7 +308,7 @@ void GlR3rR2TextureImpl::TextureDeleter::operator()(GLuint gl_name) noexcept
 }
 
 void GlR3rR2TextureImpl::validate(const R3rR2TextureInitParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (param.pixel_format)
 	{
 		case R3rPixelFormat::rgba_8_unorm:
@@ -332,10 +332,10 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		BSTONE_THROW_STATIC_SOURCE("Invalid mipmap count.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::validate(const R3rR2TextureUpdateParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (param.mipmap_level < 0 ||
 		param.mipmap_level >= R3rLimits::max_mipmap_count)
 	{
@@ -346,16 +346,16 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null image data.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::bind()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	glBindTexture(GL_TEXTURE_2D, texture_resource_.get());
 	GlR3rError::ensure_debug();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::upload_mipmap(int mipmap_level, int width, int height, const void* src_data)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (gl_device_features_.is_dsa_available)
 	{
 		glTextureSubImage2D(
@@ -388,10 +388,10 @@ BSTONE_BEGIN_FUNC_TRY
 
 		GlR3rError::ensure_debug();
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::set()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	bind();
 
 	if (!gl_device_features_.is_dsa_available)
@@ -400,10 +400,10 @@ BSTONE_BEGIN_FUNC_TRY
 		const auto& sampler_state = sampler_manger.get_current_state();
 		update_sampler_state(sampler_state);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::set_mag_filter()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto gl_mag_filter = GlR3rUtils::get_mag_filter(sampler_state_.mag_filter);
 
 	if (gl_device_features_.is_dsa_available)
@@ -416,10 +416,10 @@ BSTONE_BEGIN_FUNC_TRY
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_mag_filter);
 		GlR3rError::ensure_debug();
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::set_min_filter()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto gl_min_filter = GlR3rUtils::get_min_filter(
 		sampler_state_.min_filter,
 		sampler_state_.mipmap_mode);
@@ -434,10 +434,10 @@ BSTONE_BEGIN_FUNC_TRY
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_min_filter);
 		GlR3rError::ensure_debug();
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::set_address_mode(R3rTextureAxis texture_axis, R3rAddressMode address_mode)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto gl_wrap_axis = GlR3rUtils::get_texture_wrap_axis(texture_axis);
 	const auto gl_address_mode = GlR3rUtils::get_address_mode(address_mode);
 
@@ -451,20 +451,20 @@ BSTONE_BEGIN_FUNC_TRY
 		glTexParameteri(GL_TEXTURE_2D, gl_wrap_axis, gl_address_mode);
 		GlR3rError::ensure_debug();
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::set_address_mode_u()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	set_address_mode(R3rTextureAxis::u, sampler_state_.address_mode_u);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::set_address_mode_v()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	set_address_mode(R3rTextureAxis::v, sampler_state_.address_mode_v);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::set_anisotropy()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!device_features_.is_anisotropy_available)
 	{
 		return;
@@ -493,10 +493,10 @@ BSTONE_BEGIN_FUNC_TRY
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, gl_anisotropy);
 		GlR3rError::ensure_debug();
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::update_sampler_state(const R3rSamplerState& new_sampler_state)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto is_modified = false;
 
 	// Magnification filter.
@@ -593,10 +593,10 @@ BSTONE_BEGIN_FUNC_TRY
 			set_anisotropy();
 		}
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::set_sampler_state_defaults()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	sampler_state_.mag_filter = R3rFilterType::nearest;
 	set_mag_filter();
 
@@ -612,7 +612,7 @@ BSTONE_BEGIN_FUNC_TRY
 
 	sampler_state_.anisotropy = R3rLimits::min_anisotropy_off;
 	set_anisotropy();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 

@@ -836,7 +836,7 @@ int LZH_Decompress(
 	std::uint8_t* out_buffer,
 	int uncompressed_length,
 	int compress_length)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (uncompressed_length < 0)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Uncompressed length out of range.");
@@ -914,13 +914,13 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	return count;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int LZH_Compress(
 	const std::uint8_t* in_buffer,
 	std::uint8_t* out_buffer,
 	int in_length)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (in_length < 0)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Data length out of range.");
@@ -1036,4 +1036,4 @@ BSTONE_BEGIN_FUNC_TRY
 	EncodeEnd(out_buffer);
 
 	return codesize;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED

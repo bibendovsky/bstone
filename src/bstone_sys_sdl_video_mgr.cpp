@@ -71,7 +71,7 @@ SdlVideoMgrPool sdl_video_mgr_pool{};
 // ==========================================================================
 
 SdlVideoMgr::SdlVideoMgr(Logger& logger)
-BSTONE_BEGIN_CTOR_TRY
+try
 	:
 	logger_{logger}
 {
@@ -81,7 +81,7 @@ BSTONE_BEGIN_CTOR_TRY
 	log_info();
 
 	logger_.log_information(">>> SDL video manager started up.");
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 SdlVideoMgr::~SdlVideoMgr()
 {
@@ -91,24 +91,24 @@ SdlVideoMgr::~SdlVideoMgr()
 }
 
 void* SdlVideoMgr::operator new(std::size_t size)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return sdl_video_mgr_pool.allocate(size);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlVideoMgr::operator delete(void* ptr)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	sdl_video_mgr_pool.deallocate(ptr);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 DisplayMode SdlVideoMgr::do_get_current_display_mode()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto sdl_display_mode = SDL_DisplayMode{};
 	sdl_ensure_result(SDL_GetCurrentDisplayMode(0, &sdl_display_mode));
 	return map_display_mode(sdl_display_mode);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 Span<const DisplayMode> SdlVideoMgr::do_get_display_modes()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto count = std::min(SDL_GetNumDisplayModes(0), limits::max_display_modes);
 
 	auto sdl_display_mode = SDL_DisplayMode{};
@@ -120,7 +120,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	return Span<const DisplayMode>{display_mode_cache_, count};
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlMgrUPtr SdlVideoMgr::do_make_gl_mgr()
 {
@@ -348,9 +348,9 @@ DisplayMode SdlVideoMgr::map_display_mode(const SDL_DisplayMode& sdl_display_mod
 // ==========================================================================
 
 VideoMgrUPtr make_sdl_video_mgr(Logger& logger)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return std::make_unique<SdlVideoMgr>(logger);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace sys
 } // namespace bstone

@@ -156,7 +156,7 @@ void add_search_path(
 	const std::string& source_name,
 	const std::string& path,
 	SearchPaths& search_paths)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (source_name.empty())
 	{
 		BSTONE_THROW_STATIC_SOURCE("Empty source name.");
@@ -171,7 +171,7 @@ BSTONE_BEGIN_FUNC_TRY
 	auto& search_path = search_paths.back();
 	search_path.source_name_ = source_name;
 	search_path.path_ = path;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool has_resources(
 	const SearchPath& search_path,

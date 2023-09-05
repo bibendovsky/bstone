@@ -73,7 +73,7 @@ GlR3rSamplerImplPool gl_r3r_sampler_impl_pool{};
 // =========================================================================
 
 GlR3rSamplerImpl::GlR3rSamplerImpl(GlR3rContext& context, const R3rSamplerInitParam& param)
-BSTONE_BEGIN_CTOR_TRY
+try
 	:
 	context_{context},
 	state_{}
@@ -107,22 +107,22 @@ BSTONE_BEGIN_CTOR_TRY
 	}
 
 	set_initial_state();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rSamplerImpl::~GlR3rSamplerImpl() = default;
 
 void* GlR3rSamplerImpl::operator new(std::size_t size)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return gl_r3r_sampler_impl_pool.allocate(size);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rSamplerImpl::operator delete(void* ptr)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	gl_r3r_sampler_impl_pool.deallocate(ptr);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rSamplerImpl::set()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (sampler_resource_.get() == 0U)
 	{
 		return;
@@ -130,10 +130,10 @@ BSTONE_BEGIN_FUNC_TRY
 
 	glBindSampler(0, sampler_resource_.get());
 	GlR3rError::ensure_debug();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rSamplerImpl::do_update(const R3rSamplerUpdateParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto is_modified = false;
 
 	// Magnification filter.
@@ -227,7 +227,7 @@ BSTONE_BEGIN_FUNC_TRY
 			set_anisotropy();
 		}
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rSamplerState& GlR3rSamplerImpl::do_get_state() const noexcept
 {
@@ -241,48 +241,48 @@ void GlR3rSamplerImpl::SamplerDeleter::operator()(GLuint gl_name) noexcept
 }
 
 void GlR3rSamplerImpl::set_mag_filter()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto gl_mag_filter = GlR3rUtils::get_mag_filter(state_.mag_filter);
 	glSamplerParameteri(sampler_resource_.get(), GL_TEXTURE_MAG_FILTER, gl_mag_filter);
 	GlR3rError::ensure_debug();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rSamplerImpl::set_min_filter()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto gl_min_filter = GlR3rUtils::get_min_filter(state_.min_filter, state_.mipmap_mode);
 	glSamplerParameteri(sampler_resource_.get(), GL_TEXTURE_MIN_FILTER, gl_min_filter);
 	GlR3rError::ensure_debug();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rSamplerImpl::set_address_mode(R3rTextureAxis texture_axis, R3rAddressMode address_mode)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto gl_wrap_axis = GlR3rUtils::get_texture_wrap_axis(texture_axis);
 	const auto gl_address_mode = GlR3rUtils::get_address_mode(address_mode);
 
 	glSamplerParameteri(sampler_resource_.get(), gl_wrap_axis, gl_address_mode);
 	GlR3rError::ensure_debug();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rSamplerImpl::set_address_mode_u()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	set_address_mode(R3rTextureAxis::u, state_.address_mode_u);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rSamplerImpl::set_address_mode_v()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	set_address_mode(R3rTextureAxis::v, state_.address_mode_v);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rSamplerImpl::set_anisotropy()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	GlR3rUtils::set_sampler_anisotropy(
 		sampler_resource_.get(),
 		context_.get_device_features(),
 		state_.anisotropy);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rSamplerImpl::set_initial_state()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (sampler_resource_.get() == 0U)
 	{
 		return;
@@ -293,7 +293,7 @@ BSTONE_BEGIN_FUNC_TRY
 	set_address_mode_u();
 	set_address_mode_v();
 	set_anisotropy();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // =========================================================================
 

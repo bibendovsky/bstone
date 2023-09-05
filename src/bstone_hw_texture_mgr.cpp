@@ -105,7 +105,7 @@ using XbrzTaskPtrs = std::vector<MtTaskPtr>;
 
 
 void HwTextureMgrXbrzTask::execute()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto xbrz_cfg = xbrz::ScalerCfg{};
 
 	xbrz::scale(
@@ -119,7 +119,7 @@ BSTONE_BEGIN_FUNC_TRY
 		first_index_,
 		last_index_
 	);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool HwTextureMgrXbrzTask::is_completed() const noexcept
 {
@@ -127,14 +127,14 @@ bool HwTextureMgrXbrzTask::is_completed() const noexcept
 }
 
 void HwTextureMgrXbrzTask::set_completed()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (is_completed_)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Already completed.");
 	}
 
 	is_completed_ = true;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool HwTextureMgrXbrzTask::is_failed() const noexcept
 {
@@ -148,7 +148,7 @@ std::exception_ptr HwTextureMgrXbrzTask::get_exception_ptr() const noexcept
 
 void HwTextureMgrXbrzTask::set_failed(
 	std::exception_ptr exception_ptr)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (is_completed_)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Already completed.");
@@ -163,7 +163,7 @@ BSTONE_BEGIN_FUNC_TRY
 	is_failed_ = true;
 
 	exception_ptr_ = exception_ptr;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrXbrzTask::initialize(
 	const int factor,
@@ -562,7 +562,7 @@ HwTextureMgrImpl::HwTextureMgrImpl(
 	R3r* renderer,
 	const SpriteCachePtr cache_sprite,
 	const MtTaskMgrPtr mt_task_manager)
-BSTONE_BEGIN_CTOR_TRY
+try
 	:
 	renderer_{},
 	sprite_cache_{},
@@ -583,7 +583,7 @@ BSTONE_BEGIN_CTOR_TRY
 	xbrz_task_ptrs_{}
 {
 	initialize(renderer, cache_sprite);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 HwTextureMgrImpl::~HwTextureMgrImpl()
 {
@@ -596,7 +596,7 @@ void HwTextureMgrImpl::uninitialize() noexcept
 }
 
 void HwTextureMgrImpl::recreate_indexed_resources()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	// Sprites.
 	//
 	for (auto& sprite_item : sprite_map_)
@@ -643,10 +643,10 @@ BSTONE_BEGIN_FUNC_TRY
 			ui_t2d_item_.properties_.indexed_alphas_,
 			ui_t2d_item_.properties_.indexed_palette_);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::recreate_sprites_and_walls()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	// Sprites.
 	//
 	for (auto& sprite_item : sprite_map_)
@@ -672,19 +672,19 @@ BSTONE_BEGIN_FUNC_TRY
 
 		r2_texture_item = std::move(new_r2_texture_item);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int HwTextureMgrImpl::get_min_upscale_filter_degree(
 	const HwTextureMgrUpscaleFilterType upscale_filter_type) const
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return upscale_filter_get_min_factor_internal(upscale_filter_type);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int HwTextureMgrImpl::get_max_upscale_filter_degree(
 	const HwTextureMgrUpscaleFilterType upscale_filter_type) const
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return upscale_filter_get_max_factor_internal(upscale_filter_type);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 HwTextureMgrUpscaleFilterType HwTextureMgrImpl::get_upscale_filter_type() const noexcept
 {
@@ -699,7 +699,7 @@ int HwTextureMgrImpl::get_upscale_filter_degree() const noexcept
 void HwTextureMgrImpl::set_upscale_filter(
 	const HwTextureMgrUpscaleFilterType upscale_filter_type,
 	const int upscale_filter_factor)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto clamped_upscale_filter_factor = upscale_filter_clamp_factor(
 		upscale_filter_type,
 		upscale_filter_factor
@@ -717,11 +717,11 @@ BSTONE_BEGIN_FUNC_TRY
 	upscale_filter_factor_ = clamped_upscale_filter_factor;
 
 	recreate_indexed_resources();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::enable_external_textures(
 	bool is_enable)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (is_external_textures_enabled_ == is_enable)
 	{
 		return;
@@ -730,10 +730,10 @@ BSTONE_BEGIN_FUNC_TRY
 	is_external_textures_enabled_ = is_enable;
 
 	recreate_sprites_and_walls();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::begin_cache()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (is_caching_)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Already caching.");
@@ -747,20 +747,20 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		generation_id_ = first_generation_id;
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::end_cache()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!is_caching_)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Not caching.");
 	}
 
 	is_caching_ = false;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::purge_cache()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (is_caching_)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Caching is active.");
@@ -768,11 +768,11 @@ BSTONE_BEGIN_FUNC_TRY
 
 	purge_cache(wall_map_);
 	purge_cache(sprite_map_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::cache_wall(
 	const int id)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (id < 0 || id >= max_walls)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Id out of range.");
@@ -791,22 +791,22 @@ BSTONE_BEGIN_FUNC_TRY
 	r2_texture_item.generation_id_ = generation_id_;
 
 	wall_map_[id] = std::move(r2_texture_item);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rR2Texture* HwTextureMgrImpl::get_wall(
 	const int id) const
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (id < 0 || id >= max_walls)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Id out of range.");
 	}
 
 	return get_r2_texture(ImageType::wall, id, wall_map_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::cache_sprite(
 	const int id)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (id <= 0 || id >= max_sprites)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Id out of range.");
@@ -825,18 +825,18 @@ BSTONE_BEGIN_FUNC_TRY
 	r2_texture_item.generation_id_ = generation_id_;
 
 	sprite_map_[id] = std::move(r2_texture_item);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rR2Texture* HwTextureMgrImpl::get_sprite(
 	const int id) const
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (id <= 0 || id >= max_sprites)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Sprite id out of range.");
 	}
 
 	return get_r2_texture(ImageType::sprite, id, sprite_map_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::destroy_ui()
 {
@@ -847,7 +847,7 @@ void HwTextureMgrImpl::create_ui(
 	const std::uint8_t* const indexed_pixels,
 	const bool* const indexed_alphas,
 	const Rgba8PaletteCPtr indexed_palette)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (ui_t2d_item_.r2_texture_)
 	{
 		BSTONE_THROW_STATIC_SOURCE("UI texture already created.");
@@ -881,12 +881,12 @@ BSTONE_BEGIN_FUNC_TRY
 	update_mipmaps(r2_texture_item.properties_, r2_texture_item.r2_texture_);
 
 	ui_t2d_item_ = std::move(r2_texture_item);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::update_ui()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	update_mipmaps(ui_t2d_item_.properties_, ui_t2d_item_.r2_texture_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rR2Texture* HwTextureMgrImpl::get_ui() const noexcept
 {
@@ -909,16 +909,16 @@ void HwTextureMgrImpl::try_destroy_solid_1x1(
 
 void HwTextureMgrImpl::destroy_solid_1x1(
 	const HwTextureMgrSolid1x1Id id)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto index = solid_1x1_get_index(id);
 
 	auto& item = solid_1x1_items_[index];
 	item.clear();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::create_solid_1x1(
 	const HwTextureMgrSolid1x1Id id)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto index = solid_1x1_get_index(id);
 
 	const auto default_color = solid_1x1_get_default_color(id);
@@ -938,12 +938,12 @@ BSTONE_BEGIN_FUNC_TRY
 	item.r2_texture_ = std::move(r2_texture_item.r2_texture_);
 
 	update_mipmaps(item.properties_, item.r2_texture_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::update_solid_1x1(
 	const HwTextureMgrSolid1x1Id id,
 	const Rgba8 color)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto index = solid_1x1_get_updateable_index(id);
 
 	auto& item = solid_1x1_items_[index];
@@ -953,11 +953,11 @@ BSTONE_BEGIN_FUNC_TRY
 	param.image = &item.color_;
 
 	item.r2_texture_->update(param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rR2Texture* HwTextureMgrImpl::get_solid_1x1(
 	const HwTextureMgrSolid1x1Id id) const
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto index = solid_1x1_get_index(id);
 
 	if (index < 0)
@@ -966,14 +966,14 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	return solid_1x1_items_[index].r2_texture_.get();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::initialize(
 	R3r* renderer,
 	SpriteCachePtr cache_sprite)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	initialize_internal(renderer, cache_sprite);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::uninitialize_internal() noexcept
 {
@@ -1008,7 +1008,7 @@ void HwTextureMgrImpl::uninitialize_internal() noexcept
 void HwTextureMgrImpl::validate_upscale_filter(
 	const HwTextureMgrUpscaleFilterType upscale_filter_type,
 	const int upscale_filter_factor)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (upscale_filter_type)
 	{
 		case HwTextureMgrUpscaleFilterType::none:
@@ -1027,11 +1027,11 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		BSTONE_THROW_STATIC_SOURCE("Upscale factor out of range.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::validate_image_source_r2_texture_properties(
 	const R2TextureProperties& properties)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto source_count = 0;
 
 	if (properties.indexed_pixels_ != nullptr)
@@ -1058,11 +1058,11 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		BSTONE_THROW_STATIC_SOURCE("Multiple image source.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::validate_image_pixel_format_r2_texture_properties(
 	const R2TextureProperties& properties)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (properties.image_pixel_format_)
 	{
 		case R3rPixelFormat::rgba_8_unorm:
@@ -1071,11 +1071,11 @@ BSTONE_BEGIN_FUNC_TRY
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Invalid pixel format.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::validate_dimensions_r2_texture_properties(
 	const R2TextureProperties& properties)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (properties.width_ <= 0)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Invalid width.");
@@ -1085,30 +1085,30 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		BSTONE_THROW_STATIC_SOURCE("Invalid height.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::validate_mipmap_r2_texture_properties(
 	const R2TextureProperties& properties)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (properties.mipmap_count_ <= 0 ||
 		properties.mipmap_count_ > R3rLimits::max_mipmap_count)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Mipmap count out of range.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::validate_common_r2_texture_properties(
 	const R2TextureProperties& properties)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	validate_image_source_r2_texture_properties(properties);
 	validate_image_pixel_format_r2_texture_properties(properties);
 	validate_dimensions_r2_texture_properties(properties);
 	validate_mipmap_r2_texture_properties(properties);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::validate_indexed_r2_texture_properties(
 	const R2TextureProperties& properties)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (properties.indexed_pixels_ == nullptr)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null indexed image source.");
@@ -1118,11 +1118,11 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null indexed palette.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::validate_indexed_sprite_r2_texture_properties(
 	const R2TextureProperties& properties)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (properties.indexed_sprite_ == nullptr)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null indexed sprite.");
@@ -1132,20 +1132,20 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null indexed palette.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::validate_rgba_8_r2_texture_properties(
 	const R2TextureProperties& properties)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (properties.rgba_8_pixels_ == nullptr)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null RGBA image.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::validate_source_r2_texture_properties(
 	const R2TextureProperties& properties)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (properties.indexed_pixels_ != nullptr)
 	{
 		validate_indexed_r2_texture_properties(properties);
@@ -1162,18 +1162,18 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		BSTONE_THROW_STATIC_SOURCE("No image source.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::validate_r2_texture_properties(
 	const R2TextureProperties& properties)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	validate_common_r2_texture_properties(properties);
 	validate_source_r2_texture_properties(properties);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::set_common_r2_texture_properties(
 	R2TextureProperties& properties)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto& device_features = renderer_->get_device_features();
 
 	auto upscale_width = properties.width_;
@@ -1231,11 +1231,11 @@ BSTONE_BEGIN_FUNC_TRY
 			properties.upscale_height_
 		);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::upscale_xbrz(
 	const R2TextureProperties& properties)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto area = properties.width_ * properties.height_;
 
 	if (mipmap_buffer_.size() < static_cast<std::size_t>(area))
@@ -1356,11 +1356,11 @@ BSTONE_BEGIN_FUNC_TRY
 			xbrz::ColorFormat::ARGB
 		);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::upscale(
 	const R2TextureProperties& properties)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (properties.upscale_width_ == properties.width_ &&
 		properties.upscale_height_ == properties.height_)
 	{
@@ -1379,11 +1379,11 @@ BSTONE_BEGIN_FUNC_TRY
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Invalid upscale filter type.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 HwTextureMgrImpl::R2TextureItem HwTextureMgrImpl::create_texture(
 	const R2TextureProperties& properties)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	validate_r2_texture_properties(properties);
 
 	auto new_properties = properties;
@@ -1410,12 +1410,12 @@ BSTONE_BEGIN_FUNC_TRY
 	result.r2_texture_ = std::move(r2_texture);
 
 	return result;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::update_mipmaps(
 	const R2TextureProperties& properties,
 	const R3rR2TextureUPtr& r2_texture)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	upscale(properties);
 
 	const auto is_upscale = (
@@ -1580,7 +1580,7 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		r2_texture->generate_mipmaps();
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::destroy_missing_sprite_texture() noexcept
 {
@@ -1588,7 +1588,7 @@ void HwTextureMgrImpl::destroy_missing_sprite_texture() noexcept
 }
 
 void HwTextureMgrImpl::create_missing_sprite_texture()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	destroy_missing_sprite_texture();
 
 	const auto& raw_image = get_missing_sprite_image();
@@ -1608,7 +1608,7 @@ BSTONE_BEGIN_FUNC_TRY
 	missing_sprite_r2_texture_item_.r2_texture_ = std::move(r2_texture_item.r2_texture_);
 
 	update_mipmaps(missing_sprite_r2_texture_item_.properties_, missing_sprite_r2_texture_item_.r2_texture_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::destroy_missing_wall_texture() noexcept
 {
@@ -1616,7 +1616,7 @@ void HwTextureMgrImpl::destroy_missing_wall_texture() noexcept
 }
 
 void HwTextureMgrImpl::create_missing_wall_texture()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	destroy_missing_wall_texture();
 
 	const auto& raw_image = get_missing_wall_image();
@@ -1635,12 +1635,12 @@ BSTONE_BEGIN_FUNC_TRY
 	update_mipmaps(r2_texture_item.properties_, r2_texture_item.r2_texture_);
 
 	missing_wall_r2_texture_item_ = std::move(r2_texture_item);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 HwTextureMgrImpl::R2TextureItem HwTextureMgrImpl::create_from_external_image(
 	int id,
 	ImageType type)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (id < 0 || id > 99'999'999)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Id out of range.");
@@ -1744,11 +1744,11 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	return R2TextureItem{};
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 HwTextureMgrImpl::R2TextureItem HwTextureMgrImpl::wall_create_texture(
 	const int wall_id)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto indexed_pixels = bstone::globals::page_mgr->get(wall_id);
 
 	if (!indexed_pixels)
@@ -1781,11 +1781,11 @@ BSTONE_BEGIN_FUNC_TRY
 	update_mipmaps(r2_texture_item.properties_, r2_texture_item.r2_texture_);
 
 	return r2_texture_item;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 HwTextureMgrImpl::R2TextureItem HwTextureMgrImpl::sprite_create_texture(
 	const int sprite_id)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto sprite = sprite_cache_->cache(sprite_id);
 
 	if (!sprite)
@@ -1822,12 +1822,12 @@ BSTONE_BEGIN_FUNC_TRY
 	update_mipmaps(r2_texture_item.properties_, r2_texture_item.r2_texture_);
 
 	return r2_texture_item;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::initialize_internal(
 	R3r* renderer,
 	SpriteCachePtr cache_sprite)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!renderer)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null renderer.");
@@ -1864,11 +1864,11 @@ BSTONE_BEGIN_FUNC_TRY
 		ExternalImageProbeItem{".png", png_image_decoder_.get()},
 		ExternalImageProbeItem{".bmp", bmp_image_decoder_.get()},
 	};
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::purge_cache(
 	IdToR2TextureMap& map)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	for (auto map_it = map.begin(); map_it != map.end(); )
 	{
 		auto& r2_texture_item = map_it->second;
@@ -1884,7 +1884,7 @@ BSTONE_BEGIN_FUNC_TRY
 			++map_it;
 		}
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rR2Texture* HwTextureMgrImpl::get_r2_texture(
 	const ImageType image_type,
@@ -1942,7 +1942,7 @@ int HwTextureMgrImpl::solid_1x1_try_get_index(
 
 int HwTextureMgrImpl::solid_1x1_get_index(
 	const HwTextureMgrSolid1x1Id id)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (id)
 	{
 		case HwTextureMgrSolid1x1Id::black:
@@ -1956,11 +1956,11 @@ BSTONE_BEGIN_FUNC_TRY
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unsupported solid 1x1 texture type.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int HwTextureMgrImpl::solid_1x1_get_updateable_index(
 	const HwTextureMgrSolid1x1Id id)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (id)
 	{
 		case HwTextureMgrSolid1x1Id::fade_2d:
@@ -1972,11 +1972,11 @@ BSTONE_BEGIN_FUNC_TRY
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unsupported solid 1x1 texture type.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 Rgba8 HwTextureMgrImpl::solid_1x1_get_default_color(
 	const HwTextureMgrSolid1x1Id id)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (id)
 	{
 		case HwTextureMgrSolid1x1Id::black:
@@ -1996,11 +1996,11 @@ BSTONE_BEGIN_FUNC_TRY
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Invalid color id.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int HwTextureMgrImpl::upscale_filter_get_min_factor_internal(
 	const HwTextureMgrUpscaleFilterType upscale_filter_type)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (upscale_filter_type)
 	{
 		case HwTextureMgrUpscaleFilterType::none:
@@ -2012,11 +2012,11 @@ BSTONE_BEGIN_FUNC_TRY
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unsupported upscale filter type.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int HwTextureMgrImpl::upscale_filter_get_max_factor_internal(
 	const HwTextureMgrUpscaleFilterType upscale_filter_type)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (upscale_filter_type)
 	{
 		case HwTextureMgrUpscaleFilterType::none:
@@ -2028,12 +2028,12 @@ BSTONE_BEGIN_FUNC_TRY
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unsupported upscale filter type.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int HwTextureMgrImpl::upscale_filter_clamp_factor(
 	const HwTextureMgrUpscaleFilterType upscale_filter_type,
 	const int upscale_filter_factor)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto result = upscale_filter_factor;
 
 
@@ -2053,7 +2053,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	return result;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 //
 // HwTextureMgrImpl

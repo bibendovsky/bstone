@@ -632,7 +632,7 @@ static std::uint8_t menu_background_color = 0x00;
 
 
 static const std::string& get_saved_game_base_name()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	static auto base_name = std::string();
 	static auto is_initialized = false;
 
@@ -665,7 +665,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	return base_name;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 ////////////////////////////////////////////////////////////////////
 //

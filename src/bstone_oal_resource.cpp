@@ -49,7 +49,7 @@ void OalDeviceDeleter::operator()(ALCdevice* alc_device) const noexcept
 }
 
 OalDeviceResource make_oal_device(const OalAlSymbols& al_symbols, const char* device_name)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!al_symbols.alcOpenDevice)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null \"alcOpenDevice\".");
@@ -63,7 +63,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	return OalDeviceResource{al_device, OalDeviceDeleter{al_symbols}};
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 
@@ -106,7 +106,7 @@ void OalContextDeleter::operator()(ALCcontext* al_context) const noexcept
 }
 
 OalContextResource make_oal_context(const OalAlSymbols& al_symbols, ALCdevice& al_device, const ALCint* al_context_attributes)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!al_symbols.alcCreateContext)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null \"alcCreateContext\".");
@@ -120,7 +120,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	return OalContextResource{al_context, OalContextDeleter{al_symbols}};
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 
@@ -154,7 +154,7 @@ void OalBufferDeleter::operator()(ALuint al_buffer) const noexcept
 }
 
 OalBufferResource make_oal_buffer(const OalAlSymbols& al_symbols)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!al_symbols.alGenBuffers)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null \"alGenBuffers\".");
@@ -176,7 +176,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	return OalBufferResource{al_buffer, OalBufferDeleter{al_symbols}};
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 
@@ -210,7 +210,7 @@ void OalSourceDeleter::operator()(ALuint al_source) const noexcept
 }
 
 OalSourceResource make_oal_source(const OalAlSymbols& al_symbols)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!al_symbols.alGenSources)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null \"alGenSources\".");
@@ -231,6 +231,6 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	return OalSourceResource{al_source, OalSourceDeleter{al_symbols}};
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // bstone

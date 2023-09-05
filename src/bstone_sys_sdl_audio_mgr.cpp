@@ -52,7 +52,7 @@ SdlAudioMgrPool sdl_audio_mgr_pool{};
 // ==========================================================================
 
 SdlAudioMgr::SdlAudioMgr(Logger& logger)
-BSTONE_BEGIN_CTOR_TRY
+try
 	:
 	logger_{logger}
 {
@@ -62,7 +62,7 @@ BSTONE_BEGIN_CTOR_TRY
 	log_info();
 
 	logger_.log_information(">>> SDL audio manager started up.");
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 SdlAudioMgr::~SdlAudioMgr()
 {
@@ -72,14 +72,14 @@ SdlAudioMgr::~SdlAudioMgr()
 }
 
 void* SdlAudioMgr::operator new(std::size_t size)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return sdl_audio_mgr_pool.allocate(size);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlAudioMgr::operator delete(void* ptr)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	sdl_audio_mgr_pool.deallocate(ptr);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 PushAudioDeviceUPtr SdlAudioMgr::do_make_audio_device(const PushAudioDeviceOpenParam& param)
 {
@@ -185,7 +185,7 @@ void SdlAudioMgr::log_devices()
 }
 
 void SdlAudioMgr::log_info() noexcept
-BSTONE_BEGIN_FUNC_TRY
+try {
 	log_drivers();
 	log_devices();
 }
@@ -196,9 +196,9 @@ catch (...) {}
 // ==========================================================================
 
 AudioMgrUPtr make_sdl_audio_mgr(Logger& logger)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return std::make_unique<SdlAudioMgr>(logger);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace sys
 } // namespace bstone

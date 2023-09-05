@@ -2091,7 +2091,7 @@ void ca_make_resource_path(
 	const std::string& resource_name,
 	std::string& data_path,
 	std::string& mod_path)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (resource_name.empty())
 	{
 		BSTONE_THROW_STATIC_SOURCE("Empty name.");
@@ -2114,7 +2114,7 @@ BSTONE_BEGIN_FUNC_TRY
 		mod_path = bstone::file_system::append_path(mod_dir_, assets_info.get_base_path_name());
 		mod_path = bstone::file_system::append_path(mod_path, resource_name);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ca_make_sprite_resource_path_name(
 	int sprite_id,

@@ -34,7 +34,7 @@ namespace bstone
 {
 
 OalAudioMixer::OalAudioMixer(const AudioMixerInitParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (param.opl3_type)
 	{
 		case Opl3Type::dbopl:
@@ -79,7 +79,7 @@ BSTONE_BEGIN_FUNC_TRY
 	initialize_thread();
 
 	is_mute_ = false;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 OalAudioMixer::~OalAudioMixer()
 {
@@ -122,7 +122,7 @@ int OalAudioMixer::get_mix_size_ms() const
 }
 
 void OalAudioMixer::set_mute(bool is_mute)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto command = Command{};
 	command.type = CommandType::set_mute;
 	auto& command_param = command.param.set_mute;
@@ -130,7 +130,7 @@ BSTONE_BEGIN_FUNC_TRY
 
 	const auto commands_lock = MutexUniqueLock{commands_mutex_};
 	commands_.emplace_back(command);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int OalAudioMixer::get_min_rate() const noexcept
 {
@@ -163,7 +163,7 @@ void OalAudioMixer::resume_state()
 }
 
 void OalAudioMixer::set_gain(double gain)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	AudioMixerValidator::validate_gain(gain);
 
 	auto command = Command{};
@@ -173,30 +173,30 @@ BSTONE_BEGIN_FUNC_TRY
 
 	const auto commands_lock = MutexUniqueLock{commands_mutex_};
 	commands_.emplace_back(command);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalAudioMixer::set_listener_r3_position(const AudioMixerListenerR3Position& r3_position)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto command = Command{};
 	command.type = CommandType::set_listener_r3_position;
 	auto& command_param = command.param.set_listener_r3_position;
 	command_param.r3_position = r3_position;
 	const auto commands_lock = MutexUniqueLock{commands_mutex_};
 	commands_.emplace_back(command);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalAudioMixer::set_listener_r3_orientation(const AudioMixerListenerR3Orientation& r3_orientation)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto command = Command{};
 	command.type = CommandType::set_listener_r3_orientation;
 	auto& command_param = command.param.set_listener_r3_orientation;
 	command_param.r3_orientation = r3_orientation;
 	const auto commands_lock = MutexUniqueLock{commands_mutex_};
 	commands_.emplace_back(command);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 AudioMixerVoiceHandle OalAudioMixer::play_sound(const AudioMixerPlaySoundParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto is_music = false;
 
 	switch (param.sound_type)
@@ -241,15 +241,15 @@ BSTONE_BEGIN_FUNC_TRY
 
 		return play_sfx_sound_internal(param.sound_type, param.sound_index, param.data, param.data_size, param.is_r3);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool OalAudioMixer::is_voice_playing(AudioMixerVoiceHandle voice_handle) const
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return voice_handle_mgr_.is_valid_handle(voice_handle);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalAudioMixer::pause_voice(AudioMixerVoiceHandle voice_handle)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!voice_handle.is_valid())
 	{
 		return;
@@ -261,10 +261,10 @@ BSTONE_BEGIN_FUNC_TRY
 	command_param.handle = voice_handle;
 	const auto commands_lock = MutexUniqueLock{commands_mutex_};
 	commands_.emplace_back(command);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalAudioMixer::resume_voice(AudioMixerVoiceHandle voice_handle)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!voice_handle.is_valid())
 	{
 		return;
@@ -276,10 +276,10 @@ BSTONE_BEGIN_FUNC_TRY
 	command_param.handle = voice_handle;
 	const auto commands_lock = MutexUniqueLock{commands_mutex_};
 	commands_.emplace_back(command);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalAudioMixer::stop_voice(AudioMixerVoiceHandle voice_handle)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!voice_handle.is_valid())
 	{
 		return;
@@ -291,10 +291,10 @@ BSTONE_BEGIN_FUNC_TRY
 	command_param.handle = voice_handle;
 	const auto commands_lock = MutexUniqueLock{commands_mutex_};
 	commands_.emplace_back(command);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalAudioMixer::set_voice_gain(AudioMixerVoiceHandle voice_handle, double gain)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	AudioMixerValidator::validate_gain(gain);
 
 	if (!voice_handle.is_valid())
@@ -309,10 +309,10 @@ BSTONE_BEGIN_FUNC_TRY
 	command_param.gain = gain;
 	const auto commands_lock = MutexUniqueLock{commands_mutex_};
 	commands_.emplace_back(command);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalAudioMixer::set_voice_r3_position(AudioMixerVoiceHandle voice_handle, const AudioMixerVoiceR3Position& r3_position)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!voice_handle.is_valid())
 	{
 		return;
@@ -325,7 +325,7 @@ BSTONE_BEGIN_FUNC_TRY
 	command_param.position = r3_position;
 	const auto commands_lock = MutexUniqueLock{commands_mutex_};
 	commands_.emplace_back(command);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool OalAudioMixer::can_set_voice_output_gains() const
 {
@@ -335,16 +335,16 @@ bool OalAudioMixer::can_set_voice_output_gains() const
 void OalAudioMixer::enable_set_voice_output_gains(
 	AudioMixerVoiceHandle,
 	bool)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	fail_unsupported();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalAudioMixer::set_voice_output_gains(
 	AudioMixerVoiceHandle,
 	AudioMixerOutputGains&)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	fail_unsupported();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 [[noreturn]] void OalAudioMixer::fail_unsupported()
 {

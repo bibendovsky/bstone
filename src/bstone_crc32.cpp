@@ -26,7 +26,7 @@ void Crc32::reset() noexcept
 void Crc32::update(
 	const void* data,
 	int size)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!data)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null data.");
@@ -112,7 +112,7 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	value_ ^= 0xFFFFFFFF;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 Crc32::Value Crc32::get_value() const noexcept
 {

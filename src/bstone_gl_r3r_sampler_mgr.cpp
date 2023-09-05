@@ -56,7 +56,7 @@ GlR3rSamplerMgrImplPool gl_r3r_sampler_mgr_impl_pool{};
 // ==========================================================================
 
 GlR3rSamplerMgrImpl::GlR3rSamplerMgrImpl(GlR3rContext& context)
-BSTONE_BEGIN_CTOR_TRY
+try
 	:
 	context_{context},
 	device_features_{context_.get_device_features()},
@@ -66,19 +66,19 @@ BSTONE_BEGIN_CTOR_TRY
 	initialize_default_sampler();
 
 	current_sampler_ = default_sampler_.get();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rSamplerMgrImpl::~GlR3rSamplerMgrImpl() = default;
 
 void* GlR3rSamplerMgrImpl::operator new(std::size_t size)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return gl_r3r_sampler_mgr_impl_pool.allocate(size);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rSamplerMgrImpl::operator delete(void* ptr)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	gl_r3r_sampler_mgr_impl_pool.deallocate(ptr);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rSamplerUPtr GlR3rSamplerMgrImpl::create(const R3rSamplerInitParam& param)
 {
@@ -119,7 +119,7 @@ const R3rSamplerState& GlR3rSamplerMgrImpl::get_current_state() const noexcept
 }
 
 void GlR3rSamplerMgrImpl::initialize_default_sampler()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto param = R3rSamplerInitParam{};
 	auto& state = param.state;
 
@@ -134,15 +134,15 @@ BSTONE_BEGIN_FUNC_TRY
 	state.anisotropy = 0;
 
 	default_sampler_ = make_gl_r3r_sampler(context_, param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rSamplerMgrImpl::set()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (device_features_.is_sampler_available)
 	{
 		current_sampler_->set();
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 

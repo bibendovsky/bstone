@@ -40,9 +40,9 @@ SdlGlSharedLibraryPool sdl_gl_shared_library_pool{};
 // ==========================================================================
 
 SdlGlSharedLibrary::SdlGlSharedLibrary(const char* path)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	sdl_ensure_result(SDL_GL_LoadLibrary(path));
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 SdlGlSharedLibrary::~SdlGlSharedLibrary()
 {
@@ -50,14 +50,14 @@ SdlGlSharedLibrary::~SdlGlSharedLibrary()
 }
 
 void* SdlGlSharedLibrary::operator new(std::size_t size)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return sdl_gl_shared_library_pool.allocate(size);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlGlSharedLibrary::operator delete(void* ptr)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	sdl_gl_shared_library_pool.deallocate(ptr);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void* SdlGlSharedLibrary::do_find_symbol(const char* name) noexcept
 {

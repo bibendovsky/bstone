@@ -101,17 +101,9 @@ private:
 	::bstone::DynamicSourceException::fail(BSTONE_MAKE_SOURCE_LOCATION(), message)
 #endif
 
-#if !defined(BSTONE_BEGIN_FUNC_TRY)
-	#define BSTONE_BEGIN_FUNC_TRY try {
-#endif
-
-#if !defined(BSTONE_BEGIN_CTOR_TRY)
-	#define BSTONE_BEGIN_CTOR_TRY try
-#endif
-
 #if !defined(BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED)
 	#define BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED \
-	} catch (...) { ::bstone::StaticSourceException::fail_nested(BSTONE_MAKE_SOURCE_LOCATION()); }
+	catch (...) { ::bstone::StaticSourceException::fail_nested(BSTONE_MAKE_SOURCE_LOCATION()); }
 #endif
 
 } // namespace bstone

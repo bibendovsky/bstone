@@ -54,7 +54,7 @@ SdlTextureLockPool sdl_texture_lock_pool{};
 // ==========================================================================
 
 SdlTextureLock::SdlTextureLock(SDL_Texture& sdl_texture, const R2RectI* rect)
-BSTONE_BEGIN_CTOR_TRY
+try
 	:
 	sdl_texture_{sdl_texture}
 {
@@ -63,7 +63,7 @@ BSTONE_BEGIN_CTOR_TRY
 		reinterpret_cast<const SDL_Rect*>(rect),
 		&pixels_,
 		&pitch_));
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 SdlTextureLock::~SdlTextureLock()
 {
@@ -71,14 +71,14 @@ SdlTextureLock::~SdlTextureLock()
 }
 
 void* SdlTextureLock::operator new(std::size_t size)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return sdl_texture_lock_pool.allocate(size);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlTextureLock::operator delete(void* ptr)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	sdl_texture_lock_pool.deallocate(ptr);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void* SdlTextureLock::do_get_pixels() const noexcept
 {

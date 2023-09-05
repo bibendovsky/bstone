@@ -165,7 +165,7 @@ private:
 	template<typename T>
 	T read_integer(
 		const bool is_checksum = false)
-	BSTONE_BEGIN_FUNC_TRY
+	try {
 		if (!is_initialized_)
 		{
 			BSTONE_THROW_STATIC_SOURCE("Not initialized.");
@@ -195,13 +195,13 @@ private:
 		const auto result = endian::to_little(value);
 
 		return result;
-	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+	} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 	template<typename T>
 	void write_integer(
 		const T integer_value,
 		const bool is_checksum = false)
-	BSTONE_BEGIN_FUNC_TRY
+	try {
 		if (!is_initialized_)
 		{
 			BSTONE_THROW_STATIC_SOURCE("Not initialized.");
@@ -227,13 +227,13 @@ private:
 		{
 			BSTONE_THROW_STATIC_SOURCE("Failed to write an integer value.");
 		}
-	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+	} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 	template<typename T>
 	void read_integer_array(
 		T* items,
 		const int item_count)
-	BSTONE_BEGIN_FUNC_TRY
+	try {
 		if (!is_initialized_)
 		{
 			BSTONE_THROW_STATIC_SOURCE("Not initialized.");
@@ -270,13 +270,13 @@ private:
 		}
 
 		crc32_.update(items, items_size);
-	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+	} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 	template<typename T>
 	void write_integer_array(
 		const T* const items,
 		const int item_count)
-	BSTONE_BEGIN_FUNC_TRY
+	try {
 		if (!is_initialized_)
 		{
 			BSTONE_THROW_STATIC_SOURCE("Not initialized.");
@@ -320,7 +320,7 @@ private:
 		{
 			BSTONE_THROW_STATIC_SOURCE("Failed to write an array of integer values.");
 		}
-	BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+	} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 }; // ArchiverImpl
 
 
@@ -337,7 +337,7 @@ ArchiverImpl::ArchiverImpl()
 
 void ArchiverImpl::initialize(
 	StreamPtr stream)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (is_initialized_)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Already initialized.");
@@ -360,7 +360,7 @@ BSTONE_BEGIN_FUNC_TRY
 	crc32_.reset();
 	stream_ = stream;
 	buffer_.clear();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::uninitialize() noexcept
 {
@@ -378,101 +378,101 @@ bool ArchiverImpl::is_initialized() const noexcept
 }
 
 bool ArchiverImpl::read_bool()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto value_uint8 = read_integer<std::uint8_t>();
 
 	return value_uint8 != 0;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 char ArchiverImpl::read_char()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto value_char = read_integer<char>();
 
 	return value_char;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::int8_t ArchiverImpl::read_int8()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto value_int8 = read_integer<std::int8_t>();
 
 	return value_int8;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::uint8_t ArchiverImpl::read_uint8()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto value_uint8 = read_integer<std::uint8_t>();
 
 	return value_uint8;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::int16_t ArchiverImpl::read_int16()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto value_int16 = read_integer<std::int16_t>();
 
 	return value_int16;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::uint16_t ArchiverImpl::read_uint16()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto value_uint16 = read_integer<std::uint16_t>();
 
 	return value_uint16;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::int32_t ArchiverImpl::read_int32()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto value_int32 = read_integer<std::int32_t>();
 
 	return value_int32;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::uint32_t ArchiverImpl::read_uint32()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto value_uint32 = read_integer<std::uint32_t>();
 
 	return value_uint32;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::read_char_array(
 	char* items,
 	const int item_count)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	read_integer_array(items, item_count);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::read_int8_array(
 	std::int8_t* items_int8,
 	const int item_count)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	read_integer_array(items_int8, item_count);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::read_uint8_array(
 	std::uint8_t* items_uint8,
 	const int item_count)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	read_integer_array(items_uint8, item_count);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::read_int16_array(
 	std::int16_t* items_int16,
 	const int item_count)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	read_integer_array(items_int16, item_count);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::read_uint16_array(
 	std::uint16_t* items_uint16,
 	const int item_count)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	read_integer_array(items_uint16, item_count);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::read_string(
 	const int max_string_length,
 	char* const string,
 	int& string_length)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (max_string_length <= 0)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Maximum string length out of range.");
@@ -498,105 +498,105 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	string_length = archived_string_length;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::read_checksum()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto checksum = read_integer<std::uint32_t>(true);
 
 	if (checksum != crc32_.get_value())
 	{
 		BSTONE_THROW_STATIC_SOURCE("Checksum mismatch.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_bool(
 	const bool value_bool)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	write_integer<std::uint8_t>(value_bool);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_char(
 	const char value_char)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	write_integer(value_char);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_int8(
 	const std::int8_t value_int8)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	write_integer(value_int8);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_uint8(
 	const std::uint8_t value_uint8)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	write_integer(value_uint8);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_int16(
 	const std::int16_t value_int16)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	write_integer(value_int16);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_uint16(
 	const std::uint16_t value_uint16)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	write_integer(value_uint16);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_int32(
 	const std::int32_t value_int32)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	write_integer(value_int32);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_uint32(
 	const std::uint32_t value_uint32)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	write_integer(value_uint32);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_char_array(
 	const char* const items_char,
 	const int item_count)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	write_integer_array(items_char, item_count);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_int8_array(
 	const std::int8_t* const items_int8,
 	const int item_count)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	write_integer_array(items_int8, item_count);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_uint8_array(
 	const std::uint8_t* const items_uint8,
 	const int item_count)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	write_integer_array(items_uint8, item_count);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_int16_array(
 	const std::int16_t* const items_int16,
 	const int item_count)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	write_integer_array(items_int16, item_count);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_uint16_array(
 	const std::uint16_t* const items_uint16,
 	const int item_count)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	write_integer_array(items_uint16, item_count);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_string(
 	const char* const string,
 	const int string_length)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (!string)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null string.");
@@ -620,14 +620,14 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		BSTONE_THROW_STATIC_SOURCE("Failed to write string data.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_checksum()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto checksum = crc32_.get_value();
 
 	write_integer<std::int32_t>(checksum, true);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 
 } // namespace

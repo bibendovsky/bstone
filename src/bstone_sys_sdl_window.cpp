@@ -91,7 +91,7 @@ SdlWindowPool sdl_window_pool{};
 // ==========================================================================
 
 SdlWindow::SdlWindow(Logger& logger, const WindowInitParam& param)
-BSTONE_BEGIN_CTOR_TRY
+try
 	:
 	logger_{logger}
 {
@@ -136,7 +136,7 @@ BSTONE_BEGIN_CTOR_TRY
 	logger_.log_information(message);
 
 	logger_.log_information(">>> SDL window created.");
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 SdlWindow::~SdlWindow()
 {
@@ -154,93 +154,93 @@ SdlWindow::~SdlWindow()
 }
 
 void* SdlWindow::operator new(std::size_t size)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return sdl_window_pool.allocate(size);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlWindow::operator delete(void* ptr)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	sdl_window_pool.deallocate(ptr);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const char* SdlWindow::do_get_title()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return sdl_ensure_result(SDL_GetWindowTitle(sdl_window_.get()));
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlWindow::do_set_title(const char* title)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	SDL_SetWindowTitle(sdl_window_.get(), title);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 WindowPosition SdlWindow::do_get_position()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto x = 0;
 	auto y = 0;
 	SDL_GetWindowPosition(sdl_window_.get(), &x, &y);
 	return WindowPosition{x, y};
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlWindow::do_set_position(WindowPosition position)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto sdl_x = map_position(position.x);
 	const auto sdl_y = map_position(position.y);
 	SDL_SetWindowPosition(sdl_window_.get(), sdl_x, sdl_y);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 WindowSize SdlWindow::do_get_size()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto width = 0;
 	auto height = 0;
 	SDL_GetWindowSize(sdl_window_.get(), &width, &height);
 	return WindowSize{width, height};
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlWindow::do_set_size(WindowSize size)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	SDL_SetWindowSize(sdl_window_.get(), size.width, size.height);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlWindow::do_show(bool is_visible)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto sdl_func = is_visible ? SDL_ShowWindow : SDL_HideWindow;
 	sdl_func(sdl_window_.get());
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool SdlWindow::do_is_fake_fullscreen()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto sdl_flags = SDL_GetWindowFlags(sdl_window_.get());
 	return (sdl_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0;
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlWindow::do_set_fake_fullscreen(bool is_fake_fullscreen)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto sdl_flags = Uint32{is_fake_fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0U};
 	sdl_ensure_result(SDL_SetWindowFullscreen(sdl_window_.get(), sdl_flags));
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlContextUPtr SdlWindow::do_make_gl_context()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return make_sdl_gl_context(logger_, *sdl_window_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 WindowSize SdlWindow::do_gl_get_drawable_size()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto width = 0;
 	auto height = 0;
 	SDL_GL_GetDrawableSize(sdl_window_.get(), &width, &height);
 	return WindowSize{width, height};
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlWindow::do_gl_swap_buffers()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	SDL_GL_SwapWindow(sdl_window_.get());
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 RendererUPtr SdlWindow::do_make_renderer(const RendererInitParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return make_sdl_renderer(logger_, *sdl_window_, param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlWindow::log_position(int position, std::string& message)
 {
@@ -409,7 +409,7 @@ void SdlWindow::log_output(std::string& message)
 }
 
 int SdlWindow::map_position(int position)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (position)
 	{
 		case window_position_centered: return SDL_WINDOWPOS_CENTERED;
@@ -423,7 +423,7 @@ BSTONE_BEGIN_FUNC_TRY
 
 			return position;
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 Uint32 SdlWindow::map_flags(const WindowInitParam& param) noexcept
 {
@@ -445,7 +445,7 @@ Uint32 SdlWindow::map_flags(const WindowInitParam& param) noexcept
 }
 
 int SdlWindow::map_gl_context_profile(GlContextProfile context_profile)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (context_profile)
 	{
 		case GlContextProfile::compatibility: return SDL_GL_CONTEXT_PROFILE_COMPATIBILITY;
@@ -453,7 +453,7 @@ BSTONE_BEGIN_FUNC_TRY
 		case GlContextProfile::es: return SDL_GL_CONTEXT_PROFILE_ES;
 		default: BSTONE_THROW_STATIC_SOURCE("Unknown context profile.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlContextAttributes SdlWindow::make_default_gl_attributes() noexcept
 {

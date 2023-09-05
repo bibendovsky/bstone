@@ -71,7 +71,7 @@ CVar::CVar(
 	CVarFlags flags,
 	StringView default_value,
 	CVarStringValues values)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	CValidator::validate_name(name);
 
 	if (!values.is_empty())
@@ -104,7 +104,7 @@ BSTONE_BEGIN_FUNC_TRY
 	string_values_ = values;
 	string_value_ = string_default_value_;
 	set_int32_from_string();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 CVar::CVar(CVarBoolTag, StringView name, CVarFlags flags, bool default_value)
 	:
@@ -158,7 +158,7 @@ Int32 CVar::get_int32() const noexcept
 }
 
 void CVar::set_int32(Int32 value)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (type_)
 	{
 		case CVarType::int32:
@@ -196,7 +196,7 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		ensure_string();
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 CVarInt32Values CVar::get_int32_values() const noexcept
 {
@@ -253,7 +253,7 @@ CVar::CVar(
 	Int32 min_value,
 	Int32 max_value,
 	CVarInt32Values values)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	CValidator::validate_name(name);
 	const auto value_count = values.get_size();
 
@@ -302,7 +302,7 @@ BSTONE_BEGIN_FUNC_TRY
 	int32_values_ = values;
 	int32_value_ = int32_default_value_;
 	set_string_from_int32();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void CVar::set_string_from_int32()
 try

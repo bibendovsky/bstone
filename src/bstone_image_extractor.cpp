@@ -95,14 +95,14 @@ void ImageExtractor::extract_sprites(const std::string& destination_dir)
 }
 
 void ImageExtractor::initialize_colors()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	color_buffer_.resize(max_width * max_height * (((max_bit_depth + 7) / 8)) * 8);
 	colors8_ = color_buffer_.data();
 	colors32_ = reinterpret_cast<std::uint32_t*>(color_buffer_.data());
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ImageExtractor::initialize_src_palette()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto src_colors = vgapal; // {0xRR, 0xGG, 0xBB}
 
 	for (auto& dst_color : src_palette_)
@@ -112,7 +112,7 @@ BSTONE_BEGIN_FUNC_TRY
 		const auto b = (255U * (*src_colors++)) / 63U;
 		dst_color = 0xFF000000U | (r << 16) | (g << 8) | b;
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ImageExtractor::remap_indexed_image()
 {
@@ -260,7 +260,7 @@ void ImageExtractor::decode_sprite_page(const Sprite& sprite) noexcept
 }
 
 void ImageExtractor::save_bmp_rgb_palette(BinaryWriter& binary_writer)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	struct Bgr
 	{
 		std::uint8_t b;
@@ -281,20 +281,20 @@ BSTONE_BEGIN_FUNC_TRY
 	}
 
 	binary_writer.write(palette_bgr.data(), 3 * palette_size_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ImageExtractor::save_bmp_rgbx_palette(BinaryWriter& binary_writer)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	for (auto i = 0; i < palette_size_; ++i)
 	{
 		dst_palette_[i] = endian::to_little(dst_palette_[i]);
 	}
 
 	binary_writer.write(dst_palette_.data(), 4 * palette_size_);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ImageExtractor::save_bmp_palette(BinaryWriter& binary_writer)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (palette_size_ == (1 << bit_depth_))
 	{
 		save_bmp_rgb_palette(binary_writer);
@@ -303,10 +303,10 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		save_bmp_rgbx_palette(binary_writer);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ImageExtractor::save_bmp_1bpp_bits(BinaryWriter& binary_writer)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	constexpr auto initial_mask = 0x80U;
 
 	const auto line_size = ((width_ + 7) / 8) * 8;
@@ -340,10 +340,10 @@ BSTONE_BEGIN_FUNC_TRY
 		binary_writer.write(line_buffer_.data(), line_size);
 		src_colors -= width_;
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ImageExtractor::save_bmp_4bpp_bits(BinaryWriter& binary_writer)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto src_colors = colors8_ + (width_ * (height_ - 1));
 
 	for (auto h = 0; h < height_; ++h)
@@ -369,10 +369,10 @@ BSTONE_BEGIN_FUNC_TRY
 		binary_writer.write(line_buffer_.data(), stride_);
 		src_colors -= width_;
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ImageExtractor::save_bmp_8bpp_bits(BinaryWriter& binary_writer)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto padding_size = stride_ - width_;
 	auto src_colors = colors8_ + (width_ * (height_ - 1));
 
@@ -382,10 +382,10 @@ BSTONE_BEGIN_FUNC_TRY
 		binary_writer.write(padding_bytes, padding_size);
 		src_colors -= width_;
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ImageExtractor::save_bmp_32bpp_bits(BinaryWriter& binary_writer)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	for (auto i = 0; i < area_; ++i)
 	{
 		*colors32_ = endian::to_little(*colors32_);
@@ -394,10 +394,10 @@ BSTONE_BEGIN_FUNC_TRY
 
 	const auto bits_byte_count = stride_ * height_;
 	binary_writer.write(colors32_, bits_byte_count);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ImageExtractor::save_bmp(const std::string& path)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto file_stream = FileStream{path, StreamOpenMode::write};
 	auto binary_writer = BinaryWriter{&file_stream};
 
@@ -554,10 +554,10 @@ BSTONE_BEGIN_FUNC_TRY
 		case 32: save_bmp_32bpp_bits(binary_writer); break;
 		default: BSTONE_THROW_STATIC_SOURCE("Unknown bit depth.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ImageExtractor::save_image(const std::string& name_prefix, int image_index)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto& wall_index_string = ca_make_padded_asset_number_string(image_index);
 
 	const auto& file_name = file_system::append_path(
@@ -565,10 +565,10 @@ BSTONE_BEGIN_FUNC_TRY
 		name_prefix + wall_index_string + ".bmp");
 
 	save_bmp(file_name);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ImageExtractor::extract_wall(int wall_index)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto wall_page = globals::page_mgr->get(wall_index);
 
 	if (wall_page == nullptr)
@@ -579,14 +579,14 @@ BSTONE_BEGIN_FUNC_TRY
 
 	decode_wall_page(wall_page);
 	save_image("wall_", wall_index);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ImageExtractor::extract_sprite(int sprite_index)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto cache_sprite_index = sprite_index;
 	const auto sprite = sprite_cache_.cache(cache_sprite_index);
 	decode_sprite_page(*sprite);
 	save_image("sprite_", cache_sprite_index);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace bstone

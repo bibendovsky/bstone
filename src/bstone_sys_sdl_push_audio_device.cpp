@@ -55,7 +55,7 @@ SdlPushAudioDevicePool sdl_push_audio_device_pool{};
 // ==========================================================================
 
 SdlPushAudioDevice::SdlPushAudioDevice(Logger& logger, const PushAudioDeviceOpenParam& param)
-BSTONE_BEGIN_CTOR_TRY
+try
 	:
 	logger_{logger}
 {
@@ -105,7 +105,7 @@ BSTONE_BEGIN_CTOR_TRY
 	frame_count_ = effective_spec.samples;
 
 	logger_.log_information(">>> SDL callback audio device started up.");
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 SdlPushAudioDevice::~SdlPushAudioDevice()
 {
@@ -115,14 +115,14 @@ SdlPushAudioDevice::~SdlPushAudioDevice()
 }
 
 void* SdlPushAudioDevice::operator new(std::size_t size)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return sdl_push_audio_device_pool.allocate(size);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlPushAudioDevice::operator delete(void* ptr)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	sdl_push_audio_device_pool.deallocate(ptr);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int SdlPushAudioDevice::do_get_rate() const noexcept
 {
@@ -152,18 +152,18 @@ void SDLCALL SdlPushAudioDevice::sdl_callback(void* userdata, Uint8* stream, int
 }
 
 void SdlPushAudioDevice::callback(float* samples, int sample_count)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	callback_->invoke(samples, sample_count);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace
 
 // ==========================================================================
 
 PushAudioDeviceUPtr make_sdl_push_audio_device(Logger& logger, const PushAudioDeviceOpenParam& param)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return std::make_unique<SdlPushAudioDevice>(logger, param);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace sys
 } // namespace bstone

@@ -19,7 +19,7 @@ namespace bstone
 
 ImageDecodeUPtr make_image_decoder(
 	ImageDecoderType image_decoder_type)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	switch (image_decoder_type)
 	{
 		case ImageDecoderType::bmp:
@@ -31,6 +31,6 @@ BSTONE_BEGIN_FUNC_TRY
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unsupported image decoder type.");
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // bstone

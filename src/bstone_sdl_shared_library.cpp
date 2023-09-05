@@ -26,9 +26,9 @@ public:
 // --------------------------------------------------------------------------
 
 void* SharedLibraryImpl::open(const char* path)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return sys::sdl_ensure_result(SDL_LoadObject(path));
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SharedLibraryImpl::close(void* handle) noexcept
 {

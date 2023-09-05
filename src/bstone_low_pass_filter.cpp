@@ -18,12 +18,12 @@ namespace bstone
 LowPassFilter::LowPassFilter() noexcept = default;
 
 LowPassFilter::LowPassFilter(int filter_order, int cut_off_frequency, int sampling_frequency)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	initialize(filter_order, cut_off_frequency, sampling_frequency);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void LowPassFilter::initialize(int filter_order, int cut_off_frequency, int sampling_frequency)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (filter_order < 1)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Filter order out of range.");
@@ -46,7 +46,7 @@ BSTONE_BEGIN_FUNC_TRY
 
 	initialize_weights(filter_order, cut_off_frequency, sampling_frequency);
 	apply_hann_weights();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 double LowPassFilter::process_sample(double sample) noexcept
 {

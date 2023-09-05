@@ -81,7 +81,7 @@ GlR3rVertexInputImplPool gl_r3r_vertex_input_impl_pool{};
 GlR3rVertexInputImpl::GlR3rVertexInputImpl(
 	GlR3rVertexInputMgr& vertex_input_manager,
 	const R3rCreateVertexInputParam& param)
-BSTONE_BEGIN_CTOR_TRY
+try
 	:
 	manager_{vertex_input_manager},
 	device_features_{vertex_input_manager.get_context().get_device_features()},
@@ -109,7 +109,7 @@ BSTONE_BEGIN_CTOR_TRY
 	attrib_descrs_ = param.attrib_descrs;
 
 	initialize_vao();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rVertexInputImpl::~GlR3rVertexInputImpl()
 {
@@ -117,23 +117,23 @@ GlR3rVertexInputImpl::~GlR3rVertexInputImpl()
 }
 
 void* GlR3rVertexInputImpl::operator new(std::size_t size)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	return gl_r3r_vertex_input_impl_pool.allocate(size);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rVertexInputImpl::operator delete(void* ptr)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	gl_r3r_vertex_input_impl_pool.deallocate(ptr);
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rVertexInputImpl::bind_vao()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (vao_resource_.get() != 0U)
 	{
 		glBindVertexArray(vao_resource_.get());
 		GlR3rError::ensure_debug();
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rBuffer* GlR3rVertexInputImpl::get_index_buffer() const noexcept
 {
@@ -141,7 +141,7 @@ R3rBuffer* GlR3rVertexInputImpl::get_index_buffer() const noexcept
 }
 
 void GlR3rVertexInputImpl::bind()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (vao_resource_.get() != 0U)
 	{
 		bind_vao();
@@ -158,7 +158,7 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		bind_internal();
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rVertexInputImpl::VaoDeleter::operator()(GLuint gl_name) noexcept
 {
@@ -167,7 +167,7 @@ void GlR3rVertexInputImpl::VaoDeleter::operator()(GLuint gl_name) noexcept
 }
 
 void GlR3rVertexInputImpl::initialize_vao()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (gl_device_features_.is_vao_available)
 	{
 		auto gl_name = GLuint{};
@@ -196,23 +196,23 @@ BSTONE_BEGIN_FUNC_TRY
 			}
 		}
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rVertexInputImpl::enable_attrib_array(int index, bool is_enable)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	const auto gl_func = (is_enable ? glEnableVertexAttribArray : glDisableVertexAttribArray);
 	gl_func(index);
 	GlR3rError::ensure_debug();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rVertexInputImpl::assign_default_attribute(const R3rVertexAttribDescr& attribute_description)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	glVertexAttrib4fv(attribute_description.location, attribute_description.default_value.data());
 	GlR3rError::ensure_debug();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rVertexInputImpl::assign_regular_attribute(const R3rVertexAttribDescr& attribute_description)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	auto gl_component_count = GLint{};
 	auto gl_component_format = GLenum{};
 	auto gl_is_normalized = GLboolean{};
@@ -256,10 +256,10 @@ BSTONE_BEGIN_FUNC_TRY
 		vertex_buffer_data);
 
 	GlR3rError::ensure_debug();
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rVertexInputImpl::assign_attribute(const R3rVertexAttribDescr& attribute_description)
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (attribute_description.is_default)
 	{
 		assign_default_attribute(attribute_description);
@@ -268,10 +268,10 @@ BSTONE_BEGIN_FUNC_TRY
 	{
 		assign_regular_attribute(attribute_description);
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rVertexInputImpl::bind_internal()
-BSTONE_BEGIN_FUNC_TRY
+try {
 	if (index_buffer_ != nullptr)
 	{
 		index_buffer_->set(true);
@@ -300,7 +300,7 @@ BSTONE_BEGIN_FUNC_TRY
 			enable_attrib_array(i, false);
 		}
 	}
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // =========================================================================
 
