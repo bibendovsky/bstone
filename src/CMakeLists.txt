@@ -330,6 +330,7 @@ target_sources(
 		dosbox/dosbox.h
 		dosbox/hardware.h
 		dosbox/inout.h
+		dosbox/mixer.cpp
 		dosbox/mixer.h
 		dosbox/pic.h
 		dosbox/setup.h

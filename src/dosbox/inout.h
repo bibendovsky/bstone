@@ -5,31 +5,17 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-
-//
 // A stub for DOSBox OPL2 emulator.
-//
 
-
-#ifndef BSTONE_DOSBOX_INOUT_INCLUDED
+#if !defined(BSTONE_DOSBOX_INOUT_INCLUDED)
 #define BSTONE_DOSBOX_INOUT_INCLUDED
-
 
 #include "dosbox.h"
 
+using IO_ReadHandler = Bitu (*)(Bitu port, Bitu iolen);
+using IO_WriteHandler = void (*)(Bitu port, Bitu val, Bitu iolen);
 
-typedef Bitu IO_ReadHandler(Bitu port, Bitu iolen);
-typedef void IO_WriteHandler(Bitu port, Bitu val, Bitu iolen);
-
-
-struct IO_ReadHandleObject
-{
-}; // IO_ReadHandleObject
-
-
-struct IO_WriteHandleObject
-{
-}; // IO_WriteHandleObject
-
+struct IO_ReadHandleObject {};
+struct IO_WriteHandleObject {};
 
 #endif // BSTONE_DOSBOX_INOUT_INCLUDED

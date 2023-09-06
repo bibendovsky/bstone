@@ -4,15 +4,10 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-
-//
 // A stub for DOSBox OPL2 emulator.
-//
 
-
-#ifndef BSTONE_DOSBOX_HARDWARE_INCLUDED
+#if !defined(BSTONE_DOSBOX_HARDWARE_INCLUDED)
 #define BSTONE_DOSBOX_HARDWARE_INCLUDED
-
 
 enum OPL_Mode
 {
@@ -21,7 +16,6 @@ enum OPL_Mode
 	OPL_opl2,
 	OPL_dualopl2,
 	OPL_opl3
-}; // OPL_Mode
-
+};
 
 #endif // BSTONE_DOSBOX_HARDWARE_INCLUDED

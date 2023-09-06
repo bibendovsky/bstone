@@ -4,24 +4,17 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-
-//
 // A stub for DOSBox OPL2 emulator.
-//
 
-
-#ifndef BSTONE_DOSBOX_INCLUDED
+#if !defined(BSTONE_DOSBOX_INCLUDED)
 #define BSTONE_DOSBOX_INCLUDED
-
 
 #include <cassert>
 #include <cmath>
 #include <cstdint>
 
-
 #define INLINE
 #define GCC_UNLIKELY(x) (x)
-
 
 using Bit32u = std::uint32_t;
 using Bit32s = std::int32_t;
@@ -32,6 +25,5 @@ using Bit8s = std::int8_t;
 
 using Bitu = std::uintptr_t;
 using Bits = std::intptr_t;
-
 
 #endif // BSTONE_DOSBOX_INCLUDED
