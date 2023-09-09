@@ -427,6 +427,7 @@ target_sources(
 		bstone_ccmd.h
 		bstone_ccmd_action.h
 		bstone_ccmd_mgr.h
+		bstone_char_hasher.cpp
 		bstone_char_hasher.h
 		bstone_content_path.h
 		bstone_crc32.h
