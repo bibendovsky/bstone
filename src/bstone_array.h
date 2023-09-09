@@ -312,13 +312,15 @@ constexpr auto Array<TItem, 0>::cend() const noexcept -> const Item*
 template<typename TItem, ArrayInt TSize>
 inline constexpr bool operator==(const Array<TItem, TSize>& lhs, const Array<TItem, TSize>& rhs)
 {
-	for (auto i = ArrayInt{}; i < TSize; ++i)
+	for (auto i = decltype(TSize){}; i < TSize; ++i)
 	{
 		if (lhs[i] != rhs[i])
 		{
 			return false;
 		}
 	}
+
+	return true;
 }
 
 template<typename TItem, ArrayInt TSize>

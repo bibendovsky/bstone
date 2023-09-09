@@ -1,153 +1,75 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
+// SHA-1 implementation based on RFC 3174 sample code.
+// https://www.ietf.org/rfc/rfc3174.txt
 
-//
-// SHA-1 implementation based on RFC 3174 sample code
-// http://www.ietf.org/rfc/rfc3174.txt
-//
-
-
-#ifndef BSTONE_SHA1_INCLUDED
+#if !defined(BSTONE_SHA1_INCLUDED)
 #define BSTONE_SHA1_INCLUDED
 
+#include <cassert>
 
-#include <cstdint>
+#include <type_traits>
 
-#include <array>
-#include <string>
+#include "bstone_array.h"
+#include "bstone_int.h"
+#include "bstone_span.h"
 
+namespace bstone {
 
-namespace bstone
-{
+constexpr auto sha1_digest_size = IntP{20};
+constexpr auto sha1_digest_char_count = sha1_digest_size * 2;
 
+// ==========================================================================
 
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// Sha1
-//
+using Sha1Digest = Array<UInt8, sha1_digest_size>;
+
+// ==========================================================================
 
 class Sha1
 {
 public:
-	static const int hash_size = 20;
+	void process(const UInt8* bytes, IntP count);
 
-	using Digest = std::array<std::uint8_t, hash_size>;
-
-
-	Sha1();
-
-	Sha1(
-		const char (&sha1_string)[(hash_size * 2) + 1]);
-
-	Sha1(
-		const std::string& sha1_string);
-
-	Sha1(
-		const Digest& digest);
-
-	Sha1(
-		const Sha1& rhs);
-
-	Sha1(
-		Sha1&& rhs);
-
-	Sha1& operator=(
-		const Sha1& rhs);
-
-
-	void reset();
-
-	void process(
-		const void* data,
-		const int data_size);
+	template<typename T, std::enable_if_t<sizeof(T) == 1, int> = 0>
+	void process(Span<T> bytes_span)
+	{
+		process(reinterpret_cast<const UInt8*>(bytes_span.get_data()), bytes_span.get_size());
+	}
 
 	void finish();
 
-	bool is_finished() const;
-
-	bool is_valid() const;
-
-	const Digest& get_digest() const;
-
-	std::string to_string() const;
-
+	const Sha1Digest& get_digest() const noexcept;
 
 private:
-	using Block = std::array<std::uint8_t, 64>;
-	using Digest32 = std::array<std::uint32_t, hash_size / 4>;
+	using Block = Array<UInt8, 64>;
+	using Digest32 = Array<UInt32, sha1_digest_size / 4>;
 
+private:
+	Block block_{}; // 512-bit message block.
+	Sha1Digest digest_{}; // Message digest.
+	Digest32 digest32_{make_initial_digest_32()}; // Message digest as words.
+	UInt64 length_{}; // Message length in bits.
+	IntP block_index_{}; // Index into message block array.
+	bool is_finished_{}; // Is the digest computed?
 
-	static const Digest32 initial_digest_32;
+private:
+	static Digest32 make_initial_digest_32() noexcept;
 
-
-	// 512-bit message block.
-	Block block_;
-
-	// Message digest.
-	Digest digest_;
-
-	// Message digest as words.
-	Digest32 digest32_;
-
-	// Message length in bits.
-	std::uint32_t length_low_;
-
-	// Message length in bits.
-	std::uint32_t length_high_;
-
-	// Index into message block array.
-	int block_index_;
-
-	// Is the digest computed?
-	bool is_finished_;
-
-	// Is the digest invalid?
-	bool is_invalid_;
-
-
-	void ctor(
-		const char* const sha1_string,
-		const int sha1_string_length);
+	template<int TBitCount>
+	static UInt32 circular_shift(UInt32 word) noexcept
+	{
+		static_assert(TBitCount >= 0 && TBitCount <= 32, "Invalid bit count.");
+		return word << TBitCount | word >> (32 - TBitCount);
+	}
 
 	void pad_message();
-
 	void process_block();
-}; // Sha1
+};
 
-//
-// Sha1
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-} // bstone
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// Sha1 operators
-//
-
-bool operator==(
-	const bstone::Sha1& lhs,
-	const bstone::Sha1& rhs);
-
-bool operator!=(
-	const bstone::Sha1& lhs,
-	const bstone::Sha1& rhs);
-
-bool operator==(
-	const bstone::Sha1& lhs,
-	const std::string& rhs);
-
-bool operator!=(
-	const bstone::Sha1& lhs,
-	const std::string& rhs);
-
-//
-// Sha1 operators
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
+} // namespace bstone
 
 #endif // BSTONE_SHA1_INCLUDED

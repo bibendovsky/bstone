@@ -9103,10 +9103,9 @@ try {
 
 			archiver->initialize(&head_stream);
 
-			auto levels_hash_digest = bstone::Sha1::Digest{};
-			archiver->read_uint8_array(levels_hash_digest.data(), bstone::Sha1::hash_size);
-			const auto& levels_hash = bstone::Sha1{levels_hash_digest};
-			const auto& levels_hash_string = levels_hash.to_string();
+			auto levels_hash_digest = bstone::Sha1Digest{};
+			archiver->read_uint8_array(levels_hash_digest.get_data(), levels_hash_digest.get_size());
+			const auto& levels_hash_string = bstone::array_to_hex_string(levels_hash_digest);
 
 			const auto& assets_info = get_assets_info();
 
@@ -9265,10 +9264,16 @@ bool SaveTheGame(
 		//
 		const auto& assets_info = get_assets_info();
 		const auto& levels_hash_string = assets_info.get_levels_hash_string();
-		const auto& levels_hash = bstone::Sha1{levels_hash_string};
-		const auto& levels_digest = levels_hash.get_digest();
 
-		archiver->write_uint8_array(levels_digest.data(), bstone::Sha1::hash_size);
+		auto levels_digest = bstone::Sha1Digest{};
+
+		bstone::hex_chars_to_bytes(
+			levels_hash_string.data(),
+			levels_hash_string.data() + levels_hash_string.size(),
+			levels_digest.begin(),
+			levels_digest.end());
+
+		archiver->write_uint8_array(levels_digest.get_data(), levels_digest.get_size());
 
 		// Other stuff.
 		//

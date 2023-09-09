@@ -12,6 +12,8 @@ SPDX-License-Identifier: MIT
 #include <cstdint>
 #include <string>
 
+#include "bstone_array.h"
+#include "bstone_char_conv.h"
 
 namespace bstone
 {
@@ -63,6 +65,20 @@ public:
 	const std::string& get_empty() const;
 }; // StringHelper
 
+
+template<typename TItem, ArrayInt TSize>
+inline std::string array_to_hex_string(const Array<TItem, TSize>& array)
+{
+	auto string = std::string(TSize * 2, '\0');
+
+	bytes_to_hex_chars(
+		array.cbegin(),
+		array.cend(),
+		&string[0],
+		&string[0] + string.size());
+
+	return string;
+}
 
 } // bstone
 

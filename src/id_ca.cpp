@@ -1038,8 +1038,7 @@ std::string ca_calculate_hash(
 	static auto buffer = Buffer{};
 	buffer.resize(buffer_size);
 
-	static auto sha1 = bstone::Sha1{};
-	sha1.reset();
+	auto sha1 = bstone::Sha1{};
 
 	auto remain_size = file_size;
 
@@ -1060,12 +1059,7 @@ std::string ca_calculate_hash(
 
 	sha1.finish();
 
-	if (!sha1.is_valid())
-	{
-		return {};
-	}
-
-	return sha1.to_string();
+	return bstone::array_to_hex_string(sha1.get_digest());
 }
 
 std::string ca_calculate_hash(
