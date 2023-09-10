@@ -2480,7 +2480,7 @@ try {
 int vid_clamp_filler_color_index(
 	int filler_color_index) noexcept
 try {
-	return bstone::algorithm::clamp(filler_color_index, 0, 255);
+	return bstone::clamp(filler_color_index, 0, 255);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_apply_filler_color()

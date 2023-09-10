@@ -171,7 +171,7 @@ try {
 
 	if (int32_values_.is_empty())
 	{
-		value = algorithm::clamp(value, int32_min_value_, int32_max_value_);
+		value = clamp(value, int32_min_value_, int32_max_value_);
 	}
 	else
 	{

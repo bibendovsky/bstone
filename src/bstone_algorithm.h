@@ -9,10 +9,7 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_ALGORITHM_INCLUDED)
 #define BSTONE_ALGORITHM_INCLUDED
 
-#include <functional>
-
 namespace bstone {
-namespace algorithm {
 
 template<typename T, typename TPredicate>
 inline constexpr const T& clamp(const T& x, const T& x_min, const T& x_max, TPredicate predicate)
@@ -23,10 +20,9 @@ inline constexpr const T& clamp(const T& x, const T& x_min, const T& x_max, TPre
 template<typename T>
 inline constexpr const T& clamp(const T& x, const T& x_min, const T& x_max)
 {
-	return bstone::algorithm::clamp(x, x_min, x_max, std::less<T>{});
+	return x < x_min ? x_min : (x > x_max ? x_max : x);
 }
 
-} // namespace algorithm
 } // namespace bstone
 
 #endif // BSTONE_ALGORITHM_INCLUDED
