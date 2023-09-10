@@ -9,8 +9,8 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_FIXED_MEMORY_POOL_INCLUDED)
 #define BSTONE_FIXED_MEMORY_POOL_INCLUDED
 
-#include "bstone_allocator_bitmap.h"
 #include "bstone_exception.h"
+#include "bstone_memory_pool_bitmap.h"
 #include "bstone_memory_resource.h"
 
 namespace bstone {
@@ -41,7 +41,7 @@ private:
 	static constexpr auto storage_size = value_size * max_size;
 
 private:
-	using Bitmap = AllocatorBitmap<max_size>;
+	using Bitmap = MemoryPoolBitmap<max_size>;
 	using Storage = unsigned char[storage_size];
 
 private:

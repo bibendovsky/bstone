@@ -74,6 +74,8 @@ target_sources(${PROJECT_NAME}
 		../bstone_cgm_transform.h
 		../bstone_sha1.cpp
 		../bstone_sha1.h
+		../bstone_memory_pool_bitmap.cpp
+		../bstone_memory_pool_bitmap.h
 	PRIVATE
 		src/bstone_tests_algorithm.cpp
 		src/bstone_tests_array.cpp
@@ -95,6 +97,7 @@ target_sources(${PROJECT_NAME}
 		src/bstone_tests_cgm_clip_space.cpp
 		src/bstone_tests_cgm_transform.cpp
 		src/bstone_tests_sha1.cpp
+		src/bstone_tests_memory_pool_bitmap.cpp
 	PRIVATE
 		src/bstone_tester.cpp
 		src/bstone_tester.h
