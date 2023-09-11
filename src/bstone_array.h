@@ -53,17 +53,17 @@ public:
 	using Item = TItem;
 
 public:
-	constexpr Array() = default;
-	constexpr Array(const Array& rhs) noexcept;
-	constexpr explicit Array(const Item (&rhs)[TSize]) noexcept;
+	Array() = default;
+	constexpr Array(const Array& rhs);
+	constexpr explicit Array(const Item (&rhs)[TSize]);
 
 	template<typename ...TArgs, detail::ArrayVarArgPolicy<Item, TArgs...> = 0>
-	constexpr explicit Array(TArgs&& ...args) noexcept
+	constexpr explicit Array(TArgs&& ...args)
 		:
 		items_{std::forward<TArgs>(args)...}
 	{}
 
-	constexpr Array& operator=(const Array& rhs) noexcept;
+	constexpr Array& operator=(const Array& rhs);
 
 	constexpr const Item* get_data() const noexcept;
 	constexpr Item* get_data() noexcept;
@@ -79,12 +79,13 @@ public:
 	constexpr const Item* cbegin() const noexcept;
 	constexpr const Item* cend() const noexcept;
 
-	constexpr void fill(Item value) noexcept;
+	constexpr void fill(const Item& value);
 
-	constexpr const Item& operator[](ArrayInt index) const noexcept;
-	constexpr Item& operator[](ArrayInt index) noexcept;
+	constexpr const Item& operator[](ArrayInt index) const;
+	constexpr Item& operator[](ArrayInt index);
 
-	constexpr void swap(Array& rhs) noexcept(noexcept(bstone::swop(std::declval<Item&>(), std::declval<Item&>())));
+	constexpr void swap(Array& rhs) noexcept(
+		noexcept(bstone::swop(std::declval<Item&>(), std::declval<Item&>())));
 
 private:
 	using Items = Item[TSize];
@@ -93,25 +94,25 @@ private:
 	Items items_{};
 
 private:
-	constexpr void copy_items(const Items& src_items, Items& dst_items) noexcept;
+	constexpr void copy_items(const Items& src_items, Items& dst_items);
 };
 
 // --------------------------------------------------------------------------
 
 template<typename TItem, ArrayInt TSize>
-constexpr Array<TItem, TSize>::Array(const Array& rhs) noexcept
+constexpr Array<TItem, TSize>::Array(const Array& rhs)
 {
 	copy_items(rhs.items_, items_);
 }
 
 template<typename TItem, ArrayInt TSize>
-constexpr Array<TItem, TSize>::Array(const Item (&rhs)[TSize]) noexcept
+constexpr Array<TItem, TSize>::Array(const Item (&rhs)[TSize])
 {
 	copy_items(rhs, items_);
 }
 
 template<typename TItem, ArrayInt TSize>
-constexpr auto Array<TItem, TSize>::operator=(const Array& rhs) noexcept -> Array&
+constexpr auto Array<TItem, TSize>::operator=(const Array& rhs) -> Array&
 {
 	assert(std::addressof(rhs) != this);
 	copy_items(rhs.items_, items_);
@@ -179,7 +180,7 @@ constexpr auto Array<TItem, TSize>::cend() const noexcept -> const Item*
 }
 
 template<typename TItem, ArrayInt TSize>
-constexpr void Array<TItem, TSize>::fill(Item value) noexcept
+constexpr void Array<TItem, TSize>::fill(const Item& value)
 {
 	for (auto& item : items_)
 	{
@@ -188,14 +189,14 @@ constexpr void Array<TItem, TSize>::fill(Item value) noexcept
 }
 
 template<typename TItem, ArrayInt TSize>
-constexpr auto Array<TItem, TSize>::operator[](ArrayInt index) const noexcept -> const Item&
+constexpr auto Array<TItem, TSize>::operator[](ArrayInt index) const -> const Item&
 {
 	assert(index >= 0 && index < get_size());
 	return items_[index];
 }
 
 template<typename TItem, ArrayInt TSize>
-constexpr auto Array<TItem, TSize>::operator[](ArrayInt index) noexcept -> Item&
+constexpr auto Array<TItem, TSize>::operator[](ArrayInt index) -> Item&
 {
 	return const_cast<Item&>(bstone::as_const(*this).operator[](index));
 }
@@ -211,9 +212,9 @@ constexpr void Array<TItem, TSize>::swap(Array& rhs) noexcept(
 }
 
 template<typename TItem, ArrayInt TSize>
-constexpr void Array<TItem, TSize>::copy_items(const Items& src_items, Items& dst_items) noexcept
+constexpr void Array<TItem, TSize>::copy_items(const Items& src_items, Items& dst_items)
 {
-	for (auto i = ArrayInt{}; i < TSize; ++i)
+	for (auto i = decltype(TSize){}; i < TSize; ++i)
 	{
 		dst_items[i] = src_items[i];
 	}
@@ -228,7 +229,7 @@ public:
 	using Item = TItem;
 
 public:
-	constexpr Array() noexcept = default;
+	Array() = default;
 
 	constexpr const Item* get_data() const noexcept;
 	constexpr Item* get_data() noexcept;
@@ -243,6 +244,9 @@ public:
 
 	constexpr const Item* cbegin() const noexcept;
 	constexpr const Item* cend() const noexcept;
+
+private:
+	Item item_{};
 };
 
 // --------------------------------------------------------------------------
@@ -250,13 +254,13 @@ public:
 template<typename TItem>
 constexpr auto Array<TItem, 0>::get_data() const noexcept -> const Item*
 {
-	return nullptr;
+	return &item_;
 }
 
 template<typename TItem>
 constexpr auto Array<TItem, 0>::get_data() noexcept -> Item*
 {
-	return nullptr;
+	return const_cast<Item*>(bstone::as_const(*this).get_data());
 }
 
 template<typename TItem>
@@ -274,37 +278,37 @@ constexpr bool Array<TItem, 0>::is_empty() const noexcept
 template<typename TItem>
 constexpr auto Array<TItem, 0>::begin() const noexcept -> const Item*
 {
-	return nullptr;
+	return &item_;
 }
 
 template<typename TItem>
 constexpr auto Array<TItem, 0>::begin() noexcept -> Item*
 {
-	return nullptr;
+	return &item_;
 }
 
 template<typename TItem>
 constexpr auto Array<TItem, 0>::end() const noexcept -> const Item*
 {
-	return nullptr;
+	return &item_;
 }
 
 template<typename TItem>
 constexpr auto Array<TItem, 0>::end() noexcept -> Item*
 {
-	return nullptr;
+	return &item_;
 }
 
 template<typename TItem>
 constexpr auto Array<TItem, 0>::cbegin() const noexcept -> const Item*
 {
-	return nullptr;
+	return &item_;
 }
 
 template<typename TItem>
 constexpr auto Array<TItem, 0>::cend() const noexcept -> const Item*
 {
-	return nullptr;
+	return &item_;
 }
 
 // ==========================================================================
