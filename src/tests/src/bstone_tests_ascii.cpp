@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <iterator>
 
 #include "bstone_tester.h"
 
@@ -312,6 +313,18 @@ void test_fssuexqd5oyt6y8u()
 
 // ==========================================================================
 
+// to_lower(TIter, TIter)
+void test_8vh3r8i5ua9osxjn()
+{
+	constexpr auto char_count = 4;
+	const char reference_chars[char_count] = {'a', 'b', 'c', '?'};
+	char chars[char_count] = {'A', 'b', 'C', '?'};
+	bstone::ascii::to_lower(std::begin(chars), std::end(chars));
+	tester.check(std::equal(chars, chars + char_count, reference_chars));
+}
+
+// ==========================================================================
+
 // to_upper(TChar)
 void test_hv40djx2iy3bagwi()
 {
@@ -364,25 +377,13 @@ void test_hv40djx2iy3bagwi()
 
 // ==========================================================================
 
-// to_lower_range(TChars&)
-void test_8vh3r8i5ua9osxjn()
-{
-	constexpr auto char_count = 4;
-	const char reference_chars[char_count] = {'a', 'b', 'c', '?'};
-	char chars[char_count] = {'A', 'b', 'C', '?'};
-	bstone::ascii::to_lower_range(chars);
-	tester.check(std::equal(chars, chars + char_count, reference_chars));
-}
-
-// ==========================================================================
-
-// to_upper_range(TChars&)
+// to_upper(TIter, TIter)
 void test_go2oxu950avooimt()
 {
 	constexpr auto char_count = 4;
 	const char reference_chars[char_count] = {'A', 'B', 'C', '?'};
 	char chars[char_count] = {'a', 'b', 'C', '?'};
-	bstone::ascii::to_upper_range(chars);
+	bstone::ascii::to_upper(std::begin(chars), std::end(chars));
 	tester.check(std::equal(chars, chars + char_count, reference_chars));
 }
 
@@ -401,8 +402,6 @@ public:
 		register_is_upper();
 		register_to_lower();
 		register_to_upper();
-		register_to_lower_range();
-		register_to_upper_range();
 	}
 
 private:
@@ -439,21 +438,13 @@ private:
 	void register_to_lower()
 	{
 		tester.register_test("ascii::to_lower#fssuexqd5oyt6y8u", test_fssuexqd5oyt6y8u);
+		tester.register_test("ascii::to_lower#8vh3r8i5ua9osxjn", test_8vh3r8i5ua9osxjn);
 	}
 
 	void register_to_upper()
 	{
 		tester.register_test("ascii::to_upper#hv40djx2iy3bagwi", test_hv40djx2iy3bagwi);
-	}
-
-	void register_to_lower_range()
-	{
-		tester.register_test("ascii::to_lower_range#8vh3r8i5ua9osxjn", test_8vh3r8i5ua9osxjn);
-	}
-
-	void register_to_upper_range()
-	{
-		tester.register_test("ascii::to_upper_range#go2oxu950avooimt", test_go2oxu950avooimt);
+		tester.register_test("ascii::to_upper#go2oxu950avooimt", test_go2oxu950avooimt);
 	}
 };
 

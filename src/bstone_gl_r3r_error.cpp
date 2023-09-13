@@ -47,11 +47,10 @@ void gl_error_code_append(GLenum gl_code, std::string& chars)
 	chars += gl_error_code_get_name(gl_code);
 	chars += " (0x";
 
-	const auto number_char_count =
-		to_chars(gl_code, std::begin(number_chars), std::end(number_chars), 16) - number_chars;
-
-	ascii::to_upper_range(number_chars);
-	chars.append(number_chars, static_cast<std::size_t>(number_char_count));
+	const auto number_chars_first = std::begin(number_chars);
+	const auto number_chars_last = to_chars(gl_code, number_chars_first, std::end(number_chars), 16);
+	ascii::to_upper(number_chars_first, number_chars_last);
+	chars.append(number_chars_first, number_chars_last);
 	chars += ')';
 }
 
@@ -66,9 +65,12 @@ try {
 		BSTONE_THROW_STATIC_SOURCE("Null \"glGetError\".");
 	}
 
-	auto message = std::string{};
+	constexpr auto max_errors = 32;
 
-	for (auto i = 0; i < 32; ++i)
+	GLenum error_codes[max_errors];
+	auto error_count = 0;
+
+	for (auto i = 0; i < max_errors; ++i)
 	{
 		const auto gl_error_code = glGetError();
 
@@ -78,19 +80,24 @@ try {
 		}
 		else
 		{
-			if (i == 0)
-			{
-				message.reserve(2048);
-			}
-
-			gl_error_code_append(gl_error_code, message);
+			error_codes[error_count++] = gl_error_code;
 		}
 	}
 
-	if (!message.empty())
+	if (error_count == 0)
 	{
-		BSTONE_THROW_STATIC_SOURCE(message.c_str());
+		return;
 	}
+
+	auto message = std::string{};
+	message.reserve(2048);
+
+	for (auto i = 0; i < error_count; ++i)
+	{
+		gl_error_code_append(error_codes[i], message);
+	}
+
+	BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 #ifdef NDEBUG

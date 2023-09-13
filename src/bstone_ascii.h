@@ -33,7 +33,7 @@ inline constexpr bool is_decimal(TChar ch)
 template<typename TChar>
 inline constexpr bool is_hex(TChar ch)
 {
-	return bstone::ascii::is_decimal(ch) || (ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F');
+	return bstone::ascii::is_decimal(ch) || ch >= 'a' && ch <= 'f' || ch >= 'A' && ch <= 'F';
 }
 
 template<typename TChar>
@@ -64,20 +64,22 @@ inline constexpr TChar to_upper(TChar ch)
 
 // ==========================================================================
 
-template<typename TChars>
-inline void to_lower_range(TChars& chars)
+template<typename TIter>
+inline constexpr void to_lower(TIter chars_first, TIter chars_last)
 {
-	for (auto& ch : chars)
+	for (; chars_first != chars_last; ++chars_first)
 	{
+		auto& ch = *chars_first;
 		ch = bstone::ascii::to_lower(ch);
 	}
 }
 
-template<typename TChars>
-inline void to_upper_range(TChars& chars)
+template<typename TIter>
+inline constexpr void to_upper(TIter chars_first, TIter chars_last)
 {
-	for (auto& ch : chars)
+	for (; chars_first != chars_last; ++chars_first)
 	{
+		auto& ch = *chars_first;
 		ch = bstone::ascii::to_upper(ch);
 	}
 }
