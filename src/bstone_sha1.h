@@ -33,12 +33,7 @@ class Sha1
 {
 public:
 	void process(const UInt8* bytes, IntP count);
-
-	template<typename T, std::enable_if_t<sizeof(T) == 1, int> = 0>
-	void process(Span<T> bytes_span)
-	{
-		process(reinterpret_cast<const UInt8*>(bytes_span.get_data()), bytes_span.get_size());
-	}
+	void process(Span<const UInt8> items_span);
 
 	void finish();
 

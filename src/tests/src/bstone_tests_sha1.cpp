@@ -144,7 +144,7 @@ void test_hka86bzux5vmorkw()
 	};
 
 	auto sha1 = bstone::Sha1{};
-	sha1.process(bstone::make_span(ref_bytes));
+	sha1.process(bstone::make_const_span(ref_bytes));
 	sha1.finish();
 	const auto digest = sha1.get_digest();
 	tester.check(digest == ref_digest);

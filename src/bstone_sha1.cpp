@@ -41,6 +41,11 @@ try
 	length_ += bit_count;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
+void Sha1::process(Span<const UInt8> items_span)
+{
+	process(items_span.get_data(), items_span.get_size());
+}
+
 void Sha1::finish()
 try
 {

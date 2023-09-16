@@ -298,6 +298,209 @@ void test_9kk9lv5xylgwq7vl()
 		std::equal(values, &values[value_count], span.get_data()));
 }
 
+// make_const_span(Span<T>)
+// Const.
+void test_4mmnqq98rwfylh46()
+{
+	constexpr auto value_count = 3;
+	const int values[value_count] = {10, 20, 30};
+	const auto span = bstone::make_span(values);
+	const auto const_span = bstone::make_const_span(span);
+	using Span = decltype(span);
+
+	tester.check(
+		std::is_const<Span::Item>::value &&
+		const_span.get_data() == values &&
+		const_span.get_size() == value_count);
+}
+
+// make_const_span(Span<T>)
+// Not const.
+void test_dgoe56fk618qewwk()
+{
+	constexpr auto value_count = 3;
+	int values[value_count] = {10, 20, 30};
+	const auto span = bstone::make_span(values);
+	const auto const_span = bstone::make_const_span(span);
+	using Span = decltype(span);
+
+	tester.check(
+		!std::is_const<Span::Item>::value &&
+		const_span.get_data() == values &&
+		const_span.get_size() == value_count);
+}
+
+// ==========================================================================
+
+// make_octets_span(T*, SpanInt)
+// Const.
+void test_vz4841mkoy26qevn()
+{
+	constexpr auto value_count = 3;
+	const int values[value_count] = {10, 20, 30};
+	const auto span = bstone::make_octets_span(values, value_count);
+	using Span = decltype(span);
+
+	tester.check(
+		std::is_const<Span::Item>::value &&
+		span.get_data() == reinterpret_cast<const bstone::UInt8*>(values) &&
+		span.get_size() == value_count * sizeof(int));
+}
+
+// make_octets_span(T*, SpanInt)
+// Not const.
+void test_cn0flxaqcrulubrz()
+{
+	constexpr auto value_count = 3;
+	int values[value_count] = {10, 20, 30};
+	const auto span = bstone::make_octets_span(values, value_count);
+	using Span = decltype(span);
+
+	tester.check(
+		!std::is_const<Span::Item>::value &&
+		span.get_data() == reinterpret_cast<bstone::UInt8*>(values) &&
+		span.get_size() == value_count * sizeof(int));
+}
+
+// make_octets_span(T (&)[TSize])
+// Const.
+void test_lbkl8witj32qwukg()
+{
+	constexpr auto value_count = 3;
+	const int values[value_count] = {10, 20, 30};
+	const auto span = bstone::make_octets_span(values);
+	using Span = decltype(span);
+
+	tester.check(
+		std::is_const<Span::Item>::value &&
+		span.get_data() == reinterpret_cast<const bstone::UInt8*>(values) &&
+		span.get_size() == value_count * sizeof(int));
+}
+
+// make_octets_span(T (&)[TSize])
+// Not const.
+void test_4s142p3ilba894gr()
+{
+	constexpr auto value_count = 3;
+	int values[value_count] = {10, 20, 30};
+	const auto span = bstone::make_octets_span(values);
+	using Span = decltype(span);
+
+	tester.check(
+		!std::is_const<Span::Item>::value &&
+		span.get_data() == reinterpret_cast<bstone::UInt8*>(values) &&
+		span.get_size() == value_count * sizeof(int));
+}
+
+// make_octets_span(Span<T>)
+// Const.
+void test_piil1sd0ihg3940n()
+{
+	constexpr auto value_count = 3;
+	static constexpr int values[value_count] = {10, 20, 30};
+	constexpr auto span = bstone::make_span(values);
+	const auto octets_span = bstone::make_octets_span(span);
+	using Span = decltype(span);
+
+	tester.check(
+		std::is_const<Span::Item>::value &&
+		octets_span.get_data() == reinterpret_cast<const bstone::UInt8*>(values) &&
+		octets_span.get_size() == value_count * sizeof(int));
+}
+
+// make_octets_span(Span<T>)
+// Not const.
+void test_yxfuk39bm0ri0k2x()
+{
+	constexpr auto value_count = 3;
+	int values[value_count] = {10, 20, 30};
+	const auto span = bstone::make_span(values);
+	const auto octets_span = bstone::make_octets_span(span);
+	using Span = decltype(span);
+
+	tester.check(
+		!std::is_const<Span::Item>::value &&
+		octets_span.get_data() == reinterpret_cast<bstone::UInt8*>(values) &&
+		octets_span.get_size() == value_count * sizeof(int));
+}
+
+// ==========================================================================
+
+// make_const_octets_span(T*, SpanInt)
+// Const.
+void test_xsswowtf98mfxyzg()
+{
+	constexpr auto value_count = 3;
+	const int values[value_count] = {10, 20, 30};
+	const auto span = bstone::make_const_octets_span(values, value_count);
+	using Span = decltype(span);
+
+	tester.check(
+		std::is_const<Span::Item>::value &&
+		span.get_data() == reinterpret_cast<const bstone::UInt8*>(values) &&
+		span.get_size() == value_count * sizeof(int));
+}
+
+// make_const_octets_span(T*, SpanInt)
+// Not const.
+void test_ig10wut5vvtb1trm()
+{
+	constexpr auto value_count = 3;
+	int values[value_count] = {10, 20, 30};
+	const auto span = bstone::make_const_octets_span(values, value_count);
+	using Span = decltype(span);
+
+	tester.check(
+		std::is_const<Span::Item>::value &&
+		span.get_data() == reinterpret_cast<const bstone::UInt8*>(values) &&
+		span.get_size() == value_count * sizeof(int));
+}
+
+// make_const_octets_span(T (&)[TSize])
+// Const.
+void test_apjutm6ccidvdbws()
+{
+	constexpr auto value_count = 3;
+	const int values[value_count] = {10, 20, 30};
+	const auto span = bstone::make_const_octets_span(values);
+	using Span = decltype(span);
+
+	tester.check(
+		std::is_const<Span::Item>::value &&
+		span.get_data() == reinterpret_cast<const bstone::UInt8*>(values) &&
+		span.get_size() == value_count * sizeof(int));
+}
+
+// make_const_octets_span(T (&)[TSize])
+// Not const.
+void test_i7aizabfbdg2x2ee()
+{
+	constexpr auto value_count = 3;
+	int values[value_count] = {10, 20, 30};
+	const auto span = bstone::make_const_octets_span(values);
+	using Span = decltype(span);
+
+	tester.check(
+		std::is_const<Span::Item>::value &&
+		span.get_data() == reinterpret_cast<const bstone::UInt8*>(values) &&
+		span.get_size() == value_count * sizeof(int));
+}
+
+// make_const_octets_span(Span<T>)
+void test_jt0hrizy9066erco()
+{
+	constexpr auto value_count = 3;
+	int values[value_count] = {10, 20, 30};
+	const auto span = bstone::make_span(values);
+	const auto octets_span = bstone::make_const_octets_span(span);
+	using Span = decltype(octets_span);
+
+	tester.check(
+		std::is_const<Span::Item>::value &&
+		octets_span.get_data() == reinterpret_cast<const bstone::UInt8*>(values) &&
+		octets_span.get_size() == value_count * sizeof(int));
+}
+
 // ==========================================================================
 
 class Registrator
@@ -308,6 +511,8 @@ public:
 		register_span();
 		register_make_span();
 		register_make_const_span();
+		register_make_octets_span();
+		register_make_const_octets_span();
 	}
 
 private:
@@ -345,8 +550,29 @@ private:
 
 	void register_make_const_span()
 	{
-		tester.register_test("make_span#822oeqj8jv4wtetl", test_822oeqj8jv4wtetl);
-		tester.register_test("make_span#9kk9lv5xylgwq7vl", test_9kk9lv5xylgwq7vl);
+		tester.register_test("make_const_span#822oeqj8jv4wtetl", test_822oeqj8jv4wtetl);
+		tester.register_test("make_const_span#9kk9lv5xylgwq7vl", test_9kk9lv5xylgwq7vl);
+		tester.register_test("make_const_span#4mmnqq98rwfylh46", test_4mmnqq98rwfylh46);
+		tester.register_test("make_const_span#dgoe56fk618qewwk", test_dgoe56fk618qewwk);
+	}
+
+	void register_make_octets_span()
+	{
+		tester.register_test("make_octets_span#vz4841mkoy26qevn", test_vz4841mkoy26qevn);
+		tester.register_test("make_octets_span#lbkl8witj32qwukg", test_lbkl8witj32qwukg);
+		tester.register_test("make_octets_span#cn0flxaqcrulubrz", test_cn0flxaqcrulubrz);
+		tester.register_test("make_octets_span#4s142p3ilba894gr", test_4s142p3ilba894gr);
+		tester.register_test("make_octets_span#piil1sd0ihg3940n", test_piil1sd0ihg3940n);
+		tester.register_test("make_octets_span#yxfuk39bm0ri0k2x", test_yxfuk39bm0ri0k2x);
+	}
+
+	void register_make_const_octets_span()
+	{
+		tester.register_test("make_const_octets_span#xsswowtf98mfxyzg", test_xsswowtf98mfxyzg);
+		tester.register_test("make_const_octets_span#ig10wut5vvtb1trm", test_ig10wut5vvtb1trm);
+		tester.register_test("make_const_octets_span#apjutm6ccidvdbws", test_apjutm6ccidvdbws);
+		tester.register_test("make_const_octets_span#i7aizabfbdg2x2ee", test_i7aizabfbdg2x2ee);
+		tester.register_test("make_const_octets_span#jt0hrizy9066erco", test_jt0hrizy9066erco);
 	}
 };
 

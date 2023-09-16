@@ -320,6 +320,14 @@ target_sources(
 		bstone_cgm_transform.h
 		bstone_cgm_vec.cpp
 		bstone_cgm_vec.h
+		#bstone_unicode.cpp
+		#bstone_unicode.h
+		#bstone_utf.cpp
+		#bstone_utf.h
+		#bstone_utf8.cpp
+		#bstone_utf8.h
+		#bstone_utf16.cpp
+		#bstone_utf16.h
 )
 
 target_sources(
