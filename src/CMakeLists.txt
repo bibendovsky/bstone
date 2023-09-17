@@ -462,7 +462,6 @@ target_sources(
 		bstone_image_encoder.h
 		bstone_image_extractor.h
 		bstone_logger.h
-		bstone_low_pass_filter.h
 		bstone_math.h
 		bstone_memory_binary_reader.h
 		bstone_memory_resource.h
@@ -683,7 +682,6 @@ target_sources(
 		bstone_image_encoder.cpp
 		bstone_image_extractor.cpp
 		bstone_logger.cpp
-		bstone_low_pass_filter.cpp
 		bstone_memory_binary_reader.cpp
 		bstone_memory_resource.cpp
 		bstone_memory_stream.cpp
