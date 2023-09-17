@@ -33,7 +33,7 @@ inline constexpr bool is_decimal(TChar ch)
 template<typename TChar>
 inline constexpr bool is_hex(TChar ch)
 {
-	return bstone::ascii::is_decimal(ch) || ch >= 'a' && ch <= 'f' || ch >= 'A' && ch <= 'F';
+	return bstone::ascii::is_decimal(ch) || (ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F');
 }
 
 template<typename TChar>
