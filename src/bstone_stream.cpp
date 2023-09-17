@@ -6,7 +6,6 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_stream.h"
 #include <vector>
-#include "bstone_un_value.h"
 
 namespace bstone
 {
@@ -69,7 +68,7 @@ bool Stream::copy_to(Stream* dst_stream, int buffer_size) noexcept
 		new_buffer_size = get_default_copy_buffer_size();
 	}
 
-	std::vector<UnValue<unsigned char>> buffer(new_buffer_size);
+	std::vector<unsigned char> buffer(new_buffer_size);
 
 	for (int count = -1; count != 0; )
 	{

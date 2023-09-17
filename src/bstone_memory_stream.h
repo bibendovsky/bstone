@@ -14,7 +14,6 @@ SPDX-License-Identifier: MIT
 #include <cstdint>
 #include <vector>
 #include "bstone_stream.h"
-#include "bstone_un_value.h"
 
 namespace bstone
 {
@@ -61,7 +60,7 @@ public:
 	bool remove_block(int offset, int count) noexcept;
 
 private:
-	using Buffer = std::vector<UnValue<std::uint8_t>>;
+	using Buffer = std::vector<std::uint8_t>;
 
 	bool is_open_{};
 	bool is_readable_{};

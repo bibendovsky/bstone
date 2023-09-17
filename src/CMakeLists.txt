@@ -503,7 +503,6 @@ target_sources(
 		bstone_text_writer.h
 		bstone_time.h
 		bstone_type_traits.h
-		bstone_un_value.h
 		bstone_version.h
 		bstone_video.h
 		bstone_voice.h

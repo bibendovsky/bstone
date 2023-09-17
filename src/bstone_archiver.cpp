@@ -14,7 +14,6 @@ SPDX-License-Identifier: MIT
 #include "bstone_endian.h"
 #include "bstone_exception.h"
 #include "bstone_stream.h"
-#include "bstone_un_value.h"
 
 
 namespace bstone
@@ -151,7 +150,7 @@ public:
 
 
 private:
-	using Buffer = std::vector<UnValue<char>>;
+	using Buffer = std::vector<char>;
 
 
 	bool is_initialized_;
