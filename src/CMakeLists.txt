@@ -413,7 +413,6 @@ target_sources(
 		bstone_memory_pool_bitmap.cpp
 		bstone_memory_pool_bitmap.h
 		bstone_archiver.h
-		bstone_atomic.h
 		bstone_atomic_flag.h
 		bstone_audio_content_mgr.h
 		bstone_audio_decoder.h
