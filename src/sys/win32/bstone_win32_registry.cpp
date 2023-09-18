@@ -79,7 +79,7 @@ Win32RegistryKeyImpl::~Win32RegistryKeyImpl() = default;
 Win32RegistryKeyStringValueResult Win32RegistryKeyImpl::get_string(
 	const std::string& value_name) const
 {
-	const auto& value_name_utf16 = utf8_to_utf16(value_name);
+	const auto& value_name_utf16 = u8_to_u16(value_name);
 
 	auto win32_value_type = DWORD{};
 	auto win32_value_size = DWORD{};
@@ -135,7 +135,7 @@ Win32RegistryKeyStringValueResult Win32RegistryKeyImpl::get_string(
 
 	value_utf16.resize(value_utf16.size() - 1);
 
-	return Win32RegistryKeyStringValueResult{utf16_to_utf8(value_utf16)};
+	return Win32RegistryKeyStringValueResult{u16_to_u8(value_utf16)};
 }
 
 Win32RegistryKeyUPtr make_win32_registry_key(
@@ -179,7 +179,7 @@ try {
 		BSTONE_THROW_STATIC_SOURCE("Empty sub-key name.");
 	}
 
-	const auto& sub_key_name_utf16 = utf8_to_utf16(sub_key_name_utf8);
+	const auto& sub_key_name_utf16 = u8_to_u16(sub_key_name_utf8);
 
 	auto win32_key = HKEY{};
 

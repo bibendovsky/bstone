@@ -21,10 +21,10 @@ namespace bstone
 {
 
 
-std::u16string utf8_to_utf16(
+std::u16string u8_to_u16(
 	const std::string& utf8_string);
 
-std::string utf16_to_utf8(
+std::string u16_to_u8(
 	const std::u16string& utf16_string);
 
 

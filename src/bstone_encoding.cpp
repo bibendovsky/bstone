@@ -48,7 +48,7 @@ WStringConverter& get_wstring_converter()
 } // detail
 
 
-std::u16string utf8_to_utf16(
+std::u16string u8_to_u16(
 	const std::string& utf8_string)
 try {
 #ifdef _USING_V110_SDK71_
@@ -63,7 +63,7 @@ try {
 #endif // _USING_V110_SDK71_
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-std::string utf16_to_utf8(
+std::string u16_to_u8(
 	const std::u16string& utf16_string)
 try {
 #ifdef _USING_V110_SDK71_

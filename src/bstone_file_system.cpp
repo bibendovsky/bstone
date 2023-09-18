@@ -172,7 +172,7 @@ try {
 
 	utf16_dir.resize(win32_result);
 
-	return utf16_to_utf8(utf16_dir);
+	return u16_to_u8(utf16_dir);
 #else
 	const auto max_size = pathconf(".", _PC_PATH_MAX);
 
@@ -233,7 +233,7 @@ try {
 	}
 
 #ifdef _WIN32
-	const auto& utf16_path = utf8_to_utf16(path);
+	const auto& utf16_path = u8_to_u16(path);
 
 	const auto utf16_full_path_size = GetFullPathNameW(
 		reinterpret_cast<LPCWSTR>(utf16_path.c_str()),
@@ -264,7 +264,7 @@ try {
 
 	utf16_full_path.resize(win32_result);
 
-	return utf16_to_utf8(utf16_full_path);
+	return u16_to_u8(utf16_full_path);
 #else
 	const auto max_size = pathconf(".", _PC_PATH_MAX);
 
@@ -298,7 +298,7 @@ bool has_file(
 	}
 
 #if _WIN32
-	const auto& utf16_path = utf8_to_utf16(path);
+	const auto& utf16_path = u8_to_u16(path);
 
 	WIN32_FIND_DATAW win32_fd;
 
@@ -344,8 +344,8 @@ try {
 	}
 
 #if _WIN32
-	const auto& old_path_utf16 = utf8_to_utf16(old_path);
-	const auto& new_path_utf16 = utf8_to_utf16(new_path);
+	const auto& old_path_utf16 = u8_to_u16(old_path);
+	const auto& new_path_utf16 = u8_to_u16(new_path);
 
 	const auto win32_move_file_result = MoveFileExW(
 		reinterpret_cast<LPCWSTR>(old_path_utf16.c_str()),

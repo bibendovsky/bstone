@@ -76,6 +76,14 @@ target_sources(${PROJECT_NAME}
 		../bstone_sha1.h
 		../bstone_memory_pool_bitmap.cpp
 		../bstone_memory_pool_bitmap.h
+		../bstone_unicode.cpp
+		../bstone_unicode.h
+		../bstone_utf.cpp
+		../bstone_utf.h
+		../bstone_utf16.cpp
+		../bstone_utf16.h
+		../bstone_utf8.cpp
+		../bstone_utf8.h
 	PRIVATE
 		src/bstone_tests_algorithm.cpp
 		src/bstone_tests_array.cpp
@@ -98,6 +106,7 @@ target_sources(${PROJECT_NAME}
 		src/bstone_tests_cgm_transform.cpp
 		src/bstone_tests_sha1.cpp
 		src/bstone_tests_memory_pool_bitmap.cpp
+		src/bstone_tests_utf.cpp
 	PRIVATE
 		src/bstone_tester.cpp
 		src/bstone_tester.h
