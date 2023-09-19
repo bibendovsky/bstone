@@ -1,83 +1,54 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-
-//
 // Encoding utils.
-//
-
-
 
 #include "bstone_encoding.h"
-
-#include <cstdint>
-
-#include <codecvt>
-#include <exception>
-#include <locale>
-
 #include "bstone_exception.h"
+#include "bstone_utf.h"
 
+namespace bstone {
 
-namespace bstone
-{
-
-
-namespace detail
-{
-
-
-#ifdef _USING_V110_SDK71_
-using WStringConverter = std::wstring_convert<std::codecvt_utf8_utf16<std::uint16_t>, std::uint16_t>;
-#else
-using WStringConverter = std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>;
-#endif // _USING_V110_SDK71_
-
-
-WStringConverter& get_wstring_converter()
-{
-	static WStringConverter result{};
-
-	return result;
-}
-
-
-} // detail
-
-
-std::u16string u8_to_u16(
-	const std::string& utf8_string)
+std::u16string u8_to_u16(const std::string& u8_string)
 try {
-#ifdef _USING_V110_SDK71_
-	const auto& uint16_string = detail::get_wstring_converter().from_bytes(utf8_string);
+	auto u16_string = std::u16string{};
+	u16_string.resize(u8_string.size());
 
-	return std::u16string(
-		reinterpret_cast<const char16_t*>(uint16_string.c_str()),
-		uint16_string.size()
-	);
-#else
-	return detail::get_wstring_converter().from_bytes(utf8_string);
-#endif // _USING_V110_SDK71_
+	const auto u16_begin = u16_string.begin();
+
+	const auto u16_next = utf::u8_to_u16(
+		u8_string.cbegin(),
+		u8_string.cend(),
+		u16_begin,
+		u16_string.end());
+
+	const auto count = u16_next - u16_begin;
+	u16_string.resize(count);
+
+	return u16_string;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-std::string u16_to_u8(
-	const std::u16string& utf16_string)
+std::string u16_to_u8(const std::u16string& u16_string)
 try {
-#ifdef _USING_V110_SDK71_
-		const auto& uint16_string = std::basic_string<std::uint16_t>(
-			reinterpret_cast<const std::uint16_t*>(utf16_string.c_str()),
-			utf16_string.size()
-		);
+	auto u8_string = std::string{};
+	u8_string.resize(3 * u16_string.size());
 
-		return detail::get_wstring_converter().to_bytes(uint16_string);
-#else
-		return detail::get_wstring_converter().to_bytes(utf16_string);
-#endif // _USING_V110_SDK71_
+	const auto u8_begin = u8_string.begin();
+
+	const auto u8_next = utf::u16_to_u8(
+		u16_string.cbegin(),
+		u16_string.cend(),
+		u8_begin,
+		u8_string.end());
+
+	const auto count = u8_next - u8_begin;
+	u8_string.resize(count);
+
+	return u8_string;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-
-} // bstone
+} // namespace bstone
 
