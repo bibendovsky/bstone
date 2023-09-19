@@ -65,21 +65,21 @@ inline constexpr TChar to_upper(TChar ch)
 // ==========================================================================
 
 template<typename TIter>
-inline constexpr void to_lower(TIter chars_first, TIter chars_last)
+inline constexpr void to_lower(TIter chars_begin, TIter chars_end)
 {
-	for (; chars_first != chars_last; ++chars_first)
+	for (; chars_begin != chars_end; ++chars_begin)
 	{
-		auto& ch = *chars_first;
+		auto& ch = *chars_begin;
 		ch = bstone::ascii::to_lower(ch);
 	}
 }
 
 template<typename TIter>
-inline constexpr void to_upper(TIter chars_first, TIter chars_last)
+inline constexpr void to_upper(TIter chars_begin, TIter chars_end)
 {
-	for (; chars_first != chars_last; ++chars_first)
+	for (; chars_begin != chars_end; ++chars_begin)
 	{
-		auto& ch = *chars_first;
+		auto& ch = *chars_begin;
 		ch = bstone::ascii::to_upper(ch);
 	}
 }

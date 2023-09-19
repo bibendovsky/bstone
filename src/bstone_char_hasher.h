@@ -14,17 +14,17 @@ namespace bstone {
 struct CharHasher
 {
 	template<typename TIter>
-	constexpr std::size_t operator()(TIter chars_first, TIter chars_last) const
+	constexpr std::size_t operator()(TIter chars_begin, TIter chars_end) const
 	{
 		static_assert(sizeof(decltype(*TIter{})) <= sizeof(std::size_t), "Unsupported type.");
 
 		auto hash = std::size_t{5381};
 
-		while (!(chars_first == chars_last))
+		while (!(chars_begin == chars_end))
 		{
 			hash *= 33;
-			hash += static_cast<std::size_t>(*chars_first);
-			++chars_first;
+			hash += static_cast<std::size_t>(*chars_begin);
+			++chars_begin;
 		}
 
 		return hash;

@@ -63,14 +63,14 @@ inline constexpr TNibble hex_char_to_nibble(TChar hex_char)
 
 template<typename TChar, typename TByte>
 inline constexpr TByte* hex_chars_to_bytes(
-	const TChar* chars_first,
-	const TChar* chars_last,
-	TByte* bytes_first,
-	TByte* bytes_last)
+	const TChar* chars_begin,
+	const TChar* chars_end,
+	TByte* bytes_begin,
+	TByte* bytes_end)
 {
 	static_assert(sizeof(TByte) == 1, "Expected one-byte-size type.");
 
-	const auto char_count = chars_last - chars_first;
+	const auto char_count = chars_end - chars_begin;
 
 	if (char_count < 0)
 	{
@@ -82,7 +82,7 @@ inline constexpr TByte* hex_chars_to_bytes(
 		BSTONE_THROW_STATIC_SOURCE("Odd char count.");
 	}
 
-	const auto byte_count = bytes_last - bytes_first;
+	const auto byte_count = bytes_end - bytes_begin;
 
 	if (byte_count < 0)
 	{
@@ -100,34 +100,34 @@ inline constexpr TByte* hex_chars_to_bytes(
 
 	for (auto i_byte = IntP{}; i_byte < char_half_count; ++i_byte)
 	{
-		const auto high_nibble = bstone::hex_char_to_nibble<TByte>(chars_first[i_char++]);
-		const auto low_nibble = bstone::hex_char_to_nibble<TByte>(chars_first[i_char++]);
+		const auto high_nibble = bstone::hex_char_to_nibble<TByte>(chars_begin[i_char++]);
+		const auto low_nibble = bstone::hex_char_to_nibble<TByte>(chars_begin[i_char++]);
 		const auto byte = static_cast<TByte>((high_nibble << 4) | low_nibble);
-		bytes_first[i_byte] = byte;
+		bytes_begin[i_byte] = byte;
 	}
 
-	return bytes_first + char_half_count;
+	return bytes_begin + char_half_count;
 }
 
 // ==========================================================================
 
 template<typename TByte, typename TChar>
 inline constexpr TChar* bytes_to_hex_chars(
-	const TByte* bytes_first,
-	const TByte* bytes_last,
-	TChar* chars_first,
-	TChar* chars_last)
+	const TByte* bytes_begin,
+	const TByte* bytes_end,
+	TChar* chars_begin,
+	TChar* chars_end)
 {
 	static_assert(sizeof(TByte) == 1, "Expected one-byte-size type.");
 
-	const auto byte_count = bytes_last - bytes_first;
+	const auto byte_count = bytes_end - bytes_begin;
 
 	if (byte_count < 0)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Byte count out of range.");
 	}
 
-	const auto char_count = chars_last - chars_first;
+	const auto char_count = chars_end - chars_begin;
 
 	if (char_count < 0)
 	{
@@ -148,14 +148,14 @@ inline constexpr TChar* bytes_to_hex_chars(
 
 	for (auto i_byte = IntP{}; i_byte < byte_count; ++i_byte)
 	{
-		const auto byte = static_cast<Unsigned>(static_cast<std::make_unsigned_t<TByte>>(bytes_first[i_byte]));
+		const auto byte = static_cast<Unsigned>(static_cast<std::make_unsigned_t<TByte>>(bytes_begin[i_byte]));
 		const auto char_1 = bstone::nibble_to_hex_char<TChar>((byte >> 4) & 0xF);
 		const auto char_2 = bstone::nibble_to_hex_char<TChar>(byte & 0xF);
-		chars_first[i_char++] = char_1;
-		chars_first[i_char++] = char_2;
+		chars_begin[i_char++] = char_1;
+		chars_begin[i_char++] = char_2;
 	}
 
-	return chars_first + i_char;
+	return chars_begin + i_char;
 }
 
 // ==========================================================================
@@ -190,7 +190,7 @@ struct ToCharsIntegralToUnsigned
 } // namespace detail
 
 template<typename TValue, typename TChar>
-inline constexpr TChar* to_chars(TValue value, TChar* chars_first, TChar* chars_last, int base = 10)
+inline constexpr TChar* to_chars(TValue value, TChar* chars_begin, TChar* chars_end, int base = 10)
 {
 	static_assert(std::is_integral<TValue>::value, "Expected an integral type.");
 
@@ -205,7 +205,7 @@ inline constexpr TChar* to_chars(TValue value, TChar* chars_first, TChar* chars_
 
 	auto u_value = detail::ToCharsIntegralToUnsigned<TValue>{}(value);
 
-	const auto max_char_count = chars_last - chars_first;
+	const auto max_char_count = chars_end - chars_begin;
 
 	if (max_char_count < 0)
 	{
@@ -226,7 +226,7 @@ inline constexpr TChar* to_chars(TValue value, TChar* chars_first, TChar* chars_
 		assert(digit < static_cast<decltype(digit)>(base));
 		u_value = static_cast<decltype(u_value)>(next_value);
 		const auto digit_char = static_cast<TChar>(digit < 10 ? ('0' + digit) : ('a' + digit - 10));
-		chars_first[i_char++] = digit_char;
+		chars_begin[i_char++] = digit_char;
 
 		if (next_value == 0)
 		{
@@ -248,17 +248,17 @@ inline constexpr TChar* to_chars(TValue value, TChar* chars_first, TChar* chars_
 			BSTONE_THROW_STATIC_SOURCE(buffer_too_small_string);
 		}
 
-		chars_first[i_char++] = sign;
+		chars_begin[i_char++] = sign;
 	}
 
 	const auto half_char_count = i_char / 2;
 
 	for (auto i = IntP{}; i < half_char_count; ++i)
 	{
-		bstone::swop(chars_first[i], chars_first[i_char - 1 - i]);
+		bstone::swop(chars_begin[i], chars_begin[i_char - 1 - i]);
 	}
 
-	return chars_first + i_char;
+	return chars_begin + i_char;
 }
 
 // ==========================================================================
@@ -285,12 +285,12 @@ struct FromCharsIntegralFromUnsigned
 
 template<typename TChar, typename TValue>
 inline constexpr const TChar* from_chars(
-	const TChar* chars_first,
-	const TChar* chars_last,
+	const TChar* chars_begin,
+	const TChar* chars_end,
 	TValue& value,
 	int base = 10)
 {
-	const auto max_char_count = chars_last - chars_first;
+	const auto max_char_count = chars_end - chars_begin;
 
 	if (max_char_count <= 0)
 	{
@@ -305,7 +305,7 @@ inline constexpr const TChar* from_chars(
 	auto i_char = IntP{};
 	auto has_minus_sign = false;
 
-	if (chars_first[i_char] == '-')
+	if (chars_begin[i_char] == '-')
 	{
 		if (!std::is_signed<TValue>::value)
 		{
@@ -315,7 +315,7 @@ inline constexpr const TChar* from_chars(
 		has_minus_sign = true;
 		++i_char;
 	}
-	else if (chars_first[i_char] == '+')
+	else if (chars_begin[i_char] == '+')
 	{
 		++i_char;
 	}
@@ -325,20 +325,20 @@ inline constexpr const TChar* from_chars(
 		auto detected_base = 0;
 
 		if (i_char + 2 <= max_char_count &&
-			chars_first[i_char + 0] == '0' &&
-			(chars_first[i_char + 1] == 'x' || chars_first[i_char + 1] == 'X'))
+			chars_begin[i_char + 0] == '0' &&
+			(chars_begin[i_char + 1] == 'x' || chars_begin[i_char + 1] == 'X'))
 		{
 			detected_base = 16;
 			i_char += 2;
 		}
 		else if (i_char + 1 <= max_char_count)
 		{
-			if (chars_first[i_char] == '0')
+			if (chars_begin[i_char] == '0')
 			{
 				detected_base = 8;
 				++i_char;
 			}
-			else if (ascii::is_decimal(chars_first[i_char]))
+			else if (ascii::is_decimal(chars_begin[i_char]))
 			{
 				detected_base = 10;
 			}
@@ -371,7 +371,7 @@ inline constexpr const TChar* from_chars(
 
 	while (i_char != max_char_count)
 	{
-		const auto digit_char = chars_first[i_char++];
+		const auto digit_char = chars_begin[i_char++];
 		auto digit = TChar{};
 
 		if (ascii::is_decimal(digit_char))
@@ -406,7 +406,7 @@ inline constexpr const TChar* from_chars(
 	}
 
 	value = detail::FromCharsIntegralFromUnsigned<TValue, Unsigned>{}(u_value, has_minus_sign);
-	return chars_first + i_char;
+	return chars_begin + i_char;
 }
 
 } // namespace bstone
