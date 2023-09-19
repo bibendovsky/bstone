@@ -40,7 +40,7 @@ private:
 
 // ==========================================================================
 
-MemoryResource& get_default_memory_resource() noexcept;
+MemoryResource& get_default_memory_resource();
 
 } // namespace bstone
 

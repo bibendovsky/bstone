@@ -22,18 +22,18 @@ try {
 // ==========================================================================
 
 void* NewDeleteMemoryResource::do_allocate(std::size_t size)
-try {
+{
 	return ::operator new(size);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 void NewDeleteMemoryResource::do_deallocate(void* ptr)
-try {
+{
 	::operator delete(ptr);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 // ==========================================================================
 
-MemoryResource& get_default_memory_resource() noexcept
+MemoryResource& get_default_memory_resource()
 {
 	static auto memory_resource = NewDeleteMemoryResource{};
 	return memory_resource;
