@@ -1,13 +1,15 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-// Non thread-safe memory pool for only one object.
+// Memory pool for single object.
 
 #if !defined(BSTONE_SINGLE_MEMORY_POOL_INCLUDED)
 #define BSTONE_SINGLE_MEMORY_POOL_INCLUDED
+
+#include <cassert>
 
 #include "bstone_exception.h"
 #include "bstone_memory_resource.h"
@@ -43,15 +45,12 @@ private:
 template<typename T>
 SingleMemoryPool<T>::~SingleMemoryPool()
 {
-	if (is_allocated_)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Unallocated pool.");
-	}
+	assert(!is_allocated_);
 }
 
 template<typename T>
 void* SingleMemoryPool<T>::do_allocate(std::size_t size)
-try {
+{
 	if (size != object_size)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Size mismatch.");
@@ -64,7 +63,7 @@ try {
 
 	is_allocated_ = true;
 	return storage_;
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 template<typename T>
 void SingleMemoryPool<T>::do_deallocate(void* ptr)
@@ -74,11 +73,7 @@ void SingleMemoryPool<T>::do_deallocate(void* ptr)
 		return;
 	}
 
-	if (ptr != storage_)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Invalid pointer.");
-	}
-
+	assert(ptr == storage_);
 	is_allocated_ = false;
 }
 

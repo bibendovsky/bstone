@@ -328,6 +328,8 @@ target_sources(
 		bstone_utf8.h
 		bstone_utf16.cpp
 		bstone_utf16.h
+		bstone_single_memory_pool.cpp
+		bstone_single_memory_pool.h
 )
 
 target_sources(
@@ -485,7 +487,6 @@ target_sources(
 		bstone_rgb8.h
 		bstone_rgb_palette.h
 		bstone_sha1.h
-		bstone_single_memory_pool.h
 		bstone_sprite.h
 		bstone_sprite_cache.h
 		bstone_stb_image_encoder.h
