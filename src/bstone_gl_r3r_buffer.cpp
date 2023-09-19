@@ -28,8 +28,8 @@ public:
 	GlR3rBufferImpl(GlR3rContext& context, const R3rBufferInitParam& param);
 	~GlR3rBufferImpl() override;
 
-	static void* operator new(std::size_t size);
-	static void operator delete(void* ptr);
+	void* operator new(std::size_t size);
+	void operator delete(void* ptr);
 
 private:
 	R3rBufferType do_get_type() const noexcept override;
@@ -130,9 +130,9 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rBufferImpl::operator delete(void* ptr)
-try {
+{
 	gl_r3r_buffer_impl_pool.deallocate(ptr);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 R3rBufferType GlR3rBufferImpl::do_get_type() const noexcept
 {

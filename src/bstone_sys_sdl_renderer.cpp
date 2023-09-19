@@ -57,8 +57,8 @@ public:
 	SdlRenderer& operator=(const SdlRenderer&) = delete;
 	~SdlRenderer() override;
 
-	static void* operator new(std::size_t size);
-	static void operator delete(void* ptr);
+	void* operator new(std::size_t size);
+	void operator delete(void* ptr);
 
 private:
 	Logger& logger_;
@@ -120,9 +120,9 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlRenderer::operator delete(void* ptr)
-try {
+{
 	sdl_renderer_pool.deallocate(ptr);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 const char* SdlRenderer::do_get_name() const
 try {

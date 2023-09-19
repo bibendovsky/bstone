@@ -38,8 +38,8 @@ public:
 	GlR3rContextImpl(const GlR3rContextImpl& rhs) = delete;
 	~GlR3rContextImpl() override;
 
-	static void* operator new(std::size_t size);
-	static void operator delete(void* ptr);
+	void* operator new(std::size_t size);
+	void operator delete(void* ptr);
 
 	const R3rDeviceFeatures& get_device_features() const noexcept override;
 	const GlR3rDeviceFeatures& get_gl_device_features() const noexcept override;
@@ -189,9 +189,9 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::operator delete(void* ptr)
-try {
+{
 	gl_r3r_context_impl_pool.deallocate(ptr);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 const R3rDeviceFeatures& GlR3rContextImpl::get_device_features() const noexcept
 {

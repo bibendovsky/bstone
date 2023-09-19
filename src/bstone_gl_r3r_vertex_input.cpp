@@ -35,8 +35,8 @@ public:
 
 	~GlR3rVertexInputImpl() override;
 
-	static void* operator new(std::size_t size);
-	static void operator delete(void* ptr);
+	void* operator new(std::size_t size);
+	void operator delete(void* ptr);
 
 	void bind_vao() override;
 	R3rBuffer* get_index_buffer() const noexcept override;
@@ -122,9 +122,9 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rVertexInputImpl::operator delete(void* ptr)
-try {
+{
 	gl_r3r_vertex_input_impl_pool.deallocate(ptr);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 void GlR3rVertexInputImpl::bind_vao()
 try {

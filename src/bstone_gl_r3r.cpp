@@ -45,8 +45,8 @@ public:
 	GlR3rImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr, const R3rInitParam& param);
 	~GlR3rImpl() override = default;
 
-	static void* operator new(std::size_t size);
-	static void operator delete(void* ptr);
+	void* operator new(std::size_t size);
+	void operator delete(void* ptr);
 
 private:
 	R3rType do_get_type() const noexcept override;
@@ -369,9 +369,9 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::operator delete(void* ptr)
-try {
+{
 	gl_r3r_impl_pool.deallocate(ptr);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 R3rType GlR3rImpl::do_get_type() const noexcept
 {

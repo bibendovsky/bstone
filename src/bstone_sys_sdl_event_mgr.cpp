@@ -28,8 +28,8 @@ public:
 	SdlEventMgr& operator=(const SdlEventMgr&) = delete;
 	~SdlEventMgr() override;
 
-	static void* operator new(std::size_t size);
-	static void operator delete(void* ptr);
+	void* operator new(std::size_t size);
+	void operator delete(void* ptr);
 
 private:
 	Logger& logger_;
@@ -84,9 +84,9 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlEventMgr::operator delete(void* ptr)
-try {
+{
 	sdl_event_mgr_pool.deallocate(ptr);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 VirtualKey SdlEventMgr::map_key_code(SDL_Keycode sdl_key_code)
 {

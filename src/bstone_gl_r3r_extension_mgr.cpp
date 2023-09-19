@@ -31,8 +31,8 @@ public:
 	GlR3rExtensionMgrImpl(sys::GlSharedLibrary& gl_shared_library);
 	~GlR3rExtensionMgrImpl() override;
 
-	static void* operator new(std::size_t size);
-	static void operator delete(void* ptr);
+	void* operator new(std::size_t size);
+	void operator delete(void* ptr);
 
 	int get_count() const noexcept override;
 	const std::string& get_name(int extension_index) const noexcept override;
@@ -136,9 +136,9 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rExtensionMgrImpl::operator delete(void* ptr)
-try {
+{
 	gl_r3r_extension_mgr_impl_pool.deallocate(ptr);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 int GlR3rExtensionMgrImpl::get_count() const noexcept
 {

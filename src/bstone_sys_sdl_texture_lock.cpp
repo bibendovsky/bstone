@@ -33,8 +33,8 @@ public:
 	SdlTextureLock& operator=(const SdlTextureLock& rhs) = delete;
 	~SdlTextureLock() override;
 
-	static void* operator new(std::size_t size);
-	static void operator delete(void* ptr);
+	void* operator new(std::size_t size);
+	void operator delete(void* ptr);
 
 private:
 	SDL_Texture& sdl_texture_;
@@ -76,9 +76,9 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlTextureLock::operator delete(void* ptr)
-try {
+{
 	sdl_texture_lock_pool.deallocate(ptr);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 void* SdlTextureLock::do_get_pixels() const noexcept
 {

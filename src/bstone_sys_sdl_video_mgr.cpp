@@ -33,8 +33,8 @@ public:
 	SdlVideoMgr& operator=(const SdlVideoMgr&) = delete;
 	~SdlVideoMgr() override;
 
-	static void* operator new(std::size_t size);
-	static void operator delete(void* ptr);
+	void* operator new(std::size_t size);
+	void operator delete(void* ptr);
 
 private:
 	using DisplayModeCache = DisplayMode[limits::max_display_modes];
@@ -96,9 +96,9 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlVideoMgr::operator delete(void* ptr)
-try {
+{
 	sdl_video_mgr_pool.deallocate(ptr);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 DisplayMode SdlVideoMgr::do_get_current_display_mode()
 try {

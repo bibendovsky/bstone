@@ -29,8 +29,8 @@ public:
 	GlR3rR2TextureImpl(GlR3rContext& context, const R3rR2TextureInitParam& param);
 	~GlR3rR2TextureImpl() override;
 
-	static void* operator new(std::size_t size);
-	static void operator delete(void* ptr);
+	void* operator new(std::size_t size);
+	void operator delete(void* ptr);
 
 private:
 	void do_update(const R3rR2TextureUpdateParam& param) override;
@@ -240,9 +240,9 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::operator delete(void* ptr)
-try {
+{
 	gl_r3r_r2_texture_impl_pool.deallocate(ptr);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 void GlR3rR2TextureImpl::do_update(const R3rR2TextureUpdateParam& param)
 try {

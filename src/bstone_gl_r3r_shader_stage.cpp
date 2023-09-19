@@ -33,8 +33,8 @@ public:
 	GlR3rShaderStageImpl(GlR3rContext& context, const R3rShaderStageInitParam& param);
 	~GlR3rShaderStageImpl() override;
 
-	static void* operator new(std::size_t size);
-	static void operator delete(void* ptr);
+	void* operator new(std::size_t size);
+	void operator delete(void* ptr);
 
 	GlR3rContext& get_context() const noexcept override;
 	void set() override;
@@ -180,9 +180,9 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rShaderStageImpl::operator delete(void* ptr)
-try {
+{
 	gl_r3r_shader_stage_impl_pool.deallocate(ptr);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 GlR3rContext& GlR3rShaderStageImpl::get_context() const noexcept
 {

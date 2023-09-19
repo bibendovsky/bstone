@@ -37,8 +37,8 @@ public:
 	SdlWindow(Logger& logger, const WindowInitParam& param);
 	~SdlWindow() override;
 
-	static void* operator new(std::size_t size);
-	static void operator delete(void* ptr);
+	void* operator new(std::size_t size);
+	void operator delete(void* ptr);
 
 private:
 	Logger& logger_;
@@ -159,9 +159,9 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlWindow::operator delete(void* ptr)
-try {
+{
 	sdl_window_pool.deallocate(ptr);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 const char* SdlWindow::do_get_title()
 try {

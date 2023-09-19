@@ -23,8 +23,8 @@ public:
 	SdlGlSharedLibrary(const char* path);
 	~SdlGlSharedLibrary() override;
 
-	static void* operator new(std::size_t size);
-	static void operator delete(void* ptr);
+	void* operator new(std::size_t size);
+	void operator delete(void* ptr);
 
 private:
 	void* do_find_symbol(const char* name) noexcept override;
@@ -55,9 +55,9 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlGlSharedLibrary::operator delete(void* ptr)
-try {
+{
 	sdl_gl_shared_library_pool.deallocate(ptr);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 void* SdlGlSharedLibrary::do_find_symbol(const char* name) noexcept
 {

@@ -28,8 +28,8 @@ public:
 	SdlAudioMgr& operator=(const SdlAudioMgr&) = delete;
 	~SdlAudioMgr() override;
 
-	static void* operator new(std::size_t size);
-	static void operator delete(void* ptr);
+	void* operator new(std::size_t size);
+	void operator delete(void* ptr);
 
 private:
 	Logger& logger_;
@@ -77,9 +77,9 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlAudioMgr::operator delete(void* ptr)
-try {
+{
 	sdl_audio_mgr_pool.deallocate(ptr);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 PushAudioDeviceUPtr SdlAudioMgr::do_make_audio_device(const PushAudioDeviceOpenParam& param)
 {

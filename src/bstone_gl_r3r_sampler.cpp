@@ -28,8 +28,8 @@ public:
 	GlR3rSamplerImpl(const GlR3rSampler& rhs) = delete;
 	~GlR3rSamplerImpl() override;
 
-	static void* operator new(std::size_t size);
-	static void operator delete(void* ptr);
+	void* operator new(std::size_t size);
+	void operator delete(void* ptr);
 
 	void set() override;
 
@@ -117,9 +117,9 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rSamplerImpl::operator delete(void* ptr)
-try {
+{
 	gl_r3r_sampler_impl_pool.deallocate(ptr);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 void GlR3rSamplerImpl::set()
 try {

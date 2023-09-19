@@ -23,8 +23,8 @@ public:
 	SdlGlMgr& operator=(const SdlGlMgr&) = delete;
 	~SdlGlMgr() override;
 
-	static void* operator new(std::size_t size);
-	static void operator delete(void* ptr);
+	void* operator new(std::size_t size);
+	void operator delete(void* ptr);
 
 private:
 	Logger& logger_;
@@ -63,9 +63,9 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlGlMgr::operator delete(void* ptr)
-try {
+{
 	sdl_gl_mgr_pool.deallocate(ptr);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 GlSharedLibraryUPtr SdlGlMgr::do_make_shared_library(const char* path)
 {

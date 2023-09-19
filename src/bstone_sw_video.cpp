@@ -39,8 +39,8 @@ public:
 
 	~SwVideo() override;
 
-	static void* operator new(std::size_t size);
-	static void operator delete(void* ptr);
+	void* operator new(std::size_t size);
+	void operator delete(void* ptr);
 
 	bool is_hardware() const noexcept override;
 	StringView get_renderer_name() override;
@@ -199,9 +199,9 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SwVideo::operator delete(void* ptr)
-try {
+{
 	sw_video_pool.deallocate(ptr);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 bool SwVideo::is_hardware() const noexcept
 {
