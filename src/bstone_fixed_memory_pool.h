@@ -1,13 +1,15 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-// Non thread-safe, fixed-size memory pool.
+// Memory pool with known size of an object and maximum size.
 
 #if !defined(BSTONE_FIXED_MEMORY_POOL_INCLUDED)
 #define BSTONE_FIXED_MEMORY_POOL_INCLUDED
+
+#include <cassert>
 
 #include "bstone_exception.h"
 #include "bstone_memory_pool_bitmap.h"
@@ -58,10 +60,7 @@ private:
 template<typename T, IntP TMaxSize>
 FixedMemoryPool<T, TMaxSize>::~FixedMemoryPool()
 {
-	if (!bitmap_.is_empty())
-	{
-		BSTONE_THROW_STATIC_SOURCE("Unallocated pool.");
-	}
+	assert(bitmap_.is_empty());
 }
 
 template<typename T, IntP TMaxSize>

@@ -330,6 +330,8 @@ target_sources(
 		bstone_utf16.h
 		bstone_single_memory_pool.cpp
 		bstone_single_memory_pool.h
+		bstone_fixed_memory_pool.cpp
+		bstone_fixed_memory_pool.h
 )
 
 target_sources(
@@ -454,7 +456,6 @@ target_sources(
 		bstone_file_stream.h
 		bstone_file_system.h
 		bstone_fizzle_fx.h
-		bstone_fixed_memory_pool.h
 		bstone_format_string.h
 		bstone_game_ticker.h
 		bstone_generic_fizzle_fx.h

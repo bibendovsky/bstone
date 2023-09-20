@@ -86,6 +86,8 @@ target_sources(${PROJECT_NAME}
 		../bstone_utf8.h
 		../bstone_single_memory_pool.cpp
 		../bstone_single_memory_pool.h
+		../bstone_fixed_memory_pool.cpp
+		../bstone_fixed_memory_pool.h
 	PRIVATE
 		src/bstone_tests_algorithm.cpp
 		src/bstone_tests_array.cpp
@@ -110,6 +112,7 @@ target_sources(${PROJECT_NAME}
 		src/bstone_tests_memory_pool_bitmap.cpp
 		src/bstone_tests_utf.cpp
 		src/bstone_tests_single_memory_pool.cpp
+		src/bstone_tests_fixed_memory_pool.cpp
 	PRIVATE
 		src/bstone_tester.cpp
 		src/bstone_tester.h
