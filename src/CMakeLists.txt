@@ -332,6 +332,8 @@ target_sources(
 		bstone_single_memory_pool.h
 		bstone_fixed_memory_pool.cpp
 		bstone_fixed_memory_pool.h
+		bstone_generic_memory_pool.cpp
+		bstone_generic_memory_pool.h
 )
 
 target_sources(
