@@ -7,9 +7,11 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_MEMORY_RESOURCE_INCLUDED)
 #define BSTONE_MEMORY_RESOURCE_INCLUDED
 
-#include <cstddef>
+#include "bstone_int.h"
 
 namespace bstone {
+
+using MemoryResourceInt = IntP;
 
 class MemoryResource
 {
@@ -17,11 +19,11 @@ public:
 	MemoryResource() = default;
 	virtual ~MemoryResource() = default;
 
-	void* allocate(std::size_t size);
+	void* allocate(MemoryResourceInt size);
 	void deallocate(void* ptr);
 
 private:
-	virtual void* do_allocate(std::size_t size) = 0;
+	virtual void* do_allocate(MemoryResourceInt size) = 0;
 	virtual void do_deallocate(void* ptr) = 0;
 };
 
@@ -34,7 +36,7 @@ public:
 	~NewDeleteMemoryResource() override = default;
 
 private:
-	void* do_allocate(std::size_t size) override;
+	void* do_allocate(MemoryResourceInt size) override;
 	void do_deallocate(void* ptr) override;
 };
 

@@ -16,10 +16,6 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-using GenericMemoryPoolInt = IntP;
-
-// ==========================================================================
-
 class GenericMemoryPool final : public MemoryResource
 {
 public:
@@ -31,13 +27,13 @@ public:
 	~GenericMemoryPool() override;
 
 	void reserve(
-		GenericMemoryPoolInt object_size,
-		GenericMemoryPoolInt max_objects,
+		MemoryResourceInt object_size,
+		MemoryResourceInt max_objects,
 		MemoryResource& memory_resource);
 
 	void reserve(
-		GenericMemoryPoolInt object_size,
-		GenericMemoryPoolInt max_objects);
+		MemoryResourceInt object_size,
+		MemoryResourceInt max_objects);
 
 private:
 	template<typename T>
@@ -70,13 +66,13 @@ private:
 private:
 	Bitmap bitmap_;
 	Storage storage_;
-	GenericMemoryPoolInt object_size_{};
-	GenericMemoryPoolInt max_objects_{};
-	GenericMemoryPoolInt object_count_{};
-	GenericMemoryPoolInt bitmap_pivot_index_{};
+	MemoryResourceInt object_size_{};
+	MemoryResourceInt max_objects_{};
+	MemoryResourceInt object_count_{};
+	MemoryResourceInt bitmap_pivot_index_{};
 
 private:
-	void* do_allocate(std::size_t size) override;
+	void* do_allocate(MemoryResourceInt size) override;
 	void do_deallocate(void* ptr) override;
 };
 

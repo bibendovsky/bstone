@@ -20,7 +20,7 @@ template<typename T>
 class SingleMemoryPool final : public MemoryResource
 {
 public:
-	static constexpr auto object_size = sizeof(T);
+	static constexpr auto object_size = static_cast<MemoryResourceInt>(sizeof(T));
 
 public:
 	SingleMemoryPool() = default;
@@ -29,7 +29,7 @@ public:
 	~SingleMemoryPool() override;
 
 private:
-	void* do_allocate(std::size_t size) override;
+	void* do_allocate(MemoryResourceInt size) override;
 	void do_deallocate(void* ptr) override;
 
 private:
@@ -49,7 +49,7 @@ SingleMemoryPool<T>::~SingleMemoryPool()
 }
 
 template<typename T>
-void* SingleMemoryPool<T>::do_allocate(std::size_t size)
+void* SingleMemoryPool<T>::do_allocate(MemoryResourceInt size)
 {
 	if (size != object_size)
 	{

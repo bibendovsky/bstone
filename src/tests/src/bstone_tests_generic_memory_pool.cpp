@@ -12,8 +12,7 @@ auto tester = bstone::Tester{};
 // Default.
 void test_4gaip46ok4ygv2x2()
 {
-	using Item = double;
-	constexpr auto ItemSize = static_cast<bstone::GenericMemoryPoolInt>(sizeof(double));
+	constexpr auto ItemSize = static_cast<bstone::MemoryResourceInt>(sizeof(double));
 	using MemoryPool = bstone::GenericMemoryPool;
 
 	auto is_failed = false;
@@ -37,8 +36,7 @@ void test_4gaip46ok4ygv2x2()
 // Size mismatch.
 void test_5qgvnqpxgycv7gkd()
 {
-	using Item = double;
-	constexpr auto ItemSize = static_cast<bstone::GenericMemoryPoolInt>(sizeof(double));
+	constexpr auto ItemSize = static_cast<bstone::MemoryResourceInt>(sizeof(double));
 	using MemoryPool = bstone::GenericMemoryPool;
 
 	auto is_failed = false;
@@ -62,8 +60,7 @@ void test_5qgvnqpxgycv7gkd()
 // Out of memory.
 void test_gam4600nv3dkpjuq()
 {
-	using Item = double;
-	constexpr auto ItemSize = static_cast<bstone::GenericMemoryPoolInt>(sizeof(double));
+	constexpr auto ItemSize = static_cast<bstone::MemoryResourceInt>(sizeof(double));
 	using MemoryPool = bstone::GenericMemoryPool;
 
 	auto is_failed = false;
@@ -75,8 +72,8 @@ void test_gam4600nv3dkpjuq()
 
 	try
 	{
-		ptrs[0] = memory_pool.allocate(sizeof(Item));
-		ptrs[1] = memory_pool.allocate(sizeof(Item));
+		ptrs[0] = memory_pool.allocate(ItemSize);
+		ptrs[1] = memory_pool.allocate(ItemSize);
 	}
 	catch (...)
 	{
@@ -98,7 +95,7 @@ public:
 	~CustomMemoryResource() override = default;
 
 private:
-	void* do_allocate(std::size_t size) override
+	void* do_allocate(bstone::MemoryResourceInt size) override
 	{
 		return ::operator new(size);
 	}
@@ -119,8 +116,7 @@ bstone::MemoryResource& get_memory_resource()
 // Default with custom memory resource.
 void test_emcqn7mpnndwaaru()
 {
-	using Item = double;
-	constexpr auto ItemSize = static_cast<bstone::GenericMemoryPoolInt>(sizeof(double));
+	constexpr auto ItemSize = static_cast<bstone::MemoryResourceInt>(sizeof(double));
 	using MemoryPool = bstone::GenericMemoryPool;
 
 	auto is_failed = false;
@@ -144,8 +140,7 @@ void test_emcqn7mpnndwaaru()
 // Size mismatch with custom memory resource.
 void test_u3igyuszzqpfykzv()
 {
-	using Item = double;
-	constexpr auto ItemSize = static_cast<bstone::GenericMemoryPoolInt>(sizeof(double));
+	constexpr auto ItemSize = static_cast<bstone::MemoryResourceInt>(sizeof(double));
 	using MemoryPool = bstone::GenericMemoryPool;
 
 	auto is_failed = false;
@@ -169,8 +164,7 @@ void test_u3igyuszzqpfykzv()
 // Out of memory with custom memory resource.
 void test_y4t70jtj7dyrvmkt()
 {
-	using Item = double;
-	constexpr auto ItemSize = static_cast<bstone::GenericMemoryPoolInt>(sizeof(double));
+	constexpr auto ItemSize = static_cast<bstone::MemoryResourceInt>(sizeof(double));
 	using MemoryPool = bstone::GenericMemoryPool;
 
 	auto is_failed = false;
@@ -182,8 +176,8 @@ void test_y4t70jtj7dyrvmkt()
 
 	try
 	{
-		ptrs[0] = memory_pool.allocate(sizeof(Item));
-		ptrs[1] = memory_pool.allocate(sizeof(Item));
+		ptrs[0] = memory_pool.allocate(ItemSize);
+		ptrs[1] = memory_pool.allocate(ItemSize);
 	}
 	catch (...)
 	{

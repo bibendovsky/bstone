@@ -17,7 +17,7 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-template<typename T, IntP TMaxSize>
+template<typename T, MemoryResourceInt TMaxSize>
 class FixedMemoryPool final : public MemoryResource
 {
 	static_assert(TMaxSize > 0, "Invalid max size.");
@@ -51,7 +51,7 @@ private:
 	Storage storage_{};
 
 private:
-	void* do_allocate(std::size_t size) override;
+	void* do_allocate(MemoryResourceInt size) override;
 	void do_deallocate(void* ptr) override;
 };
 
@@ -70,7 +70,7 @@ auto FixedMemoryPool<T, TMaxSize>::allocate() -> Value*
 }
 
 template<typename T, IntP TMaxSize>
-void* FixedMemoryPool<T, TMaxSize>::do_allocate(std::size_t size)
+void* FixedMemoryPool<T, TMaxSize>::do_allocate(MemoryResourceInt size)
 {
 	if (size != value_size)
 	{

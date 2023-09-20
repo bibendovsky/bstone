@@ -28,8 +28,8 @@ GenericMemoryPool::~GenericMemoryPool()
 }
 
 void GenericMemoryPool::reserve(
-	GenericMemoryPoolInt object_size,
-	GenericMemoryPoolInt max_objects,
+	MemoryResourceInt object_size,
+	MemoryResourceInt max_objects,
 	MemoryResource& memory_resource)
 {
 	if (object_size <= 0)
@@ -42,7 +42,7 @@ void GenericMemoryPool::reserve(
 		BSTONE_THROW_STATIC_SOURCE("Max object count out of range.");
 	}
 
-	constexpr auto max_objects_value = std::numeric_limits<GenericMemoryPoolInt>::max();
+	constexpr auto max_objects_value = std::numeric_limits<MemoryResourceInt>::max();
 
 	if (max_objects > max_objects_value / object_size)
 	{
@@ -74,7 +74,7 @@ void GenericMemoryPool::reserve(
 
 	std::uninitialized_fill_n(bitmap.get(), max_objects, false);
 
-	const auto storage_size = static_cast<std::size_t>(object_size * max_objects);
+	const auto storage_size = object_size * max_objects;
 
 	auto storage = Storage
 	{
@@ -89,15 +89,15 @@ void GenericMemoryPool::reserve(
 }
 
 void GenericMemoryPool::reserve(
-	GenericMemoryPoolInt object_size,
-	GenericMemoryPoolInt max_size)
+	MemoryResourceInt object_size,
+	MemoryResourceInt max_size)
 {
 	reserve(object_size, max_size, get_default_memory_resource());
 }
 
-void* GenericMemoryPool::do_allocate(std::size_t size)
+void* GenericMemoryPool::do_allocate(MemoryResourceInt size)
 {
-	if (size != static_cast<std::size_t>(object_size_))
+	if (size != object_size_)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Object size mismatch.");
 	}
@@ -111,8 +111,8 @@ void* GenericMemoryPool::do_allocate(std::size_t size)
 
 	struct IndexPair
 	{
-		GenericMemoryPoolInt from;
-		GenericMemoryPoolInt to;
+		MemoryResourceInt from;
+		MemoryResourceInt to;
 	};
 
 	const IndexPair index_pairs[2] = {{bitmap_pivot_index_, max_objects_}, {0, bitmap_pivot_index_}};
