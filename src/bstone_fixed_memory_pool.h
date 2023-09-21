@@ -4,7 +4,7 @@ Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// Memory pool with known size of an object and maximum size.
+// Memory pool with known size of an object and maximum objects.
 
 #if !defined(BSTONE_FIXED_MEMORY_POOL_INCLUDED)
 #define BSTONE_FIXED_MEMORY_POOL_INCLUDED
@@ -17,33 +17,30 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-template<typename T, MemoryResourceInt TMaxSize>
+template<typename TObject, MemoryResourceInt TMaxObjects>
 class FixedMemoryPool final : public MemoryResource
 {
-	static_assert(TMaxSize > 0, "Invalid max size.");
+	static_assert(TMaxObjects > 0, "Max objects out of range.");
 
 public:
 	using MemoryResource::allocate;
 	using MemoryResource::deallocate;
 
-	using Value = T;
-	using Size = decltype(TMaxSize);
+	using Object = TObject;
 
 public:
-	static constexpr auto max_size = TMaxSize;
-	static constexpr auto value_size = static_cast<Size>(sizeof(Value));
+	static constexpr auto max_objects = TMaxObjects;
+	static constexpr auto object_size = static_cast<IntP>(sizeof(Object));
 
 public:
 	FixedMemoryPool() = default;
 	~FixedMemoryPool() override;
 
-	Value* allocate();
+private:
+	static constexpr auto storage_size = object_size * max_objects;
 
 private:
-	static constexpr auto storage_size = value_size * max_size;
-
-private:
-	using Bitmap = MemoryPoolBitmap<MemoryPoolBitmapStaticStorage<max_size>>;
+	using Bitmap = MemoryPoolBitmap<MemoryPoolBitmapStaticStorage<max_objects>>;
 	using Storage = unsigned char[storage_size];
 
 private:
@@ -57,41 +54,35 @@ private:
 
 // --------------------------------------------------------------------------
 
-template<typename T, IntP TMaxSize>
-FixedMemoryPool<T, TMaxSize>::~FixedMemoryPool()
+template<typename TObject, IntP TMaxObjects>
+FixedMemoryPool<TObject, TMaxObjects>::~FixedMemoryPool()
 {
 	assert(bitmap_.is_empty());
 }
 
-template<typename T, IntP TMaxSize>
-auto FixedMemoryPool<T, TMaxSize>::allocate() -> Value*
+template<typename TObject, IntP TMaxObjects>
+void* FixedMemoryPool<TObject, TMaxObjects>::do_allocate(MemoryResourceInt size)
 {
-	return static_cast<Value*>(do_allocate(value_size));
-}
-
-template<typename T, IntP TMaxSize>
-void* FixedMemoryPool<T, TMaxSize>::do_allocate(MemoryResourceInt size)
-{
-	if (size != value_size)
+	if (size != object_size)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Allocation size mismatch.");
 	}
 
 	const auto index = bitmap_.set_first_free();
-	const auto values = reinterpret_cast<Value*>(storage_);
+	const auto values = reinterpret_cast<Object*>(storage_);
 	return &values[index];
 }
 
-template<typename T, IntP TMaxSize>
-void FixedMemoryPool<T, TMaxSize>::do_deallocate(void* ptr)
+template<typename TObject, IntP TMaxObjects>
+void FixedMemoryPool<TObject, TMaxObjects>::do_deallocate(void* ptr)
 {
 	if (ptr == nullptr)
 	{
 		return;
 	}
 
-	const auto value = static_cast<Value*>(ptr);
-	const auto values = reinterpret_cast<Value*>(storage_);
+	const auto value = static_cast<Object*>(ptr);
+	const auto values = reinterpret_cast<Object*>(storage_);
 	const auto index = value - values;
 	bitmap_.reset(index);
 }
