@@ -42,10 +42,7 @@ GenericMemoryPool::~GenericMemoryPool()
 	assert(object_count_ == 0);
 }
 
-void GenericMemoryPool::reserve(
-	MemoryResourceInt object_size,
-	MemoryResourceInt max_objects,
-	MemoryResource& memory_resource)
+void GenericMemoryPool::reserve(IntP object_size, IntP max_objects, MemoryResource& memory_resource)
 {
 	if (object_size <= 0)
 	{
@@ -57,7 +54,7 @@ void GenericMemoryPool::reserve(
 		BSTONE_THROW_STATIC_SOURCE("Max object count out of range.");
 	}
 
-	constexpr auto max_objects_value = std::numeric_limits<MemoryResourceInt>::max();
+	constexpr auto max_objects_value = std::numeric_limits<IntP>::max();
 
 	if (max_objects > max_objects_value / object_size)
 	{
@@ -94,7 +91,7 @@ void GenericMemoryPool::reserve(
 	max_objects_ = max_objects;
 }
 
-void* GenericMemoryPool::do_allocate(MemoryResourceInt size)
+void* GenericMemoryPool::do_allocate(IntP size)
 {
 	if (size != object_size_)
 	{

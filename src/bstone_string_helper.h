@@ -66,7 +66,7 @@ public:
 }; // StringHelper
 
 
-template<typename TItem, ArrayInt TSize>
+template<typename TItem, IntP TSize>
 inline std::string array_to_hex_string(const Array<TItem, TSize>& array)
 {
 	auto string = std::string(TSize * 2, '\0');

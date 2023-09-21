@@ -132,7 +132,7 @@ void test_y82j43v4a54wo211()
 {
 	using Type = int;
 	constexpr auto value_count = 3;
-	constexpr auto bytes_count = value_count * static_cast<bstone::SpanInt>(sizeof(Type));
+	constexpr auto bytes_count = value_count * static_cast<bstone::IntP>(sizeof(Type));
 	static constexpr int values[value_count] = {10, 20, 30};
 	constexpr auto span = bstone::Span<const Type>{values};
 	tester.check(span.get_bytes_size() == bytes_count);

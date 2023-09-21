@@ -11,19 +11,17 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-using MemoryResourceInt = IntP;
-
 class MemoryResource
 {
 public:
 	MemoryResource() = default;
 	virtual ~MemoryResource() = default;
 
-	void* allocate(MemoryResourceInt size);
+	void* allocate(IntP size);
 	void deallocate(void* ptr);
 
 private:
-	virtual void* do_allocate(MemoryResourceInt size) = 0;
+	virtual void* do_allocate(IntP size) = 0;
 	virtual void do_deallocate(void* ptr) = 0;
 };
 
@@ -36,7 +34,7 @@ public:
 	~NullMemoryResource() override = default;
 
 private:
-	void* do_allocate(MemoryResourceInt size) override;
+	void* do_allocate(IntP size) override;
 	void do_deallocate(void* ptr) override;
 };
 
@@ -49,7 +47,7 @@ public:
 	~NewDeleteMemoryResource() override = default;
 
 private:
-	void* do_allocate(MemoryResourceInt size) override;
+	void* do_allocate(IntP size) override;
 	void do_deallocate(void* ptr) override;
 };
 

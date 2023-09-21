@@ -12,7 +12,7 @@ auto tester = bstone::Tester{};
 // Default.
 void test_4gaip46ok4ygv2x2()
 {
-	constexpr auto ItemSize = static_cast<bstone::MemoryResourceInt>(sizeof(double));
+	constexpr auto ItemSize = static_cast<bstone::IntP>(sizeof(double));
 	using MemoryPool = bstone::GenericMemoryPool;
 
 	auto is_failed = false;
@@ -36,7 +36,7 @@ void test_4gaip46ok4ygv2x2()
 // Size mismatch.
 void test_5qgvnqpxgycv7gkd()
 {
-	constexpr auto ItemSize = static_cast<bstone::MemoryResourceInt>(sizeof(double));
+	constexpr auto ItemSize = static_cast<bstone::IntP>(sizeof(double));
 	using MemoryPool = bstone::GenericMemoryPool;
 
 	auto is_failed = false;
@@ -60,7 +60,7 @@ void test_5qgvnqpxgycv7gkd()
 // Out of memory.
 void test_gam4600nv3dkpjuq()
 {
-	constexpr auto ItemSize = static_cast<bstone::MemoryResourceInt>(sizeof(double));
+	constexpr auto ItemSize = static_cast<bstone::IntP>(sizeof(double));
 	using MemoryPool = bstone::GenericMemoryPool;
 
 	auto is_failed = false;
@@ -95,7 +95,7 @@ public:
 	~CustomMemoryResource() override = default;
 
 private:
-	void* do_allocate(bstone::MemoryResourceInt size) override
+	void* do_allocate(bstone::IntP size) override
 	{
 		return ::operator new(size);
 	}
@@ -116,7 +116,7 @@ bstone::MemoryResource& get_memory_resource()
 // Default with custom memory resource.
 void test_emcqn7mpnndwaaru()
 {
-	constexpr auto ItemSize = static_cast<bstone::MemoryResourceInt>(sizeof(double));
+	constexpr auto ItemSize = static_cast<bstone::IntP>(sizeof(double));
 	using MemoryPool = bstone::GenericMemoryPool;
 
 	auto is_failed = false;
@@ -140,7 +140,7 @@ void test_emcqn7mpnndwaaru()
 // Size mismatch with custom memory resource.
 void test_u3igyuszzqpfykzv()
 {
-	constexpr auto ItemSize = static_cast<bstone::MemoryResourceInt>(sizeof(double));
+	constexpr auto ItemSize = static_cast<bstone::IntP>(sizeof(double));
 	using MemoryPool = bstone::GenericMemoryPool;
 
 	auto is_failed = false;
@@ -164,7 +164,7 @@ void test_u3igyuszzqpfykzv()
 // Out of memory with custom memory resource.
 void test_y4t70jtj7dyrvmkt()
 {
-	constexpr auto ItemSize = static_cast<bstone::MemoryResourceInt>(sizeof(double));
+	constexpr auto ItemSize = static_cast<bstone::IntP>(sizeof(double));
 	using MemoryPool = bstone::GenericMemoryPool;
 
 	auto is_failed = false;

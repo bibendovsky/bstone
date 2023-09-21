@@ -42,11 +42,7 @@ using ArrayVarArgPolicy =
 
 // ==========================================================================
 
-using ArrayInt = IntP;
-
-// ==========================================================================
-
-template<typename TItem, ArrayInt TSize>
+template<typename TItem, IntP TSize>
 class Array
 {
 public:
@@ -68,7 +64,7 @@ public:
 	constexpr const Item* get_data() const noexcept;
 	constexpr Item* get_data() noexcept;
 
-	constexpr ArrayInt get_size() const noexcept;
+	constexpr IntP get_size() const noexcept;
 	constexpr bool is_empty() const noexcept;
 
 	constexpr const Item* begin() const noexcept;
@@ -81,8 +77,8 @@ public:
 
 	constexpr void fill(const Item& value);
 
-	constexpr const Item& operator[](ArrayInt index) const;
-	constexpr Item& operator[](ArrayInt index);
+	constexpr const Item& operator[](IntP index) const;
+	constexpr Item& operator[](IntP index);
 
 	constexpr void swap(Array& rhs) noexcept(
 		noexcept(bstone::swop(std::declval<Item&>(), std::declval<Item&>())));
@@ -99,19 +95,19 @@ private:
 
 // --------------------------------------------------------------------------
 
-template<typename TItem, ArrayInt TSize>
+template<typename TItem, IntP TSize>
 constexpr Array<TItem, TSize>::Array(const Array& rhs)
 {
 	copy_items(rhs.items_, items_);
 }
 
-template<typename TItem, ArrayInt TSize>
+template<typename TItem, IntP TSize>
 constexpr Array<TItem, TSize>::Array(const Item (&rhs)[TSize])
 {
 	copy_items(rhs, items_);
 }
 
-template<typename TItem, ArrayInt TSize>
+template<typename TItem, IntP TSize>
 constexpr auto Array<TItem, TSize>::operator=(const Array& rhs) -> Array&
 {
 	assert(std::addressof(rhs) != this);
@@ -119,67 +115,67 @@ constexpr auto Array<TItem, TSize>::operator=(const Array& rhs) -> Array&
 	return *this;
 }
 
-template<typename TItem, ArrayInt TSize>
+template<typename TItem, IntP TSize>
 constexpr auto Array<TItem, TSize>::get_data() const noexcept -> const Item*
 {
 	return items_;
 }
 
-template<typename TItem, ArrayInt TSize>
+template<typename TItem, IntP TSize>
 constexpr auto Array<TItem, TSize>::get_data() noexcept -> Item*
 {
 	return const_cast<Item*>(bstone::as_const(*this).get_data());
 }
 
-template<typename TItem, ArrayInt TSize>
-constexpr ArrayInt Array<TItem, TSize>::get_size() const noexcept
+template<typename TItem, IntP TSize>
+constexpr IntP Array<TItem, TSize>::get_size() const noexcept
 {
 	return TSize;
 }
 
-template<typename TItem, ArrayInt TSize>
+template<typename TItem, IntP TSize>
 constexpr bool Array<TItem, TSize>::is_empty() const noexcept
 {
 	return get_size() == 0;
 }
 
-template<typename TItem, ArrayInt TSize>
+template<typename TItem, IntP TSize>
 constexpr auto Array<TItem, TSize>::begin() const noexcept -> const Item*
 {
 	return get_data();
 }
 
-template<typename TItem, ArrayInt TSize>
+template<typename TItem, IntP TSize>
 constexpr auto Array<TItem, TSize>::begin() noexcept -> Item*
 {
 	return const_cast<Item*>(bstone::as_const(*this).begin());
 }
 
-template<typename TItem, ArrayInt TSize>
+template<typename TItem, IntP TSize>
 constexpr auto Array<TItem, TSize>::end() const noexcept -> const Item*
 {
 	return get_data() + get_size();
 }
 
-template<typename TItem, ArrayInt TSize>
+template<typename TItem, IntP TSize>
 constexpr auto Array<TItem, TSize>::end() noexcept -> Item*
 {
 	return const_cast<Item*>(bstone::as_const(*this).end());
 }
 
-template<typename TItem, ArrayInt TSize>
+template<typename TItem, IntP TSize>
 constexpr auto Array<TItem, TSize>::cbegin() const noexcept -> const Item*
 {
 	return get_data();
 }
 
-template<typename TItem, ArrayInt TSize>
+template<typename TItem, IntP TSize>
 constexpr auto Array<TItem, TSize>::cend() const noexcept -> const Item*
 {
 	return get_data() + get_size();
 }
 
-template<typename TItem, ArrayInt TSize>
+template<typename TItem, IntP TSize>
 constexpr void Array<TItem, TSize>::fill(const Item& value)
 {
 	for (auto& item : items_)
@@ -188,30 +184,30 @@ constexpr void Array<TItem, TSize>::fill(const Item& value)
 	}
 }
 
-template<typename TItem, ArrayInt TSize>
-constexpr auto Array<TItem, TSize>::operator[](ArrayInt index) const -> const Item&
+template<typename TItem, IntP TSize>
+constexpr auto Array<TItem, TSize>::operator[](IntP index) const -> const Item&
 {
 	assert(index >= 0 && index < get_size());
 	return items_[index];
 }
 
-template<typename TItem, ArrayInt TSize>
-constexpr auto Array<TItem, TSize>::operator[](ArrayInt index) -> Item&
+template<typename TItem, IntP TSize>
+constexpr auto Array<TItem, TSize>::operator[](IntP index) -> Item&
 {
 	return const_cast<Item&>(bstone::as_const(*this).operator[](index));
 }
 
-template<typename TItem, ArrayInt TSize>
+template<typename TItem, IntP TSize>
 constexpr void Array<TItem, TSize>::swap(Array& rhs) noexcept(
 	noexcept(bstone::swop(std::declval<Item&>(), std::declval<Item&>())))
 {
-	for (auto i = ArrayInt{}; i < TSize; ++i)
+	for (auto i = IntP{}; i < TSize; ++i)
 	{
 		bstone::swop(items_[i], rhs.items_[i]);
 	}
 }
 
-template<typename TItem, ArrayInt TSize>
+template<typename TItem, IntP TSize>
 constexpr void Array<TItem, TSize>::copy_items(const Items& src_items, Items& dst_items)
 {
 	for (auto i = decltype(TSize){}; i < TSize; ++i)
@@ -234,7 +230,7 @@ public:
 	constexpr const Item* get_data() const noexcept;
 	constexpr Item* get_data() noexcept;
 
-	constexpr ArrayInt get_size() const noexcept;
+	constexpr IntP get_size() const noexcept;
 	constexpr bool is_empty() const noexcept;
 
 	constexpr const Item* begin() const noexcept;
@@ -264,7 +260,7 @@ constexpr auto Array<TItem, 0>::get_data() noexcept -> Item*
 }
 
 template<typename TItem>
-constexpr ArrayInt Array<TItem, 0>::get_size() const noexcept
+constexpr IntP Array<TItem, 0>::get_size() const noexcept
 {
 	return 0;
 }
@@ -313,7 +309,7 @@ constexpr auto Array<TItem, 0>::cend() const noexcept -> const Item*
 
 // ==========================================================================
 
-template<typename TItem, ArrayInt TSize>
+template<typename TItem, IntP TSize>
 inline constexpr bool operator==(const Array<TItem, TSize>& lhs, const Array<TItem, TSize>& rhs)
 {
 	for (auto i = decltype(TSize){}; i < TSize; ++i)
@@ -327,7 +323,7 @@ inline constexpr bool operator==(const Array<TItem, TSize>& lhs, const Array<TIt
 	return true;
 }
 
-template<typename TItem, ArrayInt TSize>
+template<typename TItem, IntP TSize>
 inline constexpr bool operator!=(const Array<TItem, TSize>& lhs, const Array<TItem, TSize>& rhs)
 {
 	return !(lhs == rhs);

@@ -17,7 +17,7 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-template<typename TObject, MemoryResourceInt TMaxObjects>
+template<typename TObject, IntP TMaxObjects>
 class FixedMemoryPool final : public MemoryResource
 {
 	static_assert(TMaxObjects > 0, "Max objects out of range.");
@@ -48,7 +48,7 @@ private:
 	Storage storage_{};
 
 private:
-	void* do_allocate(MemoryResourceInt size) override;
+	void* do_allocate(IntP size) override;
 	void do_deallocate(void* ptr) override;
 };
 
@@ -61,7 +61,7 @@ FixedMemoryPool<TObject, TMaxObjects>::~FixedMemoryPool()
 }
 
 template<typename TObject, IntP TMaxObjects>
-void* FixedMemoryPool<TObject, TMaxObjects>::do_allocate(MemoryResourceInt size)
+void* FixedMemoryPool<TObject, TMaxObjects>::do_allocate(IntP size)
 {
 	if (size != object_size)
 	{

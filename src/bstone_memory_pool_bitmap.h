@@ -19,11 +19,7 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-using MemoryPoolBitmapInt = IntP;
-
-// ==========================================================================
-
-template<MemoryPoolBitmapInt TSize>
+template<IntP TSize>
 class MemoryPoolBitmapStaticStorage
 {
 public:
@@ -32,17 +28,17 @@ public:
 		return false;
 	}
 
-	static constexpr MemoryPoolBitmapInt get_size() noexcept
+	static constexpr IntP get_size() noexcept
 	{
 		return TSize;
 	}
 
-	const bool& operator[](MemoryPoolBitmapInt index) const
+	const bool& operator[](IntP index) const
 	{
 		return storage_[index];
 	}
 
-	bool& operator[](MemoryPoolBitmapInt index)
+	bool& operator[](IntP index)
 	{
 		return storage_[index];
 	}
@@ -69,7 +65,7 @@ public:
 		storage_{nullptr, StorageDeleter{}}
 	{}
 
-	MemoryPoolBitmapDynamicStorage(MemoryPoolBitmapInt size, MemoryResource& memory_resource)
+	MemoryPoolBitmapDynamicStorage(IntP size, MemoryResource& memory_resource)
 	{
 		resize(size, memory_resource);
 	}
@@ -79,7 +75,7 @@ public:
 		return true;
 	}
 
-	MemoryPoolBitmapInt get_size() const noexcept
+	IntP get_size() const noexcept
 	{
 		return size_;
 	}
@@ -90,7 +86,7 @@ public:
 		size_ = 0;
 	}
 
-	void resize(MemoryPoolBitmapInt size, MemoryResource& memory_resource)
+	void resize(IntP size, MemoryResource& memory_resource)
 	{
 		reset();
 
@@ -100,12 +96,12 @@ public:
 		size_ = size;
 	}
 
-	const bool& operator[](MemoryPoolBitmapInt index) const
+	const bool& operator[](IntP index) const
 	{
 		return storage_[index];
 	}
 
-	bool& operator[](MemoryPoolBitmapInt index)
+	bool& operator[](IntP index)
 	{
 		return storage_[index];
 	}
@@ -137,7 +133,7 @@ private:
 
 private:
 	Storage storage_{};
-	MemoryPoolBitmapInt size_{};
+	IntP size_{};
 };
 
 // ==========================================================================
@@ -152,13 +148,13 @@ public:
 	MemoryPoolBitmap() = default;
 
 	template<typename UStorage = Storage, std::enable_if_t<UStorage::is_dynamic(), int> = 0>
-	MemoryPoolBitmap(MemoryPoolBitmapInt size, MemoryResource& memory_resource)
+	MemoryPoolBitmap(IntP size, MemoryResource& memory_resource)
 	{
 		resize(size, memory_resource);
 	}
 
 	template<typename UStorage = Storage, std::enable_if_t<UStorage::is_dynamic(), int> = 0>
-	void resize(MemoryPoolBitmapInt size, MemoryResource& memory_resource)
+	void resize(IntP size, MemoryResource& memory_resource)
 	try {
 		if (!is_empty())
 		{
@@ -174,21 +170,21 @@ public:
 		bitmap_.reset();
 	}
 
-	MemoryPoolBitmapInt get_size() const noexcept;
+	IntP get_size() const noexcept;
 	bool is_empty() const noexcept;
-	MemoryPoolBitmapInt set_first_free();
-	void reset(MemoryPoolBitmapInt index);
+	IntP set_first_free();
+	void reset(IntP index);
 
 private:
 	Storage bitmap_{};
-	MemoryPoolBitmapInt size_{};
-	MemoryPoolBitmapInt pivot_index_{};
+	IntP size_{};
+	IntP pivot_index_{};
 };
 
 // --------------------------------------------------------------------------
 
 template<typename TStorage>
-MemoryPoolBitmapInt MemoryPoolBitmap<TStorage>::get_size() const noexcept
+IntP MemoryPoolBitmap<TStorage>::get_size() const noexcept
 {
 	return size_;
 }
@@ -200,7 +196,7 @@ bool MemoryPoolBitmap<TStorage>::is_empty() const noexcept
 }
 
 template<typename TStorage>
-MemoryPoolBitmapInt MemoryPoolBitmap<TStorage>::set_first_free()
+IntP MemoryPoolBitmap<TStorage>::set_first_free()
 try
 {
 	constexpr auto no_free_bit_message = "No free bit.";
@@ -214,8 +210,8 @@ try
 
 	struct IndexPair
 	{
-		MemoryPoolBitmapInt from;
-		MemoryPoolBitmapInt to;
+		IntP from;
+		IntP to;
 	};
 
 	const IndexPair index_pairs[2] = {{pivot_index_, max_size}, {0, pivot_index_}};
@@ -238,7 +234,7 @@ try
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 template<typename TStorage>
-void MemoryPoolBitmap<TStorage>::reset(MemoryPoolBitmapInt index)
+void MemoryPoolBitmap<TStorage>::reset(IntP index)
 try
 {
 	bitmap_[index] = false;
@@ -248,7 +244,7 @@ try
 
 // ==========================================================================
 
-template<MemoryPoolBitmapInt TSize>
+template<IntP TSize>
 using StaticMemoryPoolBitmap = MemoryPoolBitmap<MemoryPoolBitmapStaticStorage<TSize>>;
 
 using DynamicMemoryPoolBitmap = MemoryPoolBitmap<MemoryPoolBitmapDynamicStorage>;

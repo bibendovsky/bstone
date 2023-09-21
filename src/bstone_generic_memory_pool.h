@@ -27,10 +27,7 @@ public:
 	GenericMemoryPool();
 	~GenericMemoryPool() override;
 
-	void reserve(
-		MemoryResourceInt object_size,
-		MemoryResourceInt max_objects,
-		MemoryResource& memory_resource);
+	void reserve(IntP object_size, IntP max_objects, MemoryResource& memory_resource);
 
 private:
 	class StorageDeleter
@@ -51,12 +48,12 @@ private:
 private:
 	Bitmap bitmap_{};
 	Storage storage_;
-	MemoryResourceInt object_size_{};
-	MemoryResourceInt max_objects_{};
-	MemoryResourceInt object_count_{};
+	IntP object_size_{};
+	IntP max_objects_{};
+	IntP object_count_{};
 
 private:
-	void* do_allocate(MemoryResourceInt size) override;
+	void* do_allocate(IntP size) override;
 	void do_deallocate(void* ptr) override;
 };
 

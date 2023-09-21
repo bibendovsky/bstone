@@ -18,10 +18,6 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-using SpanInt = IntP;
-
-// ==========================================================================
-
 template<typename T>
 class Span
 {
@@ -31,7 +27,7 @@ public:
 public:
 	Span() = default;
 
-	constexpr Span(Item* items, SpanInt size)
+	constexpr Span(Item* items, IntP size)
 		:
 		items_{items},
 		size_{size}
@@ -39,7 +35,7 @@ public:
 		assert(items == nullptr && size == 0 || items != nullptr && size >= 0);
 	}
 
-	template<SpanInt TSize>
+	template<IntP TSize>
 	constexpr explicit Span(Item (&items)[TSize]) noexcept
 		:
 		items_{items},
@@ -51,7 +47,7 @@ public:
 		return items_;
 	}
 
-	constexpr SpanInt get_size() const noexcept
+	constexpr IntP get_size() const noexcept
 	{
 		return size_;
 	}
@@ -66,9 +62,9 @@ public:
 		return get_size() == 0;
 	}
 
-	constexpr SpanInt get_bytes_size() const noexcept
+	constexpr IntP get_bytes_size() const noexcept
 	{
-		return get_size() * static_cast<SpanInt>(sizeof(Item));
+		return get_size() * static_cast<IntP>(sizeof(Item));
 	}
 
 	constexpr Item* begin() const noexcept
@@ -107,7 +103,7 @@ public:
 		return const_cast<Item&>(bstone::as_const(*this).get_back());
 	}
 
-	constexpr Span get_subspan(SpanInt offset, SpanInt size) const
+	constexpr Span get_subspan(IntP offset, IntP size) const
 	{
 		assert(offset >= 0);
 		assert(size >= 0);
@@ -116,12 +112,12 @@ public:
 		return Span{get_data() + offset, size};
 	}
 
-	constexpr Span get_subspan(SpanInt offset) const
+	constexpr Span get_subspan(IntP offset) const
 	{
 		return get_subspan(offset, get_size() - offset);
 	}
 
-	constexpr Item& operator[](SpanInt index) const
+	constexpr Item& operator[](IntP index) const
 	{
 		assert(index >= 0 && index < get_size());
 		assert(has_data());
@@ -137,18 +133,18 @@ public:
 
 private:
 	Item* items_{};
-	SpanInt size_{};
+	IntP size_{};
 };
 
 // ==========================================================================
 
 template<typename T>
-inline constexpr auto make_span(T* items, SpanInt size)
+inline constexpr auto make_span(T* items, IntP size)
 {
 	return Span<T>{items, size};
 }
 
-template<typename T, SpanInt TSize>
+template<typename T, IntP TSize>
 inline constexpr auto make_span(T (&array)[TSize]) noexcept
 {
 	return Span<T>{array};
@@ -157,12 +153,12 @@ inline constexpr auto make_span(T (&array)[TSize]) noexcept
 // ==========================================================================
 
 template<typename T>
-inline constexpr auto make_const_span(T* items, SpanInt size)
+inline constexpr auto make_const_span(T* items, IntP size)
 {
 	return Span<const T>{items, size};
 }
 
-template<typename T, SpanInt TSize>
+template<typename T, IntP TSize>
 inline constexpr auto make_const_span(T (&array)[TSize]) noexcept
 {
 	return Span<const T>{array};
@@ -177,19 +173,19 @@ inline auto make_const_span(Span<T> span) noexcept
 // ==========================================================================
 
 template<typename T>
-inline auto make_octets_span(T* items, SpanInt count)
+inline auto make_octets_span(T* items, IntP count)
 {
-	constexpr auto item_size = static_cast<SpanInt>(sizeof(T));
+	constexpr auto item_size = static_cast<IntP>(sizeof(T));
 	using Octet = std::conditional_t<std::is_const<T>::value, const UInt8, UInt8>;
 	const auto size = count * item_size;
 
 	return Span<Octet>{reinterpret_cast<Octet*>(items), size};
 }
 
-template<typename T, SpanInt TSize>
+template<typename T, IntP TSize>
 inline auto make_octets_span(T (&array)[TSize]) noexcept
 {
-	constexpr auto item_size = static_cast<SpanInt>(sizeof(T));
+	constexpr auto item_size = static_cast<IntP>(sizeof(T));
 	using Octet = std::conditional_t<std::is_const<T>::value, const UInt8, UInt8>;
 	const auto size = TSize * item_size;
 
@@ -207,18 +203,18 @@ inline auto make_octets_span(Span<T> span) noexcept
 // ==========================================================================
 
 template<typename T>
-inline Span<const UInt8> make_const_octets_span(T* items, SpanInt count)
+inline Span<const UInt8> make_const_octets_span(T* items, IntP count)
 {
-	constexpr auto item_size = static_cast<SpanInt>(sizeof(T));
+	constexpr auto item_size = static_cast<IntP>(sizeof(T));
 	const auto size = count * item_size;
 
 	return Span<const UInt8>{reinterpret_cast<const UInt8*>(items), size};
 }
 
-template<typename T, SpanInt TSize>
+template<typename T, IntP TSize>
 inline Span<const UInt8> make_const_octets_span(T (&array)[TSize]) noexcept
 {
-	constexpr auto item_size = static_cast<SpanInt>(sizeof(T));
+	constexpr auto item_size = static_cast<IntP>(sizeof(T));
 	const auto size = TSize * item_size;
 
 	return Span<const UInt8>{reinterpret_cast<const UInt8*>(array), size};
