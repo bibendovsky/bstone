@@ -9,10 +9,13 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_MEMORY_POOL_BITMAP_INCLUDED)
 #define BSTONE_MEMORY_POOL_BITMAP_INCLUDED
 
-#include <array>
+#include <memory>
+#include <type_traits>
 
-#include "bstone_int.h"
+#include "bstone_array.h"
 #include "bstone_exception.h"
+#include "bstone_int.h"
+#include "bstone_memory_resource.h"
 
 namespace bstone {
 
@@ -20,41 +23,193 @@ using MemoryPoolBitmapInt = IntP;
 
 // ==========================================================================
 
-template<MemoryPoolBitmapInt TMaxSize>
+template<MemoryPoolBitmapInt TSize>
+class MemoryPoolBitmapStaticStorage
+{
+public:
+	static constexpr bool is_dynamic() noexcept
+	{
+		return false;
+	}
+
+	static constexpr MemoryPoolBitmapInt get_size() noexcept
+	{
+		return TSize;
+	}
+
+	const bool& operator[](MemoryPoolBitmapInt index) const
+	{
+		return storage_[index];
+	}
+
+	bool& operator[](MemoryPoolBitmapInt index)
+	{
+		return storage_[index];
+	}
+
+	void reset()
+	{
+		storage_.fill(false);
+	}
+
+private:
+	using Storage = Array<bool, get_size()>;
+
+private:
+	Storage storage_{};
+};
+
+// ==========================================================================
+
+class MemoryPoolBitmapDynamicStorage
+{
+public:
+	MemoryPoolBitmapDynamicStorage()
+		:
+		storage_{nullptr, StorageDeleter{}}
+	{}
+
+	MemoryPoolBitmapDynamicStorage(MemoryPoolBitmapInt size, MemoryResource& memory_resource)
+	{
+		resize(size, memory_resource);
+	}
+
+	static constexpr bool is_dynamic() noexcept
+	{
+		return true;
+	}
+
+	MemoryPoolBitmapInt get_size() const noexcept
+	{
+		return size_;
+	}
+
+	void reset()
+	{
+		storage_ = nullptr;
+		size_ = 0;
+	}
+
+	void resize(MemoryPoolBitmapInt size, MemoryResource& memory_resource)
+	{
+		reset();
+
+		auto storage = Storage{static_cast<bool*>(memory_resource.allocate(size)), StorageDeleter{memory_resource}};
+		std::uninitialized_fill_n(storage.get(), size, false);
+		storage_.swap(storage);
+		size_ = size;
+	}
+
+	const bool& operator[](MemoryPoolBitmapInt index) const
+	{
+		return storage_[index];
+	}
+
+	bool& operator[](MemoryPoolBitmapInt index)
+	{
+		return storage_[index];
+	}
+
+private:
+	class StorageDeleter
+	{
+	public:
+		StorageDeleter()
+			:
+			memory_resource_{&get_null_memory_resource()}
+		{}
+
+		StorageDeleter(MemoryResource& memory_resource)
+			:
+			memory_resource_{&memory_resource}
+		{}
+
+		void operator()(bool* ptr) const
+		{
+			memory_resource_->deallocate(ptr);
+		}
+
+	private:
+		MemoryResource* memory_resource_{};
+	};
+
+	using Storage = std::unique_ptr<bool[], StorageDeleter>;
+
+private:
+	Storage storage_{};
+	MemoryPoolBitmapInt size_{};
+};
+
+// ==========================================================================
+
+template<typename TStorage>
 class MemoryPoolBitmap
 {
 public:
-	static constexpr auto max_size = TMaxSize;
+	using Storage = TStorage;
 
 public:
+	MemoryPoolBitmap() = default;
+
+	template<typename UStorage = Storage, std::enable_if_t<UStorage::is_dynamic(), int> = 0>
+	MemoryPoolBitmap(MemoryPoolBitmapInt size, MemoryResource& memory_resource)
+	{
+		resize(size, memory_resource);
+	}
+
+	template<typename UStorage = Storage, std::enable_if_t<UStorage::is_dynamic(), int> = 0>
+	void resize(MemoryPoolBitmapInt size, MemoryResource& memory_resource)
+	try {
+		if (!is_empty())
+		{
+			BSTONE_THROW_STATIC_SOURCE("In use.");
+		}
+
+		bitmap_.resize(size, memory_resource);
+	} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+	template<typename UStorage = Storage, std::enable_if_t<UStorage::is_dynamic(), int> = 0>
+	void reset_storage()
+	{
+		bitmap_.reset();
+	}
+
+	MemoryPoolBitmapInt get_size() const noexcept;
 	bool is_empty() const noexcept;
 	MemoryPoolBitmapInt set_first_free();
 	void reset(MemoryPoolBitmapInt index);
 
 private:
-	using Bitmap = std::array<bool, max_size>;
-
-private:
-	Bitmap bitmap_{};
+	Storage bitmap_{};
 	MemoryPoolBitmapInt size_{};
 	MemoryPoolBitmapInt pivot_index_{};
 };
 
 // --------------------------------------------------------------------------
 
-template<MemoryPoolBitmapInt TMaxSize>
-bool MemoryPoolBitmap<TMaxSize>::is_empty() const noexcept
+template<typename TStorage>
+MemoryPoolBitmapInt MemoryPoolBitmap<TStorage>::get_size() const noexcept
+{
+	return size_;
+}
+
+template<typename TStorage>
+bool MemoryPoolBitmap<TStorage>::is_empty() const noexcept
 {
 	return size_ == 0;
 }
 
-template<MemoryPoolBitmapInt TMaxSize>
-MemoryPoolBitmapInt MemoryPoolBitmap<TMaxSize>::set_first_free()
+template<typename TStorage>
+MemoryPoolBitmapInt MemoryPoolBitmap<TStorage>::set_first_free()
 try
 {
+	constexpr auto no_free_bit_message = "No free bit.";
+
+	const auto max_size = bitmap_.get_size();
+
 	if (size_ == max_size)
 	{
-		BSTONE_THROW_STATIC_SOURCE("No free bit.");
+		BSTONE_THROW_STATIC_SOURCE(no_free_bit_message);
 	}
 
 	struct IndexPair
@@ -79,17 +234,24 @@ try
 		}
 	}
 
-	BSTONE_THROW_STATIC_SOURCE("No free bit.");
+	BSTONE_THROW_STATIC_SOURCE(no_free_bit_message);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-template<MemoryPoolBitmapInt TMaxSize>
-void MemoryPoolBitmap<TMaxSize>::reset(MemoryPoolBitmapInt index)
+template<typename TStorage>
+void MemoryPoolBitmap<TStorage>::reset(MemoryPoolBitmapInt index)
 try
 {
 	bitmap_[index] = false;
 	--size_;
 	pivot_index_ = index;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+// ==========================================================================
+
+template<MemoryPoolBitmapInt TSize>
+using StaticMemoryPoolBitmap = MemoryPoolBitmap<MemoryPoolBitmapStaticStorage<TSize>>;
+
+using DynamicMemoryPoolBitmap = MemoryPoolBitmap<MemoryPoolBitmapDynamicStorage>;
 
 } // namespace bstone
 

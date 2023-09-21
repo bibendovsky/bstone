@@ -43,7 +43,7 @@ private:
 	static constexpr auto storage_size = value_size * max_size;
 
 private:
-	using Bitmap = MemoryPoolBitmap<max_size>;
+	using Bitmap = MemoryPoolBitmap<MemoryPoolBitmapStaticStorage<max_size>>;
 	using Storage = unsigned char[storage_size];
 
 private:

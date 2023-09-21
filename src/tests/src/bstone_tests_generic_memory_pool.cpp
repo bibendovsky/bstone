@@ -20,7 +20,7 @@ void test_4gaip46ok4ygv2x2()
 	try
 	{
 		MemoryPool memory_pool{};
-		memory_pool.reserve(ItemSize, 1);
+		memory_pool.reserve(ItemSize, 1, bstone::get_default_memory_resource());
 		auto ptr = memory_pool.allocate(static_cast<std::size_t>(ItemSize));
 		memory_pool.deallocate(ptr);
 	}
@@ -44,7 +44,7 @@ void test_5qgvnqpxgycv7gkd()
 	try
 	{
 		MemoryPool memory_pool{};
-		memory_pool.reserve(ItemSize, 1);
+		memory_pool.reserve(ItemSize, 1, bstone::get_default_memory_resource());
 		auto ptr = memory_pool.allocate(0);
 		memory_pool.deallocate(ptr);
 	}
@@ -68,7 +68,7 @@ void test_gam4600nv3dkpjuq()
 	void* ptrs[2] = {};
 
 	MemoryPool memory_pool{};
-	memory_pool.reserve(ItemSize, 1);
+	memory_pool.reserve(ItemSize, 1, bstone::get_default_memory_resource());
 
 	try
 	{

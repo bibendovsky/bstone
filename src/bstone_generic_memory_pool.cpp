@@ -9,17 +9,32 @@ SPDX-License-Identifier: MIT
 #include <cassert>
 
 #include <limits>
-#include <memory>
 
 #include "bstone_exception.h"
 #include "bstone_generic_memory_pool.h"
 
 namespace bstone {
 
+GenericMemoryPool::StorageDeleter::StorageDeleter()
+	:
+	memory_resource_{&get_null_memory_resource()}
+{}
+
+GenericMemoryPool::StorageDeleter::StorageDeleter(MemoryResource& memory_resource)
+	:
+	memory_resource_{&memory_resource}
+{}
+
+void GenericMemoryPool::StorageDeleter::operator()(unsigned char* ptr) const
+{
+	memory_resource_->deallocate(ptr);
+}
+
+// ==========================================================================
+
 GenericMemoryPool::GenericMemoryPool()
 	:
-	bitmap_{nullptr, BitmapDeleter{get_default_memory_resource()}},
-	storage_{nullptr, StorageDeleter{get_default_memory_resource()}}
+	storage_{nullptr, StorageDeleter{get_null_memory_resource()}}
 {}
 
 GenericMemoryPool::~GenericMemoryPool()
@@ -54,25 +69,16 @@ void GenericMemoryPool::reserve(
 		BSTONE_THROW_STATIC_SOURCE("In use.");
 	}
 
-	bitmap_ = nullptr;
+	bitmap_.reset_storage();
 	storage_ = nullptr;
 	object_size_ = 0;
 	max_objects_ = 0;
 	object_count_ = 0;
-	bitmap_pivot_index_ = 0;
 
 	if (max_objects == 0)
 	{
 		return;
 	}
-
-	auto bitmap = Bitmap
-	{
-		static_cast<bool*>(memory_resource.allocate(max_objects)),
-		BitmapDeleter{memory_resource}
-	};
-
-	std::uninitialized_fill_n(bitmap.get(), max_objects, false);
 
 	const auto storage_size = object_size * max_objects;
 
@@ -82,17 +88,10 @@ void GenericMemoryPool::reserve(
 		StorageDeleter{memory_resource}
 	};
 
-	bitmap_.swap(bitmap);
+	bitmap_.resize(max_objects, memory_resource);
 	storage_.swap(storage);
 	object_size_ = object_size;
 	max_objects_ = max_objects;
-}
-
-void GenericMemoryPool::reserve(
-	MemoryResourceInt object_size,
-	MemoryResourceInt max_size)
-{
-	reserve(object_size, max_size, get_default_memory_resource());
 }
 
 void* GenericMemoryPool::do_allocate(MemoryResourceInt size)
@@ -109,29 +108,9 @@ void* GenericMemoryPool::do_allocate(MemoryResourceInt size)
 		BSTONE_THROW_STATIC_SOURCE(out_of_memory_message);
 	}
 
-	struct IndexPair
-	{
-		MemoryResourceInt from;
-		MemoryResourceInt to;
-	};
-
-	const IndexPair index_pairs[2] = {{bitmap_pivot_index_, max_objects_}, {0, bitmap_pivot_index_}};
-
-	for (const auto& index_pair : index_pairs)
-	{
-		for (auto i = index_pair.from; i < index_pair.to; ++i)
-		{
-			if (!bitmap_[i])
-			{
-				bitmap_[i] = true;
-				++object_count_;
-				bitmap_pivot_index_ = i;
-				return storage_.get() + i * object_size_;
-			}
-		}
-	}
-
-	BSTONE_THROW_STATIC_SOURCE(out_of_memory_message);
+	const auto index = bitmap_.set_first_free();
+	++object_count_;
+	return storage_.get() + index * object_size_;
 }
 
 void GenericMemoryPool::do_deallocate(void* ptr)
@@ -144,9 +123,8 @@ void GenericMemoryPool::do_deallocate(void* ptr)
 	const auto index = (static_cast<unsigned char*>(ptr) - storage_.get()) / object_size_;
 	assert(index >= 0 && index < max_objects_);
 
-	bitmap_[index] = false;
+	bitmap_.reset(index);
 	--object_count_;
-	bitmap_pivot_index_ = index;
 }
 
 } // namespace bstone
