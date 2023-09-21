@@ -23,6 +23,15 @@ try {
 
 // ==========================================================================
 
+void* NullMemoryResource::do_allocate(MemoryResourceInt)
+{
+	BSTONE_THROW_STATIC_SOURCE("Out of memory.");
+}
+
+void NullMemoryResource::do_deallocate(void*) {}
+
+// ==========================================================================
+
 void* NewDeleteMemoryResource::do_allocate(MemoryResourceInt size)
 {
 	return ::operator new(static_cast<std::size_t>(size));
@@ -34,6 +43,18 @@ void NewDeleteMemoryResource::do_deallocate(void* ptr)
 }
 
 // ==========================================================================
+
+MemoryResource& get_null_memory_resource()
+{
+	static auto memory_resource = NullMemoryResource{};
+	return memory_resource;
+}
+
+MemoryResource& get_new_delete_memory_resource()
+{
+	static auto memory_resource = NewDeleteMemoryResource{};
+	return memory_resource;
+}
 
 MemoryResource& get_default_memory_resource()
 {

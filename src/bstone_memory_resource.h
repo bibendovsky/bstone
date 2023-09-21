@@ -29,6 +29,19 @@ private:
 
 // ==========================================================================
 
+class NullMemoryResource final : public MemoryResource
+{
+public:
+	NullMemoryResource() = default;
+	~NullMemoryResource() override = default;
+
+private:
+	void* do_allocate(MemoryResourceInt size) override;
+	void do_deallocate(void* ptr) override;
+};
+
+// ==========================================================================
+
 class NewDeleteMemoryResource final : public MemoryResource
 {
 public:
@@ -42,6 +55,8 @@ private:
 
 // ==========================================================================
 
+MemoryResource& get_null_memory_resource();
+MemoryResource& get_new_delete_memory_resource();
 MemoryResource& get_default_memory_resource();
 
 } // namespace bstone
