@@ -52,6 +52,8 @@ private:
 	WindowMgrUPtr do_make_window_mgr() override;
 
 private:
+	static MemoryResource& get_memory_resource();
+
 	static void log_int(int value, std::string& message);
 	static void log_rect(const SDL_Rect& rect, std::string& message);
 
@@ -62,11 +64,6 @@ private:
 
 	static DisplayMode map_display_mode(const SDL_DisplayMode& sdl_display_mode) noexcept;
 };
-
-// ==========================================================================
-
-using SdlVideoMgrPool = SingleMemoryPool<SdlVideoMgr>;
-SdlVideoMgrPool sdl_video_mgr_pool{};
 
 // ==========================================================================
 
@@ -92,12 +89,12 @@ SdlVideoMgr::~SdlVideoMgr()
 
 void* SdlVideoMgr::operator new(std::size_t size)
 try {
-	return sdl_video_mgr_pool.allocate(size);
+	return get_memory_resource().allocate(size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlVideoMgr::operator delete(void* ptr)
 {
-	sdl_video_mgr_pool.deallocate(ptr);
+	get_memory_resource().deallocate(ptr);
 }
 
 DisplayMode SdlVideoMgr::do_get_current_display_mode()
@@ -135,6 +132,13 @@ MouseMgrUPtr SdlVideoMgr::do_make_mouse_mgr()
 WindowMgrUPtr SdlVideoMgr::do_make_window_mgr()
 {
 	return make_sdl_window_mgr(logger_);
+}
+
+MemoryResource& SdlVideoMgr::get_memory_resource()
+{
+	static SingleMemoryPool<SdlVideoMgr> memory_pool{};
+
+	return memory_pool;
 }
 
 void SdlVideoMgr::log_int(int value, std::string& message)

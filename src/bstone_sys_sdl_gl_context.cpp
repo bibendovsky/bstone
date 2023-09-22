@@ -6,8 +6,9 @@ SPDX-License-Identifier: MIT
 
 #include <string>
 #include <type_traits>
+#include "bstone_configurations.h"
 #include "bstone_exception.h"
-#include "bstone_single_memory_pool.h"
+#include "bstone_generic_memory_pool.h"
 #include "bstone_sys_sdl_detail.h"
 #include "bstone_sys_sdl_exception.h"
 #include "bstone_sys_sdl_gl_context.h"
@@ -49,15 +50,12 @@ private:
 	const GlContextAttributes& do_get_attributes() const noexcept override;
 
 private:
+	static MemoryResource& get_memory_resource();
+
 	static GlContextProfile map_profile(int sdl_context_profile);
 	static int get_attrib(SDL_GLattr gl_attrib);
 	static bool get_attrib_bool(SDL_GLattr gl_attrib);
 };
-
-// ==========================================================================
-
-using SdlGlContextPool = SingleMemoryPool<SdlGlContext>;
-SdlGlContextPool sdl_gl_context_pool{};
 
 // ==========================================================================
 
@@ -119,17 +117,36 @@ SdlGlContext::~SdlGlContext()
 
 void* SdlGlContext::operator new(std::size_t size)
 try {
-	return sdl_gl_context_pool.allocate(size);
+	return get_memory_resource().allocate(size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlGlContext::operator delete(void* ptr)
 {
-	sdl_gl_context_pool.deallocate(ptr);
+	get_memory_resource().deallocate(ptr);
 }
 
 const GlContextAttributes& SdlGlContext::do_get_attributes() const noexcept
 {
 	return attributes_;
+}
+
+MemoryResource& SdlGlContext::get_memory_resource()
+{
+	struct Initializer
+	{
+		Initializer(GenericMemoryPool& generic_memory_pool)
+		{
+			generic_memory_pool.reserve(
+				static_cast<IntP>(sizeof(SdlGlContext)),
+				sys_max_gl_contexts,
+				get_default_memory_resource());
+		}
+	};
+
+	static GenericMemoryPool generic_memory_pool{};
+	static const Initializer initializer{generic_memory_pool};
+
+	return generic_memory_pool;
 }
 
 GlContextProfile SdlGlContext::map_profile(int sdl_context_profile)

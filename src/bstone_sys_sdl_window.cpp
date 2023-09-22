@@ -68,6 +68,8 @@ private:
 	RendererUPtr do_make_renderer(const RendererInitParam& param) override;
 
 private:
+	static MemoryResource& get_memory_resource();
+
 	static void log_position(int position, std::string& message);
 	static void log_rect(const WindowInitParam& param, std::string& message);
 	static void log_flag(const char* flag_name, std::string& message);
@@ -82,11 +84,6 @@ private:
 	static GlContextAttributes make_default_gl_attributes() noexcept;
 	static void set_gl_attributes(const GlContextAttributes& gl_attributes);
 };
-
-// ==========================================================================
-
-using SdlWindowPool = SingleMemoryPool<SdlWindow>;
-SdlWindowPool sdl_window_pool{};
 
 // ==========================================================================
 
@@ -155,12 +152,12 @@ SdlWindow::~SdlWindow()
 
 void* SdlWindow::operator new(std::size_t size)
 try {
-	return sdl_window_pool.allocate(size);
+	return get_memory_resource().allocate(size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlWindow::operator delete(void* ptr)
 {
-	sdl_window_pool.deallocate(ptr);
+	get_memory_resource().deallocate(ptr);
 }
 
 const char* SdlWindow::do_get_title()
@@ -242,6 +239,13 @@ RendererUPtr SdlWindow::do_make_renderer(const RendererInitParam& param)
 try {
 	return make_sdl_renderer(logger_, *sdl_window_, param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+MemoryResource& SdlWindow::get_memory_resource()
+{
+	static SingleMemoryPool<SdlWindow> memory_pool{};
+
+	return memory_pool;
+}
 
 void SdlWindow::log_position(int position, std::string& message)
 {

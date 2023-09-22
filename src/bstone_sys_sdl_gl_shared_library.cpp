@@ -7,7 +7,8 @@ SPDX-License-Identifier: MIT
 #include "SDL_video.h"
 
 #include "bstone_exception.h"
-#include "bstone_single_memory_pool.h"
+#include "bstone_configurations.h"
+#include "bstone_generic_memory_pool.h"
 
 #include "bstone_sys_sdl_exception.h"
 #include "bstone_sys_sdl_gl_shared_library.h"
@@ -28,14 +29,12 @@ public:
 
 private:
 	void* do_find_symbol(const char* name) noexcept override;
+
+private:
+	static MemoryResource& get_memory_resource();
 };
 
 } // namespace
-
-// ==========================================================================
-
-using SdlGlSharedLibraryPool = SingleMemoryPool<SdlGlSharedLibrary>;
-SdlGlSharedLibraryPool sdl_gl_shared_library_pool{};
 
 // ==========================================================================
 
@@ -51,17 +50,36 @@ SdlGlSharedLibrary::~SdlGlSharedLibrary()
 
 void* SdlGlSharedLibrary::operator new(std::size_t size)
 try {
-	return sdl_gl_shared_library_pool.allocate(size);
+	return get_memory_resource().allocate(size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlGlSharedLibrary::operator delete(void* ptr)
 {
-	sdl_gl_shared_library_pool.deallocate(ptr);
+	get_memory_resource().deallocate(ptr);
 }
 
 void* SdlGlSharedLibrary::do_find_symbol(const char* name) noexcept
 {
 	return SDL_GL_GetProcAddress(name);
+}
+
+MemoryResource& SdlGlSharedLibrary::get_memory_resource()
+{
+	struct Initializer
+	{
+		Initializer(GenericMemoryPool& generic_memory_pool)
+		{
+			generic_memory_pool.reserve(
+				static_cast<IntP>(sizeof(SdlGlSharedLibrary)),
+				sys_max_gl_shared_libraries,
+				get_default_memory_resource());
+		}
+	};
+
+	static GenericMemoryPool generic_memory_pool{};
+	static const Initializer initializer{generic_memory_pool};
+
+	return generic_memory_pool;
 }
 
 // ==========================================================================

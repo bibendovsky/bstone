@@ -43,14 +43,11 @@ private:
 	void do_pause(bool is_pause) override;
 
 private:
+	static MemoryResource& get_memory_resource();
+
 	static void SDLCALL sdl_callback(void* userdata, Uint8* stream, int len);
 	void callback(float* samples, int sample_count);
 };
-
-// ==========================================================================
-
-using SdlPushAudioDevicePool = SingleMemoryPool<SdlPushAudioDevice>;
-SdlPushAudioDevicePool sdl_push_audio_device_pool{};
 
 // ==========================================================================
 
@@ -116,12 +113,12 @@ SdlPushAudioDevice::~SdlPushAudioDevice()
 
 void* SdlPushAudioDevice::operator new(std::size_t size)
 try {
-	return sdl_push_audio_device_pool.allocate(size);
+	return get_memory_resource().allocate(size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlPushAudioDevice::operator delete(void* ptr)
 {
-	sdl_push_audio_device_pool.deallocate(ptr);
+	get_memory_resource().deallocate(ptr);
 }
 
 int SdlPushAudioDevice::do_get_rate() const noexcept
@@ -142,6 +139,13 @@ int SdlPushAudioDevice::do_get_frame_count() const noexcept
 void SdlPushAudioDevice::do_pause(bool is_pause)
 {
 	SDL_PauseAudioDevice(sdl_audio_device_id_, is_pause ? SDL_TRUE : SDL_FALSE);
+}
+
+MemoryResource& SdlPushAudioDevice::get_memory_resource()
+{
+	static SingleMemoryPool<SdlPushAudioDevice> memory_pool{};
+
+	return memory_pool;
 }
 
 void SDLCALL SdlPushAudioDevice::sdl_callback(void* userdata, Uint8* stream, int len)

@@ -79,6 +79,8 @@ private:
 	TextureUPtr do_make_texture(const TextureInitParam& param) override;
 
 private:
+	static MemoryResource& get_memory_resource();
+
 	static SDL_PixelFormatEnum map_pixel_format(PixelFormat pixel_format);
 
 	void log_flag(const char* flag, std::string& message);
@@ -86,11 +88,6 @@ private:
 	void log_texture_formats(const SDL_RendererInfo& info, std::string& message);
 	void log_info();
 };
-
-// ==========================================================================
-
-using SdlRendererPool = SingleMemoryPool<SdlRenderer>;
-SdlRendererPool sdl_renderer_pool{};
 
 // ==========================================================================
 
@@ -116,12 +113,12 @@ SdlRenderer::~SdlRenderer()
 
 void* SdlRenderer::operator new(std::size_t size)
 try {
-	return sdl_renderer_pool.allocate(size);
+	return get_memory_resource().allocate(size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlRenderer::operator delete(void* ptr)
 {
-	sdl_renderer_pool.deallocate(ptr);
+	get_memory_resource().deallocate(ptr);
 }
 
 const char* SdlRenderer::do_get_name() const
@@ -182,6 +179,13 @@ TextureUPtr SdlRenderer::do_make_texture(const TextureInitParam& param)
 try {
 	return make_sdl_texture(logger_, *sdl_renderer_, param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+MemoryResource& SdlRenderer::get_memory_resource()
+{
+	static SingleMemoryPool<SdlRenderer> memory_pool{};
+
+	return memory_pool;
+}
 
 SDL_PixelFormatEnum SdlRenderer::map_pixel_format(PixelFormat pixel_format)
 try {

@@ -6,8 +6,9 @@ SPDX-License-Identifier: MIT
 
 #include "SDL_render.h"
 
-#include "bstone_fixed_memory_pool.h"
+#include "bstone_configurations.h"
 #include "bstone_exception.h"
+#include "bstone_generic_memory_pool.h"
 
 #include "bstone_sys_sdl_exception.h"
 #include "bstone_sys_sdl_limits.h"
@@ -54,16 +55,13 @@ private:
 	TextureLockUPtr do_make_lock(const R2RectI* rect) override;
 
 private:
+	static MemoryResource& get_memory_resource();
+
 	static SDL_BlendMode map_blend_mode(TextureBlendMode blend_mode);
 	static SDL_PixelFormatEnum map_pixel_format(PixelFormat pixel_format);
 	static SDL_TextureAccess map_access(TextureAccess texture_access);
 
 };
-
-// ==========================================================================
-
-using SdlTexturePool = FixedMemoryPool<SdlTexture, limits::max_textures>;
-SdlTexturePool sdl_texture_pool{};
 
 // ==========================================================================
 
@@ -90,12 +88,12 @@ SdlTexture::~SdlTexture()
 
 void* SdlTexture::operator new(std::size_t size)
 try {
-	return sdl_texture_pool.allocate(size);
+	return get_memory_resource().allocate(size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlTexture::operator delete(void* ptr)
 {
-	sdl_texture_pool.deallocate(ptr);
+	get_memory_resource().deallocate(ptr);
 }
 
 void SdlTexture::do_set_blend_mode(TextureBlendMode blend_mode)
@@ -117,6 +115,25 @@ TextureLockUPtr SdlTexture::do_make_lock(const R2RectI* rect)
 try {
 	return make_sdl_texture_lock(*sdl_texture_, rect);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+MemoryResource& SdlTexture::get_memory_resource()
+{
+	struct Initializer
+	{
+		Initializer(GenericMemoryPool& generic_memory_pool)
+		{
+			generic_memory_pool.reserve(
+				static_cast<IntP>(sizeof(SdlTexture)),
+				sys_max_textures,
+				get_default_memory_resource());
+		}
+	};
+
+	static GenericMemoryPool generic_memory_pool{};
+	static const Initializer initializer{generic_memory_pool};
+
+	return generic_memory_pool;
+}
 
 SDL_BlendMode SdlTexture::map_blend_mode(TextureBlendMode blend_mode)
 try {

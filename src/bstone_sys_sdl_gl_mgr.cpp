@@ -36,12 +36,10 @@ private:
 
 	int do_get_swap_interval() noexcept override;
 	void do_set_swap_interval(int swap_interval) override;
+
+private:
+	static MemoryResource& get_memory_resource();
 };
-
-// ==========================================================================
-
-using SdlGlMgrPool = SingleMemoryPool<SdlGlMgr>;
-SdlGlMgrPool sdl_gl_mgr_pool{};
 
 // ==========================================================================
 
@@ -59,12 +57,12 @@ SdlGlMgr::~SdlGlMgr()
 
 void* SdlGlMgr::operator new(std::size_t size)
 try {
-	return sdl_gl_mgr_pool.allocate(size);
+	return get_memory_resource().allocate(size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlGlMgr::operator delete(void* ptr)
 {
-	sdl_gl_mgr_pool.deallocate(ptr);
+	get_memory_resource().deallocate(ptr);
 }
 
 GlSharedLibraryUPtr SdlGlMgr::do_make_shared_library(const char* path)
@@ -85,6 +83,13 @@ int SdlGlMgr::do_get_swap_interval() noexcept
 void SdlGlMgr::do_set_swap_interval(int swap_interval)
 {
 	sdl_ensure_result(SDL_GL_SetSwapInterval(swap_interval));
+}
+
+MemoryResource& SdlGlMgr::get_memory_resource()
+{
+	static SingleMemoryPool<SdlGlMgr> memory_pool{};
+
+	return memory_pool;
 }
 
 } // namespace

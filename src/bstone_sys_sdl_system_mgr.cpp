@@ -43,17 +43,14 @@ private:
 	VideoMgrUPtr do_make_video_mgr() override;
 
 private:
+	static MemoryResource& get_memory_resource();
+
 	void log_version(const SDL_version& sdl_version, StringView version_name);
 	void log_compiled_version();
 	void log_linked_version();
 	void log_versions();
 	void log_info() noexcept;
 };
-
-// ==========================================================================
-
-using SdlSystemMgrPool = SingleMemoryPool<SdlSystemMgr>;
-SdlSystemMgrPool sdl_system_mgr_pool{};
 
 // ==========================================================================
 
@@ -79,12 +76,12 @@ SdlSystemMgr::~SdlSystemMgr()
 
 void* SdlSystemMgr::operator new(std::size_t size)
 try {
-	return sdl_system_mgr_pool.allocate(size);
+	return get_memory_resource().allocate(size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlSystemMgr::operator delete(void* ptr)
 {
-	sdl_system_mgr_pool.deallocate(ptr);
+	get_memory_resource().deallocate(ptr);
 }
 
 AudioMgrUPtr SdlSystemMgr::do_make_audio_mgr()
@@ -100,6 +97,13 @@ EventMgrUPtr SdlSystemMgr::do_make_event_mgr()
 VideoMgrUPtr SdlSystemMgr::do_make_video_mgr()
 {
 	return make_sdl_video_mgr(logger_);
+}
+
+MemoryResource& SdlSystemMgr::get_memory_resource()
+{
+	static SingleMemoryPool<SdlSystemMgr> memory_pool{};
+
+	return memory_pool;
 }
 
 void SdlSystemMgr::log_version(const SDL_version& sdl_version, StringView version_name)

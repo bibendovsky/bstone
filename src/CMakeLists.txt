@@ -334,6 +334,7 @@ target_sources(
 		bstone_fixed_memory_pool.h
 		bstone_generic_memory_pool.cpp
 		bstone_generic_memory_pool.h
+		bstone_configurations.h
 )
 
 target_sources(
@@ -552,6 +553,8 @@ target_sources(
 		bstone_sys_sdl_video_mgr.h
 		bstone_sys_sdl_window.h
 		bstone_sys_sdl_window_mgr.h
+
+		bstone_configurations.cpp
 )
 
 if (WIN32)

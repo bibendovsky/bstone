@@ -29,12 +29,10 @@ private:
 
 private:
 	void do_set_relative_mode(bool is_enable) override;
+
+private:
+	static MemoryResource& get_memory_resource();
 };
-
-// ==========================================================================
-
-using SdlMouseMgrPool = SingleMemoryPool<SdlMouseMgr>;
-SdlMouseMgrPool sdl_mouse_mgr_pool{};
 
 // ==========================================================================
 
@@ -53,17 +51,24 @@ SdlMouseMgr::~SdlMouseMgr()
 
 void* SdlMouseMgr::operator new(std::size_t size)
 try {
-	return sdl_mouse_mgr_pool.allocate(size);
+	return get_memory_resource().allocate(size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlMouseMgr::operator delete(void* ptr)
 {
-	sdl_mouse_mgr_pool.deallocate(ptr);
+	get_memory_resource().deallocate(ptr);
 }
 
 void SdlMouseMgr::do_set_relative_mode(bool is_enable)
 {
 	sdl_ensure_result(SDL_SetRelativeMouseMode(is_enable ? SDL_TRUE : SDL_FALSE));
+}
+
+MemoryResource& SdlMouseMgr::get_memory_resource()
+{
+	static SingleMemoryPool<SdlMouseMgr> memory_pool{};
+
+	return memory_pool;
 }
 
 } // namespace

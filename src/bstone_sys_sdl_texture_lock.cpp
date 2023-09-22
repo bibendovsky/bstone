@@ -5,8 +5,9 @@ SPDX-License-Identifier: MIT
 */
 
 #include "SDL_render.h"
+#include "bstone_configurations.h"
 #include "bstone_exception.h"
-#include "bstone_single_memory_pool.h"
+#include "bstone_generic_memory_pool.h"
 #include "bstone_sys_sdl_exception.h"
 #include "bstone_sys_sdl_texture_lock.h"
 
@@ -44,12 +45,10 @@ private:
 private:
 	void* do_get_pixels() const noexcept override;
 	int do_get_pitch() const noexcept override;
+
+private:
+	static MemoryResource& get_memory_resource();
 };
-
-// ==========================================================================
-
-using SdlTextureLockPool = SingleMemoryPool<SdlTextureLock>;
-SdlTextureLockPool sdl_texture_lock_pool{};
 
 // ==========================================================================
 
@@ -72,12 +71,12 @@ SdlTextureLock::~SdlTextureLock()
 
 void* SdlTextureLock::operator new(std::size_t size)
 try {
-	return sdl_texture_lock_pool.allocate(size);
+	return get_memory_resource().allocate(size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlTextureLock::operator delete(void* ptr)
 {
-	sdl_texture_lock_pool.deallocate(ptr);
+	get_memory_resource().deallocate(ptr);
 }
 
 void* SdlTextureLock::do_get_pixels() const noexcept
@@ -88,6 +87,25 @@ void* SdlTextureLock::do_get_pixels() const noexcept
 int SdlTextureLock::do_get_pitch() const noexcept
 {
 	return pitch_;
+}
+
+MemoryResource& SdlTextureLock::get_memory_resource()
+{
+	struct Initializer
+	{
+		Initializer(GenericMemoryPool& generic_memory_pool)
+		{
+			generic_memory_pool.reserve(
+				static_cast<IntP>(sizeof(SdlTextureLock)),
+				sys_max_texture_locks,
+				get_default_memory_resource());
+		}
+	};
+
+	static GenericMemoryPool generic_memory_pool{};
+	static Initializer initializer{generic_memory_pool};
+
+	return generic_memory_pool;
 }
 
 } // namespace

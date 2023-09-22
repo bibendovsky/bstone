@@ -28,12 +28,10 @@ private:
 
 private:
 	WindowUPtr do_make_window(const WindowInitParam& param) override;
+
+private:
+	static MemoryResource& get_memory_resource();
 };
-
-// ==========================================================================
-
-using SdlWindowMgrPool = SingleMemoryPool<SdlWindowMgr>;
-SdlWindowMgrPool sdl_window_mgr_pool{};
 
 // ==========================================================================
 
@@ -51,17 +49,24 @@ SdlWindowMgr::~SdlWindowMgr()
 
 void* SdlWindowMgr::operator new(std::size_t size)
 try {
-	return sdl_window_mgr_pool.allocate(size);
+	return get_memory_resource().allocate(size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SdlWindowMgr::operator delete(void* ptr)
 {
-	sdl_window_mgr_pool.deallocate(ptr);
+	get_memory_resource().deallocate(ptr);
 }
 
 WindowUPtr SdlWindowMgr::do_make_window(const WindowInitParam& param)
 {
 	return make_sdl_window(logger_, param);
+}
+
+MemoryResource& SdlWindowMgr::get_memory_resource()
+{
+	static SingleMemoryPool<SdlWindowMgr> memory_pool{};
+
+	return memory_pool;
 }
 
 } // namespace
