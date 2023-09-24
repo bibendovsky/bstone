@@ -335,6 +335,10 @@ target_sources(
 		bstone_generic_pool_memory_resource.cpp
 		bstone_generic_pool_memory_resource.h
 		bstone_configurations.h
+		bstone_auto_arena_memory_resource.cpp
+		bstone_auto_arena_memory_resource.h
+		bstone_ts_auto_arena_memory_resource.cpp
+		bstone_ts_auto_arena_memory_resource.h
 )
 
 target_sources(
