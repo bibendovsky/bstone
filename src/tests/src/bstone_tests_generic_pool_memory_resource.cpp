@@ -1,6 +1,6 @@
 #include "bstone_tester.h"
 
-#include "bstone_generic_memory_pool.h"
+#include "bstone_generic_pool_memory_resource.h"
 
 namespace {
 
@@ -13,7 +13,7 @@ auto tester = bstone::Tester{};
 void test_4gaip46ok4ygv2x2()
 {
 	constexpr auto ItemSize = static_cast<bstone::IntP>(sizeof(double));
-	using MemoryPool = bstone::GenericMemoryPool;
+	using MemoryPool = bstone::GenericPoolMemoryResource;
 
 	auto is_failed = false;
 
@@ -37,7 +37,7 @@ void test_4gaip46ok4ygv2x2()
 void test_5qgvnqpxgycv7gkd()
 {
 	constexpr auto ItemSize = static_cast<bstone::IntP>(sizeof(double));
-	using MemoryPool = bstone::GenericMemoryPool;
+	using MemoryPool = bstone::GenericPoolMemoryResource;
 
 	auto is_failed = false;
 
@@ -61,7 +61,7 @@ void test_5qgvnqpxgycv7gkd()
 void test_gam4600nv3dkpjuq()
 {
 	constexpr auto ItemSize = static_cast<bstone::IntP>(sizeof(double));
-	using MemoryPool = bstone::GenericMemoryPool;
+	using MemoryPool = bstone::GenericPoolMemoryResource;
 
 	auto is_failed = false;
 
@@ -117,7 +117,7 @@ bstone::MemoryResource& get_memory_resource()
 void test_emcqn7mpnndwaaru()
 {
 	constexpr auto ItemSize = static_cast<bstone::IntP>(sizeof(double));
-	using MemoryPool = bstone::GenericMemoryPool;
+	using MemoryPool = bstone::GenericPoolMemoryResource;
 
 	auto is_failed = false;
 
@@ -141,7 +141,7 @@ void test_emcqn7mpnndwaaru()
 void test_u3igyuszzqpfykzv()
 {
 	constexpr auto ItemSize = static_cast<bstone::IntP>(sizeof(double));
-	using MemoryPool = bstone::GenericMemoryPool;
+	using MemoryPool = bstone::GenericPoolMemoryResource;
 
 	auto is_failed = false;
 
@@ -165,7 +165,7 @@ void test_u3igyuszzqpfykzv()
 void test_y4t70jtj7dyrvmkt()
 {
 	constexpr auto ItemSize = static_cast<bstone::IntP>(sizeof(double));
-	using MemoryPool = bstone::GenericMemoryPool;
+	using MemoryPool = bstone::GenericPoolMemoryResource;
 
 	auto is_failed = false;
 
@@ -203,12 +203,12 @@ public:
 private:
 	void register_fixed_memory_pool_allocate()
 	{
-		tester.register_test("GenericMemoryPool#4gaip46ok4ygv2x2", test_4gaip46ok4ygv2x2);
-		tester.register_test("GenericMemoryPool#5qgvnqpxgycv7gkd", test_5qgvnqpxgycv7gkd);
-		tester.register_test("GenericMemoryPool#gam4600nv3dkpjuq", test_gam4600nv3dkpjuq);
-		tester.register_test("GenericMemoryPool#emcqn7mpnndwaaru", test_emcqn7mpnndwaaru);
-		tester.register_test("GenericMemoryPool#u3igyuszzqpfykzv", test_u3igyuszzqpfykzv);
-		tester.register_test("GenericMemoryPool#y4t70jtj7dyrvmkt", test_y4t70jtj7dyrvmkt);
+		tester.register_test("GenericPoolMemoryResource#4gaip46ok4ygv2x2", test_4gaip46ok4ygv2x2);
+		tester.register_test("GenericPoolMemoryResource#5qgvnqpxgycv7gkd", test_5qgvnqpxgycv7gkd);
+		tester.register_test("GenericPoolMemoryResource#gam4600nv3dkpjuq", test_gam4600nv3dkpjuq);
+		tester.register_test("GenericPoolMemoryResource#emcqn7mpnndwaaru", test_emcqn7mpnndwaaru);
+		tester.register_test("GenericPoolMemoryResource#u3igyuszzqpfykzv", test_u3igyuszzqpfykzv);
+		tester.register_test("GenericPoolMemoryResource#y4t70jtj7dyrvmkt", test_y4t70jtj7dyrvmkt);
 	}
 };
 

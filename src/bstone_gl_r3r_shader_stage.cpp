@@ -10,7 +10,7 @@ SPDX-License-Identifier: MIT
 #include <unordered_set>
 
 #include "bstone_exception.h"
-#include "bstone_fixed_memory_pool.h"
+#include "bstone_fixed_pool_memory_resource.h"
 #include "bstone_unique_resource.h"
 #include "bstone_zstring_view.h"
 #include "bstone_zstring_view_hasher.h"
@@ -91,7 +91,7 @@ private:
 
 // ==========================================================================
 
-using GlR3rShaderStageImplPool = FixedMemoryPool<GlR3rShaderStageImpl, R3rLimits::max_shader_stages>;
+using GlR3rShaderStageImplPool = FixedPoolMemoryResource<GlR3rShaderStageImpl, R3rLimits::max_shader_stages>;
 GlR3rShaderStageImplPool gl_r3r_shader_stage_impl_pool{};
 
 // ==========================================================================

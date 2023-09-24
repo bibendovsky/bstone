@@ -11,38 +11,38 @@ SPDX-License-Identifier: MIT
 #include <limits>
 
 #include "bstone_exception.h"
-#include "bstone_generic_memory_pool.h"
+#include "bstone_generic_pool_memory_resource.h"
 
 namespace bstone {
 
-GenericMemoryPool::StorageDeleter::StorageDeleter()
+GenericPoolMemoryResource::StorageDeleter::StorageDeleter()
 	:
 	memory_resource_{&get_null_memory_resource()}
 {}
 
-GenericMemoryPool::StorageDeleter::StorageDeleter(MemoryResource& memory_resource)
+GenericPoolMemoryResource::StorageDeleter::StorageDeleter(MemoryResource& memory_resource)
 	:
 	memory_resource_{&memory_resource}
 {}
 
-void GenericMemoryPool::StorageDeleter::operator()(unsigned char* ptr) const
+void GenericPoolMemoryResource::StorageDeleter::operator()(unsigned char* ptr) const
 {
 	memory_resource_->deallocate(ptr);
 }
 
 // ==========================================================================
 
-GenericMemoryPool::GenericMemoryPool()
+GenericPoolMemoryResource::GenericPoolMemoryResource()
 	:
 	storage_{nullptr, StorageDeleter{get_null_memory_resource()}}
 {}
 
-GenericMemoryPool::~GenericMemoryPool()
+GenericPoolMemoryResource::~GenericPoolMemoryResource()
 {
 	assert(object_count_ == 0);
 }
 
-void GenericMemoryPool::reserve(IntP object_size, IntP max_objects, MemoryResource& memory_resource)
+void GenericPoolMemoryResource::reserve(IntP object_size, IntP max_objects, MemoryResource& memory_resource)
 {
 	if (object_size <= 0)
 	{
@@ -91,7 +91,7 @@ void GenericMemoryPool::reserve(IntP object_size, IntP max_objects, MemoryResour
 	max_objects_ = max_objects;
 }
 
-void* GenericMemoryPool::do_allocate(IntP size)
+void* GenericPoolMemoryResource::do_allocate(IntP size)
 {
 	if (size != object_size_)
 	{
@@ -110,7 +110,7 @@ void* GenericMemoryPool::do_allocate(IntP size)
 	return storage_.get() + index * object_size_;
 }
 
-void GenericMemoryPool::do_deallocate(void* ptr)
+void GenericPoolMemoryResource::do_deallocate(void* ptr)
 {
 	if (ptr == nullptr)
 	{

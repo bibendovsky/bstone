@@ -6,8 +6,8 @@ SPDX-License-Identifier: MIT
 
 // Memory pool with known size of an object and maximum objects.
 
-#if !defined(BSTONE_FIXED_MEMORY_POOL_INCLUDED)
-#define BSTONE_FIXED_MEMORY_POOL_INCLUDED
+#if !defined(BSTONE_FIXED_POOL_MEMORY_RESOURCE_INCLUDED)
+#define BSTONE_FIXED_POOL_MEMORY_RESOURCE_INCLUDED
 
 #include <cassert>
 
@@ -18,7 +18,7 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 
 template<typename TObject, IntP TMaxObjects>
-class FixedMemoryPool final : public MemoryResource
+class FixedPoolMemoryResource final : public MemoryResource
 {
 	static_assert(TMaxObjects > 0, "Max objects out of range.");
 
@@ -33,8 +33,8 @@ public:
 	static constexpr auto object_size = static_cast<IntP>(sizeof(Object));
 
 public:
-	FixedMemoryPool() = default;
-	~FixedMemoryPool() override;
+	FixedPoolMemoryResource() = default;
+	~FixedPoolMemoryResource() override;
 
 private:
 	static constexpr auto storage_size = object_size * max_objects;
@@ -55,13 +55,13 @@ private:
 // --------------------------------------------------------------------------
 
 template<typename TObject, IntP TMaxObjects>
-FixedMemoryPool<TObject, TMaxObjects>::~FixedMemoryPool()
+FixedPoolMemoryResource<TObject, TMaxObjects>::~FixedPoolMemoryResource()
 {
 	assert(bitmap_.is_empty());
 }
 
 template<typename TObject, IntP TMaxObjects>
-void* FixedMemoryPool<TObject, TMaxObjects>::do_allocate(IntP size)
+void* FixedPoolMemoryResource<TObject, TMaxObjects>::do_allocate(IntP size)
 {
 	if (size != object_size)
 	{
@@ -74,7 +74,7 @@ void* FixedMemoryPool<TObject, TMaxObjects>::do_allocate(IntP size)
 }
 
 template<typename TObject, IntP TMaxObjects>
-void FixedMemoryPool<TObject, TMaxObjects>::do_deallocate(void* ptr)
+void FixedPoolMemoryResource<TObject, TMaxObjects>::do_deallocate(void* ptr)
 {
 	if (ptr == nullptr)
 	{
@@ -89,4 +89,4 @@ void FixedMemoryPool<TObject, TMaxObjects>::do_deallocate(void* ptr)
 
 } // namespace bstone
 
-#endif // BSTONE_FIXED_MEMORY_POOL_INCLUDED
+#endif // BSTONE_FIXED_POOL_MEMORY_RESOURCE_INCLUDED

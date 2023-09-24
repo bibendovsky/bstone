@@ -1,6 +1,6 @@
 #include "bstone_tester.h"
 
-#include "bstone_single_memory_pool.h"
+#include "bstone_fixed_pool_memory_resource.h"
 
 namespace {
 
@@ -10,10 +10,10 @@ auto tester = bstone::Tester{};
 
 // allocate(std::size_t)
 // Default.
-void test_zn9q5pq1nie16cwt()
+void test_nrkmtbnuex9y6k5e()
 {
 	using Item = double;
-	using MemoryPool = bstone::SingleMemoryPool<Item>;
+	using MemoryPool = bstone::FixedPoolMemoryResource<Item, 1>;
 
 	auto is_failed = false;
 
@@ -33,10 +33,10 @@ void test_zn9q5pq1nie16cwt()
 
 // allocate(std::size_t)
 // Size mismatch.
-void test_2wqkf225zxlfnioc()
+void test_9v82vg27zs4781w5()
 {
 	using Item = double;
-	using MemoryPool = bstone::SingleMemoryPool<Item>;
+	using MemoryPool = bstone::FixedPoolMemoryResource<Item, 1>;
 
 	auto is_failed = false;
 
@@ -56,10 +56,10 @@ void test_2wqkf225zxlfnioc()
 
 // allocate(std::size_t)
 // Out of memory.
-void test_kkhgn1orbr9735nl()
+void test_uyubiuemn20zxum3()
 {
 	using Item = double;
-	using MemoryPool = bstone::SingleMemoryPool<Item>;
+	using MemoryPool = bstone::FixedPoolMemoryResource<Item, 1>;
 
 	auto is_failed = false;
 
@@ -90,15 +90,15 @@ class Registrator
 public:
 	Registrator()
 	{
-		register_single_memory_pool_allocate();
+		register_fixed_memory_pool_allocate();
 	}
 
 private:
-	void register_single_memory_pool_allocate()
+	void register_fixed_memory_pool_allocate()
 	{
-		tester.register_test("SingleMemoryPool#zn9q5pq1nie16cwt", test_zn9q5pq1nie16cwt);
-		tester.register_test("SingleMemoryPool#2wqkf225zxlfnioc", test_2wqkf225zxlfnioc);
-		tester.register_test("SingleMemoryPool#kkhgn1orbr9735nl", test_kkhgn1orbr9735nl);
+		tester.register_test("FixedPoolMemoryResource#nrkmtbnuex9y6k5e", test_nrkmtbnuex9y6k5e);
+		tester.register_test("FixedPoolMemoryResource#9v82vg27zs4781w5", test_9v82vg27zs4781w5);
+		tester.register_test("FixedPoolMemoryResource#uyubiuemn20zxum3", test_uyubiuemn20zxum3);
 	}
 };
 

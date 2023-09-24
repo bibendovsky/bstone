@@ -7,7 +7,7 @@ SPDX-License-Identifier: MIT
 // OpenGL 3D Renderer: Context
 
 #include "bstone_exception.h"
-#include "bstone_single_memory_pool.h"
+#include "bstone_single_pool_memory_resource.h"
 
 #include "bstone_r3r_tests.h"
 
@@ -139,7 +139,7 @@ private:
 
 // ==========================================================================
 
-using GlR3rContextImplPool = SingleMemoryPool<GlR3rContextImpl>;
+using GlR3rContextImplPool = SinglePoolMemoryResource<GlR3rContextImpl>;
 GlR3rContextImplPool gl_r3r_context_impl_pool{};
 
 // ==========================================================================

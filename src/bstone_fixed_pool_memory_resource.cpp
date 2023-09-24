@@ -4,6 +4,6 @@ Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// Memory pool for single object.
+// Memory pool with known size of an object and maximum objects.
 
-#include "bstone_single_memory_pool.h"
+#include "bstone_fixed_pool_memory_resource.h"

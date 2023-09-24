@@ -8,7 +8,7 @@ SPDX-License-Identifier: MIT
 #include "SDL_rect.h"
 #include "SDL_render.h"
 #include "bstone_exception.h"
-#include "bstone_single_memory_pool.h"
+#include "bstone_single_pool_memory_resource.h"
 #include "bstone_sys_sdl_detail.h"
 #include "bstone_sys_sdl_exception.h"
 #include "bstone_sys_sdl_texture.h"
@@ -182,7 +182,7 @@ try {
 
 MemoryResource& SdlRenderer::get_memory_resource()
 {
-	static SingleMemoryPool<SdlRenderer> memory_pool{};
+	static SinglePoolMemoryResource<SdlRenderer> memory_pool{};
 
 	return memory_pool;
 }

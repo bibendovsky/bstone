@@ -5,7 +5,7 @@ SPDX-License-Identifier: MIT
 */
 
 #include "SDL_video.h"
-#include "bstone_single_memory_pool.h"
+#include "bstone_single_pool_memory_resource.h"
 #include "bstone_sys_sdl_exception.h"
 #include "bstone_sys_sdl_gl_mgr.h"
 #include "bstone_sys_sdl_gl_shared_library.h"
@@ -87,7 +87,7 @@ void SdlGlMgr::do_set_swap_interval(int swap_interval)
 
 MemoryResource& SdlGlMgr::get_memory_resource()
 {
-	static SingleMemoryPool<SdlGlMgr> memory_pool{};
+	static SinglePoolMemoryResource<SdlGlMgr> memory_pool{};
 
 	return memory_pool;
 }

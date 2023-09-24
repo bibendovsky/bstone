@@ -7,7 +7,7 @@ SPDX-License-Identifier: MIT
 // OpenGL 3D Renderer: 2D Texture
 
 #include "bstone_exception.h"
-#include "bstone_fixed_memory_pool.h"
+#include "bstone_fixed_pool_memory_resource.h"
 #include "bstone_unique_resource.h"
 
 #include "bstone_r3r_limits.h"
@@ -89,7 +89,7 @@ private:
 
 // =========================================================================
 
-using GlR3rR2TextureImplPool = FixedMemoryPool<GlR3rR2TextureImpl, R3rLimits::max_textures>;
+using GlR3rR2TextureImplPool = FixedPoolMemoryResource<GlR3rR2TextureImpl, R3rLimits::max_textures>;
 GlR3rR2TextureImplPool gl_r3r_r2_texture_impl_pool{};
 
 // =========================================================================

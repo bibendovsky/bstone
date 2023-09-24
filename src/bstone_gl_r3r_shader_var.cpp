@@ -7,7 +7,7 @@ SPDX-License-Identifier: MIT
 // OpenGL 3D Renderer: Shader Variable
 
 #include "bstone_exception.h"
-#include "bstone_fixed_memory_pool.h"
+#include "bstone_fixed_pool_memory_resource.h"
 
 #include "bstone_r3r_limits.h"
 #include "bstone_r3r_tests.h"
@@ -86,7 +86,7 @@ private:
 
 // ==========================================================================
 
-using GlR3rShaderVarImplPool = FixedMemoryPool<GlR3rShaderVarImpl, R3rLimits::max_shader_vars>;
+using GlR3rShaderVarImplPool = FixedPoolMemoryResource<GlR3rShaderVarImpl, R3rLimits::max_shader_vars>;
 GlR3rShaderVarImplPool gl_r3r_shader_var_impl_pool{};
 
 // ==========================================================================

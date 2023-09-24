@@ -6,8 +6,8 @@ SPDX-License-Identifier: MIT
 
 // Memory pool for single object.
 
-#if !defined(BSTONE_SINGLE_MEMORY_POOL_INCLUDED)
-#define BSTONE_SINGLE_MEMORY_POOL_INCLUDED
+#if !defined(BSTONE_SINGLE_POOL_MEMORY_RESOURCE_INCLUDED)
+#define BSTONE_SINGLE_POOL_MEMORY_RESOURCE_INCLUDED
 
 #include <cassert>
 
@@ -17,16 +17,16 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 
 template<typename T>
-class SingleMemoryPool final : public MemoryResource
+class SinglePoolMemoryResource final : public MemoryResource
 {
 public:
 	static constexpr auto object_size = static_cast<IntP>(sizeof(T));
 
 public:
-	SingleMemoryPool() = default;
-	SingleMemoryPool(const SingleMemoryPool&) = delete;
-	SingleMemoryPool(SingleMemoryPool&&) noexcept = delete;
-	~SingleMemoryPool() override;
+	SinglePoolMemoryResource() = default;
+	SinglePoolMemoryResource(const SinglePoolMemoryResource&) = delete;
+	SinglePoolMemoryResource(SinglePoolMemoryResource&&) noexcept = delete;
+	~SinglePoolMemoryResource() override;
 
 private:
 	void* do_allocate(IntP size) override;
@@ -43,13 +43,13 @@ private:
 // --------------------------------------------------------------------------
 
 template<typename T>
-SingleMemoryPool<T>::~SingleMemoryPool()
+SinglePoolMemoryResource<T>::~SinglePoolMemoryResource()
 {
 	assert(!is_allocated_);
 }
 
 template<typename T>
-void* SingleMemoryPool<T>::do_allocate(IntP size)
+void* SinglePoolMemoryResource<T>::do_allocate(IntP size)
 {
 	if (size != object_size)
 	{
@@ -66,7 +66,7 @@ void* SingleMemoryPool<T>::do_allocate(IntP size)
 }
 
 template<typename T>
-void SingleMemoryPool<T>::do_deallocate(void* ptr)
+void SinglePoolMemoryResource<T>::do_deallocate(void* ptr)
 {
 	if (ptr == nullptr)
 	{
@@ -79,4 +79,4 @@ void SingleMemoryPool<T>::do_deallocate(void* ptr)
 
 } // namespace bstone
 
-#endif // BSTONE_SINGLE_MEMORY_POOL_INCLUDED
+#endif // BSTONE_SINGLE_POOL_MEMORY_RESOURCE_INCLUDED

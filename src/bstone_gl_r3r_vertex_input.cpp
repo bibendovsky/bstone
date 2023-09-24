@@ -9,7 +9,7 @@ SPDX-License-Identifier: MIT
 #include <algorithm>
 
 #include "bstone_exception.h"
-#include "bstone_fixed_memory_pool.h"
+#include "bstone_fixed_pool_memory_resource.h"
 #include "bstone_unique_resource.h"
 
 #include "bstone_r3r_limits.h"
@@ -73,7 +73,7 @@ private:
 
 // =========================================================================
 
-using GlR3rVertexInputImplPool = FixedMemoryPool<GlR3rVertexInputImpl, R3rLimits::max_vertex_inputs>;
+using GlR3rVertexInputImplPool = FixedPoolMemoryResource<GlR3rVertexInputImpl, R3rLimits::max_vertex_inputs>;
 GlR3rVertexInputImplPool gl_r3r_vertex_input_impl_pool{};
 
 // =========================================================================

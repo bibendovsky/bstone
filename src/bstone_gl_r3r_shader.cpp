@@ -9,7 +9,7 @@ SPDX-License-Identifier: MIT
 #include <cassert>
 
 #include "bstone_exception.h"
-#include "bstone_fixed_memory_pool.h"
+#include "bstone_fixed_pool_memory_resource.h"
 #include "bstone_unique_resource.h"
 
 #include "bstone_r3r_limits.h"
@@ -61,7 +61,7 @@ private:
 
 // ==========================================================================
 
-using GlR3rShaderImplPool = FixedMemoryPool<GlR3rShaderImpl, R3rLimits::max_shaders>;
+using GlR3rShaderImplPool = FixedPoolMemoryResource<GlR3rShaderImpl, R3rLimits::max_shaders>;
 GlR3rShaderImplPool gl_r3r_shader_impl_pool{};
 
 // ==========================================================================

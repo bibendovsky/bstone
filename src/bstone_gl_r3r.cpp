@@ -10,7 +10,7 @@ SPDX-License-Identifier: MIT
 #include <list>
 
 #include "bstone_exception.h"
-#include "bstone_single_memory_pool.h"
+#include "bstone_single_pool_memory_resource.h"
 #include "bstone_unique_resource.h"
 
 #include "bstone_sys_gl_context.h"
@@ -195,7 +195,7 @@ private:
 
 // ==========================================================================
 
-using GlR3rImplPool = SingleMemoryPool<GlR3rImpl>;
+using GlR3rImplPool = SinglePoolMemoryResource<GlR3rImpl>;
 GlR3rImplPool gl_r3r_impl_pool{};
 
 // ==========================================================================

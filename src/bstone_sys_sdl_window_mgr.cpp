@@ -5,7 +5,7 @@ SPDX-License-Identifier: MIT
 */
 
 #include "bstone_exception.h"
-#include "bstone_single_memory_pool.h"
+#include "bstone_single_pool_memory_resource.h"
 #include "bstone_sys_sdl_window.h"
 #include "bstone_sys_sdl_window_mgr.h"
 
@@ -64,7 +64,7 @@ WindowUPtr SdlWindowMgr::do_make_window(const WindowInitParam& param)
 
 MemoryResource& SdlWindowMgr::get_memory_resource()
 {
-	static SingleMemoryPool<SdlWindowMgr> memory_pool{};
+	static SinglePoolMemoryResource<SdlWindowMgr> memory_pool{};
 
 	return memory_pool;
 }
