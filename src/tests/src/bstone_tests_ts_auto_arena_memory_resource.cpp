@@ -11,7 +11,7 @@ auto tester = bstone::Tester{};
 
 // reserve(IntP, MemoryResource&)
 // Success.
-void test_12i9vgaja0au5hw4()
+void test_3oatdmwi1xqy0y10()
 {
 	using MemoryResource = bstone::TsAutoArenaMemoryResource;
 
@@ -32,7 +32,7 @@ void test_12i9vgaja0au5hw4()
 
 // reserve(IntP, MemoryResource&)
 // Negative size.
-void test_4hi9u7tj6ugr8kmy()
+void test_o5jnbo3ulgrdbsmf()
 {
 	using MemoryResource = bstone::TsAutoArenaMemoryResource;
 
@@ -53,7 +53,7 @@ void test_4hi9u7tj6ugr8kmy()
 
 // allocate(IntP) and deallocate(void*)
 // Success.
-void test_h89q7m1ofox5m1yt()
+void test_lhm3t09kkosrv0pf()
 {
 	using MemoryResource = bstone::TsAutoArenaMemoryResource;
 
@@ -82,7 +82,7 @@ void test_h89q7m1ofox5m1yt()
 
 // allocate(IntP) and deallocate(void*)
 // Zero size.
-void test_7toaug4pnm1eyjyx()
+void test_h3zddrzsqc41lln6()
 {
 	using MemoryResource = bstone::TsAutoArenaMemoryResource;
 
@@ -109,7 +109,7 @@ void test_7toaug4pnm1eyjyx()
 
 // allocate(IntP)
 // Negative size.
-void test_cz3bzq9ia1144mgd()
+void test_4pxq7pc8gjg5dw41()
 {
 	using MemoryResource = bstone::TsAutoArenaMemoryResource;
 
@@ -131,7 +131,7 @@ void test_cz3bzq9ia1144mgd()
 
 // allocate(IntP)
 // Out of memory.
-void test_16hxh0gkqffhccg1()
+void test_hj5io0671lpsiro3()
 {
 	using MemoryResource = bstone::TsAutoArenaMemoryResource;
 
@@ -163,12 +163,12 @@ public:
 private:
 	void register_ts_auto_arena_memory_resource()
 	{
-		tester.register_test("TsAutoArenaMemoryResource#12i9vgaja0au5hw4", test_12i9vgaja0au5hw4);
-		tester.register_test("TsAutoArenaMemoryResource#4hi9u7tj6ugr8kmy", test_4hi9u7tj6ugr8kmy);
-		tester.register_test("TsAutoArenaMemoryResource#h89q7m1ofox5m1yt", test_h89q7m1ofox5m1yt);
-		tester.register_test("TsAutoArenaMemoryResource#7toaug4pnm1eyjyx", test_7toaug4pnm1eyjyx);
-		tester.register_test("TsAutoArenaMemoryResource#cz3bzq9ia1144mgd", test_cz3bzq9ia1144mgd);
-		tester.register_test("TsAutoArenaMemoryResource#16hxh0gkqffhccg1", test_16hxh0gkqffhccg1);
+		tester.register_test("TsAutoArenaMemoryResource#3oatdmwi1xqy0y10", test_3oatdmwi1xqy0y10);
+		tester.register_test("TsAutoArenaMemoryResource#o5jnbo3ulgrdbsmf", test_o5jnbo3ulgrdbsmf);
+		tester.register_test("TsAutoArenaMemoryResource#lhm3t09kkosrv0pf", test_lhm3t09kkosrv0pf);
+		tester.register_test("TsAutoArenaMemoryResource#h3zddrzsqc41lln6", test_h3zddrzsqc41lln6);
+		tester.register_test("TsAutoArenaMemoryResource#4pxq7pc8gjg5dw41", test_4pxq7pc8gjg5dw41);
+		tester.register_test("TsAutoArenaMemoryResource#hj5io0671lpsiro3", test_hj5io0671lpsiro3);
 	}
 };
 
