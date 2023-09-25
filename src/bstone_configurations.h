@@ -11,6 +11,8 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
+extern const IntP low_level_api_u16string_capacity;
+
 extern const IntP sys_max_gl_contexts;
 extern const IntP sys_max_gl_shared_libraries;
 extern const IntP sys_max_textures;

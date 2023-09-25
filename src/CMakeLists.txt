@@ -339,6 +339,8 @@ target_sources(
 		bstone_auto_arena_memory_resource.h
 		bstone_ts_auto_arena_memory_resource.cpp
 		bstone_ts_auto_arena_memory_resource.h
+		bstone_win32_wstring.cpp
+		bstone_win32_wstring.h
 )
 
 target_sources(

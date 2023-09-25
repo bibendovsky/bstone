@@ -10,9 +10,4 @@ namespace bstone {
 
 extern const IntP low_level_api_u16string_capacity = 16 * 1024;
 
-const IntP sys_max_gl_contexts = 1;
-const IntP sys_max_gl_shared_libraries = 1;
-const IntP sys_max_textures = 2;
-const IntP sys_max_texture_locks = 1;
-
 } // namespace bstone
