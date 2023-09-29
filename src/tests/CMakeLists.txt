@@ -96,6 +96,12 @@ target_sources(${PROJECT_NAME}
 		../bstone_ts_auto_arena_memory_resource.h
 		../bstone_win32_wstring.cpp
 		../bstone_win32_wstring.h
+		../bstone_file_posix.cpp
+		../bstone_file_win32.cpp
+		../bstone_file_uresource_posix.cpp
+		../bstone_file_uresource_win32.cpp
+		../bstone_file.cpp
+		../bstone_file.h
 	PRIVATE
 		src/bstone_tests_algorithm.cpp
 		src/bstone_tests_array.cpp
@@ -126,6 +132,7 @@ target_sources(${PROJECT_NAME}
 		src/bstone_tests_ts_auto_arena_memory_resource.cpp
 		src/bstone_tests_win32_wstring.cpp
 		src/bstone_tests_configurations.cpp
+		src/bstone_tests_file.cpp
 	PRIVATE
 		src/bstone_tester.cpp
 		src/bstone_tester.h

@@ -341,6 +341,13 @@ target_sources(
 		bstone_ts_auto_arena_memory_resource.h
 		bstone_win32_wstring.cpp
 		bstone_win32_wstring.h
+		bstone_file.cpp
+		bstone_file.h
+		bstone_file_posix.cpp
+		bstone_file_uresource.h
+		bstone_file_uresource_posix.cpp
+		bstone_file_uresource_win32.cpp
+		bstone_file_win32.cpp
 )
 
 target_sources(
