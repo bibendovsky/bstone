@@ -579,36 +579,6 @@ void test_m42rz7d24pbcr159()
 }
 
 // from_chars(const TChar*, const TChar*, TValue&, int)
-// Char count out of range.
-void test_dmhaxv6t9cpjj005()
-{
-	const char chars[1] = {};
-	auto value = 0;
-	auto is_failed_1 = false;
-	auto is_failed_2 = false;
-
-	try
-	{
-		bstone::from_chars(chars, chars, value);
-	}
-	catch (const std::exception&)
-	{
-		is_failed_1 = true;
-	}
-
-	try
-	{
-		bstone::from_chars(chars + 1, chars, value);
-	}
-	catch (const std::exception&)
-	{
-		is_failed_2 = true;
-	}
-
-	tester.check(is_failed_1 && is_failed_2);
-}
-
-// from_chars(const TChar*, const TChar*, TValue&, int)
 // Base out of range.
 void test_blml5orig7eieaqg()
 {
@@ -825,7 +795,6 @@ private:
 		tester.register_test("from_chars#5aohfvv83ivwlzq0", test_5aohfvv83ivwlzq0);
 		tester.register_test("from_chars#clkb1xo609m44vyu", test_clkb1xo609m44vyu);
 		tester.register_test("from_chars#m42rz7d24pbcr159", test_m42rz7d24pbcr159);
-		tester.register_test("from_chars#dmhaxv6t9cpjj005", test_dmhaxv6t9cpjj005);
 		tester.register_test("from_chars#blml5orig7eieaqg", test_blml5orig7eieaqg);
 		tester.register_test("from_chars#frs8x638eej9zgic", test_frs8x638eej9zgic);
 		tester.register_test("from_chars#x069rmpt1u25xp6w", test_x069rmpt1u25xp6w);

@@ -265,148 +265,252 @@ inline constexpr TChar* to_chars(TValue value, TChar* chars_begin, TChar* chars_
 
 namespace detail {
 
-template<typename T, typename TUnsigned>
-struct FromCharsIntegralFromUnsigned
+struct FromCharsErrorMessages
 {
-	template<typename U = T, std::enable_if_t<std::is_signed<U>::value, int> = 0>
-	constexpr U operator()(TUnsigned u_value, bool is_negative) const noexcept
+	static const char* number_overflow;
+	static const char* invalid_character;
+	static const char* digit_out_of_range;
+	static const char* negative_unsigned;
+	static const char* base_out_of_range;
+	static const char* unexpected_end_of_chars;
+	static const char* unable_to_detect_a_base;
+};
+
+struct FromCharsSignedTag {};
+struct FromCharsUnsignedTag {};
+
+template<typename TValue, typename TChar>
+inline constexpr TValue from_chars_char_to_digit(TChar ch, int base)
+{
+	auto digit = 0;
+
+	if (ch >= '0' && ch <= '9')
 	{
-		return is_negative ? (-static_cast<U>(u_value)) : static_cast<U>(u_value);
+		digit = ch - '0';
+	}
+	else if (ch >= 'a' && ch <= 'z')
+	{
+		digit = 0xA + ch - 'a';
+	}
+	else if (ch >= 'A' && ch <= 'Z')
+	{
+		digit = 0xA + ch - 'A';
+	}
+	else
+	{
+		BSTONE_THROW_STATIC_SOURCE(FromCharsErrorMessages::invalid_character);
 	}
 
-	template<typename U = T, std::enable_if_t<std::is_unsigned<U>::value, int> = 0>
-	constexpr U operator()(TUnsigned u_value, bool) const noexcept
+	if (digit < 0 || digit >= base)
 	{
-		return u_value;
+		BSTONE_THROW_STATIC_SOURCE(FromCharsErrorMessages::digit_out_of_range);
 	}
-};
+
+	return static_cast<TValue>(digit);
+}
+
+template<typename TCharIter, typename TValue>
+inline constexpr TCharIter from_chars_signed_negative(
+	TCharIter chars_begin,
+	TCharIter chars_end,
+	TValue& value,
+	int base)
+{
+	constexpr auto min_value = (std::numeric_limits<TValue>::min)();
+
+	const auto min_mul_value = min_value / static_cast<TValue>(base);
+
+	value = TValue{};
+
+	while (chars_begin != chars_end)
+	{
+		const auto ch = *chars_begin;
+		++chars_begin;
+
+		if (ch != '0')
+		{
+			value = -detail::from_chars_char_to_digit<TValue>(ch, base);
+			break;
+		}
+	}
+
+	for (; chars_begin != chars_end; ++chars_begin)
+	{
+		const auto digit = detail::from_chars_char_to_digit<TValue>(*chars_begin, base);
+
+		if (value < min_mul_value)
+		{
+			BSTONE_THROW_STATIC_SOURCE(FromCharsErrorMessages::number_overflow);
+		}
+
+		value *= static_cast<TValue>(base);
+
+		if (value < min_value + digit)
+		{
+			BSTONE_THROW_STATIC_SOURCE(FromCharsErrorMessages::number_overflow);
+		}
+
+		value -= digit;
+	}
+
+	return chars_begin;
+}
+
+template<typename TCharIter, typename TValue>
+inline constexpr TCharIter from_chars_signed_positive_or_unsigned(
+	TCharIter chars_begin,
+	TCharIter chars_end,
+	TValue& value,
+	int base)
+{
+	constexpr auto max_value = (std::numeric_limits<TValue>::max)();
+
+	const auto max_mul_value = max_value / static_cast<TValue>(base);
+
+	value = TValue{};
+
+	for (; chars_begin != chars_end; ++chars_begin)
+	{
+		const auto digit = detail::from_chars_char_to_digit<TValue>(*chars_begin, base);
+
+		if (value > max_mul_value)
+		{
+			BSTONE_THROW_STATIC_SOURCE(FromCharsErrorMessages::number_overflow);
+		}
+
+		value *= static_cast<TValue>(base);
+
+		if (value > max_value - digit)
+		{
+			BSTONE_THROW_STATIC_SOURCE(FromCharsErrorMessages::number_overflow);
+		}
+
+		value += digit;
+	}
+
+	return chars_begin;
+}
+
+template<typename TCharIter, typename TValue>
+inline constexpr TCharIter from_chars(
+	TCharIter chars_begin,
+	TCharIter chars_end,
+	TValue& value,
+	int base,
+	bool is_negative,
+	FromCharsSignedTag)
+{
+	if (is_negative)
+	{
+		return detail::from_chars_signed_negative(chars_begin, chars_end, value, base);
+	}
+	else
+	{
+		return detail::from_chars_signed_positive_or_unsigned(chars_begin, chars_end, value, base);
+	}
+}
+
+template<typename TCharIter, typename TValue>
+inline constexpr TCharIter from_chars(
+	TCharIter chars_begin,
+	TCharIter chars_end,
+	TValue& value,
+	int base,
+	bool is_negative,
+	FromCharsUnsignedTag)
+{
+	if (is_negative)
+	{
+		BSTONE_THROW_STATIC_SOURCE(FromCharsErrorMessages::negative_unsigned);
+	}
+
+	return detail::from_chars_signed_positive_or_unsigned(chars_begin, chars_end, value, base);
+}
 
 } // namespace detail
 
-template<typename TChar, typename TValue>
-inline constexpr const TChar* from_chars(
-	const TChar* chars_begin,
-	const TChar* chars_end,
+template<typename TCharIter, typename TValue>
+inline constexpr TCharIter from_chars(
+	TCharIter chars_begin,
+	TCharIter chars_end,
 	TValue& value,
 	int base = 10)
 {
-	const auto max_char_count = chars_end - chars_begin;
-
-	if (max_char_count <= 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Char count out of range.");
-	}
-
 	if (base != 0 && (base < char_conv_min_base || base > char_conv_max_base))
 	{
-		BSTONE_THROW_STATIC_SOURCE("Base out of range.");
+		BSTONE_THROW_STATIC_SOURCE(detail::FromCharsErrorMessages::base_out_of_range);
 	}
 
-	auto i_char = IntP{};
-	auto has_minus_sign = false;
+	auto is_negative = false;
+	auto chars_iter = chars_begin;
 
-	if (chars_begin[i_char] == '-')
+	const auto ensure_chars = [&chars_iter, chars_end]()
 	{
-		if (!std::is_signed<TValue>::value)
+		if (chars_iter == chars_end)
 		{
-			BSTONE_THROW_STATIC_SOURCE("Negative value for unsigned type.");
+			BSTONE_THROW_STATIC_SOURCE(detail::FromCharsErrorMessages::unexpected_end_of_chars);
 		}
+	};
 
-		has_minus_sign = true;
-		++i_char;
-	}
-	else if (chars_begin[i_char] == '+')
+	ensure_chars();
+
+	if (*chars_iter == '-')
 	{
-		++i_char;
+		is_negative = true;
+		++chars_iter;
+	}
+	else if (*chars_iter == '+')
+	{
+		is_negative = true;
+		++chars_iter;
 	}
 
 	if (base == 0)
 	{
 		auto detected_base = 0;
 
-		if (i_char + 2 <= max_char_count &&
-			chars_begin[i_char + 0] == '0' &&
-			(chars_begin[i_char + 1] == 'x' || chars_begin[i_char + 1] == 'X'))
+		if (chars_iter != chars_end)
 		{
-			detected_base = 16;
-			i_char += 2;
-		}
-		else if (i_char + 1 <= max_char_count)
-		{
-			if (chars_begin[i_char] == '0')
+			const auto char_0 = *chars_iter;
+			const auto chars_iter_1 = ++chars_iter;
+			const auto is_x = chars_iter_1 != chars_end && (*chars_iter_1 == 'x' || *chars_iter_1 == 'X');
+
+			if (char_0 == '0' && is_x)
 			{
-				detected_base = 8;
-				++i_char;
+				detected_base = 16;
+				chars_iter = chars_iter_1;
+				++chars_iter;
 			}
-			else if (ascii::is_decimal(chars_begin[i_char]))
+			else
 			{
-				detected_base = 10;
+				if (char_0 == '0')
+				{
+					detected_base = 8;
+					chars_iter = chars_iter_1;
+				}
+				else if (ascii::is_decimal(char_0))
+				{
+					detected_base = 10;
+				}
 			}
 		}
 
 		if (detected_base == 0)
 		{
-			BSTONE_THROW_STATIC_SOURCE("Unable to detect a base.");
+			BSTONE_THROW_STATIC_SOURCE(detail::FromCharsErrorMessages::unable_to_detect_a_base);
 		}
 
 		base = detected_base;
 	}
 
-	if (i_char == max_char_count)
-	{
-		BSTONE_THROW_STATIC_SOURCE("No digits.");
-	}
+	ensure_chars();
 
-	const auto max_value = (
-		std::is_signed<TValue>::value ?
-			(has_minus_sign ? (std::numeric_limits<TValue>::min)() : (std::numeric_limits<TValue>::max)()) :
-				(std::numeric_limits<TValue>::max)());
+	using Tag = std::conditional_t<
+		std::is_signed<TValue>::value,
+		detail::FromCharsSignedTag,
+		detail::FromCharsUnsignedTag>;
 
-	using Unsigned = std::make_unsigned_t<TValue>;
-	const auto max_u_value = static_cast<Unsigned>(max_value);
-	const auto max_prev_u_value = max_u_value / base;
-	const auto max_last_digit = static_cast<TChar>(max_u_value - (max_prev_u_value * base));
-
-	auto u_value = Unsigned{};
-
-	while (i_char != max_char_count)
-	{
-		const auto digit_char = chars_begin[i_char++];
-		auto digit = TChar{};
-
-		if (ascii::is_decimal(digit_char))
-		{
-			digit = digit_char - '0';
-		}
-		else if (ascii::is_lower(digit_char))
-		{
-			digit = 10 + digit_char - 'a';
-		}
-		else if (ascii::is_upper(digit_char))
-		{
-			digit = 10 + digit_char - 'A';
-		}
-		else
-		{
-			BSTONE_THROW_STATIC_SOURCE("Invalid digit character.");
-		}
-
-		if (digit >= base)
-		{
-			BSTONE_THROW_STATIC_SOURCE("Digit character out of range.");
-		}
-
-		if (u_value > max_prev_u_value || (u_value == max_prev_u_value && digit > max_last_digit))
-		{
-			BSTONE_THROW_STATIC_SOURCE("Number overflow.");
-		}
-
-		u_value *= static_cast<Unsigned>(base);
-		u_value += static_cast<Unsigned>(digit);
-	}
-
-	value = detail::FromCharsIntegralFromUnsigned<TValue, Unsigned>{}(u_value, has_minus_sign);
-	return chars_begin + i_char;
+	return detail::from_chars(chars_iter, chars_end, value, base, is_negative, Tag{});
 }
 
 } // namespace bstone
