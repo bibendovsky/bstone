@@ -212,6 +212,183 @@ void test_fi6d3dq5xqlmagzn()
 	tester.check(!is_failed && is_open && is_set_position_1 && is_set_position_2 && is_set_position_3);
 }
 
+// set_position(Int64, FileOrigin)
+// Fail, 32-bit, begin.
+void test_p97p8lv4wc3rjxu1()
+{
+	if (bstone::File::supports_64_bit_size())
+	{
+		return;
+	}
+
+	auto is_failed = false;
+	auto is_open = false;
+	auto is_set_position_1 = false;
+	auto is_set_position_2 = false;
+
+	try
+	{
+		auto file = bstone::File{"test.data", bstone::FileOpenMode::create};
+		is_open = file.is_open();
+		file.set_position(1, bstone::FileOrigin::begin);
+		is_set_position_1 = true;
+		file.set_position(0x7FFFFFFFLL, bstone::FileOrigin::begin);
+		is_set_position_2 = true;
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_failed && is_open && is_set_position_1 && !is_set_position_2);
+}
+
+// set_position(Int64, FileOrigin)
+// Fail, 32-bit, current.
+void test_2kg0ezk0goe67jx4()
+{
+	if (bstone::File::supports_64_bit_size())
+	{
+		return;
+	}
+
+	auto is_failed = false;
+	auto is_open = false;
+	auto is_set_position_1 = false;
+	auto is_set_position_2 = false;
+
+	try
+	{
+		auto file = bstone::File{"test.data", bstone::FileOpenMode::create};
+		is_open = file.is_open();
+		file.set_position(1, bstone::FileOrigin::current);
+		is_set_position_1 = true;
+		file.set_position(0x7FFFFFFFLL, bstone::FileOrigin::begin);
+		is_set_position_2 = true;
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_failed && is_open && is_set_position_1 && !is_set_position_2);
+}
+
+// set_position(Int64, FileOrigin)
+// Fail, 32-bit, end.
+void test_dnbmr2tkzzuj5zn5()
+{
+	if (bstone::File::supports_64_bit_size())
+	{
+		return;
+	}
+
+	auto is_failed = false;
+	auto is_open = false;
+	auto is_set_position_1 = false;
+	auto is_set_position_2 = false;
+
+	try
+	{
+		auto file = bstone::File{"test.data", bstone::FileOpenMode::create | bstone::FileOpenMode::truncate};
+		is_open = file.is_open();
+		file.set_position(1, bstone::FileOrigin::end);
+		is_set_position_1 = true;
+		file.set_position(0x7FFFFFFFLL, bstone::FileOrigin::begin);
+		is_set_position_2 = true;
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_failed && is_open && is_set_position_1 && !is_set_position_2);
+}
+
+// ==========================================================================
+
+// Int64 get_size() const
+void test_q5bqlob75o008k21()
+{
+	auto is_failed = false;
+	auto is_open = false;
+	auto is_valid_size_1 = false;
+	auto is_valid_size_2 = false;
+
+	try
+	{
+		const char buffer = '\0';
+		auto file = bstone::File{"test.data", bstone::FileOpenMode::create | bstone::FileOpenMode::truncate};
+		is_open = file.is_open();
+		is_valid_size_1 = file.get_size() == 0;
+		file.set_position(99, bstone::FileOrigin::begin);
+		file.write(&buffer, 1);
+		is_valid_size_2 = file.get_size() == 100;
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(!is_failed && is_open && is_valid_size_1 && is_valid_size_2);
+}
+
+// ==========================================================================
+
+// void set_size(Int64) const
+void test_fuyi2tfqnsxirj3b()
+{
+	auto is_failed = false;
+	auto is_open = false;
+	auto is_valid_size_1 = false;
+	auto is_valid_size_2 = false;
+
+	try
+	{
+		auto file = bstone::File{"test.data", bstone::FileOpenMode::create | bstone::FileOpenMode::truncate};
+		is_open = file.is_open();
+		is_valid_size_1 = file.get_size() == 0;
+		file.set_size(100);
+		is_valid_size_2 = file.get_size() == 100;
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(!is_failed && is_open && is_valid_size_1 && is_valid_size_2);
+}
+
+// void set_size(Int64) const
+// Fail, 32-bit.
+void test_xzz45hwxclv155kt()
+{
+	if (bstone::File::supports_64_bit_size())
+	{
+		return;
+	}
+
+	auto is_failed = false;
+	auto is_open = false;
+	auto is_valid_size = false;
+	auto is_set_size = false;
+
+	try
+	{
+		auto file = bstone::File{"test.data", bstone::FileOpenMode::create | bstone::FileOpenMode::truncate};
+		is_open = file.is_open();
+		is_valid_size = file.get_size() == 0;
+		file.set_size(0x8000000LL);
+		is_set_size = true;
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_failed && is_open && is_valid_size && !is_set_size);
+}
+
 // ==========================================================================
 
 // flush()
@@ -247,6 +424,8 @@ public:
 		register_is_open();
 		register_read_write();
 		register_set_position();
+		register_get_size();
+		register_set_size();
 		register_flush();
 	}
 
@@ -281,6 +460,20 @@ private:
 	void register_set_position()
 	{
 		tester.register_test("File#fi6d3dq5xqlmagzn", test_fi6d3dq5xqlmagzn);
+		tester.register_test("File#p97p8lv4wc3rjxu1", test_p97p8lv4wc3rjxu1);
+		tester.register_test("File#2kg0ezk0goe67jx4", test_2kg0ezk0goe67jx4);
+		tester.register_test("File#dnbmr2tkzzuj5zn5", test_dnbmr2tkzzuj5zn5);
+	}
+
+	void register_get_size()
+	{
+		tester.register_test("File#q5bqlob75o008k21", test_q5bqlob75o008k21);
+	}
+
+	void register_set_size()
+	{
+		tester.register_test("File#fuyi2tfqnsxirj3b", test_fuyi2tfqnsxirj3b);
+		tester.register_test("File#xzz45hwxclv155kt", test_xzz45hwxclv155kt);
 	}
 
 	void register_flush()

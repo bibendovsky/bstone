@@ -27,9 +27,9 @@ namespace bstone {
 
 namespace {
 
-constexpr auto file_posix_is_64_bit = sizeof(off_t) == 8;
+constexpr auto file_posix_supports_64_bit_size = sizeof(off_t) == 8;
 
-constexpr auto file_posix_max_read_write_size = std::min(
+constexpr auto file_posix_max_int = std::min(
 	Int64{std::numeric_limits<off_t>::max()},
 	Int64{std::numeric_limits<IntP>::max()});
 
@@ -104,7 +104,7 @@ try {
 IntP File::read(void* buffer, IntP count) const
 try {
 	const auto posix_file_descriptor = resource_.get();
-	const auto posix_number_of_bytes_to_read = static_cast<size_t>(std::min(count, file_posix_max_read_write_size));
+	const auto posix_number_of_bytes_to_read = static_cast<size_t>(std::min(count, file_posix_max_int));
 	const auto posix_number_of_bytes_read = ::read(posix_file_descriptor, buffer, posix_number_of_bytes_to_read);
 
 	if (posix_number_of_bytes_read < 0)
@@ -118,7 +118,7 @@ try {
 IntP File::write(const void* buffer, IntP count) const
 try {
 	const auto posix_file_descriptor = resource_.get();
-	const auto posix_number_of_bytes_to_write = static_cast<size_t>(std::min(count, file_posix_max_read_write_size));
+	const auto posix_number_of_bytes_to_write = static_cast<size_t>(std::min(count, file_posix_max_int));
 	const auto posix_number_of_bytes_written = ::write(posix_file_descriptor, buffer, posix_number_of_bytes_to_write);
 
 	if (posix_number_of_bytes_written < 0)
@@ -138,11 +138,19 @@ try {
 		BSTONE_THROW_STATIC_SOURCE("Failed to get position.");
 	}
 
-	return static_cast<Int64>(lseek_result);
+	return lseek_result;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 Int64 File::set_position(Int64 offset, FileOrigin origin) const
 try {
+	if (!file_posix_supports_64_bit_size)
+	{
+		if (std::abs(offset) > file_posix_max_int)
+		{
+			BSTONE_THROW_STATIC_SOURCE("Offset out of range.");
+		}
+	}
+
 	int posix_origin;
 
 	switch (origin)
@@ -173,11 +181,19 @@ try {
 		BSTONE_THROW_STATIC_SOURCE("Failed to get a size.");
 	}
 
-	return static_cast<Int64>(posix_stat.st_size);
+	return posix_stat.st_size;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void File::set_size(Int64 size) const
 try {
+	if (!file_posix_supports_64_bit_size)
+	{
+		if (std::abs(size) > file_posix_max_int)
+		{
+			BSTONE_THROW_STATIC_SOURCE("Size out of range.");
+		}
+	}
+
 	const auto ftruncate_result = ftruncate(resource_.get(), size);
 
 	if (ftruncate_result != 0)
@@ -195,6 +211,11 @@ try {
 		BSTONE_THROW_STATIC_SOURCE("Failed to flush.");
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+bool File::supports_64_bit_size()
+{
+	return file_posix_supports_64_bit_size;
+}
 
 } // namespace bstone
 

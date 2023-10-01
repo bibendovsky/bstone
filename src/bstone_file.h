@@ -59,6 +59,8 @@ public:
 	void set_size(Int64 size) const;
 	void flush() const;
 
+	static bool supports_64_bit_size();
+
 private:
 	FileUResource resource_{};
 };

@@ -257,6 +257,10 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
+bool File::supports_64_bit_size()
+{
+	return true;
+}
 } // namespace bstone
 
 #endif // _WIN32
