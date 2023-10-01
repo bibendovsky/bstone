@@ -165,6 +165,7 @@ constexpr auto char_conv_max_base = 36;
 
 // --------------------------------------------------------------------------
 
+#if 0
 namespace detail {
 
 struct ToCharsIntegralTag {};
@@ -260,6 +261,82 @@ inline constexpr TChar* to_chars(TValue value, TChar* chars_begin, TChar* chars_
 
 	return chars_begin + i_char;
 }
+#else
+namespace detail {
+
+template<typename TValue, bool TIsSigned = std::is_signed<TValue>::value>
+struct ToCharsAbs
+{
+	TValue operator()(TValue value) const
+	{
+		return value < 0 ? -value : value;
+	}
+};
+
+template<typename TValue>
+struct ToCharsAbs<TValue, false>
+{
+	TValue operator()(TValue value) const
+	{
+		return value;
+	}
+};
+
+} // namespace detail
+
+template<typename TValue, typename TCharIter>
+inline constexpr TCharIter to_chars(TValue value, TCharIter chars_begin, TCharIter chars_end, int base = 10)
+{
+	static_assert(std::is_integral<TValue>::value && sizeof(TValue) <= 8, "Unsupported type.");
+
+	if (base < char_conv_min_base || base > char_conv_max_base)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Base out of range.");
+	}
+
+	using Char = std::remove_reference_t<decltype(*chars_begin)>;
+	constexpr auto abs = detail::ToCharsAbs<TValue>{};
+
+	constexpr auto max_chars = IntP{20}; // 64-bit
+	Char chars[max_chars];
+
+	const auto is_negative = value < 0;
+	const auto v_base = static_cast<TValue>(base);
+	auto chars_count = IntP{};
+
+	while (true)
+	{
+		const auto next_value = static_cast<TValue>(value / v_base);
+		const auto digit = abs(value % v_base);
+		value = next_value;
+		const auto digit_char = static_cast<Char>(digit < 10 ? ('0' + digit) : ('a' + digit - 10));
+		chars[chars_count++] = digit_char;
+
+		if (next_value == 0)
+		{
+			break;
+		}
+	}
+
+	if (is_negative)
+	{
+		chars[chars_count++] = static_cast<Char>('-');
+	}
+
+	for (auto i = 0; i < chars_count; ++i)
+	{
+		if (chars_begin == chars_end)
+		{
+			BSTONE_THROW_STATIC_SOURCE("Buffer too small.");
+		}
+
+		*chars_begin = chars[chars_count - 1 - i];
+		++chars_begin;
+	}
+
+	return chars_begin;
+}
+#endif
 
 // ==========================================================================
 

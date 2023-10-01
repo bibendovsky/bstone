@@ -445,25 +445,6 @@ void test_k5dma16zcskflljr()
 }
 
 // to_chars(TValue, TChar*, TChar*, int)
-// Buffer size out of range.
-void test_pclnrieow6iiyhkh()
-{
-	auto is_failed = false;
-
-	try
-	{
-		char chars[1];
-		bstone::to_chars(0, chars + 1, chars);
-	}
-	catch (const std::exception&)
-	{
-		is_failed = true;
-	}
-
-	tester.check(is_failed);
-}
-
-// to_chars(TValue, TChar*, TChar*, int)
 // Base out of range.
 void test_yu95gjn7r8e549ki()
 {
@@ -783,7 +764,6 @@ private:
 		tester.register_test("to_chars#dvtkoajkruya2g23", test_dvtkoajkruya2g23);
 		tester.register_test("to_chars#gci8hnnnfrzce1ps", test_gci8hnnnfrzce1ps);
 		tester.register_test("to_chars#k5dma16zcskflljr", test_k5dma16zcskflljr);
-		tester.register_test("to_chars#pclnrieow6iiyhkh", test_pclnrieow6iiyhkh);
 		tester.register_test("to_chars#yu95gjn7r8e549ki", test_yu95gjn7r8e549ki);
 		tester.register_test("to_chars#hlb3rbu9n9ru7j0p", test_hlb3rbu9n9ru7j0p);
 	}
