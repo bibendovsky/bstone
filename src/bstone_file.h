@@ -44,22 +44,22 @@ class File
 {
 public:
 	File() = default;
-	File(const char* file_name, FileOpenMode open_mode);
-	File(const char* file_name); // Opens an existing file for reading.
+	explicit File(const char* file_name, FileOpenMode open_mode = FileOpenMode::read);
 
-	void open(const char* file_name, FileOpenMode open_mode);
-	void open(const char* file_name); // Opens an existing file for reading.
+	void open(const char* file_name, FileOpenMode open_mode = FileOpenMode::read);
 	void close();
 	bool is_open() const;
 	IntP read(void* buffer, IntP count) const;
+	void read_exact(void* buffer, IntP count) const;
 	IntP write(const void* buffer, IntP count) const;
+	void write_exact(const void* buffer, IntP count) const;
+	Int64 seek(Int64 offset, FileOrigin origin) const;
+	Int64 skip(Int64 delta) const;
 	Int64 get_position() const;
-	Int64 set_position(Int64 offset, FileOrigin origin) const;
+	void set_position(Int64 position) const;
 	Int64 get_size() const;
 	void set_size(Int64 size) const;
 	void flush() const;
-
-	static bool supports_64_bit_size();
 
 private:
 	FileUResource resource_{};

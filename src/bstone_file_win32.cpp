@@ -8,6 +8,10 @@ SPDX-License-Identifier: MIT
 
 #if defined(_WIN32)
 
+#if !defined(WIN32_LEAN_AND_MEAN)
+	#define WIN32_LEAN_AND_MEAN
+#endif
+
 #if !defined(NOMINMAX)
 	#define NOMINMAX
 #endif
@@ -30,12 +34,12 @@ constexpr auto file_win32_max_read_write_size = IntP{0x7FFFFFFF};
 // ==========================================================================
 
 File::File(const char* file_name, FileOpenMode open_mode)
-try {
+{
 	open(file_name, open_mode);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 void File::open(const char* file_name, FileOpenMode open_mode)
-try {
+{
 	close();
 
 	const auto is_create = (open_mode & FileOpenMode::create) != FileOpenMode::none;
@@ -120,10 +124,10 @@ try {
 	}
 
 	resource_.swap(resource);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 IntP File::read(void* buffer, IntP count) const
-try {
+{
 	const auto win32_handle = resource_.get();
 	const auto win32_size_to_read = static_cast<DWORD>(std::min(count, file_win32_max_read_write_size));
 	DWORD win32_read_size;
@@ -141,10 +145,10 @@ try {
 	}
 
 	return static_cast<IntP>(win32_read_size);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 IntP File::write(const void* buffer, IntP count) const
-try {
+{
 	const auto win32_handle = resource_.get();
 	const auto win32_size_to_write = static_cast<DWORD>(std::min(count, file_win32_max_read_write_size));
 	DWORD win32_written_size;
@@ -162,15 +166,10 @@ try {
 	}
 
 	return static_cast<IntP>(win32_written_size);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
-Int64 File::get_position() const
-try {
-	return set_position(0, FileOrigin::current);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-Int64 File::set_position(Int64 offset, FileOrigin origin) const
-try {
+Int64 File::seek(Int64 offset, FileOrigin origin) const
+{
 	DWORD win32_origin;
 
 	switch (origin)
@@ -197,10 +196,10 @@ try {
 	}
 
 	return win32_position.QuadPart;
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 Int64 File::get_size() const
-try {
+{
 	LARGE_INTEGER win32_size;
 	const auto get_file_size_ex_result = GetFileSizeEx(resource_.get(), &win32_size);
 
@@ -210,10 +209,10 @@ try {
 	}
 
 	return win32_size.QuadPart;
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 void File::set_size(Int64 size) const
-try {
+{
 	auto win32_offset = LARGE_INTEGER{};
 	LARGE_INTEGER win32_position;
 	auto set_file_pointer_ex_result = SetFilePointerEx(resource_.get(), win32_offset, &win32_position, FILE_CURRENT);
@@ -245,22 +244,18 @@ try {
 	{
 		BSTONE_THROW_STATIC_SOURCE("Failed to return to saved position.");
 	}
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 void File::flush() const
-try {
+{
 	const auto flush_file_buffers_result = FlushFileBuffers(resource_.get());
 
 	if (flush_file_buffers_result == 0)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Failed to flush.");
 	}
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-bool File::supports_64_bit_size()
-{
-	return true;
 }
+
 } // namespace bstone
 
 #endif // _WIN32

@@ -38,12 +38,12 @@ constexpr auto file_posix_max_int = std::min(
 // ==========================================================================
 
 File::File(const char* file_name, FileOpenMode open_mode)
-try {
+{
 	open(file_name, open_mode);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 void File::open(const char* file_name, FileOpenMode open_mode)
-try {
+{
 	close();
 
 	const auto is_create = (open_mode & FileOpenMode::create) != FileOpenMode::none;
@@ -99,10 +99,10 @@ try {
 	}
 
 	resource_.swap(resource);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 IntP File::read(void* buffer, IntP count) const
-try {
+{
 	const auto posix_file_descriptor = resource_.get();
 	const auto posix_number_of_bytes_to_read = static_cast<size_t>(std::min(count, file_posix_max_int));
 	const auto posix_number_of_bytes_read = ::read(posix_file_descriptor, buffer, posix_number_of_bytes_to_read);
@@ -113,10 +113,10 @@ try {
 	}
 
 	return static_cast<IntP>(posix_number_of_bytes_read);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 IntP File::write(const void* buffer, IntP count) const
-try {
+{
 	const auto posix_file_descriptor = resource_.get();
 	const auto posix_number_of_bytes_to_write = static_cast<size_t>(std::min(count, file_posix_max_int));
 	const auto posix_number_of_bytes_written = ::write(posix_file_descriptor, buffer, posix_number_of_bytes_to_write);
@@ -127,22 +127,10 @@ try {
 	}
 
 	return static_cast<IntP>(posix_number_of_bytes_written);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
-Int64 File::get_position() const
-try {
-	const auto lseek_result = lseek(resource_.get(), 0, SEEK_CUR);
-
-	if (lseek_result < 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Failed to get position.");
-	}
-
-	return lseek_result;
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-Int64 File::set_position(Int64 offset, FileOrigin origin) const
-try {
+Int64 File::seek(Int64 offset, FileOrigin origin) const
+{
 	if (!file_posix_supports_64_bit_size)
 	{
 		if (std::abs(offset) > file_posix_max_int)
@@ -169,10 +157,10 @@ try {
 	}
 
 	return static_cast<Int64>(lseek_result);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 Int64 File::get_size() const
-try {
+{
 	struct stat posix_stat;
 	const auto fstat_result = fstat(resource_.get(), &posix_stat);
 
@@ -182,10 +170,10 @@ try {
 	}
 
 	return posix_stat.st_size;
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 void File::set_size(Int64 size) const
-try {
+{
 	if (!file_posix_supports_64_bit_size)
 	{
 		if (std::abs(size) > file_posix_max_int)
@@ -200,21 +188,16 @@ try {
 	{
 		BSTONE_THROW_STATIC_SOURCE("Failed to truncate.");
 	}
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 void File::flush() const
-try {
+{
 	const auto fsync_result = fsync(resource_.get());
 
 	if (fsync_result != 0)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Failed to flush.");
 	}
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-bool File::supports_64_bit_size()
-{
-	return file_posix_supports_64_bit_size;
 }
 
 } // namespace bstone
