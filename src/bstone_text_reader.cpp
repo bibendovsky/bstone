@@ -64,11 +64,6 @@ bool TextReader::open(
 		return false;
 	}
 
-	if (!stream->is_readable())
-	{
-		return false;
-	}
-
 	stream_ = stream;
 
 	return true;

@@ -348,6 +348,12 @@ target_sources(
 		bstone_file_uresource_posix.cpp
 		bstone_file_uresource_win32.cpp
 		bstone_file_win32.cpp
+		bstone_file_stream.cpp
+		bstone_file_system.h
+		bstone_static_memory_stream.cpp
+		bstone_static_memory_stream.h
+		bstone_static_ro_memory_stream.cpp
+		bstone_static_ro_memory_stream.h
 )
 
 target_sources(
@@ -469,8 +475,6 @@ target_sources(
 		bstone_entry_point.h
 		bstone_exception.h
 		bstone_exception_utils.h
-		bstone_file_stream.h
-		bstone_file_system.h
 		bstone_fizzle_fx.h
 		bstone_format_string.h
 		bstone_game_ticker.h

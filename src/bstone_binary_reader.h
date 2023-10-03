@@ -7,6 +7,8 @@ SPDX-License-Identifier: MIT
 #ifndef BSTONE_BINARY_READER_INCLUDED
 #define BSTONE_BINARY_READER_INCLUDED
 
+#include <string>
+
 #include "bstone_stream.h"
 
 namespace bstone

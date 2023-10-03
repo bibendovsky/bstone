@@ -178,11 +178,7 @@ void PageMgrImpl::load_vswap()
 	pages_.resize(pages_size);
 
 	auto pages_bytes = pages_.data();
-
-	if (vswap_file.read(pages_bytes, vswap_size) != vswap_size)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Page read error.");
-	}
+	vswap_file.read_exact(pages_bytes, vswap_size);
 
 	const auto u16_elements = reinterpret_cast<const std::uint16_t*>(pages_bytes);
 

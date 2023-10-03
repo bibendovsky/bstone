@@ -154,8 +154,6 @@ private:
 
 
 	bool is_initialized_;
-	bool is_stream_readable_;
-	bool is_stream_writable_;
 	Crc32 crc32_;
 	StreamPtr stream_;
 	Buffer buffer_;
@@ -170,21 +168,11 @@ private:
 			BSTONE_THROW_STATIC_SOURCE("Not initialized.");
 		}
 
-		if (!is_stream_readable_)
-		{
-			BSTONE_THROW_STATIC_SOURCE("Stream is not readable.");
-		}
-
 		constexpr auto value_size = static_cast<int>(sizeof(T));
 
 		T value;
 
-		const auto read_result = stream_->read(&value, value_size);
-
-		if (read_result != value_size)
-		{
-			BSTONE_THROW_STATIC_SOURCE("Failed to read an integer value.");
-		}
+		stream_->read_exact(&value, value_size);
 
 		if (!is_checksum)
 		{
@@ -206,11 +194,6 @@ private:
 			BSTONE_THROW_STATIC_SOURCE("Not initialized.");
 		}
 
-		if (!is_stream_writable_)
-		{
-			BSTONE_THROW_STATIC_SOURCE("Stream is not writable.");
-		}
-
 		constexpr auto value_size = static_cast<int>(sizeof(T));
 
 		if (!is_checksum)
@@ -220,12 +203,7 @@ private:
 
 		const auto value = endian::to_little(integer_value);
 
-		const auto write_result = stream_->write(&value, value_size);
-
-		if (!write_result)
-		{
-			BSTONE_THROW_STATIC_SOURCE("Failed to write an integer value.");
-		}
+		stream_->write_exact(&value, value_size);
 	} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 	template<typename T>
@@ -248,20 +226,10 @@ private:
 			BSTONE_THROW_STATIC_SOURCE("Item count out of range.");
 		}
 
-		if (!is_stream_readable_)
-		{
-			BSTONE_THROW_STATIC_SOURCE("Stream is not readable.");
-		}
-
 		constexpr auto value_size = static_cast<int>(sizeof(T));
 		const auto items_size = value_size * item_count;
 
-		const auto read_result = stream_->read(items, items_size);
-
-		if (read_result != items_size)
-		{
-			BSTONE_THROW_STATIC_SOURCE("Failed to read an array of integer values.");
-		}
+		stream_->read_exact(items, items_size);
 
 		for (int i_item = 0; i_item < item_count; ++i_item)
 		{
@@ -291,11 +259,6 @@ private:
 			BSTONE_THROW_STATIC_SOURCE("Item count out of range.");
 		}
 
-		if (!is_stream_writable_)
-		{
-			BSTONE_THROW_STATIC_SOURCE("Stream is not writable.");
-		}
-
 		constexpr auto value_size = static_cast<int>(sizeof(T));
 		const auto items_size = value_size * item_count;
 
@@ -313,12 +276,7 @@ private:
 			dst_items[i_item] = endian::to_little(items[i_item]);
 		}
 
-		const auto write_result = stream_->write(dst_items, items_size);
-
-		if (!write_result)
-		{
-			BSTONE_THROW_STATIC_SOURCE("Failed to write an array of integer values.");
-		}
+		stream_->write_exact(dst_items, items_size);
 	} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 }; // ArchiverImpl
 
@@ -326,8 +284,6 @@ private:
 ArchiverImpl::ArchiverImpl()
 	:
 	is_initialized_{},
-	is_stream_readable_{},
-	is_stream_writable_{},
 	crc32_{},
 	stream_{},
 	buffer_{}
@@ -354,8 +310,6 @@ try {
 
 
 	is_initialized_ = true;
-	is_stream_readable_ = stream->is_readable();
-	is_stream_writable_ = stream->is_writable();
 	crc32_.reset();
 	stream_ = stream;
 	buffer_.clear();
@@ -364,8 +318,6 @@ try {
 void ArchiverImpl::uninitialize() noexcept
 {
 	is_initialized_ = false;
-	is_stream_readable_ = false;
-	is_stream_writable_ = false;
 	crc32_.reset();
 	stream_ = nullptr;
 	buffer_.clear();
@@ -489,13 +441,7 @@ try {
 		BSTONE_THROW_STATIC_SOURCE("Archived string length out of range.");
 	}
 
-	const auto read_result = stream_->read(string, archived_string_length);
-
-	if (read_result != archived_string_length)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Failed to read string data.");
-	}
-
+	stream_->read_exact(string, archived_string_length);
 	string_length = archived_string_length;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
@@ -613,12 +559,7 @@ try {
 		return;
 	}
 
-	const auto write_result = stream_->write(string, string_length);
-
-	if (!write_result)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Failed to write string data.");
-	}
+	stream_->write_exact(string, string_length);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_checksum()

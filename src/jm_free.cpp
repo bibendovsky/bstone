@@ -85,6 +85,8 @@ void initialize_ca_constants();
 
 void sd_setup_digi();
 
+void InitPlaytemp();
+
 
 extern const std::uint8_t colormap[16896];
 const std::uint8_t* lightsource;
@@ -1284,6 +1286,7 @@ void InitGame()
 
 	check_for_extract_options();
 	read_high_scores();
+	InitPlaytemp();
 
 	sd_startup();
 	IN_Startup();

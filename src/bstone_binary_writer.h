@@ -8,6 +8,9 @@ SPDX-License-Identifier: MIT
 #define BSTONE_BINARY_WRITER_INCLUDED
 
 #include <cstdint>
+
+#include <string>
+
 #include "bstone_stream.h"
 
 namespace bstone
@@ -16,10 +19,10 @@ namespace bstone
 class BinaryWriter final
 {
 public:
-	BinaryWriter(Stream* stream = nullptr);
-	BinaryWriter(BinaryWriter&& rhs);
-	BinaryWriter(const BinaryWriter& that) = delete;
-	BinaryWriter& operator=(const BinaryWriter& that) = delete;
+	explicit BinaryWriter(Stream* stream = nullptr);
+	BinaryWriter(BinaryWriter&& rhs) noexcept;
+	BinaryWriter(const BinaryWriter&) = delete;
+	BinaryWriter& operator=(const BinaryWriter&) = delete;
 
 	bool open(Stream* stream);
 	// Closes the writer but stream.
@@ -66,7 +69,7 @@ public:
 			return false;
 		}
 
-		return stream_->write(&value, sizeof(T));
+		return stream_->write(&value, sizeof(T)) == sizeof(T);
 	}
 
 	template<typename T, std::size_t N>
@@ -77,7 +80,7 @@ public:
 			return false;
 		}
 
-		return stream_->write(value, N * sizeof(T));
+		return stream_->write(value, N * sizeof(T)) == N * sizeof(T);
 	}
 
 private:

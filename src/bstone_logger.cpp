@@ -127,8 +127,9 @@ try
 
 	if (file_stream_.is_open())
 	{
-		static_cast<void>(file_stream_.write_string(message_));
-		static_cast<void>(file_stream_.write_octet('\n'));
+		const auto new_line = '\n';
+		file_stream_.write_exact(message_.c_str(), static_cast<IntP>(message.size()));
+		file_stream_.write_exact(&new_line, 1);
 		file_stream_.flush();
 	}
 
@@ -183,14 +184,16 @@ void DefaultLogger::initialize()
 		const auto& profile_dir = get_profile_dir();
 		file_name_ = profile_dir + "bstone_log.txt";
 
+		try
 		{
-			const auto is_file_open = file_stream_.open(file_name_, StreamOpenMode::write);
-
-			if (!is_file_open)
-			{
-				std::cerr << "[ERROR] Failed to open a log file." << std::endl;
-				std::cerr << "[ERROR] File: \"" << file_name_ << "\"." << std::endl;
-			}
+			file_stream_.open(
+				file_name_.c_str(),
+				FileOpenMode::create | FileOpenMode::truncate | FileOpenMode::write);
+		}
+		catch (...)
+		{
+			std::cerr << "[ERROR] Failed to open a log file." << std::endl;
+			std::cerr << "[ERROR] File: \"" << file_name_ << "\"." << std::endl;
 		}
 
 		message_.reserve(1024);

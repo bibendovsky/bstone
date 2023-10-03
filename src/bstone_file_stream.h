@@ -1,63 +1,44 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-//
 // File stream.
-//
 
-#ifndef BSTONE_FILE_STREAM_INCLUDED
+#if !defined(BSTONE_FILE_STREAM_INCLUDED)
 #define BSTONE_FILE_STREAM_INCLUDED
 
+#include "bstone_file.h"
 #include "bstone_stream.h"
 
-namespace bstone
-{
+namespace bstone {
 
-// File stream.
 class FileStream final : public Stream
 {
 public:
-	FileStream() noexcept;
-	FileStream(const std::string& file_name, StreamOpenMode open_mode = StreamOpenMode::read) noexcept;
-	FileStream(const FileStream& rhs) = delete;
-	FileStream(FileStream&& rhs) noexcept;
-	FileStream& operator=(const FileStream& rhs) = delete;
-	~FileStream() override;
+	FileStream() = default;
+	explicit FileStream(const char* file_name, FileOpenMode open_mode = FileOpenMode::read);
+	FileStream(FileStream&&) = default;
+	FileStream& operator=(FileStream&&) = default;
+	~FileStream() override = default;
 
-	bool open(const std::string& file_name, StreamOpenMode open_mode = StreamOpenMode::read) noexcept;
-	void close() noexcept override;
-	bool is_open() const noexcept override;
-	int get_size() noexcept override;
-	bool set_size(int size) noexcept override;
-	int seek(int offset, StreamSeekOrigin origin) noexcept override;
-	int read(void* buffer, int count) noexcept override;
-	bool write(const void* buffer, int count) noexcept override;
-	bool flush() noexcept override;
-	bool is_readable() const noexcept override;
-	bool is_seekable() const noexcept override;
-	bool is_writable() const noexcept override;
-
-	static bool is_exists(const std::string& file_name) noexcept;
+	void open(const char* file_name, FileOpenMode open_mode = FileOpenMode::read);
 
 private:
-#ifdef _WIN32
-	void* handle_{};
-#else
-	int handle_{};
-#endif // _WIN32
+	File file_{};
 
-	bool is_readable_{};
-	bool is_seekable_{};
-	bool is_writable_{};
+private:
+	void do_close() override;
+	bool do_is_open() const override;
+	IntP do_read(void* buffer, IntP count) override;
+	IntP do_write(const void* buffer, IntP count) override;
+	Int64 do_seek(Int64 offset, StreamOrigin origin) override;
+	Int64 do_get_size() const override;
+	void do_set_size(Int64 size) override;
+	void do_flush() override;
+};
 
-	bool is_open_internal() const noexcept;
-	void close_handle() noexcept;
-	void close_internal() noexcept;
-}; // FileStream
-
-} // bstone
+} // namespace bstone
 
 #endif // BSTONE_FILE_STREAM_INCLUDED

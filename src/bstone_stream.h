@@ -1,162 +1,56 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-//
-// A base class for streams.
-//
+// Stream primitive.
 
-#ifndef BSTONE_STREAM_INCLUDED
+#if !defined(BSTONE_STREAM_INCLUDED)
 #define BSTONE_STREAM_INCLUDED
 
-#include <string>
+#include "bstone_int.h"
 
-namespace bstone
-{
+namespace bstone {
 
-enum class StreamSeekOrigin
+enum class StreamOrigin
 {
 	begin,
 	current,
 	end,
-}; // StreamSeekOrigin
+};
 
-enum class StreamOpenMode
-{
-	read,
-	write,
-	read_write,
-}; // StreamOpenMode
-
-// A base class for streams.
 class Stream
 {
 public:
-	Stream() noexcept = default;
+	Stream() = default;
 	virtual ~Stream() = default;
 
-	virtual void close() noexcept = 0;
-	virtual bool is_open() const noexcept = 0;
+	void close();
+	bool is_open() const;
+	IntP read(void* buffer, IntP count);
+	void read_exact(void* buffer, IntP count);
+	IntP write(const void* buffer, IntP count);
+	void write_exact(const void* buffer, IntP count);
+	Int64 seek(Int64 offset, StreamOrigin origin);
+	Int64 skip(Int64 delta);
+	Int64 get_position();
+	void set_position(Int64 position);
+	Int64 get_size() const;
+	void set_size(Int64 size);
+	void flush();
 
-	// Returns a size of the stream or a negative value on error.
-	virtual int get_size() noexcept = 0;
+private:
+	virtual void do_close() = 0;
+	virtual bool do_is_open() const = 0;
+	virtual IntP do_read(void* buffer, IntP count) = 0;
+	virtual IntP do_write(const void* buffer, IntP count) = 0;
+	virtual Int64 do_seek(Int64 offset, StreamOrigin origin) = 0;
+	virtual Int64 do_get_size() const = 0;
+	virtual void do_set_size(Int64 size) = 0;
+	virtual void do_flush() = 0;
+};
 
-	// Sets a new size of the stream.
-	// Returns false on error or if the stream is not seekable.
-	virtual bool set_size(int size) noexcept = 0;
-
-	// Returns a new position or a negative value on error.
-	virtual int seek(int offset, StreamSeekOrigin origin) noexcept = 0;
-
-	// Skips a number of octets forward if count is positive or
-	// backward otherwise.
-	// Returns a negative value on error.
-	virtual int skip(int count) noexcept;
-
-	// Returns a current position or a negative value on error.
-	virtual int get_position() noexcept;
-
-	//
-	// Moves stream's pointer to a new position.
-	//
-	// Parameters:
-	//    - position - new position.
-	//
-	// Returns:
-	//    - "true" on success.
-	//    - "false" otherwise.
-	//
-	virtual bool set_position(int position) noexcept;
-
-	// Reads a specified number of octets and returns an actual
-	// read number of octets.
-	virtual int read(void* buffer, int count) noexcept = 0;
-
-	//
-	// Writes octet data into the stream.
-	//
-	// Parameters:
-	//    - buffer - buffer with octet data.
-	//    - count - octet count.
-	//
-	// Returns:
-	//    - "true" on success.
-	//    - "false" otherwise.
-	//
-	virtual bool write(const void* buffer, int count) noexcept = 0;
-
-	// Reads a one octet and returns it.
-	// Returns a negative value on error.
-	virtual int read_octet() noexcept;
-
-	//
-	// Writes exactly one octet into the stream.
-	//
-	// Parameters:
-	//    - value - octet value.
-	//
-	// Returns:
-	//    - "true" on success.
-	//    - "false" otherwise.
-	//
-	virtual bool write_octet(unsigned char value) noexcept;
-
-	// Writes a string without a terminator
-	virtual bool write_string(const std::string& string) noexcept;
-
-	//
-	// Flushes the buffers.
-	//
-	// Returns:
-	//    - "true" on success.
-	//    - "false" otherwise.
-	//
-	virtual bool flush() noexcept = 0;
-
-	//
-	// Indicates the stream is readable.
-	//
-	// Returns:
-	//    - "true" if stream is readable.
-	//    - "false" otherwise.
-	//
-	virtual bool is_readable() const noexcept = 0;
-
-	//
-	// Indicates the stream is seekable.
-	//
-	// Returns:
-	//    - "true" if stream is seekable.
-	//    - "false" otherwise.
-	//
-	virtual bool is_seekable() const noexcept = 0;
-
-	//
-	// Indicates the stream is writable.
-	//
-	// Returns:
-	//    - "true" if stream is writable.
-	//    - "false" otherwise.
-	//
-	virtual bool is_writable() const noexcept = 0;
-
-	// Copies the stream from a current position to
-	// an another stream using internal buffer.
-	bool copy_to(Stream* dst_stream, int buffer_size = 0) noexcept;
-
-
-	//
-	// Gets default buffer size for copying.
-	//
-	// Returns:
-	//    - Default buffer size.
-	//
-	static int get_default_copy_buffer_size() noexcept;
-}; // Stream
-
-
-} // bstone
+} // namespace bstone
 
 #endif // BSTONE_STREAM_INCLUDED

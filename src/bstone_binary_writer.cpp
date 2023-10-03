@@ -16,7 +16,7 @@ BinaryWriter::BinaryWriter(Stream* stream)
 	static_cast<void>(open(stream));
 }
 
-BinaryWriter::BinaryWriter(BinaryWriter&& rhs)
+BinaryWriter::BinaryWriter(BinaryWriter&& rhs) noexcept
 {
 	bstone::swop(stream_, rhs.stream_);
 }
@@ -26,11 +26,6 @@ bool BinaryWriter::open(Stream* stream)
 	close();
 
 	if (!stream)
-	{
-		return false;
-	}
-
-	if (!stream->is_writable())
 	{
 		return false;
 	}
@@ -106,7 +101,7 @@ bool BinaryWriter::write(const void* buffer, int count)
 		return false;
 	}
 
-	return stream_->write(buffer, count);
+	return stream_->write(buffer, count) == count;
 }
 
 bool BinaryWriter::write(const std::string& string)
@@ -125,7 +120,8 @@ bool BinaryWriter::skip(int count)
 		return false;
 	}
 
-	return stream_->skip(count) >= 0;
+	stream_->skip(count);
+	return true;
 }
 
 int BinaryWriter::get_position() const
@@ -135,7 +131,7 @@ int BinaryWriter::get_position() const
 		return 0;
 	}
 
-	return stream_->get_position();
+	return static_cast<int>(stream_->get_position());
 }
 
 bool BinaryWriter::set_position(int position)
@@ -145,7 +141,8 @@ bool BinaryWriter::set_position(int position)
 		return false;
 	}
 
-	return stream_->set_position(position);
+	stream_->set_position(position);
+	return true;
 }
 
 } // bstone

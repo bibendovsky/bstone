@@ -31,11 +31,6 @@ bool BinaryReader::open(Stream* stream)
 		return false;
 	}
 
-	if (!stream->is_readable())
-	{
-		return false;
-	}
-
 	stream_ = stream;
 	return true;
 }
@@ -139,7 +134,8 @@ bool BinaryReader::skip(int count)
 		return false;
 	}
 
-	return stream_->skip(count) >= 0;
+	stream_->skip(count);
+	return true;
 }
 
 int BinaryReader::get_position() const
@@ -149,7 +145,7 @@ int BinaryReader::get_position() const
 		return 0;
 	}
 
-	return stream_->get_position();
+	return static_cast<int>(stream_->get_position());
 }
 
 bool BinaryReader::set_position(int position)
@@ -159,7 +155,8 @@ bool BinaryReader::set_position(int position)
 		return false;
 	}
 
-	return stream_->set_position(position);
+	stream_->set_position(position);
+	return true;
 }
 
 } // bstone

@@ -177,10 +177,7 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(const AudioChunk& audio
 		BSTONE_THROW_STATIC_SOURCE("Failed to initialize decoder.");
 	}
 
-	if (!stream.set_position(wav_prefix_size))
-	{
-		BSTONE_THROW_STATIC_SOURCE("Seek error.");
-	}
+	stream.set_position(wav_prefix_size);
 
 	constexpr auto sample_size = static_cast<int>(sizeof(Sample));
 	constexpr auto bit_depth = sample_size * 8;
@@ -206,19 +203,13 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(const AudioChunk& audio
 
 		const auto decoded_size = decoded_count * sample_size;
 
-		if (!stream.write(decode_buffer_.data(), decoded_size))
-		{
-			BSTONE_THROW_STATIC_SOURCE("Write error.");
-		}
+		stream.write_exact(decode_buffer_.data(), decoded_size);
 
 		data_size += decoded_size;
 		sample_count += decoded_count;
 	}
 
-	if (!stream.set_position(0))
-	{
-		BSTONE_THROW_STATIC_SOURCE("Seek error.");
-	}
+	stream.set_position(0);
 
 	if (!write_wav_header(data_size, bit_depth, bstone::opl3_fixed_frequency, stream))
 	{
@@ -243,17 +234,12 @@ void AudioExtractorImpl::write_digitized_audio_chunk(const AudioChunk& audio_chu
 		BSTONE_THROW_STATIC_SOURCE("Write error.");
 	}
 
-	if (!stream.write(audio_chunk.data, data_size))
-	{
-		BSTONE_THROW_STATIC_SOURCE("Write error.");
-	}
+	stream.write_exact(audio_chunk.data, data_size);
 
 	if ((data_size % 2) != 0)
 	{
-		if (!stream.write_octet(0))
-		{
-			BSTONE_THROW_STATIC_SOURCE("Write error.");
-		}
+		const auto zero_octet = UInt8{};
+		stream.write_exact(&zero_octet, 1);
 	}
 
 	auto abs_max_sample = 0;
@@ -317,16 +303,19 @@ void AudioExtractorImpl::extract_raw_audio_chunk(const std::string& dst_dir, con
 	const auto file_name = make_file_name(audio_chunk, ExtensionType::data);
 	logger_->write(file_name);
 	const auto dst_file_name = file_system::append_path(dst_dir, file_name);
-	auto file_stream = FileStream{dst_file_name, StreamOpenMode::write};
+
+	auto file_stream = FileStream{
+		dst_file_name.c_str(),
+		FileOpenMode::create | FileOpenMode::truncate | FileOpenMode::write};
 
 	if (!file_stream.is_open())
 	{
 		BSTONE_THROW_STATIC_SOURCE("Failed to open a file for writing.");
 	}
 
-	const auto is_written = file_stream.write(audio_chunk.data, audio_chunk.data_size);
+	const auto written_size = file_stream.write(audio_chunk.data, audio_chunk.data_size);
 
-	if (!is_written)
+	if (written_size != audio_chunk.data_size)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Write error.");
 	}
@@ -344,7 +333,10 @@ void AudioExtractorImpl::extract_decoded_audio_chunk(const std::string& dst_dir,
 	const auto file_name = make_file_name(audio_chunk, ExtensionType::wav);
 	logger_->write(file_name);
 	const auto dst_file_name = file_system::append_path(dst_dir, file_name);
-	auto file_stream = FileStream{dst_file_name, StreamOpenMode::write};
+
+	auto file_stream = FileStream{
+		dst_file_name.c_str(),
+		FileOpenMode::create | FileOpenMode::truncate | FileOpenMode::write};
 
 	if (!file_stream.is_open())
 	{

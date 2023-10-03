@@ -38,6 +38,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_memory_stream.h"
 #include "bstone_ps_fizzle_fx.h"
 #include "bstone_sha1.h"
+#include "bstone_static_ro_memory_stream.h"
 #include "bstone_string_helper.h"
 #include "bstone_text_reader.h"
 #include "bstone_text_writer.h"
@@ -7098,7 +7099,7 @@ void read_high_scores()
 	auto scores = HighScores{};
 	scores.resize(MaxScores);
 
-	auto stream = bstone::FileStream{scores_path};
+	auto stream = bstone::FileStream{scores_path.c_str()};
 
 	if (stream.is_open())
 	{
@@ -7153,7 +7154,9 @@ static void write_high_scores()
 	const auto& scores_path = get_profile_dir() + get_score_file_name();
 	const auto& tmp_scores_path = scores_path + ".temp";
 
-	auto stream = bstone::FileStream{tmp_scores_path, bstone::StreamOpenMode::write};
+	auto stream = bstone::FileStream{
+		tmp_scores_path.c_str(),
+		bstone::FileOpenMode::create | bstone::FileOpenMode::write};
 
 	if (!stream.is_open())
 	{
@@ -7630,7 +7633,7 @@ void read_text_config()
 
 	const auto& config_path = get_profile_dir() + text_config_file_name;
 
-	bstone::FileStream stream{config_path};
+	bstone::FileStream stream{config_path.c_str()};
 
 	auto args = std::vector<bstone::StringView>{};
 
@@ -7777,7 +7780,7 @@ void write_text_config()
 {
 	constexpr auto memory_stream_initial_size = 4096;
 
-	bstone::MemoryStream memory_stream{memory_stream_initial_size, bstone::StreamOpenMode::write};
+	bstone::MemoryStream memory_stream{memory_stream_initial_size};
 	auto writer = bstone::TextWriter{&memory_stream};
 
 	writer.write("// BStone configuration file\n");
@@ -7817,9 +7820,11 @@ void write_text_config()
 	const auto& tmp_config_path = config_path + ".temp";
 
 	{
-		bstone::FileStream stream{tmp_config_path, bstone::StreamOpenMode::write};
+		bstone::FileStream stream{
+			tmp_config_path.c_str(),
+			bstone::FileOpenMode::create | bstone::FileOpenMode::truncate | bstone::FileOpenMode::write};
 
-		if (!stream.write(stream_data, stream_size))
+		if (stream.write(stream_data, stream_size) != stream_size)
 		{
 			bstone::logger_->write_warning("Failed to write a configuration.");
 		}
@@ -7969,7 +7974,11 @@ void* lzh_work_buffer;
 
 void InitPlaytemp()
 {
-	g_playtemp.open(1 * 1024 * 1024);
+	if (!g_playtemp.is_open())
+	{
+		g_playtemp.open(1 * 1024 * 1024);
+	}
+
 	g_playtemp.set_size(0);
 	g_playtemp.set_position(0);
 }
@@ -8013,7 +8022,7 @@ int FindChunk(
 		}
 	}
 
-	stream->seek(0, bstone::StreamSeekOrigin::end);
+	stream->seek(0, bstone::StreamOrigin::end);
 
 	return 0;
 }
@@ -8041,7 +8050,7 @@ int NextChunk(
 		return chunk_size;
 	}
 
-	stream->seek(0, bstone::StreamSeekOrigin::end);
+	stream->seek(0, bstone::StreamOrigin::end);
 	return 0;
 }
 
@@ -8602,7 +8611,7 @@ try {
 
 	DeleteChunk(g_playtemp, chunk_name);
 
-	g_playtemp.seek(0, bstone::StreamSeekOrigin::end);
+	g_playtemp.seek(0, bstone::StreamOrigin::end);
 
 	// Write level chunk id
 	//
@@ -8860,7 +8869,7 @@ try {
 
 	// Write chunk size, set file size, and close file
 	//
-	g_playtemp.seek(-(chunk_size + 4), bstone::StreamSeekOrigin::current);
+	g_playtemp.skip(-(chunk_size + 4));
 	archiver->write_int32(chunk_size);
 	g_playtemp.set_size(end_offset);
 
@@ -8882,7 +8891,13 @@ int DeleteChunk(
 		const auto offset = stream.get_position() - 8;
 		int count = chunk_size + 8;
 
-		stream.remove_block(offset, count);
+		if (count != 0)
+		{
+			auto data = stream.get_data();
+			const auto data_size = stream.get_size();
+			std::uninitialized_copy_n(data + offset + count, data_size - offset - count, data + offset);
+			stream.set_size(data_size - count);
+		}
 	}
 
 	return chunk_size;
@@ -8996,7 +9011,7 @@ bool LoadTheGame(
 try {
 	bool is_succeed = true;
 
-	auto file_stream = bstone::FileStream{file_name};
+	auto file_stream = bstone::FileStream{file_name.c_str()};
 
 	if (!file_stream.is_open())
 	{
@@ -9007,8 +9022,8 @@ try {
 
 	if (is_succeed)
 	{
-		is_succeed &= g_playtemp.set_size(0);
-		is_succeed &= g_playtemp.set_position(0);
+		g_playtemp.set_size(0);
+		g_playtemp.set_position(0);
 	}
 
 
@@ -9096,10 +9111,9 @@ try {
 
 		try
 		{
-			bstone::MemoryStream head_stream(
-				static_cast<int>(head_buffer.size()),
-				0,
-				head_buffer.data());
+			bstone::StaticRoMemoryStream head_stream{
+				head_buffer.data(),
+				static_cast<bstone::IntP>(head_buffer.size())};
 
 			archiver->initialize(&head_stream);
 
@@ -9135,21 +9149,28 @@ try {
 	//
 	if (is_succeed)
 	{
-		is_succeed &= g_playtemp.set_position(0);
-		is_succeed &= g_playtemp.set_size(0);
+		g_playtemp.set_position(0);
+		g_playtemp.set_size(0);
 
 		if (is_succeed)
 		{
-			bstone::MemoryStream lvxx_stream(
-				static_cast<int>(lvxx_buffer.size()),
-				0,
-				lvxx_buffer.data());
+			bstone::StaticRoMemoryStream lvxx_stream(
+				lvxx_buffer.data(),
+				static_cast<bstone::IntP>(lvxx_buffer.size()));
 
-			if (!lvxx_stream.copy_to(&g_playtemp))
+			constexpr auto max_buffer_size = 4096;
+			Uint8 buffer[max_buffer_size];
+
+			while (true)
 			{
-				is_succeed = false;
+				const auto read_count = lvxx_stream.read(buffer, max_buffer_size);
 
-				bstone::logger_->write_error("LOAD: Failed to deserialize LVXX data.");
+				if (read_count == 0)
+				{
+					break;
+				}
+
+				g_playtemp.write(buffer, read_count);
 			}
 		}
 	}
@@ -9184,8 +9205,8 @@ try {
 	}
 	else
 	{
-		static_cast<void>(g_playtemp.set_position(0));
-		static_cast<void>(g_playtemp.set_size(0));
+		g_playtemp.set_position(0);
+		g_playtemp.set_size(0);
 
 		if (show_error_message)
 		{
@@ -9236,7 +9257,9 @@ bool SaveTheGame(
 {
 	const auto tmp_file_name = file_name + ".temp";
 
-	auto file_stream = bstone::FileStream{tmp_file_name, bstone::StreamOpenMode::write};
+	auto file_stream = bstone::FileStream{
+		tmp_file_name.c_str(),
+		bstone::FileOpenMode::create | bstone::FileOpenMode::truncate | bstone::FileOpenMode::write};
 
 	if (!file_stream.is_open())
 	{
@@ -9253,7 +9276,7 @@ bool SaveTheGame(
 
 	// Compose HEAD data
 	//
-	auto head_stream = bstone::MemoryStream{};
+	auto head_stream = bstone::MemoryStream{64 * 1024, 64 * 1024};
 
 	try
 	{

@@ -1676,13 +1676,13 @@ try {
 		if (!image_file_stream_.is_open() && !image_mod_path_.empty())
 		{
 			file_system::replace_extension(image_mod_path_, image_probe_item.file_name_extension);
-			image_file_stream_.open(image_mod_path_);
+			image_file_stream_.open(image_mod_path_.c_str());
 		}
 
 		if (!image_file_stream_.is_open() && !image_data_path_.empty())
 		{
 			file_system::replace_extension(image_data_path_, image_probe_item.file_name_extension);
-			image_file_stream_.open(image_data_path_);
+			image_file_stream_.open(image_data_path_.c_str());
 		}
 
 		if (!image_file_stream_.is_open())

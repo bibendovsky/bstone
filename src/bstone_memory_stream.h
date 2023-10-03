@@ -1,80 +1,66 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-//
-// A memory stream.
-//
+// Resizable memory stream.
 
-#ifndef BSTONE_MEMORY_STREAM_INCLUDED
+#if !defined(BSTONE_MEMORY_STREAM_INCLUDED)
 #define BSTONE_MEMORY_STREAM_INCLUDED
 
-#include <cstdint>
-#include <vector>
+#include <memory>
+
+#include "bstone_int.h"
 #include "bstone_stream.h"
 
-namespace bstone
-{
+namespace bstone {
 
-// A memory stream.
 class MemoryStream final : public Stream
 {
 public:
-	MemoryStream(int initial_capacity = 0, StreamOpenMode open_mode = StreamOpenMode::read_write) noexcept;
+	static constexpr auto default_initial_capacity = 4096;
+	static constexpr auto default_chunk_size = 4096;
 
-	MemoryStream(
-		int buffer_size,
-		int buffer_offset,
-		const unsigned char* buffer,
-		StreamOpenMode open_mode = StreamOpenMode::read) noexcept;
+public:
+	MemoryStream() = default;
+	explicit MemoryStream(IntP initial_capacity, IntP chunk_size = default_chunk_size);
+	MemoryStream(MemoryStream&&) = default;
+	MemoryStream& operator=(MemoryStream&&) = default;
+	~MemoryStream() override = default;
 
-	MemoryStream(const MemoryStream& rhs) = delete;
-	MemoryStream(MemoryStream&& rhs) noexcept;
-	MemoryStream& operator=(const MemoryStream& rhs) = delete;
-	virtual ~MemoryStream();
+	const UInt8* get_data() const;
+	UInt8* get_data();
 
-	bool open(int initial_capacity = 0,StreamOpenMode open_mode = StreamOpenMode::read_write) noexcept;
-
-	bool open(
-		int buffer_size,
-		int buffer_offset,
-		const unsigned char* buffer,
-		StreamOpenMode open_mode = StreamOpenMode::read) noexcept;
-
-	void close() noexcept override;
-	bool is_open() const noexcept override;
-	int get_size() noexcept override;
-	bool set_size(int size) noexcept override;
-	int seek(int offset, StreamSeekOrigin origin) noexcept override;
-	int get_position() noexcept override;
-	int read(void* buffer, int count) noexcept override;
-	bool write(const void* buffer, int count) noexcept override;
-	bool flush() noexcept override;
-	bool is_readable() const noexcept override;
-	bool is_seekable() const noexcept override;
-	bool is_writable() const noexcept override;
-	unsigned char* get_data() noexcept;
-	const unsigned char* get_data() const noexcept;
-	bool remove_block(int offset, int count) noexcept;
+	void open(IntP initial_capacity = default_initial_capacity, IntP chunk_size = default_chunk_size);
 
 private:
-	using Buffer = std::vector<std::uint8_t>;
+	using Storage = std::unique_ptr<UInt8[]>;
 
+private:
 	bool is_open_{};
-	bool is_readable_{};
-	bool is_writable_{};
-	int position_{};
-	int size_{};
-	int ext_size_{};
-	unsigned char* buffer_{};
-	unsigned char* ext_buffer_{};
-	Buffer int_buffer_{};
+	IntP capacity_{};
+	IntP chunk_size_{};
+	IntP size_{};
+	IntP position_{};
+	Storage storage_{};
 
-	void close_internal() noexcept;
-}; // Stream
+private:
+	void do_close() override;
+	bool do_is_open() const override;
+	IntP do_read(void* buffer, IntP count) override;
+	IntP do_write(const void* buffer, IntP count) override;
+	Int64 do_seek(Int64 offset, StreamOrigin origin) override;
+	Int64 do_get_size() const override;
+	void do_set_size(Int64 size) override;
+	void do_flush() override;
 
-} // bstone
+private:
+	void ensure_is_open() const;
+	void reserve(IntP capacity, IntP chunk_size);
+	void close_internal();
+};
 
-#endif // !BSTONE_MEMORY_STREAM_INCLUDED
+} // namespace bstone
+
+#endif // BSTONE_MEMORY_STREAM_INCLUDED

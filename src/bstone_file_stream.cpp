@@ -1,566 +1,74 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-//
 // File stream.
-//
 
+#include "bstone_exception.h"
 #include "bstone_file_stream.h"
 
-#ifdef _WIN32
-#include <windows.h>
-#else
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#endif // _WIN32
+namespace bstone {
 
-#include <cassert>
-#include <memory>
-
-#include "bstone_utility.h"
-
-namespace bstone
-{
-
-namespace
-{
-
-const auto file_stream_invalid_handle =
-#ifdef _WIN32
-	INVALID_HANDLE_VALUE
-#else
-	-1
-#endif // _WIN32
-;
-
-#if _WIN32
-int win32_get_utf8_to_utf16_size(const char* u8_string, int u8_string_size) noexcept
-{
-	assert(u8_string);
-	assert(u8_string_size > 0);
-	WCHAR buffer;
-	return MultiByteToWideChar(CP_UTF8, 0, u8_string, u8_string_size, &buffer, 0);
-}
-
-int win32_utf8_to_utf16(const char* u8_string, int u8_string_size, LPWSTR u16_string, int u16_string_size) noexcept
-{
-	assert(u8_string);
-	assert(u8_string_size > 0);
-	assert(u16_string);
-	assert(u16_string_size > 0);
-	return MultiByteToWideChar(CP_UTF8, 0, u8_string, u8_string_size, u16_string, u16_string_size);
-}
-
-
-HANDLE win32_create_file_utf16_convert_and_call(LPCSTR lpFileName, int lpFileName_size, LPWSTR u16_lpFileName, int u16_lpFileName_size, DWORD dwDesiredAccess, DWORD dwShareMode, DWORD dwCreationDisposition)
-{
-	const auto u16_nul_index = win32_utf8_to_utf16(lpFileName, lpFileName_size, u16_lpFileName, u16_lpFileName_size);
-	u16_lpFileName[u16_nul_index] = L'\0';
-	return CreateFileW(u16_lpFileName, dwDesiredAccess, dwShareMode, nullptr, dwCreationDisposition, FILE_ATTRIBUTE_NORMAL, nullptr);
-}
-
-HANDLE win32_create_file_utf16_static(LPCSTR lpFileName, int lpFileName_size, int u16_lpFileName_size, DWORD dwDesiredAccess, DWORD dwShareMode, DWORD dwCreationDisposition)
-{
-	WCHAR u16_buffer[MAX_PATH + 1];
-	return win32_create_file_utf16_convert_and_call(lpFileName, lpFileName_size, u16_buffer, u16_lpFileName_size, dwDesiredAccess, dwShareMode, dwCreationDisposition);
-}
-
-HANDLE win32_create_file_utf16_dynamic(LPCSTR lpFileName, int lpFileName_size, int u16_lpFileName_size, DWORD dwDesiredAccess, DWORD dwShareMode, DWORD dwCreationDisposition)
-{
-	auto u16_buffer = std::make_unique<WCHAR[]>(u16_lpFileName_size + 1);
-	return win32_create_file_utf16_convert_and_call(lpFileName, lpFileName_size, u16_buffer.get(), u16_lpFileName_size, dwDesiredAccess, dwShareMode, dwCreationDisposition);
-}
-
-HANDLE win32_create_file_utf16(LPCSTR lpFileName, int lpFileName_size, DWORD dwDesiredAccess, DWORD dwShareMode, DWORD dwCreationDisposition)
-{
-	const auto u16_file_name_size = win32_get_utf8_to_utf16_size(lpFileName, lpFileName_size);
-
-	if (u16_file_name_size <= MAX_PATH)
-	{
-		return win32_create_file_utf16_static(lpFileName, lpFileName_size, u16_file_name_size, dwDesiredAccess, dwShareMode, dwCreationDisposition);
-	}
-	else
-	{
-		return win32_create_file_utf16_dynamic(lpFileName, lpFileName_size, u16_file_name_size, dwDesiredAccess, dwShareMode, dwCreationDisposition);
-	}
-}
-
-DWORD win32_get_file_attributes_utf16_convert_and_call(LPCSTR lpFileName, int lpFileName_size, LPWSTR u16_lpFileName, int u16_lpFileName_size)
-{
-	const auto u16_nul_index = win32_utf8_to_utf16(lpFileName, lpFileName_size, u16_lpFileName, u16_lpFileName_size);
-	u16_lpFileName[u16_nul_index] = L'\0';
-	return GetFileAttributesW(u16_lpFileName);
-}
-
-DWORD win32_get_file_attributes_utf16_static(LPCSTR lpFileName, int lpFileName_size, int u16_lpFileName_size)
-{
-	WCHAR u16_buffer[MAX_PATH + 1];
-	return win32_get_file_attributes_utf16_convert_and_call(lpFileName, lpFileName_size, u16_buffer, u16_lpFileName_size);
-}
-
-DWORD win32_get_file_attributes_utf16_dynamic(LPCSTR lpFileName, int lpFileName_size, int u16_lpFileName_size)
-{
-	auto u16_buffer = std::make_unique<WCHAR[]>(u16_lpFileName_size + 1);
-	return win32_get_file_attributes_utf16_convert_and_call(lpFileName, lpFileName_size, u16_buffer.get(), u16_lpFileName_size);
-}
-
-DWORD win32_get_file_attributes_utf16(LPCSTR lpFileName, int lpFileName_size)
-{
-	const auto u16_file_name_size = win32_get_utf8_to_utf16_size(lpFileName, lpFileName_size);
-
-	if (u16_file_name_size <= MAX_PATH)
-	{
-		return win32_get_file_attributes_utf16_static(lpFileName, lpFileName_size, u16_file_name_size);
-	}
-	else
-	{
-		return win32_get_file_attributes_utf16_dynamic(lpFileName, lpFileName_size, u16_file_name_size);
-	}
-}
-#endif // _WIN32
-
-} // namespace
-
-FileStream::FileStream() noexcept
+FileStream::FileStream(const char* file_name, FileOpenMode open_mode)
 	:
-	handle_{file_stream_invalid_handle}
+	file_{file_name, open_mode}
+{}
+
+void FileStream::open(const char* file_name, FileOpenMode open_mode)
 {
+	file_.open(file_name, open_mode);
 }
 
-FileStream::FileStream(const std::string& file_name, StreamOpenMode open_mode) noexcept
-	:
-	FileStream{}
+void FileStream::do_close()
 {
-	static_cast<void>(open(file_name, open_mode));
+	file_.close();
 }
 
-FileStream::FileStream(FileStream&& rhs) noexcept
-	:
-	FileStream{}
+bool FileStream::do_is_open() const
 {
-	bstone::swop(handle_, rhs.handle_);
-	bstone::swop(is_readable_, rhs.is_readable_);
-	bstone::swop(is_seekable_, rhs.is_seekable_);
-	bstone::swop(is_writable_, rhs.is_writable_);
+	return file_.is_open();
 }
 
-FileStream::~FileStream()
+IntP FileStream::do_read(void* buffer, IntP count)
 {
-	if (is_open_internal())
-	{
-		close_handle();
-	}
+	return file_.read(buffer, count);
 }
 
-bool FileStream::open(const std::string& file_name, StreamOpenMode open_mode) noexcept
+IntP FileStream::do_write(const void* buffer, IntP count)
 {
-	close_internal();
-
-	if (file_name.empty())
-	{
-		return false;
-	}
-
-#ifdef _WIN32
-	auto is_readable = false;
-	auto is_writable = false;
-	auto is_accept_already_exists = false;
-
-	auto win32_desired_access = DWORD{};
-	constexpr auto win32_share_mode = DWORD{FILE_SHARE_READ};
-	auto win32_creation_disposition = DWORD{};
-
-	switch (open_mode)
-	{
-		case StreamOpenMode::read:
-			is_readable = true;
-			win32_desired_access = GENERIC_READ;
-			win32_creation_disposition = OPEN_EXISTING;
-			break;
-
-		case StreamOpenMode::write:
-			is_writable = true;
-			is_accept_already_exists = true;
-			win32_desired_access = GENERIC_WRITE;
-			win32_creation_disposition = CREATE_ALWAYS;
-			break;
-
-		case StreamOpenMode::read_write:
-			is_readable = true;
-			is_writable = true;
-			is_accept_already_exists = true;
-			win32_desired_access = GENERIC_READ | GENERIC_WRITE;
-			win32_creation_disposition = OPEN_ALWAYS;
-			break;
-
-		default:
-			return false;
-	}
-
-	auto win32_handle = HANDLE{};
-
-	win32_handle = win32_create_file_utf16(file_name.c_str(), static_cast<int>(file_name.size()), win32_desired_access, win32_share_mode, win32_creation_disposition);
-
-	if (win32_handle == INVALID_HANDLE_VALUE)
-	{
-		const auto win32_last_error = GetLastError();
-
-		if (!(is_accept_already_exists && win32_last_error == ERROR_ALREADY_EXISTS))
-		{
-			return false;
-		}
-	}
-
-	handle_ = win32_handle;
-#else
-	auto is_readable = false;
-	auto is_writable = false;
-
-	auto posix_oflag = 0;
-
-	switch (open_mode)
-	{
-		case StreamOpenMode::read:
-			is_readable = true;
-			posix_oflag = O_RDONLY;
-			break;
-
-		case StreamOpenMode::write:
-			is_writable = true;
-			posix_oflag = O_WRONLY | O_CREAT;
-			break;
-
-		case StreamOpenMode::read_write:
-			is_readable = true;
-			is_writable = true;
-			posix_oflag = O_RDWR | O_CREAT;
-			break;
-
-		default:
-			return false;
-	}
-
-	const auto posix_mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
-	const auto posix_handle = ::open(file_name.c_str(), posix_oflag, posix_mode);
-
-	if (posix_handle == -1)
-	{
-		return false;
-	}
-
-	struct stat posix_stat;
-	const auto fstat_result = fstat(posix_handle, &posix_stat);
-
-	if (fstat_result != 0 || !S_ISREG(posix_stat.st_mode))
-	{
-		static_cast<void>(::close(posix_handle));
-		return false;
-	}
-
-	handle_ = posix_handle;
-#endif // _WIN32
-
-	is_readable_ = is_readable;
-	is_seekable_ = true;
-	is_writable_ = is_writable;
-
-	return true;
+	return file_.write(buffer, count);
 }
 
-void FileStream::close() noexcept
-{
-	close_internal();
-}
-
-bool FileStream::is_open() const noexcept
-{
-	return is_open_internal();
-}
-
-int FileStream::get_size() noexcept
-{
-	if (!is_open_internal())
-	{
-		return 0;
-	}
-
-#ifdef _WIN32
-	LARGE_INTEGER win32_size;
-	const auto win32_result = GetFileSizeEx(handle_, &win32_size);
-
-	if (win32_result == FALSE)
-	{
-		return 0;
-	}
-
-	return static_cast<int>(win32_size.QuadPart);
-#else
-	struct stat posix_stat;
-	const auto fstat_result = fstat(handle_, &posix_stat);
-
-	if (fstat_result != 0)
-	{
-		return 0;
-	}
-
-	return posix_stat.st_size;
-#endif // _WIN32
-}
-
-bool FileStream::set_size(int) noexcept
-{
-	return false;
-}
-
-int FileStream::seek(int offset, StreamSeekOrigin origin) noexcept
-{
-	if (!is_open_internal())
-	{
-		return -1;
-	}
-
-	if (!is_seekable_)
-	{
-		return -1;
-	}
-
-#ifdef _WIN32
-	auto win32_move_method = DWORD{};
+Int64 FileStream::do_seek(Int64 offset, StreamOrigin origin)
+try {
+	auto file_origin = FileOrigin::none;
 
 	switch (origin)
 	{
-		case StreamSeekOrigin::begin:
-			win32_move_method = FILE_BEGIN;
-			break;
-
-		case StreamSeekOrigin::current:
-			win32_move_method = FILE_CURRENT;
-			break;
-
-		case StreamSeekOrigin::end:
-			win32_move_method = FILE_END;
-			break;
-
-		default:
-			return -1;
+		case StreamOrigin::begin: file_origin = FileOrigin::begin; break;
+		case StreamOrigin::current: file_origin = FileOrigin::current; break;
+		case StreamOrigin::end: file_origin = FileOrigin::end; break;
+		default: BSTONE_THROW_STATIC_SOURCE("Unknown origin.");
 	}
 
-	LARGE_INTEGER win32_distance_to_move;
-	win32_distance_to_move.QuadPart = offset;
-	LARGE_INTEGER win32_new_file_pointer;
-	const auto win32_result = SetFilePointerEx(handle_, win32_distance_to_move, &win32_new_file_pointer, win32_move_method);
+	return file_.seek(offset, file_origin);
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-	if (win32_result == FALSE)
-	{
-		return -1;
-	}
-
-	return static_cast<int>(win32_new_file_pointer.QuadPart);
-#else
-	auto posix_whence = 0;
-
-	switch (origin)
-	{
-		case StreamSeekOrigin::begin:
-			posix_whence = SEEK_SET;
-			break;
-
-		case StreamSeekOrigin::current:
-			posix_whence = SEEK_CUR;
-			break;
-
-		case StreamSeekOrigin::end:
-			posix_whence = SEEK_END;
-			break;
-
-		default:
-			return -1;
-	}
-
-	const auto posix_result = lseek(handle_, offset, posix_whence);
-
-	if (posix_result < 0)
-	{
-		return -1;
-	}
-
-	return posix_result;
-#endif // _WIN32
-}
-
-int FileStream::read(void* buffer, int count) noexcept
+Int64 FileStream::do_get_size() const
 {
-	if (!is_open_internal() || !is_readable_ || !buffer || count < 0)
-	{
-		return 0;
-	}
-
-#ifdef _WIN32
-	DWORD win32_number_of_bytes_read;
-	const auto win32_result = ReadFile(handle_, buffer, static_cast<DWORD>(count), &win32_number_of_bytes_read, nullptr);
-
-	if (win32_result == FALSE)
-	{
-		return 0;
-	}
-
-	return static_cast<int>(win32_number_of_bytes_read);
-#else
-	const auto posix_result = ::read(handle_, buffer, static_cast<size_t>(count));
-
-	if (posix_result == -1)
-	{
-		return 0;
-	}
-
-	return static_cast<int>(posix_result);
-#endif // _WIN32
+	return file_.get_size();
 }
 
-bool FileStream::write(const void* buffer, int count) noexcept
+void FileStream::do_set_size(Int64 size)
 {
-	if (!is_open_internal() || !is_writable_ || count < 0 || !buffer)
-	{
-		return false;
-	}
-
-#ifdef _WIN32
-	DWORD win32_number_of_bytes_written;
-	const auto win32_result = WriteFile(handle_, buffer, static_cast<DWORD>(count), &win32_number_of_bytes_written, nullptr);
-
-	if (win32_result == FALSE)
-	{
-		return false;
-	}
-
-	return win32_number_of_bytes_written == static_cast<DWORD>(count);
-#else
-	const auto posix_result = ::write(handle_, buffer, static_cast<size_t>(count));
-
-	if (posix_result == -1)
-	{
-		return false;
-	}
-
-	return posix_result == count;
-#endif // _WIN32
+	file_.set_size(size);
 }
 
-bool FileStream::flush() noexcept
+void FileStream::do_flush()
 {
-	if (!is_open_internal())
-	{
-		return false;
-	}
-
-#ifdef _WIN32
-	const auto win32_result = FlushFileBuffers(handle_);
-
-	if (win32_result == FALSE)
-	{
-		return false;
-	}
-
-	return true;
-#else
-	const auto posix_result = fsync(handle_);
-
-	if (posix_result != 0)
-	{
-		return false;
-	}
-
-	return true;
-#endif // _WIN32
+	file_.flush();
 }
 
-bool FileStream::is_readable() const noexcept
-{
-	return is_open_internal() && is_readable_;
-}
-
-bool FileStream::is_seekable() const noexcept
-{
-	return is_open_internal() && is_seekable_;
-}
-
-bool FileStream::is_writable() const noexcept
-{
-	return is_open_internal() && is_writable_;
-}
-
-bool FileStream::is_exists(const std::string& file_name) noexcept
-{
-	if (file_name.empty())
-	{
-		return false;
-	}
-
-#ifdef _WIN32
-	const auto win32_file_attributes = win32_get_file_attributes_utf16(file_name.c_str(), static_cast<int>(file_name.size()));
-
-	if (win32_file_attributes == INVALID_FILE_ATTRIBUTES || (win32_file_attributes & FILE_ATTRIBUTE_NORMAL) == 0)
-	{
-		return false;
-	}
-
-	return true;
-#else
-	struct stat posix_stat;
-	const auto posix_result = stat(file_name.c_str(), &posix_stat);
-
-	if (posix_result != 0 || !S_ISREG(posix_stat.st_mode))
-	{
-		return false;
-	}
-
-	return true;
-#endif // _WIN32
-}
-
-bool FileStream::is_open_internal() const noexcept
-{
-	return handle_ != file_stream_invalid_handle;
-}
-
-void FileStream::close_handle() noexcept
-{
-#ifdef _WIN32
-	const auto win32_result = CloseHandle(static_cast<HANDLE>(handle_));
-
-#ifdef NDEBUG
-	static_cast<void>(win32_result);
-#else
-	assert(win32_result != FALSE);
-#endif // NDEBUG
-#else
-	const auto posix_result = ::close(handle_);
-
-#ifdef NDEBUG
-	static_cast<void>(posix_result);
-#else
-	assert(posix_result == 0);
-#endif // NDEBUG
-#endif // _WIN32
-}
-
-void FileStream::close_internal() noexcept
-{
-	if (!is_open_internal())
-	{
-		return;
-	}
-
-	close_handle();
-
-	handle_ = file_stream_invalid_handle;
-	is_readable_ = false;
-	is_seekable_ = false;
-	is_writable_ = false;
-}
-
-} // bstone
+} // namespace bstone

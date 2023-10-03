@@ -14,6 +14,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_file_system.h"
 #include "bstone_logger.h"
 #include "bstone_memory_stream.h"
+#include "bstone_static_ro_memory_stream.h"
 #include "bstone_text_extractor.h"
 
 namespace bstone {
@@ -118,7 +119,7 @@ void TextExtractor::initialize_text()
 
 CompHeader_t TextExtractor::deserialize_header(int number, const std::uint8_t* data)
 {
-	auto stream = MemoryStream{CompHeader_t::class_size, 0, data};
+	auto stream = StaticRoMemoryStream{data, CompHeader_t::class_size};
 	auto reader = BinaryReader{&stream};
 	auto result = CompHeader_t{};
 
@@ -196,17 +197,11 @@ void TextExtractor::extract_text(const std::string& dst_dir, const TextNumber& t
 		"text_" + number_string + ".txt"
 	);
 
-	auto file_stream = FileStream{file_name, StreamOpenMode::write};
+	auto file_stream = FileStream{
+		file_name.c_str(),
+		FileOpenMode::create | FileOpenMode::truncate | FileOpenMode::write};
 
-	if (!file_stream.is_open())
-	{
-		fail(number, ("Failed to open \"" + file_name + "\" for writing.").c_str());
-	}
-
-	if (!file_stream.write(text_data, text_size))
-	{
-		fail(number, "Write I/O error.");
-	}
+	file_stream.write_exact(text_data, text_size);
 }
 
 } // namespace bstone

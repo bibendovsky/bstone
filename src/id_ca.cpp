@@ -973,14 +973,24 @@ bool ca_open_resource_non_fatal(
 
 	auto is_open = false;
 
-	is_open = file_stream.open(path);
+	try
+	{
+		file_stream.open(path.c_str());
+		is_open = true;
+	}
+	catch (...) {}
 
 	if (!is_open)
 	{
 		auto&& file_name_lc = bstone::StringHelper::to_lower_ascii(file_name);
 		const auto path_lc = bstone::file_system::append_path(data_dir, file_name_lc);
 
-		is_open = file_stream.open(path_lc);
+		try
+		{
+			file_stream.open(path_lc.c_str());
+			is_open = true;
+		}
+		catch (...) {}
 	}
 
 	return is_open;

@@ -477,14 +477,11 @@ try
 	);
 
 	{
-		auto file_stream = bstone::FileStream{path, bstone::StreamOpenMode::write};
+		auto file_stream = bstone::FileStream{
+			path.c_str(),
+			bstone::FileOpenMode::create | bstone::FileOpenMode::truncate | bstone::FileOpenMode::write};
 
-		if (!file_stream.is_open())
-		{
-			BSTONE_THROW_DYNAMIC_SOURCE(("Failed to open a file \"" + path + "\".").c_str());
-		}
-
-		file_stream.write(dst_buffer.get(), dst_buffer_size);
+		file_stream.write_exact(dst_buffer.get(), dst_buffer_size);
 	}
 }
 catch (...)

@@ -186,13 +186,7 @@ AudioContentMgrImpl::AudiotData AudioContentMgrImpl::load_audiot_data()
 	const auto audiot_size = static_cast<int>(audiot_file.get_size());
 	auto audiot_data = AudiotData{};
 	audiot_data.resize(audiot_size);
-	const auto read_audiot_size = audiot_file.read(audiot_data.data(), audiot_size);
-
-	if (read_audiot_size != audiot_size)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Failed to read audio data file.");
-	}
-
+	audiot_file.read_exact(audiot_data.data(), audiot_size);
 	return audiot_data;
 }
 
@@ -219,12 +213,7 @@ AudioContentMgrImpl::AudioChunks AudioContentMgrImpl::make_audio_chunks(const Au
 	using Audiohed = std::vector<std::int32_t>;
 	auto audiohed_data = Audiohed{};
 	audiohed_data.resize(audiohed_count);
-	const auto read_audiohed_size = audiohed_file.read(audiohed_data.data(), audiohed_size);
-
-	if (read_audiohed_size != audiohed_size)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Failed to read TOC audio file.");
-	}
+	audiohed_file.read_exact(audiohed_data.data(), audiohed_size);
 
 	for (auto& audiohed_item : audiohed_data)
 	{

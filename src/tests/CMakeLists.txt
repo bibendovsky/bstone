@@ -102,6 +102,16 @@ target_sources(${PROJECT_NAME}
 		../bstone_file_uresource_win32.cpp
 		../bstone_file.cpp
 		../bstone_file.h
+		../bstone_stream.cpp
+		../bstone_stream.h
+		../bstone_file_stream.cpp
+		../bstone_file_stream.h
+		../bstone_memory_stream.cpp
+		../bstone_memory_stream.h
+		../bstone_static_memory_stream.cpp
+		../bstone_static_memory_stream.h
+		../bstone_static_ro_memory_stream.cpp
+		../bstone_static_ro_memory_stream.h
 	PRIVATE
 		src/bstone_tests_algorithm.cpp
 		src/bstone_tests_array.cpp
@@ -133,6 +143,10 @@ target_sources(${PROJECT_NAME}
 		src/bstone_tests_win32_wstring.cpp
 		src/bstone_tests_configurations.cpp
 		src/bstone_tests_file.cpp
+		src/bstone_tests_file_stream.cpp
+		src/bstone_tests_memory_stream.cpp
+		src/bstone_tests_static_memory_stream.cpp
+		src/bstone_tests_static_ro_memory_stream.cpp
 	PRIVATE
 		src/bstone_tester.cpp
 		src/bstone_tester.h

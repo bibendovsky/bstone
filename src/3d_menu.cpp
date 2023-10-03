@@ -3690,9 +3690,13 @@ void ReadGameNames()
 
 		auto name_path = get_profile_dir() + name;
 
-		bstone::FileStream stream(name_path);
+		bstone::FileStream stream{};
 
-		if (!stream.is_open())
+		try
+		{
+			stream.open(name_path.c_str());
+		}
+		catch (...)
 		{
 			continue;
 		}

@@ -398,7 +398,10 @@ try {
 
 void ImageExtractor::save_bmp(const std::string& path)
 try {
-	auto file_stream = FileStream{path, StreamOpenMode::write};
+	auto file_stream = FileStream{
+		path.c_str(),
+		FileOpenMode::create | FileOpenMode::truncate | FileOpenMode::write};
+
 	auto binary_writer = BinaryWriter{&file_stream};
 
 	const auto is_core_header =
