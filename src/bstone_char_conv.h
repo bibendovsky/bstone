@@ -7,8 +7,6 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_CHAR_CONV_INCLUDED)
 #define BSTONE_CHAR_CONV_INCLUDED
 
-#include <cassert>
-
 #include <limits>
 #include <type_traits>
 
@@ -165,103 +163,6 @@ constexpr auto char_conv_max_base = 36;
 
 // --------------------------------------------------------------------------
 
-#if 0
-namespace detail {
-
-struct ToCharsIntegralTag {};
-
-template<typename T>
-struct ToCharsIntegralToUnsigned
-{
-	using Unsigned = std::make_unsigned_t<T>;
-
-	template<typename U = T, std::enable_if_t<std::is_signed<U>::value, int> = 0>
-	constexpr Unsigned operator()(U value) const noexcept
-	{
-		return static_cast<Unsigned>((value >= 0 || value == (std::numeric_limits<U>::min)()) ? value : -value);
-	}
-
-	template<typename U = T, std::enable_if_t<std::is_unsigned<U>::value, int> = 0>
-	constexpr Unsigned operator()(U value) const noexcept
-	{
-		return value;
-	}
-};
-
-} // namespace detail
-
-template<typename TValue, typename TChar>
-inline constexpr TChar* to_chars(TValue value, TChar* chars_begin, TChar* chars_end, int base = 10)
-{
-	static_assert(std::is_integral<TValue>::value, "Expected an integral type.");
-
-	if (base < char_conv_min_base || base > char_conv_max_base)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Base out of range.");
-	}
-
-	constexpr auto buffer_too_small_string = "Buffer too small.";
-
-	const auto is_minus_sign = value < 0;
-
-	auto u_value = detail::ToCharsIntegralToUnsigned<TValue>{}(value);
-
-	const auto max_char_count = chars_end - chars_begin;
-
-	if (max_char_count < 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Buffer size out of range.");
-	}
-
-	auto i_char = IntP{};
-
-	while (true)
-	{
-		if (i_char == max_char_count)
-		{
-			BSTONE_THROW_STATIC_SOURCE(buffer_too_small_string);
-		}
-
-		const auto next_value = u_value / base;
-		const auto digit = u_value - (next_value * base);
-		assert(digit < static_cast<decltype(digit)>(base));
-		u_value = static_cast<decltype(u_value)>(next_value);
-		const auto digit_char = static_cast<TChar>(digit < 10 ? ('0' + digit) : ('a' + digit - 10));
-		chars_begin[i_char++] = digit_char;
-
-		if (next_value == 0)
-		{
-			break;
-		}
-	}
-
-	auto sign = TChar{};
-
-	if (is_minus_sign)
-	{
-		sign = '-';
-	}
-
-	if (sign != TChar{})
-	{
-		if (i_char == max_char_count)
-		{
-			BSTONE_THROW_STATIC_SOURCE(buffer_too_small_string);
-		}
-
-		chars_begin[i_char++] = sign;
-	}
-
-	const auto half_char_count = i_char / 2;
-
-	for (auto i = IntP{}; i < half_char_count; ++i)
-	{
-		bstone::swop(chars_begin[i], chars_begin[i_char - 1 - i]);
-	}
-
-	return chars_begin + i_char;
-}
-#else
 namespace detail {
 
 template<typename TValue, bool TIsSigned = std::is_signed<TValue>::value>
@@ -336,7 +237,6 @@ inline constexpr TCharIter to_chars(TValue value, TCharIter chars_begin, TCharIt
 
 	return chars_begin;
 }
-#endif
 
 // ==========================================================================
 
@@ -549,23 +449,32 @@ inline constexpr TCharIter from_chars(
 		if (chars_iter != chars_end)
 		{
 			const auto char_0 = *chars_iter;
-			const auto chars_iter_1 = ++chars_iter;
-			const auto is_x = chars_iter_1 != chars_end && (*chars_iter_1 == 'x' || *chars_iter_1 == 'X');
 
-			if (char_0 == '0' && is_x)
+			if (char_0 == '0')
 			{
-				detected_base = 16;
-				chars_iter = chars_iter_1;
 				++chars_iter;
+
+				if (chars_iter == chars_end)
+				{
+					value = 0;
+					return chars_iter;
+				}
+
+				const auto char_1 = *chars_iter;
+
+				if (char_1 == 'x' || char_1 == 'X')
+				{
+					++chars_iter;
+					detected_base = 16;
+				}
+				else
+				{
+					detected_base = 8;
+				}
 			}
 			else
 			{
-				if (char_0 == '0')
-				{
-					detected_base = 8;
-					chars_iter = chars_iter_1;
-				}
-				else if (ascii::is_decimal(char_0))
+				if (ascii::is_decimal(char_0))
 				{
 					detected_base = 10;
 				}

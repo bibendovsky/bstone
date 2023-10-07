@@ -505,7 +505,7 @@ void test_hlb3rbu9n9ru7j0p()
 // ==========================================================================
 
 // from_chars(const TChar*, const TChar*, TValue&, int)
-// Octal signed number; explicit base.
+// Octal negative number; explicit base.
 void test_2l8uvpq5jwsq1mey()
 {
 	constexpr bstone::Int32 reference_value = -2'147'483'647 - 1;
@@ -516,7 +516,7 @@ void test_2l8uvpq5jwsq1mey()
 }
 
 // from_chars(const TChar*, const TChar*, TValue&, int)
-// Octal signed number; implicit base.
+// Octal negative number; implicit base.
 void test_6g2pgwz3xscy7a0s()
 {
 	constexpr bstone::Int32 reference_value = -2'147'483'647 - 1;
@@ -527,7 +527,18 @@ void test_6g2pgwz3xscy7a0s()
 }
 
 // from_chars(const TChar*, const TChar*, TValue&, int)
-// Decimal signed number.
+// Octal number; implicit base.
+void test_xhrlosdet2rdbpnv()
+{
+	constexpr bstone::Int32 reference_value = 1'402'433'619;
+	constexpr char reference_chars[12] = {'0', '1', '2', '3', '4', '5', '6', '7', '0', '1', '2', '3'};
+	auto value = bstone::Int32{};
+	const auto chars_last = bstone::from_chars(reference_chars, reference_chars + 12, value, 0);
+	tester.check(chars_last == reference_chars + 12 && value == reference_value);
+}
+
+// from_chars(const TChar*, const TChar*, TValue&, int)
+// Decimal negative number; explicit base.
 void test_5aohfvv83ivwlzq0()
 {
 	constexpr bstone::Int32 reference_value = -2'147'483'647 - 1;
@@ -538,7 +549,18 @@ void test_5aohfvv83ivwlzq0()
 }
 
 // from_chars(const TChar*, const TChar*, TValue&, int)
-// Hex signed number; explicit base.
+// Decimal negative number; implicit base.
+void test_ah55jmdmze5tbq7e()
+{
+	constexpr bstone::Int32 reference_value = 1'234'567'890;
+	constexpr char reference_chars[10] = {'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'};
+	auto value = bstone::Int32{};
+	const auto chars_last = bstone::from_chars(reference_chars, reference_chars + 10, value, 0);
+	tester.check(chars_last == reference_chars + 10 && value == reference_value);
+}
+
+// from_chars(const TChar*, const TChar*, TValue&, int)
+// Hex negative number; explicit base.
 void test_clkb1xo609m44vyu()
 {
 	constexpr bstone::Int32 reference_value = -2'058'993'460;
@@ -549,7 +571,7 @@ void test_clkb1xo609m44vyu()
 }
 
 // from_chars(const TChar*, const TChar*, TValue&, int)
-// Hex signed number; implicit base.
+// Hex negative number; implicit base.
 void test_m42rz7d24pbcr159()
 {
 	constexpr bstone::Int32 reference_value = -2'058'993'460;
@@ -557,6 +579,17 @@ void test_m42rz7d24pbcr159()
 	auto value = bstone::Int32{};
 	const auto chars_last = bstone::from_chars(reference_chars, reference_chars + 11, value, 0);
 	tester.check(chars_last == reference_chars + 11 && value == reference_value);
+}
+
+// from_chars(const TChar*, const TChar*, TValue&, int)
+// Hex number; implicit base.
+void test_d6mz0zwedq5txe0w()
+{
+	constexpr bstone::Int32 reference_value = 0x12345678;
+	constexpr char reference_chars[10] = {'0', 'x', '1', '2', '3', '4', '5', '6', '7', '8'};
+	auto value = bstone::Int32{};
+	const auto chars_last = bstone::from_chars(reference_chars, reference_chars + 10, value, 0);
+	tester.check(chars_last == reference_chars + 10 && value == reference_value);
 }
 
 // from_chars(const TChar*, const TChar*, TValue&, int)
@@ -772,9 +805,12 @@ private:
 	{
 		tester.register_test("from_chars#2l8uvpq5jwsq1mey", test_2l8uvpq5jwsq1mey);
 		tester.register_test("from_chars#6g2pgwz3xscy7a0s", test_6g2pgwz3xscy7a0s);
+		tester.register_test("from_chars#xhrlosdet2rdbpnv", test_xhrlosdet2rdbpnv);
 		tester.register_test("from_chars#5aohfvv83ivwlzq0", test_5aohfvv83ivwlzq0);
+		tester.register_test("from_chars#ah55jmdmze5tbq7e", test_ah55jmdmze5tbq7e);
 		tester.register_test("from_chars#clkb1xo609m44vyu", test_clkb1xo609m44vyu);
 		tester.register_test("from_chars#m42rz7d24pbcr159", test_m42rz7d24pbcr159);
+		tester.register_test("from_chars#d6mz0zwedq5txe0w", test_d6mz0zwedq5txe0w);
 		tester.register_test("from_chars#blml5orig7eieaqg", test_blml5orig7eieaqg);
 		tester.register_test("from_chars#frs8x638eej9zgic", test_frs8x638eej9zgic);
 		tester.register_test("from_chars#x069rmpt1u25xp6w", test_x069rmpt1u25xp6w);
