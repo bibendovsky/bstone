@@ -114,23 +114,23 @@ bool AudioExtractorImpl::write_wav_header(int data_size, int bit_depth, int samp
 	const auto byte_depth = bit_depth / 8;
 	const auto byte_rate = sample_rate * channel_count * byte_depth;
 	const auto block_align = channel_count * byte_depth;
-	auto writer = bstone::BinaryWriter{&stream};
+	auto writer = bstone::BinaryWriter{stream};
 	auto result = true;
-	result &= writer.write_u32(bstone::endian::to_big(0x52494646)); // "RIFF"
+	writer.write_u32(bstone::endian::to_big(0x52494646)); // "RIFF"
 	// riff_chunk_size = = "file size" - "chunk id" + "chunk size".
 	const auto riff_chunk_size = static_cast<std::uint32_t>(wav_size - 4 - 4);
-	result &= writer.write_u32(bstone::endian::to_little(riff_chunk_size)); // Chunk size.
-	result &= writer.write_u32(bstone::endian::to_big(0x57415645)); // "WAVE"
-	result &= writer.write_u32(bstone::endian::to_big(0x666D7420)); // "fmt "
-	result &= writer.write_u32(bstone::endian::to_little(16)); // Format size.
-	result &= writer.write_u16(bstone::endian::to_little(static_cast<std::uint16_t>(audio_format))); // Audio format.
-	result &= writer.write_u16(bstone::endian::to_little(static_cast<std::uint16_t>(channel_count))); // Channel count.
-	result &= writer.write_u32(bstone::endian::to_little(sample_rate)); // Sample rate.
-	result &= writer.write_u32(bstone::endian::to_little(static_cast<std::uint32_t>(byte_rate))); // Byte rate.
-	result &= writer.write_u16(bstone::endian::to_little(static_cast<std::uint16_t>(block_align))); // Block align.
-	result &= writer.write_u16(bstone::endian::to_little(static_cast<std::uint16_t>(bit_depth))); // Bits per sample.
-	result &= writer.write_u32(bstone::endian::to_big(0x64617461)); // "data"
-	result &= writer.write_u32(bstone::endian::to_little(static_cast<std::uint32_t>(data_size))); // Data size.
+	writer.write_u32(bstone::endian::to_little(riff_chunk_size)); // Chunk size.
+	writer.write_u32(bstone::endian::to_big(0x57415645)); // "WAVE"
+	writer.write_u32(bstone::endian::to_big(0x666D7420)); // "fmt "
+	writer.write_u32(bstone::endian::to_little(16)); // Format size.
+	writer.write_u16(bstone::endian::to_little(static_cast<std::uint16_t>(audio_format))); // Audio format.
+	writer.write_u16(bstone::endian::to_little(static_cast<std::uint16_t>(channel_count))); // Channel count.
+	writer.write_u32(bstone::endian::to_little(sample_rate)); // Sample rate.
+	writer.write_u32(bstone::endian::to_little(static_cast<std::uint32_t>(byte_rate))); // Byte rate.
+	writer.write_u16(bstone::endian::to_little(static_cast<std::uint16_t>(block_align))); // Block align.
+	writer.write_u16(bstone::endian::to_little(static_cast<std::uint16_t>(bit_depth))); // Bits per sample.
+	writer.write_u32(bstone::endian::to_big(0x64617461)); // "data"
+	writer.write_u32(bstone::endian::to_little(static_cast<std::uint32_t>(data_size))); // Data size.
 	return result;
 }
 

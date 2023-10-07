@@ -120,10 +120,10 @@ void TextExtractor::initialize_text()
 CompHeader_t TextExtractor::deserialize_header(int number, const std::uint8_t* data)
 {
 	auto stream = StaticRoMemoryStream{data, CompHeader_t::class_size};
-	auto reader = BinaryReader{&stream};
+	auto reader = BinaryReader{stream};
 	auto result = CompHeader_t{};
 
-	reader.read(result.NameId, 4);
+	reader.get_stream().read_exact(result.NameId, 4);
 	result.OriginalLen = endian::to_little(reader.read_u32());
 	result.CompType = static_cast<ct_TYPES>(endian::to_little(reader.read_u16()));
 	result.CompressLen = endian::to_little(reader.read_u32());

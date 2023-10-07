@@ -1,148 +1,93 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
+// Writes primitive data types as binary values.
+
+#include <limits>
+
 #include "bstone_binary_writer.h"
-#include "bstone_endian.h"
-#include "bstone_utility.h"
 
-namespace bstone
+static_assert(std::numeric_limits<float>::is_iec559 && sizeof(float) == 4, "Unsupported `float` type.");
+static_assert(std::numeric_limits<double>::is_iec559 && sizeof(double) == 8, "Unsupported `double` type.");
+
+namespace bstone {
+
+namespace {
+
+struct BinaryWriterDetail
 {
-
-BinaryWriter::BinaryWriter(Stream* stream)
-{
-	static_cast<void>(open(stream));
-}
-
-BinaryWriter::BinaryWriter(BinaryWriter&& rhs) noexcept
-{
-	bstone::swop(stream_, rhs.stream_);
-}
-
-bool BinaryWriter::open(Stream* stream)
-{
-	close();
-
-	if (!stream)
+	template<typename T>
+	static void generic_write(Stream& stream, T value)
 	{
-		return false;
+		stream.write_exact(&value, static_cast<IntP>(sizeof(T)));
 	}
+};
 
-	stream_ = stream;
-	return true;
-}
+} // namespace
 
-void BinaryWriter::close()
+// ==========================================================================
+
+BinaryWriter::BinaryWriter(Stream& stream)
+	:
+	stream_{&stream}
+{}
+
+Stream& BinaryWriter::get_stream() const
 {
-	stream_ = nullptr;
+	return *stream_;
 }
 
-bool BinaryWriter::is_open() const
+void BinaryWriter::write_s8(Int8 value) const
 {
-	return stream_ != nullptr;
+	BinaryWriterDetail::generic_write(*stream_, value);
 }
 
-bool BinaryWriter::write_s8(std::int8_t value)
+void BinaryWriter::write_u8(UInt8 value) const
 {
-	return write(value);
+	BinaryWriterDetail::generic_write(*stream_, value);
 }
 
-bool BinaryWriter::write_u8(std::uint8_t value)
+void BinaryWriter::write_s16(Int16 value) const
 {
-	return write(value);
+	BinaryWriterDetail::generic_write(*stream_, value);
 }
 
-bool BinaryWriter::write_s16(std::int16_t value)
+void BinaryWriter::write_u16(UInt16 value) const
 {
-	return write(value);
+	BinaryWriterDetail::generic_write(*stream_, value);
 }
 
-bool BinaryWriter::write_u16(std::uint16_t value)
+void BinaryWriter::write_s32(Int32 value) const
 {
-	return write(value);
+	BinaryWriterDetail::generic_write(*stream_, value);
 }
 
-bool BinaryWriter::write_s32(std::int32_t value)
+void BinaryWriter::write_u32(UInt32 value) const
 {
-	return write(value);
+	BinaryWriterDetail::generic_write(*stream_, value);
 }
 
-bool BinaryWriter::write_u32(std::uint32_t value)
+void BinaryWriter::write_s64(Int64 value) const
 {
-	return write(value);
+	BinaryWriterDetail::generic_write(*stream_, value);
 }
 
-bool BinaryWriter::write_s64(std::int64_t value)
+void BinaryWriter::write_u64(UInt64 value) const
 {
-	return write(value);
+	BinaryWriterDetail::generic_write(*stream_, value);
 }
 
-bool BinaryWriter::write_u64(std::uint64_t value)
+void BinaryWriter::write_b32(float value) const
 {
-	return write(value);
+	BinaryWriterDetail::generic_write(*stream_, value);
 }
 
-bool BinaryWriter::write_r32(float value)
+void BinaryWriter::write_b64(double value) const
 {
-	return write(value);
+	BinaryWriterDetail::generic_write(*stream_, value);
 }
 
-bool BinaryWriter::write_r64(double value)
-{
-	return write(value);
-}
-
-bool BinaryWriter::write(const void* buffer, int count)
-{
-	if (!is_open())
-	{
-		return false;
-	}
-
-	return stream_->write(buffer, count) == count;
-}
-
-bool BinaryWriter::write(const std::string& string)
-{
-	const auto length = static_cast<std::int32_t>(string.length());
-	auto is_succeed = true;
-	is_succeed &= write_s32(bstone::endian::to_little(length));
-	is_succeed &= write(string.c_str(), length);
-	return is_succeed;
-}
-
-bool BinaryWriter::skip(int count)
-{
-	if (!is_open())
-	{
-		return false;
-	}
-
-	stream_->skip(count);
-	return true;
-}
-
-int BinaryWriter::get_position() const
-{
-	if (!is_open())
-	{
-		return 0;
-	}
-
-	return static_cast<int>(stream_->get_position());
-}
-
-bool BinaryWriter::set_position(int position)
-{
-	if (!is_open())
-	{
-		return false;
-	}
-
-	stream_->set_position(position);
-	return true;
-}
-
-} // bstone
+} // namespace bstone

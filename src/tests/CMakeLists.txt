@@ -112,6 +112,10 @@ target_sources(${PROJECT_NAME}
 		../bstone_static_memory_stream.h
 		../bstone_static_ro_memory_stream.cpp
 		../bstone_static_ro_memory_stream.h
+		../bstone_binary_reader.cpp
+		../bstone_binary_reader.h
+		../bstone_binary_writer.cpp
+		../bstone_binary_writer.h
 	PRIVATE
 		src/bstone_tests_algorithm.cpp
 		src/bstone_tests_array.cpp
@@ -147,6 +151,8 @@ target_sources(${PROJECT_NAME}
 		src/bstone_tests_memory_stream.cpp
 		src/bstone_tests_static_memory_stream.cpp
 		src/bstone_tests_static_ro_memory_stream.cpp
+		src/bstone_tests_binary_reader.cpp
+		src/bstone_tests_binary_writer.cpp
 	PRIVATE
 		src/bstone_tester.cpp
 		src/bstone_tester.h

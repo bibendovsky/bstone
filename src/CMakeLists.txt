@@ -354,6 +354,10 @@ target_sources(
 		bstone_static_memory_stream.h
 		bstone_static_ro_memory_stream.cpp
 		bstone_static_ro_memory_stream.h
+		bstone_binary_reader.cpp
+		bstone_binary_reader.h
+		bstone_binary_writer.cpp
+		bstone_binary_writer.h
 )
 
 target_sources(
@@ -450,8 +454,6 @@ target_sources(
 		bstone_audio_mixer_voice_handle.h
 		bstone_audio_mixer_voice_handle_mgr.h
 		bstone_audio_sample_converter.h
-		bstone_binary_reader.h
-		bstone_binary_writer.h
 		bstone_bmp_image_common.h
 		bstone_bmp_image_decoder.h
 		bstone_char_conv.h
@@ -674,8 +676,6 @@ target_sources(
 		bstone_audio_mixer_voice_handle.cpp
 		bstone_audio_mixer_voice_handle_mgr.cpp
 		bstone_audio_sample_converter.cpp
-		bstone_binary_reader.cpp
-		bstone_binary_writer.cpp
 		bstone_bmp_image_decoder.cpp
 		bstone_ccmd.cpp
 		bstone_ccmd_action.cpp
