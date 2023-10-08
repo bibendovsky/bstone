@@ -522,7 +522,7 @@ void test_normalize()
 			std::cbegin(av2),
 			std::cend(av2),
 			std::cbegin(a2),
-			[e](const typename Vec::Item& a, const typename Vec::Item& b)
+			[](const typename Vec::Item& a, const typename Vec::Item& b)
 			{
 				return std::abs(a - b) < e;
 			}));
