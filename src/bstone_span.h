@@ -32,7 +32,7 @@ public:
 		items_{items},
 		size_{size}
 	{
-		assert(items == nullptr && size == 0 || items != nullptr && size >= 0);
+		assert((items == nullptr && size == 0) || (items != nullptr && size >= 0));
 	}
 
 	template<IntP TSize>
