@@ -717,7 +717,7 @@ void SwVideo::initialize_vga_buffer()
 try {
 	const auto area = 2 * vga_width * vga_height;
 
-	sw_vga_buffer_ = std::move(VgaBuffer{});
+	sw_vga_buffer_ = VgaBuffer{};
 	sw_vga_buffer_.resize(area);
 
 	vga_memory = sw_vga_buffer_.data();
