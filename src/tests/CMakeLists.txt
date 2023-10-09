@@ -116,6 +116,8 @@ target_sources(${PROJECT_NAME}
 		../bstone_binary_reader.h
 		../bstone_binary_writer.cpp
 		../bstone_binary_writer.h
+		../bstone_crc32.cpp
+		../bstone_crc32.h
 	PRIVATE
 		src/bstone_tests_algorithm.cpp
 		src/bstone_tests_array.cpp
@@ -153,6 +155,7 @@ target_sources(${PROJECT_NAME}
 		src/bstone_tests_static_ro_memory_stream.cpp
 		src/bstone_tests_binary_reader.cpp
 		src/bstone_tests_binary_writer.cpp
+		src/bstone_tests_crc32.cpp
 	PRIVATE
 		src/bstone_tester.cpp
 		src/bstone_tester.h

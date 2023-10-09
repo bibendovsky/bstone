@@ -358,6 +358,8 @@ target_sources(
 		bstone_binary_reader.h
 		bstone_binary_writer.cpp
 		bstone_binary_writer.h
+		bstone_crc32.cpp
+		bstone_crc32.h
 )
 
 target_sources(
@@ -464,7 +466,6 @@ target_sources(
 		bstone_char_hasher.cpp
 		bstone_char_hasher.h
 		bstone_content_path.h
-		bstone_crc32.h
 		bstone_cvalidator.h
 		bstone_cvar.h
 		bstone_cvar_mgr.h
@@ -684,7 +685,6 @@ target_sources(
 		bstone_char_conv.cpp
 		bstone_cl.cpp
 		bstone_content_path.cpp
-		bstone_crc32.cpp
 		bstone_cvar.cpp
 		bstone_cvar_mgr.cpp
 		bstone_cvar_string.cpp

@@ -1,55 +1,30 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
+// CRC-32/ISO-HDLC
 
-#ifndef BSTONE_CRC32_INCLUDED
+#if !defined(BSTONE_CRC32_INCLUDED)
 #define BSTONE_CRC32_INCLUDED
 
+#include "bstone_int.h"
 
-#include <cstdint>
+namespace bstone {
 
-
-namespace bstone
-{
-
-
-class Crc32 final
+class Crc32
 {
 public:
-	using Value = std::uint32_t;
-
-
-	Crc32() noexcept;
-
+	UInt32 get_value() const noexcept;
 
 	void reset() noexcept;
-
-	Value get_value() const noexcept;
-
-	void update(
-		const void* data,
-		int size);
-
-
-	template<
-		typename T
-	>
-	void update(
-		const T& value)
-	{
-		update(&value, static_cast<int>(sizeof(T)));
-	}
-
+	void update(const void* data, IntP size);
 
 private:
-	Value value_{};
-}; // Crc32
+	UInt32 value_{};
+};
 
+} // namespace bstone
 
-} // bstone
-
-
-#endif // !BSTONE_CRC32_INCLUDED
+#endif // BSTONE_CRC32_INCLUDED
