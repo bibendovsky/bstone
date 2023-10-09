@@ -513,7 +513,6 @@ void test_normalize()
 	make_vec<N, T>(a1, v1s);
 	const auto v1d = make_vec_deleter(v1);
 
-	constexpr auto e = 1 / typename Vec::Item{100'000};
 	const auto a2 = make_normalized_sequence_1<Vec::item_count, typename Vec::Item>();
 	const auto v2 = normalize(v1);
 	const auto& av2 = reinterpret_cast<const typename Vec::Item(&)[Vec::item_count]>(v2);
@@ -524,6 +523,7 @@ void test_normalize()
 			std::cbegin(a2),
 			[](const typename Vec::Item& a, const typename Vec::Item& b)
 			{
+				constexpr auto e = 1 / typename Vec::Item{100'000};
 				return std::abs(a - b) < e;
 			}));
 }
