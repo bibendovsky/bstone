@@ -7,30 +7,42 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_SHARED_LIBRARY_INCLUDED)
 #define BSTONE_SHARED_LIBRARY_INCLUDED
 
+#include <memory>
+
 namespace bstone {
+
+struct SharedLibraryHandleDeleter
+{
+	void operator()(void* handle) const;
+};
+
+using SharedLibraryHandleUPtr = std::unique_ptr<void, SharedLibraryHandleDeleter>;
+
+// ==========================================================================
 
 class SharedLibrary
 {
 public:
 	SharedLibrary() = default;
-	SharedLibrary(const char* path);
-	SharedLibrary(const SharedLibrary&) = delete;
-	SharedLibrary(SharedLibrary&& rhs) noexcept;
-	SharedLibrary& operator=(const SharedLibrary&) = delete;
-	SharedLibrary& operator=(SharedLibrary&& rhs) = delete;
-	~SharedLibrary();
+	explicit SharedLibrary(const char* file_path);
 
-	void open(const char* path);
-	void* find_symbol(const char* symbol_name) noexcept;
+	bool is_open() const noexcept;
+	void open(const char* file_path);
+	void close();
+
+	void* find_symbol(const char* symbol_name) const;
 
 	template<typename T>
-	T find_symbol(const char* symbol_name) noexcept
+	T find_symbol(const char* symbol_name) const
 	{
 		return reinterpret_cast<T>(find_symbol(symbol_name));
 	}
 
 private:
-	void* handle_{};
+	SharedLibraryHandleUPtr handle_{};
+
+private:
+	void ensure_is_open() const;
 };
 
 } // namespace bstone

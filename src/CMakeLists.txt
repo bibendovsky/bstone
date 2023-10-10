@@ -229,6 +229,7 @@ endif ()
 target_link_libraries(
 	${PROJECT_NAME}
 	PRIVATE
+		${CMAKE_DL_LIBS}
 		SDL2W::SDL2W
 		Threads::Threads
 )
@@ -360,6 +361,10 @@ target_sources(
 		bstone_binary_writer.h
 		bstone_crc32.cpp
 		bstone_crc32.h
+		bstone_shared_library.cpp
+		bstone_shared_library.h
+		bstone_shared_library_win32.cpp
+		bstone_shared_library_posix.cpp
 )
 
 target_sources(
@@ -472,7 +477,6 @@ target_sources(
 		bstone_cvar_string.h
 		bstone_door.h
 		bstone_dosbox_dbopl.h
-		bstone_shared_library.h
 		bstone_encoding.h
 		bstone_enum_flags.h
 		bstone_entry_point.h
@@ -722,7 +726,6 @@ target_sources(
 		bstone_pcm_audio_decoder.cpp
 		bstone_ps_fizzle_fx.cpp
 		bstone_rgb8.cpp
-		bstone_sdl_shared_library.cpp
 		bstone_sha1.cpp
 		bstone_sprite.cpp
 		bstone_sprite_cache.cpp
