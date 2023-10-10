@@ -11,6 +11,14 @@ message(STATUS "[${PROJECT_NAME}] v${PROJECT_VERSION}")
 
 add_executable(${PROJECT_NAME} "")
 
+set_target_properties(
+	${PROJECT_NAME}
+	PROPERTIES
+		CXX_STANDARD 14
+		CXX_STANDARD_REQUIRED ON
+		CXX_EXTENSIONS OFF
+)
+
 target_compile_definitions(${PROJECT_NAME}
 	PRIVATE
 		$<$<BOOL:${WIN32}>:UNICODE>
@@ -104,8 +112,6 @@ target_sources(${PROJECT_NAME}
 		../../../bstone_win32_wstring.h
 		../../../bstone_file_posix.cpp
 		../../../bstone_file_win32.cpp
-		../../../bstone_file_uresource_posix.cpp
-		../../../bstone_file_uresource_win32.cpp
 		../../../bstone_file.cpp
 		../../../bstone_file.h
 		../../../bstone_stream.cpp

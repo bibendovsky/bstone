@@ -37,6 +37,24 @@ constexpr auto file_posix_max_int = std::min(
 
 // ==========================================================================
 
+FileUResourceHandle FileUResourceEmptyValue::operator()() const noexcept
+{
+	return -1;
+}
+
+void FileUResourceDeleter::operator()(FileUResourceHandle handle) const
+{
+#if !defined(NDEBUG)
+	const auto posix_result =
+#endif
+		close(handle);
+#if !defined(NDEBUG)
+	assert(posix_result == 0);
+#endif
+}
+
+// ==========================================================================
+
 File::File(const char* file_name, FileOpenMode open_mode)
 {
 	open(file_name, open_mode);

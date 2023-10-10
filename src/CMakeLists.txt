@@ -345,9 +345,6 @@ target_sources(
 		bstone_file.cpp
 		bstone_file.h
 		bstone_file_posix.cpp
-		bstone_file_uresource.h
-		bstone_file_uresource_posix.cpp
-		bstone_file_uresource_win32.cpp
 		bstone_file_win32.cpp
 		bstone_file_stream.cpp
 		bstone_file_system.h

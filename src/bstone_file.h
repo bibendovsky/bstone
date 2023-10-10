@@ -11,9 +11,34 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_enum_flags.h"
 #include "bstone_int.h"
-#include "bstone_file_uresource.h"
+#include "bstone_unique_resource.h"
 
 namespace bstone {
+
+using FileUResourceHandle =
+#if defined(_WIN32)
+	void*
+#else
+	int
+#endif
+;
+
+struct FileUResourceEmptyValue
+{
+	FileUResourceHandle operator()() const noexcept;
+};
+
+struct FileUResourceDeleter
+{
+	void operator()(FileUResourceHandle handle) const;
+};
+
+using FileUResource = UniqueResource<
+	FileUResourceHandle,
+	FileUResourceDeleter,
+	FileUResourceEmptyValue>;
+
+// ==========================================================================
 
 enum class FileOrigin
 {

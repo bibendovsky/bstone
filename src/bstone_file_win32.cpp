@@ -33,6 +33,18 @@ constexpr auto file_win32_max_read_write_size = IntP{0x7FFFFFFF};
 
 // ==========================================================================
 
+FileUResourceHandle FileUResourceEmptyValue::operator()() const noexcept
+{
+	return INVALID_HANDLE_VALUE;
+}
+
+void FileUResourceDeleter::operator()(FileUResourceHandle handle) const
+{
+	CloseHandle(static_cast<HANDLE>(handle));
+}
+
+// ==========================================================================
+
 File::File(const char* file_name, FileOpenMode open_mode)
 {
 	open(file_name, open_mode);

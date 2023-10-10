@@ -36,10 +36,10 @@ target_compile_definitions(${PROJECT_NAME}
 		$<$<BOOL:${WIN32}>:WINVER=0x0501>
 )
 
-target_link_libraries(
-	${PROJECT_NAME}
+target_compile_options(${PROJECT_NAME}
 	PRIVATE
-		#$<$<CXX_COMPILER_ID:GNU>:-s>
+		$<$<CXX_COMPILER_ID:MSVC>:/W4>
+		$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -pedantic>
 )
 
 target_sources(${PROJECT_NAME}
