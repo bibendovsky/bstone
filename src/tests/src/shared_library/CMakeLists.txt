@@ -52,4 +52,4 @@ target_sources(${PROJECT_NAME}
 		src/bstone_tests_shared_library.cpp
 )
 
-install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION "." RUNTIME DESTINATION ".")
+install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION "tests" RUNTIME DESTINATION "tests")
