@@ -4,7 +4,7 @@ Copyright (c) 2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-// WIN32 wide string.
+// Windows API wide string.
 
 #if defined(_WIN32)
 
@@ -47,6 +47,16 @@ void Win32WString::StorageDeleter::operator()(wchar_t* ptr) const
 
 // --------------------------------------------------------------------------
 
+Win32WString::Win32WString()
+	:
+	storage_{nullptr, get_win32_wstring_memory_resource()}
+{}
+
+Win32WString::Win32WString(IntP u16_capacity)
+	:
+	storage_{make_storage(u16_capacity)}
+{}
+
 Win32WString::Win32WString(const char* u8_string)
 try
 	:
@@ -66,6 +76,16 @@ const wchar_t* Win32WString::get_data() const noexcept
 wchar_t* Win32WString::get_data() noexcept
 {
 	return storage_.get();
+}
+
+auto Win32WString::make_storage(IntP u16_capacity) -> Storage
+{
+	auto& memory_resource = get_win32_wstring_memory_resource();
+	const auto u16_byte_count = u16_capacity * static_cast<IntP>(sizeof(wchar_t));
+	const auto u16_string = static_cast<wchar_t*>(memory_resource.allocate(u16_byte_count));
+	auto storage = Storage{u16_string, StorageDeleter{memory_resource}};
+
+	return storage;
 }
 
 auto Win32WString::make_storage(const char* u8_string, IntP& u16_size) -> Storage

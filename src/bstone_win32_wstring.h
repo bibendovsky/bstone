@@ -4,7 +4,7 @@ Copyright (c) 2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-// WIN32 wide string.
+// Windows API wide string.
 
 #if defined(_WIN32)
 
@@ -18,7 +18,9 @@ namespace bstone {
 class Win32WString
 {
 public:
-	Win32WString(const char* u8_string);
+	Win32WString();
+	explicit Win32WString(IntP u16_capacity);
+	explicit Win32WString(const char* u8_string);
 
 	IntP get_size() const noexcept;
 
@@ -44,6 +46,7 @@ private:
 	Storage storage_;
 
 private:
+	static Storage make_storage(IntP u16_capacity);
 	static Storage make_storage(const char* u8_string, IntP& u16_size);
 };
 

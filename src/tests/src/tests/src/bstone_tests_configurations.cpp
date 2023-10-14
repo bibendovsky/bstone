@@ -8,6 +8,6 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-extern const IntP low_level_api_u16string_capacity = 16 * 1024;
+extern const IntP low_level_api_u16string_capacity = 256 * 1024;
 
 } // namespace bstone

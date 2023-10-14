@@ -362,6 +362,8 @@ target_sources(
 		bstone_shared_library.h
 		bstone_shared_library_win32.cpp
 		bstone_shared_library_posix.cpp
+		bstone_win32_registry_key.cpp
+		bstone_win32_registry_key.h
 )
 
 target_sources(
@@ -583,7 +585,6 @@ if (WIN32)
 		${PROJECT_NAME}
 		PRIVATE
 			sys/win32/bstone_win32_rc.h
-			sys/win32/bstone_win32_registry.h
 			$<$<CXX_COMPILER_ID:MSVC>:sys/win32/bstone_win32_msvc.manifest>
 	)
 endif ()
@@ -783,7 +784,6 @@ if (WIN32)
 		${PROJECT_NAME}
 		PRIVATE
 			"${PROJECT_BINARY_DIR}/sys/win32/bstone_win32.rc"
-			sys/win32/bstone_win32_registry.cpp
 	)
 endif ()
 

@@ -11,6 +11,16 @@ auto tester = bstone::Tester{};
 
 // ==========================================================================
 
+// Win32WString()
+void test_sqsflg2h72usjet9()
+{
+	const auto string = bstone::Win32WString{};
+	const auto size = string.get_size();
+	const auto data = string.get_data();
+
+	tester.check(size == 0 && data == nullptr);
+}
+
 // Win32WString(const char*)
 void test_tg392qlci41gqhvg()
 {
@@ -38,12 +48,13 @@ class Registrator
 public:
 	Registrator()
 	{
-		register_low_level_api_u16_string();
+		register_win32_wstring();
 	}
 
 private:
-	void register_low_level_api_u16_string()
+	void register_win32_wstring()
 	{
+		tester.register_test("Win32WString#sqsflg2h72usjet9", test_sqsflg2h72usjet9);
 		tester.register_test("Win32WString#tg392qlci41gqhvg", test_tg392qlci41gqhvg);
 	}
 };

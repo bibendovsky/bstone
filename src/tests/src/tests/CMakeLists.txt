@@ -134,6 +134,8 @@ target_sources(${PROJECT_NAME}
 		../../../bstone_shared_library.h
 		../../../bstone_shared_library_posix.cpp
 		../../../bstone_shared_library_win32.cpp
+		../../../bstone_win32_registry_key.cpp
+		../../../bstone_win32_registry_key.h
 	PRIVATE
 		src/bstone_tests_algorithm.cpp
 		src/bstone_tests_array.cpp
@@ -173,6 +175,7 @@ target_sources(${PROJECT_NAME}
 		src/bstone_tests_binary_writer.cpp
 		src/bstone_tests_crc32.cpp
 		src/bstone_tests_shared_library.cpp
+		src/bstone_tests_win32_registry_key.cpp
 	PRIVATE
 		src/bstone_tester.cpp
 		src/bstone_tester.h
