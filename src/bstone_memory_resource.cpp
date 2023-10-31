@@ -23,6 +23,18 @@ try {
 
 // ==========================================================================
 
+MemoryResourceUPtrDeleterBase::MemoryResourceUPtrDeleterBase(MemoryResource& memory_resource)
+	:
+	memory_resource_{&memory_resource}
+{}
+
+MemoryResource& MemoryResourceUPtrDeleterBase::get_memory_resource() const noexcept
+{
+	return *memory_resource_;
+}
+
+// ==========================================================================
+
 void* NullMemoryResource::do_allocate(IntP)
 {
 	BSTONE_THROW_STATIC_SOURCE("Out of memory.");

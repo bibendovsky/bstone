@@ -119,8 +119,7 @@ void RegistryKey::open(
 	const auto access = map_access_type(access_type);
 	const auto is_create = (access_type & RegistryAccessType::create) != RegistryAccessType::none;
 
-	const auto has_subkey_name = subkey_name != nullptr && *subkey_name != '\0';
-	const auto u16_subkey_name = has_subkey_name ? Win32WString{subkey_name} : Win32WString{};
+	const auto u16_subkey_name = Win32WString{subkey_name};
 	const auto reg_func = is_create ? registry_key_create : registry_key_open;
 
 	auto subkey = HKEY{};
@@ -148,9 +147,7 @@ bool RegistryKey::has_string(const char* name) const
 {
 	ensure_is_open();
 
-	const auto has_name = name != nullptr && *name != '\0';
-	auto u16_name = has_name ? Win32WString{name} : Win32WString{};
-
+	auto u16_name = Win32WString{name};
 	auto value_type = DWORD{};
 
 	const auto win32_result = RegQueryValueExW(
@@ -181,8 +178,7 @@ IntP RegistryKey::get_string(const char* name, char* buffer, IntP buffer_size) c
 	auto value_type = DWORD{};
 	auto win32_result = LSTATUS{};
 
-	const auto has_name = name != nullptr && *name != '\0';
-	const auto u16_name = has_name ? Win32WString{name} : Win32WString{};
+	const auto u16_name = Win32WString{name};
 
 	// Get value size.
 	//
@@ -274,8 +270,7 @@ void RegistryKey::set_string(const char* name, const char* value) const
 {
 	ensure_is_open();
 
-	const auto has_name = name != nullptr && *name != '\0';
-	auto u16_name = has_name ? Win32WString{name} : Win32WString{};
+	auto u16_name = Win32WString{name};
 	const auto u16_value = Win32WString{value};
 	const auto u16_byte_count = 2 * (u16_value.get_size() + 1);
 	auto win32_size = static_cast<DWORD>(u16_byte_count);
@@ -298,8 +293,7 @@ void RegistryKey::delete_value(const char* name) const
 {
 	ensure_is_open();
 
-	const auto has_name = name != nullptr && *name != '\0';
-	auto u16_name = has_name ? Win32WString{name} : Win32WString{};
+	auto u16_name = Win32WString{name};
 	const auto win32_result = RegDeleteValueW(reinterpret_cast<HKEY>(handle_.get()), u16_name.get_data());
 
 	if (win32_result != ERROR_SUCCESS)

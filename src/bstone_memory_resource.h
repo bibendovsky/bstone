@@ -30,13 +30,15 @@ private:
 
 // ==========================================================================
 
-template<typename T>
-class MemoryResourceUPtrDeleter
+class MemoryResourceUPtrDeleterBase
 {
 public:
-	MemoryResourceUPtrDeleter(MemoryResource& memory_resource);
+	explicit MemoryResourceUPtrDeleterBase(MemoryResource& memory_resource);
 
-	void operator()(T* ptr) const;
+	MemoryResource& get_memory_resource() const noexcept;
+
+	template<typename T>
+	void invoke(T* ptr) const;
 
 private:
 	MemoryResource* memory_resource_{};
@@ -45,16 +47,60 @@ private:
 // --------------------------------------------------------------------------
 
 template<typename T>
+void MemoryResourceUPtrDeleterBase::invoke(T* ptr) const
+{
+	bstone::destroy_at(ptr);
+	memory_resource_->deallocate(ptr);
+}
+
+// ==========================================================================
+
+template<typename T>
+class MemoryResourceUPtrDeleter final : public MemoryResourceUPtrDeleterBase
+{
+public:
+	MemoryResourceUPtrDeleter(MemoryResource& memory_resource);
+
+	void operator()(T* ptr) const;
+};
+
+// --------------------------------------------------------------------------
+
+template<typename T>
 MemoryResourceUPtrDeleter<T>::MemoryResourceUPtrDeleter(MemoryResource& memory_resource)
 	:
-	memory_resource_{&memory_resource}
+	MemoryResourceUPtrDeleterBase{memory_resource}
 {}
 
 template<typename T>
 void MemoryResourceUPtrDeleter<T>::operator()(T* ptr) const
 {
-	bstone::destroy_at(ptr);
-	memory_resource_->deallocate(ptr);
+	invoke(ptr);
+}
+
+// ==========================================================================
+
+template<typename T>
+class MemoryResourceUPtrDeleter<T[]> final : public MemoryResourceUPtrDeleterBase
+{
+public:
+	MemoryResourceUPtrDeleter(MemoryResource& memory_resource);
+
+	void operator()(T* ptr) const;
+};
+
+// --------------------------------------------------------------------------
+
+template<typename T>
+MemoryResourceUPtrDeleter<T[]>::MemoryResourceUPtrDeleter(MemoryResource& memory_resource)
+	:
+	MemoryResourceUPtrDeleterBase{memory_resource}
+{}
+
+template<typename T>
+void MemoryResourceUPtrDeleter<T[]>::operator()(T* ptr) const
+{
+	invoke(ptr);
 }
 
 // ==========================================================================

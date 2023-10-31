@@ -8,46 +8,23 @@ SPDX-License-Identifier: MIT
 
 #if defined(_WIN32)
 
-#include <memory>
-
+#include "bstone_api_string.h"
 #include "bstone_int.h"
-#include "bstone_memory_resource.h"
 
 namespace bstone {
 
-class Win32WString
+class Win32WString final : public ApiString<wchar_t>
 {
 public:
+	using Base = ApiString<wchar_t>;
+
+public:
 	Win32WString();
-	explicit Win32WString(IntP u16_capacity);
-	explicit Win32WString(const char* u8_string);
-
-	IntP get_size() const noexcept;
-
-	const wchar_t* get_data() const noexcept;
-	wchar_t* get_data() noexcept;
-
-private:
-	class StorageDeleter
-	{
-	public:
-		StorageDeleter(MemoryResource& memory_resource);
-
-		void operator()(wchar_t* ptr) const;
-
-	private:
-		MemoryResource* memory_resource_{};
-	};
-
-	using Storage = std::unique_ptr<wchar_t, StorageDeleter>;
-
-private:
-	IntP size_{};
-	Storage storage_;
-
-private:
-	static Storage make_storage(IntP u16_capacity);
-	static Storage make_storage(const char* u8_string, IntP& u16_size);
+	explicit Win32WString(MemoryResource& memory_resource);
+	explicit Win32WString(std::intptr_t capacity);
+	Win32WString(std::intptr_t capacity, MemoryResource& memory_resource);
+	Win32WString(const char* u8_string);
+	Win32WString(const char* u8_string, MemoryResource& memory_resource);
 };
 
 } // namespace bstone

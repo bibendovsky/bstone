@@ -23,91 +23,64 @@ MemoryResource& get_win32_wstring_memory_resource()
 	{
 		Initializer(TsAutoArenaMemoryResource& memory_resource)
 		{
-			memory_resource.reserve(low_level_api_u16string_capacity, get_default_memory_resource());
+			memory_resource.reserve(win32_wstring_capacity, get_default_memory_resource());
 		}
 	};
 
 	static TsAutoArenaMemoryResource memory_resource{};
 	static Initializer initializer{memory_resource};
-
 	return memory_resource;
 }
 
 // ==========================================================================
 
-Win32WString::StorageDeleter::StorageDeleter(MemoryResource& memory_resource)
-	:
-	memory_resource_{&memory_resource}
-{}
-
-void Win32WString::StorageDeleter::operator()(wchar_t* ptr) const
-{
-	memory_resource_->deallocate(ptr);
-}
-
-// --------------------------------------------------------------------------
-
 Win32WString::Win32WString()
 	:
-	storage_{nullptr, get_win32_wstring_memory_resource()}
+	Base{get_win32_wstring_memory_resource()}
 {}
 
-Win32WString::Win32WString(IntP u16_capacity)
+Win32WString::Win32WString(MemoryResource& memory_resource)
 	:
-	storage_{make_storage(u16_capacity)}
+	Base{memory_resource}
+{}
+
+Win32WString::Win32WString(std::intptr_t capacity)
+	:
+	Base{capacity, get_win32_wstring_memory_resource()}
+{}
+
+Win32WString::Win32WString(IntP capacity, MemoryResource& memory_resource)
+	:
+	Base{capacity, memory_resource}
 {}
 
 Win32WString::Win32WString(const char* u8_string)
-try
 	:
-	storage_{make_storage(u8_string, size_)}
-{} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+	Win32WString{u8_string, get_win32_wstring_memory_resource()}
+{}
 
-IntP Win32WString::get_size() const noexcept
+Win32WString::Win32WString(const char* u8_string, MemoryResource& memory_resource)
+	:
+	Base{memory_resource}
 {
-	return size_;
-}
-
-const wchar_t* Win32WString::get_data() const noexcept
-{
-	return storage_.get();
-}
-
-wchar_t* Win32WString::get_data() noexcept
-{
-	return storage_.get();
-}
-
-auto Win32WString::make_storage(IntP u16_capacity) -> Storage
-{
-	auto& memory_resource = get_win32_wstring_memory_resource();
-	const auto u16_byte_count = u16_capacity * static_cast<IntP>(sizeof(wchar_t));
-	const auto u16_string = static_cast<wchar_t*>(memory_resource.allocate(u16_byte_count));
-	auto storage = Storage{u16_string, StorageDeleter{memory_resource}};
-
-	return storage;
-}
-
-auto Win32WString::make_storage(const char* u8_string, IntP& u16_size) -> Storage
-{
-	auto& memory_resource = get_win32_wstring_memory_resource();
+	if (u8_string == nullptr)
+	{
+		return;
+	}
 
 	const auto u8_size = char_traits::get_size(u8_string);
-	const auto u16_capacity = u8_size + 1;
-	const auto u16_byte_count = u16_capacity * static_cast<IntP>(sizeof(wchar_t));
-
-	const auto u16_string = static_cast<wchar_t*>(memory_resource.allocate(u16_byte_count));
-	auto storage = Storage{u16_string, StorageDeleter{memory_resource}};
+	auto u16_string = Base{u8_size, memory_resource};
+	const auto u16_chars = u16_string.get_data();
 
 	const auto u16_string_next = utf::u8_to_u16(
 		u8_string,
-		u8_string + u8_size + 1,
-		u16_string,
-		u16_string + u16_capacity);
+		u8_string + u8_size,
+		u16_chars,
+		u16_chars + u8_size);
 
-	u16_size = u16_string_next - u16_string - 1;
-
-	return storage;
+	const auto u16_size = u16_string_next - u16_chars;
+	u16_string.set_size(u16_size);
+	swap(u16_string);
 }
 
 } // namespace bstone

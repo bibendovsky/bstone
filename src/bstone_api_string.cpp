@@ -4,10 +4,6 @@ Copyright (c) 2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-#include "bstone_configurations.h"
+// Null-terminated API string primitive.
 
-namespace bstone {
-
-extern const IntP win32_wstring_capacity = 256 * 1024;
-
-} // namespace bstone
+#include "bstone_api_string.h"
