@@ -9,7 +9,7 @@ auto tester = bstone::Tester{};
 
 // ==========================================================================
 
-// reserve(IntP, MemoryResource&)
+// reserve(std::intptr_t, MemoryResource&)
 // Success.
 void test_12i9vgaja0au5hw4()
 {
@@ -30,7 +30,7 @@ void test_12i9vgaja0au5hw4()
 	tester.check(!is_failed);
 }
 
-// reserve(IntP, MemoryResource&)
+// reserve(std::intptr_t, MemoryResource&)
 // Negative size.
 void test_4hi9u7tj6ugr8kmy()
 {
@@ -51,7 +51,7 @@ void test_4hi9u7tj6ugr8kmy()
 	tester.check(is_failed);
 }
 
-// allocate(IntP) and deallocate(void*)
+// allocate(std::intptr_t) and deallocate(void*)
 // Success.
 void test_h89q7m1ofox5m1yt()
 {
@@ -80,7 +80,7 @@ void test_h89q7m1ofox5m1yt()
 	tester.check(!is_failed && diff == 5);
 }
 
-// allocate(IntP) and deallocate(void*)
+// allocate(std::intptr_t) and deallocate(void*)
 // Zero size.
 void test_7toaug4pnm1eyjyx()
 {
@@ -107,7 +107,7 @@ void test_7toaug4pnm1eyjyx()
 	tester.check(!is_failed && diff == 1);
 }
 
-// allocate(IntP)
+// allocate(std::intptr_t)
 // Negative size.
 void test_cz3bzq9ia1144mgd()
 {
@@ -129,7 +129,7 @@ void test_cz3bzq9ia1144mgd()
 	tester.check(is_failed);
 }
 
-// allocate(IntP)
+// allocate(std::intptr_t)
 // Out of memory.
 void test_16hxh0gkqffhccg1()
 {

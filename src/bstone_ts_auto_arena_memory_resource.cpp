@@ -13,13 +13,13 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-void TsAutoArenaMemoryResource::reserve(IntP capacity, MemoryResource& memory_resource)
+void TsAutoArenaMemoryResource::reserve(std::intptr_t capacity, MemoryResource& memory_resource)
 try {
 	MutexLock mutex_lock{mutex_};
 	arena_.reserve(capacity, memory_resource);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void* TsAutoArenaMemoryResource::do_allocate(IntP size)
+void* TsAutoArenaMemoryResource::do_allocate(std::intptr_t size)
 try {
 	MutexLock mutex_lock{mutex_};
 	return arena_.allocate(size);

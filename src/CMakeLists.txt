@@ -289,8 +289,6 @@ endif ()
 target_sources(
 	${PROJECT_NAME}
 	PRIVATE
-		bstone_int.h
-		bstone_int.cpp
 		bstone_char_traits.cpp
 		bstone_char_traits.h
 		bstone_utility.cpp

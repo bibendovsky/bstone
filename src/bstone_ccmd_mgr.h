@@ -7,9 +7,9 @@ SPDX-License-Identifier: MIT
 #ifndef BSTONE_CCMD_MGR_INCLUDED
 #define BSTONE_CCMD_MGR_INCLUDED
 
+#include <cstdint>
 #include <memory>
 #include "bstone_ccmd.h"
-#include "bstone_int.h"
 #include "bstone_span.h"
 #include "bstone_string_view.h"
 
@@ -35,7 +35,7 @@ public:
 
 using CCmdMgrUPtr = std::unique_ptr<CCmdMgr>;
 
-CCmdMgrUPtr make_ccmd_mgr(IntP max_ccmds);
+CCmdMgrUPtr make_ccmd_mgr(std::intptr_t max_ccmds);
 
 } // namespace bstone
 

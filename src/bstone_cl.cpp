@@ -37,7 +37,7 @@ try {
 
 	// Add parameters.
 	//
-	auto param_count = IntP{};
+	auto param_count = std::intptr_t{};
 
 	while (arg_index < argc)
 	{
@@ -88,8 +88,8 @@ try {
 		assert(!option.name.is_empty());
 
 		arg_index += 1;
-		const auto option_args_index = static_cast<IntP>(args_.size());
-		auto option_arg_count = IntP{};
+		const auto option_args_index = static_cast<std::intptr_t>(args_.size());
+		auto option_arg_count = std::intptr_t{};
 
 		while (arg_index < argc)
 		{
@@ -131,7 +131,7 @@ try {
 
 ClOptions Cl::get_options() const noexcept
 {
-	return bstone::make_span(options_.data(), static_cast<IntP>(options_.size()));
+	return bstone::make_span(options_.data(), static_cast<std::intptr_t>(options_.size()));
 }
 
 bool Cl::has_option(StringView option_name) const
@@ -152,12 +152,12 @@ ClOption Cl::find_option(StringView option_name) const
 	return ClOption{};
 }
 
-IntP Cl::get_count() const noexcept
+std::intptr_t Cl::get_count() const noexcept
 {
-	return static_cast<IntP>(args_.size());
+	return static_cast<std::intptr_t>(args_.size());
 }
 
-StringView Cl::get_argument(IntP index) const
+StringView Cl::get_argument(std::intptr_t index) const
 {
 	if (index < 0 || index >= get_count())
 	{

@@ -11,51 +11,51 @@ SPDX-License-Identifier: MIT
 #define BSTONE_SHA1_INCLUDED
 
 #include <cassert>
+#include <cstdint>
 
 #include <type_traits>
 
 #include "bstone_array.h"
-#include "bstone_int.h"
 #include "bstone_span.h"
 
 namespace bstone {
 
-constexpr auto sha1_digest_size = IntP{20};
+constexpr auto sha1_digest_size = std::intptr_t{20};
 constexpr auto sha1_digest_char_count = sha1_digest_size * 2;
 
 // ==========================================================================
 
-using Sha1Digest = Array<UInt8, sha1_digest_size>;
+using Sha1Digest = Array<std::uint8_t, sha1_digest_size>;
 
 // ==========================================================================
 
 class Sha1
 {
 public:
-	void process(const UInt8* bytes, IntP count);
-	void process(Span<const UInt8> items_span);
+	void process(const std::uint8_t* bytes, std::intptr_t count);
+	void process(Span<const std::uint8_t> items_span);
 
 	void finish();
 
 	const Sha1Digest& get_digest() const noexcept;
 
 private:
-	using Block = Array<UInt8, 64>;
-	using Digest32 = Array<UInt32, sha1_digest_size / 4>;
+	using Block = Array<std::uint8_t, 64>;
+	using Digest32 = Array<std::uint32_t, sha1_digest_size / 4>;
 
 private:
 	Block block_{}; // 512-bit message block.
 	Sha1Digest digest_{}; // Message digest.
 	Digest32 digest32_{make_initial_digest_32()}; // Message digest as words.
-	UInt64 length_{}; // Message length in bits.
-	IntP block_index_{}; // Index into message block array.
+	std::uint64_t length_{}; // Message length in bits.
+	std::intptr_t block_index_{}; // Index into message block array.
 	bool is_finished_{}; // Is the digest computed?
 
 private:
 	static Digest32 make_initial_digest_32() noexcept;
 
 	template<int TBitCount>
-	static UInt32 circular_shift(UInt32 word) noexcept
+	static std::uint32_t circular_shift(std::uint32_t word) noexcept
 	{
 		static_assert(TBitCount >= 0 && TBitCount <= 32, "Invalid bit count.");
 		return word << TBitCount | word >> (32 - TBitCount);

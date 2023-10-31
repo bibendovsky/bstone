@@ -7202,7 +7202,7 @@ const auto in_binding_name = "in_binding";
 class ConfigLineTokens
 {
 public:
-	ConfigLineTokens(bstone::IntP capacity_delta, bstone::IntP initial_string_capacity)
+	ConfigLineTokens(std::intptr_t capacity_delta, std::intptr_t initial_string_capacity)
 	{
 		assert(capacity_delta > 0);
 		assert(initial_string_capacity > 0);
@@ -7224,7 +7224,7 @@ public:
 	{
 		const auto new_size = size_ + 1;
 
-		if (new_size > static_cast<bstone::IntP>(tokens_.size()))
+		if (new_size > static_cast<std::intptr_t>(tokens_.size()))
 		{
 			tokens_.resize(tokens_.capacity() + static_cast<std::size_t>(capacity_delta_));
 		}
@@ -7247,14 +7247,14 @@ public:
 
 		while (token_iter != token_end_iter)
 		{
-			views_.emplace_back(token_iter->data(), static_cast<bstone::IntP>(token_iter->size()));
+			views_.emplace_back(token_iter->data(), static_cast<std::intptr_t>(token_iter->size()));
 			++token_iter;
 		}
 
 		return bstone::Span<const bstone::StringView>
 		{
 			views_.data(),
-			static_cast<bstone::IntP>(views_.size())
+			static_cast<std::intptr_t>(views_.size())
 		};
 	}
 
@@ -7265,20 +7265,20 @@ private:
 private:
 	Tokens tokens_{};
 	Views views_{};
-	bstone::IntP capacity_delta_{};
-	bstone::IntP size_{};
+	std::intptr_t capacity_delta_{};
+	std::intptr_t size_{};
 };
 
 class ConfigLineParser
 {
 public:
-	ConfigLineParser(bstone::IntP string_buffer_capacity)
+	ConfigLineParser(std::intptr_t string_buffer_capacity)
 	{
 		string_.reserve(static_cast<std::size_t>(string_buffer_capacity));
 	}
 
 	void parse(
-		bstone::IntP line_number,
+		std::intptr_t line_number,
 		const std::string& line,
 		ConfigLineTokens& string_cache)
 	{
@@ -7356,8 +7356,8 @@ private:
 	static constexpr auto max_number_digits = 21;
 
 private:
-	bstone::IntP line_number_{};
-	bstone::IntP column_number_{};
+	std::intptr_t line_number_{};
+	std::intptr_t column_number_{};
 	const char* line_begin_iter_{};
 	const char* line_end_iter_{};
 	const char* line_iter_{};
@@ -7393,7 +7393,7 @@ private:
 	}
 
 private:
-	int peek(bstone::IntP offset)
+	int peek(std::intptr_t offset)
 	{
 		assert(offset >= 0);
 
@@ -7410,7 +7410,7 @@ private:
 		return peek(0);
 	}
 
-	void advance(bstone::IntP count)
+	void advance(std::intptr_t count)
 	{
 		assert(count > 0);
 		column_number_ += count;
@@ -7643,13 +7643,13 @@ void read_text_config()
 
 		if (reader.is_open())
 		{
-			constexpr auto tokens_capacity_delta = bstone::IntP{8};
-			constexpr auto string_capacity = bstone::IntP{256};
+			constexpr auto tokens_capacity_delta = std::intptr_t{8};
+			constexpr auto string_capacity = std::intptr_t{256};
 
 			auto config_line_parser = ConfigLineParser{string_capacity};
 			auto tokens = ConfigLineTokens{tokens_capacity_delta, string_capacity};
 
-			for (auto line_number = bstone::IntP{1}; !reader.is_eos(); ++line_number)
+			for (auto line_number = std::intptr_t{1}; !reader.is_eos(); ++line_number)
 			{
 				const auto line = reader.read_line();
 
@@ -7808,7 +7808,7 @@ void write_text_config()
 			key,
 			bstone::StringView{
 				normalized_value.data(),
-				static_cast<bstone::IntP>(normalized_value.size())});
+				static_cast<std::intptr_t>(normalized_value.size())});
 	}
 
 	in_serialize_bindings(writer);
@@ -9113,7 +9113,7 @@ try {
 		{
 			bstone::StaticRoMemoryStream head_stream{
 				head_buffer.data(),
-				static_cast<bstone::IntP>(head_buffer.size())};
+				static_cast<std::intptr_t>(head_buffer.size())};
 
 			archiver->initialize(&head_stream);
 
@@ -9156,7 +9156,7 @@ try {
 		{
 			bstone::StaticRoMemoryStream lvxx_stream(
 				lvxx_buffer.data(),
-				static_cast<bstone::IntP>(lvxx_buffer.size()));
+				static_cast<std::intptr_t>(lvxx_buffer.size()));
 
 			constexpr auto max_buffer_size = 4096;
 			Uint8 buffer[max_buffer_size];

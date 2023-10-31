@@ -202,7 +202,7 @@ void test_0r76500o7gnx7asv()
 
 // ==========================================================================
 
-// IntP get_string(const char*, char*, IntP) const
+// std::intptr_t get_string(const char*, char*, std::intptr_t) const
 void test_9rylj1a9cwtzjg7t()
 {
 	constexpr auto ref_name = "str1";
@@ -233,7 +233,7 @@ void test_9rylj1a9cwtzjg7t()
 	tester.check(written_count == 10 && value == ref_value);
 }
 
-// IntP get_string(const char*, char*, IntP) const
+// std::intptr_t get_string(const char*, char*, std::intptr_t) const
 // Fail.
 void test_4ekia0b4x3yp6964()
 {
@@ -259,7 +259,7 @@ void test_4ekia0b4x3yp6964()
 	tester.check(is_failed);
 }
 
-// IntP get_string(const char*, char*, IntP) const
+// std::intptr_t get_string(const char*, char*, std::intptr_t) const
 // Closed.
 void test_dl0mp0me8gnwty1x()
 {

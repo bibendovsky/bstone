@@ -8,8 +8,9 @@ SPDX-License-Identifier: MIT
 
 #if defined(_WIN32)
 
+#include <cstdint>
+
 #include "bstone_api_string.h"
-#include "bstone_int.h"
 
 namespace bstone {
 

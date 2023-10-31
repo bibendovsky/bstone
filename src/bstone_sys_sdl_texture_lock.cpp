@@ -96,7 +96,7 @@ MemoryResource& SdlTextureLock::get_memory_resource()
 		Initializer(GenericPoolMemoryResource& generic_memory_pool)
 		{
 			generic_memory_pool.reserve(
-				static_cast<IntP>(sizeof(SdlTextureLock)),
+				static_cast<std::intptr_t>(sizeof(SdlTextureLock)),
 				sys_max_texture_locks,
 				get_default_memory_resource());
 		}

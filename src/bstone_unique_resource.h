@@ -32,7 +32,8 @@ struct UniqueResourceIsNonPointer : std::integral_constant<bool, std::is_integra
 
 template<typename TResource>
 struct UniqueResourceIsTypeValid :
-	std::integral_constant<bool, UniqueResourceIsPointer<TResource>::value || UniqueResourceIsNonPointer<TResource>::value>
+	std::integral_constant<bool, UniqueResourceIsPointer<TResource>::value ||
+		UniqueResourceIsNonPointer<TResource>::value>
 {};
 
 // ==========================================================================

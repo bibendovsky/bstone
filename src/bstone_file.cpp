@@ -22,7 +22,7 @@ bool File::is_open() const
 	return !resource_.is_empty();
 }
 
-void File::read_exact(void* buffer, IntP count) const
+void File::read_exact(void* buffer, std::intptr_t count) const
 {
 	if (read(buffer, count) != count)
 	{
@@ -30,7 +30,7 @@ void File::read_exact(void* buffer, IntP count) const
 	}
 }
 
-void File::write_exact(const void* buffer, IntP count) const
+void File::write_exact(const void* buffer, std::intptr_t count) const
 {
 	if (write(buffer, count) != count)
 	{
@@ -38,17 +38,17 @@ void File::write_exact(const void* buffer, IntP count) const
 	}
 }
 
-Int64 File::skip(Int64 delta) const
+std::int64_t File::skip(std::int64_t delta) const
 {
 	return seek(delta, FileOrigin::current);
 }
 
-Int64 File::get_position() const
+std::int64_t File::get_position() const
 {
 	return skip(0);
 }
 
-void File::set_position(Int64 position) const
+void File::set_position(std::int64_t position) const
 {
 	seek(position, FileOrigin::begin);
 }

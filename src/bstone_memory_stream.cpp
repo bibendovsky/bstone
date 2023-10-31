@@ -13,26 +13,26 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-MemoryStream::MemoryStream(IntP initial_capacity, IntP chunk_size)
+MemoryStream::MemoryStream(std::intptr_t initial_capacity, std::intptr_t chunk_size)
 {
 	open(initial_capacity, chunk_size);
 }
 
-const UInt8* MemoryStream::get_data() const
+const std::uint8_t* MemoryStream::get_data() const
 {
 	ensure_is_open();
 
 	return storage_.get();
 }
 
-UInt8* MemoryStream::get_data()
+std::uint8_t* MemoryStream::get_data()
 {
 	ensure_is_open();
 
 	return storage_.get();
 }
 
-void MemoryStream::open(IntP initial_capacity, IntP chunk_size)
+void MemoryStream::open(std::intptr_t initial_capacity, std::intptr_t chunk_size)
 {
 	close_internal();
 	reserve(initial_capacity, chunk_size);
@@ -50,7 +50,7 @@ bool MemoryStream::do_is_open() const
 	return is_open_;
 }
 
-IntP MemoryStream::do_read(void* buffer, IntP count)
+std::intptr_t MemoryStream::do_read(void* buffer, std::intptr_t count)
 {
 	ensure_is_open();
 
@@ -67,13 +67,13 @@ IntP MemoryStream::do_read(void* buffer, IntP count)
 	}
 
 	const auto copy_count = std::min(count, remain_size);
-	std::uninitialized_copy_n(storage_.get() + position_, copy_count, static_cast<UInt8*>(buffer));
+	std::uninitialized_copy_n(storage_.get() + position_, copy_count, static_cast<std::uint8_t*>(buffer));
 	position_ += copy_count;
 
 	return copy_count;
 }
 
-IntP MemoryStream::do_write(const void* buffer, IntP count)
+std::intptr_t MemoryStream::do_write(const void* buffer, std::intptr_t count)
 {
 	ensure_is_open();
 
@@ -85,18 +85,18 @@ IntP MemoryStream::do_write(const void* buffer, IntP count)
 	const auto new_capacity = position_ + count;
 
 	reserve(new_capacity, chunk_size_);
-	std::uninitialized_copy_n(static_cast<const UInt8*>(buffer), count, storage_.get() + position_);
+	std::uninitialized_copy_n(static_cast<const std::uint8_t*>(buffer), count, storage_.get() + position_);
 	position_ += count;
 	size_ = new_capacity;
 
 	return count;
 }
 
-Int64 MemoryStream::do_seek(Int64 offset, StreamOrigin origin)
+std::int64_t MemoryStream::do_seek(std::int64_t offset, StreamOrigin origin)
 {
 	ensure_is_open();
 
-	auto new_position = IntP{};
+	auto new_position = std::intptr_t{};
 
 	switch (origin)
 	{
@@ -116,14 +116,14 @@ Int64 MemoryStream::do_seek(Int64 offset, StreamOrigin origin)
 	return new_position;
 }
 
-Int64 MemoryStream::do_get_size() const
+std::int64_t MemoryStream::do_get_size() const
 {
 	ensure_is_open();
 
 	return size_;
 }
 
-void MemoryStream::do_set_size(Int64 size)
+void MemoryStream::do_set_size(std::int64_t size)
 {
 	ensure_is_open();
 
@@ -133,7 +133,7 @@ void MemoryStream::do_set_size(Int64 size)
 
 		if (position_ < size)
 		{
-			std::uninitialized_fill_n(storage_.get() + size_, size - position_, UInt8{});
+			std::uninitialized_fill_n(storage_.get() + size_, size - position_, std::uint8_t{});
 		}
 	}
 
@@ -153,7 +153,7 @@ void MemoryStream::ensure_is_open() const
 	}
 }
 
-void MemoryStream::reserve(IntP capacity, IntP chunk_size)
+void MemoryStream::reserve(std::intptr_t capacity, std::intptr_t chunk_size)
 {
 	if (capacity <= capacity_)
 	{
@@ -161,7 +161,7 @@ void MemoryStream::reserve(IntP capacity, IntP chunk_size)
 	}
 
 	const auto new_capacity = ((capacity + chunk_size - 1) / chunk_size) * chunk_size;
-	auto storage = std::make_unique<UInt8[]>(static_cast<IntP>(new_capacity));
+	auto storage = std::make_unique<std::uint8_t[]>(static_cast<std::intptr_t>(new_capacity));
 
 	if (storage_ != nullptr)
 	{

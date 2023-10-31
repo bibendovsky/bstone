@@ -21,7 +21,7 @@ public:
 	~MemoryResource() override = default;
 
 private:
-	void* do_allocate(bstone::IntP size) override
+	void* do_allocate(std::intptr_t size) override
 	{
 		const auto ptr = bstone::get_default_memory_resource().allocate(size);
 		std::uninitialized_fill_n(static_cast<char*>(ptr), size, memory_fill_value);
@@ -91,7 +91,7 @@ void test_ivlht4ejlr2shq5a()
 // Win32WString(std::intptr_t)
 void test_2fmktd9boq97qc7s()
 {
-	constexpr auto ref_capacity = bstone::IntP{2};
+	constexpr auto ref_capacity = std::intptr_t{2};
 
 	const auto string = bstone::Win32WString{ref_capacity};
 
@@ -123,10 +123,10 @@ void test_2fmktd9boq97qc7s()
 
 // ==========================================================================
 
-// Win32WString(IntP, MemoryResource&)
+// Win32WString(std::intptr_t, MemoryResource&)
 void test_sqsflg2h72usjet9()
 {
-	constexpr auto ref_capacity = bstone::IntP{2};
+	constexpr auto ref_capacity = std::intptr_t{2};
 
 	const auto string = bstone::Win32WString{ref_capacity, memory_resource};
 

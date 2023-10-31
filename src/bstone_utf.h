@@ -9,8 +9,9 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_UTF_INCLUDED)
 #define BSTONE_UTF_INCLUDED
 
+#include <cstdint>
+
 #include "bstone_exception.h"
-#include "bstone_int.h"
 #include "bstone_unicode.h"
 #include "bstone_utf16.h"
 #include "bstone_utf8.h"
@@ -19,18 +20,18 @@ namespace bstone {
 namespace utf {
 
 template<typename TU8CodeUnitIter>
-inline IntP get_u8_to_u16_size(
+inline std::intptr_t get_u8_to_u16_size(
 	TU8CodeUnitIter utf8_code_units_begin,
 	TU8CodeUnitIter utf8_code_units_end)
 {
-	auto utf16_code_units_size = IntP{};
+	auto utf16_code_units_size = std::intptr_t{};
 	auto code_point = unicode::CodePoint{};
 	auto utf8_code_units_iter = utf8_code_units_begin;
 
 	while (utf8_code_units_iter != utf8_code_units_end)
 	{
 		utf8::decode_code_point(utf8_code_units_iter, utf8_code_units_end, utf8_code_units_iter, code_point);
-		utf16_code_units_size += IntP{1} + (code_point >= utf16::min_code_unit_2);
+		utf16_code_units_size += std::intptr_t{1} + (code_point >= utf16::min_code_unit_2);
 	}
 
 	return utf16_code_units_size;
@@ -61,11 +62,11 @@ inline TU16CodeUnitIter u8_to_u16(
 // ==========================================================================
 
 template<typename TU8CodeUnitIter>
-inline IntP get_u8_to_u32_size(
+inline std::intptr_t get_u8_to_u32_size(
 	TU8CodeUnitIter utf8_code_units_begin,
 	TU8CodeUnitIter utf8_code_units_end)
 {
-	auto utf32_code_units_size = IntP{};
+	auto utf32_code_units_size = std::intptr_t{};
 	auto code_point = unicode::CodePoint{};
 	auto utf8_code_units_iter = utf8_code_units_begin;
 
@@ -113,11 +114,11 @@ inline TU32CodeUnitIter u8_to_u32(
 // ==========================================================================
 
 template<typename TU16CodeUnitIter>
-inline IntP get_u16_to_u8_size(
+inline std::intptr_t get_u16_to_u8_size(
 	TU16CodeUnitIter utf16_code_units_begin,
 	TU16CodeUnitIter utf16_code_units_end)
 {
-	auto utf8_code_units_size = IntP{};
+	auto utf8_code_units_size = std::intptr_t{};
 	auto code_point = unicode::CodePoint{};
 	auto utf16_code_units_iter = utf16_code_units_begin;
 

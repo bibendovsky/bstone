@@ -7,9 +7,10 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_MEMORY_RESOURCE_INCLUDED)
 #define BSTONE_MEMORY_RESOURCE_INCLUDED
 
+#include <cstdint>
+
 #include <memory>
 
-#include "bstone_int.h"
 #include "bstone_memory.h"
 
 namespace bstone {
@@ -20,11 +21,11 @@ public:
 	MemoryResource() = default;
 	virtual ~MemoryResource() = default;
 
-	void* allocate(IntP size);
+	void* allocate(std::intptr_t size);
 	void deallocate(void* ptr);
 
 private:
-	virtual void* do_allocate(IntP size) = 0;
+	virtual void* do_allocate(std::intptr_t size) = 0;
 	virtual void do_deallocate(void* ptr) = 0;
 };
 
@@ -111,7 +112,8 @@ using MemoryResourceUPtr = std::unique_ptr<T, MemoryResourceUPtrDeleter<T>>;
 template<typename T, typename ...TArgs>
 auto make_memory_resource_uptr(MemoryResource& memory_resource, TArgs&& ...args)
 {
-	const auto instance = static_cast<T*>(memory_resource.allocate(static_cast<IntP>(sizeof(T))));
+	const auto instance = static_cast<T*>(memory_resource.allocate(
+		static_cast<std::intptr_t>(sizeof(T))));
 
 	try
 	{
@@ -135,7 +137,7 @@ public:
 	~NullMemoryResource() override = default;
 
 private:
-	void* do_allocate(IntP size) override;
+	void* do_allocate(std::intptr_t size) override;
 	void do_deallocate(void* ptr) override;
 };
 
@@ -148,7 +150,7 @@ public:
 	~NewDeleteMemoryResource() override = default;
 
 private:
-	void* do_allocate(IntP size) override;
+	void* do_allocate(std::intptr_t size) override;
 	void do_deallocate(void* ptr) override;
 };
 

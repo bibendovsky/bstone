@@ -7,16 +7,16 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_CONFIGURATIONS_INCLUDED)
 #define BSTONE_CONFIGURATIONS_INCLUDED
 
-#include "bstone_int.h"
+#include <cstdint>
 
 namespace bstone {
 
-extern const IntP win32_wstring_capacity;
+extern const std::intptr_t win32_wstring_capacity;
 
-extern const IntP sys_max_gl_contexts;
-extern const IntP sys_max_gl_shared_libraries;
-extern const IntP sys_max_textures;
-extern const IntP sys_max_texture_locks;
+extern const std::intptr_t sys_max_gl_contexts;
+extern const std::intptr_t sys_max_gl_shared_libraries;
+extern const std::intptr_t sys_max_textures;
+extern const std::intptr_t sys_max_texture_locks;
 
 } // namespace bstone
 

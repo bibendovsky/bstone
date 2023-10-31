@@ -7,12 +7,12 @@ SPDX-License-Identifier: MIT
 // Null-terminated API string primitive.
 
 #include <cstddef>
+#include <cstdint>
 
 #include <memory>
 #include <type_traits>
 
 #include "bstone_char_traits.h"
-#include "bstone_int.h"
 #include "bstone_memory_resource.h"
 #include "bstone_utility.h"
 
@@ -21,25 +21,27 @@ namespace bstone {
 template<typename TChar>
 class ApiString
 {
-	static_assert(std::is_integral<TChar>::value && !std::is_same<TChar, bool>::value, "Unsupported type.");
+	static_assert(
+		std::is_integral<TChar>::value && !std::is_same<TChar, bool>::value,
+		"Unsupported type.");
 
 public:
 	using Char = TChar;
 
 public:
-	static constexpr auto char_size = static_cast<IntP>(sizeof(Char));
+	static constexpr auto char_size = static_cast<std::intptr_t>(sizeof(Char));
 
 public:
 	explicit ApiString(MemoryResource& memory_resource);
-	ApiString(IntP capacity, MemoryResource& memory_resource);
+	ApiString(std::intptr_t capacity, MemoryResource& memory_resource);
 	ApiString(const Char* string, MemoryResource& memory_resource);
 
 	MemoryResource& get_memory_resource() const noexcept;
 
-	IntP get_size() const noexcept;
-	void set_size(IntP size);
+	std::intptr_t get_size() const noexcept;
+	void set_size(std::intptr_t size);
 
-	IntP get_capacity() const noexcept;
+	std::intptr_t get_capacity() const noexcept;
 
 	const Char* get_data() const noexcept;
 	Char* get_data() noexcept;
@@ -52,11 +54,14 @@ private:
 
 private:
 	Storage storage_;
-	IntP capacity_{};
-	IntP size_{};
+	std::intptr_t capacity_{};
+	std::intptr_t size_{};
 
 private:
-	static Storage make_storage(const Char* string, IntP string_size, MemoryResource& memory_resource);
+	static Storage make_storage(
+		const Char* string,
+		std::intptr_t string_size,
+		MemoryResource& memory_resource);
 };
 
 // ==========================================================================
@@ -68,12 +73,14 @@ ApiString<TChar>::ApiString(MemoryResource& memory_resource)
 {}
 
 template<typename TChar>
-ApiString<TChar>::ApiString(IntP capacity, MemoryResource& memory_resource)
+ApiString<TChar>::ApiString(std::intptr_t capacity, MemoryResource& memory_resource)
 	:
 	ApiString{memory_resource}
 {
 	const auto byte_count = (capacity + 1) * char_size;
-	auto storage = Storage{static_cast<Char*>(memory_resource.allocate(byte_count)), Deleter{memory_resource}};
+	auto storage = Storage{
+		static_cast<Char*>(memory_resource.allocate(byte_count)),
+		Deleter{memory_resource}};
 	storage[0] = Char{};
 	capacity_ = capacity;
 	storage_.swap(storage);
@@ -103,20 +110,20 @@ MemoryResource& ApiString<TChar>::get_memory_resource() const noexcept
 }
 
 template<typename TChar>
-IntP ApiString<TChar>::get_size() const noexcept
+std::intptr_t ApiString<TChar>::get_size() const noexcept
 {
 	return size_;
 }
 
 template<typename TChar>
-void ApiString<TChar>::set_size(IntP size)
+void ApiString<TChar>::set_size(std::intptr_t size)
 {
 	size_ = size;
 	storage_[size] = Char{};
 }
 
 template<typename TChar>
-IntP ApiString<TChar>::get_capacity() const noexcept
+std::intptr_t ApiString<TChar>::get_capacity() const noexcept
 {
 	return capacity_;
 }
@@ -142,10 +149,15 @@ void ApiString<TChar>::swap(ApiString& rhs) noexcept
 }
 
 template<typename TChar>
-auto ApiString<TChar>::make_storage(const Char* string, IntP string_size, MemoryResource& memory_resource) -> Storage
+auto ApiString<TChar>::make_storage(
+	const Char* string,
+	std::intptr_t string_size,
+	MemoryResource& memory_resource) -> Storage
 {
 	const auto byte_count = (string_size + 1) * char_size;
-	auto storage = Storage{static_cast<Char*>(memory_resource.allocate(byte_count)), Deleter{memory_resource}};
+	auto storage = Storage{
+		static_cast<Char*>(memory_resource.allocate(byte_count)),
+		Deleter{memory_resource}};
 	std::uninitialized_copy_n(string, string_size, static_cast<Char*>(storage.get()));
 	storage[string_size] = Char{};
 	return storage;

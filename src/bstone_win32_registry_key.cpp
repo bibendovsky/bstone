@@ -171,7 +171,7 @@ bool RegistryKey::has_string(const char* name) const
 	return true;
 }
 
-IntP RegistryKey::get_string(const char* name, char* buffer, IntP buffer_size) const
+std::intptr_t RegistryKey::get_string(const char* name, char* buffer, std::intptr_t buffer_size) const
 {
 	ensure_is_open();
 
@@ -209,7 +209,7 @@ IntP RegistryKey::get_string(const char* name, char* buffer, IntP buffer_size) c
 
 	// Get the value.
 	//
-	const auto u16_value_size = static_cast<IntP>(value_byte_count / 2);
+	const auto u16_value_size = static_cast<std::intptr_t>(value_byte_count / 2);
 	auto u16_value = Win32WString{u16_value_size};
 	const auto u16_value_begin = u16_value.get_data();
 	auto value_byte_count_2 = DWORD{value_byte_count};

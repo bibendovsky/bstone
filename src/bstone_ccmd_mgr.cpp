@@ -17,7 +17,7 @@ namespace bstone {
 class CCmdMgrImpl final : public CCmdMgr
 {
 public:
-	CCmdMgrImpl(IntP max_ccmds);
+	CCmdMgrImpl(std::intptr_t max_ccmds);
 	CCmdMgrImpl(const CCmdMgrImpl&) = delete;
 	CCmdMgrImpl& operator=(const CCmdMgrImpl&) = delete;
 	~CCmdMgrImpl() override = default;
@@ -32,14 +32,14 @@ private:
 	using NameToIndex = std::unordered_map<StringView, CCmds::size_type, StringViewHasher>;
 
 private:
-	IntP max_ccmds_{};
+	std::intptr_t max_ccmds_{};
 	CCmds ccmds_{};
 	NameToIndex name_to_index_map_{};
 };
 
 // --------------------------------------------------------------------------
 
-CCmdMgrImpl::CCmdMgrImpl(IntP max_ccmds)
+CCmdMgrImpl::CCmdMgrImpl(std::intptr_t max_ccmds)
 	:
 	max_ccmds_{max_ccmds}
 {}
@@ -58,7 +58,7 @@ CCmd* CCmdMgrImpl::find(StringView name) const noexcept
 
 CCmdMgrCCmds CCmdMgrImpl::get_all() noexcept
 {
-	return CCmdMgrCCmds{ccmds_.data(), static_cast<IntP>(ccmds_.size())};
+	return CCmdMgrCCmds{ccmds_.data(), static_cast<std::intptr_t>(ccmds_.size())};
 }
 
 void CCmdMgrImpl::add(CCmd& ccmd)
@@ -87,7 +87,7 @@ try {
 
 // ==========================================================================
 
-CCmdMgrUPtr make_ccmd_mgr(IntP max_ccmds)
+CCmdMgrUPtr make_ccmd_mgr(std::intptr_t max_ccmds)
 {
 	return std::make_unique<CCmdMgrImpl>(max_ccmds);
 }

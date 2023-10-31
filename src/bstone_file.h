@@ -9,8 +9,9 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_FILE_INCLUDED)
 #define BSTONE_FILE_INCLUDED
 
+#include <cstdint>
+
 #include "bstone_enum_flags.h"
-#include "bstone_int.h"
 #include "bstone_unique_resource.h"
 
 namespace bstone {
@@ -74,16 +75,16 @@ public:
 	void open(const char* file_name, FileOpenMode open_mode = FileOpenMode::read);
 	void close();
 	bool is_open() const;
-	IntP read(void* buffer, IntP count) const;
-	void read_exact(void* buffer, IntP count) const;
-	IntP write(const void* buffer, IntP count) const;
-	void write_exact(const void* buffer, IntP count) const;
-	Int64 seek(Int64 offset, FileOrigin origin) const;
-	Int64 skip(Int64 delta) const;
-	Int64 get_position() const;
-	void set_position(Int64 position) const;
-	Int64 get_size() const;
-	void set_size(Int64 size) const;
+	std::intptr_t read(void* buffer, std::intptr_t count) const;
+	void read_exact(void* buffer, std::intptr_t count) const;
+	std::intptr_t write(const void* buffer, std::intptr_t count) const;
+	void write_exact(const void* buffer, std::intptr_t count) const;
+	std::int64_t seek(std::int64_t offset, FileOrigin origin) const;
+	std::int64_t skip(std::int64_t delta) const;
+	std::int64_t get_position() const;
+	void set_position(std::int64_t position) const;
+	std::int64_t get_size() const;
+	void set_size(std::int64_t size) const;
 	void flush() const;
 
 private:

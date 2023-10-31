@@ -10,7 +10,7 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-UInt32 Crc32::get_value() const noexcept
+std::uint32_t Crc32::get_value() const noexcept
 {
 	return value_;
 }
@@ -20,9 +20,9 @@ void Crc32::reset() noexcept
 	value_ = 0;
 }
 
-void Crc32::update(const void* data, IntP size)
+void Crc32::update(const void* data, std::intptr_t size)
 {
-	constexpr UInt32 table[256] =
+	constexpr std::uint32_t table[256] =
 	{
 		0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA, 0x076DC419, 0x706AF48F,
 		0xE963A535, 0x9E6495A3, 0x0EDB8832, 0x79DCB8A4, 0xE0D5E91E, 0x97D2D988,
@@ -69,11 +69,11 @@ void Crc32::update(const void* data, IntP size)
 		0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B, 0x2D02EF8D
 	};
 
-	const auto octets = static_cast<const UInt8*>(data);
+	const auto octets = static_cast<const std::uint8_t*>(data);
 
 	value_ ^= 0xFFFFFFFFU;
 
-	for (auto i = IntP{}; i < size; ++i)
+	for (auto i = std::intptr_t{}; i < size; ++i)
 	{
 		value_ = table[(value_ ^ octets[i]) & 0xFF] ^ (value_ >> 8);
 	}

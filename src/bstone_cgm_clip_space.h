@@ -24,8 +24,11 @@ namespace bstone {
 namespace cgm {
 
 /*
-Creates a matrix for an orthographic parallel viewing volume, using right-handed coordinates.
-The near and far clip planes correspond to z normalized device coordinates of -1 and +1 respectively.
+Creates a matrix for an orthographic parallel viewing volume,
+using right-handed coordinates.
+
+The near and far clip planes correspond to z normalized device
+coordinates of -1 and +1 respectively.
 
 Params:
   - l: Left point of near clipping plane.
@@ -71,7 +74,9 @@ inline constexpr Mat<4, 4, T> make_ortho_rh_n1p1(T l, T r, T b, T t, T n, T f) n
 
 /*
 Creates a matrix for a right handed, symmetric perspective-view frustum.
-The near and far clip planes correspond to z normalized device coordinates of -1 and +1 respectively.
+
+The near and far clip planes correspond to z normalized device coordinates
+of -1 and +1 respectively.
 
 Params:
   - v: Vertical field of view angle expressed in radians.

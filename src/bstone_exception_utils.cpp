@@ -7,12 +7,12 @@ SPDX-License-Identifier: MIT
 // Exception utils.
 
 #include <cassert>
+#include <cstdint>
 #include <string>
 
 #include "bstone_char_traits.h"
 #include "bstone_exception.h"
 #include "bstone_exception_utils.h"
-#include "bstone_int.h"
 
 namespace bstone {
 

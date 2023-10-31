@@ -388,11 +388,11 @@ try {
 
 		if (is_hud)
 		{
-			fill_rects(make_const_span(filler_hud_rects_.data(), static_cast<IntP>(filler_hud_rects_.size())));
+			fill_rects(make_const_span(filler_hud_rects_.data(), static_cast<std::intptr_t>(filler_hud_rects_.size())));
 		}
 		else
 		{
-			fill_rects(make_const_span(filler_ui_rects_.data(), static_cast<IntP>(filler_ui_rects_.size())));
+			fill_rects(make_const_span(filler_ui_rects_.data(), static_cast<std::intptr_t>(filler_ui_rects_.size())));
 		}
 	}
 
@@ -688,7 +688,7 @@ try {
 
 	renderer_name_ = StringView{
 		renderer_name_buffer_.data(),
-		static_cast<IntP>(renderer_name_buffer_.size())};
+		static_cast<std::intptr_t>(renderer_name_buffer_.size())};
 
 	const auto window_title = vid_get_window_title_for_renderer(renderer_name_);
 	window_->set_title(window_title.c_str());

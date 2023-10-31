@@ -14,31 +14,31 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-StaticRoMemoryStream::StaticRoMemoryStream(const void* buffer, IntP size)
+StaticRoMemoryStream::StaticRoMemoryStream(const void* buffer, std::intptr_t size)
 {
 	open(buffer, size);
 }
 
-const UInt8* StaticRoMemoryStream::get_data() const
+const std::uint8_t* StaticRoMemoryStream::get_data() const
 {
 	ensure_is_open();
 
 	return buffer_;
 }
 
-const UInt8* StaticRoMemoryStream::get_data()
+const std::uint8_t* StaticRoMemoryStream::get_data()
 {
 	ensure_is_open();
 
 	return buffer_;
 }
 
-void StaticRoMemoryStream::open(const void* buffer, IntP size)
+void StaticRoMemoryStream::open(const void* buffer, std::intptr_t size)
 {
 	close_internal();
 
 	is_open_ = true;
-	buffer_ = static_cast<const UInt8*>(buffer);
+	buffer_ = static_cast<const std::uint8_t*>(buffer);
 	size_ = size;
 }
 
@@ -52,7 +52,7 @@ bool StaticRoMemoryStream::do_is_open() const
 	return is_open_;
 }
 
-IntP StaticRoMemoryStream::do_read(void* buffer, IntP count)
+std::intptr_t StaticRoMemoryStream::do_read(void* buffer, std::intptr_t count)
 {
 	ensure_is_open();
 
@@ -64,21 +64,21 @@ IntP StaticRoMemoryStream::do_read(void* buffer, IntP count)
 	}
 
 	const auto copy_count = std::min(count, remain_size);
-	std::uninitialized_copy_n(buffer_ + position_, copy_count, static_cast<UInt8*>(buffer));
+	std::uninitialized_copy_n(buffer_ + position_, copy_count, static_cast<std::uint8_t*>(buffer));
 	position_ += copy_count;
 	return copy_count;
 }
 
-IntP StaticRoMemoryStream::do_write(const void*, IntP)
+std::intptr_t StaticRoMemoryStream::do_write(const void*, std::intptr_t)
 {
 	BSTONE_THROW_STATIC_SOURCE("Not supported.");
 }
 
-Int64 StaticRoMemoryStream::do_seek(Int64 offset, StreamOrigin origin)
+std::int64_t StaticRoMemoryStream::do_seek(std::int64_t offset, StreamOrigin origin)
 {
 	ensure_is_open();
 
-	auto new_position = IntP{};
+	auto new_position = std::intptr_t{};
 
 	switch (origin)
 	{
@@ -98,14 +98,14 @@ Int64 StaticRoMemoryStream::do_seek(Int64 offset, StreamOrigin origin)
 	return new_position;
 }
 
-Int64 StaticRoMemoryStream::do_get_size() const
+std::int64_t StaticRoMemoryStream::do_get_size() const
 {
 	ensure_is_open();
 
 	return size_;
 }
 
-void StaticRoMemoryStream::do_set_size(Int64)
+void StaticRoMemoryStream::do_set_size(std::int64_t)
 {
 	BSTONE_THROW_STATIC_SOURCE("Not supported.");
 }

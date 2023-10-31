@@ -123,7 +123,7 @@ MemoryResource& SdlTexture::get_memory_resource()
 		Initializer(GenericPoolMemoryResource& generic_memory_pool)
 		{
 			generic_memory_pool.reserve(
-				static_cast<IntP>(sizeof(SdlTexture)),
+				static_cast<std::intptr_t>(sizeof(SdlTexture)),
 				sys_max_textures,
 				get_default_memory_resource());
 		}

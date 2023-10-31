@@ -682,9 +682,9 @@ try {
 	device_vendor_.assign(device_info.vendor.cbegin(), device_info.vendor.cend());
 	device_version_.assign(device_info.version.cbegin(), device_info.version.cend());
 
-	device_info_.name = StringView{device_name_.data(), static_cast<IntP>(device_name_.size())};
-	device_info_.vendor = StringView{device_vendor_.data(), static_cast<IntP>(device_vendor_.size())};
-	device_info_.version = StringView{device_version_.data(), static_cast<IntP>(device_version_.size())};
+	device_info_.name = StringView{device_name_.data(), static_cast<std::intptr_t>(device_name_.size())};
+	device_info_.vendor = StringView{device_vendor_.data(), static_cast<std::intptr_t>(device_vendor_.size())};
+	device_info_.version = StringView{device_version_.data(), static_cast<std::intptr_t>(device_version_.size())};
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::set_name_and_description()

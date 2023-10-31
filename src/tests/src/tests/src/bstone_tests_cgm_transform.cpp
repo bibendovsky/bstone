@@ -34,7 +34,7 @@ constexpr bool are_mat4_equal(
 
 // ==========================================================================
 
-template<bstone::IntP M, bstone::IntP N, typename T>
+template<std::intptr_t M, std::intptr_t N, typename T>
 void test_make_translation()
 {
 	using Mat = bstone::cgm::Mat<M, N, T>;
@@ -75,7 +75,7 @@ void test_make_translation()
 
 // ==========================================================================
 
-template<bstone::IntP M, bstone::IntP N, typename T>
+template<std::intptr_t M, std::intptr_t N, typename T>
 void test_translate()
 {
 	using Mat = bstone::cgm::Mat<M, N, T>;
@@ -126,7 +126,7 @@ void test_translate()
 
 // ==========================================================================
 
-template<bstone::IntP M, bstone::IntP N, typename T>
+template<std::intptr_t M, std::intptr_t N, typename T>
 void test_make_scale()
 {
 	using Mat = bstone::cgm::Mat<M, N, T>;
@@ -167,7 +167,7 @@ void test_make_scale()
 
 // ==========================================================================
 
-template<bstone::IntP M, bstone::IntP N, typename T>
+template<std::intptr_t M, std::intptr_t N, typename T>
 void test_scale()
 {
 	using Mat = bstone::cgm::Mat<M, N, T>;
@@ -218,7 +218,7 @@ void test_scale()
 
 // ==========================================================================
 
-template<bstone::IntP M, bstone::IntP N, typename T>
+template<std::intptr_t M, std::intptr_t N, typename T>
 void test_make_rotation()
 {
 	using Mat = bstone::cgm::Mat<M, N, T>;
@@ -260,7 +260,7 @@ void test_make_rotation()
 
 // ==========================================================================
 
-template<bstone::IntP M, bstone::IntP N, typename T>
+template<std::intptr_t M, std::intptr_t N, typename T>
 void test_rotate()
 {
 	using Mat = bstone::cgm::Mat<M, N, T>;

@@ -21,10 +21,10 @@ public:
 	TsAutoArenaMemoryResource() = default;
 	~TsAutoArenaMemoryResource() override = default;
 
-	void reserve(IntP capacity, MemoryResource& memory_resource);
+	void reserve(std::intptr_t capacity, MemoryResource& memory_resource);
 
 private:
-	void* do_allocate(IntP size) override;
+	void* do_allocate(std::intptr_t size) override;
 	void do_deallocate(void* ptr) override;
 
 private:

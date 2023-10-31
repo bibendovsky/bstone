@@ -19,7 +19,7 @@ void test_wq3fi41exm6zb6x3()
 	tester.check(!is_open);
 }
 
-// StaticRoMemoryStream(const void*, IntP)
+// StaticRoMemoryStream(const void*, std::intptr_t)
 void test_zj0inl335im315gs()
 {
 	char buffer = '\0';
@@ -37,13 +37,13 @@ void test_poherfnr0k8g1yeq()
 	memory_stream_1.seek(1000, bstone::StreamOrigin::begin);
 	const auto seek_result_1 = memory_stream_1.seek(0, bstone::StreamOrigin::current) == 1000;
 	const auto size_result_1 = memory_stream_1.get_size() == 100;
-	const auto data_result_1 = memory_stream_1.get_data() == reinterpret_cast<bstone::UInt8*>(buffer);
+	const auto data_result_1 = memory_stream_1.get_data() == reinterpret_cast<std::uint8_t*>(buffer);
 
 	auto memory_stream_2 = memory_stream_1;
 	const auto is_open_2 = memory_stream_2.is_open();
 	const auto seek_result_2 = memory_stream_2.seek(0, bstone::StreamOrigin::current) == 1000;
 	const auto size_result_2 = memory_stream_2.get_size() == 100;
-	const auto data_result_2 = memory_stream_2.get_data() == reinterpret_cast<bstone::UInt8*>(buffer);
+	const auto data_result_2 = memory_stream_2.get_data() == reinterpret_cast<std::uint8_t*>(buffer);
 
 	tester.check(
 		is_open_1 &&
@@ -66,14 +66,14 @@ void test_u4n0mwpbhe0zh6dx()
 	memory_stream_1.seek(1000, bstone::StreamOrigin::begin);
 	const auto seek_result_1 = memory_stream_1.seek(0, bstone::StreamOrigin::current) == 1000;
 	const auto size_result_1 = memory_stream_1.get_size() == 100;
-	const auto data_result_1 = memory_stream_1.get_data() == reinterpret_cast<bstone::UInt8*>(buffer);
+	const auto data_result_1 = memory_stream_1.get_data() == reinterpret_cast<std::uint8_t*>(buffer);
 
 	auto memory_stream_2 = bstone::StaticRoMemoryStream{};
 	memory_stream_2 = memory_stream_1;
 	const auto is_open_2 = memory_stream_2.is_open();
 	const auto seek_result_2 = memory_stream_2.seek(0, bstone::StreamOrigin::current) == 1000;
 	const auto size_result_2 = memory_stream_2.get_size() == 100;
-	const auto data_result_2 = memory_stream_2.get_data() == reinterpret_cast<bstone::UInt8*>(buffer);
+	const auto data_result_2 = memory_stream_2.get_data() == reinterpret_cast<std::uint8_t*>(buffer);
 
 	tester.check(
 		is_open_1 &&
@@ -89,7 +89,7 @@ void test_u4n0mwpbhe0zh6dx()
 
 // ==========================================================================
 
-// const UInt8* get_data() const
+// const std::uint8_t* get_data() const
 void test_qp9hhuxrpa93ofth()
 {
 	const auto get_const_stream = [](bstone::StaticRoMemoryStream& stream) -> const bstone::StaticRoMemoryStream&
@@ -102,10 +102,10 @@ void test_qp9hhuxrpa93ofth()
 	const auto is_open = memory_stream.is_open();
 	const auto data = get_const_stream(memory_stream).get_data();
 
-	tester.check(is_open && data == reinterpret_cast<const bstone::UInt8*>(&buffer));
+	tester.check(is_open && data == reinterpret_cast<const std::uint8_t*>(&buffer));
 }
 
-// const UInt8* get_data() const
+// const std::uint8_t* get_data() const
 // Closed.
 void test_jlz5o4sa3vyozrpj()
 {
@@ -129,7 +129,7 @@ void test_jlz5o4sa3vyozrpj()
 	tester.check(is_failed);
 }
 
-// const UInt8* get_data()
+// const std::uint8_t* get_data()
 void test_8kl1fz05db5sjl0c()
 {
 	char buffer = '\0';
@@ -137,10 +137,10 @@ void test_8kl1fz05db5sjl0c()
 	const auto is_open = memory_stream.is_open();
 	const auto data = memory_stream.get_data();
 
-	tester.check(is_open && data == reinterpret_cast<const bstone::UInt8*>(&buffer));
+	tester.check(is_open && data == reinterpret_cast<const std::uint8_t*>(&buffer));
 }
 
-// UInt8* get_data()
+// std::uint8_t* get_data()
 // Closed.
 void test_cvqvrhhbb6ugqkyl()
 {
@@ -161,7 +161,7 @@ void test_cvqvrhhbb6ugqkyl()
 
 // ==========================================================================
 
-// open(const void*, IntP)
+// open(const void*, std::intptr_t)
 void test_ois2twhosp5eebex()
 {
 	auto memory_stream = bstone::StaticRoMemoryStream{};
@@ -170,7 +170,7 @@ void test_ois2twhosp5eebex()
 	memory_stream.open(&buffer, 1);
 	const auto is_open_2 = memory_stream.is_open();
 	const auto data = memory_stream.get_data();
-	tester.check(!is_open_1 && is_open_2 && data == reinterpret_cast<const bstone::UInt8*>(&buffer));
+	tester.check(!is_open_1 && is_open_2 && data == reinterpret_cast<const std::uint8_t*>(&buffer));
 }
 
 // ==========================================================================
@@ -203,7 +203,7 @@ void test_j7aq16ovijz9txgq()
 
 // ==========================================================================
 
-// IntP read(void*, IntP)
+// std::intptr_t read(void*, std::intptr_t)
 void test_znfb1wjrycpg1hde()
 {
 	char buffer = '#';
@@ -217,7 +217,7 @@ void test_znfb1wjrycpg1hde()
 	tester.check(is_open && read_result_1 && seek_result_1 && value_result_1);
 }
 
-// IntP read(void*, IntP)
+// std::intptr_t read(void*, std::intptr_t)
 // Closed.
 void test_s39p2ffo1unmfkb4()
 {
@@ -239,7 +239,7 @@ void test_s39p2ffo1unmfkb4()
 
 // ==========================================================================
 
-// void read_exact(void*, IntP)
+// void read_exact(void*, std::intptr_t)
 void test_u4a8sprkw3hjgtes()
 {
 	char buffer = '#';
@@ -253,7 +253,7 @@ void test_u4a8sprkw3hjgtes()
 	tester.check(is_open && seek_result_1 && value_result_1);
 }
 
-// void read_exact(void*, IntP)
+// void read_exact(void*, std::intptr_t)
 // Failed.
 void test_2yv6r8s3ry3upqxm()
 {
@@ -275,7 +275,7 @@ void test_2yv6r8s3ry3upqxm()
 	tester.check(is_open && is_failed);
 }
 
-// void read_exact(void*, IntP)
+// void read_exact(void*, std::intptr_t)
 // Closed.
 void test_lvdubbybe0spue34()
 {
@@ -297,7 +297,7 @@ void test_lvdubbybe0spue34()
 
 // ==========================================================================
 
-// IntP write(const void*, IntP)
+// std::intptr_t write(const void*, std::intptr_t)
 void test_3kzrr0bdk80gaue9()
 {
 	char buffer = '\0';
@@ -317,7 +317,7 @@ void test_3kzrr0bdk80gaue9()
 	tester.check(is_open && is_failed);
 }
 
-// IntP write(const void*, IntP)
+// std::intptr_t write(const void*, std::intptr_t)
 // Closed.
 void test_n8a823y7q7rhv9ss()
 {
@@ -339,7 +339,7 @@ void test_n8a823y7q7rhv9ss()
 
 // ==========================================================================
 
-// void write_exact(const void*, IntP)
+// void write_exact(const void*, std::intptr_t)
 void test_bl9qhqrhs3w0hn33()
 {
 	char buffer = '\0';
@@ -359,7 +359,7 @@ void test_bl9qhqrhs3w0hn33()
 	tester.check(is_open && is_failed);
 }
 
-// void write_exact(const void*, IntP)
+// void write_exact(const void*, std::intptr_t)
 // Closed.
 void test_d0jinhmh1kfkxt95()
 {
@@ -381,7 +381,7 @@ void test_d0jinhmh1kfkxt95()
 
 // ==========================================================================
 
-// Int64 seek(Int64, StreamOrigin)
+// std::int64_t seek(std::int64_t, StreamOrigin)
 // Begin.
 void test_qpyvnxguh5wkoa1x()
 {
@@ -393,7 +393,7 @@ void test_qpyvnxguh5wkoa1x()
 	tester.check(is_open && seek_result);
 }
 
-// Int64 seek(Int64, StreamOrigin)
+// std::int64_t seek(std::int64_t, StreamOrigin)
 // Current.
 void test_spzjjs24xs24yznc()
 {
@@ -406,7 +406,7 @@ void test_spzjjs24xs24yznc()
 	tester.check(is_open && seek_result_1 && seek_result_2);
 }
 
-// Int64 seek(Int64, StreamOrigin)
+// std::int64_t seek(std::int64_t, StreamOrigin)
 // End.
 void test_v74l7pqvo62lberx()
 {
@@ -418,7 +418,7 @@ void test_v74l7pqvo62lberx()
 	tester.check(is_open && seek_result);
 }
 
-// Int64 seek(Int64, StreamOrigin)
+// std::int64_t seek(std::int64_t, StreamOrigin)
 // Fail new position.
 void test_zwk4vv1td5vw97q5()
 {
@@ -440,7 +440,7 @@ void test_zwk4vv1td5vw97q5()
 	tester.check(is_open && is_failed && !seek_result);
 }
 
-// Int64 seek(Int64, StreamOrigin)
+// std::int64_t seek(std::int64_t, StreamOrigin)
 // Closed.
 void test_3mtbhxgbu6oyh771()
 {
@@ -461,7 +461,7 @@ void test_3mtbhxgbu6oyh771()
 
 // ==========================================================================
 
-// Int64 skip(Int64)
+// std::int64_t skip(std::int64_t)
 void test_ld3x5fvllannxapc()
 {
 	char buffer = '\0';
@@ -473,7 +473,7 @@ void test_ld3x5fvllannxapc()
 	tester.check(is_open && seek_result_1 && seek_result_2);
 }
 
-// Int64 skip(Int64)
+// std::int64_t skip(std::int64_t)
 // Fail new position.
 void test_56gj0c3jb9k386u9()
 {
@@ -494,7 +494,7 @@ void test_56gj0c3jb9k386u9()
 	tester.check(is_open && is_failed);
 }
 
-// Int64 skip(Int64)
+// std::int64_t skip(std::int64_t)
 // Closed.
 void test_ct2vcyf0vuumzuml()
 {
@@ -515,7 +515,7 @@ void test_ct2vcyf0vuumzuml()
 
 // ==========================================================================
 
-// Int64 get_position()
+// std::int64_t get_position()
 void test_8nyr5ardlal737iz()
 {
 	char buffer = '\0';
@@ -527,7 +527,7 @@ void test_8nyr5ardlal737iz()
 	tester.check(is_open && seek_result_1 && seek_result_2);
 }
 
-// Int64 get_position()
+// std::int64_t get_position()
 // Closed.
 void test_11lh7i6ccqb6cgw3()
 {
@@ -548,7 +548,7 @@ void test_11lh7i6ccqb6cgw3()
 
 // ==========================================================================
 
-// void set_position(Int64)
+// void set_position(std::int64_t)
 void test_lnen4qjm4uls7hzn()
 {
 	char buffer = '\0';
@@ -560,7 +560,7 @@ void test_lnen4qjm4uls7hzn()
 	tester.check(is_open && seek_result);
 }
 
-// void set_position(Int64)
+// void set_position(std::int64_t)
 // Fail new position.
 void test_ai6l5wadrz6ry50b()
 {
@@ -581,7 +581,7 @@ void test_ai6l5wadrz6ry50b()
 	tester.check(is_open && is_failed);
 }
 
-// void set_position(Int64)
+// void set_position(std::int64_t)
 // Closed.
 void test_4xn51ys09fwpw4n2()
 {
@@ -602,7 +602,7 @@ void test_4xn51ys09fwpw4n2()
 
 // ==========================================================================
 
-// Int64 get_size() const
+// std::int64_t get_size() const
 void test_rcoycuoy6he01g9w()
 {
 	char buffer[1000] = {};
@@ -613,7 +613,7 @@ void test_rcoycuoy6he01g9w()
 	tester.check(is_open && size_result);
 }
 
-// Int64 get_size() const
+// std::int64_t get_size() const
 // Closed.
 void test_bjzfb0sl17v944sm()
 {
@@ -634,7 +634,7 @@ void test_bjzfb0sl17v944sm()
 
 // ==========================================================================
 
-// set_size(Int64)
+// set_size(std::int64_t)
 void test_kr91vyb16y36bst7()
 {
 	const char buffer = '\0';
@@ -654,7 +654,7 @@ void test_kr91vyb16y36bst7()
 	tester.check(is_open && is_failed);
 }
 
-// set_size(Int64)
+// set_size(std::int64_t)
 // Closed.
 void test_65jrwgl314vvmhd9()
 {

@@ -73,7 +73,7 @@ try
 	message += "Input parameters:";
 	detail::sdl_log_eol(message);
 	message += "  Window ptr: ";
-	detail::sdl_log_xint_hex(reinterpret_cast<UIntP>(&sdl_window), message);
+	detail::sdl_log_xint_hex(reinterpret_cast<std::uintptr_t>(&sdl_window), message);
 	logger_.log_information(message);
 
 	auto sdl_context = SdlGlContextUPtr{sdl_ensure_result(SDL_GL_CreateContext(&sdl_window))};
@@ -94,7 +94,7 @@ try
 
 	message.clear();
 	message += "Ptr: ";
-	detail::sdl_log_xint_hex(reinterpret_cast<UIntP>(sdl_context_.get()), message);
+	detail::sdl_log_xint_hex(reinterpret_cast<std::uintptr_t>(sdl_context_.get()), message);
 	detail::sdl_log_eol(message);
 	message += "Effective attributes:";
 	detail::sdl_log_eol(message);
@@ -110,7 +110,7 @@ SdlGlContext::~SdlGlContext()
 
 	message.clear();
 	message += "Destroy SDL OpenGL context (ptr: ";
-	detail::sdl_log_xint_hex(reinterpret_cast<UIntP>(sdl_context_.get()), message);
+	detail::sdl_log_xint_hex(reinterpret_cast<std::uintptr_t>(sdl_context_.get()), message);
 	message += ')';
 	logger_.log_information(message);
 }
@@ -137,7 +137,7 @@ MemoryResource& SdlGlContext::get_memory_resource()
 		Initializer(GenericPoolMemoryResource& generic_memory_pool)
 		{
 			generic_memory_pool.reserve(
-				static_cast<IntP>(sizeof(SdlGlContext)),
+				static_cast<std::intptr_t>(sizeof(SdlGlContext)),
 				sys_max_gl_contexts,
 				get_default_memory_resource());
 		}

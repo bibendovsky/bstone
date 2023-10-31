@@ -15,24 +15,24 @@ Notes:
 #define BSTONE_CGM_MAT_INCLUDED
 
 #include <cassert>
+#include <cstdint>
 
 #include <type_traits>
 #include <utility>
 
-#include "bstone_int.h"
 #include "bstone_utility.h"
 
 namespace bstone {
 namespace cgm {
 
-template<IntP M, IntP N, typename T>
+template<std::intptr_t M, std::intptr_t N, typename T>
 class Mat;
 
 // ==========================================================================
 
 namespace detail {
 
-template<IntP M, IntP N, typename T>
+template<std::intptr_t M, std::intptr_t N, typename T>
 class MatBase
 {
 	static_assert(M >= 2 && M <= 4 && N >= 2 && N <= 4, "Unsupported dimensions.");
@@ -42,8 +42,8 @@ class MatBase
 		"Expected integer or floating-point type.");
 
 public:
-	static constexpr auto row_count = IntP{M};
-	static constexpr auto column_count = IntP{N};
+	static constexpr auto row_count = std::intptr_t{M};
+	static constexpr auto column_count = std::intptr_t{N};
 	static constexpr auto item_count = row_count * column_count;
 
 public:
@@ -56,13 +56,13 @@ public:
 		m_{std::forward<TArgs>(args)...}
 	{}
 
-	constexpr const Item& operator[](IntP index) const noexcept
+	constexpr const Item& operator[](std::intptr_t index) const noexcept
 	{
 		assert(index >= 0 && index < item_count);
 		return m_[index];
 	}
 
-	constexpr Item& operator[](IntP index) noexcept
+	constexpr Item& operator[](std::intptr_t index) noexcept
 	{
 		return const_cast<Item&>(bstone::as_const(*this)[index]);
 	}

@@ -18,7 +18,8 @@ SPDX-License-Identifier: MIT
 
 #include <windows.h>
 
-#include "bstone_int.h"
+#include <cstdint>
+
 #include "bstone_exception.h"
 #include "bstone_file.h"
 #include "bstone_win32_wstring.h"
@@ -27,7 +28,7 @@ namespace bstone {
 
 namespace {
 
-constexpr auto file_win32_max_read_write_size = IntP{0x7FFFFFFF};
+constexpr auto file_win32_max_read_write_size = std::intptr_t{0x7FFFFFFF};
 
 } // namespace
 
@@ -138,7 +139,7 @@ void File::open(const char* file_name, FileOpenMode open_mode)
 	resource_.swap(resource);
 }
 
-IntP File::read(void* buffer, IntP count) const
+std::intptr_t File::read(void* buffer, std::intptr_t count) const
 {
 	const auto win32_handle = resource_.get();
 	const auto win32_size_to_read = static_cast<DWORD>(std::min(count, file_win32_max_read_write_size));
@@ -156,10 +157,10 @@ IntP File::read(void* buffer, IntP count) const
 		BSTONE_THROW_STATIC_SOURCE("Failed to read.");
 	}
 
-	return static_cast<IntP>(win32_read_size);
+	return static_cast<std::intptr_t>(win32_read_size);
 }
 
-IntP File::write(const void* buffer, IntP count) const
+std::intptr_t File::write(const void* buffer, std::intptr_t count) const
 {
 	const auto win32_handle = resource_.get();
 	const auto win32_size_to_write = static_cast<DWORD>(std::min(count, file_win32_max_read_write_size));
@@ -177,10 +178,10 @@ IntP File::write(const void* buffer, IntP count) const
 		BSTONE_THROW_STATIC_SOURCE("Failed to write.");
 	}
 
-	return static_cast<IntP>(win32_written_size);
+	return static_cast<std::intptr_t>(win32_written_size);
 }
 
-Int64 File::seek(Int64 offset, FileOrigin origin) const
+std::int64_t File::seek(std::int64_t offset, FileOrigin origin) const
 {
 	DWORD win32_origin;
 
@@ -210,7 +211,7 @@ Int64 File::seek(Int64 offset, FileOrigin origin) const
 	return win32_position.QuadPart;
 }
 
-Int64 File::get_size() const
+std::int64_t File::get_size() const
 {
 	LARGE_INTEGER win32_size;
 	const auto get_file_size_ex_result = GetFileSizeEx(resource_.get(), &win32_size);
@@ -223,7 +224,7 @@ Int64 File::get_size() const
 	return win32_size.QuadPart;
 }
 
-void File::set_size(Int64 size) const
+void File::set_size(std::int64_t size) const
 {
 	auto win32_offset = LARGE_INTEGER{};
 	LARGE_INTEGER win32_position;

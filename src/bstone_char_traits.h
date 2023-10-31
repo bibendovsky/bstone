@@ -10,18 +10,17 @@ SPDX-License-Identifier: MIT
 #define BSTONE_CHAR_TRAITS_INCLUDED
 
 #include <cassert>
-
-#include "bstone_int.h"
+#include <cstdint>
 
 namespace bstone {
 namespace char_traits {
 
 template<typename TChar>
-inline constexpr IntP get_size(const TChar* chars)
+inline constexpr std::intptr_t get_size(const TChar* chars)
 {
 	assert(chars != nullptr);
 
-	auto size = IntP{};
+	auto size = std::intptr_t{};
 
 	while (chars[size] != TChar{})
 	{
@@ -32,7 +31,11 @@ inline constexpr IntP get_size(const TChar* chars)
 }
 
 template<typename TChar>
-inline constexpr int compare(const TChar* lhs_chars, IntP lhs_size, const TChar* rhs_chars, IntP rhs_size)
+inline constexpr int compare(
+	const TChar* lhs_chars,
+	std::intptr_t lhs_size,
+	const TChar* rhs_chars,
+	std::intptr_t rhs_size)
 {
 	assert((lhs_chars == nullptr && lhs_size == 0) || (lhs_chars != nullptr && lhs_size >= 0));
 	assert((rhs_chars == nullptr && rhs_size == 0) || (rhs_chars != nullptr && rhs_size >= 0));

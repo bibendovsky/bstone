@@ -238,7 +238,7 @@ void AudioExtractorImpl::write_digitized_audio_chunk(const AudioChunk& audio_chu
 
 	if ((data_size % 2) != 0)
 	{
-		const auto zero_octet = UInt8{};
+		const auto zero_octet = std::uint8_t{};
 		stream.write_exact(&zero_octet, 1);
 	}
 

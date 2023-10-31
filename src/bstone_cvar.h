@@ -26,7 +26,7 @@ struct CVarInt32Tag {};
 struct CVarBoolTag {};
 struct CVarStringTag {};
 
-using CVarInt32Values = Span<const Int32>;
+using CVarInt32Values = Span<const std::int32_t>;
 using CVarStringValues = Span<const StringView>;
 
 enum class CVarFlags : unsigned int
@@ -47,20 +47,20 @@ public:
 		CVarInt32Tag,
 		StringView name,
 		CVarFlags flags,
-		Int32 default_value,
-		Int32 min_value,
-		Int32 max_value);
+		std::int32_t default_value,
+		std::int32_t min_value,
+		std::int32_t max_value);
 
 	// Defines an int32 CVAR with a specified allowed values.
 	CVar(
 		CVarInt32Tag,
 		StringView name,
 		CVarFlags flags,
-		Int32 default_value,
+		std::int32_t default_value,
 		CVarInt32Values values);
 
 	// Defines an int32 CVAR with a maximum range.
-	CVar(CVarInt32Tag, StringView name, CVarFlags flags, Int32 default_value);
+	CVar(CVarInt32Tag, StringView name, CVarFlags flags, std::int32_t default_value);
 
 	// Defines a boolean CVAR.
 	CVar(CVarBoolTag, StringView name, CVarFlags flags, bool default_value);
@@ -88,8 +88,8 @@ public:
 	bool get_bool() const noexcept;
 	void set_bool(bool value);
 
-	Int32 get_int32() const noexcept;
-	void set_int32(Int32 value);
+	std::int32_t get_int32() const noexcept;
+	void set_int32(std::int32_t value);
 	CVarInt32Values get_int32_values() const noexcept;
 
 	StringView get_string() const noexcept;
@@ -106,11 +106,11 @@ private:
 	StringView name_{};
 	CVarFlags flags_{};
 
-	Int32 int32_default_value_{};
-	Int32 int32_min_value_{};
-	Int32 int32_max_value_{};
+	std::int32_t int32_default_value_{};
+	std::int32_t int32_min_value_{};
+	std::int32_t int32_max_value_{};
 	CVarInt32Values int32_values_{};
-	Int32 int32_value_{};
+	std::int32_t int32_value_{};
 
 	StringView string_default_value_{};
 	CVarStringValues string_values_{};
@@ -124,9 +124,9 @@ private:
 		CVarInt32Tag,
 		StringView name,
 		CVarFlags flags,
-		Int32 default_value,
-		Int32 min_value,
-		Int32 max_value,
+		std::int32_t default_value,
+		std::int32_t min_value,
+		std::int32_t max_value,
 		CVarInt32Values values);
 
 	void set_string_from_int32();

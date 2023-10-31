@@ -70,7 +70,7 @@ MemoryResource& SdlGlSharedLibrary::get_memory_resource()
 		Initializer(GenericPoolMemoryResource& generic_memory_pool)
 		{
 			generic_memory_pool.reserve(
-				static_cast<IntP>(sizeof(SdlGlSharedLibrary)),
+				static_cast<std::intptr_t>(sizeof(SdlGlSharedLibrary)),
 				sys_max_gl_shared_libraries,
 				get_default_memory_resource());
 		}

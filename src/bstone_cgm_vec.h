@@ -16,24 +16,24 @@ Notes:
 
 #include <cassert>
 #include <cmath>
+#include <cstdint>
 
 #include <type_traits>
 #include <utility>
 
-#include "bstone_int.h"
 #include "bstone_utility.h"
 
 namespace bstone {
 namespace cgm {
 
-template<IntP N, typename T>
+template<std::intptr_t N, typename T>
 class Vec;
 
 // ==========================================================================
 
 namespace detail {
 
-template<IntP N, typename T>
+template<std::intptr_t N, typename T>
 class VecBase
 {
 	static_assert(N >= 2 && N <= 4, "Unsupported dimension.");
@@ -55,13 +55,13 @@ public:
 		v_{std::forward<TArgs>(args)...}
 	{}
 
-	constexpr const Item& operator[](IntP index) const noexcept
+	constexpr const Item& operator[](std::intptr_t index) const noexcept
 	{
 		assert(index >= 0 && index < item_count);
 		return v_[index];
 	}
 
-	constexpr Item& operator[](IntP index) noexcept
+	constexpr Item& operator[](std::intptr_t index) noexcept
 	{
 		return const_cast<Item&>(bstone::as_const(*this)[index]);
 	}
@@ -148,7 +148,7 @@ inline constexpr bool operator==(const Vec<4, T>& a, const Vec<4, T>& b) noexcep
 
 // ==========================================================================
 
-template<IntP N, typename T>
+template<std::intptr_t N, typename T>
 inline constexpr bool operator!=(const Vec<N, T>& a, const Vec<N, T>& b) noexcept
 {
 	return !(a == b);
@@ -236,7 +236,7 @@ inline constexpr Vec<4, T> operator*(const Vec<4, T>& a, T s) noexcept
 
 // ==========================================================================
 
-template<IntP N, typename T>
+template<std::intptr_t N, typename T>
 inline constexpr Vec<N, T> operator*(T s, const Vec<N, T>& a) noexcept
 {
 	return a * s;
@@ -264,7 +264,7 @@ inline constexpr T dot(const Vec<4, T>& a, const Vec<4, T>& b) noexcept
 
 // ==========================================================================
 
-template<IntP N, typename T>
+template<std::intptr_t N, typename T>
 inline constexpr T get_magnitude(const Vec<N, T>& x) noexcept
 {
 	return std::sqrt(bstone::cgm::dot(x, x));
@@ -272,7 +272,7 @@ inline constexpr T get_magnitude(const Vec<N, T>& x) noexcept
 
 // ==========================================================================
 
-template<IntP N, typename T>
+template<std::intptr_t N, typename T>
 inline constexpr Vec<N, T> normalize(const Vec<N, T>& x) noexcept
 {
 	const auto r_magnitude = 1 / bstone::cgm::get_magnitude(x);

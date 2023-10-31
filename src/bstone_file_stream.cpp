@@ -31,17 +31,17 @@ bool FileStream::do_is_open() const
 	return file_.is_open();
 }
 
-IntP FileStream::do_read(void* buffer, IntP count)
+std::intptr_t FileStream::do_read(void* buffer, std::intptr_t count)
 {
 	return file_.read(buffer, count);
 }
 
-IntP FileStream::do_write(const void* buffer, IntP count)
+std::intptr_t FileStream::do_write(const void* buffer, std::intptr_t count)
 {
 	return file_.write(buffer, count);
 }
 
-Int64 FileStream::do_seek(Int64 offset, StreamOrigin origin)
+std::int64_t FileStream::do_seek(std::int64_t offset, StreamOrigin origin)
 try {
 	auto file_origin = FileOrigin::none;
 
@@ -56,12 +56,12 @@ try {
 	return file_.seek(offset, file_origin);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-Int64 FileStream::do_get_size() const
+std::int64_t FileStream::do_get_size() const
 {
 	return file_.get_size();
 }
 
-void FileStream::do_set_size(Int64 size)
+void FileStream::do_set_size(std::int64_t size)
 {
 	file_.set_size(size);
 }

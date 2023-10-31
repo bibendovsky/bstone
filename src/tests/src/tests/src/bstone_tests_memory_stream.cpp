@@ -19,7 +19,7 @@ void test_ojtxcuz6rez2calp()
 	tester.check(!is_open);
 }
 
-// MemoryStream(IntP, IntP)
+// MemoryStream(std::intptr_t, std::intptr_t)
 void test_pkxovj4mzsohmn84()
 {
 	auto memory_stream = bstone::MemoryStream{2, 2};
@@ -51,7 +51,7 @@ void test_m0cri1qh6j1tm43t()
 
 // ==========================================================================
 
-// const UInt8* get_data() const
+// const std::uint8_t* get_data() const
 void test_2sw1f8ldfqrhzioe()
 {
 	const auto get_const_stream = [](bstone::MemoryStream& stream) -> const bstone::MemoryStream&
@@ -66,7 +66,7 @@ void test_2sw1f8ldfqrhzioe()
 	tester.check(is_open && data != nullptr);
 }
 
-// const UInt8* get_data() const
+// const std::uint8_t* get_data() const
 // Closed.
 void test_74qfvktioldtauvt()
 {
@@ -90,7 +90,7 @@ void test_74qfvktioldtauvt()
 	tester.check(is_failed);
 }
 
-// UInt8* get_data()
+// std::uint8_t* get_data()
 void test_6dpdc2z906aj326e()
 {
 	auto memory_stream = bstone::MemoryStream{2, 2};
@@ -100,7 +100,7 @@ void test_6dpdc2z906aj326e()
 	tester.check(is_open && data != nullptr);
 }
 
-// UInt8* get_data()
+// std::uint8_t* get_data()
 // Closed.
 void test_ohkkpxeelzjwuqib()
 {
@@ -121,7 +121,7 @@ void test_ohkkpxeelzjwuqib()
 
 // ==========================================================================
 
-// open(IntP, IntP)
+// open(std::intptr_t, std::intptr_t)
 void test_z0n6lao1idgwkvxf()
 {
 	auto memory_stream = bstone::MemoryStream{};
@@ -159,7 +159,7 @@ void test_w4fbiti2lb0dhi8c()
 
 // ==========================================================================
 
-// IntP read(void*, IntP)
+// std::intptr_t read(void*, std::intptr_t)
 void test_rynbeatkwx2cg1tq()
 {
 	auto memory_stream = bstone::MemoryStream{2, 2};
@@ -177,7 +177,7 @@ void test_rynbeatkwx2cg1tq()
 	tester.check(is_open && read_result_1 && seek_result_1 && read_result_2 && seek_result_2 && value_result_1);
 }
 
-// IntP read(void*, IntP)
+// std::intptr_t read(void*, std::intptr_t)
 // Closed.
 void test_nyy0dd83c9pj6ecc()
 {
@@ -199,7 +199,7 @@ void test_nyy0dd83c9pj6ecc()
 
 // ==========================================================================
 
-// void read_exact(void*, IntP)
+// void read_exact(void*, std::intptr_t)
 void test_mqsd3narvervq1mj()
 {
 	auto memory_stream = bstone::MemoryStream{2, 2};
@@ -215,7 +215,7 @@ void test_mqsd3narvervq1mj()
 	tester.check(is_open && seek_result_2 && value_result_1);
 }
 
-// void read_exact(void*, IntP)
+// void read_exact(void*, std::intptr_t)
 // Failed.
 void test_m1f9z70vrk1fsf4d()
 {
@@ -235,7 +235,7 @@ void test_m1f9z70vrk1fsf4d()
 	tester.check(is_failed);
 }
 
-// void read_exact(void*, IntP)
+// void read_exact(void*, std::intptr_t)
 // Failed.
 void test_4twl7qht0bbikxnn()
 {
@@ -257,7 +257,7 @@ void test_4twl7qht0bbikxnn()
 
 // ==========================================================================
 
-// IntP write(const void*, IntP)
+// std::intptr_t write(const void*, std::intptr_t)
 void test_k89hrws0i4vdcz7j()
 {
 	auto memory_stream = bstone::MemoryStream{4, 1};
@@ -289,7 +289,7 @@ void test_k89hrws0i4vdcz7j()
 		value_result_1);
 }
 
-// IntP write(const void*, IntP)
+// std::intptr_t write(const void*, std::intptr_t)
 // Closed.
 void test_j0c9s05ovmwnydbc()
 {
@@ -311,7 +311,7 @@ void test_j0c9s05ovmwnydbc()
 
 // ==========================================================================
 
-// void write_exact(const void*, IntP)
+// void write_exact(const void*, std::intptr_t)
 void test_c9md2uhmxgjpni9n()
 {
 	auto memory_stream = bstone::MemoryStream{4, 1};
@@ -342,7 +342,7 @@ void test_c9md2uhmxgjpni9n()
 		value_result_1);
 }
 
-// IntP write(const void*, IntP)
+// std::intptr_t write(const void*, std::intptr_t)
 // Closed.
 void test_879y5xi6dsxh4p20()
 {
@@ -364,7 +364,7 @@ void test_879y5xi6dsxh4p20()
 
 // ==========================================================================
 
-// Int64 seek(Int64, StreamOrigin)
+// std::int64_t seek(std::int64_t, StreamOrigin)
 // Begin.
 void test_xw9j98suf5ko60ol()
 {
@@ -375,7 +375,7 @@ void test_xw9j98suf5ko60ol()
 	tester.check(is_open && seek_result);
 }
 
-// Int64 seek(Int64, StreamOrigin)
+// std::int64_t seek(std::int64_t, StreamOrigin)
 // Current.
 void test_yntiu3nk2y9hpose()
 {
@@ -387,7 +387,7 @@ void test_yntiu3nk2y9hpose()
 	tester.check(is_open && seek_result_1 && seek_result_2);
 }
 
-// Int64 seek(Int64, StreamOrigin)
+// std::int64_t seek(std::int64_t, StreamOrigin)
 // End.
 void test_sy8ggddakci0on4o()
 {
@@ -399,7 +399,7 @@ void test_sy8ggddakci0on4o()
 	tester.check(is_open && seek_result);
 }
 
-// Int64 seek(Int64, StreamOrigin)
+// std::int64_t seek(std::int64_t, StreamOrigin)
 // Fail new position.
 void test_574sem81z8rm022v()
 {
@@ -420,7 +420,7 @@ void test_574sem81z8rm022v()
 	tester.check(is_open && is_failed && !seek_result);
 }
 
-// Int64 seek(Int64, StreamOrigin)
+// std::int64_t seek(std::int64_t, StreamOrigin)
 // Closed.
 void test_kgyq86m1pumnqidm()
 {
@@ -441,7 +441,7 @@ void test_kgyq86m1pumnqidm()
 
 // ==========================================================================
 
-// Int64 skip(Int64)
+// std::int64_t skip(std::int64_t)
 void test_yurbec6ftn2g5avt()
 {
 	auto memory_stream = bstone::MemoryStream{4, 1};
@@ -452,7 +452,7 @@ void test_yurbec6ftn2g5avt()
 	tester.check(is_open && seek_result_1 && seek_result_2);
 }
 
-// Int64 skip(Int64)
+// std::int64_t skip(std::int64_t)
 // Fail new position.
 void test_7bbudfbgrsrjptho()
 {
@@ -473,7 +473,7 @@ void test_7bbudfbgrsrjptho()
 	tester.check(is_open && is_failed && !seek_result);
 }
 
-// Int64 skip(Int64)
+// std::int64_t skip(std::int64_t)
 // Closed.
 void test_aal89hd2cksyi004()
 {
@@ -494,7 +494,7 @@ void test_aal89hd2cksyi004()
 
 // ==========================================================================
 
-// Int64 get_position()
+// std::int64_t get_position()
 void test_onp8o681eu4edffa()
 {
 	auto memory_stream = bstone::MemoryStream{4, 1};
@@ -505,7 +505,7 @@ void test_onp8o681eu4edffa()
 	tester.check(is_open && seek_result_1 && seek_result_2);
 }
 
-// Int64 get_position()
+// std::int64_t get_position()
 // Closed.
 void test_wjjccz8dqrmb60t6()
 {
@@ -526,7 +526,7 @@ void test_wjjccz8dqrmb60t6()
 
 // ==========================================================================
 
-// void set_position(Int64)
+// void set_position(std::int64_t)
 void test_bu2j1ikot7dc8l90()
 {
 	auto memory_stream = bstone::MemoryStream{4, 1};
@@ -537,7 +537,7 @@ void test_bu2j1ikot7dc8l90()
 	tester.check(is_open && seek_result);
 }
 
-// void set_position(Int64)
+// void set_position(std::int64_t)
 // Fail new position.
 void test_pvh8jh1qlwf2w2yb()
 {
@@ -557,7 +557,7 @@ void test_pvh8jh1qlwf2w2yb()
 	tester.check(is_open && is_failed);
 }
 
-// void set_position(Int64)
+// void set_position(std::int64_t)
 // Closed.
 void test_i2dm7qori0hcqr4b()
 {
@@ -578,7 +578,7 @@ void test_i2dm7qori0hcqr4b()
 
 // ==========================================================================
 
-// Int64 get_size() const
+// std::int64_t get_size() const
 void test_nsft61aab9k78e5h()
 {
 	auto memory_stream = bstone::MemoryStream{4, 1};
@@ -592,7 +592,7 @@ void test_nsft61aab9k78e5h()
 	tester.check(is_open && size_result_1 && write_result_1 && size_result_2);
 }
 
-// Int64 get_size() const
+// std::int64_t get_size() const
 // Closed.
 void test_jtu27v4hubyx3s33()
 {
@@ -613,7 +613,7 @@ void test_jtu27v4hubyx3s33()
 
 // ==========================================================================
 
-// set_size(Int64)
+// set_size(std::int64_t)
 void test_bzo85u09lyp12ghe()
 {
 	auto memory_stream = bstone::MemoryStream{4, 1};
@@ -624,7 +624,7 @@ void test_bzo85u09lyp12ghe()
 	tester.check(is_open && size_result);
 }
 
-// set_size(Int64)
+// set_size(std::int64_t)
 // Closed.
 void test_ujjzpavnpwcjztzj()
 {

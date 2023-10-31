@@ -303,7 +303,9 @@ try {
 	mt_commands_.push_back(command);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void SystemAudioMixer::set_voice_r3_position(AudioMixerVoiceHandle voice_handle, const AudioMixerVoiceR3Position& r3_position)
+void SystemAudioMixer::set_voice_r3_position(
+	AudioMixerVoiceHandle voice_handle,
+	const AudioMixerVoiceR3Position& r3_position)
 try {
 	if (!voice_handle.is_valid())
 	{
@@ -577,7 +579,8 @@ void SystemAudioMixer::handle_set_gain_command(const SetGainCommandParam& param)
 	gain_ = param.gain;
 }
 
-void SystemAudioMixer::handle_set_listener_r3_position_command(const SetListenerR3PositionCommandParam& param) noexcept
+void SystemAudioMixer::handle_set_listener_r3_position_command(
+	const SetListenerR3PositionCommandParam& param) noexcept
 {
 	if (listener_r3_position_ != param.r3_position)
 	{
@@ -586,7 +589,8 @@ void SystemAudioMixer::handle_set_listener_r3_position_command(const SetListener
 	}
 }
 
-void SystemAudioMixer::handle_set_listener_r3_orientation_command(const SetListenerR3OrientationCommandParam& param) noexcept
+void SystemAudioMixer::handle_set_listener_r3_orientation_command(
+	const SetListenerR3OrientationCommandParam& param) noexcept
 {
 	if (listener_r3_orientation_ != param.r3_orientation)
 	{
@@ -658,7 +662,8 @@ void SystemAudioMixer::handle_set_voice_r3_position_command(const SetVoiceR3Posi
 	voice->is_r3_position_changed = true;
 }
 
-void SystemAudioMixer::handle_enable_set_voice_output_gains_command(const EnableSetVoiceOutputGainsCommandParam& param)
+void SystemAudioMixer::handle_enable_set_voice_output_gains_command(
+	const EnableSetVoiceOutputGainsCommandParam& param)
 {
 	auto voice = voice_handle_mgr_.get_voice(param.handle);
 

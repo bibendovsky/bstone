@@ -21,12 +21,12 @@ bool Stream::is_open() const
 	return do_is_open();
 }
 
-IntP Stream::read(void* buffer, IntP count)
+std::intptr_t Stream::read(void* buffer, std::intptr_t count)
 {
 	return do_read(buffer, count);
 }
 
-void Stream::read_exact(void* buffer, IntP count)
+void Stream::read_exact(void* buffer, std::intptr_t count)
 {
 	if (read(buffer, count) != count)
 	{
@@ -34,12 +34,12 @@ void Stream::read_exact(void* buffer, IntP count)
 	}
 }
 
-IntP Stream::write(const void* buffer, IntP count)
+std::intptr_t Stream::write(const void* buffer, std::intptr_t count)
 {
 	return do_write(buffer, count);
 }
 
-void Stream::write_exact(const void* buffer, IntP count)
+void Stream::write_exact(const void* buffer, std::intptr_t count)
 {
 	if (write(buffer, count) != count)
 	{
@@ -47,32 +47,32 @@ void Stream::write_exact(const void* buffer, IntP count)
 	}
 }
 
-Int64 Stream::seek(Int64 offset, StreamOrigin origin)
+std::int64_t Stream::seek(std::int64_t offset, StreamOrigin origin)
 {
 	return do_seek(offset, origin);
 }
 
-Int64 Stream::skip(Int64 delta)
+std::int64_t Stream::skip(std::int64_t delta)
 {
 	return seek(delta, StreamOrigin::current);
 }
 
-Int64 Stream::get_position()
+std::int64_t Stream::get_position()
 {
 	return skip(0);
 }
 
-void Stream::set_position(Int64 position)
+void Stream::set_position(std::int64_t position)
 {
 	seek(position, StreamOrigin::begin);
 }
 
-Int64 Stream::get_size() const
+std::int64_t Stream::get_size() const
 {
 	return do_get_size();
 }
 
-void Stream::set_size(Int64 size)
+void Stream::set_size(std::int64_t size)
 {
 	do_set_size(size);
 }

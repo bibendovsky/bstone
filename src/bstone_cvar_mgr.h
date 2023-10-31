@@ -7,9 +7,9 @@ SPDX-License-Identifier: MIT
 #ifndef BSTONE_CVAR_MGR_INCLUDED
 #define BSTONE_CVAR_MGR_INCLUDED
 
+#include <cstdint>
 #include <memory>
 #include "bstone_cvar.h"
-#include "bstone_int.h"
 #include "bstone_span.h"
 #include "bstone_string_view.h"
 
@@ -35,7 +35,7 @@ public:
 
 using CVarMgrUPtr = std::unique_ptr<CVarMgr>;
 
-CVarMgrUPtr make_cvar_mgr(IntP max_cvars);
+CVarMgrUPtr make_cvar_mgr(std::intptr_t max_cvars);
 
 } // namespace bstone
 

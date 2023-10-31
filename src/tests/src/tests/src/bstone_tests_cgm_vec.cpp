@@ -1,4 +1,5 @@
 #include <cmath>
+#include <cstdint>
 
 #include <algorithm>
 #include <array>
@@ -7,7 +8,6 @@
 #include <type_traits>
 
 #include "bstone_cgm_vec.h"
-#include "bstone_int.h"
 #include "bstone_tester.h"
 
 namespace {
@@ -20,7 +20,7 @@ struct V2Tag {};
 struct V3Tag {};
 struct V4Tag {};
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 class VecDeleter
 {
 public:
@@ -56,25 +56,25 @@ private:
 	Vec* v_{};
 };
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 static void make_vec(const std::array<T, N>& v, char (&storage)[N * sizeof(T)], const V2Tag)
 {
 	new (storage) bstone::cgm::Vec<2, T>(v[0], v[1]);
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 static void make_vec(const std::array<T, N>& v, char (&storage)[N * sizeof(T)], const V3Tag)
 {
 	new (storage) bstone::cgm::Vec<3, T>(v[0], v[1], v[2]);
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 static void make_vec(const std::array<T, N>& v, char (&storage)[N * sizeof(T)], const V4Tag)
 {
 	new (storage) bstone::cgm::Vec<4, T>(v[0], v[1], v[2], v[3]);
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 static void make_vec(const std::array<T, N>& v, char (&storage)[N * sizeof(T)])
 {
 	using Tag = std::conditional_t<
@@ -91,13 +91,13 @@ static void make_vec(const std::array<T, N>& v, char (&storage)[N * sizeof(T)])
 	make_vec<N, T>(v, storage, Tag{});
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 static VecDeleter<N, T> make_vec_deleter(bstone::cgm::Vec<N, T>& v)
 {
 	return VecDeleter<N, T>{v};
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 static std::array<T, N> make_sequence_1()
 {
 	auto a = std::array<T, N>{};
@@ -114,7 +114,7 @@ static std::array<T, N> make_sequence_1()
 	return a;
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 static std::array<T, N> make_sequence_2()
 {
 	auto a = std::array<T, N>{};
@@ -130,7 +130,7 @@ static std::array<T, N> make_sequence_2()
 	return a;
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 static std::array<T, N> make_negated_sequence_1()
 {
 	auto a = make_sequence_1<N, T>();
@@ -143,7 +143,7 @@ static std::array<T, N> make_negated_sequence_1()
 	return a;
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 static std::array<T, N> make_add_sequence_1_to_sequence_2()
 {
 	auto a1 = make_sequence_1<N, T>();
@@ -153,7 +153,7 @@ static std::array<T, N> make_add_sequence_1_to_sequence_2()
 	return b;
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 static std::array<T, N> make_sub_sequence_1_to_sequence_2()
 {
 	auto a1 = make_sequence_1<N, T>();
@@ -163,7 +163,7 @@ static std::array<T, N> make_sub_sequence_1_to_sequence_2()
 	return b;
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 static std::array<T, N> make_multiplicated_sequence_1(T scalar)
 {
 	auto a = make_sequence_1<N, T>();
@@ -176,7 +176,7 @@ static std::array<T, N> make_multiplicated_sequence_1(T scalar)
 	return a;
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 static T calculate_dot_of_sequence_1_and_sequence_2()
 {
 	auto a1 = make_sequence_1<N, T>();
@@ -191,7 +191,7 @@ static T calculate_dot_of_sequence_1_and_sequence_2()
 	return r;
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 static std::array<T, N> make_normalized_sequence_1()
 {
 	auto a1 = make_sequence_1<N, T>();
@@ -214,7 +214,7 @@ static std::array<T, N> make_normalized_sequence_1()
 	return b;
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 static T sqrt(const std::array<T, N>& x)
 {
 	auto y = T{};
@@ -227,7 +227,7 @@ static T sqrt(const std::array<T, N>& x)
 	return std::sqrt(y);
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 static bool are_equals_via_index(const std::array<T, N>& a, const bstone::cgm::Vec<N, T>& b)
 {
 	assert(static_cast<decltype(b.item_count)>(a.size()) == b.item_count);
@@ -243,7 +243,7 @@ static bool are_equals_via_index(const std::array<T, N>& a, const bstone::cgm::V
 	return true;
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 void test_ctor()
 {
 	using Vec = bstone::cgm::Vec<N, T>;
@@ -256,7 +256,7 @@ void test_ctor()
 			[](const typename Vec::Item& x) { return x == 0; }));
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 void test_ctor_explicit_values()
 {
 	using Vec = bstone::cgm::Vec<N, T>;
@@ -269,7 +269,7 @@ void test_ctor_explicit_values()
 	tester.check(std::equal(std::cbegin(av), std::cend(av), std::cbegin(a)));
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 void test_copy_ctor()
 {
 	using Vec = bstone::cgm::Vec<N, T>;
@@ -283,7 +283,7 @@ void test_copy_ctor()
 	tester.check(std::equal(std::cbegin(av), std::cend(av), std::cbegin(a)));
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 void test_assignment_operator()
 {
 	using Vec = bstone::cgm::Vec<N, T>;
@@ -298,7 +298,7 @@ void test_assignment_operator()
 	tester.check(std::equal(std::cbegin(av), std::cend(av), std::cbegin(a)));
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 void test_const_index_operator()
 {
 	using Vec = bstone::cgm::Vec<N, T>;
@@ -310,7 +310,7 @@ void test_const_index_operator()
 	tester.check(are_equals_via_index<N, T>(a, v));
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 void test_index_operator()
 {
 	using Vec = bstone::cgm::Vec<N, T>;
@@ -328,7 +328,7 @@ void test_index_operator()
 	tester.check(are_equals_via_index<N, T>(a, v));
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 void test_get_magnitude()
 {
 	using Vec = bstone::cgm::Vec<N, T>;
@@ -344,7 +344,7 @@ void test_get_magnitude()
 	tester.check(std::abs(m - am) < e);
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 void test_equality_operator()
 {
 	using Vec = bstone::cgm::Vec<N, T>;
@@ -363,7 +363,7 @@ void test_equality_operator()
 	tester.check(v1 == v2);
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 void test_inequality_operator()
 {
 	using Vec = bstone::cgm::Vec<N, T>;
@@ -383,7 +383,7 @@ void test_inequality_operator()
 	tester.check(v1 != v2);
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 void test_unary_minus_operator()
 {
 	using Vec = bstone::cgm::Vec<N, T>;
@@ -401,7 +401,7 @@ void test_unary_minus_operator()
 	tester.check(std::equal(std::cbegin(av2), std::cend(av2), std::cbegin(a2)));
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 void test_addition_operator()
 {
 	using Vec = bstone::cgm::Vec<N, T>;
@@ -424,7 +424,7 @@ void test_addition_operator()
 	tester.check(std::equal(std::cbegin(av3), std::cend(av3), std::cbegin(a3)));
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 void test_subtraction_operator()
 {
 	using Vec = bstone::cgm::Vec<N, T>;
@@ -447,7 +447,7 @@ void test_subtraction_operator()
 	tester.check(std::equal(std::cbegin(av3), std::cend(av3), std::cbegin(a3)));
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 void test_postfix_multiplication_operator_operator()
 {
 	using Vec = bstone::cgm::Vec<N, T>;
@@ -464,7 +464,7 @@ void test_postfix_multiplication_operator_operator()
 	tester.check(std::equal(std::cbegin(av2), std::cend(av2), std::cbegin(a2)));
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 void test_prefix_multiplication_operator()
 {
 	using Vec = bstone::cgm::Vec<N, T>;
@@ -481,7 +481,7 @@ void test_prefix_multiplication_operator()
 	tester.check(std::equal(std::cbegin(av2), std::cend(av2), std::cbegin(a2)));
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 void test_dot()
 {
 	using Vec = bstone::cgm::Vec<N, T>;
@@ -503,7 +503,7 @@ void test_dot()
 	tester.check(d1 == d2);
 }
 
-template<bstone::IntP N, typename T>
+template<std::intptr_t N, typename T>
 void test_normalize()
 {
 	using Vec = bstone::cgm::Vec<N, T>;

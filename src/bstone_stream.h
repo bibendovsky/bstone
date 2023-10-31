@@ -9,7 +9,7 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_STREAM_INCLUDED)
 #define BSTONE_STREAM_INCLUDED
 
-#include "bstone_int.h"
+#include <cstdint>
 
 namespace bstone {
 
@@ -28,26 +28,26 @@ public:
 
 	void close();
 	bool is_open() const;
-	IntP read(void* buffer, IntP count);
-	void read_exact(void* buffer, IntP count);
-	IntP write(const void* buffer, IntP count);
-	void write_exact(const void* buffer, IntP count);
-	Int64 seek(Int64 offset, StreamOrigin origin);
-	Int64 skip(Int64 delta);
-	Int64 get_position();
-	void set_position(Int64 position);
-	Int64 get_size() const;
-	void set_size(Int64 size);
+	std::intptr_t read(void* buffer, std::intptr_t count);
+	void read_exact(void* buffer, std::intptr_t count);
+	std::intptr_t write(const void* buffer, std::intptr_t count);
+	void write_exact(const void* buffer, std::intptr_t count);
+	std::int64_t seek(std::int64_t offset, StreamOrigin origin);
+	std::int64_t skip(std::int64_t delta);
+	std::int64_t get_position();
+	void set_position(std::int64_t position);
+	std::int64_t get_size() const;
+	void set_size(std::int64_t size);
 	void flush();
 
 private:
 	virtual void do_close() = 0;
 	virtual bool do_is_open() const = 0;
-	virtual IntP do_read(void* buffer, IntP count) = 0;
-	virtual IntP do_write(const void* buffer, IntP count) = 0;
-	virtual Int64 do_seek(Int64 offset, StreamOrigin origin) = 0;
-	virtual Int64 do_get_size() const = 0;
-	virtual void do_set_size(Int64 size) = 0;
+	virtual std::intptr_t do_read(void* buffer, std::intptr_t count) = 0;
+	virtual std::intptr_t do_write(const void* buffer, std::intptr_t count) = 0;
+	virtual std::int64_t do_seek(std::int64_t offset, StreamOrigin origin) = 0;
+	virtual std::int64_t do_get_size() const = 0;
+	virtual void do_set_size(std::int64_t size) = 0;
 	virtual void do_flush() = 0;
 };
 

@@ -64,7 +64,7 @@ void test_npdaf3n62fwtnnou()
 
 // ==========================================================================
 
-// reset(IntP)
+// reset(std::intptr_t)
 // Success.
 void test_79zcovx4jptabjnr()
 {
@@ -142,7 +142,7 @@ void test_dgjpr3kc2id0b23x()
 
 // ==========================================================================
 
-// reset(IntP)
+// reset(std::intptr_t)
 // Success.
 void test_ldm3uuyunyf2f2lc()
 {

@@ -145,7 +145,7 @@ void test_kyiqeenrhj4s9vdm()
 
 // ==========================================================================
 
-// read(void*, IntP) and write(const void*, IntP)
+// read(void*, std::intptr_t) and write(const void*, std::intptr_t)
 void test_fmo05coq6xfc71cv()
 {
 	auto is_failed = false;
@@ -184,7 +184,7 @@ void test_fmo05coq6xfc71cv()
 	tester.check(!is_failed && is_open && is_zero_size && is_written && is_set_position && is_read && is_equal);
 }
 
-// IntP read(void*, IntP)
+// std::intptr_t read(void*, std::intptr_t)
 // Closed.
 void test_6mmfx7oqkvu46lmo()
 {
@@ -204,7 +204,7 @@ void test_6mmfx7oqkvu46lmo()
 	tester.check(is_failed);
 }
 
-// IntP write(const void*, IntP)
+// std::intptr_t write(const void*, std::intptr_t)
 // Closed.
 void test_32hb8m11bqdomfys()
 {
@@ -226,7 +226,7 @@ void test_32hb8m11bqdomfys()
 
 // ==========================================================================
 
-// `void read_exact(void*, IntP)` and `void write_exact(const void*, IntP)`
+// `void read_exact(void*, std::intptr_t)` and `void write_exact(const void*, std::intptr_t)`
 void test_0vj5qawe151dlab8()
 {
 	auto is_open = false;
@@ -257,7 +257,7 @@ void test_0vj5qawe151dlab8()
 	tester.check(is_open && is_zero_size && is_set_position && is_equal);
 }
 
-// void read_exact(void*, IntP)
+// void read_exact(void*, std::intptr_t)
 // Fail.
 void test_ip74fy4x4vq54ql3()
 {
@@ -282,7 +282,7 @@ void test_ip74fy4x4vq54ql3()
 	tester.check(is_failed);
 }
 
-// void read_exact(void*, IntP)
+// void read_exact(void*, std::intptr_t)
 // Closed.
 void test_wim9y9uexr2x18xc()
 {
@@ -302,7 +302,7 @@ void test_wim9y9uexr2x18xc()
 	tester.check(is_failed);
 }
 
-// void write_exact(const void*, IntP)
+// void write_exact(const void*, std::intptr_t)
 // Closed.
 void test_ko6g2vzhmpoxkt3j()
 {
@@ -324,7 +324,7 @@ void test_ko6g2vzhmpoxkt3j()
 
 // ==========================================================================
 
-// seek(Int64, FileOrigin)
+// seek(std::int64_t, FileOrigin)
 void test_1ywq7j1zp67guwip()
 {
 	auto is_failed = false;
@@ -350,7 +350,7 @@ void test_1ywq7j1zp67guwip()
 	tester.check(!is_failed && is_open && is_set_position_1 && is_set_position_2 && is_set_position_3);
 }
 
-// seek(Int64, FileOrigin)
+// seek(std::int64_t, FileOrigin)
 // Fail new position.
 void test_g19x58du9tm8l39s()
 {
@@ -371,7 +371,7 @@ void test_g19x58du9tm8l39s()
 	tester.check(is_open && is_failed);
 }
 
-// seek(Int64, FileOrigin)
+// seek(std::int64_t, FileOrigin)
 // Closed.
 void test_c4xnnx60bh0el6c0()
 {
@@ -394,7 +394,7 @@ void test_c4xnnx60bh0el6c0()
 
 // ==========================================================================
 
-// Int64 skip(Int64)
+// std::int64_t skip(std::int64_t)
 void test_7flwx51n13c9137h()
 {
 	auto is_failed = false;
@@ -417,7 +417,7 @@ void test_7flwx51n13c9137h()
 	tester.check(!is_failed && is_open && is_set_position_1 && is_set_position_2);
 }
 
-// Int64 skip(Int64)
+// std::int64_t skip(std::int64_t)
 // Fail new position.
 void test_ykqf55ec945bin2j()
 {
@@ -438,7 +438,7 @@ void test_ykqf55ec945bin2j()
 	tester.check(is_open && is_failed);
 }
 
-// Int64 skip(Int64)
+// std::int64_t skip(std::int64_t)
 // Closed.
 void test_rwvrfvlzq257vhm6()
 {
@@ -461,7 +461,7 @@ void test_rwvrfvlzq257vhm6()
 
 // ==========================================================================
 
-// Int64 get_position()
+// std::int64_t get_position()
 void test_0gj54wvhksw88ae5()
 {
 	auto is_failed = false;
@@ -484,7 +484,7 @@ void test_0gj54wvhksw88ae5()
 	tester.check(!is_failed && is_open && is_set_position_1 && is_set_position_2);
 }
 
-// Int64 get_position()
+// std::int64_t get_position()
 // Closed.
 void test_nthguyes1qfzyjph()
 {
@@ -507,7 +507,7 @@ void test_nthguyes1qfzyjph()
 
 // ==========================================================================
 
-// void set_position(Int64)
+// void set_position(std::int64_t)
 void test_ejj6s2bvcn5ba767()
 {
 	auto is_failed = false;
@@ -529,7 +529,7 @@ void test_ejj6s2bvcn5ba767()
 	tester.check(!is_failed && is_open && is_set_position);
 }
 
-// void set_position(Int64)
+// void set_position(std::int64_t)
 // Fail new position.
 void test_wh4ro8o3yw0djyc6()
 {
@@ -550,7 +550,7 @@ void test_wh4ro8o3yw0djyc6()
 	tester.check(is_open && is_failed);
 }
 
-// void set_position(Int64)
+// void set_position(std::int64_t)
 // Closed.
 void test_15p3gi1ajh8vz0x1()
 {
@@ -573,7 +573,7 @@ void test_15p3gi1ajh8vz0x1()
 
 // ==========================================================================
 
-// Int64 get_size() const
+// std::int64_t get_size() const
 void test_q5bqlob75o008k21()
 {
 	auto is_failed = false;
@@ -601,7 +601,7 @@ void test_q5bqlob75o008k21()
 
 // ==========================================================================
 
-// void set_size(Int64) const
+// void set_size(std::int64_t) const
 void test_fuyi2tfqnsxirj3b()
 {
 	auto is_failed = false;

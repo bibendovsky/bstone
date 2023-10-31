@@ -50,11 +50,11 @@ void test_ax1hkhjhko0irl0z()
 
 // ==========================================================================
 
-// void write_s8(Int8) const
+// void write_s8(std::int8_t) const
 void test_eivkgxx3pcjeykj4()
 {
-	constexpr auto ref_value = bstone::Int8{-100};
-	auto buffer = bstone::Int8{};
+	constexpr auto ref_value = std::int8_t{-100};
+	auto buffer = std::int8_t{};
 	auto stream = bstone::StaticMemoryStream{&buffer, 1};
 	auto writer = bstone::BinaryWriter{stream};
 	writer.write_s8(ref_value);
@@ -63,11 +63,11 @@ void test_eivkgxx3pcjeykj4()
 
 // ==========================================================================
 
-// void write_u8(UInt8) const
+// void write_u8(std::uint8_t) const
 void test_2irmjqej1gnff783()
 {
-	constexpr auto ref_value = bstone::UInt8{200};
-	auto buffer = bstone::UInt8{};
+	constexpr auto ref_value = std::uint8_t{200};
+	auto buffer = std::uint8_t{};
 	auto stream = bstone::StaticMemoryStream{&buffer, 1};
 	auto writer = bstone::BinaryWriter{stream};
 	writer.write_u8(ref_value);
@@ -76,11 +76,11 @@ void test_2irmjqej1gnff783()
 
 // ==========================================================================
 
-// void write_s16(Int16) const
+// void write_s16(std::int16_t) const
 void test_le8papnus9hpeuoz()
 {
-	constexpr auto ref_value = bstone::Int16{-30'000};
-	auto buffer = bstone::Int16{};
+	constexpr auto ref_value = std::int16_t{-30'000};
+	auto buffer = std::int16_t{};
 	auto stream = bstone::StaticMemoryStream{&buffer, 2};
 	auto writer = bstone::BinaryWriter{stream};
 	writer.write_s16(ref_value);
@@ -89,11 +89,11 @@ void test_le8papnus9hpeuoz()
 
 // ==========================================================================
 
-// void write_u16(UInt16) const
+// void write_u16(std::uint16_t) const
 void test_pey2mss28ckf2h7v()
 {
-	constexpr auto ref_value = bstone::UInt16{60'000};
-	auto buffer = bstone::UInt16{};
+	constexpr auto ref_value = std::uint16_t{60'000};
+	auto buffer = std::uint16_t{};
 	auto stream = bstone::StaticMemoryStream{&buffer, 2};
 	auto writer = bstone::BinaryWriter{stream};
 	writer.write_u16(ref_value);
@@ -102,11 +102,11 @@ void test_pey2mss28ckf2h7v()
 
 // ==========================================================================
 
-// void write_s32(Int32) const
+// void write_s32(std::int32_t) const
 void test_o8xq1rjptbzzwcm1()
 {
-	constexpr auto ref_value = bstone::Int32{-2'000'000'000};
-	auto buffer = bstone::Int32{};
+	constexpr auto ref_value = std::int32_t{-2'000'000'000};
+	auto buffer = std::int32_t{};
 	auto stream = bstone::StaticMemoryStream{&buffer, 4};
 	auto writer = bstone::BinaryWriter{stream};
 	writer.write_s32(ref_value);
@@ -115,11 +115,11 @@ void test_o8xq1rjptbzzwcm1()
 
 // ==========================================================================
 
-// void write_u32(UInt32) const
+// void write_u32(std::uint32_t) const
 void test_o2tw6pkurf2uwxr9()
 {
-	constexpr auto ref_value = bstone::UInt32{4'000'000'000U};
-	auto buffer = bstone::UInt32{};
+	constexpr auto ref_value = std::uint32_t{4'000'000'000U};
+	auto buffer = std::uint32_t{};
 	auto stream = bstone::StaticMemoryStream{&buffer, 4};
 	auto writer = bstone::BinaryWriter{stream};
 	writer.write_u32(ref_value);
@@ -128,11 +128,11 @@ void test_o2tw6pkurf2uwxr9()
 
 // ==========================================================================
 
-// void write_s64(Int64) const
+// void write_s64(std::int64_t) const
 void test_bhh0guk7dzyol9zr()
 {
-	constexpr auto ref_value = bstone::Int64{-9'000'000'000'000'000'000LL};
-	auto buffer = bstone::Int64{};
+	constexpr auto ref_value = std::int64_t{-9'000'000'000'000'000'000LL};
+	auto buffer = std::int64_t{};
 	auto stream = bstone::StaticMemoryStream{&buffer, 8};
 	auto writer = bstone::BinaryWriter{stream};
 	writer.write_s64(ref_value);
@@ -141,11 +141,11 @@ void test_bhh0guk7dzyol9zr()
 
 // ==========================================================================
 
-// void write_u64(UInt64) const
+// void write_u64(std::uint64_t) const
 void test_8lu9fboziinf1k0x()
 {
-	constexpr auto ref_value = bstone::UInt64{18'000'000'000'000'000'000ULL};
-	auto buffer = bstone::UInt64{};
+	constexpr auto ref_value = std::uint64_t{18'000'000'000'000'000'000ULL};
+	auto buffer = std::uint64_t{};
 	auto stream = bstone::StaticMemoryStream{&buffer, 8};
 	auto writer = bstone::BinaryWriter{stream};
 	writer.write_u64(ref_value);

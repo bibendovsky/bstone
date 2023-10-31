@@ -9,9 +9,10 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_GENERIC_POOL_MEMORY_RESOURCE_INCLUDED)
 #define BSTONE_GENERIC_POOL_MEMORY_RESOURCE_INCLUDED
 
+#include <cstdint>
+
 #include <memory>
 
-#include "bstone_int.h"
 #include "bstone_memory_pool_bitmap.h"
 #include "bstone_memory_resource.h"
 
@@ -27,7 +28,7 @@ public:
 	GenericPoolMemoryResource();
 	~GenericPoolMemoryResource() override;
 
-	void reserve(IntP object_size, IntP max_objects, MemoryResource& memory_resource);
+	void reserve(std::intptr_t object_size, std::intptr_t max_objects, MemoryResource& memory_resource);
 
 private:
 	class StorageDeleter
@@ -48,12 +49,12 @@ private:
 private:
 	Bitmap bitmap_{};
 	Storage storage_;
-	IntP object_size_{};
-	IntP max_objects_{};
-	IntP object_count_{};
+	std::intptr_t object_size_{};
+	std::intptr_t max_objects_{};
+	std::intptr_t object_count_{};
 
 private:
-	void* do_allocate(IntP size) override;
+	void* do_allocate(std::intptr_t size) override;
 	void do_deallocate(void* ptr) override;
 };
 

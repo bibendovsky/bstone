@@ -7,12 +7,13 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_CHAR_CONV_INCLUDED)
 #define BSTONE_CHAR_CONV_INCLUDED
 
+#include <cstdint>
+
 #include <limits>
 #include <type_traits>
 
 #include "bstone_ascii.h"
 #include "bstone_exception.h"
-#include "bstone_int.h"
 #include "bstone_utility.h"
 
 namespace bstone {
@@ -94,9 +95,9 @@ inline constexpr TByte* hex_chars_to_bytes(
 		BSTONE_THROW_STATIC_SOURCE("Byte buffer too small.");
 	}
 
-	auto i_char = IntP{};
+	auto i_char = std::intptr_t{};
 
-	for (auto i_byte = IntP{}; i_byte < char_half_count; ++i_byte)
+	for (auto i_byte = std::intptr_t{}; i_byte < char_half_count; ++i_byte)
 	{
 		const auto high_nibble = bstone::hex_char_to_nibble<TByte>(chars_begin[i_char++]);
 		const auto low_nibble = bstone::hex_char_to_nibble<TByte>(chars_begin[i_char++]);
@@ -142,11 +143,12 @@ inline constexpr TChar* bytes_to_hex_chars(
 		std::make_unsigned_t<TByte>,
 		unsigned int>;
 
-	auto i_char = IntP{};
+	auto i_char = std::intptr_t{};
 
-	for (auto i_byte = IntP{}; i_byte < byte_count; ++i_byte)
+	for (auto i_byte = std::intptr_t{}; i_byte < byte_count; ++i_byte)
 	{
-		const auto byte = static_cast<Unsigned>(static_cast<std::make_unsigned_t<TByte>>(bytes_begin[i_byte]));
+		const auto byte = static_cast<Unsigned>(
+			static_cast<std::make_unsigned_t<TByte>>(bytes_begin[i_byte]));
 		const auto char_1 = bstone::nibble_to_hex_char<TChar>((byte >> 4) & 0xF);
 		const auto char_2 = bstone::nibble_to_hex_char<TChar>(byte & 0xF);
 		chars_begin[i_char++] = char_1;
@@ -186,7 +188,11 @@ struct ToCharsAbs<TValue, false>
 } // namespace detail
 
 template<typename TValue, typename TCharIter>
-inline constexpr TCharIter to_chars(TValue value, TCharIter chars_begin, TCharIter chars_end, int base = 10)
+inline constexpr TCharIter to_chars(
+	TValue value,
+	TCharIter chars_begin,
+	TCharIter chars_end,
+	int base = 10)
 {
 	static_assert(std::is_integral<TValue>::value && sizeof(TValue) <= 8, "Unsupported type.");
 
@@ -198,12 +204,12 @@ inline constexpr TCharIter to_chars(TValue value, TCharIter chars_begin, TCharIt
 	using Char = std::remove_reference_t<decltype(*chars_begin)>;
 	constexpr auto abs = detail::ToCharsAbs<TValue>{};
 
-	constexpr auto max_chars = IntP{20}; // 64-bit
+	constexpr auto max_chars = std::intptr_t{20}; // 64-bit
 	Char chars[max_chars];
 
 	const auto is_negative = value < 0;
 	const auto v_base = static_cast<TValue>(base);
-	auto chars_count = IntP{};
+	auto chars_count = std::intptr_t{};
 
 	while (true)
 	{

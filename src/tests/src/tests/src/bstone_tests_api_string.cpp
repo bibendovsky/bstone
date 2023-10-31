@@ -20,7 +20,7 @@ public:
 	~MemoryResource() override = default;
 
 private:
-	void* do_allocate(bstone::IntP size) override
+	void* do_allocate(std::intptr_t size) override
 	{
 		const auto ptr = bstone::get_default_memory_resource().allocate(size);
 		std::uninitialized_fill_n(static_cast<char*>(ptr), size, memory_fill_value);
@@ -83,7 +83,7 @@ void test_h4wpvm5gq2u3g8j8_wchar_t()
 
 // ==========================================================================
 
-// ApiString(IntP, MemoryResource&)
+// ApiString(std::intptr_t, MemoryResource&)
 template<typename TChar>
 void test_57l7o3z8qsclpief()
 {
@@ -129,8 +129,8 @@ void test_ofrffqdz3lb24kcn()
 	const auto string = ApiString{src_string.c_str(), get_memory_resource()};
 	const auto chars = string.get_data();
 
-	const auto is_valid_1 = string.get_size() == static_cast<bstone::IntP>(src_string.size());
-	const auto is_valid_2 = string.get_capacity() >= static_cast<bstone::IntP>(src_string.size());
+	const auto is_valid_1 = string.get_size() == static_cast<std::intptr_t>(src_string.size());
+	const auto is_valid_2 = string.get_capacity() >= static_cast<std::intptr_t>(src_string.size());
 
 	const auto is_valid_3 =
 		chars[0] == 's' &&
@@ -190,7 +190,7 @@ void test_8nywu68tfpfx8vre_wchar_t()
 
 // ==========================================================================
 
-// IntP get_size() const noexcept
+// std::intptr_t get_size() const noexcept
 template<typename TChar>
 void test_syc2o9c84ybycw6y()
 {
@@ -199,7 +199,7 @@ void test_syc2o9c84ybycw6y()
 	const auto src_string = make_string<TChar>("str");
 	const auto string = ApiString{src_string.c_str(), get_memory_resource()};
 
-	const auto is_valid_1 = string.get_size() == static_cast<bstone::IntP>(src_string.size());
+	const auto is_valid_1 = string.get_size() == static_cast<std::intptr_t>(src_string.size());
 
 	const auto is_valid =
 		is_valid_1 &&
@@ -220,7 +220,7 @@ void test_syc2o9c84ybycw6y_wchar_t()
 
 // ==========================================================================
 
-// set_size(IntP)
+// set_size(std::intptr_t)
 template<typename TChar>
 void test_ns6qwbtdos580b76()
 {
@@ -266,7 +266,7 @@ void test_ns6qwbtdos580b76_wchar_t()
 
 // ==========================================================================
 
-// IntP get_capacity() const noexcept
+// std::intptr_t get_capacity() const noexcept
 template<typename TChar>
 void test_pfvn6xovlxamcubr()
 {
@@ -275,7 +275,7 @@ void test_pfvn6xovlxamcubr()
 	const auto src_string = make_string<TChar>("str");
 	const auto string = ApiString{src_string.c_str(), get_memory_resource()};
 
-	const auto is_valid_1 = string.get_capacity() == static_cast<bstone::IntP>(src_string.size());
+	const auto is_valid_1 = string.get_capacity() == static_cast<std::intptr_t>(src_string.size());
 
 	const auto is_valid =
 		is_valid_1 &&
@@ -296,7 +296,7 @@ void test_pfvn6xovlxamcubr_wchar_t()
 
 // ==========================================================================
 
-// IntP get_capacity() const noexcept
+// std::intptr_t get_capacity() const noexcept
 template<typename TChar>
 void test_j8k9bqhh1fb5j9wi()
 {
@@ -305,7 +305,7 @@ void test_j8k9bqhh1fb5j9wi()
 	const auto src_string = make_string<TChar>("str");
 	const auto string = ApiString{src_string.c_str(), get_memory_resource()};
 
-	const auto is_valid_1 = string.get_capacity() == static_cast<bstone::IntP>(src_string.size());
+	const auto is_valid_1 = string.get_capacity() == static_cast<std::intptr_t>(src_string.size());
 
 	const auto is_valid =
 		is_valid_1 &&

@@ -50,10 +50,10 @@ void test_g9b4peibw9wvcd48()
 
 // ==========================================================================
 
-// Int8 read_s8() const
+// std::int8_t read_s8() const
 void test_6uqfld6c9ub3h0mq()
 {
-	constexpr auto ref_value = bstone::Int8{-100};
+	constexpr auto ref_value = std::int8_t{-100};
 	auto stream = bstone::StaticRoMemoryStream{&ref_value, 1};
 	auto reader = bstone::BinaryReader{stream};
 	const auto value = reader.read_s8();
@@ -62,10 +62,10 @@ void test_6uqfld6c9ub3h0mq()
 
 // ==========================================================================
 
-// UInt8 read_u8() const
+// std::uint8_t read_u8() const
 void test_ld5gar6n9yp3410a()
 {
-	constexpr auto ref_value = bstone::UInt8{200};
+	constexpr auto ref_value = std::uint8_t{200};
 	auto stream = bstone::StaticRoMemoryStream{&ref_value, 1};
 	auto reader = bstone::BinaryReader{stream};
 	const auto value = reader.read_u8();
@@ -74,10 +74,10 @@ void test_ld5gar6n9yp3410a()
 
 // ==========================================================================
 
-// Int16 read_s16() const
+// std::int16_t read_s16() const
 void test_mv90olv9jbv83m1a()
 {
-	constexpr auto ref_value = bstone::Int16{-30'000};
+	constexpr auto ref_value = std::int16_t{-30'000};
 	auto stream = bstone::StaticRoMemoryStream{&ref_value, 2};
 	auto reader = bstone::BinaryReader{stream};
 	const auto value = reader.read_s16();
@@ -86,10 +86,10 @@ void test_mv90olv9jbv83m1a()
 
 // ==========================================================================
 
-// UInt16 read_u16() const
+// std::uint16_t read_u16() const
 void test_3o7ghl8gywfvvi69()
 {
-	constexpr auto ref_value = bstone::UInt16{60'000};
+	constexpr auto ref_value = std::uint16_t{60'000};
 	auto stream = bstone::StaticRoMemoryStream{&ref_value, 2};
 	auto reader = bstone::BinaryReader{stream};
 	const auto value = reader.read_u16();
@@ -98,10 +98,10 @@ void test_3o7ghl8gywfvvi69()
 
 // ==========================================================================
 
-// Int32 read_s32() const
+// std::int32_t read_s32() const
 void test_wedd7j7e241b9fgw()
 {
-	constexpr auto ref_value = bstone::Int32{-2'000'000'000};
+	constexpr auto ref_value = std::int32_t{-2'000'000'000};
 	auto stream = bstone::StaticRoMemoryStream{&ref_value, 4};
 	auto reader = bstone::BinaryReader{stream};
 	const auto value = reader.read_s32();
@@ -110,10 +110,10 @@ void test_wedd7j7e241b9fgw()
 
 // ==========================================================================
 
-// UInt32 read_u32() const
+// std::uint32_t read_u32() const
 void test_6bxl1id01qu0a2xu()
 {
-	constexpr auto ref_value = bstone::UInt32{4'000'000'000U};
+	constexpr auto ref_value = std::uint32_t{4'000'000'000U};
 	auto stream = bstone::StaticRoMemoryStream{&ref_value, 4};
 	auto reader = bstone::BinaryReader{stream};
 	const auto value = reader.read_u32();
@@ -122,10 +122,10 @@ void test_6bxl1id01qu0a2xu()
 
 // ==========================================================================
 
-// Int64 read_s64() const
+// std::int64_t read_s64() const
 void test_2nbotcpq6vvekm6b()
 {
-	constexpr auto ref_value = bstone::Int64{-9'000'000'000'000'000'000LL};
+	constexpr auto ref_value = std::int64_t{-9'000'000'000'000'000'000LL};
 	auto stream = bstone::StaticRoMemoryStream{&ref_value, 8};
 	auto reader = bstone::BinaryReader{stream};
 	const auto value = reader.read_s64();
@@ -134,10 +134,10 @@ void test_2nbotcpq6vvekm6b()
 
 // ==========================================================================
 
-// UInt64 read_u64() const
+// std::uint64_t read_u64() const
 void test_0ik8u8fe2eye55lv()
 {
-	constexpr auto ref_value = bstone::UInt64{18'000'000'000'000'000'000ULL};
+	constexpr auto ref_value = std::uint64_t{18'000'000'000'000'000'000ULL};
 	auto stream = bstone::StaticRoMemoryStream{&ref_value, 8};
 	auto reader = bstone::BinaryReader{stream};
 	const auto value = reader.read_u64();

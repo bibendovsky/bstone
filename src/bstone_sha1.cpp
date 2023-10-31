@@ -12,7 +12,7 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-void Sha1::process(const UInt8* bytes, IntP count)
+void Sha1::process(const std::uint8_t* bytes, std::intptr_t count)
 try
 {
 	if (is_finished_)
@@ -22,7 +22,7 @@ try
 
 	const auto bit_count = count * 8;
 
-	if (0xFFFFFFFFFFFFFFFFUL - length_ < static_cast<UInt64>(bit_count))
+	if (0xFFFFFFFFFFFFFFFFUL - length_ < static_cast<std::uint64_t>(bit_count))
 	{
 		BSTONE_THROW_STATIC_SOURCE("Message too long.");
 	}
@@ -41,7 +41,7 @@ try
 	length_ += bit_count;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void Sha1::process(Span<const UInt8> items_span)
+void Sha1::process(Span<const std::uint8_t> items_span)
 {
 	process(items_span.get_data(), items_span.get_size());
 }
@@ -61,7 +61,7 @@ try
 
 	for (auto i = decltype(sha1_digest_size){}; i < sha1_digest_size; ++i)
 	{
-		digest_[i] = static_cast<UInt8>(digest32_[i / 4] >> (8 * (3 - (i % 4))));
+		digest_[i] = static_cast<std::uint8_t>(digest32_[i / 4] >> (8 * (3 - (i % 4))));
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
@@ -121,14 +121,14 @@ void Sha1::pad_message()
 
 	// Store the message length as the last 8 octets.
 	//
-	block_[56] = static_cast<UInt8>(length_ >> 56);
-	block_[57] = static_cast<UInt8>(length_ >> 48);
-	block_[58] = static_cast<UInt8>(length_ >> 40);
-	block_[59] = static_cast<UInt8>(length_ >> 32);
-	block_[60] = static_cast<UInt8>(length_ >> 24);
-	block_[61] = static_cast<UInt8>(length_ >> 16);
-	block_[62] = static_cast<UInt8>(length_ >> 8);
-	block_[63] = static_cast<UInt8>(length_);
+	block_[56] = static_cast<std::uint8_t>(length_ >> 56);
+	block_[57] = static_cast<std::uint8_t>(length_ >> 48);
+	block_[58] = static_cast<std::uint8_t>(length_ >> 40);
+	block_[59] = static_cast<std::uint8_t>(length_ >> 32);
+	block_[60] = static_cast<std::uint8_t>(length_ >> 24);
+	block_[61] = static_cast<std::uint8_t>(length_ >> 16);
+	block_[62] = static_cast<std::uint8_t>(length_ >> 8);
+	block_[63] = static_cast<std::uint8_t>(length_);
 
 	process_block();
 }
@@ -136,7 +136,7 @@ void Sha1::pad_message()
 void Sha1::process_block()
 {
 	// Constants defined in SHA-1.
-	constexpr UInt32 k[] =
+	constexpr std::uint32_t k[] =
 	{
 		0x5A827999,
 		0x6ED9EBA1,
@@ -145,27 +145,27 @@ void Sha1::process_block()
 	};
 
 	// Word buffers.
-	UInt32 a{};
-	UInt32 b{};
-	UInt32 c{};
-	UInt32 d{};
-	UInt32 e{};
+	std::uint32_t a{};
+	std::uint32_t b{};
+	std::uint32_t c{};
+	std::uint32_t d{};
+	std::uint32_t e{};
 
 	// Word sequence.
-	Array<UInt32, 80> w{};
+	Array<std::uint32_t, 80> w{};
 
 	// Initialize the first 16 words in the array W.
 	//
-	for (auto i = IntP{}; i < 16; ++i)
+	for (auto i = std::intptr_t{}; i < 16; ++i)
 	{
 		w[i] =
-			(static_cast<UInt32>(block_[i * 4 + 0]) << 24) |
-			(static_cast<UInt32>(block_[i * 4 + 1]) << 16) |
-			(static_cast<UInt32>(block_[i * 4 + 2]) << 8) |
+			(static_cast<std::uint32_t>(block_[i * 4 + 0]) << 24) |
+			(static_cast<std::uint32_t>(block_[i * 4 + 1]) << 16) |
+			(static_cast<std::uint32_t>(block_[i * 4 + 2]) << 8) |
 			block_[(i * 4) + 3];
 	}
 
-	for (auto i = IntP{16}; i < 80; ++i)
+	for (auto i = std::intptr_t{16}; i < 80; ++i)
 	{
 		w[i] = circular_shift<1>(w[i - 3] ^ w[i - 8] ^ w[i - 14] ^ w[i - 16]);
 	}
@@ -176,7 +176,7 @@ void Sha1::process_block()
 	d = digest32_[3];
 	e = digest32_[4];
 
-	for (auto i = IntP{}; i < 20; ++i)
+	for (auto i = std::intptr_t{}; i < 20; ++i)
 	{
 		const auto temp = circular_shift<5>(a) + ((b & c) | (~b & d)) + e + w[i] + k[0];
 		e = d;
@@ -186,7 +186,7 @@ void Sha1::process_block()
 		a = temp;
 	}
 
-	for (auto i = IntP{20}; i < 40; ++i)
+	for (auto i = std::intptr_t{20}; i < 40; ++i)
 	{
 		const auto temp = circular_shift<5>(a) + (b ^ c ^ d) + e + w[i] + k[1];
 		e = d;
@@ -196,7 +196,7 @@ void Sha1::process_block()
 		a = temp;
 	}
 
-	for (auto i = IntP{40}; i < 60; ++i)
+	for (auto i = std::intptr_t{40}; i < 60; ++i)
 	{
 		const auto temp = circular_shift<5>(a) + ((b & c) | (b & d) | (c & d)) + e + w[i] + k[2];
 		e = d;
@@ -206,7 +206,7 @@ void Sha1::process_block()
 		a = temp;
 	}
 
-	for (auto i = IntP{60}; i < 80; ++i)
+	for (auto i = std::intptr_t{60}; i < 80; ++i)
 	{
 		const auto temp = circular_shift<5>(a) + (b ^ c ^ d) + e + w[i] + k[3];
 		e = d;

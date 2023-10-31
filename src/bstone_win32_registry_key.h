@@ -11,10 +11,11 @@ SPDX-License-Identifier: MIT
 
 #if defined(_WIN32)
 
+#include <cstdint>
+
 #include <memory>
 
 #include "bstone_enum_flags.h"
-#include "bstone_int.h"
 
 namespace bstone {
 namespace win32 {
@@ -88,7 +89,7 @@ public:
 	// Returns:
 	//  - Length of the string without null symbol.
 	//
-	IntP get_string(const char* name, char* buffer, IntP buffer_size) const;
+	std::intptr_t get_string(const char* name, char* buffer, std::intptr_t buffer_size) const;
 
 	void set_string(const char* name, const char* value) const;
 

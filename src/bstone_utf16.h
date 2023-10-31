@@ -9,10 +9,11 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_UTF16_INCLUDED)
 #define BSTONE_UTF16_INCLUDED
 
+#include <cstdint>
+
 #include <type_traits>
 
 #include "bstone_exception.h"
-#include "bstone_int.h"
 #include "bstone_unicode.h"
 
 namespace bstone {
@@ -41,7 +42,7 @@ inline void decode_code_point(
 			BSTONE_THROW_STATIC_SOURCE("Truncated sequence.");
 		}
 
-		const auto code_unit = static_cast<unicode::CodePoint>(static_cast<UInt16>(*code_units_next));
+		const auto code_unit = static_cast<unicode::CodePoint>(static_cast<std::uint16_t>(*code_units_next));
 		++code_units_next;
 		return code_unit;
 	};
@@ -93,7 +94,7 @@ inline void encode_code_point(
 			BSTONE_THROW_STATIC_SOURCE("Destination buffer too small.");
 		}
 
-		*code_units_next = static_cast<CodeUnit>(static_cast<UInt16>(code_unit));
+		*code_units_next = static_cast<CodeUnit>(static_cast<std::uint16_t>(code_unit));
 		++code_units_next;
 	};
 

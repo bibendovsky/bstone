@@ -77,7 +77,7 @@ bool TextWriter::write(
 		return true;
 	}
 
-	const auto to_write_size = static_cast<IntP>(string.length());
+	const auto to_write_size = static_cast<std::intptr_t>(string.length());
 	return stream_->write(string.data(), to_write_size) == to_write_size;
 }
 

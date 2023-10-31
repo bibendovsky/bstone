@@ -13,13 +13,14 @@ SPDX-License-Identifier: MIT
 #include <fcntl.h>
 #include <unistd.h>
 
+#include <cstdint>
+
 #include <algorithm>
 #include <limits>
 #include <type_traits>
 
 #include "bstone_exception.h"
 #include "bstone_file.h"
-#include "bstone_int.h"
 
 static_assert(std::is_signed<off_t>::value && (sizeof(off_t) == 4 || sizeof(off_t) == 8), "Unsupported type.");
 
@@ -30,8 +31,8 @@ namespace {
 constexpr auto file_posix_supports_64_bit_size = sizeof(off_t) == 8;
 
 constexpr auto file_posix_max_int = std::min(
-	Int64{std::numeric_limits<off_t>::max()},
-	Int64{std::numeric_limits<IntP>::max()});
+	std::int64_t{std::numeric_limits<off_t>::max()},
+	std::int64_t{std::numeric_limits<std::intptr_t>::max()});
 
 } // namespace
 
@@ -119,7 +120,7 @@ void File::open(const char* file_name, FileOpenMode open_mode)
 	resource_.swap(resource);
 }
 
-IntP File::read(void* buffer, IntP count) const
+std::intptr_t File::read(void* buffer, std::intptr_t count) const
 {
 	const auto posix_file_descriptor = resource_.get();
 	const auto posix_number_of_bytes_to_read = static_cast<size_t>(std::min(count, file_posix_max_int));
@@ -130,10 +131,10 @@ IntP File::read(void* buffer, IntP count) const
 		BSTONE_THROW_STATIC_SOURCE("Failed to read.");
 	}
 
-	return static_cast<IntP>(posix_number_of_bytes_read);
+	return static_cast<std::intptr_t>(posix_number_of_bytes_read);
 }
 
-IntP File::write(const void* buffer, IntP count) const
+std::intptr_t File::write(const void* buffer, std::intptr_t count) const
 {
 	const auto posix_file_descriptor = resource_.get();
 	const auto posix_number_of_bytes_to_write = static_cast<size_t>(std::min(count, file_posix_max_int));
@@ -144,10 +145,10 @@ IntP File::write(const void* buffer, IntP count) const
 		BSTONE_THROW_STATIC_SOURCE("Failed to write.");
 	}
 
-	return static_cast<IntP>(posix_number_of_bytes_written);
+	return static_cast<std::intptr_t>(posix_number_of_bytes_written);
 }
 
-Int64 File::seek(Int64 offset, FileOrigin origin) const
+std::int64_t File::seek(std::int64_t offset, FileOrigin origin) const
 {
 	if (!file_posix_supports_64_bit_size)
 	{
@@ -174,10 +175,10 @@ Int64 File::seek(Int64 offset, FileOrigin origin) const
 		BSTONE_THROW_STATIC_SOURCE("Failed to set position.");
 	}
 
-	return static_cast<Int64>(lseek_result);
+	return static_cast<std::int64_t>(lseek_result);
 }
 
-Int64 File::get_size() const
+std::int64_t File::get_size() const
 {
 	struct stat posix_stat;
 	const auto fstat_result = fstat(resource_.get(), &posix_stat);
@@ -190,7 +191,7 @@ Int64 File::get_size() const
 	return posix_stat.st_size;
 }
 
-void File::set_size(Int64 size) const
+void File::set_size(std::int64_t size) const
 {
 	if (!file_posix_supports_64_bit_size)
 	{

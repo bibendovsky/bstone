@@ -49,7 +49,7 @@ Win32WString::Win32WString(std::intptr_t capacity)
 	Base{capacity, get_win32_wstring_memory_resource()}
 {}
 
-Win32WString::Win32WString(IntP capacity, MemoryResource& memory_resource)
+Win32WString::Win32WString(std::intptr_t capacity, MemoryResource& memory_resource)
 	:
 	Base{capacity, memory_resource}
 {}

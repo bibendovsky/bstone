@@ -23,7 +23,7 @@ struct BinaryReaderDetail
 	static T generic_read(Stream& stream)
 	{
 		T value;
-		stream.read_exact(&value, static_cast<IntP>(sizeof(T)));
+		stream.read_exact(&value, static_cast<std::intptr_t>(sizeof(T)));
 		return value;
 	}
 };
@@ -42,44 +42,44 @@ Stream& BinaryReader::get_stream() const
 	return *stream_;
 }
 
-Int8 BinaryReader::read_s8() const
+std::int8_t BinaryReader::read_s8() const
 {
-	return BinaryReaderDetail::generic_read<Int8>(*stream_);
+	return BinaryReaderDetail::generic_read<std::int8_t>(*stream_);
 }
 
-UInt8 BinaryReader::read_u8() const
+std::uint8_t BinaryReader::read_u8() const
 {
-	return BinaryReaderDetail::generic_read<UInt8>(*stream_);
+	return BinaryReaderDetail::generic_read<std::uint8_t>(*stream_);
 }
 
-Int16 BinaryReader::read_s16() const
+std::int16_t BinaryReader::read_s16() const
 {
-	return BinaryReaderDetail::generic_read<Int16>(*stream_);
+	return BinaryReaderDetail::generic_read<std::int16_t>(*stream_);
 }
 
-UInt16 BinaryReader::read_u16() const
+std::uint16_t BinaryReader::read_u16() const
 {
-	return BinaryReaderDetail::generic_read<UInt16>(*stream_);
+	return BinaryReaderDetail::generic_read<std::uint16_t>(*stream_);
 }
 
-Int32 BinaryReader::read_s32() const
+std::int32_t BinaryReader::read_s32() const
 {
-	return BinaryReaderDetail::generic_read<Int32>(*stream_);
+	return BinaryReaderDetail::generic_read<std::int32_t>(*stream_);
 }
 
-UInt32 BinaryReader::read_u32() const
+std::uint32_t BinaryReader::read_u32() const
 {
-	return BinaryReaderDetail::generic_read<UInt32>(*stream_);
+	return BinaryReaderDetail::generic_read<std::uint32_t>(*stream_);
 }
 
-Int64 BinaryReader::read_s64() const
+std::int64_t BinaryReader::read_s64() const
 {
-	return BinaryReaderDetail::generic_read<Int64>(*stream_);
+	return BinaryReaderDetail::generic_read<std::int64_t>(*stream_);
 }
 
-UInt64 BinaryReader::read_u64() const
+std::uint64_t BinaryReader::read_u64() const
 {
-	return BinaryReaderDetail::generic_read<UInt64>(*stream_);
+	return BinaryReaderDetail::generic_read<std::uint64_t>(*stream_);
 }
 
 float BinaryReader::read_b32() const

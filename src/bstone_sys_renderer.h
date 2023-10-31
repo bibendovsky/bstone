@@ -61,7 +61,11 @@ private:
 	virtual void do_fill(Span<const R2RectI> rects) = 0;
 	virtual void do_present() = 0;
 
-	virtual void do_read_pixels(const R2RectI* rect, PixelFormat pixel_format, void* pixels, int pitch) = 0;
+	virtual void do_read_pixels(
+		const R2RectI* rect,
+		PixelFormat pixel_format,
+		void* pixels,
+		int pitch) = 0;
 
 	virtual TextureUPtr do_make_texture(const TextureInitParam& param) = 0;
 };

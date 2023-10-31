@@ -526,7 +526,7 @@ try {
 		binary_writer.write_u32(endian::to_little(bmp::lcs_calibrated_rgb));
 
 		// bV4Endpoints
-		binary_writer.get_stream().write(endpoints, static_cast<IntP>(sizeof(decltype(endpoints))));
+		binary_writer.get_stream().write(endpoints, static_cast<std::intptr_t>(sizeof(decltype(endpoints))));
 
 		// bV4GammaRed
 		binary_writer.write_u32(endian::to_little(0));

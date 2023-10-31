@@ -9,9 +9,10 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_AUTO_ARENA_MEMORY_RESOURCE_INCLUDED)
 #define BSTONE_AUTO_ARENA_MEMORY_RESOURCE_INCLUDED
 
+#include <cstdint>
+
 #include <memory>
 
-#include "bstone_int.h"
 #include "bstone_memory_resource.h"
 
 namespace bstone {
@@ -22,7 +23,7 @@ public:
 	AutoArenaMemoryResource();
 	~AutoArenaMemoryResource() override;
 
-	void reserve(IntP capacity, MemoryResource& memory_resource);
+	void reserve(std::intptr_t capacity, MemoryResource& memory_resource);
 
 private:
 	class StorageDeleter
@@ -39,14 +40,14 @@ private:
 	using Storage = std::unique_ptr<unsigned char[], StorageDeleter>;
 
 private:
-	void* do_allocate(IntP size) override;
+	void* do_allocate(std::intptr_t size) override;
 	void do_deallocate(void* ptr) override;
 
 private:
 	Storage storage_;
-	IntP capacity_{};
-	IntP size_{};
-	IntP counter_{};
+	std::intptr_t capacity_{};
+	std::intptr_t size_{};
+	std::intptr_t counter_{};
 };
 
 } // namespace bstone

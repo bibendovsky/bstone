@@ -9,7 +9,8 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_BINARY_READER_INCLUDED)
 #define BSTONE_BINARY_READER_INCLUDED
 
-#include "bstone_int.h"
+#include <cstdint>
+
 #include "bstone_stream.h"
 
 namespace bstone {
@@ -22,17 +23,17 @@ public:
 
 	Stream& get_stream() const;
 
-	Int8 read_s8() const;
-	UInt8 read_u8() const;
+	std::int8_t read_s8() const;
+	std::uint8_t read_u8() const;
 
-	Int16 read_s16() const;
-	UInt16 read_u16() const;
+	std::int16_t read_s16() const;
+	std::uint16_t read_u16() const;
 
-	Int32 read_s32() const;
-	UInt32 read_u32() const;
+	std::int32_t read_s32() const;
+	std::uint32_t read_u32() const;
 
-	Int64 read_s64() const;
-	UInt64 read_u64() const;
+	std::int64_t read_s64() const;
+	std::uint64_t read_u64() const;
 
 	float read_b32() const; // IEEE 754-2008 binary32
 	double read_b64() const; // IEEE 754-2008 binary64

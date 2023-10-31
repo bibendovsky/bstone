@@ -17,7 +17,7 @@ namespace bstone {
 class CVarMgrImpl final : public CVarMgr
 {
 public:
-	CVarMgrImpl(IntP max_cvars);
+	CVarMgrImpl(std::intptr_t max_cvars);
 	CVarMgrImpl(const CVarMgrImpl&) = delete;
 	CVarMgrImpl& operator=(const CVarMgrImpl&) = delete;
 	~CVarMgrImpl() override = default;
@@ -32,14 +32,14 @@ private:
 	using NameToIndex = std::unordered_map<StringView, CVars::size_type, StringViewHasher>;
 
 private:
-	IntP max_cvars_{};
+	std::intptr_t max_cvars_{};
 	CVars cvars_{};
 	NameToIndex name_to_index_map_{};
 };
 
 // --------------------------------------------------------------------------
 
-CVarMgrImpl::CVarMgrImpl(IntP max_cvars)
+CVarMgrImpl::CVarMgrImpl(std::intptr_t max_cvars)
 	:
 	max_cvars_{max_cvars}
 {}
@@ -58,7 +58,7 @@ CVar* CVarMgrImpl::find(StringView name) const noexcept
 
 CVarMgrCVars CVarMgrImpl::get_all() noexcept
 {
-	return CVarMgrCVars{cvars_.data(), static_cast<IntP>(cvars_.size())};
+	return CVarMgrCVars{cvars_.data(), static_cast<std::intptr_t>(cvars_.size())};
 }
 
 void CVarMgrImpl::add(CVar& cvar)
@@ -87,7 +87,7 @@ try {
 
 // ==========================================================================
 
-CVarMgrUPtr make_cvar_mgr(IntP max_cvars)
+CVarMgrUPtr make_cvar_mgr(std::intptr_t max_cvars)
 {
 	return std::make_unique<CVarMgrImpl>(max_cvars);
 }

@@ -40,8 +40,8 @@ public:
 
 	ClOption find_option(StringView option_name) const;
 
-	IntP get_count() const noexcept;
-	StringView get_argument(IntP index) const;
+	std::intptr_t get_count() const noexcept;
+	StringView get_argument(std::intptr_t index) const;
 	StringView get_option_value(StringView option_name) const;
 	void get_option_values(StringView option_name, StringView& value1, StringView& value2) const;
 

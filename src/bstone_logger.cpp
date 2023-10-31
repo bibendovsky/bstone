@@ -128,7 +128,7 @@ try
 	if (file_stream_.is_open())
 	{
 		const auto new_line = '\n';
-		file_stream_.write_exact(message_.c_str(), static_cast<IntP>(message.size()));
+		file_stream_.write_exact(message_.c_str(), static_cast<std::intptr_t>(message.size()));
 		file_stream_.write_exact(&new_line, 1);
 		file_stream_.flush();
 	}

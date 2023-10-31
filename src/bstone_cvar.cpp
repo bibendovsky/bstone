@@ -22,9 +22,9 @@ CVar::CVar(
 	CVarInt32Tag,
 	StringView name,
 	CVarFlags flags,
-	Int32 default_value,
-	Int32 min_value,
-	Int32 max_value)
+	std::int32_t default_value,
+	std::int32_t min_value,
+	std::int32_t max_value)
 	:
 	CVar{
 		CVarInt32Tag{},
@@ -40,7 +40,7 @@ CVar::CVar(
 	CVarInt32Tag,
 	StringView name,
 	CVarFlags flags,
-	Int32 default_value,
+	std::int32_t default_value,
 	CVarInt32Values values)
 	:
 	CVar{
@@ -48,20 +48,20 @@ CVar::CVar(
 		name,
 		flags,
 		default_value,
-		std::numeric_limits<Int32>::min(),
-		std::numeric_limits<Int32>::max(),
+		std::numeric_limits<std::int32_t>::min(),
+		std::numeric_limits<std::int32_t>::max(),
 		values}
 {}
 
-CVar::CVar(CVarInt32Tag, StringView name, CVarFlags flags, Int32 default_value)
+CVar::CVar(CVarInt32Tag, StringView name, CVarFlags flags, std::int32_t default_value)
 	:
 	CVar{
 		CVarInt32Tag{},
 		name,
 		flags,
 		default_value,
-		std::numeric_limits<Int32>::min(),
-		std::numeric_limits<Int32>::max(),
+		std::numeric_limits<std::int32_t>::min(),
+		std::numeric_limits<std::int32_t>::max(),
 		{}}
 {}
 
@@ -96,8 +96,8 @@ try {
 	name_ = name;
 	flags_ = flags;
 
-	int32_min_value_ = std::numeric_limits<Int32>::min();
-	int32_max_value_ = std::numeric_limits<Int32>::max();
+	int32_min_value_ = std::numeric_limits<std::int32_t>::min();
+	int32_max_value_ = std::numeric_limits<std::int32_t>::max();
 	int32_value_ = int32_default_value_;
 
 	string_default_value_ = default_value;
@@ -152,12 +152,12 @@ void CVar::set_bool(bool value)
 	set_int32(value);
 }
 
-Int32 CVar::get_int32() const noexcept
+std::int32_t CVar::get_int32() const noexcept
 {
 	return int32_value_;
 }
 
-void CVar::set_int32(Int32 value)
+void CVar::set_int32(std::int32_t value)
 try {
 	switch (type_)
 	{
@@ -249,9 +249,9 @@ CVar::CVar(
 	CVarInt32Tag,
 	StringView name,
 	CVarFlags flags,
-	Int32 default_value,
-	Int32 min_value,
-	Int32 max_value,
+	std::int32_t default_value,
+	std::int32_t min_value,
+	std::int32_t max_value,
 	CVarInt32Values values)
 try {
 	CValidator::validate_name(name);

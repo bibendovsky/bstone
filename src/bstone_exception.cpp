@@ -7,6 +7,7 @@ SPDX-License-Identifier: MIT
 // Exception classes.
 
 #include <cassert>
+#include <cstdint>
 
 #include <limits>
 #include <memory>
@@ -14,7 +15,6 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_char_traits.h"
 #include "bstone_exception.h"
-#include "bstone_int.h"
 #include "bstone_utility.h"
 
 namespace bstone {
@@ -86,7 +86,7 @@ DynamicSourceException::DynamicSourceException(const SourceLocation& source_loca
 	}
 
 	const auto message_size_with_null = char_traits::get_size(message) + 1;
-	const auto control_block_size = static_cast<IntP>(sizeof(ControlBlock));
+	const auto control_block_size = static_cast<std::intptr_t>(sizeof(ControlBlock));
 	const auto storage_size = control_block_size + message_size_with_null;
 	auto storage = std::make_unique<char[]>(storage_size);
 	auto control_block = reinterpret_cast<ControlBlock*>(storage.get());

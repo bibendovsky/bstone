@@ -35,7 +35,7 @@ AutoArenaMemoryResource::~AutoArenaMemoryResource()
 	assert(size_ == 0);
 }
 
-void AutoArenaMemoryResource::reserve(IntP capacity, MemoryResource& memory_resource)
+void AutoArenaMemoryResource::reserve(std::intptr_t capacity, MemoryResource& memory_resource)
 {
 	if (capacity < 0)
 	{
@@ -61,7 +61,7 @@ void AutoArenaMemoryResource::reserve(IntP capacity, MemoryResource& memory_reso
 	capacity_ = capacity;
 }
 
-void* AutoArenaMemoryResource::do_allocate(IntP size)
+void* AutoArenaMemoryResource::do_allocate(std::intptr_t size)
 {
 	if (size < 0)
 	{

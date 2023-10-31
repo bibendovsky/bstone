@@ -7,9 +7,10 @@ SPDX-License-Identifier: MIT
 #ifndef BSTONE_CVAR_STRING_INCLUDED
 #define BSTONE_CVAR_STRING_INCLUDED
 
+#include <cstdint>
+
 #include <memory>
 
-#include "bstone_int.h"
 #include "bstone_string_view.h"
 
 namespace bstone {
@@ -34,12 +35,12 @@ private:
 	using Storage = std::unique_ptr<char[]>;
 
 private:
-	static const IntP initial_capacity;
+	static const std::intptr_t initial_capacity;
 
 private:
 	Storage storage_{};
-	IntP capacity_{};
-	IntP size_{};
+	std::intptr_t capacity_{};
+	std::intptr_t size_{};
 };
 
 } // namespace bstone

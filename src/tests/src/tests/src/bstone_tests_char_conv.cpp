@@ -1,3 +1,5 @@
+#include <cstdint>
+
 #include <algorithm>
 #include <exception>
 #include <numeric>
@@ -5,7 +7,6 @@
 #include "bstone_tester.h"
 
 #include "bstone_char_conv.h"
-#include "bstone_int.h"
 
 namespace {
 
@@ -364,7 +365,7 @@ void test_l0rlgeb9nnayge7e()
 // Octal negative value.
 void test_6bsk5jbj8h32j51u()
 {
-	constexpr auto value = bstone::Int32{-2'147'483'647 - 1};
+	constexpr auto value = std::int32_t{-2'147'483'647 - 1};
 	constexpr char reference_chars[12] = {'-', '2', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'};
 	char chars[13];
 	const auto chars_last = bstone::to_chars(value, chars, chars + 13, 8);
@@ -378,7 +379,7 @@ void test_6bsk5jbj8h32j51u()
 // Decimal negative value.
 void test_w9v94y8ylfdw0fn6()
 {
-	constexpr auto value = bstone::Int32{-2'147'483'647 - 1};
+	constexpr auto value = std::int32_t{-2'147'483'647 - 1};
 	constexpr char reference_chars[11] = {'-', '2', '1', '4', '7', '4', '8', '3', '6', '4', '8'};
 	char chars[12];
 	const auto chars_last = bstone::to_chars(value, chars, chars + 12);
@@ -392,7 +393,7 @@ void test_w9v94y8ylfdw0fn6()
 // Hex negative value.
 void test_94vh40w9bhfiisuq()
 {
-	constexpr auto value = bstone::Int32{-2'147'483'647 - 1};
+	constexpr auto value = std::int32_t{-2'147'483'647 - 1};
 	constexpr char reference_chars[9] = {'-', '8', '0', '0', '0', '0', '0', '0', '0'};
 	char chars[10];
 	const auto chars_last = bstone::to_chars(value, chars, chars + 10, 16);
@@ -406,7 +407,7 @@ void test_94vh40w9bhfiisuq()
 // Octal positive value.
 void test_dvtkoajkruya2g23()
 {
-	constexpr auto value = bstone::Int32{2'147'483'647};
+	constexpr auto value = std::int32_t{2'147'483'647};
 	constexpr char reference_chars[11] = {'1', '7', '7', '7', '7', '7', '7', '7', '7', '7', '7'};
 	char chars[12];
 	const auto chars_last = bstone::to_chars(value, chars, chars + 12, 8);
@@ -420,7 +421,7 @@ void test_dvtkoajkruya2g23()
 // Decimal positive value.
 void test_gci8hnnnfrzce1ps()
 {
-	constexpr auto value = bstone::Int32{2'147'483'647};
+	constexpr auto value = std::int32_t{2'147'483'647};
 	constexpr char reference_chars[10] = {'2', '1', '4', '7', '4', '8', '3', '6', '4', '7'};
 	char chars[11];
 	const auto chars_last = bstone::to_chars(value, chars, chars + 11);
@@ -434,7 +435,7 @@ void test_gci8hnnnfrzce1ps()
 // Hex positive value.
 void test_k5dma16zcskflljr()
 {
-	constexpr auto value = bstone::Int32{2'147'483'647};
+	constexpr auto value = std::int32_t{2'147'483'647};
 	constexpr char reference_chars[8] = {'7', 'f', 'f', 'f', 'f', 'f', 'f', 'f'};
 	char chars[9];
 	const auto chars_last = bstone::to_chars(value, chars, chars + 9, 16);
@@ -508,9 +509,9 @@ void test_hlb3rbu9n9ru7j0p()
 // Octal negative number; explicit base.
 void test_2l8uvpq5jwsq1mey()
 {
-	constexpr bstone::Int32 reference_value = -2'147'483'647 - 1;
+	constexpr std::int32_t reference_value = -2'147'483'647 - 1;
 	constexpr char reference_chars[12] = {'-', '2', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'};
-	auto value = bstone::Int32{};
+	auto value = std::int32_t{};
 	const auto chars_last = bstone::from_chars(reference_chars, reference_chars + 12, value, 8);
 	tester.check(chars_last == reference_chars + 12 && value == reference_value);
 }
@@ -519,9 +520,9 @@ void test_2l8uvpq5jwsq1mey()
 // Octal negative number; implicit base.
 void test_6g2pgwz3xscy7a0s()
 {
-	constexpr bstone::Int32 reference_value = -2'147'483'647 - 1;
+	constexpr std::int32_t reference_value = -2'147'483'647 - 1;
 	constexpr char reference_chars[13] = {'-', '0', '2', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'};
-	auto value = bstone::Int32{};
+	auto value = std::int32_t{};
 	const auto chars_last = bstone::from_chars(reference_chars, reference_chars + 13, value, 0);
 	tester.check(chars_last == reference_chars + 13 && value == reference_value);
 }
@@ -530,9 +531,9 @@ void test_6g2pgwz3xscy7a0s()
 // Octal number; implicit base.
 void test_xhrlosdet2rdbpnv()
 {
-	constexpr bstone::Int32 reference_value = 1'402'433'619;
+	constexpr std::int32_t reference_value = 1'402'433'619;
 	constexpr char reference_chars[12] = {'0', '1', '2', '3', '4', '5', '6', '7', '0', '1', '2', '3'};
-	auto value = bstone::Int32{};
+	auto value = std::int32_t{};
 	const auto chars_last = bstone::from_chars(reference_chars, reference_chars + 12, value, 0);
 	tester.check(chars_last == reference_chars + 12 && value == reference_value);
 }
@@ -541,9 +542,9 @@ void test_xhrlosdet2rdbpnv()
 // Decimal negative number; explicit base.
 void test_5aohfvv83ivwlzq0()
 {
-	constexpr bstone::Int32 reference_value = -2'147'483'647 - 1;
+	constexpr std::int32_t reference_value = -2'147'483'647 - 1;
 	constexpr char reference_chars[11] = {'-', '2', '1', '4', '7', '4', '8', '3', '6', '4', '8'};
-	auto value = bstone::Int32{};
+	auto value = std::int32_t{};
 	const auto chars_last = bstone::from_chars(reference_chars, reference_chars + 11, value);
 	tester.check(chars_last == reference_chars + 11 && value == reference_value);
 }
@@ -552,9 +553,9 @@ void test_5aohfvv83ivwlzq0()
 // Decimal negative number; implicit base.
 void test_ah55jmdmze5tbq7e()
 {
-	constexpr bstone::Int32 reference_value = 1'234'567'890;
+	constexpr std::int32_t reference_value = 1'234'567'890;
 	constexpr char reference_chars[10] = {'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'};
-	auto value = bstone::Int32{};
+	auto value = std::int32_t{};
 	const auto chars_last = bstone::from_chars(reference_chars, reference_chars + 10, value, 0);
 	tester.check(chars_last == reference_chars + 10 && value == reference_value);
 }
@@ -563,9 +564,9 @@ void test_ah55jmdmze5tbq7e()
 // Hex negative number; explicit base.
 void test_clkb1xo609m44vyu()
 {
-	constexpr bstone::Int32 reference_value = -2'058'993'460;
+	constexpr std::int32_t reference_value = -2'058'993'460;
 	constexpr char reference_chars[9] = {'-', '7', 'A', 'b', '9', 'b', 'F', '3', '4'};
-	auto value = bstone::Int32{};
+	auto value = std::int32_t{};
 	const auto chars_last = bstone::from_chars(reference_chars, reference_chars + 9, value, 16);
 	tester.check(chars_last == reference_chars + 9 && value == reference_value);
 }
@@ -574,9 +575,9 @@ void test_clkb1xo609m44vyu()
 // Hex negative number; implicit base.
 void test_m42rz7d24pbcr159()
 {
-	constexpr bstone::Int32 reference_value = -2'058'993'460;
+	constexpr std::int32_t reference_value = -2'058'993'460;
 	constexpr char reference_chars[11] = {'-', '0', 'x', '7', 'A', 'b', '9', 'b', 'F', '3', '4'};
-	auto value = bstone::Int32{};
+	auto value = std::int32_t{};
 	const auto chars_last = bstone::from_chars(reference_chars, reference_chars + 11, value, 0);
 	tester.check(chars_last == reference_chars + 11 && value == reference_value);
 }
@@ -585,9 +586,9 @@ void test_m42rz7d24pbcr159()
 // Hex number; implicit base.
 void test_d6mz0zwedq5txe0w()
 {
-	constexpr bstone::Int32 reference_value = 0x12345678;
+	constexpr std::int32_t reference_value = 0x12345678;
 	constexpr char reference_chars[10] = {'0', 'x', '1', '2', '3', '4', '5', '6', '7', '8'};
-	auto value = bstone::Int32{};
+	auto value = std::int32_t{};
 	const auto chars_last = bstone::from_chars(reference_chars, reference_chars + 10, value, 0);
 	tester.check(chars_last == reference_chars + 10 && value == reference_value);
 }
@@ -727,7 +728,7 @@ void test_6kvymcfmze1lvbgb()
 void test_uv2uq0ulf703ivhq()
 {
 	const char chars[3] = {'2', '0', '0'};
-	auto value = bstone::Int8{};
+	auto value = std::int8_t{};
 	auto is_failed = false;
 
 	try

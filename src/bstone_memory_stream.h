@@ -9,9 +9,10 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_MEMORY_STREAM_INCLUDED)
 #define BSTONE_MEMORY_STREAM_INCLUDED
 
+#include <cstdint>
+
 #include <memory>
 
-#include "bstone_int.h"
 #include "bstone_stream.h"
 
 namespace bstone {
@@ -24,40 +25,44 @@ public:
 
 public:
 	MemoryStream() = default;
-	explicit MemoryStream(IntP initial_capacity, IntP chunk_size = default_chunk_size);
+	explicit MemoryStream(
+		std::intptr_t initial_capacity,
+		std::intptr_t chunk_size = default_chunk_size);
 	MemoryStream(MemoryStream&&) = default;
 	MemoryStream& operator=(MemoryStream&&) = default;
 	~MemoryStream() override = default;
 
-	const UInt8* get_data() const;
-	UInt8* get_data();
+	const std::uint8_t* get_data() const;
+	std::uint8_t* get_data();
 
-	void open(IntP initial_capacity = default_initial_capacity, IntP chunk_size = default_chunk_size);
+	void open(
+		std::intptr_t initial_capacity = default_initial_capacity,
+		std::intptr_t chunk_size = default_chunk_size);
 
 private:
-	using Storage = std::unique_ptr<UInt8[]>;
+	using Storage = std::unique_ptr<std::uint8_t[]>;
 
 private:
 	bool is_open_{};
-	IntP capacity_{};
-	IntP chunk_size_{};
-	IntP size_{};
-	IntP position_{};
+	std::intptr_t capacity_{};
+	std::intptr_t chunk_size_{};
+	std::intptr_t size_{};
+	std::intptr_t position_{};
 	Storage storage_{};
 
 private:
 	void do_close() override;
 	bool do_is_open() const override;
-	IntP do_read(void* buffer, IntP count) override;
-	IntP do_write(const void* buffer, IntP count) override;
-	Int64 do_seek(Int64 offset, StreamOrigin origin) override;
-	Int64 do_get_size() const override;
-	void do_set_size(Int64 size) override;
+	std::intptr_t do_read(void* buffer, std::intptr_t count) override;
+	std::intptr_t do_write(const void* buffer, std::intptr_t count) override;
+	std::int64_t do_seek(std::int64_t offset, StreamOrigin origin) override;
+	std::int64_t do_get_size() const override;
+	void do_set_size(std::int64_t size) override;
 	void do_flush() override;
 
 private:
 	void ensure_is_open() const;
-	void reserve(IntP capacity, IntP chunk_size);
+	void reserve(std::intptr_t capacity, std::intptr_t chunk_size);
 	void close_internal();
 };
 

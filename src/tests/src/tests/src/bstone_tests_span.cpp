@@ -132,7 +132,7 @@ void test_y82j43v4a54wo211()
 {
 	using Type = int;
 	constexpr auto value_count = 3;
-	constexpr auto bytes_count = value_count * static_cast<bstone::IntP>(sizeof(Type));
+	constexpr auto bytes_count = value_count * static_cast<std::intptr_t>(sizeof(Type));
 	static constexpr int values[value_count] = {10, 20, 30};
 	constexpr auto span = bstone::Span<const Type>{values};
 	tester.check(span.get_bytes_size() == bytes_count);
@@ -343,7 +343,7 @@ void test_vz4841mkoy26qevn()
 
 	tester.check(
 		std::is_const<Span::Item>::value &&
-		span.get_data() == reinterpret_cast<const bstone::UInt8*>(values) &&
+		span.get_data() == reinterpret_cast<const std::uint8_t*>(values) &&
 		span.get_size() == value_count * sizeof(int));
 }
 
@@ -358,7 +358,7 @@ void test_cn0flxaqcrulubrz()
 
 	tester.check(
 		!std::is_const<Span::Item>::value &&
-		span.get_data() == reinterpret_cast<bstone::UInt8*>(values) &&
+		span.get_data() == reinterpret_cast<std::uint8_t*>(values) &&
 		span.get_size() == value_count * sizeof(int));
 }
 
@@ -373,7 +373,7 @@ void test_lbkl8witj32qwukg()
 
 	tester.check(
 		std::is_const<Span::Item>::value &&
-		span.get_data() == reinterpret_cast<const bstone::UInt8*>(values) &&
+		span.get_data() == reinterpret_cast<const std::uint8_t*>(values) &&
 		span.get_size() == value_count * sizeof(int));
 }
 
@@ -388,7 +388,7 @@ void test_4s142p3ilba894gr()
 
 	tester.check(
 		!std::is_const<Span::Item>::value &&
-		span.get_data() == reinterpret_cast<bstone::UInt8*>(values) &&
+		span.get_data() == reinterpret_cast<std::uint8_t*>(values) &&
 		span.get_size() == value_count * sizeof(int));
 }
 
@@ -404,7 +404,7 @@ void test_piil1sd0ihg3940n()
 
 	tester.check(
 		std::is_const<Span::Item>::value &&
-		octets_span.get_data() == reinterpret_cast<const bstone::UInt8*>(values) &&
+		octets_span.get_data() == reinterpret_cast<const std::uint8_t*>(values) &&
 		octets_span.get_size() == value_count * sizeof(int));
 }
 
@@ -420,7 +420,7 @@ void test_yxfuk39bm0ri0k2x()
 
 	tester.check(
 		!std::is_const<Span::Item>::value &&
-		octets_span.get_data() == reinterpret_cast<bstone::UInt8*>(values) &&
+		octets_span.get_data() == reinterpret_cast<std::uint8_t*>(values) &&
 		octets_span.get_size() == value_count * sizeof(int));
 }
 
@@ -437,7 +437,7 @@ void test_xsswowtf98mfxyzg()
 
 	tester.check(
 		std::is_const<Span::Item>::value &&
-		span.get_data() == reinterpret_cast<const bstone::UInt8*>(values) &&
+		span.get_data() == reinterpret_cast<const std::uint8_t*>(values) &&
 		span.get_size() == value_count * sizeof(int));
 }
 
@@ -452,7 +452,7 @@ void test_ig10wut5vvtb1trm()
 
 	tester.check(
 		std::is_const<Span::Item>::value &&
-		span.get_data() == reinterpret_cast<const bstone::UInt8*>(values) &&
+		span.get_data() == reinterpret_cast<const std::uint8_t*>(values) &&
 		span.get_size() == value_count * sizeof(int));
 }
 
@@ -467,7 +467,7 @@ void test_apjutm6ccidvdbws()
 
 	tester.check(
 		std::is_const<Span::Item>::value &&
-		span.get_data() == reinterpret_cast<const bstone::UInt8*>(values) &&
+		span.get_data() == reinterpret_cast<const std::uint8_t*>(values) &&
 		span.get_size() == value_count * sizeof(int));
 }
 
@@ -482,7 +482,7 @@ void test_i7aizabfbdg2x2ee()
 
 	tester.check(
 		std::is_const<Span::Item>::value &&
-		span.get_data() == reinterpret_cast<const bstone::UInt8*>(values) &&
+		span.get_data() == reinterpret_cast<const std::uint8_t*>(values) &&
 		span.get_size() == value_count * sizeof(int));
 }
 
@@ -497,7 +497,7 @@ void test_jt0hrizy9066erco()
 
 	tester.check(
 		std::is_const<Span::Item>::value &&
-		octets_span.get_data() == reinterpret_cast<const bstone::UInt8*>(values) &&
+		octets_span.get_data() == reinterpret_cast<const std::uint8_t*>(values) &&
 		octets_span.get_size() == value_count * sizeof(int));
 }
 

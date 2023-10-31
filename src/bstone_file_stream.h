@@ -31,11 +31,11 @@ private:
 private:
 	void do_close() override;
 	bool do_is_open() const override;
-	IntP do_read(void* buffer, IntP count) override;
-	IntP do_write(const void* buffer, IntP count) override;
-	Int64 do_seek(Int64 offset, StreamOrigin origin) override;
-	Int64 do_get_size() const override;
-	void do_set_size(Int64 size) override;
+	std::intptr_t do_read(void* buffer, std::intptr_t count) override;
+	std::intptr_t do_write(const void* buffer, std::intptr_t count) override;
+	std::int64_t do_seek(std::int64_t offset, StreamOrigin origin) override;
+	std::int64_t do_get_size() const override;
+	void do_set_size(std::int64_t size) override;
 	void do_flush() override;
 };
 

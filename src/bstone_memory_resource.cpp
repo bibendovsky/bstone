@@ -11,7 +11,7 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-void* MemoryResource::allocate(IntP size)
+void* MemoryResource::allocate(std::intptr_t size)
 try {
 	return do_allocate(size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -35,7 +35,7 @@ MemoryResource& MemoryResourceUPtrDeleterBase::get_memory_resource() const noexc
 
 // ==========================================================================
 
-void* NullMemoryResource::do_allocate(IntP)
+void* NullMemoryResource::do_allocate(std::intptr_t)
 {
 	BSTONE_THROW_STATIC_SOURCE("Out of memory.");
 }
@@ -44,7 +44,7 @@ void NullMemoryResource::do_deallocate(void*) {}
 
 // ==========================================================================
 
-void* NewDeleteMemoryResource::do_allocate(IntP size)
+void* NewDeleteMemoryResource::do_allocate(std::intptr_t size)
 {
 	return ::operator new(static_cast<std::size_t>(size));
 }

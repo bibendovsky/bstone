@@ -53,7 +53,9 @@ public:
 	void stop_voice(AudioMixerVoiceHandle voice_handle) override;
 
 	void set_voice_gain(AudioMixerVoiceHandle voice_handle, double gain) override;
-	void set_voice_r3_position(AudioMixerVoiceHandle voice_handle, const AudioMixerVoiceR3Position& r3_position) override;
+	void set_voice_r3_position(
+		AudioMixerVoiceHandle voice_handle,
+		const AudioMixerVoiceR3Position& r3_position) override;
 
 	bool can_set_voice_output_gains() const override;
 	void enable_set_voice_output_gains(

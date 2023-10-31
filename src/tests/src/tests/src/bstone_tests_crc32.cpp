@@ -9,9 +9,9 @@ auto tester = bstone::Tester{};
 
 // ==========================================================================
 
-bstone::IntP length(const char* string)
+std::intptr_t length(const char* string)
 {
-	return static_cast<bstone::IntP>(std::char_traits<char>::length(string));
+	return static_cast<std::intptr_t>(std::char_traits<char>::length(string));
 }
 
 // ==========================================================================
@@ -81,7 +81,7 @@ void test_kujcosz33c9owex3()
 
 // ==========================================================================
 
-// void update(const void* data, IntP size)
+// void update(const void* data, std::intptr_t size)
 // "a"
 void test_jhujyqaohj9ry9s8()
 {
@@ -93,7 +93,7 @@ void test_jhujyqaohj9ry9s8()
 	tester.check(value == ref_value);
 }
 
-// void update(const void* data, IntP size)
+// void update(const void* data, std::intptr_t size)
 // "abc"
 void test_n0nxkm8jrb8l037n()
 {
@@ -105,7 +105,7 @@ void test_n0nxkm8jrb8l037n()
 	tester.check(value == ref_value);
 }
 
-// void update(const void* data, IntP size)
+// void update(const void* data, std::intptr_t size)
 // "message digest"
 void test_4xzs0ogisj32kooi()
 {
@@ -117,7 +117,7 @@ void test_4xzs0ogisj32kooi()
 	tester.check(value == ref_value);
 }
 
-// void update(const void* data, IntP size)
+// void update(const void* data, std::intptr_t size)
 // "abcdefghijklmnopqrstuvwxyz"
 void test_smnc6r7yxu6gludi()
 {
@@ -129,7 +129,7 @@ void test_smnc6r7yxu6gludi()
 	tester.check(value == ref_value);
 }
 
-// void update(const void* data, IntP size)
+// void update(const void* data, std::intptr_t size)
 // "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 void test_w90o9fvmsx7gmz3p()
 {
@@ -141,7 +141,7 @@ void test_w90o9fvmsx7gmz3p()
 	tester.check(value == ref_value);
 }
 
-// void update(const void* data, IntP size)
+// void update(const void* data, std::intptr_t size)
 // "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
 void test_0ob9y15z8z0ll2a6()
 {

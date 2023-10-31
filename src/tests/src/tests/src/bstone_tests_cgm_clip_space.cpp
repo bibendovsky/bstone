@@ -34,7 +34,7 @@ constexpr bool are_mat4_equal(
 
 // ==========================================================================
 
-template<bstone::IntP M, bstone::IntP N, typename T>
+template<std::intptr_t M, std::intptr_t N, typename T>
 void test_make_ortho_rh_n1p1()
 {
 	using Mat = bstone::cgm::Mat<M, N, T>;
@@ -77,7 +77,7 @@ void test_make_ortho_rh_n1p1()
 
 // ==========================================================================
 
-template<bstone::IntP M, bstone::IntP N, typename T>
+template<std::intptr_t M, std::intptr_t N, typename T>
 void make_perspective_vfov_rh_n1p1()
 {
 	using Mat = bstone::cgm::Mat<M, N, T>;

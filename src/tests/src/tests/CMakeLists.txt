@@ -52,8 +52,6 @@ target_sources(${PROJECT_NAME}
 		../../../bstone_char_traits.h
 		../../../bstone_exception.cpp
 		../../../bstone_exception.h
-		../../../bstone_int.cpp
-		../../../bstone_int.h
 		../../../bstone_source_location.cpp
 		../../../bstone_source_location.h
 		../../../bstone_span.cpp
@@ -146,7 +144,6 @@ target_sources(${PROJECT_NAME}
 		src/bstone_tests_char_traits.cpp
 		src/bstone_tests_endian.cpp
 		src/bstone_tests_exception.cpp
-		src/bstone_tests_int.cpp
 		src/bstone_tests_memory.cpp
 		src/bstone_tests_memory_resource.cpp
 		src/bstone_tests_scope_exit.cpp

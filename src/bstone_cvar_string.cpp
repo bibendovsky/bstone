@@ -11,7 +11,7 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-const IntP CVarString::initial_capacity = 32;
+const std::intptr_t CVarString::initial_capacity = 32;
 
 CVarString::CVarString() noexcept = default;
 

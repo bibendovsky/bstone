@@ -170,8 +170,8 @@ void test_n0q8fvihwy1v2klm()
 
 // ==========================================================================
 
-// IntP read(void*, IntP)
-// IntP write(const void*, IntP)
+// std::intptr_t read(void*, std::intptr_t)
+// std::intptr_t write(const void*, std::intptr_t)
 void test_s4ldcda38dhh06px()
 {
 	auto is_failed = false;
@@ -212,8 +212,8 @@ void test_s4ldcda38dhh06px()
 
 // ==========================================================================
 
-// void read_exact(void*, IntP)
-// void write_exact(const void*, IntP)
+// void read_exact(void*, std::intptr_t)
+// void write_exact(const void*, std::intptr_t)
 void test_xv0g17przcyh3w4p()
 {
 	auto is_open = false;
@@ -244,7 +244,7 @@ void test_xv0g17przcyh3w4p()
 	tester.check(is_open && is_zero_size && is_set_position && is_equal);
 }
 
-// void read_exact(void*, IntP)
+// void read_exact(void*, std::intptr_t)
 // Failed.
 void test_kms3o2eisp359ubi()
 {
@@ -275,7 +275,7 @@ void test_kms3o2eisp359ubi()
 	tester.check(is_open && is_zero_size && is_failed);
 }
 
-// void read_exact(void*, IntP)
+// void read_exact(void*, std::intptr_t)
 // Closed.
 void test_n5pmd6moj0vqsnqn()
 {
@@ -295,7 +295,7 @@ void test_n5pmd6moj0vqsnqn()
 	tester.check(is_failed);
 }
 
-// void write_exact(const void*, IntP)
+// void write_exact(const void*, std::intptr_t)
 // Closed.
 void test_fwl347iyu5349iee()
 {
@@ -317,7 +317,7 @@ void test_fwl347iyu5349iee()
 
 // ==========================================================================
 
-// seek(Int64, StreamOrigin)
+// seek(std::int64_t, StreamOrigin)
 void test_qfmcpsx4dy9jrgwi()
 {
 	auto is_failed = false;
@@ -345,7 +345,7 @@ void test_qfmcpsx4dy9jrgwi()
 
 // ==========================================================================
 
-// Int64 skip(Int64)
+// std::int64_t skip(std::int64_t)
 void test_gmx97qp03xosymdn()
 {
 	auto is_failed = false;
@@ -371,7 +371,7 @@ void test_gmx97qp03xosymdn()
 
 // ==========================================================================
 
-// Int64 get_position()
+// std::int64_t get_position()
 void test_n9h6bhuu066frk7i()
 {
 	auto is_failed = false;
@@ -396,7 +396,7 @@ void test_n9h6bhuu066frk7i()
 
 // ==========================================================================
 
-// void set_position(Int64)
+// void set_position(std::int64_t)
 void test_j7d9qfbvnl7p0fdh()
 {
 	auto is_failed = false;
@@ -420,7 +420,7 @@ void test_j7d9qfbvnl7p0fdh()
 
 // ==========================================================================
 
-// Int64 get_size() const
+// std::int64_t get_size() const
 void test_jvs8f0vrf44bei94()
 {
 	auto is_failed = false;
@@ -448,7 +448,7 @@ void test_jvs8f0vrf44bei94()
 
 // ==========================================================================
 
-// void set_size(Int64) const
+// void set_size(std::int64_t) const
 void test_apnc1tdy41tuubu6()
 {
 	auto is_failed = false;

@@ -1606,7 +1606,7 @@ try {
 
 	renderer_->submit_commands(make_span(
 		command_buffers_.data(),
-		static_cast<IntP>(command_buffers_.size())));
+		static_cast<std::intptr_t>(command_buffers_.size())));
 
 	if (vid_is_take_screenshot_scheduled)
 	{

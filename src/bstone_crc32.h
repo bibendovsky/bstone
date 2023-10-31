@@ -9,20 +9,20 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_CRC32_INCLUDED)
 #define BSTONE_CRC32_INCLUDED
 
-#include "bstone_int.h"
+#include <cstdint>
 
 namespace bstone {
 
 class Crc32
 {
 public:
-	UInt32 get_value() const noexcept;
+	std::uint32_t get_value() const noexcept;
 
 	void reset() noexcept;
-	void update(const void* data, IntP size);
+	void update(const void* data, std::intptr_t size);
 
 private:
-	UInt32 value_{};
+	std::uint32_t value_{};
 };
 
 } // namespace bstone

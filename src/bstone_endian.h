@@ -9,9 +9,9 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_ENDIAN_INCLUDED)
 #define BSTONE_ENDIAN_INCLUDED
 
-#include <type_traits>
+#include <cstdint>
 
-#include "bstone_int.h"
+#include <type_traits>
 
 #if !defined(BSTONE_LITTLE_ENDIAN)
 	#define BSTONE_LITTLE_ENDIAN 1
@@ -112,17 +112,17 @@ inline constexpr T swap_bytes(T value, Bytes1Tag) noexcept
 template<typename T>
 inline constexpr T swap_bytes(T value, Bytes2Tag) noexcept
 {
-	const auto u16_value = static_cast<UInt16>(value);
+	const auto u16_value = static_cast<std::uint16_t>(value);
 
-	return static_cast<T>(static_cast<UInt16>((u16_value >> 8) | (u16_value << 8)));
+	return static_cast<T>(static_cast<std::uint16_t>((u16_value >> 8) | (u16_value << 8)));
 }
 
 template<typename T>
 inline constexpr T swap_bytes(T value, Bytes4Tag) noexcept
 {
-	const auto u32_value = static_cast<UInt32>(value);
+	const auto u32_value = static_cast<std::uint32_t>(value);
 
-	return static_cast<T>(static_cast<UInt32>(
+	return static_cast<T>(static_cast<std::uint32_t>(
 		(u32_value >> 24) |
 		((u32_value >> 8) & 0x00'00'FF'00U) |
 		((u32_value << 8) & 0x00'FF'00'00U) |
@@ -132,9 +132,9 @@ inline constexpr T swap_bytes(T value, Bytes4Tag) noexcept
 template<typename T>
 inline constexpr T swap_bytes(T value, Bytes8Tag) noexcept
 {
-	const auto u64_value = static_cast<UInt64>(value);
+	const auto u64_value = static_cast<std::uint64_t>(value);
 
-	return static_cast<T>(static_cast<UInt64>(
+	return static_cast<T>(static_cast<std::uint64_t>(
 		(u64_value >> 56) |
 		((u64_value >> 40) & 0x00'00'00'00'00'00'FF'00ULL) |
 		((u64_value >> 24) & 0x00'00'00'00'00'FF'00'00ULL) |
@@ -170,7 +170,9 @@ inline constexpr T swap_bytes(T value, IntegralTag) noexcept
 template<typename T>
 inline constexpr T swap_bytes(T value, EnumTag) noexcept
 {
-	return bstone::endian::detail::swap_bytes(static_cast<std::underlying_type_t<T>>(value), IntegralTag{});
+	return bstone::endian::detail::swap_bytes(
+		static_cast<std::underlying_type_t<T>>(value),
+		IntegralTag{});
 }
 
 } // namespace detail
