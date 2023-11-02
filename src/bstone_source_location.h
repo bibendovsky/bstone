@@ -6,6 +6,9 @@ SPDX-License-Identifier: MIT
 
 // Information about the source code: file name, line number, function name.
 
+#if !defined(BSTONE_SOURCE_LOCATION_INCLUDED)
+#define BSTONE_SOURCE_LOCATION_INCLUDED
+
 #include "bstone_utility.h"
 
 namespace bstone {
@@ -59,3 +62,5 @@ constexpr void SourceLocation::swap(SourceLocation& rhs) noexcept
 #endif
 
 } // namespace bstone
+
+#endif // BSTONE_SOURCE_LOCATION_INCLUDED
