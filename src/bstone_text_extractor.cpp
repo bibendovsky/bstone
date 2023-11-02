@@ -5,6 +5,7 @@ Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
+#include <algorithm>
 #include "gfxv.h"
 #include "id_ca.h"
 #include "jm_lzh.h"

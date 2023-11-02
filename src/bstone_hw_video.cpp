@@ -7,6 +7,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 // Hardware accelerated video (HW).
 
+#include <algorithm>
 #include <unordered_map>
 #include <unordered_set>
 

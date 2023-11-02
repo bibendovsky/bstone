@@ -7,6 +7,8 @@ SPDX-License-Identifier: MIT
 // OpenGL 3D Renderer: Shader Stage
 
 #include <cassert>
+
+#include <algorithm>
 #include <unordered_set>
 
 #include "bstone_exception.h"

@@ -19,6 +19,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "id_us.h"
 #include "id_vl.h"
 
+#include "bstone_exception.h"
 #include "bstone_math.h"
 
 

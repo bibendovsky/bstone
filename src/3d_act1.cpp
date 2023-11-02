@@ -14,6 +14,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "id_sd.h"
 #include "id_us.h"
 #include "id_vl.h"
+#include "bstone_exception.h"
 
 
 static constexpr auto door_step = 1.0 / 64.0;
