@@ -9,16 +9,32 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_CHAR_TRAITS_INCLUDED)
 #define BSTONE_CHAR_TRAITS_INCLUDED
 
-#include <cassert>
 #include <cstdint>
+
+#include <algorithm>
+#include <type_traits>
 
 namespace bstone {
 namespace char_traits {
 
 template<typename TChar>
-inline constexpr std::intptr_t get_size(const TChar* chars)
+constexpr std::intptr_t get_size(const TChar* chars) noexcept;
+
+template<typename TChar>
+constexpr int compare(
+	const TChar* lhs_chars,
+	std::intptr_t lhs_size,
+	const TChar* rhs_chars,
+	std::intptr_t rhs_size) noexcept;
+
+// ==========================================================================
+
+template<typename TChar>
+inline constexpr std::intptr_t get_size(const TChar* chars) noexcept
 {
-	assert(chars != nullptr);
+	static_assert(
+		std::is_integral<TChar>::value && !std::is_same<TChar, bool>::value,
+		"Unsupported type.");
 
 	auto size = std::intptr_t{};
 
@@ -35,14 +51,15 @@ inline constexpr int compare(
 	const TChar* lhs_chars,
 	std::intptr_t lhs_size,
 	const TChar* rhs_chars,
-	std::intptr_t rhs_size)
+	std::intptr_t rhs_size) noexcept
 {
-	assert((lhs_chars == nullptr && lhs_size == 0) || (lhs_chars != nullptr && lhs_size >= 0));
-	assert((rhs_chars == nullptr && rhs_size == 0) || (rhs_chars != nullptr && rhs_size >= 0));
+	static_assert(
+		std::is_integral<TChar>::value && !std::is_same<TChar, bool>::value,
+		"Unsupported type.");
 
-	const auto size = lhs_size < rhs_size ? lhs_size : rhs_size;
+	const auto size = std::min(lhs_size, rhs_size);
 
-	for (auto i = decltype(size){}; i < size; ++i)
+	for (auto i = std::intptr_t{}; i < size; ++i)
 	{
 		const auto& lhs_char = lhs_chars[i];
 		const auto& rhs_char = rhs_chars[i];
