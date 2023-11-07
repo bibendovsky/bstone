@@ -136,6 +136,8 @@ target_sources(${PROJECT_NAME}
 		../../../bstone_win32_registry_key.h
 		../../../bstone_api_string.cpp
 		../../../bstone_api_string.h
+		../../../bstone_cxx.cpp
+		../../../bstone_cxx.h
 	PRIVATE
 		src/bstone_tests_algorithm.cpp
 		src/bstone_tests_array.cpp
