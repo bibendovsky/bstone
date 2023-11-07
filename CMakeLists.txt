@@ -16,6 +16,9 @@ message(STATUS "[${PROJECT_NAME}] Build tests: ${BSTONE_TESTS}")
 option(BSTONE_TRIM_FILE_PATHS_IN_EXE "Trim file names on the left in the executable." OFF)
 message(STATUS "[${PROJECT_NAME}] Trim file names in the executable: ${BSTONE_TRIM_FILE_PATHS_IN_EXE}")
 
+option(BSTONE_NO_ASSERT "Disable assertion." OFF)
+message(STATUS "[${PROJECT_NAME}] Disable assertion: ${BSTONE_NO_ASSERT}")
+
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 if (BSTONE_TESTS)

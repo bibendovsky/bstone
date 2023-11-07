@@ -35,6 +35,7 @@ option(BSTONE_PANDORA "Build for Pandora." OFF)
 option(BSTONE_USE_PCH "Use precompiled headers if available." OFF)
 option(BSTONE_USE_MULTI_PROCESS_COMPILATION "Use multi-process compilation." ON)
 option(BSTONE_MORE_COMPILER_WARNINGS "Enables more compiler warnings." OFF)
+option(BSTONE_NO_ASSERT "Disable assertion." OFF)
 
 
 # SDL2W
@@ -138,6 +139,7 @@ target_compile_definitions(
 		$<$<BOOL:${WIN32}>:NTDDI_VERSION=0x05010000>
 		$<$<BOOL:${WIN32}>:_WIN32_WINNT=0x0501>
 		$<$<BOOL:${WIN32}>:WINVER=0x0501>
+		$<$<BOOL:${BSTONE_NO_ASSERT}>:BSTONE_NO_ASSERT>
 )
 
 if (BSTONE_PANDORA)
@@ -366,6 +368,8 @@ target_sources(
 		bstone_api_string.h
 		bstone_cxx.cpp
 		bstone_cxx.h
+		bstone_assert.cpp
+		bstone_assert.h
 )
 
 target_sources(

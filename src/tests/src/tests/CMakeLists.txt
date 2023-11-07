@@ -7,6 +7,8 @@ SPDX-License-Identifier: MIT
 cmake_minimum_required(VERSION 3.4.0 FATAL_ERROR)
 project(bstone_tests VERSION 1.0.0 LANGUAGES CXX)
 
+option(BSTONE_NO_ASSERT "Disable assertion." OFF)
+
 message(STATUS "[${PROJECT_NAME}] v${PROJECT_VERSION}")
 
 add_executable(${PROJECT_NAME} "")
@@ -27,6 +29,7 @@ target_compile_definitions(${PROJECT_NAME}
 		$<$<BOOL:${WIN32}>:NTDDI_VERSION=0x05010000>
 		$<$<BOOL:${WIN32}>:_WIN32_WINNT=0x0501>
 		$<$<BOOL:${WIN32}>:WINVER=0x0501>
+		$<$<BOOL:${BSTONE_NO_ASSERT}>:BSTONE_NO_ASSERT>
 )
 
 target_compile_options(${PROJECT_NAME}
@@ -138,6 +141,8 @@ target_sources(${PROJECT_NAME}
 		../../../bstone_api_string.h
 		../../../bstone_cxx.cpp
 		../../../bstone_cxx.h
+		../../../bstone_assert.cpp
+		../../../bstone_assert.h
 	PRIVATE
 		src/bstone_tests_algorithm.cpp
 		src/bstone_tests_array.cpp
