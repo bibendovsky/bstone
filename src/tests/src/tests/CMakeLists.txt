@@ -143,6 +143,8 @@ target_sources(${PROJECT_NAME}
 		../../../bstone_cxx.h
 		../../../bstone_assert.cpp
 		../../../bstone_assert.h
+		../../../bstone_string_view.cpp
+		../../../bstone_string_view.h
 	PRIVATE
 		src/bstone_tests_algorithm.cpp
 		src/bstone_tests_array.cpp
@@ -183,6 +185,7 @@ target_sources(${PROJECT_NAME}
 		src/bstone_tests_shared_library.cpp
 		src/bstone_tests_win32_registry_key.cpp
 		src/bstone_tests_api_string.cpp
+		src/bstone_tests_string_view.cpp
 	PRIVATE
 		src/bstone_tester.cpp
 		src/bstone_tester.h

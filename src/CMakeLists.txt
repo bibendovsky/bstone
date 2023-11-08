@@ -370,6 +370,8 @@ target_sources(
 		bstone_cxx.h
 		bstone_assert.cpp
 		bstone_assert.h
+		bstone_string_view.cpp
+		bstone_string_view.h
 )
 
 target_sources(
