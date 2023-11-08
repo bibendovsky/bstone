@@ -14,6 +14,8 @@ SPDX-License-Identifier: MIT
 #include <algorithm>
 #include <type_traits>
 
+#include "bstone_assert.h"
+
 namespace bstone {
 namespace char_traits {
 
@@ -36,6 +38,8 @@ inline constexpr std::intptr_t get_size(const TChar* chars) noexcept
 		std::is_integral<TChar>::value && !std::is_same<TChar, bool>::value,
 		"Unsupported type.");
 
+	BSTONE_ASSERT(chars != nullptr);
+
 	auto size = std::intptr_t{};
 
 	while (chars[size] != TChar{})
@@ -56,6 +60,9 @@ inline constexpr int compare(
 	static_assert(
 		std::is_integral<TChar>::value && !std::is_same<TChar, bool>::value,
 		"Unsupported type.");
+
+	BSTONE_ASSERT((lhs_chars != nullptr && lhs_size >= 0) || (lhs_chars == nullptr && lhs_size == 0));
+	BSTONE_ASSERT((rhs_chars != nullptr && rhs_size >= 0) || (rhs_chars == nullptr && rhs_size == 0));
 
 	const auto size = std::min(lhs_size, rhs_size);
 
