@@ -15,7 +15,7 @@ namespace bstone {
 struct ZStringViewHasher
 {
 	template<typename TChar>
-	constexpr std::size_t operator()(ZStringViewT<TChar> zstring_view) const
+	constexpr std::size_t operator()(BasicZStringView<TChar> zstring_view) const
 	{
 		return CharHasher{}(zstring_view.cbegin(), zstring_view.cend());
 	}

@@ -372,6 +372,8 @@ target_sources(
 		bstone_assert.h
 		bstone_string_view.cpp
 		bstone_string_view.h
+		bstone_zstring_view.cpp
+		bstone_zstring_view.h
 )
 
 target_sources(
@@ -541,7 +543,6 @@ target_sources(
 		bstone_video.h
 		bstone_voice.h
 		bstone_voice_group.h
-		bstone_zstring_view.h
 		bstone_zstring_view_hasher.h
 
 		bstone_sys_audio_mgr.h
