@@ -7099,9 +7099,9 @@ void read_high_scores()
 	auto scores = HighScores{};
 	scores.resize(MaxScores);
 
-	auto stream = bstone::FileStream{scores_path.c_str()};
+	auto stream = bstone::FileStream{};
 
-	if (stream.is_open())
+	if (stream.try_open(scores_path.c_str()))
 	{
 		auto archiver = bstone::make_archiver();
 
@@ -7154,11 +7154,11 @@ static void write_high_scores()
 	const auto& scores_path = get_profile_dir() + get_score_file_name();
 	const auto& tmp_scores_path = scores_path + ".temp";
 
-	auto stream = bstone::FileStream{
-		tmp_scores_path.c_str(),
-		bstone::FileOpenMode::create | bstone::FileOpenMode::write};
+	auto stream = bstone::FileStream{};
 
-	if (!stream.is_open())
+	if (!stream.try_open(
+		tmp_scores_path.c_str(),
+		bstone::FileOpenMode::create | bstone::FileOpenMode::write))
 	{
 		bstone::logger_->write_error("Failed to open a high scores file for writing: \"" + tmp_scores_path + "\".");
 
@@ -9011,9 +9011,9 @@ bool LoadTheGame(
 try {
 	bool is_succeed = true;
 
-	auto file_stream = bstone::FileStream{file_name.c_str()};
+	auto file_stream = bstone::FileStream{};
 
-	if (!file_stream.is_open())
+	if (!file_stream.try_open(file_name.c_str()))
 	{
 		is_succeed = false;
 
@@ -9257,11 +9257,11 @@ bool SaveTheGame(
 {
 	const auto tmp_file_name = file_name + ".temp";
 
-	auto file_stream = bstone::FileStream{
-		tmp_file_name.c_str(),
-		bstone::FileOpenMode::create | bstone::FileOpenMode::truncate | bstone::FileOpenMode::write};
+	auto file_stream = bstone::FileStream{};
 
-	if (!file_stream.is_open())
+	if (!file_stream.try_open(
+		tmp_file_name.c_str(),
+		bstone::FileOpenMode::create | bstone::FileOpenMode::truncate | bstone::FileOpenMode::write))
 	{
 		bstone::logger_->write_error("SAVE: Failed to open file \"" + tmp_file_name + "\".");
 

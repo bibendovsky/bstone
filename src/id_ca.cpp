@@ -971,29 +971,20 @@ bool ca_open_resource_non_fatal(
 {
 	const auto path = bstone::file_system::append_path(data_dir, file_name);
 
-	auto is_open = false;
-
-	try
+	if (file_stream.try_open(path.c_str()))
 	{
-		file_stream.open(path.c_str());
-		is_open = true;
-	}
-	catch (...) {}
-
-	if (!is_open)
-	{
-		auto&& file_name_lc = bstone::StringHelper::to_lower_ascii(file_name);
-		const auto path_lc = bstone::file_system::append_path(data_dir, file_name_lc);
-
-		try
-		{
-			file_stream.open(path_lc.c_str());
-			is_open = true;
-		}
-		catch (...) {}
+		return true;
 	}
 
-	return is_open;
+	auto&& file_name_lc = bstone::StringHelper::to_lower_ascii(file_name);
+	const auto path_lc = bstone::file_system::append_path(data_dir, file_name_lc);
+
+	if (file_stream.try_open(path_lc.c_str()))
+	{
+		return true;
+	}
+
+	return false;
 }
 
 bool ca_open_resource_non_fatal(

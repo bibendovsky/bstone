@@ -54,6 +54,52 @@ void test_k6rgtthwam1unqvv()
 
 // ==========================================================================
 
+// [[nodiscard]] bool try_open(const char*, FileOpenMode) noexcept
+void test_zc5nebuu4x529qf0()
+{
+	auto file = bstone::File{};
+
+	const auto result_1 = file.try_open("test.data", bstone::FileOpenMode::create);
+	const auto is_valid_1 = result_1;
+
+	const auto result_2 = file.is_open();
+	const auto is_valid_2 = result_2;
+
+	const auto is_valid =
+		is_valid_1 &&
+		is_valid_2 &&
+		true;
+
+	tester.check(is_valid);
+}
+
+// ==========================================================================
+
+// [[nodiscard]] bool try_open(const char*) noexcept
+void test_l61nh9xx77tqnxxy()
+{
+	{
+		const auto new_file = bstone::File{"test.data", bstone::FileOpenMode::create};
+	}
+
+	auto file = bstone::File{};
+
+	const auto result_1 = file.try_open("test.data");
+	const auto is_valid_1 = result_1;
+
+	const auto result_2 = file.is_open();
+	const auto is_valid_2 = result_2;
+
+	const auto is_valid =
+		is_valid_1 &&
+		is_valid_2 &&
+		true;
+
+	tester.check(is_valid);
+}
+
+// ==========================================================================
+
 // open(const char*, FileOpenMode)
 void test_dftddy2zdkyxexy5()
 {
@@ -184,46 +230,6 @@ void test_fmo05coq6xfc71cv()
 	tester.check(!is_failed && is_open && is_zero_size && is_written && is_set_position && is_read && is_equal);
 }
 
-// std::intptr_t read(void*, std::intptr_t)
-// Closed.
-void test_6mmfx7oqkvu46lmo()
-{
-	auto is_failed = false;
-	auto file = bstone::File{};
-
-	try
-	{
-		char buffer;
-		file.read(&buffer, 1);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(is_failed);
-}
-
-// std::intptr_t write(const void*, std::intptr_t)
-// Closed.
-void test_32hb8m11bqdomfys()
-{
-	auto is_failed = false;
-	auto file = bstone::File{};
-
-	try
-	{
-		const auto buffer = '\0';
-		file.write(&buffer, 1);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(is_failed);
-}
-
 // ==========================================================================
 
 // `void read_exact(void*, std::intptr_t)` and `void write_exact(const void*, std::intptr_t)`
@@ -282,46 +288,6 @@ void test_ip74fy4x4vq54ql3()
 	tester.check(is_failed);
 }
 
-// void read_exact(void*, std::intptr_t)
-// Closed.
-void test_wim9y9uexr2x18xc()
-{
-	auto file = bstone::File{};
-	char buffer;
-	auto is_failed = false;
-
-	try
-	{
-		file.read_exact(&buffer, 1);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(is_failed);
-}
-
-// void write_exact(const void*, std::intptr_t)
-// Closed.
-void test_ko6g2vzhmpoxkt3j()
-{
-	auto file = bstone::File{};
-	const auto buffer = '\0';
-	auto is_failed = false;
-
-	try
-	{
-		file.write_exact(&buffer, 1);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(is_failed);
-}
-
 // ==========================================================================
 
 // seek(std::int64_t, FileOrigin)
@@ -371,27 +337,6 @@ void test_g19x58du9tm8l39s()
 	tester.check(is_open && is_failed);
 }
 
-// seek(std::int64_t, FileOrigin)
-// Closed.
-void test_c4xnnx60bh0el6c0()
-{
-	auto file = bstone::File{};
-	const auto is_open = file.is_open();
-
-	auto is_failed = false;
-
-	try
-	{
-		file.seek(0, bstone::FileOrigin::begin);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(!is_open && is_failed);
-}
-
 // ==========================================================================
 
 // std::int64_t skip(std::int64_t)
@@ -438,27 +383,6 @@ void test_ykqf55ec945bin2j()
 	tester.check(is_open && is_failed);
 }
 
-// std::int64_t skip(std::int64_t)
-// Closed.
-void test_rwvrfvlzq257vhm6()
-{
-	auto file = bstone::File{};
-	const auto is_open = file.is_open();
-
-	auto is_failed = false;
-
-	try
-	{
-		file.skip(0);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(!is_open && is_failed);
-}
-
 // ==========================================================================
 
 // std::int64_t get_position()
@@ -482,27 +406,6 @@ void test_0gj54wvhksw88ae5()
 	}
 
 	tester.check(!is_failed && is_open && is_set_position_1 && is_set_position_2);
-}
-
-// std::int64_t get_position()
-// Closed.
-void test_nthguyes1qfzyjph()
-{
-	auto file = bstone::File{};
-	const auto is_open = file.is_open();
-
-	auto is_failed = false;
-
-	try
-	{
-		file.get_position();
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(!is_open && is_failed);
 }
 
 // ==========================================================================
@@ -548,27 +451,6 @@ void test_wh4ro8o3yw0djyc6()
 	}
 
 	tester.check(is_open && is_failed);
-}
-
-// void set_position(std::int64_t)
-// Closed.
-void test_15p3gi1ajh8vz0x1()
-{
-	auto file = bstone::File{};
-	const auto is_open = file.is_open();
-
-	auto is_failed = false;
-
-	try
-	{
-		file.set_position(0);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(!is_open && is_failed);
 }
 
 // ==========================================================================
@@ -655,6 +537,7 @@ public:
 	Registrator()
 	{
 		register_file();
+		register_try_open();
 		register_open();
 		register_close();
 		register_is_open();
@@ -676,6 +559,12 @@ private:
 		tester.register_test("File#k6rgtthwam1unqvv", test_k6rgtthwam1unqvv);
 	}
 
+	void register_try_open()
+	{
+		tester.register_test("File#zc5nebuu4x529qf0", test_zc5nebuu4x529qf0);
+		tester.register_test("File#l61nh9xx77tqnxxy", test_l61nh9xx77tqnxxy);
+	}
+
 	void register_open()
 	{
 		tester.register_test("File#dftddy2zdkyxexy5", test_dftddy2zdkyxexy5);
@@ -695,43 +584,35 @@ private:
 	void register_read_write()
 	{
 		tester.register_test("File#fmo05coq6xfc71cv", test_fmo05coq6xfc71cv);
-		tester.register_test("File#6mmfx7oqkvu46lmo", test_6mmfx7oqkvu46lmo);
-		tester.register_test("File#32hb8m11bqdomfys", test_32hb8m11bqdomfys);
 	}
 
 	void register_read_exact_write_exact()
 	{
 		tester.register_test("File#0vj5qawe151dlab8", test_0vj5qawe151dlab8);
 		tester.register_test("File#ip74fy4x4vq54ql3", test_ip74fy4x4vq54ql3);
-		tester.register_test("File#wim9y9uexr2x18xc", test_wim9y9uexr2x18xc);
-		tester.register_test("File#ko6g2vzhmpoxkt3j", test_ko6g2vzhmpoxkt3j);
 	}
 
 	void register_seek()
 	{
 		tester.register_test("File#1ywq7j1zp67guwip", test_1ywq7j1zp67guwip);
 		tester.register_test("File#g19x58du9tm8l39s", test_g19x58du9tm8l39s);
-		tester.register_test("File#c4xnnx60bh0el6c0", test_c4xnnx60bh0el6c0);
 	}
 
 	void register_skip()
 	{
 		tester.register_test("File#7flwx51n13c9137h", test_7flwx51n13c9137h);
 		tester.register_test("File#ykqf55ec945bin2j", test_ykqf55ec945bin2j);
-		tester.register_test("File#rwvrfvlzq257vhm6", test_rwvrfvlzq257vhm6);
 	}
 
 	void register_get_position()
 	{
 		tester.register_test("File#0gj54wvhksw88ae5", test_0gj54wvhksw88ae5);
-		tester.register_test("File#nthguyes1qfzyjph", test_nthguyes1qfzyjph);
 	}
 
 	void register_set_position()
 	{
 		tester.register_test("File#ejj6s2bvcn5ba767", test_ejj6s2bvcn5ba767);
 		tester.register_test("File#wh4ro8o3yw0djyc6", test_wh4ro8o3yw0djyc6);
-		tester.register_test("File#15p3gi1ajh8vz0x1", test_15p3gi1ajh8vz0x1);
 	}
 
 	void register_get_size()

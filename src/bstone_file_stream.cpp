@@ -16,6 +16,11 @@ FileStream::FileStream(const char* file_name, FileOpenMode open_mode)
 	file_{file_name, open_mode}
 {}
 
+BSTONE_CXX_NODISCARD bool FileStream::try_open(const char* file_name, FileOpenMode open_mode) noexcept
+{
+	return file_.try_open(file_name, open_mode);
+}
+
 void FileStream::open(const char* file_name, FileOpenMode open_mode)
 {
 	file_.open(file_name, open_mode);

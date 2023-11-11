@@ -19,59 +19,45 @@ SPDX-License-Identifier: MIT
 #include <limits>
 #include <type_traits>
 
+#include "bstone_assert.h"
 #include "bstone_exception.h"
 #include "bstone_file.h"
 
-static_assert(std::is_signed<off_t>::value && (sizeof(off_t) == 4 || sizeof(off_t) == 8), "Unsupported type.");
+static_assert(
+	std::is_signed<::off_t>::value && (sizeof(::off_t) == 4 || sizeof(::off_t) == 8),
+	"Unsupported type.");
 
 namespace bstone {
 
 namespace {
 
-constexpr auto file_posix_supports_64_bit_size = sizeof(off_t) == 8;
+constexpr auto posix_file_supports_64_bit_size = sizeof(::off_t) == 8;
 
-constexpr auto file_posix_max_int = std::min(
-	std::int64_t{std::numeric_limits<off_t>::max()},
+constexpr auto posix_file_max_int = std::min(
+	std::int64_t{std::numeric_limits<::off_t>::max()},
 	std::int64_t{std::numeric_limits<std::intptr_t>::max()});
 
-} // namespace
-
-// ==========================================================================
-
-FileUResourceHandle FileUResourceEmptyValue::operator()() const noexcept
+enum class PosixFileErrorCode
 {
-	return -1;
-}
+	none = 0,
+	unknown,
+	file_not_found,
+	get_status,
+	not_regular_file,
+};
 
-void FileUResourceDeleter::operator()(FileUResourceHandle handle) const
+BSTONE_CXX_NODISCARD PosixFileErrorCode posix_file_open(
+	const char* file_name,
+	FileOpenMode open_mode,
+	FileUResource& resource) noexcept
 {
-#if !defined(NDEBUG)
-	const auto posix_result =
-#endif
-		close(handle);
-#if !defined(NDEBUG)
-	assert(posix_result == 0);
-#endif
-}
-
-// ==========================================================================
-
-File::File(const char* file_name, FileOpenMode open_mode)
-{
-	open(file_name, open_mode);
-}
-
-void File::open(const char* file_name, FileOpenMode open_mode)
-{
-	close();
-
 	const auto is_create = (open_mode & FileOpenMode::create) != FileOpenMode::none;
 	const auto is_truncate = (open_mode & FileOpenMode::truncate) != FileOpenMode::none;
 	const auto is_readable = (open_mode & FileOpenMode::read) != FileOpenMode::none;
 	const auto is_writable = is_create || is_truncate || (open_mode & FileOpenMode::write) != FileOpenMode::none;
 
 	auto posix_oflag = 0;
-	auto posix_mode = mode_t{};
+	auto posix_mode = ::mode_t{};
 
 	if (is_create)
 	{
@@ -97,33 +83,94 @@ void File::open(const char* file_name, FileOpenMode open_mode)
 		posix_oflag |= O_WRONLY;
 	}
 
-	auto resource = FileUResource{::open(file_name, posix_oflag, posix_mode)};
+	resource.reset(::open(file_name, posix_oflag, posix_mode));
 
 	if (resource.is_empty())
 	{
-		BSTONE_THROW_STATIC_SOURCE("Failed to open.");
+		if (errno == ENOENT)
+		{
+			return PosixFileErrorCode::file_not_found;
+		}
+
+		return PosixFileErrorCode::unknown;
 	}
 
-	struct stat posix_stat;
-	const auto fstat_result = fstat(resource.get(), &posix_stat);
+	struct ::stat posix_stat;
+	const auto fstat_result = ::fstat(resource.get(), &posix_stat);
 
 	if (fstat_result != 0)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Failed to get stat.");
+		return PosixFileErrorCode::get_status;
 	}
 
 	if (!S_ISREG(posix_stat.st_mode))
 	{
-		BSTONE_THROW_STATIC_SOURCE("Expected a regualr file.");
+		return PosixFileErrorCode::not_regular_file;
+	}
+
+	return PosixFileErrorCode::none;
+}
+
+} // namespace
+
+// ==========================================================================
+
+FileUResourceHandle FileUResourceEmptyValue::operator()() const noexcept
+{
+	return -1;
+}
+
+void FileUResourceDeleter::operator()(FileUResourceHandle handle) const
+{
+	::close(handle);
+}
+
+// ==========================================================================
+
+File::File(const char* file_name, FileOpenMode open_mode)
+{
+	open(file_name, open_mode);
+}
+
+BSTONE_CXX_NODISCARD bool File::try_open(const char* file_name, FileOpenMode open_mode) noexcept
+{
+	close();
+
+	auto resource = FileUResource{};
+	const auto posix_error_code = posix_file_open(file_name, open_mode, resource);
+
+	if (posix_error_code != PosixFileErrorCode::none)
+	{
+		return false;
 	}
 
 	resource_.swap(resource);
+	return true;
+}
+
+void File::open(const char* file_name, FileOpenMode open_mode)
+{
+	close();
+
+	auto resource = FileUResource{};
+	const auto posix_error_code = posix_file_open(file_name, open_mode, resource);
+
+	switch (posix_error_code)
+	{
+		case PosixFileErrorCode::none: resource_.swap(resource); break;
+		case PosixFileErrorCode::file_not_found: BSTONE_THROW_STATIC_SOURCE("Not found.");
+		case PosixFileErrorCode::get_status: BSTONE_THROW_STATIC_SOURCE("Unknown status.");
+		case PosixFileErrorCode::not_regular_file: BSTONE_THROW_STATIC_SOURCE("Not a regular file.");
+		default: BSTONE_THROW_STATIC_SOURCE("Failed to open.");
+	}
 }
 
 std::intptr_t File::read(void* buffer, std::intptr_t count) const
 {
+	BSTONE_ASSERT(is_open());
+
 	const auto posix_file_descriptor = resource_.get();
-	const auto posix_number_of_bytes_to_read = static_cast<size_t>(std::min(count, file_posix_max_int));
+	const auto posix_number_of_bytes_to_read = static_cast<::size_t>(std::min(count, posix_file_max_int));
 	const auto posix_number_of_bytes_read = ::read(posix_file_descriptor, buffer, posix_number_of_bytes_to_read);
 
 	if (posix_number_of_bytes_read < 0)
@@ -136,8 +183,10 @@ std::intptr_t File::read(void* buffer, std::intptr_t count) const
 
 std::intptr_t File::write(const void* buffer, std::intptr_t count) const
 {
+	BSTONE_ASSERT(is_open());
+
 	const auto posix_file_descriptor = resource_.get();
-	const auto posix_number_of_bytes_to_write = static_cast<size_t>(std::min(count, file_posix_max_int));
+	const auto posix_number_of_bytes_to_write = static_cast<::size_t>(std::min(count, posix_file_max_int));
 	const auto posix_number_of_bytes_written = ::write(posix_file_descriptor, buffer, posix_number_of_bytes_to_write);
 
 	if (posix_number_of_bytes_written < 0)
@@ -150,9 +199,11 @@ std::intptr_t File::write(const void* buffer, std::intptr_t count) const
 
 std::int64_t File::seek(std::int64_t offset, FileOrigin origin) const
 {
-	if (!file_posix_supports_64_bit_size)
+	BSTONE_ASSERT(is_open());
+
+	if (!posix_file_supports_64_bit_size)
 	{
-		if (std::abs(offset) > file_posix_max_int)
+		if (std::abs(offset) > posix_file_max_int)
 		{
 			BSTONE_THROW_STATIC_SOURCE("Offset out of range.");
 		}
@@ -168,7 +219,7 @@ std::int64_t File::seek(std::int64_t offset, FileOrigin origin) const
 		default: BSTONE_THROW_STATIC_SOURCE("Unknown type.");
 	}
 
-	const auto lseek_result = lseek(resource_.get(), offset, posix_origin);
+	const auto lseek_result = ::lseek(resource_.get(), offset, posix_origin);
 
 	if (lseek_result < 0)
 	{
@@ -178,10 +229,12 @@ std::int64_t File::seek(std::int64_t offset, FileOrigin origin) const
 	return static_cast<std::int64_t>(lseek_result);
 }
 
-std::int64_t File::get_size() const
+BSTONE_CXX_NODISCARD std::int64_t File::get_size() const
 {
-	struct stat posix_stat;
-	const auto fstat_result = fstat(resource_.get(), &posix_stat);
+	BSTONE_ASSERT(is_open());
+
+	struct ::stat posix_stat;
+	const auto fstat_result = ::fstat(resource_.get(), &posix_stat);
 
 	if (fstat_result != 0)
 	{
@@ -193,15 +246,17 @@ std::int64_t File::get_size() const
 
 void File::set_size(std::int64_t size) const
 {
-	if (!file_posix_supports_64_bit_size)
+	BSTONE_ASSERT(is_open());
+
+	if (!posix_file_supports_64_bit_size)
 	{
-		if (std::abs(size) > file_posix_max_int)
+		if (std::abs(size) > posix_file_max_int)
 		{
 			BSTONE_THROW_STATIC_SOURCE("Size out of range.");
 		}
 	}
 
-	const auto ftruncate_result = ftruncate(resource_.get(), size);
+	const auto ftruncate_result = ::ftruncate(resource_.get(), size);
 
 	if (ftruncate_result != 0)
 	{
@@ -211,7 +266,9 @@ void File::set_size(std::int64_t size) const
 
 void File::flush() const
 {
-	const auto fsync_result = fsync(resource_.get());
+	BSTONE_ASSERT(is_open());
+
+	const auto fsync_result = ::fsync(resource_.get());
 
 	if (fsync_result != 0)
 	{

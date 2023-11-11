@@ -9,6 +9,7 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_FILE_STREAM_INCLUDED)
 #define BSTONE_FILE_STREAM_INCLUDED
 
+#include "bstone_cxx.h"
 #include "bstone_file.h"
 #include "bstone_stream.h"
 
@@ -23,6 +24,9 @@ public:
 	FileStream& operator=(FileStream&&) = default;
 	~FileStream() override = default;
 
+	BSTONE_CXX_NODISCARD bool try_open(
+		const char* file_name,
+		FileOpenMode open_mode = FileOpenMode::read) noexcept;
 	void open(const char* file_name, FileOpenMode open_mode = FileOpenMode::read);
 
 private:

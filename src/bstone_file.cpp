@@ -12,12 +12,12 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-void File::close()
+void File::close() noexcept
 {
 	resource_.reset();
 }
 
-bool File::is_open() const
+BSTONE_CXX_NODISCARD bool File::is_open() const noexcept
 {
 	return !resource_.is_empty();
 }
@@ -43,7 +43,7 @@ std::int64_t File::skip(std::int64_t delta) const
 	return seek(delta, FileOrigin::current);
 }
 
-std::int64_t File::get_position() const
+BSTONE_CXX_NODISCARD std::int64_t File::get_position() const
 {
 	return skip(0);
 }

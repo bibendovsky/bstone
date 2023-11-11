@@ -11,6 +11,7 @@ SPDX-License-Identifier: MIT
 
 #include <cstdint>
 
+#include "bstone_cxx.h"
 #include "bstone_enum_flags.h"
 #include "bstone_unique_resource.h"
 
@@ -69,21 +70,24 @@ BSTONE_ENABLE_ENUM_CLASS_BITWISE_OPS_FOR(FileOpenMode)
 class File
 {
 public:
-	File() = default;
+	File() noexcept = default;
 	explicit File(const char* file_name, FileOpenMode open_mode = FileOpenMode::read);
 
+	BSTONE_CXX_NODISCARD bool try_open(
+		const char* file_name,
+		FileOpenMode open_mode = FileOpenMode::read) noexcept;
 	void open(const char* file_name, FileOpenMode open_mode = FileOpenMode::read);
-	void close();
-	bool is_open() const;
+	void close() noexcept;
+	BSTONE_CXX_NODISCARD bool is_open() const noexcept;
 	std::intptr_t read(void* buffer, std::intptr_t count) const;
 	void read_exact(void* buffer, std::intptr_t count) const;
 	std::intptr_t write(const void* buffer, std::intptr_t count) const;
 	void write_exact(const void* buffer, std::intptr_t count) const;
 	std::int64_t seek(std::int64_t offset, FileOrigin origin) const;
 	std::int64_t skip(std::int64_t delta) const;
-	std::int64_t get_position() const;
+	BSTONE_CXX_NODISCARD std::int64_t get_position() const;
 	void set_position(std::int64_t position) const;
-	std::int64_t get_size() const;
+	BSTONE_CXX_NODISCARD std::int64_t get_size() const;
 	void set_size(std::int64_t size) const;
 	void flush() const;
 

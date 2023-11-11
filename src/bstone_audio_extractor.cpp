@@ -308,11 +308,6 @@ void AudioExtractorImpl::extract_raw_audio_chunk(const std::string& dst_dir, con
 		dst_file_name.c_str(),
 		FileOpenMode::create | FileOpenMode::truncate | FileOpenMode::write};
 
-	if (!file_stream.is_open())
-	{
-		BSTONE_THROW_STATIC_SOURCE("Failed to open a file for writing.");
-	}
-
 	const auto written_size = file_stream.write(audio_chunk.data, audio_chunk.data_size);
 
 	if (written_size != audio_chunk.data_size)
@@ -337,11 +332,6 @@ void AudioExtractorImpl::extract_decoded_audio_chunk(const std::string& dst_dir,
 	auto file_stream = FileStream{
 		dst_file_name.c_str(),
 		FileOpenMode::create | FileOpenMode::truncate | FileOpenMode::write};
-
-	if (!file_stream.is_open())
-	{
-		BSTONE_THROW_STATIC_SOURCE("Failed to open a file for writing.");
-	}
 
 	switch (audio_chunk.type)
 	{
