@@ -26,12 +26,12 @@ void FileStream::open(const char* file_name, FileOpenMode open_mode)
 	file_.open(file_name, open_mode);
 }
 
-void FileStream::do_close()
+void FileStream::do_close() noexcept
 {
 	file_.close();
 }
 
-bool FileStream::do_is_open() const
+BSTONE_CXX_NODISCARD bool FileStream::do_is_open() const noexcept
 {
 	return file_.is_open();
 }
@@ -61,7 +61,7 @@ try {
 	return file_.seek(offset, file_origin);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-std::int64_t FileStream::do_get_size() const
+BSTONE_CXX_NODISCARD std::int64_t FileStream::do_get_size() const
 {
 	return file_.get_size();
 }

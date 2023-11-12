@@ -4,36 +4,37 @@ Copyright (c) 2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-// Non-resizeable read-write memory stream.
+// Non-resizeable writable memory stream.
 
 #include <algorithm>
 #include <memory>
 
+#include "bstone_assert.h"
 #include "bstone_exception.h"
 #include "bstone_static_memory_stream.h"
 
 namespace bstone {
 
-StaticMemoryStream::StaticMemoryStream(void* buffer, std::intptr_t size)
+StaticMemoryStream::StaticMemoryStream(void* buffer, std::intptr_t size) noexcept
 {
 	open(buffer, size);
 }
 
-const std::uint8_t* StaticMemoryStream::get_data() const
+BSTONE_CXX_NODISCARD const std::uint8_t* StaticMemoryStream::get_data() const noexcept
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open());
 
 	return buffer_;
 }
 
-std::uint8_t* StaticMemoryStream::get_data()
+BSTONE_CXX_NODISCARD std::uint8_t* StaticMemoryStream::get_data() noexcept
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open());
 
 	return buffer_;
 }
 
-void StaticMemoryStream::open(void* buffer, std::intptr_t size)
+void StaticMemoryStream::open(void* buffer, std::intptr_t size) noexcept
 {
 	close_internal();
 
@@ -43,19 +44,19 @@ void StaticMemoryStream::open(void* buffer, std::intptr_t size)
 	size_ = 0;
 }
 
-void StaticMemoryStream::do_close()
+void StaticMemoryStream::do_close() noexcept
 {
 	close_internal();
 }
 
-bool StaticMemoryStream::do_is_open() const
+BSTONE_CXX_NODISCARD bool StaticMemoryStream::do_is_open() const noexcept
 {
 	return is_open_;
 }
 
 std::intptr_t StaticMemoryStream::do_read(void* buffer, std::intptr_t count)
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open());
 
 	const auto remain_size = size_ - position_;
 
@@ -72,7 +73,7 @@ std::intptr_t StaticMemoryStream::do_read(void* buffer, std::intptr_t count)
 
 std::intptr_t StaticMemoryStream::do_write(const void* buffer, std::intptr_t count)
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open());
 
 	if (position_ + count > capacity_)
 	{
@@ -89,7 +90,7 @@ std::intptr_t StaticMemoryStream::do_write(const void* buffer, std::intptr_t cou
 
 std::int64_t StaticMemoryStream::do_seek(std::int64_t offset, StreamOrigin origin)
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open());
 
 	auto new_position = std::intptr_t{};
 
@@ -111,16 +112,16 @@ std::int64_t StaticMemoryStream::do_seek(std::int64_t offset, StreamOrigin origi
 	return new_position;
 }
 
-std::int64_t StaticMemoryStream::do_get_size() const
+BSTONE_CXX_NODISCARD std::int64_t StaticMemoryStream::do_get_size() const
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open());
 
 	return size_;
 }
 
 void StaticMemoryStream::do_set_size(std::int64_t size)
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open());
 
 	if (size > capacity_)
 	{
@@ -132,15 +133,7 @@ void StaticMemoryStream::do_set_size(std::int64_t size)
 
 void StaticMemoryStream::do_flush()
 {
-	ensure_is_open();
-}
-
-void StaticMemoryStream::ensure_is_open() const
-{
-	if (!is_open_)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Closed stream.");
-	}
+	BSTONE_ASSERT(is_open());
 }
 
 void StaticMemoryStream::close_internal() noexcept

@@ -24,16 +24,16 @@ public:
 	static constexpr auto default_chunk_size = 4096;
 
 public:
-	MemoryStream() = default;
+	MemoryStream() noexcept = default;
 	explicit MemoryStream(
 		std::intptr_t initial_capacity,
 		std::intptr_t chunk_size = default_chunk_size);
-	MemoryStream(MemoryStream&&) = default;
-	MemoryStream& operator=(MemoryStream&&) = default;
+	MemoryStream(MemoryStream&&) noexcept = default;
+	MemoryStream& operator=(MemoryStream&&) noexcept = default;
 	~MemoryStream() override = default;
 
-	const std::uint8_t* get_data() const;
-	std::uint8_t* get_data();
+	BSTONE_CXX_NODISCARD const std::uint8_t* get_data() const noexcept;
+	BSTONE_CXX_NODISCARD std::uint8_t* get_data() noexcept;
 
 	void open(
 		std::intptr_t initial_capacity = default_initial_capacity,
@@ -51,19 +51,18 @@ private:
 	Storage storage_{};
 
 private:
-	void do_close() override;
-	bool do_is_open() const override;
+	void do_close() noexcept override;
+	bool do_is_open() const noexcept override;
 	std::intptr_t do_read(void* buffer, std::intptr_t count) override;
 	std::intptr_t do_write(const void* buffer, std::intptr_t count) override;
 	std::int64_t do_seek(std::int64_t offset, StreamOrigin origin) override;
-	std::int64_t do_get_size() const override;
+	BSTONE_CXX_NODISCARD  std::int64_t do_get_size() const override;
 	void do_set_size(std::int64_t size) override;
 	void do_flush() override;
 
 private:
-	void ensure_is_open() const;
 	void reserve(std::intptr_t capacity, std::intptr_t chunk_size);
-	void close_internal();
+	void close_internal() noexcept;
 };
 
 } // namespace bstone

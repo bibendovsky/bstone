@@ -18,10 +18,10 @@ namespace bstone {
 class FileStream final : public Stream
 {
 public:
-	FileStream() = default;
+	FileStream() noexcept = default;
 	explicit FileStream(const char* file_name, FileOpenMode open_mode = FileOpenMode::read);
-	FileStream(FileStream&&) = default;
-	FileStream& operator=(FileStream&&) = default;
+	FileStream(FileStream&&) noexcept = default;
+	FileStream& operator=(FileStream&&) noexcept = default;
 	~FileStream() override = default;
 
 	BSTONE_CXX_NODISCARD bool try_open(
@@ -33,12 +33,12 @@ private:
 	File file_{};
 
 private:
-	void do_close() override;
-	bool do_is_open() const override;
+	void do_close() noexcept override;
+	BSTONE_CXX_NODISCARD bool do_is_open() const noexcept override;
 	std::intptr_t do_read(void* buffer, std::intptr_t count) override;
 	std::intptr_t do_write(const void* buffer, std::intptr_t count) override;
 	std::int64_t do_seek(std::int64_t offset, StreamOrigin origin) override;
-	std::int64_t do_get_size() const override;
+	BSTONE_CXX_NODISCARD std::int64_t do_get_size() const override;
 	void do_set_size(std::int64_t size) override;
 	void do_flush() override;
 };

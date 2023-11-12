@@ -12,7 +12,7 @@ auto tester = bstone::Tester{};
 
 // ==========================================================================
 
-// FileStream(const char*, FileOpenMode)
+// explicit FileStream(const char*, FileOpenMode)
 void test_9iuvd5h9gzjbt351()
 {
 	auto is_failed = false;
@@ -31,7 +31,7 @@ void test_9iuvd5h9gzjbt351()
 	tester.check(!is_failed && is_open);
 }
 
-// FileStream(const char*)
+// explicit FileStream(const char*)
 void test_gj50q07ijq9uhdu2()
 {
 	auto is_created = false;
@@ -54,7 +54,7 @@ void test_gj50q07ijq9uhdu2()
 	tester.check(is_created && is_opened);
 }
 
-// FileStream(FileStream&&)
+// FileStream(FileStream&&) noexcept
 void test_87hjc768xmbd1t34()
 {
 	auto file_1 = bstone::FileStream{"test.data", bstone::FileOpenMode::create};
@@ -65,7 +65,7 @@ void test_87hjc768xmbd1t34()
 	tester.check(is_open_1 && is_open_2);
 }
 
-// FileStream& operator=(FileStream&&)
+// FileStream& operator=(FileStream&&) noexcept
 void test_5mmf4qysfrd2fonu()
 {
 	auto file_1 = bstone::FileStream{"test.data", bstone::FileOpenMode::create};
@@ -123,7 +123,7 @@ void test_n5pmd6moj0vqsnqn()
 
 // ==========================================================================
 
-// open(const char*, FileOpenMode)
+// void open(const char*, FileOpenMode)
 void test_3h64grd141dr6atb()
 {
 	auto is_failed = false;
@@ -143,7 +143,7 @@ void test_3h64grd141dr6atb()
 	tester.check(!is_failed && is_open);
 }
 
-// open(const char*)
+// void open(const char*)
 void test_fs8htsia07pw47ps()
 {
 	auto is_created = false;
@@ -169,7 +169,7 @@ void test_fs8htsia07pw47ps()
 
 // ==========================================================================
 
-// close()
+// void close() noexcept
 void test_wrbmfiq7r9t2bjfi()
 {
 	auto is_failed = false;
@@ -193,7 +193,7 @@ void test_wrbmfiq7r9t2bjfi()
 
 // ==========================================================================
 
-// is_open()
+// [[nodiscard]] is_open() const noexcept
 void test_n0q8fvihwy1v2klm()
 {
 	auto is_failed = false;
@@ -321,7 +321,7 @@ void test_kms3o2eisp359ubi()
 
 // ==========================================================================
 
-// seek(std::int64_t, StreamOrigin)
+// std::int64_t seek(std::int64_t, StreamOrigin)
 void test_qfmcpsx4dy9jrgwi()
 {
 	auto is_failed = false;
@@ -375,7 +375,7 @@ void test_gmx97qp03xosymdn()
 
 // ==========================================================================
 
-// std::int64_t get_position()
+// [[nodiscard]] std::int64_t get_position()
 void test_n9h6bhuu066frk7i()
 {
 	auto is_failed = false;
@@ -424,7 +424,7 @@ void test_j7d9qfbvnl7p0fdh()
 
 // ==========================================================================
 
-// std::int64_t get_size() const
+// [[nodiscard]] std::int64_t get_size() const
 void test_jvs8f0vrf44bei94()
 {
 	auto is_failed = false;
@@ -452,7 +452,7 @@ void test_jvs8f0vrf44bei94()
 
 // ==========================================================================
 
-// void set_size(std::int64_t) const
+// void set_size(std::int64_t)
 void test_apnc1tdy41tuubu6()
 {
 	auto is_failed = false;
@@ -478,7 +478,7 @@ void test_apnc1tdy41tuubu6()
 
 // ==========================================================================
 
-// flush()
+// void flush()
 void test_2o69zbx04pa7rsz4()
 {
 	auto is_failed = false;

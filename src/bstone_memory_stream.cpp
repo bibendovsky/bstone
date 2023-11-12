@@ -8,6 +8,7 @@ SPDX-License-Identifier: MIT
 
 #include <algorithm>
 
+#include "bstone_assert.h"
 #include "bstone_exception.h"
 #include "bstone_memory_stream.h"
 
@@ -18,16 +19,16 @@ MemoryStream::MemoryStream(std::intptr_t initial_capacity, std::intptr_t chunk_s
 	open(initial_capacity, chunk_size);
 }
 
-const std::uint8_t* MemoryStream::get_data() const
+BSTONE_CXX_NODISCARD const std::uint8_t* MemoryStream::get_data() const noexcept
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open());
 
 	return storage_.get();
 }
 
-std::uint8_t* MemoryStream::get_data()
+BSTONE_CXX_NODISCARD std::uint8_t* MemoryStream::get_data() noexcept
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open());
 
 	return storage_.get();
 }
@@ -40,19 +41,19 @@ void MemoryStream::open(std::intptr_t initial_capacity, std::intptr_t chunk_size
 	chunk_size_ = chunk_size;
 }
 
-void MemoryStream::do_close()
+void MemoryStream::do_close() noexcept
 {
 	close_internal();
 }
 
-bool MemoryStream::do_is_open() const
+BSTONE_CXX_NODISCARD bool MemoryStream::do_is_open() const noexcept
 {
 	return is_open_;
 }
 
 std::intptr_t MemoryStream::do_read(void* buffer, std::intptr_t count)
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open());
 
 	if (count == 0)
 	{
@@ -75,7 +76,7 @@ std::intptr_t MemoryStream::do_read(void* buffer, std::intptr_t count)
 
 std::intptr_t MemoryStream::do_write(const void* buffer, std::intptr_t count)
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open());
 
 	if (count == 0)
 	{
@@ -94,7 +95,7 @@ std::intptr_t MemoryStream::do_write(const void* buffer, std::intptr_t count)
 
 std::int64_t MemoryStream::do_seek(std::int64_t offset, StreamOrigin origin)
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open());
 
 	auto new_position = std::intptr_t{};
 
@@ -116,16 +117,16 @@ std::int64_t MemoryStream::do_seek(std::int64_t offset, StreamOrigin origin)
 	return new_position;
 }
 
-std::int64_t MemoryStream::do_get_size() const
+BSTONE_CXX_NODISCARD std::int64_t MemoryStream::do_get_size() const
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open());
 
 	return size_;
 }
 
 void MemoryStream::do_set_size(std::int64_t size)
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open());
 
 	if (size > capacity_)
 	{
@@ -142,15 +143,7 @@ void MemoryStream::do_set_size(std::int64_t size)
 
 void MemoryStream::do_flush()
 {
-	ensure_is_open();
-}
-
-void MemoryStream::ensure_is_open() const
-{
-	if (!is_open_)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Closed stream.");
-	}
+	BSTONE_ASSERT(is_open());
 }
 
 void MemoryStream::reserve(std::intptr_t capacity, std::intptr_t chunk_size)
@@ -172,7 +165,7 @@ void MemoryStream::reserve(std::intptr_t capacity, std::intptr_t chunk_size)
 	storage_.swap(storage);
 }
 
-void MemoryStream::close_internal()
+void MemoryStream::close_internal() noexcept
 {
 	is_open_ = false;
 	size_ = 0;

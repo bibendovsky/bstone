@@ -11,12 +11,12 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-void Stream::close()
+void Stream::close() noexcept
 {
 	do_close();
 }
 
-bool Stream::is_open() const
+BSTONE_CXX_NODISCARD bool Stream::is_open() const noexcept
 {
 	return do_is_open();
 }
@@ -57,7 +57,7 @@ std::int64_t Stream::skip(std::int64_t delta)
 	return seek(delta, StreamOrigin::current);
 }
 
-std::int64_t Stream::get_position()
+BSTONE_CXX_NODISCARD std::int64_t Stream::get_position()
 {
 	return skip(0);
 }
@@ -67,7 +67,7 @@ void Stream::set_position(std::int64_t position)
 	seek(position, StreamOrigin::begin);
 }
 
-std::int64_t Stream::get_size() const
+BSTONE_CXX_NODISCARD std::int64_t Stream::get_size() const
 {
 	return do_get_size();
 }

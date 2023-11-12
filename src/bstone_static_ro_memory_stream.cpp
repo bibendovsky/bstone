@@ -9,31 +9,32 @@ SPDX-License-Identifier: MIT
 #include <algorithm>
 #include <memory>
 
+#include "bstone_assert.h"
 #include "bstone_exception.h"
 #include "bstone_static_ro_memory_stream.h"
 
 namespace bstone {
 
-StaticRoMemoryStream::StaticRoMemoryStream(const void* buffer, std::intptr_t size)
+StaticRoMemoryStream::StaticRoMemoryStream(const void* buffer, std::intptr_t size) noexcept
 {
 	open(buffer, size);
 }
 
-const std::uint8_t* StaticRoMemoryStream::get_data() const
+BSTONE_CXX_NODISCARD const std::uint8_t* StaticRoMemoryStream::get_data() const noexcept
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open());
 
 	return buffer_;
 }
 
-const std::uint8_t* StaticRoMemoryStream::get_data()
+BSTONE_CXX_NODISCARD const std::uint8_t* StaticRoMemoryStream::get_data() noexcept
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open());
 
 	return buffer_;
 }
 
-void StaticRoMemoryStream::open(const void* buffer, std::intptr_t size)
+void StaticRoMemoryStream::open(const void* buffer, std::intptr_t size) noexcept
 {
 	close_internal();
 
@@ -42,19 +43,19 @@ void StaticRoMemoryStream::open(const void* buffer, std::intptr_t size)
 	size_ = size;
 }
 
-void StaticRoMemoryStream::do_close()
+void StaticRoMemoryStream::do_close() noexcept
 {
 	close_internal();
 }
 
-bool StaticRoMemoryStream::do_is_open() const
+BSTONE_CXX_NODISCARD bool StaticRoMemoryStream::do_is_open() const noexcept
 {
 	return is_open_;
 }
 
 std::intptr_t StaticRoMemoryStream::do_read(void* buffer, std::intptr_t count)
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open());
 
 	const auto remain_size = size_ - position_;
 
@@ -76,7 +77,7 @@ std::intptr_t StaticRoMemoryStream::do_write(const void*, std::intptr_t)
 
 std::int64_t StaticRoMemoryStream::do_seek(std::int64_t offset, StreamOrigin origin)
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open());
 
 	auto new_position = std::intptr_t{};
 
@@ -98,9 +99,9 @@ std::int64_t StaticRoMemoryStream::do_seek(std::int64_t offset, StreamOrigin ori
 	return new_position;
 }
 
-std::int64_t StaticRoMemoryStream::do_get_size() const
+BSTONE_CXX_NODISCARD std::int64_t StaticRoMemoryStream::do_get_size() const
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open());
 
 	return size_;
 }
@@ -113,14 +114,6 @@ void StaticRoMemoryStream::do_set_size(std::int64_t)
 void StaticRoMemoryStream::do_flush()
 {
 	BSTONE_THROW_STATIC_SOURCE("Not supported.");
-}
-
-void StaticRoMemoryStream::ensure_is_open() const
-{
-	if (!is_open_)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Closed stream.");
-	}
 }
 
 void StaticRoMemoryStream::close_internal() noexcept
