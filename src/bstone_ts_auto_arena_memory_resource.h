@@ -11,6 +11,7 @@ SPDX-License-Identifier: MIT
 
 #include <mutex>
 
+#include "bstone_cxx.h"
 #include "bstone_auto_arena_memory_resource.h"
 
 namespace bstone {
@@ -18,14 +19,14 @@ namespace bstone {
 class TsAutoArenaMemoryResource : public MemoryResource
 {
 public:
-	TsAutoArenaMemoryResource() = default;
+	TsAutoArenaMemoryResource() noexcept = default;
 	~TsAutoArenaMemoryResource() override = default;
 
 	void reserve(std::intptr_t capacity, MemoryResource& memory_resource);
 
 private:
-	void* do_allocate(std::intptr_t size) override;
-	void do_deallocate(void* ptr) override;
+	BSTONE_CXX_NODISCARD void* do_allocate(std::intptr_t size) override;
+	void do_deallocate(void* ptr) noexcept override;
 
 private:
 	using Mutex = std::mutex;

@@ -13,6 +13,7 @@ SPDX-License-Identifier: MIT
 
 #include <memory>
 
+#include "bstone_cxx.h"
 #include "bstone_memory_pool_bitmap.h"
 #include "bstone_memory_resource.h"
 
@@ -25,7 +26,7 @@ public:
 	using MemoryResource::deallocate;
 
 public:
-	GenericPoolMemoryResource();
+	GenericPoolMemoryResource() noexcept;
 	~GenericPoolMemoryResource() override;
 
 	void reserve(std::intptr_t object_size, std::intptr_t max_objects, MemoryResource& memory_resource);
@@ -34,9 +35,9 @@ private:
 	class StorageDeleter
 	{
 	public:
-		StorageDeleter();
-		StorageDeleter(MemoryResource& memory_resource);
-		void operator()(unsigned char* ptr) const;
+		StorageDeleter() noexcept;
+		StorageDeleter(MemoryResource& memory_resource) noexcept;
+		void operator()(unsigned char* ptr) const noexcept;
 
 	private:
 		MemoryResource* memory_resource_{};
@@ -54,8 +55,8 @@ private:
 	std::intptr_t object_count_{};
 
 private:
-	void* do_allocate(std::intptr_t size) override;
-	void do_deallocate(void* ptr) override;
+	BSTONE_CXX_NODISCARD void* do_allocate(std::intptr_t size) override;
+	void do_deallocate(void* ptr) noexcept override;
 };
 
 } // namespace bstone

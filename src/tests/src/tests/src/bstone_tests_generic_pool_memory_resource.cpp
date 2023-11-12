@@ -100,7 +100,7 @@ private:
 		return ::operator new(size);
 	}
 
-	void do_deallocate(void* ptr) override
+	void do_deallocate(void* ptr) noexcept override
 	{
 		::operator delete(ptr);
 	}

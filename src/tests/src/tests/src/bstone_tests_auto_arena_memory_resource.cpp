@@ -30,27 +30,6 @@ void test_12i9vgaja0au5hw4()
 	tester.check(!is_failed);
 }
 
-// reserve(std::intptr_t, MemoryResource&)
-// Negative size.
-void test_4hi9u7tj6ugr8kmy()
-{
-	using MemoryResource = bstone::AutoArenaMemoryResource;
-
-	auto is_failed = false;
-
-	try
-	{
-		MemoryResource memory_resource{};
-		memory_resource.reserve(-1, bstone::get_default_memory_resource());
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(is_failed);
-}
-
 // allocate(std::intptr_t) and deallocate(void*)
 // Success.
 void test_h89q7m1ofox5m1yt()
@@ -108,28 +87,6 @@ void test_7toaug4pnm1eyjyx()
 }
 
 // allocate(std::intptr_t)
-// Negative size.
-void test_cz3bzq9ia1144mgd()
-{
-	using MemoryResource = bstone::AutoArenaMemoryResource;
-
-	auto is_failed = false;
-
-	try
-	{
-		MemoryResource memory_resource{};
-		memory_resource.reserve(10, bstone::get_default_memory_resource());
-		memory_resource.allocate(-1);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(is_failed);
-}
-
-// allocate(std::intptr_t)
 // Out of memory.
 void test_16hxh0gkqffhccg1()
 {
@@ -164,10 +121,8 @@ private:
 	void register_auto_arena_memory_resource()
 	{
 		tester.register_test("AutoArenaMemoryResource#12i9vgaja0au5hw4", test_12i9vgaja0au5hw4);
-		tester.register_test("AutoArenaMemoryResource#4hi9u7tj6ugr8kmy", test_4hi9u7tj6ugr8kmy);
 		tester.register_test("AutoArenaMemoryResource#h89q7m1ofox5m1yt", test_h89q7m1ofox5m1yt);
 		tester.register_test("AutoArenaMemoryResource#7toaug4pnm1eyjyx", test_7toaug4pnm1eyjyx);
-		tester.register_test("AutoArenaMemoryResource#cz3bzq9ia1144mgd", test_cz3bzq9ia1144mgd);
 		tester.register_test("AutoArenaMemoryResource#16hxh0gkqffhccg1", test_16hxh0gkqffhccg1);
 	}
 };

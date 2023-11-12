@@ -9,8 +9,8 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_SINGLE_POOL_MEMORY_RESOURCE_INCLUDED)
 #define BSTONE_SINGLE_POOL_MEMORY_RESOURCE_INCLUDED
 
-#include <cassert>
-
+#include "bstone_cxx.h"
+#include "bstone_assert.h"
 #include "bstone_exception.h"
 #include "bstone_memory_resource.h"
 
@@ -23,14 +23,14 @@ public:
 	static constexpr auto object_size = static_cast<std::intptr_t>(sizeof(T));
 
 public:
-	SinglePoolMemoryResource() = default;
+	SinglePoolMemoryResource() noexcept = default;
 	SinglePoolMemoryResource(const SinglePoolMemoryResource&) = delete;
 	SinglePoolMemoryResource(SinglePoolMemoryResource&&) noexcept = delete;
 	~SinglePoolMemoryResource() override;
 
 private:
-	void* do_allocate(std::intptr_t size) override;
-	void do_deallocate(void* ptr) override;
+	BSTONE_CXX_NODISCARD void* do_allocate(std::intptr_t size) override;
+	void do_deallocate(void* ptr) noexcept override;
 
 private:
 	using Storage = unsigned char[object_size];
@@ -45,11 +45,11 @@ private:
 template<typename T>
 SinglePoolMemoryResource<T>::~SinglePoolMemoryResource()
 {
-	assert(!is_allocated_);
+	BSTONE_ASSERT(!is_allocated_);
 }
 
 template<typename T>
-void* SinglePoolMemoryResource<T>::do_allocate(std::intptr_t size)
+BSTONE_CXX_NODISCARD void* SinglePoolMemoryResource<T>::do_allocate(std::intptr_t size)
 {
 	if (size != object_size)
 	{
@@ -66,14 +66,14 @@ void* SinglePoolMemoryResource<T>::do_allocate(std::intptr_t size)
 }
 
 template<typename T>
-void SinglePoolMemoryResource<T>::do_deallocate(void* ptr)
+void SinglePoolMemoryResource<T>::do_deallocate(void* ptr) noexcept
 {
 	if (ptr == nullptr)
 	{
 		return;
 	}
 
-	assert(ptr == storage_);
+	BSTONE_ASSERT(ptr == storage_);
 	is_allocated_ = false;
 }
 

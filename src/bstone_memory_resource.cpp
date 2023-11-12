@@ -6,24 +6,25 @@ SPDX-License-Identifier: MIT
 
 #include <cstddef>
 
+#include "bstone_assert.h"
 #include "bstone_exception.h"
 #include "bstone_memory_resource.h"
 
 namespace bstone {
 
-void* MemoryResource::allocate(std::intptr_t size)
-try {
+BSTONE_CXX_NODISCARD void* MemoryResource::allocate(std::intptr_t size)
+{
 	return do_allocate(size);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
-void MemoryResource::deallocate(void* resource)
-try {
+void MemoryResource::deallocate(void* resource) noexcept
+{
 	do_deallocate(resource);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 // ==========================================================================
 
-MemoryResourceUPtrDeleterBase::MemoryResourceUPtrDeleterBase(MemoryResource& memory_resource)
+MemoryResourceUPtrDeleterBase::MemoryResourceUPtrDeleterBase(MemoryResource& memory_resource) noexcept
 	:
 	memory_resource_{&memory_resource}
 {}
@@ -35,40 +36,42 @@ MemoryResource& MemoryResourceUPtrDeleterBase::get_memory_resource() const noexc
 
 // ==========================================================================
 
-void* NullMemoryResource::do_allocate(std::intptr_t)
+BSTONE_CXX_NODISCARD void* NullMemoryResource::do_allocate(std::intptr_t)
 {
 	BSTONE_THROW_STATIC_SOURCE("Out of memory.");
 }
 
-void NullMemoryResource::do_deallocate(void*) {}
+void NullMemoryResource::do_deallocate(void*) noexcept {}
 
 // ==========================================================================
 
-void* NewDeleteMemoryResource::do_allocate(std::intptr_t size)
+BSTONE_CXX_NODISCARD void* NewDeleteMemoryResource::do_allocate(std::intptr_t size)
 {
+	BSTONE_ASSERT(size >= 0);
+
 	return ::operator new(static_cast<std::size_t>(size));
 }
 
-void NewDeleteMemoryResource::do_deallocate(void* ptr)
+void NewDeleteMemoryResource::do_deallocate(void* ptr) noexcept
 {
 	::operator delete(ptr);
 }
 
 // ==========================================================================
 
-MemoryResource& get_null_memory_resource()
+MemoryResource& get_null_memory_resource() noexcept
 {
 	static auto memory_resource = NullMemoryResource{};
 	return memory_resource;
 }
 
-MemoryResource& get_new_delete_memory_resource()
+MemoryResource& get_new_delete_memory_resource() noexcept
 {
 	static auto memory_resource = NewDeleteMemoryResource{};
 	return memory_resource;
 }
 
-MemoryResource& get_default_memory_resource()
+MemoryResource& get_default_memory_resource() noexcept
 {
 	static auto memory_resource = NewDeleteMemoryResource{};
 	return memory_resource;

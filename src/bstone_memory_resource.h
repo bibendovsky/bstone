@@ -11,6 +11,7 @@ SPDX-License-Identifier: MIT
 
 #include <memory>
 
+#include "bstone_cxx.h"
 #include "bstone_memory.h"
 
 namespace bstone {
@@ -18,15 +19,15 @@ namespace bstone {
 class MemoryResource
 {
 public:
-	MemoryResource() = default;
+	MemoryResource() noexcept = default;
 	virtual ~MemoryResource() = default;
 
-	void* allocate(std::intptr_t size);
-	void deallocate(void* ptr);
+	BSTONE_CXX_NODISCARD void* allocate(std::intptr_t size);
+	void deallocate(void* ptr) noexcept;
 
 private:
-	virtual void* do_allocate(std::intptr_t size) = 0;
-	virtual void do_deallocate(void* ptr) = 0;
+	BSTONE_CXX_NODISCARD virtual void* do_allocate(std::intptr_t size) = 0;
+	virtual void do_deallocate(void* ptr) noexcept = 0;
 };
 
 // ==========================================================================
@@ -34,12 +35,12 @@ private:
 class MemoryResourceUPtrDeleterBase
 {
 public:
-	explicit MemoryResourceUPtrDeleterBase(MemoryResource& memory_resource);
+	explicit MemoryResourceUPtrDeleterBase(MemoryResource& memory_resource) noexcept;
 
 	MemoryResource& get_memory_resource() const noexcept;
 
 	template<typename T>
-	void invoke(T* ptr) const;
+	void invoke(T* ptr) const noexcept;
 
 private:
 	MemoryResource* memory_resource_{};
@@ -48,7 +49,7 @@ private:
 // --------------------------------------------------------------------------
 
 template<typename T>
-void MemoryResourceUPtrDeleterBase::invoke(T* ptr) const
+void MemoryResourceUPtrDeleterBase::invoke(T* ptr) const noexcept
 {
 	bstone::destroy_at(ptr);
 	memory_resource_->deallocate(ptr);
@@ -60,21 +61,21 @@ template<typename T>
 class MemoryResourceUPtrDeleter final : public MemoryResourceUPtrDeleterBase
 {
 public:
-	MemoryResourceUPtrDeleter(MemoryResource& memory_resource);
+	MemoryResourceUPtrDeleter(MemoryResource& memory_resource) noexcept;
 
-	void operator()(T* ptr) const;
+	void operator()(T* ptr) const noexcept;
 };
 
 // --------------------------------------------------------------------------
 
 template<typename T>
-MemoryResourceUPtrDeleter<T>::MemoryResourceUPtrDeleter(MemoryResource& memory_resource)
+MemoryResourceUPtrDeleter<T>::MemoryResourceUPtrDeleter(MemoryResource& memory_resource) noexcept
 	:
 	MemoryResourceUPtrDeleterBase{memory_resource}
 {}
 
 template<typename T>
-void MemoryResourceUPtrDeleter<T>::operator()(T* ptr) const
+void MemoryResourceUPtrDeleter<T>::operator()(T* ptr) const noexcept
 {
 	invoke(ptr);
 }
@@ -85,21 +86,21 @@ template<typename T>
 class MemoryResourceUPtrDeleter<T[]> final : public MemoryResourceUPtrDeleterBase
 {
 public:
-	MemoryResourceUPtrDeleter(MemoryResource& memory_resource);
+	MemoryResourceUPtrDeleter(MemoryResource& memory_resource) noexcept;
 
-	void operator()(T* ptr) const;
+	void operator()(T* ptr) const noexcept;
 };
 
 // --------------------------------------------------------------------------
 
 template<typename T>
-MemoryResourceUPtrDeleter<T[]>::MemoryResourceUPtrDeleter(MemoryResource& memory_resource)
+MemoryResourceUPtrDeleter<T[]>::MemoryResourceUPtrDeleter(MemoryResource& memory_resource) noexcept
 	:
 	MemoryResourceUPtrDeleterBase{memory_resource}
 {}
 
 template<typename T>
-void MemoryResourceUPtrDeleter<T[]>::operator()(T* ptr) const
+void MemoryResourceUPtrDeleter<T[]>::operator()(T* ptr) const noexcept
 {
 	invoke(ptr);
 }
@@ -133,12 +134,12 @@ auto make_memory_resource_uptr(MemoryResource& memory_resource, TArgs&& ...args)
 class NullMemoryResource final : public MemoryResource
 {
 public:
-	NullMemoryResource() = default;
+	NullMemoryResource() noexcept = default;
 	~NullMemoryResource() override = default;
 
 private:
-	void* do_allocate(std::intptr_t size) override;
-	void do_deallocate(void* ptr) override;
+	BSTONE_CXX_NODISCARD void* do_allocate(std::intptr_t size) override;
+	void do_deallocate(void* ptr) noexcept override;
 };
 
 // ==========================================================================
@@ -146,19 +147,19 @@ private:
 class NewDeleteMemoryResource final : public MemoryResource
 {
 public:
-	NewDeleteMemoryResource() = default;
+	NewDeleteMemoryResource() noexcept = default;
 	~NewDeleteMemoryResource() override = default;
 
 private:
-	void* do_allocate(std::intptr_t size) override;
-	void do_deallocate(void* ptr) override;
+	BSTONE_CXX_NODISCARD void* do_allocate(std::intptr_t size) override;
+	void do_deallocate(void* ptr) noexcept override;
 };
 
 // ==========================================================================
 
-MemoryResource& get_null_memory_resource();
-MemoryResource& get_new_delete_memory_resource();
-MemoryResource& get_default_memory_resource();
+MemoryResource& get_null_memory_resource() noexcept;
+MemoryResource& get_new_delete_memory_resource() noexcept;
+MemoryResource& get_default_memory_resource() noexcept;
 
 } // namespace bstone
 

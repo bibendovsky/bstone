@@ -23,7 +23,7 @@ inline T* construct_at(T* ptr, TArgs&& ...args)
 }
 
 template<typename T>
-inline void destroy_at(T* ptr)
+inline void destroy_at(T* ptr) noexcept
 {
 	assert(ptr != nullptr);
 	ptr->~T();

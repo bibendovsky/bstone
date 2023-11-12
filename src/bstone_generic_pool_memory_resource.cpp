@@ -6,53 +6,48 @@ SPDX-License-Identifier: MIT
 
 // Generic memory pool.
 
-#include <cassert>
-
 #include <limits>
 
+#include "bstone_assert.h"
 #include "bstone_exception.h"
 #include "bstone_generic_pool_memory_resource.h"
 
 namespace bstone {
 
-GenericPoolMemoryResource::StorageDeleter::StorageDeleter()
+GenericPoolMemoryResource::StorageDeleter::StorageDeleter() noexcept
 	:
 	memory_resource_{&get_null_memory_resource()}
 {}
 
-GenericPoolMemoryResource::StorageDeleter::StorageDeleter(MemoryResource& memory_resource)
+GenericPoolMemoryResource::StorageDeleter::StorageDeleter(MemoryResource& memory_resource) noexcept
 	:
 	memory_resource_{&memory_resource}
 {}
 
-void GenericPoolMemoryResource::StorageDeleter::operator()(unsigned char* ptr) const
+void GenericPoolMemoryResource::StorageDeleter::operator()(unsigned char* ptr) const noexcept
 {
 	memory_resource_->deallocate(ptr);
 }
 
 // ==========================================================================
 
-GenericPoolMemoryResource::GenericPoolMemoryResource()
+GenericPoolMemoryResource::GenericPoolMemoryResource() noexcept
 	:
 	storage_{nullptr, StorageDeleter{get_null_memory_resource()}}
 {}
 
 GenericPoolMemoryResource::~GenericPoolMemoryResource()
 {
-	assert(object_count_ == 0);
+	BSTONE_ASSERT(object_count_ == 0);
 }
 
-void GenericPoolMemoryResource::reserve(std::intptr_t object_size, std::intptr_t max_objects, MemoryResource& memory_resource)
+void GenericPoolMemoryResource::reserve(
+	std::intptr_t object_size,
+	std::intptr_t max_objects,
+	MemoryResource& memory_resource)
 {
-	if (object_size <= 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Object size out of range.");
-	}
-
-	if (max_objects < 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Max object count out of range.");
-	}
+	BSTONE_ASSERT(object_size > 0);
+	BSTONE_ASSERT(max_objects >= 0);
 
 	constexpr auto max_objects_value = std::numeric_limits<std::intptr_t>::max();
 
@@ -91,18 +86,16 @@ void GenericPoolMemoryResource::reserve(std::intptr_t object_size, std::intptr_t
 	max_objects_ = max_objects;
 }
 
-void* GenericPoolMemoryResource::do_allocate(std::intptr_t size)
+BSTONE_CXX_NODISCARD void* GenericPoolMemoryResource::do_allocate(std::intptr_t size)
 {
 	if (size != object_size_)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Object size mismatch.");
 	}
 
-	constexpr auto out_of_memory_message = "Out of memory.";
-
 	if (object_count_ == max_objects_)
 	{
-		BSTONE_THROW_STATIC_SOURCE(out_of_memory_message);
+		BSTONE_THROW_STATIC_SOURCE("Out of memory.");
 	}
 
 	const auto index = bitmap_.set_first_free();
@@ -110,7 +103,7 @@ void* GenericPoolMemoryResource::do_allocate(std::intptr_t size)
 	return storage_.get() + index * object_size_;
 }
 
-void GenericPoolMemoryResource::do_deallocate(void* ptr)
+void GenericPoolMemoryResource::do_deallocate(void* ptr) noexcept
 {
 	if (ptr == nullptr)
 	{
@@ -118,7 +111,7 @@ void GenericPoolMemoryResource::do_deallocate(void* ptr)
 	}
 
 	const auto index = (static_cast<unsigned char*>(ptr) - storage_.get()) / object_size_;
-	assert(index >= 0 && index < max_objects_);
+	BSTONE_ASSERT(index >= 0 && index < max_objects_);
 
 	bitmap_.reset(index);
 	--object_count_;

@@ -27,7 +27,7 @@ private:
 		return ptr;
 	}
 
-	void do_deallocate(void* ptr) override
+	void do_deallocate(void* ptr) noexcept override
 	{
 		bstone::get_default_memory_resource().deallocate(ptr);
 	}

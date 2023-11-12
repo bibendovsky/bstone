@@ -9,8 +9,8 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_FIXED_POOL_MEMORY_RESOURCE_INCLUDED)
 #define BSTONE_FIXED_POOL_MEMORY_RESOURCE_INCLUDED
 
-#include <cassert>
-
+#include "bstone_assert.h"
+#include "bstone_cxx.h"
 #include "bstone_exception.h"
 #include "bstone_memory_pool_bitmap.h"
 #include "bstone_memory_resource.h"
@@ -33,7 +33,7 @@ public:
 	static constexpr auto object_size = static_cast<std::intptr_t>(sizeof(Object));
 
 public:
-	FixedPoolMemoryResource() = default;
+	FixedPoolMemoryResource() noexcept = default;
 	~FixedPoolMemoryResource() override;
 
 private:
@@ -48,8 +48,8 @@ private:
 	Storage storage_{};
 
 private:
-	void* do_allocate(std::intptr_t size) override;
-	void do_deallocate(void* ptr) override;
+	BSTONE_CXX_NODISCARD void* do_allocate(std::intptr_t size) override;
+	void do_deallocate(void* ptr) noexcept override;
 };
 
 // --------------------------------------------------------------------------
@@ -57,11 +57,11 @@ private:
 template<typename TObject, std::intptr_t TMaxObjects>
 FixedPoolMemoryResource<TObject, TMaxObjects>::~FixedPoolMemoryResource()
 {
-	assert(bitmap_.is_empty());
+	BSTONE_ASSERT(bitmap_.is_empty());
 }
 
 template<typename TObject, std::intptr_t TMaxObjects>
-void* FixedPoolMemoryResource<TObject, TMaxObjects>::do_allocate(std::intptr_t size)
+BSTONE_CXX_NODISCARD void* FixedPoolMemoryResource<TObject, TMaxObjects>::do_allocate(std::intptr_t size)
 {
 	if (size != object_size)
 	{
@@ -74,7 +74,7 @@ void* FixedPoolMemoryResource<TObject, TMaxObjects>::do_allocate(std::intptr_t s
 }
 
 template<typename TObject, std::intptr_t TMaxObjects>
-void FixedPoolMemoryResource<TObject, TMaxObjects>::do_deallocate(void* ptr)
+void FixedPoolMemoryResource<TObject, TMaxObjects>::do_deallocate(void* ptr) noexcept
 {
 	if (ptr == nullptr)
 	{

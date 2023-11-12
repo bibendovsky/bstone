@@ -13,6 +13,7 @@ SPDX-License-Identifier: MIT
 
 #include <memory>
 
+#include "bstone_cxx.h"
 #include "bstone_memory_resource.h"
 
 namespace bstone {
@@ -20,7 +21,7 @@ namespace bstone {
 class AutoArenaMemoryResource : public MemoryResource
 {
 public:
-	AutoArenaMemoryResource();
+	AutoArenaMemoryResource() noexcept;
 	~AutoArenaMemoryResource() override;
 
 	void reserve(std::intptr_t capacity, MemoryResource& memory_resource);
@@ -29,19 +30,19 @@ private:
 	class StorageDeleter
 	{
 	public:
-		StorageDeleter(MemoryResource& memory_resource);
+		StorageDeleter(MemoryResource& memory_resource) noexcept;
 
-		void operator()(unsigned char* ptr) const;
+		void operator()(unsigned char* ptr) const noexcept;
 
 	private:
-		MemoryResource* memory_resource_;
+		MemoryResource* memory_resource_{};
 	};
 
 	using Storage = std::unique_ptr<unsigned char[], StorageDeleter>;
 
 private:
-	void* do_allocate(std::intptr_t size) override;
-	void do_deallocate(void* ptr) override;
+	BSTONE_CXX_NODISCARD void* do_allocate(std::intptr_t size) override;
+	void do_deallocate(void* ptr) noexcept override;
 
 private:
 	Storage storage_;
