@@ -12,7 +12,7 @@ auto tester = bstone::Tester{};
 
 // ==========================================================================
 
-// explicit FileStream(const char*, FileOpenMode)
+// explicit FileStream(const char*, FileOpenFlags)
 void test_9iuvd5h9gzjbt351()
 {
 	auto is_failed = false;
@@ -20,7 +20,7 @@ void test_9iuvd5h9gzjbt351()
 
 	try
 	{
-		const auto file = bstone::FileStream{"test.data", bstone::FileOpenMode::create};
+		const auto file = bstone::FileStream{"test.data", bstone::FileOpenFlags::create};
 		is_open = file.is_open();
 	}
 	catch (...)
@@ -31,6 +31,28 @@ void test_9iuvd5h9gzjbt351()
 	tester.check(!is_failed && is_open);
 }
 
+// ==========================================================================
+
+// explicit FileStream(const char*, FileOpenFlags)
+// Invalid flags.
+void test_cz3bzq9ia1144mgd()
+{
+	auto is_failed = false;
+
+	try
+	{
+		const auto file = bstone::FileStream{"test.data", bstone::FileOpenFlags::none};
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_failed);
+}
+
+// ==========================================================================
+
 // explicit FileStream(const char*)
 void test_gj50q07ijq9uhdu2()
 {
@@ -39,7 +61,7 @@ void test_gj50q07ijq9uhdu2()
 
 	try
 	{
-		const auto file = bstone::FileStream{"test.data", bstone::FileOpenMode::create};
+		const auto file = bstone::FileStream{"test.data", bstone::FileOpenFlags::create};
 		is_created = file.is_open();
 	}
 	catch (...) {}
@@ -54,10 +76,12 @@ void test_gj50q07ijq9uhdu2()
 	tester.check(is_created && is_opened);
 }
 
+// ==========================================================================
+
 // FileStream(FileStream&&) noexcept
 void test_87hjc768xmbd1t34()
 {
-	auto file_1 = bstone::FileStream{"test.data", bstone::FileOpenMode::create};
+	auto file_1 = bstone::FileStream{"test.data", bstone::FileOpenFlags::create};
 	const auto is_open_1 = file_1.is_open();
 	auto file_2 = std::move(file_1);
 	const auto is_open_2 = file_2.is_open();
@@ -65,10 +89,12 @@ void test_87hjc768xmbd1t34()
 	tester.check(is_open_1 && is_open_2);
 }
 
+// ==========================================================================
+
 // FileStream& operator=(FileStream&&) noexcept
 void test_5mmf4qysfrd2fonu()
 {
-	auto file_1 = bstone::FileStream{"test.data", bstone::FileOpenMode::create};
+	auto file_1 = bstone::FileStream{"test.data", bstone::FileOpenFlags::create};
 	auto file_2 = bstone::FileStream{};
 	const auto is_open_1 = file_1.is_open();
 	file_2 = std::move(file_1);
@@ -79,12 +105,12 @@ void test_5mmf4qysfrd2fonu()
 
 // ==========================================================================
 
-// [[nodiscard]] bool try_open(const char*, FileOpenMode) noexcept
+// bool try_open(const char*, FileOpenFlags)
 void test_fwl347iyu5349iee()
 {
 	auto stream = bstone::FileStream{};
 
-	const auto result_1 = stream.try_open("test.data", bstone::FileOpenMode::create);
+	const auto result_1 = stream.try_open("test.data", bstone::FileOpenFlags::create);
 	const auto is_valid_1 = result_1;
 
 	const auto result_2 = stream.is_open();
@@ -98,11 +124,35 @@ void test_fwl347iyu5349iee()
 	tester.check(is_valid);
 }
 
-// [[nodiscard]] bool try_open(const char*) noexcept
+// ==========================================================================
+
+// bool try_open(const char*, FileOpenFlags) noexcept
+// Invalid flags.
+void test_4hi9u7tj6ugr8kmy()
+{
+	auto stream = bstone::FileStream{};
+	auto is_failed = false;
+
+	try
+	{
+		const auto result = stream.try_open("test.data", bstone::FileOpenFlags::none);
+		static_cast<void>(result);
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_failed);
+}
+
+// ==========================================================================
+
+// bool try_open(const char*) noexcept
 void test_n5pmd6moj0vqsnqn()
 {
 	{
-		const auto stream = bstone::FileStream{"test.data", bstone::FileOpenMode::create};
+		const auto stream = bstone::FileStream{"test.data", bstone::FileOpenFlags::create};
 	}
 
 	auto stream = bstone::FileStream{};
@@ -123,7 +173,7 @@ void test_n5pmd6moj0vqsnqn()
 
 // ==========================================================================
 
-// void open(const char*, FileOpenMode)
+// void open(const char*, FileOpenFlags)
 void test_3h64grd141dr6atb()
 {
 	auto is_failed = false;
@@ -132,7 +182,7 @@ void test_3h64grd141dr6atb()
 	try
 	{
 		auto file = bstone::FileStream{};
-		file.open("test.data", bstone::FileOpenMode::create);
+		file.open("test.data", bstone::FileOpenFlags::create);
 		is_open = file.is_open();
 	}
 	catch (...)
@@ -143,6 +193,29 @@ void test_3h64grd141dr6atb()
 	tester.check(!is_failed && is_open);
 }
 
+// ==========================================================================
+
+// void open(const char*, FileOpenFlags)
+// Invalid flags.
+void test_bfq3co9j1znbbjim()
+{
+	auto is_failed = false;
+
+	try
+	{
+		auto file = bstone::FileStream{};
+		file.open("test.data", bstone::FileOpenFlags::none);
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_failed);
+}
+
+// ==========================================================================
+
 // void open(const char*)
 void test_fs8htsia07pw47ps()
 {
@@ -151,7 +224,7 @@ void test_fs8htsia07pw47ps()
 
 	try
 	{
-		const auto file = bstone::FileStream{"test.data", bstone::FileOpenMode::create};
+		const auto file = bstone::FileStream{"test.data", bstone::FileOpenFlags::create};
 		is_created = file.is_open();
 	}
 	catch (...) {}
@@ -178,7 +251,7 @@ void test_wrbmfiq7r9t2bjfi()
 
 	try
 	{
-		auto file = bstone::FileStream{"test.data", bstone::FileOpenMode::create};
+		auto file = bstone::FileStream{"test.data", bstone::FileOpenFlags::create};
 		is_created = file.is_open();
 		file.close();
 		is_closed = !file.is_open();
@@ -193,7 +266,7 @@ void test_wrbmfiq7r9t2bjfi()
 
 // ==========================================================================
 
-// [[nodiscard]] is_open() const noexcept
+// is_open() const noexcept
 void test_n0q8fvihwy1v2klm()
 {
 	auto is_failed = false;
@@ -201,7 +274,7 @@ void test_n0q8fvihwy1v2klm()
 
 	try
 	{
-		const auto file = bstone::FileStream{"test.data", bstone::FileOpenMode::create};
+		const auto file = bstone::FileStream{"test.data", bstone::FileOpenFlags::create};
 		is_open = file.is_open();
 	}
 	catch (...)
@@ -236,7 +309,7 @@ void test_s4ldcda38dhh06px()
 		auto file = bstone::FileStream
 		{
 			"test.data",
-			bstone::FileOpenMode::create | bstone::FileOpenMode::truncate | bstone::FileOpenMode::read
+			bstone::FileOpenFlags::create | bstone::FileOpenFlags::truncate | bstone::FileOpenFlags::read
 		};
 
 		is_open = file.is_open();
@@ -273,7 +346,7 @@ void test_xv0g17przcyh3w4p()
 	auto file = bstone::FileStream
 	{
 		"test.data",
-		bstone::FileOpenMode::create | bstone::FileOpenMode::truncate | bstone::FileOpenMode::read
+		bstone::FileOpenFlags::create | bstone::FileOpenFlags::truncate | bstone::FileOpenFlags::read
 	};
 
 	is_open = file.is_open();
@@ -288,6 +361,8 @@ void test_xv0g17przcyh3w4p()
 	tester.check(is_open && is_zero_size && is_set_position && is_equal);
 }
 
+// ==========================================================================
+
 // void read_exact(void*, std::intptr_t)
 // Failed.
 void test_kms3o2eisp359ubi()
@@ -298,7 +373,7 @@ void test_kms3o2eisp359ubi()
 	auto file = bstone::FileStream
 	{
 		"test.data",
-		bstone::FileOpenMode::create | bstone::FileOpenMode::truncate | bstone::FileOpenMode::read
+		bstone::FileOpenFlags::create | bstone::FileOpenFlags::truncate | bstone::FileOpenFlags::read
 	};
 
 	is_open = file.is_open();
@@ -332,7 +407,7 @@ void test_qfmcpsx4dy9jrgwi()
 
 	try
 	{
-		auto file = bstone::FileStream{"test.data", bstone::FileOpenMode::create};
+		auto file = bstone::FileStream{"test.data", bstone::FileOpenFlags::create};
 		is_open = file.is_open();
 		file.set_size(100);
 		is_set_position_1 = file.seek(0, bstone::StreamOrigin::end) == 100;
@@ -359,7 +434,7 @@ void test_gmx97qp03xosymdn()
 
 	try
 	{
-		auto file = bstone::FileStream{"test.data", bstone::FileOpenMode::create};
+		auto file = bstone::FileStream{"test.data", bstone::FileOpenFlags::create};
 		is_open = file.is_open();
 		file.set_size(100);
 		is_set_position_1 = file.seek(0, bstone::StreamOrigin::end) == 100;
@@ -375,7 +450,7 @@ void test_gmx97qp03xosymdn()
 
 // ==========================================================================
 
-// [[nodiscard]] std::int64_t get_position()
+// std::int64_t get_position()
 void test_n9h6bhuu066frk7i()
 {
 	auto is_failed = false;
@@ -385,7 +460,7 @@ void test_n9h6bhuu066frk7i()
 
 	try
 	{
-		auto file = bstone::FileStream{"test.data", bstone::FileOpenMode::create};
+		auto file = bstone::FileStream{"test.data", bstone::FileOpenFlags::create};
 		is_open = file.is_open();
 		is_set_position_1 = file.seek(42, bstone::StreamOrigin::begin) == 42;
 		is_set_position_2 = file.get_position() == 42;
@@ -409,7 +484,7 @@ void test_j7d9qfbvnl7p0fdh()
 
 	try
 	{
-		auto file = bstone::FileStream{"test.data", bstone::FileOpenMode::create};
+		auto file = bstone::FileStream{"test.data", bstone::FileOpenFlags::create};
 		is_open = file.is_open();
 		file.set_position(42);
 		is_set_position = file.seek(0, bstone::StreamOrigin::current) == 42;
@@ -424,7 +499,7 @@ void test_j7d9qfbvnl7p0fdh()
 
 // ==========================================================================
 
-// [[nodiscard]] std::int64_t get_size() const
+// std::int64_t get_size() const
 void test_jvs8f0vrf44bei94()
 {
 	auto is_failed = false;
@@ -435,7 +510,7 @@ void test_jvs8f0vrf44bei94()
 	try
 	{
 		const char buffer = '\0';
-		auto file = bstone::FileStream{"test.data", bstone::FileOpenMode::create | bstone::FileOpenMode::truncate};
+		auto file = bstone::FileStream{"test.data", bstone::FileOpenFlags::create | bstone::FileOpenFlags::truncate};
 		is_open = file.is_open();
 		is_valid_size_1 = file.get_size() == 0;
 		file.seek(99, bstone::StreamOrigin::begin);
@@ -462,7 +537,7 @@ void test_apnc1tdy41tuubu6()
 
 	try
 	{
-		auto file = bstone::FileStream{"test.data", bstone::FileOpenMode::create | bstone::FileOpenMode::truncate};
+		auto file = bstone::FileStream{"test.data", bstone::FileOpenFlags::create | bstone::FileOpenFlags::truncate};
 		is_open = file.is_open();
 		is_valid_size_1 = file.get_size() == 0;
 		file.set_size(100);
@@ -486,7 +561,7 @@ void test_2o69zbx04pa7rsz4()
 
 	try
 	{
-		auto file = bstone::FileStream{"test.data", bstone::FileOpenMode::create};
+		auto file = bstone::FileStream{"test.data", bstone::FileOpenFlags::create};
 		is_open = file.is_open();
 		file.flush();
 	}
@@ -525,6 +600,7 @@ private:
 	void register_file_stream()
 	{
 		tester.register_test("FileStream#9iuvd5h9gzjbt351", test_9iuvd5h9gzjbt351);
+		tester.register_test("FileStream#cz3bzq9ia1144mgd", test_cz3bzq9ia1144mgd);
 		tester.register_test("FileStream#gj50q07ijq9uhdu2", test_gj50q07ijq9uhdu2);
 		tester.register_test("FileStream#87hjc768xmbd1t34", test_87hjc768xmbd1t34);
 		tester.register_test("FileStream#5mmf4qysfrd2fonu", test_5mmf4qysfrd2fonu);
@@ -533,12 +609,14 @@ private:
 	void register_try_open()
 	{
 		tester.register_test("FileStream#fwl347iyu5349iee", test_fwl347iyu5349iee);
+		tester.register_test("FileStream#4hi9u7tj6ugr8kmy", test_4hi9u7tj6ugr8kmy);
 		tester.register_test("FileStream#n5pmd6moj0vqsnqn", test_n5pmd6moj0vqsnqn);
 	}
 
 	void register_open()
 	{
 		tester.register_test("FileStream#3h64grd141dr6atb", test_3h64grd141dr6atb);
+		tester.register_test("FileStream#bfq3co9j1znbbjim", test_bfq3co9j1znbbjim);
 		tester.register_test("FileStream#fs8htsia07pw47ps", test_fs8htsia07pw47ps);
 	}
 

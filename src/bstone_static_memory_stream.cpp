@@ -20,14 +20,14 @@ StaticMemoryStream::StaticMemoryStream(void* buffer, std::intptr_t size) noexcep
 	open(buffer, size);
 }
 
-BSTONE_CXX_NODISCARD const std::uint8_t* StaticMemoryStream::get_data() const noexcept
+const std::uint8_t* StaticMemoryStream::get_data() const noexcept
 {
 	BSTONE_ASSERT(is_open());
 
 	return buffer_;
 }
 
-BSTONE_CXX_NODISCARD std::uint8_t* StaticMemoryStream::get_data() noexcept
+std::uint8_t* StaticMemoryStream::get_data() noexcept
 {
 	BSTONE_ASSERT(is_open());
 
@@ -49,7 +49,7 @@ void StaticMemoryStream::do_close() noexcept
 	close_internal();
 }
 
-BSTONE_CXX_NODISCARD bool StaticMemoryStream::do_is_open() const noexcept
+bool StaticMemoryStream::do_is_open() const noexcept
 {
 	return is_open_;
 }
@@ -112,7 +112,7 @@ std::int64_t StaticMemoryStream::do_seek(std::int64_t offset, StreamOrigin origi
 	return new_position;
 }
 
-BSTONE_CXX_NODISCARD std::int64_t StaticMemoryStream::do_get_size() const
+std::int64_t StaticMemoryStream::do_get_size() const
 {
 	BSTONE_ASSERT(is_open());
 

@@ -479,7 +479,7 @@ try
 	{
 		auto file_stream = bstone::FileStream{
 			path.c_str(),
-			bstone::FileOpenMode::create | bstone::FileOpenMode::truncate | bstone::FileOpenMode::write};
+			bstone::FileOpenFlags::create | bstone::FileOpenFlags::truncate | bstone::FileOpenFlags::write};
 
 		file_stream.write_exact(dst_buffer.get(), dst_buffer_size);
 	}

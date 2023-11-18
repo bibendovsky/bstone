@@ -16,7 +16,6 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_assert.h"
 #include "bstone_char_traits.h"
-#include "bstone_cxx.h"
 #include "bstone_utility.h"
 
 namespace bstone {
@@ -53,7 +52,7 @@ public:
 	constexpr bool has_data() const noexcept;
 
 	constexpr std::intptr_t get_size() const noexcept;
-	BSTONE_CXX_NODISCARD constexpr bool is_empty() const noexcept;
+	constexpr bool is_empty() const noexcept;
 
 	constexpr void remove_prefix(std::intptr_t count) noexcept;
 	constexpr void remove_suffix(std::intptr_t count) noexcept;
@@ -173,7 +172,7 @@ constexpr std::intptr_t BasicStringView<TChar>::get_size() const noexcept
 }
 
 template<typename TChar>
-BSTONE_CXX_NODISCARD constexpr bool BasicStringView<TChar>::is_empty() const noexcept
+constexpr bool BasicStringView<TChar>::is_empty() const noexcept
 {
 	return get_size() == 0;
 }

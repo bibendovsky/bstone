@@ -11,7 +11,6 @@ SPDX-License-Identifier: MIT
 
 #include <cstdint>
 
-#include "bstone_cxx.h"
 #include "bstone_enum_flags.h"
 #include "bstone_unique_resource.h"
 
@@ -32,7 +31,7 @@ struct FileUResourceEmptyValue
 
 struct FileUResourceDeleter
 {
-	void operator()(FileUResourceHandle handle) const;
+	void operator()(FileUResourceHandle handle) const noexcept;
 };
 
 using FileUResource = UniqueResource<
@@ -51,7 +50,7 @@ enum class FileOrigin
 	end,
 };
 
-enum class FileOpenMode : unsigned int
+enum class FileOpenFlags : unsigned int
 {
 	none = 0,
 
@@ -63,7 +62,7 @@ enum class FileOpenMode : unsigned int
 	read_write = read | write,
 };
 
-BSTONE_ENABLE_ENUM_CLASS_BITWISE_OPS_FOR(FileOpenMode)
+BSTONE_ENABLE_ENUM_CLASS_BITWISE_OPS_FOR(FileOpenFlags)
 
 // ==========================================================================
 
@@ -71,28 +70,37 @@ class File
 {
 public:
 	File() noexcept = default;
-	explicit File(const char* file_name, FileOpenMode open_mode = FileOpenMode::read);
+	explicit File(const char* path, FileOpenFlags open_flags = FileOpenFlags::read);
 
-	BSTONE_CXX_NODISCARD bool try_open(
-		const char* file_name,
-		FileOpenMode open_mode = FileOpenMode::read) noexcept;
-	void open(const char* file_name, FileOpenMode open_mode = FileOpenMode::read);
+	bool try_open(
+		const char* path,
+		FileOpenFlags open_flags = FileOpenFlags::read);
+	void open(const char* path, FileOpenFlags open_flags = FileOpenFlags::read);
 	void close() noexcept;
-	BSTONE_CXX_NODISCARD bool is_open() const noexcept;
+	bool is_open() const noexcept;
 	std::intptr_t read(void* buffer, std::intptr_t count) const;
 	void read_exact(void* buffer, std::intptr_t count) const;
 	std::intptr_t write(const void* buffer, std::intptr_t count) const;
 	void write_exact(const void* buffer, std::intptr_t count) const;
 	std::int64_t seek(std::int64_t offset, FileOrigin origin) const;
 	std::int64_t skip(std::int64_t delta) const;
-	BSTONE_CXX_NODISCARD std::int64_t get_position() const;
+	std::int64_t get_position() const;
 	void set_position(std::int64_t position) const;
-	BSTONE_CXX_NODISCARD std::int64_t get_size() const;
+	std::int64_t get_size() const;
 	void set_size(std::int64_t size) const;
 	void flush() const;
 
 private:
 	FileUResource resource_{};
+
+private:
+	static void close_internal(FileUResource& resource) noexcept;
+
+	static bool try_or_open_internal(
+		const char* path,
+		FileOpenFlags open_flags,
+		bool ignore_errors,
+		FileUResource& resource);
 };
 
 } // namespace bstone

@@ -11,8 +11,6 @@ SPDX-License-Identifier: MIT
 
 #include <cstdint>
 
-#include "bstone_cxx.h"
-
 namespace bstone {
 
 enum class StreamOrigin
@@ -29,26 +27,26 @@ public:
 	virtual ~Stream() = default;
 
 	void close() noexcept;
-	BSTONE_CXX_NODISCARD bool is_open() const noexcept;
+	bool is_open() const noexcept;
 	std::intptr_t read(void* buffer, std::intptr_t count);
 	void read_exact(void* buffer, std::intptr_t count);
 	std::intptr_t write(const void* buffer, std::intptr_t count);
 	void write_exact(const void* buffer, std::intptr_t count);
 	std::int64_t seek(std::int64_t offset, StreamOrigin origin);
 	std::int64_t skip(std::int64_t delta);
-	BSTONE_CXX_NODISCARD std::int64_t get_position();
+	std::int64_t get_position();
 	void set_position(std::int64_t position);
-	BSTONE_CXX_NODISCARD std::int64_t get_size() const;
+	std::int64_t get_size() const;
 	void set_size(std::int64_t size);
 	void flush();
 
 private:
 	virtual void do_close() noexcept = 0;
-	BSTONE_CXX_NODISCARD virtual bool do_is_open() const noexcept = 0;
+	virtual bool do_is_open() const noexcept = 0;
 	virtual std::intptr_t do_read(void* buffer, std::intptr_t count) = 0;
 	virtual std::intptr_t do_write(const void* buffer, std::intptr_t count) = 0;
 	virtual std::int64_t do_seek(std::int64_t offset, StreamOrigin origin) = 0;
-	BSTONE_CXX_NODISCARD virtual std::int64_t do_get_size() const = 0;
+	virtual std::int64_t do_get_size() const = 0;
 	virtual void do_set_size(std::int64_t size) = 0;
 	virtual void do_flush() = 0;
 };

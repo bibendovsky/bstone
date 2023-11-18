@@ -14,10 +14,10 @@ namespace bstone {
 
 void File::close() noexcept
 {
-	resource_.reset();
+	close_internal(resource_);
 }
 
-BSTONE_CXX_NODISCARD bool File::is_open() const noexcept
+bool File::is_open() const noexcept
 {
 	return !resource_.is_empty();
 }
@@ -43,7 +43,7 @@ std::int64_t File::skip(std::int64_t delta) const
 	return seek(delta, FileOrigin::current);
 }
 
-BSTONE_CXX_NODISCARD std::int64_t File::get_position() const
+std::int64_t File::get_position() const
 {
 	return skip(0);
 }
@@ -51,6 +51,11 @@ BSTONE_CXX_NODISCARD std::int64_t File::get_position() const
 void File::set_position(std::int64_t position) const
 {
 	seek(position, FileOrigin::begin);
+}
+
+void File::close_internal(FileUResource& resource) noexcept
+{
+	resource.reset();
 }
 
 } // namespace bstone

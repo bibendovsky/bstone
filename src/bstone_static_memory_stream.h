@@ -11,7 +11,6 @@ SPDX-License-Identifier: MIT
 
 #include <cstdint>
 
-#include "bstone_cxx.h"
 #include "bstone_stream.h"
 
 namespace bstone {
@@ -23,8 +22,8 @@ public:
 	StaticMemoryStream(void* buffer, std::intptr_t size) noexcept;
 	~StaticMemoryStream() override = default;
 
-	BSTONE_CXX_NODISCARD const std::uint8_t* get_data() const noexcept;
-	BSTONE_CXX_NODISCARD std::uint8_t* get_data() noexcept;
+	const std::uint8_t* get_data() const noexcept;
+	std::uint8_t* get_data() noexcept;
 
 	void open(void* buffer, std::intptr_t size) noexcept;
 
@@ -37,11 +36,11 @@ private:
 
 private:
 	void do_close() noexcept override;
-	BSTONE_CXX_NODISCARD bool do_is_open() const noexcept override;
+	bool do_is_open() const noexcept override;
 	std::intptr_t do_read(void* buffer, std::intptr_t count) override;
 	std::intptr_t do_write(const void* buffer, std::intptr_t count) override;
 	std::int64_t do_seek(std::int64_t offset, StreamOrigin origin) override;
-	BSTONE_CXX_NODISCARD std::int64_t do_get_size() const override;
+	std::int64_t do_get_size() const override;
 	void do_set_size(std::int64_t size) override;
 	void do_flush() override;
 

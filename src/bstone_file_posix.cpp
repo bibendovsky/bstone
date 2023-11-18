@@ -8,16 +8,16 @@ SPDX-License-Identifier: MIT
 
 #if !defined(_WIN32)
 
-#include <sys/stat.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <unistd.h>
-
 #include <cstdint>
 
 #include <algorithm>
 #include <limits>
 #include <type_traits>
+
+#include <sys/stat.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 #include "bstone_assert.h"
 #include "bstone_exception.h"
@@ -37,80 +37,6 @@ constexpr auto posix_file_max_int = std::min(
 	std::int64_t{std::numeric_limits<::off_t>::max()},
 	std::int64_t{std::numeric_limits<std::intptr_t>::max()});
 
-enum class PosixFileErrorCode
-{
-	none = 0,
-	unknown,
-	file_not_found,
-	get_status,
-	not_regular_file,
-};
-
-BSTONE_CXX_NODISCARD PosixFileErrorCode posix_file_open(
-	const char* file_name,
-	FileOpenMode open_mode,
-	FileUResource& resource) noexcept
-{
-	const auto is_create = (open_mode & FileOpenMode::create) != FileOpenMode::none;
-	const auto is_truncate = (open_mode & FileOpenMode::truncate) != FileOpenMode::none;
-	const auto is_readable = (open_mode & FileOpenMode::read) != FileOpenMode::none;
-	const auto is_writable = is_create || is_truncate || (open_mode & FileOpenMode::write) != FileOpenMode::none;
-
-	auto posix_oflag = 0;
-	auto posix_mode = ::mode_t{};
-
-	if (is_create)
-	{
-		posix_oflag |= O_CREAT;
-		posix_mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
-	}
-
-	if (is_truncate)
-	{
-		posix_oflag |= O_TRUNC;
-	}
-
-	if (is_readable && is_writable)
-	{
-		posix_oflag |= O_RDWR;
-	}
-	else if (is_readable)
-	{
-		posix_oflag |= O_RDONLY;
-	}
-	else if (is_writable)
-	{
-		posix_oflag |= O_WRONLY;
-	}
-
-	resource.reset(::open(file_name, posix_oflag, posix_mode));
-
-	if (resource.is_empty())
-	{
-		if (errno == ENOENT)
-		{
-			return PosixFileErrorCode::file_not_found;
-		}
-
-		return PosixFileErrorCode::unknown;
-	}
-
-	struct ::stat posix_stat;
-	const auto fstat_result = ::fstat(resource.get(), &posix_stat);
-
-	if (fstat_result != 0)
-	{
-		return PosixFileErrorCode::get_status;
-	}
-
-	if (!S_ISREG(posix_stat.st_mode))
-	{
-		return PosixFileErrorCode::not_regular_file;
-	}
-
-	return PosixFileErrorCode::none;
-}
-
 } // namespace
 
 // ==========================================================================
@@ -120,49 +46,26 @@ FileUResourceHandle FileUResourceEmptyValue::operator()() const noexcept
 	return -1;
 }
 
-void FileUResourceDeleter::operator()(FileUResourceHandle handle) const
+void FileUResourceDeleter::operator()(FileUResourceHandle handle) const noexcept
 {
 	::close(handle);
 }
 
 // ==========================================================================
 
-File::File(const char* file_name, FileOpenMode open_mode)
+File::File(const char* path, FileOpenFlags open_flags)
 {
-	open(file_name, open_mode);
+	try_or_open_internal(path, open_flags, false, resource_);
 }
 
-BSTONE_CXX_NODISCARD bool File::try_open(const char* file_name, FileOpenMode open_mode) noexcept
+bool File::try_open(const char* path, FileOpenFlags open_flags)
 {
-	close();
-
-	auto resource = FileUResource{};
-	const auto posix_error_code = posix_file_open(file_name, open_mode, resource);
-
-	if (posix_error_code != PosixFileErrorCode::none)
-	{
-		return false;
-	}
-
-	resource_.swap(resource);
-	return true;
+	return try_or_open_internal(path, open_flags, true, resource_);
 }
 
-void File::open(const char* file_name, FileOpenMode open_mode)
+void File::open(const char* path, FileOpenFlags open_flags)
 {
-	close();
-
-	auto resource = FileUResource{};
-	const auto posix_error_code = posix_file_open(file_name, open_mode, resource);
-
-	switch (posix_error_code)
-	{
-		case PosixFileErrorCode::none: resource_.swap(resource); break;
-		case PosixFileErrorCode::file_not_found: BSTONE_THROW_STATIC_SOURCE("Not found.");
-		case PosixFileErrorCode::get_status: BSTONE_THROW_STATIC_SOURCE("Unknown status.");
-		case PosixFileErrorCode::not_regular_file: BSTONE_THROW_STATIC_SOURCE("Not a regular file.");
-		default: BSTONE_THROW_STATIC_SOURCE("Failed to open.");
-	}
+	try_or_open_internal(path, open_flags, false, resource_);
 }
 
 std::intptr_t File::read(void* buffer, std::intptr_t count) const
@@ -229,7 +132,7 @@ std::int64_t File::seek(std::int64_t offset, FileOrigin origin) const
 	return static_cast<std::int64_t>(lseek_result);
 }
 
-BSTONE_CXX_NODISCARD std::int64_t File::get_size() const
+std::int64_t File::get_size() const
 {
 	BSTONE_ASSERT(is_open());
 
@@ -274,6 +177,113 @@ void File::flush() const
 	{
 		BSTONE_THROW_STATIC_SOURCE("Failed to flush.");
 	}
+}
+
+bool File::try_or_open_internal(
+	const char* path,
+	FileOpenFlags open_flags,
+	bool ignore_errors,
+	FileUResource& resource)
+{
+	// Release previous resource.
+	//
+
+	close_internal(resource);
+
+	// Validate input parameters.
+	//
+
+	const auto is_create = (open_flags & FileOpenFlags::create) != FileOpenFlags::none;
+	const auto is_truncate = (open_flags & FileOpenFlags::truncate) != FileOpenFlags::none;
+	const auto is_readable = (open_flags & FileOpenFlags::read) != FileOpenFlags::none;
+	const auto is_writable = is_create || is_truncate || (open_flags & FileOpenFlags::write) != FileOpenFlags::none;
+
+	if (!is_readable && !is_writable)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Invalid open mode.");
+	}
+
+	// Make status flags, access mode and access permission bits.
+	//
+
+	auto oflag = 0;
+	auto mode = ::mode_t{};
+
+	if (is_create)
+	{
+		oflag |= O_CREAT;
+		mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+	}
+
+	if (is_truncate)
+	{
+		oflag |= O_TRUNC;
+	}
+
+	if (is_readable && is_writable)
+	{
+		oflag |= O_RDWR;
+	}
+	else if (is_readable)
+	{
+		oflag |= O_RDONLY;
+	}
+	else if (is_writable)
+	{
+		oflag |= O_WRONLY;
+	}
+
+	// Make a resource.
+	//
+
+	auto new_resource = FileUResource{::open(path, oflag, mode)};
+
+	if (new_resource.is_empty())
+	{
+		if (ignore_errors)
+		{
+			return false;
+		}
+
+		switch (errno)
+		{
+			case ENOENT: BSTONE_THROW_STATIC_SOURCE("Not found.");
+			case EACCES: BSTONE_THROW_STATIC_SOURCE("Access denied.");
+			default: BSTONE_THROW_STATIC_SOURCE("Failed to open.");
+		}
+	}
+
+	// Validate a type.
+	//
+
+	struct ::stat posix_stat;
+	const auto fstat_result = ::fstat(new_resource.get(), &posix_stat);
+
+	if (fstat_result != 0)
+	{
+		if (ignore_errors)
+		{
+			return false;
+		}
+
+		BSTONE_THROW_STATIC_SOURCE("Failed to get status.");
+	}
+
+	if (!S_ISREG(posix_stat.st_mode))
+	{
+		if (ignore_errors)
+		{
+			return false;
+		}
+
+		BSTONE_THROW_STATIC_SOURCE("Not a regular file.");
+	}
+
+	// Commit changes.
+	//
+
+	resource.swap(new_resource);
+	return true;
 }
 
 } // namespace bstone

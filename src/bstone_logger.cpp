@@ -188,7 +188,7 @@ void DefaultLogger::initialize()
 		{
 			file_stream_.open(
 				file_name_.c_str(),
-				FileOpenMode::create | FileOpenMode::truncate | FileOpenMode::write);
+				FileOpenFlags::create | FileOpenFlags::truncate | FileOpenFlags::write);
 		}
 		catch (...)
 		{

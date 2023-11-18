@@ -200,7 +200,7 @@ void TextExtractor::extract_text(const std::string& dst_dir, const TextNumber& t
 
 	auto file_stream = FileStream{
 		file_name.c_str(),
-		FileOpenMode::create | FileOpenMode::truncate | FileOpenMode::write};
+		FileOpenFlags::create | FileOpenFlags::truncate | FileOpenFlags::write};
 
 	file_stream.write_exact(text_data, text_size);
 }

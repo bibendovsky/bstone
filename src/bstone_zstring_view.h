@@ -15,7 +15,6 @@ SPDX-License-Identifier: MIT
 #include <type_traits>
 
 #include "bstone_assert.h"
-#include "bstone_cxx.h"
 #include "bstone_string_view.h"
 
 namespace bstone {
@@ -49,10 +48,10 @@ public:
 	constexpr const Char& get_front() const noexcept;
 	constexpr const Char& get_back() const noexcept;
 	constexpr const Char* get_data() const noexcept;
-	BSTONE_CXX_NODISCARD constexpr bool has_data() const noexcept;
+	constexpr bool has_data() const noexcept;
 
 	constexpr std::intptr_t get_size() const noexcept;
-	BSTONE_CXX_NODISCARD constexpr bool is_empty() const noexcept;
+	constexpr bool is_empty() const noexcept;
 
 	constexpr void remove_prefix(std::intptr_t count) noexcept;
 	constexpr void swap(BasicZStringView& rhs) noexcept;
@@ -157,7 +156,7 @@ constexpr auto BasicZStringView<TChar>::get_data() const noexcept -> const Char*
 }
 
 template<typename TChar>
-BSTONE_CXX_NODISCARD constexpr bool BasicZStringView<TChar>::has_data() const noexcept
+constexpr bool BasicZStringView<TChar>::has_data() const noexcept
 {
 	return view_.has_data();
 }
@@ -169,7 +168,7 @@ constexpr std::intptr_t BasicZStringView<TChar>::get_size() const noexcept
 }
 
 template<typename TChar>
-BSTONE_CXX_NODISCARD constexpr bool BasicZStringView<TChar>::is_empty() const noexcept
+constexpr bool BasicZStringView<TChar>::is_empty() const noexcept
 {
 	return view_.is_empty();
 }

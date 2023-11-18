@@ -400,7 +400,7 @@ void ImageExtractor::save_bmp(const std::string& path)
 try {
 	auto file_stream = FileStream{
 		path.c_str(),
-		FileOpenMode::create | FileOpenMode::truncate | FileOpenMode::write};
+		FileOpenFlags::create | FileOpenFlags::truncate | FileOpenFlags::write};
 
 	auto binary_writer = BinaryWriter{file_stream};
 

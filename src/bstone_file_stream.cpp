@@ -11,19 +11,19 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-FileStream::FileStream(const char* file_name, FileOpenMode open_mode)
+FileStream::FileStream(const char* path, FileOpenFlags open_flags)
 	:
-	file_{file_name, open_mode}
+	file_{path, open_flags}
 {}
 
-BSTONE_CXX_NODISCARD bool FileStream::try_open(const char* file_name, FileOpenMode open_mode) noexcept
+bool FileStream::try_open(const char* path, FileOpenFlags open_flags)
 {
-	return file_.try_open(file_name, open_mode);
+	return file_.try_open(path, open_flags);
 }
 
-void FileStream::open(const char* file_name, FileOpenMode open_mode)
+void FileStream::open(const char* path, FileOpenFlags open_flags)
 {
-	file_.open(file_name, open_mode);
+	file_.open(path, open_flags);
 }
 
 void FileStream::do_close() noexcept
@@ -31,7 +31,7 @@ void FileStream::do_close() noexcept
 	file_.close();
 }
 
-BSTONE_CXX_NODISCARD bool FileStream::do_is_open() const noexcept
+bool FileStream::do_is_open() const noexcept
 {
 	return file_.is_open();
 }
@@ -61,7 +61,7 @@ try {
 	return file_.seek(offset, file_origin);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-BSTONE_CXX_NODISCARD std::int64_t FileStream::do_get_size() const
+std::int64_t FileStream::do_get_size() const
 {
 	return file_.get_size();
 }

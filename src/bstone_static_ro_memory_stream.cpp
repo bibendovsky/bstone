@@ -20,14 +20,14 @@ StaticRoMemoryStream::StaticRoMemoryStream(const void* buffer, std::intptr_t siz
 	open(buffer, size);
 }
 
-BSTONE_CXX_NODISCARD const std::uint8_t* StaticRoMemoryStream::get_data() const noexcept
+const std::uint8_t* StaticRoMemoryStream::get_data() const noexcept
 {
 	BSTONE_ASSERT(is_open());
 
 	return buffer_;
 }
 
-BSTONE_CXX_NODISCARD const std::uint8_t* StaticRoMemoryStream::get_data() noexcept
+const std::uint8_t* StaticRoMemoryStream::get_data() noexcept
 {
 	BSTONE_ASSERT(is_open());
 
@@ -48,7 +48,7 @@ void StaticRoMemoryStream::do_close() noexcept
 	close_internal();
 }
 
-BSTONE_CXX_NODISCARD bool StaticRoMemoryStream::do_is_open() const noexcept
+bool StaticRoMemoryStream::do_is_open() const noexcept
 {
 	return is_open_;
 }
@@ -99,7 +99,7 @@ std::int64_t StaticRoMemoryStream::do_seek(std::int64_t offset, StreamOrigin ori
 	return new_position;
 }
 
-BSTONE_CXX_NODISCARD std::int64_t StaticRoMemoryStream::do_get_size() const
+std::int64_t StaticRoMemoryStream::do_get_size() const
 {
 	BSTONE_ASSERT(is_open());
 

@@ -89,7 +89,7 @@ void test_u4n0mwpbhe0zh6dx()
 
 // ==========================================================================
 
-// [[nodiscard]] const std::uint8_t* get_data() const noexcept
+// const std::uint8_t* get_data() const noexcept
 void test_qp9hhuxrpa93ofth()
 {
 	const auto get_const_stream = [](bstone::StaticRoMemoryStream& stream) -> const bstone::StaticRoMemoryStream&
@@ -105,7 +105,7 @@ void test_qp9hhuxrpa93ofth()
 	tester.check(is_open && data == reinterpret_cast<const std::uint8_t*>(&buffer));
 }
 
-// [[nodiscard]] const std::uint8_t* get_data() noexcept
+// const std::uint8_t* get_data() noexcept
 void test_8kl1fz05db5sjl0c()
 {
 	char buffer = '\0';
@@ -147,7 +147,7 @@ void test_rief2dbpcv4xllsa()
 
 // ==========================================================================
 
-// [[nodiscard]] bool is_open() const noexcept
+// bool is_open() const noexcept
 void test_j7aq16ovijz9txgq()
 {
 	auto memory_stream = bstone::StaticRoMemoryStream{};
@@ -354,7 +354,7 @@ void test_56gj0c3jb9k386u9()
 
 // ==========================================================================
 
-// [[nodiscard]] std::int64_t get_position()
+// std::int64_t get_position()
 void test_8nyr5ardlal737iz()
 {
 	char buffer = '\0';
@@ -403,7 +403,7 @@ void test_ai6l5wadrz6ry50b()
 
 // ==========================================================================
 
-// [[nodiscard]] std::int64_t get_size()
+// std::int64_t get_size()
 void test_rcoycuoy6he01g9w()
 {
 	char buffer[1000] = {};

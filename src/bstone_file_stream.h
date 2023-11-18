@@ -9,7 +9,6 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_FILE_STREAM_INCLUDED)
 #define BSTONE_FILE_STREAM_INCLUDED
 
-#include "bstone_cxx.h"
 #include "bstone_file.h"
 #include "bstone_stream.h"
 
@@ -19,26 +18,26 @@ class FileStream final : public Stream
 {
 public:
 	FileStream() noexcept = default;
-	explicit FileStream(const char* file_name, FileOpenMode open_mode = FileOpenMode::read);
+	explicit FileStream(const char* path, FileOpenFlags open_flags = FileOpenFlags::read);
 	FileStream(FileStream&&) noexcept = default;
 	FileStream& operator=(FileStream&&) noexcept = default;
 	~FileStream() override = default;
 
-	BSTONE_CXX_NODISCARD bool try_open(
-		const char* file_name,
-		FileOpenMode open_mode = FileOpenMode::read) noexcept;
-	void open(const char* file_name, FileOpenMode open_mode = FileOpenMode::read);
+	bool try_open(
+		const char* path,
+		FileOpenFlags open_flags = FileOpenFlags::read);
+	void open(const char* path, FileOpenFlags open_flags = FileOpenFlags::read);
 
 private:
 	File file_{};
 
 private:
 	void do_close() noexcept override;
-	BSTONE_CXX_NODISCARD bool do_is_open() const noexcept override;
+	bool do_is_open() const noexcept override;
 	std::intptr_t do_read(void* buffer, std::intptr_t count) override;
 	std::intptr_t do_write(const void* buffer, std::intptr_t count) override;
 	std::int64_t do_seek(std::int64_t offset, StreamOrigin origin) override;
-	BSTONE_CXX_NODISCARD std::int64_t do_get_size() const override;
+	std::int64_t do_get_size() const override;
 	void do_set_size(std::int64_t size) override;
 	void do_flush() override;
 };

@@ -91,7 +91,7 @@ void test_00qcn6my0tb8k541()
 
 // ==========================================================================
 
-// [[nodiscard]] const std::uint8_t* get_data() const noexcept
+// const std::uint8_t* get_data() const noexcept
 void test_t3eqak5thhnos9xe()
 {
 	const auto get_const_stream = [](bstone::StaticMemoryStream& stream) -> const bstone::StaticMemoryStream&
@@ -107,7 +107,7 @@ void test_t3eqak5thhnos9xe()
 	tester.check(is_open && data != nullptr);
 }
 
-// [[nodiscard]] std::uint8_t* get_data() noexcept
+// std::uint8_t* get_data() noexcept
 void test_g5ff2gqbyeid3ezx()
 {
 	char buffer = '\0';
@@ -148,7 +148,7 @@ void test_8j10siejav8rid6d()
 
 // ==========================================================================
 
-// [[nodiscard]] bool is_open() const noexcept
+// bool is_open() const noexcept
 void test_2siufbq86mhyo1ua()
 {
 	auto memory_stream = bstone::StaticMemoryStream{};
@@ -416,7 +416,7 @@ void test_56gj0c3jb9k386u9()
 
 // ==========================================================================
 
-// [[nodiscard]] std::int64_t get_position()
+// std::int64_t get_position()
 void test_8nyr5ardlal737iz()
 {
 	char buffer = '\0';
@@ -465,7 +465,7 @@ void test_ai6l5wadrz6ry50b()
 
 // ==========================================================================
 
-// [[nodiscard]] std::int64_t get_size()
+// std::int64_t get_size()
 void test_ue3pgnp5r744w081()
 {
 	char buffer[1000] = {};

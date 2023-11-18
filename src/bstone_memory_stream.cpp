@@ -19,14 +19,14 @@ MemoryStream::MemoryStream(std::intptr_t initial_capacity, std::intptr_t chunk_s
 	open(initial_capacity, chunk_size);
 }
 
-BSTONE_CXX_NODISCARD const std::uint8_t* MemoryStream::get_data() const noexcept
+const std::uint8_t* MemoryStream::get_data() const noexcept
 {
 	BSTONE_ASSERT(is_open());
 
 	return storage_.get();
 }
 
-BSTONE_CXX_NODISCARD std::uint8_t* MemoryStream::get_data() noexcept
+std::uint8_t* MemoryStream::get_data() noexcept
 {
 	BSTONE_ASSERT(is_open());
 
@@ -46,7 +46,7 @@ void MemoryStream::do_close() noexcept
 	close_internal();
 }
 
-BSTONE_CXX_NODISCARD bool MemoryStream::do_is_open() const noexcept
+bool MemoryStream::do_is_open() const noexcept
 {
 	return is_open_;
 }
@@ -117,7 +117,7 @@ std::int64_t MemoryStream::do_seek(std::int64_t offset, StreamOrigin origin)
 	return new_position;
 }
 
-BSTONE_CXX_NODISCARD std::int64_t MemoryStream::do_get_size() const
+std::int64_t MemoryStream::do_get_size() const
 {
 	BSTONE_ASSERT(is_open());
 
