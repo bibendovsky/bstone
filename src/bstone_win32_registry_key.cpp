@@ -14,6 +14,7 @@ SPDX-License-Identifier: MIT
 
 #include <windows.h>
 
+#include "bstone_assert.h"
 #include "bstone_exception.h"
 #include "bstone_win32_registry_key.h"
 #include "bstone_utf.h"
@@ -36,33 +37,50 @@ HKEY map_root_key_type(RegistryRootKeyType root_key_type)
 	}
 }
 
-DWORD map_access_type(RegistryAccessType access_type)
+DWORD map_open_flags(RegistryOpenFlags open_flags)
 {
-	const auto is_create = (access_type & RegistryAccessType::create) != RegistryAccessType::none;
+	const auto is_create = (open_flags & RegistryOpenFlags::create) != RegistryOpenFlags::none;
+	const auto is_read = (open_flags & RegistryOpenFlags::read) != RegistryOpenFlags::none;
+	const auto is_write = is_create || (open_flags & RegistryOpenFlags::write) != RegistryOpenFlags::none;
+	const auto is_wow64_32 = (open_flags & RegistryOpenFlags::wow64_32) != RegistryOpenFlags::none;
+	const auto is_wow64_64 = (open_flags & RegistryOpenFlags::wow64_64) != RegistryOpenFlags::none;
 
-	auto access = DWORD{};
-
-	if ((access_type & RegistryAccessType::read) != RegistryAccessType::none)
+	if (!is_read && !is_write)
 	{
-		access |= KEY_READ;
+		BSTONE_THROW_STATIC_SOURCE("Expected read or write access.");
 	}
 
-	if (is_create || (access_type & RegistryAccessType::write) != RegistryAccessType::none)
+	if (is_wow64_32 && is_wow64_64)
 	{
-		access |= KEY_WRITE;
+		BSTONE_THROW_STATIC_SOURCE("Only one view type allowed.");
 	}
 
-	if ((access_type & RegistryAccessType::wow64_32) != RegistryAccessType::none)
+	return DWORD
 	{
-		access |= KEY_WOW64_32KEY;
+		(is_read ? KEY_READ : 0U) |
+		(is_write ? KEY_WRITE : 0U) |
+		(is_wow64_32 ? KEY_WOW64_32KEY : 0U) |
+		(is_wow64_64 ? KEY_WOW64_64KEY : 0U) |
+		0U
+	};
+}
+
+DWORD map_wow64_open_flags(RegistryOpenFlags open_flags)
+{
+	const auto is_wow64_32 = (open_flags & RegistryOpenFlags::wow64_32) != RegistryOpenFlags::none;
+	const auto is_wow64_64 = (open_flags & RegistryOpenFlags::wow64_64) != RegistryOpenFlags::none;
+
+	if (is_wow64_32 && is_wow64_64)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Only one view type allowed.");
 	}
 
-	if ((access_type & RegistryAccessType::wow64_64) != RegistryAccessType::none)
+	return DWORD
 	{
-		access |= KEY_WOW64_64KEY;
-	}
-
-	return access;
+		(is_wow64_32 ? KEY_WOW64_32KEY : 0U) |
+		(is_wow64_64 ? KEY_WOW64_64KEY : 0U) |
+		0U
+	};
 }
 
 LSTATUS registry_key_create(HKEY root_key, LPCWSTR subkey_name, DWORD access, HKEY& subkey)
@@ -93,7 +111,7 @@ LSTATUS registry_key_open(HKEY root_key, LPCWSTR subkey_name, DWORD access, HKEY
 
 // ==========================================================================
 
-void RegistryKeyHandleDeleter::operator()(RegistryKeyHandle* handle) const
+void RegistryKeyHandleDeleter::operator()(RegistryKeyHandle* handle) const noexcept
 {
 	RegCloseKey(reinterpret_cast<HKEY>(handle));
 }
@@ -103,37 +121,28 @@ void RegistryKeyHandleDeleter::operator()(RegistryKeyHandle* handle) const
 RegistryKey::RegistryKey(
 	const char* subkey_name,
 	RegistryRootKeyType root_key_type,
-	RegistryAccessType access_type)
+	RegistryOpenFlags open_flags)
 {
-	open(subkey_name, root_key_type, access_type);
+	try_or_open(subkey_name, root_key_type, open_flags, false);
+}
+
+bool RegistryKey::try_open(
+	const char* subkey_name,
+	RegistryRootKeyType root_key_type,
+	RegistryOpenFlags open_flags)
+{
+	return try_or_open(subkey_name, root_key_type, open_flags, true);
 }
 
 void RegistryKey::open(
 	const char* subkey_name,
 	RegistryRootKeyType root_key_type,
-	RegistryAccessType access_type)
+	RegistryOpenFlags open_flags)
 {
-	close();
-
-	const auto root_key = map_root_key_type(root_key_type);
-	const auto access = map_access_type(access_type);
-	const auto is_create = (access_type & RegistryAccessType::create) != RegistryAccessType::none;
-
-	const auto u16_subkey_name = Win32WString{subkey_name};
-	const auto reg_func = is_create ? registry_key_create : registry_key_open;
-
-	auto subkey = HKEY{};
-	const auto win32_result = reg_func(root_key, u16_subkey_name.get_data(), access, subkey);
-
-	if (win32_result != ERROR_SUCCESS)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Failed to open a key.");
-	}
-
-	handle_ = RegistryKeyHandleUPtr{reinterpret_cast<RegistryKeyHandle*>(subkey)};
+	try_or_open(subkey_name, root_key_type, open_flags, false);
 }
 
-void RegistryKey::close()
+void RegistryKey::close() noexcept
 {
 	handle_ = nullptr;
 }
@@ -143,37 +152,100 @@ bool RegistryKey::is_open() const noexcept
 	return handle_ != nullptr;
 }
 
-bool RegistryKey::has_string(const char* name) const
+bool RegistryKey::try_get_string(
+	const char* name,
+	char* buffer,
+	std::intptr_t buffer_size,
+	std::intptr_t& written_size) const
 {
-	ensure_is_open();
-
-	auto u16_name = Win32WString{name};
-	auto value_type = DWORD{};
-
-	const auto win32_result = RegQueryValueExW(
-		reinterpret_cast<HKEY>(handle_.get()),
-		u16_name.get_data(),
-		nullptr,
-		&value_type,
-		nullptr,
-		nullptr);
-
-	if (win32_result != ERROR_SUCCESS)
-	{
-		return false;
-	}
-
-	if (value_type != REG_SZ)
-	{
-		return false;
-	}
-
-	return true;
+	return try_or_get_string(name, buffer, buffer_size, true, written_size);
 }
 
 std::intptr_t RegistryKey::get_string(const char* name, char* buffer, std::intptr_t buffer_size) const
 {
-	ensure_is_open();
+	auto result = std::intptr_t{};
+	try_or_get_string(name, buffer, buffer_size, false, result);
+	return result;
+}
+
+bool RegistryKey::try_set_string(const char* name, const char* value) const
+{
+	return try_or_set_string(name, value, true);
+}
+
+void RegistryKey::set_string(const char* name, const char* value) const
+{
+	try_or_set_string(name, value, false);
+}
+
+bool RegistryKey::try_delete_value(const char* name) const
+{
+	return try_or_delete_value(name, true);
+}
+
+void RegistryKey::delete_value(const char* name) const
+{
+	try_or_delete_value(name, false);
+}
+
+bool RegistryKey::try_delete_key(
+	const char* subkey_name,
+	RegistryRootKeyType root_key_type,
+	RegistryOpenFlags open_flags)
+{
+	return try_or_delete_key(subkey_name, root_key_type, open_flags, true);
+}
+
+void RegistryKey::delete_key(
+	const char* subkey_name,
+	RegistryRootKeyType root_key_type,
+	RegistryOpenFlags open_flags)
+{
+	try_or_delete_key(subkey_name, root_key_type, open_flags, false);
+}
+
+bool RegistryKey::try_or_open(
+	const char* subkey_name,
+	RegistryRootKeyType root_key_type,
+	RegistryOpenFlags open_flags,
+	bool is_ignore_errors)
+{
+	close();
+
+	const auto root_key = map_root_key_type(root_key_type);
+	const auto access = map_open_flags(open_flags);
+	const auto is_create = (open_flags & RegistryOpenFlags::create) != RegistryOpenFlags::none;
+
+	const auto u16_subkey_name = Win32WString{subkey_name};
+	const auto reg_func = is_create ? registry_key_create : registry_key_open;
+
+	auto subkey = HKEY{};
+	const auto win32_result = reg_func(root_key, u16_subkey_name.get_data(), access, subkey);
+
+	if (win32_result != ERROR_SUCCESS)
+	{
+		if (is_ignore_errors)
+		{
+			return false;
+		}
+
+		BSTONE_THROW_STATIC_SOURCE("Failed to open a key.");
+	}
+
+	handle_ = RegistryKeyHandleUPtr{reinterpret_cast<RegistryKeyHandle*>(subkey)};
+	return true;
+}
+
+bool RegistryKey::try_or_get_string(
+	const char* name,
+	char* buffer,
+	std::intptr_t buffer_size,
+	bool is_ignore_errors,
+	std::intptr_t& written_size) const
+{
+	BSTONE_ASSERT(is_open());
+
+	written_size = 0;
 
 	auto value_type = DWORD{};
 	auto win32_result = LSTATUS{};
@@ -194,16 +266,31 @@ std::intptr_t RegistryKey::get_string(const char* name, char* buffer, std::intpt
 
 	if (win32_result != ERROR_SUCCESS)
 	{
+		if (is_ignore_errors)
+		{
+			return false;
+		}
+
 		BSTONE_THROW_STATIC_SOURCE("Failed to get a string value.");
 	}
 
 	if (value_type != REG_SZ)
 	{
+		if (is_ignore_errors)
+		{
+			return false;
+		}
+
 		BSTONE_THROW_STATIC_SOURCE("Not a string value.");
 	}
 
 	if ((value_byte_count % 2) != 0)
 	{
+		if (is_ignore_errors)
+		{
+			return false;
+		}
+
 		BSTONE_THROW_STATIC_SOURCE("Invalid value size in bytes.");
 	}
 
@@ -224,16 +311,31 @@ std::intptr_t RegistryKey::get_string(const char* name, char* buffer, std::intpt
 
 	if (win32_result != ERROR_SUCCESS)
 	{
+		if (is_ignore_errors)
+		{
+			return false;
+		}
+
 		BSTONE_THROW_STATIC_SOURCE("RegQueryValueExW failed.");
 	}
 
 	if (value_type != REG_SZ)
 	{
+		if (is_ignore_errors)
+		{
+			return false;
+		}
+
 		BSTONE_THROW_STATIC_SOURCE("Value type mismatch.");
 	}
 
 	if (value_byte_count != value_byte_count_2)
 	{
+		if (is_ignore_errors)
+		{
+			return false;
+		}
+
 		BSTONE_THROW_STATIC_SOURCE("Value size mismatch.");
 	}
 
@@ -248,27 +350,34 @@ std::intptr_t RegistryKey::get_string(const char* name, char* buffer, std::intpt
 	if (u8_size == 0)
 	{
 		*buffer = '\0';
-		return 0;
+		return true;
 	}
 
 	if (buffer[u8_size - 1] == '\0')
 	{
-		return u8_size - 1;
+		written_size = u8_size - 1;
+		return true;
 	}
 
 	if (u8_size == buffer_size)
 	{
+		if (is_ignore_errors)
+		{
+			return false;
+		}
+
 		BSTONE_THROW_STATIC_SOURCE("Buffer overflow.");
 	}
 
 	buffer[u8_size] = '\0';
+	written_size = u8_size;
 
-	return u8_size;
+	return true;
 }
 
-void RegistryKey::set_string(const char* name, const char* value) const
+bool RegistryKey::try_or_set_string(const char* name, const char* value, bool is_ignore_errors) const
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open());
 
 	auto u16_name = Win32WString{name};
 	const auto u16_value = Win32WString{value};
@@ -285,63 +394,45 @@ void RegistryKey::set_string(const char* name, const char* value) const
 
 	if (win32_result != ERROR_SUCCESS)
 	{
+		if (is_ignore_errors)
+		{
+			return false;
+		}
+
 		BSTONE_THROW_STATIC_SOURCE("Failed to write a string value.");
 	}
+
+	return true;
 }
 
-void RegistryKey::delete_value(const char* name) const
+bool RegistryKey::try_or_delete_value(const char* name, bool is_ignore_errors) const
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open());
 
 	auto u16_name = Win32WString{name};
 	const auto win32_result = RegDeleteValueW(reinterpret_cast<HKEY>(handle_.get()), u16_name.get_data());
 
 	if (win32_result != ERROR_SUCCESS)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Failed to delete a value.");
-	}
-}
-
-bool RegistryKey::has_key(
-	const char* subkey_name,
-	RegistryRootKeyType root_key_type,
-	RegistryAccessType access_type)
-{
-	const auto root_key = map_root_key_type(root_key_type);
-	const auto access = map_access_type(access_type);
-	const auto u16_subkey_name = Win32WString{subkey_name};
-
-	auto subkey = HKEY{};
-
-	const auto win32_result = RegOpenKeyExW(
-		root_key,
-		u16_subkey_name.get_data(),
-		0,
-		(access & (KEY_WOW64_32KEY | KEY_WOW64_64KEY)) | KEY_READ,
-		&subkey);
-
-	if (win32_result != ERROR_SUCCESS)
-	{
-		if (win32_result == ERROR_ACCESS_DENIED)
+		if (is_ignore_errors)
 		{
-			return true;
+			return false;
 		}
 
-		return false;
+		BSTONE_THROW_STATIC_SOURCE("Failed to delete a value.");
 	}
-
-	RegCloseKey(subkey);
 
 	return true;
 }
 
-void RegistryKey::delete_key(
+bool RegistryKey::try_or_delete_key(
 	const char* subkey_name,
 	RegistryRootKeyType root_key_type,
-	RegistryAccessType access_type)
+	RegistryOpenFlags open_flags,
+	bool is_ignore_errors)
 {
 	const auto root_key = map_root_key_type(root_key_type);
-	const auto access = map_access_type(access_type);
+	const auto access = map_wow64_open_flags(open_flags);
 	const auto u16_subkey_name = Win32WString{subkey_name};
 
 	const auto win32_result = RegDeleteKeyExW(
@@ -352,16 +443,15 @@ void RegistryKey::delete_key(
 
 	if (win32_result != ERROR_SUCCESS)
 	{
+		if (is_ignore_errors)
+		{
+			return false;
+		}
+
 		BSTONE_THROW_STATIC_SOURCE("Failed to delete a key.");
 	}
-}
 
-void RegistryKey::ensure_is_open() const
-{
-	if (handle_ == nullptr)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Closed key.");
-	}
+	return true;
 }
 
 } // namespace win32

@@ -36,51 +36,24 @@ AssetPath make_steam_content_path()
 		const std::string& subkey_name,
 		win32::RegistryKey& registry_key) -> bool
 	{
-		constexpr win32::RegistryAccessType access_types[] =
+		constexpr win32::RegistryOpenFlags open_flags_set[] =
 		{
-			win32::RegistryAccessType::none,
-			win32::RegistryAccessType::wow64_64,
-			win32::RegistryAccessType::wow64_32
+			win32::RegistryOpenFlags::read | win32::RegistryOpenFlags::wow64_64,
+			win32::RegistryOpenFlags::read | win32::RegistryOpenFlags::wow64_32
 		};
 
-		auto has_found_access_type = false;
-		auto access_type = win32::RegistryAccessType::none;
-
-		for (const auto i_access_type : access_types)
+		for (const auto open_flags : open_flags_set)
 		{
-			const auto has_key = win32::RegistryKey::has_key(
+			if (registry_key.try_open(
 				subkey_name.c_str(),
 				win32::RegistryRootKeyType::local_machine,
-				i_access_type);
-
-			if (!has_key)
+				open_flags))
 			{
-				continue;
+				return true;
 			}
-
-			has_found_access_type = true;
-			access_type = i_access_type;
-			break;
 		}
 
-		if (!has_found_access_type)
-		{
-			return false;
-		}
-
-		try
-		{
-			registry_key.open(
-				subkey_name.c_str(),
-				win32::RegistryRootKeyType::local_machine,
-				access_type | win32::RegistryAccessType::read);
-
-			return true;
-		}
-		catch (...)
-		{
-			return false;
-		}
+		return false;
 	};
 
 	const auto get_registry_string = [](
@@ -88,28 +61,22 @@ AssetPath make_steam_content_path()
 		const std::string& value_name,
 		std::string& value) -> bool
 	{
-		if (!registry_key.has_string(value_name.c_str()))
-		{
-			return false;
-		}
-
 		value.resize(win32::RegistryKey::max_string_length);
 
-		try
-		{
-			const auto length = registry_key.get_string(
-				value_name.c_str(),
-				&value[0],
-				win32::RegistryKey::max_string_length);
+		auto length = std::intptr_t{};
 
-			value.resize(static_cast<std::size_t>(length));
-
-			return true;
-		}
-		catch (...)
+		if (!registry_key.try_get_string(
+			value_name.c_str(),
+			&value[0],
+			win32::RegistryKey::max_string_length,
+			length))
 		{
 			return false;
 		}
+
+		value.resize(static_cast<std::size_t>(length));
+
+		return true;
 	};
 
 	static const auto value_name = std::string{"InstallLocation"};

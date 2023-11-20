@@ -20,7 +20,7 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace win32 {
 
-enum class RegistryAccessType : unsigned int
+enum class RegistryOpenFlags : unsigned int
 {
 	none = 0,
 
@@ -34,7 +34,7 @@ enum class RegistryAccessType : unsigned int
 	wow64_64 = 1U << 4,
 };
 
-BSTONE_ENABLE_ENUM_CLASS_BITWISE_OPS_FOR(RegistryAccessType)
+BSTONE_ENABLE_ENUM_CLASS_BITWISE_OPS_FOR(RegistryOpenFlags)
 
 // ==========================================================================
 
@@ -51,7 +51,7 @@ struct RegistryKeyHandle {};
 
 struct RegistryKeyHandleDeleter
 {
-	void operator()(RegistryKeyHandle* handle) const;
+	void operator()(RegistryKeyHandle* handle) const noexcept;
 };
 
 using RegistryKeyHandleUPtr = std::unique_ptr<RegistryKeyHandle, RegistryKeyHandleDeleter>;
@@ -67,22 +67,36 @@ public:
 	static constexpr auto max_string_length = 16'383;
 
 public:
-	RegistryKey() = default;
+	RegistryKey() noexcept = default;
 
 	RegistryKey(
 		const char* subkey_name,
 		RegistryRootKeyType root_key_type,
-		RegistryAccessType access_type);
+		RegistryOpenFlags open_flags);
+
+	bool try_open(
+		const char* subkey_name,
+		RegistryRootKeyType root_key_type,
+		RegistryOpenFlags open_flags);
 
 	void open(
 		const char* subkey_name,
 		RegistryRootKeyType root_key_type,
-		RegistryAccessType access_type);
+		RegistryOpenFlags open_flags);
 
-	void close();
+	void close() noexcept;
 	bool is_open() const noexcept;
 
-	bool has_string(const char* name) const;
+	// Retreives a null-terminated string value into the provided buffer.
+	//
+	// Returns:
+	//  - Length of the string without null symbol.
+	//
+	bool try_get_string(
+		const char* name,
+		char* buffer,
+		std::intptr_t buffer_size,
+		std::intptr_t& written_size) const;
 
 	// Retreives a null-terminated string value into the provided buffer.
 	//
@@ -91,33 +105,56 @@ public:
 	//
 	std::intptr_t get_string(const char* name, char* buffer, std::intptr_t buffer_size) const;
 
+	bool try_set_string(const char* name, const char* value) const;
 	void set_string(const char* name, const char* value) const;
 
+	bool try_delete_value(const char* name) const;
 	void delete_value(const char* name) const;
 
 	// Parameters:
-	//  - access_type
+	//  - open_flags
 	//    Valid values: `none`, `wow64_32`, `wow64_64`.
 	//    All other values will be ignored.
-	static bool has_key(
+	static bool try_delete_key(
 		const char* subkey_name,
 		RegistryRootKeyType root_key_type,
-		RegistryAccessType access_type = RegistryAccessType::none);
+		RegistryOpenFlags open_flags = RegistryOpenFlags::none);
 
 	// Parameters:
-	//  - access_type
+	//  - open_flags
 	//    Valid values: `none`, `wow64_32`, `wow64_64`.
 	//    All other values will be ignored.
 	static void delete_key(
 		const char* subkey_name,
 		RegistryRootKeyType root_key_type,
-		RegistryAccessType access_type = RegistryAccessType::none);
+		RegistryOpenFlags open_flags = RegistryOpenFlags::none);
 
 private:
 	RegistryKeyHandleUPtr handle_{};
 
 private:
-	void ensure_is_open() const;
+	bool try_or_open(
+		const char* subkey_name,
+		RegistryRootKeyType root_key_type,
+		RegistryOpenFlags open_flags,
+		bool is_ignore_errors);
+
+	bool try_or_get_string(
+		const char* name,
+		char* buffer,
+		std::intptr_t buffer_size,
+		bool is_ignore_errors,
+		std::intptr_t& written_size) const;
+
+	bool try_or_set_string(const char* name, const char* value, bool is_ignore_errors) const;
+
+	bool try_or_delete_value(const char* name, bool is_ignore_errors) const;
+
+	static bool try_or_delete_key(
+		const char* subkey_name,
+		RegistryRootKeyType root_key_type,
+		RegistryOpenFlags open_flags,
+		bool is_ignore_errors);
 };
 
 } // namespace win32
