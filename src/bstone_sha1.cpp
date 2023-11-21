@@ -12,22 +12,23 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-void Sha1::process(const std::uint8_t* bytes, std::intptr_t count)
-try
+void Sha1::process(const void* data, std::intptr_t size)
 {
 	if (is_finished_)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Finished.");
 	}
 
-	const auto bit_count = count * 8;
+	const auto bit_count = size * 8;
 
 	if (0xFFFFFFFFFFFFFFFFUL - length_ < static_cast<std::uint64_t>(bit_count))
 	{
 		BSTONE_THROW_STATIC_SOURCE("Message too long.");
 	}
 
-	for (auto i = decltype(count){}; i < count; ++i)
+	const auto bytes = static_cast<const std::uint8_t*>(data);
+
+	for (auto i = decltype(size){}; i < size; ++i)
 	{
 		block_[block_index_] = bytes[i];
 		block_index_ += 1;
@@ -39,15 +40,9 @@ try
 	}
 
 	length_ += bit_count;
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void Sha1::process(Span<const std::uint8_t> items_span)
-{
-	process(items_span.get_data(), items_span.get_size());
 }
 
 void Sha1::finish()
-try
 {
 	if (is_finished_)
 	{
@@ -63,7 +58,7 @@ try
 	{
 		digest_[i] = static_cast<std::uint8_t>(digest32_[i / 4] >> (8 * (3 - (i % 4))));
 	}
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 const Sha1Digest& Sha1::get_digest() const noexcept
 {
@@ -145,6 +140,7 @@ void Sha1::process_block()
 	};
 
 	// Word buffers.
+
 	std::uint32_t a{};
 	std::uint32_t b{};
 	std::uint32_t c{};

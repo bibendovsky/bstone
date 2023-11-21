@@ -10,17 +10,14 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_SHA1_INCLUDED)
 #define BSTONE_SHA1_INCLUDED
 
-#include <cassert>
 #include <cstdint>
-
-#include <type_traits>
 
 #include "bstone_array.h"
 #include "bstone_span.h"
 
 namespace bstone {
 
-constexpr auto sha1_digest_size = std::intptr_t{20};
+constexpr auto sha1_digest_size = 20;
 constexpr auto sha1_digest_char_count = sha1_digest_size * 2;
 
 // ==========================================================================
@@ -32,8 +29,10 @@ using Sha1Digest = Array<std::uint8_t, sha1_digest_size>;
 class Sha1
 {
 public:
-	void process(const std::uint8_t* bytes, std::intptr_t count);
-	void process(Span<const std::uint8_t> items_span);
+	void process(const void* data, std::intptr_t size);
+
+	template<typename T>
+	void process(Span<T> span);
 
 	void finish();
 
@@ -64,6 +63,14 @@ private:
 	void pad_message();
 	void process_block();
 };
+
+// --------------------------------------------------------------------------
+
+template<typename T>
+void Sha1::process(Span<T> span)
+{
+	process(span.get_data(), span.get_bytes_size());
+}
 
 } // namespace bstone
 
