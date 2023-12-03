@@ -147,6 +147,12 @@ target_sources(${PROJECT_NAME}
 		../../../bstone_string_view.h
 		../../../bstone_zstring_view.cpp
 		../../../bstone_zstring_view.h
+		../../../bstone_fs.h
+		../../../bstone_fs.cpp
+		../../../bstone_posix_string.cpp
+		../../../bstone_posix_string.h
+		../../../bstone_fs_posix.cpp
+		../../../bstone_fs_win32.cpp
 	PRIVATE
 		src/bstone_tests_algorithm.cpp
 		src/bstone_tests_array.cpp
@@ -189,6 +195,7 @@ target_sources(${PROJECT_NAME}
 		src/bstone_tests_api_string.cpp
 		src/bstone_tests_string_view.cpp
 		src/bstone_tests_zstring_view.cpp
+		src/bstone_tests_fs.cpp
 	PRIVATE
 		src/bstone_tester.cpp
 		src/bstone_tester.h
@@ -196,3 +203,4 @@ target_sources(${PROJECT_NAME}
 )
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION "tests")
+install(DIRECTORY "data" DESTINATION "tests")

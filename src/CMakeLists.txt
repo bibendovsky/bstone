@@ -374,6 +374,12 @@ target_sources(
 		bstone_string_view.h
 		bstone_zstring_view.cpp
 		bstone_zstring_view.h
+		bstone_fs.h
+		bstone_fs.cpp
+		bstone_posix_string.cpp
+		bstone_posix_string.h
+		bstone_fs_posix.cpp
+		bstone_fs_win32.cpp
 )
 
 target_sources(

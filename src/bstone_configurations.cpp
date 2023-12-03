@@ -8,6 +8,7 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
+extern const std::intptr_t posix_string_capacity = 16 * 1024;
 extern const std::intptr_t win32_wstring_capacity = 16 * 1024;
 
 const std::intptr_t sys_max_gl_contexts = 1;
