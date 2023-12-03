@@ -167,9 +167,9 @@ auto vid_is_widescreen_cvar = bstone::CVar{
 	bstone::CVarFlags::archive,
 	vid_is_widescreen_cvar_default};
 
-// vid_aa_kind
+// vid_aa_type
 
-constexpr auto vid_aa_type_cvar_name = bstone::StringView{"vid_aa_kind"};
+constexpr auto vid_aa_type_cvar_name = bstone::StringView{"vid_aa_type"};
 constexpr auto vid_aa_type_cvar_msaa = bstone::StringView{"msaa"};
 
 constexpr bstone::StringView vid_aa_type_cvar_values[] =

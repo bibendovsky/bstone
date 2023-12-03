@@ -621,7 +621,7 @@ Notes:
   Values: [`2`..`6`]  
   Default: `0`
 
-* `--vid_aa_kind value`  
+* `--vid_aa_type value`  
   Sets an anti-aliasing mode.  
   Applicable only for 3D-rendering.  
   Values: `none` or `msaa`  

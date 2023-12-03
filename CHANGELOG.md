@@ -6,6 +6,7 @@
 ### Changed
 - [AUDIO] Rename audio driver type `2d_sdl` to `system`.
 - [AUDIO] Rename audio driver type `3d_openal` to `openal`.
+- Rename cvar `vid_aa_kind` to `vid_aa_type`.
 
 
 ## [1.2.12] - 2022-09-18
