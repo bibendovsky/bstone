@@ -12,7 +12,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_binary_reader.h"
 #include "bstone_endian.h"
 #include "bstone_exception.h"
-#include "bstone_file_system.h"
+#include "bstone_fs_utils.h"
 #include "bstone_logger.h"
 #include "bstone_memory_stream.h"
 #include "bstone_static_ro_memory_stream.h"
@@ -193,7 +193,7 @@ void TextExtractor::extract_text(const std::string& dst_dir, const TextNumber& t
 
 	const auto& number_string = ca_make_padded_asset_number_string(number);
 
-	const auto& file_name = file_system::append_path(
+	const auto& file_name = fs_utils::append_path(
 		dst_dir,
 		"text_" + number_string + ".txt"
 	);

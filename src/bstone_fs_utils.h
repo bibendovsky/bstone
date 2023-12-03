@@ -6,13 +6,13 @@ SPDX-License-Identifier: MIT
 
 // File system utils.
 
-#if !defined(BSTONE_FILE_SYSTEM_INCLUDED)
-#define BSTONE_FILE_SYSTEM_INCLUDED
+#if !defined(BSTONE_FS_UTILS_INCLUDED)
+#define BSTONE_FS_UTILS_INCLUDED
 
 #include <string>
 
 namespace bstone {
-namespace file_system {
+namespace fs_utils {
 
 std::string normalize_path(const std::string& path);
 std::string append_path_separator(const std::string& path);
@@ -21,7 +21,7 @@ void replace_extension(std::string& path_name, const std::string& new_extension)
 std::string get_working_dir();
 void rename(const std::string& old_path, const std::string& new_path);
 
-} // file_system
+} // fs_utils
 } // bstone
 
-#endif // BSTONE_FILE_SYSTEM_INCLUDED
+#endif // BSTONE_FS_UTILS_INCLUDED

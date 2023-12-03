@@ -13,7 +13,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_content_path.h"
 
-#include "bstone_file_system.h"
+#include "bstone_fs_utils.h"
 
 #ifdef _WIN32
 #include "bstone_win32_registry_key.h"
@@ -99,7 +99,7 @@ AssetPath make_steam_content_path()
 			if (get_registry_string(registry_key, value_name, value))
 			{
 				static const auto aog_sub_dir = std::string{"Blake Stone - Aliens of Gold"};
-				result.aog_ = bstone::file_system::append_path(value, aog_sub_dir);
+				result.aog_ = bstone::fs_utils::append_path(value, aog_sub_dir);
 			}
 		}
 	}
@@ -111,7 +111,7 @@ AssetPath make_steam_content_path()
 			if (get_registry_string(registry_key, value_name, value))
 			{
 				static const auto ps_sub_dir = std::string{"Blake Stone - Planet Strike"};
-				result.ps_ = bstone::file_system::append_path(value, ps_sub_dir);
+				result.ps_ = bstone::fs_utils::append_path(value, ps_sub_dir);
 			}
 		}
 	}
@@ -125,13 +125,13 @@ AssetPath make_steam_content_path()
 				if (result.aog_.empty())
 				{
 					static const auto aog_dir = std::string{"Blake Stone"};
-					result.aog_ = file_system::append_path(value, aog_dir);
+					result.aog_ = fs_utils::append_path(value, aog_dir);
 				}
 
 				if (result.ps_.empty())
 				{
 					static const auto ps_dir = std::string{"Planet Strike"};
-					result.ps_ = file_system::append_path(value, ps_dir);
+					result.ps_ = fs_utils::append_path(value, ps_dir);
 				}
 			}
 		}

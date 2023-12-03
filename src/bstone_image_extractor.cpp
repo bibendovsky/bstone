@@ -16,7 +16,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_bmp_image_common.h"
 #include "bstone_endian.h"
 #include "bstone_exception.h"
-#include "bstone_file_system.h"
+#include "bstone_fs_utils.h"
 #include "bstone_globals.h"
 #include "bstone_image_extractor.h"
 #include "bstone_logger.h"
@@ -39,11 +39,11 @@ void ImageExtractor::extract_vga_palette(const std::string& destination_dir)
 	logger_->write("Extracting VGA palette.");
 	logger_->write("Destination dir: \"" + destination_dir + "\"");
 
-	destination_dir_ = file_system::normalize_path(destination_dir);
+	destination_dir_ = fs_utils::normalize_path(destination_dir);
 
 	decode_default_palette();
 
-	const auto file_name = file_system::append_path(destination_dir_, "vga_palette.bmp");
+	const auto file_name = fs_utils::append_path(destination_dir_, "vga_palette.bmp");
 	save_bmp(file_name);
 
 	logger_->write(">>> ================");
@@ -59,7 +59,7 @@ void ImageExtractor::extract_walls(const std::string& destination_dir)
 	logger_->write("Destination dir: \"" + destination_dir + "\"");
 	logger_->write("File count: " + std::to_string(wall_count));
 
-	destination_dir_ = file_system::normalize_path(destination_dir);
+	destination_dir_ = fs_utils::normalize_path(destination_dir);
 
 	for (auto i = 0; i < wall_count; ++i)
 	{
@@ -84,7 +84,7 @@ void ImageExtractor::extract_sprites(const std::string& destination_dir)
 	logger_->write("Destination dir: \"" + destination_dir + "\"");
 	logger_->write("File count: " + std::to_string(sprite_count_));
 
-	destination_dir_ = file_system::normalize_path(destination_dir);
+	destination_dir_ = fs_utils::normalize_path(destination_dir);
 
 	for (auto i = 1; i < sprite_count_; ++i)
 	{
@@ -563,7 +563,7 @@ void ImageExtractor::save_image(const std::string& name_prefix, int image_index)
 try {
 	const auto& wall_index_string = ca_make_padded_asset_number_string(image_index);
 
-	const auto& file_name = file_system::append_path(
+	const auto& file_name = fs_utils::append_path(
 		destination_dir_,
 		name_prefix + wall_index_string + ".bmp");
 

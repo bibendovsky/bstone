@@ -31,7 +31,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_entry_point.h"
 #include "bstone_exception.h"
 #include "bstone_exception_utils.h"
-#include "bstone_file_system.h"
+#include "bstone_fs_utils.h"
 #include "bstone_globals.h"
 #include "bstone_logger.h"
 #include "bstone_math.h"
@@ -7184,7 +7184,7 @@ static void write_high_scores()
 
 		stream.close();
 
-		bstone::file_system::rename(tmp_scores_path, scores_path);
+		bstone::fs_utils::rename(tmp_scores_path, scores_path);
 	}
 	catch (const std::exception& ex)
 	{
@@ -7830,7 +7830,7 @@ void write_text_config()
 		}
 	}
 
-	bstone::file_system::rename(tmp_config_path, config_path);
+	bstone::fs_utils::rename(tmp_config_path, config_path);
 }
 
 
@@ -9393,7 +9393,7 @@ bool SaveTheGame(
 		// Rename temporary file.
 		//
 		file_stream.close();
-		bstone::file_system::rename(tmp_file_name, file_name);
+		bstone::fs_utils::rename(tmp_file_name, file_name);
 	}
 	catch (const std::exception& ex)
 	{
@@ -10095,9 +10095,8 @@ void InitDestPath()
 		data_dir_.assign(requested_data_dir.cbegin(), requested_data_dir.cend());
 	}
 
-	data_dir_ = bstone::file_system::normalize_path(
-		bstone::file_system::append_path_separator(
-			data_dir_));
+	data_dir_ = bstone::fs_utils::normalize_path(
+		bstone::fs_utils::append_path_separator(data_dir_));
 
 	constexpr auto mod_dir_option_name = bstone::StringView{"mod_dir"};
 
@@ -10107,8 +10106,8 @@ void InitDestPath()
 		mod_dir_.assign(value.cbegin(), value.cend());
 	}
 
-	mod_dir_ = bstone::file_system::normalize_path(
-		bstone::file_system::append_path_separator(
+	mod_dir_ = bstone::fs_utils::normalize_path(
+		bstone::fs_utils::append_path_separator(
 			mod_dir_));
 }
 
@@ -10750,7 +10749,7 @@ const std::string& get_profile_dir()
 		profile_dir = "ux0:/data/bstone/";
 #endif
 
-		profile_dir = bstone::file_system::append_path_separator(profile_dir);
+		profile_dir = bstone::fs_utils::append_path_separator(profile_dir);
 	}
 
 	return profile_dir;
@@ -10786,7 +10785,7 @@ const std::string& get_default_data_dir()
 	{
 		is_initialized = true;
 
-		result = bstone::file_system::get_working_dir();
+		result = bstone::fs_utils::get_working_dir();
 
 #ifdef __vita__
 		result = "ux0:/data/bstone/";

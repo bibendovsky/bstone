@@ -7,11 +7,11 @@ SPDX-License-Identifier: MIT
 // File system utils.
 
 #include "bstone_exception.h"
-#include "bstone_file_system.h"
 #include "bstone_fs.h"
+#include "bstone_fs_utils.h"
 
 namespace bstone {
-namespace file_system {
+namespace fs_utils {
 
 std::string normalize_path(const std::string& path)
 {
@@ -114,5 +114,5 @@ void rename(const std::string& old_path, const std::string& new_path)
 	fs::rename(old_path.c_str(), new_path.c_str());
 }
 
-} // file_system
+} // fs_utils
 } // bstone

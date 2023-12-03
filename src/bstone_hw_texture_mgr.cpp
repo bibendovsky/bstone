@@ -25,7 +25,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_atomic_flag.h"
 #include "bstone_exception.h"
-#include "bstone_file_system.h"
+#include "bstone_fs_utils.h"
 #include "bstone_file_stream.h"
 #include "bstone_globals.h"
 #include "bstone_missing_sprite_64x64_image.h"
@@ -1675,13 +1675,13 @@ try {
 
 		if (!image_file_stream_.is_open() && !image_mod_path_.empty())
 		{
-			file_system::replace_extension(image_mod_path_, image_probe_item.file_name_extension);
+			fs_utils::replace_extension(image_mod_path_, image_probe_item.file_name_extension);
 			image_file_stream_.open(image_mod_path_.c_str());
 		}
 
 		if (!image_file_stream_.is_open() && !image_data_path_.empty())
 		{
-			file_system::replace_extension(image_data_path_, image_probe_item.file_name_extension);
+			fs_utils::replace_extension(image_data_path_, image_probe_item.file_name_extension);
 			image_file_stream_.open(image_data_path_.c_str());
 		}
 

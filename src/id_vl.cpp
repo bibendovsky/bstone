@@ -21,7 +21,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_atomic_flag.h"
 #include "bstone_exception_utils.h"
 #include "bstone_file_stream.h"
-#include "bstone_file_system.h"
+#include "bstone_fs_utils.h"
 #include "bstone_globals.h"
 #include "bstone_hw_video.h"
 #include "bstone_image_encoder.h"
@@ -436,7 +436,7 @@ try
 
 	const auto file_name = "bstone_" + game_string + "_sshot_" + date_time_string + ".png";
 
-	const auto path = bstone::file_system::append_path(screenshot_dir, file_name);
+	const auto path = bstone::fs_utils::append_path(screenshot_dir, file_name);
 
 	vid_log("Taking screenshot \"" + path + "\".");
 

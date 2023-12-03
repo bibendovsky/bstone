@@ -34,7 +34,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_logger.h"
 #include "bstone_version.h"
 #include "bstone_content_path.h"
-#include "bstone_file_system.h"
+#include "bstone_fs_utils.h"
 #include "bstone_sys_message_box.h"
 
 
@@ -678,8 +678,8 @@ void find_contents()
 	else
 	{
 		{
-			const auto working_full_dir = bstone::file_system::append_path_separator(
-				bstone::file_system::get_working_dir());
+			const auto working_full_dir = bstone::fs_utils::append_path_separator(
+				bstone::fs_utils::get_working_dir());
 
 			add_search_path("working dir", working_full_dir, search_paths);
 		}
@@ -765,8 +765,8 @@ void find_contents()
 
 	set_assets_info(*content);
 
-	data_dir_ = bstone::file_system::normalize_path(
-		bstone::file_system::append_path_separator(
+	data_dir_ = bstone::fs_utils::normalize_path(
+		bstone::fs_utils::append_path_separator(
 			content->search_path_->path_));
 
 	log_found_content(*content);

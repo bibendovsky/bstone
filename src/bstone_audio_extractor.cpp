@@ -19,7 +19,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_binary_writer.h"
 #include "bstone_endian.h"
 #include "bstone_exception.h"
-#include "bstone_file_system.h"
+#include "bstone_fs_utils.h"
 #include "bstone_logger.h"
 #include "bstone_sha1.h"
 #include "bstone_string_helper.h"
@@ -302,7 +302,7 @@ void AudioExtractorImpl::extract_raw_audio_chunk(const std::string& dst_dir, con
 {
 	const auto file_name = make_file_name(audio_chunk, ExtensionType::data);
 	logger_->write(file_name);
-	const auto dst_file_name = file_system::append_path(dst_dir, file_name);
+	const auto dst_file_name = fs_utils::append_path(dst_dir, file_name);
 
 	auto file_stream = FileStream{
 		dst_file_name.c_str(),
@@ -327,7 +327,7 @@ void AudioExtractorImpl::extract_decoded_audio_chunk(const std::string& dst_dir,
 {
 	const auto file_name = make_file_name(audio_chunk, ExtensionType::wav);
 	logger_->write(file_name);
-	const auto dst_file_name = file_system::append_path(dst_dir, file_name);
+	const auto dst_file_name = fs_utils::append_path(dst_dir, file_name);
 
 	auto file_stream = FileStream{
 		dst_file_name.c_str(),

@@ -40,7 +40,7 @@ loaded into the data segment
 #include "bstone_bmp_image_common.h"
 #include "bstone_endian.h"
 #include "bstone_exception.h"
-#include "bstone_file_system.h"
+#include "bstone_fs_utils.h"
 #include "bstone_globals.h"
 #include "bstone_image_extractor.h"
 #include "bstone_logger.h"
@@ -969,7 +969,7 @@ bool ca_open_resource_non_fatal(
 	const std::string& file_name,
 	bstone::FileStream& file_stream)
 {
-	const auto path = bstone::file_system::append_path(data_dir, file_name);
+	const auto path = bstone::fs_utils::append_path(data_dir, file_name);
 
 	if (file_stream.try_open(path.c_str()))
 	{
@@ -977,7 +977,7 @@ bool ca_open_resource_non_fatal(
 	}
 
 	auto&& file_name_lc = bstone::StringHelper::to_lower_ascii(file_name);
-	const auto path_lc = bstone::file_system::append_path(data_dir, file_name_lc);
+	const auto path_lc = bstone::fs_utils::append_path(data_dir, file_name_lc);
 
 	if (file_stream.try_open(path_lc.c_str()))
 	{
@@ -1953,7 +1953,7 @@ void ca_extract_music(
 	auto audio_content_mgr = bstone::make_audio_content_mgr(*bstone::globals::page_mgr);
 	auto audio_extractor = bstone::make_audio_extractor(*audio_content_mgr);
 
-	const auto normalized_dst_dir = bstone::file_system::normalize_path(destination_dir);
+	const auto normalized_dst_dir = bstone::fs_utils::normalize_path(destination_dir);
 	audio_extractor->extract_music(normalized_dst_dir);
 
 	bstone::logger_->write(">>> ================");
@@ -1970,7 +1970,7 @@ void ca_extract_sfx(
 	auto audio_content_mgr = bstone::make_audio_content_mgr(*bstone::globals::page_mgr);
 	auto audio_extractor = bstone::make_audio_extractor(*audio_content_mgr);
 
-	const auto normalized_dst_dir = bstone::file_system::normalize_path(destination_dir);
+	const auto normalized_dst_dir = bstone::fs_utils::normalize_path(destination_dir);
 	audio_extractor->extract_sfx(normalized_dst_dir);
 
 	bstone::logger_->write(">>> ================");
@@ -1985,7 +1985,7 @@ void ca_extract_texts(
 	bstone::logger_->write("Destination dir: \"" + destination_dir + "\"");
 
 	auto text_extractor = bstone::TextExtractor{};
-	text_extractor.extract_text(bstone::file_system::normalize_path(destination_dir));
+	text_extractor.extract_text(bstone::fs_utils::normalize_path(destination_dir));
 
 	bstone::logger_->write(">>> ================");
 }
@@ -2098,16 +2098,16 @@ try {
 
 	if (!data_dir_.empty())
 	{
-		data_path = bstone::file_system::append_path(data_dir_, assets_info.get_base_path_name());
-		data_path = bstone::file_system::append_path(data_path, resource_name);
+		data_path = bstone::fs_utils::append_path(data_dir_, assets_info.get_base_path_name());
+		data_path = bstone::fs_utils::append_path(data_path, resource_name);
 	}
 
 	mod_path.clear();
 
 	if (!mod_dir_.empty())
 	{
-		mod_path = bstone::file_system::append_path(mod_dir_, assets_info.get_base_path_name());
-		mod_path = bstone::file_system::append_path(mod_path, resource_name);
+		mod_path = bstone::fs_utils::append_path(mod_dir_, assets_info.get_base_path_name());
+		mod_path = bstone::fs_utils::append_path(mod_path, resource_name);
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
