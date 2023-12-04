@@ -19,7 +19,7 @@ std::string append_path_separator(const std::string& path);
 std::string append_path(const std::string& path, const std::string& sub_path);
 void replace_extension(std::string& path_name, const std::string& new_extension);
 std::string get_working_dir();
-void rename(const std::string& old_path, const std::string& new_path);
+void rename_with_overwrite(const std::string& old_path, const std::string& new_path);
 
 } // fs_utils
 } // bstone

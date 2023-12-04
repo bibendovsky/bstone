@@ -109,8 +109,9 @@ std::string get_working_dir()
 	return working_directory;
 }
 
-void rename(const std::string& old_path, const std::string& new_path)
+void rename_with_overwrite(const std::string& old_path, const std::string& new_path)
 {
+	fs::remove_if_exists(new_path.c_str());
 	fs::rename(old_path.c_str(), new_path.c_str());
 }
 
