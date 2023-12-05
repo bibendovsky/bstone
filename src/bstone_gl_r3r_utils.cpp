@@ -87,7 +87,7 @@ catch (const std::exception&)
 
 int GlR3rUtils::get_fbo_max_msaa(
 	const R3rType renderer_type,
-	sys::GlSharedLibrary& gl_shared_library,
+	const sys::GlSymbolResolver& symbol_resolver,
 	sys::WindowMgr& window_mgr,
 	GlR3rDeviceFeatures& gl_device_features)
 try
@@ -99,7 +99,7 @@ try
 	auto gl_context = sys::GlContextUPtr{};
 	create_window_and_context(window_param, window_mgr, window, gl_context);
 
-	auto extension_manager = make_gl_r3r_extension_mgr(gl_shared_library);
+	auto extension_manager = make_gl_r3r_extension_mgr(symbol_resolver);
 	extension_manager->probe(GlR3rExtensionId::essentials);
 
 	if (!extension_manager->has(GlR3rExtensionId::essentials))
@@ -130,7 +130,7 @@ catch (const std::exception&)
 
 void GlR3rUtils::probe_msaa(
 	const R3rType renderer_type,
-	sys::GlSharedLibrary& gl_shared_library,
+	const sys::GlSymbolResolver& symbol_resolver,
 	sys::WindowMgr& window_mgr,
 	R3rDeviceFeatures& device_features,
 	GlR3rDeviceFeatures& gl_device_features)
@@ -154,7 +154,7 @@ try {
 
 	const auto msaa_fbo_max = GlR3rUtils::get_fbo_max_msaa(
 		renderer_type,
-		gl_shared_library,
+		symbol_resolver,
 		window_mgr,
 		gl_device_features);
 
@@ -455,7 +455,7 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::probe_vsync(
-	sys::GlMgr& gl_mgr,
+	sys::GlCurrentContext& gl_current_context,
 	R3rDeviceFeatures& device_features)
 try {
 	device_features.is_vsync_available = false;
@@ -464,8 +464,8 @@ try {
 #if !defined(BSTONE_R3R_TEST_NO_SWAP_INTERVAL)
 	try
 	{
-		gl_mgr.set_swap_interval(0);
-		gl_mgr.set_swap_interval(1);
+		gl_current_context.set_swap_interval(sys::R3rSwapIntervalType::none);
+		gl_current_context.set_swap_interval(sys::R3rSwapIntervalType::standard);
 		device_features.is_vsync_available = true;
 	}
 	catch (const std::exception&)
@@ -474,20 +474,9 @@ try {
 #endif // BSTONE_R3R_TEST_NO_SWAP_INTERVAL
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-bool GlR3rUtils::get_vsync(sys::GlMgr& gl_mgr)
+bool GlR3rUtils::get_vsync(sys::GlCurrentContext& gl_current_context)
 try {
-	switch (gl_mgr.get_swap_interval())
-	{
-		case 0:
-			return false;
-
-		case -1:
-		case 1:
-			return true;
-
-		default:
-			BSTONE_THROW_STATIC_SOURCE("Unsupported swap interval value.");
-	}
+	return gl_current_context.get_swap_interval() != sys::R3rSwapIntervalType::none;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::probe_buffer_storage(

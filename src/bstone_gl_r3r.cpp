@@ -13,8 +13,10 @@ SPDX-License-Identifier: MIT
 #include "bstone_single_pool_memory_resource.h"
 #include "bstone_unique_resource.h"
 
+#include "bstone_sys_r3r_swap_interval_type.h"
+
 #include "bstone_sys_gl_context.h"
-#include "bstone_sys_gl_shared_library.h"
+#include "bstone_sys_gl_current_context.h"
 #include "bstone_sys_video_mgr.h"
 #include "bstone_sys_window_mgr.h"
 
@@ -118,8 +120,7 @@ private:
 	R3rAaType aa_type_{};
 	int aa_value_{};
 
-	sys::GlMgrUPtr gl_mgr_{};
-	sys::GlSharedLibraryUPtr gl_shared_library_{};
+	sys::GlCurrentContext& gl_current_context_;
 	sys::WindowUPtr window_{};
 	sys::GlContextUPtr gl_context_{};
 
@@ -204,6 +205,7 @@ GlR3rImpl::GlR3rImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr, const
 try
 	:
 	video_mgr_{video_mgr},
+	gl_current_context_{video_mgr.get_gl_current_context()},
 	window_mgr_{window_mgr}
 {
 	switch (param.renderer_type)
@@ -217,12 +219,14 @@ try
 			BSTONE_THROW_STATIC_SOURCE("Unsupported renderer type.");
 	}
 
-	gl_mgr_ = video_mgr_.make_gl_mgr();
-	gl_shared_library_ = gl_mgr_->make_shared_library();
-
 	type_ = param.renderer_type;
 
-	GlR3rUtils::probe_msaa(type_, *gl_shared_library_, window_mgr, device_features_, gl_device_features_);
+	GlR3rUtils::probe_msaa(
+		type_,
+		gl_current_context_.get_symbol_resolver(),
+		window_mgr,
+		device_features_,
+		gl_device_features_);
 
 	aa_type_ = param.aa_type;
 	aa_value_ = param.aa_value;
@@ -280,7 +284,7 @@ try
 		aa_value_ = GlR3rUtils::get_window_msaa_value(gl_context_->get_attributes());
 	}
 
-	extension_manager_ = make_gl_r3r_extension_mgr(*gl_shared_library_);
+	extension_manager_ = make_gl_r3r_extension_mgr(gl_current_context_.get_symbol_resolver());
 
 	if (extension_manager_ == nullptr)
 	{
@@ -342,14 +346,15 @@ try
 		BSTONE_THROW_STATIC_SOURCE("No vertex input locations.");
 	}
 
-	GlR3rUtils::probe_vsync(*gl_mgr_, device_features_);
+	GlR3rUtils::probe_vsync(gl_current_context_, device_features_);
 	GlR3rUtils::probe_vao(extension_manager_.get(), gl_device_features_);
 
 	context_ = make_gl_r3r_context(type_, device_features_, gl_device_features_ );
 
 	if (device_features_.is_vsync_available)
 	{
-		gl_mgr_->set_swap_interval(param.is_vsync);
+		gl_current_context_.set_swap_interval(
+			param.is_vsync ? sys::R3rSwapIntervalType::standard : sys::R3rSwapIntervalType::none);
 	}
 
 	create_framebuffers();
@@ -424,7 +429,7 @@ bool GlR3rImpl::do_get_vsync() const noexcept
 		return false;
 	}
 
-	return gl_mgr_->get_swap_interval() == 1;
+	return gl_current_context_.get_swap_interval() == sys::R3rSwapIntervalType::standard;
 }
 
 void GlR3rImpl::do_enable_vsync(bool is_enabled)
@@ -439,7 +444,8 @@ try {
 		BSTONE_THROW_STATIC_SOURCE("Requires restart.");
 	}
 
-	gl_mgr_->set_swap_interval(is_enabled);
+	gl_current_context_.set_swap_interval(
+		is_enabled ? sys::R3rSwapIntervalType::standard : sys::R3rSwapIntervalType::none);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::do_set_anti_aliasing(R3rAaType aa_type, int aa_value)

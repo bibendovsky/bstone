@@ -559,13 +559,14 @@ target_sources(
 		bstone_sys_gl_context.h
 		bstone_sys_gl_context_attributes.h
 		bstone_sys_gl_context_profile.h
-		bstone_sys_gl_mgr.h
-		bstone_sys_gl_shared_library.h
+		bstone_sys_gl_current_context.h
+		bstone_sys_gl_symbol_resolver.h
 		bstone_sys_logger.h
 		bstone_sys_message_box.h
 		bstone_sys_mouse.h
 		bstone_sys_mouse_mgr.h
 		bstone_sys_pixel_format.h
+		bstone_sys_r3r_swap_interval_type.h
 		bstone_sys_renderer.h
 		bstone_sys_system_mgr.h
 		bstone_sys_texture_lock.h
@@ -582,8 +583,8 @@ target_sources(
 		bstone_sys_sdl_event_mgr.h
 		bstone_sys_sdl_exception.h
 		bstone_sys_sdl_gl_context.h
-		bstone_sys_sdl_gl_mgr.h
-		bstone_sys_sdl_gl_shared_library.h
+		bstone_sys_sdl_gl_current_context.h
+		bstone_sys_sdl_gl_symbol_resolver.h
 		bstone_sys_sdl_mouse_mgr.h
 		bstone_sys_sdl_renderer.h
 		bstone_sys_sdl_texture.h
@@ -762,11 +763,12 @@ target_sources(
 		bstone_sys_audio_mgr.cpp
 		bstone_sys_event_mgr.cpp
 		bstone_sys_gl_context.cpp
-		bstone_sys_gl_mgr.cpp
-		bstone_sys_gl_shared_library.cpp
+		bstone_sys_gl_current_context.cpp
+		bstone_sys_gl_symbol_resolver.cpp
 		bstone_sys_logger.cpp
 		bstone_sys_mouse_mgr.cpp
 		bstone_sys_push_audio_device.cpp
+		bstone_sys_r3r_swap_interval_type.cpp
 		bstone_sys_renderer.cpp
 		bstone_sys_system_mgr.cpp
 		bstone_sys_texture.cpp
@@ -781,8 +783,8 @@ target_sources(
 		bstone_sys_sdl_event_mgr.cpp
 		bstone_sys_sdl_exception.cpp
 		bstone_sys_sdl_gl_context.cpp
-		bstone_sys_sdl_gl_mgr.cpp
-		bstone_sys_sdl_gl_shared_library.cpp
+		bstone_sys_sdl_gl_current_context.cpp
+		bstone_sys_sdl_gl_symbol_resolver.cpp
 		bstone_sys_sdl_message_box.cpp
 		bstone_sys_sdl_mouse_mgr.cpp
 		bstone_sys_sdl_renderer.cpp

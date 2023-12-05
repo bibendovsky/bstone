@@ -14,7 +14,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_sys_logger.h"
 #include "bstone_sys_sdl_detail.h"
 #include "bstone_sys_sdl_exception.h"
-#include "bstone_sys_sdl_gl_mgr.h"
+#include "bstone_sys_sdl_gl_current_context.h"
 #include "bstone_sys_sdl_limits.h"
 #include "bstone_sys_sdl_mouse_mgr.h"
 #include "bstone_sys_sdl_video_mgr.h"
@@ -42,12 +42,13 @@ private:
 private:
 	Logger& logger_;
 	DisplayModeCache display_mode_cache_{};
+	GlCurrentContextUPtr gl_current_context_{};
 
 private:
 	DisplayMode do_get_current_display_mode() override;
 	Span<const DisplayMode> do_get_display_modes() override;
 
-	GlMgrUPtr do_make_gl_mgr() override;
+	GlCurrentContext& do_get_gl_current_context() override;
 	MouseMgrUPtr do_make_mouse_mgr() override;
 	WindowMgrUPtr do_make_window_mgr() override;
 
@@ -77,6 +78,8 @@ try
 	sdl_ensure_result(SDL_InitSubSystem(SDL_INIT_VIDEO));
 	log_info();
 
+	gl_current_context_ = make_gl_current_context(logger_);
+
 	logger_.log_information(">>> SDL video manager started up.");
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
@@ -84,6 +87,7 @@ SdlVideoMgr::~SdlVideoMgr()
 {
 	logger_.log_information("Shut down SDL video manager.");
 
+	gl_current_context_ = nullptr;
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
@@ -119,9 +123,9 @@ try {
 	return Span<const DisplayMode>{display_mode_cache_, count};
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-GlMgrUPtr SdlVideoMgr::do_make_gl_mgr()
+GlCurrentContext& SdlVideoMgr::do_get_gl_current_context()
 {
-	return make_sdl_gl_mgr(logger_);
+	return *gl_current_context_;
 }
 
 MouseMgrUPtr SdlVideoMgr::do_make_mouse_mgr()

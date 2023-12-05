@@ -21,6 +21,8 @@ SPDX-License-Identifier: MIT
 #include "bstone_gl_r3r_extension_mgr.h"
 #include "bstone_gl_r3r_utils.h"
 
+#include "bstone_sys_gl_symbol_resolver.h"
+
 namespace bstone {
 
 namespace {
@@ -28,7 +30,7 @@ namespace {
 class GlR3rExtensionMgrImpl final : public GlR3rExtensionMgr
 {
 public:
-	GlR3rExtensionMgrImpl(sys::GlSharedLibrary& gl_shared_library);
+	GlR3rExtensionMgrImpl(const sys::GlSymbolResolver& symbol_resolver);
 	~GlR3rExtensionMgrImpl() override;
 
 	void* operator new(std::size_t size);
@@ -63,7 +65,7 @@ private:
 	using Registry = std::vector<RegistryItem>;
 
 private:
-	sys::GlSharedLibrary& gl_shared_library_;
+	const sys::GlSymbolResolver& symbol_resolver_;
 	ExtensionNames extension_names_{};
 	Registry registry_{};
 	GlR3rVersion gl_version_{};
@@ -114,10 +116,10 @@ GlR3rExtensionMgrImplPool gl_r3r_extension_mgr_impl_pool{};
 
 // ==========================================================================
 
-GlR3rExtensionMgrImpl::GlR3rExtensionMgrImpl(sys::GlSharedLibrary& gl_shared_library)
+GlR3rExtensionMgrImpl::GlR3rExtensionMgrImpl(const sys::GlSymbolResolver& symbol_resolver)
 try
 	:
-	gl_shared_library_{gl_shared_library}
+	symbol_resolver_{symbol_resolver}
 {
 	clear_gl_symbols();
 	resolve_gl_symbols();
@@ -1087,7 +1089,7 @@ try {
 
 	for (auto& gl_symbol_item : gl_symbol_registry)
 	{
-		*gl_symbol_item.first = gl_shared_library_.find_symbol(gl_symbol_item.second);
+		*gl_symbol_item.first = symbol_resolver_.find_symbol(gl_symbol_item.second);
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
@@ -2906,9 +2908,9 @@ try {
 
 // ==========================================================================
 
-GlR3rExtensionMgrUPtr make_gl_r3r_extension_mgr(sys::GlSharedLibrary& gl_shared_library)
+GlR3rExtensionMgrUPtr make_gl_r3r_extension_mgr(const sys::GlSymbolResolver& symbol_resolver)
 {
-	return std::make_unique<GlR3rExtensionMgrImpl>(gl_shared_library);
+	return std::make_unique<GlR3rExtensionMgrImpl>(symbol_resolver);
 }
 
 } // namespace bstone

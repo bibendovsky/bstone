@@ -9,7 +9,7 @@ SPDX-License-Identifier: MIT
 
 #include <memory>
 #include "bstone_span.h"
-#include "bstone_sys_gl_mgr.h"
+#include "bstone_sys_gl_current_context.h"
 #include "bstone_sys_mouse_mgr.h"
 #include "bstone_sys_window_mgr.h"
 
@@ -35,7 +35,7 @@ public:
 	//   - The returned data valid until next call of the method.
 	Span<const DisplayMode> get_display_modes();
 
-	GlMgrUPtr make_gl_mgr();
+	GlCurrentContext& get_gl_current_context();
 	MouseMgrUPtr make_mouse_mgr();
 	WindowMgrUPtr make_window_mgr();
 
@@ -43,7 +43,7 @@ private:
 	virtual DisplayMode do_get_current_display_mode() = 0;
 	virtual Span<const DisplayMode> do_get_display_modes() = 0;
 
-	virtual GlMgrUPtr do_make_gl_mgr() = 0;
+	virtual GlCurrentContext& do_get_gl_current_context() = 0;
 	virtual MouseMgrUPtr do_make_mouse_mgr() = 0;
 	virtual WindowMgrUPtr do_make_window_mgr() = 0;
 };

@@ -7184,7 +7184,7 @@ static void write_high_scores()
 
 		stream.close();
 
-		bstone::fs_utils::rename(tmp_scores_path, scores_path);
+		bstone::fs_utils::rename_with_overwrite(tmp_scores_path, scores_path);
 	}
 	catch (const std::exception& ex)
 	{
@@ -7830,7 +7830,7 @@ void write_text_config()
 		}
 	}
 
-	bstone::fs_utils::rename(tmp_config_path, config_path);
+	bstone::fs_utils::rename_with_overwrite(tmp_config_path, config_path);
 }
 
 
@@ -9393,7 +9393,7 @@ bool SaveTheGame(
 		// Rename temporary file.
 		//
 		file_stream.close();
-		bstone::fs_utils::rename(tmp_file_name, file_name);
+		bstone::fs_utils::rename_with_overwrite(tmp_file_name, file_name);
 	}
 	catch (const std::exception& ex)
 	{

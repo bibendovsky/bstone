@@ -30,13 +30,10 @@ public:
 	void open(const char* file_path);
 	void close();
 
-	void* find_symbol(const char* symbol_name) const;
+	void* find_symbol(const char* symbol_name) const noexcept;
 
 	template<typename T>
-	T find_symbol(const char* symbol_name) const
-	{
-		return reinterpret_cast<T>(find_symbol(symbol_name));
-	}
+	T find_symbol(const char* symbol_name) const noexcept;
 
 private:
 	SharedLibraryHandleUPtr handle_{};
@@ -44,6 +41,14 @@ private:
 private:
 	void ensure_is_open() const;
 };
+
+// --------------------------------------------------------------------------
+
+template<typename T>
+T SharedLibrary::find_symbol(const char* symbol_name) const noexcept
+{
+	return reinterpret_cast<T>(find_symbol(symbol_name));
+}
 
 } // namespace bstone
 

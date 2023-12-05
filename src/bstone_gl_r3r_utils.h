@@ -10,8 +10,8 @@ SPDX-License-Identifier: MIT
 #define BSTONE_GL_R3R_UTILS_INCLUDED
 
 #include "bstone_sys_gl_context.h"
-#include "bstone_sys_gl_mgr.h"
-#include "bstone_sys_gl_shared_library.h"
+#include "bstone_sys_gl_current_context.h"
+#include "bstone_sys_gl_symbol_resolver.h"
 #include "bstone_sys_window_mgr.h"
 
 #include "bstone_gl_r3r_api.h"
@@ -32,7 +32,7 @@ public:
 
 	static void probe_msaa(
 		const R3rType renderer_type,
-		sys::GlSharedLibrary& gl_shared_library,
+		const sys::GlSymbolResolver& symbol_resolver,
 		sys::WindowMgr& window_mgr,
 		R3rDeviceFeatures& device_features,
 		GlR3rDeviceFeatures& gl_device_features);
@@ -85,8 +85,8 @@ public:
 
 	static void probe_max_vertex_arrays(R3rDeviceFeatures& device_features);
 
-	static void probe_vsync(sys::GlMgr& gl_mgr, R3rDeviceFeatures& device_features);
-	static bool get_vsync(sys::GlMgr& gl_mgr);
+	static void probe_vsync(sys::GlCurrentContext& gl_current_context, R3rDeviceFeatures& device_features);
+	static bool get_vsync(sys::GlCurrentContext& gl_current_context);
 
 	static void probe_buffer_storage(
 		GlR3rExtensionMgr* extension_manager,
@@ -142,7 +142,7 @@ private:
 
 	static int get_fbo_max_msaa(
 		R3rType renderer_type,
-		sys::GlSharedLibrary& gl_shared_library,
+		const sys::GlSymbolResolver& symbol_resolver,
 		sys::WindowMgr& window_mgr,
 		GlR3rDeviceFeatures& gl_device_features);
 };

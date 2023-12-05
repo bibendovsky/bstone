@@ -11,8 +11,8 @@ SPDX-License-Identifier: MIT
 
 #include <memory>
 #include <string>
-#include "bstone_sys_gl_shared_library.h"
 #include "bstone_gl_r3r_version.h"
+#include "bstone_sys_gl_symbol_resolver.h"
 
 namespace bstone {
 
@@ -79,7 +79,7 @@ public:
 
 using GlR3rExtensionMgrUPtr = std::unique_ptr<GlR3rExtensionMgr>;
 
-GlR3rExtensionMgrUPtr make_gl_r3r_extension_mgr(sys::GlSharedLibrary& gl_shared_library);
+GlR3rExtensionMgrUPtr make_gl_r3r_extension_mgr(const sys::GlSymbolResolver& symbol_resolver);
 
 } // namespace bstone
 

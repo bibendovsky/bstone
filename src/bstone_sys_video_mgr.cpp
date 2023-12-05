@@ -20,10 +20,10 @@ try {
 	return do_get_display_modes();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-GlMgrUPtr VideoMgr::make_gl_mgr()
-try {
-	return do_make_gl_mgr();
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+GlCurrentContext& VideoMgr::get_gl_current_context()
+{
+	return do_get_gl_current_context();
+}
 
 MouseMgrUPtr VideoMgr::make_mouse_mgr()
 try {

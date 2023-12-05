@@ -40,7 +40,7 @@ void SharedLibrary::open(const char* file_path)
 	handle_.swap(handle);
 }
 
-void* SharedLibrary::find_symbol(const char* symbol_name) const
+void* SharedLibrary::find_symbol(const char* symbol_name) const noexcept
 {
 	ensure_is_open();
 
