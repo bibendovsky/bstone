@@ -427,16 +427,19 @@ bool SdlEventMgr::handle_event(const SDL_Event& sdl_e, Event& e)
 
 bool SdlEventMgr::do_poll_event(Event& e)
 {
-	e.type = EventType::none;
 	auto sdl_e = SDL_Event{};
 
-	if (!SDL_PollEvent(&sdl_e))
+	while (SDL_PollEvent(&sdl_e))
 	{
-		return false;
+		if (handle_event(sdl_e, e))
+		{
+			e.timestamp = sdl_e.common.timestamp;
+			return true;
+		}
 	}
 
-	e.timestamp = sdl_e.common.timestamp;
-	return handle_event(sdl_e, e);
+	e.type = EventType::none;
+	return false;
 }
 
 } // namespace
