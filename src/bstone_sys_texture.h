@@ -8,7 +8,7 @@ SPDX-License-Identifier: MIT
 #define BSTONE_SYS_TEXTURE_INCLUDED
 
 #include <memory>
-#include "bstone_r2_rect.h"
+#include "bstone_rectangle.h"
 #include "bstone_sys_pixel_format.h"
 #include "bstone_sys_texture_lock.h"
 
@@ -36,16 +36,16 @@ public:
 	virtual ~Texture() = default;
 
 	void set_blend_mode(TextureBlendMode mode);
-	void copy(const R2RectI* texture_rect, const R2RectI* target_rect);
+	void copy(const Rectangle* texture_rect, const Rectangle* target_rect);
 
 	TextureLockUPtr make_lock();
-	TextureLockUPtr make_lock(R2RectI rect);
+	TextureLockUPtr make_lock(Rectangle rect);
 
 private:
 	virtual void do_set_blend_mode(TextureBlendMode mode) = 0;
-	virtual void do_copy(const R2RectI* texture_rect, const R2RectI* target_rect) = 0;
+	virtual void do_copy(const Rectangle* texture_rect, const Rectangle* target_rect) = 0;
 
-	virtual TextureLockUPtr do_make_lock(const R2RectI* rect) = 0;
+	virtual TextureLockUPtr do_make_lock(const Rectangle* rect) = 0;
 };
 
 // ==========================================================================

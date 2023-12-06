@@ -17,19 +17,19 @@ namespace sys {
 namespace {
 
 static_assert(
-	sizeof(SDL_Rect) == sizeof(R2RectI) &&
-		offsetof(SDL_Rect, x) == offsetof(R2RectI, x) &&
-		offsetof(SDL_Rect, y) == offsetof(R2RectI, y) &&
-		offsetof(SDL_Rect, w) == offsetof(R2RectI, width) &&
-		offsetof(SDL_Rect, h) == offsetof(R2RectI, height),
-	"Unsupported R2RectI type.");
+	sizeof(SDL_Rect) == sizeof(Rectangle) &&
+		offsetof(SDL_Rect, x) == offsetof(Rectangle, x) &&
+		offsetof(SDL_Rect, y) == offsetof(Rectangle, y) &&
+		offsetof(SDL_Rect, w) == offsetof(Rectangle, width) &&
+		offsetof(SDL_Rect, h) == offsetof(Rectangle, height),
+	"Unsupported Rectangle type.");
 
 // ==========================================================================
 
 class SdlTextureLock final : public TextureLock
 {
 public:
-	SdlTextureLock(SDL_Texture& sdl_texture, const R2RectI* rect);
+	SdlTextureLock(SDL_Texture& sdl_texture, const Rectangle* rect);
 	SdlTextureLock(const SdlTextureLock& rhs) = delete;
 	SdlTextureLock& operator=(const SdlTextureLock& rhs) = delete;
 	~SdlTextureLock() override;
@@ -52,7 +52,7 @@ private:
 
 // ==========================================================================
 
-SdlTextureLock::SdlTextureLock(SDL_Texture& sdl_texture, const R2RectI* rect)
+SdlTextureLock::SdlTextureLock(SDL_Texture& sdl_texture, const Rectangle* rect)
 try
 	:
 	sdl_texture_{sdl_texture}
@@ -112,7 +112,7 @@ MemoryResource& SdlTextureLock::get_memory_resource()
 
 // ==========================================================================
 
-TextureLockUPtr make_sdl_texture_lock(SDL_Texture& sdl_texture, const R2RectI* rect)
+TextureLockUPtr make_sdl_texture_lock(SDL_Texture& sdl_texture, const Rectangle* rect)
 {
 	return std::make_unique<SdlTextureLock>(sdl_texture, rect);
 }

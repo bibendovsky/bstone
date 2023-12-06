@@ -35,7 +35,7 @@ try {
 	do_set_draw_color(color);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void Renderer::fill(Span<const R2RectI> rects)
+void Renderer::fill(Span<const Rectangle> rects)
 try {
 	do_fill(rects);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED

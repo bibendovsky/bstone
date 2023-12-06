@@ -8,8 +8,8 @@ SPDX-License-Identifier: MIT
 #define BSTONE_SYS_RENDERER_INCLUDED
 
 #include <memory>
+#include "bstone_rectangle.h"
 #include "bstone_span.h"
-#include "bstone_r2_rect.h"
 #include "bstone_sys_color.h"
 #include "bstone_sys_pixel_format.h"
 #include "bstone_sys_texture.h"
@@ -24,9 +24,9 @@ struct RendererInitParam
 
 // ==========================================================================
 
-struct RendererViewport : public R2RectI
+struct RendererViewport : public Rectangle
 {
-	using R2RectI::R2RectI;
+	using Rectangle::Rectangle;
 };
 
 // ==========================================================================
@@ -44,7 +44,7 @@ public:
 
 	void clear();
 	void set_draw_color(Color color);
-	void fill(Span<const R2RectI> rects);
+	void fill(Span<const Rectangle> rects);
 	void present();
 
 	void read_pixels(PixelFormat pixel_format, void* pixels, int pitch);
@@ -58,11 +58,11 @@ private:
 
 	virtual void do_clear() = 0;
 	virtual void do_set_draw_color(Color color) = 0;
-	virtual void do_fill(Span<const R2RectI> rects) = 0;
+	virtual void do_fill(Span<const Rectangle> rects) = 0;
 	virtual void do_present() = 0;
 
 	virtual void do_read_pixels(
-		const R2RectI* rect,
+		const Rectangle* rect,
 		PixelFormat pixel_format,
 		void* pixels,
 		int pitch) = 0;

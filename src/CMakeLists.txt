@@ -398,7 +398,7 @@ target_sources(
 		bstone_extent_2d.h
 		bstone_offset_2d.h
 
-		bstone_r2_rect.h
+		bstone_rectangle.h
 		bstone_r2_extent.h
 		bstone_r2_offset.h
 
@@ -612,9 +612,9 @@ target_sources(
 
 		lib/xbrz/xbrz.cpp
 
+		bstone_rectangle.cpp
 		bstone_extent_2d.cpp
 		bstone_offset_2d.cpp
-		bstone_rect_2d.cpp
 
 		bstone_hw_shader_registry.cpp
 		bstone_hw_texture_mgr.cpp

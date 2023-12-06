@@ -15,7 +15,7 @@ try {
 	do_set_blend_mode(mode);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void Texture::copy(const R2RectI* texture_rect, const R2RectI* target_rect)
+void Texture::copy(const Rectangle* texture_rect, const Rectangle* target_rect)
 try {
 	return do_copy(texture_rect, target_rect);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -25,7 +25,7 @@ try {
 	return do_make_lock(nullptr);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-TextureLockUPtr Texture::make_lock(R2RectI rect)
+TextureLockUPtr Texture::make_lock(Rectangle rect)
 try {
 	return do_make_lock(&rect);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED

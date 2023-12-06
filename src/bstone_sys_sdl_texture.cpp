@@ -50,9 +50,9 @@ private:
 
 private:
 	void do_set_blend_mode(TextureBlendMode mode) override;
-	void do_copy(const R2RectI* texture_rect, const R2RectI* target_rect) override;
+	void do_copy(const Rectangle* texture_rect, const Rectangle* target_rect) override;
 
-	TextureLockUPtr do_make_lock(const R2RectI* rect) override;
+	TextureLockUPtr do_make_lock(const Rectangle* rect) override;
 
 private:
 	static MemoryResource& get_memory_resource();
@@ -102,7 +102,7 @@ try {
 	sdl_ensure_result(SDL_SetTextureBlendMode(sdl_texture_.get(), sdl_blend_mode));
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void SdlTexture::do_copy(const R2RectI* texture_rect, const R2RectI* target_rect)
+void SdlTexture::do_copy(const Rectangle* texture_rect, const Rectangle* target_rect)
 try {
 	sdl_ensure_result(SDL_RenderCopy(
 		&sdl_renderer_,
@@ -111,7 +111,7 @@ try {
 		reinterpret_cast<const SDL_Rect*>(target_rect)));
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-TextureLockUPtr SdlTexture::do_make_lock(const R2RectI* rect)
+TextureLockUPtr SdlTexture::do_make_lock(const Rectangle* rect)
 try {
 	return make_sdl_texture_lock(*sdl_texture_, rect);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
