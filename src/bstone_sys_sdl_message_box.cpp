@@ -5,9 +5,16 @@ SPDX-License-Identifier: MIT
 */
 
 #include <SDL_messagebox.h>
+#include <SDL_version.h>
 #include "bstone_exception.h"
 #include "bstone_sys_message_box.h"
 #include "bstone_sys_sdl_exception.h"
+
+#define BSTONE_SDL_2_0_12 SDL_VERSION_ATLEAST(2, 0, 12)
+
+#if !BSTONE_SDL_2_0_12
+#define SDL_MESSAGEBOX_BUTTONS_LEFT_TO_RIGHT (0x80)
+#endif
 
 namespace bstone {
 namespace sys {
@@ -17,7 +24,7 @@ void show_message_box(
 	const char* message,
 	MessageBoxType type)
 try {
-	auto sdl_flags = Uint32{};
+	auto sdl_flags = Uint32{SDL_MESSAGEBOX_BUTTONS_LEFT_TO_RIGHT};
 
 	switch (type)
 	{
@@ -32,7 +39,7 @@ try {
 
 int show_message_box(const MessageBoxDescriptor& descriptor)
 try {
-	auto sdl_message_box_flags = Uint32{};
+	auto sdl_message_box_flags = Uint32{SDL_MESSAGEBOX_BUTTONS_LEFT_TO_RIGHT};
 
 	switch (descriptor.type)
 	{
