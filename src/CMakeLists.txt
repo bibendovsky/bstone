@@ -380,7 +380,7 @@ target_sources(
 		bstone_posix_string.h
 		bstone_fs_posix.cpp
 		bstone_fs_win32.cpp
-		bstone_sys_sdl_special_path.cpp
+		bstone_sys_special_path_sdl2.cpp
 		bstone_sys_special_path.cpp
 		bstone_sys_special_path.h
 )
@@ -579,22 +579,22 @@ target_sources(
 		bstone_sys_window.h
 		bstone_sys_window_mgr.h
 
-		bstone_sys_sdl_audio_mgr.h
-		bstone_sys_sdl_detail.h
-		bstone_sys_sdl_limits.h
-		bstone_sys_sdl_push_audio_device.h
-		bstone_sys_sdl_event_mgr.h
-		bstone_sys_sdl_exception.h
-		bstone_sys_sdl_gl_context.h
-		bstone_sys_sdl_gl_current_context.h
-		bstone_sys_sdl_gl_symbol_resolver.h
-		bstone_sys_sdl_mouse_mgr.h
-		bstone_sys_sdl_renderer.h
-		bstone_sys_sdl_texture.h
-		bstone_sys_sdl_texture_lock.h
-		bstone_sys_sdl_video_mgr.h
-		bstone_sys_sdl_window.h
-		bstone_sys_sdl_window_mgr.h
+		bstone_sys_audio_mgr_sdl2.h
+		bstone_sys_detail_sdl2.h
+		bstone_sys_limits_sdl2.h
+		bstone_sys_push_audio_device_sdl2.h
+		bstone_sys_event_mgr_sdl2.h
+		bstone_sys_exception_sdl2.h
+		bstone_sys_gl_context_sdl2.h
+		bstone_sys_gl_current_context_sdl2.h
+		bstone_sys_gl_symbol_resolver_sdl2.h
+		bstone_sys_mouse_mgr_sdl2.h
+		bstone_sys_renderer_sdl2.h
+		bstone_sys_texture_sdl2.h
+		bstone_sys_texture_lock_sdl2.h
+		bstone_sys_video_mgr_sdl2.h
+		bstone_sys_window_sdl2.h
+		bstone_sys_window_mgr_sdl2.h
 
 		bstone_configurations.cpp
 )
@@ -780,23 +780,23 @@ target_sources(
 		bstone_sys_window.cpp
 		bstone_sys_window_mgr.cpp
 
-		bstone_sys_sdl_audio_mgr.cpp
-		bstone_sys_sdl_detail.cpp
-		bstone_sys_sdl_push_audio_device.cpp
-		bstone_sys_sdl_event_mgr.cpp
-		bstone_sys_sdl_exception.cpp
-		bstone_sys_sdl_gl_context.cpp
-		bstone_sys_sdl_gl_current_context.cpp
-		bstone_sys_sdl_gl_symbol_resolver.cpp
-		bstone_sys_sdl_message_box.cpp
-		bstone_sys_sdl_mouse_mgr.cpp
-		bstone_sys_sdl_renderer.cpp
-		bstone_sys_sdl_system_mgr.cpp
-		bstone_sys_sdl_texture.cpp
-		bstone_sys_sdl_texture_lock.cpp
-		bstone_sys_sdl_video_mgr.cpp
-		bstone_sys_sdl_window.cpp
-		bstone_sys_sdl_window_mgr.cpp
+		bstone_sys_audio_mgr_sdl2.cpp
+		bstone_sys_detail_sdl2.cpp
+		bstone_sys_push_audio_device_sdl2.cpp
+		bstone_sys_event_mgr_sdl2.cpp
+		bstone_sys_exception_sdl2.cpp
+		bstone_sys_gl_context_sdl2.cpp
+		bstone_sys_gl_current_context_sdl2.cpp
+		bstone_sys_gl_symbol_resolver_sdl2.cpp
+		bstone_sys_message_box_sdl2.cpp
+		bstone_sys_mouse_mgr_sdl2.cpp
+		bstone_sys_renderer_sdl2.cpp
+		bstone_sys_system_mgr_sdl2.cpp
+		bstone_sys_texture_sdl2.cpp
+		bstone_sys_texture_lock_sdl2.cpp
+		bstone_sys_video_mgr_sdl2.cpp
+		bstone_sys_window_sdl2.cpp
+		bstone_sys_window_mgr_sdl2.cpp
 )
 
 if (WIN32)
