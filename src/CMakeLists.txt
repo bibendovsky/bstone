@@ -380,6 +380,9 @@ target_sources(
 		bstone_posix_string.h
 		bstone_fs_posix.cpp
 		bstone_fs_win32.cpp
+		bstone_sys_sdl_special_path.cpp
+		bstone_sys_special_path.cpp
+		bstone_sys_special_path.h
 )
 
 target_sources(

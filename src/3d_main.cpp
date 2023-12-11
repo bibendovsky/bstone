@@ -38,6 +38,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_memory_stream.h"
 #include "bstone_ps_fizzle_fx.h"
 #include "bstone_sha1.h"
+#include "bstone_sys_special_path.h"
 #include "bstone_static_ro_memory_stream.h"
 #include "bstone_string_helper.h"
 #include "bstone_text_reader.h"
@@ -50,8 +51,7 @@ int _newlib_heap_size_user = 192 * 1024 * 1024;
 #endif
 
 
-namespace
-{
+namespace {
 
 
 struct CycleInfo
@@ -7039,7 +7039,8 @@ bstone::MemoryStream g_playtemp;
 static bool is_config_loaded = false;
 
 static const std::string& get_score_file_name()
-try {
+try
+{
 	static auto file_name = std::string{};
 	static auto is_initialized = false;
 
@@ -7194,8 +7195,7 @@ static void write_high_scores()
 // BBi
 
 
-namespace
-{
+namespace {
 
 const auto in_binding_name = "in_binding";
 
@@ -7254,7 +7254,7 @@ public:
 		return bstone::Span<const bstone::StringView>
 		{
 			views_.data(),
-			static_cast<std::intptr_t>(views_.size())
+				static_cast<std::intptr_t>(views_.size())
 		};
 	}
 
@@ -7586,7 +7586,8 @@ void set_config_defaults()
 }
 
 bool try_deserialize_cvar(bstone::Span<const bstone::StringView> tokens)
-try {
+try
+{
 	if (tokens.get_size() != 2)
 	{
 		return false;
@@ -7736,8 +7737,7 @@ void cfg_file_write_entry(
 }
 
 
-namespace
-{
+namespace {
 
 void cfg_escape_argument(bstone::StringView src_arg, std::string& dst_arg)
 {
@@ -8179,7 +8179,8 @@ std::int8_t LS_total = -1;
 
 bool LoadLevel(
 	int level_index)
-try {
+	try
+{
 	extern bool ForceLoadDefault;
 
 	bool oldloaded = loadedgame;
@@ -8400,16 +8401,16 @@ try {
 		{
 			switch (actor->obclass)
 			{
-			case arc_barrierobj:
-			case post_barrierobj:
-			case vspike_barrierobj:
-			case vpost_barrierobj:
-				actor->temp2 = ScanBarrierTable(
-					actor->tilex, actor->tiley);
-				break;
+				case arc_barrierobj:
+				case post_barrierobj:
+				case vspike_barrierobj:
+				case vpost_barrierobj:
+					actor->temp2 = ScanBarrierTable(
+						actor->tilex, actor->tiley);
+					break;
 
-			default:
-				break;
+				default:
+					break;
 			}
 		}
 
@@ -8593,7 +8594,8 @@ try {
 
 bool SaveLevel(
 	int level_index)
-try {
+	try
+{
 	WindowY = 181;
 
 	// Make sure floor stats are saved!
@@ -8904,7 +8906,8 @@ int DeleteChunk(
 }
 
 static const std::string& get_saved_game_version_string()
-try {
+try
+{
 	static auto version_string = std::string{};
 	static auto is_initialized = false;
 
@@ -9008,7 +9011,8 @@ static bool LoadCompressedChunk(
 
 bool LoadTheGame(
 	const std::string& file_name)
-try {
+	try
+{
 	bool is_succeed = true;
 
 	auto file_stream = bstone::FileStream{};
@@ -9527,10 +9531,10 @@ void CycleColors()
 
 	static CycleInfo crng[NUM_RANGES] = {
 		{7, 0, 0xF0, 0xF1},
-	{15, 0, 0xF2, 0xF3},
-	{30, 0, 0xF4, 0xF5},
-	{10, 0, 0xF6, 0xF9},
-	{12, 0, 0xFA, 0xFE},
+		{15, 0, 0xF2, 0xF3},
+		{30, 0, 0xF4, 0xF5},
+		{10, 0, 0xF6, 0xF9},
+		{12, 0, 0xFA, 0xFE},
 	};
 
 	std::uint8_t loop;
@@ -9980,8 +9984,8 @@ int main(
 	scePowerSetGpuClockFrequency(222);
 	scePowerSetGpuXbarClockFrequency(166);
 	sceAppUtilInit(&(SceAppUtilInitParam)
-	{
-	}, & (SceAppUtilBootParam){});
+	{}, & (SceAppUtilBootParam)
+	{});
 	SceAppUtilAppEventParam eventParam;
 	memset(&eventParam, 0, sizeof(SceAppUtilAppEventParam));
 	sceAppUtilReceiveAppEvent(&eventParam);
@@ -10420,8 +10424,7 @@ void levelinfo::unarchive(
 fargametype::fargametype()
 	:
 	level{}
-{
-}
+{}
 
 void fargametype::initialize()
 {
@@ -10736,17 +10739,24 @@ const std::string& get_profile_dir()
 
 		if (profile_dir.empty())
 		{
-			auto sdl_dir = SDL_GetPrefPath("bibendovsky", "bstone");
+			constexpr auto buffer_size = 4096;
+			profile_dir.clear();
+			profile_dir.resize(buffer_size);
 
-			if (sdl_dir)
-			{
-				profile_dir = sdl_dir;
-				SDL_free(sdl_dir);
-			}
+			const auto path_size = bstone::sys::SpecialPath::get_user_specific_data_path(
+				"bibendovsky?",
+				"bstone",
+				&profile_dir.front(),
+				buffer_size);
+
+			profile_dir.resize(static_cast<std::size_t>(path_size));
 		}
 
+// FIXME
+#if 0
 #ifdef __vita__
 		profile_dir = "ux0:/data/bstone/";
+#endif
 #endif
 
 		profile_dir = bstone::fs_utils::append_path_separator(profile_dir);
