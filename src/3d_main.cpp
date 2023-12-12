@@ -8,13 +8,13 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #define SDL_MAIN_HANDLED
 
 #include <cmath>
+#include <cstdint>
 #include <algorithm>
 #include <chrono>
 #include <functional>
 #include <iterator>
 #include <stdexcept>
 #include <thread>
-#include "SDL.h"
 #include "3d_def.h"
 #include "jm_lzh.h"
 #include "jm_tp.h"
@@ -9163,7 +9163,7 @@ bool LoadTheGame(
 				static_cast<std::intptr_t>(lvxx_buffer.size()));
 
 			constexpr auto max_buffer_size = 4096;
-			Uint8 buffer[max_buffer_size];
+			std::uint8_t buffer[max_buffer_size];
 
 			while (true)
 			{
