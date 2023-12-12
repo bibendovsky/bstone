@@ -25,14 +25,14 @@ GlCurrentContext& VideoMgr::get_gl_current_context()
 	return do_get_gl_current_context();
 }
 
-MouseMgrUPtr VideoMgr::make_mouse_mgr()
+MouseMgr& VideoMgr::get_mouse_mgr()
 try {
-	return do_make_mouse_mgr();
+	return do_get_mouse_mgr();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-WindowMgrUPtr VideoMgr::make_window_mgr()
+WindowMgr& VideoMgr::get_window_mgr()
 try {
-	return do_make_window_mgr();
+	return do_get_window_mgr();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace sys

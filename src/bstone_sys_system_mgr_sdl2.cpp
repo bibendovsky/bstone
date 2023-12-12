@@ -82,11 +82,14 @@ public:
 
 private:
 	Logger& logger_;
+	AudioMgrUPtr audio_mgr_{};
+	EventMgrUPtr event_mgr_{};
+	VideoMgrUPtr video_mgr_{};
 
 private:
-	AudioMgrUPtr do_make_audio_mgr() override;
-	EventMgrUPtr do_make_event_mgr() override;
-	VideoMgrUPtr do_make_video_mgr() override;
+	AudioMgr& do_get_audio_mgr() override;
+	EventMgr& do_get_event_mgr() override;
+	VideoMgr& do_get_video_mgr() override;
 
 private:
 	static MemoryResource& get_memory_resource();
@@ -113,12 +116,20 @@ try
 	configure_event_types();
 	sdl2_ensure_result(SDL_Init(0));
 
+	audio_mgr_ = make_sdl2_audio_mgr(logger_);
+	event_mgr_ = make_sdl2_event_mgr(logger_);
+	video_mgr_ = make_sdl2_video_mgr(logger_);
+
 	logger_.log_information(">>> SDL system manager started up.");
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 Sdl2SystemMgr::~Sdl2SystemMgr()
 {
 	logger_.log_information("Shut down SDL system manager.");
+
+	video_mgr_ = nullptr;
+	event_mgr_ = nullptr;
+	audio_mgr_ = nullptr;
 
 	SDL_Quit();
 }
@@ -133,19 +144,19 @@ void Sdl2SystemMgr::operator delete(void* ptr)
 	get_memory_resource().deallocate(ptr);
 }
 
-AudioMgrUPtr Sdl2SystemMgr::do_make_audio_mgr()
+AudioMgr& Sdl2SystemMgr::do_get_audio_mgr()
 {
-	return make_sdl2_audio_mgr(logger_);
+	return *audio_mgr_;
 }
 
-EventMgrUPtr Sdl2SystemMgr::do_make_event_mgr()
+EventMgr& Sdl2SystemMgr::do_get_event_mgr()
 {
-	return make_sdl2_event_mgr(logger_);
+	return *event_mgr_;
 }
 
-VideoMgrUPtr Sdl2SystemMgr::do_make_video_mgr()
+VideoMgr& Sdl2SystemMgr::do_get_video_mgr()
 {
-	return make_sdl2_video_mgr(logger_);
+	return *video_mgr_;
 }
 
 MemoryResource& Sdl2SystemMgr::get_memory_resource()

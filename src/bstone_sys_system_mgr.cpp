@@ -10,19 +10,19 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
-AudioMgrUPtr SystemMgr::make_audio_mgr()
+AudioMgr& SystemMgr::get_audio_mgr()
 try {
-	return do_make_audio_mgr();
+	return do_get_audio_mgr();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-EventMgrUPtr SystemMgr::make_event_mgr()
+EventMgr& SystemMgr::get_event_mgr()
 try {
-	return do_make_event_mgr();
+	return do_get_event_mgr();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-VideoMgrUPtr SystemMgr::make_video_mgr()
+VideoMgr& SystemMgr::get_video_mgr()
 try {
-	return do_make_video_mgr();
+	return do_get_video_mgr();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace sys

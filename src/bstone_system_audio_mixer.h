@@ -260,7 +260,7 @@ private:
 	Opl3Type opl3_type_{};
 	int dst_rate_{};
 	SysCallback sys_callback_{};
-	sys::AudioMgrUPtr sys_audio_mgr_{};
+	sys::AudioMgr* sys_audio_mgr_{};
 	sys::PushAudioDeviceUPtr sys_audio_device_{};
 	int mix_samples_count_{};
 	Samples buffer_{};

@@ -15,10 +15,10 @@ CCmdMgrUPtr ccmd_mgr{};
 PageMgrUPtr page_mgr{};
 
 sys::SystemMgrUPtr sys_system_mgr{};
-sys::EventMgrUPtr sys_event_mgr{};
-sys::VideoMgrUPtr sys_video_mgr{};
-sys::MouseMgrUPtr sys_mouse_mgr{};
-sys::WindowMgrUPtr sys_window_mgr{};
+sys::EventMgr* sys_event_mgr{};
+sys::VideoMgr* sys_video_mgr{};
+sys::MouseMgr* sys_mouse_mgr{};
+sys::WindowMgr* sys_window_mgr{};
 
 } // globals
 } // bstone

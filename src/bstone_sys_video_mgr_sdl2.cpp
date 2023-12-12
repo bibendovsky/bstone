@@ -41,6 +41,8 @@ private:
 
 private:
 	Logger& logger_;
+	MouseMgrUPtr mouse_mgr_{};
+	WindowMgrUPtr window_mgr_{};
 	DisplayModeCache display_mode_cache_{};
 	GlCurrentContextUPtr gl_current_context_{};
 
@@ -49,8 +51,8 @@ private:
 	Span<const DisplayMode> do_get_display_modes() override;
 
 	GlCurrentContext& do_get_gl_current_context() override;
-	MouseMgrUPtr do_make_mouse_mgr() override;
-	WindowMgrUPtr do_make_window_mgr() override;
+	MouseMgr& do_get_mouse_mgr() override;
+	WindowMgr& do_get_window_mgr() override;
 
 private:
 	static MemoryResource& get_memory_resource();
@@ -78,6 +80,8 @@ try
 	sdl2_ensure_result(SDL_InitSubSystem(SDL_INIT_VIDEO));
 	log_info();
 
+	mouse_mgr_ = make_sdl2_mouse_mgr(logger);
+	window_mgr_ = make_sdl2_window_mgr(logger);
 	gl_current_context_ = make_sdl2_gl_current_context(logger_);
 
 	logger_.log_information(">>> SDL video manager started up.");
@@ -88,6 +92,9 @@ Sdl2VideoMgr::~Sdl2VideoMgr()
 	logger_.log_information("Shut down SDL video manager.");
 
 	gl_current_context_ = nullptr;
+	window_mgr_ = nullptr;
+	mouse_mgr_ = nullptr;
+
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
@@ -128,14 +135,14 @@ GlCurrentContext& Sdl2VideoMgr::do_get_gl_current_context()
 	return *gl_current_context_;
 }
 
-MouseMgrUPtr Sdl2VideoMgr::do_make_mouse_mgr()
+MouseMgr& Sdl2VideoMgr::do_get_mouse_mgr()
 {
-	return make_sdl2_mouse_mgr(logger_);
+	return *mouse_mgr_;
 }
 
-WindowMgrUPtr Sdl2VideoMgr::do_make_window_mgr()
+WindowMgr& Sdl2VideoMgr::do_get_window_mgr()
 {
-	return make_sdl2_window_mgr(logger_);
+	return *window_mgr_;
 }
 
 MemoryResource& Sdl2VideoMgr::get_memory_resource()

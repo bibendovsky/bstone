@@ -1178,8 +1178,8 @@ void IN_Startup()
 #endif
 #endif
 
-	bstone::globals::sys_event_mgr = bstone::globals::sys_system_mgr->make_event_mgr();
-	bstone::globals::sys_mouse_mgr = bstone::globals::sys_video_mgr->make_mouse_mgr();
+	bstone::globals::sys_event_mgr = &bstone::globals::sys_system_mgr->get_event_mgr();
+	bstone::globals::sys_mouse_mgr = &bstone::globals::sys_video_mgr->get_mouse_mgr();
 
 	IN_Started = true;
 }

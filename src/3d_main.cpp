@@ -10051,8 +10051,8 @@ int main(
 		SysLogger sys_logger{*logger};
 
 		bstone::globals::sys_system_mgr = bstone::sys::make_system_mgr(sys_logger);
-		bstone::globals::sys_video_mgr = bstone::globals::sys_system_mgr->make_video_mgr();
-		bstone::globals::sys_window_mgr = bstone::globals::sys_video_mgr->make_window_mgr();
+		bstone::globals::sys_video_mgr = &bstone::globals::sys_system_mgr->get_video_mgr();
+		bstone::globals::sys_window_mgr = &bstone::globals::sys_video_mgr->get_window_mgr();
 
 		freed_main();
 

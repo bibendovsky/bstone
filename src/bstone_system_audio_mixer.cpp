@@ -100,7 +100,7 @@ try {
 
 	mix_samples_count_ = calculate_mix_samples_count(dst_rate_, mix_size_ms_);
 
-	auto sys_audio_mgr = bstone::globals::sys_system_mgr->make_audio_mgr();
+	sys_audio_mgr_ = &bstone::globals::sys_system_mgr->get_audio_mgr();
 
 	sys_callback_.set_mixer(this);
 
@@ -110,7 +110,7 @@ try {
 	audio_device_param.desired_frame_count = mix_samples_count_;
 	audio_device_param.callback = &sys_callback_;
 
-	auto audio_device = sys_audio_mgr->make_audio_device(audio_device_param);
+	auto audio_device = sys_audio_mgr_->make_audio_device(audio_device_param);
 
 	dst_rate_ = audio_device->get_rate();
 	mix_samples_count_ = audio_device->get_frame_count();
@@ -138,7 +138,6 @@ try {
 
 	audio_device->pause(false);
 
-	sys_audio_mgr_.swap(sys_audio_mgr);
 	sys_audio_device_.swap(audio_device);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 

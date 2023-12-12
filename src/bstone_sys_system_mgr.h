@@ -22,14 +22,14 @@ public:
 	SystemMgr() = default;
 	virtual ~SystemMgr() = default;
 
-	AudioMgrUPtr make_audio_mgr();
-	EventMgrUPtr make_event_mgr();
-	VideoMgrUPtr make_video_mgr();
+	AudioMgr& get_audio_mgr();
+	EventMgr& get_event_mgr();
+	VideoMgr& get_video_mgr();
 
 private:
-	virtual AudioMgrUPtr do_make_audio_mgr() = 0;
-	virtual EventMgrUPtr do_make_event_mgr() = 0;
-	virtual VideoMgrUPtr do_make_video_mgr() = 0;
+	virtual AudioMgr& do_get_audio_mgr() = 0;
+	virtual EventMgr& do_get_event_mgr() = 0;
+	virtual VideoMgr& do_get_video_mgr() = 0;
 };
 
 // ==========================================================================
