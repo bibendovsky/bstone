@@ -1,19 +1,14 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-
-//
 // Precompiled header
-//
 
-
-#ifndef BSTONE_PRECOMPILED_INCLUDED
+#if !defined(BSTONE_PRECOMPILED_INCLUDED)
 #define BSTONE_PRECOMPILED_INCLUDED
-
 
 #include <cassert>
 #include <cctype>
@@ -50,28 +45,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <utility>
 #include <vector>
 
-#include "SDL.h"
-
-#include "bstone_cl.h"
-#include "bstone_endian.h"
-#include "bstone_exception.h"
-#include "bstone_logger.h"
-#include "bstone_math.h"
-#include "bstone_mt_task_mgr.h"
-#include "bstone_sha1.h"
-#include "bstone_stream.h"
-#include "bstone_string_helper.h"
-#include "bstone_mt_task_mgr.h"
-
-#include "bstone_rect_2d.h"
-#include "bstone_sdl_types.h"
-
-#include "bstone_ren_3d.h"
-#include "bstone_ren_3d_tests.h"
-#include "bstone_ren_3d_cmd_buffer.h"
-#include "bstone_ren_3d_limits.h"
-
-#include "bstone_rgb8.h"
-
+#include "3d_def.h"
 
 #endif // BSTONE_PRECOMPILED_INCLUDED
