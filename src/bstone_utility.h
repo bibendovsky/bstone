@@ -60,6 +60,29 @@ inline constexpr std::add_const_t<T>& as_const(T& x) noexcept
 template<typename T>
 inline void as_const(const T&&) = delete;
 
+// ======================================================================
+
+template<typename T>
+inline constexpr T& as_mutable(const T& value) noexcept
+{
+    return const_cast<T&>(value);
+}
+
+template<typename T>
+inline constexpr T* as_mutable(const T* value) noexcept
+{
+    return const_cast<T*>(value);
+}
+
+template<typename T>
+inline constexpr T* as_mutable(T* value) noexcept
+{
+    return value;
+}
+
+template<typename T>
+inline void as_mutable(const T&&) = delete;
+
 } // namespace bstone
 
 #endif // BSTONE_UTILITY_INCLUDED

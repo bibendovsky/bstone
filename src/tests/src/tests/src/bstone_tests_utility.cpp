@@ -60,6 +60,35 @@ void test_zb0b1ipzmya72nqc()
 
 // ==========================================================================
 
+// T& as_mutable(const T&) noexcept
+void test_i2temy08nte1vcy7()
+{
+	const auto x = 1;
+	auto& xc = bstone::as_mutable(x);
+	xc = 2;
+	tester.check(*(static_cast<const int*>(static_cast<const void*>(&x))) == 2);
+}
+
+// T* as_mutable(const T*) noexcept
+void test_28urwoy5fqjbc8r5()
+{
+	const auto x = 1;
+	auto xc = bstone::as_mutable(&x);
+	*xc = 2;
+	tester.check(*(static_cast<const int*>(static_cast<const void*>(&x))) == 2);
+}
+
+// T* as_mutable(T*) noexcept
+void test_02ojqcmo8al8ivai()
+{
+	auto x = 1;
+	auto xc = bstone::as_mutable(&x);
+	*xc = 2;
+	tester.check(*(static_cast<const int*>(static_cast<const void*>(&x))) == 2);
+}
+
+// ==========================================================================
+
 class Registrator
 {
 public:
@@ -67,6 +96,7 @@ public:
 	{
 		register_swap();
 		register_as_const();
+		register_as_mutable();
 	}
 
 private:
@@ -80,6 +110,13 @@ private:
 	void register_as_const()
 	{
 		tester.register_test("as_const#cxf6khrb1efyd20l", test_cxf6khrb1efyd20l);
+	}
+
+	void register_as_mutable()
+	{
+		tester.register_test("as_mutable#i2temy08nte1vcy7", test_i2temy08nte1vcy7);
+		tester.register_test("as_mutable#28urwoy5fqjbc8r5", test_28urwoy5fqjbc8r5);
+		tester.register_test("as_mutable#02ojqcmo8al8ivai", test_02ojqcmo8al8ivai);
 	}
 };
 

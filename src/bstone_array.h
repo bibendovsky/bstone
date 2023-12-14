@@ -124,7 +124,7 @@ constexpr auto Array<TItem, TSize>::get_data() const noexcept -> const Item*
 template<typename TItem, std::intptr_t TSize>
 constexpr auto Array<TItem, TSize>::get_data() noexcept -> Item*
 {
-	return const_cast<Item*>(bstone::as_const(*this).get_data());
+	return bstone::as_mutable(bstone::as_const(*this).get_data());
 }
 
 template<typename TItem, std::intptr_t TSize>
@@ -148,7 +148,7 @@ constexpr auto Array<TItem, TSize>::begin() const noexcept -> const Item*
 template<typename TItem, std::intptr_t TSize>
 constexpr auto Array<TItem, TSize>::begin() noexcept -> Item*
 {
-	return const_cast<Item*>(bstone::as_const(*this).begin());
+	return bstone::as_mutable(bstone::as_const(*this).begin());
 }
 
 template<typename TItem, std::intptr_t TSize>
@@ -160,7 +160,7 @@ constexpr auto Array<TItem, TSize>::end() const noexcept -> const Item*
 template<typename TItem, std::intptr_t TSize>
 constexpr auto Array<TItem, TSize>::end() noexcept -> Item*
 {
-	return const_cast<Item*>(bstone::as_const(*this).end());
+	return bstone::as_mutable(bstone::as_const(*this).end());
 }
 
 template<typename TItem, std::intptr_t TSize>
@@ -194,7 +194,7 @@ constexpr auto Array<TItem, TSize>::operator[](std::intptr_t index) const -> con
 template<typename TItem, std::intptr_t TSize>
 constexpr auto Array<TItem, TSize>::operator[](std::intptr_t index) -> Item&
 {
-	return const_cast<Item&>(bstone::as_const(*this).operator[](index));
+	return bstone::as_mutable(bstone::as_const(*this).operator[](index));
 }
 
 template<typename TItem, std::intptr_t TSize>
@@ -256,7 +256,7 @@ constexpr auto Array<TItem, 0>::get_data() const noexcept -> const Item*
 template<typename TItem>
 constexpr auto Array<TItem, 0>::get_data() noexcept -> Item*
 {
-	return const_cast<Item*>(bstone::as_const(*this).get_data());
+	return bstone::as_mutable(bstone::as_const(*this).get_data());
 }
 
 template<typename TItem>

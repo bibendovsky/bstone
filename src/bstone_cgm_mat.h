@@ -64,7 +64,7 @@ public:
 
 	constexpr Item& operator[](std::intptr_t index) noexcept
 	{
-		return const_cast<Item&>(bstone::as_const(*this)[index]);
+		return bstone::as_mutable(bstone::as_const(*this)[index]);
 	}
 
 protected:
