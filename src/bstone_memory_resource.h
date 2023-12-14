@@ -22,6 +22,9 @@ public:
 	MemoryResource() noexcept = default;
 	virtual ~MemoryResource() = default;
 
+	template<typename T>
+	BSTONE_CXX_NODISCARD T* allocate(std::intptr_t count);
+
 	BSTONE_CXX_NODISCARD void* allocate(std::intptr_t size);
 	void deallocate(void* ptr) noexcept;
 
@@ -29,6 +32,16 @@ private:
 	BSTONE_CXX_NODISCARD virtual void* do_allocate(std::intptr_t size) = 0;
 	virtual void do_deallocate(void* ptr) noexcept = 0;
 };
+
+// --------------------------------------------------------------------------
+
+template<typename T>
+BSTONE_CXX_NODISCARD T* MemoryResource::allocate(std::intptr_t count)
+{
+	constexpr auto item_size = static_cast<std::intptr_t>(sizeof(T));
+	const auto size = item_size * count;
+	return static_cast<T*>(allocate(size));
+}
 
 // ==========================================================================
 

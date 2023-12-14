@@ -1,10 +1,77 @@
-#include "bstone_tester.h"
+#include <cstdint>
+
+#include <memory>
 
 #include "bstone_memory_resource.h"
+#include "bstone_tester.h"
 
 namespace {
 
 auto tester = bstone::Tester{};
+
+// ==========================================================================
+
+constexpr auto memory_fill_value = 'H';
+
+class TestMemoryResource final : public bstone::MemoryResource
+{
+public:
+	TestMemoryResource() = default;
+	~TestMemoryResource() override = default;
+
+private:
+	BSTONE_CXX_NODISCARD void* do_allocate(std::intptr_t size) override
+	{
+		const auto ptr = static_cast<std::uint8_t*>(bstone::get_new_delete_memory_resource().allocate(size));
+		std::uninitialized_fill_n(ptr, size, memory_fill_value);
+		return ptr;
+	}
+
+	void do_deallocate(void* ptr) noexcept override
+	{
+		bstone::get_new_delete_memory_resource().deallocate(ptr);
+	}
+};
+
+TestMemoryResource test_memory_resource{};
+
+// ==========================================================================
+
+// [[nodiscard]] void* allocate(std::intptr_t)
+void test_uvt25w8mr5zio2zq()
+{
+	const auto ptr = static_cast<char*>(test_memory_resource.allocate(4));
+
+	const auto is_valid =
+		ptr[0] == memory_fill_value &&
+		ptr[1] == memory_fill_value &&
+		ptr[2] == memory_fill_value &&
+		ptr[3] == memory_fill_value;
+
+	test_memory_resource.deallocate(ptr);
+	tester.check(is_valid);
+}
+
+// template<typename T>
+// [[nodiscard]] T* allocate(std::intptr_t)
+void test_iz71un1jpj7oms2u()
+{
+	const auto chars32 = test_memory_resource.allocate<char32_t>(2);
+	const auto chars = reinterpret_cast<const char*>(chars32);
+
+	const auto is_valid =
+		chars[0] == memory_fill_value &&
+		chars[1] == memory_fill_value &&
+		chars[2] == memory_fill_value &&
+		chars[3] == memory_fill_value &&
+		chars[4] == memory_fill_value &&
+		chars[5] == memory_fill_value &&
+		chars[6] == memory_fill_value &&
+		chars[7] == memory_fill_value;
+
+	test_memory_resource.deallocate(chars32);
+	tester.check(is_valid);
+}
 
 // ==========================================================================
 
@@ -130,6 +197,7 @@ class Registrator
 public:
 	Registrator()
 	{
+		register_allocate();
 		register_make_unique_ptr();
 		register_null_memory_resource();
 		register_new_delete_memory_resource();
@@ -137,6 +205,12 @@ public:
 	}
 
 private:
+	void register_allocate()
+	{
+		tester.register_test("MemoryResource#uvt25w8mr5zio2zq", test_uvt25w8mr5zio2zq);
+		tester.register_test("MemoryResource#iz71un1jpj7oms2u", test_iz71un1jpj7oms2u);
+	}
+
 	void register_make_unique_ptr()
 	{
 		tester.register_test("make_memory_resource_uptr#glnf5xdb4bsrfzxd", test_glnf5xdb4bsrfzxd);
