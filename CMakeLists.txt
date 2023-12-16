@@ -10,6 +10,9 @@ project(bstone_solution VERSION 1.0.2 LANGUAGES NONE)
 
 message(STATUS "[${PROJECT_NAME}] v${PROJECT_VERSION}")
 
+option(BSTONE_USE_STATIC_LINKING "Link build statically." OFF)
+message(STATUS "[${PROJECT_NAME}] Static linking: ${BSTONE_USE_STATIC_LINKING}")
+
 option(BSTONE_TESTS "Build tests." OFF)
 message(STATUS "[${PROJECT_NAME}] Build tests: ${BSTONE_TESTS}")
 
@@ -19,7 +22,14 @@ message(STATUS "[${PROJECT_NAME}] Trim file names in the executable: ${BSTONE_TR
 option(BSTONE_NO_ASSERT "Disable assertion." OFF)
 message(STATUS "[${PROJECT_NAME}] Disable assertion: ${BSTONE_NO_ASSERT}")
 
+option(BSTONE_INTERNAL_SDL2 "Use bundled SDL2 source code." OFF)
+message(STATUS "[${PROJECT_NAME}] Internal SDL2: ${BSTONE_INTERNAL_SDL2}")
+
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+
+if (BSTONE_INTERNAL_SDL2)
+	add_subdirectory(src/lib/sdl2)
+endif ()
 
 if (BSTONE_TESTS)
 	add_subdirectory(src/tests)

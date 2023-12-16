@@ -440,7 +440,7 @@ Minimum requirements:
   * [Clang 3.4](http://clang.llvm.org)
   * [MSVC (VS 2017 15.0)](http://visualstudio.microsoft.com)
 * [CMake 3.4.0](http://cmake.org/)
-* [SDL v2.0.4](http://libsdl.org/)
+* [SDL v2.0.4](http://libsdl.org/)  
 
 CMake variables:
 * `CMAKE_BUILD_TYPE`  
@@ -474,6 +474,10 @@ CMake variables:
 
 * `SDL2W_SDL2_DIR`  
   Defines directory with SDL2 CMake configuration file or with official SDL2 development Windows build.
+
+* `BSTONE_INTERNAL_SDL2`  
+  Enables bundled SDL2 source code.  
+  Default value: OFF
 
 Notes:
 * Use `ON` value to enable option and value `OFF` to disable option.
