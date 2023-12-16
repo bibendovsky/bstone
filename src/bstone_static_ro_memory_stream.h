@@ -30,8 +30,8 @@ public:
 private:
 	bool is_open_{};
 	const std::uint8_t* buffer_{};
-	std::int64_t size_{};
-	std::int64_t position_{};
+	std::intptr_t size_{};
+	std::intptr_t position_{};
 
 private:
 	void do_close() noexcept override;

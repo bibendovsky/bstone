@@ -95,7 +95,7 @@ LSTATUS registry_key_create(HKEY root_key, LPCWSTR subkey_name, DWORD access, HK
 		nullptr,
 		&subkey,
 		nullptr);
-};
+}
 
 LSTATUS registry_key_open(HKEY root_key, LPCWSTR subkey_name, DWORD access, HKEY& subkey)
 {
@@ -105,7 +105,7 @@ LSTATUS registry_key_open(HKEY root_key, LPCWSTR subkey_name, DWORD access, HKEY
 		0,
 		access,
 		&subkey);
-};
+}
 
 } // namespace
 

@@ -29,7 +29,12 @@ std::intptr_t get_working_directory(char* buffer, std::intptr_t buffer_size)
 		BSTONE_THROW_STATIC_SOURCE("Failed to get current directory's path length.");
 	}
 
-	auto w_buffer = Win32WString{w_size_with_null};
+	if (w_size_with_null > 0x7FFFFFFF)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Current directory path too long.");
+	}
+
+	auto w_buffer = Win32WString{static_cast<std::intptr_t>(w_size_with_null)};
 	const auto w_size = GetCurrentDirectoryW(w_size_with_null, w_buffer.get_data());
 
 	if (w_size == 0)
