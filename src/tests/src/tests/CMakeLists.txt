@@ -7,8 +7,6 @@ SPDX-License-Identifier: MIT
 cmake_minimum_required(VERSION 3.4.0 FATAL_ERROR)
 project(bstone_tests VERSION 1.0.0 LANGUAGES CXX)
 
-option(BSTONE_NO_ASSERT "Disable assertion." OFF)
-
 message(STATUS "[${PROJECT_NAME}] v${PROJECT_VERSION}")
 
 add_executable(${PROJECT_NAME} "")
@@ -29,7 +27,6 @@ target_compile_definitions(${PROJECT_NAME}
 		$<$<BOOL:${WIN32}>:NTDDI_VERSION=0x05010000>
 		$<$<BOOL:${WIN32}>:_WIN32_WINNT=0x0501>
 		$<$<BOOL:${WIN32}>:WINVER=0x0501>
-		$<$<BOOL:${BSTONE_NO_ASSERT}>:BSTONE_NO_ASSERT>
 )
 
 target_compile_options(${PROJECT_NAME}
@@ -141,18 +138,10 @@ target_sources(${PROJECT_NAME}
 		../../../bstone_api_string.h
 		../../../bstone_cxx.cpp
 		../../../bstone_cxx.h
-		../../../bstone_assert.cpp
-		../../../bstone_assert.h
 		../../../bstone_string_view.cpp
 		../../../bstone_string_view.h
-		../../../bstone_zstring_view.cpp
-		../../../bstone_zstring_view.h
-		../../../bstone_fs.h
-		../../../bstone_fs.cpp
-		../../../bstone_posix_string.cpp
-		../../../bstone_posix_string.h
-		../../../bstone_fs_posix.cpp
-		../../../bstone_fs_win32.cpp
+		../../../bstone_string.cpp
+		../../../bstone_string.h
 	PRIVATE
 		src/bstone_tests_algorithm.cpp
 		src/bstone_tests_array.cpp
@@ -194,8 +183,7 @@ target_sources(${PROJECT_NAME}
 		src/bstone_tests_win32_registry_key.cpp
 		src/bstone_tests_api_string.cpp
 		src/bstone_tests_string_view.cpp
-		src/bstone_tests_zstring_view.cpp
-		src/bstone_tests_fs.cpp
+		src/bstone_tests_string.cpp
 	PRIVATE
 		src/bstone_tester.cpp
 		src/bstone_tester.h
@@ -203,4 +191,3 @@ target_sources(${PROJECT_NAME}
 )
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION "tests")
-install(DIRECTORY "data" DESTINATION "tests")

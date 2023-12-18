@@ -1,3 +1,4 @@
+#include <iterator>
 #include <type_traits>
 
 #include "bstone_string_view.h"
@@ -38,6 +39,10 @@ struct Strings<char>
 	static constexpr auto t = "t";
 	static constexpr auto yes = "yes";
 	static constexpr auto u = "u";
+	static constexpr auto a_tes = "a_tes";
+	static constexpr auto t_b = "t_b";
+	static constexpr auto a = "a";
+	static constexpr auto b = "b";
 };
 
 template<>
@@ -52,6 +57,10 @@ struct Strings<wchar_t>
 	static constexpr auto t = L"t";
 	static constexpr auto yes = L"yes";
 	static constexpr auto u = L"u";
+	static constexpr auto a_tes = L"a_tes";
+	static constexpr auto t_b = L"t_b";
+	static constexpr auto a = L"a";
+	static constexpr auto b = L"b";
 };
 
 // ==========================================================================
@@ -189,6 +198,45 @@ void test_abnsmbym1acwzdqk_char()
 void test_abnsmbym1acwzdqk_wchar_t()
 {
 	test_abnsmbym1acwzdqk<wchar_t>();
+}
+
+// ==========================================================================
+
+// constexpr BasicStringView(UIterBegin first, UIterEnd last)
+template<typename TChar>
+void test_hqvek4n9ws8pky97()
+{
+	static constexpr TChar chars[] = {'t', 'e', 's', 't'};
+	constexpr auto sv = bstone::BasicStringView<TChar>{std::cbegin(chars), std::cend(chars)};
+
+	constexpr auto size = sv.get_size();
+	constexpr auto is_valid_1 = size == 4;
+
+	constexpr auto data = sv.get_data();
+
+	constexpr auto is_valid_2 =
+		data[0] == 't' &&
+		data[1] == 'e' &&
+		data[2] == 's' &&
+		data[3] == 't' &&
+		true;
+
+	constexpr auto is_valid =
+		is_valid_1 &&
+		is_valid_2 &&
+		true;
+
+	tester.check(is_valid);
+}
+
+void test_hqvek4n9ws8pky97_char()
+{
+	test_hqvek4n9ws8pky97<char>();
+}
+
+void test_hqvek4n9ws8pky97_wchar_t()
+{
+	test_hqvek4n9ws8pky97<wchar_t>();
 }
 
 // ==========================================================================
@@ -870,47 +918,6 @@ void test_qqgxzi7djyrwfcfr_wchar_t()
 
 // ==========================================================================
 
-// constexpr BasicStringView get_subview(std::intptr_t, std::intptr_t) const
-template<typename TChar>
-void test_bopexh7dko28ckjx()
-{
-	constexpr auto src_string = Strings<TChar>::test;
-
-	constexpr auto sv_1 = bstone::BasicStringView<TChar>{src_string};
-	constexpr auto sv = sv_1.get_subview(1, 2);
-
-	constexpr auto data = sv.get_data();
-	constexpr auto is_valid_1 = data == src_string + 1;
-
-	constexpr auto size = sv.get_size();
-	constexpr auto is_valid_2 = size == 2;
-
-	constexpr auto is_valid_3 =
-		data[0] == 'e' &&
-		data[1] == 's' &&
-		true;
-
-	constexpr auto is_valid =
-		is_valid_1 &&
-		is_valid_2 &&
-		is_valid_3 &&
-		true;
-
-	tester.check(is_valid);
-}
-
-void test_bopexh7dko28ckjx_char()
-{
-	test_bopexh7dko28ckjx<char>();
-}
-
-void test_bopexh7dko28ckjx_wchar_t()
-{
-	test_bopexh7dko28ckjx<wchar_t>();
-}
-
-// ==========================================================================
-
 // constexpr BasicStringView get_subview(std::intptr_t) const
 template<typename TChar>
 void test_pbsd6o4z7p9bdnm9()
@@ -949,6 +956,47 @@ void test_pbsd6o4z7p9bdnm9_char()
 void test_pbsd6o4z7p9bdnm9_wchar_t()
 {
 	test_pbsd6o4z7p9bdnm9<wchar_t>();
+}
+
+// ==========================================================================
+
+// constexpr BasicStringView get_subview(std::intptr_t, std::intptr_t) const
+template<typename TChar>
+void test_bopexh7dko28ckjx()
+{
+	constexpr auto src_string = Strings<TChar>::test;
+
+	constexpr auto sv_1 = bstone::BasicStringView<TChar>{src_string};
+	constexpr auto sv = sv_1.get_subview(1, 2);
+
+	constexpr auto data = sv.get_data();
+	constexpr auto is_valid_1 = data == src_string + 1;
+
+	constexpr auto size = sv.get_size();
+	constexpr auto is_valid_2 = size == 2;
+
+	constexpr auto is_valid_3 =
+		data[0] == 'e' &&
+		data[1] == 's' &&
+		true;
+
+	constexpr auto is_valid =
+		is_valid_1 &&
+		is_valid_2 &&
+		is_valid_3 &&
+		true;
+
+	tester.check(is_valid);
+}
+
+void test_bopexh7dko28ckjx_char()
+{
+	test_bopexh7dko28ckjx<char>();
+}
+
+void test_bopexh7dko28ckjx_wchar_t()
+{
+	test_bopexh7dko28ckjx<wchar_t>();
 }
 
 // ==========================================================================
@@ -1016,6 +1064,39 @@ void test_uwqzhs8xl6kzdpoe_wchar_t()
 
 // ==========================================================================
 
+// constexpr bool starts_with(Char) const noexcept
+template<typename TChar>
+void test_g66w8x31rg3j7r0g()
+{
+	constexpr auto src_string = Strings<TChar>::test;
+	constexpr auto sv = bstone::BasicStringView<TChar>{src_string};
+
+	constexpr auto result_1 = sv.starts_with(TChar{'t'});
+	constexpr auto is_valid_1 = result_1;
+
+	constexpr auto result_2 = sv.starts_with(TChar{'u'});
+	constexpr auto is_valid_2 = !result_2;
+
+	constexpr auto is_valid =
+		is_valid_1 &&
+		is_valid_2 &&
+		true;
+
+	tester.check(is_valid);
+}
+
+void test_g66w8x31rg3j7r0g_char()
+{
+	test_g66w8x31rg3j7r0g<char>();
+}
+
+void test_g66w8x31rg3j7r0g_wchar_t()
+{
+	test_g66w8x31rg3j7r0g<wchar_t>();
+}
+
+// ==========================================================================
+
 // constexpr bool starts_with(BasicStringView) const noexcept
 template<typename TChar>
 void test_k8mysmccu55m21xe()
@@ -1067,17 +1148,17 @@ void test_k8mysmccu55m21xe_wchar_t()
 
 // ==========================================================================
 
-// constexpr bool starts_with(Char) const noexcept
+// constexpr bool ends_with(Char) const noexcept
 template<typename TChar>
-void test_g66w8x31rg3j7r0g()
+void test_osgdlefyitvgi5bc()
 {
-	constexpr auto src_string = Strings<TChar>::test;
+	constexpr auto src_string = Strings<TChar>::test1;
 	constexpr auto sv = bstone::BasicStringView<TChar>{src_string};
 
-	constexpr auto result_1 = sv.starts_with(TChar{'t'});
+	constexpr auto result_1 = sv.ends_with(TChar{'1'});
 	constexpr auto is_valid_1 = result_1;
 
-	constexpr auto result_2 = sv.starts_with(TChar{'u'});
+	constexpr auto result_2 = sv.ends_with(TChar{'u'});
 	constexpr auto is_valid_2 = !result_2;
 
 	constexpr auto is_valid =
@@ -1088,64 +1169,14 @@ void test_g66w8x31rg3j7r0g()
 	tester.check(is_valid);
 }
 
-void test_g66w8x31rg3j7r0g_char()
+void test_osgdlefyitvgi5bc_char()
 {
-	test_g66w8x31rg3j7r0g<char>();
+	test_osgdlefyitvgi5bc<char>();
 }
 
-void test_g66w8x31rg3j7r0g_wchar_t()
+void test_osgdlefyitvgi5bc_wchar_t()
 {
-	test_g66w8x31rg3j7r0g<wchar_t>();
-}
-
-// ==========================================================================
-
-// constexpr bool starts_with(const Char*) const noexcept
-template<typename TChar>
-void test_j2dsjk32qc1ezush()
-{
-	constexpr auto src_string_1 = Strings<TChar>::empty;
-	constexpr auto src_string_2 = Strings<TChar>::test1;
-	constexpr auto src_string_3 = Strings<TChar>::test;
-	constexpr auto src_string_4 = Strings<TChar>::u;
-
-	constexpr auto sv_1 = bstone::BasicStringView<TChar>{src_string_1};
-	constexpr auto sv_2 = bstone::BasicStringView<TChar>{src_string_2};
-
-	constexpr auto result_1 = sv_1.starts_with(src_string_1);
-	constexpr auto is_valid_1 = result_1;
-
-	constexpr auto result_2 = sv_1.starts_with(src_string_2);
-	constexpr auto is_valid_2 = !result_2;
-
-	constexpr auto result_3 = sv_2.starts_with(src_string_1);
-	constexpr auto is_valid_3 = result_3;
-
-	constexpr auto result_4 = sv_2.starts_with(src_string_3);
-	constexpr auto is_valid_4 = result_4;
-
-	constexpr auto result_5 = sv_2.starts_with(src_string_4);
-	constexpr auto is_valid_5 = !result_5;
-
-	constexpr auto is_valid =
-		is_valid_1 &&
-		is_valid_2 &&
-		is_valid_3 &&
-		is_valid_4 &&
-		is_valid_5 &&
-		true;
-
-	tester.check(is_valid);
-}
-
-void test_j2dsjk32qc1ezush_char()
-{
-	test_j2dsjk32qc1ezush<char>();
-}
-
-void test_j2dsjk32qc1ezush_wchar_t()
-{
-	test_j2dsjk32qc1ezush<wchar_t>();
+	test_osgdlefyitvgi5bc<wchar_t>();
 }
 
 // ==========================================================================
@@ -1201,85 +1232,42 @@ void test_fyhl3tb82owzusoh_wchar_t()
 
 // ==========================================================================
 
-// constexpr bool ends_with(Char) const noexcept
+// constexpr bool contains(Char) const noexcept
 template<typename TChar>
-void test_osgdlefyitvgi5bc()
-{
-	constexpr auto src_string = Strings<TChar>::test1;
-	constexpr auto sv = bstone::BasicStringView<TChar>{src_string};
-
-	constexpr auto result_1 = sv.ends_with(TChar{'1'});
-	constexpr auto is_valid_1 = result_1;
-
-	constexpr auto result_2 = sv.ends_with(TChar{'u'});
-	constexpr auto is_valid_2 = !result_2;
-
-	constexpr auto is_valid =
-		is_valid_1 &&
-		is_valid_2 &&
-		true;
-
-	tester.check(is_valid);
-}
-
-void test_osgdlefyitvgi5bc_char()
-{
-	test_osgdlefyitvgi5bc<char>();
-}
-
-void test_osgdlefyitvgi5bc_wchar_t()
-{
-	test_osgdlefyitvgi5bc<wchar_t>();
-}
-
-// ==========================================================================
-
-// constexpr bool ends_with(const Char*) const noexcept
-template<typename TChar>
-void test_p3onrz6wcqetsrda()
+void test_e8n3odb6r207265g()
 {
 	constexpr auto src_string_1 = Strings<TChar>::empty;
-	constexpr auto src_string_2 = Strings<TChar>::one_test;
-	constexpr auto src_string_3 = Strings<TChar>::test;
-	constexpr auto src_string_4 = Strings<TChar>::u;
+	constexpr auto src_string_2 = Strings<TChar>::aa_test_bb;
 
 	constexpr auto sv_1 = bstone::BasicStringView<TChar>{src_string_1};
 	constexpr auto sv_2 = bstone::BasicStringView<TChar>{src_string_2};
 
-	constexpr auto result_1 = sv_1.ends_with(src_string_1);
-	constexpr auto is_valid_1 = result_1;
+	constexpr auto result_1 = sv_1.contains(TChar{'e'});
+	constexpr auto is_valid_1 = !result_1;
 
-	constexpr auto result_2 = sv_1.ends_with(src_string_2);
-	constexpr auto is_valid_2 = !result_2;
+	constexpr auto result_2 = sv_2.contains(TChar{'e'});
+	constexpr auto is_valid_2 = result_2;
 
-	constexpr auto result_3 = sv_2.ends_with(src_string_1);
-	constexpr auto is_valid_3 = result_3;
-
-	constexpr auto result_4 = sv_2.ends_with(src_string_3);
-	constexpr auto is_valid_4 = result_4;
-
-	constexpr auto result_5 = sv_2.ends_with(src_string_4);
-	constexpr auto is_valid_5 = !result_5;
+	constexpr auto result_3 = sv_2.contains(TChar{'?'});
+	constexpr auto is_valid_3 = !result_3;
 
 	constexpr auto is_valid =
 		is_valid_1 &&
 		is_valid_2 &&
 		is_valid_3 &&
-		is_valid_4 &&
-		is_valid_5 &&
 		true;
 
 	tester.check(is_valid);
 }
 
-void test_p3onrz6wcqetsrda_char()
+void test_e8n3odb6r207265g_char()
 {
-	test_p3onrz6wcqetsrda<char>();
+	test_e8n3odb6r207265g<char>();
 }
 
-void test_p3onrz6wcqetsrda_wchar_t()
+void test_e8n3odb6r207265g_wchar_t()
 {
-	test_p3onrz6wcqetsrda<wchar_t>();
+	test_e8n3odb6r207265g<wchar_t>();
 }
 
 // ==========================================================================
@@ -1340,9 +1328,9 @@ void test_pfd7d7ff2ceqnir7_wchar_t()
 
 // ==========================================================================
 
-// constexpr bool contains(Char) const noexcept
+// constexpr std::intptr_t index_of(Char) const noexcept
 template<typename TChar>
-void test_e8n3odb6r207265g()
+void test_k8397fucccii3cl8()
 {
 	constexpr auto src_string_1 = Strings<TChar>::empty;
 	constexpr auto src_string_2 = Strings<TChar>::aa_test_bb;
@@ -1350,14 +1338,14 @@ void test_e8n3odb6r207265g()
 	constexpr auto sv_1 = bstone::BasicStringView<TChar>{src_string_1};
 	constexpr auto sv_2 = bstone::BasicStringView<TChar>{src_string_2};
 
-	constexpr auto result_1 = sv_1.contains(TChar{'e'});
-	constexpr auto is_valid_1 = !result_1;
+	constexpr auto result_1 = sv_1.index_of(TChar{'e'});
+	constexpr auto is_valid_1 = result_1 < 0;
 
-	constexpr auto result_2 = sv_2.contains(TChar{'e'});
-	constexpr auto is_valid_2 = result_2;
+	constexpr auto result_2 = sv_2.index_of(TChar{'e'});
+	constexpr auto is_valid_2 = result_2 == 4;
 
-	constexpr auto result_3 = sv_2.contains(TChar{'?'});
-	constexpr auto is_valid_3 = !result_3;
+	constexpr auto result_3 = sv_2.index_of(TChar{'?'});
+	constexpr auto is_valid_3 = result_3 < 0;
 
 	constexpr auto is_valid =
 		is_valid_1 &&
@@ -1368,69 +1356,14 @@ void test_e8n3odb6r207265g()
 	tester.check(is_valid);
 }
 
-void test_e8n3odb6r207265g_char()
+void test_k8397fucccii3cl8_char()
 {
-	test_e8n3odb6r207265g<char>();
+	test_k8397fucccii3cl8<char>();
 }
 
-void test_e8n3odb6r207265g_wchar_t()
+void test_k8397fucccii3cl8_wchar_t()
 {
-	test_e8n3odb6r207265g<wchar_t>();
-}
-
-// ==========================================================================
-
-// constexpr bool contains(const Char*) const noexcept
-template<typename TChar>
-void test_mesfq92mystrrdoj()
-{
-	constexpr auto src_string_1 = Strings<TChar>::empty;
-	constexpr auto src_string_2 = Strings<TChar>::aa_test_bb;
-	constexpr auto src_string_3 = Strings<TChar>::test;
-	constexpr auto src_string_4 = Strings<TChar>::test1;
-
-	constexpr auto sv_1 = bstone::BasicStringView<TChar>{src_string_1};
-	constexpr auto sv_2 = bstone::BasicStringView<TChar>{src_string_2};
-	constexpr auto sv_3 = bstone::BasicStringView<TChar>{src_string_3};
-
-	constexpr auto result_1 = sv_1.contains(src_string_1);
-	constexpr auto is_valid_1 = result_1;
-
-	constexpr auto result_2 = sv_1.contains(src_string_2);
-	constexpr auto is_valid_2 = !result_2;
-
-	constexpr auto result_3 = sv_2.contains(src_string_1);
-	constexpr auto is_valid_3 = result_3;
-
-	constexpr auto result_4 = sv_2.contains(src_string_3);
-	constexpr auto is_valid_4 = result_4;
-
-	constexpr auto result_5 = sv_2.contains(src_string_4);
-	constexpr auto is_valid_5 = !result_5;
-
-	constexpr auto result_6 = sv_3.contains(src_string_4);
-	constexpr auto is_valid_6 = !result_6;
-
-	constexpr auto is_valid =
-		is_valid_1 &&
-		is_valid_2 &&
-		is_valid_3 &&
-		is_valid_4 &&
-		is_valid_5 &&
-		is_valid_6 &&
-		true;
-
-	tester.check(is_valid);
-}
-
-void test_mesfq92mystrrdoj_char()
-{
-	test_mesfq92mystrrdoj<char>();
-}
-
-void test_mesfq92mystrrdoj_wchar_t()
-{
-	test_mesfq92mystrrdoj<wchar_t>();
+	test_k8397fucccii3cl8<wchar_t>();
 }
 
 // ==========================================================================
@@ -1491,9 +1424,9 @@ void test_cb4svaoq61nfqidf_wchar_t()
 
 // ==========================================================================
 
-// constexpr std::intptr_t index_of(Char) const noexcept
+// constexpr std::intptr_t last_index_of(Char) const noexcept
 template<typename TChar>
-void test_k8397fucccii3cl8()
+void test_0ro7y1lzrldveta9()
 {
 	constexpr auto src_string_1 = Strings<TChar>::empty;
 	constexpr auto src_string_2 = Strings<TChar>::aa_test_bb;
@@ -1501,13 +1434,13 @@ void test_k8397fucccii3cl8()
 	constexpr auto sv_1 = bstone::BasicStringView<TChar>{src_string_1};
 	constexpr auto sv_2 = bstone::BasicStringView<TChar>{src_string_2};
 
-	constexpr auto result_1 = sv_1.index_of(TChar{'e'});
+	constexpr auto result_1 = sv_1.last_index_of(TChar{'t'});
 	constexpr auto is_valid_1 = result_1 < 0;
 
-	constexpr auto result_2 = sv_2.index_of(TChar{'e'});
-	constexpr auto is_valid_2 = result_2 == 4;
+	constexpr auto result_2 = sv_2.last_index_of(TChar{'t'});
+	constexpr auto is_valid_2 = result_2 == 6;
 
-	constexpr auto result_3 = sv_2.index_of(TChar{'?'});
+	constexpr auto result_3 = sv_2.last_index_of(TChar{'?'});
 	constexpr auto is_valid_3 = result_3 < 0;
 
 	constexpr auto is_valid =
@@ -1519,14 +1452,14 @@ void test_k8397fucccii3cl8()
 	tester.check(is_valid);
 }
 
-void test_k8397fucccii3cl8_char()
+void test_0ro7y1lzrldveta9_char()
 {
-	test_k8397fucccii3cl8<char>();
+	test_0ro7y1lzrldveta9<char>();
 }
 
-void test_k8397fucccii3cl8_wchar_t()
+void test_0ro7y1lzrldveta9_wchar_t()
 {
-	test_k8397fucccii3cl8<wchar_t>();
+	test_0ro7y1lzrldveta9<wchar_t>();
 }
 
 // ==========================================================================
@@ -1587,9 +1520,9 @@ void test_ey9ajjtxk3rs9oq4_wchar_t()
 
 // ==========================================================================
 
-// constexpr std::intptr_t last_index_of(Char) const noexcept
+// constexpr std::intptr_t index_of_any(Char) const noexcept
 template<typename TChar>
-void test_0ro7y1lzrldveta9()
+void test_kkx2vucgrbnkxt3n()
 {
 	constexpr auto src_string_1 = Strings<TChar>::empty;
 	constexpr auto src_string_2 = Strings<TChar>::aa_test_bb;
@@ -1597,13 +1530,13 @@ void test_0ro7y1lzrldveta9()
 	constexpr auto sv_1 = bstone::BasicStringView<TChar>{src_string_1};
 	constexpr auto sv_2 = bstone::BasicStringView<TChar>{src_string_2};
 
-	constexpr auto result_1 = sv_1.last_index_of(TChar{'t'});
+	constexpr auto result_1 = sv_1.index_of_any(TChar{'e'});
 	constexpr auto is_valid_1 = result_1 < 0;
 
-	constexpr auto result_2 = sv_2.last_index_of(TChar{'t'});
-	constexpr auto is_valid_2 = result_2 == 6;
+	constexpr auto result_2 = sv_2.index_of_any(TChar{'e'});
+	constexpr auto is_valid_2 = result_2 == 4;
 
-	constexpr auto result_3 = sv_2.last_index_of(TChar{'?'});
+	constexpr auto result_3 = sv_2.index_of_any(TChar{'?'});
 	constexpr auto is_valid_3 = result_3 < 0;
 
 	constexpr auto is_valid =
@@ -1615,14 +1548,14 @@ void test_0ro7y1lzrldveta9()
 	tester.check(is_valid);
 }
 
-void test_0ro7y1lzrldveta9_char()
+void test_kkx2vucgrbnkxt3n_char()
 {
-	test_0ro7y1lzrldveta9<char>();
+	test_kkx2vucgrbnkxt3n<char>();
 }
 
-void test_0ro7y1lzrldveta9_wchar_t()
+void test_kkx2vucgrbnkxt3n_wchar_t()
 {
-	test_0ro7y1lzrldveta9<wchar_t>();
+	test_kkx2vucgrbnkxt3n<wchar_t>();
 }
 
 // ==========================================================================
@@ -1665,6 +1598,46 @@ void test_hpackjsosij4uv1w_wchar_t()
 
 // ==========================================================================
 
+// constexpr std::intptr_t last_index_of_any(Char) const noexcept
+template<typename TChar>
+void test_n2l8g1j54ti0qnon()
+{
+	constexpr auto src_string_1 = Strings<TChar>::empty;
+	constexpr auto src_string_2 = Strings<TChar>::aa_test_bb;
+
+	constexpr auto sv_1 = bstone::BasicStringView<TChar>{src_string_1};
+	constexpr auto sv_2 = bstone::BasicStringView<TChar>{src_string_2};
+
+	constexpr auto result_1 = sv_1.last_index_of_any(TChar{'t'});
+	constexpr auto is_valid_1 = result_1 < 0;
+
+	constexpr auto result_2 = sv_2.last_index_of_any(TChar{'t'});
+	constexpr auto is_valid_2 = result_2 == 6;
+
+	constexpr auto result_3 = sv_2.last_index_of_any(TChar{'?'});
+	constexpr auto is_valid_3 = result_3 < 0;
+
+	constexpr auto is_valid =
+		is_valid_1 &&
+		is_valid_2 &&
+		is_valid_3 &&
+		true;
+
+	tester.check(is_valid);
+}
+
+void test_n2l8g1j54ti0qnon_char()
+{
+	test_n2l8g1j54ti0qnon<char>();
+}
+
+void test_n2l8g1j54ti0qnon_wchar_t()
+{
+	test_n2l8g1j54ti0qnon<wchar_t>();
+}
+
+// ==========================================================================
+
 // constexpr std::intptr_t last_index_of_any(BasicStringView) const noexcept
 template<typename TChar>
 void test_mbvh29wymbz4px8x()
@@ -1699,6 +1672,152 @@ void test_mbvh29wymbz4px8x_char()
 void test_mbvh29wymbz4px8x_wchar_t()
 {
 	test_mbvh29wymbz4px8x<wchar_t>();
+}
+
+// ==========================================================================
+
+// constexpr std::intptr_t index_not_of_any(Char) const noexcept
+template<typename TChar>
+void test_fxhsac6grntd0qon()
+{
+	constexpr auto src_string = Strings<TChar>::aa_test_bb;
+
+	constexpr auto sv_1 = bstone::BasicStringView<TChar>{src_string};
+	constexpr auto sv_2 = bstone::BasicStringView<TChar>{};
+
+	constexpr auto result_1 = sv_1.index_not_of_any('a');
+	constexpr auto is_valid_1 = result_1 == 2;
+
+	constexpr auto result_2 = sv_2.index_not_of_any('a');
+	constexpr auto is_valid_2 = result_2 < 0;
+
+	constexpr auto is_valid =
+		is_valid_1 &&
+		is_valid_2 &&
+		true;
+
+	tester.check(is_valid);
+}
+
+void test_fxhsac6grntd0qon_char()
+{
+	test_fxhsac6grntd0qon<char>();
+}
+
+void test_fxhsac6grntd0qon_wchar_t()
+{
+	test_fxhsac6grntd0qon<wchar_t>();
+}
+
+// ==========================================================================
+
+// constexpr std::intptr_t index_not_of_any(BasicStringView) const noexcept
+template<typename TChar>
+void test_m8d3d4expk72bk2i()
+{
+	constexpr auto src_string_1 = Strings<TChar>::aa_test_bb;
+	constexpr auto src_string_2 = Strings<TChar>::a;
+	constexpr auto src_string_3 = Strings<TChar>::a_tes;
+
+	constexpr auto sv_1 = bstone::BasicStringView<TChar>{src_string_1};
+	constexpr auto sv_2 = bstone::BasicStringView<TChar>{src_string_2};
+	constexpr auto sv_3 = bstone::BasicStringView<TChar>{src_string_3};
+
+	constexpr auto result_1 = sv_1.index_not_of_any(sv_2);
+	constexpr auto is_valid_1 = result_1 == 2;
+
+	constexpr auto result_2 = sv_1.index_not_of_any(sv_3);
+	constexpr auto is_valid_2 = result_2 == 8;
+
+	constexpr auto is_valid =
+		is_valid_1 &&
+		is_valid_2 &&
+		true;
+
+	tester.check(is_valid);
+}
+
+void test_m8d3d4expk72bk2i_char()
+{
+	test_m8d3d4expk72bk2i<char>();
+}
+
+void test_m8d3d4expk72bk2i_wchar_t()
+{
+	test_m8d3d4expk72bk2i<wchar_t>();
+}
+
+// ==========================================================================
+
+// constexpr std::intptr_t last_index_not_of_any(Char) const noexcept
+template<typename TChar>
+void test_vroaq5eyhsv288zm()
+{
+	constexpr auto src_string = Strings<TChar>::aa_test_test_bb;
+
+	constexpr auto sv_1 = bstone::BasicStringView<TChar>{src_string};
+	constexpr auto sv_2 = bstone::BasicStringView<TChar>{};
+
+	constexpr auto result_1 = sv_1.last_index_not_of_any('b');
+	constexpr auto is_valid_1 = result_1 == 12;
+
+	constexpr auto result_2 = sv_2.last_index_not_of_any('b');
+	constexpr auto is_valid_2 = result_2 < 0;
+
+	constexpr auto is_valid =
+		is_valid_1 &&
+		is_valid_2 &&
+		true;
+
+	tester.check(is_valid);
+}
+
+void test_vroaq5eyhsv288zm_char()
+{
+	test_vroaq5eyhsv288zm<char>();
+}
+
+void test_vroaq5eyhsv288zm_wchar_t()
+{
+	test_vroaq5eyhsv288zm<wchar_t>();
+}
+
+// ==========================================================================
+
+// constexpr std::intptr_t last_index_not_of_any(BasicStringView) const noexcept
+template<typename TChar>
+void test_rsnbejkyw0pkmkkk()
+{
+	constexpr auto src_string_1 = Strings<TChar>::aa_test_test_bb;
+	constexpr auto src_string_2 = Strings<TChar>::b;
+	constexpr auto src_string_3 = Strings<TChar>::t_b;
+
+	constexpr auto sv_1 = bstone::BasicStringView<TChar>{src_string_1};
+	constexpr auto sv_2 = bstone::BasicStringView<TChar>{src_string_2};
+	constexpr auto sv_3 = bstone::BasicStringView<TChar>{src_string_3};
+
+	constexpr auto result_1 = sv_1.last_index_not_of_any(sv_2);
+	constexpr auto is_valid_1 = result_1 == 12;
+
+	constexpr auto result_2 = sv_1.last_index_not_of_any(sv_3);
+	constexpr auto is_valid_2 = result_2 == 10;
+
+	constexpr auto is_valid =
+		is_valid_1 &&
+		is_valid_2 &&
+		true;
+
+	tester.check(is_valid);
+}
+
+void test_rsnbejkyw0pkmkkk_char()
+{
+	test_rsnbejkyw0pkmkkk<char>();
+}
+
+void test_rsnbejkyw0pkmkkk_wchar_t()
+{
+	test_rsnbejkyw0pkmkkk<wchar_t>();
 }
 
 // ==========================================================================
@@ -2051,6 +2170,8 @@ public:
 		register_last_index_of();
 		register_index_of_any();
 		register_last_index_of_any();
+		register_index_not_of_any();
+		register_last_index_not_of_any();
 		register_operator_equal_to();
 		register_operator_not_equal_to();
 		register_operator_less_than();
@@ -2073,6 +2194,9 @@ private:
 
 		tester.register_test("BasicStringView#pd6kawcdwobxsu8c", test_abnsmbym1acwzdqk_char);
 		tester.register_test("BasicStringView#sprft349f2uwf1nw", test_abnsmbym1acwzdqk_wchar_t);
+
+		tester.register_test("BasicStringView#qzb7bcjfbbt8290z", test_hqvek4n9ws8pky97_char);
+		tester.register_test("BasicStringView#k9dwa3bsn5e10jic", test_hqvek4n9ws8pky97_wchar_t);
 
 		tester.register_test("BasicStringView#5oryhcsyqeu4xd9u", test_a86kmgzvs440xahn_char);
 		tester.register_test("BasicStringView#7r9etme722tnxohm", test_a86kmgzvs440xahn_wchar_t);
@@ -2170,11 +2294,11 @@ private:
 
 	void register_get_subview()
 	{
-		tester.register_test("BasicStringView#cl3rsxclrt96j2bx", test_bopexh7dko28ckjx_char);
-		tester.register_test("BasicStringView#u22hgumpeyoaucc6", test_bopexh7dko28ckjx_wchar_t);
-
 		tester.register_test("BasicStringView#7e5ibjbzcjci3sbh", test_pbsd6o4z7p9bdnm9_char);
 		tester.register_test("BasicStringView#9btn9ozfudoajcy2", test_pbsd6o4z7p9bdnm9_wchar_t);
+
+		tester.register_test("BasicStringView#cl3rsxclrt96j2bx", test_bopexh7dko28ckjx_char);
+		tester.register_test("BasicStringView#u22hgumpeyoaucc6", test_bopexh7dko28ckjx_wchar_t);
 	}
 
 	void register_compare()
@@ -2185,68 +2309,83 @@ private:
 
 	void register_starts_with()
 	{
-		tester.register_test("BasicStringView#86yuibork6bwx8mz", test_k8mysmccu55m21xe_char);
-		tester.register_test("BasicStringView#yf8ae4hkfjku58jz", test_k8mysmccu55m21xe_wchar_t);
-
 		tester.register_test("BasicStringView#nkyyvbmjweaplyc0", test_g66w8x31rg3j7r0g_char);
 		tester.register_test("BasicStringView#hd5d7mcc0lajyya3", test_g66w8x31rg3j7r0g_wchar_t);
 
-		tester.register_test("BasicStringView#sqa7ellk5ua0aude", test_j2dsjk32qc1ezush_char);
-		tester.register_test("BasicStringView#vifwlsb1mbisv4z5", test_j2dsjk32qc1ezush_wchar_t);
+		tester.register_test("BasicStringView#86yuibork6bwx8mz", test_k8mysmccu55m21xe_char);
+		tester.register_test("BasicStringView#yf8ae4hkfjku58jz", test_k8mysmccu55m21xe_wchar_t);
 	}
 
 	void register_ends_with()
 	{
-		tester.register_test("BasicStringView#fawh25w1a5n067rn", test_fyhl3tb82owzusoh_char);
-		tester.register_test("BasicStringView#n0sfqlw4nevlxsm6", test_fyhl3tb82owzusoh_wchar_t);
-
 		tester.register_test("BasicStringView#1dmi6qlppqnawdcj", test_osgdlefyitvgi5bc_char);
 		tester.register_test("BasicStringView#dvfayyepgwuupitl", test_osgdlefyitvgi5bc_wchar_t);
 
-		tester.register_test("BasicStringView#sjaa90dvhzejlo45", test_p3onrz6wcqetsrda_char);
-		tester.register_test("BasicStringView#a6dftvwglx03ve8o", test_p3onrz6wcqetsrda_wchar_t);
+		tester.register_test("BasicStringView#fawh25w1a5n067rn", test_fyhl3tb82owzusoh_char);
+		tester.register_test("BasicStringView#n0sfqlw4nevlxsm6", test_fyhl3tb82owzusoh_wchar_t);
 	}
 
 	void register_contains()
 	{
-		tester.register_test("BasicStringView#mbeptnwfurbep278", test_pfd7d7ff2ceqnir7_char);
-		tester.register_test("BasicStringView#utrmgdd4h24j0cu0", test_pfd7d7ff2ceqnir7_wchar_t);
-
 		tester.register_test("BasicStringView#f33axltsp8tai4uw", test_e8n3odb6r207265g_char);
 		tester.register_test("BasicStringView#kji6rbp0p0tnvk0p", test_e8n3odb6r207265g_wchar_t);
 
-		tester.register_test("BasicStringView#g7ckvzksnxhmrfts", test_mesfq92mystrrdoj_char);
-		tester.register_test("BasicStringView#xg52hbnhk0djd0md", test_mesfq92mystrrdoj_wchar_t);
+		tester.register_test("BasicStringView#mbeptnwfurbep278", test_pfd7d7ff2ceqnir7_char);
+		tester.register_test("BasicStringView#utrmgdd4h24j0cu0", test_pfd7d7ff2ceqnir7_wchar_t);
 	}
 
 	void register_index_of()
 	{
-		tester.register_test("BasicStringView#28tchxpfjyyk6h8z", test_cb4svaoq61nfqidf_char);
-		tester.register_test("BasicStringView#r9rsm5yrchxgpwje", test_cb4svaoq61nfqidf_wchar_t);
-
 		tester.register_test("BasicStringView#6b6ofc3490yer2x0", test_k8397fucccii3cl8_char);
 		tester.register_test("BasicStringView#dvriokdejerxpnau", test_k8397fucccii3cl8_wchar_t);
+
+		tester.register_test("BasicStringView#28tchxpfjyyk6h8z", test_cb4svaoq61nfqidf_char);
+		tester.register_test("BasicStringView#r9rsm5yrchxgpwje", test_cb4svaoq61nfqidf_wchar_t);
 	}
 
 	void register_last_index_of()
 	{
-		tester.register_test("BasicStringView#rec8xiczsljwfkse", test_ey9ajjtxk3rs9oq4_char);
-		tester.register_test("BasicStringView#6re9bredvxm91gbc", test_ey9ajjtxk3rs9oq4_wchar_t);
-
 		tester.register_test("BasicStringView#zuxnct5as2bhwgbr", test_0ro7y1lzrldveta9_char);
 		tester.register_test("BasicStringView#lq6h1vrwzw7xq4ot", test_0ro7y1lzrldveta9_wchar_t);
+
+		tester.register_test("BasicStringView#rec8xiczsljwfkse", test_ey9ajjtxk3rs9oq4_char);
+		tester.register_test("BasicStringView#6re9bredvxm91gbc", test_ey9ajjtxk3rs9oq4_wchar_t);
 	}
 
 	void register_index_of_any()
 	{
+		tester.register_test("BasicStringView#uwpl8gw8iwij2g34", test_kkx2vucgrbnkxt3n_char);
+		tester.register_test("BasicStringView#mma4ger75868j1ur", test_kkx2vucgrbnkxt3n_wchar_t);
+
 		tester.register_test("BasicStringView#qwoevkr77n7e979z", test_hpackjsosij4uv1w_char);
 		tester.register_test("BasicStringView#rfca403gjt3gqi5f", test_hpackjsosij4uv1w_wchar_t);
 	}
 
 	void register_last_index_of_any()
 	{
+		tester.register_test("BasicStringView#kpeeu1vn1p1m34s4", test_n2l8g1j54ti0qnon_char);
+		tester.register_test("BasicStringView#cwf8u9j5z2zplm68", test_n2l8g1j54ti0qnon_wchar_t);
+
 		tester.register_test("BasicStringView#1yq2chaev9wzva6j", test_mbvh29wymbz4px8x_char);
 		tester.register_test("BasicStringView#1dzuwtxq24407cy1", test_mbvh29wymbz4px8x_wchar_t);
+	}
+
+	void register_index_not_of_any()
+	{
+		tester.register_test("BasicStringView#zcop3hotfbk905zp", test_fxhsac6grntd0qon_char);
+		tester.register_test("BasicStringView#3armqocnj2iwnaob", test_fxhsac6grntd0qon_wchar_t);
+
+		tester.register_test("BasicStringView#9mxvwwpt0svud7w9", test_m8d3d4expk72bk2i_char);
+		tester.register_test("BasicStringView#qxuce5n9n5m3scbh", test_m8d3d4expk72bk2i_wchar_t);
+	}
+
+	void register_last_index_not_of_any()
+	{
+		tester.register_test("BasicStringView#f3fg16n6j37fxgqm", test_vroaq5eyhsv288zm_char);
+		tester.register_test("BasicStringView#czdx2kkdyfk9glic", test_vroaq5eyhsv288zm_wchar_t);
+
+		tester.register_test("BasicStringView#d54v44kmp1mxrz1s", test_rsnbejkyw0pkmkkk_char);
+		tester.register_test("BasicStringView#vdicdgdjh98kfjv4", test_rsnbejkyw0pkmkkk_wchar_t);
 	}
 
 	void register_operator_equal_to()

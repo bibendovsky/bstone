@@ -10744,7 +10744,7 @@ const std::string& get_profile_dir()
 			profile_dir.resize(buffer_size);
 
 			const auto path_size = bstone::sys::SpecialPath::get_user_specific_data_path(
-				"bibendovsky?",
+				"bibendovsky",
 				"bstone",
 				&profile_dir.front(),
 				buffer_size);

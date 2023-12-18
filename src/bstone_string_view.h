@@ -13,6 +13,7 @@ SPDX-License-Identifier: MIT
 #include <cstdint>
 
 #include <type_traits>
+#include <utility>
 
 #include "bstone_assert.h"
 #include "bstone_char_traits.h"
@@ -33,8 +34,13 @@ public:
 public:
 	constexpr BasicStringView() noexcept;
 	constexpr BasicStringView(const BasicStringView&) noexcept = default;
-	constexpr BasicStringView(const Char* chars, std::intptr_t c_count) noexcept;
 	constexpr BasicStringView(const Char* string) noexcept;
+
+	// BasicStringView(const Char*, std::intptr_t)
+	// BasicStringView(TIterBegin, TIterEnd)
+	template<typename T1, typename T2>
+	constexpr BasicStringView(T1 t1, T2 t2);
+
 	BasicStringView(std::nullptr_t) = delete;
 
 	constexpr BasicStringView& operator=(const BasicStringView&) noexcept = default;
@@ -56,36 +62,72 @@ public:
 
 	constexpr void remove_prefix(std::intptr_t count) noexcept;
 	constexpr void remove_suffix(std::intptr_t count) noexcept;
+
 	constexpr void swap(BasicStringView& rhs) noexcept;
 
-	constexpr BasicStringView get_subview(std::intptr_t index, std::intptr_t count) const noexcept;
 	constexpr BasicStringView get_subview(std::intptr_t index) const noexcept;
+	constexpr BasicStringView get_subview(std::intptr_t index, std::intptr_t count) const noexcept;
 
 	constexpr int compare(BasicStringView rhs) const noexcept;
 
-	constexpr bool starts_with(BasicStringView view) const noexcept;
 	constexpr bool starts_with(Char ch) const noexcept;
+	constexpr bool starts_with(BasicStringView view) const noexcept;
 
-	constexpr bool ends_with(BasicStringView view) const noexcept;
 	constexpr bool ends_with(Char ch) const noexcept;
+	constexpr bool ends_with(BasicStringView view) const noexcept;
 
-	constexpr bool contains(BasicStringView view) const noexcept;
 	constexpr bool contains(Char ch) const noexcept;
+	constexpr bool contains(BasicStringView view) const noexcept;
 
-	constexpr std::intptr_t index_of(BasicStringView view) const noexcept;
 	constexpr std::intptr_t index_of(Char ch) const noexcept;
+	constexpr std::intptr_t index_of(BasicStringView view) const noexcept;
 
-	constexpr std::intptr_t last_index_of(BasicStringView view) const noexcept;
 	constexpr std::intptr_t last_index_of(Char ch) const noexcept;
+	constexpr std::intptr_t last_index_of(BasicStringView view) const noexcept;
 
+	constexpr std::intptr_t index_of_any(Char ch) const noexcept;
 	constexpr std::intptr_t index_of_any(BasicStringView view) const noexcept;
+
+	constexpr std::intptr_t last_index_of_any(Char ch) const noexcept;
 	constexpr std::intptr_t last_index_of_any(BasicStringView view) const noexcept;
+
+	constexpr std::intptr_t index_not_of_any(Char ch) const noexcept;
+	constexpr std::intptr_t index_not_of_any(BasicStringView view) const noexcept;
+
+	constexpr std::intptr_t last_index_not_of_any(Char view) const noexcept;
+	constexpr std::intptr_t last_index_not_of_any(BasicStringView view) const noexcept;
+
+private:
+	struct CtorCharsWithCountTag {};
+	struct CtorIteratorsTag {};
+
+	template<typename UChar, typename T1, typename T2>
+	class MakeCtorTag
+	{
+	private:
+		static constexpr auto is_t1_pointer_to_char =
+			std::is_pointer<T1>::value &&
+			std::is_same<std::remove_cv_t<std::remove_pointer_t<T1>>, UChar>::value;
+
+		static constexpr auto is_t2_intptr_t =
+			std::is_convertible<T2, std::intptr_t>::value;
+
+		static constexpr auto are_chars_with_count = is_t1_pointer_to_char && is_t2_intptr_t;
+
+	public:
+		using Type = std::conditional_t<are_chars_with_count, CtorCharsWithCountTag, CtorIteratorsTag>;
+	};
 
 private:
 	const TChar* data_{};
 	std::intptr_t size_{};
 
 private:
+	constexpr BasicStringView(const Char* chars, std::intptr_t count, CtorCharsWithCountTag);
+
+	template<typename TIterBegin, typename TIterEnd>
+	constexpr BasicStringView(TIterBegin first, TIterEnd last, CtorIteratorsTag);
+
 	constexpr bool has_subview(std::intptr_t index, BasicStringView subview) const noexcept;
 };
 
@@ -95,24 +137,22 @@ template<typename TChar>
 constexpr BasicStringView<TChar>::BasicStringView() noexcept {}
 
 template<typename TChar>
-constexpr BasicStringView<TChar>::BasicStringView(const Char* chars, std::intptr_t c_count) noexcept
-	:
-	data_{chars},
-	size_{c_count}
-{
-	BSTONE_ASSERT((get_data() != nullptr && get_size() >= 0) || (get_data() == nullptr && get_size() == 0));
-}
-
-template<typename TChar>
 constexpr BasicStringView<TChar>::BasicStringView(const Char* string) noexcept
 	:
-	BasicStringView{string, char_traits::get_size(string)}
+	BasicStringView{string, char_traits::get_size(string), CtorCharsWithCountTag{}}
+{}
+
+template<typename TChar>
+template<typename T1, typename T2>
+constexpr BasicStringView<TChar>::BasicStringView(T1 t1, T2 t2)
+	:
+	BasicStringView{t1, t2, typename MakeCtorTag<Char, T1, T2>::Type{}}
 {}
 
 template<typename TChar>
 constexpr auto BasicStringView<TChar>::begin() const noexcept -> const Char*
 {
-	return data_;
+	return get_data();
 }
 
 template<typename TChar>
@@ -136,9 +176,9 @@ constexpr auto BasicStringView<TChar>::cend() const noexcept -> const Char*
 template<typename TChar>
 constexpr auto BasicStringView<TChar>::operator[](std::intptr_t index) const noexcept -> const Char&
 {
-	BSTONE_ASSERT(index >= 0 && index < size_);
+	BSTONE_ASSERT(index >= 0 && index < get_size());
 
-	return data_[index];
+	return get_data()[index];
 }
 
 template<typename TChar>
@@ -150,7 +190,7 @@ constexpr auto BasicStringView<TChar>::get_front() const noexcept -> const Char&
 template<typename TChar>
 constexpr auto BasicStringView<TChar>::get_back() const noexcept -> const Char&
 {
-	return (*this)[size_ - 1];
+	return (*this)[get_size() - 1];
 }
 
 template<typename TChar>
@@ -202,6 +242,12 @@ constexpr void BasicStringView<TChar>::swap(BasicStringView& rhs) noexcept
 }
 
 template<typename TChar>
+constexpr auto BasicStringView<TChar>::get_subview(std::intptr_t index) const noexcept -> BasicStringView
+{
+	return get_subview(index, get_size() - index);
+}
+
+template<typename TChar>
 constexpr auto BasicStringView<TChar>::get_subview(
 	std::intptr_t index,
 	std::intptr_t count) const noexcept -> BasicStringView
@@ -209,21 +255,19 @@ constexpr auto BasicStringView<TChar>::get_subview(
 	BSTONE_ASSERT(index >= 0 && count >= 0);
 	BSTONE_ASSERT(index + count <= get_size());
 
-	return BasicStringView{&(*this)[index], count};
-}
-
-template<typename TChar>
-constexpr auto BasicStringView<TChar>::get_subview(std::intptr_t index) const noexcept -> BasicStringView
-{
-	BSTONE_ASSERT(index >= 0 && index < get_size());
-
-	return BasicStringView{&(*this)[index], get_size() - index};
+	return BasicStringView{get_data() + index, count};
 }
 
 template<typename TChar>
 constexpr int BasicStringView<TChar>::compare(BasicStringView rhs) const noexcept
 {
 	return char_traits::compare(get_data(), get_size(), rhs.get_data(), rhs.get_size());
+}
+
+template<typename TChar>
+constexpr bool BasicStringView<TChar>::starts_with(Char ch) const noexcept
+{
+	return !is_empty() && get_front() == ch;
 }
 
 template<typename TChar>
@@ -238,9 +282,9 @@ constexpr bool BasicStringView<TChar>::starts_with(BasicStringView view) const n
 }
 
 template<typename TChar>
-constexpr bool BasicStringView<TChar>::starts_with(Char ch) const noexcept
+constexpr bool BasicStringView<TChar>::ends_with(Char ch) const noexcept
 {
-	return !is_empty() && get_front() == ch;
+	return !is_empty() && get_back() == ch;
 }
 
 template<typename TChar>
@@ -257,9 +301,9 @@ constexpr bool BasicStringView<TChar>::ends_with(BasicStringView view) const noe
 }
 
 template<typename TChar>
-constexpr bool BasicStringView<TChar>::ends_with(Char ch) const noexcept
+constexpr bool BasicStringView<TChar>::contains(Char ch) const noexcept
 {
-	return !is_empty() && get_back() == ch;
+	return index_of(ch) >= 0;
 }
 
 template<typename TChar>
@@ -269,75 +313,44 @@ constexpr bool BasicStringView<TChar>::contains(BasicStringView view) const noex
 }
 
 template<typename TChar>
-constexpr bool BasicStringView<TChar>::contains(Char ch) const noexcept
+constexpr std::intptr_t BasicStringView<TChar>::index_of(Char ch) const noexcept
 {
-	return index_of(ch) >= 0;
+	auto index = std::intptr_t{};
+
+	for (const auto haystack_ch : *this)
+	{
+		if (haystack_ch == ch)
+		{
+			return index;
+		}
+
+		++index;
+	}
+
+	return -1;
 }
 
 template<typename TChar>
 constexpr std::intptr_t BasicStringView<TChar>::index_of(BasicStringView view) const noexcept
 {
-	const auto rhs_size = view.get_size();
-	const auto max_haystack_index = get_size() - rhs_size;
+	const auto view_size = view.get_size();
+	const auto max_haystack_index = get_size() - view_size;
 
 	if (max_haystack_index < 0)
 	{
 		return -1;
 	}
 
-	if (rhs_size == 0)
+	if (view_size == 0)
 	{
 		return 0;
 	}
 
-	for (auto i = 0; i <= max_haystack_index; ++i)
+	for (auto i_haystack = 0; i_haystack <= max_haystack_index; ++i_haystack)
 	{
-		if (has_subview(i, view))
+		if (has_subview(i_haystack, view))
 		{
-			return i;
-		}
-	}
-
-	return -1;
-}
-
-template<typename TChar>
-constexpr std::intptr_t BasicStringView<TChar>::index_of(Char ch) const noexcept
-{
-	const auto size = get_size();
-
-	for (auto i = std::intptr_t{}; i < size; ++i)
-	{
-		if ((*this)[i] == ch)
-		{
-			return i;
-		}
-	}
-
-	return -1;
-}
-
-template<typename TChar>
-constexpr std::intptr_t BasicStringView<TChar>::last_index_of(BasicStringView view) const noexcept
-{
-	const auto rhs_size = view.get_size();
-	const auto max_haystack_index = get_size() - rhs_size;
-
-	if (max_haystack_index < 0)
-	{
-		return -1;
-	}
-
-	if (rhs_size == 0)
-	{
-		return 0;
-	}
-
-	for (auto i = max_haystack_index; i >= 0; --i)
-	{
-		if (has_subview(i, view))
-		{
-			return i;
+			return i_haystack;
 		}
 	}
 
@@ -347,45 +360,128 @@ constexpr std::intptr_t BasicStringView<TChar>::last_index_of(BasicStringView vi
 template<typename TChar>
 constexpr std::intptr_t BasicStringView<TChar>::last_index_of(Char ch) const noexcept
 {
-	for (auto i = get_size() - 1; i >= 0; --i)
+	const auto& haystack = *this;
+
+	for (auto i_haystack = get_size() - 1; i_haystack >= 0; --i_haystack)
 	{
-		if ((*this)[i] == ch)
+		if (haystack[i_haystack] == ch)
 		{
-			return i;
+			return i_haystack;
 		}
 	}
 
 	return -1;
+}
+
+template<typename TChar>
+constexpr std::intptr_t BasicStringView<TChar>::last_index_of(BasicStringView view) const noexcept
+{
+	const auto view_size = view.get_size();
+	const auto max_haystack_index = get_size() - view_size;
+
+	if (max_haystack_index < 0)
+	{
+		return -1;
+	}
+
+	if (view_size == 0)
+	{
+		return 0;
+	}
+
+	for (auto i_haystack = max_haystack_index; i_haystack >= 0; --i_haystack)
+	{
+		if (has_subview(i_haystack, view))
+		{
+			return i_haystack;
+		}
+	}
+
+	return -1;
+}
+
+template<typename TChar>
+constexpr std::intptr_t BasicStringView<TChar>::index_of_any(Char ch) const noexcept
+{
+	return index_of(ch);
 }
 
 template<typename TChar>
 constexpr std::intptr_t BasicStringView<TChar>::index_of_any(BasicStringView view) const noexcept
 {
-	const auto lhs_size = get_size();
-	const auto rhs_size = view.get_size();
+	const auto haystack_size = get_size();
+	const auto needle_size = view.get_size();
 
-	if (rhs_size > lhs_size)
+	if (needle_size > haystack_size)
 	{
 		return -1;
 	}
 
-	if (rhs_size == 0)
+	if (needle_size == 0)
 	{
 		return 0;
 	}
 
-	if (rhs_size == 1)
+	if (needle_size == 1)
 	{
 		return index_of(view.get_front());
 	}
 
-	for (auto i_haystack = std::intptr_t{}; i_haystack < lhs_size; ++i_haystack)
-	{
-		const auto& haystack_char = (*this)[i_haystack];
+	auto index = std::intptr_t{};
 
-		for (const auto& needle_char : view)
+	for (const auto haystack_ch : *this)
+	{
+		for (const auto needle_ch : view)
 		{
-			if (haystack_char == needle_char)
+			if (needle_ch == haystack_ch)
+			{
+				return index;
+			}
+		}
+
+		++index;
+	}
+
+	return -1;
+}
+
+template<typename TChar>
+constexpr std::intptr_t BasicStringView<TChar>::last_index_of_any(Char ch) const noexcept
+{
+	return last_index_of(ch);
+}
+
+template<typename TChar>
+constexpr std::intptr_t BasicStringView<TChar>::last_index_of_any(BasicStringView view) const noexcept
+{
+	const auto haystack_size = get_size();
+	const auto needle_size = view.get_size();
+
+	if (needle_size > haystack_size)
+	{
+		return -1;
+	}
+
+	if (needle_size == 0)
+	{
+		return 0;
+	}
+
+	if (needle_size == 1)
+	{
+		return last_index_of(view.get_front());
+	}
+
+	const auto& haystack = *this;
+	const auto& needle = view;
+
+	for (auto i_haystack = haystack_size - 1; i_haystack >= 0; --i_haystack)
+	{
+		const auto haystack_ch = haystack[i_haystack];
+
+		for (const auto needle_ch : needle)
+		{
+			if (needle_ch == haystack_ch)
 			{
 				return i_haystack;
 			}
@@ -396,41 +492,150 @@ constexpr std::intptr_t BasicStringView<TChar>::index_of_any(BasicStringView vie
 }
 
 template<typename TChar>
-constexpr std::intptr_t BasicStringView<TChar>::last_index_of_any(BasicStringView view) const noexcept
+constexpr std::intptr_t BasicStringView<TChar>::index_not_of_any(Char ch) const noexcept
 {
-	const auto lhs_size = get_size();
-	const auto rhs_size = view.get_size();
+	auto index = std::intptr_t{};
 
-	if (rhs_size > lhs_size)
+	for (const auto haystack_ch : *this)
+	{
+		if (haystack_ch != ch)
+		{
+			return index;
+		}
+
+		++index;
+	}
+
+	return -1;
+}
+
+template<typename TChar>
+constexpr std::intptr_t BasicStringView<TChar>::index_not_of_any(BasicStringView view) const noexcept
+{
+	const auto haystack_size = get_size();
+	const auto needle_size = view.get_size();
+
+	if (needle_size > haystack_size)
 	{
 		return -1;
 	}
 
-	if (rhs_size == 0)
+	if (needle_size == 0)
 	{
 		return 0;
 	}
 
-	if (rhs_size == 1)
+	if (needle_size == 1)
 	{
-		return last_index_of(view.get_front());
+		return index_not_of_any(view.get_front());
 	}
 
-	for (auto i_haystack = lhs_size - 1; i_haystack >= 0; --i_haystack)
-	{
-		const auto& haystack_char = (*this)[i_haystack];
+	const auto& haystack = *this;
+	const auto& needle = view;
+	auto index = std::intptr_t{};
 
-		for (const auto& needle_char : view)
+	for (const auto haystack_ch : haystack)
+	{
+		auto is_found = true;
+
+		for (const auto needle_ch : needle)
 		{
-			if (haystack_char == needle_char)
+			if (needle_ch == haystack_ch)
 			{
-				return i_haystack;
+				is_found = false;
+				break;
 			}
+		}
+
+		if (is_found)
+		{
+			return index;
+		}
+
+		++index;
+	}
+
+	return -1;
+}
+
+template<typename TChar>
+constexpr std::intptr_t BasicStringView<TChar>::last_index_not_of_any(Char ch) const noexcept
+{
+	const auto& haystack = *this;
+
+	for (auto i_haystack = get_size() - 1; i_haystack >= 0; --i_haystack)
+	{
+		if (haystack[i_haystack] != ch)
+		{
+			return i_haystack;
 		}
 	}
 
 	return -1;
 }
+
+template<typename TChar>
+constexpr std::intptr_t BasicStringView<TChar>::last_index_not_of_any(BasicStringView view) const noexcept
+{
+	const auto haystack_size = get_size();
+	const auto needle_size = view.get_size();
+
+	if (needle_size > haystack_size)
+	{
+		return -1;
+	}
+
+	if (needle_size == 0)
+	{
+		return 0;
+	}
+
+	if (needle_size == 1)
+	{
+		return last_index_not_of_any(view.get_front());
+	}
+
+	const auto& haystack = *this;
+	const auto& needle = view;
+
+	for (auto i_haystack = haystack_size - 1; i_haystack >= 0; --i_haystack)
+	{
+		const auto haystack_ch = haystack[i_haystack];
+		auto is_found = true;
+
+		for (const auto needle_char : needle)
+		{
+			if (needle_char == haystack_ch)
+			{
+				is_found = false;
+				break;
+			}
+		}
+
+		if (is_found)
+		{
+			return i_haystack;
+		}
+	}
+
+	return -1;
+}
+
+template<typename TChar>
+constexpr BasicStringView<TChar>::BasicStringView(const Char* chars, std::intptr_t count, CtorCharsWithCountTag)
+	:
+	data_{chars},
+	size_{count}
+{
+	BSTONE_ASSERT((get_data() != nullptr && get_size() >= 0) || (get_data() == nullptr && get_size() == 0));
+}
+
+template<typename TChar>
+template<typename TIterBegin, typename TIterEnd>
+constexpr BasicStringView<TChar>::BasicStringView(TIterBegin first, TIterEnd last, CtorIteratorsTag)
+	:
+	BasicStringView{&(*first), last - first, CtorCharsWithCountTag{}}
+{}
 
 template<typename TChar>
 constexpr bool BasicStringView<TChar>::has_subview(std::intptr_t index, BasicStringView subview) const noexcept
@@ -438,11 +643,14 @@ constexpr bool BasicStringView<TChar>::has_subview(std::intptr_t index, BasicStr
 	BSTONE_ASSERT(index >= 0 && subview.get_size() >= 0);
 	BSTONE_ASSERT(index + subview.get_size() <= get_size());
 
-	const auto count = subview.get_size();
+	const auto& haystack = *this;
 
-	for (auto i = 0; i < count; ++i)
+	const auto needle_size = subview.get_size();
+	const auto& needle = subview;
+
+	for (auto i = 0; i < needle_size; ++i)
 	{
-		if ((*this)[index + i] != subview[i])
+		if (haystack[index + i] != needle[i])
 		{
 			return false;
 		}

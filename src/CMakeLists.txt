@@ -386,6 +386,8 @@ target_sources(
 		bstone_sys_special_path_sdl2.cpp
 		bstone_sys_special_path.cpp
 		bstone_sys_special_path.h
+		bstone_string.cpp
+		bstone_string.h
 )
 
 target_sources(
