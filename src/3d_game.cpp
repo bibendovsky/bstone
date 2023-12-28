@@ -235,6 +235,7 @@ void ScanInfoPlane()
 
 
 			tile = *start++;
+#if FIXME
 			//
 			// Check for tiles/icons to ignore...
 			//
@@ -252,6 +253,7 @@ void ScanInfoPlane()
 				// Ignore all values/icons on top of these tiles...
 				continue;
 			}
+#endif
 			tilehi = (tile & 0xff00) >> 8;
 			tilelo = (tile & 0xff);
 
@@ -450,19 +452,17 @@ void ScanInfoPlane()
 				break;
 
 			case 30: // Yellow Puddle
-				if (assets_info.is_aog_sw())
+				if (!assets_info.is_aog_sw())
 				{
-					::fail("Yellow puddle (AOG full/PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					static_cast<void>(SpawnStatic(x, y, tile - 23));
 				}
-				static_cast<void>(SpawnStatic(x, y, tile - 23));
 				break;
 
 			case 71: // BFG Weapon
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					::fail("BFG (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					static_cast<void>(SpawnStatic(x, y, tile - 23));
 				}
-				static_cast<void>(SpawnStatic(x, y, tile - 23));
 				break;
 
 			case 85: // Money bag
@@ -587,13 +587,11 @@ void ScanInfoPlane()
 				break;
 
 			case 486: // Plasma Detonator
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					::fail("Plasma detonator (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					SpawnHiddenOfs(en_plasma_detonator_reserve, x, y); // Spawn a reserve
+					static_cast<void>(SpawnStatic(x, y, 486 - 375));
 				}
-
-				SpawnHiddenOfs(en_plasma_detonator_reserve, x, y); // Spawn a reserve
-				static_cast<void>(SpawnStatic(x, y, 486 - 375));
 				break;
 
 			case 487: // Door rubble
@@ -688,15 +686,13 @@ void ScanInfoPlane()
 
 			case 138:
 			case 139:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					::fail("Switchable arc barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					//
+					// 138=off,139=on
+					//
+					SpawnBarrier(en_arc_barrier, x, y, (tile - 138) != 0);
 				}
-
-				//
-				// 138=off,139=on
-				//
-				SpawnBarrier(en_arc_barrier, x, y, (tile - 138) != 0);
 				break;
 
 				//
@@ -708,12 +704,10 @@ void ScanInfoPlane()
 				//
 			case 563: // On
 			case 562: // Off
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					::fail("Switchable post barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					SpawnBarrier(en_vpost_barrier, x, y, (tile - 562) != 0);
 				}
-
-				SpawnBarrier(en_vpost_barrier, x, y, (tile - 562) != 0);
 				break;
 
 
@@ -731,12 +725,10 @@ void ScanInfoPlane()
 					break;
 				}
 			case 565:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					::fail("Cyclic post barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					SpawnBarrier(en_vpost_barrier, x, y, 0);
 				}
-
-				SpawnBarrier(en_vpost_barrier, x, y, 0);
 				break;
 
 				//
@@ -748,12 +740,10 @@ void ScanInfoPlane()
 				//
 			case 426: // On
 			case 425: // Off
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					::fail("Spike barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					SpawnBarrier(en_vspike_barrier, x, y, (tile - 425) != 0);
 				}
-
-				SpawnBarrier(en_vspike_barrier, x, y, (tile - 425) != 0);
 				break;
 
 
@@ -771,11 +761,10 @@ void ScanInfoPlane()
 					break;
 				}
 			case 428:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					::fail("Cyclic spike barrier (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					SpawnBarrier(en_vspike_barrier, x, y, 0);
 				}
-				SpawnBarrier(en_vspike_barrier, x, y, 0);
 				break;
 
 				//
@@ -831,32 +820,30 @@ void ScanInfoPlane()
 				//
 
 			case 141:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					::fail("Goldstern spawn (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
-				}
-
-				if (!loadedgame)
-				{
-					if (GoldsternInfo.GoldSpawned)
+					if (!loadedgame)
 					{
-						::fail("Too many FAST Goldfire spawn sites in map.");
+						if (GoldsternInfo.GoldSpawned)
+						{
+							::fail("Too many FAST Goldfire spawn sites in map.");
+						}
+
+						if (GoldsternInfo.SpawnCnt == GOLDIE_MAX_SPAWNS)
+						{
+							::fail("Too many Dr. Goldfire Spawn sites in level.");
+						}
+
+						GoldieList[GoldsternInfo.SpawnCnt].tilex = static_cast<std::uint8_t>(x);
+						GoldieList[GoldsternInfo.SpawnCnt].tiley = static_cast<std::uint8_t>(y);
+
+						GoldsternInfo.LastIndex = GoldsternInfo.SpawnCnt++;
+						GoldsternInfo.flags = GS_COORDFOUND;
+
+						SpawnStand(en_goldstern, x, y, 0);
+						GoldsternInfo.GoldSpawned = true;
+						new_actor = nullptr;
 					}
-
-					if (GoldsternInfo.SpawnCnt == GOLDIE_MAX_SPAWNS)
-					{
-						::fail("Too many Dr. Goldfire Spawn sites in level.");
-					}
-
-					GoldieList[GoldsternInfo.SpawnCnt].tilex = static_cast<std::uint8_t>(x);
-					GoldieList[GoldsternInfo.SpawnCnt].tiley = static_cast<std::uint8_t>(y);
-
-					GoldsternInfo.LastIndex = GoldsternInfo.SpawnCnt++;
-					GoldsternInfo.flags = GS_COORDFOUND;
-
-					SpawnStand(en_goldstern, x, y, 0);
-					GoldsternInfo.GoldSpawned = true;
-					new_actor = nullptr;
 				}
 				break;
 
@@ -1201,34 +1188,28 @@ void ScanInfoPlane()
 				// Black Ooze
 				//
 			case 313:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					::fail("Black ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					if (gamestate.difficulty < gd_hard)
+					{
+						break;
+					}
+					tile -= 18;
 				}
-
-				if (gamestate.difficulty < gd_hard)
-				{
-					break;
-				}
-				tile -= 18;
 			case 295:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					::fail("Black ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					if (gamestate.difficulty < gd_medium)
+					{
+						break;
+					}
+					tile -= 18;
 				}
-
-				if (gamestate.difficulty < gd_medium)
-				{
-					break;
-				}
-				tile -= 18;
 			case 277:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					::fail("Black ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					SpawnOffsetObj(en_black2_ooze, x, y);
 				}
-
-				SpawnOffsetObj(en_black2_ooze, x, y);
 				break;
 
 
@@ -1237,34 +1218,28 @@ void ScanInfoPlane()
 				// Green Ooze
 				//
 			case 322:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					::fail("Green ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					if (gamestate.difficulty < gd_hard)
+					{
+						break;
+					}
+					tile -= 18;
 				}
-
-				if (gamestate.difficulty < gd_hard)
-				{
-					break;
-				}
-				tile -= 18;
 			case 304:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					::fail("Green ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					if (gamestate.difficulty < gd_medium)
+					{
+						break;
+					}
+					tile -= 18;
 				}
-
-				if (gamestate.difficulty < gd_medium)
-				{
-					break;
-				}
-				tile -= 18;
 			case 286:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					::fail("Green ooze (PS) at (" + std::to_string(x) + ", " + std::to_string(y) + ").");
+					SpawnOffsetObj(en_green2_ooze, x, y);
 				}
-
-				SpawnOffsetObj(en_green2_ooze, x, y);
 				break;
 
 
@@ -1275,40 +1250,34 @@ void ScanInfoPlane()
 			case 355:
 			case 356:
 			case 357:
-				if (assets_info.is_aog_sw())
+				if (!assets_info.is_aog_sw())
 				{
-					INVALID_ACTOR_ERR(x, y);
+					if (gamestate.difficulty < gd_hard)
+					{
+						break;
+					}
+					tile -= 18;
 				}
-
-				if (gamestate.difficulty < gd_hard)
-				{
-					break;
-				}
-				tile -= 18;
 			case 336:
 			case 337:
 			case 338:
 			case 339:
-				if (assets_info.is_aog_sw())
+				if (!assets_info.is_aog_sw())
 				{
-					INVALID_ACTOR_ERR(x, y);
+					if (gamestate.difficulty < gd_medium)
+					{
+						break;
+					}
+					tile -= 18;
 				}
-
-				if (gamestate.difficulty < gd_medium)
-				{
-					break;
-				}
-				tile -= 18;
 			case 318:
 			case 319:
 			case 320:
 			case 321:
-				if (assets_info.is_aog_sw())
+				if (!assets_info.is_aog_sw())
 				{
-					INVALID_ACTOR_ERR(x, y);
+					SpawnPatrol(en_volatiletransport, x, y, tile - 318);
 				}
-
-				SpawnPatrol(en_volatiletransport, x, y, tile - 318);
 				break;
 
 				//
@@ -1334,27 +1303,26 @@ void ScanInfoPlane()
 				// Cyborg Warrior
 				//
 			case 603:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR(x, y);
-				}
-
-				if (gamestate.difficulty < gd_hard)
-				{
-					break;
+					if (gamestate.difficulty < gd_hard)
+					{
+						break;
+					}
 				}
 			case 585:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR(x, y);
-				}
-
-				if (gamestate.difficulty < gd_medium)
-				{
-					break;
+					if (gamestate.difficulty < gd_medium)
+					{
+						break;
+					}
 				}
 			case 250:
-				SpawnOffsetObj(en_cyborg_warrior, x, y);
+				if (assets_info.is_ps())
+				{
+					SpawnOffsetObj(en_cyborg_warrior, x, y);
+				}
 				break;
 
 
@@ -1362,139 +1330,133 @@ void ScanInfoPlane()
 				// Spider Mutant
 				//
 			case 601:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR(x, y);
-				}
-
-				if (gamestate.difficulty < gd_hard)
-				{
-					break;
+					if (gamestate.difficulty < gd_hard)
+					{
+						break;
+					}
 				}
 			case 583:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR(x, y);
-				}
-
-				if (gamestate.difficulty < gd_medium)
-				{
-					break;
+					if (gamestate.difficulty < gd_medium)
+					{
+						break;
+					}
 				}
 			case 232:
-				SpawnOffsetObj(en_spider_mutant, x, y);
+				if (assets_info.is_ps())
+				{
+					SpawnOffsetObj(en_spider_mutant, x, y);
+				}
 				break;
 
 				//
 				// Acid Dragon
 				//
 			case 605:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR(x, y);
-				}
-
-				if (gamestate.difficulty < gd_hard)
-				{
-					break;
+					if (gamestate.difficulty < gd_hard)
+					{
+						break;
+					}
 				}
 			case 587:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR(x, y);
+					if (gamestate.difficulty < gd_medium)
+					{
+						break;
+					}
 				}
-
-				if (gamestate.difficulty < gd_medium)
-				{
-					break;
-				}
-
 			case 268:
-				SpawnOffsetObj(en_acid_dragon, x, y);
+				if (assets_info.is_ps())
+				{
+					SpawnOffsetObj(en_acid_dragon, x, y);
+				}
 				break;
 
 				//
 				// Breather beast
 				//
 			case 602:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR(x, y);
-				}
-
-				if (gamestate.difficulty < gd_hard)
-				{
-					break;
+					if (gamestate.difficulty < gd_hard)
+					{
+						break;
+					}
 				}
 			case 584:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR(x, y);
-				}
-
-				if (gamestate.difficulty < gd_medium)
-				{
-					break;
+					if (gamestate.difficulty < gd_medium)
+					{
+						break;
+					}
 				}
 
 			case 233:
-				SpawnOffsetObj(en_breather_beast, x, y);
+				if (assets_info.is_ps())
+				{
+					SpawnOffsetObj(en_breather_beast, x, y);
+				}
 				break;
 
 				//
 				// Mech Guardian
 				//
 			case 606:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR(x, y);
-				}
-
-				if (gamestate.difficulty < gd_hard)
-				{
-					break;
+					if (gamestate.difficulty < gd_hard)
+					{
+						break;
+					}
 				}
 			case 588:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR(x, y);
-				}
-
-				if (gamestate.difficulty < gd_medium)
-				{
-					break;
+					if (gamestate.difficulty < gd_medium)
+					{
+						break;
+					}
 				}
 
 			case 269:
-				SpawnOffsetObj(en_mech_guardian, x, y);
+				if (assets_info.is_ps())
+				{
+					SpawnOffsetObj(en_mech_guardian, x, y);
+				}
 				break;
 
 				//
 				// Reptilian Warrior
 				//
 			case 604:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR(x, y);
-				}
-
-				if (gamestate.difficulty < gd_hard)
-				{
-					break;
+					if (gamestate.difficulty < gd_hard)
+					{
+						break;
+					}
 				}
 			case 586:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR(x, y);
-				}
-
-				if (gamestate.difficulty < gd_medium)
-				{
-					break;
+					if (gamestate.difficulty < gd_medium)
+					{
+						break;
+					}
 				}
 
 			case 251:
-				SpawnOffsetObj(en_reptilian_warrior, x, y);
+				if (assets_info.is_ps())
+				{
+					SpawnOffsetObj(en_reptilian_warrior, x, y);
+				}
 				break;
 
 
@@ -1698,88 +1660,76 @@ void ScanInfoPlane()
 				// Morphing Brown/LBlue Post -> Spider Mutant
 				//
 			case 610:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR(x, y);
-				}
-
-				if (gamestate.difficulty < gd_hard)
-				{
-					scan_value = 0xff;
+					if (gamestate.difficulty < gd_hard)
+					{
+						scan_value = 0xff;
+					}
 				}
 
 			case 609:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR(x, y);
-				}
-
-				if (gamestate.difficulty < gd_medium)
-				{
-					scan_value = 0xff;
+					if (gamestate.difficulty < gd_medium)
+					{
+						scan_value = 0xff;
+					}
 				}
 
 			case 608:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR(x, y);
+					if (scan_value == 0xff)
+					{
+						static_cast<void>(SpawnStatic(x, y, 402 - 315));
+					}
+					else
+					{
+						AddTotalPoints(actor_points[en_spider_mutant]);
+						AddTotalEnemy(1);
+						SpawnOffsetObj(en_morphing_spider_mutant, x, y);
+					}
+					scan_value = 0xffff;
 				}
-
-				if (scan_value == 0xff)
-				{
-					static_cast<void>(SpawnStatic(x, y, 402 - 315));
-				}
-				else
-				{
-					AddTotalPoints(actor_points[en_spider_mutant]);
-					AddTotalEnemy(1);
-					SpawnOffsetObj(en_morphing_spider_mutant, x, y);
-				}
-				scan_value = 0xffff;
 				break;
 
 
 				// Morphing Gray/Green Post -> Reptilian Warrior
 				//
 			case 592:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR(x, y);
-				}
-
-				if (gamestate.difficulty < gd_hard)
-				{
-					scan_value = 0xff;
+					if (gamestate.difficulty < gd_hard)
+					{
+						scan_value = 0xff;
+					}
 				}
 
 			case 591:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR(x, y);
-				}
-
-				if (gamestate.difficulty < gd_medium)
-				{
-					scan_value = 0xff;
+					if (gamestate.difficulty < gd_medium)
+					{
+						scan_value = 0xff;
+					}
 				}
 
 			case 590:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR(x, y);
+					if (scan_value == 0xff)
+					{
+						static_cast<void>(SpawnStatic(x, y, 403 - 315));
+					}
+					else
+					{
+						AddTotalPoints(actor_points[en_reptilian_warrior]);
+						AddTotalEnemy(1);
+						SpawnOffsetObj(en_morphing_reptilian_warrior, x, y);
+					}
+					scan_value = 0xffff;
 				}
-
-				if (scan_value == 0xff)
-				{
-					static_cast<void>(SpawnStatic(x, y, 403 - 315));
-				}
-				else
-				{
-					AddTotalPoints(actor_points[en_reptilian_warrior]);
-					AddTotalEnemy(1);
-					SpawnOffsetObj(en_morphing_reptilian_warrior, x, y);
-				}
-				scan_value = 0xffff;
 				break;
 
 
@@ -1787,44 +1737,38 @@ void ScanInfoPlane()
 				// Morphing Statue -> Blue Boy
 				//
 			case 628:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR(x, y);
-				}
-
-				if (gamestate.difficulty < gd_hard)
-				{
-					scan_value = 0xff;
+					if (gamestate.difficulty < gd_hard)
+					{
+						scan_value = 0xff;
+					}
 				}
 
 			case 627:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR(x, y);
-				}
-
-				if (gamestate.difficulty < gd_medium)
-				{
-					scan_value = 0xff;
+					if (gamestate.difficulty < gd_medium)
+					{
+						scan_value = 0xff;
+					}
 				}
 
 			case 626:
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR(x, y);
+					if (scan_value == 0xff)
+					{
+						static_cast<void>(SpawnStatic(x, y, 48 - 23));
+					}
+					else
+					{
+						AddTotalPoints(actor_points[en_mutant_human2]);
+						AddTotalEnemy(1);
+						SpawnOffsetObj(en_morphing_mutanthuman2, x, y);
+					}
+					scan_value = 0xffff;
 				}
-
-				if (scan_value == 0xff)
-				{
-					static_cast<void>(SpawnStatic(x, y, 48 - 23));
-				}
-				else
-				{
-					AddTotalPoints(actor_points[en_mutant_human2]);
-					AddTotalEnemy(1);
-					SpawnOffsetObj(en_morphing_mutanthuman2, x, y);
-				}
-				scan_value = 0xffff;
 				break;
 
 
@@ -2185,12 +2129,10 @@ void ScanInfoPlane()
 			case 631: // FINAL BOSS 2
 			case 632: // FINAL BOSS 3
 			case 633: // FINAL BOSS 4
-				if (!assets_info.is_ps())
+				if (assets_info.is_ps())
 				{
-					INVALID_ACTOR_ERR(x, y);
+					SpawnOffsetObj(static_cast<enemy_t>(en_final_boss1 + tile - 630), x, y);
 				}
-
-				SpawnOffsetObj(static_cast<enemy_t>(en_final_boss1 + tile - 630), x, y);
 				break;
 			}
 
