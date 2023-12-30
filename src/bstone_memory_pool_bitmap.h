@@ -24,10 +24,7 @@ template<std::intptr_t TSize>
 class MemoryPoolBitmapStaticStorage
 {
 public:
-	static constexpr bool is_dynamic() noexcept
-	{
-		return false;
-	}
+	static constexpr auto is_dynamic = false;
 
 	static constexpr std::intptr_t get_size() noexcept
 	{
@@ -50,7 +47,7 @@ public:
 	}
 
 private:
-	using Storage = Array<bool, get_size()>;
+	using Storage = Array<bool, TSize>;
 
 private:
 	Storage storage_{};
@@ -71,10 +68,7 @@ public:
 		resize(size, memory_resource);
 	}
 
-	static constexpr bool is_dynamic() noexcept
-	{
-		return true;
-	}
+	static constexpr auto is_dynamic = true;
 
 	std::intptr_t get_size() const noexcept
 	{
@@ -150,13 +144,13 @@ public:
 public:
 	MemoryPoolBitmap() = default;
 
-	template<typename UStorage = Storage, std::enable_if_t<UStorage::is_dynamic(), int> = 0>
+	template<typename UStorage = Storage, std::enable_if_t<UStorage::is_dynamic, int> = 0>
 	MemoryPoolBitmap(std::intptr_t size, MemoryResource& memory_resource)
 	{
 		resize(size, memory_resource);
 	}
 
-	template<typename UStorage = Storage, std::enable_if_t<UStorage::is_dynamic(), int> = 0>
+	template<typename UStorage = Storage, std::enable_if_t<UStorage::is_dynamic, int> = 0>
 	void resize(std::intptr_t size, MemoryResource& memory_resource)
 	try {
 		if (!is_empty())
@@ -167,7 +161,7 @@ public:
 		bitmap_.resize(size, memory_resource);
 	} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-	template<typename UStorage = Storage, std::enable_if_t<UStorage::is_dynamic(), int> = 0>
+	template<typename UStorage = Storage, std::enable_if_t<UStorage::is_dynamic, int> = 0>
 	void reset_storage()
 	{
 		bitmap_.reset();

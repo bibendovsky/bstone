@@ -72,7 +72,7 @@ private:
 	template<typename TSymbol>
 	void find_alc_symbol(const char* name, TSymbol& symbol)
 	{
-		find_alx_symbol(name, symbol, "ALC", alcGetProcAddress_, nullptr, name);
+		find_alx_symbol(name, symbol, "ALC", alcGetProcAddress_, static_cast<ALCdevice*>(nullptr), name);
 	}
 
 	template<typename TSymbol>

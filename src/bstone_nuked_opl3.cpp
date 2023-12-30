@@ -9,6 +9,7 @@ SPDX-License-Identifier: MIT
 // Nuked OPL3 wrapper.
 //
 
+#include <algorithm>
 #include "bstone_nuked_opl3.h"
 #include <type_traits>
 #include <vector>
