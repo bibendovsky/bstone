@@ -280,8 +280,8 @@ void test_qej30gonkno07fhs()
 	using TByte = unsigned char;
 	using TChar = int;
 
-	TByte bytes[1];
-	TChar chars[1];
+	TByte bytes[1] = {};
+	TChar chars[1] = {};
 
 	const auto chars_last = bstone::bytes_to_hex_chars(bytes, bytes, chars, chars + 1);
 	tester.check(chars_last == chars);
@@ -294,8 +294,8 @@ void test_1ghesobjlixkwtjy()
 	using TByte = unsigned char;
 	using TChar = int;
 
-	TByte bytes[1];
-	TChar chars[2];
+	TByte bytes[1] = {};
+	TChar chars[2] = {};
 
 	auto is_failed = false;
 
@@ -318,8 +318,8 @@ void test_hfno9tjnffo1bciv()
 	using TByte = unsigned char;
 	using TChar = int;
 
-	TByte bytes[1];
-	TChar chars[2];
+	TByte bytes[1] = {};
+	TChar chars[2] = {};
 
 	auto is_failed = false;
 
@@ -342,8 +342,8 @@ void test_l0rlgeb9nnayge7e()
 	using TByte = unsigned char;
 	using TChar = int;
 
-	TByte bytes[1];
-	TChar chars[2];
+	TByte bytes[1] = {};
+	TChar chars[2] = {};
 
 	auto is_failed = false;
 
@@ -367,7 +367,7 @@ void test_6bsk5jbj8h32j51u()
 {
 	constexpr auto value = std::int32_t{-2'147'483'647 - 1};
 	constexpr char reference_chars[12] = {'-', '2', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'};
-	char chars[13];
+	char chars[13] = {};
 	const auto chars_last = bstone::to_chars(value, chars, chars + 13, 8);
 
 	tester.check(
@@ -381,7 +381,7 @@ void test_w9v94y8ylfdw0fn6()
 {
 	constexpr auto value = std::int32_t{-2'147'483'647 - 1};
 	constexpr char reference_chars[11] = {'-', '2', '1', '4', '7', '4', '8', '3', '6', '4', '8'};
-	char chars[12];
+	char chars[12] = {};
 	const auto chars_last = bstone::to_chars(value, chars, chars + 12);
 
 	tester.check(
@@ -395,7 +395,7 @@ void test_94vh40w9bhfiisuq()
 {
 	constexpr auto value = std::int32_t{-2'147'483'647 - 1};
 	constexpr char reference_chars[9] = {'-', '8', '0', '0', '0', '0', '0', '0', '0'};
-	char chars[10];
+	char chars[10] = {};
 	const auto chars_last = bstone::to_chars(value, chars, chars + 10, 16);
 
 	tester.check(
@@ -409,7 +409,7 @@ void test_dvtkoajkruya2g23()
 {
 	constexpr auto value = std::int32_t{2'147'483'647};
 	constexpr char reference_chars[11] = {'1', '7', '7', '7', '7', '7', '7', '7', '7', '7', '7'};
-	char chars[12];
+	char chars[12] = {};
 	const auto chars_last = bstone::to_chars(value, chars, chars + 12, 8);
 
 	tester.check(
@@ -423,7 +423,7 @@ void test_gci8hnnnfrzce1ps()
 {
 	constexpr auto value = std::int32_t{2'147'483'647};
 	constexpr char reference_chars[10] = {'2', '1', '4', '7', '4', '8', '3', '6', '4', '7'};
-	char chars[11];
+	char chars[11] = {};
 	const auto chars_last = bstone::to_chars(value, chars, chars + 11);
 
 	tester.check(
@@ -437,7 +437,7 @@ void test_k5dma16zcskflljr()
 {
 	constexpr auto value = std::int32_t{2'147'483'647};
 	constexpr char reference_chars[8] = {'7', 'f', 'f', 'f', 'f', 'f', 'f', 'f'};
-	char chars[9];
+	char chars[9] = {};
 	const auto chars_last = bstone::to_chars(value, chars, chars + 9, 16);
 
 	tester.check(
@@ -449,7 +449,7 @@ void test_k5dma16zcskflljr()
 // Base out of range.
 void test_yu95gjn7r8e549ki()
 {
-	char chars[1];
+	char chars[1] = {};
 	auto is_failed_1 = false;
 	auto is_failed_2 = false;
 
@@ -478,7 +478,7 @@ void test_yu95gjn7r8e549ki()
 // Buffer too small.
 void test_hlb3rbu9n9ru7j0p()
 {
-	char chars[1];
+	char chars[1] = {};
 	auto is_failed_1 = false;
 	auto is_failed_2 = false;
 
