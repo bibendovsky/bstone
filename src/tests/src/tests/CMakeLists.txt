@@ -142,6 +142,10 @@ target_sources(${PROJECT_NAME}
 		../../../bstone_string_view.h
 		../../../bstone_string.cpp
 		../../../bstone_string.h
+		../../../bstone_fs_posix.cpp
+		../../../bstone_fs_win32.cpp
+		../../../bstone_fs.cpp
+		../../../bstone_fs.h
 	PRIVATE
 		src/bstone_tests_algorithm.cpp
 		src/bstone_tests_array.cpp
@@ -184,6 +188,7 @@ target_sources(${PROJECT_NAME}
 		src/bstone_tests_api_string.cpp
 		src/bstone_tests_string_view.cpp
 		src/bstone_tests_string.cpp
+		src/bstone_tests_fs.cpp
 	PRIVATE
 		src/bstone_tester.cpp
 		src/bstone_tester.h
