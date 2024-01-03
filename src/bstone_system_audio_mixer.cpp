@@ -110,7 +110,7 @@ try {
 	audio_device_param.desired_frame_count = mix_samples_count_;
 	audio_device_param.callback = &sys_callback_;
 
-	auto audio_device = sys_audio_mgr_->make_audio_device(audio_device_param);
+	auto audio_device = sys_audio_mgr_->make_polling_audio_device(audio_device_param);
 
 	dst_rate_ = audio_device->get_rate();
 	mix_samples_count_ = audio_device->get_frame_count();

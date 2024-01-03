@@ -1,13 +1,16 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
+
+// Audio manager.
 
 #if !defined(BSTONE_SYS_AUDIO_MGR_INCLUDED)
 #define BSTONE_SYS_AUDIO_MGR_INCLUDED
 
 #include <memory>
+
 #include "bstone_sys_polling_audio_device.h"
 
 namespace bstone {
@@ -19,10 +22,10 @@ public:
 	AudioMgr() = default;
 	virtual ~AudioMgr() = default;
 
-	PollingAudioDeviceUPtr make_audio_device(const PollingAudioDeviceOpenParam& param);
+	PollingAudioDeviceUPtr make_polling_audio_device(const PollingAudioDeviceOpenParam& param);
 
 private:
-	virtual PollingAudioDeviceUPtr do_make_audio_device(const PollingAudioDeviceOpenParam& param) = 0;
+	virtual PollingAudioDeviceUPtr do_make_polling_audio_device(const PollingAudioDeviceOpenParam& param) = 0;
 };
 
 // ==========================================================================
