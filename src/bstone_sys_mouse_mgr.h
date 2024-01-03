@@ -1,8 +1,10 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
+
+// Mouse manager.
 
 #if !defined(BSTONE_SYS_MOUSE_MGR_INCLUDED)
 #define BSTONE_SYS_MOUSE_MGR_INCLUDED
@@ -18,10 +20,10 @@ public:
 	MouseMgr() = default;
 	virtual ~MouseMgr() = default;
 
-	void set_relative_mode(bool is_enable);
+	void set_relative_mode(bool is_relative);
 
 private:
-	virtual void do_set_relative_mode(bool is_enable) = 0;
+	virtual void do_set_relative_mode(bool is_relative) = 0;
 };
 
 // ==========================================================================
