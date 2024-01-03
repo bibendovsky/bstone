@@ -6,6 +6,7 @@ SPDX-License-Identifier: MIT
 
 #include <cassert>
 #include <iterator>
+#include <string>
 #include "SDL.h"
 #include "bstone_char_conv.h"
 #include "bstone_exception.h"
@@ -263,7 +264,7 @@ void Sdl2SystemMgr::log_version(const SDL_version& sdl_version, StringView versi
 	version_string += '.';
 	version_string.append(patch_chars, static_cast<std::size_t>(patch_size));
 
-	logger_.log_information(version_string);
+	logger_.log_information(version_string.c_str());
 }
 
 void Sdl2SystemMgr::log_compiled_version()

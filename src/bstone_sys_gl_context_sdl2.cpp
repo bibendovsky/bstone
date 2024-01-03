@@ -74,7 +74,7 @@ try
 	detail::sdl2_log_eol(message);
 	message += "  Window ptr: ";
 	detail::sdl2_log_xint_hex(reinterpret_cast<std::uintptr_t>(&sdl_window), message);
-	logger_.log_information(message);
+	logger_.log_information(message.c_str());
 
 	auto sdl_context = Sdl2GlContextUPtr{sdl2_ensure_result(SDL_GL_CreateContext(&sdl_window))};
 
@@ -100,7 +100,7 @@ try
 	detail::sdl2_log_eol(message);
 	detail::sdl2_log_gl_attributes(attributes_, message);
 	message += ">>> SDL OpenGL context created.";
-	logger_.log_information(message);
+	logger_.log_information(message.c_str());
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 Sdl2GlContext::~Sdl2GlContext()
@@ -112,7 +112,7 @@ Sdl2GlContext::~Sdl2GlContext()
 	message += "Destroy SDL OpenGL context (ptr: ";
 	detail::sdl2_log_xint_hex(reinterpret_cast<std::uintptr_t>(sdl_context_.get()), message);
 	message += ')';
-	logger_.log_information(message);
+	logger_.log_information(message.c_str());
 }
 
 void* Sdl2GlContext::operator new(std::size_t size)

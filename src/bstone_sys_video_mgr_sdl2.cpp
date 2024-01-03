@@ -344,7 +344,7 @@ try
 	log_drivers(message);
 	log_displays(message);
 
-	logger_.log_information(message);
+	logger_.log_information(message.c_str());
 }
 catch (...) {}
 

@@ -6,6 +6,7 @@ SPDX-License-Identifier: MIT
 
 #include <cassert>
 #include <iterator>
+#include <string>
 #include "SDL.h"
 #include "bstone_char_conv.h"
 #include "bstone_exception.h"
@@ -116,7 +117,7 @@ void Sdl2AudioMgr::log_drivers()
 		message += "  \"";
 		message += (sdl_driver_name != nullptr ? sdl_driver_name : "???");
 		message += '"';
-		logger_.log_information(message);
+		logger_.log_information(message.c_str());
 	}
 }
 
@@ -146,7 +147,7 @@ void Sdl2AudioMgr::log_devices()
 		message += ". \"";
 		message += (sdl_device_name != nullptr ? sdl_device_name : "???");
 		message += '"';
-		logger_.log_information(message);
+		logger_.log_information(message.c_str());
 
 #if SDL_VERSION_ATLEAST(2, 0, 16)
 		if (SDL_GetAudioDeviceSpec(i, SDL_FALSE, &sdl_spec) == 0)
@@ -156,7 +157,7 @@ void Sdl2AudioMgr::log_devices()
 			message += "  Frequency: ";
 			log_int(sdl_spec.freq, message);
 			message += " Hz";
-			logger_.log_information(message);
+			logger_.log_information(message.c_str());
 
 			//
 			message.clear();
@@ -178,7 +179,7 @@ void Sdl2AudioMgr::log_devices()
 			message.clear();
 			message += "  Channels: ";
 			log_int(sdl_spec.channels, message);
-			logger_.log_information(message);
+			logger_.log_information(message.c_str());
 		}
 #endif
 	}

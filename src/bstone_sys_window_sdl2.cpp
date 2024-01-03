@@ -99,7 +99,7 @@ try
 
 	message.clear();
 	log_input(param, message);
-	logger_.log_information(message);
+	logger_.log_information(message.c_str());
 
 	const auto sdl_x = map_position(param.x);
 	const auto sdl_y = map_position(param.y);
@@ -130,7 +130,7 @@ try
 
 	message.clear();
 	log_output(message);
-	logger_.log_information(message);
+	logger_.log_information(message.c_str());
 
 	logger_.log_information(">>> SDL window created.");
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -147,7 +147,7 @@ Sdl2Window::~Sdl2Window()
 	detail::sdl2_log_xint_hex(reinterpret_cast<std::uintptr_t>(sdl_window_.get()), message);
 	message += ").";
 
-	logger_.log_information(message);
+	logger_.log_information(message.c_str());
 }
 
 void* Sdl2Window::operator new(std::size_t size)

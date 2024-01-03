@@ -279,7 +279,7 @@ void Sdl2Renderer::log_info()
 	log_flags(sdl_info.flags, message);
 	log_texture_formats(sdl_info, message);
 
-	logger_.log_information(message);
+	logger_.log_information(message.c_str());
 }
 
 } // namespace

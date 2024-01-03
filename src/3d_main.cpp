@@ -10041,10 +10041,10 @@ int main(
 			bstone::Logger& logger_;
 
 		private:
-			void do_log(bstone::sys::LogLevel level, const std::string& message) noexcept override
+			void do_log(bstone::sys::LogLevel level, const char* message) noexcept override
 			{
 				assert(level == bstone::sys::LogLevel::information);
-				message.empty() ? logger_.write() : logger_.write(message);
+				logger_.write(message != nullptr ? message : "");
 			}
 		};
 
