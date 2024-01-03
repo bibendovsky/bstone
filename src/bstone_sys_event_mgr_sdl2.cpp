@@ -35,7 +35,7 @@ private:
 	Logger& logger_;
 
 private:
-	static VirtualKey map_key_code(SDL_Keycode sdl_key_code);
+	static KeyboardKey map_key_code(SDL_Keycode sdl_key_code);
 	static unsigned int map_mouse_buttons_mask(Uint32 sdl_buttons_mask);
 	static int map_mouse_button(int sdl_button);
 #if BSTONE_SDL_2_0_4
@@ -88,133 +88,133 @@ void Sdl2EventMgr::operator delete(void* ptr)
 	sdl2_event_mgr_pool.deallocate(ptr);
 }
 
-VirtualKey Sdl2EventMgr::map_key_code(SDL_Keycode sdl_key_code)
+KeyboardKey Sdl2EventMgr::map_key_code(SDL_Keycode sdl_key_code)
 {
 	switch (sdl_key_code)
 	{
-		case SDLK_0: return vk_0;
-		case SDLK_1: return vk_1;
-		case SDLK_2: return vk_2;
-		case SDLK_3: return vk_3;
-		case SDLK_4: return vk_4;
-		case SDLK_5: return vk_5;
-		case SDLK_6: return vk_6;
-		case SDLK_7: return vk_7;
-		case SDLK_8: return vk_8;
-		case SDLK_9: return vk_9;
+		case SDLK_0: return KeyboardKey::n0;
+		case SDLK_1: return KeyboardKey::n1;
+		case SDLK_2: return KeyboardKey::n2;
+		case SDLK_3: return KeyboardKey::n3;
+		case SDLK_4: return KeyboardKey::n4;
+		case SDLK_5: return KeyboardKey::n5;
+		case SDLK_6: return KeyboardKey::n6;
+		case SDLK_7: return KeyboardKey::n7;
+		case SDLK_8: return KeyboardKey::n8;
+		case SDLK_9: return KeyboardKey::n9;
 
-		case SDLK_a: return vk_a;
-		case SDLK_b: return vk_b;
-		case SDLK_c: return vk_c;
-		case SDLK_d: return vk_d;
-		case SDLK_e: return vk_e;
-		case SDLK_f: return vk_f;
-		case SDLK_g: return vk_g;
-		case SDLK_h: return vk_h;
-		case SDLK_i: return vk_i;
-		case SDLK_j: return vk_j;
-		case SDLK_k: return vk_k;
-		case SDLK_l: return vk_l;
-		case SDLK_m: return vk_m;
-		case SDLK_n: return vk_n;
-		case SDLK_o: return vk_o;
-		case SDLK_p: return vk_p;
-		case SDLK_q: return vk_q;
-		case SDLK_r: return vk_r;
-		case SDLK_s: return vk_s;
-		case SDLK_t: return vk_t;
-		case SDLK_u: return vk_u;
-		case SDLK_v: return vk_v;
-		case SDLK_w: return vk_w;
-		case SDLK_x: return vk_x;
-		case SDLK_y: return vk_y;
-		case SDLK_z: return vk_z;
+		case SDLK_a: return KeyboardKey::a;
+		case SDLK_b: return KeyboardKey::b;
+		case SDLK_c: return KeyboardKey::c;
+		case SDLK_d: return KeyboardKey::d;
+		case SDLK_e: return KeyboardKey::e;
+		case SDLK_f: return KeyboardKey::f;
+		case SDLK_g: return KeyboardKey::g;
+		case SDLK_h: return KeyboardKey::h;
+		case SDLK_i: return KeyboardKey::i;
+		case SDLK_j: return KeyboardKey::j;
+		case SDLK_k: return KeyboardKey::k;
+		case SDLK_l: return KeyboardKey::l;
+		case SDLK_m: return KeyboardKey::m;
+		case SDLK_n: return KeyboardKey::n;
+		case SDLK_o: return KeyboardKey::o;
+		case SDLK_p: return KeyboardKey::p;
+		case SDLK_q: return KeyboardKey::q;
+		case SDLK_r: return KeyboardKey::r;
+		case SDLK_s: return KeyboardKey::s;
+		case SDLK_t: return KeyboardKey::t;
+		case SDLK_u: return KeyboardKey::u;
+		case SDLK_v: return KeyboardKey::v;
+		case SDLK_w: return KeyboardKey::w;
+		case SDLK_x: return KeyboardKey::x;
+		case SDLK_y: return KeyboardKey::y;
+		case SDLK_z: return KeyboardKey::z;
 
-		case SDLK_F1: return vk_f1;
-		case SDLK_F2: return vk_f2;
-		case SDLK_F3: return vk_f3;
-		case SDLK_F4: return vk_f4;
-		case SDLK_F5: return vk_f5;
-		case SDLK_F6: return vk_f6;
-		case SDLK_F7: return vk_f7;
-		case SDLK_F8: return vk_f8;
-		case SDLK_F9: return vk_f9;
-		case SDLK_F10: return vk_f10;
-		case SDLK_F11: return vk_f11;
-		case SDLK_F12: return vk_f12;
+		case SDLK_F1: return KeyboardKey::f1;
+		case SDLK_F2: return KeyboardKey::f2;
+		case SDLK_F3: return KeyboardKey::f3;
+		case SDLK_F4: return KeyboardKey::f4;
+		case SDLK_F5: return KeyboardKey::f5;
+		case SDLK_F6: return KeyboardKey::f6;
+		case SDLK_F7: return KeyboardKey::f7;
+		case SDLK_F8: return KeyboardKey::f8;
+		case SDLK_F9: return KeyboardKey::f9;
+		case SDLK_F10: return KeyboardKey::f10;
+		case SDLK_F11: return KeyboardKey::f11;
+		case SDLK_F12: return KeyboardKey::f12;
 
-		case SDLK_LEFT: return vk_left;
-		case SDLK_RIGHT: return vk_right;
-		case SDLK_DOWN: return vk_down;
-		case SDLK_UP: return vk_up;
+		case SDLK_LEFT: return KeyboardKey::left;
+		case SDLK_RIGHT: return KeyboardKey::right;
+		case SDLK_DOWN: return KeyboardKey::down;
+		case SDLK_UP: return KeyboardKey::up;
 
-		case SDLK_INSERT: return vk_insert;
-		case SDLK_DELETE: return vk_delete;
-		case SDLK_HOME: return vk_home;
-		case SDLK_END: return vk_end;
-		case SDLK_PAGEUP: return vk_page_up;
-		case SDLK_PAGEDOWN: return vk_page_down;
+		case SDLK_INSERT: return KeyboardKey::insert;
+		case SDLK_DELETE: return KeyboardKey::del;
+		case SDLK_HOME: return KeyboardKey::home;
+		case SDLK_END: return KeyboardKey::end;
+		case SDLK_PAGEUP: return KeyboardKey::page_up;
+		case SDLK_PAGEDOWN: return KeyboardKey::page_down;
 
-		case SDLK_KP_0: return vk_kp_0;
-		case SDLK_KP_1: return vk_kp_1;
-		case SDLK_KP_2: return vk_kp_2;
-		case SDLK_KP_3: return vk_kp_3;
-		case SDLK_KP_4: return vk_kp_4;
-		case SDLK_KP_6: return vk_kp_6;
-		case SDLK_KP_7: return vk_kp_7;
-		case SDLK_KP_8: return vk_kp_8;
-		case SDLK_KP_9: return vk_kp_9;
-		case SDLK_KP_A: return vk_kp_a;
-		case SDLK_KP_B: return vk_kp_b;
-		case SDLK_KP_C: return vk_kp_c;
-		case SDLK_KP_D: return vk_kp_d;
-		case SDLK_KP_E: return vk_kp_e;
-		case SDLK_KP_F: return vk_kp_f;
+		case SDLK_KP_0: return KeyboardKey::kp_0;
+		case SDLK_KP_1: return KeyboardKey::kp_1;
+		case SDLK_KP_2: return KeyboardKey::kp_2;
+		case SDLK_KP_3: return KeyboardKey::kp_3;
+		case SDLK_KP_4: return KeyboardKey::kp_4;
+		case SDLK_KP_6: return KeyboardKey::kp_6;
+		case SDLK_KP_7: return KeyboardKey::kp_7;
+		case SDLK_KP_8: return KeyboardKey::kp_8;
+		case SDLK_KP_9: return KeyboardKey::kp_9;
+		case SDLK_KP_A: return KeyboardKey::kp_a;
+		case SDLK_KP_B: return KeyboardKey::kp_b;
+		case SDLK_KP_C: return KeyboardKey::kp_c;
+		case SDLK_KP_D: return KeyboardKey::kp_d;
+		case SDLK_KP_E: return KeyboardKey::kp_e;
+		case SDLK_KP_F: return KeyboardKey::kp_f;
 
-		case SDLK_KP_TAB: return vk_kp_tab;
-		case SDLK_KP_SPACE: return vk_kp_space;
-		case SDLK_KP_PLUS: return vk_kp_plus;
-		case SDLK_KP_MINUS: return vk_kp_minus;
-		case SDLK_KP_LEFTBRACE: return vk_kp_lbrace;
-		case SDLK_KP_RIGHTBRACE: return vk_kp_rbrace;
-		case SDLK_KP_ENTER: return vk_kp_enter;
-		case SDLK_KP_DIVIDE: return vk_kp_divide;
-		case SDLK_KP_COMMA: return vk_kp_comma;
-		case SDLK_KP_BACKSPACE: return vk_kp_backspace;
+		case SDLK_KP_TAB: return KeyboardKey::kp_tab;
+		case SDLK_KP_SPACE: return KeyboardKey::kp_space;
+		case SDLK_KP_PLUS: return KeyboardKey::kp_plus;
+		case SDLK_KP_MINUS: return KeyboardKey::kp_minus;
+		case SDLK_KP_LEFTBRACE: return KeyboardKey::kp_left_brace;
+		case SDLK_KP_RIGHTBRACE: return KeyboardKey::kp_right_brace;
+		case SDLK_KP_ENTER: return KeyboardKey::kp_enter;
+		case SDLK_KP_DIVIDE: return KeyboardKey::kp_divide;
+		case SDLK_KP_COMMA: return KeyboardKey::kp_comma;
+		case SDLK_KP_BACKSPACE: return KeyboardKey::kp_backspace;
 
-		case SDLK_CAPSLOCK: return vk_caps_lock;
-		case SDLK_SCROLLLOCK: return vk_scroll_lock;
-		case SDLK_NUMLOCKCLEAR: return vk_num_lock;
+		case SDLK_CAPSLOCK: return KeyboardKey::caps_lock;
+		case SDLK_SCROLLLOCK: return KeyboardKey::scroll_lock;
+		case SDLK_NUMLOCKCLEAR: return KeyboardKey::num_lock;
 
-		case SDLK_LALT: return vk_lalt;
-		case SDLK_RALT: return vk_ralt;
-		case SDLK_LCTRL: return vk_lctrl;
-		case SDLK_RCTRL: return vk_rctrl;
-		case SDLK_LSHIFT: return vk_lshift;
-		case SDLK_RSHIFT: return vk_rshift;
-		case SDLK_LGUI: return vk_lgui;
-		case SDLK_RGUI: return vk_rgui;
+		case SDLK_LALT: return KeyboardKey::left_alt;
+		case SDLK_RALT: return KeyboardKey::right_alt;
+		case SDLK_LCTRL: return KeyboardKey::left_ctrl;
+		case SDLK_RCTRL: return KeyboardKey::right_ctrl;
+		case SDLK_LSHIFT: return KeyboardKey::left_shift;
+		case SDLK_RSHIFT: return KeyboardKey::right_shift;
+		case SDLK_LGUI: return KeyboardKey::left_gui;
+		case SDLK_RGUI: return KeyboardKey::right_gui;
 
-		case SDLK_BACKSLASH: return vk_backslash;
-		case SDLK_BACKSPACE: return vk_backspace;
-		case SDLK_BACKQUOTE: return vk_backtick;
-		case SDLK_COMMA: return vk_comma;
-		case SDLK_EQUALS: return vk_equals;
-		case SDLK_ESCAPE: return vk_escape;
-		case SDLK_MINUS: return vk_minus;
-		case SDLK_PAUSE: return vk_pause;
-		case SDLK_PERIOD: return vk_period;
-		case SDLK_PRINTSCREEN: return vk_prt_scr;
-		case SDLK_QUOTE: return vk_quote;
-		case SDLK_LEFTBRACKET: return vk_lbracket;
-		case SDLK_RIGHTBRACKET: return vk_rbracket;
-		case SDLK_RETURN: return vk_return;
-		case SDLK_SEMICOLON: return vk_semicolon;
-		case SDLK_SLASH: return vk_slash;
-		case SDLK_SPACE: return vk_space;
-		case SDLK_TAB: return vk_tab;
+		case SDLK_BACKSLASH: return KeyboardKey::backslash;
+		case SDLK_BACKSPACE: return KeyboardKey::backspace;
+		case SDLK_BACKQUOTE: return KeyboardKey::backtick;
+		case SDLK_COMMA: return KeyboardKey::comma;
+		case SDLK_EQUALS: return KeyboardKey::equals;
+		case SDLK_ESCAPE: return KeyboardKey::esc;
+		case SDLK_MINUS: return KeyboardKey::minus;
+		case SDLK_PAUSE: return KeyboardKey::pause;
+		case SDLK_PERIOD: return KeyboardKey::period;
+		case SDLK_PRINTSCREEN: return KeyboardKey::prt_scr;
+		case SDLK_QUOTE: return KeyboardKey::quote;
+		case SDLK_LEFTBRACKET: return KeyboardKey::left_bracket;
+		case SDLK_RIGHTBRACKET: return KeyboardKey::right_bracket;
+		case SDLK_RETURN: return KeyboardKey::enter;
+		case SDLK_SEMICOLON: return KeyboardKey::semicolon;
+		case SDLK_SLASH: return KeyboardKey::slash;
+		case SDLK_SPACE: return KeyboardKey::space;
+		case SDLK_TAB: return KeyboardKey::tab;
 
-		default: return vk_none;
+		default: return KeyboardKey::none;
 	}
 }
 
@@ -281,7 +281,7 @@ bool Sdl2EventMgr::handle_event(const SDL_KeyboardEvent& sdl_e, KeyboardEvent& e
 {
 	const auto virtual_key = map_key_code(static_cast<SDL_Keycode>(sdl_e.keysym.sym));
 
-	if (virtual_key == vk_none)
+	if (virtual_key == KeyboardKey::none)
 	{
 		return false;
 	}

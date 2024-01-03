@@ -569,6 +569,7 @@ target_sources(
 		bstone_sys_gl_context_profile.h
 		bstone_sys_gl_current_context.h
 		bstone_sys_gl_symbol_resolver.h
+		bstone_sys_keyboard_key.h
 		bstone_sys_logger.h
 		bstone_sys_message_box.h
 		bstone_sys_mouse.h
@@ -580,7 +581,6 @@ target_sources(
 		bstone_sys_texture_lock.h
 		bstone_sys_texture.h
 		bstone_sys_video_mgr.h
-		bstone_sys_virtual_key.h
 		bstone_sys_window.h
 		bstone_sys_window_mgr.h
 
@@ -774,6 +774,7 @@ target_sources(
 		bstone_sys_gl_context.cpp
 		bstone_sys_gl_current_context.cpp
 		bstone_sys_gl_symbol_resolver.cpp
+		bstone_sys_keyboard_key.cpp
 		bstone_sys_logger.cpp
 		bstone_sys_mouse.cpp
 		bstone_sys_mouse_mgr.cpp

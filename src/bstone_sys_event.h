@@ -7,8 +7,8 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_SYS_EVENT_INCLUDED)
 #define BSTONE_SYS_EVENT_INCLUDED
 
+#include "bstone_sys_keyboard_key.h"
 #include "bstone_sys_mouse.h"
-#include "bstone_sys_virtual_key.h"
 
 namespace bstone {
 namespace sys {
@@ -33,7 +33,7 @@ struct CommonEvent
 struct KeyboardEvent : CommonEvent
 {
 	bool is_pressed;
-	VirtualKey key;
+	KeyboardKey key;
 	int repeat_count;
 	unsigned int window_id;
 };

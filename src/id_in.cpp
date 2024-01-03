@@ -33,7 +33,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_ascii.h"
 #include "bstone_char_conv.h"
 #include "bstone_globals.h"
-#include "bstone_sys_virtual_key.h"
+#include "bstone_sys_keyboard_key.h"
 
 #define KeyInt 9 // The keyboard ISR number
 
@@ -190,153 +190,153 @@ auto in_mouse_dy = 0;
 
 namespace {
 
-ScanCode in_keyboard_map_to_bstone(bstone::sys::VirtualKey key_code)
+ScanCode in_keyboard_map_to_bstone(bstone::sys::KeyboardKey key_code)
 {
 	switch (key_code)
 	{
-		case bstone::sys::vk_return:
-		case bstone::sys::vk_kp_enter:
+		case bstone::sys::KeyboardKey::enter:
+		case bstone::sys::KeyboardKey::kp_enter:
 			return ScanCode::sc_return;
 
-		case bstone::sys::vk_escape: return ScanCode::sc_escape;
+		case bstone::sys::KeyboardKey::esc: return ScanCode::sc_escape;
 
-		case bstone::sys::vk_space:
-		case bstone::sys::vk_kp_space:
+		case bstone::sys::KeyboardKey::space:
+		case bstone::sys::KeyboardKey::kp_space:
 			return ScanCode::sc_space;
 
-		case bstone::sys::vk_minus: return ScanCode::sc_minus;
-		case bstone::sys::vk_equals: return ScanCode::sc_equals;
+		case bstone::sys::KeyboardKey::minus: return ScanCode::sc_minus;
+		case bstone::sys::KeyboardKey::equals: return ScanCode::sc_equals;
 
-		case bstone::sys::vk_backspace:
-		case bstone::sys::vk_kp_backspace:
+		case bstone::sys::KeyboardKey::backspace:
+		case bstone::sys::KeyboardKey::kp_backspace:
 			return ScanCode::sc_backspace;
 
-		case bstone::sys::vk_tab:
-		case bstone::sys::vk_kp_tab:
+		case bstone::sys::KeyboardKey::tab:
+		case bstone::sys::KeyboardKey::kp_tab:
 			return ScanCode::sc_tab;
 
-		case bstone::sys::vk_lalt:
-		case bstone::sys::vk_ralt:
+		case bstone::sys::KeyboardKey::left_alt:
+		case bstone::sys::KeyboardKey::right_alt:
 			return ScanCode::sc_alt;
 
-		case bstone::sys::vk_lbracket:
-		case bstone::sys::vk_kp_lbrace:
+		case bstone::sys::KeyboardKey::left_bracket:
+		case bstone::sys::KeyboardKey::kp_left_brace:
 			return ScanCode::sc_left_bracket;
 
-		case bstone::sys::vk_rbracket:
-		case bstone::sys::vk_kp_rbrace:
+		case bstone::sys::KeyboardKey::right_bracket:
+		case bstone::sys::KeyboardKey::kp_right_brace:
 			return ScanCode::sc_right_bracket;
 
-		case bstone::sys::vk_lctrl:
-		case bstone::sys::vk_rctrl:
+		case bstone::sys::KeyboardKey::left_ctrl:
+		case bstone::sys::KeyboardKey::right_ctrl:
 			return ScanCode::sc_control;
 
-		case bstone::sys::vk_caps_lock: return ScanCode::sc_caps_lock;
-		case bstone::sys::vk_num_lock: return ScanCode::sc_num_lock;
-		case bstone::sys::vk_scroll_lock: return ScanCode::sc_scroll_lock;
-		case bstone::sys::vk_lshift: return ScanCode::sc_left_shift;
-		case bstone::sys::vk_rshift: return ScanCode::sc_right_shift;
-		case bstone::sys::vk_up: return ScanCode::sc_up_arrow;
-		case bstone::sys::vk_kp_8: return in_is_num_lock_pressed ? ScanCode::sc_up_arrow : ScanCode::sc_8;
-		case bstone::sys::vk_down: return ScanCode::sc_down_arrow;
-		case bstone::sys::vk_kp_2: return in_is_num_lock_pressed ? ScanCode::sc_down_arrow : ScanCode::sc_2;
-		case bstone::sys::vk_left: return ScanCode::sc_left_arrow;
-		case bstone::sys::vk_kp_4: return in_is_num_lock_pressed ? ScanCode::sc_left_arrow : ScanCode::sc_4;
-		case bstone::sys::vk_right: return ScanCode::sc_right_arrow;
-		case bstone::sys::vk_kp_6: return in_is_num_lock_pressed ? ScanCode::sc_right_arrow : ScanCode::sc_6;
-		case bstone::sys::vk_insert: return ScanCode::sc_insert;
-		case bstone::sys::vk_kp_0: return in_is_num_lock_pressed ? ScanCode::sc_insert : ScanCode::sc_0;
-		case bstone::sys::vk_delete: return ScanCode::sc_delete;
-		case bstone::sys::vk_kp_comma: return in_is_num_lock_pressed ? ScanCode::sc_delete : ScanCode::sc_comma;
-		case bstone::sys::vk_home: return ScanCode::sc_home;
-		case bstone::sys::vk_kp_7: return in_is_num_lock_pressed ? ScanCode::sc_home : ScanCode::sc_7;
-		case bstone::sys::vk_end: return ScanCode::sc_end;
-		case bstone::sys::vk_kp_1: return in_is_num_lock_pressed ? ScanCode::sc_end : ScanCode::sc_1;
-		case bstone::sys::vk_page_up: return ScanCode::sc_page_up;
-		case bstone::sys::vk_kp_9: return in_is_num_lock_pressed ? ScanCode::sc_page_up : ScanCode::sc_9;
-		case bstone::sys::vk_page_down: return ScanCode::sc_page_down;
-		case bstone::sys::vk_kp_3: return in_is_num_lock_pressed ? ScanCode::sc_page_down : ScanCode::sc_3;
+		case bstone::sys::KeyboardKey::caps_lock: return ScanCode::sc_caps_lock;
+		case bstone::sys::KeyboardKey::num_lock: return ScanCode::sc_num_lock;
+		case bstone::sys::KeyboardKey::scroll_lock: return ScanCode::sc_scroll_lock;
+		case bstone::sys::KeyboardKey::left_shift: return ScanCode::sc_left_shift;
+		case bstone::sys::KeyboardKey::right_shift: return ScanCode::sc_right_shift;
+		case bstone::sys::KeyboardKey::up: return ScanCode::sc_up_arrow;
+		case bstone::sys::KeyboardKey::kp_8: return in_is_num_lock_pressed ? ScanCode::sc_up_arrow : ScanCode::sc_8;
+		case bstone::sys::KeyboardKey::down: return ScanCode::sc_down_arrow;
+		case bstone::sys::KeyboardKey::kp_2: return in_is_num_lock_pressed ? ScanCode::sc_down_arrow : ScanCode::sc_2;
+		case bstone::sys::KeyboardKey::left: return ScanCode::sc_left_arrow;
+		case bstone::sys::KeyboardKey::kp_4: return in_is_num_lock_pressed ? ScanCode::sc_left_arrow : ScanCode::sc_4;
+		case bstone::sys::KeyboardKey::right: return ScanCode::sc_right_arrow;
+		case bstone::sys::KeyboardKey::kp_6: return in_is_num_lock_pressed ? ScanCode::sc_right_arrow : ScanCode::sc_6;
+		case bstone::sys::KeyboardKey::insert: return ScanCode::sc_insert;
+		case bstone::sys::KeyboardKey::kp_0: return in_is_num_lock_pressed ? ScanCode::sc_insert : ScanCode::sc_0;
+		case bstone::sys::KeyboardKey::del: return ScanCode::sc_delete;
+		case bstone::sys::KeyboardKey::kp_comma: return in_is_num_lock_pressed ? ScanCode::sc_delete : ScanCode::sc_comma;
+		case bstone::sys::KeyboardKey::home: return ScanCode::sc_home;
+		case bstone::sys::KeyboardKey::kp_7: return in_is_num_lock_pressed ? ScanCode::sc_home : ScanCode::sc_7;
+		case bstone::sys::KeyboardKey::end: return ScanCode::sc_end;
+		case bstone::sys::KeyboardKey::kp_1: return in_is_num_lock_pressed ? ScanCode::sc_end : ScanCode::sc_1;
+		case bstone::sys::KeyboardKey::page_up: return ScanCode::sc_page_up;
+		case bstone::sys::KeyboardKey::kp_9: return in_is_num_lock_pressed ? ScanCode::sc_page_up : ScanCode::sc_9;
+		case bstone::sys::KeyboardKey::page_down: return ScanCode::sc_page_down;
+		case bstone::sys::KeyboardKey::kp_3: return in_is_num_lock_pressed ? ScanCode::sc_page_down : ScanCode::sc_3;
 
-		case bstone::sys::vk_slash:
-		case bstone::sys::vk_kp_divide:
+		case bstone::sys::KeyboardKey::slash:
+		case bstone::sys::KeyboardKey::kp_divide:
 			return ScanCode::sc_slash;
 
-		case bstone::sys::vk_backslash: return ScanCode::sc_backslash;
-		case bstone::sys::vk_semicolon: return ScanCode::sc_semicolon;
-		case bstone::sys::vk_quote: return ScanCode::sc_quote;
-		case bstone::sys::vk_period: return ScanCode::sc_period;
-		case bstone::sys::vk_f1: return ScanCode::sc_f1;
-		case bstone::sys::vk_f2: return ScanCode::sc_f2;
-		case bstone::sys::vk_f3: return ScanCode::sc_f3;
-		case bstone::sys::vk_f4: return ScanCode::sc_f4;
-		case bstone::sys::vk_f5: return ScanCode::sc_f5;
-		case bstone::sys::vk_f6: return ScanCode::sc_f6;
-		case bstone::sys::vk_f7: return ScanCode::sc_f7;
-		case bstone::sys::vk_f8: return ScanCode::sc_f8;
-		case bstone::sys::vk_f9: return ScanCode::sc_f9;
-		case bstone::sys::vk_f10: return ScanCode::sc_f10;
-		case bstone::sys::vk_f11: return ScanCode::sc_f11;
-		case bstone::sys::vk_f12: return ScanCode::sc_f12;
-		case bstone::sys::vk_prt_scr: return ScanCode::sc_print_screen;
-		case bstone::sys::vk_pause: return ScanCode::sc_pause;
-		case bstone::sys::vk_backtick: return ScanCode::sc_back_quote;
-		case bstone::sys::vk_1: return ScanCode::sc_1;
-		case bstone::sys::vk_2: return ScanCode::sc_2;
-		case bstone::sys::vk_3: return ScanCode::sc_3;
-		case bstone::sys::vk_4: return ScanCode::sc_4;
-		case bstone::sys::vk_5: return ScanCode::sc_5;
-		case bstone::sys::vk_6: return ScanCode::sc_6;
-		case bstone::sys::vk_7: return ScanCode::sc_7;
-		case bstone::sys::vk_8: return ScanCode::sc_8;
-		case bstone::sys::vk_9: return ScanCode::sc_9;
-		case bstone::sys::vk_0: return ScanCode::sc_0;
+		case bstone::sys::KeyboardKey::backslash: return ScanCode::sc_backslash;
+		case bstone::sys::KeyboardKey::semicolon: return ScanCode::sc_semicolon;
+		case bstone::sys::KeyboardKey::quote: return ScanCode::sc_quote;
+		case bstone::sys::KeyboardKey::period: return ScanCode::sc_period;
+		case bstone::sys::KeyboardKey::f1: return ScanCode::sc_f1;
+		case bstone::sys::KeyboardKey::f2: return ScanCode::sc_f2;
+		case bstone::sys::KeyboardKey::f3: return ScanCode::sc_f3;
+		case bstone::sys::KeyboardKey::f4: return ScanCode::sc_f4;
+		case bstone::sys::KeyboardKey::f5: return ScanCode::sc_f5;
+		case bstone::sys::KeyboardKey::f6: return ScanCode::sc_f6;
+		case bstone::sys::KeyboardKey::f7: return ScanCode::sc_f7;
+		case bstone::sys::KeyboardKey::f8: return ScanCode::sc_f8;
+		case bstone::sys::KeyboardKey::f9: return ScanCode::sc_f9;
+		case bstone::sys::KeyboardKey::f10: return ScanCode::sc_f10;
+		case bstone::sys::KeyboardKey::f11: return ScanCode::sc_f11;
+		case bstone::sys::KeyboardKey::f12: return ScanCode::sc_f12;
+		case bstone::sys::KeyboardKey::prt_scr: return ScanCode::sc_print_screen;
+		case bstone::sys::KeyboardKey::pause: return ScanCode::sc_pause;
+		case bstone::sys::KeyboardKey::backtick: return ScanCode::sc_back_quote;
+		case bstone::sys::KeyboardKey::n1: return ScanCode::sc_1;
+		case bstone::sys::KeyboardKey::n2: return ScanCode::sc_2;
+		case bstone::sys::KeyboardKey::n3: return ScanCode::sc_3;
+		case bstone::sys::KeyboardKey::n4: return ScanCode::sc_4;
+		case bstone::sys::KeyboardKey::n5: return ScanCode::sc_5;
+		case bstone::sys::KeyboardKey::n6: return ScanCode::sc_6;
+		case bstone::sys::KeyboardKey::n7: return ScanCode::sc_7;
+		case bstone::sys::KeyboardKey::n8: return ScanCode::sc_8;
+		case bstone::sys::KeyboardKey::n9: return ScanCode::sc_9;
+		case bstone::sys::KeyboardKey::n0: return ScanCode::sc_0;
 
-		case bstone::sys::vk_a:
-		case bstone::sys::vk_kp_a:
+		case bstone::sys::KeyboardKey::a:
+		case bstone::sys::KeyboardKey::kp_a:
 			return ScanCode::sc_a;
 
-		case bstone::sys::vk_b:
-		case bstone::sys::vk_kp_b:
+		case bstone::sys::KeyboardKey::b:
+		case bstone::sys::KeyboardKey::kp_b:
 			return ScanCode::sc_b;
 
-		case bstone::sys::vk_c:
-		case bstone::sys::vk_kp_c:
+		case bstone::sys::KeyboardKey::c:
+		case bstone::sys::KeyboardKey::kp_c:
 			return ScanCode::sc_c;
 
-		case bstone::sys::vk_d:
-		case bstone::sys::vk_kp_d:
+		case bstone::sys::KeyboardKey::d:
+		case bstone::sys::KeyboardKey::kp_d:
 			return ScanCode::sc_d;
 
-		case bstone::sys::vk_e:
-		case bstone::sys::vk_kp_e:
+		case bstone::sys::KeyboardKey::e:
+		case bstone::sys::KeyboardKey::kp_e:
 			return ScanCode::sc_e;
 
-		case bstone::sys::vk_f:
-		case bstone::sys::vk_kp_f:
+		case bstone::sys::KeyboardKey::f:
+		case bstone::sys::KeyboardKey::kp_f:
 			return ScanCode::sc_f;
 
-		case bstone::sys::vk_g: return ScanCode::sc_g;
-		case bstone::sys::vk_h: return ScanCode::sc_h;
-		case bstone::sys::vk_i: return ScanCode::sc_i;
-		case bstone::sys::vk_j: return ScanCode::sc_j;
-		case bstone::sys::vk_k: return ScanCode::sc_k;
-		case bstone::sys::vk_l: return ScanCode::sc_l;
-		case bstone::sys::vk_m: return ScanCode::sc_m;
-		case bstone::sys::vk_n: return ScanCode::sc_n;
-		case bstone::sys::vk_o: return ScanCode::sc_o;
-		case bstone::sys::vk_p: return ScanCode::sc_p;
-		case bstone::sys::vk_q: return ScanCode::sc_q;
-		case bstone::sys::vk_r: return ScanCode::sc_r;
-		case bstone::sys::vk_s: return ScanCode::sc_s;
-		case bstone::sys::vk_t: return ScanCode::sc_t;
-		case bstone::sys::vk_u: return ScanCode::sc_u;
-		case bstone::sys::vk_v: return ScanCode::sc_v;
-		case bstone::sys::vk_w: return ScanCode::sc_w;
-		case bstone::sys::vk_x: return ScanCode::sc_x;
-		case bstone::sys::vk_y: return ScanCode::sc_y;
-		case bstone::sys::vk_z: return ScanCode::sc_z;
-		case bstone::sys::vk_kp_minus: return ScanCode::sc_kp_minus;
-		case bstone::sys::vk_kp_plus: return ScanCode::sc_kp_plus;
+		case bstone::sys::KeyboardKey::g: return ScanCode::sc_g;
+		case bstone::sys::KeyboardKey::h: return ScanCode::sc_h;
+		case bstone::sys::KeyboardKey::i: return ScanCode::sc_i;
+		case bstone::sys::KeyboardKey::j: return ScanCode::sc_j;
+		case bstone::sys::KeyboardKey::k: return ScanCode::sc_k;
+		case bstone::sys::KeyboardKey::l: return ScanCode::sc_l;
+		case bstone::sys::KeyboardKey::m: return ScanCode::sc_m;
+		case bstone::sys::KeyboardKey::n: return ScanCode::sc_n;
+		case bstone::sys::KeyboardKey::o: return ScanCode::sc_o;
+		case bstone::sys::KeyboardKey::p: return ScanCode::sc_p;
+		case bstone::sys::KeyboardKey::q: return ScanCode::sc_q;
+		case bstone::sys::KeyboardKey::r: return ScanCode::sc_r;
+		case bstone::sys::KeyboardKey::s: return ScanCode::sc_s;
+		case bstone::sys::KeyboardKey::t: return ScanCode::sc_t;
+		case bstone::sys::KeyboardKey::u: return ScanCode::sc_u;
+		case bstone::sys::KeyboardKey::v: return ScanCode::sc_v;
+		case bstone::sys::KeyboardKey::w: return ScanCode::sc_w;
+		case bstone::sys::KeyboardKey::x: return ScanCode::sc_x;
+		case bstone::sys::KeyboardKey::y: return ScanCode::sc_y;
+		case bstone::sys::KeyboardKey::z: return ScanCode::sc_z;
+		case bstone::sys::KeyboardKey::kp_minus: return ScanCode::sc_kp_minus;
+		case bstone::sys::KeyboardKey::kp_plus: return ScanCode::sc_kp_plus;
 		default: return ScanCode::sc_none;
 	}
 }
@@ -358,12 +358,12 @@ char in_keyboard_map_to_char(const bstone::sys::KeyboardEvent& e)
 
 	switch (key_code)
 	{
-		case bstone::sys::vk_escape: return '\x1B';
-		case bstone::sys::vk_backspace: return '\b';
-		case bstone::sys::vk_tab: return '\t';
-		case bstone::sys::vk_return: return '\n';
-		case bstone::sys::vk_space: return ' ';
-		case bstone::sys::vk_delete: return '\x7F';
+		case bstone::sys::KeyboardKey::esc: return '\x1B';
+		case bstone::sys::KeyboardKey::backspace: return '\b';
+		case bstone::sys::KeyboardKey::tab: return '\t';
+		case bstone::sys::KeyboardKey::enter: return '\n';
+		case bstone::sys::KeyboardKey::space: return ' ';
+		case bstone::sys::KeyboardKey::del: return '\x7F';
 		default: break;
 	}
 
@@ -394,27 +394,27 @@ char in_keyboard_map_to_char(const bstone::sys::KeyboardEvent& e)
 	{
 		switch (key_code)
 		{
-			case bstone::sys::vk_1: return '!';
-			case bstone::sys::vk_2: return '@';
-			case bstone::sys::vk_3: return '#';
-			case bstone::sys::vk_4: return '$';
-			case bstone::sys::vk_5: return '%';
-			case bstone::sys::vk_6: return '^';
-			case bstone::sys::vk_7: return '&';
-			case bstone::sys::vk_8: return '*';
-			case bstone::sys::vk_9: return '(';
-			case bstone::sys::vk_0: return ')';
-			case bstone::sys::vk_minus: return '_';
-			case bstone::sys::vk_equals: return '+';
-			case bstone::sys::vk_lbracket: return '{';
-			case bstone::sys::vk_rbracket: return '}';
-			case bstone::sys::vk_semicolon: return ':';
-			case bstone::sys::vk_quote: return '"';
-			case bstone::sys::vk_backtick: return '~';
-			case bstone::sys::vk_backslash: return '|';
-			case bstone::sys::vk_comma: return '<';
-			case bstone::sys::vk_period: return '>';
-			case bstone::sys::vk_slash: return '?';
+			case bstone::sys::KeyboardKey::n1: return '!';
+			case bstone::sys::KeyboardKey::n2: return '@';
+			case bstone::sys::KeyboardKey::n3: return '#';
+			case bstone::sys::KeyboardKey::n4: return '$';
+			case bstone::sys::KeyboardKey::n5: return '%';
+			case bstone::sys::KeyboardKey::n6: return '^';
+			case bstone::sys::KeyboardKey::n7: return '&';
+			case bstone::sys::KeyboardKey::n8: return '*';
+			case bstone::sys::KeyboardKey::n9: return '(';
+			case bstone::sys::KeyboardKey::n0: return ')';
+			case bstone::sys::KeyboardKey::minus: return '_';
+			case bstone::sys::KeyboardKey::equals: return '+';
+			case bstone::sys::KeyboardKey::left_bracket: return '{';
+			case bstone::sys::KeyboardKey::right_bracket: return '}';
+			case bstone::sys::KeyboardKey::semicolon: return ':';
+			case bstone::sys::KeyboardKey::quote: return '"';
+			case bstone::sys::KeyboardKey::backtick: return '~';
+			case bstone::sys::KeyboardKey::backslash: return '|';
+			case bstone::sys::KeyboardKey::comma: return '<';
+			case bstone::sys::KeyboardKey::period: return '>';
+			case bstone::sys::KeyboardKey::slash: return '?';
 			default: break;
 		}
 	}
@@ -422,27 +422,27 @@ char in_keyboard_map_to_char(const bstone::sys::KeyboardEvent& e)
 	{
 		switch (key_code)
 		{
-			case bstone::sys::vk_1: return '1';
-			case bstone::sys::vk_2: return '2';
-			case bstone::sys::vk_3: return '3';
-			case bstone::sys::vk_4: return '4';
-			case bstone::sys::vk_5: return '5';
-			case bstone::sys::vk_6: return '6';
-			case bstone::sys::vk_7: return '7';
-			case bstone::sys::vk_8: return '8';
-			case bstone::sys::vk_9: return '9';
-			case bstone::sys::vk_0: return '0';
-			case bstone::sys::vk_minus: return '-';
-			case bstone::sys::vk_equals: return '=';
-			case bstone::sys::vk_lbracket: return '[';
-			case bstone::sys::vk_rbracket: return ']';
-			case bstone::sys::vk_semicolon: return ';';
-			case bstone::sys::vk_quote: return '\'';
-			case bstone::sys::vk_backtick: return '`';
-			case bstone::sys::vk_backslash: return '\\';
-			case bstone::sys::vk_comma: return ',';
-			case bstone::sys::vk_period: return '.';
-			case bstone::sys::vk_slash: return '/';
+			case bstone::sys::KeyboardKey::n1: return '1';
+			case bstone::sys::KeyboardKey::n2: return '2';
+			case bstone::sys::KeyboardKey::n3: return '3';
+			case bstone::sys::KeyboardKey::n4: return '4';
+			case bstone::sys::KeyboardKey::n5: return '5';
+			case bstone::sys::KeyboardKey::n6: return '6';
+			case bstone::sys::KeyboardKey::n7: return '7';
+			case bstone::sys::KeyboardKey::n8: return '8';
+			case bstone::sys::KeyboardKey::n9: return '9';
+			case bstone::sys::KeyboardKey::n0: return '0';
+			case bstone::sys::KeyboardKey::minus: return '-';
+			case bstone::sys::KeyboardKey::equals: return '=';
+			case bstone::sys::KeyboardKey::left_bracket: return '[';
+			case bstone::sys::KeyboardKey::right_bracket: return ']';
+			case bstone::sys::KeyboardKey::semicolon: return ';';
+			case bstone::sys::KeyboardKey::quote: return '\'';
+			case bstone::sys::KeyboardKey::backtick: return '`';
+			case bstone::sys::KeyboardKey::backslash: return '\\';
+			case bstone::sys::KeyboardKey::comma: return ',';
+			case bstone::sys::KeyboardKey::period: return '.';
+			case bstone::sys::KeyboardKey::slash: return '/';
 			default: break;
 		}
 	}
@@ -454,32 +454,32 @@ char in_keyboard_map_to_char(const bstone::sys::KeyboardEvent& e)
 
 	switch (key_code)
 	{
-		case bstone::sys::vk_a: return is_caps ? 'A' : 'a';
-		case bstone::sys::vk_b: return is_caps ? 'B' : 'b';
-		case bstone::sys::vk_c: return is_caps ? 'C' : 'c';
-		case bstone::sys::vk_d: return is_caps ? 'D' : 'd';
-		case bstone::sys::vk_e: return is_caps ? 'E' : 'e';
-		case bstone::sys::vk_f: return is_caps ? 'F' : 'f';
-		case bstone::sys::vk_g: return is_caps ? 'G' : 'g';
-		case bstone::sys::vk_h: return is_caps ? 'H' : 'h';
-		case bstone::sys::vk_i: return is_caps ? 'I' : 'i';
-		case bstone::sys::vk_j: return is_caps ? 'J' : 'j';
-		case bstone::sys::vk_k: return is_caps ? 'K' : 'k';
-		case bstone::sys::vk_l: return is_caps ? 'L' : 'l';
-		case bstone::sys::vk_m: return is_caps ? 'M' : 'm';
-		case bstone::sys::vk_n: return is_caps ? 'N' : 'n';
-		case bstone::sys::vk_o: return is_caps ? 'O' : 'o';
-		case bstone::sys::vk_p: return is_caps ? 'P' : 'p';
-		case bstone::sys::vk_q: return is_caps ? 'Q' : 'q';
-		case bstone::sys::vk_r: return is_caps ? 'R' : 'r';
-		case bstone::sys::vk_s: return is_caps ? 'S' : 's';
-		case bstone::sys::vk_t: return is_caps ? 'T' : 't';
-		case bstone::sys::vk_u: return is_caps ? 'U' : 'u';
-		case bstone::sys::vk_v: return is_caps ? 'V' : 'v';
-		case bstone::sys::vk_w: return is_caps ? 'W' : 'w';
-		case bstone::sys::vk_x: return is_caps ? 'X' : 'x';
-		case bstone::sys::vk_y: return is_caps ? 'Y' : 'y';
-		case bstone::sys::vk_z: return is_caps ? 'Z' : 'z';
+		case bstone::sys::KeyboardKey::a: return is_caps ? 'A' : 'a';
+		case bstone::sys::KeyboardKey::b: return is_caps ? 'B' : 'b';
+		case bstone::sys::KeyboardKey::c: return is_caps ? 'C' : 'c';
+		case bstone::sys::KeyboardKey::d: return is_caps ? 'D' : 'd';
+		case bstone::sys::KeyboardKey::e: return is_caps ? 'E' : 'e';
+		case bstone::sys::KeyboardKey::f: return is_caps ? 'F' : 'f';
+		case bstone::sys::KeyboardKey::g: return is_caps ? 'G' : 'g';
+		case bstone::sys::KeyboardKey::h: return is_caps ? 'H' : 'h';
+		case bstone::sys::KeyboardKey::i: return is_caps ? 'I' : 'i';
+		case bstone::sys::KeyboardKey::j: return is_caps ? 'J' : 'j';
+		case bstone::sys::KeyboardKey::k: return is_caps ? 'K' : 'k';
+		case bstone::sys::KeyboardKey::l: return is_caps ? 'L' : 'l';
+		case bstone::sys::KeyboardKey::m: return is_caps ? 'M' : 'm';
+		case bstone::sys::KeyboardKey::n: return is_caps ? 'N' : 'n';
+		case bstone::sys::KeyboardKey::o: return is_caps ? 'O' : 'o';
+		case bstone::sys::KeyboardKey::p: return is_caps ? 'P' : 'p';
+		case bstone::sys::KeyboardKey::q: return is_caps ? 'Q' : 'q';
+		case bstone::sys::KeyboardKey::r: return is_caps ? 'R' : 'r';
+		case bstone::sys::KeyboardKey::s: return is_caps ? 'S' : 's';
+		case bstone::sys::KeyboardKey::t: return is_caps ? 'T' : 't';
+		case bstone::sys::KeyboardKey::u: return is_caps ? 'U' : 'u';
+		case bstone::sys::KeyboardKey::v: return is_caps ? 'V' : 'v';
+		case bstone::sys::KeyboardKey::w: return is_caps ? 'W' : 'w';
+		case bstone::sys::KeyboardKey::x: return is_caps ? 'X' : 'x';
+		case bstone::sys::KeyboardKey::y: return is_caps ? 'Y' : 'y';
+		case bstone::sys::KeyboardKey::z: return is_caps ? 'Z' : 'z';
 		default: break;
 	}
 
@@ -490,18 +490,18 @@ void in_handle_keyboard(const bstone::sys::KeyboardEvent& e)
 {
 	switch (e.key)
 	{
-		case bstone::sys::vk_lalt: in_is_lalt_pressed = e.is_pressed; break;
-		case bstone::sys::vk_ralt: in_is_ralt_pressed = e.is_pressed; break;
-		case bstone::sys::vk_lctrl: in_is_lctrl_pressed = e.is_pressed; break;
-		case bstone::sys::vk_rctrl: in_is_rctrl_pressed = e.is_pressed; break;
-		case bstone::sys::vk_lshift: in_is_lshift_pressed = e.is_pressed; break;
-		case bstone::sys::vk_rshift: in_is_rshift_pressed = e.is_pressed; break;
-		case bstone::sys::vk_lgui: in_is_lgui_pressed = e.is_pressed; break;
-		case bstone::sys::vk_rgui: in_is_rgui_pressed = e.is_pressed; break;
+		case bstone::sys::KeyboardKey::left_alt: in_is_lalt_pressed = e.is_pressed; break;
+		case bstone::sys::KeyboardKey::right_alt: in_is_ralt_pressed = e.is_pressed; break;
+		case bstone::sys::KeyboardKey::left_ctrl: in_is_lctrl_pressed = e.is_pressed; break;
+		case bstone::sys::KeyboardKey::right_ctrl: in_is_rctrl_pressed = e.is_pressed; break;
+		case bstone::sys::KeyboardKey::left_shift: in_is_lshift_pressed = e.is_pressed; break;
+		case bstone::sys::KeyboardKey::right_shift: in_is_rshift_pressed = e.is_pressed; break;
+		case bstone::sys::KeyboardKey::left_gui: in_is_lgui_pressed = e.is_pressed; break;
+		case bstone::sys::KeyboardKey::right_gui: in_is_rgui_pressed = e.is_pressed; break;
 
-		case bstone::sys::vk_caps_lock: in_is_caps_lock_pressed = e.is_pressed; break;
-		case bstone::sys::vk_scroll_lock: in_is_scroll_lock_pressed = e.is_pressed; break;
-		case bstone::sys::vk_num_lock: in_is_num_lock_pressed = e.is_pressed; break;
+		case bstone::sys::KeyboardKey::caps_lock: in_is_caps_lock_pressed = e.is_pressed; break;
+		case bstone::sys::KeyboardKey::scroll_lock: in_is_scroll_lock_pressed = e.is_pressed; break;
+		case bstone::sys::KeyboardKey::num_lock: in_is_num_lock_pressed = e.is_pressed; break;
 
 		default: break;
 	}
