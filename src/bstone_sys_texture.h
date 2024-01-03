@@ -1,13 +1,16 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
+
+// Renderer's texture.
 
 #if !defined(BSTONE_SYS_TEXTURE_INCLUDED)
 #define BSTONE_SYS_TEXTURE_INCLUDED
 
 #include <memory>
+
 #include "bstone_rectangle.h"
 #include "bstone_sys_pixel_format.h"
 #include "bstone_sys_texture_lock.h"
@@ -17,13 +20,15 @@ namespace sys {
 
 enum class TextureBlendMode
 {
-	none = 0,
+	none,
 	blend,
 };
 
+// ==========================================================================
+
 enum class TextureAccess
 {
-	none = 0,
+	none,
 	streaming,
 };
 
@@ -36,16 +41,14 @@ public:
 	virtual ~Texture() = default;
 
 	void set_blend_mode(TextureBlendMode mode);
-	void copy(const Rectangle* texture_rect, const Rectangle* target_rect);
-
+	void copy(const Rectangle* texture_rectangle, const Rectangle* target_rectangle);
 	TextureLockUPtr make_lock();
-	TextureLockUPtr make_lock(Rectangle rect);
 
 private:
 	virtual void do_set_blend_mode(TextureBlendMode mode) = 0;
-	virtual void do_copy(const Rectangle* texture_rect, const Rectangle* target_rect) = 0;
+	virtual void do_copy(const Rectangle* texture_rectangle, const Rectangle* target_rectangle) = 0;
 
-	virtual TextureLockUPtr do_make_lock(const Rectangle* rect) = 0;
+	virtual TextureLockUPtr do_make_lock(const Rectangle* rectangle) = 0;
 };
 
 // ==========================================================================
@@ -57,6 +60,8 @@ struct TextureInitParam
 	int width;
 	int height;
 };
+
+// ==========================================================================
 
 using TextureUPtr = std::unique_ptr<Texture>;
 
