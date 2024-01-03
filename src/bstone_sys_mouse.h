@@ -1,8 +1,10 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
+
+// Mouse.
 
 #if !defined(BSTONE_SYS_MOUSE_INCLUDED)
 #define BSTONE_SYS_MOUSE_INCLUDED
@@ -10,19 +12,23 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
-struct Mouse
+struct MouseButtonIndex
 {
-	static constexpr auto left_button_index = 0;
-	static constexpr auto right_button_index = 1;
-	static constexpr auto middle_button_index = 2;
-	static constexpr auto x1_button_index = 3;
-	static constexpr auto x2_button_index = 4;
+	static constexpr auto left = 0;
+	static constexpr auto right = 1;
+	static constexpr auto middle = 2;
+	static constexpr auto x1 = 3;
+	static constexpr auto x2 = 4;
+};
 
-	static constexpr auto left_button_mask = 1U << left_button_index;
-	static constexpr auto right_button_mask = 1U << right_button_index;
-	static constexpr auto middle_button_mask = 1U << middle_button_index;
-	static constexpr auto x1_button_mask = 1U << x1_button_index;
-	static constexpr auto x2_button_mask = 1U << x2_button_index;
+struct MouseButtonMask
+{
+	static constexpr auto none = 0U;
+	static constexpr auto left = 1U << MouseButtonIndex::left;
+	static constexpr auto right = 1U << MouseButtonIndex::right;
+	static constexpr auto middle = 1U << MouseButtonIndex::middle;
+	static constexpr auto x1 = 1U << MouseButtonIndex::x1;
+	static constexpr auto x2 = 1U << MouseButtonIndex::x2;
 };
 
 } // namespace sys

@@ -224,27 +224,27 @@ unsigned int Sdl2EventMgr::map_mouse_buttons_mask(Uint32 sdl_buttons_mask)
 
 	if ((sdl_buttons_mask & SDL_BUTTON_LMASK) != 0)
 	{
-		buttons_mask |= Mouse::left_button_mask;
+		buttons_mask |= MouseButtonMask::left;
 	}
 
 	if ((sdl_buttons_mask & SDL_BUTTON_MMASK) != 0)
 	{
-		buttons_mask |= Mouse::middle_button_mask;
+		buttons_mask |= MouseButtonMask::middle;
 	}
 
 	if ((sdl_buttons_mask & SDL_BUTTON_RMASK) != 0)
 	{
-		buttons_mask |= Mouse::right_button_mask;
+		buttons_mask |= MouseButtonMask::right;
 	}
 
 	if ((sdl_buttons_mask & SDL_BUTTON_X1MASK) != 0)
 	{
-		buttons_mask |= Mouse::x1_button_mask;
+		buttons_mask |= MouseButtonMask::x1;
 	}
 
 	if ((sdl_buttons_mask & SDL_BUTTON_X2MASK) != 0)
 	{
-		buttons_mask |= Mouse::x2_button_mask;
+		buttons_mask |= MouseButtonMask::x2;
 	}
 
 	return buttons_mask;
@@ -254,11 +254,11 @@ int Sdl2EventMgr::map_mouse_button(int sdl_button)
 {
 	switch (sdl_button)
 	{
-		case SDL_BUTTON_LEFT: return Mouse::left_button_index;
-		case SDL_BUTTON_MIDDLE: return Mouse::middle_button_index;
-		case SDL_BUTTON_RIGHT: return Mouse::right_button_index;
-		case SDL_BUTTON_X1: return Mouse::x1_button_index;
-		case SDL_BUTTON_X2: return Mouse::x2_button_index;
+		case SDL_BUTTON_LEFT: return MouseButtonIndex::left;
+		case SDL_BUTTON_MIDDLE: return MouseButtonIndex::middle;
+		case SDL_BUTTON_RIGHT: return MouseButtonIndex::right;
+		case SDL_BUTTON_X1: return MouseButtonIndex::x1;
+		case SDL_BUTTON_X2: return MouseButtonIndex::x2;
 
 		default: return -1;
 	}

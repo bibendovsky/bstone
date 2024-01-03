@@ -569,11 +569,11 @@ void in_handle_mouse_buttons(const bstone::sys::MouseButtonEvent& e)
 
 	switch (e.button_index)
 	{
-		case bstone::sys::Mouse::left_button_index: key = ScanCode::sc_mouse_left; break;
-		case bstone::sys::Mouse::middle_button_index: key = ScanCode::sc_mouse_middle; break;
-		case bstone::sys::Mouse::right_button_index: key = ScanCode::sc_mouse_right; break;
-		case bstone::sys::Mouse::x1_button_index: key = ScanCode::sc_mouse_x1; break;
-		case bstone::sys::Mouse::x2_button_index: key = ScanCode::sc_mouse_x2; break;
+		case bstone::sys::MouseButtonIndex::left: key = ScanCode::sc_mouse_left; break;
+		case bstone::sys::MouseButtonIndex::middle: key = ScanCode::sc_mouse_middle; break;
+		case bstone::sys::MouseButtonIndex::right: key = ScanCode::sc_mouse_right; break;
+		case bstone::sys::MouseButtonIndex::x1: key = ScanCode::sc_mouse_x1; break;
+		case bstone::sys::MouseButtonIndex::x2: key = ScanCode::sc_mouse_x2; break;
 		default: break;
 	}
 

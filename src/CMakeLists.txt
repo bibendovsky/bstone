@@ -774,6 +774,7 @@ target_sources(
 		bstone_sys_gl_current_context.cpp
 		bstone_sys_gl_symbol_resolver.cpp
 		bstone_sys_logger.cpp
+		bstone_sys_mouse.cpp
 		bstone_sys_mouse_mgr.cpp
 		bstone_sys_push_audio_device.cpp
 		bstone_sys_r3r_swap_interval_type.cpp
