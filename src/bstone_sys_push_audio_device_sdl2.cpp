@@ -16,10 +16,10 @@ namespace sys {
 
 namespace {
 
-class Sdl2PushAudioDevice final : public PushAudioDevice
+class Sdl2PushAudioDevice final : public PollingAudioDevice
 {
 public:
-	Sdl2PushAudioDevice(Logger& logger, const PushAudioDeviceOpenParam& param);
+	Sdl2PushAudioDevice(Logger& logger, const PollingAudioDeviceOpenParam& param);
 	Sdl2PushAudioDevice(const Sdl2PushAudioDevice&) = delete;
 	Sdl2PushAudioDevice& operator=(const Sdl2PushAudioDevice&) = delete;
 	~Sdl2PushAudioDevice() override;
@@ -32,7 +32,7 @@ private:
 	int rate_{};
 	int channel_count_{};
 	int frame_count_{};
-	PushAudioDeviceCallback* callback_{};
+	PollingAudioDeviceCallback* callback_{};
 	SDL_AudioDeviceID sdl_audio_device_id_{};
 
 private:
@@ -51,7 +51,7 @@ private:
 
 // ==========================================================================
 
-Sdl2PushAudioDevice::Sdl2PushAudioDevice(Logger& logger, const PushAudioDeviceOpenParam& param)
+Sdl2PushAudioDevice::Sdl2PushAudioDevice(Logger& logger, const PollingAudioDeviceOpenParam& param)
 try
 	:
 	logger_{logger}
@@ -164,7 +164,7 @@ try {
 
 // ==========================================================================
 
-PushAudioDeviceUPtr make_sdl2_push_audio_device(Logger& logger, const PushAudioDeviceOpenParam& param)
+PollingAudioDeviceUPtr make_sdl2_push_audio_device(Logger& logger, const PollingAudioDeviceOpenParam& param)
 try {
 	return std::make_unique<Sdl2PushAudioDevice>(logger, param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED

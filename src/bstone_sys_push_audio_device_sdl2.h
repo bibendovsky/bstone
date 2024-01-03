@@ -7,13 +7,13 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_SYS_PUSH_AUDIO_DEVICE_SDL2_INCLUDED)
 #define BSTONE_SYS_PUSH_AUDIO_DEVICE_SDL2_INCLUDED
 
-#include "bstone_sys_push_audio_device.h"
+#include "bstone_sys_polling_audio_device.h"
 #include "bstone_sys_logger.h"
 
 namespace bstone {
 namespace sys {
 
-PushAudioDeviceUPtr make_sdl2_push_audio_device(Logger& logger, const PushAudioDeviceOpenParam& param);
+PollingAudioDeviceUPtr make_sdl2_push_audio_device(Logger& logger, const PollingAudioDeviceOpenParam& param);
 
 } // namespace sys
 } // namespace bstone

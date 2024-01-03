@@ -8,7 +8,7 @@ SPDX-License-Identifier: MIT
 #define BSTONE_SYS_AUDIO_MGR_INCLUDED
 
 #include <memory>
-#include "bstone_sys_push_audio_device.h"
+#include "bstone_sys_polling_audio_device.h"
 
 namespace bstone {
 namespace sys {
@@ -19,10 +19,10 @@ public:
 	AudioMgr() = default;
 	virtual ~AudioMgr() = default;
 
-	PushAudioDeviceUPtr make_audio_device(const PushAudioDeviceOpenParam& param);
+	PollingAudioDeviceUPtr make_audio_device(const PollingAudioDeviceOpenParam& param);
 
 private:
-	virtual PushAudioDeviceUPtr do_make_audio_device(const PushAudioDeviceOpenParam& param) = 0;
+	virtual PollingAudioDeviceUPtr do_make_audio_device(const PollingAudioDeviceOpenParam& param) = 0;
 };
 
 // ==========================================================================

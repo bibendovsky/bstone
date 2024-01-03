@@ -561,7 +561,7 @@ target_sources(
 
 		bstone_sys_audio_mgr.h
 		bstone_sys_color.h
-		bstone_sys_push_audio_device.h
+		bstone_sys_polling_audio_device.h
 		bstone_sys_event.h
 		bstone_sys_event_mgr.h
 		bstone_sys_gl_context.h
@@ -778,7 +778,7 @@ target_sources(
 		bstone_sys_logger.cpp
 		bstone_sys_mouse.cpp
 		bstone_sys_mouse_mgr.cpp
-		bstone_sys_push_audio_device.cpp
+		bstone_sys_polling_audio_device.cpp
 		bstone_sys_renderer.cpp
 		bstone_sys_system_mgr.cpp
 		bstone_sys_swap_interval_type.cpp

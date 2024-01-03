@@ -104,7 +104,7 @@ try {
 
 	sys_callback_.set_mixer(this);
 
-	auto audio_device_param = bstone::sys::PushAudioDeviceOpenParam{};
+	auto audio_device_param = bstone::sys::PollingAudioDeviceOpenParam{};
 	audio_device_param.desired_rate = dst_rate_;
 	audio_device_param.channel_count = get_max_channels();
 	audio_device_param.desired_frame_count = mix_samples_count_;

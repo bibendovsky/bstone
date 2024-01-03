@@ -8,7 +8,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_ccmd_mgr.h"
 #include "bstone_cvar_mgr.h"
 #include "bstone_page_mgr.h"
-#include "bstone_sys_push_audio_device.h"
+#include "bstone_sys_polling_audio_device.h"
 #include "bstone_sys_system_mgr.h"
 
 namespace bstone {

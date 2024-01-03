@@ -4,19 +4,21 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-#if !defined(BSTONE_SYS_PUSH_AUDIO_DEVICE_INCLUDED)
-#define BSTONE_SYS_PUSH_AUDIO_DEVICE_INCLUDED
+// Audio device feedding via callback.
+
+#if !defined(BSTONE_SYS_POLLING_AUDIO_DEVICE_INCLUDED)
+#define BSTONE_SYS_POLLING_AUDIO_DEVICE_INCLUDED
 
 #include <memory>
 
 namespace bstone {
 namespace sys {
 
-class PushAudioDeviceCallback
+class PollingAudioDeviceCallback
 {
 public:
-	PushAudioDeviceCallback() = default;
-	virtual ~PushAudioDeviceCallback() = default;
+	PollingAudioDeviceCallback() = default;
+	virtual ~PollingAudioDeviceCallback() = default;
 
 	void invoke(float* samples, int sample_count);
 
@@ -26,11 +28,11 @@ private:
 
 // ==========================================================================
 
-class PushAudioDevice
+class PollingAudioDevice
 {
 public:
-	PushAudioDevice() = default;
-	virtual ~PushAudioDevice() = default;
+	PollingAudioDevice() = default;
+	virtual ~PollingAudioDevice() = default;
 
 	int get_rate() const noexcept;
 	int get_channel_count() const noexcept;
@@ -48,17 +50,17 @@ private:
 
 // ==========================================================================
 
-struct PushAudioDeviceOpenParam
+struct PollingAudioDeviceOpenParam
 {
 	int desired_rate;
 	int channel_count;
 	int desired_frame_count;
-	PushAudioDeviceCallback* callback;
+	PollingAudioDeviceCallback* callback;
 };
 
-using PushAudioDeviceUPtr = std::unique_ptr<PushAudioDevice>;
+using PollingAudioDeviceUPtr = std::unique_ptr<PollingAudioDevice>;
 
 } // namespace sys
 } // namespace bstone
 
-#endif // BSTONE_SYS_PUSH_AUDIO_DEVICE_INCLUDED
+#endif // BSTONE_SYS_POLLING_AUDIO_DEVICE_INCLUDED

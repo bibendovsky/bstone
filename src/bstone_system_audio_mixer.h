@@ -78,7 +78,7 @@ private:
 	using MtLock = std::mutex;
 	using MtLockGuard = std::lock_guard<MtLock>;
 
-	struct SysCallback final : public sys::PushAudioDeviceCallback
+	struct SysCallback final : public sys::PollingAudioDeviceCallback
 	{
 	public:
 		void set_mixer(SystemAudioMixer* mixer);
@@ -261,7 +261,7 @@ private:
 	int dst_rate_{};
 	SysCallback sys_callback_{};
 	sys::AudioMgr* sys_audio_mgr_{};
-	sys::PushAudioDeviceUPtr sys_audio_device_{};
+	sys::PollingAudioDeviceUPtr sys_audio_device_{};
 	int mix_samples_count_{};
 	Samples buffer_{};
 	S16Samples s16_samples_{};

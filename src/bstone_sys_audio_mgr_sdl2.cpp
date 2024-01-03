@@ -35,7 +35,7 @@ private:
 	Logger& logger_;
 
 private:
-	PushAudioDeviceUPtr do_make_audio_device(const PushAudioDeviceOpenParam& param) override;
+	PollingAudioDeviceUPtr do_make_audio_device(const PollingAudioDeviceOpenParam& param) override;
 
 private:
 	void log_int(int value, std::string& message);
@@ -81,7 +81,7 @@ void Sdl2AudioMgr::operator delete(void* ptr)
 	sdl2_audio_mgr_pool.deallocate(ptr);
 }
 
-PushAudioDeviceUPtr Sdl2AudioMgr::do_make_audio_device(const PushAudioDeviceOpenParam& param)
+PollingAudioDeviceUPtr Sdl2AudioMgr::do_make_audio_device(const PollingAudioDeviceOpenParam& param)
 {
 	return make_sdl2_push_audio_device(logger_, param);
 }

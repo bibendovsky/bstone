@@ -4,34 +4,36 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-#include "bstone_sys_push_audio_device.h"
+// Audio device feedding via callback.
+
+#include "bstone_sys_polling_audio_device.h"
 
 namespace bstone {
 namespace sys {
 
-void PushAudioDeviceCallback::invoke(float* samples, int sample_count)
+void PollingAudioDeviceCallback::invoke(float* samples, int sample_count)
 {
 	do_invoke(samples, sample_count);
 }
 
 // ==========================================================================
 
-int PushAudioDevice::get_rate() const noexcept
+int PollingAudioDevice::get_rate() const noexcept
 {
 	return do_get_rate();
 }
 
-int PushAudioDevice::get_channel_count() const noexcept
+int PollingAudioDevice::get_channel_count() const noexcept
 {
 	return do_get_channel_count();
 }
 
-int PushAudioDevice::get_frame_count() const noexcept
+int PollingAudioDevice::get_frame_count() const noexcept
 {
 	return do_get_frame_count();
 }
 
-void PushAudioDevice::pause(bool is_pause)
+void PollingAudioDevice::pause(bool is_pause)
 {
 	do_pause(is_pause);
 }
