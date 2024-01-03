@@ -13,10 +13,9 @@ SPDX-License-Identifier: MIT
 #include "bstone_single_pool_memory_resource.h"
 #include "bstone_unique_resource.h"
 
-#include "bstone_sys_r3r_swap_interval_type.h"
-
 #include "bstone_sys_gl_context.h"
 #include "bstone_sys_gl_current_context.h"
+#include "bstone_sys_swap_interval_type.h"
 #include "bstone_sys_video_mgr.h"
 #include "bstone_sys_window_mgr.h"
 
@@ -354,7 +353,7 @@ try
 	if (device_features_.is_vsync_available)
 	{
 		gl_current_context_.set_swap_interval(
-			param.is_vsync ? sys::R3rSwapIntervalType::standard : sys::R3rSwapIntervalType::none);
+			param.is_vsync ? sys::SwapIntervalType::standard : sys::SwapIntervalType::none);
 	}
 
 	create_framebuffers();
@@ -429,7 +428,7 @@ bool GlR3rImpl::do_get_vsync() const noexcept
 		return false;
 	}
 
-	return gl_current_context_.get_swap_interval() == sys::R3rSwapIntervalType::standard;
+	return gl_current_context_.get_swap_interval() == sys::SwapIntervalType::standard;
 }
 
 void GlR3rImpl::do_enable_vsync(bool is_enabled)
@@ -445,7 +444,7 @@ try {
 	}
 
 	gl_current_context_.set_swap_interval(
-		is_enabled ? sys::R3rSwapIntervalType::standard : sys::R3rSwapIntervalType::none);
+		is_enabled ? sys::SwapIntervalType::standard : sys::SwapIntervalType::none);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::do_set_anti_aliasing(R3rAaType aa_type, int aa_value)

@@ -35,13 +35,13 @@ private:
 private:
 	bool do_has_extension(const char* extension_name) const noexcept override;
 
-	R3rSwapIntervalType do_get_swap_interval() const noexcept override;
-	void do_set_swap_interval(R3rSwapIntervalType swap_interval_type) override;
+	SwapIntervalType do_get_swap_interval() const noexcept override;
+	void do_set_swap_interval(SwapIntervalType swap_interval_type) override;
 
 	const GlSymbolResolver& do_get_symbol_resolver() const noexcept override;
 
 private:
-	static int map(R3rSwapIntervalType swap_interval_type);
+	static int map(SwapIntervalType swap_interval_type);
 };
 
 // --------------------------------------------------------------------------
@@ -75,19 +75,19 @@ bool Sdl2GlCurrentContext::do_has_extension(const char* extension_name) const no
 	return SDL_GL_ExtensionSupported(extension_name) == SDL_TRUE;
 }
 
-R3rSwapIntervalType Sdl2GlCurrentContext::do_get_swap_interval() const noexcept
+SwapIntervalType Sdl2GlCurrentContext::do_get_swap_interval() const noexcept
 {
 	const auto sdl_swap_interval = SDL_GL_GetSwapInterval();
 
 	switch (sdl_swap_interval)
 	{
-		case -1: return R3rSwapIntervalType::adaptive;
-		case 1: return R3rSwapIntervalType::standard;
-		default: return R3rSwapIntervalType::none;
+		case -1: return SwapIntervalType::adaptive;
+		case 1: return SwapIntervalType::standard;
+		default: return SwapIntervalType::none;
 	}
 }
 
-void Sdl2GlCurrentContext::do_set_swap_interval(R3rSwapIntervalType swap_interval_type)
+void Sdl2GlCurrentContext::do_set_swap_interval(SwapIntervalType swap_interval_type)
 {
 	const auto sdl_swap_interval = map(swap_interval_type);
 	sdl2_ensure_result(SDL_GL_SetSwapInterval(sdl_swap_interval));
@@ -98,13 +98,13 @@ const GlSymbolResolver& Sdl2GlCurrentContext::do_get_symbol_resolver() const noe
 	return gl_symbol_resolver_;
 }
 
-int Sdl2GlCurrentContext::map(R3rSwapIntervalType swap_interval_type)
+int Sdl2GlCurrentContext::map(SwapIntervalType swap_interval_type)
 {
 	switch (swap_interval_type)
 	{
-		case R3rSwapIntervalType::none: return 0;
-		case R3rSwapIntervalType::standard: return 1;
-		case R3rSwapIntervalType::adaptive: return -1;
+		case SwapIntervalType::none: return 0;
+		case SwapIntervalType::standard: return 1;
+		case SwapIntervalType::adaptive: return -1;
 		default: BSTONE_THROW_STATIC_SOURCE("Unknown 3D renderer swap interval type.");
 	}
 }

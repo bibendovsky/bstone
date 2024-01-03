@@ -575,8 +575,8 @@ target_sources(
 		bstone_sys_mouse.h
 		bstone_sys_mouse_mgr.h
 		bstone_sys_pixel_format.h
-		bstone_sys_r3r_swap_interval_type.h
 		bstone_sys_renderer.h
+		bstone_sys_swap_interval_type.h
 		bstone_sys_system_mgr.h
 		bstone_sys_texture_lock.h
 		bstone_sys_texture.h
@@ -779,9 +779,9 @@ target_sources(
 		bstone_sys_mouse.cpp
 		bstone_sys_mouse_mgr.cpp
 		bstone_sys_push_audio_device.cpp
-		bstone_sys_r3r_swap_interval_type.cpp
 		bstone_sys_renderer.cpp
 		bstone_sys_system_mgr.cpp
+		bstone_sys_swap_interval_type.cpp
 		bstone_sys_texture.cpp
 		bstone_sys_texture_lock.cpp
 		bstone_sys_video_mgr.cpp

@@ -16,12 +16,12 @@ bool GlCurrentContext::has_extension(const char* extension_name) const noexcept
 	return do_has_extension(extension_name);
 }
 
-R3rSwapIntervalType GlCurrentContext::get_swap_interval() const noexcept
+SwapIntervalType GlCurrentContext::get_swap_interval() const noexcept
 {
 	return do_get_swap_interval();
 }
 
-void GlCurrentContext::set_swap_interval(R3rSwapIntervalType swap_interval_type)
+void GlCurrentContext::set_swap_interval(SwapIntervalType swap_interval_type)
 {
 	do_set_swap_interval(swap_interval_type);
 }

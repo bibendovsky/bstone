@@ -464,8 +464,8 @@ try {
 #if !defined(BSTONE_R3R_TEST_NO_SWAP_INTERVAL)
 	try
 	{
-		gl_current_context.set_swap_interval(sys::R3rSwapIntervalType::none);
-		gl_current_context.set_swap_interval(sys::R3rSwapIntervalType::standard);
+		gl_current_context.set_swap_interval(sys::SwapIntervalType::none);
+		gl_current_context.set_swap_interval(sys::SwapIntervalType::standard);
 		device_features.is_vsync_available = true;
 	}
 	catch (const std::exception&)
@@ -476,7 +476,7 @@ try {
 
 bool GlR3rUtils::get_vsync(sys::GlCurrentContext& gl_current_context)
 try {
-	return gl_current_context.get_swap_interval() != sys::R3rSwapIntervalType::none;
+	return gl_current_context.get_swap_interval() != sys::SwapIntervalType::none;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::probe_buffer_storage(

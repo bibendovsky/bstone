@@ -1,10 +1,10 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2023-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-// 3D renderer swap interval type.
+// Renderer's swap interval type.
 
 #if !defined(BSTONE_SYS_R3R_SWAP_INTERVAL_TYPE_INCLUDED)
 #define BSTONE_SYS_R3R_SWAP_INTERVAL_TYPE_INCLUDED
@@ -12,7 +12,7 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
-enum class R3rSwapIntervalType
+enum class SwapIntervalType
 {
 	none,
 	standard,
