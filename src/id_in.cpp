@@ -772,7 +772,7 @@ void in_handle_window(const bstone::sys::WindowEvent& e)
 {
 	auto reset_state = false;
 
-	switch (e.type)
+	switch (e.event_type)
 	{
 		case bstone::sys::WindowEventType::keyboard_focus_gained:
 			reset_state = true;
@@ -810,7 +810,7 @@ void in_handle_events()
 
 	while (bstone::globals::sys_event_mgr->poll_event(e))
 	{
-		switch (e.type)
+		switch (e.common.type)
 		{
 // TODO
 #if 0
@@ -831,23 +831,23 @@ void in_handle_events()
 #endif
 #endif
 			case bstone::sys::EventType::keyboard:
-				in_handle_keyboard(e.data.keyboard);
+				in_handle_keyboard(e.keyboard);
 				break;
 
 			case bstone::sys::EventType::mouse_motion:
-				in_handle_mouse_motion(e.data.mouse_motion);
+				in_handle_mouse_motion(e.mouse_motion);
 				break;
 
 			case bstone::sys::EventType::mouse_button:
-				in_handle_mouse_buttons(e.data.mouse_button);
+				in_handle_mouse_buttons(e.mouse_button);
 				break;
 
 			case bstone::sys::EventType::mouse_wheel:
-				in_handle_mouse_wheel(e.data.mouse_wheel);
+				in_handle_mouse_wheel(e.mouse_wheel);
 				break;
 
 			case bstone::sys::EventType::window:
-				in_handle_window(e.data.window);
+				in_handle_window(e.window);
 				break;
 
 			case bstone::sys::EventType::quit:

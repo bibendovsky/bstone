@@ -42,11 +42,11 @@ private:
 	static MouseWheelDirection map_mouse_wheel_direction(SDL_MouseWheelDirection sdl_direction);
 #endif
 
-	static bool handle_event(const SDL_KeyboardEvent& sdl_e, Event& e);
-	static bool handle_event(const SDL_MouseMotionEvent& sdl_e, Event& e);
-	static bool handle_event(const SDL_MouseButtonEvent& sdl_e, Event& e);
-	static bool handle_event(const SDL_MouseWheelEvent& sdl_e, Event& e);
-	static bool handle_event(const SDL_WindowEvent& sdl_e, Event& e);
+	static bool handle_event(const SDL_KeyboardEvent& sdl_e, KeyboardEvent& e);
+	static bool handle_event(const SDL_MouseMotionEvent& sdl_e, MouseMotionEvent& e);
+	static bool handle_event(const SDL_MouseButtonEvent& sdl_e, MouseButtonEvent& e);
+	static bool handle_event(const SDL_MouseWheelEvent& sdl_e, MouseWheelEvent& e);
+	static bool handle_event(const SDL_WindowEvent& sdl_e, WindowEvent& e);
 	static bool handle_event(const SDL_Event& sdl_e, Event& e);
 
 	bool do_poll_event(Event& e) override;
@@ -220,34 +220,34 @@ VirtualKey Sdl2EventMgr::map_key_code(SDL_Keycode sdl_key_code)
 
 unsigned int Sdl2EventMgr::map_mouse_buttons_mask(Uint32 sdl_buttons_mask)
 {
-	auto buttons_mask = 0U;
+	auto button_mask = 0U;
 
 	if ((sdl_buttons_mask & SDL_BUTTON_LMASK) != 0)
 	{
-		buttons_mask |= MouseButtonMask::left;
+		button_mask |= MouseButtonMask::left;
 	}
 
 	if ((sdl_buttons_mask & SDL_BUTTON_MMASK) != 0)
 	{
-		buttons_mask |= MouseButtonMask::middle;
+		button_mask |= MouseButtonMask::middle;
 	}
 
 	if ((sdl_buttons_mask & SDL_BUTTON_RMASK) != 0)
 	{
-		buttons_mask |= MouseButtonMask::right;
+		button_mask |= MouseButtonMask::right;
 	}
 
 	if ((sdl_buttons_mask & SDL_BUTTON_X1MASK) != 0)
 	{
-		buttons_mask |= MouseButtonMask::x1;
+		button_mask |= MouseButtonMask::x1;
 	}
 
 	if ((sdl_buttons_mask & SDL_BUTTON_X2MASK) != 0)
 	{
-		buttons_mask |= MouseButtonMask::x2;
+		button_mask |= MouseButtonMask::x2;
 	}
 
-	return buttons_mask;
+	return button_mask;
 }
 
 int Sdl2EventMgr::map_mouse_button(int sdl_button)
@@ -277,7 +277,7 @@ MouseWheelDirection Sdl2EventMgr::map_mouse_wheel_direction(SDL_MouseWheelDirect
 }
 #endif
 
-bool Sdl2EventMgr::handle_event(const SDL_KeyboardEvent& sdl_e, Event& e)
+bool Sdl2EventMgr::handle_event(const SDL_KeyboardEvent& sdl_e, KeyboardEvent& e)
 {
 	const auto virtual_key = map_key_code(static_cast<SDL_Keycode>(sdl_e.keysym.sym));
 
@@ -286,34 +286,32 @@ bool Sdl2EventMgr::handle_event(const SDL_KeyboardEvent& sdl_e, Event& e)
 		return false;
 	}
 
-	auto& data = e.data.keyboard;
-	data.is_pressed = (sdl_e.state == SDL_PRESSED);
-	data.key = virtual_key;
-	data.repeat_count = sdl_e.repeat;
-	data.window_id = sdl_e.windowID;
+	e.is_pressed = (sdl_e.state == SDL_PRESSED);
+	e.key = virtual_key;
+	e.repeat_count = sdl_e.repeat;
+	e.window_id = sdl_e.windowID;
 	e.type = EventType::keyboard;
 	return true;
 }
 
-bool Sdl2EventMgr::handle_event(const SDL_MouseMotionEvent& sdl_e, Event& e)
+bool Sdl2EventMgr::handle_event(const SDL_MouseMotionEvent& sdl_e, MouseMotionEvent& e)
 {
 	if (sdl_e.which == SDL_TOUCH_MOUSEID)
 	{
 		return false;
 	}
 
-	auto& data = e.data.mouse_motion;
-	data.window_id = sdl_e.windowID;
-	data.x = sdl_e.x;
-	data.y = sdl_e.y;
-	data.delta_x = sdl_e.xrel;
-	data.delta_y = sdl_e.yrel;
-	data.buttons_mask = map_mouse_buttons_mask(sdl_e.state);
+	e.x = sdl_e.x;
+	e.y = sdl_e.y;
+	e.delta_x = sdl_e.xrel;
+	e.delta_y = sdl_e.yrel;
+	e.button_mask = map_mouse_buttons_mask(sdl_e.state);
+	e.window_id = sdl_e.windowID;
 	e.type = EventType::mouse_motion;
 	return true;
 }
 
-bool Sdl2EventMgr::handle_event(const SDL_MouseButtonEvent& sdl_e, Event& e)
+bool Sdl2EventMgr::handle_event(const SDL_MouseButtonEvent& sdl_e, MouseButtonEvent& e)
 {
 	if (sdl_e.which == SDL_TOUCH_MOUSEID)
 	{
@@ -327,22 +325,21 @@ bool Sdl2EventMgr::handle_event(const SDL_MouseButtonEvent& sdl_e, Event& e)
 		return false;
 	}
 
-	auto& data = e.data.mouse_button;
-	data.is_pressed = (sdl_e.state == SDL_PRESSED);
-	data.window_id = sdl_e.windowID;
-	data.x = sdl_e.x;
-	data.y = sdl_e.y;
-	data.button_index = button_index;
+	e.is_pressed = (sdl_e.state == SDL_PRESSED);
+	e.x = sdl_e.x;
+	e.y = sdl_e.y;
+	e.button_index = button_index;
 #if SDL_VERSION_ATLEAST(2, 0, 2)
-	data.click_count = sdl_e.clicks;
+	e.click_count = sdl_e.clicks;
 #else
-	data.click_count = 1;
+	e.click_count = 1;
 #endif
+	e.window_id = sdl_e.windowID;
 	e.type = EventType::mouse_button;
 	return true;
 }
 
-bool Sdl2EventMgr::handle_event(const SDL_MouseWheelEvent& sdl_e, Event& e)
+bool Sdl2EventMgr::handle_event(const SDL_MouseWheelEvent& sdl_e, MouseWheelEvent& e)
 {
 	if (sdl_e.which == SDL_TOUCH_MOUSEID)
 	{
@@ -356,33 +353,31 @@ bool Sdl2EventMgr::handle_event(const SDL_MouseWheelEvent& sdl_e, Event& e)
 		return false;
 	}
 
-	auto& data = e.data.mouse_wheel;
-	data.window_id = sdl_e.windowID;
-	data.x = sdl_e.x;
-	data.y = sdl_e.y;
+	e.x = sdl_e.x;
+	e.y = sdl_e.y;
 #if BSTONE_SDL_2_0_4
-	data.direction = direction;
+	e.direction = direction;
 #else
-	data.direction = MouseWheelDirection::normal;
+	e.direction = MouseWheelDirection::normal;
 #endif
+	e.window_id = sdl_e.windowID;
 	e.type = EventType::mouse_wheel;
 	return true;
 }
 
-bool Sdl2EventMgr::handle_event(const SDL_WindowEvent& sdl_e, Event& e)
+bool Sdl2EventMgr::handle_event(const SDL_WindowEvent& sdl_e, WindowEvent& e)
 {
 	auto is_handled = true;
-	auto& data = e.data.window;
-	data.id = sdl_e.windowID;
+	e.id = sdl_e.windowID;
 
 	switch (sdl_e.event)
 	{
 		case SDL_WINDOWEVENT_FOCUS_GAINED:
-			data.type = WindowEventType::keyboard_focus_gained;
+			e.event_type = WindowEventType::keyboard_focus_gained;
 			break;
 
 		case SDL_WINDOWEVENT_FOCUS_LOST:
-			data.type = WindowEventType::keyboard_focus_lost;
+			e.event_type = WindowEventType::keyboard_focus_lost;
 			break;
 
 		default:
@@ -405,20 +400,20 @@ bool Sdl2EventMgr::handle_event(const SDL_Event& sdl_e, Event& e)
 	{
 		case SDL_KEYDOWN:
 		case SDL_KEYUP:
-			return handle_event(sdl_e.key, e);
+			return handle_event(sdl_e.key, e.keyboard);
 
 		case SDL_MOUSEMOTION:
-			return handle_event(sdl_e.motion, e);
+			return handle_event(sdl_e.motion, e.mouse_motion);
 
 		case SDL_MOUSEBUTTONDOWN:
 		case SDL_MOUSEBUTTONUP:
-			return handle_event(sdl_e.button, e);
+			return handle_event(sdl_e.button, e.mouse_button);
 
 		case SDL_MOUSEWHEEL:
-			return handle_event(sdl_e.wheel, e);
+			return handle_event(sdl_e.wheel, e.mouse_wheel);
 
 		case SDL_WINDOWEVENT:
-			return handle_event(sdl_e.window, e);
+			return handle_event(sdl_e.window, e.window);
 
 		default:
 			return false;
@@ -433,12 +428,12 @@ bool Sdl2EventMgr::do_poll_event(Event& e)
 	{
 		if (handle_event(sdl_e, e))
 		{
-			e.timestamp = sdl_e.common.timestamp;
+			e.common.timestamp = sdl_e.common.timestamp;
 			return true;
 		}
 	}
 
-	e.type = EventType::none;
+	e.common.type = EventType::none;
 	return false;
 }
 

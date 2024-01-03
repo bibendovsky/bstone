@@ -769,6 +769,7 @@ target_sources(
 		bstone_voice_group.cpp
 
 		bstone_sys_audio_mgr.cpp
+		bstone_sys_event.cpp
 		bstone_sys_event_mgr.cpp
 		bstone_sys_gl_context.cpp
 		bstone_sys_gl_current_context.cpp

@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -15,85 +15,78 @@ namespace sys {
 
 enum class EventType
 {
-	none = 0,
+	none,
+	quit,
+	window,
 	keyboard,
 	mouse_motion,
 	mouse_button,
 	mouse_wheel,
-	window,
-	quit,
 };
 
-struct KeyboardEvent
+struct CommonEvent
+{
+	EventType type;
+	unsigned int timestamp;
+};
+
+struct KeyboardEvent : CommonEvent
 {
 	bool is_pressed;
 	VirtualKey key;
 	int repeat_count;
-	int window_id;
+	unsigned int window_id;
 };
 
-struct MouseMotionEvent
+struct MouseMotionEvent : CommonEvent
 {
-	int window_id;
 	int x;
 	int y;
 	int delta_x;
 	int delta_y;
-	unsigned int buttons_mask;
+	unsigned int button_mask;
+	unsigned int window_id;
 };
 
-struct MouseButtonEvent
+struct MouseButtonEvent : CommonEvent
 {
 	bool is_pressed;
-	int window_id;
 	int x;
 	int y;
 	int button_index;
 	int click_count;
+	unsigned int window_id;
 };
 
-enum class MouseWheelDirection
+struct MouseWheelEvent : CommonEvent
 {
-	none = 0,
-	normal,
-	flipped,
-};
-
-struct MouseWheelEvent
-{
-	int window_id;
 	int x;
 	int y;
 	MouseWheelDirection direction;
+	unsigned int window_id;
 };
 
 enum class WindowEventType
 {
-	none = 0,
+	none,
 	keyboard_focus_gained,
 	keyboard_focus_lost,
 };
 
-struct WindowEvent
+struct WindowEvent : CommonEvent
 {
-	WindowEventType type;
+	WindowEventType event_type;
 	unsigned int id;
 };
 
-union EventData
+union Event
 {
+	CommonEvent common;
 	KeyboardEvent keyboard;
 	MouseMotionEvent mouse_motion;
 	MouseButtonEvent mouse_button;
 	MouseWheelEvent mouse_wheel;
 	WindowEvent window;
-};
-
-struct Event
-{
-	EventType type;
-	unsigned int timestamp;
-	EventData data;
 };
 
 } // namespace sys

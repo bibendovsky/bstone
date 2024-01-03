@@ -12,6 +12,13 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
+enum class MouseWheelDirection
+{
+	none,
+	normal,
+	flipped,
+};
+
 struct MouseButtonIndex
 {
 	static constexpr auto left = 0;
