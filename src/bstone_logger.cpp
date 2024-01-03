@@ -135,7 +135,7 @@ try
 
 	if (is_critical)
 	{
-		bstone::sys::show_message_box(
+		bstone::sys::MessageBox::show_simple(
 			get_message_box_title().c_str(),
 			message_.c_str(),
 			bstone::sys::MessageBoxType::error);

@@ -439,7 +439,7 @@ const FoundContent* choose_content(
 
 	bstone::logger_->write("Found multiple contents.");
 
-	using Button = bstone::sys::MessageBoxButtonDescriptor;
+	using Button = bstone::sys::MessageBoxButton;
 	using Buttons = std::vector<Button>;
 
 	auto buttons = Buttons{};
@@ -463,14 +463,14 @@ const FoundContent* choose_content(
 		button.text = "Cancel";
 	}
 
-	auto descriptor = bstone::sys::MessageBoxDescriptor{};
-	descriptor.type = bstone::sys::MessageBoxType::information;
+	auto descriptor = bstone::sys::MessageBoxInitParam{};
 	descriptor.title = get_message_box_title().c_str();
 	descriptor.message = "Select content to play.";
+	descriptor.type = bstone::sys::MessageBoxType::information;
 	descriptor.buttons = bstone::make_const_span(buttons.data(), static_cast<std::intptr_t>(buttons.size()));
 
 	bstone::logger_->write("Waiting for user response.");
-	const auto selected_button_id = bstone::sys::show_message_box(descriptor);
+	const auto selected_button_id = bstone::sys::MessageBox::show(descriptor);
 
 	if (selected_button_id < 0)
 	{
@@ -1373,7 +1373,7 @@ static void output_version()
 
 	// Message box.
 	//
-	bstone::sys::show_message_box(
+	bstone::sys::MessageBox::show_simple(
 		get_message_box_title().c_str(),
 		message.c_str(),
 		bstone::sys::MessageBoxType::information);

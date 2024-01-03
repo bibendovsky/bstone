@@ -1,8 +1,10 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
+
+// Message box.
 
 #if !defined(BSTONE_SYS_MESSAGE_BOX_INCLUDED)
 #define BSTONE_SYS_MESSAGE_BOX_INCLUDED
@@ -15,11 +17,13 @@ namespace sys {
 
 enum class MessageBoxType
 {
-	none = 0,
+	none,
 	error,
 	information,
 	warning,
 };
+
+// ==========================================================================
 
 enum class MessageBoxButtonFlags : unsigned int
 {
@@ -30,23 +34,34 @@ enum class MessageBoxButtonFlags : unsigned int
 
 BSTONE_ENABLE_ENUM_CLASS_BITWISE_OPS_FOR(MessageBoxButtonFlags)
 
-struct MessageBoxButtonDescriptor
+// ==========================================================================
+
+struct MessageBoxButton
 {
 	int id;
 	MessageBoxButtonFlags flags;
 	const char* text;
 };
 
-struct MessageBoxDescriptor
+// ==========================================================================
+
+struct MessageBoxInitParam
 {
-	MessageBoxType type;
 	const char* title;
 	const char* message;
-	Span<const MessageBoxButtonDescriptor> buttons;
+	MessageBoxType type;
+	Span<const MessageBoxButton> buttons;
 };
 
-void show_message_box(const char* title, const char* message, MessageBoxType type);
-int show_message_box(const MessageBoxDescriptor& descriptor);
+// ==========================================================================
+
+struct MessageBox
+{
+	static void show_simple(const char* title, const char* message, MessageBoxType type);
+
+	static int show(const MessageBoxInitParam& param);
+};
+
 
 } // namespace sys
 } // namespace bstone

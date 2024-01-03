@@ -776,6 +776,7 @@ target_sources(
 		bstone_sys_gl_symbol_resolver.cpp
 		bstone_sys_keyboard_key.cpp
 		bstone_sys_logger.cpp
+		bstone_sys_message_box.cpp
 		bstone_sys_mouse.cpp
 		bstone_sys_mouse_mgr.cpp
 		bstone_sys_polling_audio_device.cpp

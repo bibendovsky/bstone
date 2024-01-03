@@ -19,7 +19,7 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
-void show_message_box(
+void MessageBox::show_simple(
 	const char* title,
 	const char* message,
 	MessageBoxType type)
@@ -37,11 +37,11 @@ try {
 	sdl2_ensure_result(SDL_ShowSimpleMessageBox(sdl_flags, title, message, nullptr));
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-int show_message_box(const MessageBoxDescriptor& descriptor)
+int MessageBox::show(const MessageBoxInitParam& param)
 try {
 	auto sdl_message_box_flags = Uint32{SDL_MESSAGEBOX_BUTTONS_LEFT_TO_RIGHT};
 
-	switch (descriptor.type)
+	switch (param.type)
 	{
 		case MessageBoxType::error: sdl_message_box_flags |= SDL_MESSAGEBOX_ERROR; break;
 		case MessageBoxType::information: sdl_message_box_flags |= SDL_MESSAGEBOX_INFORMATION; break;
@@ -51,7 +51,7 @@ try {
 
 	constexpr auto max_buttons = 8;
 
-	if (descriptor.buttons.get_size() > max_buttons)
+	if (param.buttons.get_size() > max_buttons)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Too many buttons.");
 	}
@@ -59,7 +59,7 @@ try {
 	SDL_MessageBoxButtonData sdl_buttons[max_buttons];
 	auto sdl_button = sdl_buttons;
 
-	for (const auto& button : descriptor.buttons)
+	for (const auto& button : param.buttons)
 	{
 		auto sdl_button_flags = Uint32{};
 
@@ -82,9 +82,9 @@ try {
 
 	auto sdl_message_box = SDL_MessageBoxData{};
 	sdl_message_box.flags = sdl_message_box_flags;
-	sdl_message_box.title = descriptor.title;
-	sdl_message_box.message = descriptor.message;
-	sdl_message_box.numbuttons = static_cast<int>(descriptor.buttons.get_size());
+	sdl_message_box.title = param.title;
+	sdl_message_box.message = param.message;
+	sdl_message_box.numbuttons = static_cast<int>(param.buttons.get_size());
 	sdl_message_box.buttons = sdl_buttons;
 
 	auto sdl_button_id = 0;
