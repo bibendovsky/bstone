@@ -772,6 +772,7 @@ target_sources(
 		bstone_sys_event.cpp
 		bstone_sys_event_mgr.cpp
 		bstone_sys_gl_context.cpp
+		bstone_sys_gl_context_profile.cpp
 		bstone_sys_gl_current_context.cpp
 		bstone_sys_gl_symbol_resolver.cpp
 		bstone_sys_keyboard_key.cpp

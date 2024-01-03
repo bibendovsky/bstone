@@ -1,8 +1,10 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
+
+// OpenGL context profile.
 
 #if !defined(BSTONE_SYS_GL_CONTEXT_PROFILE_INCLUDED)
 #define BSTONE_SYS_GL_CONTEXT_PROFILE_INCLUDED
@@ -12,7 +14,7 @@ namespace sys {
 
 enum class GlContextProfile
 {
-	none = 0,
+	none,
 	compatibility,
 	core,
 	es,
