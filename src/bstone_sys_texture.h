@@ -11,8 +11,8 @@ SPDX-License-Identifier: MIT
 
 #include <memory>
 
-#include "bstone_rectangle.h"
 #include "bstone_sys_pixel_format.h"
+#include "bstone_sys_rectangle.h"
 #include "bstone_sys_texture_lock.h"
 
 namespace bstone {

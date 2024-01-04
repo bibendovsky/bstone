@@ -406,7 +406,6 @@ target_sources(
 		bstone_extent_2d.h
 		bstone_offset_2d.h
 
-		bstone_rectangle.h
 		bstone_r2_extent.h
 		bstone_r2_offset.h
 
@@ -575,6 +574,7 @@ target_sources(
 		bstone_sys_mouse.h
 		bstone_sys_mouse_mgr.h
 		bstone_sys_pixel_format.h
+		bstone_sys_rectangle.h
 		bstone_sys_renderer.h
 		bstone_sys_swap_interval_type.h
 		bstone_sys_system_mgr.h
@@ -620,7 +620,6 @@ target_sources(
 
 		lib/xbrz/xbrz.cpp
 
-		bstone_rectangle.cpp
 		bstone_extent_2d.cpp
 		bstone_offset_2d.cpp
 
@@ -783,6 +782,7 @@ target_sources(
 		bstone_sys_mouse_mgr.cpp
 		bstone_sys_polling_audio_device.cpp
 		bstone_sys_renderer.cpp
+		bstone_sys_rectangle.cpp
 		bstone_sys_system_mgr.cpp
 		bstone_sys_swap_interval_type.cpp
 		bstone_sys_texture.cpp

@@ -7,7 +7,7 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_SYS_TEXTURE_LOCK_SDL2_INCLUDED)
 #define BSTONE_SYS_TEXTURE_LOCK_SDL2_INCLUDED
 
-#include "bstone_rectangle.h"
+#include "bstone_sys_rectangle.h"
 #include "bstone_sys_texture_sdl2.h"
 #include "bstone_sys_texture_lock_sdl2.h"
 
