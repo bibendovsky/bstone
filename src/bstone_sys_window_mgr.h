@@ -1,13 +1,16 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
+
+// Window manager.
 
 #if !defined(BSTONE_SYS_WINDOW_MGR_INCLUDED)
 #define BSTONE_SYS_WINDOW_MGR_INCLUDED
 
 #include <memory>
+
 #include "bstone_sys_window.h"
 
 namespace bstone {
