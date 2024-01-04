@@ -2973,8 +2973,8 @@ try {
 	auto window_param = R3rUtilsSetWindowModeParam{};
 	window_param.is_native = vid_is_native_mode();
 	window_param.is_positioned = vid_cfg_is_positioned();
-	window_param.position.x = vid_cfg_get_x();
-	window_param.position.y = vid_cfg_get_y();
+	window_param.position.x = sys::WindowOffset{vid_cfg_get_x()};
+	window_param.position.y = sys::WindowOffset{vid_cfg_get_y()};
 	window_param.size.width = vid_layout_.window_width;
 	window_param.size.height = vid_layout_.window_height;
 	R3rUtils::set_window_mode(window, window_param);

@@ -730,20 +730,20 @@ try {
 
 	auto param = sys::WindowInitParam{};
 	param.title = title.c_str();
-	param.x = sys::window_position_centered;
-	param.y = sys::window_position_centered;
+	param.x = sys::WindowOffset::make_centered();
+	param.y = sys::WindowOffset::make_centered();
 
 	if (!is_native_mode && vid_cfg_is_positioned())
 	{
-		param.x = vid_cfg_get_x();
-		param.y = vid_cfg_get_y();
+		param.x = sys::WindowOffset{vid_cfg_get_x()};
+		param.y = sys::WindowOffset{vid_cfg_get_y()};
 	}
 
 	param.width = vid_cfg_get_width();
 	param.height = vid_cfg_get_height();
 
 	param.is_visible = true;
-	param.is_fake_fullscreen = is_native_mode;
+	param.fullscreen_type = is_native_mode ? sys::WindowFullscreenType::fake : sys::WindowFullscreenType::none;
 	window_ = window_mgr_.make_window(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 

@@ -1,17 +1,19 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
+
+// A window.
 
 #if !defined(BSTONE_SYS_WINDOW_INCLUDED)
 #define BSTONE_SYS_WINDOW_INCLUDED
 
 #include <climits>
+
 #include <memory>
-#include "bstone_enum_flags.h"
-#include "bstone_r2_extent.h"
-#include "bstone_r2_offset.h"
+
+#include "bstone_exception.h"
 #include "bstone_sys_gl_context.h"
 #include "bstone_sys_renderer.h"
 
@@ -25,34 +27,111 @@ using WindowId = unsigned int;
 constexpr auto window_min_position = -65'535;
 constexpr auto window_max_position = +65'535;
 
-constexpr auto window_position_centered = INT_MAX - 0;
-constexpr auto window_position_undefined = INT_MAX - 1;
+// ==========================================================================
+
+enum class WindowFullscreenType
+{
+	none,
+	fake,
+};
 
 // ==========================================================================
 
-struct WindowPosition : R2OffsetI
+enum class WindowRendererType
 {
-	using R2OffsetI::R2OffsetI;
+	none,
+	open_gl,
 };
 
-struct WindowSize : public R2ExtentI
+// ==========================================================================
+
+enum class WindowOffsetType
 {
-	using R2ExtentI::R2ExtentI;
+	custom,
+	undefined,
+	centered,
+};
+
+// ==========================================================================
+
+class WindowOffset
+{
+public:
+	WindowOffset() = default;
+
+	constexpr explicit WindowOffset(int value) noexcept
+		:
+		type_{WindowOffsetType::custom},
+		value_{value}
+	{}
+
+	constexpr explicit WindowOffset(WindowOffsetType type)
+	{
+		switch (type)
+		{
+			case WindowOffsetType::undefined:
+			case WindowOffsetType::centered:
+				type_ = type;
+				break;
+
+			default: BSTONE_THROW_STATIC_SOURCE("Unknown type.");
+		}
+	}
+
+	constexpr WindowOffsetType get_type() const noexcept
+	{
+		return type_;
+	}
+
+	constexpr int get() const noexcept
+	{
+		return value_;
+	}
+
+	static constexpr WindowOffset make_centered() noexcept
+	{
+		return WindowOffset{WindowOffsetType::centered};
+	}
+
+	static constexpr WindowOffset make_undefined() noexcept
+	{
+		return WindowOffset{WindowOffsetType::undefined};
+	}
+
+private:
+	WindowOffsetType type_{};
+	int value_{};
+};
+
+// ==========================================================================
+
+struct WindowPosition
+{
+	WindowOffset x;
+	WindowOffset y;
+};
+
+// ==========================================================================
+
+struct WindowSize
+{
+	int width;
+	int height;
 };
 
 // ==========================================================================
 
 struct WindowInitParam
 {
-	const char* title{};
-	int x{};
-	int y{};
-	int width{};
-	int height{};
-	bool is_opengl{};
-	bool is_visible{};
-	bool is_fake_fullscreen{};
-	const GlContextAttributes* gl_attributes{};
+	const char* title;
+	WindowOffset x;
+	WindowOffset y;
+	int width;
+	int height;
+	bool is_visible;
+	WindowFullscreenType fullscreen_type;
+	WindowRendererType renderer_type;
+	const GlContextAttributes* gl_attributes;
 };
 
 // ==========================================================================

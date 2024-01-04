@@ -73,19 +73,19 @@ try {
 	const auto gl_attributes = create_window_make_gl_context_attributes(param);
 
 	auto window_param = sys::WindowInitParam{};
-	window_param.x = sys::window_position_centered;
-	window_param.y = sys::window_position_centered;
+	window_param.x = sys::WindowOffset::make_centered();
+	window_param.y = sys::WindowOffset::make_centered();
 	window_param.width = 320;
 	window_param.height = 240;
 	window_param.is_visible = false;
-	window_param.is_fake_fullscreen = false;
+	window_param.fullscreen_type = sys::WindowFullscreenType::none;
 
 	switch (param.renderer_type)
 	{
 		case R3rType::gl_2_0:
 		case R3rType::gl_3_2_core:
 		case R3rType::gles_2_0:
-			window_param.is_opengl = true;
+			window_param.renderer_type = sys::WindowRendererType::open_gl;
 			window_param.gl_attributes = &gl_attributes;
 			break;
 
@@ -141,9 +141,9 @@ try {
 
 		if (param.is_positioned)
 		{
-			const auto x = std::max(param.position.x, 0);
-			const auto y = std::max(param.position.y, 0);
-			window.set_position(sys::WindowPosition{x, y});
+			const auto x = std::max(param.position.x.get(), 0);
+			const auto y = std::max(param.position.y.get(), 0);
+			window.set_position(sys::WindowPosition{sys::WindowOffset{x}, sys::WindowOffset{y}});
 		}
 		else
 		{

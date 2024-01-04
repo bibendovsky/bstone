@@ -70,7 +70,7 @@ private:
 private:
 	static MemoryResource& get_memory_resource();
 
-	static void log_position(int position, std::string& message);
+	static void log_offset(WindowOffset offset, std::string& message);
 	static void log_rect(const WindowInitParam& param, std::string& message);
 	static void log_flag(const char* flag_name, std::string& message);
 	static void log_flags(const WindowInitParam& param, std::string& message);
@@ -78,7 +78,7 @@ private:
 	static void log_input(const WindowInitParam& param, std::string& message);
 	void log_output(std::string& message);
 
-	static int map_position(int position);
+	static int map_offset(WindowOffset offset);
 	static Uint32 map_flags(const WindowInitParam& param) noexcept;
 	static int map_gl_context_profile(GlContextProfile context_profile);
 	static GlContextAttributes make_default_gl_attributes() noexcept;
@@ -101,11 +101,11 @@ try
 	log_input(param, message);
 	logger_.log_information(message.c_str());
 
-	const auto sdl_x = map_position(param.x);
-	const auto sdl_y = map_position(param.y);
+	const auto sdl_x = map_offset(param.x);
+	const auto sdl_y = map_offset(param.y);
 	const auto sdl_flags = map_flags(param);
 
-	if (param.is_opengl)
+	if (param.renderer_type == WindowRendererType::open_gl)
 	{
 		if (param.gl_attributes != nullptr)
 		{
@@ -175,13 +175,13 @@ try {
 	auto x = 0;
 	auto y = 0;
 	SDL_GetWindowPosition(sdl_window_.get(), &x, &y);
-	return WindowPosition{x, y};
+	return WindowPosition{WindowOffset{x}, WindowOffset{y}};
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void Sdl2Window::do_set_position(WindowPosition position)
 try {
-	const auto sdl_x = map_position(position.x);
-	const auto sdl_y = map_position(position.y);
+	const auto sdl_x = map_offset(position.x);
+	const auto sdl_y = map_offset(position.y);
 	SDL_SetWindowPosition(sdl_window_.get(), sdl_x, sdl_y);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
@@ -247,20 +247,20 @@ MemoryResource& Sdl2Window::get_memory_resource()
 	return memory_pool;
 }
 
-void Sdl2Window::log_position(int position, std::string& message)
+void Sdl2Window::log_offset(WindowOffset offset, std::string& message)
 {
-	switch (position)
+	switch (offset.get_type())
 	{
-		case window_position_centered:
+		case WindowOffsetType::centered:
 			message += "centered";
 			break;
 
-		case window_position_undefined:
+		case WindowOffsetType::undefined:
 			message += "undefined";
 			break;
 
 		default:
-			detail::sdl2_log_xint(position, message);
+			detail::sdl2_log_xint(offset.get(), message);
 			break;
 	}
 }
@@ -270,12 +270,12 @@ void Sdl2Window::log_rect(const WindowInitParam& param, std::string& message)
 	// x
 	//
 	message += "(x:";
-	log_position(param.x, message);
+	log_offset(param.x, message);
 	message += "; y:";
 
 	// y
 	//
-	log_position(param.y, message);
+	log_offset(param.y, message);
 	message += "; w:";
 
 	// width
@@ -310,14 +310,14 @@ void Sdl2Window::log_flags(const WindowInitParam& param, std::string& message)
 	message += "  Flags:";
 	detail::sdl2_log_eol(message);
 
-	if (param.is_opengl)
+	if (param.renderer_type == WindowRendererType::open_gl)
 	{
 		log_flag("opengl", message);
 	}
 
 	log_flag(param.is_visible ? "shown" : "hidden", message);
 
-	if (param.is_fake_fullscreen)
+	if (param.fullscreen_type == WindowFullscreenType::fake)
 	{
 		log_flag("fake fullscreen", message);
 	}
@@ -365,7 +365,7 @@ void Sdl2Window::log_input(const WindowInitParam& param, std::string& message)
 
 	// gl attributes
 	//
-	if (param.is_opengl)
+	if (param.renderer_type == WindowRendererType::open_gl)
 	{
 		log_gl_attributes(param.gl_attributes, message);
 	}
@@ -413,35 +413,41 @@ void Sdl2Window::log_output(std::string& message)
 	detail::sdl2_log_eol(message);
 }
 
-int Sdl2Window::map_position(int position)
-try {
-	switch (position)
+int Sdl2Window::map_offset(WindowOffset offset)
+{
+	switch (offset.get_type())
 	{
-		case window_position_centered: return SDL_WINDOWPOS_CENTERED;
-		case window_position_undefined: return SDL_WINDOWPOS_UNDEFINED;
+		case WindowOffsetType::centered: return SDL_WINDOWPOS_CENTERED;
+		case WindowOffsetType::undefined: return SDL_WINDOWPOS_UNDEFINED;
 
-		default:
-			if (position < window_min_position || position > window_max_position)
+		case WindowOffsetType::custom:
 			{
-				BSTONE_THROW_STATIC_SOURCE("Position out of range.");
+				const auto value = offset.get();
+
+				if (value < window_min_position || value > window_max_position)
+				{
+					BSTONE_THROW_STATIC_SOURCE("Position out of range.");
+				}
+
+				return value;
 			}
 
-			return position;
+		default: BSTONE_THROW_STATIC_SOURCE("Unknown offset type.");
 	}
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 Uint32 Sdl2Window::map_flags(const WindowInitParam& param) noexcept
 {
 	auto sdl_flags = Uint32{SDL_WINDOW_ALLOW_HIGHDPI};
 
-	if (param.is_opengl)
+	if (param.renderer_type == WindowRendererType::open_gl)
 	{
 		sdl_flags |= SDL_WINDOW_OPENGL;
 	}
 
 	sdl_flags |= param.is_visible ? SDL_WINDOW_SHOWN : SDL_WINDOW_HIDDEN;
 
-	if (param.is_fake_fullscreen)
+	if (param.fullscreen_type == WindowFullscreenType::fake)
 	{
 		sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 	}
