@@ -1,14 +1,18 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
+
+// Video manager.
 
 #if !defined(BSTONE_SYS_VIDEO_MGR_INCLUDED)
 #define BSTONE_SYS_VIDEO_MGR_INCLUDED
 
 #include <memory>
+
 #include "bstone_span.h"
+
 #include "bstone_sys_gl_current_context.h"
 #include "bstone_sys_mouse_mgr.h"
 #include "bstone_sys_window_mgr.h"
@@ -32,7 +36,7 @@ public:
 	DisplayMode get_current_display_mode();
 
 	// Notes:
-	//   - The returned data valid until next call of the method.
+	//   - The returned data valid until next invocation.
 	Span<const DisplayMode> get_display_modes();
 
 	GlCurrentContext& get_gl_current_context();
