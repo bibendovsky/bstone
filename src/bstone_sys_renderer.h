@@ -4,12 +4,16 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
+// 2D renderer.
+
 #if !defined(BSTONE_SYS_RENDERER_INCLUDED)
 #define BSTONE_SYS_RENDERER_INCLUDED
 
 #include <memory>
+
 #include "bstone_rectangle.h"
 #include "bstone_span.h"
+
 #include "bstone_sys_color.h"
 #include "bstone_sys_pixel_format.h"
 #include "bstone_sys_texture.h"
@@ -40,11 +44,10 @@ public:
 	const char* get_name() const;
 
 	void set_viewport();
-	void set_viewport(const RendererViewport& viewport);
 
 	void clear();
 	void set_draw_color(Color color);
-	void fill(Span<const Rectangle> rects);
+	void fill(Span<const Rectangle> rectangles);
 	void present();
 
 	void read_pixels(PixelFormat pixel_format, void* pixels, int pitch);
@@ -62,7 +65,7 @@ private:
 	virtual void do_present() = 0;
 
 	virtual void do_read_pixels(
-		const Rectangle* rect,
+		const Rectangle* rectangle,
 		PixelFormat pixel_format,
 		void* pixels,
 		int pitch) = 0;
