@@ -196,3 +196,4 @@ target_sources(${PROJECT_NAME}
 )
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION "tests")
+install(DIRECTORY data DESTINATION "tests")
