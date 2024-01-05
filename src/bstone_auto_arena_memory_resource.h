@@ -1,10 +1,10 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2023-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-// Automatically clearing arena memory resource.
+// Arena memory resource with auto-reseting size.
 
 #if !defined(BSTONE_AUTO_ARENA_MEMORY_RESOURCE_INCLUDED)
 #define BSTONE_AUTO_ARENA_MEMORY_RESOURCE_INCLUDED
@@ -22,33 +22,27 @@ class AutoArenaMemoryResource : public MemoryResource
 {
 public:
 	AutoArenaMemoryResource() noexcept;
-	~AutoArenaMemoryResource() override;
+	AutoArenaMemoryResource(std::intptr_t capacity, MemoryResource& memory_resource);
+	~AutoArenaMemoryResource() override = default;
+
+	std::intptr_t get_capacity() const noexcept;
+	std::intptr_t get_size() const noexcept;
 
 	void reserve(std::intptr_t capacity, MemoryResource& memory_resource);
 
 private:
-	class StorageDeleter
-	{
-	public:
-		StorageDeleter(MemoryResource& memory_resource) noexcept;
-
-		void operator()(unsigned char* ptr) const noexcept;
-
-	private:
-		MemoryResource* memory_resource_{};
-	};
-
-	using Storage = std::unique_ptr<unsigned char[], StorageDeleter>;
-
-private:
-	BSTONE_CXX_NODISCARD void* do_allocate(std::intptr_t size) override;
-	void do_deallocate(void* ptr) noexcept override;
+	using Storage = MemoryResourceUPtr<char[]>;
+	using StorageDeleter = typename Storage::deleter_type;
 
 private:
 	Storage storage_;
 	std::intptr_t capacity_{};
 	std::intptr_t size_{};
 	std::intptr_t counter_{};
+
+private:
+	BSTONE_CXX_NODISCARD void* do_allocate(std::intptr_t size) override;
+	void do_deallocate(void* ptr) noexcept override;
 };
 
 } // namespace bstone

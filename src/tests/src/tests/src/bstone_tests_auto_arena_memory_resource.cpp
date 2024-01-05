@@ -9,6 +9,45 @@ auto tester = bstone::Tester{};
 
 // ==========================================================================
 
+// AutoArenaMemoryResource(std::intptr_t, MemoryResource&)
+void test_2nuufbimso59d9eh()
+{
+	const bstone::AutoArenaMemoryResource memory_resource{10, bstone::get_default_memory_resource()};
+}
+
+// ==========================================================================
+
+// std::intptr_t get_capacity() const noexcept
+void test_3sitwuhphbjzbed5()
+{
+	const bstone::AutoArenaMemoryResource memory_resource{10, bstone::get_default_memory_resource()};
+	const auto is_valid_1 = memory_resource.get_capacity() == 10;
+	const auto is_valid =
+		is_valid_1 &&
+		true;
+	tester.check(is_valid);
+}
+
+// ==========================================================================
+
+// std::intptr_t get_size() const noexcept
+void test_wwpbx8htuvik3832()
+{
+	bstone::AutoArenaMemoryResource memory_resource{10, bstone::get_default_memory_resource()};
+	const auto is_valid_1 = memory_resource.get_size() == 0;
+
+	static_cast<void>(memory_resource.allocate(5));
+	const auto is_valid_2 = memory_resource.get_size() == 5;
+
+	const auto is_valid =
+		is_valid_1 &&
+		is_valid_2 &&
+		true;
+	tester.check(is_valid);
+}
+
+// ==========================================================================
+
 // reserve(std::intptr_t, MemoryResource&)
 // Success.
 void test_12i9vgaja0au5hw4()
@@ -114,10 +153,28 @@ class Registrator
 public:
 	Registrator()
 	{
+		register_ctor();
+		register_get_capacity();
+		register_get_size();
 		register_auto_arena_memory_resource();
 	}
 
 private:
+	void register_ctor()
+	{
+		tester.register_test("AutoArenaMemoryResource#2nuufbimso59d9eh", test_2nuufbimso59d9eh);
+	}
+
+	void register_get_capacity()
+	{
+		tester.register_test("AutoArenaMemoryResource#3sitwuhphbjzbed5", test_3sitwuhphbjzbed5);
+	}
+
+	void register_get_size()
+	{
+		tester.register_test("AutoArenaMemoryResource#wwpbx8htuvik3832", test_wwpbx8htuvik3832);
+	}
+
 	void register_auto_arena_memory_resource()
 	{
 		tester.register_test("AutoArenaMemoryResource#12i9vgaja0au5hw4", test_12i9vgaja0au5hw4);
