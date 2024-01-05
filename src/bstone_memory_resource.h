@@ -38,6 +38,7 @@ private:
 template<typename T>
 BSTONE_CXX_NODISCARD T* MemoryResource::allocate(std::intptr_t count)
 {
+	static_assert(sizeof(T) <= PTRDIFF_MAX, "Size of type too big.");
 	constexpr auto item_size = static_cast<std::intptr_t>(sizeof(T));
 	const auto size = item_size * count;
 	return static_cast<T*>(allocate(size));

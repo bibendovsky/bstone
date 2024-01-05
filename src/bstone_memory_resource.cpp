@@ -14,12 +14,14 @@ namespace bstone {
 
 BSTONE_CXX_NODISCARD void* MemoryResource::allocate(std::intptr_t size)
 {
+	BSTONE_ASSERT(size >= 0);
+
 	return do_allocate(size);
 }
 
-void MemoryResource::deallocate(void* resource) noexcept
+void MemoryResource::deallocate(void* ptr) noexcept
 {
-	do_deallocate(resource);
+	do_deallocate(ptr);
 }
 
 // ==========================================================================
@@ -47,8 +49,6 @@ void NullMemoryResource::do_deallocate(void*) noexcept {}
 
 BSTONE_CXX_NODISCARD void* NewDeleteMemoryResource::do_allocate(std::intptr_t size)
 {
-	BSTONE_ASSERT(size >= 0);
-
 	return ::operator new(static_cast<std::size_t>(size));
 }
 
