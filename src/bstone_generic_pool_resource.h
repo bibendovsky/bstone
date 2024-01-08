@@ -6,8 +6,8 @@ SPDX-License-Identifier: MIT
 
 // Generic memory pool.
 
-#if !defined(BSTONE_GENERIC_POOL_MEMORY_RESOURCE_INCLUDED)
-#define BSTONE_GENERIC_POOL_MEMORY_RESOURCE_INCLUDED
+#if !defined(BSTONE_GENERIC_POOL_RESOURCE_INCLUDED)
+#define BSTONE_GENERIC_POOL_RESOURCE_INCLUDED
 
 #include <cstdint>
 
@@ -19,15 +19,15 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-class GenericPoolMemoryResource final : public MemoryResource
+class GenericPoolResource final : public MemoryResource
 {
 public:
 	using MemoryResource::allocate;
 	using MemoryResource::deallocate;
 
 public:
-	GenericPoolMemoryResource() noexcept;
-	~GenericPoolMemoryResource() override;
+	GenericPoolResource() noexcept;
+	~GenericPoolResource() override;
 
 	void reserve(std::intptr_t object_size, std::intptr_t max_objects, MemoryResource& memory_resource);
 
@@ -61,4 +61,4 @@ private:
 
 } // namespace bstone
 
-#endif // BSTONE_GENERIC_POOL_MEMORY_RESOURCE_INCLUDED
+#endif // BSTONE_GENERIC_POOL_RESOURCE_INCLUDED

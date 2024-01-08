@@ -14,7 +14,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_configurations.h"
 #include "bstone_exception.h"
 #include "bstone_posix_string.h"
-#include "bstone_ts_auto_arena_memory_resource.h"
+#include "bstone_ts_auto_arena_resource.h"
 
 namespace bstone {
 
@@ -24,13 +24,13 @@ MemoryResource& get_posix_string_memory_resource()
 {
 	struct Initializer
 	{
-		Initializer(TsAutoArenaMemoryResource& memory_resource)
+		Initializer(TsAutoArenaResource& memory_resource)
 		{
 			memory_resource.reserve(posix_string_capacity, get_default_memory_resource());
 		}
 	};
 
-	static TsAutoArenaMemoryResource memory_resource{};
+	static TsAutoArenaResource memory_resource{};
 	static Initializer initializer{memory_resource};
 	return memory_resource;
 }

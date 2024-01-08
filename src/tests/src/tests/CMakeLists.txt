@@ -96,16 +96,16 @@ target_sources(${PROJECT_NAME}
 		../../../bstone_utf16.h
 		../../../bstone_utf8.cpp
 		../../../bstone_utf8.h
-		../../../bstone_single_pool_memory_resource.cpp
-		../../../bstone_single_pool_memory_resource.h
-		../../../bstone_fixed_pool_memory_resource.cpp
-		../../../bstone_fixed_pool_memory_resource.h
-		../../../bstone_generic_pool_memory_resource.cpp
-		../../../bstone_generic_pool_memory_resource.h
-		../../../bstone_auto_arena_memory_resource.cpp
-		../../../bstone_auto_arena_memory_resource.h
-		../../../bstone_ts_auto_arena_memory_resource.cpp
-		../../../bstone_ts_auto_arena_memory_resource.h
+		../../../bstone_single_pool_resource.cpp
+		../../../bstone_single_pool_resource.h
+		../../../bstone_fixed_pool_resource.cpp
+		../../../bstone_fixed_pool_resource.h
+		../../../bstone_generic_pool_resource.cpp
+		../../../bstone_generic_pool_resource.h
+		../../../bstone_auto_arena_resource.cpp
+		../../../bstone_auto_arena_resource.h
+		../../../bstone_ts_auto_arena_resource.cpp
+		../../../bstone_ts_auto_arena_resource.h
 		../../../bstone_win32_wstring.cpp
 		../../../bstone_win32_wstring.h
 		../../../bstone_file_posix.cpp
@@ -146,6 +146,8 @@ target_sources(${PROJECT_NAME}
 		../../../bstone_fs_win32.cpp
 		../../../bstone_fs.cpp
 		../../../bstone_fs.h
+		../../../bstone_posix_string.cpp
+		../../../bstone_posix_string.h
 	PRIVATE
 		src/bstone_tests_algorithm.cpp
 		src/bstone_tests_array.cpp
@@ -168,11 +170,11 @@ target_sources(${PROJECT_NAME}
 		src/bstone_tests_sha1.cpp
 		src/bstone_tests_memory_pool_bitmap.cpp
 		src/bstone_tests_utf.cpp
-		src/bstone_tests_single_pool_memory_resource.cpp
-		src/bstone_tests_fixed_pool_memory_resource.cpp
-		src/bstone_tests_generic_pool_memory_resource.cpp
-		src/bstone_tests_auto_arena_memory_resource.cpp
-		src/bstone_tests_ts_auto_arena_memory_resource.cpp
+		src/bstone_tests_single_pool_resource.cpp
+		src/bstone_tests_fixed_pool_resource.cpp
+		src/bstone_tests_generic_pool_resource.cpp
+		src/bstone_tests_auto_arena_resource.cpp
+		src/bstone_tests_ts_auto_arena_resource.cpp
 		src/bstone_tests_win32_wstring.cpp
 		src/bstone_tests_configurations.cpp
 		src/bstone_tests_file.cpp

@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 #include <cassert>
 #include "SDL_audio.h"
-#include "bstone_single_pool_memory_resource.h"
+#include "bstone_single_pool_resource.h"
 #include "bstone_sys_exception_sdl2.h"
 #include "bstone_sys_push_audio_device_sdl2.h"
 #include "bstone_exception.h"
@@ -143,7 +143,7 @@ void Sdl2PushAudioDevice::do_pause(bool is_pause)
 
 MemoryResource& Sdl2PushAudioDevice::get_memory_resource()
 {
-	static SinglePoolMemoryResource<Sdl2PushAudioDevice> memory_pool{};
+	static SinglePoolResource<Sdl2PushAudioDevice> memory_pool{};
 
 	return memory_pool;
 }

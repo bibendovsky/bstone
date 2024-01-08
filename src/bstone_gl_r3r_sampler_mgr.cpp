@@ -7,7 +7,7 @@ SPDX-License-Identifier: MIT
 // OpenGL 3D Renderer: Sampler Manager
 
 #include "bstone_exception.h"
-#include "bstone_single_pool_memory_resource.h"
+#include "bstone_single_pool_resource.h"
 
 #include "bstone_r3r_tests.h"
 
@@ -50,7 +50,7 @@ private:
 
 // ==========================================================================
 
-using GlR3rSamplerMgrImplPool = SinglePoolMemoryResource<GlR3rSamplerMgrImpl>;
+using GlR3rSamplerMgrImplPool = SinglePoolResource<GlR3rSamplerMgrImpl>;
 GlR3rSamplerMgrImplPool gl_r3r_sampler_mgr_impl_pool{};
 
 // ==========================================================================

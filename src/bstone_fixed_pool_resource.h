@@ -6,8 +6,8 @@ SPDX-License-Identifier: MIT
 
 // Memory pool with known size of an object and maximum objects.
 
-#if !defined(BSTONE_FIXED_POOL_MEMORY_RESOURCE_INCLUDED)
-#define BSTONE_FIXED_POOL_MEMORY_RESOURCE_INCLUDED
+#if !defined(BSTONE_FIXED_POOL_RESOURCE_INCLUDED)
+#define BSTONE_FIXED_POOL_RESOURCE_INCLUDED
 
 #include "bstone_assert.h"
 #include "bstone_cxx.h"
@@ -18,7 +18,7 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 
 template<typename TObject, std::intptr_t TMaxObjects>
-class FixedPoolMemoryResource final : public MemoryResource
+class FixedPoolResource final : public MemoryResource
 {
 	static_assert(TMaxObjects > 0, "Max objects out of range.");
 
@@ -33,8 +33,8 @@ public:
 	static constexpr auto object_size = static_cast<std::intptr_t>(sizeof(Object));
 
 public:
-	FixedPoolMemoryResource() noexcept = default;
-	~FixedPoolMemoryResource() override;
+	FixedPoolResource() noexcept = default;
+	~FixedPoolResource() override;
 
 private:
 	static constexpr auto storage_size = object_size * max_objects;
@@ -55,13 +55,13 @@ private:
 // --------------------------------------------------------------------------
 
 template<typename TObject, std::intptr_t TMaxObjects>
-FixedPoolMemoryResource<TObject, TMaxObjects>::~FixedPoolMemoryResource()
+FixedPoolResource<TObject, TMaxObjects>::~FixedPoolResource()
 {
 	BSTONE_ASSERT(bitmap_.is_empty());
 }
 
 template<typename TObject, std::intptr_t TMaxObjects>
-BSTONE_CXX_NODISCARD void* FixedPoolMemoryResource<TObject, TMaxObjects>::do_allocate(std::intptr_t size)
+BSTONE_CXX_NODISCARD void* FixedPoolResource<TObject, TMaxObjects>::do_allocate(std::intptr_t size)
 {
 	if (size != object_size)
 	{
@@ -74,7 +74,7 @@ BSTONE_CXX_NODISCARD void* FixedPoolMemoryResource<TObject, TMaxObjects>::do_all
 }
 
 template<typename TObject, std::intptr_t TMaxObjects>
-void FixedPoolMemoryResource<TObject, TMaxObjects>::do_deallocate(void* ptr) noexcept
+void FixedPoolResource<TObject, TMaxObjects>::do_deallocate(void* ptr) noexcept
 {
 	if (ptr == nullptr)
 	{
@@ -89,4 +89,4 @@ void FixedPoolMemoryResource<TObject, TMaxObjects>::do_deallocate(void* ptr) noe
 
 } // namespace bstone
 
-#endif // BSTONE_FIXED_POOL_MEMORY_RESOURCE_INCLUDED
+#endif // BSTONE_FIXED_POOL_RESOURCE_INCLUDED

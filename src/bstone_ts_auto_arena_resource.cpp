@@ -6,40 +6,40 @@ SPDX-License-Identifier: MIT
 
 // Thread-safe, arena memory resource with auto-reseting size.
 
-#include "bstone_ts_auto_arena_memory_resource.h"
+#include "bstone_ts_auto_arena_resource.h"
 #
 namespace bstone {
 
-TsAutoArenaMemoryResource::TsAutoArenaMemoryResource(std::intptr_t capacity, MemoryResource& memory_resource)
+TsAutoArenaResource::TsAutoArenaResource(std::intptr_t capacity, MemoryResource& memory_resource)
 	:
 	arena_{capacity, memory_resource}
 {}
 
-std::intptr_t TsAutoArenaMemoryResource::get_capacity() noexcept
+std::intptr_t TsAutoArenaResource::get_capacity() noexcept
 {
 	MutexLock mutex_lock{mutex_};
 	return arena_.get_capacity();
 }
 
-std::intptr_t TsAutoArenaMemoryResource::get_size() noexcept
+std::intptr_t TsAutoArenaResource::get_size() noexcept
 {
 	MutexLock mutex_lock{mutex_};
 	return arena_.get_size();
 }
 
-void TsAutoArenaMemoryResource::reserve(std::intptr_t capacity, MemoryResource& memory_resource)
+void TsAutoArenaResource::reserve(std::intptr_t capacity, MemoryResource& memory_resource)
 {
 	MutexLock mutex_lock{mutex_};
 	arena_.reserve(capacity, memory_resource);
 }
 
-BSTONE_CXX_NODISCARD void* TsAutoArenaMemoryResource::do_allocate(std::intptr_t size)
+BSTONE_CXX_NODISCARD void* TsAutoArenaResource::do_allocate(std::intptr_t size)
 {
 	MutexLock mutex_lock{mutex_};
 	return arena_.allocate(size);
 }
 
-void TsAutoArenaMemoryResource::do_deallocate(void* ptr) noexcept
+void TsAutoArenaResource::do_deallocate(void* ptr) noexcept
 {
 	MutexLock mutex_lock{mutex_};
 	arena_.deallocate(ptr);

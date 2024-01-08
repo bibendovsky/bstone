@@ -10,7 +10,7 @@ SPDX-License-Identifier: MIT
 #include "SDL.h"
 #include "bstone_char_conv.h"
 #include "bstone_exception.h"
-#include "bstone_single_pool_memory_resource.h"
+#include "bstone_single_pool_resource.h"
 #include "bstone_sys_logger.h"
 #include "bstone_sys_audio_mgr_sdl2.h"
 #include "bstone_sys_exception_sdl2.h"
@@ -47,7 +47,7 @@ private:
 
 // ==========================================================================
 
-using Sdl2AudioMgrPool = SinglePoolMemoryResource<Sdl2AudioMgr>;
+using Sdl2AudioMgrPool = SinglePoolResource<Sdl2AudioMgr>;
 Sdl2AudioMgrPool sdl2_audio_mgr_pool{};
 
 // ==========================================================================

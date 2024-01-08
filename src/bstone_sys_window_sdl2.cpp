@@ -7,7 +7,7 @@ SPDX-License-Identifier: MIT
 #include <string>
 #include "bstone_char_conv.h"
 #include "bstone_exception.h"
-#include "bstone_single_pool_memory_resource.h"
+#include "bstone_single_pool_resource.h"
 #include "bstone_sys_detail_sdl2.h"
 #include "bstone_sys_exception_sdl2.h"
 #include "bstone_sys_gl_context_sdl2.h"
@@ -242,7 +242,7 @@ try {
 
 MemoryResource& Sdl2Window::get_memory_resource()
 {
-	static SinglePoolMemoryResource<Sdl2Window> memory_pool{};
+	static SinglePoolResource<Sdl2Window> memory_pool{};
 
 	return memory_pool;
 }

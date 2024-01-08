@@ -7,7 +7,7 @@ SPDX-License-Identifier: MIT
 // OpenGL 3D Renderer: Buffer
 
 #include "bstone_exception.h"
-#include "bstone_fixed_pool_memory_resource.h"
+#include "bstone_fixed_pool_resource.h"
 #include "bstone_unique_resource.h"
 
 #include "bstone_r3r_limits.h"
@@ -69,7 +69,7 @@ private:
 
 // =========================================================================
 
-using GlR3rBufferImplPool = FixedPoolMemoryResource<GlR3rBufferImpl, R3rLimits::max_buffers>;
+using GlR3rBufferImplPool = FixedPoolResource<GlR3rBufferImpl, R3rLimits::max_buffers>;
 GlR3rBufferImplPool gl_r3r_buffer_impl_pool{};
 
 // =========================================================================

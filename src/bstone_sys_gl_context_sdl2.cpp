@@ -8,7 +8,7 @@ SPDX-License-Identifier: MIT
 #include <type_traits>
 #include "bstone_configurations.h"
 #include "bstone_exception.h"
-#include "bstone_generic_pool_memory_resource.h"
+#include "bstone_generic_pool_resource.h"
 #include "bstone_sys_detail_sdl2.h"
 #include "bstone_sys_exception_sdl2.h"
 #include "bstone_sys_gl_context_sdl2.h"
@@ -134,7 +134,7 @@ MemoryResource& Sdl2GlContext::get_memory_resource()
 {
 	struct Initializer
 	{
-		Initializer(GenericPoolMemoryResource& generic_memory_pool)
+		Initializer(GenericPoolResource& generic_memory_pool)
 		{
 			generic_memory_pool.reserve(
 				static_cast<std::intptr_t>(sizeof(Sdl2GlContext)),
@@ -143,7 +143,7 @@ MemoryResource& Sdl2GlContext::get_memory_resource()
 		}
 	};
 
-	static GenericPoolMemoryResource generic_memory_pool{};
+	static GenericPoolResource generic_memory_pool{};
 	static const Initializer initializer{generic_memory_pool};
 
 	return generic_memory_pool;

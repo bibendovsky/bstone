@@ -6,22 +6,23 @@ SPDX-License-Identifier: MIT
 
 // Thread-safe, arena memory resource with auto-reseting size.
 
-#if !defined(BSTONE_TS_AUTO_ARENA_MEMORY_RESOURCE_INCLUDED)
-#define BSTONE_TS_AUTO_ARENA_MEMORY_RESOURCE_INCLUDED
+#if !defined(BSTONE_TS_AUTO_ARENA_RESOURCE_INCLUDED)
+#define BSTONE_TS_AUTO_ARENA_RESOURCE_INCLUDED
 
 #include <mutex>
 
 #include "bstone_cxx.h"
-#include "bstone_auto_arena_memory_resource.h"
+#include "bstone_auto_arena_resource.h"
+#include "bstone_memory_resource.h"
 
 namespace bstone {
 
-class TsAutoArenaMemoryResource : public MemoryResource
+class TsAutoArenaResource : public MemoryResource
 {
 public:
-	TsAutoArenaMemoryResource() noexcept = default;
-	TsAutoArenaMemoryResource(std::intptr_t capacity, MemoryResource& memory_resource);
-	~TsAutoArenaMemoryResource() override = default;
+	TsAutoArenaResource() noexcept = default;
+	TsAutoArenaResource(std::intptr_t capacity, MemoryResource& memory_resource);
+	~TsAutoArenaResource() override = default;
 
 	std::intptr_t get_capacity() noexcept;
 	std::intptr_t get_size() noexcept;
@@ -38,9 +39,9 @@ private:
 
 private:
 	Mutex mutex_{};
-	AutoArenaMemoryResource arena_{};
+	AutoArenaResource arena_{};
 };
 
 } // namespace bstone
 
-#endif // BSTONE_TS_AUTO_ARENA_MEMORY_RESOURCE_INCLUDED
+#endif // BSTONE_TS_AUTO_ARENA_RESOURCE_INCLUDED

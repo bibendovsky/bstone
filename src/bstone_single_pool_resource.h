@@ -6,8 +6,8 @@ SPDX-License-Identifier: MIT
 
 // Memory pool for single object.
 
-#if !defined(BSTONE_SINGLE_POOL_MEMORY_RESOURCE_INCLUDED)
-#define BSTONE_SINGLE_POOL_MEMORY_RESOURCE_INCLUDED
+#if !defined(BSTONE_SINGLE_POOL_RESOURCE_INCLUDED)
+#define BSTONE_SINGLE_POOL_RESOURCE_INCLUDED
 
 #include "bstone_cxx.h"
 #include "bstone_assert.h"
@@ -17,16 +17,16 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 
 template<typename T>
-class SinglePoolMemoryResource final : public MemoryResource
+class SinglePoolResource final : public MemoryResource
 {
 public:
 	static constexpr auto object_size = static_cast<std::intptr_t>(sizeof(T));
 
 public:
-	SinglePoolMemoryResource() noexcept = default;
-	SinglePoolMemoryResource(const SinglePoolMemoryResource&) = delete;
-	SinglePoolMemoryResource(SinglePoolMemoryResource&&) noexcept = delete;
-	~SinglePoolMemoryResource() override;
+	SinglePoolResource() noexcept = default;
+	SinglePoolResource(const SinglePoolResource&) = delete;
+	SinglePoolResource(SinglePoolResource&&) noexcept = delete;
+	~SinglePoolResource() override;
 
 private:
 	BSTONE_CXX_NODISCARD void* do_allocate(std::intptr_t size) override;
@@ -43,13 +43,13 @@ private:
 // --------------------------------------------------------------------------
 
 template<typename T>
-SinglePoolMemoryResource<T>::~SinglePoolMemoryResource()
+SinglePoolResource<T>::~SinglePoolResource()
 {
 	BSTONE_ASSERT(!is_allocated_);
 }
 
 template<typename T>
-BSTONE_CXX_NODISCARD void* SinglePoolMemoryResource<T>::do_allocate(std::intptr_t size)
+BSTONE_CXX_NODISCARD void* SinglePoolResource<T>::do_allocate(std::intptr_t size)
 {
 	if (size != object_size)
 	{
@@ -66,7 +66,7 @@ BSTONE_CXX_NODISCARD void* SinglePoolMemoryResource<T>::do_allocate(std::intptr_
 }
 
 template<typename T>
-void SinglePoolMemoryResource<T>::do_deallocate(void* ptr) noexcept
+void SinglePoolResource<T>::do_deallocate(void* ptr) noexcept
 {
 	if (ptr == nullptr)
 	{
@@ -79,4 +79,4 @@ void SinglePoolMemoryResource<T>::do_deallocate(void* ptr) noexcept
 
 } // namespace bstone
 
-#endif // BSTONE_SINGLE_POOL_MEMORY_RESOURCE_INCLUDED
+#endif // BSTONE_SINGLE_POOL_RESOURCE_INCLUDED

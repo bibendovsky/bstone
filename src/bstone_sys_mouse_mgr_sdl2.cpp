@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 #include "SDL_mouse.h"
 #include "bstone_exception.h"
-#include "bstone_single_pool_memory_resource.h"
+#include "bstone_single_pool_resource.h"
 #include "bstone_sys_exception_sdl2.h"
 #include "bstone_sys_mouse_mgr_sdl2.h"
 
@@ -66,7 +66,7 @@ void Sdl2MouseMgr::do_set_relative_mode(bool is_enable)
 
 MemoryResource& Sdl2MouseMgr::get_memory_resource()
 {
-	static SinglePoolMemoryResource<Sdl2MouseMgr> memory_pool{};
+	static SinglePoolResource<Sdl2MouseMgr> memory_pool{};
 
 	return memory_pool;
 }

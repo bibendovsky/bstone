@@ -20,7 +20,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_exception.h"
 #include "bstone_exception_utils.h"
-#include "bstone_single_pool_memory_resource.h"
+#include "bstone_single_pool_resource.h"
 
 #include "bstone_cgm_mat.h"
 #include "bstone_cgm_clip_space.h"
@@ -1513,7 +1513,7 @@ private:
 
 // ==========================================================================
 
-using HwVideoPool = SinglePoolMemoryResource<HwVideo>;
+using HwVideoPool = SinglePoolResource<HwVideo>;
 HwVideoPool hw_video_pool{};
 
 // ==========================================================================

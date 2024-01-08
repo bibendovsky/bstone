@@ -6,8 +6,8 @@ SPDX-License-Identifier: MIT
 
 // Arena memory resource with auto-reseting size.
 
-#if !defined(BSTONE_AUTO_ARENA_MEMORY_RESOURCE_INCLUDED)
-#define BSTONE_AUTO_ARENA_MEMORY_RESOURCE_INCLUDED
+#if !defined(BSTONE_AUTO_ARENA_RESOURCE_INCLUDED)
+#define BSTONE_AUTO_ARENA_RESOURCE_INCLUDED
 
 #include <cstdint>
 
@@ -18,12 +18,12 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-class AutoArenaMemoryResource : public MemoryResource
+class AutoArenaResource : public MemoryResource
 {
 public:
-	AutoArenaMemoryResource() noexcept;
-	AutoArenaMemoryResource(std::intptr_t capacity, MemoryResource& memory_resource);
-	~AutoArenaMemoryResource() override = default;
+	AutoArenaResource() noexcept;
+	AutoArenaResource(std::intptr_t capacity, MemoryResource& memory_resource);
+	~AutoArenaResource() override = default;
 
 	std::intptr_t get_capacity() const noexcept;
 	std::intptr_t get_size() const noexcept;
@@ -47,4 +47,4 @@ private:
 
 } // namespace bstone
 
-#endif // BSTONE_AUTO_ARENA_MEMORY_RESOURCE_INCLUDED
+#endif // BSTONE_AUTO_ARENA_RESOURCE_INCLUDED

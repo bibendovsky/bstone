@@ -332,17 +332,17 @@ target_sources(
 		bstone_utf8.h
 		bstone_utf16.cpp
 		bstone_utf16.h
-		bstone_single_pool_memory_resource.cpp
-		bstone_single_pool_memory_resource.h
-		bstone_fixed_pool_memory_resource.cpp
-		bstone_fixed_pool_memory_resource.h
-		bstone_generic_pool_memory_resource.cpp
-		bstone_generic_pool_memory_resource.h
+		bstone_single_pool_resource.cpp
+		bstone_single_pool_resource.h
+		bstone_fixed_pool_resource.cpp
+		bstone_fixed_pool_resource.h
+		bstone_generic_pool_resource.cpp
+		bstone_generic_pool_resource.h
 		bstone_configurations.h
-		bstone_auto_arena_memory_resource.cpp
-		bstone_auto_arena_memory_resource.h
-		bstone_ts_auto_arena_memory_resource.cpp
-		bstone_ts_auto_arena_memory_resource.h
+		bstone_auto_arena_resource.cpp
+		bstone_auto_arena_resource.h
+		bstone_ts_auto_arena_resource.cpp
+		bstone_ts_auto_arena_resource.h
 		bstone_win32_wstring.cpp
 		bstone_win32_wstring.h
 		bstone_file.cpp

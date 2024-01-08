@@ -10,7 +10,7 @@ SPDX-License-Identifier: MIT
 #include "SDL.h"
 #include "bstone_char_conv.h"
 #include "bstone_exception.h"
-#include "bstone_single_pool_memory_resource.h"
+#include "bstone_single_pool_resource.h"
 #include "bstone_string_view.h"
 #include "bstone_sys_logger.h"
 #include "bstone_sys_audio_mgr_sdl2.h"
@@ -162,7 +162,7 @@ VideoMgr& Sdl2SystemMgr::do_get_video_mgr()
 
 MemoryResource& Sdl2SystemMgr::get_memory_resource()
 {
-	static SinglePoolMemoryResource<Sdl2SystemMgr> memory_pool{};
+	static SinglePoolResource<Sdl2SystemMgr> memory_pool{};
 
 	return memory_pool;
 }

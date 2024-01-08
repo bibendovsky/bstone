@@ -9,7 +9,7 @@ SPDX-License-Identifier: MIT
 #include <SDL_video.h>
 
 #include "bstone_exception.h"
-#include "bstone_single_pool_memory_resource.h"
+#include "bstone_single_pool_resource.h"
 #include "bstone_sys_exception_sdl2.h"
 #include "bstone_sys_gl_current_context_sdl2.h"
 #include "bstone_sys_gl_symbol_resolver_sdl2.h"
@@ -30,7 +30,7 @@ private:
 	Logger& logger_;
 	Sdl2GlSymbolResolver gl_symbol_resolver_{};
 
-	static SinglePoolMemoryResource<Sdl2GlCurrentContext> memoryResource_;
+	static SinglePoolResource<Sdl2GlCurrentContext> memoryResource_;
 
 private:
 	bool do_has_extension(const char* extension_name) const noexcept override;
@@ -46,7 +46,7 @@ private:
 
 // --------------------------------------------------------------------------
 
-SinglePoolMemoryResource<Sdl2GlCurrentContext> Sdl2GlCurrentContext::memoryResource_{};
+SinglePoolResource<Sdl2GlCurrentContext> Sdl2GlCurrentContext::memoryResource_{};
 
 Sdl2GlCurrentContext::Sdl2GlCurrentContext(Logger& logger)
 	:

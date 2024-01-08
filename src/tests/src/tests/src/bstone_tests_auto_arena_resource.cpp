@@ -1,6 +1,6 @@
 #include <cstddef>
 
-#include "bstone_auto_arena_memory_resource.h"
+#include "bstone_auto_arena_resource.h"
 #include "bstone_tester.h"
 
 namespace {
@@ -9,10 +9,10 @@ auto tester = bstone::Tester{};
 
 // ==========================================================================
 
-// AutoArenaMemoryResource(std::intptr_t, MemoryResource&)
+// AutoArenaResource(std::intptr_t, MemoryResource&)
 void test_2nuufbimso59d9eh()
 {
-	const bstone::AutoArenaMemoryResource memory_resource{10, bstone::get_default_memory_resource()};
+	const bstone::AutoArenaResource memory_resource{10, bstone::get_default_memory_resource()};
 }
 
 // ==========================================================================
@@ -20,7 +20,7 @@ void test_2nuufbimso59d9eh()
 // std::intptr_t get_capacity() const noexcept
 void test_3sitwuhphbjzbed5()
 {
-	const bstone::AutoArenaMemoryResource memory_resource{10, bstone::get_default_memory_resource()};
+	const bstone::AutoArenaResource memory_resource{10, bstone::get_default_memory_resource()};
 	const auto is_valid_1 = memory_resource.get_capacity() == 10;
 	const auto is_valid =
 		is_valid_1 &&
@@ -33,7 +33,7 @@ void test_3sitwuhphbjzbed5()
 // std::intptr_t get_size() const noexcept
 void test_wwpbx8htuvik3832()
 {
-	bstone::AutoArenaMemoryResource memory_resource{10, bstone::get_default_memory_resource()};
+	bstone::AutoArenaResource memory_resource{10, bstone::get_default_memory_resource()};
 	const auto is_valid_1 = memory_resource.get_size() == 0;
 
 	static_cast<void>(memory_resource.allocate(5));
@@ -52,7 +52,7 @@ void test_wwpbx8htuvik3832()
 // Success.
 void test_12i9vgaja0au5hw4()
 {
-	using MemoryResource = bstone::AutoArenaMemoryResource;
+	using MemoryResource = bstone::AutoArenaResource;
 
 	auto is_failed = false;
 
@@ -73,7 +73,7 @@ void test_12i9vgaja0au5hw4()
 // Success.
 void test_h89q7m1ofox5m1yt()
 {
-	using MemoryResource = bstone::AutoArenaMemoryResource;
+	using MemoryResource = bstone::AutoArenaResource;
 
 	auto is_failed = false;
 	auto diff = std::ptrdiff_t{};
@@ -102,7 +102,7 @@ void test_h89q7m1ofox5m1yt()
 // Zero size.
 void test_7toaug4pnm1eyjyx()
 {
-	using MemoryResource = bstone::AutoArenaMemoryResource;
+	using MemoryResource = bstone::AutoArenaResource;
 
 	auto is_failed = false;
 	auto diff = std::ptrdiff_t{};
@@ -129,7 +129,7 @@ void test_7toaug4pnm1eyjyx()
 // Out of memory.
 void test_16hxh0gkqffhccg1()
 {
-	using MemoryResource = bstone::AutoArenaMemoryResource;
+	using MemoryResource = bstone::AutoArenaResource;
 
 	auto is_failed = false;
 
@@ -162,25 +162,25 @@ public:
 private:
 	void register_ctor()
 	{
-		tester.register_test("AutoArenaMemoryResource#2nuufbimso59d9eh", test_2nuufbimso59d9eh);
+		tester.register_test("AutoArenaResource#2nuufbimso59d9eh", test_2nuufbimso59d9eh);
 	}
 
 	void register_get_capacity()
 	{
-		tester.register_test("AutoArenaMemoryResource#3sitwuhphbjzbed5", test_3sitwuhphbjzbed5);
+		tester.register_test("AutoArenaResource#3sitwuhphbjzbed5", test_3sitwuhphbjzbed5);
 	}
 
 	void register_get_size()
 	{
-		tester.register_test("AutoArenaMemoryResource#wwpbx8htuvik3832", test_wwpbx8htuvik3832);
+		tester.register_test("AutoArenaResource#wwpbx8htuvik3832", test_wwpbx8htuvik3832);
 	}
 
 	void register_auto_arena_memory_resource()
 	{
-		tester.register_test("AutoArenaMemoryResource#12i9vgaja0au5hw4", test_12i9vgaja0au5hw4);
-		tester.register_test("AutoArenaMemoryResource#h89q7m1ofox5m1yt", test_h89q7m1ofox5m1yt);
-		tester.register_test("AutoArenaMemoryResource#7toaug4pnm1eyjyx", test_7toaug4pnm1eyjyx);
-		tester.register_test("AutoArenaMemoryResource#16hxh0gkqffhccg1", test_16hxh0gkqffhccg1);
+		tester.register_test("AutoArenaResource#12i9vgaja0au5hw4", test_12i9vgaja0au5hw4);
+		tester.register_test("AutoArenaResource#h89q7m1ofox5m1yt", test_h89q7m1ofox5m1yt);
+		tester.register_test("AutoArenaResource#7toaug4pnm1eyjyx", test_7toaug4pnm1eyjyx);
+		tester.register_test("AutoArenaResource#16hxh0gkqffhccg1", test_16hxh0gkqffhccg1);
 	}
 };
 

@@ -6,4 +6,4 @@ SPDX-License-Identifier: MIT
 
 // Memory pool with known size of an object and maximum objects.
 
-#include "bstone_fixed_pool_memory_resource.h"
+#include "bstone_fixed_pool_resource.h"

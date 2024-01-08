@@ -7,7 +7,7 @@ SPDX-License-Identifier: MIT
 // OpenGL 3D Renderer: Vertex Input Manager
 
 #include "bstone_exception.h"
-#include "bstone_single_pool_memory_resource.h"
+#include "bstone_single_pool_resource.h"
 
 #include "bstone_r3r_tests.h"
 
@@ -41,7 +41,7 @@ private:
 
 // ==========================================================================
 
-using GlR3rVertexInputMgrImplPool = SinglePoolMemoryResource<GlR3rVertexInputMgrImpl>;
+using GlR3rVertexInputMgrImplPool = SinglePoolResource<GlR3rVertexInputMgrImpl>;
 GlR3rVertexInputMgrImplPool gl_r3r_vertex_input_mgr_impl_pool{};
 
 // ==========================================================================

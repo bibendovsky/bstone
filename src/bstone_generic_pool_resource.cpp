@@ -10,38 +10,38 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_assert.h"
 #include "bstone_exception.h"
-#include "bstone_generic_pool_memory_resource.h"
+#include "bstone_generic_pool_resource.h"
 
 namespace bstone {
 
-GenericPoolMemoryResource::StorageDeleter::StorageDeleter() noexcept
+GenericPoolResource::StorageDeleter::StorageDeleter() noexcept
 	:
 	memory_resource_{&get_null_memory_resource()}
 {}
 
-GenericPoolMemoryResource::StorageDeleter::StorageDeleter(MemoryResource& memory_resource) noexcept
+GenericPoolResource::StorageDeleter::StorageDeleter(MemoryResource& memory_resource) noexcept
 	:
 	memory_resource_{&memory_resource}
 {}
 
-void GenericPoolMemoryResource::StorageDeleter::operator()(unsigned char* ptr) const noexcept
+void GenericPoolResource::StorageDeleter::operator()(unsigned char* ptr) const noexcept
 {
 	memory_resource_->deallocate(ptr);
 }
 
 // ==========================================================================
 
-GenericPoolMemoryResource::GenericPoolMemoryResource() noexcept
+GenericPoolResource::GenericPoolResource() noexcept
 	:
 	storage_{nullptr, StorageDeleter{get_null_memory_resource()}}
 {}
 
-GenericPoolMemoryResource::~GenericPoolMemoryResource()
+GenericPoolResource::~GenericPoolResource()
 {
 	BSTONE_ASSERT(object_count_ == 0);
 }
 
-void GenericPoolMemoryResource::reserve(
+void GenericPoolResource::reserve(
 	std::intptr_t object_size,
 	std::intptr_t max_objects,
 	MemoryResource& memory_resource)
@@ -86,7 +86,7 @@ void GenericPoolMemoryResource::reserve(
 	max_objects_ = max_objects;
 }
 
-BSTONE_CXX_NODISCARD void* GenericPoolMemoryResource::do_allocate(std::intptr_t size)
+BSTONE_CXX_NODISCARD void* GenericPoolResource::do_allocate(std::intptr_t size)
 {
 	if (size != object_size_)
 	{
@@ -103,7 +103,7 @@ BSTONE_CXX_NODISCARD void* GenericPoolMemoryResource::do_allocate(std::intptr_t 
 	return storage_.get() + index * object_size_;
 }
 
-void GenericPoolMemoryResource::do_deallocate(void* ptr) noexcept
+void GenericPoolResource::do_deallocate(void* ptr) noexcept
 {
 	if (ptr == nullptr)
 	{

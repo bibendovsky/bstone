@@ -7,17 +7,17 @@ SPDX-License-Identifier: MIT
 // Arena memory resource with auto-reseting size.
 
 #include "bstone_assert.h"
-#include "bstone_auto_arena_memory_resource.h"
+#include "bstone_auto_arena_resource.h"
 #include "bstone_exception.h"
 
 namespace bstone {
 
-AutoArenaMemoryResource::AutoArenaMemoryResource() noexcept
+AutoArenaResource::AutoArenaResource() noexcept
 	:
 	storage_{nullptr, StorageDeleter{get_null_memory_resource()}}
 {}
 
-AutoArenaMemoryResource::AutoArenaMemoryResource(std::intptr_t capacity, MemoryResource& memory_resource)
+AutoArenaResource::AutoArenaResource(std::intptr_t capacity, MemoryResource& memory_resource)
 	:
 	storage_{
 		memory_resource.allocate<char>(capacity),
@@ -25,17 +25,17 @@ AutoArenaMemoryResource::AutoArenaMemoryResource(std::intptr_t capacity, MemoryR
 	capacity_{capacity}
 {}
 
-std::intptr_t AutoArenaMemoryResource::get_capacity() const noexcept
+std::intptr_t AutoArenaResource::get_capacity() const noexcept
 {
 	return capacity_;
 }
 
-std::intptr_t AutoArenaMemoryResource::get_size() const noexcept
+std::intptr_t AutoArenaResource::get_size() const noexcept
 {
 	return size_;
 }
 
-void AutoArenaMemoryResource::reserve(std::intptr_t capacity, MemoryResource& memory_resource)
+void AutoArenaResource::reserve(std::intptr_t capacity, MemoryResource& memory_resource)
 {
 	if (size_ != 0)
 	{
@@ -56,7 +56,7 @@ void AutoArenaMemoryResource::reserve(std::intptr_t capacity, MemoryResource& me
 	capacity_ = capacity;
 }
 
-BSTONE_CXX_NODISCARD void* AutoArenaMemoryResource::do_allocate(std::intptr_t size)
+BSTONE_CXX_NODISCARD void* AutoArenaResource::do_allocate(std::intptr_t size)
 {
 	const auto new_size = size > 0 ? size : 1;
 
@@ -71,7 +71,7 @@ BSTONE_CXX_NODISCARD void* AutoArenaMemoryResource::do_allocate(std::intptr_t si
 	return ptr;
 }
 
-void AutoArenaMemoryResource::do_deallocate(void* ptr) noexcept
+void AutoArenaResource::do_deallocate(void* ptr) noexcept
 {
 	if (ptr == nullptr)
 	{
