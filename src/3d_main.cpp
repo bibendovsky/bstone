@@ -9440,16 +9440,16 @@ void CleanUpDoors_N_Actors()
 	{
 		for (x = 0; x < mapwidth; ++x)
 		{
-			actor = actorat[y][x];
+			actor = actorat[x][y];
 
 			// actor is in actorat, but objtype X and Y don't match
 			if (actor > objlist &&
 				(actor->tilex != x || actor->tiley != y))
 			{
-				actorat[y][x] = nullptr;
+				actorat[x][y] = nullptr;
 			}
 
-			tile = tilemap[y][x];
+			tile = tilemap[x][y];
 			if ((tile & 0x80) != 0)
 			{
 				// Found a door
