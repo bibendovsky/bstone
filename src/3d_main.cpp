@@ -9877,7 +9877,7 @@ void DemoLoop()
 
 					fizzle.initialize();
 
-					breakit |= fizzle.present(false);
+					breakit |= fizzle.present();
 				}
 
 				if (breakit || IN_UserInput(TickBase * 6))

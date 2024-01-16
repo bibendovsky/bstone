@@ -29,18 +29,12 @@ namespace bstone
 {
 
 
-bool FizzleFX::present(
-	const bool trigger_fade)
+bool FizzleFX::present()
 {
 	if (vid_is_hw() && !is_vanilla_only())
 	{
 		vid_hw_enable_fizzle_fx(true);
 		vid_hw_set_fizzle_fx_ratio(0.0F);
-	}
-
-	if (trigger_fade)
-	{
-		vid_is_fizzle_fade = true;
 	}
 
 	const auto y_offset = get_y();
@@ -132,11 +126,6 @@ bool FizzleFX::present(
 		++frame;
 
 		CalcTics();
-	}
-
-	if (trigger_fade)
-	{
-		vid_is_fizzle_fade = false;
 	}
 
 	if (vid_is_hw() && !is_vanilla_only())

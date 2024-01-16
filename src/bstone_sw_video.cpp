@@ -145,15 +145,18 @@ private:
 	VgaBuffer sw_vga_buffer_{};
 	VgaPalette vga_palette_{};
 	SdlPalette palette_{};
-	sys::Rectangle ui_whole_src_rect_{};
-	sys::Rectangle ui_whole_dst_rect_{};
-	sys::Rectangle ui_stretched_dst_rect_{};
+	sys::Rectangle ui_src_rect_{};
+	sys::Rectangle ui_4x3_dst_rect_{};
+	sys::Rectangle ui_wide_dst_rect_{};
 	sys::Rectangle ui_top_src_rect_{};
-	sys::Rectangle ui_top_dst_rect_{};
-	sys::Rectangle ui_wide_middle_src_rect_{};
+	sys::Rectangle ui_4x3_top_dst_rect_{};
+	sys::Rectangle ui_wide_top_dst_rect_{};
+	sys::Rectangle ui_middle_src_rect_{};
+	sys::Rectangle ui_4x3_middle_dst_rect_{};
 	sys::Rectangle ui_wide_middle_dst_rect_{};
 	sys::Rectangle ui_bottom_src_rect_{};
-	sys::Rectangle ui_bottom_dst_rect_{};
+	sys::Rectangle ui_4x3_bottom_dst_rect_{};
+	sys::Rectangle ui_wide_bottom_dst_rect_{};
 	std::array<sys::Rectangle, 2> filler_ui_rects_{};
 	std::array<sys::Rectangle, 4> filler_hud_rects_{};
 	sys::Rectangle screen_dst_rect_{};
@@ -348,22 +351,32 @@ try {
 		enable_texture_blending(*ui_texture_, true);
 	}
 
-	if (!vid_cfg_is_ui_stretched())
+	const auto is_stretched = vid_cfg_is_ui_stretched();
+	const auto is_widescreen = vid_cfg_is_widescreen();
+
+	const auto is_top_wide = is_stretched;
+	const auto is_middle_wide = (vid_is_hud && is_widescreen) || (!vid_is_hud && is_stretched);
+	const auto is_bottom_wide = is_stretched;
+
+	if (false)
+	{}
+	else if (is_top_wide && is_middle_wide && is_bottom_wide)
 	{
-		if (vid_is_fizzle_fade)
-		{
-			copy_texture_to_rendering_target(*ui_texture_, &ui_top_src_rect_, &ui_top_dst_rect_);
-			copy_texture_to_rendering_target(*ui_texture_, &ui_wide_middle_src_rect_, &ui_wide_middle_dst_rect_);
-			copy_texture_to_rendering_target(*ui_texture_, &ui_bottom_src_rect_, &ui_bottom_dst_rect_);
-		}
-		else
-		{
-			copy_texture_to_rendering_target(*ui_texture_, nullptr, &ui_whole_dst_rect_);
-		}
+		copy_texture_to_rendering_target(*ui_texture_, nullptr, &ui_wide_dst_rect_);
+	}
+	else if (!is_top_wide && !is_middle_wide && !is_bottom_wide)
+	{
+		copy_texture_to_rendering_target(*ui_texture_, nullptr, &ui_4x3_dst_rect_);
 	}
 	else
 	{
-		copy_texture_to_rendering_target(*ui_texture_, nullptr, &ui_stretched_dst_rect_);
+		const auto& dst_top_rect = is_top_wide ? ui_wide_top_dst_rect_ : ui_4x3_top_dst_rect_;
+		const auto& dst_middle_rect = is_middle_wide ? ui_wide_middle_dst_rect_ : ui_4x3_middle_dst_rect_;
+		const auto& dst_bottom_rect = is_bottom_wide ? ui_wide_bottom_dst_rect_ : ui_4x3_bottom_dst_rect_;
+
+		copy_texture_to_rendering_target(*ui_texture_, &ui_top_src_rect_, &dst_top_rect);
+		copy_texture_to_rendering_target(*ui_texture_, &ui_middle_src_rect_, &dst_middle_rect);
+		copy_texture_to_rendering_target(*ui_texture_, &ui_bottom_src_rect_, &dst_bottom_rect);
 	}
 
 	if (vid_is_hud)
@@ -798,7 +811,7 @@ void SwVideo::calculate_dimensions()
 
 	// UI whole rect
 	//
-	ui_whole_src_rect_ = sys::Rectangle
+	ui_src_rect_ = sys::Rectangle
 	{
 		0,
 		0,
@@ -806,7 +819,7 @@ void SwVideo::calculate_dimensions()
 		vga_ref_height,
 	};
 
-	ui_whole_dst_rect_ = sys::Rectangle
+	ui_4x3_dst_rect_ = sys::Rectangle
 	{
 		vid_layout_.window_viewport_left_width + vid_layout_.screen_left_filler_width,
 		vid_layout_.window_viewport_top_height,
@@ -816,7 +829,7 @@ void SwVideo::calculate_dimensions()
 
 	// UI stretched rect
 	//
-	ui_stretched_dst_rect_ = sys::Rectangle
+	ui_wide_dst_rect_ = sys::Rectangle
 	{
 		vid_layout_.window_viewport_left_width,
 		vid_layout_.window_viewport_top_height,
@@ -834,7 +847,7 @@ void SwVideo::calculate_dimensions()
 		ref_top_bar_height,
 	};
 
-	ui_top_dst_rect_ = sys::Rectangle
+	ui_4x3_top_dst_rect_ = sys::Rectangle
 	{
 		vid_layout_.window_viewport_left_width + vid_layout_.screen_left_filler_width,
 		vid_layout_.window_viewport_top_height,
@@ -842,9 +855,17 @@ void SwVideo::calculate_dimensions()
 		vid_layout_.screen_top_filler_height,
 	};
 
+	ui_wide_top_dst_rect_ = sys::Rectangle
+	{
+		vid_layout_.window_viewport_left_width,
+		vid_layout_.window_viewport_top_height,
+		vid_layout_.screen_width,
+		vid_layout_.screen_top_filler_height,
+	};
+
 	// UI middle rect (stretched to full width)
 	//
-	ui_wide_middle_src_rect_ = sys::Rectangle
+	ui_middle_src_rect_ = sys::Rectangle
 	{
 		0,
 		ref_view_top_y,
@@ -852,12 +873,20 @@ void SwVideo::calculate_dimensions()
 		ref_view_height,
 	};
 
+	ui_4x3_middle_dst_rect_ = sys::Rectangle
+	{
+		vid_layout_.window_viewport_left_width + vid_layout_.screen_left_filler_width,
+		vid_layout_.window_viewport_top_height + vid_layout_.screen_top_filler_height,
+		vid_layout_.screen_width_4x3,
+		vid_layout_.screen_height - vid_layout_.screen_top_filler_height - vid_layout_.screen_bottom_filler_height,
+	};
+
 	ui_wide_middle_dst_rect_ = sys::Rectangle
 	{
 		vid_layout_.window_viewport_left_width,
 		vid_layout_.window_viewport_top_height + vid_layout_.screen_top_filler_height,
 		vid_layout_.screen_width,
-		vid_layout_.screen_height,
+		vid_layout_.screen_height - vid_layout_.screen_top_filler_height - vid_layout_.screen_bottom_filler_height,
 	};
 
 	// UI bottom rect
@@ -870,11 +899,19 @@ void SwVideo::calculate_dimensions()
 		ref_bottom_bar_height,
 	};
 
-	ui_bottom_dst_rect_ = sys::Rectangle
+	ui_4x3_bottom_dst_rect_ = sys::Rectangle
 	{
 		vid_layout_.window_viewport_left_width + vid_layout_.screen_left_filler_width,
 		vid_layout_.window_viewport_top_height + vid_layout_.screen_height - vid_layout_.screen_bottom_filler_height,
 		vid_layout_.screen_width_4x3,
+		vid_layout_.screen_bottom_filler_height,
+	};
+
+	ui_wide_bottom_dst_rect_ = sys::Rectangle
+	{
+		vid_layout_.window_viewport_left_width,
+		vid_layout_.window_viewport_top_height + vid_layout_.screen_height - vid_layout_.screen_bottom_filler_height,
+		vid_layout_.screen_width,
 		vid_layout_.screen_bottom_filler_height,
 	};
 

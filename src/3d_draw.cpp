@@ -1643,7 +1643,7 @@ void ThreeDRefresh()
 
 		fizzle.initialize();
 
-		static_cast<void>(fizzle.present(true));
+		static_cast<void>(fizzle.present());
 
 		lasttimecount = TimeCount; // don't make a big tic count
 	}

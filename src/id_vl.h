@@ -173,9 +173,6 @@ extern bool vid_is_hud;
 // Are we drawing a level?
 extern bool vid_is_3d;
 
-// Is fizzle fade in progress?
-extern bool vid_is_fizzle_fade;
-
 // Is it intro/outro/you-win/etc?
 extern bool vid_is_movie;
 
