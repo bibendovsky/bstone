@@ -326,7 +326,6 @@ int vga_3d_view_bottom_y = 0;
 bool vid_has_vsync = false;
 bool vid_is_hud = false;
 bool vid_is_3d = false;
-bool vid_is_fizzle_fade = false;
 bool vid_is_movie = false;
 
 bstone::SpriteCache vid_sprite_cache;

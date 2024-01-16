@@ -3097,7 +3097,7 @@ void Warped()
 
 	fizzle.initialize();
 
-	static_cast<void>(fizzle.present(true));
+	static_cast<void>(fizzle.present());
 
 	IN_UserInput(100);
 	sd_wait_sound_done();
@@ -3134,7 +3134,7 @@ void Died()
 
 	fizzle_fx.initialize();
 
-	static_cast<void>(fizzle_fx.present(true));
+	static_cast<void>(fizzle_fx.present());
 
 	IN_UserInput(100);
 
