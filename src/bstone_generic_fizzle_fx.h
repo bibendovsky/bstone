@@ -1,7 +1,7 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
@@ -47,7 +47,7 @@ public:
 
 
 	// Initializes the effect.
-	void initialize() override;
+	void initialize(bool has_vanilla_appearence) override;
 
 
 protected:
@@ -76,6 +76,8 @@ protected:
 
 	// Presents the final stage of the effect.
 	void skip_to_the_end() override;
+
+	bool has_vanilla_appearence() const override;
 
 
 private:

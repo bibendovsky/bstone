@@ -3990,6 +3990,9 @@ void gp_no_fade_in_or_out(bool is_enable);
 bool gp_no_weapon_bobbing() noexcept;
 void gp_no_weapon_bobbing(bool is_enable);
 
+bool gp_vanilla_fizzle_fx() noexcept;
+void gp_vanilla_fizzle_fx(bool is_enabled);
+
 bool am_rotatable() noexcept;
 void am_rotatable(bool is_enable);
 

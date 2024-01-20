@@ -23,6 +23,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_hw_texture_mgr.h"
 #include "bstone_cvar_mgr.h"
 #include "bstone_string_view.h"
+#include "bstone_fizzle_fx.h"
 
 
 namespace bstone

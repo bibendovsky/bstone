@@ -9875,7 +9875,7 @@ void DemoLoop()
 				{
 					bstone::PsFizzleFX fizzle;
 
-					fizzle.initialize();
+					fizzle.initialize(gp_vanilla_fizzle_fx());
 
 					breakit |= fizzle.present();
 				}
@@ -11004,6 +11004,17 @@ auto gp_no_weapon_bobbing_cvar = bstone::CVar{
 	bstone::CVarFlags::archive,
 	gp_no_weapon_bobbing_cvar_default};
 
+// gp_vanilla_fizzle_fx
+
+constexpr auto gp_vanilla_fizzle_fx_cvar_name = bstone::StringView{"gp_vanilla_fizzle_fx"};
+constexpr auto gp_vanilla_fizzle_fx_default = false;
+
+auto gp_vanilla_fizzle_fx_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	gp_vanilla_fizzle_fx_cvar_name,
+	bstone::CVarFlags::archive,
+	gp_vanilla_fizzle_fx_default};
+
 } // namespace
 
 void gp_initialize_cvars(bstone::CVarMgr& cvar_mgr)
@@ -11020,6 +11031,7 @@ void gp_initialize_cvars(bstone::CVarMgr& cvar_mgr)
 	cvar_mgr.add(gp_no_screens_cvar);
 	cvar_mgr.add(gp_no_fade_in_or_out_cvar);
 	cvar_mgr.add(gp_no_weapon_bobbing_cvar);
+	cvar_mgr.add(gp_vanilla_fizzle_fx_cvar);
 }
 
 namespace {
@@ -11160,6 +11172,16 @@ bool gp_no_weapon_bobbing() noexcept
 void gp_no_weapon_bobbing(bool is_enable)
 {
 	gp_no_weapon_bobbing_cvar.set_bool(is_enable);
+}
+
+bool gp_vanilla_fizzle_fx() noexcept
+{
+	return gp_vanilla_fizzle_fx_cvar.get_bool();
+}
+
+void gp_vanilla_fizzle_fx(bool is_enabled)
+{
+	gp_vanilla_fizzle_fx_cvar.set_bool(is_enabled);
 }
 
 bool am_rotatable() noexcept

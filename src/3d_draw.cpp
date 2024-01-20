@@ -1641,7 +1641,7 @@ void ThreeDRefresh()
 
 		bstone::GenericFizzleFX fizzle(BLACK, false);
 
-		fizzle.initialize();
+		fizzle.initialize(gp_vanilla_fizzle_fx());
 
 		static_cast<void>(fizzle.present());
 

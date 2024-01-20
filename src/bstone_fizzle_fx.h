@@ -1,7 +1,7 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
@@ -17,7 +17,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 namespace bstone
 {
-
 
 class FizzleFX
 {
@@ -44,7 +43,7 @@ public:
 
 protected:
 	// Initializes the effect.
-	virtual void initialize() = 0;
+	virtual void initialize(bool has_vanilla_appearence) = 0;
 
 	// Clean-ups the effect.
 	virtual void uninitialize() = 0;
@@ -71,6 +70,9 @@ protected:
 
 	// Presents the final stage of the effect.
 	virtual void skip_to_the_end() = 0;
+
+	// Returns true if the effect has vanilla appearence.
+	virtual bool has_vanilla_appearence() const = 0;
 
 
 private:

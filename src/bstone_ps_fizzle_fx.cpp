@@ -1,7 +1,7 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
@@ -48,8 +48,10 @@ PsFizzleFX::~PsFizzleFX()
 	uninitialize();
 }
 
-void PsFizzleFX::initialize()
+void PsFizzleFX::initialize(bool has_vanilla_appearence)
 {
+	has_vanilla_appearence_ = has_vanilla_appearence;
+
 	const auto version_padding = 1;
 
 	VgaBuffer current_screen;
@@ -112,5 +114,9 @@ void PsFizzleFX::skip_to_the_end()
 	vid_import_ui(buffer_);
 }
 
+bool PsFizzleFX::has_vanilla_appearence() const
+{
+	return has_vanilla_appearence_;
+}
 
 } // bstone
