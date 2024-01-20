@@ -3095,7 +3095,7 @@ void Warped()
 		BLACK,
 		true);
 
-	fizzle.initialize();
+	fizzle.initialize(gp_vanilla_fizzle_fx());
 
 	static_cast<void>(fizzle.present());
 
@@ -3132,7 +3132,7 @@ void Died()
 		0x17,
 		true);
 
-	fizzle_fx.initialize();
+	fizzle_fx.initialize(gp_vanilla_fizzle_fx());
 
 	static_cast<void>(fizzle_fx.present());
 

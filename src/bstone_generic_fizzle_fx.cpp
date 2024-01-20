@@ -1,7 +1,7 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
@@ -23,6 +23,7 @@ namespace bstone
 class GenericFizzleFX::Impl
 {
 public:
+	bool has_vanilla_appearence_;
 	std::uint8_t plot_color_;
 	bool is_transparent_;
 	int y_offset_;
@@ -65,9 +66,11 @@ GenericFizzleFX::~GenericFizzleFX()
 	uninitialize();
 }
 
-void GenericFizzleFX::initialize()
+void GenericFizzleFX::initialize(bool has_vanilla_appearence)
 {
-	if (vid_is_hw() && !is_vanilla_only())
+	impl_->has_vanilla_appearence_ = has_vanilla_appearence;
+
+	if (!has_vanilla_appearence && !is_vanilla_only())
 	{
 		vid_hw_set_fizzle_fx_color_index(impl_->plot_color_);
 		vid_hw_enable_fizzle_fx_fading(impl_->is_transparent_);
@@ -120,7 +123,7 @@ void GenericFizzleFX::plot(
 	const int x,
 	const int y)
 {
-	if (vid_is_hw() && !is_vanilla_only())
+	if (!has_vanilla_appearence() && !is_vanilla_only())
 	{
 		return;
 	}
@@ -139,7 +142,7 @@ void GenericFizzleFX::plot(
 
 void GenericFizzleFX::skip_to_the_end()
 {
-	if (vid_is_hw() && !is_vanilla_only())
+	if (!has_vanilla_appearence() && !is_vanilla_only())
 	{
 		vid_hw_set_fizzle_fx_ratio(1.0F);
 
@@ -157,5 +160,9 @@ void GenericFizzleFX::skip_to_the_end()
 	}
 }
 
+bool GenericFizzleFX::has_vanilla_appearence() const
+{
+	return impl_->has_vanilla_appearence_;
+}
 
 } // bstone
