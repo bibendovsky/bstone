@@ -530,7 +530,10 @@ void PollMouseMove()
 
 	if (is_running)
 	{
+// Don't increase turn speed when running (#474).
+#if 0
 		delta_x *= 1.5;
+#endif
 		delta_y *= 5.0;
 	}
 
