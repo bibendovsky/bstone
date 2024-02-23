@@ -497,7 +497,7 @@ catch (...)
 
 bool SaveScreenshotMtTask::is_completed() const noexcept
 {
-	return is_completed_;
+	return is_completed_.get();
 }
 
 void SaveScreenshotMtTask::set_completed()
@@ -507,7 +507,7 @@ void SaveScreenshotMtTask::set_completed()
 
 bool SaveScreenshotMtTask::is_failed() const noexcept
 {
-	return is_failed_;
+	return is_failed_.get();
 }
 
 std::exception_ptr SaveScreenshotMtTask::get_exception_ptr() const noexcept

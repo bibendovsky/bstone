@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -15,23 +15,33 @@ AtomicFlag::AtomicFlag(bool value) noexcept
 
 AtomicFlag::AtomicFlag(const AtomicFlag& rhs) noexcept
 	:
-	AtomicFlag{static_cast<bool>(rhs)}
+	AtomicFlag{rhs.get()}
 {}
 
 AtomicFlag& AtomicFlag::operator=(bool value) noexcept
 {
-	flag_.store(value, std::memory_order_release);
+	set(value);
 	return *this;
 }
 
 AtomicFlag& AtomicFlag::operator=(const AtomicFlag& rhs) noexcept
 {
-	return *this = static_cast<bool>(rhs);
+	return *this = rhs.get();
+}
+
+bool AtomicFlag::get() const noexcept
+{
+	return flag_.load(std::memory_order_acquire);
+}
+
+void AtomicFlag::set(bool value) noexcept
+{
+	flag_.store(value, std::memory_order_release);
 }
 
 AtomicFlag::operator bool() const noexcept
 {
-	return flag_.load(std::memory_order_acquire);
+	return get();
 }
 
 } // namespace bstone

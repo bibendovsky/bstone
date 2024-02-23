@@ -123,7 +123,7 @@ try {
 
 bool HwTextureMgrXbrzTask::is_completed() const noexcept
 {
-	return is_completed_;
+	return is_completed_.get();
 }
 
 void HwTextureMgrXbrzTask::set_completed()
@@ -138,7 +138,7 @@ try {
 
 bool HwTextureMgrXbrzTask::is_failed() const noexcept
 {
-	return is_failed_;
+	return is_failed_.get();
 }
 
 std::exception_ptr HwTextureMgrXbrzTask::get_exception_ptr() const noexcept
