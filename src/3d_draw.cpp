@@ -1436,7 +1436,7 @@ void CalcTics()
 	//
 	// calculate tics since last refresh for adaptive timing
 	//
-	if (static_cast<std::uint32_t>(lasttimecount) > TimeCount)
+	if (lasttimecount > TimeCount)
 	{
 		TimeCount = lasttimecount; // if the game was paused a LONG time
 

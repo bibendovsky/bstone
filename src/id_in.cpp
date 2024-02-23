@@ -1110,9 +1110,9 @@ void IN_Ack()
 //              button up.
 //
 ///////////////////////////////////////////////////////////////////////////
-bool IN_UserInput(std::uint32_t delay)
+bool IN_UserInput(std::int32_t delay)
 {
-	auto lasttime = static_cast<bstone::GameTicker::TickValue>(TimeCount);
+	const auto lasttime = static_cast<bstone::GameTimerTicks>(TimeCount);
 
 	IN_StartAck();
 

@@ -361,7 +361,7 @@ void IN_SetControlType(std::int16_t, ControlType);
 
 void IN_Ack();
 
-extern bool IN_UserInput(std::uint32_t delay);
+extern bool IN_UserInput(std::int32_t delay);
 extern char IN_WaitForASCII();
 extern const std::string& IN_GetScanName(ScanCode);
 

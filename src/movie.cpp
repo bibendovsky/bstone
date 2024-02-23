@@ -427,12 +427,12 @@ void Movie::handle_page(
 
 		VL_RefreshScreen();
 
-		if (TimeCount < static_cast<std::uint32_t>(descriptor.tick_delay_))
+		if (TimeCount < descriptor.tick_delay_)
 		{
 			const auto min_wait_time = 0;
 			const auto max_wait_time = 2 * TickBase; // 2 seconds
 
-			auto wait_time = descriptor.tick_delay_ - static_cast<int>(TimeCount);
+			auto wait_time = descriptor.tick_delay_ - TimeCount;
 
 			if (wait_time < min_wait_time)
 			{

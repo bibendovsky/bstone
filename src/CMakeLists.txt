@@ -506,7 +506,7 @@ target_sources(
 		bstone_exception_utils.h
 		bstone_fizzle_fx.h
 		bstone_format_string.h
-		bstone_game_ticker.h
+		bstone_game_timer.h
 		bstone_generic_fizzle_fx.h
 		bstone_globals.h
 		bstone_hw_video.h
@@ -722,7 +722,7 @@ target_sources(
 		bstone_fs_utils.h
 		bstone_fizzle_fx.cpp
 		bstone_format_string.cpp
-		bstone_game_ticker.cpp
+		bstone_game_timer.cpp
 		bstone_generic_fizzle_fx.cpp
 		bstone_globals.cpp
 		bstone_gog_content_path.cpp

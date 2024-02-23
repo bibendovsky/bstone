@@ -47,13 +47,13 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "id_vh.h"
 #include "id_vl.h"
 
-#include "bstone_game_ticker.h"
+#include "bstone_game_timer.h"
 #include "bstone_logger.h"
 
 
 // Global variables
 
-bstone::GameTicker TimeCount; // Global time in ticks
+bstone::GameTimer TimeCount; // Global time in ticks
 
 char* abortprogram;
 std::int16_t PrintX;
@@ -101,7 +101,7 @@ void US_Shutdown()
 	}
 
 	// BBi
-	TimeCount.close();
+	TimeCount.stop();
 	// BBi
 
 	US_Started = false;
@@ -512,7 +512,7 @@ bool US_LineInput(
 		cursor,
 		w, h,
 		len, temp;
-	std::uint32_t lasttime;
+	std::int32_t lasttime;
 
 	if (def)
 	{
@@ -689,7 +689,7 @@ void US_Startup()
 	}
 
 	// BBi
-	TimeCount.open(TickBase);
+	TimeCount.start(TickBase);
 	// BBi
 
 	US_InitRndT(true); // Initialize the random number generator

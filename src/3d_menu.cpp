@@ -4164,7 +4164,7 @@ void TicDelay(
 	do
 	{
 		ReadAnyControl(&ci);
-	} while (TimeCount < static_cast<std::uint32_t>(count) && ci.dir != dir_None);
+	} while (TimeCount < count && ci.dir != dir_None);
 }
 
 // ---------------------------------------------------------------------------

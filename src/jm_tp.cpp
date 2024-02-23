@@ -3515,7 +3515,7 @@ bool TP_SlowPrint(
 		{
 			LastScan = ScanCode::sc_none;
 			tc = TimeCount;
-			while (static_cast<std::int32_t>(TimeCount) - tc < delay)
+			while (TimeCount - tc < delay)
 			{
 				VW_WaitVBL(1);
 				CycleColors();
