@@ -2259,6 +2259,7 @@ struct objtype
 
 	bstone::Voice voice_voice;
 	bstone::Voice weapon_voice;
+	bstone::Voice walking_voice;
 
 	objtype* next;
 	objtype* prev;

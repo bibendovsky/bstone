@@ -987,6 +987,8 @@ extern statetype s_ofs_esphere_death3;
 // Local Prototypes
 //
 
+void T_SmartThink(objtype* ob);
+
 void T_SmartThought(
 	objtype* obj);
 
@@ -1009,10 +1011,10 @@ void T_OfsBounce(
 //
 statetype s_ofs_stand = {0, SPR_DEMO, 0, T_OfsThink, nullptr, &s_ofs_stand};
 
-statetype s_ofs_chase1 = {0, SPR_DEMO, 10, T_Chase, nullptr, &s_ofs_chase1s};
+statetype s_ofs_chase1 = {0, SPR_DEMO, 10, T_Chase, T_SmartThink, &s_ofs_chase1s};
 statetype s_ofs_chase1s = {0, SPR_DEMO, 5, nullptr, nullptr, &s_ofs_chase2};
 statetype s_ofs_chase2 = {0, SPR_DEMO, 8, T_Chase, nullptr, &s_ofs_chase3};
-statetype s_ofs_chase3 = {0, SPR_DEMO, 10, T_Chase, nullptr, &s_ofs_chase3s};
+statetype s_ofs_chase3 = {0, SPR_DEMO, 10, T_Chase, T_SmartThink, &s_ofs_chase3s};
 statetype s_ofs_chase3s = {0, SPR_DEMO, 5, nullptr, nullptr, &s_ofs_chase4};
 statetype s_ofs_chase4 = {0, SPR_DEMO, 8, T_Chase, nullptr, &s_ofs_chase1};
 
@@ -2187,6 +2189,24 @@ statetype s_ofs_smart_anim2 = {0, 0, 1, T_SmartThought, nullptr, &s_ofs_smart_an
 //
 // Functions
 //
+
+void T_SmartThink(objtype* ob)
+{
+	const auto& assets_info = get_assets_info();
+
+	if (!assets_info.is_aog_full())
+	{
+		return;
+	}
+
+	switch (ob->obclass)
+	{
+		case cyborg_warriorobj:
+		case mech_guardianobj:
+			sd_play_actor_walking_sound(ROBOT_SERVOSND, *ob);
+			break;
+	}
+}
 
 // ---------------------------------------------
 // T_SmartThought() - A think for ofset objects
