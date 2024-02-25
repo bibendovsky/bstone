@@ -220,7 +220,7 @@ void ShowMap()
 	vid_is_hud = false;
 
 	ExtraRadarFlags |= OV_ACTORS | OV_PUSHWALLS;
-	ShowOverhead(160 - 32, py, 32, 0, OV_ACTORS | OV_SHOWALL | OV_KEYS | OV_PUSHWALLS);
+	ShowOverhead(160 - 32, py, 32, 0, OV_ACTORS | OV_SHOWALL | OV_KEYS | OV_PUSHWALLS | OV_WHOLE_MAP);
 	VW_UpdateScreen();
 	ExtraRadarFlags = old_flags;
 
