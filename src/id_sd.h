@@ -92,6 +92,7 @@ bstone::StringView sd_get_oal_device_name() noexcept;
 void sd_play_ui_sound(int sound_index);
 void sd_play_actor_voice_sound(int sound_index, objtype& actor);
 void sd_play_actor_weapon_sound(int sound_index, objtype& actor);
+void sd_play_actor_walking_sound(int sound_index, objtype& actor);
 
 void sd_play_player_voice_sound(int sound_index);
 void sd_play_player_weapon_sound(int sound_index);

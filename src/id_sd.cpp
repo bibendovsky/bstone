@@ -972,6 +972,16 @@ void sd_play_actor_weapon_sound(int sound_index, objtype& actor)
 	sd_play_actor_sound(sound_index, actor, actor.weapon_voice, *sd_scene_sfx_voice_group_);
 }
 
+void sd_play_actor_walking_sound(int sound_index, objtype& actor)
+{
+	if (sd_mixer_ == nullptr || !sd_is_sound_enabled())
+	{
+		return;
+	}
+
+	sd_play_actor_sound(sound_index, actor, actor.walking_voice, *sd_scene_sfx_voice_group_);
+}
+
 namespace {
 
 void sd_play_player_sound(int sound_index, bstone::Voice& voice)
@@ -1170,20 +1180,25 @@ void sd_update_actors()
 		const auto r3_position = bstone::AudioMixerUtils::make_r3_position_from_w3d_coords(actor->x, actor->y, z);
 		sd_mixer_->set_voice_r3_position(actor->voice_voice.handle, r3_position);
 		sd_mixer_->set_voice_r3_position(actor->weapon_voice.handle, r3_position);
+		sd_mixer_->set_voice_r3_position(actor->walking_voice.handle, r3_position);
 
 		if (sd_use_voice_output_gains_)
 		{
 			sd_calculate_voice_output_gains(r3_position, actor->voice_voice);
 			actor->weapon_voice.output_gains = actor->voice_voice.output_gains;
+			actor->walking_voice.output_gains = actor->voice_voice.output_gains;
 			sd_scene_sfx_voice_group_->set_voice_output_gains(actor->voice_voice);
 			sd_scene_sfx_voice_group_->set_voice_output_gains(actor->weapon_voice);
+			sd_scene_sfx_voice_group_->set_voice_output_gains(actor->walking_voice);
 		}
 		else
 		{
 			sd_calculate_voice_gain(r3_position, actor->voice_voice);
 			actor->weapon_voice.output_gains = actor->voice_voice.output_gains;
+			actor->walking_voice.output_gains = actor->voice_voice.output_gains;
 			sd_scene_sfx_voice_group_->set_voice_gain(actor->voice_voice);
 			sd_scene_sfx_voice_group_->set_voice_gain(actor->weapon_voice);
+			sd_scene_sfx_voice_group_->set_voice_gain(actor->walking_voice);
 		}
 	}
 }
