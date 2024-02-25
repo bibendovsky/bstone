@@ -221,6 +221,40 @@ void ScanInfoPlane()
 	bool gottextures = false;
 	bool gotcolors = false;
 
+	const auto spawn_aog_boss = [](int tile, int x, int y)
+	{
+		switch (tile)
+		{
+			case 232:
+			case 233:
+			case 250:
+			case 251:
+			case 268:
+			case 269:
+				break;
+
+			default: BSTONE_THROW_STATIC_SOURCE("Unknown AOG boss tile.");
+		}
+
+		if (tile >= 268)
+		{
+			tile -= 264;
+		}
+		else if (tile >= 250)
+		{
+			tile -= 248;
+		}
+		else
+		{
+			tile -= 232;
+		}
+
+		SpawnOffsetObj(
+			static_cast<enemy_t>(static_cast<int>(en_spider_mutant) + tile),
+			static_cast<std::int16_t>(x),
+			static_cast<std::int16_t>(y));
+	};
+
 	const auto& assets_info = get_assets_info();
 
 	detonators_spawned = 0;
@@ -1355,6 +1389,10 @@ void ScanInfoPlane()
 				{
 					SpawnOffsetObj(en_cyborg_warrior, x, y);
 				}
+				else
+				{
+					spawn_aog_boss(tile, x, y);
+				}
 				break;
 
 
@@ -1389,6 +1427,10 @@ void ScanInfoPlane()
 				if (assets_info.is_ps())
 				{
 					SpawnOffsetObj(en_spider_mutant, x, y);
+				}
+				else
+				{
+					spawn_aog_boss(tile, x, y);
 				}
 				break;
 
@@ -1425,6 +1467,10 @@ void ScanInfoPlane()
 				{
 					SpawnOffsetObj(en_acid_dragon, x, y);
 				}
+				else
+				{
+					spawn_aog_boss(tile, x, y);
+				}
 				break;
 
 				//
@@ -1459,6 +1505,10 @@ void ScanInfoPlane()
 				if (assets_info.is_ps())
 				{
 					SpawnOffsetObj(en_breather_beast, x, y);
+				}
+				else
+				{
+					spawn_aog_boss(tile, x, y);
 				}
 				break;
 
@@ -1495,6 +1545,10 @@ void ScanInfoPlane()
 				{
 					SpawnOffsetObj(en_mech_guardian, x, y);
 				}
+				else
+				{
+					spawn_aog_boss(tile, x, y);
+				}
 				break;
 
 				//
@@ -1529,6 +1583,10 @@ void ScanInfoPlane()
 				if (assets_info.is_ps())
 				{
 					SpawnOffsetObj(en_reptilian_warrior, x, y);
+				}
+				else
+				{
+					spawn_aog_boss(tile, x, y);
 				}
 				break;
 
