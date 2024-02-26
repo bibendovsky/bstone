@@ -356,6 +356,10 @@ void log_enemy_stuff()
 	constexpr auto small_alien_name = "Small Experimental Genetic Alien";
 	constexpr auto mutated_guard_name = "Mutated Guard";
 
+	constexpr auto spider_mutant_name = "Spider Mutant";
+	constexpr auto reptilian_warrior_name = "Reptilian Warrior";
+	constexpr auto experimental_mutant_human_name = "Experimental Mutant Human";
+
 	constexpr auto asleep_string = "asleep";
 	constexpr auto awake_string = "awake";
 
@@ -385,6 +389,24 @@ void log_enemy_stuff()
 				continue;
 			}
 		}
+
+		const auto set_actor_name_with_state_name = [&actor_name](
+			const char* base_actor_name, const char* state_name)
+		{
+			actor_name = base_actor_name;
+			actor_name += " (";
+			actor_name += state_name;
+			actor_name += ')';
+		};
+
+		const auto set_actor_name_with_state = [&actor_name, &awake_string, &asleep_string](
+			const char* base_actor_name, bool is_awake)
+		{
+			actor_name = base_actor_name;
+			actor_name += " (";
+			actor_name += is_awake ? awake_string : asleep_string;
+			actor_name += ')';
+		};
 
 		const auto is_informant = ((bs_actor->flags & FL_INFORMANT) != 0);
 		const auto is_static = bs_actor->state == &s_ofs_static;
@@ -449,16 +471,13 @@ void log_enemy_stuff()
 				break;
 
 			case mutant_human2obj:
-				actor_name = "Experimental Mutant Human";
+				actor_name = experimental_mutant_human_name;
 				break;
 
 			case lcan_wait_alienobj:
 				if (!is_static)
 				{
-					actor_name = large_alien_name;
-					actor_name += " (";
-					actor_name += is_dead ? awake_string : asleep_string;
-					actor_name += ')';
+					set_actor_name_with_state(large_alien_name, is_dead);
 				}
 
 				break;
@@ -470,10 +489,7 @@ void log_enemy_stuff()
 			case scan_wait_alienobj:
 				if (!is_static)
 				{
-					actor_name = small_alien_name;
-					actor_name += " (";
-					actor_name += is_dead ? awake_string : asleep_string;
-					actor_name += ')';
+					set_actor_name_with_state(small_alien_name, is_dead);
 				}
 
 				break;
@@ -485,10 +501,7 @@ void log_enemy_stuff()
 			case gurney_waitobj:
 				if (!is_static)
 				{
-					actor_name = mutated_guard_name;
-					actor_name += " (";
-					actor_name += is_dead ? awake_string : asleep_string;
-					actor_name += ')';
+					set_actor_name_with_state(mutated_guard_name, is_dead);
 				}
 
 				break;
@@ -542,7 +555,7 @@ void log_enemy_stuff()
 				break;
 
 			case spider_mutantobj:
-				actor_name = "Spider Mutant";
+				actor_name = spider_mutant_name;
 				break;
 
 			case breather_beastobj:
@@ -554,7 +567,7 @@ void log_enemy_stuff()
 				break;
 
 			case reptilian_warriorobj:
-				actor_name = "Reptilian Warrior";
+				actor_name = reptilian_warrior_name;
 				break;
 
 			case acid_dragonobj:
@@ -583,6 +596,18 @@ void log_enemy_stuff()
 
 			case blakeobj:
 				actor_name = "Blake Stone";
+				break;
+
+			case morphing_spider_mutantobj:
+				set_actor_name_with_state_name(spider_mutant_name, asleep_string);
+				break;
+
+			case morphing_reptilian_warriorobj:
+				set_actor_name_with_state_name(reptilian_warrior_name, asleep_string);
+				break;
+
+			case morphing_mutanthuman2obj:
+				set_actor_name_with_state_name(experimental_mutant_human_name, asleep_string);
 				break;
 
 			default:
