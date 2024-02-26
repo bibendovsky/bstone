@@ -352,6 +352,13 @@ void log_bonus_stuff()
 
 void log_enemy_stuff()
 {
+	constexpr auto large_alien_name = "Large Experimental Genetic Alien";
+	constexpr auto small_alien_name = "Small Experimental Genetic Alien";
+	constexpr auto mutated_guard_name = "Mutated Guard";
+
+	constexpr auto asleep_string = "asleep";
+	constexpr auto awake_string = "awake";
+
 	const auto& assets_info = get_assets_info();
 
 	bstone::logger_->write();
@@ -360,20 +367,27 @@ void log_enemy_stuff()
 
 	auto number = 0;
 	auto actor_name = std::string{};
+	actor_name.reserve(128);
 
 	for (auto bs_actor = objlist; bs_actor != nullptr; bs_actor = bs_actor->next)
 	{
-		if (bs_actor->hitpoints <= 0)
-		{
-			continue;
-		}
+		const auto is_dead = bs_actor->hitpoints <= 0 || (bs_actor->flags & FL_DEADGUY) != 0;
 
-		if ((bs_actor->flags & FL_DEADGUY) != 0)
+		const auto is_asleep =
+			bs_actor->obclass == lcan_wait_alienobj ||
+			bs_actor->obclass == scan_wait_alienobj ||
+			bs_actor->obclass == gurney_waitobj;
+
+		if (is_dead)
 		{
-			continue;
+			if (!is_asleep)
+			{
+				continue;
+			}
 		}
 
 		const auto is_informant = ((bs_actor->flags & FL_INFORMANT) != 0);
+		const auto is_static = bs_actor->state == &s_ofs_static;
 
 		actor_name.clear();
 
@@ -439,24 +453,48 @@ void log_enemy_stuff()
 				break;
 
 			case lcan_wait_alienobj:
+				if (!is_static)
+				{
+					actor_name = large_alien_name;
+					actor_name += " (";
+					actor_name += is_dead ? awake_string : asleep_string;
+					actor_name += ')';
+				}
+
 				break;
 
 			case lcan_alienobj:
-				actor_name = "Large Experimental Genetic Alien";
+				actor_name = large_alien_name;
 				break;
 
 			case scan_wait_alienobj:
+				if (!is_static)
+				{
+					actor_name = small_alien_name;
+					actor_name += " (";
+					actor_name += is_dead ? awake_string : asleep_string;
+					actor_name += ')';
+				}
+
 				break;
 
 			case scan_alienobj:
-				actor_name = "Small Experimental Genetic Alien";
+				actor_name = small_alien_name;
 				break;
 
 			case gurney_waitobj:
+				if (!is_static)
+				{
+					actor_name = mutated_guard_name;
+					actor_name += " (";
+					actor_name += is_dead ? awake_string : asleep_string;
+					actor_name += ')';
+				}
+
 				break;
 
 			case gurneyobj:
-				actor_name = "Mutated Guard";
+				actor_name = mutated_guard_name;
 				break;
 
 			case liquidobj:
