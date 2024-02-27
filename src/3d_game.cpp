@@ -479,7 +479,10 @@ void ScanInfoPlane()
 			case 22:
 				if (assets_info.is_aog() && playstate == ex_transported)
 				{
-					SpawnPlayer(player_warp.tilex, player_warp.tiley, (1 - (player_warp.dir >> 1)) & 3);
+					SpawnPlayer(
+						static_cast<std::int16_t>(player_warp.tilex),
+						static_cast<std::int16_t>(player_warp.tiley),
+						static_cast<std::int16_t>((1 - (player_warp.dir >> 1)) & 3));
 				}
 				else
 				{
@@ -3614,8 +3617,6 @@ restartgame:
 
 			if (playstate == ex_victorious)
 			{
-				const auto& assets_info = get_assets_info();
-
 				if (!assets_info.is_ps())
 				{
 					vid_is_movie = true;

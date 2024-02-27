@@ -1717,7 +1717,7 @@ try {
 		{
 			image_probe_item.image_decoder->decode(
 				image_buffer_.data(),
-				image_read_result,
+				static_cast<int>(image_read_result),
 				width,
 				height,
 				image_buffer_rgba8_

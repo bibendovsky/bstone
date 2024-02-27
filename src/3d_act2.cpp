@@ -1577,7 +1577,7 @@ void T_OfsThink(
 				ofs = (ofs + 1) % max_frames;
 			}
 
-			obj->temp1 = SPR_ELECTRO_SPHERE_ROAM1 + ofs;
+			obj->temp1 = static_cast<std::int16_t>(SPR_ELECTRO_SPHERE_ROAM1 + ofs);
 			break;
 		}
 
@@ -5313,15 +5313,15 @@ void T_Shoot(
 		{
 			if (dist < 2)
 			{
-				damage = US_RndT() >> 2;
+				damage = static_cast<std::int16_t>(US_RndT() >> 2);
 			}
 			else if (dist < 4)
 			{
-				damage = US_RndT() >> 3;
+				damage = static_cast<std::int16_t>(US_RndT() >> 3);
 			}
 			else
 			{
-				damage = US_RndT() >> 4;
+				damage = static_cast<std::int16_t>(US_RndT() >> 4);
 			}
 
 			TakeDamage(damage, ob);
@@ -5396,20 +5396,20 @@ void T_Hit(
 		case lcan_alienobj:
 		case podobj:
 			hitchance = 220; // Higher - Better Chance (255 max!)
-			damage = (US_RndT() >> 3) | 1;
+			damage = static_cast<std::int16_t>((US_RndT() >> 3) | 1);
 			sd_play_actor_weapon_sound(CLAWATTACKSND, *ob);
 			break;
 
 		case genetic_guardobj:
 		case mutant_human2obj:
 			hitchance = 220; // Higher - Better Chance (255 max!)
-			damage = (US_RndT() >> 3) | 1;
+			damage = static_cast<std::int16_t>((US_RndT() >> 3) | 1);
 			sd_play_actor_weapon_sound(PUNCHATTACKSND, *ob);
 			break;
 
 		default:
 			hitchance = 200; // Higher - Better Chance (255 max!)
-			damage = US_RndT() >> 4;
+			damage = static_cast<std::int16_t>(US_RndT() >> 4);
 			break;
 	}
 
@@ -5937,7 +5937,7 @@ void T_SteamObj(
 		if ((obj->temp2 -= tics) <= 0)
 		{
 			NewState(obj, &s_steamrelease1);
-			obj->temp2 = US_RndT() << 3; // Up to 34 Seconds
+			obj->temp2 = static_cast<std::int16_t>(US_RndT() << 3); // Up to 34 Seconds
 		}
 		else
 		{
@@ -6064,7 +6064,7 @@ void T_Seek(
 			}
 			else
 			{
-				chance = US_RndT() / dist;
+				chance = static_cast<std::int16_t>(US_RndT() / dist);
 			}
 
 			if (US_RndT() < chance)
@@ -6526,45 +6526,45 @@ void T_Projectile(
 			{
 				case mut_hum1shotobj:
 				case electroshotobj:
-					damage = (US_RndT() >> 5);
+					damage = static_cast<std::int16_t>(US_RndT() >> 5);
 					InitSmartSpeedAnim(ob, SPR_ELEC_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 3 + (US_RndT() & 7));
 					break;
 
 				case final_boss4shotobj:
-					damage = (US_RndT() >> 4);
+					damage = static_cast<std::int16_t>(US_RndT() >> 4);
 					InitSmartSpeedAnim(ob, SPR_BOSS10_SPIT_EXP1, 0, 1, at_ONCE, ad_FWD, 3 + (US_RndT() & 3));
 					break;
 
 				case goldmorphshotobj:
 				case final_boss2shotobj:
-					damage = (US_RndT() >> 4);
+					damage = static_cast<std::int16_t>(US_RndT() >> 4);
 					InitSmartSpeedAnim(ob, SPR_MGOLD_SHOT_EXP1, 0, 1, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
 					break;
 
 				case lcanshotobj:
 				case podshotobj:
-					damage = (US_RndT() >> 4);
+					damage = static_cast<std::int16_t>(US_RndT() >> 4);
 					InitSmartSpeedAnim(ob, SPR_SPIT_EXP3_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
 					break;
 
 				case scanshotobj:
 				case dogshotobj:
-					damage = (US_RndT() >> 4);
+					damage = static_cast<std::int16_t>(US_RndT() >> 4);
 					InitSmartSpeedAnim(ob, SPR_SPIT_EXP1_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
 					break;
 
 				case liquidshotobj:
-					damage = (US_RndT() >> 4);
+					damage = static_cast<std::int16_t>(US_RndT() >> 4);
 					InitSmartSpeedAnim(ob, SPR_LIQUID_SHOT_BURST_1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
 					break;
 
 				case spider_mutantshotobj:
-					damage = (US_RndT() >> 4);
+					damage = static_cast<std::int16_t>(US_RndT() >> 4);
 					InitSmartSpeedAnim(ob, SPR_BOSS1_EXP1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
 					break;
 
 				case acid_dragonshotobj:
-					damage = (US_RndT() >> 4);
+					damage = static_cast<std::int16_t>(US_RndT() >> 4);
 					InitSmartSpeedAnim(ob, SPR_BOSS5_EXP1, 0, 2, at_ONCE, ad_FWD, 5 + (US_RndT() & 7));
 					break;
 

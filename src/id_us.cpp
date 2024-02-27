@@ -1,25 +1,25 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-2.0-or-later
 */
-
 
 //
 // Former ID_US_A.ASM
 //
 
+#include "id_us.h"
 
-#include <chrono>
 #include <cstdint>
 
+#include <chrono>
 
 // Force compiler to emit a symbol.
 extern const std::uint8_t rndtable[256];
 
-
-const std::uint8_t rndtable[256] = {
+const std::uint8_t rndtable[256] =
+{
 	0x00, 0x08, 0x6D, 0xDC, 0xDE, 0xF1, 0x95, 0x6B, 0x4B, 0xF8, 0xFE, 0x8C,
 	0x10, 0x42, 0x4A, 0x15, 0xD3, 0x2F, 0x50, 0xF2, 0x9A, 0x1B, 0xCD, 0x80,
 	0xA1, 0x59, 0x4D, 0x24, 0x5F, 0x6E, 0x55, 0x30, 0xD4, 0x8C, 0xD3, 0xF9,
@@ -44,12 +44,15 @@ const std::uint8_t rndtable[256] = {
 	0x78, 0xA3, 0xEC, 0xF9,
 };
 
-
 static int rndindex;
 
+void US_HomeWindow()
+{
+	PrintX = WindowX;
+	PrintY = WindowY;
+}
 
-void US_InitRndT(
-	bool randomize)
+void US_InitRndT(bool randomize)
 {
 	if (!randomize)
 	{
@@ -59,12 +62,12 @@ void US_InitRndT(
 	{
 		using Clock = std::chrono::system_clock;
 
-		auto ticks = (Clock::now() - Clock::time_point()).count();
+		const auto ticks = (Clock::now() - Clock::time_point()).count();
 		rndindex = static_cast<int>(ticks % 256);
 	}
 }
 
-std::int16_t US_RndT()
+int US_RndT()
 {
 	rndindex = (rndindex + 1) & 0xFF;
 	return rndtable[rndindex];

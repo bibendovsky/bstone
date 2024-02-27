@@ -440,9 +440,9 @@ const FoundContent* choose_content(
 	bstone::logger_->write("Found multiple contents.");
 
 	using Button = bstone::sys::MessageBoxButton;
-	using Buttons = std::vector<Button>;
+	using LocalButtons = std::vector<Button>;
 
-	auto buttons = Buttons{};
+	auto buttons = LocalButtons{};
 	buttons.reserve(found_contents.size() + 1);
 
 	auto button_id = 0;

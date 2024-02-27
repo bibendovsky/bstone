@@ -7552,7 +7552,7 @@ private:
 			}
 			else
 			{
-				string_.push_back(ch);
+				string_.push_back(static_cast<char>(ch));
 				advance();
 			}
 		}
@@ -8056,12 +8056,12 @@ int NextChunk(
 
 void AlignPlayerOnTransporter()
 {
-	player->tilex = player_warp.tilex;
-	player->tiley = player_warp.tiley;
+	player->tilex = static_cast<std::uint8_t>(player_warp.tilex);
+	player->tiley = static_cast<std::uint8_t>(player_warp.tiley);
 	player->x = player->tilex + 0.5;
 	player->y = player->tiley + 0.5;
 	player->dir = player_warp.dir;
-	player->angle = player_warp.dir * 45;
+	player->angle = static_cast<std::int16_t>(player_warp.dir * 45);
 }
 
 void AlignPlayerInElevator()
@@ -8163,7 +8163,7 @@ void AlignPlayerInElevator()
 
 	player->x = tilex + 0.5;
 	player->y = origtiley + 0.5;
-	player->angle = (1 - player->dir) * 90;
+	player->angle = static_cast<std::int16_t>((1 - player->dir) * 90);
 
 	if (player->angle < 0)
 	{
@@ -8545,12 +8545,12 @@ bool LoadLevel(
 	}
 	else
 	{
-		std::int16_t old_wx = WindowX;
-		std::int16_t old_wy = WindowY;
-		std::int16_t old_ww = WindowW;
-		std::int16_t old_wh = WindowH;
-		std::int16_t old_px = px;
-		std::int16_t old_py = py;
+		const auto old_wx = WindowX;
+		const auto old_wy = WindowY;
+		const auto old_ww = WindowW;
+		const auto old_wh = WindowH;
+		const auto old_px = px;
+		const auto old_py = py;
 
 		WindowX = 0;
 		WindowY = 16;
@@ -9122,7 +9122,9 @@ bool LoadTheGame(
 			archiver->initialize(&head_stream);
 
 			auto levels_hash_digest = bstone::Sha1Digest{};
-			archiver->read_uint8_array(levels_hash_digest.get_data(), levels_hash_digest.get_size());
+			archiver->read_uint8_array(
+				levels_hash_digest.get_data(),
+				static_cast<int>(levels_hash_digest.get_size()));
 			const auto& levels_hash_string = bstone::array_to_hex_string(levels_hash_digest);
 
 			const auto& assets_info = get_assets_info();
@@ -9300,7 +9302,9 @@ bool SaveTheGame(
 			levels_digest.begin(),
 			levels_digest.end());
 
-		archiver->write_uint8_array(levels_digest.get_data(), levels_digest.get_size());
+		archiver->write_uint8_array(
+			levels_digest.get_data(),
+			static_cast<int>(levels_digest.get_size()));
 
 		// Other stuff.
 		//

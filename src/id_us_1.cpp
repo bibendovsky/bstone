@@ -1,10 +1,9 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-2.0-or-later
 */
-
 
 //
 //      ID Engine
@@ -34,19 +33,21 @@ SPDX-License-Identifier: GPL-2.0-or-later
 //                      window
 //
 
+#include "id_us.h"
 
 #include <cstring>
 
 #include <atomic>
+#include <iterator>
 #include <tuple>
 
 #include "id_heads.h"
 #include "id_in.h"
 #include "id_sd.h"
-#include "id_us.h"
 #include "id_vh.h"
 #include "id_vl.h"
 
+#include "bstone_char_conv.h"
 #include "bstone_game_timer.h"
 #include "bstone_logger.h"
 
@@ -55,44 +56,28 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 bstone::GameTimer TimeCount; // Global time in ticks
 
-char* abortprogram;
-std::int16_t PrintX;
-std::int16_t PrintY;
-std::int16_t WindowX;
-std::int16_t WindowY;
-std::int16_t WindowW;
-std::int16_t WindowH;
+int PrintX;
+int PrintY;
+int WindowX;
+int WindowY;
+int WindowW;
+int WindowH;
 
 US_CursorStruct US_CustomCursor; // JAM
 bool use_custom_cursor = false; // JAM
 
 // Internal variables
-#define ConfigVersion 1
 
 bool US_Started;
 
-bool Button0;
-bool Button1;
-bool CursorBad;
-std::int16_t CursorX;
-std::int16_t CursorY;
-
-void(*USL_MeasureString)(
-	const char*,
-	int*,
-	int*) = VW_MeasurePropString;
-
-void(*USL_DrawString)(const char*) = VWB_DrawPropString;
+void (*USL_MeasureString)(const char*, int*, int*) = VW_MeasurePropString;
+void (*USL_DrawString)(const char*) = VWB_DrawPropString;
 
 SaveGame Games[MaxSaveGames];
 
 HighScores Scores;
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      US_Shutdown() - Shuts down the User Mgr
-//
-///////////////////////////////////////////////////////////////////////////
+// Shuts down the User Mgr
 void US_Shutdown()
 {
 	if (!US_Started)
@@ -107,80 +92,67 @@ void US_Shutdown()
 	US_Started = false;
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      US_Print() - Prints a string in the current window. Newlines are
-//              supported.
-//
-///////////////////////////////////////////////////////////////////////////
-void US_Print(
-	const char* s)
+// Prints a string in the current window. Newlines are supported.
+void US_Print(const char* s)
 {
-	std::vector<char> buffer(
-		s, s + std::string::traits_type::length(s) + 1);
+	std::vector<char> buffer(s, s + std::string::traits_type::length(s) + 1);
 	s = &buffer[0];
 
 	char c;
 	const char* se;
-	int w, h;
+	int w;
+	int h;
 
-	while (*s)
+	while (*s != '\0')
 	{
 		se = s;
-		while ((c = *se) != '\0' && (c != '\n'))
+
+		while ((c = *se) != '\0' && c != '\n')
 		{
 			se++;
 		}
-		*(char*)se = '\0';
+
+		*const_cast<char*>(se) = '\0';
 
 		USL_MeasureString(s, &w, &h);
-		px = PrintX;
-		py = PrintY;
+		px = static_cast<std::int16_t>(PrintX);
+		py = static_cast<std::int16_t>(PrintY);
 		USL_DrawString(s);
 
 		s = se;
-		if (c)
+
+		if (c != '\0')
 		{
-			*(char*)se = c;
+			*const_cast<char*>(se) = c;
 			s++;
 
 			PrintX = WindowX;
-			PrintY = static_cast<std::uint16_t>(PrintY + h);
+			PrintY = PrintY + h;
 		}
 		else
 		{
-			PrintX = static_cast<std::uint16_t>(PrintX + w);
+			PrintX = PrintX + w;
 		}
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      US_PrintUnsigned() - Prints an unsigned long
-//
-///////////////////////////////////////////////////////////////////////////
-void US_PrintUnsigned(
-	std::uint32_t n)
+// Prints an unsigned long
+void US_PrintUnsigned(std::uint32_t n)
 {
-	auto buffer = std::to_string(n);
-	US_Print(buffer.c_str());
+	constexpr auto max_chars = 12;
+	char chars[max_chars] = {};
+	bstone::to_chars(n, std::begin(chars), std::end(chars));
+	US_Print(chars);
 }
 
-void US_PrintF64(
-	const double f64)
+void US_PrintF64(double f64)
 {
 	const auto& buffer = std::to_string(f64);
 	US_Print(buffer.c_str());
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      USL_PrintInCenter() - Prints a string in the center of the given rect
-//
-///////////////////////////////////////////////////////////////////////////
-void USL_PrintInCenter(
-	const char* s,
-	Rect r)
+// Prints a string in the center of the given rect
+void USL_PrintInCenter(const char* s, Rect r)
 {
 	int w;
 	int h;
@@ -196,13 +168,8 @@ void USL_PrintInCenter(
 	USL_DrawString(s);
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      US_PrintCentered() - Prints a string centered in the current window.
-//
-///////////////////////////////////////////////////////////////////////////
-void US_PrintCentered(
-	const char* s)
+// Prints a string centered in the current window.
+void US_PrintCentered(const char* s)
 {
 	Rect r;
 
@@ -214,14 +181,9 @@ void US_PrintCentered(
 	USL_PrintInCenter(s, r);
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      US_CPrintLine() - Prints a string centered on the current line and
-//              advances to the next line. Newlines are not supported.
-//
-///////////////////////////////////////////////////////////////////////////
-void US_CPrintLine(
-	const char* s)
+// Prints a string centered on the current line and
+// advances to the next line. Newlines are not supported.
+void US_CPrintLine(const char* s)
 {
 	int w;
 	int h;
@@ -232,20 +194,15 @@ void US_CPrintLine(
 	{
 		BSTONE_THROW_STATIC_SOURCE("String exceeds width.");
 	}
+
 	px = static_cast<std::int16_t>(WindowX + ((WindowW - w) / 2));
-	py = PrintY;
+	py = static_cast<std::int16_t>(PrintY);
 	USL_DrawString(s);
-	PrintY = static_cast<std::uint16_t>(PrintY + h);
+	PrintY = PrintY + h;
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      US_CPrint() - Prints a string in the current window. Newlines are
-//              supported.
-//
-///////////////////////////////////////////////////////////////////////////
-void US_CPrint(
-	const char* s)
+// Prints a string in the current window. Newlines are supported.
+void US_CPrint(const char* s)
 {
 	std::string string(s);
 
@@ -258,31 +215,20 @@ void US_CPrint(
 
 	while (true)
 	{
-		auto line_end = string.find(
-			'\n',
-			line_begin);
+		const auto line_end = string.find('\n', line_begin);
 
 		if (line_end == std::string::npos)
 		{
 			break;
 		}
 
-		auto substring = string.substr(
-			line_begin,
-			line_end - line_begin);
-
+		auto substring = string.substr(line_begin, line_end - line_begin);
 		US_CPrintLine(substring.c_str());
-
 		line_begin = line_end + 1;
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      US_ClearWindow() - Clears the current window to white and homes the
-//              cursor
-//
-///////////////////////////////////////////////////////////////////////////
+// Clears the current window to white and homes the cursor
 void US_ClearWindow()
 {
 	VWB_Bar(WindowX, WindowY, WindowW, WindowH, 0xEF);
@@ -290,21 +236,13 @@ void US_ClearWindow()
 	PrintY = WindowY;
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      US_DrawWindow() - Draws a frame and sets the current window parms
-//
-///////////////////////////////////////////////////////////////////////////
-void US_DrawWindow(
-	const int x,
-	const int y,
-	const int w,
-	const int h)
+// Draws a frame and sets the current window parms
+void US_DrawWindow(int x, int y, int w, int h)
 {
-	WindowX = static_cast<std::int16_t>(x);
-	WindowY = static_cast<std::int16_t>(y);
-	WindowW = static_cast<std::int16_t>(w);
-	WindowH = static_cast<std::int16_t>(h);
+	WindowX = x;
+	WindowY = y;
+	WindowW = w;
+	WindowH = h;
 
 	PrintX = WindowX;
 	PrintY = WindowY;
@@ -337,15 +275,8 @@ void US_DrawWindow(
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      US_CenterWindow() - Generates a window of a given width & height in the
-//              middle of the screen
-//
-///////////////////////////////////////////////////////////////////////////
-void US_CenterWindow(
-	const int w,
-	const int h)
+// Generates a window of a given width & height in the middle of the screen
+void US_CenterWindow(int w, int h)
 {
 	const auto w8 = w * 8;
 	const auto h8 = h * 8;
@@ -356,14 +287,8 @@ void US_CenterWindow(
 	US_DrawWindow(x, y, w8, h8);
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      US_SaveWindow() - Saves the current window parms into a record for
-//              later restoration
-//
-///////////////////////////////////////////////////////////////////////////
-void US_SaveWindow(
-	WindowRec* win)
+// Saves the current window parms into a record for later restoration
+void US_SaveWindow(WindowRec* win)
 {
 	win->x = WindowX;
 	win->y = WindowY;
@@ -374,14 +299,8 @@ void US_SaveWindow(
 	win->py = PrintY;
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      US_RestoreWindow() - Sets the current window parms to those held in the
-//              record
-//
-///////////////////////////////////////////////////////////////////////////
-void US_RestoreWindow(
-	WindowRec* win)
+// Sets the current window parms to those held in the record
+void US_RestoreWindow(WindowRec* win)
 {
 	WindowX = win->x;
 	WindowY = win->y;
@@ -392,16 +311,8 @@ void US_RestoreWindow(
 	PrintY = win->py;
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      USL_XORICursor() - XORs the I-bar text cursor. Used by US_LineInput()
-//
-///////////////////////////////////////////////////////////////////////////
-static void USL_XORICursor(
-	std::int16_t x,
-	std::int16_t y,
-	char* s,
-	int cursor)
+// XORs the I-bar text cursor. Used by US_LineInput()
+static void USL_XORICursor(int x, int y, char* s, int cursor)
 {
 	static bool status; // VGA doesn't XOR...
 	char buf[MaxString];
@@ -413,7 +324,7 @@ static void USL_XORICursor(
 	USL_MeasureString(buf, &w, &h);
 
 	px = static_cast<std::int16_t>(x + w - 1);
-	py = y;
+	py = static_cast<std::int16_t>(y);
 
 	VL_WaitVBL(1);
 
@@ -434,34 +345,28 @@ static void USL_XORICursor(
 }
 
 // JAM BEGIN - New Function
-///////////////////////////////////////////////////////////////////////////
-//
-//      USL_CustomCursor() - Toggle Displays the custom text cursor.
-//      Used by US_LineInput()
-//
-///////////////////////////////////////////////////////////////////////////
-static void USL_CustomCursor(
-	std::int16_t x,
-	std::int16_t y,
-	char* s,
-	int cursor)
+
+// Toggle Displays the custom text cursor.
+// Used by US_LineInput()
+static void USL_CustomCursor(int x, int y, char* s, int cursor)
 {
 	static bool status; // VGA doesn't XOR...
 	char buf[MaxString];
 	int temp;
-	int w, h;
+	int w;
+	int h;
 
 	strcpy(buf, s);
 	buf[cursor] = '\0';
 	USL_MeasureString(buf, &w, &h);
 
 	px = static_cast<std::int16_t>(x + w - 1);
-	py = y;
+	py = static_cast<std::int16_t>(y);
 
 	temp = fontcolor;
 	auto temp_font = fontnumber;
 
-	fontnumber = US_CustomCursor.font_number;
+	fontnumber = static_cast<std::int16_t>(US_CustomCursor.font_number);
 
 	status = !status;
 
@@ -483,38 +388,38 @@ static void USL_CustomCursor(
 }
 // JAM END - New Function
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      US_LineInput() - Gets a line of user input at (x,y), the string defaults
-//              to whatever is pointed at by def. Input is restricted to maxchars
-//              chars or maxwidth pixels wide. If the user hits escape (and escok is
-//              true), nothing is copied into buf, and false is returned. If the
-//              user hits return, the current string is copied into buf, and true is
-//              returned
-//
-///////////////////////////////////////////////////////////////////////////
+// Gets a line of user input at (x,y), the string defaults
+// to whatever is pointed at by def. Input is restricted to maxchars
+// chars or maxwidth pixels wide. If the user hits escape (and escok is
+// true), nothing is copied into buf, and false is returned. If the
+// user hits return, the current string is copied into buf, and true is returned
 bool US_LineInput(
-	std::int16_t x,
-	std::int16_t y,
+	int x,
+	int y,
 	char* buf,
 	char* def,
 	bool escok,
-	std::int16_t maxchars,
-	std::int16_t maxwidth)
+	int maxchars,
+	int maxwidth)
 {
-	bool redraw,
-		cursorvis, cursormoved,
-		done, result = false;
+	bool redraw;
+	bool cursorvis;
+	bool cursormoved;
+	bool done;
+	bool result = false;
 	ScanCode sc;
-	char c,
-		s[MaxString], olds[MaxString];
-	int i,
-		cursor,
-		w, h,
-		len, temp;
+	char c;
+	char s[MaxString];
+	char olds[MaxString];
+	int i;
+	int cursor;
+	int w;
+	int h;
+	int len;
+	int temp;
 	std::int32_t lasttime;
 
-	if (def)
+	if (def != nullptr)
 	{
 		strcpy(s, def);
 	}
@@ -522,11 +427,14 @@ bool US_LineInput(
 	{
 		*s = '\0';
 	}
-	*olds = '\0';
-	cursor = static_cast<std::uint16_t>(strlen(s));
-	cursormoved = redraw = true;
 
-	cursorvis = done = false;
+	*olds = '\0';
+	cursor = static_cast<int>(strlen(s));
+	cursormoved = true;
+	redraw = true;
+
+	cursorvis = false;
+	done = false;
 	lasttime = TimeCount;
 	LastASCII = key_None;
 	LastScan = ScanCode::sc_none;
@@ -536,7 +444,8 @@ bool US_LineInput(
 		if (cursorvis)
 		{
 			if (use_custom_cursor)
-			{ // JAM
+			{
+				// JAM
 				USL_CustomCursor(x, y, s, cursor); // JAM
 			}
 			else
@@ -554,47 +463,50 @@ bool US_LineInput(
 
 		switch (sc)
 		{
-		case ScanCode::sc_return:
-			strcpy(buf, s);
-			done = true;
-			result = true;
-			c = key_None;
-			break;
-		case ScanCode::sc_escape:
-			if (escok)
-			{
+			case ScanCode::sc_return:
+				strcpy(buf, s);
 				done = true;
-				result = false;
-			}
-			c = key_None;
-			break;
+				result = true;
+				c = key_None;
+				break;
 
-		case ScanCode::sc_backspace:
-			if (cursor)
-			{
-				strcpy(s + cursor - 1, s + cursor);
-				cursor--;
-				redraw = true;
-			}
-			c = key_None;
-			cursormoved = true;
-			break;
+			case ScanCode::sc_escape:
+				if (escok)
+				{
+					done = true;
+					result = false;
+				}
 
-		case ScanCode::sc_up_arrow:
-		case ScanCode::sc_down_arrow:
-		case ScanCode::sc_page_up:
-		case ScanCode::sc_page_down:
-		case ScanCode::sc_insert:
-			c = key_None;
-			break;
+				c = key_None;
+				break;
 
-		default:
-			break;
+			case ScanCode::sc_backspace:
+				if (cursor)
+				{
+					strcpy(s + cursor - 1, s + cursor);
+					cursor--;
+					redraw = true;
+				}
+
+				c = key_None;
+				cursormoved = true;
+				break;
+
+			case ScanCode::sc_up_arrow:
+			case ScanCode::sc_down_arrow:
+			case ScanCode::sc_page_up:
+			case ScanCode::sc_page_down:
+			case ScanCode::sc_insert:
+				c = key_None;
+				break;
+
+			default:
+				break;
 		}
 
-		if (c)
+		if (c != '\0')
 		{
-			len = static_cast<std::uint16_t>(strlen(s));
+			len = static_cast<int>(strlen(s));
 			USL_MeasureString(s, &w, &h);
 
 			if (isprint(c) && (len < MaxString - 1)
@@ -605,6 +517,7 @@ bool US_LineInput(
 				{
 					s[i] = s[i - 1];
 				}
+
 				s[cursor++] = c;
 				redraw = true;
 			}
@@ -612,16 +525,16 @@ bool US_LineInput(
 
 		if (redraw)
 		{
-			px = x;
-			py = y;
+			px = static_cast<std::int16_t>(x);
+			py = static_cast<std::int16_t>(y);
 			temp = fontcolor;
 			fontcolor = backcolor;
 			USL_DrawString(olds);
 			fontcolor = static_cast<std::uint8_t>(temp);
 			strcpy(olds, s);
 
-			px = x;
-			py = y;
+			px = static_cast<std::int16_t>(x);
+			py = static_cast<std::int16_t>(y);
 			USL_DrawString(s);
 
 			redraw = false;
@@ -645,7 +558,8 @@ bool US_LineInput(
 		if (cursorvis)
 		{
 			if (use_custom_cursor)
-			{ // JAM
+			{
+				// JAM
 				USL_CustomCursor(x, y, s, cursor); // JAM
 			}
 			else
@@ -660,7 +574,8 @@ bool US_LineInput(
 	if (cursorvis)
 	{
 		if (use_custom_cursor)
-		{ // JAM
+		{
+			// JAM
 			USL_CustomCursor(x, y, s, cursor); // JAM
 		}
 		else
@@ -671,12 +586,12 @@ bool US_LineInput(
 
 	if (!result)
 	{
-		px = x;
-		py = y;
+		px = static_cast<std::int16_t>(x);
+		py = static_cast<std::int16_t>(y);
 		USL_DrawString(olds);
 	}
-	VW_UpdateScreen();
 
+	VW_UpdateScreen();
 	IN_ClearKeysDown();
 	return result;
 }
@@ -696,9 +611,7 @@ void US_Startup()
 	US_Started = true;
 }
 
-void SETFONTCOLOR(
-	const int foreground_color,
-	const int background_color)
+void SETFONTCOLOR(int foreground_color, int background_color)
 {
 	fontcolor = static_cast<std::uint8_t>(foreground_color);
 	backcolor = static_cast<std::uint8_t>(background_color);

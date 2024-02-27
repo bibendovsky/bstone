@@ -958,8 +958,8 @@ void DrawHealthNum()
 		PrintX = 149;
 		PrintY = 200 - STATUSLINES + 34;
 
-		px = PrintX;
-		py = PrintY;
+		px = static_cast<std::int16_t>(PrintX);
+		py = static_cast<std::int16_t>(PrintY);
 
 		VW_DrawPropString(health_string.c_str());
 	}
@@ -1445,8 +1445,8 @@ void DrawGAmmoNum()
 		LatchDrawPic(31, 184, W1_CORNERPIC + gamestate.weapon);
 	}
 
-	px = PrintX;
-	py = PrintY;
+	px = static_cast<std::int16_t>(PrintX);
+	py = static_cast<std::int16_t>(PrintY);
 
 	auto ammo_string = std::to_string(gamestate.ammo);
 	VW_DrawPropString(ammo_string.c_str());

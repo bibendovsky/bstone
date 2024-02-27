@@ -2214,12 +2214,12 @@ bool SightPlayer(
 		switch (ob->obclass)
 		{
 		case goldsternobj:
-			ob->temp2 = 1 + US_RndT() / 4;
+			ob->temp2 = static_cast<std::int16_t>(1 + US_RndT() / 4);
 			break;
 
 
 		case rentacopobj:
-			ob->temp2 = 1 + US_RndT() / 4;
+			ob->temp2 = static_cast<std::int16_t>(1 + US_RndT() / 4);
 			break;
 
 		case gen_scientistobj:
@@ -2227,15 +2227,15 @@ bool SightPlayer(
 			break;
 
 		case swatobj:
-			ob->temp2 = 1 + US_RndT() / 6;
+			ob->temp2 = static_cast<std::int16_t>(1 + US_RndT() / 6);
 			break;
 
 		case proguardobj:
-			ob->temp2 = 1 + US_RndT() / 6;
+			ob->temp2 = static_cast<std::int16_t>(1 + US_RndT() / 6);
 			break;
 
 		case hang_terrotobj:
-			ob->temp2 = 1 + US_RndT() / 4;
+			ob->temp2 = static_cast<std::int16_t>(1 + US_RndT() / 4);
 			break;
 
 		case gurney_waitobj:
@@ -2243,11 +2243,11 @@ bool SightPlayer(
 			break;
 
 		case liquidobj:
-			ob->temp2 = 1 + US_RndT() / 6;
+			ob->temp2 = static_cast<std::int16_t>(1 + US_RndT() / 6);
 			break;
 
 		case floatingbombobj:
-			ob->temp2 = 1 + US_RndT() / 4;
+			ob->temp2 = static_cast<std::int16_t>(1 + US_RndT() / 4);
 			break;
 
 		case genetic_guardobj:

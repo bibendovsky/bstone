@@ -4188,7 +4188,11 @@ void DrawMenu(
 	for (i = 0; i < item_i->amount; i++)
 	{
 		SetTextColor(items + i, which == i);
-		ShadowPrint((items + i)->string.c_str(), WindowX, item_i->y + i * item_i->y_spacing);
+
+		ShadowPrint(
+			(items + i)->string.c_str(),
+			static_cast<std::int16_t>(WindowX),
+			item_i->y + i * item_i->y_spacing);
 	}
 }
 
@@ -4323,8 +4327,8 @@ std::int16_t Confirm(
 	//
 	// BLINK CURSOR
 	//
-	x = PrintX;
-	y = PrintY;
+	x = static_cast<std::int16_t>(PrintX);
+	y = static_cast<std::int16_t>(PrintY);
 	TimeCount = 0;
 	do
 	{
@@ -4379,7 +4383,6 @@ void Message(
 	std::int16_t h = 0, w = 0, mw = 0;
 	std::size_t i;
 	fontstruct* font;
-	std::uint16_t OldPrintX, OldPrintY;
 
 	fontnumber = 1;
 	CA_CacheGrChunk(STARTFONT + 1);
@@ -4409,8 +4412,8 @@ void Message(
 		mw = w + 10;
 	}
 
-	OldPrintY = PrintY = (WindowH / 2) - h / 2;
-	OldPrintX = PrintX = WindowX = 160 - mw / 2;
+	const auto OldPrintY = PrintY = (WindowH / 2) - h / 2;
+	const auto OldPrintX = PrintX = WindowX = 160 - mw / 2;
 
 	// bump down and to right for shadow
 
@@ -4418,7 +4421,14 @@ void Message(
 	PrintY++;
 	WindowX++;
 
-	BevelBox(WindowX - 6, PrintY - 6, mw + 10, h + 10, BORDER_HI_COLOR, BORDER_MED_COLOR, BORDER_LO_COLOR);
+	BevelBox(
+		static_cast<std::int16_t>(WindowX - 6),
+		static_cast<std::int16_t>(PrintY - 6),
+		mw + 10,
+		h + 10,
+		BORDER_HI_COLOR,
+		BORDER_MED_COLOR,
+		BORDER_LO_COLOR);
 
 	SETFONTCOLOR(BORDER_LO_COLOR, BORDER_MED_COLOR);
 	US_Print(string);
@@ -4969,7 +4979,7 @@ void draw_carousel(
 
 	SetTextColor(items + item_index, item_index == which);
 
-	ShadowPrint(text.c_str(), WindowX, WindowY);
+	ShadowPrint(text.c_str(), static_cast<std::int16_t>(WindowX), static_cast<std::int16_t>(WindowY));
 
 	const auto right_arrow_x = carousel_text_x + carousel_text_width + 2;
 

@@ -325,11 +325,11 @@ std::uint16_t Random(
 	{
 		if (Max > 255)
 		{
-			returnval = (US_RndT() << 8) + US_RndT();
+			returnval = static_cast<std::uint16_t>((US_RndT() << 8) + US_RndT());
 		}
 		else
 		{
-			returnval = US_RndT();
+			returnval = static_cast<std::uint16_t>(US_RndT());
 		}
 
 		return returnval % Max;

@@ -159,7 +159,7 @@ int TextReader::peek_char()
 	if (buffer_offset_ == buffer_size_)
 	{
 		buffer_offset_ = 0;
-		buffer_size_ = stream_->read(buffer_.data(), max_buffer_size);
+		buffer_size_ = static_cast<int>(stream_->read(buffer_.data(), max_buffer_size));
 
 		if (buffer_size_ == 0)
 		{
