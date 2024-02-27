@@ -10018,6 +10018,27 @@ int main(
 	auto logger = logger_factory.create();
 	bstone::logger_ = logger.get();
 
+	class SysLogger final : public bstone::sys::Logger
+	{
+	public:
+		SysLogger(bstone::Logger& logger)
+			:
+			logger_{logger}
+		{}
+
+	private:
+		bstone::Logger& logger_;
+
+	private:
+		void do_log(bstone::sys::LogLevel level, const char* message) noexcept override
+		{
+			assert(level == bstone::sys::LogLevel::information);
+			logger_.write(message != nullptr ? message : "");
+		}
+	};
+
+	SysLogger sys_logger{*logger};
+
 	auto is_failed = false;
 	auto error_message = std::string{};
 
@@ -10028,27 +10049,6 @@ int main(
 	{
 		auto mt_task_manager = bstone::make_mt_task_manager(1, 4096);
 		mt_task_manager_ = mt_task_manager.get();
-
-		class SysLogger final : public bstone::sys::Logger
-		{
-		public:
-			SysLogger(bstone::Logger& logger)
-				:
-				logger_{logger}
-			{}
-
-		private:
-			bstone::Logger& logger_;
-
-		private:
-			void do_log(bstone::sys::LogLevel level, const char* message) noexcept override
-			{
-				assert(level == bstone::sys::LogLevel::information);
-				logger_.write(message != nullptr ? message : "");
-			}
-		};
-
-		SysLogger sys_logger{*logger};
 
 		bstone::globals::sys_system_mgr = bstone::sys::make_system_mgr(sys_logger);
 		bstone::globals::sys_video_mgr = &bstone::globals::sys_system_mgr->get_video_mgr();
