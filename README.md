@@ -536,6 +536,12 @@ Notes:
 * `--profile_dir dir`  
   Overrides default directory of the game's profile files.
 
+* `--log_sync`  
+  Logs messages synchronously (slow, for debugging).
+
+* `--log_flush_every_message`  
+  Flushes the log after each message (slow, for debugging).
+
 * `--vid_renderer value`  
   Select a renderer.  
   Values:

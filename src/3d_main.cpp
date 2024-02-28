@@ -10020,9 +10020,26 @@ int main(
 	g_args.initialize(argc, argv);
 #endif
 
-	auto logger_factory = bstone::LoggerFactory{};
-	auto logger = logger_factory.create();
+	const auto opt_is_log_sync = g_args.has_option("log_sync");
+	const auto opt_is_log_flush_every_message = g_args.has_option("log_flush_every_message");
+
+	const auto& profile_dir = get_profile_dir();
+	const auto& log_file_path = profile_dir + "bstone_log.txt";
+
+	auto logger_open_param = bstone::LoggerOpenParam{};
+	logger_open_param.is_synchronous = opt_is_log_sync;
+	logger_open_param.flush_policy =
+		opt_is_log_flush_every_message ?
+		bstone::LoggerFlushPolicy::every_message :
+		bstone::LoggerFlushPolicy::none;
+	logger_open_param.file_path = log_file_path.c_str();
+
+	auto logger = bstone::make_logger(logger_open_param);
 	bstone::logger_ = logger.get();
+
+	bstone::logger_->write("BStone v" + bstone::Version::get_string());
+	bstone::logger_->write("==========");
+	bstone::logger_->write();
 
 	class SysLogger final : public bstone::sys::Logger
 	{
