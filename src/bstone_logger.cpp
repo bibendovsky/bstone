@@ -18,13 +18,10 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_exception.h"
 #include "bstone_file_stream.h"
-#include "bstone_sys_message_box.h"
 #include "bstone_version.h"
 
 
 const std::string& get_profile_dir();
-
-const std::string& get_message_box_title();
 
 
 namespace bstone
@@ -60,9 +57,6 @@ public:
 	void write_error(
 		const std::string& message) noexcept override;
 
-	void write_critical(
-		const std::string& message) noexcept override;
-
 
 private:
 	using Mutex = std::mutex;
@@ -92,7 +86,6 @@ try
 	MutexLock mutex_lock{mutex_};
 
 	auto is_warning_or_error = false;
-	auto is_critical = false;
 
 	message_.clear();
 
@@ -111,12 +104,6 @@ try
 			message_ += "[ERROR] ";
 			break;
 
-		case LoggerMessageType::critical_error:
-			is_warning_or_error = true;
-			is_critical = true;
-			message_ += "[CRITICAL] ";
-			break;
-
 		default:
 			return;
 	}
@@ -131,14 +118,6 @@ try
 		file_stream_.write_exact(message_.c_str(), static_cast<std::intptr_t>(message.size()));
 		file_stream_.write_exact(&new_line, 1);
 		file_stream_.flush();
-	}
-
-	if (is_critical)
-	{
-		bstone::sys::MessageBox::show_simple(
-			get_message_box_title().c_str(),
-			message_.c_str(),
-			bstone::sys::MessageBoxType::error);
 	}
 }
 catch (...)
@@ -168,12 +147,6 @@ void DefaultLogger::write_error(
 	const std::string& message) noexcept
 {
 	write(LoggerMessageType::error, message);
-}
-
-void DefaultLogger::write_critical(
-	const std::string& message) noexcept
-{
-	write(LoggerMessageType::critical_error, message);
 }
 
 void DefaultLogger::initialize()

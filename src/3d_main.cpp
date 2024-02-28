@@ -38,6 +38,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_memory_stream.h"
 #include "bstone_ps_fizzle_fx.h"
 #include "bstone_sha1.h"
+#include "bstone_sys_message_box.h"
 #include "bstone_sys_special_path.h"
 #include "bstone_static_ro_memory_stream.h"
 #include "bstone_string_helper.h"
@@ -83,6 +84,7 @@ void VL_LatchToScreen(
 const std::string& get_default_data_dir();
 
 void ClearPaletteShifts();
+const std::string& get_message_box_title();
 
 /*
 =============================================================================
@@ -10081,7 +10083,12 @@ int main(
 
 	if (is_failed)
 	{
-		bstone::logger_->write_critical(error_message);
+		bstone::logger_->write_error(error_message);
+
+		bstone::sys::MessageBox::show_simple(
+			get_message_box_title().c_str(),
+			error_message.c_str(),
+			bstone::sys::MessageBoxType::error);
 
 		return 1;
 	}

@@ -28,7 +28,6 @@ enum class LoggerMessageType
 	information,
 	warning,
 	error,
-	critical_error,
 }; // LoggerMessageType
 
 
@@ -64,10 +63,6 @@ public:
 
 	// Writes an error message.
 	virtual void write_error(
-		const std::string& message) noexcept = 0;
-
-	// Similar to error but with message box.
-	virtual void write_critical(
 		const std::string& message) noexcept = 0;
 }; // Logger
 
