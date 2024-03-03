@@ -146,7 +146,7 @@ try
 			error_message += gl_log;
 		}
 
-		BSTONE_THROW_STATIC_SOURCE(error_message.c_str());
+		BSTONE_THROW_DYNAMIC_SOURCE(error_message.c_str());
 	}
 
 	const auto var_count = get_var_count(shader_stage_resource_.get());

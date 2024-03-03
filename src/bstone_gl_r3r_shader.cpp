@@ -105,7 +105,7 @@ try {
 			error_message += gl_log;
 		}
 
-		BSTONE_THROW_STATIC_SOURCE(error_message.c_str());
+		BSTONE_THROW_DYNAMIC_SOURCE(error_message.c_str());
 	}
 
 	type_ = param.type;
