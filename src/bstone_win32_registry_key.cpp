@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2023-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -12,11 +12,13 @@ SPDX-License-Identifier: MIT
 	#define WIN32_LEAN_AND_MEAN
 #endif
 
+#include "bstone_win32_registry_key.h"
+
 #include <windows.h>
 
 #include "bstone_assert.h"
 #include "bstone_exception.h"
-#include "bstone_win32_registry_key.h"
+#include "bstone_win32_advapi32_symbols.h"
 #include "bstone_utf.h"
 #include "bstone_win32_wstring.h"
 
@@ -434,12 +436,22 @@ bool RegistryKey::try_or_delete_key(
 	const auto root_key = map_root_key_type(root_key_type);
 	const auto access = map_wow64_open_flags(open_flags);
 	const auto u16_subkey_name = Win32WString{subkey_name};
+	const auto reg_delete_key_ex_w = AdvApi32Symbols::get_reg_delete_key_ex_w();
 
-	const auto win32_result = RegDeleteKeyExW(
-		root_key,
-		u16_subkey_name.get_data(),
-		access & (KEY_WOW64_32KEY | KEY_WOW64_64KEY),
-		0);
+	auto win32_result = LSTATUS{};
+
+	if (reg_delete_key_ex_w != nullptr)
+	{
+		win32_result = reg_delete_key_ex_w(
+			root_key,
+			u16_subkey_name.get_data(),
+			access & (KEY_WOW64_32KEY | KEY_WOW64_64KEY),
+			0);
+	}
+	else
+	{
+		win32_result = RegDeleteKeyW(root_key, u16_subkey_name.get_data());
+	}
 
 	if (win32_result != ERROR_SUCCESS)
 	{

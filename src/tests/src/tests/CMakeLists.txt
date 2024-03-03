@@ -148,6 +148,8 @@ target_sources(${PROJECT_NAME}
 		../../../bstone_fs.h
 		../../../bstone_posix_string.cpp
 		../../../bstone_posix_string.h
+		../../../bstone_win32_advapi32_symbols.cpp
+		../../../bstone_win32_advapi32_symbols.h
 	PRIVATE
 		src/bstone_tests_algorithm.cpp
 		src/bstone_tests_array.cpp

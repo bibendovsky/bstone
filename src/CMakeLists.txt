@@ -365,6 +365,8 @@ target_sources(
 		bstone_shared_library.h
 		bstone_shared_library_win32.cpp
 		bstone_shared_library_posix.cpp
+		bstone_win32_advapi32_symbols.cpp
+		bstone_win32_advapi32_symbols.h
 		bstone_win32_registry_key.cpp
 		bstone_win32_registry_key.h
 		bstone_api_string.cpp
