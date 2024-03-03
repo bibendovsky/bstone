@@ -9,6 +9,8 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_logger.h"
 
+#include <cstddef>
+
 #include <array>
 #include <condition_variable>
 #include <exception>
@@ -20,6 +22,8 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_exception.h"
 #include "bstone_file_stream.h"
+#include "bstone_memory_resource.h"
+#include "bstone_single_pool_resource.h"
 
 namespace bstone {
 
@@ -139,7 +143,6 @@ class LoggerImplQueue
 {
 public:
 	LoggerImplQueue() = default;
-	LoggerImplQueue(std::intptr_t block_size);
 
 	void set_block_size(std::intptr_t block_size);
 
@@ -164,11 +167,6 @@ private:
 };
 
 // --------------------------------------------------------------------------
-
-LoggerImplQueue::LoggerImplQueue(std::intptr_t block_size)
-{
-	set_block_size(block_size);
-}
 
 void LoggerImplQueue::set_block_size(std::intptr_t block_size)
 {
@@ -241,10 +239,13 @@ public:
 	LoggerImpl(const LoggerOpenParam& param);
 	~LoggerImpl() override;
 
+	void* operator new(std::size_t size);
+	void operator delete(void* ptr) noexcept;
+
 private:
-	static constexpr auto empty_sv = StringView{};
-	static constexpr auto error_prefix_sv = StringView{"[ERROR] "};
-	static constexpr auto warning_prefix_sv = StringView{"[WARNING] "};
+	static const StringView empty_sv;
+	static const StringView error_prefix_sv;
+	static const StringView warning_prefix_sv;
 
 private:
 	using Mutex = std::mutex;
@@ -276,6 +277,8 @@ private:
 	void do_write(LoggerMessageType message_type, StringView message_sv) noexcept override;
 
 private:
+	static MemoryResource& get_memory_resource();
+
 	void try_open_file() noexcept;
 	void write_internal(LoggerMessageType message_type, StringView message_sv);
 	void write_sync(LoggerMessageType message_type, StringView message_sv);
@@ -285,6 +288,10 @@ private:
 };
 
 // --------------------------------------------------------------------------
+
+const StringView LoggerImpl::empty_sv = StringView{};
+const StringView LoggerImpl::error_prefix_sv = StringView{"[ERROR] "};
+const StringView LoggerImpl::warning_prefix_sv = StringView{"[WARNING] "};
 
 LoggerImpl::LoggerImpl(const LoggerOpenParam& param)
 {
@@ -331,6 +338,16 @@ LoggerImpl::~LoggerImpl()
 	thread_.join();
 }
 
+void* LoggerImpl::operator new(std::size_t size)
+{
+	return get_memory_resource().allocate(size);
+}
+
+void LoggerImpl::operator delete(void* ptr) noexcept
+{
+	get_memory_resource().deallocate(ptr);
+}
+
 void LoggerImpl::do_write(LoggerMessageType message_type, StringView message_sv) noexcept
 try
 {
@@ -338,6 +355,12 @@ try
 }
 catch (...)
 {
+}
+
+MemoryResource& LoggerImpl::get_memory_resource()
+{
+	static SinglePoolResource<LoggerImpl> memory_resource{};
+	return memory_resource;
 }
 
 void LoggerImpl::try_open_file() noexcept
