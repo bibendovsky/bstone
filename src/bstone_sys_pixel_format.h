@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Pixel format.
 
-#if !defined(BSTONE_SYS_PIXEL_FORMAT_INCLUDED)
+#ifndef BSTONE_SYS_PIXEL_FORMAT_INCLUDED
 #define BSTONE_SYS_PIXEL_FORMAT_INCLUDED
 
 namespace bstone {
@@ -15,7 +15,7 @@ namespace sys {
 enum class PixelFormat
 {
 	none,
-	a8r8g8b8,
+	b8g8r8a8, // non-packed
 	r8g8b8,
 };
 

@@ -5,8 +5,10 @@ SPDX-License-Identifier: MIT
 */
 
 #include "SDL_render.h"
+#include "SDL_version.h"
 
 #include "bstone_configurations.h"
+#include "bstone_endian.h"
 #include "bstone_exception.h"
 #include "bstone_generic_pool_resource.h"
 
@@ -149,7 +151,18 @@ SDL_PixelFormatEnum Sdl2Texture::map_pixel_format(PixelFormat pixel_format)
 try {
 	switch (pixel_format)
 	{
-		case PixelFormat::a8r8g8b8: return SDL_PIXELFORMAT_ARGB8888;
+		case PixelFormat::b8g8r8a8: return
+#if SDL_VERSION_ATLEAST(2, 0, 5)
+			SDL_PIXELFORMAT_BGRA32
+#else
+	#if BSTONE_ENDIAN == BSTONE_LITTLE_ENDIAN
+			SDL_PIXELFORMAT_ARGB8888
+	#else
+			SDL_PIXELFORMAT_BGRA8888
+	#endif
+#endif
+			;
+
 		default: BSTONE_THROW_STATIC_SOURCE("Unknown pixel format.");
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED

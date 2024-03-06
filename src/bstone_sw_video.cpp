@@ -771,7 +771,7 @@ try {
 void SwVideo::create_screen_texture()
 try {
 	auto param = sys::TextureInitParam{};
-	param.pixel_format = sys::PixelFormat::a8r8g8b8;
+	param.pixel_format = sys::PixelFormat::b8g8r8a8;
 	param.access = sys::TextureAccess::streaming;
 	param.width = vga_width;
 	param.height = vga_height;
@@ -782,7 +782,7 @@ try {
 void SwVideo::create_ui_texture()
 try {
 	auto param = sys::TextureInitParam{};
-	param.pixel_format = sys::PixelFormat::a8r8g8b8;
+	param.pixel_format = sys::PixelFormat::b8g8r8a8;
 	param.access = sys::TextureAccess::streaming;
 	param.width = vga_ref_width;
 	param.height = vga_ref_height;
