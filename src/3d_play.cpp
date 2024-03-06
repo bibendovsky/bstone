@@ -151,8 +151,7 @@ void FinishPaletteShifts();
 void ShowQuickInstructions();
 void CleanDrawPlayBorder();
 
-void PopupAutoMap(
-	bool is_shift_pressed);
+void PopupAutoMap(bool is_shift_pressed);
 
 
 /*
@@ -1257,15 +1256,9 @@ void CheckMusicToggle()
 char Computing[] = {"Computing..."};
 
 
-void PopupAutoMap(
-	bool is_shift_pressed)
+void PopupAutoMap(bool is_shift_pressed)
 {
 	vid_is_hud = true;
-
-	const auto& assets_info = get_assets_info();
-
-	const std::int16_t BASE_X = (assets_info.is_ps() ? 64 : 40);
-	const std::int16_t BASE_Y = 44;
 
 	ThreeDRefresh();
 	ThreeDRefresh();
@@ -1274,9 +1267,22 @@ void PopupAutoMap(
 	const auto unmute_scene_sfx_on_scope_exit = bstone::make_scope_exit([](){ sd_pause_scene_sfx(false); });
 
 	ClearMemory();
-	CacheDrawPic(BASE_X, BASE_Y, AUTOMAPPIC);
 
-	if (assets_info.is_aog())
+	const auto& assets_info = get_assets_info();
+	const auto is_aog = assets_info.is_aog();
+	const auto is_ps = assets_info.is_ps();
+
+	const auto ps_has_map = is_ps && gp_ps_map_in_stats();
+	const auto has_map = is_aog || ps_has_map;
+
+	const auto BASE_X = (is_ps ? 64 : 40);
+	const auto BASE_Y = 44;
+
+	const auto pic_offset_x = BASE_X + (is_aog ? 0 : has_map * 32);
+
+	CacheDrawPic(pic_offset_x, BASE_Y, AUTOMAPPIC);
+
+	if (has_map)
 	{
 		bool show_whole_map = true;
 		int overlay_flags = OV_KEYS;
@@ -1296,36 +1302,36 @@ void PopupAutoMap(
 			overlay_flags |= OV_WHOLE_MAP;
 		}
 
-		ShowOverhead(BASE_X + 4, BASE_Y + 4, 32, 0, overlay_flags);
+		const auto map_offset_x = BASE_X + 4 - (ps_has_map * 40);
 
-		ShowStats(BASE_X + 157, BASE_Y + 25, ss_quick, &gamestuff.level[gamestate.mapon].stats);
+		if (ps_has_map)
+		{
+			VL_Bar(map_offset_x - 3, BASE_Y + 0, 64 + 6, 64 + 8, 0xAA);
+			VL_Bar(map_offset_x - 2, BASE_Y + 2, 64 + 4, 64 + 4, 0x08);
+			VL_Bar(map_offset_x - 1, BASE_Y + 3, 64 + 2, 64 + 2, 0xEB);
+		}
+
+		ShowOverhead(map_offset_x, BASE_Y + 4, 32, 0, overlay_flags);
 	}
-	else
-	{
-		ShowStats(BASE_X + 101, BASE_Y + 22, ss_quick, &gamestuff.level[gamestate.mapon].stats);
-	}
+
+	const auto stats_offset_x = BASE_X + (is_aog ? 157 : 101 + (has_map * 32));
+	const auto stats_offset_y = BASE_Y + (is_aog ? 25 : 22);
+	ShowStats(stats_offset_x, stats_offset_y, ss_quick, &gamestuff.level[gamestate.mapon].stats);
 
 	while (Keyboard[ScanCode::sc_back_quote])
 	{
 		CalcTics();
-
-		if (!assets_info.is_ps())
-		{
-			CycleColors();
-			in_handle_events();
-		}
+		CycleColors();
+		in_handle_events();
 	}
 
 	IN_StartAck();
+
 	while (!IN_CheckAck())
 	{
 		CalcTics();
-
-		if (!assets_info.is_ps())
-		{
-			CycleColors();
-			in_handle_events();
-		}
+		CycleColors();
+		in_handle_events();
 	}
 
 	CleanDrawPlayBorder();
@@ -1333,7 +1339,6 @@ void PopupAutoMap(
 
 	vid_is_hud = false;
 }
-
 
 /*
 #############################################################################
