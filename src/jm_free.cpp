@@ -685,6 +685,12 @@ void find_contents()
 		}
 
 		{
+			const auto profile_full_dir = get_profile_dir();
+
+			add_search_path("profile dir", profile_full_dir, search_paths);
+		}
+		
+		{
 			const auto source_name = std::string{"GOG"};
 			const auto content_path = bstone::make_content_path(bstone::ContentPathProvider::gog);
 

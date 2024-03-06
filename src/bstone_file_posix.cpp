@@ -73,7 +73,7 @@ std::intptr_t File::read(void* buffer, std::intptr_t count) const
 	BSTONE_ASSERT(is_open());
 
 	const auto posix_file_descriptor = resource_.get();
-	const auto posix_number_of_bytes_to_read = static_cast<::size_t>(std::min(count, posix_file_max_int));
+	const auto posix_number_of_bytes_to_read = static_cast<::size_t>(std::min(count, static_cast<std::intptr_t>(posix_file_max_int)));
 	const auto posix_number_of_bytes_read = ::read(posix_file_descriptor, buffer, posix_number_of_bytes_to_read);
 
 	if (posix_number_of_bytes_read < 0)
@@ -89,7 +89,7 @@ std::intptr_t File::write(const void* buffer, std::intptr_t count) const
 	BSTONE_ASSERT(is_open());
 
 	const auto posix_file_descriptor = resource_.get();
-	const auto posix_number_of_bytes_to_write = static_cast<::size_t>(std::min(count, posix_file_max_int));
+	const auto posix_number_of_bytes_to_write = static_cast<::size_t>(std::min(count, static_cast<std::intptr_t>(posix_file_max_int)));
 	const auto posix_number_of_bytes_written = ::write(posix_file_descriptor, buffer, posix_number_of_bytes_to_write);
 
 	if (posix_number_of_bytes_written < 0)
