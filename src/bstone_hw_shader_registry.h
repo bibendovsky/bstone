@@ -75,17 +75,8 @@ public:
 private:
 	static const R3rShaderSource& get_empty();
 
-	static const R3rShaderSource& get_fragment_gl_2();
-
-	static const R3rShaderSource& get_vertex_gl_2();
-
-	static const R3rShaderSource& get_fragment_gl_3_2_core();
-
-	static const R3rShaderSource& get_vertex_gl_3_2_core();
-
-	static const R3rShaderSource& get_fragment_gles_2_0();
-
-	static const R3rShaderSource& get_vertex_gles_2_0();
+	static const R3rShaderSource& get_fragment_gl();
+	static const R3rShaderSource& get_vertex_gl();
 }; // HwShaderRegistry
 
 
