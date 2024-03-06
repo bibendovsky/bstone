@@ -1,137 +1,109 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
+/*
+Shader registry.
 
-//
-// 3D shader registry.
-//
-// Notes:
-// - See CalcHeight and ScalePost in 3d_draw.cpp for shading calculation.
-//
-
-
+Notes:
+  - See CalcHeight and ScalePost in 3d_draw.cpp for shading calculation.
+*/
 
 #include "bstone_hw_shader_registry.h"
+
 #include "bstone_char_traits.h"
 
+namespace bstone {
 
-namespace bstone
-{
-
-
-int HwShaderRegistry::get_a_position_location()
+int HwShaderRegistry::get_a_position_location() noexcept
 {
 	return 0;
 }
 
-int HwShaderRegistry::get_a_color_location()
+int HwShaderRegistry::get_a_color_location() noexcept
 {
 	return 1;
 }
 
-int HwShaderRegistry::get_a_tx_coords_location()
+int HwShaderRegistry::get_a_tx_coords_location() noexcept
 {
 	return 2;
 }
 
-const char* HwShaderRegistry::get_a_position_name()
+const char* HwShaderRegistry::get_a_position_name() noexcept
 {
 	return "a_position";
 }
 
-const char* HwShaderRegistry::get_a_color_name()
+const char* HwShaderRegistry::get_a_color_name() noexcept
 {
 	return "a_color";
 }
 
-const char* HwShaderRegistry::get_a_tx_coords_name()
+const char* HwShaderRegistry::get_a_tx_coords_name() noexcept
 {
 	return "a_tx_coords";
 }
 
-const std::string& HwShaderRegistry::get_u_model_mat_name()
+const char* HwShaderRegistry::get_u_model_mat_name() noexcept
 {
-	static const auto result = std::string{"u_model_mat"};
-
-	return result;
+	return "u_model_mat";
 }
 
-const std::string& HwShaderRegistry::get_u_view_mat_name()
+const char* HwShaderRegistry::get_u_view_mat_name() noexcept
 {
-	static const auto result = std::string{"u_view_mat"};
-
-	return result;
+	return "u_view_mat";
 }
 
-const std::string& HwShaderRegistry::get_u_projection_mat_name()
+const char* HwShaderRegistry::get_u_projection_mat_name() noexcept
 {
-	static const auto result = std::string{"u_projection_mat"};
-
-	return result;
+	return "u_projection_mat";
 }
 
-const std::string& HwShaderRegistry::get_u_sampler_name()
+const char* HwShaderRegistry::get_u_sampler_name() noexcept
 {
-	static const auto result = std::string{"u_sampler"};
-
-	return result;
+	return "u_sampler";
 }
 
-const std::string& HwShaderRegistry::get_u_shading_mode_name()
+const char* HwShaderRegistry::get_u_shading_mode_name() noexcept
 {
-	static const auto result = std::string{"u_shading_mode"};
-
-	return result;
+	return "u_shading_mode";
 }
 
-const std::string& HwShaderRegistry::get_u_shade_max_name()
+const char* HwShaderRegistry::get_u_shade_max_name() noexcept
 {
-	static const auto result = std::string{"u_shade_max"};
-
-	return result;
+	return "u_shade_max";
 }
 
-const std::string& HwShaderRegistry::get_u_normal_shade_name()
+const char* HwShaderRegistry::get_u_normal_shade_name() noexcept
 {
-	static const auto result = std::string{"u_normal_shade"};
-
-	return result;
+	return "u_normal_shade";
 }
 
-const std::string& HwShaderRegistry::get_u_height_numerator_name()
+const char* HwShaderRegistry::get_u_height_numerator_name() noexcept
 {
-	static const auto result = std::string{"u_height_numerator"};
-
-	return result;
+	return "u_height_numerator";
 }
 
-const std::string& HwShaderRegistry::get_u_extra_lighting_name()
+const char* HwShaderRegistry::get_u_extra_lighting_name() noexcept
 {
-	static const auto result = std::string{"u_extra_lighting"};
-
-	return result;
+	return "u_extra_lighting";
 }
 
-const std::string& HwShaderRegistry::get_u_view_direction_name()
+const char* HwShaderRegistry::get_u_view_direction_name() noexcept
 {
-	static const auto result = std::string{"u_view_direction"};
-
-	return result;
+	return "u_view_direction";
 }
 
-const std::string& HwShaderRegistry::get_u_view_position_name()
+const char* HwShaderRegistry::get_u_view_position_name() noexcept
 {
-	static const auto result = std::string{"u_view_position"};
-
-	return result;
+	return "u_view_position";
 }
 
-const R3rShaderSource& HwShaderRegistry::get_fragment(
-	const R3rType renderer_type)
+const R3rShaderSource& HwShaderRegistry::get_fragment(R3rType renderer_type) noexcept
 {
 	switch (renderer_type)
 	{
@@ -144,8 +116,7 @@ const R3rShaderSource& HwShaderRegistry::get_fragment(
 	}
 }
 
-const R3rShaderSource& HwShaderRegistry::get_vertex(
-	const R3rType renderer_type)
+const R3rShaderSource& HwShaderRegistry::get_vertex(R3rType renderer_type) noexcept
 {
 	switch (renderer_type)
 	{
@@ -158,24 +129,29 @@ const R3rShaderSource& HwShaderRegistry::get_vertex(
 	}
 }
 
-const R3rShaderSource& HwShaderRegistry::get_empty()
+R3rShaderSource HwShaderRegistry::make_r3r_shader_source(const char* source) noexcept
 {
-	static const auto result = R3rShaderSource{};
-
+	auto result = R3rShaderSource{};
+	result.data = source;
+	result.size = static_cast<int>(char_traits::get_size(source));
 	return result;
 }
 
-const R3rShaderSource& HwShaderRegistry::get_fragment_gl()
+const R3rShaderSource& HwShaderRegistry::get_empty() noexcept
 {
-	static constexpr auto source =
+	static const auto result = R3rShaderSource{};
+	return result;
+}
+
+const R3rShaderSource& HwShaderRegistry::get_fragment_gl() noexcept
+{
+	static const auto result = make_r3r_shader_source(
 R"FRAGMENT_SHADER(
 #ifdef GL_ES
 precision mediump float;
 #endif
 
-
 uniform sampler2D u_sampler;
-
 
 // 0 - none
 // 1 - vanilla
@@ -189,11 +165,9 @@ uniform float u_extra_lighting;
 uniform vec2 u_view_direction;
 uniform vec2 u_view_position;
 
-
 varying vec2 o_position;
 varying vec4 o_color;
 varying vec2 o_tx_coords;
-
 
 float calculate_no_shading()
 {
@@ -250,7 +224,6 @@ float calculate_shading_weight()
 	}
 }
 
-
 void main()
 {
 	float shading_weight = calculate_shading_weight();
@@ -263,37 +236,26 @@ void main()
 	gl_FragColor *= 1.0 - shading_weight;
 	gl_FragColor.a = alpha;
 }
-)FRAGMENT_SHADER";
-
-	constexpr auto source_size = char_traits::get_size(source);
-
-	static const auto result = R3rShaderSource
-	{
-		source,
-		static_cast<int>(source_size),
-	};
+)FRAGMENT_SHADER");
 
 	return result;
 }
 
-const R3rShaderSource& HwShaderRegistry::get_vertex_gl()
+const R3rShaderSource& HwShaderRegistry::get_vertex_gl() noexcept
 {
-	constexpr auto source =
+	static const auto result = make_r3r_shader_source(
 R"VERTEX_SHADER(
 attribute vec3 a_position;
 attribute vec4 a_color;
 attribute vec2 a_tx_coords;
 
-
 uniform mat4 u_model_mat;
 uniform mat4 u_view_mat;
 uniform mat4 u_projection_mat;
 
-
 varying vec2 o_position;
 varying vec4 o_color;
 varying vec2 o_tx_coords;
-
 
 void main()
 {
@@ -305,18 +267,9 @@ void main()
 
 	gl_Position = u_projection_mat * u_view_mat * position;
 }
-)VERTEX_SHADER";
-
-	constexpr auto source_size = char_traits::get_size(source);
-
-	static const auto result = R3rShaderSource
-	{
-		source,
-		static_cast<int>(source_size),
-	};
+)VERTEX_SHADER");
 
 	return result;
 }
 
-
-} // bstone
+} // namespace bstone

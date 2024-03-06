@@ -826,32 +826,32 @@ private:
 	struct InitializeSampler2dUniformTag {};
 
 	void initialize_uniform(
-		const std::string& name,
+		const char* name,
 		R3rShaderInt32Var*& var,
 		InitializeInt32UniformTag) noexcept;
 
 	void initialize_uniform(
-		const std::string& name,
+		const char* name,
 		R3rShaderFloat32Var*& var,
 		InitializeFloat32UniformTag) noexcept;
 
 	void initialize_uniform(
-		const std::string& name,
+		const char* name,
 		R3rShaderVec2Var*& var,
 		InitializeVec2UniformTag) noexcept;
 
 	void initialize_uniform(
-		const std::string& name,
+		const char* name,
 		R3rShaderMat4Var*& var,
 		InitializeMat4UniformTag) noexcept;
 
 	void initialize_uniform(
-		const std::string& name,
+		const char* name,
 		R3rShaderR2SamplerVar*& var,
 		InitializeSampler2dUniformTag) noexcept;
 
 	template<typename T>
-	void initialize_uniform(const std::string& name, T*& var);
+	void initialize_uniform(const char* name, T*& var);
 
 	void initialize_model_mat_uniform();
 	void uninitialize_view_mat_uniform() noexcept;
@@ -2617,47 +2617,47 @@ void HwVideo::uninitialize_model_mat_uniform() noexcept
 }
 
 void HwVideo::initialize_uniform(
-	const std::string& name,
+	const char* name,
 	R3rShaderInt32Var*& var,
 	InitializeInt32UniformTag) noexcept
 {
-	var = shader_stage_->find_int32_var(name.c_str());
+	var = shader_stage_->find_int32_var(name);
 }
 
 void HwVideo::initialize_uniform(
-	const std::string& name,
+	const char* name,
 	R3rShaderFloat32Var*& var,
 	InitializeFloat32UniformTag) noexcept
 {
-	var = shader_stage_->find_float32_var(name.c_str());
+	var = shader_stage_->find_float32_var(name);
 }
 
 void HwVideo::initialize_uniform(
-	const std::string& name,
+	const char* name,
 	R3rShaderVec2Var*& var,
 	InitializeVec2UniformTag) noexcept
 {
-	var = shader_stage_->find_vec2_var(name.c_str());
+	var = shader_stage_->find_vec2_var(name);
 }
 
 void HwVideo::initialize_uniform(
-	const std::string& name,
+	const char* name,
 	R3rShaderMat4Var*& var,
 	InitializeMat4UniformTag) noexcept
 {
-	var = shader_stage_->find_mat4_var(name.c_str());
+	var = shader_stage_->find_mat4_var(name);
 }
 
 void HwVideo::initialize_uniform(
-	const std::string& name,
+	const char* name,
 	R3rShaderR2SamplerVar*& var,
 	InitializeSampler2dUniformTag) noexcept
 {
-	var = shader_stage_->find_r2_sampler_var(name.c_str());
+	var = shader_stage_->find_r2_sampler_var(name);
 }
 
 template<typename T>
-void HwVideo::initialize_uniform(const std::string& name, T*& var)
+void HwVideo::initialize_uniform(const char* name, T*& var)
 try {
 	using Tag = std::conditional_t<
 		std::is_same<T, R3rShaderInt32Var>::value,
@@ -2687,7 +2687,7 @@ try {
 
 	if (!var)
 	{
-		BSTONE_THROW_DYNAMIC_SOURCE(("Shader variable \"" + name + "\" not found.").c_str());
+		BSTONE_THROW_DYNAMIC_SOURCE(("Shader variable \"" + std::string{name} + "\" not found.").c_str());
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
