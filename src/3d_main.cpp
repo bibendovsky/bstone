@@ -11043,6 +11043,17 @@ auto gp_vanilla_fizzle_fx_cvar = bstone::CVar{
 	bstone::CVarFlags::archive,
 	gp_vanilla_fizzle_fx_default};
 
+// gp_ps_map_in_stats
+
+constexpr auto gp_ps_map_in_stats_cvar_name = bstone::StringView{"gp_ps_map_in_stats"};
+constexpr auto gp_ps_map_in_stats_default = false;
+
+auto gp_ps_map_in_stats_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	gp_ps_map_in_stats_cvar_name,
+	bstone::CVarFlags::archive,
+	gp_ps_map_in_stats_default};
+
 } // namespace
 
 void gp_initialize_cvars(bstone::CVarMgr& cvar_mgr)
@@ -11060,6 +11071,7 @@ void gp_initialize_cvars(bstone::CVarMgr& cvar_mgr)
 	cvar_mgr.add(gp_no_fade_in_or_out_cvar);
 	cvar_mgr.add(gp_no_weapon_bobbing_cvar);
 	cvar_mgr.add(gp_vanilla_fizzle_fx_cvar);
+	cvar_mgr.add(gp_ps_map_in_stats_cvar);
 }
 
 namespace {
@@ -11210,6 +11222,16 @@ bool gp_vanilla_fizzle_fx() noexcept
 void gp_vanilla_fizzle_fx(bool is_enabled)
 {
 	gp_vanilla_fizzle_fx_cvar.set_bool(is_enabled);
+}
+
+bool gp_ps_map_in_stats() noexcept
+{
+	return gp_ps_map_in_stats_cvar.get_bool();
+}
+
+void gp_ps_map_in_stats(bool is_enabled)
+{
+	gp_ps_map_in_stats_cvar.set_bool(is_enabled);
 }
 
 bool am_rotatable() noexcept

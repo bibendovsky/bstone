@@ -3994,6 +3994,9 @@ void gp_no_weapon_bobbing(bool is_enable);
 bool gp_vanilla_fizzle_fx() noexcept;
 void gp_vanilla_fizzle_fx(bool is_enabled);
 
+bool gp_ps_map_in_stats() noexcept;
+void gp_ps_map_in_stats(bool is_enabled);
+
 bool am_rotatable() noexcept;
 void am_rotatable(bool is_enable);
 
