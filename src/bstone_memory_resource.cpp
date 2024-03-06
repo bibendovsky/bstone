@@ -59,22 +59,27 @@ void NewDeleteMemoryResource::do_deallocate(void* ptr) noexcept
 
 // ==========================================================================
 
+namespace {
+
+NullMemoryResource null_memory_resource_impl{};
+NewDeleteMemoryResource new_delete_memory_resource_impl{};
+NewDeleteMemoryResource default_memory_resource_impl{};
+
+} // namespace
+
 MemoryResource& get_null_memory_resource() noexcept
 {
-	static auto memory_resource = NullMemoryResource{};
-	return memory_resource;
+	return null_memory_resource_impl;
 }
 
 MemoryResource& get_new_delete_memory_resource() noexcept
 {
-	static auto memory_resource = NewDeleteMemoryResource{};
-	return memory_resource;
+	return new_delete_memory_resource_impl;
 }
 
 MemoryResource& get_default_memory_resource() noexcept
 {
-	static auto memory_resource = NewDeleteMemoryResource{};
-	return memory_resource;
+	return default_memory_resource_impl;
 }
 
 } // namespace bstone
