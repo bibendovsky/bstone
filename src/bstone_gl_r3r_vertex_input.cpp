@@ -131,7 +131,7 @@ try {
 	if (vao_resource_.get() != 0U)
 	{
 		glBindVertexArray(vao_resource_.get());
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
@@ -163,7 +163,7 @@ try {
 void GlR3rVertexInputImpl::VaoDeleter::operator()(GLuint gl_name) noexcept
 {
 	glDeleteVertexArrays(1, &gl_name);
-	GlR3rError::ensure_assert();
+	GlR3rError::ensure_no_errors_assert();
 }
 
 void GlR3rVertexInputImpl::initialize_vao()
@@ -172,7 +172,7 @@ try {
 	{
 		auto gl_name = GLuint{};
 		glGenVertexArrays(1, &gl_name);
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 
 		vao_resource_.reset(gl_name);
 
@@ -202,13 +202,13 @@ void GlR3rVertexInputImpl::enable_attrib_array(int index, bool is_enable)
 try {
 	const auto gl_func = (is_enable ? glEnableVertexAttribArray : glDisableVertexAttribArray);
 	gl_func(index);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rVertexInputImpl::assign_default_attribute(const R3rVertexAttribDescr& attribute_description)
 try {
 	glVertexAttrib4fv(attribute_description.location, attribute_description.default_value.data());
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rVertexInputImpl::assign_regular_attribute(const R3rVertexAttribDescr& attribute_description)
@@ -255,7 +255,7 @@ try {
 		attribute_description.stride,
 		vertex_buffer_data);
 
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rVertexInputImpl::assign_attribute(const R3rVertexAttribDescr& attribute_description)

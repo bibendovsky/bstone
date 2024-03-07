@@ -2782,7 +2782,7 @@ try {
 	auto gl_extension_count = GLint{};
 
 	glGetIntegerv(GL_NUM_EXTENSIONS, &gl_extension_count);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 
 	if (gl_extension_count == 0)
 	{
@@ -2812,7 +2812,7 @@ try {
 	}
 
 	const auto gl_extensions_c_string = glGetString(GL_EXTENSIONS);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 
 	if (gl_extensions_c_string == nullptr)
 	{

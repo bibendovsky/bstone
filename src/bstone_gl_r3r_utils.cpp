@@ -119,7 +119,7 @@ try
 	auto gl_value = GLint{};
 
 	glGetIntegerv(gl_enum, &gl_value);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 
 	return gl_value;
 }
@@ -190,7 +190,7 @@ try {
 	auto gl_max_value = GLfloat{};
 
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &gl_max_value);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 
 	if (gl_max_value <= static_cast<GLfloat>(R3rLimits::min_anisotropy_off))
 	{
@@ -215,7 +215,7 @@ try {
 	const auto gl_value = static_cast<GLfloat>(clamped_value);
 
 	glTexParameterf(gl_target, GL_TEXTURE_MAX_ANISOTROPY, gl_value);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::probe_anisotropy(
@@ -334,7 +334,7 @@ try {
 	const auto gl_function = (gl_device_features.is_mipmap_ext ? glGenerateMipmapEXT : glGenerateMipmap);
 
 	gl_function(gl_target);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::probe_framebuffer(
@@ -406,7 +406,7 @@ try {
 	const auto gl_value = static_cast<GLfloat>(clamped_value);
 
 	glSamplerParameterf(gl_sampler, GL_TEXTURE_MAX_ANISOTROPY, gl_value);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::probe_vao(
@@ -444,7 +444,7 @@ try {
 	auto gl_count = GLint{};
 
 	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &gl_count);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 
 	device_features.max_vertex_input_locations = 0;
 
@@ -530,7 +530,7 @@ try {
 void GlR3rUtils::enable_scissor(bool is_enabled)
 try {
 	(is_enabled ? glEnable : glDisable)(GL_SCISSOR_TEST);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::set_scissor_box(const R3rScissorBox& scissor_box)
@@ -561,7 +561,7 @@ try {
 		scissor_box.width,
 		scissor_box.height);
 
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::set_viewport_rect(const R3rViewport& viewport)
@@ -592,7 +592,7 @@ try {
 		viewport.width,
 		viewport.height);
 
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::set_viewport_depth_range(
@@ -614,19 +614,19 @@ try {
 	if (is_es)
 	{
 		glDepthRangef(viewport.min_depth, viewport.max_depth);
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 	else
 	{
 		glDepthRange(viewport.min_depth, viewport.max_depth);
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::enable_culling(bool is_enable)
 try {
 	(is_enable ? glEnable : glDisable)(GL_CULL_FACE);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::set_culling_face(R3rCullingFace culling_face)
@@ -648,7 +648,7 @@ try {
 	}
 
 	glFrontFace(gl_culling_face);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::set_culling_mode(R3rCullingMode culling_mode)
@@ -674,25 +674,25 @@ try {
 	}
 
 	glCullFace(gl_culling_mode);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::enable_depth_test(bool is_enable)
 try {
 	(is_enable ? glEnable : glDisable)(GL_DEPTH_TEST);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::enable_depth_write(bool is_enable)
 try {
 	glDepthMask(is_enable);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::enable_blending(bool is_enable)
 try {
 	(is_enable ? glEnable : glDisable)(GL_BLEND);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::set_blending_func(const R3rBlendingFunc& blending_func)
@@ -700,7 +700,7 @@ try {
 	auto gl_src_factor = get_blending_factor(blending_func.src_factor);
 	auto gl_dst_factor = get_blending_factor(blending_func.dst_factor);
 	glBlendFunc(gl_src_factor, gl_dst_factor);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GLenum GlR3rUtils::index_buffer_get_element_type_by_byte_depth(int byte_depth)
@@ -755,7 +755,7 @@ try {
 	//
 	const auto gl_name = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
 
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 
 	if (gl_name != nullptr)
 	{
@@ -766,7 +766,7 @@ try {
 	//
 	const auto gl_vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
 
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 
 	if (gl_vendor != nullptr)
 	{
@@ -777,7 +777,7 @@ try {
 	//
 	const auto gl_version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
 
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 
 	if (gl_version != nullptr)
 	{
@@ -796,7 +796,7 @@ try {
 
 	auto size = GLint{};
 	gl_size_function(gl_name, GL_INFO_LOG_LENGTH, &size);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 
 	auto result = std::string{};
 
@@ -805,7 +805,7 @@ try {
 		result.resize(size);
 		auto info_size = GLsizei{};
 		gl_info_function(gl_name, size, &info_size, &result[0]);
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 
 		if (info_size <= 0)
 		{

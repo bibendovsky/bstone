@@ -143,12 +143,12 @@ try
 	if (gl_device_features_.is_dsa_available)
 	{
 		glCreateTextures(GL_TEXTURE_2D, 1, &gl_name);
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 	else
 	{
 		glGenTextures(1, &gl_name);
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 
 	texture_resource_.reset(gl_name);
@@ -168,20 +168,20 @@ try
 	if (gl_device_features_.is_dsa_available)
 	{
 		glTextureParameteri(texture_resource_.get(), GL_TEXTURE_BASE_LEVEL, 0);
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 
 		glTextureParameteri(texture_resource_.get(), GL_TEXTURE_MAX_LEVEL, mipmap_count_ - 1);
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 	else
 	{
 		bind();
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipmap_count_ - 1);
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 #endif
 
@@ -196,7 +196,7 @@ try
 			width_,
 			height_);
 
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 	else
 	{
@@ -217,7 +217,7 @@ try
 				nullptr // pixels
 			);
 
-			GlR3rError::ensure_debug();
+			GlR3rError::check_optionally();
 
 			if (mipmap_width > 1)
 			{
@@ -292,7 +292,7 @@ try {
 	if (gl_device_features_.is_dsa_available)
 	{
 		glGenerateTextureMipmap(texture_resource_.get());
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 	else
 	{
@@ -304,7 +304,7 @@ try {
 void GlR3rR2TextureImpl::TextureDeleter::operator()(GLuint gl_name) noexcept
 {
 	glDeleteTextures(1, &gl_name);
-	GlR3rError::ensure_assert();
+	GlR3rError::ensure_no_errors_assert();
 }
 
 void GlR3rR2TextureImpl::validate(const R3rR2TextureInitParam& param)
@@ -351,7 +351,7 @@ try {
 void GlR3rR2TextureImpl::bind()
 try {
 	glBindTexture(GL_TEXTURE_2D, texture_resource_.get());
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::upload_mipmap(int mipmap_level, int width, int height, const void* src_data)
@@ -370,7 +370,7 @@ try {
 			src_data // pixels
 		);
 
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 	else
 	{
@@ -386,7 +386,7 @@ try {
 			src_data // pixels
 		);
 
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
@@ -409,12 +409,12 @@ try {
 	if (gl_device_features_.is_dsa_available)
 	{
 		glTextureParameteri(texture_resource_.get(), GL_TEXTURE_MAG_FILTER, gl_mag_filter);
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 	else
 	{
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_mag_filter);
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
@@ -427,12 +427,12 @@ try {
 	if (gl_device_features_.is_dsa_available)
 	{
 		glTextureParameteri(texture_resource_.get(), GL_TEXTURE_MIN_FILTER, gl_min_filter);
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 	else
 	{
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_min_filter);
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
@@ -444,12 +444,12 @@ try {
 	if (gl_device_features_.is_dsa_available)
 	{
 		glTextureParameteri(texture_resource_.get(), gl_wrap_axis, gl_address_mode);
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 	else
 	{
 		glTexParameteri(GL_TEXTURE_2D, gl_wrap_axis, gl_address_mode);
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
@@ -486,12 +486,12 @@ try {
 	if (gl_device_features_.is_dsa_available)
 	{
 		glTextureParameterf(texture_resource_.get(), GL_TEXTURE_MAX_ANISOTROPY, gl_anisotropy);
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 	else
 	{
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, gl_anisotropy);
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 

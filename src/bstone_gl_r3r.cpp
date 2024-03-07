@@ -57,6 +57,8 @@ private:
 	const R3rDeviceFeatures& do_get_device_features() const noexcept override;
 	const R3rDeviceInfo& do_get_device_info() const noexcept override;
 
+	void do_enable_checking_api_calls_for_errors(bool is_enable) override;
+
 	sys::Window& do_get_window() const noexcept override;
 	void do_handle_resize(sys::WindowSize new_size) override;
 
@@ -402,6 +404,11 @@ const R3rDeviceInfo& GlR3rImpl::do_get_device_info() const noexcept
 	return device_info_;
 }
 
+void GlR3rImpl::do_enable_checking_api_calls_for_errors(bool is_enable)
+{
+	GlR3rError::enable_checking(is_enable);
+}
+
 sys::Window& GlR3rImpl::do_get_window() const noexcept
 {
 	return *window_;
@@ -505,10 +512,10 @@ try {
 	bind_framebuffers_for_read_pixels();
 
 	glReadBuffer(GL_BACK);
-	GlR3rError::ensure();
+	GlR3rError::ensure_no_errors();
   
 	glReadPixels(0, 0, screen_width_, screen_height_, GL_RGB, GL_UNSIGNED_BYTE, buffer);
-	GlR3rError::ensure();
+	GlR3rError::ensure_no_errors();
 
 	bind_framebuffers();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -516,7 +523,7 @@ try {
 void GlR3rImpl::do_present()
 try {
 	blit_framebuffers();
-	GlR3rError::ensure();
+	GlR3rError::ensure_no_errors();
 
 	window_->gl_swap_buffers();
 	bind_framebuffers();
@@ -669,14 +676,14 @@ void GlR3rImpl::FboDeleter::operator()(GLuint gl_name) noexcept
 {
 	const auto gl_function = (glDeleteFramebuffers ? glDeleteFramebuffers : glDeleteFramebuffersEXT);
 	gl_function(1, &gl_name);
-	GlR3rError::ensure_assert();
+	GlR3rError::ensure_no_errors_assert();
 }
 
 void GlR3rImpl::RboDeleter::operator()(GLuint gl_name) noexcept
 {
 	const auto gl_function = (glDeleteRenderbuffers ? glDeleteRenderbuffers : glDeleteRenderbuffersEXT);
 	gl_function(1, &gl_name);
-	GlR3rError::ensure_assert();
+	GlR3rError::ensure_no_errors_assert();
 }
 
 void GlR3rImpl::set_device_info()
@@ -727,7 +734,7 @@ try {
 
 	auto gl_name = GLuint{};
 	gl_function(1, &gl_name);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 
 	auto rbo_resource = RboResource{gl_name};
 
@@ -743,7 +750,7 @@ void GlR3rImpl::bind_renderbuffer(GLuint gl_renderbuffer_name)
 try {
 	const auto gl_func = (gl_device_features_.is_framebuffer_ext ? glBindRenderbufferEXT : glBindRenderbuffer);
 	gl_func(GL_RENDERBUFFER, gl_renderbuffer_name);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rImpl::FboResource GlR3rImpl::create_framebuffer()
@@ -757,7 +764,7 @@ try {
 
 	auto gl_name = GLuint{};
 	gl_func(1, &gl_name);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 
 	auto fbo_resource = FboResource{gl_name};
 
@@ -775,7 +782,7 @@ try {
 
 	const auto gl_func = (gl_device_features_.is_framebuffer_ext ? glBindFramebufferEXT : glBindFramebuffer);
 	gl_func(gl_target, gl_name);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::blit_framebuffer(
@@ -811,7 +818,7 @@ try {
 		GL_COLOR_BUFFER_BIT,
 		gl_filter);
 
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlR3rImpl::RboResource GlR3rImpl::create_renderbuffer(
@@ -836,7 +843,7 @@ try {
 		glRenderbufferStorageMultisample;
 
 	gl_func(GL_RENDERBUFFER, sample_count, gl_internal_format, width, height);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 
 	bind_renderbuffer(0);
 	return rbo_resource;
@@ -1264,7 +1271,7 @@ try {
 		index_buffer_indices // indices
 	);
 
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace

@@ -83,15 +83,15 @@ try {
 	const GLint lengths[] = {param.source.size};
 
 	glShaderSource(shader_resource_.get(), 1, strings, lengths);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 
 	glCompileShader(shader_resource_.get());
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 
 	auto compile_status = GLint{};
 
 	glGetShaderiv(shader_resource_.get(), GL_COMPILE_STATUS, &compile_status);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 
 	if (compile_status != GL_TRUE)
 	{
@@ -150,7 +150,7 @@ R3rShaderType GlR3rShaderImpl::do_get_type() const noexcept
 void GlR3rShaderImpl::ShaderDeleter::operator()(GLuint gl_name) noexcept
 {
 	glDeleteShader(gl_name);
-	GlR3rError::ensure_assert();
+	GlR3rError::ensure_no_errors_assert();
 }
 
 GLuint GlR3rShaderImpl::get_gl_name() const noexcept

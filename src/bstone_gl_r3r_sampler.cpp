@@ -90,12 +90,12 @@ try
 		if (gl_device_features.is_dsa_available)
 		{
 			glCreateSamplers(1, &gl_name);
-			GlR3rError::ensure_debug();
+			GlR3rError::check_optionally();
 		}
 		else
 		{
 			glGenSamplers(1, &gl_name);
-			GlR3rError::ensure_debug();
+			GlR3rError::check_optionally();
 		}
 
 		sampler_resource_.reset(gl_name);
@@ -129,7 +129,7 @@ try {
 	}
 
 	glBindSampler(0, sampler_resource_.get());
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rSamplerImpl::do_update(const R3rSamplerUpdateParam& param)
@@ -237,21 +237,21 @@ const R3rSamplerState& GlR3rSamplerImpl::do_get_state() const noexcept
 void GlR3rSamplerImpl::SamplerDeleter::operator()(GLuint gl_name) noexcept
 {
 	glDeleteSamplers(1, &gl_name);
-	GlR3rError::ensure_assert();
+	GlR3rError::ensure_no_errors_assert();
 }
 
 void GlR3rSamplerImpl::set_mag_filter()
 try {
 	const auto gl_mag_filter = GlR3rUtils::get_mag_filter(state_.mag_filter);
 	glSamplerParameteri(sampler_resource_.get(), GL_TEXTURE_MAG_FILTER, gl_mag_filter);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rSamplerImpl::set_min_filter()
 try {
 	const auto gl_min_filter = GlR3rUtils::get_min_filter(state_.min_filter, state_.mipmap_mode);
 	glSamplerParameteri(sampler_resource_.get(), GL_TEXTURE_MIN_FILTER, gl_min_filter);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rSamplerImpl::set_address_mode(R3rTextureAxis texture_axis, R3rAddressMode address_mode)
@@ -260,7 +260,7 @@ try {
 	const auto gl_address_mode = GlR3rUtils::get_address_mode(address_mode);
 
 	glSamplerParameteri(sampler_resource_.get(), gl_wrap_axis, gl_address_mode);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rSamplerImpl::set_address_mode_u()

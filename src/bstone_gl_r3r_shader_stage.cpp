@@ -116,21 +116,21 @@ try
 
 	const auto fragment_shader = static_cast<GlR3rShader*>(param.fragment_shader);
 	glAttachShader(shader_stage_resource_.get(), fragment_shader->get_gl_name());
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 
 	const auto vertex_shader = static_cast<GlR3rShader*>(param.vertex_shader);
 	glAttachShader(shader_stage_resource_.get(), vertex_shader->get_gl_name());
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 
 	set_input_bindings(shader_stage_resource_.get(), param.input_bindings);
 
 	glLinkProgram(shader_stage_resource_.get());
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 
 	auto link_status = GLint{};
 
 	glGetProgramiv(shader_stage_resource_.get(), GL_LINK_STATUS, &link_status);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 
 	if (link_status != GL_TRUE)
 	{
@@ -194,7 +194,7 @@ GlR3rContext& GlR3rShaderStageImpl::get_context() const noexcept
 void GlR3rShaderStageImpl::set()
 try {
 	glUseProgram(shader_stage_resource_.get());
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rShaderVar* GlR3rShaderStageImpl::do_find_var(const char* name) noexcept
@@ -250,7 +250,7 @@ GLuint GlR3rShaderStageImpl::get_gl_name() const noexcept
 void GlR3rShaderStageImpl::ShaderStageDeleter::operator()(GLuint gl_name) noexcept
 {
 	glDeleteProgram(gl_name);
-	GlR3rError::ensure_assert();
+	GlR3rError::ensure_no_errors_assert();
 }
 
 void GlR3rShaderStageImpl::validate(R3rShaderType shader_type, R3rShader* shader)
@@ -337,7 +337,7 @@ try {
 	for (const auto& input_binding : input_bindings)
 	{
 		glBindAttribLocation(gl_name, input_binding.index, input_binding.name);
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
@@ -345,11 +345,11 @@ int GlR3rShaderStageImpl::get_var_count(GLuint gl_name)
 try {
 	auto gl_vertex_attribute_count = GLint{};
 	glGetProgramiv(gl_name, GL_ACTIVE_ATTRIBUTES, &gl_vertex_attribute_count);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 
 	auto gl_uniform_count = GLint{};
 	glGetProgramiv(gl_name, GL_ACTIVE_UNIFORMS, &gl_uniform_count);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 
 	return static_cast<int>(gl_vertex_attribute_count + gl_uniform_count);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -391,7 +391,7 @@ try {
 
 	auto gl_count = GLint{};
 	glGetProgramiv(gl_name, gl_count_enum, &gl_count);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 
 	if (gl_count <= 0)
 	{
@@ -400,7 +400,7 @@ try {
 
 	auto gl_max_length = GLint{};
 	glGetProgramiv(gl_name, gl_max_length_enum, &gl_max_length);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 
 	if (gl_max_length <= 0)
 	{
@@ -426,7 +426,7 @@ try {
 			&gl_type,
 			name_buffer.data());
 
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 
 		if (gl_length <= 0)
 		{
@@ -471,7 +471,7 @@ try {
 		if (is_attribute)
 		{
 			input_index = glGetAttribLocation(gl_name, name_buffer.data());
-			GlR3rError::ensure_debug();
+			GlR3rError::check_optionally();
 
 			if (input_index < 0)
 			{
@@ -485,7 +485,7 @@ try {
 			input_index = -1;
 
 			gl_location = glGetUniformLocation(gl_name, name_buffer.data());
-			GlR3rError::ensure_debug();
+			GlR3rError::check_optionally();
 
 			if (gl_location < 0)
 			{

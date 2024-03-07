@@ -13,17 +13,17 @@ namespace bstone {
 
 struct GlR3rError
 {
-	// Throws an exception on OpenGL error for any build.
-	// Also clears all error flags.
-	static void ensure();
+	// Enables checking for OpenGL errors.
+	static void enable_checking(bool is_enable);
 
-	// Throws an exception on OpenGL error for debug build.
-	// Also clears all error flags.
-	static void ensure_debug();
+	// Clears OpenGL error flags and throws an exception if there were any error.
+	static void ensure_no_errors();
 
-	// Asserts if there was any OpenGL error.
-	// Also clears all error flags.
-	static void ensure_assert();
+	// Checks for OpenGL errors only if check is enabled.
+	static void check_optionally();
+
+	// Checks for OpenGL errors only if NDEBUG not defined.
+	static void ensure_no_errors_assert();
 };
 
 } // namespace bstone

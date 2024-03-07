@@ -303,6 +303,17 @@ auto vid_external_textures_cvar = bstone::CVar{
 	bstone::CVarFlags::archive,
 	vid_external_textures_cvar_default};
 
+// vid_check_3d_api_call_for_error
+
+constexpr auto vid_check_r3_api_call_for_errors_cvar_name = bstone::StringView{"vid_check_r3_api_call_for_errors"};
+constexpr auto vid_check_r3_api_call_for_errors_cvar_default = false;
+
+auto vid_check_r3_api_call_for_errors_cvar = bstone::CVar{
+	bstone::CVarBoolTag{},
+	vid_check_r3_api_call_for_errors_cvar_name,
+	bstone::CVarFlags::archive,
+	vid_check_r3_api_call_for_errors_cvar_default};
+
 } // namespace
 
 extern bool is_full_menu_active;
@@ -894,6 +905,7 @@ void vid_initialize_cvars(bstone::CVarMgr& cvar_mgr)
 	cvar_mgr.add(vid_3d_texture_anisotropy_cvar);
 	cvar_mgr.add(vid_filler_color_index_cvar);
 	cvar_mgr.add(vid_external_textures_cvar);
+	cvar_mgr.add(vid_check_r3_api_call_for_errors_cvar);
 }
 
 namespace
@@ -1973,6 +1985,16 @@ bool vid_cfg_is_external_textures_enabled() noexcept
 void vid_cfg_set_is_external_textures_enabled(bool is_enabled)
 {
 	vid_external_textures_cvar.set_bool(is_enabled);
+}
+
+bool vid_check_r3_api_call_for_errors() noexcept
+{
+	return vid_check_r3_api_call_for_errors_cvar.get_bool();
+}
+
+void vid_check_r3_api_call_for_errors(bool is_enabled)
+{
+	vid_check_r3_api_call_for_errors_cvar.set_bool(is_enabled);
 }
 
 void vid_set_ui_mask(

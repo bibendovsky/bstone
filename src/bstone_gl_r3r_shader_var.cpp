@@ -228,12 +228,12 @@ try {
 			{
 				glProgramUniform1iv(
 					shader_stage_gl_name, gl_location_, 1, static_cast<const GLint*>(value_data));
-				GlR3rError::ensure_debug();
+				GlR3rError::check_optionally();
 			}
 			else
 			{
 				glUniform1iv(gl_location_, 1, static_cast<const GLint*>(value_data));
-				GlR3rError::ensure_debug();
+				GlR3rError::check_optionally();
 			}
 
 			break;
@@ -243,12 +243,12 @@ try {
 			{
 				glProgramUniform1fv(
 					shader_stage_gl_name, gl_location_, 1, static_cast<const GLfloat*>(value_data));
-				GlR3rError::ensure_debug();
+				GlR3rError::check_optionally();
 			}
 			else
 			{
 				glUniform1fv(gl_location_, 1, static_cast<const GLfloat*>(value_data));
-				GlR3rError::ensure_debug();
+				GlR3rError::check_optionally();
 			}
 
 			break;
@@ -258,12 +258,12 @@ try {
 			{
 				glProgramUniform2fv(
 					shader_stage_gl_name, gl_location_, 1, static_cast<const GLfloat*>(value_data));
-				GlR3rError::ensure_debug();
+				GlR3rError::check_optionally();
 			}
 			else
 			{
 				glUniform2fv(gl_location_, 1, static_cast<const GLfloat*>(value_data));
-				GlR3rError::ensure_debug();
+				GlR3rError::check_optionally();
 			}
 
 			break;
@@ -273,12 +273,12 @@ try {
 			{
 				glProgramUniform3fv(
 					shader_stage_gl_name, gl_location_, 1, static_cast<const GLfloat*>(value_data));
-				GlR3rError::ensure_debug();
+				GlR3rError::check_optionally();
 			}
 			else
 			{
 				glUniform3fv(gl_location_, 1, static_cast<const GLfloat*>(value_data));
-				GlR3rError::ensure_debug();
+				GlR3rError::check_optionally();
 			}
 
 			break;
@@ -288,12 +288,12 @@ try {
 			{
 				glProgramUniform4fv(
 					shader_stage_gl_name, gl_location_, 1, static_cast<const GLfloat*>(value_data));
-				GlR3rError::ensure_debug();
+				GlR3rError::check_optionally();
 			}
 			else
 			{
 				glUniform4fv(gl_location_, 1, static_cast<const GLfloat*>(value_data));
-				GlR3rError::ensure_debug();
+				GlR3rError::check_optionally();
 			}
 
 			break;
@@ -303,12 +303,12 @@ try {
 			{
 				glProgramUniformMatrix4fv(
 					shader_stage_gl_name, gl_location_, 1, GL_FALSE, static_cast<const GLfloat*>(value_data));
-				GlR3rError::ensure_debug();
+				GlR3rError::check_optionally();
 			}
 			else
 			{
 				glUniformMatrix4fv(gl_location_, 1, GL_FALSE, static_cast<const GLfloat*>(value_data));
-				GlR3rError::ensure_debug();
+				GlR3rError::check_optionally();
 			}
 
 			break;

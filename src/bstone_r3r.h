@@ -74,6 +74,8 @@ public:
 	const R3rDeviceFeatures& get_device_features() const noexcept;
 	const R3rDeviceInfo& get_device_info() const noexcept;
 
+	void enable_checking_api_calls_for_errors(bool is_enable);
+
 	sys::Window& get_window() const noexcept;
 	void handle_resize(sys::WindowSize new_size);
 
@@ -102,6 +104,8 @@ private:
 
 	virtual const R3rDeviceFeatures& do_get_device_features() const noexcept = 0;
 	virtual const R3rDeviceInfo& do_get_device_info() const noexcept = 0;
+
+	virtual void do_enable_checking_api_calls_for_errors(bool is_enable) = 0;
 
 	virtual sys::Window& do_get_window() const noexcept = 0;
 	virtual void do_handle_resize(sys::WindowSize new_size) = 0;

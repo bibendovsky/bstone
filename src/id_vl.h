@@ -382,6 +382,9 @@ void vid_cfg_set_filler_color_index(int index);
 bool vid_cfg_is_external_textures_enabled() noexcept;
 void vid_cfg_set_is_external_textures_enabled(bool is_enabled);
 
+bool vid_check_r3_api_call_for_errors() noexcept;
+void vid_check_r3_api_call_for_errors(bool is_enabled);
+
 void vid_set_ui_mask(
 	bool value);
 

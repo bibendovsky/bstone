@@ -36,6 +36,11 @@ const R3rDeviceInfo& R3r::get_device_info() const noexcept
 	return do_get_device_info();
 }
 
+void R3r::enable_checking_api_calls_for_errors(bool is_enable)
+{
+	do_enable_checking_api_calls_for_errors(is_enable);
+}
+
 sys::Window& R3r::get_window() const noexcept
 {
 	return do_get_window();

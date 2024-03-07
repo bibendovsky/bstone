@@ -180,7 +180,7 @@ try {
 	}
 
 	glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void* GlR3rContextImpl::operator new(std::size_t size)
@@ -247,7 +247,7 @@ try {
 	else
 	{
 		glBindTexture(GL_TEXTURE_2D, 0);
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
@@ -285,7 +285,7 @@ try {
 	else
 	{
 		glUseProgram(0);
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
@@ -408,13 +408,13 @@ try {
 		static_cast<float>(clear_color_.b) / 255.0F,
 		static_cast<float>(clear_color_.a) / 255.0F);
 
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::clear()
 try {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::set_clear_defaults()

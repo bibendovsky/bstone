@@ -1617,6 +1617,8 @@ try {
 	renderer_->present();
 
 	is_draw_3d_ = false;
+
+	renderer_->enable_checking_api_calls_for_errors(vid_check_r3_api_call_for_errors());
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::get_palette(int offset, int count, std::uint8_t* vga_palette) const

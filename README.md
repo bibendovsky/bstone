@@ -653,6 +653,11 @@ Notes:
   Values: `0` (disable), `1` (enable).  
   Default: `0`
 
+* `--vid_check_r3_api_call_for_errors value`  
+  Toggles checking every 3D API call for errors.  
+  Values: `0` (disable), `1` (enable).  
+  Default: `0`
+
 * `--snd_is_disabled value`  
   Enables or disables audio subsystem.  
   Values: `0` (disable) or `1` (enable)  

@@ -87,12 +87,12 @@ try
 	if (gl_device_features_.is_dsa_available)
 	{
 		glCreateBuffers(1, &gl_name);
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 	else
 	{
 		glGenBuffers(1, &gl_name);
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 
 	buffer_resource_.reset(gl_name);
@@ -111,14 +111,14 @@ try
 	if (gl_device_features_.is_dsa_available && gl_device_features_.is_buffer_storage_available)
 	{
 		glNamedBufferStorage(buffer_resource_.get(), param.size, nullptr, GL_DYNAMIC_STORAGE_BIT);
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 	else
 	{
 		set(true);
 
 		glBufferData(gl_target_, param.size, nullptr, gl_usage);
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
@@ -153,7 +153,7 @@ void GlR3rBufferImpl::set(bool is_set)
 try {
 	const auto gl_name = (is_set ? buffer_resource_.get() : 0);
 	glBindBuffer(gl_target_, gl_name);
-	GlR3rError::ensure_debug();
+	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rBufferImpl::do_update(const R3rUpdateBufferParam& param)
@@ -168,21 +168,21 @@ try {
 	if (gl_device_features_.is_dsa_available)
 	{
 		glNamedBufferSubData(buffer_resource_.get(), param.offset, param.size, param.data);
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 	else
 	{
 		set(true);
 
 		glBufferSubData(gl_target_, param.offset, param.size, param.data);
-		GlR3rError::ensure_debug();
+		GlR3rError::check_optionally();
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rBufferImpl::BufferDeleter::operator()(GLuint gl_name) const noexcept
 {
 	glDeleteBuffers(1, &gl_name);
-	GlR3rError::ensure_assert();
+	GlR3rError::ensure_no_errors_assert();
 }
 
 void GlR3rBufferImpl::validate(const R3rBufferInitParam& param)
