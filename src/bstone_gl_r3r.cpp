@@ -9,6 +9,7 @@ SPDX-License-Identifier: MIT
 #include <cassert>
 #include <list>
 
+#include "bstone_algorithm.h"
 #include "bstone_exception.h"
 #include "bstone_single_pool_resource.h"
 #include "bstone_unique_resource.h"
@@ -83,16 +84,28 @@ private:
 	void do_submit_commands(Span<R3rCmdBuffer*> command_buffers) override;
 
 private:
-	struct FboDeleter
+	class FboDeleter
 	{
+	public:
+		FboDeleter() = default;
+		explicit FboDeleter(PFNGLDELETEFRAMEBUFFERSPROC gl_func) noexcept;
 		void operator()(GLuint gl_name) noexcept;
+
+	private:
+		PFNGLDELETEFRAMEBUFFERSPROC gl_func_{};
 	};
 
 	using FboResource = UniqueResource<GLuint, FboDeleter>;
 
-	struct RboDeleter
+	class RboDeleter
 	{
+	public:
+		RboDeleter() = default;
+		explicit RboDeleter(PFNGLDELETERENDERBUFFERSPROC gl_func) noexcept;
 		void operator()(GLuint gl_name) noexcept;
+
+	private:
+		PFNGLDELETERENDERBUFFERSPROC gl_func_{};
 	};
 
 	using RboResource = UniqueResource<GLuint, RboDeleter>;
@@ -128,9 +141,21 @@ private:
 	GlR3rExtensionMgrUPtr extension_manager_{};
 	GlR3rContextUPtr context_{};
 
-	FboResource msaa_fbo_{};
-	RboResource msaa_color_rb_{};
-	RboResource msaa_depth_rb_{};
+	FboResource msaa_fbo_{0, FboDeleter{}};
+	RboResource msaa_color_rb_{0, RboDeleter{}};
+	RboResource msaa_depth_rb_{0, RboDeleter{}};
+
+	PFNGLBINDFRAMEBUFFERPROC glBindFramebuffer_;
+	PFNGLBINDRENDERBUFFERPROC glBindRenderbuffer_;
+	PFNGLBLITFRAMEBUFFERPROC glBlitFramebuffer_;
+	PFNGLCHECKFRAMEBUFFERSTATUSPROC glCheckFramebufferStatus_;
+	PFNGLDELETEFRAMEBUFFERSPROC glDeleteFramebuffers_;
+	PFNGLDELETERENDERBUFFERSPROC glDeleteRenderbuffers_;
+	PFNGLFRAMEBUFFERRENDERBUFFERPROC glFramebufferRenderbuffer_;
+	PFNGLGENFRAMEBUFFERSPROC glGenFramebuffers_;
+	PFNGLGENRENDERBUFFERSPROC glGenRenderbuffers_;
+	PFNGLRENDERBUFFERSTORAGEPROC glRenderbufferStorage_;
+	PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC glRenderbufferStorageMultisample_;
 
 private:
 	void set_device_info();
@@ -150,15 +175,16 @@ private:
 		int dst_height,
 		bool is_linear_filter);
 
-	void destroy_msaa_color_rb();
-	void destroy_msaa_depth_rb();
-	void destroy_msaa_fbo();
-	void destroy_msaa_framebuffer();
+	void destroy_msaa_color_rb() noexcept;
+	void destroy_msaa_depth_rb() noexcept;
+	void destroy_msaa_fbo() noexcept;
+	void destroy_msaa_framebuffer() noexcept;
 	void create_msaa_color_rb(int width, int height, int sample_count);
 	void create_msaa_depth_rb(int width, int height, int sample_count);
 	void create_msaa_framebuffer();
 
-	void destroy_framebuffers();
+	void destroy_framebuffers() noexcept;
+	void initialize_framebuffer_funcs() noexcept;
 	void create_framebuffers();
 	void blit_framebuffers();
 	void bind_framebuffers();
@@ -672,17 +698,27 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
+GlR3rImpl::FboDeleter::FboDeleter(PFNGLDELETEFRAMEBUFFERSPROC gl_func) noexcept
+	:
+	gl_func_{gl_func}
+{}
+
 void GlR3rImpl::FboDeleter::operator()(GLuint gl_name) noexcept
 {
-	const auto gl_function = (glDeleteFramebuffers ? glDeleteFramebuffers : glDeleteFramebuffersEXT);
-	gl_function(1, &gl_name);
+	assert(gl_func_ != nullptr);
+	gl_func_(1, &gl_name);
 	GlR3rError::ensure_no_errors_assert();
 }
 
+GlR3rImpl::RboDeleter::RboDeleter(PFNGLDELETERENDERBUFFERSPROC gl_func) noexcept
+	:
+	gl_func_{gl_func}
+{}
+
 void GlR3rImpl::RboDeleter::operator()(GLuint gl_name) noexcept
 {
-	const auto gl_function = (glDeleteRenderbuffers ? glDeleteRenderbuffers : glDeleteRenderbuffersEXT);
-	gl_function(1, &gl_name);
+	assert(gl_func_ != nullptr);
+	gl_func_(1, &gl_name);
 	GlR3rError::ensure_no_errors_assert();
 }
 
@@ -730,13 +766,11 @@ try {
 		BSTONE_THROW_STATIC_SOURCE("Framebuffer not available.");
 	}
 
-	const auto gl_function = (gl_device_features_.is_framebuffer_ext ? glGenRenderbuffersEXT : glGenRenderbuffers);
-
 	auto gl_name = GLuint{};
-	gl_function(1, &gl_name);
+	glGenRenderbuffers_(1, &gl_name);
 	GlR3rError::check_optionally();
 
-	auto rbo_resource = RboResource{gl_name};
+	auto rbo_resource = RboResource{gl_name, RboDeleter{glDeleteRenderbuffers_}};
 
 	if (rbo_resource.is_empty())
 	{
@@ -748,8 +782,7 @@ try {
 
 void GlR3rImpl::bind_renderbuffer(GLuint gl_renderbuffer_name)
 try {
-	const auto gl_func = (gl_device_features_.is_framebuffer_ext ? glBindRenderbufferEXT : glBindRenderbuffer);
-	gl_func(GL_RENDERBUFFER, gl_renderbuffer_name);
+	glBindRenderbuffer_(GL_RENDERBUFFER, gl_renderbuffer_name);
 	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
@@ -760,13 +793,11 @@ try {
 		BSTONE_THROW_STATIC_SOURCE("Framebuffer not available.");
 	}
 
-	const auto gl_func = (gl_device_features_.is_framebuffer_ext ? glGenFramebuffersEXT : glGenFramebuffers);
-
 	auto gl_name = GLuint{};
-	gl_func(1, &gl_name);
+	glGenFramebuffers_(1, &gl_name);
 	GlR3rError::check_optionally();
 
-	auto fbo_resource = FboResource{gl_name};
+	auto fbo_resource = FboResource{gl_name, FboDeleter{glDeleteFramebuffers_}};
 
 	if (fbo_resource.is_empty())
 	{
@@ -780,8 +811,7 @@ void GlR3rImpl::bind_framebuffer(GLenum gl_target, GLuint gl_name)
 try {
 	assert(gl_device_features_.is_framebuffer_available);
 
-	const auto gl_func = (gl_device_features_.is_framebuffer_ext ? glBindFramebufferEXT : glBindFramebuffer);
-	gl_func(gl_target, gl_name);
+	glBindFramebuffer_(gl_target, gl_name);
 	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
@@ -799,14 +829,9 @@ try {
 
 	assert(gl_device_features_.is_framebuffer_available);
 
-	const auto gl_func =
-		gl_device_features_.is_framebuffer_ext ?
-		glBlitFramebufferEXT :
-		glBlitFramebuffer;
-
 	const auto gl_filter = (is_linear_filter ? GL_LINEAR : GL_NEAREST);
 
-	gl_func(
+	glBlitFramebuffer_(
 		0,
 		0,
 		src_width,
@@ -837,39 +862,42 @@ try {
 
 	assert(gl_device_features_.is_framebuffer_available);
 
-	const auto gl_func =
-		gl_device_features_.is_framebuffer_ext ?
-		glRenderbufferStorageMultisampleEXT :
-		glRenderbufferStorageMultisample;
-
-	gl_func(GL_RENDERBUFFER, sample_count, gl_internal_format, width, height);
-	GlR3rError::check_optionally();
+	if (sample_count > 1)
+	{
+		glRenderbufferStorageMultisample_(GL_RENDERBUFFER, sample_count, gl_internal_format, width, height);
+		GlR3rError::check_optionally();
+	}
+	else
+	{
+		glRenderbufferStorage_(GL_RENDERBUFFER, gl_internal_format, width, height);
+		GlR3rError::check_optionally();
+	}
 
 	bind_renderbuffer(0);
 	return rbo_resource;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rImpl::destroy_msaa_color_rb()
-try {
+void GlR3rImpl::destroy_msaa_color_rb() noexcept
+{
 	msaa_color_rb_.reset();
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
-void GlR3rImpl::destroy_msaa_depth_rb()
-try {
+void GlR3rImpl::destroy_msaa_depth_rb() noexcept
+{
 	msaa_depth_rb_.reset();
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
-void GlR3rImpl::destroy_msaa_fbo()
-try {
+void GlR3rImpl::destroy_msaa_fbo() noexcept
+{
 	msaa_fbo_.reset();
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
-void GlR3rImpl::destroy_msaa_framebuffer()
-try {
+void GlR3rImpl::destroy_msaa_framebuffer() noexcept
+{
 	destroy_msaa_fbo();
 	destroy_msaa_color_rb();
 	destroy_msaa_depth_rb();
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 void GlR3rImpl::create_msaa_color_rb(int width, int height, int sample_count)
 try {
@@ -883,22 +911,12 @@ try {
 
 void GlR3rImpl::create_msaa_framebuffer()
 try {
-	auto aa_degree = aa_value_;
-
-	if (aa_type_ == R3rAaType::none)
+	if (aa_type_ == R3rAaType::none || device_features_.max_msaa_degree < R3rLimits::min_aa_on)
 	{
-		aa_degree = R3rLimits::min_aa_off;
+		return;
 	}
 
-	if (aa_degree < R3rLimits::min_aa_on)
-	{
-		aa_degree = R3rLimits::min_aa_off;
-	}
-
-	if (aa_degree > device_features_.max_msaa_degree)
-	{
-		aa_degree = device_features_.max_msaa_degree;
-	}
+	const auto aa_degree = clamp(aa_value_, R3rLimits::min_aa_on, device_features_.max_msaa_degree);
 
 	create_msaa_color_rb(screen_width_, screen_height_, aa_degree);
 	create_msaa_depth_rb(screen_width_, screen_height_, aa_degree);
@@ -906,29 +924,19 @@ try {
 	msaa_fbo_ = create_framebuffer();
 	bind_framebuffer(GL_FRAMEBUFFER, msaa_fbo_.get());
 
-	const auto framebuffer_renderbuffer_func =
-		gl_device_features_.is_framebuffer_ext ?
-		glFramebufferRenderbufferEXT :
-		glFramebufferRenderbuffer;
-
-	framebuffer_renderbuffer_func(
+	glFramebufferRenderbuffer_(
 		GL_FRAMEBUFFER,
 		GL_COLOR_ATTACHMENT0,
 		GL_RENDERBUFFER,
 		msaa_color_rb_.get());
 
-	framebuffer_renderbuffer_func(
+	glFramebufferRenderbuffer_(
 		GL_FRAMEBUFFER,
 		GL_DEPTH_ATTACHMENT,
 		GL_RENDERBUFFER,
 		msaa_depth_rb_.get());
 
-	const auto check_framebuffer_status_func =
-		gl_device_features_.is_framebuffer_ext ?
-		glCheckFramebufferStatusEXT :
-		glCheckFramebufferStatus;
-
-	const auto framebuffer_status = check_framebuffer_status_func(GL_FRAMEBUFFER);
+	const auto framebuffer_status = glCheckFramebufferStatus_(GL_FRAMEBUFFER);
 
 	if (framebuffer_status != GL_FRAMEBUFFER_COMPLETE)
 	{
@@ -938,10 +946,42 @@ try {
 	bind_framebuffer(GL_FRAMEBUFFER, 0);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rImpl::destroy_framebuffers()
-try {
+void GlR3rImpl::destroy_framebuffers() noexcept
+{
 	destroy_msaa_framebuffer();
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
+
+void GlR3rImpl::initialize_framebuffer_funcs() noexcept
+{
+	if (gl_device_features_.is_framebuffer_ext)
+	{
+		glBindFramebuffer_ = glBindFramebufferEXT;
+		glBindRenderbuffer_ = glBindRenderbufferEXT;
+		glBlitFramebuffer_ = glBlitFramebufferEXT;
+		glCheckFramebufferStatus_ = glCheckFramebufferStatusEXT;
+		glDeleteFramebuffers_ = glDeleteFramebuffersEXT;
+		glDeleteRenderbuffers_ = glDeleteRenderbuffersEXT;
+		glFramebufferRenderbuffer_ = glFramebufferRenderbufferEXT;
+		glGenFramebuffers_ = glGenFramebuffersEXT;
+		glGenRenderbuffers_ = glGenRenderbuffersEXT;
+		glRenderbufferStorage_ = glRenderbufferStorageEXT;
+		glRenderbufferStorageMultisample_ = glRenderbufferStorageMultisampleEXT;
+	}
+	else
+	{
+		glBindFramebuffer_ = glBindFramebuffer;
+		glBindRenderbuffer_ = glBindRenderbuffer;
+		glBlitFramebuffer_ = glBlitFramebuffer;
+		glCheckFramebufferStatus_ = glCheckFramebufferStatus;
+		glDeleteFramebuffers_ = glDeleteFramebuffers;
+		glDeleteRenderbuffers_ = glDeleteRenderbuffers;
+		glFramebufferRenderbuffer_ = glFramebufferRenderbuffer;
+		glGenFramebuffers_ = glGenFramebuffers;
+		glGenRenderbuffers_ = glGenRenderbuffers;
+		glRenderbufferStorage_ = glRenderbufferStorage;
+		glRenderbufferStorageMultisample_ = glRenderbufferStorageMultisample;
+	}
+}
 
 void GlR3rImpl::create_framebuffers()
 try {
@@ -950,12 +990,13 @@ try {
 		return;
 	}
 
+	initialize_framebuffer_funcs();
 	create_msaa_framebuffer();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::blit_framebuffers()
 try {
-	if (msaa_fbo_.get() == 0U)
+	if (msaa_fbo_.get() == 0)
 	{
 		return;
 	}
@@ -977,7 +1018,7 @@ try {
 
 void GlR3rImpl::bind_framebuffers()
 try {
-	if (msaa_fbo_.get() == 0U)
+	if (msaa_fbo_.get() == 0)
 	{
 		return;
 	}
@@ -987,7 +1028,7 @@ try {
 
 void GlR3rImpl::bind_framebuffers_for_read_pixels()
 try {
-	if (msaa_fbo_.get() == 0U)
+	if (msaa_fbo_.get() == 0)
 	{
 		return;
 	}
@@ -999,7 +1040,7 @@ void GlR3rImpl::disable_aa()
 try {
 	aa_type_ = R3rAaType::none;
 
-	if (msaa_fbo_.get() == 0U)
+	if (msaa_fbo_.get() == 0)
 	{
 		return;
 	}
