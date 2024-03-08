@@ -7636,11 +7636,11 @@ void read_text_config()
 
 	const auto& config_path = get_profile_dir() + text_config_file_name;
 
-	bstone::FileStream stream{config_path.c_str()};
+	bstone::FileStream stream{};
 
 	auto args = std::vector<bstone::StringView>{};
 
-	if (stream.is_open())
+	if (stream.try_open(config_path.c_str()))
 	{
 		auto reader = bstone::TextReader{&stream};
 

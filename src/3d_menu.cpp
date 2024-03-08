@@ -3696,11 +3696,7 @@ void ReadGameNames()
 
 		bstone::FileStream stream{};
 
-		try
-		{
-			stream.open(name_path.c_str());
-		}
-		catch (...)
+		if (!stream.try_open(name_path.c_str()))
 		{
 			continue;
 		}
