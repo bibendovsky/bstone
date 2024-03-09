@@ -1,12 +1,13 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2023-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
 // Removes prefixes of C-strings in the file.
 
 #include <cassert>
+#include <cctype>
 #include <cstdlib>
 
 #include <algorithm>
@@ -17,6 +18,8 @@ SPDX-License-Identifier: MIT
 #include <string>
 #include <unordered_set>
 #include <vector>
+
+namespace {
 
 using Prefix = std::string;
 using Prefixes = std::vector<Prefix>;
@@ -69,6 +72,70 @@ std::string load_file_as_string(const std::string& file_path)
 	}
 
 	return string;
+}
+
+void add_path_prefix(const std::string& src_prefix, Prefixes& prefixes)
+{
+	if (src_prefix.empty())
+	{
+		fail("Empty prefix.");
+	}
+
+	const auto has_win32_separator = src_prefix.find('\\') != std::string::npos;
+	const auto has_posix_separator = src_prefix.find('/') != std::string::npos;
+
+	if (!has_win32_separator && !has_posix_separator)
+	{
+		fail("No path separator.");
+	}
+	else if (has_win32_separator && has_posix_separator)
+	{
+		fail("Both path separators.");
+	}
+
+	const auto path_separator = has_win32_separator ? '\\' : '/';
+
+	auto dst_prefix = std::string{};
+	dst_prefix.reserve(src_prefix.size() + 8);
+
+	dst_prefix = src_prefix;
+
+	if (dst_prefix.back() != path_separator)
+	{
+		dst_prefix += path_separator;
+	}
+
+	prefixes.push_back(dst_prefix);
+
+	if (has_posix_separator)
+	{
+		return;
+	}
+
+	// Assume it's absolute path (A:\dir\file).
+
+	if (dst_prefix.size() < 2 || std::isalpha(dst_prefix.front()) == 0 || dst_prefix[1] != ':')
+	{
+		return;
+	}
+
+	const auto is_drive_letter_lower_case = std::islower(dst_prefix.front()) != 0;
+	const auto current_drive_letter = dst_prefix.front();
+
+	const auto opposite_drive_letter = static_cast<char>(
+		is_drive_letter_lower_case ? std::toupper(current_drive_letter) : std::tolower(current_drive_letter));
+
+	// Change drive's letter case (A:\dir\file => a:\dir\file).
+	dst_prefix.front() = opposite_drive_letter;
+	prefixes.push_back(dst_prefix);
+
+	// Replace backslashes with slashes (a:\dir\file => a:/dir/file).
+	std::replace(dst_prefix.begin(), dst_prefix.end(), '\\', '/');
+	prefixes.push_back(dst_prefix);
+
+	// Change drive's letter case (a:/dir/file => A:/dir/file).
+	dst_prefix.front() = current_drive_letter;
+	prefixes.push_back(dst_prefix);
 }
 
 void ensure_non_empty_prefixes(const Prefixes& prefixes)
@@ -250,27 +317,66 @@ void save_file(const std::string& file, const std::string& file_path)
 	}
 }
 
+} // namespace
+
 int main(int argc, char* argv[])
 try
 {
 	std::cout << "BSTONE C-string prefix trimmer." << std::endl;
 
-	if (argc < 3)
+	if (argc == 1 || ((argc - 1) % 2) != 0)
 	{
-		std::cerr << "Usage: app <file> [<prefix> [<prefix> ...]]" << std::endl;
+		std::cerr << "Usage: app <options>" << std::endl;
+		std::cerr << "Options:" << std::endl;
+		std::cerr << "  -f <path> - file path." << std::endl;
+		std::cerr << "  -s <string> - string prefix." << std::endl;
+		std::cerr << "  -p <path> - path prefix." << std::endl;
+		std::cerr << "     Should contain at least one path separator." << std::endl;
+		std::cerr << "     Could be translated into multiple prefixes on Windows." << std::endl;
 		return EXIT_FAILURE;
 	}
 
+	auto exe_file_path = std::string{};
+	exe_file_path.reserve(512);
 
-	std::cout << "File: \"" << argv[1] << "\"" << std::endl;
+	auto prefixes = Prefixes{};
+	prefixes.reserve(argc / 2);
 
-	for (auto i = 2; i < argc; ++i)
+	for (auto i = 1; i < argc; i += 2)
 	{
-		std::cout << "Prefix #" << (i - 1) << ": \"" << argv[i] << "\"" << std::endl;
+		const auto option = std::string{argv[i]};
+
+		if (false) {}
+		else if (option == "-f")
+		{
+			exe_file_path = argv[i + 1];
+		}
+		else if (option == "-s")
+		{
+			prefixes.emplace_back(argv[i + 1]);
+		}
+		else if (option == "-p")
+		{
+			add_path_prefix(argv[i + 1], prefixes);
+		}
+		else
+		{
+			fail("Unknown option (name: \"" + option + "\").");
+		}
 	}
 
-	const auto exe_file_path = std::string{argv[1]};
-	auto prefixes = Prefixes{&argv[2], &argv[argc]};
+	if (exe_file_path.empty())
+	{
+		fail("File not specified.");
+	}
+
+	std::cout << "File: \"" << exe_file_path << "\"" << std::endl;
+
+	for (const auto& prefix : prefixes)
+	{
+		std::cout << "Prefix: \"" << prefix << "\"" << std::endl;
+	}
+
 	std::cout << "Prepare prefixes." << std::endl;
 	process_prefixes(prefixes);
 	std::cout << "Load a file." << std::endl;
