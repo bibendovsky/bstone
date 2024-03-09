@@ -633,6 +633,7 @@ target_sources(
 		bstone_r3r.cpp
 		bstone_r3r_buffer.cpp
 		bstone_r3r_cmd_buffer.cpp
+		bstone_r3r_limits.cpp
 		bstone_r3r_mgr.cpp
 		bstone_r3r_r2_texture.cpp
 		bstone_r3r_sampler.cpp

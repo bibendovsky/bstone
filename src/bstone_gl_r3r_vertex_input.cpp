@@ -73,7 +73,7 @@ private:
 
 // =========================================================================
 
-using GlR3rVertexInputImplPool = FixedPoolResource<GlR3rVertexInputImpl, R3rLimits::max_vertex_inputs>;
+using GlR3rVertexInputImplPool = FixedPoolResource<GlR3rVertexInputImpl, R3rLimits::max_vertex_inputs()>;
 GlR3rVertexInputImplPool gl_r3r_vertex_input_impl_pool{};
 
 // =========================================================================

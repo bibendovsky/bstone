@@ -6,33 +6,34 @@ SPDX-License-Identifier: MIT
 
 // 3D Renderer: Limits
 
-#if !defined(BSTONE_R3R_LIMITS_INCLUDED)
+#ifndef BSTONE_R3R_LIMITS_INCLUDED
 #define BSTONE_R3R_LIMITS_INCLUDED
 
 namespace bstone {
 
+// TODO Use data member in C++17.
 struct R3rLimits
 {
-	static constexpr int min_anisotropy_off = 1;
-	static constexpr int min_anisotropy_on = 2;
-	static constexpr int max_anisotropy = 16;
+	static constexpr int min_anisotropy_off() { return 1; }
+	static constexpr int min_anisotropy_on() { return 2; }
+	static constexpr int max_anisotropy() { return 16; }
 
-	static constexpr int min_aa_off = 1;
-	static constexpr int min_aa_on = 2;
-	static constexpr int max_aa = 32;
+	static constexpr int min_aa_off() { return 1; }
+	static constexpr int min_aa_on() { return 2; }
+	static constexpr int max_aa() { return 32; }
 
-	static constexpr int max_mipmap_count = 31;
+	static constexpr int max_mipmap_count() { return 31; }
 
-	static constexpr int max_buffers = 32;
+	static constexpr int max_buffers() { return 32; }
 
-	static constexpr int max_textures = 4096;
-	static constexpr int max_samplers = 8;
+	static constexpr int max_textures() { return 4096; }
+	static constexpr int max_samplers() { return 8; }
 
-	static constexpr int max_shaders = 2;
-	static constexpr int max_shader_stages = 1;
-	static constexpr int max_shader_vars = 16;
+	static constexpr int max_shaders() { return 2; }
+	static constexpr int max_shader_stages() { return 1; }
+	static constexpr int max_shader_vars() { return 16; }
 
-	static constexpr int max_vertex_inputs = 16;
+	static constexpr int max_vertex_inputs() { return 16; }
 };
 
 } // namespace bstone

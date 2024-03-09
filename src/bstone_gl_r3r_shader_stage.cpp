@@ -93,7 +93,7 @@ private:
 
 // ==========================================================================
 
-using GlR3rShaderStageImplPool = FixedPoolResource<GlR3rShaderStageImpl, R3rLimits::max_shader_stages>;
+using GlR3rShaderStageImplPool = FixedPoolResource<GlR3rShaderStageImpl, R3rLimits::max_shader_stages()>;
 GlR3rShaderStageImplPool gl_r3r_shader_stage_impl_pool{};
 
 // ==========================================================================

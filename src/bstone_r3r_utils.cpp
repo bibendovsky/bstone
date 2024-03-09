@@ -624,7 +624,7 @@ try {
 	switch (param.aa_type)
 	{
 		case R3rAaType::ms:
-			if (param.aa_value >= R3rLimits::min_aa_on)
+			if (param.aa_value >= R3rLimits::min_aa_on())
 			{
 				gl_attributes.multisample_buffer_count = 1;
 				gl_attributes.multisample_sample_count = param.aa_value;

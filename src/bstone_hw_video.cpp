@@ -2310,13 +2310,13 @@ try {
 
 int HwVideo::cfg_texture_anisotropy_to_renderer(int value) noexcept
 {
-	if (value < R3rLimits::min_anisotropy_off)
+	if (value < R3rLimits::min_anisotropy_off())
 	{
-		return R3rLimits::min_anisotropy_off;
+		return R3rLimits::min_anisotropy_off();
 	}
-	else if (value > R3rLimits::max_anisotropy)
+	else if (value > R3rLimits::max_anisotropy())
 	{
-		return R3rLimits::max_anisotropy;
+		return R3rLimits::max_anisotropy();
 	}
 	else
 	{
@@ -4236,7 +4236,7 @@ void HwVideo::set_ui_sampler_default_state() noexcept
 	ui_sampler_state_.mipmap_mode = R3rMipmapMode::none;
 	ui_sampler_state_.address_mode_u = R3rAddressMode::clamp;
 	ui_sampler_state_.address_mode_v = R3rAddressMode::clamp;
-	ui_sampler_state_.anisotropy = R3rLimits::min_anisotropy_off;
+	ui_sampler_state_.anisotropy = R3rLimits::min_anisotropy_off();
 }
 
 void HwVideo::update_ui_sampler_state() noexcept
@@ -4279,7 +4279,7 @@ void HwVideo::set_sprite_sampler_default_state() noexcept
 	sprite_sampler_state_.mipmap_mode = R3rMipmapMode::nearest;
 	sprite_sampler_state_.address_mode_u = R3rAddressMode::clamp;
 	sprite_sampler_state_.address_mode_v = R3rAddressMode::clamp;
-	sprite_sampler_state_.anisotropy = R3rLimits::min_anisotropy_off;
+	sprite_sampler_state_.anisotropy = R3rLimits::min_anisotropy_off();
 }
 
 void HwVideo::update_sprite_sampler_state()
@@ -4328,7 +4328,7 @@ void HwVideo::set_wall_sampler_default_state() noexcept
 	wall_sampler_state_.mipmap_mode = R3rMipmapMode::nearest;
 	wall_sampler_state_.address_mode_u = R3rAddressMode::repeat;
 	wall_sampler_state_.address_mode_v = R3rAddressMode::repeat;
-	wall_sampler_state_.anisotropy = R3rLimits::min_anisotropy_off;
+	wall_sampler_state_.anisotropy = R3rLimits::min_anisotropy_off();
 }
 
 void HwVideo::update_wall_sampler_state()
@@ -4517,7 +4517,7 @@ void HwVideo::set_player_weapon_sampler_default_state() noexcept
 	player_weapon_sampler_state_.mipmap_mode = R3rMipmapMode::none;
 	player_weapon_sampler_state_.address_mode_u = R3rAddressMode::clamp;
 	player_weapon_sampler_state_.address_mode_v = R3rAddressMode::clamp;
-	player_weapon_sampler_state_.anisotropy = R3rLimits::min_anisotropy_off;
+	player_weapon_sampler_state_.anisotropy = R3rLimits::min_anisotropy_off();
 }
 
 void HwVideo::update_player_weapon_sampler_state() noexcept
@@ -4588,7 +4588,7 @@ try {
 	param.state.mipmap_mode = R3rMipmapMode::none;
 	param.state.address_mode_u = R3rAddressMode::repeat;
 	param.state.address_mode_v = R3rAddressMode::repeat;
-	param.state.anisotropy = R3rLimits::min_anisotropy_off;
+	param.state.anisotropy = R3rLimits::min_anisotropy_off();
 	fade_sampler_ = renderer_->create_sampler(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 

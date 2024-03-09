@@ -69,7 +69,7 @@ private:
 
 // =========================================================================
 
-using GlR3rBufferImplPool = FixedPoolResource<GlR3rBufferImpl, R3rLimits::max_buffers>;
+using GlR3rBufferImplPool = FixedPoolResource<GlR3rBufferImpl, R3rLimits::max_buffers()>;
 GlR3rBufferImplPool gl_r3r_buffer_impl_pool{};
 
 // =========================================================================

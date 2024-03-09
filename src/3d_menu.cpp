@@ -5021,13 +5021,13 @@ int menu_video_mode_aa_factor_adjust(
 {
 	auto current_aa_factor = aa_factor;
 
-	if (current_aa_factor < bstone::R3rLimits::min_aa_on)
+	if (current_aa_factor < bstone::R3rLimits::min_aa_on())
 	{
-		current_aa_factor = bstone::R3rLimits::min_aa_on;
+		current_aa_factor = bstone::R3rLimits::min_aa_on();
 	}
-	else if (current_aa_factor > bstone::R3rLimits::max_aa)
+	else if (current_aa_factor > bstone::R3rLimits::max_aa())
 	{
-		current_aa_factor = bstone::R3rLimits::max_aa;
+		current_aa_factor = bstone::R3rLimits::max_aa();
 	}
 
 	auto current_pow = 0;
@@ -5419,13 +5419,13 @@ void video_menu_mode_window_aa_factor_carousel(
 		aa_factor *= 2;
 	}
 
-	if (aa_factor < bstone::R3rLimits::min_aa_on)
+	if (aa_factor < bstone::R3rLimits::min_aa_on())
 	{
-		aa_factor = bstone::R3rLimits::max_aa;
+		aa_factor = bstone::R3rLimits::max_aa();
 	}
-	else if (aa_factor > bstone::R3rLimits::max_aa)
+	else if (aa_factor > bstone::R3rLimits::max_aa())
 	{
-		aa_factor = bstone::R3rLimits::min_aa_on;
+		aa_factor = bstone::R3rLimits::min_aa_on();
 	}
 
 	menu_video_mode_cfg_.aa_degree_ = aa_factor;
@@ -5510,13 +5510,13 @@ int texturing_anisotropy_to_pot(
 {
 	auto pot_anisotropy = anisotropy;
 
-	if (pot_anisotropy < bstone::R3rLimits::min_anisotropy_off)
+	if (pot_anisotropy < bstone::R3rLimits::min_anisotropy_off())
 	{
-		pot_anisotropy = bstone::R3rLimits::min_anisotropy_off;
+		pot_anisotropy = bstone::R3rLimits::min_anisotropy_off();
 	}
-	else if (pot_anisotropy > bstone::R3rLimits::max_anisotropy)
+	else if (pot_anisotropy > bstone::R3rLimits::max_anisotropy())
 	{
-		pot_anisotropy = bstone::R3rLimits::max_anisotropy;
+		pot_anisotropy = bstone::R3rLimits::max_anisotropy();
 	}
 
 	auto power = 0;
@@ -5627,7 +5627,7 @@ void texturing_draw_switch(
 				case static_cast<int>(TexturingMenuIndices::anisotropy):
 				{
 					const auto anisotropy_string = (
-						vid_cfg_get_3d_texture_anisotropy() > bstone::R3rLimits::min_anisotropy_off ?
+						vid_cfg_get_3d_texture_anisotropy() > bstone::R3rLimits::min_anisotropy_off() ?
 						std::to_string(vid_cfg_get_3d_texture_anisotropy()) :
 						"OFF"
 					);
@@ -5765,14 +5765,14 @@ void texturing_anisotropy_carousel(
 		anisotropy *= 2;
 	}
 
-	if (anisotropy < bstone::R3rLimits::min_anisotropy_off)
+	if (anisotropy < bstone::R3rLimits::min_anisotropy_off())
 	{
-		anisotropy = bstone::R3rLimits::max_anisotropy;
+		anisotropy = bstone::R3rLimits::max_anisotropy();
 	}
 
-	if (anisotropy > bstone::R3rLimits::max_anisotropy)
+	if (anisotropy > bstone::R3rLimits::max_anisotropy())
 	{
-		anisotropy = bstone::R3rLimits::min_anisotropy_off;
+		anisotropy = bstone::R3rLimits::min_anisotropy_off();
 	}
 
 	vid_cfg_set_3d_texture_anisotropy(anisotropy);

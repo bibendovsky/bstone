@@ -272,9 +272,9 @@ try
 				aa_value_ = device_features_.max_msaa_degree;
 			}
 
-			if (aa_value_ < R3rLimits::min_aa_off)
+			if (aa_value_ < R3rLimits::min_aa_off())
 			{
-				aa_value_ = R3rLimits::min_aa_off;
+				aa_value_ = R3rLimits::min_aa_off();
 			}
 
 			if (aa_value_ > device_features_.max_msaa_degree)
@@ -494,14 +494,14 @@ try {
 
 	auto clamped_aa_value = aa_value;
 
-	if (clamped_aa_value < R3rLimits::min_aa_off)
+	if (clamped_aa_value < R3rLimits::min_aa_off())
 	{
-		clamped_aa_value = R3rLimits::min_aa_off;
+		clamped_aa_value = R3rLimits::min_aa_off();
 	}
 
-	if (clamped_aa_value > R3rLimits::max_aa)
+	if (clamped_aa_value > R3rLimits::max_aa())
 	{
-		clamped_aa_value = R3rLimits::max_aa;
+		clamped_aa_value = R3rLimits::max_aa();
 	}
 
 	switch (aa_type)
@@ -911,12 +911,12 @@ try {
 
 void GlR3rImpl::create_msaa_framebuffer()
 try {
-	if (aa_type_ == R3rAaType::none || device_features_.max_msaa_degree < R3rLimits::min_aa_on)
+	if (aa_type_ == R3rAaType::none || device_features_.max_msaa_degree < R3rLimits::min_aa_on())
 	{
 		return;
 	}
 
-	const auto aa_degree = clamp(aa_value_, R3rLimits::min_aa_on, device_features_.max_msaa_degree);
+	const auto aa_degree = clamp(aa_value_, R3rLimits::min_aa_on(), device_features_.max_msaa_degree);
 
 	create_msaa_color_rb(screen_width_, screen_height_, aa_degree);
 	create_msaa_depth_rb(screen_width_, screen_height_, aa_degree);

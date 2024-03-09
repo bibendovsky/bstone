@@ -1091,7 +1091,7 @@ void HwTextureMgrImpl::validate_mipmap_r2_texture_properties(
 	const R2TextureProperties& properties)
 try {
 	if (properties.mipmap_count_ <= 0 ||
-		properties.mipmap_count_ > R3rLimits::max_mipmap_count)
+		properties.mipmap_count_ > R3rLimits::max_mipmap_count())
 	{
 		BSTONE_THROW_STATIC_SOURCE("Mipmap count out of range.");
 	}

@@ -67,7 +67,7 @@ private:
 
 // =========================================================================
 
-using GlR3rSamplerImplPool = FixedPoolResource<GlR3rSamplerImpl, R3rLimits::max_samplers>;
+using GlR3rSamplerImplPool = FixedPoolResource<GlR3rSamplerImpl, R3rLimits::max_samplers()>;
 GlR3rSamplerImplPool gl_r3r_sampler_impl_pool{};
 
 // =========================================================================

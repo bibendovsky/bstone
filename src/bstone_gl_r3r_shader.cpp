@@ -61,7 +61,7 @@ private:
 
 // ==========================================================================
 
-using GlR3rShaderImplPool = FixedPoolResource<GlR3rShaderImpl, R3rLimits::max_shaders>;
+using GlR3rShaderImplPool = FixedPoolResource<GlR3rShaderImpl, R3rLimits::max_shaders()>;
 GlR3rShaderImplPool gl_r3r_shader_impl_pool{};
 
 // ==========================================================================

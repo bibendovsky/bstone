@@ -35,13 +35,13 @@ int GlR3rUtils::clamp_anisotropy_degree(int anisotropy_value, const R3rDeviceFea
 try {
 	auto clamped_value = anisotropy_value;
 
-	if (clamped_value < R3rLimits::min_anisotropy_off)
+	if (clamped_value < R3rLimits::min_anisotropy_off())
 	{
-		clamped_value = R3rLimits::min_anisotropy_off;
+		clamped_value = R3rLimits::min_anisotropy_off();
 	}
-	else if (clamped_value < R3rLimits::min_anisotropy_on)
+	else if (clamped_value < R3rLimits::min_anisotropy_on())
 	{
-		clamped_value = R3rLimits::min_anisotropy_on;
+		clamped_value = R3rLimits::min_anisotropy_on();
 	}
 	else if (clamped_value > device_features.max_anisotropy_degree)
 	{
@@ -58,9 +58,9 @@ try
 	window_param.renderer_type = renderer_type;
 	window_param.aa_type = R3rAaType::ms;
 
-	auto max_msaa = R3rLimits::min_aa_off;
+	auto max_msaa = R3rLimits::min_aa_off();
 
-	for (int i = R3rLimits::min_aa_on; i <= R3rLimits::max_aa; i *= 2)
+	for (int i = R3rLimits::min_aa_on(); i <= R3rLimits::max_aa(); i *= 2)
 	{
 		window_param.aa_value = i;
 
@@ -82,7 +82,7 @@ try
 }
 catch (const std::exception&)
 {
-	return R3rLimits::min_aa_off;
+	return R3rLimits::min_aa_off();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int GlR3rUtils::get_fbo_max_msaa(
@@ -111,7 +111,7 @@ try
 
 	if (!gl_device_features.is_framebuffer_available)
 	{
-		return R3rLimits::min_aa_off;
+		return R3rLimits::min_aa_off();
 	}
 
 	const auto gl_enum = (gl_device_features.is_framebuffer_ext ? GL_MAX_SAMPLES_EXT : GL_MAX_SAMPLES);
@@ -125,7 +125,7 @@ try
 }
 catch (const std::exception&)
 {
-	return R3rLimits::min_aa_off;
+	return R3rLimits::min_aa_off();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::probe_msaa(
@@ -138,11 +138,11 @@ try {
 	device_features.is_msaa_available = false;
 	device_features.is_msaa_render_to_window = false;
 	device_features.is_msaa_requires_restart = false;
-	device_features.max_msaa_degree = R3rLimits::min_aa_off;
+	device_features.max_msaa_degree = R3rLimits::min_aa_off();
 
 	const auto msaa_window_max = GlR3rUtils::get_window_max_msaa(renderer_type, window_mgr);
 
-	if (msaa_window_max >= R3rLimits::min_aa_on)
+	if (msaa_window_max >= R3rLimits::min_aa_on())
 	{
 		device_features.is_msaa_available = true;
 
@@ -158,7 +158,7 @@ try {
 		window_mgr,
 		gl_device_features);
 
-	if (msaa_fbo_max >= R3rLimits::min_aa_on)
+	if (msaa_fbo_max >= R3rLimits::min_aa_on())
 	{
 		device_features.is_msaa_available = true;
 
@@ -168,7 +168,7 @@ try {
 		}
 	}
 
-	if (msaa_window_max >= R3rLimits::min_aa_on && msaa_fbo_max < R3rLimits::min_aa_on)
+	if (msaa_window_max >= R3rLimits::min_aa_on() && msaa_fbo_max < R3rLimits::min_aa_on())
 	{
 		device_features.is_msaa_render_to_window = true;
 		device_features.is_msaa_requires_restart = true;
@@ -192,9 +192,9 @@ try {
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &gl_max_value);
 	GlR3rError::check_optionally();
 
-	if (gl_max_value <= static_cast<GLfloat>(R3rLimits::min_anisotropy_off))
+	if (gl_max_value <= static_cast<GLfloat>(R3rLimits::min_anisotropy_off()))
 	{
-		return R3rLimits::min_anisotropy_off;
+		return R3rLimits::min_anisotropy_off();
 	}
 
 	return static_cast<int>(gl_max_value);
@@ -223,7 +223,7 @@ void GlR3rUtils::probe_anisotropy(
 	R3rDeviceFeatures& device_features)
 try {
 	device_features.is_anisotropy_available = false;
-	device_features.max_anisotropy_degree = R3rLimits::min_anisotropy_off;
+	device_features.max_anisotropy_degree = R3rLimits::min_anisotropy_off();
 
 #if !defined(BSTONE_R3R_TEST_NO_ANISOTROPY)
 	if (!device_features.is_anisotropy_available)
