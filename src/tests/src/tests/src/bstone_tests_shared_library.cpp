@@ -68,6 +68,26 @@ void test_qtsqg53k7svkyznb()
 
 // ==========================================================================
 
+// bool try_open(const char*)
+void test_eupfy1p3a3d4j5ez()
+{
+	auto shared_library = bstone::SharedLibrary{};
+	const auto is_open_1 = shared_library.is_open();
+	const auto is_open_2 = shared_library.try_open(file_path);
+	tester.check(!is_open_1 && is_open_2);
+}
+
+// bool try_open(const char*)
+// Fail.
+void test_1emzwqqr4t98bxwo()
+{
+	auto shared_library = bstone::SharedLibrary{};
+	const auto is_open = shared_library.try_open(".");
+	tester.check(!is_open);
+}
+
+// ==========================================================================
+
 // void open(const char*)
 void test_8sek7gwvmhg1zeso()
 {
@@ -98,7 +118,7 @@ void test_ydft4iw452irg60f()
 
 // ==========================================================================
 
-// void close()
+// void close() noexcept
 void test_jd023d4h8jxu113v()
 {
 	auto shared_library = bstone::SharedLibrary{file_path};
@@ -110,7 +130,7 @@ void test_jd023d4h8jxu113v()
 
 // ==========================================================================
 
-// void* find_symbol(const char*) const
+// void* find_symbol(const char*) const noexcept
 void test_qwq5sx3u0ea3su55()
 {
 	const auto shared_library = bstone::SharedLibrary{file_path};
@@ -118,7 +138,7 @@ void test_qwq5sx3u0ea3su55()
 	tester.check(symbol != nullptr);
 }
 
-// void* find_symbol(const char*) const
+// void* find_symbol(const char*) const noexcept
 // Fail.
 void test_3u0h00y8xna7me1y()
 {
@@ -128,7 +148,7 @@ void test_3u0h00y8xna7me1y()
 }
 
 // template<typename T>
-// T find_symbol(const char*) const
+// T find_symbol(const char*) const noexcept
 void test_ut1z994z5n1hqgts()
 {
 	using Func = int (*)();
@@ -148,7 +168,7 @@ void test_ut1z994z5n1hqgts()
 }
 
 // template<typename T>
-// T find_symbol(const char*) const
+// T find_symbol(const char*) const noexcept
 // Fail.
 void test_cf0g2vruliszvalb()
 {
@@ -168,6 +188,7 @@ public:
 	{
 		register_shared_library();
 		register_is_open();
+		register_try_open();
 		register_open();
 		register_close();
 		register_find_symbol();
@@ -185,6 +206,12 @@ private:
 	void register_is_open()
 	{
 		tester.register_test("SharedLibrary#qtsqg53k7svkyznb", test_qtsqg53k7svkyznb);
+	}
+
+	void register_try_open()
+	{
+		tester.register_test("SharedLibrary#eupfy1p3a3d4j5ez", test_eupfy1p3a3d4j5ez);
+		tester.register_test("SharedLibrary#1emzwqqr4t98bxwo", test_1emzwqqr4t98bxwo);
 	}
 
 	void register_open()

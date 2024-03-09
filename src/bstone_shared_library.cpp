@@ -1,11 +1,12 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-#include "bstone_exception.h"
 #include "bstone_shared_library.h"
+
+#include "bstone_exception.h"
 
 namespace bstone {
 
@@ -19,17 +20,17 @@ SharedLibrary::SharedLibrary(const char* file_path)
 	open(file_path);
 }
 
-void SharedLibrary::close()
+void SharedLibrary::open(const char* file_path)
 {
-	handle_ = nullptr;
+	if (!try_open(file_path))
+	{
+		BSTONE_THROW_STATIC_SOURCE("Failed to load a shared library.");
+	}
 }
 
-void SharedLibrary::ensure_is_open() const
+void SharedLibrary::close() noexcept
 {
-	if (!is_open())
-	{
-		BSTONE_THROW_STATIC_SOURCE("Closed shared library.");
-	}
+	handle_ = nullptr;
 }
 
 } // namespace bstone
