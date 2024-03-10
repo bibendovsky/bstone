@@ -706,6 +706,7 @@ inline constexpr bool operator>=(BasicStringView<TChar> a, BasicStringView<TChar
 using StringView = BasicStringView<char>;
 using U16StringView = BasicStringView<char16_t>;
 using U32StringView = BasicStringView<char32_t>;
+using WStringView = BasicStringView<wchar_t>;
 
 } // namespace bstone
 

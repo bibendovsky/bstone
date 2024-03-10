@@ -36,6 +36,8 @@ public:
 	template<typename T>
 	T find_symbol(const char* symbol_name) const noexcept;
 
+	void swap(SharedLibrary& rhs) noexcept;
+
 private:
 	SharedLibraryHandleUPtr handle_{};
 };

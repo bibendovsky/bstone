@@ -33,4 +33,9 @@ void SharedLibrary::close() noexcept
 	handle_ = nullptr;
 }
 
+void SharedLibrary::swap(SharedLibrary& rhs) noexcept
+{
+	handle_.swap(rhs.handle_);
+}
+
 } // namespace bstone

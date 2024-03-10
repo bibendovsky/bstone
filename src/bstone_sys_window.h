@@ -121,6 +121,16 @@ struct WindowSize
 
 // ==========================================================================
 
+enum class WindowRoundedCornerType
+{
+	none,
+	system,
+	round,
+	round_small,
+};
+
+// ==========================================================================
+
 struct WindowInitParam
 {
 	const char* title;
@@ -129,6 +139,7 @@ struct WindowInitParam
 	int width;
 	int height;
 	bool is_visible;
+	WindowRoundedCornerType rounded_corner_type;
 	WindowFullscreenType fullscreen_type;
 	WindowRendererType renderer_type;
 	const GlContextAttributes* gl_attributes;
@@ -154,6 +165,8 @@ public:
 
 	void show(bool is_visible);
 
+	void set_rounded_corner_type(WindowRoundedCornerType value);
+
 	bool is_fake_fullscreen();
 	void set_fake_fullscreen(bool is_fake_fullscreen);
 
@@ -175,6 +188,8 @@ private:
 	virtual void do_set_size(WindowSize size) = 0;
 
 	virtual void do_show(bool is_visible) = 0;
+
+	virtual void do_set_rounded_corner_type(WindowRoundedCornerType value) = 0;
 
 	virtual bool do_is_fake_fullscreen() = 0;
 	virtual void do_set_fake_fullscreen(bool is_fake_fullscreen) = 0;

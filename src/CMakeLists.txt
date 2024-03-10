@@ -236,6 +236,7 @@ target_link_libraries(
 		${CMAKE_DL_LIBS}
 		$<$<BOOL:${BSTONE_INTERNAL_SDL2}>:SDL2::SDL2-static>
 		$<$<NOT:$<BOOL:${BSTONE_INTERNAL_SDL2}>>:SDL2W::SDL2W>
+		$<$<BOOL:${WIN32}>:wbemuuid>
 		Threads::Threads
 )
 
@@ -367,6 +368,10 @@ target_sources(
 		bstone_shared_library_posix.cpp
 		bstone_win32_advapi32_symbols.cpp
 		bstone_win32_advapi32_symbols.h
+		bstone_win32_com.cpp
+		bstone_win32_com.h
+		bstone_win32_os_version.cpp
+		bstone_win32_os_version.h
 		bstone_win32_registry_key.cpp
 		bstone_win32_registry_key.h
 		bstone_api_string.cpp
@@ -585,6 +590,7 @@ target_sources(
 		bstone_sys_video_mgr.h
 		bstone_sys_window.h
 		bstone_sys_window_mgr.h
+		bstone_sys_window_rounded_corner_mgr.h
 
 		bstone_sys_audio_mgr_sdl2.h
 		bstone_sys_detail_sdl2.h
@@ -793,6 +799,9 @@ target_sources(
 		bstone_sys_video_mgr.cpp
 		bstone_sys_window.cpp
 		bstone_sys_window_mgr.cpp
+		bstone_sys_window_rounded_corner_mgr.cpp
+		bstone_sys_window_rounded_corner_mgr_null.cpp
+		bstone_sys_window_rounded_corner_mgr_sdl2.cpp
 
 		bstone_sys_audio_mgr_sdl2.cpp
 		bstone_sys_detail_sdl2.cpp

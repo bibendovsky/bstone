@@ -1,10 +1,17 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
+#include "bstone_sys_window_sdl2.h"
+
 #include <string>
+
+#ifdef _WIN32
+#include "SDL_syswm.h"
+#endif
+
 #include "bstone_char_conv.h"
 #include "bstone_exception.h"
 #include "bstone_single_pool_resource.h"
@@ -12,10 +19,16 @@ SPDX-License-Identifier: MIT
 #include "bstone_sys_exception_sdl2.h"
 #include "bstone_sys_gl_context_sdl2.h"
 #include "bstone_sys_renderer_sdl2.h"
-#include "bstone_sys_window_sdl2.h"
 
 namespace bstone {
 namespace sys {
+
+void* Sdl2WindowInternal::get_native_handle() const noexcept
+{
+	return do_get_native_handle();
+}
+
+// ==========================================================================
 
 namespace {
 
@@ -31,10 +44,14 @@ using Sdl2WindowUPtr = std::unique_ptr<SDL_Window, Sdl2WindowDeleter>;
 
 // ==========================================================================
 
-class Sdl2Window final : public Window
+class Sdl2Window final : public Sdl2WindowInternal
 {
 public:
-	Sdl2Window(Logger& logger, const WindowInitParam& param);
+	Sdl2Window(
+		Logger& logger,
+		WindowRoundedCornerMgr& rounded_corner_mgr,
+		const WindowInitParam& param);
+
 	~Sdl2Window() override;
 
 	void* operator new(std::size_t size);
@@ -42,8 +59,13 @@ public:
 
 private:
 	Logger& logger_;
+	WindowRoundedCornerMgr& rounded_corner_mgr_;
 	Sdl2WindowUPtr sdl_window_{};
 	Uint32 sdl_window_id_{};
+	void* native_window_handle_{};
+
+private:
+	void* do_get_native_handle() const noexcept override;
 
 private:
 	const char* do_get_title() override;
@@ -56,6 +78,8 @@ private:
 	void do_set_size(WindowSize size) override;
 
 	void do_show(bool is_visible) override;
+
+	void do_set_rounded_corner_type(WindowRoundedCornerType value) override;
 
 	bool do_is_fake_fullscreen() override;
 	void do_set_fake_fullscreen(bool is_fake_fullscreen) override;
@@ -74,6 +98,7 @@ private:
 	static void log_rect(const WindowInitParam& param, std::string& message);
 	static void log_flag(const char* flag_name, std::string& message);
 	static void log_flags(const WindowInitParam& param, std::string& message);
+	static void log_rounded_corner_type(const WindowInitParam& param, std::string& message);
 	static void log_gl_attributes(const GlContextAttributes* gl_attributes, std::string& message);
 	static void log_input(const WindowInitParam& param, std::string& message);
 	void log_output(std::string& message);
@@ -87,10 +112,14 @@ private:
 
 // ==========================================================================
 
-Sdl2Window::Sdl2Window(Logger& logger, const WindowInitParam& param)
+Sdl2Window::Sdl2Window(
+	Logger& logger,
+	WindowRoundedCornerMgr& rounded_corner_mgr,
+	const WindowInitParam& param)
 try
 	:
-	logger_{logger}
+	logger_{logger},
+	rounded_corner_mgr_{rounded_corner_mgr}
 {
 	logger_.log_information("<<< Create SDL window.");
 
@@ -128,6 +157,20 @@ try
 
 	sdl_window_id_ = SDL_GetWindowID(sdl_window_.get());
 
+#ifdef _WIN32
+	auto sdl_sys_wm_info = SDL_SysWMinfo{};
+	SDL_VERSION(&sdl_sys_wm_info.version);
+
+	if (SDL_GetWindowWMInfo(sdl_window_.get(), &sdl_sys_wm_info) == SDL_FALSE)
+	{
+		sdl2_fail();
+	}
+
+	native_window_handle_ = sdl_sys_wm_info.info.win.window;
+#endif
+
+	rounded_corner_mgr_.set_round_corner_type(*this, param.rounded_corner_type);
+
 	message.clear();
 	log_output(message);
 	logger_.log_information(message.c_str());
@@ -158,6 +201,15 @@ try {
 void Sdl2Window::operator delete(void* ptr)
 {
 	get_memory_resource().deallocate(ptr);
+}
+
+void* Sdl2Window::do_get_native_handle() const noexcept
+{
+#ifdef _WIN32
+	return native_window_handle_;
+#else
+	return nullptr;
+#endif
 }
 
 const char* Sdl2Window::do_get_title()
@@ -203,6 +255,12 @@ try {
 	const auto sdl_func = is_visible ? SDL_ShowWindow : SDL_HideWindow;
 	sdl_func(sdl_window_.get());
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+void Sdl2Window::do_set_rounded_corner_type(WindowRoundedCornerType value)
+try {
+	rounded_corner_mgr_.set_round_corner_type(*this, value);
+}
+ BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool Sdl2Window::do_is_fake_fullscreen()
 try {
@@ -323,6 +381,23 @@ void Sdl2Window::log_flags(const WindowInitParam& param, std::string& message)
 	}
 }
 
+void Sdl2Window::log_rounded_corner_type(const WindowInitParam& param, std::string& message)
+{
+	auto rounded_corner_type_string = "unknown";
+
+	switch (param.rounded_corner_type)
+	{
+		case WindowRoundedCornerType::none: rounded_corner_type_string = "none"; break;
+		case WindowRoundedCornerType::system: rounded_corner_type_string = "system"; break;
+		case WindowRoundedCornerType::round: rounded_corner_type_string = "round"; break;
+		case WindowRoundedCornerType::round_small: rounded_corner_type_string = "round small"; break;
+	}
+
+	message += "  Rounded corner type: ";
+	message += rounded_corner_type_string;
+	detail::sdl2_log_eol(message);
+}
+
 void Sdl2Window::log_gl_attributes(const GlContextAttributes* gl_attributes, std::string& message)
 {
 	message += "  ";
@@ -362,6 +437,10 @@ void Sdl2Window::log_input(const WindowInitParam& param, std::string& message)
 	// flags
 	//
 	log_flags(param, message);
+
+	// rounded corner type
+	//
+	log_rounded_corner_type(param, message);
 
 	// gl attributes
 	//
@@ -506,9 +585,12 @@ void Sdl2Window::set_gl_attributes(const GlContextAttributes& gl_attribs)
 
 // ==========================================================================
 
-WindowUPtr make_sdl2_window(Logger& logger, const WindowInitParam& param)
+WindowUPtr make_sdl2_window(
+	Logger& logger,
+	WindowRoundedCornerMgr& rounded_corner_mgr,
+	const WindowInitParam& param)
 {
-	return std::make_unique<Sdl2Window>(logger, param);
+	return std::make_unique<Sdl2Window>(logger, rounded_corner_mgr, param);
 }
 
 } // namespace sys
