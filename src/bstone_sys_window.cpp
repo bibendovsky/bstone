@@ -51,6 +51,11 @@ void Window::show(bool is_visible)
 	do_show(is_visible);
 }
 
+void Window::set_rounded_corner_type(WindowRoundedCornerType value)
+{
+	do_set_rounded_corner_type(value);
+}
+
 bool Window::is_fake_fullscreen()
 {
 	return do_is_fake_fullscreen();

@@ -181,6 +181,26 @@ void test_cf0g2vruliszvalb()
 
 // ==========================================================================
 
+// swap(SharedLibrary&) noexcept
+void test_j2dsjk32qc1ezush()
+{
+	auto shared_library_1 = bstone::SharedLibrary{file_path};
+	auto shared_library_2 = bstone::SharedLibrary{};
+	shared_library_2.swap(shared_library_1);
+
+	const auto is_valid_1 = !shared_library_1.is_open();
+	const auto is_valid_2 = shared_library_2.is_open();
+
+	const auto is_valid =
+		is_valid_1 &&
+		is_valid_2 &&
+		true;
+
+	tester.check(is_valid);
+}
+
+// ==========================================================================
+
 class Registrator
 {
 public:
@@ -192,6 +212,7 @@ public:
 		register_open();
 		register_close();
 		register_find_symbol();
+		register_swap();
 	}
 
 private:
@@ -231,6 +252,11 @@ private:
 		tester.register_test("SharedLibrary#3u0h00y8xna7me1y", test_3u0h00y8xna7me1y);
 		tester.register_test("SharedLibrary#ut1z994z5n1hqgts", test_ut1z994z5n1hqgts);
 		tester.register_test("SharedLibrary#cf0g2vruliszvalb", test_cf0g2vruliszvalb);
+	}
+
+	void register_swap()
+	{
+		tester.register_test("SharedLibrary#j2dsjk32qc1ezush", test_j2dsjk32qc1ezush);
 	}
 };
 
