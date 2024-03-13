@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Video manager.
 
-#if !defined(BSTONE_SYS_VIDEO_MGR_INCLUDED)
+#ifndef BSTONE_SYS_VIDEO_MGR_INCLUDED
 #define BSTONE_SYS_VIDEO_MGR_INCLUDED
 
 #include <memory>
@@ -33,6 +33,8 @@ public:
 	VideoMgr() = default;
 	virtual ~VideoMgr() = default;
 
+	bool is_initialized() const noexcept;
+
 	DisplayMode get_current_display_mode();
 
 	// Notes:
@@ -44,6 +46,8 @@ public:
 	WindowMgr& get_window_mgr();
 
 private:
+	virtual bool do_is_initialized() const noexcept = 0;
+
 	virtual DisplayMode do_get_current_display_mode() = 0;
 	virtual Span<const DisplayMode> do_get_display_modes() = 0;
 

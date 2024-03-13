@@ -11,6 +11,11 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
+bool VideoMgr::is_initialized() const noexcept
+{
+	return do_is_initialized();
+}
+
 DisplayMode VideoMgr::get_current_display_mode()
 {
 	return do_get_current_display_mode();

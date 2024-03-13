@@ -10074,7 +10074,14 @@ int main(
 		mt_task_manager_ = mt_task_manager.get();
 
 		bstone::globals::sys_system_mgr = bstone::sys::make_system_mgr(sys_logger);
+
 		bstone::globals::sys_video_mgr = &bstone::globals::sys_system_mgr->get_video_mgr();
+
+		if (!bstone::globals::sys_video_mgr->is_initialized())
+		{
+			BSTONE_THROW_STATIC_SOURCE("No video subsystem.");
+		}
+
 		bstone::globals::sys_window_mgr = &bstone::globals::sys_video_mgr->get_window_mgr();
 
 		freed_main();

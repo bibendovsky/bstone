@@ -1,24 +1,31 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
+#include "bstone_sys_video_mgr_sdl2.h"
+
 #include <cassert>
+
 #include <algorithm>
 #include <iterator>
+
 #include "SDL.h"
+
 #include "bstone_char_conv.h"
 #include "bstone_exception.h"
 #include "bstone_single_pool_resource.h"
+
 #include "bstone_sys_logger.h"
 #include "bstone_sys_detail_sdl2.h"
 #include "bstone_sys_exception_sdl2.h"
 #include "bstone_sys_gl_current_context_sdl2.h"
 #include "bstone_sys_limits_sdl2.h"
+#include "bstone_sys_video_mgr_null.h"
 #include "bstone_sys_mouse_mgr_sdl2.h"
-#include "bstone_sys_video_mgr_sdl2.h"
 #include "bstone_sys_window_mgr_sdl2.h"
+#include "bstone_sys_sdl2_subsystem.h"
 
 namespace bstone {
 namespace sys {
@@ -41,12 +48,16 @@ private:
 
 private:
 	Logger& logger_;
+	Sdl2Subsystem sdl2_subsystem_{};
+	bool is_initialized_{};
 	MouseMgrUPtr mouse_mgr_{};
 	WindowMgrUPtr window_mgr_{};
 	DisplayModeCache display_mode_cache_{};
 	GlCurrentContextUPtr gl_current_context_{};
 
 private:
+	bool do_is_initialized() const noexcept override;
+
 	DisplayMode do_get_current_display_mode() override;
 	Span<const DisplayMode> do_get_display_modes() override;
 
@@ -77,12 +88,14 @@ try
 {
 	logger_.log_information("<<< Start up SDL video manager.");
 
-	sdl2_ensure_result(SDL_InitSubSystem(SDL_INIT_VIDEO));
+	auto sdl2_subsystem = Sdl2Subsystem{SDL_INIT_VIDEO};
 	log_info();
 
 	mouse_mgr_ = make_sdl2_mouse_mgr(logger);
 	window_mgr_ = make_sdl2_window_mgr(logger);
 	gl_current_context_ = make_sdl2_gl_current_context(logger_);
+	sdl2_subsystem_.swap(sdl2_subsystem);
+	is_initialized_ = true;
 
 	logger_.log_information(">>> SDL video manager started up.");
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -94,8 +107,6 @@ Sdl2VideoMgr::~Sdl2VideoMgr()
 	gl_current_context_ = nullptr;
 	window_mgr_ = nullptr;
 	mouse_mgr_ = nullptr;
-
-	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
 void* Sdl2VideoMgr::operator new(std::size_t size)
@@ -108,8 +119,15 @@ void Sdl2VideoMgr::operator delete(void* ptr)
 	get_memory_resource().deallocate(ptr);
 }
 
+bool Sdl2VideoMgr::do_is_initialized() const noexcept
+{
+	return is_initialized_;
+}
+
 DisplayMode Sdl2VideoMgr::do_get_current_display_mode()
 try {
+	assert(is_initialized_);
+
 	auto sdl_display_mode = SDL_DisplayMode{};
 	sdl2_ensure_result(SDL_GetCurrentDisplayMode(0, &sdl_display_mode));
 	return map_display_mode(sdl_display_mode);
@@ -117,6 +135,8 @@ try {
 
 Span<const DisplayMode> Sdl2VideoMgr::do_get_display_modes()
 try {
+	assert(is_initialized_);
+
 	const auto count = std::min(SDL_GetNumDisplayModes(0), limits::max_display_modes);
 
 	auto sdl_display_mode = SDL_DisplayMode{};
@@ -132,16 +152,22 @@ try {
 
 GlCurrentContext& Sdl2VideoMgr::do_get_gl_current_context()
 {
+	assert(is_initialized_);
+
 	return *gl_current_context_;
 }
 
 MouseMgr& Sdl2VideoMgr::do_get_mouse_mgr()
 {
+	assert(is_initialized_);
+
 	return *mouse_mgr_;
 }
 
 WindowMgr& Sdl2VideoMgr::do_get_window_mgr()
 {
+	assert(is_initialized_);
+
 	return *window_mgr_;
 }
 
@@ -362,9 +388,14 @@ DisplayMode Sdl2VideoMgr::map_display_mode(const SDL_DisplayMode& sdl_display_mo
 // ==========================================================================
 
 VideoMgrUPtr make_sdl2_video_mgr(Logger& logger)
-try {
+try
+{
 	return std::make_unique<Sdl2VideoMgr>(logger);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
+catch (...)
+{
+	return make_null_video_mgr(logger);
+}
 
 } // namespace sys
 } // namespace bstone

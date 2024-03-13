@@ -607,6 +607,7 @@ target_sources(
 		bstone_sys_sdl2_subsystem.h
 		bstone_sys_texture_sdl2.h
 		bstone_sys_texture_lock_sdl2.h
+		bstone_sys_video_mgr_null.h
 		bstone_sys_video_mgr_sdl2.h
 		bstone_sys_window_sdl2.h
 		bstone_sys_window_mgr_sdl2.h
@@ -822,6 +823,7 @@ target_sources(
 		bstone_sys_system_mgr_sdl2.cpp
 		bstone_sys_texture_sdl2.cpp
 		bstone_sys_texture_lock_sdl2.cpp
+		bstone_sys_video_mgr_null.cpp
 		bstone_sys_video_mgr_sdl2.cpp
 		bstone_sys_window_sdl2.cpp
 		bstone_sys_window_mgr_sdl2.cpp
