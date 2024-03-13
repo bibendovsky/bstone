@@ -597,6 +597,7 @@ target_sources(
 		bstone_sys_detail_sdl2.h
 		bstone_sys_limits_sdl2.h
 		bstone_sys_push_audio_device_sdl2.h
+		bstone_sys_event_mgr_null.h
 		bstone_sys_event_mgr_sdl2.h
 		bstone_sys_exception_sdl2.h
 		bstone_sys_gl_context_sdl2.h
@@ -810,6 +811,7 @@ target_sources(
 		bstone_sys_audio_mgr_sdl2.cpp
 		bstone_sys_detail_sdl2.cpp
 		bstone_sys_push_audio_device_sdl2.cpp
+		bstone_sys_event_mgr_null.cpp
 		bstone_sys_event_mgr_sdl2.cpp
 		bstone_sys_exception_sdl2.cpp
 		bstone_sys_gl_context_sdl2.cpp

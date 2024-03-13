@@ -1179,6 +1179,12 @@ void IN_Startup()
 #endif
 
 	bstone::globals::sys_event_mgr = &bstone::globals::sys_system_mgr->get_event_mgr();
+
+	if (!bstone::globals::sys_event_mgr->is_initialized())
+	{
+		BSTONE_THROW_STATIC_SOURCE("No event subsystem.");
+	}
+
 	bstone::globals::sys_mouse_mgr = &bstone::globals::sys_video_mgr->get_mouse_mgr();
 
 	IN_Started = true;

@@ -118,9 +118,7 @@ try
 	sdl2_ensure_result(SDL_Init(0));
 
 	audio_mgr_ = make_sdl2_audio_mgr(logger_);
-
 	event_mgr_ = make_sdl2_event_mgr(logger_);
-
 	video_mgr_ = make_sdl2_video_mgr(logger_);
 
 	logger_.log_information(">>> SDL system manager started up.");

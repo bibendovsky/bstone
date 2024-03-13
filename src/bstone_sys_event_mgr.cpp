@@ -11,6 +11,11 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
+bool EventMgr::is_initialized() const noexcept
+{
+	return do_is_initialized();
+}
+
 bool EventMgr::poll_event(Event& e)
 {
 	return do_poll_event(e);

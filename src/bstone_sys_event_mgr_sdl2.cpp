@@ -1,17 +1,22 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
+#include "bstone_sys_event_mgr_sdl2.h"
+
 #include <cassert>
+
 #include "SDL.h"
+
 #include "bstone_char_conv.h"
 #include "bstone_exception.h"
 #include "bstone_single_pool_resource.h"
-#include "bstone_sys_logger.h"
-#include "bstone_sys_event_mgr_sdl2.h"
 #include "bstone_sys_exception_sdl2.h"
+#include "bstone_sys_event_mgr_null.h"
+#include "bstone_sys_logger.h"
+#include "bstone_sys_sdl2_subsystem.h"
 
 #define BSTONE_SDL_2_0_4 SDL_VERSION_ATLEAST(2, 0, 4)
 
@@ -33,23 +38,28 @@ public:
 
 private:
 	Logger& logger_;
+	bool is_initialized_{};
+	Sdl2Subsystem sdl2_subsystem_{};
 
 private:
-	static KeyboardKey map_key_code(SDL_Keycode sdl_key_code);
-	static unsigned int map_mouse_buttons_mask(Uint32 sdl_buttons_mask);
-	static int map_mouse_button(int sdl_button);
-#if BSTONE_SDL_2_0_4
-	static MouseWheelDirection map_mouse_wheel_direction(SDL_MouseWheelDirection sdl_direction);
-#endif
-
-	static bool handle_event(const SDL_KeyboardEvent& sdl_e, KeyboardEvent& e);
-	static bool handle_event(const SDL_MouseMotionEvent& sdl_e, MouseMotionEvent& e);
-	static bool handle_event(const SDL_MouseButtonEvent& sdl_e, MouseButtonEvent& e);
-	static bool handle_event(const SDL_MouseWheelEvent& sdl_e, MouseWheelEvent& e);
-	static bool handle_event(const SDL_WindowEvent& sdl_e, WindowEvent& e);
-	static bool handle_event(const SDL_Event& sdl_e, Event& e);
+	bool do_is_initialized() const noexcept override;
 
 	bool do_poll_event(Event& e) override;
+
+private:
+	static KeyboardKey map_key_code(SDL_Keycode sdl_key_code) noexcept;
+	static unsigned int map_mouse_buttons_mask(Uint32 sdl_buttons_mask) noexcept;
+	static int map_mouse_button(int sdl_button) noexcept;
+#if BSTONE_SDL_2_0_4
+	static MouseWheelDirection map_mouse_wheel_direction(SDL_MouseWheelDirection sdl_direction) noexcept;
+#endif
+
+	static bool handle_event(const SDL_KeyboardEvent& sdl_e, KeyboardEvent& e) noexcept;
+	static bool handle_event(const SDL_MouseMotionEvent& sdl_e, MouseMotionEvent& e) noexcept;
+	static bool handle_event(const SDL_MouseButtonEvent& sdl_e, MouseButtonEvent& e) noexcept;
+	static bool handle_event(const SDL_MouseWheelEvent& sdl_e, MouseWheelEvent& e) noexcept;
+	static bool handle_event(const SDL_WindowEvent& sdl_e, WindowEvent& e) noexcept;
+	static bool handle_event(const SDL_Event& sdl_e, Event& e) noexcept;
 };
 
 // ==========================================================================
@@ -64,18 +74,16 @@ try
 	:
 	logger_{logger}
 {
-	logger_.log_information("<<< Start up SDL event manager.");
+	logger_.log_information("Start up SDL event manager.");
 
-	sdl2_ensure_result(SDL_InitSubSystem(SDL_INIT_EVENTS));
-
-	logger_.log_information(">>> SDL event manager started up.");
+	auto sdl2_subsystem = Sdl2Subsystem{SDL_INIT_EVENTS};
+	sdl2_subsystem.swap(sdl2_subsystem_);
+	is_initialized_ = true;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 Sdl2EventMgr::~Sdl2EventMgr()
 {
 	logger_.log_information("Shut down SDL event manager.");
-
-	SDL_QuitSubSystem(SDL_INIT_EVENTS);
 }
 
 void* Sdl2EventMgr::operator new(std::size_t size)
@@ -88,7 +96,31 @@ void Sdl2EventMgr::operator delete(void* ptr)
 	sdl2_event_mgr_pool.deallocate(ptr);
 }
 
-KeyboardKey Sdl2EventMgr::map_key_code(SDL_Keycode sdl_key_code)
+bool Sdl2EventMgr::do_is_initialized() const noexcept
+{
+	return is_initialized_;
+}
+
+bool Sdl2EventMgr::do_poll_event(Event& e)
+{
+	assert(is_initialized_);
+
+	auto sdl_e = SDL_Event{};
+
+	while (SDL_PollEvent(&sdl_e))
+	{
+		if (handle_event(sdl_e, e))
+		{
+			e.common.timestamp = sdl_e.common.timestamp;
+			return true;
+		}
+	}
+
+	e.common.type = EventType::none;
+	return false;
+}
+
+KeyboardKey Sdl2EventMgr::map_key_code(SDL_Keycode sdl_key_code) noexcept
 {
 	switch (sdl_key_code)
 	{
@@ -218,7 +250,7 @@ KeyboardKey Sdl2EventMgr::map_key_code(SDL_Keycode sdl_key_code)
 	}
 }
 
-unsigned int Sdl2EventMgr::map_mouse_buttons_mask(Uint32 sdl_buttons_mask)
+unsigned int Sdl2EventMgr::map_mouse_buttons_mask(Uint32 sdl_buttons_mask) noexcept
 {
 	auto button_mask = 0U;
 
@@ -250,7 +282,7 @@ unsigned int Sdl2EventMgr::map_mouse_buttons_mask(Uint32 sdl_buttons_mask)
 	return button_mask;
 }
 
-int Sdl2EventMgr::map_mouse_button(int sdl_button)
+int Sdl2EventMgr::map_mouse_button(int sdl_button) noexcept
 {
 	switch (sdl_button)
 	{
@@ -265,7 +297,7 @@ int Sdl2EventMgr::map_mouse_button(int sdl_button)
 }
 
 #if BSTONE_SDL_2_0_4
-MouseWheelDirection Sdl2EventMgr::map_mouse_wheel_direction(SDL_MouseWheelDirection sdl_direction)
+MouseWheelDirection Sdl2EventMgr::map_mouse_wheel_direction(SDL_MouseWheelDirection sdl_direction) noexcept
 {
 	switch (sdl_direction)
 	{
@@ -277,7 +309,7 @@ MouseWheelDirection Sdl2EventMgr::map_mouse_wheel_direction(SDL_MouseWheelDirect
 }
 #endif
 
-bool Sdl2EventMgr::handle_event(const SDL_KeyboardEvent& sdl_e, KeyboardEvent& e)
+bool Sdl2EventMgr::handle_event(const SDL_KeyboardEvent& sdl_e, KeyboardEvent& e) noexcept
 {
 	const auto virtual_key = map_key_code(static_cast<SDL_Keycode>(sdl_e.keysym.sym));
 
@@ -294,7 +326,7 @@ bool Sdl2EventMgr::handle_event(const SDL_KeyboardEvent& sdl_e, KeyboardEvent& e
 	return true;
 }
 
-bool Sdl2EventMgr::handle_event(const SDL_MouseMotionEvent& sdl_e, MouseMotionEvent& e)
+bool Sdl2EventMgr::handle_event(const SDL_MouseMotionEvent& sdl_e, MouseMotionEvent& e) noexcept
 {
 	if (sdl_e.which == SDL_TOUCH_MOUSEID)
 	{
@@ -311,7 +343,7 @@ bool Sdl2EventMgr::handle_event(const SDL_MouseMotionEvent& sdl_e, MouseMotionEv
 	return true;
 }
 
-bool Sdl2EventMgr::handle_event(const SDL_MouseButtonEvent& sdl_e, MouseButtonEvent& e)
+bool Sdl2EventMgr::handle_event(const SDL_MouseButtonEvent& sdl_e, MouseButtonEvent& e) noexcept
 {
 	if (sdl_e.which == SDL_TOUCH_MOUSEID)
 	{
@@ -339,7 +371,7 @@ bool Sdl2EventMgr::handle_event(const SDL_MouseButtonEvent& sdl_e, MouseButtonEv
 	return true;
 }
 
-bool Sdl2EventMgr::handle_event(const SDL_MouseWheelEvent& sdl_e, MouseWheelEvent& e)
+bool Sdl2EventMgr::handle_event(const SDL_MouseWheelEvent& sdl_e, MouseWheelEvent& e) noexcept
 {
 	if (sdl_e.which == SDL_TOUCH_MOUSEID)
 	{
@@ -365,7 +397,7 @@ bool Sdl2EventMgr::handle_event(const SDL_MouseWheelEvent& sdl_e, MouseWheelEven
 	return true;
 }
 
-bool Sdl2EventMgr::handle_event(const SDL_WindowEvent& sdl_e, WindowEvent& e)
+bool Sdl2EventMgr::handle_event(const SDL_WindowEvent& sdl_e, WindowEvent& e) noexcept
 {
 	auto is_handled = true;
 	e.id = sdl_e.windowID;
@@ -394,7 +426,7 @@ bool Sdl2EventMgr::handle_event(const SDL_WindowEvent& sdl_e, WindowEvent& e)
 	return true;
 }
 
-bool Sdl2EventMgr::handle_event(const SDL_Event& sdl_e, Event& e)
+bool Sdl2EventMgr::handle_event(const SDL_Event& sdl_e, Event& e) noexcept
 {
 	switch (sdl_e.type)
 	{
@@ -420,31 +452,19 @@ bool Sdl2EventMgr::handle_event(const SDL_Event& sdl_e, Event& e)
 	}
 }
 
-bool Sdl2EventMgr::do_poll_event(Event& e)
-{
-	auto sdl_e = SDL_Event{};
-
-	while (SDL_PollEvent(&sdl_e))
-	{
-		if (handle_event(sdl_e, e))
-		{
-			e.common.timestamp = sdl_e.common.timestamp;
-			return true;
-		}
-	}
-
-	e.common.type = EventType::none;
-	return false;
-}
-
 } // namespace
 
 // ==========================================================================
 
 EventMgrUPtr make_sdl2_event_mgr(Logger& logger)
-try {
+try
+{
 	return std::make_unique<Sdl2EventMgr>(logger);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
+catch (...)
+{
+	return make_null_event_mgr(logger);
+}
 
 } // namespace sys
 } // namespace bstone

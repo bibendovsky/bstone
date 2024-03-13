@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Event manager.
 
-#if !defined(BSTONE_SYS_EVENT_MGR_INCLUDED)
+#ifndef BSTONE_SYS_EVENT_MGR_INCLUDED
 #define BSTONE_SYS_EVENT_MGR_INCLUDED
 
 #include <memory>
@@ -22,9 +22,13 @@ public:
 	EventMgr() = default;
 	virtual ~EventMgr() = default;
 
+	bool is_initialized() const noexcept;
+
 	bool poll_event(Event& e);
 
 private:
+	virtual bool do_is_initialized() const noexcept = 0;
+
 	virtual bool do_poll_event(Event& e) = 0;
 };
 
