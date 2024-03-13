@@ -603,6 +603,7 @@ target_sources(
 		bstone_sys_gl_symbol_resolver_sdl2.h
 		bstone_sys_mouse_mgr_sdl2.h
 		bstone_sys_renderer_sdl2.h
+		bstone_sys_sdl2_subsystem.h
 		bstone_sys_texture_sdl2.h
 		bstone_sys_texture_lock_sdl2.h
 		bstone_sys_video_mgr_sdl2.h
@@ -815,6 +816,7 @@ target_sources(
 		bstone_sys_mouse_mgr_sdl2.cpp
 		bstone_sys_pixel_format.cpp
 		bstone_sys_renderer_sdl2.cpp
+    bstone_sys_sdl2_subsystem.cpp
 		bstone_sys_system_mgr_sdl2.cpp
 		bstone_sys_texture_sdl2.cpp
 		bstone_sys_texture_lock_sdl2.cpp
