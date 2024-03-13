@@ -1,20 +1,27 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
+#include "bstone_sys_audio_mgr_sdl2.h"
+
 #include <cassert>
+
 #include <iterator>
 #include <string>
+
 #include "SDL.h"
+
 #include "bstone_char_conv.h"
 #include "bstone_exception.h"
 #include "bstone_single_pool_resource.h"
+
+#include "bstone_sys_audio_mgr_null.h"
 #include "bstone_sys_logger.h"
-#include "bstone_sys_audio_mgr_sdl2.h"
 #include "bstone_sys_exception_sdl2.h"
 #include "bstone_sys_push_audio_device_sdl2.h"
+#include "bstone_sys_sdl2_subsystem.h"
 
 namespace bstone {
 namespace sys {
@@ -34,8 +41,12 @@ public:
 
 private:
 	Logger& logger_;
+	Sdl2Subsystem sdl2_subsystem_{};
+	bool is_initialized_{};
 
 private:
+	bool do_is_initialized() const noexcept override;
+
 	PollingAudioDeviceUPtr do_make_polling_audio_device(const PollingAudioDeviceOpenParam& param) override;
 
 private:
@@ -59,8 +70,10 @@ try
 {
 	logger_.log_information("<<< Start up SDL audio manager.");
 
-	sdl2_ensure_result(SDL_InitSubSystem(SDL_INIT_AUDIO));
+	auto sdl2_subsystem = Sdl2Subsystem{SDL_INIT_AUDIO};
 	log_info();
+	sdl2_subsystem_.swap(sdl2_subsystem);
+	is_initialized_ = true;
 
 	logger_.log_information(">>> SDL audio manager started up.");
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -68,8 +81,6 @@ try
 Sdl2AudioMgr::~Sdl2AudioMgr()
 {
 	logger_.log_information("Shut down SDL audio manager.");
-
-	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
 void* Sdl2AudioMgr::operator new(std::size_t size)
@@ -82,8 +93,15 @@ void Sdl2AudioMgr::operator delete(void* ptr)
 	sdl2_audio_mgr_pool.deallocate(ptr);
 }
 
+bool Sdl2AudioMgr::do_is_initialized() const noexcept
+{
+	return is_initialized_;
+}
+
 PollingAudioDeviceUPtr Sdl2AudioMgr::do_make_polling_audio_device(const PollingAudioDeviceOpenParam& param)
 {
+	assert(is_initialized_);
+
 	return make_sdl2_push_audio_device(logger_, param);
 }
 
@@ -197,9 +215,14 @@ catch (...) {}
 // ==========================================================================
 
 AudioMgrUPtr make_sdl2_audio_mgr(Logger& logger)
-try {
+try
+{
 	return std::make_unique<Sdl2AudioMgr>(logger);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
+catch (...)
+{
+	return make_null_audio_mgr(logger);
+}
 
 } // namespace sys
 } // namespace bstone

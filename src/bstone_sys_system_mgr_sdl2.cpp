@@ -13,6 +13,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_single_pool_resource.h"
 #include "bstone_string_view.h"
 #include "bstone_sys_logger.h"
+#include "bstone_sys_audio_mgr_null.h"
 #include "bstone_sys_audio_mgr_sdl2.h"
 #include "bstone_sys_event_mgr_sdl2.h"
 #include "bstone_sys_exception_sdl2.h"
@@ -118,6 +119,7 @@ try
 	sdl2_ensure_result(SDL_Init(0));
 
 	audio_mgr_ = make_sdl2_audio_mgr(logger_);
+
 	event_mgr_ = make_sdl2_event_mgr(logger_);
 	video_mgr_ = make_sdl2_video_mgr(logger_);
 

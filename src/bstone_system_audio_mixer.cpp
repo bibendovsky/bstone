@@ -102,6 +102,11 @@ try {
 
 	sys_audio_mgr_ = &bstone::globals::sys_system_mgr->get_audio_mgr();
 
+	if (!sys_audio_mgr_->is_initialized())
+	{
+		BSTONE_THROW_STATIC_SOURCE("Audio system not available.");
+	}
+
 	sys_callback_.set_mixer(this);
 
 	auto audio_device_param = bstone::sys::PollingAudioDeviceOpenParam{};

@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Audio manager.
 
-#if !defined(BSTONE_SYS_AUDIO_MGR_INCLUDED)
+#ifndef BSTONE_SYS_AUDIO_MGR_INCLUDED
 #define BSTONE_SYS_AUDIO_MGR_INCLUDED
 
 #include <memory>
@@ -22,9 +22,13 @@ public:
 	AudioMgr() = default;
 	virtual ~AudioMgr() = default;
 
+	bool is_initialized() const noexcept;
+
 	PollingAudioDeviceUPtr make_polling_audio_device(const PollingAudioDeviceOpenParam& param);
 
 private:
+	virtual bool do_is_initialized() const noexcept = 0;
+
 	virtual PollingAudioDeviceUPtr do_make_polling_audio_device(const PollingAudioDeviceOpenParam& param) = 0;
 };
 
