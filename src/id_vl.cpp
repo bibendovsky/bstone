@@ -928,7 +928,7 @@ void vid_log(
 {
 	bstone::globals::logger->write(
 		bstone::LoggerMessageType::information,
-		vid_get_vid_string() + ' ' + message
+		(vid_get_vid_string() + ' ' + message).c_str()
 	);
 }
 
@@ -937,7 +937,7 @@ void vid_log_error(
 {
 	bstone::globals::logger->write(
 		bstone::LoggerMessageType::error,
-		vid_get_vid_string() + ' ' + message
+		(vid_get_vid_string() + ' ' + message).c_str()
 	);
 }
 

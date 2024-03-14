@@ -219,9 +219,9 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(const AudioChunk& audio
 
 	const auto volume_factor = 32'767.0 / abs_max_sample;
 
-	bstone::globals::logger->write("\tSample rate: " + std::to_string(dst_rate));
-	bstone::globals::logger->write("\tSample count: " + std::to_string(sample_count));
-	bstone::globals::logger->write("\tVolume factor: " + std::to_string(volume_factor));
+	bstone::globals::logger->write(("\tSample rate: " + std::to_string(dst_rate)).c_str());
+	bstone::globals::logger->write(("\tSample count: " + std::to_string(sample_count)).c_str());
+	bstone::globals::logger->write(("\tVolume factor: " + std::to_string(volume_factor)).c_str());
 }
 
 void AudioExtractorImpl::write_digitized_audio_chunk(const AudioChunk& audio_chunk, bstone::Stream& stream)
@@ -257,9 +257,10 @@ void AudioExtractorImpl::write_digitized_audio_chunk(const AudioChunk& audio_chu
 
 	const auto volume_factor = 127.0 / abs_max_sample;
 
-	bstone::globals::logger->write("\tSample rate: " + std::to_string(bstone::audio_decoder_w3d_pcm_frequency));
-	bstone::globals::logger->write("\tSample count: " + std::to_string(data_size));
-	bstone::globals::logger->write("\tVolume factor: " + std::to_string(volume_factor));
+	bstone::globals::logger->write(
+		("\tSample rate: " + std::to_string(bstone::audio_decoder_w3d_pcm_frequency)).c_str());
+	bstone::globals::logger->write(("\tSample count: " + std::to_string(data_size)).c_str());
+	bstone::globals::logger->write(("\tVolume factor: " + std::to_string(volume_factor)).c_str());
 }
 
 const char* AudioExtractorImpl::make_file_name_prefix(AudioChunkType audio_chunk_type)
@@ -302,7 +303,7 @@ std::string AudioExtractorImpl::make_file_name(const AudioChunk& audio_chunk, Ex
 void AudioExtractorImpl::extract_raw_audio_chunk(const std::string& dst_dir, const AudioChunk& audio_chunk)
 {
 	const auto file_name = make_file_name(audio_chunk, ExtensionType::data);
-	globals::logger->write(file_name);
+	globals::logger->write(file_name.c_str());
 	const auto dst_file_name = fs_utils::append_path(dst_dir, file_name);
 
 	auto file_stream = FileStream{
@@ -321,13 +322,13 @@ void AudioExtractorImpl::extract_raw_audio_chunk(const std::string& dst_dir, con
 	sha1.finish();
 	const auto sha1_string = array_to_hex_string(sha1.get_digest());
 
-	globals::logger->write("\tSHA1: " + sha1_string);
+	globals::logger->write(("\tSHA1: " + sha1_string).c_str());
 }
 
 void AudioExtractorImpl::extract_decoded_audio_chunk(const std::string& dst_dir, const AudioChunk& audio_chunk)
 {
 	const auto file_name = make_file_name(audio_chunk, ExtensionType::wav);
-	globals::logger->write(file_name);
+	globals::logger->write(file_name.c_str());
 	const auto dst_file_name = fs_utils::append_path(dst_dir, file_name);
 
 	auto file_stream = FileStream{

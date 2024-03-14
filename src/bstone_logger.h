@@ -10,8 +10,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #ifndef BSTONE_LOGGER_INCLUDED
 #define BSTONE_LOGGER_INCLUDED
 
-#include <cstdint>
-
 #include <memory>
 #include <string>
 
@@ -53,31 +51,19 @@ public:
 	virtual ~Logger() = default;
 
 	// Writes a message of the specified type.
-	void write(LoggerMessageType message_type, const char* message) noexcept;
-
-	// Writes a message of the specified type.
-	void write(LoggerMessageType message_type, const std::string& message) noexcept;
+	void write(LoggerMessageType message_type, StringView message_sv) noexcept;
 
 	// Write a new line.
 	void write() noexcept;
 
 	// Writes an informational message.
-	void write(const char* message) noexcept;
-
-	// Writes an informational message.
-	void write(const std::string& message) noexcept;
+	void write(StringView message_sv) noexcept;
 
 	// Writes a warning message.
-	void write_warning(const char* message) noexcept;
-
-	// Writes a warning message.
-	void write_warning(const std::string& message) noexcept;
+	void write_warning(StringView message_sv) noexcept;
 
 	// Writes an error message.
-	void write_error(const char* message) noexcept;
-
-	// Writes an error message.
-	void write_error(const std::string& message) noexcept;
+	void write_error(StringView message_sv) noexcept;
 
 	// Writes an error message for current exception.
 	void write_exception() noexcept;
@@ -86,7 +72,6 @@ private:
 	virtual void do_write(LoggerMessageType message_type, StringView message_sv) noexcept = 0;
 
 private:
-	static StringView to_string_view(const std::string& string) noexcept;
 	void write_exception_internal(std::string& message_buffer);
 };
 

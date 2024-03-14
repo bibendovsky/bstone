@@ -336,13 +336,13 @@ void log_bonus_stuff()
 			number += 1;
 
 			bstone::globals::logger->write(
-				std::to_string(number) +
+				(std::to_string(number) +
 					". (" +
 					std::to_string(bs_static.tilex) +
 					", " +
 					std::to_string(bs_static.tiley) +
 					") " +
-					static_name
+					static_name).c_str()
 			);
 		}
 	}
@@ -619,13 +619,13 @@ void log_enemy_stuff()
 			number += 1;
 
 			bstone::globals::logger->write(
-				std::to_string(number) +
+				(std::to_string(number) +
 					". (" +
 					std::to_string(bs_actor->tilex) +
 					", " +
 					std::to_string(bs_actor->tiley) +
 					") " +
-					actor_name
+					actor_name).c_str()
 			);
 		}
 	}

@@ -37,7 +37,7 @@ void ImageExtractor::extract_vga_palette(const std::string& destination_dir)
 	globals::logger->write();
 	globals::logger->write("<<< ================");
 	globals::logger->write("Extracting VGA palette.");
-	globals::logger->write("Destination dir: \"" + destination_dir + "\"");
+	globals::logger->write(("Destination dir: \"" + destination_dir + "\"").c_str());
 
 	destination_dir_ = fs_utils::normalize_path(destination_dir);
 
@@ -56,8 +56,8 @@ void ImageExtractor::extract_walls(const std::string& destination_dir)
 	globals::logger->write();
 	globals::logger->write("<<< ================");
 	globals::logger->write("Extracting walls.");
-	globals::logger->write("Destination dir: \"" + destination_dir + "\"");
-	globals::logger->write("File count: " + std::to_string(wall_count));
+	globals::logger->write(("Destination dir: \"" + destination_dir + "\"").c_str());
+	globals::logger->write(("File count: " + std::to_string(wall_count)).c_str());
 
 	destination_dir_ = fs_utils::normalize_path(destination_dir);
 
@@ -81,8 +81,8 @@ void ImageExtractor::extract_sprites(const std::string& destination_dir)
 	globals::logger->write();
 	globals::logger->write("<<< ================");
 	globals::logger->write("Extracting sprites.");
-	globals::logger->write("Destination dir: \"" + destination_dir + "\"");
-	globals::logger->write("File count: " + std::to_string(sprite_count_));
+	globals::logger->write(("Destination dir: \"" + destination_dir + "\"").c_str());
+	globals::logger->write(("File count: " + std::to_string(sprite_count_)).c_str());
 
 	destination_dir_ = fs_utils::normalize_path(destination_dir);
 

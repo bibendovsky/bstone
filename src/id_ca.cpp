@@ -1116,7 +1116,7 @@ void ca_calculate_hashes()
 			continue;
 		}
 
-		bstone::globals::logger->write(std::string{resource.file_name} + ": " + sha1_string);
+		bstone::globals::logger->write((std::string{resource.file_name} + ": " + sha1_string).c_str());
 	}
 }
 
@@ -1948,7 +1948,7 @@ void ca_extract_music(
 	bstone::globals::logger->write();
 	bstone::globals::logger->write("<<< ================");
 	bstone::globals::logger->write("Extracting music.");
-	bstone::globals::logger->write("Destination dir: \"" + destination_dir + "\"");
+	bstone::globals::logger->write(("Destination dir: \"" + destination_dir + "\"").c_str());
 
 	auto audio_content_mgr = bstone::make_audio_content_mgr(*bstone::globals::page_mgr);
 	auto audio_extractor = bstone::make_audio_extractor(*audio_content_mgr);
@@ -1965,7 +1965,7 @@ void ca_extract_sfx(
 	bstone::globals::logger->write();
 	bstone::globals::logger->write("<<< ================");
 	bstone::globals::logger->write("Extracting sfx.");
-	bstone::globals::logger->write("Destination dir: \"" + destination_dir + "\"");
+	bstone::globals::logger->write(("Destination dir: \"" + destination_dir + "\"").c_str());
 
 	auto audio_content_mgr = bstone::make_audio_content_mgr(*bstone::globals::page_mgr);
 	auto audio_extractor = bstone::make_audio_extractor(*audio_content_mgr);
@@ -1982,7 +1982,7 @@ void ca_extract_texts(
 	bstone::globals::logger->write();
 	bstone::globals::logger->write("<<< ================");
 	bstone::globals::logger->write("Extracting text.");
-	bstone::globals::logger->write("Destination dir: \"" + destination_dir + "\"");
+	bstone::globals::logger->write(("Destination dir: \"" + destination_dir + "\"").c_str());
 
 	auto text_extractor = bstone::TextExtractor{};
 	text_extractor.extract_text(bstone::fs_utils::normalize_path(destination_dir));

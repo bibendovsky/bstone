@@ -10,6 +10,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_logger.h"
 
 #include <cstddef>
+#include <cstdint>
 
 #include <array>
 #include <condition_variable>
@@ -27,14 +28,9 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 namespace bstone {
 
-void Logger::write(LoggerMessageType message_type, const char* message) noexcept
+void Logger::write(LoggerMessageType message_type, StringView message_sv) noexcept
 {
-	do_write(message_type, message);
-}
-
-void Logger::write(LoggerMessageType message_type, const std::string& message) noexcept
-{
-	do_write(message_type, to_string_view(message));
+	do_write(message_type, message_sv);
 }
 
 void Logger::write() noexcept
@@ -42,34 +38,19 @@ void Logger::write() noexcept
 	do_write(LoggerMessageType::information, StringView{});
 }
 
-void Logger::write(const char* message) noexcept
+void Logger::write(StringView message_sv) noexcept
 {
-	do_write(LoggerMessageType::information, message);
+	do_write(LoggerMessageType::information, message_sv);
 }
 
-void Logger::write(const std::string& message) noexcept
+void Logger::write_warning(StringView message_sv) noexcept
 {
-	do_write(LoggerMessageType::information, to_string_view(message));
+	do_write(LoggerMessageType::warning, message_sv);
 }
 
-void Logger::write_warning(const char* message) noexcept
+void Logger::write_error(StringView message_sv) noexcept
 {
-	do_write(LoggerMessageType::warning, message);
-}
-
-void Logger::write_warning(const std::string& message) noexcept
-{
-	do_write(LoggerMessageType::warning, to_string_view(message));
-}
-
-void Logger::write_error(const char* message) noexcept
-{
-	do_write(LoggerMessageType::error, message);
-}
-
-void Logger::write_error(const std::string& message) noexcept
-{
-	do_write(LoggerMessageType::error, to_string_view(message));
+	do_write(LoggerMessageType::error, message_sv);
 }
 
 void Logger::write_exception() noexcept
@@ -88,11 +69,6 @@ catch (...)
 {
 	write_error(__func__);
 	write_error("Non-standard exception.");
-}
-
-StringView Logger::to_string_view(const std::string& string) noexcept
-{
-	return StringView{string.c_str(), static_cast<std::intptr_t>(string.size())};
 }
 
 void Logger::write_exception_internal(std::string& message_buffer)

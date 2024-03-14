@@ -284,12 +284,14 @@ void sd_log()
 
 void sd_log(const bstone::LoggerMessageType message_type, const std::string& message)
 {
-	bstone::globals::logger->write(message_type, sd_get_snd_string() + ' ' + message);
+	bstone::globals::logger->write((message_type, sd_get_snd_string() + ' ' + message).c_str());
 }
 
 void sd_log(const std::string& message)
 {
-	bstone::globals::logger->write(bstone::LoggerMessageType::information, sd_get_snd_string() + ' ' + message);
+	bstone::globals::logger->write(
+		bstone::LoggerMessageType::information,
+		(sd_get_snd_string() + ' ' + message).c_str());
 }
 
 void sd_log_error(const std::string& message)
