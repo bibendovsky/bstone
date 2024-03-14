@@ -279,17 +279,17 @@ const std::string& sd_get_snd_string()
 
 void sd_log()
 {
-	bstone::logger_->write();
+	bstone::globals::logger->write();
 }
 
 void sd_log(const bstone::LoggerMessageType message_type, const std::string& message)
 {
-	bstone::logger_->write(message_type, sd_get_snd_string() + ' ' + message);
+	bstone::globals::logger->write(message_type, sd_get_snd_string() + ' ' + message);
 }
 
 void sd_log(const std::string& message)
 {
-	bstone::logger_->write(bstone::LoggerMessageType::information, sd_get_snd_string() + ' ' + message);
+	bstone::globals::logger->write(bstone::LoggerMessageType::information, sd_get_snd_string() + ' ' + message);
 }
 
 void sd_log_error(const std::string& message)
@@ -494,7 +494,7 @@ void sd_startup()
 			}
 			catch (...)
 			{
-				bstone::logger_->write_exception();
+				bstone::globals::logger->write_exception();
 			}
 
 			if (is_driver_initialized)

@@ -511,10 +511,6 @@ void LoggerImpl::thread_main()
 
 // ==========================================================================
 
-LoggerPtr logger_ = nullptr;
-
-// ==========================================================================
-
 LoggerUPtr make_logger(const LoggerOpenParam& param)
 {
 	return std::make_unique<LoggerImpl>(param);

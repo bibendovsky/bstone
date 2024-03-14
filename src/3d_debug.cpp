@@ -276,9 +276,9 @@ std::uint16_t DecRange(
 
 void log_bonus_stuff()
 {
-	bstone::logger_->write();
-	bstone::logger_->write("<<<<<<<<");
-	bstone::logger_->write("Current bonus items.");
+	bstone::globals::logger->write();
+	bstone::globals::logger->write("<<<<<<<<");
+	bstone::globals::logger->write("Current bonus items.");
 
 	auto number = 0;
 	auto static_name = std::string{};
@@ -335,7 +335,7 @@ void log_bonus_stuff()
 		{
 			number += 1;
 
-			bstone::logger_->write(
+			bstone::globals::logger->write(
 				std::to_string(number) +
 					". (" +
 					std::to_string(bs_static.tilex) +
@@ -347,7 +347,7 @@ void log_bonus_stuff()
 		}
 	}
 
-	bstone::logger_->write(">>>>>>>>");
+	bstone::globals::logger->write(">>>>>>>>");
 }
 
 void log_enemy_stuff()
@@ -365,9 +365,9 @@ void log_enemy_stuff()
 
 	const auto& assets_info = get_assets_info();
 
-	bstone::logger_->write();
-	bstone::logger_->write("<<<<<<<<");
-	bstone::logger_->write("Current enemies.");
+	bstone::globals::logger->write();
+	bstone::globals::logger->write("<<<<<<<<");
+	bstone::globals::logger->write("Current enemies.");
 
 	auto number = 0;
 	auto actor_name = std::string{};
@@ -618,7 +618,7 @@ void log_enemy_stuff()
 		{
 			number += 1;
 
-			bstone::logger_->write(
+			bstone::globals::logger->write(
 				std::to_string(number) +
 					". (" +
 					std::to_string(bs_actor->tilex) +
@@ -630,7 +630,7 @@ void log_enemy_stuff()
 		}
 	}
 
-	bstone::logger_->write(">>>>>>>>");
+	bstone::globals::logger->write(">>>>>>>>");
 }
 
 void log_stuff()

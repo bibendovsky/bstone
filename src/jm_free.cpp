@@ -437,7 +437,7 @@ const FoundContent* choose_content(
 		return found_contents.data();
 	}
 
-	bstone::logger_->write("Found multiple contents.");
+	bstone::globals::logger->write("Found multiple contents.");
 
 	using Button = bstone::sys::MessageBoxButton;
 	using LocalButtons = std::vector<Button>;
@@ -469,7 +469,7 @@ const FoundContent* choose_content(
 	descriptor.type = bstone::sys::MessageBoxType::information;
 	descriptor.buttons = bstone::make_const_span(buttons.data(), static_cast<std::intptr_t>(buttons.size()));
 
-	bstone::logger_->write("Waiting for user response.");
+	bstone::globals::logger->write("Waiting for user response.");
 	const auto selected_button_id = bstone::sys::MessageBox::show(descriptor);
 
 	if (selected_button_id < 0)
@@ -623,13 +623,13 @@ void log_found_content(
 		name_and_version += version;
 	}
 
-	bstone::logger_->write("Found " + name_and_version + '.');
-	bstone::logger_->write("Content source: " + found_content.search_path_->source_name_);
+	bstone::globals::logger->write("Found " + name_and_version + '.');
+	bstone::globals::logger->write("Content source: " + found_content.search_path_->source_name_);
 }
 
 void find_contents()
 {
-	bstone::logger_->write("Looking for game content.");
+	bstone::globals::logger->write("Looking for game content.");
 
 	// Games to find.
 	//
@@ -764,7 +764,7 @@ void find_contents()
 
 	if (content == nullptr)
 	{
-		bstone::logger_->write("Cancelled by user.");
+		bstone::globals::logger->write("Cancelled by user.");
 
 		Quit();
 	}
@@ -1404,7 +1404,7 @@ void deserialize_cvars_from_cli(const bstone::Cl& args, bstone::CVarMgr& cvar_mg
 			message += "Expected one argument for option \"";
 			message.append(option.name.get_data(), static_cast<std::size_t>(option.name.get_size()));
 			message += "\".";
-			bstone::logger_->write_warning(message);
+			bstone::globals::logger->write_warning(message);
 			continue;
 		}
 
@@ -1434,11 +1434,11 @@ void freed_main()
 	InitDestPath();
 	find_contents();
 
-	bstone::logger_->write();
-	bstone::logger_->write("Data path: \"" + data_dir_ + "\"");
-	bstone::logger_->write("Mod path: \"" + mod_dir_ + "\"");
-	bstone::logger_->write("Profile path: \"" + get_profile_dir() + "\"");
-	bstone::logger_->write("Screenshot path: \"" + get_screenshot_dir() + "\"");
+	bstone::globals::logger->write();
+	bstone::globals::logger->write("Data path: \"" + data_dir_ + "\"");
+	bstone::globals::logger->write("Mod path: \"" + mod_dir_ + "\"");
+	bstone::globals::logger->write("Profile path: \"" + get_profile_dir() + "\"");
+	bstone::globals::logger->write("Screenshot path: \"" + get_screenshot_dir() + "\"");
 
 	// BBi
 	{

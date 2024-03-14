@@ -24,6 +24,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_audio_decoder.h"
 #include "bstone_audio_mixer_validator.h"
 #include "bstone_exception.h"
+#include "bstone_globals.h"
 #include "bstone_logger.h"
 #include "bstone_oal_source.h"
 #include "bstone_oal_loader.h"
@@ -590,7 +591,7 @@ void OalAudioMixer::detect_alc_extensions()
 void OalAudioMixer::log(const OalString& string)
 {
 	static const auto prefix = OalString{"[SND_OAL] "};
-	logger_->write(prefix + string);
+	globals::logger->write(prefix + string);
 }
 
 void OalAudioMixer::log_oal_library_file_name()

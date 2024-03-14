@@ -104,10 +104,6 @@ using LoggerUPtr = std::unique_ptr<Logger>;
 
 LoggerUPtr make_logger(const LoggerOpenParam& param);
 
-// ==========================================================================
-
-extern LoggerPtr logger_;
-
 } // namespace bstone
 
 #endif // BSTONE_LOGGER_INCLUDED

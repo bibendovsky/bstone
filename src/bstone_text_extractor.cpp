@@ -13,6 +13,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_endian.h"
 #include "bstone_exception.h"
 #include "bstone_fs_utils.h"
+#include "bstone_globals.h"
 #include "bstone_logger.h"
 #include "bstone_memory_stream.h"
 #include "bstone_static_ro_memory_stream.h"
@@ -29,7 +30,7 @@ TextExtractor::TextExtractor()
 
 void TextExtractor::extract_text(const std::string& dst_dir)
 {
-	logger_->write("File count: " + std::to_string(text_numbers_.size()));
+	globals::logger->write("File count: " + std::to_string(text_numbers_.size()));
 
 	for (const auto& text_number : text_numbers_)
 	{
