@@ -27,6 +27,11 @@ message(STATUS "[${PROJECT_NAME}] Internal SDL2: ${BSTONE_INTERNAL_SDL2}")
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
+include(GetGitHeadHash)
+
+get_git_hash(${CMAKE_SOURCE_DIR} BSTONE_GIT_HASH)
+message(STATUS "[${PROJECT_NAME}] Git hash: ${BSTONE_GIT_HASH}")
+
 if (BSTONE_INTERNAL_SDL2)
 	add_subdirectory(src/lib/sdl2)
 endif ()
