@@ -27,12 +27,17 @@ message(STATUS "[${PROJECT_NAME}] Internal SDL2: ${BSTONE_INTERNAL_SDL2}")
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-include(GetGitHeadHash)
+if ("${BSTONE_CI_GIT_HASH}" STREQUAL "")
+	include(GetGitHeadHash)
 
-get_git_hash(${CMAKE_SOURCE_DIR} BSTONE_GIT_HASH)
-message(STATUS "[${PROJECT_NAME}] Git hash: ${BSTONE_GIT_HASH}")
+	get_git_hash(${CMAKE_SOURCE_DIR} BSTONE_GIT_HASH)
+	message(STATUS "[${PROJECT_NAME}] Source Git hash: ${BSTONE_GIT_HASH}")
+else ()
+	message(STATUS "[${PROJECT_NAME}] CI Git hash: ${BSTONE_CI_GIT_HASH}")
+	set(BSTONE_GIT_HASH "${BSTONE_CI_GIT_HASH}")
+endif ()
 
-string(SUBSTRING ${BSTONE_GIT_HASH} 0 8 BSTONE_GIT_HASH_SHORT)
+string(SUBSTRING "${BSTONE_GIT_HASH}" 0 8 BSTONE_GIT_HASH_SHORT)
 message(STATUS "[${PROJECT_NAME}] Short Git hash: ${BSTONE_GIT_HASH_SHORT}")
 
 if (BSTONE_INTERNAL_SDL2)

@@ -43,7 +43,7 @@ function(get_git_hash DIR HASH_VAR)
     return ()
   endif ()
 
-  file(STRINGS ${HEAD_FILE_PATH} HEAD LIMIT_INPUT 1024 LIMIT_COUNT 1)
+  file(STRINGS "${HEAD_FILE_PATH}" HEAD LIMIT_INPUT 1024 LIMIT_COUNT 1)
   string(REGEX MATCH "^ref:[ \\t]*(.+)$" REF ${HEAD})
 
   if ("${CMAKE_MATCH_1}" STREQUAL "")
@@ -51,11 +51,11 @@ function(get_git_hash DIR HASH_VAR)
     return ()
   endif ()
 
-  set(REF ${CMAKE_MATCH_1})
+  set(REF "${CMAKE_MATCH_1}")
   set(REF_FILE_PATH ${DIR}/.git/${REF})
 
-  if (EXISTS ${REF_FILE_PATH})
-    file(STRINGS ${REF_FILE_PATH} HASH LIMIT_INPUT 1024 LIMIT_COUNT 1)
+  if (EXISTS "${REF_FILE_PATH}")
+    file(STRINGS "${REF_FILE_PATH}" HASH LIMIT_INPUT 1024 LIMIT_COUNT 1)
 
     if ("${HASH}" STREQUAL "")
       message(WARNING "No HASH in the REF file (${REF_FILE_PATH}).")
@@ -64,14 +64,14 @@ function(get_git_hash DIR HASH_VAR)
   else ()
     set(REFS_FILE_PATH ${DIR}/.git/info/refs)
 
-    if (NOT EXISTS ${REFS_FILE_PATH})
+    if (NOT EXISTS "${REFS_FILE_PATH}")
       message(WARNING "No REFS file (${REFS_FILE_PATH}).")
       return ()
     endif ()
 
-    string(REGEX REPLACE "(.)" "\\\\\\1" REF_REGEX ${REF})
-    file(STRINGS ${REFS_FILE_PATH} REF_INFO REGEX ${REF_REGEX})
-    string(REGEX MATCH "^([0-9a-f]+)" HASH ${REF_INFO})
+    string(REGEX REPLACE "(.)" "\\\\\\1" REF_REGEX "${REF}")
+    file(STRINGS "${REFS_FILE_PATH}" REF_INFO REGEX "${REF_REGEX}")
+    string(REGEX MATCH "^([0-9a-f]+)" HASH "${REF_INFO}")
 
     if ("${HASH}" STREQUAL "")
       message(WARNING "No HASH in the REFS file (${REFS_FILE_PATH}).")
@@ -79,7 +79,7 @@ function(get_git_hash DIR HASH_VAR)
     endif ()
   endif ()
 
-  string(SUBSTRING ${HASH} 0 ${LENGTH} HASH)
+  string(SUBSTRING "${HASH}" 0 "${LENGTH}" HASH)
 
-  set(${HASH_VAR} ${HASH} PARENT_SCOPE)
+  set(${HASH_VAR} "${HASH}" PARENT_SCOPE)
 endfunction()
