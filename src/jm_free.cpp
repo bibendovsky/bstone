@@ -30,6 +30,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "3d_menu.h"
 #include "gfxv.h"
 
+#include "bstone_exception_utils.h"
 #include "bstone_globals.h"
 #include "bstone_logger.h"
 #include "bstone_version.h"
@@ -1379,10 +1380,18 @@ static void output_version()
 
 	// Message box.
 	//
-	bstone::sys::MessageBox::show_simple(
-		get_message_box_title().c_str(),
-		message.c_str(),
-		bstone::sys::MessageBoxType::information);
+	try
+	{
+		bstone::sys::MessageBox::show_simple(
+			get_message_box_title().c_str(),
+			message.c_str(),
+			bstone::sys::MessageBoxType::information);
+	}
+	catch (...)
+	{
+		const auto error_message = bstone::get_nested_message();
+		bstone::globals::logger->write_error(error_message.c_str());
+	}
 }
 
 namespace {

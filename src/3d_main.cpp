@@ -10120,10 +10120,18 @@ int main(
 	{
 		bstone::globals::logger->write_error(error_message.c_str());
 
-		bstone::sys::MessageBox::show_simple(
-			get_message_box_title().c_str(),
-			error_message.c_str(),
-			bstone::sys::MessageBoxType::error);
+		try
+		{
+			bstone::sys::MessageBox::show_simple(
+				get_message_box_title().c_str(),
+				error_message.c_str(),
+				bstone::sys::MessageBoxType::error);
+		}
+		catch (...)
+		{
+			error_message = bstone::get_nested_message();
+			bstone::globals::logger->write_error(error_message.c_str());
+		}
 
 		return 1;
 	}
