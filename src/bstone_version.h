@@ -1,33 +1,31 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-
-//
 // Project's version.
-//
-
 
 #ifndef BSTONE_VERSION_INCLUDED
 #define BSTONE_VERSION_INCLUDED
 
-
-#include <string>
-
-
-namespace bstone
-{
-
+namespace bstone {
 
 struct Version
 {
-	static const std::string& get_string();
-}; // Version
+	int major{};
+	int minor{};
+	int patch{};
+	const char* pre_release{};
+	const char* git_hash{};
+	const char* string{};
+	const char* string_short{};
+};
 
+// ==========================================================================
 
-} // bstone
+const Version& get_version() noexcept;
 
+} // namespace bstone
 
-#endif // !BSTONE_VERSION_INCLUDED
+#endif // BSTONE_VERSION_INCLUDED

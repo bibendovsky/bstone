@@ -32,6 +32,9 @@ include(GetGitHeadHash)
 get_git_hash(${CMAKE_SOURCE_DIR} BSTONE_GIT_HASH)
 message(STATUS "[${PROJECT_NAME}] Git hash: ${BSTONE_GIT_HASH}")
 
+string(SUBSTRING ${BSTONE_GIT_HASH} 0 8 BSTONE_GIT_HASH_SHORT)
+message(STATUS "[${PROJECT_NAME}] Short Git hash: ${BSTONE_GIT_HASH_SHORT}")
+
 if (BSTONE_INTERNAL_SDL2)
 	add_subdirectory(src/lib/sdl2)
 endif ()

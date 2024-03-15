@@ -881,7 +881,7 @@ try {
 
 std::string vid_get_port_version_string()
 try {
-	return "BStone v" + bstone::Version::get_string();
+	return std::string{} + "BStone v" + bstone::get_version().string_short;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_initialize_cvars(bstone::CVarMgr& cvar_mgr)

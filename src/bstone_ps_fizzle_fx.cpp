@@ -64,7 +64,7 @@ void PsFizzleFX::initialize(bool has_vanilla_appearence)
 	VWB_Bar(WindowX, WindowY, WindowW, WindowH, VERSION_TEXT_BKCOLOR);
 
 	SETFONTCOLOR(VERSION_TEXT_COLOR, VERSION_TEXT_BKCOLOR);
-	US_Print(bstone::Version::get_string().c_str());
+	US_Print(bstone::get_version().string_short);
 
 	vid_export_ui(buffer_);
 	vid_import_ui(current_screen);

@@ -94,7 +94,7 @@ const std::uint8_t* lightsource;
 
 const std::string& get_message_box_title()
 {
-	static const auto result = "BStone v" + bstone::Version::get_string();
+	static const auto result = std::string{} + "BStone v" + bstone::get_version().string_short;
 
 	return result;
 }
@@ -1370,8 +1370,8 @@ extern std::int16_t starting_episode, starting_level, starting_difficulty;
 
 static void output_version()
 {
-	const auto& version_string = bstone::Version::get_string();
-	const auto message = "BStone v" + version_string + '.';
+	const auto version_string = bstone::get_version().string;
+	const auto message = std::string{} + "BStone v" + version_string + '.';
 
 	// Standard output.
 	//

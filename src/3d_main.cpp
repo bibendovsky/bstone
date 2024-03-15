@@ -9843,12 +9843,12 @@ void DemoLoop()
 				const auto version_padding = 1;
 				const auto version_margin = 4;
 				const auto ps_fizzle_height = 15;
-				auto& version_string = bstone::Version::get_string();
+				const auto version_string = bstone::get_version().string_short;
 
 				fontnumber = 2;
 
 				USL_MeasureString(
-					version_string.c_str(),
+					version_string,
 					&version_text_width,
 					&version_text_height);
 
@@ -9882,7 +9882,7 @@ void DemoLoop()
 					VERSION_TEXT_BKCOLOR);
 
 				SETFONTCOLOR(VERSION_TEXT_COLOR, VERSION_TEXT_BKCOLOR);
-				US_Print(bstone::Version::get_string().c_str());
+				US_Print(bstone::get_version().string_short);
 
 				VW_UpdateScreen();
 				VL_FadeIn(0, 255, grsegs[TITLEPALETTE].data(), 30);
@@ -10048,7 +10048,7 @@ int main(
 	bstone::globals::logger = bstone::make_logger(logger_open_param);
 	const auto logger_scope = bstone::make_scope_exit([](){ bstone::globals::logger = nullptr; });
 
-	bstone::globals::logger->write(("BStone v" + bstone::Version::get_string()).c_str());
+	bstone::globals::logger->write((std::string{} + "BStone v" + bstone::get_version().string).c_str());
 	bstone::globals::logger->write("==========");
 	bstone::globals::logger->write();
 

@@ -1,8 +1,14 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com)
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-"${BSTONE_VERSION}"
+${PROJECT_VERSION_MAJOR},
+${PROJECT_VERSION_MINOR},
+${PROJECT_VERSION_PATCH},
+"${BSTONE_VERSION_PRE_RELEASE}",
+"${BSTONE_GIT_HASH}",
+"${BSTONE_VERSION}",
+"${BSTONE_VERSION_SHORT}",
