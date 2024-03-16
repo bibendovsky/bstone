@@ -672,9 +672,33 @@ static int get_door_page_number(
 	return doorpage;
 }
 
+namespace {
+
+bool bs_is_tile_solid_wall(int tile) noexcept
+{
+	return
+		tile != 0 &&
+		((tile & tilemap_door_flags) == 0 || (tile & tilemap_door_flags) == tilemap_door_track_flag);
+}
+
+} // namespace
+
 void HitHorizDoor()
 {
 	const auto door_index = tilehit & 0x7F;
+	const auto& bs_door = doorobjlist[door_index];
+
+	// Ensure to render solid walls on both sides of the door (#485).
+
+	if (bs_is_tile_solid_wall(tilemap[bs_door.tilex - 1][bs_door.tiley]))
+	{
+		vid_hw_add_wall_render_item(bs_door.tilex - 1, bs_door.tiley);
+	}
+
+	if (bs_is_tile_solid_wall(tilemap[bs_door.tilex + 1][bs_door.tiley]))
+	{
+		vid_hw_add_wall_render_item(bs_door.tilex + 1, bs_door.tiley);
+	}
 
 	if (doorobjlist[door_index].action == dr_jammed)
 	{
@@ -739,13 +763,25 @@ void HitHorizDoor()
 		postsource = &last_texture_data[last_texture_offset];
 	}
 
-	const auto& bs_door = doorobjlist[door_index];
 	vid_hw_add_door_render_item(bs_door.tilex, bs_door.tiley);
 }
 
 void HitVertDoor()
 {
 	const auto door_index = tilehit & 0x7F;
+	const auto& bs_door = doorobjlist[door_index];
+
+	// Ensure to render solid walls on both sides of the door (#485).
+
+	if (bs_is_tile_solid_wall(tilemap[bs_door.tilex][bs_door.tiley - 1]))
+	{
+		vid_hw_add_wall_render_item(bs_door.tilex, bs_door.tiley - 1);
+	}
+
+	if (bs_is_tile_solid_wall(tilemap[bs_door.tilex][bs_door.tiley + 1]))
+	{
+		vid_hw_add_wall_render_item(bs_door.tilex, bs_door.tiley + 1);
+	}
 
 	if (doorobjlist[door_index].action == dr_jammed)
 	{
@@ -810,7 +846,6 @@ void HitVertDoor()
 		postsource = &last_texture_data[last_texture_offset];
 	}
 
-	const auto& bs_door = doorobjlist[door_index];
 	vid_hw_add_door_render_item(bs_door.tilex, bs_door.tiley);
 }
 
