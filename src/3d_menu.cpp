@@ -1925,17 +1925,17 @@ void DrawMainMenu()
 	//
 	// CHANGE "MISSION" AND "DEMO"
 	//
+	auto& back_to_demo_mi = MainMenu[MM_BACK_TO_DEMO];
+
 	if (ingame)
 	{
-		MainMenu[MM_BACK_TO_DEMO].string.resize(8);
-		MainMenu[MM_BACK_TO_DEMO].string += "MISSION";
-		MainMenu[MM_BACK_TO_DEMO].active = AT_READIT;
+		back_to_demo_mi.string = "BACK TO MISSION";
+		back_to_demo_mi.active = AT_READIT;
 	}
 	else
 	{
-		MainMenu[MM_BACK_TO_DEMO].string.resize(8);
-		MainMenu[MM_BACK_TO_DEMO].string += "DEMO";
-		MainMenu[MM_BACK_TO_DEMO].active = AT_ENABLED;
+		back_to_demo_mi.string.clear();
+		back_to_demo_mi.active = AT_DISABLED;
 	}
 
 	fontnumber = 4; // COAL
