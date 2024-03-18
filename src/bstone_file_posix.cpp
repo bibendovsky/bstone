@@ -1,12 +1,14 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2023-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
 // File primitive (POSIX).
 
-#if !defined(_WIN32)
+#ifndef _WIN32
+
+#include "bstone_file.h"
 
 #include <cstdint>
 
@@ -19,13 +21,11 @@ SPDX-License-Identifier: MIT
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "bstone_assert.h"
 #include "bstone_exception.h"
-#include "bstone_file.h"
 
 static_assert(
 	std::is_signed<::off_t>::value && (sizeof(::off_t) == 4 || sizeof(::off_t) == 8),
-	"Unsupported type.");
+	"Unsupported type \"off_t\".");
 
 namespace bstone {
 
@@ -70,11 +70,15 @@ void File::open(const char* path, FileOpenFlags open_flags)
 
 std::intptr_t File::read(void* buffer, std::intptr_t count) const
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
+	ensure_buffer_not_null(buffer);
+	ensure_count_not_negative(count);
 
 	const auto posix_file_descriptor = resource_.get();
-	const auto posix_number_of_bytes_to_read = static_cast<::size_t>(std::min(count, static_cast<std::intptr_t>(posix_file_max_int)));
-	const auto posix_number_of_bytes_read = ::read(posix_file_descriptor, buffer, posix_number_of_bytes_to_read);
+	const auto posix_number_of_bytes_to_read = static_cast<::size_t>(
+		std::min(count, static_cast<std::intptr_t>(posix_file_max_int)));
+	const auto posix_number_of_bytes_read = ::read(
+		posix_file_descriptor, buffer, posix_number_of_bytes_to_read);
 
 	if (posix_number_of_bytes_read < 0)
 	{
@@ -86,11 +90,15 @@ std::intptr_t File::read(void* buffer, std::intptr_t count) const
 
 std::intptr_t File::write(const void* buffer, std::intptr_t count) const
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
+	ensure_buffer_not_null(buffer);
+	ensure_count_not_negative(count);
 
 	const auto posix_file_descriptor = resource_.get();
-	const auto posix_number_of_bytes_to_write = static_cast<::size_t>(std::min(count, static_cast<std::intptr_t>(posix_file_max_int)));
-	const auto posix_number_of_bytes_written = ::write(posix_file_descriptor, buffer, posix_number_of_bytes_to_write);
+	const auto posix_number_of_bytes_to_write = static_cast<::size_t>(
+		std::min(count, static_cast<std::intptr_t>(posix_file_max_int)));
+	const auto posix_number_of_bytes_written = ::write(
+		posix_file_descriptor, buffer, posix_number_of_bytes_to_write);
 
 	if (posix_number_of_bytes_written < 0)
 	{
@@ -102,7 +110,7 @@ std::intptr_t File::write(const void* buffer, std::intptr_t count) const
 
 std::int64_t File::seek(std::int64_t offset, FileOrigin origin) const
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
 
 	if (!posix_file_supports_64_bit_size)
 	{
@@ -112,14 +120,14 @@ std::int64_t File::seek(std::int64_t offset, FileOrigin origin) const
 		}
 	}
 
-	int posix_origin;
+	auto posix_origin = 0;
 
 	switch (origin)
 	{
 		case FileOrigin::begin: posix_origin = SEEK_SET; break;
 		case FileOrigin::current: posix_origin = SEEK_CUR; break;
 		case FileOrigin::end: posix_origin = SEEK_END; break;
-		default: BSTONE_THROW_STATIC_SOURCE("Unknown type.");
+		default: BSTONE_THROW_STATIC_SOURCE("Unknown origin.");
 	}
 
 	const auto lseek_result = ::lseek(resource_.get(), offset, posix_origin);
@@ -134,9 +142,9 @@ std::int64_t File::seek(std::int64_t offset, FileOrigin origin) const
 
 std::int64_t File::get_size() const
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
 
-	struct ::stat posix_stat;
+	struct ::stat posix_stat{};
 	const auto fstat_result = ::fstat(resource_.get(), &posix_stat);
 
 	if (fstat_result != 0)
@@ -149,7 +157,8 @@ std::int64_t File::get_size() const
 
 void File::set_size(std::int64_t size) const
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
+	ensure_size_not_negative(size);
 
 	if (!posix_file_supports_64_bit_size)
 	{
@@ -169,7 +178,7 @@ void File::set_size(std::int64_t size) const
 
 void File::flush() const
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
 
 	const auto fsync_result = ::fsync(resource_.get());
 
@@ -182,7 +191,7 @@ void File::flush() const
 bool File::try_or_open_internal(
 	const char* path,
 	FileOpenFlags open_flags,
-	bool ignore_errors,
+	bool ignore_file_errors,
 	FileUResource& resource)
 {
 	// Release previous resource.
@@ -193,14 +202,17 @@ bool File::try_or_open_internal(
 	// Validate input parameters.
 	//
 
+	ensure_path_not_null(path);
+
 	const auto is_create = (open_flags & FileOpenFlags::create) != FileOpenFlags::none;
 	const auto is_truncate = (open_flags & FileOpenFlags::truncate) != FileOpenFlags::none;
 	const auto is_readable = (open_flags & FileOpenFlags::read) != FileOpenFlags::none;
-	const auto is_writable = is_create || is_truncate || (open_flags & FileOpenFlags::write) != FileOpenFlags::none;
+	const auto is_writable = is_create || is_truncate ||
+		(open_flags & FileOpenFlags::write) != FileOpenFlags::none;
 
 	if (!is_readable && !is_writable)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Invalid open mode.");
+		BSTONE_THROW_STATIC_SOURCE("Invalid flags combination.");
 	}
 
 	// Make status flags, access mode and access permission bits.
@@ -240,7 +252,7 @@ bool File::try_or_open_internal(
 
 	if (new_resource.is_empty())
 	{
-		if (ignore_errors)
+		if (ignore_file_errors)
 		{
 			return false;
 		}
@@ -256,12 +268,12 @@ bool File::try_or_open_internal(
 	// Validate a type.
 	//
 
-	struct ::stat posix_stat;
+	struct ::stat posix_stat{};
 	const auto fstat_result = ::fstat(new_resource.get(), &posix_stat);
 
 	if (fstat_result != 0)
 	{
-		if (ignore_errors)
+		if (ignore_file_errors)
 		{
 			return false;
 		}
@@ -271,7 +283,7 @@ bool File::try_or_open_internal(
 
 	if (!S_ISREG(posix_stat.st_mode))
 	{
-		if (ignore_errors)
+		if (ignore_file_errors)
 		{
 			return false;
 		}

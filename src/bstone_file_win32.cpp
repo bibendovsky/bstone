@@ -1,35 +1,35 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2023-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-// File primitive (WIN32).
+// File primitive (Win32).
 
-#if defined(_WIN32)
+#ifdef _WIN32
 
-#if !defined(WIN32_LEAN_AND_MEAN)
-	#define WIN32_LEAN_AND_MEAN
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
 #endif
 
-#if !defined(NOMINMAX)
-	#define NOMINMAX
+#ifndef NOMINMAX
+#define NOMINMAX
 #endif
+
+#include "bstone_file.h"
 
 #include <cstdint>
 
 #include <windows.h>
 
-#include "bstone_assert.h"
 #include "bstone_exception.h"
-#include "bstone_file.h"
 #include "bstone_win32_wstring.h"
 
 namespace bstone {
 
 namespace {
 
-constexpr auto win32_file_max_read_write_size = std::intptr_t{0x7FFFFFFF};
+constexpr auto win32_file_max_count = std::intptr_t{0x7FFFF000};
 
 } // namespace
 
@@ -64,20 +64,22 @@ void File::open(const char* path, FileOpenFlags open_flags)
 
 std::intptr_t File::read(void* buffer, std::intptr_t count) const
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
+	ensure_buffer_not_null(buffer);
+	ensure_count_not_negative(count);
 
 	const auto win32_handle = resource_.get();
-	const auto win32_size_to_read = static_cast<DWORD>(std::min(count, win32_file_max_read_write_size));
-	DWORD win32_read_size;
+	const auto win32_size_to_read = static_cast<DWORD>(std::min(count, win32_file_max_count));
+	auto win32_read_size = DWORD{};
 
-	const auto read_file_result = ReadFile(
+	const auto win32_result = ReadFile(
 		win32_handle,
 		buffer,
 		win32_size_to_read,
 		&win32_read_size,
 		nullptr);
 
-	if (read_file_result == 0)
+	if (win32_result == FALSE)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Failed to read.");
 	}
@@ -87,20 +89,22 @@ std::intptr_t File::read(void* buffer, std::intptr_t count) const
 
 std::intptr_t File::write(const void* buffer, std::intptr_t count) const
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
+	ensure_buffer_not_null(buffer);
+	ensure_count_not_negative(count);
 
 	const auto win32_handle = resource_.get();
-	const auto win32_size_to_write = static_cast<DWORD>(std::min(count, win32_file_max_read_write_size));
-	DWORD win32_written_size;
+	const auto win32_size_to_write = static_cast<DWORD>(std::min(count, win32_file_max_count));
+	auto win32_written_size = DWORD{};
 
-	const auto write_file_result = WriteFile(
+	const auto win32_result = WriteFile(
 		win32_handle,
 		buffer,
 		win32_size_to_write,
 		&win32_written_size,
 		nullptr);
 
-	if (write_file_result == 0)
+	if (win32_result == FALSE)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Failed to write.");
 	}
@@ -110,9 +114,9 @@ std::intptr_t File::write(const void* buffer, std::intptr_t count) const
 
 std::int64_t File::seek(std::int64_t offset, FileOrigin origin) const
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
 
-	DWORD win32_origin;
+	auto win32_origin = DWORD{};
 
 	switch (origin)
 	{
@@ -124,15 +128,15 @@ std::int64_t File::seek(std::int64_t offset, FileOrigin origin) const
 
 	auto win32_offset = LARGE_INTEGER{};
 	win32_offset.QuadPart = offset;
-	LARGE_INTEGER win32_position;
+	auto win32_position = LARGE_INTEGER{};
 
-	const auto set_file_pointer_ex_result = SetFilePointerEx(
+	const auto win32_result = SetFilePointerEx(
 		resource_.get(),
 		win32_offset,
 		&win32_position,
 		win32_origin);
 
-	if (set_file_pointer_ex_result == 0)
+	if (win32_result == FALSE)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Failed to set position.");
 	}
@@ -142,12 +146,12 @@ std::int64_t File::seek(std::int64_t offset, FileOrigin origin) const
 
 std::int64_t File::get_size() const
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
 
-	LARGE_INTEGER win32_size;
-	const auto get_file_size_ex_result = GetFileSizeEx(resource_.get(), &win32_size);
+	auto win32_size = LARGE_INTEGER{};
+	const auto win32_result = GetFileSizeEx(resource_.get(), &win32_size);
 
-	if (get_file_size_ex_result == 0)
+	if (win32_result == FALSE)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Failed to get size.");
 	}
@@ -157,36 +161,39 @@ std::int64_t File::get_size() const
 
 void File::set_size(std::int64_t size) const
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
+	ensure_size_not_negative(size);
 
+	auto win32_result = BOOL{};
 	auto win32_offset = LARGE_INTEGER{};
-	LARGE_INTEGER win32_position;
-	auto set_file_pointer_ex_result = SetFilePointerEx(resource_.get(), win32_offset, &win32_position, FILE_CURRENT);
+	auto win32_position = LARGE_INTEGER{};
 
-	if (set_file_pointer_ex_result == 0)
+	win32_result = SetFilePointerEx(resource_.get(), win32_offset, &win32_position, FILE_CURRENT);
+
+	if (win32_result == FALSE)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Failed to get current position.");
 	}
 
 	win32_offset.QuadPart = size;
-	set_file_pointer_ex_result = SetFilePointerEx(resource_.get(), win32_offset, nullptr, FILE_BEGIN);
+	win32_result = SetFilePointerEx(resource_.get(), win32_offset, nullptr, FILE_BEGIN);
 
-	if (set_file_pointer_ex_result == 0)
+	if (win32_result == FALSE)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Failed to set position at new size.");
 	}
 
-	const auto set_end_of_file_result = SetEndOfFile(resource_.get());
+	win32_result = SetEndOfFile(resource_.get());
 
-	if (set_end_of_file_result == 0)
+	if (win32_result == FALSE)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Failed to resize.");
 	}
 
 	win32_offset.QuadPart = size;
-	set_file_pointer_ex_result = SetFilePointerEx(resource_.get(), win32_position, nullptr, FILE_BEGIN);
+	win32_result = SetFilePointerEx(resource_.get(), win32_position, nullptr, FILE_BEGIN);
 
-	if (set_file_pointer_ex_result == 0)
+	if (win32_result == FALSE)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Failed to return to saved position.");
 	}
@@ -194,11 +201,11 @@ void File::set_size(std::int64_t size) const
 
 void File::flush() const
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
 
-	const auto flush_file_buffers_result = FlushFileBuffers(resource_.get());
+	const auto win32_result = FlushFileBuffers(resource_.get());
 
-	if (flush_file_buffers_result == 0)
+	if (win32_result == FALSE)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Failed to flush.");
 	}
@@ -207,7 +214,7 @@ void File::flush() const
 bool File::try_or_open_internal(
 	const char* path,
 	FileOpenFlags open_flags,
-	bool ignore_errors,
+	bool ignore_file_errors,
 	FileUResource& resource)
 {
 	// Release previous resource.
@@ -218,10 +225,14 @@ bool File::try_or_open_internal(
 	// Validate input parameters.
 	//
 
+	ensure_path_not_null(path);
+
 	const auto is_create = (open_flags & FileOpenFlags::create) != FileOpenFlags::none;
 	const auto is_truncate = (open_flags & FileOpenFlags::truncate) != FileOpenFlags::none;
 	const auto is_readable = (open_flags & FileOpenFlags::read) != FileOpenFlags::none;
-	const auto is_writable = is_create || is_truncate || (open_flags & FileOpenFlags::write) != FileOpenFlags::none;
+
+	const auto is_writable = is_create || is_truncate ||
+		(open_flags & FileOpenFlags::write) != FileOpenFlags::none;
 
 	if (!is_readable && !is_writable)
 	{
@@ -231,47 +242,47 @@ bool File::try_or_open_internal(
 	// Make desired access.
 	//
 
-	auto desired_access = DWORD{};
+	auto win32_desired_access = DWORD{};
 
 	if (is_readable)
 	{
-		desired_access |= GENERIC_READ;
+		win32_desired_access |= GENERIC_READ;
 	}
 
 	if (is_writable)
 	{
-		desired_access |= GENERIC_WRITE;
+		win32_desired_access |= GENERIC_WRITE;
 	}
 
 	// Make sharing mode.
 	//
 
-	constexpr auto share_mode = DWORD{FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE};
+	constexpr auto win32_share_mode = DWORD{FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE};
 
 	// Make disposition.
 	//
 
-	auto is_manual_truncation = false;
-	auto creation_disposition = DWORD{};
+	auto should_truncate = false;
+	auto win32_creation_disposition = DWORD{};
 
 	if (is_create)
 	{
 		if (is_truncate)
 		{
-			is_manual_truncation = true;
+			should_truncate = true;
 		}
 
-		creation_disposition = OPEN_ALWAYS;
+		win32_creation_disposition = OPEN_ALWAYS;
 	}
 	else
 	{
 		if (is_truncate)
 		{
-			creation_disposition = TRUNCATE_EXISTING;
+			win32_creation_disposition = TRUNCATE_EXISTING;
 		}
 		else
 		{
-			creation_disposition = OPEN_EXISTING;
+			win32_creation_disposition = OPEN_EXISTING;
 		}
 	}
 
@@ -285,24 +296,24 @@ bool File::try_or_open_internal(
 
 		new_resource.reset(CreateFileW(
 			u16_file_name.get_data(),
-			desired_access,
-			share_mode,
+			win32_desired_access,
+			win32_share_mode,
 			nullptr,
-			creation_disposition,
+			win32_creation_disposition,
 			FILE_ATTRIBUTE_NORMAL,
 			nullptr));
 	}
 
 	if (new_resource.is_empty())
 	{
-		if (ignore_errors)
+		if (ignore_file_errors)
 		{
 			return false;
 		}
 
-		const auto error_code = GetLastError();
+		const auto win32_last_error = GetLastError();
 
-		switch (error_code)
+		switch (win32_last_error)
 		{
 			case ERROR_FILE_NOT_FOUND: BSTONE_THROW_STATIC_SOURCE("Not found.");
 			case ERROR_ACCESS_DENIED: BSTONE_THROW_STATIC_SOURCE("Access denied.");
@@ -313,11 +324,11 @@ bool File::try_or_open_internal(
 	// Validate a type.
 	//
 
-	const auto file_type = GetFileType(new_resource.get());
+	const auto win32_file_type = GetFileType(new_resource.get());
 
-	if (file_type != FILE_TYPE_DISK)
+	if (win32_file_type != FILE_TYPE_DISK)
 	{
-		if (ignore_errors)
+		if (ignore_file_errors)
 		{
 			return false;
 		}
@@ -328,13 +339,13 @@ bool File::try_or_open_internal(
 	// Truncate if necessary.
 	//
 
-	if (is_manual_truncation)
+	if (should_truncate)
 	{
-		const auto truncate_result = SetEndOfFile(new_resource.get());
+		const auto win32_result = SetEndOfFile(new_resource.get());
 
-		if (truncate_result == 0)
+		if (win32_result == FALSE)
 		{
-			if (ignore_errors)
+			if (ignore_file_errors)
 			{
 				return false;
 			}
