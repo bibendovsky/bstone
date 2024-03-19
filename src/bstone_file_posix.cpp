@@ -53,26 +53,11 @@ void FileUResourceDeleter::operator()(FileUResourceHandle handle) const noexcept
 
 // ==========================================================================
 
-File::File(const char* path, FileOpenFlags open_flags)
-{
-	try_or_open_internal(path, open_flags, false, resource_);
-}
-
-bool File::try_open(const char* path, FileOpenFlags open_flags)
-{
-	return try_or_open_internal(path, open_flags, true, resource_);
-}
-
-void File::open(const char* path, FileOpenFlags open_flags)
-{
-	try_or_open_internal(path, open_flags, false, resource_);
-}
-
 std::intptr_t File::read(void* buffer, std::intptr_t count) const
 {
 	ensure_is_open();
-	ensure_buffer_not_null(buffer);
-	ensure_count_not_negative(count);
+	validate_buffer(buffer);
+	validate_count(count);
 
 	const auto posix_file_descriptor = resource_.get();
 	const auto posix_number_of_bytes_to_read = static_cast<::size_t>(
@@ -91,8 +76,8 @@ std::intptr_t File::read(void* buffer, std::intptr_t count) const
 std::intptr_t File::write(const void* buffer, std::intptr_t count) const
 {
 	ensure_is_open();
-	ensure_buffer_not_null(buffer);
-	ensure_count_not_negative(count);
+	validate_buffer(buffer);
+	validate_count(count);
 
 	const auto posix_file_descriptor = resource_.get();
 	const auto posix_number_of_bytes_to_write = static_cast<::size_t>(
@@ -158,7 +143,7 @@ std::int64_t File::get_size() const
 void File::set_size(std::int64_t size) const
 {
 	ensure_is_open();
-	ensure_size_not_negative(size);
+	validate_size(size);
 
 	if (!posix_file_supports_64_bit_size)
 	{
@@ -191,7 +176,7 @@ void File::flush() const
 bool File::try_or_open_internal(
 	const char* path,
 	FileOpenFlags open_flags,
-	bool ignore_file_errors,
+	FileErrorMode file_error_mode,
 	FileUResource& resource)
 {
 	// Release previous resource.
@@ -202,7 +187,7 @@ bool File::try_or_open_internal(
 	// Validate input parameters.
 	//
 
-	ensure_path_not_null(path);
+	validate_path(path);
 
 	const auto is_create = (open_flags & FileOpenFlags::create) != FileOpenFlags::none;
 	const auto is_truncate = (open_flags & FileOpenFlags::truncate) != FileOpenFlags::none;
@@ -214,6 +199,8 @@ bool File::try_or_open_internal(
 	{
 		BSTONE_THROW_STATIC_SOURCE("Invalid flags combination.");
 	}
+
+	const auto use_error_code = file_error_mode == FileErrorMode::error_code;
 
 	// Make status flags, access mode and access permission bits.
 	//
@@ -252,7 +239,7 @@ bool File::try_or_open_internal(
 
 	if (new_resource.is_empty())
 	{
-		if (ignore_file_errors)
+		if (use_error_code)
 		{
 			return false;
 		}
@@ -273,7 +260,7 @@ bool File::try_or_open_internal(
 
 	if (fstat_result != 0)
 	{
-		if (ignore_file_errors)
+		if (use_error_code)
 		{
 			return false;
 		}
@@ -283,7 +270,7 @@ bool File::try_or_open_internal(
 
 	if (!S_ISREG(posix_stat.st_mode))
 	{
-		if (ignore_file_errors)
+		if (use_error_code)
 		{
 			return false;
 		}

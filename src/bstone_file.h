@@ -82,7 +82,7 @@ public:
 	std::intptr_t write(const void* buffer, std::intptr_t count) const;
 	void write_exact(const void* buffer, std::intptr_t count) const;
 	std::int64_t seek(std::int64_t offset, FileOrigin origin) const;
-	std::int64_t skip(std::int64_t delta) const;
+	std::int64_t skip(std::int64_t offset) const;
 	std::int64_t get_position() const;
 	void set_position(std::int64_t position) const;
 	std::int64_t get_size() const;
@@ -90,22 +90,30 @@ public:
 	void flush() const;
 
 private:
+	enum class FileErrorMode
+	{
+		exception,
+		error_code,
+	};
+
+private:
 	FileUResource resource_{};
 
 private:
 	void ensure_is_open() const;
-	static void ensure_path_not_null(const char* path);
-	static void ensure_buffer_not_null(const void* buffer);
-	static void ensure_count_not_negative(std::intptr_t count);
-	static void ensure_position_not_negative(std::int64_t position);
-	static void ensure_size_not_negative(std::int64_t size);
+
+	static void validate_path(const char* path);
+	static void validate_buffer(const void* buffer);
+	static void validate_count(std::intptr_t count);
+	static void validate_position(std::int64_t position);
+	static void validate_size(std::int64_t size);
 
 	static void close_internal(FileUResource& resource) noexcept;
 
 	static bool try_or_open_internal(
 		const char* path,
 		FileOpenFlags open_flags,
-		bool ignore_file_errors,
+		FileErrorMode file_error_mode,
 		FileUResource& resource);
 };
 

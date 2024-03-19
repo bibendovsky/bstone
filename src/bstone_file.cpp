@@ -13,6 +13,21 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
+File::File(const char* path, FileOpenFlags open_flags)
+{
+	try_or_open_internal(path, open_flags, FileErrorMode::exception, resource_);
+}
+
+bool File::try_open(const char* path, FileOpenFlags open_flags)
+{
+	return try_or_open_internal(path, open_flags, FileErrorMode::error_code, resource_);
+}
+
+void File::open(const char* path, FileOpenFlags open_flags)
+{
+	try_or_open_internal(path, open_flags, FileErrorMode::exception, resource_);
+}
+
 void File::close() noexcept
 {
 	close_internal(resource_);
@@ -27,7 +42,7 @@ void File::read_exact(void* buffer, std::intptr_t count) const
 {
 	if (read(buffer, count) != count)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Data underflow.");
+		BSTONE_THROW_STATIC_SOURCE("Read number of bytes mismatch.");
 	}
 }
 
@@ -35,13 +50,13 @@ void File::write_exact(const void* buffer, std::intptr_t count) const
 {
 	if (write(buffer, count) != count)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Data overflow.");
+		BSTONE_THROW_STATIC_SOURCE("Written number of bytes mismatch.");
 	}
 }
 
-std::int64_t File::skip(std::int64_t delta) const
+std::int64_t File::skip(std::int64_t offset) const
 {
-	return seek(delta, FileOrigin::current);
+	return seek(offset, FileOrigin::current);
 }
 
 std::int64_t File::get_position() const
@@ -51,7 +66,7 @@ std::int64_t File::get_position() const
 
 void File::set_position(std::int64_t position) const
 {
-	ensure_position_not_negative(position);
+	validate_position(position);
 	seek(position, FileOrigin::begin);
 }
 
@@ -59,11 +74,11 @@ void File::ensure_is_open() const
 {
 	if (!is_open())
 	{
-		BSTONE_THROW_STATIC_SOURCE("Not open.");
+		BSTONE_THROW_STATIC_SOURCE("Closed.");
 	}
 }
 
-void File::ensure_path_not_null(const char* path)
+void File::validate_path(const char* path)
 {
 	if (path == nullptr)
 	{
@@ -71,7 +86,7 @@ void File::ensure_path_not_null(const char* path)
 	}
 }
 
-void File::ensure_buffer_not_null(const void* buffer)
+void File::validate_buffer(const void* buffer)
 {
 	if (buffer == nullptr)
 	{
@@ -79,7 +94,7 @@ void File::ensure_buffer_not_null(const void* buffer)
 	}
 }
 
-void File::ensure_count_not_negative(std::intptr_t count)
+void File::validate_count(std::intptr_t count)
 {
 	if (count < 0)
 	{
@@ -87,7 +102,7 @@ void File::ensure_count_not_negative(std::intptr_t count)
 	}
 }
 
-void File::ensure_position_not_negative(std::int64_t position)
+void File::validate_position(std::int64_t position)
 {
 	if (position < 0)
 	{
@@ -95,7 +110,7 @@ void File::ensure_position_not_negative(std::int64_t position)
 	}
 }
 
-void File::ensure_size_not_negative(std::int64_t size)
+void File::validate_size(std::int64_t size)
 {
 	if (size < 0)
 	{
