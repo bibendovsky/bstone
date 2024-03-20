@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // File stream.
 
-#if !defined(BSTONE_FILE_STREAM_INCLUDED)
+#ifndef BSTONE_FILE_STREAM_INCLUDED
 #define BSTONE_FILE_STREAM_INCLUDED
 
 #include "bstone_file.h"

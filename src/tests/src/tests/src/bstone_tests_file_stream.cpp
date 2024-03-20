@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <fstream>
 #include <iterator>
 #include <utility>
 
@@ -12,6 +13,20 @@ auto tester = bstone::Tester{};
 
 // ==========================================================================
 
+constexpr auto test_data_file_name = "test.data";
+
+// ==========================================================================
+
+void create_test_data_file()
+{
+	const auto stream = std::ofstream{
+		test_data_file_name,
+		std::ios_base::out | std::ios_base::binary | std::ios_base::trunc
+	};
+}
+
+// ==========================================================================
+
 // explicit FileStream(const char*, FileOpenFlags)
 void test_9iuvd5h9gzjbt351()
 {
@@ -20,7 +35,7 @@ void test_9iuvd5h9gzjbt351()
 
 	try
 	{
-		const auto file = bstone::FileStream{"test.data", bstone::FileOpenFlags::create};
+		const auto file = bstone::FileStream{test_data_file_name, bstone::FileOpenFlags::create};
 		is_open = file.is_open();
 	}
 	catch (...)
@@ -31,24 +46,44 @@ void test_9iuvd5h9gzjbt351()
 	tester.check(!is_failed && is_open);
 }
 
-// ==========================================================================
-
 // explicit FileStream(const char*, FileOpenFlags)
-// Invalid flags.
-void test_cz3bzq9ia1144mgd()
+// Null path.
+void test_neqp351w0kgkyf99()
 {
 	auto is_failed = false;
+	auto is_open = false;
 
 	try
 	{
-		const auto file = bstone::FileStream{"test.data", bstone::FileOpenFlags::none};
+		const auto file = bstone::FileStream{nullptr, bstone::FileOpenFlags::create};
+		is_open = file.is_open();
 	}
 	catch (...)
 	{
 		is_failed = true;
 	}
 
-	tester.check(is_failed);
+	tester.check(is_failed && !is_open);
+}
+
+// explicit FileStream(const char*, FileOpenFlags)
+// Invalid flags.
+void test_cz3bzq9ia1144mgd()
+{
+	auto is_failed = false;
+	auto is_open = false;
+
+	try
+	{
+		const auto file = bstone::FileStream{test_data_file_name, bstone::FileOpenFlags::none};
+		is_open = file.is_open();
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_failed && !is_open);
 }
 
 // ==========================================================================
@@ -56,24 +91,42 @@ void test_cz3bzq9ia1144mgd()
 // explicit FileStream(const char*)
 void test_gj50q07ijq9uhdu2()
 {
-	auto is_created = false;
-	auto is_opened = false;
+	auto is_failed = false;
+	auto is_open = false;
+
+	create_test_data_file();
 
 	try
 	{
-		const auto file = bstone::FileStream{"test.data", bstone::FileOpenFlags::create};
-		is_created = file.is_open();
+		const auto file = bstone::FileStream{test_data_file_name};
+		is_open = file.is_open();
 	}
-	catch (...) {}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(!is_failed && is_open);
+}
+
+// explicit FileStream(const char*)
+// Null path.
+void test_qyepc4xyq50mvtkm()
+{
+	auto is_failed = false;
+	auto is_open = false;
 
 	try
 	{
-		const auto file = bstone::FileStream{"test.data"};
-		is_opened = file.is_open();
+		const auto file = bstone::FileStream{nullptr};
+		is_open = file.is_open();
 	}
-	catch (...) {}
+	catch (...)
+	{
+		is_failed = true;
+	}
 
-	tester.check(is_created && is_opened);
+	tester.check(is_failed && !is_open);
 }
 
 // ==========================================================================
@@ -81,9 +134,9 @@ void test_gj50q07ijq9uhdu2()
 // FileStream(FileStream&&) noexcept
 void test_87hjc768xmbd1t34()
 {
-	auto file_1 = bstone::FileStream{"test.data", bstone::FileOpenFlags::create};
+	auto file_1 = bstone::FileStream{test_data_file_name, bstone::FileOpenFlags::create};
 	const auto is_open_1 = file_1.is_open();
-	auto file_2 = std::move(file_1);
+	auto&& file_2 = std::move(file_1);
 	const auto is_open_2 = file_2.is_open();
 
 	tester.check(is_open_1 && is_open_2);
@@ -94,7 +147,7 @@ void test_87hjc768xmbd1t34()
 // FileStream& operator=(FileStream&&) noexcept
 void test_5mmf4qysfrd2fonu()
 {
-	auto file_1 = bstone::FileStream{"test.data", bstone::FileOpenFlags::create};
+	auto file_1 = bstone::FileStream{test_data_file_name, bstone::FileOpenFlags::create};
 	auto file_2 = bstone::FileStream{};
 	const auto is_open_1 = file_1.is_open();
 	file_2 = std::move(file_1);
@@ -109,22 +162,32 @@ void test_5mmf4qysfrd2fonu()
 void test_fwl347iyu5349iee()
 {
 	auto stream = bstone::FileStream{};
-
-	const auto result_1 = stream.try_open("test.data", bstone::FileOpenFlags::create);
-	const auto is_valid_1 = result_1;
-
-	const auto result_2 = stream.is_open();
-	const auto is_valid_2 = result_2;
-
-	const auto is_valid =
-		is_valid_1 &&
-		is_valid_2 &&
-		true;
-
-	tester.check(is_valid);
+	const auto try_is_open = stream.try_open(test_data_file_name, bstone::FileOpenFlags::create);
+	const auto is_open = stream.is_open();
+	tester.check(try_is_open && is_open);
 }
 
-// ==========================================================================
+// bool try_open(const char*, FileOpenFlags) noexcept
+// Null path.
+void test_irg51iq5ptanon9g()
+{
+	auto stream = bstone::FileStream{};
+	auto is_failed = false;
+	auto try_is_open = false;
+	auto is_open = false;
+
+	try
+	{
+		try_is_open = stream.try_open(nullptr, bstone::FileOpenFlags::create);
+		is_open = stream.is_open();
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_failed && !try_is_open && !is_open);
+}
 
 // bool try_open(const char*, FileOpenFlags) noexcept
 // Invalid flags.
@@ -132,43 +195,57 @@ void test_4hi9u7tj6ugr8kmy()
 {
 	auto stream = bstone::FileStream{};
 	auto is_failed = false;
+	auto try_is_open = false;
+	auto is_open = false;
 
 	try
 	{
-		const auto result = stream.try_open("test.data", bstone::FileOpenFlags::none);
-		static_cast<void>(result);
+		try_is_open = stream.try_open(test_data_file_name, bstone::FileOpenFlags::none);
+		is_open = stream.is_open();
 	}
 	catch (...)
 	{
 		is_failed = true;
 	}
 
-	tester.check(is_failed);
+	tester.check(is_failed && !try_is_open && !is_open);
 }
 
 // ==========================================================================
 
-// bool try_open(const char*) noexcept
+// bool try_open(const char*)
 void test_n5pmd6moj0vqsnqn()
 {
-	{
-		const auto stream = bstone::FileStream{"test.data", bstone::FileOpenFlags::create};
-	}
+	create_test_data_file();
 
 	auto stream = bstone::FileStream{};
+	const auto try_is_open = stream.try_open(test_data_file_name);
+	const auto is_open = stream.is_open();
+	tester.check(try_is_open && is_open);
+}
 
-	const auto result_1 = stream.try_open("test.data");
-	const auto is_valid_1 = result_1;
+// bool try_open(const char*)
+// Null path.
+void test_kgfxywxx5wgrgl9j()
+{
+	create_test_data_file();
 
-	const auto result_2 = stream.is_open();
-	const auto is_valid_2 = result_2;
+	auto try_is_open = false;
+	auto is_open = false;
+	auto is_failed = false;
 
-	const auto is_valid =
-		is_valid_1 &&
-		is_valid_2 &&
-		true;
+	try
+	{
+		auto stream = bstone::FileStream{};
+		try_is_open = stream.try_open(nullptr);
+		is_open = stream.is_open();
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
 
-	tester.check(is_valid);
+	tester.check(is_failed && !try_is_open && !is_open);
 }
 
 // ==========================================================================
@@ -182,7 +259,7 @@ void test_3h64grd141dr6atb()
 	try
 	{
 		auto file = bstone::FileStream{};
-		file.open("test.data", bstone::FileOpenFlags::create);
+		file.open(test_data_file_name, bstone::FileOpenFlags::create);
 		is_open = file.is_open();
 	}
 	catch (...)
@@ -193,25 +270,46 @@ void test_3h64grd141dr6atb()
 	tester.check(!is_failed && is_open);
 }
 
-// ==========================================================================
-
 // void open(const char*, FileOpenFlags)
-// Invalid flags.
-void test_bfq3co9j1znbbjim()
+// Null path.
+void test_5qlz0zonfx1gs8k0()
 {
 	auto is_failed = false;
+	auto is_open = false;
 
 	try
 	{
 		auto file = bstone::FileStream{};
-		file.open("test.data", bstone::FileOpenFlags::none);
+		file.open(nullptr, bstone::FileOpenFlags::create);
+		is_open = file.is_open();
 	}
 	catch (...)
 	{
 		is_failed = true;
 	}
 
-	tester.check(is_failed);
+	tester.check(is_failed && !is_open);
+}
+
+// void open(const char*, FileOpenFlags)
+// Invalid flags.
+void test_bfq3co9j1znbbjim()
+{
+	auto is_failed = false;
+	auto is_open = false;
+
+	try
+	{
+		auto file = bstone::FileStream{};
+		file.open(test_data_file_name, bstone::FileOpenFlags::none);
+		is_open = file.is_open();
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_failed && !is_open);
 }
 
 // ==========================================================================
@@ -219,25 +317,46 @@ void test_bfq3co9j1znbbjim()
 // void open(const char*)
 void test_fs8htsia07pw47ps()
 {
-	auto is_created = false;
-	auto is_opened = false;
+	auto is_open = false;
+	auto is_failed = false;
 
-	try
-	{
-		const auto file = bstone::FileStream{"test.data", bstone::FileOpenFlags::create};
-		is_created = file.is_open();
-	}
-	catch (...) {}
+	create_test_data_file();
 
 	try
 	{
 		auto file = bstone::FileStream{};
-		file.open("test.data");
-		is_opened = file.is_open();
+		file.open(test_data_file_name);
+		is_open = file.is_open();
 	}
-	catch (...) {}
+	catch (...)
+	{
+		is_failed = true;
+	}
 
-	tester.check(is_created && is_opened);
+	tester.check(!is_failed && is_open);
+}
+
+// void open(const char*)
+// Null path.
+void test_uurb3nm8qiuss2um()
+{
+	auto is_open = false;
+	auto is_failed = false;
+
+	create_test_data_file();
+
+	try
+	{
+		auto file = bstone::FileStream{};
+		file.open(nullptr);
+		is_open = file.is_open();
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_failed && !is_open);
 }
 
 // ==========================================================================
@@ -251,7 +370,7 @@ void test_wrbmfiq7r9t2bjfi()
 
 	try
 	{
-		auto file = bstone::FileStream{"test.data", bstone::FileOpenFlags::create};
+		auto file = bstone::FileStream{test_data_file_name, bstone::FileOpenFlags::create};
 		is_created = file.is_open();
 		file.close();
 		is_closed = !file.is_open();
@@ -274,7 +393,7 @@ void test_n0q8fvihwy1v2klm()
 
 	try
 	{
-		const auto file = bstone::FileStream{"test.data", bstone::FileOpenFlags::create};
+		const auto file = bstone::FileStream{test_data_file_name, bstone::FileOpenFlags::create};
 		is_open = file.is_open();
 	}
 	catch (...)
@@ -308,7 +427,7 @@ void test_s4ldcda38dhh06px()
 
 		auto file = bstone::FileStream
 		{
-			"test.data",
+			test_data_file_name,
 			bstone::FileOpenFlags::create | bstone::FileOpenFlags::truncate | bstone::FileOpenFlags::read
 		};
 
@@ -325,6 +444,134 @@ void test_s4ldcda38dhh06px()
 	}
 
 	tester.check(!is_failed && is_open && is_zero_size && is_written && is_set_position && is_read && is_equal);
+}
+
+// std::intptr_t read(void*, std::intptr_t)
+// Closed.
+void test_kiz3450wfl6s7c5x()
+{
+	auto file = bstone::FileStream{};
+	const auto is_open = file.is_open();
+	auto is_failed = false;
+
+	try
+	{
+		auto buffer = '\0';
+		file.read(&buffer, 1);
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(!is_open && is_failed);
+}
+
+// std::intptr_t read(void*, std::intptr_t)
+// Null buffer.
+void test_6nk2s7hlfz54dq0z()
+{
+	create_test_data_file();
+	auto file = bstone::FileStream{test_data_file_name};
+	const auto is_open = file.is_open();
+	auto is_failed = false;
+
+	try
+	{
+		file.read(nullptr, 1);
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_open && is_failed);
+}
+
+// std::intptr_t read(void*, std::intptr_t)
+// Negative count.
+void test_0km1jccde7pdny02()
+{
+	create_test_data_file();
+	auto file = bstone::FileStream{test_data_file_name};
+	const auto is_open = file.is_open();
+	auto is_failed = false;
+
+	try
+	{
+		auto buffer = '\0';
+		file.read(&buffer, -1);
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_open && is_failed);
+}
+
+// std::intptr_t write(const void*, std::intptr_t)
+// Closed.
+void test_oe31t4aait031058()
+{
+	auto file = bstone::FileStream{};
+	const auto is_open = file.is_open();
+	auto is_failed = false;
+
+	try
+	{
+		const auto buffer = '\0';
+		file.write(&buffer, 1);
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(!is_open && is_failed);
+}
+
+// std::intptr_t write(const void*, std::intptr_t)
+// Null buffer.
+void test_5mzjwm9llcksb1og()
+{
+	create_test_data_file();
+	auto file = bstone::FileStream{test_data_file_name};
+	const auto is_open = file.is_open();
+	auto is_failed = false;
+
+	try
+	{
+		file.write(nullptr, 1);
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_open && is_failed);
+}
+
+// std::intptr_t write(const void*, std::intptr_t)
+// Negative count.
+void test_osnn3bobbkydx33t()
+{
+	create_test_data_file();
+	auto file = bstone::FileStream{test_data_file_name};
+	const auto is_open = file.is_open();
+	auto is_failed = false;
+
+	try
+	{
+		const auto buffer = '\0';
+		file.write(&buffer, -1);
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_open && is_failed);
 }
 
 // ==========================================================================
@@ -345,7 +592,7 @@ void test_xv0g17przcyh3w4p()
 
 	auto file = bstone::FileStream
 	{
-		"test.data",
+		test_data_file_name,
 		bstone::FileOpenFlags::create | bstone::FileOpenFlags::truncate | bstone::FileOpenFlags::read
 	};
 
@@ -361,8 +608,6 @@ void test_xv0g17przcyh3w4p()
 	tester.check(is_open && is_zero_size && is_set_position && is_equal);
 }
 
-// ==========================================================================
-
 // void read_exactly(void*, std::intptr_t)
 // Failed.
 void test_kms3o2eisp359ubi()
@@ -372,7 +617,7 @@ void test_kms3o2eisp359ubi()
 
 	auto file = bstone::FileStream
 	{
-		"test.data",
+		test_data_file_name,
 		bstone::FileOpenFlags::create | bstone::FileOpenFlags::truncate | bstone::FileOpenFlags::read
 	};
 
@@ -394,6 +639,134 @@ void test_kms3o2eisp359ubi()
 	tester.check(is_open && is_zero_size && is_failed);
 }
 
+// void read_exactly(void*, std::intptr_t)
+// Closed.
+void test_yrmc8pwd8a2fz9x9()
+{
+	auto file = bstone::FileStream{};
+	const auto is_open = file.is_open();
+	auto is_failed = false;
+
+	try
+	{
+		auto buffer = '\0';
+		file.read_exactly(&buffer, 1);
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(!is_open && is_failed);
+}
+
+// void read_exactly(void*, std::intptr_t)
+// Null buffer.
+void test_0i4ic6gnbw9z4tij()
+{
+	create_test_data_file();
+	auto file = bstone::FileStream{test_data_file_name};
+	const auto is_open = file.is_open();
+	auto is_failed = false;
+
+	try
+	{
+		file.read_exactly(nullptr, 1);
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_open && is_failed);
+}
+
+// void read_exactly(void*, std::intptr_t)
+// Negative count.
+void test_p4yyydr8g9eoyunn()
+{
+	create_test_data_file();
+	auto file = bstone::FileStream{test_data_file_name};
+	const auto is_open = file.is_open();
+	auto is_failed = false;
+
+	try
+	{
+		auto buffer = '\0';
+		file.read_exactly(&buffer, -1);
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_open && is_failed);
+}
+
+// void write_exactly(const void*, std::intptr_t)
+// Closed.
+void test_46hnm00rkfs22uwy()
+{
+	auto file = bstone::FileStream{};
+	const auto is_open = file.is_open();
+	auto is_failed = false;
+
+	try
+	{
+		const auto buffer = '\0';
+		file.write_exactly(&buffer, 1);
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(!is_open && is_failed);
+}
+
+// void write_exactly(const void*, std::intptr_t)
+// Null buffer.
+void test_z5zvdoi7mnfotb62()
+{
+	create_test_data_file();
+	auto file = bstone::FileStream{test_data_file_name};
+	const auto is_open = file.is_open();
+	auto is_failed = false;
+
+	try
+	{
+		file.write_exactly(nullptr, 1);
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_open && is_failed);
+}
+
+// void write_exactly(const void*, std::intptr_t)
+// Negative count.
+void test_ifkd3ng0v38k7fhx()
+{
+	create_test_data_file();
+	auto file = bstone::FileStream{test_data_file_name};
+	const auto is_open = file.is_open();
+	auto is_failed = false;
+
+	try
+	{
+		const auto buffer = '\0';
+		file.write_exactly(&buffer, -1);
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_open && is_failed);
+}
+
 // ==========================================================================
 
 // std::int64_t seek(std::int64_t, StreamOrigin)
@@ -407,7 +780,7 @@ void test_qfmcpsx4dy9jrgwi()
 
 	try
 	{
-		auto file = bstone::FileStream{"test.data", bstone::FileOpenFlags::create};
+		auto file = bstone::FileStream{test_data_file_name, bstone::FileOpenFlags::create};
 		is_open = file.is_open();
 		file.set_size(100);
 		is_set_position_1 = file.seek(0, bstone::StreamOrigin::end) == 100;
@@ -422,6 +795,66 @@ void test_qfmcpsx4dy9jrgwi()
 	tester.check(!is_failed && is_open && is_set_position_1 && is_set_position_2 && is_set_position_3);
 }
 
+// std::int64_t seek(std::int64_t, StreamOrigin)
+// Closed.
+void test_dlyk87psgz8v3vjh()
+{
+	auto file = bstone::FileStream{};
+	const auto is_open = file.is_open();
+	auto is_failed = false;
+
+	try
+	{
+		file.seek(0, bstone::StreamOrigin::current);
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_failed && !is_open);
+}
+
+// std::int64_t seek(std::int64_t, StreamOrigin)
+// Negative new position.
+void test_u10bndy2nk4hdfc4()
+{
+	auto file = bstone::FileStream{test_data_file_name, bstone::FileOpenFlags::create};
+	const auto is_open = file.is_open();
+	auto is_failed = false;
+
+	try
+	{
+		file.seek(-1, bstone::StreamOrigin::begin);
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_failed && is_open);
+}
+
+// std::int64_t seek(std::int64_t, StreamOrigin)
+// Invalid origin.
+void test_72lcszx25t7bqxbj()
+{
+	auto file = bstone::FileStream{test_data_file_name, bstone::FileOpenFlags::create};
+	const auto is_open = file.is_open();
+	auto is_failed = false;
+
+	try
+	{
+		file.seek(0, bstone::StreamOrigin::none);
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_failed && is_open);
+}
+
 // ==========================================================================
 
 // std::int64_t skip(std::int64_t)
@@ -434,7 +867,7 @@ void test_gmx97qp03xosymdn()
 
 	try
 	{
-		auto file = bstone::FileStream{"test.data", bstone::FileOpenFlags::create};
+		auto file = bstone::FileStream{test_data_file_name, bstone::FileOpenFlags::create};
 		is_open = file.is_open();
 		file.set_size(100);
 		is_set_position_1 = file.seek(0, bstone::StreamOrigin::end) == 100;
@@ -446,6 +879,46 @@ void test_gmx97qp03xosymdn()
 	}
 
 	tester.check(!is_failed && is_open && is_set_position_1 && is_set_position_2);
+}
+
+// std::int64_t skip(std::int64_t)
+// Closed.
+void test_uhi05vu6mylnqz0n()
+{
+	auto file = bstone::FileStream{};
+	const auto is_open = file.is_open();
+	auto is_failed = false;
+
+	try
+	{
+		file.skip(0);
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_failed && !is_open);
+}
+
+// std::int64_t skip(std::int64_t)
+// Negative new position.
+void test_1bursksrrifu63wi()
+{
+	auto file = bstone::FileStream{test_data_file_name, bstone::FileOpenFlags::create};
+	const auto is_open = file.is_open();
+	auto is_failed = false;
+
+	try
+	{
+		file.skip(-1);
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_failed && is_open);
 }
 
 // ==========================================================================
@@ -460,7 +933,7 @@ void test_n9h6bhuu066frk7i()
 
 	try
 	{
-		auto file = bstone::FileStream{"test.data", bstone::FileOpenFlags::create};
+		auto file = bstone::FileStream{test_data_file_name, bstone::FileOpenFlags::create};
 		is_open = file.is_open();
 		is_set_position_1 = file.seek(42, bstone::StreamOrigin::begin) == 42;
 		is_set_position_2 = file.get_position() == 42;
@@ -471,6 +944,26 @@ void test_n9h6bhuu066frk7i()
 	}
 
 	tester.check(!is_failed && is_open && is_set_position_1 && is_set_position_2);
+}
+
+// std::int64_t get_position()
+// CLosed.
+void test_e8jf67nvlhrzd00r()
+{
+	auto file = bstone::FileStream{};
+	const auto is_open = file.is_open();
+	auto is_failed = false;
+
+	try
+	{
+		file.get_position();
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(!is_open && is_failed);
 }
 
 // ==========================================================================
@@ -484,7 +977,7 @@ void test_j7d9qfbvnl7p0fdh()
 
 	try
 	{
-		auto file = bstone::FileStream{"test.data", bstone::FileOpenFlags::create};
+		auto file = bstone::FileStream{test_data_file_name, bstone::FileOpenFlags::create};
 		is_open = file.is_open();
 		file.set_position(42);
 		is_set_position = file.seek(0, bstone::StreamOrigin::current) == 42;
@@ -495,6 +988,46 @@ void test_j7d9qfbvnl7p0fdh()
 	}
 
 	tester.check(!is_failed && is_open && is_set_position);
+}
+
+// void set_position(std::int64_t)
+// Closed.
+void test_jc0d01vftb1ajsp8()
+{
+	auto file = bstone::FileStream{};
+	const auto is_open = file.is_open();
+	auto is_failed = false;
+
+	try
+	{
+		file.set_position(0);
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_failed && !is_open);
+}
+
+// void set_position(std::int64_t)
+// Negative position.
+void test_jrd1d6d7manaolbe()
+{
+	auto file = bstone::FileStream{test_data_file_name, bstone::FileOpenFlags::create};
+	const auto is_open = file.is_open();
+	auto is_failed = false;
+
+	try
+	{
+		file.set_position(-1);
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_failed && is_open);
 }
 
 // ==========================================================================
@@ -510,7 +1043,7 @@ void test_jvs8f0vrf44bei94()
 	try
 	{
 		const char buffer = '\0';
-		auto file = bstone::FileStream{"test.data", bstone::FileOpenFlags::create | bstone::FileOpenFlags::truncate};
+		auto file = bstone::FileStream{test_data_file_name, bstone::FileOpenFlags::create | bstone::FileOpenFlags::truncate};
 		is_open = file.is_open();
 		is_valid_size_1 = file.get_size() == 0;
 		file.seek(99, bstone::StreamOrigin::begin);
@@ -525,6 +1058,26 @@ void test_jvs8f0vrf44bei94()
 	tester.check(!is_failed && is_open && is_valid_size_1 && is_valid_size_2);
 }
 
+// std::int64_t get_size() const
+// Closed.
+void test_r6ivsn8er7p825tf()
+{
+	auto file = bstone::FileStream{};
+	const auto is_open = file.is_open();
+	auto is_failed = false;
+
+	try
+	{
+		file.get_size();
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_failed && !is_open);
+}
+
 // ==========================================================================
 
 // void set_size(std::int64_t)
@@ -537,7 +1090,7 @@ void test_apnc1tdy41tuubu6()
 
 	try
 	{
-		auto file = bstone::FileStream{"test.data", bstone::FileOpenFlags::create | bstone::FileOpenFlags::truncate};
+		auto file = bstone::FileStream{test_data_file_name, bstone::FileOpenFlags::create | bstone::FileOpenFlags::truncate};
 		is_open = file.is_open();
 		is_valid_size_1 = file.get_size() == 0;
 		file.set_size(100);
@@ -551,6 +1104,46 @@ void test_apnc1tdy41tuubu6()
 	tester.check(!is_failed && is_open && is_valid_size_1 && is_valid_size_2);
 }
 
+// void set_size(std::int64_t)
+// Closed.
+void test_b9d4vp9n3n0bt4gq()
+{
+	auto file = bstone::FileStream{};
+	const auto is_open = file.is_open();
+	auto is_failed = false;
+
+	try
+	{
+		file.set_size(0);
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_failed && !is_open);
+}
+
+// void set_size(std::int64_t)
+// Negative size.
+void test_kzfzam0srnegz5ni()
+{
+	auto file = bstone::FileStream{test_data_file_name, bstone::FileOpenFlags::create};
+	const auto is_open = file.is_open();
+	auto is_failed = false;
+
+	try
+	{
+		file.set_size(-1);
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_failed && is_open);
+}
+
 // ==========================================================================
 
 // void flush()
@@ -561,7 +1154,7 @@ void test_2o69zbx04pa7rsz4()
 
 	try
 	{
-		auto file = bstone::FileStream{"test.data", bstone::FileOpenFlags::create};
+		auto file = bstone::FileStream{test_data_file_name, bstone::FileOpenFlags::create};
 		is_open = file.is_open();
 		file.flush();
 	}
@@ -571,6 +1164,26 @@ void test_2o69zbx04pa7rsz4()
 	}
 
 	tester.check(!is_failed && is_open);
+}
+
+// void flush()
+// Closed.
+void test_6ylpfy5jkr6riisz()
+{
+	auto file = bstone::FileStream{};
+	const auto is_open = file.is_open();
+	auto is_failed = false;
+
+	try
+	{
+		file.flush();
+	}
+	catch (...)
+	{
+		is_failed = true;
+	}
+
+	tester.check(is_failed && !is_open);
 }
 
 // ==========================================================================
@@ -600,8 +1213,10 @@ private:
 	void register_file_stream()
 	{
 		tester.register_test("FileStream#9iuvd5h9gzjbt351", test_9iuvd5h9gzjbt351);
+		tester.register_test("FileStream#neqp351w0kgkyf99", test_neqp351w0kgkyf99);
 		tester.register_test("FileStream#cz3bzq9ia1144mgd", test_cz3bzq9ia1144mgd);
 		tester.register_test("FileStream#gj50q07ijq9uhdu2", test_gj50q07ijq9uhdu2);
+		tester.register_test("FileStream#qyepc4xyq50mvtkm", test_qyepc4xyq50mvtkm);
 		tester.register_test("FileStream#87hjc768xmbd1t34", test_87hjc768xmbd1t34);
 		tester.register_test("FileStream#5mmf4qysfrd2fonu", test_5mmf4qysfrd2fonu);
 	}
@@ -609,15 +1224,19 @@ private:
 	void register_try_open()
 	{
 		tester.register_test("FileStream#fwl347iyu5349iee", test_fwl347iyu5349iee);
+		tester.register_test("FileStream#irg51iq5ptanon9g", test_irg51iq5ptanon9g);
 		tester.register_test("FileStream#4hi9u7tj6ugr8kmy", test_4hi9u7tj6ugr8kmy);
 		tester.register_test("FileStream#n5pmd6moj0vqsnqn", test_n5pmd6moj0vqsnqn);
+		tester.register_test("FileStream#kgfxywxx5wgrgl9j", test_kgfxywxx5wgrgl9j);
 	}
 
 	void register_open()
 	{
 		tester.register_test("FileStream#3h64grd141dr6atb", test_3h64grd141dr6atb);
+		tester.register_test("FileStream#5qlz0zonfx1gs8k0", test_5qlz0zonfx1gs8k0);
 		tester.register_test("FileStream#bfq3co9j1znbbjim", test_bfq3co9j1znbbjim);
 		tester.register_test("FileStream#fs8htsia07pw47ps", test_fs8htsia07pw47ps);
+		tester.register_test("FileStream#uurb3nm8qiuss2um", test_uurb3nm8qiuss2um);
 	}
 
 	void register_close()
@@ -633,47 +1252,71 @@ private:
 	void register_read_write()
 	{
 		tester.register_test("FileStream#s4ldcda38dhh06px", test_s4ldcda38dhh06px);
+		tester.register_test("FileStream#kiz3450wfl6s7c5x", test_kiz3450wfl6s7c5x);
+		tester.register_test("FileStream#6nk2s7hlfz54dq0z", test_6nk2s7hlfz54dq0z);
+		tester.register_test("FileStream#0km1jccde7pdny02", test_0km1jccde7pdny02);
+		tester.register_test("FileStream#oe31t4aait031058", test_oe31t4aait031058);
+		tester.register_test("FileStream#5mzjwm9llcksb1og", test_5mzjwm9llcksb1og);
+		tester.register_test("FileStream#osnn3bobbkydx33t", test_osnn3bobbkydx33t);
 	}
 
 	void register_read_exact_write_exact()
 	{
 		tester.register_test("FileStream#xv0g17przcyh3w4p", test_xv0g17przcyh3w4p);
 		tester.register_test("FileStream#kms3o2eisp359ubi", test_kms3o2eisp359ubi);
+		tester.register_test("FileStream#yrmc8pwd8a2fz9x9", test_yrmc8pwd8a2fz9x9);
+		tester.register_test("FileStream#0i4ic6gnbw9z4tij", test_0i4ic6gnbw9z4tij);
+		tester.register_test("FileStream#p4yyydr8g9eoyunn", test_p4yyydr8g9eoyunn);
+		tester.register_test("FileStream#46hnm00rkfs22uwy", test_46hnm00rkfs22uwy);
+		tester.register_test("FileStream#z5zvdoi7mnfotb62", test_z5zvdoi7mnfotb62);
+		tester.register_test("FileStream#ifkd3ng0v38k7fhx", test_ifkd3ng0v38k7fhx);
 	}
 
 	void register_seek()
 	{
 		tester.register_test("FileStream#qfmcpsx4dy9jrgwi", test_qfmcpsx4dy9jrgwi);
+		tester.register_test("FileStream#dlyk87psgz8v3vjh", test_dlyk87psgz8v3vjh);
+		tester.register_test("FileStream#u10bndy2nk4hdfc4", test_u10bndy2nk4hdfc4);
+		tester.register_test("FileStream#72lcszx25t7bqxbj", test_72lcszx25t7bqxbj);
 	}
 
 	void register_skip()
 	{
 		tester.register_test("FileStream#gmx97qp03xosymdn", test_gmx97qp03xosymdn);
+		tester.register_test("FileStream#uhi05vu6mylnqz0n", test_uhi05vu6mylnqz0n);
+		tester.register_test("FileStream#1bursksrrifu63wi", test_1bursksrrifu63wi);
 	}
 
 	void register_get_position()
 	{
 		tester.register_test("FileStream#n9h6bhuu066frk7i", test_n9h6bhuu066frk7i);
+		tester.register_test("FileStream#e8jf67nvlhrzd00r", test_e8jf67nvlhrzd00r);
 	}
 
 	void register_set_position()
 	{
 		tester.register_test("FileStream#j7d9qfbvnl7p0fdh", test_j7d9qfbvnl7p0fdh);
+		tester.register_test("FileStream#jc0d01vftb1ajsp8", test_jc0d01vftb1ajsp8);
+		tester.register_test("FileStream#jrd1d6d7manaolbe", test_jrd1d6d7manaolbe);
 	}
 
 	void register_get_size()
 	{
 		tester.register_test("FileStream#jvs8f0vrf44bei94", test_jvs8f0vrf44bei94);
+		tester.register_test("FileStream#r6ivsn8er7p825tf", test_r6ivsn8er7p825tf);
 	}
 
 	void register_set_size()
 	{
 		tester.register_test("FileStream#apnc1tdy41tuubu6", test_apnc1tdy41tuubu6);
+		tester.register_test("FileStream#b9d4vp9n3n0bt4gq", test_b9d4vp9n3n0bt4gq);
+		tester.register_test("FileStream#kzfzam0srnegz5ni", test_kzfzam0srnegz5ni);
 	}
 
 	void register_flush()
 	{
 		tester.register_test("FileStream#2o69zbx04pa7rsz4", test_2o69zbx04pa7rsz4);
+		tester.register_test("FileStream#6ylpfy5jkr6riisz", test_6ylpfy5jkr6riisz);
 	}
 };
 

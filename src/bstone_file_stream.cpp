@@ -6,8 +6,9 @@ SPDX-License-Identifier: MIT
 
 // File stream.
 
-#include "bstone_exception.h"
 #include "bstone_file_stream.h"
+
+#include "bstone_exception.h"
 
 namespace bstone {
 
