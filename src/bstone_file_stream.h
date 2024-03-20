@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -37,7 +37,7 @@ private:
 	std::intptr_t do_read(void* buffer, std::intptr_t count) override;
 	std::intptr_t do_write(const void* buffer, std::intptr_t count) override;
 	std::int64_t do_seek(std::int64_t offset, StreamOrigin origin) override;
-	std::int64_t do_get_size() const override;
+	std::int64_t do_get_size() override;
 	void do_set_size(std::int64_t size) override;
 	void do_flush() override;
 };

@@ -1,12 +1,12 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
 // Stream primitive.
 
-#if !defined(BSTONE_STREAM_INCLUDED)
+#ifndef BSTONE_STREAM_INCLUDED
 #define BSTONE_STREAM_INCLUDED
 
 #include <cstdint>
@@ -36,7 +36,7 @@ public:
 	std::int64_t skip(std::int64_t delta);
 	std::int64_t get_position();
 	void set_position(std::int64_t position);
-	std::int64_t get_size() const;
+	std::int64_t get_size();
 	void set_size(std::int64_t size);
 	void flush();
 
@@ -46,7 +46,7 @@ private:
 	virtual std::intptr_t do_read(void* buffer, std::intptr_t count) = 0;
 	virtual std::intptr_t do_write(const void* buffer, std::intptr_t count) = 0;
 	virtual std::int64_t do_seek(std::int64_t offset, StreamOrigin origin) = 0;
-	virtual std::int64_t do_get_size() const = 0;
+	virtual std::int64_t do_get_size() = 0;
 	virtual void do_set_size(std::int64_t size) = 0;
 	virtual void do_flush() = 0;
 };

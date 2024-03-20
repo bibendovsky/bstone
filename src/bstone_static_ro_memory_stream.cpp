@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2023-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -99,7 +99,7 @@ std::int64_t StaticRoMemoryStream::do_seek(std::int64_t offset, StreamOrigin ori
 	return new_position;
 }
 
-std::int64_t StaticRoMemoryStream::do_get_size() const
+std::int64_t StaticRoMemoryStream::do_get_size()
 {
 	BSTONE_ASSERT(is_open());
 
