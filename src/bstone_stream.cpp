@@ -6,8 +6,9 @@ SPDX-License-Identifier: MIT
 
 // Stream primitive.
 
-#include "bstone_exception.h"
 #include "bstone_stream.h"
+
+#include "bstone_exception.h"
 
 namespace bstone {
 
@@ -30,7 +31,7 @@ void Stream::read_exactly(void* buffer, std::intptr_t count)
 {
 	if (read(buffer, count) != count)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Data underflow.");
+		BSTONE_THROW_STATIC_SOURCE("Mismatch of read number of bytes.");
 	}
 }
 
@@ -43,7 +44,7 @@ void Stream::write_exactly(const void* buffer, std::intptr_t count)
 {
 	if (write(buffer, count) != count)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Data overflow.");
+		BSTONE_THROW_STATIC_SOURCE("Mismatch of written number of bytes.");
 	}
 }
 
@@ -52,9 +53,9 @@ std::int64_t Stream::seek(std::int64_t offset, StreamOrigin origin)
 	return do_seek(offset, origin);
 }
 
-std::int64_t Stream::skip(std::int64_t delta)
+std::int64_t Stream::skip(std::int64_t offset)
 {
-	return seek(delta, StreamOrigin::current);
+	return seek(offset, StreamOrigin::current);
 }
 
 std::int64_t Stream::get_position()

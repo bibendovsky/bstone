@@ -15,6 +15,7 @@ namespace bstone {
 
 enum class StreamOrigin
 {
+	none,
 	begin,
 	current,
 	end,
@@ -33,7 +34,7 @@ public:
 	std::intptr_t write(const void* buffer, std::intptr_t count);
 	void write_exactly(const void* buffer, std::intptr_t count);
 	std::int64_t seek(std::int64_t offset, StreamOrigin origin);
-	std::int64_t skip(std::int64_t delta);
+	std::int64_t skip(std::int64_t offset);
 	std::int64_t get_position();
 	void set_position(std::int64_t position);
 	std::int64_t get_size();
