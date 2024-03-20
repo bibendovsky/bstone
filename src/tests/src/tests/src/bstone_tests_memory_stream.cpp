@@ -136,7 +136,7 @@ void test_rynbeatkwx2cg1tq()
 
 // ==========================================================================
 
-// void read_exact(void*, std::intptr_t)
+// void read_exactly(void*, std::intptr_t)
 void test_mqsd3narvervq1mj()
 {
 	auto memory_stream = bstone::MemoryStream{2, 2};
@@ -145,14 +145,14 @@ void test_mqsd3narvervq1mj()
 	auto storage = memory_stream.get_data();
 	storage[0] = '#';
 	memory_stream.set_size(1);
-	memory_stream.read_exact(&buffer_1, 1);
+	memory_stream.read_exactly(&buffer_1, 1);
 	const auto seek_result_2 = memory_stream.seek(0, bstone::StreamOrigin::current) == 1;
 	const auto value_result_1 = buffer_1 == '#';
 
 	tester.check(is_open && seek_result_2 && value_result_1);
 }
 
-// void read_exact(void*, std::intptr_t)
+// void read_exactly(void*, std::intptr_t)
 // Failed.
 void test_m1f9z70vrk1fsf4d()
 {
@@ -162,7 +162,7 @@ void test_m1f9z70vrk1fsf4d()
 	try
 	{
 		auto buffer = '\0';
-		memory_stream.read_exact(&buffer, 1);
+		memory_stream.read_exactly(&buffer, 1);
 	}
 	catch (...)
 	{
@@ -208,13 +208,13 @@ void test_k89hrws0i4vdcz7j()
 
 // ==========================================================================
 
-// void write_exact(const void*, std::intptr_t)
+// void write_exactly(const void*, std::intptr_t)
 void test_c9md2uhmxgjpni9n()
 {
 	auto memory_stream = bstone::MemoryStream{4, 1};
 	const auto is_open = memory_stream.is_open();
 	const char buffer_1[4] = {'1', '2', '3', '4'};
-	memory_stream.write_exact(&buffer_1, 4);
+	memory_stream.write_exactly(&buffer_1, 4);
 	const auto seek_result_1 = memory_stream.seek(0, bstone::StreamOrigin::current) == 4;
 
 	const auto storage_result =

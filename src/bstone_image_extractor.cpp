@@ -280,7 +280,7 @@ try {
 		dst_color.r = (src_color >> 16) & 0xFFU;
 	}
 
-	binary_writer.get_stream().write_exact(palette_bgr.data(), 3 * palette_size_);
+	binary_writer.get_stream().write_exactly(palette_bgr.data(), 3 * palette_size_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ImageExtractor::save_bmp_rgbx_palette(BinaryWriter& binary_writer)
@@ -290,7 +290,7 @@ try {
 		dst_palette_[i] = endian::to_little(dst_palette_[i]);
 	}
 
-	binary_writer.get_stream().write_exact(dst_palette_.data(), 4 * palette_size_);
+	binary_writer.get_stream().write_exactly(dst_palette_.data(), 4 * palette_size_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ImageExtractor::save_bmp_palette(BinaryWriter& binary_writer)
@@ -337,7 +337,7 @@ try {
 			*line_byte++ = 0U;
 		}
 
-		binary_writer.get_stream().write_exact(line_buffer_.data(), line_size);
+		binary_writer.get_stream().write_exactly(line_buffer_.data(), line_size);
 		src_colors -= width_;
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -366,7 +366,7 @@ try {
 			nibble_index ^= 1U;
 		}
 
-		binary_writer.get_stream().write_exact(line_buffer_.data(), stride_);
+		binary_writer.get_stream().write_exactly(line_buffer_.data(), stride_);
 		src_colors -= width_;
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -378,8 +378,8 @@ try {
 
 	for (auto h = 0; h < height_; ++h)
 	{
-		binary_writer.get_stream().write_exact(src_colors, width_);
-		binary_writer.get_stream().write_exact(padding_bytes, padding_size);
+		binary_writer.get_stream().write_exactly(src_colors, width_);
+		binary_writer.get_stream().write_exactly(padding_bytes, padding_size);
 		src_colors -= width_;
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -393,7 +393,7 @@ try {
 	}
 
 	const auto bits_byte_count = stride_ * height_;
-	binary_writer.get_stream().write_exact(colors32_, bits_byte_count);
+	binary_writer.get_stream().write_exactly(colors32_, bits_byte_count);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ImageExtractor::save_bmp(const std::string& path)

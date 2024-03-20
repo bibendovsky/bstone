@@ -22,7 +22,7 @@ struct BinaryWriterDetail
 	template<typename T>
 	static void generic_write(Stream& stream, T value)
 	{
-		stream.write_exact(&value, static_cast<std::intptr_t>(sizeof(T)));
+		stream.write_exactly(&value, static_cast<std::intptr_t>(sizeof(T)));
 	}
 };
 

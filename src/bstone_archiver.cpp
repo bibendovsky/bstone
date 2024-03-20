@@ -172,7 +172,7 @@ private:
 
 		T value;
 
-		stream_->read_exact(&value, value_size);
+		stream_->read_exactly(&value, value_size);
 
 		if (!is_checksum)
 		{
@@ -203,7 +203,7 @@ private:
 
 		const auto value = endian::to_little(integer_value);
 
-		stream_->write_exact(&value, value_size);
+		stream_->write_exactly(&value, value_size);
 	} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 	template<typename T>
@@ -229,7 +229,7 @@ private:
 		constexpr auto value_size = static_cast<int>(sizeof(T));
 		const auto items_size = value_size * item_count;
 
-		stream_->read_exact(items, items_size);
+		stream_->read_exactly(items, items_size);
 
 		for (int i_item = 0; i_item < item_count; ++i_item)
 		{
@@ -276,7 +276,7 @@ private:
 			dst_items[i_item] = endian::to_little(items[i_item]);
 		}
 
-		stream_->write_exact(dst_items, items_size);
+		stream_->write_exactly(dst_items, items_size);
 	} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 }; // ArchiverImpl
 
@@ -441,7 +441,7 @@ try {
 		BSTONE_THROW_STATIC_SOURCE("Archived string length out of range.");
 	}
 
-	stream_->read_exact(string, archived_string_length);
+	stream_->read_exactly(string, archived_string_length);
 	string_length = archived_string_length;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
@@ -559,7 +559,7 @@ try {
 		return;
 	}
 
-	stream_->write_exact(string, string_length);
+	stream_->write_exactly(string, string_length);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void ArchiverImpl::write_checksum()

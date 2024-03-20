@@ -505,7 +505,7 @@ void test_cypcn5gej0ddr0u6()
 
 // ==========================================================================
 
-// `void read_exact(void*, std::intptr_t)` and `void write_exact(const void*, std::intptr_t)`
+// `void read_exactly(void*, std::intptr_t)` and `void write_exactly(const void*, std::intptr_t)`
 void test_0vj5qawe151dlab8()
 {
 	auto is_open = false;
@@ -526,17 +526,17 @@ void test_0vj5qawe151dlab8()
 
 	is_open = file.is_open();
 	is_zero_size = file.get_size() == 0;
-	file.write_exact(ref_bytes + 0, 2);
-	file.write_exact(ref_bytes + 2, 2);
+	file.write_exactly(ref_bytes + 0, 2);
+	file.write_exactly(ref_bytes + 2, 2);
 	is_set_position = file.seek(0, bstone::FileOrigin::begin) == 0;
-	file.read_exact(bytes + 0, 2);
-	file.read_exact(bytes + 2, 2);
+	file.read_exactly(bytes + 0, 2);
+	file.read_exactly(bytes + 2, 2);
 	is_equal = std::equal(std::cbegin(bytes), std::cend(bytes), ref_bytes);
 
 	tester.check(is_open && is_zero_size && is_set_position && is_equal);
 }
 
-// void read_exact(void*, std::intptr_t)
+// void read_exactly(void*, std::intptr_t)
 // Mismatch count.
 void test_ip74fy4x4vq54ql3()
 {
@@ -551,7 +551,7 @@ void test_ip74fy4x4vq54ql3()
 
 	try
 	{
-		file.read_exact(&buffer, 1);
+		file.read_exactly(&buffer, 1);
 	}
 	catch (...)
 	{
@@ -561,7 +561,7 @@ void test_ip74fy4x4vq54ql3()
 	tester.check(is_failed);
 }
 
-// void read_exact(void*, std::intptr_t)
+// void read_exactly(void*, std::intptr_t)
 // Not open.
 void test_h2ldps4weu4ia2s6()
 {
@@ -572,7 +572,7 @@ void test_h2ldps4weu4ia2s6()
 	try
 	{
 		auto buffer = '\0';
-		file.read_exact(&buffer, 1);
+		file.read_exactly(&buffer, 1);
 	}
 	catch (...)
 	{
@@ -582,7 +582,7 @@ void test_h2ldps4weu4ia2s6()
 	tester.check(!is_open && is_failed);
 }
 
-// void read_exact(void*, std::intptr_t)
+// void read_exactly(void*, std::intptr_t)
 // Null buffer.
 void test_c9g9s7mj4yip5p5k()
 {
@@ -594,7 +594,7 @@ void test_c9g9s7mj4yip5p5k()
 
 	try
 	{
-		file.read_exact(nullptr, 0);
+		file.read_exactly(nullptr, 0);
 	}
 	catch (...)
 	{
@@ -604,7 +604,7 @@ void test_c9g9s7mj4yip5p5k()
 	tester.check(is_open && is_failed);
 }
 
-// void read_exact(void*, std::intptr_t)
+// void read_exactly(void*, std::intptr_t)
 // Negative count.
 void test_rcn3ldo9kmvlbicv()
 {
@@ -617,7 +617,7 @@ void test_rcn3ldo9kmvlbicv()
 	try
 	{
 		auto buffer = '\0';
-		file.read_exact(&buffer, -1);
+		file.read_exactly(&buffer, -1);
 	}
 	catch (...)
 	{
@@ -627,7 +627,7 @@ void test_rcn3ldo9kmvlbicv()
 	tester.check(is_open && is_failed);
 }
 
-// void write_exact(const void*, std::intptr_t)
+// void write_exactly(const void*, std::intptr_t)
 // Not open.
 void test_wjbtywqjl05sac7h()
 {
@@ -639,7 +639,7 @@ void test_wjbtywqjl05sac7h()
 	try
 	{
 		auto buffer = '\0';
-		file.write_exact(&buffer, 1);
+		file.write_exactly(&buffer, 1);
 	}
 	catch (...)
 	{
@@ -649,7 +649,7 @@ void test_wjbtywqjl05sac7h()
 	tester.check(!is_open && is_failed);
 }
 
-// void write_exact(const void*, std::intptr_t)
+// void write_exactly(const void*, std::intptr_t)
 // Null buffer.
 void test_qtudbxc80p7n0ro4()
 {
@@ -665,7 +665,7 @@ void test_qtudbxc80p7n0ro4()
 
 	try
 	{
-		file.write_exact(nullptr, 0);
+		file.write_exactly(nullptr, 0);
 	}
 	catch (...)
 	{
@@ -675,7 +675,7 @@ void test_qtudbxc80p7n0ro4()
 	tester.check(is_open && is_failed);
 }
 
-// void write_exact(const void*, std::intptr_t)
+// void write_exactly(const void*, std::intptr_t)
 // Negative count.
 void test_ddgndk5w6u9ifqef()
 {
@@ -686,7 +686,7 @@ void test_ddgndk5w6u9ifqef()
 	try
 	{
 		auto buffer = '\0';
-		file.write_exact(&buffer, -1);
+		file.write_exactly(&buffer, -1);
 	}
 	catch (...)
 	{

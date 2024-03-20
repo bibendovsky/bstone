@@ -182,7 +182,7 @@ void test_1mzma6x2ck33dfws()
 
 // ==========================================================================
 
-// void read_exact(void*, std::intptr_t)
+// void read_exactly(void*, std::intptr_t)
 void test_u4a8sprkw3hjgtes()
 {
 	char buffer = '\0';
@@ -194,14 +194,14 @@ void test_u4a8sprkw3hjgtes()
 	auto storage = memory_stream.get_data();
 	storage[0] = '#';
 	memory_stream.set_size(1);
-	memory_stream.read_exact(&buffer_1, 1);
+	memory_stream.read_exactly(&buffer_1, 1);
 	const auto seek_result_2 = memory_stream.seek(0, bstone::StreamOrigin::current) == 1;
 	const auto value_result_1 = buffer_1 == '#';
 
 	tester.check(is_open && read_result_1 && seek_result_1 && seek_result_2 && value_result_1);
 }
 
-// void read_exact(void*, std::intptr_t)
+// void read_exactly(void*, std::intptr_t)
 // Failed.
 void test_2yv6r8s3ry3upqxm()
 {
@@ -215,7 +215,7 @@ void test_2yv6r8s3ry3upqxm()
 	try
 	{
 		char buffer_2[2];
-		memory_stream.read_exact(buffer_2, 2);
+		memory_stream.read_exactly(buffer_2, 2);
 	}
 	catch (...)
 	{
@@ -262,14 +262,14 @@ void test_14mn4jrmdfhbw8dd()
 
 // ==========================================================================
 
-// void write_exact(const void*, std::intptr_t)
+// void write_exactly(const void*, std::intptr_t)
 void test_bl9qhqrhs3w0hn33()
 {
 	char buffer[4] = {};
 	auto memory_stream = bstone::StaticMemoryStream{&buffer, 4};
 	const auto is_open = memory_stream.is_open();
 	const char buffer_1[4] = {'1', '2', '3', '4'};
-	memory_stream.write_exact(&buffer_1, 4);
+	memory_stream.write_exactly(&buffer_1, 4);
 	const auto seek_result_1 = memory_stream.seek(0, bstone::StreamOrigin::current) == 4;
 
 	const auto storage_result =
@@ -294,7 +294,7 @@ void test_bl9qhqrhs3w0hn33()
 		value_result_1);
 }
 
-// void write_exact(const void*, std::intptr_t)
+// void write_exactly(const void*, std::intptr_t)
 // Failed.
 void test_d0jinhmh1kfkxt95()
 {
@@ -306,7 +306,7 @@ void test_d0jinhmh1kfkxt95()
 	try
 	{
 		const char buffer_1[2] = {};
-		memory_stream.write_exact(&buffer_1, 2);
+		memory_stream.write_exactly(&buffer_1, 2);
 	}
 	catch (...)
 	{

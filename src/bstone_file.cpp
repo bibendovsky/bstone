@@ -38,7 +38,7 @@ bool File::is_open() const noexcept
 	return !resource_.is_empty();
 }
 
-void File::read_exact(void* buffer, std::intptr_t count) const
+void File::read_exactly(void* buffer, std::intptr_t count) const
 {
 	if (read(buffer, count) != count)
 	{
@@ -46,7 +46,7 @@ void File::read_exact(void* buffer, std::intptr_t count) const
 	}
 }
 
-void File::write_exact(const void* buffer, std::intptr_t count) const
+void File::write_exactly(const void* buffer, std::intptr_t count) const
 {
 	if (write(buffer, count) != count)
 	{

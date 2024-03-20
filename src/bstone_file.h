@@ -78,9 +78,9 @@ public:
 	void close() noexcept;
 	bool is_open() const noexcept;
 	std::intptr_t read(void* buffer, std::intptr_t count) const;
-	void read_exact(void* buffer, std::intptr_t count) const;
+	void read_exactly(void* buffer, std::intptr_t count) const;
 	std::intptr_t write(const void* buffer, std::intptr_t count) const;
-	void write_exact(const void* buffer, std::intptr_t count) const;
+	void write_exactly(const void* buffer, std::intptr_t count) const;
 	std::int64_t seek(std::int64_t offset, FileOrigin origin) const;
 	std::int64_t skip(std::int64_t offset) const;
 	std::int64_t get_position() const;

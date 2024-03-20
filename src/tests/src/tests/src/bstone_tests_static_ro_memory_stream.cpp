@@ -176,21 +176,21 @@ void test_znfb1wjrycpg1hde()
 
 // ==========================================================================
 
-// void read_exact(void*, std::intptr_t)
+// void read_exactly(void*, std::intptr_t)
 void test_u4a8sprkw3hjgtes()
 {
 	char buffer = '#';
 	auto memory_stream = bstone::StaticRoMemoryStream{&buffer, 1};
 	const auto is_open = memory_stream.is_open();
 	char buffer_1;
-	memory_stream.read_exact(&buffer_1, 1);
+	memory_stream.read_exactly(&buffer_1, 1);
 	const auto seek_result_1 = memory_stream.seek(0, bstone::StreamOrigin::current) == 1;
 	const auto value_result_1 = buffer_1 == '#';
 
 	tester.check(is_open && seek_result_1 && value_result_1);
 }
 
-// void read_exact(void*, std::intptr_t)
+// void read_exactly(void*, std::intptr_t)
 // Failed.
 void test_2yv6r8s3ry3upqxm()
 {
@@ -202,7 +202,7 @@ void test_2yv6r8s3ry3upqxm()
 	try
 	{
 		char buffer_1[2] = {};
-		memory_stream.read_exact(buffer_1, 2);
+		memory_stream.read_exactly(buffer_1, 2);
 	}
 	catch (...)
 	{
@@ -236,7 +236,7 @@ void test_3kzrr0bdk80gaue9()
 
 // ==========================================================================
 
-// void write_exact(const void*, std::intptr_t)
+// void write_exactly(const void*, std::intptr_t)
 void test_bl9qhqrhs3w0hn33()
 {
 	char buffer = '\0';
@@ -246,7 +246,7 @@ void test_bl9qhqrhs3w0hn33()
 
 	try
 	{
-		memory_stream.write_exact(&buffer, 1);
+		memory_stream.write_exactly(&buffer, 1);
 	}
 	catch (...)
 	{

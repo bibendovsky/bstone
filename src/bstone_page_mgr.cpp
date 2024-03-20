@@ -178,7 +178,7 @@ void PageMgrImpl::load_vswap()
 	pages_.resize(pages_size);
 
 	auto pages_bytes = pages_.data();
-	vswap_file.read_exact(pages_bytes, vswap_size);
+	vswap_file.read_exactly(pages_bytes, vswap_size);
 
 	const auto u16_elements = reinterpret_cast<const std::uint16_t*>(pages_bytes);
 

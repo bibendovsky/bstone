@@ -204,7 +204,7 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(const AudioChunk& audio
 
 		const auto decoded_size = decoded_count * sample_size;
 
-		stream.write_exact(decode_buffer_.data(), decoded_size);
+		stream.write_exactly(decode_buffer_.data(), decoded_size);
 
 		data_size += decoded_size;
 		sample_count += decoded_count;
@@ -235,12 +235,12 @@ void AudioExtractorImpl::write_digitized_audio_chunk(const AudioChunk& audio_chu
 		BSTONE_THROW_STATIC_SOURCE("Write error.");
 	}
 
-	stream.write_exact(audio_chunk.data, data_size);
+	stream.write_exactly(audio_chunk.data, data_size);
 
 	if ((data_size % 2) != 0)
 	{
 		const auto zero_octet = std::uint8_t{};
-		stream.write_exact(&zero_octet, 1);
+		stream.write_exactly(&zero_octet, 1);
 	}
 
 	auto abs_max_sample = 0;

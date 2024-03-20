@@ -491,7 +491,7 @@ try
 			path.c_str(),
 			bstone::FileOpenFlags::create | bstone::FileOpenFlags::truncate | bstone::FileOpenFlags::write};
 
-		file_stream.write_exact(dst_buffer.get(), dst_buffer_size);
+		file_stream.write_exactly(dst_buffer.get(), dst_buffer_size);
 	}
 }
 catch (...)

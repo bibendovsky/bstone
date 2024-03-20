@@ -26,7 +26,7 @@ std::intptr_t Stream::read(void* buffer, std::intptr_t count)
 	return do_read(buffer, count);
 }
 
-void Stream::read_exact(void* buffer, std::intptr_t count)
+void Stream::read_exactly(void* buffer, std::intptr_t count)
 {
 	if (read(buffer, count) != count)
 	{
@@ -39,7 +39,7 @@ std::intptr_t Stream::write(const void* buffer, std::intptr_t count)
 	return do_write(buffer, count);
 }
 
-void Stream::write_exact(const void* buffer, std::intptr_t count)
+void Stream::write_exactly(const void* buffer, std::intptr_t count)
 {
 	if (write(buffer, count) != count)
 	{

@@ -125,7 +125,7 @@ CompHeader_t TextExtractor::deserialize_header(int number, const std::uint8_t* d
 	auto reader = BinaryReader{stream};
 	auto result = CompHeader_t{};
 
-	reader.get_stream().read_exact(result.NameId, 4);
+	reader.get_stream().read_exactly(result.NameId, 4);
 	result.OriginalLen = endian::to_little(reader.read_u32());
 	result.CompType = static_cast<ct_TYPES>(endian::to_little(reader.read_u16()));
 	result.CompressLen = endian::to_little(reader.read_u32());
@@ -203,7 +203,7 @@ void TextExtractor::extract_text(const std::string& dst_dir, const TextNumber& t
 		file_name.c_str(),
 		FileOpenFlags::create | FileOpenFlags::truncate | FileOpenFlags::write};
 
-	file_stream.write_exact(text_data, text_size);
+	file_stream.write_exactly(text_data, text_size);
 }
 
 } // namespace bstone

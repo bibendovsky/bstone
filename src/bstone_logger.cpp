@@ -384,7 +384,7 @@ void LoggerImpl::write_internal(LoggerMessageType message_type, StringView messa
 		try
 		{
 			file_stream_.seek(0, StreamOrigin::end);
-			file_stream_.write_exact(line_.data(), static_cast<std::intptr_t>(line_.size()));
+			file_stream_.write_exactly(line_.data(), static_cast<std::intptr_t>(line_.size()));
 
 			if (flush_policy_ == LoggerFlushPolicy::every_message)
 			{

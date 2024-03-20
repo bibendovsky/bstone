@@ -329,8 +329,8 @@ void test_s4ldcda38dhh06px()
 
 // ==========================================================================
 
-// void read_exact(void*, std::intptr_t)
-// void write_exact(const void*, std::intptr_t)
+// void read_exactly(void*, std::intptr_t)
+// void write_exactly(const void*, std::intptr_t)
 void test_xv0g17przcyh3w4p()
 {
 	auto is_open = false;
@@ -351,11 +351,11 @@ void test_xv0g17przcyh3w4p()
 
 	is_open = file.is_open();
 	is_zero_size = file.get_size() == 0;
-	file.write_exact(ref_bytes + 0, 2);
-	file.write_exact(ref_bytes + 2, 2);
+	file.write_exactly(ref_bytes + 0, 2);
+	file.write_exactly(ref_bytes + 2, 2);
 	is_set_position = file.seek(0, bstone::StreamOrigin::begin) == 0;
-	file.read_exact(bytes + 0, 2);
-	file.read_exact(bytes + 2, 2);
+	file.read_exactly(bytes + 0, 2);
+	file.read_exactly(bytes + 2, 2);
 	is_equal = std::equal(std::cbegin(bytes), std::cend(bytes), ref_bytes);
 
 	tester.check(is_open && is_zero_size && is_set_position && is_equal);
@@ -363,7 +363,7 @@ void test_xv0g17przcyh3w4p()
 
 // ==========================================================================
 
-// void read_exact(void*, std::intptr_t)
+// void read_exactly(void*, std::intptr_t)
 // Failed.
 void test_kms3o2eisp359ubi()
 {
@@ -384,7 +384,7 @@ void test_kms3o2eisp359ubi()
 	try
 	{
 		auto buffer = '\0';
-		file.read_exact(&buffer, 1);
+		file.read_exactly(&buffer, 1);
 	}
 	catch (...)
 	{
