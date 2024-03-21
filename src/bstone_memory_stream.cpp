@@ -6,37 +6,41 @@ SPDX-License-Identifier: MIT
 
 // Resizable memory stream.
 
+#include "bstone_memory_stream.h"
+
 #include <algorithm>
 
-#include "bstone_assert.h"
 #include "bstone_exception.h"
-#include "bstone_memory_stream.h"
 
 namespace bstone {
 
-MemoryStream::MemoryStream(std::intptr_t initial_capacity, std::intptr_t chunk_size)
+MemoryStream::MemoryStream(std::intptr_t capacity, std::intptr_t chunk_size)
 {
-	open(initial_capacity, chunk_size);
+	open(capacity, chunk_size);
 }
 
-const std::uint8_t* MemoryStream::get_data() const noexcept
+const std::uint8_t* MemoryStream::get_data() const
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
 
 	return storage_.get();
 }
 
-std::uint8_t* MemoryStream::get_data() noexcept
+std::uint8_t* MemoryStream::get_data()
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
 
 	return storage_.get();
 }
 
-void MemoryStream::open(std::intptr_t initial_capacity, std::intptr_t chunk_size)
+void MemoryStream::open(std::intptr_t capacity, std::intptr_t chunk_size)
 {
 	close_internal();
-	reserve(initial_capacity, chunk_size);
+
+	validate_capacity(capacity);
+	validate_chunk_size(chunk_size);
+
+	reserve(capacity, chunk_size);
 	is_open_ = true;
 	chunk_size_ = chunk_size;
 }
@@ -53,22 +57,18 @@ bool MemoryStream::do_is_open() const noexcept
 
 std::intptr_t MemoryStream::do_read(void* buffer, std::intptr_t count)
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
+	validate_buffer(buffer);
+	validate_count(count);
 
-	if (count == 0)
+	const auto copy_count = std::min(count, size_ - position_);
+
+	if (copy_count <= 0)
 	{
 		return 0;
 	}
 
-	const auto remain_size = size_ - position_;
-
-	if (remain_size <= 0)
-	{
-		return 0;
-	}
-
-	const auto copy_count = std::min(count, remain_size);
-	std::uninitialized_copy_n(storage_.get() + position_, copy_count, static_cast<std::uint8_t*>(buffer));
+	std::uninitialized_copy_n(&storage_[position_], copy_count, static_cast<std::uint8_t*>(buffer));
 	position_ += copy_count;
 
 	return copy_count;
@@ -76,34 +76,56 @@ std::intptr_t MemoryStream::do_read(void* buffer, std::intptr_t count)
 
 std::intptr_t MemoryStream::do_write(const void* buffer, std::intptr_t count)
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
+	validate_buffer(buffer);
+	validate_count(count);
 
-	if (count == 0)
+	const auto copy_count = std::min(count, INTPTR_MAX - position_);
+
+	if (copy_count == 0)
 	{
 		return 0;
 	}
 
-	const auto new_capacity = position_ + count;
-
+	const auto new_capacity = position_ + copy_count;
 	reserve(new_capacity, chunk_size_);
-	std::uninitialized_copy_n(static_cast<const std::uint8_t*>(buffer), count, storage_.get() + position_);
-	position_ += count;
-	size_ = new_capacity;
+	std::uninitialized_copy_n(static_cast<const std::uint8_t*>(buffer), copy_count, &storage_[position_]);
+	position_ += copy_count;
+	size_ = position_;
 
-	return count;
+	return copy_count;
 }
 
 std::int64_t MemoryStream::do_seek(std::int64_t offset, StreamOrigin origin)
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
 
-	auto new_position = std::intptr_t{};
+	auto new_position = std::int64_t{};
 
 	switch (origin)
 	{
-		case StreamOrigin::begin: new_position = offset; break;
-		case StreamOrigin::current: new_position = position_ + offset; break;
-		case StreamOrigin::end: new_position = size_ + offset; break;
+		case StreamOrigin::begin:
+			new_position = offset;
+			break;
+
+		case StreamOrigin::current:
+			if (offset > 0 && INTPTR_MAX - position_ < offset)
+			{
+				BSTONE_THROW_STATIC_SOURCE("New position out of range.");
+			}
+
+			new_position = position_ + offset;
+			break;
+
+		case StreamOrigin::end:
+			if (offset > 0 && INTPTR_MAX - size_ < offset)
+			{
+				BSTONE_THROW_STATIC_SOURCE("New position out of range.");
+			}
+
+			new_position = size_ + offset;
+			break;
+
 		default: BSTONE_THROW_STATIC_SOURCE("Unknown origin.");
 	}
 
@@ -119,31 +141,95 @@ std::int64_t MemoryStream::do_seek(std::int64_t offset, StreamOrigin origin)
 
 std::int64_t MemoryStream::do_get_size()
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
 
 	return size_;
 }
 
 void MemoryStream::do_set_size(std::int64_t size)
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
+	validate_size(size);
 
-	if (size > capacity_)
+	const auto size_intptr = static_cast<std::intptr_t>(size);
+
+	if (size_intptr > capacity_)
 	{
-		reserve(size, chunk_size_);
-
-		if (position_ < size)
-		{
-			std::uninitialized_fill_n(storage_.get() + size_, size - position_, std::uint8_t{});
-		}
+		reserve(size_intptr, chunk_size_);
 	}
 
-	size_ = size;
+	size_ = size_intptr;
 }
 
 void MemoryStream::do_flush()
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
+}
+
+void MemoryStream::ensure_is_open() const
+{
+	if (!is_open_)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Closed.");
+	}
+}
+
+void MemoryStream::validate_capacity(std::intptr_t capacity)
+{
+	if (capacity < 0)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Negative capacity.");
+	}
+}
+
+void MemoryStream::validate_chunk_size(std::intptr_t chunk_size)
+{
+	if (chunk_size < 0)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Negative chunk size.");
+	}
+}
+
+void MemoryStream::validate_buffer(const void* buffer)
+{
+	if (buffer == nullptr)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Null buffer.");
+	}
+}
+
+void MemoryStream::validate_count(std::intptr_t count)
+{
+	if (count < 0)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Negative count.");
+	}
+}
+
+void MemoryStream::validate_offset(std::int64_t offset)
+{
+	if (offset < 0)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Negative offset.");
+	}
+
+	if (offset > INTPTR_MAX)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Offset out of range.");
+	}
+}
+
+void MemoryStream::validate_size(std::int64_t size)
+{
+	if (size < 0)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Negative size.");
+	}
+
+	if (size > INTPTR_MAX)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Size out of range.");
+	}
 }
 
 void MemoryStream::reserve(std::intptr_t capacity, std::intptr_t chunk_size)
@@ -151,6 +237,11 @@ void MemoryStream::reserve(std::intptr_t capacity, std::intptr_t chunk_size)
 	if (capacity <= capacity_)
 	{
 		return;
+	}
+
+	if (INTPTR_MAX - capacity < chunk_size - 1)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Out of memory.");
 	}
 
 	const auto new_capacity = ((capacity + chunk_size - 1) / chunk_size) * chunk_size;

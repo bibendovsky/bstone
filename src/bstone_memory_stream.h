@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Resizable memory stream.
 
-#if !defined(BSTONE_MEMORY_STREAM_INCLUDED)
+#ifndef BSTONE_MEMORY_STREAM_INCLUDED
 #define BSTONE_MEMORY_STREAM_INCLUDED
 
 #include <cstdint>
@@ -20,23 +20,23 @@ namespace bstone {
 class MemoryStream final : public Stream
 {
 public:
-	static constexpr auto default_initial_capacity = 4096;
+	static constexpr auto default_capacity = 4096;
 	static constexpr auto default_chunk_size = 4096;
 
 public:
 	MemoryStream() noexcept = default;
 	explicit MemoryStream(
-		std::intptr_t initial_capacity,
+		std::intptr_t capacity,
 		std::intptr_t chunk_size = default_chunk_size);
 	MemoryStream(MemoryStream&&) noexcept = default;
 	MemoryStream& operator=(MemoryStream&&) noexcept = default;
 	~MemoryStream() override = default;
 
-	const std::uint8_t* get_data() const noexcept;
-	std::uint8_t* get_data() noexcept;
+	const std::uint8_t* get_data() const;
+	std::uint8_t* get_data();
 
 	void open(
-		std::intptr_t initial_capacity = default_initial_capacity,
+		std::intptr_t capacity = default_capacity,
 		std::intptr_t chunk_size = default_chunk_size);
 
 private:
@@ -61,6 +61,14 @@ private:
 	void do_flush() override;
 
 private:
+	void ensure_is_open() const;
+	static void validate_capacity(std::intptr_t capacity);
+	static void validate_chunk_size(std::intptr_t chunk_size);
+	static void validate_buffer(const void* buffer);
+	static void validate_count(std::intptr_t count);
+	static void validate_offset(std::int64_t offset);
+	static void validate_size(std::int64_t size);
+
 	void reserve(std::intptr_t capacity, std::intptr_t chunk_size);
 	void close_internal() noexcept;
 };
