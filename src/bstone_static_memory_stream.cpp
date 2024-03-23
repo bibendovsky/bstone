@@ -4,43 +4,45 @@ Copyright (c) 2023-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// Non-resizeable writable memory stream.
+// Writable memory stream with external fixed-capacity storage.
+
+#include "bstone_static_memory_stream.h"
 
 #include <algorithm>
 #include <memory>
 
-#include "bstone_assert.h"
 #include "bstone_exception.h"
-#include "bstone_static_memory_stream.h"
 
 namespace bstone {
 
-StaticMemoryStream::StaticMemoryStream(void* buffer, std::intptr_t size) noexcept
+StaticMemoryStream::StaticMemoryStream(void* buffer, std::intptr_t size)
 {
 	open(buffer, size);
 }
 
-const std::uint8_t* StaticMemoryStream::get_data() const noexcept
+const std::uint8_t* StaticMemoryStream::get_data() const
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
 
 	return buffer_;
 }
 
-std::uint8_t* StaticMemoryStream::get_data() noexcept
+std::uint8_t* StaticMemoryStream::get_data()
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
 
 	return buffer_;
 }
 
-void StaticMemoryStream::open(void* buffer, std::intptr_t size) noexcept
+void StaticMemoryStream::open(void* buffer, std::intptr_t buffer_size)
 {
 	close_internal();
+	validate_buffer(buffer);
+	validate_buffer_size(buffer_size);
 
 	is_open_ = true;
 	buffer_ = static_cast<std::uint8_t*>(buffer);
-	capacity_ = size;
+	capacity_ = buffer_size;
 	size_ = 0;
 }
 
@@ -56,32 +58,37 @@ bool StaticMemoryStream::do_is_open() const noexcept
 
 std::intptr_t StaticMemoryStream::do_read(void* buffer, std::intptr_t count)
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
+	validate_buffer(buffer);
+	validate_count(count);
 
-	const auto remain_size = size_ - position_;
+	const auto copy_count = std::min(count, size_ - position_);
 
-	if (remain_size <= 0)
+	if (copy_count <= 0)
 	{
 		return 0;
 	}
 
-	const auto copy_count = std::min(count, remain_size);
-	std::uninitialized_copy_n(buffer_ + position_, copy_count, static_cast<std::uint8_t*>(buffer));
+	std::uninitialized_copy_n(&buffer_[position_], copy_count, static_cast<std::uint8_t*>(buffer));
 	position_ += copy_count;
+
 	return copy_count;
 }
 
 std::intptr_t StaticMemoryStream::do_write(const void* buffer, std::intptr_t count)
 {
-	BSTONE_ASSERT(is_open());
-
-	if (position_ + count > capacity_)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Out of free space.");
-	}
+	ensure_is_open();
+	validate_buffer(buffer);
+	validate_count(count);
 
 	const auto copy_count = std::min(count, capacity_ - position_);
-	std::uninitialized_copy_n(static_cast<const std::uint8_t*>(buffer), copy_count, buffer_ + position_);
+
+	if (copy_count <= 0)
+	{
+		return 0;
+	}
+
+	std::uninitialized_copy_n(static_cast<const std::uint8_t*>(buffer), copy_count, &buffer_[position_]);
 	position_ += copy_count;
 	size_ = position_;
 
@@ -90,15 +97,34 @@ std::intptr_t StaticMemoryStream::do_write(const void* buffer, std::intptr_t cou
 
 std::int64_t StaticMemoryStream::do_seek(std::int64_t offset, StreamOrigin origin)
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
 
-	auto new_position = std::intptr_t{};
+	auto new_position = std::int64_t{};
 
 	switch (origin)
 	{
-		case StreamOrigin::begin: new_position = offset; break;
-		case StreamOrigin::current: new_position = position_ + offset; break;
-		case StreamOrigin::end: new_position = size_ + offset; break;
+		case StreamOrigin::begin:
+			new_position = offset;
+			break;
+
+		case StreamOrigin::current:
+			if (INTPTR_MAX - position_ < offset)
+			{
+				BSTONE_THROW_STATIC_SOURCE("New position out of range.");
+			}
+
+			new_position = position_ + offset;
+			break;
+
+		case StreamOrigin::end:
+			if (INTPTR_MAX - size_ < offset)
+			{
+				BSTONE_THROW_STATIC_SOURCE("New position out of range.");
+			}
+
+			new_position = size_ + offset;
+			break;
+
 		default: BSTONE_THROW_STATIC_SOURCE("Unknown origin.");
 	}
 
@@ -107,21 +133,22 @@ std::int64_t StaticMemoryStream::do_seek(std::int64_t offset, StreamOrigin origi
 		BSTONE_THROW_STATIC_SOURCE("Negative new position.");
 	}
 
-	position_ = new_position;
+	position_ = static_cast<std::intptr_t>(new_position);
 
-	return new_position;
+	return position_;
 }
 
 std::int64_t StaticMemoryStream::do_get_size()
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
 
 	return size_;
 }
 
 void StaticMemoryStream::do_set_size(std::int64_t size)
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
+	validate_size(size);
 
 	if (size > capacity_)
 	{
@@ -133,7 +160,52 @@ void StaticMemoryStream::do_set_size(std::int64_t size)
 
 void StaticMemoryStream::do_flush()
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
+}
+
+void StaticMemoryStream::ensure_is_open() const
+{
+	if (!is_open_)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Closed.");
+	}
+}
+
+void StaticMemoryStream::validate_buffer(const void* buffer)
+{
+	if (buffer == nullptr)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Null buffer.");
+	}
+}
+
+void StaticMemoryStream::validate_buffer_size(std::intptr_t buffer_size)
+{
+	if (buffer_size < 0)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Negative buffer size.");
+	}
+}
+
+void StaticMemoryStream::validate_count(std::intptr_t count)
+{
+	if (count < 0)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Negative count.");
+	}
+}
+
+void StaticMemoryStream::validate_size(std::int64_t size)
+{
+	if (size < 0)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Negative size.");
+	}
+
+	if (size > INTPTR_MAX)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Size out of range.");
+	}
 }
 
 void StaticMemoryStream::close_internal() noexcept

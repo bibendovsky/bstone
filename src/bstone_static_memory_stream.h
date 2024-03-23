@@ -4,9 +4,9 @@ Copyright (c) 2023-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// Non-resizeable writable memory stream.
+// Writable memory stream with external fixed-capacity storage.
 
-#if !defined(BSTONE_STATIC_MEMORY_STREAM_INCLUDED)
+#ifndef BSTONE_STATIC_MEMORY_STREAM_INCLUDED
 #define BSTONE_STATIC_MEMORY_STREAM_INCLUDED
 
 #include <cstdint>
@@ -19,13 +19,13 @@ class StaticMemoryStream final : public Stream
 {
 public:
 	StaticMemoryStream() noexcept = default;
-	StaticMemoryStream(void* buffer, std::intptr_t size) noexcept;
+	StaticMemoryStream(void* buffer, std::intptr_t buffer_size);
 	~StaticMemoryStream() override = default;
 
-	const std::uint8_t* get_data() const noexcept;
-	std::uint8_t* get_data() noexcept;
+	const std::uint8_t* get_data() const;
+	std::uint8_t* get_data();
 
-	void open(void* buffer, std::intptr_t size) noexcept;
+	void open(void* buffer, std::intptr_t buffer_size);
 
 private:
 	bool is_open_{};
@@ -45,6 +45,12 @@ private:
 	void do_flush() override;
 
 private:
+	void ensure_is_open() const;
+	static void validate_buffer(const void* buffer);
+	static void validate_buffer_size(std::intptr_t buffer_size);
+	static void validate_count(std::intptr_t count);
+	static void validate_size(std::int64_t size);
+
 	void close_internal() noexcept;
 };
 
