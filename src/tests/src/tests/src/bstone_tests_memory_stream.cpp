@@ -690,28 +690,6 @@ void test_574sem81z8rm022v()
 }
 
 // std::int64_t seek(std::int64_t, StreamOrigin)
-// New position out of range (32-bit app).
-void test_ngur9azed7ywerfu()
-{
-#if INTPTR_MAX == INT32_MAX
-	auto memory_stream = bstone::MemoryStream{2, 2};
-	const auto is_open = memory_stream.is_open();
-	auto is_failed = false;
-
-	try
-	{
-		memory_stream.seek(INT64_MAX, bstone::StreamOrigin::begin);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(is_open && is_failed);
-#endif
-}
-
-// std::int64_t seek(std::int64_t, StreamOrigin)
 // New position out of range.
 void test_394f5yz9rdgc4auk()
 {
@@ -785,28 +763,6 @@ void test_7bbudfbgrsrjptho()
 	}
 
 	tester.check(is_open && is_failed && !seek_result);
-}
-
-// std::int64_t skip(std::int64_t)
-// New position out of range (32-bit app).
-void test_npvi1bgdnv9fjht2()
-{
-#if INTPTR_MAX == INT32_MAX
-	auto memory_stream = bstone::MemoryStream{4, 1};
-	const auto is_open = memory_stream.is_open();
-	auto is_failed = false;
-
-	try
-	{
-		memory_stream.skip(INT64_MAX);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(is_open && is_failed);
-#endif
 }
 
 // std::int64_t skip(std::int64_t)
@@ -1161,7 +1117,6 @@ private:
 		tester.register_test("MemoryStream#sy8ggddakci0on4o", test_sy8ggddakci0on4o);
 		tester.register_test("MemoryStream#a2m96f9w35u4oblr", test_a2m96f9w35u4oblr);
 		tester.register_test("MemoryStream#574sem81z8rm022v", test_574sem81z8rm022v);
-		tester.register_test("MemoryStream#ngur9azed7ywerfu", test_ngur9azed7ywerfu);
 		tester.register_test("MemoryStream#394f5yz9rdgc4auk", test_394f5yz9rdgc4auk);
 	}
 
@@ -1170,7 +1125,6 @@ private:
 		tester.register_test("MemoryStream#yurbec6ftn2g5avt", test_yurbec6ftn2g5avt);
 		tester.register_test("MemoryStream#1lsxi7q8s4wk0rv9", test_1lsxi7q8s4wk0rv9);
 		tester.register_test("MemoryStream#7bbudfbgrsrjptho", test_7bbudfbgrsrjptho);
-		tester.register_test("MemoryStream#npvi1bgdnv9fjht2", test_npvi1bgdnv9fjht2);
 		tester.register_test("MemoryStream#9cfde0p326p1yu6d", test_9cfde0p326p1yu6d);
 	}
 

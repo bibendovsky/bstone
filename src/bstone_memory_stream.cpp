@@ -134,9 +134,9 @@ std::int64_t MemoryStream::do_seek(std::int64_t offset, StreamOrigin origin)
 		BSTONE_THROW_STATIC_SOURCE("Negative new position.");
 	}
 
-	position_ = new_position;
+	position_ = static_cast<std::intptr_t>(new_position);
 
-	return new_position;
+	return position_;
 }
 
 std::int64_t MemoryStream::do_get_size()
