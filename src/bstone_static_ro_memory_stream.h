@@ -4,9 +4,9 @@ Copyright (c) 2023-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// Fixed-size read-only memory stream.
+// Read-only memory stream with external fixed-size storage.
 
-#if !defined(BSTONE_STATIC_RO_MEMORY_STREAM_INCLUDED)
+#ifndef BSTONE_STATIC_RO_MEMORY_STREAM_INCLUDED
 #define BSTONE_STATIC_RO_MEMORY_STREAM_INCLUDED
 
 #include <cstdint>
@@ -19,13 +19,12 @@ class StaticRoMemoryStream final : public Stream
 {
 public:
 	StaticRoMemoryStream() noexcept = default;
-	StaticRoMemoryStream(const void* buffer, std::intptr_t size) noexcept;
+	StaticRoMemoryStream(const void* buffer, std::intptr_t buffer_size);
 	~StaticRoMemoryStream() override = default;
 
-	const std::uint8_t* get_data() const noexcept;
-	const std::uint8_t* get_data() noexcept;
+	const std::uint8_t* get_data() const;
 
-	void open(const void* buffer, std::intptr_t size) noexcept;
+	void open(const void* buffer, std::intptr_t buffer_size);
 
 private:
 	bool is_open_{};
@@ -44,6 +43,11 @@ private:
 	void do_flush() override;
 
 private:
+	void ensure_is_open() const;
+	static void validate_buffer(const void* buffer);
+	static void validate_buffer_size(std::intptr_t buffer_size);
+	static void validate_count(std::intptr_t count);
+
 	void close_internal() noexcept;
 };
 

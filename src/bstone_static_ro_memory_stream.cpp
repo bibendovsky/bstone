@@ -4,43 +4,39 @@ Copyright (c) 2023-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// Fixed-size read-only memory stream.
+// Read-only memory stream with external fixed-size storage.
+
+#include "bstone_static_ro_memory_stream.h"
 
 #include <algorithm>
 #include <memory>
 
-#include "bstone_assert.h"
 #include "bstone_exception.h"
-#include "bstone_static_ro_memory_stream.h"
 
 namespace bstone {
 
-StaticRoMemoryStream::StaticRoMemoryStream(const void* buffer, std::intptr_t size) noexcept
+StaticRoMemoryStream::StaticRoMemoryStream(const void* buffer, std::intptr_t buffer_size)
 {
-	open(buffer, size);
+	open(buffer, buffer_size);
 }
 
-const std::uint8_t* StaticRoMemoryStream::get_data() const noexcept
+const std::uint8_t* StaticRoMemoryStream::get_data() const
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
 
 	return buffer_;
 }
 
-const std::uint8_t* StaticRoMemoryStream::get_data() noexcept
-{
-	BSTONE_ASSERT(is_open());
-
-	return buffer_;
-}
-
-void StaticRoMemoryStream::open(const void* buffer, std::intptr_t size) noexcept
+void StaticRoMemoryStream::open(const void* buffer, std::intptr_t buffer_size)
 {
 	close_internal();
 
+	validate_buffer(buffer);
+	validate_buffer_size(buffer_size);
+
 	is_open_ = true;
 	buffer_ = static_cast<const std::uint8_t*>(buffer);
-	size_ = size;
+	size_ = buffer_size;
 }
 
 void StaticRoMemoryStream::do_close() noexcept
@@ -55,17 +51,18 @@ bool StaticRoMemoryStream::do_is_open() const noexcept
 
 std::intptr_t StaticRoMemoryStream::do_read(void* buffer, std::intptr_t count)
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
+	validate_buffer(buffer);
+	validate_count(count);
 
-	const auto remain_size = size_ - position_;
+	const auto copy_count = std::min(count, size_ - position_);
 
-	if (remain_size <= 0)
+	if (copy_count <= 0)
 	{
 		return 0;
 	}
 
-	const auto copy_count = std::min(count, remain_size);
-	std::uninitialized_copy_n(buffer_ + position_, copy_count, static_cast<std::uint8_t*>(buffer));
+	std::uninitialized_copy_n(&buffer_[position_], copy_count, static_cast<std::uint8_t*>(buffer));
 	position_ += copy_count;
 	return copy_count;
 }
@@ -77,15 +74,39 @@ std::intptr_t StaticRoMemoryStream::do_write(const void*, std::intptr_t)
 
 std::int64_t StaticRoMemoryStream::do_seek(std::int64_t offset, StreamOrigin origin)
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
 
-	auto new_position = std::intptr_t{};
+	auto new_position = std::int64_t{};
 
 	switch (origin)
 	{
-		case StreamOrigin::begin: new_position = offset; break;
-		case StreamOrigin::current: new_position = position_ + offset; break;
-		case StreamOrigin::end: new_position = size_ + offset; break;
+		case StreamOrigin::begin:
+			if (offset > INTPTR_MAX)
+			{
+				BSTONE_THROW_STATIC_SOURCE("New position out of range.");
+			}
+
+			new_position = offset;
+			break;
+
+		case StreamOrigin::current:
+			if (offset > 0 && INTPTR_MAX - position_ < offset)
+			{
+				BSTONE_THROW_STATIC_SOURCE("New position out of range.");
+			}
+
+			new_position = position_ + offset;
+			break;
+
+		case StreamOrigin::end:
+			if (offset > 0 && INTPTR_MAX - size_ < offset)
+			{
+				BSTONE_THROW_STATIC_SOURCE("New position out of range.");
+			}
+
+			new_position = size_ + offset;
+			break;
+
 		default: BSTONE_THROW_STATIC_SOURCE("Unknown origin.");
 	}
 
@@ -94,14 +115,14 @@ std::int64_t StaticRoMemoryStream::do_seek(std::int64_t offset, StreamOrigin ori
 		BSTONE_THROW_STATIC_SOURCE("Negative new position.");
 	}
 
-	position_ = new_position;
+	position_ = static_cast<std::intptr_t>(new_position);
 
-	return new_position;
+	return position_;
 }
 
 std::int64_t StaticRoMemoryStream::do_get_size()
 {
-	BSTONE_ASSERT(is_open());
+	ensure_is_open();
 
 	return size_;
 }
@@ -114,6 +135,38 @@ void StaticRoMemoryStream::do_set_size(std::int64_t)
 void StaticRoMemoryStream::do_flush()
 {
 	BSTONE_THROW_STATIC_SOURCE("Not supported.");
+}
+
+void StaticRoMemoryStream::ensure_is_open() const
+{
+	if (!is_open_)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Closed.");
+	}
+}
+
+void StaticRoMemoryStream::validate_buffer(const void* buffer)
+{
+	if (buffer == nullptr)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Null stream.");
+	}
+}
+
+void StaticRoMemoryStream::validate_buffer_size(std::intptr_t buffer_size)
+{
+	if (buffer_size < 0)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Negative buffer size.");
+	}
+}
+
+void StaticRoMemoryStream::validate_count(std::intptr_t count)
+{
+	if (count < 0)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Negative count.");
+	}
 }
 
 void StaticRoMemoryStream::close_internal() noexcept
