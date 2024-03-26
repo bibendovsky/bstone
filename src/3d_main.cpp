@@ -8033,33 +8033,6 @@ int FindChunk(
 	return 0;
 }
 
-int NextChunk(
-	bstone::Stream* stream)
-{
-	bool is_succeed = true;
-
-	if (is_succeed)
-	{
-		char name_buffer[4];
-		is_succeed = (stream->read(name_buffer, 4) == 4);
-	}
-
-	std::int32_t chunk_size = 0;
-
-	if (is_succeed)
-	{
-		is_succeed = (stream->read(&chunk_size, 4) == 4);
-	}
-
-	if (is_succeed)
-	{
-		return chunk_size;
-	}
-
-	stream->seek(0, bstone::StreamOrigin::end);
-	return 0;
-}
-
 void AlignPlayerOnTransporter()
 {
 	player->tilex = static_cast<std::uint8_t>(player_warp.tilex);
