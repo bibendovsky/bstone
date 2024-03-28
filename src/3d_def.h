@@ -37,8 +37,6 @@ namespace bstone
 
 
 class Archiver;
-using ArchiverPtr = Archiver*;
-
 class MemoryStream;
 class Stream;
 
@@ -2094,10 +2092,10 @@ struct statobj_t
 
 
 	void archive(
-		bstone::ArchiverPtr archiver) const;
+		bstone::Archiver& archiver) const;
 
 	void unarchive(
-		bstone::ArchiverPtr archiver);
+		bstone::Archiver& archiver);
 }; // statobj_t
 
 
@@ -2150,10 +2148,10 @@ struct doorobj_t
 
 
 	void archive(
-		bstone::ArchiverPtr archiver) const;
+		bstone::Archiver& archiver) const;
 
 	void unarchive(
-		bstone::ArchiverPtr archiver);
+		bstone::Archiver& archiver);
 }; // doorobj_t
 
 
@@ -2266,10 +2264,10 @@ struct objtype
 
 
 	void archive(
-		bstone::ArchiverPtr archiver) const;
+		bstone::Archiver& archiver) const;
 
 	void unarchive(
-		bstone::ArchiverPtr archiver);
+		bstone::Archiver& archiver);
 }; // objtype
 
 
@@ -2339,10 +2337,10 @@ struct tilecoord_t
 	std::uint8_t tiley;
 
 	void archive(
-		bstone::ArchiverPtr archiver) const;
+		bstone::Archiver& archiver) const;
 
 	void unarchive(
-		bstone::ArchiverPtr archiver);
+		bstone::Archiver& archiver);
 }; // tilecoord_t
 
 
@@ -2361,10 +2359,10 @@ struct barrier_type
 
 
 	void archive(
-		bstone::ArchiverPtr archiver) const;
+		bstone::Archiver& archiver) const;
 
 	void unarchive(
-		bstone::ArchiverPtr archiver);
+		bstone::Archiver& archiver);
 }; // barrier_type;
 
 using Barriers = std::vector<barrier_type>;
@@ -2395,10 +2393,10 @@ struct statsInfoType
 
 
 	void archive(
-		bstone::ArchiverPtr archiver) const;
+		bstone::Archiver& archiver) const;
 
 	void unarchive(
-		bstone::ArchiverPtr archiver);
+		bstone::Archiver& archiver);
 }; // statsInfoType
 
 struct levelinfo
@@ -2426,10 +2424,10 @@ struct levelinfo
 
 
 	void archive(
-		bstone::ArchiverPtr archiver) const;
+		bstone::Archiver& archiver) const;
 
 	void unarchive(
-		bstone::ArchiverPtr archiver);
+		bstone::Archiver& archiver);
 }; // levelinfo
 
 
@@ -2447,10 +2445,10 @@ struct fargametype
 
 
 	void archive(
-		bstone::ArchiverPtr archiver) const;
+		bstone::Archiver& archiver) const;
 
 	void unarchive(
-		bstone::ArchiverPtr archiver);
+		bstone::Archiver& archiver);
 }; // fargametype
 
 struct gametype
@@ -2567,10 +2565,10 @@ struct gametype
 
 
 	void archive(
-		bstone::ArchiverPtr archiver) const;
+		bstone::Archiver& archiver) const;
 
 	void unarchive(
-		bstone::ArchiverPtr archiver);
+		bstone::Archiver& archiver);
 
 	void initialize();
 	void initialize_barriers();
@@ -2722,10 +2720,10 @@ struct mCacheInfo
 
 
 	void archive(
-		bstone::ArchiverPtr archiver) const;
+		bstone::Archiver& archiver) const;
 
 	void unarchive(
-		bstone::ArchiverPtr archiver);
+		bstone::Archiver& archiver);
 }; // mCacheInfo
 
 // Basic 'message list' structure
@@ -2754,10 +2752,10 @@ struct con_mCacheInfo
 
 
 	void archive(
-		bstone::ArchiverPtr archiver) const;
+		bstone::Archiver& archiver) const;
 
 	void unarchive(
-		bstone::ArchiverPtr archiver);
+		bstone::Archiver& archiver);
 }; // con_mCacheInfo
 
 // Concession 'message list' structure
@@ -2773,10 +2771,10 @@ struct concession_t
 
 
 	void archive(
-		bstone::ArchiverPtr archiver) const;
+		bstone::Archiver& archiver) const;
 
 	void unarchive(
-		bstone::ArchiverPtr archiver);
+		bstone::Archiver& archiver);
 }; // concession_t
 
 // ------------------------ INFORMANT STRUCTURES --------------------------
@@ -2820,10 +2818,10 @@ struct eaWallInfo
 
 
 	void archive(
-		bstone::ArchiverPtr archiver) const;
+		bstone::Archiver& archiver) const;
 
 	void unarchive(
-		bstone::ArchiverPtr archiver);
+		bstone::Archiver& archiver);
 }; // eaWallInfo
 
 
@@ -2853,10 +2851,10 @@ struct GoldsternInfo_t
 
 
 	void archive(
-		bstone::ArchiverPtr archiver) const;
+		bstone::Archiver& archiver) const;
 
 	void unarchive(
-		bstone::ArchiverPtr archiver);
+		bstone::Archiver& archiver);
 }; // GoldsternInfo_t
 
 struct PlayerWarp

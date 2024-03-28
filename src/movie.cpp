@@ -112,7 +112,7 @@ private:
 	ControlInfo control_info_;
 	const std::uint8_t* palette_;
 
-	bstone::ArchiverUPtr archiver_;
+	bstone::Archiver archiver_;
 
 
 	const Descriptor& get_descriptor(
@@ -215,14 +215,14 @@ void Movie::initialize(
 	// Find out how much memory we have to work with.
 	buffer_.resize(max_buffer_size);
 
-	archiver_ = bstone::make_archiver();
+	archiver_.close();
 
 	IN_ClearKeysDown();
 }
 
 void Movie::uninitialize()
 {
-	archiver_ = nullptr;
+	archiver_.close();
 	buffer_.clear();
 	file_stream_.close();
 }
@@ -290,9 +290,9 @@ bool Movie::load_buffer()
 	{
 		const auto chunkstart = file_stream_.get_position();
 
-		blk.code = archiver_->read_uint16();
-		blk.block_num = archiver_->read_int32();
-		blk.recsize = archiver_->read_int32();
+		blk.code = archiver_.read_uint16();
+		blk.block_num = archiver_.read_int32();
+		blk.recsize = archiver_.read_int32();
 
 		if (blk.code == AN_END_OF_ANIM)
 		{
@@ -309,7 +309,7 @@ bool Movie::load_buffer()
 
 			if (blk.recsize > 0)
 			{
-				archiver_->read_char_array(frame, blk.recsize);
+				archiver_.read_char_array(frame, blk.recsize);
 			}
 
 			free_space -= blk.recsize;
@@ -505,7 +505,7 @@ bool Movie::play(
 		return false;
 	}
 
-	archiver_->initialize(&file_stream_);
+	archiver_.open(file_stream_);
 
 	while (repeat_count_ && !is_exit_)
 	{

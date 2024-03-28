@@ -7107,22 +7107,22 @@ void read_high_scores()
 
 	if (stream.try_open(scores_path.c_str()))
 	{
-		auto archiver = bstone::make_archiver();
+		auto archiver = bstone::Archiver{};
 
 		try
 		{
-			archiver->initialize(&stream);
+			archiver.open(stream);
 
 			for (auto& score : scores)
 			{
-				archiver->read_char_array(score.name, MaxHighName + 1);
-				score.score = archiver->read_int32();
-				score.completed = archiver->read_uint16();
-				score.episode = archiver->read_uint16();
-				score.ratio = archiver->read_uint16();
+				archiver.read_char_array(score.name, MaxHighName + 1);
+				score.score = archiver.read_int32();
+				score.completed = archiver.read_uint16();
+				score.episode = archiver.read_uint16();
+				score.ratio = archiver.read_uint16();
 			}
 
-			archiver->read_checksum();
+			archiver.read_checksum();
 		}
 		catch (const std::exception& ex)
 		{
@@ -7171,22 +7171,22 @@ static void write_high_scores()
 		return;
 	}
 
-	auto archiver = bstone::make_archiver();
+	auto archiver = bstone::Archiver{};
 
 	try
 	{
-		archiver->initialize(&stream);
+		archiver.open(stream);
 
 		for (const auto& score : Scores)
 		{
-			archiver->write_char_array(score.name, MaxHighName + 1);
-			archiver->write_int32(score.score);
-			archiver->write_uint16(score.completed);
-			archiver->write_uint16(score.episode);
-			archiver->write_uint16(score.ratio);
+			archiver.write_char_array(score.name, MaxHighName + 1);
+			archiver.write_int32(score.score);
+			archiver.write_uint16(score.completed);
+			archiver.write_uint16(score.episode);
+			archiver.write_uint16(score.ratio);
 		}
 
-		archiver->write_checksum();
+		archiver.write_checksum();
 
 		stream.close();
 
@@ -7861,7 +7861,7 @@ void archive_bitset(
 		}
 	}
 
-	archiver.write_uint8_array(buffer.data(), static_cast<int>(buffer.size()));
+	archiver.write_uint8_array(buffer.data(), static_cast<std::intptr_t>(buffer.size()));
 }
 
 template<std::size_t TBitCount>
@@ -7873,7 +7873,7 @@ void unarchive_bitset(
 	using BitsetBuffer = std::array<std::uint8_t, byte_count>;
 
 	auto buffer = BitsetBuffer{};
-	archiver.read_uint8_array(buffer.data(), static_cast<int>(buffer.size()));
+	archiver.read_uint8_array(buffer.data(), static_cast<std::intptr_t>(buffer.size()));
 
 	for (decltype(TBitCount) i = 0; i < TBitCount; ++i)
 	{
@@ -8229,18 +8229,18 @@ bool LoadLevel(
 
 	gamestate.barrier_table = old_barrier_table;
 
-	auto archiver = bstone::make_archiver();
+	auto archiver = bstone::Archiver{};
 
 	try
 	{
-		archiver->initialize(&g_playtemp);
+		archiver.open(g_playtemp);
 
 		// tilemap
 		//
 		{
 			auto tilemap_bitmap = SgLevelBitmap{};
 
-			archiver->read_uint8_array(tilemap_bitmap.data(), sg_level_bitmap_size);
+			archiver.read_uint8_array(tilemap_bitmap.data(), sg_level_bitmap_size);
 
 			std::uninitialized_fill_n(
 				&tilemap[0][0],
@@ -8263,7 +8263,7 @@ bool LoadLevel(
 						continue;
 					}
 
-					tilemap[i][j] = archiver->read_uint8();
+					tilemap[i][j] = archiver.read_uint8();
 				}
 			}
 		}
@@ -8273,7 +8273,7 @@ bool LoadLevel(
 		{
 			auto actorat_bitmap = SgLevelBitmap{};
 
-			archiver->read_uint8_array(actorat_bitmap.data(), sg_level_bitmap_size);
+			archiver.read_uint8_array(actorat_bitmap.data(), sg_level_bitmap_size);
 
 			std::uninitialized_fill_n(
 				&actorat[0][0],
@@ -8296,7 +8296,7 @@ bool LoadLevel(
 						continue;
 					}
 
-					const auto value = archiver->read_int16();
+					const auto value = archiver.read_int16();
 
 					if (value < 0)
 					{
@@ -8315,7 +8315,7 @@ bool LoadLevel(
 		{
 			auto areaconnect_bitmap = SgAreaConnectBitmap{};
 
-			archiver->read_uint8_array(areaconnect_bitmap.data(), sg_area_connect_bitmap_size);
+			archiver.read_uint8_array(areaconnect_bitmap.data(), sg_area_connect_bitmap_size);
 
 			areaconnect = AreaConnect{};
 
@@ -8334,19 +8334,19 @@ bool LoadLevel(
 						continue;
 					}
 
-					areaconnect[i][j] = archiver->read_uint8();
+					areaconnect[i][j] = archiver.read_uint8();
 				}
 			}
 		}
 
 		// areabyplayer
 		//
-		unarchive_bitset(areabyplayer, *archiver);
+		unarchive_bitset(areabyplayer, archiver);
 
 		// Actors.
 		//
 
-		const int actor_count = archiver->read_int16();
+		const int actor_count = archiver.read_int16();
 
 		if (actor_count < 1 || actor_count >= MAXACTORS)
 		{
@@ -8356,12 +8356,12 @@ bool LoadLevel(
 		InitActorList();
 
 		// First actor is always player
-		new_actor->unarchive(archiver.get());
+		new_actor->unarchive(archiver);
 
 		for (int i = 1; i < actor_count; ++i)
 		{
 			GetNewActor();
-			new_actor->unarchive(archiver.get());
+			new_actor->unarchive(archiver);
 			actorat[new_actor->tilex][new_actor->tiley] = new_actor;
 
 #if LOOK_FOR_DEAD_GUYS
@@ -8398,7 +8398,7 @@ bool LoadLevel(
 		// Statics.
 		//
 
-		const int laststatobj_index = archiver->read_int16();
+		const int laststatobj_index = archiver.read_int16();
 
 		if (laststatobj_index > MAXSTATS)
 		{
@@ -8425,7 +8425,7 @@ bool LoadLevel(
 
 		for (int i = 0; i < laststatobj_index; ++i)
 		{
-			statobjlist[i].unarchive(archiver.get());
+			statobjlist[i].unarchive(archiver);
 		}
 
 		//
@@ -8433,7 +8433,7 @@ bool LoadLevel(
 			using DoorPositionsU16 = std::array<std::uint16_t, MAXDOORS>;
 			DoorPositionsU16 door_positions_u16;
 
-			archiver->read_uint16_array(door_positions_u16.data(), MAXDOORS);
+			archiver.read_uint16_array(door_positions_u16.data(), MAXDOORS);
 
 			std::transform(
 				door_positions_u16.cbegin(),
@@ -8448,44 +8448,44 @@ bool LoadLevel(
 
 		for (int i = 0; i < MAXDOORS; ++i)
 		{
-			doorobjlist[i].unarchive(archiver.get());
+			doorobjlist[i].unarchive(archiver);
 		}
 
 		{
-			const auto pwallstate_u16 = archiver->read_uint16();
+			const auto pwallstate_u16 = archiver.read_uint16();
 			pwallstate = pwallstate_u16 / 128.0;
 		}
 
-		pwallx = archiver->read_uint16();
-		pwally = archiver->read_uint16();
-		pwalldir = archiver->read_int16();
+		pwallx = archiver.read_uint16();
+		pwally = archiver.read_uint16();
+		pwalldir = archiver.read_int16();
 
 		{
-			const auto pwallpos_u16 = archiver->read_uint16();
+			const auto pwallpos_u16 = archiver.read_uint16();
 			pwallpos = pwallpos_u16 / 64.0;
 		}
 
-		pwalldist = archiver->read_int16();
-		archiver->read_uint8_array(&travel_table_[0][0], MAPSIZE * MAPSIZE);
-		ConHintList.unarchive(archiver.get());
+		pwalldist = archiver.read_int16();
+		archiver.read_uint8_array(&travel_table_[0][0], MAPSIZE * MAPSIZE);
+		ConHintList.unarchive(archiver);
 
 		for (int i = 0; i < MAXEAWALLS; ++i)
 		{
-			eaList[i].unarchive(archiver.get());
+			eaList[i].unarchive(archiver);
 		}
 
-		GoldsternInfo.unarchive(archiver.get());
+		GoldsternInfo.unarchive(archiver);
 
 		for (int i = 0; i < GOLDIE_MAX_SPAWNS; ++i)
 		{
-			GoldieList[i].unarchive(archiver.get());
+			GoldieList[i].unarchive(archiver);
 		}
 
-		gamestate.plasma_detonators = archiver->read_int16();
+		gamestate.plasma_detonators = archiver.read_int16();
 
 		// Read and evaluate checksum
 		//
-		archiver->read_checksum();
+		archiver.read_checksum();
 	}
 	catch (...)
 	{
@@ -8603,8 +8603,8 @@ bool SaveLevel(
 
 	const auto beg_offset = g_playtemp.get_position();
 
-	auto archiver = bstone::make_archiver();
-	archiver->initialize(&g_playtemp);
+	auto archiver = bstone::Archiver{};
+	archiver.open(g_playtemp);
 
 	// tilemap
 	//
@@ -8630,7 +8630,7 @@ bool SaveLevel(
 			}
 		}
 
-		archiver->write_uint8_array(tilemap_bitmap.data(), sg_level_bitmap_size);
+		archiver.write_uint8_array(tilemap_bitmap.data(), sg_level_bitmap_size);
 
 		for (int i = 0; i < MAPSIZE; ++i)
 		{
@@ -8643,7 +8643,7 @@ bool SaveLevel(
 					continue;
 				}
 
-				archiver->write_uint8(tile);
+				archiver.write_uint8(tile);
 			}
 		}
 	}
@@ -8670,7 +8670,7 @@ bool SaveLevel(
 			}
 		}
 
-		archiver->write_uint8_array(actorat_bitmap.data(), sg_level_bitmap_size);
+		archiver.write_uint8_array(actorat_bitmap.data(), sg_level_bitmap_size);
 
 		for (int i = 0; i < MAPSIZE; ++i)
 		{
@@ -8699,7 +8699,7 @@ bool SaveLevel(
 					BSTONE_THROW_STATIC_SOURCE("'actorat' value out of range.");
 				}
 
-				archiver->write_int16(static_cast<std::int16_t>(value));
+				archiver.write_int16(static_cast<std::int16_t>(value));
 			}
 		}
 	}
@@ -8728,7 +8728,7 @@ bool SaveLevel(
 			}
 		}
 
-		archiver->write_uint8_array(areaconnect_bitmap.data(), sg_area_connect_bitmap_size);
+		archiver.write_uint8_array(areaconnect_bitmap.data(), sg_area_connect_bitmap_size);
 
 		for (int i = 0; i < NUMAREAS; ++i)
 		{
@@ -8741,14 +8741,14 @@ bool SaveLevel(
 					continue;
 				}
 
-				archiver->write_uint8(connection);
+				archiver.write_uint8(connection);
 			}
 		}
 	}
 
 	// areabyplayer
 	//
-	archive_bitset(areabyplayer, *archiver);
+	archive_bitset(areabyplayer, archiver);
 
 	//
 	// objlist
@@ -8762,11 +8762,11 @@ bool SaveLevel(
 		++actor_count;
 	}
 
-	archiver->write_int16(static_cast<std::int16_t>(actor_count));
+	archiver.write_int16(static_cast<std::int16_t>(actor_count));
 
 	for (actor = player; actor; actor = actor->next)
 	{
-		actor->archive(archiver.get());
+		actor->archive(archiver);
 	}
 
 	//
@@ -8775,14 +8775,14 @@ bool SaveLevel(
 
 	const auto laststatobj_index = laststatobj - statobjlist.data();
 
-	archiver->write_int16(static_cast<std::int16_t>(laststatobj_index));
+	archiver.write_int16(static_cast<std::int16_t>(laststatobj_index));
 
 	//
 	// statobjlist
 	//
 	for (std::intptr_t i = 0; i < laststatobj_index; ++i)
 	{
-		statobjlist[i].archive(archiver.get());
+		statobjlist[i].archive(archiver);
 	}
 
 	//
@@ -8801,49 +8801,49 @@ bool SaveLevel(
 			}
 		);
 
-		archiver->write_uint16_array(door_positions_u16.data(), MAXDOORS);
+		archiver.write_uint16_array(door_positions_u16.data(), MAXDOORS);
 	}
 
 	for (int i = 0; i < MAXDOORS; ++i)
 	{
-		doorobjlist[i].archive(archiver.get());
+		doorobjlist[i].archive(archiver);
 	}
 
 	{
 		const auto pwallstate_u16 = static_cast<std::uint16_t>(pwallstate * 128.0);
-		archiver->write_uint16(pwallstate_u16);
+		archiver.write_uint16(pwallstate_u16);
 	}
 
-	archiver->write_uint16(pwallx);
-	archiver->write_uint16(pwally);
-	archiver->write_int16(pwalldir);
+	archiver.write_uint16(pwallx);
+	archiver.write_uint16(pwally);
+	archiver.write_int16(pwalldir);
 
 	{
 		const auto pwallpos_u16 = static_cast<std::uint16_t>(pwallpos * 64.0);
-		archiver->write_uint16(pwallpos_u16);
+		archiver.write_uint16(pwallpos_u16);
 	}
 
-	archiver->write_int16(pwalldist);
-	archiver->write_uint8_array(&travel_table_[0][0], MAPSIZE * MAPSIZE);
-	ConHintList.archive(archiver.get());
+	archiver.write_int16(pwalldist);
+	archiver.write_uint8_array(&travel_table_[0][0], MAPSIZE * MAPSIZE);
+	ConHintList.archive(archiver);
 
 	for (int i = 0; i < MAXEAWALLS; ++i)
 	{
-		eaList[i].archive(archiver.get());
+		eaList[i].archive(archiver);
 	}
 
-	GoldsternInfo.archive(archiver.get());
+	GoldsternInfo.archive(archiver);
 
 	for (int i = 0; i < GOLDIE_MAX_SPAWNS; ++i)
 	{
-		GoldieList[i].archive(archiver.get());
+		GoldieList[i].archive(archiver);
 	}
 
-	archiver->write_int16(gamestate.plasma_detonators);
+	archiver.write_int16(gamestate.plasma_detonators);
 
 	// Write checksum and determine size of file
 	//
-	archiver->write_checksum();
+	archiver.write_checksum();
 
 	const auto end_offset = g_playtemp.get_position();
 	const auto chunk_size = static_cast<std::int32_t>(end_offset - beg_offset);
@@ -8851,7 +8851,7 @@ bool SaveLevel(
 	// Write chunk size, set file size, and close file
 	//
 	g_playtemp.skip(-(chunk_size + 4));
-	archiver->write_int32(chunk_size);
+	archiver.write_int32(chunk_size);
 	g_playtemp.set_size(end_offset);
 
 	NewViewSize();
@@ -8944,10 +8944,10 @@ static bool LoadCompressedChunk(
 
 	try
 	{
-		auto archiver = bstone::make_archiver();
-		archiver->initialize(stream);
+		auto archiver = bstone::Archiver{};
+		archiver.open(*stream);
 
-		auto total_size = archiver->read_int32();
+		auto total_size = archiver.read_int32();
 
 		if (total_size <= 0 || total_size > stream_size)
 		{
@@ -8958,12 +8958,12 @@ static bool LoadCompressedChunk(
 		}
 
 		auto size = total_size - 4;
-		auto src_size = archiver->read_int32();
+		auto src_size = archiver.read_int32();
 
 		auto src_buffer = Buffer{};
 		src_buffer.resize(size);
 
-		archiver->read_uint8_array(src_buffer.data(), size);
+		archiver.read_uint8_array(src_buffer.data(), size);
 
 		buffer.resize(src_size);
 
@@ -9034,19 +9034,16 @@ bool LoadTheGame(
 
 		file_stream.skip(-4);
 
-		auto archiver = bstone::make_archiver();
+		auto archiver = bstone::Archiver{};
 
 		try
 		{
-			archiver->initialize(&file_stream);
+			archiver.open(file_stream);
 
 			auto saved_version_string = std::string{};
 			saved_version_string.resize(max_length);
 
-			int string_length;
-
-			archiver->read_string(max_length, &saved_version_string[0], string_length);
-
+			const auto string_length = archiver.read_string(max_length, &saved_version_string[0]);
 			saved_version_string.resize(string_length);
 
 			if (saved_version_string != version_string)
@@ -9094,7 +9091,7 @@ bool LoadTheGame(
 	//
 	if (is_succeed)
 	{
-		auto archiver = bstone::make_archiver();
+		auto archiver = bstone::Archiver{};
 
 		try
 		{
@@ -9102,10 +9099,10 @@ bool LoadTheGame(
 				head_buffer.data(),
 				static_cast<std::intptr_t>(head_buffer.size())};
 
-			archiver->initialize(&head_stream);
+			archiver.open(head_stream);
 
 			auto levels_hash_digest = bstone::Sha1Digest{};
-			archiver->read_uint8_array(
+			archiver.read_uint8_array(
 				levels_hash_digest.get_data(),
 				static_cast<int>(levels_hash_digest.get_size()));
 			const auto& levels_hash_string = bstone::array_to_hex_string(levels_hash_digest);
@@ -9118,13 +9115,13 @@ bool LoadTheGame(
 				BSTONE_THROW_STATIC_SOURCE("Levels hash mismatch.");
 			}
 
-			gamestate.unarchive(archiver.get());
-			old_gamestate.unarchive(archiver.get());
+			gamestate.unarchive(archiver);
+			old_gamestate.unarchive(archiver);
 
-			gamestuff.unarchive(archiver.get());
-			old_gamestuff.unarchive(archiver.get());
+			gamestuff.unarchive(archiver);
+			old_gamestuff.unarchive(archiver);
 
-			archiver->read_checksum();
+			archiver.read_checksum();
 		}
 		catch (const std::exception& ex)
 		{
@@ -9270,8 +9267,8 @@ bool SaveTheGame(
 
 	try
 	{
-		auto archiver = bstone::make_archiver();
-		archiver->initialize(&head_stream);
+		auto archiver = bstone::Archiver{};
+		archiver.open(head_stream);
 
 		// Levels hash.
 		//
@@ -9286,21 +9283,21 @@ bool SaveTheGame(
 			levels_digest.begin(),
 			levels_digest.end());
 
-		archiver->write_uint8_array(
+		archiver.write_uint8_array(
 			levels_digest.get_data(),
-			static_cast<int>(levels_digest.get_size()));
+			static_cast<std::intptr_t>(levels_digest.get_size()));
 
 		// Other stuff.
 		//
-		gamestate.archive(archiver.get());
-		old_gamestate.archive(archiver.get());
+		gamestate.archive(archiver);
+		old_gamestate.archive(archiver);
 
-		gamestuff.archive(archiver.get());
-		old_gamestuff.archive(archiver.get());
+		gamestuff.archive(archiver);
+		old_gamestuff.archive(archiver);
 
 		// Checksum.
 		//
-		archiver->write_checksum();
+		archiver.write_checksum();
 
 		head_stream.set_position(0);
 	}
@@ -9352,33 +9349,33 @@ bool SaveTheGame(
 	//
 	try
 	{
-		auto archiver = bstone::make_archiver();
-		archiver->initialize(&file_stream);
+		auto archiver = bstone::Archiver{};
+		archiver.open(file_stream);
 
 		// Write VERS chunk
 		//
 		const auto& version_string = get_saved_game_version_string();
-		archiver->write_char_array("VERS", 4);
-		archiver->write_string(version_string.c_str(), static_cast<int>(version_string.length()));
+		archiver.write_char_array("VERS", 4);
+		archiver.write_string(version_string.c_str(), static_cast<std::intptr_t>(version_string.length()));
 
 		// Write DESC chunk
 		//
-		archiver->write_char_array("DESC", 4);
-		archiver->write_string(description.c_str(), static_cast<int>(description.length()));
+		archiver.write_char_array("DESC", 4);
+		archiver.write_string(description.c_str(), static_cast<std::intptr_t>(description.length()));
 
 		// Write HEAD chunk
 		//
-		archiver->write_char_array("HEAD", 4);
-		archiver->write_int32(head_dst_size + 4);
-		archiver->write_int32(head_src_size);
-		archiver->write_uint8_array(head_buffer.data(), head_dst_size);
+		archiver.write_char_array("HEAD", 4);
+		archiver.write_int32(head_dst_size + 4);
+		archiver.write_int32(head_src_size);
+		archiver.write_uint8_array(head_buffer.data(), head_dst_size);
 
 		// Write LVXX chunk
 		//
-		archiver->write_char_array("LVXX", 4);
-		archiver->write_int32(lvxx_dst_size + 4);
-		archiver->write_int32(lvxx_src_size);
-		archiver->write_uint8_array(lvxx_buffer.data(), lvxx_dst_size);
+		archiver.write_char_array("LVXX", 4);
+		archiver.write_int32(lvxx_dst_size + 4);
+		archiver.write_int32(lvxx_src_size);
+		archiver.write_uint8_array(lvxx_buffer.data(), lvxx_dst_size);
 
 		//
 		NewViewSize();
@@ -10144,99 +10141,99 @@ void InitDestPath()
 
 // BBi
 void objtype::archive(
-	bstone::ArchiverPtr archiver) const
+	bstone::Archiver& archiver) const
 {
-	archiver->write_uint8(tilex);
-	archiver->write_uint8(tiley);
-	archiver->write_uint8(areanumber);
-	archiver->write_int8(static_cast<std::int8_t>(active));
-	archiver->write_int16(ticcount);
-	archiver->write_uint8(static_cast<std::uint8_t>(obclass));
+	archiver.write_uint8(tilex);
+	archiver.write_uint8(tiley);
+	archiver.write_uint8(areanumber);
+	archiver.write_int8(static_cast<std::int8_t>(active));
+	archiver.write_int16(ticcount);
+	archiver.write_uint8(static_cast<std::uint8_t>(obclass));
 
 	const auto state_index = get_state_index(state);
-	archiver->write_int16(static_cast<std::int16_t>(state_index));
+	archiver.write_int16(static_cast<std::int16_t>(state_index));
 
-	archiver->write_uint32(flags);
-	archiver->write_uint16(flags2);
-	archiver->write_int32(bstone::math::floating_to_fixed(distance));
-	archiver->write_uint8(static_cast<std::uint8_t>(dir));
-	archiver->write_uint8(static_cast<std::uint8_t>(trydir));
-	archiver->write_int32(bstone::math::floating_to_fixed(x));
-	archiver->write_int32(bstone::math::floating_to_fixed(y));
-	archiver->write_uint8(s_tilex);
-	archiver->write_uint8(s_tiley);
+	archiver.write_uint32(flags);
+	archiver.write_uint16(flags2);
+	archiver.write_int32(bstone::math::floating_to_fixed(distance));
+	archiver.write_uint8(static_cast<std::uint8_t>(dir));
+	archiver.write_uint8(static_cast<std::uint8_t>(trydir));
+	archiver.write_int32(bstone::math::floating_to_fixed(x));
+	archiver.write_int32(bstone::math::floating_to_fixed(y));
+	archiver.write_uint8(s_tilex);
+	archiver.write_uint8(s_tiley);
 	// viewx
 	// viewheight
-	archiver->write_int16(hitpoints);
-	archiver->write_uint8(ammo);
-	archiver->write_int8(lighting);
-	archiver->write_uint16(linc);
-	archiver->write_int16(angle);
-	archiver->write_int32(bstone::math::floating_to_fixed(speed));
-	archiver->write_int16(temp1);
-	archiver->write_int16(temp2);
-	archiver->write_uint16(temp3);
+	archiver.write_int16(hitpoints);
+	archiver.write_uint8(ammo);
+	archiver.write_int8(lighting);
+	archiver.write_uint16(linc);
+	archiver.write_int16(angle);
+	archiver.write_int32(bstone::math::floating_to_fixed(speed));
+	archiver.write_int16(temp1);
+	archiver.write_int16(temp2);
+	archiver.write_uint16(temp3);
 }
 
 void objtype::unarchive(
-	bstone::ArchiverPtr archiver)
+	bstone::Archiver& archiver)
 {
-	tilex = archiver->read_uint8();
-	tiley = archiver->read_uint8();
-	areanumber = archiver->read_uint8();
-	active = static_cast<activetype>(archiver->read_int8());
-	ticcount = archiver->read_int16();
-	obclass = static_cast<classtype>(archiver->read_uint8());
+	tilex = archiver.read_uint8();
+	tiley = archiver.read_uint8();
+	areanumber = archiver.read_uint8();
+	active = static_cast<activetype>(archiver.read_int8());
+	ticcount = archiver.read_int16();
+	obclass = static_cast<classtype>(archiver.read_uint8());
 
-	const auto state_index = archiver->read_int16();
+	const auto state_index = archiver.read_int16();
 	state = states_list[state_index];
 
-	flags = archiver->read_uint32();
-	flags2 = archiver->read_uint16();
-	distance = bstone::math::fixed_to_floating(archiver->read_int32());
-	dir = static_cast<dirtype>(archiver->read_uint8());
-	trydir = static_cast<dirtype>(archiver->read_uint8());
-	x = bstone::math::fixed_to_floating(archiver->read_int32());
-	y = bstone::math::fixed_to_floating(archiver->read_int32());
-	s_tilex = archiver->read_uint8();
-	s_tiley = archiver->read_uint8();
+	flags = archiver.read_uint32();
+	flags2 = archiver.read_uint16();
+	distance = bstone::math::fixed_to_floating(archiver.read_int32());
+	dir = static_cast<dirtype>(archiver.read_uint8());
+	trydir = static_cast<dirtype>(archiver.read_uint8());
+	x = bstone::math::fixed_to_floating(archiver.read_int32());
+	y = bstone::math::fixed_to_floating(archiver.read_int32());
+	s_tilex = archiver.read_uint8();
+	s_tiley = archiver.read_uint8();
 	viewx = {};
 	viewheight = {};
-	hitpoints = archiver->read_int16();
-	ammo = archiver->read_uint8();
-	lighting = archiver->read_int8();
-	linc = archiver->read_uint16();
-	angle = archiver->read_int16();
-	speed = bstone::math::fixed_to_floating(archiver->read_int32());
-	temp1 = archiver->read_int16();
-	temp2 = archiver->read_int16();
-	temp3 = archiver->read_uint16();
+	hitpoints = archiver.read_int16();
+	ammo = archiver.read_uint8();
+	lighting = archiver.read_int8();
+	linc = archiver.read_uint16();
+	angle = archiver.read_int16();
+	speed = bstone::math::fixed_to_floating(archiver.read_int32());
+	temp1 = archiver.read_int16();
+	temp2 = archiver.read_int16();
+	temp3 = archiver.read_uint16();
 }
 
 void statobj_t::archive(
-	bstone::ArchiverPtr archiver) const
+	bstone::Archiver& archiver) const
 {
-	archiver->write_uint8(tilex);
-	archiver->write_uint8(tiley);
-	archiver->write_uint8(areanumber);
+	archiver.write_uint8(tilex);
+	archiver.write_uint8(tiley);
+	archiver.write_uint8(areanumber);
 
 	const auto vis_index = static_cast<std::int16_t>(visspot - &spotvis[0][0]);
-	archiver->write_int16(vis_index);
+	archiver.write_int16(vis_index);
 
-	archiver->write_int16(shapenum);
-	archiver->write_uint16(flags);
-	archiver->write_uint8(itemnumber);
-	archiver->write_int8(lighting);
+	archiver.write_int16(shapenum);
+	archiver.write_uint16(flags);
+	archiver.write_uint8(itemnumber);
+	archiver.write_int8(lighting);
 }
 
 void statobj_t::unarchive(
-	bstone::ArchiverPtr archiver)
+	bstone::Archiver& archiver)
 {
-	tilex = archiver->read_uint8();
-	tiley = archiver->read_uint8();
-	areanumber = archiver->read_uint8();
+	tilex = archiver.read_uint8();
+	tiley = archiver.read_uint8();
+	areanumber = archiver.read_uint8();
 
-	const auto vis_index = archiver->read_int16();
+	const auto vis_index = archiver.read_int16();
 
 	if (vis_index < 0)
 	{
@@ -10247,75 +10244,75 @@ void statobj_t::unarchive(
 		visspot = &(&spotvis[0][0])[vis_index];
 	}
 
-	shapenum = archiver->read_int16();
-	flags = archiver->read_uint16();
-	itemnumber = archiver->read_uint8();
-	lighting = archiver->read_int8();
+	shapenum = archiver.read_int16();
+	flags = archiver.read_uint16();
+	itemnumber = archiver.read_uint8();
+	lighting = archiver.read_int8();
 }
 
 void doorobj_t::archive(
-	bstone::ArchiverPtr archiver) const
+	bstone::Archiver& archiver) const
 {
-	archiver->write_uint8(tilex);
-	archiver->write_uint8(tiley);
-	archiver->write_bool(vertical);
-	archiver->write_int8(flags);
-	archiver->write_int8(static_cast<std::int8_t>(lock));
-	archiver->write_uint8(static_cast<std::uint8_t>(type));
-	archiver->write_uint8(static_cast<std::uint8_t>(action));
-	archiver->write_int16(ticcount);
-	archiver->write_uint8_array(areanumber, 2);
+	archiver.write_uint8(tilex);
+	archiver.write_uint8(tiley);
+	archiver.write_bool(vertical);
+	archiver.write_int8(flags);
+	archiver.write_int8(static_cast<std::int8_t>(lock));
+	archiver.write_uint8(static_cast<std::uint8_t>(type));
+	archiver.write_uint8(static_cast<std::uint8_t>(action));
+	archiver.write_int16(ticcount);
+	archiver.write_uint8_array(areanumber, 2);
 }
 
 void doorobj_t::unarchive(
-	bstone::ArchiverPtr archiver)
+	bstone::Archiver& archiver)
 {
-	tilex = archiver->read_uint8();
-	tiley = archiver->read_uint8();
-	vertical = archiver->read_bool();
-	flags = archiver->read_int8();
-	lock = static_cast<keytype>(archiver->read_int8());
-	type = static_cast<door_t>(archiver->read_uint8());
-	action = static_cast<DoorAction>(archiver->read_uint8());
-	ticcount = archiver->read_int16();
-	archiver->read_uint8_array(areanumber, 2);
+	tilex = archiver.read_uint8();
+	tiley = archiver.read_uint8();
+	vertical = archiver.read_bool();
+	flags = archiver.read_int8();
+	lock = static_cast<keytype>(archiver.read_int8());
+	type = static_cast<door_t>(archiver.read_uint8());
+	action = static_cast<DoorAction>(archiver.read_uint8());
+	ticcount = archiver.read_int16();
+	archiver.read_uint8_array(areanumber, 2);
 }
 
 void mCacheInfo::archive(
-	bstone::ArchiverPtr archiver) const
+	bstone::Archiver& archiver) const
 {
-	archiver->write_uint8(local_val);
-	archiver->write_uint8(global_val);
+	archiver.write_uint8(local_val);
+	archiver.write_uint8(global_val);
 }
 
 void mCacheInfo::unarchive(
-	bstone::ArchiverPtr archiver)
+	bstone::Archiver& archiver)
 {
-	local_val = archiver->read_uint8();
-	global_val = archiver->read_uint8();
+	local_val = archiver.read_uint8();
+	global_val = archiver.read_uint8();
 	mSeg.clear();
 }
 
 void con_mCacheInfo::archive(
-	bstone::ArchiverPtr archiver) const
+	bstone::Archiver& archiver) const
 {
 	mInfo.archive(archiver);
-	archiver->write_uint8(type);
-	archiver->write_uint8(operate_cnt);
+	archiver.write_uint8(type);
+	archiver.write_uint8(operate_cnt);
 }
 
 void con_mCacheInfo::unarchive(
-	bstone::ArchiverPtr archiver)
+	bstone::Archiver& archiver)
 {
 	mInfo.unarchive(archiver);
-	type = archiver->read_uint8();
-	operate_cnt = archiver->read_uint8();
+	type = archiver.read_uint8();
+	operate_cnt = archiver.read_uint8();
 }
 
 void concession_t::archive(
-	bstone::ArchiverPtr archiver) const
+	bstone::Archiver& archiver) const
 {
-	archiver->write_int16(NumMsgs);
+	archiver.write_int16(NumMsgs);
 
 	for (int i = 0; i < NumMsgs; ++i)
 	{
@@ -10324,9 +10321,9 @@ void concession_t::archive(
 }
 
 void concession_t::unarchive(
-	bstone::ArchiverPtr archiver)
+	bstone::Archiver& archiver)
 {
-	NumMsgs = archiver->read_int16();
+	NumMsgs = archiver.read_int16();
 
 	for (int i = 0; i < NumMsgs; ++i)
 	{
@@ -10335,117 +10332,117 @@ void concession_t::unarchive(
 }
 
 void eaWallInfo::archive(
-	bstone::ArchiverPtr archiver) const
+	bstone::Archiver& archiver) const
 {
-	archiver->write_int8(tilex);
-	archiver->write_int8(tiley);
-	archiver->write_int8(aliens_out);
-	archiver->write_int16(delay);
+	archiver.write_int8(tilex);
+	archiver.write_int8(tiley);
+	archiver.write_int8(aliens_out);
+	archiver.write_int16(delay);
 }
 
 void eaWallInfo::unarchive(
-	bstone::ArchiverPtr archiver)
+	bstone::Archiver& archiver)
 {
-	tilex = archiver->read_int8();
-	tiley = archiver->read_int8();
-	aliens_out = archiver->read_int8();
-	delay = archiver->read_int16();
+	tilex = archiver.read_int8();
+	tiley = archiver.read_int8();
+	aliens_out = archiver.read_int8();
+	delay = archiver.read_int16();
 }
 
 void GoldsternInfo_t::archive(
-	bstone::ArchiverPtr archiver) const
+	bstone::Archiver& archiver) const
 {
-	archiver->write_uint8(LastIndex);
-	archiver->write_uint8(SpawnCnt);
-	archiver->write_uint16(flags);
-	archiver->write_uint16(WaitTime);
-	archiver->write_bool(GoldSpawned);
+	archiver.write_uint8(LastIndex);
+	archiver.write_uint8(SpawnCnt);
+	archiver.write_uint16(flags);
+	archiver.write_uint16(WaitTime);
+	archiver.write_bool(GoldSpawned);
 }
 
 void GoldsternInfo_t::unarchive(
-	bstone::ArchiverPtr archiver)
+	bstone::Archiver& archiver)
 {
-	LastIndex = archiver->read_uint8();
-	SpawnCnt = archiver->read_uint8();
-	flags = archiver->read_uint16();
-	WaitTime = archiver->read_uint16();
-	GoldSpawned = archiver->read_bool();
+	LastIndex = archiver.read_uint8();
+	SpawnCnt = archiver.read_uint8();
+	flags = archiver.read_uint16();
+	WaitTime = archiver.read_uint16();
+	GoldSpawned = archiver.read_bool();
 }
 
 void tilecoord_t::archive(
-	bstone::ArchiverPtr archiver) const
+	bstone::Archiver& archiver) const
 {
-	archiver->write_uint8(tilex);
-	archiver->write_uint8(tiley);
+	archiver.write_uint8(tilex);
+	archiver.write_uint8(tiley);
 }
 
 void tilecoord_t::unarchive(
-	bstone::ArchiverPtr archiver)
+	bstone::Archiver& archiver)
 {
-	tilex = archiver->read_uint8();
-	tiley = archiver->read_uint8();
+	tilex = archiver.read_uint8();
+	tiley = archiver.read_uint8();
 }
 
 void barrier_type::archive(
-	bstone::ArchiverPtr archiver) const
+	bstone::Archiver& archiver) const
 {
 	coord.archive(archiver);
-	archiver->write_uint8(on);
+	archiver.write_uint8(on);
 }
 
 void barrier_type::unarchive(
-	bstone::ArchiverPtr archiver)
+	bstone::Archiver& archiver)
 {
 	coord.unarchive(archiver);
-	on = archiver->read_uint8();
+	on = archiver.read_uint8();
 }
 
 void statsInfoType::archive(
-	bstone::ArchiverPtr archiver) const
+	bstone::Archiver& archiver) const
 {
-	archiver->write_int32(total_points);
-	archiver->write_int32(accum_points);
-	archiver->write_uint8(total_enemy);
-	archiver->write_uint8(accum_enemy);
-	archiver->write_uint8(total_inf);
-	archiver->write_uint8(accum_inf);
-	archiver->write_int16(overall_floor);
+	archiver.write_int32(total_points);
+	archiver.write_int32(accum_points);
+	archiver.write_uint8(total_enemy);
+	archiver.write_uint8(accum_enemy);
+	archiver.write_uint8(total_inf);
+	archiver.write_uint8(accum_inf);
+	archiver.write_int16(overall_floor);
 }
 
 void statsInfoType::unarchive(
-	bstone::ArchiverPtr archiver)
+	bstone::Archiver& archiver)
 {
-	total_points = archiver->read_int32();
-	accum_points = archiver->read_int32();
-	total_enemy = archiver->read_uint8();
-	accum_enemy = archiver->read_uint8();
-	total_inf = archiver->read_uint8();
-	accum_inf = archiver->read_uint8();
-	overall_floor = archiver->read_int16();
+	total_points = archiver.read_int32();
+	accum_points = archiver.read_int32();
+	total_enemy = archiver.read_uint8();
+	accum_enemy = archiver.read_uint8();
+	total_inf = archiver.read_uint8();
+	accum_inf = archiver.read_uint8();
+	overall_floor = archiver.read_int16();
 }
 
 void levelinfo::archive(
-	bstone::ArchiverPtr archiver) const
+	bstone::Archiver& archiver) const
 {
-	archiver->write_uint16(bonus_queue);
-	archiver->write_uint16(bonus_shown);
-	archiver->write_bool(locked);
+	archiver.write_uint16(bonus_queue);
+	archiver.write_uint16(bonus_shown);
+	archiver.write_bool(locked);
 	stats.archive(archiver);
-	archiver->write_uint8(ptilex);
-	archiver->write_uint8(ptiley);
-	archiver->write_int16(pangle);
+	archiver.write_uint8(ptilex);
+	archiver.write_uint8(ptiley);
+	archiver.write_int16(pangle);
 }
 
 void levelinfo::unarchive(
-	bstone::ArchiverPtr archiver)
+	bstone::Archiver& archiver)
 {
-	bonus_queue = archiver->read_uint16();
-	bonus_shown = archiver->read_uint16();
-	locked = archiver->read_bool();
+	bonus_queue = archiver.read_uint16();
+	bonus_shown = archiver.read_uint16();
+	locked = archiver.read_bool();
 	stats.unarchive(archiver);
-	ptilex = archiver->read_uint8();
-	ptiley = archiver->read_uint8();
-	pangle = archiver->read_int16();
+	ptilex = archiver.read_uint8();
+	ptiley = archiver.read_uint8();
+	pangle = archiver.read_int16();
 }
 
 fargametype::fargametype()
@@ -10469,7 +10466,7 @@ void fargametype::clear()
 }
 
 void fargametype::archive(
-	bstone::ArchiverPtr archiver) const
+	bstone::Archiver& archiver) const
 {
 	const auto& assets_info = get_assets_info();
 	const auto levels_per_episode = assets_info.get_levels_per_episode();
@@ -10481,7 +10478,7 @@ void fargametype::archive(
 }
 
 void fargametype::unarchive(
-	bstone::ArchiverPtr archiver)
+	bstone::Archiver& archiver)
 {
 	const auto& assets_info = get_assets_info();
 	const auto levels_per_episode = assets_info.get_levels_per_episode();
@@ -10493,97 +10490,97 @@ void fargametype::unarchive(
 }
 
 void gametype::archive(
-	bstone::ArchiverPtr archiver) const
+	bstone::Archiver& archiver) const
 {
-	archiver->write_int16(turn_around);
-	archiver->write_int16(turn_angle);
-	archiver->write_uint16(flags);
-	archiver->write_int16(lastmapon);
-	archiver->write_int16(difficulty);
-	archiver->write_int16(mapon);
-	archiver->write_int32(tic_score);
-	archiver->write_int32(score);
-	archiver->write_int32(nextextra);
-	archiver->write_int16(score_roll_wait);
-	archiver->write_int16(lives);
-	archiver->write_int16(health);
-	archiver->write_int16(rpower);
-	archiver->write_int8(rzoom);
-	archiver->write_int8(radar_leds);
-	archiver->write_int8(lastradar_leds);
-	archiver->write_int8(lastammo_leds);
-	archiver->write_int8(ammo_leds);
-	archiver->write_int16(ammo);
-	archiver->write_int16(plasma_detonators);
-	archiver->write_int8(useable_weapons);
-	archiver->write_int8(weapons);
-	archiver->write_int8(weapon);
-	archiver->write_int8(chosenweapon);
-	archiver->write_int8(weapon_wait);
-	archiver->write_int16(attackframe);
-	archiver->write_int16(attackcount);
-	archiver->write_int16(weaponframe);
-	archiver->write_int16(episode);
-	archiver->write_uint32(TimeCount);
+	archiver.write_int16(turn_around);
+	archiver.write_int16(turn_angle);
+	archiver.write_uint16(flags);
+	archiver.write_int16(lastmapon);
+	archiver.write_int16(difficulty);
+	archiver.write_int16(mapon);
+	archiver.write_int32(tic_score);
+	archiver.write_int32(score);
+	archiver.write_int32(nextextra);
+	archiver.write_int16(score_roll_wait);
+	archiver.write_int16(lives);
+	archiver.write_int16(health);
+	archiver.write_int16(rpower);
+	archiver.write_int8(rzoom);
+	archiver.write_int8(radar_leds);
+	archiver.write_int8(lastradar_leds);
+	archiver.write_int8(lastammo_leds);
+	archiver.write_int8(ammo_leds);
+	archiver.write_int16(ammo);
+	archiver.write_int16(plasma_detonators);
+	archiver.write_int8(useable_weapons);
+	archiver.write_int8(weapons);
+	archiver.write_int8(weapon);
+	archiver.write_int8(chosenweapon);
+	archiver.write_int8(weapon_wait);
+	archiver.write_int16(attackframe);
+	archiver.write_int16(attackcount);
+	archiver.write_int16(weaponframe);
+	archiver.write_int16(episode);
+	archiver.write_uint32(TimeCount);
 	// Skip "msg"
-	archiver->write_int8_array(numkeys, NUMKEYS);
+	archiver.write_int8_array(numkeys, NUMKEYS);
 
 	for (auto& barrier : barrier_table)
 	{
 		barrier.archive(archiver);
 	}
 
-	archiver->write_uint16(tokens);
-	archiver->write_bool(boss_key_dropped);
-	archiver->write_int16(wintilex);
-	archiver->write_int16(wintiley);
+	archiver.write_uint16(tokens);
+	archiver.write_bool(boss_key_dropped);
+	archiver.write_int16(wintilex);
+	archiver.write_int16(wintiley);
 }
 
 void gametype::unarchive(
-	bstone::ArchiverPtr archiver)
+	bstone::Archiver& archiver)
 {
-	turn_around = archiver->read_int16();
-	turn_angle = archiver->read_int16();
-	flags = archiver->read_uint16();
-	lastmapon = archiver->read_int16();
-	difficulty = archiver->read_int16();
-	mapon = archiver->read_int16();
-	tic_score = archiver->read_int32();
-	score = archiver->read_int32();
-	nextextra = archiver->read_int32();
-	score_roll_wait = archiver->read_int16();
-	lives = archiver->read_int16();
-	health = archiver->read_int16();
-	rpower = archiver->read_int16();
-	rzoom = archiver->read_int8();
-	radar_leds = archiver->read_int8();
-	lastradar_leds = archiver->read_int8();
-	lastammo_leds = archiver->read_int8();
-	ammo_leds = archiver->read_int8();
-	ammo = archiver->read_int16();
-	plasma_detonators = archiver->read_int16();
-	useable_weapons = archiver->read_int8();
-	weapons = archiver->read_int8();
-	weapon = archiver->read_int8();
-	chosenweapon = archiver->read_int8();
-	weapon_wait = archiver->read_int8();
-	attackframe = archiver->read_int16();
-	attackcount = archiver->read_int16();
-	weaponframe = archiver->read_int16();
-	episode = archiver->read_int16();
-	TimeCount = archiver->read_uint32();
+	turn_around = archiver.read_int16();
+	turn_angle = archiver.read_int16();
+	flags = archiver.read_uint16();
+	lastmapon = archiver.read_int16();
+	difficulty = archiver.read_int16();
+	mapon = archiver.read_int16();
+	tic_score = archiver.read_int32();
+	score = archiver.read_int32();
+	nextextra = archiver.read_int32();
+	score_roll_wait = archiver.read_int16();
+	lives = archiver.read_int16();
+	health = archiver.read_int16();
+	rpower = archiver.read_int16();
+	rzoom = archiver.read_int8();
+	radar_leds = archiver.read_int8();
+	lastradar_leds = archiver.read_int8();
+	lastammo_leds = archiver.read_int8();
+	ammo_leds = archiver.read_int8();
+	ammo = archiver.read_int16();
+	plasma_detonators = archiver.read_int16();
+	useable_weapons = archiver.read_int8();
+	weapons = archiver.read_int8();
+	weapon = archiver.read_int8();
+	chosenweapon = archiver.read_int8();
+	weapon_wait = archiver.read_int8();
+	attackframe = archiver.read_int16();
+	attackcount = archiver.read_int16();
+	weaponframe = archiver.read_int16();
+	episode = archiver.read_int16();
+	TimeCount = archiver.read_uint32();
 	msg = nullptr;
-	archiver->read_int8_array(numkeys, NUMKEYS);
+	archiver.read_int8_array(numkeys, NUMKEYS);
 
 	for (auto& barrier : barrier_table)
 	{
 		barrier.unarchive(archiver);
 	}
 
-	tokens = archiver->read_uint16();
-	boss_key_dropped = archiver->read_bool();
-	wintilex = archiver->read_int16();
-	wintiley = archiver->read_int16();
+	tokens = archiver.read_uint16();
+	boss_key_dropped = archiver.read_bool();
+	wintilex = archiver.read_int16();
+	wintiley = archiver.read_int16();
 }
 
 void gametype::initialize()

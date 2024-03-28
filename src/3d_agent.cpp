@@ -4217,15 +4217,15 @@ void LoadOverheadChunk(
 
 	if (FindChunk(&g_playtemp, chunk_name) > 0)
 	{
-		auto archiver = bstone::make_archiver();
+		auto archiver = bstone::Archiver{};
 
 		try
 		{
-			archiver->initialize(&g_playtemp);
+			archiver.open(g_playtemp);
 
-			archiver->read_uint8_array(ov_buffer.data(), 4096);
-			ov_stats.unarchive(archiver.get());
-			archiver->read_checksum();
+			archiver.read_uint8_array(ov_buffer.data(), 4096);
+			ov_stats.unarchive(archiver);
+			archiver.read_checksum();
 		}
 		catch (const std::exception&)
 		{
@@ -4267,17 +4267,17 @@ void SaveOverheadChunk(
 
 	const auto beg_offset = g_playtemp.get_position();
 
-	auto archiver = bstone::make_archiver();
-	archiver->initialize(&g_playtemp);
+	auto archiver = bstone::Archiver{};
+	archiver.open(g_playtemp);
 
-	archiver->write_uint8_array(ov_buffer.data(), 4096);
-	ov_stats.archive(archiver.get());
-	archiver->write_checksum();
+	archiver.write_uint8_array(ov_buffer.data(), 4096);
+	ov_stats.archive(archiver);
+	archiver.write_checksum();
 
 	const auto end_offset = g_playtemp.get_position();
 	const auto chunk_size = static_cast<std::int32_t>(end_offset - beg_offset);
 	g_playtemp.skip(-(chunk_size + 4));
-	archiver->write_int32(chunk_size);
+	archiver.write_int32(chunk_size);
 }
 
 void DisplayTeleportName(
