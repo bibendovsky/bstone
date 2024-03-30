@@ -29,9 +29,19 @@ std::intptr_t Stream::read(void* buffer, std::intptr_t count)
 
 void Stream::read_exactly(void* buffer, std::intptr_t count)
 {
-	if (read(buffer, count) != count)
+	auto typed_buffer = static_cast<char*>(buffer);
+
+	while (count != 0)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Mismatch of read number of bytes.");
+		const auto read_count = read(typed_buffer, count);
+
+		if (read_count == 0)
+		{
+			BSTONE_THROW_STATIC_SOURCE("Mismatch of read number of bytes.");
+		}
+
+		typed_buffer += read_count;
+		count -= read_count;
 	}
 }
 
@@ -42,9 +52,19 @@ std::intptr_t Stream::write(const void* buffer, std::intptr_t count)
 
 void Stream::write_exactly(const void* buffer, std::intptr_t count)
 {
-	if (write(buffer, count) != count)
+	auto typed_buffer = static_cast<const char*>(buffer);
+
+	while (count != 0)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Mismatch of written number of bytes.");
+		const auto written_count = write(typed_buffer, count);
+
+		if (written_count == 0)
+		{
+			BSTONE_THROW_STATIC_SOURCE("Mismatch of written number of bytes.");
+		}
+
+		typed_buffer += written_count;
+		count -= written_count;
 	}
 }
 
