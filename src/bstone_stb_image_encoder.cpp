@@ -110,7 +110,7 @@ void StbImageEncoder::stb_write_func(
 		return;
 	}
 
-	std::uninitialized_copy_n(
+	std::copy_n(
 		static_cast<const std::uint8_t*>(data),
 		size,
 		dst_buffer_

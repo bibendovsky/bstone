@@ -462,9 +462,9 @@ try
 
 		for (auto h = 0; h < half_height; ++h)
 		{
-			std::uninitialized_copy_n(src_row, stride_rgb_888_, tmp_row);
-			std::uninitialized_copy_n(dst_row, stride_rgb_888_, src_row);
-			std::uninitialized_copy_n(tmp_row, stride_rgb_888_, dst_row);
+			std::copy_n(src_row, stride_rgb_888_, tmp_row);
+			std::copy_n(dst_row, stride_rgb_888_, src_row);
+			std::copy_n(tmp_row, stride_rgb_888_, dst_row);
 
 			src_row += stride_rgb_888_;
 			dst_row -= stride_rgb_888_;
@@ -1492,12 +1492,12 @@ void VL_Bar(
 		const auto offset = y * vga_ref_width;
 		const auto count = height * vga_ref_width;
 
-		std::uninitialized_fill(
+		std::fill(
 			vid_ui_buffer_.begin() + offset,
 			vid_ui_buffer_.begin() + offset + count,
 			color);
 
-		std::uninitialized_fill(
+		std::fill(
 			vid_mask_buffer_.begin() + offset,
 			vid_mask_buffer_.begin() + offset + count,
 			!is_transparent);
@@ -1508,12 +1508,12 @@ void VL_Bar(
 		{
 			const auto offset = ((y + i) * vga_ref_width) + x;
 
-			std::uninitialized_fill(
+			std::fill(
 				vid_ui_buffer_.begin() + offset,
 				vid_ui_buffer_.begin() + offset + width,
 				color);
 
-			std::uninitialized_fill(
+			std::fill(
 				vid_mask_buffer_.begin() + offset,
 				vid_mask_buffer_.begin() + offset + width,
 				!is_transparent);
@@ -1625,12 +1625,12 @@ void VL_LatchToScreen(
 		const auto src_offset = source + (h * width);
 		const auto dst_offset = (vga_ref_width * (y + h)) + x;
 
-		std::uninitialized_copy(
+		std::copy(
 			latches_cache.cbegin() + src_offset,
 			latches_cache.cbegin() + src_offset + width,
 			vid_ui_buffer_.begin() + dst_offset);
 
-		std::uninitialized_fill(
+		std::fill(
 			vid_mask_buffer_.begin() + dst_offset,
 			vid_mask_buffer_.begin() + dst_offset + width,
 			true);
@@ -1648,12 +1648,12 @@ void VL_ScreenToScreen(
 		const auto src_offset = source + (h * vga_ref_width);
 		const auto dst_offset = dest + (h * vga_ref_width);
 
-		std::uninitialized_copy(
+		std::copy(
 			vid_ui_buffer_.cbegin() + src_offset,
 			vid_ui_buffer_.cbegin() + src_offset + width,
 			vid_ui_buffer_.begin() + dst_offset);
 
-		std::uninitialized_fill(
+		std::fill(
 			vid_mask_buffer_.begin() + dst_offset,
 			vid_mask_buffer_.begin() + dst_offset + width,
 			true);
@@ -1666,12 +1666,12 @@ void JM_VGALinearFill(
 	int length,
 	std::uint8_t fill)
 {
-	std::uninitialized_fill(
+	std::fill(
 		vid_ui_buffer_.begin() + start,
 		vid_ui_buffer_.begin() + start + length,
 		fill);
 
-	std::uninitialized_fill(
+	std::fill(
 		vid_mask_buffer_.begin() + start,
 		vid_mask_buffer_.begin() + start + length,
 		true);
@@ -2015,7 +2015,7 @@ void vid_set_ui_mask(
 	{
 		const auto offset = ((y + h) * vga_ref_width) + x;
 
-		std::uninitialized_fill(
+		std::fill(
 			vid_mask_buffer_.begin() + offset,
 			vid_mask_buffer_.begin() + offset + width,
 			value);

@@ -348,7 +348,7 @@ try {
 
 	for (auto h = 0; h < height_; ++h)
 	{
-		std::uninitialized_fill_n(line_buffer_.begin(), stride_, 0U);
+		std::fill_n(line_buffer_.begin(), stride_, 0U);
 
 		auto nibble_index = 0U;
 		auto line_byte = line_buffer_.data();

@@ -9,6 +9,7 @@ SPDX-License-Identifier: MIT
 #include <cassert>
 #include <cstdint>
 
+#include <algorithm>
 #include <limits>
 #include <memory>
 #include <type_traits>
@@ -92,7 +93,7 @@ DynamicSourceException::DynamicSourceException(const SourceLocation& source_loca
 	auto control_block = reinterpret_cast<ControlBlock*>(storage.get());
 	control_block->counter = 1;
 	control_block->message = reinterpret_cast<char*>(&control_block[1]);
-	std::uninitialized_copy_n(message, message_size_with_null, control_block->message);
+	std::copy_n(message, message_size_with_null, control_block->message);
 	control_block_ = reinterpret_cast<ControlBlock*>(storage.release());
 }
 

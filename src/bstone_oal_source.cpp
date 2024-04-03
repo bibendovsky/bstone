@@ -553,7 +553,7 @@ void OalSource::set_streaming_al_buffer_data(ALint al_buffer, int sample_count)
 
 void OalSource::set_streaming_al_buffer_defaults()
 {
-	std::uninitialized_fill(streaming_mix_buffer_.begin(), streaming_mix_buffer_.end(), OalSourceSample{});
+	std::fill(streaming_mix_buffer_.begin(), streaming_mix_buffer_.end(), OalSourceSample{});
 
 	for (auto i = 0; i < oal_source_max_streaming_buffers; ++i)
 	{

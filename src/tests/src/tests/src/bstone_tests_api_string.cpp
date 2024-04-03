@@ -23,7 +23,7 @@ private:
 	void* do_allocate(std::intptr_t size) override
 	{
 		const auto ptr = bstone::get_default_memory_resource().allocate(size);
-		std::uninitialized_fill_n(static_cast<char*>(ptr), size, memory_fill_value);
+		std::fill_n(static_cast<char*>(ptr), size, memory_fill_value);
 		return ptr;
 	}
 

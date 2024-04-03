@@ -69,7 +69,7 @@ std::intptr_t StaticMemoryStream::do_read(void* buffer, std::intptr_t count)
 		return 0;
 	}
 
-	std::uninitialized_copy_n(&buffer_[position_], copy_count, static_cast<std::uint8_t*>(buffer));
+	std::copy_n(&buffer_[position_], copy_count, static_cast<std::uint8_t*>(buffer));
 	position_ += copy_count;
 
 	return copy_count;
@@ -88,7 +88,7 @@ std::intptr_t StaticMemoryStream::do_write(const void* buffer, std::intptr_t cou
 		return 0;
 	}
 
-	std::uninitialized_copy_n(static_cast<const std::uint8_t*>(buffer), copy_count, &buffer_[position_]);
+	std::copy_n(static_cast<const std::uint8_t*>(buffer), copy_count, &buffer_[position_]);
 	position_ += copy_count;
 	size_ = position_;
 

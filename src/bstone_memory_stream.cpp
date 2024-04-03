@@ -68,7 +68,7 @@ std::intptr_t MemoryStream::do_read(void* buffer, std::intptr_t count)
 		return 0;
 	}
 
-	std::uninitialized_copy_n(&storage_[position_], copy_count, static_cast<std::uint8_t*>(buffer));
+	std::copy_n(&storage_[position_], copy_count, static_cast<std::uint8_t*>(buffer));
 	position_ += copy_count;
 
 	return copy_count;
@@ -89,7 +89,7 @@ std::intptr_t MemoryStream::do_write(const void* buffer, std::intptr_t count)
 
 	const auto new_capacity = position_ + copy_count;
 	reserve(new_capacity, chunk_size_);
-	std::uninitialized_copy_n(static_cast<const std::uint8_t*>(buffer), copy_count, &storage_[position_]);
+	std::copy_n(static_cast<const std::uint8_t*>(buffer), copy_count, &storage_[position_]);
 	position_ += copy_count;
 	size_ = position_;
 
@@ -249,7 +249,7 @@ void MemoryStream::reserve(std::intptr_t capacity, std::intptr_t chunk_size)
 
 	if (storage_ != nullptr)
 	{
-		std::uninitialized_copy_n(storage_.get(), size_, storage.get());
+		std::copy_n(storage_.get(), size_, storage.get());
 	}
 
 	capacity_ = new_capacity;

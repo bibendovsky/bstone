@@ -69,7 +69,7 @@ void CVarString::set(StringView string_view)
 		capacity_ = new_capacity;
 	}
 
-	std::uninitialized_copy_n(string_view.get_data(), new_size, storage_.get());
+	std::copy_n(string_view.get_data(), new_size, storage_.get());
 	size_ = new_size;
 }
 

@@ -420,7 +420,7 @@ BasicString<TChar>::BasicString(Char ch, std::intptr_t c_count, MemoryResource& 
 	:
 	BasicString{c_count, StringCapacityTag{}, memory_resource}
 {
-	std::uninitialized_fill_n(get_data(), c_count, ch);
+	std::fill_n(get_data(), c_count, ch);
 	set_size_and_terminate_without_this(c_count);
 }
 
@@ -472,7 +472,7 @@ BasicString<TChar>::BasicString(View view, MemoryResource& memory_resource)
 	BasicString{view.get_size(), StringCapacityTag{}, memory_resource}
 {
 	const auto string_view_size = view.get_size();
-	std::uninitialized_copy_n(view.get_data(), string_view_size, get_data());
+	std::copy_n(view.get_data(), string_view_size, get_data());
 	set_size_and_terminate_without_this(string_view_size);
 }
 
@@ -491,7 +491,7 @@ BasicString<TChar>::BasicString(BasicString&& rhs) noexcept
 {
 	if (get_capacity() <= local_capacity)
 	{
-		std::uninitialized_copy_n(rhs.local_data_, get_size() + 1, local_data_);
+		std::copy_n(rhs.local_data_, get_size() + 1, local_data_);
 		data_ = local_data_;
 	}
 	else
@@ -647,7 +647,7 @@ void BasicString<TChar>::reserve(std::intptr_t capacity)
 
 	auto& memory_resource = get_memory_resource();
 	auto new_storage = Storage{memory_resource.template allocate<Char>(capacity + 1), memory_resource};
-	std::uninitialized_copy_n(get_data(), get_size() + 1, new_storage.get());
+	std::copy_n(get_data(), get_size() + 1, new_storage.get());
 	storage_.swap(new_storage);
 	data_ = storage_.get();
 	capacity_ = capacity;
@@ -673,7 +673,7 @@ void BasicString<TChar>::resize(std::intptr_t size, Char ch)
 	{
 		reserve(size);
 		const auto fill_count = size - get_size();
-		std::uninitialized_fill_n(end(), fill_count, ch);
+		std::fill_n(end(), fill_count, ch);
 	}
 
 	set_size_and_terminate_without_this(size);
@@ -707,7 +707,7 @@ auto BasicString<TChar>::assign(Char ch, std::intptr_t c_count) -> BasicString&
 	}
 
 	reserve(c_count);
-	std::uninitialized_fill_n(get_data(), c_count, ch);
+	std::fill_n(get_data(), c_count, ch);
 	return set_size_and_terminate(c_count);
 }
 
@@ -760,7 +760,7 @@ auto BasicString<TChar>::assign(View view) -> BasicString&
 
 	const auto string_view_size = view.get_size();
 	reserve(string_view_size);
-	std::uninitialized_copy_n(view.get_data(), string_view_size, get_data());
+	std::copy_n(view.get_data(), string_view_size, get_data());
 	return set_size_and_terminate(string_view_size);
 }
 
@@ -796,7 +796,7 @@ BasicString<TChar>& BasicString<TChar>::append(Char ch, std::intptr_t c_count)
 
 	const auto new_size = get_size() + c_count;
 	reserve(new_size);
-	std::uninitialized_fill_n(end(), c_count, ch);
+	std::fill_n(end(), c_count, ch);
 	return set_size_and_terminate(new_size);
 }
 
@@ -842,7 +842,7 @@ auto BasicString<TChar>::append(View view) -> BasicString&
 	const auto string_view_size = view.get_size();
 	const auto new_size = get_size() + string_view_size;
 	reserve(new_size);
-	std::uninitialized_copy_n(view.get_data(), string_view_size, end());
+	std::copy_n(view.get_data(), string_view_size, end());
 	return set_size_and_terminate(new_size);
 }
 
@@ -881,15 +881,15 @@ auto BasicString<TChar>::insert(std::intptr_t index, Char ch, std::intptr_t c_co
 	if (new_size <= get_capacity())
 	{
 		copy_overlapped(index, c_count, index + c_count);
-		std::uninitialized_fill_n(&(*this)[index], c_count, ch);
+		std::fill_n(&(*this)[index], c_count, ch);
 	}
 	else
 	{
 		auto& memory_resource = get_memory_resource();
 		auto new_storage = Storage{memory_resource.template allocate<Char>(new_size + 1), memory_resource};
-		std::uninitialized_copy_n(get_data(), index, new_storage.get());
-		std::uninitialized_fill_n(&new_storage[index], c_count, ch);
-		std::uninitialized_copy_n(&(*this)[index], get_size() - index, &new_storage[index + c_count]);
+		std::copy_n(get_data(), index, new_storage.get());
+		std::fill_n(&new_storage[index], c_count, ch);
+		std::copy_n(&(*this)[index], get_size() - index, &new_storage[index + c_count]);
 		storage_.swap(new_storage);
 		data_ = storage_.get();
 		capacity_ = new_size;
@@ -948,15 +948,15 @@ auto BasicString<TChar>::insert(std::intptr_t index, View view) -> BasicString&
 	if (new_size <= get_capacity())
 	{
 		copy_overlapped(index, string_view_size, index + string_view_size);
-		std::uninitialized_copy_n(view.get_data(), string_view_size, &(*this)[index]);
+		std::copy_n(view.get_data(), string_view_size, &(*this)[index]);
 	}
 	else
 	{
 		auto& memory_resource = get_memory_resource();
 		auto new_storage = Storage{memory_resource.template allocate<Char>(new_size + 1), memory_resource};
-		std::uninitialized_copy_n(get_data(), index, new_storage.get());
-		std::uninitialized_copy_n(view.get_data(), string_view_size, &new_storage[index]);
-		std::uninitialized_copy_n(&(*this)[index], size_ - index, &new_storage[index + string_view_size]);
+		std::copy_n(get_data(), index, new_storage.get());
+		std::copy_n(view.get_data(), string_view_size, &new_storage[index]);
+		std::copy_n(&(*this)[index], size_ - index, &new_storage[index + string_view_size]);
 		storage_.swap(new_storage);
 		data_ = storage_.get();
 		capacity_ = new_size;
@@ -998,7 +998,7 @@ auto BasicString<TChar>::erase(std::intptr_t index, std::intptr_t count) -> Basi
 	}
 
 	const auto copy_count = get_size() - index - count;
-	std::uninitialized_copy_n(&(*this)[index + count], copy_count, &(*this)[index]);
+	std::copy_n(&(*this)[index + count], copy_count, &(*this)[index]);
 	return set_size_and_terminate(get_size() - count);
 }
 
@@ -1735,7 +1735,7 @@ auto BasicString<TChar>::assign(
 {
 	const auto size = iter_end - iter_begin;
 	reserve(size);
-	std::uninitialized_copy_n(&(*iter_begin), size, get_data());
+	std::copy_n(&(*iter_begin), size, get_data());
 	return set_size_and_terminate(size);
 }
 
@@ -1752,7 +1752,7 @@ auto BasicString<TChar>::append(TIter iter_begin, TIter iter_end, std::input_ite
 
 	const auto new_size = get_size() + suffix.get_size();
 	reserve(new_size);
-	std::uninitialized_copy_n(suffix.cbegin(), suffix.get_size(), end());
+	std::copy_n(suffix.cbegin(), suffix.get_size(), end());
 	return set_size_and_terminate(new_size);
 }
 
@@ -1764,7 +1764,7 @@ auto BasicString<TChar>::append(
 	const auto size = iter_end - iter_begin;
 	const auto new_size = get_size() + size;
 	reserve(new_size);
-	std::uninitialized_copy_n(&(*iter_begin), size, end());
+	std::copy_n(&(*iter_begin), size, end());
 	return set_size_and_terminate(new_size);
 }
 

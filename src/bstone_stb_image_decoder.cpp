@@ -63,7 +63,7 @@ try {
 		dst_buffer.resize(dst_area);
 	}
 
-	std::uninitialized_copy_n(
+	std::copy_n(
 		reinterpret_cast<const Rgba8*>(stb_bytes),
 		dst_area,
 		dst_buffer.begin()

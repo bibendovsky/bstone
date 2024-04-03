@@ -405,7 +405,7 @@ void SystemAudioMixer::initialize_voices(int max_voices)
 
 void SystemAudioMixer::callback(float* samples, int)
 {
-	std::uninitialized_copy(buffer_.cbegin(), buffer_.cend(), samples);
+	std::copy(buffer_.cbegin(), buffer_.cend(), samples);
 }
 
 void SystemAudioMixer::mix()
@@ -418,8 +418,8 @@ void SystemAudioMixer::mix_samples()
 {
 	spatialize_voices();
 
-	std::uninitialized_fill(buffer_.begin(), buffer_.end(), Sample{});
-	std::uninitialized_fill(mix_buffer_.begin(), mix_buffer_.end(), MixSample{});
+	std::fill(buffer_.begin(), buffer_.end(), Sample{});
+	std::fill(mix_buffer_.begin(), mix_buffer_.end(), MixSample{});
 
 	constexpr auto sfx_gain_scale = 7.0F;
 	constexpr auto music_gain_scale = 6.0F;
@@ -551,7 +551,7 @@ void SystemAudioMixer::mix_samples()
 
 			if (max_mix_sample <= max_mix_sample_value)
 			{
-				std::uninitialized_copy(
+				std::copy(
 					mix_buffer_.cbegin(),
 					mix_buffer_.cend(),
 					buffer_.begin());

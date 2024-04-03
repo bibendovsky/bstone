@@ -4,6 +4,7 @@ Copyright (c) 2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
+#include <algorithm>
 #include <memory>
 
 #include <SDL_filesystem.h>
@@ -44,7 +45,7 @@ std::intptr_t SpecialPath::get_user_specific_data_path(
 		BSTONE_THROW_STATIC_SOURCE("Buffer too small.");
 	}
 
-	std::uninitialized_copy_n(sdl_path.get(), path_size + 1, buffer);
+	std::copy_n(sdl_path.get(), path_size + 1, buffer);
 	return path_size;
 }
 

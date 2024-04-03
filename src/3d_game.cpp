@@ -8,6 +8,8 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <cstring>
 
+#include <algorithm>
+
 #include "3d_def.h"
 #include "3d_menu.h"
 #include "audio.h"
@@ -2416,7 +2418,7 @@ void SetupGameLevel()
 	tilemap = TileMap{};
 	actorat = ActorAt{};
 
-	std::uninitialized_fill(
+	std::fill(
 		wallheight.begin(),
 		wallheight.end(),
 		0);

@@ -9,6 +9,7 @@ SPDX-License-Identifier: MIT
 #include <cstddef>
 #include <cstdint>
 
+#include <algorithm>
 #include <memory>
 #include <type_traits>
 
@@ -158,7 +159,7 @@ auto ApiString<TChar>::make_storage(
 	auto storage = Storage{
 		static_cast<Char*>(memory_resource.allocate(byte_count)),
 		Deleter{memory_resource}};
-	std::uninitialized_copy_n(string, string_size, static_cast<Char*>(storage.get()));
+	std::copy_n(string, string_size, static_cast<Char*>(storage.get()));
 	storage[string_size] = Char{};
 	return storage;
 }

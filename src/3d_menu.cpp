@@ -3709,7 +3709,7 @@ void ReadGameNames()
 		{
 			char temp[GAME_DESCRIPTION_LEN + 1];
 
-			std::uninitialized_fill_n(
+			std::fill_n(
 				temp,
 				GAME_DESCRIPTION_LEN,
 				'\0');

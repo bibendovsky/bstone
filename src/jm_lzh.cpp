@@ -31,6 +31,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 // ---------------------------------------------------------------------------
 
 
+#include <algorithm>
 #include <array>
 #include <memory>
 #include <string>
@@ -343,11 +344,11 @@ void reconst()
 
 		std::uint16_t l = (j - k) * 2;
 
-		std::uninitialized_copy_n(freq.cbegin() + k, l, freq.begin() + k + 1);
+		std::copy_n(freq.cbegin() + k, l, freq.begin() + k + 1);
 
 		freq[k] = f;
 
-		std::uninitialized_copy_n(son.cbegin() + k, l, son.begin() + k + 1);
+		std::copy_n(son.cbegin() + k, l, son.begin() + k + 1);
 
 		son[k] = i;
 	}

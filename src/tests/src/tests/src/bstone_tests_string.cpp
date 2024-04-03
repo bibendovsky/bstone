@@ -30,7 +30,7 @@ private:
 	void* do_allocate(std::intptr_t size) override
 	{
 		const auto chars = bstone::get_default_memory_resource().allocate<char>(size);
-		std::uninitialized_fill_n(chars, size, memory_fill_value);
+		std::fill_n(chars, size, memory_fill_value);
 		return chars;
 	}
 

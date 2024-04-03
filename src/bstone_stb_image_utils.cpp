@@ -69,7 +69,7 @@ void* cpp_realloc(
 
 	const auto old_data = static_cast<const char*>(ptr);
 
-	std::uninitialized_copy_n(
+	std::copy_n(
 		old_data,
 		std::min(old_size, new_size),
 		static_cast<char*>(new_data)

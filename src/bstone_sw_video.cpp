@@ -9,6 +9,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <cassert>
 
+#include <algorithm>
 #include <utility>
 
 #include "3d_def.h"
@@ -218,7 +219,7 @@ StringView SwVideo::get_renderer_name()
 
 void SwVideo::clear_vga_buffer()
 {
-	std::uninitialized_fill(sw_vga_buffer_.begin(), sw_vga_buffer_.end(), VgaBuffer::value_type{});
+	std::fill(sw_vga_buffer_.begin(), sw_vga_buffer_.end(), VgaBuffer::value_type{});
 }
 
 void SwVideo::apply_widescreen()
@@ -428,7 +429,7 @@ try {
 
 	auto& dst_vga_palette = *reinterpret_cast<VgaPalette*>(vga_palette);
 
-	std::uninitialized_copy_n(
+	std::copy_n(
 		vga_palette_.cbegin() + offset,
 		count,
 		dst_vga_palette.begin()
@@ -456,7 +457,7 @@ try {
 
 	const auto& src_vga_palette = *reinterpret_cast<const VgaPalette*>(vga_palette);
 
-	std::uninitialized_copy_n(
+	std::copy_n(
 		src_vga_palette.cbegin(),
 		count,
 		vga_palette_.begin() + offset);
@@ -498,7 +499,7 @@ try {
 
 		get_palette(0, 256, &palette1[0][0]);
 
-		std::uninitialized_copy_n(&palette1[0][0], 768, &palette2[0][0]);
+		std::copy_n(&palette1[0][0], 768, &palette2[0][0]);
 
 		//
 		// fade through intermediate frames

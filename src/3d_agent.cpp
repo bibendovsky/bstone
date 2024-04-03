@@ -9,6 +9,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <cmath>
 #include <cstring>
 
+#include <algorithm>
 #include <array>
 #include <deque>
 #include <limits>
@@ -4239,8 +4240,8 @@ void LoadOverheadChunk(
 
 	if (!is_succeed)
 	{
-		std::uninitialized_fill(ov_buffer.begin(), ov_buffer.end(), VgaBuffer::value_type{0x52});
-		std::uninitialized_fill_n(reinterpret_cast<std::uint8_t*>(&ov_stats), sizeof(statsInfoType), std::uint8_t{});
+		std::fill(ov_buffer.begin(), ov_buffer.end(), VgaBuffer::value_type{0x52});
+		std::fill_n(reinterpret_cast<std::uint8_t*>(&ov_stats), sizeof(statsInfoType), std::uint8_t{});
 	}
 
 	ov_noImage = !is_succeed;

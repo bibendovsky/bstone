@@ -8242,7 +8242,7 @@ bool LoadLevel(
 
 			archiver.read_uint8_array(tilemap_bitmap.data(), sg_level_bitmap_size);
 
-			std::uninitialized_fill_n(
+			std::fill_n(
 				&tilemap[0][0],
 				MAPSIZE * MAPSIZE,
 				std::uint8_t{}
@@ -8275,7 +8275,7 @@ bool LoadLevel(
 
 			archiver.read_uint8_array(actorat_bitmap.data(), sg_level_bitmap_size);
 
-			std::uninitialized_fill_n(
+			std::fill_n(
 				&actorat[0][0],
 				MAPSIZE * MAPSIZE,
 				nullptr
@@ -8416,7 +8416,7 @@ bool LoadLevel(
 
 		if (laststatobj)
 		{
-			std::uninitialized_fill_n(
+			std::fill_n(
 				statobjlist.begin(),
 				laststatobj_index,
 				statobj_t{}
@@ -8876,7 +8876,7 @@ int DeleteChunk(
 		{
 			auto data = stream.get_data();
 			const auto data_size = stream.get_size();
-			std::uninitialized_copy_n(data + offset + count, data_size - offset - count, data + offset);
+			std::copy_n(data + offset + count, data_size - offset - count, data + offset);
 			stream.set_size(data_size - count);
 		}
 	}
@@ -9546,7 +9546,7 @@ void CycleColors()
 			numregs = c->lastreg - c->firstreg;                 // is one less than in range
 			last = first + numregs;
 
-			std::uninitialized_copy_n(
+			std::copy_n(
 				cbuffer[last],
 				3,
 				temp
@@ -9563,7 +9563,7 @@ void CycleColors()
 				}
 			}
 
-			std::uninitialized_copy_n(
+			std::copy_n(
 				temp,
 				3,
 				cbuffer[first]

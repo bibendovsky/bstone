@@ -11,6 +11,7 @@ SPDX-License-Identifier: MIT
 
 #include <cstdint>
 
+#include <algorithm>
 #include <memory>
 #include <type_traits>
 
@@ -88,7 +89,7 @@ public:
 		auto storage = Storage{
 			static_cast<bool*>(memory_resource.allocate(size)),
 			StorageDeleter{memory_resource}};
-		std::uninitialized_fill_n(storage.get(), size, false);
+		std::fill_n(storage.get(), size, false);
 		storage_.swap(storage);
 		size_ = size;
 	}

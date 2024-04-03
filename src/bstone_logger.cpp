@@ -12,6 +12,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <cstddef>
 #include <cstdint>
 
+#include <algorithm>
 #include <array>
 #include <condition_variable>
 #include <exception>
@@ -179,7 +180,7 @@ void LoggerImplQueue::enqueue(LoggerMessageType message_type, const char* messag
 
 	const auto message_type_and_length = (static_cast<std::intptr_t>(message_type) << 24) | message_length;
 	reinterpret_cast<std::intptr_t&>(queue_[size_]) = message_type_and_length;
-	std::uninitialized_copy_n(message, message_length, queue_.begin() + size_ + header_size);
+	std::copy_n(message, message_length, queue_.begin() + size_ + header_size);
 	size_ += header_size + aligned_message_length;
 }
 

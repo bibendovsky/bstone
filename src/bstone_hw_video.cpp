@@ -1645,7 +1645,7 @@ try {
 
 	auto& dst_vga_palette = *reinterpret_cast<::VgaPalette*>(vga_palette);
 
-	std::uninitialized_copy_n(
+	std::copy_n(
 		vga_palette_.cbegin() + offset,
 		count,
 		dst_vga_palette.begin()
@@ -1688,7 +1688,7 @@ try {
 
 	const auto& src_vga_palette = *reinterpret_cast<const ::VgaPalette*>(vga_palette);
 
-	std::uninitialized_copy_n(
+	std::copy_n(
 		src_vga_palette.cbegin(),
 		count,
 		vga_palette_.begin() + offset

@@ -9,6 +9,8 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <cassert>
 #include <cstring>
 
+#include <algorithm>
+
 #include "gfxv.h"
 #include "id_ca.h"
 #include "id_heads.h"
@@ -973,7 +975,7 @@ void vga_clear_screen(
 
 	if (viewwidth == vga_width)
 	{
-		std::uninitialized_fill_n(
+		std::fill_n(
 			&vga_memory[pixel_offset],
 			height * vga_width,
 			static_cast<std::uint8_t>(color));
@@ -982,7 +984,7 @@ void vga_clear_screen(
 	{
 		for (int y = 0; y < height; ++y)
 		{
-			std::uninitialized_fill_n(
+			std::fill_n(
 				&vga_memory[pixel_offset],
 				viewwidth,
 				static_cast<std::uint8_t>(color));

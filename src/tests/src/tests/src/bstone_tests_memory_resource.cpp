@@ -1,5 +1,6 @@
 #include <cstdint>
 
+#include <algorithm>
 #include <memory>
 
 #include "bstone_memory_resource.h"
@@ -23,7 +24,7 @@ private:
 	BSTONE_CXX_NODISCARD void* do_allocate(std::intptr_t size) override
 	{
 		const auto ptr = static_cast<std::uint8_t*>(bstone::get_new_delete_memory_resource().allocate(size));
-		std::uninitialized_fill_n(ptr, size, memory_fill_value);
+		std::fill_n(ptr, size, memory_fill_value);
 		return ptr;
 	}
 

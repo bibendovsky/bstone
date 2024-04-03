@@ -8,6 +8,8 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <cstring>
 
+#include <algorithm>
+
 #include "audio.h"
 #include "id_ca.h"
 #include "id_heads.h"
@@ -1885,7 +1887,7 @@ void InitMsgCache(
 {
 	FreeMsgCache(mList, infoSize);
 
-	std::uninitialized_fill_n(
+	std::fill_n(
 		reinterpret_cast<std::uint8_t*>(mList),
 		listSize,
 		std::uint8_t{}

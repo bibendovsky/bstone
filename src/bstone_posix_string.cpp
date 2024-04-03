@@ -8,6 +8,7 @@ SPDX-License-Identifier: MIT
 
 #if !defined(_WIN32)
 
+#include <algorithm>
 #include <memory>
 
 #include "bstone_char_traits.h"
@@ -75,7 +76,7 @@ PosixString::PosixString(const char* string, MemoryResource& memory_resource)
 
 	const auto size = char_traits::get_size(string);
 	auto posix_string = Base{size + 1, memory_resource};
-	std::uninitialized_copy_n(string, size, posix_string.get_data());
+	std::copy_n(string, size, posix_string.get_data());
 	swap(posix_string);
 	set_size(size);
 }

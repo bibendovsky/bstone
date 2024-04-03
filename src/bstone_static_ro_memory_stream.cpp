@@ -62,7 +62,7 @@ std::intptr_t StaticRoMemoryStream::do_read(void* buffer, std::intptr_t count)
 		return 0;
 	}
 
-	std::uninitialized_copy_n(&buffer_[position_], copy_count, static_cast<std::uint8_t*>(buffer));
+	std::copy_n(&buffer_[position_], copy_count, static_cast<std::uint8_t*>(buffer));
 	position_ += copy_count;
 	return copy_count;
 }

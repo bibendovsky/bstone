@@ -13,6 +13,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_sprite.h"
 
+#include <algorithm>
 #include <memory>
 
 #include "bstone_endian.h"
@@ -162,7 +163,7 @@ void Sprite::initialize(
 			const auto src_pixels = &values_8[pixels_offset];
 			auto dst_pixels = &image_[(i * height) + (start - top)];
 
-			std::uninitialized_copy_n(src_pixels, count, dst_pixels);
+			std::copy_n(src_pixels, count, dst_pixels);
 
 			end = bstone::endian::to_little(commands[i_command++]) / 2;
 		}

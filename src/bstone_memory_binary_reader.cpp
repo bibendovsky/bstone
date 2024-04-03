@@ -12,6 +12,7 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_memory_binary_reader.h"
 
+#include <algorithm>
 #include <memory>
 
 #include "bstone_endian.h"
@@ -172,7 +173,7 @@ bool MemoryBinaryReader::read(
 		return false;
 	}
 
-	std::uninitialized_copy_n(&data_[data_offset_], count, static_cast<std::uint8_t*>(buffer));
+	std::copy_n(&data_[data_offset_], count, static_cast<std::uint8_t*>(buffer));
 
 	data_offset_ += count;
 
