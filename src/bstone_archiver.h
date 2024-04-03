@@ -212,7 +212,10 @@ try {
 	using Tag = std::conditional_t<sizeof(T) == 1, EndianByteSizeTag, EndianNonByteSizeTag>;
 	write_integer_array_internal(items, item_count, Tag{});
 #else
-	write_integer_array_internal(items, item_count, EndianByteSizeTag{});
+	constexpr auto item_size = static_cast<std::intptr_t>(sizeof(T));
+	const auto items_size = item_size * item_count;
+	crc32_.update(items, items_size);
+	stream_->write_exactly(items, items_size);
 #endif
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
