@@ -10,6 +10,7 @@ SPDX-License-Identifier: MIT
 
 #include <algorithm>
 
+#include "bstone_assert.h"
 #include "bstone_exception.h"
 
 namespace bstone {
@@ -21,25 +22,24 @@ MemoryStream::MemoryStream(std::intptr_t capacity, std::intptr_t chunk_size)
 
 const std::uint8_t* MemoryStream::get_data() const
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open_);
 
 	return storage_.get();
 }
 
 std::uint8_t* MemoryStream::get_data()
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open_);
 
 	return storage_.get();
 }
 
 void MemoryStream::open(std::intptr_t capacity, std::intptr_t chunk_size)
 {
+	BSTONE_ASSERT(capacity > 0);
+	BSTONE_ASSERT(chunk_size > 0);
+
 	close_internal();
-
-	validate_capacity(capacity);
-	validate_chunk_size(chunk_size);
-
 	reserve(capacity, chunk_size);
 	is_open_ = true;
 	chunk_size_ = chunk_size;
@@ -57,9 +57,9 @@ bool MemoryStream::do_is_open() const noexcept
 
 std::intptr_t MemoryStream::do_read(void* buffer, std::intptr_t count)
 {
-	ensure_is_open();
-	validate_buffer(buffer);
-	validate_count(count);
+	BSTONE_ASSERT(is_open_);
+	BSTONE_ASSERT(buffer != nullptr);
+	BSTONE_ASSERT(count >= 0);
 
 	const auto copy_count = std::min(count, size_ - position_);
 
@@ -76,9 +76,9 @@ std::intptr_t MemoryStream::do_read(void* buffer, std::intptr_t count)
 
 std::intptr_t MemoryStream::do_write(const void* buffer, std::intptr_t count)
 {
-	ensure_is_open();
-	validate_buffer(buffer);
-	validate_count(count);
+	BSTONE_ASSERT(is_open_);
+	BSTONE_ASSERT(buffer != nullptr);
+	BSTONE_ASSERT(count >= 0);
 
 	const auto copy_count = std::min(count, INTPTR_MAX - position_);
 
@@ -98,7 +98,7 @@ std::intptr_t MemoryStream::do_write(const void* buffer, std::intptr_t count)
 
 std::int64_t MemoryStream::do_seek(std::int64_t offset, StreamOrigin origin)
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open_);
 
 	auto new_position = std::int64_t{};
 
@@ -141,15 +141,20 @@ std::int64_t MemoryStream::do_seek(std::int64_t offset, StreamOrigin origin)
 
 std::int64_t MemoryStream::do_get_size()
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open_);
 
 	return size_;
 }
 
 void MemoryStream::do_set_size(std::int64_t size)
 {
-	ensure_is_open();
-	validate_size(size);
+	BSTONE_ASSERT(is_open_);
+	BSTONE_ASSERT(size >= 0);
+
+	if (size > INTPTR_MAX)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Size out of range.");
+	}
 
 	const auto size_intptr = static_cast<std::intptr_t>(size);
 
@@ -163,73 +168,7 @@ void MemoryStream::do_set_size(std::int64_t size)
 
 void MemoryStream::do_flush()
 {
-	ensure_is_open();
-}
-
-void MemoryStream::ensure_is_open() const
-{
-	if (!is_open_)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Closed.");
-	}
-}
-
-void MemoryStream::validate_capacity(std::intptr_t capacity)
-{
-	if (capacity < 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Negative capacity.");
-	}
-}
-
-void MemoryStream::validate_chunk_size(std::intptr_t chunk_size)
-{
-	if (chunk_size < 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Negative chunk size.");
-	}
-}
-
-void MemoryStream::validate_buffer(const void* buffer)
-{
-	if (buffer == nullptr)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Null buffer.");
-	}
-}
-
-void MemoryStream::validate_count(std::intptr_t count)
-{
-	if (count < 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Negative count.");
-	}
-}
-
-void MemoryStream::validate_offset(std::int64_t offset)
-{
-	if (offset < 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Negative offset.");
-	}
-
-	if (offset > INTPTR_MAX)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Offset out of range.");
-	}
-}
-
-void MemoryStream::validate_size(std::int64_t size)
-{
-	if (size < 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Negative size.");
-	}
-
-	if (size > INTPTR_MAX)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Size out of range.");
-	}
+	BSTONE_ASSERT(is_open_);
 }
 
 void MemoryStream::reserve(std::intptr_t capacity, std::intptr_t chunk_size)

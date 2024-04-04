@@ -61,14 +61,6 @@ private:
 	void do_flush() override;
 
 private:
-	void ensure_is_open() const;
-	static void validate_capacity(std::intptr_t capacity);
-	static void validate_chunk_size(std::intptr_t chunk_size);
-	static void validate_buffer(const void* buffer);
-	static void validate_count(std::intptr_t count);
-	static void validate_offset(std::int64_t offset);
-	static void validate_size(std::int64_t size);
-
 	void reserve(std::intptr_t capacity, std::intptr_t chunk_size);
 	void close_internal() noexcept;
 };
