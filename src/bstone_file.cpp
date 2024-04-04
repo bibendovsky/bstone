@@ -9,7 +9,6 @@ SPDX-License-Identifier: MIT
 #include "bstone_file.h"
 
 #include "bstone_exception.h"
-#include "bstone_utility.h"
 
 namespace bstone {
 
@@ -40,17 +39,47 @@ bool File::is_open() const noexcept
 
 void File::read_exactly(void* buffer, std::intptr_t count) const
 {
-	if (read(buffer, count) != count)
+	auto buffer_bytes = static_cast<unsigned char*>(buffer);
+
+	while (true)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Read number of bytes mismatch.");
+		const auto read_count = read(buffer_bytes, count);
+
+		if (read_count == 0)
+		{
+			if (count != 0)
+			{
+				BSTONE_THROW_STATIC_SOURCE("Read number of bytes mismatch.");
+			}
+
+			break;
+		}
+
+		buffer_bytes += read_count;
+		count -= read_count;
 	}
 }
 
 void File::write_exactly(const void* buffer, std::intptr_t count) const
 {
-	if (write(buffer, count) != count)
+	auto buffer_bytes = static_cast<const unsigned char*>(buffer);
+
+	while (true)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Written number of bytes mismatch.");
+		const auto written_count = write(buffer_bytes, count);
+
+		if (written_count == 0)
+		{
+			if (count != 0)
+			{
+				BSTONE_THROW_STATIC_SOURCE("Written number of bytes mismatch.");
+			}
+
+			break;
+		}
+
+		buffer_bytes += written_count;
+		count -= written_count;
 	}
 }
 
@@ -66,56 +95,7 @@ std::int64_t File::get_position() const
 
 void File::set_position(std::int64_t position) const
 {
-	validate_position(position);
 	seek(position, FileOrigin::begin);
-}
-
-void File::ensure_is_open() const
-{
-	if (!is_open())
-	{
-		BSTONE_THROW_STATIC_SOURCE("Closed.");
-	}
-}
-
-void File::validate_path(const char* path)
-{
-	if (path == nullptr)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Null path.");
-	}
-}
-
-void File::validate_buffer(const void* buffer)
-{
-	if (buffer == nullptr)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Null buffer.");
-	}
-}
-
-void File::validate_count(std::intptr_t count)
-{
-	if (count < 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Negative count.");
-	}
-}
-
-void File::validate_position(std::int64_t position)
-{
-	if (position < 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Negative position.");
-	}
-}
-
-void File::validate_size(std::int64_t size)
-{
-	if (size < 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Negative size.");
-	}
 }
 
 void File::close_internal(FileUResource& resource) noexcept

@@ -21,6 +21,7 @@ SPDX-License-Identifier: MIT
 #include <fcntl.h>
 #include <unistd.h>
 
+#include "bstone_assert.h"
 #include "bstone_exception.h"
 
 static_assert(
@@ -55,9 +56,8 @@ void FileUResourceDeleter::operator()(FileUResourceHandle handle) const noexcept
 
 std::intptr_t File::read(void* buffer, std::intptr_t count) const
 {
-	ensure_is_open();
-	validate_buffer(buffer);
-	validate_count(count);
+	BSTONE_ASSERT(buffer != nullptr);
+	BSTONE_ASSERT(count >= 0);
 
 	const auto posix_file_descriptor = resource_.get();
 	const auto posix_number_of_bytes_to_read = static_cast<::size_t>(
@@ -75,9 +75,8 @@ std::intptr_t File::read(void* buffer, std::intptr_t count) const
 
 std::intptr_t File::write(const void* buffer, std::intptr_t count) const
 {
-	ensure_is_open();
-	validate_buffer(buffer);
-	validate_count(count);
+	BSTONE_ASSERT(buffer != nullptr);
+	BSTONE_ASSERT(count >= 0);
 
 	const auto posix_file_descriptor = resource_.get();
 	const auto posix_number_of_bytes_to_write = static_cast<::size_t>(
@@ -95,8 +94,6 @@ std::intptr_t File::write(const void* buffer, std::intptr_t count) const
 
 std::int64_t File::seek(std::int64_t offset, FileOrigin origin) const
 {
-	ensure_is_open();
-
 	if (!posix_file_supports_64_bit_size)
 	{
 		if (std::abs(offset) > posix_file_max_int)
@@ -127,8 +124,6 @@ std::int64_t File::seek(std::int64_t offset, FileOrigin origin) const
 
 std::int64_t File::get_size() const
 {
-	ensure_is_open();
-
 	struct ::stat posix_stat{};
 	const auto fstat_result = ::fstat(resource_.get(), &posix_stat);
 
@@ -142,9 +137,6 @@ std::int64_t File::get_size() const
 
 void File::set_size(std::int64_t size) const
 {
-	ensure_is_open();
-	validate_size(size);
-
 	if (!posix_file_supports_64_bit_size)
 	{
 		if (std::abs(size) > posix_file_max_int)
@@ -163,8 +155,6 @@ void File::set_size(std::int64_t size) const
 
 void File::flush() const
 {
-	ensure_is_open();
-
 	const auto fsync_result = ::fsync(resource_.get());
 
 	if (fsync_result != 0)
@@ -179,6 +169,8 @@ bool File::try_or_open_internal(
 	FileErrorMode file_error_mode,
 	FileUResource& resource)
 {
+	BSTONE_ASSERT(path != nullptr);
+		
 	// Release previous resource.
 	//
 
@@ -186,8 +178,6 @@ bool File::try_or_open_internal(
 
 	// Validate input parameters.
 	//
-
-	validate_path(path);
 
 	const auto is_create = (open_flags & FileOpenFlags::create) != FileOpenFlags::none;
 	const auto is_truncate = (open_flags & FileOpenFlags::truncate) != FileOpenFlags::none;

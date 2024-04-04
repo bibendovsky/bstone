@@ -100,14 +100,6 @@ private:
 	FileUResource resource_{};
 
 private:
-	void ensure_is_open() const;
-
-	static void validate_path(const char* path);
-	static void validate_buffer(const void* buffer);
-	static void validate_count(std::intptr_t count);
-	static void validate_position(std::int64_t position);
-	static void validate_size(std::int64_t size);
-
 	static void close_internal(FileUResource& resource) noexcept;
 
 	static bool try_or_open_internal(

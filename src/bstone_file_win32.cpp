@@ -22,6 +22,7 @@ SPDX-License-Identifier: MIT
 
 #include <windows.h>
 
+#include "bstone_assert.h"
 #include "bstone_exception.h"
 #include "bstone_win32_wstring.h"
 
@@ -49,9 +50,7 @@ void FileUResourceDeleter::operator()(FileUResourceHandle handle) const noexcept
 
 std::intptr_t File::read(void* buffer, std::intptr_t count) const
 {
-	ensure_is_open();
-	validate_buffer(buffer);
-	validate_count(count);
+	BSTONE_ASSERT(count >= 0);
 
 	const auto win32_handle = resource_.get();
 	const auto win32_number_of_bytes_to_read = static_cast<DWORD>(std::min(count, win32_file_max_count));
@@ -74,9 +73,7 @@ std::intptr_t File::read(void* buffer, std::intptr_t count) const
 
 std::intptr_t File::write(const void* buffer, std::intptr_t count) const
 {
-	ensure_is_open();
-	validate_buffer(buffer);
-	validate_count(count);
+	BSTONE_ASSERT(count >= 0);
 
 	const auto win32_handle = resource_.get();
 	const auto win32_number_of_bytes_to_write = static_cast<DWORD>(std::min(count, win32_file_max_count));
@@ -99,8 +96,6 @@ std::intptr_t File::write(const void* buffer, std::intptr_t count) const
 
 std::int64_t File::seek(std::int64_t offset, FileOrigin origin) const
 {
-	ensure_is_open();
-
 	auto win32_move_method = DWORD{};
 
 	switch (origin)
@@ -131,8 +126,6 @@ std::int64_t File::seek(std::int64_t offset, FileOrigin origin) const
 
 std::int64_t File::get_size() const
 {
-	ensure_is_open();
-
 	auto win32_file_size = LARGE_INTEGER{};
 	const auto win32_result = GetFileSizeEx(resource_.get(), &win32_file_size);
 
@@ -146,9 +139,6 @@ std::int64_t File::get_size() const
 
 void File::set_size(std::int64_t size) const
 {
-	ensure_is_open();
-	validate_size(size);
-
 	auto win32_result = BOOL{};
 	auto win32_distance_to_move = LARGE_INTEGER{};
 	auto win32_new_file_pointer = LARGE_INTEGER{};
@@ -195,8 +185,6 @@ void File::set_size(std::int64_t size) const
 
 void File::flush() const
 {
-	ensure_is_open();
-
 	const auto win32_result = FlushFileBuffers(resource_.get());
 
 	if (win32_result == FALSE)
@@ -218,8 +206,6 @@ bool File::try_or_open_internal(
 
 	// Validate input parameters.
 	//
-
-	validate_path(path);
 
 	const auto is_create = (open_flags & FileOpenFlags::create) != FileOpenFlags::none;
 	const auto is_truncate = (open_flags & FileOpenFlags::truncate) != FileOpenFlags::none;
