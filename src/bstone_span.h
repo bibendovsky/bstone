@@ -1,19 +1,19 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2023-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
 // A contiguous sequence of objects.
 
-#if !defined(BSTONE_SPAN_INCLUDED)
+#ifndef BSTONE_SPAN_INCLUDED
 #define BSTONE_SPAN_INCLUDED
 
-#include <cassert>
 #include <cstdint>
 
 #include <type_traits>
 
+#include "bstone_assert.h"
 #include "bstone_utility.h"
 
 namespace bstone {
@@ -32,7 +32,7 @@ public:
 		items_{items},
 		size_{size}
 	{
-		assert((items == nullptr && size == 0) || (items != nullptr && size >= 0));
+		BSTONE_ASSERT((items == nullptr && size == 0) || (items != nullptr && size >= 0));
 	}
 
 	template<std::intptr_t TSize>
@@ -79,35 +79,35 @@ public:
 
 	constexpr const Item& get_front() const
 	{
-		assert(has_data());
-		assert(!is_empty());
+		BSTONE_ASSERT(has_data());
+		BSTONE_ASSERT(!is_empty());
 
 		return *(begin());
 	}
 
 	constexpr Item& get_front()
 	{
-		return bstone::as_mutable(bstone::as_const(*this).get_front());
+		return ::bstone::as_mutable(::bstone::as_const(*this).get_front());
 	}
 
 	constexpr const Item& get_back() const
 	{
-		assert(has_data());
-		assert(!is_empty());
+		BSTONE_ASSERT(has_data());
+		BSTONE_ASSERT(!is_empty());
 
 		return *(end() - 1);
 	}
 
 	constexpr Item& get_back()
 	{
-		return bstone::as_mutable(bstone::as_const(*this).get_back());
+		return ::bstone::as_mutable(::bstone::as_const(*this).get_back());
 	}
 
 	constexpr Span get_subspan(std::intptr_t offset, std::intptr_t size) const
 	{
-		assert(offset >= 0);
-		assert(size >= 0);
-		assert((offset + size) <= get_size());
+		BSTONE_ASSERT(offset >= 0);
+		BSTONE_ASSERT(size >= 0);
+		BSTONE_ASSERT((offset + size) <= get_size());
 
 		return Span{get_data() + offset, size};
 	}
@@ -119,16 +119,16 @@ public:
 
 	constexpr Item& operator[](std::intptr_t index) const
 	{
-		assert(index >= 0 && index < get_size());
-		assert(has_data());
+		BSTONE_ASSERT(index >= 0 && index < get_size());
+		BSTONE_ASSERT(has_data());
 
 		return get_data()[index];
 	}
 
 	constexpr void swap(Span& rhs) noexcept
 	{
-		bstone::swop(items_, rhs.items_);
-		bstone::swop(size_, rhs.size_);
+		::bstone::swop(items_, rhs.items_);
+		::bstone::swop(size_, rhs.size_);
 	}
 
 private:
