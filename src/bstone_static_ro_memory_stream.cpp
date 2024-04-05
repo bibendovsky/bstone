@@ -11,6 +11,7 @@ SPDX-License-Identifier: MIT
 #include <algorithm>
 #include <memory>
 
+#include "bstone_assert.h"
 #include "bstone_exception.h"
 
 namespace bstone {
@@ -22,17 +23,17 @@ StaticRoMemoryStream::StaticRoMemoryStream(const void* buffer, std::intptr_t buf
 
 const std::uint8_t* StaticRoMemoryStream::get_data() const
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open_);
 
 	return buffer_;
 }
 
 void StaticRoMemoryStream::open(const void* buffer, std::intptr_t buffer_size)
 {
-	close_internal();
+	BSTONE_ASSERT(buffer != nullptr);
+	BSTONE_ASSERT(buffer_size >= 0);
 
-	validate_buffer(buffer);
-	validate_buffer_size(buffer_size);
+	close_internal();
 
 	is_open_ = true;
 	buffer_ = static_cast<const std::uint8_t*>(buffer);
@@ -51,9 +52,9 @@ bool StaticRoMemoryStream::do_is_open() const noexcept
 
 std::intptr_t StaticRoMemoryStream::do_read(void* buffer, std::intptr_t count)
 {
-	ensure_is_open();
-	validate_buffer(buffer);
-	validate_count(count);
+	BSTONE_ASSERT(is_open_);
+	BSTONE_ASSERT(buffer != nullptr);
+	BSTONE_ASSERT(count >= 0);
 
 	const auto copy_count = std::min(count, size_ - position_);
 
@@ -69,12 +70,14 @@ std::intptr_t StaticRoMemoryStream::do_read(void* buffer, std::intptr_t count)
 
 std::intptr_t StaticRoMemoryStream::do_write(const void*, std::intptr_t)
 {
+	BSTONE_ASSERT(is_open_);
+
 	BSTONE_THROW_STATIC_SOURCE("Not supported.");
 }
 
 std::int64_t StaticRoMemoryStream::do_seek(std::int64_t offset, StreamOrigin origin)
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open_);
 
 	auto new_position = std::int64_t{};
 
@@ -122,51 +125,23 @@ std::int64_t StaticRoMemoryStream::do_seek(std::int64_t offset, StreamOrigin ori
 
 std::int64_t StaticRoMemoryStream::do_get_size()
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open_);
 
 	return size_;
 }
 
 void StaticRoMemoryStream::do_set_size(std::int64_t)
 {
+	BSTONE_ASSERT(is_open_);
+
 	BSTONE_THROW_STATIC_SOURCE("Not supported.");
 }
 
 void StaticRoMemoryStream::do_flush()
 {
+	BSTONE_ASSERT(is_open_);
+
 	BSTONE_THROW_STATIC_SOURCE("Not supported.");
-}
-
-void StaticRoMemoryStream::ensure_is_open() const
-{
-	if (!is_open_)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Closed.");
-	}
-}
-
-void StaticRoMemoryStream::validate_buffer(const void* buffer)
-{
-	if (buffer == nullptr)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Null stream.");
-	}
-}
-
-void StaticRoMemoryStream::validate_buffer_size(std::intptr_t buffer_size)
-{
-	if (buffer_size < 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Negative buffer size.");
-	}
-}
-
-void StaticRoMemoryStream::validate_count(std::intptr_t count)
-{
-	if (count < 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Negative count.");
-	}
 }
 
 void StaticRoMemoryStream::close_internal() noexcept
