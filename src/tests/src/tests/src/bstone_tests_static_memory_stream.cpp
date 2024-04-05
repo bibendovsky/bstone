@@ -27,43 +27,6 @@ void test_cg874043ah1bqjbr()
 	tester.check(is_open);
 }
 
-// StaticMemoryStream(void*, std::intptr_t)
-// Null buffer.
-void test_sqa7ellk5ua0aude()
-{
-	auto is_failed = false;
-
-	try
-	{
-		const auto memory_stream = bstone::StaticMemoryStream{nullptr, 1};
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(is_failed);
-}
-
-// StaticMemoryStream(void*, std::intptr_t)
-// Negative buffer size.
-void test_vifwlsb1mbisv4z5()
-{
-	auto is_failed = false;
-
-	try
-	{
-		auto stream_buffer = '\0';
-		const auto memory_stream = bstone::StaticMemoryStream{&stream_buffer, -1};
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(is_failed);
-}
-
 // StaticMemoryStream(const StaticMemoryStream&) noexcept
 void test_f7khj63zk124btzp()
 {
@@ -143,26 +106,6 @@ void test_t3eqak5thhnos9xe()
 	tester.check(is_open && data != nullptr);
 }
 
-// const std::uint8_t* get_data() const
-// Closed.
-void test_p3onrz6wcqetsrda()
-{
-	const auto memory_stream = bstone::StaticMemoryStream{};
-	const auto is_open = memory_stream.is_open();
-	auto is_failed = false;
-
-	try
-	{
-		memory_stream.get_data();
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(!is_open && is_failed);
-}
-
 // std::uint8_t* get_data()
 void test_g5ff2gqbyeid3ezx()
 {
@@ -172,26 +115,6 @@ void test_g5ff2gqbyeid3ezx()
 	const auto data = memory_stream.get_data();
 
 	tester.check(is_open && data != nullptr);
-}
-
-// std::uint8_t* get_data()
-// Closed.
-void test_sjaa90dvhzejlo45()
-{
-	auto memory_stream = bstone::StaticMemoryStream{};
-	const auto is_open = memory_stream.is_open();
-	auto is_failed = false;
-
-	try
-	{
-		memory_stream.get_data();
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(!is_open && is_failed);
 }
 
 // ==========================================================================
@@ -205,26 +128,6 @@ void test_50buk347p5mbwcdn()
 	memory_stream.open(&stream_buffer, 1);
 	const auto is_open_2 = memory_stream.is_open();
 	tester.check(!is_open_1 && is_open_2);
-}
-
-// void open(void*, std::intptr_t)
-// Null buffer.
-void test_a6dftvwglx03ve8o()
-{
-	auto memory_stream = bstone::StaticMemoryStream{};
-	const auto is_open = memory_stream.is_open();
-	auto is_failed = false;
-
-	try
-	{
-		memory_stream.open(nullptr, 1);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(!is_open && is_failed);
 }
 
 // ==========================================================================
@@ -276,70 +179,6 @@ void test_1mzma6x2ck33dfws()
 	tester.check(is_open && read_result_1 && seek_result_1 && read_result_2 && seek_result_2 && value_result_1);
 }
 
-// std::intptr_t read(void*, std::intptr_t)
-// Closed.
-void test_mesfq92mystrrdoj()
-{
-	auto memory_stream = bstone::StaticMemoryStream{};
-	const auto is_open = memory_stream.is_open();
-	auto is_failed = false;
-
-	try
-	{
-		auto buffer = '\0';
-		memory_stream.read(&buffer, 1);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(!is_open && is_failed);
-}
-
-// std::intptr_t read(void*, std::intptr_t)
-// Null buffer.
-void test_rea656qypf13glm1()
-{
-	auto stream_buffer = '\0';
-	auto memory_stream = bstone::StaticMemoryStream{&stream_buffer, 1};
-	const auto is_open = memory_stream.is_open();
-	auto is_failed = false;
-
-	try
-	{
-		memory_stream.read(nullptr, 1);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(is_open && is_failed);
-}
-
-// std::intptr_t read(void*, std::intptr_t)
-// Negative buffer size.
-void test_4pxq7pc8gjg5dw41()
-{
-	auto stream_buffer = '\0';
-	auto memory_stream = bstone::StaticMemoryStream{&stream_buffer, 1};
-	const auto is_open = memory_stream.is_open();
-	auto is_failed = false;
-
-	try
-	{
-		auto buffer = '\0';
-		memory_stream.read(&buffer, -1);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(is_open && is_failed);
-}
-
 // ==========================================================================
 
 // void read_exactly(void*, std::intptr_t)
@@ -385,70 +224,6 @@ void test_2yv6r8s3ry3upqxm()
 	tester.check(is_open && is_failed);
 }
 
-// void read_exactly(void*, std::intptr_t)
-// Closed.
-void test_o5jnbo3ulgrdbsmf()
-{
-	auto memory_stream = bstone::StaticMemoryStream{};
-	const auto is_open = memory_stream.is_open();
-	auto is_failed = false;
-
-	try
-	{
-		auto buffer = '\0';
-		memory_stream.read_exactly(&buffer, 1);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(!is_open && is_failed);
-}
-
-// void read_exactly(void*, std::intptr_t)
-// Null buffer.
-void test_65jrwgl314vvmhd9()
-{
-	auto stream_buffer = '\0';
-	auto memory_stream = bstone::StaticMemoryStream{&stream_buffer, 1};
-	const auto is_open = memory_stream.is_open();
-	auto is_failed = false;
-
-	try
-	{
-		memory_stream.read_exactly(nullptr, 1);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(is_open && is_failed);
-}
-
-// void read_exactly(void*, std::intptr_t)
-// Negative buffer size.
-void test_bjzfb0sl17v944sm()
-{
-	auto stream_buffer = '\0';
-	auto memory_stream = bstone::StaticMemoryStream{&stream_buffer, 1};
-	const auto is_open = memory_stream.is_open();
-	auto is_failed = false;
-
-	try
-	{
-		auto buffer = '\0';
-		memory_stream.read_exactly(&buffer, -1);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(is_open && is_failed);
-}
-
 // ==========================================================================
 
 // std::intptr_t write(const void*, std::intptr_t)
@@ -482,70 +257,6 @@ void test_14mn4jrmdfhbw8dd()
 		seek_result_2 &&
 		read_result_2 &&
 		value_result_1);
-}
-
-// std::intptr_t write(const void*, std::intptr_t)
-// Closed.
-void test_4xn51ys09fwpw4n2()
-{
-	auto memory_stream = bstone::StaticMemoryStream{};
-	const auto is_open = memory_stream.is_open();
-	auto is_failed = false;
-
-	try
-	{
-		const auto buffer = '\0';
-		memory_stream.write(&buffer, 1);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(!is_open && is_failed);
-}
-
-// std::intptr_t write(const void*, std::intptr_t)
-// Null buffer.
-void test_11lh7i6ccqb6cgw3()
-{
-	auto stream_buffer = '\0';
-	auto memory_stream = bstone::StaticMemoryStream{&stream_buffer, 1};
-	const auto is_open = memory_stream.is_open();
-	auto is_failed = false;
-
-	try
-	{
-		memory_stream.write(nullptr, 1);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(is_open && is_failed);
-}
-
-// std::intptr_t write(const void*, std::intptr_t)
-// Negative buffer size.
-void test_ct2vcyf0vuumzuml()
-{
-	auto stream_buffer = '\0';
-	auto memory_stream = bstone::StaticMemoryStream{&stream_buffer, 1};
-	const auto is_open = memory_stream.is_open();
-	auto is_failed = false;
-
-	try
-	{
-		const auto buffer = '\0';
-		memory_stream.write(&buffer, -1);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(is_open && is_failed);
 }
 
 // ==========================================================================
@@ -604,70 +315,6 @@ void test_d0jinhmh1kfkxt95()
 	tester.check(is_open && is_failed);
 }
 
-// void write_exactly(const void*, std::intptr_t)
-// Closed.
-void test_3mtbhxgbu6oyh771()
-{
-	auto memory_stream = bstone::StaticMemoryStream{};
-	const auto is_open = memory_stream.is_open();
-	auto is_failed = false;
-
-	try
-	{
-		const auto buffer = '\0';
-		memory_stream.write_exactly(&buffer, 1);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(!is_open && is_failed);
-}
-
-// void write_exactly(const void*, std::intptr_t)
-// Null buffer.
-void test_n8a823y7q7rhv9ss()
-{
-	auto stream_buffer = '\0';
-	auto memory_stream = bstone::StaticMemoryStream{&stream_buffer, 1};
-	const auto is_open = memory_stream.is_open();
-	auto is_failed = false;
-
-	try
-	{
-		memory_stream.write_exactly(nullptr, 1);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(is_open && is_failed);
-}
-
-// void write_exactly(const void*, std::intptr_t)
-// Negative buffer size.
-void test_lvdubbybe0spue34()
-{
-	auto stream_buffer = '\0';
-	auto memory_stream = bstone::StaticMemoryStream{&stream_buffer, 1};
-	const auto is_open = memory_stream.is_open();
-	auto is_failed = false;
-
-	try
-	{
-		const auto buffer = '\0';
-		memory_stream.write_exactly(&buffer, -1);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(is_open && is_failed);
-}
-
 // ==========================================================================
 
 // std::int64_t seek(std::int64_t, StreamOrigin)
@@ -706,26 +353,6 @@ void test_6g653ulwicud0fnz()
 	const auto seek_result = memory_stream.seek(-100, bstone::StreamOrigin::end) == 1000;
 
 	tester.check(is_open && seek_result);
-}
-
-// std::int64_t seek(std::int64_t, StreamOrigin)
-// Closed.
-void test_s39p2ffo1unmfkb4()
-{
-	auto memory_stream = bstone::StaticMemoryStream{};
-	const auto is_open = memory_stream.is_open();
-	auto is_failed = false;
-
-	try
-	{
-		memory_stream.seek(0, bstone::StreamOrigin::current);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(!is_open && is_failed);
 }
 
 // std::int64_t seek(std::int64_t, StreamOrigin)
@@ -808,25 +435,6 @@ void test_ld3x5fvllannxapc()
 }
 
 // std::int64_t skip(std::int64_t)
-// Closed.
-void test_wrdrulzvlbr06hu2()
-{
-	auto memory_stream = bstone::StaticMemoryStream{};
-	const auto is_open = memory_stream.is_open();
-	auto is_failed = false;
-
-	try
-	{
-		memory_stream.skip(1);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(!is_open && is_failed);
-}
-// std::int64_t skip(std::int64_t)
 // Negative new position.
 void test_56gj0c3jb9k386u9()
 {
@@ -884,26 +492,6 @@ void test_8nyr5ardlal737iz()
 	tester.check(is_open && seek_result_1 && seek_result_2);
 }
 
-// std::int64_t get_position()
-// Closed.
-void test_90sbsesx8lmlofyx()
-{
-	auto memory_stream = bstone::StaticMemoryStream{};
-	const auto is_open = memory_stream.is_open();
-	auto is_failed = false;
-
-	try
-	{
-		memory_stream.get_position();
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(!is_open && is_failed);
-}
-
 // ==========================================================================
 
 // void set_position(std::int64_t)
@@ -916,26 +504,6 @@ void test_lnen4qjm4uls7hzn()
 	const auto seek_result = memory_stream.seek(0, bstone::StreamOrigin::current) == 1000;
 
 	tester.check(is_open && seek_result);
-}
-
-// void set_position(std::int64_t)
-// Closed.
-void test_ksyf1b712t8xomx6()
-{
-	auto memory_stream = bstone::StaticMemoryStream{};
-	const auto is_open = memory_stream.is_open();
-	auto is_failed = false;
-
-	try
-	{
-		memory_stream.set_position(1);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(!is_open && is_failed);
 }
 
 // void set_position(std::int64_t)
@@ -996,26 +564,6 @@ void test_ue3pgnp5r744w081()
 	tester.check(is_open && size_result);
 }
 
-// std::int64_t get_size()
-// Closed.
-void test_yyalh5kuft5fimma()
-{
-	auto memory_stream = bstone::StaticMemoryStream{};
-	const auto is_open = memory_stream.is_open();
-	auto is_failed = true;
-
-	try
-	{
-		memory_stream.get_size();
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(!is_open && is_failed);
-}
-
 // ==========================================================================
 
 // void set_size(std::int64_t)
@@ -1030,26 +578,6 @@ void test_a9babwqz5iahlltw()
 	tester.check(is_open && size_result_1);
 }
 
-// void set_size(std::int64_t)
-// Closed.
-void test_59vfyvgpyhmuqh4a()
-{
-	auto memory_stream = bstone::StaticMemoryStream{};
-	const auto is_open = memory_stream.is_open();
-	auto is_failed = false;
-
-	try
-	{
-		memory_stream.set_size(1000);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(!is_open && is_failed);
-}
-
 // ==========================================================================
 
 // void flush()
@@ -1061,27 +589,6 @@ void test_889yv25c2jyd208c()
 	memory_stream.flush();
 
 	tester.check(is_open);
-}
-
-// void flush()
-// Closed.
-void test_necdmrdwdrcpmw6t()
-{
-	auto memory_stream = bstone::StaticMemoryStream{};
-	const auto is_open = memory_stream.is_open();
-	auto is_failed = false;
-
-	try
-	{
-		memory_stream.flush();
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-
-	tester.check(!is_open && is_failed);
 }
 
 // ==========================================================================
@@ -1114,8 +621,6 @@ private:
 	{
 		tester.register_test("StaticMemoryStream#6ds129w9dxsjomlc", test_6ds129w9dxsjomlc);
 		tester.register_test("StaticMemoryStream#cg874043ah1bqjbr", test_cg874043ah1bqjbr);
-		tester.register_test("StaticMemoryStream#sqa7ellk5ua0aude", test_sqa7ellk5ua0aude);
-		tester.register_test("StaticMemoryStream#vifwlsb1mbisv4z5", test_vifwlsb1mbisv4z5);
 		tester.register_test("StaticMemoryStream#f7khj63zk124btzp", test_f7khj63zk124btzp);
 		tester.register_test("StaticMemoryStream#00qcn6my0tb8k541", test_00qcn6my0tb8k541);
 	}
@@ -1123,15 +628,12 @@ private:
 	void register_get_data()
 	{
 		tester.register_test("StaticMemoryStream#t3eqak5thhnos9xe", test_t3eqak5thhnos9xe);
-		tester.register_test("StaticMemoryStream#p3onrz6wcqetsrda", test_p3onrz6wcqetsrda);
 		tester.register_test("StaticMemoryStream#g5ff2gqbyeid3ezx", test_g5ff2gqbyeid3ezx);
-		tester.register_test("StaticMemoryStream#sjaa90dvhzejlo45", test_sjaa90dvhzejlo45);
 	}
 
 	void register_open()
 	{
 		tester.register_test("StaticMemoryStream#50buk347p5mbwcdn", test_50buk347p5mbwcdn);
-		tester.register_test("StaticMemoryStream#a6dftvwglx03ve8o", test_a6dftvwglx03ve8o);
 	}
 
 	void register_close()
@@ -1147,35 +649,23 @@ private:
 	void register_read()
 	{
 		tester.register_test("StaticMemoryStream#1mzma6x2ck33dfws", test_1mzma6x2ck33dfws);
-		tester.register_test("StaticMemoryStream#mesfq92mystrrdoj", test_mesfq92mystrrdoj);
-		tester.register_test("StaticMemoryStream#rea656qypf13glm1", test_rea656qypf13glm1);
-		tester.register_test("StaticMemoryStream#4pxq7pc8gjg5dw41", test_4pxq7pc8gjg5dw41);
 	}
 
 	void register_read_exact()
 	{
 		tester.register_test("StaticMemoryStream#u4a8sprkw3hjgtes", test_u4a8sprkw3hjgtes);
 		tester.register_test("StaticMemoryStream#2yv6r8s3ry3upqxm", test_2yv6r8s3ry3upqxm);
-		tester.register_test("StaticMemoryStream#o5jnbo3ulgrdbsmf", test_o5jnbo3ulgrdbsmf);
-		tester.register_test("StaticMemoryStream#65jrwgl314vvmhd9", test_65jrwgl314vvmhd9);
-		tester.register_test("StaticMemoryStream#bjzfb0sl17v944sm", test_bjzfb0sl17v944sm);
 	}
 
 	void register_write()
 	{
 		tester.register_test("StaticMemoryStream#14mn4jrmdfhbw8dd", test_14mn4jrmdfhbw8dd);
-		tester.register_test("StaticMemoryStream#4xn51ys09fwpw4n2", test_4xn51ys09fwpw4n2);
-		tester.register_test("StaticMemoryStream#11lh7i6ccqb6cgw3", test_11lh7i6ccqb6cgw3);
-		tester.register_test("StaticMemoryStream#ct2vcyf0vuumzuml", test_ct2vcyf0vuumzuml);
 	}
 
 	void register_write_exact()
 	{
 		tester.register_test("StaticMemoryStream#bl9qhqrhs3w0hn33", test_bl9qhqrhs3w0hn33);
 		tester.register_test("StaticMemoryStream#d0jinhmh1kfkxt95", test_d0jinhmh1kfkxt95);
-		tester.register_test("StaticMemoryStream#3mtbhxgbu6oyh771", test_3mtbhxgbu6oyh771);
-		tester.register_test("StaticMemoryStream#n8a823y7q7rhv9ss", test_n8a823y7q7rhv9ss);
-		tester.register_test("StaticMemoryStream#lvdubbybe0spue34", test_lvdubbybe0spue34);
 	}
 
 	void register_seek()
@@ -1183,7 +673,6 @@ private:
 		tester.register_test("StaticMemoryStream#qiihjf8xgy3e6ead", test_qiihjf8xgy3e6ead);
 		tester.register_test("StaticMemoryStream#p7p8fx1a861mqtfg", test_p7p8fx1a861mqtfg);
 		tester.register_test("StaticMemoryStream#6g653ulwicud0fnz", test_6g653ulwicud0fnz);
-		tester.register_test("StaticMemoryStream#s39p2ffo1unmfkb4", test_s39p2ffo1unmfkb4);
 		tester.register_test("StaticMemoryStream#cvqvrhhbb6ugqkyl", test_cvqvrhhbb6ugqkyl);
 		tester.register_test("StaticMemoryStream#cv5v7g2aqhnd6c7c", test_cv5v7g2aqhnd6c7c);
 		tester.register_test("StaticMemoryStream#jlz5o4sa3vyozrpj", test_jlz5o4sa3vyozrpj);
@@ -1192,7 +681,6 @@ private:
 	void register_skip()
 	{
 		tester.register_test("StaticMemoryStream#ld3x5fvllannxapc", test_ld3x5fvllannxapc);
-		tester.register_test("StaticMemoryStream#wrdrulzvlbr06hu2", test_wrdrulzvlbr06hu2);
 		tester.register_test("StaticMemoryStream#56gj0c3jb9k386u9", test_56gj0c3jb9k386u9);
 		tester.register_test("StaticMemoryStream#q98coo456jrrou9j", test_q98coo456jrrou9j);
 	}
@@ -1200,13 +688,11 @@ private:
 	void register_get_position()
 	{
 		tester.register_test("StaticMemoryStream#8nyr5ardlal737iz", test_8nyr5ardlal737iz);
-		tester.register_test("StaticMemoryStream#90sbsesx8lmlofyx", test_90sbsesx8lmlofyx);
 	}
 
 	void register_set_position()
 	{
 		tester.register_test("StaticMemoryStream#lnen4qjm4uls7hzn", test_lnen4qjm4uls7hzn);
-		tester.register_test("StaticMemoryStream#ksyf1b712t8xomx6", test_ksyf1b712t8xomx6);
 		tester.register_test("StaticMemoryStream#ai6l5wadrz6ry50b", test_ai6l5wadrz6ry50b);
 		tester.register_test("StaticMemoryStream#hnb88o1do1zil9a7", test_hnb88o1do1zil9a7);
 	}
@@ -1214,19 +700,16 @@ private:
 	void register_get_size()
 	{
 		tester.register_test("StaticMemoryStream#ue3pgnp5r744w081", test_ue3pgnp5r744w081);
-		tester.register_test("StaticMemoryStream#yyalh5kuft5fimma", test_yyalh5kuft5fimma);
 	}
 
 	void register_set_size()
 	{
 		tester.register_test("StaticMemoryStream#a9babwqz5iahlltw", test_a9babwqz5iahlltw);
-		tester.register_test("StaticMemoryStream#59vfyvgpyhmuqh4a", test_59vfyvgpyhmuqh4a);
 	}
 
 	void register_flush()
 	{
 		tester.register_test("StaticMemoryStream#889yv25c2jyd208c", test_889yv25c2jyd208c);
-		tester.register_test("StaticMemoryStream#necdmrdwdrcpmw6t", test_necdmrdwdrcpmw6t);
 	}
 };
 

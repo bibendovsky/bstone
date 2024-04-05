@@ -45,12 +45,6 @@ private:
 	void do_flush() override;
 
 private:
-	void ensure_is_open() const;
-	static void validate_buffer(const void* buffer);
-	static void validate_buffer_size(std::intptr_t buffer_size);
-	static void validate_count(std::intptr_t count);
-	static void validate_size(std::int64_t size);
-
 	void close_internal() noexcept;
 };
 

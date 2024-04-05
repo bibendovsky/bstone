@@ -11,6 +11,7 @@ SPDX-License-Identifier: MIT
 #include <algorithm>
 #include <memory>
 
+#include "bstone_assert.h"
 #include "bstone_exception.h"
 
 namespace bstone {
@@ -22,23 +23,24 @@ StaticMemoryStream::StaticMemoryStream(void* buffer, std::intptr_t size)
 
 const std::uint8_t* StaticMemoryStream::get_data() const
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open_);
 
 	return buffer_;
 }
 
 std::uint8_t* StaticMemoryStream::get_data()
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open_);
 
 	return buffer_;
 }
 
 void StaticMemoryStream::open(void* buffer, std::intptr_t buffer_size)
 {
+	BSTONE_ASSERT(buffer != nullptr);
+	BSTONE_ASSERT(buffer_size >= 0);
+
 	close_internal();
-	validate_buffer(buffer);
-	validate_buffer_size(buffer_size);
 
 	is_open_ = true;
 	buffer_ = static_cast<std::uint8_t*>(buffer);
@@ -58,9 +60,9 @@ bool StaticMemoryStream::do_is_open() const noexcept
 
 std::intptr_t StaticMemoryStream::do_read(void* buffer, std::intptr_t count)
 {
-	ensure_is_open();
-	validate_buffer(buffer);
-	validate_count(count);
+	BSTONE_ASSERT(is_open_);
+	BSTONE_ASSERT(buffer != nullptr);
+	BSTONE_ASSERT(count >= 0);
 
 	const auto copy_count = std::min(count, size_ - position_);
 
@@ -77,9 +79,9 @@ std::intptr_t StaticMemoryStream::do_read(void* buffer, std::intptr_t count)
 
 std::intptr_t StaticMemoryStream::do_write(const void* buffer, std::intptr_t count)
 {
-	ensure_is_open();
-	validate_buffer(buffer);
-	validate_count(count);
+	BSTONE_ASSERT(is_open_);
+	BSTONE_ASSERT(buffer != nullptr);
+	BSTONE_ASSERT(count >= 0);
 
 	const auto copy_count = std::min(count, capacity_ - position_);
 
@@ -97,8 +99,8 @@ std::intptr_t StaticMemoryStream::do_write(const void* buffer, std::intptr_t cou
 
 std::int64_t StaticMemoryStream::do_seek(std::int64_t offset, StreamOrigin origin)
 {
-	ensure_is_open();
-
+	BSTONE_ASSERT(is_open_);
+	
 	auto new_position = std::int64_t{};
 
 	switch (origin)
@@ -140,15 +142,15 @@ std::int64_t StaticMemoryStream::do_seek(std::int64_t offset, StreamOrigin origi
 
 std::int64_t StaticMemoryStream::do_get_size()
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open_);
 
 	return size_;
 }
 
 void StaticMemoryStream::do_set_size(std::int64_t size)
 {
-	ensure_is_open();
-	validate_size(size);
+	BSTONE_ASSERT(is_open_);
+	BSTONE_ASSERT(size >= 0);
 
 	if (size > capacity_)
 	{
@@ -160,52 +162,7 @@ void StaticMemoryStream::do_set_size(std::int64_t size)
 
 void StaticMemoryStream::do_flush()
 {
-	ensure_is_open();
-}
-
-void StaticMemoryStream::ensure_is_open() const
-{
-	if (!is_open_)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Closed.");
-	}
-}
-
-void StaticMemoryStream::validate_buffer(const void* buffer)
-{
-	if (buffer == nullptr)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Null buffer.");
-	}
-}
-
-void StaticMemoryStream::validate_buffer_size(std::intptr_t buffer_size)
-{
-	if (buffer_size < 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Negative buffer size.");
-	}
-}
-
-void StaticMemoryStream::validate_count(std::intptr_t count)
-{
-	if (count < 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Negative count.");
-	}
-}
-
-void StaticMemoryStream::validate_size(std::int64_t size)
-{
-	if (size < 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Negative size.");
-	}
-
-	if (size > INTPTR_MAX)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Size out of range.");
-	}
+	BSTONE_ASSERT(is_open_);
 }
 
 void StaticMemoryStream::close_internal() noexcept
