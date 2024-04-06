@@ -12,6 +12,7 @@ SPDX-License-Identifier: MIT
 #include <algorithm>
 #include <type_traits>
 
+#include "bstone_assert.h"
 #include "bstone_crc32.h"
 #include "bstone_endian.h"
 #include "bstone_exception.h"
@@ -69,8 +70,6 @@ private:
 	Stream* stream_{};
 
 private:
-	void ensure_is_open() const;
-
 	template<typename T>
 	T read_integer(bool is_checksum = false);
 
@@ -95,7 +94,7 @@ private:
 template<typename T>
 T Archiver::read_integer(bool is_checksum)
 try {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open());
 
 	constexpr auto value_size = static_cast<std::intptr_t>(sizeof(T));
 	auto value = T{};
@@ -113,7 +112,7 @@ try {
 template<typename T>
 void Archiver::write_integer(T integer_value, bool is_checksum)
 try {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open());
 
 	constexpr auto value_size = static_cast<std::intptr_t>(sizeof(T));
 
@@ -129,17 +128,9 @@ try {
 template<typename T>
 void Archiver::read_integer_array(T* items, std::intptr_t item_count)
 try {
-	ensure_is_open();
-
-	if (items == nullptr)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Null items.");
-	}
-
-	if (item_count <= 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Item count out of range.");
-	}
+	BSTONE_ASSERT(is_open());
+	BSTONE_ASSERT(items != nullptr);
+	BSTONE_ASSERT(item_count > 0);
 
 	constexpr auto value_size = static_cast<std::intptr_t>(sizeof(T));
 	const auto items_size = value_size * item_count;
@@ -196,17 +187,9 @@ void Archiver::write_integer_array_internal(const T* items, std::intptr_t item_c
 template<typename T>
 void Archiver::write_integer_array(const T* items, std::intptr_t item_count)
 try {
-	ensure_is_open();
-
-	if (items == nullptr)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Null items.");
-	}
-
-	if (item_count <= 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Item count out of range.");
-	}
+	BSTONE_ASSERT(is_open());
+	BSTONE_ASSERT(items != nullptr);
+	BSTONE_ASSERT(item_count > 0);
 
 #if BSTONE_ENDIAN == BSTONE_BIG_ENDIAN
 	using Tag = std::conditional_t<sizeof(T) == 1, EndianByteSizeTag, EndianNonByteSizeTag>;

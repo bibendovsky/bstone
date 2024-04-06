@@ -83,15 +83,8 @@ try {
 
 std::intptr_t Archiver::read_string(std::intptr_t max_string_length, char* string)
 try {
-	if (max_string_length <= 0 || max_string_length > INT32_MAX)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Maximum string length out of range.");
-	}
-
-	if (string == nullptr)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Null string.");
-	}
+	BSTONE_ASSERT(max_string_length >= 0 && max_string_length <= INT32_MAX);
+	BSTONE_ASSERT(string != nullptr);
 
 	const auto archived_string_length = read_integer<std::int32_t>();
 
@@ -171,15 +164,8 @@ try {
 
 void Archiver::write_string(const char* string, std::intptr_t string_length)
 try {
-	if (string == nullptr)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Null string.");
-	}
-
-	if (string_length < 0 || string_length > INT32_MAX)
-	{
-		BSTONE_THROW_STATIC_SOURCE("String length out of range.");
-	}
+	BSTONE_ASSERT(string != nullptr);
+	BSTONE_ASSERT(string_length >= 0 && string_length <= INT32_MAX);
 
 	write_integer<std::int32_t>(static_cast<std::int32_t>(string_length));
 	stream_->write_exactly(string, string_length);
@@ -190,13 +176,5 @@ try {
 	const auto checksum = crc32_.get_value();
 	write_integer<std::int32_t>(checksum, true);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void Archiver::ensure_is_open() const
-{
-	if (!is_open())
-	{
-		BSTONE_THROW_STATIC_SOURCE("Closed.");
-	}
-}
 
 } // namespace bstone
