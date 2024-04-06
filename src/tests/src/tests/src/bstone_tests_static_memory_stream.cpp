@@ -259,6 +259,82 @@ void test_14mn4jrmdfhbw8dd()
 		value_result_1);
 }
 
+// std::intptr_t write(const void*, std::intptr_t)
+// New position is less or equal to the old size.
+void test_wim9y9uexr2x18xc()
+{
+	char stream_buffer[4] = {};
+	auto memory_stream = bstone::StaticMemoryStream{&stream_buffer, 4};
+	const auto is_open = memory_stream.is_open();
+
+	memory_stream.set_size(3);
+	const auto old_size = memory_stream.get_size();
+	const auto is_old_size_valid = old_size == 3;
+
+	memory_stream.set_position(1);
+	const auto old_position = memory_stream.get_position();
+	const auto is_old_position_valid = old_position == 1;
+
+	const auto ch = '\0';
+	const auto written_size = memory_stream.write(&ch, 1);
+	const auto is_written_size_valid = written_size == 1;
+
+	const auto new_position = memory_stream.get_position();
+	const auto is_new_position_valid = new_position == 2;
+
+	const auto new_size = memory_stream.get_size();
+	const auto is_new_size_valid = new_size == 3;
+
+	const auto is_valid =
+		is_open &&
+		is_old_size_valid &&
+		is_old_position_valid &&
+		is_written_size_valid &&
+		is_new_position_valid &&
+		is_new_size_valid &&
+		true;
+
+	tester.check(is_valid);
+}
+
+// std::intptr_t write(const void*, std::intptr_t)
+// New position is greater than the old size.
+void test_32hb8m11bqdomfys()
+{
+	char stream_buffer[4] = {};
+	auto memory_stream = bstone::StaticMemoryStream{&stream_buffer, 4};
+	const auto is_open = memory_stream.is_open();
+
+	memory_stream.set_size(3);
+	const auto old_size = memory_stream.get_size();
+	const auto is_old_size_valid = old_size == 3;
+
+	memory_stream.set_position(2);
+	const auto old_position = memory_stream.get_position();
+	const auto is_old_position_valid = old_position == 2;
+
+	const char ch2[2] = {};
+	const auto written_size = memory_stream.write(ch2, 2);
+	const auto is_written_size_valid = written_size == 2;
+
+	const auto new_position = memory_stream.get_position();
+	const auto is_new_position_valid = new_position == 4;
+
+	const auto new_size = memory_stream.get_size();
+	const auto is_new_size_valid = new_size == 4;
+
+	const auto is_valid =
+		is_open &&
+		is_old_size_valid &&
+		is_old_position_valid &&
+		is_written_size_valid &&
+		is_new_position_valid &&
+		is_new_size_valid &&
+		true;
+
+	tester.check(is_valid);
+}
+
 // ==========================================================================
 
 // void write_exactly(const void*, std::intptr_t)
@@ -660,6 +736,8 @@ private:
 	void register_write()
 	{
 		tester.register_test("StaticMemoryStream#14mn4jrmdfhbw8dd", test_14mn4jrmdfhbw8dd);
+		tester.register_test("StaticMemoryStream#wim9y9uexr2x18xc", test_wim9y9uexr2x18xc);
+		tester.register_test("StaticMemoryStream#32hb8m11bqdomfys", test_32hb8m11bqdomfys);
 	}
 
 	void register_write_exact()

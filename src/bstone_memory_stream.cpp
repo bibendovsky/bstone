@@ -91,7 +91,7 @@ std::intptr_t MemoryStream::do_write(const void* buffer, std::intptr_t count)
 	reserve(new_capacity, chunk_size_);
 	std::copy_n(static_cast<const std::uint8_t*>(buffer), copy_count, &storage_[position_]);
 	position_ += copy_count;
-	size_ = position_;
+	size_ = std::max(size_, position_);
 
 	return copy_count;
 }

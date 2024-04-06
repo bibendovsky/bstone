@@ -92,7 +92,7 @@ std::intptr_t StaticMemoryStream::do_write(const void* buffer, std::intptr_t cou
 
 	std::copy_n(static_cast<const std::uint8_t*>(buffer), copy_count, &buffer_[position_]);
 	position_ += copy_count;
-	size_ = position_;
+	size_ = std::max(size_, position_);
 
 	return copy_count;
 }
