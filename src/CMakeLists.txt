@@ -572,6 +572,7 @@ target_sources(
 		bstone_voice.h
 		bstone_voice_group.h
 		bstone_zstring_view_hasher.h
+		bstone_saved_game.h
 
 		bstone_sys_audio_mgr.h
 		bstone_sys_color.h
@@ -787,6 +788,7 @@ target_sources(
 		bstone_version.cpp
 		bstone_video.cpp
 		bstone_voice_group.cpp
+		bstone_saved_game.cpp
 
 		bstone_sys_audio_mgr.cpp
 		bstone_sys_color.cpp

@@ -52,8 +52,6 @@ class Stream;
 enum class ScanCode;
 
 
-const int BS_SAVE_VERSION = 11;
-
 #define GOLD_MORPH_LEVEL (19) // Level which Dr. GoldFire Morphs.
 
 #define VERSION_TEXT_COLOR (0x82)
@@ -2940,10 +2938,6 @@ extern double heightnumerator;
 extern bool ShowQuickMsg;
 
 
-int DeleteChunk(
-	bstone::MemoryStream& stream,
-	const std::string& chunk_name);
-
 void LoadFonts();
 
 void ClearNClose();
@@ -2972,11 +2966,6 @@ bool SaveTheGame(
 void SetupWalls();
 
 void InitDestPath();
-
-// On success current stream position is at chunk's data.
-int FindChunk(
-	bstone::Stream* stream,
-	const std::string& dst_chunk_name);
 
 
 /*

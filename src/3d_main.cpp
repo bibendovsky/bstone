@@ -31,12 +31,14 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_entry_point.h"
 #include "bstone_exception.h"
 #include "bstone_exception_utils.h"
+#include "bstone_four_cc.h"
 #include "bstone_fs_utils.h"
 #include "bstone_globals.h"
 #include "bstone_logger.h"
 #include "bstone_math.h"
 #include "bstone_memory_stream.h"
 #include "bstone_ps_fizzle_fx.h"
+#include "bstone_saved_game.h"
 #include "bstone_scope_exit.h"
 #include "bstone_sha1.h"
 #include "bstone_sys_message_box.h"
@@ -7989,50 +7991,6 @@ void InitPlaytemp()
 	g_playtemp.set_position(0);
 }
 
-int FindChunk(
-	bstone::Stream* stream,
-	const std::string& dst_chunk_name)
-{
-	std::string src_chunk_name;
-	char src_chunk_name_buffer[4];
-
-	stream->set_position(0);
-
-	for (bool quit = false; !quit; )
-	{
-		if (stream->read(src_chunk_name_buffer, 4) == 4)
-		{
-			std::int32_t chunk_size = 0;
-
-			if (stream->read(&chunk_size, 4) == 4)
-			{
-				chunk_size = bstone::endian::to_little(chunk_size);
-
-				src_chunk_name.assign(src_chunk_name_buffer, 4);
-
-				if (src_chunk_name == dst_chunk_name)
-				{
-					return chunk_size;
-				}
-
-				stream->skip(chunk_size);
-			}
-			else
-			{
-				quit = true;
-			}
-		}
-		else
-		{
-			quit = true;
-		}
-	}
-
-	stream->seek(0, bstone::StreamOrigin::end);
-
-	return 0;
-}
-
 void AlignPlayerOnTransporter()
 {
 	player->tilex = static_cast<std::uint8_t>(player_warp.tilex);
@@ -8194,11 +8152,11 @@ bool LoadLevel(
 
 	pwallstate = 0.0;
 
-	std::string chunk_name = "LV" + bstone::StringHelper::octet_to_hex_string(level_index);
+	const auto chunk_four_cc = bstone::sg_make_level_four_cc(level_index);
 
 	g_playtemp.set_position(0);
 
-	if ((FindChunk(&g_playtemp, chunk_name) == 0) || ForceLoadDefault)
+	if ((bstone::sg_find_chunk(chunk_four_cc, g_playtemp) == 0) || ForceLoadDefault)
 	{
 		SetupGameLevel();
 
@@ -8588,18 +8546,11 @@ bool SaveLevel(
 
 	// Remove level chunk from file
 	//
-	std::string chunk_name = "LV" + bstone::StringHelper::octet_to_hex_string(level_index);
+	const auto chunk_four_cc = bstone::sg_make_level_four_cc(level_index);
 
-	DeleteChunk(g_playtemp, chunk_name);
+	bstone::sg_delete_chunk(chunk_four_cc, g_playtemp);
 
-	g_playtemp.seek(0, bstone::StreamOrigin::end);
-
-	// Write level chunk id
-	//
-	g_playtemp.write(chunk_name.c_str(), 4);
-
-	// leave four bytes for chunk size
-	g_playtemp.skip(4);
+	g_playtemp.seek(bstone::sg_chunk_header_size, bstone::StreamOrigin::end);
 
 	const auto beg_offset = g_playtemp.get_position();
 
@@ -8850,39 +8801,19 @@ bool SaveLevel(
 
 	// Write chunk size, set file size, and close file
 	//
-	g_playtemp.skip(-(chunk_size + 4));
-	archiver.write_int32(chunk_size);
+	g_playtemp.set_position(beg_offset - bstone::sg_chunk_header_size);
+
+	auto chunk_header = bstone::SgChunkHeader{};
+	chunk_header.id = chunk_four_cc.get_value();
+	chunk_header.size = chunk_size;
+	chunk_header.serialize(g_playtemp);
+
 	g_playtemp.set_size(end_offset);
 
 	NewViewSize();
 
 	return true;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-int DeleteChunk(
-	bstone::MemoryStream& stream,
-	const std::string& chunk_name)
-{
-	stream.set_position(0);
-
-	int chunk_size = FindChunk(&stream, chunk_name);
-
-	if (chunk_size > 0)
-	{
-		const auto offset = stream.get_position() - 8;
-		int count = chunk_size + 8;
-
-		if (count != 0)
-		{
-			auto data = stream.get_data();
-			const auto data_size = stream.get_size();
-			std::copy_n(data + offset + count, data_size - offset - count, data + offset);
-			stream.set_size(data_size - count);
-		}
-	}
-
-	return chunk_size;
-}
 
 static const std::string& get_saved_game_version_string()
 try
@@ -8917,7 +8848,7 @@ try
 
 		version_string +=
 			" saved game (v" +
-			std::to_string(BS_SAVE_VERSION) +
+			std::to_string(bstone::sg_version) +
 			")"
 			;
 	}
@@ -8926,16 +8857,23 @@ try
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 static bool LoadCompressedChunk(
-	const std::string& chunk_name,
+	bstone::FourCc chunk_four_cc,
 	bstone::Stream* stream,
 	Buffer& buffer)
 {
+	char chunk_four_cc_chars[4] = {};
+	*reinterpret_cast<std::uint32_t*>(chunk_four_cc_chars) = chunk_four_cc.get_value();
+
 	auto stream_size = stream->get_size();
 
-	if (FindChunk(stream, chunk_name) == 0)
+	if (bstone::sg_find_chunk(chunk_four_cc, *stream) == 0)
 	{
-		bstone::globals::logger->write_error(
-			("LOAD: Failed to locate \"" + chunk_name + "\" chunk.").c_str());
+		auto error_message = std::string{};
+		error_message.reserve(64);
+		error_message += "[SG] Chunk \"";
+		error_message.append(chunk_four_cc_chars, 4);
+		error_message += "\" not found.";
+		bstone::globals::logger->write_error(error_message.c_str());
 
 		return false;
 	}
@@ -8951,8 +8889,12 @@ static bool LoadCompressedChunk(
 
 		if (total_size <= 0 || total_size > stream_size)
 		{
-			bstone::globals::logger->write_error(
-				("LOAD: Invalid \"" + chunk_name + "\" size.").c_str());
+			auto error_message = std::string{};
+			error_message.reserve(64);
+			error_message += "[SG] Chunk \"";
+			error_message.append(chunk_four_cc_chars, 4);
+			error_message += "\" has invalid size.";
+			bstone::globals::logger->write_error(error_message.c_str());
 
 			return false;
 		}
@@ -8975,16 +8917,25 @@ static bool LoadCompressedChunk(
 
 		if (decoded_size != src_size)
 		{
-			bstone::globals::logger->write_error(
-				("LOAD: Failed to decompress \"" + chunk_name + "\" data.").c_str());
+			auto error_message = std::string{};
+			error_message.reserve(64);
+			error_message += "[SG] Failed to decompress chunk \"";
+			error_message.append(chunk_four_cc_chars, 4);
+			error_message += "\".";
+			bstone::globals::logger->write_error(error_message.c_str());
 
 			return false;
 		}
 	}
 	catch (const std::exception& ex)
 	{
-		bstone::globals::logger->write_error(
-			("LOAD: Failed to unarchive \"" + chunk_name + "\". " + std::string{ex.what()}).c_str());
+		auto error_message = std::string{};
+		error_message.reserve(64);
+		error_message += "[SG] Failed to unarchive chunk \"";
+		error_message.append(chunk_four_cc_chars, 4);
+		error_message += "\". ";
+		error_message += ex.what();
+		bstone::globals::logger->write_error(error_message.c_str());
 
 		return false;
 	}
@@ -9018,7 +8969,7 @@ bool LoadTheGame(
 	//
 	if (is_succeed)
 	{
-		if (FindChunk(&file_stream, "VERS") == 0)
+		if (bstone::sg_find_chunk(bstone::SgKnownFourCc::vers, file_stream) == 0)
 		{
 			is_succeed = false;
 
@@ -9068,7 +9019,7 @@ bool LoadTheGame(
 
 	if (is_succeed)
 	{
-		if (!LoadCompressedChunk("HEAD", &file_stream, head_buffer))
+		if (!LoadCompressedChunk(bstone::SgKnownFourCc::head, &file_stream, head_buffer))
 		{
 			is_succeed = false;
 		}
@@ -9080,7 +9031,7 @@ bool LoadTheGame(
 
 	if (is_succeed)
 	{
-		if (!LoadCompressedChunk("LVXX", &file_stream, lvxx_buffer))
+		if (!LoadCompressedChunk(bstone::SgKnownFourCc::lvxx, &file_stream, lvxx_buffer))
 		{
 			is_succeed = false;
 		}
@@ -9355,24 +9306,24 @@ bool SaveTheGame(
 		// Write VERS chunk
 		//
 		const auto& version_string = get_saved_game_version_string();
-		archiver.write_char_array("VERS", 4);
+		archiver.write_uint32(bstone::SgKnownFourCc::vers.get_value());
 		archiver.write_string(version_string.c_str(), static_cast<std::intptr_t>(version_string.length()));
 
 		// Write DESC chunk
 		//
-		archiver.write_char_array("DESC", 4);
+		archiver.write_uint32(bstone::SgKnownFourCc::desc.get_value());
 		archiver.write_string(description.c_str(), static_cast<std::intptr_t>(description.length()));
 
 		// Write HEAD chunk
 		//
-		archiver.write_char_array("HEAD", 4);
+		archiver.write_uint32(bstone::SgKnownFourCc::head.get_value());
 		archiver.write_int32(head_dst_size + 4);
 		archiver.write_int32(head_src_size);
 		archiver.write_uint8_array(head_buffer.data(), head_dst_size);
 
 		// Write LVXX chunk
 		//
-		archiver.write_char_array("LVXX", 4);
+		archiver.write_uint32(bstone::SgKnownFourCc::lvxx.get_value());
 		archiver.write_int32(lvxx_dst_size + 4);
 		archiver.write_int32(lvxx_src_size);
 		archiver.write_uint8_array(lvxx_buffer.data(), lvxx_dst_size);
@@ -9399,9 +9350,8 @@ bool SaveTheGame(
 bool LevelInPlaytemp(
 	int level_index)
 {
-	auto&& chunk_name = "LV" + bstone::StringHelper::octet_to_hex_string(level_index);
-
-	return FindChunk(&g_playtemp, chunk_name) != 0;
+	const auto chunk_four_cc = bstone::sg_make_level_four_cc(level_index);
+	return bstone::sg_find_chunk(chunk_four_cc, g_playtemp) != 0;
 }
 
 bool CheckDiskSpace(

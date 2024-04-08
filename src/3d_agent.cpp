@@ -30,6 +30,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_archiver.h"
 #include "bstone_math.h"
 #include "bstone_memory_stream.h"
+#include "bstone_saved_game.h"
 #include "bstone_string_helper.h"
 
 
@@ -4212,11 +4213,11 @@ void LoadOverheadChunk(
 	//
 	g_playtemp.set_position(0);
 
-	std::string chunk_name = "OV" + bstone::StringHelper::octet_to_hex_string(tpNum);
+	const auto chunk_four_cc = bstone::sg_make_overlay_four_cc(tpNum);
 
 	bool is_succeed = true;
 
-	if (FindChunk(&g_playtemp, chunk_name) > 0)
+	if (bstone::sg_find_chunk(chunk_four_cc, g_playtemp) > 0)
 	{
 		auto archiver = bstone::Archiver{};
 
@@ -4252,9 +4253,11 @@ void SaveOverheadChunk(
 {
 	// Remove level chunk from file
 	//
-	std::string chunk_name = "OV" + bstone::StringHelper::octet_to_hex_string(tpNum);
+	const auto chunk_four_cc = bstone::sg_make_overlay_four_cc(tpNum);
+	char chunk_four_cc_chars[4] = {};
+	*reinterpret_cast<std::uint32_t*>(chunk_four_cc_chars) = bstone::endian::to_little(chunk_four_cc.get_value());
 
-	DeleteChunk(g_playtemp, chunk_name);
+	bstone::sg_delete_chunk(chunk_four_cc, g_playtemp);
 
 	// Prepare buffer
 	//
@@ -4263,7 +4266,7 @@ void SaveOverheadChunk(
 	// Write chunk ID, SIZE, and IMAGE
 	//
 	g_playtemp.seek(0, bstone::StreamOrigin::end);
-	g_playtemp.write(chunk_name.c_str(), 4);
+	g_playtemp.write(chunk_four_cc_chars, 4);
 	g_playtemp.skip(4);
 
 	const auto beg_offset = g_playtemp.get_position();

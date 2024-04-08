@@ -28,6 +28,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "jm_tp.h"
 
 #include "bstone_exception.h"
+#include "bstone_saved_game.h"
 #include "bstone_scope_exit.h"
 #include "bstone_r3r_limits.h"
 
@@ -3703,7 +3704,7 @@ void ReadGameNames()
 
 		SaveGamesAvail[i] = 1;
 
-		int chunk_size = FindChunk(&stream, "DESC");
+		int chunk_size = bstone::sg_find_chunk(bstone::SgKnownFourCc::desc, stream);
 
 		if (chunk_size > 0)
 		{
