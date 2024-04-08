@@ -150,6 +150,8 @@ target_sources(${PROJECT_NAME}
 		../../../bstone_posix_string.h
 		../../../bstone_win32_advapi32_symbols.cpp
 		../../../bstone_win32_advapi32_symbols.h
+		../../../bstone_four_cc.cpp
+		../../../bstone_four_cc.h
 	PRIVATE
 		src/bstone_tests_algorithm.cpp
 		src/bstone_tests_array.cpp
@@ -193,6 +195,7 @@ target_sources(${PROJECT_NAME}
 		src/bstone_tests_string_view.cpp
 		src/bstone_tests_string.cpp
 		src/bstone_tests_fs.cpp
+		src/bstone_tests_four_cc.cpp
 	PRIVATE
 		src/bstone_tester.cpp
 		src/bstone_tester.h

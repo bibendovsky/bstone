@@ -401,6 +401,8 @@ target_sources(
 		bstone_sys_special_path.h
 		bstone_string.cpp
 		bstone_string.h
+		bstone_four_cc.cpp
+		bstone_four_cc.h
 )
 
 target_sources(
