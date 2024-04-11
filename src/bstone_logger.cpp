@@ -60,6 +60,7 @@ try
 	auto message_buffer = std::string{};
 	message_buffer.reserve(2048);
 	write_exception_internal(message_buffer);
+	write_error(StringView{message_buffer.c_str(), static_cast<std::intptr_t>(message_buffer.size())});
 }
 catch (const std::exception& ex)
 {
