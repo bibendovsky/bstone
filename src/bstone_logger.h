@@ -51,36 +51,36 @@ public:
 	virtual ~Logger() = default;
 
 	// Writes a message of the specified type.
-	void write(LoggerMessageType message_type, StringView message_sv) noexcept;
+	void log(LoggerMessageType message_type, StringView message_sv) noexcept;
 
-	// Write a new line.
-	void write() noexcept;
+	// Write an empty informational message.
+	void log_information() noexcept;
 
 	// Writes an informational message.
-	void write(StringView message_sv) noexcept;
+	void log_information(StringView message_sv) noexcept;
 
 	// Writes a warning message.
-	void write_warning(StringView message_sv) noexcept;
+	void log_warning(StringView message_sv) noexcept;
 
 	// Writes an error message.
-	void write_error(StringView message_sv) noexcept;
+	void log_error(StringView message_sv) noexcept;
 
-	// Writes an error message for current exception.
-	void write_exception() noexcept;
-
-private:
-	virtual void do_write(LoggerMessageType message_type, StringView message_sv) noexcept = 0;
+	// Writes an error message for a current exception.
+	void log_exception() noexcept;
 
 private:
-	void write_exception_internal(std::string& message_buffer);
+	virtual void do_log(LoggerMessageType message_type, StringView message_sv) noexcept = 0;
+
+private:
+	void log_exception_internal(std::string& message_buffer);
 };
 
 // ==========================================================================
 
 struct LoggerOpenParam
 {
-	bool is_synchronous;
-	LoggerFlushPolicy flush_policy;
+	bool is_synchronous{};
+	LoggerFlushPolicy flush_policy{};
 	const char* file_path{};
 };
 

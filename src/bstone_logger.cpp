@@ -29,51 +29,51 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 namespace bstone {
 
-void Logger::write(LoggerMessageType message_type, StringView message_sv) noexcept
+void Logger::log(LoggerMessageType message_type, StringView message_sv) noexcept
 {
-	do_write(message_type, message_sv);
+	do_log(message_type, message_sv);
 }
 
-void Logger::write() noexcept
+void Logger::log_information() noexcept
 {
-	do_write(LoggerMessageType::information, StringView{});
+	do_log(LoggerMessageType::information, StringView{});
 }
 
-void Logger::write(StringView message_sv) noexcept
+void Logger::log_information(StringView message_sv) noexcept
 {
-	do_write(LoggerMessageType::information, message_sv);
+	do_log(LoggerMessageType::information, message_sv);
 }
 
-void Logger::write_warning(StringView message_sv) noexcept
+void Logger::log_warning(StringView message_sv) noexcept
 {
-	do_write(LoggerMessageType::warning, message_sv);
+	do_log(LoggerMessageType::warning, message_sv);
 }
 
-void Logger::write_error(StringView message_sv) noexcept
+void Logger::log_error(StringView message_sv) noexcept
 {
-	do_write(LoggerMessageType::error, message_sv);
+	do_log(LoggerMessageType::error, message_sv);
 }
 
-void Logger::write_exception() noexcept
+void Logger::log_exception() noexcept
 try
 {
 	auto message_buffer = std::string{};
 	message_buffer.reserve(2048);
-	write_exception_internal(message_buffer);
-	write_error(StringView{message_buffer.c_str(), static_cast<std::intptr_t>(message_buffer.size())});
+	log_exception_internal(message_buffer);
+	log_error(StringView{message_buffer.c_str(), static_cast<std::intptr_t>(message_buffer.size())});
 }
 catch (const std::exception& ex)
 {
-	write_error(__func__);
-	write_error(ex.what());
+	log_error(__func__);
+	log_error(ex.what());
 }
 catch (...)
 {
-	write_error(__func__);
-	write_error("Non-standard exception.");
+	log_error(__func__);
+	log_error("Non-standard exception.");
 }
 
-void Logger::write_exception_internal(std::string& message_buffer)
+void Logger::log_exception_internal(std::string& message_buffer)
 {
 	try
 	{
@@ -83,7 +83,7 @@ void Logger::write_exception_internal(std::string& message_buffer)
 	{
 		const auto nex = dynamic_cast<const std::nested_exception*>(&ex);
 
-		if (nex && nex->nested_ptr())
+		if (nex != nullptr && nex->nested_ptr() != nullptr)
 		{
 			try
 			{
@@ -91,7 +91,7 @@ void Logger::write_exception_internal(std::string& message_buffer)
 			}
 			catch (...)
 			{
-				write_exception_internal(message_buffer);
+				log_exception_internal(message_buffer);
 			}
 		}
 
@@ -230,7 +230,7 @@ private:
 	using LockGuard = std::lock_guard<Mutex>;
 	using UniqueLock = std::unique_lock<Mutex>;
 	using Queues = std::array<LoggerImplQueue, 2>;
-	using WriteFunc = void (LoggerImpl::*)(LoggerMessageType, StringView);
+	using LogFunc = void (LoggerImpl::*)(LoggerMessageType, StringView);
 
 private:
 	bool is_synchronous_{};
@@ -241,7 +241,7 @@ private:
 	LoggerFlushPolicy flush_policy_{};
 	std::intptr_t consumer_queue_index_{};
 	std::intptr_t producer_queue_index_{};
-	WriteFunc write_func_{};
+	LogFunc log_func_{};
 	std::exception_ptr exception_ptr_{};
 	std::thread thread_{};
 	FileStream file_stream_{};
@@ -252,7 +252,7 @@ private:
 	Queues queues_{};
 
 private:
-	void do_write(LoggerMessageType message_type, StringView message_sv) noexcept override;
+	void do_log(LoggerMessageType message_type, StringView message_sv) noexcept override;
 
 private:
 	static MemoryResource& get_memory_resource();
@@ -281,11 +281,11 @@ LoggerImpl::LoggerImpl(const LoggerOpenParam& param)
 
 	if (is_synchronous_)
 	{
-		write_func_ = &LoggerImpl::write_sync;
+		log_func_ = &LoggerImpl::write_sync;
 	}
 	else
 	{
-		write_func_ = &LoggerImpl::write_async;
+		log_func_ = &LoggerImpl::write_async;
 
 		consumer_queue_index_ = 0;
 		producer_queue_index_ = 1;
@@ -326,10 +326,10 @@ void LoggerImpl::operator delete(void* ptr) noexcept
 	get_memory_resource().deallocate(ptr);
 }
 
-void LoggerImpl::do_write(LoggerMessageType message_type, StringView message_sv) noexcept
+void LoggerImpl::do_log(LoggerMessageType message_type, StringView message_sv) noexcept
 try
 {
-	(this->*write_func_)(message_type, message_sv);
+	(this->*log_func_)(message_type, message_sv);
 }
 catch (...)
 {

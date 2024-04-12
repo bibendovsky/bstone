@@ -2263,7 +2263,7 @@ try {
 
 void HwVideo::log(LoggerMessageType message_type, const std::string& message)
 {
-	globals::logger->write(message_type, (log_prefix + message).c_str());
+	globals::logger->log(message_type, (log_prefix + message).c_str());
 }
 
 void HwVideo::log(const std::string& message)

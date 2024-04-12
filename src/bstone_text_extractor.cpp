@@ -30,7 +30,7 @@ TextExtractor::TextExtractor()
 
 void TextExtractor::extract_text(const std::string& dst_dir)
 {
-	globals::logger->write(("File count: " + std::to_string(text_numbers_.size())).c_str());
+	globals::logger->log_information(("File count: " + std::to_string(text_numbers_.size())).c_str());
 
 	for (const auto& text_number : text_numbers_)
 	{

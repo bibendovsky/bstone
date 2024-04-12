@@ -591,7 +591,7 @@ void OalAudioMixer::detect_alc_extensions()
 void OalAudioMixer::log(const OalString& string)
 {
 	static const auto prefix = OalString{"[SND_OAL] "};
-	globals::logger->write((prefix + string).c_str());
+	globals::logger->log_information((prefix + string).c_str());
 }
 
 void OalAudioMixer::log_oal_library_file_name()

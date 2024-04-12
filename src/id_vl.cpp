@@ -920,13 +920,13 @@ const std::string& vid_get_vid_string()
 
 void vid_log()
 {
-	bstone::globals::logger->write();
+	bstone::globals::logger->log_information();
 }
 
 void vid_log(
 	const std::string& message)
 {
-	bstone::globals::logger->write(
+	bstone::globals::logger->log(
 		bstone::LoggerMessageType::information,
 		(vid_get_vid_string() + ' ' + message).c_str()
 	);
@@ -935,7 +935,7 @@ void vid_log(
 void vid_log_error(
 	const std::string& message)
 {
-	bstone::globals::logger->write(
+	bstone::globals::logger->log(
 		bstone::LoggerMessageType::error,
 		(vid_get_vid_string() + ' ' + message).c_str()
 	);

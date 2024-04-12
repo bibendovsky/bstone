@@ -7130,7 +7130,7 @@ void read_high_scores()
 		{
 			is_succeed = false;
 
-			bstone::globals::logger->write_error(
+			bstone::globals::logger->log_error(
 				("Failed to unarchive high scores. " + std::string{ex.what()}).c_str());
 		}
 	}
@@ -7167,7 +7167,7 @@ static void write_high_scores()
 		tmp_scores_path.c_str(),
 		bstone::FileOpenFlags::create | bstone::FileOpenFlags::write))
 	{
-		bstone::globals::logger->write_error(
+		bstone::globals::logger->log_error(
 			("Failed to open a high scores file for writing: \"" + tmp_scores_path + "\".").c_str());
 
 		return;
@@ -7196,7 +7196,7 @@ static void write_high_scores()
 	}
 	catch (const std::exception& ex)
 	{
-		bstone::globals::logger->write_error(
+		bstone::globals::logger->log_error(
 			("Failed to archive high scores data." + std::string{ex.what()}).c_str());
 	}
 }
@@ -7630,7 +7630,7 @@ catch (const std::exception& ex)
 	auto message = std::string{};
 	message += "[CFG] ";
 	message += ex.what();
-	bstone::globals::logger->write_warning(message.c_str());
+	bstone::globals::logger->log_warning(message.c_str());
 	return true;
 }
 
@@ -7668,7 +7668,7 @@ void read_text_config()
 				}
 				catch (const std::exception& ex)
 				{
-					bstone::globals::logger->write_warning(ex.what());
+					bstone::globals::logger->log_warning(ex.what());
 					continue;
 				}
 
@@ -7696,7 +7696,7 @@ void read_text_config()
 						static_cast<std::size_t>(identifier_name.get_size()));
 
 					message += "\".";
-					bstone::globals::logger->write_warning(message.c_str());
+					bstone::globals::logger->log_warning(message.c_str());
 				}
 			}
 		}
@@ -7727,7 +7727,7 @@ void cfg_file_write_entry(
 
 	if (!writer.write(entry_string))
 	{
-		bstone::globals::logger->write_warning(("Failed to write setting \"" + key_string + "\".").c_str());
+		bstone::globals::logger->log_warning(("Failed to write setting \"" + key_string + "\".").c_str());
 	}
 }
 
@@ -7740,7 +7740,7 @@ void cfg_file_write_entry(
 
 	if (!writer.write(entry_string))
 	{
-		bstone::globals::logger->write_warning(("Failed to write setting \"" + key_string + "\".").c_str());
+		bstone::globals::logger->log_warning(("Failed to write setting \"" + key_string + "\".").c_str());
 	}
 }
 
@@ -7834,7 +7834,7 @@ void write_text_config()
 
 		if (stream.write(stream_data, stream_size) != stream_size)
 		{
-			bstone::globals::logger->write_warning("Failed to write a configuration.");
+			bstone::globals::logger->log_warning("Failed to write a configuration.");
 		}
 	}
 
@@ -8873,7 +8873,7 @@ static bool LoadCompressedChunk(
 		error_message += "[SG] Chunk \"";
 		error_message.append(chunk_four_cc_chars, 4);
 		error_message += "\" not found.";
-		bstone::globals::logger->write_error(error_message.c_str());
+		bstone::globals::logger->log_error(error_message.c_str());
 
 		return false;
 	}
@@ -8894,7 +8894,7 @@ static bool LoadCompressedChunk(
 			error_message += "[SG] Chunk \"";
 			error_message.append(chunk_four_cc_chars, 4);
 			error_message += "\" has invalid size.";
-			bstone::globals::logger->write_error(error_message.c_str());
+			bstone::globals::logger->log_error(error_message.c_str());
 
 			return false;
 		}
@@ -8922,7 +8922,7 @@ static bool LoadCompressedChunk(
 			error_message += "[SG] Failed to decompress chunk \"";
 			error_message.append(chunk_four_cc_chars, 4);
 			error_message += "\".";
-			bstone::globals::logger->write_error(error_message.c_str());
+			bstone::globals::logger->log_error(error_message.c_str());
 
 			return false;
 		}
@@ -8935,7 +8935,7 @@ static bool LoadCompressedChunk(
 		error_message.append(chunk_four_cc_chars, 4);
 		error_message += "\". ";
 		error_message += ex.what();
-		bstone::globals::logger->write_error(error_message.c_str());
+		bstone::globals::logger->log_error(error_message.c_str());
 
 		return false;
 	}
@@ -8955,7 +8955,7 @@ bool LoadTheGame(
 	{
 		is_succeed = false;
 
-		bstone::globals::logger->write_error(("LOAD: Failed to open file \"" + file_name + "\".").c_str());
+		bstone::globals::logger->log_error(("LOAD: Failed to open file \"" + file_name + "\".").c_str());
 	}
 
 	if (is_succeed)
@@ -8973,7 +8973,7 @@ bool LoadTheGame(
 		{
 			is_succeed = false;
 
-			bstone::globals::logger->write_error("LOAD: Failed to locate VERS chunk.");
+			bstone::globals::logger->log_error("LOAD: Failed to locate VERS chunk.");
 		}
 	}
 
@@ -9001,14 +9001,14 @@ bool LoadTheGame(
 			{
 				is_succeed = false;
 
-				bstone::globals::logger->write_error("LOAD: Invalid version.");
+				bstone::globals::logger->log_error("LOAD: Invalid version.");
 			}
 		}
 		catch (const std::exception&)
 		{
 			is_succeed = false;
 
-			bstone::globals::logger->write_error("LOAD: Invalid version.");
+			bstone::globals::logger->log_error("LOAD: Invalid version.");
 		}
 	}
 
@@ -9062,7 +9062,7 @@ bool LoadTheGame(
 
 			if (assets_info.get_levels_hash_string() != levels_hash_string)
 			{
-				bstone::globals::logger->write_error("LOAD: Levels hash mismatch.");
+				bstone::globals::logger->log_error("LOAD: Levels hash mismatch.");
 				BSTONE_THROW_STATIC_SOURCE("Levels hash mismatch.");
 			}
 
@@ -9078,7 +9078,7 @@ bool LoadTheGame(
 		{
 			is_succeed = false;
 
-			bstone::globals::logger->write_error(
+			bstone::globals::logger->log_error(
 				("LOAD: Failed to deserialize HEAD data. " + std::string{ex.what()}).c_str());
 		}
 	}
@@ -9201,7 +9201,7 @@ bool SaveTheGame(
 		tmp_file_name.c_str(),
 		bstone::FileOpenFlags::create | bstone::FileOpenFlags::truncate | bstone::FileOpenFlags::write))
 	{
-		bstone::globals::logger->write_error(("SAVE: Failed to open file \"" + tmp_file_name + "\".").c_str());
+		bstone::globals::logger->log_error(("SAVE: Failed to open file \"" + tmp_file_name + "\".").c_str());
 
 		return false;
 	}
@@ -9254,7 +9254,7 @@ bool SaveTheGame(
 	}
 	catch (const std::exception& ex)
 	{
-		bstone::globals::logger->write_error(
+		bstone::globals::logger->log_error(
 			("SAVE: Failed to serialize HEAD chunk. " + std::string{ex.what()}).c_str());
 
 		return false;
@@ -9270,7 +9270,7 @@ bool SaveTheGame(
 
 	if (head_dst_size > head_desire_dst_size)
 	{
-		bstone::globals::logger->write_error("SAVE: Failed to compress HEAD data.");
+		bstone::globals::logger->log_error("SAVE: Failed to compress HEAD data.");
 
 		return false;
 	}
@@ -9290,7 +9290,7 @@ bool SaveTheGame(
 
 	if (lvxx_dst_size > lvxx_desire_dst_size)
 	{
-		bstone::globals::logger->write_error("SAVE: Failed to compress LVXX data.");
+		bstone::globals::logger->log_error("SAVE: Failed to compress LVXX data.");
 
 		return false;
 	}
@@ -9338,7 +9338,7 @@ bool SaveTheGame(
 	}
 	catch (const std::exception& ex)
 	{
-		bstone::globals::logger->write_error(
+		bstone::globals::logger->log_error(
 			("SAVE: Failed to write data. " + std::string{ex.what()}).c_str());
 
 		return false;
@@ -9968,9 +9968,9 @@ int main(
 	bstone::globals::logger = bstone::make_logger(logger_open_param);
 	const auto logger_scope = bstone::make_scope_exit([](){ bstone::globals::logger = nullptr; });
 
-	bstone::globals::logger->write((std::string{} + "BStone v" + bstone::get_version().string).c_str());
-	bstone::globals::logger->write("==========");
-	bstone::globals::logger->write();
+	bstone::globals::logger->log_information((std::string{} + "BStone v" + bstone::get_version().string).c_str());
+	bstone::globals::logger->log_information("==========");
+	bstone::globals::logger->log_information();
 
 	class SysLogger final : public bstone::sys::Logger
 	{
@@ -9987,7 +9987,7 @@ int main(
 		void do_log(bstone::sys::LogLevel level, const char* message) noexcept override
 		{
 			assert(level == bstone::sys::LogLevel::information);
-			logger_.write(message != nullptr ? message : "");
+			logger_.log_information(message != nullptr ? message : "");
 		}
 	};
 
@@ -10038,7 +10038,7 @@ int main(
 
 	if (is_failed)
 	{
-		bstone::globals::logger->write_error(error_message.c_str());
+		bstone::globals::logger->log_error(error_message.c_str());
 
 		try
 		{
@@ -10050,7 +10050,7 @@ int main(
 		catch (...)
 		{
 			error_message = bstone::get_nested_message();
-			bstone::globals::logger->write_error(error_message.c_str());
+			bstone::globals::logger->log_error(error_message.c_str());
 		}
 
 		return 1;

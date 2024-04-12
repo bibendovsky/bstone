@@ -3723,7 +3723,7 @@ static void fix_level_inplace()
 			{
 				mapsegs[1][index] = 157;
 
-				bstone::globals::logger->write(
+				bstone::globals::logger->log_information(
 					("[FIX][E2L6] Changing bio-tech at " + xy_to_string(x, y) +
 						" from standing to moving.").c_str());
 			}
@@ -3740,7 +3740,7 @@ static void fix_level_inplace()
 			{
 				mapsegs[1][index] = 157;
 
-				bstone::globals::logger->write(
+				bstone::globals::logger->log_information(
 					("[FIX][E2L6] Changing bio-tech at " + xy_to_string(x, y) +
 						" from standing to moving.").c_str());
 			}
@@ -3766,7 +3766,7 @@ static void fix_level_inplace()
 		{
 			bstone::swop(mapsegs[1][old_index], mapsegs[1][new_index]);
 
-			bstone::globals::logger->write(
+			bstone::globals::logger->log_information(
 				("[FIX][E5L2] Moving bio-tech at " + xy_to_string(old_x, y) +
 					" one tile to the left.").c_str());
 		}

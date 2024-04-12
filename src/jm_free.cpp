@@ -438,7 +438,7 @@ const FoundContent* choose_content(
 		return found_contents.data();
 	}
 
-	bstone::globals::logger->write("Found multiple contents.");
+	bstone::globals::logger->log_information("Found multiple contents.");
 
 	using Button = bstone::sys::MessageBoxButton;
 	using LocalButtons = std::vector<Button>;
@@ -470,7 +470,7 @@ const FoundContent* choose_content(
 	descriptor.type = bstone::sys::MessageBoxType::information;
 	descriptor.buttons = bstone::make_const_span(buttons.data(), static_cast<std::intptr_t>(buttons.size()));
 
-	bstone::globals::logger->write("Waiting for user response.");
+	bstone::globals::logger->log_information("Waiting for user response.");
 	const auto selected_button_id = bstone::sys::MessageBox::show(descriptor);
 
 	if (selected_button_id < 0)
@@ -624,13 +624,13 @@ void log_found_content(
 		name_and_version += version;
 	}
 
-	bstone::globals::logger->write(("Found " + name_and_version + '.').c_str());
-	bstone::globals::logger->write(("Content source: " + found_content.search_path_->source_name_).c_str());
+	bstone::globals::logger->log_information(("Found " + name_and_version + '.').c_str());
+	bstone::globals::logger->log_information(("Content source: " + found_content.search_path_->source_name_).c_str());
 }
 
 void find_contents()
 {
-	bstone::globals::logger->write("Looking for game content.");
+	bstone::globals::logger->log_information("Looking for game content.");
 
 	// Games to find.
 	//
@@ -765,7 +765,7 @@ void find_contents()
 
 	if (content == nullptr)
 	{
-		bstone::globals::logger->write("Cancelled by user.");
+		bstone::globals::logger->log_information("Cancelled by user.");
 
 		Quit();
 	}
@@ -1390,7 +1390,7 @@ static void output_version()
 	catch (...)
 	{
 		const auto error_message = bstone::get_nested_message();
-		bstone::globals::logger->write_error(error_message.c_str());
+		bstone::globals::logger->log_error(error_message.c_str());
 	}
 }
 
@@ -1413,7 +1413,7 @@ void deserialize_cvars_from_cli(const bstone::Cl& args, bstone::CVarMgr& cvar_mg
 			message += "Expected one argument for option \"";
 			message.append(option.name.get_data(), static_cast<std::size_t>(option.name.get_size()));
 			message += "\".";
-			bstone::globals::logger->write_warning(message.c_str());
+			bstone::globals::logger->log_warning(message.c_str());
 			continue;
 		}
 
@@ -1443,11 +1443,11 @@ void freed_main()
 	InitDestPath();
 	find_contents();
 
-	bstone::globals::logger->write();
-	bstone::globals::logger->write(("Data path: \"" + data_dir_ + "\"").c_str());
-	bstone::globals::logger->write(("Mod path: \"" + mod_dir_ + "\"").c_str());
-	bstone::globals::logger->write(("Profile path: \"" + get_profile_dir() + "\"").c_str());
-	bstone::globals::logger->write(("Screenshot path: \"" + get_screenshot_dir() + "\"").c_str());
+	bstone::globals::logger->log_information();
+	bstone::globals::logger->log_information(("Data path: \"" + data_dir_ + "\"").c_str());
+	bstone::globals::logger->log_information(("Mod path: \"" + mod_dir_ + "\"").c_str());
+	bstone::globals::logger->log_information(("Profile path: \"" + get_profile_dir() + "\"").c_str());
+	bstone::globals::logger->log_information(("Screenshot path: \"" + get_screenshot_dir() + "\"").c_str());
 
 	// BBi
 	{
