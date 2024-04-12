@@ -10,6 +10,7 @@ SPDX-License-Identifier: MIT
 #define BSTONE_EXCEPTION_INCLUDED
 
 #include <exception>
+#include <type_traits>
 
 #include "bstone_source_location.h"
 
@@ -77,12 +78,13 @@ public:
 private:
 	using Counter = int;
 
-	// NOTE: Must be a trivial type.
 	struct ControlBlock
 	{
 		Counter counter;
 		char* message;
 	};
+
+	static_assert(std::is_trivial<ControlBlock>::value, "Expected a trivial type.");
 
 private:
 	SourceLocation source_location_{};
