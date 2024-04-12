@@ -8111,9 +8111,6 @@ void AlignPlayerInElevator()
 	last_map_tile_y = -1;
 }
 
-std::int8_t LS_current = -1;
-std::int8_t LS_total = -1;
-
 bool LoadLevel(
 	int level_index)
 	try

@@ -3029,8 +3029,6 @@ char LOADSAVE_GAME_MSG[2][25] = {
 	"^ST1^CESaving Game\r^XX"
 };
 
-extern std::int8_t LS_current, LS_total;
-
 // --------------------------------------------------------------------------
 // DrawLSAction() - DRAW LOAD/SAVE IN PROGRESS
 // --------------------------------------------------------------------------
@@ -3057,8 +3055,6 @@ void DrawLSAction(
 		PreloadUpdate(1, 1); // GFX: bar is full when saving...
 
 	}
-	LS_current = 1;
-	LS_total = total[which];
 	WindowY = 181;
 }
 
@@ -3085,12 +3081,6 @@ std::int16_t CP_LoadGame(
 			auto name_path = get_profile_dir() + name;
 
 			loadedgame = LoadTheGame(name_path);
-
-			if (!loadedgame)
-			{
-				LS_current = -1; // clean up
-			}
-
 			return loadedgame;
 		}
 	}
@@ -3119,7 +3109,6 @@ restart:
 				exit = 0;
 				StartGame = 0;
 				loadedgame = 0;
-				LS_current = -1; // Clean up
 				playstate = ex_abort;
 				goto restart;
 			}

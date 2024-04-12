@@ -49,8 +49,6 @@ static int get_wall_page_count()
 #define LOCATION_TEXT_COLOR (0xAF)
 
 extern char prep_msg[];
-extern std::int8_t LS_current;
-extern std::int8_t LS_total;
 
 
 void Died();
@@ -3453,22 +3451,16 @@ restartgame:
 		startgame = false;
 		if (!loadedgame)
 		{
-			if (LS_current == -1)
-			{
-				// BBi
-				VL_Bar(0, ref_view_top_y, vga_ref_width, ref_view_height, BLACK);
-				vid_clear_3d();
-				// BBi
+			// BBi
+			VL_Bar(0, ref_view_top_y, vga_ref_width, ref_view_height, BLACK);
+			vid_clear_3d();
+			// BBi
 
-				DrawTopInfo(sp_loading);
-				DisplayPrepingMsg(prep_msg);
-				LS_current = 1;
-				LS_total = 20;
-			}
+			DrawTopInfo(sp_loading);
+			DisplayPrepingMsg(prep_msg);
+
 			LoadLevel(gamestate.mapon);
 		}
-
-		LS_current = LS_total = -1;
 
 		SetPlaneViewSize();
 		if (loadedgame)
@@ -3502,7 +3494,6 @@ restartgame:
 		}
 
 		PlayLoop();
-		LS_current = LS_total = -1;
 		died = false;
 
 		StopMusic();
@@ -3547,8 +3538,6 @@ restartgame:
 			DisplayPrepingMsg(prep_msg);
 #endif
 			WindowY = 181;
-			LS_current = 1;
-			LS_total = 38;
 			StartMusic(false);
 			SaveLevel(gamestate.lastmapon);
 			break;
