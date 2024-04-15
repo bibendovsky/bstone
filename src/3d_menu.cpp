@@ -3693,7 +3693,7 @@ void ReadGameNames()
 
 		SaveGamesAvail[i] = 1;
 
-		int chunk_size = bstone::sg_find_chunk(bstone::SgKnownFourCc::desc, stream);
+		int chunk_size = bstone::sg_find_chunk(bstone::SgKnownFourCc::desc(), stream);
 
 		if (chunk_size > 0)
 		{

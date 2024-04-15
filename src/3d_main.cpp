@@ -8966,7 +8966,7 @@ bool LoadTheGame(
 	//
 	if (is_succeed)
 	{
-		if (bstone::sg_find_chunk(bstone::SgKnownFourCc::vers, file_stream) == 0)
+		if (bstone::sg_find_chunk(bstone::SgKnownFourCc::vers(), file_stream) == 0)
 		{
 			is_succeed = false;
 
@@ -9016,7 +9016,7 @@ bool LoadTheGame(
 
 	if (is_succeed)
 	{
-		if (!LoadCompressedChunk(bstone::SgKnownFourCc::head, &file_stream, head_buffer))
+		if (!LoadCompressedChunk(bstone::SgKnownFourCc::head(), &file_stream, head_buffer))
 		{
 			is_succeed = false;
 		}
@@ -9028,7 +9028,7 @@ bool LoadTheGame(
 
 	if (is_succeed)
 	{
-		if (!LoadCompressedChunk(bstone::SgKnownFourCc::lvxx, &file_stream, lvxx_buffer))
+		if (!LoadCompressedChunk(bstone::SgKnownFourCc::lvxx(), &file_stream, lvxx_buffer))
 		{
 			is_succeed = false;
 		}
@@ -9303,24 +9303,24 @@ bool SaveTheGame(
 		// Write VERS chunk
 		//
 		const auto& version_string = get_saved_game_version_string();
-		archiver.write_uint32(bstone::SgKnownFourCc::vers.get_value());
+		archiver.write_uint32(bstone::SgKnownFourCc::vers().get_value());
 		archiver.write_string(version_string.c_str(), static_cast<std::intptr_t>(version_string.length()));
 
 		// Write DESC chunk
 		//
-		archiver.write_uint32(bstone::SgKnownFourCc::desc.get_value());
+		archiver.write_uint32(bstone::SgKnownFourCc::desc().get_value());
 		archiver.write_string(description.c_str(), static_cast<std::intptr_t>(description.length()));
 
 		// Write HEAD chunk
 		//
-		archiver.write_uint32(bstone::SgKnownFourCc::head.get_value());
+		archiver.write_uint32(bstone::SgKnownFourCc::head().get_value());
 		archiver.write_int32(head_dst_size + 4);
 		archiver.write_int32(head_src_size);
 		archiver.write_uint8_array(head_buffer.data(), head_dst_size);
 
 		// Write LVXX chunk
 		//
-		archiver.write_uint32(bstone::SgKnownFourCc::lvxx.get_value());
+		archiver.write_uint32(bstone::SgKnownFourCc::lvxx().get_value());
 		archiver.write_int32(lvxx_dst_size + 4);
 		archiver.write_int32(lvxx_src_size);
 		archiver.write_uint8_array(lvxx_buffer.data(), lvxx_dst_size);

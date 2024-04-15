@@ -22,10 +22,10 @@ constexpr auto sg_version = 11;
 
 struct SgKnownFourCc
 {
-	static constexpr auto vers = FourCc{'V', 'E', 'R', 'S'};
-	static constexpr auto desc = FourCc{'D', 'E', 'S', 'C'};
-	static constexpr auto head = FourCc{'H', 'E', 'A', 'D'};
-	static constexpr auto lvxx = FourCc{'L', 'V', 'X', 'X'};
+	static constexpr FourCc vers() { return FourCc{'V', 'E', 'R', 'S'}; }
+	static constexpr FourCc desc() { return FourCc{'D', 'E', 'S', 'C'}; }
+	static constexpr FourCc head() { return FourCc{'H', 'E', 'A', 'D'}; }
+	static constexpr FourCc lvxx() { return FourCc{'L', 'V', 'X', 'X'}; }
 };
 
 struct SgChunkHeader
