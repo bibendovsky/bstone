@@ -3648,7 +3648,7 @@ void TP_CacheIn(
 	std::int16_t chunk)
 {
 	std::int16_t first_ch_offset = static_cast<std::int16_t>(first_ch - pi->script[0]);
-	std::int16_t loop, offset[TP_MAX_PAGES];
+	std::int16_t loop, offset[TP_MAX_PAGES]{};
 
 	// Cache graphics and re-assign pointers
 	//

@@ -2820,7 +2820,7 @@ void Thrust(
 	extern TravelTable travel_table_;
 
 	std::uint16_t offset;
-	std::uint16_t* map[2];
+	std::uint16_t* map[2]{};
 	std::int16_t dx;
 	std::int16_t dy;
 	std::int16_t dangle;

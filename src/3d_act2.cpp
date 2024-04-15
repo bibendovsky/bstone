@@ -5743,7 +5743,7 @@ void T_ExplodeScout(
 	constexpr auto rnd_offset_count = 8;
 	using RndOffsets = std::array<double, rnd_offset_count>;
 
-	RndOffsets rnd_offsets;
+	auto rnd_offsets = RndOffsets{};
 
 	std::generate(
 		rnd_offsets.begin(),

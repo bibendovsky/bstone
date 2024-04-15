@@ -529,7 +529,7 @@ void SelectDodgeDir(
 {
 	std::int16_t deltax = 0, deltay = 0, i;
 	std::uint16_t absdx, absdy;
-	dirtype dirtry[5];
+	dirtype dirtry[5]{};
 	dirtype turnaround, tdir;
 
 	if (ob->flags & FL_FIRSTATTACK)
@@ -655,7 +655,7 @@ void SelectChaseDir(
 	objtype* ob)
 {
 	std::int16_t deltax = 0, deltay = 0;
-	dirtype d[3];
+	dirtype d[3]{};
 	dirtype tdir, olddir, turnaround;
 
 
@@ -2511,7 +2511,7 @@ bool LookForGoodies(
 		const int DOOR_CHOICES = 8;
 
 		doorobj_t* door;
-		doorobj_t* doorlist[DOOR_CHOICES];
+		doorobj_t* doorlist[DOOR_CHOICES]{};
 		std::int8_t doorsfound = 0;
 
 		// If actor is running for a 'goody' or a door -- leave it alone!

@@ -824,10 +824,11 @@ void SpawnDoor(
 	keytype lock,
 	door_t type)
 {
-	std::uint16_t* map[2];
-
-	map[0] = &mapsegs[0][farmapylookup[tiley] + tilex];
-	map[1] = &mapsegs[1][farmapylookup[tiley] + tilex];
+	std::uint16_t* map[2] =
+	{
+		&mapsegs[0][farmapylookup[tiley] + tilex],
+		&mapsegs[1][farmapylookup[tiley] + tilex],
+	};
 
 	if (doornum == 64)
 	{

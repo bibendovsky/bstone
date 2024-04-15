@@ -8386,7 +8386,7 @@ bool LoadLevel(
 		//
 		{
 			using DoorPositionsU16 = std::array<std::uint16_t, MAXDOORS>;
-			DoorPositionsU16 door_positions_u16;
+			auto door_positions_u16 = DoorPositionsU16{};
 
 			archiver.read_uint16_array(door_positions_u16.data(), MAXDOORS);
 
@@ -8737,7 +8737,7 @@ bool SaveLevel(
 
 	{
 		using DoorPositionsU16 = std::array<std::uint16_t, MAXDOORS>;
-		DoorPositionsU16 door_positions_u16;
+		auto door_positions_u16 = DoorPositionsU16{};
 
 		std::transform(
 			doorposition.cbegin(),
@@ -9472,7 +9472,7 @@ void CycleColors()
 	};
 
 	std::uint8_t loop;
-	std::uint8_t cbuffer[CRNG_SIZE][3];
+	std::uint8_t cbuffer[CRNG_SIZE][3]{};
 	bool changes = false;
 
 	for (loop = 0; loop < NUM_RANGES; loop++)

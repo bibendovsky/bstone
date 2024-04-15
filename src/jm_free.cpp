@@ -961,7 +961,7 @@ void CAL_SetupMapFile()
 	std::int16_t i;
 	bstone::FileStream handle;
 	std::int32_t pos;
-	mapfiletype header;
+	auto header = mapfiletype{};
 	maptype* map_header;
 
 	cal_setup_map_data_file();

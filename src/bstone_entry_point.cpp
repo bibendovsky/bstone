@@ -96,9 +96,7 @@ void show_error_message_box()
 	const auto error_code = GetLastError();
 
 	constexpr auto max_message_chars = DWORD{2048};
-	WCHAR message[max_message_chars];
-
-	*message = L'\0';
+	WCHAR message[max_message_chars]{};
 
 	const auto format_message_w_result = FormatMessageW(
 		FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,

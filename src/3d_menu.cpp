@@ -4703,11 +4703,7 @@ void cp_sound_volume(
 
 	ControlInfo ci;
 
-	int old_volumes[2];
-	for (int i = 0; i < 2; ++i)
-	{
-		old_volumes[i] = -1;
-	}
+	int old_volumes[2] = {-1, -1};
 
 	for (bool quit = false; !quit; )
 	{

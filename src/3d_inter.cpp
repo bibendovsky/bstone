@@ -251,7 +251,7 @@ void CheckHighScore(
 {
 	std::uint16_t i, j;
 	std::int16_t n;
-	HighScore myscore;
+	auto myscore = HighScore{};
 	US_CursorStruct TermCursor = {'@', 0, HIGHLIGHT_TEXT_COLOR, 2};
 
 

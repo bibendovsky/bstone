@@ -181,7 +181,7 @@ void VoiceGroupImpl::do_set_voice_gain(const Voice& voice)
 
 void VoiceGroupImpl::do_set_voice_output_gains(const Voice& voice)
 {
-	AudioMixerOutputGains effective_output_gains;
+	auto effective_output_gains = AudioMixerOutputGains{};
 
 	std::transform(
 		voice.output_gains.cbegin(),

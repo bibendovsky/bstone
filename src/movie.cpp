@@ -284,7 +284,7 @@ bool Movie::load_buffer()
 	next_ptr_ = frame;
 	buffer_ptr_ = frame;
 
-	AnimFrame blk;
+	auto blk = AnimFrame{};
 
 	while (free_space)
 	{

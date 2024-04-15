@@ -22,7 +22,7 @@ struct BinaryReaderDetail
 	template<typename T>
 	static T generic_read(Stream& stream)
 	{
-		T value;
+		auto value = T{};
 		stream.read_exactly(&value, static_cast<std::intptr_t>(sizeof(T)));
 		return value;
 	}

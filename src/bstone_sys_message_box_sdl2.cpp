@@ -56,7 +56,7 @@ try {
 		BSTONE_THROW_STATIC_SOURCE("Too many buttons.");
 	}
 
-	SDL_MessageBoxButtonData sdl_buttons[max_buttons];
+	SDL_MessageBoxButtonData sdl_buttons[max_buttons]{};
 	auto sdl_button = sdl_buttons;
 
 	for (const auto& button : param.buttons)
