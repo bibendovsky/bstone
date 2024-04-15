@@ -18,6 +18,7 @@ Notes:
 
 #include <type_traits>
 
+#include "bstone_assert.h"
 #include "bstone_cgm_mat.h"
 
 namespace bstone {
@@ -46,9 +47,9 @@ inline constexpr Mat<4, 4, T> make_ortho_rh_n1p1(T l, T r, T b, T t, T n, T f) n
 {
 	static_assert(std::is_floating_point<T>::value, "Expected floating-point type.");
 
-	assert(l != r);
-	assert(b != t);
-	assert(n != f);
+	BSTONE_ASSERT(l != r);
+	BSTONE_ASSERT(b != t);
+	BSTONE_ASSERT(n != f);
 
 	const auto r_rml = 1 / (r - l);
 	const auto r_tmb = 1 / (t - b);
@@ -90,9 +91,9 @@ inline Mat<4, 4, T> make_perspective_vfov_rh_n1p1(T v, T w, T h, T n, T f) noexc
 {
 	static_assert(std::is_floating_point<T>::value, "Expected floating-point type.");
 
-	assert(n > 0);
-	assert(f > 0);
-	assert(f > n);
+	BSTONE_ASSERT(n > 0);
+	BSTONE_ASSERT(f > 0);
+	BSTONE_ASSERT(f > n);
 
 	const auto half_v = v / 2;
 	const auto height = std::cos(half_v) / std::sin(half_v);

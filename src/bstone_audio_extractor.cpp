@@ -6,14 +6,13 @@ SPDX-License-Identifier: GPL-2.0-or-later
 */
 
 
-#include <cassert>
-
 #include <algorithm>
 
 #include "audio.h"
 #include "id_ca.h"
 #include "id_sd.h"
 
+#include "bstone_assert.h"
 #include "bstone_audio_decoder.h"
 #include "bstone_audio_extractor.h"
 #include "bstone_binary_writer.h"
@@ -287,7 +286,7 @@ const char* AudioExtractorImpl::make_file_extension(ExtensionType extension_type
 
 std::string AudioExtractorImpl::make_number_string(int number)
 {
-	assert(number >= 0);
+	BSTONE_ASSERT(number >= 0);
 	return StringHelper::make_left_padded_with_zero(number, 8);
 }
 

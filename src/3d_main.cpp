@@ -26,6 +26,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "3d_menu.h"
 #include "bstone_archiver.h"
 #include "bstone_ascii.h"
+#include "bstone_assert.h"
 #include "bstone_char_conv.h"
 #include "bstone_endian.h"
 #include "bstone_entry_point.h"
@@ -7212,8 +7213,8 @@ class ConfigLineTokens
 public:
 	ConfigLineTokens(std::intptr_t capacity_delta, std::intptr_t initial_string_capacity)
 	{
-		assert(capacity_delta > 0);
-		assert(initial_string_capacity > 0);
+		BSTONE_ASSERT(capacity_delta > 0);
+		BSTONE_ASSERT(initial_string_capacity > 0);
 
 		tokens_.resize(static_cast<std::size_t>(capacity_delta));
 
@@ -7403,7 +7404,7 @@ private:
 private:
 	int peek(std::intptr_t offset)
 	{
-		assert(offset >= 0);
+		BSTONE_ASSERT(offset >= 0);
 
 		if ((line_iter_ + offset) >= line_end_iter_)
 		{
@@ -7420,7 +7421,7 @@ private:
 
 	void advance(std::intptr_t count)
 	{
-		assert(count > 0);
+		BSTONE_ASSERT(count > 0);
 		column_number_ += count;
 		line_iter_ += count;
 	}
@@ -9983,7 +9984,7 @@ int main(
 	private:
 		void do_log(bstone::sys::LogLevel level, const char* message) noexcept override
 		{
-			assert(level == bstone::sys::LogLevel::information);
+			BSTONE_ASSERT(level == bstone::sys::LogLevel::information);
 			logger_.log_information(message != nullptr ? message : "");
 		}
 	};

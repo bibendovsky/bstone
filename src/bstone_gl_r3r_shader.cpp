@@ -6,8 +6,7 @@ SPDX-License-Identifier: MIT
 
 // OpenGL 3D Renderer: Shader
 
-#include <cassert>
-
+#include "bstone_assert.h"
 #include "bstone_exception.h"
 #include "bstone_fixed_pool_resource.h"
 #include "bstone_unique_resource.h"
@@ -126,7 +125,7 @@ GlR3rShaderImpl::~GlR3rShaderImpl()
 				break;
 
 			default:
-				assert(!"Unsupported type.");
+				BSTONE_ASSERT(false && "Unsupported type.");
 				break;
 		}
 	}

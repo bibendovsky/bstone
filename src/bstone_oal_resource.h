@@ -7,10 +7,10 @@ SPDX-License-Identifier: MIT
 #ifndef BSTONE_OAL_RESOURCE_INCLUDED
 #define BSTONE_OAL_RESOURCE_INCLUDED
 
-#include <cassert>
 #include <type_traits>
 #include "al.h"
 #include "alc.h"
+#include "bstone_assert.h"
 #include "bstone_oal_symbols.h"
 #include "bstone_utility.h"
 
@@ -107,7 +107,7 @@ public:
 	>
 	auto& operator*() noexcept
 	{
-		assert(!is_empty());
+		BSTONE_ASSERT(!is_empty());
 		return *resource_;
 	}
 

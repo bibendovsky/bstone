@@ -18,6 +18,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "id_vh.h"
 #include "id_vl.h"
 
+#include "bstone_assert.h"
 #include "bstone_exception.h"
 #include "bstone_exception_utils.h"
 #include "bstone_single_pool_resource.h"
@@ -4867,7 +4868,7 @@ try {
 	{
 		sampler_var_.set_is_modified(false);
 
-		assert(sampler_uniform_ != nullptr);
+		BSTONE_ASSERT(sampler_uniform_ != nullptr);
 		auto& command = command_buffer->write_set_r2_sampler_uniform();
 		command.var = sampler_uniform_;
 		command.value = sampler_var_;
@@ -6050,7 +6051,7 @@ try {
 						break;
 
 					default:
-						assert(!"Invalid sprite type.");
+						BSTONE_ASSERT(false && "Invalid sprite type.");
 						break;
 				}
 
@@ -6712,7 +6713,7 @@ int HwVideo::get_solid_wall_side_count(int x, int y) const
 try {
 	validate_tile_xy(x, y);
 
-	assert(bs_is_solid_wall(x, y));
+	BSTONE_ASSERT(bs_is_solid_wall(x, y));
 
 	auto side_count = 4;
 

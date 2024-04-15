@@ -12,7 +12,7 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_rgb8.h"
 
-#include <cassert>
+#include "bstone_assert.h"
 
 
 namespace bstone
@@ -51,7 +51,7 @@ Rgba8::Rgba8(
 std::uint8_t& Rgba8::get(
 	const int index)
 {
-	assert(index >= 0 && index < 4);
+	BSTONE_ASSERT(index >= 0 && index < 4);
 
 	return reinterpret_cast<std::uint8_t*>(this)[index];
 }
@@ -59,7 +59,7 @@ std::uint8_t& Rgba8::get(
 const std::uint8_t& Rgba8::get(
 	const int index) const
 {
-	assert(index >= 0 && index < 4);
+	BSTONE_ASSERT(index >= 0 && index < 4);
 
 	return reinterpret_cast<const std::uint8_t*>(this)[index];
 }

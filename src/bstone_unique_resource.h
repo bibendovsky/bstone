@@ -14,10 +14,9 @@ Notes:
 #if !defined(BSTONE_UNIQUE_RESOURCE_INCLUDED)
 #define BSTONE_UNIQUE_RESOURCE_INCLUDED
 
-#include <cassert>
-
 #include <type_traits>
 
+#include "bstone_assert.h"
 #include "bstone_utility.h"
 
 namespace bstone {
@@ -256,7 +255,7 @@ public:
 		std::enable_if_t<detail::UniqueResourceIsPointer<UniqueResource>::value, int> = 0>
 	typename std::add_lvalue_reference_t<std::remove_pointer_t<UniqueResource>> operator*() const noexcept
 	{
-		assert(get() != nullptr);
+		BSTONE_ASSERT(get() != nullptr);
 		return *get();
 	}
 
@@ -265,7 +264,7 @@ public:
 		std::enable_if_t<detail::UniqueResourceIsPointer<UniqueResource>::value, int> = 0>
 	Resource operator->() const noexcept
 	{
-		assert(get() != nullptr);
+		BSTONE_ASSERT(get() != nullptr);
 		return get();
 	}
 

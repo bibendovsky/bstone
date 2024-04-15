@@ -6,13 +6,12 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_sys_audio_mgr_sdl2.h"
 
-#include <cassert>
-
 #include <iterator>
 #include <string>
 
 #include "SDL.h"
 
+#include "bstone_assert.h"
 #include "bstone_char_conv.h"
 #include "bstone_exception.h"
 #include "bstone_single_pool_resource.h"
@@ -100,7 +99,7 @@ bool Sdl2AudioMgr::do_is_initialized() const noexcept
 
 PollingAudioDeviceUPtr Sdl2AudioMgr::do_make_polling_audio_device(const PollingAudioDeviceOpenParam& param)
 {
-	assert(is_initialized_);
+	BSTONE_ASSERT(is_initialized_);
 
 	return make_sdl2_push_audio_device(logger_, param);
 }

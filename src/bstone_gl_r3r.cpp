@@ -6,10 +6,10 @@ SPDX-License-Identifier: MIT
 
 // OpenGL 3D Renderer
 
-#include <cassert>
 #include <list>
 
 #include "bstone_algorithm.h"
+#include "bstone_assert.h"
 #include "bstone_exception.h"
 #include "bstone_single_pool_resource.h"
 #include "bstone_unique_resource.h"
@@ -524,7 +524,7 @@ void GlR3rImpl::do_read_pixels(
 	void* buffer,
 	bool& is_flipped_vertically)
 try {
-	assert(buffer != nullptr);
+	BSTONE_ASSERT(buffer != nullptr);
 
 	switch (pixel_format)
 	{
@@ -705,7 +705,7 @@ GlR3rImpl::FboDeleter::FboDeleter(PFNGLDELETEFRAMEBUFFERSPROC gl_func) noexcept
 
 void GlR3rImpl::FboDeleter::operator()(GLuint gl_name) noexcept
 {
-	assert(gl_func_ != nullptr);
+	BSTONE_ASSERT(gl_func_ != nullptr);
 	gl_func_(1, &gl_name);
 	GlR3rError::ensure_no_errors_assert();
 }
@@ -717,7 +717,7 @@ GlR3rImpl::RboDeleter::RboDeleter(PFNGLDELETERENDERBUFFERSPROC gl_func) noexcept
 
 void GlR3rImpl::RboDeleter::operator()(GLuint gl_name) noexcept
 {
-	assert(gl_func_ != nullptr);
+	BSTONE_ASSERT(gl_func_ != nullptr);
 	gl_func_(1, &gl_name);
 	GlR3rError::ensure_no_errors_assert();
 }
@@ -809,7 +809,7 @@ try {
 
 void GlR3rImpl::bind_framebuffer(GLenum gl_target, GLuint gl_name)
 try {
-	assert(gl_device_features_.is_framebuffer_available);
+	BSTONE_ASSERT(gl_device_features_.is_framebuffer_available);
 
 	glBindFramebuffer_(gl_target, gl_name);
 	GlR3rError::check_optionally();
@@ -822,12 +822,12 @@ void GlR3rImpl::blit_framebuffer(
 	int dst_height,
 	bool is_linear_filter)
 try {
-	assert(src_width > 0);
-	assert(src_height > 0);
-	assert(dst_width > 0);
-	assert(dst_height > 0);
+	BSTONE_ASSERT(src_width > 0);
+	BSTONE_ASSERT(src_height > 0);
+	BSTONE_ASSERT(dst_width > 0);
+	BSTONE_ASSERT(dst_height > 0);
 
-	assert(gl_device_features_.is_framebuffer_available);
+	BSTONE_ASSERT(gl_device_features_.is_framebuffer_available);
 
 	const auto gl_filter = (is_linear_filter ? GL_LINEAR : GL_NEAREST);
 
@@ -852,15 +852,15 @@ GlR3rImpl::RboResource GlR3rImpl::create_renderbuffer(
 	int sample_count,
 	GLenum gl_internal_format)
 try {
-	assert(width > 0);
-	assert(height > 0);
-	assert(sample_count >= 0);
-	assert(gl_internal_format > 0);
+	BSTONE_ASSERT(width > 0);
+	BSTONE_ASSERT(height > 0);
+	BSTONE_ASSERT(sample_count >= 0);
+	BSTONE_ASSERT(gl_internal_format > 0);
 
 	auto rbo_resource = create_renderbuffer();
 	bind_renderbuffer(rbo_resource.get());
 
-	assert(gl_device_features_.is_framebuffer_available);
+	BSTONE_ASSERT(gl_device_features_.is_framebuffer_available);
 
 	if (sample_count > 1)
 	{

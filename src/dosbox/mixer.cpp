@@ -7,11 +7,11 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 // A stub for DOSBox OPL2 emulator.
 
-#include <cassert>
-
 #include <algorithm>
 
 #include "mixer.h"
+
+#include "bstone_assert.h"
 
 void MixerChannel::AddSamples_m32(Bitu len, const Bit32s* data)
 {
@@ -26,7 +26,7 @@ void MixerChannel::AddSamples_m32(Bitu len, const Bit32s* data)
 
 void MixerChannel::AddSamples_s32(Bitu, const Bit32s*)
 {
-	assert(!"AddSamples_s32 not implemented.");
+	BSTONE_ASSERT(false && "AddSamples_s32 not implemented.");
 }
 
 // Sets a buffer to write data to.

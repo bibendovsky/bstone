@@ -16,12 +16,12 @@ SPDX-License-Identifier: MIT
 
 #define BSTONE_ENTRY_POINT_IMPLEMENTATION
 
-#include <cassert>
 #include <cstdlib>
 #include <windows.h>
 #include <processenv.h>
 #include <shellapi.h>
 #include <memory>
+#include "bstone_assert.h"
 #include "bstone_entry_point.h"
 
 namespace bstone {
@@ -42,7 +42,7 @@ struct LocalMemoryDeleter
 		local_free(block);
 #else
 		const auto result = local_free(block);
-		assert(result == nullptr);
+		BSTONE_ASSERT(result == nullptr);
 #endif
 	}
 };
@@ -58,13 +58,13 @@ struct HeapMemoryDeleter
 			return HeapFree(g_process_heap, 0, block);
 		};
 
-		assert(g_process_heap != nullptr);
+		BSTONE_ASSERT(g_process_heap != nullptr);
 
 #if defined(NDEBUG)
 		heap_free(block);
 #else
 		const auto result = heap_free(block);
-		assert(result == TRUE);
+		BSTONE_ASSERT(result == TRUE);
 #endif
 	}
 };
@@ -87,7 +87,7 @@ void show_error_message_box(LPCWSTR message)
 	message_box_w(message);
 #else
 	const auto result = message_box_w(message);
-	assert(result != 0);
+	BSTONE_ASSERT(result != 0);
 #endif
 }
 

@@ -6,8 +6,8 @@ SPDX-License-Identifier: MIT
 
 // Command-line.
 
-#include <cassert>
 #include "bstone_cl.h"
+#include "bstone_assert.h"
 #include "bstone_exception.h"
 
 namespace bstone {
@@ -80,12 +80,12 @@ try {
 	while (arg_index < argc)
 	{
 		const auto name_sv = StringView{argv[arg_index]};
-		assert(name_sv.starts_with(cl_option_prefix));
+		BSTONE_ASSERT(name_sv.starts_with(cl_option_prefix));
 		args_.emplace_back(name_sv);
 		options_.emplace_back();
 		auto& option = options_.back();
 		option.name = name_sv.get_subview(cl_option_prefix.get_size());
-		assert(!option.name.is_empty());
+		BSTONE_ASSERT(!option.name.is_empty());
 
 		arg_index += 1;
 		const auto option_args_index = static_cast<std::intptr_t>(args_.size());

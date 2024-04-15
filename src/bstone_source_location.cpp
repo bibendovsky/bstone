@@ -6,9 +6,9 @@ SPDX-License-Identifier: MIT
 
 // Information about the source code: file name, line number, function name.
 
-#include <cassert>
-
 #include "bstone_source_location.h"
+
+#include "bstone_assert.h"
 
 namespace bstone {
 
@@ -18,9 +18,9 @@ SourceLocation::SourceLocation(const char* file_name, int line, const char* func
 	file_name_{file_name != nullptr ? file_name : ""},
 	function_name_{function_name != nullptr ? function_name : ""}
 {
-	assert(file_name != nullptr);
-	assert(line >= 0);
-	assert(function_name != nullptr);
+	BSTONE_ASSERT(file_name != nullptr);
+	BSTONE_ASSERT(line >= 0);
+	BSTONE_ASSERT(function_name != nullptr);
 }
 
 } // namespace bstone

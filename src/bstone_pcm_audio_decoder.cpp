@@ -10,8 +10,8 @@ SPDX-License-Identifier: GPL-2.0-or-later
 //
 
 #include "bstone_pcm_audio_decoder.h"
-#include <cassert>
 #include <cstdint>
+#include "bstone_assert.h"
 #include "bstone_audio_sample_converter.h"
 
 namespace bstone
@@ -54,19 +54,19 @@ bool PcmAudioDecoder::initialize(const AudioDecoderInitParam& param)
 
 	if (!param.src_raw_data_)
 	{
-		assert(false && "Null data.");
+		BSTONE_ASSERT(false && "Null data.");
 		return false;
 	}
 
 	if (param.src_raw_size_ < 0)
 	{
-		assert(false && "Data size out of range.");
+		BSTONE_ASSERT(false && "Data size out of range.");
 		return false;
 	}
 
 	if (param.dst_rate_ < 11'025)
 	{
-		assert(false && "Destination rate out of range.");
+		BSTONE_ASSERT(false && "Destination rate out of range.");
 		return false;
 	}
 
@@ -104,13 +104,13 @@ int PcmAudioDecoder::decode(int dst_count, std::int16_t* dst_data)
 {
 	if (dst_count < 0)
 	{
-		assert(false && "Destination count out of range.");
+		BSTONE_ASSERT(false && "Destination count out of range.");
 		return 0;
 	}
 
 	if (dst_data == nullptr)
 	{
-		assert(false && "Null destination data.");
+		BSTONE_ASSERT(false && "Null destination data.");
 		return 0;
 	}
 

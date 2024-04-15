@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2023-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -9,13 +9,13 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_ARRAY_INCLUDED)
 #define BSTONE_ARRAY_INCLUDED
 
-#include <cassert>
 #include <cstdint>
 
 #include <memory>
 #include <type_traits>
 #include <utility>
 
+#include "bstone_assert.h"
 #include "bstone_utility.h"
 
 namespace bstone {
@@ -110,7 +110,7 @@ constexpr Array<TItem, TSize>::Array(const Item (&rhs)[TSize])
 template<typename TItem, std::intptr_t TSize>
 constexpr auto Array<TItem, TSize>::operator=(const Array& rhs) -> Array&
 {
-	assert(std::addressof(rhs) != this);
+	BSTONE_ASSERT(std::addressof(rhs) != this);
 	copy_items(rhs.items_, items_);
 	return *this;
 }
@@ -187,7 +187,7 @@ constexpr void Array<TItem, TSize>::fill(const Item& value)
 template<typename TItem, std::intptr_t TSize>
 constexpr auto Array<TItem, TSize>::operator[](std::intptr_t index) const -> const Item&
 {
-	assert(index >= 0 && index < get_size());
+	BSTONE_ASSERT(index >= 0 && index < get_size());
 	return items_[index];
 }
 

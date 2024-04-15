@@ -6,8 +6,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 */
 
 
-#include <cassert>
-
 #include <algorithm>
 #include <chrono>
 
@@ -18,6 +16,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "id_vl.h"
 
 #include "bstone_algorithm.h"
+#include "bstone_assert.h"
 #include "bstone_atomic_flag.h"
 #include "bstone_exception_utils.h"
 #include "bstone_file_stream.h"
@@ -700,8 +699,8 @@ void vid_calculate_window_elements_dimensions(
 	const auto window_width = src_param.window_width;
 	const auto window_height = src_param.window_height;
 
-	assert(window_width >= vga_ref_width);
-	assert(window_height >= vga_ref_height_4x3);
+	BSTONE_ASSERT(window_width >= vga_ref_width);
+	BSTONE_ASSERT(window_height >= vga_ref_height_4x3);
 
 	auto screen_width = (window_width / 2) * 2;
 	auto screen_height = (window_height / 2) * 2;
@@ -1390,13 +1389,13 @@ void VL_FadeOut(
 	int blue,
 	int steps)
 try {
-	assert(start >= 0);
-	assert(end >= 0);
-	assert(red >= 0 && red <= 0xFF);
-	assert(green >= 0 && green <= 0xFF);
-	assert(blue >= 0 && blue <= 0xFF);
-	assert(steps > 0);
-	assert(start <= end);
+	BSTONE_ASSERT(start >= 0);
+	BSTONE_ASSERT(end >= 0);
+	BSTONE_ASSERT(red >= 0 && red <= 0xFF);
+	BSTONE_ASSERT(green >= 0 && green <= 0xFF);
+	BSTONE_ASSERT(blue >= 0 && blue <= 0xFF);
+	BSTONE_ASSERT(steps > 0);
+	BSTONE_ASSERT(start <= end);
 
 	::g_video->fade_out(start, end, red, green, blue, steps);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -1407,11 +1406,11 @@ void VL_FadeIn(
 	const std::uint8_t* palette,
 	int steps)
 try {
-	assert(start >= 0);
-	assert(end >= 0);
-	assert(palette != nullptr);
-	assert(steps > 0);
-	assert(start <= end);
+	BSTONE_ASSERT(start >= 0);
+	BSTONE_ASSERT(end >= 0);
+	BSTONE_ASSERT(palette != nullptr);
+	BSTONE_ASSERT(steps > 0);
+	BSTONE_ASSERT(start <= end);
 
 	::g_video->fade_in(start, end, palette, steps);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED

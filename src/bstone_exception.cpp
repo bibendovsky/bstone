@@ -6,7 +6,6 @@ SPDX-License-Identifier: MIT
 
 // Exception classes.
 
-#include <cassert>
 #include <cstdint>
 
 #include <algorithm>
@@ -14,6 +13,7 @@ SPDX-License-Identifier: MIT
 #include <memory>
 #include <type_traits>
 
+#include "bstone_assert.h"
 #include "bstone_char_traits.h"
 #include "bstone_exception.h"
 #include "bstone_utility.h"
@@ -25,7 +25,7 @@ StaticSourceException::StaticSourceException(const SourceLocation& source_locati
 	source_location_{source_location},
 	message_{message != nullptr ? message : ""}
 {
-	assert(message != nullptr);
+	BSTONE_ASSERT(message != nullptr);
 }
 
 StaticSourceException::StaticSourceException(const SourceLocation& source_location) noexcept
@@ -82,7 +82,7 @@ DynamicSourceException::DynamicSourceException(const SourceLocation& source_loca
 
 	if (message == nullptr)
 	{
-		assert(false && "Null message.");
+		BSTONE_ASSERT(false && "Null message.");
 		return;
 	}
 
@@ -110,7 +110,7 @@ DynamicSourceException::DynamicSourceException(const DynamicSourceException& rhs
 	auto& counter = control_block_->counter;
 #if !defined(NDEBUG)
 	constexpr auto max_counter_value = std::numeric_limits<Counter>::max();
-	assert(counter < max_counter_value);
+	BSTONE_ASSERT(counter < max_counter_value);
 #endif
 	++counter;
 }
@@ -131,7 +131,7 @@ DynamicSourceException::~DynamicSourceException()
 
 	auto& counter = control_block_->counter;
 
-	assert(counter > 0);
+	BSTONE_ASSERT(counter > 0);
 	--counter;
 
 	if (counter == 0)

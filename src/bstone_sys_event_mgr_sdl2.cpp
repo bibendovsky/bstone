@@ -6,10 +6,9 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_sys_event_mgr_sdl2.h"
 
-#include <cassert>
-
 #include "SDL.h"
 
+#include "bstone_assert.h"
 #include "bstone_char_conv.h"
 #include "bstone_exception.h"
 #include "bstone_single_pool_resource.h"
@@ -103,7 +102,7 @@ bool Sdl2EventMgr::do_is_initialized() const noexcept
 
 bool Sdl2EventMgr::do_poll_event(Event& e)
 {
-	assert(is_initialized_);
+	BSTONE_ASSERT(is_initialized_);
 
 	auto sdl_e = SDL_Event{};
 

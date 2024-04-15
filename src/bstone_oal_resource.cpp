@@ -6,9 +6,9 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_oal_resource.h"
 
-#include <cassert>
 #include <tuple>
 #include <utility>
+#include "bstone_assert.h"
 #include "bstone_exception.h"
 
 
@@ -27,7 +27,7 @@ OalDeviceDeleter::OalDeviceDeleter(const OalAlSymbols& al_symbols) noexcept
 	:
 	al_symbols_{&al_symbols}
 {
-	assert(al_symbols_->alcCloseDevice);
+	BSTONE_ASSERT(al_symbols_->alcCloseDevice);
 }
 
 void OalDeviceDeleter::operator=(OalDeviceDeleter&& rhs) noexcept
@@ -37,14 +37,14 @@ void OalDeviceDeleter::operator=(OalDeviceDeleter&& rhs) noexcept
 
 void OalDeviceDeleter::operator()(ALCdevice* alc_device) const noexcept
 {
-	assert(alc_device);
-	assert(al_symbols_);
-	assert(al_symbols_->alcCloseDevice);
+	BSTONE_ASSERT(alc_device);
+	BSTONE_ASSERT(al_symbols_);
+	BSTONE_ASSERT(al_symbols_->alcCloseDevice);
 	const auto alc_result = al_symbols_->alcCloseDevice(alc_device);
 #ifdef NDEBUG
 	std::ignore = alc_result;
 #else
-	assert(alc_result == ALC_TRUE);
+	BSTONE_ASSERT(alc_result == ALC_TRUE);
 #endif // NDEBUG
 }
 
@@ -79,10 +79,10 @@ OalContextDeleter::OalContextDeleter(const OalAlSymbols& al_symbols) noexcept
 	:
 	al_symbols_{&al_symbols}
 {
-	assert(al_symbols_);
-	assert(al_symbols_->alcGetCurrentContext);
-	assert(al_symbols_->alcMakeContextCurrent);
-	assert(al_symbols_->alcDestroyContext);
+	BSTONE_ASSERT(al_symbols_);
+	BSTONE_ASSERT(al_symbols_->alcGetCurrentContext);
+	BSTONE_ASSERT(al_symbols_->alcMakeContextCurrent);
+	BSTONE_ASSERT(al_symbols_->alcDestroyContext);
 }
 
 void OalContextDeleter::operator=(OalContextDeleter&& rhs) noexcept
@@ -92,15 +92,15 @@ void OalContextDeleter::operator=(OalContextDeleter&& rhs) noexcept
 
 void OalContextDeleter::operator()(ALCcontext* al_context) const noexcept
 {
-	assert(al_context);
-	assert(al_symbols_);
-	assert(al_symbols_->alcMakeContextCurrent);
-	assert(al_symbols_->alcDestroyContext);
+	BSTONE_ASSERT(al_context);
+	BSTONE_ASSERT(al_symbols_);
+	BSTONE_ASSERT(al_symbols_->alcMakeContextCurrent);
+	BSTONE_ASSERT(al_symbols_->alcDestroyContext);
 	const auto make_current_result = al_symbols_->alcMakeContextCurrent(nullptr);
 #ifdef NDEBUG
 	std::ignore = make_current_result;
 #else
-	assert(make_current_result == ALC_TRUE);
+	BSTONE_ASSERT(make_current_result == ALC_TRUE);
 #endif // NDEBUG
 	al_symbols_->alcDestroyContext(al_context);
 }
@@ -136,7 +136,7 @@ OalBufferDeleter::OalBufferDeleter(const OalAlSymbols& al_symbols) noexcept
 	:
 	al_symbols_{&al_symbols}
 {
-	assert(al_symbols_->alDeleteBuffers);
+	BSTONE_ASSERT(al_symbols_->alDeleteBuffers);
 }
 
 void OalBufferDeleter::operator=(OalBufferDeleter&& rhs) noexcept
@@ -146,9 +146,9 @@ void OalBufferDeleter::operator=(OalBufferDeleter&& rhs) noexcept
 
 void OalBufferDeleter::operator()(ALuint al_buffer) const noexcept
 {
-	assert(al_buffer != AL_NONE);
-	assert(al_symbols_);
-	assert(al_symbols_->alDeleteBuffers);
+	BSTONE_ASSERT(al_buffer != AL_NONE);
+	BSTONE_ASSERT(al_symbols_);
+	BSTONE_ASSERT(al_symbols_->alDeleteBuffers);
 
 	al_symbols_->alDeleteBuffers(1, &al_buffer);
 }
@@ -192,7 +192,7 @@ OalSourceDeleter::OalSourceDeleter(const OalAlSymbols& al_symbols) noexcept
 	:
 	al_symbols_{&al_symbols}
 {
-	assert(al_symbols_->alDeleteSources);
+	BSTONE_ASSERT(al_symbols_->alDeleteSources);
 }
 
 void OalSourceDeleter::operator=(OalSourceDeleter&& rhs) noexcept
@@ -202,9 +202,9 @@ void OalSourceDeleter::operator=(OalSourceDeleter&& rhs) noexcept
 
 void OalSourceDeleter::operator()(ALuint al_source) const noexcept
 {
-	assert(al_source != AL_NONE);
-	assert(al_symbols_);
-	assert(al_symbols_->alDeleteSources);
+	BSTONE_ASSERT(al_source != AL_NONE);
+	BSTONE_ASSERT(al_symbols_);
+	BSTONE_ASSERT(al_symbols_->alDeleteSources);
 
 	al_symbols_->alDeleteSources(1, &al_source);
 }

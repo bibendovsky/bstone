@@ -5,10 +5,10 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-#include <cassert>
 #include <cmath>
 #include <algorithm>
 #include <mutex>
+#include "bstone_assert.h"
 #include "bstone_audio_decoder.h"
 #include "bstone_audio_mixer_utils.h"
 #include "bstone_audio_mixer_validator.h"
@@ -474,7 +474,7 @@ void SystemAudioMixer::mix_samples()
 		else
 		{
 			const auto remain_count = cache_item->decoded_count - voice.decode_offset;
-			assert(remain_count >= 0);
+			BSTONE_ASSERT(remain_count >= 0);
 			decode_count = std::min(remain_count, mix_samples_count_);
 		}
 
@@ -774,7 +774,7 @@ void SystemAudioMixer::handle_commands()
 				break;
 
 			default:
-				assert(false && "Unknown command.");
+				BSTONE_ASSERT(false && "Unknown command.");
 				break;
 		}
 	}
@@ -848,8 +848,8 @@ void SystemAudioMixer::handle_play_sound_command(const Command& command)
 
 bool SystemAudioMixer::initialize_digitized_cache_item(const Command& command, CacheItem& cache_item)
 {
-	assert(!cache_item.is_active);
-	assert(command.param.play_sound.sound_type == SoundType::pcm);
+	BSTONE_ASSERT(!cache_item.is_active);
+	BSTONE_ASSERT(command.param.play_sound.sound_type == SoundType::pcm);
 
 	const auto sample_count = calculate_digitized_sample_count(dst_rate_, command.param.play_sound.data_size);
 
@@ -923,11 +923,11 @@ bool SystemAudioMixer::decode_digitized_voice(const Voice& voice)
 {
 	auto cache_item = voice.cache;
 
-	assert(cache_item);
-	assert(cache_item->is_active);
-	assert(!cache_item->is_invalid);
-	assert(!cache_item->is_decoded());
-	assert(voice.type == SoundType::pcm);
+	BSTONE_ASSERT(cache_item);
+	BSTONE_ASSERT(cache_item->is_active);
+	BSTONE_ASSERT(!cache_item->is_invalid);
+	BSTONE_ASSERT(!cache_item->is_decoded());
+	BSTONE_ASSERT(voice.type == SoundType::pcm);
 
 	auto to_decode_count = std::min(cache_item->samples_count - cache_item->decoded_count, mix_samples_count_);
 
@@ -1214,9 +1214,9 @@ bool SystemAudioMixer::is_sound_index_valid(int sound_index, SoundType sound_typ
 
 int SystemAudioMixer::calculate_digitized_sample_count(int dst_sample_rate, int digitized_byte_count) noexcept
 {
-	assert(dst_sample_rate >= 0);
-	assert(digitized_byte_count >= 0);
-	assert(audio_decoder_w3d_pcm_frequency <= dst_sample_rate);
+	BSTONE_ASSERT(dst_sample_rate >= 0);
+	BSTONE_ASSERT(digitized_byte_count >= 0);
+	BSTONE_ASSERT(audio_decoder_w3d_pcm_frequency <= dst_sample_rate);
 
 	const auto src_sample_rate = audio_decoder_w3d_pcm_frequency;
 	const auto sample_count = ((digitized_byte_count * dst_sample_rate) + src_sample_rate - 1) / src_sample_rate;

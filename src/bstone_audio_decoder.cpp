@@ -10,7 +10,8 @@ SPDX-License-Identifier: GPL-2.0-or-later
 //
 
 #include "bstone_audio_decoder.h"
-#include <cassert>
+
+#include "bstone_assert.h"
 #include "bstone_pc_speaker_audio_decoder.h"
 #include "bstone_pcm_audio_decoder.h"
 #include "bstone_adlib_music_decoder.h"
@@ -36,7 +37,7 @@ AudioDecoderUPtr make_audio_decoder(const AudioDecoderType audio_decoder_type, c
 			return make_pcm_audio_decoder();
 
 		default:
-			assert(false && "Unknown audio decoder type.");
+			BSTONE_ASSERT(false && "Unknown audio decoder type.");
 			return nullptr;
 	}
 }

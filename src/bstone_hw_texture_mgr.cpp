@@ -13,8 +13,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_hw_texture_mgr.h"
 
-#include <cassert>
-
 #include <array>
 #include <unordered_map>
 
@@ -23,6 +21,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "id_ca.h"
 #include "id_vl.h"
 
+#include "bstone_assert.h"
 #include "bstone_atomic_flag.h"
 #include "bstone_exception.h"
 #include "bstone_fs_utils.h"
@@ -1935,7 +1934,7 @@ int HwTextureMgrImpl::solid_1x1_try_get_index(
 			return static_cast<int>(id);
 
 		default:
-			assert(!"Invalid solid 1x1 texture id.");
+			BSTONE_ASSERT(false && "Invalid solid 1x1 texture id.");
 			return -1;
 	}
 }

@@ -8,12 +8,11 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_gl_r3r_api.h"
 
-#include <cassert>
-
 #include <iterator>
 #include <string>
 
 #include "bstone_ascii.h"
+#include "bstone_assert.h"
 #include "bstone_char_conv.h"
 #include "bstone_exception.h"
 #include "bstone_gl_r3r_error.h"
@@ -168,7 +167,7 @@ void GlR3rError::check_optionally()
 void GlR3rError::ensure_no_errors_assert()
 {
 #ifndef NDEBUG
-	assert(glGetError != nullptr);
+	BSTONE_ASSERT(glGetError != nullptr);
 
 	auto was_any_error = false;
 
@@ -184,7 +183,7 @@ void GlR3rError::ensure_no_errors_assert()
 		was_any_error = true;
 	}
 
-	assert(!was_any_error);
+	BSTONE_ASSERT(!was_any_error);
 #endif
 }
 

@@ -14,12 +14,12 @@ Notes:
 #if !defined(BSTONE_CGM_MAT_INCLUDED)
 #define BSTONE_CGM_MAT_INCLUDED
 
-#include <cassert>
 #include <cstdint>
 
 #include <type_traits>
 #include <utility>
 
+#include "bstone_assert.h"
 #include "bstone_utility.h"
 
 namespace bstone {
@@ -58,7 +58,7 @@ public:
 
 	constexpr const Item& operator[](std::intptr_t index) const noexcept
 	{
-		assert(index >= 0 && index < item_count);
+		BSTONE_ASSERT(index >= 0 && index < item_count);
 		return m_[index];
 	}
 

@@ -6,13 +6,12 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_sys_video_mgr_sdl2.h"
 
-#include <cassert>
-
 #include <algorithm>
 #include <iterator>
 
 #include "SDL.h"
 
+#include "bstone_assert.h"
 #include "bstone_char_conv.h"
 #include "bstone_exception.h"
 #include "bstone_single_pool_resource.h"
@@ -126,7 +125,7 @@ bool Sdl2VideoMgr::do_is_initialized() const noexcept
 
 DisplayMode Sdl2VideoMgr::do_get_current_display_mode()
 try {
-	assert(is_initialized_);
+	BSTONE_ASSERT(is_initialized_);
 
 	auto sdl_display_mode = SDL_DisplayMode{};
 	sdl2_ensure_result(SDL_GetCurrentDisplayMode(0, &sdl_display_mode));
@@ -135,7 +134,7 @@ try {
 
 Span<const DisplayMode> Sdl2VideoMgr::do_get_display_modes()
 try {
-	assert(is_initialized_);
+	BSTONE_ASSERT(is_initialized_);
 
 	const auto count = std::min(SDL_GetNumDisplayModes(0), limits::max_display_modes);
 
@@ -152,21 +151,21 @@ try {
 
 GlCurrentContext& Sdl2VideoMgr::do_get_gl_current_context()
 {
-	assert(is_initialized_);
+	BSTONE_ASSERT(is_initialized_);
 
 	return *gl_current_context_;
 }
 
 MouseMgr& Sdl2VideoMgr::do_get_mouse_mgr()
 {
-	assert(is_initialized_);
+	BSTONE_ASSERT(is_initialized_);
 
 	return *mouse_mgr_;
 }
 
 WindowMgr& Sdl2VideoMgr::do_get_window_mgr()
 {
-	assert(is_initialized_);
+	BSTONE_ASSERT(is_initialized_);
 
 	return *window_mgr_;
 }

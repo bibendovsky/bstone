@@ -7,8 +7,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 // Software accelerated video (SW).
 
-#include <cassert>
-
 #include <algorithm>
 #include <utility>
 
@@ -17,6 +15,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "id_vh.h"
 #include "id_vl.h"
 
+#include "bstone_assert.h"
 #include "bstone_exception.h"
 #include "bstone_logger.h"
 #include "bstone_single_pool_resource.h"
@@ -422,10 +421,10 @@ try {
 
 void SwVideo::get_palette(int offset, int count, std::uint8_t* vga_palette) const
 try {
-	assert(offset >= 0);
-	assert(count >= 0);
-	assert((offset + count) <= 256);
-	assert(vga_palette);
+	BSTONE_ASSERT(offset >= 0);
+	BSTONE_ASSERT(count >= 0);
+	BSTONE_ASSERT((offset + count) <= 256);
+	BSTONE_ASSERT(vga_palette);
 
 	auto& dst_vga_palette = *reinterpret_cast<VgaPalette*>(vga_palette);
 
@@ -450,10 +449,10 @@ void SwVideo::fill_palette(int r, int g, int b) noexcept
 
 void SwVideo::set_palette(int offset, int count, const std::uint8_t* vga_palette)
 try {
-	assert(offset >= 0);
-	assert(count >= 0);
-	assert((offset + count) <= 256);
-	assert(vga_palette);
+	BSTONE_ASSERT(offset >= 0);
+	BSTONE_ASSERT(count >= 0);
+	BSTONE_ASSERT((offset + count) <= 256);
+	BSTONE_ASSERT(vga_palette);
 
 	const auto& src_vga_palette = *reinterpret_cast<const VgaPalette*>(vga_palette);
 

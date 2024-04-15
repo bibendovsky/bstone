@@ -6,10 +6,10 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_oal_loader.h"
 
-#include <cassert>
 #include <exception>
 #include <string>
 #include <utility>
+#include "bstone_assert.h"
 #include "bstone_shared_library.h"
 #include "bstone_exception.h"
 
@@ -37,7 +37,7 @@ private:
 	template<typename T>
 	void find_symbol(const char* name, T& symbol)
 	{
-		assert(name && (*name) != '\0');
+		BSTONE_ASSERT(name && (*name) != '\0');
 
 		symbol = shared_library_.find_symbol<T>(name);
 
@@ -56,9 +56,9 @@ private:
 	>
 	void find_alx_symbol(const char* name, TSymbol& symbol, const char* acronym, TFuncResult (*func)(TFuncArgs...), TArgs... func_args)
 	{
-		assert(name && (*name) != '\0');
-		assert(acronym && (*acronym) != '\0');
-		assert(func);
+		BSTONE_ASSERT(name && (*name) != '\0');
+		BSTONE_ASSERT(acronym && (*acronym) != '\0');
+		BSTONE_ASSERT(func);
 
 		symbol = reinterpret_cast<TSymbol>(func(std::forward<TFuncArgs>(func_args)...));
 

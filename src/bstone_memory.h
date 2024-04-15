@@ -9,23 +9,24 @@ SPDX-License-Identifier: MIT
 #if !defined(BSTONE_MEMORY_INCLUDED)
 #define BSTONE_MEMORY_INCLUDED
 
-#include <cassert>
 #include <new>
 #include <utility>
+
+#include "bstone_assert.h"
 
 namespace bstone {
 
 template<typename T, typename ...TArgs>
 inline T* construct_at(T* ptr, TArgs&& ...args)
 {
-	assert(ptr != nullptr);
+	BSTONE_ASSERT(ptr != nullptr);
 	return ::new (static_cast<void*>(ptr)) T(std::forward<TArgs>(args)...);
 }
 
 template<typename T>
 inline void destroy_at(T* ptr) noexcept
 {
-	assert(ptr != nullptr);
+	BSTONE_ASSERT(ptr != nullptr);
 	ptr->~T();
 }
 

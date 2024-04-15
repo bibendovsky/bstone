@@ -111,12 +111,12 @@ q/rgba32abf.bmp
 q/rgba32h56.bmp
 */
 
-#include <cassert>
 #include <cmath>
 #include <cstdint>
 #include <algorithm>
 #include <memory>
 #include <string>
+#include "bstone_assert.h"
 #include "bstone_bmp_image_common.h"
 #include "bstone_bmp_image_decoder.h"
 #include "bstone_endian.h"
@@ -469,7 +469,7 @@ T BmpImageDecoderImpl::generic_read_le()
 
 void BmpImageDecoderImpl::skip_bytes(std::intptr_t count)
 {
-	assert(count >= 0);
+	BSTONE_ASSERT(count >= 0);
 	remain_bytes_ += count;
 }
 
@@ -553,7 +553,7 @@ void BmpImageDecoderImpl::rle_write_pixel(Rgba8 color)
 
 void BmpImageDecoderImpl::skip_line_padding(std::intptr_t size)
 {
-	assert(size >= 0 );
+	BSTONE_ASSERT(size >= 0);
 	remain_bytes_ += size;
 }
 

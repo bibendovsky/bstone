@@ -10,8 +10,8 @@ SPDX-License-Identifier: GPL-2.0-or-later
 //
 
 #include "bstone_pc_speaker_audio_decoder.h"
-#include <cassert>
 #include <algorithm>
+#include "bstone_assert.h"
 
 namespace bstone
 {
@@ -195,7 +195,7 @@ int PcSpeakerAudioDecoder::get_dst_length_in_samples() const noexcept
 
 int PcSpeakerAudioDecoder::make_pit_frequency(int command)
 {
-	assert(command >= min_command && command <= max_command);
+	BSTONE_ASSERT(command >= min_command && command <= max_command);
 
 	const auto divisor = command * 60;
 	const auto pit_frequency = pit_clock_frequency / divisor;

@@ -8,7 +8,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_oal_audio_mixer.h"
 
-#include <cassert>
 #include <cfloat>
 #include <array>
 #include <chrono>
@@ -21,6 +20,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "3d_def.h"
 #include "audio.h"
 #include "id_sd.h"
+#include "bstone_assert.h"
 #include "bstone_audio_decoder.h"
 #include "bstone_audio_mixer_validator.h"
 #include "bstone_exception.h"
@@ -582,7 +582,7 @@ int OalAudioMixer::get_max_voice_count()
 
 void OalAudioMixer::detect_alc_extensions()
 {
-	assert(al_symbols_.alcIsExtensionPresent);
+	BSTONE_ASSERT(al_symbols_.alcIsExtensionPresent);
 
 	has_alc_enumeration_ext_ = (al_symbols_.alcIsExtensionPresent(nullptr, alc_enumeration_ext_str) != ALC_FALSE);
 	has_alc_enumerate_all_ext_ = (al_symbols_.alcIsExtensionPresent(nullptr, alc_enumerate_all_ext_str) != ALC_FALSE);
@@ -747,7 +747,7 @@ void OalAudioMixer::initialize_oal(const AudioMixerInitParam& param)
 
 void OalAudioMixer::initialize_distance_model()
 {
-	assert(al_symbols_.alDistanceModel != nullptr);
+	BSTONE_ASSERT(al_symbols_.alDistanceModel != nullptr);
 	al_symbols_.alDistanceModel(AL_NONE);
 }
 
@@ -956,7 +956,7 @@ void OalAudioMixer::update_al_gain()
 
 	static_cast<void>(al_symbols_.alGetError());
 	al_symbols_.alListenerf(AL_GAIN, al_gain);
-	assert(al_symbols_.alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(al_symbols_.alGetError() == AL_NO_ERROR);
 }
 
 void OalAudioMixer::handle_play_music_command(const PlayMusicCommandParam& param)
@@ -1288,7 +1288,7 @@ void OalAudioMixer::handle_commands()
 				break;
 
 			default:
-				assert(false && "Unknown command.");
+				BSTONE_ASSERT(false && "Unknown command.");
 				break;
 		}
 	}
@@ -1574,12 +1574,12 @@ OalAudioMixer::Voice* OalAudioMixer::find_music_voice() noexcept
 
 void OalAudioMixer::set_al_listener_r3_position(double x, double y, double z)
 {
-	assert(al_symbols_.alGetError);
-	assert(al_symbols_.alListener3f);
+	BSTONE_ASSERT(al_symbols_.alGetError);
+	BSTONE_ASSERT(al_symbols_.alListener3f);
 
 	static_cast<void>(al_symbols_.alGetError());
 	al_symbols_.alListener3f(AL_POSITION, static_cast<ALfloat>(x), static_cast<ALfloat>(y), static_cast<ALfloat>(z));
-	assert(al_symbols_.alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(al_symbols_.alGetError() == AL_NO_ERROR);
 }
 
 void OalAudioMixer::set_listener_r3_position()
@@ -1600,12 +1600,12 @@ void OalAudioMixer::set_al_listener_orientation(double at_x, double at_y, double
 		static_cast<ALfloat>(up_z),
 	};
 
-	assert(al_symbols_.alGetError);
-	assert(al_symbols_.alListenerfv);
+	BSTONE_ASSERT(al_symbols_.alGetError);
+	BSTONE_ASSERT(al_symbols_.alListenerfv);
 
 	static_cast<void>(al_symbols_.alGetError());
 	al_symbols_.alListenerfv(AL_ORIENTATION, al_orientation);
-	assert(al_symbols_.alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(al_symbols_.alGetError() == AL_NO_ERROR);
 }
 
 void OalAudioMixer::set_listener_r3_orientation()

@@ -7,11 +7,11 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_oal_source.h"
 
-#include <cassert>
 #include <algorithm>
 #include <iterator>
 #include <memory>
 #include <numeric>
+#include "bstone_assert.h"
 #include "bstone_exception.h"
 
 namespace bstone
@@ -187,12 +187,12 @@ void OalSource::set_gain(double gain)
 {
 	ensure_is_open();
 
-	assert(oal_al_symbols_->alGetError);
-	assert(oal_al_symbols_->alSourcef);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError);
+	BSTONE_ASSERT(oal_al_symbols_->alSourcef);
 
 	static_cast<void>(oal_al_symbols_->alGetError());
 	oal_al_symbols_->alSourcef(al_source_resource_.get(), AL_GAIN, static_cast<ALfloat>(gain));
-	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::set_position(double x, double y, double z)
@@ -251,12 +251,12 @@ void OalSource::pause()
 
 	is_paused_ = true;
 
-	assert(oal_al_symbols_->alGetError);
-	assert(oal_al_symbols_->alSourcePause);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError);
+	BSTONE_ASSERT(oal_al_symbols_->alSourcePause);
 
 	static_cast<void>(oal_al_symbols_->alGetError());
 	oal_al_symbols_->alSourcePause(al_source_resource_.get());
-	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::resume()
@@ -357,93 +357,93 @@ int OalSource::get_al_state() const
 {
 	auto al_state = ALint{};
 
-	assert(oal_al_symbols_->alGetError);
-	assert(oal_al_symbols_->alGetSourcei);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError);
+	BSTONE_ASSERT(oal_al_symbols_->alGetSourcei);
 
 	static_cast<void>(oal_al_symbols_->alGetError());
 	oal_al_symbols_->alGetSourcei(al_source_resource_.get(), AL_SOURCE_STATE, &al_state);
-	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 
 	return static_cast<int>(al_state);
 }
 
 void OalSource::al_play()
 {
-	assert(oal_al_symbols_->alGetError);
-	assert(oal_al_symbols_->alSourcePlay);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError);
+	BSTONE_ASSERT(oal_al_symbols_->alSourcePlay);
 
 	static_cast<void>(oal_al_symbols_->alGetError());
 	oal_al_symbols_->alSourcePlay(al_source_resource_.get());
-	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::al_stop()
 {
-	assert(oal_al_symbols_->alGetError);
-	assert(oal_al_symbols_->alSourceStop);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError);
+	BSTONE_ASSERT(oal_al_symbols_->alSourceStop);
 
 	static_cast<void>(oal_al_symbols_->alGetError());
 	oal_al_symbols_->alSourceStop(al_source_resource_.get());
-	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
 int OalSource::get_al_processed_buffer_count() const
 {
 	auto al_buffer_count = ALint{};
 
-	assert(oal_al_symbols_->alGetError);
-	assert(oal_al_symbols_->alGetSourcei);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError);
+	BSTONE_ASSERT(oal_al_symbols_->alGetSourcei);
 
 	static_cast<void>(oal_al_symbols_->alGetError());
 	oal_al_symbols_->alGetSourcei(al_source_resource_.get(), AL_BUFFERS_PROCESSED, &al_buffer_count);
-	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 
 	return al_buffer_count;
 }
 
 void OalSource::enqueue_al_buffer(ALuint al_buffer)
 {
-	assert(al_buffer != 0);
+	BSTONE_ASSERT(al_buffer != 0);
 
-	assert(oal_al_symbols_->alGetError);
-	assert(oal_al_symbols_->alSourceQueueBuffers);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError);
+	BSTONE_ASSERT(oal_al_symbols_->alSourceQueueBuffers);
 
 	static_cast<void>(oal_al_symbols_->alGetError());
 	oal_al_symbols_->alSourceQueueBuffers(al_source_resource_.get(), 1, &al_buffer);
-	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::unqueue_al_buffers(int buffer_count, ALuint* al_buffer_names)
 {
-	assert(buffer_count >= 0 && buffer_count <= oal_source_max_streaming_buffers);
-	assert(al_buffer_names);
+	BSTONE_ASSERT(buffer_count >= 0 && buffer_count <= oal_source_max_streaming_buffers);
+	BSTONE_ASSERT(al_buffer_names);
 
-	assert(oal_al_symbols_->alGetError);
-	assert(oal_al_symbols_->alSourceUnqueueBuffers);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError);
+	BSTONE_ASSERT(oal_al_symbols_->alSourceUnqueueBuffers);
 
 	static_cast<void>(oal_al_symbols_->alGetError());
 	oal_al_symbols_->alSourceUnqueueBuffers(al_source_resource_.get(), buffer_count, al_buffer_names);
-	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::set_al_relative()
 {
-	assert(oal_al_symbols_->alGetError);
-	assert(oal_al_symbols_->alSourcei);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError);
+	BSTONE_ASSERT(oal_al_symbols_->alSourcei);
 
 	static_cast<void>(oal_al_symbols_->alGetError());
 	oal_al_symbols_->alSourcei(al_source_resource_.get(), AL_SOURCE_RELATIVE, is_3d_ ? AL_FALSE : AL_TRUE);
-	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::set_al_position(double x, double y, double z)
 {
-	assert(oal_al_symbols_->alGetError);
-	assert(oal_al_symbols_->alSource3f);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError);
+	BSTONE_ASSERT(oal_al_symbols_->alSource3f);
 
 	static_cast<void>(oal_al_symbols_->alGetError());
 	oal_al_symbols_->alSource3f(al_source_resource_.get(), AL_POSITION, static_cast<ALfloat>(x), static_cast<ALfloat>(y), static_cast<ALfloat>(z));
-	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::set_al_default_position()
@@ -453,12 +453,12 @@ void OalSource::set_al_default_position()
 
 void OalSource::set_al_reference_distance(double reference_distance)
 {
-	assert(oal_al_symbols_->alGetError);
-	assert(oal_al_symbols_->alSourcef);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError);
+	BSTONE_ASSERT(oal_al_symbols_->alSourcef);
 
 	static_cast<void>(oal_al_symbols_->alGetError());
 	oal_al_symbols_->alSourcef(al_source_resource_.get(), AL_REFERENCE_DISTANCE, static_cast<ALfloat>(reference_distance));
-	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::set_al_default_reference_distance()
@@ -468,12 +468,12 @@ void OalSource::set_al_default_reference_distance()
 
 void OalSource::set_al_max_distance(double max_distance)
 {
-	assert(oal_al_symbols_->alGetError);
-	assert(oal_al_symbols_->alSourcef);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError);
+	BSTONE_ASSERT(oal_al_symbols_->alSourcef);
 
 	static_cast<void>(oal_al_symbols_->alGetError());
 	oal_al_symbols_->alSourcef(al_source_resource_.get(), AL_MAX_DISTANCE, static_cast<ALfloat>(max_distance));
-	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::set_al_default_max_distance()
@@ -483,12 +483,12 @@ void OalSource::set_al_default_max_distance()
 
 void OalSource::set_al_rolloff_factor(double rolloff_factor)
 {
-	assert(oal_al_symbols_->alGetError);
-	assert(oal_al_symbols_->alSourcef);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError);
+	BSTONE_ASSERT(oal_al_symbols_->alSourcef);
 
 	static_cast<void>(oal_al_symbols_->alGetError());
 	oal_al_symbols_->alSourcef(al_source_resource_.get(), AL_ROLLOFF_FACTOR, static_cast<ALfloat>(rolloff_factor));
-	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::set_al_default_rolloff_factor()
@@ -498,47 +498,47 @@ void OalSource::set_al_default_rolloff_factor()
 
 void OalSource::attach_static_al_buffer()
 {
-	assert(oal_al_symbols_->alGetError);
-	assert(oal_al_symbols_->alSourcei);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError);
+	BSTONE_ASSERT(oal_al_symbols_->alSourcei);
 
 	static_cast<void>(oal_al_symbols_->alGetError());
 	oal_al_symbols_->alSourcei(al_source_resource_.get(), AL_BUFFER, static_cast<ALint>(static_al_buffer_resource_.get()));
-	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::detach_static_al_buffer()
 {
-	assert(oal_al_symbols_->alGetError);
-	assert(oal_al_symbols_->alSourcei);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError);
+	BSTONE_ASSERT(oal_al_symbols_->alSourcei);
 
 	static_cast<void>(oal_al_symbols_->alGetError());
 	oal_al_symbols_->alSourcei(al_source_resource_.get(), AL_BUFFER, 0);
-	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::set_static_al_buffer_data(const OalSourceOpenStaticParam& param)
 {
-	assert(oal_al_symbols_->alGetError);
-	assert(oal_al_symbols_->alBufferData);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError);
+	BSTONE_ASSERT(oal_al_symbols_->alBufferData);
 
 	static_cast<void>(oal_al_symbols_->alGetError());
 	oal_al_symbols_->alBufferData(static_al_buffer_resource_.get(), AL_FORMAT_MONO16, param.data, param.data_size, param.sample_rate);
-	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::set_streaming_al_buffer_data(ALint al_buffer, int sample_count, OalSourceSample* samples)
 {
-	assert(al_buffer != 0);
-	assert(sample_count > 0);
-	assert(samples);
+	BSTONE_ASSERT(al_buffer != 0);
+	BSTONE_ASSERT(sample_count > 0);
+	BSTONE_ASSERT(samples);
 
-	assert(oal_al_symbols_->alGetError);
-	assert(oal_al_symbols_->alBufferData);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError);
+	BSTONE_ASSERT(oal_al_symbols_->alBufferData);
 
 	const auto buffer_size = sample_count * sample_size;
 	static_cast<void>(oal_al_symbols_->alGetError());
 	oal_al_symbols_->alBufferData(al_buffer, AL_FORMAT_MONO16, samples, buffer_size, streaming_sample_rate_);
-	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::set_streaming_al_buffer_data(ALint al_buffer)
@@ -628,13 +628,13 @@ void OalSource::streaming_mix()
 	auto al_queue_size = ALint{};
 	auto al_mixed_size = ALint{};
 
-	assert(oal_al_symbols_->alGetError);
-	assert(oal_al_symbols_->alGetSourcei);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError);
+	BSTONE_ASSERT(oal_al_symbols_->alGetSourcei);
 
 	static_cast<void>(oal_al_symbols_->alGetError());
 	oal_al_symbols_->alGetSourcei(al_source_resource_.get(), AL_BUFFERS_QUEUED, &al_queue_size);
 	oal_al_symbols_->alGetSourcei(al_source_resource_.get(), AL_BUFFERS_PROCESSED, &al_mixed_size);
-	assert(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 
 	if (al_mixed_size > 0)
 	{
