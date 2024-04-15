@@ -8,6 +8,7 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_saved_game.h"
 
+#include <algorithm>
 #include <iterator>
 
 #include "bstone_ascii.h"
