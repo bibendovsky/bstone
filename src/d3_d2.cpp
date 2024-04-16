@@ -65,11 +65,9 @@ static void generic_map_row(
 	{
 		auto xy = ((xy_frac >> 3) & 0x1FFF1F80) | ((xy_frac >> 25) & 0x7E);
 
-		const auto pics_index = xy & 0xFFFF;
-
 		if (need_draw_ceiling)
 		{
-			const auto ceiling_index = planepics[pics_index + 0];
+			const auto ceiling_index = planepics[xy % 8192];
 
 			const auto ceiling_pixel =
 				(shading_options == SO_DEFAULT) ?
@@ -81,7 +79,7 @@ static void generic_map_row(
 
 		if (need_draw_flooring)
 		{
-			const auto flooring_index = planepics[pics_index + 1];
+			const auto flooring_index = planepics[(xy + 1) % 8192];
 
 			const auto flooring_pixel =
 				(shading_options == SO_DEFAULT) ?
