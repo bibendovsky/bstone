@@ -1,33 +1,13 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
+// Former "D3_DASM2.ASM".
 
-//
-// Former D3_DASM2.ASM.
-//
-
-
-#include <cmath>
 #include <cstdint>
-
-
-enum DrawOptions
-{
-	DO_CEILING,
-	DO_FLOORING,
-	DO_CEILING_AND_FLOORING
-}; // DrawOptions
-
-enum ShadingOptions
-{
-	SO_NONE,
-	SO_DEFAULT
-}; // ShadingOptions
-
 
 extern int mr_rowofs;
 extern int mr_count;
@@ -40,86 +20,88 @@ extern int mr_dest;
 extern const std::uint8_t* shadingtable;
 extern std::uint8_t* vga_memory;
 
-
 std::uint8_t planepics[8192]; // 4k of ceiling, 4k of floor
 
+namespace {
 
-static void generic_map_row(
-	DrawOptions draw_options,
-	ShadingOptions shading_options)
+enum class DrawMode
 {
-	const auto need_draw_ceiling =
-		draw_options == DO_CEILING ||
-		draw_options == DO_CEILING_AND_FLOORING;
+	ceiling,
+	floor,
+	ceiling_and_floor,
+};
 
-	const auto need_draw_flooring =
-		draw_options == DO_FLOORING ||
-		draw_options == DO_CEILING_AND_FLOORING;
+enum class ShadingMode
+{
+	none,
+	standard,
+};
 
-	auto xy_step = (mr_ystep << 16) | (mr_xstep & 0xFFFF);
+void map_row(DrawMode draw_mode, ShadingMode shading_mode)
+{
+	const auto need_to_draw_ceiling =
+		draw_mode == DrawMode::ceiling ||
+		draw_mode == DrawMode::ceiling_and_floor;
+
+	const auto need_to_draw_floor =
+		draw_mode == DrawMode::floor ||
+		draw_mode == DrawMode::ceiling_and_floor;
+
+	const auto has_shading = shading_mode == ShadingMode::standard;
+
+	const auto xy_step = (mr_ystep << 16) | (mr_xstep & 0xFFFF);
 	auto xy_frac = (mr_yfrac << 16) | (mr_xfrac & 0xFFFF);
 
-	auto screen_offset = mr_dest;
-
-	for (int i = 0; i < mr_count; ++i)
+	for (auto i = 0; i < mr_count; ++i)
 	{
-		auto xy = ((xy_frac >> 3) & 0x1FFF1F80) | ((xy_frac >> 25) & 0x7E);
+		const auto xy = ((xy_frac >> 3) & 0x1FFF1F80) | ((xy_frac >> 25) & 0x7E);
 
-		if (need_draw_ceiling)
+		if (need_to_draw_ceiling)
 		{
 			const auto ceiling_index = planepics[xy % 8192];
-
-			const auto ceiling_pixel =
-				(shading_options == SO_DEFAULT) ?
-				shadingtable[ceiling_index] :
-				ceiling_index;
-
-			vga_memory[screen_offset] = ceiling_pixel;
+			const auto ceiling_pixel = has_shading ? shadingtable[ceiling_index] : ceiling_index;
+			vga_memory[mr_dest + i] = ceiling_pixel;
 		}
 
-		if (need_draw_flooring)
+		if (need_to_draw_floor)
 		{
-			const auto flooring_index = planepics[(xy + 1) % 8192];
-
-			const auto flooring_pixel =
-				(shading_options == SO_DEFAULT) ?
-				shadingtable[flooring_index] :
-				flooring_index;
-
-			vga_memory[screen_offset + mr_rowofs] = flooring_pixel;
+			const auto floor_index = planepics[(xy + 1) % 8192];
+			const auto floor_pixel = has_shading ? shadingtable[floor_index] : floor_index;
+			vga_memory[mr_dest + mr_rowofs + i] = floor_pixel;
 		}
 
-		screen_offset += 1;
 		xy_frac += xy_step;
 	}
 }
 
+} // namespace
+
 void MapLSRow()
 {
-	generic_map_row(DO_CEILING_AND_FLOORING, SO_DEFAULT);
+	map_row(DrawMode::ceiling_and_floor, ShadingMode::standard);
 }
 
 void F_MapLSRow()
 {
-	generic_map_row(DO_FLOORING, SO_DEFAULT);
+	map_row(DrawMode::floor, ShadingMode::standard);
 }
 
 void C_MapLSRow()
 {
-	generic_map_row(DO_CEILING, SO_DEFAULT);
+	map_row(DrawMode::ceiling, ShadingMode::standard);
 }
 
 void MapRow()
 {
-	generic_map_row(DO_CEILING_AND_FLOORING, SO_NONE);
+	map_row(DrawMode::ceiling_and_floor, ShadingMode::none);
 }
 
 void F_MapRow()
 {
-	generic_map_row(DO_FLOORING, SO_NONE);
+	map_row(DrawMode::floor, ShadingMode::none);
 }
 
 void C_MapRow()
 {
-	generic_map_row(DO_CEILING, SO_NONE);
+	map_row(DrawMode::ceiling, ShadingMode::none);
 }
