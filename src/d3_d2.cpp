@@ -7,7 +7,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 // Former "D3_DASM2.ASM".
 
-#include <cstdint>
+#include "d3_d2.h"
 
 extern int mr_rowofs;
 extern int mr_count;
@@ -20,56 +20,65 @@ extern int mr_dest;
 extern const std::uint8_t* shadingtable;
 extern std::uint8_t* vga_memory;
 
-std::uint8_t planepics[8192]; // 4k of ceiling, 4k of floor
+std::uint8_t planepics[planepics_size]; // 4k of ceiling, 4k of floor
 
 namespace {
 
-enum class DrawMode
+struct NoShadingFunc
 {
-	ceiling,
-	floor,
-	ceiling_and_floor,
+	std::uint8_t operator()(std::uint8_t pixel) const noexcept
+	{
+		return pixel;
+	}
 };
 
-enum class ShadingMode
+struct StandardShadingFunc
 {
-	none,
-	standard,
+	std::uint8_t operator()(std::uint8_t pixel) const noexcept
+	{
+		return shadingtable[pixel];
+	}
 };
 
-void map_row(DrawMode draw_mode, ShadingMode shading_mode)
+template<typename TShadingFunc>
+struct NoDrawFunc
 {
-	const auto need_to_draw_ceiling =
-		draw_mode == DrawMode::ceiling ||
-		draw_mode == DrawMode::ceiling_and_floor;
+	void operator()(int, int) const noexcept {}
+};
 
-	const auto need_to_draw_floor =
-		draw_mode == DrawMode::floor ||
-		draw_mode == DrawMode::ceiling_and_floor;
+template<typename TShadingFunc>
+struct CeilingDrawFunc
+{
+	void operator()(int xy, int i_mr) const noexcept
+	{
+		const auto ceiling_index = planepics[xy % planepics_size];
+		const auto ceiling_pixel = TShadingFunc{}(ceiling_index);
+		vga_memory[mr_dest + i_mr] = ceiling_pixel;
+	}
+};
 
-	const auto has_shading = shading_mode == ShadingMode::standard;
+template<typename TShadingFunc>
+struct FloorDrawFunc
+{
+	void operator()(int xy, int i_mr) const noexcept
+	{
+		const auto floor_index = planepics[(xy + 1) % planepics_size];
+		const auto floor_pixel = TShadingFunc{}(floor_index);
+		vga_memory[mr_dest + mr_rowofs + i_mr] = floor_pixel;
+	}
+};
 
+template<typename TCeilingDrawFunc, typename TFloorDrawFunc>
+void map_row()
+{
 	const auto xy_step = (mr_ystep << 16) | (mr_xstep & 0xFFFF);
 	auto xy_frac = (mr_yfrac << 16) | (mr_xfrac & 0xFFFF);
 
 	for (auto i = 0; i < mr_count; ++i)
 	{
 		const auto xy = ((xy_frac >> 3) & 0x1FFF1F80) | ((xy_frac >> 25) & 0x7E);
-
-		if (need_to_draw_ceiling)
-		{
-			const auto ceiling_index = planepics[xy % 8192];
-			const auto ceiling_pixel = has_shading ? shadingtable[ceiling_index] : ceiling_index;
-			vga_memory[mr_dest + i] = ceiling_pixel;
-		}
-
-		if (need_to_draw_floor)
-		{
-			const auto floor_index = planepics[(xy + 1) % 8192];
-			const auto floor_pixel = has_shading ? shadingtable[floor_index] : floor_index;
-			vga_memory[mr_dest + mr_rowofs + i] = floor_pixel;
-		}
-
+		TCeilingDrawFunc{}(xy, i);
+		TFloorDrawFunc{}(xy, i);
 		xy_frac += xy_step;
 	}
 }
@@ -78,30 +87,54 @@ void map_row(DrawMode draw_mode, ShadingMode shading_mode)
 
 void MapLSRow()
 {
-	map_row(DrawMode::ceiling_and_floor, ShadingMode::standard);
+	using ShadingFunc = StandardShadingFunc;
+	using CeilingFunc = CeilingDrawFunc<ShadingFunc>;
+	using FloorFunc = FloorDrawFunc<ShadingFunc>;
+
+	map_row<CeilingFunc, FloorFunc>();
 }
 
 void F_MapLSRow()
 {
-	map_row(DrawMode::floor, ShadingMode::standard);
+	using ShadingFunc = StandardShadingFunc;
+	using CeilingFunc = NoDrawFunc<ShadingFunc>;
+	using FloorFunc = FloorDrawFunc<ShadingFunc>;
+
+	map_row<CeilingFunc, FloorFunc>();
 }
 
 void C_MapLSRow()
 {
-	map_row(DrawMode::ceiling, ShadingMode::standard);
+	using ShadingFunc = StandardShadingFunc;
+	using CeilingFunc = CeilingDrawFunc<ShadingFunc>;
+	using FloorFunc = NoDrawFunc<ShadingFunc>;
+
+	map_row<CeilingFunc, FloorFunc>();
 }
 
 void MapRow()
 {
-	map_row(DrawMode::ceiling_and_floor, ShadingMode::none);
+	using ShadingFunc = NoShadingFunc;
+	using CeilingFunc = CeilingDrawFunc<ShadingFunc>;
+	using FloorFunc = FloorDrawFunc<ShadingFunc>;
+
+	map_row<CeilingFunc, FloorFunc>();
 }
 
 void F_MapRow()
 {
-	map_row(DrawMode::floor, ShadingMode::none);
+	using ShadingFunc = NoShadingFunc;
+	using CeilingFunc = NoDrawFunc<ShadingFunc>;
+	using FloorFunc = FloorDrawFunc<ShadingFunc>;
+
+	map_row<CeilingFunc, FloorFunc>();
 }
 
 void C_MapRow()
 {
-	map_row(DrawMode::ceiling, ShadingMode::none);
+	using ShadingFunc = NoShadingFunc;
+	using CeilingFunc = CeilingDrawFunc<ShadingFunc>;
+	using FloorFunc = NoDrawFunc<ShadingFunc>;
+
+	map_row<CeilingFunc, FloorFunc>();
 }

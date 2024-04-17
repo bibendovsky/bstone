@@ -467,6 +467,7 @@ target_sources(
 		3d_menu.h
 		an_codes.h
 		audio.h
+		d3_d2.h
 		gfxv.h
 		id_ca.h
 		id_heads.h

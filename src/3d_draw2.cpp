@@ -7,6 +7,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 
 #include "3d_def.h"
+#include "d3_d2.h"
 #include "id_vl.h"
 
 #include "bstone_math.h"
@@ -28,7 +29,6 @@ BaseDist basedist;
 PlaneYLookup planeylookup;
 MirrorOfs mirrorofs;
 
-extern std::uint8_t planepics[8192]; // 4k of ceiling, 4k of floor
 extern const std::uint8_t* lightsource;
 extern const std::uint8_t* shadingtable;
 
