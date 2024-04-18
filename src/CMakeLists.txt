@@ -5,10 +5,8 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: GPL-2.0-or-later
 ]]
 
-
 cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
 project(bstone VERSION 1.2.13 LANGUAGES CXX)
-
 
 #
 # Version.
@@ -32,7 +30,6 @@ endif ()
 
 message(STATUS "[bstone] v${BSTONE_VERSION}")
 
-
 #
 # Options.
 #
@@ -42,7 +39,6 @@ option(BSTONE_USE_PCH "Use precompiled headers if available." OFF)
 option(BSTONE_USE_MULTI_PROCESS_COMPILATION "Use multi-process compilation." ON)
 option(BSTONE_MORE_COMPILER_WARNINGS "Enables more compiler warnings." OFF)
 option(BSTONE_NO_ASSERT "Disable assertion." OFF)
-
 
 # SDL2W
 #
@@ -62,7 +58,6 @@ set(THREADS_PREFER_PTHREAD_FLAG "TRUE")
 
 find_package(Threads REQUIRED)
 
-
 #
 # Constants.
 #
@@ -78,8 +73,7 @@ endif ()
 add_executable(bstone "")
 
 add_custom_command(
-    TARGET bstone
-    POST_BUILD
+    TARGET bstone POST_BUILD
     COMMAND $<$<CONFIG:RELEASE>:${CMAKE_STRIP}> $<$<CONFIG:RELEASE>:$<TARGET_FILE:bstone>>
     VERBATIM
 )
@@ -112,32 +106,25 @@ if (WIN32)
     )
 endif ()
 
-
 #
 # Target properties.
 #
-set_target_properties(
-    bstone
-    PROPERTIES
-        CXX_STANDARD 14
-        CXX_STANDARD_REQUIRED ON
-        CXX_EXTENSIONS OFF
+set_target_properties(bstone PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS OFF
 )
 
 if (WIN32)
-    set_target_properties(
-        bstone
-        PROPERTIES
-            WIN32_EXECUTABLE TRUE
+    set_target_properties(bstone PROPERTIES
+        WIN32_EXECUTABLE TRUE
     )
 endif ()
-
 
 #
 # Target compile definitions.
 #
-target_compile_definitions(
-    bstone
+target_compile_definitions(bstone
     PRIVATE
         $<$<BOOL:${WIN32}>:UNICODE>
         $<$<BOOL:${WIN32}>:_UNICODE>
@@ -151,20 +138,17 @@ target_compile_definitions(
 )
 
 if (BSTONE_PANDORA)
-    target_compile_definitions(
-        bstone
+    target_compile_definitions(bstone
         PRIVATE
             BSTONE_PANDORA
     )
 endif ()
 
-
 #
 # Target compile options.
 #
 if (BSTONE_MORE_COMPILER_WARNINGS)
-    target_compile_options(
-        bstone
+    target_compile_options(bstone
         PRIVATE
             $<$<CXX_COMPILER_ID:MSVC>:/W4>
             $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -pedantic>
@@ -173,8 +157,7 @@ endif ()
 
 if (MSVC)
     if (BSTONE_USE_STATIC_LINKING)
-        target_compile_options(
-            bstone
+        target_compile_options(bstone
             PRIVATE
                 $<$<CONFIG:DEBUG>:-MTd>
                 $<$<NOT:$<CONFIG:DEBUG>>:-MT>
@@ -182,8 +165,7 @@ if (MSVC)
     endif ()
 
     if (BSTONE_USE_MULTI_PROCESS_COMPILATION)
-        target_compile_options(
-            bstone
+        target_compile_options(bstone
             PRIVATE
                 -MP
         )
@@ -191,8 +173,7 @@ if (MSVC)
 endif ()
 
 if (BSTONE_PANDORA)
-    target_compile_options(
-        bstone
+    target_compile_options(bstone
         PRIVATE
             -fsigned-char
             -fsigned-char
@@ -205,7 +186,6 @@ if (BSTONE_PANDORA)
     )
 endif ()
 
-
 #
 # Target link options.
 #
@@ -213,21 +193,18 @@ if (MSVC)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -DEBUG:FULL")
 endif ()
 
-
 #
 # Target link libraries.
 #
 if (BSTONE_USE_STATIC_LINKING)
     if (WIN32)
-        target_link_libraries(
-            bstone
+        target_link_libraries(bstone
             PRIVATE
                 $<$<CXX_COMPILER_ID:Clang>:-static>
                 $<$<CXX_COMPILER_ID:GNU>:-static>
         )
     else ()
-        target_link_libraries(
-            bstone
+        target_link_libraries(bstone
             PRIVATE
                 $<$<CXX_COMPILER_ID:Clang>:-static>
                 $<$<CXX_COMPILER_ID:GNU>:-static-libgcc>
@@ -236,8 +213,7 @@ if (BSTONE_USE_STATIC_LINKING)
     endif ()
 endif ()
 
-target_link_libraries(
-    bstone
+target_link_libraries(bstone
     PRIVATE
         ${CMAKE_DL_LIBS}
         $<$<BOOL:${BSTONE_INTERNAL_SDL2}>:SDL2::SDL2-static>
@@ -247,8 +223,7 @@ target_link_libraries(
 )
 
 if (BSTONE_PANDORA)
-    target_link_libraries(
-        bstone
+    target_link_libraries(bstone
         PRIVATE
             Xext
             Xau
@@ -262,12 +237,10 @@ if (BSTONE_PANDORA)
     )
 endif ()
 
-
 #
 # Target include directories.
 #
-target_include_directories(
-    bstone
+target_include_directories(bstone
     PRIVATE
         .
         dosbox
@@ -279,17 +252,14 @@ target_include_directories(
 )
 
 if (BSTONE_PANDORA)
-    target_include_directories(
-        bstone
+    target_include_directories(bstone
         PRIVATE
             $ENV{PNDSDK}
     )
 endif ()
 
-
 if (BSTONE_USE_PCH AND NOT (${CMAKE_VERSION} VERSION_LESS "3.16.0"))
-    target_precompile_headers(
-        bstone
+    target_precompile_headers(bstone
         PRIVATE
             bstone_precompiled.h
     )
@@ -298,8 +268,7 @@ endif ()
 #
 # Target sources.
 #
-target_sources(
-    bstone
+target_sources(bstone
     PRIVATE
         bstone_char_traits.cpp
         bstone_char_traits.h
@@ -405,8 +374,7 @@ target_sources(
         bstone_four_cc.h
 )
 
-target_sources(
-    bstone
+target_sources(bstone
     PRIVATE
         dosbox/adlib.h
         dosbox/dbopl.h
@@ -627,16 +595,14 @@ target_sources(
 )
 
 if (WIN32)
-    target_sources(
-        bstone
+    target_sources(bstone
         PRIVATE
             sys/win32/bstone_win32_rc.h
             $<$<CXX_COMPILER_ID:MSVC>:sys/win32/bstone_win32_msvc.manifest>
     )
 endif ()
 
-target_sources(
-    bstone
+target_sources(bstone
     PRIVATE
         dosbox/dbopl.cpp
 
@@ -832,7 +798,7 @@ target_sources(
         bstone_sys_mouse_mgr_sdl2.cpp
         bstone_sys_pixel_format.cpp
         bstone_sys_renderer_sdl2.cpp
-    bstone_sys_sdl2_subsystem.cpp
+        bstone_sys_sdl2_subsystem.cpp
         bstone_sys_system_mgr_sdl2.cpp
         bstone_sys_texture_sdl2.cpp
         bstone_sys_texture_lock_sdl2.cpp
@@ -843,40 +809,30 @@ target_sources(
 )
 
 if (WIN32)
-    target_sources(
-        bstone
+    target_sources(bstone
         PRIVATE
             "${PROJECT_BINARY_DIR}/sys/win32/bstone_win32.rc"
     )
 endif ()
 
-
 #
 # Install.
 #
-install(
-    TARGETS
-        bstone
+install(TARGETS bstone
     RUNTIME DESTINATION "."
 )
 
-install(
-    FILES
-        ../CHANGELOG.md
+install(FILES ../CHANGELOG.md
     DESTINATION "."
     RENAME bstone_changelog.txt
 )
 
-install(
-    FILES
-        ../README.md
+install(FILES ../README.md
     DESTINATION "."
     RENAME bstone_readme.txt
 )
 
-install(
-    FILES
-        ../LICENSE
+install(FILES ../LICENSE
     DESTINATION "."
     RENAME bstone_license.txt
 )

@@ -11,11 +11,10 @@ message(STATUS "[bstone_ltrimcs] v${PROJECT_VERSION}")
 
 add_executable(bstone_ltrimcs src/bstone_ltrimcs.cpp)
 
-set_target_properties( bstone_ltrimcs
-    PROPERTIES
-        CXX_STANDARD 14
-        CXX_STANDARD_REQUIRED ON
-        CXX_EXTENSIONS OFF
+set_target_properties(bstone_ltrimcs PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS OFF
 )
 
 target_compile_options(bstone_ltrimcs
