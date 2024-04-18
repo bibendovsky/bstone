@@ -3,14 +3,50 @@
 
 
 ## [1.?.?] - ????-??-??
-### Changed
-- [AUDIO] Rename audio driver type `2d_sdl` to `system`.
-- [AUDIO] Rename audio driver type `3d_openal` to `openal`.
-- Rename cvar `vid_aa_kind` to `vid_aa_type`.
-- CMake minimum version to v3.5.0.
+### Fixed
+- [#442] [AOG][HWR] Fix weapon position when toggle widescreen.
+- [#450] Hide back-to-demo menu item when there is no mission active.
+- [#467] Informants Die Upon Reloading a QuickSave.
+- [#469] Fizzle fade on death.
+- [#474] Don't increase a turn speed when running.
+- [#478] [AOG] Walking sounds for Cyborg Warrior and Bio-Mech Guardian.
+- [#479] "Full map" cheat.
+- [#480] Asleep enemies when dumps info to log.
+- [#464] [Windows] DPI awarness.
+- [#485] [HWR] Render walls on both sides of a door to avoid a possible gap.
+- [#483] Possible saved game corruption.
+- [#462] Load maps from https://legacy.3drealms.com/stuff/bsflrs.zip.
+- Boss spawning in AOG.
+- Error at startup when profile directory is empty.
+- Buffer overflow for textured ceiling or floor.
+- [CFG] Escape argument string on serialization.
+- Sprite extraction error "Sprite page index out of range."
+- "Actor is in actorat" condition.
+- Order buttons inside the message box from right to left.
 
 ### Added
 - [CMake] Option *BSTONE_INTERNAL_SDL2* to use bundled SDL2 source code.
+- CVar facility.
+- Add tool to trim file paths in the executable.
+- Add option to control checking for error of 3D renderer API.
+- [PS] Add option to toggle a map in stats like in AOG.
+- Add Git commit's hash to the version.
+- Log error when message box fails.
+
+### Changed
+- [#383] Change description of "is windowed" for windowed fullscreen.
+- Relicense completely new source code under MIT.
+- [AUDIO] Rename audio driver type `2d_sdl` to `system`.
+- [AUDIO] Rename audio driver type `3d_openal` to `openal`.
+- Rename cvar `vid_aa_kind` to `vid_aa_type`.
+- [CVAR] Rename audio drivers (r2_sdl -> system, r3_openal -> openal).
+- Rename cvar `vid_aa_kind` to `vid_aa_type`.
+- Use multiple search paths (data, mod) for external resources.
+- [Windows 11+] Remove round corners of a window.
+- Update SDL to v2.30.2.
+- Update Nuked OPL3 to 730f8c238a152cb3314e46919789a666c9d81d82.
+- Update stb (stb_image.h v2.29; stb_image_write.h v1.16).
+- Set CMake minimum version to v3.5.0.
 
 
 ## [1.2.12] - 2022-09-18
