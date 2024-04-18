@@ -1,6 +1,6 @@
 #[[
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2023-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 ]]
 
@@ -17,7 +17,7 @@ set(SDL_TEST OFF CACHE BOOL "Build the SDL2_test library" FORCE)
 set(SDL_TESTS OFF CACHE BOOL "Build the test directory" FORCE)
 
 if (BSTONE_USE_STATIC_LINKING)
-	set(SDL_FORCE_STATIC_VCRT ON CACHE BOOL "Force /MT for static VC runtimes" FORCE)
+    set(SDL_FORCE_STATIC_VCRT ON CACHE BOOL "Force /MT for static VC runtimes" FORCE)
 endif ()
 
 add_subdirectory(src)
