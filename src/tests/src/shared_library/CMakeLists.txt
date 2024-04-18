@@ -5,7 +5,7 @@ SPDX-License-Identifier: MIT
 ]]
 
 cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
-project(bstone_tests_shared_library VERSION 0.0.1 LANGUAGES CXX)
+project(bstone_tests_shared_library VERSION 1.0.0 LANGUAGES CXX)
 
 add_library(${PROJECT_NAME} SHARED "")
 
