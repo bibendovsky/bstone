@@ -7,6 +7,7 @@
 - [AUDIO] Rename audio driver type `2d_sdl` to `system`.
 - [AUDIO] Rename audio driver type `3d_openal` to `openal`.
 - Rename cvar `vid_aa_kind` to `vid_aa_type`.
+- CMake minimum version to v3.5.0.
 
 ### Added
 - [CMake] Option *BSTONE_INTERNAL_SDL2* to use bundled SDL2 source code.

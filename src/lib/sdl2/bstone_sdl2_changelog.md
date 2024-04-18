@@ -6,3 +6,4 @@
 
 ### Changed
 - Disable dynamic API in *src/dynapi/SDL_dynapi.h*.
+- Minimum CMake version to v3.5.0.

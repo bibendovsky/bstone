@@ -4,7 +4,7 @@ Copyright (c) 2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 ]]
 
-cmake_minimum_required(VERSION 3.4.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
 project(bstone_sdl2 VERSION 1.0.0 LANGUAGES NONE)
 
 message(STATUS "[${PROJECT_NAME}] v${PROJECT_VERSION}")

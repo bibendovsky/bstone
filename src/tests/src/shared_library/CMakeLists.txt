@@ -4,7 +4,7 @@ Copyright (c) 2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 ]]
 
-cmake_minimum_required(VERSION 3.8.2 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
 project(bstone_tests_shared_library VERSION 0.0.1 LANGUAGES CXX)
 
 add_library(${PROJECT_NAME} SHARED "")
