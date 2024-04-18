@@ -275,7 +275,7 @@ foreach (SDL2W_TMP_INCLUDE_DIR IN LISTS SDL2W_TMP_SDL2_INC_DIRS)
     if (EXISTS ${SDL2W_TMP_SDL_VERSION_H})
         set(SDL2W_TMP_MAJOR_REGEX "^#define[ \t]+SDL_MAJOR_VERSION[ \t]+([0-9]+)$")
         set(SDL2W_TMP_MINOR_REGEX "^#define[ \t]+SDL_MINOR_VERSION[ \t]+([0-9]+)$")
-        set(SDL2W_TMP_PATCH_REGEX"^#define[ \t]+SDL_PATCHLEVEL[ \t]+([0-9]+)$")
+        set(SDL2W_TMP_PATCH_REGEX "^#define[ \t]+SDL_PATCHLEVEL[ \t]+([0-9]+)$")
 
         file(STRINGS
             ${SDL2W_TMP_SDL_VERSION_H}

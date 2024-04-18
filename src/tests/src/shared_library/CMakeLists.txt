@@ -7,10 +7,10 @@ SPDX-License-Identifier: MIT
 cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
 project(bstone_tests_shared_library VERSION 1.0.0 LANGUAGES CXX)
 
-add_library(${PROJECT_NAME} SHARED "")
+add_library(bstone_tests_shared_library SHARED "")
 
 set_target_properties(
-    ${PROJECT_NAME}
+    bstone_tests_shared_library
     PROPERTIES
         CXX_STANDARD 14
         CXX_STANDARD_REQUIRED ON
@@ -20,13 +20,13 @@ set_target_properties(
         SUFFIX ".bin"
 )
 
-target_include_directories(${PROJECT_NAME}
+target_include_directories(bstone_tests_shared_library
     PRIVATE
         ../../..
         include
 )
 
-target_compile_definitions(${PROJECT_NAME}
+target_compile_definitions(bstone_tests_shared_library
     PRIVATE
         $<$<BOOL:${WIN32}>:UNICODE>
         $<$<BOOL:${WIN32}>:_UNICODE>
@@ -36,20 +36,20 @@ target_compile_definitions(${PROJECT_NAME}
         $<$<BOOL:${WIN32}>:WINVER=0x0501>
 )
 
-target_compile_options(${PROJECT_NAME}
+target_compile_options(bstone_tests_shared_library
     PRIVATE
         $<$<CXX_COMPILER_ID:MSVC>:/W4>
         $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -pedantic>
 )
 
-target_sources(${PROJECT_NAME}
+target_sources(bstone_tests_shared_library
     PRIVATE
         include/bstone_tests_shared_library.h
 )
 
-target_sources(${PROJECT_NAME}
+target_sources(bstone_tests_shared_library
     PRIVATE
         src/bstone_tests_shared_library.cpp
 )
 
-install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION "tests" RUNTIME DESTINATION "tests")
+install(TARGETS bstone_tests_shared_library LIBRARY DESTINATION "tests" RUNTIME DESTINATION "tests")

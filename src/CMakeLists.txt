@@ -30,7 +30,7 @@ if (NOT ("${BSTONE_GIT_HASH_SHORT}" STREQUAL ""))
     set(BSTONE_VERSION_SHORT "${BSTONE_VERSION_SHORT}+${BSTONE_GIT_HASH_SHORT}")
 endif ()
 
-message(STATUS "[${PROJECT_NAME}] v${BSTONE_VERSION}")
+message(STATUS "[bstone] v${BSTONE_VERSION}")
 
 
 #
@@ -75,23 +75,23 @@ endif ()
 #
 # Target.
 #
-add_executable(${PROJECT_NAME} "")
+add_executable(bstone "")
 
 add_custom_command(
-    TARGET ${PROJECT_NAME}
+    TARGET bstone
     POST_BUILD
-    COMMAND $<$<CONFIG:RELEASE>:${CMAKE_STRIP}> $<$<CONFIG:RELEASE>:$<TARGET_FILE:${PROJECT_NAME}>>
+    COMMAND $<$<CONFIG:RELEASE>:${CMAKE_STRIP}> $<$<CONFIG:RELEASE>:$<TARGET_FILE:bstone>>
     VERBATIM
 )
 
 if (BSTONE_TRIM_FILE_PATHS_IN_EXE)
-    add_dependencies(${PROJECT_NAME} bstone_ltrimcs)
+    add_dependencies(bstone bstone_ltrimcs)
 
     add_custom_command(
-        TARGET ${PROJECT_NAME} POST_BUILD
+        TARGET bstone POST_BUILD
         COMMAND
             $<TARGET_FILE:bstone_ltrimcs>
-                -f $<SHELL_PATH:$<TARGET_FILE:${PROJECT_NAME}>>
+                -f $<SHELL_PATH:$<TARGET_FILE:bstone>>
                 -p $<SHELL_PATH:${PROJECT_SOURCE_DIR}>
         VERBATIM
     )
@@ -117,7 +117,7 @@ endif ()
 # Target properties.
 #
 set_target_properties(
-    ${PROJECT_NAME}
+    bstone
     PROPERTIES
         CXX_STANDARD 14
         CXX_STANDARD_REQUIRED ON
@@ -126,7 +126,7 @@ set_target_properties(
 
 if (WIN32)
     set_target_properties(
-        ${PROJECT_NAME}
+        bstone
         PROPERTIES
             WIN32_EXECUTABLE TRUE
     )
@@ -137,7 +137,7 @@ endif ()
 # Target compile definitions.
 #
 target_compile_definitions(
-    ${PROJECT_NAME}
+    bstone
     PRIVATE
         $<$<BOOL:${WIN32}>:UNICODE>
         $<$<BOOL:${WIN32}>:_UNICODE>
@@ -152,7 +152,7 @@ target_compile_definitions(
 
 if (BSTONE_PANDORA)
     target_compile_definitions(
-        ${PROJECT_NAME}
+        bstone
         PRIVATE
             BSTONE_PANDORA
     )
@@ -164,7 +164,7 @@ endif ()
 #
 if (BSTONE_MORE_COMPILER_WARNINGS)
     target_compile_options(
-        ${PROJECT_NAME}
+        bstone
         PRIVATE
             $<$<CXX_COMPILER_ID:MSVC>:/W4>
             $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -pedantic>
@@ -174,7 +174,7 @@ endif ()
 if (MSVC)
     if (BSTONE_USE_STATIC_LINKING)
         target_compile_options(
-            ${PROJECT_NAME}
+            bstone
             PRIVATE
                 $<$<CONFIG:DEBUG>:-MTd>
                 $<$<NOT:$<CONFIG:DEBUG>>:-MT>
@@ -183,7 +183,7 @@ if (MSVC)
 
     if (BSTONE_USE_MULTI_PROCESS_COMPILATION)
         target_compile_options(
-            ${PROJECT_NAME}
+            bstone
             PRIVATE
                 -MP
         )
@@ -192,7 +192,7 @@ endif ()
 
 if (BSTONE_PANDORA)
     target_compile_options(
-        ${PROJECT_NAME}
+        bstone
         PRIVATE
             -fsigned-char
             -fsigned-char
@@ -220,14 +220,14 @@ endif ()
 if (BSTONE_USE_STATIC_LINKING)
     if (WIN32)
         target_link_libraries(
-            ${PROJECT_NAME}
+            bstone
             PRIVATE
                 $<$<CXX_COMPILER_ID:Clang>:-static>
                 $<$<CXX_COMPILER_ID:GNU>:-static>
         )
     else ()
         target_link_libraries(
-            ${PROJECT_NAME}
+            bstone
             PRIVATE
                 $<$<CXX_COMPILER_ID:Clang>:-static>
                 $<$<CXX_COMPILER_ID:GNU>:-static-libgcc>
@@ -237,7 +237,7 @@ if (BSTONE_USE_STATIC_LINKING)
 endif ()
 
 target_link_libraries(
-    ${PROJECT_NAME}
+    bstone
     PRIVATE
         ${CMAKE_DL_LIBS}
         $<$<BOOL:${BSTONE_INTERNAL_SDL2}>:SDL2::SDL2-static>
@@ -248,7 +248,7 @@ target_link_libraries(
 
 if (BSTONE_PANDORA)
     target_link_libraries(
-        ${PROJECT_NAME}
+        bstone
         PRIVATE
             Xext
             Xau
@@ -267,7 +267,7 @@ endif ()
 # Target include directories.
 #
 target_include_directories(
-    ${PROJECT_NAME}
+    bstone
     PRIVATE
         .
         dosbox
@@ -280,7 +280,7 @@ target_include_directories(
 
 if (BSTONE_PANDORA)
     target_include_directories(
-        ${PROJECT_NAME}
+        bstone
         PRIVATE
             $ENV{PNDSDK}
     )
@@ -289,7 +289,7 @@ endif ()
 
 if (BSTONE_USE_PCH AND NOT (${CMAKE_VERSION} VERSION_LESS "3.16.0"))
     target_precompile_headers(
-        ${PROJECT_NAME}
+        bstone
         PRIVATE
             bstone_precompiled.h
     )
@@ -299,7 +299,7 @@ endif ()
 # Target sources.
 #
 target_sources(
-    ${PROJECT_NAME}
+    bstone
     PRIVATE
         bstone_char_traits.cpp
         bstone_char_traits.h
@@ -406,7 +406,7 @@ target_sources(
 )
 
 target_sources(
-    ${PROJECT_NAME}
+    bstone
     PRIVATE
         dosbox/adlib.h
         dosbox/dbopl.h
@@ -628,7 +628,7 @@ target_sources(
 
 if (WIN32)
     target_sources(
-        ${PROJECT_NAME}
+        bstone
         PRIVATE
             sys/win32/bstone_win32_rc.h
             $<$<CXX_COMPILER_ID:MSVC>:sys/win32/bstone_win32_msvc.manifest>
@@ -636,7 +636,7 @@ if (WIN32)
 endif ()
 
 target_sources(
-    ${PROJECT_NAME}
+    bstone
     PRIVATE
         dosbox/dbopl.cpp
 
@@ -844,7 +844,7 @@ target_sources(
 
 if (WIN32)
     target_sources(
-        ${PROJECT_NAME}
+        bstone
         PRIVATE
             "${PROJECT_BINARY_DIR}/sys/win32/bstone_win32.rc"
     )
@@ -856,7 +856,7 @@ endif ()
 #
 install(
     TARGETS
-        ${PROJECT_NAME}
+        bstone
     RUNTIME DESTINATION "."
 )
 
@@ -881,7 +881,7 @@ install(
     RENAME bstone_license.txt
 )
 
-set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
+set(CPACK_PACKAGE_NAME "bstone")
 set(CPACK_PACKAGE_VENDOR "Boris I. Bendovsky")
 set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})

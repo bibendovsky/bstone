@@ -7,7 +7,7 @@ SPDX-License-Identifier: MIT
 cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
 project(bstone_sdl2 VERSION 1.0.0 LANGUAGES NONE)
 
-message(STATUS "[${PROJECT_NAME}] v${PROJECT_VERSION}")
+message(STATUS "[bstone_sdl2] v${PROJECT_VERSION}")
 
 set(SDL2_DISABLE_UNINSTALL ON CACHE BOOL "Disable uninstallation of SDL2" FORCE)
 set(SDL2_DISABLE_SDL2MAIN ON CACHE BOOL "Disable building/installation of SDL2main" FORCE)
