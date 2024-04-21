@@ -372,6 +372,10 @@ target_sources(bstone
         bstone_string.h
         bstone_four_cc.cpp
         bstone_four_cc.h
+        bstone_uuid.cpp
+        bstone_uuid_unix.cpp
+        bstone_uuid_win32.cpp
+        bstone_uuid.h
 )
 
 target_sources(bstone
