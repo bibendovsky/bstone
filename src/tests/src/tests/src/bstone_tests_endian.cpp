@@ -84,6 +84,149 @@ void test_pszoogly5ksib4b6()
 
 // ==========================================================================
 
+// template<typename TByte, std::intptr_t TCount>
+// void swap_byte_array(TByte (&bytes)[TCount]) noexcept
+// Even size.
+void test_qyepc4xyq50mvtkm()
+{
+	class Test
+	{
+	public:
+		constexpr Test()
+		{
+			char bytes[4] = {'1', '2', '3', '4'};
+			bstone::endian::swap_byte_array(bytes);
+
+			is_valid_ =
+				bytes[0] == '4' &&
+				bytes[1] == '3' &&
+				bytes[2] == '2' &&
+				bytes[3] == '1' &&
+				true;
+		}
+
+		constexpr bool is_valid() const noexcept
+		{
+			return is_valid_;
+		}
+
+	private:
+		bool is_valid_{};
+	};
+
+	constexpr auto test = Test{};
+	tester.check(test.is_valid());
+}
+
+// template<typename TByte, std::intptr_t TCount>
+// void swap_byte_array(TByte (&bytes)[TCount]) noexcept
+// Odd size.
+void test_irg51iq5ptanon9g()
+{
+	class Test
+	{
+	public:
+		constexpr Test()
+		{
+			char bytes[5] = {'1', '2', '3', '4', '5'};
+			bstone::endian::swap_byte_array(bytes);
+
+			is_valid_ =
+				bytes[0] == '5' &&
+				bytes[1] == '4' &&
+				bytes[2] == '3' &&
+				bytes[3] == '2' &&
+				bytes[4] == '1' &&
+				true;
+		}
+
+		constexpr bool is_valid() const noexcept
+		{
+			return is_valid_;
+		}
+
+	private:
+		bool is_valid_{};
+	};
+
+	constexpr auto test = Test{};
+	tester.check(test.is_valid());
+}
+
+// ==========================================================================
+
+// template<typename TByte, std::intptr_t TCount>
+// void swap_byte_array(TByte*, std::intptr_t) noexcept
+// Even size.
+void test_kgfxywxx5wgrgl9j()
+{
+	class Test
+	{
+	public:
+		constexpr Test()
+		{
+			char bytes[5] = {'1', '2', '3', '4', '5'};
+			bstone::endian::swap_byte_array(bytes, 4);
+
+			is_valid_ =
+				bytes[0] == '4' &&
+				bytes[1] == '3' &&
+				bytes[2] == '2' &&
+				bytes[3] == '1' &&
+				bytes[4] == '5' &&
+				true;
+		}
+
+		constexpr bool is_valid() const noexcept
+		{
+			return is_valid_;
+		}
+
+	private:
+		bool is_valid_{};
+	};
+
+	constexpr auto test = Test{};
+	tester.check(test.is_valid());
+}
+
+// template<typename TByte, std::intptr_t TCount>
+// void swap_byte_array(TByte*, std::intptr_t) noexcept
+// Odd size.
+void test_5qlz0zonfx1gs8k0()
+{
+	class Test
+	{
+	public:
+		constexpr Test()
+		{
+			char bytes[5] = {'1', '2', '3', '4', '5'};
+			bstone::endian::swap_byte_array(bytes, 5);
+
+			is_valid_ =
+				bytes[0] == '5' &&
+				bytes[1] == '4' &&
+				bytes[2] == '3' &&
+				bytes[3] == '2' &&
+				bytes[4] == '1' &&
+				true;
+		}
+
+		constexpr bool is_valid() const noexcept
+		{
+			return is_valid_;
+		}
+
+	private:
+		bool is_valid_{};
+	};
+
+	constexpr auto test = Test{};
+	tester.check(test.is_valid());
+}
+
+// ==========================================================================
+
 void test_g7a3yy0uvcn10b0d()
 {
 	constexpr auto result = bstone::endian::to_little(std::uint16_t{0xAABBU});
@@ -118,6 +261,7 @@ public:
 	Registrator()
 	{
 		register_swap_bytes();
+		register_swap_byte_array();
 		register_to_little();
 		register_to_big();
 	}
@@ -136,6 +280,15 @@ private:
 
 		tester.register_test("swap_bytes#yxbmb2didd4mgfzm", test_yxbmb2didd4mgfzm);
 		tester.register_test("swap_bytes#pszoogly5ksib4b6", test_pszoogly5ksib4b6);
+	}
+
+	void register_swap_byte_array()
+	{
+		tester.register_test("endian::swap_byte_array#qyepc4xyq50mvtkm", test_qyepc4xyq50mvtkm);
+		tester.register_test("endian::swap_byte_array#irg51iq5ptanon9g", test_irg51iq5ptanon9g);
+
+		tester.register_test("endian::swap_byte_array#kgfxywxx5wgrgl9j", test_kgfxywxx5wgrgl9j);
+		tester.register_test("endian::swap_byte_array#5qlz0zonfx1gs8k0", test_5qlz0zonfx1gs8k0);
 	}
 
 	void register_to_little()

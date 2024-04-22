@@ -13,6 +13,9 @@ SPDX-License-Identifier: MIT
 
 #include <type_traits>
 
+#include "bstone_assert.h"
+#include "bstone_utility.h"
+
 #if !defined(BSTONE_LITTLE_ENDIAN)
 	#define BSTONE_LITTLE_ENDIAN 1
 #endif
@@ -190,9 +193,45 @@ inline constexpr T swap_bytes(T value) noexcept
 			detail::EnumTag,
 			void>>;
 
-	static_assert(!std::is_same<Tag, void>::value, "Unknown type.");
+	static_assert(!std::is_same<Tag, void>::value, "Unsupported type.");
 
 	return bstone::endian::detail::swap_bytes(value, Tag{});
+}
+
+template<typename TByte, std::intptr_t TCount>
+inline constexpr void swap_byte_array(TByte (&bytes)[TCount]) noexcept
+{
+	static_assert(
+		sizeof(TByte) == 1 &&
+			(std::is_integral<TByte>::value || std::is_enum<TByte>::value),
+		"Expected byte-size integral or enum type.");
+
+	constexpr auto half_count = TCount / 2;
+
+	for (auto i = decltype(TCount){}; i < half_count; ++i)
+	{
+		bstone::swop(bytes[i], bytes[TCount - 1 - i]);
+	}
+}
+
+template<typename TByte>
+inline constexpr void swap_byte_array(TByte* bytes, std::intptr_t count) noexcept
+{
+	static_assert(
+		sizeof(TByte) == 1 &&
+			(std::is_integral<TByte>::value || std::is_enum<TByte>::value),
+		"Expected byte-size integral or enum type.");
+
+	BSTONE_ASSERT(bytes != nullptr);
+	BSTONE_ASSERT(count >= 0);
+
+	const auto half_count = count / 2;
+	const auto last_index = count - 1;
+
+	for (auto i = decltype(count){}; i < half_count; ++i)
+	{
+		bstone::swop(bytes[i], bytes[last_index - i]);
+	}
 }
 
 // ==========================================================================
