@@ -1667,6 +1667,96 @@ void test_1l91bm5o4i43jfbs()
 
 // ==========================================================================
 
+void test_uurb3nm8qiuss2um()
+{
+	class Test
+	{
+	public:
+		constexpr Test()
+		{
+			auto uuid = bstone::Uuid{"00112233445566778899aabbccddeeff"};
+			uuid.swap_bytes(bstone::UuidEndianType::big);
+			const auto& uuid_value = uuid.get_value();
+
+			is_valid_ =
+				uuid_value[0] == 0xFF &&
+				uuid_value[1] == 0xEE &&
+				uuid_value[2] == 0xDD &&
+				uuid_value[3] == 0xCC &&
+				uuid_value[4] == 0xBB &&
+				uuid_value[5] == 0xAA &&
+				uuid_value[6] == 0x99 &&
+				uuid_value[7] == 0x88 &&
+				uuid_value[8] == 0x77 &&
+				uuid_value[9] == 0x66 &&
+				uuid_value[10] == 0x55 &&
+				uuid_value[11] == 0x44 &&
+				uuid_value[12] == 0x33 &&
+				uuid_value[13] == 0x22 &&
+				uuid_value[14] == 0x11 &&
+				uuid_value[15] == 0x00 &&
+				true;
+		}
+
+		constexpr bool is_valid() const noexcept
+		{
+			return is_valid_;
+		}
+
+	private:
+		bool is_valid_{};
+	};
+
+	constexpr auto test = Test{};
+	tester.check(test.is_valid());
+}
+
+void test_6nk2s7hlfz54dq0z()
+{
+	class Test
+	{
+	public:
+		constexpr Test()
+		{
+			auto uuid = bstone::Uuid{"00112233445566778899aabbccddeeff"};
+			uuid.swap_bytes(bstone::UuidEndianType::little_mixed);
+			const auto& uuid_value = uuid.get_value();
+
+			is_valid_ =
+				uuid_value[0] == 0x33 &&
+				uuid_value[1] == 0x22 &&
+				uuid_value[2] == 0x11 &&
+				uuid_value[3] == 0x00 &&
+				uuid_value[4] == 0x55 &&
+				uuid_value[5] == 0x44 &&
+				uuid_value[6] == 0x77 &&
+				uuid_value[7] == 0x66 &&
+				uuid_value[8] == 0x88 &&
+				uuid_value[9] == 0x99 &&
+				uuid_value[10] == 0xAA &&
+				uuid_value[11] == 0xBB &&
+				uuid_value[12] == 0xCC &&
+				uuid_value[13] == 0xDD &&
+				uuid_value[14] == 0xEE &&
+				uuid_value[15] == 0xFF &&
+				true;
+		}
+
+		constexpr bool is_valid() const noexcept
+		{
+			return is_valid_;
+		}
+
+	private:
+		bool is_valid_{};
+	};
+
+	constexpr auto test = Test{};
+	tester.check(test.is_valid());
+}
+
+// ==========================================================================
+
 // Uuid generate()
 void test_tkb0xqsowitk1opk()
 {
@@ -1734,6 +1824,7 @@ public:
 		register_is_nil();
 		register_get_value();
 		register_to_chars();
+		register_swap_bytes();
 		register_generate();
 		register_equality_operator();
 		register_not_equality_operator();
@@ -1821,6 +1912,12 @@ private:
 		tester.register_test("Uuid#95xurfwrdrfozozq", test_95xurfwrdrfozozq);
 		tester.register_test("Uuid#5ts4cwo85kj5i10a", test_5ts4cwo85kj5i10a);
 		tester.register_test("Uuid#1l91bm5o4i43jfbs", test_1l91bm5o4i43jfbs);
+	}
+
+	void register_swap_bytes()
+	{
+		tester.register_test("Uuid#uurb3nm8qiuss2um", test_uurb3nm8qiuss2um);
+		tester.register_test("Uuid#6nk2s7hlfz54dq0z", test_6nk2s7hlfz54dq0z);
 	}
 
 	void register_generate()

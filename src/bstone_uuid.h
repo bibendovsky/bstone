@@ -19,8 +19,10 @@ SPDX-License-Identifier: MIT
 #include "bstone_array.h"
 #include "bstone_ascii.h"
 #include "bstone_char_conv.h"
+#include "bstone_endian.h"
 #include "bstone_exception.h"
 #include "bstone_string_view.h"
+#include "bstone_utility.h"
 
 namespace bstone {
 
@@ -205,6 +207,31 @@ public:
 				return to_chars_with_hyphens_and_braces(case_func, chars_begin, chars_end);
 
 			default: BSTONE_THROW_STATIC_SOURCE("Unknown string format.");
+		}
+	}
+
+	constexpr void swap_bytes(UuidEndianType endian_type)
+	{
+		switch (endian_type)
+		{
+			case UuidEndianType::big:
+				endian::swap_byte_array(value_.get_data(), value_.get_size());
+				break;
+
+			case UuidEndianType::little_mixed:
+				// Group 1.
+				bstone::swop(value_[0], value_[3]);
+				bstone::swop(value_[1], value_[2]);
+
+				// Group 2.
+				bstone::swop(value_[4], value_[5]);
+
+				// Group 3.
+				bstone::swop(value_[6], value_[7]);
+
+				break;
+
+			default: BSTONE_THROW_STATIC_SOURCE("Unknown endian type.");
 		}
 	}
 
