@@ -801,6 +801,7 @@ set(BSTONE_BSTONE_IMAGE_SOURCES
     bstone_sprite_cache.cpp
     bstone_sprite_cache.h
     bstone_stb_image_decoder.cpp
+    bstone_stb_image_decoder.h
     bstone_stb_image_encoder.cpp
     bstone_stb_image_encoder.h
     bstone_stb_image_utils.cpp

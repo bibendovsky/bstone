@@ -1,9 +1,8 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
-
 
 #include "bstone_stb_image_decoder.h"
 
@@ -12,23 +11,19 @@ SPDX-License-Identifier: MIT
 #include <algorithm>
 #include <memory>
 
-
 #include "bstone_stb_image_utils.h"
 
 #define STB_IMAGE_IMPLEMENTATION
-#define STBI_MALLOC bstone::cpp_malloc
-#define STBI_FREE bstone::cpp_free
-#define STBI_REALLOC bstone::cpp_realloc
+#define STBI_MALLOC bstone::stb_cxx_malloc
+#define STBI_FREE bstone::stb_cxx_free
+#define STBI_REALLOC_SIZED bstone::stb_cxx_realloc_sized
 #define STBI_NO_STDIO
 #define STBI_ONLY_PNG
 #include "stb_image.h"
 
 #include "bstone_exception.h"
 
-
-namespace bstone
-{
-
+namespace bstone {
 
 void StbImageDecoder::decode(
 	const void* src_data,
@@ -48,10 +43,9 @@ try {
 		&dst_width,
 		&dst_height,
 		&stb_comp,
-		4
-	);
+		4);
 
-	if (!stb_bytes)
+	if (stb_bytes == nullptr)
 	{
 		BSTONE_THROW_DYNAMIC_SOURCE(stbi_failure_reason());
 	}
@@ -63,16 +57,8 @@ try {
 		dst_buffer.resize(dst_area);
 	}
 
-	std::copy_n(
-		reinterpret_cast<const Rgba8*>(stb_bytes),
-		dst_area,
-		dst_buffer.begin()
-	);
-
+	std::copy_n(reinterpret_cast<const Rgba8*>(stb_bytes), dst_area, dst_buffer.begin());
 	STBI_FREE(stb_bytes);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-} // bstone
+} // namespace bstone

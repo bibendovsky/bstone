@@ -1,9 +1,8 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
-
 
 #include "bstone_stb_image_encoder.h"
 
@@ -13,21 +12,18 @@ SPDX-License-Identifier: MIT
 #include <algorithm>
 #include <memory>
 
-
 #include "bstone_stb_image_utils.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#define STBIW_MALLOC bstone::cpp_malloc
-#define STBIW_FREE bstone::cpp_free
-#define STBIW_REALLOC bstone::cpp_realloc
+#define STBIW_MALLOC bstone::stb_cxx_malloc
+#define STBIW_FREE bstone::stb_cxx_free
+#define STBIW_REALLOC_SIZED bstone::stb_cxx_realloc_sized
 #define STBI_WRITE_NO_STDIO
 #include "stb_image_write.h"
 
 #include "bstone_exception.h"
 
-
-namespace bstone
-{
+namespace bstone {
 
 void StbImageEncoder::encode_24(
 	const std::uint8_t* src_buffer,
@@ -37,9 +33,9 @@ void StbImageEncoder::encode_24(
 	int max_dst_buffer_size,
 	int& dst_size)
 try {
-	if (!src_buffer)
+	if (src_buffer == nullptr)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Null src buffer.");
+		BSTONE_THROW_STATIC_SOURCE("Null source buffer.");
 	}
 
 	if (src_width <= 0 || src_height <= 0)
@@ -47,9 +43,9 @@ try {
 		BSTONE_THROW_STATIC_SOURCE("Dimensions are out of range.");
 	}
 
-	if (!dst_buffer)
+	if (dst_buffer == nullptr)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Null dst buffer.");
+		BSTONE_THROW_STATIC_SOURCE("Null destination buffer.");
 	}
 
 	if (max_dst_buffer_size <= 0)
@@ -72,10 +68,9 @@ try {
 		src_height,
 		3,
 		src_buffer,
-		stride_bytes
-	);
+		stride_bytes);
 
-	if (!stbiw_result)
+	if (stbiw_result == 0)
 	{
 		BSTONE_THROW_STATIC_SOURCE("STBIW failed.");
 	}
@@ -93,30 +88,20 @@ try {
 	dst_size = size_;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void StbImageEncoder::stb_write_func_proxy(
-	void* context,
-	void* data,
-	int size) noexcept
+void StbImageEncoder::stb_write_func_proxy(void* context, void* data, int size) noexcept
 {
 	static_cast<StbImageEncoder*>(context)->stb_write_func(data, size);
 }
 
-void StbImageEncoder::stb_write_func(
-	void* data,
-	int size) noexcept
+void StbImageEncoder::stb_write_func(void* data, int size) noexcept
 {
-	if (!data || size <= 0 || size > max_size_)
+	if (data == nullptr || size <= 0 || size > max_size_)
 	{
 		return;
 	}
 
-	std::copy_n(
-		static_cast<const std::uint8_t*>(data),
-		size,
-		dst_buffer_
-	);
-
+	std::copy_n(static_cast<const std::uint8_t*>(data), size, dst_buffer_);
 	size_ = size;
 }
 
-} // bstone
+} // namespace bstone
