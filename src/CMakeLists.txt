@@ -101,8 +101,8 @@ configure_file(
 
 if (WIN32)
     configure_file(
-        "${PROJECT_SOURCE_DIR}/sys/win32/bstone_win32.rc.in"
-        "${PROJECT_BINARY_DIR}/sys/win32/bstone_win32.rc"
+        "${PROJECT_SOURCE_DIR}/resources/win32/bstone_win32.rc.in"
+        "${PROJECT_BINARY_DIR}/resources/win32/bstone_win32.rc"
     )
 endif ()
 
@@ -247,7 +247,7 @@ target_include_directories(bstone
         lib/openal_soft/include/AL
         lib/stb
         lib/xbrz
-        sys/win32
+        resources/win32
         ${PROJECT_BINARY_DIR}
 )
 
@@ -904,14 +904,14 @@ source_group("bstone" FILES ${BSTONE_BSTONE_SOURCES})
 # ---------------------------------------------------------------------------
 
 if (WIN32)
-    set(BSTONE_BSTONE_WIN32_SOURCES
-        sys/win32/bstone_win32_rc.h
-        $<$<CXX_COMPILER_ID:MSVC>:sys/win32/bstone_win32_msvc.manifest>
-        "${PROJECT_BINARY_DIR}/sys/win32/bstone_win32.rc"
+    set(BSTONE_RESOURCES_WIN32_SOURCES
+        resources/win32/bstone_win32_rc.h
+        $<$<CXX_COMPILER_ID:MSVC>:resources/win32/bstone_win32_msvc.manifest>
+        "${PROJECT_BINARY_DIR}/resources/win32/bstone_win32.rc"
     )
 
-    target_sources(bstone PRIVATE ${BSTONE_BSTONE_WIN32_SOURCES})
-    source_group("bstone/win32" FILES ${BSTONE_BSTONE_WIN32_SOURCES})
+    target_sources(bstone PRIVATE ${BSTONE_RESOURCES_WIN32_SOURCES})
+    source_group("resources/win32" FILES ${BSTONE_RESOURCES_WIN32_SOURCES})
 endif ()
 
 # ===========================================================================
