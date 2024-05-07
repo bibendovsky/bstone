@@ -4823,7 +4823,7 @@ void HwVideo::destroy_texture_manager() noexcept
 
 void HwVideo::create_texture_manager()
 try {
-	texture_mgr_ = HwTextureMgrFactory::create(renderer_, &vid_sprite_cache, mt_task_manager_);
+	texture_mgr_ = make_hw_texture_mgr(renderer_, &vid_sprite_cache, mt_task_manager_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::initialize_3d_fade()

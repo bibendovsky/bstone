@@ -2058,22 +2058,12 @@ try {
 // HwTextureMgrImpl
 // ==========================================================================
 
-
-// ==========================================================================
-// HwTextureMgrFactory
-//
-
-HwTextureMgrUPtr HwTextureMgrFactory::create(
+HwTextureMgrUPtr make_hw_texture_mgr(
 	R3r* renderer,
 	const SpriteCachePtr cache_sprite,
 	const MtTaskMgrPtr mt_task_manager)
 {
 	return std::make_unique<HwTextureMgrImpl>(renderer, cache_sprite, mt_task_manager);
 }
-
-//
-// HwTextureMgrFactory
-// ==========================================================================
-
 
 } // bstone

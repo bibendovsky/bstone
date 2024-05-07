@@ -4,7 +4,6 @@
 - If possible don't define destructor with all initialized fields at declaration.
 - Don't use global namespace unless it's necessary.
 - Remove `const` before non-pointer or non-reference function parameter.
-- Replace `Factory` structure with `make` function.
 - Mark interface implementations as `final`.
 - Namespace `detail` to anonymous one.
 - Remove underscore suffix for public fields.

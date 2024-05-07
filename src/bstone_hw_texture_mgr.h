@@ -131,14 +131,10 @@ public:
 using HwTextureMgrUPtr = std::unique_ptr<HwTextureMgr>;
 
 
-class HwTextureMgrFactory
-{
-public:
-	static HwTextureMgrUPtr create(
-		R3r* renderer_3d,
-		const SpriteCachePtr sprite_cache,
-		const MtTaskMgrPtr task_manager);
-}; // HwTextureMgrFactory
+HwTextureMgrUPtr make_hw_texture_mgr(
+	R3r* renderer_3d,
+	const SpriteCachePtr sprite_cache,
+	const MtTaskMgrPtr task_manager);
 
 
 } // bstone
