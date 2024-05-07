@@ -560,7 +560,7 @@ try {
 
 		palette2 = palette1;
 
-		const auto& src_palette = *reinterpret_cast<const ::VgaPalette*>(palette);
+		const auto& src_palette = *reinterpret_cast<const VgaPalette*>(palette);
 
 		//
 		// fade through intermediate frames

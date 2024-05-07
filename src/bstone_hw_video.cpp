@@ -122,7 +122,7 @@ public:
 private:
 	static constexpr auto log_prefix = "[VIDHW] ";
 
-	::VgaPalette vga_palette_{};
+	VgaPalette vga_palette_{};
 
 private:
 	void door_get_page_numbers(const doorobj_t& door, int& front_face_page_number, int& back_face_page_number);
@@ -1644,7 +1644,7 @@ try {
 		BSTONE_THROW_STATIC_SOURCE("Null palette.");
 	}
 
-	auto& dst_vga_palette = *reinterpret_cast<::VgaPalette*>(vga_palette);
+	auto& dst_vga_palette = *reinterpret_cast<VgaPalette*>(vga_palette);
 
 	std::copy_n(
 		vga_palette_.cbegin() + offset,
@@ -1687,7 +1687,7 @@ try {
 		BSTONE_THROW_STATIC_SOURCE("Null palette.");
 	}
 
-	const auto& src_vga_palette = *reinterpret_cast<const ::VgaPalette*>(vga_palette);
+	const auto& src_vga_palette = *reinterpret_cast<const VgaPalette*>(vga_palette);
 
 	std::copy_n(
 		src_vga_palette.cbegin(),

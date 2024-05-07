@@ -28,7 +28,7 @@ try {
 #if _WIN32
 	SYSTEMTIME win32_date_time;
 
-	::GetLocalTime(&win32_date_time);
+	GetLocalTime(&win32_date_time);
 
 	auto date_time = DateTime{};
 	date_time.year = win32_date_time.wYear;

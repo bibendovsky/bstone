@@ -1205,7 +1205,7 @@ try
 	const auto stride_rgb_888 = (((3 * width) + 3) / 4) * 4;
 	auto src_rgb_888_pixels = std::make_unique<std::uint8_t[]>(stride_rgb_888 * height);
 
-	::g_video->take_screenshot(
+	g_video->take_screenshot(
 		width,
 		height,
 		stride_rgb_888,
@@ -1241,7 +1241,7 @@ try {
 
 	for (int i = 0; i < draw_count; ++i)
 	{
-		::g_video->vsync_present();
+		g_video->vsync_present();
 	}
 
 	const auto after_timestamp = Clock::now();
@@ -1280,7 +1280,7 @@ void VL_WaitVBL(
 // BBi Moved from jm_free.cpp
 void VL_Startup()
 try {
-	::g_video = nullptr;
+	g_video = nullptr;
 
 	const auto is_sw = (vid_cfg_get_renderer_type() == bstone::RendererType::software);
 
@@ -1294,7 +1294,7 @@ try {
 	{
 		try
 		{
-			::g_video = bstone::make_hw_video();
+			g_video = bstone::make_hw_video();
 		}
 		catch (const std::exception&)
 		{
@@ -1313,7 +1313,7 @@ try {
 	{
 		try
 		{
-			::g_video = bstone::make_sw_video(
+			g_video = bstone::make_sw_video(
 				*bstone::globals::sys_video_mgr,
 				*bstone::globals::sys_window_mgr);
 		}
@@ -1341,7 +1341,7 @@ try {
 
 void VL_Shutdown()
 {
-	::g_video = nullptr;
+	g_video = nullptr;
 }
 
 // ===========================================================================
@@ -1361,7 +1361,7 @@ void VL_FillPalette(
 	std::uint8_t green,
 	std::uint8_t blue)
 try {
-	::g_video->fill_palette(red, green, blue);
+	g_video->fill_palette(red, green, blue);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VL_SetPalette(
@@ -1369,7 +1369,7 @@ void VL_SetPalette(
 	int count,
 	const std::uint8_t* palette)
 try {
-	::g_video->set_palette(first, count, palette);
+	g_video->set_palette(first, count, palette);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VL_GetPalette(
@@ -1377,7 +1377,7 @@ void VL_GetPalette(
 	int count,
 	std::uint8_t* palette)
 try {
-	::g_video->get_palette(first, count, palette);
+	g_video->get_palette(first, count, palette);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Fades the current palette to the given color in the given number of steps.
@@ -1397,7 +1397,7 @@ try {
 	BSTONE_ASSERT(steps > 0);
 	BSTONE_ASSERT(start <= end);
 
-	::g_video->fade_out(start, end, red, green, blue, steps);
+	g_video->fade_out(start, end, red, green, blue, steps);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VL_FadeIn(
@@ -1412,7 +1412,7 @@ try {
 	BSTONE_ASSERT(steps > 0);
 	BSTONE_ASSERT(start <= end);
 
-	::g_video->fade_in(start, end, palette, steps);
+	g_video->fade_in(start, end, palette, steps);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VL_SetPaletteIntensity(const std::uint8_t* palette, int intensity)
@@ -1678,7 +1678,7 @@ void JM_VGALinearFill(
 
 void VL_RefreshScreen()
 try {
-	::g_video->present();
+	g_video->present();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int vl_get_offset(
@@ -1701,7 +1701,7 @@ std::uint8_t vl_get_pixel(
 
 void vl_update_widescreen()
 try {
-	::g_video->apply_widescreen();
+	g_video->apply_widescreen();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bstone::RendererType vid_cfg_get_renderer_type() noexcept
@@ -2034,7 +2034,7 @@ void vid_set_ui_mask_3d(
 
 void vid_clear_3d()
 try {
-	::g_video->clear_vga_buffer();
+	g_video->clear_vga_buffer();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_export_ui(
@@ -2240,26 +2240,26 @@ try {
 
 void vid_hw_on_load_level()
 try {
-	::g_video->on_load_level();
+	g_video->on_load_level();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_on_update_wall_switch(
 	int x,
 	int y)
 try {
-	::g_video->on_update_wall_switch(x, y);
+	g_video->on_update_wall_switch(x, y);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_on_move_pushwall()
 try {
-	::g_video->on_move_pushwall();
+	g_video->on_move_pushwall();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_on_step_pushwall(
 	int old_x,
 	int old_y)
 try {
-	::g_video->on_step_pushwall(old_x, old_y);
+	g_video->on_step_pushwall(old_x, old_y);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_on_pushwall_to_wall(
@@ -2268,133 +2268,133 @@ void vid_hw_on_pushwall_to_wall(
 	int new_x,
 	int new_y)
 try {
-	::g_video->on_pushwall_to_wall(old_x, old_y, new_x, new_y);
+	g_video->on_pushwall_to_wall(old_x, old_y, new_x, new_y);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_on_move_door(
 	int door_index)
 try {
-	::g_video->on_move_door(door_index);
+	g_video->on_move_door(door_index);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_on_update_door_lock(
 	int bs_door_index)
 try {
-	::g_video->on_update_door_lock(bs_door_index);
+	g_video->on_update_door_lock(bs_door_index);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_on_remove_static(
 	const statobj_t& bs_static)
 try {
-	::g_video->on_remove_static(bs_static);
+	g_video->on_remove_static(bs_static);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_on_remove_actor(
 	const objtype& bs_actor)
 try {
-	::g_video->on_remove_actor(bs_actor);
+	g_video->on_remove_actor(bs_actor);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_enable_fizzle_fx(
 	bool is_enabled)
 try {
-	::g_video->enable_fizzle_fx(is_enabled);
+	g_video->enable_fizzle_fx(is_enabled);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_enable_fizzle_fx_fading(
 	bool is_fading)
 try {
-	::g_video->enable_fizzle_fx_fading(is_fading);
+	g_video->enable_fizzle_fx_fading(is_fading);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_set_fizzle_fx_color_index(
 	int color_index)
 try {
-	::g_video->set_fizzle_fx_color_index(color_index);
+	g_video->set_fizzle_fx_color_index(color_index);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_set_fizzle_fx_ratio(
 	float ratio)
 try {
-	::g_video->set_fizzle_fx_ratio(ratio);
+	g_video->set_fizzle_fx_ratio(ratio);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_clear_wall_render_list()
 try {
-	::g_video->clear_wall_render_list();
+	g_video->clear_wall_render_list();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_add_wall_render_item(
 	int tile_x,
 	int tile_y)
 try {
-	::g_video->add_wall_render_item(tile_x, tile_y);
+	g_video->add_wall_render_item(tile_x, tile_y);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_clear_pushwall_render_list()
 try {
-	::g_video->clear_pushwall_render_list();
+	g_video->clear_pushwall_render_list();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_add_pushwall_render_item(
 	int tile_x,
 	int tile_y)
 try {
-	::g_video->add_pushwall_render_item(tile_x, tile_y);
+	g_video->add_pushwall_render_item(tile_x, tile_y);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_clear_door_render_list()
 try {
-	::g_video->clear_door_render_list();
+	g_video->clear_door_render_list();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_add_door_render_item(
 	int tile_x,
 	int tile_y)
 try {
-	::g_video->add_door_render_item(tile_x, tile_y);
+	g_video->add_door_render_item(tile_x, tile_y);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_clear_static_render_list()
 try {
-	::g_video->clear_static_render_list();
+	g_video->clear_static_render_list();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_add_static_render_item(
 	int bs_static_index)
 try {
-	::g_video->add_static_render_item(bs_static_index);
+	g_video->add_static_render_item(bs_static_index);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_clear_actor_render_list()
 try {
-	::g_video->clear_actor_render_list();
+	g_video->clear_actor_render_list();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_hw_add_actor_render_item(
 	int bs_actor_index)
 try {
-	::g_video->add_actor_render_item(bs_actor_index);
+	g_video->add_actor_render_item(bs_actor_index);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const bstone::Rgba8Palette& vid_hw_get_default_palette()
 try {
-	return ::g_video->get_default_palette();
+	return g_video->get_default_palette();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_apply_window_mode()
 try {
-	::g_video->apply_window_mode();
+	g_video->apply_window_mode();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_apply_vsync()
 try {
-	::g_video->apply_vsync();
+	g_video->apply_vsync();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_apply_msaa()
 try {
-	::g_video->apply_msaa();
+	g_video->apply_msaa();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_apply_video_mode(
@@ -2410,8 +2410,8 @@ try {
 
 	if (!is_restart &&
 		vid_cfg_is_vsync() != video_mode_cfg.is_vsync_ &&
-		::g_video->get_device_features().is_vsync_available &&
-			::g_video->get_device_features().is_vsync_requires_restart)
+		g_video->get_device_features().is_vsync_available &&
+			g_video->get_device_features().is_vsync_requires_restart)
 	{
 		is_restart = true;
 	}
@@ -2420,8 +2420,8 @@ try {
 		(vid_cfg_get_aa_type() != video_mode_cfg.aa_type ||
 			vid_cfg_get_aa_degree() != video_mode_cfg.aa_degree_) &&
 		video_mode_cfg.aa_type == bstone::R3rAaType::ms &&
-		::g_video->get_device_features().is_msaa_available &&
-		::g_video->get_device_features().is_msaa_requires_restart)
+		g_video->get_device_features().is_msaa_available &&
+		g_video->get_device_features().is_msaa_requires_restart)
 	{
 		is_restart = true;
 	}
@@ -2471,27 +2471,27 @@ try {
 
 void vid_apply_anisotropy()
 try {
-	::g_video->update_samplers();
+	g_video->update_samplers();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_apply_2d_image_filter()
 try {
-	::g_video->update_samplers();
+	g_video->update_samplers();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_apply_3d_image_filter()
 try {
-	::g_video->update_samplers();
+	g_video->update_samplers();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_apply_mipmap_filter()
 try {
-	::g_video->update_samplers();
+	g_video->update_samplers();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_apply_upscale()
 try {
-	::g_video->apply_texture_upscale();
+	g_video->apply_texture_upscale();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int vid_clamp_filler_color_index(
@@ -2502,12 +2502,12 @@ try {
 
 void vid_apply_filler_color()
 try {
-	::g_video->apply_filler_color_index();
+	g_video->apply_filler_color_index();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_apply_external_textures()
 try {
-	::g_video->apply_external_textures();
+	g_video->apply_external_textures();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_schedule_take_screenshot()
@@ -2537,7 +2537,7 @@ bool operator!=(
 
 bool vid_is_hw()
 {
-	return ::g_video && ::g_video->is_hardware();
+	return g_video && g_video->is_hardware();
 }
 
 bool vid_is_native_mode() noexcept

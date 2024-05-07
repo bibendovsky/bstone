@@ -1134,7 +1134,7 @@ void PreDemo()
 		IN_UserInput(TickBase * 6);
 	}
 
-	::IN_ClearKeysDown();
+	IN_ClearKeysDown();
 
 	sd_music_off();
 
@@ -1160,7 +1160,7 @@ void PreDemo()
 	//
 	sd_start_music(TITLE_LOOP_MUSIC);
 
-	::IN_ClearKeysDown();
+	IN_ClearKeysDown();
 
 	// Show JAM logo
 	//
