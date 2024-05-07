@@ -17,7 +17,7 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-class TsAutoArenaResource : public MemoryResource
+class TsAutoArenaResource final : public MemoryResource
 {
 public:
 	TsAutoArenaResource() noexcept = default;

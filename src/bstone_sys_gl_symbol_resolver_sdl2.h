@@ -14,7 +14,7 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
-class Sdl2GlSymbolResolver : public GlSymbolResolver
+class Sdl2GlSymbolResolver final : public GlSymbolResolver
 {
 public:
 	Sdl2GlSymbolResolver() = default;

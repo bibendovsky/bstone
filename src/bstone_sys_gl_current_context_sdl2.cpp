@@ -17,7 +17,7 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
-class Sdl2GlCurrentContext : public GlCurrentContext
+class Sdl2GlCurrentContext final : public GlCurrentContext
 {
 public:
 	Sdl2GlCurrentContext(Logger& logger);
