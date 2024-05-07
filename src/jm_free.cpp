@@ -1279,6 +1279,18 @@ void check_for_extract_options()
 			Quit();
 		}
 	}
+
+	{
+		constexpr auto extract_levels_option_name_sv = bstone::StringView{"extract_levels"};
+
+		if (g_args.has_option(extract_levels_option_name_sv))
+		{
+			const auto dst_dir_sv = g_args.get_option_value(extract_levels_option_name_sv);
+			const auto dst_dir = std::string{dst_dir_sv.cbegin(), dst_dir_sv.cend()};
+			ca_extract_levels(dst_dir);
+			Quit();
+		}
+	}
 }
 
 void InitGame()

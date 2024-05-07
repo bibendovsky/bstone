@@ -32,6 +32,7 @@
 - [PS] Add option to toggle a map in stats like in AOG.
 - Add Git commit's hash to the version.
 - Log error when message box fails.
+- Option `extract_levels` to extract levels in MapEdit format (FLR).
 
 ### Changed
 - [#383] Change description of "is windowed" for windowed fullscreen.

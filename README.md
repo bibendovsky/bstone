@@ -732,6 +732,10 @@ Notes:
   Extracts text resources into existing directory `dir`.  
   Supported file format: TXT
 
+* `--extract_levels dir`  
+  Extracts level resources into existing directory `dir`.  
+  Supported file format: FLR (MapEdit)
+
 * `--extract_all dir`  
   Extracts all resources (walls, sprites, etc.) into existing directory `dir`.
 

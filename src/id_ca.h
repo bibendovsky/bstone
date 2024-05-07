@@ -461,6 +461,8 @@ void ca_extract_sfx(
 void ca_extract_texts(
 	const std::string& destination_dir);
 
+void ca_extract_levels(const std::string& destination_dir);
+
 void ca_extract_all(
 	const std::string& destination_dir);
 

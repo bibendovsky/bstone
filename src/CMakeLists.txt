@@ -863,6 +863,8 @@ set(BSTONE_BSTONE_SOURCES
     bstone_globals.cpp
     bstone_globals.h
     bstone_gog_content_path.cpp
+    bstone_level_extractor.cpp
+    bstone_level_extractor.h
     bstone_logger.cpp
     bstone_logger.h
     bstone_math.h

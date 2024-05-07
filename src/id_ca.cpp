@@ -43,6 +43,7 @@ loaded into the data segment
 #include "bstone_fs_utils.h"
 #include "bstone_globals.h"
 #include "bstone_image_extractor.h"
+#include "bstone_level_extractor.h"
 #include "bstone_logger.h"
 #include "bstone_memory_stream.h"
 #include "bstone_sha1.h"
@@ -1990,6 +1991,12 @@ void ca_extract_texts(
 	bstone::globals::logger->log_information(">>> ================");
 }
 
+void ca_extract_levels(const std::string& destination_dir)
+{
+	auto level_extractor = bstone::LevelExtractor{};
+	level_extractor.extract_levels(destination_dir);
+}
+
 void ca_extract_all(
 	const std::string& destination_dir)
 {
@@ -1999,6 +2006,7 @@ void ca_extract_all(
 	ca_extract_music(destination_dir);
 	ca_extract_sfx(destination_dir);
 	ca_extract_texts(destination_dir);
+	ca_extract_levels(destination_dir);
 }
 
 int ca_map_aog_sw_sprite_id_to_aog_full(
