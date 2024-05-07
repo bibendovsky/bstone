@@ -10,5 +10,4 @@
 - Play `got weapon` sound on separate voice?
 - Pause SFX on showing automap, etc.
 - Replace word 'kind' with 'type'.
-- "antialiasing" => "anti-aliasing".
 - Use span in 3D renderer.

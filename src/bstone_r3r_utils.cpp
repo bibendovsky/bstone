@@ -177,7 +177,7 @@ try {
 			break;
 
 		default:
-			BSTONE_THROW_STATIC_SOURCE("Invalid antialiasing type.");
+			BSTONE_THROW_STATIC_SOURCE("Invalid anti-aliasing type.");
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
