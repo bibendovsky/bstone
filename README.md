@@ -9,7 +9,6 @@ Contents
 
 1. Disclaimer
 2. Overview  
-   2.1 Overview (PS Vita)
 3. Known issues  
    3.1 Windows
 4. Installation  
@@ -82,11 +81,6 @@ Features:
 Supported games:
 * Aliens Of Gold (v1.0/v2.0/v2.1/v3.0) full or shareware
 * Planet Strike (v1.0/v1.1)
-
-
-2.1 - Overview (PS Vita)
-========================
-See [README-PSVITA.md](README-PSVITA.md) for details about the source port on PS Vita.
 
 
 3 - Known issues

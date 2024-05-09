@@ -49,6 +49,9 @@
 - Update stb (stb_image.h v2.29; stb_image_write.h v1.16).
 - Set CMake minimum version to v3.5.0.
 
+### Removed
+- PS Vita support (long time not maintained, outdated code).
+
 
 ## [1.2.12] - 2022-09-18
 ### Added
