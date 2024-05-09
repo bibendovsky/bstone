@@ -102,11 +102,12 @@ See [README-PSVITA.md](README-PSVITA.md) for details about the source port on PS
 4 - Installation
 ================
 
+- Download the latest release.
+https://github.com/bibendovsky/bstone/releases/latest
 
 4.1 - Windows (GOG / Steam)
 ===========================
 
-- Download the latest release.
 - Extract it into convinient for you directory.
 - Run `bstone.exe` to play.
 
@@ -114,7 +115,6 @@ See [README-PSVITA.md](README-PSVITA.md) for details about the source port on PS
 4.2 - Windows (generic)
 =======================
 
-- Download the latest release.
 - Extract it into the directory with game files (*.BS1 / *.BS6 / *.VSI).
 - Run `bstone.exe` to play.
 
