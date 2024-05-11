@@ -395,8 +395,7 @@ void CA_DownLevel();
 
 void CA_CacheGrChunk(
 	std::int16_t chunk);
-void CA_CacheMap(
-	std::int16_t mapnum);
+void CA_CacheMap(int mapnum);
 
 void CA_CacheMarks();
 

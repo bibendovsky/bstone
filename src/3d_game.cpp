@@ -2391,8 +2391,7 @@ void SetupGameLevel()
 	//
 	const auto& assets_info = get_assets_info();
 
-	CA_CacheMap(static_cast<std::int16_t>(
-		gamestate.mapon + assets_info.get_levels_per_episode() * gamestate.episode));
+	CA_CacheMap(gamestate.mapon + assets_info.get_levels_per_episode() * gamestate.episode);
 	mapon = static_cast<std::int16_t>(mapon - (gamestate.episode * assets_info.get_levels_per_episode()));
 
 	mapwidth = mapheaderseg[mapon].width;

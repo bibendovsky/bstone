@@ -881,6 +881,8 @@ set(BSTONE_BSTONE_SOURCES
 	bstone_ref_values.h
 	bstone_rgb8.cpp
 	bstone_rgb8.h
+	bstone_rlew_decoder.cpp
+	bstone_rlew_decoder.h
 	bstone_rgb_palette.h
 	bstone_saved_game.cpp
 	bstone_saved_game.h

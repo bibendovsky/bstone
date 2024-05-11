@@ -39,7 +39,7 @@ void LevelExtractor::extract_levels(const std::string& destination_dir)
 
 	for (auto level_index = decltype(level_count){}; level_index < level_count; ++level_index)
 	{
-		CA_CacheMap(static_cast<std::int16_t>(level_index));
+		CA_CacheMap(static_cast<int>(level_index));
 
 		dst_file_path = destination_dir;
 		dst_file_path = bstone::fs_utils::append_path(dst_file_path, "level_");

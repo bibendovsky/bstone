@@ -46,6 +46,7 @@ loaded into the data segment
 #include "bstone_level_extractor.h"
 #include "bstone_logger.h"
 #include "bstone_memory_stream.h"
+#include "bstone_rlew_decoder.h"
 #include "bstone_sha1.h"
 #include "bstone_sprite_cache.h"
 #include "bstone_string_helper.h"
@@ -686,68 +687,38 @@ void CA_CacheScreen(
 =
 ======================
 */
-void CA_CacheMap(
-	std::int16_t mapnum)
+void CA_CacheMap(int mapnum)
+try
 {
 	if (mapheaderseg[mapnum].name[0] == '\0')
 	{
-		BSTONE_THROW_DYNAMIC_SOURCE(
-			("There are no assets for level index " + std::to_string(mapnum) + '.').c_str());
+		BSTONE_THROW_DYNAMIC_SOURCE(("Level " + std::to_string(mapnum) + " not found.").c_str());
 	}
 
-	std::int32_t pos;
-	std::int32_t compressed;
-	std::int16_t plane;
-	std::uint16_t size;
-	std::uint16_t* source;
-#ifdef CARMACIZED
-	memptr buffer2seg;
-	std::int32_t expanded;
-#endif
+	mapon = static_cast<std::int16_t>(mapnum);
 
-	mapon = mapnum;
+	constexpr auto plane_size = MAPSIZE * MAPSIZE;
 
-	//
-	// load the planes into the already allocated buffers
-	//
-	size = MAPSIZE * MAPSIZE * MAPPLANES;
-
-	for (plane = 0; plane < MAPPLANES; plane++)
+	for (auto plane = 0; plane < MAPPLANES; ++plane)
 	{
-		pos = mapheaderseg[mapnum].planestart[plane];
-		compressed = mapheaderseg[mapnum].planelength[plane];
+		const auto plane_offset = mapheaderseg[mapnum].planestart[plane];
+		maphandle.set_position(plane_offset);
 
-		const auto dest = mapsegs[plane].data();
+		const auto src_count = mapheaderseg[mapnum].planelength[plane];
 
-		maphandle.set_position(pos);
-		ca_buffer.resize(compressed);
-		source = reinterpret_cast<std::uint16_t*>(ca_buffer.data());
+		if (ca_buffer.size() < src_count)
+		{
+			ca_buffer.resize(src_count);
+		}
 
-		maphandle.read(source, compressed);
+		const auto src_bytes = ca_buffer.data();
+		maphandle.read_exactly(src_bytes, src_count);
 
-#ifdef CARMACIZED
-		//
-		// unhuffman, then unRLEW
-		// The huffman'd chunk has a two byte expanded length first
-		// The resulting RLEW chunk also does, even though it's not really
-		// needed
-		//
-		expanded = *source;
-		source++;
-		MM_GetPtr(&buffer2seg, expanded);
-		CAL_CarmackExpand(source, (std::uint16_t*)buffer2seg, expanded);
-		CA_RLEWexpand(((std::uint16_t*)buffer2seg) + 1, *dest, size,
-			((mapfiletype*)tinf)->RLEWtag);
-		MM_FreePtr(&buffer2seg);
-
-#else
-		//
-		// unRLEW, skipping expanded length
-		//
-		CA_RLEWexpand(source + 1, dest, size, rlew_tag);
-#endif
+		const auto dst_words = mapsegs[plane].data();
+		bstone::RlewDecoder::decode(rlew_tag, src_bytes, src_count, dst_words, plane_size);
 	}
 }
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 /*
 ======================
