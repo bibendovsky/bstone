@@ -1,9 +1,8 @@
 root = true
 
 [{CMakeLists.txt,*.cmake}]
-insert_final_newline = true
 indent_size = 4
-indent_style = space
+indent_style = tab
 
 [*.{c,h,cpp}]
 insert_final_newline = true

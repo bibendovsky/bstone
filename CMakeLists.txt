@@ -28,24 +28,24 @@ message(STATUS "[bstone_solution] Internal SDL2: ${BSTONE_INTERNAL_SDL2}")
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 if ("${BSTONE_CI_GIT_HASH}" STREQUAL "")
-    include(GetGitHeadHash)
+	include(GetGitHeadHash)
 
-    get_git_hash(${CMAKE_SOURCE_DIR} BSTONE_GIT_HASH)
-    message(STATUS "[bstone_solution] Source Git hash: ${BSTONE_GIT_HASH}")
+	get_git_hash(${CMAKE_SOURCE_DIR} BSTONE_GIT_HASH)
+	message(STATUS "[bstone_solution] Source Git hash: ${BSTONE_GIT_HASH}")
 else ()
-    message(STATUS "[bstone_solution] CI Git hash: ${BSTONE_CI_GIT_HASH}")
-    set(BSTONE_GIT_HASH "${BSTONE_CI_GIT_HASH}")
+	message(STATUS "[bstone_solution] CI Git hash: ${BSTONE_CI_GIT_HASH}")
+	set(BSTONE_GIT_HASH "${BSTONE_CI_GIT_HASH}")
 endif ()
 
 string(SUBSTRING "${BSTONE_GIT_HASH}" 0 8 BSTONE_GIT_HASH_SHORT)
 message(STATUS "[bstone_solution] Short Git hash: ${BSTONE_GIT_HASH_SHORT}")
 
 if (BSTONE_INTERNAL_SDL2)
-    add_subdirectory(src/lib/sdl2)
+	add_subdirectory(src/lib/sdl2)
 endif ()
 
 if (BSTONE_TESTS)
-    add_subdirectory(src/tests)
+	add_subdirectory(src/tests)
 endif ()
 
 add_subdirectory(src/tools/ltrimcs)
