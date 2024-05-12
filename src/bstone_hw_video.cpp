@@ -5209,7 +5209,10 @@ try {
 
 void HwVideo::render_walls()
 try {
-	if (wall_count_ <= 0)
+	if (wall_count_ <= 0 ||
+		wall_sides_ib_ == nullptr ||
+		wall_sides_vb_ == nullptr ||
+		wall_sides_vi_ == nullptr)
 	{
 		return;
 	}
@@ -5346,7 +5349,10 @@ try {
 
 void HwVideo::render_pushwalls()
 try {
-	if (pushwall_count_ <= 0)
+	if (pushwall_count_ <= 0 ||
+		pushwall_sides_ib_ == nullptr ||
+		pushwall_sides_vb_ == nullptr ||
+		pushwall_sides_vi_ == nullptr)
 	{
 		return;
 	}
@@ -5483,7 +5489,10 @@ try {
 
 void HwVideo::render_doors()
 try {
-	if (door_count_ == 0)
+	if (door_count_ == 0 ||
+		door_sides_ib_ == nullptr ||
+		door_sides_vb_ == nullptr ||
+		door_sides_vi_ == nullptr)
 	{
 		return;
 	}
@@ -5920,6 +5929,11 @@ try {
 
 void HwVideo::render_sprites()
 try {
+	if (sprites_ib_ == nullptr || sprites_vb_ == nullptr || sprites_vi_ == nullptr)
+	{
+		return;
+	}
+
 	// Build draw list.
 	//
 	auto draw_sprite_index = 0;
@@ -6684,7 +6698,7 @@ bool HwVideo::bs_is_solid_wall(int x, int y) const noexcept
 {
 	if (x < 0 || x >= MAPSIZE || y < 0 || y >= MAPSIZE)
 	{
-		return true;
+		return false;
 	}
 
 	const auto tile_wall = tilemap[x][y];
