@@ -7,6 +7,3 @@
 - Remove underscore suffix for public fields.
 - Make some player's sounds positional (interacting with switches, .etc).
 - Play `got weapon` sound on separate voice?
-- Pause SFX on showing automap, etc.
-- Replace word 'kind' with 'type'.
-- Use span in 3D renderer.
