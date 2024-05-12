@@ -9423,14 +9423,14 @@ void CleanUpDoors_N_Actors()
 // --------------------------------------------------------------------------
 void ClearNClose()
 {
-	int tx = 0;
-	int ty = 0;
-	int p_x = static_cast<int>(player->x) & 0xFF;
-	int p_y = static_cast<int>(player->y) & 0xFF;
+	auto tx = std::intptr_t{};
+	auto ty = std::intptr_t{};
+	const auto p_x = static_cast<std::intptr_t>(player->x);
+	const auto p_y = static_cast<std::intptr_t>(player->y);
 
 	// Locate the door.
 	//
-	for (int x = -1; x < 2 && tx == 0; x += 2)
+	for (auto x = std::intptr_t{-1}; x < 2 && tx == 0; x += 2)
 	{
 		const auto new_x = p_x + x;
 
@@ -9439,7 +9439,7 @@ void ClearNClose()
 			continue;
 		}
 
-		for (int y = -1; y < 2; y += 2)
+		for (auto y = std::intptr_t{-1}; y < 2; y += 2)
 		{
 			const auto new_y = p_y + y;
 
@@ -9457,18 +9457,21 @@ void ClearNClose()
 		}
 	}
 
+	if (tx == 0)
+	{
+		return;
+	}
+
 	// Close the door!
 	//
-	if (tx != 0)
-	{
-		int door_index = tilemap[tx][ty] & 63;
 
-		doorobjlist[door_index].action = dr_closed; // this door is closed!
-		doorposition[door_index] = 0.0; // draw it closed!
+	const auto door_index = tilemap[tx][ty] & 63;
 
-		// make it solid!
-		actorat[tx][ty] = reinterpret_cast<objtype*>(static_cast<std::size_t>(door_index | 0x80));
-	}
+	doorobjlist[door_index].action = dr_closed; // this door is closed!
+	doorposition[door_index] = 0; // draw it closed!
+
+	// make it solid!
+	actorat[tx][ty] = reinterpret_cast<objtype*>(static_cast<std::size_t>(door_index | 0x80));
 }
 
 void CycleColors()
