@@ -23,6 +23,7 @@
 - Sprite extraction error "Sprite page index out of range."
 - "Actor is in actorat" condition.
 - Order buttons inside the message box from right to left.
+- Possible out of range index access in ClearNClose.
 
 ### Added
 - [CMake] Option *BSTONE_INTERNAL_SDL2* to use bundled SDL2 source code.

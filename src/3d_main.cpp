@@ -9432,12 +9432,26 @@ void ClearNClose()
 	//
 	for (int x = -1; x < 2 && tx == 0; x += 2)
 	{
+		const auto new_x = p_x + x;
+
+		if (new_x < 0 || new_x >= MAPSIZE)
+		{
+			continue;
+		}
+
 		for (int y = -1; y < 2; y += 2)
 		{
-			if ((tilemap[p_x + x][p_y + y] & 0x80) != 0)
+			const auto new_y = p_y + y;
+
+			if (new_y < 0 || new_y >= MAPSIZE)
 			{
-				tx = p_x + x;
-				ty = p_y + y;
+				continue;
+			}
+
+			if ((tilemap[new_x][new_y] & 0x80) != 0)
+			{
+				tx = new_x;
+				ty = new_y;
 				break;
 			}
 		}
