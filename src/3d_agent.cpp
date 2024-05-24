@@ -33,6 +33,11 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_saved_game.h"
 #include "bstone_string_helper.h"
 
+//from 3d_debug.cpp
+const objtype* find_countable_enemy();
+const statobj_t* find_bonus_item();
+std::string get_enemy_actor_name(const objtype* bs_actor);
+std::string get_bonus_item_name(const statobj_t& bs_actor, bool* isPlural);
 
 namespace
 {
@@ -3392,6 +3397,7 @@ bool Interrogate(
 	const char* msgptr = nullptr;
 
 	msg = msg_interrogate;
+	std::string local_message;
 
 	if ((ob->flags & FL_INFORMANT) != 0)
 	{
@@ -3444,8 +3450,50 @@ bool Interrogate(
 
 			// Randomly select an informant hint, either: specific to areanumber
 			// or general hint...
-			//
-			if (NumAreaMsgs)
+
+			// unless points percentage is just bellow 100%
+			// in which case report enemy or treasure location
+			int areaPointsPercent = 100;
+			if (gamestuff.level[gamestate.mapon].stats.total_points != 0) 
+				areaPointsPercent = gamestuff.level[gamestate.mapon].stats.accum_points * 100
+					/ gamestuff.level[gamestate.mapon].stats.total_points;
+
+			if (areaPointsPercent > 96 && areaPointsPercent < 100)
+			{
+				const objtype* enemyObjToKill = find_countable_enemy();
+				if (enemyObjToKill != nullptr)
+				{
+					local_message = " There is\r";
+					local_message += get_enemy_actor_name(enemyObjToKill);
+					local_message += "\r at " 
+						+ std::to_string(enemyObjToKill->tilex)
+						+ ", " + std::to_string(enemyObjToKill->tiley);
+				}
+				else
+				{
+					auto bonusItemObj = find_bonus_item();
+					if (bonusItemObj != nullptr)
+					{
+						bool plural;
+						auto name = get_bonus_item_name(*bonusItemObj, &plural);
+						local_message = " There ";
+						if (plural) local_message += "are ";
+						else local_message += "is a\r ";
+						local_message += name + "\r at "
+							+ std::to_string(bonusItemObj->tilex)
+							+ ", " + std::to_string(bonusItemObj->tiley);
+					}
+					else
+					{
+						//wrong percentage?
+						local_message = " You have collected\r all treasures";
+					}
+				}
+
+				std::transform(local_message.begin(), local_message.end(), local_message.begin(), ::toupper);
+				msgptr = local_message.c_str();
+			}
+			else if (NumAreaMsgs)
 			{
 				if (ob->ammo != ob->areanumber)
 				{

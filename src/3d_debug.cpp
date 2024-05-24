@@ -274,11 +274,66 @@ std::uint16_t DecRange(
 	return Value;
 }
 
+std::string get_bonus_item_name(const statobj_t& bs_static, bool* isPlural)
+{
+	std::string static_name;
+	bool plural = false;
+
+	if (false)
+	{
+	}
+	else if (bs_static.itemnumber == bo_money_bag)
+	{
+		static_name = "Money Bag";
+	}
+	else if (bs_static.itemnumber == bo_loot)
+	{
+		static_name = "Loot";
+	}
+	else if (bs_static.itemnumber == bo_gold1)
+	{
+		static_name = "Gold Bar";
+	}
+	else if (bs_static.itemnumber == bo_gold2)
+	{
+		static_name = "Two Gold Bars";
+		plural = true;
+	}
+	else if (bs_static.itemnumber == bo_gold3)
+	{
+		static_name = "Three Gold Bars";
+		plural = true;
+	}
+	else if (bs_static.itemnumber == bo_gold)
+	{
+		static_name = "Five Gold Bars";
+		plural = true;
+	}
+	else if (bs_static.itemnumber == bo_bonus)
+	{
+		static_name = "Xylan Orb";
+	}
+	else
+	{
+		static_name.clear();
+	}
+
+	if (isPlural != nullptr)
+		*isPlural = plural;
+	return static_name;
+}
+
 void log_bonus_stuff()
 {
 	bstone::globals::logger->log_information();
 	bstone::globals::logger->log_information("<<<<<<<<");
 	bstone::globals::logger->log_information("Current bonus items.");
+	bstone::globals::logger->log_information((
+		std::string("stats:")
+		+std::to_string(gamestuff.level[gamestate.mapon].stats.accum_points)
+		+"/"
+		+std::to_string(gamestuff.level[gamestate.mapon].stats.total_points)
+		).c_str());
 
 	auto number = 0;
 	auto static_name = std::string{};
@@ -295,41 +350,7 @@ void log_bonus_stuff()
 			continue;
 		}
 
-		if (false)
-		{
-		}
-		else if (bs_static.itemnumber == bo_money_bag)
-		{
-			static_name = "Money Bag";
-		}
-		else if (bs_static.itemnumber == bo_loot)
-		{
-			static_name = "Loot";
-		}
-		else if (bs_static.itemnumber == bo_gold1)
-		{
-			static_name = "One Gold Bar";
-		}
-		else if (bs_static.itemnumber == bo_gold2)
-		{
-			static_name = "Two Gold Bars";
-		}
-		else if (bs_static.itemnumber == bo_gold3)
-		{
-			static_name = "Three Gold Bars";
-		}
-		else if (bs_static.itemnumber == bo_gold)
-		{
-			static_name = "Five Gold Bars";
-		}
-		else if (bs_static.itemnumber == bo_bonus)
-		{
-			static_name = "Xylan Orb";
-		}
-		else
-		{
-			static_name.clear();
-		}
+		static_name = get_bonus_item_name(bs_static, nullptr);
 
 		if (!static_name.empty())
 		{
@@ -350,28 +371,264 @@ void log_bonus_stuff()
 	bstone::globals::logger->log_information(">>>>>>>>");
 }
 
-void log_enemy_stuff()
+std::string get_enemy_actor_name(const objtype* bs_actor)
 {
-	constexpr auto large_alien_name = "Large Experimental Genetic Alien";
-	constexpr auto small_alien_name = "Small Experimental Genetic Alien";
+	constexpr auto large_alien_name = "Large Experimental\r Genetic Alien";
+	constexpr auto small_alien_name = "Small Experimental\r Genetic Alien";
 	constexpr auto mutated_guard_name = "Mutated Guard";
 
 	constexpr auto spider_mutant_name = "Spider Mutant";
 	constexpr auto reptilian_warrior_name = "Reptilian Warrior";
-	constexpr auto experimental_mutant_human_name = "Experimental Mutant Human";
+	constexpr auto experimental_mutant_human_name = "Experimental\r Mutant Human";
 
 	constexpr auto asleep_string = "asleep";
 	constexpr auto awake_string = "awake";
 
 	const auto& assets_info = get_assets_info();
+	const auto is_dead = bs_actor->hitpoints <= 0 || (bs_actor->flags & FL_DEADGUY) != 0;
 
+	std::string actor_name;
+
+	const auto set_actor_name_with_state_name = [&actor_name](
+		const char* base_actor_name, const char* state_name)
+		{
+			actor_name = base_actor_name;
+			actor_name += " (";
+			actor_name += state_name;
+			actor_name += ')';
+		};
+
+	const auto set_actor_name_with_state = [&actor_name, &awake_string, &asleep_string](
+		const char* base_actor_name, bool is_awake)
+		{
+			actor_name = base_actor_name;
+			actor_name += " (";
+			actor_name += is_awake ? awake_string : asleep_string;
+			actor_name += ')';
+		};
+
+	const auto is_informant = ((bs_actor->flags & FL_INFORMANT) != 0);
+	const auto is_static = bs_actor->state == &s_ofs_static;
+
+	actor_name.clear();
+
+	switch (bs_actor->obclass)
+	{
+	case rentacopobj:
+		if (assets_info.is_aog())
+		{
+			actor_name = "Sector Patrol";
+		}
+		else
+		{
+			actor_name = "Sector Guard";
+		}
+
+		break;
+
+	case hang_terrotobj:
+		actor_name = "Robot Turret";
+		break;
+
+	case gen_scientistobj:
+		if (!is_informant)
+		{
+			actor_name = "Mean Bio-Technician";
+		}
+		break;
+
+	case podobj:
+		actor_name = "Pod Alien";
+		break;
+
+	case electroobj:
+		actor_name = "High Enemy\r Plasma Alien";
+		break;
+
+	case electrosphereobj:
+		actor_name = "Plasma Sphere";
+		break;
+
+	case proguardobj:
+		if (assets_info.is_aog())
+		{
+			actor_name = "Star Sentinel";
+		}
+		else
+		{
+			actor_name = "Tech Warrior";
+		}
+
+		break;
+
+	case genetic_guardobj:
+		actor_name = "High Security\r Genetic Guard";
+		break;
+
+	case mutant_human1obj:
+		actor_name = "Experimental\r Mech Sentinel";
+		break;
+
+	case mutant_human2obj:
+		actor_name = experimental_mutant_human_name;
+		break;
+
+	case lcan_wait_alienobj:
+		if (!is_static)
+		{
+			set_actor_name_with_state(large_alien_name, is_dead);
+		}
+
+		break;
+
+	case lcan_alienobj:
+		actor_name = large_alien_name;
+		break;
+
+	case scan_wait_alienobj:
+		if (!is_static)
+		{
+			set_actor_name_with_state(small_alien_name, is_dead);
+		}
+
+		break;
+
+	case scan_alienobj:
+		actor_name = small_alien_name;
+		break;
+
+	case gurney_waitobj:
+		if (!is_static)
+		{
+			set_actor_name_with_state(mutated_guard_name, is_dead);
+		}
+
+		break;
+
+	case gurneyobj:
+		actor_name = mutated_guard_name;
+		break;
+
+	case liquidobj:
+		actor_name = "Fluid Alien";
+		break;
+
+	case swatobj:
+		if (assets_info.is_aog())
+		{
+			actor_name = "Star Trooper";
+		}
+		else
+		{
+			actor_name = "Alien Protector";
+		}
+
+		break;
+
+	case goldsternobj:
+		actor_name = "Dr. Goldfire";
+		break;
+
+	case gold_morphobj:
+		actor_name = "Morphed Dr. Goldfire";
+		break;
+
+	case volatiletransportobj:
+		actor_name = "Volatile\r Material Transport";
+		break;
+
+	case floatingbombobj:
+		actor_name = "Perscan Drone";
+		break;
+
+	case rotating_cubeobj:
+		if (assets_info.is_aog())
+		{
+			actor_name = "Projection Generator";
+		}
+		else
+		{
+			actor_name = "Security Cube";
+		}
+
+		break;
+
+	case spider_mutantobj:
+		actor_name = spider_mutant_name;
+		break;
+
+	case breather_beastobj:
+		actor_name = "Breather Beast";
+		break;
+
+	case cyborg_warriorobj:
+		actor_name = "Cyborg Warrior";
+		break;
+
+	case reptilian_warriorobj:
+		actor_name = reptilian_warrior_name;
+		break;
+
+	case acid_dragonobj:
+		actor_name = "Acid Dragon";
+		break;
+
+	case mech_guardianobj:
+		actor_name = "Bio-Mech Guardian";
+		break;
+
+	case final_boss1obj:
+		actor_name = "The Giant Stalker";
+		break;
+
+	case final_boss2obj:
+		actor_name = "The Spector Demon";
+		break;
+
+	case final_boss3obj:
+		actor_name = "The Armored Stalker";
+		break;
+
+	case final_boss4obj:
+		actor_name = "The Crawler Beast";
+		break;
+
+	case blakeobj:
+		actor_name = "Blake Stone";
+		break;
+
+	case morphing_spider_mutantobj:
+		set_actor_name_with_state_name(spider_mutant_name, asleep_string);
+		break;
+
+	case morphing_reptilian_warriorobj:
+		set_actor_name_with_state_name(reptilian_warrior_name, asleep_string);
+		break;
+
+	case morphing_mutanthuman2obj:
+		set_actor_name_with_state_name(experimental_mutant_human_name, asleep_string);
+		break;
+
+	default:
+		break;
+	}
+
+	return actor_name;
+}
+
+void log_enemy_stuff()
+{
 	bstone::globals::logger->log_information();
 	bstone::globals::logger->log_information("<<<<<<<<");
 	bstone::globals::logger->log_information("Current enemies.");
+	bstone::globals::logger->log_information((
+		std::string("stats:")
+		+std::to_string(gamestuff.level[gamestate.mapon].stats.accum_enemy)
+		+"/"
+		+std::to_string(gamestuff.level[gamestate.mapon].stats.total_enemy)
+		).c_str());
 
 	auto number = 0;
-	auto actor_name = std::string{};
-	actor_name.reserve(128);
 
 	for (auto bs_actor = objlist; bs_actor != nullptr; bs_actor = bs_actor->next)
 	{
@@ -390,229 +647,9 @@ void log_enemy_stuff()
 			}
 		}
 
-		const auto set_actor_name_with_state_name = [&actor_name](
-			const char* base_actor_name, const char* state_name)
-		{
-			actor_name = base_actor_name;
-			actor_name += " (";
-			actor_name += state_name;
-			actor_name += ')';
-		};
-
-		const auto set_actor_name_with_state = [&actor_name, &awake_string, &asleep_string](
-			const char* base_actor_name, bool is_awake)
-		{
-			actor_name = base_actor_name;
-			actor_name += " (";
-			actor_name += is_awake ? awake_string : asleep_string;
-			actor_name += ')';
-		};
-
-		const auto is_informant = ((bs_actor->flags & FL_INFORMANT) != 0);
-		const auto is_static = bs_actor->state == &s_ofs_static;
-
-		actor_name.clear();
-
-		switch (bs_actor->obclass)
-		{
-			case rentacopobj:
-				if (assets_info.is_aog())
-				{
-					actor_name = "Sector Patrol";
-				}
-				else
-				{
-					actor_name = "Sector Guard";
-				}
-
-				break;
-
-			case hang_terrotobj:
-				actor_name = "Robot Turret";
-				break;
-
-			case gen_scientistobj:
-				if (!is_informant)
-				{
-					actor_name = "Mean Bio-Technician";
-				}
-				break;
-
-			case podobj:
-				actor_name = "Pod Alien";
-				break;
-
-			case electroobj:
-				actor_name = "High Enemy Plasma Alien (non-countable)";
-				break;
-
-			case electrosphereobj:
-				actor_name = "Plasma Sphere";
-				break;
-
-			case proguardobj:
-				if (assets_info.is_aog())
-				{
-					actor_name = "Star Sentinel";
-				}
-				else
-				{
-					actor_name = "Tech Warrior";
-				}
-
-				break;
-
-			case genetic_guardobj:
-				actor_name = "High Security Genetic Guard";
-				break;
-
-			case mutant_human1obj:
-				actor_name = "Experimental Mech Sentinel";
-				break;
-
-			case mutant_human2obj:
-				actor_name = experimental_mutant_human_name;
-				break;
-
-			case lcan_wait_alienobj:
-				if (!is_static)
-				{
-					set_actor_name_with_state(large_alien_name, is_dead);
-				}
-
-				break;
-
-			case lcan_alienobj:
-				actor_name = large_alien_name;
-				break;
-
-			case scan_wait_alienobj:
-				if (!is_static)
-				{
-					set_actor_name_with_state(small_alien_name, is_dead);
-				}
-
-				break;
-
-			case scan_alienobj:
-				actor_name = small_alien_name;
-				break;
-
-			case gurney_waitobj:
-				if (!is_static)
-				{
-					set_actor_name_with_state(mutated_guard_name, is_dead);
-				}
-
-				break;
-
-			case gurneyobj:
-				actor_name = mutated_guard_name;
-				break;
-
-			case liquidobj:
-				actor_name = "Fluid Alien";
-				break;
-
-			case swatobj:
-				if (assets_info.is_aog())
-				{
-					actor_name = "Star Trooper";
-				}
-				else
-				{
-					actor_name = "Alien Protector";
-				}
-
-				break;
-
-			case goldsternobj:
-				actor_name = "Dr. Goldfire (non-countable)";
-				break;
-
-			case gold_morphobj:
-				actor_name = "Morphed Dr. Goldfire";
-				break;
-
-			case volatiletransportobj:
-				actor_name = "Volatile Material Transport";
-				break;
-
-			case floatingbombobj:
-				actor_name = "Perscan Drone";
-				break;
-
-			case rotating_cubeobj:
-				if (assets_info.is_aog())
-				{
-					actor_name = "Projection Generator";
-				}
-				else
-				{
-					actor_name = "Security Cube";
-				}
-
-				break;
-
-			case spider_mutantobj:
-				actor_name = spider_mutant_name;
-				break;
-
-			case breather_beastobj:
-				actor_name = "Breather Beast";
-				break;
-
-			case cyborg_warriorobj:
-				actor_name = "Cyborg Warrior";
-				break;
-
-			case reptilian_warriorobj:
-				actor_name = reptilian_warrior_name;
-				break;
-
-			case acid_dragonobj:
-				actor_name = "Acid Dragon";
-				break;
-
-			case mech_guardianobj:
-				actor_name = "Bio-Mech Guardian";
-				break;
-
-			case final_boss1obj:
-				actor_name = "The Giant Stalker";
-				break;
-
-			case final_boss2obj:
-				actor_name = "The Spector Demon";
-				break;
-
-			case final_boss3obj:
-				actor_name = "The Armored Stalker";
-				break;
-
-			case final_boss4obj:
-				actor_name = "The Crawler Beast";
-				break;
-
-			case blakeobj:
-				actor_name = "Blake Stone";
-				break;
-
-			case morphing_spider_mutantobj:
-				set_actor_name_with_state_name(spider_mutant_name, asleep_string);
-				break;
-
-			case morphing_reptilian_warriorobj:
-				set_actor_name_with_state_name(reptilian_warrior_name, asleep_string);
-				break;
-
-			case morphing_mutanthuman2obj:
-				set_actor_name_with_state_name(experimental_mutant_human_name, asleep_string);
-				break;
-
-			default:
-				break;
-		}
+		auto actor_name = get_enemy_actor_name(bs_actor);
+		if (bs_actor->obclass == goldsternobj || bs_actor->obclass == electroobj)
+			actor_name += " (non-countable)";
 
 		if (!actor_name.empty())
 		{
@@ -642,6 +679,65 @@ void log_stuff()
 	US_PrintCentered("See log for stuff.");
 	VW_UpdateScreen();
 	IN_Ack();
+}
+
+const statobj_t* find_bonus_item()
+{
+	for (const auto& bs_static : statobjlist)
+	{
+		if (&bs_static == laststatobj)
+		{
+			break;
+		}
+
+		if (bs_static.shapenum < 0)
+		{
+			continue;
+		}
+
+		auto static_name = get_bonus_item_name(bs_static, nullptr);
+
+		if (static_name.empty())
+			continue;
+
+		return &bs_static;
+	}
+
+	return nullptr;
+}
+
+const objtype* find_countable_enemy()
+{
+	const auto& assets_info = get_assets_info();
+
+	auto bs_actor = objlist;
+	for (; bs_actor != nullptr; bs_actor = bs_actor->next)
+	{
+		const auto is_dead = bs_actor->hitpoints <= 0 || (bs_actor->flags & FL_DEADGUY) != 0;
+
+		const auto is_asleep =
+			bs_actor->obclass == lcan_wait_alienobj ||
+			bs_actor->obclass == scan_wait_alienobj ||
+			bs_actor->obclass == gurney_waitobj;
+
+		if (is_dead)
+		{
+			if (!is_asleep)
+			{
+				continue;
+			}
+		}
+
+		auto actor_name = get_enemy_actor_name(bs_actor);
+		if (bs_actor->obclass == goldsternobj || bs_actor->obclass == electroobj)
+			continue;
+
+		if (actor_name.empty())
+			continue;
+
+		break;
+	}
+	return bs_actor;
 }
 
 bool DebugKeys()
