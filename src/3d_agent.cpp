@@ -3467,7 +3467,8 @@ bool Interrogate(
 					local_message += get_enemy_actor_name(enemyObjToKill);
 					local_message += "\r at " 
 						+ std::to_string(enemyObjToKill->tilex)
-						+ ", " + std::to_string(enemyObjToKill->tiley);
+						+ ',' + std::to_string(enemyObjToKill->tiley);
+					local_message += "  (" + std::to_string((int)player->x)+','+std::to_string((int)player->y)+')';
 				}
 				else
 				{
@@ -3481,7 +3482,8 @@ bool Interrogate(
 						else local_message += "is a\r ";
 						local_message += name + "\r at "
 							+ std::to_string(bonusItemObj->tilex)
-							+ ", " + std::to_string(bonusItemObj->tiley);
+							+ ',' + std::to_string(bonusItemObj->tiley);
+						local_message += "  (" + std::to_string((int)player->x)+','+std::to_string((int)player->y)+')';
 					}
 					else
 					{
