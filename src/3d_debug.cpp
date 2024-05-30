@@ -713,6 +713,12 @@ const objtype* find_countable_enemy()
 	auto bs_actor = objlist;
 	for (; bs_actor != nullptr; bs_actor = bs_actor->next)
 	{
+		if (bs_actor->obclass == goldsternobj 
+			|| bs_actor->obclass == electroobj
+			|| bs_actor->obclass == rotating_cubeobj
+			)
+			continue;
+
 		const auto is_dead = bs_actor->hitpoints <= 0 || (bs_actor->flags & FL_DEADGUY) != 0;
 
 		const auto is_asleep =
@@ -729,9 +735,6 @@ const objtype* find_countable_enemy()
 		}
 
 		auto actor_name = get_enemy_actor_name(bs_actor);
-		if (bs_actor->obclass == goldsternobj || bs_actor->obclass == electroobj)
-			continue;
-
 		if (actor_name.empty())
 			continue;
 
