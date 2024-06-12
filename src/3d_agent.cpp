@@ -28,16 +28,18 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "gfxv.h"
 
 #include "bstone_archiver.h"
+#include "bstone_ascii.h"
 #include "bstone_math.h"
 #include "bstone_memory_stream.h"
 #include "bstone_saved_game.h"
 #include "bstone_string_helper.h"
 
-//from 3d_debug.cpp
+// From 3d_debug.cpp
 const objtype* find_countable_enemy();
 const statobj_t* find_bonus_item();
-std::string get_enemy_actor_name(const objtype* bs_actor);
-std::string get_bonus_item_name(const statobj_t& bs_actor, bool* isPlural);
+std::string get_enemy_actor_name(const objtype& bs_actor);
+std::string get_bonus_item_name(const statobj_t& bs_actor, bool& is_plural);
+std::string get_bonus_item_name(const statobj_t& bs_actor);
 
 namespace
 {
@@ -3397,7 +3399,7 @@ bool Interrogate(
 	const char* msgptr = nullptr;
 
 	msg = msg_interrogate;
-	std::string local_message;
+	auto local_message = std::string{};
 
 	if ((ob->flags & FL_INFORMANT) != 0)
 	{
@@ -3453,46 +3455,59 @@ bool Interrogate(
 
 			// unless points percentage is just bellow 100%
 			// in which case report enemy or treasure location
-			int areaPointsPercent = 100;
-			if (gamestuff.level[gamestate.mapon].stats.total_points != 0) 
-				areaPointsPercent = gamestuff.level[gamestate.mapon].stats.accum_points * 100
-					/ gamestuff.level[gamestate.mapon].stats.total_points;
+			auto area_points_percent = 100;
+			const auto& stats = gamestuff.level[gamestate.mapon].stats;
 
-			if (areaPointsPercent > 96 && areaPointsPercent < 100)
+			if (stats.total_points != 0)
 			{
-				const objtype* enemyObjToKill = find_countable_enemy();
-				if (enemyObjToKill != nullptr)
+				area_points_percent = stats.accum_points * 100 / stats.total_points;
+			}
+
+			if (area_points_percent > 96 && area_points_percent < 100)
+			{
+				local_message.reserve(256);
+				const auto enemy_obj_to_kill = find_countable_enemy();
+
+				if (enemy_obj_to_kill != nullptr)
 				{
 					local_message = " There is\r";
-					local_message += get_enemy_actor_name(enemyObjToKill);
-					local_message += "\r at " 
-						+ std::to_string(enemyObjToKill->tilex)
-						+ ',' + std::to_string(enemyObjToKill->tiley);
-					local_message += "  (" + std::to_string((int)player->x)+','+std::to_string((int)player->y)+')';
+					local_message += get_enemy_actor_name(*enemy_obj_to_kill);
+
+					local_message += "\r at " +
+						std::to_string(enemy_obj_to_kill->tilex) +
+						',' + std::to_string(enemy_obj_to_kill->tiley);
+
+					local_message += "  (" +
+						std::to_string(static_cast<int>(player->x)) + ',' +
+						std::to_string(static_cast<int>(player->y)) + ')';
 				}
 				else
 				{
-					auto bonusItemObj = find_bonus_item();
-					if (bonusItemObj != nullptr)
+					const auto bonus_item_obj = find_bonus_item();
+
+					if (bonus_item_obj != nullptr)
 					{
-						bool plural;
-						auto name = get_bonus_item_name(*bonusItemObj, &plural);
+						auto is_plural = false;
+						const auto name = get_bonus_item_name(*bonus_item_obj, is_plural);
 						local_message = " There ";
-						if (plural) local_message += "are ";
-						else local_message += "is a\r ";
+						local_message += is_plural ? "are " : "is a\r ";
+
 						local_message += name + "\r at "
-							+ std::to_string(bonusItemObj->tilex)
-							+ ',' + std::to_string(bonusItemObj->tiley);
-						local_message += "  (" + std::to_string((int)player->x)+','+std::to_string((int)player->y)+')';
+							+ std::to_string(bonus_item_obj->tilex)
+							+ ',' + std::to_string(bonus_item_obj->tiley);
+
+						local_message += "  (" +
+							std::to_string(static_cast<int>(player->x)) + ',' +
+							std::to_string(static_cast<int>(player->y)) + ')';
 					}
 					else
 					{
-						//wrong percentage?
+						// Wrong percentage?
 						local_message = " You have collected\r all treasures";
 					}
 				}
 
-				std::transform(local_message.begin(), local_message.end(), local_message.begin(), ::toupper);
+				bstone::ascii::to_upper(local_message.begin(), local_message.end());
 				msgptr = local_message.c_str();
 			}
 			else if (NumAreaMsgs)

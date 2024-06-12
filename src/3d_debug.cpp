@@ -274,14 +274,12 @@ std::uint16_t DecRange(
 	return Value;
 }
 
-std::string get_bonus_item_name(const statobj_t& bs_static, bool* isPlural)
+std::string get_bonus_item_name(const statobj_t& bs_static, bool& is_plural)
 {
-	std::string static_name;
-	bool plural = false;
+	is_plural = false;
+	auto static_name = std::string{};
 
-	if (false)
-	{
-	}
+	if (false) {}
 	else if (bs_static.itemnumber == bo_money_bag)
 	{
 		static_name = "Money Bag";
@@ -297,43 +295,44 @@ std::string get_bonus_item_name(const statobj_t& bs_static, bool* isPlural)
 	else if (bs_static.itemnumber == bo_gold2)
 	{
 		static_name = "Two Gold Bars";
-		plural = true;
+		is_plural = true;
 	}
 	else if (bs_static.itemnumber == bo_gold3)
 	{
 		static_name = "Three Gold Bars";
-		plural = true;
+		is_plural = true;
 	}
 	else if (bs_static.itemnumber == bo_gold)
 	{
 		static_name = "Five Gold Bars";
-		plural = true;
+		is_plural = true;
 	}
 	else if (bs_static.itemnumber == bo_bonus)
 	{
 		static_name = "Xylan Orb";
 	}
-	else
-	{
-		static_name.clear();
-	}
 
-	if (isPlural != nullptr)
-		*isPlural = plural;
 	return static_name;
+}
+
+std::string get_bonus_item_name(const statobj_t& bs_static)
+{
+	auto is_plural = false;
+	return get_bonus_item_name(bs_static, is_plural);
 }
 
 void log_bonus_stuff()
 {
+	const auto& stats = gamestuff.level[gamestate.mapon].stats;
+
 	bstone::globals::logger->log_information();
 	bstone::globals::logger->log_information("<<<<<<<<");
 	bstone::globals::logger->log_information("Current bonus items.");
+
 	bstone::globals::logger->log_information((
-		std::string("stats:")
-		+std::to_string(gamestuff.level[gamestate.mapon].stats.accum_points)
-		+"/"
-		+std::to_string(gamestuff.level[gamestate.mapon].stats.total_points)
-		).c_str());
+		std::string{"stats:"} +
+			std::to_string(stats.accum_points) + "/" +
+			std::to_string(stats.total_points)).c_str());
 
 	auto number = 0;
 	auto static_name = std::string{};
@@ -350,28 +349,27 @@ void log_bonus_stuff()
 			continue;
 		}
 
-		static_name = get_bonus_item_name(bs_static, nullptr);
+		static_name = get_bonus_item_name(bs_static);
 
 		if (!static_name.empty())
 		{
 			number += 1;
 
-			bstone::globals::logger->log_information(
-				(std::to_string(number) +
+			bstone::globals::logger->log_information((
+				std::to_string(number) +
 					". (" +
 					std::to_string(bs_static.tilex) +
 					", " +
 					std::to_string(bs_static.tiley) +
 					") " +
-					static_name).c_str()
-			);
+					static_name).c_str());
 		}
 	}
 
 	bstone::globals::logger->log_information(">>>>>>>>");
 }
 
-std::string get_enemy_actor_name(const objtype* bs_actor)
+std::string get_enemy_actor_name(const objtype& bs_actor)
 {
 	constexpr auto large_alien_name = "Large Experimental\r Genetic Alien";
 	constexpr auto small_alien_name = "Small Experimental\r Genetic Alien";
@@ -385,34 +383,36 @@ std::string get_enemy_actor_name(const objtype* bs_actor)
 	constexpr auto awake_string = "awake";
 
 	const auto& assets_info = get_assets_info();
-	const auto is_dead = bs_actor->hitpoints <= 0 || (bs_actor->flags & FL_DEADGUY) != 0;
+	const auto is_dead = bs_actor.hitpoints <= 0 || (bs_actor.flags & FL_DEADGUY) != 0;
 
-	std::string actor_name;
+	auto actor_name = std::string{};
 
 	const auto set_actor_name_with_state_name = [&actor_name](
-		const char* base_actor_name, const char* state_name)
-		{
-			actor_name = base_actor_name;
-			actor_name += " (";
-			actor_name += state_name;
-			actor_name += ')';
-		};
+		const char* base_actor_name,
+		const char* state_name)
+	{
+		actor_name = base_actor_name;
+		actor_name += " (";
+		actor_name += state_name;
+		actor_name += ')';
+	};
 
 	const auto set_actor_name_with_state = [&actor_name, &awake_string, &asleep_string](
-		const char* base_actor_name, bool is_awake)
-		{
-			actor_name = base_actor_name;
-			actor_name += " (";
-			actor_name += is_awake ? awake_string : asleep_string;
-			actor_name += ')';
-		};
+		const char* base_actor_name,
+		bool is_awake)
+	{
+		actor_name = base_actor_name;
+		actor_name += " (";
+		actor_name += is_awake ? awake_string : asleep_string;
+		actor_name += ')';
+	};
 
-	const auto is_informant = ((bs_actor->flags & FL_INFORMANT) != 0);
-	const auto is_static = bs_actor->state == &s_ofs_static;
+	const auto is_informant = (bs_actor.flags & FL_INFORMANT) != 0;
+	const auto is_static = bs_actor.state == &s_ofs_static;
 
 	actor_name.clear();
 
-	switch (bs_actor->obclass)
+	switch (bs_actor.obclass)
 	{
 	case rentacopobj:
 		if (assets_info.is_aog())
@@ -621,6 +621,7 @@ void log_enemy_stuff()
 	bstone::globals::logger->log_information();
 	bstone::globals::logger->log_information("<<<<<<<<");
 	bstone::globals::logger->log_information("Current enemies.");
+
 	bstone::globals::logger->log_information((
 		std::string("stats:")
 		+std::to_string(gamestuff.level[gamestate.mapon].stats.accum_enemy)
@@ -647,9 +648,12 @@ void log_enemy_stuff()
 			}
 		}
 
-		auto actor_name = get_enemy_actor_name(bs_actor);
+		auto actor_name = get_enemy_actor_name(*bs_actor);
+
 		if (bs_actor->obclass == goldsternobj || bs_actor->obclass == electroobj)
+		{
 			actor_name += " (non-countable)";
+		}
 
 		if (!actor_name.empty())
 		{
@@ -695,10 +699,12 @@ const statobj_t* find_bonus_item()
 			continue;
 		}
 
-		auto static_name = get_bonus_item_name(bs_static, nullptr);
+		const auto static_name = get_bonus_item_name(bs_static);
 
 		if (static_name.empty())
+		{
 			continue;
+		}
 
 		return &bs_static;
 	}
@@ -708,16 +714,14 @@ const statobj_t* find_bonus_item()
 
 const objtype* find_countable_enemy()
 {
-	const auto& assets_info = get_assets_info();
-
-	auto bs_actor = objlist;
-	for (; bs_actor != nullptr; bs_actor = bs_actor->next)
+	for (auto bs_actor = objlist; bs_actor != nullptr; bs_actor = bs_actor->next)
 	{
-		if (bs_actor->obclass == goldsternobj 
-			|| bs_actor->obclass == electroobj
-			|| bs_actor->obclass == rotating_cubeobj
-			)
+		if (bs_actor->obclass == goldsternobj ||
+			bs_actor->obclass == electroobj ||
+			bs_actor->obclass == rotating_cubeobj)
+		{
 			continue;
+		}
 
 		const auto is_dead = bs_actor->hitpoints <= 0 || (bs_actor->flags & FL_DEADGUY) != 0;
 
@@ -734,13 +738,17 @@ const objtype* find_countable_enemy()
 			}
 		}
 
-		auto actor_name = get_enemy_actor_name(bs_actor);
-		if (actor_name.empty())
-			continue;
+		const auto actor_name = get_enemy_actor_name(*bs_actor);
 
-		break;
+		if (actor_name.empty())
+		{
+			continue;
+		}
+
+		return bs_actor;
 	}
-	return bs_actor;
+
+	return nullptr;
 }
 
 bool DebugKeys()
