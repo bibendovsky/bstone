@@ -9983,8 +9983,14 @@ int main(
 	bstone::globals::logger = bstone::make_logger(logger_open_param);
 	const auto logger_scope = bstone::make_scope_exit([](){ bstone::globals::logger = nullptr; });
 
-	bstone::globals::logger->log_information((std::string{} + "BStone v" + bstone::get_version().string).c_str());
-	bstone::globals::logger->log_information("==========");
+	const auto version_string = std::string{} + "BStone v" + bstone::get_version().string;
+
+	auto filler_string = std::string{};
+	filler_string.reserve(version_string.size());
+	filler_string.assign(version_string.size(), '=');
+
+	bstone::globals::logger->log_information(version_string.c_str());
+	bstone::globals::logger->log_information(filler_string.c_str());
 	bstone::globals::logger->log_information();
 
 	class SysLogger final : public bstone::sys::Logger
