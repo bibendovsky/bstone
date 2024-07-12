@@ -356,7 +356,7 @@ try {
 
 void GlR3rShaderStageImpl::get_vars(R3rShaderVarType type, GLuint gl_name, ShaderVars& shader_vars)
 try {
-	using GlInfoFunction = void (APIENTRYP)(
+	using GlInfoFunction = void (GL_APIENTRY *)(
 		const GLuint program,
 		const GLuint index,
 		const GLsizei bufSize,

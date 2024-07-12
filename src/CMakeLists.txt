@@ -244,6 +244,7 @@ target_include_directories(bstone
 	PRIVATE
 		.
 		dosbox
+		lib/khronos
 		lib/openal_soft/include/AL
 		lib/stb
 		lib/xbrz
