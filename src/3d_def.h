@@ -1,7 +1,7 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
@@ -3924,23 +3924,12 @@ struct PaletteShiftInfo
 }; // PaletteShiftInfo
 
 
-objtype* ui16_to_actor(
-	std::uint16_t value);
-
-std::uint16_t actor_to_ui16(
-	const objtype* actor);
-
-statobj_t* ui16_to_static_object(
-	std::uint16_t value);
-
-std::uint16_t static_object_to_ui16(
-	const statobj_t* static_object);
-
-doorobj_t* ui16_to_door_object(
-	std::uint16_t value);
-
-std::uint16_t door_object_to_ui16(
-	const doorobj_t* door_object);
+objtype* ui16_to_actor(std::uint16_t value);
+std::uint16_t actor_to_ui16(const objtype* actor);
+statobj_t* ui16_to_static_object(std::uint16_t value);
+std::uint16_t static_object_to_ui16(const statobj_t* static_object);
+doorobj_t* ui16_to_door_object(std::uint16_t value);
+std::uint16_t door_object_to_ui16(const doorobj_t* door_object);
 
 bool gp_is_flooring_solid() noexcept;
 void gp_is_flooring_solid(bool is_enable);
