@@ -48,5 +48,6 @@ if (BSTONE_TESTS)
 	add_subdirectory(src/tests)
 endif ()
 
+add_subdirectory(src/tools/glapigen)
 add_subdirectory(src/tools/ltrimcs)
 add_subdirectory (src)
