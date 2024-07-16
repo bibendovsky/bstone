@@ -233,88 +233,46 @@ public:
 
 
 private:
-	// -------------------------------------------------------------------------
 	// Aliens Of Gold (shareware)
 
-	static const char* get_audiohed_bs1() noexcept;
+	static constexpr const char* audiohed_bs1 = "AUDIOHED.BS1";
+	static constexpr const char* audiot_bs1 = "AUDIOT.BS1";
+	static constexpr const char* ianim_bs1 = "IANIM.BS1";
+	static constexpr const char* maphead_bs1 = "MAPHEAD.BS1";
+	static constexpr const char* maptemp_bs1 = "MAPTEMP.BS1";
+	static constexpr const char* sanim_bs1 = "SANIM.BS1";
+	static constexpr const char* vgadict_bs1 = "VGADICT.BS1";
+	static constexpr const char* vgagraph_bs1 = "VGAGRAPH.BS1";
+	static constexpr const char* vgahead_bs1 = "VGAHEAD.BS1";
+	static constexpr const char* vswap_bs1 = "VSWAP.BS1";
 
-	static const char* get_audiot_bs1() noexcept;
+	// Aliens Of Gold (registered)
 
-	static const char* get_ianim_bs1() noexcept;
-
-	static const char* get_maphead_bs1() noexcept;
-
-	static const char* get_maptemp_bs1() noexcept;
-
-	static const char* get_sanim_bs1() noexcept;
-
-	static const char* get_vgadict_bs1() noexcept;
-
-	static const char* get_vgagraph_bs1() noexcept;
-
-	static const char* get_vgahead_bs1() noexcept;
-
-	static const char* get_vswap_bs1() noexcept;
-
-	// Aliens Of Gold (shareware)
-	// -------------------------------------------------------------------------
-
-
-	// -------------------------------------------------------------------------
-	// Aliens Of Gold (full)
-
-	static const char* get_audiohed_bs6() noexcept;
-
-	static const char* get_audiot_bs6() noexcept;
-
-	static const char* get_eanim_bs6() noexcept;
-
-	static const char* get_ganim_bs6() noexcept;
-
-	static const char* get_ianim_bs6() noexcept;
-
-	static const char* get_maphead_bs6() noexcept;
-
-	static const char* get_maptemp_bs6() noexcept;
-
-	static const char* get_sanim_bs6() noexcept;
-
-	static const char* get_vgadict_bs6() noexcept;
-
-	static const char* get_vgagraph_bs6() noexcept;
-
-	static const char* get_vgahead_bs6() noexcept;
-
-	static const char* get_vswap_bs6() noexcept;
-
-	// Aliens Of Gold (full)
-	// -------------------------------------------------------------------------
-
-	// -------------------------------------------------------------------------
-	// Planet Strike
-
-	static const char* get_audiohed_vsi() noexcept;
-
-	static const char* get_audiot_vsi() noexcept;
-
-	static const char* get_eanim_vsi() noexcept;
-
-	static const char* get_ianim_vsi() noexcept;
-
-	static const char* get_maphead_vsi() noexcept;
-
-	static const char* get_maptemp_vsi() noexcept;
-
-	static const char* get_vgadict_vsi() noexcept;
-
-	static const char* get_vgagraph_vsi() noexcept;
-
-	static const char* get_vgahead_vsi() noexcept;
-
-	static const char* get_vswap_vsi() noexcept;
+	static constexpr const char* audiohed_bs6 = "AUDIOHED.BS6";
+	static constexpr const char* audiot_bs6 = "AUDIOT.BS6";
+	static constexpr const char* eanim_bs6 = "EANIM.BS6";
+	static constexpr const char* ganim_bs6 = "GANIM.BS6";
+	static constexpr const char* ianim_bs6 = "IANIM.BS6";
+	static constexpr const char* maphead_bs6 = "MAPHEAD.BS6";
+	static constexpr const char* maptemp_bs6 = "MAPTEMP.BS6";
+	static constexpr const char* sanim_bs6 = "SANIM.BS6";
+	static constexpr const char* vgadict_bs6 = "VGADICT.BS6";
+	static constexpr const char* vgagraph_bs6 = "VGAGRAPH.BS6";
+	static constexpr const char* vgahead_bs6 = "VGAHEAD.BS6";
+	static constexpr const char* vswap_bs6 = "VSWAP.BS6";
 
 	// Planet Strike
-	// -------------------------------------------------------------------------
+
+	static constexpr const char* audiohed_vsi = "AUDIOHED.VSI";
+	static constexpr const char* audiot_vsi = "AUDIOT.VSI";
+	static constexpr const char* eanim_vsi = "EANIM.VSI";
+	static constexpr const char* ianim_vsi = "IANIM.VSI";
+	static constexpr const char* maphead_vsi = "MAPHEAD.VSI";
+	static constexpr const char* maptemp_vsi = "MAPTEMP.VSI";
+	static constexpr const char* vgadict_vsi = "VGADICT.VSI";
+	static constexpr const char* vgagraph_vsi = "VGAGRAPH.VSI";
+	static constexpr const char* vgahead_vsi = "VGAHEAD.VSI";
+	static constexpr const char* vswap_vsi = "VSWAP.VSI";
 
 
 	using AllResources = std::vector<AssetsResource>;
