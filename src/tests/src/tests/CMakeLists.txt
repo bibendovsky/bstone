@@ -154,6 +154,12 @@ target_sources(bstone_tests
 		../../../bstone_uuid_unix.cpp
 		../../../bstone_uuid_win32.cpp
 		../../../bstone_uuid.h
+		../../../bstone_win32_unique_resources.cpp
+		../../../bstone_win32_unique_resources.h
+		../../../bstone_process.cpp
+		../../../bstone_process_posix.cpp
+		../../../bstone_process_win32.cpp
+		../../../bstone_process.h
 	PRIVATE
 		src/bstone_tests_algorithm.cpp
 		src/bstone_tests_array.cpp
@@ -199,6 +205,7 @@ target_sources(bstone_tests
 		src/bstone_tests_fs.cpp
 		src/bstone_tests_four_cc.cpp
 		src/bstone_tests_uuid.cpp
+		src/bstone_tests_process.cpp
 	PRIVATE
 		src/bstone_tester.cpp
 		src/bstone_tester.h

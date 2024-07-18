@@ -484,8 +484,13 @@ set(BSTONE_LIB_MISC_SOURCES
 	bstone_win32_registry_key.h
 	bstone_win32_wstring.cpp
 	bstone_win32_wstring.h
+	bstone_win32_unique_resources.cpp
+	bstone_win32_unique_resources.h
 	bstone_zstring_view.cpp
 	bstone_zstring_view.h
+	bstone_process.h
+	bstone_process_posix.cpp
+	bstone_process_win32.cpp
 )
 
 target_sources(bstone PRIVATE ${BSTONE_LIB_MISC_SOURCES})
