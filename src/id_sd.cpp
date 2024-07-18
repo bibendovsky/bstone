@@ -496,7 +496,7 @@ void sd_startup()
 			}
 			catch (...)
 			{
-				bstone::globals::logger->log_exception();
+				bstone::globals::logger->log_current_exception();
 			}
 
 			if (is_driver_initialized)

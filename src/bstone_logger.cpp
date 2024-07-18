@@ -54,51 +54,63 @@ void Logger::log_error(StringView message_sv) noexcept
 	do_log(LoggerMessageType::error, message_sv);
 }
 
-void Logger::log_exception() noexcept
-try
-{
-	auto message_buffer = std::string{};
-	message_buffer.reserve(2048);
-	log_exception_internal(message_buffer);
-	log_error(StringView{message_buffer.c_str(), static_cast<std::intptr_t>(message_buffer.size())});
-}
-catch (const std::exception& ex)
-{
-	log_error(__func__);
-	log_error(ex.what());
-}
-catch (...)
-{
-	log_error(__func__);
-	log_error("Non-standard exception.");
-}
-
-void Logger::flush() noexcept
-try
-{
-	do_flush();
-}
-catch (...) {}
-
-void Logger::log_exception_internal(std::string& message_buffer)
+void Logger::log_exception(std::exception_ptr exception_ptr) noexcept
 {
 	try
 	{
-		std::rethrow_exception(std::current_exception());
+		auto message_buffer = std::string{};
+		message_buffer.reserve(2048);
+		log_exception_internal(exception_ptr, message_buffer);
+		log_error(StringView{message_buffer.c_str(), static_cast<std::intptr_t>(message_buffer.size())});
 	}
-	catch (const std::exception& ex)
+	catch (...)
 	{
-		const auto nex = dynamic_cast<const std::nested_exception*>(&ex);
+		auto error_message = "Generic failure.";
 
-		if (nex != nullptr && nex->nested_ptr() != nullptr)
+		try
+		{
+			std::rethrow_exception(std::current_exception());
+		}
+		catch (const std::exception& exception)
+		{
+			error_message = exception.what();
+		}
+		catch (...) {}
+
+		log_error(__func__);
+		log_error(error_message);
+	}
+}
+
+void Logger::log_current_exception() noexcept
+{
+	log_exception(std::current_exception());
+}
+
+void Logger::flush() noexcept
+{
+	do_flush();
+}
+
+void Logger::log_exception_internal(std::exception_ptr exception_ptr, std::string& message_buffer)
+{
+	try
+	{
+		std::rethrow_exception(exception_ptr);
+	}
+	catch (const std::exception& exception)
+	{
+		const auto nested_exception = dynamic_cast<const std::nested_exception*>(&exception);
+
+		if (nested_exception != nullptr && nested_exception->nested_ptr() != nullptr)
 		{
 			try
 			{
-				nex->rethrow_nested();
+				nested_exception->rethrow_nested();
 			}
 			catch (...)
 			{
-				log_exception_internal(message_buffer);
+				log_exception_internal(std::current_exception(), message_buffer);
 			}
 		}
 
@@ -107,7 +119,7 @@ void Logger::log_exception_internal(std::string& message_buffer)
 			message_buffer += '\n';
 		}
 
-		message_buffer += ex.what();
+		message_buffer += exception.what();
 	}
 	catch (...)
 	{
@@ -116,7 +128,7 @@ void Logger::log_exception_internal(std::string& message_buffer)
 			message_buffer += '\n';
 		}
 
-		message_buffer += "Non-standard exception.";
+		message_buffer += "Generic failure.";
 	}
 }
 
@@ -248,6 +260,7 @@ private:
 	bool has_messages_{};
 	bool is_file_open_{};
 	bool is_file_open_at_least_once_{};
+	bool is_thread_failed_{};
 	LoggerFlushPolicy flush_policy_{};
 	std::intptr_t consumer_queue_index_{};
 	std::intptr_t producer_queue_index_{};
@@ -271,6 +284,7 @@ private:
 private:
 	static MemoryResource& get_memory_resource();
 
+	void log_logger_current_exception() noexcept;
 	void try_open_file() noexcept;
 	void write_internal(LoggerMessageType message_type, StringView message_sv);
 	void write_sync(LoggerMessageType message_type, StringView message_sv);
@@ -348,21 +362,53 @@ void LoggerImpl::operator delete(void* ptr) noexcept
 }
 
 void LoggerImpl::do_log(LoggerMessageType message_type, StringView message_sv) noexcept
-try
 {
-	(this->*log_func_)(message_type, message_sv);
+	try
+	{
+		(this->*log_func_)(message_type, message_sv);
+	}
+	catch (...)
+	{
+		log_logger_current_exception();
+	}
 }
-catch (...) {}
 
 void LoggerImpl::do_flush() noexcept
 {
-	(this->*flush_func_)();
+	try
+	{
+		(this->*flush_func_)();
+	}
+	catch (...)
+	{
+		log_logger_current_exception();
+	}
 }
 
 MemoryResource& LoggerImpl::get_memory_resource()
 {
 	static SinglePoolResource<LoggerImpl> memory_resource{};
 	return memory_resource;
+}
+
+void LoggerImpl::log_logger_current_exception() noexcept
+{
+	std::cerr << error_prefix_sv.get_data() << " Logger failed. ";
+
+	try
+	{
+		std::rethrow_exception(std::current_exception());
+	}
+	catch (const std::exception& exception)
+	{
+		std::cerr << exception.what();
+	}
+	catch (...)
+	{
+		std::cerr << "Generic failure.";
+	}
+
+	std::cerr << std::endl;
 }
 
 void LoggerImpl::try_open_file() noexcept
@@ -435,8 +481,14 @@ void LoggerImpl::write_async(LoggerMessageType message_type, StringView message_
 	{
 		LockGuard lock_guard{cv_mutex_};
 
+		if (is_thread_failed_)
+		{
+			return;
+		}
+
 		if (exception_ptr_ != nullptr)
 		{
+			is_thread_failed_ = true;
 			std::rethrow_exception(exception_ptr_);
 		}
 
@@ -485,6 +537,17 @@ void LoggerImpl::flush_async()
 	{
 		LockGuard lock_guard{cv_mutex_};
 		is_flush_requested_ = true;
+
+		if (is_thread_failed_)
+		{
+			return;
+		}
+
+		if (exception_ptr_ != nullptr)
+		{
+			is_thread_failed_ = true;
+			std::rethrow_exception(exception_ptr_);
+		}
 	}
 
 	cv_.notify_one();

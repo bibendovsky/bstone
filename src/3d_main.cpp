@@ -10060,11 +10060,10 @@ int main(
 	if (is_failed)
 	{
 		bstone::globals::logger->log_error(error_message.c_str());
+		bstone::globals::logger->flush();
 
 		try
 		{
-			bstone::globals::logger->flush();
-
 			bstone::sys::MessageBox::show_simple(
 				get_message_box_title().c_str(),
 				error_message.c_str(),
