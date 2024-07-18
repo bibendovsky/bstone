@@ -68,8 +68,13 @@ public:
 	// Writes an error message for a current exception.
 	void log_exception() noexcept;
 
+	// Flushes all remaining messages.
+	// (blocks the calling thread)
+	void flush() noexcept;
+
 private:
 	virtual void do_log(LoggerMessageType message_type, StringView message_sv) noexcept = 0;
+	virtual void do_flush() noexcept = 0;
 
 private:
 	void log_exception_internal(std::string& message_buffer);

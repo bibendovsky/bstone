@@ -10063,6 +10063,8 @@ int main(
 
 		try
 		{
+			bstone::globals::logger->flush();
+
 			bstone::sys::MessageBox::show_simple(
 				get_message_box_title().c_str(),
 				error_message.c_str(),

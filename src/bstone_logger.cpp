@@ -73,6 +73,13 @@ catch (...)
 	log_error("Non-standard exception.");
 }
 
+void Logger::flush() noexcept
+try
+{
+	do_flush();
+}
+catch (...) {}
+
 void Logger::log_exception_internal(std::string& message_buffer)
 {
 	try
@@ -231,10 +238,13 @@ private:
 	using UniqueLock = std::unique_lock<Mutex>;
 	using Queues = std::array<LoggerImplQueue, 2>;
 	using LogFunc = void (LoggerImpl::*)(LoggerMessageType, StringView);
+	using FlushFunc = void (LoggerImpl::*)();
 
 private:
 	bool is_synchronous_{};
 	bool is_cancellation_requested_{};
+	bool is_flush_requested_{};
+	bool is_flush_acknowledged_{};
 	bool has_messages_{};
 	bool is_file_open_{};
 	bool is_file_open_at_least_once_{};
@@ -242,17 +252,21 @@ private:
 	std::intptr_t consumer_queue_index_{};
 	std::intptr_t producer_queue_index_{};
 	LogFunc log_func_{};
+	FlushFunc flush_func_{};
 	std::exception_ptr exception_ptr_{};
 	std::thread thread_{};
 	FileStream file_stream_{};
 	std::string file_path_{};
 	std::string line_{};
 	std::condition_variable cv_{};
+	std::condition_variable cv_flush_{};
 	Mutex cv_mutex_{};
+	Mutex cv_flush_mutex_{};
 	Queues queues_{};
 
 private:
 	void do_log(LoggerMessageType message_type, StringView message_sv) noexcept override;
+	void do_flush() noexcept override;
 
 private:
 	static MemoryResource& get_memory_resource();
@@ -261,6 +275,10 @@ private:
 	void write_internal(LoggerMessageType message_type, StringView message_sv);
 	void write_sync(LoggerMessageType message_type, StringView message_sv);
 	void write_async(LoggerMessageType message_type, StringView message_sv);
+	void flush_internal();
+	void acknowledge_flush();
+	void flush_sync();
+	void flush_async();
 	void thread_main_proxy() noexcept;
 	void thread_main();
 };
@@ -282,10 +300,12 @@ LoggerImpl::LoggerImpl(const LoggerOpenParam& param)
 	if (is_synchronous_)
 	{
 		log_func_ = &LoggerImpl::write_sync;
+		flush_func_ = &LoggerImpl::flush_sync;
 	}
 	else
 	{
 		log_func_ = &LoggerImpl::write_async;
+		flush_func_ = &LoggerImpl::flush_async;
 
 		consumer_queue_index_ = 0;
 		producer_queue_index_ = 1;
@@ -309,6 +329,7 @@ LoggerImpl::~LoggerImpl()
 	{
 		LockGuard lock_guard{cv_mutex_};
 		is_cancellation_requested_ = true;
+		is_flush_requested_ = true;
 		has_messages_ = true;
 	}
 
@@ -331,8 +352,11 @@ try
 {
 	(this->*log_func_)(message_type, message_sv);
 }
-catch (...)
+catch (...) {}
+
+void LoggerImpl::do_flush() noexcept
 {
+	(this->*flush_func_)();
 }
 
 MemoryResource& LoggerImpl::get_memory_resource()
@@ -425,6 +449,52 @@ void LoggerImpl::write_async(LoggerMessageType message_type, StringView message_
 	cv_.notify_one();
 }
 
+void LoggerImpl::flush_internal()
+{
+	if (is_file_open_)
+	{
+		file_stream_.flush();
+	}
+
+	std::cerr.flush();
+	std::cout.flush();
+}
+
+void LoggerImpl::acknowledge_flush()
+{
+	{
+		LockGuard lock_guard{cv_flush_mutex_};
+		is_flush_acknowledged_ = true;
+	}
+
+	cv_flush_.notify_one();
+}
+
+void LoggerImpl::flush_sync()
+{
+	flush_internal();
+}
+
+void LoggerImpl::flush_async()
+{
+	{
+		LockGuard lock_guard{cv_flush_mutex_};
+		is_flush_acknowledged_ = false;
+	}
+
+	{
+		LockGuard lock_guard{cv_mutex_};
+		is_flush_requested_ = true;
+	}
+
+	cv_.notify_one();
+
+	{
+		UniqueLock cv_lock{cv_flush_mutex_};
+		cv_flush_.wait(cv_lock, [this]() { return is_flush_acknowledged_; });
+	}
+}
+
 void LoggerImpl::thread_main_proxy() noexcept
 {
 	try
@@ -433,8 +503,15 @@ void LoggerImpl::thread_main_proxy() noexcept
 	}
 	catch (...)
 	{
-		LockGuard lock_guard{cv_mutex_};
-		exception_ptr_ = std::current_exception();
+		{
+			LockGuard lock_guard{cv_mutex_};
+			exception_ptr_ = std::current_exception();
+		}
+
+		{
+			LockGuard lock_guard{cv_flush_mutex_};
+			is_flush_acknowledged_ = true;
+		}
 	}
 }
 
@@ -443,6 +520,7 @@ void LoggerImpl::thread_main()
 	using QueueIndices = std::vector<std::intptr_t>;
 
 	auto is_cancellation_requested = false;
+	auto is_flush_requested = false;
 	auto message_type = LoggerMessageType{};
 	auto message = static_cast<const char*>(nullptr);
 	auto message_length = std::intptr_t{};
@@ -454,9 +532,19 @@ void LoggerImpl::thread_main()
 	{
 		{
 			UniqueLock cv_lock{cv_mutex_};
-			cv_.wait(cv_lock, [this]() { return has_messages_ || is_cancellation_requested_; });
+
+			cv_.wait(
+				cv_lock,
+				[this]()
+				{
+					return has_messages_ || is_cancellation_requested_ || is_flush_requested_;
+				});
 
 			is_cancellation_requested |= is_cancellation_requested_;
+
+			is_flush_requested |= is_flush_requested_;
+			is_flush_requested_ = false;
+
 			has_messages_ = false;
 
 			std::swap(consumer_queue_index_, producer_queue_index_);
@@ -481,6 +569,13 @@ void LoggerImpl::thread_main()
 			}
 
 			queue.clear();
+		}
+
+		if (is_flush_requested)
+		{
+			is_flush_requested = false;
+			flush_internal();
+			acknowledge_flush();
 		}
 	}
 }
