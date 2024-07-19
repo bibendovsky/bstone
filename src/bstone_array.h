@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // A container that encapsulates fixed size array.
 
-#if !defined(BSTONE_ARRAY_INCLUDED)
+#ifndef BSTONE_ARRAY_INCLUDED
 #define BSTONE_ARRAY_INCLUDED
 
 #include <cstdint>
@@ -110,7 +110,6 @@ constexpr Array<TItem, TSize>::Array(const Item (&rhs)[TSize])
 template<typename TItem, std::intptr_t TSize>
 constexpr auto Array<TItem, TSize>::operator=(const Array& rhs) -> Array&
 {
-	BSTONE_ASSERT(std::addressof(rhs) != this);
 	copy_items(rhs.items_, items_);
 	return *this;
 }
