@@ -38,6 +38,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_logger.h"
 #include "bstone_math.h"
 #include "bstone_memory_stream.h"
+#include "bstone_process.h"
 #include "bstone_ps_fizzle_fx.h"
 #include "bstone_saved_game.h"
 #include "bstone_scope_exit.h"
@@ -10008,6 +10009,7 @@ int main(
 		void do_log(bstone::sys::LogLevel level, const char* message) noexcept override
 		{
 			BSTONE_ASSERT(level == bstone::sys::LogLevel::information);
+			static_cast<void>(level);
 			logger_.log_information(message != nullptr ? message : "");
 		}
 	};
@@ -10062,12 +10064,62 @@ int main(
 		bstone::globals::logger->log_error(error_message.c_str());
 		bstone::globals::logger->flush();
 
+		auto has_log_file = false;
+
+		{
+			auto log_file = bstone::File{};
+			has_log_file = log_file.try_open(log_file_path.c_str());
+		}
+
 		try
 		{
-			bstone::sys::MessageBox::show_simple(
-				get_message_box_title().c_str(),
-				error_message.c_str(),
-				bstone::sys::MessageBoxType::error);
+			if (has_log_file)
+			{
+				constexpr auto ok_button_id = 1;
+				auto ok_button = bstone::sys::MessageBoxButton{};
+				{
+					ok_button.id = ok_button_id;
+
+					ok_button.flags =
+						bstone::sys::MessageBoxButtonFlags::default_for_escape_key |
+							bstone::sys::MessageBoxButtonFlags::default_for_return_key;
+
+					ok_button.text = "OK";
+				}
+
+				constexpr auto view_log_button_id = 2;
+				auto view_log_button = bstone::sys::MessageBoxButton{};
+				{
+					view_log_button.id = view_log_button_id;
+					view_log_button.text = "View log";
+				}
+
+				const bstone::sys::MessageBoxButton buttons[] =
+				{
+					ok_button,
+					view_log_button,
+				};
+
+				auto message_box_param = bstone::sys::MessageBoxInitParam{};
+				message_box_param.title = get_message_box_title().c_str();
+				message_box_param.message = error_message.c_str();
+				message_box_param.type = bstone::sys::MessageBoxType::error;
+				message_box_param.buttons = bstone::make_span(buttons);
+
+				const auto button_id = bstone::sys::MessageBox::show(message_box_param);
+
+				if (button_id == 2)
+				{
+					bstone::process::open_file_or_url(logger_open_param.file_path);
+				}
+			}
+			else
+			{
+				bstone::sys::MessageBox::show_simple(
+					get_message_box_title().c_str(),
+					error_message.c_str(),
+					bstone::sys::MessageBoxType::error);
+			}
 		}
 		catch (...)
 		{
