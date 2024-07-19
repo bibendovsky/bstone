@@ -943,6 +943,18 @@ void vid_log_error(
 void vid_get_current_display_mode()
 try {
 	vid_display_mode_ = bstone::globals::sys_video_mgr->get_current_display_mode();
+
+	auto message = std::string{};
+	message.reserve(512);
+	message += "Current display mode: ";
+	message += std::to_string(vid_display_mode_.width);
+	message += 'x';
+	message += std::to_string(vid_display_mode_.height);
+	message += ' ';
+	message += std::to_string(vid_display_mode_.refresh_rate);
+	message += " Hz";
+
+	vid_log(message);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace
