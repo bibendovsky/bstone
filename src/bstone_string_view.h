@@ -346,7 +346,7 @@ constexpr std::intptr_t BasicStringView<TChar>::index_of(BasicStringView view) c
 		return 0;
 	}
 
-	for (auto i_haystack = 0; i_haystack <= max_haystack_index; ++i_haystack)
+	for (auto i_haystack = std::intptr_t{}; i_haystack <= max_haystack_index; ++i_haystack)
 	{
 		if (has_subview(i_haystack, view))
 		{
@@ -648,7 +648,7 @@ constexpr bool BasicStringView<TChar>::has_subview(std::intptr_t index, BasicStr
 	const auto needle_size = subview.get_size();
 	const auto& needle = subview;
 
-	for (auto i = 0; i < needle_size; ++i)
+	for (auto i = std::intptr_t{}; i < needle_size; ++i)
 	{
 		if (haystack[index + i] != needle[i])
 		{
