@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Mouse manager.
 
-#if !defined(BSTONE_SYS_MOUSE_MGR_INCLUDED)
+#ifndef BSTONE_SYS_MOUSE_MGR_INCLUDED
 #define BSTONE_SYS_MOUSE_MGR_INCLUDED
 
 #include <memory>

@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // OpenGL 3D Renderer: Utils
 
-#if !defined(BSTONE_GL_R3R_UTILS_INCLUDED)
+#ifndef BSTONE_GL_R3R_UTILS_INCLUDED
 #define BSTONE_GL_R3R_UTILS_INCLUDED
 
 #include "bstone_sys_gl_context.h"

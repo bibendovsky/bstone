@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // 3D Renderer: Manager
 
-#if !defined(BSTONE_R3R_MGR_INCLUDED)
+#ifndef BSTONE_R3R_MGR_INCLUDED
 #define BSTONE_R3R_MGR_INCLUDED
 
 #include "bstone_sys_video_mgr.h"

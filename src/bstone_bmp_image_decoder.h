@@ -4,7 +4,7 @@ Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-#if !defined(BSTONE_BMP_IMAGE_DECODER_INCLUDED)
+#ifndef BSTONE_BMP_IMAGE_DECODER_INCLUDED
 #define BSTONE_BMP_IMAGE_DECODER_INCLUDED
 
 #include "bstone_image_decoder.h"

@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // RGBA color, 8-bit per component.
 
-#if !defined(BSTONE_SYS_COLOR_INCLUDED)
+#ifndef BSTONE_SYS_COLOR_INCLUDED
 #define BSTONE_SYS_COLOR_INCLUDED
 
 #include <cstdint>

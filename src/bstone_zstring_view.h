@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Null-terminated string view.
 
-#if !defined(BSTONE_ZSTRING_VIEW_INCLUDED)
+#ifndef BSTONE_ZSTRING_VIEW_INCLUDED
 #define BSTONE_ZSTRING_VIEW_INCLUDED
 
 #include <cstddef>

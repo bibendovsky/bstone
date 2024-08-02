@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Renderer's texture.
 
-#if !defined(BSTONE_SYS_TEXTURE_INCLUDED)
+#ifndef BSTONE_SYS_TEXTURE_INCLUDED
 #define BSTONE_SYS_TEXTURE_INCLUDED
 
 #include <memory>

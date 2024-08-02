@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Unicode primitives.
 
-#if !defined(BSTONE_UNICODE_INCLUDED)
+#ifndef BSTONE_UNICODE_INCLUDED
 #define BSTONE_UNICODE_INCLUDED
 
 namespace bstone {

@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // OpenGL 3D Renderer: Buffer
 
-#if !defined(BSTONE_GL_R3R_BUFFER_INCLUDED)
+#ifndef BSTONE_GL_R3R_BUFFER_INCLUDED
 #define BSTONE_GL_R3R_BUFFER_INCLUDED
 
 #include "bstone_r3r_buffer.h"

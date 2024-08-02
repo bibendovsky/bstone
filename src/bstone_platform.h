@@ -22,18 +22,18 @@ SPDX-License-Identifier: MIT
 //                          - 1 - POSIX.
 //
 
-#if !defined(BSTONE_PLATFORM_INCLUDED)
+#ifndef BSTONE_PLATFORM_INCLUDED
 #define BSTONE_PLATFORM_INCLUDED
 
 #if defined(_WIN32)
 
-	#if !defined(BSTONE_WIN32)
+	#ifndef BSTONE_WIN32
 		#define BSTONE_WIN32 1
 	#endif
 
 #else
 
-	#if !defined(BSTONE_POSIX)
+	#ifndef BSTONE_POSIX
 		#define BSTONE_POSIX 1
 	#endif
 
@@ -44,15 +44,15 @@ SPDX-License-Identifier: MIT
 #endif
 
 
-#if !defined(BSTONE_WIN32)
+#ifndef BSTONE_WIN32
 	#define BSTONE_WIN32 0
 #endif
 
-#if !defined(BSTONE_MINGW)
+#ifndef BSTONE_MINGW
 	#define BSTONE_MINGW 0
 #endif
 
-#if !defined(BSTONE_POSIX)
+#ifndef BSTONE_POSIX
 	#define BSTONE_POSIX 0
 #endif
 
@@ -64,7 +64,7 @@ SPDX-License-Identifier: MIT
 
 // ==========================================================================
 
-#if !defined(BSTONE_EXPORT)
+#ifndef BSTONE_EXPORT
 	#if defined(_WIN32)
 		#define BSTONE_EXPORT __declspec(dllexport)
 	#elif __GNUC__ >= 4
@@ -76,7 +76,7 @@ SPDX-License-Identifier: MIT
 	#endif
 #endif
 
-#if !defined(BSTONE_EXPORT)
+#ifndef BSTONE_EXPORT
 	#define BSTONE_EXPORT
 #endif
 

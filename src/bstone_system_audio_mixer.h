@@ -5,7 +5,7 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-#if !defined(BSTONE_SYSTEM_AUDIO_MIXER_INCLUDED)
+#ifndef BSTONE_SYSTEM_AUDIO_MIXER_INCLUDED
 #define BSTONE_SYSTEM_AUDIO_MIXER_INCLUDED
 
 #include <cstdint>

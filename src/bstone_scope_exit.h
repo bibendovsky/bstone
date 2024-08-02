@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // A general-purpose scope guard intended to call its exit function when a scope is exited.
 
-#if !defined(BSTONE_SCOPE_EXIT_INCLUDED)
+#ifndef BSTONE_SCOPE_EXIT_INCLUDED
 #define BSTONE_SCOPE_EXIT_INCLUDED
 
 #include <utility>

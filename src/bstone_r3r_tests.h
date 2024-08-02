@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // 3D Renderer: Debug Bild Tests
 
-#if !defined(BSTONE_R3R_TESTS_INCLUDED)
+#ifndef BSTONE_R3R_TESTS_INCLUDED
 #define BSTONE_R3R_TESTS_INCLUDED
 
 #ifndef NDEBUG

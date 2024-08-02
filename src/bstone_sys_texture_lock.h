@@ -4,7 +4,7 @@ Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-#if !defined(BSTONE_TEXTURE_LOCK_INCLUDED)
+#ifndef BSTONE_TEXTURE_LOCK_INCLUDED
 #define BSTONE_TEXTURE_LOCK_INCLUDED
 
 #include <memory>

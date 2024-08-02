@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // General-purpose functionality.
 
-#if !defined(BSTONE_UTILITY_INCLUDED)
+#ifndef BSTONE_UTILITY_INCLUDED
 #define BSTONE_UTILITY_INCLUDED
 
 #include <cstddef>

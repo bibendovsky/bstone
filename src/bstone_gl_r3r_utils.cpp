@@ -225,7 +225,7 @@ try {
 	device_features.is_anisotropy_available = false;
 	device_features.max_anisotropy_degree = R3rLimits::min_anisotropy_off();
 
-#if !defined(BSTONE_R3R_TEST_NO_ANISOTROPY)
+#ifndef BSTONE_R3R_TEST_NO_ANISOTROPY
 	if (!device_features.is_anisotropy_available)
 	{
 		extension_manager->probe(GlR3rExtensionId::arb_texture_filter_anisotropic);
@@ -255,7 +255,7 @@ void GlR3rUtils::probe_npot(
 try {
 	device_features.is_npot_available = false;
 
-#if !defined(BSTONE_R3R_TEST_POT_ONLY)
+#ifndef BSTONE_R3R_TEST_POT_ONLY
 	if (!device_features.is_npot_available)
 	{
 		extension_manager->probe(GlR3rExtensionId::arb_texture_non_power_of_two);
@@ -286,7 +286,7 @@ try {
 	device_features.is_mipmap_available = false;
 	gl_device_features.is_mipmap_ext = false;
 
-#if !defined(BSTONE_R3R_TEST_SW_MIPMAP)
+#ifndef BSTONE_R3R_TEST_SW_MIPMAP
 	if (gl_device_features.context_profile == sys::GlContextProfile::es)
 	{
 		device_features.is_mipmap_available = true;
@@ -344,7 +344,7 @@ try {
 	gl_device_features.is_framebuffer_available = false;
 	gl_device_features.is_framebuffer_ext = false;
 
-#if !defined(BSTONE_R3R_TEST_DEFAULT_FRAMEBUFFER)
+#ifndef BSTONE_R3R_TEST_DEFAULT_FRAMEBUFFER
 	if (!gl_device_features.is_framebuffer_available)
 	{
 		extension_manager->probe(GlR3rExtensionId::arb_framebuffer_object);
@@ -380,7 +380,7 @@ void GlR3rUtils::probe_sampler(
 try {
 	device_features.is_sampler_available = false;
 
-#if !defined(BSTONE_R3R_TEST_SW_SAMPLER)
+#ifndef BSTONE_R3R_TEST_SW_SAMPLER
 	extension_manager->probe(GlR3rExtensionId::arb_sampler_objects);
 
 	if (extension_manager->has(GlR3rExtensionId::arb_sampler_objects))
@@ -426,7 +426,7 @@ try {
 		}
 	}
 
-#if !defined(BSTONE_R3R_TEST_GL_NO_VAO)
+#ifndef BSTONE_R3R_TEST_GL_NO_VAO
 	if (!gl_device_features.is_vao_available)
 	{
 		extension_manager->probe(GlR3rExtensionId::arb_vertex_array_object);
@@ -461,7 +461,7 @@ try {
 	device_features.is_vsync_available = false;
 	device_features.is_vsync_requires_restart = false;
 
-#if !defined(BSTONE_R3R_TEST_NO_SWAP_INTERVAL)
+#ifndef BSTONE_R3R_TEST_NO_SWAP_INTERVAL
 	try
 	{
 		gl_current_context.set_swap_interval(sys::SwapIntervalType::none);
@@ -485,7 +485,7 @@ void GlR3rUtils::probe_buffer_storage(
 try {
 	gl_device_features.is_buffer_storage_available = false;
 
-#if !defined(BSTONE_R3R_TEST_GL_NO_BUFFER_STORAGE)
+#ifndef BSTONE_R3R_TEST_GL_NO_BUFFER_STORAGE
 	extension_manager->probe(GlR3rExtensionId::arb_buffer_storage);
 
 	if (extension_manager->has(GlR3rExtensionId::arb_buffer_storage))
@@ -501,7 +501,7 @@ void GlR3rUtils::probe_dsa(
 try {
 	gl_device_features.is_dsa_available = false;
 
-#if !defined(BSTONE_R3R_TEST_GL_NO_DSA)
+#ifndef BSTONE_R3R_TEST_GL_NO_DSA
 	extension_manager->probe(GlR3rExtensionId::arb_direct_state_access);
 
 	if (extension_manager->has(GlR3rExtensionId::arb_direct_state_access))

@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // A window.
 
-#if !defined(BSTONE_SYS_WINDOW_INCLUDED)
+#ifndef BSTONE_SYS_WINDOW_INCLUDED
 #define BSTONE_SYS_WINDOW_INCLUDED
 
 #include <climits>

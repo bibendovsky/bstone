@@ -4,7 +4,7 @@ Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-#if !defined(BSTONE_CHAR_HASHER_INCLUDED)
+#ifndef BSTONE_CHAR_HASHER_INCLUDED
 #define BSTONE_CHAR_HASHER_INCLUDED
 
 #include <cstddef>

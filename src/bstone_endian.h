@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Endianness.
 
-#if !defined(BSTONE_ENDIAN_INCLUDED)
+#ifndef BSTONE_ENDIAN_INCLUDED
 #define BSTONE_ENDIAN_INCLUDED
 
 #include <cstdint>
@@ -16,11 +16,11 @@ SPDX-License-Identifier: MIT
 #include "bstone_assert.h"
 #include "bstone_utility.h"
 
-#if !defined(BSTONE_LITTLE_ENDIAN)
+#ifndef BSTONE_LITTLE_ENDIAN
 	#define BSTONE_LITTLE_ENDIAN 1
 #endif
 
-#if !defined(BSTONE_BIG_ENDIAN)
+#ifndef BSTONE_BIG_ENDIAN
 	#define BSTONE_BIG_ENDIAN 2
 #endif
 
@@ -28,7 +28,7 @@ SPDX-License-Identifier: MIT
 	#error Invalid endian value.
 #endif
 
-#if !defined(BSTONE_ENDIAN)
+#ifndef BSTONE_ENDIAN
 
 	#if defined(_WIN32) && !defined(__MINGW32__)
 
@@ -46,7 +46,7 @@ SPDX-License-Identifier: MIT
 		//
 		// __BYTE_ORDER__
 		//
-		#if !defined(BSTONE_ENDIAN)
+		#ifndef BSTONE_ENDIAN
 			#if defined(__BYTE_ORDER__)
 				#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 					#define BSTONE_ENDIAN BSTONE_BIG_ENDIAN
@@ -59,7 +59,7 @@ SPDX-License-Identifier: MIT
 		//
 		// __BIG_ENDIAN__ / __LITTLE_ENDIAN__
 		//
-		#if !defined(BSTONE_ENDIAN)
+		#ifndef BSTONE_ENDIAN
 			#if defined(__BIG_ENDIAN__)
 				#define BSTONE_ENDIAN BSTONE_BIG_ENDIAN
 			#elif defined(__LITTLE_ENDIAN__)
@@ -71,7 +71,7 @@ SPDX-License-Identifier: MIT
 
 #endif
 
-#if !defined(BSTONE_ENDIAN)
+#ifndef BSTONE_ENDIAN
 	#error Unknown byte order.
 #endif
 

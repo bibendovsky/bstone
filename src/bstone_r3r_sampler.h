@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // 3D Renderer: Sampler
 
-#if !defined(BSTONE_R3R_SAMPLER_INCLUDED)
+#ifndef BSTONE_R3R_SAMPLER_INCLUDED
 #define BSTONE_R3R_SAMPLER_INCLUDED
 
 #include <memory>

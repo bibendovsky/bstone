@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Thread-safe, arena memory resource with auto-reseting size.
 
-#if !defined(BSTONE_TS_AUTO_ARENA_RESOURCE_INCLUDED)
+#ifndef BSTONE_TS_AUTO_ARENA_RESOURCE_INCLUDED
 #define BSTONE_TS_AUTO_ARENA_RESOURCE_INCLUDED
 
 #include <mutex>

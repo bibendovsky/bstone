@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // File system primitives.
 
-#if !defined(BSTONE_FS_INCLUDED)
+#ifndef BSTONE_FS_INCLUDED
 #define BSTONE_FS_INCLUDED
 
 #include <cstdint>

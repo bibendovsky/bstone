@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Unicode transformation primitives.
 
-#if !defined(BSTONE_UTF_INCLUDED)
+#ifndef BSTONE_UTF_INCLUDED
 #define BSTONE_UTF_INCLUDED
 
 #include <cstdint>

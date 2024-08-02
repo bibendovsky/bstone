@@ -7,7 +7,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 // Software accelerated video (SW).
 
-#if !defined(BSTONE_SW_VIDEO_INCLUDED)
+#ifndef BSTONE_SW_VIDEO_INCLUDED
 #define BSTONE_SW_VIDEO_INCLUDED
 
 #include "bstone_sys_video_mgr.h"

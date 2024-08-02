@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // OpenGL 3D Renderer: Sampler
 
-#if !defined(BSTONE_GL_R3R_SAMPLER_INCLUDED)
+#ifndef BSTONE_GL_R3R_SAMPLER_INCLUDED
 #define BSTONE_GL_R3R_SAMPLER_INCLUDED
 
 #include "bstone_r3r_sampler.h"

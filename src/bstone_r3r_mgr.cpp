@@ -55,17 +55,17 @@ try {
 
 	switch (param.renderer_type)
 	{
-#if !defined(BSTONE_R3R_TEST_NO_GL)
+#ifndef BSTONE_R3R_TEST_NO_GL
 
-#if !defined(BSTONE_R3R_TEST_NO_GL_2_0)
+#ifndef BSTONE_R3R_TEST_NO_GL_2_0
 		case R3rType::gl_2_0:
 #endif
 
-#if !defined(BSTONE_R3R_TEST_NO_GL_3_2_C)
+#ifndef BSTONE_R3R_TEST_NO_GL_3_2_C
 		case R3rType::gl_3_2_core:
 #endif
 
-#if !defined(BSTONE_R3R_TEST_NO_GLES_2_0)
+#ifndef BSTONE_R3R_TEST_NO_GLES_2_0
 		case R3rType::gles_2_0:
 #endif
 

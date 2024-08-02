@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // UTF-16 primitives.
 
-#if !defined(BSTONE_UTF16_INCLUDED)
+#ifndef BSTONE_UTF16_INCLUDED
 #define BSTONE_UTF16_INCLUDED
 
 #include <cstdint>

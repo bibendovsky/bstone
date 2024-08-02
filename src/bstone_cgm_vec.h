@@ -11,7 +11,7 @@ Notes:
   - Only integral and floating-point types are supported.
 */
 
-#if !defined(BSTONE_CGM_VEC_INCLUDED)
+#ifndef BSTONE_CGM_VEC_INCLUDED
 #define BSTONE_CGM_VEC_INCLUDED
 
 #include <cmath>

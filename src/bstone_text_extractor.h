@@ -5,7 +5,7 @@ Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-#if !defined(BSTONE_TEXT_EXTRACTOR_INCLUDED)
+#ifndef BSTONE_TEXT_EXTRACTOR_INCLUDED
 #define BSTONE_TEXT_EXTRACTOR_INCLUDED
 
 #include <string>

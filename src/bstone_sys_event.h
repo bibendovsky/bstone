@@ -4,7 +4,7 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-#if !defined(BSTONE_SYS_EVENT_INCLUDED)
+#ifndef BSTONE_SYS_EVENT_INCLUDED
 #define BSTONE_SYS_EVENT_INCLUDED
 
 #include "bstone_sys_keyboard_key.h"

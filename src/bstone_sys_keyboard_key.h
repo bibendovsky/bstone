@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Keyboard keys.
 
-#if !defined(BSTONE_SYS_KEYBOARD_KEY_INCLUDED)
+#ifndef BSTONE_SYS_KEYBOARD_KEY_INCLUDED
 #define BSTONE_SYS_KEYBOARD_KEY_INCLUDED
 
 namespace bstone {

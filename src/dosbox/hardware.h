@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // A stub for DOSBox OPL2 emulator.
 
-#if !defined(BSTONE_DOSBOX_HARDWARE_INCLUDED)
+#ifndef BSTONE_DOSBOX_HARDWARE_INCLUDED
 #define BSTONE_DOSBOX_HARDWARE_INCLUDED
 
 enum OPL_Mode

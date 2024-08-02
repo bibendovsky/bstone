@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // System manager.
 
-#if !defined(BSTONE_SYS_SYSTEM_MGR_INCLUDED)
+#ifndef BSTONE_SYS_SYSTEM_MGR_INCLUDED
 #define BSTONE_SYS_SYSTEM_MGR_INCLUDED
 
 #include <memory>

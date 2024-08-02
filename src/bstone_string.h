@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Null-terminated string.
 
-#if !defined(BSTONE_STRING_INCLUDED)
+#ifndef BSTONE_STRING_INCLUDED
 #define BSTONE_STRING_INCLUDED
 
 #include <cstdint>

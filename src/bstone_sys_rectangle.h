@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // A rectangle with the origin at the upper-left.
 
-#if !defined(BSTONE_RECTANGLE_INCLUDED)
+#ifndef BSTONE_RECTANGLE_INCLUDED
 #define BSTONE_RECTANGLE_INCLUDED
 
 namespace bstone {

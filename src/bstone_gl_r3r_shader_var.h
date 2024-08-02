@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // OpenGL 3D Renderer: Shader Variable
 
-#if !defined(BSTONE_GL_R3R_SHADER_VAR_INCLUDED)
+#ifndef BSTONE_GL_R3R_SHADER_VAR_INCLUDED
 #define BSTONE_GL_R3R_SHADER_VAR_INCLUDED
 
 #include "bstone_r3r_shader_var.h"

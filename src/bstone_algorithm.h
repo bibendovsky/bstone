@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Functions for a variety of purposes that operate on ranges of elements.
 
-#if !defined(BSTONE_ALGORITHM_INCLUDED)
+#ifndef BSTONE_ALGORITHM_INCLUDED
 #define BSTONE_ALGORITHM_INCLUDED
 
 namespace bstone {

@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Read-only contiguous sequence of characters.
 
-#if !defined(BSTONE_STRING_VIEW_INCLUDED)
+#ifndef BSTONE_STRING_VIEW_INCLUDED
 #define BSTONE_STRING_VIEW_INCLUDED
 
 #include <cstddef>

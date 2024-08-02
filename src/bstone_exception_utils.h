@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Exception utils.
 
-#if !defined(BSTONE_EXCEPTION_UTILS_INCLUDED)
+#ifndef BSTONE_EXCEPTION_UTILS_INCLUDED
 #define BSTONE_EXCEPTION_UTILS_INCLUDED
 
 #include <deque>

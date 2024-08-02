@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // OpenGL 3D Renderer: Shader Stage
 
-#if !defined(BSTONE_GL_R3R_SHADER_STAGE_INCLUDED)
+#ifndef BSTONE_GL_R3R_SHADER_STAGE_INCLUDED
 #define BSTONE_GL_R3R_SHADER_STAGE_INCLUDED
 
 #include "bstone_gl_r3r_api.h"

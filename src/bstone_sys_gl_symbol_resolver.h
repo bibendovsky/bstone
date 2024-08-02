@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // OpenGL symbol resolver.
 
-#if !defined(BSTONE_SYS_GL_SYMBOL_RESOLVER_INCLUDED)
+#ifndef BSTONE_SYS_GL_SYMBOL_RESOLVER_INCLUDED
 #define BSTONE_SYS_GL_SYMBOL_RESOLVER_INCLUDED
 
 namespace bstone {

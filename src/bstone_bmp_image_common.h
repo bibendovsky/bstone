@@ -8,7 +8,7 @@ SPDX-License-Identifier: MIT
 BMP constants, etc.
 */
 
-#if !defined(BSTONE_BMP_IMAGE_COMMON_INCLUDED)
+#ifndef BSTONE_BMP_IMAGE_COMMON_INCLUDED
 #define BSTONE_BMP_IMAGE_COMMON_INCLUDED
 
 namespace bstone {

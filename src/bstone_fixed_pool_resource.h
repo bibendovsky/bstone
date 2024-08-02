@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Memory pool with known size of an object and maximum objects.
 
-#if !defined(BSTONE_FIXED_POOL_RESOURCE_INCLUDED)
+#ifndef BSTONE_FIXED_POOL_RESOURCE_INCLUDED
 #define BSTONE_FIXED_POOL_RESOURCE_INCLUDED
 
 #include "bstone_assert.h"

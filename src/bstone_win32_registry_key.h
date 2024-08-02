@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Windows registry key primitive.
 
-#if !defined(BSTONE_WIN32_REGISTRY_KEY_INCLUDED)
+#ifndef BSTONE_WIN32_REGISTRY_KEY_INCLUDED
 #define BSTONE_WIN32_REGISTRY_KEY_INCLUDED
 
 #if defined(_WIN32)

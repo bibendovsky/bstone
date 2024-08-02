@@ -11,7 +11,7 @@ Notes:
   - Only floating-point types are supported.
 */
 
-#if !defined(BSTONE_CGM_CLIP_SPACE_INCLUDED)
+#ifndef BSTONE_CGM_CLIP_SPACE_INCLUDED
 #define BSTONE_CGM_CLIP_SPACE_INCLUDED
 
 #include <cmath>

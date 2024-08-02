@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Renderer's swap interval type.
 
-#if !defined(BSTONE_SYS_R3R_SWAP_INTERVAL_TYPE_INCLUDED)
+#ifndef BSTONE_SYS_R3R_SWAP_INTERVAL_TYPE_INCLUDED
 #define BSTONE_SYS_R3R_SWAP_INTERVAL_TYPE_INCLUDED
 
 namespace bstone {

@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Encoding utils.
 
-#if !defined(BSTONE_ENCODING_INCLUDED)
+#ifndef BSTONE_ENCODING_INCLUDED
 #define BSTONE_ENCODING_INCLUDED
 
 #include <string>

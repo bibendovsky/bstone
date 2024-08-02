@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // 3D Renderer: Types
 
-#if !defined(BSTONE_R3R_TYPES_INCLUDED)
+#ifndef BSTONE_R3R_TYPES_INCLUDED
 #define BSTONE_R3R_TYPES_INCLUDED
 
 #include <array>

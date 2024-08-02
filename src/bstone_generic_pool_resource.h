@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Generic memory pool.
 
-#if !defined(BSTONE_GENERIC_POOL_RESOURCE_INCLUDED)
+#ifndef BSTONE_GENERIC_POOL_RESOURCE_INCLUDED
 #define BSTONE_GENERIC_POOL_RESOURCE_INCLUDED
 
 #include <cstdint>

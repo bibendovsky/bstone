@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // OpenGL 3D Renderer: Error Utils
 
-#if !defined(BSTONE_GL_R3R_ERROR_INCLUDED)
+#ifndef BSTONE_GL_R3R_ERROR_INCLUDED
 #define BSTONE_GL_R3R_ERROR_INCLUDED
 
 namespace bstone {

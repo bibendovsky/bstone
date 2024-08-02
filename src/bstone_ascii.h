@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // ASCII utils.
 
-#if !defined(BSTONE_ASCII_INCLUDED)
+#ifndef BSTONE_ASCII_INCLUDED
 #define BSTONE_ASCII_INCLUDED
 
 namespace bstone {

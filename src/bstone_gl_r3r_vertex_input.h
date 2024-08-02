@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // OpenGL 3D Renderer: Vertex Input
 
-#if !defined(BSTONE_GL_R3R_VERTEX_INPUT_INCLUDED)
+#ifndef BSTONE_GL_R3R_VERTEX_INPUT_INCLUDED
 #define BSTONE_GL_R3R_VERTEX_INPUT_INCLUDED
 
 #include "bstone_gl_r3r_device_features.h"

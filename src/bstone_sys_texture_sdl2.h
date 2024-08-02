@@ -4,7 +4,7 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-#if !defined(BSTONE_SYS_TEXTURE_SDL2_INCLUDED)
+#ifndef BSTONE_SYS_TEXTURE_SDL2_INCLUDED
 #define BSTONE_SYS_TEXTURE_SDL2_INCLUDED
 
 #include "bstone_sys_logger.h"

@@ -6,10 +6,10 @@ SPDX-License-Identifier: MIT
 
 // C++ standard features.
 
-#if !defined(BSTONE_CXX_INCLUDED)
+#ifndef BSTONE_CXX_INCLUDED
 #define BSTONE_CXX_INCLUDED
 
-#if !defined(BSTONE_CXX_NODISCARD)
+#ifndef BSTONE_CXX_NODISCARD
 	#if __cplusplus == 201703L
 		#define BSTONE_CXX_NODISCARD [[nodiscard]]
 	#else

@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // OpenGL 3D Renderer: 2D Texture
 
-#if !defined(BSTONE_GL_R3R_R2_TEXTURE_INCLUDED)
+#ifndef BSTONE_GL_R3R_R2_TEXTURE_INCLUDED
 #define BSTONE_GL_R3R_R2_TEXTURE_INCLUDED
 
 #include "bstone_r3r_r2_texture.h"

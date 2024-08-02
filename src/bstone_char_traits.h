@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Character traits.
 
-#if !defined(BSTONE_CHAR_TRAITS_INCLUDED)
+#ifndef BSTONE_CHAR_TRAITS_INCLUDED
 #define BSTONE_CHAR_TRAITS_INCLUDED
 
 #include <cstdint>

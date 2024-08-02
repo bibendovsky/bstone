@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // File system utils.
 
-#if !defined(BSTONE_FS_UTILS_INCLUDED)
+#ifndef BSTONE_FS_UTILS_INCLUDED
 #define BSTONE_FS_UTILS_INCLUDED
 
 #include <string>

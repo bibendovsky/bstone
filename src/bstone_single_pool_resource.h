@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Memory pool for single object.
 
-#if !defined(BSTONE_SINGLE_POOL_RESOURCE_INCLUDED)
+#ifndef BSTONE_SINGLE_POOL_RESOURCE_INCLUDED
 #define BSTONE_SINGLE_POOL_RESOURCE_INCLUDED
 
 #include "bstone_cxx.h"

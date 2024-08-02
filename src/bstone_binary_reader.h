@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Reads primitive data types as binary values.
 
-#if !defined(BSTONE_BINARY_READER_INCLUDED)
+#ifndef BSTONE_BINARY_READER_INCLUDED
 #define BSTONE_BINARY_READER_INCLUDED
 
 #include <cstdint>

@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Information about the source code: file name, line number, function name.
 
-#if !defined(BSTONE_SOURCE_LOCATION_INCLUDED)
+#ifndef BSTONE_SOURCE_LOCATION_INCLUDED
 #define BSTONE_SOURCE_LOCATION_INCLUDED
 
 #include "bstone_utility.h"
@@ -57,7 +57,7 @@ constexpr void SourceLocation::swap(SourceLocation& rhs) noexcept
 
 // ==========================================================================
 
-#if !defined(BSTONE_MAKE_SOURCE_LOCATION)
+#ifndef BSTONE_MAKE_SOURCE_LOCATION
 #define BSTONE_MAKE_SOURCE_LOCATION() ::bstone::SourceLocation{__FILE__, __LINE__, __func__}
 #endif
 

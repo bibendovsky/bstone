@@ -7,7 +7,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 // 3D Renderer: Utils
 
-#if !defined(BSTONE_R3R_UTILS_INCLUDED)
+#ifndef BSTONE_R3R_UTILS_INCLUDED
 #define BSTONE_R3R_UTILS_INCLUDED
 
 #include <string>

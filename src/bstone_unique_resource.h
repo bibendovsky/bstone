@@ -11,7 +11,7 @@ Notes:
   - Resource, deleter and empty value must not throw an exception.
 */
 
-#if !defined(BSTONE_UNIQUE_RESOURCE_INCLUDED)
+#ifndef BSTONE_UNIQUE_RESOURCE_INCLUDED
 #define BSTONE_UNIQUE_RESOURCE_INCLUDED
 
 #include <type_traits>

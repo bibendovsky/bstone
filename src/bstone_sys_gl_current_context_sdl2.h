@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // OpenGL current context (SDL).
 
-#if !defined(BSTONE_SYS_GL_CURRENT_CONTEXT_SDL2_INCLUDED)
+#ifndef BSTONE_SYS_GL_CURRENT_CONTEXT_SDL2_INCLUDED
 #define BSTONE_SYS_GL_CURRENT_CONTEXT_SDL2_INCLUDED
 
 #include "bstone_sys_gl_current_context.h"

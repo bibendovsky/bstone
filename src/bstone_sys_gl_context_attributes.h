@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // OpenGL context attributes.
 
-#if !defined(BSTONE_SYS_GL_CONTEXT_ATTRIBUTES_INCLUDED)
+#ifndef BSTONE_SYS_GL_CONTEXT_ATTRIBUTES_INCLUDED
 #define BSTONE_SYS_GL_CONTEXT_ATTRIBUTES_INCLUDED
 
 #include "bstone_sys_gl_context_profile.h"

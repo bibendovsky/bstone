@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Tracks allocated blocks in memory pool.
 
-#if !defined(BSTONE_MEMORY_POOL_BITMAP_INCLUDED)
+#ifndef BSTONE_MEMORY_POOL_BITMAP_INCLUDED
 #define BSTONE_MEMORY_POOL_BITMAP_INCLUDED
 
 #include <cstdint>

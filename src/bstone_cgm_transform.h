@@ -11,7 +11,7 @@ Notes:
   - Only floating-point types are supported.
 */
 
-#if !defined(BSTONE_CGM_TRANSFORM_INCLUDED)
+#ifndef BSTONE_CGM_TRANSFORM_INCLUDED
 #define BSTONE_CGM_TRANSFORM_INCLUDED
 
 #if !defined(NDEBUG)

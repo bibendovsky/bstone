@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // OpenGL 3D Renderer: Vertex Input Manager
 
-#if !defined(BSTONE_GL_R3R_VERTEX_INPUT_MGR_INCLUDED)
+#ifndef BSTONE_GL_R3R_VERTEX_INPUT_MGR_INCLUDED
 #define BSTONE_GL_R3R_VERTEX_INPUT_MGR_INCLUDED
 
 #include <memory>

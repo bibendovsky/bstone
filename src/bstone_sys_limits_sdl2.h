@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // FIXME Move to the configuration?
 
-#if !defined(BSTONE_SYS_LIMITS_SDL2_INCLUDED)
+#ifndef BSTONE_SYS_LIMITS_SDL2_INCLUDED
 #define BSTONE_SYS_LIMITS_SDL2_INCLUDED
 
 namespace bstone {

@@ -7,7 +7,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 // Hardware accelerated video (HW).
 
-#if !defined(BSTONE_HW_VIDEO_INCLUDED)
+#ifndef BSTONE_HW_VIDEO_INCLUDED
 #define BSTONE_HW_VIDEO_INCLUDED
 
 #include "bstone_video.h"

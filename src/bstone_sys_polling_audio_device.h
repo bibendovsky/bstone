@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Audio device feedding via callback.
 
-#if !defined(BSTONE_SYS_POLLING_AUDIO_DEVICE_INCLUDED)
+#ifndef BSTONE_SYS_POLLING_AUDIO_DEVICE_INCLUDED
 #define BSTONE_SYS_POLLING_AUDIO_DEVICE_INCLUDED
 
 #include <memory>

@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // 3D Renderer: 2D Texture
 
-#if !defined(BSTONE_R3R_R2_TEXTURE_INCLUDED)
+#ifndef BSTONE_R3R_R2_TEXTURE_INCLUDED
 #define BSTONE_R3R_R2_TEXTURE_INCLUDED
 
 #include <memory>

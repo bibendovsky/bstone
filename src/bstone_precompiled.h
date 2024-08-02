@@ -7,7 +7,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 // Precompiled header
 
-#if !defined(BSTONE_PRECOMPILED_INCLUDED)
+#ifndef BSTONE_PRECOMPILED_INCLUDED
 #define BSTONE_PRECOMPILED_INCLUDED
 
 #include <cassert>

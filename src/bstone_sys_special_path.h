@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Special path primitives.
 
-#if !defined(BSTONE_SYS_SPECIAL_PATH_INCLUDED)
+#ifndef BSTONE_SYS_SPECIAL_PATH_INCLUDED
 #define BSTONE_SYS_SPECIAL_PATH_INCLUDED
 
 #include <cstdint>

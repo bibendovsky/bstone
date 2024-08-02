@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // 3D Renderer: Buffer
 
-#if !defined(BSTONE_R3R_BUFFER_INCLUDED)
+#ifndef BSTONE_R3R_BUFFER_INCLUDED
 #define BSTONE_R3R_BUFFER_INCLUDED
 
 #include <memory>

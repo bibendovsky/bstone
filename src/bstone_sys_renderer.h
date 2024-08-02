@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // 2D renderer.
 
-#if !defined(BSTONE_SYS_RENDERER_INCLUDED)
+#ifndef BSTONE_SYS_RENDERER_INCLUDED
 #define BSTONE_SYS_RENDERER_INCLUDED
 
 #include <memory>

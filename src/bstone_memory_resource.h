@@ -4,7 +4,7 @@ Copyright (c) 2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-#if !defined(BSTONE_MEMORY_RESOURCE_INCLUDED)
+#ifndef BSTONE_MEMORY_RESOURCE_INCLUDED
 #define BSTONE_MEMORY_RESOURCE_INCLUDED
 
 #include <cstdint>

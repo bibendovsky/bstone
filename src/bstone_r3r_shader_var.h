@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // 3D Renderer: Shader Variable
 
-#if !defined(BSTONE_R3R_SHADER_VAR_INCLUDED)
+#ifndef BSTONE_R3R_SHADER_VAR_INCLUDED
 #define BSTONE_R3R_SHADER_VAR_INCLUDED
 
 #include <cstdint>

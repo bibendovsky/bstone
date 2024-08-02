@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Mouse.
 
-#if !defined(BSTONE_SYS_MOUSE_INCLUDED)
+#ifndef BSTONE_SYS_MOUSE_INCLUDED
 #define BSTONE_SYS_MOUSE_INCLUDED
 
 namespace bstone {

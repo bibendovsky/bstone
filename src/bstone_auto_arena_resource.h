@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Arena memory resource with auto-reseting size.
 
-#if !defined(BSTONE_AUTO_ARENA_RESOURCE_INCLUDED)
+#ifndef BSTONE_AUTO_ARENA_RESOURCE_INCLUDED
 #define BSTONE_AUTO_ARENA_RESOURCE_INCLUDED
 
 #include <cstdint>

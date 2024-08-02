@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // 3D Renderer: Shader Stage
 
-#if !defined(BSTONE_R3R_SHADER_STAGE_INCLUDED)
+#ifndef BSTONE_R3R_SHADER_STAGE_INCLUDED
 #define BSTONE_R3R_SHADER_STAGE_INCLUDED
 
 #include <memory>

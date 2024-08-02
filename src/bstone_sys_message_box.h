@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Message box.
 
-#if !defined(BSTONE_SYS_MESSAGE_BOX_INCLUDED)
+#ifndef BSTONE_SYS_MESSAGE_BOX_INCLUDED
 #define BSTONE_SYS_MESSAGE_BOX_INCLUDED
 
 #include "bstone_enum_flags.h"

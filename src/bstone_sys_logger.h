@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Logger.
 
-#if !defined(BSTONE_SYS_LOGGER_INCLUDED)
+#ifndef BSTONE_SYS_LOGGER_INCLUDED
 #define BSTONE_SYS_LOGGER_INCLUDED
 
 namespace bstone {

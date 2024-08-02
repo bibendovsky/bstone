@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Dynamic memory management.
 
-#if !defined(BSTONE_MEMORY_INCLUDED)
+#ifndef BSTONE_MEMORY_INCLUDED
 #define BSTONE_MEMORY_INCLUDED
 
 #include <new>

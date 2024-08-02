@@ -4,11 +4,11 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-#if !defined(BSTONE_ENTRY_POINT_INCLUDED)
+#ifndef BSTONE_ENTRY_POINT_INCLUDED
 #define BSTONE_ENTRY_POINT_INCLUDED
 
 #if defined(_WIN32)
-	#if !defined(BSTONE_ENTRY_POINT_IMPLEMENTATION)
+	#ifndef BSTONE_ENTRY_POINT_IMPLEMENTATION
 		#undef main
 		#define main bstone_entry_point
 	#endif

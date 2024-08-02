@@ -4,7 +4,7 @@ Copyright (c) 2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-#if !defined(BSTONE_TESTER_INCLUDED)
+#ifndef BSTONE_TESTER_INCLUDED
 #define BSTONE_TESTER_INCLUDED
 
 #include <deque>

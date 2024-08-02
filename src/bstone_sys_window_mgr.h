@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Window manager.
 
-#if !defined(BSTONE_SYS_WINDOW_MGR_INCLUDED)
+#ifndef BSTONE_SYS_WINDOW_MGR_INCLUDED
 #define BSTONE_SYS_WINDOW_MGR_INCLUDED
 
 #include <memory>

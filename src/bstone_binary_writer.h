@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // Writes primitive data types as binary values.
 
-#if !defined(BSTONE_BINARY_WRITER_INCLUDED)
+#ifndef BSTONE_BINARY_WRITER_INCLUDED
 #define BSTONE_BINARY_WRITER_INCLUDED
 
 #include <cstdint>

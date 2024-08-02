@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // 3D Renderer: Vertex Input
 
-#if !defined(BSTONE_R3R_VERTEX_INPUT_INCLUDED)
+#ifndef BSTONE_R3R_VERTEX_INPUT_INCLUDED
 #define BSTONE_R3R_VERTEX_INPUT_INCLUDED
 
 #include <memory>

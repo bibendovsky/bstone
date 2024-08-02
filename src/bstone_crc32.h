@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 // CRC-32/ISO-HDLC
 
-#if !defined(BSTONE_CRC32_INCLUDED)
+#ifndef BSTONE_CRC32_INCLUDED
 #define BSTONE_CRC32_INCLUDED
 
 #include <cstdint>

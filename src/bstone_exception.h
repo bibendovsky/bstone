@@ -93,17 +93,17 @@ private:
 
 // ==========================================================================
 
-#if !defined(BSTONE_THROW_STATIC_SOURCE)
+#ifndef BSTONE_THROW_STATIC_SOURCE
 	#define BSTONE_THROW_STATIC_SOURCE(message) \
 	::bstone::StaticSourceException::fail(BSTONE_MAKE_SOURCE_LOCATION(), message)
 #endif
 
-#if !defined(BSTONE_THROW_DYNAMIC_SOURCE)
+#ifndef BSTONE_THROW_DYNAMIC_SOURCE
 	#define BSTONE_THROW_DYNAMIC_SOURCE(message) \
 	::bstone::DynamicSourceException::fail(BSTONE_MAKE_SOURCE_LOCATION(), message)
 #endif
 
-#if !defined(BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED)
+#ifndef BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 	#define BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED \
 	catch (...) { ::bstone::StaticSourceException::fail_nested(BSTONE_MAKE_SOURCE_LOCATION()); }
 #endif

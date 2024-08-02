@@ -4,7 +4,7 @@ Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-#if !defined(BSTONE_R2_EXTENT_T_INCLUDED)
+#ifndef BSTONE_R2_EXTENT_T_INCLUDED
 #define BSTONE_R2_EXTENT_T_INCLUDED
 
 namespace bstone {
