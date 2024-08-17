@@ -307,7 +307,8 @@ void AudioExtractorImpl::extract_raw_audio_chunk(const std::string& dst_dir, con
 
 	auto file_stream = FileStream{
 		dst_file_name.c_str(),
-		FileOpenFlags::create | FileOpenFlags::truncate | FileOpenFlags::write};
+		FileOpenFlags::create | FileOpenFlags::truncate | FileOpenFlags::write,
+		FileShareMode::exclusive};
 
 	const auto written_size = file_stream.write(audio_chunk.data, audio_chunk.data_size);
 
@@ -332,7 +333,8 @@ void AudioExtractorImpl::extract_decoded_audio_chunk(const std::string& dst_dir,
 
 	auto file_stream = FileStream{
 		dst_file_name.c_str(),
-		FileOpenFlags::create | FileOpenFlags::truncate | FileOpenFlags::write};
+		FileOpenFlags::create | FileOpenFlags::truncate | FileOpenFlags::write,
+		FileShareMode::exclusive};
 
 	switch (audio_chunk.type)
 	{

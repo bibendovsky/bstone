@@ -65,16 +65,35 @@ BSTONE_ENABLE_ENUM_CLASS_BITWISE_OPS_FOR(FileOpenFlags)
 
 // ==========================================================================
 
+enum class FileShareMode
+{
+	unrestricted,
+	shared, // Requires a read access.
+	exclusive, // Requires a write access.
+};
+
+// ==========================================================================
+
 class File
 {
 public:
 	File() noexcept = default;
-	explicit File(const char* path, FileOpenFlags open_flags = FileOpenFlags::read);
+
+	explicit File(
+		const char* path,
+		FileOpenFlags open_flags = FileOpenFlags::read,
+		FileShareMode share_mode = FileShareMode::shared);
 
 	bool try_open(
 		const char* path,
-		FileOpenFlags open_flags = FileOpenFlags::read);
-	void open(const char* path, FileOpenFlags open_flags = FileOpenFlags::read);
+		FileOpenFlags open_flags = FileOpenFlags::read,
+		FileShareMode share_mode = FileShareMode::shared);
+
+	void open(
+		const char* path,
+		FileOpenFlags open_flags = FileOpenFlags::read,
+		FileShareMode share_mode = FileShareMode::shared);
+
 	void close() noexcept;
 	bool is_open() const noexcept;
 	std::intptr_t read(void* buffer, std::intptr_t count) const;
@@ -105,6 +124,7 @@ private:
 	static bool try_or_open_internal(
 		const char* path,
 		FileOpenFlags open_flags,
+		FileShareMode share_mode,
 		FileErrorMode file_error_mode,
 		FileUResource& resource);
 };

@@ -196,6 +196,7 @@ void File::flush() const
 bool File::try_or_open_internal(
 	const char* path,
 	FileOpenFlags open_flags,
+	FileShareMode share_mode,
 	FileErrorMode file_error_mode,
 	FileUResource& resource)
 {
@@ -239,7 +240,33 @@ bool File::try_or_open_internal(
 	// Make sharing mode.
 	//
 
-	constexpr auto win32_share_mode = DWORD{FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE};
+	auto win32_share_mode = DWORD{};
+
+	switch (share_mode)
+	{
+		case FileShareMode::unrestricted:
+			win32_share_mode = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
+			break;
+
+		case FileShareMode::shared:
+			if (!is_readable)
+			{
+				BSTONE_THROW_STATIC_SOURCE("Shared file requires a read access.");
+			}
+
+			win32_share_mode = FILE_SHARE_READ;
+			break;
+
+		case FileShareMode::exclusive:
+			if (!is_writable)
+			{
+				BSTONE_THROW_STATIC_SOURCE("Exclusive file requires a write access.");
+			}
+
+			break;
+
+		default: BSTONE_THROW_STATIC_SOURCE("Unknown file share mode.");
+	}
 
 	// Make disposition.
 	//

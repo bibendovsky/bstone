@@ -7167,7 +7167,8 @@ static void write_high_scores()
 
 	if (!stream.try_open(
 		tmp_scores_path.c_str(),
-		bstone::FileOpenFlags::create | bstone::FileOpenFlags::write))
+		bstone::FileOpenFlags::create | bstone::FileOpenFlags::write,
+		bstone::FileShareMode::exclusive))
 	{
 		bstone::globals::logger->log_error(
 			("Failed to open a high scores file for writing: \"" + tmp_scores_path + "\".").c_str());
@@ -7832,7 +7833,8 @@ void write_text_config()
 	{
 		bstone::FileStream stream{
 			tmp_config_path.c_str(),
-			bstone::FileOpenFlags::create | bstone::FileOpenFlags::truncate | bstone::FileOpenFlags::write};
+			bstone::FileOpenFlags::create | bstone::FileOpenFlags::truncate | bstone::FileOpenFlags::write,
+			bstone::FileShareMode::exclusive};
 
 		if (stream.write(stream_data, stream_size) != stream_size)
 		{
@@ -9198,7 +9200,8 @@ bool SaveTheGame(
 
 	if (!file_stream.try_open(
 		tmp_file_name.c_str(),
-		bstone::FileOpenFlags::create | bstone::FileOpenFlags::truncate | bstone::FileOpenFlags::write))
+		bstone::FileOpenFlags::create | bstone::FileOpenFlags::truncate | bstone::FileOpenFlags::write,
+		bstone::FileShareMode::exclusive))
 	{
 		bstone::globals::logger->log_error(("SAVE: Failed to open file \"" + tmp_file_name + "\".").c_str());
 

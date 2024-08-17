@@ -12,19 +12,19 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-FileStream::FileStream(const char* path, FileOpenFlags open_flags)
+FileStream::FileStream(const char* path, FileOpenFlags open_flags, FileShareMode share_mode)
 	:
-	file_{path, open_flags}
+	file_{path, open_flags, share_mode}
 {}
 
-bool FileStream::try_open(const char* path, FileOpenFlags open_flags)
+bool FileStream::try_open(const char* path, FileOpenFlags open_flags, FileShareMode share_mode)
 {
-	return file_.try_open(path, open_flags);
+	return file_.try_open(path, open_flags, share_mode);
 }
 
-void FileStream::open(const char* path, FileOpenFlags open_flags)
+void FileStream::open(const char* path, FileOpenFlags open_flags, FileShareMode share_mode)
 {
-	file_.open(path, open_flags);
+	file_.open(path, open_flags, share_mode);
 }
 
 void FileStream::do_close() noexcept

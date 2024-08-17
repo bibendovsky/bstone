@@ -201,7 +201,8 @@ void TextExtractor::extract_text(const std::string& dst_dir, const TextNumber& t
 
 	auto file_stream = FileStream{
 		file_name.c_str(),
-		FileOpenFlags::create | FileOpenFlags::truncate | FileOpenFlags::write};
+		FileOpenFlags::create | FileOpenFlags::truncate | FileOpenFlags::write,
+		FileShareMode::exclusive};
 
 	file_stream.write_exactly(text_data, text_size);
 }

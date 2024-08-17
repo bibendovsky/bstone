@@ -204,7 +204,7 @@ void test_kya8vcige6hhxfpm()
 	dir_path += bstone::fs::native_separator;
 	dir_path += "1_.txt";
 	{
-		const auto file = bstone::File{dir_path.c_str(), bstone::FileOpenFlags::create};
+		const auto file = bstone::File{dir_path.c_str(), bstone::FileOpenFlags::create, bstone::FileShareMode::exclusive};
 	}
 
 	auto new_dir_path = std::string{};
@@ -290,7 +290,7 @@ void test_fe5kz9xekiti9zof()
 	dir_path += bstone::fs::native_separator;
 	dir_path += "1.txt";
 	{
-		const auto file = bstone::File{dir_path.c_str(), bstone::FileOpenFlags::create};
+		const auto file = bstone::File{dir_path.c_str(), bstone::FileOpenFlags::create, bstone::FileShareMode::exclusive};
 	}
 
 	bstone::fs::remove_if_exists(dir_path.c_str());
@@ -364,7 +364,7 @@ void test_pb7luss22on0qt4t()
 	dir_path += bstone::fs::native_separator;
 	dir_path += "1.txt";
 	{
-		const auto file = bstone::File{dir_path.c_str(), bstone::FileOpenFlags::create};
+		const auto file = bstone::File{dir_path.c_str(), bstone::FileOpenFlags::create, bstone::FileShareMode::exclusive};
 	}
 
 	bstone::fs::remove(dir_path.c_str());

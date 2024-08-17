@@ -38,6 +38,19 @@ constexpr auto posix_file_max_int = std::min(
 	std::int64_t{std::numeric_limits<::off_t>::max()},
 	std::int64_t{std::numeric_limits<std::intptr_t>::max()});
 
+void posix_set_record_locking(int posix_file_descriptor, short posix_lock_type)
+try {
+	struct flock posix_flock {};
+	posix_flock.l_type = posix_lock_type;
+	posix_flock.l_whence = SEEK_SET;
+	const auto fcntl_result = fcntl(posix_file_descriptor, F_SETLK, &posix_flock);
+
+	if (fcntl_result == -1)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Failed to lock a file.");
+	}
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
 } // namespace
 
 // ==========================================================================
@@ -166,6 +179,7 @@ void File::flush() const
 bool File::try_or_open_internal(
 	const char* path,
 	FileOpenFlags open_flags,
+	FileShareMode share_mode,
 	FileErrorMode file_error_mode,
 	FileUResource& resource)
 {
@@ -188,6 +202,30 @@ bool File::try_or_open_internal(
 	if (!is_readable && !is_writable)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Invalid flags combination.");
+	}
+
+	switch (share_mode)
+	{
+		case FileShareMode::unrestricted:
+			break;
+
+		case FileShareMode::shared:
+			if (!is_readable)
+			{
+				BSTONE_THROW_STATIC_SOURCE("Shared file requires a read access.");
+			}
+
+			break;
+
+		case FileShareMode::exclusive:
+			if (!is_writable)
+			{
+				BSTONE_THROW_STATIC_SOURCE("Exclusive file requires a write access.");
+			}
+
+			break;
+
+		default: BSTONE_THROW_STATIC_SOURCE("Unknown file share mode.");
 	}
 
 	const auto use_error_code = file_error_mode == FileErrorMode::error_code;
@@ -266,6 +304,25 @@ bool File::try_or_open_internal(
 		}
 
 		BSTONE_THROW_STATIC_SOURCE("Not a regular file.");
+	}
+
+	// Lock the file.
+	//
+
+	switch (share_mode)
+	{
+		case FileShareMode::unrestricted:
+			break;
+
+		case FileShareMode::shared:
+			posix_set_record_locking(new_resource.get(), F_RDLCK);
+			break;
+
+		case FileShareMode::exclusive:
+			posix_set_record_locking(new_resource.get(), F_WRLCK);
+			break;
+
+		default: BSTONE_THROW_STATIC_SOURCE("Unknown file share mode.");
 	}
 
 	// Commit changes.

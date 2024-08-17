@@ -12,19 +12,19 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-File::File(const char* path, FileOpenFlags open_flags)
+File::File(const char* path, FileOpenFlags open_flags, FileShareMode share_mode)
 {
-	try_or_open_internal(path, open_flags, FileErrorMode::exception, resource_);
+	try_or_open_internal(path, open_flags, share_mode, FileErrorMode::exception, resource_);
 }
 
-bool File::try_open(const char* path, FileOpenFlags open_flags)
+bool File::try_open(const char* path, FileOpenFlags open_flags, FileShareMode share_mode)
 {
-	return try_or_open_internal(path, open_flags, FileErrorMode::error_code, resource_);
+	return try_or_open_internal(path, open_flags, share_mode, FileErrorMode::error_code, resource_);
 }
 
-void File::open(const char* path, FileOpenFlags open_flags)
+void File::open(const char* path, FileOpenFlags open_flags, FileShareMode share_mode)
 {
-	try_or_open_internal(path, open_flags, FileErrorMode::exception, resource_);
+	try_or_open_internal(path, open_flags, share_mode, FileErrorMode::exception, resource_);
 }
 
 void File::close() noexcept

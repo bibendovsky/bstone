@@ -49,7 +49,8 @@ void LevelExtractor::extract_levels(const std::string& destination_dir)
 		{
 			auto file = File{
 				tmp_file_path.c_str(),
-				bstone::FileOpenFlags::create | bstone::FileOpenFlags::truncate};
+				bstone::FileOpenFlags::create | bstone::FileOpenFlags::truncate,
+				bstone::FileShareMode::exclusive};
 
 			for (const auto& plane : mapsegs)
 			{

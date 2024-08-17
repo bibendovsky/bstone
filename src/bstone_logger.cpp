@@ -418,7 +418,7 @@ void LoggerImpl::try_open_file() noexcept
 		return;
 	}
 
-	auto flags = FileOpenFlags::create | FileOpenFlags::write;
+	auto flags = FileOpenFlags::create | FileOpenFlags::read_write;
 
 	if (!is_file_open_at_least_once_)
 	{

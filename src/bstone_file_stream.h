@@ -18,15 +18,25 @@ class FileStream final : public Stream
 {
 public:
 	FileStream() noexcept = default;
-	explicit FileStream(const char* path, FileOpenFlags open_flags = FileOpenFlags::read);
+
+	explicit FileStream(
+		const char* path,
+		FileOpenFlags open_flags = FileOpenFlags::read,
+		FileShareMode share_mode = FileShareMode::shared);
+
 	FileStream(FileStream&&) noexcept = default;
 	FileStream& operator=(FileStream&&) noexcept = default;
 	~FileStream() override = default;
 
 	bool try_open(
 		const char* path,
-		FileOpenFlags open_flags = FileOpenFlags::read);
-	void open(const char* path, FileOpenFlags open_flags = FileOpenFlags::read);
+		FileOpenFlags open_flags = FileOpenFlags::read,
+		FileShareMode share_mode = FileShareMode::shared);
+
+	void open(
+		const char* path,
+		FileOpenFlags open_flags = FileOpenFlags::read,
+		FileShareMode share_mode = FileShareMode::shared);
 
 private:
 	File file_{};
