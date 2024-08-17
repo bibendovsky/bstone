@@ -37,6 +37,6 @@ target_compile_options(bstone_tests_process
 target_sources(bstone_tests_process PRIVATE src/bstone_tests_process.cpp)
 
 install(TARGETS bstone_tests_process
-	LIBRARY DESTINATION "tests"
-	RUNTIME DESTINATION "tests"
+	LIBRARY DESTINATION "bstone_tests"
+	RUNTIME DESTINATION "bstone_tests"
 )

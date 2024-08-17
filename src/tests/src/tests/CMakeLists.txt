@@ -212,5 +212,5 @@ target_sources(bstone_tests
 		src/bstone_tests.cpp
 )
 
-install(TARGETS bstone_tests RUNTIME DESTINATION "tests")
-install(DIRECTORY data DESTINATION "tests")
+install(TARGETS bstone_tests RUNTIME DESTINATION "bstone_tests")
+install(DIRECTORY data DESTINATION "bstone_tests")

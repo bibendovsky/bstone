@@ -51,6 +51,6 @@ target_sources(bstone_tests_shared_library
 )
 
 install(TARGETS bstone_tests_shared_library
-	LIBRARY DESTINATION "tests"
-	RUNTIME DESTINATION "tests"
+	LIBRARY DESTINATION "bstone_tests"
+	RUNTIME DESTINATION "bstone_tests"
 )
