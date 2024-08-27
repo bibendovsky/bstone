@@ -33,6 +33,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_exception.h"
 #include "bstone_exception_utils.h"
 #include "bstone_four_cc.h"
+#include "bstone_fs.h"
 #include "bstone_fs_utils.h"
 #include "bstone_globals.h"
 #include "bstone_logger.h"
@@ -10067,12 +10068,7 @@ int main(
 		bstone::globals::logger->log_error(error_message.c_str());
 		bstone::globals::logger->flush();
 
-		auto has_log_file = false;
-
-		{
-			auto log_file = bstone::File{};
-			has_log_file = log_file.try_open(log_file_path.c_str());
-		}
+		const auto has_log_file = bstone::fs::is_regular_file_exists(log_file_path.c_str());
 
 		try
 		{
