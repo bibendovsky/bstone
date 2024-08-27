@@ -50,6 +50,7 @@
 - Update Nuked OPL3 to 730f8c238a152cb3314e46919789a666c9d81d82.
 - Update stb (stb_image.h v2.29; stb_image_write.h v1.16).
 - Set CMake minimum version to v3.5.0.
+- Option `--data_dir` does not affect auto-detection of original assets.
 
 ### Removed
 - PS Vita support (long time not maintained, outdated code).

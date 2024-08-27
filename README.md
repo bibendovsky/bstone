@@ -293,7 +293,6 @@ Legend:
 Both all lowercase and all uppercase (default) file names are supported.
 
 The port auto-detect assets of some digital distribution services.
-Note that option `--data_dir` disables auto-detection.
 
 Supported services:
 

@@ -676,49 +676,47 @@ void find_contents()
 	{
 		add_search_path("custom dir", data_dir_, search_paths);
 	}
-	else
+
 	{
-		{
-			const auto working_full_dir = bstone::fs_utils::append_path_separator(
-				bstone::fs_utils::get_working_dir());
+		const auto working_full_dir = bstone::fs_utils::append_path_separator(
+			bstone::fs_utils::get_working_dir());
 
-			add_search_path("working dir", working_full_dir, search_paths);
-		}
+		add_search_path("working dir", working_full_dir, search_paths);
+	}
 
-		{
-			const auto profile_full_dir = get_profile_dir();
+	{
+		const auto profile_full_dir = get_profile_dir();
 
-			add_search_path("profile dir", profile_full_dir, search_paths);
-		}
+		add_search_path("profile dir", profile_full_dir, search_paths);
+	}
 		
+	{
+		const auto source_name = std::string{"GOG"};
+		const auto content_path = bstone::make_content_path(bstone::ContentPathProvider::gog);
+
+		if (!content_path.aog_.empty())
 		{
-			const auto source_name = std::string{"GOG"};
-			const auto content_path = bstone::make_content_path(bstone::ContentPathProvider::gog);
-
-			if (!content_path.aog_.empty())
-			{
-				add_search_path(source_name, content_path.aog_, search_paths);
-			}
-
-			if (!content_path.ps_.empty())
-			{
-				add_search_path(source_name, content_path.ps_, search_paths);
-			}
+			add_search_path(source_name, content_path.aog_, search_paths);
 		}
 
+		if (!content_path.ps_.empty())
 		{
-			const auto source_name = std::string{"Steam"};
-			const auto content_path = bstone::make_content_path(bstone::ContentPathProvider::steam);
+			add_search_path(source_name, content_path.ps_, search_paths);
+		}
+	}
 
-			if (!content_path.aog_.empty())
-			{
-				add_search_path(source_name, content_path.aog_, search_paths);
-			}
+	{
+		const auto source_name = std::string{"Steam"};
+		const auto content_path = bstone::make_content_path(bstone::ContentPathProvider::steam);
 
-			if (!content_path.ps_.empty())
-			{
-				add_search_path(source_name, content_path.ps_, search_paths);
-			}
+		if (!content_path.aog_.empty())
+		{
+			add_search_path(source_name, content_path.aog_, search_paths);
+		}
+
+		if (!content_path.ps_.empty())
+		{
+			add_search_path(source_name, content_path.ps_, search_paths);
 		}
 	}
 
