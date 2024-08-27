@@ -35,6 +35,9 @@ void rename(const char* old_path, const char* new_path);
 void remove_if_exists(const char* path);
 void remove(const char* path);
 
+bool is_directory_exists(const char* path);
+bool is_regular_file_exists(const char* path);
+
 } // namespace fs
 } // namespace bstone
 

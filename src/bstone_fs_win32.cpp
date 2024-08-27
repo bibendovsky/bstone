@@ -210,6 +210,36 @@ void remove(const char* path)
 	return win32_remove(path, false);
 }
 
+// ==========================================================================
+
+bool is_directory_exists(const char* path)
+{
+	const auto w_path = Win32WString{path};
+	const auto file_attributes = GetFileAttributesW(w_path.get_data());
+
+	if (file_attributes == INVALID_FILE_ATTRIBUTES)
+	{
+		return false;
+	}
+
+	return (file_attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+}
+
+// ==========================================================================
+
+bool is_regular_file_exists(const char* path)
+{
+	const auto w_path = Win32WString{path};
+	const auto file_attributes = GetFileAttributesW(w_path.get_data());
+
+	if (file_attributes == INVALID_FILE_ATTRIBUTES)
+	{
+		return false;
+	}
+
+	return (file_attributes & FILE_ATTRIBUTE_DIRECTORY) == 0;
+}
+
 } // namespace fs
 } // namespace bstone
 

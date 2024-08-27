@@ -10,6 +10,14 @@ auto tester = bstone::Tester{};
 
 // ==========================================================================
 
+#ifdef _WIN32
+	#define BSTONE_TESTS_PATH_SEPARATOR_STRING "\\"
+#else
+	#define BSTONE_TESTS_PATH_SEPARATOR_STRING "/"
+#endif
+
+// ==========================================================================
+
 // std::intptr_t get_working_directory(char*, std::intptr_t)
 void test_oe4nc54c2sipndrz()
 {
@@ -372,6 +380,30 @@ void test_pb7luss22on0qt4t()
 
 // ==========================================================================
 
+// bool is_directory_exists(const char* path)
+void test_yjjwwi33w89bdb89()
+{
+	constexpr auto valid_dir_path = "data";
+	constexpr auto invalid_dir_path = "/:/";
+
+	tester.check(bstone::fs::is_directory_exists(valid_dir_path));
+	tester.check(!bstone::fs::is_directory_exists(invalid_dir_path));
+}
+
+// ==========================================================================
+
+// bool is_regular_file_exists(const char* path)
+void test_4iveypn2vd69u4w6()
+{
+	constexpr auto valid_file_path = "data" BSTONE_TESTS_PATH_SEPARATOR_STRING "bstone_tests_tag.txt";
+	constexpr auto invalid_file_path = "/:/";
+
+	tester.check(bstone::fs::is_regular_file_exists(valid_file_path));
+	tester.check(!bstone::fs::is_regular_file_exists(invalid_file_path));
+}
+
+// ==========================================================================
+
 class Registrator
 {
 public:
@@ -384,6 +416,8 @@ public:
 		register_rename();
 		register_remove_if_exists();
 		register_remove();
+		register_is_directory_exists();
+		register_is_regular_file_exists();
 	}
 
 private:
@@ -423,6 +457,16 @@ private:
 	{
 		tester.register_test("fs#2lduj52sj26u8ues", test_2lduj52sj26u8ues);
 		tester.register_test("fs#pb7luss22on0qt4t", test_pb7luss22on0qt4t);
+	}
+
+	void register_is_directory_exists()
+	{
+		tester.register_test("fs#yjjwwi33w89bdb89", test_yjjwwi33w89bdb89);
+	}
+
+	void register_is_regular_file_exists()
+	{
+		tester.register_test("fs#4iveypn2vd69u4w6", test_4iveypn2vd69u4w6);
 	}
 };
 

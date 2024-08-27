@@ -1,10 +1,10 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2023-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-#if !defined(_WIN32)
+#ifndef _WIN32
 
 #include <cstdint>
 
@@ -143,6 +143,34 @@ void remove(const char* path)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Failed to remove.");
 	}
+}
+
+// ==========================================================================
+
+bool is_directory_exists(const char* path)
+{
+	struct stat posix_stat;
+
+	if (stat(path, &posix_stat) != 0)
+	{
+		return false;
+	}
+
+	return S_ISDIR(posix_stat.st_mode) != 0;
+}
+
+// ==========================================================================
+
+bool is_regular_file_exists(const char* path)
+{
+	struct stat posix_stat;
+
+	if (stat(path, &posix_stat) != 0)
+	{
+		return false;
+	}
+
+	return S_ISREG(posix_stat.st_mode) != 0;
 }
 
 } // namespace fs
