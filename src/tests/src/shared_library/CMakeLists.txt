@@ -20,7 +20,7 @@ set_target_properties(bstone_tests_shared_library PROPERTIES
 
 target_include_directories(bstone_tests_shared_library
 	PRIVATE
-		../../..
+		../../../bstone/src
 		include
 )
 

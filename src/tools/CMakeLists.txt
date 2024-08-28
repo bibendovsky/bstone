@@ -7,13 +7,5 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
 
-if (BSTONE_INTERNAL_SDL2)
-	add_subdirectory(lib/sdl2)
-endif ()
-
-add_subdirectory(tools)
-add_subdirectory(bstone)
-
-if (BSTONE_TESTS)
-	add_subdirectory(tests)
-endif ()
+add_subdirectory(ltrimcs)
+add_subdirectory(glapigen)

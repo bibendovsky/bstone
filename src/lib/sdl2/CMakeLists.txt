@@ -9,6 +9,7 @@ project(bstone_sdl2 VERSION 1.0.0 LANGUAGES NONE)
 
 message(STATUS "[bstone_sdl2] v${PROJECT_VERSION}")
 
+set(SDL2_DISABLE_INSTALL ON CACHE BOOL "Disable installation of SDL2" FORCE)
 set(SDL2_DISABLE_UNINSTALL ON CACHE BOOL "Disable uninstallation of SDL2" FORCE)
 set(SDL2_DISABLE_SDL2MAIN ON CACHE BOOL "Disable building/installation of SDL2main" FORCE)
 set(SDL_SHARED OFF CACHE BOOL "Build a shared version of the library" FORCE)

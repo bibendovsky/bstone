@@ -3520,7 +3520,13 @@ if(SDL_TEST)
 endif()
 
 if(MSVC AND NOT SDL_LIBC)
-  set(targets SDL2)
+  # <<< bstone
+  #set(targets SDL2)
+  set(targets "")
+  if(TARGET SDL2)
+    list(APPEND targets SDL2)
+  endif()
+  # >>> bstone
   if(TARGET SDL2-static)
     list(APPEND targets SDL2-static)
   endif()

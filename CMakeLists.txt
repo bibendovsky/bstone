@@ -40,14 +40,4 @@ endif ()
 string(SUBSTRING "${BSTONE_GIT_HASH}" 0 8 BSTONE_GIT_HASH_SHORT)
 message(STATUS "[bstone_solution] Short Git hash: ${BSTONE_GIT_HASH_SHORT}")
 
-if (BSTONE_INTERNAL_SDL2)
-	add_subdirectory(src/lib/sdl2)
-endif ()
-
-if (BSTONE_TESTS)
-	add_subdirectory(src/tests)
-endif ()
-
-add_subdirectory(src/tools/glapigen)
-add_subdirectory(src/tools/ltrimcs)
-add_subdirectory (src)
+add_subdirectory(src)
