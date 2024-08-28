@@ -945,7 +945,7 @@ install(FILES ../README.md
 	RENAME bstone_readme.txt
 )
 
-install(FILES ../LICENSE
+install(FILES ../LICENSE.txt
 	DESTINATION "."
 	RENAME bstone_license.txt
 )
