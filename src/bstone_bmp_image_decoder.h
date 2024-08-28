@@ -14,6 +14,8 @@ namespace bstone {
 class BmpImageDecoder : public ImageDecoder
 {
 public:
+	~BmpImageDecoder() override;
+
 	void decode(
 		const void* src_data,
 		int src_data_size,

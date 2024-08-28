@@ -14,6 +14,8 @@ namespace bstone {
 class StbImageEncoder : public ImageEncoder
 {
 public:
+	~StbImageEncoder() override;
+
 	void encode_24(
 		const std::uint8_t* src_buffer,
 		int src_width,

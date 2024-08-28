@@ -15,6 +15,8 @@ namespace bstone {
 class StbImageDecoder : public ImageDecoder
 {
 public:
+	~StbImageDecoder() override;
+
 	void decode(
 		const void* src_data,
 		int src_data_size,

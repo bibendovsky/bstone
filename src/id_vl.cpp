@@ -371,6 +371,8 @@ class SaveScreenshotMtTask final :
 	public bstone::MtTask
 {
 public:
+	~SaveScreenshotMtTask() override;
+
 	// ----------------------------------------------------------------------
 	// MtTask
 
@@ -413,6 +415,8 @@ private:
 	bool is_flipped_vertically_{};
 }; // SaveScreenshotMtTask
 
+
+SaveScreenshotMtTask::~SaveScreenshotMtTask() = default;
 
 void SaveScreenshotMtTask::execute()
 try
@@ -556,7 +560,7 @@ constexpr auto max_screenshot_tasks = 16;
 
 using SaveScreenshotMtTasks = std::array<SaveScreenshotMtTask, max_screenshot_tasks>;
 
-auto vid_save_screenshot_mt_tasks = SaveScreenshotMtTasks{};
+SaveScreenshotMtTasks vid_save_screenshot_mt_tasks{};
 
 // --------------------------------------------------------------------------
 

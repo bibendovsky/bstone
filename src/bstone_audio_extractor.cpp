@@ -34,6 +34,7 @@ class AudioExtractorImpl final : public AudioExtractor
 {
 public:
 	AudioExtractorImpl(AudioContentMgr& audio_content_mgr);
+	~AudioExtractorImpl() override;
 
 	void extract_music(const std::string& dst_dir) override;
 	void extract_sfx(const std::string& dst_dir) override;
@@ -84,6 +85,8 @@ AudioExtractorImpl::AudioExtractorImpl(
 {
 	decode_buffer_.resize(std::max(bstone::opl3_fixed_frequency, pc_speaker_rate));
 }
+
+AudioExtractorImpl::~AudioExtractorImpl() = default;
 
 void AudioExtractorImpl::extract_music(const std::string& dst_dir)
 {

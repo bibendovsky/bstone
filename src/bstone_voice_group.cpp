@@ -72,6 +72,7 @@ class VoiceGroupImpl final : public VoiceGroup
 {
 public:
 	VoiceGroupImpl(AudioMixer& audio_mixer);
+	~VoiceGroupImpl() override;
 
 private:
 	using VoiceSet = std::unordered_set<Voice*>;
@@ -100,6 +101,8 @@ VoiceGroupImpl::VoiceGroupImpl(AudioMixer& audio_mixer)
 	audio_mixer_{&audio_mixer},
 	gain_{audio_mixer_max_gain}
 {}
+
+VoiceGroupImpl::~VoiceGroupImpl() = default;
 
 bool VoiceGroupImpl::do_is_any_playing()
 {

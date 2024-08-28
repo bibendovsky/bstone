@@ -22,6 +22,7 @@ class AudioContentMgrImpl final : public AudioContentMgr
 {
 public:
 	AudioContentMgrImpl(PageMgr& page_mgr);
+	~AudioContentMgrImpl() override;
 
 	// ----------------------------------------------------------------------
 	// AudioContentMgr
@@ -76,6 +77,8 @@ AudioContentMgrImpl::AudioContentMgrImpl(PageMgr& page_mgr)
 {
 	initialize();
 }
+
+AudioContentMgrImpl::~AudioContentMgrImpl() = default;
 
 AudioSfxType AudioContentMgrImpl::get_sfx_type() const noexcept
 {

@@ -25,6 +25,7 @@ class PcmAudioDecoder final : public AudioDecoder
 {
 public:
 	PcmAudioDecoder() noexcept;
+	~PcmAudioDecoder() override;
 
 	bool initialize(const AudioDecoderInitParam& param) override;
 	void uninitialize() override;
@@ -47,6 +48,8 @@ private:
 // --------------------------------------------------------------------------
 
 PcmAudioDecoder::PcmAudioDecoder() noexcept = default;
+
+PcmAudioDecoder::~PcmAudioDecoder() = default;
 
 bool PcmAudioDecoder::initialize(const AudioDecoderInitParam& param)
 {

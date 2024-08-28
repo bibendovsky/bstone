@@ -25,6 +25,8 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
+StbImageEncoder::~StbImageEncoder() = default;
+
 void StbImageEncoder::encode_24(
 	const std::uint8_t* src_buffer,
 	int src_width,

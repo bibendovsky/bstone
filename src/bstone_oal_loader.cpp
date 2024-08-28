@@ -20,6 +20,7 @@ class OalLoaderImpl final : public OalLoader
 {
 public:
 	OalLoaderImpl(const char* shared_library_path);
+	~OalLoaderImpl() override;
 
 	void load_alc_symbols(OalAlSymbols& al_symbols) override;
 	void load_al_symbols(OalAlSymbols& al_symbols) override;
@@ -88,6 +89,8 @@ OalLoaderImpl::OalLoaderImpl(const char* shared_library_path)
 {
 	open_internal(shared_library_path);
 }
+
+OalLoaderImpl::~OalLoaderImpl() = default;
 
 void OalLoaderImpl::load_alc_symbols(OalAlSymbols& al_symbols)
 try {

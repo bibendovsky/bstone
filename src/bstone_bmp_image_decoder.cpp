@@ -1546,6 +1546,8 @@ void BmpImageDecoderImpl::decode_internal()
 
 // ==========================================================================
 
+BmpImageDecoder::~BmpImageDecoder() = default;
+
 void BmpImageDecoder::decode(
 	const void* src_data,
 	int src_data_size,

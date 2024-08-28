@@ -29,6 +29,7 @@ class DosboxDbopl final : public Opl3
 {
 public:
 	DosboxDbopl();
+	~DosboxDbopl() override;
 
 	Opl3Type get_type() const noexcept override;
 
@@ -75,6 +76,7 @@ private:
 // --------------------------------------------------------------------------
 
 DosboxDbopl::DosboxDbopl() = default;
+DosboxDbopl::~DosboxDbopl() = default;
 
 Opl3Type DosboxDbopl::get_type() const noexcept
 {

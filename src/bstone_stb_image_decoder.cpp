@@ -25,6 +25,8 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
+StbImageDecoder::~StbImageDecoder() = default;
+
 void StbImageDecoder::decode(
 	const void* src_data,
 	int src_data_size,

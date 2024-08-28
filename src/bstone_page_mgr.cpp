@@ -34,6 +34,7 @@ class PageMgrImpl final :
 {
 public:
 	PageMgrImpl();
+	~PageMgrImpl() override;
 
 
 	// =========================================================================
@@ -90,6 +91,8 @@ PageMgrImpl::PageMgrImpl()
 {
 	load_vswap();
 }
+
+PageMgrImpl::~PageMgrImpl() = default;
 
 int PageMgrImpl::get_count() const noexcept
 {

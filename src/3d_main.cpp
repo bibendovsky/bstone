@@ -10006,6 +10006,8 @@ int main(
 			logger_{logger}
 		{}
 
+		~SysLogger() override = default;
+
 	private:
 		bstone::Logger& logger_;
 
