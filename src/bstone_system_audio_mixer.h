@@ -261,7 +261,6 @@ private:
 	int dst_rate_{};
 	SysCallback sys_callback_{};
 	sys::AudioMgr* sys_audio_mgr_{};
-	sys::PollingAudioDeviceUPtr sys_audio_device_{};
 	int mix_samples_count_{};
 	Samples buffer_{};
 	S16Samples s16_samples_{};
@@ -285,6 +284,7 @@ private:
 	bool is_listener_r3_position_changed_;
 	bool is_listener_r3_orientation_changed_;
 	std::atomic_bool is_state_suspended_{};
+	sys::PollingAudioDeviceUPtr sys_audio_device_{};
 
 	int get_min_rate() const noexcept;
 	int get_default_rate() const noexcept;

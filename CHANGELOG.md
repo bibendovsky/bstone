@@ -25,6 +25,7 @@
 - Order buttons inside the message box from right to left.
 - Possible out of range index access in ClearNClose.
 - [HWR] Crash on E5M14.
+- [SDL] Audio mixer crash on exit.
 
 ### Added
 - [CMake] Option *BSTONE_INTERNAL_SDL2* to use bundled SDL2 source code.
