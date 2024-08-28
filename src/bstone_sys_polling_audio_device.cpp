@@ -11,12 +11,20 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
+PollingAudioDeviceCallback::PollingAudioDeviceCallback() = default;
+
+PollingAudioDeviceCallback::~PollingAudioDeviceCallback() = default;
+
 void PollingAudioDeviceCallback::invoke(float* samples, int sample_count)
 {
 	do_invoke(samples, sample_count);
 }
 
 // ==========================================================================
+
+PollingAudioDevice::PollingAudioDevice() = default;
+
+PollingAudioDevice::~PollingAudioDevice() = default;
 
 int PollingAudioDevice::get_rate() const noexcept
 {

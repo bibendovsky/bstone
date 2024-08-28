@@ -38,10 +38,10 @@ class GlR3rShaderVar :
 	public virtual R3rShaderR2SamplerVar
 {
 protected:
-	GlR3rShaderVar() = default;
+	GlR3rShaderVar();
 
 public:
-	~GlR3rShaderVar() override = default;
+	~GlR3rShaderVar() override;
 
 	static int get_unit_size(R3rShaderVarTypeId type_id);
 };

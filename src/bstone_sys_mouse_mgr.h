@@ -17,8 +17,8 @@ namespace sys {
 class MouseMgr
 {
 public:
-	MouseMgr() = default;
-	virtual ~MouseMgr() = default;
+	MouseMgr();
+	virtual ~MouseMgr();
 
 	void set_relative_mode(bool is_relative);
 

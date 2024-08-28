@@ -11,6 +11,10 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
+MouseMgr::MouseMgr() = default;
+
+MouseMgr::~MouseMgr() = default;
+
 void MouseMgr::set_relative_mode(bool is_relative)
 {
 	do_set_relative_mode(is_relative);

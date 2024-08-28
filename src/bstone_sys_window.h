@@ -150,8 +150,8 @@ struct WindowInitParam
 class Window
 {
 public:
-	Window() = default;
-	virtual ~Window() = default;
+	Window();
+	virtual ~Window();
 
 	const char* get_title();
 	void set_title(const char* title);

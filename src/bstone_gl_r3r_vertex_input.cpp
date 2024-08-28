@@ -26,6 +26,12 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
+GlR3rVertexInput::GlR3rVertexInput() = default;
+
+GlR3rVertexInput::~GlR3rVertexInput() = default;
+
+// =========================================================================
+
 class GlR3rVertexInputImpl final : public GlR3rVertexInput
 {
 public:

@@ -14,13 +14,19 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
+CCmdMgr::CCmdMgr() = default;
+
+CCmdMgr::~CCmdMgr() = default;
+
+// ==========================================================================
+
 class CCmdMgrImpl final : public CCmdMgr
 {
 public:
 	CCmdMgrImpl(std::intptr_t max_ccmds);
 	CCmdMgrImpl(const CCmdMgrImpl&) = delete;
 	CCmdMgrImpl& operator=(const CCmdMgrImpl&) = delete;
-	~CCmdMgrImpl() override = default;
+	~CCmdMgrImpl() override;
 
 	CCmd* find(StringView name) const noexcept override;
 	CCmdMgrCCmds get_all() noexcept override;
@@ -43,6 +49,8 @@ CCmdMgrImpl::CCmdMgrImpl(std::intptr_t max_ccmds)
 	:
 	max_ccmds_{max_ccmds}
 {}
+
+CCmdMgrImpl::~CCmdMgrImpl() = default;
 
 CCmd* CCmdMgrImpl::find(StringView name) const noexcept
 {

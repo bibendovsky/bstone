@@ -20,6 +20,12 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
+GlR3rBuffer::GlR3rBuffer() = default;
+
+GlR3rBuffer::~GlR3rBuffer() = default;
+
+// =========================================================================
+
 namespace {
 
 class GlR3rBufferImpl final : public GlR3rBuffer

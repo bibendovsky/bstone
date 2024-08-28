@@ -11,6 +11,10 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
+Renderer::Renderer() = default;
+
+Renderer::~Renderer() = default;
+
 const char* Renderer::get_name() const
 {
 	return do_get_name();

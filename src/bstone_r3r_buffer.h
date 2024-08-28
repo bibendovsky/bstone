@@ -55,8 +55,8 @@ struct R3rUpdateBufferParam
 class R3rBuffer
 {
 public:
-	R3rBuffer() noexcept = default;
-	virtual ~R3rBuffer() = default;
+	R3rBuffer() noexcept;
+	virtual ~R3rBuffer();
 
 public:
 	R3rBufferType get_type() const noexcept;

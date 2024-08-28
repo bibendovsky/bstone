@@ -11,6 +11,10 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
+AudioMgr::AudioMgr() = default;
+
+AudioMgr::~AudioMgr() = default;
+
 bool AudioMgr::is_initialized() const noexcept
 {
 	return do_is_initialized();

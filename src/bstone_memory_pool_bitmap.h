@@ -143,7 +143,7 @@ public:
 	using Storage = TStorage;
 
 public:
-	MemoryPoolBitmap() = default;
+	MemoryPoolBitmap();
 
 	template<typename UStorage = Storage, std::enable_if_t<UStorage::is_dynamic, int> = 0>
 	MemoryPoolBitmap(std::intptr_t size, MemoryResource& memory_resource)
@@ -180,6 +180,9 @@ private:
 };
 
 // --------------------------------------------------------------------------
+
+template<typename TStorage>
+MemoryPoolBitmap<TStorage>::MemoryPoolBitmap() = default;
 
 template<typename TStorage>
 std::intptr_t MemoryPoolBitmap<TStorage>::get_size() const noexcept

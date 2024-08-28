@@ -18,6 +18,12 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
+GlR3rSamplerMgr::GlR3rSamplerMgr() noexcept = default;
+
+GlR3rSamplerMgr::~GlR3rSamplerMgr() = default;
+
+// ==========================================================================
+
 class GlR3rSamplerMgrImpl final : public GlR3rSamplerMgr
 {
 public:

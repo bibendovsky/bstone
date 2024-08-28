@@ -22,8 +22,8 @@ using CVarMgrCVars = Span<CVar*>;
 class CVarMgr
 {
 public:
-	CVarMgr() = default;
-	virtual ~CVarMgr() = default;
+	CVarMgr();
+	virtual ~CVarMgr();
 
 	virtual CVar* find(StringView name) const noexcept = 0;
 	virtual CVarMgrCVars get_all() noexcept = 0;

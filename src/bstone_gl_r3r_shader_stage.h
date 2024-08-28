@@ -21,10 +21,10 @@ class GlR3rContext;
 class GlR3rShaderStage : public R3rShaderStage
 {
 protected:
-	GlR3rShaderStage() = default;
+	GlR3rShaderStage();
 
 public:
-	~GlR3rShaderStage() override = default;
+	~GlR3rShaderStage() override;
 	virtual GlR3rContext& get_context() const noexcept = 0;
 
 	virtual void set() = 0;

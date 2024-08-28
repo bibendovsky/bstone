@@ -33,7 +33,7 @@ public:
 	static constexpr auto object_size = static_cast<std::intptr_t>(sizeof(Object));
 
 public:
-	FixedPoolResource() noexcept = default;
+	FixedPoolResource() noexcept;
 	~FixedPoolResource() override;
 
 private:
@@ -53,6 +53,9 @@ private:
 };
 
 // --------------------------------------------------------------------------
+
+template<typename TObject, std::intptr_t TMaxObjects>
+FixedPoolResource<TObject, TMaxObjects>::FixedPoolResource() noexcept = default;
 
 template<typename TObject, std::intptr_t TMaxObjects>
 FixedPoolResource<TObject, TMaxObjects>::~FixedPoolResource()

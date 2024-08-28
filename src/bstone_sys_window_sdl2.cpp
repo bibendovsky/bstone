@@ -23,6 +23,10 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
+Sdl2WindowInternal::Sdl2WindowInternal() = default;
+
+Sdl2WindowInternal::~Sdl2WindowInternal() = default;
+
 void* Sdl2WindowInternal::get_native_handle() const noexcept
 {
 	return do_get_native_handle();

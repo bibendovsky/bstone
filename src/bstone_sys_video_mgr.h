@@ -30,8 +30,8 @@ struct DisplayMode
 class VideoMgr
 {
 public:
-	VideoMgr() = default;
-	virtual ~VideoMgr() = default;
+	VideoMgr();
+	virtual ~VideoMgr();
 
 	bool is_initialized() const noexcept;
 

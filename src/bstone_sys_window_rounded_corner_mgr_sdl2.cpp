@@ -48,7 +48,7 @@ class Sdl2WindowRoundedCornerMgr final : public WindowRoundedCornerMgr
 {
 public:
 	Sdl2WindowRoundedCornerMgr();
-	~Sdl2WindowRoundedCornerMgr() override = default;
+	~Sdl2WindowRoundedCornerMgr() override;
 
 	void* operator new(std::size_t size);
 	void operator delete(void* ptr) noexcept;
@@ -106,6 +106,8 @@ Sdl2WindowRoundedCornerMgr::Sdl2WindowRoundedCornerMgr()
 
 	wdmapi_shared_library_.swap(wdmapi_shared_library);
 }
+
+Sdl2WindowRoundedCornerMgr::~Sdl2WindowRoundedCornerMgr() = default;
 
 void* Sdl2WindowRoundedCornerMgr::operator new(std::size_t size)
 {

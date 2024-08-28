@@ -14,13 +14,19 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
+CVarMgr::CVarMgr() = default;
+
+CVarMgr::~CVarMgr() = default;
+
+// ==========================================================================
+
 class CVarMgrImpl final : public CVarMgr
 {
 public:
 	CVarMgrImpl(std::intptr_t max_cvars);
 	CVarMgrImpl(const CVarMgrImpl&) = delete;
 	CVarMgrImpl& operator=(const CVarMgrImpl&) = delete;
-	~CVarMgrImpl() override = default;
+	~CVarMgrImpl() override;
 
 	CVar* find(StringView name) const noexcept override;
 	CVarMgrCVars get_all() noexcept override;
@@ -43,6 +49,8 @@ CVarMgrImpl::CVarMgrImpl(std::intptr_t max_cvars)
 	:
 	max_cvars_{max_cvars}
 {}
+
+CVarMgrImpl::~CVarMgrImpl() = default;
 
 CVar* CVarMgrImpl::find(StringView name) const noexcept
 {

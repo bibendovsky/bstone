@@ -23,7 +23,7 @@ using GameTimerTicks = std::int32_t;
 class GameTimer
 {
 public:
-	GameTimer() = default;
+	GameTimer();
 	GameTimer(const GameTimer& rhs) = delete;
 	GameTimer(GameTimer&& rhs) noexcept = delete;
 	void operator=(GameTimerTicks ticks);

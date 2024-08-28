@@ -115,8 +115,8 @@ struct AudioMixerPlaySoundParam
 class AudioMixer
 {
 public:
-	AudioMixer() noexcept = default;
-	virtual ~AudioMixer() = default;
+	AudioMixer() noexcept;
+	virtual ~AudioMixer();
 
 	virtual Opl3Type get_opl3_type() const = 0;
 	virtual int get_rate() const = 0;

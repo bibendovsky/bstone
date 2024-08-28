@@ -14,6 +14,12 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
+ImageEncoder::ImageEncoder() noexcept = default;
+
+ImageEncoder::~ImageEncoder() = default;
+
+// ==========================================================================
+
 ImageEncodeUPtr make_image_encoder(
 	ImageEncoderType image_encoder_type)
 try {

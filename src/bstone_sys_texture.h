@@ -37,8 +37,8 @@ enum class TextureAccess
 class Texture
 {
 public:
-	Texture() = default;
-	virtual ~Texture() = default;
+	Texture();
+	virtual ~Texture();
 
 	void set_blend_mode(TextureBlendMode mode);
 	void copy(const Rectangle* texture_rectangle, const Rectangle* target_rectangle);

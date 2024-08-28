@@ -23,6 +23,12 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
+GlR3rR2Texture::GlR3rR2Texture() = default;
+
+GlR3rR2Texture::~GlR3rR2Texture() = default;
+
+// =========================================================================
+
 class GlR3rR2TextureImpl final : public GlR3rR2Texture
 {
 public:

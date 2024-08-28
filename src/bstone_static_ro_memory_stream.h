@@ -18,9 +18,9 @@ namespace bstone {
 class StaticRoMemoryStream final : public Stream
 {
 public:
-	StaticRoMemoryStream() noexcept = default;
+	StaticRoMemoryStream() noexcept;
 	StaticRoMemoryStream(const void* buffer, std::intptr_t buffer_size);
-	~StaticRoMemoryStream() override = default;
+	~StaticRoMemoryStream() override;
 
 	const std::uint8_t* get_data() const;
 

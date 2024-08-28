@@ -40,8 +40,8 @@ enum class R3rShaderVarTypeId
 class R3rShaderVar
 {
 public:
-	R3rShaderVar() noexcept = default;
-	virtual ~R3rShaderVar() = default;
+	R3rShaderVar() noexcept;
+	virtual ~R3rShaderVar();
 
 	R3rShaderVarType get_type() const noexcept;
 	R3rShaderVarTypeId get_type_id() const noexcept;
@@ -62,8 +62,8 @@ private:
 class R3rShaderInt32Var : public virtual R3rShaderVar
 {
 public:
-	R3rShaderInt32Var() noexcept = default;
-	virtual ~R3rShaderInt32Var() = default;
+	R3rShaderInt32Var() noexcept;
+	virtual ~R3rShaderInt32Var();
 
 	void set_int32(std::int32_t value);
 
@@ -76,8 +76,8 @@ private:
 class R3rShaderFloat32Var : public virtual R3rShaderVar
 {
 public:
-	R3rShaderFloat32Var() noexcept = default;
-	virtual ~R3rShaderFloat32Var() = default;
+	R3rShaderFloat32Var() noexcept;
+	virtual ~R3rShaderFloat32Var();
 
 	void set_float32(float value);
 
@@ -90,8 +90,8 @@ private:
 class R3rShaderVec2Var : public virtual R3rShaderVar
 {
 public:
-	R3rShaderVec2Var() noexcept = default;
-	virtual ~R3rShaderVec2Var() = default;
+	R3rShaderVec2Var() noexcept;
+	virtual ~R3rShaderVec2Var();
 
 	void set_vec2(const float* value);
 
@@ -104,8 +104,8 @@ private:
 class R3rShaderVec4Var : public virtual R3rShaderVar
 {
 public:
-	R3rShaderVec4Var() noexcept = default;
-	virtual ~R3rShaderVec4Var() = default;
+	R3rShaderVec4Var() noexcept;
+	virtual ~R3rShaderVec4Var();
 
 	void set_vec4(const float* value);
 
@@ -118,8 +118,8 @@ private:
 class R3rShaderMat4Var : public virtual R3rShaderVar
 {
 public:
-	R3rShaderMat4Var() noexcept = default;
-	virtual ~R3rShaderMat4Var() = default;
+	R3rShaderMat4Var() noexcept;
+	virtual ~R3rShaderMat4Var();
 
 	void set_mat4(const float* value);
 
@@ -132,8 +132,8 @@ private:
 class R3rShaderR2SamplerVar : public virtual R3rShaderVar
 {
 public:
-	R3rShaderR2SamplerVar() noexcept = default;
-	virtual ~R3rShaderR2SamplerVar() = default;
+	R3rShaderR2SamplerVar() noexcept;
+	virtual ~R3rShaderR2SamplerVar();
 
 	void set_r2_sampler(std::int32_t value);
 

@@ -27,9 +27,9 @@ namespace bstone
 class Video
 {
 public:
-	Video() noexcept = default;
+	Video() noexcept;
 
-	virtual ~Video() = default;
+	virtual ~Video();
 
 
 	virtual bool is_hardware() const noexcept = 0;

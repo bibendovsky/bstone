@@ -28,9 +28,9 @@ namespace bstone
 class MtTask
 {
 public:
-	MtTask() noexcept = default;
+	MtTask() noexcept;
 
-	virtual ~MtTask() = default;
+	virtual ~MtTask();
 
 
 	virtual void execute() = 0;
@@ -63,9 +63,9 @@ using MtTaskPtr = MtTask*;
 class MtTaskMgr
 {
 public:
-	MtTaskMgr() noexcept = default;
+	MtTaskMgr() noexcept;
 
-	virtual ~MtTaskMgr() = default;
+	virtual ~MtTaskMgr();
 
 
 	virtual int get_max_threads() const noexcept = 0;

@@ -21,8 +21,8 @@ class GlR3rContext;
 class GlR3rSamplerMgr
 {
 public:
-	GlR3rSamplerMgr() noexcept = default;
-	virtual ~GlR3rSamplerMgr() = default;
+	GlR3rSamplerMgr() noexcept;
+	virtual ~GlR3rSamplerMgr();
 
 	virtual R3rSamplerUPtr create(const R3rSamplerInitParam& param) = 0;
 

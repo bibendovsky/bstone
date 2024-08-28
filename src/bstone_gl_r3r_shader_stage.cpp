@@ -29,6 +29,12 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
+GlR3rShaderStage::GlR3rShaderStage() = default;
+
+GlR3rShaderStage::~GlR3rShaderStage() = default;
+
+// ==========================================================================
+
 class GlR3rShaderStageImpl final : public GlR3rShaderStage
 {
 public:

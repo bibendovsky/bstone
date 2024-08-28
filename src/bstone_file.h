@@ -77,7 +77,7 @@ enum class FileShareMode
 class File
 {
 public:
-	File() noexcept = default;
+	File() noexcept;
 
 	explicit File(
 		const char* path,

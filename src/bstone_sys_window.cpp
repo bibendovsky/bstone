@@ -11,6 +11,10 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
+Window::Window() = default;
+
+Window::~Window() = default;
+
 const char* Window::get_title()
 {
 	return do_get_title();

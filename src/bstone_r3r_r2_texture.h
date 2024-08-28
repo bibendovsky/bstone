@@ -36,8 +36,8 @@ struct R3rR2TextureUpdateParam
 class R3rR2Texture
 {
 public:
-	R3rR2Texture() noexcept = default;
-	virtual ~R3rR2Texture() = default;
+	R3rR2Texture() noexcept;
+	virtual ~R3rR2Texture();
 
 	void update(const R3rR2TextureUpdateParam& param);
 	void generate_mipmaps();

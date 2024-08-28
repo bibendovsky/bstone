@@ -17,8 +17,8 @@ namespace sys {
 class Sdl2GlSymbolResolver final : public GlSymbolResolver
 {
 public:
-	Sdl2GlSymbolResolver() = default;
-	~Sdl2GlSymbolResolver() override = default;
+	Sdl2GlSymbolResolver();
+	~Sdl2GlSymbolResolver() override;
 
 private:
 	void* do_find_symbol(const char* symbol_name) const noexcept override;

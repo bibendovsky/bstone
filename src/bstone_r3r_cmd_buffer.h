@@ -168,8 +168,8 @@ struct R3rCmdBufferInitParam
 class R3rCmdBuffer
 {
 public:
-	R3rCmdBuffer() noexcept = default;
-	virtual ~R3rCmdBuffer() = default;
+	R3rCmdBuffer() noexcept;
+	virtual ~R3rCmdBuffer();
 
 public:
 	int get_count() const noexcept;

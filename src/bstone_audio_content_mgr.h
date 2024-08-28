@@ -19,8 +19,8 @@ namespace bstone
 class AudioContentMgr
 {
 public:
-	AudioContentMgr() noexcept = default;
-	virtual ~AudioContentMgr() = default;
+	AudioContentMgr() noexcept;
+	virtual ~AudioContentMgr();
 
 	virtual AudioSfxType get_sfx_type() const noexcept = 0;
 	virtual void set_sfx_type(AudioSfxType sfx_type) = 0;

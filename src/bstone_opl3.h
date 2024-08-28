@@ -38,8 +38,8 @@ enum class Opl3Type
 class Opl3
 {
 public:
-	Opl3() noexcept = default;
-	virtual ~Opl3() = default;
+	Opl3() noexcept;
+	virtual ~Opl3();
 
 	virtual Opl3Type get_type() const noexcept = 0;
 

@@ -19,8 +19,8 @@ namespace bstone {
 class MemoryResource
 {
 public:
-	MemoryResource() noexcept = default;
-	virtual ~MemoryResource() = default;
+	MemoryResource() noexcept;
+	virtual ~MemoryResource();
 
 	template<typename T>
 	BSTONE_CXX_NODISCARD T* allocate(std::intptr_t count);
@@ -148,8 +148,8 @@ auto make_memory_resource_uptr(MemoryResource& memory_resource, TArgs&& ...args)
 class NullMemoryResource final : public MemoryResource
 {
 public:
-	NullMemoryResource() noexcept = default;
-	~NullMemoryResource() override = default;
+	NullMemoryResource() noexcept;
+	~NullMemoryResource() override;
 
 private:
 	BSTONE_CXX_NODISCARD void* do_allocate(std::intptr_t size) override;
@@ -161,8 +161,8 @@ private:
 class NewDeleteMemoryResource final : public MemoryResource
 {
 public:
-	NewDeleteMemoryResource() noexcept = default;
-	~NewDeleteMemoryResource() override = default;
+	NewDeleteMemoryResource() noexcept;
+	~NewDeleteMemoryResource() override;
 
 private:
 	BSTONE_CXX_NODISCARD void* do_allocate(std::intptr_t size) override;

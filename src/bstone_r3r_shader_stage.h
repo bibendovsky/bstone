@@ -38,8 +38,8 @@ struct R3rShaderStageInitParam
 class R3rShaderStage
 {
 public:
-	R3rShaderStage() noexcept = default;
-	virtual ~R3rShaderStage() = default;
+	R3rShaderStage() noexcept;
+	virtual ~R3rShaderStage();
 
 	R3rShaderVar* find_var(const char* name) noexcept;
 	R3rShaderInt32Var* find_int32_var(const char* name) noexcept;

@@ -10,14 +10,16 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-bool SharedLibrary::is_open() const noexcept
-{
-	return handle_ != nullptr;
-}
+SharedLibrary::SharedLibrary() noexcept = default;
 
 SharedLibrary::SharedLibrary(const char* file_path)
 {
 	open(file_path);
+}
+
+bool SharedLibrary::is_open() const noexcept
+{
+	return handle_ != nullptr;
 }
 
 void SharedLibrary::open(const char* file_path)

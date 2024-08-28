@@ -9,6 +9,10 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
+TextureLock::TextureLock() = default;
+
+TextureLock::~TextureLock() = default;
+
 void* TextureLock::get_pixels() const noexcept
 {
 	return do_get_pixels();

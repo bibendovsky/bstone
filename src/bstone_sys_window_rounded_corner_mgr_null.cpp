@@ -22,8 +22,8 @@ namespace {
 class NullWindowRoundedCornerMgr final : public WindowRoundedCornerMgr
 {
 public:
-	NullWindowRoundedCornerMgr() = default;
-	~NullWindowRoundedCornerMgr() override = default;
+	NullWindowRoundedCornerMgr();
+	~NullWindowRoundedCornerMgr() override;
 
 	void* operator new(std::size_t size);
 	void operator delete(void* ptr) noexcept;
@@ -43,6 +43,10 @@ private:
 NullWindowRoundedCornerMgr::Pool NullWindowRoundedCornerMgr::pool_{};
 
 // --------------------------------------------------------------------------
+
+NullWindowRoundedCornerMgr::NullWindowRoundedCornerMgr() = default;
+
+NullWindowRoundedCornerMgr::~NullWindowRoundedCornerMgr() = default;
 
 void* NullWindowRoundedCornerMgr::operator new(std::size_t size)
 {

@@ -11,6 +11,10 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
+Logger::Logger() = default;
+
+Logger::~Logger() = default;
+
 void Logger::log_information() noexcept
 {
 	log_information("");

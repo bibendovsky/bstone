@@ -11,6 +11,10 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
+EventMgr::EventMgr() = default;
+
+EventMgr::~EventMgr() = default;
+
 bool EventMgr::is_initialized() const noexcept
 {
 	return do_is_initialized();

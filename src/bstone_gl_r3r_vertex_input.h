@@ -21,10 +21,10 @@ class GlR3rVertexInputMgr;
 class GlR3rVertexInput : public R3rVertexInput
 {
 protected:
-	GlR3rVertexInput() = default;
+	GlR3rVertexInput();
 
 public:
-	~GlR3rVertexInput() override = default;
+	~GlR3rVertexInput() override;
 
 	virtual void bind() = 0;
 	virtual void bind_vao() = 0;

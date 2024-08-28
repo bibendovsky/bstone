@@ -19,8 +19,8 @@ namespace sys {
 class WindowMgr
 {
 public:
-	WindowMgr() = default;
-	virtual ~WindowMgr() = default;
+	WindowMgr();
+	virtual ~WindowMgr();
 
 	WindowUPtr make_window(const WindowInitParam& param);
 

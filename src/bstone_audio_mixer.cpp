@@ -17,8 +17,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 namespace bstone
 {
 
-// ==========================================================================
-
 AudioMixerListenerR3Position audio_mixer_make_default_listener_r3_position() noexcept
 {
 	return AudioMixerListenerR3Position{};
@@ -46,6 +44,12 @@ AudioMixerVoiceR3Position audio_mixer_make_default_voice_r3_position() noexcept
 {
 	return AudioMixerVoiceR3Position{};
 }
+
+// ==========================================================================
+
+AudioMixer::AudioMixer() noexcept = default;
+
+AudioMixer::~AudioMixer() = default;
 
 // ==========================================================================
 

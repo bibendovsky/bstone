@@ -17,6 +17,12 @@ SPDX-License-Identifier: MIT
 namespace bstone
 {
 
+ImageDecoder::ImageDecoder() noexcept = default;
+
+ImageDecoder::~ImageDecoder() = default;
+
+// ==========================================================================
+
 ImageDecodeUPtr make_image_decoder(
 	ImageDecoderType image_decoder_type)
 try {

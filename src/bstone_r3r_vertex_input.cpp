@@ -4,19 +4,14 @@ Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// 3D Renderer: Shader
+// 3D Renderer: Vertex Input
 
-#include "bstone_r3r_shader.h"
+#include "bstone_r3r_vertex_input.h"
 
 namespace bstone {
 
-R3rShader::R3rShader() noexcept = default;
+R3rVertexInput::R3rVertexInput() noexcept = default;
 
-R3rShader::~R3rShader() = default;
-
-R3rShaderType R3rShader::get_type() const noexcept
-{
-	return do_get_type();
-}
+R3rVertexInput::~R3rVertexInput() = default;
 
 } // namespace bstone

@@ -11,6 +11,10 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
+GlSymbolResolver::GlSymbolResolver() = default;
+
+GlSymbolResolver::~GlSymbolResolver() = default;
+
 void* GlSymbolResolver::find_symbol(const char* symbol_name) const noexcept
 {
 	return do_find_symbol(symbol_name);

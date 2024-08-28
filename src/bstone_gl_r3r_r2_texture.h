@@ -21,10 +21,10 @@ class GlR3rContext;
 class GlR3rR2Texture : public R3rR2Texture
 {
 protected:
-	GlR3rR2Texture() = default;
+	GlR3rR2Texture();
 
 public:
-	~GlR3rR2Texture() override = default;
+	~GlR3rR2Texture() override;
 
 	virtual void set() = 0;
 	virtual void bind() = 0;

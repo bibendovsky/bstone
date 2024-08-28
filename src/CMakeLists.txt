@@ -540,6 +540,7 @@ set(BSTONE_BSTONE_RENDERER_3D_SOURCES
 	bstone_r3r_types.h
 	bstone_r3r_utils.cpp
 	bstone_r3r_utils.h
+	bstone_r3r_vertex_input.cpp
 	bstone_r3r_vertex_input.h
 )
 

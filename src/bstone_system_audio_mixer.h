@@ -28,7 +28,7 @@ class SystemAudioMixer final : public AudioMixer
 {
 public:
 	SystemAudioMixer(const AudioMixerInitParam& param);
-	~SystemAudioMixer() override = default;
+	~SystemAudioMixer() override;
 
 	Opl3Type get_opl3_type() const override;
 	int get_rate() const override;

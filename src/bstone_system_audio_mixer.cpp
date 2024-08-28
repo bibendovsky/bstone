@@ -146,6 +146,8 @@ try {
 	sys_audio_device_.swap(audio_device);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
+SystemAudioMixer::~SystemAudioMixer() = default;
+
 Opl3Type SystemAudioMixer::get_opl3_type() const
 {
 	return opl3_type_;

@@ -24,13 +24,13 @@ public:
 	static constexpr auto default_chunk_size = 4096;
 
 public:
-	MemoryStream() noexcept = default;
+	MemoryStream() noexcept;
 	explicit MemoryStream(
 		std::intptr_t capacity,
 		std::intptr_t chunk_size = default_chunk_size);
-	MemoryStream(MemoryStream&&) noexcept = default;
-	MemoryStream& operator=(MemoryStream&&) noexcept = default;
-	~MemoryStream() override = default;
+	MemoryStream(MemoryStream&&) noexcept;
+	MemoryStream& operator=(MemoryStream&&) noexcept;
+	~MemoryStream() override;
 
 	const std::uint8_t* get_data() const;
 	std::uint8_t* get_data();

@@ -10,6 +10,10 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
+R3rShaderStage::R3rShaderStage() noexcept = default;
+
+R3rShaderStage::~R3rShaderStage() = default;
+
 R3rShaderVar* R3rShaderStage::find_var(const char* name) noexcept
 {
 	return do_find_var(name);

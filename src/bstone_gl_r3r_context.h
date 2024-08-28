@@ -42,8 +42,8 @@ class GlR3rShaderStageMgr;
 class GlR3rContext
 {
 public:
-	GlR3rContext() noexcept = default;
-	virtual ~GlR3rContext() = default;
+	GlR3rContext() noexcept;
+	virtual ~GlR3rContext();
 
 	virtual const R3rDeviceFeatures& get_device_features() const noexcept = 0;
 	virtual const GlR3rDeviceFeatures& get_gl_device_features() const noexcept = 0;

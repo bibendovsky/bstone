@@ -19,8 +19,8 @@ namespace sys {
 class WindowRoundedCornerMgr
 {
 public:
-	WindowRoundedCornerMgr() = default;
-	virtual ~WindowRoundedCornerMgr() = default;
+	WindowRoundedCornerMgr();
+	virtual ~WindowRoundedCornerMgr();
 
 	void set_round_corner_type(Window& window, WindowRoundedCornerType round_corner_type);
 

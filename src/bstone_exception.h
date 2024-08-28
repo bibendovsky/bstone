@@ -19,8 +19,7 @@ namespace bstone {
 class Exception : public std::exception
 {
 public:
-	Exception() = default;
-	~Exception() override = default;
+	~Exception() override;
 };
 
 // ==========================================================================
@@ -28,8 +27,7 @@ public:
 class SourceException : public Exception
 {
 public:
-	SourceException() = default;
-	~SourceException() override = default;
+	~SourceException() override;
 
 	virtual const SourceLocation& get_source_location() const noexcept = 0;
 };
@@ -43,7 +41,7 @@ public:
 	explicit StaticSourceException(const SourceLocation& source_location) noexcept;
 	StaticSourceException(const StaticSourceException& rhs) noexcept;
 	StaticSourceException& operator=(const StaticSourceException& rhs) noexcept;
-	~StaticSourceException() override = default;
+	~StaticSourceException() override;
 
 	const SourceLocation& get_source_location() const noexcept override;
 	const char* what() const noexcept override;

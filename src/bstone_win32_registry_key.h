@@ -67,7 +67,7 @@ public:
 	static constexpr auto max_string_length = 16'383;
 
 public:
-	RegistryKey() noexcept = default;
+	RegistryKey() noexcept;
 
 	RegistryKey(
 		const char* subkey_name,

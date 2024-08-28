@@ -1,6 +1,5 @@
 - [HWR] Fix Z-fighting.
 - Revise AOG compatibility.
-- If possible don't use default destructor in class derived from interface.
 - If possible don't define destructor with all initialized fields at declaration.
 - Remove `const` before non-pointer or non-reference function parameter.
 - Namespace `detail` to anonymous one.

@@ -25,6 +25,18 @@ SPDX-License-Identifier: MIT
 namespace bstone
 {
 
+MtTask::MtTask() noexcept = default;
+
+MtTask::~MtTask() = default;
+
+// ==========================================================================
+
+MtTaskMgr::MtTaskMgr() noexcept = default;
+
+MtTaskMgr::~MtTaskMgr() = default;
+
+// ==========================================================================
+
 namespace detail
 {
 

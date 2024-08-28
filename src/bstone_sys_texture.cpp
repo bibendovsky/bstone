@@ -11,6 +11,10 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
+Texture::Texture() = default;
+
+Texture::~Texture() = default;
+
 void Texture::set_blend_mode(TextureBlendMode mode)
 {
 	do_set_blend_mode(mode);

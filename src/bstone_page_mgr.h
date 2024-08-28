@@ -32,9 +32,9 @@ namespace bstone
 class PageMgr
 {
 public:
-	PageMgr() noexcept = default;
+	PageMgr() noexcept;
 
-	virtual ~PageMgr() = default;
+	virtual ~PageMgr();
 
 
 	virtual int get_count() const noexcept = 0;

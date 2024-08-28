@@ -17,8 +17,8 @@ namespace sys {
 class Sdl2WindowInternal : public Window
 {
 public:
-	Sdl2WindowInternal() = default;
-	~Sdl2WindowInternal() override = default;
+	Sdl2WindowInternal();
+	~Sdl2WindowInternal() override;
 
 	void* get_native_handle() const noexcept;
 

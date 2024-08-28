@@ -15,8 +15,8 @@ namespace sys {
 class GlSymbolResolver
 {
 public:
-	GlSymbolResolver() = default;
-	virtual ~GlSymbolResolver() = default;
+	GlSymbolResolver();
+	virtual ~GlSymbolResolver();
 
 	void* find_symbol(const char* symbol_name) const noexcept;
 

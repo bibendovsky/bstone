@@ -11,6 +11,10 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
+GlCurrentContext::GlCurrentContext() = default;
+
+GlCurrentContext::~GlCurrentContext() = default;
+
 bool GlCurrentContext::has_extension(const char* extension_name) const noexcept
 {
 	return do_has_extension(extension_name);

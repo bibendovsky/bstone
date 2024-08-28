@@ -13,8 +13,13 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_exception.h"
 #include "bstone_file_stream.h"
 
+
 namespace bstone
 {
+
+AudioContentMgr::AudioContentMgr() noexcept = default;
+
+AudioContentMgr::~AudioContentMgr() = default;
 
 // ==========================================================================
 

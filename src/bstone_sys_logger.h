@@ -23,8 +23,8 @@ enum class LogLevel
 class Logger
 {
 public:
-	Logger() = default;
-	virtual ~Logger() = default;
+	Logger();
+	virtual ~Logger();
 
 	void log_information() noexcept;
 	void log_information(const char* message) noexcept;

@@ -38,8 +38,8 @@ struct RendererViewport : public Rectangle
 class Renderer
 {
 public:
-	Renderer() = default;
-	virtual ~Renderer() = default;
+	Renderer();
+	virtual ~Renderer();
 
 	const char* get_name() const;
 

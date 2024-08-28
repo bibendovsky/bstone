@@ -11,6 +11,10 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
+R3r::R3r() noexcept = default;
+
+R3r::~R3r() = default;
+
 R3rType R3r::get_type() const noexcept
 {
 	return do_get_type();

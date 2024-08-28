@@ -15,7 +15,7 @@ namespace sys {
 class Sdl2Subsystem
 {
 public:
-	Sdl2Subsystem() noexcept = default;
+	Sdl2Subsystem() noexcept;
 	explicit Sdl2Subsystem(Uint32 sdl_flags);
 	Sdl2Subsystem(Sdl2Subsystem&& rhs) noexcept;
 	~Sdl2Subsystem();

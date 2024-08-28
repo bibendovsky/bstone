@@ -23,7 +23,7 @@ class AutoArenaResource final : public MemoryResource
 public:
 	AutoArenaResource() noexcept;
 	AutoArenaResource(std::intptr_t capacity, MemoryResource& memory_resource);
-	~AutoArenaResource() override = default;
+	~AutoArenaResource() override;
 
 	std::intptr_t get_capacity() const noexcept;
 	std::intptr_t get_size() const noexcept;

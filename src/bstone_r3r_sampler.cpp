@@ -11,6 +11,10 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
+R3rSampler::R3rSampler() noexcept = default;
+
+R3rSampler::~R3rSampler() = default;
+
 void R3rSampler::update(const R3rSamplerUpdateParam& param)
 try {
 	do_update(param);

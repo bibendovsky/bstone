@@ -19,8 +19,8 @@ namespace sys {
 class GlContext
 {
 public:
-	GlContext() = default;
-	virtual ~GlContext() = default;
+	GlContext();
+	virtual ~GlContext();
 
 	const GlContextAttributes& get_attributes() const noexcept;
 

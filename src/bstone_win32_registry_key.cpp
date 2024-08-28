@@ -120,6 +120,8 @@ void RegistryKeyHandleDeleter::operator()(RegistryKeyHandle* handle) const noexc
 
 // ==========================================================================
 
+RegistryKey::RegistryKey() noexcept = default;
+
 RegistryKey::RegistryKey(
 	const char* subkey_name,
 	RegistryRootKeyType root_key_type,

@@ -17,8 +17,8 @@ namespace sys {
 class PollingAudioDeviceCallback
 {
 public:
-	PollingAudioDeviceCallback() = default;
-	virtual ~PollingAudioDeviceCallback() = default;
+	PollingAudioDeviceCallback();
+	virtual ~PollingAudioDeviceCallback();
 
 	void invoke(float* samples, int sample_count);
 
@@ -31,8 +31,8 @@ private:
 class PollingAudioDevice
 {
 public:
-	PollingAudioDevice() = default;
-	virtual ~PollingAudioDevice() = default;
+	PollingAudioDevice();
+	virtual ~PollingAudioDevice();
 
 	int get_rate() const noexcept;
 	int get_channel_count() const noexcept;

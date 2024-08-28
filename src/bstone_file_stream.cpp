@@ -12,10 +12,18 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
+FileStream::FileStream() noexcept = default;
+
 FileStream::FileStream(const char* path, FileOpenFlags open_flags, FileShareMode share_mode)
 	:
 	file_{path, open_flags, share_mode}
 {}
+
+FileStream::FileStream(FileStream&&) noexcept = default;
+
+FileStream& FileStream::operator=(FileStream&&) noexcept = default;
+
+FileStream::~FileStream() = default;
 
 bool FileStream::try_open(const char* path, FileOpenFlags open_flags, FileShareMode share_mode)
 {

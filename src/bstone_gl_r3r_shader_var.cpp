@@ -21,6 +21,12 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
+GlR3rShaderVar::GlR3rShaderVar() = default;
+
+GlR3rShaderVar::~GlR3rShaderVar() = default;
+
+// ==========================================================================
+
 int GlR3rShaderVar::get_unit_size(R3rShaderVarTypeId type_id)
 try {
 	switch (type_id)

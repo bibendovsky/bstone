@@ -29,6 +29,12 @@ namespace bstone
 {
 
 
+FizzleFX::FizzleFX() noexcept = default;
+
+FizzleFX::FizzleFX(FizzleFX&& rhs) = default;
+
+FizzleFX::~FizzleFX() = default;
+
 bool FizzleFX::present()
 {
 	if (!has_vanilla_appearence() && !is_vanilla_only())

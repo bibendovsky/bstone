@@ -12,6 +12,8 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
+File::File() noexcept = default;
+
 File::File(const char* path, FileOpenFlags open_flags, FileShareMode share_mode)
 {
 	try_or_open_internal(path, open_flags, share_mode, FileErrorMode::exception, resource_);

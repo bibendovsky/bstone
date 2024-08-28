@@ -17,6 +17,8 @@ AutoArenaResource::AutoArenaResource() noexcept
 	storage_{nullptr, StorageDeleter{get_null_memory_resource()}}
 {}
 
+AutoArenaResource::~AutoArenaResource() = default;
+
 AutoArenaResource::AutoArenaResource(std::intptr_t capacity, MemoryResource& memory_resource)
 	:
 	storage_{

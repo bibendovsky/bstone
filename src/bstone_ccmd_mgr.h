@@ -22,8 +22,8 @@ using CCmdMgrCCmds = Span<CCmd*>;
 class CCmdMgr
 {
 public:
-	CCmdMgr() = default;
-	virtual ~CCmdMgr() = default;
+	CCmdMgr();
+	virtual ~CCmdMgr();
 
 	virtual CCmd* find(StringView name) const noexcept = 0;
 	virtual CCmdMgrCCmds get_all() noexcept = 0;

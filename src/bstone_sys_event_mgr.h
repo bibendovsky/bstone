@@ -19,8 +19,8 @@ namespace sys {
 class EventMgr
 {
 public:
-	EventMgr() = default;
-	virtual ~EventMgr() = default;
+	EventMgr();
+	virtual ~EventMgr();
 
 	bool is_initialized() const noexcept;
 

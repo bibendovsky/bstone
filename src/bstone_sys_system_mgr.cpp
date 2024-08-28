@@ -11,6 +11,10 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
+SystemMgr::SystemMgr() = default;
+
+SystemMgr::~SystemMgr() = default;
+
 AudioMgr& SystemMgr::get_audio_mgr()
 {
 	return do_get_audio_mgr();

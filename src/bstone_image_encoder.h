@@ -23,9 +23,9 @@ namespace bstone
 class ImageEncoder
 {
 public:
-	ImageEncoder() noexcept = default;
+	ImageEncoder() noexcept;
 
-	virtual ~ImageEncoder() = default;
+	virtual ~ImageEncoder();
 
 
 	virtual void encode_24(

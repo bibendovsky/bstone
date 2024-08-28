@@ -23,7 +23,7 @@ public:
 	static constexpr auto object_size = static_cast<std::intptr_t>(sizeof(T));
 
 public:
-	SinglePoolResource() noexcept = default;
+	SinglePoolResource() noexcept;
 	SinglePoolResource(const SinglePoolResource&) = delete;
 	SinglePoolResource(SinglePoolResource&&) noexcept = delete;
 	~SinglePoolResource() override;
@@ -41,6 +41,9 @@ private:
 };
 
 // --------------------------------------------------------------------------
+
+template<typename T>
+SinglePoolResource<T>::SinglePoolResource() noexcept = default;
 
 template<typename T>
 SinglePoolResource<T>::~SinglePoolResource()

@@ -12,6 +12,10 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
+Stream::Stream() noexcept = default;
+
+Stream::~Stream() = default;
+
 void Stream::close() noexcept
 {
 	do_close();

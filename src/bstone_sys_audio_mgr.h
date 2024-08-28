@@ -19,8 +19,8 @@ namespace sys {
 class AudioMgr
 {
 public:
-	AudioMgr() = default;
-	virtual ~AudioMgr() = default;
+	AudioMgr();
+	virtual ~AudioMgr();
 
 	bool is_initialized() const noexcept;
 

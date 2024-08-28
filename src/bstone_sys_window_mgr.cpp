@@ -11,6 +11,10 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
+WindowMgr::WindowMgr() = default;
+
+WindowMgr::~WindowMgr() = default;
+
 WindowUPtr WindowMgr::make_window(const WindowInitParam& param)
 {
 	return do_make_window(param);

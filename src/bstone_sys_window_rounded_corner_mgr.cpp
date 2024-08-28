@@ -11,6 +11,10 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
+WindowRoundedCornerMgr::WindowRoundedCornerMgr() = default;
+
+WindowRoundedCornerMgr::~WindowRoundedCornerMgr() = default;
+
 void WindowRoundedCornerMgr::set_round_corner_type(Window& window, WindowRoundedCornerType round_corner_type)
 {
 	do_set_round_corner_type(window, round_corner_type);

@@ -22,6 +22,12 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
+GlR3rShader::GlR3rShader() = default;
+
+GlR3rShader::~GlR3rShader() = default;
+
+// ==========================================================================
+
 class GlR3rShaderImpl final : public GlR3rShader
 {
 public:

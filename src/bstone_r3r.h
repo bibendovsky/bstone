@@ -64,8 +64,8 @@ struct R3rDrawIndexedParam
 class R3r
 {
 public:
-	R3r() noexcept = default;
-	virtual ~R3r() = default;
+	R3r() noexcept;
+	virtual ~R3r();
 
 	R3rType get_type() const noexcept;
 	StringView get_name() const noexcept;

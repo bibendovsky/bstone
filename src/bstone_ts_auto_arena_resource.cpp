@@ -10,10 +10,14 @@ SPDX-License-Identifier: MIT
 #
 namespace bstone {
 
+TsAutoArenaResource::TsAutoArenaResource() noexcept = default;
+
 TsAutoArenaResource::TsAutoArenaResource(std::intptr_t capacity, MemoryResource& memory_resource)
 	:
 	arena_{capacity, memory_resource}
 {}
+
+TsAutoArenaResource::~TsAutoArenaResource() = default;
 
 std::intptr_t TsAutoArenaResource::get_capacity() noexcept
 {

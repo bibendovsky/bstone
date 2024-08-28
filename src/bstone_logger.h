@@ -47,8 +47,8 @@ struct LoggerLimits
 class Logger
 {
 public:
-	Logger() noexcept = default;
-	virtual ~Logger() = default;
+	Logger() noexcept;
+	virtual ~Logger();
 
 	// Writes a message of the specified type.
 	void log(LoggerMessageType message_type, StringView message_sv) noexcept;

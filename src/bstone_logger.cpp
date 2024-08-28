@@ -29,6 +29,10 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 namespace bstone {
 
+Logger::Logger() noexcept = default;
+
+Logger::~Logger() = default;
+
 void Logger::log(LoggerMessageType message_type, StringView message_sv) noexcept
 {
 	do_log(message_type, message_sv);
@@ -139,7 +143,7 @@ namespace {
 class LoggerImplQueue
 {
 public:
-	LoggerImplQueue() = default;
+	LoggerImplQueue();
 
 	void set_block_size(std::intptr_t block_size);
 
@@ -164,6 +168,8 @@ private:
 };
 
 // --------------------------------------------------------------------------
+
+LoggerImplQueue::LoggerImplQueue() = default;
 
 void LoggerImplQueue::set_block_size(std::intptr_t block_size)
 {

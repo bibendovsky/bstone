@@ -20,9 +20,9 @@ namespace bstone {
 class TsAutoArenaResource final : public MemoryResource
 {
 public:
-	TsAutoArenaResource() noexcept = default;
+	TsAutoArenaResource() noexcept;
 	TsAutoArenaResource(std::intptr_t capacity, MemoryResource& memory_resource);
-	~TsAutoArenaResource() override = default;
+	~TsAutoArenaResource() override;
 
 	std::intptr_t get_capacity() noexcept;
 	std::intptr_t get_size() noexcept;

@@ -18,9 +18,9 @@ namespace bstone {
 class StaticMemoryStream final : public Stream
 {
 public:
-	StaticMemoryStream() noexcept = default;
+	StaticMemoryStream() noexcept;
 	StaticMemoryStream(void* buffer, std::intptr_t buffer_size);
-	~StaticMemoryStream() override = default;
+	~StaticMemoryStream() override;
 
 	const std::uint8_t* get_data() const;
 	std::uint8_t* get_data();

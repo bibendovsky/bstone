@@ -52,8 +52,8 @@ struct R3rCreateVertexInputParam
 class R3rVertexInput
 {
 public:
-	R3rVertexInput() noexcept = default;
-	virtual ~R3rVertexInput() = default;
+	R3rVertexInput() noexcept;
+	virtual ~R3rVertexInput();
 };
 
 // ==========================================================================

@@ -26,6 +26,12 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
+GlR3rContext::GlR3rContext() noexcept = default;
+
+GlR3rContext::~GlR3rContext() = default;
+
+// ==========================================================================
+
 namespace {
 
 class GlR3rContextImpl final : public GlR3rContext

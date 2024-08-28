@@ -13,6 +13,8 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
+Sdl2Subsystem::Sdl2Subsystem() noexcept = default;
+
 Sdl2Subsystem::Sdl2Subsystem(Uint32 sdl_flags)
 try
 	:

@@ -15,8 +15,8 @@ namespace sys {
 class TextureLock
 {
 public:
-	TextureLock() = default;
-	virtual ~TextureLock() = default;
+	TextureLock();
+	virtual ~TextureLock();
 
 	void* get_pixels() const noexcept;
 

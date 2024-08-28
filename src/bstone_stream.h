@@ -24,8 +24,8 @@ enum class StreamOrigin
 class Stream
 {
 public:
-	Stream() noexcept = default;
-	virtual ~Stream() = default;
+	Stream() noexcept;
+	virtual ~Stream();
 
 	void close() noexcept;
 	bool is_open() const noexcept;

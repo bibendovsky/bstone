@@ -25,6 +25,12 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
+GlR3rExtensionMgr::GlR3rExtensionMgr() noexcept = default;
+
+GlR3rExtensionMgr::~GlR3rExtensionMgr() = default;
+
+// ==========================================================================
+
 namespace {
 
 class GlR3rExtensionMgrImpl final : public GlR3rExtensionMgr

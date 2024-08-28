@@ -23,7 +23,7 @@ using SharedLibraryHandleUPtr = std::unique_ptr<void, SharedLibraryHandleDeleter
 class SharedLibrary
 {
 public:
-	SharedLibrary() noexcept = default;
+	SharedLibrary() noexcept;
 	explicit SharedLibrary(const char* file_path);
 
 	bool is_open() const noexcept;

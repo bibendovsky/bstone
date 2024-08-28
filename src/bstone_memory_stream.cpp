@@ -15,10 +15,18 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
+MemoryStream::MemoryStream() noexcept = default;
+
 MemoryStream::MemoryStream(std::intptr_t capacity, std::intptr_t chunk_size)
 {
 	open(capacity, chunk_size);
 }
+
+MemoryStream::MemoryStream(MemoryStream&&) noexcept = default;
+
+MemoryStream& MemoryStream::operator=(MemoryStream&&) noexcept = default;
+
+MemoryStream::~MemoryStream() = default;
 
 const std::uint8_t* MemoryStream::get_data() const
 {

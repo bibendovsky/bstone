@@ -17,6 +17,8 @@ void GameTimer::operator=(GameTimerTicks ticks)
 	set_ticks(ticks);
 }
 
+GameTimer::GameTimer() = default;
+
 GameTimer::~GameTimer()
 {
 	stop();

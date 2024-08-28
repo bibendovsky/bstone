@@ -11,6 +11,10 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
+GlContext::GlContext() = default;
+
+GlContext::~GlContext() = default;
+
 const GlContextAttributes& GlContext::get_attributes() const noexcept
 {
 	return do_get_attributes();

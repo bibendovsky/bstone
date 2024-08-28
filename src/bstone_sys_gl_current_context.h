@@ -20,8 +20,8 @@ namespace sys {
 class GlCurrentContext
 {
 public:
-	GlCurrentContext() = default;
-	virtual ~GlCurrentContext() = default;
+	GlCurrentContext();
+	virtual ~GlCurrentContext();
 
 	bool has_extension(const char* extension_name) const noexcept;
 

@@ -22,8 +22,8 @@ namespace sys {
 class SystemMgr
 {
 public:
-	SystemMgr() = default;
-	virtual ~SystemMgr() = default;
+	SystemMgr();
+	virtual ~SystemMgr();
 
 	AudioMgr& get_audio_mgr();
 	EventMgr& get_event_mgr();
