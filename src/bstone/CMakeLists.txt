@@ -223,6 +223,7 @@ target_link_libraries(bstone
 		bstone::lib::khronos
 		bstone::lib::openal_soft
 		bstone::lib::stb
+		bstone::lib::xbrz
 )
 
 if (BSTONE_PANDORA)
@@ -245,7 +246,6 @@ endif ()
 #
 target_include_directories(bstone
 	PRIVATE
-		../lib/xbrz
 		src
 		src/dosbox
 		src/resources/win32
@@ -341,18 +341,6 @@ set(BSTONE_LIB_DOSBOX_SOURCES
 
 target_sources(bstone PRIVATE ${BSTONE_LIB_DOSBOX_SOURCES})
 source_group("lib/dosbox" FILES ${BSTONE_LIB_DOSBOX_SOURCES})
-
-# ---------------------------------------------------------------------------
-
-set(BSTONE_LIB_XBRZ_SOURCES
-	../lib/xbrz/xbrz.cpp
-	../lib/xbrz/xbrz.h
-	../lib/xbrz/xbrz_config.h
-	../lib/xbrz/xbrz_tools.h
-)
-
-target_sources(bstone PRIVATE ${BSTONE_LIB_XBRZ_SOURCES})
-source_group("lib/xbrz" FILES ${BSTONE_LIB_XBRZ_SOURCES})
 
 # ---------------------------------------------------------------------------
 
