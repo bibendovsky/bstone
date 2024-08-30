@@ -16,10 +16,10 @@ namespace bstone
 
 struct Voice
 {
-	bool use_output_gains;
+	bool use_output_gains{};
 	bstone::AudioMixerVoiceHandle handle;
-	double gain;
-	AudioMixerOutputGains output_gains;
+	double gain{};
+	AudioMixerOutputGains output_gains{};
 };
 
 } // bstone

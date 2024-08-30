@@ -116,18 +116,18 @@ private:
 
 	struct Voice
 	{
-		SoundType type;
-		bool is_active;
-		bool is_r3;
-		bool is_looping;
-		bool is_paused;
-		bool is_r3_position_changed;
-		bool is_custom_output_gains;
-		CacheItem* cache;
-		int decode_offset;
-		double gain;
-		AudioMixerOutputGains output_gains;
-		AudioMixerOutputGains custom_output_gains;
+		SoundType type{SoundType::none};
+		bool is_active{};
+		bool is_r3{};
+		bool is_looping{};
+		bool is_paused{};
+		bool is_r3_position_changed{};
+		bool is_custom_output_gains{};
+		CacheItem* cache{};
+		int decode_offset{};
+		double gain{};
+		AudioMixerOutputGains output_gains{};
+		AudioMixerOutputGains custom_output_gains{};
 		AudioMixerVoiceHandle handle;
 		AudioMixerVoiceR3Position r3_position;
 		AudioMixerVoiceR3Position r3_position_cache;

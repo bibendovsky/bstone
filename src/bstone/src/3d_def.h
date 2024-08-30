@@ -2116,31 +2116,31 @@ enum DoorAction
 struct doorobj_t
 {
 	// !!! Used in saved game.
-	std::uint8_t tilex;
+	std::uint8_t tilex{};
 
 	// !!! Used in saved game.
-	std::uint8_t tiley;
+	std::uint8_t tiley{};
 
 	// !!! Used in saved game.
-	bool vertical;
+	bool vertical{};
 
 	// !!! Used in saved game.
-	std::int8_t flags;
+	std::int8_t flags{};
 
 	// !!! Used in saved game.
-	keytype lock;
+	keytype lock{kt_none};
 
 	// !!! Used in saved game.
-	door_t type;
+	door_t type{dr_normal};
 
 	// !!! Used in saved game.
-	DoorAction action;
+	DoorAction action{dr_closed};
 
 	// !!! Used in saved game.
-	std::int16_t ticcount;
+	std::int16_t ticcount{};
 
 	// !!! Used in saved game.
-	std::uint8_t areanumber[2];
+	std::uint8_t areanumber[2]{};
 
 	bstone::Voice voice;
 
@@ -2162,103 +2162,103 @@ struct doorobj_t
 struct objtype
 {
 	// !!! Used in saved game.
-	std::uint8_t tilex;
+	std::uint8_t tilex{};
 
 	// !!! Used in saved game.
-	std::uint8_t tiley;
+	std::uint8_t tiley{};
 
 	// !!! Used in saved game.
-	std::uint8_t areanumber;
+	std::uint8_t areanumber{};
 
 	// !!! Used in saved game.
-	activetype active;
+	activetype active{ac_badobject};
 
 	// !!! Used in saved game.
-	std::int16_t ticcount;
+	std::int16_t ticcount{};
 
 	// !!! Used in saved game.
-	classtype obclass;
+	classtype obclass{nothing};
 
 	// !!! Used in saved game.
-	statetype* state;
+	statetype* state{};
 
 	// !!! Used in saved game.
-	std::uint32_t flags;
+	std::uint32_t flags{};
 
 	// Aux flags
 	// !!! Used in saved game.
-	std::uint16_t flags2;
+	std::uint16_t flags2{};
 
 	// if negative, wait for that door to open
 	// !!! Used in saved game.
-	double distance;
+	double distance{};
 
 	// !!! Used in saved game.
-	dirtype dir;
+	dirtype dir{nodir};
 
 	// "bit 7" == "direction to turn" flag
 	// !!! Used in saved game.
-	dirtype trydir;
+	dirtype trydir{nodir};
 
 	// !!! Used in saved game.
-	double x;
+	double x{};
 
 	// !!! Used in saved game.
-	double y;
+	double y{};
 
 	// !!! Used in saved game.
-	std::uint8_t s_tilex;
+	std::uint8_t s_tilex{};
 
 	// s_tilex==0, running for corner
 	// !!! Used in saved game.
-	std::uint8_t s_tiley;
+	std::uint8_t s_tiley{};
 
-	std::int16_t viewx;
+	std::int16_t viewx{};
 
-	std::uint16_t viewheight;
-
-	// FIXME
-	// In original code it also used to store a 16-bit pointer to object.
-	// Since our code is at least 32-bit we are using an index of object.
-	// !!! Used in saved game.
-	std::int16_t hitpoints;
-
-	// !!! Used in saved game.
-	std::uint8_t ammo;
-
-	// !!! Used in saved game.
-	std::int8_t lighting;
-
-	// !!! Used in saved game.
-	std::uint16_t linc;
-
-	// !!! Used in saved game.
-	std::int16_t angle;
-
-	// !!! Used in saved game.
-	double speed;
-
-	// !!! Used in saved game.
-	std::int16_t temp1;
+	std::uint16_t viewheight{};
 
 	// FIXME
 	// In original code it also used to store a 16-bit pointer to object.
 	// Since our code is at least 32-bit we are using an index of object.
 	// !!! Used in saved game.
-	std::int16_t temp2;
+	std::int16_t hitpoints{};
+
+	// !!! Used in saved game.
+	std::uint8_t ammo{};
+
+	// !!! Used in saved game.
+	std::int8_t lighting{};
+
+	// !!! Used in saved game.
+	std::uint16_t linc{};
+
+	// !!! Used in saved game.
+	std::int16_t angle{};
+
+	// !!! Used in saved game.
+	double speed{};
+
+	// !!! Used in saved game.
+	std::int16_t temp1{};
 
 	// FIXME
 	// In original code it also used to store a 16-bit pointer to object.
 	// Since our code is at least 32-bit we are using an index of object.
 	// !!! Used in saved game.
-	std::uint16_t temp3; // holds 'last door used' by 'smart' actors
+	std::int16_t temp2{};
+
+	// FIXME
+	// In original code it also used to store a 16-bit pointer to object.
+	// Since our code is at least 32-bit we are using an index of object.
+	// !!! Used in saved game.
+	std::uint16_t temp3{}; // holds 'last door used' by 'smart' actors
 
 	bstone::Voice voice_voice;
 	bstone::Voice weapon_voice;
 	bstone::Voice walking_voice;
 
-	objtype* next;
-	objtype* prev;
+	objtype* next{};
+	objtype* prev{};
 
 
 	void archive(
@@ -2452,114 +2452,114 @@ struct fargametype
 struct gametype
 {
 	// !!! Used in saved game.
-	std::int16_t turn_around;
+	std::int16_t turn_around{};
 
 	// !!! Used in saved game.
-	std::int16_t turn_angle;
+	std::int16_t turn_angle{};
 
 	// !!! Used in saved game.
-	std::uint16_t flags;
+	std::uint16_t flags{};
 
 	// !!! Used in saved game.
-	std::int16_t lastmapon;
+	std::int16_t lastmapon{};
 
 	// !!! Used in saved game.
-	std::int16_t difficulty;
+	std::int16_t difficulty{};
 
 	// !!! Used in saved game.
-	std::int16_t mapon;
+	std::int16_t mapon{};
 
 	// !!! Used in saved game.
-	std::int32_t tic_score;
+	std::int32_t tic_score{};
 
 	// !!! Used in saved game.
-	std::int32_t score;
+	std::int32_t score{};
 
 	// !!! Used in saved game.
-	std::int32_t nextextra;
+	std::int32_t nextextra{};
 
 	// !!! Used in saved game.
-	std::int16_t score_roll_wait;
+	std::int16_t score_roll_wait{};
 
 	// !!! Used in saved game.
-	std::int16_t lives;
+	std::int16_t lives{};
 
 	// !!! Used in saved game.
-	std::int16_t health;
+	std::int16_t health{};
 
 	// !!! Used in saved game.
-	std::int16_t rpower;
+	std::int16_t rpower{};
 
 	// !!! Used in saved game.
-	std::int8_t rzoom;
+	std::int8_t rzoom{};
 
 	// !!! Used in saved game.
-	std::int8_t radar_leds;
+	std::int8_t radar_leds{};
 
 	// !!! Used in saved game.
-	std::int8_t lastradar_leds;
+	std::int8_t lastradar_leds{};
 
 	// !!! Used in saved game.
-	std::int8_t lastammo_leds;
+	std::int8_t lastammo_leds{};
 
 	// !!! Used in saved game.
-	std::int8_t ammo_leds;
+	std::int8_t ammo_leds{};
 
 	// !!! Used in saved game.
-	std::int16_t ammo;
+	std::int16_t ammo{};
 
 	// !!! Used in saved game.
-	std::int16_t plasma_detonators;
+	std::int16_t plasma_detonators{};
 
 	// !!! Used in saved game.
-	std::int8_t useable_weapons;
+	std::int8_t useable_weapons{};
 
 	// !!! Used in saved game.
-	std::int8_t weapons;
+	std::int8_t weapons{};
 
 	// !!! Used in saved game.
-	std::int8_t weapon;
+	std::int8_t weapon{};
 
 	// !!! Used in saved game.
-	std::int8_t chosenweapon;
+	std::int8_t chosenweapon{};
 
 	// !!! Used in saved game.
-	std::int8_t weapon_wait;
+	std::int8_t weapon_wait{};
 
 	// !!! Used in saved game.
-	std::int16_t attackframe;
+	std::int16_t attackframe{};
 
 	// !!! Used in saved game.
-	std::int16_t attackcount;
+	std::int16_t attackcount{};
 
 	// !!! Used in saved game.
-	std::int16_t weaponframe;
+	std::int16_t weaponframe{};
 
 	// !!! Used in saved game.
-	std::int16_t episode;
+	std::int16_t episode{};
 
 	// !!! Used in saved game.
-	std::uint32_t TimeCount;
+	std::uint32_t TimeCount{};
 
-	const char* msg; // InfoArea msg...
+	const char* msg{}; // InfoArea msg...
 
 	// !!! Used in saved game.
-	std::int8_t numkeys[NUMKEYS];
+	std::int8_t numkeys[NUMKEYS]{};
 
 	// !!! Used in saved game.
 	Barriers barrier_table;
 
 	// !!! Used in saved game.
-	std::uint16_t tokens;
+	std::uint16_t tokens{};
 
 	// !!! Used in saved game.
-	bool boss_key_dropped;
+	bool boss_key_dropped{};
 
 	// !!! Used in saved game.
-	std::int16_t wintilex;
+	std::int16_t wintilex{};
 
 	// !!! Used in saved game.
-	std::int16_t wintiley;
+	std::int16_t wintiley{};
 
 
 	void archive(
@@ -2707,11 +2707,11 @@ struct mCacheInfo
 
 	// where msg is in 'local' list
 	// !!! Used in saved game.
-	std::uint8_t local_val;
+	std::uint8_t local_val{};
 
 	// where msg was in 'global' list
 	// !!! Used in saved game.
-	std::uint8_t global_val;
+	std::uint8_t global_val{};
 
 	// pointer to message
 	MSeg mSeg;
@@ -2742,11 +2742,11 @@ struct con_mCacheInfo
 
 	// type of concession
 	// !!! Used in saved game.
-	std::uint8_t type;
+	std::uint8_t type{};
 
 	// # of times req'd to operate
 	// !!! Used in saved game.
-	std::uint8_t operate_cnt;
+	std::uint8_t operate_cnt{};
 
 
 	void archive(
@@ -2782,14 +2782,14 @@ struct concession_t
 struct sci_mCacheInfo
 {
 	mCacheInfo mInfo;
-	std::uint8_t areanumber; // 'where' msg can be used
+	std::uint8_t areanumber{}; // 'where' msg can be used
 }; // sci_mCacheInfo
 
 // Informant 'message list' structure
 //
 struct scientist_t
 {
-	std::int16_t NumMsgs;
+	std::int16_t NumMsgs{};
 	sci_mCacheInfo smInfo[MAX_CACHE_MSGS];
 }; // scientist_t
 

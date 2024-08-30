@@ -76,7 +76,7 @@ protected:
 
 
 private:
-	bool has_vanilla_appearence_;
+	bool has_vanilla_appearence_{};
 	VgaBuffer buffer_;
 }; // PsFizzleFX
 

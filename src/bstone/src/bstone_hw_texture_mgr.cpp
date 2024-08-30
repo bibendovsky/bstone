@@ -349,7 +349,7 @@ private:
 	struct Solid1x1Item
 	{
 		Rgba8 color_;
-		R2TextureProperties properties_;
+		R2TextureProperties properties_{};
 		R3rR2TextureUPtr r2_texture_;
 
 

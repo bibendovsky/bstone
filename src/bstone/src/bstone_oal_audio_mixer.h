@@ -79,11 +79,11 @@ private:
 
 	struct Voice
 	{
-		int index;
-		bool is_active;
-		bool is_r3;
-		bool is_looping;
-		bool is_music;
+		int index{};
+		bool is_active{};
+		bool is_r3{};
+		bool is_looping{};
+		bool is_music{};
 
 		AudioMixerVoiceR3Position r3_position;
 

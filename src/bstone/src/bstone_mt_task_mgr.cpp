@@ -122,7 +122,7 @@ public:
 private:
 	struct MtThread
 	{
-		bool is_failed_;
+		bool is_failed_{};
 		std::exception_ptr exception_;
 
 		std::thread thread_;

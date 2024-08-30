@@ -23,24 +23,13 @@ namespace bstone
 class GenericFizzleFX::Impl
 {
 public:
-	bool has_vanilla_appearence_;
-	std::uint8_t plot_color_;
-	bool is_transparent_;
-	int y_offset_;
-	int height_;
-	VgaBuffer old_ui_;
-	UiMaskBuffer old_ui_mask_;
-
-
-	Impl() :
-		plot_color_{},
-		is_transparent_{},
-		y_offset_{},
-		height_{},
-		old_ui_{},
-		old_ui_mask_{}
-	{
-	}
+	bool has_vanilla_appearence_{};
+	std::uint8_t plot_color_{};
+	bool is_transparent_{};
+	int y_offset_{};
+	int height_{};
+	VgaBuffer old_ui_{};
+	UiMaskBuffer old_ui_mask_{};
 }; // Impl
 
 

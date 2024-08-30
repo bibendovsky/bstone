@@ -99,18 +99,18 @@ private:
 	bstone::FileStream file_stream_;
 
 	Buffer buffer_;
-	int buffer_offset_; // Len of data loaded into buffer_
-	char* buffer_ptr_; // Ptr to next frame in buffer_
-	char* next_ptr_; // Ptr Ofs to next frame after BufferOfs
+	int buffer_offset_{}; // Len of data loaded into buffer_
+	char* buffer_ptr_{}; // Ptr to next frame in buffer_
+	char* next_ptr_{}; // Ptr Ofs to next frame after BufferOfs
 
-	bool has_more_pages_; // More Pages avail on disk?
+	bool has_more_pages_{}; // More Pages avail on disk?
 
-	Flag flag_;
-	bool is_exit_;
-	bool is_ever_faded_;
-	int repeat_count_;
-	ControlInfo control_info_;
-	const std::uint8_t* palette_;
+	Flag flag_{};
+	bool is_exit_{};
+	bool is_ever_faded_{};
+	int repeat_count_{};
+	ControlInfo control_info_{};
+	const std::uint8_t* palette_{};
 
 	bstone::Archiver archiver_;
 

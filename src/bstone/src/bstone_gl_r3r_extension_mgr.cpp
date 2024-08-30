@@ -60,12 +60,12 @@ private:
 
 	struct RegistryItem
 	{
-		bool is_virtual;
-		bool is_probed;
-		bool is_available;
+		bool is_virtual{};
+		bool is_probed{};
+		bool is_available{};
 
 		std::string extension_name;
-		GlSymbolPtrs* gl_symbol_ptrs;
+		GlSymbolPtrs* gl_symbol_ptrs{};
 	};
 
 	using Registry = std::vector<RegistryItem>;

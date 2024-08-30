@@ -27,10 +27,10 @@ using OalSourceSoundSamples = std::vector<OalSourceSample>;
 
 struct OalSourceCachingSound
 {
-	bool is_initialized;
-	bool is_decoded;
-	int sample_offset;
-	int sample_count;
+	bool is_initialized{};
+	bool is_decoded{};
+	int sample_offset{};
+	int sample_count{};
 	OalSourceSoundSamples samples;
 	AudioDecoderUPtr audio_decoder;
 }; // OalSourceCachingSound
