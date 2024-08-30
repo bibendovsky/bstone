@@ -18,6 +18,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "id_vh.h"
 #include "id_vl.h"
 
+#include "bstone_algorithm.h"
 #include "bstone_assert.h"
 #include "bstone_exception.h"
 #include "bstone_exception_utils.h"
@@ -5718,7 +5719,7 @@ try {
 
 	if (dir == nodir)
 	{
-		dir = static_cast<dirtype>(bs_actor.trydir & 127);
+		dir = static_cast<dirtype>(bstone::clamp(bs_actor.trydir & 127, 0, 8));
 	}
 
 	auto target_angle = (view_angle - 180) - dirangle[dir];
