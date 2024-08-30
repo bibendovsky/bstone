@@ -2442,38 +2442,40 @@ void GetBonus(
 	case bo_green_key:
 	case bo_gold_key:
 	{
+		auto keynum = -1;
 		const auto& assets_info = get_assets_info();
-
-		std::uint16_t keynum = 0;
 
 		if (assets_info.is_aog())
 		{
 			switch (check->itemnumber)
 			{
-			case bo_red_key:
-				keynum = 0;
-				break;
-
-			case bo_yellow_key:
-				keynum = 1;
-				break;
-
-			case bo_blue_key:
-				keynum = 2;
-				break;
-
-			case bo_green_key:
-				keynum = 3;
-				break;
-
-			case bo_gold_key:
-				keynum = 4;
-				break;
+				case bo_red_key: keynum = 0; break;
+				case bo_yellow_key: keynum = 1; break;
+				case bo_blue_key: keynum = 2; break;
+				case bo_green_key: keynum = 3; break;
+				case bo_gold_key: keynum = 4; break;
 			}
 		}
 		else
 		{
-			keynum = check->itemnumber - bo_red_key;
+			switch (check->itemnumber)
+			{
+				case bo_red_key: keynum = 0; break;
+				case bo_yellow_key: keynum = 1; break;
+				case bo_blue_key: keynum = 2; break;
+			}
+		}
+
+		if (keynum < 0)
+		{
+			auto error_message = std::string{};
+			error_message.reserve(64);
+			error_message += "Unknown key at (";
+			error_message += std::to_string(check->tilex);
+			error_message += ", ";
+			error_message += std::to_string(check->tiley);
+			error_message += ").";
+			BSTONE_THROW_DYNAMIC_SOURCE(error_message.c_str());
 		}
 
 		if (gamestate.numkeys[keynum] >= MAXKEYS)
@@ -2481,7 +2483,7 @@ void GetBonus(
 			return;
 		}
 
-		GiveKey(keynum);
+		GiveKey(static_cast<std::int16_t>(keynum));
 		sd_play_player_item_sound(GETKEYSND);
 		travel_table_[check->tilex][check->tiley] &= ~TT_KEYS;
 		break;
