@@ -220,6 +220,9 @@ target_link_libraries(bstone
 		$<$<NOT:$<BOOL:${BSTONE_INTERNAL_SDL2}>>:SDL2W::SDL2W>
 		$<$<BOOL:${WIN32}>:wbemuuid>
 		Threads::Threads
+		bstone::lib::khronos
+		bstone::lib::openal_soft
+		bstone::lib::stb
 )
 
 if (BSTONE_PANDORA)
@@ -242,9 +245,6 @@ endif ()
 #
 target_include_directories(bstone
 	PRIVATE
-		../lib/khronos
-		../lib/openal_soft/include/AL
-		../lib/stb
 		../lib/xbrz
 		src
 		src/dosbox
