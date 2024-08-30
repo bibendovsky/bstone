@@ -3012,8 +3012,7 @@ void DrawWarpIn();
 void BMAmsg(
 	const char* msg);
 
-void CacheBMAmsg(
-	std::uint16_t MsgNum);
+void CacheBMAmsg(std::uint16_t MsgNum);
 
 void BevelBox(
 	std::int16_t xl,

@@ -2898,19 +2898,29 @@ void BMAmsg(
 // CacheBMAmsg() - Caches in a Message Number and displays it using
 //      BMAmsg()
 // ----------------------------------------------------------------------
-void CacheBMAmsg(
-	std::uint16_t MsgNum)
+void CacheBMAmsg(std::uint16_t MsgNum)
 {
-	char* string, *pos;
-
 	CA_CacheGrChunk(MsgNum);
-	string = (char*)grsegs[MsgNum].data();
+	const auto string = reinterpret_cast<char*>(grsegs[MsgNum].data());
 
-	pos = strstr(string, "^XX");
-	*(pos + 3) = 0;
+	if (string == nullptr)
+	{
+		auto error_message = std::string{};
+		error_message.reserve(64);
+		error_message += "Missing message #";
+		error_message += std::to_string(MsgNum);
+		error_message += '.';
+		BSTONE_THROW_DYNAMIC_SOURCE(error_message.c_str());
+	}
+
+	const auto pos = strstr(string, "^XX");
+
+	if (pos != nullptr)
+	{
+		pos[3] = '\0';
+	}
 
 	BMAmsg(string);
-
 	UNCACHEGRCHUNK(MsgNum);
 }
 
