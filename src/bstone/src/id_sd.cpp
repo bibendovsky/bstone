@@ -929,6 +929,11 @@ bstone::StringView sd_get_oal_device_name() noexcept
 
 void sd_play_ui_sound(int sound_index)
 {
+	if (sd_mixer_ == nullptr || !sd_is_sound_enabled())
+	{
+		return;
+	}
+
 	sd_play_non_positional_sfx_sound(sound_index, sd_ui_sfx_voice_, *sd_ui_sfx_voice_group_);
 }
 
