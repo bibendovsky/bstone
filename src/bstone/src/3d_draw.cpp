@@ -687,7 +687,7 @@ bool bs_is_tile_solid_wall(int tile) noexcept
 
 void HitHorizDoor()
 {
-	const auto door_index = tilehit & 0x7F;
+	const auto door_index = tilehit & 0x3F;
 	const auto& bs_door = doorobjlist[door_index];
 
 	// Ensure to render solid walls on both sides of the door (#485).
