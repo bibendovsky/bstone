@@ -5662,7 +5662,7 @@ bool OperateSmartSwitch(
 					// We have a door
 
 					WhatItIs = wit_DOOR;
-					DoorNum = tile & 0x7f;
+					DoorNum = tile & 0x3f;
 				}
 				else
 				{
