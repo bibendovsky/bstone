@@ -1314,8 +1314,8 @@ void PopupAutoMap(bool is_shift_pressed)
 		ShowOverhead(map_offset_x, BASE_Y + 4, 32, 0, overlay_flags);
 	}
 
-	const auto stats_offset_x = BASE_X + (is_aog ? 157 : 101 + (has_map * 32));
-	const auto stats_offset_y = BASE_Y + (is_aog ? 25 : 22);
+	const auto stats_offset_x = static_cast<std::int16_t>(BASE_X + (is_aog ? 157 : 101 + (has_map * 32)));
+	const auto stats_offset_y = static_cast<std::int16_t>(BASE_Y + (is_aog ? 25 : 22));
 	ShowStats(stats_offset_x, stats_offset_y, ss_quick, &gamestuff.level[gamestate.mapon].stats);
 
 	while (Keyboard[ScanCode::sc_back_quote])
