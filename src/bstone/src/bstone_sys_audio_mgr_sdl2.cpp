@@ -19,7 +19,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_sys_audio_mgr_null.h"
 #include "bstone_sys_logger.h"
 #include "bstone_sys_exception_sdl2.h"
-#include "bstone_sys_push_audio_device_sdl2.h"
+#include "bstone_sys_polling_audio_device_sdl2.h"
 #include "bstone_sys_sdl2_subsystem.h"
 
 namespace bstone {
@@ -101,7 +101,7 @@ PollingAudioDeviceUPtr Sdl2AudioMgr::do_make_polling_audio_device(const PollingA
 {
 	BSTONE_ASSERT(is_initialized_);
 
-	return make_sdl2_push_audio_device(logger_, param);
+	return make_sdl2_polling_audio_device(logger_, param);
 }
 
 void Sdl2AudioMgr::log_int(int value, std::string& message)

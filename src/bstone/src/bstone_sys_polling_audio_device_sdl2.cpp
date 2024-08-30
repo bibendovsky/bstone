@@ -8,7 +8,7 @@ SPDX-License-Identifier: MIT
 #include "SDL_audio.h"
 #include "bstone_single_pool_resource.h"
 #include "bstone_sys_exception_sdl2.h"
-#include "bstone_sys_push_audio_device_sdl2.h"
+#include "bstone_sys_polling_audio_device_sdl2.h"
 #include "bstone_exception.h"
 
 namespace bstone {
@@ -16,13 +16,13 @@ namespace sys {
 
 namespace {
 
-class Sdl2PushAudioDevice final : public PollingAudioDevice
+class Sdl2PollingAudioDevice final : public PollingAudioDevice
 {
 public:
-	Sdl2PushAudioDevice(Logger& logger, const PollingAudioDeviceOpenParam& param);
-	Sdl2PushAudioDevice(const Sdl2PushAudioDevice&) = delete;
-	Sdl2PushAudioDevice& operator=(const Sdl2PushAudioDevice&) = delete;
-	~Sdl2PushAudioDevice() override;
+	Sdl2PollingAudioDevice(Logger& logger, const PollingAudioDeviceOpenParam& param);
+	Sdl2PollingAudioDevice(const Sdl2PollingAudioDevice&) = delete;
+	Sdl2PollingAudioDevice& operator=(const Sdl2PollingAudioDevice&) = delete;
+	~Sdl2PollingAudioDevice() override;
 
 	void* operator new(std::size_t size);
 	void operator delete(void* ptr);
@@ -51,12 +51,12 @@ private:
 
 // ==========================================================================
 
-Sdl2PushAudioDevice::Sdl2PushAudioDevice(Logger& logger, const PollingAudioDeviceOpenParam& param)
+Sdl2PollingAudioDevice::Sdl2PollingAudioDevice(Logger& logger, const PollingAudioDeviceOpenParam& param)
 try
 	:
 	logger_{logger}
 {
-	logger_.log_information("<<< Start up SDL callback audio device.");
+	logger_.log_information("<<< Start up SDL polling audio device.");
 
 	if (param.channel_count <= 0 || param.channel_count > 255)
 	{
@@ -101,61 +101,61 @@ try
 	channel_count_ = effective_spec.channels;
 	frame_count_ = effective_spec.samples;
 
-	logger_.log_information(">>> SDL callback audio device started up.");
+	logger_.log_information(">>> SDL polling audio device started up.");
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-Sdl2PushAudioDevice::~Sdl2PushAudioDevice()
+Sdl2PollingAudioDevice::~Sdl2PollingAudioDevice()
 {
-	logger_.log_information("Shut down SDL callback audio device.");
+	logger_.log_information("Shut down SDL polling audio device.");
 
 	SDL_CloseAudioDevice(sdl_audio_device_id_);
 }
 
-void* Sdl2PushAudioDevice::operator new(std::size_t size)
+void* Sdl2PollingAudioDevice::operator new(std::size_t size)
 try {
 	return get_memory_resource().allocate(size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void Sdl2PushAudioDevice::operator delete(void* ptr)
+void Sdl2PollingAudioDevice::operator delete(void* ptr)
 {
 	get_memory_resource().deallocate(ptr);
 }
 
-int Sdl2PushAudioDevice::do_get_rate() const noexcept
+int Sdl2PollingAudioDevice::do_get_rate() const noexcept
 {
 	return rate_;
 }
 
-int Sdl2PushAudioDevice::do_get_channel_count() const noexcept
+int Sdl2PollingAudioDevice::do_get_channel_count() const noexcept
 {
 	return channel_count_;
 }
 
-int Sdl2PushAudioDevice::do_get_frame_count() const noexcept
+int Sdl2PollingAudioDevice::do_get_frame_count() const noexcept
 {
 	return frame_count_;
 }
 
-void Sdl2PushAudioDevice::do_pause(bool is_pause)
+void Sdl2PollingAudioDevice::do_pause(bool is_pause)
 {
 	SDL_PauseAudioDevice(sdl_audio_device_id_, is_pause ? SDL_TRUE : SDL_FALSE);
 }
 
-MemoryResource& Sdl2PushAudioDevice::get_memory_resource()
+MemoryResource& Sdl2PollingAudioDevice::get_memory_resource()
 {
-	static SinglePoolResource<Sdl2PushAudioDevice> memory_pool{};
+	static SinglePoolResource<Sdl2PollingAudioDevice> memory_pool{};
 
 	return memory_pool;
 }
 
-void SDLCALL Sdl2PushAudioDevice::sdl_callback(void* userdata, Uint8* stream, int len)
+void SDLCALL Sdl2PollingAudioDevice::sdl_callback(void* userdata, Uint8* stream, int len)
 {
-	static_cast<Sdl2PushAudioDevice*>(userdata)->callback(
+	static_cast<Sdl2PollingAudioDevice*>(userdata)->callback(
 		reinterpret_cast<float*>(stream),
 		len / static_cast<int>(sizeof(float)));
 }
 
-void Sdl2PushAudioDevice::callback(float* samples, int sample_count)
+void Sdl2PollingAudioDevice::callback(float* samples, int sample_count)
 try {
 	callback_->invoke(samples, sample_count);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -164,9 +164,9 @@ try {
 
 // ==========================================================================
 
-PollingAudioDeviceUPtr make_sdl2_push_audio_device(Logger& logger, const PollingAudioDeviceOpenParam& param)
+PollingAudioDeviceUPtr make_sdl2_polling_audio_device(Logger& logger, const PollingAudioDeviceOpenParam& param)
 try {
-	return std::make_unique<Sdl2PushAudioDevice>(logger, param);
+	return std::make_unique<Sdl2PollingAudioDevice>(logger, param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace sys

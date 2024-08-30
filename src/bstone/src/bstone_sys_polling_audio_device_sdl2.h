@@ -4,8 +4,8 @@ Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-#ifndef BSTONE_SYS_PUSH_AUDIO_DEVICE_SDL2_INCLUDED
-#define BSTONE_SYS_PUSH_AUDIO_DEVICE_SDL2_INCLUDED
+#ifndef BSTONE_SYS_POLLING_AUDIO_DEVICE_SDL2_INCLUDED
+#define BSTONE_SYS_POLLING_AUDIO_DEVICE_SDL2_INCLUDED
 
 #include "bstone_sys_polling_audio_device.h"
 #include "bstone_sys_logger.h"
@@ -13,9 +13,9 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
-PollingAudioDeviceUPtr make_sdl2_push_audio_device(Logger& logger, const PollingAudioDeviceOpenParam& param);
+PollingAudioDeviceUPtr make_sdl2_polling_audio_device(Logger& logger, const PollingAudioDeviceOpenParam& param);
 
 } // namespace sys
 } // namespace bstone
 
-#endif // BSTONE_SYS_PUSH_AUDIO_DEVICE_SDL2_INCLUDED
+#endif // BSTONE_SYS_POLLING_AUDIO_DEVICE_SDL2_INCLUDED

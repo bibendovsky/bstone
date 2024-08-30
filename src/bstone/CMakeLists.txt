@@ -663,8 +663,8 @@ set(BSTONE_BSTONE_SYS_SDL2_SOURCES
 	src/bstone_sys_mouse_mgr_sdl2.cpp
 	src/bstone_sys_mouse_mgr_sdl2.h
 	src/bstone_sys_pixel_format.cpp
-	src/bstone_sys_push_audio_device_sdl2.cpp
-	src/bstone_sys_push_audio_device_sdl2.h
+	src/bstone_sys_polling_audio_device_sdl2.cpp
+	src/bstone_sys_polling_audio_device_sdl2.h
 	src/bstone_sys_renderer_sdl2.cpp
 	src/bstone_sys_renderer_sdl2.h
 	src/bstone_sys_sdl2_subsystem.cpp
