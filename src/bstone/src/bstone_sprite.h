@@ -37,7 +37,7 @@ public:
 		const Sprite& rhs);
 
 	Sprite(
-		Sprite&& rhs);
+		Sprite&& rhs) noexcept;
 
 	Sprite& operator=(
 		const Sprite& rhs);

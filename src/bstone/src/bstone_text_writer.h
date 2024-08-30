@@ -33,7 +33,7 @@ public:
 		Stream* stream);
 
 	TextWriter(
-		TextWriter&& rhs);
+		TextWriter&& rhs) noexcept;
 
 
 	// Opens the writer.

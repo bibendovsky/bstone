@@ -33,7 +33,7 @@ public:
 	SpriteCache();
 
 	SpriteCache(
-		SpriteCache&& rhs);
+		SpriteCache&& rhs) noexcept;
 
 	SpriteCache(
 		const SpriteCache& rhs) = delete;

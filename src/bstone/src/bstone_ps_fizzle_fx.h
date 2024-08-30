@@ -30,7 +30,7 @@ public:
 	PsFizzleFX();
 
 	PsFizzleFX(
-		PsFizzleFX&& rhs);
+		PsFizzleFX&& rhs) noexcept;
 
 	PsFizzleFX(
 		const PsFizzleFX& rhs) = delete;

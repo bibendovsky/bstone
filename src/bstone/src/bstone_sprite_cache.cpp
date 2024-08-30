@@ -28,7 +28,7 @@ SpriteCache::SpriteCache()
 }
 
 SpriteCache::SpriteCache(
-	SpriteCache&& rhs)
+	SpriteCache&& rhs) noexcept
 	:
 	cache_{std::move(rhs.cache_)}
 {

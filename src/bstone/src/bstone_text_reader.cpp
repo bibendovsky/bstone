@@ -29,7 +29,7 @@ TextReader::TextReader()
 }
 
 TextReader::TextReader(
-	TextReader&& rhs)
+	TextReader&& rhs) noexcept
 	:
 	stream_{std::move(rhs.stream_)},
 	is_eos_{std::move(rhs.is_eos_)},

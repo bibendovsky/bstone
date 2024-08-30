@@ -36,7 +36,7 @@ public:
 		const TextReader& rhs) = delete;
 
 	TextReader(
-		TextReader&& rhs);
+		TextReader&& rhs) noexcept;
 
 	TextReader& operator=(
 		const TextReader& rhs) = delete;

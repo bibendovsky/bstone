@@ -37,7 +37,7 @@ PsFizzleFX::PsFizzleFX()
 }
 
 PsFizzleFX::PsFizzleFX(
-	PsFizzleFX&& rhs)
+	PsFizzleFX&& rhs) noexcept
 	:
 	buffer_{std::move(rhs.buffer_)}
 {

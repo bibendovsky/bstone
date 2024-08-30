@@ -46,7 +46,7 @@ Sprite::Sprite(
 }
 
 Sprite::Sprite(
-	Sprite&& rhs)
+	Sprite&& rhs) noexcept
 	:
 	left_{std::move(rhs.left_)},
 	right_{std::move(rhs.right_)},

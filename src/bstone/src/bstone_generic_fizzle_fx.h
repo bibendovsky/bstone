@@ -35,7 +35,7 @@ public:
 		const bool is_transparent);
 
 	GenericFizzleFX(
-		GenericFizzleFX&& rhs);
+		GenericFizzleFX&& rhs) noexcept;
 
 	GenericFizzleFX(
 		const GenericFizzleFX& rhs) = delete;

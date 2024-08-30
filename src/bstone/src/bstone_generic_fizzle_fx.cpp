@@ -55,7 +55,7 @@ GenericFizzleFX::GenericFizzleFX(
 }
 
 GenericFizzleFX::GenericFizzleFX(
-	GenericFizzleFX&& rhs)
+	GenericFizzleFX&& rhs) noexcept
 	:
 	impl_{std::move(rhs.impl_)}
 {

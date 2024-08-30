@@ -32,7 +32,7 @@ TextWriter::TextWriter(
 }
 
 TextWriter::TextWriter(
-	TextWriter&& rhs)
+	TextWriter&& rhs) noexcept
 	:
 	stream_{std::move(rhs.stream_)}
 {
