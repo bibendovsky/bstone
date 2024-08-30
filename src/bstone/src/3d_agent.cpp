@@ -3866,6 +3866,16 @@ int aog_input_floor()
 				px = 167;
 				py = ref_top_bar_height + 10;
 
+				if (gamestate.mapon < 1 || gamestate.mapon > 10)
+				{
+					auto error_message = std::string{};
+					error_message.reserve(64);
+					error_message += "Current floor number out of range. (";
+					error_message += std::to_string(gamestate.mapon);
+					error_message += ')';
+					BSTONE_THROW_DYNAMIC_SOURCE(error_message.c_str());
+				}
+
 				USL_DrawString(floor_number_strings[gamestate.mapon - 1]);
 			}
 
