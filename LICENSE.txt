@@ -1,8 +1,8 @@
-BStone: A Source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
+BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 (Original source code and modified original source code; GPLv2)
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -20,10 +20,10 @@ Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 =============================================================================
-BStone: A Source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
+BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 (Completely new source code; MIT)
 
-Copyright (c) 2013-2022 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
