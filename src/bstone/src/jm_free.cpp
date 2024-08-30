@@ -62,9 +62,6 @@ void ClearMemory();
 void ShutdownId();
 void InitRedShifts();
 
-void CAL_OptimizeNodes(
-	huffnode* table);
-
 void ReadConfig();
 void read_high_scores();
 
@@ -83,8 +80,6 @@ void initialize_hit_point_table();
 void initialize_boss_constants();
 void initialize_messages();
 void initialize_ca_constants();
-
-void sd_setup_digi();
 
 void InitPlaytemp();
 
