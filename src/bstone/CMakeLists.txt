@@ -221,6 +221,7 @@ target_link_libraries(bstone
 		$<$<BOOL:${WIN32}>:wbemuuid>
 		Threads::Threads
 		bstone::lib::khronos
+		bstone::lib::nuked_opl3
 		bstone::lib::openal_soft
 		bstone::lib::stb
 		bstone::lib::xbrz

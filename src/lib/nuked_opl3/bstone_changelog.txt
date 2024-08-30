@@ -1,0 +1,3 @@
+BStone changes for Nuked OPL3
+- Wrap .c into .cpp file.
+- Add CMake project.

@@ -13,8 +13,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_nuked_opl3.h"
 #include <type_traits>
 #include <vector>
-#include "../../lib/nuked_opl3/opl3.h"
-#include "../../lib/nuked_opl3/opl3.c"
+#include "opl3.h"
 #include "bstone_audio_sample_converter.h"
 #include "bstone_opl3.h"
 
