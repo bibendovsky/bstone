@@ -26,8 +26,10 @@
 - Possible out of range index access in ClearNClose.
 - [HWR] Crash on E5M14.
 - [SDL] Audio mixer crash on exit.
+- Crash when playing UI sound and there is no audio devices detected.
 
 ### Added
+- [#503] If the player score for the level is above 96%, the informant will tell the location of a single missing enemy or item.
 - [CMake] Option *BSTONE_INTERNAL_SDL2* to use bundled SDL2 source code.
 - CVar facility.
 - Add tool to trim file paths in the executable.
@@ -36,10 +38,11 @@
 - Add Git commit's hash to the version.
 - Log error when message box fails.
 - Option `extract_levels` to extract levels in MapEdit format (FLR).
+- Button to error message box to open a log file.
 
 ### Changed
 - [#383] Change description of "is windowed" for windowed fullscreen.
-- Relicense completely new source code under MIT.
+- Relicense completely new source code under MIT license.
 - [AUDIO] Rename audio driver type `2d_sdl` to `system`.
 - [AUDIO] Rename audio driver type `3d_openal` to `openal`.
 - Rename cvar `vid_aa_kind` to `vid_aa_type`.
@@ -47,8 +50,8 @@
 - Rename cvar `vid_aa_kind` to `vid_aa_type`.
 - Use multiple search paths (data, mod) for external resources.
 - [Windows 11+] Remove round corners of a window.
-- Update SDL to v2.30.2.
-- Update Nuked OPL3 to 730f8c238a152cb3314e46919789a666c9d81d82.
+- Update SDL to v2.30.6.
+- Update Nuked OPL3 to cfedb09efc03f1d7b5fc1f04dd449d77d8c49d50.
 - Update stb (stb_image.h v2.29; stb_image_write.h v1.16).
 - Set CMake minimum version to v3.5.0.
 - Option `--data_dir` does not affect auto-detection of original assets.
