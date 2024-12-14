@@ -2,7 +2,7 @@
 # Changelog
 
 
-## [1.?.?] - ????-??-??
+## [1.2.13] - 2024-12-14
 ### Fixed
 - [#442] [AOG][HWR] Fix weapon position when toggle widescreen.
 - [#450] Hide back-to-demo menu item when there is no mission active.
