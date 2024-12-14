@@ -50,7 +50,7 @@
 - Rename cvar `vid_aa_kind` to `vid_aa_type`.
 - Use multiple search paths (data, mod) for external resources.
 - [Windows 11+] Remove round corners of a window.
-- Update SDL to v2.30.6.
+- Update SDL to v2.30.10.
 - Update Nuked OPL3 to cfedb09efc03f1d7b5fc1f04dd449d77d8c49d50.
 - Update stb (stb_image.h v2.29; stb_image_write.h v1.16).
 - Set CMake minimum version to v3.5.0.
