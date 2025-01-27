@@ -7,102 +7,50 @@ SPDX-License-Identifier: MIT
 // File primitive.
 
 #include "bstone_file.h"
+#include <algorithm>
 
-#include "bstone_exception.h"
+// ==========================================================================
 
 namespace bstone {
 
-File::File() noexcept = default;
-
-File::File(const char* path, FileOpenFlags open_flags, FileShareMode share_mode)
+File::File(File&& rhs) noexcept
+	:
+	handle_(rhs.handle_)
 {
-	try_or_open_internal(path, open_flags, share_mode, FileErrorMode::exception, resource_);
+	rhs.handle_ = invalid_handle;
 }
 
-bool File::try_open(const char* path, FileOpenFlags open_flags, FileShareMode share_mode)
+File& File::operator=(File&& rhs) noexcept
 {
-	return try_or_open_internal(path, open_flags, share_mode, FileErrorMode::error_code, resource_);
+	std::swap(handle_, rhs.handle_);
+	return *this;
 }
 
-void File::open(const char* path, FileOpenFlags open_flags, FileShareMode share_mode)
+bool File::lock(FileLockType lock_type) const
 {
-	try_or_open_internal(path, open_flags, share_mode, FileErrorMode::exception, resource_);
-}
-
-void File::close() noexcept
-{
-	close_internal(resource_);
-}
-
-bool File::is_open() const noexcept
-{
-	return !resource_.is_empty();
-}
-
-void File::read_exactly(void* buffer, std::intptr_t count) const
-{
-	auto buffer_bytes = static_cast<unsigned char*>(buffer);
-
-	while (true)
+	switch (lock_type)
 	{
-		const auto read_count = read(buffer_bytes, count);
-
-		if (read_count == 0)
-		{
-			if (count != 0)
-			{
-				BSTONE_THROW_STATIC_SOURCE("Read number of bytes mismatch.");
-			}
-
-			break;
-		}
-
-		buffer_bytes += read_count;
-		count -= read_count;
+		case file_lock_shared: return lock_shared();
+		case file_lock_exclusive: return lock_exclusive();
+		default: return false;
 	}
 }
 
-void File::write_exactly(const void* buffer, std::intptr_t count) const
+void File::swap(File& file)
 {
-	auto buffer_bytes = static_cast<const unsigned char*>(buffer);
-
-	while (true)
-	{
-		const auto written_count = write(buffer_bytes, count);
-
-		if (written_count == 0)
-		{
-			if (count != 0)
-			{
-				BSTONE_THROW_STATIC_SOURCE("Written number of bytes mismatch.");
-			}
-
-			break;
-		}
-
-		buffer_bytes += written_count;
-		count -= written_count;
-	}
+	std::swap(handle_, file.handle_);
 }
 
-std::int64_t File::skip(std::int64_t offset) const
+// ==========================================================================
+
+FileFlags operator|(FileFlags a, FileFlags b)
 {
-	return seek(offset, FileOrigin::current);
+	return FileFlags(static_cast<int>(a) | static_cast<int>(b));
 }
 
-std::int64_t File::get_position() const
+FileFlags& operator|=(FileFlags& a, FileFlags b)
 {
-	return skip(0);
-}
-
-void File::set_position(std::int64_t position) const
-{
-	seek(position, FileOrigin::begin);
-}
-
-void File::close_internal(FileUResource& resource) noexcept
-{
-	resource.reset();
+	return a = a | b;
 }
 
 } // namespace bstone

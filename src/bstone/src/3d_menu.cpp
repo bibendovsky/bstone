@@ -3686,7 +3686,7 @@ void ReadGameNames()
 
 		bstone::FileStream stream{};
 
-		if (!stream.try_open(name_path.c_str()))
+		if (!stream.open(name_path.c_str(), bstone::file_flags_shared))
 		{
 			continue;
 		}

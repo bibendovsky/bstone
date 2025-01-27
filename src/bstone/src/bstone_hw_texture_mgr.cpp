@@ -25,7 +25,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_atomic_flag.h"
 #include "bstone_exception.h"
 #include "bstone_fs_utils.h"
-#include "bstone_file_stream.h"
+#include "bstone_file.h"
 #include "bstone_globals.h"
 #include "bstone_missing_sprite_64x64_image.h"
 #include "bstone_missing_wall_64x64_image.h"
@@ -394,7 +394,6 @@ private:
 	detail::XbrzTaskPtrs xbrz_task_ptrs_;
 
 	bool is_external_textures_enabled_{};
-	FileStream image_file_stream_;
 	Buffer image_buffer_;
 	Rgba8Buffer image_buffer_rgba8_;
 	ImageDecodeUPtr bmp_image_decoder_;
@@ -1679,26 +1678,26 @@ try {
 
 	for (const auto& image_probe_item : image_probe_items_)
 	{
-		image_file_stream_.close();
+		File image_file{};
 
-		if (!image_file_stream_.is_open() && !image_mod_path_.empty())
+		if (!image_file.is_open() && !image_mod_path_.empty())
 		{
 			fs_utils::replace_extension(image_mod_path_, image_probe_item.file_name_extension);
-			image_file_stream_.open(image_mod_path_.c_str());
+			image_file.open(image_mod_path_.c_str(), FileFlags::file_flags_shared);
 		}
 
-		if (!image_file_stream_.is_open() && !image_data_path_.empty())
+		if (!image_file.is_open() && !image_data_path_.empty())
 		{
 			fs_utils::replace_extension(image_data_path_, image_probe_item.file_name_extension);
-			image_file_stream_.open(image_data_path_.c_str());
+			image_file.open(image_data_path_.c_str(), FileFlags::file_flags_shared);
 		}
 
-		if (!image_file_stream_.is_open())
+		if (!image_file.is_open())
 		{
 			continue;
 		}
 
-		const auto image_file_size = image_file_stream_.get_size();
+		const auto image_file_size = image_file.get_size();
 
 		if (image_file_size <= 0)
 		{
@@ -1711,9 +1710,8 @@ try {
 		}
 
 		const auto image_to_read_size = static_cast<int>(image_file_size);
-		const auto image_read_result = image_file_stream_.read(image_buffer_.data(), image_to_read_size);
 
-		if (image_read_result != image_to_read_size)
+		if (!image_file.read_exactly(image_buffer_.data(), image_to_read_size))
 		{
 			continue;
 		}
@@ -1725,7 +1723,7 @@ try {
 		{
 			image_probe_item.image_decoder->decode(
 				image_buffer_.data(),
-				static_cast<int>(image_read_result),
+				static_cast<int>(image_to_read_size),
 				width,
 				height,
 				image_buffer_rgba8_

@@ -11,9 +11,6 @@ SPDX-License-Identifier: MIT
 // - "AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE"
 // - "{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}"
 
-// TODO
-// Rewrite with "File" when non-regular files will be supported.
-
 #include "bstone_uuid.h"
 
 #ifndef _WIN32
@@ -22,25 +19,20 @@ SPDX-License-Identifier: MIT
 #include <unistd.h>
 
 #include "bstone_exception.h"
-#include "bstone_file.h"
 
 namespace bstone {
 
 Uuid Uuid::generate()
 try {
-	auto file = FileUResource{::open("/dev/urandom", O_RDONLY)};
+	Uuid uuid;
+	UuidValue& uuid_value = uuid.get_value();
+	const int file = ::open("/dev/urandom", O_RDONLY);
+	const ssize_t read_size = ::read(file, uuid_value.get_data(), uuid_value_size);
+	::close(file);
 
-	if (file.is_empty())
+	if (read_size != uuid_value_size)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Failed to open \"/dev/urandom\".");
-	}
-
-	auto uuid = Uuid{};
-	auto& uuid_value = uuid.get_value();
-
-	if (::read(file.get(), uuid_value.get_data(), uuid_value_size) != uuid_value_size)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Failed to read random bytes.");
+		BSTONE_THROW_STATIC_SOURCE("Failed to read a random device.");
 	}
 
 	// Set version 4.

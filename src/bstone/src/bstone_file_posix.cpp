@@ -8,243 +8,151 @@ SPDX-License-Identifier: MIT
 
 #ifndef _WIN32
 
-#include "bstone_file.h"
-
-#include <cstdint>
-
+#include <limits.h>
+#include <stdio.h>
 #include <algorithm>
-#include <limits>
-#include <type_traits>
-
+#include <sys/file.h>
 #include <sys/stat.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <unistd.h>
-
 #include "bstone_assert.h"
-#include "bstone_exception.h"
+#include "bstone_file.h"
 
-static_assert(
-	std::is_signed<::off_t>::value && (sizeof(::off_t) == 4 || sizeof(::off_t) == 8),
-	"Unsupported type \"off_t\".");
+// ==========================================================================
 
 namespace bstone {
 
 namespace {
 
-constexpr auto posix_file_supports_64_bit_size = sizeof(::off_t) == 8;
+typedef struct flock FilePosixFLock;
+typedef struct stat FilePosixStat;
 
-constexpr auto posix_file_max_int = std::min(
-	std::int64_t{std::numeric_limits<::off_t>::max()},
-	std::int64_t{std::numeric_limits<std::intptr_t>::max()});
+template<bool TIs64bit>
+struct FilePosixMaxOffT
+{
+	static const int64_t value = INT32_MAX;
+};
 
-void posix_set_record_locking(int posix_file_descriptor, short posix_lock_type)
-try {
-	struct flock posix_flock {};
-	posix_flock.l_type = posix_lock_type;
+template<>
+struct FilePosixMaxOffT<true>
+{
+	static const int64_t value = INT64_MAX;
+};
+
+const intptr_t file_posix_max_read_write_size = INTPTR_MAX;
+const bool file_posix_is_off_t_64_bit = CHAR_BIT * sizeof(off_t) == 64;
+
+const int64_t file_posix_max_off_t = FilePosixMaxOffT<file_posix_is_off_t_64_bit>::value;
+
+template<typename T>
+void file_posix_ignore_result(const T&) {}
+
+// --------------------------------------------------------------------------
+
+bool file_posix_is_off_t_valid(off_t value)
+{
+	if (file_posix_is_off_t_64_bit)
+	{
+		return true;
+	}
+
+	return std::abs(value) <= file_posix_max_off_t;
+}
+
+void file_posix_close(int handle)
+{
+	const int posix_result = close(handle);
+	BSTONE_ASSERT(posix_result == 0);
+	file_posix_ignore_result(posix_result);
+}
+
+bool file_posix_truncate(int handle, off_t size)
+{
+	if (!file_posix_is_off_t_valid(size))
+	{
+		return false;
+	}
+
+	return ftruncate(handle, size) == 0;
+}
+
+int64_t file_posix_lseek(int handle, int64_t offset, int whence)
+{
+	if (!file_posix_is_off_t_valid(offset))
+	{
+		return -1;
+	}
+
+	return lseek(handle, offset, whence);
+}
+
+bool file_posix_lock_fcntl(int handle, int fcntl_op, short lock_type)
+{
+	FilePosixFLock posix_flock = FilePosixFLock();
+	posix_flock.l_type = lock_type;
 	posix_flock.l_whence = SEEK_SET;
-	const auto fcntl_result = fcntl(posix_file_descriptor, F_SETLK, &posix_flock);
-
-	if (fcntl_result == -1)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Failed to lock a file.");
-	}
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-} // namespace
-
-// ==========================================================================
-
-FileUResourceHandle FileUResourceEmptyValue::operator()() const noexcept
-{
-	return -1;
+	return fcntl(handle, fcntl_op, &posix_flock) == 0;
 }
 
-void FileUResourceDeleter::operator()(FileUResourceHandle handle) const noexcept
+#ifndef F_OFD_SETLK
+bool file_posix_lock_flock(int handle, short lock_type)
 {
-	::close(handle);
+	return flock(handle, lock_type | LOCK_NB) == 0;
+}
+#endif // F_OFD_SETLK
+
+bool file_posix_lock_shared(int handle)
+{
+#ifdef F_OFD_SETLK
+	return file_posix_lock_fcntl(handle, F_OFD_SETLK, F_RDLCK);
+#else
+	return file_posix_lock_flock(handle, LOCK_SH);
+#endif
 }
 
-// ==========================================================================
-
-std::intptr_t File::read(void* buffer, std::intptr_t count) const
+bool file_posix_lock_exclusive(int handle)
 {
-	BSTONE_ASSERT(buffer != nullptr);
-	BSTONE_ASSERT(count >= 0);
-
-	const auto posix_file_descriptor = resource_.get();
-	const auto posix_number_of_bytes_to_read = static_cast<::size_t>(
-		std::min(count, static_cast<std::intptr_t>(posix_file_max_int)));
-	const auto posix_number_of_bytes_read = ::read(
-		posix_file_descriptor, buffer, posix_number_of_bytes_to_read);
-
-	if (posix_number_of_bytes_read < 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Failed to read.");
-	}
-
-	return static_cast<std::intptr_t>(posix_number_of_bytes_read);
+#ifdef F_OFD_SETLK
+	return file_posix_lock_fcntl(handle, F_OFD_SETLK, F_WRLCK);
+#else
+	return file_posix_lock_flock(handle, LOCK_EX);
+#endif
 }
 
-std::intptr_t File::write(const void* buffer, std::intptr_t count) const
+bool file_posix_unlock(int handle)
 {
-	BSTONE_ASSERT(buffer != nullptr);
-	BSTONE_ASSERT(count >= 0);
-
-	const auto posix_file_descriptor = resource_.get();
-	const auto posix_number_of_bytes_to_write = static_cast<::size_t>(
-		std::min(count, static_cast<std::intptr_t>(posix_file_max_int)));
-	const auto posix_number_of_bytes_written = ::write(
-		posix_file_descriptor, buffer, posix_number_of_bytes_to_write);
-
-	if (posix_number_of_bytes_written < 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Failed to write.");
-	}
-
-	return static_cast<std::intptr_t>(posix_number_of_bytes_written);
+#ifdef F_OFD_SETLK
+	return file_posix_lock_fcntl(handle, F_OFD_SETLK, F_UNLCK);
+#else
+	return file_posix_lock_flock(handle, LOCK_UN);
+#endif
 }
 
-std::int64_t File::seek(std::int64_t offset, FileOrigin origin) const
+bool file_posix_open(const char* path, FileFlags flags, int& handle, FileErrorCode& error_code)
 {
-	if (!posix_file_supports_64_bit_size)
-	{
-		if (std::abs(offset) > posix_file_max_int)
-		{
-			BSTONE_THROW_STATIC_SOURCE("Offset out of range.");
-		}
-	}
-
-	auto posix_origin = 0;
-
-	switch (origin)
-	{
-		case FileOrigin::begin: posix_origin = SEEK_SET; break;
-		case FileOrigin::current: posix_origin = SEEK_CUR; break;
-		case FileOrigin::end: posix_origin = SEEK_END; break;
-		default: BSTONE_THROW_STATIC_SOURCE("Unknown origin.");
-	}
-
-	const auto lseek_result = ::lseek(resource_.get(), offset, posix_origin);
-
-	if (lseek_result < 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Failed to set position.");
-	}
-
-	return static_cast<std::int64_t>(lseek_result);
-}
-
-std::int64_t File::get_size() const
-{
-	struct ::stat posix_stat{};
-	const auto fstat_result = ::fstat(resource_.get(), &posix_stat);
-
-	if (fstat_result != 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Failed to get a size.");
-	}
-
-	return posix_stat.st_size;
-}
-
-void File::set_size(std::int64_t size) const
-{
-	if (!posix_file_supports_64_bit_size)
-	{
-		if (std::abs(size) > posix_file_max_int)
-		{
-			BSTONE_THROW_STATIC_SOURCE("Size out of range.");
-		}
-	}
-
-	const auto ftruncate_result = ::ftruncate(resource_.get(), size);
-
-	if (ftruncate_result != 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Failed to truncate.");
-	}
-}
-
-void File::flush() const
-{
-	const auto fsync_result = ::fsync(resource_.get());
-
-	if (fsync_result != 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Failed to flush.");
-	}
-}
-
-bool File::try_or_open_internal(
-	const char* path,
-	FileOpenFlags open_flags,
-	FileShareMode share_mode,
-	FileErrorMode file_error_mode,
-	FileUResource& resource)
-{
-	BSTONE_ASSERT(path != nullptr);
-		
-	// Release previous resource.
-	//
-
-	close_internal(resource);
-
-	// Validate input parameters.
-	//
-
-	const auto is_create = (open_flags & FileOpenFlags::create) != FileOpenFlags::none;
-	const auto is_truncate = (open_flags & FileOpenFlags::truncate) != FileOpenFlags::none;
-	const auto is_readable = (open_flags & FileOpenFlags::read) != FileOpenFlags::none;
-	const auto is_writable = is_create || is_truncate ||
-		(open_flags & FileOpenFlags::write) != FileOpenFlags::none;
+	const bool is_create = (flags & file_flags_create) != 0;
+	const bool is_truncate = (flags & file_flags_truncate) != 0;
+	const bool is_shared = (flags & file_flags_shared) != 0;
+	const bool is_exclusive = (flags & file_flags_exclusive) != 0;
+	const bool is_readable = is_shared || (flags & file_flags_read) != 0;
+	const bool is_writable = is_create || is_truncate || is_exclusive || (flags & file_flags_write) != 0;
 
 	if (!is_readable && !is_writable)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Invalid flags combination.");
+		error_code = ec_file_invalid_arguments;
+		return false;
 	}
-
-	switch (share_mode)
-	{
-		case FileShareMode::unrestricted:
-			break;
-
-		case FileShareMode::shared:
-			if (!is_readable)
-			{
-				BSTONE_THROW_STATIC_SOURCE("Shared file requires a read access.");
-			}
-
-			break;
-
-		case FileShareMode::exclusive:
-			if (!is_writable)
-			{
-				BSTONE_THROW_STATIC_SOURCE("Exclusive file requires a write access.");
-			}
-
-			break;
-
-		default: BSTONE_THROW_STATIC_SOURCE("Unknown file share mode.");
-	}
-
-	const auto use_error_code = file_error_mode == FileErrorMode::error_code;
 
 	// Make status flags, access mode and access permission bits.
 	//
-
-	auto oflag = 0;
-	auto mode = ::mode_t{};
+	int oflag = 0;
+	mode_t mode = 0;
 
 	if (is_create)
 	{
 		oflag |= O_CREAT;
 		mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
-	}
-
-	if (is_truncate)
-	{
-		oflag |= O_TRUNC;
 	}
 
 	if (is_readable && is_writable)
@@ -260,76 +168,273 @@ bool File::try_or_open_internal(
 		oflag |= O_WRONLY;
 	}
 
-	// Make a resource.
+	// Open the file.
 	//
+	handle = ::open(path, oflag, mode);
 
-	auto new_resource = FileUResource{::open(path, oflag, mode)};
-
-	if (new_resource.is_empty())
+	if (handle == -1)
 	{
-		if (use_error_code)
-		{
-			return false;
-		}
-
 		switch (errno)
 		{
-			case ENOENT: BSTONE_THROW_STATIC_SOURCE("Not found.");
-			case EACCES: BSTONE_THROW_STATIC_SOURCE("Access denied.");
-			default: BSTONE_THROW_STATIC_SOURCE("Failed to open.");
+			case ENOENT: error_code = ec_file_not_found; return false;
+			case EACCES: error_code = ec_file_access_denied; return false;
+			default: error_code = ec_file_open; return false;
 		}
 	}
 
 	// Validate a type.
 	//
+	FilePosixStat posix_stat;
 
-	struct ::stat posix_stat{};
-	const auto fstat_result = ::fstat(new_resource.get(), &posix_stat);
-
-	if (fstat_result != 0)
+	if (fstat(handle, &posix_stat) != 0)
 	{
-		if (use_error_code)
-		{
-			return false;
-		}
-
-		BSTONE_THROW_STATIC_SOURCE("Failed to get status.");
+		error_code = ec_file_open;
+		return false;
 	}
 
 	if (!S_ISREG(posix_stat.st_mode))
 	{
-		if (use_error_code)
+		error_code = ec_file_not_regular;
+		return false;
+	}
+
+	// Lock the file if necessary.
+	//
+	if (is_shared)
+	{
+		if (!file_posix_lock_shared(handle))
+		{
+			error_code = ec_file_lock;
+			return false;
+		}
+	}
+	else if (is_exclusive)
+	{
+		if (!file_posix_lock_exclusive(handle))
+		{
+			error_code = ec_file_lock;
+			return false;
+		}
+	}
+	else
+	{}
+
+	// Truncate the file if necessary
+	if (is_truncate)
+	{
+		if (!file_posix_truncate(handle, 0))
+		{
+			error_code = ec_file_truncate;
+			return false;
+		}
+	}
+
+	return true;
+}
+
+int file_posix_open(const char* path, FileFlags flags, FileErrorCode& error_code)
+{
+	int handle = File::invalid_handle;
+
+	if (!file_posix_open(path, flags, handle, error_code))
+	{
+		if (handle != File::invalid_handle)
+		{
+			file_posix_close(handle);
+			handle = File::invalid_handle;
+		}
+	}
+
+	return handle;
+}
+
+int file_posix_open(const char* path, FileFlags flags)
+{
+	FileErrorCode error_code;
+	return file_posix_open(path, flags, error_code);
+}
+
+} // namespace
+
+// --------------------------------------------------------------------------
+
+File::File()
+	:
+	handle_(File::invalid_handle)
+{}
+
+File::File(const char* path, FileFlags flags)
+	:
+	handle_(file_posix_open(path, flags))
+{}
+
+File::File(const char* path, FileFlags flags, FileErrorCode& error_code)
+	:
+	handle_(file_posix_open(path, flags, error_code))
+{}
+
+File::~File()
+{
+	if (!is_open())
+	{
+		return;
+	}
+
+	file_posix_close(handle_);
+}
+
+bool File::is_open() const
+{
+	return handle_ != File::invalid_handle;
+}
+
+bool File::open(const char* path, FileFlags file_flags)
+{
+	FileErrorCode error_code;
+	return open(path, file_flags, error_code);
+}
+
+bool File::open(const char* path, FileFlags file_flags, FileErrorCode& error_code)
+{
+	close();
+	handle_ = file_posix_open(path, file_flags, error_code);
+	return is_open();
+}
+
+void File::close()
+{
+	if (!is_open())
+	{
+		return;
+	}
+
+	file_posix_close(handle_);
+	handle_ = File::invalid_handle;
+}
+
+intptr_t File::read(void* buffer, intptr_t size) const
+{
+	return ::read(handle_, buffer, static_cast<size_t>(size));
+}
+
+bool File::read_exactly(void* buffer, intptr_t size) const
+{
+	unsigned char* dst_bytes = static_cast<unsigned char*>(buffer);
+
+	for (intptr_t dst_index = 0; dst_index < size;)
+	{
+		const intptr_t rest_size = size - dst_index;
+		const intptr_t to_read_size = std::min(rest_size, file_posix_max_read_write_size);
+		const intptr_t posix_read_size = ::read(handle_, &dst_bytes[dst_index], static_cast<size_t>(to_read_size));
+
+		if (posix_read_size <= 0)
 		{
 			return false;
 		}
 
-		BSTONE_THROW_STATIC_SOURCE("Not a regular file.");
+		dst_index += posix_read_size;
 	}
 
-	// Lock the file.
-	//
-
-	switch (share_mode)
-	{
-		case FileShareMode::unrestricted:
-			break;
-
-		case FileShareMode::shared:
-			posix_set_record_locking(new_resource.get(), F_RDLCK);
-			break;
-
-		case FileShareMode::exclusive:
-			posix_set_record_locking(new_resource.get(), F_WRLCK);
-			break;
-
-		default: BSTONE_THROW_STATIC_SOURCE("Unknown file share mode.");
-	}
-
-	// Commit changes.
-	//
-
-	resource.swap(new_resource);
 	return true;
+}
+
+intptr_t File::write(const void* buffer, intptr_t size) const
+{
+	return ::write(handle_, buffer, size);
+}
+
+bool File::write_exactly(const void* buffer, intptr_t size) const
+{
+	const unsigned char* src_bytes = static_cast<const unsigned char*>(buffer);
+
+	for (intptr_t src_index = 0; src_index < size;)
+	{
+		const intptr_t rest_size = size - src_index;
+		const intptr_t to_write_size = std::min(rest_size, file_posix_max_read_write_size);
+		const intptr_t posix_written_size = ::write(handle_, &src_bytes[src_index], static_cast<size_t>(to_write_size));
+
+		if (posix_written_size <= 0)
+		{
+			return false;
+		}
+
+		src_index += posix_written_size;
+	}
+
+	return true;
+}
+
+int64_t File::seek(int64_t offset, FileOrigin origin) const
+{
+	int posix_origin;
+
+	switch (origin)
+	{
+		case file_origin_begin: posix_origin = SEEK_SET; break;
+		case file_origin_current: posix_origin = SEEK_CUR; break;
+		case file_origin_end: posix_origin = SEEK_END; break;
+		default: return -1;
+	}
+
+	return file_posix_lseek(handle_, offset, posix_origin);
+}
+
+int64_t File::skip(int64_t offset) const
+{
+	return file_posix_lseek(handle_, offset, SEEK_CUR);
+}
+
+int64_t File::get_position() const
+{
+	return skip(0);
+}
+
+bool File::set_position(int64_t position) const
+{
+	return file_posix_lseek(handle_, position, SEEK_SET) >= 0;
+}
+
+int64_t File::get_size() const
+{
+	FilePosixStat posix_stat;
+	const int posix_result = fstat(handle_, &posix_stat);
+
+	if (posix_result != 0)
+	{
+		return -1;
+	}
+
+	return posix_stat.st_size;
+}
+
+bool File::set_size(int64_t size) const
+{
+	if (!file_posix_is_off_t_valid(size))
+	{
+		return false;
+	}
+
+	return ftruncate(handle_, static_cast<off_t>(size)) == 0;
+}
+
+bool File::flush() const
+{
+	return fsync(handle_) == 0;
+}
+
+bool File::lock_shared() const
+{
+	return file_posix_lock_shared(handle_);
+}
+
+bool File::lock_exclusive() const
+{
+	return file_posix_lock_exclusive(handle_);
+}
+
+bool File::unlock() const
+{
+	return file_posix_unlock(handle_);
 }
 
 } // namespace bstone

@@ -9,67 +9,65 @@ SPDX-License-Identifier: MIT
 #ifndef BSTONE_FILE_INCLUDED
 #define BSTONE_FILE_INCLUDED
 
-#include <cstdint>
+#include <stdint.h>
 
-#include "bstone_enum_flags.h"
-#include "bstone_unique_resource.h"
+// ==========================================================================
 
 namespace bstone {
 
-using FileUResourceHandle =
-#ifdef _WIN32
-	void*
-#else
-	int
-#endif
-;
-
-struct FileUResourceEmptyValue
+enum FileErrorCode
 {
-	FileUResourceHandle operator()() const noexcept;
-};
+	ec_file_none = 0,
+	ec_file_unknown = -1,
+	ec_file_out_of_memory = -3,
+	ec_file_invalid_arguments = -4,
 
-struct FileUResourceDeleter
-{
-	void operator()(FileUResourceHandle handle) const noexcept;
-};
-
-using FileUResource = UniqueResource<
-	FileUResourceHandle,
-	FileUResourceDeleter,
-	FileUResourceEmptyValue>;
-
-// ==========================================================================
-
-enum class FileOrigin
-{
-	none,
-	begin,
-	current,
-	end,
+	ec_file_open = -100, // Could not open a file.
+	ec_file_not_found = -101, // File or path not found.
+	ec_file_access_denied = -102, // Access denied to file or path.
+	ec_file_utf8_to_native = -103, // Could not convert a file path to native encoding.
+	ec_file_not_regular = -104, // Not a regular file.
+	ec_file_truncate = -105, // Could not truncate a file.
+	ec_file_lock = -106 // Could not lock a file.
 };
 
 // ==========================================================================
 
-enum class FileOpenFlags : unsigned int
+enum FileOrigin
 {
-	none,
-	create = 1U << 0, // Implies `write` mode.
-	read = 1U << 1,
-	write = 1U << 2,
-	read_write = read | write,
-	truncate = 1U << 3, // Implies `write` mode.
+	file_origin_none = 0,
+	file_origin_begin = 1,
+	file_origin_current = 2,
+	file_origin_end = 3,
 };
-
-BSTONE_ENABLE_ENUM_CLASS_BITWISE_OPS_FOR(FileOpenFlags)
 
 // ==========================================================================
 
-enum class FileShareMode
+enum FileFlags
 {
-	unrestricted,
-	shared, // Requires a read access.
-	exclusive, // Requires a write access.
+	file_flags_none = 0,
+	file_flags_read = 1 << 0,
+	file_flags_write = 1 << 1,
+	file_flags_create = 1 << 2, // Implies "write" flag.
+	file_flags_truncate = 1 << 3, // Implies "write" flag.
+	file_flags_shared = 1 << 4, // Implies "read" flag. Mutually exclusive.
+	file_flags_exclusive = 1 << 5, // Implies "write" flag. Mutually exclusive.
+
+	file_flags_read_write = file_flags_read | file_flags_write,
+};
+
+// --------------------------------------------------------------------------
+
+FileFlags operator|(FileFlags a, FileFlags b);
+FileFlags& operator|=(FileFlags& a, FileFlags b);
+
+// ==========================================================================
+
+enum FileLockType
+{
+	file_lock_unknown = 0,
+	file_lock_shared = 1,
+	file_lock_exclusive = 2,
 };
 
 // ==========================================================================
@@ -77,56 +75,43 @@ enum class FileShareMode
 class File
 {
 public:
-	File() noexcept;
+	static const int invalid_handle = -1;
 
-	explicit File(
-		const char* path,
-		FileOpenFlags open_flags = FileOpenFlags::read,
-		FileShareMode share_mode = FileShareMode::shared);
+public:
+	File();
+	File(const char* path, FileFlags flags);
+	File(const char* path, FileFlags flags, FileErrorCode& error_code);
+	File(File&& rhs) noexcept;
+	File& operator=(File&& rhs) noexcept;
+	~File();
 
-	bool try_open(
-		const char* path,
-		FileOpenFlags open_flags = FileOpenFlags::read,
-		FileShareMode share_mode = FileShareMode::shared);
-
-	void open(
-		const char* path,
-		FileOpenFlags open_flags = FileOpenFlags::read,
-		FileShareMode share_mode = FileShareMode::shared);
-
-	void close() noexcept;
-	bool is_open() const noexcept;
-	std::intptr_t read(void* buffer, std::intptr_t count) const;
-	void read_exactly(void* buffer, std::intptr_t count) const;
-	std::intptr_t write(const void* buffer, std::intptr_t count) const;
-	void write_exactly(const void* buffer, std::intptr_t count) const;
-	std::int64_t seek(std::int64_t offset, FileOrigin origin) const;
-	std::int64_t skip(std::int64_t offset) const;
-	std::int64_t get_position() const;
-	void set_position(std::int64_t position) const;
-	std::int64_t get_size() const;
-	void set_size(std::int64_t size) const;
-	void flush() const;
-
-private:
-	enum class FileErrorMode
-	{
-		exception,
-		error_code,
-	};
+	bool is_open() const;
+	bool open(const char* path, FileFlags flags);
+	bool open(const char* path, FileFlags flags, FileErrorCode& error_code);
+	void close();
+	intptr_t read(void* buffer, intptr_t size) const;
+	bool read_exactly(void* buffer, intptr_t size) const;
+	intptr_t write(const void* buffer, intptr_t size) const;
+	bool write_exactly(const void* buffer, intptr_t size) const;
+	int64_t seek(int64_t offset, FileOrigin origin) const;
+	int64_t skip(int64_t offset) const;
+	int64_t get_position() const;
+	bool set_position(int64_t position) const;
+	int64_t get_size() const;
+	bool set_size(int64_t size) const;
+	bool flush() const;
+	bool lock(FileLockType lock_type) const;
+	bool lock_shared() const;
+	bool lock_exclusive() const;
+	bool unlock() const;
+	void swap(File& file);
 
 private:
-	FileUResource resource_{};
+	File(const File&) = delete;
+	File& operator=(const File&) = delete;
 
 private:
-	static void close_internal(FileUResource& resource) noexcept;
-
-	static bool try_or_open_internal(
-		const char* path,
-		FileOpenFlags open_flags,
-		FileShareMode share_mode,
-		FileErrorMode file_error_mode,
-		FileUResource& resource);
+	int handle_;
 };
 
 } // namespace bstone

@@ -1,3 +1,9 @@
+#ifndef NDEBUG
+	//#define BSTONE_TESTS_SKIP_PROCESS
+#endif
+
+#ifndef BSTONE_TESTS_SKIP_PROCESS
+
 #include <utility>
 
 #include "bstone_process.h"
@@ -161,3 +167,5 @@ private:
 auto registrator = Registrator{};
 
 } // namespace
+
+#endif // BSTONE_TESTS_SKIP_PROCESS

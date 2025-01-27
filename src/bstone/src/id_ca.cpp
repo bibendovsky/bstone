@@ -943,7 +943,7 @@ bool ca_open_resource_non_fatal(
 {
 	const auto path = bstone::fs_utils::append_path(data_dir, file_name);
 
-	if (file_stream.try_open(path.c_str()))
+	if (file_stream.open(path.c_str(), bstone::file_flags_shared))
 	{
 		return true;
 	}
@@ -951,7 +951,7 @@ bool ca_open_resource_non_fatal(
 	auto&& file_name_lc = bstone::StringHelper::to_lower_ascii(file_name);
 	const auto path_lc = bstone::fs_utils::append_path(data_dir, file_name_lc);
 
-	if (file_stream.try_open(path_lc.c_str()))
+	if (file_stream.open(path_lc.c_str(), bstone::file_flags_shared))
 	{
 		return true;
 	}

@@ -312,10 +312,19 @@ void AudioExtractorImpl::extract_raw_audio_chunk(const std::string& dst_dir, con
 	globals::logger->log_information(file_name.c_str());
 	const auto dst_file_name = fs_utils::append_path(dst_dir, file_name);
 
-	auto file_stream = FileStream{
+	FileStream file_stream(
 		dst_file_name.c_str(),
-		FileOpenFlags::create | FileOpenFlags::truncate | FileOpenFlags::write,
-		FileShareMode::exclusive};
+		file_flags_create | file_flags_truncate | file_flags_exclusive);
+
+	if (!file_stream.is_open())
+	{
+		std::string error_message;
+		error_message.reserve(1024);
+		error_message += "Failed to open a file \"";
+		error_message += dst_file_name;
+		error_message += "\".";
+		BSTONE_THROW_DYNAMIC_SOURCE(error_message.c_str());
+	}
 
 	const auto written_size = file_stream.write(audio_chunk.data, audio_chunk.data_size);
 
@@ -338,10 +347,19 @@ void AudioExtractorImpl::extract_decoded_audio_chunk(const std::string& dst_dir,
 	globals::logger->log_information(file_name.c_str());
 	const auto dst_file_name = fs_utils::append_path(dst_dir, file_name);
 
-	auto file_stream = FileStream{
+	FileStream file_stream(
 		dst_file_name.c_str(),
-		FileOpenFlags::create | FileOpenFlags::truncate | FileOpenFlags::write,
-		FileShareMode::exclusive};
+		file_flags_create | file_flags_truncate | file_flags_exclusive);
+
+	if (!file_stream.is_open())
+	{
+		std::string error_message;
+		error_message.reserve(1024);
+		error_message += "Failed to open a file \"";
+		error_message += dst_file_name;
+		error_message += "\".";
+		BSTONE_THROW_DYNAMIC_SOURCE(error_message.c_str());
+	}
 
 	switch (audio_chunk.type)
 	{

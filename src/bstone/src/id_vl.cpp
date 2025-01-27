@@ -490,10 +490,9 @@ try
 	);
 
 	{
-		auto file_stream = bstone::FileStream{
+		bstone::FileStream file_stream(
 			path.c_str(),
-			bstone::FileOpenFlags::create | bstone::FileOpenFlags::truncate | bstone::FileOpenFlags::write,
-			bstone::FileShareMode::exclusive};
+			bstone::file_flags_create | bstone::file_flags_truncate | bstone::file_flags_exclusive);
 
 		file_stream.write_exactly(dst_buffer.get(), dst_buffer_size);
 	}

@@ -17,26 +17,17 @@ namespace bstone {
 class FileStream final : public Stream
 {
 public:
-	FileStream() noexcept;
+	FileStream();
 
-	explicit FileStream(
-		const char* path,
-		FileOpenFlags open_flags = FileOpenFlags::read,
-		FileShareMode share_mode = FileShareMode::shared);
+	FileStream(const char* path, FileFlags flags);
+	FileStream(const char* path, FileFlags flags, FileErrorCode& error_code);
 
 	FileStream(FileStream&&) noexcept;
 	FileStream& operator=(FileStream&&) noexcept;
 	~FileStream() override;
 
-	bool try_open(
-		const char* path,
-		FileOpenFlags open_flags = FileOpenFlags::read,
-		FileShareMode share_mode = FileShareMode::shared);
-
-	void open(
-		const char* path,
-		FileOpenFlags open_flags = FileOpenFlags::read,
-		FileShareMode share_mode = FileShareMode::shared);
+	bool open(const char* path, FileFlags flags);
+	bool open(const char* path, FileFlags flags, FileErrorCode& error_code);
 
 private:
 	File file_{};

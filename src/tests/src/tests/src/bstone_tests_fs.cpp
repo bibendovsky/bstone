@@ -31,7 +31,8 @@ void test_oe4nc54c2sipndrz()
 	tag_path += "data";
 	tag_path += bstone::fs::native_separator;
 	tag_path += "bstone_tests_tag.txt";
-	const auto tag_file = bstone::File{tag_path.c_str()};
+	const bstone::File tag_file(tag_path.c_str(), bstone::file_flags_shared);
+	tester.check(tag_file.is_open());
 }
 
 // ==========================================================================
@@ -50,7 +51,8 @@ void test_bw6ltnfefy02ekxt()
 	tag_path += "data";
 	tag_path += bstone::fs::native_separator;
 	tag_path += "bstone_tests_tag.txt";
-	const auto tag_file = bstone::File{tag_path.c_str()};
+	const bstone::File tag_file(tag_path.c_str(), bstone::file_flags_shared);
+	tester.check(tag_file.is_open());
 }
 
 // ==========================================================================
@@ -212,7 +214,8 @@ void test_kya8vcige6hhxfpm()
 	dir_path += bstone::fs::native_separator;
 	dir_path += "1_.txt";
 	{
-		const auto file = bstone::File{dir_path.c_str(), bstone::FileOpenFlags::create, bstone::FileShareMode::exclusive};
+		const bstone::File file(dir_path.c_str(), bstone::file_flags_create | bstone::file_flags_exclusive);
+		tester.check(file.is_open());
 	}
 
 	auto new_dir_path = std::string{};
@@ -298,7 +301,8 @@ void test_fe5kz9xekiti9zof()
 	dir_path += bstone::fs::native_separator;
 	dir_path += "1.txt";
 	{
-		const auto file = bstone::File{dir_path.c_str(), bstone::FileOpenFlags::create, bstone::FileShareMode::exclusive};
+		const bstone::File file(dir_path.c_str(), bstone::file_flags_create | bstone::file_flags_exclusive);
+		tester.check(file.is_open());
 	}
 
 	bstone::fs::remove_if_exists(dir_path.c_str());
@@ -372,7 +376,8 @@ void test_pb7luss22on0qt4t()
 	dir_path += bstone::fs::native_separator;
 	dir_path += "1.txt";
 	{
-		const auto file = bstone::File{dir_path.c_str(), bstone::FileOpenFlags::create, bstone::FileShareMode::exclusive};
+		const bstone::File file(dir_path.c_str(), bstone::file_flags_create | bstone::file_flags_exclusive);
+		tester.check(file.is_open());
 	}
 
 	bstone::fs::remove(dir_path.c_str());

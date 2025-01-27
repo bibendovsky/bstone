@@ -7110,7 +7110,7 @@ void read_high_scores()
 
 	auto stream = bstone::FileStream{};
 
-	if (stream.try_open(scores_path.c_str()))
+	if (stream.open(scores_path.c_str(), bstone::file_flags_shared))
 	{
 		auto archiver = bstone::Archiver{};
 
@@ -7166,10 +7166,9 @@ static void write_high_scores()
 
 	auto stream = bstone::FileStream{};
 
-	if (!stream.try_open(
+	if (!stream.open(
 		tmp_scores_path.c_str(),
-		bstone::FileOpenFlags::create | bstone::FileOpenFlags::write,
-		bstone::FileShareMode::exclusive))
+		bstone::file_flags_create | bstone::file_flags_write | bstone::file_flags_exclusive))
 	{
 		bstone::globals::logger->log_error(
 			("Failed to open a high scores file for writing: \"" + tmp_scores_path + "\".").c_str());
@@ -7650,7 +7649,7 @@ void read_text_config()
 
 	auto args = std::vector<bstone::StringView>{};
 
-	if (stream.try_open(config_path.c_str()))
+	if (stream.open(config_path.c_str(), bstone::FileFlags::file_flags_shared))
 	{
 		auto reader = bstone::TextReader{&stream};
 
@@ -7832,10 +7831,9 @@ void write_text_config()
 	const auto& tmp_config_path = config_path + ".temp";
 
 	{
-		bstone::FileStream stream{
+		bstone::FileStream stream(
 			tmp_config_path.c_str(),
-			bstone::FileOpenFlags::create | bstone::FileOpenFlags::truncate | bstone::FileOpenFlags::write,
-			bstone::FileShareMode::exclusive};
+			bstone::file_flags_create | bstone::file_flags_truncate | bstone::file_flags_exclusive);
 
 		if (stream.write(stream_data, stream_size) != stream_size)
 		{
@@ -8953,7 +8951,7 @@ bool LoadTheGame(
 
 	auto file_stream = bstone::FileStream{};
 
-	if (!file_stream.try_open(file_name.c_str()))
+	if (!file_stream.open(file_name.c_str(), bstone::FileFlags::file_flags_shared))
 	{
 		is_succeed = false;
 
@@ -9199,10 +9197,9 @@ bool SaveTheGame(
 
 	auto file_stream = bstone::FileStream{};
 
-	if (!file_stream.try_open(
+	if (!file_stream.open(
 		tmp_file_name.c_str(),
-		bstone::FileOpenFlags::create | bstone::FileOpenFlags::truncate | bstone::FileOpenFlags::write,
-		bstone::FileShareMode::exclusive))
+		bstone::file_flags_create | bstone::file_flags_truncate | bstone::file_flags_exclusive))
 	{
 		bstone::globals::logger->log_error(("SAVE: Failed to open file \"" + tmp_file_name + "\".").c_str());
 

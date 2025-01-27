@@ -12,11 +12,16 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-FileStream::FileStream() noexcept = default;
+FileStream::FileStream() = default;
 
-FileStream::FileStream(const char* path, FileOpenFlags open_flags, FileShareMode share_mode)
+FileStream::FileStream(const char* path, FileFlags flags)
 	:
-	file_{path, open_flags, share_mode}
+	file_(path, flags)
+{}
+
+FileStream::FileStream(const char* path, FileFlags flags, FileErrorCode& error_code)
+	:
+	file_(path, flags, error_code)
 {}
 
 FileStream::FileStream(FileStream&&) noexcept = default;
@@ -25,14 +30,14 @@ FileStream& FileStream::operator=(FileStream&&) noexcept = default;
 
 FileStream::~FileStream() = default;
 
-bool FileStream::try_open(const char* path, FileOpenFlags open_flags, FileShareMode share_mode)
+bool FileStream::open(const char* path, FileFlags flags)
 {
-	return file_.try_open(path, open_flags, share_mode);
+	return file_.open(path, flags);
 }
 
-void FileStream::open(const char* path, FileOpenFlags open_flags, FileShareMode share_mode)
+bool FileStream::open(const char* path, FileFlags flags, FileErrorCode& error_code)
 {
-	file_.open(path, open_flags, share_mode);
+	return file_.open(path, flags, error_code);
 }
 
 void FileStream::do_close() noexcept
@@ -46,43 +51,77 @@ bool FileStream::do_is_open() const noexcept
 }
 
 std::intptr_t FileStream::do_read(void* buffer, std::intptr_t count)
-{
-	return file_.read(buffer, count);
-}
+try {
+	const std::intptr_t result = file_.read(buffer, count);
+
+	if (result < 0)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Failed to read.");
+	}
+
+	return result;
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::intptr_t FileStream::do_write(const void* buffer, std::intptr_t count)
-{
-	return file_.write(buffer, count);
-}
+try {
+	const std::intptr_t result = file_.write(buffer, count);
+
+	if (result < 0)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Failed to write.");
+	}
+
+	return result;
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::int64_t FileStream::do_seek(std::int64_t offset, StreamOrigin origin)
 try {
-	auto file_origin = FileOrigin::none;
+	FileOrigin file_origin;
 
 	switch (origin)
 	{
-		case StreamOrigin::begin: file_origin = FileOrigin::begin; break;
-		case StreamOrigin::current: file_origin = FileOrigin::current; break;
-		case StreamOrigin::end: file_origin = FileOrigin::end; break;
+		case StreamOrigin::begin: file_origin = file_origin_begin; break;
+		case StreamOrigin::current: file_origin = file_origin_current; break;
+		case StreamOrigin::end: file_origin = file_origin_end; break;
 		default: BSTONE_THROW_STATIC_SOURCE("Unknown origin.");
 	}
 
-	return file_.seek(offset, file_origin);
+	const std::int64_t result = file_.seek(offset, file_origin);
+
+	if (result < 0)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Failed to seek.");
+	}
+
+	return result;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::int64_t FileStream::do_get_size()
-{
-	return file_.get_size();
-}
+try {
+	const std::int64_t result = file_.get_size();
+
+	if (result < 0)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Failed to get a size.");
+	}
+
+	return result;
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void FileStream::do_set_size(std::int64_t size)
-{
-	file_.set_size(size);
-}
+try {
+	if (!file_.set_size(size))
+	{
+		BSTONE_THROW_STATIC_SOURCE("Failed to set a size.");
+	}
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void FileStream::do_flush()
-{
-	file_.flush();
-}
+try {
+	if (!file_.flush())
+	{
+		BSTONE_THROW_STATIC_SOURCE("Failed to flush.");
+	}
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace bstone

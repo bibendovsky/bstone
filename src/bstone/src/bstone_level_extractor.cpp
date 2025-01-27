@@ -47,26 +47,43 @@ void LevelExtractor::extract_levels(const std::string& destination_dir)
 		dst_file_path += ".flr";
 
 		{
-			auto file = File{
+			File file(
 				tmp_file_path.c_str(),
-				bstone::FileOpenFlags::create | bstone::FileOpenFlags::truncate,
-				bstone::FileShareMode::exclusive};
+				bstone::file_flags_create | bstone::file_flags_truncate | bstone::file_flags_exclusive);
 
-			for (const auto& plane : mapsegs)
+			if (!file.is_open())
 			{
-				auto dst_index = 0;
+				std::string error_message;
+				error_message.reserve(1024);
+				error_message += "Could not create a file \"";
+				error_message += tmp_file_path;
+				error_message += "\".";
+				BSTONE_THROW_DYNAMIC_SOURCE(error_message.c_str());
+			}
+
+			for (const MapSegment& plane : mapsegs)
+			{
+				int dst_index = 0;
 
 				// Rotate clockwise by 90 degree.
-				for (auto x = 0; x < MAPSIZE; ++x)
+				for (int x = 0; x < MAPSIZE; ++x)
 				{
-					for (auto y = 0; y < MAPSIZE; ++y)
+					for (int y = 0; y < MAPSIZE; ++y)
 					{
-						const auto src_index = y * MAPSIZE + x;
+						const int src_index = y * MAPSIZE + x;
 						plane_buffer[dst_index++] = plane[src_index];
 					}
 				}
 
-				file.write_exactly(plane_buffer, 8192);
+				if (!file.write_exactly(plane_buffer, 8192))
+				{
+					std::string error_message;
+					error_message.reserve(1024);
+					error_message += "Could not write into a file \"";
+					error_message += tmp_file_path;
+					error_message += "\".";
+					BSTONE_THROW_DYNAMIC_SOURCE(error_message.c_str());
+				}
 			}
 		}
 

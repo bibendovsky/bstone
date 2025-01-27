@@ -199,10 +199,9 @@ void TextExtractor::extract_text(const std::string& dst_dir, const TextNumber& t
 		"text_" + number_string + ".txt"
 	);
 
-	auto file_stream = FileStream{
+	FileStream file_stream(
 		file_name.c_str(),
-		FileOpenFlags::create | FileOpenFlags::truncate | FileOpenFlags::write,
-		FileShareMode::exclusive};
+		file_flags_create | file_flags_truncate | file_flags_exclusive);
 
 	file_stream.write_exactly(text_data, text_size);
 }
