@@ -5,6 +5,7 @@
 ## [1.2.14] - ???-??-??
 ### Fixed
 - [#510] Crash if external textures are on and there are no any texture file.
+- [#512] Crash when extracting the sprites.
 
 
 ## [1.2.13] - 2024-12-14

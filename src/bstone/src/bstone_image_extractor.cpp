@@ -388,8 +388,7 @@ void ImageExtractor::save_bmp_32bpp_bits(BinaryWriter& binary_writer)
 try {
 	for (auto i = 0; i < area_; ++i)
 	{
-		*colors32_ = endian::to_little(*colors32_);
-		++colors32_;
+		colors32_[i] = endian::to_little(colors32_[i]);
 	}
 
 	const auto bits_byte_count = stride_ * height_;
