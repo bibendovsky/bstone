@@ -700,37 +700,37 @@ Notes:
   Calculates hashes (SHA-1) of all resource files and outputs them into the log.
 
 * `--extract_vga_palette dir`  
-  Extracts VGA palette into existing directory `dir`.  
+  Extracts VGA palette into directory `dir`.  
   Supported file format: [BMP](http://wikipedia.org/wiki/BMP_file_format)
 
 * `--extract_walls dir`  
-  Extracts graphics resources (wall, flooring, etc.) into existing directory `dir`.  
+  Extracts graphics resources (wall, flooring, etc.) into directory `dir`.  
   Supported file format: [BMP](http://wikipedia.org/wiki/BMP_file_format)
 
 * `--extract_sprites dir`  
-  Extracts graphics resources (actors, decorations, etc.) into existing directory `dir`.  
+  Extracts graphics resources (actors, decorations, etc.) into directory `dir`.  
   Supported file format: [BMP](http://wikipedia.org/wiki/BMP_file_format)
 
 * `--extract_music dir`  
-  Extracts music resources into existing directory `dir`.  
+  Extracts music resources into directory `dir`.  
   Supported file format: [WAV](http://en.wikipedia.org/wiki/WAV)  
   Supported file format: data (unprocessed)
 
 * `--extract_sfx dir`  
-  Extracts sfx resources into existing directory `dir`.  
+  Extracts sfx resources into directory `dir`.  
   Supported file format: [WAV](http://en.wikipedia.org/wiki/WAV)  
   Supported file format: data (unprocessed)
 
 * `--extract_texts dir`  
-  Extracts text resources into existing directory `dir`.  
+  Extracts text resources into directory `dir`.  
   Supported file format: TXT
 
 * `--extract_levels dir`  
-  Extracts level resources into existing directory `dir`.  
+  Extracts level resources into directory `dir`.  
   Supported file format: FLR (MapEdit)
 
 * `--extract_all dir`  
-  Extracts all resources (walls, sprites, etc.) into existing directory `dir`.
+  Extracts all resources (walls, sprites, etc.) into directory `dir`.
 
 
 12 - Cheat key

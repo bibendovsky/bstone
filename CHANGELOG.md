@@ -7,6 +7,8 @@
 - [#510] Crash if external textures are on and there are no any texture file.
 - [#512] Crash when extracting the sprites.
 
+### Changed
+- Create destination directory when extracting the resources.
 
 ## [1.2.13] - 2024-12-14
 ### Fixed

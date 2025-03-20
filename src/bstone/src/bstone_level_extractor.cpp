@@ -25,6 +25,8 @@ void LevelExtractor::extract_levels(const std::string& destination_dir)
 	globals::logger->log_information("Extracting levels.");
 	globals::logger->log_information(("Destination dir: \"" + destination_dir + "\"").c_str());
 
+	fs::create_directories(destination_dir.c_str());
+
 	std::uint16_t plane_buffer[MAPSIZE * MAPSIZE];
 
 	auto tmp_file_path = std::string{};

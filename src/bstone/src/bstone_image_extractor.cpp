@@ -16,6 +16,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_bmp_image_common.h"
 #include "bstone_endian.h"
 #include "bstone_exception.h"
+#include "bstone_fs.h"
 #include "bstone_fs_utils.h"
 #include "bstone_globals.h"
 #include "bstone_image_extractor.h"
@@ -40,6 +41,7 @@ void ImageExtractor::extract_vga_palette(const std::string& destination_dir)
 	globals::logger->log_information(("Destination dir: \"" + destination_dir + "\"").c_str());
 
 	destination_dir_ = fs_utils::normalize_path(destination_dir);
+	fs::create_directories(destination_dir_.c_str());
 
 	decode_default_palette();
 
@@ -60,6 +62,7 @@ void ImageExtractor::extract_walls(const std::string& destination_dir)
 	globals::logger->log_information(("File count: " + std::to_string(wall_count)).c_str());
 
 	destination_dir_ = fs_utils::normalize_path(destination_dir);
+	fs::create_directories(destination_dir_.c_str());
 
 	for (auto i = 0; i < wall_count; ++i)
 	{
@@ -85,6 +88,7 @@ void ImageExtractor::extract_sprites(const std::string& destination_dir)
 	globals::logger->log_information(("File count: " + std::to_string(sprite_count_)).c_str());
 
 	destination_dir_ = fs_utils::normalize_path(destination_dir);
+	fs::create_directories(destination_dir_.c_str());
 
 	for (auto i = 1; i < sprite_count_; ++i)
 	{
