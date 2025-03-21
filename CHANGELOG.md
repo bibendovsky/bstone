@@ -6,7 +6,8 @@
 ### Fixed
 - [#510] Crash if external textures are on and there are no any texture file.
 - [#512] Crash when extracting the sprites.
-- Add missing path normalization in extractors.
+- Missing path normalization in extractors.
+- Crash when level to extract is missing.
 
 ### Changed
 - Create destination directory when extracting the resources.

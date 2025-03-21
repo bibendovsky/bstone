@@ -39,9 +39,17 @@ void LevelExtractor::extract_levels(const std::string& destination_dir)
 	dst_file_path.reserve(normalized_destination_dir.size() + 16);
 
 	const auto level_count = mapheaderseg.size();
+	int level_counter = 0;
 
 	for (auto level_index = decltype(level_count){}; level_index < level_count; ++level_index)
 	{
+		if (!ca_is_level_exists(static_cast<int>(level_index)))
+		{
+			const std::string message = "Missing level #" + std::to_string(level_index);
+			globals::logger->log_warning(message.c_str());
+			continue;
+		}
+
 		CA_CacheMap(static_cast<int>(level_index));
 
 		dst_file_path = normalized_destination_dir;
@@ -92,9 +100,10 @@ void LevelExtractor::extract_levels(const std::string& destination_dir)
 
 		fs::remove_if_exists(dst_file_path.c_str());
 		fs::rename(tmp_file_path.c_str(), dst_file_path.c_str());
+		++level_counter;
 	}
 
-	globals::logger->log_information(("Extracted " + std::to_string(level_count) + " levels.").c_str());
+	globals::logger->log_information(("Extracted " + std::to_string(level_counter) + " levels.").c_str());
 	globals::logger->log_information(">>> ================");
 }
 

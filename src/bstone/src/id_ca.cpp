@@ -1719,6 +1719,15 @@ Assets::AllResources Assets::make_all_resources()
 	return all_resources;
 }
 
+bool ca_is_level_exists(int level_number)
+{
+	const int map_count = static_cast<int>(mapheaderseg.size());
+
+	return
+		level_number >= 0 && level_number < map_count &&
+		mapheaderseg[level_number].name[0] != '\0';
+}
+
 void ca_extract_vga_palette(const std::string& destination_dir)
 {
 	auto images_extractor = bstone::ImageExtractor{};

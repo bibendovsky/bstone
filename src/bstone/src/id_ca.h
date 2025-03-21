@@ -373,6 +373,8 @@ void ca_huff_expand_on_screen(
 void CloseGrFile();
 
 // BBi
+bool ca_is_level_exists(int map_number);
+
 std::string ca_load_script(
 	int chunk_id,
 	bool strip_xx = false);
