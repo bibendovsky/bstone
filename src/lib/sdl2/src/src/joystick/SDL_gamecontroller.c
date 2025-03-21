@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -688,7 +688,7 @@ static ControllerMapping_t *SDL_CreateMappingForWGIController(SDL_JoystickGUID g
 /*
  * Helper function to scan the mappings database for a controller with the specified GUID
  */
-static ControllerMapping_t *SDL_PrivateMatchControllerMappingForGUID(SDL_JoystickGUID guid, SDL_bool match_version)
+static ControllerMapping_t *SDL_PrivateMatchControllerMappingForGUID(SDL_JoystickGUID guid, SDL_bool match_version, SDL_bool exact_match_crc)
 {
     ControllerMapping_t *mapping, *best_match = NULL;
     Uint16 crc = 0;
@@ -728,8 +728,9 @@ static ControllerMapping_t *SDL_PrivateMatchControllerMappingForGUID(SDL_Joystic
 
                 /* An exact match, including CRC */
                 return mapping;
+            } else if (crc && exact_match_crc) {
+                return NULL;
             }
-
 
             if (!best_match) {
                 best_match = mapping;
@@ -746,7 +747,7 @@ static ControllerMapping_t *SDL_PrivateGetControllerMappingForGUID(SDL_JoystickG
 {
     ControllerMapping_t *mapping;
 
-    mapping = SDL_PrivateMatchControllerMappingForGUID(guid, SDL_TRUE);
+    mapping = SDL_PrivateMatchControllerMappingForGUID(guid, SDL_TRUE, adding_mapping);
     if (mapping) {
         return mapping;
     }
@@ -760,7 +761,7 @@ static ControllerMapping_t *SDL_PrivateGetControllerMappingForGUID(SDL_JoystickG
 
     if (SDL_JoystickGUIDUsesVersion(guid)) {
         /* Try again, ignoring the version */
-        mapping = SDL_PrivateMatchControllerMappingForGUID(guid, SDL_FALSE);
+        mapping = SDL_PrivateMatchControllerMappingForGUID(guid, SDL_FALSE, SDL_FALSE);
         if (mapping) {
             return mapping;
         }
@@ -2124,6 +2125,18 @@ SDL_bool SDL_ShouldIgnoreGameController(const char *name, SDL_JoystickGUID guid)
     }
 
     SDL_GetJoystickGUIDInfo(guid, &vendor, &product, &version, NULL);
+
+#ifdef __WIN32__
+    if (SDL_GetHintBoolean("SDL_GAMECONTROLLER_ALLOW_STEAM_VIRTUAL_GAMEPAD", SDL_FALSE) &&
+        SDL_GetHintBoolean("STEAM_COMPAT_PROTON", SDL_FALSE)) {
+        /* We are launched by Steam and running under Proton
+         * We can't tell whether this controller is a Steam Virtual Gamepad,
+         * so assume that Proton is doing the appropriate filtering of controllers
+         * and anything we see here is fine to use.
+         */
+        return SDL_FALSE;
+    }
+#endif // __WIN32__
 
     if (SDL_IsJoystickSteamVirtualGamepad(vendor, product, version)) {
         return !SDL_GetHintBoolean("SDL_GAMECONTROLLER_ALLOW_STEAM_VIRTUAL_GAMEPAD", SDL_FALSE);

@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -28,7 +28,7 @@
 #include "SDL_stdinc.h"
 
 #if defined(HAVE_QSORT)
-void SDL_qsort(void *base, size_t nmemb, size_t size, int (SDLCALL *compare) (const void *, const void *))
+void SDL_qsort(void *base, size_t nmemb, size_t size, SDL_CompareCallback compare)
 {
     if (!base) {
         return;
@@ -530,8 +530,7 @@ fprintf(stderr, "after partitioning first=#%lu last=#%lu\n", (first-(char*)base)
 
 /* ---------------------------------------------------------------------- */
 
-extern void qsortG(void *base, size_t nmemb, size_t size,
-           int (SDLCALL * compare)(const void *, const void *)) {
+extern void qsortG(void *base, size_t nmemb, size_t size, SDL_CompareCallback compare) {
 
   if (nmemb<=1) return;
   if (((uintptr_t)base|size)&(WORD_BYTES-1))
@@ -544,7 +543,7 @@ extern void qsortG(void *base, size_t nmemb, size_t size,
 
 #endif /* HAVE_QSORT */
 
-void *SDL_bsearch(const void *key, const void *base, size_t nmemb, size_t size, int (SDLCALL * compare)(const void *, const void *))
+void *SDL_bsearch(const void *key, const void *base, size_t nmemb, size_t size, SDL_CompareCallback compare)
 {
 #if defined(HAVE_BSEARCH)
     return bsearch(key, base, nmemb, size, compare);

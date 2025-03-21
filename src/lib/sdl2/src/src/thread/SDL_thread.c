@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -54,7 +54,7 @@ void *SDL_TLSGet(SDL_TLSID id)
     return storage->array[id - 1].data;
 }
 
-int SDL_TLSSet(SDL_TLSID id, const void *value, void(SDLCALL *destructor)(void *))
+int SDL_TLSSet(SDL_TLSID id, const void *value, SDL_TLSDestructorCallback destructor)
 {
     SDL_TLSData *storage;
 

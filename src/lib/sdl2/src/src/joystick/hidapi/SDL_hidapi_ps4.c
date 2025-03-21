@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -263,7 +263,7 @@ static SDL_bool HIDAPI_DriverPS4_InitDevice(SDL_HIDAPI_Device *device)
         j = -1;
         for (i = 0; i < 12; i += 2) {
             j += 1;
-            SDL_memcpy(&serial[j], &device->serial[i], 2);
+            SDL_memmove(&serial[j], &device->serial[i], 2);
             j += 2;
             serial[j] = '-';
         }

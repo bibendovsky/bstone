@@ -11,6 +11,8 @@
 
 ### Changed
 - Create destination directory when extracting the resources.
+- Update SDL to v2.32.2.
+
 
 ## [1.2.13] - 2024-12-14
 ### Fixed

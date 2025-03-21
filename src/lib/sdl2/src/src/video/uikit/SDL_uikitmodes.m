@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -344,6 +344,7 @@ void UIKit_DelDisplay(UIScreen *uiscreen)
 
         if (data && data.uiscreen == uiscreen) {
             CFRelease(SDL_GetDisplayDriverData(i));
+            SDL_GetDisplay(i)->driverdata = NULL;
             SDL_DelVideoDisplay(i);
             return;
         }

@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -122,13 +122,13 @@ static void SDLCALL SDL_VitaTouchMouseDeviceChanged(void *userdata, const char *
         switch (*hint) {
         default:
         case '0':
-            mouse->vita_touch_mouse_device = 0;
-            break;
-        case '1':
             mouse->vita_touch_mouse_device = 1;
             break;
-        case '2':
+        case '1':
             mouse->vita_touch_mouse_device = 2;
+            break;
+        case '2':
+            mouse->vita_touch_mouse_device = 3;
             break;
         }
     }
