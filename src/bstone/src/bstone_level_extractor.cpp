@@ -25,17 +25,18 @@ void LevelExtractor::extract_levels(const std::string& destination_dir)
 	globals::logger->log_information("Extracting levels.");
 	globals::logger->log_information(("Destination dir: \"" + destination_dir + "\"").c_str());
 
-	fs::create_directories(destination_dir.c_str());
+	const std::string normalized_destination_dir = fs_utils::normalize_path(destination_dir);
+	fs::create_directories(normalized_destination_dir.c_str());
 
 	std::uint16_t plane_buffer[MAPSIZE * MAPSIZE];
 
 	auto tmp_file_path = std::string{};
-	tmp_file_path.reserve(destination_dir.size() + 16);
-	tmp_file_path = destination_dir;
+	tmp_file_path.reserve(normalized_destination_dir.size() + 16);
+	tmp_file_path = normalized_destination_dir;
 	tmp_file_path = bstone::fs_utils::append_path(tmp_file_path, "_.temp");
 
 	auto dst_file_path = std::string{};
-	dst_file_path.reserve(destination_dir.size() + 16);
+	dst_file_path.reserve(normalized_destination_dir.size() + 16);
 
 	const auto level_count = mapheaderseg.size();
 
@@ -43,7 +44,7 @@ void LevelExtractor::extract_levels(const std::string& destination_dir)
 	{
 		CA_CacheMap(static_cast<int>(level_index));
 
-		dst_file_path = destination_dir;
+		dst_file_path = normalized_destination_dir;
 		dst_file_path = bstone::fs_utils::append_path(dst_file_path, "level_");
 		dst_file_path += std::to_string(level_index);
 		dst_file_path += ".flr";

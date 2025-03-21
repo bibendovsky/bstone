@@ -1782,8 +1782,9 @@ void ca_extract_texts(
 	bstone::globals::logger->log_information(("Destination dir: \"" + destination_dir + "\"").c_str());
 
 	auto text_extractor = bstone::TextExtractor{};
-	bstone::fs::create_directories(destination_dir.c_str());
-	text_extractor.extract_text(bstone::fs_utils::normalize_path(destination_dir));
+	const std::string normalized_destination_dir = bstone::fs_utils::normalize_path(destination_dir);
+	bstone::fs::create_directories(normalized_destination_dir.c_str());
+	text_extractor.extract_text(normalized_destination_dir);
 
 	bstone::globals::logger->log_information(">>> ================");
 }
