@@ -2,6 +2,11 @@
 # Changelog
 
 
+## [1.2.15] - ????-??-??
+### Fixed
+- MacOS build with embeded SDL v2.32.2.
+
+
 ## [1.2.14] - 2025-03-21
 ### Fixed
 - [#510] Crash if external textures are on and there are no any texture file.
