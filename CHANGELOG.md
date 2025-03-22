@@ -2,7 +2,7 @@
 # Changelog
 
 
-## [1.2.15] - ????-??-??
+## [1.2.15] - 2025-03-22
 ### Fixed
 - MacOS build with embeded SDL v2.32.2.
 
