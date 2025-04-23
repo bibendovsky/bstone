@@ -81,12 +81,15 @@ private:
 	WindowSize do_get_size() override;
 	void do_set_size(WindowSize size) override;
 
+	DisplayMode do_get_display_mode() override;
+	void do_set_display_mode(const DisplayMode& display_mode) override;
+
 	void do_show(bool is_visible) override;
 
 	void do_set_rounded_corner_type(WindowRoundedCornerType value) override;
 
-	bool do_is_fake_fullscreen() override;
-	void do_set_fake_fullscreen(bool is_fake_fullscreen) override;
+	WindowFullscreenType do_get_fullscreen_mode() override;
+	void do_set_fullscreen_mode(WindowFullscreenType fullscreen_mode) override;
 
 	GlContextUPtr do_make_gl_context() override;
 
@@ -175,6 +178,48 @@ try
 
 	rounded_corner_mgr_.set_round_corner_type(*this, param.rounded_corner_type);
 
+	if (param.fullscreen_type != WindowFullscreenType::none)
+	{
+		Uint32 sdl_fullscreen_flags = 0;
+		bool is_fake = false;
+
+		switch (param.fullscreen_type)
+		{
+			case WindowFullscreenType::exclusive:
+				sdl_fullscreen_flags = SDL_WINDOW_FULLSCREEN;
+				break;
+
+			case WindowFullscreenType::fake:
+				sdl_fullscreen_flags = SDL_WINDOW_FULLSCREEN_DESKTOP;
+				is_fake = true;
+				break;
+
+			default:
+				BSTONE_THROW_STATIC_SOURCE("Unknown fullscreen mode.");
+		}
+
+		message.clear();
+		message += "Set ";
+		message += is_fake ? "fake " : "";
+		message += "fullscreen mode.";
+		logger_.log_information(message.c_str());
+
+		if (SDL_SetWindowFullscreen(sdl_window_.get(), sdl_flags) != 0)
+		{
+			const char* const sdl_error_message = SDL_GetError();
+			message.clear();
+			message += "  Failed.";
+
+			if (sdl_error_message != nullptr)
+			{
+				message += ' ';
+				message += sdl_error_message;
+			}
+
+			logger_.log_error(message.c_str());
+		}
+	}
+
 	message.clear();
 	log_output(message);
 	logger_.log_information(message.c_str());
@@ -254,6 +299,26 @@ try {
 	SDL_SetWindowSize(sdl_window_.get(), size.width, size.height);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
+DisplayMode Sdl2Window::do_get_display_mode()
+try {
+	SDL_DisplayMode sdl_display_mode;
+	sdl2_ensure_result(SDL_GetWindowDisplayMode(sdl_window_.get(), &sdl_display_mode));
+	DisplayMode display_mode{};
+	display_mode.width = sdl_display_mode.w;
+	display_mode.height = sdl_display_mode.h;
+	display_mode.refresh_rate = sdl_display_mode.refresh_rate;
+	return display_mode;
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+void Sdl2Window::do_set_display_mode(const DisplayMode& display_mode)
+try {
+	SDL_DisplayMode sdl_display_mode{};
+	sdl_display_mode.w = display_mode.width;
+	sdl_display_mode.h = display_mode.height;
+	sdl_display_mode.refresh_rate = display_mode.refresh_rate;
+	sdl2_ensure_result(SDL_SetWindowDisplayMode(sdl_window_.get(), &sdl_display_mode));
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
 void Sdl2Window::do_show(bool is_visible)
 try {
 	const auto sdl_func = is_visible ? SDL_ShowWindow : SDL_HideWindow;
@@ -263,19 +328,33 @@ try {
 void Sdl2Window::do_set_rounded_corner_type(WindowRoundedCornerType value)
 try {
 	rounded_corner_mgr_.set_round_corner_type(*this, value);
-}
- BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-bool Sdl2Window::do_is_fake_fullscreen()
-try {
-	const auto sdl_flags = SDL_GetWindowFlags(sdl_window_.get());
-	return (sdl_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void Sdl2Window::do_set_fake_fullscreen(bool is_fake_fullscreen)
+WindowFullscreenType Sdl2Window::do_get_fullscreen_mode()
+{
+	const Uint32 sdl_flags = SDL_GetWindowFlags(sdl_window_.get());
+	const Uint32 sdl_masked_flags = sdl_flags & SDL_WINDOW_FULLSCREEN_DESKTOP;
+
+	switch (sdl_masked_flags)
+	{
+		case SDL_WINDOW_FULLSCREEN: return WindowFullscreenType::exclusive;
+		case SDL_WINDOW_FULLSCREEN_DESKTOP: return WindowFullscreenType::fake;
+		default: return WindowFullscreenType::none;
+	}
+}
+
+void Sdl2Window::do_set_fullscreen_mode(WindowFullscreenType fullscreen_mode)
 try {
-	const auto sdl_flags = static_cast<Uint32>(
-		is_fake_fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WindowFlags{});
+	Uint32 sdl_flags;
+
+	switch (fullscreen_mode)
+	{
+		case WindowFullscreenType::none: sdl_flags = 0; break;
+		case WindowFullscreenType::exclusive: sdl_flags = SDL_WINDOW_FULLSCREEN; break;
+		case WindowFullscreenType::fake: sdl_flags = SDL_WINDOW_FULLSCREEN_DESKTOP; break;
+		default: BSTONE_THROW_STATIC_SOURCE("Unknown fullscreen mode.");
+	}
+
 	sdl2_ensure_result(SDL_SetWindowFullscreen(sdl_window_.get(), sdl_flags));
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
@@ -529,11 +608,6 @@ Uint32 Sdl2Window::map_flags(const WindowInitParam& param) noexcept
 	}
 
 	sdl_flags |= param.is_visible ? SDL_WINDOW_SHOWN : SDL_WINDOW_HIDDEN;
-
-	if (param.fullscreen_type == WindowFullscreenType::fake)
-	{
-		sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-	}
 
 	return sdl_flags;
 }

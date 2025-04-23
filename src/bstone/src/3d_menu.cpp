@@ -418,7 +418,7 @@ CP_iteminfo SwitchItems = {MENU_X, 0, 0, 0, 0, 9, {87, -1, 132, 7, 1}};
 
 // BBi
 CP_iteminfo video_items = {MENU_X, MENU_Y + 30, 5, 0, 0, 9, {77, -1, 154, 7, 1}};
-CP_iteminfo video_mode_items = {MENU_X, MENU_Y + 10, 7, 0, 0, 9, {77, -1, 154, 7, 1}};
+CP_iteminfo video_mode_items = {MENU_X - 31, MENU_Y + 10, 8, 0, 0, 9, {67, -1, 184, 7, 1}};
 CP_iteminfo texturing_items = {MENU_X, MENU_Y + 10, 7, 0, 0, 9, {77, -1, 154, 7, 1}};
 CP_iteminfo switches2_items = {MENU_X, MENU_Y + 30, 5, 0, 0, 9, {87, -1, 132, 7, 1}};
 // BBi
@@ -554,7 +554,8 @@ CP_itemtype CusMenu[] = {
 CP_itemtype video_mode_menu[] =
 {
 	{AT_ENABLED, "RENDERER", nullptr},
-	{AT_ENABLED, "WINDOW SIZE", nullptr},
+	{AT_ENABLED, "DISPLAY MODE", nullptr},
+	{AT_ENABLED, "WINDOW MODE", nullptr},
 	{AT_ENABLED, "VSYNC", nullptr},
 	{AT_ENABLED, "ANTI-ALIASING TYPE", nullptr},
 	{AT_ENABLED, "ANTI-ALIASING DEGREE", nullptr},
@@ -4980,6 +4981,7 @@ int menu_video_mode_renderer_index_;
 VidRendererTypes menu_video_mode_renderer_types_;
 int menu_video_mode_sizes_index_;
 VidWindowSizes menu_video_mode_sizes_;
+WindowMode menu_video_mode_window_mode_;
 
 VideoModeCfg menu_video_mode_cfg_;
 VideoModeCfg menu_video_mode_cfg_saved_;
@@ -4990,19 +4992,20 @@ void menu_video_mode_set_renderer_type(
 	video_mode_cfg.renderer_type = menu_video_mode_renderer_types_[menu_video_mode_renderer_index_];
 }
 
-void menu_video_mode_set_windowed_size(
+void menu_video_mode_set_display_mode(
 	VideoModeCfg& video_mode_cfg)
 {
-	const auto& windowed_size = menu_video_mode_sizes_[menu_video_mode_sizes_index_];
-	video_mode_cfg.width = windowed_size.width;
-	video_mode_cfg.height = windowed_size.height;
+	const auto& window_size = menu_video_mode_sizes_[menu_video_mode_sizes_index_];
+	video_mode_cfg.width = window_size.width;
+	video_mode_cfg.height = window_size.height;
+	video_mode_cfg.refresh_rate = window_size.refresh_rate;
 }
 
 void menu_video_mode_update_apply_button()
 {
 	const auto is_modified = (menu_video_mode_cfg_ != menu_video_mode_cfg_saved_);
 
-	video_mode_menu[6].active = (is_modified ? AT_ENABLED : AT_DISABLED);
+	video_mode_menu[7].active = (is_modified ? AT_ENABLED : AT_DISABLED);
 }
 
 int menu_video_mode_aa_factor_adjust(
@@ -5063,10 +5066,28 @@ const std::string& menu_video_mode_renderer_type_get_string(
 	}
 }
 
+const std::string& menu_video_mode_get_window_mode_string(WindowMode window_mode)
+{
+	static const std::string& windowed_string = "WINDOWED";
+	static const std::string& fullscreen_string = "FULLSCREEN";
+	static const std::string& fake_fullscreen_string = "FAKE FULLSCREEN";
+
+	switch (window_mode)
+	{
+		default:
+		case WindowMode::windowed: return windowed_string;
+		case WindowMode::fullscreen: return fullscreen_string;
+		case WindowMode::fake_fullscreen: return fake_fullscreen_string;
+	}
+}
+
 std::string menu_video_mode_size_get_string(
 	const VidWindowSize& size)
 {
-	return std::to_string(size.width) + " X " + std::to_string(size.height);
+	return
+		std::to_string(size.width) + " X " +
+		std::to_string(size.height) + " " +
+		std::to_string(size.refresh_rate) + "HZ";
 }
 
 const std::string& menu_video_mode_aa_type_get_string(
@@ -5101,7 +5122,8 @@ void draw_video_mode_descriptions(
 	static const char* instructions[] =
 	{
 		"SELECTS THE RENDERER",
-		"SELECTS WINDOW SIZE FOR WINDOWED MODE",
+		"SELECTS RESOLUTION AND REFRESH RATE",
+		"SELECTS WINDOW MODE",
 		"TOGGLES VERTICAL SYNCHRONIZATION",
 		"SELECTS ANTI-ALIASING TYPE",
 		"SELECTS ANTI-ALIASING DEGREE",
@@ -5173,20 +5195,20 @@ void video_mode_draw_menu()
 		menu_video_mode_sizes_index_ = 0;
 		menu_video_mode_sizes_ = vid_get_window_size_list();
 
-		const auto index_begin = menu_video_mode_sizes_.cbegin();
-
-		const auto index_it = std::find_if(
-			index_begin,
+		const auto current_mode_iter = std::find_if(
+			menu_video_mode_sizes_.cbegin(),
 			menu_video_mode_sizes_.cend(),
-			[](const auto& item)
+			[](const VidWindowSize& mode)
 			{
-				return item.is_current_;
-			}
-		);
+				return
+					mode.width == menu_video_mode_cfg_.width &&
+					mode.height == menu_video_mode_cfg_.height &&
+					mode.refresh_rate == menu_video_mode_cfg_.refresh_rate;
+			});
 
-		if (index_it != menu_video_mode_sizes_.cend())
+		if (current_mode_iter != menu_video_mode_sizes_.cend())
 		{
-			menu_video_mode_sizes_index_ = static_cast<int>(index_it - index_begin);
+			menu_video_mode_sizes_index_ = static_cast<int>(current_mode_iter - menu_video_mode_sizes_.cbegin());
 		}
 	}
 
@@ -5212,6 +5234,8 @@ void video_mode_draw_switch(
 
 	const auto& window_size = menu_video_mode_sizes_[menu_video_mode_sizes_index_];
 	const auto window_size_string = menu_video_mode_size_get_string(window_size);
+
+	const auto& window_mode_string = menu_video_mode_get_window_mode_string(menu_video_mode_cfg_.window_mode);
 
 	const auto aa_type_string = menu_video_mode_aa_type_get_string(menu_video_mode_cfg_.aa_type);
 	const auto aa_factor_string = menu_video_mode_aa_factor_get_string(menu_video_mode_cfg_.aa_degree_);
@@ -5253,6 +5277,10 @@ void video_mode_draw_switch(
 					continue;
 
 				case 2:
+					draw_carousel(i, &video_mode_items, video_mode_menu, window_mode_string);
+					continue;
+
+				case 3:
 					if (menu_video_mode_cfg_.is_vsync_)
 					{
 						++Shape;
@@ -5260,7 +5288,7 @@ void video_mode_draw_switch(
 
 					break;
 
-				case 3:
+				case 4:
 					draw_carousel(
 						i,
 						&video_mode_items,
@@ -5270,7 +5298,7 @@ void video_mode_draw_switch(
 
 					continue;
 
-				case 4:
+				case 5:
 					draw_carousel(
 						i,
 						&video_mode_items,
@@ -5323,14 +5351,14 @@ void video_menu_mode_renderer_carousel(
 	TicDelay(20);
 }
 
-void video_menu_mode_window_size_carousel(
+void video_menu_mode_display_mode_carousel(
 	const int item_index,
 	const bool is_left,
 	const bool is_right)
 {
 	const auto max_index = static_cast<int>(menu_video_mode_sizes_.size());
 
-	const auto delta = (is_left ? -1 : (is_right ? 1 : 0));
+	const auto delta = (is_left ? 1 : (is_right ? -1 : 0));
 
 	menu_video_mode_sizes_index_ += delta;
 
@@ -5343,7 +5371,52 @@ void video_menu_mode_window_size_carousel(
 		menu_video_mode_sizes_index_ = 0;
 	}
 
-	menu_video_mode_set_windowed_size(menu_video_mode_cfg_);
+	menu_video_mode_set_display_mode(menu_video_mode_cfg_);
+	menu_video_mode_update_apply_button();
+
+	video_mode_update_menu();
+	video_mode_draw_switch(static_cast<std::int16_t>(item_index));
+
+	TicDelay(20);
+}
+
+void video_menu_mode_window_mode_carousel(int item_index, bool is_left, bool is_right)
+{
+	if (is_left)
+	{
+		switch (menu_video_mode_cfg_.window_mode)
+		{
+			case WindowMode::windowed:
+				menu_video_mode_cfg_.window_mode = WindowMode::fake_fullscreen;
+				break;
+
+			case WindowMode::fullscreen:
+				menu_video_mode_cfg_.window_mode = WindowMode::windowed;
+				break;
+
+			case WindowMode::fake_fullscreen:
+				menu_video_mode_cfg_.window_mode = WindowMode::fullscreen;
+				break;
+		}
+	}
+	else if (is_right)
+	{
+		switch (menu_video_mode_cfg_.window_mode)
+		{
+			case WindowMode::windowed:
+				menu_video_mode_cfg_.window_mode = WindowMode::fullscreen;
+				break;
+
+			case WindowMode::fullscreen:
+				menu_video_mode_cfg_.window_mode = WindowMode::fake_fullscreen;
+				break;
+
+			case WindowMode::fake_fullscreen:
+				menu_video_mode_cfg_.window_mode = WindowMode::windowed;
+				break;
+		}
+	}
+
 	menu_video_mode_update_apply_button();
 
 	video_mode_update_menu();
@@ -5438,8 +5511,8 @@ void video_menu_mode_routine(
 	WaitKeyUp();
 
 	video_mode_menu[0].carousel_func_ = video_menu_mode_renderer_carousel;
-	video_mode_menu[1].carousel_func_ = video_menu_mode_window_size_carousel;
-
+	video_mode_menu[1].carousel_func_ = video_menu_mode_display_mode_carousel;
+	video_mode_menu[2].carousel_func_ = video_menu_mode_window_mode_carousel;
 	video_mode_menu[3].carousel_func_ = video_menu_mode_window_aa_type_carousel;
 	video_mode_menu[4].carousel_func_ = video_menu_mode_window_aa_factor_carousel;
 
@@ -5449,13 +5522,13 @@ void video_menu_mode_routine(
 
 		switch (which)
 		{
-			case 2:
+			case 3:
 				menu_video_mode_cfg_.is_vsync_ = !menu_video_mode_cfg_.is_vsync_;
 				menu_video_mode_update_apply_button();
 				video_mode_update_menu();
 				break;
 
-			case 6:
+			case 7:
 				if (menu_video_mode_cfg_ != menu_video_mode_cfg_saved_)
 				{
 					menu_video_mode_cfg_saved_ = menu_video_mode_cfg_;

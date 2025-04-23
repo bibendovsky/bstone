@@ -3,6 +3,10 @@
 
 
 ## [1.2.16] - ????-??-??
+### Added
+- Exclusive fullscreen mode and borderless fullscreen windowed mode.
+- Cvar to control refresh rate in exclusive fullscreen mode (vid_refresh_rate).
+- Cvar to control windw mode (vid_window_mode).
 
 
 ## [1.2.15] - 2025-03-22

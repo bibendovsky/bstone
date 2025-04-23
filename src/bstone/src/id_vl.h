@@ -46,11 +46,20 @@ using VgaPalette = std::array<VgaColor, 256>;
 using VgaBuffer = std::vector<std::uint8_t>;
 using UiMaskBuffer = std::array<bool, vga_ref_width * vga_ref_height>;
 
+enum class WindowMode
+{
+	windowed = 0,
+	fullscreen,
+	fake_fullscreen,
+};
+
 struct VideoModeCfg
 {
 	bstone::RendererType renderer_type;
 	int width;
 	int height;
+	int refresh_rate;
+	WindowMode window_mode;
 	bool is_vsync_;
 	bstone::R3rAaType aa_type;
 	int aa_degree_;
@@ -302,11 +311,9 @@ const VidRendererTypes& vid_get_available_renderer_types();
 
 struct VidWindowSize
 {
-	bool is_current_;
-	bool is_custom_;
-
 	int width;
 	int height;
+	int refresh_rate;
 }; // VidWindowSize
 
 using VidWindowSizes = std::vector<VidWindowSize>;
@@ -351,6 +358,12 @@ void vid_cfg_set_width(int width);
 
 int vid_cfg_get_height() noexcept;
 void vid_cfg_set_height(int height);
+
+int vid_cfg_get_refresh_rate();
+void vid_cfg_set_refresh_rate(int refresh_rate);
+
+WindowMode vid_cfg_get_window_mode();
+void vid_cfg_set_window_mode(WindowMode window_mode);
 
 bstone::R3rFilterType vid_cfg_get_2d_texture_filter() noexcept;
 void vid_cfg_set_2d_texture_filter(bstone::R3rFilterType filter);
@@ -554,6 +567,5 @@ std::string vid_to_string(bstone::R3rType renderer_type);
 bool vid_is_hw();
 
 bool vid_is_native_mode() noexcept;
-
 
 #endif // BSTONE_ID_VL_INCLUDED

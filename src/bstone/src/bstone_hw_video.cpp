@@ -36,6 +36,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_logger.h"
 #include "bstone_mod_value.h"
 #include "bstone_video.h"
+#include "bstone_video_cvars.h"
 
 #include "bstone_r3r_cmd_buffer.h"
 #include "bstone_r3r_limits.h"
@@ -1799,18 +1800,23 @@ try {
 
 void HwVideo::apply_window_mode()
 try {
+	sys::Window& window = renderer_->get_window();
+
+	auto param = R3rUtilsSetWindowModeParam{};
+	param.display_mode.width = vid_cfg_get_width();
+	param.display_mode.height = vid_cfg_get_height();
+	param.display_mode.refresh_rate = vid_cfg_get_refresh_rate();
+	param.fullscreen_mode = R3rUtils::get_fullscreen_mode_from_cvar();
+	R3rUtils::set_window_mode(window, param);
+
+	R3rUtils::set_fullscreen_mode_cvar_from_window(window);
+
 	calculate_dimensions();
 	vid_initialize_vanilla_raycaster();
 
-	auto param = R3rUtilsSetWindowModeParam{};
-	param.is_native = vid_is_native_mode();
-	param.size.width = vid_layout_.window_width;
-	param.size.height = vid_layout_.window_height;
-	R3rUtils::set_window_mode(renderer_->get_window(), param);
 	renderer_->handle_resize(sys::WindowSize{vid_layout_.window_width, vid_layout_.window_height});
 
 	vid_initialize_common();
-
 	uninitialize_2d();
 	initialize_2d();
 
@@ -2975,15 +2981,19 @@ try {
 	auto& window = renderer_->get_window();
 
 	auto window_param = R3rUtilsSetWindowModeParam{};
-	window_param.is_native = vid_is_native_mode();
 	window_param.is_positioned = vid_cfg_is_positioned();
 	window_param.position.x = sys::WindowOffset{vid_cfg_get_x()};
 	window_param.position.y = sys::WindowOffset{vid_cfg_get_y()};
-	window_param.size.width = vid_layout_.window_width;
-	window_param.size.height = vid_layout_.window_height;
+	window_param.fullscreen_mode = R3rUtils::get_fullscreen_mode_from_cvar();
+	window_param.display_mode.width = vid_layout_.window_width;
+	window_param.display_mode.height = vid_layout_.window_height;
+	window_param.display_mode.refresh_rate = vid_refresh_rate_cvar.get_int32();
 	R3rUtils::set_window_mode(window, window_param);
 
-	renderer_->handle_resize(window_param.size);
+	sys::WindowSize window_size{};
+	window_size.width = window_param.display_mode.width;
+	window_size.height = window_param.display_mode.height;
+	renderer_->handle_resize(window_size);
 
 	window.set_title(title.c_str());
 	window.show(true);

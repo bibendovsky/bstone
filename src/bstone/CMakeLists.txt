@@ -578,6 +578,8 @@ set(BSTONE_BSTONE_SYS_SOURCES
 	src/bstone_sys_audio_mgr_null.h
 	src/bstone_sys_color.cpp
 	src/bstone_sys_color.h
+	src/bstone_sys_display_mode.cpp
+	src/bstone_sys_display_mode.h
 	src/bstone_sys_event.cpp
 	src/bstone_sys_event.h
 	src/bstone_sys_event_mgr.cpp
@@ -768,6 +770,8 @@ set(BSTONE_BSTONE_VIDEO_SOURCES
 	src/bstone_sw_video.h
 	src/bstone_video.cpp
 	src/bstone_video.h
+	src/bstone_video_cvars.cpp
+	src/bstone_video_cvars.h
 )
 
 target_sources(bstone PRIVATE ${BSTONE_BSTONE_VIDEO_SOURCES})

@@ -22,6 +22,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_span.h"
 #include "bstone_sw_video.h"
 #include "bstone_video.h"
+#include "bstone_video_cvars.h"
 
 #include "bstone_r3r_utils.h"
 
@@ -127,6 +128,7 @@ private:
 	void initialize_renderer();
 	void create_screen_texture();
 	void create_ui_texture();
+	void uninitialize_textures();
 	void initialize_textures();
 	void initialize_palette();
 	void calculate_dimensions();
@@ -466,17 +468,21 @@ try {
 
 void SwVideo::apply_window_mode()
 try {
-	calculate_dimensions();
-	vid_initialize_vanilla_raycaster();
+	sys::Window& window = *window_;
 
 	auto param = R3rUtilsSetWindowModeParam{};
-	param.is_native = vid_is_native_mode();
-	param.size.width = vid_cfg_get_width();
-	param.size.height = vid_cfg_get_height();
-	R3rUtils::set_window_mode(*window_, param);
+	param.display_mode.width = vid_cfg_get_width();
+	param.display_mode.height = vid_cfg_get_height();
+	param.display_mode.refresh_rate = vid_cfg_get_refresh_rate();
+	param.fullscreen_mode = R3rUtils::get_fullscreen_mode_from_cvar();
+	R3rUtils::set_window_mode(window, param);
 
+	R3rUtils::set_fullscreen_mode_cvar_from_window(window);
+
+	calculate_dimensions();
+	vid_initialize_vanilla_raycaster();
 	vid_initialize_common();
-
+	uninitialize_textures();
 	initialize_textures();
 	initialize_vga_buffer();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -789,6 +795,12 @@ try {
 
 	ui_texture_ = renderer_->make_texture(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+void SwVideo::uninitialize_textures()
+{
+	ui_texture_ = nullptr;
+	screen_texture_ = nullptr;
+}
 
 void SwVideo::initialize_textures()
 try {

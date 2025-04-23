@@ -177,7 +177,6 @@ public:
 
 using VideoUPtr = std::unique_ptr<Video>;
 
-
 } // bstone
 
 

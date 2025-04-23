@@ -14,8 +14,17 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_sprite.h"
 #include "bstone_r3r_limits.h"
 #include "bstone_r3r_utils.h"
+#include "bstone_sys_window.h"
+#include "bstone_video_cvars.h"
 
 namespace bstone {
+
+namespace {
+
+constexpr int window_min_width = 320;
+constexpr int window_min_height = 240;
+
+} // namespace
 
 int R3rUtils::find_nearest_pot_value(int value) noexcept
 {
@@ -66,6 +75,42 @@ try {
 	return log_2 + 1;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
+sys::WindowFullscreenType R3rUtils::get_fullscreen_mode_from_cvar()
+{
+	const StringView mode_string = vid_window_mode_cvar.get_string();
+
+	if (mode_string == vid_window_mode_cvar_fullscreen)
+	{
+		return sys::WindowFullscreenType::exclusive;
+	}
+	else if (mode_string == vid_window_mode_cvar_fake_fullscreen)
+	{
+		return sys::WindowFullscreenType::fake;
+	}
+	else
+	{
+		return sys::WindowFullscreenType::none;
+	}
+}
+
+void R3rUtils::set_fullscreen_mode_cvar_from_window(sys::Window& window)
+{
+	switch (window.get_fullscreen_mode())
+	{
+		case sys::WindowFullscreenType::exclusive:
+			vid_window_mode_cvar.set_string(vid_window_mode_cvar_fullscreen);
+			break;
+
+		case sys::WindowFullscreenType::fake:
+			vid_window_mode_cvar.set_string(vid_window_mode_cvar_fake_fullscreen);
+			break;
+
+		default:
+			vid_window_mode_cvar.set_string(vid_window_mode_cvar_windowed);
+			break;
+	}
+}
+
 sys::WindowUPtr R3rUtils::create_window(
 	const R3rUtilsCreateWindowParam& param,
 	sys::WindowMgr& window_mgr)
@@ -75,8 +120,8 @@ try {
 	auto window_param = sys::WindowInitParam{};
 	window_param.x = sys::WindowOffset::make_centered();
 	window_param.y = sys::WindowOffset::make_centered();
-	window_param.width = 320;
-	window_param.height = 240;
+	window_param.width = window_min_width;
+	window_param.height = window_min_height;
 	window_param.is_visible = false;
 	window_param.fullscreen_type = sys::WindowFullscreenType::none;
 
@@ -98,62 +143,35 @@ try {
 
 void R3rUtils::set_window_mode(sys::Window& window, const R3rUtilsSetWindowModeParam& param)
 try {
-	if (param.size.height <= 0)
+	sys::WindowFullscreenType fullscreen_mode = param.fullscreen_mode;
+	sys::DisplayMode display_mode = param.display_mode;
+	display_mode.width = std::max(display_mode.width, window_min_width);
+	display_mode.height = std::max(display_mode.height, window_min_height);
+	display_mode.refresh_rate = std::max(display_mode.refresh_rate, 0);
+
+	window.set_fullscreen_mode(fullscreen_mode);
+
+	if (fullscreen_mode == sys::WindowFullscreenType::exclusive)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Height out of range.");
+		window.set_display_mode(display_mode);
 	}
-
-	if (param.size.width <= 0)
+	else if (fullscreen_mode == sys::WindowFullscreenType::none)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Width out of range.");
-	}
-
-	//
-	const auto is_current_native = window.is_fake_fullscreen();
-	const auto is_native_changed = (is_current_native != param.is_native);
-
-	//
-	const auto current_size = window.get_size();
-
-	if (current_size.width <= 0 || current_size.height <= 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Failed to get current window size.");
-	}
-
-	const auto is_size_changed =
-		current_size.width != param.size.width ||
-		current_size.height != param.size.height;
-
-	//
-	if (!is_native_changed && !is_size_changed)
-	{
-		return;
-	}
-
-	if (is_native_changed && !param.is_native)
-	{
-		window.set_fake_fullscreen(false);
-	}
-
-	if (is_size_changed)
-	{
-		window.set_size(sys::WindowSize{param.size.width, param.size.height});
+		sys::WindowSize window_size{};
+		window_size.width = display_mode.width;
+		window_size.height = display_mode.height;
+		window.set_size(window_size);
 
 		if (param.is_positioned)
 		{
-			const auto x = std::max(param.position.x.get(), 0);
-			const auto y = std::max(param.position.y.get(), 0);
+			const int x = std::max(param.position.x.get(), 0);
+			const int y = std::max(param.position.y.get(), 0);
 			window.set_position(sys::WindowPosition{sys::WindowOffset{x}, sys::WindowOffset{y}});
 		}
 		else
 		{
 			window.center();
 		}
-	}
-
-	if (is_native_changed && param.is_native)
-	{
-		window.set_fake_fullscreen(true);
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 

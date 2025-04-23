@@ -16,6 +16,8 @@ enum class LogLevel
 {
 	none,
 	information,
+	warning,
+	error,
 };
 
 // ==========================================================================
@@ -28,6 +30,12 @@ public:
 
 	void log_information() noexcept;
 	void log_information(const char* message) noexcept;
+
+	void log_warning() noexcept;
+	void log_warning(const char* message) noexcept;
+
+	void log_error() noexcept;
+	void log_error(const char* message) noexcept;
 
 private:
 	virtual void do_log(LogLevel level, const char* message) noexcept = 0;

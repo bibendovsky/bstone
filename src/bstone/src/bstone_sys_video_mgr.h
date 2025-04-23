@@ -13,19 +13,13 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_span.h"
 
+#include "bstone_sys_display_mode.h"
 #include "bstone_sys_gl_current_context.h"
 #include "bstone_sys_mouse_mgr.h"
 #include "bstone_sys_window_mgr.h"
 
 namespace bstone {
 namespace sys {
-
-struct DisplayMode
-{
-	int width;
-	int height;
-	int refresh_rate;
-};
 
 class VideoMgr
 {

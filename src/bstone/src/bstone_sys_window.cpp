@@ -50,6 +50,16 @@ void Window::set_size(WindowSize size)
 	do_set_size(size);
 }
 
+DisplayMode Window::get_display_mode()
+{
+	return do_get_display_mode();
+}
+
+void Window::set_display_mode(const DisplayMode& display_mode)
+{
+	do_set_display_mode(display_mode);
+}
+
 void Window::show(bool is_visible)
 {
 	do_show(is_visible);
@@ -60,14 +70,14 @@ void Window::set_rounded_corner_type(WindowRoundedCornerType value)
 	do_set_rounded_corner_type(value);
 }
 
-bool Window::is_fake_fullscreen()
+WindowFullscreenType Window::get_fullscreen_mode()
 {
-	return do_is_fake_fullscreen();
+	return do_get_fullscreen_mode();
 }
 
-void Window::set_fake_fullscreen(bool is_fake_fullscreen)
+void Window::set_fullscreen_mode(WindowFullscreenType fullscreen_mode)
 {
-	do_set_fake_fullscreen(is_fake_fullscreen);
+	do_set_fullscreen_mode(fullscreen_mode);
 }
 
 GlContextUPtr Window::make_gl_context()

@@ -15,6 +15,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_r3r.h"
 #include "bstone_rgb_palette.h"
 #include "bstone_sprite.h"
+#include "bstone_sys_display_mode.h"
 #include "bstone_sys_gl_context_attributes.h"
 #include "bstone_sys_window_mgr.h"
 
@@ -33,11 +34,10 @@ public:
 
 struct R3rUtilsSetWindowModeParam
 {
-	bool is_native;
 	bool is_positioned;
-
 	sys::WindowPosition position;
-	sys::WindowSize size;
+	sys::WindowFullscreenType fullscreen_mode;
+	sys::DisplayMode display_mode;
 };
 
 class R3rUtils
@@ -67,6 +67,9 @@ public:
 	static int find_nearest_pot_value(int value) noexcept;
 	static bool is_pot_value(int value) noexcept;
 	static int calculate_mipmap_count(int width, int height);
+
+	static sys::WindowFullscreenType get_fullscreen_mode_from_cvar();
+	static void set_fullscreen_mode_cvar_from_window(sys::Window& window);
 
 	static sys::WindowUPtr create_window(
 		const R3rUtilsCreateWindowParam& param,

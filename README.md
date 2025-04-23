@@ -556,6 +556,21 @@ Notes:
   Minimum height: `240`  
   Default height: `480`
 
+* `--vid_refresh_rate value`  
+  Specifies refresh rate in the exclusive fullscreen mode.  
+  Minimum value: `0`  
+  Maximum value: `1000`  
+  Default value: `0`
+
+* `--vid_window_mode value`  
+  Specifies a window mode.  
+  Values:
+    - `windowed` - run the game inside a window which does not cover whole screen.
+    - `fullscreen` - run the game in exclusive fullscreen window.
+    - `fake_fullscreen` - run the game in fake fullscreen window.
+
+  Default: `windowed`
+
 * `--vid_x offset`  
   Sets a horizontal offset from the left side of the desktop screen.  
   Applicable for positionable window only.  

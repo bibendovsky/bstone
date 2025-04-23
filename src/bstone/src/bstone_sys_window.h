@@ -14,6 +14,7 @@ SPDX-License-Identifier: MIT
 #include <memory>
 
 #include "bstone_exception.h"
+#include "bstone_sys_display_mode.h"
 #include "bstone_sys_gl_context.h"
 #include "bstone_sys_renderer.h"
 
@@ -32,6 +33,7 @@ constexpr auto window_max_position = +65'535;
 enum class WindowFullscreenType
 {
 	none,
+	exclusive,
 	fake,
 };
 
@@ -163,12 +165,15 @@ public:
 	WindowSize get_size();
 	void set_size(WindowSize size);
 
+	DisplayMode get_display_mode();
+	void set_display_mode(const DisplayMode& display_mode);
+
 	void show(bool is_visible);
 
 	void set_rounded_corner_type(WindowRoundedCornerType value);
 
-	bool is_fake_fullscreen();
-	void set_fake_fullscreen(bool is_fake_fullscreen);
+	WindowFullscreenType get_fullscreen_mode();
+	void set_fullscreen_mode(WindowFullscreenType fullscreen_mode);
 
 	GlContextUPtr make_gl_context();
 
@@ -187,12 +192,15 @@ private:
 	virtual WindowSize do_get_size() = 0;
 	virtual void do_set_size(WindowSize size) = 0;
 
+	virtual DisplayMode do_get_display_mode() = 0;
+	virtual void do_set_display_mode(const DisplayMode& display_mode) = 0;
+
 	virtual void do_show(bool is_visible) = 0;
 
 	virtual void do_set_rounded_corner_type(WindowRoundedCornerType value) = 0;
 
-	virtual bool do_is_fake_fullscreen() = 0;
-	virtual void do_set_fake_fullscreen(bool is_fake_fullscreen) = 0;
+	virtual WindowFullscreenType do_get_fullscreen_mode() = 0;
+	virtual void do_set_fullscreen_mode(WindowFullscreenType fullscreen_mode) = 0;
 
 	virtual GlContextUPtr do_make_gl_context() = 0;
 
