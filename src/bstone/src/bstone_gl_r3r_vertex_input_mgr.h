@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -21,8 +21,8 @@ class GlR3rContext;
 class GlR3rVertexInputMgr
 {
 public:
-	GlR3rVertexInputMgr() noexcept;
-	virtual ~GlR3rVertexInputMgr();
+	GlR3rVertexInputMgr() noexcept {}
+	virtual ~GlR3rVertexInputMgr() {}
 
 	virtual GlR3rContext& get_context() const noexcept = 0;
 	virtual R3rVertexInputUPtr create(const R3rCreateVertexInputParam& param) = 0;

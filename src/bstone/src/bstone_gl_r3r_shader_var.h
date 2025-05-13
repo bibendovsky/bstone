@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -22,31 +22,19 @@ struct GlR3rShaderVarInitParam
 {
 	R3rShaderVarType type;
 	R3rShaderVarTypeId type_id;
-	int value_size;
 	int index;
 	StringView name;
 	int input_index;
 	int gl_location;
 };
 
-class GlR3rShaderVar :
-	public virtual R3rShaderInt32Var,
-	public virtual R3rShaderFloat32Var,
-	public virtual R3rShaderVec2Var,
-	public virtual R3rShaderVec4Var,
-	public virtual R3rShaderMat4Var,
-	public virtual R3rShaderR2SamplerVar
+class GlR3rShaderVar
 {
-protected:
-	GlR3rShaderVar();
-
 public:
-	~GlR3rShaderVar() override;
-
 	static int get_unit_size(R3rShaderVarTypeId type_id);
 };
 
-using GlR3rShaderVarUPtr = std::unique_ptr<GlR3rShaderVar>;
+using GlR3rShaderVarUPtr = std::unique_ptr<R3rShaderVar>;
 
 // ==========================================================================
 

@@ -1,11 +1,12 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
 // OpenGL 3D Renderer: Shader Variable
 
+#include <stddef.h>
 #include "bstone_exception.h"
 #include "bstone_fixed_pool_resource.h"
 
@@ -19,13 +20,9 @@ SPDX-License-Identifier: MIT
 #include "bstone_gl_r3r_shader_stage.h"
 #include "bstone_gl_r3r_shader_var.h"
 
-namespace bstone {
-
-GlR3rShaderVar::GlR3rShaderVar() = default;
-
-GlR3rShaderVar::~GlR3rShaderVar() = default;
-
 // ==========================================================================
+
+namespace bstone {
 
 int GlR3rShaderVar::get_unit_size(R3rShaderVarTypeId type_id)
 try {
@@ -47,16 +44,18 @@ try {
 
 // ==========================================================================
 
-class GlR3rShaderVarImpl final : public GlR3rShaderVar
+namespace {
+
+class GlR3rShaderVarImpl final : public R3rShaderVar
 {
 public:
 	GlR3rShaderVarImpl(
 		GlR3rShaderStage& shader_stage,
 		const GlR3rShaderVarInitParam& param);
 
-	~GlR3rShaderVarImpl() override;
+	~GlR3rShaderVarImpl() override {};
 
-	void* operator new(std::size_t size);
+	void* operator new(size_t size);
 	void operator delete(void* ptr);
 
 private:
@@ -64,14 +63,20 @@ private:
 	R3rShaderVarTypeId do_get_type_id() const noexcept override;
 	int do_get_index() const noexcept override;
 	const std::string& do_get_name() const noexcept override;
-	int do_get_input_index() const noexcept override;
 
-	void do_set_int32(std::int32_t value) override;
+	void do_set_int32(int32_t value) override;
 	void do_set_float32(float value) override;
 	void do_set_vec2(const float* value) override;
+	void do_set_vec3(const float* value) override;
 	void do_set_vec4(const float* value) override;
 	void do_set_mat4(const float* value) override;
-	void do_set_r2_sampler(std::int32_t value) override;
+	void do_set_r2_sampler(int32_t value) override;
+
+private:
+	using MemoryPool = FixedPoolResource<GlR3rShaderVarImpl, R3rLimits::max_shader_vars()>;
+
+private:
+	static MemoryPool memory_pool_;
 
 private:
 	GlR3rShaderStage& shader_stage_;
@@ -79,10 +84,8 @@ private:
 
 	R3rShaderVarType type_{};
 	R3rShaderVarTypeId type_id_{};
-	int value_size_{};
 	int index_{};
 	std::string name_{};
-	int input_index_{};
 	int gl_location_{};
 
 private:
@@ -90,12 +93,11 @@ private:
 	void set_value(const void* value_data);
 };
 
-// ==========================================================================
+// --------------------------------------------------------------------------
 
-using GlR3rShaderVarImplPool = FixedPoolResource<GlR3rShaderVarImpl, R3rLimits::max_shader_vars()>;
-GlR3rShaderVarImplPool gl_r3r_shader_var_impl_pool{};
+GlR3rShaderVarImpl::MemoryPool GlR3rShaderVarImpl::memory_pool_{};
 
-// ==========================================================================
+// --------------------------------------------------------------------------
 
 GlR3rShaderVarImpl::GlR3rShaderVarImpl(
 	GlR3rShaderStage& shader_stage,
@@ -107,23 +109,19 @@ try
 {
 	type_ = param.type;
 	type_id_ = param.type_id;
-	value_size_ = param.value_size;
 	index_ = param.index;
-	name_.assign(param.name.get_data(), static_cast<std::size_t>(param.name.get_size()));
-	input_index_ = param.input_index;
+	name_.assign(param.name.get_data(), static_cast<size_t>(param.name.get_size()));
 	gl_location_ = param.gl_location;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-GlR3rShaderVarImpl::~GlR3rShaderVarImpl() = default;
-
-void* GlR3rShaderVarImpl::operator new(std::size_t size)
+void* GlR3rShaderVarImpl::operator new(size_t size)
 try {
-	return gl_r3r_shader_var_impl_pool.allocate(size);
+	return memory_pool_.allocate(size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rShaderVarImpl::operator delete(void* ptr)
 {
-	gl_r3r_shader_var_impl_pool.deallocate(ptr);
+	memory_pool_.deallocate(ptr);
 }
 
 R3rShaderVarType GlR3rShaderVarImpl::do_get_type() const noexcept
@@ -146,12 +144,7 @@ const std::string& GlR3rShaderVarImpl::do_get_name() const noexcept
 	return name_;
 }
 
-int GlR3rShaderVarImpl::do_get_input_index() const noexcept
-{
-	return input_index_;
-}
-
-void GlR3rShaderVarImpl::do_set_int32(std::int32_t value)
+void GlR3rShaderVarImpl::do_set_int32(int32_t value)
 try {
 	set_value(R3rShaderVarTypeId::int32, &value);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -166,6 +159,11 @@ try {
 	set_value(R3rShaderVarTypeId::vec2, value);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
+void GlR3rShaderVarImpl::do_set_vec3(const float* value)
+try {
+	set_value(R3rShaderVarTypeId::vec3, value);
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
 void GlR3rShaderVarImpl::do_set_vec4(const float* value)
 try {
 	set_value(R3rShaderVarTypeId::vec4, value);
@@ -176,7 +174,7 @@ try {
 	set_value(R3rShaderVarTypeId::mat4, value);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rShaderVarImpl::do_set_r2_sampler(std::int32_t value)
+void GlR3rShaderVarImpl::do_set_r2_sampler(int32_t value)
 try {
 	set_value(R3rShaderVarTypeId::sampler2d, &value);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -191,13 +189,6 @@ try {
 	if (!value_data)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null value data.");
-	}
-
-	const auto value_size = get_unit_size(type_id);
-
-	if (value_size != value_size_)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Value size mismatch.");
 	}
 
 	switch (type_)
@@ -320,9 +311,11 @@ try {
 			break;
 
 		default:
-			BSTONE_THROW_STATIC_SOURCE("Unsupported type.");
+			BSTONE_THROW_STATIC_SOURCE("Unsupported shader var type id.");
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+} // namespace
 
 // ==========================================================================
 

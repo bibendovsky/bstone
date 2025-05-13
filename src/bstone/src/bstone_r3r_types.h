@@ -25,47 +25,27 @@ using R3rMat4 = std::array<float, 16>;
 enum class R3rType
 {
 	none = 0,
+#ifndef NDEBUG
+	null,
+#endif
 
 	gl_2_0,
 	gl_3_2_core,
 
 	gles_2_0,
+
+	vulkan,
 };
 
 enum class R3rPrimitiveType
 {
 	none = 0,
-
-	point_list,
-
-	line_list,
-	line_strip,
-
 	triangle_list,
-	triangle_strip,
-};
-
-enum class R3rCullingFace
-{
-	none = 0,
-	counter_clockwise,
-	clockwise,
-};
-
-enum class R3rCullingMode
-{
-	none = 0,
-	back,
-	front,
-	both,
 };
 
 enum class R3rBlendingFactor
 {
 	none = 0,
-	zero,
-	one,
-	src_color,
 	src_alpha,
 	one_minus_src_alpha,
 };
@@ -121,14 +101,6 @@ struct R3rViewport
 
 	float min_depth;
 	float max_depth;
-};
-
-struct R3rScissorBox
-{
-	int x;
-	int y;
-	int width;
-	int height;
 };
 
 struct R3rBlendingFunc

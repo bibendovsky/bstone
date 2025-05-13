@@ -22,6 +22,9 @@ namespace bstone
 enum class RendererType
 {
 	auto_detect,
+#ifndef NDEBUG
+	null,
+#endif
 
 	software,
 
@@ -29,6 +32,8 @@ enum class RendererType
 	gl_3_2_core,
 
 	gles_2_0,
+
+	vulkan,
 }; // RendererType
 
 

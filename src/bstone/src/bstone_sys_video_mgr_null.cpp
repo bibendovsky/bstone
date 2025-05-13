@@ -31,10 +31,13 @@ private:
 private:
 	bool do_is_initialized() const noexcept override;
 
+	Logger& do_get_logger() override;
+
 	DisplayMode do_get_current_display_mode() override;
 	Span<const DisplayMode> do_get_display_modes() override;
 
 	GlCurrentContext& do_get_gl_current_context() override;
+	VulkanMgr& do_get_vulkan_mgr() override;
 	MouseMgr& do_get_mouse_mgr() override;
 	WindowMgr& do_get_window_mgr() override;
 
@@ -76,6 +79,11 @@ bool NullVideoMgr::do_is_initialized() const noexcept
 	return false;
 }
 
+Logger& NullVideoMgr::do_get_logger()
+{
+	return logger_;
+}
+
 DisplayMode NullVideoMgr::do_get_current_display_mode()
 {
 	not_initialized();
@@ -87,6 +95,11 @@ Span<const DisplayMode> NullVideoMgr::do_get_display_modes()
 }
 
 GlCurrentContext& NullVideoMgr::do_get_gl_current_context()
+{
+	not_initialized();
+}
+
+VulkanMgr& NullVideoMgr::do_get_vulkan_mgr()
 {
 	not_initialized();
 }

@@ -1,0 +1,86 @@
+#version 450
+
+layout(binding=1) uniform sampler2D u_sampler;
+
+layout(binding=2,std140) uniform Ubo {
+    // 0 - none
+    // 1 - vanilla
+    int u_shading_mode;
+
+    float u_shade_max;
+    float u_normal_shade;
+    float u_height_numerator;
+    float u_extra_lighting;
+
+    vec2 u_view_direction;
+    vec2 u_view_position;
+} ubo;
+
+layout(location=0) in vec2 o_position;
+layout(location=1) in vec4 o_color;
+layout(location=2) in vec2 o_tx_coords;
+
+layout(location=0) out vec4 frag_color;
+
+float calculate_no_shading()
+{
+    return 0.0;
+}
+
+float calculate_vanilla_shading()
+{
+    if (ubo.u_shade_max <= 0.0)
+    {
+        return 0.0;
+    }
+
+    const float min_nx = 0.00001;
+    const float min_height = 8.0;
+    const float max_index = 65.0;
+
+    float view_cos = ubo.u_view_direction.x;
+    float view_sin = -ubo.u_view_direction.y;
+
+    float gx = o_position.x - ubo.u_view_position.x;
+    float gxt = gx * view_cos;
+
+    float gy = o_position.y - ubo.u_view_position.y;
+    float gyt = gy * view_sin;
+
+    float nx = max(gxt - gyt, min_nx);
+
+    float height = max((256.0 * ubo.u_height_numerator) / nx, min_height);
+    height /= 8.0;
+
+    float index = ubo.u_shade_max - ((63.0 * height) / ubo.u_normal_shade) + ubo.u_extra_lighting;
+    index = clamp(index, 0.0, 63.0);
+
+    float shading_weight = index / max_index;
+
+    return shading_weight;
+}
+
+float calculate_shading_weight()
+{
+    if (ubo.u_shading_mode == 0)
+    {
+        return calculate_no_shading();
+    }
+    else if (ubo.u_shading_mode == 1)
+    {
+        return calculate_vanilla_shading();
+    }
+    else
+    {
+        return 0.0;
+    }
+}
+
+void main()
+{
+    float shading_weight = calculate_shading_weight();
+    frag_color = o_color * texture(u_sampler, o_tx_coords);
+    float alpha = frag_color.a;
+    frag_color *= 1.0 - shading_weight;
+    frag_color.a = alpha;
+}

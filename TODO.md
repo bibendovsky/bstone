@@ -6,3 +6,9 @@
 - Remove underscore suffix for public fields.
 - Make some player's sounds positional (interacting with switches, .etc).
 - Play `got weapon` sound on separate voice?
+- Rename `R3rDeviceFeatures::is_mipmap_available` (i.e. can_generate_mipmap).
+- Rename `R3rR2Texture::generate_mipmaps` to `generate_mipmap`.
+- Rename `R3rLimits::max_mipmap_count` to `max_mip_levels`.
+- Rename `R3rR2TextureInitParam::mipmap_count` to `mip_count`.
+- Rename `R3rR2TextureUpdateParam::mipmap_level` to `mip_level`.
+- HDR support.

@@ -7,6 +7,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_sys_window_sdl2.h"
 
 #include <string>
+#include "SDL_version.h"
 
 #ifdef _WIN32
 #include "SDL_syswm.h"
@@ -30,6 +31,11 @@ Sdl2WindowInternal::~Sdl2WindowInternal() = default;
 void* Sdl2WindowInternal::get_native_handle() const noexcept
 {
 	return do_get_native_handle();
+}
+
+void* Sdl2WindowInternal::get_sdl_window() const
+{
+	return do_get_sdl_window();
 }
 
 // ==========================================================================
@@ -70,6 +76,7 @@ private:
 
 private:
 	void* do_get_native_handle() const noexcept override;
+	void* do_get_sdl_window() const override;
 
 private:
 	const char* do_get_title() override;
@@ -152,6 +159,12 @@ try
 			auto gl_attributes = make_default_gl_attributes();
 			set_gl_attributes(gl_attributes);
 		}
+	}
+	else if (param.renderer_type == WindowRendererType::vulkan)
+	{
+#if !SDL_VERSION_ATLEAST(2, 0, 6)
+		BSTONE_THROW_STATIC_SOURCE("SDL v2.0.6 or higher required for Vulkan support.");
+#endif
 	}
 
 	sdl_window_.reset(sdl2_ensure_result(SDL_CreateWindow(
@@ -261,6 +274,11 @@ void* Sdl2Window::do_get_native_handle() const noexcept
 #endif
 }
 
+void* Sdl2Window::do_get_sdl_window() const
+{
+	return sdl_window_.get();
+}
+
 const char* Sdl2Window::do_get_title()
 try {
 	return sdl2_ensure_result(SDL_GetWindowTitle(sdl_window_.get()));
@@ -333,13 +351,17 @@ try {
 WindowFullscreenType Sdl2Window::do_get_fullscreen_mode()
 {
 	const Uint32 sdl_flags = SDL_GetWindowFlags(sdl_window_.get());
-	const Uint32 sdl_masked_flags = sdl_flags & SDL_WINDOW_FULLSCREEN_DESKTOP;
-
-	switch (sdl_masked_flags)
+	if ((sdl_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) == SDL_WINDOW_FULLSCREEN_DESKTOP)
 	{
-		case SDL_WINDOW_FULLSCREEN: return WindowFullscreenType::exclusive;
-		case SDL_WINDOW_FULLSCREEN_DESKTOP: return WindowFullscreenType::fake;
-		default: return WindowFullscreenType::none;
+		return WindowFullscreenType::fake;
+	}
+	else if ((sdl_flags & SDL_WINDOW_FULLSCREEN) == SDL_WINDOW_FULLSCREEN)
+	{
+		return WindowFullscreenType::exclusive;
+	}
+	else
+	{
+		return WindowFullscreenType::none;
 	}
 }
 
@@ -454,6 +476,10 @@ void Sdl2Window::log_flags(const WindowInitParam& param, std::string& message)
 	if (param.renderer_type == WindowRendererType::open_gl)
 	{
 		log_flag("opengl", message);
+	}
+	else if (param.renderer_type == WindowRendererType::vulkan)
+	{
+		log_flag("vulkan", message);
 	}
 
 	log_flag(param.is_visible ? "shown" : "hidden", message);
@@ -605,6 +631,12 @@ Uint32 Sdl2Window::map_flags(const WindowInitParam& param) noexcept
 	if (param.renderer_type == WindowRendererType::open_gl)
 	{
 		sdl_flags |= SDL_WINDOW_OPENGL;
+	}
+	else if (param.renderer_type == WindowRendererType::vulkan)
+	{
+#if SDL_VERSION_ATLEAST(2, 0, 6)
+		sdl_flags |= SDL_WINDOW_VULKAN;
+#endif
 	}
 
 	sdl_flags |= param.is_visible ? SDL_WINDOW_SHOWN : SDL_WINDOW_HIDDEN;

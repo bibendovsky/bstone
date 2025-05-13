@@ -1,10 +1,12 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
 // OpenGL 3D Renderer: Buffer
+
+#include <stddef.h>
 
 #include "bstone_exception.h"
 #include "bstone_fixed_pool_resource.h"
@@ -18,13 +20,9 @@ SPDX-License-Identifier: MIT
 #include "bstone_gl_r3r_error.h"
 #include "bstone_gl_r3r_utils.h"
 
-namespace bstone {
-
-GlR3rBuffer::GlR3rBuffer() = default;
-
-GlR3rBuffer::~GlR3rBuffer() = default;
-
 // =========================================================================
+
+namespace bstone {
 
 namespace {
 
@@ -32,9 +30,9 @@ class GlR3rBufferImpl final : public GlR3rBuffer
 {
 public:
 	GlR3rBufferImpl(GlR3rContext& context, const R3rBufferInitParam& param);
-	~GlR3rBufferImpl() override;
+	~GlR3rBufferImpl() override {}
 
-	void* operator new(std::size_t size);
+	void* operator new(size_t size);
 	void operator delete(void* ptr);
 
 private:
@@ -48,12 +46,17 @@ private:
 	void set(bool is_set) override;
 
 private:
+	using MemoryPool = FixedPoolResource<GlR3rBufferImpl, R3rLimits::max_buffers()>;
+
 	struct BufferDeleter
 	{
 		void operator()(GLuint gl_name) const noexcept;
 	};
 
 	using BufferResource = UniqueResource<GLuint, BufferDeleter>;
+
+private:
+	static MemoryPool memory_pool_;
 
 private:
 	GlR3rContext& context_;
@@ -75,8 +78,7 @@ private:
 
 // =========================================================================
 
-using GlR3rBufferImplPool = FixedPoolResource<GlR3rBufferImpl, R3rLimits::max_buffers()>;
-GlR3rBufferImplPool gl_r3r_buffer_impl_pool{};
+GlR3rBufferImpl::MemoryPool GlR3rBufferImpl::memory_pool_{};
 
 // =========================================================================
 
@@ -128,16 +130,14 @@ try
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-GlR3rBufferImpl::~GlR3rBufferImpl() = default;
-
-void* GlR3rBufferImpl::operator new(std::size_t size)
+void* GlR3rBufferImpl::operator new(size_t size)
 try {
-	return gl_r3r_buffer_impl_pool.allocate(size);
+	return memory_pool_.allocate(size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rBufferImpl::operator delete(void* ptr)
 {
-	gl_r3r_buffer_impl_pool.deallocate(ptr);
+	memory_pool_.deallocate(ptr);
 }
 
 R3rBufferType GlR3rBufferImpl::do_get_type() const noexcept

@@ -58,18 +58,26 @@ constexpr bstone::StringView vid_filter_strings[] =
 
 constexpr auto vid_renderer_cvar_name = bstone::StringView{"vid_renderer"};
 constexpr auto vid_renderer_cvar_auto_detect = bstone::StringView{"auto-detect"};
+#ifndef NDEBUG
+constexpr auto vid_renderer_cvar_null = bstone::StringView{"null"};
+#endif
 constexpr auto vid_renderer_cvar_software = bstone::StringView{"software"};
 constexpr auto vid_renderer_cvar_gl_2_0 = bstone::StringView{"gl_2_0"};
 constexpr auto vid_renderer_cvar_gl_3_2_c = bstone::StringView{"gl_3_2_c"};
 constexpr auto vid_renderer_cvar_gles_2_0 = bstone::StringView{"gles_2_0"};
+constexpr auto vid_renderer_cvar_vulkan = bstone::StringView{"vulkan"};
 
 constexpr bstone::StringView vid_renderer_cvar_values[] =
 {
 	vid_renderer_cvar_auto_detect,
+#ifndef NDEBUG
+	vid_renderer_cvar_null,
+#endif
 	vid_renderer_cvar_software,
 	vid_renderer_cvar_gl_2_0,
 	vid_renderer_cvar_gl_3_2_c,
 	vid_renderer_cvar_gles_2_0,
+	vid_renderer_cvar_vulkan,
 };
 
 auto vid_renderer_cvar = bstone::CVar{
@@ -1044,6 +1052,12 @@ try {
 			renderer_type_sv = "Auto-detect";
 			break;
 
+#ifndef NDEBUG
+		case bstone::RendererType::null:
+			renderer_type_sv = "Null";
+			break;
+#endif // NDEBUG
+
 		case bstone::RendererType::software:
 			renderer_type_sv = "Software";
 			break;
@@ -1060,6 +1074,10 @@ try {
 			renderer_type_sv = "OpenGL ES 2.0";
 			break;
 
+		case bstone::RendererType::vulkan:
+			renderer_type_sv = "Vulkan";
+			break;
+
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unsupported renderer type.");
 	}
@@ -1071,9 +1089,13 @@ std::string vid_to_string(bstone::R3rType renderer_type)
 try {
 	switch (renderer_type)
 	{
+#ifndef NDEBUG
+		case bstone::R3rType::null: return "Null";
+#endif
 		case bstone::R3rType::gl_2_0: return "OpenGL 2.0";
 		case bstone::R3rType::gl_3_2_core: return "OpenGL 3.2 core";
 		case bstone::R3rType::gles_2_0: return "OpenGL ES 2.0";
+		case bstone::R3rType::vulkan: return "Vulkan";
 		default: BSTONE_THROW_STATIC_SOURCE("Unsupported renderer type.");
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -1755,6 +1777,13 @@ bstone::RendererType vid_cfg_get_renderer_type() noexcept
 {
 	const auto renderer_sv = vid_renderer_cvar.get_string();
 
+#ifndef NDEBUG
+	if (renderer_sv == vid_renderer_cvar_null)
+	{
+		return bstone::RendererType::null;
+	}
+#endif
+
 	if (renderer_sv == vid_renderer_cvar_software)
 	{
 		return bstone::RendererType::software;
@@ -1775,6 +1804,11 @@ bstone::RendererType vid_cfg_get_renderer_type() noexcept
 		return bstone::RendererType::gles_2_0;
 	}
 
+	if (renderer_sv == vid_renderer_cvar_vulkan)
+	{
+		return bstone::RendererType::vulkan;
+	}
+
 	return bstone::RendererType::auto_detect;
 }
 
@@ -1784,6 +1818,11 @@ void vid_cfg_set_renderer_type(bstone::RendererType renderer_type)
 
 	switch (renderer_type)
 	{
+#ifndef NDEBUG
+		case bstone::RendererType::null:
+			renderer_sv = vid_renderer_cvar_null;
+			break;
+#endif
 		case bstone::RendererType::software:
 			renderer_sv = vid_renderer_cvar_software;
 			break;
@@ -1798,6 +1837,10 @@ void vid_cfg_set_renderer_type(bstone::RendererType renderer_type)
 
 		case bstone::RendererType::gles_2_0:
 			renderer_sv = vid_renderer_cvar_gles_2_0;
+			break;
+
+		case bstone::RendererType::vulkan:
+			renderer_sv = vid_renderer_cvar_vulkan;
 			break;
 
 		default:
@@ -2180,11 +2223,15 @@ const VidRendererTypes& vid_get_available_renderer_types()
 	static const auto result = VidRendererTypes
 	{
 		bstone::RendererType::auto_detect,
+#ifndef NDEBUG
+		bstone::RendererType::null,
+#endif
 		bstone::RendererType::software,
 
 		bstone::RendererType::gl_2_0,
 		bstone::RendererType::gl_3_2_core,
 		bstone::RendererType::gles_2_0,
+		bstone::RendererType::vulkan,
 	};
 
 	return result;

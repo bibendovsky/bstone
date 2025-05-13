@@ -1,12 +1,13 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
 // OpenGL 3D Renderer: Extension Manager
 
-#include <cassert>
+#include <assert.h>
+#include <stddef.h>
 #include <algorithm>
 #include <iterator>
 #include <sstream>
@@ -23,13 +24,9 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_sys_gl_symbol_resolver.h"
 
-namespace bstone {
-
-GlR3rExtensionMgr::GlR3rExtensionMgr() noexcept = default;
-
-GlR3rExtensionMgr::~GlR3rExtensionMgr() = default;
-
 // ==========================================================================
+
+namespace bstone {
 
 namespace {
 
@@ -37,9 +34,9 @@ class GlR3rExtensionMgrImpl final : public GlR3rExtensionMgr
 {
 public:
 	GlR3rExtensionMgrImpl(const sys::GlSymbolResolver& symbol_resolver);
-	~GlR3rExtensionMgrImpl() override;
+	~GlR3rExtensionMgrImpl() override {}
 
-	void* operator new(std::size_t size);
+	void* operator new(size_t size);
 	void operator delete(void* ptr);
 
 	int get_count() const noexcept override;
@@ -53,6 +50,8 @@ public:
 	bool operator[](GlR3rExtensionId extension_id) const noexcept override;
 
 private:
+	using MemoryPool = SinglePoolResource<GlR3rExtensionMgrImpl>;
+
 	using ExtensionNames = std::vector<std::string>;
 
 	using GlSymbolPtrs = std::vector<void**>;
@@ -69,6 +68,9 @@ private:
 	};
 
 	using Registry = std::vector<RegistryItem>;
+
+private:
+	static MemoryPool memory_pool_;
 
 private:
 	const sys::GlSymbolResolver& symbol_resolver_;
@@ -117,8 +119,7 @@ private:
 
 // ==========================================================================
 
-using GlR3rExtensionMgrImplPool = SinglePoolResource<GlR3rExtensionMgrImpl>;
-GlR3rExtensionMgrImplPool gl_r3r_extension_mgr_impl_pool{};
+GlR3rExtensionMgrImpl::MemoryPool GlR3rExtensionMgrImpl::memory_pool_{};
 
 // ==========================================================================
 
@@ -136,16 +137,14 @@ try
 	initialize_registry();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-GlR3rExtensionMgrImpl::~GlR3rExtensionMgrImpl() = default;
-
-void* GlR3rExtensionMgrImpl::operator new(std::size_t size)
+void* GlR3rExtensionMgrImpl::operator new(size_t size)
 try {
-	return gl_r3r_extension_mgr_impl_pool.allocate(size);
+	return memory_pool_.allocate(size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rExtensionMgrImpl::operator delete(void* ptr)
 {
-	gl_r3r_extension_mgr_impl_pool.deallocate(ptr);
+	memory_pool_.deallocate(ptr);
 }
 
 int GlR3rExtensionMgrImpl::get_count() const noexcept

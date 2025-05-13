@@ -20,6 +20,11 @@ bool VideoMgr::is_initialized() const noexcept
 	return do_is_initialized();
 }
 
+Logger& VideoMgr::get_logger()
+{
+	return do_get_logger();
+}
+
 DisplayMode VideoMgr::get_current_display_mode()
 {
 	return do_get_current_display_mode();
@@ -33,6 +38,11 @@ Span<const DisplayMode> VideoMgr::get_display_modes()
 GlCurrentContext& VideoMgr::get_gl_current_context()
 {
 	return do_get_gl_current_context();
+}
+
+VulkanMgr& VideoMgr::get_vulkan_mgr()
+{
+	return do_get_vulkan_mgr();
 }
 
 MouseMgr& VideoMgr::get_mouse_mgr()

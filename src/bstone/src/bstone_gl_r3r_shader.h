@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -22,10 +22,10 @@ class GlR3rShaderStage;
 class GlR3rShader : public R3rShader
 {
 protected:
-	GlR3rShader();
+	GlR3rShader() {}
 
 public:
-	~GlR3rShader() override;
+	~GlR3rShader() override {}
 
 
 	virtual GLuint get_gl_name() const noexcept = 0;

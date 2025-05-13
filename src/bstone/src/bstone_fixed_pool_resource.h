@@ -26,11 +26,11 @@ public:
 	using MemoryResource::allocate;
 	using MemoryResource::deallocate;
 
-	using Object = TObject;
+	using Arg0 = TObject;
 
 public:
 	static constexpr auto max_objects = TMaxObjects;
-	static constexpr auto object_size = static_cast<std::intptr_t>(sizeof(Object));
+	static constexpr auto object_size = static_cast<std::intptr_t>(sizeof(Arg0));
 
 public:
 	FixedPoolResource() noexcept;
@@ -72,7 +72,7 @@ BSTONE_CXX_NODISCARD void* FixedPoolResource<TObject, TMaxObjects>::do_allocate(
 	}
 
 	const auto index = bitmap_.set_first_free();
-	const auto values = reinterpret_cast<Object*>(storage_);
+	const auto values = reinterpret_cast<Arg0*>(storage_);
 	return &values[index];
 }
 
@@ -84,8 +84,8 @@ void FixedPoolResource<TObject, TMaxObjects>::do_deallocate(void* ptr) noexcept
 		return;
 	}
 
-	const auto value = static_cast<Object*>(ptr);
-	const auto values = reinterpret_cast<Object*>(storage_);
+	const auto value = static_cast<Arg0*>(ptr);
+	const auto values = reinterpret_cast<Arg0*>(storage_);
 	const auto index = value - values;
 	bitmap_.reset(index);
 }

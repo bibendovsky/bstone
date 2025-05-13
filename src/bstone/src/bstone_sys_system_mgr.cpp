@@ -15,6 +15,11 @@ SystemMgr::SystemMgr() = default;
 
 SystemMgr::~SystemMgr() = default;
 
+Logger& SystemMgr::get_logger()
+{
+	return do_get_logger();
+}
+
 AudioMgr& SystemMgr::get_audio_mgr()
 {
 	return do_get_audio_mgr();

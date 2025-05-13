@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -27,13 +27,11 @@ SPDX-License-Identifier: MIT
 #include "bstone_gl_r3r_shader_var.h"
 #include "bstone_gl_r3r_utils.h"
 
+// ==========================================================================
+
 namespace bstone {
 
-GlR3rShaderStage::GlR3rShaderStage() = default;
-
-GlR3rShaderStage::~GlR3rShaderStage() = default;
-
-// ==========================================================================
+namespace {
 
 class GlR3rShaderStageImpl final : public GlR3rShaderStage
 {
@@ -48,13 +46,14 @@ public:
 	void set() override;
 
 private:
-	R3rShaderVar* do_find_var(const char* name) noexcept override;
-	R3rShaderInt32Var* do_find_int32_var(const char* name) noexcept override;
-	R3rShaderFloat32Var* do_find_float32_var(const char* name) noexcept override;
-	R3rShaderVec2Var* do_find_vec2_var(const char* name) noexcept override;
-	R3rShaderVec4Var* do_find_vec4_var(const char* name) noexcept override;
-	R3rShaderMat4Var* do_find_mat4_var(const char* name) noexcept override;
-	R3rShaderR2SamplerVar* do_find_r2_sampler_var(const char* name) noexcept override;
+	R3rShaderVar* do_find_var(const char* name) override;
+	R3rShaderVar* do_find_int32_var(const char* name) override;
+	R3rShaderVar* do_find_float32_var(const char* name) override;
+	R3rShaderVar* do_find_vec2_var(const char* name) override;
+	R3rShaderVar* do_find_vec3_var(const char* name) override;
+	R3rShaderVar* do_find_vec4_var(const char* name) override;
+	R3rShaderVar* do_find_mat4_var(const char* name) override;
+	R3rShaderVar* do_find_r2_sampler_var(const char* name) override;
 
 	void detach_fragment_shader() override;
 	void detach_vertex_shader() override;
@@ -62,6 +61,8 @@ private:
 	GLuint get_gl_name() const noexcept override;
 
 private:
+	using MemoryPool = FixedPoolResource<GlR3rShaderStageImpl, R3rLimits::max_shader_stages()>;
+
 	using NameBuffer = std::vector<char>;
 
 	struct ShaderStageDeleter
@@ -71,6 +72,9 @@ private:
 
 	using ShaderStageResource = UniqueResource<GLuint, ShaderStageDeleter>;
 	using ShaderVars = std::vector<GlR3rShaderVarUPtr>;
+
+private:
+	static MemoryPool memory_pool_;
 
 private:
 	GlR3rContext& context_;
@@ -92,15 +96,12 @@ private:
 	void get_vars(R3rShaderVarType type, GLuint gl_name, ShaderVars& shader_vars);
 	void check_input_bindings(R3rShaderStageInputBindings input_bindings);
 	R3rShaderVar* find_var_internal(const std::string& name) noexcept;
-
-	template<typename T>
-	T* find_var_internal(R3rShaderVarTypeId type_id, const char* name) noexcept;
+	R3rShaderVar* find_var_internal(R3rShaderVarTypeId type_id, const char* name) noexcept;
 };
 
 // ==========================================================================
 
-using GlR3rShaderStageImplPool = FixedPoolResource<GlR3rShaderStageImpl, R3rLimits::max_shader_stages()>;
-GlR3rShaderStageImplPool gl_r3r_shader_stage_impl_pool{};
+GlR3rShaderStageImpl::MemoryPool GlR3rShaderStageImpl::memory_pool_{};
 
 // ==========================================================================
 
@@ -182,14 +183,14 @@ GlR3rShaderStageImpl::~GlR3rShaderStageImpl()
 	}
 }
 
-void* GlR3rShaderStageImpl::operator new(std::size_t size)
+void* GlR3rShaderStageImpl::operator new(size_t size)
 try {
-	return gl_r3r_shader_stage_impl_pool.allocate(size);
+	return memory_pool_.allocate(size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rShaderStageImpl::operator delete(void* ptr)
 {
-	gl_r3r_shader_stage_impl_pool.deallocate(ptr);
+	memory_pool_.deallocate(ptr);
 }
 
 GlR3rContext& GlR3rShaderStageImpl::get_context() const noexcept
@@ -203,39 +204,44 @@ try {
 	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rShaderVar* GlR3rShaderStageImpl::do_find_var(const char* name) noexcept
+R3rShaderVar* GlR3rShaderStageImpl::do_find_var(const char* name)
 {
 	return find_var_internal(name);
 }
 
-R3rShaderInt32Var* GlR3rShaderStageImpl::do_find_int32_var(const char* name) noexcept
+R3rShaderVar* GlR3rShaderStageImpl::do_find_int32_var(const char* name)
 {
-	return find_var_internal<R3rShaderInt32Var>(R3rShaderVarTypeId::int32, name);
+	return find_var_internal(R3rShaderVarTypeId::int32, name);
 }
 
-R3rShaderFloat32Var* GlR3rShaderStageImpl::do_find_float32_var(const char* name) noexcept
+R3rShaderVar* GlR3rShaderStageImpl::do_find_float32_var(const char* name)
 {
-	return find_var_internal<R3rShaderFloat32Var>(R3rShaderVarTypeId::float32, name);
+	return find_var_internal(R3rShaderVarTypeId::float32, name);
 }
 
-R3rShaderVec2Var* GlR3rShaderStageImpl::do_find_vec2_var(const char* name) noexcept
+R3rShaderVar* GlR3rShaderStageImpl::do_find_vec2_var(const char* name)
 {
-	return find_var_internal<R3rShaderVec2Var>(R3rShaderVarTypeId::vec2, name);
+	return find_var_internal(R3rShaderVarTypeId::vec2, name);
 }
 
-R3rShaderVec4Var* GlR3rShaderStageImpl::do_find_vec4_var(const char* name) noexcept
+R3rShaderVar* GlR3rShaderStageImpl::do_find_vec3_var(const char* name)
 {
-	return find_var_internal<R3rShaderVec4Var>(R3rShaderVarTypeId::vec4, name);
+	return find_var_internal(R3rShaderVarTypeId::vec3, name);
 }
 
-R3rShaderMat4Var* GlR3rShaderStageImpl::do_find_mat4_var(const char* name) noexcept
+R3rShaderVar* GlR3rShaderStageImpl::do_find_vec4_var(const char* name)
 {
-	return find_var_internal<R3rShaderMat4Var>(R3rShaderVarTypeId::mat4, name);
+	return find_var_internal(R3rShaderVarTypeId::vec4, name);
 }
 
-R3rShaderR2SamplerVar* GlR3rShaderStageImpl::do_find_r2_sampler_var(const char* name) noexcept
+R3rShaderVar* GlR3rShaderStageImpl::do_find_mat4_var(const char* name)
 {
-	return find_var_internal<R3rShaderR2SamplerVar>(R3rShaderVarTypeId::sampler2d, name);
+	return find_var_internal(R3rShaderVarTypeId::mat4, name);
+}
+
+R3rShaderVar* GlR3rShaderStageImpl::do_find_r2_sampler_var(const char* name)
+{
+	return find_var_internal(R3rShaderVarTypeId::sampler2d, name);
 }
 
 void GlR3rShaderStageImpl::detach_fragment_shader()
@@ -284,14 +290,14 @@ try {
 	{
 		using NameSet = std::unordered_set<ZStringView, ZStringViewHasher>;
 		auto name_set = NameSet{};
-		name_set.reserve(static_cast<std::size_t>(input_bindings.get_size()));
+		name_set.reserve(static_cast<size_t>(input_bindings.get_size()));
 
 		for (const auto& input_binding : input_bindings)
 		{
 			name_set.emplace(ZStringView{input_binding.name});
 		}
 
-		if (name_set.size() != static_cast<std::size_t>(input_bindings.get_size()))
+		if (name_set.size() != static_cast<size_t>(input_bindings.get_size()))
 		{
 			BSTONE_THROW_STATIC_SOURCE("Duplicate name.");
 		}
@@ -303,14 +309,14 @@ try {
 		using NameSetItem = int;
 		using NameSet = std::unordered_set<NameSetItem>;
 		auto name_set = NameSet{};
-		name_set.reserve(static_cast<std::size_t>(input_bindings.get_size()));
+		name_set.reserve(static_cast<size_t>(input_bindings.get_size()));
 
 		for (const auto& input_binding : input_bindings)
 		{
 			name_set.emplace(input_binding.index);
 		}
 
-		if (name_set.size() != static_cast<std::size_t>(input_bindings.get_size()))
+		if (name_set.size() != static_cast<size_t>(input_bindings.get_size()))
 		{
 			BSTONE_THROW_STATIC_SOURCE("Duplicate index.");
 		}
@@ -501,12 +507,9 @@ try {
 
 		const auto new_type = is_sampler ? R3rShaderVarType::sampler : type;
 		const auto index = static_cast<int>(shader_vars.size());
-		const auto unit_size = GlR3rShaderVar::get_unit_size(unit_type_id);
-		const auto value_size = unit_count * unit_size;
 
 		var_param.type = new_type;
 		var_param.type_id = unit_type_id;
-		var_param.value_size = value_size;
 		var_param.index = index;
 		var_param.name = StringView{name_buffer.data(), gl_length};
 		var_param.input_index = input_index;
@@ -555,8 +558,7 @@ R3rShaderVar* GlR3rShaderStageImpl::find_var_internal(const std::string& name) n
 	return it->get();
 }
 
-template<typename T>
-T* GlR3rShaderStageImpl::find_var_internal(R3rShaderVarTypeId type_id, const char* name) noexcept
+R3rShaderVar* GlR3rShaderStageImpl::find_var_internal(R3rShaderVarTypeId type_id, const char* name) noexcept
 {
 	const auto end_it = shader_vars_.end();
 
@@ -573,8 +575,10 @@ T* GlR3rShaderStageImpl::find_var_internal(R3rShaderVarTypeId type_id, const cha
 		return nullptr;
 	}
 
-	return static_cast<T*>(it->get());
+	return it->get();
 }
+
+} // namespace
 
 // ==========================================================================
 

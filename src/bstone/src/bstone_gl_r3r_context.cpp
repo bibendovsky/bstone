@@ -1,11 +1,12 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
 // OpenGL 3D Renderer: Context
 
+#include <stddef.h>
 #include "bstone_exception.h"
 #include "bstone_single_pool_resource.h"
 
@@ -24,13 +25,9 @@ SPDX-License-Identifier: MIT
 #include "bstone_gl_r3r_vertex_input.h"
 #include "bstone_gl_r3r_vertex_input_mgr.h"
 
-namespace bstone {
-
-GlR3rContext::GlR3rContext() noexcept = default;
-
-GlR3rContext::~GlR3rContext() = default;
-
 // ==========================================================================
+
+namespace bstone {
 
 namespace {
 
@@ -42,9 +39,9 @@ public:
 		const GlR3rDeviceFeatures& gl_device_features);
 
 	GlR3rContextImpl(const GlR3rContextImpl& rhs) = delete;
-	~GlR3rContextImpl() override;
+	~GlR3rContextImpl() override {}
 
-	void* operator new(std::size_t size);
+	void* operator new(size_t size);
 	void operator delete(void* ptr);
 
 	const R3rDeviceFeatures& get_device_features() const noexcept override;
@@ -76,8 +73,6 @@ public:
 	void clear(const sys::Color& color) override;
 
 	void set_viewport(const R3rViewport& viewport) override;
-	void enable_scissor(bool is_enable) override;
-	void set_scissor_box(const R3rScissorBox& scissor_box) override;
 
 	void enable_culling(bool is_enable) override;
 	void enable_depth_test(bool is_enable) override;
@@ -87,18 +82,20 @@ public:
 	void set_blending_func(const R3rBlendingFunc& func) override;
 
 private:
+	using MemoryPool = SinglePoolResource<GlR3rContextImpl>;
+
+private:
+	static MemoryPool memory_pool_;
+
+private:
 	const R3rDeviceFeatures& device_features_;
 	const GlR3rDeviceFeatures& gl_device_features_;
 
 	sys::Color clear_color_{};
 
 	R3rViewport viewport_{};
-	bool is_scissor_enabled_{};
-	R3rScissorBox scissor_box_{};
 
 	bool is_culling_enabled_{};
-	R3rCullingFace culling_face_{};
-	R3rCullingMode culling_mode_{};
 
 	bool is_depth_test_enabled_{};
 	bool is_depth_write_enabled_{};
@@ -125,10 +122,6 @@ private:
 	void set_viewport_depth_range();
 	void set_viewport_defaults();
 
-	void enable_scissor();
-	void set_scissor_box();
-	void set_scissor_defaults();
-
 	void enable_culling();
 	void set_culling_face();
 	void set_culling_mode();
@@ -145,8 +138,7 @@ private:
 
 // ==========================================================================
 
-using GlR3rContextImplPool = SinglePoolResource<GlR3rContextImpl>;
-GlR3rContextImplPool gl_r3r_context_impl_pool{};
+GlR3rContextImpl::MemoryPool GlR3rContextImpl::memory_pool_{};
 
 // ==========================================================================
 
@@ -165,13 +157,10 @@ try
 
 	set_clear_defaults();
 	set_viewport_defaults();
-	set_scissor_defaults();
 	set_culling_defaults();
 	set_depth_defaults();
 	set_blending_defaults();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-GlR3rContextImpl::~GlR3rContextImpl() = default;
 
 void GlR3rContextImpl::set_max_mipmap_quality()
 try {
@@ -189,14 +178,14 @@ try {
 	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void* GlR3rContextImpl::operator new(std::size_t size)
+void* GlR3rContextImpl::operator new(size_t size)
 try {
-	return gl_r3r_context_impl_pool.allocate(size);
+	return memory_pool_.allocate(size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::operator delete(void* ptr)
 {
-	gl_r3r_context_impl_pool.deallocate(ptr);
+	memory_pool_.deallocate(ptr);
 }
 
 const R3rDeviceFeatures& GlR3rContextImpl::get_device_features() const noexcept
@@ -339,27 +328,6 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rContextImpl::enable_scissor(bool is_enable)
-try {
-	if (is_scissor_enabled_ != is_enable)
-	{
-		is_scissor_enabled_ = is_enable;
-		enable_scissor();
-	}
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void GlR3rContextImpl::set_scissor_box(const R3rScissorBox& scissor_box)
-try {
-	if (scissor_box_.x != scissor_box.x ||
-		scissor_box_.y != scissor_box.y ||
-		scissor_box_.width != scissor_box.width ||
-		scissor_box_.height != scissor_box.height)
-	{
-		scissor_box_ = scissor_box;
-		set_scissor_box();
-	}
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
 void GlR3rContextImpl::enable_culling(bool is_enable)
 try {
 	if (is_culling_enabled_ != is_enable)
@@ -452,28 +420,6 @@ try {
 	set_viewport_depth_range();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rContextImpl::enable_scissor()
-try {
-	GlR3rUtils::enable_scissor(is_scissor_enabled_);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void GlR3rContextImpl::set_scissor_box()
-try {
-	GlR3rUtils::set_scissor_box(scissor_box_);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void GlR3rContextImpl::set_scissor_defaults()
-try {
-	is_scissor_enabled_ = false;
-	enable_scissor();
-
-	scissor_box_.x = 0;
-	scissor_box_.y = 0;
-	scissor_box_.width = 0;
-	scissor_box_.height = 0;
-	set_scissor_box();
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
 void GlR3rContextImpl::enable_culling()
 try {
 	GlR3rUtils::enable_culling(is_culling_enabled_);
@@ -481,12 +427,12 @@ try {
 
 void GlR3rContextImpl::set_culling_face()
 try {
-	GlR3rUtils::set_culling_face(culling_face_);
+	GlR3rUtils::set_culling_face();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::set_culling_mode()
 try {
-	GlR3rUtils::set_culling_mode(culling_mode_);
+	GlR3rUtils::set_culling_mode();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rContextImpl::set_culling_defaults()
@@ -494,10 +440,7 @@ try {
 	is_culling_enabled_ = false;
 	enable_culling();
 
-	culling_face_ = R3rCullingFace::counter_clockwise;
 	set_culling_face();
-
-	culling_mode_ = R3rCullingMode::back;
 	set_culling_mode();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 

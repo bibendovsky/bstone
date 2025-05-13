@@ -1,7 +1,7 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
@@ -669,6 +669,7 @@ private:
 	R3rBufferUPtr r3_fade_vb_{};
 	R3rVertexInputUPtr r3_fade_vi_{};
 	R3rR2Texture* r3_fade_t2d_{};
+	cgm::Mat4D r3_fade_ortho_mat_{};
 
 	bool fizzle_fx_is_enabled_{};
 	bool fizzle_fx_is_fading_{};
@@ -679,18 +680,23 @@ private:
 	R3rShaderUPtr vertex_shader_{};
 	R3rShaderStageUPtr shader_stage_{};
 
-	R3rShaderMat4Var* model_mat_uniform_{};
-	R3rShaderMat4Var* view_mat_uniform_{};
-	R3rShaderMat4Var* projection_mat_uniform_{};
+	R3rShaderVar* model_mat_uniform_{};
+	R3rShaderVar* view_mat_uniform_{};
+	R3rShaderVar* projection_mat_uniform_{};
 
-	R3rShaderR2SamplerVar* sampler_uniform_{};
-	R3rShaderInt32Var* shading_mode_uniform_{};
-	R3rShaderFloat32Var* shade_max_uniform_{};
-	R3rShaderFloat32Var* normal_shade_uniform_{};
-	R3rShaderFloat32Var* height_numerator_uniform_{};
-	R3rShaderFloat32Var* extra_lighting_uniform_{};
-	R3rShaderVec2Var* view_direction_uniform_{};
-	R3rShaderVec2Var* view_position_uniform_{};
+	R3rShaderVar* sampler_uniform_{};
+	R3rShaderVar* shading_mode_uniform_{};
+	R3rShaderVar* shade_max_uniform_{};
+	R3rShaderVar* normal_shade_uniform_{};
+	R3rShaderVar* height_numerator_uniform_{};
+	R3rShaderVar* extra_lighting_uniform_{};
+	R3rShaderVar* view_direction_uniform_{};
+	R3rShaderVar* view_position_uniform_{};
+
+	static cgm::Mat4D make_gl_ortho_matrix(int width, int height);
+	static cgm::Mat4D make_vk_ortho_matrix(int width, int height);
+	static cgm::Mat4D make_gl_perspective_matrix(double vfov, double w, double h, double n, double f);
+	static cgm::Mat4D make_vk_perspective_matrix(double vfov, double w, double h, double n, double f);
 
 	static void convert(const cgm::Vec4F& src, R3rVec4& dst);
 	static void convert(const cgm::Vec2D& src, R3rVec2& dst);
@@ -822,39 +828,7 @@ private:
 
 	void uninitialize_model_mat_uniform() noexcept;
 
-	struct InitializeInt32UniformTag {};
-	struct InitializeFloat32UniformTag {};
-	struct InitializeVec2UniformTag {};
-	struct InitializeMat4UniformTag {};
-	struct InitializeSampler2dUniformTag {};
-
-	void initialize_uniform(
-		const char* name,
-		R3rShaderInt32Var*& var,
-		InitializeInt32UniformTag) noexcept;
-
-	void initialize_uniform(
-		const char* name,
-		R3rShaderFloat32Var*& var,
-		InitializeFloat32UniformTag) noexcept;
-
-	void initialize_uniform(
-		const char* name,
-		R3rShaderVec2Var*& var,
-		InitializeVec2UniformTag) noexcept;
-
-	void initialize_uniform(
-		const char* name,
-		R3rShaderMat4Var*& var,
-		InitializeMat4UniformTag) noexcept;
-
-	void initialize_uniform(
-		const char* name,
-		R3rShaderR2SamplerVar*& var,
-		InitializeSampler2dUniformTag) noexcept;
-
-	template<typename T>
-	void initialize_uniform(const char* name, T*& var);
+	void initialize_uniform(R3rShaderVarTypeId type_id, const char* name, R3rShaderVar*& var);
 
 	void initialize_model_mat_uniform();
 	void uninitialize_view_mat_uniform() noexcept;
@@ -1004,7 +978,7 @@ private:
 
 	void calculate_camera_parameters() noexcept;
 
-	void build_bs_to_ren_matrix() noexcept;
+	void build_bs_to_ren_matrix();
 	void build_model_matrix() noexcept;
 	void build_view_matrix() noexcept;
 	void build_projection_matrix() noexcept;
@@ -1083,6 +1057,7 @@ private:
 	void create_3d_fade_vi();
 	void update_3d_fade_ib();
 	void update_3d_fade_vb();
+	void update_3d_fade_ortho();
 
 	void destroy_3d_fade_r2_texture() noexcept;
 	void create_r3_fade_r2_texture();
@@ -1583,7 +1558,6 @@ try {
 	{
 		return;
 	}
-
 	auto command_buffers = vsync_command_buffer_.get();
 	renderer_->submit_commands(make_span(&command_buffers, 1));
 	renderer_->present();
@@ -1607,7 +1581,6 @@ try {
 	present_common();
 	present_3d();
 	present_2d();
-
 	renderer_->submit_commands(make_span(
 		command_buffers_.data(),
 		static_cast<std::intptr_t>(command_buffers_.size())));
@@ -1796,20 +1769,30 @@ try {
 	build_projection_matrix();
 	build_player_weapon_projection_matrix();
 	update_3d_fade_vb();
+	update_3d_fade_ortho();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::apply_window_mode()
 try {
 	sys::Window& window = renderer_->get_window();
 
-	auto param = R3rUtilsSetWindowModeParam{};
+	R3rUtilsSetWindowModeParam param{};
+	param.is_positioned = vid_cfg_is_positioned();
+	param.position.x = sys::WindowOffset{vid_cfg_get_x()};
+	param.position.y = sys::WindowOffset{vid_cfg_get_y()};
+	param.fullscreen_mode = R3rUtils::get_fullscreen_mode_from_cvar();
 	param.display_mode.width = vid_cfg_get_width();
 	param.display_mode.height = vid_cfg_get_height();
 	param.display_mode.refresh_rate = vid_cfg_get_refresh_rate();
-	param.fullscreen_mode = R3rUtils::get_fullscreen_mode_from_cvar();
 	R3rUtils::set_window_mode(window, param);
-
 	R3rUtils::set_fullscreen_mode_cvar_from_window(window);
+	if (vid_cfg_get_window_mode() != WindowMode::fake_fullscreen)
+	{
+		const sys::DisplayMode window_display_mode = window.get_display_mode();
+		vid_cfg_set_width(window_display_mode.width);
+		vid_cfg_set_height(window_display_mode.height);
+		vid_cfg_set_refresh_rate(window_display_mode.refresh_rate);
+	}
 
 	calculate_dimensions();
 	vid_initialize_vanilla_raycaster();
@@ -1817,16 +1800,19 @@ try {
 	renderer_->handle_resize(sys::WindowSize{vid_layout_.window_width, vid_layout_.window_height});
 
 	vid_initialize_common();
-	uninitialize_2d();
-	initialize_2d();
+	if (texture_mgr_ != nullptr)
+	{
+		uninitialize_2d();
+		initialize_2d();
 
-	uninitialize_3d_fade();
-	initialize_3d_fade();
+		uninitialize_3d_fade();
+		initialize_3d_fade();
 
-	uninitialize_player_weapon();
-	initialize_player_weapon();
+		uninitialize_player_weapon();
+		initialize_player_weapon();
 
-	build_matrices();
+		build_matrices();
+	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::apply_filler_color_index()
@@ -2284,6 +2270,114 @@ void HwVideo::log_error(const std::string& message)
 	log(LoggerMessageType::error, message);
 }
 
+cgm::Mat4D HwVideo::make_gl_ortho_matrix(int width, int height)
+{
+	/*
+	Input: origin - left-bottom; x - right; y - up, z - forward.
+	Derived: (l,b,n) - near plane; (r,t,f) - far plane.
+	[ 2/(r-l)    0       0    -(r+l)/(r-l) ]
+	[    0    2/(t-b)    0    -(t+b)/(t-b) ]
+	[    0       0    2/(f-n) -(f+n)/(f-n) ]
+	[    0       0       0          1      ]
+
+	When l=0, r=w(idth), b=0, t=h(eight), n=0 and f=1:
+	[ 2/w  0  0 -1 ]
+	[  0  2/h 0 -1 ]
+	[  0   0  2 -1 ]
+	[  0   0  0  1 ]
+	*/
+	const     double _11 =  2.0 / static_cast<double>(width);
+	const     double _22 =  2.0 / static_cast<double>(height);
+	constexpr double _33 =  2.0;
+	constexpr double _41 = -1.0;
+	constexpr double _42 = -1.0;
+	constexpr double _43 = -1.0;
+	return cgm::Mat4D{
+		_11,   0,   0, 0,
+		  0, _22,   0, 0,
+		  0,   0, _33, 0,
+		_41, _42, _43, 1,
+	};
+}
+
+cgm::Mat4D HwVideo::make_vk_ortho_matrix(int width, int height)
+{
+	/*
+	Input: origin - left-bottom; x - right; y - up, z - forward.
+	Derived: (l,b,n) - near plane; (r,t,f) - far plane.
+	[ 2/(r-l)    0        0    -(r+l)/(r-l) ]
+	[    0    -2/(t-b)    0     (t+b)/(t-b) ]
+	[    0       0     1/(f-n)   -n/(f-n)   ]
+	[    0       0        0         1       ]
+
+	When l=0, r=w(idth), b=0, t=h(eight), n=0 and f=1:
+	[ 2/w   0  0 -1 ]
+	[  0  -2/h 0  1 ]
+	[  0    0  1  0 ]
+	[  0    0  0  1 ]
+	*/
+	const double _11 =  2.0 / static_cast<double>(width);
+	const double _22 = -2.0 / static_cast<double>(height);
+	const double _33 =  1.0;
+	const double _41 = -1.0;
+	const double _42 =  1.0;
+	const double _43 =  0.0;
+	return cgm::Mat4D{
+		_11,   0,   0, 0,
+		  0, _22,   0, 0,
+		  0,   0, _33, 0,
+		_41, _42, _43, 1,
+	};
+}
+
+cgm::Mat4D HwVideo::make_gl_perspective_matrix(double vfov, double w, double h, double n, double f)
+{
+	/*
+	Input: x - right; y - up; z - forward.
+	Derived: a = w/h; s = 1/tan(vfov/2)
+	[ s/a  0      0            0      ]
+	[  0  -s      0            0      ]
+	[  0   0 (f+n)/(f-n) -2*f*n/(f-n) ]
+	[  0   0      1            0      ]
+	*/
+	const double   a =  w / h;
+	const double   s =  1 / std::tan(vfov / 2);
+	const double _11 =  s / a;
+	const double _22 = -s;
+	const double _33 =  (f + n) / (f - n);
+	const double _34 = -(2 * f * n) / (f - n);
+	return cgm::Mat4D{
+		_11,   0,   0, 0,
+		  0, _22,   0, 0,
+		  0,   0, _33, 1,
+		  0,   0, _34, 0,
+	};
+}
+
+cgm::Mat4D HwVideo::make_vk_perspective_matrix(double vfov, double w, double h, double n, double f)
+{
+	/*
+	Input: x - right; y - up; z - forward.
+	Derived: a = w/h; s = 1/tan(vfov/2).
+	[ s/a 0    0        0      ]
+	[  0  s    0        0      ]
+	[  0  0 f/(f-n) -f*n/(f-n) ]
+	[  0  0    1        0      ]
+	*/
+	const double   a =  w / h;
+	const double   s =  1 / std::tan(vfov / 2);
+	const double _11 =  s / a;
+	const double _22 =  s;
+	const double _33 =  f / (f - n);
+	const double _34 = -(f * n) / (f - n);
+	return cgm::Mat4D{
+		_11,   0,   0, 0,
+		  0, _22,   0, 0,
+		  0,   0, _33, 1,
+		  0,   0, _34, 0,
+	};
+}
+
 void HwVideo::convert(const cgm::Vec4F& src, R3rVec4& dst)
 {
 	dst[0] = src[0];
@@ -2611,6 +2705,7 @@ try {
 	param.fragment_shader = fragment_shader_.get();
 	param.vertex_shader = vertex_shader_.get();
 	param.input_bindings = make_span(input_bindings);
+	param.shader_var_infos = HwShaderRegistry::get_shader_var_infos();
 
 	shader_stage_ = renderer_->create_shader_stage(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -2626,84 +2721,50 @@ void HwVideo::uninitialize_model_mat_uniform() noexcept
 	uninitialize_uniform(model_mat_uniform_);
 }
 
-void HwVideo::initialize_uniform(
-	const char* name,
-	R3rShaderInt32Var*& var,
-	InitializeInt32UniformTag) noexcept
+void HwVideo::initialize_uniform(R3rShaderVarTypeId type_id, const char* name, R3rShaderVar*& var)
 {
-	var = shader_stage_->find_int32_var(name);
-}
+	switch (type_id)
+	{
+		case R3rShaderVarTypeId::int32:
+			var = shader_stage_->find_int32_var(name);
+			break;
 
-void HwVideo::initialize_uniform(
-	const char* name,
-	R3rShaderFloat32Var*& var,
-	InitializeFloat32UniformTag) noexcept
-{
-	var = shader_stage_->find_float32_var(name);
-}
+		case R3rShaderVarTypeId::float32:
+			var = shader_stage_->find_float32_var(name);
+			break;
 
-void HwVideo::initialize_uniform(
-	const char* name,
-	R3rShaderVec2Var*& var,
-	InitializeVec2UniformTag) noexcept
-{
-	var = shader_stage_->find_vec2_var(name);
-}
+		case R3rShaderVarTypeId::vec2:
+			var = shader_stage_->find_vec2_var(name);
+			break;
 
-void HwVideo::initialize_uniform(
-	const char* name,
-	R3rShaderMat4Var*& var,
-	InitializeMat4UniformTag) noexcept
-{
-	var = shader_stage_->find_mat4_var(name);
-}
+		case R3rShaderVarTypeId::vec3:
+			var = shader_stage_->find_vec3_var(name);
+			break;
 
-void HwVideo::initialize_uniform(
-	const char* name,
-	R3rShaderR2SamplerVar*& var,
-	InitializeSampler2dUniformTag) noexcept
-{
-	var = shader_stage_->find_r2_sampler_var(name);
-}
+		case R3rShaderVarTypeId::vec4:
+			var = shader_stage_->find_vec4_var(name);
+			break;
 
-template<typename T>
-void HwVideo::initialize_uniform(const char* name, T*& var)
-try {
-	using Tag = std::conditional_t<
-		std::is_same<T, R3rShaderInt32Var>::value,
-		InitializeInt32UniformTag,
-		std::conditional_t<
-			std::is_same<T, R3rShaderFloat32Var>::value,
-			InitializeFloat32UniformTag,
-			std::conditional_t<
-				std::is_same<T, R3rShaderVec2Var>::value,
-				InitializeVec2UniformTag,
-				std::conditional_t<
-					std::is_same<T, R3rShaderMat4Var>::value,
-					InitializeMat4UniformTag,
-					std::conditional_t<
-						std::is_same<T, R3rShaderR2SamplerVar>::value,
-						InitializeSampler2dUniformTag,
-						void
-					>
-				>
-			>
-		>
-	>;
+		case R3rShaderVarTypeId::mat4:
+			var = shader_stage_->find_mat4_var(name);
+			break;
 
-	static_assert(!std::is_same<Tag, void>::value, "Unsupported type.");
+		case R3rShaderVarTypeId::sampler2d:
+			var = shader_stage_->find_r2_sampler_var(name);
+			break;
 
-	initialize_uniform(name, var, Tag{});
+		default: BSTONE_THROW_STATIC_SOURCE("Unknown shader var type id.");
+	}
 
-	if (!var)
+	if (var == nullptr)
 	{
 		BSTONE_THROW_DYNAMIC_SOURCE(("Shader variable \"" + std::string{name} + "\" not found.").c_str());
 	}
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
 void HwVideo::initialize_model_mat_uniform()
 try {
-	initialize_uniform(HwShaderRegistry::get_u_model_mat_name(), model_mat_uniform_);
+	initialize_uniform(R3rShaderVarTypeId::mat4, HwShaderRegistry::get_u_model_mat_name(), model_mat_uniform_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_view_mat_uniform() noexcept
@@ -2713,7 +2774,7 @@ void HwVideo::uninitialize_view_mat_uniform() noexcept
 
 void HwVideo::initialize_view_mat_uniform()
 try {
-	initialize_uniform(HwShaderRegistry::get_u_view_mat_name(), view_mat_uniform_);
+	initialize_uniform(R3rShaderVarTypeId::mat4, HwShaderRegistry::get_u_view_mat_name(), view_mat_uniform_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_projection_mat_uniform() noexcept
@@ -2723,7 +2784,7 @@ void HwVideo::uninitialize_projection_mat_uniform() noexcept
 
 void HwVideo::initialize_projection_mat_uniform()
 try {
-	initialize_uniform(HwShaderRegistry::get_u_projection_mat_name(), projection_mat_uniform_);
+	initialize_uniform(R3rShaderVarTypeId::mat4, HwShaderRegistry::get_u_projection_mat_name(), projection_mat_uniform_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_sampler_uniform() noexcept
@@ -2734,7 +2795,7 @@ void HwVideo::uninitialize_sampler_uniform() noexcept
 void HwVideo::initialize_sampler_uniform()
 try {
 	sampler_var_.set_is_modified(true);
-	initialize_uniform(HwShaderRegistry::get_u_sampler_name(), sampler_uniform_);
+	initialize_uniform(R3rShaderVarTypeId::sampler2d, HwShaderRegistry::get_u_sampler_name(), sampler_uniform_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_shading_mode_uniform() noexcept
@@ -2745,7 +2806,7 @@ void HwVideo::uninitialize_shading_mode_uniform() noexcept
 void HwVideo::initialize_shading_mode_uniform()
 try {
 	shading_mode_.set_is_modified(true);
-	initialize_uniform(HwShaderRegistry::get_u_shading_mode_name(), shading_mode_uniform_);
+	initialize_uniform(R3rShaderVarTypeId::int32, HwShaderRegistry::get_u_shading_mode_name(), shading_mode_uniform_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_shade_max_uniform() noexcept
@@ -2756,7 +2817,7 @@ void HwVideo::uninitialize_shade_max_uniform() noexcept
 void HwVideo::initialize_shade_max_uniform()
 try {
 	bs_shade_max_.set_is_modified(true);
-	initialize_uniform(HwShaderRegistry::get_u_shade_max_name(), shade_max_uniform_);
+	initialize_uniform(R3rShaderVarTypeId::float32, HwShaderRegistry::get_u_shade_max_name(), shade_max_uniform_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_normal_shade_uniform() noexcept
@@ -2767,7 +2828,7 @@ void HwVideo::uninitialize_normal_shade_uniform() noexcept
 void HwVideo::initialize_normal_shade_uniform()
 try {
 	bs_normal_shade_.set_is_modified(true);
-	initialize_uniform(HwShaderRegistry::get_u_normal_shade_name(), normal_shade_uniform_);
+	initialize_uniform(R3rShaderVarTypeId::float32, HwShaderRegistry::get_u_normal_shade_name(), normal_shade_uniform_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_height_numerator_uniform() noexcept
@@ -2778,7 +2839,7 @@ void HwVideo::uninitialize_height_numerator_uniform() noexcept
 void HwVideo::initialize_height_numerator_uniform()
 try {
 	bs_height_numerator_.set_is_modified(true);
-	initialize_uniform(HwShaderRegistry::get_u_height_numerator_name(), height_numerator_uniform_);
+	initialize_uniform(R3rShaderVarTypeId::float32, HwShaderRegistry::get_u_height_numerator_name(), height_numerator_uniform_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_extra_lighting_uniform() noexcept
@@ -2789,7 +2850,7 @@ void HwVideo::uninitialize_extra_lighting_uniform() noexcept
 void HwVideo::initialize_extra_lighting_uniform()
 try {
 	bs_lighting_.set_is_modified(true);
-	initialize_uniform(HwShaderRegistry::get_u_extra_lighting_name(), extra_lighting_uniform_);
+	initialize_uniform(R3rShaderVarTypeId::float32, HwShaderRegistry::get_u_extra_lighting_name(), extra_lighting_uniform_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_view_direction_uniform() noexcept
@@ -2800,7 +2861,7 @@ void HwVideo::uninitialize_view_direction_uniform() noexcept
 void HwVideo::initialize_view_direction_uniform()
 try {
 	bs_view_direction_.set_is_modified(true);
-	initialize_uniform(HwShaderRegistry::get_u_view_direction_name(), view_direction_uniform_);
+	initialize_uniform(R3rShaderVarTypeId::vec2, HwShaderRegistry::get_u_view_direction_name(), view_direction_uniform_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_view_position_uniform() noexcept
@@ -2811,7 +2872,7 @@ void HwVideo::uninitialize_view_position_uniform() noexcept
 void HwVideo::initialize_view_position_uniform()
 try {
 	bs_view_position_.set_is_modified(true);
-	initialize_uniform(HwShaderRegistry::get_u_view_position_name(), view_position_uniform_);
+	initialize_uniform(R3rShaderVarTypeId::vec2, HwShaderRegistry::get_u_view_position_name(), view_position_uniform_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::uninitialize_shading_uniforms() noexcept
@@ -2874,9 +2935,13 @@ R3rType HwVideo::get_renderer_type(RendererType renderer_type)
 try {
 	switch (renderer_type)
 	{
+#ifndef NDEBUG
+		case RendererType::null: return R3rType::null;
+#endif
 		case RendererType::gl_2_0: return R3rType::gl_2_0;
 		case RendererType::gl_3_2_core: return R3rType::gl_3_2_core;
 		case RendererType::gles_2_0: return R3rType::gles_2_0;
+		case RendererType::vulkan: return R3rType::vulkan;
 		default: BSTONE_THROW_STATIC_SOURCE("Unsupported renderer type.");
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -2926,9 +2991,10 @@ try {
 
 	if (is_auto_detect)
 	{
-#ifndef BSTONE_R3R_TEST_NO_GL
 		renderer_type_list =
 		{
+			R3rType::vulkan,
+#ifndef BSTONE_R3R_TEST_NO_GL
 #ifndef BSTONE_R3R_TEST_NO_GL_3_2_C
 			R3rType::gl_3_2_core,
 #endif
@@ -2938,8 +3004,8 @@ try {
 #ifndef BSTONE_R3R_TEST_NO_GLES_2_0
 			R3rType::gles_2_0,
 #endif
-		};
 #endif
+		};
 	}
 	else
 	{
@@ -2979,22 +3045,7 @@ try {
 #endif // __vita__
 
 	auto& window = renderer_->get_window();
-
-	auto window_param = R3rUtilsSetWindowModeParam{};
-	window_param.is_positioned = vid_cfg_is_positioned();
-	window_param.position.x = sys::WindowOffset{vid_cfg_get_x()};
-	window_param.position.y = sys::WindowOffset{vid_cfg_get_y()};
-	window_param.fullscreen_mode = R3rUtils::get_fullscreen_mode_from_cvar();
-	window_param.display_mode.width = vid_layout_.window_width;
-	window_param.display_mode.height = vid_layout_.window_height;
-	window_param.display_mode.refresh_rate = vid_refresh_rate_cvar.get_int32();
-	R3rUtils::set_window_mode(window, window_param);
-
-	sys::WindowSize window_size{};
-	window_size.width = window_param.display_mode.width;
-	window_size.height = window_param.display_mode.height;
-	renderer_->handle_resize(window_size);
-
+	apply_window_mode();
 	window.set_title(title.c_str());
 	window.show(true);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -3006,9 +3057,9 @@ void HwVideo::destroy_ui_ib() noexcept
 
 void HwVideo::create_ui_ib()
 try {
-	ui_ib_ = create_index_buffer(R3rBufferUsageType::draw_static, 1, r2_index_count_);
+	ui_ib_ = create_index_buffer(R3rBufferUsageType::draw_static, 2, r2_index_count_);
 
-	using Indices = std::array<std::uint8_t, r2_index_count_>;
+	using Indices = std::array<std::uint16_t, r2_index_count_>;
 
 	const auto indices = Indices
 	{
@@ -3116,9 +3167,9 @@ void HwVideo::destroy_2d_fillers_ib() noexcept
 
 void HwVideo::create_2d_fillers_ib()
 try {
-	r2_fillers_ib_ = create_index_buffer(R3rBufferUsageType::draw_static, 1, r2_fillers_index_count_);
+	r2_fillers_ib_ = create_index_buffer(R3rBufferUsageType::draw_static, 2, r2_fillers_index_count_);
 
-	using Indices = std::array<std::uint8_t, r2_fillers_index_count_>;
+	using Indices = std::array<std::uint16_t, r2_fillers_index_count_>;
 
 	const auto& indices = Indices
 	{
@@ -3616,9 +3667,9 @@ void HwVideo::create_flooring_ib()
 try {
 	const auto index_count = 6;
 
-	flooring_ib_ = create_index_buffer(R3rBufferUsageType::draw_static, 1, index_count);
+	flooring_ib_ = create_index_buffer(R3rBufferUsageType::draw_static, 2, index_count);
 
-	using Indices = std::array<std::uint8_t, index_count>;
+	using Indices = std::array<std::uint16_t, index_count>;
 
 	const auto& indices = Indices
 	{
@@ -3733,9 +3784,9 @@ void HwVideo::destroy_ceiling_ib() noexcept
 void HwVideo::create_ceiling_ib()
 try {
 	const auto index_count = 6;
-	ceiling_ib_ = create_index_buffer(R3rBufferUsageType::draw_static, 1, index_count);
+	ceiling_ib_ = create_index_buffer(R3rBufferUsageType::draw_static, 2, index_count);
 
-	using Indices = std::array<std::uint8_t, index_count>;
+	using Indices = std::array<std::uint16_t, index_count>;
 
 	const auto& indices = Indices
 	{
@@ -4108,14 +4159,23 @@ void HwVideo::build_2d_view_matrix() noexcept
 
 void HwVideo::build_2d_projection_matrix() noexcept
 {
-	r2_matrix_projection_ = cgm::make_ortho_rh_n1p1(
-		0.0, // left
-		static_cast<double>(vid_layout_.screen_width), // right
-		0.0, // bottom
-		static_cast<double>(vid_layout_.screen_height), // top
-		0.0, // zNear
-		1.0 // zFar
-	);
+	switch (renderer_->get_type())
+	{
+		case R3rType::gl_2_0:
+		case R3rType::gl_3_2_core:
+		case R3rType::gles_2_0:
+			r2_matrix_projection_ = make_gl_ortho_matrix(vid_layout_.screen_width, vid_layout_.screen_height);
+			break;
+		case R3rType::vulkan:
+			r2_matrix_projection_ = make_vk_ortho_matrix(vid_layout_.screen_width, vid_layout_.screen_height);
+			break;
+#ifndef NDEBUG
+		case R3rType::null:
+			r2_matrix_projection_ = cgm::Mat4D::get_identity();
+			break;
+#endif // NDEBUG
+		default: BSTONE_THROW_STATIC_SOURCE("Unknown 3D renderer type.");
+	}
 }
 
 void HwVideo::build_2d_matrices() noexcept
@@ -4156,41 +4216,24 @@ void HwVideo::calculate_camera_parameters() noexcept
 	camera_far_distance_ = (std::sqrt(2.0) * map_dimension_d) + 0.5;
 }
 
-void HwVideo::build_bs_to_ren_matrix() noexcept
+void HwVideo::build_bs_to_ren_matrix()
 {
-	//
-	// |  0 y   0   0 |
-	// |  0 0 z*1.2 0 |
-	// | -x 0   0   0 |
-	// |  0 0   0   1 |
-	//
-
-	const auto m_11 = 0.0;
-	const auto m_12 = 1.0;
-	const auto m_13 = 0.0;
-	const auto m_14 = 0.0;
-
-	const auto m_21 = 0.0;
-	const auto m_22 = 0.0;
-	const auto m_23 = height_compensation_factor;
-	const auto m_24 = 0.0;
-
-	const auto m_31 = -1.0;
-	const auto m_32 = 0.0;
-	const auto m_33 = 0.0;
-	const auto m_34 = 0.0;
-
-	const auto m_41 = 0.0;
-	const auto m_42 = 0.0;
-	const auto m_43 = 0.0;
-	const auto m_44 = 1.0;
-
-	r3_matrix_bs_to_r_ = cgm::Mat4D
-	{
-		m_11, m_21, m_31, m_41,
-		m_12, m_22, m_32, m_42,
-		m_13, m_23, m_33, m_43,
-		m_14, m_24, m_34, m_44,
+	/*
+	BS: origin - left-top; x - right; y - down.
+	bs_x -> ren_z
+	bs_y -> ren_x
+	bs_z -> ren_y
+	[ 0 y 0 0]
+	[ 0 0 -z 0]
+	[ x 0 0 0]
+	[ 0 0 0 1]
+	*/
+	const double _23 = -height_compensation_factor;
+	r3_matrix_bs_to_r_ = cgm::Mat4D{
+		0,   0, 1, 0,
+		1,   0, 0, 0,
+		0, _23, 0, 0,
+		0,   0, 0, 1,
 	};
 }
 
@@ -4215,14 +4258,33 @@ void HwVideo::build_view_matrix() noexcept
 
 void HwVideo::build_projection_matrix() noexcept
 {
-	const auto perspective = cgm::make_perspective_vfov_rh_n1p1(
-		camera_vfov_rad_,
-		static_cast<double>(vid_layout_.screen_viewport_width),
-		static_cast<double>(vid_layout_.screen_viewport_height),
-		camera_near_distance_,
-		camera_far_distance_);
-
-	r3_matrix_projection_ = perspective * r3_matrix_bs_to_r_;
+	switch (renderer_->get_type())
+	{
+		case R3rType::gl_2_0:
+		case R3rType::gl_3_2_core:
+		case R3rType::gles_2_0:
+			r3_matrix_projection_ = make_gl_perspective_matrix(
+				camera_vfov_rad_,
+				vid_layout_.screen_viewport_width,
+				vid_layout_.screen_viewport_height,
+				camera_near_distance_,
+				camera_far_distance_) * r3_matrix_bs_to_r_;
+			break;
+		case R3rType::vulkan:
+			r3_matrix_projection_ = make_vk_perspective_matrix(
+				camera_vfov_rad_,
+				vid_layout_.screen_viewport_width,
+				vid_layout_.screen_viewport_height,
+				camera_near_distance_,
+				camera_far_distance_) * r3_matrix_bs_to_r_;
+			break;
+#ifndef NDEBUG
+		case R3rType::null:
+			r3_matrix_projection_ = cgm::Mat4D::get_identity();
+			break;
+#endif // NDEBUG
+		default: BSTONE_THROW_STATIC_SOURCE("Unknown 3D renderer type.");
+	}
 }
 
 void HwVideo::build_3d_matrices() noexcept
@@ -4436,12 +4498,12 @@ void HwVideo::destroy_player_weapon_ib() noexcept
 
 void HwVideo::create_player_weapon_ib()
 try {
-	player_weapon_ib_ = create_index_buffer(R3rBufferUsageType::draw_static, 1, indices_per_sprite);
+	player_weapon_ib_ = create_index_buffer(R3rBufferUsageType::draw_static, 2, indices_per_sprite);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::update_player_weapon_ib()
 try {
-	using Indices = std::array<std::uint8_t, indices_per_sprite>;
+	using Indices = std::array<std::uint16_t, indices_per_sprite>;
 
 	auto indices = Indices
 	{
@@ -4477,29 +4539,23 @@ try {
 void HwVideo::update_player_weapon_model_matrix()
 try {
 	const auto& assets_info = get_assets_info();
+	const double aog_scale = 128.0 / 64.0;
+	const double ps_scale = 88.0 / 64.0;
+	const double game_scalar = (assets_info.is_ps() ? ps_scale : aog_scale);
+	const double scalar = game_scalar * vga_height_scale;
+	const bool is_bobbing_enabled = (!gp_no_weapon_bobbing() && assets_info.is_ps());
+	const double bounce_offset = (is_bobbing_enabled ? -player_get_weapon_bounce_offset() : 0.0);
 
-	const auto aog_scale = 128.0 / 64.0;
-	const auto ps_scale = 88.0 / 64.0;
+	const double translate_x = 0.5 * vid_layout_.screen_viewport_width;
+	const double translate_y = height_compensation_factor * vga_height_scale * bounce_offset;
+	const cgm::Vec3D translate_v{translate_x, translate_y, 0.0};
+	const cgm::Mat4D translate = cgm::translate(cgm::Mat4D::get_identity(), translate_v);
 
-	const auto game_scalar = (assets_info.is_ps() ? ps_scale : aog_scale);
-	const auto scalar = game_scalar * vga_height_scale;
+	const double scale_x = scalar;
+	const double scale_y = height_compensation_factor * scalar;
+	const cgm::Vec3D scale_v{scale_x, scale_y, 0.0};
+	const cgm::Mat4D scale = cgm::scale(cgm::Mat4D::get_identity(), scale_v);
 
-	const auto translate_x = 0.5 * static_cast<double>(vid_layout_.screen_viewport_width);
-
-	const auto is_bobbing_enabled = (!gp_no_weapon_bobbing() && assets_info.is_ps());
-	const auto bounce_offset = (is_bobbing_enabled ? -player_get_weapon_bounce_offset() : 0.0);
-	const auto translate_y = vga_height_scale * bounce_offset;
-
-	const auto translate_v = cgm::Vec3D
-	{
-		translate_x,
-		height_compensation_factor * translate_y,
-		0.0F
-	};
-
-	const auto identity = cgm::Mat4D::get_identity();
-	const auto translate = cgm::translate(identity, translate_v);
-	const auto scale = cgm::scale(identity, cgm::Vec3D{scalar, height_compensation_factor * scalar, 0.0F});
 	player_weapon_model_matrix_ = translate * scale;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
@@ -4510,16 +4566,27 @@ void HwVideo::update_player_weapon_view_matrix() noexcept
 
 void HwVideo::build_player_weapon_projection_matrix() noexcept
 {
-	const auto ortho = cgm::make_ortho_rh_n1p1(
-		0.0, // left
-		static_cast<double>(vid_layout_.screen_viewport_width), // right
-		0.0, // bottom
-		static_cast<double>(vid_layout_.screen_viewport_height), // top
-		0.0, // zNear
-		1.0 // zFar
-	);
-
-	player_weapon_projection_matrix_ = ortho;
+	switch (renderer_->get_type())
+	{
+		case R3rType::gl_2_0:
+		case R3rType::gl_3_2_core:
+		case R3rType::gles_2_0:
+			player_weapon_projection_matrix_ = make_gl_ortho_matrix(
+				vid_layout_.screen_viewport_width,
+				vid_layout_.screen_viewport_height);
+			break;
+		case R3rType::vulkan:
+			player_weapon_projection_matrix_ = make_vk_ortho_matrix(
+				vid_layout_.screen_viewport_width,
+				vid_layout_.screen_viewport_height);
+			break;
+#ifndef NDEBUG
+		case R3rType::null:
+			player_weapon_projection_matrix_ = cgm::Mat4D::get_identity();
+			break;
+#endif // NDEBUG
+		default: BSTONE_THROW_STATIC_SOURCE("Unknown 3D renderer type.");
+	}
 }
 
 void HwVideo::set_player_weapon_sampler_default_state() noexcept
@@ -4726,7 +4793,7 @@ void HwVideo::destroy_3d_fade_ib() noexcept
 
 void HwVideo::create_3d_fade_ib()
 try {
-	r3_fade_ib_ = create_index_buffer(R3rBufferUsageType::draw_static, 1, 6);
+	r3_fade_ib_ = create_index_buffer(R3rBufferUsageType::draw_static, 2, 6);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::destroy_3d_fade_vb() noexcept
@@ -4751,7 +4818,7 @@ try {
 
 void HwVideo::update_3d_fade_ib()
 try {
-	using Indices = std::array<std::uint8_t, 6>;
+	using Indices = std::array<std::uint16_t, 6>;
 
 	const auto& indices = Indices
 	{
@@ -4803,6 +4870,27 @@ try {
 	update_vertex_buffer<FadeVertex>(r3_fade_vb_, 0, 4, vertices.data());
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
+void HwVideo::update_3d_fade_ortho()
+{
+	switch (renderer_->get_type())
+	{
+		case R3rType::gl_2_0:
+		case R3rType::gl_3_2_core:
+		case R3rType::gles_2_0:
+			r3_fade_ortho_mat_ = make_gl_ortho_matrix(vid_layout_.screen_viewport_width, vid_layout_.screen_viewport_height);
+			break;
+		case R3rType::vulkan:
+			r3_fade_ortho_mat_ = make_vk_ortho_matrix(vid_layout_.screen_viewport_width, vid_layout_.screen_viewport_height);
+			break;
+#ifndef NDEBUG
+		case R3rType::null:
+			r3_fade_ortho_mat_ = cgm::Mat4D::get_identity();
+			break;
+#endif // NDEBUG
+		default: BSTONE_THROW_STATIC_SOURCE("Unknown 3D renderer type.");
+	}
+}
+
 void HwVideo::destroy_3d_fade_r2_texture() noexcept
 {
 	if (texture_mgr_ != nullptr)
@@ -4846,6 +4934,7 @@ try {
 
 	update_3d_fade_ib();
 	update_3d_fade_vb();
+	update_3d_fade_ortho();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::present_common()
@@ -5086,7 +5175,7 @@ try {
 
 			param.primitive_type = R3rPrimitiveType::triangle_list;
 			param.vertex_count = count * vertices_per_quad;
-			param.index_byte_depth = 1;
+			param.index_byte_depth = 2;
 			param.index_buffer_offset = 0;
 			param.index_offset = index_offset;
 		}
@@ -5134,7 +5223,7 @@ try {
 
 			param.primitive_type = R3rPrimitiveType::triangle_list;
 			param.vertex_count = vertices_per_quad;
-			param.index_byte_depth = 1;
+			param.index_byte_depth = 2;
 			param.index_buffer_offset = 0;
 			param.index_offset = index_offset;
 		}
@@ -5200,7 +5289,7 @@ try {
 
 			param.primitive_type = R3rPrimitiveType::triangle_list;
 			param.vertex_count = vertices_per_quad;
-			param.index_byte_depth = 1;
+			param.index_byte_depth = 2;
 			param.index_buffer_offset = 0;
 			param.index_offset = index_offset;
 		}
@@ -6384,7 +6473,7 @@ try {
 
 			param.primitive_type = R3rPrimitiveType::triangle_list;
 			param.vertex_count = vertices_per_quad;
-			param.index_byte_depth = 1;
+			param.index_byte_depth = 2;
 			param.index_buffer_offset = 0;
 			param.index_offset = 0;
 		}
@@ -6415,7 +6504,7 @@ try {
 
 			param.primitive_type = R3rPrimitiveType::triangle_list;
 			param.vertex_count = vertices_per_quad;
-			param.index_byte_depth = 1;
+			param.index_byte_depth = 2;
 			param.index_buffer_offset = 0;
 			param.index_offset = 0;
 		}
@@ -6544,7 +6633,7 @@ try {
 
 				param.primitive_type = R3rPrimitiveType::triangle_list;
 				param.vertex_count = vertices_per_quad;
-				param.index_byte_depth = 1;
+				param.index_byte_depth = 2;
 				param.index_buffer_offset = 0;
 				param.index_offset = 0;
 			}
@@ -6576,6 +6665,14 @@ try {
 				auto& command = command_buffer->write_set_mat4_uniform();
 				command.var = view_mat_uniform_;
 				convert(cgm::Mat4D::get_identity(), command.value);
+			}
+
+			// Set projection matrix.
+			//
+			{
+				auto& command = command_buffer->write_set_mat4_uniform();
+				command.var = projection_mat_uniform_;
+				convert(r3_fade_ortho_mat_, command.value);
 			}
 
 			// Enable blending.
@@ -6622,7 +6719,7 @@ try {
 
 				param.primitive_type = R3rPrimitiveType::triangle_list;
 				param.vertex_count = vertices_per_quad;
-				param.index_byte_depth = 1;
+				param.index_byte_depth = 2;
 				param.index_buffer_offset = 0;
 				param.index_offset = 0;
 			}
@@ -10286,6 +10383,7 @@ try {
 
 void HwVideo::uninitialize_video() noexcept
 {
+	renderer_->wait_for_device();
 	uninitialize_command_buffers();
 
 	uninitialize_program();

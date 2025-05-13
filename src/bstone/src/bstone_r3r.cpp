@@ -118,4 +118,9 @@ try {
 	return do_submit_commands(command_buffers);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
+void R3r::wait_for_device()
+try {
+	do_wait_for_device();
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
 } // namespace bstone

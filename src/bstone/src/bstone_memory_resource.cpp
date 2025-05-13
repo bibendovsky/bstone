@@ -71,25 +71,36 @@ void NewDeleteMemoryResource::do_deallocate(void* ptr) noexcept
 
 namespace {
 
-NullMemoryResource null_memory_resource_impl{};
-NewDeleteMemoryResource new_delete_memory_resource_impl{};
-NewDeleteMemoryResource default_memory_resource_impl{};
+struct KnownMemoryResources
+{
+	NewDeleteMemoryResource default_memory_resource;
+	NewDeleteMemoryResource new_delete_memory_resource;
+	NullMemoryResource null_memory_resource;
+};
+
+KnownMemoryResources& get_known_memory_resources()
+{
+	static KnownMemoryResources known_memory_resources{};
+	return known_memory_resources;
+}
 
 } // namespace
 
+// ==========================================================================
+
 MemoryResource& get_null_memory_resource() noexcept
 {
-	return null_memory_resource_impl;
+	return get_known_memory_resources().null_memory_resource;
 }
 
 MemoryResource& get_new_delete_memory_resource() noexcept
 {
-	return new_delete_memory_resource_impl;
+	return get_known_memory_resources().new_delete_memory_resource;
 }
 
 MemoryResource& get_default_memory_resource() noexcept
 {
-	return default_memory_resource_impl;
+	return get_known_memory_resources().default_memory_resource;
 }
 
 } // namespace bstone

@@ -10,11 +10,37 @@ SPDX-License-Identifier: MIT
 #define BSTONE_UTILITY_INCLUDED
 
 #include <cstddef>
+#include <string.h>
 
 #include <type_traits>
 #include <utility>
 
 namespace bstone {
+
+template<typename T>
+inline constexpr void maybe_unused(T&&)
+{}
+
+// ======================================================================
+
+template<typename TDst, typename TSrc>
+inline TDst bit_cast(const TSrc& src)
+{
+	constexpr size_t size = sizeof(TSrc);
+	static_assert(size == sizeof(TDst), "Mismatch type size.");
+	unsigned char dst_bytes[size];
+	return *static_cast<TDst*>(::memcpy(dst_bytes, &src, size));
+}
+
+template<typename TDst, typename TSrc>
+inline void bit_cast(const TSrc& src, TDst& dst)
+{
+	constexpr size_t size = sizeof(TSrc);
+	static_assert(size == sizeof(TDst), "Mismatch type size.");
+	::memcpy(&dst, &src, size);
+}
+
+// ======================================================================
 
 template<typename T>
 inline constexpr void swop(T& lhs, T& rhs)

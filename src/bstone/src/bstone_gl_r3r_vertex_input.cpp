@@ -1,11 +1,12 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
 // OpenGL 3D Renderer: Vertex Input
 
+#include <stddef.h>
 #include <algorithm>
 
 #include "bstone_exception.h"
@@ -24,13 +25,11 @@ SPDX-License-Identifier: MIT
 #include "bstone_gl_r3r_vertex_input_mgr.h"
 #include "bstone_r3r_utils.h"
 
+// =========================================================================
+
 namespace bstone {
 
-GlR3rVertexInput::GlR3rVertexInput() = default;
-
-GlR3rVertexInput::~GlR3rVertexInput() = default;
-
-// =========================================================================
+namespace {
 
 class GlR3rVertexInputImpl final : public GlR3rVertexInput
 {
@@ -41,7 +40,7 @@ public:
 
 	~GlR3rVertexInputImpl() override;
 
-	void* operator new(std::size_t size);
+	void* operator new(size_t size);
 	void operator delete(void* ptr);
 
 	void bind_vao() override;
@@ -50,12 +49,7 @@ public:
 	void bind() override;
 
 private:
-	GlR3rVertexInputMgr& manager_;
-	const R3rDeviceFeatures& device_features_;
-	const GlR3rDeviceFeatures& gl_device_features_;
-
-	GlR3rBuffer* index_buffer_{};
-	R3rVertexAttribDescrs attrib_descrs_{};
+	using MemoryPool = FixedPoolResource<GlR3rVertexInputImpl, R3rLimits::max_vertex_inputs()>;
 
 	struct VaoDeleter
 	{
@@ -63,6 +57,17 @@ private:
 	};
 
 	using VaoResource = UniqueResource<GLuint, VaoDeleter>;
+
+private:
+	static MemoryPool memory_pool_;
+
+private:
+	GlR3rVertexInputMgr& manager_;
+	const R3rDeviceFeatures& device_features_;
+	const GlR3rDeviceFeatures& gl_device_features_;
+
+	GlR3rBuffer* index_buffer_{};
+	R3rVertexAttribDescrs attrib_descrs_{};
 	VaoResource vao_resource_{};
 
 private:
@@ -79,8 +84,7 @@ private:
 
 // =========================================================================
 
-using GlR3rVertexInputImplPool = FixedPoolResource<GlR3rVertexInputImpl, R3rLimits::max_vertex_inputs()>;
-GlR3rVertexInputImplPool gl_r3r_vertex_input_impl_pool{};
+GlR3rVertexInputImpl::MemoryPool GlR3rVertexInputImpl::memory_pool_{};
 
 // =========================================================================
 
@@ -122,14 +126,14 @@ GlR3rVertexInputImpl::~GlR3rVertexInputImpl()
 	manager_.bind_default_vao();
 }
 
-void* GlR3rVertexInputImpl::operator new(std::size_t size)
+void* GlR3rVertexInputImpl::operator new(size_t size)
 try {
-	return gl_r3r_vertex_input_impl_pool.allocate(size);
+	return memory_pool_.allocate(size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rVertexInputImpl::operator delete(void* ptr)
 {
-	gl_r3r_vertex_input_impl_pool.deallocate(ptr);
+	memory_pool_.deallocate(ptr);
 }
 
 void GlR3rVertexInputImpl::bind_vao()
@@ -251,7 +255,7 @@ try {
 	vertex_buffer->set(true);
 
 	const auto vertex_buffer_data = reinterpret_cast<const void*>(
-		static_cast<std::intptr_t>(attribute_description.offset));
+		static_cast<intptr_t>(attribute_description.offset));
 
 	glVertexAttribPointer(
 		attribute_description.location,
@@ -307,6 +311,8 @@ try {
 		}
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+} // namespace
 
 // =========================================================================
 

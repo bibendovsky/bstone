@@ -4,6 +4,7 @@ add_subdirectory(lib/khronos)
 add_subdirectory(lib/nuked_opl3)
 add_subdirectory(lib/openal_soft)
 add_subdirectory(lib/stb)
+add_subdirectory(lib/vulkan)
 add_subdirectory(lib/xbrz)
 
 if (BSTONE_INTERNAL_SDL2)

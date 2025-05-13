@@ -21,9 +21,11 @@ public:
 	~Sdl2WindowInternal() override;
 
 	void* get_native_handle() const noexcept;
+	void* get_sdl_window() const;
 
 private:
 	virtual void* do_get_native_handle() const noexcept = 0;
+	virtual void* do_get_sdl_window() const = 0;
 };
 
 // ==========================================================================

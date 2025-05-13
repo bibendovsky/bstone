@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -21,10 +21,10 @@ class GlR3rVertexInputMgr;
 class GlR3rVertexInput : public R3rVertexInput
 {
 protected:
-	GlR3rVertexInput();
+	GlR3rVertexInput() {}
 
 public:
-	~GlR3rVertexInput() override;
+	~GlR3rVertexInput() override {}
 
 	virtual void bind() = 0;
 	virtual void bind_vao() = 0;

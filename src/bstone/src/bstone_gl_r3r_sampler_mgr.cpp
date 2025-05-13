@@ -1,11 +1,12 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
 // OpenGL 3D Renderer: Sampler Manager
 
+#include <stddef.h>
 #include "bstone_exception.h"
 #include "bstone_single_pool_resource.h"
 
@@ -16,21 +17,19 @@ SPDX-License-Identifier: MIT
 #include "bstone_gl_r3r_sampler.h"
 #include "bstone_gl_r3r_sampler_mgr.h"
 
+// ==========================================================================
+
 namespace bstone {
 
-GlR3rSamplerMgr::GlR3rSamplerMgr() noexcept = default;
-
-GlR3rSamplerMgr::~GlR3rSamplerMgr() = default;
-
-// ==========================================================================
+namespace {
 
 class GlR3rSamplerMgrImpl final : public GlR3rSamplerMgr
 {
 public:
 	GlR3rSamplerMgrImpl(GlR3rContext& context);
-	~GlR3rSamplerMgrImpl() override;
+	~GlR3rSamplerMgrImpl() override {}
 
-	void* operator new(std::size_t size);
+	void* operator new(size_t size);
 	void operator delete(void* ptr);
 
 	R3rSamplerUPtr create(const R3rSamplerInitParam& param) override;
@@ -40,6 +39,12 @@ public:
 	void set(R3rSampler* sampler) override;
 
 	const R3rSamplerState& get_current_state() const noexcept override;
+
+private:
+	using MemoryPool = SinglePoolResource<GlR3rSamplerMgrImpl>;
+
+private:
+	static MemoryPool memory_pool_;
 
 private:
 	GlR3rContext& context_;
@@ -56,8 +61,7 @@ private:
 
 // ==========================================================================
 
-using GlR3rSamplerMgrImplPool = SinglePoolResource<GlR3rSamplerMgrImpl>;
-GlR3rSamplerMgrImplPool gl_r3r_sampler_mgr_impl_pool{};
+GlR3rSamplerMgrImpl::MemoryPool GlR3rSamplerMgrImpl::memory_pool_{};
 
 // ==========================================================================
 
@@ -74,16 +78,14 @@ try
 	current_sampler_ = default_sampler_.get();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-GlR3rSamplerMgrImpl::~GlR3rSamplerMgrImpl() = default;
-
-void* GlR3rSamplerMgrImpl::operator new(std::size_t size)
+void* GlR3rSamplerMgrImpl::operator new(size_t size)
 try {
-	return gl_r3r_sampler_mgr_impl_pool.allocate(size);
+	return memory_pool_.allocate(size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rSamplerMgrImpl::operator delete(void* ptr)
 {
-	gl_r3r_sampler_mgr_impl_pool.deallocate(ptr);
+	memory_pool_.deallocate(ptr);
 }
 
 R3rSamplerUPtr GlR3rSamplerMgrImpl::create(const R3rSamplerInitParam& param)
@@ -149,6 +151,8 @@ try {
 		current_sampler_->set();
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+} // namespace
 
 // ==========================================================================
 

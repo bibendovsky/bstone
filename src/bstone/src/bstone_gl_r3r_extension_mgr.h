@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -61,8 +61,8 @@ enum class GlR3rExtensionId
 class GlR3rExtensionMgr
 {
 public:
-	GlR3rExtensionMgr() noexcept;
-	virtual ~GlR3rExtensionMgr();
+	GlR3rExtensionMgr() noexcept {}
+	virtual ~GlR3rExtensionMgr() {}
 
 	virtual int get_count() const noexcept = 0;
 	virtual const std::string& get_name(int extension_index) const noexcept = 0;

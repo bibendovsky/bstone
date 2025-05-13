@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -527,43 +527,6 @@ try {
 #endif // BSTONE_R3R_TEST_GL_NO_SSO
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rUtils::enable_scissor(bool is_enabled)
-try {
-	(is_enabled ? glEnable : glDisable)(GL_SCISSOR_TEST);
-	GlR3rError::check_optionally();
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void GlR3rUtils::set_scissor_box(const R3rScissorBox& scissor_box)
-try {
-	if (scissor_box.x < 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Negative offset by X.");
-	}
-
-	if (scissor_box.y < 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Negative offset by Y.");
-	}
-
-	if (scissor_box.width < 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Negative width.");
-	}
-
-	if (scissor_box.height < 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Negative height.");
-	}
-
-	glScissor(
-		scissor_box.x,
-		scissor_box.y,
-		scissor_box.width,
-		scissor_box.height);
-
-	GlR3rError::check_optionally();
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
 void GlR3rUtils::set_viewport_rect(const R3rViewport& viewport)
 try {
 	if (viewport.x < 0)
@@ -629,51 +592,15 @@ try {
 	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rUtils::set_culling_face(R3rCullingFace culling_face)
+void GlR3rUtils::set_culling_face()
 try {
-	auto gl_culling_face = GLenum{};
-
-	switch (culling_face)
-	{
-		case R3rCullingFace::clockwise:
-			gl_culling_face = GL_CW;
-			break;
-
-		case R3rCullingFace::counter_clockwise:
-			gl_culling_face = GL_CCW;
-			break;
-
-		default:
-			BSTONE_THROW_STATIC_SOURCE("Unsupported front face.");
-	}
-
-	glFrontFace(gl_culling_face);
+	glFrontFace(GL_CCW);
 	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rUtils::set_culling_mode(R3rCullingMode culling_mode)
+void GlR3rUtils::set_culling_mode()
 try {
-	auto gl_culling_mode = GLenum{};
-
-	switch (culling_mode)
-	{
-		case R3rCullingMode::back:
-			gl_culling_mode = GL_BACK;
-			break;
-
-		case R3rCullingMode::front:
-			gl_culling_mode = GL_FRONT;
-			break;
-
-		case R3rCullingMode::both:
-			gl_culling_mode = GL_FRONT_AND_BACK;
-			break;
-
-		default:
-			BSTONE_THROW_STATIC_SOURCE("Unsupported culling mode.");
-	}
-
-	glCullFace(gl_culling_mode);
+	glCullFace(GL_BACK);
 	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
@@ -707,7 +634,6 @@ GLenum GlR3rUtils::index_buffer_get_element_type_by_byte_depth(int byte_depth)
 try {
 	switch (byte_depth)
 	{
-		case 1: return GL_UNSIGNED_BYTE;
 		case 2: return GL_UNSIGNED_SHORT;
 		case 4: return GL_UNSIGNED_INT;
 		default: BSTONE_THROW_STATIC_SOURCE("Invalid byte depth.");
@@ -889,9 +815,6 @@ GLenum GlR3rUtils::get_blending_factor(R3rBlendingFactor factor)
 try {
 	switch (factor)
 	{
-		case R3rBlendingFactor::zero: return GL_ZERO;
-		case R3rBlendingFactor::one: return GL_ONE;
-		case R3rBlendingFactor::src_color: return GL_SRC_COLOR;
 		case R3rBlendingFactor::src_alpha: return GL_SRC_ALPHA;
 		case R3rBlendingFactor::one_minus_src_alpha: return GL_ONE_MINUS_SRC_ALPHA;
 		default: BSTONE_THROW_STATIC_SOURCE("Invalid blending factor.");
