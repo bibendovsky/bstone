@@ -8,6 +8,9 @@
 - Cvar to control refresh rate in exclusive fullscreen mode (vid_refresh_rate).
 - Cvar to control windw mode (vid_window_mode).
 
+### Fixed
+- [CMake] Do not use command 'project' in the intermediate scripts.
+
 
 ## [1.2.15] - 2025-03-22
 ### Fixed

@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
-project(bstone_sdl2 VERSION 1.0.0 LANGUAGES NONE)
 
 message(STATUS "[bstone_sdl2] v${PROJECT_VERSION}")
 
