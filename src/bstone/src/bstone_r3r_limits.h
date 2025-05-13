@@ -34,6 +34,10 @@ struct R3rLimits
 	static constexpr int max_shader_vars() { return 16; }
 
 	static constexpr int max_vertex_inputs() { return 16; }
+	static constexpr int max_vertex_attributes() { return 16; }
+
+	static constexpr int min_viewport_width() { return 320; }
+	static constexpr int min_viewport_height() { return 200; }
 };
 
 } // namespace bstone

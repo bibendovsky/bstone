@@ -88,6 +88,7 @@ private:
 	VideoMgrUPtr video_mgr_{};
 
 private:
+	Logger& do_get_logger() override;
 	AudioMgr& do_get_audio_mgr() override;
 	EventMgr& do_get_event_mgr() override;
 	VideoMgr& do_get_video_mgr() override;
@@ -143,6 +144,11 @@ try {
 void Sdl2SystemMgr::operator delete(void* ptr)
 {
 	get_memory_resource().deallocate(ptr);
+}
+
+Logger& Sdl2SystemMgr::do_get_logger()
+{
+	return logger_;
 }
 
 AudioMgr& Sdl2SystemMgr::do_get_audio_mgr()

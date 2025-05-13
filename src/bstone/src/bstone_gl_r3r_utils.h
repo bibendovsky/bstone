@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -107,12 +107,9 @@ public:
 		const R3rViewport& viewport,
 		const GlR3rDeviceFeatures& gl_device_features);
 
-	static void enable_scissor(bool is_enabled);
-	static void set_scissor_box(const R3rScissorBox& scissor_box);
-
 	static void enable_culling(bool is_enable);
-	static void set_culling_face(R3rCullingFace culling_face);
-	static void set_culling_mode(R3rCullingMode culling_mode);
+	static void set_culling_face();
+	static void set_culling_mode();
 
 	static void enable_depth_test(bool is_enable);
 	static void enable_depth_write(bool is_enable);

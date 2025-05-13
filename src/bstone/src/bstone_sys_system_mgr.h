@@ -25,11 +25,13 @@ public:
 	SystemMgr();
 	virtual ~SystemMgr();
 
+	Logger& get_logger();
 	AudioMgr& get_audio_mgr();
 	EventMgr& get_event_mgr();
 	VideoMgr& get_video_mgr();
 
 private:
+	virtual Logger& do_get_logger() = 0;
 	virtual AudioMgr& do_get_audio_mgr() = 0;
 	virtual EventMgr& do_get_event_mgr() = 0;
 	virtual VideoMgr& do_get_video_mgr() = 0;

@@ -43,6 +43,7 @@ enum class WindowRendererType
 {
 	none,
 	open_gl,
+	vulkan,
 };
 
 // ==========================================================================

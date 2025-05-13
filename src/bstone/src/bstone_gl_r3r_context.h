@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -42,8 +42,8 @@ class GlR3rShaderStageMgr;
 class GlR3rContext
 {
 public:
-	GlR3rContext() noexcept;
-	virtual ~GlR3rContext();
+	GlR3rContext() noexcept {}
+	virtual ~GlR3rContext() {}
 
 	virtual const R3rDeviceFeatures& get_device_features() const noexcept = 0;
 	virtual const GlR3rDeviceFeatures& get_gl_device_features() const noexcept = 0;
@@ -74,8 +74,6 @@ public:
 	virtual void clear(const sys::Color& color) = 0;
 
 	virtual void set_viewport(const R3rViewport& viewport) = 0;
-	virtual void enable_scissor(bool is_enable) = 0;
-	virtual void set_scissor_box(const R3rScissorBox& scissor_box) = 0;
 
 	virtual void enable_culling(bool is_enable) = 0;
 	virtual void enable_depth_test(bool is_enable) = 0;

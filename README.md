@@ -472,6 +472,16 @@ CMake variables:
   Enables bundled SDL2 source code.  
   Default value: OFF
 
+* `BSTONE_VULKAN_COMPILE_SHADERS`  
+  Compiles and installs Vulkan shaders.  
+  Requires Vulkan SDK or 'glslangValidator' application available in the PATH environment variable.  
+  Useful for development.
+  Default value: OFF
+
+* `BSTONE_VULKAN_COMPILE_SHADERS_DEBUG_BUILD`  
+  Compiles Vulkan shaders with debug information and without link time optimization.  
+  Default value: OFF
+
 Notes:
 * Use `ON` value to enable option and value `OFF` to disable option.
 
@@ -543,6 +553,8 @@ Notes:
     - `gl_2_0` - OpenGL 2.0 or higher.
     - `gl_3_2_c` - OpenGL 3.2 core or higher.
     - `gles_2_0` - OpenGL ES 2.0 or higher.
+    - `vulkan` - Vulkan 1.0 or higher.
+    - 'null' - for development Available in debug builds only.
 
   Default: `auto_detect`
 

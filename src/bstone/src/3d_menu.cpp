@@ -5043,11 +5043,20 @@ const std::string& menu_video_mode_renderer_type_get_string(
 	static const auto gl_2_string = std::string{"GL 2.0"};
 	static const auto gl_3_2_c_string = std::string{"GL 3.2 CORE"};
 	static const auto gles_2_0_string = std::string{"GLES 2.0"};
+#ifndef NDEBUG
+	static const auto null_string = std::string{"NULL"};
+#endif
+	static const auto vulkan_string = std::string{"VULKAN"};
 
 	switch (renderer_type)
 	{
 		case bstone::RendererType::auto_detect:
 			return auto_detect_string;
+
+#ifndef NDEBUG
+		case bstone::RendererType::null:
+			return null_string;
+#endif
 
 		case bstone::RendererType::software:
 			return software_string;
@@ -5060,6 +5069,9 @@ const std::string& menu_video_mode_renderer_type_get_string(
 
 		case bstone::RendererType::gles_2_0:
 			return gles_2_0_string;
+
+		case bstone::RendererType::vulkan:
+			return vulkan_string;
 
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unsupported renderer type.");
@@ -5513,8 +5525,8 @@ void video_menu_mode_routine(
 	video_mode_menu[0].carousel_func_ = video_menu_mode_renderer_carousel;
 	video_mode_menu[1].carousel_func_ = video_menu_mode_display_mode_carousel;
 	video_mode_menu[2].carousel_func_ = video_menu_mode_window_mode_carousel;
-	video_mode_menu[3].carousel_func_ = video_menu_mode_window_aa_type_carousel;
-	video_mode_menu[4].carousel_func_ = video_menu_mode_window_aa_factor_carousel;
+	video_mode_menu[4].carousel_func_ = video_menu_mode_window_aa_type_carousel;
+	video_mode_menu[5].carousel_func_ = video_menu_mode_window_aa_factor_carousel;
 
 	do
 	{

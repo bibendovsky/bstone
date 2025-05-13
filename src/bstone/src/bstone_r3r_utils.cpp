@@ -143,25 +143,35 @@ try {
 
 void R3rUtils::set_window_mode(sys::Window& window, const R3rUtilsSetWindowModeParam& param)
 try {
-	sys::WindowFullscreenType fullscreen_mode = param.fullscreen_mode;
-	sys::DisplayMode display_mode = param.display_mode;
-	display_mode.width = std::max(display_mode.width, window_min_width);
-	display_mode.height = std::max(display_mode.height, window_min_height);
-	display_mode.refresh_rate = std::max(display_mode.refresh_rate, 0);
+	/*
+	State transition.
 
-	window.set_fullscreen_mode(fullscreen_mode);
-
-	if (fullscreen_mode == sys::WindowFullscreenType::exclusive)
+	none -> none (resize and position)
+	none -> exclusive (assign resolution, change fullscreen)
+	none -> fake (change fullscreen)
+	exclusive -> exclusive (assign resolution, change fullscreen)
+	exclusive -> none (change fullscreen, resize and position)
+	exclusive -> fake (change fullscreen)
+	fake -> fake (change fullscreen)
+	fake -> none (change fullscreen, resize and position)
+	fake -> exclusive (assign resolution, change fullscreen)
+	*/
+	sys::WindowFullscreenType desire_fullscreen_mode = param.fullscreen_mode;
+	sys::DisplayMode desire_window_display_mode = param.display_mode;
+	desire_window_display_mode.width = std::max(desire_window_display_mode.width, window_min_width);
+	desire_window_display_mode.height = std::max(desire_window_display_mode.height, window_min_height);
+	desire_window_display_mode.refresh_rate = std::max(desire_window_display_mode.refresh_rate, 0);
+	if (desire_fullscreen_mode == sys::WindowFullscreenType::exclusive)
 	{
-		window.set_display_mode(display_mode);
+		window.set_display_mode(desire_window_display_mode);
 	}
-	else if (fullscreen_mode == sys::WindowFullscreenType::none)
+	window.set_fullscreen_mode(desire_fullscreen_mode);
+	if (desire_fullscreen_mode == sys::WindowFullscreenType::none)
 	{
-		sys::WindowSize window_size{};
-		window_size.width = display_mode.width;
-		window_size.height = display_mode.height;
-		window.set_size(window_size);
-
+		sys::WindowSize desire_window_size{};
+		desire_window_size.width = desire_window_display_mode.width;
+		desire_window_size.height = desire_window_display_mode.height;
+		window.set_size(desire_window_size);
 		if (param.is_positioned)
 		{
 			const int x = std::max(param.position.x.get(), 0);
@@ -179,9 +189,13 @@ void R3rUtils::validate_initialize_param(const R3rInitParam& param)
 try {
 	switch (param.renderer_type)
 	{
+#ifndef NDEBUG
+	case R3rType::null:
+#endif
 	case R3rType::gl_2_0:
 	case R3rType::gl_3_2_core:
 	case R3rType::gles_2_0:
+	case R3rType::vulkan:
 		break;
 
 	default:

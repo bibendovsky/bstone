@@ -11,7 +11,11 @@ SPDX-License-Identifier: MIT
 #include "bstone_r3r_mgr.h"
 #include "bstone_r3r_tests.h"
 #include "bstone_r3r_utils.h"
+#ifndef NDEBUG
+#include "bstone_null_r3r.h"
+#endif
 #include "bstone_gl_r3r.h"
+#include "bstone_vk_r3r.h"
 
 namespace bstone {
 
@@ -40,7 +44,7 @@ private:
 private:
 	sys::VideoMgr& video_mgr_;
 	sys::WindowMgr& window_mgr_;
-	R3rUPtr gl_renderer_{};
+	R3rUPtr gl_renderer_{}; // TODO Rename.
 };
 
 // --------------------------------------------------------------------------
@@ -61,6 +65,12 @@ try {
 
 	switch (param.renderer_type)
 	{
+#ifndef NDEBUG
+		case R3rType::null:
+			gl_renderer_ = make_null_r3r(video_mgr_, window_mgr_, param);
+			return gl_renderer_.get();
+#endif // NDEBUG
+
 #ifndef BSTONE_R3R_TEST_NO_GL
 
 #ifndef BSTONE_R3R_TEST_NO_GL_2_0
@@ -78,6 +88,10 @@ try {
 			gl_renderer_ = make_gl_r3r(video_mgr_, window_mgr_, param);
 			return gl_renderer_.get();
 #endif // BSTONE_R3R_TEST_NO_GL
+
+		case R3rType::vulkan:
+			gl_renderer_ = make_vk_r3r(video_mgr_, window_mgr_, param);
+			return gl_renderer_.get();
 
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unsupported renderer type.");

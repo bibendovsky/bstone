@@ -51,16 +51,6 @@ try {
 	return do_write_set_viewport();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rEnableScissorCmd& R3rCmdBuffer::write_enable_scissor()
-try {
-	return do_write_enable_scissor();
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-R3rSetScissorBoxCmd& R3rCmdBuffer::write_set_scissor_box()
-try {
-	return do_write_set_scissor_box();
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
 R3rEnableCullingCmd& R3rCmdBuffer::write_enable_culling()
 try {
 	return do_write_enable_culling();
@@ -166,16 +156,6 @@ try {
 	return do_read_set_viewport();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-const R3rEnableScissorCmd& R3rCmdBuffer::read_enable_scissor()
-try {
-	return do_read_enable_scissor();
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-const R3rSetScissorBoxCmd& R3rCmdBuffer::read_set_scissor_box()
-try {
-	return do_read_set_scissor_box();
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
 const R3rEnableCullingCmd& R3rCmdBuffer::read_enable_culling()
 try {
 	return do_read_enable_culling();
@@ -279,9 +259,6 @@ private:
 
 	R3rSetViewportCmd& do_write_set_viewport() override;
 
-	R3rEnableScissorCmd& do_write_enable_scissor() override;
-	R3rSetScissorBoxCmd& do_write_set_scissor_box() override;
-
 	R3rEnableCullingCmd& do_write_enable_culling() override;
 
 	R3rEnableDepthTestCmd& do_write_enable_depth_test() override;
@@ -313,9 +290,6 @@ private:
 	const R3rClearCmd& do_read_clear() override;
 
 	const R3rSetViewportCmd& do_read_set_viewport() override;
-
-	const R3rEnableScissorCmd& do_read_enable_scissor() override;
-	const R3rSetScissorBoxCmd& do_read_set_scissor_box() override;
 
 	const R3rEnableCullingCmd& do_read_enable_culling() override;
 
@@ -497,16 +471,6 @@ try {
 	return write<R3rSetViewportCmd>(R3rCmdId::set_viewport);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rEnableScissorCmd& R3rCmdBufferImpl::do_write_enable_scissor()
-try {
-	return write<R3rEnableScissorCmd>(R3rCmdId::enable_scissor);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-R3rSetScissorBoxCmd& R3rCmdBufferImpl::do_write_set_scissor_box()
-try {
-	return write<R3rSetScissorBoxCmd>(R3rCmdId::set_scissor_box);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
 R3rEnableCullingCmd& R3rCmdBufferImpl::do_write_enable_culling()
 try {
 	return write<R3rEnableCullingCmd>(R3rCmdId::enable_culling);
@@ -636,16 +600,6 @@ try {
 const R3rSetViewportCmd& R3rCmdBufferImpl::do_read_set_viewport()
 try {
 	return read<R3rSetViewportCmd>();
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-const R3rEnableScissorCmd& R3rCmdBufferImpl::do_read_enable_scissor()
-try {
-	return read<R3rEnableScissorCmd>();
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-const R3rSetScissorBoxCmd& R3rCmdBufferImpl::do_read_set_scissor_box()
-try {
-	return read<R3rSetScissorBoxCmd>();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 const R3rEnableCullingCmd& R3rCmdBufferImpl::do_read_enable_culling()

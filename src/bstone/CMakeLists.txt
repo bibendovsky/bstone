@@ -32,6 +32,8 @@ option(BSTONE_USE_PCH "Use precompiled headers if available." OFF)
 option(BSTONE_USE_MULTI_PROCESS_COMPILATION "Use multi-process compilation." ON)
 option(BSTONE_MORE_COMPILER_WARNINGS "Enables more compiler warnings." OFF)
 option(BSTONE_NO_ASSERT "Disable assertion." OFF)
+option(BSTONE_VULKAN_COMPILE_SHADERS "Compile Vulkan shaders before each build. Requires Vulkan SDK or 'glslangValidator' application available in the PATH environment variable. Useful for development." OFF)
+option(BSTONE_VULKAN_COMPILE_SHADERS_DEBUG_BUILD "Compile Vulkan shaders with debug information and without link time optimization." OFF)
 
 # SDL2W
 #
@@ -61,9 +63,65 @@ else ()
 endif ()
 
 #
+# Custom target.
+#
+if(BSTONE_VULKAN_COMPILE_SHADERS)
+	set(bstone_vulkan_shaders_rel_path src/resources/vulkan/src)
+	set(bstone_vulkan_shaders_source_dir ${CMAKE_CURRENT_SOURCE_DIR}/${bstone_vulkan_shaders_rel_path})
+	set(bstone_vulkan_shaders_output_dir ${CMAKE_CURRENT_BINARY_DIR}/${bstone_vulkan_shaders_rel_path})
+if(BSTONE_VULKAN_COMPILE_SHADERS_DEBUG_BUILD)
+	set(bstone_vulkan_shaders_options "-g")
+else()
+	set(bstone_vulkan_shaders_options "-g0 --lto")
+endif()
+	file(MAKE_DIRECTORY ${bstone_vulkan_shaders_output_dir})
+
+	add_custom_target(bstone_vulkan_compile_shaders
+		COMMAND glslangValidator
+			-S vert -V100 -e main ${bstone_vulkan_shaders_options}
+			-o ${bstone_vulkan_shaders_output_dir}/default_vert.spv
+			${bstone_vulkan_shaders_source_dir}/default_vert.txt
+		COMMAND glslangValidator
+			-S frag -V100 -e main ${bstone_vulkan_shaders_options}
+			-o ${bstone_vulkan_shaders_output_dir}/default_frag.spv
+			${bstone_vulkan_shaders_source_dir}/default_frag.txt
+		COMMAND bstone_bin2c
+			-aa "alignas(std::uint32_t)"
+			-aa static
+			-i ${bstone_vulkan_shaders_output_dir}/default_vert.spv
+			-o ${bstone_vulkan_shaders_output_dir}/default_vert.spv.h
+		COMMAND bstone_bin2c
+			-aa "alignas(std::uint32_t)"
+			-aa static
+			-i ${bstone_vulkan_shaders_output_dir}/default_frag.spv
+			-o ${bstone_vulkan_shaders_output_dir}/default_frag.spv.h
+		VERBATIM
+		SOURCES
+			${bstone_vulkan_shaders_source_dir}/default_vert.txt
+			${bstone_vulkan_shaders_source_dir}/default_frag.txt
+	)
+
+	add_dependencies(bstone_vulkan_compile_shaders bstone_bin2c)
+	install(FILES
+		${bstone_vulkan_shaders_source_dir}/default_vert.txt
+		${bstone_vulkan_shaders_source_dir}/default_frag.txt
+		DESTINATION bstone_vulkan/src)
+	install(FILES
+		${bstone_vulkan_shaders_output_dir}/default_vert.spv
+		${bstone_vulkan_shaders_output_dir}/default_vert.spv.h
+		${bstone_vulkan_shaders_output_dir}/default_frag.spv
+		${bstone_vulkan_shaders_output_dir}/default_frag.spv.h
+		DESTINATION bstone_vulkan/bin)
+endif()
+
+#
 # Target.
 #
 add_executable(bstone "")
+
+if(BSTONE_VULKAN_COMPILE_SHADERS)
+	add_dependencies(bstone bstone_vulkan_compile_shaders)
+endif()
 
 add_custom_command(
 	TARGET bstone POST_BUILD
@@ -128,6 +186,7 @@ target_compile_definitions(bstone
 		$<$<BOOL:${WIN32}>:_WIN32_WINNT=0x0501>
 		$<$<BOOL:${WIN32}>:WINVER=0x0501>
 		$<$<BOOL:${BSTONE_NO_ASSERT}>:BSTONE_NO_ASSERT>
+		$<$<BOOL:${BSTONE_VULKAN_COMPILE_SHADERS}>:BSTONE_VULKAN_COMPILE_SHADERS>
 )
 
 if (BSTONE_PANDORA)
@@ -218,6 +277,7 @@ target_link_libraries(bstone
 		bstone::lib::openal_soft
 		bstone::lib::stb
 		bstone::lib::xbrz
+		bstone::vulkan
 )
 
 if (BSTONE_PANDORA)
@@ -244,6 +304,7 @@ target_include_directories(bstone
 		src/dosbox
 		src/resources/win32
 		${PROJECT_BINARY_DIR}/src
+		$<$<BOOL:${BSTONE_VULKAN_COMPILE_SHADERS}>:${bstone_vulkan_shaders_output_dir}>
 )
 
 if (BSTONE_PANDORA)
@@ -531,6 +592,30 @@ source_group("bstone/renderer/3d" FILES ${BSTONE_BSTONE_RENDERER_3D_SOURCES})
 
 # ---------------------------------------------------------------------------
 
+set(BSTONE_BSTONE_RENDERER_3D_NULL_SOURCES
+	src/bstone_null_r3r.cpp
+	src/bstone_null_r3r.h
+	src/bstone_null_r3r_buffer.cpp
+	src/bstone_null_r3r_buffer.h
+	src/bstone_null_r3r_r2_texture.cpp
+	src/bstone_null_r3r_r2_texture.h
+	src/bstone_null_r3r_sampler.cpp
+	src/bstone_null_r3r_sampler.h
+	src/bstone_null_r3r_shader.cpp
+	src/bstone_null_r3r_shader.h
+	src/bstone_null_r3r_shader_stage.cpp
+	src/bstone_null_r3r_shader_stage.h
+	src/bstone_null_r3r_shader_var.cpp
+	src/bstone_null_r3r_shader_var.h
+	src/bstone_null_r3r_vertex_input.cpp
+	src/bstone_null_r3r_vertex_input.h
+)
+
+target_sources(bstone PRIVATE ${BSTONE_BSTONE_RENDERER_3D_NULL_SOURCES})
+source_group("bstone/renderer/3d/null" FILES ${BSTONE_BSTONE_RENDERER_3D_NULL_SOURCES})
+
+# ---------------------------------------------------------------------------
+
 set(BSTONE_BSTONE_RENDERER_3D_GL_SOURCES
 	src/bstone_gl_r3r.cpp
 	src/bstone_gl_r3r.h
@@ -568,6 +653,56 @@ set(BSTONE_BSTONE_RENDERER_3D_GL_SOURCES
 
 target_sources(bstone PRIVATE ${BSTONE_BSTONE_RENDERER_3D_GL_SOURCES})
 source_group("bstone/renderer/3d/gl" FILES ${BSTONE_BSTONE_RENDERER_3D_GL_SOURCES})
+
+# ---------------------------------------------------------------------------
+
+set(BSTONE_BSTONE_RENDERER_3D_VK_SOURCES
+	src/bstone_vk_r3r.cpp
+	src/bstone_vk_r3r.h
+	src/bstone_vk_r3r_buffer.cpp
+	src/bstone_vk_r3r_buffer.h
+	src/bstone_vk_r3r_context.cpp
+	src/bstone_vk_r3r_context.h
+	src/bstone_vk_r3r_enum_strings.cpp
+	src/bstone_vk_r3r_enum_strings.h
+	src/bstone_vk_r3r_array_extractor.cpp
+	src/bstone_vk_r3r_array_extractor.h
+	src/bstone_vk_r3r_info.cpp
+	src/bstone_vk_r3r_info.h
+	src/bstone_vk_r3r_observer.cpp
+	src/bstone_vk_r3r_observer.h
+	src/bstone_vk_r3r_pipeline.cpp
+	src/bstone_vk_r3r_pipeline.h
+	src/bstone_vk_r3r_pipeline_mgr.cpp
+	src/bstone_vk_r3r_pipeline_mgr.h
+	src/bstone_vk_r3r_r2_texture.cpp
+	src/bstone_vk_r3r_r2_texture.h
+	src/bstone_vk_r3r_raii.cpp
+	src/bstone_vk_r3r_raii.h
+	src/bstone_vk_r3r_sampler.cpp
+	src/bstone_vk_r3r_sampler.h
+	src/bstone_vk_r3r_shader.cpp
+	src/bstone_vk_r3r_shader.h
+	src/bstone_vk_r3r_shader_stage.cpp
+	src/bstone_vk_r3r_shader_stage.h
+	src/bstone_vk_r3r_shader_var.cpp
+	src/bstone_vk_r3r_shader_var.h
+	src/bstone_vk_r3r_vertex_input.cpp
+	src/bstone_vk_r3r_vertex_input.h
+)
+
+target_sources(bstone PRIVATE ${BSTONE_BSTONE_RENDERER_3D_VK_SOURCES})
+source_group("bstone/renderer/3d/vk" FILES ${BSTONE_BSTONE_RENDERER_3D_VK_SOURCES})
+
+# ---------------------------------------------------------------------------
+
+set(BSTONE_BSTONE_RENDERER_3D_VK_SHADER_SOURCES
+	src/resources/vulkan/src/default_frag.txt
+	src/resources/vulkan/src/default_vert.txt
+)
+
+target_sources(bstone PRIVATE ${BSTONE_BSTONE_RENDERER_3D_VK_SHADER_SOURCES})
+source_group("bstone/renderer/3d/vk/shaders" FILES ${BSTONE_BSTONE_RENDERER_3D_VK_SHADER_SOURCES})
 
 # ---------------------------------------------------------------------------
 
@@ -624,6 +759,8 @@ set(BSTONE_BSTONE_SYS_SOURCES
 	src/bstone_sys_video_mgr.h
 	src/bstone_sys_video_mgr_null.cpp
 	src/bstone_sys_video_mgr_null.h
+	src/bstone_sys_vulkan_mgr.cpp
+	src/bstone_sys_vulkan_mgr.h
 	src/bstone_sys_window.cpp
 	src/bstone_sys_window.h
 	src/bstone_sys_window_mgr.cpp
@@ -664,6 +801,8 @@ set(BSTONE_BSTONE_SYS_SDL2_SOURCES
 	src/bstone_sys_renderer_sdl2.h
 	src/bstone_sys_sdl2_subsystem.cpp
 	src/bstone_sys_sdl2_subsystem.h
+	src/bstone_sys_sdl2_version.cpp
+	src/bstone_sys_sdl2_version.h
 	src/bstone_sys_system_mgr_sdl2.cpp
 	src/bstone_sys_texture_lock_sdl2.cpp
 	src/bstone_sys_texture_lock_sdl2.h
@@ -671,6 +810,8 @@ set(BSTONE_BSTONE_SYS_SDL2_SOURCES
 	src/bstone_sys_texture_sdl2.h
 	src/bstone_sys_video_mgr_sdl2.cpp
 	src/bstone_sys_video_mgr_sdl2.h
+	src/bstone_sys_vulkan_mgr_sdl2.cpp
+	src/bstone_sys_vulkan_mgr_sdl2.h
 	src/bstone_sys_window_mgr_sdl2.cpp
 	src/bstone_sys_window_mgr_sdl2.h
 	src/bstone_sys_window_rounded_corner_mgr_sdl2.cpp

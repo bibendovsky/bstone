@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -21,8 +21,8 @@ class GlR3rContext;
 class GlR3rSamplerMgr
 {
 public:
-	GlR3rSamplerMgr() noexcept;
-	virtual ~GlR3rSamplerMgr();
+	GlR3rSamplerMgr() noexcept {}
+	virtual ~GlR3rSamplerMgr() {}
 
 	virtual R3rSamplerUPtr create(const R3rSamplerInitParam& param) = 0;
 

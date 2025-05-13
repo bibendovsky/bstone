@@ -23,6 +23,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_sys_limits_sdl2.h"
 #include "bstone_sys_video_mgr_null.h"
 #include "bstone_sys_mouse_mgr_sdl2.h"
+#include "bstone_sys_vulkan_mgr_sdl2.h"
 #include "bstone_sys_window_mgr_sdl2.h"
 #include "bstone_sys_sdl2_subsystem.h"
 
@@ -53,14 +54,18 @@ private:
 	WindowMgrUPtr window_mgr_{};
 	DisplayModeCache display_mode_cache_{};
 	GlCurrentContextUPtr gl_current_context_{};
+	VulkanMgrUPtr vulkan_mgr_{};
 
 private:
 	bool do_is_initialized() const noexcept override;
+
+	Logger& do_get_logger() override;
 
 	DisplayMode do_get_current_display_mode() override;
 	Span<const DisplayMode> do_get_display_modes() override;
 
 	GlCurrentContext& do_get_gl_current_context() override;
+	VulkanMgr& do_get_vulkan_mgr() override;
 	MouseMgr& do_get_mouse_mgr() override;
 	WindowMgr& do_get_window_mgr() override;
 
@@ -104,6 +109,7 @@ Sdl2VideoMgr::~Sdl2VideoMgr()
 	logger_.log_information("Shut down SDL video manager.");
 
 	gl_current_context_ = nullptr;
+	vulkan_mgr_ = nullptr;
 	window_mgr_ = nullptr;
 	mouse_mgr_ = nullptr;
 }
@@ -121,6 +127,11 @@ void Sdl2VideoMgr::operator delete(void* ptr)
 bool Sdl2VideoMgr::do_is_initialized() const noexcept
 {
 	return is_initialized_;
+}
+
+Logger& Sdl2VideoMgr::do_get_logger()
+{
+	return logger_;
 }
 
 DisplayMode Sdl2VideoMgr::do_get_current_display_mode()
@@ -154,6 +165,18 @@ GlCurrentContext& Sdl2VideoMgr::do_get_gl_current_context()
 	BSTONE_ASSERT(is_initialized_);
 
 	return *gl_current_context_;
+}
+
+VulkanMgr& Sdl2VideoMgr::do_get_vulkan_mgr()
+{
+	BSTONE_ASSERT(is_initialized_);
+
+	if (vulkan_mgr_ == nullptr)
+	{
+		vulkan_mgr_ = make_vulkan_mgr(logger_);
+	}
+
+	return *vulkan_mgr_;
 }
 
 MouseMgr& Sdl2VideoMgr::do_get_mouse_mgr()

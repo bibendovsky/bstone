@@ -1,11 +1,12 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
 // OpenGL 3D Renderer: Shader
 
+#include <stddef.h>
 #include "bstone_assert.h"
 #include "bstone_exception.h"
 #include "bstone_fixed_pool_resource.h"
@@ -19,14 +20,11 @@ SPDX-License-Identifier: MIT
 #include "bstone_gl_r3r_shader_stage.h"
 #include "bstone_gl_r3r_utils.h"
 
+// ==========================================================================
 
 namespace bstone {
 
-GlR3rShader::GlR3rShader() = default;
-
-GlR3rShader::~GlR3rShader() = default;
-
-// ==========================================================================
+namespace {
 
 class GlR3rShaderImpl final : public GlR3rShader
 {
@@ -34,7 +32,7 @@ public:
 	GlR3rShaderImpl(const R3rShaderInitParam& param);
 	~GlR3rShaderImpl() override;
 
-	void* operator new(std::size_t size);
+	void* operator new(size_t size);
 	void operator delete(void* ptr);
 
 private:
@@ -46,7 +44,7 @@ public:
 	void attach_to_shader_stage(GlR3rShaderStage* shader_stage) override;
 
 private:
-	R3rShaderType type_{};
+	using MemoryPool = FixedPoolResource<GlR3rShaderImpl, R3rLimits::max_shaders()>;
 
 	struct ShaderDeleter
 	{
@@ -55,6 +53,11 @@ private:
 
 	using ShaderResource = UniqueResource<GLuint, ShaderDeleter>;
 
+private:
+	static MemoryPool memory_pool_;
+
+private:
+	R3rShaderType type_{};
 	ShaderResource shader_resource_{};
 	GlR3rShaderStage* shader_stage_{};
 
@@ -66,8 +69,7 @@ private:
 
 // ==========================================================================
 
-using GlR3rShaderImplPool = FixedPoolResource<GlR3rShaderImpl, R3rLimits::max_shaders()>;
-GlR3rShaderImplPool gl_r3r_shader_impl_pool{};
+GlR3rShaderImpl::MemoryPool GlR3rShaderImpl::memory_pool_{};
 
 // ==========================================================================
 
@@ -137,14 +139,14 @@ GlR3rShaderImpl::~GlR3rShaderImpl()
 	}
 }
 
-void* GlR3rShaderImpl::operator new(std::size_t size)
+void* GlR3rShaderImpl::operator new(size_t size)
 try {
-	return gl_r3r_shader_impl_pool.allocate(size);
+	return memory_pool_.allocate(size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rShaderImpl::operator delete(void* ptr)
 {
-	gl_r3r_shader_impl_pool.deallocate(ptr);
+	memory_pool_.deallocate(ptr);
 }
 
 R3rShaderType GlR3rShaderImpl::do_get_type() const noexcept
@@ -200,6 +202,8 @@ try {
 		BSTONE_THROW_STATIC_SOURCE("Empty source data.");
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+} // namespace
 
 // ==========================================================================
 

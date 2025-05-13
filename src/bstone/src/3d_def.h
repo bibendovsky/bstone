@@ -2623,7 +2623,7 @@ enum animdir_t
 //
 // DisplayInfoMsg Priorities - Duplicate Values are Allowed.
 //
-// ("enum" list used simply for debuging use like Object Classes)
+// ("enum" list used simply for debuging use like Arg0 Classes)
 //
 
 //

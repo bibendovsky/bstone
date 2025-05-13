@@ -21,9 +21,6 @@ enum class R3rCmdId
 
 	set_viewport,
 
-	enable_scissor,
-	set_scissor_box,
-
 	enable_culling,
 
 	enable_depth_test,
@@ -57,16 +54,6 @@ struct R3rClearCmd
 struct R3rSetViewportCmd
 {
 	R3rViewport viewport;
-};
-
-struct R3rEnableScissorCmd
-{
-	bool is_enable;
-};
-
-struct R3rSetScissorBoxCmd
-{
-	R3rScissorBox scissor_box;
 };
 
 struct R3rEnableCullingCmd
@@ -116,37 +103,37 @@ struct R3rSetShaderStageCmd
 
 struct R3rSetInt32UniformCmd
 {
-	R3rShaderInt32Var* var;
+	R3rShaderVar* var;
 	int value;
 };
 
 struct R3rSetFloat32UniformCmd
 {
-	R3rShaderFloat32Var* var;
+	R3rShaderVar* var;
 	float value;
 };
 
 struct R3rSetVec2UniformCmd
 {
-	R3rShaderVec2Var* var;
+	R3rShaderVar* var;
 	R3rVec2 value;
 };
 
 struct R3rSetVec4UniformCmd
 {
-	R3rShaderVec4Var* var;
+	R3rShaderVar* var;
 	R3rVec4 value;
 };
 
 struct R3rSetMat4UniformCmd
 {
-	R3rShaderMat4Var* var;
+	R3rShaderVar* var;
 	R3rMat4 value;
 };
 
 struct R3rSetR2SamplerUniformCmd
 {
-	R3rShaderR2SamplerVar* var;
+	R3rShaderVar* var;
 	int value;
 };
 
@@ -183,9 +170,6 @@ public:
 
 	R3rSetViewportCmd& write_set_viewport();
 
-	R3rEnableScissorCmd& write_enable_scissor();
-	R3rSetScissorBoxCmd& write_set_scissor_box();
-
 	R3rEnableCullingCmd& write_enable_culling();
 
 	R3rEnableDepthTestCmd& write_enable_depth_test();
@@ -218,9 +202,6 @@ public:
 	const R3rClearCmd& read_clear();
 
 	const R3rSetViewportCmd& read_set_viewport();
-
-	const R3rEnableScissorCmd& read_enable_scissor();
-	const R3rSetScissorBoxCmd& read_set_scissor_box();
 
 	const R3rEnableCullingCmd& read_enable_culling();
 
@@ -258,9 +239,6 @@ private:
 
 	virtual R3rSetViewportCmd& do_write_set_viewport() = 0;
 
-	virtual R3rEnableScissorCmd& do_write_enable_scissor() = 0;
-	virtual R3rSetScissorBoxCmd& do_write_set_scissor_box() = 0;
-
 	virtual R3rEnableCullingCmd& do_write_enable_culling() = 0;
 
 	virtual R3rEnableDepthTestCmd& do_write_enable_depth_test() = 0;
@@ -293,9 +271,6 @@ private:
 	virtual const R3rClearCmd& do_read_clear() = 0;
 
 	virtual const R3rSetViewportCmd& do_read_set_viewport() = 0;
-
-	virtual const R3rEnableScissorCmd& do_read_enable_scissor() = 0;
-	virtual const R3rSetScissorBoxCmd& do_read_set_scissor_box() = 0;
 
 	virtual const R3rEnableCullingCmd& do_read_enable_culling() = 0;
 

@@ -1,11 +1,12 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
 // OpenGL 3D Renderer: Vertex Input Manager
 
+#include <stddef.h>
 #include "bstone_exception.h"
 #include "bstone_single_pool_resource.h"
 
@@ -15,27 +16,31 @@ SPDX-License-Identifier: MIT
 #include "bstone_gl_r3r_vertex_input.h"
 #include "bstone_gl_r3r_vertex_input_mgr.h"
 
+// ==========================================================================
+
 namespace bstone {
 
-GlR3rVertexInputMgr::GlR3rVertexInputMgr() noexcept = default;
-
-GlR3rVertexInputMgr::~GlR3rVertexInputMgr() = default;
-
-// ==========================================================================
+namespace {
 
 class GlR3rVertexInputMgrImpl final : public GlR3rVertexInputMgr
 {
 public:
 	GlR3rVertexInputMgrImpl(GlR3rContext& context);
-	~GlR3rVertexInputMgrImpl() override;
+	~GlR3rVertexInputMgrImpl() override {}
 
-	void* operator new(std::size_t size);
+	void* operator new(size_t size);
 	void operator delete(void* ptr);
 
 	GlR3rContext& get_context() const noexcept override;
 	R3rVertexInputUPtr create(const R3rCreateVertexInputParam& param) override;
 	void set(R3rVertexInput& vertex_input) override;
 	void bind_default_vao() override;
+
+private:
+	using MemoryPool = SinglePoolResource<GlR3rVertexInputMgrImpl>;
+
+private:
+	static MemoryPool memory_pool_;
 
 private:
 	GlR3rContext& context_;
@@ -47,8 +52,7 @@ private:
 
 // ==========================================================================
 
-using GlR3rVertexInputMgrImplPool = SinglePoolResource<GlR3rVertexInputMgrImpl>;
-GlR3rVertexInputMgrImplPool gl_r3r_vertex_input_mgr_impl_pool{};
+GlR3rVertexInputMgrImpl::MemoryPool GlR3rVertexInputMgrImpl::memory_pool_{};
 
 // ==========================================================================
 
@@ -61,16 +65,14 @@ try
 	initialize_default_vertex_input();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-GlR3rVertexInputMgrImpl::~GlR3rVertexInputMgrImpl() = default;
-
-void* GlR3rVertexInputMgrImpl::operator new(std::size_t size)
+void* GlR3rVertexInputMgrImpl::operator new(size_t size)
 try {
-	return gl_r3r_vertex_input_mgr_impl_pool.allocate(size);
+	return memory_pool_.allocate(size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rVertexInputMgrImpl::operator delete(void* ptr)
 {
-	gl_r3r_vertex_input_mgr_impl_pool.deallocate(ptr);
+	memory_pool_.deallocate(ptr);
 }
 
 GlR3rContext& GlR3rVertexInputMgrImpl::get_context() const noexcept
@@ -99,9 +101,11 @@ try {
 void GlR3rVertexInputMgrImpl::initialize_default_vertex_input()
 try {
 	const auto param = R3rCreateVertexInputParam{};
-	default_vertex_input_ = make_gl_r3r_vertex_input(*this, param);;
+	default_vertex_input_ = make_gl_r3r_vertex_input(*this, param);
 	bind_default_vao();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+} // namespace
 
 // ==========================================================================
 

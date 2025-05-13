@@ -1,11 +1,12 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
 // OpenGL 3D Renderer: 2D Texture
 
+#include <stddef.h>
 #include "bstone_exception.h"
 #include "bstone_fixed_pool_resource.h"
 #include "bstone_unique_resource.h"
@@ -21,21 +22,19 @@ SPDX-License-Identifier: MIT
 #include "bstone_gl_r3r_sampler_mgr.h"
 #include "bstone_gl_r3r_utils.h"
 
+// =========================================================================
+
 namespace bstone {
 
-GlR3rR2Texture::GlR3rR2Texture() = default;
-
-GlR3rR2Texture::~GlR3rR2Texture() = default;
-
-// =========================================================================
+namespace {
 
 class GlR3rR2TextureImpl final : public GlR3rR2Texture
 {
 public:
 	GlR3rR2TextureImpl(GlR3rContext& context, const R3rR2TextureInitParam& param);
-	~GlR3rR2TextureImpl() override;
+	~GlR3rR2TextureImpl() override {}
 
-	void* operator new(std::size_t size);
+	void* operator new(size_t size);
 	void operator delete(void* ptr);
 
 private:
@@ -47,12 +46,17 @@ public:
 	void update_sampler_state(const R3rSamplerState& new_sampler_state) override;
 
 private:
+	using MemoryPool = FixedPoolResource<GlR3rR2TextureImpl, R3rLimits::max_textures()>;
+
 	struct TextureDeleter
 	{
 		void operator()(GLuint gl_name) noexcept;
 	};
 
 	using TextureResource = UniqueResource<GLuint, TextureDeleter>;
+
+private:
+	static MemoryPool memory_pool_;
 
 private:
 	GlR3rContext& context_;
@@ -95,8 +99,7 @@ private:
 
 // =========================================================================
 
-using GlR3rR2TextureImplPool = FixedPoolResource<GlR3rR2TextureImpl, R3rLimits::max_textures()>;
-GlR3rR2TextureImplPool gl_r3r_r2_texture_impl_pool{};
+GlR3rR2TextureImpl::MemoryPool GlR3rR2TextureImpl::memory_pool_{};
 
 // =========================================================================
 
@@ -238,16 +241,14 @@ try
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-GlR3rR2TextureImpl::~GlR3rR2TextureImpl() = default;
-
-void* GlR3rR2TextureImpl::operator new(std::size_t size)
+void* GlR3rR2TextureImpl::operator new(size_t size)
 try {
-	return gl_r3r_r2_texture_impl_pool.allocate(size);
+	return memory_pool_.allocate(size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::operator delete(void* ptr)
 {
-	gl_r3r_r2_texture_impl_pool.deallocate(ptr);
+	memory_pool_.deallocate(ptr);
 }
 
 void GlR3rR2TextureImpl::do_update(const R3rR2TextureUpdateParam& param)
@@ -619,6 +620,8 @@ try {
 	sampler_state_.anisotropy = R3rLimits::min_anisotropy_off();
 	set_anisotropy();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+} // namespace
 
 // ==========================================================================
 

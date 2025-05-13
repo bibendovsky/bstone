@@ -8,6 +8,14 @@ auto tester = bstone::Tester{};
 
 // ==========================================================================
 
+// void maybe_unused(T&&)
+void test_rnojpiptt8huu5oh()
+{
+	bstone::maybe_unused(0);
+}
+
+// ==========================================================================
+
 // swap(A, B)
 void test_dirxqh5kufqeux2t()
 {
@@ -94,12 +102,18 @@ class Registrator
 public:
 	Registrator()
 	{
+		register_maybe_unused();
 		register_swap();
 		register_as_const();
 		register_as_mutable();
 	}
 
 private:
+	void register_maybe_unused()
+	{
+		tester.register_test("maybe_unused#rnojpiptt8huu5oh", test_rnojpiptt8huu5oh);
+	}
+
 	void register_swap()
 	{
 		tester.register_test("swop#dirxqh5kufqeux2t", test_dirxqh5kufqeux2t);

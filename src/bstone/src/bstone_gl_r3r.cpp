@@ -1,11 +1,12 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
 // OpenGL 3D Renderer
 
+#include <stddef.h>
 #include <list>
 
 #include "bstone_algorithm.h"
@@ -45,9 +46,9 @@ class GlR3rImpl final : public R3r
 {
 public:
 	GlR3rImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr, const R3rInitParam& param);
-	~GlR3rImpl() override;
+	~GlR3rImpl() override {}
 
-	void* operator new(std::size_t size);
+	void* operator new(size_t size);
 	void operator delete(void* ptr);
 
 private:
@@ -82,8 +83,11 @@ private:
 	R3rShaderUPtr do_create_shader(const R3rShaderInitParam& param) override;
 	R3rShaderStageUPtr do_create_shader_stage(const R3rShaderStageInitParam& param) override;
 	void do_submit_commands(Span<R3rCmdBuffer*> command_buffers) override;
+	void do_wait_for_device() override;
 
 private:
+	using MemoryPool = SinglePoolResource<GlR3rImpl>;
+
 	class FboDeleter
 	{
 	public:
@@ -112,6 +116,9 @@ private:
 
 	using Shaders = std::list<GlR3rShaderUPtr>;
 	using ShaderStages = std::list<GlR3rShaderStageUPtr>;
+
+private:
+	static MemoryPool memory_pool_;
 
 private:
 	sys::VideoMgr& video_mgr_;
@@ -204,8 +211,6 @@ private:
 	void submit_set_blending_func(const R3rSetBlendingFuncCmd& command);
 
 	void submit_set_viewport(const R3rSetViewportCmd& command);
-	void submit_enable_scissor(const R3rEnableScissorCmd& command);
-	void submit_set_scissor_box(const R3rSetScissorBoxCmd& command);
 
 	void submit_set_texture(const R3rSetTextureCmd& command);
 	void submit_set_sampler(const R3rSetSamplerCmd& command);
@@ -223,12 +228,9 @@ private:
 
 // ==========================================================================
 
-using GlR3rImplPool = SinglePoolResource<GlR3rImpl>;
-GlR3rImplPool gl_r3r_impl_pool{};
+GlR3rImpl::MemoryPool GlR3rImpl::memory_pool_{};
 
 // ==========================================================================
-
-GlR3rImpl::~GlR3rImpl() = default;
 
 GlR3rImpl::GlR3rImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr, const R3rInitParam& param)
 try
@@ -397,14 +399,14 @@ try
 	present();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void* GlR3rImpl::operator new(std::size_t size)
+void* GlR3rImpl::operator new(size_t size)
 try {
-	return gl_r3r_impl_pool.allocate(size);
+	return memory_pool_.allocate(size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::operator delete(void* ptr)
 {
-	gl_r3r_impl_pool.deallocate(ptr);
+	memory_pool_.deallocate(ptr);
 }
 
 R3rType GlR3rImpl::do_get_type() const noexcept
@@ -631,14 +633,6 @@ try {
 				submit_set_viewport(command_buffer->read_set_viewport());
 				break;
 
-			case R3rCmdId::enable_scissor:
-				submit_enable_scissor(command_buffer->read_enable_scissor());
-				break;
-
-			case R3rCmdId::set_scissor_box:
-				submit_set_scissor_box(command_buffer->read_set_scissor_box());
-				break;
-
 			case R3rCmdId::enable_blending:
 				submit_enable_blending(command_buffer->read_enable_blending());
 				break;
@@ -700,6 +694,12 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
+void GlR3rImpl::do_wait_for_device()
+try {
+	glFinish();
+	GlR3rError::ensure_no_errors_assert();
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
 GlR3rImpl::FboDeleter::FboDeleter() = default;
 
 GlR3rImpl::FboDeleter::FboDeleter(PFNGLDELETEFRAMEBUFFERSPROC gl_func) noexcept
@@ -736,9 +736,9 @@ try {
 	device_vendor_.assign(device_info.vendor.cbegin(), device_info.vendor.cend());
 	device_version_.assign(device_info.version.cbegin(), device_info.version.cend());
 
-	device_info_.name = StringView{device_name_.data(), static_cast<std::intptr_t>(device_name_.size())};
-	device_info_.vendor = StringView{device_vendor_.data(), static_cast<std::intptr_t>(device_vendor_.size())};
-	device_info_.version = StringView{device_version_.data(), static_cast<std::intptr_t>(device_version_.size())};
+	device_info_.name = StringView{device_name_.data(), static_cast<intptr_t>(device_name_.size())};
+	device_info_.vendor = StringView{device_vendor_.data(), static_cast<intptr_t>(device_vendor_.size())};
+	device_info_.version = StringView{device_version_.data(), static_cast<intptr_t>(device_version_.size())};
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::set_name_and_description()
@@ -1114,16 +1114,6 @@ try {
 	context_->set_blending_func(command.blending_func);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rImpl::submit_enable_scissor(const R3rEnableScissorCmd& command)
-try {
-	context_->enable_scissor(command.is_enable);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void GlR3rImpl::submit_set_scissor_box(const R3rSetScissorBoxCmd& command)
-try {
-	context_->set_scissor_box(command.scissor_box);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
 void GlR3rImpl::submit_set_texture(const R3rSetTextureCmd& command)
 try {
 	context_->set_r2_texture(static_cast<GlR3rR2Texture*>(command.r2_texture));
@@ -1212,24 +1202,8 @@ try {
 
 	switch (param.primitive_type)
 	{
-		case R3rPrimitiveType::point_list:
-			gl_primitive_topology = GL_POINTS;
-			break;
-
-		case R3rPrimitiveType::line_list:
-			gl_primitive_topology = GL_LINES;
-			break;
-
-		case R3rPrimitiveType::line_strip:
-			gl_primitive_topology = GL_LINE_STRIP;
-			break;
-
 		case R3rPrimitiveType::triangle_list:
 			gl_primitive_topology = GL_TRIANGLES;
-			break;
-
-		case R3rPrimitiveType::triangle_strip:
-			gl_primitive_topology = GL_TRIANGLE_STRIP;
 			break;
 
 		default:
@@ -1248,7 +1222,6 @@ try {
 
 	switch (param.index_byte_depth)
 	{
-		case 1:
 		case 2:
 		case 4:
 			break;
@@ -1302,7 +1275,7 @@ try {
 	const auto index_buffer_offset = param.index_buffer_offset + (param.index_offset * param.index_byte_depth);
 
 	const auto index_buffer_indices = reinterpret_cast<const void*>(
-		static_cast<std::intptr_t>(index_buffer_offset));
+		static_cast<intptr_t>(index_buffer_offset));
 
 	const auto gl_element_type = GlR3rUtils::index_buffer_get_element_type_by_byte_depth(
 		param.index_byte_depth);
