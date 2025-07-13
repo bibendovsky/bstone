@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
-project(bstone_glapigen VERSION 1.0.0 LANGUAGES CXX)
+project(bstone_glapigen VERSION 1.0.1 LANGUAGES CXX)
 
 message(STATUS "[bstone_glapigen] v${PROJECT_VERSION}")
 
