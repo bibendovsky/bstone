@@ -3316,7 +3316,7 @@ bool cl_option_value_to_bool(const std::string& value_string)
 int main(int argc, char* argv[])
 try
 {
-	std::cout << "BSTONE OpenGL API generator." << std::endl;
+	std::cout << "BSTONE OpenGL API generator v" << CMAKE_PROJECT_VERSION << std::endl;
 
 	constexpr auto default_indent_with_space = false;
 	constexpr auto default_indent_size = 4;
