@@ -1201,10 +1201,10 @@ enum class RegistryCTypeSuffix
 
 struct RegistryType
 {
-	bool is_header;
-	std::string name;
-	std::string value;
-	std::size_t apientry_offset; // Zero value for none.
+	bool is_header{};
+	std::string name{};
+	std::string value{};
+	std::size_t apientry_offset{}; // Zero value for none.
 
 	bool has_apientry() const noexcept;
 };
@@ -1225,12 +1225,12 @@ using RegistryTypeNames = std::vector<std::string>;
 
 struct RegistryEnum
 {
-	bool is_bitmask;
-	RegistryApi api;
-	std::string name;
-	std::string alias;
-	std::string value;
-	RegistryCTypeSuffix c_type_suffix;
+	bool is_bitmask{};
+	RegistryApi api{RegistryApi::none};
+	std::string name{};
+	std::string alias{};
+	std::string value{};
+	RegistryCTypeSuffix c_type_suffix{RegistryCTypeSuffix::none};
 };
 
 using RegistryApiToEnumMap = std::unordered_map<RegistryApi, RegistryEnum>;
@@ -1266,10 +1266,10 @@ using RegistryFeatureCommands = std::vector<std::string>;
 
 struct RegistryFeature
 {
-	RegistryApi api;
-	std::string name;
-	std::string number;
-	RegistryFeatureCommands commands;
+	RegistryApi api{RegistryApi::none};
+	std::string name{};
+	std::string number{};
+	RegistryFeatureCommands commands{};
 };
 
 using RegistryFeatureMap = std::unordered_map<std::string, RegistryFeature>;
