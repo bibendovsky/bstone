@@ -212,7 +212,7 @@ bool ascii_is_digit(char ch) noexcept
 
 std::string ascii_to_upper(const std::string& string)
 {
-	auto result = string;
+	std::string result = string;
 
 	for (auto& ch : result)
 	{
