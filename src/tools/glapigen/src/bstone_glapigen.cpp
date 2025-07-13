@@ -654,7 +654,7 @@ bool XmlParser::is_eol(std::intptr_t& eol_length) const
 	switch (peek_char())
 	{
 		case '\r':
-			eol_length = 1 + (peek_char(1) == '\n');
+			eol_length = std::intptr_t{1} + (peek_char(1) == '\n');
 			return true;
 
 		case '\n':
@@ -716,7 +716,7 @@ std::intptr_t XmlParser::skip_whitespaces()
 				break;
 
 			case '\r':
-				advance_char(1 + (peek_char(1) == '\n'));
+				advance_char(std::size_t{1} + (peek_char(1) == '\n'));
 				move_cursor_to_next_line();
 				break;
 
