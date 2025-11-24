@@ -11,43 +11,24 @@ SPDX-License-Identifier: MIT
 
 #ifdef _WIN32
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-
-#include <memory>
-
-#include <wtypes.h>
-#include <unknwn.h>
-
 namespace bstone {
 namespace win32 {
 
 struct OsVersion
 {
-	int major{};
-	int minor{};
-	int build{};
+	unsigned int major;
+	unsigned int minor;
+	unsigned int build;
 };
 
 // ==========================================================================
 
-constexpr bool operator>=(OsVersion lhs, OsVersion rhs) noexcept
-{
-	return
-		lhs.major > rhs.major ||
-		(lhs.major == rhs.major && lhs.minor > rhs.minor) ||
-		(lhs.major == rhs.major && lhs.minor == rhs.minor && lhs.build >= rhs.build);
-}
-
-constexpr bool operator<(OsVersion lhs, OsVersion rhs) noexcept
-{
-	return !(lhs >= rhs);
-}
+bool operator>=(const OsVersion& lhs, const OsVersion& rhs);
+bool operator<(const OsVersion& lhs, const OsVersion& rhs);
 
 // ==========================================================================
 
-OsVersion get_os_version() noexcept;
+OsVersion get_os_version();
 
 } // namespace win32
 } // namespace bstone
