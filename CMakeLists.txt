@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
 project(bstone_solution)
 
-message(STATUS "[bstone_solution] v${PROJECT_VERSION}")
+message(STATUS "[bstone_solution]")
 
 option(BSTONE_USE_STATIC_LINKING "Link build statically." OFF)
 message(STATUS "[bstone_solution] Static linking: ${BSTONE_USE_STATIC_LINKING}")
