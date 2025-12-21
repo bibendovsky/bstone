@@ -192,7 +192,7 @@ typedef struct
     SDL_Rect lockedRect;
 } D3D12_TextureData;
 
-/* Pipeline State Arg0 data */
+/* Pipeline State Object data */
 typedef struct
 {
     D3D12_Shader shader;
