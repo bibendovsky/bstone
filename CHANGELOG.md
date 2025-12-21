@@ -1,6 +1,22 @@
 # BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 # Changelog
 
+## [1.3.0] - ????-??-??
+### Added
+- Vulkan 1.0 renderer.
+- New values for cvar 'vid_renderer': 'vulkan' and 'null' (debug build only).
+- [CMake] New option 'BSTONE_VULKAN_COMPILE_SHADERS' to control compiling Vulkan shaders. Useful for development.
+- [CMake] New option 'BSTONE_VULKAN_COMPILE_SHADERS_DEBUG_BUILD' to control debug information in Vulkan shaders. Useful for development.
+
+### Changed
+- [WIN32] Use RtlGetVersion to get OS version.
+- Update SDL to v2.32.10.
+- Use short Git hash for window caption and package version.
+
+### Fixed
+- [GLAPIGEN] Fix possible sub-expression overflow.
+- [GLAPIGEN] Fix operator precedence.
+
 
 ## [1.2.16] - 2025-05-13
 ### Added
