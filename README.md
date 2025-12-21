@@ -554,7 +554,7 @@ Notes:
     - `gl_3_2_c` - OpenGL 3.2 core or higher.
     - `gles_2_0` - OpenGL ES 2.0 or higher.
     - `vulkan` - Vulkan 1.0 or higher.
-    - 'null' - for development Available in debug builds only.
+    - 'null' - for development. Available in debug builds only.
 
   Default: `auto_detect`
 
