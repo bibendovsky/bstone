@@ -20,7 +20,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "id_vh.h"
 #include "id_vl.h"
 
-#include "bstone_algorithm.h"
 #include "bstone_door.h"
 #include "bstone_generic_fizzle_fx.h"
 #include "bstone_globals.h"
@@ -1035,7 +1034,7 @@ std::int16_t CalcRotate(
 
 	if (dir == nodir)
 	{
-		dir = static_cast<dirtype>(bstone::clamp(ob->trydir & 127, 0, 8));
+		dir = static_cast<dirtype>(std::clamp(ob->trydir & 127, 0, 8));
 	}
 
 	int target_angle = (view_angle - 180) - dirangle[dir];
