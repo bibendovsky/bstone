@@ -6,7 +6,7 @@ message(STATUS "[bstone_tests] v${PROJECT_VERSION}")
 add_executable(bstone_tests "")
 
 set_target_properties(bstone_tests PROPERTIES
-	CXX_STANDARD 14
+	CXX_STANDARD 20
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS OFF
 )
