@@ -6,7 +6,7 @@ message(STATUS "[bstone_ltrimcs] v${PROJECT_VERSION}")
 add_executable(bstone_ltrimcs src/bstone_ltrimcs.cpp)
 
 set_target_properties(bstone_ltrimcs PROPERTIES
-	CXX_STANDARD 14
+	CXX_STANDARD 20
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS OFF
 )

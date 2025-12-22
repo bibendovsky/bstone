@@ -4,7 +4,7 @@ project(bstone_tests_shared_library VERSION 1.0.0 LANGUAGES CXX)
 add_library(bstone_tests_shared_library SHARED "")
 
 set_target_properties(bstone_tests_shared_library PROPERTIES
-	CXX_STANDARD 14
+	CXX_STANDARD 20
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS OFF
 	OUTPUT_NAME "bstone_tests_shared_library"
