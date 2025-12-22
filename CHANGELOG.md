@@ -1,6 +1,11 @@
 # BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 # Changelog
 
+## [?.?.?] - ????-??-??
+### Changed
+- [CMake] Raise minimum version to 3.24.
+
+
 
 ## [1.3.4] - 2026-05-27
 ### Fixed

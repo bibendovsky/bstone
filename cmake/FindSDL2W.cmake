@@ -18,7 +18,7 @@ Targets:
   - SDL2W::SDL2W - SDL2 or SDL2-static.
 ]]
 
-cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.24.0 FATAL_ERROR)
 
 set(SDL2W_VERSION "1.0.7")
 message(STATUS "[SDL2W] Version: ${SDL2W_VERSION}")

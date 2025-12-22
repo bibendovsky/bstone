@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.24.0 FATAL_ERROR)
 project(bstone_bin2c VERSION 1.0.0 LANGUAGES CXX)
 
 message(STATUS "[bstone_bin2c] v${PROJECT_VERSION}")
