@@ -15,7 +15,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "id_vh.h"
 #include "id_vl.h"
 
-#include "bstone_algorithm.h"
 #include "bstone_assert.h"
 #include "bstone_atomic_flag.h"
 #include "bstone_exception_utils.h"
@@ -2604,7 +2603,7 @@ try {
 int vid_clamp_filler_color_index(
 	int filler_color_index) noexcept
 try {
-	return bstone::clamp(filler_color_index, 0, 255);
+	return std::clamp(filler_color_index, 0, 255);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_apply_filler_color()

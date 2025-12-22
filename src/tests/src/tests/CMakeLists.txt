@@ -50,8 +50,6 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_span.h
 		../../../bstone/src/bstone_utility.cpp
 		../../../bstone/src/bstone_utility.h
-		../../../bstone/src/bstone_algorithm.cpp
-		../../../bstone/src/bstone_algorithm.h
 		../../../bstone/src/bstone_ascii.cpp
 		../../../bstone/src/bstone_ascii.h
 		../../../bstone/src/bstone_endian.cpp
@@ -155,7 +153,6 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_process_win32.cpp
 		../../../bstone/src/bstone_process.h
 	PRIVATE
-		src/bstone_tests_algorithm.cpp
 		src/bstone_tests_array.cpp
 		src/bstone_tests_ascii.cpp
 		src/bstone_tests_char_conv.cpp
