@@ -9,7 +9,6 @@ SPDX-License-Identifier: MIT
 #include <iterator>
 #include <limits>
 #include <utility>
-#include "bstone_algorithm.h"
 #include "bstone_char_conv.h"
 #include "bstone_cvalidator.h"
 #include "bstone_cvar.h"
@@ -171,7 +170,7 @@ try {
 
 	if (int32_values_.is_empty())
 	{
-		value = clamp(value, int32_min_value_, int32_max_value_);
+		value = std::clamp(value, int32_min_value_, int32_max_value_);
 	}
 	else
 	{
