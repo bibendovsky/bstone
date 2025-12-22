@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.24.0 FATAL_ERROR)
 
 add_subdirectory(lib/khronos)
 add_subdirectory(lib/nuked_opl3)
