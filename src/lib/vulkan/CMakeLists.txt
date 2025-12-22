@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.24.0 FATAL_ERROR)
 project(bstone_vulkan VERSION 1.0.0 LANGUAGES CXX)
 message(STATUS "[bstone_vulkan] v${PROJECT_VERSION}")
 add_library(bstone_vulkan STATIC "")
