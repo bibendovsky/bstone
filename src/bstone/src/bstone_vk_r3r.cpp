@@ -9,7 +9,6 @@ SPDX-License-Identifier: MIT
 #include "bstone_vk_r3r.h"
 #include "bstone_assert.h"
 #include "bstone_ascii.h"
-#include "bstone_algorithm.h"
 #include "bstone_char_conv.h"
 #include "bstone_exception.h"
 #include "bstone_scope_exit.h"

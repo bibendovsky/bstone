@@ -400,8 +400,6 @@ source_group("lib/dosbox" FILES ${BSTONE_LIB_DOSBOX_SOURCES})
 # ---------------------------------------------------------------------------
 
 set(BSTONE_LIB_MISC_SOURCES
-	src/bstone_algorithm.cpp
-	src/bstone_algorithm.h
 	src/bstone_api_string.cpp
 	src/bstone_api_string.h
 	src/bstone_array.cpp

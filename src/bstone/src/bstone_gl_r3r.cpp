@@ -7,9 +7,9 @@ SPDX-License-Identifier: MIT
 // OpenGL 3D Renderer
 
 #include <stddef.h>
+#include <algorithm>
 #include <list>
 
-#include "bstone_algorithm.h"
 #include "bstone_assert.h"
 #include "bstone_exception.h"
 #include "bstone_single_pool_resource.h"
@@ -922,7 +922,7 @@ try {
 		return;
 	}
 
-	const auto aa_degree = clamp(aa_value_, R3rLimits::min_aa_on(), device_features_.max_msaa_degree);
+	const auto aa_degree = std::clamp(aa_value_, R3rLimits::min_aa_on(), device_features_.max_msaa_degree);
 
 	create_msaa_color_rb(screen_width_, screen_height_, aa_degree);
 	create_msaa_depth_rb(screen_width_, screen_height_, aa_degree);
