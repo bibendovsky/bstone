@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.24.0 FATAL_ERROR)
 project(bstone_tests_shared_library VERSION 1.0.0 LANGUAGES CXX)
 
 add_library(bstone_tests_shared_library SHARED "")

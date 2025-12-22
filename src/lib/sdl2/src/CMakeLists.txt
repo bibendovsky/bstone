@@ -5,7 +5,7 @@ endif()
 # MSVC runtime library flags are selected by an abstraction.
 set(CMAKE_POLICY_DEFAULT_CMP0091 NEW)
 
-cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.24.0 FATAL_ERROR)
 project(SDL2 C)
 
 if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
