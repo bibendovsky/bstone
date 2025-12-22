@@ -7,7 +7,7 @@ add_library(bstone_lib_xbrz STATIC "")
 add_library(bstone::lib::xbrz ALIAS bstone_lib_xbrz)
 
 set_target_properties(bstone_lib_xbrz PROPERTIES
-	CXX_STANDARD 14
+	CXX_STANDARD 20
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS OFF
 )

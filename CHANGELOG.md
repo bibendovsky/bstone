@@ -4,6 +4,7 @@
 ## [?.?.?] - ????-??-??
 ### Changed
 - [CMake] Raise minimum version to 3.24.
+- [CMake] Raise minimum C++ standard to 20.
 
 
 
