@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.24.0 FATAL_ERROR)
 project(bstone_lib_xbrz VERSION 1.0.0 LANGUAGES CXX)
 
 message(STATUS "[bstone_lib_xbrz] v${PROJECT_VERSION}")

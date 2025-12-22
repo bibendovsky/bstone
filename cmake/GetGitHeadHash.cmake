@@ -15,7 +15,7 @@ Examples:
   get_git_hash(${repo_dir} HASH LENGTH 7)
 ]]
 
-cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.24.0 FATAL_ERROR)
 
 function(get_git_hash DIR HASH_VAR)
 	if (ARGC EQUAL 2)

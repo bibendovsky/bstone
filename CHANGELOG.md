@@ -1,6 +1,11 @@
 # BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 # Changelog
 
+## [?.?.?] - ????-??-??
+### Changed
+- [CMake] Raise minimum version to 3.24.
+
+
 ## [1.3.2] - 2025-12-30
 ### Fixed
 - [#505] Elevator stats screen sound timing. (@bbitmaster)
