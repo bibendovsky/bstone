@@ -64,7 +64,7 @@ inline constexpr int compare(
 	BSTONE_ASSERT((lhs_chars != nullptr && lhs_size >= 0) || (lhs_chars == nullptr && lhs_size == 0));
 	BSTONE_ASSERT((rhs_chars != nullptr && rhs_size >= 0) || (rhs_chars == nullptr && rhs_size == 0));
 
-	const auto size = std::min(lhs_size, rhs_size);
+	const auto size = (std::min)(lhs_size, rhs_size);
 
 	for (auto i = std::intptr_t{}; i < size; ++i)
 	{

@@ -6,7 +6,7 @@ message(STATUS "[bstone_bin2c] v${PROJECT_VERSION}")
 add_executable(bstone_bin2c src/bstone_bin2c.cpp)
 
 set_target_properties(bstone_bin2c PROPERTIES
-	CXX_STANDARD 14
+	CXX_STANDARD 20
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS OFF
 )

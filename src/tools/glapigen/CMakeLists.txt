@@ -6,7 +6,7 @@ message(STATUS "[bstone_glapigen] v${PROJECT_VERSION}")
 add_executable(bstone_glapigen src/bstone_glapigen.cpp)
 
 set_target_properties(bstone_glapigen PROPERTIES
-	CXX_STANDARD 14
+	CXX_STANDARD 20
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS OFF
 )

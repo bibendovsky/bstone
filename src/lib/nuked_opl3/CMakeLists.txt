@@ -7,7 +7,7 @@ add_library(bstone_lib_nuked_opl3 STATIC "")
 add_library(bstone::lib::nuked_opl3 ALIAS bstone_lib_nuked_opl3)
 
 set_target_properties(bstone_lib_nuked_opl3 PROPERTIES
-	CXX_STANDARD 14
+	CXX_STANDARD 20
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS OFF
 )
