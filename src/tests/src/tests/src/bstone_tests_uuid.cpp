@@ -182,7 +182,7 @@ void test_spu3juxzm3inqnqs()
 		0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
 	};
 
-	constexpr auto uuid = bstone::Uuid{bstone::StringView{"00112233445566778899aaBBccDDeEFf"}};
+	constexpr auto uuid = bstone::Uuid{std::string_view{"00112233445566778899aaBBccDDeEFf"}};
 
 	const auto& uuid_bytes = reinterpret_cast<const std::uint8_t (&)[16]>(uuid);
 
@@ -203,7 +203,7 @@ void test_1fa65x799xzejdeo()
 
 	try
 	{
-		bstone::Uuid{bstone::StringView{"00112233445566778899aaBBccDDeEFf0"}};
+		bstone::Uuid{std::string_view{"00112233445566778899aaBBccDDeEFf0"}};
 	}
 	catch (...)
 	{
@@ -222,7 +222,7 @@ void test_9ekg4up92qi2f0q4()
 
 	try
 	{
-		bstone::Uuid{bstone::StringView{"00112233445566778899aaBBccDDeEGg"}};
+		bstone::Uuid{std::string_view{"00112233445566778899aaBBccDDeEGg"}};
 	}
 	catch (...)
 	{
@@ -242,7 +242,7 @@ void test_q3fshrenzkik54j8()
 		0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
 	};
 
-	constexpr auto uuid = bstone::Uuid{bstone::StringView{"00112233-4455-6677-8899-aaBBccDDeEFf"}};
+	constexpr auto uuid = bstone::Uuid{std::string_view{"00112233-4455-6677-8899-aaBBccDDeEFf"}};
 
 	const auto& uuid_bytes = reinterpret_cast<const std::uint8_t (&)[16]>(uuid);
 
@@ -263,7 +263,7 @@ void test_wfgx9qbqand08fxw()
 
 	try
 	{
-		bstone::Uuid{bstone::StringView{"00112233-4455-6677-8899-aaBBccDDeEFf0"}};
+		bstone::Uuid{std::string_view{"00112233-4455-6677-8899-aaBBccDDeEFf0"}};
 	}
 	catch (...)
 	{
@@ -282,7 +282,7 @@ void test_bccastxfwumxt148()
 
 	try
 	{
-		bstone::Uuid{bstone::StringView{"00112233-4455-6677-8899-aaBBccDDeEGg"}};
+		bstone::Uuid{std::string_view{"00112233-4455-6677-8899-aaBBccDDeEGg"}};
 	}
 	catch (...)
 	{
@@ -301,7 +301,7 @@ void test_d68jxh59katyxkqr()
 
 	try
 	{
-		bstone::Uuid{bstone::StringView{"00112233-4455 6677-8899-aaBBccDDeEFf"}};
+		bstone::Uuid{std::string_view{"00112233-4455 6677-8899-aaBBccDDeEFf"}};
 	}
 	catch (...)
 	{
@@ -321,7 +321,7 @@ void test_bdqyqxxrwvy8uka6()
 		0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
 	};
 
-	constexpr auto uuid = bstone::Uuid{bstone::StringView{"{00112233-4455-6677-8899-aaBBccDDeEFf}"}};
+	constexpr auto uuid = bstone::Uuid{std::string_view{"{00112233-4455-6677-8899-aaBBccDDeEFf}"}};
 
 	const auto& uuid_bytes = reinterpret_cast<const std::uint8_t (&)[16]>(uuid);
 
@@ -342,7 +342,7 @@ void test_hgt0xwk2pe9sx6jy()
 
 	try
 	{
-		bstone::Uuid{bstone::StringView{"{00112233-4455-6677-8899-aaBBccDDeEFf0}"}};
+		bstone::Uuid{std::string_view{"{00112233-4455-6677-8899-aaBBccDDeEFf0}"}};
 	}
 	catch (...)
 	{
@@ -361,7 +361,7 @@ void test_s2s9io6ypcvh3yjn()
 
 	try
 	{
-		bstone::Uuid{bstone::StringView{"{00112233-4455-6677-8899-aaBBccDDeEGg}"}};
+		bstone::Uuid{std::string_view{"{00112233-4455-6677-8899-aaBBccDDeEGg}"}};
 	}
 	catch (...)
 	{
@@ -380,7 +380,7 @@ void test_0j2vjyvziplh1y5n()
 
 	try
 	{
-		bstone::Uuid{bstone::StringView{"{00112233-4455 6677-8899-aaBBccDDeEFf}"}};
+		bstone::Uuid{std::string_view{"{00112233-4455 6677-8899-aaBBccDDeEFf}"}};
 	}
 	catch (...)
 	{

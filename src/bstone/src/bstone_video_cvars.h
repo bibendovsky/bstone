@@ -10,7 +10,7 @@ SPDX-License-Identifier: MIT
 #define BSTONE_VIDEO_CVARS_INCLUDED
 
 #include "bstone_cvar.h"
-#include "bstone_string_view.h"
+#include <string_view>
 
 namespace bstone {
 
@@ -26,10 +26,10 @@ extern bstone::CVar vid_refresh_rate_cvar;
 // ==========================================================================
 // vid_window_mode
 
-constexpr bstone::StringView vid_window_mode_cvar_windowed = "windowed";
-constexpr bstone::StringView vid_window_mode_cvar_fullscreen = "fullscreen";
-constexpr bstone::StringView vid_window_mode_cvar_fake_fullscreen = "fake_fullscreen";
-constexpr bstone::StringView vid_window_mode_cvar_default = vid_window_mode_cvar_windowed;
+constexpr std::string_view vid_window_mode_cvar_windowed = "windowed";
+constexpr std::string_view vid_window_mode_cvar_fullscreen = "fullscreen";
+constexpr std::string_view vid_window_mode_cvar_fake_fullscreen = "fake_fullscreen";
+constexpr std::string_view vid_window_mode_cvar_default = vid_window_mode_cvar_windowed;
 
 extern bstone::CVar vid_window_mode_cvar;
 

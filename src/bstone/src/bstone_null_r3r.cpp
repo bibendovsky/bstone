@@ -37,8 +37,8 @@ public:
 
 private:
 	R3rType do_get_type() const noexcept override;
-	StringView do_get_name() const noexcept override;
-	StringView do_get_description() const noexcept override;
+	std::string_view do_get_name() const noexcept override;
+	std::string_view do_get_description() const noexcept override;
 
 	const R3rDeviceFeatures& do_get_device_features() const noexcept override;
 	const R3rDeviceInfo& do_get_device_info() const noexcept override;
@@ -80,8 +80,8 @@ private:
 	sys::WindowMgr& window_mgr_;
 
 	R3rType type_{};
-	StringView name_{};
-	StringView description_{};
+	std::string_view name_{};
+	std::string_view description_{};
 	R3rDeviceFeatures r3r_device_features_{};
 	R3rDeviceInfo device_info_{};
 	sys::WindowUPtr window_{};
@@ -129,12 +129,12 @@ R3rType NullR3rImpl::do_get_type() const noexcept
 	return type_;
 }
 
-StringView NullR3rImpl::do_get_name() const noexcept
+std::string_view NullR3rImpl::do_get_name() const noexcept
 {
 	return name_;
 }
 
-StringView NullR3rImpl::do_get_description() const noexcept
+std::string_view NullR3rImpl::do_get_description() const noexcept
 {
 	return description_;
 }

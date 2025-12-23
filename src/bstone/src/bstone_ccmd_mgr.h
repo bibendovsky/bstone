@@ -9,9 +9,9 @@ SPDX-License-Identifier: MIT
 
 #include <cstdint>
 #include <memory>
+#include <string_view>
 #include "bstone_ccmd.h"
 #include "bstone_span.h"
-#include "bstone_string_view.h"
 
 namespace bstone {
 
@@ -25,7 +25,7 @@ public:
 	CCmdMgr();
 	virtual ~CCmdMgr();
 
-	virtual CCmd* find(StringView name) const noexcept = 0;
+	virtual CCmd* find(std::string_view name) const noexcept = 0;
 	virtual CCmdMgrCCmds get_all() noexcept = 0;
 
 	virtual void add(CCmd& ccmd) = 0;
