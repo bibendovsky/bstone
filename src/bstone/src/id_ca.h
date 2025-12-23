@@ -11,10 +11,9 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 
 #include <memory>
-
+#include <span>
 #include "3d_def.h"
 #include "bstone_file_stream.h"
-#include "bstone_span.h"
 
 
 const int MAPPLANES = 2;
@@ -79,7 +78,7 @@ struct AssetsResource
 	const char* hash_string{};
 }; // AssetsResource
 
-using AssetsResources = bstone::Span<const AssetsResource>;
+using AssetsResources = std::span<const AssetsResource>;
 
 enum class AssetsVersion
 {

@@ -10,9 +10,8 @@ SPDX-License-Identifier: MIT
 #define BSTONE_R3R_INCLUDED
 
 #include <memory>
+#include <span>
 #include <string_view>
-
-#include "bstone_span.h"
 
 #include "bstone_sys_pixel_format.h"
 #include "bstone_sys_window.h"
@@ -95,7 +94,7 @@ public:
 	R3rShaderUPtr create_shader(const R3rShaderInitParam& param);
 	R3rShaderStageUPtr create_shader_stage(const R3rShaderStageInitParam& param);
 
-	void submit_commands(Span<R3rCmdBuffer*> command_buffers);
+	void submit_commands(std::span<R3rCmdBuffer*> command_buffers);
 	void wait_for_device();
 
 private:
@@ -130,7 +129,7 @@ private:
 	virtual R3rShaderUPtr do_create_shader(const R3rShaderInitParam& param) = 0;
 	virtual R3rShaderStageUPtr do_create_shader_stage(const R3rShaderStageInitParam& param) = 0;
 
-	virtual void do_submit_commands(Span<R3rCmdBuffer*> command_buffers) = 0;
+	virtual void do_submit_commands(std::span<R3rCmdBuffer*> command_buffers) = 0;
 	virtual void do_wait_for_device() = 0;
 };
 

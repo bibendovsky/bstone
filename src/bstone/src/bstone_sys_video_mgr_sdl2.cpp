@@ -62,7 +62,7 @@ private:
 	Logger& do_get_logger() override;
 
 	DisplayMode do_get_current_display_mode() override;
-	Span<const DisplayMode> do_get_display_modes() override;
+	std::span<const DisplayMode> do_get_display_modes() override;
 
 	GlCurrentContext& do_get_gl_current_context() override;
 	VulkanMgr& do_get_vulkan_mgr() override;
@@ -143,7 +143,7 @@ try {
 	return map_display_mode(sdl_display_mode);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-Span<const DisplayMode> Sdl2VideoMgr::do_get_display_modes()
+std::span<const DisplayMode> Sdl2VideoMgr::do_get_display_modes()
 try {
 	BSTONE_ASSERT(is_initialized_);
 
@@ -157,7 +157,7 @@ try {
 		display_mode_cache_[i] = map_display_mode(sdl_display_mode);
 	}
 
-	return Span<const DisplayMode>{display_mode_cache_, count};
+	return std::span<const DisplayMode>{display_mode_cache_, static_cast<std::size_t>(count)};
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 GlCurrentContext& Sdl2VideoMgr::do_get_gl_current_context()

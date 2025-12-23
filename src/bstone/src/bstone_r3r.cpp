@@ -113,7 +113,7 @@ try {
 	return do_create_shader_stage(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void R3r::submit_commands(Span<R3rCmdBuffer*> command_buffers)
+void R3r::submit_commands(std::span<R3rCmdBuffer*> command_buffers)
 try {
 	return do_submit_commands(command_buffers);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED

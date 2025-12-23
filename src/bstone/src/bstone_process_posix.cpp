@@ -18,6 +18,7 @@ SPDX-License-Identifier: MIT
 
 #include <algorithm>
 #include <memory>
+#include <span>
 
 #ifdef BSTONE_PROCESS_DEBUG
 #include <exception>
@@ -35,7 +36,6 @@ SPDX-License-Identifier: MIT
 #include "bstone_exception.h"
 #include "bstone_fs.h"
 #include "bstone_memory_resource.h"
-#include "bstone_span.h"
 
 #include "bstone_posix_string.h"
 
@@ -59,7 +59,7 @@ try
 		BSTONE_THROW_STATIC_SOURCE("No \"PATH\" environment variable.");
 	}
 
-	const auto url_command_name_span = Span<const char>
+	const auto url_command_name_span = std::span<const char>
 	{
 		url_command_name,
 		char_traits::get_size(url_command_name)

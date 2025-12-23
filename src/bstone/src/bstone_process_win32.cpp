@@ -12,6 +12,7 @@ SPDX-License-Identifier: MIT
 #define WIN32_LEAN_AND_MEAN
 #endif
 
+#include <span>
 #include <string_view>
 #include <windows.h>
 #include <shellapi.h>
@@ -19,7 +20,6 @@ SPDX-License-Identifier: MIT
 #include "bstone_assert.h"
 #include "bstone_char_traits.h"
 #include "bstone_exception.h"
-#include "bstone_span.h"
 #include "bstone_utf.h"
 
 #include "bstone_memory_resource.h"

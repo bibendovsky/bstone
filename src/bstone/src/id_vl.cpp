@@ -84,7 +84,7 @@ auto vid_renderer_cvar = bstone::CVar{
 	vid_renderer_cvar_name,
 	bstone::CVarFlags::archive,
 	vid_renderer_cvar_auto_detect,
-	bstone::make_span(vid_renderer_cvar_values)};
+	std::span{vid_renderer_cvar_values}};
 
 // vid_is_positioned
 
@@ -190,7 +190,7 @@ auto vid_aa_type_cvar = bstone::CVar{
 	vid_aa_type_cvar_name,
 	bstone::CVarFlags::archive,
 	vid_none_string,
-	bstone::make_span(vid_aa_type_cvar_values)};
+	std::span{vid_aa_type_cvar_values}};
 
 // vid_aa_degree
 
@@ -223,7 +223,7 @@ auto vid_texture_upscale_filter_cvar = bstone::CVar{
 	vid_texture_upscale_filter_cvar_name,
 	bstone::CVarFlags::archive,
 	vid_none_string,
-	bstone::make_span(vid_texture_upscale_filter_cvar_values)};
+	std::span{vid_texture_upscale_filter_cvar_values}};
 
 // vid_texture_upscale_xbrz_degree
 
@@ -245,7 +245,7 @@ auto vid_2d_texture_filter_cvar = bstone::CVar{
 	vid_2d_texture_filter_cvar_name,
 	bstone::CVarFlags::archive,
 	vid_nearest_string,
-	bstone::make_span(vid_filter_strings)};
+	std::span{vid_filter_strings}};
 
 // vid_3d_texture_image_filter
 
@@ -256,7 +256,7 @@ auto vid_3d_texture_image_filter_cvar = bstone::CVar{
 	vid_3d_texture_image_filter_cvar_name,
 	bstone::CVarFlags::archive,
 	vid_nearest_string,
-	bstone::make_span(vid_filter_strings)};
+	std::span{vid_filter_strings}};
 
 // vid_3d_texture_mipmap_filter
 
@@ -267,7 +267,7 @@ auto vid_3d_texture_mipmap_filter_cvar = bstone::CVar{
 	vid_3d_texture_mipmap_filter_cvar_name,
 	bstone::CVarFlags::archive,
 	vid_nearest_string,
-	bstone::make_span(vid_filter_strings)};
+	std::span{vid_filter_strings}};
 
 // vid_3d_texture_anisotropy
 
@@ -2241,7 +2241,7 @@ try {
 	const auto display_modes = bstone::globals::sys_video_mgr->get_display_modes();
 
 	result.clear();
-	result.reserve(1 + static_cast<std::size_t>(display_modes.get_size()));
+	result.reserve(1 + display_modes.size());
 
 	for (const auto& display_mode : display_modes)
 	{

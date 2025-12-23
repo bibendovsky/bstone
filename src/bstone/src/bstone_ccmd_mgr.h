@@ -9,13 +9,13 @@ SPDX-License-Identifier: MIT
 
 #include <cstdint>
 #include <memory>
+#include <span>
 #include <string_view>
 #include "bstone_ccmd.h"
-#include "bstone_span.h"
 
 namespace bstone {
 
-using CCmdMgrCCmds = Span<CCmd*>;
+using CCmdMgrCCmds = std::span<CCmd*>;
 
 // ==========================================================================
 
