@@ -28,7 +28,7 @@ SourceException::~SourceException() = default;
 
 // ==========================================================================
 
-StaticSourceException::StaticSourceException(const SourceLocation& source_location, const char* message)
+StaticSourceException::StaticSourceException(const std::source_location& source_location, const char* message)
 	:
 	source_location_{source_location},
 	message_{message != nullptr ? message : ""}
@@ -36,7 +36,7 @@ StaticSourceException::StaticSourceException(const SourceLocation& source_locati
 	BSTONE_ASSERT(message != nullptr);
 }
 
-StaticSourceException::StaticSourceException(const SourceLocation& source_location) noexcept
+StaticSourceException::StaticSourceException(const std::source_location& source_location) noexcept
 	:
 	source_location_{source_location}
 {}
@@ -56,7 +56,7 @@ StaticSourceException& StaticSourceException::operator=(const StaticSourceExcept
 
 StaticSourceException::~StaticSourceException() = default;
 
-const SourceLocation& StaticSourceException::get_source_location() const noexcept
+const std::source_location& StaticSourceException::get_source_location() const noexcept
 {
 	return source_location_;
 }
@@ -68,23 +68,23 @@ const char* StaticSourceException::what() const noexcept
 
 void StaticSourceException::swap(StaticSourceException& rhs) noexcept
 {
-	source_location_.swap(rhs.source_location_);
+	std::swap(source_location_, rhs.source_location_);
 	bstone::swop(message_, rhs.message_);
 }
 
-[[noreturn]] void StaticSourceException::fail(const SourceLocation& source_location, const char* message)
+[[noreturn]] void StaticSourceException::fail(const std::source_location& source_location, const char* message)
 {
 	throw StaticSourceException{source_location, message};
 }
 
-[[noreturn]] void StaticSourceException::fail_nested(const SourceLocation& source_location)
+[[noreturn]] void StaticSourceException::fail_nested(const std::source_location& source_location)
 {
 	std::throw_with_nested(StaticSourceException{source_location});
 }
 
 // ==========================================================================
 
-DynamicSourceException::DynamicSourceException(const SourceLocation& source_location, const char* message)
+DynamicSourceException::DynamicSourceException(const std::source_location& source_location, const char* message)
 	:
 	source_location_{source_location}
 {
@@ -150,7 +150,7 @@ DynamicSourceException::~DynamicSourceException()
 	}
 }
 
-const SourceLocation& DynamicSourceException::get_source_location() const noexcept
+const std::source_location& DynamicSourceException::get_source_location() const noexcept
 {
 	return source_location_;
 }
@@ -162,11 +162,11 @@ const char* DynamicSourceException::what() const noexcept
 
 void DynamicSourceException::swap(DynamicSourceException& rhs) noexcept
 {
-	source_location_.swap(rhs.source_location_);
+	std::swap(source_location_, rhs.source_location_);
 	bstone::swop(control_block_, rhs.control_block_);
 }
 
-[[noreturn]] void DynamicSourceException::fail(const SourceLocation& source_location, const char* message)
+[[noreturn]] void DynamicSourceException::fail(const std::source_location& source_location, const char* message)
 {
 	throw DynamicSourceException{source_location, message};
 }
