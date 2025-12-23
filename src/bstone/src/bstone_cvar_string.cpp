@@ -15,7 +15,7 @@ const std::intptr_t CVarString::initial_capacity = 32;
 
 CVarString::CVarString() noexcept = default;
 
-CVarString::CVarString(StringView string_view)
+CVarString::CVarString(std::string_view string_view)
 {
 	set(string_view);
 }
@@ -30,7 +30,7 @@ CVarString::CVarString(CVarString&& rhs) noexcept
 	swap(rhs);
 }
 
-CVarString& CVarString::operator=(StringView string_view)
+CVarString& CVarString::operator=(std::string_view string_view)
 {
 	set(string_view);
 	return *this;
@@ -52,24 +52,24 @@ CVarString& CVarString::operator=(CVarString&& rhs) noexcept
 	return *this;
 }
 
-StringView CVarString::get() const noexcept
+std::string_view CVarString::get() const noexcept
 {
-	return StringView{storage_.get(), size_};
+	return std::string_view{storage_.get(), static_cast<std::size_t>(size_)};
 }
 
-void CVarString::set(StringView string_view)
+void CVarString::set(std::string_view string_view)
 {
-	const auto new_size = string_view.get_size();
+	const auto new_size = string_view.size();
 
 	if (new_size > capacity_)
 	{
-		const auto new_capacity = std::max(new_size, initial_capacity);
+		const auto new_capacity = std::max(new_size, static_cast<std::size_t>(initial_capacity));
 		auto new_storage = std::make_unique<char[]>(static_cast<std::size_t>(new_capacity));
 		storage_.swap(new_storage);
 		capacity_ = new_capacity;
 	}
 
-	std::copy_n(string_view.get_data(), new_size, storage_.get());
+	std::copy_n(string_view.data(), new_size, storage_.get());
 	size_ = new_size;
 }
 

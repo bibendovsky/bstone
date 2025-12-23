@@ -511,7 +511,7 @@ try {
 		var_param.type = new_type;
 		var_param.type_id = unit_type_id;
 		var_param.index = index;
-		var_param.name = StringView{name_buffer.data(), gl_length};
+		var_param.name = std::string_view{name_buffer.data(), static_cast<std::size_t>(gl_length)};
 		var_param.input_index = input_index;
 		var_param.gl_location = gl_location;
 

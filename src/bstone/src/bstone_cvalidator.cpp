@@ -10,9 +10,9 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-void CValidator::validate_name(StringView name)
+void CValidator::validate_name(std::string_view name)
 try {
-	if (name.is_empty())
+	if (name.empty())
 	{
 		BSTONE_THROW_STATIC_SOURCE("Empty name.");
 	}

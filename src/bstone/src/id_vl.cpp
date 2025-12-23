@@ -8,6 +8,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <algorithm>
 #include <chrono>
+#include <string_view>
 
 #include "id_ca.h"
 #include "id_heads.h"
@@ -28,7 +29,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_r3r_limits.h"
 #include "bstone_sprite_cache.h"
 #include "bstone_string_helper.h"
-#include "bstone_string_view.h"
 #include "bstone_sw_video.h"
 #include "bstone_text_writer.h"
 #include "bstone_time.h"
@@ -43,11 +43,11 @@ constexpr int default_window_height = 480;
 
 // Common names.
 
-constexpr auto vid_none_string = bstone::StringView{"none"};
-constexpr auto vid_nearest_string = bstone::StringView{"nearest"};
-constexpr auto vid_linear_string = bstone::StringView{"linear"};
+constexpr auto vid_none_string = std::string_view{"none"};
+constexpr auto vid_nearest_string = std::string_view{"nearest"};
+constexpr auto vid_linear_string = std::string_view{"linear"};
 
-constexpr bstone::StringView vid_filter_strings[] =
+constexpr std::string_view vid_filter_strings[] =
 {
 	vid_nearest_string,
 	vid_linear_string,
@@ -55,18 +55,18 @@ constexpr bstone::StringView vid_filter_strings[] =
 
 // vid_renderer
 
-constexpr auto vid_renderer_cvar_name = bstone::StringView{"vid_renderer"};
-constexpr auto vid_renderer_cvar_auto_detect = bstone::StringView{"auto-detect"};
+constexpr auto vid_renderer_cvar_name = std::string_view{"vid_renderer"};
+constexpr auto vid_renderer_cvar_auto_detect = std::string_view{"auto-detect"};
 #ifndef NDEBUG
-constexpr auto vid_renderer_cvar_null = bstone::StringView{"null"};
+constexpr auto vid_renderer_cvar_null = std::string_view{"null"};
 #endif
-constexpr auto vid_renderer_cvar_software = bstone::StringView{"software"};
-constexpr auto vid_renderer_cvar_gl_2_0 = bstone::StringView{"gl_2_0"};
-constexpr auto vid_renderer_cvar_gl_3_2_c = bstone::StringView{"gl_3_2_c"};
-constexpr auto vid_renderer_cvar_gles_2_0 = bstone::StringView{"gles_2_0"};
-constexpr auto vid_renderer_cvar_vulkan = bstone::StringView{"vulkan"};
+constexpr auto vid_renderer_cvar_software = std::string_view{"software"};
+constexpr auto vid_renderer_cvar_gl_2_0 = std::string_view{"gl_2_0"};
+constexpr auto vid_renderer_cvar_gl_3_2_c = std::string_view{"gl_3_2_c"};
+constexpr auto vid_renderer_cvar_gles_2_0 = std::string_view{"gles_2_0"};
+constexpr auto vid_renderer_cvar_vulkan = std::string_view{"vulkan"};
 
-constexpr bstone::StringView vid_renderer_cvar_values[] =
+constexpr std::string_view vid_renderer_cvar_values[] =
 {
 	vid_renderer_cvar_auto_detect,
 #ifndef NDEBUG
@@ -88,7 +88,7 @@ auto vid_renderer_cvar = bstone::CVar{
 
 // vid_is_positioned
 
-constexpr auto vid_is_positioned_cvar_name = bstone::StringView{"vid_is_positioned"};
+constexpr auto vid_is_positioned_cvar_name = std::string_view{"vid_is_positioned"};
 constexpr auto vid_is_positioned_cvar_default = false;
 
 auto vid_is_positioned_cvar = bstone::CVar{
@@ -99,7 +99,7 @@ auto vid_is_positioned_cvar = bstone::CVar{
 
 // vid_x
 
-constexpr auto vid_x_cvar_name = bstone::StringView{"vid_x"};
+constexpr auto vid_x_cvar_name = std::string_view{"vid_x"};
 constexpr auto vid_x_cvar_default = 0;
 
 auto vid_x_cvar = bstone::CVar{
@@ -110,7 +110,7 @@ auto vid_x_cvar = bstone::CVar{
 
 // vid_y
 
-constexpr auto vid_y_cvar_name = bstone::StringView{"vid_y"};
+constexpr auto vid_y_cvar_name = std::string_view{"vid_y"};
 constexpr auto vid_y_cvar_default = 0;
 
 auto vid_y_cvar = bstone::CVar{
@@ -121,7 +121,7 @@ auto vid_y_cvar = bstone::CVar{
 
 // vid_width
 
-constexpr auto vid_width_cvar_name = bstone::StringView{"vid_width"};
+constexpr auto vid_width_cvar_name = std::string_view{"vid_width"};
 constexpr auto vid_width_cvar_default = default_window_width;
 
 auto vid_width_cvar = bstone::CVar{
@@ -132,7 +132,7 @@ auto vid_width_cvar = bstone::CVar{
 
 // vid_height
 
-constexpr auto vid_height_cvar_name = bstone::StringView{"vid_height"};
+constexpr auto vid_height_cvar_name = std::string_view{"vid_height"};
 constexpr auto vid_height_cvar_default = default_window_height;
 
 auto vid_height_cvar = bstone::CVar{
@@ -143,7 +143,7 @@ auto vid_height_cvar = bstone::CVar{
 
 // vid_is_vsync
 
-constexpr auto vid_is_vsync_cvar_name = bstone::StringView{"vid_is_vsync"};
+constexpr auto vid_is_vsync_cvar_name = std::string_view{"vid_is_vsync"};
 constexpr auto vid_is_vsync_cvar_default = true;
 
 auto vid_is_vsync_cvar = bstone::CVar{
@@ -154,7 +154,7 @@ auto vid_is_vsync_cvar = bstone::CVar{
 
 // vid_is_ui_stretched
 
-constexpr auto vid_is_ui_stretched_cvar_name = bstone::StringView{"vid_is_ui_stretched"};
+constexpr auto vid_is_ui_stretched_cvar_name = std::string_view{"vid_is_ui_stretched"};
 constexpr auto vid_is_ui_stretched_cvar_default = false;
 
 auto vid_is_ui_stretched_cvar = bstone::CVar{
@@ -165,7 +165,7 @@ auto vid_is_ui_stretched_cvar = bstone::CVar{
 
 // vid_is_widescreen
 
-constexpr auto vid_is_widescreen_cvar_name = bstone::StringView{"vid_is_widescreen"};
+constexpr auto vid_is_widescreen_cvar_name = std::string_view{"vid_is_widescreen"};
 constexpr auto vid_is_widescreen_cvar_default = true;
 
 auto vid_is_widescreen_cvar = bstone::CVar{
@@ -176,10 +176,10 @@ auto vid_is_widescreen_cvar = bstone::CVar{
 
 // vid_aa_type
 
-constexpr auto vid_aa_type_cvar_name = bstone::StringView{"vid_aa_type"};
-constexpr auto vid_aa_type_cvar_msaa = bstone::StringView{"msaa"};
+constexpr auto vid_aa_type_cvar_name = std::string_view{"vid_aa_type"};
+constexpr auto vid_aa_type_cvar_msaa = std::string_view{"msaa"};
 
-constexpr bstone::StringView vid_aa_type_cvar_values[] =
+constexpr std::string_view vid_aa_type_cvar_values[] =
 {
 	vid_none_string,
 	vid_aa_type_cvar_msaa,
@@ -194,7 +194,7 @@ auto vid_aa_type_cvar = bstone::CVar{
 
 // vid_aa_degree
 
-constexpr auto vid_aa_degree_cvar_name = bstone::StringView{"vid_aa_degree"};
+constexpr auto vid_aa_degree_cvar_name = std::string_view{"vid_aa_degree"};
 constexpr auto vid_aa_degree_cvar_min = vid_min_aa;
 constexpr auto vid_aa_degree_cvar_max = vid_max_aa;
 constexpr auto vid_aa_degree_cvar_default = vid_aa_degree_cvar_min;
@@ -209,10 +209,10 @@ auto vid_aa_degree_cvar = bstone::CVar{
 
 // vid_texture_upscale_filter
 
-constexpr auto vid_texture_upscale_filter_cvar_name = bstone::StringView{"vid_texture_upscale_filter"};
-constexpr auto vid_texture_upscale_filter_cvar_xbrz = bstone::StringView{"xbrz"};
+constexpr auto vid_texture_upscale_filter_cvar_name = std::string_view{"vid_texture_upscale_filter"};
+constexpr auto vid_texture_upscale_filter_cvar_xbrz = std::string_view{"xbrz"};
 
-constexpr bstone::StringView vid_texture_upscale_filter_cvar_values[] =
+constexpr std::string_view vid_texture_upscale_filter_cvar_values[] =
 {
 	vid_none_string,
 	vid_texture_upscale_filter_cvar_xbrz,
@@ -227,7 +227,7 @@ auto vid_texture_upscale_filter_cvar = bstone::CVar{
 
 // vid_texture_upscale_xbrz_degree
 
-constexpr auto vid_texture_upscale_xbrz_degree_cvar_name = bstone::StringView{"vid_texture_upscale_xbrz_degree"};
+constexpr auto vid_texture_upscale_xbrz_degree_cvar_name = std::string_view{"vid_texture_upscale_xbrz_degree"};
 constexpr auto vid_texture_upscale_xbrz_degree_cvar_default = 0;
 
 auto vid_texture_upscale_xbrz_degree_cvar = bstone::CVar{
@@ -238,7 +238,7 @@ auto vid_texture_upscale_xbrz_degree_cvar = bstone::CVar{
 
 // vid_2d_texture_filter
 
-constexpr auto vid_2d_texture_filter_cvar_name = bstone::StringView{"vid_2d_texture_filter"};
+constexpr auto vid_2d_texture_filter_cvar_name = std::string_view{"vid_2d_texture_filter"};
 
 auto vid_2d_texture_filter_cvar = bstone::CVar{
 	bstone::CVarStringTag{},
@@ -249,7 +249,7 @@ auto vid_2d_texture_filter_cvar = bstone::CVar{
 
 // vid_3d_texture_image_filter
 
-constexpr auto vid_3d_texture_image_filter_cvar_name = bstone::StringView{"vid_3d_texture_image_filter"};
+constexpr auto vid_3d_texture_image_filter_cvar_name = std::string_view{"vid_3d_texture_image_filter"};
 
 auto vid_3d_texture_image_filter_cvar = bstone::CVar{
 	bstone::CVarStringTag{},
@@ -260,7 +260,7 @@ auto vid_3d_texture_image_filter_cvar = bstone::CVar{
 
 // vid_3d_texture_mipmap_filter
 
-constexpr auto vid_3d_texture_mipmap_filter_cvar_name = bstone::StringView{"vid_3d_texture_mipmap_filter"};
+constexpr auto vid_3d_texture_mipmap_filter_cvar_name = std::string_view{"vid_3d_texture_mipmap_filter"};
 
 auto vid_3d_texture_mipmap_filter_cvar = bstone::CVar{
 	bstone::CVarStringTag{},
@@ -271,7 +271,7 @@ auto vid_3d_texture_mipmap_filter_cvar = bstone::CVar{
 
 // vid_3d_texture_anisotropy
 
-constexpr auto vid_3d_texture_anisotropy_cvar_name = bstone::StringView{"vid_3d_texture_anisotropy"};
+constexpr auto vid_3d_texture_anisotropy_cvar_name = std::string_view{"vid_3d_texture_anisotropy"};
 constexpr auto vid_3d_texture_anisotropy_cvar_min = vid_min_anisotropic;
 constexpr auto vid_3d_texture_anisotropy_cvar_max = vid_max_anisotropic;
 constexpr auto vid_3d_texture_anisotropy_cvar_default = vid_min_anisotropic;
@@ -286,7 +286,7 @@ auto vid_3d_texture_anisotropy_cvar = bstone::CVar{
 
 // vid_filler_color_index
 
-constexpr auto vid_filler_color_index_cvar_name = bstone::StringView{"vid_filler_color_index"};
+constexpr auto vid_filler_color_index_cvar_name = std::string_view{"vid_filler_color_index"};
 constexpr auto vid_filler_color_index_cvar_min = 0;
 constexpr auto vid_filler_color_index_cvar_max = 255;
 constexpr auto vid_filler_color_index_cvar_default = vid_filler_color_index_cvar_min;
@@ -301,7 +301,7 @@ auto vid_filler_color_index_cvar = bstone::CVar{
 
 // vid_external_textures
 
-constexpr auto vid_external_textures_cvar_name = bstone::StringView{"vid_external_textures"};
+constexpr auto vid_external_textures_cvar_name = std::string_view{"vid_external_textures"};
 constexpr auto vid_external_textures_cvar_default = false;
 
 auto vid_external_textures_cvar = bstone::CVar{
@@ -312,7 +312,7 @@ auto vid_external_textures_cvar = bstone::CVar{
 
 // vid_check_3d_api_call_for_error
 
-constexpr auto vid_check_r3_api_call_for_errors_cvar_name = bstone::StringView{"vid_check_r3_api_call_for_errors"};
+constexpr auto vid_check_r3_api_call_for_errors_cvar_name = std::string_view{"vid_check_r3_api_call_for_errors"};
 constexpr auto vid_check_r3_api_call_for_errors_cvar_default = false;
 
 auto vid_check_r3_api_call_for_errors_cvar = bstone::CVar{
@@ -1001,7 +1001,7 @@ try {
 
 std::string vid_to_string(bstone::R3rFilterType filter_type)
 try {
-	auto filter_type_sv = bstone::StringView{};
+	auto filter_type_sv = std::string_view{};
 
 	switch (filter_type)
 	{
@@ -1017,12 +1017,12 @@ try {
 			BSTONE_THROW_STATIC_SOURCE("Unsupported renderer filter type.");
 	}
 
-	return std::string{filter_type_sv.get_data(), static_cast<std::size_t>(filter_type_sv.get_size())};
+	return std::string{filter_type_sv.data(), filter_type_sv.size()};
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::string vid_to_string(bstone::R3rAaType aa_type)
 try {
-	auto aa_type_sv = bstone::StringView{};
+	auto aa_type_sv = std::string_view{};
 
 	switch (aa_type)
 	{
@@ -1038,12 +1038,12 @@ try {
 			BSTONE_THROW_STATIC_SOURCE("Unsupported anti-aliasing type.");
 	}
 
-	return std::string{aa_type_sv.get_data(), static_cast<std::size_t>(aa_type_sv.get_size())};
+	return std::string{aa_type_sv.data(), aa_type_sv.size()};
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::string vid_to_string(bstone::RendererType renderer_type)
 try {
-	auto renderer_type_sv = bstone::StringView{};
+	auto renderer_type_sv = std::string_view{};
 
 	switch (renderer_type)
 	{
@@ -1081,7 +1081,7 @@ try {
 			BSTONE_THROW_STATIC_SOURCE("Unsupported renderer type.");
 	}
 
-	return std::string{renderer_type_sv.get_data(), static_cast<std::size_t>(renderer_type_sv.get_size())};
+	return std::string{renderer_type_sv.data(), renderer_type_sv.size()};
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::string vid_to_string(bstone::R3rType renderer_type)
@@ -1101,7 +1101,7 @@ try {
 
 std::string vid_to_string(bstone::HwTextureMgrUpscaleFilterType upscale_filter_type)
 try {
-	auto upscale_filter_type_sv = bstone::StringView{};
+	auto upscale_filter_type_sv = std::string_view{};
 
 	switch (upscale_filter_type)
 	{
@@ -1117,9 +1117,7 @@ try {
 			BSTONE_THROW_STATIC_SOURCE("Unsupported texture upscale filter type.");
 	}
 
-	return std::string{
-		upscale_filter_type_sv.get_data(),
-		static_cast<std::size_t>(upscale_filter_type_sv.get_size())};
+	return std::string{upscale_filter_type_sv.data(), upscale_filter_type_sv.size()};
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 std::string vid_to_string(WindowMode window_mode)
@@ -1212,7 +1210,7 @@ auto g_video = bstone::VideoUPtr{};
 } // namespace
 
 
-std::string vid_get_window_title_for_renderer(bstone::StringView renderer_name)
+std::string vid_get_window_title_for_renderer(std::string_view renderer_name)
 try {
 	const auto game_name_and_game_version_string = vid_get_game_name_and_game_version_string();
 	const auto port_version_string = vid_get_port_version_string();
@@ -1222,10 +1220,10 @@ try {
 	result += " [";
 	result += port_version_string;
 
-	if (!renderer_name.is_empty())
+	if (!renderer_name.empty())
 	{
 		result += " / ";
-		result.append(renderer_name.get_data(), static_cast<std::size_t>(renderer_name.get_size()));
+		result.append(renderer_name.data(), renderer_name.size());
 	}
 
 	result += ']';
@@ -1813,7 +1811,7 @@ bstone::RendererType vid_cfg_get_renderer_type() noexcept
 
 void vid_cfg_set_renderer_type(bstone::RendererType renderer_type)
 {
-	auto renderer_sv = bstone::StringView{};
+	auto renderer_sv = std::string_view{};
 
 	switch (renderer_type)
 	{
@@ -1927,7 +1925,7 @@ void vid_cfg_set_refresh_rate(int refresh_rate)
 
 WindowMode vid_cfg_get_window_mode()
 {
-	const bstone::StringView window_mode_string_view = bstone::vid_window_mode_cvar.get_string();
+	const std::string_view window_mode_string_view = bstone::vid_window_mode_cvar.get_string();
 
 	if (window_mode_string_view == bstone::vid_window_mode_cvar_fullscreen)
 	{
@@ -1945,7 +1943,7 @@ WindowMode vid_cfg_get_window_mode()
 
 void vid_cfg_set_window_mode(WindowMode window_mode)
 {
-	bstone::StringView window_mode_string_view;
+	std::string_view window_mode_string_view;
 
 	switch (window_mode)
 	{
@@ -1968,7 +1966,7 @@ void vid_cfg_set_window_mode(WindowMode window_mode)
 
 namespace {
 
-bstone::R3rFilterType vid_get_filter_type_from_sv(bstone::StringView filter_type_sv) noexcept
+bstone::R3rFilterType vid_get_filter_type_from_sv(std::string_view filter_type_sv) noexcept
 {
 	if (filter_type_sv == vid_linear_string)
 	{
@@ -1978,7 +1976,7 @@ bstone::R3rFilterType vid_get_filter_type_from_sv(bstone::StringView filter_type
 	return bstone::R3rFilterType::nearest;
 }
 
-bstone::StringView vid_get_sv_from_filter_type(bstone::R3rFilterType filter_type) noexcept
+std::string_view vid_get_sv_from_filter_type(bstone::R3rFilterType filter_type) noexcept
 {
 	if (filter_type == bstone::R3rFilterType::linear)
 	{
@@ -2042,7 +2040,7 @@ bstone::R3rAaType vid_cfg_get_aa_type() noexcept
 
 void vid_cfg_set_aa_type(bstone::R3rAaType aa_type)
 {
-	auto aa_type_sv = bstone::StringView{};
+	auto aa_type_sv = std::string_view{};
 
 	switch (aa_type)
 	{
@@ -2080,7 +2078,7 @@ bstone::HwTextureMgrUpscaleFilterType vid_cfg_get_texture_upscale_type() noexcep
 
 void vid_cfg_set_texture_upscale_type(bstone::HwTextureMgrUpscaleFilterType filter)
 {
-	auto filter_sv = bstone::StringView{};
+	auto filter_sv = std::string_view{};
 
 	switch (filter)
 	{

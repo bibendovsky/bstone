@@ -10,8 +10,7 @@ SPDX-License-Identifier: MIT
 #include <cstdint>
 
 #include <memory>
-
-#include "bstone_string_view.h"
+#include <string_view>
 
 namespace bstone {
 
@@ -19,15 +18,15 @@ class CVarString
 {
 public:
 	CVarString() noexcept;
-	explicit CVarString(StringView string_view);
+	explicit CVarString(std::string_view string_view);
 	CVarString(const CVarString& rhs);
 	CVarString(CVarString&& rhs) noexcept;
-	CVarString& operator=(StringView string_view);
+	CVarString& operator=(std::string_view string_view);
 	CVarString& operator=(const CVarString& rhs);
 	CVarString& operator=(CVarString&& rhs) noexcept;
 
-	StringView get() const noexcept;
-	void set(StringView string_view);
+	std::string_view get() const noexcept;
+	void set(std::string_view string_view);
 
 	void swap(CVarString& rhs) noexcept;
 

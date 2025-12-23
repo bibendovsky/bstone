@@ -15,7 +15,7 @@ namespace bstone {
 
 namespace {
 
-constexpr bstone::StringView vid_refresh_rate_cvar_name{"vid_refresh_rate"};
+constexpr std::string_view vid_refresh_rate_cvar_name{"vid_refresh_rate"};
 
 } // namespace
 
@@ -32,9 +32,9 @@ bstone::CVar vid_refresh_rate_cvar{
 
 namespace {
 
-constexpr bstone::StringView vid_window_mode_cvar_name{"vid_window_mode"};
+constexpr std::string_view vid_window_mode_cvar_name{"vid_window_mode"};
 
-constexpr bstone::StringView vid_window_mode_cvar_values[] =
+constexpr std::string_view vid_window_mode_cvar_values[] =
 {
 	vid_window_mode_cvar_windowed,
 	vid_window_mode_cvar_fullscreen,

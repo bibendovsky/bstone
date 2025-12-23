@@ -128,10 +128,6 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_api_string.h
 		../../../bstone/src/bstone_cxx.cpp
 		../../../bstone/src/bstone_cxx.h
-		../../../bstone/src/bstone_string_view.cpp
-		../../../bstone/src/bstone_string_view.h
-		../../../bstone/src/bstone_string.cpp
-		../../../bstone/src/bstone_string.h
 		../../../bstone/src/bstone_fs_posix.cpp
 		../../../bstone/src/bstone_fs_win32.cpp
 		../../../bstone/src/bstone_fs.cpp
@@ -191,8 +187,6 @@ target_sources(bstone_tests
 		src/bstone_tests_shared_library.cpp
 		src/bstone_tests_win32_registry_key.cpp
 		src/bstone_tests_api_string.cpp
-		src/bstone_tests_string_view.cpp
-		src/bstone_tests_string.cpp
 		src/bstone_tests_fs.cpp
 		src/bstone_tests_four_cc.cpp
 		src/bstone_tests_uuid.cpp

@@ -1190,7 +1190,7 @@ void PreDemo()
 void check_for_extract_options()
 {
 	{
-		constexpr auto extract_all_option_name_sv = bstone::StringView{"extract_all"};
+		constexpr auto extract_all_option_name_sv = std::string_view{"extract_all"};
 
 		if (g_args.has_option(extract_all_option_name_sv))
 		{
@@ -1202,7 +1202,7 @@ void check_for_extract_options()
 	}
 
 	{
-		constexpr auto extract_vga_palette_option_name_sv = bstone::StringView{"extract_vga_palette"};
+		constexpr auto extract_vga_palette_option_name_sv = std::string_view{"extract_vga_palette"};
 
 		if (g_args.has_option(extract_vga_palette_option_name_sv))
 		{
@@ -1214,7 +1214,7 @@ void check_for_extract_options()
 	}
 
 	{
-		constexpr auto extract_walls_option_name_sv = bstone::StringView{"extract_walls"};
+		constexpr auto extract_walls_option_name_sv = std::string_view{"extract_walls"};
 
 		if (g_args.has_option(extract_walls_option_name_sv))
 		{
@@ -1226,7 +1226,7 @@ void check_for_extract_options()
 	}
 
 	{
-		constexpr auto extract_sprites_option_name_sv = bstone::StringView{"extract_sprites"};
+		constexpr auto extract_sprites_option_name_sv = std::string_view{"extract_sprites"};
 
 		if (g_args.has_option(extract_sprites_option_name_sv))
 		{
@@ -1238,7 +1238,7 @@ void check_for_extract_options()
 	}
 
 	{
-		constexpr auto extract_musics_option_name_sv = bstone::StringView{"extract_music"};
+		constexpr auto extract_musics_option_name_sv = std::string_view{"extract_music"};
 
 		if (g_args.has_option(extract_musics_option_name_sv))
 		{
@@ -1250,7 +1250,7 @@ void check_for_extract_options()
 	}
 
 	{
-		constexpr auto extract_sfx_option_name_sv = bstone::StringView{"extract_sfx"};
+		constexpr auto extract_sfx_option_name_sv = std::string_view{"extract_sfx"};
 
 		if (g_args.has_option(extract_sfx_option_name_sv))
 		{
@@ -1262,7 +1262,7 @@ void check_for_extract_options()
 	}
 
 	{
-		constexpr auto extract_texts_option_name_sv = bstone::StringView{"extract_texts"};
+		constexpr auto extract_texts_option_name_sv = std::string_view{"extract_texts"};
 
 		if (g_args.has_option(extract_texts_option_name_sv))
 		{
@@ -1274,7 +1274,7 @@ void check_for_extract_options()
 	}
 
 	{
-		constexpr auto extract_levels_option_name_sv = bstone::StringView{"extract_levels"};
+		constexpr auto extract_levels_option_name_sv = std::string_view{"extract_levels"};
 
 		if (g_args.has_option(extract_levels_option_name_sv))
 		{
@@ -1416,7 +1416,7 @@ void deserialize_cvars_from_cli(const bstone::Cl& args, bstone::CVarMgr& cvar_mg
 		{
 			auto message = std::string{};
 			message += "Expected one argument for option \"";
-			message.append(option.name.get_data(), static_cast<std::size_t>(option.name.get_size()));
+			message.append(option.name.data(), option.name.size());
 			message += "\".";
 			bstone::globals::logger->log_warning(message.c_str());
 			continue;
