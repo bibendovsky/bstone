@@ -463,7 +463,7 @@ const FoundContent* choose_content(
 	descriptor.title = get_message_box_title().c_str();
 	descriptor.message = "Select content to play.";
 	descriptor.type = bstone::sys::MessageBoxType::information;
-	descriptor.buttons = bstone::make_const_span(buttons.data(), static_cast<std::intptr_t>(buttons.size()));
+	descriptor.buttons = std::span{buttons.data(), buttons.size()};
 
 	bstone::globals::logger->log_information("Waiting for user response.");
 	const auto selected_button_id = bstone::sys::MessageBox::show(descriptor);
@@ -1412,7 +1412,7 @@ void deserialize_cvars_from_cli(const bstone::Cl& args, bstone::CVarMgr& cvar_mg
 			continue;
 		}
 
-		if (option.args.get_size() != 1)
+		if (option.args.size() != 1)
 		{
 			auto message = std::string{};
 			message += "Expected one argument for option \"";
@@ -1422,7 +1422,7 @@ void deserialize_cvars_from_cli(const bstone::Cl& args, bstone::CVarMgr& cvar_mg
 			continue;
 		}
 
-		cvar->set_string(option.args.get_front());
+		cvar->set_string(option.args.front());
 	}
 }
 

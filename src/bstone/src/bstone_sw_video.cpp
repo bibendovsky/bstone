@@ -8,6 +8,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 // Software accelerated video (SW).
 
 #include <algorithm>
+#include <span>
 #include <utility>
 
 #include "3d_def.h"
@@ -19,7 +20,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_exception.h"
 #include "bstone_logger.h"
 #include "bstone_single_pool_resource.h"
-#include "bstone_span.h"
 #include "bstone_sw_video.h"
 #include "bstone_video.h"
 #include "bstone_video_cvars.h"
@@ -122,7 +122,7 @@ private:
 		const sys::Rectangle* src_rect,
 		const sys::Rectangle* dst_rect);
 	void enable_texture_blending(sys::Texture& texture, bool is_enable);
-	void fill_rects(Span<const sys::Rectangle> rects);
+	void fill_rects(std::span<const sys::Rectangle> rects);
 	void initialize_vga_buffer();
 	void create_window();
 	void initialize_renderer();
@@ -403,11 +403,11 @@ try {
 
 		if (is_hud)
 		{
-			fill_rects(make_const_span(filler_hud_rects_.data(), static_cast<std::intptr_t>(filler_hud_rects_.size())));
+			fill_rects(std::span(filler_hud_rects_.data(), static_cast<std::intptr_t>(filler_hud_rects_.size())));
 		}
 		else
 		{
-			fill_rects(make_const_span(filler_ui_rects_.data(), static_cast<std::intptr_t>(filler_ui_rects_.size())));
+			fill_rects(std::span(filler_ui_rects_.data(), static_cast<std::intptr_t>(filler_ui_rects_.size())));
 		}
 	}
 
@@ -719,7 +719,7 @@ try {
 	texture.set_blend_mode(is_enable ? sys::TextureBlendMode::blend : sys::TextureBlendMode::none);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void SwVideo::fill_rects(Span<const sys::Rectangle> rects)
+void SwVideo::fill_rects(std::span<const sys::Rectangle> rects)
 try {
 	renderer_->fill(rects);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED

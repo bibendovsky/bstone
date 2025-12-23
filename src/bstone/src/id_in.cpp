@@ -1477,7 +1477,7 @@ public:
 private:
 	void do_invoke(bstone::CCmdActionArgs args) override
 	try {
-		if (!args.is_empty())
+		if (!args.empty())
 		{
 			BSTONE_THROW_STATIC_SOURCE("Too many arguments.");
 		}
@@ -1520,7 +1520,7 @@ public:
 private:
 	void do_invoke(bstone::CCmdActionArgs args) override
 	try {
-		if (args.get_size() != 2)
+		if (args.size() != 2)
 		{
 			BSTONE_THROW_STATIC_SOURCE("Invalid argument count.");
 		}
@@ -1781,7 +1781,7 @@ public:
 private:
 	void do_invoke(bstone::CCmdActionArgs args) override
 	try {
-		if (args.get_size() != 3)
+		if (args.size() != 3)
 		{
 			BSTONE_THROW_STATIC_SOURCE("Invalid argument count.");
 		}

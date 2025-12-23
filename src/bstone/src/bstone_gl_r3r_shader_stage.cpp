@@ -280,7 +280,7 @@ try {
 
 void GlR3rShaderStageImpl::validate(R3rShaderStageInputBindings input_bindings)
 try {
-	if (input_bindings.is_empty())
+	if (input_bindings.empty())
 	{
 		BSTONE_THROW_STATIC_SOURCE("No input bindings.");
 	}
@@ -290,14 +290,14 @@ try {
 	{
 		using NameSet = std::unordered_set<ZStringView, ZStringViewHasher>;
 		auto name_set = NameSet{};
-		name_set.reserve(static_cast<size_t>(input_bindings.get_size()));
+		name_set.reserve(input_bindings.size());
 
 		for (const auto& input_binding : input_bindings)
 		{
 			name_set.emplace(ZStringView{input_binding.name});
 		}
 
-		if (name_set.size() != static_cast<size_t>(input_bindings.get_size()))
+		if (name_set.size() != input_bindings.size())
 		{
 			BSTONE_THROW_STATIC_SOURCE("Duplicate name.");
 		}
@@ -309,14 +309,14 @@ try {
 		using NameSetItem = int;
 		using NameSet = std::unordered_set<NameSetItem>;
 		auto name_set = NameSet{};
-		name_set.reserve(static_cast<size_t>(input_bindings.get_size()));
+		name_set.reserve(input_bindings.size());
 
 		for (const auto& input_binding : input_bindings)
 		{
 			name_set.emplace(input_binding.index);
 		}
 
-		if (name_set.size() != static_cast<size_t>(input_bindings.get_size()))
+		if (name_set.size() != input_bindings.size())
 		{
 			BSTONE_THROW_STATIC_SOURCE("Duplicate index.");
 		}

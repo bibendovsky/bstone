@@ -134,7 +134,7 @@ auto snd_driver_cvar = bstone::CVar{
 	snd_driver_cvar_name,
 	bstone::CVarFlags::archive,
 	snd_auto_detect_string,
-	bstone::make_span(snd_driver_cvar_values)};
+	std::span{snd_driver_cvar_values}};
 
 // snd_oal_library
 
@@ -173,7 +173,7 @@ auto snd_opl3_type_cvar = bstone::CVar{
 	snd_opl3_type_cvar_name,
 	bstone::CVarFlags::archive,
 	snd_opl3_type_cvar_dbopl,
-	bstone::make_span(snd_opl3_type_cvar_values)};
+	std::span{snd_opl3_type_cvar_values}};
 
 // snd_is_sfx_enabled
 
@@ -203,7 +203,7 @@ auto snd_sfx_type_cvar = bstone::CVar{
 	snd_sfx_type_cvar_name,
 	bstone::CVarFlags::archive,
 	snd_sfx_type_cvar_adlib,
-	bstone::make_span(snd_sfx_type_cvar_values)};
+	std::span{snd_sfx_type_cvar_values}};
 
 // snd_is_sfx_digitized
 

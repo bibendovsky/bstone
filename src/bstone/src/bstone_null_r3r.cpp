@@ -66,7 +66,7 @@ private:
 	R3rVertexInputUPtr do_create_vertex_input(const R3rCreateVertexInputParam& param) override;
 	R3rShaderUPtr do_create_shader(const R3rShaderInitParam& param) override;
 	R3rShaderStageUPtr do_create_shader_stage(const R3rShaderStageInitParam& param) override;
-	void do_submit_commands(Span<R3rCmdBuffer*> command_buffers) override;
+	void do_submit_commands(std::span<R3rCmdBuffer*> command_buffers) override;
 	void do_wait_for_device() override;
 
 private:
@@ -223,7 +223,7 @@ try {
 	return make_null_r3r_sampler(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void NullR3rImpl::do_submit_commands(Span<R3rCmdBuffer*> command_buffers)
+void NullR3rImpl::do_submit_commands(std::span<R3rCmdBuffer*> command_buffers)
 {
 	maybe_unused(command_buffers);
 }

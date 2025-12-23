@@ -48,6 +48,6 @@ bstone::CVar vid_window_mode_cvar{
 	vid_window_mode_cvar_name,
 	bstone::CVarFlags::archive,
 	vid_window_mode_cvar_default,
-	bstone::make_span(vid_window_mode_cvar_values)};
+	std::span{vid_window_mode_cvar_values}};
 
 } // namespace bstone

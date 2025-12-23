@@ -8,12 +8,12 @@ SPDX-License-Identifier: MIT
 #define BSTONE_CCMD_ACTION_INCLUDED
 
 #include "bstone_exception.h"
-#include "bstone_span.h"
+#include <span>
 #include <string_view>
 
 namespace bstone {
 
-using CCmdActionArgs = Span<const std::string_view>;
+using CCmdActionArgs = std::span<const std::string_view>;
 
 // ==========================================================================
 

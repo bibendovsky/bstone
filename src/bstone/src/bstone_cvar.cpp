@@ -8,12 +8,12 @@ SPDX-License-Identifier: MIT
 #include <exception>
 #include <iterator>
 #include <limits>
+#include <span>
 #include <utility>
 #include "bstone_char_conv.h"
 #include "bstone_cvalidator.h"
 #include "bstone_cvar.h"
 #include "bstone_exception.h"
-#include "bstone_span.h"
 
 namespace bstone {
 
@@ -73,7 +73,7 @@ CVar::CVar(
 try {
 	CValidator::validate_name(name);
 
-	if (!values.is_empty())
+	if (!values.empty())
 	{
 		const auto values_end_iter = values.end();
 
@@ -168,7 +168,7 @@ try {
 			fail_unknown_type();
 	}
 
-	if (int32_values_.is_empty())
+	if (int32_values_.empty())
 	{
 		value = std::clamp(value, int32_min_value_, int32_max_value_);
 	}
@@ -235,7 +235,7 @@ void CVar::swap(CVar& rhs)
 	bstone::swop(int32_value_, rhs.int32_value_);
 
 	string_default_value_.swap(rhs.string_default_value_);
-	string_values_.swap(rhs.string_values_);
+	std::swap(string_values_, rhs.string_values_);
 	string_value_.swap(rhs.string_value_);
 }
 
@@ -254,7 +254,7 @@ CVar::CVar(
 	CVarInt32Values values)
 try {
 	CValidator::validate_name(name);
-	const auto value_count = values.get_size();
+	const auto value_count = values.size();
 
 	if (value_count > 0)
 	{
@@ -343,7 +343,7 @@ bool CVar::has_string(std::string_view string)
 
 void CVar::ensure_string()
 {
-	if (string_values_.is_empty())
+	if (string_values_.empty())
 	{
 		return;
 	}

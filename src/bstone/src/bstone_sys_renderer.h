@@ -10,8 +10,7 @@ SPDX-License-Identifier: MIT
 #define BSTONE_SYS_RENDERER_INCLUDED
 
 #include <memory>
-
-#include "bstone_span.h"
+#include <span>
 
 #include "bstone_sys_color.h"
 #include "bstone_sys_pixel_format.h"
@@ -47,7 +46,7 @@ public:
 
 	void clear();
 	void set_draw_color(Color color);
-	void fill(Span<const Rectangle> rectangles);
+	void fill(std::span<const Rectangle> rectangles);
 	void present();
 
 	void read_pixels(PixelFormat pixel_format, void* pixels, int pitch);
@@ -61,7 +60,7 @@ private:
 
 	virtual void do_clear() = 0;
 	virtual void do_set_draw_color(Color color) = 0;
-	virtual void do_fill(Span<const Rectangle> rects) = 0;
+	virtual void do_fill(std::span<const Rectangle> rects) = 0;
 	virtual void do_present() = 0;
 
 	virtual void do_read_pixels(
