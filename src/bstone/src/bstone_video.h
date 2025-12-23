@@ -34,7 +34,7 @@ public:
 
 	virtual bool is_hardware() const noexcept = 0;
 
-	virtual StringView get_renderer_name() = 0;
+	virtual std::string_view get_renderer_name() = 0;
 
 	virtual void clear_vga_buffer() = 0;
 

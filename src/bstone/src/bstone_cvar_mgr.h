@@ -9,9 +9,9 @@ SPDX-License-Identifier: MIT
 
 #include <cstdint>
 #include <memory>
+#include <string_view>
 #include "bstone_cvar.h"
 #include "bstone_span.h"
-#include "bstone_string_view.h"
 
 namespace bstone {
 
@@ -25,7 +25,7 @@ public:
 	CVarMgr();
 	virtual ~CVarMgr();
 
-	virtual CVar* find(StringView name) const noexcept = 0;
+	virtual CVar* find(std::string_view name) const noexcept = 0;
 	virtual CVarMgrCVars get_all() noexcept = 0;
 
 	virtual void add(CVar& cvar) = 0;

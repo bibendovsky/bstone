@@ -12,6 +12,7 @@ SPDX-License-Identifier: MIT
 #define WIN32_LEAN_AND_MEAN
 #endif
 
+#include <string_view>
 #include <windows.h>
 #include <shellapi.h>
 
@@ -19,7 +20,6 @@ SPDX-License-Identifier: MIT
 #include "bstone_char_traits.h"
 #include "bstone_exception.h"
 #include "bstone_span.h"
-#include "bstone_string_view.h"
 #include "bstone_utf.h"
 
 #include "bstone_memory_resource.h"
@@ -52,9 +52,9 @@ try {
 		}
 
 		const auto u8_arg = param.argv[i_arg];
-		const auto arg_sv = StringView{u8_arg};
-		const auto has_space = arg_sv.contains(' ');
-		const auto should_quote = has_space || arg_sv.is_empty();
+		const auto arg_sv = std::string_view{u8_arg};
+		const auto has_space = arg_sv.find(' ') != std::string_view::npos;
+		const auto should_quote = has_space || arg_sv.empty();
 
 		if (should_quote)
 		{

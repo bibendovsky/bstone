@@ -33,27 +33,27 @@ Logger::Logger() noexcept = default;
 
 Logger::~Logger() = default;
 
-void Logger::log(LoggerMessageType message_type, StringView message_sv) noexcept
+void Logger::log(LoggerMessageType message_type, std::string_view message_sv) noexcept
 {
 	do_log(message_type, message_sv);
 }
 
 void Logger::log_information() noexcept
 {
-	do_log(LoggerMessageType::information, StringView{});
+	do_log(LoggerMessageType::information, std::string_view{});
 }
 
-void Logger::log_information(StringView message_sv) noexcept
+void Logger::log_information(std::string_view message_sv) noexcept
 {
 	do_log(LoggerMessageType::information, message_sv);
 }
 
-void Logger::log_warning(StringView message_sv) noexcept
+void Logger::log_warning(std::string_view message_sv) noexcept
 {
 	do_log(LoggerMessageType::warning, message_sv);
 }
 
-void Logger::log_error(StringView message_sv) noexcept
+void Logger::log_error(std::string_view message_sv) noexcept
 {
 	do_log(LoggerMessageType::error, message_sv);
 }
@@ -65,7 +65,7 @@ void Logger::log_exception(std::exception_ptr exception_ptr) noexcept
 		auto message_buffer = std::string{};
 		message_buffer.reserve(2048);
 		log_exception_internal(exception_ptr, message_buffer);
-		log_error(StringView{message_buffer.c_str(), static_cast<std::intptr_t>(message_buffer.size())});
+		log_error(std::string_view{message_buffer.c_str(), message_buffer.size()});
 	}
 	catch (...)
 	{
@@ -246,16 +246,16 @@ public:
 	void operator delete(void* ptr) noexcept;
 
 private:
-	static const StringView empty_sv;
-	static const StringView error_prefix_sv;
-	static const StringView warning_prefix_sv;
+	static const std::string_view empty_sv;
+	static const std::string_view error_prefix_sv;
+	static const std::string_view warning_prefix_sv;
 
 private:
 	using Mutex = std::mutex;
 	using LockGuard = std::lock_guard<Mutex>;
 	using UniqueLock = std::unique_lock<Mutex>;
 	using Queues = std::array<LoggerImplQueue, 2>;
-	using LogFunc = void (LoggerImpl::*)(LoggerMessageType, StringView);
+	using LogFunc = void (LoggerImpl::*)(LoggerMessageType, std::string_view);
 	using FlushFunc = void (LoggerImpl::*)();
 
 private:
@@ -284,7 +284,7 @@ private:
 	Queues queues_{};
 
 private:
-	void do_log(LoggerMessageType message_type, StringView message_sv) noexcept override;
+	void do_log(LoggerMessageType message_type, std::string_view message_sv) noexcept override;
 	void do_flush() noexcept override;
 
 private:
@@ -292,9 +292,9 @@ private:
 
 	void log_logger_current_exception() noexcept;
 	void try_open_file() noexcept;
-	void write_internal(LoggerMessageType message_type, StringView message_sv);
-	void write_sync(LoggerMessageType message_type, StringView message_sv);
-	void write_async(LoggerMessageType message_type, StringView message_sv);
+	void write_internal(LoggerMessageType message_type, std::string_view message_sv);
+	void write_sync(LoggerMessageType message_type, std::string_view message_sv);
+	void write_async(LoggerMessageType message_type, std::string_view message_sv);
 	void flush_internal();
 	void acknowledge_flush();
 	void flush_sync();
@@ -305,9 +305,9 @@ private:
 
 // --------------------------------------------------------------------------
 
-const StringView LoggerImpl::empty_sv = StringView{};
-const StringView LoggerImpl::error_prefix_sv = StringView{"[ERROR] "};
-const StringView LoggerImpl::warning_prefix_sv = StringView{"[WARNING] "};
+const std::string_view LoggerImpl::empty_sv = std::string_view{};
+const std::string_view LoggerImpl::error_prefix_sv = std::string_view{"[ERROR] "};
+const std::string_view LoggerImpl::warning_prefix_sv = std::string_view{"[WARNING] "};
 
 LoggerImpl::LoggerImpl(const LoggerOpenParam& param)
 {
@@ -367,7 +367,7 @@ void LoggerImpl::operator delete(void* ptr) noexcept
 	get_memory_resource().deallocate(ptr);
 }
 
-void LoggerImpl::do_log(LoggerMessageType message_type, StringView message_sv) noexcept
+void LoggerImpl::do_log(LoggerMessageType message_type, std::string_view message_sv) noexcept
 {
 	try
 	{
@@ -399,7 +399,7 @@ MemoryResource& LoggerImpl::get_memory_resource()
 
 void LoggerImpl::log_logger_current_exception() noexcept
 {
-	std::cerr << error_prefix_sv.get_data() << " Logger failed. ";
+	std::cerr << error_prefix_sv.data() << " Logger failed. ";
 
 	try
 	{
@@ -438,15 +438,15 @@ void LoggerImpl::try_open_file() noexcept
 	}
 }
 
-void LoggerImpl::write_internal(LoggerMessageType message_type, StringView message_sv)
+void LoggerImpl::write_internal(LoggerMessageType message_type, std::string_view message_sv)
 {
 	const auto is_error = message_type == LoggerMessageType::error;
 	const auto is_warning = message_type == LoggerMessageType::warning;
 	const auto prefix = is_error ? error_prefix_sv : (is_warning ? warning_prefix_sv : empty_sv);
 
 	line_.clear();
-	line_.append(prefix.get_data(), static_cast<std::size_t>(prefix.get_size()));
-	line_.append(message_sv.get_data(), static_cast<std::size_t>(message_sv.get_size()));
+	line_.append(prefix.data(), prefix.size());
+	line_.append(message_sv.data(), message_sv.size());
 	line_ += '\n';
 
 	auto& std_stream = is_error ? std::cerr : std::cout;
@@ -476,13 +476,13 @@ void LoggerImpl::write_internal(LoggerMessageType message_type, StringView messa
 	}
 }
 
-void LoggerImpl::write_sync(LoggerMessageType message_type, StringView message_sv)
+void LoggerImpl::write_sync(LoggerMessageType message_type, std::string_view message_sv)
 {
 	try_open_file();
 	write_internal(message_type, message_sv);
 }
 
-void LoggerImpl::write_async(LoggerMessageType message_type, StringView message_sv)
+void LoggerImpl::write_async(LoggerMessageType message_type, std::string_view message_sv)
 {
 	{
 		LockGuard lock_guard{cv_mutex_};
@@ -499,7 +499,7 @@ void LoggerImpl::write_async(LoggerMessageType message_type, StringView message_
 		}
 
 		auto& queue = queues_[producer_queue_index_];
-		queue.enqueue(message_type, message_sv.get_data(), message_sv.get_size());
+		queue.enqueue(message_type, message_sv.data(), message_sv.size());
 
 		has_messages_ = true;
 	}
@@ -634,7 +634,7 @@ void LoggerImpl::thread_main()
 
 			while (queue.dequeue(message_type, message, message_length))
 			{
-				write_internal(message_type, StringView{message, message_length});
+				write_internal(message_type, std::string_view{message, static_cast<std::size_t>(message_length)});
 			}
 
 			queue.clear();

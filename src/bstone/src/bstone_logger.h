@@ -12,8 +12,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <memory>
 #include <string>
-
-#include "bstone_string_view.h"
+#include <string_view>
 
 namespace bstone {
 
@@ -51,19 +50,19 @@ public:
 	virtual ~Logger();
 
 	// Writes a message of the specified type.
-	void log(LoggerMessageType message_type, StringView message_sv) noexcept;
+	void log(LoggerMessageType message_type, std::string_view message_sv) noexcept;
 
 	// Write an empty informational message.
 	void log_information() noexcept;
 
 	// Writes an informational message.
-	void log_information(StringView message_sv) noexcept;
+	void log_information(std::string_view message_sv) noexcept;
 
 	// Writes a warning message.
-	void log_warning(StringView message_sv) noexcept;
+	void log_warning(std::string_view message_sv) noexcept;
 
 	// Writes an error message.
-	void log_error(StringView message_sv) noexcept;
+	void log_error(std::string_view message_sv) noexcept;
 
 	// Writes an error message for a specified exception.
 	void log_exception(std::exception_ptr exception_ptr) noexcept;
@@ -76,7 +75,7 @@ public:
 	void flush() noexcept;
 
 private:
-	virtual void do_log(LoggerMessageType message_type, StringView message_sv) noexcept = 0;
+	virtual void do_log(LoggerMessageType message_type, std::string_view message_sv) noexcept = 0;
 	virtual void do_flush() noexcept = 0;
 
 private:

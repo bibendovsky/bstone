@@ -53,8 +53,8 @@ public:
 
 private:
 	R3rType do_get_type() const noexcept override;
-	StringView do_get_name() const noexcept override;
-	StringView do_get_description() const noexcept override;
+	std::string_view do_get_name() const noexcept override;
+	std::string_view do_get_description() const noexcept override;
 
 	const R3rDeviceFeatures& do_get_device_features() const noexcept override;
 	const R3rDeviceInfo& do_get_device_info() const noexcept override;
@@ -125,8 +125,8 @@ private:
 	sys::WindowMgr& window_mgr_;
 
 	R3rType type_{};
-	StringView name_{};
-	StringView description_{};
+	std::string_view name_{};
+	std::string_view description_{};
 
 	std::string device_name_{};
 	std::string device_vendor_{};
@@ -414,12 +414,12 @@ R3rType GlR3rImpl::do_get_type() const noexcept
 	return type_;
 }
 
-StringView GlR3rImpl::do_get_name() const noexcept
+std::string_view GlR3rImpl::do_get_name() const noexcept
 {
 	return name_;
 }
 
-StringView GlR3rImpl::do_get_description() const noexcept
+std::string_view GlR3rImpl::do_get_description() const noexcept
 {
 	return description_;
 }
@@ -736,9 +736,9 @@ try {
 	device_vendor_.assign(device_info.vendor.cbegin(), device_info.vendor.cend());
 	device_version_.assign(device_info.version.cbegin(), device_info.version.cend());
 
-	device_info_.name = StringView{device_name_.data(), static_cast<intptr_t>(device_name_.size())};
-	device_info_.vendor = StringView{device_vendor_.data(), static_cast<intptr_t>(device_vendor_.size())};
-	device_info_.version = StringView{device_version_.data(), static_cast<intptr_t>(device_version_.size())};
+	device_info_.name = std::string_view{device_name_.data(), device_name_.size()};
+	device_info_.vendor = std::string_view{device_vendor_.data(), device_vendor_.size()};
+	device_info_.version = std::string_view{device_version_.data(), device_version_.size()};
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::set_name_and_description()

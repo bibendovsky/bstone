@@ -10,7 +10,7 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-CCmd::CCmd(StringView name, CCmdAction& action)
+CCmd::CCmd(std::string_view name, CCmdAction& action)
 try
 	:
 	name_{name},
@@ -19,7 +19,7 @@ try
 	CValidator::validate_name(name_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-StringView CCmd::get_name() const noexcept
+std::string_view CCmd::get_name() const noexcept
 {
 	return name_;
 }

@@ -81,11 +81,11 @@ static bstone::AudioMixerUPtr sd_mixer_;
 
 namespace {
 
-constexpr auto snd_auto_detect_string = bstone::StringView{"auto-detect"};
+constexpr auto snd_auto_detect_string = std::string_view{"auto-detect"};
 
 // snd_is_disabled
 
-constexpr auto snd_is_disabled_cvar_name = bstone::StringView{"snd_is_disabled"};
+constexpr auto snd_is_disabled_cvar_name = std::string_view{"snd_is_disabled"};
 constexpr auto snd_is_disabled_cvar_default = false;
 
 auto snd_is_disabled_cvar = bstone::CVar{
@@ -96,7 +96,7 @@ auto snd_is_disabled_cvar = bstone::CVar{
 
 // snd_rate
 
-constexpr auto snd_rate_cvar_name = bstone::StringView{"snd_rate"};
+constexpr auto snd_rate_cvar_name = std::string_view{"snd_rate"};
 constexpr auto snd_rate_cvar_default = 0;
 
 auto snd_rate_cvar = bstone::CVar{
@@ -107,7 +107,7 @@ auto snd_rate_cvar = bstone::CVar{
 
 // snd_mix_size
 
-constexpr auto snd_mix_size_cvar_name = bstone::StringView{"snd_mix_size"};
+constexpr auto snd_mix_size_cvar_name = std::string_view{"snd_mix_size"};
 constexpr auto snd_mix_size_cvar_default = 20;
 
 auto snd_mix_size_cvar = bstone::CVar{
@@ -118,11 +118,11 @@ auto snd_mix_size_cvar = bstone::CVar{
 
 // snd_driver
 
-constexpr auto snd_driver_cvar_name = bstone::StringView{"snd_driver"};
-constexpr auto snd_driver_cvar_system = bstone::StringView{"system"};
-constexpr auto snd_driver_cvar_openal = bstone::StringView{"openal"};
+constexpr auto snd_driver_cvar_name = std::string_view{"snd_driver"};
+constexpr auto snd_driver_cvar_system = std::string_view{"system"};
+constexpr auto snd_driver_cvar_openal = std::string_view{"openal"};
 
-constexpr bstone::StringView snd_driver_cvar_values[] =
+constexpr std::string_view snd_driver_cvar_values[] =
 {
 	snd_auto_detect_string,
 	snd_driver_cvar_system,
@@ -138,31 +138,31 @@ auto snd_driver_cvar = bstone::CVar{
 
 // snd_oal_library
 
-constexpr auto snd_oal_library_cvar_name = bstone::StringView{"snd_oal_library"};
+constexpr auto snd_oal_library_cvar_name = std::string_view{"snd_oal_library"};
 
 auto snd_oal_library_cvar = bstone::CVar{
 	bstone::CVarStringTag{},
 	snd_oal_library_cvar_name,
 	bstone::CVarFlags::archive,
-	bstone::StringView{}};
+	std::string_view{}};
 
 // snd_oal_device_name
 
-constexpr auto snd_oal_device_name_cvar_name = bstone::StringView{"snd_oal_device_name"};
+constexpr auto snd_oal_device_name_cvar_name = std::string_view{"snd_oal_device_name"};
 
 auto snd_oal_device_name_cvar = bstone::CVar{
 	bstone::CVarStringTag{},
 	snd_oal_device_name_cvar_name,
 	bstone::CVarFlags::archive,
-	bstone::StringView{}};
+	std::string_view{}};
 
 // snd_opl3_type
 
-constexpr auto snd_opl3_type_cvar_name = bstone::StringView{"snd_opl3_type"};
-constexpr auto snd_opl3_type_cvar_dbopl = bstone::StringView{"dbopl"};
-constexpr auto snd_opl3_type_cvar_nuked = bstone::StringView{"nuked"};
+constexpr auto snd_opl3_type_cvar_name = std::string_view{"snd_opl3_type"};
+constexpr auto snd_opl3_type_cvar_dbopl = std::string_view{"dbopl"};
+constexpr auto snd_opl3_type_cvar_nuked = std::string_view{"nuked"};
 
-constexpr bstone::StringView snd_opl3_type_cvar_values[] =
+constexpr std::string_view snd_opl3_type_cvar_values[] =
 {
 	snd_opl3_type_cvar_dbopl,
 	snd_opl3_type_cvar_nuked,
@@ -177,7 +177,7 @@ auto snd_opl3_type_cvar = bstone::CVar{
 
 // snd_is_sfx_enabled
 
-constexpr auto snd_is_sfx_enabled_cvar_name = bstone::StringView{"snd_is_sfx_enabled"};
+constexpr auto snd_is_sfx_enabled_cvar_name = std::string_view{"snd_is_sfx_enabled"};
 constexpr auto snd_is_sfx_enabled_cvar_default = true;
 
 auto snd_is_sfx_enabled_cvar = bstone::CVar{
@@ -188,11 +188,11 @@ auto snd_is_sfx_enabled_cvar = bstone::CVar{
 
 // snd_sfx_type
 
-constexpr auto snd_sfx_type_cvar_name = bstone::StringView{"snd_sfx_type"};
-constexpr auto snd_sfx_type_cvar_pc_speaker = bstone::StringView{"pc_speaker"};
-constexpr auto snd_sfx_type_cvar_adlib = bstone::StringView{"adlib"};
+constexpr auto snd_sfx_type_cvar_name = std::string_view{"snd_sfx_type"};
+constexpr auto snd_sfx_type_cvar_pc_speaker = std::string_view{"pc_speaker"};
+constexpr auto snd_sfx_type_cvar_adlib = std::string_view{"adlib"};
 
-constexpr bstone::StringView snd_sfx_type_cvar_values[] =
+constexpr std::string_view snd_sfx_type_cvar_values[] =
 {
 	snd_sfx_type_cvar_adlib,
 	snd_sfx_type_cvar_pc_speaker,
@@ -207,7 +207,7 @@ auto snd_sfx_type_cvar = bstone::CVar{
 
 // snd_is_sfx_digitized
 
-constexpr auto snd_is_sfx_digitized_cvar_name = bstone::StringView{"snd_is_sfx_digitized"};
+constexpr auto snd_is_sfx_digitized_cvar_name = std::string_view{"snd_is_sfx_digitized"};
 constexpr auto snd_is_sfx_digitized_cvar_default = true;
 
 auto snd_is_sfx_digitized_cvar = bstone::CVar{
@@ -218,7 +218,7 @@ auto snd_is_sfx_digitized_cvar = bstone::CVar{
 
 // snd_sfx_volume
 
-constexpr auto snd_sfx_volume_cvar_name = bstone::StringView{"snd_sfx_volume"};
+constexpr auto snd_sfx_volume_cvar_name = std::string_view{"snd_sfx_volume"};
 
 auto snd_sfx_volume_cvar = bstone::CVar{
 	bstone::CVarInt32Tag{},
@@ -230,7 +230,7 @@ auto snd_sfx_volume_cvar = bstone::CVar{
 
 // snd_is_music_enabled
 
-constexpr auto snd_is_music_enabled_cvar_name = bstone::StringView{"snd_is_music_enabled"};
+constexpr auto snd_is_music_enabled_cvar_name = std::string_view{"snd_is_music_enabled"};
 constexpr auto snd_is_music_enabled_cvar_default = true;
 
 auto snd_is_music_enabled_cvar = bstone::CVar{
@@ -241,7 +241,7 @@ auto snd_is_music_enabled_cvar = bstone::CVar{
 
 // snd_music_volume
 
-constexpr auto snd_music_volume_cvar_name = bstone::StringView{"snd_music_volume"};
+constexpr auto snd_music_volume_cvar_name = std::string_view{"snd_music_volume"};
 
 auto snd_music_volume_cvar = bstone::CVar{
 	bstone::CVarInt32Tag{},
@@ -917,12 +917,12 @@ void sd_update_listener_r3_orientation()
 	}
 }
 
-bstone::StringView sd_get_oal_library() noexcept
+std::string_view sd_get_oal_library() noexcept
 {
 	return snd_oal_library_cvar.get_string();
 }
 
-bstone::StringView sd_get_oal_device_name() noexcept
+std::string_view sd_get_oal_device_name() noexcept
 {
 	return snd_oal_device_name_cvar.get_string();
 }

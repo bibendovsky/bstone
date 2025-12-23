@@ -86,8 +86,8 @@ const int sd_max_volume = 20;
 const int sd_default_sfx_volume = 10;
 const int sd_default_music_volume = 5;
 
-bstone::StringView sd_get_oal_library() noexcept;
-bstone::StringView sd_get_oal_device_name() noexcept;
+std::string_view sd_get_oal_library() noexcept;
+std::string_view sd_get_oal_device_name() noexcept;
 
 void sd_play_ui_sound(int sound_index);
 void sd_play_actor_voice_sound(int sound_index, objtype& actor);

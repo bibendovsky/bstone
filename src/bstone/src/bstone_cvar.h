@@ -8,9 +8,9 @@ SPDX-License-Identifier: MIT
 #define BSTONE_CVAR_INCLUDED
 
 #include <vector>
+#include <string_view>
 #include "bstone_cvar_string.h"
 #include "bstone_span.h"
-#include "bstone_string_view.h"
 #include "bstone_enum_flags.h"
 
 namespace bstone {
@@ -27,7 +27,7 @@ struct CVarBoolTag {};
 struct CVarStringTag {};
 
 using CVarInt32Values = Span<const std::int32_t>;
-using CVarStringValues = Span<const StringView>;
+using CVarStringValues = Span<const std::string_view>;
 
 enum class CVarFlags : unsigned int
 {
@@ -45,7 +45,7 @@ public:
 	// Defines int32 CVAR with a specified range.
 	CVar(
 		CVarInt32Tag,
-		StringView name,
+		std::string_view name,
 		CVarFlags flags,
 		std::int32_t default_value,
 		std::int32_t min_value,
@@ -54,26 +54,26 @@ public:
 	// Defines an int32 CVAR with a specified allowed values.
 	CVar(
 		CVarInt32Tag,
-		StringView name,
+		std::string_view name,
 		CVarFlags flags,
 		std::int32_t default_value,
 		CVarInt32Values values);
 
 	// Defines an int32 CVAR with a maximum range.
-	CVar(CVarInt32Tag, StringView name, CVarFlags flags, std::int32_t default_value);
+	CVar(CVarInt32Tag, std::string_view name, CVarFlags flags, std::int32_t default_value);
 
 	// Defines a boolean CVAR.
-	CVar(CVarBoolTag, StringView name, CVarFlags flags, bool default_value);
+	CVar(CVarBoolTag, std::string_view name, CVarFlags flags, bool default_value);
 
 	// Defines a string CVAR with any string value.
-	CVar(CVarStringTag, StringView name, CVarFlags flags, StringView default_value);
+	CVar(CVarStringTag, std::string_view name, CVarFlags flags, std::string_view default_value);
 
 	// Defines a string CVAR with a list of allowed values.
 	CVar(
 		CVarStringTag,
-		StringView name,
+		std::string_view name,
 		CVarFlags flags,
-		StringView default_value,
+		std::string_view default_value,
 		CVarStringValues values);
 
 	CVar(const CVar& rhs) = delete;
@@ -82,7 +82,7 @@ public:
 	CVar& operator=(CVar&& rhs) noexcept;
 
 	CVarType get_type() const noexcept;
-	StringView get_name() const noexcept;
+	std::string_view get_name() const noexcept;
 	CVarFlags get_flags() const noexcept;
 
 	bool get_bool() const noexcept;
@@ -92,8 +92,8 @@ public:
 	void set_int32(std::int32_t value);
 	CVarInt32Values get_int32_values() const noexcept;
 
-	StringView get_string() const noexcept;
-	void set_string(StringView value);
+	std::string_view get_string() const noexcept;
+	void set_string(std::string_view value);
 	CVarStringValues get_string_values() const noexcept;
 
 	void swap(CVar& rhs);
@@ -103,7 +103,7 @@ private:
 
 private:
 	CVarType type_{};
-	StringView name_{};
+	std::string_view name_{};
 	CVarFlags flags_{};
 
 	std::int32_t int32_default_value_{};
@@ -112,7 +112,7 @@ private:
 	CVarInt32Values int32_values_{};
 	std::int32_t int32_value_{};
 
-	StringView string_default_value_{};
+	std::string_view string_default_value_{};
 	CVarStringValues string_values_{};
 	CVarString string_value_{};
 
@@ -122,7 +122,7 @@ private:
 private:
 	CVar(
 		CVarInt32Tag,
-		StringView name,
+		std::string_view name,
 		CVarFlags flags,
 		std::int32_t default_value,
 		std::int32_t min_value,
@@ -131,7 +131,7 @@ private:
 
 	void set_string_from_int32();
 	void set_int32_from_string();
-	bool has_string(StringView string);
+	bool has_string(std::string_view string);
 	void ensure_string();
 };
 

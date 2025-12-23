@@ -28,14 +28,14 @@ public:
 	CCmdMgrImpl& operator=(const CCmdMgrImpl&) = delete;
 	~CCmdMgrImpl() override;
 
-	CCmd* find(StringView name) const noexcept override;
+	CCmd* find(std::string_view name) const noexcept override;
 	CCmdMgrCCmds get_all() noexcept override;
 
 	void add(CCmd& ccmd) override;
 
 private:
 	using CCmds = std::vector<CCmd*>;
-	using NameToIndex = std::unordered_map<StringView, CCmds::size_type, StringViewHasher>;
+	using NameToIndex = std::unordered_map<std::string_view, CCmds::size_type, StringViewHasher>;
 
 private:
 	std::intptr_t max_ccmds_{};
@@ -52,7 +52,7 @@ CCmdMgrImpl::CCmdMgrImpl(std::intptr_t max_ccmds)
 
 CCmdMgrImpl::~CCmdMgrImpl() = default;
 
-CCmd* CCmdMgrImpl::find(StringView name) const noexcept
+CCmd* CCmdMgrImpl::find(std::string_view name) const noexcept
 {
 	const auto item_iter = name_to_index_map_.find(name);
 
@@ -84,7 +84,7 @@ try {
 		auto message = std::string{};
 		message.reserve(64);
 		message += "CCMD \"";
-		message.append(name.get_data(), name.get_size());
+		message.append(name.data(), name.size());
 		message += "\" already registered.";
 		BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
 	}

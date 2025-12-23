@@ -9,7 +9,6 @@ SPDX-License-Identifier: MIT
 #include "bstone_vk_r3r_shader_stage.h"
 #include "bstone_exception.h"
 #include "bstone_fixed_pool_resource.h"
-#include "bstone_string_view.h"
 #include "bstone_string_view_hasher.h"
 #include "bstone_utility.h"
 #include "bstone_r3r_limits.h"
@@ -23,6 +22,7 @@ SPDX-License-Identifier: MIT
 #include <cstring>
 #include <algorithm>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
@@ -334,7 +334,7 @@ try {
 
 void VkR3rShaderStageImpl::initialize(const R3rShaderStageInitParam& param)
 {
-	using NameViewSet = std::unordered_set<StringView, StringViewHasher>;
+	using NameViewSet = std::unordered_set<std::string_view, StringViewHasher>;
 	struct Info
 	{
 		const R3rShaderVarInfo* var;
@@ -353,8 +353,8 @@ void VkR3rShaderStageImpl::initialize(const R3rShaderStageInitParam& param)
 		{
 			BSTONE_THROW_STATIC_SOURCE("Null shader variable name.");
 		}
-		const StringView info_name_view{info.name};
-		if (info_name_view.is_empty())
+		const std::string_view info_name_view{info.name};
+		if (info_name_view.empty())
 		{
 			BSTONE_THROW_STATIC_SOURCE("Empty shader variable name.");
 		}

@@ -9,11 +9,11 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_exception.h"
 #include "bstone_span.h"
-#include "bstone_string_view.h"
+#include <string_view>
 
 namespace bstone {
 
-using CCmdActionArgs = Span<const StringView>;
+using CCmdActionArgs = Span<const std::string_view>;
 
 // ==========================================================================
 

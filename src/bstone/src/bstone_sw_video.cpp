@@ -44,7 +44,7 @@ public:
 	void operator delete(void* ptr);
 
 	bool is_hardware() const noexcept override;
-	StringView get_renderer_name() override;
+	std::string_view get_renderer_name() override;
 	void clear_vga_buffer() override;
 	void take_screenshot(
 		int width,
@@ -141,7 +141,7 @@ private:
 	sys::WindowUPtr window_{};
 	sys::RendererUPtr renderer_{};
 	std::string renderer_name_buffer_{};
-	StringView renderer_name_{};
+	std::string_view renderer_name_{};
 	sys::TextureUPtr screen_texture_{};
 	sys::TextureUPtr ui_texture_{};
 	VgaBuffer sw_vga_buffer_{};
@@ -213,7 +213,7 @@ bool SwVideo::is_hardware() const noexcept
 	return false;
 }
 
-StringView SwVideo::get_renderer_name()
+std::string_view SwVideo::get_renderer_name()
 {
 	return renderer_name_;
 }
@@ -698,17 +698,9 @@ try {
 	renderer_name_buffer_.reserve(128);
 	renderer_name_buffer_ += "sw (";
 	const auto sys_renderer_name = get_renderer_name();
-
-	renderer_name_buffer_.append(
-		sys_renderer_name.get_data(),
-		static_cast<std::size_t>(sys_renderer_name.get_size()));
-
+	renderer_name_buffer_.append(sys_renderer_name.data(), sys_renderer_name.size());
 	renderer_name_buffer_ += ')';
-
-	renderer_name_ = StringView{
-		renderer_name_buffer_.data(),
-		static_cast<std::intptr_t>(renderer_name_buffer_.size())};
-
+	renderer_name_ = std::string_view{renderer_name_buffer_.data(), renderer_name_buffer_.size()};
 	const auto window_title = vid_get_window_title_for_renderer(renderer_name_);
 	window_->set_title(window_title.c_str());
 	window_->show(true);
