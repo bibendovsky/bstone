@@ -12,10 +12,10 @@ SPDX-License-Identifier: MIT
 #include <cstdint>
 
 #include <algorithm>
+#include <array>
 #include <memory>
 #include <type_traits>
 
-#include "bstone_array.h"
 #include "bstone_exception.h"
 #include "bstone_memory_resource.h"
 
@@ -48,7 +48,7 @@ public:
 	}
 
 private:
-	using Storage = Array<bool, TSize>;
+	using Storage = std::array<bool, TSize>;
 
 private:
 	Storage storage_{};

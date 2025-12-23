@@ -9,6 +9,7 @@ SPDX-License-Identifier: MIT
 #ifndef BSTONE_CL_INCLUDED
 #define BSTONE_CL_INCLUDED
 
+#include <cstdint>
 #include <vector>
 #include <string_view>
 #include "bstone_span.h"
