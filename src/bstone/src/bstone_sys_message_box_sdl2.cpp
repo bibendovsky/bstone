@@ -51,7 +51,7 @@ try {
 
 	constexpr auto max_buttons = 8;
 
-	if (param.buttons.get_size() > max_buttons)
+	if (param.buttons.size() > max_buttons)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Too many buttons.");
 	}
@@ -84,7 +84,7 @@ try {
 	sdl_message_box.flags = sdl_message_box_flags;
 	sdl_message_box.title = param.title;
 	sdl_message_box.message = param.message;
-	sdl_message_box.numbuttons = static_cast<int>(param.buttons.get_size());
+	sdl_message_box.numbuttons = static_cast<int>(param.buttons.size());
 	sdl_message_box.buttons = sdl_buttons;
 
 	auto sdl_button_id = 0;

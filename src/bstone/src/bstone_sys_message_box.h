@@ -10,7 +10,7 @@ SPDX-License-Identifier: MIT
 #define BSTONE_SYS_MESSAGE_BOX_INCLUDED
 
 #include "bstone_enum_flags.h"
-#include "bstone_span.h"
+#include <span>
 
 namespace bstone {
 namespace sys {
@@ -50,7 +50,7 @@ struct MessageBoxInitParam
 	const char* title;
 	const char* message;
 	MessageBoxType type;
-	Span<const MessageBoxButton> buttons;
+	std::span<const MessageBoxButton> buttons;
 };
 
 // ==========================================================================

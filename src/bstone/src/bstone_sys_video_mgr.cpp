@@ -30,7 +30,7 @@ DisplayMode VideoMgr::get_current_display_mode()
 	return do_get_current_display_mode();
 }
 
-Span<const DisplayMode> VideoMgr::get_display_modes()
+std::span<const DisplayMode> VideoMgr::get_display_modes()
 {
 	return do_get_display_modes();
 }

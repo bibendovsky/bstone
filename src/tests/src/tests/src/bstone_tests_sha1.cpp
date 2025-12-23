@@ -79,7 +79,7 @@ void test_lpjru7shzc0ctgsw()
 	tester.check(digest == ref_digest);
 }
 
-// process(Span<const std::uint8_t>) and finish()
+// process(std::span<const std::uint8_t>) and finish()
 void test_pmq9ub20p7haxiyv()
 {
 	constexpr std::uint8_t ref_bytes[] = {0x54, 0x65, 0x73, 0x74}; // "Test"
@@ -108,13 +108,13 @@ void test_pmq9ub20p7haxiyv()
 	};
 
 	auto sha1 = bstone::Sha1{};
-	sha1.process(bstone::make_const_span(ref_bytes));
+	sha1.process(std::span{ref_bytes});
 	sha1.finish();
 	const auto digest = sha1.get_digest();
 	tester.check(digest == ref_digest);
 }
 
-// process(Span<std::uint8_t>) and finish()
+// process(std::span<std::uint8_t>) and finish()
 void test_hka86bzux5vmorkw()
 {
 	std::uint8_t ref_bytes[] = {0x54, 0x65, 0x73, 0x74}; // "Test"
@@ -144,7 +144,7 @@ void test_hka86bzux5vmorkw()
 	};
 
 	auto sha1 = bstone::Sha1{};
-	sha1.process(bstone::make_const_span(ref_bytes));
+	sha1.process(std::span{ref_bytes});
 	sha1.finish();
 	const auto digest = sha1.get_digest();
 	tester.check(digest == ref_digest);

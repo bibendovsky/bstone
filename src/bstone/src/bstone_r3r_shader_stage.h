@@ -10,7 +10,7 @@ SPDX-License-Identifier: MIT
 #define BSTONE_R3R_SHADER_STAGE_INCLUDED
 
 #include <memory>
-#include "bstone_span.h"
+#include <span>
 #include "bstone_r3r_shader.h"
 #include "bstone_r3r_shader_var.h"
 
@@ -22,11 +22,11 @@ struct R3rShaderStageInputBinding
 	const char* name;
 };
 
-using R3rShaderStageInputBindings = Span<const R3rShaderStageInputBinding>;
+using R3rShaderStageInputBindings = std::span<const R3rShaderStageInputBinding>;
 
 // ==========================================================================
 
-using R3rShaderStageShaderVarInfos = Span<const R3rShaderVarInfo>;
+using R3rShaderStageShaderVarInfos = std::span<const R3rShaderVarInfo>;
 
 // ==========================================================================
 

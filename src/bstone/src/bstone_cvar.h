@@ -8,9 +8,9 @@ SPDX-License-Identifier: MIT
 #define BSTONE_CVAR_INCLUDED
 
 #include <vector>
+#include <span>
 #include <string_view>
 #include "bstone_cvar_string.h"
-#include "bstone_span.h"
 #include "bstone_enum_flags.h"
 
 namespace bstone {
@@ -26,8 +26,8 @@ struct CVarInt32Tag {};
 struct CVarBoolTag {};
 struct CVarStringTag {};
 
-using CVarInt32Values = Span<const std::int32_t>;
-using CVarStringValues = Span<const std::string_view>;
+using CVarInt32Values = std::span<const std::int32_t>;
+using CVarStringValues = std::span<const std::string_view>;
 
 enum class CVarFlags : unsigned int
 {

@@ -7262,11 +7262,7 @@ public:
 			++token_iter;
 		}
 
-		return bstone::Span<const std::string_view>
-		{
-			views_.data(),
-				static_cast<std::intptr_t>(views_.size())
-		};
+		return std::span<const std::string_view>{views_.data(), views_.size()};
 	}
 
 private:
@@ -7596,10 +7592,10 @@ void set_config_defaults()
 	sd_set_music_volume(sd_default_music_volume);
 }
 
-bool try_deserialize_cvar(bstone::Span<const std::string_view> tokens)
+bool try_deserialize_cvar(std::span<const std::string_view> tokens)
 try
 {
-	if (tokens.get_size() != 2)
+	if (tokens.size() != 2)
 	{
 		return false;
 	}
@@ -7615,7 +7611,7 @@ try
 	return true;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-bool try_deserialize_ccmd(bstone::Span<const std::string_view> tokens)
+bool try_deserialize_ccmd(std::span<const std::string_view> tokens)
 try
 {
 	const auto ccmd = bstone::globals::ccmd_mgr->find(tokens[0]);
@@ -7625,7 +7621,7 @@ try
 		return false;
 	}
 
-	ccmd->get_action()(tokens.get_subspan(1));
+	ccmd->get_action()(tokens.subspan(1));
 	return true;
 }
 catch (const std::exception& ex)
@@ -7690,7 +7686,7 @@ void read_text_config()
 				}
 				else
 				{
-					const auto& identifier_name = tokens_span.get_front();
+					const auto& identifier_name = tokens_span.front();
 					auto message = std::string{};
 					message += "[CFG] Unknown identifier \"";
 					message.append(identifier_name.data(), identifier_name.size());
@@ -10096,7 +10092,7 @@ int main(
 				message_box_param.title = get_message_box_title().c_str();
 				message_box_param.message = error_message.c_str();
 				message_box_param.type = bstone::sys::MessageBoxType::error;
-				message_box_param.buttons = bstone::make_span(buttons);
+				message_box_param.buttons = std::span{buttons};
 
 				const auto button_id = bstone::sys::MessageBox::show(message_box_param);
 

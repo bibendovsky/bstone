@@ -71,7 +71,7 @@ private:
 
 	void do_clear() override;
 	void do_set_draw_color(Color color) override;
-	void do_fill(Span<const Rectangle> rects) override;
+	void do_fill(std::span<const Rectangle> rects) override;
 	void do_present() override;
 
 	void do_read_pixels(const Rectangle* rect, PixelFormat pixel_format, void* pixels, int pitch) override;
@@ -145,17 +145,17 @@ try {
 	sdl2_ensure_result(SDL_SetRenderDrawColor(sdl_renderer_.get(), color.r, color.g, color.b, color.a));
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void Sdl2Renderer::do_fill(Span<const Rectangle> rects)
+void Sdl2Renderer::do_fill(std::span<const Rectangle> rects)
 try {
-	if (rects.get_size() > INT_MAX)
+	if (rects.size() > INT_MAX)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Too many rectangles.");
 	}
 
 	sdl2_ensure_result(SDL_RenderFillRects(
 		sdl_renderer_.get(),
-		reinterpret_cast<const SDL_Rect*>(rects.get_data()),
-		static_cast<int>(rects.get_size())));
+		reinterpret_cast<const SDL_Rect*>(rects.data()),
+		static_cast<int>(rects.size())));
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void Sdl2Renderer::do_present()

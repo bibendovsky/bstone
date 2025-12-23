@@ -15,10 +15,10 @@ Notes:
 #ifndef BSTONE_HW_SHADER_REGISTRY_INCLUDED
 #define BSTONE_HW_SHADER_REGISTRY_INCLUDED
 
-#include "bstone_span.h"
 #include "bstone_r3r_shader.h"
 #include "bstone_r3r_shader_var.h"
 #include "bstone_r3r_types.h"
+#include <span>
 
 namespace bstone {
 
@@ -50,7 +50,7 @@ public:
 	static const R3rShaderSource& get_fragment(R3rType renderer_type) noexcept;
 	static const R3rShaderSource& get_vertex(R3rType renderer_type) noexcept;
 
-	static const Span<const R3rShaderVarInfo> get_shader_var_infos();
+	static const std::span<const R3rShaderVarInfo> get_shader_var_infos();
 
 private:
 	static R3rShaderSource make_r3r_shader_source(const char* source) noexcept;

@@ -9,13 +9,13 @@ SPDX-License-Identifier: MIT
 
 #include <cstdint>
 #include <memory>
+#include <span>
 #include <string_view>
 #include "bstone_cvar.h"
-#include "bstone_span.h"
 
 namespace bstone {
 
-using CVarMgrCVars = Span<CVar*>;
+using CVarMgrCVars = std::span<CVar*>;
 
 // --------------------------------------------------------------------------
 

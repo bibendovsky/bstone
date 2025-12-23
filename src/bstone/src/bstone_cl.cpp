@@ -72,7 +72,7 @@ try {
 
 	if (param_count > 0)
 	{
-		params_ = ClArgs{args_.data(), param_count};
+		params_ = ClArgs{args_.data(), static_cast<std::size_t>(param_count)};
 	}
 
 	// Then add options.
@@ -124,14 +124,14 @@ try {
 
 		if (option_arg_count > 0)
 		{
-			option.args = ClArgs{&args_[option_args_index], option_arg_count};
+			option.args = ClArgs{&args_[option_args_index], static_cast<std::size_t>(option_arg_count)};
 		}
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 ClOptions Cl::get_options() const noexcept
 {
-	return bstone::make_span(options_.data(), static_cast<std::intptr_t>(options_.size()));
+	return std::span{options_.data(), options_.size()};
 }
 
 bool Cl::has_option(std::string_view option_name) const
@@ -171,12 +171,12 @@ std::string_view Cl::get_option_value(std::string_view option_name) const
 {
 	const auto option = find_option(option_name);
 
-	if (option.name.empty() || option.args.is_empty())
+	if (option.name.empty() || option.args.empty())
 	{
 		return std::string_view{};
 	}
 
-	return option.args.get_front();
+	return option.args.front();
 }
 
 void Cl::get_option_values(std::string_view option_name, std::string_view& value1, std::string_view& value2) const
@@ -191,7 +191,7 @@ void Cl::get_option_values(std::string_view option_name, std::string_view& value
 		return;
 	}
 
-	const auto arg_count = option.args.get_size();
+	const auto arg_count = option.args.size();
 
 	if (arg_count >= 1)
 	{

@@ -66,7 +66,7 @@ CCmd* CCmdMgrImpl::find(std::string_view name) const noexcept
 
 CCmdMgrCCmds CCmdMgrImpl::get_all() noexcept
 {
-	return CCmdMgrCCmds{ccmds_.data(), static_cast<std::intptr_t>(ccmds_.size())};
+	return CCmdMgrCCmds{ccmds_.data(), ccmds_.size()};
 }
 
 void CCmdMgrImpl::add(CCmd& ccmd)

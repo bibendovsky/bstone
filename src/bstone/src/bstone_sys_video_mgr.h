@@ -10,8 +10,7 @@ SPDX-License-Identifier: MIT
 #define BSTONE_SYS_VIDEO_MGR_INCLUDED
 
 #include <memory>
-
-#include "bstone_span.h"
+#include <span>
 
 #include "bstone_sys_display_mode.h"
 #include "bstone_sys_gl_current_context.h"
@@ -37,7 +36,7 @@ public:
 
 	// Notes:
 	//   - The returned data valid until next invocation.
-	Span<const DisplayMode> get_display_modes();
+	std::span<const DisplayMode> get_display_modes();
 	GlCurrentContext& get_gl_current_context();
 	VulkanMgr& get_vulkan_mgr();
 	MouseMgr& get_mouse_mgr();
@@ -48,7 +47,7 @@ private:
 
 	virtual Logger& do_get_logger() = 0;
 	virtual DisplayMode do_get_current_display_mode() = 0;
-	virtual Span<const DisplayMode> do_get_display_modes() = 0;
+	virtual std::span<const DisplayMode> do_get_display_modes() = 0;
 
 	virtual GlCurrentContext& do_get_gl_current_context() = 0;
 	virtual VulkanMgr& do_get_vulkan_mgr() = 0;
