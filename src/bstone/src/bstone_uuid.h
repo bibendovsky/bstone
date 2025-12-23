@@ -15,8 +15,8 @@ SPDX-License-Identifier: MIT
 #define BSTONE_UUID_INCLUDED
 
 #include <cstdint>
+#include <array>
 #include <string_view>
-#include "bstone_array.h"
 #include "bstone_ascii.h"
 #include "bstone_char_conv.h"
 #include "bstone_endian.h"
@@ -55,7 +55,7 @@ enum class UuidEndianType
 	little_mixed,
 };
 
-using UuidValue = Array<std::uint8_t, uuid_value_size>;
+using UuidValue = std::array<std::uint8_t, uuid_value_size>;
 
 // ==========================================================================
 
@@ -214,7 +214,7 @@ public:
 		switch (endian_type)
 		{
 			case UuidEndianType::big:
-				endian::swap_byte_array(value_.get_data(), value_.get_size());
+				endian::swap_byte_array(value_.data(), static_cast<std::intptr_t>(value_.size()));
 				break;
 
 			case UuidEndianType::little_mixed:
@@ -264,7 +264,7 @@ private:
 		}
 
 		const auto uuid_chars_end = bstone::bytes_to_hex_chars(
-			value_.cbegin(), value_.cend(), chars_begin, chars_end);
+			value_.data(), value_.data() + value_.size(), chars_begin, chars_end);
 		case_func(chars_begin, uuid_chars_end);
 		return uuid_chars_end;
 	}
@@ -282,7 +282,7 @@ private:
 			BSTONE_THROW_STATIC_SOURCE("Buffer too small.");
 		}
 
-		const auto bytes = value_.get_data();
+		const auto bytes = value_.data();
 
 		bstone::bytes_to_hex_chars(bytes + 0, bytes + 4, chars_begin + 0, chars_begin + 8);
 		chars_begin[8] = '-';
@@ -312,7 +312,7 @@ private:
 			BSTONE_THROW_STATIC_SOURCE("Buffer too small.");
 		}
 
-		const auto bytes = value_.get_data();
+		const auto bytes = value_.data();
 
 		chars_begin[0] = '{';
 		bstone::bytes_to_hex_chars(bytes + 0, bytes + 4, chars_begin + 1, chars_begin + 9);
@@ -337,8 +337,8 @@ private:
 		bstone::hex_chars_to_bytes(
 			string_view.data(),
 			string_view.data() + string_view.size(),
-			value_.begin(),
-			value_.end());
+			value_.data(),
+			value_.data() + value_.size());
 	}
 
 	template<typename TChar>
@@ -351,7 +351,7 @@ private:
 			BSTONE_THROW_STATIC_SOURCE("Expected hyphens.");
 		}
 
-		const auto bytes = value_.get_data();
+		const auto bytes = value_.data();
 
 		bstone::hex_chars_to_bytes(chars + 0, chars + 8, bytes + 0, bytes + 4);
 		bstone::hex_chars_to_bytes(chars + 9, chars + 13, bytes + 4, bytes + 6);
@@ -372,7 +372,7 @@ private:
 			BSTONE_THROW_STATIC_SOURCE("Expected hyphens and braces.");
 		}
 
-		const auto bytes = value_.get_data();
+		const auto bytes = value_.data();
 
 		bstone::hex_chars_to_bytes(chars + 1, chars + 9, bytes + 0, bytes + 4);
 		bstone::hex_chars_to_bytes(chars + 10, chars + 14, bytes + 4, bytes + 6);

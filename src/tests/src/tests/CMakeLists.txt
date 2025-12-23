@@ -60,8 +60,6 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_memory_resource.h
 		../../../bstone/src/bstone_scope_exit.cpp
 		../../../bstone/src/bstone_scope_exit.h
-		../../../bstone/src/bstone_array.cpp
-		../../../bstone/src/bstone_array.h
 		../../../bstone/src/bstone_char_conv.cpp
 		../../../bstone/src/bstone_char_conv.cpp
 		../../../bstone/src/bstone_unique_resource.cpp
@@ -149,7 +147,6 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_process_win32.cpp
 		../../../bstone/src/bstone_process.h
 	PRIVATE
-		src/bstone_tests_array.cpp
 		src/bstone_tests_ascii.cpp
 		src/bstone_tests_char_conv.cpp
 		src/bstone_tests_char_traits.cpp

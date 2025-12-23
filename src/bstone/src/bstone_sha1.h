@@ -11,8 +11,8 @@ SPDX-License-Identifier: MIT
 #define BSTONE_SHA1_INCLUDED
 
 #include <cstdint>
+#include <array>
 
-#include "bstone_array.h"
 #include "bstone_char_conv.h"
 #include "bstone_char_traits.h"
 #include "bstone_exception.h"
@@ -25,7 +25,7 @@ constexpr auto sha1_digest_char_count = sha1_digest_size * 2;
 
 // ==========================================================================
 
-using Sha1Digest = Array<std::uint8_t, sha1_digest_size>;
+using Sha1Digest = std::array<std::uint8_t, sha1_digest_size>;
 
 // ==========================================================================
 
@@ -42,8 +42,8 @@ public:
 	const Sha1Digest& get_digest() const noexcept;
 
 private:
-	using Block = Array<std::uint8_t, 64>;
-	using Digest32 = Array<std::uint32_t, sha1_digest_size / 4>;
+	using Block = std::array<std::uint8_t, 64>;
+	using Digest32 = std::array<std::uint32_t, sha1_digest_size / 4>;
 
 private:
 	Block block_{}; // 512-bit message block.
@@ -86,7 +86,7 @@ constexpr Sha1Digest make_sha1_digest(const TChar* chars, std::intptr_t char_cou
 	}
 
 	auto result = Sha1Digest{};
-	hex_chars_to_bytes(chars, chars + char_count, result.begin(), result.end());
+	hex_chars_to_bytes(chars, chars + char_count, result.data(), result.data() + result.size());
 	return result;
 }
 
