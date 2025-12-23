@@ -497,8 +497,6 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_utf16.h
 	src/bstone_utf8.cpp
 	src/bstone_utf8.h
-	src/bstone_utility.cpp
-	src/bstone_utility.h
 	src/bstone_uuid.cpp
 	src/bstone_uuid.h
 	src/bstone_uuid_unix.cpp

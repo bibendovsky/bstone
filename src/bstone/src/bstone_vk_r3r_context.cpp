@@ -9,7 +9,6 @@ SPDX-License-Identifier: MIT
 #include "bstone_vk_r3r_context.h"
 #include "bstone_assert.h"
 #include "bstone_exception.h"
-#include "bstone_utility.h"
 #include "bstone_vk_r3r_enum_strings.h"
 #include <string>
 

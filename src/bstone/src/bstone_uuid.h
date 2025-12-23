@@ -17,11 +17,11 @@ SPDX-License-Identifier: MIT
 #include <cstdint>
 #include <array>
 #include <string_view>
+#include <utility>
 #include "bstone_ascii.h"
 #include "bstone_char_conv.h"
 #include "bstone_endian.h"
 #include "bstone_exception.h"
-#include "bstone_utility.h"
 
 namespace bstone {
 
@@ -219,14 +219,14 @@ public:
 
 			case UuidEndianType::little_mixed:
 				// Group 1.
-				bstone::swop(value_[0], value_[3]);
-				bstone::swop(value_[1], value_[2]);
+				std::swap(value_[0], value_[3]);
+				std::swap(value_[1], value_[2]);
 
 				// Group 2.
-				bstone::swop(value_[4], value_[5]);
+				std::swap(value_[4], value_[5]);
 
 				// Group 3.
-				bstone::swop(value_[6], value_[7]);
+				std::swap(value_[6], value_[7]);
 
 				break;
 

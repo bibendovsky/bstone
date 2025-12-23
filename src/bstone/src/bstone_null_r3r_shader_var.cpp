@@ -11,7 +11,6 @@ SPDX-License-Identifier: MIT
 #include <stdint.h>
 #include "bstone_exception.h"
 #include "bstone_fixed_pool_resource.h"
-#include "bstone_utility.h"
 #include "bstone_r3r_limits.h"
 
 // ==========================================================================
@@ -108,40 +107,26 @@ const std::string& NullR3rShaderVarImpl::do_get_name() const
 	return name_;
 }
 
-void NullR3rShaderVarImpl::do_set_int32(int32_t value)
-{
-	maybe_unused(value);
-}
+void NullR3rShaderVarImpl::do_set_int32([[maybe_unused]] int32_t value)
+{}
 
-void NullR3rShaderVarImpl::do_set_float32(float value)
-{
-	maybe_unused(value);
-}
+void NullR3rShaderVarImpl::do_set_float32([[maybe_unused]] float value)
+{}
 
-void NullR3rShaderVarImpl::do_set_vec2(const float* value)
-{
-	maybe_unused(value);
-}
+void NullR3rShaderVarImpl::do_set_vec2([[maybe_unused]] const float* value)
+{}
 
-void NullR3rShaderVarImpl::do_set_vec3(const float* value)
-{
-	maybe_unused(value);
-}
+void NullR3rShaderVarImpl::do_set_vec3([[maybe_unused]] const float* value)
+{}
 
-void NullR3rShaderVarImpl::do_set_vec4(const float* value)
-{
-	maybe_unused(value);
-}
+void NullR3rShaderVarImpl::do_set_vec4([[maybe_unused]] const float* value)
+{}
 
-void NullR3rShaderVarImpl::do_set_mat4(const float* value)
-{
-	maybe_unused(value);
-}
+void NullR3rShaderVarImpl::do_set_mat4([[maybe_unused]] const float* value)
+{}
 
-void NullR3rShaderVarImpl::do_set_r2_sampler(int32_t value)
-{
-	maybe_unused(value);
-}
+void NullR3rShaderVarImpl::do_set_r2_sampler([[maybe_unused]] int32_t value)
+{}
 
 } // namespace
 
