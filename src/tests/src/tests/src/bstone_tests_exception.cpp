@@ -14,32 +14,12 @@ auto tester = bstone::Tester{};
 // StaticSourceException(const SourceLocation&, const char*)
 void test_9dy6ii4t7of8saop()
 {
-	const auto reference_file_name = std::string{"file_name"};
-	const auto reference_line = 1'234'567'890;
-	const auto reference_function_name = std::string{"function_name"};
 	const auto reference_message = std::string{"message"};
-
-	const auto reference_source_location = bstone::SourceLocation{
-		reference_file_name.c_str(),
-		reference_line,
-		reference_function_name.c_str()};
-
 	const auto exception = bstone::StaticSourceException{
-		reference_source_location,
+		std::source_location::current(),
 		reference_message.c_str()};
-
-	const auto& source_location = exception.get_source_location();
-	const auto file_name = source_location.get_file_name();
-	const auto line = source_location.get_line();
-	const auto function_name = source_location.get_function_name();
 	const auto message = exception.what();
-
 	tester.check(
-		file_name == reference_file_name.c_str() &&
-		std::string{file_name} == reference_file_name &&
-		line == reference_line &&
-		function_name == reference_function_name.c_str() &&
-		std::string{function_name} == reference_function_name &&
 		message == reference_message.c_str() &&
 		std::string{message} == reference_message);
 }
@@ -47,30 +27,10 @@ void test_9dy6ii4t7of8saop()
 // StaticSourceException(const SourceLocation&)
 void test_8ojkzshd2x7805in()
 {
-	const auto reference_file_name = std::string{"file_name"};
-	const auto reference_line = 1'234'567'890;
-	const auto reference_function_name = std::string{"function_name"};
 	const auto reference_message = std::string{};
-
-	const auto reference_source_location = bstone::SourceLocation{
-		reference_file_name.c_str(),
-		reference_line,
-		reference_function_name.c_str()};
-
-	const auto exception = bstone::StaticSourceException{reference_source_location};
-
-	const auto& source_location = exception.get_source_location();
-	const auto file_name = source_location.get_file_name();
-	const auto line = source_location.get_line();
-	const auto function_name = source_location.get_function_name();
+	const auto exception = bstone::StaticSourceException{std::source_location::current()};
 	const auto message = exception.what();
-
 	tester.check(
-		file_name == reference_file_name.c_str() &&
-		std::string{file_name} == reference_file_name &&
-		line == reference_line &&
-		function_name == reference_function_name.c_str() &&
-		std::string{function_name} == reference_function_name &&
 		message != nullptr &&
 		std::string{message} == reference_message);
 }
@@ -78,34 +38,16 @@ void test_8ojkzshd2x7805in()
 // StaticSourceException(const StaticSourceException&)
 void test_9v8dcb77m5xpydb5()
 {
-	const auto reference_file_name = std::string{"file_name"};
-	const auto reference_line = 1'234'567'890;
-	const auto reference_function_name = std::string{"function_name"};
 	const auto reference_message = std::string{"message"};
 
-	const auto reference_source_location = bstone::SourceLocation{
-		reference_file_name.c_str(),
-		reference_line,
-		reference_function_name.c_str()};
-
 	const auto exception_1 = bstone::StaticSourceException{
-		reference_source_location,
+		std::source_location::current(),
 		reference_message.c_str()};
 
 	const auto exception = exception_1;
-
-	const auto& source_location = exception.get_source_location();
-	const auto file_name = source_location.get_file_name();
-	const auto line = source_location.get_line();
-	const auto function_name = source_location.get_function_name();
 	const auto message = exception.what();
 
 	tester.check(
-		file_name == reference_file_name.c_str() &&
-		std::string{file_name} == reference_file_name &&
-		line == reference_line &&
-		function_name == reference_function_name.c_str() &&
-		std::string{function_name} == reference_function_name &&
 		message == reference_message.c_str() &&
 		std::string{message} == reference_message);
 }
@@ -113,38 +55,16 @@ void test_9v8dcb77m5xpydb5()
 // operator=(const StaticSourceException&)
 void test_vnunxr60u5dxm6b2()
 {
-	const auto reference_file_name = std::string{"file_name"};
-	const auto reference_line = 1'234'567'890;
-	const auto reference_function_name = std::string{"function_name"};
 	const auto reference_message = std::string{"message"};
-
-	const auto reference_source_location = bstone::SourceLocation{
-		reference_file_name.c_str(),
-		reference_line,
-		reference_function_name.c_str()};
-
 	const auto exception_1 = bstone::StaticSourceException{
-		reference_source_location,
+		std::source_location::current(),
 		reference_message.c_str()};
-
 	auto exception = bstone::StaticSourceException{
-		bstone::SourceLocation{"???", 1, "???"},
+		std::source_location::current(),
 		"???"};
-
 	exception = exception_1;
-
-	const auto& source_location = exception.get_source_location();
-	const auto file_name = source_location.get_file_name();
-	const auto line = source_location.get_line();
-	const auto function_name = source_location.get_function_name();
 	const auto message = exception.what();
-
 	tester.check(
-		file_name == reference_file_name.c_str() &&
-		std::string{file_name} == reference_file_name &&
-		line == reference_line &&
-		function_name == reference_function_name.c_str() &&
-		std::string{function_name} == reference_function_name &&
 		message == reference_message.c_str() &&
 		std::string{message} == reference_message);
 }
@@ -152,43 +72,24 @@ void test_vnunxr60u5dxm6b2()
 // get_source_location()
 void test_th2929otnou2oism()
 {
-	const auto reference_file_name = std::string{"file_name"};
-	const auto reference_line = 1'234'567'890;
-	const auto reference_function_name = std::string{"function_name"};
 	const auto reference_message = std::string{"message"};
-
-	const auto reference_source_location = bstone::SourceLocation{
-		reference_file_name.c_str(),
-		reference_line,
-		reference_function_name.c_str()};
-
 	const auto exception = bstone::StaticSourceException{
-		reference_source_location,
+		std::source_location::current(),
 		reference_message.c_str()};
-
 	const auto& source_location = exception.get_source_location();
-	const auto file_name = source_location.get_file_name();
-	const auto line = source_location.get_line();
-	const auto function_name = source_location.get_function_name();
-
 	tester.check(
-		file_name == reference_file_name.c_str() &&
-		std::string{file_name} == reference_file_name &&
-		line == reference_line &&
-		function_name == reference_function_name.c_str() &&
-		std::string{function_name} == reference_function_name);
+		source_location.file_name() != nullptr &&
+		source_location.line() != 0 &&
+		source_location.function_name() != nullptr);
 }
 
 // what()
 void test_g2d1isjrlhiwx9n4()
 {
 	const auto reference_message = std::string{"message"};
-	const auto reference_source_location = bstone::SourceLocation{"???", 1, "???"};
-
 	const auto exception = bstone::StaticSourceException{
-		reference_source_location,
+		std::source_location::current(),
 		reference_message.c_str()};
-
 	const auto message = exception.what();
 	tester.check(message == reference_message.c_str() && std::string{message} == reference_message);
 }
@@ -196,34 +97,15 @@ void test_g2d1isjrlhiwx9n4()
 // fail(const SourceLocation&, const char*)
 void test_kh63aix1vb0xiyhv()
 {
-	const auto reference_file_name = std::string{"file_name"};
-	const auto reference_line = 1'234'567'890;
-	const auto reference_function_name = std::string{"function_name"};
 	const auto reference_message = std::string{"message"};
-
-	const auto reference_source_location = bstone::SourceLocation{
-		reference_file_name.c_str(),
-		reference_line,
-		reference_function_name.c_str()};
-
 	try
 	{
-		bstone::StaticSourceException::fail(reference_source_location, reference_message.c_str());
+		bstone::StaticSourceException::fail(std::source_location::current(), reference_message.c_str());
 	}
 	catch (const bstone::StaticSourceException& exception)
 	{
-		const auto& source_location = exception.get_source_location();
-		const auto file_name = source_location.get_file_name();
-		const auto line = source_location.get_line();
-		const auto function_name = source_location.get_function_name();
 		const auto message = exception.what();
-
 		tester.check(
-			file_name == reference_file_name.c_str() &&
-			std::string{file_name} == reference_file_name &&
-			line == reference_line &&
-			function_name == reference_function_name.c_str() &&
-			std::string{function_name} == reference_function_name &&
 			message == reference_message.c_str() &&
 			std::string{message} == reference_message);
 	}
@@ -233,17 +115,7 @@ void test_kh63aix1vb0xiyhv()
 void test_zcs3c4u46sekri7a()
 {
 	const auto reference_inner_message = std::string{"inner"};
-
-	const auto reference_file_name = std::string{"file_name"};
-	const auto reference_line = 1'234'567'890;
-	const auto reference_function_name = std::string{"function_name"};
 	const auto reference_message = std::string{};
-
-	const auto reference_source_location = bstone::SourceLocation{
-		reference_file_name.c_str(),
-		reference_line,
-		reference_function_name.c_str()};
-
 	try
 	{
 		try
@@ -252,28 +124,16 @@ void test_zcs3c4u46sekri7a()
 		}
 		catch (const std::exception&)
 		{
-			bstone::StaticSourceException::fail_nested(reference_source_location);
+			bstone::StaticSourceException::fail_nested(std::source_location::current());
 		}
 	}
 	catch (const bstone::StaticSourceException& exception)
 	{
-		const auto& source_location = exception.get_source_location();
-		const auto file_name = source_location.get_file_name();
-		const auto line = source_location.get_line();
-		const auto function_name = source_location.get_function_name();
 		const auto message = exception.what();
-
 		tester.check(
-			file_name == reference_file_name.c_str() &&
-			std::string{file_name} == reference_file_name &&
-			line == reference_line &&
-			function_name == reference_function_name.c_str() &&
-			std::string{function_name} == reference_function_name &&
 			message != nullptr &&
 			std::string{message} == reference_message);
-
 		auto is_runtime_error = false;
-
 		try
 		{
 			std::rethrow_if_nested(exception);
@@ -281,12 +141,10 @@ void test_zcs3c4u46sekri7a()
 		catch (const std::runtime_error& runtime_exception)
 		{
 			const auto inner_message = runtime_exception.what();
-
 			is_runtime_error =
 				inner_message != nullptr &&
 				std::string{inner_message} == reference_inner_message;
 		}
-
 		tester.check(is_runtime_error, "e8xcbfhc9xl2invy");
 	}
 }
@@ -296,29 +154,10 @@ void test_zcs3c4u46sekri7a()
 // DynamicSourceException(const SourceLocation&, const char*)
 void test_mwd0ds2bxczncdyi()
 {
-	const auto reference_file_name = std::string{"file_name"};
-	const auto reference_line = 1'234'567'890;
-	const auto reference_function_name = std::string{"function_name"};
 	const auto reference_message = std::string{"message"};
-
-	const auto reference_source_location = bstone::SourceLocation{
-		reference_file_name.c_str(),
-		reference_line,
-		reference_function_name.c_str()};
-
-	const auto exception = bstone::DynamicSourceException{reference_source_location, reference_message.c_str()};
-	const auto& source_location = exception.get_source_location();
-	const auto file_name = source_location.get_file_name();
-	const auto line = source_location.get_line();
-	const auto function_name = source_location.get_function_name();
+	const auto exception = bstone::DynamicSourceException{std::source_location::current(), reference_message.c_str()};
 	const auto message = exception.what();
-
 	tester.check(
-		file_name == reference_file_name.c_str() &&
-		std::string{file_name} == reference_file_name &&
-		line == reference_line &&
-		function_name == reference_function_name.c_str() &&
-		std::string{function_name} == reference_function_name &&
 		message != nullptr &&
 		std::string{message} == reference_message);
 }
@@ -326,33 +165,12 @@ void test_mwd0ds2bxczncdyi()
 // DynamicSourceException(const DynamicSourceException&)
 void test_0r0rt838e8vmvyv3()
 {
-	const auto reference_file_name = std::string{"file_name"};
-	const auto reference_line = 1'234'567'890;
-	const auto reference_function_name = std::string{"function_name"};
 	const auto reference_message = std::string{"message"};
-
-	const auto reference_source_location = bstone::SourceLocation{
-		reference_file_name.c_str(),
-		reference_line,
-		reference_function_name.c_str()};
-
-	const auto exception_1 = bstone::DynamicSourceException{reference_source_location, reference_message.c_str()};
+	const auto exception_1 = bstone::DynamicSourceException{std::source_location::current(), reference_message.c_str()};
 	const auto exception = exception_1;
-
-	const auto& source_location = exception.get_source_location();
-	const auto file_name = source_location.get_file_name();
-	const auto line = source_location.get_line();
-	const auto function_name = source_location.get_function_name();
-
 	const auto message_1 = exception_1.what();
 	const auto message = exception.what();
-
 	tester.check(
-		file_name == reference_file_name.c_str() &&
-		std::string{file_name} == reference_file_name &&
-		line == reference_line &&
-		function_name == reference_function_name.c_str() &&
-		std::string{function_name} == reference_function_name &&
 		message_1 != nullptr &&
 		message != nullptr &&
 		message == message_1 &&
@@ -362,38 +180,15 @@ void test_0r0rt838e8vmvyv3()
 // operator=(const DynamicSourceException&)
 void test_1jezs70lk1p3q1fm()
 {
-	const auto reference_file_name = std::string{"file_name"};
-	const auto reference_line = 1'234'567'890;
-	const auto reference_function_name = std::string{"function_name"};
 	const auto reference_message = std::string{"message"};
-
-	const auto reference_source_location = bstone::SourceLocation{
-		reference_file_name.c_str(),
-		reference_line,
-		reference_function_name.c_str()};
-
-	const auto exception_1 = bstone::DynamicSourceException{reference_source_location, reference_message.c_str()};
-
+	const auto exception_1 = bstone::DynamicSourceException{std::source_location::current(), reference_message.c_str()};
 	auto exception = bstone::DynamicSourceException{
-		bstone::SourceLocation{"???", 0, "???"},
+		std::source_location::current(),
 		"???"};
-
 	exception = exception_1;
-
-	const auto& source_location = exception.get_source_location();
-	const auto file_name = source_location.get_file_name();
-	const auto line = source_location.get_line();
-	const auto function_name = source_location.get_function_name();
-
 	const auto message_1 = exception_1.what();
 	const auto message = exception.what();
-
 	tester.check(
-		file_name == reference_file_name.c_str() &&
-		std::string{file_name} == reference_file_name &&
-		line == reference_line &&
-		function_name == reference_function_name.c_str() &&
-		std::string{function_name} == reference_function_name &&
 		message_1 != nullptr &&
 		message != nullptr &&
 		message == message_1 &&
@@ -403,83 +198,35 @@ void test_1jezs70lk1p3q1fm()
 // get_source_location()
 void test_xm6p0s1xcnghpeam()
 {
-	const auto reference_file_name = std::string{"file_name"};
-	const auto reference_line = 1'234'567'890;
-	const auto reference_function_name = std::string{"function_name"};
 	const auto reference_message = std::string{"message"};
-
-	const auto reference_source_location = bstone::SourceLocation{
-		reference_file_name.c_str(),
-		reference_line,
-		reference_function_name.c_str()};
-
-	const auto exception = bstone::DynamicSourceException{reference_source_location, reference_message.c_str()};
-
+	const auto exception = bstone::DynamicSourceException{std::source_location::current(), reference_message.c_str()};
 	const auto& source_location = exception.get_source_location();
-	const auto file_name = source_location.get_file_name();
-	const auto line = source_location.get_line();
-	const auto function_name = source_location.get_function_name();
-
 	tester.check(
-		file_name == reference_file_name.c_str() &&
-		std::string{file_name} == reference_file_name &&
-		line == reference_line &&
-		function_name == reference_function_name.c_str() &&
-		std::string{function_name} == reference_function_name);
+		source_location.file_name() != nullptr &&
+		source_location.line() != 0 &&
+		source_location.function_name() != nullptr);
 }
 
 // what()
 void test_c2hepxe4z811dptg()
 {
-	const auto reference_file_name = std::string{"file_name"};
-	const auto reference_line = 1'234'567'890;
-	const auto reference_function_name = std::string{"function_name"};
 	const auto reference_message = std::string{"message"};
-
-	const auto reference_source_location = bstone::SourceLocation{
-		reference_file_name.c_str(),
-		reference_line,
-		reference_function_name.c_str()};
-
-	const auto exception = bstone::DynamicSourceException{reference_source_location, reference_message.c_str()};
+	const auto exception = bstone::DynamicSourceException{std::source_location::current(), reference_message.c_str()};
 	const auto message = exception.what();
-
 	tester.check(message != nullptr && std::string{message} == reference_message);
 }
 
 // swap(DynamicSourceException&)
 void test_f2xqhq2x2zv1yndi()
 {
-	const auto reference_file_name = std::string{"file_name"};
-	const auto reference_line = 1'234'567'890;
-	const auto reference_function_name = std::string{"function_name"};
 	const auto reference_message = std::string{"message"};
-
-	const auto reference_source_location = bstone::SourceLocation{
-		reference_file_name.c_str(),
-		reference_line,
-		reference_function_name.c_str()};
-
-	auto exception_1 = bstone::DynamicSourceException{reference_source_location, reference_message.c_str()};
-
+	auto exception_1 = bstone::DynamicSourceException{std::source_location::current(), reference_message.c_str()};
 	auto exception = bstone::DynamicSourceException{
-		bstone::SourceLocation{"???", 0, "???"},
+		std::source_location::current(),
 		"???"};
-
 	exception.swap(exception_1);
-
-	const auto& source_location = exception.get_source_location();
-	const auto file_name = source_location.get_file_name();
-	const auto line = source_location.get_line();
-	const auto function_name = source_location.get_function_name();
 	const auto message = exception.what();
-
 	tester.check(
-		file_name == reference_file_name.c_str() &&
-		std::string{file_name} == reference_file_name &&
-		line == reference_line &&
-		function_name == reference_function_name.c_str() &&
-		std::string{function_name} == reference_function_name &&
 		message != nullptr &&
 		std::string{message} == reference_message);
 }
@@ -487,34 +234,15 @@ void test_f2xqhq2x2zv1yndi()
 // fail(const SourceLocation&, const char*)
 void test_hm79m48ddfmlphzq()
 {
-	const auto reference_file_name = std::string{"file_name"};
-	const auto reference_line = 1'234'567'890;
-	const auto reference_function_name = std::string{"function_name"};
 	const auto reference_message = std::string{"message"};
-
-	const auto reference_source_location = bstone::SourceLocation{
-		reference_file_name.c_str(),
-		reference_line,
-		reference_function_name.c_str()};
-
 	try
 	{
-		throw bstone::StaticSourceException{reference_source_location, reference_message.c_str()};
+		throw bstone::StaticSourceException{std::source_location::current(), reference_message.c_str()};
 	}
 	catch (const bstone::StaticSourceException& exception)
 	{
-		const auto& source_location = exception.get_source_location();
-		const auto file_name = source_location.get_file_name();
-		const auto line = source_location.get_line();
-		const auto function_name = source_location.get_function_name();
 		const auto message = exception.what();
-
 		tester.check(
-			file_name == reference_file_name.c_str() &&
-			std::string{file_name} == reference_file_name &&
-			line == reference_line &&
-			function_name == reference_function_name.c_str() &&
-			std::string{function_name} == reference_function_name &&
 			message == reference_message.c_str() &&
 			std::string{message} == reference_message);
 	}

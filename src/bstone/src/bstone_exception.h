@@ -10,9 +10,8 @@ SPDX-License-Identifier: MIT
 #define BSTONE_EXCEPTION_INCLUDED
 
 #include <exception>
+#include <source_location>
 #include <type_traits>
-
-#include "bstone_source_location.h"
 
 namespace bstone {
 
@@ -29,7 +28,7 @@ class SourceException : public Exception
 public:
 	~SourceException() override;
 
-	virtual const SourceLocation& get_source_location() const noexcept = 0;
+	virtual const std::source_location& get_source_location() const noexcept = 0;
 };
 
 // ==========================================================================
@@ -37,22 +36,22 @@ public:
 class StaticSourceException : public SourceException
 {
 public:
-	StaticSourceException(const SourceLocation& source_location, const char* message);
-	explicit StaticSourceException(const SourceLocation& source_location) noexcept;
+	StaticSourceException(const std::source_location& source_location, const char* message);
+	explicit StaticSourceException(const std::source_location& source_location) noexcept;
 	StaticSourceException(const StaticSourceException& rhs) noexcept;
 	StaticSourceException& operator=(const StaticSourceException& rhs) noexcept;
 	~StaticSourceException() override;
 
-	const SourceLocation& get_source_location() const noexcept override;
+	const std::source_location& get_source_location() const noexcept override;
 	const char* what() const noexcept override;
 
 	void swap(StaticSourceException& rhs) noexcept;
 
-	[[noreturn]] static void fail(const SourceLocation& source_location, const char* message);
-	[[noreturn]] static void fail_nested(const SourceLocation& source_location);
+	[[noreturn]] static void fail(const std::source_location& source_location, const char* message);
+	[[noreturn]] static void fail_nested(const std::source_location& source_location);
 
 private:
-	SourceLocation source_location_{};
+	std::source_location source_location_{};
 	const char* message_{""};
 };
 
@@ -61,17 +60,17 @@ private:
 class DynamicSourceException : public SourceException
 {
 public:
-	DynamicSourceException(const SourceLocation& source_location, const char* message);
+	DynamicSourceException(const std::source_location& source_location, const char* message);
 	DynamicSourceException(const DynamicSourceException& rhs);
 	DynamicSourceException& operator=(const DynamicSourceException& rhs);
 	~DynamicSourceException() override;
 
-	const SourceLocation& get_source_location() const noexcept override;
+	const std::source_location& get_source_location() const noexcept override;
 	const char* what() const noexcept override;
 
 	void swap(DynamicSourceException& rhs) noexcept;
 
-	[[noreturn]] static void fail(const SourceLocation& source_location, const char* message);
+	[[noreturn]] static void fail(const std::source_location& source_location, const char* message);
 
 private:
 	using Counter = int;
@@ -85,10 +84,15 @@ private:
 	static_assert(std::is_trivial<ControlBlock>::value, "Expected a trivial type.");
 
 private:
-	SourceLocation source_location_{};
+	std::source_location source_location_{};
 	ControlBlock* control_block_{}; // {ControlBlock}{null-terminated message}
 };
 
+// ==========================================================================
+
+#ifndef BSTONE_MAKE_SOURCE_LOCATION
+	#define BSTONE_MAKE_SOURCE_LOCATION() std::source_location::current()
+#endif
 // ==========================================================================
 
 #ifndef BSTONE_THROW_STATIC_SOURCE
