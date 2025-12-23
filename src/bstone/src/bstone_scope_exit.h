@@ -11,8 +11,6 @@ SPDX-License-Identifier: MIT
 
 #include <utility>
 
-#include "bstone_utility.h"
-
 namespace bstone {
 
 template<typename TFunctor>
@@ -56,8 +54,8 @@ public:
 
 	void swap(ScopeExit& rhs) noexcept
 	{
-		bstone::swop(functor_, rhs.functor_);
-		bstone::swop(is_released_, rhs.is_released_);
+		std::swap(functor_, rhs.functor_);
+		std::swap(is_released_, rhs.is_released_);
 	}
 
 private:

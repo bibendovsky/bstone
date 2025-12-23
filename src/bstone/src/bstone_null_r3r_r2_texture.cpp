@@ -11,7 +11,6 @@ SPDX-License-Identifier: MIT
 #include <stdint.h>
 #include "bstone_exception.h"
 #include "bstone_fixed_pool_resource.h"
-#include "bstone_utility.h"
 #include "bstone_r3r_limits.h"
 
 // ==========================================================================
@@ -46,10 +45,8 @@ NullR3rR2TextureImpl::MemoryPool NullR3rR2TextureImpl::memory_pool_{};
 
 // --------------------------------------------------------------------------
 
-NullR3rR2TextureImpl::NullR3rR2TextureImpl(const R3rR2TextureInitParam& param)
-{
-	maybe_unused(param);
-}
+NullR3rR2TextureImpl::NullR3rR2TextureImpl([[maybe_unused]] const R3rR2TextureInitParam& param)
+{}
 
 void* NullR3rR2TextureImpl::operator new(size_t size)
 try {
@@ -61,10 +58,8 @@ void NullR3rR2TextureImpl::operator delete(void* ptr)
 	memory_pool_.deallocate(ptr);
 }
 
-void NullR3rR2TextureImpl::do_update(const R3rR2TextureUpdateParam& param)
-{
-	maybe_unused(param);
-}
+void NullR3rR2TextureImpl::do_update([[maybe_unused]] const R3rR2TextureUpdateParam& param)
+{}
 
 void NullR3rR2TextureImpl::do_generate_mipmaps()
 {}

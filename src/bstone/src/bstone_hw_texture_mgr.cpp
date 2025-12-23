@@ -15,6 +15,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <array>
 #include <unordered_map>
+#include <utility>
 
 #include "xbrz.h"
 
@@ -37,7 +38,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_rgb8.h"
 #include "bstone_sprite_cache.h"
 #include "bstone_image_decoder.h"
-#include "bstone_utility.h"
 
 #include "bstone_r3r_utils.h"
 
@@ -551,9 +551,9 @@ HwTextureMgrImpl::R2TextureItem::R2TextureItem(
 HwTextureMgrImpl::R2TextureItem& HwTextureMgrImpl::R2TextureItem::operator=(
 	R2TextureItem&& rhs) noexcept
 {
-	bstone::swop(generation_id_, rhs.generation_id_);
-	bstone::swop(properties_, rhs.properties_);
-	bstone::swop(r2_texture_, rhs.r2_texture_);
+	std::swap(generation_id_, rhs.generation_id_);
+	std::swap(properties_, rhs.properties_);
+	std::swap(r2_texture_, rhs.r2_texture_);
 
 	return *this;
 }
@@ -1571,7 +1571,7 @@ try {
 				texture_subbuffer_0 = &mipmap_buffer_[0];
 			}
 
-			bstone::swop(texture_subbuffer_0, texture_subbuffer_1);
+			std::swap(texture_subbuffer_0, texture_subbuffer_1);
 		}
 
 		auto param = R3rR2TextureUpdateParam{};

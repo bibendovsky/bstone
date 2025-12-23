@@ -9,7 +9,6 @@ SPDX-License-Identifier: MIT
 #include "bstone_vk_r3r_shader_var.h"
 #include "bstone_exception.h"
 #include "bstone_fixed_pool_resource.h"
-#include "bstone_utility.h"
 #include "bstone_r3r_limits.h"
 #include <cstddef>
 #include <cstdint>
@@ -128,10 +127,9 @@ void VkR3rShaderVarImpl::do_set_vec2(const float* value)
 	std::copy_n(value, 2, static_cast<float*>(mapped_memory_));
 }
 
-void VkR3rShaderVarImpl::do_set_vec3(const float* value)
+void VkR3rShaderVarImpl::do_set_vec3([[maybe_unused]] const float* value)
 try {
 	ensure_is_not_vertex_attribute();
-	maybe_unused(value);
 	BSTONE_THROW_STATIC_SOURCE("Unsupported shader var type id.");
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
@@ -147,10 +145,9 @@ void VkR3rShaderVarImpl::do_set_mat4(const float* value)
 	std::copy_n(value, 16, static_cast<float*>(mapped_memory_));
 }
 
-void VkR3rShaderVarImpl::do_set_r2_sampler(std::int32_t value)
+void VkR3rShaderVarImpl::do_set_r2_sampler([[maybe_unused]] std::int32_t value)
 {
 	ensure_is_not_vertex_attribute();
-	maybe_unused(value);
 }
 
 void VkR3rShaderVarImpl::ensure_is_not_vertex_attribute() const

@@ -12,11 +12,11 @@ SPDX-License-Identifier: MIT
 #include <limits>
 #include <memory>
 #include <type_traits>
+#include <utility>
 
 #include "bstone_assert.h"
 #include "bstone_char_traits.h"
 #include "bstone_exception.h"
-#include "bstone_utility.h"
 
 namespace bstone {
 
@@ -69,7 +69,7 @@ const char* StaticSourceException::what() const noexcept
 void StaticSourceException::swap(StaticSourceException& rhs) noexcept
 {
 	std::swap(source_location_, rhs.source_location_);
-	bstone::swop(message_, rhs.message_);
+	std::swap(message_, rhs.message_);
 }
 
 [[noreturn]] void StaticSourceException::fail(const std::source_location& source_location, const char* message)
@@ -163,7 +163,7 @@ const char* DynamicSourceException::what() const noexcept
 void DynamicSourceException::swap(DynamicSourceException& rhs) noexcept
 {
 	std::swap(source_location_, rhs.source_location_);
-	bstone::swop(control_block_, rhs.control_block_);
+	std::swap(control_block_, rhs.control_block_);
 }
 
 [[noreturn]] void DynamicSourceException::fail(const std::source_location& source_location, const char* message)
