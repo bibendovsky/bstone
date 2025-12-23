@@ -10,7 +10,7 @@ SPDX-License-Identifier: MIT
 #define BSTONE_VK_R3R_RAII_INCLUDED
 
 #include "vulkan/vulkan.h"
-#include "bstone_utility.h"
+#include <utility>
 
 namespace bstone {
 
@@ -148,8 +148,8 @@ auto VkR3rResource<TResource, TDeleter, TEmptyValue>::release() -> Resource
 template<typename TResource, typename TDeleter, TResource TEmptyValue>
 void VkR3rResource<TResource, TDeleter, TEmptyValue>::swap(VkR3rResource& that)
 {
-	swop(resource_, that.resource_);
-	swop(deleter_, that.deleter_);
+	std::swap(resource_, that.resource_);
+	std::swap(deleter_, that.deleter_);
 }
 
 // ======================================

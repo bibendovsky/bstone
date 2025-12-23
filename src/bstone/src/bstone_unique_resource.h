@@ -15,9 +15,9 @@ Notes:
 #define BSTONE_UNIQUE_RESOURCE_INCLUDED
 
 #include <type_traits>
+#include <utility>
 
 #include "bstone_assert.h"
-#include "bstone_utility.h"
 
 namespace bstone {
 
@@ -71,8 +71,8 @@ public:
 
 	void swap(UniqueResourceStorage& rhs) noexcept
 	{
-		swop(resource_, rhs.resource_);
-		swop(deleter_, rhs.deleter_);
+		std::swap(resource_, rhs.resource_);
+		std::swap(deleter_, rhs.deleter_);
 	}
 };
 
@@ -100,7 +100,7 @@ public:
 
 	void swap(UniqueResourceStorage& rhs) noexcept
 	{
-		bstone::swop(resource_, rhs.resource_);
+		std::swap(resource_, rhs.resource_);
 	}
 };
 
@@ -241,7 +241,7 @@ public:
 	Resource release() noexcept
 	{
 		auto result = get_empty_value();
-		bstone::swop(result, storage_.resource_);
+		std::swap(result, storage_.resource_);
 		return result;
 	}
 

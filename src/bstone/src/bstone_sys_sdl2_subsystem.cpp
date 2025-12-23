@@ -7,8 +7,8 @@ SPDX-License-Identifier: MIT
 #include "bstone_sys_sdl2_subsystem.h"
 
 #include "bstone_exception.h"
-#include "bstone_utility.h"
 #include "bstone_sys_exception_sdl2.h"
+#include <utility>
 
 namespace bstone {
 namespace sys {
@@ -59,7 +59,7 @@ Sdl2Subsystem::~Sdl2Subsystem()
 
 void Sdl2Subsystem::swap(Sdl2Subsystem& rhs) noexcept
 {
-	swop(sdl_flags_, rhs.sdl_flags_);
+	std::swap(sdl_flags_, rhs.sdl_flags_);
 }
 
 } // namespace sys

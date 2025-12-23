@@ -13,7 +13,6 @@ SPDX-License-Identifier: MIT
 #include "bstone_exception.h"
 #include "bstone_scope_exit.h"
 #include "bstone_single_pool_resource.h"
-#include "bstone_utility.h"
 #include "bstone_uuid.h"
 #include "bstone_r3r_cmd_buffer.h"
 #include "bstone_r3r_limits.h"
@@ -35,6 +34,7 @@ SPDX-License-Identifier: MIT
 #include <cstring>
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <memory>
 #include <string>
 #include <type_traits>
@@ -144,7 +144,7 @@ public:
 			BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
 		}
 
-		bit_cast(symbol_void, symbol);
+		symbol = std::bit_cast<T>(symbol_void);
 	}
 
 	template<typename T>
@@ -347,10 +347,8 @@ const R3rDeviceInfo& VkR3rImpl::do_get_device_info() const noexcept
 	return device_info_;
 }
 
-void VkR3rImpl::do_enable_checking_api_calls_for_errors(bool is_enable)
-{
-	maybe_unused(is_enable);
-}
+void VkR3rImpl::do_enable_checking_api_calls_for_errors([[maybe_unused]] bool is_enable)
+{}
 
 sys::Window& VkR3rImpl::do_get_window() const noexcept
 {
@@ -737,11 +735,10 @@ void VkR3rImpl::do_wait_for_device()
 
 VkBool32 VKAPI_PTR VkR3rImpl::vk_debug_utils_messenger_callback(
 	VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-	VkDebugUtilsMessageTypeFlagsEXT messageTypes,
+	[[maybe_unused]] VkDebugUtilsMessageTypeFlagsEXT messageTypes,
 	const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 	void* pUserData)
 {
-	maybe_unused(messageTypes);
 	std::string message{};
 	message.reserve(1024);
 	for (
@@ -1103,7 +1100,7 @@ void VkR3rImpl::initialize_window()
 
 void VkR3rImpl::initialize_global_symbols()
 {
-	bit_cast(video_mgr_.get_vulkan_mgr().get_instance_proc_addr(), context_.vkGetInstanceProcAddr);
+	context_.vkGetInstanceProcAddr = std::bit_cast<PFN_vkGetInstanceProcAddr>(video_mgr_.get_vulkan_mgr().get_instance_proc_addr());
 	if (context_.vkGetInstanceProcAddr == nullptr)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Symbol \"vkGetInstanceProcAddr\" not found.");

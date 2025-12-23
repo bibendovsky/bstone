@@ -11,7 +11,6 @@ SPDX-License-Identifier: MIT
 #include <stdint.h>
 #include "bstone_assert.h"
 #include "bstone_single_pool_resource.h"
-#include "bstone_utility.h"
 #include "bstone_r3r_limits.h"
 #include "bstone_null_r3r_buffer.h"
 #include "bstone_null_r3r_r2_texture.h"
@@ -149,46 +148,33 @@ const R3rDeviceInfo& NullR3rImpl::do_get_device_info() const noexcept
 	return device_info_;
 }
 
-void NullR3rImpl::do_enable_checking_api_calls_for_errors(bool is_enable)
-{
-	maybe_unused(is_enable);
-}
+void NullR3rImpl::do_enable_checking_api_calls_for_errors([[maybe_unused]] bool is_enable)
+{}
 
 sys::Window& NullR3rImpl::do_get_window() const noexcept
 {
 	return *window_;
 }
 
-void NullR3rImpl::do_handle_resize(sys::WindowSize new_size)
-{
-	maybe_unused(new_size);
-}
+void NullR3rImpl::do_handle_resize([[maybe_unused]] sys::WindowSize new_size)
+{}
 
 bool NullR3rImpl::do_get_vsync() const noexcept
 {
 	return false;
 }
 
-void NullR3rImpl::do_enable_vsync(bool is_enabled)
-{
-	maybe_unused(is_enabled);
-}
+void NullR3rImpl::do_enable_vsync([[maybe_unused]] bool is_enabled)
+{}
 
-void NullR3rImpl::do_set_anti_aliasing(R3rAaType aa_type, int aa_value)
-{
-	maybe_unused(aa_type);
-	maybe_unused(aa_value);
-}
+void NullR3rImpl::do_set_anti_aliasing([[maybe_unused]] R3rAaType aa_type, [[maybe_unused]] int aa_value)
+{}
 
 void NullR3rImpl::do_read_pixels(
-	sys::PixelFormat pixel_format,
-	void* buffer,
-	bool& is_flipped_vertically)
-{
-	maybe_unused(pixel_format);
-	maybe_unused(buffer);
-	maybe_unused(is_flipped_vertically);
-}
+	[[maybe_unused]] sys::PixelFormat pixel_format,
+	[[maybe_unused]] void* buffer,
+	[[maybe_unused]] bool& is_flipped_vertically)
+{}
 
 void NullR3rImpl::do_present()
 {}
@@ -223,10 +209,8 @@ try {
 	return make_null_r3r_sampler(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void NullR3rImpl::do_submit_commands(std::span<R3rCmdBuffer*> command_buffers)
-{
-	maybe_unused(command_buffers);
-}
+void NullR3rImpl::do_submit_commands([[maybe_unused]] std::span<R3rCmdBuffer*> command_buffers)
+{}
 
 void NullR3rImpl::do_wait_for_device()
 {}
