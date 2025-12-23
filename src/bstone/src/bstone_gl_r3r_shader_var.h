@@ -10,7 +10,7 @@ SPDX-License-Identifier: MIT
 #define BSTONE_GL_R3R_SHADER_VAR_INCLUDED
 
 #include "bstone_r3r_shader_var.h"
-#include "bstone_string_view.h"
+#include <string_view>
 
 namespace bstone {
 
@@ -23,7 +23,7 @@ struct GlR3rShaderVarInitParam
 	R3rShaderVarType type;
 	R3rShaderVarTypeId type_id;
 	int index;
-	StringView name;
+	std::string_view name;
 	int input_index;
 	int gl_location;
 };

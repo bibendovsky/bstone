@@ -110,7 +110,7 @@ try
 	type_ = param.type;
 	type_id_ = param.type_id;
 	index_ = param.index;
-	name_.assign(param.name.get_data(), static_cast<size_t>(param.name.get_size()));
+	name_.assign(param.name.data(), param.name.size());
 	gl_location_ = param.gl_location;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 

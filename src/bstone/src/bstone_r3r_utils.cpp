@@ -77,7 +77,7 @@ try {
 
 sys::WindowFullscreenType R3rUtils::get_fullscreen_mode_from_cvar()
 {
-	const StringView mode_string = vid_window_mode_cvar.get_string();
+	const std::string_view mode_string = vid_window_mode_cvar.get_string();
 
 	if (mode_string == vid_window_mode_cvar_fullscreen)
 	{

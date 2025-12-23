@@ -60,8 +60,8 @@ public:
 	void operator delete(void* ptr);
 
 	R3rType do_get_type() const noexcept override;
-	StringView do_get_name() const noexcept override;
-	StringView do_get_description() const noexcept override;
+	std::string_view do_get_name() const noexcept override;
+	std::string_view do_get_description() const noexcept override;
 
 	const R3rDeviceFeatures& do_get_device_features() const noexcept override;
 	const R3rDeviceInfo& do_get_device_info() const noexcept override;
@@ -114,8 +114,8 @@ public:
 	sys::WindowMgr& window_mgr_;
 	VkR3rInfo info_{logger_, context_};
 	R3rType type_{};
-	StringView name_{};
-	StringView description_{};
+	std::string_view name_{};
+	std::string_view description_{};
 	R3rDeviceInfo device_info_{};
 	sys::WindowUPtr window_{};
 	VkR3rContext context_{};
@@ -327,12 +327,12 @@ R3rType VkR3rImpl::do_get_type() const noexcept
 	return type_;
 }
 
-StringView VkR3rImpl::do_get_name() const noexcept
+std::string_view VkR3rImpl::do_get_name() const noexcept
 {
 	return name_;
 }
 
-StringView VkR3rImpl::do_get_description() const noexcept
+std::string_view VkR3rImpl::do_get_description() const noexcept
 {
 	return description_;
 }

@@ -13,6 +13,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <cstdint>
 
 #include <array>
+#include <string_view>
 #include <vector>
 
 #include "bstone_extent_2d.h"
@@ -22,7 +23,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_rgb_palette.h"
 #include "bstone_hw_texture_mgr.h"
 #include "bstone_cvar_mgr.h"
-#include "bstone_string_view.h"
 #include "bstone_fizzle_fx.h"
 
 
@@ -547,7 +547,7 @@ void vid_initialize_common();
 
 void vid_initialize_ui_buffer();
 
-std::string vid_get_window_title_for_renderer(bstone::StringView renderer_name);
+std::string vid_get_window_title_for_renderer(std::string_view renderer_name);
 
 std::string vid_get_game_name_and_game_version_string();
 

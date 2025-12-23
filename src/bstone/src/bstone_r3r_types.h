@@ -11,7 +11,7 @@ SPDX-License-Identifier: MIT
 
 #include <array>
 #include <memory>
-#include "bstone_string_view.h"
+#include <string_view>
 #include "bstone_sys_color.h"
 
 namespace bstone {
@@ -142,9 +142,9 @@ struct R3rDeviceFeatures
 
 struct R3rDeviceInfo
 {
-	StringView name;
-	StringView vendor;
-	StringView version;
+	std::string_view name;
+	std::string_view vendor;
+	std::string_view version;
 };
 
 // ==========================================================================

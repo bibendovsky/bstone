@@ -15,6 +15,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <bitset>
 #include <functional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "movie.h"
@@ -24,7 +25,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_game_timer.h"
 #include "bstone_math.h"
 #include "bstone_mt_task_mgr.h"
-#include "bstone_string_view.h"
 #include "bstone_voice.h"
 
 
@@ -4020,8 +4020,8 @@ PaletteShiftInfo palette_shift_get_info() noexcept;
 
 void cfg_file_write_entry(
 	bstone::TextWriter& writer,
-	bstone::StringView key,
-	bstone::StringView value);
+	std::string_view key,
+	std::string_view value);
 
 void cfg_file_write_entry(
 	bstone::TextWriter& writer,

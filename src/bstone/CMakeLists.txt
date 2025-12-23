@@ -487,12 +487,6 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_static_ro_memory_stream.h
 	src/bstone_stream.cpp
 	src/bstone_stream.h
-	src/bstone_string.cpp
-	src/bstone_string.h
-	src/bstone_string_view.cpp
-	src/bstone_string_view.cpp
-	src/bstone_string_view.h
-	src/bstone_string_view.h
 	src/bstone_sys_special_path.cpp
 	src/bstone_sys_special_path.h
 	src/bstone_sys_special_path_sdl2.cpp

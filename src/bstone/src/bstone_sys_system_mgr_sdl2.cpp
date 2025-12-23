@@ -7,11 +7,11 @@ SPDX-License-Identifier: MIT
 #include <cassert>
 #include <iterator>
 #include <string>
+#include <string_view>
 #include "SDL.h"
 #include "bstone_char_conv.h"
 #include "bstone_exception.h"
 #include "bstone_single_pool_resource.h"
-#include "bstone_string_view.h"
 #include "bstone_sys_logger.h"
 #include "bstone_sys_audio_mgr_sdl2.h"
 #include "bstone_sys_event_mgr_sdl2.h"
@@ -98,7 +98,7 @@ private:
 
 	static void configure_event_types() noexcept;
 
-	void log_version(const SDL_version& sdl_version, StringView version_name);
+	void log_version(const SDL_version& sdl_version, std::string_view version_name);
 	void log_compiled_version();
 	void log_linked_version();
 	void log_versions();
@@ -246,7 +246,7 @@ void Sdl2SystemMgr::configure_event_types() noexcept
 	SDL_EventState(SDL_RENDER_DEVICE_RESET, SDL_DISABLE); // v2.0.4+ (0x2001)
 }
 
-void Sdl2SystemMgr::log_version(const SDL_version& sdl_version, StringView version_name)
+void Sdl2SystemMgr::log_version(const SDL_version& sdl_version, std::string_view version_name)
 {
 	char major_chars[3];
 	const auto major_size =
@@ -262,7 +262,7 @@ void Sdl2SystemMgr::log_version(const SDL_version& sdl_version, StringView versi
 
 	auto version_string = std::string{};
 	version_string.reserve(32);
-	version_string.append(version_name.get_data(), static_cast<std::size_t>(version_name.get_size()));
+	version_string.append(version_name.data(), version_name.size());
 	version_string += " version: ";
 	version_string.append(major_chars, static_cast<std::size_t>(major_size));
 	version_string += '.';
