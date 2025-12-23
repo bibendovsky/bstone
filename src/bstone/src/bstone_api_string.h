@@ -12,10 +12,10 @@ SPDX-License-Identifier: MIT
 #include <algorithm>
 #include <memory>
 #include <type_traits>
+#include <utility>
 
 #include "bstone_char_traits.h"
 #include "bstone_memory_resource.h"
-#include "bstone_utility.h"
 
 namespace bstone {
 
@@ -144,8 +144,8 @@ auto ApiString<TChar>::get_data() noexcept -> Char*
 template<typename TChar>
 void ApiString<TChar>::swap(ApiString& rhs) noexcept
 {
-	swop(size_, rhs.size_);
-	swop(capacity_, rhs.capacity_);
+	std::swap(size_, rhs.size_);
+	std::swap(capacity_, rhs.capacity_);
 	storage_.swap(rhs.storage_);
 }
 

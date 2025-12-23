@@ -44,8 +44,6 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_char_traits.h
 		../../../bstone/src/bstone_exception.cpp
 		../../../bstone/src/bstone_exception.h
-		../../../bstone/src/bstone_utility.cpp
-		../../../bstone/src/bstone_utility.h
 		../../../bstone/src/bstone_ascii.cpp
 		../../../bstone/src/bstone_ascii.h
 		../../../bstone/src/bstone_endian.cpp
@@ -152,7 +150,6 @@ target_sources(bstone_tests
 		src/bstone_tests_memory_resource.cpp
 		src/bstone_tests_scope_exit.cpp
 		src/bstone_tests_unique_resource.cpp
-		src/bstone_tests_utility.cpp
 		src/bstone_tests_cgm_vec.cpp
 		src/bstone_tests_cgm_mat.cpp
 		src/bstone_tests_cgm_clip_space.cpp

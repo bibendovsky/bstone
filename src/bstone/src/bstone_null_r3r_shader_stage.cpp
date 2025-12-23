@@ -14,7 +14,6 @@ SPDX-License-Identifier: MIT
 #include <vector>
 #include "bstone_exception.h"
 #include "bstone_fixed_pool_resource.h"
-#include "bstone_utility.h"
 #include "bstone_r3r_limits.h"
 #include "bstone_null_r3r_shader_var.h"
 
@@ -65,10 +64,8 @@ NullR3rShaderStageImpl::MemoryPool NullR3rShaderStageImpl::memory_pool_{};
 
 // --------------------------------------------------------------------------
 
-NullR3rShaderStageImpl::NullR3rShaderStageImpl(const R3rShaderStageInitParam& param)
-{
-	maybe_unused(param);
-}
+NullR3rShaderStageImpl::NullR3rShaderStageImpl([[maybe_unused]] const R3rShaderStageInitParam& param)
+{}
 
 void* NullR3rShaderStageImpl::operator new(size_t size)
 try {

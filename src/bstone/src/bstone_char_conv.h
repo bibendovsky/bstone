@@ -14,7 +14,6 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_ascii.h"
 #include "bstone_exception.h"
-#include "bstone_utility.h"
 
 namespace bstone {
 

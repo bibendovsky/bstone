@@ -21,7 +21,6 @@ Notes:
 #include <utility>
 
 #include "bstone_assert.h"
-#include "bstone_utility.h"
 
 namespace bstone {
 namespace cgm {
@@ -63,7 +62,7 @@ public:
 
 	constexpr Item& operator[](std::intptr_t index) noexcept
 	{
-		return bstone::as_mutable(bstone::as_const(*this)[index]);
+		return const_cast<Item&>(std::as_const(*this)[index]);
 	}
 
 protected:

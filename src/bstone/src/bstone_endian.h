@@ -12,9 +12,9 @@ SPDX-License-Identifier: MIT
 #include <cstdint>
 
 #include <type_traits>
+#include <utility>
 
 #include "bstone_assert.h"
-#include "bstone_utility.h"
 
 #ifndef BSTONE_LITTLE_ENDIAN
 	#define BSTONE_LITTLE_ENDIAN 1
@@ -210,7 +210,7 @@ inline constexpr void swap_byte_array(TByte (&bytes)[TCount]) noexcept
 
 	for (auto i = decltype(TCount){}; i < half_count; ++i)
 	{
-		bstone::swop(bytes[i], bytes[TCount - 1 - i]);
+		std::swap(bytes[i], bytes[TCount - 1 - i]);
 	}
 }
 
@@ -230,7 +230,7 @@ inline constexpr void swap_byte_array(TByte* bytes, std::intptr_t count) noexcep
 
 	for (auto i = decltype(count){}; i < half_count; ++i)
 	{
-		bstone::swop(bytes[i], bytes[last_index - i]);
+		std::swap(bytes[i], bytes[last_index - i]);
 	}
 }
 

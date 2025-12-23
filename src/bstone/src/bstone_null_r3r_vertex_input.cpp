@@ -11,7 +11,6 @@ SPDX-License-Identifier: MIT
 #include <stdint.h>
 #include "bstone_exception.h"
 #include "bstone_fixed_pool_resource.h"
-#include "bstone_utility.h"
 #include "bstone_r3r_limits.h"
 
 // ==========================================================================
@@ -42,10 +41,8 @@ NullR3rVertexInputImpl::MemoryPool NullR3rVertexInputImpl::memory_pool_{};
 
 // --------------------------------------------------------------------------
 
-NullR3rVertexInputImpl::NullR3rVertexInputImpl(const R3rCreateVertexInputParam& param)
-{
-	maybe_unused(param);
-}
+NullR3rVertexInputImpl::NullR3rVertexInputImpl([[maybe_unused]] const R3rCreateVertexInputParam& param)
+{}
 
 void* NullR3rVertexInputImpl::operator new(size_t size)
 try {

@@ -10,7 +10,6 @@ SPDX-License-Identifier: MIT
 #include <stddef.h>
 #include <stdint.h>
 #include "bstone_fixed_pool_resource.h"
-#include "bstone_utility.h"
 #include "bstone_r3r_limits.h"
 
 // ==========================================================================
@@ -85,10 +84,8 @@ int NullR3rBufferImpl::do_get_size() const noexcept
 	return size_;
 }
 
-void NullR3rBufferImpl::do_update(const R3rUpdateBufferParam& param)
-{
-	maybe_unused(param);
-}
+void NullR3rBufferImpl::do_update([[maybe_unused]] const R3rUpdateBufferParam& param)
+{}
 
 } // namespace
 

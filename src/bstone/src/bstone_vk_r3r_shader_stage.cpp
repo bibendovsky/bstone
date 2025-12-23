@@ -10,7 +10,6 @@ SPDX-License-Identifier: MIT
 #include "bstone_exception.h"
 #include "bstone_fixed_pool_resource.h"
 #include "bstone_string_view_hasher.h"
-#include "bstone_utility.h"
 #include "bstone_r3r_limits.h"
 #include "bstone_vk_r3r_context.h"
 #include "bstone_vk_r3r_observer.h"
