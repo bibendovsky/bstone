@@ -34,7 +34,7 @@ private:
 	Logger& do_get_logger() override;
 
 	DisplayMode do_get_current_display_mode() override;
-	Span<const DisplayMode> do_get_display_modes() override;
+	std::span<const DisplayMode> do_get_display_modes() override;
 
 	GlCurrentContext& do_get_gl_current_context() override;
 	VulkanMgr& do_get_vulkan_mgr() override;
@@ -89,7 +89,7 @@ DisplayMode NullVideoMgr::do_get_current_display_mode()
 	not_initialized();
 }
 
-Span<const DisplayMode> NullVideoMgr::do_get_display_modes()
+std::span<const DisplayMode> NullVideoMgr::do_get_display_modes()
 {
 	not_initialized();
 }

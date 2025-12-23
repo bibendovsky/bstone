@@ -12,11 +12,11 @@ SPDX-License-Identifier: MIT
 #include <cstdint>
 #include <vector>
 #include <string_view>
-#include "bstone_span.h"
+#include <span>
 
 namespace bstone {
 
-using ClArgs = Span<const std::string_view>;
+using ClArgs = std::span<const std::string_view>;
 
 struct ClOption
 {
@@ -24,7 +24,7 @@ struct ClOption
 	ClArgs args{};
 };
 
-using ClOptions = Span<const ClOption>;
+using ClOptions = std::span<const ClOption>;
 
 class Cl
 {
