@@ -28,12 +28,12 @@ void extract_exception_messages(ExceptionMessages& messages)
 	{
 		{
 			const auto& source_location = exception.get_source_location();
-			const auto file_name = source_location.get_file_name();
+			const auto file_name = source_location.file_name();
 			const auto file_name_size = char_traits::get_size(file_name);
 
-			const auto source_line = source_location.get_line();
+			const auto source_line = source_location.line();
 
-			const auto function_name = source_location.get_function_name();
+			const auto function_name = source_location.function_name();
 			const auto function_name_size = char_traits::get_size(function_name);
 
 			const auto what = exception.what();
