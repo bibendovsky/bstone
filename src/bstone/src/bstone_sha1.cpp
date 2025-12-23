@@ -148,7 +148,7 @@ void Sha1::process_block()
 	std::uint32_t e{};
 
 	// Word sequence.
-	Array<std::uint32_t, 80> w{};
+	std::array<std::uint32_t, 80> w{};
 
 	// Initialize the first 16 words in the array W.
 	//
