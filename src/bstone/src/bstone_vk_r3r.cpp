@@ -377,6 +377,7 @@ try
 		terminate_offscreen_framebuffer();
 		initialize_offscreen_framebuffer();
 		context_.draw_state_update_scissor();
+		recreate_swapchain();
 	}
 }
 BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
