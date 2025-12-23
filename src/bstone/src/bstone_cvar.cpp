@@ -226,13 +226,13 @@ CVarStringValues CVar::get_string_values() const noexcept
 
 void CVar::swap(CVar& rhs)
 {
-	bstone::swop(type_, rhs.type_);
+	std::swap(type_, rhs.type_);
 	name_.swap(rhs.name_);
 
-	bstone::swop(int32_default_value_, rhs.int32_default_value_);
-	bstone::swop(int32_min_value_, rhs.int32_min_value_);
-	bstone::swop(int32_max_value_, rhs.int32_max_value_);
-	bstone::swop(int32_value_, rhs.int32_value_);
+	std::swap(int32_default_value_, rhs.int32_default_value_);
+	std::swap(int32_min_value_, rhs.int32_min_value_);
+	std::swap(int32_max_value_, rhs.int32_max_value_);
+	std::swap(int32_value_, rhs.int32_value_);
 
 	string_default_value_.swap(rhs.string_default_value_);
 	std::swap(string_values_, rhs.string_values_);

@@ -9,6 +9,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <cstring>
 
 #include <algorithm>
+#include <utility>
 
 #include "3d_def.h"
 #include "3d_menu.h"
@@ -27,7 +28,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_generic_fizzle_fx.h"
 #include "bstone_globals.h"
 #include "bstone_logger.h"
-#include "bstone_utility.h"
 
 
 static int get_wall_page_count()
@@ -3762,7 +3762,7 @@ static void fix_level_inplace()
 
 		if (mapsegs[1][old_index] != 0 && mapsegs[1][new_index] == 0)
 		{
-			bstone::swop(mapsegs[1][old_index], mapsegs[1][new_index]);
+			std::swap(mapsegs[1][old_index], mapsegs[1][new_index]);
 
 			bstone::globals::logger->log_information(
 				("[FIX][E5L2] Moving bio-tech at " + xy_to_string(old_x, y) +

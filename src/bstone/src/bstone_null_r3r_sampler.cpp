@@ -11,7 +11,6 @@ SPDX-License-Identifier: MIT
 #include <stdint.h>
 #include "bstone_exception.h"
 #include "bstone_fixed_pool_resource.h"
-#include "bstone_utility.h"
 #include "bstone_r3r_limits.h"
 
 // ==========================================================================
@@ -65,10 +64,8 @@ void NullR3rSamplerImpl::operator delete(void* ptr)
 	memory_pool_.deallocate(ptr);
 }
 
-void NullR3rSamplerImpl::do_update(const R3rSamplerUpdateParam& param)
-{
-	maybe_unused(param);
-}
+void NullR3rSamplerImpl::do_update([[maybe_unused]] const R3rSamplerUpdateParam& param)
+{}
 
 const R3rSamplerState& NullR3rSamplerImpl::do_get_state() const noexcept
 {
