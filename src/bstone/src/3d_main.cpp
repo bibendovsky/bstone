@@ -7262,7 +7262,7 @@ public:
 			++token_iter;
 		}
 
-		return bstone::Span<const bstone::StringView>
+		return bstone::Span<const std::string_view>
 		{
 			views_.data(),
 				static_cast<std::intptr_t>(views_.size())
@@ -7271,7 +7271,7 @@ public:
 
 private:
 	using Tokens = std::vector<std::string>;
-	using Views = std::vector<bstone::StringView>;
+	using Views = std::vector<std::string_view>;
 
 private:
 	Tokens tokens_{};
@@ -7596,7 +7596,7 @@ void set_config_defaults()
 	sd_set_music_volume(sd_default_music_volume);
 }
 
-bool try_deserialize_cvar(bstone::Span<const bstone::StringView> tokens)
+bool try_deserialize_cvar(bstone::Span<const std::string_view> tokens)
 try
 {
 	if (tokens.get_size() != 2)
@@ -7615,7 +7615,7 @@ try
 	return true;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-bool try_deserialize_ccmd(bstone::Span<const bstone::StringView> tokens)
+bool try_deserialize_ccmd(bstone::Span<const std::string_view> tokens)
 try
 {
 	const auto ccmd = bstone::globals::ccmd_mgr->find(tokens[0]);
@@ -7647,7 +7647,7 @@ void read_text_config()
 
 	bstone::FileStream stream{};
 
-	auto args = std::vector<bstone::StringView>{};
+	auto args = std::vector<std::string_view>{};
 
 	if (stream.open(config_path.c_str(), bstone::FileFlags::file_flags_shared))
 	{
@@ -7693,11 +7693,7 @@ void read_text_config()
 					const auto& identifier_name = tokens_span.get_front();
 					auto message = std::string{};
 					message += "[CFG] Unknown identifier \"";
-
-					message.append(
-						identifier_name.get_data(),
-						static_cast<std::size_t>(identifier_name.get_size()));
-
+					message.append(identifier_name.data(), identifier_name.size());
 					message += "\".";
 					bstone::globals::logger->log_warning(message.c_str());
 				}
@@ -7718,14 +7714,14 @@ void ReadConfig()
 
 void cfg_file_write_entry(
 	bstone::TextWriter& writer,
-	bstone::StringView key,
-	bstone::StringView value)
+	std::string_view key,
+	std::string_view value)
 {
-	const auto key_string = std::string{key.get_data(), static_cast<std::size_t>(key.get_size())};
+	const auto key_string = std::string{key.data(), key.size()};
 	auto entry_string = std::string{};
 	entry_string += key_string;
 	entry_string += " \"";
-	entry_string.append(value.get_data(), value.get_size());
+	entry_string.append(value.data(), value.size());
 	entry_string += "\"\n";
 
 	if (!writer.write(entry_string))
@@ -7750,10 +7746,10 @@ void cfg_file_write_entry(
 
 namespace {
 
-void cfg_escape_argument(bstone::StringView src_arg, std::string& dst_arg)
+void cfg_escape_argument(std::string_view src_arg, std::string& dst_arg)
 {
 	dst_arg.clear();
-	dst_arg.reserve(static_cast<std::size_t>(src_arg.get_size() * 2));
+	dst_arg.reserve(src_arg.size() * 2);
 
 	for (const auto& ch : src_arg)
 	{
@@ -7817,9 +7813,7 @@ void write_text_config()
 		cfg_file_write_entry(
 			writer,
 			key,
-			bstone::StringView{
-				normalized_value.data(),
-				static_cast<std::intptr_t>(normalized_value.size())});
+			std::string_view{normalized_value.data(), normalized_value.size()});
 	}
 
 	in_serialize_bindings(writer);
@@ -10135,7 +10129,7 @@ void InitDestPath()
 {
 	const auto requested_data_dir = g_args.get_option_value("data_dir");
 
-	if (requested_data_dir.is_empty())
+	if (requested_data_dir.empty())
 	{
 		data_dir_ = get_default_data_dir();
 	}
@@ -10148,7 +10142,7 @@ void InitDestPath()
 	data_dir_ = bstone::fs_utils::normalize_path(
 		bstone::fs_utils::append_path_separator(data_dir_));
 
-	constexpr auto mod_dir_option_name = bstone::StringView{"mod_dir"};
+	constexpr auto mod_dir_option_name = std::string_view{"mod_dir"};
 
 	if (g_args.has_option(mod_dir_option_name))
 	{
@@ -10920,7 +10914,7 @@ namespace {
 
 // gp_is_flooring_solid
 
-constexpr auto gp_is_flooring_solid_cvar_name = bstone::StringView{"gp_is_flooring_solid"};
+constexpr auto gp_is_flooring_solid_cvar_name = std::string_view{"gp_is_flooring_solid"};
 constexpr auto gp_is_flooring_solid_cvar_default = false;
 
 auto gp_is_flooring_solid_cvar = bstone::CVar{
@@ -10931,7 +10925,7 @@ auto gp_is_flooring_solid_cvar = bstone::CVar{
 
 // gp_is_ceiling_solid
 
-constexpr auto gp_is_ceiling_solid_cvar_name = bstone::StringView{"gp_is_ceiling_solid"};
+constexpr auto gp_is_ceiling_solid_cvar_name = std::string_view{"gp_is_ceiling_solid"};
 constexpr auto gp_is_ceiling_solid_cvar_default = false;
 
 auto gp_is_ceiling_solid_cvar = bstone::CVar{
@@ -10942,7 +10936,7 @@ auto gp_is_ceiling_solid_cvar = bstone::CVar{
 
 // gp_no_shading
 
-constexpr auto gp_no_shading_cvar_name = bstone::StringView{"gp_no_shading"};
+constexpr auto gp_no_shading_cvar_name = std::string_view{"gp_no_shading"};
 constexpr auto gp_no_shading_cvar_default = false;
 
 auto gp_no_shading_cvar = bstone::CVar{
@@ -10953,7 +10947,7 @@ auto gp_no_shading_cvar = bstone::CVar{
 
 // gp_hide_attacker_info
 
-constexpr auto gp_hide_attacker_info_cvar_name = bstone::StringView{"gp_hide_attacker_info"};
+constexpr auto gp_hide_attacker_info_cvar_name = std::string_view{"gp_hide_attacker_info"};
 constexpr auto gp_hide_attacker_info_cvar_default = false;
 
 auto gp_hide_attacker_info_cvar = bstone::CVar{
@@ -10964,7 +10958,7 @@ auto gp_hide_attacker_info_cvar = bstone::CVar{
 
 // gp_is_always_run
 
-constexpr auto gp_is_always_run_cvar_name = bstone::StringView{"gp_is_always_run"};
+constexpr auto gp_is_always_run_cvar_name = std::string_view{"gp_is_always_run"};
 constexpr auto gp_is_always_run_cvar_default = true;
 
 auto gp_is_always_run_cvar = bstone::CVar{
@@ -10975,7 +10969,7 @@ auto gp_is_always_run_cvar = bstone::CVar{
 
 // gp_no_wall_hit_sfx
 
-constexpr auto gp_no_wall_hit_sfx_cvar_name = bstone::StringView{"gp_no_wall_hit_sfx"};
+constexpr auto gp_no_wall_hit_sfx_cvar_name = std::string_view{"gp_no_wall_hit_sfx"};
 constexpr auto gp_no_wall_hit_sfx_cvar_default = true;
 
 auto gp_no_wall_hit_sfx_cvar = bstone::CVar{
@@ -10986,7 +10980,7 @@ auto gp_no_wall_hit_sfx_cvar = bstone::CVar{
 
 // gp_use_heart_beat_sfx
 
-constexpr auto gp_use_heart_beat_sfx_cvar_name = bstone::StringView{"gp_use_heart_beat_sfx"};
+constexpr auto gp_use_heart_beat_sfx_cvar_name = std::string_view{"gp_use_heart_beat_sfx"};
 constexpr auto gp_use_heart_beat_sfx_cvar_default = false;
 
 auto gp_use_heart_beat_sfx_cvar = bstone::CVar{
@@ -10997,7 +10991,7 @@ auto gp_use_heart_beat_sfx_cvar = bstone::CVar{
 
 // gp_quit_on_escape
 
-constexpr auto gp_quit_on_escape_cvar_name = bstone::StringView{"gp_quit_on_escape"};
+constexpr auto gp_quit_on_escape_cvar_name = std::string_view{"gp_quit_on_escape"};
 constexpr auto gp_quit_on_escape_cvar_default = true;
 
 auto gp_quit_on_escape_cvar = bstone::CVar{
@@ -11008,7 +11002,7 @@ auto gp_quit_on_escape_cvar = bstone::CVar{
 
 // gp_no_intro_outro
 
-constexpr auto gp_no_intro_outro_cvar_name = bstone::StringView{"gp_no_intro_outro"};
+constexpr auto gp_no_intro_outro_cvar_name = std::string_view{"gp_no_intro_outro"};
 constexpr auto gp_no_intro_outro_cvar_default = false;
 
 auto gp_no_intro_outro_cvar = bstone::CVar{
@@ -11019,7 +11013,7 @@ auto gp_no_intro_outro_cvar = bstone::CVar{
 
 // gp_no_screens
 
-constexpr auto gp_no_screens_cvar_name = bstone::StringView{"no_screens"};
+constexpr auto gp_no_screens_cvar_name = std::string_view{"no_screens"};
 constexpr auto gp_no_screens_cvar_default = false;
 
 auto gp_no_screens_cvar = bstone::CVar{
@@ -11030,7 +11024,7 @@ auto gp_no_screens_cvar = bstone::CVar{
 
 // gp_no_fade_in_or_out
 
-constexpr auto gp_no_fade_in_or_out_cvar_name = bstone::StringView{"gp_no_fade_in_or_out"};
+constexpr auto gp_no_fade_in_or_out_cvar_name = std::string_view{"gp_no_fade_in_or_out"};
 constexpr auto gp_no_fade_in_or_out_cvar_default = false;
 
 auto gp_no_fade_in_or_out_cvar = bstone::CVar{
@@ -11041,7 +11035,7 @@ auto gp_no_fade_in_or_out_cvar = bstone::CVar{
 
 // gp_no_weapon_bobbing
 
-constexpr auto gp_no_weapon_bobbing_cvar_name = bstone::StringView{"gp_no_weapon_bobbing"};
+constexpr auto gp_no_weapon_bobbing_cvar_name = std::string_view{"gp_no_weapon_bobbing"};
 constexpr auto gp_no_weapon_bobbing_cvar_default = false;
 
 auto gp_no_weapon_bobbing_cvar = bstone::CVar{
@@ -11052,7 +11046,7 @@ auto gp_no_weapon_bobbing_cvar = bstone::CVar{
 
 // gp_vanilla_fizzle_fx
 
-constexpr auto gp_vanilla_fizzle_fx_cvar_name = bstone::StringView{"gp_vanilla_fizzle_fx"};
+constexpr auto gp_vanilla_fizzle_fx_cvar_name = std::string_view{"gp_vanilla_fizzle_fx"};
 constexpr auto gp_vanilla_fizzle_fx_default = false;
 
 auto gp_vanilla_fizzle_fx_cvar = bstone::CVar{
@@ -11063,7 +11057,7 @@ auto gp_vanilla_fizzle_fx_cvar = bstone::CVar{
 
 // gp_ps_map_in_stats
 
-constexpr auto gp_ps_map_in_stats_cvar_name = bstone::StringView{"gp_ps_map_in_stats"};
+constexpr auto gp_ps_map_in_stats_cvar_name = std::string_view{"gp_ps_map_in_stats"};
 constexpr auto gp_ps_map_in_stats_default = false;
 
 auto gp_ps_map_in_stats_cvar = bstone::CVar{
@@ -11096,7 +11090,7 @@ namespace {
 
 // am_rotatable
 
-constexpr auto am_rotatable_cvar_name = bstone::StringView{"am_is_rotated"};
+constexpr auto am_rotatable_cvar_name = std::string_view{"am_is_rotated"};
 constexpr auto am_rotatable_cvar_default = true;
 
 auto am_rotatable_cvar = bstone::CVar{

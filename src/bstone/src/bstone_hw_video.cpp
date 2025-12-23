@@ -56,7 +56,7 @@ public:
 	void operator delete(void* ptr);
 
 	bool is_hardware() const noexcept override;
-	StringView get_renderer_name() override;
+	std::string_view get_renderer_name() override;
 	void clear_vga_buffer() override;
 
 	void take_screenshot(
@@ -1520,7 +1520,7 @@ bool HwVideo::is_hardware() const noexcept
 	return true;
 }
 
-StringView HwVideo::get_renderer_name()
+std::string_view HwVideo::get_renderer_name()
 {
 	return renderer_->get_name();
 }

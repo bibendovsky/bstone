@@ -9,11 +9,11 @@ SPDX-License-Identifier: MIT
 #include "bstone_null_r3r_shader_stage.h"
 #include <stddef.h>
 #include <stdint.h>
+#include <string_view>
 #include <utility>
 #include <vector>
 #include "bstone_exception.h"
 #include "bstone_fixed_pool_resource.h"
-#include "bstone_string_view.h"
 #include "bstone_utility.h"
 #include "bstone_r3r_limits.h"
 #include "bstone_null_r3r_shader_var.h"
@@ -56,7 +56,7 @@ private:
 private:
 	static ShaderVars make_shader_vars();
 	R3rShaderVar* impl_find_var(const char* name, R3rShaderVarTypeId shader_var_type_id);
-	static R3rShaderVarType get_type_from_name(StringView name);
+	static R3rShaderVarType get_type_from_name(std::string_view name);
 };
 
 // --------------------------------------------------------------------------
@@ -166,13 +166,13 @@ R3rShaderVar* NullR3rShaderStageImpl::impl_find_var(const char* name, R3rShaderV
 	return shader_vars_.back().get();
 }
 
-R3rShaderVarType NullR3rShaderStageImpl::get_type_from_name(StringView name)
+R3rShaderVarType NullR3rShaderStageImpl::get_type_from_name(std::string_view name)
 {
-	constexpr StringView attribute_prefix_string = "a_";
-	constexpr StringView uniform_prefix_string = "u_";
-	constexpr StringView sampler_string_string = "sampler";
+	constexpr std::string_view attribute_prefix_string = "a_";
+	constexpr std::string_view uniform_prefix_string = "u_";
+	constexpr std::string_view sampler_string_string = "sampler";
 
-	if (name.contains(sampler_string_string))
+	if (name.find(sampler_string_string) != std::string_view::npos)
 	{
 		return R3rShaderVarType::sampler;
 	}

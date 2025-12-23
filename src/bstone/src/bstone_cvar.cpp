@@ -19,7 +19,7 @@ namespace bstone {
 
 CVar::CVar(
 	CVarInt32Tag,
-	StringView name,
+	std::string_view name,
 	CVarFlags flags,
 	std::int32_t default_value,
 	std::int32_t min_value,
@@ -37,7 +37,7 @@ CVar::CVar(
 
 CVar::CVar(
 	CVarInt32Tag,
-	StringView name,
+	std::string_view name,
 	CVarFlags flags,
 	std::int32_t default_value,
 	CVarInt32Values values)
@@ -52,7 +52,7 @@ CVar::CVar(
 		values}
 {}
 
-CVar::CVar(CVarInt32Tag, StringView name, CVarFlags flags, std::int32_t default_value)
+CVar::CVar(CVarInt32Tag, std::string_view name, CVarFlags flags, std::int32_t default_value)
 	:
 	CVar{
 		CVarInt32Tag{},
@@ -66,9 +66,9 @@ CVar::CVar(CVarInt32Tag, StringView name, CVarFlags flags, std::int32_t default_
 
 CVar::CVar(
 	CVarStringTag,
-	StringView name,
+	std::string_view name,
 	CVarFlags flags,
-	StringView default_value,
+	std::string_view default_value,
 	CVarStringValues values)
 try {
 	CValidator::validate_name(name);
@@ -80,7 +80,7 @@ try {
 		const auto found_value_iter = std::find_if(
 			values.begin(),
 			values_end_iter,
-			[default_value](const StringView& value)
+			[default_value](const std::string_view& value)
 			{
 				return default_value == value;
 			});
@@ -105,12 +105,12 @@ try {
 	set_int32_from_string();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-CVar::CVar(CVarBoolTag, StringView name, CVarFlags flags, bool default_value)
+CVar::CVar(CVarBoolTag, std::string_view name, CVarFlags flags, bool default_value)
 	:
 	CVar{CVarInt32Tag{}, name, flags, default_value, 0, 1}
 {}
 
-CVar::CVar(CVarStringTag, StringView name, CVarFlags flags, StringView default_value)
+CVar::CVar(CVarStringTag, std::string_view name, CVarFlags flags, std::string_view default_value)
 	:
 	CVar{CVarStringTag{}, name, flags, default_value, CVarStringValues{}}
 {}
@@ -131,7 +131,7 @@ CVarType CVar::get_type() const noexcept
 	return type_;
 }
 
-StringView CVar::get_name() const noexcept
+std::string_view CVar::get_name() const noexcept
 {
 	return name_;
 }
@@ -202,12 +202,12 @@ CVarInt32Values CVar::get_int32_values() const noexcept
 	return int32_values_;
 }
 
-StringView CVar::get_string() const noexcept
+std::string_view CVar::get_string() const noexcept
 {
 	return string_value_.get();
 }
 
-void CVar::set_string(StringView value)
+void CVar::set_string(std::string_view value)
 {
 	if (string_value_.get() == value)
 	{
@@ -246,7 +246,7 @@ void CVar::swap(CVar& rhs)
 
 CVar::CVar(
 	CVarInt32Tag,
-	StringView name,
+	std::string_view name,
 	CVarFlags flags,
 	std::int32_t default_value,
 	std::int32_t min_value,
@@ -308,7 +308,7 @@ try
 {
 	char chars[max_int32_chars];
 	const auto char_count = to_chars(int32_value_, std::begin(chars), std::end(chars)) - chars;
-	string_value_ = StringView{chars, char_count};
+	string_value_ = std::string_view{chars, static_cast<std::size_t>(char_count)};
 }
 catch (...)
 {
@@ -326,14 +326,14 @@ catch (...)
 	int32_value_ = int32_default_value_;
 }
 
-bool CVar::has_string(StringView string)
+bool CVar::has_string(std::string_view string)
 {
 	const auto values_end_iter = string_values_.end();
 
 	const auto found_value_iter = std::find_if(
 		string_values_.begin(),
 		values_end_iter,
-		[string](const StringView& value)
+		[string](const std::string_view& value)
 		{
 			return string == value;
 		});

@@ -20,12 +20,12 @@ R3rType R3r::get_type() const noexcept
 	return do_get_type();
 }
 
-StringView R3r::get_name() const noexcept
+std::string_view R3r::get_name() const noexcept
 {
 	return do_get_name();
 }
 
-StringView R3r::get_description() const noexcept
+std::string_view R3r::get_description() const noexcept
 {
 	return do_get_description();
 }

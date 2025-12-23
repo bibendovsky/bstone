@@ -28,14 +28,14 @@ public:
 	CVarMgrImpl& operator=(const CVarMgrImpl&) = delete;
 	~CVarMgrImpl() override;
 
-	CVar* find(StringView name) const noexcept override;
+	CVar* find(std::string_view name) const noexcept override;
 	CVarMgrCVars get_all() noexcept override;
 
 	void add(CVar& cvar) override;
 
 private:
 	using CVars = std::vector<CVar*>;
-	using NameToIndex = std::unordered_map<StringView, CVars::size_type, StringViewHasher>;
+	using NameToIndex = std::unordered_map<std::string_view, CVars::size_type, StringViewHasher>;
 
 private:
 	std::intptr_t max_cvars_{};
@@ -52,7 +52,7 @@ CVarMgrImpl::CVarMgrImpl(std::intptr_t max_cvars)
 
 CVarMgrImpl::~CVarMgrImpl() = default;
 
-CVar* CVarMgrImpl::find(StringView name) const noexcept
+CVar* CVarMgrImpl::find(std::string_view name) const noexcept
 {
 	const auto item_iter = name_to_index_map_.find(name);
 
@@ -84,7 +84,7 @@ try {
 		auto message = std::string{};
 		message.reserve(128);
 		message += "CVAR \"";
-		message.append(name.get_data(), name.get_size());
+		message.append(name.data(), name.size());
 		message += "\" already registered.";
 		BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
 	}

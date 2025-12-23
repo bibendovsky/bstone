@@ -129,7 +129,7 @@ namespace {
 
 // in_is_mouse_enabled
 
-constexpr auto in_is_mouse_enabled_cvar_name = bstone::StringView{"in_is_mouse_enabled"};
+constexpr auto in_is_mouse_enabled_cvar_name = std::string_view{"in_is_mouse_enabled"};
 constexpr auto in_is_mouse_enabled_cvar_default = true;
 
 auto in_is_mouse_enabled_cvar = bstone::CVar{
@@ -140,7 +140,7 @@ auto in_is_mouse_enabled_cvar = bstone::CVar{
 
 // in_mouse_sensitivity
 
-constexpr auto in_mouse_sensitivity_cvar_name = bstone::StringView{"in_mouse_sensitivity"};
+constexpr auto in_mouse_sensitivity_cvar_name = std::string_view{"in_mouse_sensitivity"};
 constexpr auto in_mouse_sensitivity_cvar_min = min_mouse_sensitivity;
 constexpr auto in_mouse_sensitivity_cvar_max = max_mouse_sensitivity;
 constexpr auto in_mouse_sensitivity_cvar_default = default_mouse_sensitivity;
@@ -1321,62 +1321,62 @@ void in_reset_state()
 
 namespace {
 
-constexpr auto forward_sv = bstone::StringView{"forward"};
-constexpr auto backward_sv = bstone::StringView{"backward"};
-constexpr auto left_sv = bstone::StringView{"left"};
-constexpr auto right_sv = bstone::StringView{"right"};
-constexpr auto strafe_sv = bstone::StringView{"strafe"};
-constexpr auto strafe_left_sv = bstone::StringView{"strafe_left"};
-constexpr auto strafe_right_sv = bstone::StringView{"strafe_right"};
-constexpr auto quick_left_sv = bstone::StringView{"quick_left"};
-constexpr auto quick_right_sv = bstone::StringView{"quick_right"};
-constexpr auto turn_around_sv = bstone::StringView{"turn_around"};
-constexpr auto run_sv = bstone::StringView{"run"};
+constexpr auto forward_sv = std::string_view{"forward"};
+constexpr auto backward_sv = std::string_view{"backward"};
+constexpr auto left_sv = std::string_view{"left"};
+constexpr auto right_sv = std::string_view{"right"};
+constexpr auto strafe_sv = std::string_view{"strafe"};
+constexpr auto strafe_left_sv = std::string_view{"strafe_left"};
+constexpr auto strafe_right_sv = std::string_view{"strafe_right"};
+constexpr auto quick_left_sv = std::string_view{"quick_left"};
+constexpr auto quick_right_sv = std::string_view{"quick_right"};
+constexpr auto turn_around_sv = std::string_view{"turn_around"};
+constexpr auto run_sv = std::string_view{"run"};
 
-constexpr auto attack_sv = bstone::StringView{"attack"};
-constexpr auto weapon_1_sv = bstone::StringView{"weapon_1"};
-constexpr auto weapon_2_sv = bstone::StringView{"weapon_2"};
-constexpr auto weapon_3_sv = bstone::StringView{"weapon_3"};
-constexpr auto weapon_4_sv = bstone::StringView{"weapon_4"};
-constexpr auto weapon_5_sv = bstone::StringView{"weapon_5"};
-constexpr auto weapon_6_sv = bstone::StringView{"weapon_6"};
-constexpr auto weapon_7_sv = bstone::StringView{"weapon_7"};
+constexpr auto attack_sv = std::string_view{"attack"};
+constexpr auto weapon_1_sv = std::string_view{"weapon_1"};
+constexpr auto weapon_2_sv = std::string_view{"weapon_2"};
+constexpr auto weapon_3_sv = std::string_view{"weapon_3"};
+constexpr auto weapon_4_sv = std::string_view{"weapon_4"};
+constexpr auto weapon_5_sv = std::string_view{"weapon_5"};
+constexpr auto weapon_6_sv = std::string_view{"weapon_6"};
+constexpr auto weapon_7_sv = std::string_view{"weapon_7"};
 
-constexpr auto use_sv = bstone::StringView{"use"};
+constexpr auto use_sv = std::string_view{"use"};
 
-constexpr auto stats_sv = bstone::StringView{"stats"};
-constexpr auto radar_magnify_sv = bstone::StringView{"radar_magnify"};
-constexpr auto radar_minify_sv = bstone::StringView{"radar_minify"};
+constexpr auto stats_sv = std::string_view{"stats"};
+constexpr auto radar_magnify_sv = std::string_view{"radar_magnify"};
+constexpr auto radar_minify_sv = std::string_view{"radar_minify"};
 
-constexpr auto help_sv = bstone::StringView{"help"};
-constexpr auto save_sv = bstone::StringView{"save"};
-constexpr auto load_sv = bstone::StringView{"load"};
-constexpr auto sound_sv = bstone::StringView{"sound"};
-constexpr auto controls_sv = bstone::StringView{"controls"};
-constexpr auto end_game_sv = bstone::StringView{"end_game"};
-constexpr auto quick_save_sv = bstone::StringView{"quick_save"};
-constexpr auto quick_load_sv = bstone::StringView{"quick_load"};
-constexpr auto quick_exit_sv = bstone::StringView{"quick_exit"};
+constexpr auto help_sv = std::string_view{"help"};
+constexpr auto save_sv = std::string_view{"save"};
+constexpr auto load_sv = std::string_view{"load"};
+constexpr auto sound_sv = std::string_view{"sound"};
+constexpr auto controls_sv = std::string_view{"controls"};
+constexpr auto end_game_sv = std::string_view{"end_game"};
+constexpr auto quick_save_sv = std::string_view{"quick_save"};
+constexpr auto quick_load_sv = std::string_view{"quick_load"};
+constexpr auto quick_exit_sv = std::string_view{"quick_exit"};
 
-constexpr auto attack_info_sv = bstone::StringView{"attack_info"};
-constexpr auto lighting_sv = bstone::StringView{"lighting"};
-constexpr auto sfx_sv = bstone::StringView{"sfx"};
-constexpr auto music_sv = bstone::StringView{"music"};
-constexpr auto ceiling_sv = bstone::StringView{"ceiling"};
-constexpr auto floor_sv = bstone::StringView{"floor"};
-constexpr auto heart_beat_sv = bstone::StringView{"heart_beat"};
+constexpr auto attack_info_sv = std::string_view{"attack_info"};
+constexpr auto lighting_sv = std::string_view{"lighting"};
+constexpr auto sfx_sv = std::string_view{"sfx"};
+constexpr auto music_sv = std::string_view{"music"};
+constexpr auto ceiling_sv = std::string_view{"ceiling"};
+constexpr auto floor_sv = std::string_view{"floor"};
+constexpr auto heart_beat_sv = std::string_view{"heart_beat"};
 
-constexpr auto pause_sv = bstone::StringView{"pause"};
-constexpr auto grab_mouse_sv = bstone::StringView{"grab_mouse"};
+constexpr auto pause_sv = std::string_view{"pause"};
+constexpr auto grab_mouse_sv = std::string_view{"grab_mouse"};
 
-constexpr auto previous_weapon_sv = bstone::StringView{"previous_weapon"};
-constexpr auto next_weapon_sv = bstone::StringView{"next_weapon"};
+constexpr auto previous_weapon_sv = std::string_view{"previous_weapon"};
+constexpr auto next_weapon_sv = std::string_view{"next_weapon"};
 
-constexpr auto screenshot_sv = bstone::StringView{"screenshot"};
+constexpr auto screenshot_sv = std::string_view{"screenshot"};
 
 struct InBindingIdNameToIdMapItem
 {
-	const bstone::StringView& name_sv;
+	const std::string_view& name_sv;
 	BindingId binding_id;
 };
 
@@ -1436,7 +1436,7 @@ constexpr InBindingIdNameToIdMapItem in_binding_id_name_to_id_map[] =
 	InBindingIdNameToIdMapItem{screenshot_sv, e_bi_take_screenshot},
 };
 
-BindingId in_binding_name_to_id(bstone::StringView name_sv)
+BindingId in_binding_name_to_id(std::string_view name_sv)
 try {
 	for (const auto& map_item_id : in_binding_id_name_to_id_map)
 	{
@@ -1448,12 +1448,12 @@ try {
 
 	auto message = std::string{};
 	message += "Unknown binding name \"";
-	message.append(name_sv.get_data(), static_cast<std::size_t>(name_sv.get_size()));
+	message.append(name_sv.data(), name_sv.size());
 	message += "\".";
 	BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-bstone::StringView in_binding_id_to_name(BindingId binding_id)
+std::string_view in_binding_id_to_name(BindingId binding_id)
 try {
 	for (const auto& map_item_id : in_binding_id_name_to_id_map)
 	{
@@ -1486,13 +1486,13 @@ private:
 	} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 };
 
-constexpr auto in_clear_bindings_sv = bstone::StringView{"in_clear_bindings"};
+constexpr auto in_clear_bindings_sv = std::string_view{"in_clear_bindings"};
 auto in_clear_bindings_ccmd_action = InClearBindingsCCmdAction{};
 auto in_clear_bindings_ccmd = bstone::CCmd{in_clear_bindings_sv, in_clear_bindings_ccmd_action};
 
 // --------------------------------------------------------------------------
 
-std::intptr_t in_parse_binding_slot_index(bstone::StringView slot_index_name_sv)
+std::intptr_t in_parse_binding_slot_index(std::string_view slot_index_name_sv)
 try {
 	auto slot_index = std::intptr_t{};
 	bstone::from_chars(slot_index_name_sv.cbegin(), slot_index_name_sv.cend(), slot_index);
@@ -1501,7 +1501,7 @@ try {
 	{
 		auto message = std::string{};
 		message += "Slot index \"";
-		message.append(slot_index_name_sv.get_data(), static_cast<std::size_t>(slot_index_name_sv.get_size()));
+		message.append(slot_index_name_sv.data(), slot_index_name_sv.size());
 		message += "\" out of range.";
 		BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
 	}
@@ -1531,113 +1531,113 @@ private:
 	} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 };
 
-constexpr auto in_clear_binding_sv = bstone::StringView{"in_clear_binding"};
+constexpr auto in_clear_binding_sv = std::string_view{"in_clear_binding"};
 auto in_clear_binding_ccmd_action = InClearBindingCCmdAction{};
 auto in_clear_binding_ccmd = bstone::CCmd{in_clear_binding_sv, in_clear_binding_ccmd_action};
 
 // --------------------------------------------------------------------------
 
-constexpr auto in_return_sv = bstone::StringView{"return"};
-constexpr auto in_escape_sv = bstone::StringView{"escape"};
-constexpr auto in_space_sv = bstone::StringView{"space"};
-constexpr auto in_minus_sv = bstone::StringView{"minus"};
-constexpr auto in_equals_sv = bstone::StringView{"equals"};
-constexpr auto in_backspace_sv = bstone::StringView{"backspace"};
-constexpr auto in_tab_sv = bstone::StringView{"tab"};
-constexpr auto in_alt_sv = bstone::StringView{"alt"};
-constexpr auto in_left_bracket_sv = bstone::StringView{"left_bracket"};
-constexpr auto in_right_bracket_sv = bstone::StringView{"right_bracket"};
-constexpr auto in_control_sv = bstone::StringView{"control"};
-constexpr auto in_caps_lock_sv = bstone::StringView{"caps_lock"};
-constexpr auto in_num_lock_sv = bstone::StringView{"num_lock"};
-constexpr auto in_scroll_lock_sv = bstone::StringView{"scroll_lock"};
-constexpr auto in_left_shift_sv = bstone::StringView{"left_shift"};
-constexpr auto in_right_shift_sv = bstone::StringView{"right_shift"};
-constexpr auto in_up_arrow_sv = bstone::StringView{"up_arrow"};
-constexpr auto in_down_arrow_sv = bstone::StringView{"down_arrow"};
-constexpr auto in_left_arrow_sv = bstone::StringView{"left_arrow"};
-constexpr auto in_right_arrow_sv = bstone::StringView{"right_arrow"};
-constexpr auto in_insert_sv = bstone::StringView{"insert"};
-constexpr auto in_delete_sv = bstone::StringView{"delete"};
-constexpr auto in_home_sv = bstone::StringView{"home"};
-constexpr auto in_end_sv = bstone::StringView{"end"};
-constexpr auto in_page_up_sv = bstone::StringView{"page_up"};
-constexpr auto in_page_down_sv = bstone::StringView{"page_down"};
-constexpr auto in_slash_sv = bstone::StringView{"slash"};
-constexpr auto in_f1_sv = bstone::StringView{"f1"};
-constexpr auto in_f2_sv = bstone::StringView{"f2"};
-constexpr auto in_f3_sv = bstone::StringView{"f3"};
-constexpr auto in_f4_sv = bstone::StringView{"f4"};
-constexpr auto in_f5_sv = bstone::StringView{"f5"};
-constexpr auto in_f6_sv = bstone::StringView{"f6"};
-constexpr auto in_f7_sv = bstone::StringView{"f7"};
-constexpr auto in_f8_sv = bstone::StringView{"f8"};
-constexpr auto in_f9_sv = bstone::StringView{"f9"};
-constexpr auto in_f10_sv = bstone::StringView{"f10"};
-constexpr auto in_f11_sv = bstone::StringView{"f11"};
-constexpr auto in_f12_sv = bstone::StringView{"f12"};
-constexpr auto in_print_screen_sv = bstone::StringView{"print_screen"};
-constexpr auto in_pause_sv = bstone::StringView{"pause"};
-constexpr auto in_back_quote_sv = bstone::StringView{"back_quote"};
-constexpr auto in_semicolon_sv = bstone::StringView{"semicolon"};
-constexpr auto in_quote_sv = bstone::StringView{"quote"};
-constexpr auto in_backslash_sv = bstone::StringView{"backslash"};
-constexpr auto in_comma_sv = bstone::StringView{"comma"};
-constexpr auto in_period_sv = bstone::StringView{"period"};
+constexpr auto in_return_sv = std::string_view{"return"};
+constexpr auto in_escape_sv = std::string_view{"escape"};
+constexpr auto in_space_sv = std::string_view{"space"};
+constexpr auto in_minus_sv = std::string_view{"minus"};
+constexpr auto in_equals_sv = std::string_view{"equals"};
+constexpr auto in_backspace_sv = std::string_view{"backspace"};
+constexpr auto in_tab_sv = std::string_view{"tab"};
+constexpr auto in_alt_sv = std::string_view{"alt"};
+constexpr auto in_left_bracket_sv = std::string_view{"left_bracket"};
+constexpr auto in_right_bracket_sv = std::string_view{"right_bracket"};
+constexpr auto in_control_sv = std::string_view{"control"};
+constexpr auto in_caps_lock_sv = std::string_view{"caps_lock"};
+constexpr auto in_num_lock_sv = std::string_view{"num_lock"};
+constexpr auto in_scroll_lock_sv = std::string_view{"scroll_lock"};
+constexpr auto in_left_shift_sv = std::string_view{"left_shift"};
+constexpr auto in_right_shift_sv = std::string_view{"right_shift"};
+constexpr auto in_up_arrow_sv = std::string_view{"up_arrow"};
+constexpr auto in_down_arrow_sv = std::string_view{"down_arrow"};
+constexpr auto in_left_arrow_sv = std::string_view{"left_arrow"};
+constexpr auto in_right_arrow_sv = std::string_view{"right_arrow"};
+constexpr auto in_insert_sv = std::string_view{"insert"};
+constexpr auto in_delete_sv = std::string_view{"delete"};
+constexpr auto in_home_sv = std::string_view{"home"};
+constexpr auto in_end_sv = std::string_view{"end"};
+constexpr auto in_page_up_sv = std::string_view{"page_up"};
+constexpr auto in_page_down_sv = std::string_view{"page_down"};
+constexpr auto in_slash_sv = std::string_view{"slash"};
+constexpr auto in_f1_sv = std::string_view{"f1"};
+constexpr auto in_f2_sv = std::string_view{"f2"};
+constexpr auto in_f3_sv = std::string_view{"f3"};
+constexpr auto in_f4_sv = std::string_view{"f4"};
+constexpr auto in_f5_sv = std::string_view{"f5"};
+constexpr auto in_f6_sv = std::string_view{"f6"};
+constexpr auto in_f7_sv = std::string_view{"f7"};
+constexpr auto in_f8_sv = std::string_view{"f8"};
+constexpr auto in_f9_sv = std::string_view{"f9"};
+constexpr auto in_f10_sv = std::string_view{"f10"};
+constexpr auto in_f11_sv = std::string_view{"f11"};
+constexpr auto in_f12_sv = std::string_view{"f12"};
+constexpr auto in_print_screen_sv = std::string_view{"print_screen"};
+constexpr auto in_pause_sv = std::string_view{"pause"};
+constexpr auto in_back_quote_sv = std::string_view{"back_quote"};
+constexpr auto in_semicolon_sv = std::string_view{"semicolon"};
+constexpr auto in_quote_sv = std::string_view{"quote"};
+constexpr auto in_backslash_sv = std::string_view{"backslash"};
+constexpr auto in_comma_sv = std::string_view{"comma"};
+constexpr auto in_period_sv = std::string_view{"period"};
 
-constexpr auto in_1_sv = bstone::StringView{"1"};
-constexpr auto in_2_sv = bstone::StringView{"2"};
-constexpr auto in_3_sv = bstone::StringView{"3"};
-constexpr auto in_4_sv = bstone::StringView{"4"};
-constexpr auto in_5_sv = bstone::StringView{"5"};
-constexpr auto in_6_sv = bstone::StringView{"6"};
-constexpr auto in_7_sv = bstone::StringView{"7"};
-constexpr auto in_8_sv = bstone::StringView{"8"};
-constexpr auto in_9_sv = bstone::StringView{"9"};
-constexpr auto in_0_sv = bstone::StringView{"0"};
+constexpr auto in_1_sv = std::string_view{"1"};
+constexpr auto in_2_sv = std::string_view{"2"};
+constexpr auto in_3_sv = std::string_view{"3"};
+constexpr auto in_4_sv = std::string_view{"4"};
+constexpr auto in_5_sv = std::string_view{"5"};
+constexpr auto in_6_sv = std::string_view{"6"};
+constexpr auto in_7_sv = std::string_view{"7"};
+constexpr auto in_8_sv = std::string_view{"8"};
+constexpr auto in_9_sv = std::string_view{"9"};
+constexpr auto in_0_sv = std::string_view{"0"};
 
-constexpr auto in_a_sv = bstone::StringView{"a"};
-constexpr auto in_b_sv = bstone::StringView{"b"};
-constexpr auto in_c_sv = bstone::StringView{"c"};
-constexpr auto in_d_sv = bstone::StringView{"d"};
-constexpr auto in_e_sv = bstone::StringView{"e"};
-constexpr auto in_f_sv = bstone::StringView{"f"};
-constexpr auto in_g_sv = bstone::StringView{"g"};
-constexpr auto in_h_sv = bstone::StringView{"h"};
-constexpr auto in_i_sv = bstone::StringView{"i"};
-constexpr auto in_j_sv = bstone::StringView{"j"};
-constexpr auto in_k_sv = bstone::StringView{"k"};
-constexpr auto in_l_sv = bstone::StringView{"l"};
-constexpr auto in_m_sv = bstone::StringView{"m"};
-constexpr auto in_n_sv = bstone::StringView{"n"};
-constexpr auto in_o_sv = bstone::StringView{"o"};
-constexpr auto in_p_sv = bstone::StringView{"p"};
-constexpr auto in_q_sv = bstone::StringView{"q"};
-constexpr auto in_r_sv = bstone::StringView{"r"};
-constexpr auto in_s_sv = bstone::StringView{"s"};
-constexpr auto in_t_sv = bstone::StringView{"t"};
-constexpr auto in_u_sv = bstone::StringView{"u"};
-constexpr auto in_v_sv = bstone::StringView{"v"};
-constexpr auto in_w_sv = bstone::StringView{"w"};
-constexpr auto in_x_sv = bstone::StringView{"x"};
-constexpr auto in_y_sv = bstone::StringView{"y"};
-constexpr auto in_z_sv = bstone::StringView{"z"};
+constexpr auto in_a_sv = std::string_view{"a"};
+constexpr auto in_b_sv = std::string_view{"b"};
+constexpr auto in_c_sv = std::string_view{"c"};
+constexpr auto in_d_sv = std::string_view{"d"};
+constexpr auto in_e_sv = std::string_view{"e"};
+constexpr auto in_f_sv = std::string_view{"f"};
+constexpr auto in_g_sv = std::string_view{"g"};
+constexpr auto in_h_sv = std::string_view{"h"};
+constexpr auto in_i_sv = std::string_view{"i"};
+constexpr auto in_j_sv = std::string_view{"j"};
+constexpr auto in_k_sv = std::string_view{"k"};
+constexpr auto in_l_sv = std::string_view{"l"};
+constexpr auto in_m_sv = std::string_view{"m"};
+constexpr auto in_n_sv = std::string_view{"n"};
+constexpr auto in_o_sv = std::string_view{"o"};
+constexpr auto in_p_sv = std::string_view{"p"};
+constexpr auto in_q_sv = std::string_view{"q"};
+constexpr auto in_r_sv = std::string_view{"r"};
+constexpr auto in_s_sv = std::string_view{"s"};
+constexpr auto in_t_sv = std::string_view{"t"};
+constexpr auto in_u_sv = std::string_view{"u"};
+constexpr auto in_v_sv = std::string_view{"v"};
+constexpr auto in_w_sv = std::string_view{"w"};
+constexpr auto in_x_sv = std::string_view{"x"};
+constexpr auto in_y_sv = std::string_view{"y"};
+constexpr auto in_z_sv = std::string_view{"z"};
 
-constexpr auto in_kp_minus_sv = bstone::StringView{"kp_minus"};
-constexpr auto in_kp_plus_sv = bstone::StringView{"kp_plus"};
+constexpr auto in_kp_minus_sv = std::string_view{"kp_minus"};
+constexpr auto in_kp_plus_sv = std::string_view{"kp_plus"};
 
-constexpr auto in_mouse_left_sv = bstone::StringView{"mouse_left"};
-constexpr auto in_mouse_middle_sv = bstone::StringView{"mouse_middle"};
-constexpr auto in_mouse_right_sv = bstone::StringView{"mouse_right"};
-constexpr auto in_mouse_x1_sv = bstone::StringView{"mouse_x1"};
-constexpr auto in_mouse_x2_sv = bstone::StringView{"mouse_x2"};
+constexpr auto in_mouse_left_sv = std::string_view{"mouse_left"};
+constexpr auto in_mouse_middle_sv = std::string_view{"mouse_middle"};
+constexpr auto in_mouse_right_sv = std::string_view{"mouse_right"};
+constexpr auto in_mouse_x1_sv = std::string_view{"mouse_x1"};
+constexpr auto in_mouse_x2_sv = std::string_view{"mouse_x2"};
 
-constexpr auto in_mouse_wheel_down_sv = bstone::StringView{"mouse_wheel_down"};
-constexpr auto in_mouse_wheel_up_sv = bstone::StringView{"mouse_wheel_up"};
+constexpr auto in_mouse_wheel_down_sv = std::string_view{"mouse_wheel_down"};
+constexpr auto in_mouse_wheel_up_sv = std::string_view{"mouse_wheel_up"};
 
 struct InScanCodeNameToIdMapItem
 {
-	const bstone::StringView& name_sv;
+	const std::string_view& name_sv;
 	ScanCode scan_code;
 };
 
@@ -1742,7 +1742,7 @@ constexpr InScanCodeNameToIdMapItem in_scan_code_name_to_id_map[] =
 	{in_mouse_wheel_up_sv, ScanCode::sc_mouse_wheel_up},
 };
 
-ScanCode in_scan_code_name_to_id(bstone::StringView name_sv)
+ScanCode in_scan_code_name_to_id(std::string_view name_sv)
 try {
 	for (const auto& map_item : in_scan_code_name_to_id_map)
 	{
@@ -1754,12 +1754,12 @@ try {
 
 	auto message = std::string{};
 	message += "Unknown scan code name \"";
-	message.append(name_sv.get_data(), static_cast<std::size_t>(name_sv.get_size()));
+	message.append(name_sv.data(), name_sv.size());
 	message += "\".";
 	BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-bstone::StringView in_scan_code_id_to_name(ScanCode scan_code)
+std::string_view in_scan_code_id_to_name(ScanCode scan_code)
 try {
 	for (const auto& map_item : in_scan_code_name_to_id_map)
 	{
@@ -1809,7 +1809,7 @@ private:
 	} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 };
 
-constexpr auto in_bind_sv = bstone::StringView{"in_bind"};
+constexpr auto in_bind_sv = std::string_view{"in_bind"};
 auto in_bind_ccmd_action = InBindCCmdAction{};
 auto in_bind_ccmd = bstone::CCmd{in_bind_sv, in_bind_ccmd_action};
 
@@ -1853,10 +1853,7 @@ void in_serialize_bindings(bstone::TextWriter& text_writer)
 
 	// Clear bindings.
 	{
-		text_buffer.assign(
-			in_clear_bindings_sv.get_data(),
-			static_cast<std::size_t>(in_clear_bindings_sv.get_size()));
-
+		text_buffer.assign(in_clear_bindings_sv.data(), in_clear_bindings_sv.size());
 		text_buffer += '\n';
 		text_writer.write(text_buffer);
 	}
@@ -1886,29 +1883,15 @@ void in_serialize_bindings(bstone::TextWriter& text_writer)
 						std::end(slot_index_chars)) - slot_index_chars;
 
 					text_buffer.clear();
-
-					text_buffer.append(
-						in_bind_sv.get_data(),
-						static_cast<std::size_t>(in_bind_sv.get_size()));
-
+					text_buffer.append(in_bind_sv.data(), in_bind_sv.size());
 					text_buffer += " \"";
-
-					text_buffer.append(
-						scan_code_sv.get_data(),
-						static_cast<std::size_t>(scan_code_sv.get_size()));
-
+					text_buffer.append(scan_code_sv.data(), scan_code_sv.size());
 					text_buffer += "\" \"";
-
-					text_buffer.append(
-						binding_name_sv.get_data(),
-						static_cast<std::size_t>(binding_name_sv.get_size()));
-
+					text_buffer.append(binding_name_sv.data(), binding_name_sv.size());
 					text_buffer += "\" \"";
-
 					text_buffer.append(
 						slot_index_chars,
 						static_cast<std::size_t>(slot_index_char_count));
-
 					text_buffer += "\"\n";
 					text_writer.write(text_buffer);
 				}

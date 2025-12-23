@@ -12,10 +12,10 @@ SPDX-License-Identifier: MIT
 #include <cstddef>
 #include <cstdint>
 
+#include <string_view>
 #include <type_traits>
 
 #include "bstone_assert.h"
-#include "bstone_string_view.h"
 
 namespace bstone {
 
@@ -43,7 +43,7 @@ public:
 	constexpr const Char* end() const noexcept;
 	constexpr const Char* cend() const noexcept;
 
-	constexpr operator BasicStringView<TChar>() const noexcept;
+	constexpr operator std::basic_string_view<TChar>() const noexcept;
 	constexpr const Char& operator[](std::intptr_t index) const noexcept;
 	constexpr const Char& get_front() const noexcept;
 	constexpr const Char& get_back() const noexcept;
@@ -79,7 +79,7 @@ public:
 	constexpr std::intptr_t last_index_of_any(BasicZStringView view) const noexcept;
 
 private:
-	using View = BasicStringView<Char>;
+	using View = std::basic_string_view<Char>;
 
 private:
 	View view_{};
@@ -98,7 +98,7 @@ constexpr BasicZStringView<TChar>::BasicZStringView(const Char* string) noexcept
 	:
 	view_{string}
 {
-	BSTONE_ASSERT(view_.get_data()[view_.get_size()] == Char{});
+	BSTONE_ASSERT(view_.data()[view_.size()] == Char{});
 }
 
 template<typename TChar>
@@ -110,25 +110,25 @@ constexpr auto BasicZStringView<TChar>::begin() const noexcept -> const Char*
 template<typename TChar>
 constexpr auto BasicZStringView<TChar>::cbegin() const noexcept -> const Char*
 {
-	return view_.cbegin();
+	return view_.data();
 }
 
 template<typename TChar>
 constexpr auto BasicZStringView<TChar>::end() const noexcept -> const Char*
 {
-	return view_.end();
+	return view_.data() + view_.size();
 }
 
 template<typename TChar>
 constexpr auto BasicZStringView<TChar>::cend() const noexcept -> const Char*
 {
-	return view_.cend();
+	return &(*view_.cend());
 }
 
 template<typename TChar>
-constexpr BasicZStringView<TChar>::operator BasicStringView<TChar>() const noexcept
+constexpr BasicZStringView<TChar>::operator std::basic_string_view<TChar>() const noexcept
 {
-	return BasicStringView<TChar>{get_data(), get_size()};
+	return std::basic_string_view<TChar>{get_data(), static_cast<std::size_t>(get_size())};
 }
 
 template<typename TChar>
@@ -152,7 +152,7 @@ constexpr auto BasicZStringView<TChar>::get_back() const noexcept -> const Char&
 template<typename TChar>
 constexpr auto BasicZStringView<TChar>::get_data() const noexcept -> const Char*
 {
-	return view_.get_data();
+	return view_.data();
 }
 
 template<typename TChar>
@@ -164,13 +164,13 @@ constexpr bool BasicZStringView<TChar>::has_data() const noexcept
 template<typename TChar>
 constexpr std::intptr_t BasicZStringView<TChar>::get_size() const noexcept
 {
-	return view_.get_size();
+	return static_cast<std::intptr_t>(view_.size());
 }
 
 template<typename TChar>
 constexpr bool BasicZStringView<TChar>::is_empty() const noexcept
 {
-	return view_.is_empty();
+	return view_.empty();
 }
 
 template<typename TChar>

@@ -7,15 +7,15 @@ SPDX-License-Identifier: MIT
 #ifndef BSTONE_STRING_VIEW_HASHER_INCLUDED
 #define BSTONE_STRING_VIEW_HASHER_INCLUDED
 
+#include <string_view>
 #include "bstone_char_hasher.h"
-#include "bstone_string_view.h"
 
 namespace bstone {
 
 struct StringViewHasher
 {
 	template<typename TChar>
-	constexpr std::size_t operator()(BasicStringView<TChar> string_view) const
+	constexpr std::size_t operator()(std::basic_string_view<TChar> string_view) const
 	{
 		return CharHasher{}(string_view.cbegin(), string_view.cend());
 	}

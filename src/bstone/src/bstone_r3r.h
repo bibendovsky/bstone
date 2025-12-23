@@ -10,9 +10,9 @@ SPDX-License-Identifier: MIT
 #define BSTONE_R3R_INCLUDED
 
 #include <memory>
+#include <string_view>
 
 #include "bstone_span.h"
-#include "bstone_string_view.h"
 
 #include "bstone_sys_pixel_format.h"
 #include "bstone_sys_window.h"
@@ -68,8 +68,8 @@ public:
 	virtual ~R3r();
 
 	R3rType get_type() const noexcept;
-	StringView get_name() const noexcept;
-	StringView get_description() const noexcept;
+	std::string_view get_name() const noexcept;
+	std::string_view get_description() const noexcept;
 
 	const R3rDeviceFeatures& get_device_features() const noexcept;
 	const R3rDeviceInfo& get_device_info() const noexcept;
@@ -100,8 +100,8 @@ public:
 
 private:
 	virtual R3rType do_get_type() const noexcept = 0;
-	virtual StringView do_get_name() const noexcept = 0;
-	virtual StringView do_get_description() const noexcept = 0;
+	virtual std::string_view do_get_name() const noexcept = 0;
+	virtual std::string_view do_get_description() const noexcept = 0;
 
 	virtual const R3rDeviceFeatures& do_get_device_features() const noexcept = 0;
 	virtual const R3rDeviceInfo& do_get_device_info() const noexcept = 0;

@@ -14,13 +14,13 @@ namespace bstone {
 
 namespace {
 
-constexpr auto cl_option_prefix = StringView{"--"};
+constexpr auto cl_option_prefix = std::string_view{"--"};
 
 } // namespace
 
 Cl::Cl() = default;
 
-StringView Cl::operator[](int index) const
+std::string_view Cl::operator[](int index) const
 {
 	return get_argument(index);
 }
@@ -41,11 +41,11 @@ try {
 
 	while (arg_index < argc)
 	{
-		const auto arg_sv = StringView{argv[arg_index]};
+		const auto arg_sv = std::string_view{argv[arg_index]};
 
 		if (arg_sv.starts_with(cl_option_prefix))
 		{
-			if (arg_sv.get_size() == cl_option_prefix.get_size())
+			if (arg_sv.size() == cl_option_prefix.size())
 			{
 				const auto next_arg_index = arg_index + 1;
 
@@ -79,13 +79,13 @@ try {
 	//
 	while (arg_index < argc)
 	{
-		const auto name_sv = StringView{argv[arg_index]};
+		const auto name_sv = std::string_view{argv[arg_index]};
 		BSTONE_ASSERT(name_sv.starts_with(cl_option_prefix));
 		args_.emplace_back(name_sv);
 		options_.emplace_back();
 		auto& option = options_.back();
-		option.name = name_sv.get_subview(cl_option_prefix.get_size());
-		BSTONE_ASSERT(!option.name.is_empty());
+		option.name = name_sv.substr(cl_option_prefix.size());
+		BSTONE_ASSERT(!option.name.empty());
 
 		arg_index += 1;
 		const auto option_args_index = static_cast<std::intptr_t>(args_.size());
@@ -93,11 +93,11 @@ try {
 
 		while (arg_index < argc)
 		{
-			const auto arg_sv = StringView{argv[arg_index]};
+			const auto arg_sv = std::string_view{argv[arg_index]};
 
 			if (arg_sv.starts_with(cl_option_prefix))
 			{
-				if (arg_sv.get_size() == cl_option_prefix.get_size())
+				if (arg_sv.size() == cl_option_prefix.size())
 				{
 					const auto next_arg_index = arg_index + 1;
 
@@ -134,12 +134,12 @@ ClOptions Cl::get_options() const noexcept
 	return bstone::make_span(options_.data(), static_cast<std::intptr_t>(options_.size()));
 }
 
-bool Cl::has_option(StringView option_name) const
+bool Cl::has_option(std::string_view option_name) const
 {
-	return !find_option(option_name).name.is_empty();
+	return !find_option(option_name).name.empty();
 }
 
-ClOption Cl::find_option(StringView option_name) const
+ClOption Cl::find_option(std::string_view option_name) const
 {
 	for (const auto& option : options_)
 	{
@@ -157,36 +157,36 @@ std::intptr_t Cl::get_count() const noexcept
 	return static_cast<std::intptr_t>(args_.size());
 }
 
-StringView Cl::get_argument(std::intptr_t index) const
+std::string_view Cl::get_argument(std::intptr_t index) const
 {
 	if (index < 0 || index >= get_count())
 	{
-		return StringView{};
+		return std::string_view{};
 	}
 
 	return args_[index];
 }
 
-StringView Cl::get_option_value(StringView option_name) const
+std::string_view Cl::get_option_value(std::string_view option_name) const
 {
 	const auto option = find_option(option_name);
 
-	if (option.name.is_empty() || option.args.is_empty())
+	if (option.name.empty() || option.args.is_empty())
 	{
-		return StringView{};
+		return std::string_view{};
 	}
 
 	return option.args.get_front();
 }
 
-void Cl::get_option_values(StringView option_name, StringView& value1, StringView& value2) const
+void Cl::get_option_values(std::string_view option_name, std::string_view& value1, std::string_view& value2) const
 {
-	value1 = StringView{};
-	value2 = StringView{};
+	value1 = std::string_view{};
+	value2 = std::string_view{};
 
 	const auto option = find_option(option_name);
 
-	if (option.name.is_empty())
+	if (option.name.empty())
 	{
 		return;
 	}

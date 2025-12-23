@@ -7,14 +7,14 @@ SPDX-License-Identifier: MIT
 #ifndef BSTONE_CVALIDATOR_INCLUDED
 #define BSTONE_CVALIDATOR_INCLUDED
 
-#include "bstone_string_view.h"
+#include <string_view>
 
 namespace bstone {
 
 class CValidator
 {
 public:
-	static void validate_name(StringView name);
+	static void validate_name(std::string_view name);
 };
 
 } // namespace bstone

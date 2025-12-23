@@ -15,13 +15,12 @@ SPDX-License-Identifier: MIT
 #define BSTONE_UUID_INCLUDED
 
 #include <cstdint>
-
+#include <string_view>
 #include "bstone_array.h"
 #include "bstone_ascii.h"
 #include "bstone_char_conv.h"
 #include "bstone_endian.h"
 #include "bstone_exception.h"
-#include "bstone_string_view.h"
 #include "bstone_utility.h"
 
 namespace bstone {
@@ -125,9 +124,9 @@ public:
 	{}
 
 	template<typename TChar>
-	constexpr explicit Uuid(BasicStringView<TChar> string_view)
+	constexpr explicit Uuid(std::basic_string_view<TChar> string_view)
 	{
-		switch (string_view.get_size())
+		switch (string_view.size())
 		{
 			case 32: parse_without_hyphens(string_view); break;
 			case 36: parse_with_hyphens(string_view); break;
@@ -139,13 +138,13 @@ public:
 	template<typename TChar>
 	constexpr explicit Uuid(const TChar* string, std::intptr_t length)
 		:
-		Uuid{BasicStringView<TChar>{string, length}}
+		Uuid{std::basic_string_view<TChar>{string, static_cast<std::size_t>(length)}}
 	{}
 
 	template<typename TChar>
 	constexpr explicit Uuid(const TChar* string)
 		:
-		Uuid{BasicStringView<TChar>{string}}
+		Uuid{std::basic_string_view<TChar>{string}}
 	{}
 
 	constexpr bool is_nil() const noexcept
@@ -333,15 +332,19 @@ private:
 	}
 
 	template<typename TChar>
-	constexpr void parse_without_hyphens(BasicStringView<TChar> string_view)
+	constexpr void parse_without_hyphens(std::basic_string_view<TChar> string_view)
 	{
-		bstone::hex_chars_to_bytes(string_view.cbegin(), string_view.cend(), value_.begin(), value_.end());
+		bstone::hex_chars_to_bytes(
+			string_view.data(),
+			string_view.data() + string_view.size(),
+			value_.begin(),
+			value_.end());
 	}
 
 	template<typename TChar>
-	constexpr void parse_with_hyphens(BasicStringView<TChar> string_view)
+	constexpr void parse_with_hyphens(std::basic_string_view<TChar> string_view)
 	{
-		const auto chars = string_view.get_data();
+		const auto chars = string_view.data();
 
 		if (chars[8] != '-' || chars[13] != '-' || chars[18] != '-' || chars[23] != '-')
 		{
@@ -358,9 +361,9 @@ private:
 	}
 
 	template<typename TChar>
-	constexpr void parse_with_hyphens_and_braces(BasicStringView<TChar> string_view)
+	constexpr void parse_with_hyphens_and_braces(std::basic_string_view<TChar> string_view)
 	{
-		const auto chars = string_view.get_data();
+		const auto chars = string_view.data();
 
 		if (chars[0] != '{' ||
 			chars[9] != '-' || chars[14] != '-' || chars[19] != '-' || chars[24] != '-' ||

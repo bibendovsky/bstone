@@ -8,20 +8,20 @@ SPDX-License-Identifier: MIT
 #define BSTONE_CCMD_INCLUDED
 
 #include "bstone_ccmd_action.h"
-#include "bstone_string_view.h"
+#include <string_view>
 
 namespace bstone {
 
 class CCmd
 {
 public:
-	CCmd(StringView name, CCmdAction& action);
+	CCmd(std::string_view name, CCmdAction& action);
 
-	StringView get_name() const noexcept;
+	std::string_view get_name() const noexcept;
 	CCmdAction& get_action() const noexcept;
 
 private:
-	StringView name_{};
+	std::string_view name_{};
 	CCmdAction* action_{};
 };
 
