@@ -12,11 +12,11 @@ SPDX-License-Identifier: MIT
 
 #include <cstdint>
 #include <array>
-
+#include <span>
 #include "bstone_char_conv.h"
 #include "bstone_char_traits.h"
 #include "bstone_exception.h"
-#include "bstone_span.h"
+
 
 namespace bstone {
 
@@ -34,8 +34,8 @@ class Sha1
 public:
 	void process(const void* data, std::intptr_t size);
 
-	template<typename T>
-	void process(Span<T> span);
+	template<typename T, std::size_t TExtent>
+	void process(std::span<T, TExtent> span);
 
 	void finish();
 
@@ -69,10 +69,10 @@ private:
 
 // --------------------------------------------------------------------------
 
-template<typename T>
-void Sha1::process(Span<T> span)
+template<typename T, std::size_t TExtent>
+void Sha1::process(std::span<T, TExtent> span)
 {
-	process(span.get_data(), span.get_bytes_size());
+	process(span.data(), static_cast<std::intptr_t>(span.size_bytes()));
 }
 
 // ==========================================================================

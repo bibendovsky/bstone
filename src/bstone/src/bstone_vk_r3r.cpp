@@ -89,7 +89,7 @@ public:
 	R3rVertexInputUPtr do_create_vertex_input(const R3rCreateVertexInputParam& param) override;
 	R3rShaderUPtr do_create_shader(const R3rShaderInitParam& param) override;
 	R3rShaderStageUPtr do_create_shader_stage(const R3rShaderStageInitParam& param) override;
-	void do_submit_commands(Span<R3rCmdBuffer*> command_buffers) override;
+	void do_submit_commands(std::span<R3rCmdBuffer*> command_buffers) override;
 	void do_wait_for_device() override;
 
 	using MemoryPool = SinglePoolResource<VkR3rImpl>;
@@ -651,7 +651,7 @@ try {
 	return make_vk_r3r_sampler(context_, param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void VkR3rImpl::do_submit_commands(Span<R3rCmdBuffer*> command_buffers)
+void VkR3rImpl::do_submit_commands(std::span<R3rCmdBuffer*> command_buffers)
 {
 	for (R3rCmdBuffer* r3r_command_buffer : command_buffers)
 	{
@@ -1162,9 +1162,9 @@ void VkR3rImpl::initialize_enabled_global_extensions()
 		context_.enabled_extensions.emplace_back(context_.vk_ext_debug_utils_extension_name);
 	}
 #endif // NDEBUG
-	Span<const char*> sys_required_extensions = video_mgr_.get_vulkan_mgr().get_required_extensions(*window_);
+	std::span<const char*> sys_required_extensions = video_mgr_.get_vulkan_mgr().get_required_extensions(*window_);
 	context_.enabled_extensions.reserve(
-		context_.enabled_extensions.size() + static_cast<std::size_t>(sys_required_extensions.get_size()));
+		context_.enabled_extensions.size() + sys_required_extensions.size());
 	context_.enabled_extensions.insert(
 		context_.enabled_extensions.cend(),
 		sys_required_extensions.begin(),

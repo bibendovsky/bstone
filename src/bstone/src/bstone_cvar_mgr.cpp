@@ -66,7 +66,7 @@ CVar* CVarMgrImpl::find(std::string_view name) const noexcept
 
 CVarMgrCVars CVarMgrImpl::get_all() noexcept
 {
-	return CVarMgrCVars{cvars_.data(), static_cast<std::intptr_t>(cvars_.size())};
+	return CVarMgrCVars{cvars_.data(), cvars_.size()};
 }
 
 void CVarMgrImpl::add(CVar& cvar)

@@ -1558,7 +1558,7 @@ try {
 		return;
 	}
 	auto command_buffers = vsync_command_buffer_.get();
-	renderer_->submit_commands(make_span(&command_buffers, 1));
+	renderer_->submit_commands(std::span{&command_buffers, 1});
 	renderer_->present();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
@@ -1580,9 +1580,9 @@ try {
 	present_common();
 	present_3d();
 	present_2d();
-	renderer_->submit_commands(make_span(
+	renderer_->submit_commands(std::span{
 		command_buffers_.data(),
-		static_cast<std::intptr_t>(command_buffers_.size())));
+		command_buffers_.size()});
 
 	if (vid_is_take_screenshot_scheduled)
 	{
@@ -2703,7 +2703,7 @@ try {
 	auto param = R3rShaderStageInitParam{};
 	param.fragment_shader = fragment_shader_.get();
 	param.vertex_shader = vertex_shader_.get();
-	param.input_bindings = make_span(input_bindings);
+	param.input_bindings = std::span{input_bindings};
 	param.shader_var_infos = HwShaderRegistry::get_shader_var_infos();
 
 	shader_stage_ = renderer_->create_shader_stage(param);

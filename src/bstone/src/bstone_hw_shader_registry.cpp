@@ -135,7 +135,7 @@ const R3rShaderSource& HwShaderRegistry::get_vertex(R3rType renderer_type) noexc
 	}
 }
 
-const Span<const R3rShaderVarInfo> HwShaderRegistry::get_shader_var_infos()
+const std::span<const R3rShaderVarInfo> HwShaderRegistry::get_shader_var_infos()
 {
 	static const R3rShaderVarInfo result[] =
 	{
@@ -252,7 +252,7 @@ const Span<const R3rShaderVarInfo> HwShaderRegistry::get_shader_var_infos()
 		},
 	};
 
-	return Span<const R3rShaderVarInfo>{result};
+	return std::span{result};
 }
 
 R3rShaderSource HwShaderRegistry::make_r3r_shader_source(const char* source) noexcept

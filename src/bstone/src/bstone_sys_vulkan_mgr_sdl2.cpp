@@ -55,7 +55,7 @@ private:
 private:
 	bool do_is_vulkan_available() const override;
 	void* do_get_instance_proc_addr() const override;
-	Span<const char*> do_get_required_extensions(Window& window) override;
+	std::span<const char*> do_get_required_extensions(Window& window) override;
 	VkSurfaceKHR do_create_surface(Window& window, VkInstance vk_instance) override;
 
 private:
@@ -149,7 +149,7 @@ void* VulkanMgrSdl2::do_get_instance_proc_addr() const
 #endif // BSTONE_SDL2_SUPPORTS_VULKAN
 }
 
-Span<const char*> VulkanMgrSdl2::do_get_required_extensions(Window& window)
+std::span<const char*> VulkanMgrSdl2::do_get_required_extensions(Window& window)
 {
 #ifdef BSTONE_SDL2_SUPPORTS_VULKAN
 	ensure_is_vulkan_available();
@@ -158,7 +158,7 @@ Span<const char*> VulkanMgrSdl2::do_get_required_extensions(Window& window)
 
 	if (!SDL_Vulkan_GetInstanceExtensions(sdl2_window, &sdl_count, nullptr))
 	{
-		return Span<const char*>{};
+		return std::span<const char*>{};
 	}
 
 	const int total_pointers_size = align16(static_cast<int>(sdl_count * sizeof(const char*)));
@@ -169,7 +169,7 @@ Span<const char*> VulkanMgrSdl2::do_get_required_extensions(Window& window)
 
 	if (!SDL_Vulkan_GetInstanceExtensions(sdl2_window, &sdl_count, sdl_pointers.data()))
 	{
-		return Span<const char*>{};
+		return std::span<const char*>{};
 	}
 
 	sdl_pointers.resize(sdl_count);
@@ -196,9 +196,9 @@ Span<const char*> VulkanMgrSdl2::do_get_required_extensions(Window& window)
 		strings += string_size;
 	}
 
-	return Span<const char*>{
+	return std::span<const char*>{
 		reinterpret_cast<const char**>(extension_storage_.data()),
-		static_cast<intptr_t>(sdl_count)
+		sdl_count
 	};
 #else // BSTONE_SDL2_SUPPORTS_VULKAN
 	vulkan_not_available();

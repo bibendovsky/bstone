@@ -142,11 +142,11 @@ VkR3rShaderStageImpl::VkR3rShaderStageImpl(VkR3rContext& context, const R3rShade
 	{
 		BSTONE_THROW_STATIC_SOURCE("No vertex shader.");
 	}
-	if (param.input_bindings.get_size() > R3rLimits::max_vertex_inputs())
+	if (param.input_bindings.size() > R3rLimits::max_vertex_inputs())
 	{
 		BSTONE_THROW_STATIC_SOURCE("Too many input bindings.");
 	}
-	if (param.shader_var_infos.get_size() > R3rLimits::max_shader_vars())
+	if (param.shader_var_infos.size() > R3rLimits::max_shader_vars())
 	{
 		BSTONE_THROW_STATIC_SOURCE("Too many shader varaible layouts.");
 	}
@@ -346,7 +346,7 @@ void VkR3rShaderStageImpl::initialize(const R3rShaderStageInitParam& param)
 	using StageToTypesMap = std::unordered_map<R3rShaderVarStage, TypeToBindingMap>;
 	StageToTypesMap stage_to_type_map{};
 	NameViewSet unique_names{};
-	unique_names.reserve(static_cast<std::size_t>(param.shader_var_infos.get_size()));
+	unique_names.reserve(param.shader_var_infos.size());
 	for (const R3rShaderVarInfo& info : param.shader_var_infos)
 	{
 		if (info.name == nullptr)
@@ -424,9 +424,9 @@ void VkR3rShaderStageImpl::initialize(const R3rShaderStageInitParam& param)
 	int uniform_buffer_offset = 0;
 	using DescriptorSetLayoutBindings = std::vector<VkDescriptorSetLayoutBinding>;
 	DescriptorSetLayoutBindings descriptor_set_layout_bindings{};
-	descriptor_set_layout_bindings.reserve(static_cast<std::size_t>(param.shader_var_infos.get_size()));
-	descriptor_buffer_infos_.reserve(static_cast<std::size_t>(param.shader_var_infos.get_size()));
-	write_descriptor_sets_.reserve(static_cast<std::size_t>(param.shader_var_infos.get_size()));
+	descriptor_set_layout_bindings.reserve(param.shader_var_infos.size());
+	descriptor_buffer_infos_.reserve(param.shader_var_infos.size());
+	write_descriptor_sets_.reserve(param.shader_var_infos.size());
 	for (auto& stage_to_type : stage_to_type_map)
 	{
 		for (auto& type_to_binding : stage_to_type.second)
