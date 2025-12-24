@@ -118,8 +118,6 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_win32_registry_key.h
 		../../../bstone/src/bstone_api_string.cpp
 		../../../bstone/src/bstone_api_string.h
-		../../../bstone/src/bstone_cxx.cpp
-		../../../bstone/src/bstone_cxx.h
 		../../../bstone/src/bstone_fs_posix.cpp
 		../../../bstone/src/bstone_fs_win32.cpp
 		../../../bstone/src/bstone_fs.cpp

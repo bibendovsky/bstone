@@ -11,7 +11,6 @@ SPDX-License-Identifier: MIT
 
 #include <mutex>
 
-#include "bstone_cxx.h"
 #include "bstone_auto_arena_resource.h"
 #include "bstone_memory_resource.h"
 
@@ -30,7 +29,7 @@ public:
 	void reserve(std::intptr_t capacity, MemoryResource& memory_resource);
 
 private:
-	BSTONE_CXX_NODISCARD void* do_allocate(std::intptr_t size) override;
+	[[nodiscard]] void* do_allocate(std::intptr_t size) override;
 	void do_deallocate(void* ptr) noexcept override;
 
 private:

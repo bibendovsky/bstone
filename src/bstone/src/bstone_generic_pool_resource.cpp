@@ -86,7 +86,7 @@ void GenericPoolResource::reserve(
 	max_objects_ = max_objects;
 }
 
-BSTONE_CXX_NODISCARD void* GenericPoolResource::do_allocate(std::intptr_t size)
+[[nodiscard]] void* GenericPoolResource::do_allocate(std::intptr_t size)
 {
 	if (size != object_size_)
 	{

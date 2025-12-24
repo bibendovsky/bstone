@@ -136,7 +136,7 @@ void test_16hxh0gkqffhccg1()
 	try
 	{
 		MemoryResource memory_resource{};
-		memory_resource.allocate(0);
+		[[maybe_unused]] void* const memory = memory_resource.allocate(0);
 	}
 	catch (...)
 	{
