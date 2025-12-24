@@ -513,8 +513,6 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_win32_wstring.h
 	src/bstone_win32_unique_resources.cpp
 	src/bstone_win32_unique_resources.h
-	src/bstone_zstring_view.cpp
-	src/bstone_zstring_view.h
 	src/bstone_process.h
 	src/bstone_process_posix.cpp
 	src/bstone_process_win32.cpp
@@ -1018,7 +1016,6 @@ set(BSTONE_BSTONE_SOURCES
 	src/bstone_time.h
 	src/bstone_version.cpp
 	src/bstone_version.h
-	src/bstone_zstring_view_hasher.h
 )
 
 target_sources(bstone PRIVATE ${BSTONE_BSTONE_SOURCES})
