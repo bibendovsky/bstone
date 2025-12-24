@@ -15,7 +15,6 @@ SPDX-License-Identifier: MIT
 #include "bstone_exception.h"
 #include "bstone_fixed_pool_resource.h"
 #include "bstone_unique_resource.h"
-#include "bstone_string_view_hasher.h"
 
 #include "bstone_r3r_limits.h"
 #include "bstone_r3r_tests.h"
@@ -288,7 +287,7 @@ try {
 	// Check for duplicate names.
 	//
 	{
-		using NameSet = std::unordered_set<std::string_view, StringViewHasher>;
+		using NameSet = std::unordered_set<std::string_view>;
 		auto name_set = NameSet{};
 		name_set.reserve(input_bindings.size());
 
