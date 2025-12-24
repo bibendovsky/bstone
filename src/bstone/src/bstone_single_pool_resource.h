@@ -9,7 +9,6 @@ SPDX-License-Identifier: MIT
 #ifndef BSTONE_SINGLE_POOL_RESOURCE_INCLUDED
 #define BSTONE_SINGLE_POOL_RESOURCE_INCLUDED
 
-#include "bstone_cxx.h"
 #include "bstone_assert.h"
 #include "bstone_exception.h"
 #include "bstone_memory_resource.h"
@@ -29,7 +28,7 @@ public:
 	~SinglePoolResource() override;
 
 private:
-	BSTONE_CXX_NODISCARD void* do_allocate(std::intptr_t size) override;
+	[[nodiscard]] void* do_allocate(std::intptr_t size) override;
 	void do_deallocate(void* ptr) noexcept override;
 
 private:
@@ -52,7 +51,7 @@ SinglePoolResource<T>::~SinglePoolResource()
 }
 
 template<typename T>
-BSTONE_CXX_NODISCARD void* SinglePoolResource<T>::do_allocate(std::intptr_t size)
+[[nodiscard]] void* SinglePoolResource<T>::do_allocate(std::intptr_t size)
 {
 	if (size != object_size)
 	{

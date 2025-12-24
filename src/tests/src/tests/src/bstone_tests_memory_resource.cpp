@@ -21,7 +21,7 @@ public:
 	~TestMemoryResource() override = default;
 
 private:
-	BSTONE_CXX_NODISCARD void* do_allocate(std::intptr_t size) override
+	[[nodiscard]] void* do_allocate(std::intptr_t size) override
 	{
 		const auto ptr = static_cast<std::uint8_t*>(bstone::get_new_delete_memory_resource().allocate(size));
 		std::fill_n(ptr, size, memory_fill_value);
