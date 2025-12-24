@@ -1004,7 +1004,6 @@ set(BSTONE_BSTONE_SOURCES
 	src/bstone_steam_content_path.cpp
 	src/bstone_string_helper.cpp
 	src/bstone_string_helper.h
-	src/bstone_string_view_hasher.h
 	src/bstone_text_extractor.cpp
 	src/bstone_text_extractor.h
 	src/bstone_text_reader.cpp
