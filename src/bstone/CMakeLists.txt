@@ -427,8 +427,6 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_configurations.h
 	src/bstone_crc32.cpp
 	src/bstone_crc32.h
-	src/bstone_cxx.cpp
-	src/bstone_cxx.h
 	src/bstone_endian.cpp
 	src/bstone_endian.h
 	src/bstone_entry_point.cpp

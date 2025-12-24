@@ -13,7 +13,6 @@ SPDX-License-Identifier: MIT
 
 #include <memory>
 
-#include "bstone_cxx.h"
 #include "bstone_memory_resource.h"
 
 namespace bstone {
@@ -41,7 +40,7 @@ private:
 	std::intptr_t counter_{};
 
 private:
-	BSTONE_CXX_NODISCARD void* do_allocate(std::intptr_t size) override;
+	[[nodiscard]] void* do_allocate(std::intptr_t size) override;
 	void do_deallocate(void* ptr) noexcept override;
 };
 

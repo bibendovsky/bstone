@@ -58,7 +58,7 @@ void AutoArenaResource::reserve(std::intptr_t capacity, MemoryResource& memory_r
 	capacity_ = capacity;
 }
 
-BSTONE_CXX_NODISCARD void* AutoArenaResource::do_allocate(std::intptr_t size)
+[[nodiscard]] void* AutoArenaResource::do_allocate(std::intptr_t size)
 {
 	const auto new_size = size > 0 ? size : 1;
 

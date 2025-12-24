@@ -11,7 +11,6 @@ SPDX-License-Identifier: MIT
 
 #include <memory>
 
-#include "bstone_cxx.h"
 #include "bstone_memory.h"
 
 namespace bstone {
@@ -23,20 +22,20 @@ public:
 	virtual ~MemoryResource();
 
 	template<typename T>
-	BSTONE_CXX_NODISCARD T* allocate(std::intptr_t count);
+	[[nodiscard]] T* allocate(std::intptr_t count);
 
-	BSTONE_CXX_NODISCARD void* allocate(std::intptr_t size);
+	[[nodiscard]] void* allocate(std::intptr_t size);
 	void deallocate(void* ptr) noexcept;
 
 private:
-	BSTONE_CXX_NODISCARD virtual void* do_allocate(std::intptr_t size) = 0;
+	[[nodiscard]] virtual void* do_allocate(std::intptr_t size) = 0;
 	virtual void do_deallocate(void* ptr) noexcept = 0;
 };
 
 // --------------------------------------------------------------------------
 
 template<typename T>
-BSTONE_CXX_NODISCARD T* MemoryResource::allocate(std::intptr_t count)
+[[nodiscard]] T* MemoryResource::allocate(std::intptr_t count)
 {
 	static_assert(sizeof(T) <= PTRDIFF_MAX, "Size of type too big.");
 	constexpr auto item_size = static_cast<std::intptr_t>(sizeof(T));
@@ -152,7 +151,7 @@ public:
 	~NullMemoryResource() override;
 
 private:
-	BSTONE_CXX_NODISCARD void* do_allocate(std::intptr_t size) override;
+	[[nodiscard]] void* do_allocate(std::intptr_t size) override;
 	void do_deallocate(void* ptr) noexcept override;
 };
 
@@ -165,7 +164,7 @@ public:
 	~NewDeleteMemoryResource() override;
 
 private:
-	BSTONE_CXX_NODISCARD void* do_allocate(std::intptr_t size) override;
+	[[nodiscard]] void* do_allocate(std::intptr_t size) override;
 	void do_deallocate(void* ptr) noexcept override;
 };
 
