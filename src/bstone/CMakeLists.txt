@@ -486,7 +486,6 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_sys_special_path_sdl2.cpp
 	src/bstone_ts_auto_arena_resource.cpp
 	src/bstone_ts_auto_arena_resource.h
-	src/bstone_type_traits.h
 	src/bstone_unicode.cpp
 	src/bstone_unicode.h
 	src/bstone_unique_resource.cpp
