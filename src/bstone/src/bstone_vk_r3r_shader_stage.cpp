@@ -9,7 +9,6 @@ SPDX-License-Identifier: MIT
 #include "bstone_vk_r3r_shader_stage.h"
 #include "bstone_exception.h"
 #include "bstone_fixed_pool_resource.h"
-#include "bstone_string_view_hasher.h"
 #include "bstone_r3r_limits.h"
 #include "bstone_vk_r3r_context.h"
 #include "bstone_vk_r3r_observer.h"
@@ -333,7 +332,7 @@ try {
 
 void VkR3rShaderStageImpl::initialize(const R3rShaderStageInitParam& param)
 {
-	using NameViewSet = std::unordered_set<std::string_view, StringViewHasher>;
+	using NameViewSet = std::unordered_set<std::string_view>;
 	struct Info
 	{
 		const R3rShaderVarInfo* var;
