@@ -139,7 +139,7 @@ void test_hj5io0671lpsiro3()
 	try
 	{
 		MemoryResource memory_resource{};
-		memory_resource.allocate(0);
+		[[maybe_unused]] void* const memory = memory_resource.allocate(0);
 	}
 	catch (...)
 	{
