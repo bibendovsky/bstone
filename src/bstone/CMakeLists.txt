@@ -969,8 +969,6 @@ set(BSTONE_BSTONE_SOURCES
 	src/bstone_exception_utils.h
 	src/bstone_extent_2d.cpp
 	src/bstone_extent_2d.h
-	src/bstone_format_string.cpp
-	src/bstone_format_string.h
 	src/bstone_fs_utils.cpp
 	src/bstone_fs_utils.h
 	src/bstone_game_timer.cpp
