@@ -9,13 +9,13 @@ SPDX-License-Identifier: MIT
 #include <cassert>
 
 #include <algorithm>
+#include <string_view>
 #include <unordered_set>
 
 #include "bstone_exception.h"
 #include "bstone_fixed_pool_resource.h"
 #include "bstone_unique_resource.h"
-#include "bstone_zstring_view.h"
-#include "bstone_zstring_view_hasher.h"
+#include "bstone_string_view_hasher.h"
 
 #include "bstone_r3r_limits.h"
 #include "bstone_r3r_tests.h"
@@ -288,13 +288,13 @@ try {
 	// Check for duplicate names.
 	//
 	{
-		using NameSet = std::unordered_set<ZStringView, ZStringViewHasher>;
+		using NameSet = std::unordered_set<std::string_view, StringViewHasher>;
 		auto name_set = NameSet{};
 		name_set.reserve(input_bindings.size());
 
 		for (const auto& input_binding : input_bindings)
 		{
-			name_set.emplace(ZStringView{input_binding.name});
+			name_set.emplace(std::string_view{input_binding.name});
 		}
 
 		if (name_set.size() != input_bindings.size())
