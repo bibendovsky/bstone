@@ -10,7 +10,6 @@ SPDX-License-Identifier: MIT
 #include <unordered_map>
 #include "bstone_cvar_mgr.h"
 #include "bstone_exception.h"
-#include "bstone_string_view_hasher.h"
 
 namespace bstone {
 
@@ -35,7 +34,7 @@ public:
 
 private:
 	using CVars = std::vector<CVar*>;
-	using NameToIndex = std::unordered_map<std::string_view, CVars::size_type, StringViewHasher>;
+	using NameToIndex = std::unordered_map<std::string_view, CVars::size_type>;
 
 private:
 	std::intptr_t max_cvars_{};
