@@ -10,7 +10,6 @@ SPDX-License-Identifier: MIT
 #define BSTONE_FIXED_POOL_RESOURCE_INCLUDED
 
 #include "bstone_assert.h"
-#include "bstone_cxx.h"
 #include "bstone_exception.h"
 #include "bstone_memory_pool_bitmap.h"
 #include "bstone_memory_resource.h"
@@ -48,7 +47,7 @@ private:
 	Storage storage_{};
 
 private:
-	BSTONE_CXX_NODISCARD void* do_allocate(std::intptr_t size) override;
+	[[nodiscard]] void* do_allocate(std::intptr_t size) override;
 	void do_deallocate(void* ptr) noexcept override;
 };
 
@@ -64,7 +63,7 @@ FixedPoolResource<TObject, TMaxObjects>::~FixedPoolResource()
 }
 
 template<typename TObject, std::intptr_t TMaxObjects>
-BSTONE_CXX_NODISCARD void* FixedPoolResource<TObject, TMaxObjects>::do_allocate(std::intptr_t size)
+[[nodiscard]] void* FixedPoolResource<TObject, TMaxObjects>::do_allocate(std::intptr_t size)
 {
 	if (size != object_size)
 	{

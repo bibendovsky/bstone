@@ -16,7 +16,7 @@ MemoryResource::MemoryResource() noexcept = default;
 
 MemoryResource::~MemoryResource() = default;
 
-BSTONE_CXX_NODISCARD void* MemoryResource::allocate(std::intptr_t size)
+[[nodiscard]] void* MemoryResource::allocate(std::intptr_t size)
 {
 	BSTONE_ASSERT(size >= 0);
 
@@ -45,7 +45,7 @@ MemoryResource& MemoryResourceUPtrDeleterBase::get_memory_resource() const noexc
 NullMemoryResource::NullMemoryResource() noexcept = default;
 NullMemoryResource::~NullMemoryResource() = default;
 
-BSTONE_CXX_NODISCARD void* NullMemoryResource::do_allocate(std::intptr_t)
+[[nodiscard]] void* NullMemoryResource::do_allocate(std::intptr_t)
 {
 	BSTONE_THROW_STATIC_SOURCE("Out of memory.");
 }
@@ -57,7 +57,7 @@ void NullMemoryResource::do_deallocate(void*) noexcept {}
 NewDeleteMemoryResource::NewDeleteMemoryResource() noexcept = default;
 NewDeleteMemoryResource::~NewDeleteMemoryResource() = default;
 
-BSTONE_CXX_NODISCARD void* NewDeleteMemoryResource::do_allocate(std::intptr_t size)
+[[nodiscard]] void* NewDeleteMemoryResource::do_allocate(std::intptr_t size)
 {
 	return ::operator new(static_cast<std::size_t>(size));
 }

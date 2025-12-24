@@ -37,7 +37,7 @@ void TsAutoArenaResource::reserve(std::intptr_t capacity, MemoryResource& memory
 	arena_.reserve(capacity, memory_resource);
 }
 
-BSTONE_CXX_NODISCARD void* TsAutoArenaResource::do_allocate(std::intptr_t size)
+[[nodiscard]] void* TsAutoArenaResource::do_allocate(std::intptr_t size)
 {
 	MutexLock mutex_lock{mutex_};
 	return arena_.allocate(size);
