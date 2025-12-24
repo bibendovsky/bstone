@@ -2075,24 +2075,27 @@ void VkR3rImpl::swapchain_acquire_next_image()
 			return;
 		}
 	}
-	const VkResult vk_result = context_.vkAcquireNextImageKHR(
-		/* device */      context_.device.get(),
-		/* swapchain */   context_.swapchain.get(),
-		/* timeout */     UINT64_MAX,
-		/* semaphore */   context_.image_available_semaphore.get(),
-		/* fence */       VkFence{},
-		/* pImageIndex */ &context_.swapchain_image_index
-	);
-	switch (vk_result)
+	for (;;)
 	{
-		case VK_ERROR_OUT_OF_DATE_KHR:
-			recreate_swapchain();
-			break;
-		case VK_SUBOPTIMAL_KHR:
-			break;
-		default:
-			ensure_vk_result(vk_result, "vkAcquireNextImageKHR");
-			return;
+		const VkResult vk_result = context_.vkAcquireNextImageKHR(
+			/* device */      context_.device.get(),
+			/* swapchain */   context_.swapchain.get(),
+			/* timeout */     UINT64_MAX,
+			/* semaphore */   context_.image_available_semaphore.get(),
+			/* fence */       VkFence{},
+			/* pImageIndex */ &context_.swapchain_image_index
+		);
+		switch (vk_result)
+		{
+			case VK_ERROR_OUT_OF_DATE_KHR:
+				recreate_swapchain();
+				break;
+			case VK_SUBOPTIMAL_KHR:
+				return;
+			default:
+				ensure_vk_result(vk_result, "vkAcquireNextImageKHR");
+				return;
+		}
 	}
 }
 
