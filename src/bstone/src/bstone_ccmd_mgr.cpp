@@ -10,7 +10,6 @@ SPDX-License-Identifier: MIT
 #include <unordered_map>
 #include "bstone_ccmd_mgr.h"
 #include "bstone_exception.h"
-#include "bstone_string_view_hasher.h"
 
 namespace bstone {
 
@@ -35,7 +34,7 @@ public:
 
 private:
 	using CCmds = std::vector<CCmd*>;
-	using NameToIndex = std::unordered_map<std::string_view, CCmds::size_type, StringViewHasher>;
+	using NameToIndex = std::unordered_map<std::string_view, CCmds::size_type>;
 
 private:
 	std::intptr_t max_ccmds_{};
