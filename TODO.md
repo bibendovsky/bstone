@@ -12,3 +12,4 @@
 - Rename `R3rR2TextureInitParam::mipmap_count` to `mip_count`.
 - Rename `R3rR2TextureUpdateParam::mipmap_level` to `mip_level`.
 - HDR support.
+- Get rid of system abstraction layer.
