@@ -35,18 +35,6 @@ option(BSTONE_NO_ASSERT "Disable assertion." OFF)
 option(BSTONE_VULKAN_COMPILE_SHADERS "Compile Vulkan shaders before each build. Requires Vulkan SDK or 'glslangValidator' application available in the PATH environment variable. Useful for development." OFF)
 option(BSTONE_VULKAN_COMPILE_SHADERS_DEBUG_BUILD "Compile Vulkan shaders with debug information and without link time optimization." OFF)
 
-# SDL2W
-#
-set(BSTONE_SDL_COMPONENTS "")
-
-if (NOT BSTONE_INTERNAL_SDL2)
-	if (BSTONE_USE_STATIC_LINKING)
-		set(BSTONE_SDL_COMPONENTS "${BSTONE_SDL_COMPONENTS};static")
-	endif ()
-
-	find_package(SDL2W 2.0.4 REQUIRED COMPONENTS ${BSTONE_SDL_COMPONENTS})
-endif ()
-
 # Threads
 #
 set(THREADS_PREFER_PTHREAD_FLAG "TRUE")
@@ -268,8 +256,7 @@ endif ()
 target_link_libraries(bstone
 	PRIVATE
 		${CMAKE_DL_LIBS}
-		$<$<BOOL:${BSTONE_INTERNAL_SDL2}>:SDL2::SDL2-static>
-		$<$<NOT:$<BOOL:${BSTONE_INTERNAL_SDL2}>>:SDL2W::SDL2W>
+		bstone::sdl3
 		$<$<BOOL:${WIN32}>:wbemuuid>
 		Threads::Threads
 		bstone::lib::khronos
@@ -481,7 +468,7 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_stream.h
 	src/bstone_sys_special_path.cpp
 	src/bstone_sys_special_path.h
-	src/bstone_sys_special_path_sdl2.cpp
+	src/bstone_sys_special_path_sdl3.cpp
 	src/bstone_ts_auto_arena_resource.cpp
 	src/bstone_ts_auto_arena_resource.h
 	src/bstone_unicode.cpp
@@ -720,6 +707,7 @@ set(BSTONE_BSTONE_SYS_SOURCES
 	src/bstone_sys_mouse_mgr.cpp
 	src/bstone_sys_mouse_mgr.h
 	src/bstone_sys_pixel_format.h
+	src/bstone_sys_pixel_format.cpp
 	src/bstone_sys_polling_audio_device.cpp
 	src/bstone_sys_polling_audio_device.h
 	src/bstone_sys_rectangle.cpp
@@ -754,52 +742,49 @@ source_group("bstone/sys" FILES ${BSTONE_BSTONE_SYS_SOURCES})
 
 # ---------------------------------------------------------------------------
 
-set(BSTONE_BSTONE_SYS_SDL2_SOURCES
-	src/bstone_sys_audio_mgr_sdl2.cpp
-	src/bstone_sys_audio_mgr_sdl2.h
-	src/bstone_sys_detail_sdl2.cpp
-	src/bstone_sys_detail_sdl2.h
-	src/bstone_sys_event_mgr_sdl2.cpp
-	src/bstone_sys_event_mgr_sdl2.h
-	src/bstone_sys_exception_sdl2.cpp
-	src/bstone_sys_exception_sdl2.h
-	src/bstone_sys_gl_context_sdl2.cpp
-	src/bstone_sys_gl_context_sdl2.h
-	src/bstone_sys_gl_current_context_sdl2.cpp
-	src/bstone_sys_gl_current_context_sdl2.h
-	src/bstone_sys_gl_symbol_resolver_sdl2.cpp
-	src/bstone_sys_gl_symbol_resolver_sdl2.h
-	src/bstone_sys_limits_sdl2.h
-	src/bstone_sys_message_box_sdl2.cpp
-	src/bstone_sys_mouse_mgr_sdl2.cpp
-	src/bstone_sys_mouse_mgr_sdl2.h
-	src/bstone_sys_pixel_format.cpp
-	src/bstone_sys_polling_audio_device_sdl2.cpp
-	src/bstone_sys_polling_audio_device_sdl2.h
-	src/bstone_sys_renderer_sdl2.cpp
-	src/bstone_sys_renderer_sdl2.h
-	src/bstone_sys_sdl2_subsystem.cpp
-	src/bstone_sys_sdl2_subsystem.h
-	src/bstone_sys_sdl2_version.cpp
-	src/bstone_sys_sdl2_version.h
-	src/bstone_sys_system_mgr_sdl2.cpp
-	src/bstone_sys_texture_lock_sdl2.cpp
-	src/bstone_sys_texture_lock_sdl2.h
-	src/bstone_sys_texture_sdl2.cpp
-	src/bstone_sys_texture_sdl2.h
-	src/bstone_sys_video_mgr_sdl2.cpp
-	src/bstone_sys_video_mgr_sdl2.h
-	src/bstone_sys_vulkan_mgr_sdl2.cpp
-	src/bstone_sys_vulkan_mgr_sdl2.h
-	src/bstone_sys_window_mgr_sdl2.cpp
-	src/bstone_sys_window_mgr_sdl2.h
-	src/bstone_sys_window_rounded_corner_mgr_sdl2.cpp
-	src/bstone_sys_window_sdl2.cpp
-	src/bstone_sys_window_sdl2.h
+set(BSTONE_BSTONE_SYS_SDL3_SOURCES
+	src/bstone_sys_audio_mgr_sdl3.cpp
+	src/bstone_sys_audio_mgr_sdl3.h
+	src/bstone_sys_detail_sdl3.cpp
+	src/bstone_sys_detail_sdl3.h
+	src/bstone_sys_event_mgr_sdl3.cpp
+	src/bstone_sys_event_mgr_sdl3.h
+	src/bstone_sys_exception_sdl3.cpp
+	src/bstone_sys_exception_sdl3.h
+	src/bstone_sys_gl_context_sdl3.cpp
+	src/bstone_sys_gl_context_sdl3.h
+	src/bstone_sys_gl_current_context_sdl3.cpp
+	src/bstone_sys_gl_current_context_sdl3.h
+	src/bstone_sys_gl_symbol_resolver_sdl3.cpp
+	src/bstone_sys_gl_symbol_resolver_sdl3.h
+	src/bstone_sys_limits_sdl3.h
+	src/bstone_sys_message_box_sdl3.cpp
+	src/bstone_sys_mouse_mgr_sdl3.cpp
+	src/bstone_sys_mouse_mgr_sdl3.h
+	src/bstone_sys_polling_audio_device_sdl3.cpp
+	src/bstone_sys_polling_audio_device_sdl3.h
+	src/bstone_sys_renderer_sdl3.cpp
+	src/bstone_sys_renderer_sdl3.h
+	src/bstone_sys_sdl3_subsystem.cpp
+	src/bstone_sys_sdl3_subsystem.h
+	src/bstone_sys_system_mgr_sdl3.cpp
+	src/bstone_sys_texture_lock_sdl3.cpp
+	src/bstone_sys_texture_lock_sdl3.h
+	src/bstone_sys_texture_sdl3.cpp
+	src/bstone_sys_texture_sdl3.h
+	src/bstone_sys_video_mgr_sdl3.cpp
+	src/bstone_sys_video_mgr_sdl3.h
+	src/bstone_sys_vulkan_mgr_sdl3.cpp
+	src/bstone_sys_vulkan_mgr_sdl3.h
+	src/bstone_sys_window_mgr_sdl3.cpp
+	src/bstone_sys_window_mgr_sdl3.h
+	src/bstone_sys_window_rounded_corner_mgr_sdl3.cpp
+	src/bstone_sys_window_sdl3.cpp
+	src/bstone_sys_window_sdl3.h
 )
 
-target_sources(bstone PRIVATE ${BSTONE_BSTONE_SYS_SDL2_SOURCES})
-source_group("bstone/sys/sdl2" FILES ${BSTONE_BSTONE_SYS_SDL2_SOURCES})
+target_sources(bstone PRIVATE ${BSTONE_BSTONE_SYS_SDL3_SOURCES})
+source_group("bstone/sys/sdl3" FILES ${BSTONE_BSTONE_SYS_SDL3_SOURCES})
 
 # ---------------------------------------------------------------------------
 
