@@ -12,19 +12,21 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
+using GlSymbolResolverSymbolFunc = void (*)();
+
 class GlSymbolResolver
 {
 public:
 	GlSymbolResolver();
 	virtual ~GlSymbolResolver();
 
-	void* find_symbol(const char* symbol_name) const noexcept;
+	GlSymbolResolverSymbolFunc find_symbol(const char* symbol_name) const noexcept;
 
 	template<typename T>
 	T find_symbol(const char* symbol_name) const noexcept;
 
 private:
-	virtual void* do_find_symbol(const char* symbol_name) const noexcept = 0;
+	virtual GlSymbolResolverSymbolFunc do_find_symbol(const char* symbol_name) const noexcept = 0;
 };
 
 // --------------------------------------------------------------------------

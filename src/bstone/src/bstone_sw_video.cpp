@@ -754,7 +754,6 @@ try {
 	param.height = vid_cfg_get_height();
 
 	param.is_visible = true;
-	param.fullscreen_type = is_native_mode ? sys::WindowFullscreenType::fake : sys::WindowFullscreenType::none;
 	window_ = window_mgr_.make_window(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
