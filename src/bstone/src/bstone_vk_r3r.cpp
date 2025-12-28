@@ -1093,7 +1093,6 @@ void VkR3rImpl::initialize_window()
 	param.width = static_cast<int>(context_.vk_offscreen_width);
 	param.height = static_cast<int>(context_.vk_offscreen_height);
 	param.rounded_corner_type = sys::WindowRoundedCornerType::none;
-	param.fullscreen_type = sys::WindowFullscreenType::none;
 	param.renderer_type = sys::WindowRendererType::vulkan;
 	window_ = window_mgr_.make_window(param);
 }
@@ -1159,7 +1158,7 @@ void VkR3rImpl::initialize_enabled_global_extensions()
 		context_.enabled_extensions.emplace_back(context_.vk_ext_debug_utils_extension_name);
 	}
 #endif // NDEBUG
-	std::span<const char*> sys_required_extensions = video_mgr_.get_vulkan_mgr().get_required_extensions(*window_);
+	std::span<const char* const> sys_required_extensions = video_mgr_.get_vulkan_mgr().get_required_extensions(*window_);
 	context_.enabled_extensions.reserve(
 		context_.enabled_extensions.size() + sys_required_extensions.size());
 	context_.enabled_extensions.insert(

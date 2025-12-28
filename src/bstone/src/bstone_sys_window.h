@@ -143,7 +143,6 @@ struct WindowInitParam
 	int height;
 	bool is_visible;
 	WindowRoundedCornerType rounded_corner_type;
-	WindowFullscreenType fullscreen_type;
 	WindowRendererType renderer_type;
 	const GlContextAttributes* gl_attributes;
 };
