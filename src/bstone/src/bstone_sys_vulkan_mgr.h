@@ -17,6 +17,8 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 namespace sys {
 
+using VulkanMgrSymbolFunc = void (*)();
+
 class VulkanMgr
 {
 public:
@@ -24,14 +26,14 @@ public:
 	virtual ~VulkanMgr() {};
 
 	bool is_vulkan_available() const;
-	void* get_instance_proc_addr();
-	std::span<const char*> get_required_extensions(Window& window);
+	VulkanMgrSymbolFunc get_instance_proc_addr();
+	std::span<const char* const> get_required_extensions(Window& window);
 	VkSurfaceKHR create_surface(Window& window, VkInstance vk_instance);
 
 private:
 	virtual bool do_is_vulkan_available() const = 0;
-	virtual void* do_get_instance_proc_addr() const = 0;
-	virtual std::span<const char*> do_get_required_extensions(Window& window) = 0;
+	virtual VulkanMgrSymbolFunc do_get_instance_proc_addr() const = 0;
+	virtual std::span<const char* const> do_get_required_extensions(Window& window) = 0;
 	virtual VkSurfaceKHR do_create_surface(Window& window, VkInstance vk_instance) = 0;
 };
 
