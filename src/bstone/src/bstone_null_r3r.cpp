@@ -235,7 +235,6 @@ void NullR3rImpl::initialize_window()
 	param.width = R3rLimits::min_viewport_width();
 	param.height = R3rLimits::min_viewport_height();
 	param.rounded_corner_type = sys::WindowRoundedCornerType::none;
-	param.fullscreen_type = sys::WindowFullscreenType::none;
 	param.renderer_type = sys::WindowRendererType::none;
 
 	window_ = window_mgr_.make_window(param);

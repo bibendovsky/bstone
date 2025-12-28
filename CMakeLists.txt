@@ -15,8 +15,8 @@ message(STATUS "[bstone_solution] Trim file names in the executable: ${BSTONE_TR
 option(BSTONE_NO_ASSERT "Disable assertion." OFF)
 message(STATUS "[bstone_solution] Disable assertion: ${BSTONE_NO_ASSERT}")
 
-option(BSTONE_INTERNAL_SDL2 "Use bundled SDL2 source code." OFF)
-message(STATUS "[bstone_solution] Internal SDL2: ${BSTONE_INTERNAL_SDL2}")
+option(BSTONE_SDL_BUNDLED "Use bundled SDL source code." OFF)
+message(STATUS "[bstone_solution] Internal SDL3: ${BSTONE_SDL_BUNDLED}")
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 

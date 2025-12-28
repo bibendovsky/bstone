@@ -16,12 +16,12 @@ bool VulkanMgr::is_vulkan_available() const
 	return do_is_vulkan_available();
 }
 
-void* VulkanMgr::get_instance_proc_addr()
+VulkanMgrSymbolFunc VulkanMgr::get_instance_proc_addr()
 {
 	return do_get_instance_proc_addr();
 }
 
-std::span<const char*> VulkanMgr::get_required_extensions(Window& window)
+std::span<const char* const> VulkanMgr::get_required_extensions(Window& window)
 {
 	return do_get_required_extensions(window);
 }

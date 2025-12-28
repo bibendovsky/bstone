@@ -12,8 +12,6 @@ SPDX-License-Identifier: MIT
 #include "bstone_single_pool_resource.h"
 #include "bstone_sys_logger.h"
 
-#define BSTONE_SDL_2_0_4 SDL_VERSION_ATLEAST(2, 0, 4)
-
 namespace bstone {
 namespace sys {
 

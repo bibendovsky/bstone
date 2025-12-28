@@ -428,12 +428,9 @@ Supported format: [PNG](http://wikipedia.org/wiki/Portable_Network_Graphics)
 
 Minimum requirements:
 
-* C++14 compatible compiler.
-  * [GCC 5.0](http://gcc.gnu.org)
-  * [Clang 3.4](http://clang.llvm.org)
-  * [MSVC (VS 2017 15.0)](http://visualstudio.microsoft.com)
-* [CMake 3.4.0](http://cmake.org/)
-* [SDL v2.0.4](http://libsdl.org/)  
+* C++20 compatible compiler.
+* [CMake 3.24.0](http://cmake.org/)
+* [SDL v3.2.0](http://libsdl.org/)  
 
 CMake variables:
 * `CMAKE_BUILD_TYPE`  
@@ -465,11 +462,8 @@ CMake variables:
   Makes file paths in the executable relative to the source code directory.  
   Default value: OFF
 
-* `SDL2W_SDL2_DIR`  
-  Defines directory with SDL2 CMake configuration file or with official SDL2 development Windows build.
-
-* `BSTONE_INTERNAL_SDL2`  
-  Enables bundled SDL2 source code.  
+* `BSTONE_SDL_BUNDLED`  
+  Uses bundled SDL source code.  
   Default value: OFF
 
 * `BSTONE_VULKAN_COMPILE_SHADERS`  

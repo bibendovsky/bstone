@@ -123,7 +123,6 @@ try {
 	window_param.width = window_min_width;
 	window_param.height = window_min_height;
 	window_param.is_visible = false;
-	window_param.fullscreen_type = sys::WindowFullscreenType::none;
 
 	switch (param.renderer_type)
 	{

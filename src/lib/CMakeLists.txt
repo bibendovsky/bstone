@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 3.24.0 FATAL_ERROR)
+add_subdirectory(khronos)
+add_subdirectory(nuked_opl3)
+add_subdirectory(openal_soft)
+add_subdirectory(stb)
+add_subdirectory(vulkan)
+add_subdirectory(xbrz)
+add_subdirectory(sdl3)
