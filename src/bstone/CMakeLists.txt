@@ -256,7 +256,7 @@ endif ()
 target_link_libraries(bstone
 	PRIVATE
 		${CMAKE_DL_LIBS}
-		bstone::sdl3
+		bstone::sdl
 		$<$<BOOL:${WIN32}>:wbemuuid>
 		Threads::Threads
 		bstone::lib::khronos
@@ -468,7 +468,7 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_stream.h
 	src/bstone_sys_special_path.cpp
 	src/bstone_sys_special_path.h
-	src/bstone_sys_special_path_sdl3.cpp
+	src/bstone_sys_special_path_sdl.cpp
 	src/bstone_ts_auto_arena_resource.cpp
 	src/bstone_ts_auto_arena_resource.h
 	src/bstone_unicode.cpp
@@ -742,49 +742,49 @@ source_group("bstone/sys" FILES ${BSTONE_BSTONE_SYS_SOURCES})
 
 # ---------------------------------------------------------------------------
 
-set(BSTONE_BSTONE_SYS_SDL3_SOURCES
-	src/bstone_sys_audio_mgr_sdl3.cpp
-	src/bstone_sys_audio_mgr_sdl3.h
-	src/bstone_sys_detail_sdl3.cpp
-	src/bstone_sys_detail_sdl3.h
-	src/bstone_sys_event_mgr_sdl3.cpp
-	src/bstone_sys_event_mgr_sdl3.h
-	src/bstone_sys_exception_sdl3.cpp
-	src/bstone_sys_exception_sdl3.h
-	src/bstone_sys_gl_context_sdl3.cpp
-	src/bstone_sys_gl_context_sdl3.h
-	src/bstone_sys_gl_current_context_sdl3.cpp
-	src/bstone_sys_gl_current_context_sdl3.h
-	src/bstone_sys_gl_symbol_resolver_sdl3.cpp
-	src/bstone_sys_gl_symbol_resolver_sdl3.h
-	src/bstone_sys_limits_sdl3.h
-	src/bstone_sys_message_box_sdl3.cpp
-	src/bstone_sys_mouse_mgr_sdl3.cpp
-	src/bstone_sys_mouse_mgr_sdl3.h
-	src/bstone_sys_polling_audio_device_sdl3.cpp
-	src/bstone_sys_polling_audio_device_sdl3.h
-	src/bstone_sys_renderer_sdl3.cpp
-	src/bstone_sys_renderer_sdl3.h
-	src/bstone_sys_sdl3_subsystem.cpp
-	src/bstone_sys_sdl3_subsystem.h
-	src/bstone_sys_system_mgr_sdl3.cpp
-	src/bstone_sys_texture_lock_sdl3.cpp
-	src/bstone_sys_texture_lock_sdl3.h
-	src/bstone_sys_texture_sdl3.cpp
-	src/bstone_sys_texture_sdl3.h
-	src/bstone_sys_video_mgr_sdl3.cpp
-	src/bstone_sys_video_mgr_sdl3.h
-	src/bstone_sys_vulkan_mgr_sdl3.cpp
-	src/bstone_sys_vulkan_mgr_sdl3.h
-	src/bstone_sys_window_mgr_sdl3.cpp
-	src/bstone_sys_window_mgr_sdl3.h
-	src/bstone_sys_window_rounded_corner_mgr_sdl3.cpp
-	src/bstone_sys_window_sdl3.cpp
-	src/bstone_sys_window_sdl3.h
+set(BSTONE_BSTONE_SYS_SDL_SOURCES
+	src/bstone_sys_audio_mgr_sdl.cpp
+	src/bstone_sys_audio_mgr_sdl.h
+	src/bstone_sys_detail_sdl.cpp
+	src/bstone_sys_detail_sdl.h
+	src/bstone_sys_event_mgr_sdl.cpp
+	src/bstone_sys_event_mgr_sdl.h
+	src/bstone_sys_exception_sdl.cpp
+	src/bstone_sys_exception_sdl.h
+	src/bstone_sys_gl_context_sdl.cpp
+	src/bstone_sys_gl_context_sdl.h
+	src/bstone_sys_gl_current_context_sdl.cpp
+	src/bstone_sys_gl_current_context_sdl.h
+	src/bstone_sys_gl_symbol_resolver_sdl.cpp
+	src/bstone_sys_gl_symbol_resolver_sdl.h
+	src/bstone_sys_limits_sdl.h
+	src/bstone_sys_message_box_sdl.cpp
+	src/bstone_sys_mouse_mgr_sdl.cpp
+	src/bstone_sys_mouse_mgr_sdl.h
+	src/bstone_sys_polling_audio_device_sdl.cpp
+	src/bstone_sys_polling_audio_device_sdl.h
+	src/bstone_sys_renderer_sdl.cpp
+	src/bstone_sys_renderer_sdl.h
+	src/bstone_sys_sdl_subsystem.cpp
+	src/bstone_sys_sdl_subsystem.h
+	src/bstone_sys_system_mgr_sdl.cpp
+	src/bstone_sys_texture_lock_sdl.cpp
+	src/bstone_sys_texture_lock_sdl.h
+	src/bstone_sys_texture_sdl.cpp
+	src/bstone_sys_texture_sdl.h
+	src/bstone_sys_video_mgr_sdl.cpp
+	src/bstone_sys_video_mgr_sdl.h
+	src/bstone_sys_vulkan_mgr_sdl.cpp
+	src/bstone_sys_vulkan_mgr_sdl.h
+	src/bstone_sys_window_mgr_sdl.cpp
+	src/bstone_sys_window_mgr_sdl.h
+	src/bstone_sys_window_rounded_corner_mgr_sdl.cpp
+	src/bstone_sys_window_sdl.cpp
+	src/bstone_sys_window_sdl.h
 )
 
-target_sources(bstone PRIVATE ${BSTONE_BSTONE_SYS_SDL3_SOURCES})
-source_group("bstone/sys/sdl3" FILES ${BSTONE_BSTONE_SYS_SDL3_SOURCES})
+target_sources(bstone PRIVATE ${BSTONE_BSTONE_SYS_SDL_SOURCES})
+source_group("bstone/sys/sdl" FILES ${BSTONE_BSTONE_SYS_SDL_SOURCES})
 
 # ---------------------------------------------------------------------------
 
