@@ -16,7 +16,7 @@ option(BSTONE_NO_ASSERT "Disable assertion." OFF)
 message(STATUS "[bstone_solution] Disable assertion: ${BSTONE_NO_ASSERT}")
 
 option(BSTONE_SDL_BUNDLED "Use bundled SDL source code." OFF)
-message(STATUS "[bstone_solution] Internal SDL3: ${BSTONE_SDL_BUNDLED}")
+message(STATUS "[bstone_solution] Internal SDL: ${BSTONE_SDL_BUNDLED}")
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
