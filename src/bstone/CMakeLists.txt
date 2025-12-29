@@ -983,6 +983,8 @@ set(BSTONE_BSTONE_SOURCES
 	src/bstone_saved_game.cpp
 	src/bstone_saved_game.h
 	src/bstone_steam_content_path.cpp
+	src/bstone_string_builder.cpp
+	src/bstone_string_builder.h
 	src/bstone_string_helper.cpp
 	src/bstone_string_helper.h
 	src/bstone_text_extractor.cpp

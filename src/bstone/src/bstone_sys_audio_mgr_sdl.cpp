@@ -4,230 +4,166 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
+// Audio manager (SDL)
+
 #include "bstone_sys_audio_mgr_sdl.h"
-
-#include <charconv>
-#include <string>
-
-#include "SDL3/SDL_audio.h"
-
-#include "bstone_assert.h"
-#include "bstone_exception.h"
-#include "bstone_single_pool_resource.h"
-
+#include "bstone_scope_exit.h"
+#include "bstone_string_builder.h"
 #include "bstone_sys_audio_mgr_null.h"
 #include "bstone_sys_logger.h"
-#include "bstone_sys_exception_sdl.h"
 #include "bstone_sys_polling_audio_device_sdl.h"
 #include "bstone_sys_sdl_subsystem.h"
+#include <exception>
+#include "SDL3/SDL_audio.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 namespace {
 
-class SdlAudioMgr final : public AudioMgr
+class AudioMgrSdl final : public AudioMgr
 {
 public:
-	SdlAudioMgr(Logger& logger);
-	SdlAudioMgr(const SdlAudioMgr&) = delete;
-	SdlAudioMgr& operator=(const SdlAudioMgr&) = delete;
-	~SdlAudioMgr() override;
-
-	void* operator new(std::size_t size);
-	void operator delete(void* ptr);
+	explicit AudioMgrSdl(Logger& logger);
+	AudioMgrSdl(const AudioMgrSdl&) = delete;
+	AudioMgrSdl& operator=(const AudioMgrSdl&) = delete;
+	~AudioMgrSdl() override;
 
 private:
 	Logger& logger_;
 	SdlSubsystem sdl_subsystem_{};
-	bool is_initialized_{};
 
-private:
 	bool do_is_initialized() const noexcept override;
-
 	PollingAudioDeviceUPtr do_make_polling_audio_device(const PollingAudioDeviceOpenParam& param) override;
 
-private:
-	void log_int(int value, std::string& message);
-	void log_drivers();
-	void log_devices();
-	void log_info() noexcept;
+	static void log_drivers(StringBuilder& formatter);
+	static void log_devices(StringBuilder& formatter);
+	void log_info();
 };
 
-// ==========================================================================
+// --------------------------------------
 
-using SdlAudioMgrPool = SinglePoolResource<SdlAudioMgr>;
-SdlAudioMgrPool sdl_audio_mgr_pool{};
-
-// ==========================================================================
-
-SdlAudioMgr::SdlAudioMgr(Logger& logger)
-try
+AudioMgrSdl::AudioMgrSdl(Logger& logger)
 	:
 	logger_{logger}
 {
-	logger_.log_information("<<< Start up SDL audio manager.");
-
-	auto sdl_subsystem = SdlSubsystem{SDL_INIT_AUDIO};
+	logger_.log_information("Starting SDL audio manager.");
+	SdlSubsystem sdl_subsystem{SDL_INIT_AUDIO};
 	log_info();
 	sdl_subsystem_.swap(sdl_subsystem);
-	is_initialized_ = true;
+	logger_.log_information("SDL audio manager has started.");
+}
 
-	logger_.log_information(">>> SDL audio manager started up.");
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-SdlAudioMgr::~SdlAudioMgr()
+AudioMgrSdl::~AudioMgrSdl()
 {
 	logger_.log_information("Shut down SDL audio manager.");
 }
 
-void* SdlAudioMgr::operator new(std::size_t size)
-try {
-	return sdl_audio_mgr_pool.allocate(size);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void SdlAudioMgr::operator delete(void* ptr)
+bool AudioMgrSdl::do_is_initialized() const noexcept
 {
-	sdl_audio_mgr_pool.deallocate(ptr);
+	return true;
 }
 
-bool SdlAudioMgr::do_is_initialized() const noexcept
+PollingAudioDeviceUPtr AudioMgrSdl::do_make_polling_audio_device(const PollingAudioDeviceOpenParam& param)
 {
-	return is_initialized_;
-}
-
-PollingAudioDeviceUPtr SdlAudioMgr::do_make_polling_audio_device(const PollingAudioDeviceOpenParam& param)
-{
-	BSTONE_ASSERT(is_initialized_);
-
 	return make_sdl_polling_audio_device(logger_, param);
 }
 
-void SdlAudioMgr::log_int(int value, std::string& message)
+void AudioMgrSdl::log_drivers(StringBuilder& formatter)
 {
-	char chars[11];
-	if (const auto [ptr, ec] = std::to_chars(std::begin(chars), std::end(chars), value);
-		ec == std::errc{})
-	{
-		message.append(chars, static_cast<std::size_t>(ptr - chars));
-	}
-	else
-	{
-		message.append("???");
-	}
-}
-
-void SdlAudioMgr::log_drivers()
-{
-	std::string message{};
-	message.reserve(1024);
-	message += "Built-in drivers:\n";
+	formatter.reset_indent();
+	formatter.add_line("Built-in drivers:");
+	formatter.increase_indent();
 	const int driver_count = SDL_GetNumAudioDrivers();
 	for (int i_driver = 0; i_driver < driver_count; ++i_driver)
 	{
 		const char* const sdl_driver_name = SDL_GetAudioDriver(i_driver);
-		const char* const driver_name = sdl_driver_name != nullptr ? sdl_driver_name : "<NULL>";
-		message += "  ";
-		message += driver_name;
-		message += '\n';
+		formatter.add_indented_line(sdl_driver_name != nullptr ? sdl_driver_name : "<NULL>");
 	}
-	logger_.log_information(message.c_str());
 }
 
-void SdlAudioMgr::log_devices()
+void AudioMgrSdl::log_devices(StringBuilder& formatter)
 {
-	std::string message{};
-	message.reserve(2048);
-	message += "Playback devices:\n";
+	const auto add_error = [&formatter]()
+	{
+		formatter.add("ERROR: {}", SDL_GetError());
+	};
+	formatter.reset_indent();
+	formatter.add_line("Playback devices:");
+	formatter.increase_indent();
 	int device_count;
 	SDL_AudioDeviceID* const sdl_audio_device_ids = SDL_GetAudioPlaybackDevices(&device_count);
 	if (sdl_audio_device_ids != nullptr)
 	{
+		const auto scope_exit = make_scope_exit(
+			[sdl_audio_device_ids]()
+			{
+				SDL_free(sdl_audio_device_ids);
+			});
 		for (int i_device = 0; i_device < device_count; ++i_device)
 		{
 			const SDL_AudioDeviceID sdl_audio_device_id = sdl_audio_device_ids[i_device];
 			{
-				message += "  ";
-				log_int(i_device + 1, message);
-				message += ".\n";
-			}
-			{
-				message += "    Name: ";
+				formatter.add_indented("{}. ", i_device + 1);
 				const char* const sdl_device_name = SDL_GetAudioDeviceName(sdl_audio_device_id);
 				if (sdl_device_name != nullptr)
 				{
-					message += sdl_device_name;
+					formatter.add(sdl_device_name);
 				}
 				else
 				{
-					message += "[ERROR] ";
-					message += SDL_GetError();
+					add_error();
 				}
-				message += '\n';
+				formatter.add_line();
 			}
-			message += "    Specification:\n";
+			formatter.increase_indent();
 			SDL_AudioSpec sdl_audio_spec;
 			int sdl_sample_frames;
 			if (SDL_GetAudioDeviceFormat(sdl_audio_device_id, &sdl_audio_spec, &sdl_sample_frames))
 			{
-				{
-					message += "      Format: ";
-					const char* const sdl_format_name = SDL_GetAudioFormatName(sdl_audio_spec.format);
-					message += sdl_format_name;
-					message += '\n';
-				}
-				{
-					message += "      Channel count: ";
-					log_int(sdl_audio_spec.channels, message);
-					message += '\n';
-				}
-				{
-					message += "      Sample rate: ";
-					log_int(sdl_audio_spec.freq, message);
-					message += " Hz\n";
-				}
-				{
-					message += "      Buffer size: ";
-					log_int(sdl_sample_frames, message);
-					message += " sample frames\n";
-				}
+				const char* const sdl_format_name = SDL_GetAudioFormatName(sdl_audio_spec.format);
+				formatter.add_indented_line("Format: {}", sdl_format_name);
+				formatter.add_indented_line("Channel count: {}", sdl_audio_spec.channels);
+				formatter.add_indented_line("Sample rate: {} Hz", sdl_audio_spec.freq);
+				formatter.add_indented_line("Buffer size: {} sample frames", sdl_sample_frames);
 			}
 			else
 			{
-				message += "      [ERROR] ";
-				message += SDL_GetError();
-				message += '\n';
+				formatter.add_indent();
+				add_error();
+				formatter.add_line();
 			}
 		}
 	}
 	else
 	{
-		message += "  [ERROR] ";
-		message += SDL_GetError();
+		formatter.add_indent();
+		add_error();
+		formatter.add_line();
 	}
-	logger_.log_information(message.c_str());
 }
 
-void SdlAudioMgr::log_info() noexcept
-try {
-	log_drivers();
-	log_devices();
+void AudioMgrSdl::log_info()
+{
+	StringBuilder formatter{};
+	formatter.reserve(2048);
+	log_drivers(formatter);
+	log_devices(formatter);
+	logger_.log_information(formatter.get_string().c_str());
 }
-catch (...) {}
 
 } // namespace
 
-// ==========================================================================
+// ======================================
 
-AudioMgrUPtr make_sdl_audio_mgr(Logger& logger)
+AudioMgrUPtr make_audio_mgr_sdl(Logger& logger)
 try
 {
-	return std::make_unique<SdlAudioMgr>(logger);
+	return std::make_unique<AudioMgrSdl>(logger);
 }
-catch (...)
+catch (const std::exception& exception)
 {
+	logger.log_error(exception.what());
 	return make_null_audio_mgr(logger);
 }
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
