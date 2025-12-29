@@ -4,29 +4,29 @@ Copyright (c) 2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
+// Single SDL sub-system.
+
 #ifndef BSTONE_SYS_SDL_SUBSYSTEM_INCLUDED
 #define BSTONE_SYS_SDL_SUBSYSTEM_INCLUDED
 
 #include "SDL3/SDL.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 class SdlSubsystem
 {
 public:
-	SdlSubsystem() noexcept;
-	explicit SdlSubsystem(Uint32 sdl_flags);
-	SdlSubsystem(SdlSubsystem&& rhs) noexcept;
+	SdlSubsystem() = default;
+	explicit SdlSubsystem(SDL_InitFlags sdl_init_flags);
+	SdlSubsystem(const SdlSubsystem& rhs) = delete;
+	SdlSubsystem& operator=(const SdlSubsystem& rhs) = delete;
 	~SdlSubsystem();
-
-	void swap(SdlSubsystem& rhs) noexcept;
+	void swap(SdlSubsystem& sdl_subsystem);
 
 private:
-	Uint32 sdl_flags_{};
+	SDL_InitFlags sdl_init_flags_;
 };
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_SDL_SUBSYSTEM_INCLUDED
