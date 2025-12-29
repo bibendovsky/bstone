@@ -4,62 +4,40 @@ Copyright (c) 2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-#include "bstone_sys_sdl_subsystem.h"
+// Single SDL sub-system.
 
+#include "bstone_sys_sdl_subsystem.h"
 #include "bstone_exception.h"
-#include "bstone_sys_exception_sdl.h"
+#include <bit>
+#include <format>
+#include <string>
 #include <utility>
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
-SdlSubsystem::SdlSubsystem() noexcept = default;
-
-SdlSubsystem::SdlSubsystem(Uint32 sdl_flags)
-try
-	:
-	sdl_flags_{sdl_flags}
+SdlSubsystem::SdlSubsystem(SDL_InitFlags sdl_init_flags)
 {
-	switch (sdl_flags_)
+	if (!std::has_single_bit(sdl_init_flags))
 	{
-		case 0: return;
-
-		case SDL_INIT_AUDIO:
-		case SDL_INIT_VIDEO:
-		case SDL_INIT_JOYSTICK:
-		case SDL_INIT_HAPTIC:
-		case SDL_INIT_GAMEPAD:
-		case SDL_INIT_EVENTS:
-		case SDL_INIT_SENSOR:
-			break;
-
-		default: BSTONE_THROW_STATIC_SOURCE("Unknown subsystem.");
+		const std::string message = std::format("[{}] Expected a single flag. (flags={})", __func__, sdl_init_flags);
+		BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
 	}
-
-	sdl_ensure_result(SDL_InitSubSystem(sdl_flags));
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-SdlSubsystem::SdlSubsystem(SdlSubsystem&& rhs) noexcept
-	:
-	sdl_flags_{rhs.sdl_flags_}
-{
-	rhs.sdl_flags_ = 0;
+	if (!SDL_InitSubSystem(sdl_init_flags))
+	{
+		const std::string message = std::format("[{}] {} (flags={})", "SDL_InitSubSystem", SDL_GetError(), sdl_init_flags);
+		BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
+	}
+	sdl_init_flags_ = sdl_init_flags;
 }
 
 SdlSubsystem::~SdlSubsystem()
 {
-	if (sdl_flags_ == 0)
-	{
-		return;
-	}
-
-	SDL_QuitSubSystem(sdl_flags_);
+	SDL_QuitSubSystem(sdl_init_flags_);
 }
 
-void SdlSubsystem::swap(SdlSubsystem& rhs) noexcept
+void SdlSubsystem::swap(SdlSubsystem& sdl_subsystem)
 {
-	std::swap(sdl_flags_, rhs.sdl_flags_);
+	std::swap(sdl_init_flags_, sdl_subsystem.sdl_init_flags_);
 }
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
