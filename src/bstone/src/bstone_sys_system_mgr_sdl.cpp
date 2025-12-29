@@ -70,7 +70,7 @@ try
 	sdl_ensure_result(SDL_Init(0));
 	sdl_ensure_result(SDL_SetHint(SDL_HINT_VIDEO_SYNC_WINDOW_OPERATIONS, "1"));
 
-	audio_mgr_ = make_sdl_audio_mgr(logger_);
+	audio_mgr_ = make_audio_mgr_sdl(logger_);
 	event_mgr_ = make_sdl_event_mgr(logger_);
 	video_mgr_ = make_sdl_video_mgr(logger_);
 
