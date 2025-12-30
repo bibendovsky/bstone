@@ -95,7 +95,7 @@ try
 	auto sdl_subsystem = SdlSubsystem{SDL_INIT_VIDEO};
 	log_info();
 
-	mouse_mgr_ = make_sdl_mouse_mgr(logger);
+	mouse_mgr_ = make_mouse_mgr_sdl(logger);
 	window_mgr_ = make_sdl_window_mgr(logger);
 	gl_current_context_ = make_gl_current_context_sdl(logger_);
 	sdl_subsystem_.swap(sdl_subsystem);
