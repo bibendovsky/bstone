@@ -26,7 +26,7 @@ public:
 	~GlCurrentContextSdl() override = default;
 
 private:
-	SdlGlSymbolResolver gl_symbol_resolver_{};
+	GlSymbolResolverSdl gl_symbol_resolver_{};
 
 private:
 	bool do_has_extension(const char* extension_name) const noexcept override;
