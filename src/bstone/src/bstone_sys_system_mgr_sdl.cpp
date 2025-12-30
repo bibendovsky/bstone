@@ -71,7 +71,7 @@ try
 	sdl_ensure_result(SDL_SetHint(SDL_HINT_VIDEO_SYNC_WINDOW_OPERATIONS, "1"));
 
 	audio_mgr_ = make_audio_mgr_sdl(logger_);
-	event_mgr_ = make_sdl_event_mgr(logger_);
+	event_mgr_ = make_event_mgr_sdl(logger_);
 	video_mgr_ = make_sdl_video_mgr(logger_);
 
 	logger_.log_information(">>> SDL system manager started up.");

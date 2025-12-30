@@ -4,104 +4,80 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
+// Event manager (SDL)
+
+#include "bstone_scope_exit.h"
+#include "bstone_string_builder.h"
 #include "bstone_sys_event_mgr_sdl.h"
-
-#include "SDL3/SDL.h"
-
-#include "bstone_assert.h"
-#include "bstone_char_conv.h"
-#include "bstone_exception.h"
-#include "bstone_single_pool_resource.h"
-#include "bstone_sys_exception_sdl.h"
 #include "bstone_sys_event_mgr_null.h"
 #include "bstone_sys_logger.h"
 #include "bstone_sys_sdl_subsystem.h"
+#include <exception>
+#include "SDL3/SDL_events.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 namespace {
 
-class SdlEventMgr final : public EventMgr
+class EventMgrSdl final : public EventMgr
 {
 public:
-	SdlEventMgr(Logger& logger);
-	SdlEventMgr(const SdlEventMgr&) = delete;
-	SdlEventMgr& operator=(const SdlEventMgr&) = delete;
-	~SdlEventMgr() override;
-
-	void* operator new(std::size_t size);
-	void operator delete(void* ptr);
+	explicit EventMgrSdl(Logger& logger);
+	EventMgrSdl(const EventMgrSdl&) = delete;
+	EventMgrSdl& operator=(const EventMgrSdl&) = delete;
+	~EventMgrSdl() override;
 
 private:
 	Logger& logger_;
-	bool is_initialized_{};
 	SdlSubsystem sdl_subsystem_{};
 
-private:
 	bool do_is_initialized() const noexcept override;
-
 	bool do_poll_event(Event& e) override;
 
-private:
-	static KeyboardKey map_key_code(SDL_Keycode sdl_key_code) noexcept;
-	static unsigned int map_mouse_buttons_mask(Uint32 sdl_buttons_mask) noexcept;
-	static int map_mouse_button(int sdl_button) noexcept;
-	static MouseWheelDirection map_mouse_wheel_direction(SDL_MouseWheelDirection sdl_direction) noexcept;
+	static void log_sdl_error(StringBuilder& formatter);
+	static void log_keyboards(StringBuilder& formatter);
+	static void log_mice(StringBuilder& formatter);
+	void log_info();
 
-	static bool handle_event(const SDL_KeyboardEvent& sdl_e, KeyboardEvent& e) noexcept;
-	static bool handle_event(const SDL_MouseMotionEvent& sdl_e, MouseMotionEvent& e) noexcept;
-	static bool handle_event(const SDL_MouseButtonEvent& sdl_e, MouseButtonEvent& e) noexcept;
-	static bool handle_event(const SDL_MouseWheelEvent& sdl_e, MouseWheelEvent& e) noexcept;
-	static bool handle_event(const SDL_WindowEvent& sdl_e, WindowEvent& e) noexcept;
-	static bool handle_event(const SDL_Event& sdl_e, Event& e) noexcept;
+	static KeyboardKey map_key_code(SDL_Keycode sdl_key_code);
+	static unsigned int map_mouse_buttons_mask(Uint32 sdl_buttons_mask);
+	static int map_mouse_button(int sdl_button);
+	static MouseWheelDirection map_mouse_wheel_direction(SDL_MouseWheelDirection sdl_direction);
+
+	static bool handle_event(const SDL_KeyboardEvent& sdl_e, KeyboardEvent& e);
+	static bool handle_event(const SDL_MouseMotionEvent& sdl_e, MouseMotionEvent& e);
+	static bool handle_event(const SDL_MouseButtonEvent& sdl_e, MouseButtonEvent& e);
+	static bool handle_event(const SDL_MouseWheelEvent& sdl_e, MouseWheelEvent& e);
+	static bool handle_event(const SDL_WindowEvent& sdl_e, WindowEvent& e);
+	static bool handle_event(const SDL_Event& sdl_e, Event& e);
 };
 
-// ==========================================================================
+// --------------------------------------
 
-using SdlEventMgrPool = SinglePoolResource<SdlEventMgr>;
-SdlEventMgrPool sdl_event_mgr_pool{};
-
-// ==========================================================================
-
-SdlEventMgr::SdlEventMgr(Logger& logger)
-try
+EventMgrSdl::EventMgrSdl(Logger& logger)
 	:
 	logger_{logger}
 {
-	logger_.log_information("Start up SDL event manager.");
-
-	auto sdl_subsystem = SdlSubsystem{SDL_INIT_EVENTS};
+	logger_.log_information("Starting SDL event manager.");
+	SdlSubsystem sdl_subsystem{SDL_INIT_VIDEO};
+	log_info();
 	sdl_subsystem.swap(sdl_subsystem_);
-	is_initialized_ = true;
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+	logger_.log_information("SDL event manager has started.");
+}
 
-SdlEventMgr::~SdlEventMgr()
+EventMgrSdl::~EventMgrSdl()
 {
 	logger_.log_information("Shut down SDL event manager.");
 }
 
-void* SdlEventMgr::operator new(std::size_t size)
-try {
-	return sdl_event_mgr_pool.allocate(size);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void SdlEventMgr::operator delete(void* ptr)
+bool EventMgrSdl::do_is_initialized() const noexcept
 {
-	sdl_event_mgr_pool.deallocate(ptr);
+	return true;
 }
 
-bool SdlEventMgr::do_is_initialized() const noexcept
+bool EventMgrSdl::do_poll_event(Event& e)
 {
-	return is_initialized_;
-}
-
-bool SdlEventMgr::do_poll_event(Event& e)
-{
-	BSTONE_ASSERT(is_initialized_);
-
-	auto sdl_e = SDL_Event{};
-
+	SDL_Event sdl_e{};
 	while (SDL_PollEvent(&sdl_e))
 	{
 		if (handle_event(sdl_e, e))
@@ -110,14 +86,103 @@ bool SdlEventMgr::do_poll_event(Event& e)
 			return true;
 		}
 	}
-
 	e.common.type = EventType::none;
 	return false;
 }
 
-KeyboardKey SdlEventMgr::map_key_code(SDL_Keycode sdl_key_code) noexcept
+void EventMgrSdl::log_sdl_error(StringBuilder& formatter)
 {
-	switch (sdl_key_code)
+	formatter.add("ERROR: {}", SDL_GetError());
+}
+
+void EventMgrSdl::log_keyboards(StringBuilder& formatter)
+{
+	formatter.reset_indent();
+	formatter.add_line("Keyboards:");
+	formatter.increase_indent();
+	int keyboard_count;
+	if (SDL_KeyboardID* const sdl_keyboard_ids = SDL_GetKeyboards(&keyboard_count);
+		sdl_keyboard_ids != nullptr)
+	{
+		const auto scope_exit = make_scope_exit(
+			[sdl_keyboard_ids]()
+			{
+				SDL_free(sdl_keyboard_ids);
+			});
+		for (int i_keyboard = 0; i_keyboard < keyboard_count; ++i_keyboard)
+		{
+			const SDL_KeyboardID sdl_keyboard_id = sdl_keyboard_ids[i_keyboard];
+			const char* const keyboard_name = SDL_GetKeyboardNameForID(sdl_keyboard_id);
+			formatter.add_indented("{}. ", i_keyboard + 1);
+			if (keyboard_name != nullptr)
+			{
+				formatter.add(keyboard_name);
+			}
+			else
+			{
+				log_sdl_error(formatter);
+			}
+			formatter.add_line();
+		}
+	}
+	else
+	{
+		formatter.add_indent();
+		log_sdl_error(formatter);
+		formatter.add_line();
+	}
+}
+
+void EventMgrSdl::log_mice(StringBuilder& formatter)
+{
+	formatter.reset_indent();
+	formatter.add_line("Mice:");
+	formatter.increase_indent();
+	int mice_count;
+	if (SDL_MouseID* const sdl_mouse_ids = SDL_GetMice(&mice_count);
+		sdl_mouse_ids != nullptr)
+	{
+		const auto scope_exit = make_scope_exit(
+			[sdl_mouse_ids]()
+			{
+				SDL_free(sdl_mouse_ids);
+			});
+		for (int i_mouse = 0; i_mouse < mice_count; ++i_mouse)
+		{
+			const SDL_MouseID sdl_mouse_id = sdl_mouse_ids[i_mouse];
+			const char* const mouse_name = SDL_GetMouseNameForID(sdl_mouse_id);
+			formatter.add_indented("{}. ", i_mouse + 1);
+			if (mouse_name != nullptr)
+			{
+				formatter.add(mouse_name);
+			}
+			else
+			{
+				log_sdl_error(formatter);
+			}
+			formatter.add_line();
+		}
+	}
+	else
+	{
+		formatter.add_indent();
+		log_sdl_error(formatter);
+		formatter.add_line();
+	}
+}
+
+void EventMgrSdl::log_info()
+{
+	StringBuilder formatter{};
+	formatter.reserve(256);
+	log_keyboards(formatter);
+	log_mice(formatter);
+	logger_.log_information(formatter.get_string().c_str());
+}
+
+KeyboardKey EventMgrSdl::map_key_code(SDL_Keycode sdl_keycode)
+{
+	switch (sdl_keycode)
 	{
 		case SDLK_0: return KeyboardKey::n0;
 		case SDLK_1: return KeyboardKey::n1;
@@ -245,39 +310,33 @@ KeyboardKey SdlEventMgr::map_key_code(SDL_Keycode sdl_key_code) noexcept
 	}
 }
 
-unsigned int SdlEventMgr::map_mouse_buttons_mask(Uint32 sdl_buttons_mask) noexcept
+unsigned int EventMgrSdl::map_mouse_buttons_mask(Uint32 sdl_buttons_mask)
 {
-	auto button_mask = 0U;
-
+	unsigned int button_mask = 0;
 	if ((sdl_buttons_mask & SDL_BUTTON_LMASK) != 0)
 	{
 		button_mask |= MouseButtonMask::left;
 	}
-
 	if ((sdl_buttons_mask & SDL_BUTTON_MMASK) != 0)
 	{
 		button_mask |= MouseButtonMask::middle;
 	}
-
 	if ((sdl_buttons_mask & SDL_BUTTON_RMASK) != 0)
 	{
 		button_mask |= MouseButtonMask::right;
 	}
-
 	if ((sdl_buttons_mask & SDL_BUTTON_X1MASK) != 0)
 	{
 		button_mask |= MouseButtonMask::x1;
 	}
-
 	if ((sdl_buttons_mask & SDL_BUTTON_X2MASK) != 0)
 	{
 		button_mask |= MouseButtonMask::x2;
 	}
-
 	return button_mask;
 }
 
-int SdlEventMgr::map_mouse_button(int sdl_button) noexcept
+int EventMgrSdl::map_mouse_button(int sdl_button)
 {
 	switch (sdl_button)
 	{
@@ -286,31 +345,27 @@ int SdlEventMgr::map_mouse_button(int sdl_button) noexcept
 		case SDL_BUTTON_RIGHT: return MouseButtonIndex::right;
 		case SDL_BUTTON_X1: return MouseButtonIndex::x1;
 		case SDL_BUTTON_X2: return MouseButtonIndex::x2;
-
 		default: return -1;
 	}
 }
 
-MouseWheelDirection SdlEventMgr::map_mouse_wheel_direction(SDL_MouseWheelDirection sdl_direction) noexcept
+MouseWheelDirection EventMgrSdl::map_mouse_wheel_direction(SDL_MouseWheelDirection sdl_direction)
 {
 	switch (sdl_direction)
 	{
 		case SDL_MOUSEWHEEL_NORMAL: return MouseWheelDirection::normal;
 		case SDL_MOUSEWHEEL_FLIPPED: return MouseWheelDirection::flipped;
-
 		default: return MouseWheelDirection::none;
 	}
 }
 
-bool SdlEventMgr::handle_event(const SDL_KeyboardEvent& sdl_e, KeyboardEvent& e) noexcept
+bool EventMgrSdl::handle_event(const SDL_KeyboardEvent& sdl_e, KeyboardEvent& e)
 {
-	const auto virtual_key = map_key_code(sdl_e.key);
-
+	const KeyboardKey virtual_key = map_key_code(sdl_e.key);
 	if (virtual_key == KeyboardKey::none)
 	{
 		return false;
 	}
-
 	e.is_pressed = sdl_e.down;
 	e.key = virtual_key;
 	e.repeat_count = sdl_e.repeat;
@@ -319,40 +374,36 @@ bool SdlEventMgr::handle_event(const SDL_KeyboardEvent& sdl_e, KeyboardEvent& e)
 	return true;
 }
 
-bool SdlEventMgr::handle_event(const SDL_MouseMotionEvent& sdl_e, MouseMotionEvent& e) noexcept
+bool EventMgrSdl::handle_event(const SDL_MouseMotionEvent& sdl_e, MouseMotionEvent& e)
 {
 	if (sdl_e.which == SDL_TOUCH_MOUSEID)
 	{
 		return false;
 	}
-
-	e.x = sdl_e.x;
-	e.y = sdl_e.y;
-	e.delta_x = sdl_e.xrel;
-	e.delta_y = sdl_e.yrel;
+	e.x = static_cast<int>(sdl_e.x);
+	e.y = static_cast<int>(sdl_e.y);
+	e.delta_x = static_cast<int>(sdl_e.xrel);
+	e.delta_y = static_cast<int>(sdl_e.yrel);
 	e.button_mask = map_mouse_buttons_mask(sdl_e.state);
 	e.window_id = sdl_e.windowID;
 	e.type = EventType::mouse_motion;
 	return true;
 }
 
-bool SdlEventMgr::handle_event(const SDL_MouseButtonEvent& sdl_e, MouseButtonEvent& e) noexcept
+bool EventMgrSdl::handle_event(const SDL_MouseButtonEvent& sdl_e, MouseButtonEvent& e)
 {
 	if (sdl_e.which == SDL_TOUCH_MOUSEID)
 	{
 		return false;
 	}
-
-	const auto button_index = map_mouse_button(sdl_e.button);
-
+	const int button_index = map_mouse_button(sdl_e.button);
 	if (button_index < 0)
 	{
 		return false;
 	}
-
 	e.is_pressed = sdl_e.down;
-	e.x = sdl_e.x;
-	e.y = sdl_e.y;
+	e.x = static_cast<int>(sdl_e.x);
+	e.y = static_cast<int>(sdl_e.y);
 	e.button_index = button_index;
 	e.click_count = sdl_e.clicks;
 	e.window_id = sdl_e.windowID;
@@ -360,79 +411,66 @@ bool SdlEventMgr::handle_event(const SDL_MouseButtonEvent& sdl_e, MouseButtonEve
 	return true;
 }
 
-bool SdlEventMgr::handle_event(const SDL_MouseWheelEvent& sdl_e, MouseWheelEvent& e) noexcept
+bool EventMgrSdl::handle_event(const SDL_MouseWheelEvent& sdl_e, MouseWheelEvent& e)
 {
 	if (sdl_e.which == SDL_TOUCH_MOUSEID)
 	{
 		return false;
 	}
-
-	const auto direction = map_mouse_wheel_direction(static_cast<SDL_MouseWheelDirection>(sdl_e.direction));
-
+	const MouseWheelDirection direction = map_mouse_wheel_direction(static_cast<SDL_MouseWheelDirection>(sdl_e.direction));
 	if (direction == MouseWheelDirection::none)
 	{
 		return false;
 	}
-
-	e.x = sdl_e.x;
-	e.y = sdl_e.y;
+	e.x = static_cast<int>(sdl_e.x);
+	e.y = static_cast<int>(sdl_e.y);
 	e.direction = direction;
 	e.window_id = sdl_e.windowID;
 	e.type = EventType::mouse_wheel;
 	return true;
 }
 
-bool SdlEventMgr::handle_event(const SDL_WindowEvent& sdl_e, WindowEvent& e) noexcept
+bool EventMgrSdl::handle_event(const SDL_WindowEvent& sdl_e, WindowEvent& e)
 {
-	auto is_handled = true;
+	bool is_handled = true;
 	e.id = sdl_e.windowID;
-
 	switch (sdl_e.type)
 	{
 		case SDL_EVENT_WINDOW_FOCUS_GAINED:
 			e.event_type = WindowEventType::keyboard_focus_gained;
 			break;
-
 		case SDL_EVENT_WINDOW_FOCUS_LOST:
 			e.event_type = WindowEventType::keyboard_focus_lost;
 			break;
-
 		default:
 			is_handled = false;
 			break;
 	}
-
 	if (!is_handled)
 	{
 		return false;
 	}
-
 	e.type = EventType::window;
 	return true;
 }
 
-bool SdlEventMgr::handle_event(const SDL_Event& sdl_e, Event& e) noexcept
+bool EventMgrSdl::handle_event(const SDL_Event& sdl_e, Event& e)
 {
 	switch (sdl_e.type)
 	{
 		case SDL_EVENT_KEY_DOWN:
 		case SDL_EVENT_KEY_UP:
 			return handle_event(sdl_e.key, e.keyboard);
-
 		case SDL_EVENT_MOUSE_MOTION:
 			return handle_event(sdl_e.motion, e.mouse_motion);
-
 		case SDL_EVENT_MOUSE_BUTTON_DOWN:
 		case SDL_EVENT_MOUSE_BUTTON_UP:
 			return handle_event(sdl_e.button, e.mouse_button);
-
 		case SDL_EVENT_MOUSE_WHEEL:
 			return handle_event(sdl_e.wheel, e.mouse_wheel);
-
 		case SDL_EVENT_WINDOW_FOCUS_GAINED:
 		case SDL_EVENT_WINDOW_FOCUS_LOST:
 			return handle_event(sdl_e.window, e.window);
-
 		default:
 			return false;
 	}
@@ -440,17 +478,17 @@ bool SdlEventMgr::handle_event(const SDL_Event& sdl_e, Event& e) noexcept
 
 } // namespace
 
-// ==========================================================================
+// ======================================
 
-EventMgrUPtr make_sdl_event_mgr(Logger& logger)
+EventMgrUPtr make_event_mgr_sdl(Logger& logger)
 try
 {
-	return std::make_unique<SdlEventMgr>(logger);
+	return std::make_unique<EventMgrSdl>(logger);
 }
-catch (...)
+catch (const std::exception& exception)
 {
+	logger.log_error(exception.what());
 	return make_null_event_mgr(logger);
 }
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
