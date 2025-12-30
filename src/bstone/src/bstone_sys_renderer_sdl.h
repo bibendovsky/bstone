@@ -7,18 +7,16 @@ SPDX-License-Identifier: MIT
 #ifndef BSTONE_SYS_RENDERER_SDL_INCLUDED
 #define BSTONE_SYS_RENDERER_SDL_INCLUDED
 
+// 2D renderer (SDL)
+
 #include "bstone_sys_logger.h"
 #include "bstone_sys_renderer.h"
-#include "bstone_sys_window_sdl.h"
+#include "SDL3/SDL_video.h"
 
-struct SDL_Window;
+namespace bstone::sys {
 
-namespace bstone {
-namespace sys {
+RendererUPtr make_renderer_sdl(Logger& logger, SDL_Window& sdl_window, const RendererInitParam& param);
 
-RendererUPtr make_sdl_renderer(Logger& logger, SDL_Window& sdl_window, const RendererInitParam& param);
-
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_RENDERER_SDL_INCLUDED

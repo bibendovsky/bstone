@@ -4,20 +4,21 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
+// 2D renderer (SDL)
+
+#include "bstone_exception.h"
+#include "bstone_scope_exit.h"
+#include "bstone_string_builder.h"
+#include "bstone_sys_texture_sdl.h"
+#include "bstone_sys_renderer_sdl.h"
 #include <climits>
+#include <format>
+#include <string>
 #include <vector>
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
-#include "bstone_exception.h"
-#include "bstone_scope_exit.h"
-#include "bstone_single_pool_resource.h"
-#include "bstone_sys_detail_sdl.h"
-#include "bstone_sys_exception_sdl.h"
-#include "bstone_sys_texture_sdl.h"
-#include "bstone_sys_renderer_sdl.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 namespace {
 
@@ -37,119 +38,109 @@ static_assert(
 		offsetof(SDL_Rect, h) == offsetof(RendererViewport, height),
 	"Unsupported RendererViewport type.");
 
-// ==========================================================================
+// ======================================
 
-struct SdlRendererDeleter
-{
-	void operator()(SDL_Renderer* sdl_renderer)
-	{
-		SDL_DestroyRenderer(sdl_renderer);
-	}
-};
-
-using SdlRendererUPtr = std::unique_ptr<SDL_Renderer, SdlRendererDeleter>;
-
-// ==========================================================================
-
-class SdlRenderer final : public Renderer
+class RendererSdl final : public Renderer
 {
 public:
-	SdlRenderer(Logger& logger, SDL_Window& sdl_window, const RendererInitParam& param);
-	SdlRenderer(const SdlRenderer&) = delete;
-	SdlRenderer& operator=(const SdlRenderer&) = delete;
-	~SdlRenderer() override;
-
-	void* operator new(std::size_t size);
-	void operator delete(void* ptr);
+	RendererSdl(Logger& logger, SDL_Window& sdl_window, const RendererInitParam& param);
+	RendererSdl(const RendererSdl&) = delete;
+	RendererSdl& operator=(const RendererSdl&) = delete;
+	~RendererSdl() override;
 
 private:
 	using FRectBuffer = std::vector<SDL_FRect>;
 
 	Logger& logger_;
-	SdlRendererUPtr sdl_renderer_{};
+	SDL_Renderer* sdl_renderer_;
 	FRectBuffer frect_buffer_{};
 
-private:
 	const char* do_get_name() const override;
-
 	void do_set_viewport(const RendererViewport* viewport) override;
-
 	void do_clear() override;
 	void do_set_draw_color(Color color) override;
 	void do_fill(std::span<const Rectangle> rects) override;
 	void do_present() override;
-
 	void do_read_pixels(const Rectangle* rect, PixelFormat pixel_format, void* pixels, int pitch) override;
-
 	TextureUPtr do_make_texture(const TextureInitParam& param) override;
 
-private:
-	static MemoryResource& get_memory_resource();
-
+	[[noreturn]] static void fail_sdl_func(const char* func_name);
 	static SDL_PixelFormat map_pixel_format(PixelFormat pixel_format);
-
-	void log_flag(const char* flag, std::string& message);
-	void log_flags(Uint32 flags, std::string& message);
-	void log_info();
+	void log_info(SDL_Renderer* sdl_renderer);
 };
 
-// ==========================================================================
+// --------------------------------------
 
-SdlRenderer::SdlRenderer(Logger& logger, SDL_Window& sdl_window, const RendererInitParam& param)
-try
+RendererSdl::RendererSdl(Logger& logger, SDL_Window& sdl_window, const RendererInitParam& param)
 	:
 	logger_{logger}
 {
-	logger_.log_information("<<< Start up SDL renderer.");
+	logger_.log_information("Creating SDL renderer.");
 	SDL_PropertiesID sdl_properties_id = SDL_CreateProperties();
 	SDL_SetPointerProperty(sdl_properties_id, SDL_PROP_RENDERER_CREATE_WINDOW_POINTER, &sdl_window);
-	SDL_SetNumberProperty(sdl_properties_id, SDL_PROP_RENDERER_CREATE_PRESENT_VSYNC_NUMBER, 1);
-	SDL_Renderer* const sdl_renderer = SDL_CreateRendererWithProperties(sdl_properties_id);
+	SDL_SetNumberProperty(sdl_properties_id, SDL_PROP_RENDERER_CREATE_PRESENT_VSYNC_NUMBER, param.is_vsync);
+	SDL_Renderer* sdl_renderer = SDL_CreateRendererWithProperties(sdl_properties_id);
 	SDL_DestroyProperties(sdl_properties_id);
-	sdl_renderer_ = SdlRendererUPtr{sdl_ensure_result(sdl_renderer)};
-	log_info();
-	logger_.log_information(">>> SDL renderer started up.");
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-SdlRenderer::~SdlRenderer()
-{
-	logger_.log_information("<<< Shut down SDL renderer.");
+	if (sdl_renderer == nullptr)
+	{
+		fail_sdl_func("SDL_CreateRendererWithProperties");
+	}
+	const auto scope_exit = make_scope_exit(
+		[&sdl_renderer]()
+		{
+			if (sdl_renderer != nullptr)
+			{
+				SDL_DestroyRenderer(sdl_renderer);
+			}
+		});
+	log_info(sdl_renderer);
+	logger_.log_information("SDL renderer has created.");
+	sdl_renderer_ = sdl_renderer;
+	sdl_renderer = nullptr;
 }
 
-void* SdlRenderer::operator new(std::size_t size)
-try {
-	return get_memory_resource().allocate(size);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void SdlRenderer::operator delete(void* ptr)
+RendererSdl::~RendererSdl()
 {
-	get_memory_resource().deallocate(ptr);
+	logger_.log_information("Shut down SDL renderer.");
+	SDL_DestroyRenderer(sdl_renderer_);
 }
 
-const char* SdlRenderer::do_get_name() const
-try {
-	return SDL_GetStringProperty(SDL_GetRendererProperties(sdl_renderer_.get()), SDL_PROP_RENDERER_NAME_STRING, "");
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void SdlRenderer::do_set_viewport(const RendererViewport* viewport)
+const char* RendererSdl::do_get_name() const
 {
-	sdl_ensure_result(SDL_SetRenderViewport(
-		sdl_renderer_.get(),
-		reinterpret_cast<const SDL_Rect*>(viewport)));
+	const SDL_PropertiesID sdl_properties_id = SDL_GetRendererProperties(sdl_renderer_);
+	if (sdl_properties_id == 0)
+	{
+		fail_sdl_func("SDL_GetRendererProperties");
+	}
+	return SDL_GetStringProperty(sdl_properties_id, SDL_PROP_RENDERER_NAME_STRING, "");
 }
 
-void SdlRenderer::do_clear()
-try {
-	sdl_ensure_result(SDL_RenderClear(sdl_renderer_.get()));
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+void RendererSdl::do_set_viewport(const RendererViewport* viewport)
+{
+	if (!SDL_SetRenderViewport(sdl_renderer_, reinterpret_cast<const SDL_Rect*>(viewport)))
+	{
+		fail_sdl_func("SDL_SetRenderViewport");
+	}
+}
 
-void SdlRenderer::do_set_draw_color(Color color)
-try {
-	sdl_ensure_result(SDL_SetRenderDrawColor(sdl_renderer_.get(), color.r, color.g, color.b, color.a));
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+void RendererSdl::do_clear()
+{
+	if (!SDL_RenderClear(sdl_renderer_))
+	{
+		fail_sdl_func("SDL_RenderClear");
+	}
+}
 
-void SdlRenderer::do_fill(std::span<const Rectangle> rects)
-try {
+void RendererSdl::do_set_draw_color(Color color)
+{
+	if (!SDL_SetRenderDrawColor(sdl_renderer_, color.r, color.g, color.b, color.a))
+	{
+		fail_sdl_func("SDL_SetRenderDrawColor");
+	}
+}
+
+void RendererSdl::do_fill(std::span<const Rectangle> rects)
+{
 	if (rects.size() > INT_MAX)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Too many rectangles.");
@@ -165,33 +156,39 @@ try {
 			.h = static_cast<float>(rect.height),
 		});
 	}
-	sdl_ensure_result(SDL_RenderFillRects(
-		sdl_renderer_.get(),
+	if (!SDL_RenderFillRects(
+		sdl_renderer_,
 		frect_buffer_.data(),
-		static_cast<int>(frect_buffer_.size())));
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+		static_cast<int>(frect_buffer_.size())))
+	{
+		fail_sdl_func("SDL_RenderFillRects");
+	}
+}
 
-void SdlRenderer::do_present()
-try {
-	SDL_RenderPresent(sdl_renderer_.get());
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+void RendererSdl::do_present()
+{
+	if (!SDL_RenderPresent(sdl_renderer_))
+	{
+		fail_sdl_func("SDL_RenderPresent");
+	}
+}
 
-void SdlRenderer::do_read_pixels(const Rectangle* rect, PixelFormat pixel_format, void* pixels, int pitch)
-try {
+void RendererSdl::do_read_pixels(const Rectangle* rect, PixelFormat pixel_format, void* pixels, int pitch)
+{
 	if (pixel_format != PixelFormat::r8g8b8)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Unsupported destination pixel format.");
 	}
-	SDL_Surface* sdl_surface = nullptr;
+	SDL_Surface* sdl_surface = SDL_RenderReadPixels(sdl_renderer_, reinterpret_cast<const SDL_Rect*>(rect));
+	if (sdl_surface == nullptr)
+	{
+		fail_sdl_func("SDL_RenderReadPixels");
+	}
 	const auto scope_exit = make_scope_exit(
 		[&sdl_surface]()
 		{
-			if (sdl_surface != nullptr)
-			{
-				SDL_DestroySurface(sdl_surface);
-			}
+			SDL_DestroySurface(sdl_surface);
 		});
-	sdl_surface = sdl_ensure_result(SDL_RenderReadPixels(sdl_renderer_.get(), reinterpret_cast<const SDL_Rect*>(rect)));
 	int width;
 	int height;
 	if (rect != nullptr)
@@ -206,9 +203,12 @@ try {
 	}
 	if (SDL_MUSTLOCK(sdl_surface))
 	{
-		sdl_ensure_result(SDL_LockSurface(sdl_surface));
+		if (!SDL_LockSurface(sdl_surface))
+		{
+			fail_sdl_func("SDL_LockSurface");
+		}
 	}
-	sdl_ensure_result(SDL_ConvertPixels(
+	if (!SDL_ConvertPixels(
 		width,
 		height,
 		sdl_surface->format,
@@ -216,51 +216,76 @@ try {
 		sdl_surface->pitch,
 		SDL_PIXELFORMAT_RGB24,
 		pixels,
-		pitch));
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-TextureUPtr SdlRenderer::do_make_texture(const TextureInitParam& param)
-try {
-	return make_sdl_texture(logger_, *sdl_renderer_, param);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-MemoryResource& SdlRenderer::get_memory_resource()
-{
-	static SinglePoolResource<SdlRenderer> memory_pool{};
-
-	return memory_pool;
+		pitch))
+	{
+		fail_sdl_func("SDL_ConvertPixels");
+	}
 }
 
-SDL_PixelFormat SdlRenderer::map_pixel_format(PixelFormat pixel_format)
-try {
+TextureUPtr RendererSdl::do_make_texture(const TextureInitParam& param)
+{
+	return make_sdl_texture(logger_, *sdl_renderer_, param);
+}
+
+[[noreturn]] void RendererSdl::fail_sdl_func(const char* func_name)
+{
+	const std::string message = std::format("[{}] {}", func_name, SDL_GetError());
+	BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
+}
+
+SDL_PixelFormat RendererSdl::map_pixel_format(PixelFormat pixel_format)
+{
 	switch (pixel_format)
 	{
 		case PixelFormat::r8g8b8: return SDL_PIXELFORMAT_RGB24;
 		default: BSTONE_THROW_STATIC_SOURCE("Unknown pixel format.");
 	}
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void SdlRenderer::log_flag(const char* name, std::string& message)
-{
-	message += "    ";
-	message += name;
-	detail::sdl_log_eol(message);
 }
 
-void SdlRenderer::log_flags(Uint32 flags, std::string& message)
-{}
-
-void SdlRenderer::log_info()
-{}
+void RendererSdl::log_info(SDL_Renderer* sdl_renderer)
+{
+	StringBuilder formatter{};
+	formatter.reserve(512);
+	formatter.reset_indent();
+	formatter.add_line("Properties:");
+	formatter.increase_indent();
+	if (
+		const SDL_PropertiesID sdl_properties_id = SDL_GetRendererProperties(sdl_renderer);
+		sdl_properties_id != 0)
+	{
+		const char* const name = SDL_GetStringProperty(sdl_properties_id, SDL_PROP_RENDERER_NAME_STRING, "???");
+		formatter.add_indented_line("Name: {}", name);
+		const Sint64 vsync = SDL_GetNumberProperty(sdl_properties_id, SDL_PROP_RENDERER_VSYNC_NUMBER, 0);
+		formatter.add_indented_line("VSync: {}", vsync);
+		const Sint64 max_texture_size = SDL_GetNumberProperty(sdl_properties_id, SDL_PROP_RENDERER_MAX_TEXTURE_SIZE_NUMBER, 0);
+		formatter.add_indented_line("Max texture dimension: {}", max_texture_size);
+		SDL_PixelFormat empty_format_list[1] = {SDL_PIXELFORMAT_UNKNOWN};
+		const SDL_PixelFormat* formats = static_cast<const SDL_PixelFormat*>(SDL_GetPointerProperty(
+			sdl_properties_id,
+			SDL_PROP_RENDERER_TEXTURE_FORMATS_POINTER,
+			empty_format_list));
+		formatter.add_indented_line("Texture formats:");
+		formatter.increase_indent();
+		for (const SDL_PixelFormat* format_ptr = formats; *format_ptr != SDL_PIXELFORMAT_UNKNOWN; ++format_ptr)
+		{
+			const char* const format_name = SDL_GetPixelFormatName(*format_ptr);
+			formatter.add_indented_line(format_name);
+		}
+	}
+	else
+	{
+		formatter.add_indented_line("ERROR: {}", SDL_GetError());
+	}
+	logger_.log_information(formatter.get_string().c_str());
+}
 
 } // namespace
 
-// ==========================================================================
+// ======================================
 
-RendererUPtr make_sdl_renderer(Logger& logger, SDL_Window& sdl_window, const RendererInitParam& param)
-try {
-	return std::make_unique<SdlRenderer>(logger, sdl_window, param);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+RendererUPtr make_renderer_sdl(Logger& logger, SDL_Window& sdl_window, const RendererInitParam& param)
+{
+	return std::make_unique<RendererSdl>(logger, sdl_window, param);
+}
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
