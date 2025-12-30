@@ -65,7 +65,7 @@ bool AudioMgrSdl::do_is_initialized() const noexcept
 
 PollingAudioDeviceUPtr AudioMgrSdl::do_make_polling_audio_device(const PollingAudioDeviceOpenParam& param)
 {
-	return make_sdl_polling_audio_device(logger_, param);
+	return make_polling_audio_device_sdl(logger_, param);
 }
 
 void AudioMgrSdl::log_drivers(StringBuilder& formatter)
