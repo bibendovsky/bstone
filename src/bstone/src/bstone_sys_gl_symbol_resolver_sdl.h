@@ -11,20 +11,20 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_sys_gl_symbol_resolver.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
-class SdlGlSymbolResolver final : public GlSymbolResolver
+class GlSymbolResolverSdl final : public GlSymbolResolver
 {
 public:
-	SdlGlSymbolResolver();
-	~SdlGlSymbolResolver() override;
+	GlSymbolResolverSdl() = default;
+	GlSymbolResolverSdl(const GlSymbolResolverSdl&) = delete;
+	GlSymbolResolverSdl& operator=(const GlSymbolResolverSdl&) = delete;
+	~GlSymbolResolverSdl() override = default;
 
 private:
 	GlSymbolResolverSymbolFunc do_find_symbol(const char* symbol_name) const noexcept override;
 };
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_GL_SYMBOL_RESOLVER_SDL_INCLUDED

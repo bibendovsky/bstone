@@ -6,21 +6,14 @@ SPDX-License-Identifier: MIT
 
 // OpenGL symbol resolver (SDL).
 
+#include "bstone_sys_gl_symbol_resolver_sdl.h"
 #include "SDL3/SDL_video.h"
 
-#include "bstone_sys_gl_symbol_resolver_sdl.h"
+namespace bstone::sys {
 
-namespace bstone {
-namespace sys {
-
-SdlGlSymbolResolver::SdlGlSymbolResolver() = default;
-
-SdlGlSymbolResolver::~SdlGlSymbolResolver() = default;
-
-GlSymbolResolverSymbolFunc SdlGlSymbolResolver::do_find_symbol(const char* symbol_name) const noexcept
+GlSymbolResolverSymbolFunc GlSymbolResolverSdl::do_find_symbol(const char* symbol_name) const noexcept
 {
 	return reinterpret_cast<GlSymbolResolverSymbolFunc>(SDL_GL_GetProcAddress(symbol_name));
 }
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
