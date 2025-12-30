@@ -4,18 +4,18 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
+// Polling audio device (SDL)
+
 #ifndef BSTONE_SYS_POLLING_AUDIO_DEVICE_SDL_INCLUDED
 #define BSTONE_SYS_POLLING_AUDIO_DEVICE_SDL_INCLUDED
 
 #include "bstone_sys_polling_audio_device.h"
 #include "bstone_sys_logger.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
-PollingAudioDeviceUPtr make_sdl_polling_audio_device(Logger& logger, const PollingAudioDeviceOpenParam& param);
+PollingAudioDeviceUPtr make_polling_audio_device_sdl(Logger& logger, const PollingAudioDeviceOpenParam& param);
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_POLLING_AUDIO_DEVICE_SDL_INCLUDED
