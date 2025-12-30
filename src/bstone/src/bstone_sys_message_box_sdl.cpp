@@ -4,87 +4,95 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-#include "SDL3/SDL_messagebox.h"
-#include "SDL3/SDL_version.h"
+// Message box (SDL)
+
 #include "bstone_exception.h"
 #include "bstone_sys_message_box.h"
-#include "bstone_sys_exception_sdl.h"
+#include <format>
+#include <string>
+#include "SDL3/SDL_messagebox.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
-void MessageBox::show_simple(
-	const char* title,
-	const char* message,
-	MessageBoxType type)
-try {
-	auto sdl_flags = Uint32{SDL_MESSAGEBOX_BUTTONS_LEFT_TO_RIGHT};
-
+void MessageBox::show_simple(const char* title, const char* message, MessageBoxType type)
+{
+	Uint32 sdl_flags = SDL_MESSAGEBOX_BUTTONS_LEFT_TO_RIGHT;
 	switch (type)
 	{
-		case MessageBoxType::error: sdl_flags |= SDL_MESSAGEBOX_ERROR; break;
-		case MessageBoxType::information: sdl_flags |= SDL_MESSAGEBOX_INFORMATION; break;
-		case MessageBoxType::warning: sdl_flags |= SDL_MESSAGEBOX_WARNING; break;
-		default: BSTONE_THROW_STATIC_SOURCE("Unknown type.");
+		case MessageBoxType::error:
+			sdl_flags |= SDL_MESSAGEBOX_ERROR;
+			break;
+		case MessageBoxType::information:
+			sdl_flags |= SDL_MESSAGEBOX_INFORMATION;
+			break;
+		case MessageBoxType::warning:
+			sdl_flags |= SDL_MESSAGEBOX_WARNING;
+			break;
+		default:
+			BSTONE_THROW_STATIC_SOURCE("Unknown message box type.");
 	}
-
-	sdl_ensure_result(SDL_ShowSimpleMessageBox(sdl_flags, title, message, nullptr));
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+	if (!SDL_ShowSimpleMessageBox(sdl_flags, title, message, nullptr))
+	{
+		const std::string error_message = std::format("[{}] {}", "SDL_ShowSimpleMessageBox", SDL_GetError());
+		BSTONE_THROW_DYNAMIC_SOURCE(error_message.c_str());
+	}
+}
 
 int MessageBox::show(const MessageBoxInitParam& param)
-try {
-	auto sdl_message_box_flags = Uint32{SDL_MESSAGEBOX_BUTTONS_LEFT_TO_RIGHT};
-
+{
+	Uint32 sdl_message_box_flags = SDL_MESSAGEBOX_BUTTONS_LEFT_TO_RIGHT;
 	switch (param.type)
 	{
-		case MessageBoxType::error: sdl_message_box_flags |= SDL_MESSAGEBOX_ERROR; break;
-		case MessageBoxType::information: sdl_message_box_flags |= SDL_MESSAGEBOX_INFORMATION; break;
-		case MessageBoxType::warning: sdl_message_box_flags |= SDL_MESSAGEBOX_WARNING; break;
-		default: BSTONE_THROW_STATIC_SOURCE("Unknown type.");
+		case MessageBoxType::error:
+			sdl_message_box_flags |= SDL_MESSAGEBOX_ERROR;
+			break;
+		case MessageBoxType::information:
+			sdl_message_box_flags |= SDL_MESSAGEBOX_INFORMATION;
+			break;
+		case MessageBoxType::warning:
+			sdl_message_box_flags |= SDL_MESSAGEBOX_WARNING;
+			break;
+		default:
+			BSTONE_THROW_STATIC_SOURCE("Unknown message box type.");
 	}
-
-	constexpr auto max_buttons = 8;
-
+	constexpr int max_buttons = 8;
 	if (param.buttons.size() > max_buttons)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Too many buttons.");
+		BSTONE_THROW_STATIC_SOURCE("Too many buttons in message box.");
 	}
-
 	SDL_MessageBoxButtonData sdl_buttons[max_buttons]{};
-	auto sdl_button = sdl_buttons;
-
+	SDL_MessageBoxButtonData* sdl_button = sdl_buttons;
 	for (const auto& button : param.buttons)
 	{
-		auto sdl_button_flags = Uint32{};
-
+		Uint32 sdl_button_flags = 0;
 		if ((button.flags & MessageBoxButtonFlags::default_for_escape_key) != MessageBoxButtonFlags{})
 		{
 			sdl_button_flags |= SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT;
 		}
-
 		if ((button.flags & MessageBoxButtonFlags::default_for_return_key) != MessageBoxButtonFlags{})
 		{
 			sdl_button_flags |= SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT;
 		}
-
-		*sdl_button = SDL_MessageBoxButtonData{};
-		sdl_button->flags = sdl_button_flags;
-		sdl_button->buttonID = button.id;
-		sdl_button->text = button.text;
-		++sdl_button;
+		*sdl_button++ = SDL_MessageBoxButtonData{
+			.flags = sdl_button_flags,
+			.buttonID = button.id,
+			.text = button.text,
+		};
 	}
-
-	auto sdl_message_box = SDL_MessageBoxData{};
-	sdl_message_box.flags = sdl_message_box_flags;
-	sdl_message_box.title = param.title;
-	sdl_message_box.message = param.message;
-	sdl_message_box.numbuttons = static_cast<int>(param.buttons.size());
-	sdl_message_box.buttons = sdl_buttons;
-
-	auto sdl_button_id = 0;
-	sdl_ensure_result(SDL_ShowMessageBox(&sdl_message_box, &sdl_button_id));
+	SDL_MessageBoxData sdl_message_box{
+		.flags = sdl_message_box_flags,
+		.title = param.title,
+		.message = param.message,
+		.numbuttons = static_cast<int>(param.buttons.size()),
+		.buttons = sdl_buttons,
+	};
+	int sdl_button_id = 0;
+	if (!SDL_ShowMessageBox(&sdl_message_box, &sdl_button_id))
+	{
+		const std::string message = std::format("[{}] {}", "SDL_ShowMessageBox", SDL_GetError());
+		BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
+	}
 	return sdl_button_id;
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
